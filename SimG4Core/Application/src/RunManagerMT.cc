@@ -73,13 +73,14 @@ RunManagerMT::RunManagerMT(edm::ParameterSet const & p):
       m_p(p),m_fieldBuilder(nullptr)
 {    
   m_currentRun = nullptr;
-  m_UIsession.reset(new CustomUIsession());
   m_kernel = new G4MTRunManagerKernel();
 
   m_check = p.getUntrackedParameter<bool>("CheckOverlap",false);
   m_WriteFile = p.getUntrackedParameter<std::string>("FileNameGDML","");
   m_FieldFile = p.getUntrackedParameter<std::string>("FileNameField","");
   m_RegionFile = p.getUntrackedParameter<std::string>("FileNameRegions","");
+
+  m_UIsession.reset(new CustomUIsession());
 }
 
 RunManagerMT::~RunManagerMT() 
@@ -225,7 +226,7 @@ void RunManagerMT::initG4(const DDCompactView *pDD, const MagneticField *pMF,
 
 void RunManagerMT::initializeUserActions() {
   m_runInterface.reset(new SimRunInterface(this, true));
-  m_userRunAction = new RunAction(m_pRunAction, m_runInterface.get(), true);
+  m_userRunAction = new RunAction(m_pRunAction, m_runInterface.get());
   Connect(m_userRunAction);
 }
 
