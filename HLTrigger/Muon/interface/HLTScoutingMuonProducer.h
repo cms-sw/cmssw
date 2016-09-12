@@ -36,7 +36,11 @@ Description: Producer for ScoutingMuon
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 
+#include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
+
 #include "DataFormats/Scouting/interface/ScoutingMuon.h"
+#include "DataFormats/Scouting/interface/ScoutingVertex.h"
 
 class HLTScoutingMuonProducer : public edm::global::EDProducer<> {
     typedef edm::AssociationMap<edm::OneToValue<std::vector<reco::RecoChargedCandidate>, float,
@@ -56,6 +60,7 @@ class HLTScoutingMuonProducer : public edm::global::EDProducer<> {
         const edm::EDGetTokenT<RecoChargedCandMap> EcalPFClusterIsoMap_;
         const edm::EDGetTokenT<RecoChargedCandMap> HcalPFClusterIsoMap_;
         const edm::EDGetTokenT<edm::ValueMap<double>> TrackIsoMap_;
+	const edm::EDGetTokenT<reco::VertexCollection> vertexCollection_;
 
         const double muonPtCut;
         const double muonEtaCut;

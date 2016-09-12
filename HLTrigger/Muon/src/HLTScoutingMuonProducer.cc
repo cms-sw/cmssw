@@ -30,11 +30,13 @@ HLTScoutingMuonProducer::HLTScoutingMuonProducer(const edm::ParameterSet& iConfi
                                                           "HcalPFClusterIsoMap"))),
     TrackIsoMap_(consumes<edm::ValueMap<double>>(iConfig.getParameter<edm::InputTag>(
                                                      "TrackIsoMap"))),
+    vertexCollection_(consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("vertexCollection"))),
     muonPtCut(iConfig.getParameter<double>("muonPtCut")),
     muonEtaCut(iConfig.getParameter<double>("muonEtaCut"))
 {
     //register products
     produces<ScoutingMuonCollection>();
+    produces<ScoutingVertexCollection>();
 }
 
 HLTScoutingMuonProducer::~HLTScoutingMuonProducer()
@@ -64,17 +66,19 @@ void HLTScoutingMuonProducer::produce(edm::StreamID sid, edm::Event & iEvent,
 
     // Get EcalPFClusterIsoMap
     Handle<RecoChargedCandMap> EcalPFClusterIsoMap;
-    if(!iEvent.getByToken(EcalPFClusterIsoMap_, EcalPFClusterIsoMap)){
-        iEvent.put(std::move(outMuons));
-        return;
-    }
+    iEvent.getByToken(EcalPFClusterIsoMap_, EcalPFClusterIsoMap);
+    // if(!iEvent.getByToken(EcalPFClusterIsoMap_, EcalPFClusterIsoMap)){
+      //        iEvent.put(std::move(outMuons));
+      //  return;
+      // }
 
     // Get HcalPFClusterIsoMap
     Handle<RecoChargedCandMap> HcalPFClusterIsoMap;
-    if(!iEvent.getByToken(HcalPFClusterIsoMap_, HcalPFClusterIsoMap)){
-        iEvent.put(std::move(outMuons));
-        return;
-    }
+    iEvent.getByToken(HcalPFClusterIsoMap_, HcalPFClusterIsoMap);
+    //    if(!iEvent.getByToken(HcalPFClusterIsoMap_, HcalPFClusterIsoMap)){
+    //   iEvent.put(std::move(outMuons));
+    //   return;
+    // }
 
     // Get TrackIsoMap
     Handle<ValueMap<double>> TrackIsoMap;
@@ -100,19 +104,66 @@ void HLTScoutingMuonProducer::produce(edm::StreamID sid, edm::Event & iEvent,
         if (fabs(muon.eta()) > muonEtaCut)
             continue;
 
+	double ecalisopf=-99.0;
+	if  ( !EcalPFClusterIsoMap.isValid() ) ecalisopf = -1.0 ;
+	else ecalisopf = (*EcalPFClusterIsoMap)[muonRef]; 
+
+	double hcalisopf=-99.0;
+	if  ( !HcalPFClusterIsoMap.isValid() ) hcalisopf = -1.0 ;
+	else hcalisopf = (*HcalPFClusterIsoMap)[muonRef]; 
+
         outMuons->emplace_back(muon.pt(), muon.eta(), muon.phi(),  muon.mass(),
-                               (*EcalPFClusterIsoMap)[muonRef], (*HcalPFClusterIsoMap)[muonRef],
+			       //  (*EcalPFClusterIsoMap)[muonRef], (*HcalPFClusterIsoMap)[muonRef],
+			       ecalisopf, hcalisopf,
                                (*TrackIsoMap)[muonRef], track->chi2(), track->ndof(),
                                track->charge(), track->dxy(), track->dz(),
                                track->hitPattern().numberOfValidMuonHits(),
                                track->hitPattern().numberOfValidPixelHits(),
                                0, // nMatchedStations
                                track->hitPattern().trackerLayersWithMeasurement(),
-                               2); // Global muon
+                               2, // Global muon
+			       track->hitPattern().numberOfValidStripHits(),
+			       track->qoverp(),
+			       track->lambda(),
+			       track->pt(),
+			       track->vx(),
+			       track->vy(),
+			       track->vz(),
+			       track->phi(),
+			       track->eta(),
+			       track->dxyError(),
+			       track->dzError(),
+			       track->qoverpError(),
+			       track->lambdaError(),
+			       track->phiError(),
+			       track->dsz(),
+			       track->dszError()
+			       );
     }
+
+    //get vertices
+    std::unique_ptr<ScoutingVertexCollection> outVertices(new ScoutingVertexCollection());
+    
+    Handle<reco::VertexCollection> vertexCollection;
+    if(!iEvent.getByToken(vertexCollection_, vertexCollection)){
+      iEvent.put(std::move(outVertices));
+      return;
+    }
+    //produce vertices (only if present; otherwise return an empty collection)
+    for(auto &vtx : *vertexCollection){
+      if ( !vtx.isValid() ) continue ;
+      outVertices->emplace_back(
+				vtx.x(), vtx.y(), vtx.z(), vtx.zError(), vtx.xError(), vtx.yError(), vtx.tracksSize(), vtx.chi2(), vtx.ndof()
+				);
+      
+    }
+
+
+
 
     // Put output
     iEvent.put(std::move(outMuons));
+    iEvent.put(std::move(outVertices));
 }
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
@@ -124,6 +175,7 @@ void HLTScoutingMuonProducer::fillDescriptions(edm::ConfigurationDescriptions& d
     desc.add<edm::InputTag>("HcalPFClusterIsoMap", edm::InputTag("hltMuonHcalPFClusterIsoForMuons"));
     desc.add<edm::InputTag>("TrackIsoMap", edm::InputTag(
                                 "hltMuonTkRelIsolationCut0p09Map:combinedRelativeIsoDeposits"));
+    desc.add<edm::InputTag>("vertexCollection", edm::InputTag("hltPixelVertices"));
     desc.add<double>("muonPtCut", 4.0);
     desc.add<double>("muonEtaCut", 2.4);
     descriptions.add("hltScoutingMuonProducer", desc);
