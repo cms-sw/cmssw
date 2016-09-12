@@ -1,9 +1,9 @@
-#include "L1Trigger/L1THGCal/interface/HGCalTriggerGeometryBase.h"
+#include "L1Trigger/L1THGCal/interface/HGCalTriggerGeometryOld.h"
 
-class TrivialGeometry : public HGCalTriggerGeometryBase {
+class TrivialGeometry : public HGCalTriggerGeometryOld {
 public:
   TrivialGeometry(const edm::ParameterSet& conf) :
-    HGCalTriggerGeometryBase(conf) {
+    HGCalTriggerGeometryOld(conf) {
   }
 
   virtual void initialize(const es_info& ) override final {
