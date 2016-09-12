@@ -1,9 +1,9 @@
-#include "L1Trigger/L1THGCal/interface/HGCalTriggerGeometryOld.h"
+#include "L1Trigger/L1THGCal/interface/HGCalTriggerGeometryGenericMapping.h"
 
-class NullGeometry : public HGCalTriggerGeometryOld {
+class NullGeometry : public HGCalTriggerGeometryGenericMapping {
 public:
   NullGeometry(const edm::ParameterSet& conf) :
-    HGCalTriggerGeometryOld(conf) {
+    HGCalTriggerGeometryGenericMapping(conf) {
   }
 
   virtual void initialize(const es_info& ) override final {}

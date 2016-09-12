@@ -1,5 +1,5 @@
-#ifndef __L1Trigger_L1THGCal_HGCalTriggerGeometryOld_h__
-#define __L1Trigger_L1THGCal_HGCalTriggerGeometryOld_h__
+#ifndef __L1Trigger_L1THGCal_HGCalTriggerGeometryGenericMapping_h__
+#define __L1Trigger_L1THGCal_HGCalTriggerGeometryGenericMapping_h__
 
 #include "L1Trigger/L1THGCal/interface/HGCalTriggerGeometryBase.h"
 
@@ -17,7 +17,7 @@
 
 /*******
  *
- * class: HGCalTriggerGeometryOld
+ * class: HGCalTriggerGeometryGenericMapping
  * author: L.Gray (FNAL)
  * date: 26 July, 2015
  *
@@ -38,7 +38,7 @@
  * full nature of the trigger detids.
  *******/
 
-class HGCalTriggerGeometryOld;
+class HGCalTriggerGeometryGenericMapping;
 
 namespace HGCalTriggerGeometry {
   class TriggerCell {
@@ -121,14 +121,14 @@ namespace HGCalTriggerGeometry {
   };
 }  
 
-class HGCalTriggerGeometryOld : public HGCalTriggerGeometryBase { 
+class HGCalTriggerGeometryGenericMapping : public HGCalTriggerGeometryBase { 
  public:  
 
   typedef std::unordered_map<unsigned,std::unique_ptr<const HGCalTriggerGeometry::Module> > module_map;
   typedef std::unordered_map<unsigned,std::unique_ptr<const HGCalTriggerGeometry::TriggerCell> > trigger_cell_map;
 
-  HGCalTriggerGeometryOld(const edm::ParameterSet& conf);
-  virtual ~HGCalTriggerGeometryOld() {}
+  HGCalTriggerGeometryGenericMapping(const edm::ParameterSet& conf);
+  virtual ~HGCalTriggerGeometryGenericMapping() {}
 
   // non-const access to the geometry class
   //virtual void initialize( const es_info& ) = 0;

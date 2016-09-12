@@ -1,4 +1,4 @@
-#include "L1Trigger/L1THGCal/interface/HGCalTriggerGeometryOld.h"
+#include "L1Trigger/L1THGCal/interface/HGCalTriggerGeometryGenericMapping.h"
 
 using namespace HGCalTriggerGeometry;
 
@@ -7,12 +7,12 @@ namespace {
   std::unique_ptr<const Module>      null_mod;
 }
 
-HGCalTriggerGeometryOld::
-HGCalTriggerGeometryOld(const edm::ParameterSet& conf) : 
+HGCalTriggerGeometryGenericMapping::
+HGCalTriggerGeometryGenericMapping(const edm::ParameterSet& conf) : 
     HGCalTriggerGeometryBase(conf){
 }
 
-void HGCalTriggerGeometryOld::reset() {
+void HGCalTriggerGeometryGenericMapping::reset() {
   geom_map().swap(cells_to_trigger_cells_);
   geom_map().swap(trigger_cells_to_modules_);
   module_map().swap(modules_);
@@ -20,7 +20,7 @@ void HGCalTriggerGeometryOld::reset() {
 }
 
 unsigned 
-HGCalTriggerGeometryOld::
+HGCalTriggerGeometryGenericMapping::
 getTriggerCellFromCell( const unsigned cell_det_id ) const {
   auto found_tc = cells_to_trigger_cells_.find(cell_det_id);
   if( found_tc == cells_to_trigger_cells_.end() ) {
@@ -30,7 +30,7 @@ getTriggerCellFromCell( const unsigned cell_det_id ) const {
 }
 
 unsigned 
-HGCalTriggerGeometryOld::
+HGCalTriggerGeometryGenericMapping::
 getModuleFromCell( const unsigned cell_det_id ) const {
   auto found_tc = cells_to_trigger_cells_.find(cell_det_id);
   if( found_tc == cells_to_trigger_cells_.end() ) {
@@ -44,7 +44,7 @@ getModuleFromCell( const unsigned cell_det_id ) const {
 }
 
 unsigned
-HGCalTriggerGeometryOld::
+HGCalTriggerGeometryGenericMapping::
 getModuleFromTriggerCell( const unsigned trigger_cell_det_id ) const {
   auto found_mod = trigger_cells_to_modules_.find(trigger_cell_det_id);
   if( found_mod == trigger_cells_to_modules_.end() ) {
@@ -54,13 +54,13 @@ getModuleFromTriggerCell( const unsigned trigger_cell_det_id ) const {
 }
 
 HGCalTriggerGeometryBase::geom_set 
-HGCalTriggerGeometryOld::
+HGCalTriggerGeometryGenericMapping::
 getCellsFromTriggerCell( const unsigned trigger_cell_det_id ) const {
   return trigger_cells_.find(trigger_cell_det_id)->second->components();
 }
 
 HGCalTriggerGeometryBase::geom_set 
-HGCalTriggerGeometryOld::
+HGCalTriggerGeometryGenericMapping::
 getCellsFromModule( const unsigned module_det_id ) const {
   const auto& triggercell_cells = modules_.find(module_det_id)->second->triggerCellComponents();
   HGCalTriggerGeometryBase::geom_set cells;
@@ -71,7 +71,7 @@ getCellsFromModule( const unsigned module_det_id ) const {
 }
 
 HGCalTriggerGeometryBase::geom_ordered_set 
-HGCalTriggerGeometryOld::
+HGCalTriggerGeometryGenericMapping::
 getOrderedCellsFromModule( const unsigned module_det_id ) const {
   const auto& triggercell_cells = modules_.find(module_det_id)->second->triggerCellComponents();
   HGCalTriggerGeometryBase::geom_ordered_set cells;
@@ -82,13 +82,13 @@ getOrderedCellsFromModule( const unsigned module_det_id ) const {
 }
 
 HGCalTriggerGeometryBase::geom_set 
-HGCalTriggerGeometryOld::
+HGCalTriggerGeometryGenericMapping::
 getTriggerCellsFromModule( const unsigned module_det_id ) const {
   return modules_.find(module_det_id)->second->components(); 
 }
 
 HGCalTriggerGeometryBase::geom_ordered_set 
-HGCalTriggerGeometryOld::
+HGCalTriggerGeometryGenericMapping::
 getOrderedTriggerCellsFromModule( const unsigned module_det_id ) const {
   // Build set from unordered_set. Maybe a more efficient to do it
   HGCalTriggerGeometryBase::geom_ordered_set trigger_cells;
@@ -99,13 +99,13 @@ getOrderedTriggerCellsFromModule( const unsigned module_det_id ) const {
 }
 
 GlobalPoint 
-HGCalTriggerGeometryOld::
+HGCalTriggerGeometryGenericMapping::
 getTriggerCellPosition(const unsigned trigger_cell_det_id) const {
    return trigger_cells_.find(trigger_cell_det_id)->second->position(); 
 }
 
 GlobalPoint 
-HGCalTriggerGeometryOld::
+HGCalTriggerGeometryGenericMapping::
 getModulePosition(const unsigned module_det_id) const {
   return modules_.find(module_det_id)->second->position();
 }
