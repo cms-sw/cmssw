@@ -55,8 +55,8 @@ void Jet::setPUEt(short int et) {
   puEt_ = et;
 }
 
-void Jet::setPUDonutEt(int i, short int et) {
-  if (i>=0 && i<4) puDonutEt_[i] = et;
+void Jet::setPUDonutEt(uint i, short int et) {
+  if (i<4) puDonutEt_[i] = et;
 }
 
 short int Jet::towerIEta() const {
