@@ -227,6 +227,12 @@ namespace cms
     case TrackerGeometry::ModuleType::Ph1PXF:
       algotype = AlgorithmType::InnerPixel;
       break;
+    case TrackerGeometry::ModuleType::Ph2PXB:
+      algotype = AlgorithmType::InnerPixel;
+      break;
+    case TrackerGeometry::ModuleType::Ph2PXF:
+      algotype = AlgorithmType::InnerPixel;
+      break;
     case TrackerGeometry::ModuleType::Ph2PSP:
       algotype = AlgorithmType::PixelinPS;
       break;

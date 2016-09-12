@@ -18,6 +18,7 @@ numWFSkip=200
 numWFIB = [10421.0,10424.0,10425.0,10426.0] #2023D1 scenario
 numWFIB.extend([10821.0,10824.0,10825.0,10826.0]) #2023D2
 numWFIB.extend([11221.0,11224.0,11225.0,11226.0]) #2023D3
+numWFIB.extend([11621.0,11624.0,11625.0,11626.0]) #2023D4
 for i,key in enumerate(upgradeKeys):
     numWF=numWFStart+i*numWFSkip
     for frag in upgradeFragments:
