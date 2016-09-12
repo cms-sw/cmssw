@@ -68,7 +68,7 @@ L1uGTTreeProducer::L1uGTTreeProducer(edm::ParameterSet const & config) :
 
 L1uGTTreeProducer::~L1uGTTreeProducer()
 {
-  if (tree_) { delete tree_; tree_ = NULL; }
+  //if (tree_) { delete tree_; tree_ = NULL; }
   //if (results_) { delete results_; results_ = NULL; }  // It seems TTree owns this pointer...
 }
 
