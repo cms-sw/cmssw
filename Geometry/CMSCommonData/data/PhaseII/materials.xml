@@ -378,6 +378,14 @@
     <rMaterial name="materials:Air"/>
    </MaterialFraction>
   </CompositeMaterial>
+  <CompositeMaterial name="Aluminium 2219 very light" density="0.067558*g/cm3" symbol=" " method="mixture by weight">
+   <MaterialFraction fraction="0.065">
+    <rMaterial name="materials:Aluminium 2219"/>
+   </MaterialFraction>
+   <MaterialFraction fraction="0.935">
+    <rMaterial name="materials:Air"/>
+   </MaterialFraction>
+  </CompositeMaterial>
   <CompositeMaterial name="Alumina" density="3.52*g/cm3" symbol=" " method="mixture by weight">
    <MaterialFraction fraction="0.52924272">
     <rMaterial name="materials:Aluminium"/>
