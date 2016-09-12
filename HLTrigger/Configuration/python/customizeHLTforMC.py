@@ -261,6 +261,8 @@ def customizeHLTforMC(process,_fastSim=False):
       "hltFastPVPixelTracks",
       "hltFastPVPixelTracksRecover",
 
+      "hltPAGoodHighPurityFullTracks",
+
       #   "hltPixelMatchElectronsActivity",
 
       "hltMuonCSCDigis",
@@ -472,7 +474,9 @@ def customizeHLTforMC(process,_fastSim=False):
       ('hltIter0PFlowTrackSelectionHighPurityForBTag', 'generalTracks'),
       ('hltIter4HighPtMerged', 'generalTracks'),
       ('hltIterativeTrackingForPAMerged', 'generalTracks'),
+      #('hltPAIterativeTrackingMerged', 'generalTracks'),
       ('hltPAIterativeTrackingMerged', 'generalTracks'),
+      ('hltPAGoodHighPurityFullTracks','generalTracks'),
 
       ('hltFastPVPixelTracks','hltPixelTracks'),
       ('hltFastPVPixelTracksRecover','hltPixelTracks'),
@@ -500,7 +504,6 @@ def customizeHLTforMC(process,_fastSim=False):
       ('hltOnlineBeamSpot','offlineBeamSpot'),
       ('hltSiStripClusters','MeasurementTrackerEvent'),
       ('hltSiStripClustersAfterSplitting','MeasurementTrackerEvent'),
-
       )
     from HLTrigger.Configuration.CustomConfigs import MassReplaceInputTag
     for pair in InputTags:
