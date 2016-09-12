@@ -159,17 +159,24 @@ namespace edm {
         
     //determine the path dependencies
     std::vector<std::string> pathNames = iPnC.paths();
+    const unsigned int kFirstEndPathIndex = pathNames.size();
+    pathNames.insert(pathNames.end(), iPnC.endPaths().begin(), iPnC.endPaths().end());
     std::vector<std::vector<unsigned int>> pathIndexToModuleIndexOrder(pathNames.size());
     {
       
       for(unsigned int pathIndex = 0; pathIndex != pathNames.size(); ++pathIndex) {
         std::set<unsigned int> alreadySeenIndex;
         
-        auto const& moduleDescriptions = iPnC.modulesOnPath(pathIndex);
+        std::vector<ModuleDescription const*> const* moduleDescriptions;
+        if(pathIndex < kFirstEndPathIndex) {
+          moduleDescriptions= &(iPnC.modulesOnPath(pathIndex));
+        } else {
+          moduleDescriptions= &(iPnC.modulesOnEndPath(pathIndex-kFirstEndPathIndex));
+        }
         unsigned int lastModuleIndex = kInvalidIndex;
         auto& pathOrder =pathIndexToModuleIndexOrder[pathIndex];
-        pathOrder.reserve(moduleDescriptions.size());
-        for(auto const& description: moduleDescriptions) {
+        pathOrder.reserve(moduleDescriptions->size());
+        for(auto const& description: *moduleDescriptions) {
           auto found = alreadySeenIndex.insert(description->id());
           if(found.second) {
             //first time for this path
@@ -181,9 +188,11 @@ namespace edm {
             lastModuleIndex = moduleIndex;
           }
         }
-        //Stick TriggerResults at end
-        if( (lastModuleIndex  != kInvalidIndex) and (kTriggerResultsIndex != kInvalidIndex) ) {
-          edgeToPathMap[std::make_pair(kTriggerResultsIndex,lastModuleIndex)].push_back(pathIndex);
+        //Stick TriggerResults at end of paths
+        if( pathIndex < kFirstEndPathIndex) {
+          if( (lastModuleIndex  != kInvalidIndex) and (kTriggerResultsIndex != kInvalidIndex) ) {
+            edgeToPathMap[std::make_pair(kTriggerResultsIndex,lastModuleIndex)].push_back(pathIndex);
+          }
         }
       }
     }

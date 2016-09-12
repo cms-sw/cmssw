@@ -22,8 +22,8 @@ modules on path p2:
   a3
 modules on path p11:
 modules on end path e:
-  out
   testManyConsumingProducer
+  out
 modules on end path p1ep2:
 All modules and modules in the current process whose products they consume:
 (This does not include modules from previous processes or the source)
@@ -42,6 +42,8 @@ All modules and modules in the current process whose products they consume:
   IntProducer/'testStreamingProducer'
   ConsumingStreamAnalyzer/'testStreamingAnalyzer' consumes products from these modules:
     IntProducer/'testStreamingProducer'
+  ConsumingIntProducer/'testManyConsumingProducer' consumes products from these modules:
+    TriggerResultInserter/'TriggerResults'
   PoolOutputModule/'out' consumes products from these modules:
     TriggerResultInserter/'TriggerResults'
     IntProducer/'intProducerA'
@@ -50,8 +52,6 @@ All modules and modules in the current process whose products they consume:
     ConsumingIntProducer/'testManyConsumingProducer'
     IntProducer/'testStreamingProducer'
     IntVectorProducer/'intVectorProducer'
-  ConsumingIntProducer/'testManyConsumingProducer' consumes products from these modules:
-    TriggerResultInserter/'TriggerResults'
   TriggerResultInserter/'TriggerResults'
 All modules (listed by class and label) and all their consumed products.
 Consumed products are listed by type, label, instance, process.
@@ -78,6 +78,9 @@ For products only read from previous processes, 'skip current process' is added
   IntProducer/'testStreamingProducer'
   ConsumingStreamAnalyzer/'testStreamingAnalyzer' consumes:
     edmtest::IntProduct 'testStreamingProducer' '' '', may consume
+  ConsumingIntProducer/'testManyConsumingProducer' consumes:
+    edm::TriggerResults 'TriggerResults' '' ''
+    edm::TriggerResults '' '' ''
   PoolOutputModule/'out' consumes:
     edm::TriggerResults 'TriggerResults' '' 'PROD1'
     edmtest::IntProduct 'aliasForInt' '' 'PROD1'
@@ -87,9 +90,6 @@ For products only read from previous processes, 'skip current process' is added
     edmtest::IntProduct 'testManyConsumingProducer' '' 'PROD1'
     edmtest::IntProduct 'testStreamingProducer' '' 'PROD1'
     std::vector<int> 'intVectorProducer' '' 'PROD1'
-  ConsumingIntProducer/'testManyConsumingProducer' consumes:
-    edm::TriggerResults 'TriggerResults' '' ''
-    edm::TriggerResults '' '' ''
   TriggerResultInserter/'TriggerResults'
 
 Process name = COPY

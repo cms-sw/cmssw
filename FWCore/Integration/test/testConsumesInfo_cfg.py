@@ -110,7 +110,7 @@ process.p = cms.Path(process.intProducer * process.a1 * process.a2 * process.a3 
 process.p2 = cms.Path(process.intProducer * process.a1 * process.a2 * process.a3)
 process.p11 = cms.Path()
 
-process.e = cms.EndPath(process.out+process.testManyConsumingProducer)
+process.e = cms.EndPath(process.testManyConsumingProducer+process.out)
 process.p1ep2 = cms.EndPath()
 
 copyProcess = cms.Process("COPY")
