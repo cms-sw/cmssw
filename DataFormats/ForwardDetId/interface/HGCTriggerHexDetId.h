@@ -4,7 +4,6 @@
 #include <iosfwd>
 #include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
 #include "DataFormats/ForwardDetId/interface/ForwardSubdetector.h"
-#include "TObject.h"
 
 
 // Same bit structure as HGCalDetId, with additional static methods to work with raw ids
