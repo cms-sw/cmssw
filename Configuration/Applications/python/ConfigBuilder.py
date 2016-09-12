@@ -175,6 +175,8 @@ def MassReplaceInputTag(aProcess,oldT="rawDataCollector",newT="rawDataRepacker")
 	from PhysicsTools.PatAlgos.tools.helpers import massSearchReplaceAnyInputTag
 	for s in aProcess.paths_().keys():
 		massSearchReplaceAnyInputTag(getattr(aProcess,s),oldT,newT)
+	for s in aProcess.endpaths_().keys():
+		massSearchReplaceAnyInputTag(getattr(aProcess,s),oldT,newT)
 
 def anyOf(listOfKeys,dict,opt=None):
 	for k in listOfKeys:
