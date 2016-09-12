@@ -53,6 +53,7 @@ def customizeHLTforMC(process,_fastSim=False):
       "HLT_Beam*_v*",
       #"HLT_L1Tech_*_v*",
       "HLT_HI*",
+      "HLT_PA*",
       "HLT_GlobalRunHPDNoise_v*",
       "HLT_L1TrackerCosmics_v*",
       "HLT_HcalUTCA_v*",
@@ -245,6 +246,7 @@ def customizeHLTforMC(process,_fastSim=False):
       "hltPixelLayerTripletsReg",
       "hltPixelLayerTripletsHITHB",
       "hltPixelLayerTripletsHITHE",
+      "hltPixelLayerTripletsAfterSplitting",
       "hltMixedLayerPairs",
 
       "hltFastPrimaryVertexbbPhi",
@@ -288,6 +290,8 @@ def customizeHLTforMC(process,_fastSim=False):
       "HLTDoLocalStripSequenceRegForBTag",
       "HLTDoLocalPixelSequenceRegForBTag",
       "HLTDoLocalPixelSequenceRegForNoPU",
+      "HLTDoLocalPixelSequenceAfterSplitting",
+      "HLTPADoLocalStripSequenceAfterSplitting",
       "HLTBeginSequence",
       "HLTBeginSequenceL1Fat",
       "HLTBeginSequenceNZS",
@@ -495,6 +499,7 @@ def customizeHLTforMC(process,_fastSim=False):
       ('hltOfflineBeamSpot','offlineBeamSpot'),
       ('hltOnlineBeamSpot','offlineBeamSpot'),
       ('hltSiStripClusters','MeasurementTrackerEvent'),
+      ('hltSiStripClustersAfterSplitting','MeasurementTrackerEvent'),
 
       )
     from HLTrigger.Configuration.CustomConfigs import MassReplaceInputTag
