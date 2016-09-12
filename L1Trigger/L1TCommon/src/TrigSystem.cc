@@ -48,6 +48,11 @@ void TrigSystem::addProcRole(const std::string& processor, const std::string& ro
 
 }
 
+void TrigSystem::addProcSlot(const std::string& processor, const std::string& slot)
+{
+	procSlot_[processor] = atoi(slot.c_str());
+}
+
 void TrigSystem::addProcCrate(const std::string& processor, const std::string& crate)
 {
 	crateProcs_[crate].push_back(processor);
@@ -221,7 +226,7 @@ bool TrigSystem::checkIdExistsAndSetSetting_(std::vector<Setting>& vec, const st
 
 void TrigSystem::addMask(const std::string& id, const std::string& procRole)
 {
-	bool applyOnRole, foundRoleProc(false);
+	bool applyOnRole(false), foundRoleProc(false);
 
 	if (procRole_.find(procRole) != procRole_.end())
 	{
@@ -234,13 +239,11 @@ void TrigSystem::addMask(const std::string& id, const std::string& procRole)
 		foundRoleProc = true;
 	}
 
-	if (!foundRoleProc)
-		throw std::runtime_error ("Processor or Role " + procRole + " was not found in the map");
 
-	if (!applyOnRole)
+	if (!applyOnRole && foundRoleProc)
 		procMasks_[procRole].push_back(Mask(id, procRole));
 
-	else
+	else if (applyOnRole && foundRoleProc)
 	{
 		for( auto it = roleProcs_[procRole].begin(); it != roleProcs_[procRole].end(); ++it)
 		{			
@@ -263,6 +266,35 @@ void TrigSystem::addMask(const std::string& id, const std::string& procRole)
 		}
 
 	}
+
+	else if (!applyOnRole && !foundRoleProc)
+	{
+		if ( daqttcRole_.find(procRole) != daqttcRole_.end() )
+		{
+			for( auto it = crateProcs_[daqttcCrate_[procRole]].begin(); it != crateProcs_[daqttcCrate_[procRole]].end(); ++it)
+			{
+				if (procSlot_[*it] == atoi(id.substr(11,2).c_str()) )
+					procEnabled_.at(*it) = false;
+			}
+
+		}
+		else if ( roleDaqttcs_.find(procRole) != roleDaqttcs_.end() )
+		{
+			for( auto it=roleDaqttcs_[procRole].begin(); it!=roleDaqttcs_[procRole].end(); ++it)
+			{
+				for( auto itt = crateProcs_[daqttcCrate_[*it]].begin(); itt != crateProcs_[daqttcCrate_[*it]].end(); ++itt)
+                		{
+					if ( procSlot_[*itt] == atoi(id.substr(11,2).c_str()) )
+	                                        procEnabled_.at(*itt) = false;
+				}
+			}
+		
+		}
+		
+	}
+	if (procRole_.find(procRole) == procRole_.end() && roleProcs_.find(procRole) == roleProcs_.end() && daqttcRole_.find(procRole) == daqttcRole_.end() && roleDaqttcs_.find(procRole) == roleDaqttcs_.end() )
+                throw std::runtime_error ("Processor/DAQ or Role " + procRole + " was not found in the map for masking");
+
 }
 
 std::map<std::string, Mask> TrigSystem::getMasks(const std::string& processor)

@@ -19,6 +19,7 @@ class TrigSystem
 		void configureSystemFromFiles(const std::string& hwCfgFile, const std::string& topCfgFile, const std::string& key);
 		void setHwInfo(/*JSONConfigReader*/);
 		void addProcRole(const std::string& processor, const std::string& role);
+		void addProcSlot(const std::string& processor, const std::string& slot);
 		void addProcCrate(const std::string& processor, const std::string& crate);
 		// void addDaqProcs(const std::string& daq, const std::vector< std::string >& processors);
 		void addDaqRole(const std::string& daq, const std::string& role);
@@ -40,6 +41,7 @@ class TrigSystem
 		void setPrintAllLogs () { logText_= new  std::string(); };
 	private:
 		std::map<std::string, std::string> procRole_;
+		std::map<std::string, int> procSlot_;
 		std::map<std::string, std::vector<std::string> > roleProcs_;
 		std::map<std::string, std::vector<std::string> > crateProcs_;
 		std::map<std::string, std::vector<std::string> > roleDaqttcs_;

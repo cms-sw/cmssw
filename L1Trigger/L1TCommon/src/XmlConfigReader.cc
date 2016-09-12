@@ -42,6 +42,7 @@ XmlConfigReader::XmlConfigReader() :
   kTagProcessor(  nullptr),
   kTagRole(nullptr),
   kTagCrate(nullptr),
+  kTagSlot(nullptr),
   kTagDaqTtc(nullptr),
   kAttrId(nullptr),
   kAttrType(nullptr),
@@ -69,6 +70,7 @@ XmlConfigReader::XmlConfigReader() :
   kTagProcessor   = XMLString::transcode("processor");
   kTagRole        = XMLString::transcode("role");
   kTagCrate       = XMLString::transcode("crate");
+  kTagSlot        = XMLString::transcode("slot");
   kTagDaqTtc      = XMLString::transcode("daqttc-mgr");
   kAttrId         = XMLString::transcode("id");
   kAttrType       = XMLString::transcode("type");
@@ -103,6 +105,7 @@ XmlConfigReader::XmlConfigReader(DOMDocument* doc) :
   kTagProcessor(nullptr),
   kTagRole(nullptr),
   kTagCrate(nullptr),
+  kTagSlot(nullptr),
   kTagDaqTtc(nullptr),
   kAttrId(nullptr),
   kAttrType(nullptr),
@@ -130,6 +133,7 @@ XmlConfigReader::XmlConfigReader(DOMDocument* doc) :
   kTagProcessor   = XMLString::transcode("processor");
   kTagRole        = XMLString::transcode("role");
   kTagCrate       = XMLString::transcode("crate");
+  kTagSlot        = XMLString::transcode("slot");
   kTagDaqTtc      = XMLString::transcode("daqttc-mgr");
   kAttrId         = XMLString::transcode("id");
   kAttrType       = XMLString::transcode("type");
@@ -255,6 +259,18 @@ void XmlConfigReader::readHwDescription(const DOMElement* element, TrigSystem& a
           }
         }
       }
+
+      DOMNodeList* slots = currentElement->getElementsByTagName(kTagSlot);
+      // slots of this processor (should be only one)
+      for (XMLSize_t i = 0; i < slots->getLength(); ++i) {
+        DOMNodeList* slotChilds = slots->item(i)->getChildNodes();
+        for (XMLSize_t j = 0; j < slotChilds->getLength(); ++j) {
+          if (slotChilds->item(j)->getNodeType() == DOMNode::TEXT_NODE) {
+            aTrigSystem.addProcSlot(procStr, _toString(slotChilds->item(j)->getNodeValue()));
+          }
+        }
+      }
+
     }
   }
 
@@ -381,7 +397,7 @@ void XmlConfigReader::readContext(const DOMElement* element, const std::string& 
                   }
                 }
               }
-
+//		 std::cout << "param element node with id attribute " << id << " and type attribute " << typesStr << std::endl;
               aTrigSystem.addSettingTable(std::string(id), columnsStr, typesStr, rowStrs, contextId, std::string(delim));
 
             } else { // all types other than table
@@ -396,7 +412,7 @@ void XmlConfigReader::readContext(const DOMElement* element, const std::string& 
               // strip leading and trailing line breaks and spaces
               pruneString(value);
 
-              //std::cout << "param element node with id attribute " << id << " and type attribute " << type << " with value: [" << value << "]" << std::endl;
+//              std::cout << "param element node with id attribute " << id << " and type attribute " << type << " with value: [" << value << "]" << std::endl;
               aTrigSystem.addSetting(std::string(type), std::string(id), value, contextId, std::string(delim));
             }
 
