@@ -7,6 +7,8 @@
 #include "L1Trigger/L1TMuonOverlap/interface/OMTFResult.h"
 
 #include "L1Trigger/L1TMuonOverlap/interface/AlgoMuon.h"
+#include "DataFormats/L1TMuon/interface/RegionalMuonCand.h"
+
 
 #include <iostream>
 #include <sstream>
@@ -35,6 +37,25 @@ XERCES_CPP_NAMESPACE_USE
  #include "xercesc/dom/DOMLSOutput.hpp"
 #endif
 //
+
+namespace {
+ unsigned int eta2Bits(unsigned int eta) {
+   if      (eta== 73) return 0b100000000;
+   else if (eta== 78) return 0b010000000;
+   else if (eta== 85) return 0b001000000;
+   else if (eta== 90) return 0b000100000;
+   else if (eta== 94) return 0b000010000;
+   else if (eta== 99) return 0b000001000;
+   else if (eta==103) return 0b000000100;
+   else if (eta==110) return 0b000000010;
+   else if (eta== 75) return 0b110000000;
+   else if (eta== 79) return 0b011000000;
+   else if (eta== 92) return 0b000110000;
+   else if (eta==115) return 0b000000001;
+   else if (eta==121) return 0b000000000;
+   else               return 0b111111111;            ;
+ }
+}
 
 //////////////////////////////////
 // XMLConfigWriter
@@ -67,14 +88,14 @@ void XMLConfigWriter::initialiseXMLDocument(const std::string & docName){
   theDoc = domImpl->createDocument(0,_toDOMS(docName.c_str()), 0);
   theTopElement = theDoc->getDocumentElement();
   
-  unsigned int version = myOMTFConfig->fwVersion();
-  unsigned int mask32bits = pow(2,32)-1;
+  unsigned int version = myOMTFConfig->patternsVersion();
+  unsigned int mask16bits = 0xFFFF;
   
-  version &=mask32bits;
+  version &=mask16bits;
   
   std::ostringstream stringStr;
   stringStr.str("");
-  stringStr<<"0x"<<std::hex<<std::setfill('0')<<std::setw(8)<<version;
+  stringStr<<"0x"<<std::hex<<std::setfill('0')<<std::setw(4)<<version;
   theTopElement->setAttribute(_toDOMS("version"), _toDOMS(stringStr.str()));
 
 }
@@ -138,15 +159,22 @@ xercesc::DOMElement * XMLConfigWriter::writeEventHeader(unsigned int eventId,
 //////////////////////////////////////////////////
 //////////////////////////////////////////////////
 xercesc::DOMElement * XMLConfigWriter::writeEventData(xercesc::DOMElement *aTopElement,
-						      unsigned int iProcessor,
+                                          const OmtfName & board,
 						      const OMTFinput & aInput){
 
   std::ostringstream stringStr;
 
   xercesc::DOMElement *aProcessor = theDoc->createElement(_toDOMS("Processor"));
+  aProcessor->setAttribute(_toDOMS("board"), _toDOMS(board.name()) );
+
+  unsigned int iProcessor = board.processor(); 
   stringStr.str("");
   stringStr<<iProcessor;
   aProcessor->setAttribute(_toDOMS("iProcessor"), _toDOMS(stringStr.str()));
+  stringStr.str("");
+  if (board.position()==1) stringStr<<"+";
+  stringStr<<board.position(); 
+  aProcessor->setAttribute(_toDOMS("position"), _toDOMS(stringStr.str()));
   
   xercesc::DOMElement *aLayer, *aHit; 
   for(unsigned int iLayer=0;iLayer<myOMTFConfig->nLayers();++iLayer){
@@ -166,7 +194,7 @@ xercesc::DOMElement * XMLConfigWriter::writeEventData(xercesc::DOMElement *aTopE
       stringStr<<layerDataPhi[iHit];
       aHit->setAttribute(_toDOMS("iPhi"), _toDOMS(stringStr.str()));
       stringStr.str("");
-      stringStr<<layerDataEta[iHit];
+      stringStr<<eta2Bits(abs(layerDataEta[iHit]));
       aHit->setAttribute(_toDOMS("iEta"), _toDOMS(stringStr.str()));
       if(layerDataPhi[iHit]>=(int)myOMTFConfig->nPhiBins()) continue;
       aLayer->appendChild(aHit);
@@ -180,7 +208,7 @@ xercesc::DOMElement * XMLConfigWriter::writeEventData(xercesc::DOMElement *aTopE
 }
 //////////////////////////////////////////////////
 //////////////////////////////////////////////////
-void  XMLConfigWriter::writeCandidateData(xercesc::DOMElement *aTopElement,
+void  XMLConfigWriter::writeAlgoMuon(xercesc::DOMElement *aTopElement,
 					  unsigned int iRefHit,
 					  const AlgoMuon & aCand){
 
@@ -196,7 +224,7 @@ void  XMLConfigWriter::writeCandidateData(xercesc::DOMElement *aTopElement,
   stringStr<<aCand.getPhi();
   aResult->setAttribute(_toDOMS("phiCode"),_toDOMS(stringStr.str()));
   stringStr.str("");
-  stringStr<<aCand.getEta();
+  stringStr<<eta2Bits(abs(aCand.getEta()));
   aResult->setAttribute(_toDOMS("etaCode"),_toDOMS(stringStr.str()));
   stringStr.str("");
   stringStr<<aCand.getCharge();
@@ -216,9 +244,56 @@ void  XMLConfigWriter::writeCandidateData(xercesc::DOMElement *aTopElement,
   stringStr.str("");
   stringStr<<aCand.getPhiRHit();
   aResult->setAttribute(_toDOMS("phiRHit"),_toDOMS(stringStr.str()));
+  stringStr.str("");
+  stringStr<<aCand.getPatternNumber();
+  aResult->setAttribute(_toDOMS("patNum"),_toDOMS(stringStr.str()));
 
   aTopElement->appendChild(aResult);
 }
+//////////////////////////////////////////////////
+//////////////////////////////////////////////////
+void  XMLConfigWriter::writeCandMuon(xercesc::DOMElement *aTopElement,
+                                const l1t::RegionalMuonCand& aCand){
+
+  xercesc::DOMElement* aResult = theDoc->createElement(_toDOMS("CandMuon"));
+  std::ostringstream stringStr;
+  stringStr.str("");
+  stringStr<<aCand.hwPt();
+  aResult->setAttribute(_toDOMS("hwPt"),_toDOMS(stringStr.str()));
+  stringStr.str("");
+  stringStr<<aCand.hwPhi();
+  aResult->setAttribute(_toDOMS("hwPhi"),_toDOMS(stringStr.str()));
+  stringStr.str("");
+  stringStr<<aCand.hwEta();
+  aResult->setAttribute(_toDOMS("hwEta"),_toDOMS(stringStr.str()));
+  stringStr.str("");
+  stringStr<<aCand.hwSign();
+  aResult->setAttribute(_toDOMS("hwSign"),_toDOMS(stringStr.str()));
+  stringStr.str("");
+  stringStr<<aCand.hwSignValid();
+  aResult->setAttribute(_toDOMS("hwSignValid"),_toDOMS(stringStr.str()));
+  stringStr.str("");
+  stringStr<<aCand.hwQual();
+  aResult->setAttribute(_toDOMS("hwQual"), _toDOMS(stringStr.str()));
+  stringStr.str("");
+  std::map<int, int> hwAddrMap = aCand.trackAddress();
+  stringStr<<std::bitset<29>(hwAddrMap[0]);
+  aResult->setAttribute(_toDOMS("hwTrackAddress"), _toDOMS(stringStr.str()));
+  stringStr.str("");
+  stringStr<<aCand.link();
+  aResult->setAttribute(_toDOMS("link"), _toDOMS(stringStr.str()));
+  stringStr.str("");
+  stringStr<<aCand.processor();
+  aResult->setAttribute(_toDOMS("processor"), _toDOMS(stringStr.str()));
+  stringStr.str("");
+  if      (aCand.trackFinderType() == l1t::omtf_neg) stringStr<<"OMTF_NEG";
+  else if (aCand.trackFinderType() == l1t::omtf_pos) stringStr<<"OMTF_POS";
+  else stringStr<<aCand.trackFinderType();
+  aResult->setAttribute(_toDOMS("trackFinderType"), _toDOMS(stringStr.str()));
+  aTopElement->appendChild(aResult);
+}
+//////////////////////////////////////////////////
+//////////////////////////////////////////////////
 //////////////////////////////////////////////////
 //////////////////////////////////////////////////
 void XMLConfigWriter::writeResultsData(xercesc::DOMElement *aTopElement,
