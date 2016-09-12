@@ -8,6 +8,7 @@ from Configuration.StandardSequences.Eras import eras
 SiPixelClusterSource = cms.EDAnalyzer("SiPixelClusterSource",
     TopFolderName = cms.string('Pixel'),
     src = cms.InputTag("siPixelClusters"),
+    digisrc = cms.InputTag("siPixelDigis"),
     outputFile = cms.string('Pixel_DQM_Cluster.root'),
     saveFile = cms.untracked.bool(False),
     slowDown = cms.untracked.bool(False),
