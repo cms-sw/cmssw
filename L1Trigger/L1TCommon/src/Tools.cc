@@ -13,9 +13,9 @@ void str2VecStr_(const std::string& aStr, const std::string& delim, std::vector<
 
         for(auto it = aVec.begin(); it != aVec.end(); ++it)
         {
-                while (*(it->begin()) == ' ')
+                while (*(it->begin()) == ' ' || *(it->begin()) == '\n')
                         it->erase(it->begin());
-                while (*(it->end()-1) == ' ')
+                while (*(it->end()-1) == ' ' || *(it->end()-1) == '\n')
             it->erase(it->end()-1);
         }
 }
@@ -34,9 +34,9 @@ std::vector<std::string> str2VecStr_(const std::string& aStr, const std::string&
 
         for(auto it = aVec.begin(); it != aVec.end(); ++it)
         {
-                while (*(it->begin()) == ' ')
+                while (*(it->begin()) == ' ' || *(it->begin()) == '\n')
                         it->erase(it->begin());
-                while (*(it->end()-1) == ' ')
+                while (*(it->end()-1) == ' ' || *(it->end()-1) == '\n')
             it->erase(it->end()-1);
         }
 

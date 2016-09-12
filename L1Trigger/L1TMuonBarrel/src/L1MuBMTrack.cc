@@ -32,8 +32,8 @@
 #include "L1Trigger/L1TMuonBarrel/src/L1MuBMSecProcId.h"
 #include "L1Trigger/L1TMuonBarrel/src/L1MuBMTrackSegPhi.h"
 #include "L1Trigger/L1TMuonBarrel/src/L1MuBMTrackSegEta.h"
-#include "CondFormats/L1TObjects/interface/L1MuTriggerPtScale.h"
-#include "CondFormats/DataRecord/interface/L1MuTriggerPtScaleRcd.h"
+//#include "CondFormats/L1TObjects/interface/L1MuTriggerPtScale.h"
+//#include "CondFormats/DataRecord/interface/L1MuTriggerPtScaleRcd.h"
 #include "CondFormats/L1TObjects/interface/L1MuPacking.h"
 
 using namespace std;
@@ -200,13 +200,14 @@ void L1MuBMTrack::setTSeta(const vector<const L1MuBMTrackSegEta*>& tsList) {
 //
 unsigned int L1MuBMTrack::triggerScale(float value, const edm::EventSetup& c) const {
 
-  const float eps = 1.e-5; // add an epsilon so that setting works with low edge value
+  /*const float eps = 1.e-5; // add an epsilon so that setting works with low edge value
 
   edm::ESHandle< L1MuTriggerPtScale > theTriggerScales;
   c.get< L1MuTriggerPtScaleRcd >().get( theTriggerScales );
   unsigned int t_Scale = theTriggerScales->getPtScale()->getPacked( value + eps );
 
-  return t_Scale;
+  return t_Scale;*/
+  return (unsigned int)0.5;
 }
 
 
