@@ -1637,16 +1637,16 @@ upgradeStepDict={}
 for step in upgradeSteps:
     upgradeStepDict[step]={}
 
-# just make all combinations - yes, some will be nonsense.. but then these are not used unless
-# specified above
-for k in upgradeKeys:
+# just make all combinations - yes, some will be nonsense.. but then these are not used unless specified above
+# collapse upgradeKeys using list comprehension
+for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
     k2=k
     if 'PU' in k[-2:]:
         k2=k[:-2]
-    geom=upgradeProperties[k]['Geom']
-    gt=upgradeProperties[k]['GT']
-    cust=upgradeProperties[k].get('Custom', None)
-    era=upgradeProperties[k].get('Era', None)
+    geom=upgradeProperties[year][k]['Geom']
+    gt=upgradeProperties[year][k]['GT']
+    cust=upgradeProperties[year][k].get('Custom', None)
+    era=upgradeProperties[year][k].get('Era', None)
     upgradeStepDict['GenSimFull'][k]= {'-s' : 'GEN,SIM',
                                        '-n' : 10,
                                        '--conditions' : gt,
@@ -1779,7 +1779,7 @@ for step in upgradeSteps:
    if 'Sim' in step:
         for frag in upgradeFragments:
             howMuch=howMuches[frag]
-            for key in upgradeKeys:
+            for key in [key for year in upgradeKeys for key in upgradeKeys[year]]:
                 k=frag[:-4]+'_'+key+'_'+step
                 steps[k]=merge([ {'cfg':frag},howMuch,upgradeStepDict[step][key]])
                 #get inputs in case of -i...but no need to specify in great detail
@@ -1789,7 +1789,7 @@ for step in upgradeSteps:
                 if 'FastSim' not in k and s+'INPUT' not in steps and s in baseDataSetReleaseBetter and '2023' not in k: # temporarily exclude 2023 WFs
                     steps[k+'INPUT']={'INPUT':InputInfo(dataSet='/RelVal'+upgradeDatasetFromFragment[frag]+'/%s/GEN-SIM'%(baseDataSetReleaseBetter[s],),location='STD')}
    else:
-        for key in upgradeKeys:
+        for key in [key for year in upgradeKeys for key in upgradeKeys[year]]:
             k=step+'_'+key
             if step in upgradeStepDict and key in upgradeStepDict[step]: 
                 steps[k]=merge([upgradeStepDict[step][key]])
