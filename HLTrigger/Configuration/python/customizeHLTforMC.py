@@ -149,6 +149,10 @@ def customizeHLTforMC(process,_fastSim=False):
       "hltMuTrackCtfTracksOnia",
 
       "hltFEDSelector",
+      "hltL3TrajSeedOIHit",
+      "hltL3TrajSeedIOHit",
+      "hltL3NoFiltersTrajSeedOIHit",
+      "hltL3NoFiltersTrajSeedIOHit",
       "hltL3TrackCandidateFromL2OIState",
       "hltL3TrackCandidateFromL2OIHit",
       "hltL3TrackCandidateFromL2IOHit",
@@ -256,6 +260,8 @@ def customizeHLTforMC(process,_fastSim=False):
       "hltFastPVPixelVertexFilter",
       "hltFastPVPixelTracks",
       "hltFastPVPixelTracksRecover",
+
+      "hltPAGoodHighPurityFullTracks",
 
       #   "hltPixelMatchElectronsActivity",
 
@@ -468,7 +474,9 @@ def customizeHLTforMC(process,_fastSim=False):
       ('hltIter0PFlowTrackSelectionHighPurityForBTag', 'generalTracks'),
       ('hltIter4HighPtMerged', 'generalTracks'),
       ('hltIterativeTrackingForPAMerged', 'generalTracks'),
+      #('hltPAIterativeTrackingMerged', 'generalTracks'),
       ('hltPAIterativeTrackingMerged', 'generalTracks'),
+      ('hltPAGoodHighPurityFullTracks','generalTracks'),
 
       ('hltFastPVPixelTracks','hltPixelTracks'),
       ('hltFastPVPixelTracksRecover','hltPixelTracks'),
