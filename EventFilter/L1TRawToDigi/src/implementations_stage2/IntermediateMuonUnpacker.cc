@@ -35,6 +35,13 @@ namespace l1t {
          unsigned int coll1Cnt = 0;
          MuonBxCollection* res1;
          MuonBxCollection* res2;
+         // Intermediate muons come on uGMT output links 24-31.
+         // Each link can transmit 3 muons and we receive 4 intermediate muons from
+         // EMTF/OMTF on each detector side and 8 intermediate muons from BMTF.
+         // Therefore, the muon at a certain position on a link has to be filled
+         // in a specific collection. The order is from links 24-31:
+         // 4 muons from EMTF pos, 4 from OMTF pos, 8 from BMTF, 4 from OMTF neg,
+         // and 4 from EMTF neg.
          switch (linkId) {
            case 24:
              res1 = static_cast<GMTCollections*>(coll)->getImdMuonsEMTFPos();
