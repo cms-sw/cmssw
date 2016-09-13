@@ -121,9 +121,9 @@ private:
     const bool fitFastCircleChi2Cut;
     const bool useBendingCorrection;
 
-    const float CAThetaCut = 0.00125f;
-    const float CAPhiCut = 0.1f;
-    const float CAHardPtCut = 0.f;
+    const float caThetaCut = 0.00125f;
+    const float caPhiCut = 0.1f;
+    const float caHardPtCut = 0.f;
 
 };
 #endif

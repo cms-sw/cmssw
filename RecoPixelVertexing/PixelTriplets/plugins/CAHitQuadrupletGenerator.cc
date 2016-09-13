@@ -41,9 +41,9 @@ maxChi2(cfg.getParameter<edm::ParameterSet>("maxChi2")),
 fitFastCircle(cfg.getParameter<bool>("fitFastCircle")),
 fitFastCircleChi2Cut(cfg.getParameter<bool>("fitFastCircleChi2Cut")),
 useBendingCorrection(cfg.getParameter<bool>("useBendingCorrection")),
-CAThetaCut(cfg.getParameter<double>("CAThetaCut")),
-CAPhiCut(cfg.getParameter<double>("CAPhiCut")),
-CAHardPtCut(cfg.getParameter<double>("CAHardPtCut"))
+caThetaCut(cfg.getParameter<double>("CAThetaCut")),
+caPhiCut(cfg.getParameter<double>("CAPhiCut")),
+caHardPtCut(cfg.getParameter<double>("CAHardPtCut"))
 {
   if (cfg.exists("SeedComparitorPSet"))
   {
@@ -146,8 +146,8 @@ void CAHitQuadrupletGenerator::hitQuadruplets(const TrackingRegion& region,
 
 	CellularAutomaton ca(g);
 
-	ca.createAndConnectCells(hitDoublets, region, CAThetaCut,
-			CAPhiCut, CAHardPtCut);
+	ca.createAndConnectCells(hitDoublets, region, caThetaCut,
+			caPhiCut, caHardPtCut);
 
 	ca.evolve(numberOfHitsInNtuplet);
 

@@ -32,15 +32,13 @@ using namespace ctfseeding;
 
 CAHitTripletGenerator::CAHitTripletGenerator(const edm::ParameterSet& cfg,
 		edm::ConsumesCollector& iC) :
-		theSeedingLayerToken(
-				iC.consumes < SeedingLayerSetsHits
-						> (cfg.getParameter < edm::InputTag > ("SeedingLayers"))), extraHitRPhitolerance(
-				cfg.getParameter<double>("extraHitRPhitolerance")), //extra window in ThirdHitPredictionFromCircle range (divide by R to get phi)
-		maxChi2(cfg.getParameter < edm::ParameterSet > ("maxChi2")), useBendingCorrection(
-				cfg.getParameter<bool>("useBendingCorrection")), CAThetaCut(
-				cfg.getParameter<double>("CAThetaCut")), CAPhiCut(
-				cfg.getParameter<double>("CAPhiCut")), CAHardPtCut(
-				cfg.getParameter<double>("CAHardPtCut"))
+		theSeedingLayerToken(iC.consumes < SeedingLayerSetsHits	> (cfg.getParameter < edm::InputTag > ("SeedingLayers"))),
+		extraHitRPhitolerance(cfg.getParameter<double>("extraHitRPhitolerance")), //extra window in ThirdHitPredictionFromCircle range (divide by R to get phi)
+		maxChi2(cfg.getParameter < edm::ParameterSet > ("maxChi2")),
+		useBendingCorrection(cfg.getParameter<bool>("useBendingCorrection")),
+		caThetaCut(	cfg.getParameter<double>("CAThetaCut")),
+		caPhiCut(cfg.getParameter<double>("CAPhiCut")),
+		caHardPtCut(cfg.getParameter<double>("CAHardPtCut"))
 {
 	if (cfg.exists("SeedComparitorPSet"))
 	{
@@ -144,8 +142,8 @@ void CAHitTripletGenerator::hitTriplets(const TrackingRegion& region,
 	std::vector<CACell::CAntuplet> foundTriplets;
 	CellularAutomaton ca(g);
 
-	ca.findTriplets(hitDoublets, foundTriplets, region, CAThetaCut, CAPhiCut,
-			CAHardPtCut);
+	ca.findTriplets(hitDoublets, foundTriplets, region, caThetaCut, caPhiCut,
+			caHardPtCut);
 	unsigned int numberOfFoundTriplets = foundTriplets.size();
 
 	const QuantityDependsPtEval maxChi2Eval = maxChi2.evaluator(es);
