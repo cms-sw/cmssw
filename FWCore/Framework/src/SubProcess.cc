@@ -368,8 +368,7 @@ namespace edm {
                           principal.reader());
     ep.setLuminosityBlockPrincipal(principalCache_.lumiPrincipalPtr());
     propagateProducts(InEvent, principal, ep);
-    typedef OccurrenceTraits<EventPrincipal, BranchActionStreamBegin> Traits;
-    schedule_->processOneEvent<Traits>(ep.streamID().value(),ep, esp_->eventSetup());
+    schedule_->processOneEvent(ep.streamID().value(),ep, esp_->eventSetup());
     if(hasSubProcesses()) {
       for(auto& subProcess : *subProcesses_) {
         subProcess.doEvent(ep);
