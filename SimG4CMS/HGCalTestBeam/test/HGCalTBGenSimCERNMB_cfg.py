@@ -19,9 +19,10 @@ process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 process.load('SimG4CMS.HGCalTestBeam.HGCalTBCheckGunPosition_cfi')
 process.load('SimG4CMS.HGCalTestBeam.HGCalTBAnalyzer_cfi')
+process.load('SimG4CMS.HGCalTestBeam.hgcalTBMBCERN_cfi')
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(1000)
+    input = cms.untracked.int32(100)
 )
 
 process.MessageLogger = cms.Service("MessageLogger",
@@ -86,7 +87,7 @@ process.generator = cms.EDProducer("FlatRandomEThetaGunProducer",
         MaxTheta = cms.double(0.0),
         MinPhi = cms.double(-3.14159265359),
         MaxPhi = cms.double(3.14159265359),
-        PartID = cms.vint32(13)
+        PartID = cms.vint32(14)
     ),
     Verbosity = cms.untracked.int32(0),
     firstRun = cms.untracked.uint32(1),
@@ -94,33 +95,28 @@ process.generator = cms.EDProducer("FlatRandomEThetaGunProducer",
 )
 process.VtxSmeared.MinZ = -800.0
 process.VtxSmeared.MaxZ = -800.0
-process.VtxSmeared.MinX = -7.5
-process.VtxSmeared.MaxX =  7.5
-process.VtxSmeared.MinY = -7.5
-process.VtxSmeared.MaxY =  7.5
+process.VtxSmeared.MinX = 0
+process.VtxSmeared.MaxX =  0
+process.VtxSmeared.MinY = 0
+process.VtxSmeared.MaxY =  0
 process.HGCalTBAnalyzer.DoDigis = False
 process.HGCalTBAnalyzer.DoRecHits = False
 
+
 # Path and EndPath definitions
 process.generation_step = cms.Path(process.pgen)
-process.gunfilter_step  = cms.Path(process.HGCalTBCheckGunPostion)
 process.simulation_step = cms.Path(process.psim)
 process.genfiltersummary_step = cms.EndPath(process.genFilterSummary)
-process.analysis_step = cms.Path(process.HGCalTBAnalyzer)
+process.analysis_step = cms.Path(process.HGCalTBCheckGunPostion*process.HGCalTBAnalyzer)
 process.endjob_step = cms.EndPath(process.endOfProcess)
 process.RAWSIMoutput_step = cms.EndPath(process.RAWSIMoutput)
 
 # Schedule definition
-process.schedule = cms.Schedule(process.generation_step,
-				process.genfiltersummary_step,
-				process.simulation_step,
-				process.gunfilter_step,
-				process.analysis_step,
-				process.endjob_step,
-				process.RAWSIMoutput_step,
-				)
+process.schedule = cms.Schedule(process.generation_step,process.genfiltersummary_step,process.simulation_step,process.analysis_step,process.endjob_step,process.RAWSIMoutput_step)
+
 # filter all path with the production filter sequence
 for path in process.paths:
 	getattr(process,path)._seq = process.generator * getattr(process,path)._seq 
 
 
+#print process.dumpPython()
