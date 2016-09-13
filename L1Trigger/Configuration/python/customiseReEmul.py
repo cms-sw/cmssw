@@ -70,6 +70,7 @@ def L1TReEmulFromRAW2015(process):
         process.simBmtfDigis.DTDigi_Source         = cms.InputTag("simTwinMuxDigis")
         process.simBmtfDigis.DTDigi_Theta_Source   = cms.InputTag("dttfDigis")
         process.simEmtfDigis.CSCInput              = cms.InputTag("csctfDigis")
+        process.simEmtfDigis.RPCInput              = cms.InputTag('muonRPCDigis')
         process.simOmtfDigis.srcCSC                = cms.InputTag("csctfDigis")
         process.simCaloStage2Layer1Digis.ecalToken = cms.InputTag("ecalDigis:EcalTriggerPrimitives")
         process.L1TReEmulPath = cms.Path(process.L1TReEmul)    
@@ -139,6 +140,7 @@ def L1TReEmulFromRAW(process):
         process.simOmtfDigis.srcDTTh               = cms.InputTag('bmtfDigis')
         # EMTF
         process.simEmtfDigis.CSCInput              = cms.InputTag('csctfDigis')
+        process.simEmtfDigis.RPCInput              = cms.InputTag('muonRPCDigis')
         # Calo Layer1
         process.simCaloStage2Layer1Digis.ecalToken = cms.InputTag('ecalDigis:EcalTriggerPrimitives')
         process.simCaloStage2Layer1Digis.hcalToken = cms.InputTag('hcalDigis:')
@@ -172,6 +174,12 @@ def L1TReEmulFromRAWsimEcalTP(process):
             process.simCaloStage2Layer1Digis.ecalToken = cms.InputTag("simEcalTriggerPrimitiveDigis")
     return process
 
+def L1TReEmulFromRAWsimHcalTP(process):
+    L1TReEmulFromRAW(process)
+    if eras.stage2L1Trigger.isChosen():
+            process.simCaloStage2Layer1Digis.hcalToken = cms.InputTag('simHcalTriggerPrimitiveDigis')
+    return process
+
 def L1TReEmulFromRAWsimTP(process):
     L1TReEmulFromRAW(process)
     if eras.stage2L1Trigger.isChosen():
@@ -189,6 +197,7 @@ def L1TReEmulFromRAWsimTP(process):
         process.simOmtfDigis.srcDTTh               = cms.InputTag('simDtTriggerPrimitiveDigis')
         # EMTF
         process.simEmtfDigis.CSCInput              = cms.InputTag('simCscTriggerPrimitiveDigis')
+        process.simEmtfDigis.RPCInput              = cms.InputTag('muonRPCDigis')
         # Layer1
         process.simCaloStage2Layer1Digis.ecalToken = cms.InputTag("simEcalTriggerPrimitiveDigis")
         process.simCaloStage2Layer1Digis.hcalToken = cms.InputTag('simHcalTriggerPrimitiveDigis')
