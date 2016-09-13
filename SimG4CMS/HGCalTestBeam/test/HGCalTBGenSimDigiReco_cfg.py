@@ -72,7 +72,7 @@ from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase1_2017_design', '')
 
 process.generator = cms.EDProducer("FlatRandomEThetaGunProducer",
-    AddAntiParticle = cms.bool(False),
+    AddAntiParticle = cms.bool(True),
     PGunParameters = cms.PSet(
         MinE = cms.double(120.0),
         MaxE = cms.double(120.0),
