@@ -46,6 +46,8 @@ process.dqmSaver.tag = subsystem
 referenceFileName = '/dqmdata/dqm/reference/hcal_reference.root'
 process.DQMStore.referenceFileName = referenceFileName
 process = customise(process)
+process.source.minEventsPerLumi=100
+
 
 #-------------------------------------
 #	CMSSW/Hcal non-DQM Related Module import
