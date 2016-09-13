@@ -37,12 +37,14 @@ Usage:
 
 
   The supported formats for both menu specifications are:
-    - [hltdev:]/path/to/configuration[/Vn]
-    - orcoff:/path/to/configuration[/Vn]
+    - /path/to/configuration[/Vn]
+    - [[{v1|v2}/]{offline|online|adg}:]/path/to/configuration[/Vn]
     - run:runnumber
-  The possible databases are \"hltdev\" (default, used for offline development) and \"orcoff\"
-  (used for online menus). If no version is specified, the latest one is automatically used.
-  If \"run:\" is used instead, the actual HLT menu for the given run number is looked up and used.
+  The possible database schemas are \"v1\" and \"v2\" (default).
+  The possible databases are \"offline\" (default, used for offline development), \"online\" (used to
+  extract online menus within Point 5) and \"adg\" (used to extract the online menus outside Point 5).
+  If no menu version is specified, the latest one is automatically used.
+  If \"run:\" is used instead, the HLT menu used for the given run number is looked up and used.
 
   It's possible to pass arbitrary command line options to hltGetConfiguration, using \"-x --option\".
   To pass multiple options, enclose them in quotes, or use \"-x\" more than once.
@@ -62,7 +64,7 @@ Exmples:
       will test the latest version of the GRun, running the L1 emulator.
 
 
-  $NAME /users/fwyzard/physics/HLT/V6 -s orcoff:/cdaq/physics/Run2011/1e33/v1.3/HLT/V6
+  $NAME /users/fwyzard/physics/HLT/V6 -s adg:/cdaq/physics/Run2011/1e33/v1.3/HLT/V6
 
       will test the paths from /users/fwyzard/physics/HLT/V6, using the environment from the
       online menu \"1e33\" v1.3 V6
@@ -290,8 +292,21 @@ done
 
 # if a separate setup is requested, create the setup_cff.py file and patch all dumps to use it
 if [ "$SETUP" ]; then
+  SETUP_DB=""
+  SETUP_Vx=""
+  if [[ "$SETUP" =~ .*:.*  ]]; then
+    SETUP_DB=`echo "$SETUP" | cut -d: -f1`
+    SETUP=`echo "$SETUP" | cut -d: -f2`
+    if [[ "$SETUP_DB" =~ .*/.* ]]; then
+      SETUP_Vx="--`echo "$SETUP_DB" | cut -d/ -f1`"
+      SETUP_DB="--`echo "$SETUP_DB" | cut -d/ -f2`"
+    else
+      SETUP_DB="--$SETUP_DB"
+    fi
+  fi
+
   log "Extracting setup_cff dump"
-  hltConfigFromDB --cff --configName "$SETUP" --nopaths --services -FUShmDQMOutputService,-PrescaleService > setup_cff.py
+  hltConfigFromDB "$SETUP_Vx" "$SETUP_DB" --cff --configName "$SETUP" --nopaths --services -FUShmDQMOutputService,-PrescaleService > setup_cff.py
   sed -i -e's/process = cms.Process(.*)/&\nprocess.load("setup_cff")/' hlt.py $(for TRIGGER in $TRIGGERS; do echo "$TRIGGER".py; done)
 fi
 
