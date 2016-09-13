@@ -74,7 +74,7 @@ void DDPixBarLayerUpgradeAlgo::execute(DDCompactView& cpv) {
 
   double dphi = CLHEP::twopi/number;
   double x2   = coolDist*sin(0.5*dphi);
-  double rtmi = coolDist*cos(0.5*dphi)-(coolRadius+ladderThick);
+  double rtmi = coolDist*cos(0.5*dphi)-(coolRadius+ladderThick;
   double rmxh = coolDist*cos(0.5*dphi)+(coolRadius+ladderThick+ladderOffset);
   double rtmx = sqrt(rmxh*rmxh+ladderWidth*ladderWidth/4);
   DDSolid solid = DDSolidFactory::tubs(DDName(idName, idNameSpace),0.5*layerDz,
@@ -90,7 +90,7 @@ void DDPixBarLayerUpgradeAlgo::execute(DDCompactView& cpv) {
 
   std::string name = idName + "CoolTube";
   solid = DDSolidFactory::tubs(DDName(name,idNameSpace), 0.5*coolDz,
-			       0, coolRadius, 0, CLHEP::twopi);
+			       0, coolRadius, 0, CLHEP::pi);
   LogDebug("PixelGeom") << "DDPixBarLayerUpgradeAlgo test: " <<solid.name() 
 			<< " Tubs made of " << tubeMat << " from 0 to " <<
 			CLHEP::twopi/CLHEP::deg << " with Rout " << coolRadius <<
@@ -100,7 +100,7 @@ void DDPixBarLayerUpgradeAlgo::execute(DDCompactView& cpv) {
 
   name = idName + "Coolant";
   solid = DDSolidFactory::tubs(DDName(name,idNameSpace), 0.5*coolDz,
-			       0, coolRadius-coolThick, 0, CLHEP::twopi);
+			       0, coolRadius-coolThick, 0, CLHEP::pi);
   LogDebug("PixelGeom") << "DDPixBarLayerUpgradeAlgo test: " <<solid.name() 
 			<< " Tubs made of " << tubeMat << " from 0 to " <<
 			CLHEP::twopi/CLHEP::deg << " with Rout " << coolRadius-coolThick <<
@@ -152,8 +152,9 @@ void DDPixBarLayerUpgradeAlgo::execute(DDCompactView& cpv) {
     tran = DDTranslation(rrr*cos(phi)-x2*sin(phi), 
 			 rrr*sin(phi)+x2*cos(phi), 0);
     rots = idName + std::to_string(i+100);
-    phix = phi+0.5*dphi;
-    if (iup > 0) phix += 180*CLHEP::deg;
+    phix = phi + 90.*CLHEP::deg;
+    if(iup < 0) phix += dphi;
+//    if (iup > 0 || (i==1) || (i==number/2+1)) phix -= 0.5*dphi;
     phiy = phix+90.*CLHEP::deg;
     LogDebug("PixelGeom") << "DDPixBarLayerUpgradeAlgo test: Creating a new "
 			  << "rotation: " << rots << "\t90., " << phix/CLHEP::deg 
@@ -161,16 +162,16 @@ void DDPixBarLayerUpgradeAlgo::execute(DDCompactView& cpv) {
     rot = DDrot(DDName(rots,idNameSpace), 90*CLHEP::deg, phix, 90*CLHEP::deg, phiy, 0.,0.);
     cpv.position (coolTube, layer, i+1, tran, rot);
     if ((i==1)||(i==number/2+1)){
-    	rrroffset = coolDist*cos(0.5*dphi)+iup*ladderOffset;
-	tran = DDTranslation(rrroffset*cos(phi)-cool1Offset*sin(phi), 
-		rrroffset*sin(phi)+cool1Offset*cos(phi), 0);
+    	rrroffset = coolDist*cos(0.5*dphi)+iup*ladderOffset + rOuterFineTune;
+	    tran = DDTranslation(rrroffset*cos(phi)-cool1Offset*sin(phi), 
+		  rrroffset*sin(phi)+cool1Offset*cos(phi), 0);
     	cpv.position (coolTube, layer, copyoffset, tran, DDRotation());
-	copyoffset++;
-	tran = DDTranslation(rrroffset*cos(phi)-cool2Offset*sin(phi), 
-		rrroffset*sin(phi)+cool2Offset*cos(phi), 0);
+      copyoffset++;
+	    tran = DDTranslation(rrroffset*cos(phi)-cool2Offset*sin(phi), 
+	    rrroffset*sin(phi)+cool2Offset*cos(phi), 0);
     	cpv.position (coolTube, layer, copyoffset, tran, DDRotation());
-	copyoffset++;
-	} 
+	    copyoffset++;
+	  } 
    LogDebug("PixelGeom") << "DDPixBarLayerUpgradeAlgo test: " << coolTube.name() 
 			  << " number " << i+1 << " positioned in " 
 			  << layer.name() << " at " << tran << " with "<< rot;
