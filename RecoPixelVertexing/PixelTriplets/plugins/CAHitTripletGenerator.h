@@ -117,9 +117,9 @@ private:
     const QuantityDependsPt maxChi2;
     const bool useBendingCorrection;
 
-    const float CAThetaCut = 0.00125f;
-    const float CAPhiCut = 1.f;
-    const float CAHardPtCut = 0.f;
+    const float caThetaCut = 0.00125f;
+    const float caPhiCut = 1.f;
+    const float caHardPtCut = 0.f;
 
 };
 
