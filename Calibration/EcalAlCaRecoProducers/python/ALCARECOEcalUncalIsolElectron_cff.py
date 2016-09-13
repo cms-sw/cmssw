@@ -15,6 +15,6 @@ ALCARECOEcalUncalElectronECALSeq = cms.Sequence( uncalibRecHitSeq )
 
 ############################################### FINAL SEQUENCES
 # sequences used in AlCaRecoStreams_cff.py
-seqALCARECOEcalUncalZElectron   = cms.Sequence(ZeeSkimFilterSeq  * ALCARECOEcalCalElectronNonECALSeq * ALCARECOEcalUncalElectronECALSeq)
-seqALCARECOEcalUncalZSCElectron = cms.Sequence(ZSCSkimFilterSeq  * ALCARECOEcalCalElectronNonECALSeq * ALCARECOEcalUncalElectronECALSeq)
-seqALCARECOEcalUncalWElectron   = cms.Sequence(WenuSkimFilterSeq * ALCARECOEcalCalElectronNonECALSeq * ALCARECOEcalUncalElectronECALSeq)
+seqALCARECOEcalUncalZElectron   = cms.Sequence(ZeeSkimFilterSeq  * ALCARECOEcalUncalElectronECALSeq * ALCARECOEcalCalElectronNonECALSeq)
+seqALCARECOEcalUncalZSCElectron = cms.Sequence(ZSCSkimFilterSeq  * ALCARECOEcalUncalElectronECALSeq * ALCARECOEcalCalElectronNonECALSeq)
+seqALCARECOEcalUncalWElectron   = cms.Sequence(WenuSkimFilterSeq * ALCARECOEcalUncalElectronECALSeq* ALCARECOEcalCalElectronNonECALSeq)
