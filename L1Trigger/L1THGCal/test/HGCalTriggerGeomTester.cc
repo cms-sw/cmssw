@@ -19,7 +19,7 @@
 
 #include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
 #include "DataFormats/ForwardDetId/interface/ForwardSubdetector.h"
-#include "DataFormats/ForwardDetId/interface/HGCTriggerHexDetId.h"
+#include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
 
 #include "L1Trigger/L1THGCal/interface/HGCalTriggerGeometryBase.h"
 
@@ -289,7 +289,7 @@ void HGCalTriggerGeomTester::checkConsistency(const HGCalTriggerGeometryBase::es
     // Loop over trigger cells
     for( const auto& triggercell_cells : triggercells_to_cells )
     {
-        HGCTriggerHexDetId id(triggercell_cells.first);
+        HGCalDetId id(triggercell_cells.first);
         // fill modules
         uint32_t module = triggerGeometry_->getModuleFromTriggerCell(id);
         auto itr_insert = modules_to_triggercells.emplace(module, std::unordered_set<uint32_t>());
@@ -316,7 +316,7 @@ void HGCalTriggerGeomTester::checkConsistency(const HGCalTriggerGeometryBase::es
     // Loop over modules
     for( const auto& module_triggercells : modules_to_triggercells )
     {
-        HGCTriggerHexDetId id(module_triggercells.first);
+        HGCalDetId id(module_triggercells.first);
         // Check consistency of trigger cells included in module
         HGCalTriggerGeometryBase::geom_set triggercells_geom = triggerGeometry_->getTriggerCellsFromModule(id);
         const auto& triggercells = module_triggercells.second;
@@ -338,7 +338,7 @@ void HGCalTriggerGeomTester::checkConsistency(const HGCalTriggerGeometryBase::es
     std::cout<<"Checking cell -> module -> cell consistency\n";
     for( const auto& module_cells : modules_to_cells )
     {
-        HGCTriggerHexDetId id(module_cells.first);
+        HGCalDetId id(module_cells.first);
         // Check consistency of cells included in module
         HGCalTriggerGeometryBase::geom_set cells_geom = triggerGeometry_->getCellsFromModule(id);
         const auto& cells = module_cells.second;
@@ -460,7 +460,7 @@ void HGCalTriggerGeomTester::fillTriggerGeometry(const HGCalTriggerGeometryBase:
     std::cout<<"Filling trigger cells tree\n";
     for( const auto& triggercell_cells : trigger_cells )
     {
-        HGCTriggerHexDetId id(triggercell_cells.first);
+        HGCalDetId id(triggercell_cells.first);
         GlobalPoint position = triggerGeometry_->getTriggerCellPosition(id);
         triggerCellId_     = id.rawId();
         triggerCellSide_   = id.zside();
@@ -501,7 +501,7 @@ void HGCalTriggerGeomTester::fillTriggerGeometry(const HGCalTriggerGeometryBase:
     std::cout<<"Filling modules tree\n";
     for( const auto& module_triggercells : modules )
     {
-        HGCTriggerHexDetId id(module_triggercells.first);
+        HGCalDetId id(module_triggercells.first);
         GlobalPoint position = triggerGeometry_->getModulePosition(id);
         moduleId_     = id.rawId();
         moduleSide_   = id.zside();
@@ -517,7 +517,7 @@ void HGCalTriggerGeomTester::fillTriggerGeometry(const HGCalTriggerGeometryBase:
         size_t itc = 0;
         for(const auto& tc : module_triggercells.second)
         {
-            HGCTriggerHexDetId tcId(tc);
+            HGCalDetId tcId(tc);
             GlobalPoint position = triggerGeometry_->getTriggerCellPosition(tcId);
             moduleTC_id_    .get()[itc] = tc;
             moduleTC_zside_ .get()[itc] = tcId.zside();

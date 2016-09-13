@@ -1,7 +1,7 @@
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 
 #include "L1Trigger/L1THGCal/interface/HGCalTriggerGeometryBase.h"
-#include "DataFormats/ForwardDetId/interface/HGCTriggerHexDetId.h"
+#include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
 #include "DataFormats/ForwardDetId/interface/ForwardSubdetector.h"
 
 #include <vector>
@@ -74,13 +74,12 @@ unsigned
 HGCalTriggerGeometryHexImp2::
 getTriggerCellFromCell( const unsigned cell_det_id ) const
 {
-    int wafer_type = HGCTriggerHexDetId::waferTypeOf(cell_det_id);
-    unsigned cell = HGCTriggerHexDetId::cellOf(cell_det_id);
+    int wafer_type = HGCalDetIdUtil::waferTypeOf(cell_det_id);
+    unsigned cell = HGCalDetIdUtil::cellOf(cell_det_id);
     // FIXME: better way to do this cell->TC mapping?
     unsigned trigger_cell = cells_to_trigger_cells_.at(std::make_pair(wafer_type,cell));
-    // This is possible because HGCTriggerHexDetId has the same structure as HGCalDetId
     unsigned trigger_cell_det_id = cell_det_id;
-    HGCTriggerHexDetId::setCellOf(trigger_cell_det_id, trigger_cell);
+    HGCalDetIdUtil::setCellOf(trigger_cell_det_id, trigger_cell);
     return trigger_cell_det_id;
 }
 
@@ -88,8 +87,8 @@ unsigned
 HGCalTriggerGeometryHexImp2::
 getModuleFromCell( const unsigned cell_det_id ) const
 {
-    unsigned wafer = HGCTriggerHexDetId::waferOf(cell_det_id);
-    unsigned subdet = HGCTriggerHexDetId::subdetIdOf(cell_det_id);
+    unsigned wafer = HGCalDetIdUtil::waferOf(cell_det_id);
+    unsigned subdet = HGCalDetIdUtil::subdetIdOf(cell_det_id);
     unsigned module = 0;
     switch(subdet)
     {
@@ -103,10 +102,9 @@ getModuleFromCell( const unsigned cell_det_id ) const
             edm::LogError("HGCalTriggerGeometry") << "Unknown wafer->module mapping for subdet "<<subdet<<"\n";
             return 0;
     };
-    // This is possible because HGCTriggerHexDetId has the same structure as HGCalDetId
     unsigned module_id = cell_det_id;
-    HGCTriggerHexDetId::setWaferOf(module_id, module);
-    HGCTriggerHexDetId::setCellOf(module_id, HGCTriggerHexDetId::UndefinedCell());
+    HGCalDetIdUtil::setWaferOf(module_id, module);
+    HGCalDetIdUtil::setCellOf(module_id, HGCalDetId::kHGCalCellMask);
     return module_id;
 }
 
@@ -114,8 +112,8 @@ unsigned
 HGCalTriggerGeometryHexImp2::
 getModuleFromTriggerCell( const unsigned trigger_cell_det_id ) const
 {
-    unsigned wafer = HGCTriggerHexDetId::waferOf(trigger_cell_det_id);
-    unsigned subdet = HGCTriggerHexDetId::subdetIdOf(trigger_cell_det_id);
+    unsigned wafer = HGCalDetIdUtil::waferOf(trigger_cell_det_id);
+    unsigned subdet = HGCalDetIdUtil::subdetIdOf(trigger_cell_det_id);
     unsigned module = 0;
     switch(subdet)
     {
@@ -130,8 +128,8 @@ getModuleFromTriggerCell( const unsigned trigger_cell_det_id ) const
             return 0;
     };
     unsigned module_id = trigger_cell_det_id;
-    HGCTriggerHexDetId::setWaferOf(module_id, module);
-    HGCTriggerHexDetId::setCellOf(module_id, HGCTriggerHexDetId::UndefinedCell());
+    HGCalDetIdUtil::setWaferOf(module_id, module);
+    HGCalDetIdUtil::setCellOf(module_id, HGCalDetId::kHGCalCellMask);
     return module_id;
 }
 
@@ -139,15 +137,15 @@ HGCalTriggerGeometryBase::geom_set
 HGCalTriggerGeometryHexImp2::
 getCellsFromTriggerCell( const unsigned trigger_cell_det_id ) const
 {
-    int wafer_type = HGCTriggerHexDetId::waferTypeOf(trigger_cell_det_id);
-    unsigned trigger_cell = HGCTriggerHexDetId::cellOf(trigger_cell_det_id);
+    int wafer_type = HGCalDetIdUtil::waferTypeOf(trigger_cell_det_id);
+    unsigned trigger_cell = HGCalDetIdUtil::cellOf(trigger_cell_det_id);
     // FIXME: better way to do this TC->cell mapping?
     const auto& cell_range = trigger_cells_to_cells_.equal_range(std::make_pair(wafer_type,trigger_cell));
     geom_set cell_det_ids;
     for(auto tc_c_itr=cell_range.first; tc_c_itr!=cell_range.second; tc_c_itr++)
     {
         unsigned cell_det_id = trigger_cell_det_id;
-        HGCTriggerHexDetId::setCellOf(cell_det_id, tc_c_itr->second);
+        HGCalDetIdUtil::setCellOf(cell_det_id, tc_c_itr->second);
         cell_det_ids.emplace(cell_det_id);
     }
     return cell_det_ids;
@@ -157,9 +155,9 @@ HGCalTriggerGeometryBase::geom_set
 HGCalTriggerGeometryHexImp2::
 getCellsFromModule( const unsigned module_det_id ) const
 {
-    unsigned module = HGCTriggerHexDetId::waferOf(module_det_id);
-    int wafer_type = HGCTriggerHexDetId::waferTypeOf(module_det_id);
-    unsigned subdet = HGCTriggerHexDetId::subdetIdOf(module_det_id);
+    unsigned module = HGCalDetIdUtil::waferOf(module_det_id);
+    int wafer_type = HGCalDetIdUtil::waferTypeOf(module_det_id);
+    unsigned subdet = HGCalDetIdUtil::subdetIdOf(module_det_id);
     std::pair<std::unordered_multimap<short, short>::const_iterator,
         std::unordered_multimap<short, short>::const_iterator> wafer_itrs;
     switch(subdet)
@@ -181,8 +179,8 @@ getCellsFromModule( const unsigned module_det_id ) const
         for(int cell=0; cell<number_cells_in_wafers_.at(wafer_type); cell++)
         {
             unsigned cell_det_id = module_det_id;
-            HGCTriggerHexDetId::setWaferOf(cell_det_id, wafer_itr->second);
-            HGCTriggerHexDetId::setCellOf(cell_det_id, cell);
+            HGCalDetIdUtil::setWaferOf(cell_det_id, wafer_itr->second);
+            HGCalDetIdUtil::setCellOf(cell_det_id, cell);
             cell_det_ids.emplace(cell_det_id);
         }
     }
@@ -193,9 +191,9 @@ HGCalTriggerGeometryBase::geom_ordered_set
 HGCalTriggerGeometryHexImp2::
 getOrderedCellsFromModule( const unsigned module_det_id ) const
 {
-    unsigned module = HGCTriggerHexDetId::waferOf(module_det_id);
-    int wafer_type = HGCTriggerHexDetId::waferTypeOf(module_det_id);
-    unsigned subdet = HGCTriggerHexDetId::subdetIdOf(module_det_id);
+    unsigned module = HGCalDetIdUtil::waferOf(module_det_id);
+    int wafer_type = HGCalDetIdUtil::waferTypeOf(module_det_id);
+    unsigned subdet = HGCalDetIdUtil::subdetIdOf(module_det_id);
     std::pair<std::unordered_multimap<short, short>::const_iterator,
         std::unordered_multimap<short, short>::const_iterator> wafer_itrs;
     switch(subdet)
@@ -217,8 +215,8 @@ getOrderedCellsFromModule( const unsigned module_det_id ) const
         for(int cell=0; cell<number_cells_in_wafers_.at(wafer_type); cell++)
         {
             unsigned cell_det_id = module_det_id;
-            HGCTriggerHexDetId::setWaferOf(cell_det_id, wafer_itr->second);
-            HGCTriggerHexDetId::setCellOf(cell_det_id, cell);
+            HGCalDetIdUtil::setWaferOf(cell_det_id, wafer_itr->second);
+            HGCalDetIdUtil::setCellOf(cell_det_id, cell);
             cell_det_ids.emplace(cell_det_id);
         }
     }
@@ -229,9 +227,9 @@ HGCalTriggerGeometryBase::geom_set
 HGCalTriggerGeometryHexImp2::
 getTriggerCellsFromModule( const unsigned module_det_id ) const
 {
-    unsigned module = HGCTriggerHexDetId::waferOf(module_det_id);
-    unsigned wafer_type = HGCTriggerHexDetId::waferTypeOf(module_det_id);
-    unsigned subdet = HGCTriggerHexDetId::subdetIdOf(module_det_id);
+    unsigned module = HGCalDetIdUtil::waferOf(module_det_id);
+    unsigned wafer_type = HGCalDetIdUtil::waferTypeOf(module_det_id);
+    unsigned subdet = HGCalDetIdUtil::subdetIdOf(module_det_id);
     std::pair<std::unordered_multimap<short, short>::const_iterator,
         std::unordered_multimap<short, short>::const_iterator> wafer_itrs;
     switch(subdet)
@@ -254,8 +252,8 @@ getTriggerCellsFromModule( const unsigned module_det_id ) const
         for(int trigger_cell=0; trigger_cell<number_trigger_cells_in_wafers_.at(wafer_type); trigger_cell++)
         {
             unsigned trigger_cell_det_id = module_det_id;
-            HGCTriggerHexDetId::setWaferOf(trigger_cell_det_id, wafer_itr->second);
-            HGCTriggerHexDetId::setCellOf(trigger_cell_det_id, trigger_cell);
+            HGCalDetIdUtil::setWaferOf(trigger_cell_det_id, wafer_itr->second);
+            HGCalDetIdUtil::setCellOf(trigger_cell_det_id, trigger_cell);
             trigger_cell_det_ids.emplace(trigger_cell_det_id);
         }
     }
@@ -266,9 +264,9 @@ HGCalTriggerGeometryBase::geom_ordered_set
 HGCalTriggerGeometryHexImp2::
 getOrderedTriggerCellsFromModule( const unsigned module_det_id ) const
 {
-    unsigned module = HGCTriggerHexDetId::waferOf(module_det_id);
-    unsigned wafer_type = HGCTriggerHexDetId::waferTypeOf(module_det_id);
-    unsigned subdet = HGCTriggerHexDetId::subdetIdOf(module_det_id);
+    unsigned module = HGCalDetIdUtil::waferOf(module_det_id);
+    unsigned wafer_type = HGCalDetIdUtil::waferTypeOf(module_det_id);
+    unsigned subdet = HGCalDetIdUtil::subdetIdOf(module_det_id);
     std::pair<std::unordered_multimap<short, short>::const_iterator,
         std::unordered_multimap<short, short>::const_iterator> wafer_itrs;
     switch(subdet)
@@ -291,8 +289,8 @@ getOrderedTriggerCellsFromModule( const unsigned module_det_id ) const
         for(int trigger_cell=0; trigger_cell<number_trigger_cells_in_wafers_.at(wafer_type); trigger_cell++)
         {
             unsigned trigger_cell_det_id = module_det_id;
-            HGCTriggerHexDetId::setWaferOf(trigger_cell_det_id, wafer_itr->second);
-            HGCTriggerHexDetId::setCellOf(trigger_cell_det_id, trigger_cell);
+            HGCalDetIdUtil::setWaferOf(trigger_cell_det_id, wafer_itr->second);
+            HGCalDetIdUtil::setCellOf(trigger_cell_det_id, trigger_cell);
             trigger_cell_det_ids.emplace(trigger_cell_det_id);
         }
     }

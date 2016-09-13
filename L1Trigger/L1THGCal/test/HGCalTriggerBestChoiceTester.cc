@@ -19,12 +19,10 @@
 #include "DataFormats/L1THGCal/interface/HGCFETriggerDigiFwd.h"
 #include "DataFormats/L1THGCal/interface/HGCalCluster.h"
 #include "DataFormats/HGCDigi/interface/HGCDigiCollections.h"
-#include "DataFormats/ForwardDetId/interface/HGCTriggerDetId.h"
 
 #include "DataFormats/ForwardDetId/interface/HGCEEDetId.h"
 #include "DataFormats/ForwardDetId/interface/HGCHEDetId.h"
 #include "DataFormats/ForwardDetId/interface/ForwardSubdetector.h"
-#include "DataFormats/ForwardDetId/interface/HGCTriggerDetId.h"
 
 #include "SimDataFormats/CaloHit/interface/PCaloHit.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"

@@ -15,7 +15,6 @@
 #include "DataFormats/HGCDigi/interface/HGCDigiCollections.h"
 //#include "DataFormats/ForwardDetId/interface/HGCEEDetId.h"
 #include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
-#include "DataFormats/ForwardDetId/interface/HGCTriggerDetId.h"
 #include "DataFormats/ForwardDetId/interface/ForwardSubdetector.h"
 
 #include "L1Trigger/L1THGCal/interface/HGCalTriggerGeometryBase.h"
@@ -208,7 +207,7 @@ void HGCalTriggerBestChoiceMonitor::optimizedLoop(const edm::Event& e, const edm
         run_    = e.id().run();
         lumi_   = e.luminosityBlock();
         event_  = e.id().event();
-        HGCTriggerHexDetId moduleId(module_hits.first);
+        HGCalDetId moduleId(module_hits.first);
         // prepare input data
         std::vector<HGCDataFrame<HGCalDetId,HGCSample>> dataframes;
         std::vector<std::pair<HGCalDetId, uint32_t > > linearized_dataframes;
@@ -247,7 +246,7 @@ void HGCalTriggerBestChoiceMonitor::optimizedLoop(const edm::Event& e, const edm
         run_    = e.id().run();
         lumi_   = e.luminosityBlock();
         event_  = e.id().event();
-        HGCTriggerHexDetId moduleId(module_hits.first);
+        HGCalDetId moduleId(module_hits.first);
         // prepare input data
         std::vector<HGCDataFrame<HGCalDetId,HGCSample>> dataframes;
         std::vector<std::pair<HGCalDetId, uint32_t > > linearized_dataframes;
@@ -330,7 +329,7 @@ void HGCalTriggerBestChoiceMonitor::lightweightLoop(const edm::Event& e, const e
         run_    = e.id().run();
         lumi_   = e.luminosityBlock();
         event_  = e.id().event();
-        HGCTriggerHexDetId moduleId(module_hits.first);
+        HGCalDetId moduleId(module_hits.first);
         // prepare input data
         std::vector<HGCDataFrame<HGCalDetId,HGCSample>> dataframes;
         std::vector<std::pair<HGCalDetId, uint32_t > > linearized_dataframes;
@@ -370,7 +369,7 @@ void HGCalTriggerBestChoiceMonitor::lightweightLoop(const edm::Event& e, const e
         run_    = e.id().run();
         lumi_   = e.luminosityBlock();
         event_  = e.id().event();
-        HGCTriggerHexDetId moduleId(module_hits.first);
+        HGCalDetId moduleId(module_hits.first);
         // prepare input data
         std::vector<HGCDataFrame<HGCalDetId,HGCSample>> dataframes;
         std::vector<std::pair<HGCalDetId, uint32_t > > linearized_dataframes;

@@ -1,5 +1,4 @@
 #include "L1Trigger/L1THGCal/interface/fe_codecs/HGCalBestChoiceCodec.h"
-#include "DataFormats/ForwardDetId/interface/HGCTriggerDetId.h"
 #include <limits>
 
 using namespace HGCalTriggerFE;

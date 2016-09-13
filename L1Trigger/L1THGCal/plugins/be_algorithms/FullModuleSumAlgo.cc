@@ -1,6 +1,6 @@
 #include "L1Trigger/L1THGCal/interface/HGCalTriggerBackendAlgorithmBase.h"
 #include "L1Trigger/L1THGCal/interface/fe_codecs/HGCalBestChoiceCodec.h"
-#include "DataFormats/ForwardDetId/interface/HGCTriggerHexDetId.h"
+#include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
 
 #include "DataFormats/L1THGCal/interface/HGCalCluster.h"
 
@@ -46,7 +46,7 @@ void FullModuleSumAlgo::run(const l1t::HGCFETriggerDigiCollection& coll,
     {
         HGCalBestChoiceCodec::data_type data;
         data.reset();
-        const HGCTriggerHexDetId& moduleId = digi.getDetId<HGCTriggerHexDetId>();
+        const HGCalDetId& moduleId = digi.getDetId<HGCalDetId>();
         digi.decode(codec_, data);
 
         // Sum of trigger cells inside the module

@@ -4,7 +4,6 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "L1Trigger/L1THGCal/interface/HGCalTriggerGeometryBase.h"
-#include "DataFormats/ForwardDetId/interface/HGCTriggerHexDetId.h"
 #include "DataFormats/HGCDigi/interface/HGCDigiCollections.h"
 
 #include <array>

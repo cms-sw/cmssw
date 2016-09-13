@@ -7,7 +7,6 @@
 #include "DataFormats/L1THGCal/interface/HGCFETriggerDigi.h"
 #include "DataFormats/L1THGCal/interface/HGCFETriggerDigiFwd.h"
 #include "DataFormats/HGCDigi/interface/HGCDigiCollections.h"
-#include "DataFormats/ForwardDetId/interface/HGCTriggerDetId.h"
 
 #include "L1Trigger/L1THGCal/interface/HGCalTriggerGeometryBase.h"
 #include "L1Trigger/L1THGCal/interface/HGCalTriggerFECodecBase.h"

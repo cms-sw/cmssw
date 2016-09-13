@@ -1,6 +1,5 @@
 
 #include "L1Trigger/L1THGCal/interface/fe_codecs/HGCalBestChoiceCodecImpl.h"
-#include "DataFormats/ForwardDetId/interface/HGCTriggerDetId.h"
 
 
 /*****************************************************************/
@@ -121,14 +120,14 @@ void HGCalBestChoiceCodecImpl::triggerCellSums(const HGCalTriggerGeometryBase& g
 /*****************************************************************/
 {
     if(linearized_dataframes.size()==0) return;
-    std::map<HGCTriggerHexDetId, uint32_t> payload;
+    std::map<HGCalDetId, uint32_t> payload;
     // sum energies in trigger cells
     for(const auto& frame : linearized_dataframes)
     {
         HGCalDetId cellid(frame.first);
         // find trigger cell associated to cell
         uint32_t tcid = geometry.getTriggerCellFromCell(cellid);
-        HGCTriggerHexDetId triggercellid( tcid );
+        HGCalDetId triggercellid( tcid );
         payload.insert( std::make_pair(triggercellid, 0) ); // do nothing if key exists already
         // FIXME: need to transform ADC and TDC to the same linear scale on 12 bits
         uint32_t value = frame.second; // 'value' has to be a 12 bit word
