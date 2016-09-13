@@ -169,6 +169,9 @@ void l1t::Stage2Layer2JetAlgorithmFirmwareImp1::create(const std::vector<l1t::Ca
 
 	    if (iEt<=0) continue;
 
+	    // if tower Et is saturated, saturate jet Et
+	    if (seedEt >= 511) iEt = 65535;
+
 	    jet.setHwPt(iEt);
 	    jet.setRawEt( (short int) rawEt);
 	    jet.setSeedEt((short int) seedEt);
@@ -557,22 +560,24 @@ void l1t::Stage2Layer2JetAlgorithmFirmwareImp1::calibrate(std::vector<l1t::Jet> 
       // any values larger than 511 are automatically set to 511.
       int jetHwPt = jet->hwPt();
       if (jetHwPt >= 0x200) {
-        jetHwPt = 0x1FF;
+	jetHwPt = 0x1FF;
       }
       unsigned int ptBin = params_->jetCompressPtLUT()->data(jetHwPt>>1);
       unsigned int etaBin = params_->jetCompressEtaLUT()->data(abs(CaloTools::mpEta(jet->hwEta())));
       unsigned int compBin =  (etaBin<<4) | ptBin;
-
+      
       unsigned int addPlusMult = params_->jetCalibrationLUT()->data(compBin);
       unsigned int multiplier = addPlusMult & 0x3ff;
       // handles -ve numbers correctly
       int8_t addend = (addPlusMult>>10);
       unsigned int jetPtCorr = ((jet->hwPt()*multiplier)>>9) + addend;
-
-      jet->setHwPt(jetPtCorr);
+     
+      if(jetPtCorr < 0xFFFF)
+	jet->setHwPt(jetPtCorr);
+      else
+	jet->setHwPt(0xFFFF);
     }
-
-
+    
   } else {
     if(params_->jetCalibrationType() != "None" && params_->jetCalibrationType() != "none") 
       edm::LogError("l1t|stage 2") << "Invalid calibration type in calo params. Not calibrating Stage 2 Jets" << std::endl;

@@ -350,7 +350,7 @@ namespace l1t {
           hratio_.at(Tower)->Fill( itr->hwEtRatio() );
           hetaphi_.at(Tower)->Fill( itr->hwEta(), itr->hwPhi(), itr->hwPt() );
 
-          text << "Tower : " << " BX=" << ibx << " ipt=" << itr->hwPt() << " ieta=" << itr->hwEta() << " iphi=" << itr->hwPhi() << " iem=" << itr->hwEtEm() << " ihad=" << itr->hwEtHad() << " iratio=" << itr->hwEtRatio() << std::endl;
+	  text << "Tower : " << " BX=" << ibx << " ipt=" << itr->hwPt() << " ieta=" << itr->hwEta() << " iphi=" << itr->hwPhi() << " iem=" << itr->hwEtEm() << " ihad=" << itr->hwEtHad() << " iratio=" << itr->hwEtRatio() << std::endl;
 	
           if (m_doEvtDisp) hEvtTow->Fill( itr->hwEta(), itr->hwPhi(), itr->hwPt() );
 
@@ -643,7 +643,7 @@ namespace l1t {
         }
       }
     }
-
+    
     if (doText_) edm::LogVerbatim("L1TCaloEvents") << text.str();
 
   }
@@ -680,7 +680,7 @@ namespace l1t {
         het_.insert( std::pair< ObjectType, TH1F* >(*itr, dirs_.at(*itr).make<TH1F>("et", "", 16, -0.5, 15.5) )); 
       }
       else {
-        het_.insert( std::pair< ObjectType, TH1F* >(*itr, dirs_.at(*itr).make<TH1F>("et", "", 1500, -0.5, 1499.5) ));
+        het_.insert( std::pair< ObjectType, TH1F* >(*itr, dirs_.at(*itr).make<TH1F>("et", "", 100000, -0.5, 99999.5) ));
       }
 
       hbx_.insert( std::pair< ObjectType, TH1F* >(*itr, dirs_.at(*itr).make<TH1F>("bx", "", 11, -5.5, 5.5) ));
