@@ -1,12 +1,5 @@
-/*
- * CAGraph.h
- *
- *  Created on: Aug 19, 2016
- *      Author: fpantale
- */
-
-#ifndef CAGRAPH_H_
-#define CAGRAPH_H_
+#ifndef RECOPIXELVERTEXING_PIXELTRIPLETS_CAGRAPH_H_
+#define RECOPIXELVERTEXING_PIXELTRIPLETS_CAGRAPH_H_
 
 #include <vector>
 #include <array>
@@ -15,9 +8,8 @@
 #include <functional>
 #include "CACell.h"
 
-class CALayer
+struct CALayer
 {
-public:
 	CALayer(const std::string& layerName, std::size_t numberOfHits )
 	: theName(layerName)
 	{
