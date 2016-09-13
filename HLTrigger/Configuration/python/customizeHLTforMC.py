@@ -149,10 +149,6 @@ def customizeHLTforMC(process,_fastSim=False):
       "hltMuTrackCtfTracksOnia",
 
       "hltFEDSelector",
-      "hltL3TrajSeedOIHit",
-      "hltL3TrajSeedIOHit",
-      "hltL3NoFiltersTrajSeedOIHit",
-      "hltL3NoFiltersTrajSeedIOHit",
       "hltL3TrackCandidateFromL2OIState",
       "hltL3TrackCandidateFromL2OIHit",
       "hltL3TrackCandidateFromL2IOHit",
