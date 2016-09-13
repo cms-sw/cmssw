@@ -36,15 +36,15 @@ namespace l1t {
             inline MuonBxCollection* getImdMuonsOMTFPos() { return imdMuonsOMTFPos_.get(); };
 
          private:
-            std::auto_ptr<RegionalMuonCandBxCollection> regionalMuonCandsBMTF_;
-            std::auto_ptr<RegionalMuonCandBxCollection> regionalMuonCandsOMTF_;
-            std::auto_ptr<RegionalMuonCandBxCollection> regionalMuonCandsEMTF_;
-            std::auto_ptr<MuonBxCollection> muons_;
-            std::auto_ptr<MuonBxCollection> imdMuonsBMTF_;
-            std::auto_ptr<MuonBxCollection> imdMuonsEMTFNeg_;
-            std::auto_ptr<MuonBxCollection> imdMuonsEMTFPos_;
-            std::auto_ptr<MuonBxCollection> imdMuonsOMTFNeg_;
-            std::auto_ptr<MuonBxCollection> imdMuonsOMTFPos_;
+            std::unique_ptr<RegionalMuonCandBxCollection> regionalMuonCandsBMTF_;
+            std::unique_ptr<RegionalMuonCandBxCollection> regionalMuonCandsOMTF_;
+            std::unique_ptr<RegionalMuonCandBxCollection> regionalMuonCandsEMTF_;
+            std::unique_ptr<MuonBxCollection> muons_;
+            std::unique_ptr<MuonBxCollection> imdMuonsBMTF_;
+            std::unique_ptr<MuonBxCollection> imdMuonsEMTFNeg_;
+            std::unique_ptr<MuonBxCollection> imdMuonsEMTFPos_;
+            std::unique_ptr<MuonBxCollection> imdMuonsOMTFNeg_;
+            std::unique_ptr<MuonBxCollection> imdMuonsOMTFPos_;
       };
    }
 }
