@@ -78,6 +78,7 @@ l1tStage2OnlineDQM = cms.Sequence(
     l1tStage2uGMTZeroSupp +
     l1tStage2BmtfOutVsuGMTIn +
     l1tStage2EmtfOutVsuGMTIn +
+    l1tStage2uGMTOutVsuGTIn +
     l1tStage2uGt
 )
 
