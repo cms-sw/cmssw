@@ -403,11 +403,11 @@ namespace edm {
                                    ProductRegistry& preg,
                                    PreallocationConfiguration const* prealloc,
                                    std::shared_ptr<ProcessConfiguration const> processConfiguration,
-                                   std::string const& name,
+                                   std::string const& pathName,
                                    bool ignoreFilters,
                                    PathWorkers& out,
                                    vstring* labelsOnPaths) {
-    vstring modnames = proc_pset.getParameter<vstring>(name);
+    vstring modnames = proc_pset.getParameter<vstring>(pathName);
     PathWorkers tmpworkers;
 
     unsigned int placeInPath = 0;
@@ -445,7 +445,7 @@ namespace edm {
           // Filter is not allowed. Ignore the result, and issue a warning.
           filterAction = WorkerInPath::Ignore;
           LogWarning("FilterOnEndPath")
-            << "The EDFilter '" << worker->description().moduleName() << "' with module label '" << moduleLabel << "' appears on EndPath '" << name << "'.\n"
+            << "The EDFilter '" << worker->description().moduleName() << "' with module label '" << moduleLabel << "' appears on EndPath '" << pathName << "'.\n"
             << "The return value of the filter will be ignored.\n"
             << "To suppress this warning, either remove the filter from the endpath,\n"
             << "or explicitly ignore it in the configuration by using cms.ignore().\n";
