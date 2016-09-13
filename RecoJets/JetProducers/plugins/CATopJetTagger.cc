@@ -43,7 +43,7 @@ CATopJetTagger::produce( edm::StreamID, edm::Event& iEvent, const edm::EventSetu
 {
 
   // Set up output list
-  auto_ptr<CATopJetTagInfoCollection> tagInfos(new CATopJetTagInfoCollection() );
+  auto tagInfos = std::make_unique<CATopJetTagInfoCollection>();
 
   // Get the input list of basic jets corresponding to the hard jets
   Handle<View<Jet> > pBasicJets;
@@ -73,7 +73,7 @@ CATopJetTagger::produce( edm::StreamID, edm::Event& iEvent, const edm::EventSetu
     tagInfos->push_back( tagInfo );
   }// end loop over hard jets
   
-  iEvent.put( tagInfos );
+  iEvent.put(std::move(tagInfos));
  
   return;   
 }

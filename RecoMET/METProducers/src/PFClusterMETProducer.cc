@@ -49,11 +49,10 @@ namespace cms
     CommonMETData commonMETdata = algo.run(*input.product(), globalThreshold_);
 
     PFClusterSpecificAlgo pfcluster;
-    std::auto_ptr<reco::PFClusterMETCollection> pfclustermetcoll;
-    pfclustermetcoll.reset (new reco::PFClusterMETCollection);
+    auto pfclustermetcoll = std::make_unique<reco::PFClusterMETCollection>();
 
     pfclustermetcoll->push_back(pfcluster.addInfo(input, commonMETdata));
-    event.put(pfclustermetcoll);
+    event.put(std::move(pfclustermetcoll));
   }
 
 //____________________________________________________________________________||

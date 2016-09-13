@@ -633,7 +633,7 @@ void FFTJetProducer::writeJets(edm::Event& iEvent,
                    pileupEnergyFlow->phiBinWidth();
 
     // allocate output jet collection
-    std::auto_ptr<OutputCollection> jets(new OutputCollection());
+    auto jets = std::make_unique<OutputCollection>();
     const unsigned nJets = recoJets.size();
     jets->reserve(nJets);
 
@@ -705,7 +705,7 @@ void FFTJetProducer::writeJets(edm::Event& iEvent,
         std::sort(jets->begin(), jets->end(), LocalSortByPt());
 
     // put the collection into the event
-    iEvent.put(jets, outputLabel);
+    iEvent.put(std::move(jets), outputLabel);
 }
 
 
@@ -732,15 +732,13 @@ void FFTJetProducer::saveResults(edm::Event& ev, const edm::EventSetup& iSetup,
     const double maxScale = maxLevel ? sparseTree.getScale(maxLevel) : 0.0;
     const double scaleUsed = usedLevel ? sparseTree.getScale(usedLevel) : 0.0;
 
-    std::auto_ptr<reco::FFTJetProducerSummary> summary(
-        new reco::FFTJetProducerSummary(
+    ev.put(std::make_unique<reco::FFTJetProducerSummary>(
             thresholds, occupancy, unclusE,
             constituents[0], unused,
             minScale, maxScale, scaleUsed,
             nPreclustersFound, iterationsPerformed,
             iterationsPerformed == 1U ||
-            iterationsPerformed <= maxIterations));
-    ev.put(summary, outputLabel);
+            iterationsPerformed <= maxIterations), outputLabel);
 }
 
 

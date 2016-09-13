@@ -108,14 +108,14 @@ void MuonMETValueMapProducer::produce(edm::Event& iEvent, const edm::EventSetup&
 
     }
     
-  std::auto_ptr<edm::ValueMap<reco::MuonMETCorrectionData> > valueMapMuCorrData(new edm::ValueMap<reco::MuonMETCorrectionData>());
+  auto valueMapMuCorrData = std::make_unique<edm::ValueMap<reco::MuonMETCorrectionData>>();
 
   edm::ValueMap<reco::MuonMETCorrectionData>::Filler dataFiller(*valueMapMuCorrData);
      
   dataFiller.insert(muons, muCorrDataList.begin(), muCorrDataList.end());
   dataFiller.fill();
 
-  iEvent.put(valueMapMuCorrData, "muCorrData");
+  iEvent.put(std::move(valueMapMuCorrData), "muCorrData");
     
 }
 

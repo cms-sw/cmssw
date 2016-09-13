@@ -283,7 +283,7 @@ void FastjetJetProducer::produceTrackJets( edm::Event & iEvent, const edm::Event
     edm::Handle<reco::VertexCollection> pvCollection;
     iEvent.getByToken(input_vertex_token_, pvCollection);
     // define the overall output jet container
-    std::auto_ptr<std::vector<reco::TrackJet> > jets(new std::vector<reco::TrackJet>() );
+    auto jets = std::make_unique<std::vector<reco::TrackJet>>();
 
     // loop over the good vertices, clustering for each vertex separately
     for (reco::VertexCollection::const_iterator itVtx = pvCollection->begin(); itVtx != pvCollection->end(); ++itVtx) {
@@ -383,7 +383,7 @@ void FastjetJetProducer::produceTrackJets( edm::Event & iEvent, const edm::Event
 
     // put the jets in the collection
     LogDebug("FastjetTrackJetProducer") << "Put " << jets->size() << " jets in the event.\n";
-    iEvent.put(jets);
+    iEvent.put(std::move(jets));
 
     // Clear the work vectors so that memory is free for other modules.
     // Use the trick of swapping with an empty vector so that the memory

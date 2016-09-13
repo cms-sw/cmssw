@@ -91,8 +91,7 @@ void EcalHaloDataProducer::produce(Event& iEvent, const EventSetup& iSetup)
   EcalAlgo.SetPhiWedgeThresholds(SumEcalEnergyThreshold, NHitsEcalThreshold);
   
 
-  std::auto_ptr<EcalHaloData> EcalData( new EcalHaloData( EcalAlgo.Calculate(*TheCaloGeometry, ThePhotons, TheSuperClusters, TheEBRecHits, TheEERecHits, TheESRecHits, TheHBHERecHits,iSetup)));
-  iEvent.put( EcalData ) ; 
+  iEvent.put(std::make_unique<EcalHaloData>(EcalAlgo.Calculate(*TheCaloGeometry, ThePhotons, TheSuperClusters, TheEBRecHits, TheEERecHits, TheESRecHits, TheHBHERecHits,iSetup)));
 
   return;
 }

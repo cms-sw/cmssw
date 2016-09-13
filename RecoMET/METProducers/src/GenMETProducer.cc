@@ -48,10 +48,9 @@ namespace cms
     CommonMETData commonMETdata;
 
     GenSpecificAlgo gen;
-    std::auto_ptr<reco::GenMETCollection> genmetcoll;
-    genmetcoll.reset(new reco::GenMETCollection);
+    auto genmetcoll = std::make_unique<reco::GenMETCollection>();
     genmetcoll->push_back(gen.addInfo(input, &commonMETdata, globalThreshold_, onlyFiducial_, applyFiducialThresholdForFractions_, usePt_));
-    event.put(genmetcoll);
+    event.put(std::move(genmetcoll));
   }
 
 //____________________________________________________________________________||

@@ -49,12 +49,12 @@ PUFilter::produce(edm::StreamID sid, edm::Event& iEvent, const edm::EventSetup &
   iEvent.getByToken( jetsToken_, jetsH );
   iEvent.getByToken( jetPuIdToken_, id_decisions );
   
-  std::auto_ptr<std::vector<reco::PFJet> > goodjets(new std::vector<reco::PFJet> );
+  auto goodjets = std::make_unique<std::vector<reco::PFJet>>();
   for( size_t i = 0; i < jetsH->size(); ++i ) {
     auto jet = jetsH->refAt(i);
     if((*id_decisions)[jet]) goodjets->push_back(*jet);
   }
-  iEvent.put(goodjets);
+  iEvent.put(std::move(goodjets));
 }
 
 void
