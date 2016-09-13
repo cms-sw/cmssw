@@ -97,6 +97,7 @@ void L1TMuonEndCapTrackProducer::produce(edm::Event& ev,
   ev.getByToken(inputTokenRPC, RDC);
   
   std::vector<L1TMuon::TriggerPrimitive> out;
+  std::vector<L1TMuon::TriggerPrimitive> out_rpc;
 
   auto chamber = MDC->begin();
   auto chend  = MDC->end();
@@ -128,13 +129,13 @@ void L1TMuonEndCapTrackProducer::produce(edm::Event& ev,
     auto rdigi = (*rchamber).second.first;
     auto rdend = (*rchamber).second.second;
     for( ; rdigi != rdend; ++rdigi) {
-      out.push_back(L1TMuon::TriggerPrimitive( (*rchamber).first, rdigi->strip(), 0, rdigi->bx())); // Layer unset.  How to access? - AWB 03.06.16 
+      out_rpc.push_back(L1TMuon::TriggerPrimitive( (*rchamber).first, rdigi->strip(), 0, rdigi->bx())); // Layer unset.  How to access? - AWB 03.06.16 
     }
   }
   
   
   //////////////////////////////////////////////
-  ///////// Get Trigger Primitives /////////////  Retrieve TriggerPrimitives from the event record: Currently does nothing because we don't take RPC's
+  ///////// Get Trigger Primitives /////////////  Retrieve L1TMuon::TriggerPrimitives from the event record: Currently does nothing because we don't take RPC's
   //////////////////////////////////////////////
   
   // auto tpsrc = _tpinputs.cbegin();
@@ -142,23 +143,18 @@ void L1TMuonEndCapTrackProducer::produce(edm::Event& ev,
   // for( ; tpsrc != tpend; ++tpsrc ) {
   // edm::Handle<L1TMuon::TriggerPrimitiveCollection> tps;
   // ev.getByLabel(*tpsrc,tps);
-  auto tp = out.cbegin();
-  auto tpend = out.cend();
+  auto tp = out_rpc.cbegin();
+  auto tpend = out_rpc.cend();
   
   for( ; tp != tpend; ++tp ) {
-    if(tp->subsystem() == 1)
-      // tester.push_back(*tp);
-    if(tp->subsystem() == 2)
-      tester_rpc.push_back(*tp);
-     }
-  //}
+    if (tp->subsystem() == 2) tester_rpc.push_back(*tp);
+  }
   
   // Create extra converted hits for chambers with two LCTs (ambiguous strip/wire pairing)
   for(unsigned int i1=0;i1<out.size();i1++){
     tester.push_back(out[i1]);
-    
+
     for(unsigned int i2=i1+1;i2<out.size();i2++){
-      
       if ( out[i1].detId<CSCDetId>().station() == out[i2].detId<CSCDetId>().station() &&
 	   out[i1].detId<CSCDetId>().endcap() == out[i2].detId<CSCDetId>().endcap() &&
 	   out[i1].detId<CSCDetId>().triggerSector() == out[i2].detId<CSCDetId>().triggerSector() &&
@@ -167,20 +163,19 @@ void L1TMuonEndCapTrackProducer::produce(edm::Event& ev,
 	   out[i1].getBX() == out[i2].getBX() && out[i1].Id() == out[i2].Id() &&
 	   out[i1].getStrip() != out[i2].getStrip() && out[i1].getWire() != out[i2].getWire() ) {
 	
-        L1TMuon::TriggerPrimitive NewWire1(out[i1],out[i2]);
-        L1TMuon::TriggerPrimitive NewWire2(out[i2],out[i1]);
+	L1TMuon::TriggerPrimitive NewWire1(out[i1],out[i2]);
+	L1TMuon::TriggerPrimitive NewWire2(out[i2],out[i1]);
 	tester.push_back(NewWire1);
 	tester.push_back(NewWire2);
       } 
     } // End loop: for(unsigned int i2=i1+1;i2<out.size();i2++)
   } // End loop: for(unsigned int i1=0;i1<out.size();i1++)
 
-  
   unsigned int nHits = OutputHits->size();
   for (unsigned int iHit = 0; iHit < nHits; iHit++) {
     for (unsigned int jHit = iHit+1; jHit < nHits; jHit++) {
       if ( OutputHits->at(iHit).Chamber() != OutputHits->at(jHit).Chamber() ) continue;
-      // if ( OutputHits->at(iHit).Ring() != OutputHits->at(jHit).Ring() ) continue;
+      if ( (OutputHits->at(iHit).Ring() % 3) != (OutputHits->at(jHit).Ring() % 3) ) continue;
       if ( OutputHits->at(iHit).Sector() != OutputHits->at(jHit).Sector() ) continue;
       if ( OutputHits->at(iHit).Station() != OutputHits->at(jHit).Station() ) continue;
       if ( OutputHits->at(iHit).Endcap() != OutputHits->at(jHit).Endcap() ) continue;
@@ -239,8 +234,9 @@ void L1TMuonEndCapTrackProducer::produce(edm::Event& ev,
 	  OutputHits->at(iHit).set_zone        ( ConvHits.at(iCHit).Phzvl()  );
 	  OutputHits->at(iHit).set_phi_loc_int ( ConvHits.at(iCHit).Phi()    );
 	  OutputHits->at(iHit).set_theta_int   ( ConvHits.at(iCHit).Theta()  );
-	  
-	  OutputHits->at(iHit).SetZoneContribution ( ConvHits.at(iCHit).ZoneContribution() );
+
+	  // // Replace with ZoneWord - AWB 04.09.16
+	  // OutputHits->at(iHit).SetZoneContribution ( ConvHits.at(iCHit).ZoneContribution() );
 	  OutputHits->at(iHit).set_phi_loc_deg  ( l1t::calc_phi_loc_deg( OutputHits->at(iHit).Phi_loc_int() ) );
 	  OutputHits->at(iHit).set_phi_loc_rad  ( l1t::calc_phi_loc_rad( OutputHits->at(iHit).Phi_loc_int() ) );
 	  OutputHits->at(iHit).set_phi_glob_deg ( l1t::calc_phi_glob_deg_hit( OutputHits->at(iHit).Phi_loc_deg(), OutputHits->at(iHit).Sector_index() ) );
@@ -340,7 +336,7 @@ void L1TMuonEndCapTrackProducer::produce(edm::Event& ev,
     /////////////////////////////////
     
     // std::vector<std::vector<DeltaOutput>> Dout = CalcDeltas(Mout);////
-    std::vector<std::vector<std::vector<DeltaOutput>>> Dout_Hold = CalcDeltas_Hold(Mout_Hold);
+    DeltaOutArr3 Dout_Hold = CalcDeltas_Hold(Mout_Hold);
     
     
     /////////////////////////////////
@@ -525,8 +521,7 @@ void L1TMuonEndCapTrackProducer::produce(edm::Event& ev,
 	  ps.push_back(A->Phi());
 	  ts.push_back(A->Theta());
 	  
-	  sector = A->SectorIndex();//(A->TP().detId<CSCDetId>().endcap() -1)*6 + A->TP().detId<CSCDetId>().triggerSector() - 1;
-	  //std::cout<<"Q: "<<A->Quality()<<", keywire: "<<A->Wire()<<", strip: "<<A->Strip()<<std::endl;
+	  sector = A->SectorIndex();
 	  
 	  switch(station){
 	  case 1: mode_uncorr |= 8;break;
@@ -616,7 +611,7 @@ void L1TMuonEndCapTrackProducer::produce(edm::Event& ev,
       thisTrack.set_mode       ( mode            ); 
       thisTrack.set_first_bx   ( ebx - 6         ); 
       thisTrack.set_second_bx  ( sebx - 6        ); 
-      thisTrack.set_bx         ( thisTrack.First_BX() );
+      thisTrack.set_bx         ( thisTrack.Second_BX() );
       thisTrack.set_phis       ( ps              );
       thisTrack.set_thetas     ( ts              );
       thisTrack.set_pt         ( xmlpt*1.4       );
@@ -636,11 +631,8 @@ void L1TMuonEndCapTrackProducer::produce(edm::Event& ev,
       // thisTrack.phi_loc_rad(); // Need to implement - AWB 04.04.16
       // thisTrack.phi_glob_rad(); // Need to implement - AWB 04.04.16
       
-      // // Optimal emulator configuration - AWB 29.03.16
-      // std::pair<int,l1t::RegionalMuonCand> outPair(sebx,outCand);
-      
-      // Actual setting in firmware - AWB 12.04.16
-      std::pair<int,l1t::RegionalMuonCand> outPair(ebx,outCand);
+      // Use "ebx" for earliest LCT (used through August 24, 2016) - AWB 26.08.16
+      std::pair<int,l1t::RegionalMuonCand> outPair(sebx,outCand);
       
       // // Extra debugging output - AWB 29.03.16
       // std::cout << "Input: eBX = " << ebx << ", seBX = " << sebx << ", pt = " << xmlpt*1.4 
@@ -648,7 +640,7 @@ void L1TMuonEndCapTrackProducer::produce(edm::Event& ev,
       // 	    << ", theta = " << AllTracks[fbest].theta << ", sign = " << 1 
       // 	    << ", quality = " << mode << ", trackaddress = " << 1 
       // 	    << ", sector = " << sector << std::endl;
-      // std::cout << "Output: BX = " << ebx << ", hwPt = " << outCand.hwPt() << ", hwPhi = " << outCand.hwPhi() 
+      // std::cout << "Output: BX = " << sebx << ", hwPt = " << outCand.hwPt() << ", hwPhi = " << outCand.hwPhi() 
       // 	    << ", hwEta = " << outCand.hwEta() << ", hwSign = " << outCand.hwSign() 
       // 	    << ", hwQual = " << outCand.hwQual() << ", link = " << outCand.link()
       // 	    << ", processor = " << outCand.processor() 
@@ -686,7 +678,6 @@ void L1TMuonEndCapTrackProducer::produce(edm::Event& ev,
   ev.put( OutputHits, "CSC");   // EMTFHitExtraCollection
   ev.put( OutputHitsRPC, "RPC");   // EMTFHitExtraCollection
   ev.put( OutputTracks, ""); // EMTFTrackExtraCollection
-  //std::cout<<"End Upgraded Track Finder Prducer:::::::::::::::::::::::::::\n:::::::::::::::::::::::::::::::::::::::::::::::::\n\n";
   
 }//analyzer
 

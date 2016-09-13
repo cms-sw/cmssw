@@ -105,7 +105,7 @@ namespace l1t
 					else
 						mbPhiB[iw] = (inputWords[iw] >> 12) & 0x3FF;
 					
-					mbQual[iw] = (inputWords[iw] >> 22) & 0xF;
+					mbQual[iw] = (inputWords[iw] >> 22) & 0x7;
 					mbRPC[iw] = (inputWords[iw] >> 26) & 0x1;
 					mbBxC[iw] = (inputWords[iw] >> 30) & 0x3;
 
