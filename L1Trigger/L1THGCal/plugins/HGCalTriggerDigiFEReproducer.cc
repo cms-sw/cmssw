@@ -40,7 +40,7 @@ DEFINE_FWK_MODULE(HGCalTriggerDigiFEReproducer);
 /*****************************************************************/
 HGCalTriggerDigiFEReproducer::HGCalTriggerDigiFEReproducer(const edm::ParameterSet& conf):
     inputdigi_(consumes<l1t::HGCFETriggerDigiCollection>(conf.getParameter<edm::InputTag>("feDigis"))), 
-    backEndProcessor_(conf.getParameterSet("BEConfiguration")) 
+    backEndProcessor_(conf.getParameterSet("BEConfiguration"), consumesCollector()) 
 /*****************************************************************/
 {
     //setup geometry configuration
@@ -113,7 +113,7 @@ void HGCalTriggerDigiFEReproducer::produce(edm::Event& e, const edm::EventSetup&
     auto fe_digis_coll = *fe_digis_handle;
 
     //now we run the emulation of the back-end processor
-    backEndProcessor_.run(fe_digis_coll,triggerGeometry_);
+    backEndProcessor_.run(fe_digis_coll,triggerGeometry_,e);
     backEndProcessor_.putInEvent(e);
     backEndProcessor_.reset();  
 }

@@ -40,7 +40,7 @@ HGCalTriggerDigiProducer(const edm::ParameterSet& conf):
   inputee_(consumes<HGCEEDigiCollection>(conf.getParameter<edm::InputTag>("eeDigis"))),
   inputfh_(consumes<HGCHEDigiCollection>(conf.getParameter<edm::InputTag>("fhDigis"))), 
   //inputbh_(consumes<HGCHEDigiCollection>(conf.getParameter<edm::InputTag>("bhDigis"))), 
-  backEndProcessor_(conf.getParameterSet("BEConfiguration")) {
+  backEndProcessor_(conf.getParameterSet("BEConfiguration"),consumesCollector()) {
   
   //setup geometry configuration
   const edm::ParameterSet& geometryConfig = 
@@ -147,7 +147,7 @@ void HGCalTriggerDigiProducer::produce(edm::Event& e, const edm::EventSetup& es)
   auto fe_digis_coll = *fe_digis_handle;
   
   //now we run the emulation of the back-end processor
-  backEndProcessor_.run(fe_digis_coll,triggerGeometry_);
+  backEndProcessor_.run(fe_digis_coll,triggerGeometry_,e);
   backEndProcessor_.putInEvent(e);
   backEndProcessor_.reset();  
 }
