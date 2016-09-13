@@ -171,7 +171,7 @@ ALCARECOMuAlCalIsolatedMuMuAlDQM = _MuonAl.muonAlignment.clone(
     FolderName ='AlCaReco/MuAlCalIsolatedMu',
     MuonCollection = 'ALCARECOMuAlCalIsolatedMu:GlobalMuon'
     )
-ALCARECOMuAlCalIsolatedMuGeneralTracksDQM = _MuonAl.muonAlignment.clone(
+ALCARECOMuAlCalIsolatedMuMuAlGeneralTracksDQM = _MuonAl.muonAlignment.clone(
     doSummary = True,
     FolderName ='AlCaReco/MuAlCalIsolatedMu',
     MuonCollection = 'ALCARECOMuAlCalIsolatedMu:GlobalMuon'
@@ -186,7 +186,7 @@ from Alignment.CommonAlignmentProducer.ALCARECOMuAlCalIsolatedMu_cff import ALCA
 #)
 #ALCARECOMuAlCalIsolatedMuDQM = cms.Sequence( ALCARECOMuAlCalIsolatedMuTrackingDQM + ALCARECOMuAlCalIsolatedMuMuAlDQM + ALCARECOMuAlCalIsolatedMuHLTDQM)
 ALCARECOMuAlCalIsolatedMuDQM = cms.Sequence( ALCARECOMuAlCalIsolatedMuTrackingDQM + ALCARECOMuAlCalIsolatedMuMuAlDQM)
-ALCARECOMuAlCalIsolatedMuGeneralTracksDQM = cms.Sequence( ALCARECOMuAlCalIsolatedMuGeneralTracksTrackingDQM + ALCARECOMuAlCalIsolatedMuGeneralTracksDQM)
+ALCARECOMuAlCalIsolatedMuGeneralTracksDQM = cms.Sequence( ALCARECOMuAlCalIsolatedMuGeneralTracksTrackingDQM + ALCARECOMuAlCalIsolatedMuMuAlGeneralTracksDQM)
 
 ##########################################################
 #################### MuAlOverlaps ########################
@@ -276,7 +276,7 @@ ALCARECOMuAlZMuMuMuAlDQM= _MuonAl.muonAlignment.clone(
     FolderName ='AlCaReco/MuAlCaZMuMu',
     MuonCollection = 'ALCARECOMuAlZMuMu:StandAlone'
     )
-ALCARECOMuAlZMuMuGeneralTracksDQM= _MuonAl.muonAlignment.clone(
+ALCARECOMuAlZMuMuMuAlGeneralTracksDQM= _MuonAl.muonAlignment.clone(
     doSummary = True,
     FolderName ='AlCaReco/MuAlCaZMuMu',
     MuonCollection = 'ALCARECOMuAlZMuMu:StandAlone'
@@ -291,4 +291,4 @@ from Alignment.CommonAlignmentProducer.ALCARECOMuAlZMuMu_cff import ALCARECOMuAl
 #)
 #ALCARECOMuAlZMuMuDQM = cms.Sequence( ALCARECOMuAlZMuMuTrackingDQM + ALCARECOMuAlZMuMuMuAlDQM + ALCARECOMuAlZMuMuHLTDQM)
 ALCARECOMuAlZMuMuDQM = cms.Sequence( ALCARECOMuAlZMuMuTrackingDQM + ALCARECOMuAlZMuMuMuAlDQM)
-ALCARECOMuAlZMuMuGeneralTracksDQM = cms.Sequence( ALCARECOMuAlZMuMuGeneralTracksTrackingDQM + ALCARECOMuAlZMuMuGeneralTracksDQM)
+ALCARECOMuAlZMuMuGeneralTracksDQM = cms.Sequence( ALCARECOMuAlZMuMuGeneralTracksTrackingDQM + ALCARECOMuAlZMuMuMuAlGeneralTracksDQM)
