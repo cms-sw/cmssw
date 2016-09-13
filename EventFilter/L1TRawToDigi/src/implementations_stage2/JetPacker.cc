@@ -41,6 +41,7 @@ namespace stage2 {
       std::vector<uint32_t> load1, load2;
 
       // loop over BX
+      int nBx=0;
       for (int i = jets->getFirstBX(); i <= jets->getLastBX(); ++i) {
 
 	 // get jets from this BX
@@ -57,17 +58,19 @@ namespace stage2 {
 	    (j->hwPhi() & 0xFF) << 19 |
 	    (j->hwQual() & 0x7) << 27;
 	  
-	  if (load1.size() < l1t::stage2::layer2::demux::nJetPerLink) load1.push_back(word);
+	  // Depending on the number, push onto appropriate link
+	  if (load1.size() - nBx*l1t::stage2::layer2::demux::nJetPerLink < l1t::stage2::layer2::demux::nJetPerLink) load1.push_back(word);
 	  else load2.push_back(word);
 		 
 	}
 	 
 
-	// push zeroes if jets are missing
-	while (load1.size()<l1t::stage2::layer2::demux::nOutputFramePerBX) load1.push_back(0);
+	// push zeroes if jets are missing must do this for each BX and each link 
+	while (load1.size() - nBx*l1t::stage2::layer2::demux::nOutputFramePerBX <l1t::stage2::layer2::demux::nOutputFramePerBX) load1.push_back(0);	
+     	while (load2.size() - nBx*l1t::stage2::layer2::demux::nOutputFramePerBX <l1t::stage2::layer2::demux::nOutputFramePerBX) load2.push_back(0);
+  
+	nBx++;
 	
-	while (load2.size()<l1t::stage2::layer2::demux::nOutputFramePerBX) load2.push_back(0);
-
       }
 
       
