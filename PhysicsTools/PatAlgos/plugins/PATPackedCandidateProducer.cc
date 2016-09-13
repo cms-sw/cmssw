@@ -185,7 +185,6 @@ void pat::PATPackedCandidateProducer::produce(edm::StreamID, edm::Event& iEvent,
 
     for(unsigned int ic=0, nc = cands->size(); ic < nc; ++ic) {
         const reco::PFCandidate &cand=(*cands)[ic];
-        float phiAtVtx = cand.phi();
         const reco::Track *ctrack = 0;
         if ((abs(cand.pdgId()) == 11 || cand.pdgId() == 22) && cand.gsfTrackRef().isNonnull()) {
             ctrack = &*cand.gsfTrackRef();
@@ -210,7 +209,7 @@ void pat::PATPackedCandidateProducer::produce(edm::StreamID, edm::Event& iEvent,
           //   vtx = tsos.globalPosition();
           //          phiAtVtx = tsos.globalDirection().phi();
           vtx = ctrack->referencePoint();
-          phiAtVtx = ctrack->phi();
+          float phiAtVtx = ctrack->phi();
           int nlost = ctrack->hitPattern().numberOfLostHits(reco::HitPattern::MISSING_INNER_HITS);
           if (nlost == 0) { 
             if (ctrack->hitPattern().hasValidHitInPixelLayer(PixelSubdetector::SubDetector::PixelBarrel, 1)) {
