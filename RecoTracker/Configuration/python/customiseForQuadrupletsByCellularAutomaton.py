@@ -31,7 +31,8 @@ def customiseForQuadrupletsByCellularAutomaton(process):
             fitFastCircleChi2Cut = True,
             SeedingLayers = cms.InputTag(seedingLayersName),
             CAThetaCut = cms.double(0.00125),
-            CAPhiCut = cms.double(10),
+            CAPhiCut = cms.double(0.1),
+            CAHardPtCut = cms.double(0),
         )
 
         if hasattr(quadruplets.GeneratorPSet, "SeedComparitorPSet"):
