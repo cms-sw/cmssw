@@ -99,17 +99,26 @@ public:
     }
 
 
-    void checkAlignmentAndTag(CACell* innerCell, const float ptmin, const float region_origin_x, const float region_origin_y, const float region_origin_radius, const float thetaCut, const float phiCut, const float hardPtCut) {
+    void checkAlignmentAndTag(CACell* innerCell, const float ptmin, const float region_origin_x,
+    		const float region_origin_y, const float region_origin_radius, const float thetaCut,
+			const float phiCut, const float hardPtCut) {
 
-        if (areAlignedRZ(innerCell, ptmin, thetaCut) && haveSimilarCurvature(innerCell,ptmin, region_origin_x, region_origin_y, region_origin_radius, phiCut, hardPtCut)) {
+        if (areAlignedRZ(innerCell, ptmin, thetaCut) &&
+        		haveSimilarCurvature(innerCell,ptmin, region_origin_x, region_origin_y,
+        				region_origin_radius, phiCut, hardPtCut)) {
             tagAsInnerNeighbor(innerCell);
             innerCell->tagAsOuterNeighbor(this);
         }
     }
 
-    void checkAlignmentAndPushTriplet(CACell* innerCell, std::vector<CACell::CAntuplet>& foundTriplets, const float ptmin, const float region_origin_x, const float region_origin_y, const float region_origin_radius, const float thetaCut, const float phiCut, const float hardPtCut) {
+    void checkAlignmentAndPushTriplet(CACell* innerCell, std::vector<CACell::CAntuplet>& foundTriplets,
+    		const float ptmin, const float region_origin_x, const float region_origin_y,
+			const float region_origin_radius, const float thetaCut, const float phiCut,
+			const float hardPtCut) {
 
-        if (areAlignedRZ(innerCell, ptmin, thetaCut) && haveSimilarCurvature(innerCell,ptmin, region_origin_x, region_origin_y, region_origin_radius, phiCut, hardPtCut)) {
+        if (areAlignedRZ(innerCell, ptmin, thetaCut) &&
+        		haveSimilarCurvature(innerCell,ptmin, region_origin_x, region_origin_y,
+        				region_origin_radius, phiCut, hardPtCut)) {
         	foundTriplets.emplace_back(CACell::CAntuplet{innerCell,this});
 
         }
@@ -157,7 +166,7 @@ public:
 
         float distance_13_squared = (x1 - x3)*(x1 - x3) + (y1 - y3)*(y1 - y3);
         float tan_12_13_half_mul_distance_13_squared = fabs(y1 * (x2 - x3) + y2 * (x3 - x1) + y3 * (x1 - x2)) ;
-        if(tan_12_13_half_mul_distance_13_squared * ptmin <= 1.0e-4*distance_13_squared)
+        if(tan_12_13_half_mul_distance_13_squared * ptmin <= 1.0e-4f*distance_13_squared)
         {
         	return true;
 
