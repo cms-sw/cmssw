@@ -426,12 +426,12 @@ namespace edm {
       ParameterSet* modpset = proc_pset.getPSetForUpdate(moduleLabel, isTracked);
       if (modpset == 0) {
         std::string pathType("endpath");
-        if (!search_all(end_path_name_list_, name)) {
+        if (!search_all(end_path_name_list_, pathName)) {
           pathType = std::string("path");
         }
         throw Exception(errors::Configuration) <<
           "The unknown module label \"" << moduleLabel <<
-          "\" appears in " << pathType << " \"" << name <<
+          "\" appears in " << pathType << " \"" << pathName <<
           "\"\n please check spelling or remove that label from the path.";
       }
       assert(isTracked);
