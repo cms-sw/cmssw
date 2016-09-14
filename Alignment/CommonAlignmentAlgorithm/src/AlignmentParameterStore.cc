@@ -452,18 +452,40 @@ applyAlignableAbsolutePositions( const align::Alignables& alivec,
 	  // New position/rotation
 	  const align::PositionType& pnew = ipos->pos();
 	  const align::RotationType& rnew = ipos->rot();
+          const std::vector<double> dnew = ipos->deformationParameters();
 	  // Current position / rotation
 	  const align::PositionType& pold = ali->globalPosition();
 	  const align::RotationType& rold = ali->globalRotation();
+          std::vector<double> dold;
+          std::vector<std::pair<int,SurfaceDeformation*> > result;
+          if (1 == ali->surfaceDeformationIdPairs(result)) { // might not have any...
+            dold = result[0].second->parameters();
+          }
 				
 	  // shift needed to move from current to new position
 	  align::GlobalVector posDiff = pnew - pold;
 	  align::RotationType rotDiff = rold.multiplyInverse(rnew);
+          std::vector<double> defDiff;
+          for(unsigned int i = 0; i < dold.size(); i++) {
+              defDiff.push_back(dnew[i] - dold[i]);
+          }
 	  align::rectify(rotDiff); // correct for rounding errors 
 	  ali->move( posDiff );
 	  ali->rotateInGlobalFrame( rotDiff );
+          enum SurfaceDeformationFactory::Type type;
+          if (dold.size() != 0) {
+              if (dold.size() == 3) {
+                  type = SurfaceDeformationFactory::kBowedSurface;
+              } else {
+                  type = SurfaceDeformationFactory::kTwoBowedSurfaces;
+              }
+              auto deform = SurfaceDeformationFactory::create(type, defDiff);
+              ali->addSurfaceDeformation(deform , true);
+              delete deform;
+          }
 	  LogDebug("NewPosition") << "moving by:" << posDiff;
 	  LogDebug("NewRotation") << "rotating by:\n" << rotDiff;
+          //might want to add LogDebug("NewDeformation") << deforming by
 
 	  // add position error
 	  // AlignmentPositionError ape(shift.x(),shift.y(),shift.z());
@@ -491,6 +513,8 @@ applyAlignableAbsolutePositions( const align::Alignables& alivec,
 void AlignmentParameterStore::
 applyAlignableRelativePositions( const align::Alignables& alivec, const AlignableShifts& shifts, int& ierr )
 {
+  // Heshy note: should also add deformations in this function at some point.
+  //             I think Jered didn't because it's not callled, so it can wait.
 
   ierr=0;
   unsigned int nappl=0;
