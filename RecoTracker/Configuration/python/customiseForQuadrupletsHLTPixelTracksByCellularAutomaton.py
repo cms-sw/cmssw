@@ -1,7 +1,11 @@
 import FWCore.ParameterSet.Config as cms
 
-def customiseForQuadrupletsByCellularAutomaton(process):
-    for module in process._Process__producers.values():
+
+def producers_by_type(process, *types):
+    return (module for module in process._Process__producers.values() if module._TypedParameterizable__type in types)
+    
+def customiseForQuadrupletsHLTPixelTracksByCellularAutomaton(process):
+    for module in producers_by_type(process, "PixelTrackProducer"):
         if not hasattr(module, "OrderedHitsFactoryPSet"):
             continue
 	pset = getattr(module, "OrderedHitsFactoryPSet")
@@ -33,6 +37,7 @@ def customiseForQuadrupletsByCellularAutomaton(process):
             CAThetaCut = cms.double(0.00125),
             CAPhiCut = cms.double(0.1),
             CAHardPtCut = cms.double(0),
+            
         )
 
         if hasattr(quadruplets.GeneratorPSet, "SeedComparitorPSet"):
