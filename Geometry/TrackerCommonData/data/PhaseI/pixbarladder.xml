@@ -28,8 +28,9 @@
  <Constant name="Cable3Dz"          value="[Cable3Length]+[CableDzOverModule]"/>
  <Constant name="Cable4Dz"          value="[Cable4Length]+[CableDzOverModule]"/>
  <Constant name="CableBoundleDiameter"     value="1.5*mm"/> 
- <Constant name="CableBoundleDiameter1"    value="1.5*mm * sqrt((128+18)/(96+14))"/> <!-- take into account the different composition of the layer1 cables -->
+ <Constant name="CableBoundleDiameter1"    value="2.0*mm"/> <!-- take into account the different composition of the layer1 cables -->
  <Constant name="CableBoxThick"     value="[CableBoundleDiameter]"/> 
+ <Constant name="CableBoxThick1"     value="[CableBoundleDiameter1]"/> 
  <Constant name="CapacitorZ"        value="2.80*cm"/> 
  <Constant name="CapacitorThick"    value="1.50*mm"/>
  <Constant name="CapacitorDx"       value="3.20*mm"/>
@@ -51,10 +52,10 @@
  
  <Constant name="ModuleDz"          value="[Length]/[Modules]"/>
  <Constant name="ModuleZ"           value="-([Length]-[ModuleDz])/2"/>
- <Constant name="Cable1BoundleX"           value="-([pixbarladder:CableBoundleDiameter]+[pixbarladder:CableBoundleDiameter]/2)"/> 
- <Constant name="Cable2BoundleX"           value="-([pixbarladder:CableBoundleDiameter]/2)"/> 
- <Constant name="Cable3BoundleX"           value="([pixbarladder:CableBoundleDiameter]/2)"/> 
- <Constant name="Cable4BoundleX"           value="([pixbarladder:CableBoundleDiameter]+[pixbarladder:CableBoundleDiameter]/2)"/> 
+ <Constant name="Cable1BoundleX"           value="-([pixbarladder:CableBoundleDiameter1]+[pixbarladder:CableBoundleDiameter1]/2)"/> 
+ <Constant name="Cable2BoundleX"           value="-([pixbarladder:CableBoundleDiameter1]/2)"/> 
+ <Constant name="Cable3BoundleX"           value="([pixbarladder:CableBoundleDiameter1]/2)"/> 
+ <Constant name="Cable4BoundleX"           value="([pixbarladder:CableBoundleDiameter1]+[pixbarladder:CableBoundleDiameter1]/2)"/> 
 
  <Constant name="Cable1Z"           value="([ExternalLength]-[Cable1Dz])/2"/>
  <Constant name="Cable2Z"           value="([ExternalLength]-[Cable2Dz])/2"/>

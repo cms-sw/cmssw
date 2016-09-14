@@ -32,11 +32,11 @@
            2*[pixbarladder:SensorEdge]"/>
  <Constant name="LadderWidth"       value="[CFStripWidth]"/>
  <Constant name="LadderThick"       value="[CFStripThick]+
-           [pixbarladder:Module0Thick]+[pixbarladder:CableBoxThick]"/>
+           [pixbarladder:Module0Thick]+[pixbarladder:CableBoxThick1]"/>
  <Constant name="CableBoxY"         value="([LadderThick]-
-           [pixbarladder:CableBoxThick])/2"/>
+           [pixbarladder:CableBoxThick1])/2"/>
  <Constant name="ModuleBoxY"        value="[CableBoxY]-
-           ([pixbarladder:CableBoxThick]+[pixbarladder:Module0Thick])/2"/>
+           ([pixbarladder:CableBoxThick1]+[pixbarladder:Module0Thick])/2"/>
  <Constant name="CFStripY"          value="[ModuleBoxY]-
            ([pixbarladder:Module0Thick]+[CFStripThick])/2"/>
 <!-- <Constant name="BaseY"             value="-([pixbarladder:Module0Thick]-
@@ -75,7 +75,7 @@
  <Box name="PixelBarrelCFStripFull"      dx="[pixbarladderfull0:CFStripWidth]/2"
       dy="[pixbarladderfull0:CFStripThick]/2" dz="[pixbarladder:Length]/2"/>
  <Box name="PixelBarrelCableBoxFull"     dx="[pixbarladderfull0:LadderWidth]/2"
-      dy="[pixbarladder:CableBoxThick]/2"   dz="[pixbarladder:ExternalLength]/2"/>
+      dy="[pixbarladder:CableBoxThick1]/2"   dz="[pixbarladder:ExternalLength]/2"/>
  <Box name="PixelBarrelModuleFull"       dx="[pixbarladderfull0:LadderWidth]/2"
       dy="[pixbarladder:Module0Thick]/2"     dz="[pixbarladder:ModuleDz]/2"/>
 <!--
