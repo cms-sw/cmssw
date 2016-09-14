@@ -1,15 +1,14 @@
-#ifndef RECOPIXELVERTEXING_PIXELTRIPLETS_CAHITQUADRUPLETGENERATOR_H
-#define RECOPIXELVERTEXING_PIXELTRIPLETS_CAHITQUADRUPLETGENERATOR_H
+#ifndef RECOPIXELVERTEXING_PIXELTRIPLETS_CAHITTRIPLETGENERATOR_H
+#define RECOPIXELVERTEXING_PIXELTRIPLETS_CAHITTRIPLETGENERATOR_H
 
-#include "RecoPixelVertexing/PixelTriplets/interface/HitQuadrupletGenerator.h"
+#include "RecoPixelVertexing/PixelTriplets/interface/HitTripletGenerator.h"
 #include "RecoTracker/TkSeedingLayers/interface/SeedComparitorFactory.h"
 #include "RecoTracker/TkSeedingLayers/interface/SeedComparitor.h"
 #include "RecoPixelVertexing/PixelTrackFitting/interface/RZLine.h"
-#include "RecoTracker/TkSeedGenerator/interface/FastCircleFit.h"
+
 #include "RecoTracker/TkMSParametrization/interface/PixelRecoUtilities.h"
 #include "RecoTracker/TkMSParametrization/interface/LongitudinalBendingCorrection.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
-#include "CAGraph.h"
 
 
 #include "RecoTracker/TkHitPairs/interface/HitPairGeneratorFromLayerPair.h"
@@ -18,7 +17,6 @@
 #include "FWCore/Utilities/interface/EDGetToken.h"
 
 class TrackingRegion;
-class HitQuadrupletGeneratorFromTripletAndLayers;
 class SeedingLayerSetsHits;
 
 namespace edm {
@@ -28,18 +26,18 @@ namespace edm {
     class EventSetup;
 }
 
-class CAHitQuadrupletGenerator : public HitQuadrupletGenerator {
+class CAHitTripletGenerator : public HitTripletGenerator {
 public:
     typedef LayerHitMapCache LayerCacheType;
 
 public:
 
-    CAHitQuadrupletGenerator(const edm::ParameterSet& cfg, edm::ConsumesCollector& iC);
+    CAHitTripletGenerator(const edm::ParameterSet& cfg, edm::ConsumesCollector& iC);
 
-    virtual ~CAHitQuadrupletGenerator();
+    virtual ~CAHitTripletGenerator();
 
     /// from base class
-    virtual void hitQuadruplets(const TrackingRegion& reg, OrderedHitSeeds & quadruplets,
+    virtual void hitTriplets(const TrackingRegion& reg, OrderedHitTriplets & triplets,
             const edm::Event & ev, const edm::EventSetup& es);
 
 
@@ -90,11 +88,11 @@ private:
         pt2_(pset.getParameter<double>("pt2")),
         enabled_(pset.getParameter<bool>("enabled")) {
             if (enabled_ && pt1_ >= pt2_)
-                throw cms::Exception("Configuration") << "PixelQuadrupletGenerator::QuantityDependsPt: pt1 (" << pt1_ << ") needs to be smaller than pt2 (" << pt2_ << ")";
+                throw cms::Exception("Configuration") << "CAHitTripletGenerator::QuantityDependsPt: pt1 (" << pt1_ << ") needs to be smaller than pt2 (" << pt2_ << ")";
             if (pt1_ <= 0)
-                throw cms::Exception("Configuration") << "PixelQuadrupletGenerator::QuantityDependsPt: pt1 needs to be > 0; is " << pt1_;
+                throw cms::Exception("Configuration") << "CAHitTripletGenerator::QuantityDependsPt: pt1 needs to be > 0; is " << pt1_;
             if (pt2_ <= 0)
-                throw cms::Exception("Configuration") << "PixelQuadrupletGenerator::QuantityDependsPt: pt2 needs to be > 0; is " << pt2_;
+                throw cms::Exception("Configuration") << "CAHitTripletGenerator::QuantityDependsPt: pt2 needs to be > 0; is " << pt2_;
         }
 
         QuantityDependsPtEval evaluator(const edm::EventSetup& es) const {
@@ -117,13 +115,15 @@ private:
     const float extraHitRPhitolerance;
 
     const QuantityDependsPt maxChi2;
-    const bool fitFastCircle;
-    const bool fitFastCircleChi2Cut;
     const bool useBendingCorrection;
 
     const float caThetaCut = 0.00125f;
-    const float caPhiCut = 0.1f;
+    const float caPhiCut = 1.f;
     const float caHardPtCut = 0.f;
 
 };
+
+
+
+
 #endif
