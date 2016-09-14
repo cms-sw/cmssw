@@ -20,7 +20,7 @@ namespace l1t {
   private:
     // DT Forest:  a proper CondFormat replacement already exists, but is not yet integrated here yet:
     std::vector<int> allowedModes_;
-    Forest forest_[16];
+    L1TForest forest_[16];
     
   };
   

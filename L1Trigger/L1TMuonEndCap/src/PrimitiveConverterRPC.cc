@@ -109,7 +109,8 @@ PrimitiveConverterRPC::fillConvHits(l1t::EMTFHitExtraCollection exHits) {
   for (unsigned int iHit = 0; iHit < exHits.size(); iHit++) {
     l1t::EMTFHitExtra exHit = exHits.at(iHit);
 
-    std::vector<int> zone_contribution;
+    // // Replace with SetZoneWord - AWB 04.09.16
+    // std::vector<int> zone_contribution;
 
     ConvertedHit ConvHit;
     ConvHit.SetValues(exHit.Phi_loc_int(), exHit.Theta_int(), exHit.Phi_hit(), exHit.Zone(), 
@@ -117,7 +118,8 @@ PrimitiveConverterRPC::fillConvHits(l1t::EMTFHitExtraCollection exHits) {
 		      exHit.Pattern(), exHit.Wire(), exHit.Strip(), exHit.BX() + 6);
     ConvHit.SetTP( L1TMuon::TriggerPrimitive( exHit.RPC_DetId(), exHit.Strip(), exHit.Layer(), exHit.BX() + 6 ) );
     ConvHit.SetZhit( exHit.Phi_zone() );
-    ConvHit.SetZoneContribution(zone_contribution);
+    // // Replace with SetZoneWord - AWB 04.09.16
+    // ConvHit.SetZoneContribution(zone_contribution);
     ConvHit.SetSectorIndex( exHit.Sector_index() );
     ConvHit.SetNeighbor(0);
     ConvHits.push_back(ConvHit);

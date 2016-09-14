@@ -25,7 +25,7 @@ EmtfPtAssignment::EmtfPtAssignment(const char * tree_dir):
     int mode_inv = allowedModes_[i];
     stringstream ss;
     ss << tree_dir << "/" << mode_inv;
-    forest_[mode_inv].loadForestFromXML(ss.str().c_str(),64);    
+    forest_[mode_inv].loadL1TForestFromXML(ss.str().c_str(),64);    
   }
 }
 
@@ -683,7 +683,7 @@ float EmtfPtAssignment::calculatePt(unsigned long Address)
       float sign23 =   (Address >> (0+7+6)) & ((1<<1)-1);
       float sign34 =   (Address >> (0+7+6+1)) & ((1<<1)-1);
       dTheta24 =       (Address >> (0+7+6+1+1)) & ((1<<3)-1);
-      CLCT2  =         (Address >> (0+7+5+1+1+3)) & ((1<<2)-1);
+      CLCT2  =         (Address >> (0+7+6+1+1+3)) & ((1<<2)-1);
       float CLCT2Sign= (Address >> (0+7+6+1+1+3+2)) & ((1<<1)-1);
       int TrackEta_ =  (Address >> (0+7+6+1+1+3+2+1)) & ((1<<5)-1);
 
@@ -712,8 +712,41 @@ float EmtfPtAssignment::calculatePt(unsigned long Address)
         
       if (sign23 == 0) dPhi23 = -1*dPhi23;
       if (sign34 == 0) dPhi34 = -1*dPhi34;
-    }
-  
+
+      bool era_3 = true;
+      // First fix to recover high pT muons with 3 hits in a line and one displaced hit - AWB 28.07.16
+      // Done by re-writing a few addresses in the original LUT, according to the following logic
+      // Implemented in FW 26.07.16, as of run 2774278 / fill 5119
+      if (era_3) {
+	bool st2_off = false;
+	bool st3_off = false;
+	bool st4_off = false;
+	
+	int dPhi13 = dPhi12 + dPhi23;
+	int dPhi14 = dPhi13 + dPhi34;
+	int dPhi24 = dPhi23 + dPhi34;
+	
+	int sum_st1 = abs( dPhi12 + dPhi13 + dPhi14);
+	int sum_st2 = abs(-dPhi12 + dPhi23 + dPhi24);
+	int sum_st3 = abs(-dPhi13 - dPhi23 + dPhi34);
+	int sum_st4 = abs(-dPhi14 - dPhi24 - dPhi34);
+	
+	if (sum_st2 > sum_st1 && sum_st2 > sum_st3 && sum_st2 > sum_st4) st2_off = true;
+	if (sum_st3 > sum_st1 && sum_st3 > sum_st2 && sum_st3 > sum_st4) st3_off = true;
+	if (sum_st4 > sum_st1 && sum_st4 > sum_st2 && sum_st4 > sum_st3) st4_off = true;
+	
+	if ( st2_off && ( abs(dPhi12) > 9 || abs(dPhi23) > 9 || abs(dPhi24) > 9 ) &&
+	     abs(dPhi13) < 10 && abs(dPhi14) < 10 && abs(dPhi34) < 10 ) {
+	  dPhi12 = ceil(dPhi13 / 2); dPhi23 = floor(dPhi13 / 2); }
+	if ( st3_off && ( abs(dPhi13) > 9 || abs(dPhi23) > 9 || abs(dPhi34) > 9 ) &&
+	     abs(dPhi12) < 10 && abs(dPhi14) < 10 && abs(dPhi24) < 10 ) {
+	  dPhi23 = ceil(dPhi24 / 2); dPhi34 = floor(dPhi24 / 2); }
+	if ( st4_off && ( abs(dPhi14) > 9 || abs(dPhi24) > 9 || abs(dPhi34) > 9 ) &&
+	     abs(dPhi12) < 10 && abs(dPhi13) < 10 && abs(dPhi23) < 10 ) {
+	  if ( abs(dPhi13) < abs(dPhi23) ) dPhi34 = dPhi13;
+	  else dPhi34 = dPhi23; }
+      } // End if (era_3)
+    } // End if (mode_inv == 15)
 
   
   if(verbose){
@@ -1470,7 +1503,7 @@ unsigned long EmtfPtAssignment::calculateAddress( InternalTrack track, const edm
 	int Mode_ = mode_inv;
       
 	Address += ( dPhi13_ & ((1<<7)-1))    << (0);
-	Address += ( dPhi34_ & ((1<<6)-1))    << (0+7);
+	Address += ( dPhi34_ & ((1<<5)-1))    << (0+7);
 	Address += ( sign13_  & ((1<<1)-1))   << (0+7+5);
 	Address += ( sign34_  & ((1<<1)-1))   << (0+7+5+1);
 	Address += ( dTheta14_ & ((1<<3)-1))  << (0+7+5+1+1);
@@ -1521,7 +1554,7 @@ unsigned long EmtfPtAssignment::calculateAddress( InternalTrack track, const edm
 	int dPhi12Sign = 1;
 	int dPhi23Sign = 1;
 	int dPhi34Sign = 1;
-      
+
 	if (dPhi12<0) dPhi12Sign = -1;
 	if (dPhi23<0) dPhi23Sign = -1;
 	if (dPhi34<0) dPhi34Sign = -1;

@@ -78,7 +78,7 @@ from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc', '')
 
 process.generator = cms.EDProducer("FlatRandomEThetaGunProducer",
-    AddAntiParticle = cms.bool(True),
+    AddAntiParticle = cms.bool(False),
     PGunParameters = cms.PSet(
         MinE = cms.double(9.99),
         MaxE = cms.double(10.01),
