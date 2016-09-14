@@ -27,6 +27,7 @@ XERCES_CPP_NAMESPACE_USE
 // user include files
 #include "Alignment/MuonAlignment/interface/MuonAlignmentInputXML.h"
 #include "Alignment/CommonAlignment/interface/StructureType.h"
+#include "Alignment/CommonAlignment/interface/AlignableObjectId.h"
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
 #include "DataFormats/MuonDetId/interface/DTLayerId.h"
 #include "Alignment/CommonAlignment/interface/SurveyDet.h"
@@ -536,12 +537,9 @@ Alignable *MuonAlignmentInputXML::getDTnode(align::StructureType structureType, 
       ali = ali->mother();
 
       if (ali == NULL) {
-	 if (structureType == align::AlignableDTBarrel) throw cms::Exception("XMLException") << "rawId \"" << rawId << "\" is not a DTBarrel" << std::endl;
-	 else if (structureType == align::AlignableDTWheel) throw cms::Exception("XMLException") << "rawId \"" << rawId << "\" is not a DTWheel" << std::endl;
-	 else if (structureType == align::AlignableDTStation) throw cms::Exception("XMLException") << "rawId \"" << rawId << "\" is not a DTStation" << std::endl;
-	 else if (structureType == align::AlignableDTChamber) throw cms::Exception("XMLException") << "rawId \"" << rawId << "\" is not a DTChamber" << std::endl;
-	 else if (structureType == align::AlignableDTSuperLayer) throw cms::Exception("XMLException") << "rawId \"" << rawId << "\" is not a DTSuperLayer" << std::endl;
-	 else if (structureType == align::AlignableDetUnit) throw cms::Exception("XMLException") << "rawId \"" << rawId << "\" is not a DTLayer" << std::endl;
+        throw cms::Exception("XMLException")
+          << "rawId \"" << rawId << "\" is not a "
+          << AlignableObjectId::idToString(structureType) << std::endl;
       }
    }
    return ali;
