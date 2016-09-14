@@ -1,21 +1,12 @@
-#include "FWCore/Framework/interface/MakerMacros.h"
-
-#include "EventFilter/L1TRawToDigi/interface/Unpacker.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "EventFilter/L1TRawToDigi/plugins/UnpackerFactory.h"
 
 #include "L1Trigger/L1TMuon/interface/MuonRawDigiTranslator.h"
 
 #include "GMTCollections.h"
+#include "IntermediateMuonUnpacker.h"
 
-namespace l1t {
-   namespace stage2 {
-      class IntermediateMuonUnpacker : public Unpacker {
-         public:
-            virtual bool unpack(const Block& block, UnpackerCollections *coll) override;
-      };
-   }
-}
-
-// Implementation
 namespace l1t {
    namespace stage2 {
       bool

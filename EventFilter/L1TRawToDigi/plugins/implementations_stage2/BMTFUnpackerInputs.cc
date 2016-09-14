@@ -168,4 +168,5 @@ namespace l1t
 	}//ns2
 }//ns l1t;
 
-DEFINE_L1T_UNPACKER(l1t::stage2::BMTFUnpackerInputs);
+DEFINE_L1T_UNPACKER(l1t::stage2::BMTFUnpackerInputsOldQual);
+DEFINE_L1T_UNPACKER(l1t::stage2::BMTFUnpackerInputsNewQual);
