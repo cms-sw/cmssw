@@ -627,11 +627,9 @@ Alignable *MuonAlignmentInputXML::getCSCnode(align::StructureType structureType,
       ali = ali->mother();
 
       if (ali == NULL) {
-	 if (structureType == align::AlignableCSCEndcap) throw cms::Exception("XMLException") << "rawId \"" << rawId << "\" is not a CSCEndcap" << std::endl;
-	 else if (structureType == align::AlignableCSCStation) throw cms::Exception("XMLException") << "rawId \"" << rawId << "\" is not a CSCStation" << std::endl;
-	 else if (structureType == align::AlignableCSCRing) throw cms::Exception("XMLException") << "rawId \"" << rawId << "\" is not a CSCRing" << std::endl;
-	 else if (structureType == align::AlignableCSCChamber) throw cms::Exception("XMLException") << "rawId \"" << rawId << "\" is not a CSCChamber" << std::endl;
-	 else if (structureType == align::AlignableDetUnit) throw cms::Exception("XMLException") << "rawId \"" << rawId << "\" is not a CSCLayer" << std::endl;
+        throw cms::Exception("XMLException")
+          << "rawId \"" << rawId << "\" is not a "
+          << AlignableObjectId::idToString(structureType) << std::endl;
       }
    }
    return ali;
