@@ -26,13 +26,20 @@ namespace l1t {
       kTotalEty,
       kTotalHtx,
       kTotalHty,
-      kMissingEt2,
-      kTotalEtx2,
-      kTotalEty2,
+      kMissingEtHF,
+      kTotalEtxHF,
+      kTotalEtyHF,
       kMinBiasHFP0,
       kMinBiasHFM0,
       kMinBiasHFP1,
-      kMinBiasHFM1      
+      kMinBiasHFM1,
+      kTotalEtHF,
+      kTotalEtEm,
+      kTotalHtHF,
+      kTotalHtxHF,
+      kTotalHtyHF,
+      kMissingHtHF,
+      kTowerCount      
     };
 
     EtSum(){}

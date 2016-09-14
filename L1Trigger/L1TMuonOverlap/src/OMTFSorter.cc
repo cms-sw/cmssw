@@ -78,11 +78,13 @@ AlgoMuon OMTFSorter::sortRefHitResults(const OMTFProcessor::resultsMap & aResult
   int refPhiRHit = 9999;
   Key bestKey;
 
+//  std::cout <<" ====== sortRefHitResults: " << std::endl;
   for(auto itKey: aResultsMap){
     if(charge!=0 && itKey.first.theCharge!=charge) continue; //charge==0 means ignore charge
     AlgoMuon val = sortSingleResult(itKey.second);
     ///Accept only candidates with >2 hits
     if(val.getQ() < 3) continue;
+
     if(val.getQ() > (int)nHitsMax){
       nHitsMax = val.getQ();
       pdfValMax = val.getDisc();
@@ -92,6 +94,7 @@ AlgoMuon OMTFSorter::sortRefHitResults(const OMTFProcessor::resultsMap & aResult
       hitsWord = val.getHits();
       refPhiRHit = val.getPhiRHit();
       bestKey = itKey.first;
+//      std::cout <<" sorter, byQual, now best is: "<<bestKey << std::endl;
     }
     else if(val.getQ() == (int)nHitsMax && val.getDisc() > (int)pdfValMax){
       pdfValMax = val.getDisc();
@@ -101,9 +104,10 @@ AlgoMuon OMTFSorter::sortRefHitResults(const OMTFProcessor::resultsMap & aResult
       hitsWord = val.getHits();
       refPhiRHit = val.getPhiRHit(); 
       bestKey = itKey.first;
+//      std::cout <<" sorter, byDisc, now best is: "<<bestKey << std::endl;
     }
-    else if(val.getQ() == (int)nHitsMax && val.getDisc() == (int)pdfValMax &&
-      itKey.first.thePtCode < bestKey.thePtCode){
+    else if(val.getQ() == (int)nHitsMax && val.getDisc() == (int)pdfValMax && itKey.first.number() < bestKey.number()) { 
+//      itKey.first.thePtCode < bestKey.thePtCode){
       pdfValMax = val.getDisc();
       refPhi = val.getPhi();
       refEta = val.getEta();
@@ -111,6 +115,7 @@ AlgoMuon OMTFSorter::sortRefHitResults(const OMTFProcessor::resultsMap & aResult
       hitsWord = val.getHits();
       refPhiRHit = val.getPhiRHit(); 
       bestKey = itKey.first;
+//      std::cout <<" sorter, byNumb, now best is: "<<bestKey << std::endl;
     }
   }
 
@@ -119,7 +124,9 @@ AlgoMuon OMTFSorter::sortRefHitResults(const OMTFProcessor::resultsMap & aResult
                         bestKey.thePtCode, bestKey.theCharge);
 
   candidate.setPhiRHit(refPhiRHit); // for backward compatibility
+  candidate.setPatternNumber(bestKey.number());
 
+//  std::cout <<" return: " << candidate << std::endl; 
   return candidate;
 }
 ///////////////////////////////////////////////////////
@@ -128,7 +135,12 @@ void OMTFSorter::sortRefHitResults(const std::vector<OMTFProcessor::resultsMap> 
               std::vector<AlgoMuon> & refHitCands,
               int charge){
   
-  for(auto itRefHit: procResults) refHitCands.push_back(sortRefHitResults(itRefHit,charge));
+//  for(auto itRefHit: procResults) refHitCands.push_back(sortRefHitResults(itRefHit,charge));
+  for (unsigned int iRefHit = 0 ; iRefHit < procResults.size(); iRefHit++) {
+    AlgoMuon mu = sortRefHitResults( procResults[iRefHit],charge);
+    mu.setRefHitNumber(iRefHit);
+    refHitCands.push_back(mu);
+  }
 }
 ///////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////
@@ -145,20 +157,21 @@ bool OMTFSorter::checkHitPatternValidity(unsigned int hits){
 }
 ///////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////
-void OMTFSorter::sortProcessorAndFillCandidates(unsigned int iProcessor, l1t::tftype mtfType,
-                 const std::vector<AlgoMuon> & algoCands,
-                 l1t::RegionalMuonCandBxCollection & sortedCands,
-                 int bx, int charge){
+std::vector<l1t::RegionalMuonCand> OMTFSorter::candidates(unsigned int iProcessor, l1t::tftype mtfType, const std::vector<AlgoMuon> & algoCands)
+{
+
+  std::vector<l1t::RegionalMuonCand> result;
 
   for(auto myCand: algoCands){
     l1t::RegionalMuonCand candidate;
     candidate.setHwPt(myCand.getPt());
     candidate.setHwEta(myCand.getEta());
 
-    float phiValue = myCand.getPhi();
-    if(phiValue>=nPhiBins) phiValue-=nPhiBins;
+    int phiValue = myCand.getPhi();
+    if(phiValue>= int(nPhiBins) ) phiValue-=nPhiBins;
     ///conversion factor from OMTF to uGMT scale: 5400/576
-    phiValue/=9.375;
+//    phiValue/=9.375;
+    phiValue *= (437./pow(2,12));    // ie. use as in hw: 9.3729977 
     candidate.setHwPhi(phiValue);
     
     candidate.setHwSign(myCand.getCharge()<0 ? 1:0  );
@@ -183,8 +196,9 @@ void OMTFSorter::sortProcessorAndFillCandidates(unsigned int iProcessor, l1t::tf
     trackAddr[2] = myCand.getDisc();
     candidate.setTrackAddress(trackAddr);
     candidate.setTFIdentifiers(iProcessor,mtfType);
-    if(candidate.hwPt()) sortedCands.push_back(bx, candidate);
+    if (candidate.hwPt())  result.push_back(candidate); 
   }
+  return result;
 }
 ///////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////
