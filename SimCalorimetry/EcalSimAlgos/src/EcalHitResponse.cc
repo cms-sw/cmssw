@@ -109,6 +109,8 @@ void
 EcalHitResponse::setEventTime(const edm::TimeValue_t& iTime)
 {
   m_iTime = iTime;
+  //clear the laser cache for each event time
+  CalibCache().swap(m_laserCalibCache);  
 }
 
 void 
@@ -193,6 +195,7 @@ EcalHitResponse::run( MixCollection<PCaloHit>& hits, CLHEP::HepRandomEngine* eng
 	  ( 0 == m_hitFilter ||
 	    m_hitFilter->accepts( hit ) ) ) putAnalogSignal( hit, engine ) ;
    }
+   
 }
 
 void
@@ -247,24 +250,29 @@ EcalHitResponse::findSignal( const DetId& detId )
 }
 
 double 
-EcalHitResponse::analogSignalAmplitude( const DetId& detId, float energy, CLHEP::HepRandomEngine* engine ) const
+EcalHitResponse::analogSignalAmplitude( const DetId& detId, double energy, CLHEP::HepRandomEngine* engine )
 {
   const CaloSimParameters& parameters ( *params( detId ) ) ;
 
    // OK, the "energy" in the hit could be a real energy, deposited energy,
    // or pe count.  This factor converts to photoelectrons
-
-   float lasercalib = 1.;
+  
+   double lasercalib = 1.;
    if(m_useLCcorrection == true && detId.subdetId() != 3) {
-     lasercalib = findLaserConstant(detId);
+     auto cache = m_laserCalibCache.find(detId);
+     if( cache != m_laserCalibCache.end() ) {
+       lasercalib = cache->second;
+     } else {
+       lasercalib = 1.0/findLaserConstant(detId);
+       m_laserCalibCache.emplace(detId,lasercalib);
+     }
    }
 
-   double npe ( energy/lasercalib*parameters.simHitToPhotoelectrons( detId ) ) ;
+   double npe ( energy*lasercalib*parameters.simHitToPhotoelectrons( detId ) ) ;
 
    // do we need to doPoisson statistics for the photoelectrons?
    if( parameters.doPhotostatistics() ) {
-      CLHEP::RandPoissonQ randPoissonQ(*engine, npe);
-      npe = randPoissonQ.fire();
+     npe = CLHEP::RandPoissonQ::shoot(engine, npe);
    }
    if( 0 != m_PECorrection ) npe = m_PECorrection->correctPE( detId, npe, engine ) ;
 
