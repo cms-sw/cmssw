@@ -173,7 +173,6 @@ void PixelDataFormatter::interpretRawData(bool& errorsInEvent, int fedId, const 
     LogTrace("")<<"DATA: " <<  print(*word);
 
     auto ww = *word;
-    //assert(ww==0);
     if unlikely(ww==0) { theWordCounter--; continue;}
     int nlink = (ww >> LINK_shift) & LINK_mask; 
     int nroc  = (ww >> ROC_shift) & ROC_mask;
@@ -197,8 +196,7 @@ void PixelDataFormatter::interpretRawData(bool& errorsInEvent, int fedId, const 
       else layer=0;
 
       //if(DANEK) cout<<" rocp "<<rocp->print()<<" layer "<<rocp->bpixLayerPhase1(rawId)<<" "
-      //  <<layer
-      //  <<" phase1 "<<phase1<<" rawid "<<rawId<<endl;
+      //  <<layer<<" phase1 "<<phase1<<" rawid "<<rawId<<endl;
 
       if (useQualityInfo&(nullptr!=badPixelInfo)) {
 	short rocInDet = (short) rocp->idInDetUnit();
@@ -216,7 +214,6 @@ void PixelDataFormatter::interpretRawData(bool& errorsInEvent, int fedId, const 
     if unlikely(skipROC || !rocp) continue;
     
     int adc  = (ww >> ADC_shift) & ADC_mask;
-    //LocalPixel *local=NULL;
     std::unique_ptr<LocalPixel> local;
 
     if(phase1 && layer==1) { // special case for layer 1ROC
@@ -235,7 +232,6 @@ void PixelDataFormatter::interpretRawData(bool& errorsInEvent, int fedId, const 
 	  errorcheck.conversionError(fedId, &converter, 3, ww, errors);
 	  continue;
 	}
-      //local = new LocalPixel(localCR); // local pixel coordinate 
       local = std::make_unique<LocalPixel>(localCR); // local pixel coordinate 
       //if(DANEK) cout<<local->dcol()<<" "<<local->pxid()<<" "<<local->rocCol()<<" "<<local->rocRow()<<endl;
 
@@ -255,17 +251,14 @@ void PixelDataFormatter::interpretRawData(bool& errorsInEvent, int fedId, const 
 	  errorcheck.conversionError(fedId, &converter, 3, ww, errors);
 	  continue;
 	}
-      //local = new LocalPixel(localDP);
       local = std::make_unique<LocalPixel>(localDP); // local pixel coordinate 
       //if(DANEK) cout<<local->dcol()<<" "<<local->pxid()<<" "<<local->rocCol()<<" "<<local->rocRow()<<endl;
     }    
 
-    //GlobalPixel global = rocp->toGlobal( LocalPixel(local) );
     GlobalPixel global = rocp->toGlobal( *local ); // global pixel coordinate (in module)
     (*detDigis).data.emplace_back(global.row, global.col, adc);
     //if(DANEK) cout<<global.row<<" "<<global.col<<" "<<adc<<endl;    
     LogTrace("") << (*detDigis).data.back();
-    //delete local;
   }
 
 }
