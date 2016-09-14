@@ -58,6 +58,9 @@ namespace ecaldqm
                     float time(hit.time());
                     float energy(hit.energy());
 
+                    float chi2Threshold = ( id.subdetId() == EcalBarrel ) ? 16. : 50.;
+                    if ( hit.chi2() > chi2Threshold ) return;
+
                     meTimeAmp.fill(id, energy, time);
                     meTimeAmpAll.fill(id, energy, time);
 
