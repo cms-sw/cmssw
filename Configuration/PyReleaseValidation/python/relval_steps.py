@@ -186,7 +186,7 @@ steps['RunZeroBias2015D']={'INPUT':InputInfo(dataSet='/ZeroBias/Run2015D-v1/RAW'
 #### run2 2016B ####
 # Run2016B, 25ns: 274160
 #Run2016B=selectedLS([274160],l_json=data_json2016)
-Run2016B={274199: [[1, 250]]}
+Run2016B={274199: [[1, 180]]}
 steps['RunHLTPhy2016B']={'INPUT':InputInfo(dataSet='/HLTPhysics/Run2016B-v2/RAW',label='hltPhy2016B',events=100000,location='STD', ls=Run2016B)}
 steps['RunDoubleEG2016B']={'INPUT':InputInfo(dataSet='/DoubleEG/Run2016B-v2/RAW',label='doubEG2016B',events=100000,location='STD', ls=Run2016B)}
 steps['RunDoubleMuon2016B']={'INPUT':InputInfo(dataSet='/DoubleMuon/Run2016B-v2/RAW',label='doubMu2016B',events=100000,location='STD', ls=Run2016B)}
@@ -195,8 +195,8 @@ steps['RunMET2016B']={'INPUT':InputInfo(dataSet='/MET/Run2016B-v2/RAW',label='me
 steps['RunMuonEG2016B']={'INPUT':InputInfo(dataSet='/MuonEG/Run2016B-v2/RAW',label='muEG2016B',events=100000,location='STD', ls=Run2016B)}
 steps['RunDoubleEGPrpt2016B']={'INPUT':InputInfo(dataSet='/DoubleEG/Run2016B-ZElectron-PromptReco-v2/RAW-RECO',label='dbEGPrpt2016B',events=100000,location='STD', ls=Run2016B)}
 steps['RunSingleMuPrpt2016B']={'INPUT':InputInfo(dataSet='/SingleMuon/Run2016B-ZMu-PromptReco-v2/RAW-RECO',label='sgMuPrpt2016B',events=100000,location='STD', ls=Run2016B)}
-steps['RunSingleEl2016B']={'INPUT':InputInfo(dataSet='/SingleElectron/Run2016B-v2/RAW',label='sigEl2016B',events=100000,location='STD', ls=Run2016B)}
-steps['RunSingleMu2016B']={'INPUT':InputInfo(dataSet='/SingleMuon/Run2016B-v2/RAW',label='sigMu2016B',events=100000,location='STD', ls=Run2016B)}
+steps['RunSingleEl2016B']={'INPUT':InputInfo(dataSet='/SingleElectron/Run2016B-v2/RAW',label='sigEl2016B',events=100000,location='STD', ls={274199: [[1, 120]]})}
+steps['RunSingleMu2016B']={'INPUT':InputInfo(dataSet='/SingleMuon/Run2016B-v2/RAW',label='sigMu2016B',events=100000,location='STD', ls={274199: [[1, 120]]})}
 steps['RunSinglePh2016B']={'INPUT':InputInfo(dataSet='/SinglePhoton/Run2016B-v2/RAW',label='sigPh2016B',events=100000,location='STD', ls=Run2016B)}
 steps['RunZeroBias2016B']={'INPUT':InputInfo(dataSet='/ZeroBias/Run2016B-v2/RAW',label='zb2016B',events=100000,location='STD', ls=Run2016B)}
 steps['RunMuOnia2016B']={'INPUT':InputInfo(dataSet='/MuOnia/Run2016B-v2/RAW',label='muOnia2016B',events=100000,location='STD', ls=Run2016B)}
@@ -314,7 +314,7 @@ baseDataSetRelease=[
     'CMSSW_6_2_0_pre8-PRE_ST62_V8_FastSim-v1',              # 2 for fastsim id test
 #    'CMSSW_7_1_0_pre5-START71_V1-v2',                      # 3 8 TeV , for the one sample which is part of the routine relval production (RelValZmumuJets_Pt_20_300, because of -v2)
                                                             # THIS ABOVE IS NOT USED, AT THE MOMENT
-    'CMSSW_8_1_0_pre8-81X_mcRun2_asymptotic_v1-v1',     # 3 - 13 TeV samples with GEN-SIM from 810_p8; also GEN-SIM-DIGI-RAW-HLTDEBUG for id tests
+    'CMSSW_8_1_0_pre9_Geant4102-81X_mcRun2_asymptotic_v2-v1',     # 3 - 13 TeV samples with GEN-SIM from 810_p9 G4 10.2; also GEN-SIM-DIGI-RAW-HLTDEBUG for id tests
     'CMSSW_7_3_0_pre1-PRE_LS172_V15_FastSim-v1',                   # 4 - fast sim GEN-SIM-DIGI-RAW-HLTDEBUG for id tests
     'CMSSW_8_1_0_pre4-PU25ns_80X_mcRun2_asymptotic_v13-v1',     # 5 - fullSim PU 25ns premix for 810pre4
     'CMSSW_8_1_0_pre4-PU50ns_80X_mcRun2_startup_v13-v1',        # 6 - fullSim PU 50ns premix for 810pre4
@@ -1599,7 +1599,7 @@ steps['DBLMINIAODMCUP15NODQM'] = merge([{'--conditions':'auto:run2_mc',
 from  Configuration.PyReleaseValidation.upgradeWorkflowComponents import *
 
 defaultDataSets={}
-defaultDataSets['2017']='CMSSW_8_1_0_pre8-81X_upgrade2017_realistic_v4_UPG17newGT-v'
+defaultDataSets['2017']='CMSSW_8_1_0_pre9-81X_upgrade2017_realistic_v6_UPG17newGT-v'
 defaultDataSets['2023D1']=''
 defaultDataSets['2023D2']=''
 defaultDataSets['2023D3']=''
