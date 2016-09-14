@@ -32,11 +32,11 @@
            2*[pixbarladder:SensorEdge]"/>
  <Constant name="LadderWidth"       value="[CFStripWidth]"/>
  <Constant name="LadderThick"       value="[CFStripThick]+
-           [pixbarladder:Module0Thick]+[pixbarladder:CableBoxThick1]"/>
+           [pixbarladder:Module0Thick]+[pixbarladder:CableBoxThickLayer1]"/>
  <Constant name="CableBoxY"         value="([LadderThick]-
-           [pixbarladder:CableBoxThick1])/2"/>
+           [pixbarladder:CableBoxThickLayer1])/2"/>
  <Constant name="ModuleBoxY"        value="[CableBoxY]-
-           ([pixbarladder:CableBoxThick1]+[pixbarladder:Module0Thick])/2"/>
+           ([pixbarladder:CableBoxThickLayer1]+[pixbarladder:Module0Thick])/2"/>
  <Constant name="CFStripY"          value="[ModuleBoxY]-
            ([pixbarladder:Module0Thick]+[CFStripThick])/2"/>
 <!-- <Constant name="BaseY"             value="-([pixbarladder:Module0Thick]-
@@ -75,7 +75,7 @@
  <Box name="PixelBarrelCFStripFull"      dx="[pixbarladderfull0:CFStripWidth]/2"
       dy="[pixbarladderfull0:CFStripThick]/2" dz="[pixbarladder:Length]/2"/>
  <Box name="PixelBarrelCableBoxFull"     dx="[pixbarladderfull0:LadderWidth]/2"
-      dy="[pixbarladder:CableBoxThick1]/2"   dz="[pixbarladder:ExternalLength]/2"/>
+      dy="[pixbarladder:CableBoxThickLayer1]/2"   dz="[pixbarladder:ExternalLength]/2"/>
  <Box name="PixelBarrelModuleFull"       dx="[pixbarladderfull0:LadderWidth]/2"
       dy="[pixbarladder:Module0Thick]/2"     dz="[pixbarladder:ModuleDz]/2"/>
 <!--
@@ -90,14 +90,14 @@
       dy="[pixbarladder:ActiveDz]/2"        dz="[pixbarladder:SensorThick]/2"/>
  <Box name="PixelBarrelHybridFull"       dx="[pixbarladderfull0:HybridWidth]/2"
       dy="[pixbarladder:HybridThick]/2"     dz="[pixbarladder:HybridDz]/2"/>
- <Tubs name="PixelBarrelCableBoundle1" rMin="[zero]"    rMax="[pixbarladder:CableBoundleDiameter1]/2"
-       dz="[pixbarladder:Cable1Dz]/2"          startPhi="0*deg"        deltaPhi="360*deg"/>
- <Tubs name="PixelBarrelCableBoundle2" rMin="[zero]"    rMax="[pixbarladder:CableBoundleDiameter1]/2"
-       dz="[pixbarladder:Cable2Dz]/2"          startPhi="0*deg"        deltaPhi="360*deg"/>
- <Tubs name="PixelBarrelCableBoundle3" rMin="[zero]"    rMax="[pixbarladder:CableBoundleDiameter1]/2"
-       dz="[pixbarladder:Cable3Dz]/2"          startPhi="0*deg"        deltaPhi="360*deg"/>
- <Tubs name="PixelBarrelCableBoundle4" rMin="[zero]"    rMax="[pixbarladder:CableBoundleDiameter1]/2"
-       dz="[pixbarladder:Cable4Dz]/2"          startPhi="0*deg"        deltaPhi="360*deg"/>
+ <EllipticalTube name="PixelBarrelCableBoundle1" xSemiAxis="[pixbarladder:CableBoundleXLayer1]/2" ySemiAxis="[pixbarladder:CableBoundleYLayer1]/2"
+       zHeight="[pixbarladder:Cable1Dz]/2"/>
+ <EllipticalTube name="PixelBarrelCableBoundle2" xSemiAxis="[pixbarladder:CableBoundleXLayer1]/2" ySemiAxis="[pixbarladder:CableBoundleYLayer1]/2"
+       zHeight="[pixbarladder:Cable2Dz]/2"/>
+ <EllipticalTube name="PixelBarrelCableBoundle3" xSemiAxis="[pixbarladder:CableBoundleXLayer1]/2" ySemiAxis="[pixbarladder:CableBoundleYLayer1]/2"
+       zHeight="[pixbarladder:Cable3Dz]/2"/>
+ <EllipticalTube name="PixelBarrelCableBoundle4" xSemiAxis="[pixbarladder:CableBoundleXLayer1]/2" ySemiAxis="[pixbarladder:CableBoundleYLayer1]/2"
+       zHeight="[pixbarladder:Cable4Dz]/2"/>
  <Box name="PixelBarrelCFStripHoleFull"  dx="[pixbarladderfull0:CFHoleWidth]/2"
       dy="[pixbarladderfull0:CFStripThick]/2" 
       dz="[pixbarladderfull0:CFHoleDz]/2"/>
@@ -291,49 +291,49 @@
   <PosPart copyNumber="1">
    <rParent name="pixbarladderfull0:PixelBarrelCableBoxFull"/>
    <rChild name="pixbarladderfull0:PixelBarrelCableBoundle1"/>
-  <Translation x="[pixbarladder:Cable1BoundleX]" y="[zero]" 
+  <Translation x="[pixbarladder:Cable1BoundleXLayer1]" y="[zero]" 
                z="[pixbarladder:Cable1Z]" />
  </PosPart>
  <PosPart copyNumber="2">
    <rParent name="pixbarladderfull0:PixelBarrelCableBoxFull"/>
    <rChild name="pixbarladderfull0:PixelBarrelCableBoundle1"/>
-  <Translation x="[pixbarladder:Cable1BoundleX]" y="[zero]" 
+  <Translation x="[pixbarladder:Cable1BoundleXLayer1]" y="[zero]" 
                z="-[pixbarladder:Cable1Z]" />
  </PosPart>
   <PosPart copyNumber="1">
    <rParent name="pixbarladderfull0:PixelBarrelCableBoxFull"/>
    <rChild name="pixbarladderfull0:PixelBarrelCableBoundle2"/>
-  <Translation x="[pixbarladder:Cable2BoundleX]" y="[zero]" 
+  <Translation x="[pixbarladder:Cable2BoundleXLayer1]" y="[zero]" 
                z="[pixbarladder:Cable2Z]" />
  </PosPart>
  <PosPart copyNumber="2">
    <rParent name="pixbarladderfull0:PixelBarrelCableBoxFull"/>
    <rChild name="pixbarladderfull0:PixelBarrelCableBoundle2"/>
-  <Translation x="[pixbarladder:Cable2BoundleX]" y="[zero]" 
+  <Translation x="[pixbarladder:Cable2BoundleXLayer1]" y="[zero]" 
                z="-[pixbarladder:Cable2Z]" />
  </PosPart>
   <PosPart copyNumber="1">
    <rParent name="pixbarladderfull0:PixelBarrelCableBoxFull"/>
    <rChild name="pixbarladderfull0:PixelBarrelCableBoundle3"/>
-  <Translation x="[pixbarladder:Cable3BoundleX]" y="[zero]" 
+  <Translation x="[pixbarladder:Cable3BoundleXLayer1]" y="[zero]" 
                z="[pixbarladder:Cable3Z]" />
  </PosPart>
  <PosPart copyNumber="2">
    <rParent name="pixbarladderfull0:PixelBarrelCableBoxFull"/>
    <rChild name="pixbarladderfull0:PixelBarrelCableBoundle3"/>
-  <Translation x="[pixbarladder:Cable3BoundleX]" y="[zero]" 
+  <Translation x="[pixbarladder:Cable3BoundleXLayer1]" y="[zero]" 
                z="-[pixbarladder:Cable3Z]" />
  </PosPart>
   <PosPart copyNumber="1">
    <rParent name="pixbarladderfull0:PixelBarrelCableBoxFull"/>
    <rChild name="pixbarladderfull0:PixelBarrelCableBoundle4"/>
-  <Translation x="[pixbarladder:Cable4BoundleX]" y="[zero]" 
+  <Translation x="[pixbarladder:Cable4BoundleXLayer1]" y="[zero]" 
                z="[pixbarladder:Cable4Z]" />
  </PosPart>
  <PosPart copyNumber="2">
    <rParent name="pixbarladderfull0:PixelBarrelCableBoxFull"/>
    <rChild name="pixbarladderfull0:PixelBarrelCableBoundle4"/>
-  <Translation x="[pixbarladder:Cable4BoundleX]" y="[zero]" 
+  <Translation x="[pixbarladder:Cable4BoundleXLayer1]" y="[zero]" 
                z="-[pixbarladder:Cable4Z]" />
  </PosPart>
  <!--

@@ -72,13 +72,10 @@ void DDPixBarLayerUpgradeAlgo::execute(DDCompactView& cpv) {
   DDName      mother = parent().name();
   std::string idName = DDSplit(mother).first;
   
-  double maxoff = std::max(fabs(rInnerFineTune), fabs(rOuterFineTune));
   double dphi = CLHEP::twopi/number;
   double x2   = coolDist*sin(0.5*dphi);
-  double rtmi = coolDist*cos(0.5*dphi)-(coolRadius+ladderThick+maxoff);
-  double rmxh = coolDist*cos(0.5*dphi)+(coolRadius+ladderThick+ladderOffset+maxoff);
-//  double rtmi = coolDist*cos(0.5*dphi)-(coolRadius+ladderThick+fabs(rInnerFineTune));
-//  double rmxh = coolDist*cos(0.5*dphi)+(coolRadius+ladderThick+ladderOffset+rOuterFineTune);
+  double rtmi = coolDist*cos(0.5*dphi)-(coolRadius+ladderThick)+rInnerFineTune;
+  double rmxh = coolDist*cos(0.5*dphi)+(coolRadius+ladderThick+ladderOffset)+rOuterFineTune;
   double rtmx = sqrt(rmxh*rmxh+ladderWidth*ladderWidth/4);
   DDSolid solid = DDSolidFactory::tubs(DDName(idName, idNameSpace),0.5*layerDz,
                                        rtmi, rtmx, 0, CLHEP::twopi);
