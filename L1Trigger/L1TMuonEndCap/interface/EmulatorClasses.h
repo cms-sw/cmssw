@@ -38,9 +38,9 @@ class ConvertedHit{
   void SetTheta2(int theta2){_th2 = theta2;};
   void SetTP(L1TMuon::TriggerPrimitive tp){_tp = tp;};
   void SetSectorIndex(int sectorIndex){_sectorIndex = sectorIndex;};
-  void SetZoneContribution(std::vector<int> zonecontribution){_zonecont = zonecontribution;};
   void SetNeighbor(int neighbor){_isNeighbor = neighbor;};
   void AddTheta(int theta){_thetas.push_back(theta);};
+  void SetZoneWord(int zword){_ZoneWord = zword;};
 		
   int Phi(){return _ph;};
   int Theta(){return _th;};
@@ -59,14 +59,13 @@ class ConvertedHit{
   int SectorIndex(){return _sectorIndex;};
   int IsNeighbor(){return _isNeighbor;};
   L1TMuon::TriggerPrimitive TP(){return _tp;};
-  std::vector<int> ZoneContribution(){return _zonecont;};
   std::vector<int> AllThetas(){return _thetas;};
+  int ZoneWord(){return _ZoneWord;};
   
-	private:
-  int _ph,_th, _th2,_phit,_phzvl,_sta,_sub,_id,_qual,_patt,_wire,_strip,_zhit,_bx, _sectorIndex, _isNeighbor;
+ private:
+  int _ph,_th, _th2,_phit,_phzvl,_sta,_sub,_id,_qual,_patt,_wire,_strip,_zhit,_bx, _sectorIndex, _isNeighbor, _ZoneWord;
   L1TMuon::TriggerPrimitive _tp;
-  std::vector<int> _zonecont, _thetas;
-  
+  std::vector<int> _thetas;
 };
 
 struct ZonesOutput{
@@ -131,9 +130,9 @@ class SortingOutput{
   
 };
 
-typedef std::vector<std::vector<std::vector<std::vector<ConvertedHit>>>> ThOutput;
-typedef std::vector<std::vector<std::vector<std::vector<int>>>> ThOutput2;
-typedef std::vector<std::vector<std::vector<ConvertedHit>>> PhOutput;
+typedef struct ThOutput { ConvertedHit x[4][3][4][2]; } ThOutput;
+typedef struct ThOutput2 { int x[4][3][4][2]; } ThOutput2;
+typedef struct PhOutput { ConvertedHit x[4][3][4]; } PhOutput;
 class MatchingOutput{
   
  public:
@@ -192,6 +191,9 @@ class DeltaOutput{
   Winner _winner;
 	
 };
+// 3 BX, 4 zones, 3 winners
+typedef struct DeltaOutArr2 { DeltaOutput x[4][3]; } DeltaOutArr2;
+typedef struct DeltaOutArr3 { DeltaOutput x[3][4][3]; } DeltaOutArr3;
 
 struct BTrack{
 

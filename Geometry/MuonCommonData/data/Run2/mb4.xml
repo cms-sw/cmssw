@@ -1,0 +1,2994 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../../DetectorDescription/Schema/DDLSchema.xsd">
+    <ConstantsSection label="mb4.xml">
+        <!--- ### Radius and angle always refer to (eventual) sector 1 -->
+        <!--- ### The center of the HC is at 7220-[mbCommon:MBSL_posDisp] for all the MB4 (but the feet???) -->
+        <!--- ### old  MB4 big center values -->
+        <!--- Constant name="MB4BigUnitRadius" value="7267.02187986935951*mm"/ -->
+        <!--- Constant name="MB4BigPosAngle" value="-7.67032050510571217*deg"/ -->
+        <!--- ### corrected  MB4 big center values (14 Sept 2007)-->
+        <Constant name="MB4BigUnitRadius" value="7264.24876380895967*mm"/>
+        <Constant name="MB4BigPosAngle" value="-7.50616764184939633*deg"/>
+        <Constant name="MB4BigPos_x" value="7220.*mm-[mbCommon:MBSL_posDisp]"/>
+        <Constant name="MB4BigPos_y" value="-948.95*mm"/>
+        <Constant name="MB4SmallUnitRadius" value="7253.75964586641112*mm"/>
+        <Constant name="MB4SmallPosAngle" value="-6.84873371708398970*deg"/>
+        <Constant name="MB4SmallPos_x" value="5804.61495805552568*mm"/>
+        <Constant name="MB4SmallPos_y" value="-4350.11197427354182*mm"/>
+        <Constant name="MB4FeetPos_x" value="3561.43*mm"/>
+        <Constant name="MB4FeetPos_y" value="-6288.24*mm"/>
+        <Constant name="MB4FeetUnitRadius" value="sqrt([mb4:MB4FeetPos_x]*[mb4:MB4FeetPos_x]+[mb4:MB4FeetPos_y]*[mb4:MB4FeetPos_y])"/>
+        <Constant name="MB4FeetPosAngle" value="atan2(-[mb4:MB4FeetPos_y], [mb4:MB4FeetPos_x])*180./3.1415926535*deg"/>
+        <!-- ### Top (MB3) and Bottom (MB4) chamers -->
+        <Constant name="MB4TopPos_x" value="1607.5*mm"/>
+        <Constant name="MB4TopPos_y" value="7220.*mm-[mbCommon:MBSL_posDisp]"/>
+        <Constant name="MB4BottomPos_x" value="1367.7*mm"/>
+        <Constant name="MB4BottomPos_y" value="-7220.*mm+[mbCommon:MBSL_posDisp]"/>
+        <!--- #### MB4: Constants for DT superlayer Phi -->
+        <Constant name="MB4BigSLPhiPl_x" value="4074./2.*mm"/>
+        <Constant name="MB4SLPhiL95" value="[mbCommon:MBCell_width]*95+[mbCommon:MBIbeamWall]"/>
+        <Constant name="MB4SLPhiL96" value="[mbCommon:MBCell_width]*96+[mbCommon:MBIbeamWall]"/>
+        <Constant name="MB4SmallSLPhiPl_x" value="3906./2.*mm"/>
+        <Constant name="MB4SLPhiL91" value="[mbCommon:MBCell_width]*91+[mbCommon:MBIbeamWall]"/>
+        <Constant name="MB4SLPhiL92" value="[mbCommon:MBCell_width]*92+[mbCommon:MBIbeamWall]"/>
+        <Constant name="MB4FeetSLPhiPl_x" value="2058./2.*mm"/>
+        <Constant name="MB4SLPhiL47" value="[mbCommon:MBCell_width]*47+[mbCommon:MBIbeamWall]"/>
+        <Constant name="MB4SLPhiL48" value="[mbCommon:MBCell_width]*48+[mbCommon:MBIbeamWall]"/>
+        <!--- #### MB4: Constants for DT honeycomb -->
+        <Constant name="MB4HC_height" value="[mbCommon:MBSuperLayer_height]+[mbCommon:MBHC_height]"/>
+        <Constant name="MB4BigHC_x" value="3980./2*mm"/>
+        <Constant name="MB4SmallHC_x" value="3812./2*mm"/>
+        <Constant name="MB4FeetHC_x" value="1908./2*mm"/>
+        <Constant name="MB4HCElectronics_height" value="81.*mm"/>
+        <!--- #### MB4: Constants for DT envelops -->
+        <Constant name="MB4Big_x" value="2081.7*mm"/>
+        <Constant name="MB4Small_x" value="2063.32*mm"/>
+        <Constant name="MB4Feet_x" value="1046.*mm"/>
+        <Constant name="MB4Bottom_x" value="1304.7*mm"/>
+        <Constant name="MB4Top_x" value="1558.*mm"/>
+        <!--- #### MB4: Constants for DT positioning: distance from SL center to HC center -->
+        <Constant name="MB4StandardSLPhi1_HC_dist" value="-42.*mm"/>
+        <Constant name="MB4StandardSLPhi2_HC_dist" value="42.*mm"/>
+        <Constant name="MB4BottomSLPhi1_HC_dist" value="21.*mm"/>
+        <Constant name="MB4BottomSLPhi2_HC_dist" value="-21.*mm"/>
+        <!--- #### MB4: Constants for RPC_s -->
+        <Constant name="MB4RPC_EngineerXPos" value="7018.*mm"/>
+        <Constant name="MB4RPC_EngineerYPos" value="-917.*mm"/>
+        <Constant name="MB4SmallRPC_EngineerYPos" value="417.*mm"/>
+        <Constant name="MB4FeetRPC_EngineerXPos" value="7042.5*mm"/>
+        <Constant name="MB4FeetRPC_EngineerYPos" value="60.*mm"/>
+        <Constant name="MB4BottomRPC_EngineerSeparation" value="194.*mm"/>
+        <Constant name="MB4RPC_x" value="4000/2*mm"/>
+        <Constant name="MB4BottomRPC_x" value="2500/2*mm"/>
+        <Constant name="MB4SmallRPC_x" value="3500/2*mm"/>
+        <Constant name="MB4RPC_Gas_x" value="[mb4:MB4RPC_x]/2.-10.*mm"/>
+        <Constant name="MB4RPC_Gas_x_pos" value="[mb4:MB4RPC_x]/2."/>
+        <Constant name="MB4SmallRPC_SmallerGas_x_pos" value="[mb4:MB4SmallRPC_x]-[mb3:MB3RPC_x]/2."/>
+        <Constant name="MB4SmallRPC_BiggerGas_x_pos" value="[mb4:MB4SmallRPC_x]-[mb4:MB4RPC_x]/2."/>
+        <Constant name="MB4BigRPC_x_pos" value="[mb4:MB4RPC_EngineerYPos]-[mb4:MB4BigPos_y]"/>
+        <Constant name="MB4SmallRPC_x_pos" value="-(tan(-[mb4:MB4SmallPosAngle])*[mb4:MB4BigPos_x] - ([mb4:MB4SmallRPC_SmallerGas_x_pos] - [mb4:MB4SmallRPC_BiggerGas_x_pos])-[mb4:MB4SmallRPC_EngineerYPos])"/>
+        <Constant name="MB4BottomRPC_x_pos" value="[mb4:MB4BottomRPC_x]+[mb4:MB4BottomRPC_EngineerSeparation]/2.-[mb4:MB4BottomPos_x]"/>
+        <Constant name="MB4TopRPC_x_pos" value="0*cm"/>
+        <Constant name="MB4RPC_z_pos" value="[mb4:MB4BigPos_x]-([mb4:MB4RPC_EngineerXPos]+[mbCommon:MBRPC_EngineerChamberWidth])"/>
+        <Constant name="MB4FeetRPC_x_pos" value="[mb4:MB4FeetUnitRadius]*sin([mb4:MB4FeetPosAngle]-60.*deg)-[mb4:MB4FeetRPC_EngineerYPos]"/>
+        <Constant name="MB4FeetRPC_z_pos" value="[mb4:MB4FeetUnitRadius]*cos([mb4:MB4FeetPosAngle]-60.*deg)-([mb4:MB4FeetRPC_EngineerXPos]+[mbCommon:MBRPC_EngineerChamberWidth])"/>
+        <!--- #### MB4Chim: Constants for DT RPC_s -->
+        <Constant name="MB4ChimRPC_GasRight_y_pos" value="[mbCommon:MBRPC_GasRight_y_pos]-([mbCommon:MBRPC_z]-[mbCommon:MBChimRPC_z])/2.-4.*mm"/>
+        <Constant name="MB4ChimRPC_GasLeft_y_pos" value="[mbCommon:MBRPC_GasLeft_y_pos]-([mbCommon:MBRPC_z]-[mbCommon:MBChimRPC_z])/2.-4.*mm"/>
+    </ConstantsSection>
+    <SolidSection label="mb4.xml">
+        <!-- ####  MB4 Unit: fake volume representing one DTBX + 1 or 2 RPC -->
+        <!-- ####  MB4: DTBX chamber -->
+        <!--%% In MB4 the widest superlayer in x is the Z one -->
+        <Box name="MB4Big" dx="[mb4:MB4Big_x]" dy="[mbCommon:MBSLPhiPlO_z]+12.*mm" dz="[mbCommon:MBHeight_With1RPC]"/>
+        <Box name="MB4Small" dx="[mb4:MB4Small_x]" dy="[mbCommon:MBSLPhiPlO_z]+12.*mm" dz="[mbCommon:MBHeight_With1RPC]"/>
+        <Box name="MB4Feet" dx="[mb4:MB4Feet_x]" dy="[mbCommon:MBSLPhiPlO_z]+12.*mm" dz="[mbCommon:MBHeight_With1RPC]"/>
+        <Box name="MB4Bottom" dx="[mb4:MB4Bottom_x]" dy="[mbCommon:MBSLPhiPlO_z]+12.*mm" dz="[mbCommon:MBHeight_With1RPC]"/>
+        <Box name="MB4Top" dx="[mb4:MB4Top_x]" dy="[mbCommon:MBSLPhiPlO_z]+12.*mm" dz="[mbCommon:MBHeight_With1RPC]"/>
+        <!-- ####  MB4: Superlayers Phi -->
+        <Box name="MB4BigSuperLayerPhi" dx="[mb4:MB4BigSLPhiPl_x]+2.7*mm" dy="[mbCommon:MBSLPhiPlO_z]+12.*mm" dz="[mbCommon:MBSuperLayer_height]"/>
+        <Box name="MB4SmallSuperLayerPhi" dx="[mb4:MB4SmallSLPhiPl_x]+2.7*mm" dy="[mbCommon:MBSLPhiPlO_z]+12.*mm" dz="[mbCommon:MBSuperLayer_height]"/>
+        <Box name="MB4FeetSuperLayerPhi" dx="[mb4:MB4FeetSLPhiPl_x]+2.7*mm" dy="[mbCommon:MBSLPhiPlO_z]+12.*mm" dz="[mbCommon:MBSuperLayer_height]"/>
+        <!--%% MB4SLPhiClosingPlateParal is parallel to gas cells, MB3SLPhiClosingPlatePerp is perpendicular -->
+        <!--%% Parallel are 2 mm thick and as long as outer Plates -->
+        <Box name="MB4SLPhiClosingPlateParal" dx="1.*mm" dy="[mbCommon:MBSLPhiPlO_z]" dz="[mbCommon:MBSuperLayer_height]"/>
+        <Box name="MB4SLPhi_C_PlateParal" dx="7.*mm" dy="[mbCommon:MBSLPhiPlO_z]-14.*mm" dz="1.*mm"/>
+        <!--%% Perpendicular are 12 mm thick and higher by 20 mm per side than the SL; 2.7 mm are added to reach the parallel "Cs" -->
+        <Box name="MB4BigSLPhiClosingPlatePerp" dx="[mb4:MB4BigSLPhiPl_x]+2.7*mm" dy="12./2.*mm" dz="[mbCommon:MBSuperLayer_height]"/>
+        <Box name="MB4BigSLPhi_C_PlatePerp" dx="[mb4:MB4BigSLPhiPl_x]+0.7*mm" dy="7.*mm" dz="1.*mm"/>
+        <Box name="MB4SmallSLPhiClosingPlatePerp" dx="[mb4:MB4SmallSLPhiPl_x]+2.7*mm" dy="12./2.*mm" dz="[mbCommon:MBSuperLayer_height]"/>
+        <Box name="MB4SmallSLPhi_C_PlatePerp" dx="[mb4:MB4SmallSLPhiPl_x]+0.7*mm" dy="7.*mm" dz="1.*mm"/>
+        <Box name="MB4FeetSLPhiClosingPlatePerp" dx="[mb4:MB4FeetSLPhiPl_x]+2.7*mm" dy="12./2.*mm" dz="[mbCommon:MBSuperLayer_height]"/>
+        <Box name="MB4FeetSLPhi_C_PlatePerp" dx="[mb4:MB4FeetSLPhiPl_x]+0.7*mm" dy="7.*mm" dz="1.*mm"/>
+        <!--%% MB4SLPhiAlPlateOuter is 0.7 mm wider (perpendicular to the wires) to reach the parallel "Cs"-->
+        <Box name="MB4BigSLPhiAlPlateOuter" dx="[mb4:MB4BigSLPhiPl_x]+0.7*mm" dy="[mbCommon:MBSLPhiPlO_z]" dz="[mbCommon:MBAlPlate_height]"/>
+        <Box name="MB4SmallSLPhiAlPlateOuter" dx="[mb4:MB4SmallSLPhiPl_x]+0.7*mm" dy="[mbCommon:MBSLPhiPlO_z]" dz="[mbCommon:MBAlPlate_height]"/>
+        <Box name="MB4FeetSLPhiAlPlateOuter" dx="[mb4:MB4FeetSLPhiPl_x]+0.7*mm" dy="[mbCommon:MBSLPhiPlO_z]" dz="[mbCommon:MBAlPlate_height]"/>
+        <!--%% MB4SLPhiAlPlateInner does not reach MB4BigSLPhiPlthe parallel "Cs"-->
+        <Box name="MB4BigSLPhiAlPlateInner" dx="[mb4:MB4BigSLPhiPl_x]" dy="[mbCommon:MBSLPhiPlI_z]" dz="[mbCommon:MBAlPlate_height]"/>
+        <Box name="MB4SmallSLPhiAlPlateInner" dx="[mb4:MB4SmallSLPhiPl_x]" dy="[mbCommon:MBSLPhiPlI_z]" dz="[mbCommon:MBAlPlate_height]"/>
+        <Box name="MB4FeetSLPhiAlPlateInner" dx="[mb4:MB4FeetSLPhiPl_x]" dy="[mbCommon:MBSLPhiPlI_z]" dz="[mbCommon:MBAlPlate_height]"/>
+        <Box name="MB4SLPhiLayer_95Cells" dx="[mb4:MB4SLPhiL95]" dy="[mbCommon:MBSLPhiLayer_length]" dz="[mbCommon:MBGas_height]"/>
+        <Box name="MB4SLPhiLayer_95Cells_startCell2" dx="[mb4:MB4SLPhiL95]" dy="[mbCommon:MBSLPhiLayer_length]" dz="[mbCommon:MBGas_height]"/>
+        <Box name="MB4SLPhiLayer_96Cells" dx="[mb4:MB4SLPhiL96]" dy="[mbCommon:MBSLPhiLayer_length]" dz="[mbCommon:MBGas_height]"/>
+        <Box name="MB4SLPhiLayer_91Cells" dx="[mb4:MB4SLPhiL91]" dy="[mbCommon:MBSLPhiLayer_length]" dz="[mbCommon:MBGas_height]"/>
+        <Box name="MB4SLPhiLayer_91Cells_startCell2" dx="[mb4:MB4SLPhiL91]" dy="[mbCommon:MBSLPhiLayer_length]" dz="[mbCommon:MBGas_height]"/>
+        <Box name="MB4SLPhiLayer_92Cells" dx="[mb4:MB4SLPhiL92]" dy="[mbCommon:MBSLPhiLayer_length]" dz="[mbCommon:MBGas_height]"/>
+        <Box name="MB4SLPhiLayer_47Cells" dx="[mb4:MB4SLPhiL47]" dy="[mbCommon:MBSLPhiLayer_length]" dz="[mbCommon:MBGas_height]"/>
+        <Box name="MB4SLPhiLayer_47Cells_startCell2" dx="[mb4:MB4SLPhiL47]" dy="[mbCommon:MBSLPhiLayer_length]" dz="[mbCommon:MBGas_height]"/>
+        <Box name="MB4SLPhiLayer_48Cells" dx="[mb4:MB4SLPhiL48]" dy="[mbCommon:MBSLPhiLayer_length]" dz="[mbCommon:MBGas_height]"/>
+        <!--%% Tappini, Perpendicular to the Ibeams and at the two ends -->
+        <Box name="MB4SLPhiElectronics_95Cells" dx="[mb4:MB4SLPhiL95]" dy="[mbCommon:MBLayerElectronics_width]" dz="[mbCommon:MBGas_height]"/>
+        <Box name="MB4SLPhiElectronics_96Cells" dx="[mb4:MB4SLPhiL96]" dy="[mbCommon:MBLayerElectronics_width]" dz="[mbCommon:MBGas_height]"/>
+        <Box name="MB4BigSLPhiCommonElectronics" dx="[mb4:MB4BigSLPhiPl_x]" dy="35./2.*mm" dz="[mbCommon:MBSuperLayer_height]-10.*mm"/>
+        <Box name="MB4SLPhiElectronics_91Cells" dx="[mb4:MB4SLPhiL91]" dy="[mbCommon:MBLayerElectronics_width]" dz="[mbCommon:MBGas_height]"/>
+        <Box name="MB4SLPhiElectronics_92Cells" dx="[mb4:MB4SLPhiL92]" dy="[mbCommon:MBLayerElectronics_width]" dz="[mbCommon:MBGas_height]"/>
+        <Box name="MB4SmallSLPhiCommonElectronics" dx="[mb4:MB4SmallSLPhiPl_x]" dy="35./2.*mm" dz="[mbCommon:MBSuperLayer_height]-10.*mm"/>
+        <Box name="MB4SLPhiElectronics_47Cells" dx="[mb4:MB4SLPhiL47]" dy="[mbCommon:MBLayerElectronics_width]" dz="[mbCommon:MBGas_height]"/>
+        <Box name="MB4SLPhiElectronics_48Cells" dx="[mb4:MB4SLPhiL48]" dy="[mbCommon:MBLayerElectronics_width]" dz="[mbCommon:MBGas_height]"/>
+        <Box name="MB4FeetSLPhiCommonElectronics" dx="[mb4:MB4FeetSLPhiPl_x]" dy="35./2.*mm" dz="[mbCommon:MBSuperLayer_height]-10.*mm"/>
+        <!-- ####  MB4: Honeycomb -->
+        <Box name="MB4Hc_LateralC" dx="[mbCommon:MBHC_C_dimension]" dy="[mbCommon:MBHC_z]" dz="[mbCommon:MBHC_C_width]"/>
+        <Box name="MB4Hc_LateralElectronics" dx="[mbCommon:MBHCLatElectronics_width]" dy="[mbCommon:MBHC_z]" dz="[mb4:MB4HCElectronics_height]"/>
+        <Box name="MB4HcTorsionBar" dx="25*mm" dy="678*mm" dz="50.*mm"/>
+        <Box name="MB4BigHoneycombBox" dx="[mb4:MB4BigHC_x]" dy="[mbCommon:MBHC_z]" dz="[mb4:MB4HC_height]"/>
+        <Box name="MB4BigHoneycomb" dx="[mb4:MB4BigHC_x]-125.*mm" dy="[mbCommon:MBHC_z]-125.*mm" dz="[mb4:MB4HC_height]-2*[mbCommon:MBAlPlate_height]"/>
+        <Box name="MB4BigHcPlate" dx="[mb4:MB4BigHC_x]" dy="[mbCommon:MBHC_z]" dz="[mbCommon:MBAlPlate_height]"/>
+        <Box name="MB4BigHc_FrontC" dx="[mb4:MB4BigHC_x]-125.*mm" dy="[mbCommon:MBHC_C_dimension]" dz="[mbCommon:MBHC_C_width]"/>
+        <Box name="MB4BigHc_FrontElectronics" dx="[mb4:MB4BigHC_x]-125.*mm" dy="[mbCommon:MBHCFrontElectronics_width]" dz="[mb4:MB4HCElectronics_height]"/>
+        <Box name="MB4SmallHoneycombBox" dx="[mb4:MB4SmallHC_x]" dy="[mbCommon:MBHC_z]" dz="[mb4:MB4HC_height]"/>
+        <Box name="MB4SmallHoneycomb" dx="[mb4:MB4SmallHC_x]-125.*mm" dy="[mbCommon:MBHC_z]-125.*mm" dz="[mb4:MB4HC_height]-2*[mbCommon:MBAlPlate_height]"/>
+        <Box name="MB4SmallHcPlate" dx="[mb4:MB4SmallHC_x]" dy="[mbCommon:MBHC_z]" dz="[mbCommon:MBAlPlate_height]"/>
+        <Box name="MB4SmallHc_FrontC" dx="[mb4:MB4SmallHC_x]-125.*mm" dy="[mbCommon:MBHC_C_dimension]" dz="[mbCommon:MBHC_C_width]"/>
+        <Box name="MB4SmallHc_FrontElectronics" dx="[mb4:MB4SmallHC_x]-125.*mm" dy="[mbCommon:MBHCFrontElectronics_width]" dz="[mb4:MB4HCElectronics_height]"/>
+        <Box name="MB4FeetHoneycombBox" dx="[mb4:MB4FeetHC_x]" dy="[mbCommon:MBHC_z]" dz="[mb4:MB4HC_height]"/>
+        <Box name="MB4FeetHoneycomb" dx="[mb4:MB4FeetHC_x]-125.*mm" dy="[mbCommon:MBHC_z]-125.*mm" dz="[mb4:MB4HC_height]-2*[mbCommon:MBAlPlate_height]"/>
+        <Box name="MB4FeetHcPlate" dx="[mb4:MB4FeetHC_x]" dy="[mbCommon:MBHC_z]" dz="[mbCommon:MBAlPlate_height]"/>
+        <Box name="MB4FeetHc_FrontC" dx="[mb4:MB4FeetHC_x]-125.*mm" dy="[mbCommon:MBHC_C_dimension]" dz="[mbCommon:MBHC_C_width]"/>
+        <Box name="MB4FeetHc_FrontElectronics" dx="[mb4:MB4FeetHC_x]-125.*mm" dy="[mbCommon:MBHCFrontElectronics_width]" dz="[mb4:MB4HCElectronics_height]"/>
+        <Box name="MB4BottomHoneycombBox" dx="[mb2:MB2HC_x]" dy="[mbCommon:MBHC_z]" dz="[mb4:MB4HC_height]"/>
+        <Box name="MB4BottomHoneycomb" dx="[mb2:MB2HC_x]-125.*mm" dy="[mbCommon:MBHC_z]-125.*mm" dz="[mb4:MB4HC_height]-2*[mbCommon:MBAlPlate_height]"/>
+        <Box name="MB4BottomHc_FrontC" dx="[mb2:MB2HC_x]-125.*mm" dy="[mbCommon:MBHC_C_dimension]" dz="[mbCommon:MBHC_C_width]"/>
+        <Box name="MB4BottomHc_FrontElectronics" dx="[mb2:MB2HC_x]-125.*mm" dy="[mbCommon:MBHCFrontElectronics_width]" dz="[mb4:MB4HCElectronics_height]"/>
+        <Box name="MB4TopHoneycombBox" dx="[mb3:MB3HC_x]" dy="[mbCommon:MBHC_z]" dz="[mb4:MB4HC_height]"/>
+        <Box name="MB4TopHoneycomb" dx="[mb3:MB3HC_x]-125.*mm" dy="[mbCommon:MBHC_z]-125.*mm" dz="[mb4:MB4HC_height]-2*[mbCommon:MBAlPlate_height]"/>
+        <Box name="MB4TopHc_FrontC" dx="[mb3:MB3HC_x]-125.*mm" dy="[mbCommon:MBHC_C_dimension]" dz="[mbCommon:MBHC_C_width]"/>
+        <Box name="MB4TopHc_FrontElectronics" dx="[mb3:MB3HC_x]-125.*mm" dy="[mbCommon:MBHCFrontElectronics_width]" dz="[mb4:MB4HCElectronics_height]"/>
+        <!-- ####  MB4: RPC chambers -->
+        <Box name="MB4RPC" dx="[mb4:MB4RPC_x]" dy="[mbCommon:MBRPC_z]" dz="[mbCommon:MBRPC_y]"/>
+        <Box name="MB4SmallRPC" dx="1750*mm" dy="[mbCommon:MBRPC_z]" dz="[mbCommon:MBRPC_y]"/>
+        <Box name="MB4TopRPC" dx="1500*mm" dy="[mbCommon:MBRPC_z]" dz="[mbCommon:MBRPC_y]"/>
+        <Box name="MB4FeetRPC" dx="1000*mm" dy="[mbCommon:MBRPC_z]" dz="[mbCommon:MBRPC_y]"/>
+        <Box name="MB4BottomRPC" dx="[mb4:MB4BottomRPC_x]" dy="[mbCommon:MBRPC_z]" dz="[mbCommon:MBRPC_y]"/>
+        <Box name="MB4RPC_GasLeft" dx="[mb4:MB4RPC_Gas_x]" dy="[mbCommon:MBRPC_GasLeft_z]" dz="[mbCommon:MBRPC_Gas_y]"/>
+        <Box name="MB4RPC_GasRight" dx="[mb4:MB4RPC_Gas_x]" dy="[mbCommon:MBRPC_GasRight_z]" dz="[mbCommon:MBRPC_Gas_y]"/>
+        <!-- ####  MB4Chimney Unit -->
+        <!-- ####  MB4Chim: DTBX chamber -->
+        <Box name="MB4BigChim" dx="[MB4Big_x]" dy="[mbCommon:MBChimSLPhiPlO_z]+12.*mm" dz="[mbCommon:MBHeight_With1RPC]"/>
+        <Box name="MB4TopChim" dx="[mb3:MB3_x]" dy="[mbCommon:MBChimSLPhiPlO_z]+12.*mm" dz="[mbCommon:MBHeight_With1RPC]"/>
+        <Box name="MB4BigChimRPC" dx="[mb4:MB4RPC_x]" dy="[mbCommon:MBChimRPC_z]" dz="[mbCommon:MBRPC_y]"/>
+        <Box name="MB4TopChimRPC" dx="1500*mm" dy="[mbCommon:MBChimRPC_z]" dz="[mbCommon:MBRPC_y]"/>
+        <!-- ####  MB4Chim: DT Superlayers Phi -->
+        <Box name="MB4BigChimSuperLayerPhi" dx="[mb4:MB4BigSLPhiPl_x]+2.7*mm" dy="[mbCommon:MBChimSLPhiPlO_z]+12.*mm" dz="[mbCommon:MBSuperLayer_height]"/>
+        <!--%% Only extra parallel "Cs" are needed -->
+        <Box name="MB4ChimSLPhiClosingPlateParal" dx="1.*mm" dy="[mbCommon:MBChimSLPhiPlO_z]" dz="[mbCommon:MBSuperLayer_height]"/>
+        <Box name="MB4ChimSLPhi_C_PlateParal" dx="7.*mm" dy="[mbCommon:MBChimSLPhiPlO_z]-14.*mm" dz="1.*mm"/>
+        <!-- ## Outer Plates -->
+        <Box name="MB4BigChimSLPhiAlPlateOuter" dx="[mb4:MB4BigSLPhiPl_x]+0.7*mm" dy="[mbCommon:MBChimSLPhiPlO_z]" dz="[mbCommon:MBAlPlate_height]"/>
+        <!-- ## Inner Plates -->
+        <Box name="MB4BigChimSLPhiAlPlateInner" dx="[mb4:MB4BigSLPhiPl_x]" dy="[mbCommon:MBChimSLPhiPlI_z]" dz="[mbCommon:MBAlPlate_height]"/>
+        <Box name="MB4ChimSLPhiLayer_95Cells" dx="[mb4:MB4SLPhiL95]" dy="[mbCommon:MBChimSLPhiLayer_length]" dz="[mbCommon:MBGas_height]"/>
+        <Box name="MB4ChimSLPhiLayer_95Cells_startCell2" dx="[mb4:MB4SLPhiL95]" dy="[mbCommon:MBChimSLPhiLayer_length]" dz="[mbCommon:MBGas_height]"/>
+        <Box name="MB4ChimSLPhiLayer_96Cells" dx="[mb4:MB4SLPhiL96]" dy="[mbCommon:MBChimSLPhiLayer_length]" dz="[mbCommon:MBGas_height]"/>
+        <!-- ####  MB4Chim: DT Honeycomb -->
+        <Box name="MB4ChimHc_LateralC" dx="[mbCommon:MBHC_C_dimension]" dy="[mbCommon:MBChimHC_z]" dz="[mbCommon:MBHC_C_width]"/>
+        <Box name="MB4ChimHc_LateralElectronics" dx="[mbCommon:MBHCLatElectronics_width]" dy="[mbCommon:MBChimHC_z]" dz="[mb4:MB4HCElectronics_height]"/>
+        <Box name="MB4BigChimHoneycombBox" dx="[mb4:MB4BigHC_x]" dy="[mbCommon:MBChimHC_z]" dz="[MB4HC_height]"/>
+        <Box name="MB4BigChimHoneycomb" dx="[mb4:MB4BigHC_x]-125.*mm" dy="[mbCommon:MBChimHC_z]-125.*mm" dz="[MB4HC_height]-2*[mbCommon:MBAlPlate_height]"/>
+        <Box name="MB4BigChimHcPlate" dx="[mb4:MB4BigHC_x]" dy="[mbCommon:MBChimHC_z]" dz="[mbCommon:MBAlPlate_height]"/>
+        <Box name="MB4TopChimHoneycombBox" dx="[mb3:MB3HC_x]" dy="[mbCommon:MBChimHC_z]" dz="[mb4:MB4HC_height]"/>
+        <Box name="MB4TopChimHoneycomb" dx="[mb3:MB3HC_x]-125.*mm" dy="[mbCommon:MBChimHC_z]-125.*mm" dz="[mb4:MB4HC_height]-2*[mbCommon:MBAlPlate_height]"/>
+        <!-- ####  MB4Chim: RPC chambers -->
+        <Box name="MB4BigChimRPC_GasLeft" dx="[mb4:MB4RPC_Gas_x]" dy="[mbCommon:MBChimRPC_OGasLeft_z]" dz="[mbCommon:MBRPC_Gas_y]"/>
+        <Box name="MB4BigChimRPC_GasRight" dx="[mb4:MB4RPC_Gas_x]" dy="[mbCommon:MBChimRPC_OGasRight_z]" dz="[mbCommon:MBRPC_Gas_y]"/>
+        <Box name="MB4TopChimRPC_GasLeft" dx="73*cm" dy="[mbCommon:MBChimRPC_OGasLeft_z]" dz="[mbCommon:MBRPC_Gas_y]"/>
+        <Box name="MB4TopChimRPC_GasRight" dx="73*cm" dy="[mbCommon:MBChimRPC_OGasRight_z]" dz="[mbCommon:MBRPC_Gas_y]"/>
+    </SolidSection>
+    <LogicalPartSection label="mb4.xml">
+        <!-- ####  MB4 Unit -->
+        <!-- ####  MB4: DTBX -->
+        <!-- #### There are BigLeft, MB4BigRight, MB4SmallLeft, MB4SmallRight, MB4Feet, MB4BottomLeft, MB4BottomRight, MB4Top, plus the two chimney units: Mb4BigChim, MB4TopChim. Plus each of this may have a N or P RPC -->
+        <LogicalPart name="MB4BigLeftP" category="unspecified">
+            <rSolid name="MB4Big"/>
+            <rMaterial name="materials:M_B_Air"/>
+        </LogicalPart>
+        <LogicalPart name="MB4BigRightP" category="unspecified">
+            <rSolid name="MB4Big"/>
+            <rMaterial name="materials:M_B_Air"/>
+        </LogicalPart>
+        <LogicalPart name="MB4SmallLeftP" category="unspecified">
+            <rSolid name="MB4Small"/>
+            <rMaterial name="materials:M_B_Air"/>
+        </LogicalPart>
+        <LogicalPart name="MB4SmallRightP" category="unspecified">
+            <rSolid name="MB4Small"/>
+            <rMaterial name="materials:M_B_Air"/>
+        </LogicalPart>
+        <LogicalPart name="MB4FeetP" category="unspecified">
+            <rSolid name="MB4Feet"/>
+            <rMaterial name="materials:M_B_Air"/>
+        </LogicalPart>
+        <LogicalPart name="MB4BottomLeftP" category="unspecified">
+            <rSolid name="MB4Bottom"/>
+            <rMaterial name="materials:M_B_Air"/>
+        </LogicalPart>
+        <LogicalPart name="MB4BottomRightP" category="unspecified">
+            <rSolid name="MB4Bottom"/>
+            <rMaterial name="materials:M_B_Air"/>
+        </LogicalPart>
+        <LogicalPart name="MB4TopP" category="unspecified">
+            <rSolid name="MB4Top"/>
+            <rMaterial name="materials:M_B_Air"/>
+        </LogicalPart>
+        <LogicalPart name="MB4TopChimP" category="unspecified">
+            <rSolid name="MB4TopChim"/>
+            <rMaterial name="materials:M_B_Air"/>
+        </LogicalPart>
+        <LogicalPart name="MB4BigLeftN" category="unspecified">
+            <rSolid name="MB4Big"/>
+            <rMaterial name="materials:M_B_Air"/>
+        </LogicalPart>
+        <LogicalPart name="MB4BigRightN" category="unspecified">
+            <rSolid name="MB4Big"/>
+            <rMaterial name="materials:M_B_Air"/>
+        </LogicalPart>
+        <LogicalPart name="MB4SmallLeftN" category="unspecified">
+            <rSolid name="MB4Small"/>
+            <rMaterial name="materials:M_B_Air"/>
+        </LogicalPart>
+        <LogicalPart name="MB4SmallRightN" category="unspecified">
+            <rSolid name="MB4Small"/>
+            <rMaterial name="materials:M_B_Air"/>
+        </LogicalPart>
+        <LogicalPart name="MB4FeetN" category="unspecified">
+            <rSolid name="MB4Feet"/>
+            <rMaterial name="materials:M_B_Air"/>
+        </LogicalPart>
+        <LogicalPart name="MB4BottomLeftN" category="unspecified">
+            <rSolid name="MB4Bottom"/>
+            <rMaterial name="materials:M_B_Air"/>
+        </LogicalPart>
+        <LogicalPart name="MB4BottomRightN" category="unspecified">
+            <rSolid name="MB4Bottom"/>
+            <rMaterial name="materials:M_B_Air"/>
+        </LogicalPart>
+        <LogicalPart name="MB4TopN" category="unspecified">
+            <rSolid name="MB4Top"/>
+            <rMaterial name="materials:M_B_Air"/>
+        </LogicalPart>
+        <!-- ####  MB4: DT Superlayers Phi -->
+        <!-- ## only paralel stuff is common -->
+        <LogicalPart name="MB4SLPhiClosingPlateParal" category="unspecified">
+            <rSolid name="MB4SLPhiClosingPlateParal"/>
+            <rMaterial name="materials:Aluminium"/>
+        </LogicalPart>
+        <LogicalPart name="MB4SLPhi_C_PlateParal" category="unspecified">
+            <rSolid name="MB4SLPhi_C_PlateParal"/>
+            <rMaterial name="materials:Aluminium"/>
+        </LogicalPart>
+        <!--- ### MB4 Big -->
+        <LogicalPart name="MB4BigSuperLayerPhi" category="unspecified">
+            <rSolid name="MB4BigSuperLayerPhi"/>
+            <rMaterial name="materials:Air"/>
+        </LogicalPart>
+        <LogicalPart name="MB4BigSLPhiClosingPlatePerp" category="unspecified">
+            <rSolid name="MB4BigSLPhiClosingPlatePerp"/>
+            <rMaterial name="materials:Aluminium"/>
+        </LogicalPart>
+        <LogicalPart name="MB4BigSLPhi_C_PlatePerp" category="unspecified">
+            <rSolid name="MB4BigSLPhi_C_PlatePerp"/>
+            <rMaterial name="materials:Aluminium"/>
+        </LogicalPart>
+        <LogicalPart name="MB4BigSLPhiAlPlateOuter" category="unspecified">
+            <rSolid name="MB4BigSLPhiAlPlateOuter"/>
+            <rMaterial name="materials:Aluminium"/>
+        </LogicalPart>
+        <LogicalPart name="MB4BigSLPhiAlPlateInner" category="unspecified">
+            <rSolid name="MB4BigSLPhiAlPlateInner"/>
+            <rMaterial name="materials:Aluminium"/>
+        </LogicalPart>
+        <LogicalPart name="MB4SLPhiLayer_95Cells" category="unspecified">
+            <rSolid name="MB4SLPhiLayer_95Cells"/>
+            <rMaterial name="materials:Aluminium"/>
+        </LogicalPart>
+        <LogicalPart name="MB4SLPhiLayer_95Cells_startCell2" category="unspecified">
+            <rSolid name="MB4SLPhiLayer_95Cells_startCell2"/>
+            <rMaterial name="materials:Aluminium"/>
+        </LogicalPart>
+        <LogicalPart name="MB4SLPhiLayer_96Cells" category="unspecified">
+            <rSolid name="MB4SLPhiLayer_96Cells"/>
+            <rMaterial name="materials:Aluminium"/>
+        </LogicalPart>
+        <LogicalPart name="MB4ChimSLPhiLayer_95Cells" category="unspecified">
+            <rSolid name="MB4ChimSLPhiLayer_95Cells"/>
+            <rMaterial name="materials:Aluminium"/>
+        </LogicalPart>
+        <LogicalPart name="MB4ChimSLPhiLayer_95Cells_startCell2" category="unspecified">
+            <rSolid name="MB4ChimSLPhiLayer_95Cells_startCell2"/>
+            <rMaterial name="materials:Aluminium"/>
+        </LogicalPart>
+        <LogicalPart name="MB4ChimSLPhiLayer_96Cells" category="unspecified">
+            <rSolid name="MB4ChimSLPhiLayer_96Cells"/>
+            <rMaterial name="materials:Aluminium"/>
+        </LogicalPart>
+        <LogicalPart name="MB4SLPhiElectronics_95Cells" category="unspecified">
+            <rSolid name="MB4SLPhiElectronics_95Cells"/>
+            <rMaterial name="materials:M_Electronics averag"/>
+        </LogicalPart>
+        <LogicalPart name="MB4SLPhiElectronics_96Cells" category="unspecified">
+            <rSolid name="MB4SLPhiElectronics_96Cells"/>
+            <rMaterial name="materials:M_Electronics averag"/>
+        </LogicalPart>
+        <LogicalPart name="MB4BigSLPhiCommonElectronics" category="unspecified">
+            <rSolid name="MB4BigSLPhiCommonElectronics"/>
+            <rMaterial name="materials:M_Electronics averag"/>
+        </LogicalPart>
+        <!--- ### MB4 Small -->
+        <LogicalPart name="MB4SmallSuperLayerPhi" category="unspecified">
+            <rSolid name="MB4SmallSuperLayerPhi"/>
+            <rMaterial name="materials:Air"/>
+        </LogicalPart>
+        <LogicalPart name="MB4SmallSLPhiClosingPlatePerp" category="unspecified">
+            <rSolid name="MB4SmallSLPhiClosingPlatePerp"/>
+            <rMaterial name="materials:Aluminium"/>
+        </LogicalPart>
+        <LogicalPart name="MB4SmallSLPhi_C_PlatePerp" category="unspecified">
+            <rSolid name="MB4SmallSLPhi_C_PlatePerp"/>
+            <rMaterial name="materials:Aluminium"/>
+        </LogicalPart>
+        <LogicalPart name="MB4SmallSLPhiAlPlateOuter" category="unspecified">
+            <rSolid name="MB4SmallSLPhiAlPlateOuter"/>
+            <rMaterial name="materials:Aluminium"/>
+        </LogicalPart>
+        <LogicalPart name="MB4SmallSLPhiAlPlateInner" category="unspecified">
+            <rSolid name="MB4SmallSLPhiAlPlateInner"/>
+            <rMaterial name="materials:Aluminium"/>
+        </LogicalPart>
+        <LogicalPart name="MB4SLPhiLayer_91Cells" category="unspecified">
+            <rSolid name="MB4SLPhiLayer_91Cells"/>
+            <rMaterial name="materials:Aluminium"/>
+        </LogicalPart>
+        <LogicalPart name="MB4SLPhiLayer_91Cells_startCell2" category="unspecified">
+            <rSolid name="MB4SLPhiLayer_91Cells_startCell2"/>
+            <rMaterial name="materials:Aluminium"/>
+        </LogicalPart>
+        <LogicalPart name="MB4SLPhiLayer_92Cells" category="unspecified">
+            <rSolid name="MB4SLPhiLayer_92Cells"/>
+            <rMaterial name="materials:Aluminium"/>
+        </LogicalPart>
+        <LogicalPart name="MB4SLPhiElectronics_91Cells" category="unspecified">
+            <rSolid name="MB4SLPhiElectronics_91Cells"/>
+            <rMaterial name="materials:M_Electronics averag"/>
+        </LogicalPart>
+        <LogicalPart name="MB4SLPhiElectronics_92Cells" category="unspecified">
+            <rSolid name="MB4SLPhiElectronics_92Cells"/>
+            <rMaterial name="materials:M_Electronics averag"/>
+        </LogicalPart>
+        <LogicalPart name="MB4SmallSLPhiCommonElectronics" category="unspecified">
+            <rSolid name="MB4SmallSLPhiCommonElectronics"/>
+            <rMaterial name="materials:M_Electronics averag"/>
+        </LogicalPart>
+        <!--- ### MB4 Feet -->
+        <LogicalPart name="MB4FeetSuperLayerPhi" category="unspecified">
+            <rSolid name="MB4FeetSuperLayerPhi"/>
+            <rMaterial name="materials:Air"/>
+        </LogicalPart>
+        <LogicalPart name="MB4FeetSLPhiClosingPlatePerp" category="unspecified">
+            <rSolid name="MB4FeetSLPhiClosingPlatePerp"/>
+            <rMaterial name="materials:Aluminium"/>
+        </LogicalPart>
+        <LogicalPart name="MB4FeetSLPhi_C_PlatePerp" category="unspecified">
+            <rSolid name="MB4FeetSLPhi_C_PlatePerp"/>
+            <rMaterial name="materials:Aluminium"/>
+        </LogicalPart>
+        <LogicalPart name="MB4FeetSLPhiAlPlateOuter" category="unspecified">
+            <rSolid name="MB4FeetSLPhiAlPlateOuter"/>
+            <rMaterial name="materials:Aluminium"/>
+        </LogicalPart>
+        <LogicalPart name="MB4FeetSLPhiAlPlateInner" category="unspecified">
+            <rSolid name="MB4FeetSLPhiAlPlateInner"/>
+            <rMaterial name="materials:Aluminium"/>
+        </LogicalPart>
+        <LogicalPart name="MB4SLPhiLayer_47Cells" category="unspecified">
+            <rSolid name="MB4SLPhiLayer_47Cells"/>
+            <rMaterial name="materials:Aluminium"/>
+        </LogicalPart>
+        <LogicalPart name="MB4SLPhiLayer_47Cells_startCell2" category="unspecified">
+            <rSolid name="MB4SLPhiLayer_47Cells_startCell2"/>
+            <rMaterial name="materials:Aluminium"/>
+        </LogicalPart>
+        <LogicalPart name="MB4SLPhiLayer_48Cells" category="unspecified">
+            <rSolid name="MB4SLPhiLayer_48Cells"/>
+            <rMaterial name="materials:Aluminium"/>
+        </LogicalPart>
+        <LogicalPart name="MB4SLPhiElectronics_47Cells" category="unspecified">
+            <rSolid name="MB4SLPhiElectronics_47Cells"/>
+            <rMaterial name="materials:M_Electronics averag"/>
+        </LogicalPart>
+        <LogicalPart name="MB4SLPhiElectronics_48Cells" category="unspecified">
+            <rSolid name="MB4SLPhiElectronics_48Cells"/>
+            <rMaterial name="materials:M_Electronics averag"/>
+        </LogicalPart>
+        <LogicalPart name="MB4FeetSLPhiCommonElectronics" category="unspecified">
+            <rSolid name="MB4FeetSLPhiCommonElectronics"/>
+            <rMaterial name="materials:M_Electronics averag"/>
+        </LogicalPart>
+        <!-- ####  MB4: DT Honeycomb -->
+        <LogicalPart name="MB4Hc_LateralC" category="unspecified">
+            <rSolid name="MB4Hc_LateralC"/>
+            <rMaterial name="materials:M_Aluminium"/>
+        </LogicalPart>
+        <LogicalPart name="MB4Hc_LateralElectronics" category="unspecified">
+            <rSolid name="MB4Hc_LateralElectronics"/>
+            <rMaterial name="materials:M_Electronics averag"/>
+        </LogicalPart>
+        <LogicalPart name="MB4HcTorsionBar" category="unspecified">
+            <rSolid name="MB4HcTorsionBar"/>
+            <rMaterial name="materials:Aluminium"/>
+        </LogicalPart>
+        <LogicalPart name="MB4BigHoneycombBox" category="unspecified">
+            <rSolid name="MB4BigHoneycombBox"/>
+            <rMaterial name="materials:Air"/>
+        </LogicalPart>
+        <LogicalPart name="MB4BigHoneycomb" category="unspecified">
+            <rSolid name="MB4BigHoneycomb"/>
+            <rMaterial name="materials:M_honeycomb"/>
+        </LogicalPart>
+        <LogicalPart name="MB4BigHcPlate" category="unspecified">
+            <rSolid name="MB4BigHcPlate"/>
+            <rMaterial name="materials:M_Aluminium"/>
+        </LogicalPart>
+        <LogicalPart name="MB4BigHc_FrontC" category="unspecified">
+            <rSolid name="MB4BigHc_FrontC"/>
+            <rMaterial name="materials:M_Aluminium"/>
+        </LogicalPart>
+        <LogicalPart name="MB4BigHc_FrontElectronics" category="unspecified">
+            <rSolid name="MB4BigHc_FrontElectronics"/>
+            <rMaterial name="materials:M_Electronics averag"/>
+        </LogicalPart>
+        <LogicalPart name="MB4SmallHoneycombBox" category="unspecified">
+            <rSolid name="MB4SmallHoneycombBox"/>
+            <rMaterial name="materials:Air"/>
+        </LogicalPart>
+        <LogicalPart name="MB4SmallHoneycomb" category="unspecified">
+            <rSolid name="MB4SmallHoneycomb"/>
+            <rMaterial name="materials:M_honeycomb"/>
+        </LogicalPart>
+        <LogicalPart name="MB4SmallHcPlate" category="unspecified">
+            <rSolid name="MB4SmallHcPlate"/>
+            <rMaterial name="materials:M_Aluminium"/>
+        </LogicalPart>
+        <LogicalPart name="MB4SmallHc_FrontC" category="unspecified">
+            <rSolid name="MB4SmallHc_FrontC"/>
+            <rMaterial name="materials:M_Aluminium"/>
+        </LogicalPart>
+        <LogicalPart name="MB4SmallHc_FrontElectronics" category="unspecified">
+            <rSolid name="MB4SmallHc_FrontElectronics"/>
+            <rMaterial name="materials:M_Electronics averag"/>
+        </LogicalPart>
+        <LogicalPart name="MB4FeetHoneycombBox" category="unspecified">
+            <rSolid name="MB4FeetHoneycombBox"/>
+            <rMaterial name="materials:Air"/>
+        </LogicalPart>
+        <LogicalPart name="MB4FeetHoneycomb" category="unspecified">
+            <rSolid name="MB4FeetHoneycomb"/>
+            <rMaterial name="materials:M_honeycomb"/>
+        </LogicalPart>
+        <LogicalPart name="MB4FeetHcPlate" category="unspecified">
+            <rSolid name="MB4FeetHcPlate"/>
+            <rMaterial name="materials:M_Aluminium"/>
+        </LogicalPart>
+        <LogicalPart name="MB4FeetHc_FrontC" category="unspecified">
+            <rSolid name="MB4FeetHc_FrontC"/>
+            <rMaterial name="materials:M_Aluminium"/>
+        </LogicalPart>
+        <LogicalPart name="MB4FeetHc_FrontElectronics" category="unspecified">
+            <rSolid name="MB4FeetHc_FrontElectronics"/>
+            <rMaterial name="materials:M_Electronics averag"/>
+        </LogicalPart>
+        <LogicalPart name="MB4BottomHoneycombBox" category="unspecified">
+            <rSolid name="MB4BottomHoneycombBox"/>
+            <rMaterial name="materials:Air"/>
+        </LogicalPart>
+        <LogicalPart name="MB4BottomHoneycomb" category="unspecified">
+            <rSolid name="MB4BottomHoneycomb"/>
+            <rMaterial name="materials:M_honeycomb"/>
+        </LogicalPart>
+        <LogicalPart name="MB4BottomHc_FrontC" category="unspecified">
+            <rSolid name="MB4BottomHc_FrontC"/>
+            <rMaterial name="materials:M_Aluminium"/>
+        </LogicalPart>
+        <LogicalPart name="MB4BottomHc_FrontElectronics" category="unspecified">
+            <rSolid name="MB4BottomHc_FrontElectronics"/>
+            <rMaterial name="materials:M_Electronics averag"/>
+        </LogicalPart>
+        <LogicalPart name="MB4TopHoneycombBox" category="unspecified">
+            <rSolid name="MB4TopHoneycombBox"/>
+            <rMaterial name="materials:Air"/>
+        </LogicalPart>
+        <LogicalPart name="MB4TopHoneycomb" category="unspecified">
+            <rSolid name="MB4TopHoneycomb"/>
+            <rMaterial name="materials:M_honeycomb"/>
+        </LogicalPart>
+        <LogicalPart name="MB4TopHc_FrontC" category="unspecified">
+            <rSolid name="MB4TopHc_FrontC"/>
+            <rMaterial name="materials:M_Aluminium"/>
+        </LogicalPart>
+        <LogicalPart name="MB4TopHc_FrontElectronics" category="unspecified">
+            <rSolid name="MB4TopHc_FrontElectronics"/>
+            <rMaterial name="materials:M_Electronics averag"/>
+        </LogicalPart>
+        <!-- ####  MB4: RPC chambers -->
+        <LogicalPart name="MB4RPC_P" category="unspecified">
+            <rSolid name="MB4RPC"/>
+            <rMaterial name="materials:M_RPC_Bakelite"/>
+        </LogicalPart>
+        <LogicalPart name="MB4RPC_N" category="unspecified">
+            <rSolid name="MB4RPC"/>
+            <rMaterial name="materials:M_RPC_Bakelite"/>
+        </LogicalPart>
+        <LogicalPart name="MB4SmallRPC_PS8" category="unspecified">
+            <rSolid name="MB4SmallRPC"/>
+            <rMaterial name="materials:M_RPC_Bakelite"/>
+        </LogicalPart>
+        <LogicalPart name="MB4SmallRPC_PS12" category="unspecified">
+            <rSolid name="MB4SmallRPC"/>
+            <rMaterial name="materials:M_RPC_Bakelite"/>
+        </LogicalPart>
+        <LogicalPart name="MB4SmallRPC_NS8" category="unspecified">
+            <rSolid name="MB4SmallRPC"/>
+            <rMaterial name="materials:M_RPC_Bakelite"/>
+        </LogicalPart>
+        <LogicalPart name="MB4SmallRPC_NS12" category="unspecified">
+            <rSolid name="MB4SmallRPC"/>
+            <rMaterial name="materials:M_RPC_Bakelite"/>
+        </LogicalPart>
+        <LogicalPart name="MB4TopRPC_P" category="unspecified">
+            <rSolid name="MB4TopRPC"/>
+            <rMaterial name="materials:M_RPC_Bakelite"/>
+        </LogicalPart>
+        <LogicalPart name="MB4TopRPC_N" category="unspecified">
+            <rSolid name="MB4TopRPC"/>
+            <rMaterial name="materials:M_RPC_Bakelite"/>
+        </LogicalPart>
+        <LogicalPart name="MB4FeetRPC_P" category="unspecified">
+            <rSolid name="MB4FeetRPC"/>
+            <rMaterial name="materials:M_RPC_Bakelite"/>
+        </LogicalPart>
+        <LogicalPart name="MB4FeetRPC_N" category="unspecified">
+            <rSolid name="MB4FeetRPC"/>
+            <rMaterial name="materials:M_RPC_Bakelite"/>
+        </LogicalPart>
+        <LogicalPart name="MB4BottomRPC_P" category="unspecified">
+            <rSolid name="MB4BottomRPC"/>
+            <rMaterial name="materials:M_RPC_Bakelite"/>
+        </LogicalPart>
+        <LogicalPart name="MB4BottomRPC_N" category="unspecified">
+            <rSolid name="MB4BottomRPC"/>
+            <rMaterial name="materials:M_RPC_Bakelite"/>
+        </LogicalPart>
+        <LogicalPart name="MB4RPC_GasLeft" category="unspecified">
+            <rSolid name="MB4RPC_GasLeft"/>
+            <rMaterial name="materials:M_RPC_Gas"/>
+        </LogicalPart>
+        <LogicalPart name="MB4RPC_GasRight" category="unspecified">
+            <rSolid name="MB4RPC_GasRight"/>
+            <rMaterial name="materials:M_RPC_Gas"/>
+        </LogicalPart>
+        <LogicalPart name="MB4SmallRPC_SmallerGasLeft" category="unspecified">
+            <rSolid name="mb3:MB3RPC_GasLeft"/>
+            <rMaterial name="materials:M_RPC_Gas"/>
+        </LogicalPart>
+        <LogicalPart name="MB4SmallRPC_SmallerGasRight" category="unspecified">
+            <rSolid name="mb3:MB3RPC_GasRight"/>
+            <rMaterial name="materials:M_RPC_Gas"/>
+        </LogicalPart>
+        <LogicalPart name="MB4SmallRPC_BiggerGasLeft" category="unspecified">
+            <rSolid name="MB4RPC_GasLeft"/>
+            <rMaterial name="materials:M_RPC_Gas"/>
+        </LogicalPart>
+        <LogicalPart name="MB4SmallRPC_BiggerGasRight" category="unspecified">
+            <rSolid name="MB4RPC_GasRight"/>
+            <rMaterial name="materials:M_RPC_Gas"/>
+        </LogicalPart>
+        <LogicalPart name="MB4TopRPC_GasLeft" category="unspecified">
+            <rSolid name="mb3:MB3RPC_GasLeft"/>
+            <rMaterial name="materials:M_RPC_Gas"/>
+        </LogicalPart>
+        <LogicalPart name="MB4TopRPC_GasRight" category="unspecified">
+            <rSolid name="mb3:MB3RPC_GasRight"/>
+            <rMaterial name="materials:M_RPC_Gas"/>
+        </LogicalPart>
+        <LogicalPart name="MB4FeetRPC_GasLeft" category="unspecified">
+            <rSolid name="mb4:MB4RPC_GasLeft"/>
+            <rMaterial name="materials:M_RPC_Gas"/>
+        </LogicalPart>
+        <LogicalPart name="MB4FeetRPC_GasRight" category="unspecified">
+            <rSolid name="mb4:MB4RPC_GasRight"/>
+            <rMaterial name="materials:M_RPC_Gas"/>
+        </LogicalPart>
+        <LogicalPart name="MB4BottomRPC_GasLeft" category="unspecified">
+            <rSolid name="mb2:MB22RPC_OGasLeft"/>
+            <rMaterial name="materials:M_RPC_Gas"/>
+        </LogicalPart>
+        <LogicalPart name="MB4BottomRPC_GasRight" category="unspecified">
+            <rSolid name="mb2:MB22RPC_OGasRight"/>
+            <rMaterial name="materials:M_RPC_Gas"/>
+        </LogicalPart>
+        <!-- ####  MB4Chimney Unit -->
+        <!-- ####  MB4Chim: DTBX -->
+        <LogicalPart name="MB4BigChimN" category="unspecified">
+            <rSolid name="MB4BigChim"/>
+            <rMaterial name="materials:M_B_Air"/>
+        </LogicalPart>
+        <LogicalPart name="MB4TopChim" category="unspecified">
+            <rSolid name="MB4TopChim"/>
+            <rMaterial name="materials:M_B_Air"/>
+        </LogicalPart>
+        <!-- ####  MB4Chim: DT Superlayers Phi  -->
+        <!-- ## only paralel stuff is common -->
+        <LogicalPart name="MB4ChimSLPhiClosingPlateParal" category="unspecified">
+            <rSolid name="MB4ChimSLPhiClosingPlateParal"/>
+            <rMaterial name="materials:Aluminium"/>
+        </LogicalPart>
+        <LogicalPart name="MB4ChimSLPhi_C_PlateParal" category="unspecified">
+            <rSolid name="MB4ChimSLPhi_C_PlateParal"/>
+            <rMaterial name="materials:Aluminium"/>
+        </LogicalPart>
+        <!--- ### MB4Chim Big -->
+        <LogicalPart name="MB4BigChimSuperLayerPhi" category="unspecified">
+            <rSolid name="MB4BigChimSuperLayerPhi"/>
+            <rMaterial name="materials:Air"/>
+        </LogicalPart>
+        <LogicalPart name="MB4BigChimSLPhiAlPlateOuter" category="unspecified">
+            <rSolid name="MB4BigChimSLPhiAlPlateOuter"/>
+            <rMaterial name="materials:Aluminium"/>
+        </LogicalPart>
+        <LogicalPart name="MB4BigChimSLPhiAlPlateInner" category="unspecified">
+            <rSolid name="MB4BigChimSLPhiAlPlateInner"/>
+            <rMaterial name="materials:Aluminium"/>
+        </LogicalPart>
+        <!-- ####  MB4Chim: DT Honeycomb -->
+        <LogicalPart name="MB4ChimHc_LateralC" category="unspecified">
+            <rSolid name="MB4ChimHc_LateralC"/>
+            <rMaterial name="materials:M_Aluminium"/>
+        </LogicalPart>
+        <LogicalPart name="MB4ChimHc_LateralElectronics" category="unspecified">
+            <rSolid name="MB4ChimHc_LateralElectronics"/>
+            <rMaterial name="materials:M_Electronics averag"/>
+        </LogicalPart>
+        <LogicalPart name="MB4BigChimHoneycombBox" category="unspecified">
+            <rSolid name="MB4BigChimHoneycombBox"/>
+            <rMaterial name="materials:Air"/>
+        </LogicalPart>
+        <LogicalPart name="MB4BigChimHoneycomb" category="unspecified">
+            <rSolid name="MB4BigChimHoneycomb"/>
+            <rMaterial name="materials:M_honeycomb"/>
+        </LogicalPart>
+        <LogicalPart name="MB4BigChimHcPlate" category="unspecified">
+            <rSolid name="MB4BigChimHcPlate"/>
+            <rMaterial name="materials:M_Aluminium"/>
+        </LogicalPart>
+        <LogicalPart name="MB4TopChimHoneycombBox" category="unspecified">
+            <rSolid name="MB4TopChimHoneycombBox"/>
+            <rMaterial name="materials:Air"/>
+        </LogicalPart>
+        <LogicalPart name="MB4TopChimHoneycomb" category="unspecified">
+            <rSolid name="MB4TopChimHoneycomb"/>
+            <rMaterial name="materials:M_honeycomb"/>
+        </LogicalPart>
+        <!-- ####  MB4Chim: RPC chambers -->
+        <LogicalPart name="MB4TopChimRPC_P" category="unspecified">
+            <rSolid name="MB4TopChimRPC"/>
+            <rMaterial name="materials:M_RPC_Bakelite"/>
+        </LogicalPart>
+        <LogicalPart name="MB4BigChimRPC_N" category="unspecified">
+            <rSolid name="MB4BigChimRPC"/>
+            <rMaterial name="materials:M_RPC_Bakelite"/>
+        </LogicalPart>
+        <LogicalPart name="MB4BigChimRPC_GasLeft" category="unspecified">
+            <rSolid name="MB4BigChimRPC_GasLeft"/>
+            <rMaterial name="materials:M_RPC_Gas"/>
+        </LogicalPart>
+        <LogicalPart name="MB4BigChimRPC_GasRight" category="unspecified">
+            <rSolid name="MB4BigChimRPC_GasRight"/>
+            <rMaterial name="materials:M_RPC_Gas"/>
+        </LogicalPart>
+        <LogicalPart name="MB4TopChimRPC_GasLeft" category="unspecified">
+            <rSolid name="MB4TopChimRPC_GasLeft"/>
+            <rMaterial name="materials:M_RPC_Gas"/>
+        </LogicalPart>
+        <LogicalPart name="MB4TopChimRPC_GasRight" category="unspecified">
+            <rSolid name="MB4TopChimRPC_GasRight"/>
+            <rMaterial name="materials:M_RPC_Gas"/>
+        </LogicalPart>
+    </LogicalPartSection>
+    <PosPartSection label="mb4.xml">
+        <!-- ####  MB4 Unit -->
+        <!-- ####  MB4: DTBX chamber -->
+        <PosPart copyNumber="1">
+            <rParent name="muonBase:MBWheel_0"/>
+            <rChild name="mb4:MB4BigLeftN"/>
+            <rRotation name="rotations:MM401"/>
+            <Translation x="[MB4BigPos_x]" y="[MB4BigPos_y]" z="[mbCommon:MBPos_z]"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="muonBase:MBWheel_0"/>
+            <rChild name="mb4:MB4BigRightP"/>
+            <rRotation name="rotations:RM1882"/>
+            <Translation x="[MB4BigUnitRadius]*cos(30.*deg+[MB4BigPosAngle])*mm" y="[MB4BigUnitRadius]*sin(30.*deg+[MB4BigPosAngle])*mm" z="-[mbCommon:MBPos_z]"/>
+        </PosPart>
+        <PosPart copyNumber="3">
+            <rParent name="muonBase:MBWheel_0"/>
+            <rChild name="mb4:MB4BigRightP"/>
+            <rRotation name="rotations:RM1892"/>
+            <Translation x="[MB4BigUnitRadius]*cos(60.*deg+[MB4BigPosAngle])*mm" y="[MB4BigUnitRadius]*sin(60.*deg+[MB4BigPosAngle])*mm" z="-[mbCommon:MBPos_z]"/>
+        </PosPart>
+        <PosPart copyNumber="4">
+            <rParent name="muonBase:MBWheel_0"/>
+            <rChild name="mb4:MB4TopN"/>
+            <rRotation name="rotations:MM404"/>
+            <Translation x="[MB4TopPos_x]" y="[MB4TopPos_y]" z="[mbCommon:MBPos_z]"/>
+        </PosPart>
+        <PosPart copyNumber="13">
+            <rParent name="muonBase:MBWheel_0"/>
+            <rChild name="mb4:MB4TopN"/>
+            <rRotation name="rotations:MM404"/>
+            <Translation x="-[MB4TopPos_x]" y="[MB4TopPos_y]" z="[mbCommon:MBPos_z]"/>
+        </PosPart>
+        <PosPart copyNumber="5">
+            <rParent name="muonBase:MBWheel_0"/>
+            <rChild name="mb4:MB4BigRightN"/>
+            <rRotation name="rotations:MM405"/>
+            <Translation x="[MB4BigUnitRadius]*cos(120.*deg-[MB4BigPosAngle])*mm" y="[MB4BigUnitRadius]*sin(120.*deg-[MB4BigPosAngle])*mm" z="[mbCommon:MBPos_z]"/>
+        </PosPart>
+        <PosPart copyNumber="6">
+            <rParent name="muonBase:MBWheel_0"/>
+            <rChild name="mb4:MB4BigLeftP"/>
+            <rRotation name="rotations:RM1922"/>
+            <Translation x="[MB4BigUnitRadius]*cos(150.*deg-[MB4BigPosAngle])*mm" y="[MB4BigUnitRadius]*sin(150.*deg-[MB4BigPosAngle])*mm" z="-[mbCommon:MBPos_z]"/>
+        </PosPart>
+        <PosPart copyNumber="7">
+            <rParent name="muonBase:MBWheel_0"/>
+            <rChild name="mb4:MB4BigLeftP"/>
+            <rRotation name="rotations:90XD"/>
+            <Translation x="[MB4BigUnitRadius]*cos(180.*deg-[MB4BigPosAngle])*mm" y="[MB4BigUnitRadius]*sin(180.*deg-[MB4BigPosAngle])*mm" z="-[mbCommon:MBPos_z]"/>
+        </PosPart>
+        <PosPart copyNumber="8">
+            <rParent name="muonBase:MBWheel_0"/>
+            <rChild name="mb4:MB4SmallRightN"/>
+            <rRotation name="rotations:MM408"/>
+            <Translation x="-[MB4SmallPos_x]" y="[MB4SmallPos_y]" z="[mbCommon:MBPos_z]"/>
+        </PosPart>
+        <PosPart copyNumber="9">
+            <rParent name="muonBase:MBWheel_0"/>
+            <rChild name="mb4:MB4FeetN"/>
+            <rRotation name="rotations:MM409"/>
+            <Translation x="-[MB4FeetPos_x]" y="[MB4FeetPos_y]" z="[mbCommon:MBPos_z]"/>
+        </PosPart>
+        <PosPart copyNumber="10">
+            <rParent name="muonBase:MBWheel_0"/>
+            <rChild name="mb4:MB4BottomLeftP"/>
+            <rRotation name="rotations:RM1842"/>
+            <Translation x="-[MB4BottomPos_x]" y="[MB4BottomPos_y]" z="-[mbCommon:MBPos_z]"/>
+        </PosPart>
+        <PosPart copyNumber="14">
+            <rParent name="muonBase:MBWheel_0"/>
+            <rChild name="mb4:MB4BottomRightP"/>
+            <rRotation name="rotations:RM1842"/>
+            <Translation x="[MB4BottomPos_x]" y="[MB4BottomPos_y]" z="-[mbCommon:MBPos_z]"/>
+        </PosPart>
+        <PosPart copyNumber="11">
+            <rParent name="muonBase:MBWheel_0"/>
+            <rChild name="mb4:MB4FeetP"/>
+            <rRotation name="rotations:RM1852"/>
+            <Translation x="[MB4FeetPos_x]" y="[MB4FeetPos_y]" z="-[mbCommon:MBPos_z]"/>
+        </PosPart>
+        <PosPart copyNumber="12">
+            <rParent name="muonBase:MBWheel_0"/>
+            <rChild name="mb4:MB4SmallLeftN"/>
+            <rRotation name="rotations:MM412"/>
+            <Translation x="[MB4SmallPos_x]" y="[MB4SmallPos_y]" z="[mbCommon:MBPos_z]"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="muonBase:MBWheel_1P"/>
+            <rChild name="mb4:MB4BigRightP"/>
+            <rRotation name="rotations:RM1872"/>
+            <Translation x="[MB4BigPos_x]" y="[MB4BigPos_y]" z="-[mbCommon:MBPos_z]"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="muonBase:MBWheel_1P"/>
+            <rChild name="mb4:MB4BigRightP"/>
+            <rRotation name="rotations:RM1882"/>
+            <Translation x="[MB4BigUnitRadius]*cos(30.*deg+[MB4BigPosAngle])*mm" y="[MB4BigUnitRadius]*sin(30.*deg+[MB4BigPosAngle])*mm" z="-[mbCommon:MBPos_z]"/>
+        </PosPart>
+        <PosPart copyNumber="3">
+            <rParent name="muonBase:MBWheel_1P"/>
+            <rChild name="mb4:MB4BigRightP"/>
+            <rRotation name="rotations:RM1892"/>
+            <Translation x="[MB4BigUnitRadius]*cos(60.*deg+[MB4BigPosAngle])*mm" y="[MB4BigUnitRadius]*sin(60.*deg+[MB4BigPosAngle])*mm" z="-[mbCommon:MBPos_z]"/>
+        </PosPart>
+        <PosPart copyNumber="4">
+            <rParent name="muonBase:MBWheel_1P"/>
+            <rChild name="mb4:MB4TopChimP"/>
+            <rRotation name="rotations:RM1902"/>
+            <Translation x="[MB4TopPos_x]" y="[MB4TopPos_y]" z="[mbCommon:MBChimPos_z]"/>
+        </PosPart>
+        <PosPart copyNumber="13">
+            <rParent name="muonBase:MBWheel_1P"/>
+            <rChild name="mb4:MB4TopChimP"/>
+            <rRotation name="rotations:RM1902"/>
+            <Translation x="-[MB4TopPos_x]" y="[MB4TopPos_y]" z="[mbCommon:MBChimPos_z]"/>
+        </PosPart>
+        <PosPart copyNumber="5">
+            <rParent name="muonBase:MBWheel_1P"/>
+            <rChild name="mb4:MB4BigLeftP"/>
+            <rRotation name="rotations:RM1912"/>
+            <Translation x="[MB4BigUnitRadius]*cos(120.*deg-[MB4BigPosAngle])*mm" y="[MB4BigUnitRadius]*sin(120.*deg-[MB4BigPosAngle])*mm" z="-[mbCommon:MBPos_z]"/>
+        </PosPart>
+        <PosPart copyNumber="6">
+            <rParent name="muonBase:MBWheel_1P"/>
+            <rChild name="mb4:MB4BigLeftP"/>
+            <rRotation name="rotations:RM1922"/>
+            <Translation x="[MB4BigUnitRadius]*cos(150.*deg-[MB4BigPosAngle])*mm" y="[MB4BigUnitRadius]*sin(150.*deg-[MB4BigPosAngle])*mm" z="-[mbCommon:MBPos_z]"/>
+        </PosPart>
+        <PosPart copyNumber="7">
+            <rParent name="muonBase:MBWheel_1P"/>
+            <rChild name="mb4:MB4BigLeftP"/>
+            <rRotation name="rotations:90XD"/>
+            <Translation x="[MB4BigUnitRadius]*cos(180.*deg-[MB4BigPosAngle])*mm" y="[MB4BigUnitRadius]*sin(180.*deg-[MB4BigPosAngle])*mm" z="-[mbCommon:MBPos_z]"/>
+        </PosPart>
+        <PosPart copyNumber="8">
+            <rParent name="muonBase:MBWheel_1P"/>
+            <rChild name="mb4:MB4SmallLeftP"/>
+            <rRotation name="rotations:RM1822"/>
+            <Translation x="-[MB4SmallPos_x]" y="[MB4SmallPos_y]" z="-[mbCommon:MBPos_z]"/>
+        </PosPart>
+        <PosPart copyNumber="9">
+            <rParent name="muonBase:MBWheel_1P"/>
+            <rChild name="mb4:MB4FeetP"/>
+            <rRotation name="rotations:RM1832"/>
+            <Translation x="-[MB4FeetPos_x]" y="[MB4FeetPos_y]" z="-[mbCommon:MBPos_z]"/>
+        </PosPart>
+        <PosPart copyNumber="10">
+            <rParent name="muonBase:MBWheel_1P"/>
+            <rChild name="mb4:MB4BottomLeftP"/>
+            <rRotation name="rotations:RM1842"/>
+            <Translation x="-[MB4BottomPos_x]" y="[MB4BottomPos_y]" z="-[mbCommon:MBPos_z]"/>
+        </PosPart>
+        <PosPart copyNumber="14">
+            <rParent name="muonBase:MBWheel_1P"/>
+            <rChild name="mb4:MB4BottomRightP"/>
+            <rRotation name="rotations:RM1842"/>
+            <Translation x="[MB4BottomPos_x]" y="[MB4BottomPos_y]" z="-[mbCommon:MBPos_z]"/>
+        </PosPart>
+        <PosPart copyNumber="11">
+            <rParent name="muonBase:MBWheel_1P"/>
+            <rChild name="mb4:MB4FeetP"/>
+            <rRotation name="rotations:RM1852"/>
+            <Translation x="[MB4FeetPos_x]" y="[MB4FeetPos_y]" z="-[mbCommon:MBPos_z]"/>
+        </PosPart>
+        <PosPart copyNumber="12">
+            <rParent name="muonBase:MBWheel_1P"/>
+            <rChild name="mb4:MB4SmallRightP"/>
+            <rRotation name="rotations:RM1862"/>
+            <Translation x="[MB4SmallPos_x]" y="[MB4SmallPos_y]" z="-[mbCommon:MBPos_z]"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="muonBase:MBWheel_2P"/>
+            <rChild name="mb4:MB4BigRightP"/>
+            <rRotation name="rotations:RM1872"/>
+            <Translation x="[MB4BigPos_x]" y="[MB4BigPos_y]" z="-[mbCommon:MBPos_z]"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="muonBase:MBWheel_2P"/>
+            <rChild name="mb4:MB4BigRightP"/>
+            <rRotation name="rotations:RM1882"/>
+            <Translation x="[MB4BigUnitRadius]*cos(30.*deg+[MB4BigPosAngle])*mm" y="[MB4BigUnitRadius]*sin(30.*deg+[MB4BigPosAngle])*mm" z="-[mbCommon:MBPos_z]"/>
+        </PosPart>
+        <PosPart copyNumber="3">
+            <rParent name="muonBase:MBWheel_2P"/>
+            <rChild name="mb4:MB4BigRightP"/>
+            <rRotation name="rotations:RM1892"/>
+            <Translation x="[MB4BigUnitRadius]*cos(60.*deg+[MB4BigPosAngle])*mm" y="[MB4BigUnitRadius]*sin(60.*deg+[MB4BigPosAngle])*mm" z="-[mbCommon:MBPos_z]"/>
+        </PosPart>
+        <PosPart copyNumber="4">
+            <rParent name="muonBase:MBWheel_2P"/>
+            <rChild name="mb4:MB4TopP"/>
+            <rRotation name="rotations:RM1902"/>
+            <Translation x="[MB4TopPos_x]" y="[MB4TopPos_y]" z="-[mbCommon:MBPos_z]"/>
+        </PosPart>
+        <PosPart copyNumber="13">
+            <rParent name="muonBase:MBWheel_2P"/>
+            <rChild name="mb4:MB4TopP"/>
+            <rRotation name="rotations:RM1902"/>
+            <Translation x="-[MB4TopPos_x]" y="[MB4TopPos_y]" z="-[mbCommon:MBPos_z]"/>
+        </PosPart>
+        <PosPart copyNumber="5">
+            <rParent name="muonBase:MBWheel_2P"/>
+            <rChild name="mb4:MB4BigLeftP"/>
+            <rRotation name="rotations:RM1912"/>
+            <Translation x="[MB4BigUnitRadius]*cos(120.*deg-[MB4BigPosAngle])*mm" y="[MB4BigUnitRadius]*sin(120.*deg-[MB4BigPosAngle])*mm" z="-[mbCommon:MBPos_z]"/>
+        </PosPart>
+        <PosPart copyNumber="6">
+            <rParent name="muonBase:MBWheel_2P"/>
+            <rChild name="mb4:MB4BigLeftP"/>
+            <rRotation name="rotations:RM1922"/>
+            <Translation x="[MB4BigUnitRadius]*cos(150.*deg-[MB4BigPosAngle])*mm" y="[MB4BigUnitRadius]*sin(150.*deg-[MB4BigPosAngle])*mm" z="-[mbCommon:MBPos_z]"/>
+        </PosPart>
+        <PosPart copyNumber="7">
+            <rParent name="muonBase:MBWheel_2P"/>
+            <rChild name="mb4:MB4BigLeftP"/>
+            <rRotation name="rotations:90XD"/>
+            <Translation x="[MB4BigUnitRadius]*cos(180.*deg-[MB4BigPosAngle])*mm" y="[MB4BigUnitRadius]*sin(180.*deg-[MB4BigPosAngle])*mm" z="-[mbCommon:MBPos_z]"/>
+        </PosPart>
+        <PosPart copyNumber="8">
+            <rParent name="muonBase:MBWheel_2P"/>
+            <rChild name="mb4:MB4SmallLeftP"/>
+            <rRotation name="rotations:RM1822"/>
+            <Translation x="-[MB4SmallPos_x]" y="[MB4SmallPos_y]" z="-[mbCommon:MBPos_z]"/>
+        </PosPart>
+        <PosPart copyNumber="9">
+            <rParent name="muonBase:MBWheel_2P"/>
+            <rChild name="mb4:MB4FeetP"/>
+            <rRotation name="rotations:RM1832"/>
+            <Translation x="-[MB4FeetPos_x]" y="[MB4FeetPos_y]" z="-[mbCommon:MBPos_z]"/>
+        </PosPart>
+        <PosPart copyNumber="10">
+            <rParent name="muonBase:MBWheel_2P"/>
+            <rChild name="mb4:MB4BottomLeftP"/>
+            <rRotation name="rotations:RM1842"/>
+            <Translation x="-[MB4BottomPos_x]" y="[MB4BottomPos_y]" z="-[mbCommon:MBPos_z]"/>
+        </PosPart>
+        <PosPart copyNumber="14">
+            <rParent name="muonBase:MBWheel_2P"/>
+            <rChild name="mb4:MB4BottomRightP"/>
+            <rRotation name="rotations:RM1842"/>
+            <Translation x="[MB4BottomPos_x]" y="[MB4BottomPos_y]" z="-[mbCommon:MBPos_z]"/>
+        </PosPart>
+        <PosPart copyNumber="11">
+            <rParent name="muonBase:MBWheel_2P"/>
+            <rChild name="mb4:MB4FeetP"/>
+            <rRotation name="rotations:RM1852"/>
+            <Translation x="[MB4FeetPos_x]" y="[MB4FeetPos_y]" z="-[mbCommon:MBPos_z]"/>
+        </PosPart>
+        <PosPart copyNumber="12">
+            <rParent name="muonBase:MBWheel_2P"/>
+            <rChild name="mb4:MB4SmallRightP"/>
+            <rRotation name="rotations:RM1862"/>
+            <Translation x="[MB4SmallPos_x]" y="[MB4SmallPos_y]" z="-[mbCommon:MBPos_z]"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="muonBase:MBWheel_1N"/>
+            <rChild name="mb4:MB4BigLeftN"/>
+            <rRotation name="rotations:MM401"/>
+            <Translation x="[MB4BigPos_x]" y="[MB4BigPos_y]" z="[mbCommon:MBPos_z]"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="muonBase:MBWheel_1N"/>
+            <rChild name="mb4:MB4BigLeftN"/>
+            <rRotation name="rotations:MM402"/>
+            <Translation x="[MB4BigUnitRadius]*cos(30.*deg+[MB4BigPosAngle])*mm" y="[MB4BigUnitRadius]*sin(30.*deg+[MB4BigPosAngle])*mm" z="[mbCommon:MBPos_z]"/>
+        </PosPart>
+        <PosPart copyNumber="3">
+            <rParent name="muonBase:MBWheel_1N"/>
+            <rChild name="mb4:MB4BigChimN"/>
+            <rRotation name="rotations:MM403"/>
+            <Translation x="[MB4BigUnitRadius]*cos(60.*deg+[MB4BigPosAngle])*mm" y="[MB4BigUnitRadius]*sin(60.*deg+[MB4BigPosAngle])*mm" z="-[mbCommon:MBChimPos_z]"/>
+        </PosPart>
+        <PosPart copyNumber="4">
+            <rParent name="muonBase:MBWheel_1N"/>
+            <rChild name="mb4:MB4TopN"/>
+            <rRotation name="rotations:MM404"/>
+            <Translation x="[MB4TopPos_x]" y="[MB4TopPos_y]" z="[mbCommon:MBPos_z]"/>
+        </PosPart>
+        <PosPart copyNumber="13">
+            <rParent name="muonBase:MBWheel_1N"/>
+            <rChild name="mb4:MB4TopN"/>
+            <rRotation name="rotations:MM404"/>
+            <Translation x="-[MB4TopPos_x]" y="[MB4TopPos_y]" z="[mbCommon:MBPos_z]"/>
+        </PosPart>
+        <PosPart copyNumber="5">
+            <rParent name="muonBase:MBWheel_1N"/>
+            <rChild name="mb4:MB4BigRightN"/>
+            <rRotation name="rotations:MM405"/>
+            <Translation x="[MB4BigUnitRadius]*cos(120.*deg-[MB4BigPosAngle])*mm" y="[MB4BigUnitRadius]*sin(120.*deg-[MB4BigPosAngle])*mm" z="[mbCommon:MBPos_z]"/>
+        </PosPart>
+        <PosPart copyNumber="6">
+            <rParent name="muonBase:MBWheel_1N"/>
+            <rChild name="mb4:MB4BigRightN"/>
+            <rRotation name="rotations:MM406"/>
+            <Translation x="[MB4BigUnitRadius]*cos(150.*deg-[MB4BigPosAngle])*mm" y="[MB4BigUnitRadius]*sin(150.*deg-[MB4BigPosAngle])*mm" z="[mbCommon:MBPos_z]"/>
+        </PosPart>
+        <PosPart copyNumber="7">
+            <rParent name="muonBase:MBWheel_1N"/>
+            <rChild name="mb4:MB4BigRightN"/>
+            <rRotation name="rotations:MM407"/>
+            <Translation x="[MB4BigUnitRadius]*cos(180.*deg-[MB4BigPosAngle])*mm" y="[MB4BigUnitRadius]*sin(180.*deg-[MB4BigPosAngle])*mm" z="[mbCommon:MBPos_z]"/>
+        </PosPart>
+        <PosPart copyNumber="8">
+            <rParent name="muonBase:MBWheel_1N"/>
+            <rChild name="mb4:MB4SmallRightN"/>
+            <rRotation name="rotations:MM408"/>
+            <Translation x="-[MB4SmallPos_x]" y="[MB4SmallPos_y]" z="[mbCommon:MBPos_z]"/>
+        </PosPart>
+        <PosPart copyNumber="9">
+            <rParent name="muonBase:MBWheel_1N"/>
+            <rChild name="mb4:MB4FeetN"/>
+            <rRotation name="rotations:MM409"/>
+            <Translation x="-[MB4FeetPos_x]" y="[MB4FeetPos_y]" z="[mbCommon:MBPos_z]"/>
+        </PosPart>
+        <PosPart copyNumber="10">
+            <rParent name="muonBase:MBWheel_1N"/>
+            <rChild name="mb4:MB4BottomRightN"/>
+            <rRotation name="rotations:MM410"/>
+            <Translation x="-[MB4BottomPos_x]" y="[MB4BottomPos_y]" z="[mbCommon:MBPos_z]"/>
+        </PosPart>
+        <PosPart copyNumber="14">
+            <rParent name="muonBase:MBWheel_1N"/>
+            <rChild name="mb4:MB4BottomLeftN"/>
+            <rRotation name="rotations:MM410"/>
+            <Translation x="[MB4BottomPos_x]" y="[MB4BottomPos_y]" z="[mbCommon:MBPos_z]"/>
+        </PosPart>
+        <PosPart copyNumber="11">
+            <rParent name="muonBase:MBWheel_1N"/>
+            <rChild name="mb4:MB4FeetN"/>
+            <rRotation name="rotations:MM411"/>
+            <Translation x="[MB4FeetPos_x]" y="[MB4FeetPos_y]" z="[mbCommon:MBPos_z]"/>
+        </PosPart>
+        <PosPart copyNumber="12">
+            <rParent name="muonBase:MBWheel_1N"/>
+            <rChild name="mb4:MB4SmallLeftN"/>
+            <rRotation name="rotations:MM412"/>
+            <Translation x="[MB4SmallPos_x]" y="[MB4SmallPos_y]" z="[mbCommon:MBPos_z]"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="muonBase:MBWheel_2N"/>
+            <rChild name="mb4:MB4BigLeftN"/>
+            <rRotation name="rotations:MM401"/>
+            <Translation x="[MB4BigPos_x]" y="[MB4BigPos_y]" z="[mbCommon:MBPos_z]"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="muonBase:MBWheel_2N"/>
+            <rChild name="mb4:MB4BigLeftN"/>
+            <rRotation name="rotations:MM402"/>
+            <Translation x="[MB4BigUnitRadius]*cos(30.*deg+[MB4BigPosAngle])*mm" y="[MB4BigUnitRadius]*sin(30.*deg+[MB4BigPosAngle])*mm" z="[mbCommon:MBPos_z]"/>
+        </PosPart>
+        <PosPart copyNumber="3">
+            <rParent name="muonBase:MBWheel_2N"/>
+            <rChild name="mb4:MB4BigLeftN"/>
+            <rRotation name="rotations:MM403"/>
+            <Translation x="[MB4BigUnitRadius]*cos(60.*deg+[MB4BigPosAngle])*mm" y="[MB4BigUnitRadius]*sin(60.*deg+[MB4BigPosAngle])*mm" z="[mbCommon:MBPos_z]"/>
+        </PosPart>
+        <PosPart copyNumber="4">
+            <rParent name="muonBase:MBWheel_2N"/>
+            <rChild name="mb4:MB4TopN"/>
+            <rRotation name="rotations:MM404"/>
+            <Translation x="[MB4TopPos_x]" y="[MB4TopPos_y]" z="[mbCommon:MBPos_z]"/>
+        </PosPart>
+        <PosPart copyNumber="13">
+            <rParent name="muonBase:MBWheel_2N"/>
+            <rChild name="mb4:MB4TopN"/>
+            <rRotation name="rotations:MM404"/>
+            <Translation x="-[MB4TopPos_x]" y="[MB4TopPos_y]" z="[mbCommon:MBPos_z]"/>
+        </PosPart>
+        <PosPart copyNumber="5">
+            <rParent name="muonBase:MBWheel_2N"/>
+            <rChild name="mb4:MB4BigRightN"/>
+            <rRotation name="rotations:MM405"/>
+            <Translation x="[MB4BigUnitRadius]*cos(120.*deg-[MB4BigPosAngle])*mm" y="[MB4BigUnitRadius]*sin(120.*deg-[MB4BigPosAngle])*mm" z="[mbCommon:MBPos_z]"/>
+        </PosPart>
+        <PosPart copyNumber="6">
+            <rParent name="muonBase:MBWheel_2N"/>
+            <rChild name="mb4:MB4BigRightN"/>
+            <rRotation name="rotations:MM406"/>
+            <Translation x="[MB4BigUnitRadius]*cos(150.*deg-[MB4BigPosAngle])*mm" y="[MB4BigUnitRadius]*sin(150.*deg-[MB4BigPosAngle])*mm" z="[mbCommon:MBPos_z]"/>
+        </PosPart>
+        <PosPart copyNumber="7">
+            <rParent name="muonBase:MBWheel_2N"/>
+            <rChild name="mb4:MB4BigRightN"/>
+            <rRotation name="rotations:MM407"/>
+            <Translation x="[MB4BigUnitRadius]*cos(180.*deg-[MB4BigPosAngle])*mm" y="[MB4BigUnitRadius]*sin(180.*deg-[MB4BigPosAngle])*mm" z="[mbCommon:MBPos_z]"/>
+        </PosPart>
+        <PosPart copyNumber="8">
+            <rParent name="muonBase:MBWheel_2N"/>
+            <rChild name="mb4:MB4SmallRightN"/>
+            <rRotation name="rotations:MM408"/>
+            <Translation x="-[MB4SmallPos_x]" y="[MB4SmallPos_y]" z="[mbCommon:MBPos_z]"/>
+        </PosPart>
+        <PosPart copyNumber="9">
+            <rParent name="muonBase:MBWheel_2N"/>
+            <rChild name="mb4:MB4FeetN"/>
+            <rRotation name="rotations:MM409"/>
+            <Translation x="-[MB4FeetPos_x]" y="[MB4FeetPos_y]" z="[mbCommon:MBPos_z]"/>
+        </PosPart>
+        <PosPart copyNumber="10">
+            <rParent name="muonBase:MBWheel_2N"/>
+            <rChild name="mb4:MB4BottomRightN"/>
+            <rRotation name="rotations:MM410"/>
+            <Translation x="-[MB4BottomPos_x]" y="[MB4BottomPos_y]" z="[mbCommon:MBPos_z]"/>
+        </PosPart>
+        <PosPart copyNumber="14">
+            <rParent name="muonBase:MBWheel_2N"/>
+            <rChild name="mb4:MB4BottomLeftN"/>
+            <rRotation name="rotations:MM410"/>
+            <Translation x="[MB4BottomPos_x]" y="[MB4BottomPos_y]" z="[mbCommon:MBPos_z]"/>
+        </PosPart>
+        <PosPart copyNumber="11">
+            <rParent name="muonBase:MBWheel_2N"/>
+            <rChild name="mb4:MB4FeetN"/>
+            <rRotation name="rotations:MM411"/>
+            <Translation x="[MB4FeetPos_x]" y="[MB4FeetPos_y]" z="[mbCommon:MBPos_z]"/>
+        </PosPart>
+        <PosPart copyNumber="12">
+            <rParent name="muonBase:MBWheel_2N"/>
+            <rChild name="mb4:MB4SmallLeftN"/>
+            <rRotation name="rotations:MM412"/>
+            <Translation x="[MB4SmallPos_x]" y="[MB4SmallPos_y]" z="[mbCommon:MBPos_z]"/>
+        </PosPart>
+        <!-- #### MB4: DT Superlayers Phi -->
+        <!-- Staggering to be check -->
+        <PosPart copyNumber="1">
+            <rParent name="mb4:MB4BigRightP"/>
+            <rChild name="mb4:MB4BigSuperLayerPhi"/>
+            <Translation x="[mb4:MB4StandardSLPhi1_HC_dist]" y="0*fm" z="[mbCommon:MBSL_pos_z]-[mbCommon:MBSL_posDisp]"/>
+        </PosPart>
+        <PosPart copyNumber="3">
+            <rParent name="mb4:MB4BigRightP"/>
+            <rChild name="mb4:MB4BigSuperLayerPhi"/>
+            <Translation x="[mb4:MB4StandardSLPhi2_HC_dist]" y="0*fm" z="-[mbCommon:MBSL_pos_z]-[mbCommon:MBSL_posDisp]"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb4:MB4BigRightN"/>
+            <rChild name="mb4:MB4BigSuperLayerPhi"/>
+            <Translation x="[mb4:MB4StandardSLPhi1_HC_dist]" y="0*fm" z="[mbCommon:MBSL_pos_z]-[mbCommon:MBSL_posDisp]"/>
+        </PosPart>
+        <PosPart copyNumber="3">
+            <rParent name="mb4:MB4BigRightN"/>
+            <rChild name="mb4:MB4BigSuperLayerPhi"/>
+            <Translation x="[mb4:MB4StandardSLPhi2_HC_dist]" y="0*fm" z="-[mbCommon:MBSL_pos_z]-[mbCommon:MBSL_posDisp]"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb4:MB4BigLeftP"/>
+            <rChild name="mb4:MB4BigSuperLayerPhi"/>
+            <Translation x="[mb4:MB4StandardSLPhi2_HC_dist]" y="0*fm" z="[mbCommon:MBSL_pos_z]-[mbCommon:MBSL_posDisp]"/>
+        </PosPart>
+        <PosPart copyNumber="3">
+            <rParent name="mb4:MB4BigLeftP"/>
+            <rChild name="mb4:MB4BigSuperLayerPhi"/>
+            <Translation x="[mb4:MB4StandardSLPhi1_HC_dist]" y="0*fm" z="-[mbCommon:MBSL_pos_z]-[mbCommon:MBSL_posDisp]"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb4:MB4BigLeftN"/>
+            <rChild name="mb4:MB4BigSuperLayerPhi"/>
+            <Translation x="[mb4:MB4StandardSLPhi2_HC_dist]" y="0*fm" z="[mbCommon:MBSL_pos_z]-[mbCommon:MBSL_posDisp]"/>
+        </PosPart>
+        <PosPart copyNumber="3">
+            <rParent name="mb4:MB4BigLeftN"/>
+            <rChild name="mb4:MB4BigSuperLayerPhi"/>
+            <Translation x="[mb4:MB4StandardSLPhi1_HC_dist]" y="0*fm" z="-[mbCommon:MBSL_pos_z]-[mbCommon:MBSL_posDisp]"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb4:MB4SmallRightN"/>
+            <rChild name="mb4:MB4SmallSuperLayerPhi"/>
+            <Translation x="[mb4:MB4StandardSLPhi1_HC_dist]" y="0*fm" z="[mbCommon:MBSL_pos_z]-[mbCommon:MBSL_posDisp]"/>
+        </PosPart>
+        <PosPart copyNumber="3">
+            <rParent name="mb4:MB4SmallRightN"/>
+            <rChild name="mb4:MB4SmallSuperLayerPhi"/>
+            <Translation x="[mb4:MB4StandardSLPhi2_HC_dist]" y="0*fm" z="-[mbCommon:MBSL_pos_z]-[mbCommon:MBSL_posDisp]"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb4:MB4SmallRightP"/>
+            <rChild name="mb4:MB4SmallSuperLayerPhi"/>
+            <Translation x="[mb4:MB4StandardSLPhi1_HC_dist]" y="0*fm" z="[mbCommon:MBSL_pos_z]-[mbCommon:MBSL_posDisp]"/>
+        </PosPart>
+        <PosPart copyNumber="3">
+            <rParent name="mb4:MB4SmallRightP"/>
+            <rChild name="mb4:MB4SmallSuperLayerPhi"/>
+            <Translation x="[mb4:MB4StandardSLPhi2_HC_dist]" y="0*fm" z="-[mbCommon:MBSL_pos_z]-[mbCommon:MBSL_posDisp]"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb4:MB4SmallLeftP"/>
+            <rChild name="mb4:MB4SmallSuperLayerPhi"/>
+            <Translation x="[mb4:MB4StandardSLPhi2_HC_dist]" y="0*fm" z="[mbCommon:MBSL_pos_z]-[mbCommon:MBSL_posDisp]"/>
+        </PosPart>
+        <PosPart copyNumber="3">
+            <rParent name="mb4:MB4SmallLeftP"/>
+            <rChild name="mb4:MB4SmallSuperLayerPhi"/>
+            <Translation x="[mb4:MB4StandardSLPhi1_HC_dist]" y="0*fm" z="-[mbCommon:MBSL_pos_z]-[mbCommon:MBSL_posDisp]"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb4:MB4SmallLeftN"/>
+            <rChild name="mb4:MB4SmallSuperLayerPhi"/>
+            <Translation x="[mb4:MB4StandardSLPhi2_HC_dist]" y="0*fm" z="[mbCommon:MBSL_pos_z]-[mbCommon:MBSL_posDisp]"/>
+        </PosPart>
+        <PosPart copyNumber="3">
+            <rParent name="mb4:MB4SmallLeftN"/>
+            <rChild name="mb4:MB4SmallSuperLayerPhi"/>
+            <Translation x="[mb4:MB4StandardSLPhi1_HC_dist]" y="0*fm" z="-[mbCommon:MBSL_pos_z]-[mbCommon:MBSL_posDisp]"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb4:MB4BottomRightP"/>
+            <rChild name="mb2:MB2SuperLayerPhi"/>
+            <Translation x="[mb4:MB4BottomSLPhi1_HC_dist]" y="0*fm" z="[mbCommon:MBSL_pos_z]-[mbCommon:MBSL_posDisp]"/>
+        </PosPart>
+        <PosPart copyNumber="3">
+            <rParent name="mb4:MB4BottomRightP"/>
+            <rChild name="mb2:MB2SuperLayerPhi"/>
+            <Translation x="[mb4:MB4BottomSLPhi2_HC_dist]" y="0*fm" z="-[mbCommon:MBSL_pos_z]-[mbCommon:MBSL_posDisp]"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb4:MB4BottomRightN"/>
+            <rChild name="mb2:MB2SuperLayerPhi"/>
+            <Translation x="[mb4:MB4BottomSLPhi1_HC_dist]" y="0*fm" z="[mbCommon:MBSL_pos_z]-[mbCommon:MBSL_posDisp]"/>
+        </PosPart>
+        <PosPart copyNumber="3">
+            <rParent name="mb4:MB4BottomRightN"/>
+            <rChild name="mb2:MB2SuperLayerPhi"/>
+            <Translation x="[mb4:MB4BottomSLPhi2_HC_dist]" y="0*fm" z="-[mbCommon:MBSL_pos_z]-[mbCommon:MBSL_posDisp]"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb4:MB4BottomLeftP"/>
+            <rChild name="mb2:MB2SuperLayerPhi"/>
+            <Translation x="[mb4:MB4BottomSLPhi2_HC_dist]" y="0*fm" z="[mbCommon:MBSL_pos_z]-[mbCommon:MBSL_posDisp]"/>
+        </PosPart>
+        <PosPart copyNumber="3">
+            <rParent name="mb4:MB4BottomLeftP"/>
+            <rChild name="mb2:MB2SuperLayerPhi"/>
+            <Translation x="[mb4:MB4BottomSLPhi1_HC_dist]" y="0*fm" z="-[mbCommon:MBSL_pos_z]-[mbCommon:MBSL_posDisp]"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb4:MB4BottomLeftN"/>
+            <rChild name="mb2:MB2SuperLayerPhi"/>
+            <Translation x="[mb4:MB4BottomSLPhi2_HC_dist]" y="0*fm" z="[mbCommon:MBSL_pos_z]-[mbCommon:MBSL_posDisp]"/>
+        </PosPart>
+        <PosPart copyNumber="3">
+            <rParent name="mb4:MB4BottomLeftN"/>
+            <rChild name="mb2:MB2SuperLayerPhi"/>
+            <Translation x="[mb4:MB4BottomSLPhi1_HC_dist]" y="0*fm" z="-[mbCommon:MBSL_pos_z]-[mbCommon:MBSL_posDisp]"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb4:MB4TopP"/>
+            <rChild name="mb3:MB3SuperLayerPhi"/>
+            <Translation x="0*fm" y="0*fm" z="[mbCommon:MBSL_pos_z]-[mbCommon:MBSL_posDisp]"/>
+        </PosPart>
+        <PosPart copyNumber="3">
+            <rParent name="mb4:MB4TopP"/>
+            <rChild name="mb3:MB3SuperLayerPhi"/>
+            <Translation x="0*fm" y="0*fm" z="-[mbCommon:MBSL_pos_z]-[mbCommon:MBSL_posDisp]"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb4:MB4TopN"/>
+            <rChild name="mb3:MB3SuperLayerPhi"/>
+            <Translation x="0*fm" y="0*fm" z="[mbCommon:MBSL_pos_z]-[mbCommon:MBSL_posDisp]"/>
+        </PosPart>
+        <PosPart copyNumber="3">
+            <rParent name="mb4:MB4TopN"/>
+            <rChild name="mb3:MB3SuperLayerPhi"/>
+            <Translation x="0*fm" y="0*fm" z="-[mbCommon:MBSL_pos_z]-[mbCommon:MBSL_posDisp]"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb4:MB4FeetP"/>
+            <rChild name="mb4:MB4FeetSuperLayerPhi"/>
+            <Translation x="0*fm" y="0*fm" z="[mbCommon:MBSL_pos_z]-[mbCommon:MBSL_posDisp]"/>
+        </PosPart>
+        <PosPart copyNumber="3">
+            <rParent name="mb4:MB4FeetP"/>
+            <rChild name="mb4:MB4FeetSuperLayerPhi"/>
+            <Translation x="0*fm" y="0*fm" z="-[mbCommon:MBSL_pos_z]-[mbCommon:MBSL_posDisp]"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb4:MB4FeetN"/>
+            <rChild name="mb4:MB4FeetSuperLayerPhi"/>
+            <Translation x="0*fm" y="0*fm" z="[mbCommon:MBSL_pos_z]-[mbCommon:MBSL_posDisp]"/>
+        </PosPart>
+        <PosPart copyNumber="3">
+            <rParent name="mb4:MB4FeetN"/>
+            <rChild name="mb4:MB4FeetSuperLayerPhi"/>
+            <Translation x="0*fm" y="0*fm" z="-[mbCommon:MBSL_pos_z]-[mbCommon:MBSL_posDisp]"/>
+        </PosPart>
+        <!-- ## MB4Big: DT Superlayers Phi internal -->
+        <PosPart copyNumber="1">
+            <rParent name="mb4:MB4BigSuperLayerPhi"/>
+            <rChild name="mb4:MB4BigSLPhiAlPlateOuter"/>
+            <Translation x="0*fm" y="0*fm" z="4*[mbCommon:MBCell_height]"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="mb4:MB4BigSuperLayerPhi"/>
+            <rChild name="mb4:MB4BigSLPhiAlPlateOuter"/>
+            <Translation x="0*fm" y="0*fm" z="-4*[mbCommon:MBCell_height]"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb4:MB4BigSuperLayerPhi"/>
+            <rChild name="mb4:MB4BigSLPhiAlPlateInner"/>
+            <Translation x="0*fm" y="0*fm" z="2*[mbCommon:MBCell_height]"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="mb4:MB4BigSuperLayerPhi"/>
+            <rChild name="mb4:MB4BigSLPhiAlPlateInner"/>
+            <Translation x="0*fm" y="0.*mm" z="0*fm"/>
+        </PosPart>
+        <PosPart copyNumber="3">
+            <rParent name="mb4:MB4BigSuperLayerPhi"/>
+            <rChild name="mb4:MB4BigSLPhiAlPlateInner"/>
+            <Translation x="0*fm" y="0*fm" z="-2*[mbCommon:MBCell_height]"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb4:MB4BigSuperLayerPhi"/>
+            <rChild name="mb4:MB4SLPhiLayer_95Cells"/>
+            <Translation x="-10.5*mm" y="0*fm" z="3*[mbCommon:MBCell_height]"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="mb4:MB4BigSuperLayerPhi"/>
+            <rChild name="mb4:MB4SLPhiLayer_96Cells"/>
+            <Translation x="-10.5*mm" y="0*fm" z="[mbCommon:MBCell_height]"/>
+        </PosPart>
+        <PosPart copyNumber="3">
+            <rParent name="mb4:MB4BigSuperLayerPhi"/>
+            <rChild name="mb4:MB4SLPhiLayer_96Cells"/>
+            <Translation x="10.5*mm" y="0*fm" z="-[mbCommon:MBCell_height]"/>
+        </PosPart>
+        <PosPart copyNumber="4">
+            <rParent name="mb4:MB4BigSuperLayerPhi"/>
+            <rChild name="mb4:MB4SLPhiLayer_95Cells_startCell2"/>
+            <Translation x="10.5*mm" y="0*fm" z="-3*[mbCommon:MBCell_height]"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb4:MB4BigSuperLayerPhi"/>
+            <rChild name="mb4:MB4SLPhiClosingPlateParal"/>
+            <Translation x="[mb4:MB4BigSLPhiPl_x]+1.7*mm" y="0.*fm" z="0*fm"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="mb4:MB4BigSuperLayerPhi"/>
+            <rChild name="mb4:MB4SLPhiClosingPlateParal"/>
+            <Translation x="-([mb4:MB4BigSLPhiPl_x]+1.7*mm)" y="0.*fm" z="0*fm"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb4:MB4BigSuperLayerPhi"/>
+            <rChild name="mb4:MB4SLPhi_C_PlateParal"/>
+            <Translation x="[mb4:MB4BigSLPhiPl_x]+0.7*mm-7.*mm" y="0.*fm" z="[mbCommon:MBSuperLayer_height]-2.5*mm"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="mb4:MB4BigSuperLayerPhi"/>
+            <rChild name="mb4:MB4SLPhi_C_PlateParal"/>
+            <Translation x="[mb4:MB4BigSLPhiPl_x]+0.7*mm-7.*mm" y="0.*fm" z="-([mbCommon:MBSuperLayer_height]-2.5*mm)"/>
+        </PosPart>
+        <PosPart copyNumber="3">
+            <rParent name="mb4:MB4BigSuperLayerPhi"/>
+            <rChild name="mb4:MB4SLPhi_C_PlateParal"/>
+            <Translation x="-([mb4:MB4BigSLPhiPl_x]+0.7*mm-7.*mm)" y="0.*fm" z="[mbCommon:MBSuperLayer_height]-2.5*mm"/>
+        </PosPart>
+        <PosPart copyNumber="4">
+            <rParent name="mb4:MB4BigSuperLayerPhi"/>
+            <rChild name="mb4:MB4SLPhi_C_PlateParal"/>
+            <Translation x="-([mb4:MB4BigSLPhiPl_x]+0.7*mm-7.*mm)" y="0.*fm" z="-([mbCommon:MBSuperLayer_height]-2.5*mm)"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb4:MB4BigSuperLayerPhi"/>
+            <rChild name="mb4:MB4BigSLPhiClosingPlatePerp"/>
+            <Translation x="0.*fm" y="[mbCommon:MBSLPhiPlO_z]+6.*mm" z="0.*fm"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="mb4:MB4BigSuperLayerPhi"/>
+            <rChild name="mb4:MB4BigSLPhiClosingPlatePerp"/>
+            <Translation x="0.*fm" y="-([mbCommon:MBSLPhiPlO_z]+6.*mm)" z="0.*fm"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb4:MB4BigSuperLayerPhi"/>
+            <rChild name="mb4:MB4BigSLPhi_C_PlatePerp"/>
+            <Translation x="0.*fm" y="[mbCommon:MBSLPhiPlO_z]-7.*mm" z="[mbCommon:MBSuperLayer_height]-2.5*mm"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="mb4:MB4BigSuperLayerPhi"/>
+            <rChild name="mb4:MB4BigSLPhi_C_PlatePerp"/>
+            <Translation x="0.*fm" y="[mbCommon:MBSLPhiPlO_z]-7.*mm" z="-([mbCommon:MBSuperLayer_height]-2.5*mm)"/>
+        </PosPart>
+        <PosPart copyNumber="3">
+            <rParent name="mb4:MB4BigSuperLayerPhi"/>
+            <rChild name="mb4:MB4BigSLPhi_C_PlatePerp"/>
+            <Translation x="0.*fm" y="-([mbCommon:MBSLPhiPlO_z]-7.*mm)" z="[mbCommon:MBSuperLayer_height]-2.5*mm"/>
+        </PosPart>
+        <PosPart copyNumber="4">
+            <rParent name="mb4:MB4BigSuperLayerPhi"/>
+            <rChild name="mb4:MB4BigSLPhi_C_PlatePerp"/>
+            <Translation x="0.*fm" y="-([mbCommon:MBSLPhiPlO_z]-7.*mm)" z="-([mbCommon:MBSuperLayer_height]-2.5*mm)"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb4:MB4BigSuperLayerPhi"/>
+            <rChild name="mb4:MB4BigSLPhiCommonElectronics"/>
+            <Translation x="0.*fm" y="[mbCommon:MBSLPhiPlO_z]-35./2.*mm" z="0.*fm"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="mb4:MB4BigSuperLayerPhi"/>
+            <rChild name="mb4:MB4BigSLPhiCommonElectronics"/>
+            <Translation x="0.*fm" y="-([mbCommon:MBSLPhiPlO_z]-35./2.*mm)" z="0.*fm"/>
+        </PosPart>
+        <Algorithm name="global:DDLinear">
+            <rParent name="mb4:MB4SLPhiLayer_95Cells"/>
+            <String name="ChildName" value="mbCommon:MBSLPhiGas"/>
+            <Numeric name="StartCopyNo" value="1"/>
+            <Numeric name="N" value="95"/>
+            <Numeric name="IncrCopyNo" value="1"/>
+            <Numeric name="Delta" value="[mbCommon:MBCell_width]*2."/>
+            <Vector name="Base" type="numeric" nEntries="3"> -[mb4:MB4SLPhiL95]-[mbCommon:MBCell_width]+[mbCommon:MBIbeamWall], 0.*mm, 0.*mm </Vector>
+            <Numeric name="Theta" value="90.*deg"/>
+            <Numeric name="Phi" value="0.*deg"/>
+        </Algorithm>
+        <Algorithm name="global:DDLinear">
+            <rParent name="mb4:MB4SLPhiLayer_95Cells_startCell2"/>
+            <String name="ChildName" value="mbCommon:MBSLPhiGas"/>
+            <Numeric name="StartCopyNo" value="2"/>
+            <Numeric name="N" value="95"/>
+            <Numeric name="IncrCopyNo" value="1"/>
+            <Numeric name="Delta" value="[mbCommon:MBCell_width]*2."/>
+            <Vector name="Base" type="numeric" nEntries="3"> -[mb4:MB4SLPhiL95]-3*[mbCommon:MBCell_width]+[mbCommon:MBIbeamWall], 0.*mm, 0.*mm </Vector>
+            <Numeric name="Theta" value="90.*deg"/>
+            <Numeric name="Phi" value="0.*deg"/>
+        </Algorithm>
+        <Algorithm name="global:DDLinear">
+            <rParent name="mb4:MB4SLPhiLayer_96Cells"/>
+            <String name="ChildName" value="mbCommon:MBSLPhiGas"/>
+            <Numeric name="StartCopyNo" value="1"/>
+            <Numeric name="N" value="96"/>
+            <Numeric name="IncrCopyNo" value="1"/>
+            <Numeric name="Delta" value="[mbCommon:MBCell_width]*2."/>
+            <Vector name="Base" type="numeric" nEntries="3"> -[mb4:MB4SLPhiL96]-[mbCommon:MBCell_width]+[mbCommon:MBIbeamWall], 0.*mm, 0.*mm </Vector>
+            <Numeric name="Theta" value="90.*deg"/>
+            <Numeric name="Phi" value="0.*deg"/>
+        </Algorithm>
+        <PosPart copyNumber="1">
+            <rParent name="mb4:MB4SLPhiLayer_95Cells"/>
+            <rChild name="mb4:MB4SLPhiElectronics_95Cells"/>
+            <Translation x="0.*fm" y="[mbCommon:MBSLPhiLayer_length]-[mbCommon:MBLayerElectronics_width]" z="0.*fm"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="mb4:MB4SLPhiLayer_95Cells"/>
+            <rChild name="mb4:MB4SLPhiElectronics_95Cells"/>
+            <Translation x="0.*fm" y="-([mbCommon:MBSLPhiLayer_length]-[mbCommon:MBLayerElectronics_width])" z="0.*fm"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb4:MB4SLPhiLayer_95Cells_startCell2"/>
+            <rChild name="mb4:MB4SLPhiElectronics_95Cells"/>
+            <Translation x="0.*fm" y="[mbCommon:MBSLPhiLayer_length]-[mbCommon:MBLayerElectronics_width]" z="0.*fm"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="mb4:MB4SLPhiLayer_95Cells_startCell2"/>
+            <rChild name="mb4:MB4SLPhiElectronics_95Cells"/>
+            <Translation x="0.*fm" y="-([mbCommon:MBSLPhiLayer_length]-[mbCommon:MBLayerElectronics_width])" z="0.*fm"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb4:MB4SLPhiLayer_96Cells"/>
+            <rChild name="mb4:MB4SLPhiElectronics_96Cells"/>
+            <Translation x="0.*fm" y="[mbCommon:MBSLPhiLayer_length]-[mbCommon:MBLayerElectronics_width]" z="0.*fm"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="mb4:MB4SLPhiLayer_96Cells"/>
+            <rChild name="mb4:MB4SLPhiElectronics_96Cells"/>
+            <Translation x="0.*fm" y="-([mbCommon:MBSLPhiLayer_length]-[mbCommon:MBLayerElectronics_width])" z="0.*fm"/>
+        </PosPart>
+        <!-- ## MB4Small: DT Superlayers Phi internal -->
+        <PosPart copyNumber="1">
+            <rParent name="mb4:MB4SmallSuperLayerPhi"/>
+            <rChild name="mb4:MB4SmallSLPhiAlPlateOuter"/>
+            <Translation x="0*fm" y="0*fm" z="4*[mbCommon:MBCell_height]"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="mb4:MB4SmallSuperLayerPhi"/>
+            <rChild name="mb4:MB4SmallSLPhiAlPlateOuter"/>
+            <Translation x="0*fm" y="0*fm" z="-4*[mbCommon:MBCell_height]"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb4:MB4SmallSuperLayerPhi"/>
+            <rChild name="mb4:MB4SmallSLPhiAlPlateInner"/>
+            <Translation x="0*fm" y="0*fm" z="2*[mbCommon:MBCell_height]"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="mb4:MB4SmallSuperLayerPhi"/>
+            <rChild name="mb4:MB4SmallSLPhiAlPlateInner"/>
+            <Translation x="0*fm" y="0.*mm" z="0*fm"/>
+        </PosPart>
+        <PosPart copyNumber="3">
+            <rParent name="mb4:MB4SmallSuperLayerPhi"/>
+            <rChild name="mb4:MB4SmallSLPhiAlPlateInner"/>
+            <Translation x="0*fm" y="0*fm" z="-2*[mbCommon:MBCell_height]"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb4:MB4SmallSuperLayerPhi"/>
+            <rChild name="mb4:MB4SLPhiLayer_91Cells"/>
+            <Translation x="-10.5*mm" y="0*fm" z="3*[mbCommon:MBCell_height]"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="mb4:MB4SmallSuperLayerPhi"/>
+            <rChild name="mb4:MB4SLPhiLayer_92Cells"/>
+            <Translation x="-10.5*mm" y="0*fm" z="[mbCommon:MBCell_height]"/>
+        </PosPart>
+        <PosPart copyNumber="3">
+            <rParent name="mb4:MB4SmallSuperLayerPhi"/>
+            <rChild name="mb4:MB4SLPhiLayer_92Cells"/>
+            <Translation x="10.5*mm" y="0*fm" z="-[mbCommon:MBCell_height]"/>
+        </PosPart>
+        <PosPart copyNumber="4">
+            <rParent name="mb4:MB4SmallSuperLayerPhi"/>
+            <rChild name="mb4:MB4SLPhiLayer_91Cells_startCell2"/>
+            <Translation x="10.5*mm" y="0*fm" z="-3*[mbCommon:MBCell_height]"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb4:MB4SmallSuperLayerPhi"/>
+            <rChild name="mb4:MB4SLPhiClosingPlateParal"/>
+            <Translation x="[mb4:MB4SmallSLPhiPl_x]+1.7*mm" y="0.*fm" z="0*fm"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="mb4:MB4SmallSuperLayerPhi"/>
+            <rChild name="mb4:MB4SLPhiClosingPlateParal"/>
+            <Translation x="-([mb4:MB4SmallSLPhiPl_x]+1.7*mm)" y="0.*fm" z="0*fm"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb4:MB4SmallSuperLayerPhi"/>
+            <rChild name="mb4:MB4SLPhi_C_PlateParal"/>
+            <Translation x="[mb4:MB4SmallSLPhiPl_x]+0.7*mm-7.*mm" y="0.*fm" z="[mbCommon:MBSuperLayer_height]-2.5*mm"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="mb4:MB4SmallSuperLayerPhi"/>
+            <rChild name="mb4:MB4SLPhi_C_PlateParal"/>
+            <Translation x="[mb4:MB4SmallSLPhiPl_x]+0.7*mm-7.*mm" y="0.*fm" z="-([mbCommon:MBSuperLayer_height]-2.5*mm)"/>
+        </PosPart>
+        <PosPart copyNumber="3">
+            <rParent name="mb4:MB4SmallSuperLayerPhi"/>
+            <rChild name="mb4:MB4SLPhi_C_PlateParal"/>
+            <Translation x="-([mb4:MB4SmallSLPhiPl_x]+0.7*mm-7.*mm)" y="0.*fm" z="[mbCommon:MBSuperLayer_height]-2.5*mm"/>
+        </PosPart>
+        <PosPart copyNumber="4">
+            <rParent name="mb4:MB4SmallSuperLayerPhi"/>
+            <rChild name="mb4:MB4SLPhi_C_PlateParal"/>
+            <Translation x="-([mb4:MB4SmallSLPhiPl_x]+0.7*mm-7.*mm)" y="0.*fm" z="-([mbCommon:MBSuperLayer_height]-2.5*mm)"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb4:MB4SmallSuperLayerPhi"/>
+            <rChild name="mb4:MB4SmallSLPhiClosingPlatePerp"/>
+            <Translation x="0.*fm" y="[mbCommon:MBSLPhiPlO_z]+6.*mm" z="0.*fm"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="mb4:MB4SmallSuperLayerPhi"/>
+            <rChild name="mb4:MB4SmallSLPhiClosingPlatePerp"/>
+            <Translation x="0.*fm" y="-([mbCommon:MBSLPhiPlO_z]+6.*mm)" z="0.*fm"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb4:MB4SmallSuperLayerPhi"/>
+            <rChild name="mb4:MB4SmallSLPhi_C_PlatePerp"/>
+            <Translation x="0.*fm" y="[mbCommon:MBSLPhiPlO_z]-7.*mm" z="[mbCommon:MBSuperLayer_height]-2.5*mm"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="mb4:MB4SmallSuperLayerPhi"/>
+            <rChild name="mb4:MB4SmallSLPhi_C_PlatePerp"/>
+            <Translation x="0.*fm" y="[mbCommon:MBSLPhiPlO_z]-7.*mm" z="-([mbCommon:MBSuperLayer_height]-2.5*mm)"/>
+        </PosPart>
+        <PosPart copyNumber="3">
+            <rParent name="mb4:MB4SmallSuperLayerPhi"/>
+            <rChild name="mb4:MB4SmallSLPhi_C_PlatePerp"/>
+            <Translation x="0.*fm" y="-([mbCommon:MBSLPhiPlO_z]-7.*mm)" z="[mbCommon:MBSuperLayer_height]-2.5*mm"/>
+        </PosPart>
+        <PosPart copyNumber="4">
+            <rParent name="mb4:MB4SmallSuperLayerPhi"/>
+            <rChild name="mb4:MB4SmallSLPhi_C_PlatePerp"/>
+            <Translation x="0.*fm" y="-([mbCommon:MBSLPhiPlO_z]-7.*mm)" z="-([mbCommon:MBSuperLayer_height]-2.5*mm)"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb4:MB4SmallSuperLayerPhi"/>
+            <rChild name="mb4:MB4SmallSLPhiCommonElectronics"/>
+            <Translation x="0.*fm" y="[mbCommon:MBSLPhiPlO_z]-35./2.*mm" z="0.*fm"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="mb4:MB4SmallSuperLayerPhi"/>
+            <rChild name="mb4:MB4SmallSLPhiCommonElectronics"/>
+            <Translation x="0.*fm" y="-([mbCommon:MBSLPhiPlO_z]-35./2.*mm)" z="0.*fm"/>
+        </PosPart>
+        <Algorithm name="global:DDLinear">
+            <rParent name="mb4:MB4SLPhiLayer_91Cells"/>
+            <String name="ChildName" value="mbCommon:MBSLPhiGas"/>
+            <Numeric name="StartCopyNo" value="1"/>
+            <Numeric name="N" value="91"/>
+            <Numeric name="IncrCopyNo" value="1"/>
+            <Numeric name="Delta" value="[mbCommon:MBCell_width]*2."/>
+            <Vector name="Base" type="numeric" nEntries="3"> -[mb4:MB4SLPhiL91]-[mbCommon:MBCell_width]+[mbCommon:MBIbeamWall], 0.*mm, 0.*mm </Vector>
+            <Numeric name="Theta" value="90.*deg"/>
+            <Numeric name="Phi" value="0.*deg"/>
+        </Algorithm>
+        <Algorithm name="global:DDLinear">
+            <rParent name="mb4:MB4SLPhiLayer_91Cells_startCell2"/>
+            <String name="ChildName" value="mbCommon:MBSLPhiGas"/>
+            <Numeric name="StartCopyNo" value="2"/>
+            <Numeric name="N" value="91"/>
+            <Numeric name="IncrCopyNo" value="1"/>
+            <Numeric name="Delta" value="[mbCommon:MBCell_width]*2."/>
+            <Vector name="Base" type="numeric" nEntries="3"> -[mb4:MB4SLPhiL91]-3*[mbCommon:MBCell_width]+[mbCommon:MBIbeamWall], 0.*mm, 0.*mm </Vector>
+            <Numeric name="Theta" value="90.*deg"/>
+            <Numeric name="Phi" value="0.*deg"/>
+        </Algorithm>
+        <Algorithm name="global:DDLinear">
+            <rParent name="mb4:MB4SLPhiLayer_92Cells"/>
+            <String name="ChildName" value="mbCommon:MBSLPhiGas"/>
+            <Numeric name="StartCopyNo" value="1"/>
+            <Numeric name="N" value="92"/>
+            <Numeric name="IncrCopyNo" value="1"/>
+            <Numeric name="Delta" value="[mbCommon:MBCell_width]*2."/>
+            <Vector name="Base" type="numeric" nEntries="3"> -[mb4:MB4SLPhiL92]-[mbCommon:MBCell_width]+[mbCommon:MBIbeamWall], 0.*mm, 0.*mm </Vector>
+            <Numeric name="Theta" value="90.*deg"/>
+            <Numeric name="Phi" value="0.*deg"/>
+        </Algorithm>
+        <PosPart copyNumber="1">
+            <rParent name="mb4:MB4SLPhiLayer_91Cells"/>
+            <rChild name="mb4:MB4SLPhiElectronics_91Cells"/>
+            <Translation x="0.*fm" y="[mbCommon:MBSLPhiLayer_length]-[mbCommon:MBLayerElectronics_width]" z="0.*fm"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="mb4:MB4SLPhiLayer_91Cells"/>
+            <rChild name="mb4:MB4SLPhiElectronics_91Cells"/>
+            <Translation x="0.*fm" y="-([mbCommon:MBSLPhiLayer_length]-[mbCommon:MBLayerElectronics_width])" z="0.*fm"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb4:MB4SLPhiLayer_91Cells_startCell2"/>
+            <rChild name="mb4:MB4SLPhiElectronics_91Cells"/>
+            <Translation x="0.*fm" y="[mbCommon:MBSLPhiLayer_length]-[mbCommon:MBLayerElectronics_width]" z="0.*fm"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="mb4:MB4SLPhiLayer_91Cells_startCell2"/>
+            <rChild name="mb4:MB4SLPhiElectronics_91Cells"/>
+            <Translation x="0.*fm" y="-([mbCommon:MBSLPhiLayer_length]-[mbCommon:MBLayerElectronics_width])" z="0.*fm"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb4:MB4SLPhiLayer_92Cells"/>
+            <rChild name="mb4:MB4SLPhiElectronics_92Cells"/>
+            <Translation x="0.*fm" y="[mbCommon:MBSLPhiLayer_length]-[mbCommon:MBLayerElectronics_width]" z="0.*fm"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="mb4:MB4SLPhiLayer_92Cells"/>
+            <rChild name="mb4:MB4SLPhiElectronics_92Cells"/>
+            <Translation x="0.*fm" y="-([mbCommon:MBSLPhiLayer_length]-[mbCommon:MBLayerElectronics_width])" z="0.*fm"/>
+        </PosPart>
+        <!-- ## MB4Feet: DT Superlayers Phi internal -->
+        <PosPart copyNumber="1">
+            <rParent name="mb4:MB4FeetSuperLayerPhi"/>
+            <rChild name="mb4:MB4FeetSLPhiAlPlateOuter"/>
+            <Translation x="0*fm" y="0*fm" z="4*[mbCommon:MBCell_height]"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="mb4:MB4FeetSuperLayerPhi"/>
+            <rChild name="mb4:MB4FeetSLPhiAlPlateOuter"/>
+            <Translation x="0*fm" y="0*fm" z="-4*[mbCommon:MBCell_height]"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb4:MB4FeetSuperLayerPhi"/>
+            <rChild name="mb4:MB4FeetSLPhiAlPlateInner"/>
+            <Translation x="0*fm" y="0*fm" z="2*[mbCommon:MBCell_height]"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="mb4:MB4FeetSuperLayerPhi"/>
+            <rChild name="mb4:MB4FeetSLPhiAlPlateInner"/>
+            <Translation x="0*fm" y="0.*mm" z="0*fm"/>
+        </PosPart>
+        <PosPart copyNumber="3">
+            <rParent name="mb4:MB4FeetSuperLayerPhi"/>
+            <rChild name="mb4:MB4FeetSLPhiAlPlateInner"/>
+            <Translation x="0*fm" y="0*fm" z="-2*[mbCommon:MBCell_height]"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb4:MB4FeetSuperLayerPhi"/>
+            <rChild name="mb4:MB4SLPhiLayer_47Cells"/>
+            <Translation x="-10.5*mm" y="0*fm" z="3*[mbCommon:MBCell_height]"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="mb4:MB4FeetSuperLayerPhi"/>
+            <rChild name="mb4:MB4SLPhiLayer_48Cells"/>
+            <Translation x="-10.5*mm" y="0*fm" z="[mbCommon:MBCell_height]"/>
+        </PosPart>
+        <PosPart copyNumber="3">
+            <rParent name="mb4:MB4FeetSuperLayerPhi"/>
+            <rChild name="mb4:MB4SLPhiLayer_48Cells"/>
+            <Translation x="10.5*mm" y="0*fm" z="-[mbCommon:MBCell_height]"/>
+        </PosPart>
+        <PosPart copyNumber="4">
+            <rParent name="mb4:MB4FeetSuperLayerPhi"/>
+            <rChild name="mb4:MB4SLPhiLayer_47Cells_startCell2"/>
+            <Translation x="10.5*mm" y="0*fm" z="-3*[mbCommon:MBCell_height]"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb4:MB4FeetSuperLayerPhi"/>
+            <rChild name="mb4:MB4SLPhiClosingPlateParal"/>
+            <Translation x="[mb4:MB4FeetSLPhiPl_x]+1.7*mm" y="0.*fm" z="0*fm"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="mb4:MB4FeetSuperLayerPhi"/>
+            <rChild name="mb4:MB4SLPhiClosingPlateParal"/>
+            <Translation x="-([mb4:MB4FeetSLPhiPl_x]+1.7*mm)" y="0.*fm" z="0*fm"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb4:MB4FeetSuperLayerPhi"/>
+            <rChild name="mb4:MB4SLPhi_C_PlateParal"/>
+            <Translation x="[mb4:MB4FeetSLPhiPl_x]+0.7*mm-7.*mm" y="0.*fm" z="[mbCommon:MBSuperLayer_height]-2.5*mm"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="mb4:MB4FeetSuperLayerPhi"/>
+            <rChild name="mb4:MB4SLPhi_C_PlateParal"/>
+            <Translation x="[mb4:MB4FeetSLPhiPl_x]+0.7*mm-7.*mm" y="0.*fm" z="-([mbCommon:MBSuperLayer_height]-2.5*mm)"/>
+        </PosPart>
+        <PosPart copyNumber="3">
+            <rParent name="mb4:MB4FeetSuperLayerPhi"/>
+            <rChild name="mb4:MB4SLPhi_C_PlateParal"/>
+            <Translation x="-([mb4:MB4FeetSLPhiPl_x]+0.7*mm-7.*mm)" y="0.*fm" z="[mbCommon:MBSuperLayer_height]-2.5*mm"/>
+        </PosPart>
+        <PosPart copyNumber="4">
+            <rParent name="mb4:MB4FeetSuperLayerPhi"/>
+            <rChild name="mb4:MB4SLPhi_C_PlateParal"/>
+            <Translation x="-([mb4:MB4FeetSLPhiPl_x]+0.7*mm-7.*mm)" y="0.*fm" z="-([mbCommon:MBSuperLayer_height]-2.5*mm)"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb4:MB4FeetSuperLayerPhi"/>
+            <rChild name="mb4:MB4FeetSLPhiClosingPlatePerp"/>
+            <Translation x="0.*fm" y="[mbCommon:MBSLPhiPlO_z]+6.*mm" z="0.*fm"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="mb4:MB4FeetSuperLayerPhi"/>
+            <rChild name="mb4:MB4FeetSLPhiClosingPlatePerp"/>
+            <Translation x="0.*fm" y="-([mbCommon:MBSLPhiPlO_z]+6.*mm)" z="0.*fm"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb4:MB4FeetSuperLayerPhi"/>
+            <rChild name="mb4:MB4FeetSLPhi_C_PlatePerp"/>
+            <Translation x="0.*fm" y="[mbCommon:MBSLPhiPlO_z]-7.*mm" z="[mbCommon:MBSuperLayer_height]-2.5*mm"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="mb4:MB4FeetSuperLayerPhi"/>
+            <rChild name="mb4:MB4FeetSLPhi_C_PlatePerp"/>
+            <Translation x="0.*fm" y="[mbCommon:MBSLPhiPlO_z]-7.*mm" z="-([mbCommon:MBSuperLayer_height]-2.5*mm)"/>
+        </PosPart>
+        <PosPart copyNumber="3">
+            <rParent name="mb4:MB4FeetSuperLayerPhi"/>
+            <rChild name="mb4:MB4FeetSLPhi_C_PlatePerp"/>
+            <Translation x="0.*fm" y="-([mbCommon:MBSLPhiPlO_z]-7.*mm)" z="[mbCommon:MBSuperLayer_height]-2.5*mm"/>
+        </PosPart>
+        <PosPart copyNumber="4">
+            <rParent name="mb4:MB4FeetSuperLayerPhi"/>
+            <rChild name="mb4:MB4FeetSLPhi_C_PlatePerp"/>
+            <Translation x="0.*fm" y="-([mbCommon:MBSLPhiPlO_z]-7.*mm)" z="-([mbCommon:MBSuperLayer_height]-2.5*mm)"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb4:MB4FeetSuperLayerPhi"/>
+            <rChild name="mb4:MB4FeetSLPhiCommonElectronics"/>
+            <Translation x="0.*fm" y="[mbCommon:MBSLPhiPlO_z]-35./2.*mm" z="0.*fm"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="mb4:MB4FeetSuperLayerPhi"/>
+            <rChild name="mb4:MB4FeetSLPhiCommonElectronics"/>
+            <Translation x="0.*fm" y="-([mbCommon:MBSLPhiPlO_z]-35./2.*mm)" z="0.*fm"/>
+        </PosPart>
+        <Algorithm name="global:DDLinear">
+            <rParent name="mb4:MB4SLPhiLayer_47Cells"/>
+            <String name="ChildName" value="mbCommon:MBSLPhiGas"/>
+            <Numeric name="StartCopyNo" value="1"/>
+            <Numeric name="N" value="47"/>
+            <Numeric name="IncrCopyNo" value="1"/>
+            <Numeric name="Delta" value="[mbCommon:MBCell_width]*2."/>
+            <Vector name="Base" type="numeric" nEntries="3"> -[mb4:MB4SLPhiL47]-[mbCommon:MBCell_width]+[mbCommon:MBIbeamWall], 0.*mm, 0.*mm </Vector>
+            <Numeric name="Theta" value="90.*deg"/>
+            <Numeric name="Phi" value="0.*deg"/>
+        </Algorithm>
+        <Algorithm name="global:DDLinear">
+            <rParent name="mb4:MB4SLPhiLayer_47Cells_startCell2"/>
+            <String name="ChildName" value="mbCommon:MBSLPhiGas"/>
+            <Numeric name="StartCopyNo" value="2"/>
+            <Numeric name="N" value="47"/>
+            <Numeric name="IncrCopyNo" value="1"/>
+            <Numeric name="Delta" value="[mbCommon:MBCell_width]*2."/>
+            <Vector name="Base" type="numeric" nEntries="3"> -[mb4:MB4SLPhiL47]-3*[mbCommon:MBCell_width]+[mbCommon:MBIbeamWall], 0.*mm, 0.*mm </Vector>
+            <Numeric name="Theta" value="90.*deg"/>
+            <Numeric name="Phi" value="0.*deg"/>
+        </Algorithm>
+        <Algorithm name="global:DDLinear">
+            <rParent name="mb4:MB4SLPhiLayer_48Cells"/>
+            <String name="ChildName" value="mbCommon:MBSLPhiGas"/>
+            <Numeric name="StartCopyNo" value="1"/>
+            <Numeric name="N" value="48"/>
+            <Numeric name="IncrCopyNo" value="1"/>
+            <Numeric name="Delta" value="[mbCommon:MBCell_width]*2."/>
+            <Vector name="Base" type="numeric" nEntries="3"> -[mb4:MB4SLPhiL48]-[mbCommon:MBCell_width]+[mbCommon:MBIbeamWall], 0.*mm, 0.*mm </Vector>
+            <Numeric name="Theta" value="90.*deg"/>
+            <Numeric name="Phi" value="0.*deg"/>
+        </Algorithm>
+        <PosPart copyNumber="1">
+            <rParent name="mb4:MB4SLPhiLayer_47Cells"/>
+            <rChild name="mb4:MB4SLPhiElectronics_47Cells"/>
+            <Translation x="0.*fm" y="[mbCommon:MBSLPhiLayer_length]-[mbCommon:MBLayerElectronics_width]" z="0.*fm"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="mb4:MB4SLPhiLayer_47Cells"/>
+            <rChild name="mb4:MB4SLPhiElectronics_47Cells"/>
+            <Translation x="0.*fm" y="-([mbCommon:MBSLPhiLayer_length]-[mbCommon:MBLayerElectronics_width])" z="0.*fm"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb4:MB4SLPhiLayer_47Cells_startCell2"/>
+            <rChild name="mb4:MB4SLPhiElectronics_47Cells"/>
+            <Translation x="0.*fm" y="[mbCommon:MBSLPhiLayer_length]-[mbCommon:MBLayerElectronics_width]" z="0.*fm"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="mb4:MB4SLPhiLayer_47Cells_startCell2"/>
+            <rChild name="mb4:MB4SLPhiElectronics_47Cells"/>
+            <Translation x="0.*fm" y="-([mbCommon:MBSLPhiLayer_length]-[mbCommon:MBLayerElectronics_width])" z="0.*fm"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb4:MB4SLPhiLayer_48Cells"/>
+            <rChild name="mb4:MB4SLPhiElectronics_48Cells"/>
+            <Translation x="0.*fm" y="[mbCommon:MBSLPhiLayer_length]-[mbCommon:MBLayerElectronics_width]" z="0.*fm"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="mb4:MB4SLPhiLayer_48Cells"/>
+            <rChild name="mb4:MB4SLPhiElectronics_48Cells"/>
+            <Translation x="0.*fm" y="-([mbCommon:MBSLPhiLayer_length]-[mbCommon:MBLayerElectronics_width])" z="0.*fm"/>
+        </PosPart>
+        <!-- ##### MB4: DT honeycomb -->
+        <PosPart copyNumber="1">
+            <rParent name="mb4:MB4BigRightP"/>
+            <rChild name="mb4:MB4BigHoneycombBox"/>
+            <Translation x="0*fm" y="0*fm" z="-[mbCommon:MBSL_posDisp]"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb4:MB4BigRightN"/>
+            <rChild name="mb4:MB4BigHoneycombBox"/>
+            <Translation x="0*fm" y="0*fm" z="-[mbCommon:MBSL_posDisp]"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb4:MB4BigLeftP"/>
+            <rChild name="mb4:MB4BigHoneycombBox"/>
+            <Translation x="0*fm" y="0*fm" z="-[mbCommon:MBSL_posDisp]"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb4:MB4BigLeftN"/>
+            <rChild name="mb4:MB4BigHoneycombBox"/>
+            <Translation x="0*fm" y="0*fm" z="-[mbCommon:MBSL_posDisp]"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb4:MB4SmallRightP"/>
+            <rChild name="mb4:MB4SmallHoneycombBox"/>
+            <Translation x="0*fm" y="0*fm" z="-[mbCommon:MBSL_posDisp]"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb4:MB4SmallRightN"/>
+            <rChild name="mb4:MB4SmallHoneycombBox"/>
+            <Translation x="0*fm" y="0*fm" z="-[mbCommon:MBSL_posDisp]"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb4:MB4SmallLeftP"/>
+            <rChild name="mb4:MB4SmallHoneycombBox"/>
+            <Translation x="0*fm" y="0*fm" z="-[mbCommon:MBSL_posDisp]"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb4:MB4SmallLeftN"/>
+            <rChild name="mb4:MB4SmallHoneycombBox"/>
+            <Translation x="0*fm" y="0*fm" z="-[mbCommon:MBSL_posDisp]"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb4:MB4TopN"/>
+            <rChild name="mb4:MB4TopHoneycombBox"/>
+            <Translation x="0*fm" y="0*fm" z="-[mbCommon:MBSL_posDisp]"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb4:MB4TopP"/>
+            <rChild name="mb4:MB4TopHoneycombBox"/>
+            <Translation x="0*fm" y="0*fm" z="-[mbCommon:MBSL_posDisp]"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb4:MB4FeetP"/>
+            <rChild name="mb4:MB4FeetHoneycombBox"/>
+            <Translation x="0*fm" y="0*fm" z="-[mbCommon:MBSL_posDisp]"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb4:MB4FeetN"/>
+            <rChild name="mb4:MB4FeetHoneycombBox"/>
+            <Translation x="0*fm" y="0*fm" z="-[mbCommon:MBSL_posDisp]"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb4:MB4BottomRightP"/>
+            <rChild name="mb4:MB4BottomHoneycombBox"/>
+            <Translation x="0*fm" y="0*fm" z="-[mbCommon:MBSL_posDisp]"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb4:MB4BottomRightN"/>
+            <rChild name="mb4:MB4BottomHoneycombBox"/>
+            <Translation x="0*fm" y="0*fm" z="-[mbCommon:MBSL_posDisp]"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb4:MB4BottomLeftP"/>
+            <rChild name="mb4:MB4BottomHoneycombBox"/>
+            <Translation x="0*fm" y="0*fm" z="-[mbCommon:MBSL_posDisp]"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb4:MB4BottomLeftN"/>
+            <rChild name="mb4:MB4BottomHoneycombBox"/>
+            <Translation x="0*fm" y="0*fm" z="-[mbCommon:MBSL_posDisp]"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb4:MB4BigHoneycombBox"/>
+            <rChild name="mb4:MB4BigHoneycomb"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb4:MB4BigHoneycombBox"/>
+            <rChild name="mb4:MB4BigHcPlate"/>
+            <Translation x="0*fm" y="0*fm" z="[MB4HC_height]-0.75*mm"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="mb4:MB4BigHoneycombBox"/>
+            <rChild name="mb4:MB4BigHcPlate"/>
+            <Translation x="0*fm" y="0*fm" z="-([MB4HC_height]-0.75*mm)"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb4:MB4BigHoneycombBox"/>
+            <rChild name="mb4:MB4Hc_LateralC"/>
+            <Translation x="[mb4:MB4BigHC_x]-[mbCommon:MBHC_C_dimension]" y="0*fm" z="[MB4HC_height]-5.5*mm"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="mb4:MB4BigHoneycombBox"/>
+            <rChild name="mb4:MB4Hc_LateralC"/>
+            <Translation x="[mb4:MB4BigHC_x]-[mbCommon:MBHC_C_dimension]" y="0*fm" z="-([MB4HC_height]-5.5*mm)"/>
+        </PosPart>
+        <PosPart copyNumber="3">
+            <rParent name="mb4:MB4BigHoneycombBox"/>
+            <rChild name="mb4:MB4Hc_LateralC"/>
+            <Translation x="-([mb4:MB4BigHC_x]-[mbCommon:MBHC_C_dimension])" y="0*fm" z="[MB4HC_height]-5.5*mm"/>
+        </PosPart>
+        <PosPart copyNumber="4">
+            <rParent name="mb4:MB4BigHoneycombBox"/>
+            <rChild name="mb4:MB4Hc_LateralC"/>
+            <Translation x="-([mb4:MB4BigHC_x]-[mbCommon:MBHC_C_dimension])" y="0*fm" z="-([MB4HC_height]-5.5*mm)"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb4:MB4BigHoneycombBox"/>
+            <rChild name="mb4:MB4BigHc_FrontC"/>
+            <Translation x="0*fm" y="[mbCommon:MBHC_z]-[mbCommon:MBHC_C_dimension]" z="[MB4HC_height]-5.5*mm"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="mb4:MB4BigHoneycombBox"/>
+            <rChild name="mb4:MB4BigHc_FrontC"/>
+            <Translation x="0*fm" y="[mbCommon:MBHC_z]-[mbCommon:MBHC_C_dimension]" z="-([MB4HC_height]-5.5*mm)"/>
+        </PosPart>
+        <PosPart copyNumber="3">
+            <rParent name="mb4:MB4BigHoneycombBox"/>
+            <rChild name="mb4:MB4BigHc_FrontC"/>
+            <Translation x="0*fm" y="-([mbCommon:MBHC_z]-[mbCommon:MBHC_C_dimension])" z="[MB4HC_height]-5.5*mm"/>
+        </PosPart>
+        <PosPart copyNumber="4">
+            <rParent name="mb4:MB4BigHoneycombBox"/>
+            <rChild name="mb4:MB4BigHc_FrontC"/>
+            <Translation x="0*fm" y="-([mbCommon:MBHC_z]-[mbCommon:MBHC_C_dimension])" z="-([MB4HC_height]-5.5*mm)"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb4:MB4BigHoneycombBox"/>
+            <rChild name="mb4:MB4Hc_LateralElectronics"/>
+            <Translation x="[mb4:MB4BigHC_x]-2*[mbCommon:MBHC_C_dimension]+[mbCommon:MBHCLatElectronics_width]" y="0*fm" z="0*fm"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="mb4:MB4BigHoneycombBox"/>
+            <rChild name="mb4:MB4Hc_LateralElectronics"/>
+            <Translation x="-([mb4:MB4BigHC_x]-2*[mbCommon:MBHC_C_dimension]+[mbCommon:MBHCLatElectronics_width])" y="0*fm" z="0*fm"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb4:MB4BigHoneycombBox"/>
+            <rChild name="mb4:MB4BigHc_FrontElectronics"/>
+            <Translation x="0*fm" y="[mbCommon:MBHC_z]-2*[mbCommon:MBHC_C_dimension]+[mbCommon:MBHCFrontElectronics_width]" z="0*fm"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="mb4:MB4BigHoneycombBox"/>
+            <rChild name="mb4:MB4BigHc_FrontElectronics"/>
+            <Translation x="0*fm" y="-([mbCommon:MBHC_z]-2*[mbCommon:MBHC_C_dimension]+[mbCommon:MBHCFrontElectronics_width])" z="0*fm"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb4:MB4BigHoneycombBox"/>
+            <rChild name="mb4:MB4HcTorsionBar"/>
+            <Translation x="[mb4:MB4BigHC_x]-25.*mm" y="0*fm" z="0*fm"/>
+        </PosPart>
+        <!-- Small HC -->
+        <PosPart copyNumber="1">
+            <rParent name="mb4:MB4SmallHoneycombBox"/>
+            <rChild name="mb4:MB4SmallHoneycomb"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb4:MB4SmallHoneycombBox"/>
+            <rChild name="mb4:MB4SmallHcPlate"/>
+            <Translation x="0*fm" y="0*fm" z="[MB4HC_height]-0.75*mm"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="mb4:MB4SmallHoneycombBox"/>
+            <rChild name="mb4:MB4SmallHcPlate"/>
+            <Translation x="0*fm" y="0*fm" z="-([MB4HC_height]-0.75*mm)"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb4:MB4SmallHoneycombBox"/>
+            <rChild name="mb4:MB4Hc_LateralC"/>
+            <Translation x="[mb4:MB4SmallHC_x]-[mbCommon:MBHC_C_dimension]" y="0*fm" z="[MB4HC_height]-5.5*mm"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="mb4:MB4SmallHoneycombBox"/>
+            <rChild name="mb4:MB4Hc_LateralC"/>
+            <Translation x="[mb4:MB4SmallHC_x]-[mbCommon:MBHC_C_dimension]" y="0*fm" z="-([MB4HC_height]-5.5*mm)"/>
+        </PosPart>
+        <PosPart copyNumber="3">
+            <rParent name="mb4:MB4SmallHoneycombBox"/>
+            <rChild name="mb4:MB4Hc_LateralC"/>
+            <Translation x="-([mb4:MB4SmallHC_x]-[mbCommon:MBHC_C_dimension])" y="0*fm" z="[MB4HC_height]-5.5*mm"/>
+        </PosPart>
+        <PosPart copyNumber="4">
+            <rParent name="mb4:MB4SmallHoneycombBox"/>
+            <rChild name="mb4:MB4Hc_LateralC"/>
+            <Translation x="-([mb4:MB4SmallHC_x]-[mbCommon:MBHC_C_dimension])" y="0*fm" z="-([MB4HC_height]-5.5*mm)"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb4:MB4SmallHoneycombBox"/>
+            <rChild name="mb4:MB4SmallHc_FrontC"/>
+            <Translation x="0*fm" y="[mbCommon:MBHC_z]-[mbCommon:MBHC_C_dimension]" z="[MB4HC_height]-5.5*mm"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="mb4:MB4SmallHoneycombBox"/>
+            <rChild name="mb4:MB4SmallHc_FrontC"/>
+            <Translation x="0*fm" y="[mbCommon:MBHC_z]-[mbCommon:MBHC_C_dimension]" z="-([MB4HC_height]-5.5*mm)"/>
+        </PosPart>
+        <PosPart copyNumber="3">
+            <rParent name="mb4:MB4SmallHoneycombBox"/>
+            <rChild name="mb4:MB4SmallHc_FrontC"/>
+            <Translation x="0*fm" y="-([mbCommon:MBHC_z]-[mbCommon:MBHC_C_dimension])" z="[MB4HC_height]-5.5*mm"/>
+        </PosPart>
+        <PosPart copyNumber="4">
+            <rParent name="mb4:MB4SmallHoneycombBox"/>
+            <rChild name="mb4:MB4SmallHc_FrontC"/>
+            <Translation x="0*fm" y="-([mbCommon:MBHC_z]-[mbCommon:MBHC_C_dimension])" z="-([MB4HC_height]-5.5*mm)"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb4:MB4SmallHoneycombBox"/>
+            <rChild name="mb4:MB4Hc_LateralElectronics"/>
+            <Translation x="[mb4:MB4SmallHC_x]-2*[mbCommon:MBHC_C_dimension]+[mbCommon:MBHCLatElectronics_width]" y="0*fm" z="0*fm"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="mb4:MB4SmallHoneycombBox"/>
+            <rChild name="mb4:MB4Hc_LateralElectronics"/>
+            <Translation x="-([mb4:MB4SmallHC_x]-2*[mbCommon:MBHC_C_dimension]+[mbCommon:MBHCLatElectronics_width])" y="0*fm" z="0*fm"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb4:MB4SmallHoneycombBox"/>
+            <rChild name="mb4:MB4SmallHc_FrontElectronics"/>
+            <Translation x="0*fm" y="[mbCommon:MBHC_z]-2*[mbCommon:MBHC_C_dimension]+[mbCommon:MBHCFrontElectronics_width]" z="0*fm"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="mb4:MB4SmallHoneycombBox"/>
+            <rChild name="mb4:MB4SmallHc_FrontElectronics"/>
+            <Translation x="0*fm" y="-([mbCommon:MBHC_z]-2*[mbCommon:MBHC_C_dimension]+[mbCommon:MBHCFrontElectronics_width])" z="0*fm"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb4:MB4SmallHoneycombBox"/>
+            <rChild name="mb4:MB4HcTorsionBar"/>
+            <Translation x="[mb4:MB4SmallHC_x]-25.*mm" y="0*fm" z="0*fm"/>
+        </PosPart>
+        <!-- Feet HC -->
+        <PosPart copyNumber="1">
+            <rParent name="mb4:MB4FeetHoneycombBox"/>
+            <rChild name="mb4:MB4FeetHoneycomb"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb4:MB4FeetHoneycombBox"/>
+            <rChild name="mb4:MB4FeetHcPlate"/>
+            <Translation x="0*fm" y="0*fm" z="[MB4HC_height]-0.75*mm"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="mb4:MB4FeetHoneycombBox"/>
+            <rChild name="mb4:MB4FeetHcPlate"/>
+            <Translation x="0*fm" y="0*fm" z="-([MB4HC_height]-0.75*mm)"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb4:MB4FeetHoneycombBox"/>
+            <rChild name="mb4:MB4Hc_LateralC"/>
+            <Translation x="[mb4:MB4FeetHC_x]-[mbCommon:MBHC_C_dimension]" y="0*fm" z="[MB4HC_height]-5.5*mm"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="mb4:MB4FeetHoneycombBox"/>
+            <rChild name="mb4:MB4Hc_LateralC"/>
+            <Translation x="[mb4:MB4FeetHC_x]-[mbCommon:MBHC_C_dimension]" y="0*fm" z="-([MB4HC_height]-5.5*mm)"/>
+        </PosPart>
+        <PosPart copyNumber="3">
+            <rParent name="mb4:MB4FeetHoneycombBox"/>
+            <rChild name="mb4:MB4Hc_LateralC"/>
+            <Translation x="-([mb4:MB4FeetHC_x]-[mbCommon:MBHC_C_dimension])" y="0*fm" z="[MB4HC_height]-5.5*mm"/>
+        </PosPart>
+        <PosPart copyNumber="4">
+            <rParent name="mb4:MB4FeetHoneycombBox"/>
+            <rChild name="mb4:MB4Hc_LateralC"/>
+            <Translation x="-([mb4:MB4FeetHC_x]-[mbCommon:MBHC_C_dimension])" y="0*fm" z="-([MB4HC_height]-5.5*mm)"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb4:MB4FeetHoneycombBox"/>
+            <rChild name="mb4:MB4FeetHc_FrontC"/>
+            <Translation x="0*fm" y="[mbCommon:MBHC_z]-[mbCommon:MBHC_C_dimension]" z="[MB4HC_height]-5.5*mm"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="mb4:MB4FeetHoneycombBox"/>
+            <rChild name="mb4:MB4FeetHc_FrontC"/>
+            <Translation x="0*fm" y="[mbCommon:MBHC_z]-[mbCommon:MBHC_C_dimension]" z="-([MB4HC_height]-5.5*mm)"/>
+        </PosPart>
+        <PosPart copyNumber="3">
+            <rParent name="mb4:MB4FeetHoneycombBox"/>
+            <rChild name="mb4:MB4FeetHc_FrontC"/>
+            <Translation x="0*fm" y="-([mbCommon:MBHC_z]-[mbCommon:MBHC_C_dimension])" z="[MB4HC_height]-5.5*mm"/>
+        </PosPart>
+        <PosPart copyNumber="4">
+            <rParent name="mb4:MB4FeetHoneycombBox"/>
+            <rChild name="mb4:MB4FeetHc_FrontC"/>
+            <Translation x="0*fm" y="-([mbCommon:MBHC_z]-[mbCommon:MBHC_C_dimension])" z="-([MB4HC_height]-5.5*mm)"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb4:MB4FeetHoneycombBox"/>
+            <rChild name="mb4:MB4Hc_LateralElectronics"/>
+            <Translation x="[mb4:MB4FeetHC_x]-2*[mbCommon:MBHC_C_dimension]+[mbCommon:MBHCLatElectronics_width]" y="0*fm" z="0*fm"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="mb4:MB4FeetHoneycombBox"/>
+            <rChild name="mb4:MB4Hc_LateralElectronics"/>
+            <Translation x="-([mb4:MB4FeetHC_x]-2*[mbCommon:MBHC_C_dimension]+[mbCommon:MBHCLatElectronics_width])" y="0*fm" z="0*fm"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb4:MB4FeetHoneycombBox"/>
+            <rChild name="mb4:MB4FeetHc_FrontElectronics"/>
+            <Translation x="0*fm" y="[mbCommon:MBHC_z]-2*[mbCommon:MBHC_C_dimension]+[mbCommon:MBHCFrontElectronics_width]" z="0*fm"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="mb4:MB4FeetHoneycombBox"/>
+            <rChild name="mb4:MB4FeetHc_FrontElectronics"/>
+            <Translation x="0*fm" y="-([mbCommon:MBHC_z]-2*[mbCommon:MBHC_C_dimension]+[mbCommon:MBHCFrontElectronics_width])" z="0*fm"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb4:MB4FeetHoneycombBox"/>
+            <rChild name="mb4:MB4HcTorsionBar"/>
+            <Translation x="[mb4:MB4FeetHC_x]-25.*mm" y="0*fm" z="0*fm"/>
+        </PosPart>
+        <!-- Bottom HC -->
+        <PosPart copyNumber="1">
+            <rParent name="mb4:MB4BottomHoneycombBox"/>
+            <rChild name="mb4:MB4BottomHoneycomb"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb4:MB4BottomHoneycombBox"/>
+            <rChild name="mb2:MB2HcPlate"/>
+            <Translation x="0*fm" y="0*fm" z="[MB4HC_height]-0.75*mm"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="mb4:MB4BottomHoneycombBox"/>
+            <rChild name="mb2:MB2HcPlate"/>
+            <Translation x="0*fm" y="0*fm" z="-([MB4HC_height]-0.75*mm)"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb4:MB4BottomHoneycombBox"/>
+            <rChild name="mb4:MB4Hc_LateralC"/>
+            <Translation x="[mb2:MB2HC_x]-[mbCommon:MBHC_C_dimension]" y="0*fm" z="[MB4HC_height]-5.5*mm"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="mb4:MB4BottomHoneycombBox"/>
+            <rChild name="mb4:MB4Hc_LateralC"/>
+            <Translation x="[mb2:MB2HC_x]-[mbCommon:MBHC_C_dimension]" y="0*fm" z="-([MB4HC_height]-5.5*mm)"/>
+        </PosPart>
+        <PosPart copyNumber="3">
+            <rParent name="mb4:MB4BottomHoneycombBox"/>
+            <rChild name="mb4:MB4Hc_LateralC"/>
+            <Translation x="-([mb2:MB2HC_x]-[mbCommon:MBHC_C_dimension])" y="0*fm" z="[MB4HC_height]-5.5*mm"/>
+        </PosPart>
+        <PosPart copyNumber="4">
+            <rParent name="mb4:MB4BottomHoneycombBox"/>
+            <rChild name="mb4:MB4Hc_LateralC"/>
+            <Translation x="-([mb2:MB2HC_x]-[mbCommon:MBHC_C_dimension])" y="0*fm" z="-([MB4HC_height]-5.5*mm)"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb4:MB4BottomHoneycombBox"/>
+            <rChild name="mb4:MB4BottomHc_FrontC"/>
+            <Translation x="0*fm" y="[mbCommon:MBHC_z]-[mbCommon:MBHC_C_dimension]" z="[MB4HC_height]-5.5*mm"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="mb4:MB4BottomHoneycombBox"/>
+            <rChild name="mb4:MB4BottomHc_FrontC"/>
+            <Translation x="0*fm" y="[mbCommon:MBHC_z]-[mbCommon:MBHC_C_dimension]" z="-([MB4HC_height]-5.5*mm)"/>
+        </PosPart>
+        <PosPart copyNumber="3">
+            <rParent name="mb4:MB4BottomHoneycombBox"/>
+            <rChild name="mb4:MB4BottomHc_FrontC"/>
+            <Translation x="0*fm" y="-([mbCommon:MBHC_z]-[mbCommon:MBHC_C_dimension])" z="[MB4HC_height]-5.5*mm"/>
+        </PosPart>
+        <PosPart copyNumber="4">
+            <rParent name="mb4:MB4BottomHoneycombBox"/>
+            <rChild name="mb4:MB4BottomHc_FrontC"/>
+            <Translation x="0*fm" y="-([mbCommon:MBHC_z]-[mbCommon:MBHC_C_dimension])" z="-([MB4HC_height]-5.5*mm)"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb4:MB4BottomHoneycombBox"/>
+            <rChild name="mb4:MB4Hc_LateralElectronics"/>
+            <Translation x="[mb2:MB2HC_x]-2*[mbCommon:MBHC_C_dimension]+[mbCommon:MBHCLatElectronics_width]" y="0*fm" z="0*fm"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="mb4:MB4BottomHoneycombBox"/>
+            <rChild name="mb4:MB4Hc_LateralElectronics"/>
+            <Translation x="-([mb2:MB2HC_x]-2*[mbCommon:MBHC_C_dimension]+[mbCommon:MBHCLatElectronics_width])" y="0*fm" z="0*fm"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb4:MB4BottomHoneycombBox"/>
+            <rChild name="mb4:MB4BottomHc_FrontElectronics"/>
+            <Translation x="0*fm" y="[mbCommon:MBHC_z]-2*[mbCommon:MBHC_C_dimension]+[mbCommon:MBHCFrontElectronics_width]" z="0*fm"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="mb4:MB4BottomHoneycombBox"/>
+            <rChild name="mb4:MB4BottomHc_FrontElectronics"/>
+            <Translation x="0*fm" y="-([mbCommon:MBHC_z]-2*[mbCommon:MBHC_C_dimension]+[mbCommon:MBHCFrontElectronics_width])" z="0*fm"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb4:MB4BottomHoneycombBox"/>
+            <rChild name="mb4:MB4HcTorsionBar"/>
+            <Translation x="[mb2:MB2HC_x]-25.*mm" y="0*fm" z="0*fm"/>
+        </PosPart>
+        <!-- Top HC -->
+        <PosPart copyNumber="1">
+            <rParent name="mb4:MB4TopHoneycombBox"/>
+            <rChild name="mb4:MB4TopHoneycomb"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb4:MB4TopHoneycombBox"/>
+            <rChild name="mb3:MB3HcPlate"/>
+            <Translation x="0*fm" y="0*fm" z="[MB4HC_height]-0.75*mm"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="mb4:MB4TopHoneycombBox"/>
+            <rChild name="mb3:MB3HcPlate"/>
+            <Translation x="0*fm" y="0*fm" z="-([MB4HC_height]-0.75*mm)"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb4:MB4TopHoneycombBox"/>
+            <rChild name="mb4:MB4Hc_LateralC"/>
+            <Translation x="[mb3:MB3HC_x]-[mbCommon:MBHC_C_dimension]" y="0*fm" z="[MB4HC_height]-5.5*mm"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="mb4:MB4TopHoneycombBox"/>
+            <rChild name="mb4:MB4Hc_LateralC"/>
+            <Translation x="[mb3:MB3HC_x]-[mbCommon:MBHC_C_dimension]" y="0*fm" z="-([MB4HC_height]-5.5*mm)"/>
+        </PosPart>
+        <PosPart copyNumber="3">
+            <rParent name="mb4:MB4TopHoneycombBox"/>
+            <rChild name="mb4:MB4Hc_LateralC"/>
+            <Translation x="-([mb3:MB3HC_x]-[mbCommon:MBHC_C_dimension])" y="0*fm" z="[MB4HC_height]-5.5*mm"/>
+        </PosPart>
+        <PosPart copyNumber="4">
+            <rParent name="mb4:MB4TopHoneycombBox"/>
+            <rChild name="mb4:MB4Hc_LateralC"/>
+            <Translation x="-([mb3:MB3HC_x]-[mbCommon:MBHC_C_dimension])" y="0*fm" z="-([MB4HC_height]-5.5*mm)"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb4:MB4TopHoneycombBox"/>
+            <rChild name="mb4:MB4TopHc_FrontC"/>
+            <Translation x="0*fm" y="[mbCommon:MBHC_z]-[mbCommon:MBHC_C_dimension]" z="[MB4HC_height]-5.5*mm"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="mb4:MB4TopHoneycombBox"/>
+            <rChild name="mb4:MB4TopHc_FrontC"/>
+            <Translation x="0*fm" y="[mbCommon:MBHC_z]-[mbCommon:MBHC_C_dimension]" z="-([MB4HC_height]-5.5*mm)"/>
+        </PosPart>
+        <PosPart copyNumber="3">
+            <rParent name="mb4:MB4TopHoneycombBox"/>
+            <rChild name="mb4:MB4TopHc_FrontC"/>
+            <Translation x="0*fm" y="-([mbCommon:MBHC_z]-[mbCommon:MBHC_C_dimension])" z="[MB4HC_height]-5.5*mm"/>
+        </PosPart>
+        <PosPart copyNumber="4">
+            <rParent name="mb4:MB4TopHoneycombBox"/>
+            <rChild name="mb4:MB4TopHc_FrontC"/>
+            <Translation x="0*fm" y="-([mbCommon:MBHC_z]-[mbCommon:MBHC_C_dimension])" z="-([MB4HC_height]-5.5*mm)"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb4:MB4TopHoneycombBox"/>
+            <rChild name="mb4:MB4Hc_LateralElectronics"/>
+            <Translation x="[mb3:MB3HC_x]-2*[mbCommon:MBHC_C_dimension]+[mbCommon:MBHCLatElectronics_width]" y="0*fm" z="0*fm"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="mb4:MB4TopHoneycombBox"/>
+            <rChild name="mb4:MB4Hc_LateralElectronics"/>
+            <Translation x="-([mb3:MB3HC_x]-2*[mbCommon:MBHC_C_dimension]+[mbCommon:MBHCLatElectronics_width])" y="0*fm" z="0*fm"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb4:MB4TopHoneycombBox"/>
+            <rChild name="mb4:MB4TopHc_FrontElectronics"/>
+            <Translation x="0*fm" y="[mbCommon:MBHC_z]-2*[mbCommon:MBHC_C_dimension]+[mbCommon:MBHCFrontElectronics_width]" z="0*fm"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="mb4:MB4TopHoneycombBox"/>
+            <rChild name="mb4:MB4TopHc_FrontElectronics"/>
+            <Translation x="0*fm" y="-([mbCommon:MBHC_z]-2*[mbCommon:MBHC_C_dimension]+[mbCommon:MBHCFrontElectronics_width])" z="0*fm"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb4:MB4TopHoneycombBox"/>
+            <rChild name="mb4:MB4HcTorsionBar"/>
+            <Translation x="[mb3:MB3HC_x]-25.*mm" y="0*fm" z="0*fm"/>
+        </PosPart>
+        <!-- ##### MB4: RPC chambers -->
+        <!-- ##### MB4: RPC_P chamber -->
+        <PosPart copyNumber="1">
+            <rParent name="mb4:MB4BigRightP"/>
+            <rChild name="mb4:MB4RPC_P"/>
+            <Translation x="-[mb4:MB4BigRPC_x_pos]" y="0*fm" z="[mb4:MB4RPC_z_pos]"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb4:MB4BigLeftP"/>
+            <rChild name="mb4:MB4RPC_P"/>
+            <Translation x="[mb4:MB4BigRPC_x_pos]" y="0*fm" z="[mb4:MB4RPC_z_pos]"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb4:MB4SmallRightP"/>
+            <rChild name="mb4:MB4SmallRPC_PS12"/>
+            <Translation x="[mb4:MB4SmallRPC_x_pos]" y="0*fm" z="[mb4:MB4RPC_z_pos]"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb4:MB4SmallLeftP"/>
+            <rChild name="mb4:MB4SmallRPC_PS8"/>
+            <Translation x="-[mb4:MB4SmallRPC_x_pos]" y="0*fm" z="[mb4:MB4RPC_z_pos]"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb4:MB4RPC_P"/>
+            <rChild name="mb4:MB4RPC_GasLeft"/>
+            <rRotation name="rotations:R180"/>
+            <Translation x="[mb4:MB4RPC_Gas_x_pos]" y="-[mbCommon:MBRPC_GasLeft_y_pos]" z="0*cm"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="mb4:MB4RPC_P"/>
+            <rChild name="mb4:MB4RPC_GasLeft"/>
+            <rRotation name="rotations:R180"/>
+            <Translation x="-[mb4:MB4RPC_Gas_x_pos]" y="-[mbCommon:MBRPC_GasLeft_y_pos]" z="0*cm"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb4:MB4RPC_P"/>
+            <rChild name="mb4:MB4RPC_GasRight"/>
+            <rRotation name="rotations:R180"/>
+            <Translation x="[mb4:MB4RPC_Gas_x_pos]" y="[mbCommon:MBRPC_GasRight_y_pos]" z="0*cm"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="mb4:MB4RPC_P"/>
+            <rChild name="mb4:MB4RPC_GasRight"/>
+            <rRotation name="rotations:R180"/>
+            <Translation x="-[mb4:MB4RPC_Gas_x_pos]" y="[mbCommon:MBRPC_GasRight_y_pos]" z="0*cm"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="mb4:MB4SmallRPC_PS8"/>
+            <rChild name="mb4:MB4SmallRPC_SmallerGasLeft"/>
+            <rRotation name="rotations:R180"/>
+            <Translation x="-[mb4:MB4SmallRPC_SmallerGas_x_pos]" y="-[mbCommon:MBRPC_GasLeft_y_pos]" z="0*cm"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb4:MB4SmallRPC_PS8"/>
+            <rChild name="mb4:MB4SmallRPC_BiggerGasLeft"/>
+            <rRotation name="rotations:R180"/>
+            <Translation x="[mb4:MB4SmallRPC_BiggerGas_x_pos]" y="-[mbCommon:MBRPC_GasLeft_y_pos]" z="0*cm"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="mb4:MB4SmallRPC_PS8"/>
+            <rChild name="mb4:MB4SmallRPC_SmallerGasRight"/>
+            <rRotation name="rotations:R180"/>
+            <Translation x="-[mb4:MB4SmallRPC_SmallerGas_x_pos]" y="[mbCommon:MBRPC_GasRight_y_pos]" z="0*cm"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb4:MB4SmallRPC_PS8"/>
+            <rChild name="mb4:MB4SmallRPC_BiggerGasRight"/>
+            <rRotation name="rotations:R180"/>
+            <Translation x="[mb4:MB4SmallRPC_BiggerGas_x_pos]" y="[mbCommon:MBRPC_GasRight_y_pos]" z="0*cm"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb4:MB4SmallRPC_PS12"/>
+            <rChild name="mb4:MB4SmallRPC_SmallerGasLeft"/>
+            <rRotation name="rotations:R180"/>
+            <Translation x="[mb4:MB4SmallRPC_SmallerGas_x_pos]" y="-[mbCommon:MBRPC_GasLeft_y_pos]" z="0*cm"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="mb4:MB4SmallRPC_PS12"/>
+            <rChild name="mb4:MB4SmallRPC_BiggerGasLeft"/>
+            <rRotation name="rotations:R180"/>
+            <Translation x="-[mb4:MB4SmallRPC_BiggerGas_x_pos]" y="-[mbCommon:MBRPC_GasLeft_y_pos]" z="0*cm"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb4:MB4SmallRPC_PS12"/>
+            <rChild name="mb4:MB4SmallRPC_SmallerGasRight"/>
+            <rRotation name="rotations:R180"/>
+            <Translation x="[mb4:MB4SmallRPC_SmallerGas_x_pos]" y="[mbCommon:MBRPC_GasRight_y_pos]" z="0*cm"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="mb4:MB4SmallRPC_PS12"/>
+            <rChild name="mb4:MB4SmallRPC_BiggerGasRight"/>
+            <rRotation name="rotations:R180"/>
+            <Translation x="-[mb4:MB4SmallRPC_BiggerGas_x_pos]" y="[mbCommon:MBRPC_GasRight_y_pos]" z="0*cm"/>
+        </PosPart>
+        <!-- ##### MB4: RPC_N chamber -->
+        <PosPart copyNumber="1">
+            <rParent name="mb4:MB4BigRightN"/>
+            <rChild name="mb4:MB4RPC_N"/>
+            <Translation x="-[mb4:MB4BigRPC_x_pos]" y="0*fm" z="[mb4:MB4RPC_z_pos]"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb4:MB4BigLeftN"/>
+            <rChild name="mb4:MB4RPC_N"/>
+            <Translation x="[mb4:MB4BigRPC_x_pos]" y="0*fm" z="[mb4:MB4RPC_z_pos]"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb4:MB4SmallRightN"/>
+            <rChild name="mb4:MB4SmallRPC_NS8"/>
+            <Translation x="[mb4:MB4SmallRPC_x_pos]" y="0*fm" z="[mb4:MB4RPC_z_pos]"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb4:MB4SmallLeftN"/>
+            <rChild name="mb4:MB4SmallRPC_NS12"/>
+            <Translation x="-[mb4:MB4SmallRPC_x_pos]" y="0*fm" z="[mb4:MB4RPC_z_pos]"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb4:MB4RPC_N"/>
+            <rChild name="mb4:MB4RPC_GasLeft"/>
+            <rRotation name="rotations:R180"/>
+            <Translation x="-[mb4:MB4RPC_Gas_x_pos]" y="-[mbCommon:MBRPC_GasLeft_y_pos]" z="0*cm"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="mb4:MB4RPC_N"/>
+            <rChild name="mb4:MB4RPC_GasLeft"/>
+            <rRotation name="rotations:R180"/>
+            <Translation x="[mb4:MB4RPC_Gas_x_pos]" y="-[mbCommon:MBRPC_GasLeft_y_pos]" z="0*cm"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb4:MB4RPC_N"/>
+            <rChild name="mb4:MB4RPC_GasRight"/>
+            <rRotation name="rotations:R180"/>
+            <Translation x="-[mb4:MB4RPC_Gas_x_pos]" y="[mbCommon:MBRPC_GasRight_y_pos]" z="0*cm"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="mb4:MB4RPC_N"/>
+            <rChild name="mb4:MB4RPC_GasRight"/>
+            <rRotation name="rotations:R180"/>
+            <Translation x="[mb4:MB4RPC_Gas_x_pos]" y="[mbCommon:MBRPC_GasRight_y_pos]" z="0*cm"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="mb4:MB4SmallRPC_NS8"/>
+            <rChild name="mb4:MB4SmallRPC_SmallerGasLeft"/>
+            <rRotation name="rotations:R180"/>
+            <Translation x="[mb4:MB4SmallRPC_SmallerGas_x_pos]" y="-[mbCommon:MBRPC_GasLeft_y_pos]" z="0*cm"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb4:MB4SmallRPC_NS8"/>
+            <rChild name="mb4:MB4SmallRPC_BiggerGasLeft"/>
+            <rRotation name="rotations:R180"/>
+            <Translation x="-[mb4:MB4SmallRPC_BiggerGas_x_pos]" y="-[mbCommon:MBRPC_GasLeft_y_pos]" z="0*cm"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="mb4:MB4SmallRPC_NS8"/>
+            <rChild name="mb4:MB4SmallRPC_SmallerGasRight"/>
+            <rRotation name="rotations:R180"/>
+            <Translation x="[mb4:MB4SmallRPC_SmallerGas_x_pos]" y="[mbCommon:MBRPC_GasRight_y_pos]" z="0*cm"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb4:MB4SmallRPC_NS8"/>
+            <rChild name="mb4:MB4SmallRPC_BiggerGasRight"/>
+            <rRotation name="rotations:R180"/>
+            <Translation x="-[mb4:MB4SmallRPC_BiggerGas_x_pos]" y="[mbCommon:MBRPC_GasRight_y_pos]" z="0*cm"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb4:MB4SmallRPC_NS12"/>
+            <rChild name="mb4:MB4SmallRPC_SmallerGasLeft"/>
+            <rRotation name="rotations:R180"/>
+            <Translation x="-[mb4:MB4SmallRPC_SmallerGas_x_pos]" y="-[mbCommon:MBRPC_GasLeft_y_pos]" z="0*cm"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="mb4:MB4SmallRPC_NS12"/>
+            <rChild name="mb4:MB4SmallRPC_BiggerGasLeft"/>
+            <rRotation name="rotations:R180"/>
+            <Translation x="[mb4:MB4SmallRPC_BiggerGas_x_pos]" y="-[mbCommon:MBRPC_GasLeft_y_pos]" z="0*cm"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb4:MB4SmallRPC_NS12"/>
+            <rChild name="mb4:MB4SmallRPC_SmallerGasRight"/>
+            <rRotation name="rotations:R180"/>
+            <Translation x="-[mb4:MB4SmallRPC_SmallerGas_x_pos]" y="[mbCommon:MBRPC_GasRight_y_pos]" z="0*cm"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="mb4:MB4SmallRPC_NS12"/>
+            <rChild name="mb4:MB4SmallRPC_BiggerGasRight"/>
+            <rRotation name="rotations:R180"/>
+            <Translation x="[mb4:MB4SmallRPC_BiggerGas_x_pos]" y="[mbCommon:MBRPC_GasRight_y_pos]" z="0*cm"/>
+        </PosPart>
+        <!-- ##### MB4: RPC chambers in MB4Top -->
+        <!-- ##### MB4: RPC_P chamber -->
+        <PosPart copyNumber="1">
+            <rParent name="mb4:MB4TopP"/>
+            <rChild name="mb4:MB4TopRPC_P"/>
+            <Translation x="[mb4:MB4TopRPC_x_pos]" y="0*fm" z="[mb4:MB4RPC_z_pos]"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb4:MB4TopRPC_P"/>
+            <rChild name="mb4:MB4TopRPC_GasLeft"/>
+            <rRotation name="rotations:R180"/>
+            <Translation x="[mb3:MB3RPC_Gas_x_pos]" y="-[mbCommon:MBRPC_GasLeft_y_pos]" z="0*cm"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="mb4:MB4TopRPC_P"/>
+            <rChild name="mb4:MB4TopRPC_GasLeft"/>
+            <rRotation name="rotations:R180"/>
+            <Translation x="-[mb3:MB3RPC_Gas_x_pos]" y="-[mbCommon:MBRPC_GasLeft_y_pos]" z="0*cm"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb4:MB4TopRPC_P"/>
+            <rChild name="mb4:MB4TopRPC_GasRight"/>
+            <rRotation name="rotations:R180"/>
+            <Translation x="[mb3:MB3RPC_Gas_x_pos]" y="[mbCommon:MBRPC_GasRight_y_pos]" z="0*cm"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="mb4:MB4TopRPC_P"/>
+            <rChild name="mb4:MB4TopRPC_GasRight"/>
+            <rRotation name="rotations:R180"/>
+            <Translation x="-[mb3:MB3RPC_Gas_x_pos]" y="[mbCommon:MBRPC_GasRight_y_pos]" z="0*cm"/>
+        </PosPart>
+        <!-- ##### MB4: RPC_N chamber -->
+        <PosPart copyNumber="1">
+            <rParent name="mb4:MB4TopN"/>
+            <rChild name="mb4:MB4TopRPC_N"/>
+            <Translation x="[mb4:MB4TopRPC_x_pos]" y="0*fm" z="[mb4:MB4RPC_z_pos]"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb4:MB4TopRPC_N"/>
+            <rChild name="mb4:MB4TopRPC_GasLeft"/>
+            <rRotation name="rotations:R180"/>
+            <Translation x="-[mb3:MB3RPC_Gas_x_pos]" y="-[mbCommon:MBRPC_GasLeft_y_pos]" z="0*cm"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="mb4:MB4TopRPC_N"/>
+            <rChild name="mb4:MB4TopRPC_GasLeft"/>
+            <rRotation name="rotations:R180"/>
+            <Translation x="[mb3:MB3RPC_Gas_x_pos]" y="-[mbCommon:MBRPC_GasLeft_y_pos]" z="0*cm"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb4:MB4TopRPC_N"/>
+            <rChild name="mb4:MB4TopRPC_GasRight"/>
+            <rRotation name="rotations:R180"/>
+            <Translation x="-[mb3:MB3RPC_Gas_x_pos]" y="[mbCommon:MBRPC_GasRight_y_pos]" z="0*cm"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="mb4:MB4TopRPC_N"/>
+            <rChild name="mb4:MB4TopRPC_GasRight"/>
+            <rRotation name="rotations:R180"/>
+            <Translation x="[mb3:MB3RPC_Gas_x_pos]" y="[mbCommon:MBRPC_GasRight_y_pos]" z="0*cm"/>
+        </PosPart>
+        <!-- ##### MB4: RPC chambers in MB4Feet -->
+        <!-- ##### MB4: RPC_P chamber -->
+        <PosPart copyNumber="1">
+            <rParent name="mb4:MB4FeetP"/>
+            <rChild name="mb4:MB4FeetRPC_P"/>
+            <Translation x="[mb4:MB4FeetRPC_x_pos]" y="0*fm" z="[mb4:MB4FeetRPC_z_pos]"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb4:MB4FeetRPC_P"/>
+            <rChild name="mb4:MB4FeetRPC_GasLeft"/>
+            <rRotation name="rotations:R180"/>
+            <Translation x="0*fm" y="-[mbCommon:MBRPC_GasLeft_y_pos]" z="0*cm"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb4:MB4FeetRPC_P"/>
+            <rChild name="mb4:MB4FeetRPC_GasRight"/>
+            <rRotation name="rotations:R180"/>
+            <Translation x="0*fm" y="[mbCommon:MBRPC_GasRight_y_pos]" z="0*cm"/>
+        </PosPart>
+        <!-- ##### MB4: RPC_N chamber -->
+        <PosPart copyNumber="1">
+            <rParent name="mb4:MB4FeetN"/>
+            <rChild name="mb4:MB4FeetRPC_N"/>
+            <Translation x="[mb4:MB4FeetRPC_x_pos]" y="0*fm" z="[mb4:MB4FeetRPC_z_pos]"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb4:MB4FeetRPC_N"/>
+            <rChild name="mb4:MB4FeetRPC_GasLeft"/>
+            <rRotation name="rotations:R180"/>
+            <Translation x="0*fm" y="-[mbCommon:MBRPC_GasLeft_y_pos]" z="0*cm"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb4:MB4FeetRPC_N"/>
+            <rChild name="mb4:MB4FeetRPC_GasRight"/>
+            <rRotation name="rotations:R180"/>
+            <Translation x="0*fm" y="[mbCommon:MBRPC_GasRight_y_pos]" z="0*cm"/>
+        </PosPart>
+        <!-- ##### MB4: RPC chambers in MB4Bottom -->
+        <!-- ##### MB4: RPC_P chamber -->
+        <PosPart copyNumber="1">
+            <rParent name="mb4:MB4BottomRightP"/>
+            <rChild name="mb4:MB4BottomRPC_P"/>
+            <Translation x="-[mb4:MB4BottomRPC_x_pos]" y="0*fm" z="[mb4:MB4RPC_z_pos]"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb4:MB4BottomLeftP"/>
+            <rChild name="mb4:MB4BottomRPC_P"/>
+            <Translation x="[mb4:MB4BottomRPC_x_pos]" y="0*fm" z="[mb4:MB4RPC_z_pos]"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb4:MB4BottomRPC_P"/>
+            <rChild name="mb4:MB4BottomRPC_GasLeft"/>
+            <rRotation name="rotations:R180"/>
+            <Translation x="0*fm" y="-[mbCommon:MBRPC_GasLeft_y_pos]" z="0*cm"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb4:MB4BottomRPC_P"/>
+            <rChild name="mb4:MB4BottomRPC_GasRight"/>
+            <rRotation name="rotations:R180"/>
+            <Translation x="0*fm" y="[mbCommon:MBRPC_GasRight_y_pos]" z="0*cm"/>
+        </PosPart>
+        <!-- ##### MB4: RPC_N chamber -->
+        <PosPart copyNumber="1">
+            <rParent name="mb4:MB4BottomRightN"/>
+            <rChild name="mb4:MB4BottomRPC_N"/>
+            <Translation x="-[mb4:MB4BottomRPC_x_pos]" y="0*fm" z="[mb4:MB4RPC_z_pos]"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb4:MB4BottomLeftN"/>
+            <rChild name="mb4:MB4BottomRPC_N"/>
+            <Translation x="[mb4:MB4BottomRPC_x_pos]" y="0*fm" z="[mb4:MB4RPC_z_pos]"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb4:MB4BottomRPC_N"/>
+            <rChild name="mb4:MB4BottomRPC_GasLeft"/>
+            <rRotation name="rotations:R180"/>
+            <Translation x="0*fm" y="-[mbCommon:MBRPC_GasLeft_y_pos]" z="0*cm"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb4:MB4BottomRPC_N"/>
+            <rChild name="mb4:MB4BottomRPC_GasRight"/>
+            <rRotation name="rotations:R180"/>
+            <Translation x="0*fm" y="[mbCommon:MBRPC_GasRight_y_pos]" z="0*cm"/>
+        </PosPart>
+        <!-- ####  MB4Chimney Unit -->
+        <!-- ####  MB4Chim: DTBX chamber -->
+        <!-- #### MB4BigChim: DT Superlayers Phi -->
+        <PosPart copyNumber="1">
+            <rParent name="mb4:MB4BigChimN"/>
+            <rChild name="mb4:MB4BigChimSuperLayerPhi"/>
+            <Translation x="-[mb4:MB4StandardSLPhi1_HC_dist]" y="0*fm" z="[mbCommon:MBSL_pos_z]-[mbCommon:MBSL_posDisp]"/>
+        </PosPart>
+        <PosPart copyNumber="3">
+            <rParent name="mb4:MB4BigChimN"/>
+            <rChild name="mb4:MB4BigChimSuperLayerPhi"/>
+            <Translation x="-[mb4:MB4StandardSLPhi2_HC_dist]" y="0*fm" z="-[mbCommon:MBSL_pos_z]-[mbCommon:MBSL_posDisp]"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb4:MB4TopChimP"/>
+            <rChild name="mb3:MB3ChimSuperLayerPhi"/>
+            <Translation x="0*fm" y="0*fm" z="[mbCommon:MBSL_pos_z]-[mbCommon:MBSL_posDisp]"/>
+        </PosPart>
+        <PosPart copyNumber="3">
+            <rParent name="mb4:MB4TopChimP"/>
+            <rChild name="mb3:MB3ChimSuperLayerPhi"/>
+            <Translation x="0*fm" y="0*fm" z="-[mbCommon:MBSL_pos_z]-[mbCommon:MBSL_posDisp]"/>
+        </PosPart>
+        <!-- ## MB4BigChim: DT Superlayers Phi internal -->
+        <PosPart copyNumber="1">
+            <rParent name="mb4:MB4BigChimSuperLayerPhi"/>
+            <rChild name="mb4:MB4BigChimSLPhiAlPlateOuter"/>
+            <Translation x="0*fm" y="0*fm" z="4*[mbCommon:MBCell_height]"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="mb4:MB4BigChimSuperLayerPhi"/>
+            <rChild name="mb4:MB4BigChimSLPhiAlPlateOuter"/>
+            <Translation x="0*fm" y="0*fm" z="-4*[mbCommon:MBCell_height]"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb4:MB4BigChimSuperLayerPhi"/>
+            <rChild name="mb4:MB4BigChimSLPhiAlPlateInner"/>
+            <Translation x="0*fm" y="0*fm" z="2*[mbCommon:MBCell_height]"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="mb4:MB4BigChimSuperLayerPhi"/>
+            <rChild name="mb4:MB4BigChimSLPhiAlPlateInner"/>
+            <Translation x="0*fm" y="0.*mm" z="0*fm"/>
+        </PosPart>
+        <PosPart copyNumber="3">
+            <rParent name="mb4:MB4BigChimSuperLayerPhi"/>
+            <rChild name="mb4:MB4BigChimSLPhiAlPlateInner"/>
+            <Translation x="0*fm" y="0*fm" z="-2*[mbCommon:MBCell_height]"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb4:MB4BigChimSuperLayerPhi"/>
+            <rChild name="mb4:MB4ChimSLPhiLayer_95Cells"/>
+            <Translation x="-10.5*mm" y="0*fm" z="3*[mbCommon:MBCell_height]"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="mb4:MB4BigChimSuperLayerPhi"/>
+            <rChild name="mb4:MB4ChimSLPhiLayer_96Cells"/>
+            <Translation x="-10.5*mm" y="0*fm" z="[mbCommon:MBCell_height]"/>
+        </PosPart>
+        <PosPart copyNumber="3">
+            <rParent name="mb4:MB4BigChimSuperLayerPhi"/>
+            <rChild name="mb4:MB4ChimSLPhiLayer_96Cells"/>
+            <Translation x="10.5*mm" y="0*fm" z="-[mbCommon:MBCell_height]"/>
+        </PosPart>
+        <PosPart copyNumber="4">
+            <rParent name="mb4:MB4BigChimSuperLayerPhi"/>
+            <rChild name="mb4:MB4ChimSLPhiLayer_95Cells_startCell2"/>
+            <Translation x="10.5*mm" y="0*fm" z="-3*[mbCommon:MBCell_height]"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb4:MB4BigChimSuperLayerPhi"/>
+            <rChild name="mb4:MB4ChimSLPhiClosingPlateParal"/>
+            <Translation x="[mb4:MB4BigSLPhiPl_x]+1.7*mm" y="0.*fm" z="0*fm"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="mb4:MB4BigChimSuperLayerPhi"/>
+            <rChild name="mb4:MB4ChimSLPhiClosingPlateParal"/>
+            <Translation x="-([mb4:MB4BigSLPhiPl_x]+1.7*mm)" y="0.*fm" z="0*fm"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb4:MB4BigChimSuperLayerPhi"/>
+            <rChild name="mb4:MB4ChimSLPhi_C_PlateParal"/>
+            <Translation x="[mb4:MB4BigSLPhiPl_x]+0.7*mm-7.*mm" y="0.*fm" z="[mbCommon:MBSuperLayer_height]-2.5*mm"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="mb4:MB4BigChimSuperLayerPhi"/>
+            <rChild name="mb4:MB4ChimSLPhi_C_PlateParal"/>
+            <Translation x="[mb4:MB4BigSLPhiPl_x]+0.7*mm-7.*mm" y="0.*fm" z="-([mbCommon:MBSuperLayer_height]-2.5*mm)"/>
+        </PosPart>
+        <PosPart copyNumber="3">
+            <rParent name="mb4:MB4BigChimSuperLayerPhi"/>
+            <rChild name="mb4:MB4ChimSLPhi_C_PlateParal"/>
+            <Translation x="-([mb4:MB4BigSLPhiPl_x]+0.7*mm-7.*mm)" y="0.*fm" z="[mbCommon:MBSuperLayer_height]-2.5*mm"/>
+        </PosPart>
+        <PosPart copyNumber="4">
+            <rParent name="mb4:MB4BigChimSuperLayerPhi"/>
+            <rChild name="mb4:MB4ChimSLPhi_C_PlateParal"/>
+            <Translation x="-([mb4:MB4BigSLPhiPl_x]+0.7*mm-7.*mm)" y="0.*fm" z="-([mbCommon:MBSuperLayer_height]-2.5*mm)"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb4:MB4BigChimSuperLayerPhi"/>
+            <rChild name="mb4:MB4BigSLPhi_C_PlatePerp"/>
+            <Translation x="0.*fm" y="[mbCommon:MBChimSLPhiPlO_z]-7.*mm" z="[mbCommon:MBSuperLayer_height]-2.5*mm"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="mb4:MB4BigChimSuperLayerPhi"/>
+            <rChild name="mb4:MB4BigSLPhi_C_PlatePerp"/>
+            <Translation x="0.*fm" y="[mbCommon:MBChimSLPhiPlO_z]-7.*mm" z="-([mbCommon:MBSuperLayer_height]-2.5*mm)"/>
+        </PosPart>
+        <PosPart copyNumber="3">
+            <rParent name="mb4:MB4BigChimSuperLayerPhi"/>
+            <rChild name="mb4:MB4BigSLPhi_C_PlatePerp"/>
+            <Translation x="0.*fm" y="-([mbCommon:MBChimSLPhiPlO_z]-7.*mm)" z="[mbCommon:MBSuperLayer_height]-2.5*mm"/>
+        </PosPart>
+        <PosPart copyNumber="4">
+            <rParent name="mb4:MB4BigChimSuperLayerPhi"/>
+            <rChild name="mb4:MB4BigSLPhi_C_PlatePerp"/>
+            <Translation x="0.*fm" y="-([mbCommon:MBChimSLPhiPlO_z]-7.*mm)" z="-([mbCommon:MBSuperLayer_height]-2.5*mm)"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb4:MB4BigChimSuperLayerPhi"/>
+            <rChild name="mb4:MB4BigSLPhiCommonElectronics"/>
+            <Translation x="0.*fm" y="[mbCommon:MBChimSLPhiPlO_z]-35./2.*mm" z="0.*fm"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="mb4:MB4BigChimSuperLayerPhi"/>
+            <rChild name="mb4:MB4BigSLPhiCommonElectronics"/>
+            <Translation x="0.*fm" y="-([mbCommon:MBChimSLPhiPlO_z]-35./2.*mm)" z="0.*fm"/>
+        </PosPart>
+        <Algorithm name="global:DDLinear">
+            <rParent name="mb4:MB4ChimSLPhiLayer_95Cells"/>
+            <String name="ChildName" value="mbCommon:MBChimSLPhiGas"/>
+            <Numeric name="StartCopyNo" value="1"/>
+            <Numeric name="N" value="95"/>
+            <Numeric name="IncrCopyNo" value="1"/>
+            <Numeric name="Delta" value="[mbCommon:MBCell_width]*2."/>
+            <Vector name="Base" type="numeric" nEntries="3"> -[mb4:MB4SLPhiL95]-[mbCommon:MBCell_width]+[mbCommon:MBIbeamWall], 0.*mm, 0.*mm </Vector>
+            <Numeric name="Theta" value="90.*deg"/>
+            <Numeric name="Phi" value="0.*deg"/>
+        </Algorithm>
+        <Algorithm name="global:DDLinear">
+            <rParent name="mb4:MB4ChimSLPhiLayer_95Cells_startCell2"/>
+            <String name="ChildName" value="mbCommon:MBChimSLPhiGas"/>
+            <Numeric name="StartCopyNo" value="2"/>
+            <Numeric name="N" value="95"/>
+            <Numeric name="IncrCopyNo" value="1"/>
+            <Numeric name="Delta" value="[mbCommon:MBCell_width]*2."/>
+            <Vector name="Base" type="numeric" nEntries="3"> -[mb4:MB4SLPhiL95]-3*[mbCommon:MBCell_width]+[mbCommon:MBIbeamWall], 0.*mm, 0.*mm </Vector>
+            <Numeric name="Theta" value="90.*deg"/>
+            <Numeric name="Phi" value="0.*deg"/>
+        </Algorithm>
+        <Algorithm name="global:DDLinear">
+            <rParent name="mb4:MB4ChimSLPhiLayer_96Cells"/>
+            <String name="ChildName" value="mbCommon:MBChimSLPhiGas"/>
+            <Numeric name="StartCopyNo" value="1"/>
+            <Numeric name="N" value="96"/>
+            <Numeric name="IncrCopyNo" value="1"/>
+            <Numeric name="Delta" value="[mbCommon:MBCell_width]*2."/>
+            <Vector name="Base" type="numeric" nEntries="3"> -[mb4:MB4SLPhiL96]-[mbCommon:MBCell_width]+[mbCommon:MBIbeamWall], 0.*mm, 0.*mm </Vector>
+            <Numeric name="Theta" value="90.*deg"/>
+            <Numeric name="Phi" value="0.*deg"/>
+        </Algorithm>
+        <PosPart copyNumber="1">
+            <rParent name="mb4:MB4ChimSLPhiLayer_95Cells"/>
+            <rChild name="mb4:MB4SLPhiElectronics_95Cells"/>
+            <Translation x="0.*fm" y="[mbCommon:MBChimSLPhiLayer_length]-[mbCommon:MBLayerElectronics_width]" z="0.*fm"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="mb4:MB4ChimSLPhiLayer_95Cells"/>
+            <rChild name="mb4:MB4SLPhiElectronics_95Cells"/>
+            <Translation x="0.*fm" y="-([mbCommon:MBChimSLPhiLayer_length]-[mbCommon:MBLayerElectronics_width])" z="0.*fm"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb4:MB4ChimSLPhiLayer_95Cells_startCell2"/>
+            <rChild name="mb4:MB4SLPhiElectronics_95Cells"/>
+            <Translation x="0.*fm" y="[mbCommon:MBChimSLPhiLayer_length]-[mbCommon:MBLayerElectronics_width]" z="0.*fm"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="mb4:MB4ChimSLPhiLayer_95Cells_startCell2"/>
+            <rChild name="mb4:MB4SLPhiElectronics_95Cells"/>
+            <Translation x="0.*fm" y="-([mbCommon:MBChimSLPhiLayer_length]-[mbCommon:MBLayerElectronics_width])" z="0.*fm"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb4:MB4ChimSLPhiLayer_96Cells"/>
+            <rChild name="mb4:MB4SLPhiElectronics_96Cells"/>
+            <Translation x="0.*fm" y="[mbCommon:MBChimSLPhiLayer_length]-[mbCommon:MBLayerElectronics_width]" z="0.*fm"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="mb4:MB4ChimSLPhiLayer_96Cells"/>
+            <rChild name="mb4:MB4SLPhiElectronics_96Cells"/>
+            <Translation x="0.*fm" y="-([mbCommon:MBChimSLPhiLayer_length]-[mbCommon:MBLayerElectronics_width])" z="0.*fm"/>
+        </PosPart>
+        <!-- ##### MB4Chim: DT honeycomb -->
+        <PosPart copyNumber="1">
+            <rParent name="mb4:MB4BigChimN"/>
+            <rChild name="mb4:MB4BigChimHoneycombBox"/>
+            <Translation x="0*fm" y="0*fm" z="-[mbCommon:MBSL_posDisp]"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb4:MB4TopChimP"/>
+            <rChild name="mb4:MB4TopChimHoneycombBox"/>
+            <Translation x="0*fm" y="0*fm" z="-[mbCommon:MBSL_posDisp]"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb4:MB4BigChimHoneycombBox"/>
+            <rChild name="mb4:MB4BigChimHoneycomb"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb4:MB4BigChimHoneycombBox"/>
+            <rChild name="mb4:MB4BigChimHcPlate"/>
+            <Translation x="0*fm" y="0*fm" z="[MB4HC_height]-0.75*mm"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="mb4:MB4BigChimHoneycombBox"/>
+            <rChild name="mb4:MB4BigChimHcPlate"/>
+            <Translation x="0*fm" y="0*fm" z="-([MB4HC_height]-0.75*mm)"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb4:MB4BigChimHoneycombBox"/>
+            <rChild name="mb4:MB4ChimHc_LateralC"/>
+            <Translation x="[mb4:MB4BigHC_x]-[mbCommon:MBHC_C_dimension]" y="0*fm" z="[MB4HC_height]-5.5*mm"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="mb4:MB4BigChimHoneycombBox"/>
+            <rChild name="mb4:MB4ChimHc_LateralC"/>
+            <Translation x="[mb4:MB4BigHC_x]-[mbCommon:MBHC_C_dimension]" y="0*fm" z="-([MB4HC_height]-5.5*mm)"/>
+        </PosPart>
+        <PosPart copyNumber="3">
+            <rParent name="mb4:MB4BigChimHoneycombBox"/>
+            <rChild name="mb4:MB4ChimHc_LateralC"/>
+            <Translation x="-([mb4:MB4BigHC_x]-[mbCommon:MBHC_C_dimension])" y="0*fm" z="[MB4HC_height]-5.5*mm"/>
+        </PosPart>
+        <PosPart copyNumber="4">
+            <rParent name="mb4:MB4BigChimHoneycombBox"/>
+            <rChild name="mb4:MB4ChimHc_LateralC"/>
+            <Translation x="-([mb4:MB4BigHC_x]-[mbCommon:MBHC_C_dimension])" y="0*fm" z="-([MB4HC_height]-5.5*mm)"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb4:MB4BigChimHoneycombBox"/>
+            <rChild name="mb4:MB4BigHc_FrontC"/>
+            <Translation x="0*fm" y="[mbCommon:MBChimHC_z]-[mbCommon:MBHC_C_dimension]" z="[MB4HC_height]-5.5*mm"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="mb4:MB4BigChimHoneycombBox"/>
+            <rChild name="mb4:MB4BigHc_FrontC"/>
+            <Translation x="0*fm" y="[mbCommon:MBChimHC_z]-[mbCommon:MBHC_C_dimension]" z="-([MB4HC_height]-5.5*mm)"/>
+        </PosPart>
+        <PosPart copyNumber="3">
+            <rParent name="mb4:MB4BigChimHoneycombBox"/>
+            <rChild name="mb4:MB4BigHc_FrontC"/>
+            <Translation x="0*fm" y="-([mbCommon:MBChimHC_z]-[mbCommon:MBHC_C_dimension])" z="[MB4HC_height]-5.5*mm"/>
+        </PosPart>
+        <PosPart copyNumber="4">
+            <rParent name="mb4:MB4BigChimHoneycombBox"/>
+            <rChild name="mb4:MB4BigHc_FrontC"/>
+            <Translation x="0*fm" y="-([mbCommon:MBChimHC_z]-[mbCommon:MBHC_C_dimension])" z="-([MB4HC_height]-5.5*mm)"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb4:MB4BigChimHoneycombBox"/>
+            <rChild name="mb4:MB4ChimHc_LateralElectronics"/>
+            <Translation x="[mb4:MB4BigHC_x]-2*[mbCommon:MBHC_C_dimension]+[mbCommon:MBHCLatElectronics_width]" y="0*fm" z="0*fm"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="mb4:MB4BigChimHoneycombBox"/>
+            <rChild name="mb4:MB4ChimHc_LateralElectronics"/>
+            <Translation x="-([mb4:MB4BigHC_x]-2*[mbCommon:MBHC_C_dimension]+[mbCommon:MBHCLatElectronics_width])" y="0*fm" z="0*fm"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb4:MB4BigChimHoneycombBox"/>
+            <rChild name="mb4:MB4BigHc_FrontElectronics"/>
+            <Translation x="0*fm" y="[mbCommon:MBChimHC_z]-2*[mbCommon:MBHC_C_dimension]+[mbCommon:MBHCFrontElectronics_width]" z="0*fm"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="mb4:MB4BigChimHoneycombBox"/>
+            <rChild name="mb4:MB4BigHc_FrontElectronics"/>
+            <Translation x="0*fm" y="-([mbCommon:MBChimHC_z]-2*[mbCommon:MBHC_C_dimension]+[mbCommon:MBHCFrontElectronics_width])" z="0*fm"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb4:MB4BigChimHoneycombBox"/>
+            <rChild name="mb4:MB4HcTorsionBar"/>
+            <Translation x="[mb4:MB4BigHC_x]-25.*mm" y="0*fm" z="0*fm"/>
+        </PosPart>
+        <!-- ##### MB4Chim: RPC chambers -->
+        <!-- ##### MB4Chim: RPC_P chamber -->
+        <PosPart copyNumber="1">
+            <rParent name="mb4:MB4TopChimP"/>
+            <rChild name="mb4:MB4TopChimRPC_P"/>
+            <Translation x="[mb4:MB4TopRPC_x_pos]" y="0*fm" z="[mb4:MB4RPC_z_pos]"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb4:MB4TopChimRPC_P"/>
+            <rChild name="mb4:MB4TopChimRPC_GasLeft"/>
+            <rRotation name="rotations:R180"/>
+            <Translation x="[mb3:MB3RPC_Gas_x_pos]" y="-[mb4:MB4ChimRPC_GasLeft_y_pos]" z="0*cm"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="mb4:MB4TopChimRPC_P"/>
+            <rChild name="mb4:MB4TopChimRPC_GasLeft"/>
+            <rRotation name="rotations:R180"/>
+            <Translation x="-[mb3:MB3RPC_Gas_x_pos]" y="-[mb4:MB4ChimRPC_GasLeft_y_pos]" z="0*cm"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb4:MB4TopChimRPC_P"/>
+            <rChild name="mb4:MB4TopChimRPC_GasRight"/>
+            <rRotation name="rotations:R180"/>
+            <Translation x="[mb3:MB3RPC_Gas_x_pos]" y="[mb4:MB4ChimRPC_GasRight_y_pos]" z="0*cm"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="mb4:MB4TopChimRPC_P"/>
+            <rChild name="mb4:MB4TopChimRPC_GasRight"/>
+            <rRotation name="rotations:R180"/>
+            <Translation x="-[mb3:MB3RPC_Gas_x_pos]" y="[mb4:MB4ChimRPC_GasRight_y_pos]" z="0*cm"/>
+        </PosPart>
+        <!-- ##### MB4Chim: RPC_N chamber -->
+        <PosPart copyNumber="1">
+            <rParent name="mb4:MB4BigChimN"/>
+            <rChild name="mb4:MB4BigChimRPC_N"/>
+            <Translation x="[mb4:MB4BigRPC_x_pos]" y="0*fm" z="[mb4:MB4RPC_z_pos]"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb4:MB4BigChimRPC_N"/>
+            <rChild name="mb4:MB4BigChimRPC_GasLeft"/>
+            <rRotation name="rotations:R180"/>
+            <Translation x="-[mb4:MB4RPC_Gas_x_pos]" y="-[mb4:MB4ChimRPC_GasLeft_y_pos]" z="0*cm"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="mb4:MB4BigChimRPC_N"/>
+            <rChild name="mb4:MB4BigChimRPC_GasLeft"/>
+            <rRotation name="rotations:R180"/>
+            <Translation x="[mb4:MB4RPC_Gas_x_pos]" y="-[mb4:MB4ChimRPC_GasLeft_y_pos]" z="0*cm"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb4:MB4BigChimRPC_N"/>
+            <rChild name="mb4:MB4BigChimRPC_GasRight"/>
+            <rRotation name="rotations:R180"/>
+            <Translation x="-[mb4:MB4RPC_Gas_x_pos]" y="[mb4:MB4ChimRPC_GasRight_y_pos]" z="0*cm"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="mb4:MB4BigChimRPC_N"/>
+            <rChild name="mb4:MB4BigChimRPC_GasRight"/>
+            <rRotation name="rotations:R180"/>
+            <Translation x="[mb4:MB4RPC_Gas_x_pos]" y="[mb4:MB4ChimRPC_GasRight_y_pos]" z="0*cm"/>
+        </PosPart>
+    </PosPartSection>
+</DDDefinition>

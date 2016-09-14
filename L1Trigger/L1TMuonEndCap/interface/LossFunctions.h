@@ -2,8 +2,8 @@
 // Here we define the different loss functions that can be used
 // with the BDT system. 
 
-#ifndef ADD_LOSS
-#define ADD_LOSS
+#ifndef L1Trigger_L1TMuonEndCap_L1TLossFunctions
+#define L1Trigger_L1TMuonEndCap_L1TLossFunctions
 
 #include "L1Trigger/L1TMuonEndCap/interface/Event.h"
 #include <string>
@@ -14,7 +14,7 @@
 //=========================================================
 
 // Define the Interface
-class LossFunction
+class L1TLossFunction
 {
  public:
   
@@ -34,7 +34,7 @@ class LossFunction
 // ================ Least Squares =========================
 // ========================================================
 
-class LeastSquares : public LossFunction
+class LeastSquares : public L1TLossFunction
 {
  public:
   LeastSquares(){}
@@ -68,7 +68,7 @@ class LeastSquares : public LossFunction
 // ============== Absolute Deviation    ===================
 // ========================================================
 
-class AbsoluteDeviation : public LossFunction
+class AbsoluteDeviation : public L1TLossFunction
 {
  public:
   AbsoluteDeviation(){}
@@ -124,7 +124,7 @@ class AbsoluteDeviation : public LossFunction
 // ============== Huber    ================================
 // ========================================================
 
-class Huber : public LossFunction
+class Huber : public L1TLossFunction
 {
  public:
   Huber(){}
@@ -188,7 +188,7 @@ class Huber : public LossFunction
 // ============== Percent Error ===========================
 // ========================================================
 
-class PercentErrorSquared : public LossFunction
+class PercentErrorSquared : public L1TLossFunction
 {
  public:
   PercentErrorSquared(){}
