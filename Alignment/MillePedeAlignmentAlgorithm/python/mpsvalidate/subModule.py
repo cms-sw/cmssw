@@ -51,7 +51,6 @@ def plot(MillePedeUser, alignables, mode, struct, parentPlot, config):
                 plot.histo.append(TH1F("{0} {1} {2}".format(struct.get_name() + " " + subStruct.get_name(), plot.xyz[
                                   i], mode), "Parameter {0}".format(plot.xyz[i]), numberOfBins, -0.1, 0.1))
 
-            plot.histo[i].SetXTitle(plot.unit)
             plot.histo[i].SetLineColor(6)
             plot.histo[i].SetStats(0)
 
@@ -174,6 +173,7 @@ def plot(MillePedeUser, alignables, mode, struct, parentPlot, config):
 
         # set range and plot
         parentPlot.histo[i].GetYaxis().SetRangeUser(0., 1.1 * max(maximum))
+        parentPlot.histo[i].SetYTitle("normalized")
         parentPlot.histo[i].Draw()
 
         for subStructNumber, subStruct in enumerate(struct.get_children()):
