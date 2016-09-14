@@ -157,7 +157,7 @@ EgammaSCCorrectionMaker::produce(edm::Event& evt, const edm::EventSetup& es)
   const reco::SuperClusterCollection *rawClusters = pRawSuperClusters.product();
    
   // Define a collection of corrected SuperClusters to put back into the event
-  std::auto_ptr<reco::SuperClusterCollection> corrClusters(new reco::SuperClusterCollection);
+  auto corrClusters = std::make_unique<reco::SuperClusterCollection>();
   
   //  Loop over raw clusters and make corrected ones
   reco::SuperClusterCollection::const_iterator aClus;
@@ -193,7 +193,7 @@ EgammaSCCorrectionMaker::produce(edm::Event& evt, const edm::EventSetup& es)
     }
 
   // Put collection of corrected SuperClusters into the event
-  evt.put(corrClusters, outputCollection_);   
+  evt.put(std::move(corrClusters), outputCollection_);   
   
 }
 

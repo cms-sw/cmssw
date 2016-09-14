@@ -136,7 +136,7 @@ void ESListOfFEDSProducer::produce(edm::Event & e, const edm::EventSetup& iSetup
     first_ = false;
   }                                                                                              
   
-  std::unique_ptr<ESListOfFEDS> productAddress(new ESListOfFEDS);
+  auto productAddress = std::make_unique<ESListOfFEDS>();
   std::vector<int> feds;		// the list of Ecal FEDS produced 
   
   ///

@@ -43,7 +43,7 @@
     edm::EDGetTokenT<reco::ConversionTrackCollection> trackProducer1;
     edm::EDGetTokenT<reco::ConversionTrackCollection> trackProducer2;
 
-    std::auto_ptr<reco::ConversionTrackCollection> outputTrks;
+    std::unique_ptr<reco::ConversionTrackCollection> outputTrks;
   };
 
 

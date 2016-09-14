@@ -97,8 +97,7 @@ void EgammaHLTElectronCombinedIsolationProducer::produce(edm::Event& iEvent, con
     
   }
 
-  std::unique_ptr<reco::ElectronIsolationMap> isolMap(new reco::ElectronIsolationMap(TotalIsolMap));
-  iEvent.put(std::move(isolMap));
+  iEvent.put(std::make_unique<reco::ElectronIsolationMap>(TotalIsolMap));
 
 }
 

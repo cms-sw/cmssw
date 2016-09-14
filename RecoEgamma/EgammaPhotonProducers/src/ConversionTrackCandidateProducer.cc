@@ -185,12 +185,12 @@ void ConversionTrackCandidateProducer::produce(edm::Event& theEvent, const edm::
   // create empty output collections
   //
   //  Out In Track Candidates
-  std::auto_ptr<TrackCandidateCollection> outInTrackCandidate_p(new TrackCandidateCollection); 
+  auto outInTrackCandidate_p = std::make_unique<TrackCandidateCollection>(); 
   //  In Out  Track Candidates
-  std::auto_ptr<TrackCandidateCollection> inOutTrackCandidate_p(new TrackCandidateCollection); 
+  auto inOutTrackCandidate_p = std::make_unique<TrackCandidateCollection>(); 
   //   Track Candidate  calo  Cluster Association
-  std::auto_ptr<reco::TrackCandidateCaloClusterPtrAssociation> outInAssoc_p(new reco::TrackCandidateCaloClusterPtrAssociation);
-  std::auto_ptr<reco::TrackCandidateCaloClusterPtrAssociation> inOutAssoc_p(new reco::TrackCandidateCaloClusterPtrAssociation);
+  auto outInAssoc_p = std::make_unique<reco::TrackCandidateCaloClusterPtrAssociation>();
+  auto inOutAssoc_p = std::make_unique<reco::TrackCandidateCaloClusterPtrAssociation>();
     
   // Get the basic cluster collection in the Barrel 
   bool validBarrelBCHandle=true;
@@ -274,11 +274,11 @@ void ConversionTrackCandidateProducer::produce(edm::Event& theEvent, const edm::
   // put all products in the event
  // Barrel
  //std::cout  << "ConversionTrackCandidateProducer Putting in the event " << (*outInTrackCandidate_p).size() << " Out In track Candidates " << "\n";
- const edm::OrphanHandle<TrackCandidateCollection> refprodOutInTrackC = theEvent.put( outInTrackCandidate_p, OutInTrackCandidateCollection_ );
+ const edm::OrphanHandle<TrackCandidateCollection> refprodOutInTrackC = theEvent.put(std::move(outInTrackCandidate_p), OutInTrackCandidateCollection_ );
  //std::cout  << "ConversionTrackCandidateProducer  refprodOutInTrackC size  " <<  (*(refprodOutInTrackC.product())).size()  <<  "\n";
  //
  //std::cout  << "ConversionTrackCandidateProducer Putting in the event  " << (*inOutTrackCandidate_p).size() << " In Out track Candidates " <<  "\n";
- const edm::OrphanHandle<TrackCandidateCollection> refprodInOutTrackC = theEvent.put( inOutTrackCandidate_p, InOutTrackCandidateCollection_ );
+ const edm::OrphanHandle<TrackCandidateCollection> refprodInOutTrackC = theEvent.put(std::move(inOutTrackCandidate_p), InOutTrackCandidateCollection_ );
  //std::cout  << "ConversionTrackCandidateProducer  refprodInOutTrackC size  " <<  (*(refprodInOutTrackC.product())).size()  <<  "\n";
 
 
@@ -292,10 +292,10 @@ void ConversionTrackCandidateProducer::produce(edm::Event& theEvent, const edm::
 
   
  // std::cout  << "ConversionTrackCandidateProducer Putting in the event   OutIn track - SC association: size  " <<  (*outInAssoc_p).size() << "\n";  
- theEvent.put( outInAssoc_p, OutInTrackSuperClusterAssociationCollection_);
+ theEvent.put(std::move(outInAssoc_p), OutInTrackSuperClusterAssociationCollection_);
  
  // std::cout << "ConversionTrackCandidateProducer Putting in the event   InOut track - SC association: size  " <<  (*inOutAssoc_p).size() << "\n";  
- theEvent.put( inOutAssoc_p, InOutTrackSuperClusterAssociationCollection_);
+ theEvent.put(std::move(inOutAssoc_p), InOutTrackSuperClusterAssociationCollection_);
 
  theOutInSeedFinder_->clear();
  theInOutSeedFinder_->clear();

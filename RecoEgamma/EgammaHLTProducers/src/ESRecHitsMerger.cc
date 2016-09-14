@@ -72,7 +72,7 @@ void ESRecHitsMerger::produce(edm::Event & e, const edm::EventSetup& iSetup){
  std::vector< edm::Handle<ESRecHitCollection> > EcalRecHits_done;
  e.getManyByType(EcalRecHits_done);
  
- std::unique_ptr<EcalRecHitCollection> ESMergedRecHits(new EcalRecHitCollection);
+ auto ESMergedRecHits = std::make_unique<EcalRecHitCollection>();
  
  
  unsigned int nColl = EcalRecHits_done.size();

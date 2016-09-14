@@ -28,7 +28,7 @@ class MVAValueMapProducer : public edm::stream::EDProducer< edm::GlobalCache<ega
   
   static std::unique_ptr<egamma::MVAObjectCache>
   initializeGlobalCache(const edm::ParameterSet& conf) {
-    return std::unique_ptr<egamma::MVAObjectCache>(new egamma::MVAObjectCache(conf));
+    return std::make_unique<egamma::MVAObjectCache>(conf);
    }
 
   static void globalEndJob(const egamma::MVAObjectCache * ) {
@@ -154,11 +154,11 @@ void MVAValueMapProducer<ParticleType>::writeValueMap(edm::Event &iEvent,
 {
   using namespace edm; 
   using namespace std;
-  auto_ptr<ValueMap<T> > valMap(new ValueMap<T>());
+  auto valMap = std::make_unique<ValueMap<T>>();
   typename edm::ValueMap<T>::Filler filler(*valMap);
   filler.insert(handle, values.begin(), values.end());
   filler.fill();
-  iEvent.put(valMap, label);
+  iEvent.put(std::move(valMap), label);
 }
 
 template <class ParticleType>

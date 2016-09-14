@@ -72,7 +72,7 @@ void ReducedESRecHitCollectionProducer::produce(edm::Event & e, const edm::Event
   edm::Handle<ESRecHitCollection> ESRecHits_;
   e.getByToken(InputRecHitES_, ESRecHits_);
   
-  std::auto_ptr<EcalRecHitCollection> output(new EcalRecHitCollection);
+  auto output = std::make_unique<EcalRecHitCollection>();
 
   edm::Handle<reco::SuperClusterCollection> pEndcapSuperClusters;
   e.getByToken(InputSuperClusterEE_, pEndcapSuperClusters);
@@ -161,7 +161,7 @@ void ReducedESRecHitCollectionProducer::produce(edm::Event & e, const edm::Event
   }
   collectedIds_.clear();
 
-  e.put(output, OutputLabelES_);
+  e.put(std::move(output), OutputLabelES_);
 
 }
 
