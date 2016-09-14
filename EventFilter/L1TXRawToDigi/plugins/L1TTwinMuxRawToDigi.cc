@@ -63,9 +63,9 @@ L1TTwinMuxRawToDigi::~L1TTwinMuxRawToDigi(){}
 void L1TTwinMuxRawToDigi::produce(edm::Event& e, 
                              const edm::EventSetup& c) {
 
-  std::auto_ptr<L1MuDTChambPhContainer> TM7phi_product(new L1MuDTChambPhContainer);
-  std::auto_ptr<L1MuDTChambThContainer> TM7the_product(new L1MuDTChambThContainer);
-  std::auto_ptr<L1MuDTChambPhContainer> TM7phi_out_product(new L1MuDTChambPhContainer);
+  std::unique_ptr<L1MuDTChambPhContainer> TM7phi_product(new L1MuDTChambPhContainer);
+  std::unique_ptr<L1MuDTChambThContainer> TM7the_product(new L1MuDTChambThContainer);
+  std::unique_ptr<L1MuDTChambPhContainer> TM7phi_out_product(new L1MuDTChambPhContainer);
 
   L1MuDTChambPhContainer::Phi_Container phi_data;
   L1MuDTChambThContainer::The_Container the_data;
@@ -77,9 +77,9 @@ void L1TTwinMuxRawToDigi::produce(edm::Event& e,
   TM7the_product->setContainer(the_data);
   TM7phi_out_product->setContainer(phi_out_data);
 
-  e.put(TM7phi_product, "PhIn");
-  e.put(TM7the_product, "ThIn");
-  e.put(TM7phi_out_product, "PhOut");
+  e.put(std::move(TM7phi_product), "PhIn");
+  e.put(std::move(TM7the_product), "ThIn");
+  e.put(std::move(TM7phi_out_product), "PhOut");
 
 }
 
