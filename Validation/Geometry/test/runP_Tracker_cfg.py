@@ -22,6 +22,7 @@ process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 
 _LABELS2COMPS = {'BeamPipe': 'BEAM',
                  'Tracker': 'Tracker',
+                 'Pixel':   ['PixelBarrel', 'PixelForwardZplus', 'PixelForwardZminus'],
                  'PixBar':  'PixelBarrel',
                  'PixFwd':  ['PixelForwardZplus', 'PixelForwardZminus'],
                  'PixFwdMinus': 'PixelForwardZminus',
@@ -78,7 +79,7 @@ def _adaptToRun2(det):
   return det
 
 if options.geom == 'phaseI':
-  process.load("Configuration.Geometry.GeometryExtended2017_cff")
+  process.load("Configuration.Geometry.GeometryExtended2017NewFPix_cff")
 elif options.geom == 'run2':
   process.load("Configuration.Geometry.GeometryExtended2016_cff")
   if isinstance(_components, list):
