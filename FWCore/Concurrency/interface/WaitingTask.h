@@ -69,6 +69,25 @@ namespace edm {
     
     std::atomic<std::exception_ptr*> m_ptr;
   };
+ 
+  template<typename F>
+  class FunctorWaitingTask : public WaitingTask {
+  public:
+    explicit FunctorWaitingTask( F f): func_(f) {}
+    
+    task* execute() override {
+      func_(exceptionPtr());
+      return nullptr;
+    };
+    
+  private:
+    F func_;
+  };
+  
+  template< typename ALLOC, typename F>
+  FunctorWaitingTask<F>* make_waiting_task( ALLOC&& iAlloc, F f) {
+    return new (iAlloc) FunctorWaitingTask<F>(f);
+  }
   
 }
 
