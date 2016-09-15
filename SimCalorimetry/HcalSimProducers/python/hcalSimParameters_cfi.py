@@ -121,8 +121,9 @@ eras.run2_HE_2017.toModify( hcalSimParameters,
         photoelectronsToAnalog = cms.vdouble([57.5]*14),
         pixels = cms.int32(27370), 
         sipmDarkCurrentuA = cms.double(0.055),
-        sipmCrossTalk = cms.double(0.32)
-        )
+        sipmCrossTalk = cms.double(0.32),
+        doSiPMSmearing = cms.bool(True),
+    )
 )
 
 _newFactors = cms.vdouble(
@@ -149,13 +150,15 @@ eras.phase2_hcal.toModify( hcalSimParameters,
         photoelectronsToAnalog = cms.vdouble([57.5]*16),
         pixels = cms.int32(27370),
         sipmDarkCurrentuA = cms.double(0.055),
-        sipmCrossTalk = cms.double(0.32)
+        sipmCrossTalk = cms.double(0.32),
+        doSiPMSmearing = cms.bool(True),
     ),
     he = dict(
         samplingFactors = _newFactors,
         photoelectronsToAnalog = cms.vdouble([57.5]*len(_newFactors)),
         pixels = cms.int32(27370),
         sipmDarkCurrentuA = cms.double(0.055),
-        sipmCrossTalk = cms.double(0.32)
+        sipmCrossTalk = cms.double(0.32),
+        doSiPMSmearing = cms.bool(True),
     )
 )
