@@ -48,7 +48,7 @@ def expandLsInterval(lumis):
 
 from DPGAnalysis.Skims.golden_json_2015 import * 
 jsonFile2015 = findFileInPath("DPGAnalysis/Skims/data/Cert_13TeV_16Dec2015ReReco_Collisions15_25ns_50ns_JSON.txt")
-jsonFile2016 = findFileInPath("DPGAnalysis/Skims/data/Cert_271036-274240_13TeV_PromptReco_Collisions16_JSON.txt")
+jsonFile2016 = findFileInPath("DPGAnalysis/Skims/data/Cert_271036-276811_13TeV_PromptReco_Collisions16_JSON.txt")
 
 import json
 with open(jsonFile2015) as data_file:
