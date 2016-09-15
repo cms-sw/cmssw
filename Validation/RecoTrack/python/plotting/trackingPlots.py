@@ -91,6 +91,18 @@ def _makeDistPlots(postfix, quantity, common={}):
         Plot("num_duplicate_"+p       , ytitle="duplicate tracks", **args),
     ]
 
+def _makeDistSimPlots(postfix, quantity, common={}):
+    p = postfix
+    q = quantity
+
+    args = dict(xtitle="track "+q, ylog=True, ymin=_minMaxN, ymax=_minMaxN)
+    args.update(common)
+
+    return [
+        Plot("num_simul_"+p            , ytitle="tracks", **args),
+        Plot("num_assoc(simToReco)_"+p, ytitle="true tracks", **args),
+    ]
+
 _effandfake1 = PlotGroup("effandfake1", [
     Plot("efficPt", title="Efficiency vs p_{T}", xtitle="TP p_{T} (GeV)", ytitle="efficiency vs p_{T}", xlog=True, ymax=_maxEff),
     Plot(FakeDuplicate("fakeduprate_vs_pT", assoc="num_assoc(recoToSim)_pT", dup="num_duplicate_pT", reco="num_reco_pT", title="fake+duplicates vs p_{T}"),
@@ -319,6 +331,37 @@ _extDist4 = PlotGroup("dist4",
 _extDist5 = PlotGroup("dist5",
                       _makeDistPlots("chi2", "#chi^{2}") +
                       _makeDistPlots("seedingLayerSet", "seeding layers", common=dict(xtitle="", **_seedingLayerSet_common)),
+                      ncols=4, legendDy=_legendDy_2rows_3cols
+)
+
+## Extended set of plots also for simulation
+_extDistSim1 = PlotGroup("distsim1",
+                      _makeDistSimPlots("pT", "p_{T} (GeV)", common=dict(xlog=True)) +
+                      _makeDistSimPlots("eta", "#eta") +
+                      _makeDistSimPlots("phi", "#phi"),
+                      ncols=4)
+_extDistSim2 = PlotGroup("distsim2",
+                      _makeDistSimPlots("dxy"  , "dxy (cm)") +
+                      _makeDistSimPlots("dxypv", "dxy(PV) (cm)") +
+                      _makeDistSimPlots("dz"   , "dz (cm)") +
+                      _makeDistSimPlots("dzpv" , "dz(PV) (cm)"),
+                      ncols=4, legendDy=_legendDy_4rows)
+_extDistSim3 = PlotGroup("distsim3",
+                      _makeDistSimPlots("hit"       , "hits"        , common=dict(xmin=_minHits    , xmax=_maxHits)) +
+                      _makeDistSimPlots("layer"     , "layers"      , common=dict(xmin=_minLayers  , xmax=_maxLayers)) +
+                      _makeDistSimPlots("pixellayer", "pixel layers", common=dict(                   xmax=_maxPixelLayers)) +
+                      _makeDistSimPlots("3Dlayer"   , "3D layers"   , common=dict(xmin=_min3DLayers, xmax=_max3DLayers)),
+                      ncols=4, legendDy=_legendDy_4rows,
+)
+_extDistSim4 = PlotGroup("distsim4",
+                      _makeDistSimPlots("vertpos", "ref. point xy (cm)") +
+                      _makeDistSimPlots("apos"   , "ref. point z (cm)") +
+                      _makeDistSimPlots("dr"     , "min #DeltaR", common=dict(xlog=True)),
+                      ncols=4
+)
+_extDistSim5 = PlotGroup("distsim5",
+                      _makeDistSimPlots("chi2", "#chi^{2}") +
+                      _makeDistSimPlots("seedingLayerSet", "seeding layers", common=dict(xtitle="", **_seedingLayerSet_common)),
                       ncols=4, legendDy=_legendDy_2rows_3cols
 )
 
@@ -884,6 +927,11 @@ _extendedPlots = [
     _extDist3,
     _extDist4,
     _extDist5,
+    _extDistSim1,
+    _extDistSim2,
+    _extDistSim3,
+    _extDistSim4,
+    _extDistSim5,
 ]
 _summaryPlots = [
     _summary,
