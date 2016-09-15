@@ -73,17 +73,18 @@ void CaloTPGTranscoderULUT::loadHCALCompress(HcalLutMetadata const& lutMetadata,
 
         unsigned int lutsize = getOutputLUTSize(id);
 
-	for (unsigned int i = 0; i < threshold; ++i) outputLUT_[index][i] = 0;
-	for (unsigned int i = threshold; i < lutsize; ++i){
-           LUT value;
-           if (isHBHE and lutsize == QIE8_OUTPUT_LUT_SIZE) {
-              value = analyticalQIE8LUT[i];
-           } else if (isHBHE) {
-              value = analyticalQIE10LUT[i];
-           } else {
-              value = version == 0 ? linearRctLUT[i] : linearNctLUT[i];
-           }
-           outputLUT_[index][i] = value;
+        for (unsigned int i = 0; i < threshold; ++i)
+           outputLUT_[index][i] = 0;
+
+        if (isHBHE and lutsize == QIE8_OUTPUT_LUT_SIZE) {
+           for (unsigned int i = threshold; i < lutsize; ++i)
+              outputLUT_[index][i] = analyticalQIE8LUT[i];
+        } else if (isHBHE) {
+           for (unsigned int i = threshold; i < lutsize; ++i)
+              outputLUT_[index][i] = analyticalQIE10LUT[i];
+        } else {
+           for (unsigned int i = threshold; i < lutsize; ++i)
+              outputLUT_[index][i] = version == 0 ? linearRctLUT[i] : linearNctLUT[i];
         }
 
 	double eta_low = 0., eta_high = 0.;
