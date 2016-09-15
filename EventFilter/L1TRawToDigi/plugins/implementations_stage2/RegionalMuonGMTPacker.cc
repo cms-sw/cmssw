@@ -80,5 +80,4 @@ namespace l1t {
    }
 }
 
-// moved to plugins/SealModule.cc
-// DEFINE_L1T_PACKER(l1t::stage2::RegionalMuonGMTPacker);
+DEFINE_L1T_PACKER(l1t::stage2::RegionalMuonGMTPacker);

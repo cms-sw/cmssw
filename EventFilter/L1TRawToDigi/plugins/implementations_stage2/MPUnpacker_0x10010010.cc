@@ -362,5 +362,4 @@ namespace stage2 {
 }
 }
 
-// moved to plugins/SealModule.cc
-// DEFINE_L1T_UNPACKER(l1t::stage2::MPUnpacker_0x10010010);
+DEFINE_L1T_UNPACKER(l1t::stage2::MPUnpacker_0x10010010);
