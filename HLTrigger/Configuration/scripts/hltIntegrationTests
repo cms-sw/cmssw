@@ -1,5 +1,14 @@
 #! /bin/bash
 
+# load common HLT functions
+if [ -f "$CMSSW_BASE/src/HLTrigger/Configuration/common/utils.sh" ]; then
+  source "$CMSSW_BASE/src/HLTrigger/Configuration/common/utils.sh"
+elif [ -f "$CMSSW_RELEASE_BASE/src/HLTrigger/Configuration/common/utils.sh" ]; then
+  source "$CMSSW_RELEASE_BASE/src/HLTrigger/Configuration/common/utils.sh"
+else
+  exit 1
+fi
+
 function log() {
   echo -e "$@"
 }
@@ -292,21 +301,9 @@ done
 
 # if a separate setup is requested, create the setup_cff.py file and patch all dumps to use it
 if [ "$SETUP" ]; then
-  SETUP_DB=""
-  SETUP_Vx=""
-  if [[ "$SETUP" =~ .*:.*  ]]; then
-    SETUP_DB=`echo "$SETUP" | cut -d: -f1`
-    SETUP=`echo "$SETUP" | cut -d: -f2`
-    if [[ "$SETUP_DB" =~ .*/.* ]]; then
-      SETUP_Vx="--`echo "$SETUP_DB" | cut -d/ -f1`"
-      SETUP_DB="--`echo "$SETUP_DB" | cut -d/ -f2`"
-    else
-      SETUP_DB="--$SETUP_DB"
-    fi
-  fi
-
   log "Extracting setup_cff dump"
-  hltConfigFromDB "$SETUP_Vx" "$SETUP_DB" --cff --configName "$SETUP" --nopaths --services -FUShmDQMOutputService,-PrescaleService > setup_cff.py
+  read SETUP_Vx SETUP_DB SETUP <<< $(parse_HLT_menu "$SETUP")
+  hltConfigFromDB --$SETUP_Vx --$SETUP_DB --cff --configName "$SETUP" --nopaths --services -FUShmDQMOutputService,-PrescaleService > setup_cff.py
   sed -i -e's/process = cms.Process(.*)/&\nprocess.load("setup_cff")/' hlt.py $(for TRIGGER in $TRIGGERS; do echo "$TRIGGER".py; done)
 fi
 
