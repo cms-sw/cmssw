@@ -37,6 +37,7 @@ namespace edm {
   class EarlyDeleteHelper;
   class StreamContext;
   class StreamID;
+  class WaitingTask;
 
   class Path {
   public:
@@ -52,6 +53,7 @@ namespace edm {
          ExceptionToActionTable const& actions,
          std::shared_ptr<ActivityRegistry> reg,
          StreamContext const* streamContext,
+         std::atomic<bool>* stopProcessEvent,
          PathContext::PathType pathType);
 
     Path(Path const&);
@@ -60,6 +62,8 @@ namespace edm {
     void processOneOccurrence(typename T::MyPrincipal const&, EventSetup const&,
                               StreamID const&, typename T::Context const*);
 
+    void processOneOccurrenceAsync(WaitingTask*, EventPrincipal const&, EventSetup const&, StreamID const&, StreamContext const*);
+    
     int bitPosition() const { return bitpos_; }
     std::string const& name() const { return pathContext_.pathName(); }
 
@@ -103,7 +107,11 @@ namespace edm {
     std::vector<EarlyDeleteHelper*> earlyDeleteHelpers_;
 
     PathContext pathContext_;
+    WaitingTaskList waitingTasks_;
+    std::atomic<bool>* stopProcessingEvent_;
 
+
+    
     // Helper functions
     // nwrwue = numWorkersRunWithoutUnhandledException (really!)
     bool handleWorkerFailure(cms::Exception & e,
@@ -123,9 +131,22 @@ namespace edm {
     void recordStatus(int nwrwue, bool isEvent);
     void updateCounters(bool succeed, bool isEvent);
     
+    void finished(int iModuleIndex, bool iSucceeded, std::exception_ptr,
+                  StreamContext const*);
+    
     void handleEarlyFinish(EventPrincipal const&);
     void handleEarlyFinish(RunPrincipal const&) {}
     void handleEarlyFinish(LuminosityBlockPrincipal const&) {}
+    
+    //Handle asynchronous processing
+    void workerFinished(std::exception_ptr const* iException,
+                        unsigned int iModuleIndex,
+                        EventPrincipal const& iEP, EventSetup const& iES,
+                        StreamID const& iID, StreamContext const* iContext);
+    void runNextWorkerAsync(unsigned int iNextModuleIndex,
+                            EventPrincipal const&, EventSetup const&,
+                            StreamID const&, StreamContext const*);
+
   };
 
   namespace {

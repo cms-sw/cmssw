@@ -362,6 +362,7 @@ namespace edm {
     StreamID                streamID_;
     StreamContext           streamContext_;
     volatile bool           endpathsAreActive_;
+    std::atomic<bool>       skippingEvent_;
   };
 
   void

@@ -155,7 +155,8 @@ namespace edm {
     number_of_unscheduled_modules_(0),
     streamID_(streamID),
     streamContext_(streamID_, processContext),
-    endpathsAreActive_(true) {
+    endpathsAreActive_(true),
+    skippingEvent_(false){
 
     ParameterSet const& opts = proc_pset.getUntrackedParameterSet("options", ParameterSet());
     bool hasPath = false;
@@ -476,7 +477,7 @@ namespace edm {
 
     // an empty path will cause an extra bit that is not used
     if (!tmpworkers.empty()) {
-      trig_paths_.emplace_back(bitpos, name, tmpworkers, trptr, actionTable(), actReg_, &streamContext_, PathContext::PathType::kPath);
+      trig_paths_.emplace_back(bitpos, name, tmpworkers, trptr, actionTable(), actReg_, &streamContext_, &skippingEvent_, PathContext::PathType::kPath);
     } else {
       empty_trig_paths_.push_back(bitpos);
       empty_trig_path_names_.push_back(name);
@@ -499,7 +500,8 @@ namespace edm {
     }
 
     if (!tmpworkers.empty()) {
-      end_paths_.emplace_back(bitpos, name, tmpworkers, TrigResPtr(), actionTable(), actReg_, &streamContext_, PathContext::PathType::kEndPath);
+      //EndPaths are not supposed to stop if SkipEvent type exception happens
+      end_paths_.emplace_back(bitpos, name, tmpworkers, TrigResPtr(), actionTable(), actReg_, &streamContext_, nullptr, PathContext::PathType::kEndPath);
     }
     for_all(holder, std::bind(&StreamSchedule::addToAllWorkers, this, _1));
   }
@@ -561,10 +563,26 @@ namespace edm {
     ++total_events_;
     try {
       convertException::wrap([&]() {
+        
         try {
-          if (runTriggerPaths<Traits>(ep, es, &streamContext_)) {
+          auto waitTask = edm::make_empty_waiting_task();
+          //set count to 2 since wait_for_all requires value to not go to 0
+          waitTask->set_ref_count(2);
+          //Begin process in reverse order since TBB is last in first out for tasks.
+          for(auto it = trig_paths_.rbegin(), itEnd = trig_paths_.rend();
+              it != itEnd; ++ it) {
+            it->processOneOccurrenceAsync(waitTask.get(),ep, es, streamID_, &streamContext_);
+          }
+          waitTask->decrement_ref_count();
+          waitTask->wait_for_all();
+          
+          if(waitTask->exceptionPtr() != nullptr) {
+            std::rethrow_exception(*(waitTask->exceptionPtr()));
+          }
+          if(results_->accept()) {
             ++total_passed_;
           }
+
         }
         catch(cms::Exception& e) {
           exception_actions::ActionCodes action = actionTable().find(e.category());
@@ -589,7 +607,22 @@ namespace edm {
           throw;
         }
         
-        if (endpathsAreActive_) runEndPaths<Traits>(ep, es, &streamContext_);
+        if (endpathsAreActive_) {
+          auto waitTask = edm::make_empty_waiting_task();
+          //set count to 2 since wait_for_all requires value to not go to 0
+          waitTask->set_ref_count(2);
+          for(auto it = end_paths_.rbegin(), itEnd = end_paths_.rend();
+              it != itEnd; ++it) {
+            it->processOneOccurrenceAsync(waitTask.get(),ep, es, streamID_, &streamContext_);
+          }
+          waitTask->decrement_ref_count();
+          waitTask->wait_for_all();
+          
+          if(waitTask->exceptionPtr() != nullptr) {
+            std::rethrow_exception(*(waitTask->exceptionPtr()));
+          }
+
+        }
         resetEarlyDelete();
       });
     }
@@ -784,6 +817,7 @@ namespace edm {
 
   void
   StreamSchedule::resetAll() {
+    skippingEvent_ = false;
     results_->reset();
   }
 
