@@ -4,18 +4,8 @@
 #include "L1Trigger/L1TCalorimeter/interface/CaloTools.h"
 
 #include "CaloCollections.h"
+#include "CaloTowerUnpacker.h"
 #include "L1TStage2Layer2Constants.h"
-
-namespace l1t {
-   namespace stage2 {
-      class CaloTowerUnpacker : public Unpacker {
-         public:
-            virtual bool unpack(const Block& block, UnpackerCollections *coll) override;
-      };
-   }
-}
-
-// Implementation
 
 namespace l1t {
 namespace stage2 {
