@@ -601,8 +601,18 @@ namespace edm {
     if(T::isEvent_) {
       ++timesVisited_;
     }
+
     bool expected = false;
     if(workStarted_.compare_exchange_strong(expected,true)) {
+      moduleCallingContext_.setContext(ModuleCallingContext::State::kPrefetching,parentContext,nullptr);
+
+      //if have TriggerResults based selection we want to reject the event before doing prefetching
+      if( not workerhelper::CallImpl<T>::prePrefetchSelection(this,streamID,ep,&moduleCallingContext_) ) {
+        setPassed<T::isEvent_>();
+        waitingTasks_.doneWaiting(nullptr);
+        return;
+      }
+      
       auto runTask = new (tbb::task::allocate_root()) RunModuleTask<T>(
         this, ep,es,streamID,parentContext,context);
       prefetchAsync(runTask, parentContext, ep);
