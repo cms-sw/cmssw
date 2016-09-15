@@ -64,7 +64,7 @@ upgradeProperties[2017] = {
     '2017NewFPix' : {
         'Geom' : 'Extended2017NewFPix',
         'GT' : 'auto:phase1_2017_realistic',
-        'Era' : 'Run2_2017',
+        'Era' : 'Run2_2017_NewFPix',
         'ScenToRun' : ['GenSimFull','DigiFull','RecoFull','HARVESTFull'],
     },    
 }
