@@ -1,11 +1,11 @@
-# /dev/CMSSW_8_0_0/GRun/V181 (CMSSW_8_0_19_patch1)
+# /dev/CMSSW_8_0_0/GRun/V182 (CMSSW_8_0_19_patch1)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLTGRun" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_8_0_0/GRun/V181')
+  tableName = cms.string('/dev/CMSSW_8_0_0/GRun/V182')
 )
 
 process.HLTPSetJetCoreStepTrajectoryFilter = cms.PSet( 
@@ -18211,7 +18211,7 @@ process.hltDoublePFTau35TrackPt1MediumIsolationReg = cms.EDFilter( "HLT1PFTau",
 process.hltL1JetsHLTDoublePFTauTrackPt1MediumIsolationMatchReg = cms.EDProducer( "L1THLTTauMatching",
     JetSrc = cms.InputTag( "hltSelectedPFTausTrackPt1MediumIsolationReg" ),
     EtMin = cms.double( 0.0 ),
-    L1TauTrigger = cms.InputTag( "hltL1sDoubleIsoTau28to36erORDoubleTau50er" )
+    L1TauTrigger = cms.InputTag( "hltL1sDoubleIsoTau28to35erORDoubleTau50er" )
 )
 process.hltDoublePFTau35TrackPt1MediumIsolationL1HLTMatchedReg = cms.EDFilter( "HLT1PFTau",
     saveTags = cms.bool( True ),
