@@ -23,7 +23,8 @@ process.maxEvents = cms.untracked.PSet(
 
 #Populate ES
 process.load("CalibTracker.SiStripESProducers.fake.SiStripBadModuleConfigurableFakeESSource_cfi")
-process.SiStripBadModuleGenerator.BadComponentList = cms.untracked.VPSet(   cms.PSet(
+from CalibTracker.SiStripESProducers.fake.SiStripBadModuleConfigurableFakeESSource_cfi import siStripBadModuleConfigurableFakeESSource
+siStripBadModuleConfigurableFakeESSource.BadComponentList = cms.untracked.VPSet(   cms.PSet(
     SubDet = cms.string('TIB'),  
     layer = cms.uint32(2),        ## SELECTION: layer = 1..4, 0(ALL)		    
     bkw_frw = cms.uint32(0),      ## bkw_frw = 1(TIB-), 2(TIB+) 0(ALL)	    

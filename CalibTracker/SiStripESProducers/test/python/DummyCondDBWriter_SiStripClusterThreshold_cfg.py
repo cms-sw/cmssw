@@ -25,9 +25,10 @@ process.source = cms.Source("EmptySource",
 
 process.load("CalibTracker.SiStripESProducers.fake.SiStripThresholdFakeESSource_cfi")
 process.load("CalibTracker.SiStripESProducers.DBWriter.SiStripThresholdDummyDBWriter_cfi")
-process.SiStripThresholdGenerator.ClusTh=5.0
-process.SiStripThresholdGenerator.HighTh=3.0
-process.SiStripThresholdGenerator.LowTh=2.0
+from CalibTracker.SiStripESProducers.fake.SiStripThresholdFakeESSource_cfi import siStripThresholdFakeESSource
+siStripThresholdFakeESSource.ClusTh = 5.0
+siStripThresholdFakeESSource.HighTh = 3.0
+siStripThresholdFakeESSource.LowTh  = 2.0
 
 process.PoolDBOutputService = cms.Service("PoolDBOutputService",
     BlobStreamerName = cms.untracked.string('TBufferBlobStreamingService'),

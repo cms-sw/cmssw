@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-from CalibTracker.SiStripESProducers.fake.SiStripApvGainFakeESSource_cfi import *    
+from CalibTracker.SiStripESProducers.fake.SiStripApvGainFakeESSource_cfi import *
 siStripApvGainFakeESSource.appendToDataLabel = 'fakeAPVGain'
 
 from CalibTracker.SiStripESProducers.SiStripGainESProducer_cfi import *
