@@ -36,7 +36,7 @@ _phase2_tktiming_RecoVertexEventContent = [ 'keep *_offlinePrimaryVertices1D__*'
 from Configuration.StandardSequences.Eras import eras
 def _phase2_tktiming_AddNewContent(mod):
     temp = mod.outputCommands + _phase2_tktiming_RecoVertexEventContent
-    eras.phase2_tracker.toModify( mod, outputCommands = temp )
+    eras.phase2_timing.toModify( mod, outputCommands = temp )
 
 _phase2_tktiming_AddNewContent(RecoVertexFEVT)
 _phase2_tktiming_AddNewContent(RecoVertexRECO)

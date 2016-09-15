@@ -33,8 +33,8 @@ eras.phase2_hgcal.toModify( SimGeneralRAW, outputCommands = SimGeneralRAW.output
 eras.phase2_hgcal.toModify( SimGeneralFEVTDEBUG, outputCommands = SimGeneralFEVTDEBUG.outputCommands + _phase2_hgc_extraCommands )
 eras.phase2_hgcal.toModify( SimGeneralRECO, outputCommands = SimGeneralRECO.outputCommands + _phase2_hgc_extraCommands )
 
-_phase2_tracking_extraCommands = [ 'keep *_mix_InitialVertices_*' ]
-eras.phase2_tracker.toModify( SimGeneralRAW, outputCommands = SimGeneralRAW.outputCommands + _phase2_tracking_extraCommands )
-eras.phase2_tracker.toModify( SimGeneralFEVTDEBUG, outputCommands = SimGeneralFEVTDEBUG.outputCommands + _phase2_tracking_extraCommands )
-eras.phase2_tracker.toModify( SimGeneralRECO, outputCommands = SimGeneralRECO.outputCommands + _phase2_tracking_extraCommands )
+_phase2_timing_extraCommands = [ 'keep *_mix_InitialVertices_*' ]
+eras.phase2_timing.toModify( SimGeneralRAW, outputCommands = SimGeneralRAW.outputCommands + _phase2_timing_extraCommands )
+eras.phase2_timing.toModify( SimGeneralFEVTDEBUG, outputCommands = SimGeneralFEVTDEBUG.outputCommands + _phase2_timing_extraCommands )
+eras.phase2_timing.toModify( SimGeneralRECO, outputCommands = SimGeneralRECO.outputCommands + _phase2_timing_extraCommands )
 

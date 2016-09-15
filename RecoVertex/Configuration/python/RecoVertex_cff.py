@@ -62,13 +62,13 @@ _phase2_tktiming_vertexreco = cms.Sequence( vertexreco.copy() *
                                             offlinePrimaryVertices4DWithBS 
                                             )
 
-eras.phase2_tracker.toModify( quickTrackAssociatorByHits,
-                              pixelSimLinkSrc = cms.InputTag("simSiPixelDigis","Pixel"),
-                              stripSimLinkSrc = cms.InputTag("simSiPixelDigis","Tracker")
-                              )
+eras.phase2_timing.toModify( quickTrackAssociatorByHits,
+                             pixelSimLinkSrc = cms.InputTag("simSiPixelDigis","Pixel"),
+                             stripSimLinkSrc = cms.InputTag("simSiPixelDigis","Tracker")
+                             )
 
-eras.phase2_tracker.toModify( tpClusterProducer,
-                              pixelSimLinkSrc = cms.InputTag("simSiPixelDigis", "Pixel"),
-                              phase2OTSimLinkSrc = cms.InputTag("simSiPixelDigis","Tracker")
-                              )
-eras.phase2_tracker.toReplaceWith(vertexreco, _phase2_tktiming_vertexreco)
+eras.phase2_timing.toModify( tpClusterProducer,
+                             pixelSimLinkSrc = cms.InputTag("simSiPixelDigis", "Pixel"),
+                             phase2OTSimLinkSrc = cms.InputTag("simSiPixelDigis","Tracker")
+                             )
+eras.phase2_timing.toReplaceWith(vertexreco, _phase2_tktiming_vertexreco)
