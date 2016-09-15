@@ -60,7 +60,7 @@ void HIPixelClusterVtxAnalyzer::analyze(const edm::Event& ev, const edm::EventSe
   TH1D *hClusterVtx = fs->make<TH1D>(Form("hClusterVtx_%llu",evtnum),"compatibility of pixel cluster length with vertex hypothesis; z [cm]",(int)((maxZ_-minZ_)/zStep_),minZ_,maxZ_);
 
   // new vertex collection
-  std::auto_ptr<reco::VertexCollection> vertices(new reco::VertexCollection);
+  auto vertices = std::make_unique<reco::VertexCollection>();
 
   // get pixel rechits
   edm::Handle<SiPixelRecHitCollection> hRecHits;

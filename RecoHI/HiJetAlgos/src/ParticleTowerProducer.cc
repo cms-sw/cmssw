@@ -160,7 +160,7 @@ ParticleTowerProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
    }
    
    
-   std::auto_ptr<CaloTowerCollection> prod(new CaloTowerCollection());
+   auto prod = std::make_unique<CaloTowerCollection>();
 
    for ( std::map< DetId, double >::const_iterator iter = towers_.begin();
 	 iter != towers_.end(); ++iter ){
@@ -202,7 +202,7 @@ ParticleTowerProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
    */
 
 
-   iEvent.put(prod);
+   iEvent.put(std::move(prod));
 
 
 }
