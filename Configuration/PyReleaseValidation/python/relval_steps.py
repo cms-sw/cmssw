@@ -1603,6 +1603,9 @@ defaultDataSets['2017']='CMSSW_8_1_0_pre9-81X_upgrade2017_realistic_v6_UPG17newG
 defaultDataSets['2023D1']=''
 defaultDataSets['2023D2']=''
 defaultDataSets['2023D3']=''
+defaultDataSets['2023D1Timing']=''
+defaultDataSets['2023D2Timing']=''
+defaultDataSets['2023D3Timing']=''
 
 keys=defaultDataSets.keys()
 for key in keys:
