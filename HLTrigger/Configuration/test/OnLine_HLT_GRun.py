@@ -1,11 +1,11 @@
-# /dev/CMSSW_8_0_0/GRun/V180 (CMSSW_8_0_19_patch1)
+# /dev/CMSSW_8_0_0/GRun/V181 (CMSSW_8_0_19_patch1)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLTGRun" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_8_0_0/GRun/V180')
+  tableName = cms.string('/dev/CMSSW_8_0_0/GRun/V181')
 )
 
 process.HLTPSetJetCoreStepTrajectoryFilter = cms.PSet( 
@@ -73348,7 +73348,7 @@ process.HLTMu19eta2p1IsolationSequence = cms.Sequence( process.HLTL3muonEcalPFis
 process.HLTSingleIsoMu19LooseIsoPFTau20Sequence = cms.Sequence( process.HLTLooseIsoPFTauSequence + process.hltPFTau20 + process.hltSelectedPFTausTrackFinding + process.hltPFTau20Track + process.hltSelectedPFTausTrackFindingLooseIsolation + process.hltPFTau20TrackLooseIso + process.hltPFTauAgainstMuonDiscriminator + process.hltSelectedPFTausTrackFindingLooseIsolationAgainstMuon + process.hltPFTau20TrackLooseIsoAgainstMuon + process.hltOverlapFilterSingleIsoMu19LooseIsoPFTau20 )
 process.HLTMu19eta2p1IsoTau26erIsolationSequence = cms.Sequence( process.HLTL3muonEcalPFisorecoSequenceNoBoolsForMuons + process.hltL3crIsoL1sMu18erIsoTau26erL1f0L2f10QL3f19QL3pfecalIsoRhoFilteredEB0p11EE0p08 + process.HLTL3muonHcalPFisorecoSequenceNoBoolsForMuons + process.hltL3crIsoL1sMu18erIsoTau26erL1f0L2f10QL3f19QL3pfhcalIsoRhoFilteredHB0p21HE0p22 + process.HLTTrackReconstructionForIsoL3MuonIter02 + process.hltMuonTkRelIsolationCut0p09Map )
 process.HLTIsoMu19MediumIsoPFTau32SequenceReg = cms.Sequence( process.HLTMediumIsoPFTauSequenceReg + process.hltPFTau32Reg + process.hltPFTauTrackPt1DiscriminatorReg + process.hltSelectedPFTausTrackPt1Reg + process.hltPFTau32TrackPt1Reg + process.hltSelectedPFTausTrackPt1MediumIsolationReg + process.hltPFTau32TrackPt1MediumIsolationReg + process.hltL1JetsHLTPFTauTrackPt1MediumIsolationMatchReg + process.hltPFTau32TrackPt1MediumIsolationL1HLTMatchedReg + process.hltOverlapFilterIsoMu19MediumIsoPFTau32Reg )
-process.HLTLooseCombinedIsoPFTauSequence = cms.Sequence( process.hltFixedGridRhoFastjetAllCaloForMuons + process.hltTauPFJets08Region + process.hltTauPFJetsRecoTauChargedHadrons + process.hltPFTauPiZeros + process.hltPFTausSansRef + process.hltPFTaus + process.hltPFTauLooseAbsoluteCombinedIsolationDiscriminator + process.hltPFTauLooseRelativeChargedIsolationDiscriminator + process.hltPFTauLooseAbsOrRelCombinedIsolationDiscriminator )
+process.HLTLooseCombinedIsoPFTauSequence = cms.Sequence( process.hltFixedGridRhoFastjetAllCaloForMuons + process.hltTauPFJets08Region + process.hltTauPFJetsRecoTauChargedHadrons + process.hltPFTauPiZeros + process.hltPFTausSansRef + process.hltPFTaus + process.hltPFTauTrackFindingDiscriminator + process.hltPFTauLooseAbsoluteCombinedIsolationDiscriminator + process.hltPFTauLooseRelativeChargedIsolationDiscriminator + process.hltPFTauLooseAbsOrRelCombinedIsolationDiscriminator )
 process.HLTIsoMu19LooseCombinedIsoPFTau20Sequence = cms.Sequence( process.HLTLooseCombinedIsoPFTauSequence + process.hltPFTau20 + process.hltSelectedPFTausTrackFinding + process.hltPFTau20Track + process.hltSelectedPFTausTrackFindingLooseCombinedIsolation + process.hltPFTau20TrackLooseCombinedIso + process.hltPFTauAgainstMuonDiscriminator + process.hltSelectedPFTausTrackFindingLooseCombinedIsolationAgainstMuon + process.hltPFTau20TrackLooseCombinedIsoAgainstMuon + process.hltOverlapFilterIsoMu19LooseCombinedIsoPFTau20 )
 process.HLTIsoMu19MediumCombinedIsoPFTau32SequenceReg = cms.Sequence( process.HLTMediumCombinedIsoPFTauSequenceReg + process.hltPFTau32Reg + process.hltPFTauTrackPt1DiscriminatorReg + process.hltSelectedPFTausTrackPt1Reg + process.hltPFTau32TrackPt1Reg + process.hltSelectedPFTausTrackPt1MediumCombinedIsolationReg + process.hltPFTau32TrackPt1MediumCombinedIsolationReg + process.hltL1JetsHLTPFTauTrackPt1MediumCombinedIsolationMatchReg + process.hltPFTau32TrackPt1MediumCombinedIsolationL1HLTMatchedReg + process.hltOverlapFilterIsoMu19MediumCombinedIsoPFTau32Reg )
 process.HLTIsoMu19TightCombinedIsoPFTau32SequenceReg = cms.Sequence( process.HLTTightCombinedIsoPFTauSequenceReg + process.hltPFTau32Reg + process.hltPFTauTrackPt1DiscriminatorReg + process.hltSelectedPFTausTrackPt1Reg + process.hltPFTau32TrackPt1Reg + process.hltSelectedPFTausTrackPt1TightCombinedIsolationReg + process.hltPFTau32TrackPt1TightCombinedIsolationReg + process.hltL1JetsHLTPFTauTrackPt1TightCombinedIsolationMatchReg + process.hltPFTau32TrackPt1TightCombinedIsolationL1HLTMatchedReg + process.hltOverlapFilterIsoMu19TightCombinedIsoPFTau32Reg )
