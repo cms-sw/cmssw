@@ -28,7 +28,7 @@ public:
   int strip() const { return strip_; }
   int bx() const { return bx_; }
   double time() const { return time_; }
-  double coordinateX() const { return coordinateY_; }
+  double coordinateX() const { return coordinateX_; }
   double coordinateY() const { return coordinateY_; }
   bool hasTime() const { return hasTime_; }
   bool hasX() const { return hasX_; }
