@@ -1,5 +1,5 @@
-#ifndef EgammaAnalysis_ElectronTools_EnergyScaleCorrection_class_h
-#define EgammaAnalysis_ElectronTools_EnergyScaleCorrection_class_h
+#ifndef EnergyScaleCorrection_class_h
+#define EnergyScaleCorrection_class_h
 /// Read and get energy scale and smearings from .dat files
 /**\class EnergyScaleCorrection_class EnergyScaleCorrection_class.cc Calibration/ZFitter/src/EnergyScaleCorrection_class.cc
  *  \author Shervin Nourbakhsh
@@ -130,7 +130,8 @@ typedef std::map < correctionCategory_class, correctionValue_class > correction_
 //============================== Main class
 class EnergyScaleCorrection_class
 {
-  
+	
+public:  
   enum fileFormat_t {
     UNKNOWN=0,
     GLOBE,
@@ -145,7 +146,6 @@ class EnergyScaleCorrection_class
         kNParamSmear
   };
   
-public:
   bool doScale, doSmearings;
   
 public:
