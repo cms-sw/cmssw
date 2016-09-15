@@ -73,16 +73,16 @@ void PixelQuadrupletEDProducer::produce(edm::Event& iEvent, const edm::EventSetu
   OrderedHitSeeds quadruplets;
   quadruplets.reserve(localRA_.upper());
 
-  for(const auto& regionLayerPairAndLayers: regionTriplets) {
-    const TrackingRegion& region = regionLayerPairAndLayers.region();
+  for(const auto& regionLayerTriplets: regionTriplets) {
+    const TrackingRegion& region = regionLayerTriplets.region();
     auto seedingHitSetsFiller = seedingHitSets->beginRegion(&region);
 
     LayerHitMapCache hitCache;
-    hitCache.extend(regionLayerPairAndLayers.layerHitMapCache());
+    hitCache.extend(regionLayerTriplets.layerHitMapCache());
 
-    LogTrace("PixelQuadrupletEDProducer") << " starting region, number of layerPair+3rd layers " << regionLayerPairAndLayers.layerPairAndLayersSize();
+    LogTrace("PixelQuadrupletEDProducer") << " starting region, number of layer triplets " << regionLayerTriplets.layerTripletsSize();
 
-    for(const auto& layerTriplet: regionLayerPairAndLayers) {
+    for(const auto& layerTriplet: regionLayerTriplets) {
       LogTrace("PixelQuadrupletEDProducer") << "  starting layer triplet " << layerTriplet.innerLayerIndex() << "," << layerTriplet.middleLayerIndex() << "," << layerTriplet.outerLayerIndex();
       auto found = std::find_if(quadlayers.begin(), quadlayers.end(), [&](const LayerQuadruplets::LayerSetAndLayers& a) {
           return a.first[0].index() == layerTriplet.innerLayerIndex() &&
