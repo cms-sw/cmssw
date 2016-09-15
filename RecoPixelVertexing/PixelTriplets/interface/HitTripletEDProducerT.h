@@ -152,10 +152,6 @@ void HitTripletEDProducerT<T_HitTripletGenerator>::produce(edm::Event& iEvent, c
       }
       const auto& thirdLayers = found->second;
 
-      if(produceIntermediateHitTriplets_) {
-        intermediateHitTripletsFiller.beginPair(layerPair.layerPair());
-      }
-
       tripletLastLayerIndex.clear();
       generator_.hitTriplets(region, triplets, iEvent, iSetup, layerPair.doublets(), thirdLayers, &tripletLastLayerIndex, *hitCachePtr);
 
@@ -184,7 +180,7 @@ void HitTripletEDProducerT<T_HitTripletGenerator>::produce(edm::Event& iEvent, c
           });
 
         // empty triplets need to propagate here
-        intermediateHitTripletsFiller.addTriplets(thirdLayers, triplets, tripletLastLayerIndex, tripletPermutation);
+        intermediateHitTripletsFiller.addTriplets(layerPair.layerPair(), thirdLayers, triplets, tripletLastLayerIndex, tripletPermutation);
       }
 
       triplets.clear();
