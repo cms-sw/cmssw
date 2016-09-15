@@ -95,12 +95,12 @@ def _makeDistSimPlots(postfix, quantity, common={}):
     p = postfix
     q = quantity
 
-    args = dict(xtitle="track "+q, ylog=True, ymin=_minMaxN, ymax=_minMaxN)
+    args = dict(xtitle="TP "+q, ylog=True, ymin=_minMaxN, ymax=_minMaxN)
     args.update(common)
 
     return [
-        Plot("num_simul_"+p            , ytitle="tracks", **args),
-        Plot("num_assoc(simToReco)_"+p, ytitle="true tracks", **args),
+        Plot("num_simul_"+p            , ytitle="TrackingParticles", **args),
+        Plot("num_assoc(simToReco)_"+p, ytitle="Reconstructed TPs", **args),
     ]
 
 _effandfake1 = PlotGroup("effandfake1", [
@@ -324,7 +324,7 @@ _extDist3 = PlotGroup("dist3",
 )
 _extDist4 = PlotGroup("dist4",
                       _makeDistPlots("vertpos", "ref. point xy (cm)") +
-                      _makeDistPlots("apos"   , "ref. point z (cm)") +
+                      _makeDistPlots("zpos"   , "ref. point z (cm)") +
                       _makeDistPlots("dr"     , "min #DeltaR", common=dict(xlog=True)),
                       ncols=4
 )
@@ -339,30 +339,25 @@ _extDistSim1 = PlotGroup("distsim1",
                       _makeDistSimPlots("pT", "p_{T} (GeV)", common=dict(xlog=True)) +
                       _makeDistSimPlots("eta", "#eta") +
                       _makeDistSimPlots("phi", "#phi"),
-                      ncols=4)
+                      ncols=2)
 _extDistSim2 = PlotGroup("distsim2",
                       _makeDistSimPlots("dxy"  , "dxy (cm)") +
                       _makeDistSimPlots("dxypv", "dxy(PV) (cm)") +
                       _makeDistSimPlots("dz"   , "dz (cm)") +
                       _makeDistSimPlots("dzpv" , "dz(PV) (cm)"),
-                      ncols=4, legendDy=_legendDy_4rows)
+                      ncols=2, legendDy=_legendDy_4rows)
 _extDistSim3 = PlotGroup("distsim3",
                       _makeDistSimPlots("hit"       , "hits"        , common=dict(xmin=_minHits    , xmax=_maxHits)) +
                       _makeDistSimPlots("layer"     , "layers"      , common=dict(xmin=_minLayers  , xmax=_maxLayers)) +
                       _makeDistSimPlots("pixellayer", "pixel layers", common=dict(                   xmax=_maxPixelLayers)) +
                       _makeDistSimPlots("3Dlayer"   , "3D layers"   , common=dict(xmin=_min3DLayers, xmax=_max3DLayers)),
-                      ncols=4, legendDy=_legendDy_4rows,
+                      ncols=2, legendDy=_legendDy_4rows,
 )
 _extDistSim4 = PlotGroup("distsim4",
                       _makeDistSimPlots("vertpos", "ref. point xy (cm)") +
-                      _makeDistSimPlots("apos"   , "ref. point z (cm)") +
+                      _makeDistSimPlots("zpos"   , "ref. point z (cm)") +
                       _makeDistSimPlots("dr"     , "min #DeltaR", common=dict(xlog=True)),
-                      ncols=4
-)
-_extDistSim5 = PlotGroup("distsim5",
-                      _makeDistSimPlots("chi2", "#chi^{2}") +
-                      _makeDistSimPlots("seedingLayerSet", "seeding layers", common=dict(xtitle="", **_seedingLayerSet_common)),
-                      ncols=4, legendDy=_legendDy_2rows_3cols
+                      ncols=2
 )
 
 ########################################
@@ -931,7 +926,6 @@ _extendedPlots = [
     _extDistSim2,
     _extDistSim3,
     _extDistSim4,
-    _extDistSim5,
 ]
 _summaryPlots = [
     _summary,
