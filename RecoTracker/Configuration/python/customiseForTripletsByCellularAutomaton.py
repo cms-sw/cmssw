@@ -23,13 +23,13 @@ def customiseForTripletsByCellularAutomaton(process):
             extraHitRPhitolerance = Triplets.GeneratorPSet.extraHitRPhitolerance,
             maxChi2 = dict(
                 pt1    = 0.8, pt2    = 2,
-                value1 = 200, value2 = 100,
+                value1 = 20, value2 = 10,
                 enabled = True,
             ),
             useBendingCorrection = True,
             SeedingLayers = cms.InputTag(seedingLayersName),
-            CAThetaCut = cms.double(0.00125),
-            CAPhiCut = cms.double(0.1),
+            CAThetaCut = cms.double(0.0015),
+            CAPhiCut = cms.double(0.01),
             CAHardPtCut = cms.double(0),
         )
 
