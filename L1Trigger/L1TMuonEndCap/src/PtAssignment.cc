@@ -16,6 +16,7 @@
 
 using namespace l1t;
 using namespace std;
+using namespace L1TMuon;
 
 
 EmtfPtAssignment::EmtfPtAssignment(const char * tree_dir):

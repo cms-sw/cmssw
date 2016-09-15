@@ -63,8 +63,8 @@ class ConvertedHit{
   std::vector<int> AllThetas(){return _thetas;};
   int ZoneWord(){return _ZoneWord;};
   
-	private:
-  int _ph,_th, _th2,_phit,_phzvl,_sta,_sub,_id,_qual,_patt,_wire,_strip,_zhit,_bx, _sectorIndex, _isNeighbor;
+  private:
+  int _ph,_th, _th2,_phit,_phzvl,_sta,_sub,_id,_qual,_patt,_wire,_strip,_zhit,_bx, _sectorIndex, _isNeighbor, _ZoneWord;
   L1TMuon::TriggerPrimitive _tp;
   std::vector<int> _zonecont, _thetas;
   

@@ -96,6 +96,7 @@ void L1TMuonEndCapTrackProducer::produce(edm::Event& ev,
   ev.getByToken(inputTokenRPC, RDC);
   
   std::vector<L1TMuon::TriggerPrimitive> out;
+  std::vector<L1TMuon::TriggerPrimitive> out_rpc;
 
   auto chamber = MDC->begin();
   auto chend  = MDC->end();
