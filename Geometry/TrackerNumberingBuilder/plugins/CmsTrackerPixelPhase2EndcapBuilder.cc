@@ -4,6 +4,7 @@
 #include "Geometry/TrackerNumberingBuilder/plugins/ExtractStringFromDDD.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "Geometry/TrackerNumberingBuilder/plugins/CmsTrackerPhase1DiskBuilder.h"  
+#include "Geometry/TrackerNumberingBuilder/plugins/CmsTrackerPixelPhase2DiskBuilder.h"  
 #include "Geometry/TrackerNumberingBuilder/plugins/CmsTrackerOTDiscBuilder.h"  
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <vector>
@@ -17,6 +18,7 @@ void
 CmsTrackerPixelPhase2EndcapBuilder::buildComponent( DDFilteredView& fv, GeometricDet* g, std::string s )
 {
   CmsTrackerPhase1DiskBuilder  theCmsTrackerPhase1DiskBuilder;   
+  CmsTrackerPixelPhase2DiskBuilder  theCmsTrackerPixelPhase2DiskBuilder;   
   CmsTrackerOTDiscBuilder  theCmsTrackerOTDiscBuilder;   
 
   GeometricDet * subdet = new GeometricDet( &fv, theCmsTrackerStringToEnum.type( ExtractStringFromDDD::getString( s, &fv )));
@@ -28,6 +30,9 @@ CmsTrackerPixelPhase2EndcapBuilder::buildComponent( DDFilteredView& fv, Geometri
     break;
   case GeometricDet::PixelPhase2ReducedDisk:    
     theCmsTrackerPhase1DiskBuilder.build(fv,subdet,s);
+    break;
+  case GeometricDet::PixelPhase2TDRDisk:    
+    theCmsTrackerPixelPhase2DiskBuilder.build(fv,subdet,s);
     break;
   case GeometricDet::OTPhase2Wheel:    
     theCmsTrackerOTDiscBuilder.build(fv,subdet,s);
