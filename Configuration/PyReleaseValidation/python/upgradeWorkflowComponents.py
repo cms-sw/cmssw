@@ -16,14 +16,16 @@ upgradeKeys[2023] = [
     '2023D2PU',    
     '2023D3',    
     '2023D3PU',
+    '2023D4',
+    '2023D4PU',
     '2023D1Timing',
     '2023D1TimingPU',
     '2023D2Timing',
     '2023D2TimingPU',
     '2023D3Timing',
     '2023D3TimingPU',
-    '2023D4',
-    '2023D4PU',
+    '2023D4Timing',
+    '2023D4TimingPU'
 ]
 
 upgradeSteps=[
@@ -103,6 +105,8 @@ upgradeProperties[2023]['2023D2Timing'] = deepcopy(upgradeProperties[2023]['2023
 upgradeProperties[2023]['2023D2Timing']['Era'] = 'Phase2C1_timing'
 upgradeProperties[2023]['2023D3Timing'] = deepcopy(upgradeProperties[2023]['2023D3'])
 upgradeProperties[2023]['2023D3Timing']['Era'] = 'Phase2C2_timing'
+upgradeProperties[2023]['2023D4Timing'] = deepcopy(upgradeProperties[2023]['2023D4'])
+upgradeProperties[2023]['2023D4Timing']['Era'] = 'Phase2C2_timing'
 
 #standard PU sequences
 upgradeProperties[2017]['2017PU'] = deepcopy(upgradeProperties[2017]['2017'])
@@ -123,6 +127,8 @@ upgradeProperties[2023]['2023D2TimingPU'] = deepcopy(upgradeProperties[2023]['20
 upgradeProperties[2023]['2023D2TimingPU']['ScenToRun'] = deepcopy(upgradeProperties[2023]['2023D2PU']['ScenToRun'])
 upgradeProperties[2023]['2023D3TimingPU'] = deepcopy(upgradeProperties[2023]['2023D3Timing'])
 upgradeProperties[2023]['2023D3TimingPU']['ScenToRun'] = deepcopy(upgradeProperties[2023]['2023D3PU']['ScenToRun'])
+upgradeProperties[2023]['2023D4TimingPU'] = deepcopy(upgradeProperties[2023]['2024D4Timing'])
+upgradeProperties[2023]['2023D4TimingPU']['ScenToRun'] = deepcopy(upgradeProperties[2023]['2024D4PU']['ScenToRun'])
 
 
 
