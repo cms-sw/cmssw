@@ -11,6 +11,7 @@
 #include "DataFormats/FEDRawData/interface/FEDTrailer.h"
 
 #include "CondFormats/SiPixelObjects/interface/PixelROC.h"
+#include "DataFormats/SiPixelDetId/interface/PixelBarrelName.h"
 
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -29,9 +30,13 @@ namespace {
   constexpr int PXID_bits = 8;
   constexpr int ADC_bits  = 8;
 
+  // Add phase1 constants 
   // For phase1  
   constexpr int LINK_bits1 = 7;
   constexpr int ROC_bits1  = 4;
+  // Special for layer 1 bpix rocs 6/9/16 d.k.
+  constexpr int COL_bits1_l1 = 6;
+  constexpr int ROW_bits1_l1 = 7;
 
   // Moved to the header file, keep commented out unti the final version is done/ 
   // constexpr int ADC_shift  = 0;
@@ -44,11 +49,11 @@ namespace {
   // constexpr PixelDataFormatter::Word32 DCOL_mask = ~(~PixelDataFormatter::Word32(0) << DCOL_bits);
   // constexpr PixelDataFormatter::Word32 PXID_mask = ~(~PixelDataFormatter::Word32(0) << PXID_bits);
   // constexpr PixelDataFormatter::Word32 ADC_mask  = ~(~PixelDataFormatter::Word32(0) << ADC_bits);
-
+  //const bool DANEK = false;
 }
 
-PixelDataFormatter::PixelDataFormatter( const SiPixelFedCabling* map, bool phase1)
-  : theDigiCounter(0), theWordCounter(0), theCablingTree(map), badPixelInfo(0), modulesToUnpack(0)
+PixelDataFormatter::PixelDataFormatter( const SiPixelFedCabling* map, bool phase)
+  : theDigiCounter(0), theWordCounter(0), theCablingTree(map), badPixelInfo(0), modulesToUnpack(0), phase1(phase)
 {
   int s32 = sizeof(Word32);
   int s64 = sizeof(Word64);
@@ -75,14 +80,19 @@ PixelDataFormatter::PixelDataFormatter( const SiPixelFedCabling* map, bool phase
     LINK_shift = ROC_shift + ROC_bits1;
     LINK_mask = ~(~PixelDataFormatter::Word32(0) << LINK_bits1);
     ROC_mask  = ~(~PixelDataFormatter::Word32(0) << ROC_bits1);
+    // special for layer 1 ROC
+    ROW_shift = ADC_shift + ADC_bits;
+    COL_shift = ROW_shift + ROW_bits1_l1;
+    COL_mask = ~(~PixelDataFormatter::Word32(0) << COL_bits1_l1);
+    ROW_mask = ~(~PixelDataFormatter::Word32(0) << ROW_bits1_l1);
     maxROCIndex=8;
+
   } else {  // for phase 0
     LINK_shift = ROC_shift + ROC_bits;
     LINK_mask = ~(~PixelDataFormatter::Word32(0) << LINK_bits);
     ROC_mask  = ~(~PixelDataFormatter::Word32(0) << ROC_bits);
     maxROCIndex=25;
   }
-
 
   DCOL_mask = ~(~PixelDataFormatter::Word32(0) << DCOL_bits);
   PXID_mask = ~(~PixelDataFormatter::Word32(0) << PXID_bits);
@@ -151,6 +161,7 @@ void PixelDataFormatter::interpretRawData(bool& errorsInEvent, int fedId, const 
 
   int link = -1;
   int roc  = -1;
+  int layer = 0;
   PixelROC const * rocp=nullptr;
   bool skipROC=false;
   edm::DetSet<PixelDigi> * detDigis=nullptr;
@@ -162,11 +173,12 @@ void PixelDataFormatter::interpretRawData(bool& errorsInEvent, int fedId, const 
     LogTrace("")<<"DATA: " <<  print(*word);
 
     auto ww = *word;
-    //assert(ww==0);
     if unlikely(ww==0) { theWordCounter--; continue;}
     int nlink = (ww >> LINK_shift) & LINK_mask; 
     int nroc  = (ww >> ROC_shift) & ROC_mask;
-    
+
+    //if(DANEK) cout<<" fed, link, roc "<<fedId<<" "<<nlink<<" "<<nroc<<endl;
+
     if ( (nlink!=link) | (nroc!=roc) ) {  // new roc
       link = nlink; roc=nroc;
       skipROC = likely(roc<maxROCIndex) ? false : !errorcheck.checkROC(errorsInEvent, fedId, &converter, ww, errors);
@@ -179,7 +191,13 @@ void PixelDataFormatter::interpretRawData(bool& errorsInEvent, int fedId, const 
 	continue;
       }
       auto rawId = rocp->rawId();
-      
+      bool barrel = PixelModuleName::isBarrel(rawId);
+      if(barrel) layer = PixelROC::bpixLayerPhase1(rawId);
+      else layer=0;
+
+      //if(DANEK) cout<<" rocp "<<rocp->print()<<" layer "<<rocp->bpixLayerPhase1(rawId)<<" "
+      //  <<layer<<" phase1 "<<phase1<<" rawid "<<rawId<<endl;
+
       if (useQualityInfo&(nullptr!=badPixelInfo)) {
 	short rocInDet = (short) rocp->idInDetUnit();
 	skipROC = badPixelInfo->IsRocBad(rawId, rocInDet);
@@ -191,25 +209,55 @@ void PixelDataFormatter::interpretRawData(bool& errorsInEvent, int fedId, const 
       detDigis = &digis.find_or_insert(rawId);
       if ( (*detDigis).empty() ) (*detDigis).data.reserve(32); // avoid the first relocations
     }
-    if unlikely(skipROC) continue;
+
+    // skip is roc to be skipped ot invalid
+    if unlikely(skipROC || !rocp) continue;
     
-    
-    int dcol = (ww >> DCOL_shift) & DCOL_mask;
-    int pxid = (ww >> PXID_shift) & PXID_mask;
     int adc  = (ww >> ADC_shift) & ADC_mask;
-    
-    LocalPixel::DcolPxid local = { dcol, pxid };
-    if unlikely(!local.valid()) {
-      LogDebug("PixelDataFormatter::interpretRawData") 
-	<< "status #3";
-      errorsInEvent = true;
-      errorcheck.conversionError(fedId, &converter, 3, ww, errors);
-      continue;
-    }
-    
-    GlobalPixel global = rocp->toGlobal( LocalPixel(local) );
+    std::unique_ptr<LocalPixel> local;
+
+    if(phase1 && layer==1) { // special case for layer 1ROC
+      // for l1 roc use the roc column and row index instead of dcol and pixel index.
+      int col = (ww >> COL_shift) & COL_mask;
+      int row = (ww >> ROW_shift) & ROW_mask;
+      //if(DANEK) cout<<" layer 1: raw2digi "<<link<<" "<<roc<<" "
+      //  <<col<<" "<<row<<" "<<adc<<endl;      
+
+      LocalPixel::RocRowCol localCR = { row, col }; // build pixel
+      //if(DANEK)cout<<localCR.rocCol<<" "<<localCR.rocRow<<endl;
+      if unlikely(!localCR.valid()) {
+	  LogDebug("PixelDataFormatter::interpretRawData") 
+	    << "status #3";
+	  errorsInEvent = true;
+	  errorcheck.conversionError(fedId, &converter, 3, ww, errors);
+	  continue;
+	}
+      local = std::make_unique<LocalPixel>(localCR); // local pixel coordinate 
+      //if(DANEK) cout<<local->dcol()<<" "<<local->pxid()<<" "<<local->rocCol()<<" "<<local->rocRow()<<endl;
+
+    } else { // phase0 and phase1 except bpix layer 1
+      int dcol = (ww >> DCOL_shift) & DCOL_mask;
+      int pxid = (ww >> PXID_shift) & PXID_mask;
+      //if(DANEK) cout<<" raw2digi "<<link<<" "<<roc<<" "
+      //<<dcol<<" "<<pxid<<" "<<adc<<" "<<layer<<endl;
+      
+      LocalPixel::DcolPxid localDP = { dcol, pxid };
+      //if(DANEK) cout<<localDP.dcol<<" "<<localDP.pxid<<endl;
+
+      if unlikely(!localDP.valid()) {
+	  LogDebug("PixelDataFormatter::interpretRawData") 
+	    << "status #3";
+	  errorsInEvent = true;
+	  errorcheck.conversionError(fedId, &converter, 3, ww, errors);
+	  continue;
+	}
+      local = std::make_unique<LocalPixel>(localDP); // local pixel coordinate 
+      //if(DANEK) cout<<local->dcol()<<" "<<local->pxid()<<" "<<local->rocCol()<<" "<<local->rocRow()<<endl;
+    }    
+
+    GlobalPixel global = rocp->toGlobal( *local ); // global pixel coordinate (in module)
     (*detDigis).data.emplace_back(global.row, global.col, adc);
-    
+    //if(DANEK) cout<<global.row<<" "<<global.col<<" "<<adc<<endl;    
     LogTrace("") << (*detDigis).data.back();
   }
 
@@ -223,14 +271,11 @@ void PixelDataFormatter::interpretRawData(bool& errorsInEvent, int fedId, const 
 //     int dcol = (ww >> DCOL_shift) & DCOL_mask;
 //     int pxid = (ww >> PXID_shift) & PXID_mask;
 //     // int adc  = (ww >> ADC_shift) & ADC_mask;
-    
 //     LocalPixel::DcolPxid local = { dcol, pxid };
 //     valid[i] = local.valid();
 //     GlobalPixel global = rocp->toGlobal( LocalPixel(local) );
 //     row[i]=global.row; col[i]=global.col;
-
 //   }
-
 // }
 
 
@@ -242,12 +287,21 @@ void PixelDataFormatter::formatRawData(unsigned int lvl1_ID, RawData & fedRawDat
   for (Digis::const_iterator im = digis.begin(); im != digis.end(); im++) {
     allDetDigis++;
     cms_uint32_t rawId = im->first;
+    int layer=0;
+    bool barrel = PixelModuleName::isBarrel(rawId);
+    if(barrel) layer = PixelROC::bpixLayerPhase1(rawId);
+    //if(DANEK) cout<<" layer "<<layer<<" "<<phase1<<endl;
+
     hasDetDigis++;
     const DetDigis & detDigis = im->second;
     for (DetDigis::const_iterator it = detDigis.begin(); it != detDigis.end(); it++) {
       theDigiCounter++;
       const PixelDigi & digi = (*it);
-      int status = digi2word( rawId, digi, words);
+      int status=0;
+
+      if(layer==1 && phase1) status = digi2wordPhase1Layer1( rawId, digi, words);
+      else                   status = digi2word( rawId, digi, words);
+
       if (status) {
          LogError("FormatDataException")
             <<" digi2word returns error #"<<status
@@ -314,11 +368,44 @@ int PixelDataFormatter::digi2word( cms_uint32_t detId, const PixelDigi& digi,
   int fedId  = theFrameReverter->toCabling(cabling, detector);
   if (fedId<0) return fedId;
 
+  //if(DANEK) cout<<" digi2raw "<<detId<<" "<<digi.column()<<" "<<digi.row()<<" "<<digi.adc()<<" "
+  //  <<cabling.link<<" "<<cabling.roc<<" "<<cabling.dcol<<" "<<cabling.pxid<<endl;
+
   Word32 word =
              (cabling.link << LINK_shift)
            | (cabling.roc << ROC_shift)
            | (cabling.dcol << DCOL_shift)
            | (cabling.pxid << PXID_shift)
+           | (digi.adc() << ADC_shift);
+  words[fedId].push_back(word);
+  theWordCounter++;
+
+  return 0;
+}
+int PixelDataFormatter::digi2wordPhase1Layer1( cms_uint32_t detId, const PixelDigi& digi, 
+    std::map<int, vector<Word32> > & words) const
+{
+  LogDebug("PixelDataFormatter")
+// <<" detId: " << detId 
+  <<print(digi);
+
+  DetectorIndex detector = {detId, digi.row(), digi.column()};
+  ElectronicIndex cabling;
+  int fedId  = theFrameReverter->toCabling(cabling, detector);
+  if (fedId<0) return fedId;
+
+  int col = ((cabling.dcol)*2)  + ((cabling.pxid)%2);
+  int row = LocalPixel::numRowsInRoc - ((cabling.pxid)/2);
+
+  //if(DANEK) cout<<" layer 1: digi2raw "<<detId<<" "<<digi.column()<<" "<<digi.row()<<" "<<digi.adc()<<" "
+  //  <<cabling.link<<" "<<cabling.roc<<" "<<cabling.dcol<<" "<<cabling.pxid<<" "
+  //  <<col<<" "<<row<<endl;
+  
+  Word32 word =
+             (cabling.link << LINK_shift)
+           | (cabling.roc << ROC_shift)
+           | (col << COL_shift)
+           | (row << ROW_shift)
            | (digi.adc() << ADC_shift);
   words[fedId].push_back(word);
   theWordCounter++;
