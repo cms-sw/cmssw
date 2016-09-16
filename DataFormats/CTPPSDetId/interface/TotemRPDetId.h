@@ -7,8 +7,8 @@
  *
  ****************************************************************************/
 
-#ifndef DataFormats_CTPPSDetId_CTPPSDetId
-#define DataFormats_CTPPSDetId_CTPPSDetId
+#ifndef DataFormats_CTPPSDetId_TotemRPDetId
+#define DataFormats_CTPPSDetId_TotemRPDetId
 
 #include "DataFormats/DetId/interface/DetId.h"
 
@@ -17,6 +17,8 @@
 #include <iosfwd>
 #include <iostream>
 #include <string>
+
+// TODO: update the documentation
 
 /**
  *\brief Roman Pot detector ID.
@@ -56,15 +58,17 @@ class TotemRPDetId : public DetId
     explicit TotemRPDetId(uint32_t id);
   
     /// Construct from hierarchy indeces.
-    TotemRPDetId(uint32_t Arm, uint32_t Station, uint32_t RomanPot=0, uint32_t Detector=0, uint32_t Chip=0);
+    TotemRPDetId(uint32_t Arm, uint32_t Station, uint32_t RomanPot=0, uint32_t Plane=0, uint32_t Chip=0);
 
     static const uint32_t totem_rp_subdet_id = 3;
   
     static const uint32_t startArmBit = 24, maskArm = 0x1, maxArm = 1;
     static const uint32_t startStationBit = 22, maskStation = 0x3, maxStation = 2;
     static const uint32_t startRPBit = 19, maskRP = 0x7, maxRP = 5;
-    static const uint32_t startDetBit = 15, maskDet = 0xF, maxDet = 9;
+    static const uint32_t startPlaneBit = 15, maskPlane = 0xF, maxPlane = 9;
     static const uint32_t startChipBit = 13, maskChip = 0x3, maxChip = 3;
+    
+    //-------------------- component getters and setters --------------------
      
     uint32_t arm() const
     {
@@ -88,26 +92,26 @@ class TotemRPDetId : public DetId
       id_ |= ((station & maskStation) << startStationBit);
     }
 
-    uint32_t romanPot() const
+    uint32_t rp() const
     {
       return ((id_>>startRPBit) & maskRP);
     }
 
-    void setRomanPot(uint32_t rp)
+    void setRP(uint32_t rp)
     {
       id_ &= ~(maskRP << startRPBit);
       id_ |= ((rp & maskRP) << startRPBit);
     }
 
-    uint32_t detector() const
+    uint32_t plane() const
     {
-      return ((id_>>startDetBit) & maskDet);
+      return ((id_>>startPlaneBit) & maskPlane);
     }
 
-    void setDetector(uint32_t det)
+    void setPlane(uint32_t det)
     {
-      id_ &= ~(maskDet << startDetBit);
-      id_ |= ((det & maskDet) << startDetBit);
+      id_ &= ~(maskPlane << startPlaneBit);
+      id_ |= ((det & maskPlane) << startPlaneBit);
     }
 
     uint32_t chip() const
@@ -121,124 +125,78 @@ class TotemRPDetId : public DetId
       id_ |= ((chip & maskChip) << startChipBit);
     }
 
-    // TODO: needed, remove ??
-    int rpCopyNumber() const
+    //-------------------- id getters for higher-level objects --------------------
+
+    TotemRPDetId getArmId() const
     {
-      return romanPot() + 10*station() + 100*arm();
+      TotemRPDetId armId(*this);
+      armId.setStation(0);
+      armId.setRP(0);
+      armId.setPlane(0);
+      armId.setChip(0);
+      return armId;
     }
+
+    TotemRPDetId getStationId() const
+    {
+      TotemRPDetId stId(*this);
+      stId.setRP(0);
+      stId.setPlane(0);
+      stId.setChip(0);
+      return stId;
+    }
+
+    TotemRPDetId getRPId() const
+    {
+      TotemRPDetId rpId(*this);
+      rpId.setPlane(0);
+      rpId.setChip(0);
+      return rpId;
+    }
+
+    TotemRPDetId getPlaneId() const
+    {
+      TotemRPDetId plId(*this);
+      plId.setChip(0);
+      return plId;
+    }
+
+    //-------------------- strip orientation methods --------------------
 
     bool isStripsCoordinateUDirection() const
     {
-      return detector()%2;
+      return plane() % 2;
     }
 
     bool isStripsCoordinateVDirection() const
     {
       return !isStripsCoordinateUDirection();
     }
+
+    //-------------------- conversions to the obsolete decimal representation --------------------
+    // NOTE: use in code deprecated!
     
-    inline uint32_t rpDecId() const
+    inline uint32_t getRPDecimalId() const
     {
-      return romanPot() + station()*10 + arm()*100;
+      return rp() + station()*10 + arm()*100;
     }
 
-    inline uint32_t detectorDecId() const
+    inline uint32_t getPlaneDecimalId() const
     {
-      return detector() + rpDecId()*10;
+      return plane() + getRPDecimalId()*10;
     }
 
-    //-------------------------------- static members ---------------------------------------
-    
-    // TODO: needed, remove ??
-    /// returs true it the raw ID is a TOTEM RP one
-    static bool check(uint32_t raw)
-    {
-      return ((raw >> DetId::kDetOffset) & 0xF) == DetId::VeryForward &&
-        ((raw >> DetId::kSubdetOffset) & 0x7) == totem_rp_subdet_id;
-    }
-
-    /// TODO: remove
-    /// fast conversion Raw to Decimal ID
-    static uint32_t rawToDecId(uint32_t raw)
-    {
-      return ((raw >> startArmBit) & maskArm) * 1000
-        + ((raw >> startStationBit) & maskStation) * 100
-        + ((raw >> startRPBit) & maskRP) * 10
-        + ((raw >> startDetBit) & maskDet);
-    }
-
-    /// TODO: remove
-    /// fast conversion Decimal to Raw ID
-    static uint32_t decToRawId(uint32_t dec)
-    {
-      uint32_t i = (DetId::VeryForward << DetId::kDetOffset) | (totem_rp_subdet_id << DetId::kSubdetOffset);
-      i &= 0xFE000000;
-      i |= ((dec % 10) & maskDet) << startDetBit; dec /= 10;
-      i |= ((dec % 10) & maskRP) << startRPBit; dec /= 10;
-      i |= ((dec % 10) & maskStation) << startStationBit; dec /= 10;
-      i |= ((dec % 10) & maskArm) << startArmBit;
-      return i;
-    }
-
-    /// TODO: remove all below
-    /// returns ID of RP for given detector ID ''i''
-    static uint32_t rpOfDet(uint32_t i) { return i / 10; }
-
-    /// returns ID of station for given detector ID ''i''
-    static uint32_t stOfDet(uint32_t i) { return i / 100; }
-
-    /// returns ID of arm for given detector ID ''i''
-    static uint32_t armOfDet(uint32_t i) { return i / 1000; }
-
-    /// returns ID of station for given RP ID ''i''
-    static uint32_t stOfRP(uint32_t i) { return i / 10; }
-
-    /// returns ID of arm for given RP ID ''i''
-    static uint32_t armOfRP(uint32_t i) { return i / 100; }
-
-    /// returns ID of arm for given station ID ''i''
-    static uint32_t armOfSt(uint32_t i) { return i / 10; }
-     
-
-    /// TODO: remove
-    /// is Detector u-detector?
-    /// expect symbolic/decimal ID
-    static bool isStripsCoordinateUDirection(int Detector)
-    {
-      return Detector%2;
-    }
-
-    /// TODO: make non-static all below
+    //-------------------- name methods --------------------
 
     /// type of name returned by *Name functions
-    enum NameFlag {nShort, nFull, nPath};
+    enum NameFlag { nShort, nFull, nPath };
 
-    /// level identifier in the RP hierarchy
-    enum ElementLevel {lSystem, lArm, lStation, lRP, lPlane, lChip, lStrip};
-
-    /// returns the name of the RP system
-    static std::string systemName(NameFlag flag = nFull);
-
-    /// returns official name of an arm characterized by ''id''; if ''full'' is true, prefix rp_ added
-    static std::string armName(uint32_t id, NameFlag flag = nFull);
-
-    /// returns official name of a station characterized by ''id''; if ''full'' is true, name of arm is prefixed
-    static std::string stationName(uint32_t id, NameFlag flag = nFull);
-  
-    /// returns official name of a RP characterized by ''id''; if ''full'' is true, name of station is prefixed
-    static std::string rpName(uint32_t id, NameFlag flag = nFull);
-  
-    /// returns official name of a plane characterized by ''id''; if ''full'' is true, name of RP is prefixed
-    static std::string planeName(uint32_t id, NameFlag flag = nFull);
-  
-    /// returns official name of a chip characterized by ''id''; if ''full'' is true, name of plane is prefixed
-    static std::string chipName(uint32_t id, NameFlag flag = nFull);
-  
-    /// returns official name of a strip characterized by ''id'' (of chip) and strip number; if ''full'' is true, name of chip is prefixed
-    static std::string stripName(uint32_t id, unsigned char strip, NameFlag flag = nFull);
-
-    /// shortcut to use any of the *Name methods, given the ElementLevel
-    static std::string officialName(ElementLevel level, uint32_t id, NameFlag flag = nFull, unsigned char strip = 0);
+    std::string subDetectorName(NameFlag flag = nFull) const;
+    std::string armName(NameFlag flag = nFull) const;
+    std::string stationName(NameFlag flag = nFull) const;
+    std::string rpName(NameFlag flag = nFull) const;
+    std::string planeName(NameFlag flag = nFull) const;
+    std::string chipName(NameFlag flag = nFull) const;
 };
 
 std::ostream& operator<<(std::ostream& os, const TotemRPDetId& id);

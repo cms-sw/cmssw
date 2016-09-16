@@ -58,8 +58,7 @@ TotemRPDQMHarvester::~TotemRPDQMHarvester()
 void TotemRPDQMHarvester::MakeHitNumberRatios(unsigned int id, DQMStore::IBooker& ibooker, DQMStore::IGetter& igetter)
 {
   // get source histogram
-  string path = TotemRPDetId::rpName(id, TotemRPDetId::nPath);
-  path.replace(0, 2, "CTPPS/TrackingStrip");
+  string path = TotemRPDetId(id).rpName(TotemRPDetId::nPath);
 
   MonitorElement *activity = igetter.get(path + "/activity in planes (2D)");
 
@@ -73,7 +72,7 @@ void TotemRPDQMHarvester::MakeHitNumberRatios(unsigned int id, DQMStore::IBooker
   if (hit_ratio == NULL)
   {
     ibooker.setCurrentFolder(path);
-    string title = TotemRPDetId::rpName(id, TotemRPDetId::nFull);
+    string title = TotemRPDetId(id).rpName(TotemRPDetId::nFull);
     hit_ratio = ibooker.book1D(hit_ratio_name, title+";plane;N_hits(320<strip<440) / N_hits(all)", 10, -0.5, 9.5);
   } else {
     hit_ratio->getTH1F()->Reset();
@@ -106,8 +105,10 @@ void TotemRPDQMHarvester::MakeHitNumberRatios(unsigned int id, DQMStore::IBooker
 void TotemRPDQMHarvester::MakePlaneEfficiencyHistograms(unsigned int id, DQMStore::IBooker& ibooker,
   DQMStore::IGetter& igetter, bool &rpPlotInitialized)
 {
+  TotemRPDetId detId(id);
+
   // get source histograms
-  string path = TotemRPDetId::planeName(id, TotemRPDetId::nPath);
+  string path = detId.planeName(TotemRPDetId::nPath);
   path.replace(0, 2, "CTPPS/TrackingStrip");
 
   MonitorElement *efficiency_num = igetter.get(path + "/efficiency num");
@@ -122,7 +123,7 @@ void TotemRPDQMHarvester::MakePlaneEfficiencyHistograms(unsigned int id, DQMStor
 
   if (efficiency == NULL)
   {
-    string title = TotemRPDetId::planeName(id, TotemRPDetId::nFull);
+    string title = detId.planeName(TotemRPDetId::nFull);
     TAxis *axis = efficiency_den->getTH1()->GetXaxis();
     ibooker.setCurrentFolder(path);
     efficiency = ibooker.book1D(efficiency_name, title+";track position   (mm)", axis->GetNbins(), axis->GetXmin(), axis->GetXmax());
@@ -131,14 +132,15 @@ void TotemRPDQMHarvester::MakePlaneEfficiencyHistograms(unsigned int id, DQMStor
   }
 
   // book new RP histogram, if not yet done
-  path = TotemRPDetId::rpName(id/10, TotemRPDetId::nPath);
+  TotemRPDetId rpId = detId.getRPId();
+  path = rpId.rpName(TotemRPDetId::nPath);
   path.replace(0, 2, "CTPPS/TrackingStrip");
   const string rp_efficiency_name = "plane efficiency";
   MonitorElement *rp_efficiency = igetter.get(path + "/" + rp_efficiency_name);
   
   if (rp_efficiency == NULL)
   {
-    string title = TotemRPDetId::rpName(id/10, TotemRPDetId::nFull);
+    string title = rpId.rpName(TotemRPDetId::nFull);
     TAxis *axis = efficiency_den->getTH1()->GetXaxis();
     ibooker.setCurrentFolder(path);
     rp_efficiency = ibooker.book2D(rp_efficiency_name, title+";plane;track position   (mm)",
@@ -182,12 +184,10 @@ void TotemRPDQMHarvester::dqmEndLuminosityBlock(DQMStore::IBooker &ibooker, DQMS
     // loop over stations
     for (unsigned int st = 0; st < 3; st += 2)
     {
-      unsigned int stId = 10*arm + st;
-      
       // loop over RPs
       for (unsigned int rp = 0; rp < 6; ++rp)
       {
-        unsigned int rpId = 10*stId + rp;
+        TotemRPDetId rpId(arm, st, rp);
 
         MakeHitNumberRatios(rpId, ibooker, igetter);
 
@@ -196,7 +196,7 @@ void TotemRPDQMHarvester::dqmEndLuminosityBlock(DQMStore::IBooker &ibooker, DQMS
         // loop over planes
         for (unsigned int pl = 0; pl < 10; ++pl)
         {
-          unsigned int plId = 10*rpId + pl;
+          TotemRPDetId plId(arm, st, rp, pl);
 
           MakePlaneEfficiencyHistograms(plId, ibooker, igetter, rpPlotInitialized);
         }

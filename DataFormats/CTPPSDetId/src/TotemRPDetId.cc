@@ -17,7 +17,10 @@ using namespace std;
 
 TotemRPDetId::TotemRPDetId(uint32_t id) : DetId(id)
 {
-  if (! check(id))
+  bool inputOK = ((id >> DetId::kDetOffset) & 0xF) == DetId::VeryForward &&
+    ((id >> DetId::kSubdetOffset) & 0x7) == totem_rp_subdet_id;
+
+  if (!inputOK)
   {
     throw cms::Exception("InvalidDetId") << "TotemRPDetId ctor:"
       << " det: " << det()
@@ -28,17 +31,18 @@ TotemRPDetId::TotemRPDetId(uint32_t id) : DetId(id)
 
 //----------------------------------------------------------------------------------------------------
 
-TotemRPDetId::TotemRPDetId(uint32_t Arm, uint32_t Station, uint32_t RomanPot, uint32_t Detector, uint32_t Chip) :       
+TotemRPDetId::TotemRPDetId(uint32_t Arm, uint32_t Station, uint32_t RomanPot, uint32_t Plane, uint32_t Chip) :       
   DetId(DetId::VeryForward, totem_rp_subdet_id)
 {
-  if (Arm > maxArm || Station > maxStation || RomanPot > maxRP || Detector > maxDet || Chip > maxChip)
+  if (Arm > maxArm || Station > maxStation || RomanPot > maxRP || Plane > maxPlane || Chip > maxChip)
   {
       throw cms::Exception("InvalidDetId") << "TotemRPDetId ctor:" 
              << " Invalid parameters: " 
              << " Arm "<<Arm
              << " Station "<<Station
              << " RomanPot "<<RomanPot
-             << " Detector "<<Detector
+             << " Plane "<<Plane
+             << " Chip "<<Chip
              << std::endl;
   }
 
@@ -48,7 +52,7 @@ TotemRPDetId::TotemRPDetId(uint32_t Arm, uint32_t Station, uint32_t RomanPot, ui
   id_ |= ((Arm & maskArm) << startArmBit);
   id_ |= ((Station & maskStation) << startStationBit);
   id_ |= ((RomanPot & maskRP) << startRPBit);
-  id_ |= ((Detector & maskDet) << startDetBit);
+  id_ |= ((Plane & maskPlane) << startPlaneBit);
   id_ |= ((Chip & maskChip) << startChipBit);
 }
 
@@ -58,8 +62,8 @@ std::ostream& operator << (std::ostream& os, const TotemRPDetId& id)
 {
   os << "arm=" << id.arm()
      << " station=" << id.station()
-     << " rp=" << id.romanPot()
-     << " detector=" << id.detector()
+     << " rp=" << id.rp()
+     << " plane=" << id.plane()
      << " chip=" << id.chip();
 
   return os;
@@ -67,23 +71,24 @@ std::ostream& operator << (std::ostream& os, const TotemRPDetId& id)
 
 //----------------------------------------------------------------------------------------------------
 
-string TotemRPDetId::systemName(NameFlag flag)
+string TotemRPDetId::subDetectorName(NameFlag flag) const
 {
   string name;
-  if (flag == nFull) name = "rp";
-  if (flag == nPath) name = "RP";
+  if (flag == nFull) name = "ctpps/tracking strip";
+  if (flag == nPath) name = "CTPPS/TrackingStrip";
 
   return name;
 }
 
 //----------------------------------------------------------------------------------------------------
 
-string TotemRPDetId::armName(uint32_t id, NameFlag flag)
+string TotemRPDetId::armName(NameFlag flag) const
 {
   string name;
-  if (flag == nFull) name = systemName(flag) + "_";
-  if (flag == nPath) name = systemName(flag) + "/sector ";
+  if (flag == nFull) name = subDetectorName(flag) + "_";
+  if (flag == nPath) name = subDetectorName(flag) + "/sector ";
 
+  uint32_t id = arm();
   if (id == 0) name += "45";
   if (id == 1) name += "56";
 
@@ -92,90 +97,65 @@ string TotemRPDetId::armName(uint32_t id, NameFlag flag)
 
 //----------------------------------------------------------------------------------------------------
 
-string TotemRPDetId::stationName(uint32_t id, NameFlag flag)
+string TotemRPDetId::stationName(NameFlag flag) const
 {
   string name;
-  if (flag == nFull) name = armName(id / 10, flag) + "_";
-  if (flag == nPath) name = armName(id / 10, flag) + "/station ";
+  if (flag == nFull) name = armName(flag) + "_";
+  if (flag == nPath) name = armName(flag) + "/";
 
-  if ((id % 10) == 0) name += "210";
-  if ((id % 10) == 2) name += "220";
+  uint32_t id = station();
+  if (id == 0) name += "station 210";
+  if (id == 1) name += "cylindricals 220";
+  if (id == 2) name += "station 220";
 
   return name;
 }
 
 //----------------------------------------------------------------------------------------------------
 
-string TotemRPDetId::rpName(uint32_t id, NameFlag flag)
+string TotemRPDetId::rpName(NameFlag flag) const
 {
   string name; 
-  if (flag == nFull) name = stationName(id / 10, flag) + "_";
-  if (flag == nPath) name = stationName(id / 10, flag) + "/";
+  if (flag == nFull) name = stationName(flag) + "_";
+  if (flag == nPath) name = stationName(flag) + "/";
 
-  if ((id % 10) == 0) name += "nr_tp";
-  if ((id % 10) == 1) name += "nr_bt";
-  if ((id % 10) == 2) name += "nr_hr";
-  if ((id % 10) == 3) name += "fr_hr";
-  if ((id % 10) == 4) name += "fr_tp";
-  if ((id % 10) == 5) name += "fr_bt";
+  uint32_t id = rp();
+  if (id == 0) name += "nr_tp";
+  if (id == 1) name += "nr_bt";
+  if (id == 2) name += "nr_hr";
+  if (id == 3) name += "fr_hr";
+  if (id == 4) name += "fr_tp";
+  if (id == 5) name += "fr_bt";
+
   return name;
 }
 
 //----------------------------------------------------------------------------------------------------
 
-string TotemRPDetId::planeName(uint32_t id, NameFlag flag)
+string TotemRPDetId::planeName(NameFlag flag) const
 {
   string name;
-  if (flag == nFull) name = rpName(id / 10, flag) + "_";
-  if (flag == nPath) name = rpName(id / 10, flag) + "/plane ";
+  if (flag == nFull) name = rpName(flag) + "_";
+  if (flag == nPath) name = rpName(flag) + "/plane ";
 
+  uint32_t id = plane();
   char buf[10];
-  sprintf(buf, "%02u", (id % 10) + 1);
+  sprintf(buf, "%02u", id + 1);
 
   return name + buf;
 }
 
 //----------------------------------------------------------------------------------------------------
 
-string TotemRPDetId::chipName(uint32_t id, NameFlag flag)
+string TotemRPDetId::chipName(NameFlag flag) const
 {
   string name;
-  if (flag == nFull) name = planeName(id / 10, flag) + "_";
-  if (flag == nPath) name = planeName(id / 10, flag) + "/chip ";
+  if (flag == nFull) name = planeName(flag) + "_";
+  if (flag == nPath) name = planeName(flag) + "/chip ";
 
+  uint32_t id = chip();
   char buf[10];
   sprintf(buf, "%u", (id % 10) + 1);
 
   return name + buf;
-}
-
-//----------------------------------------------------------------------------------------------------
-
-string TotemRPDetId::stripName(uint32_t id, unsigned char strip, NameFlag flag)
-{
-  string name;
-  if (flag == nFull) name = chipName(id, flag) + "_";
-  if (flag == nPath) name = chipName(id, flag) + "/strip";
-
-  char buf[10];
-  sprintf(buf, "%u", strip);
-
-  return name + buf;
-}
-
-//----------------------------------------------------------------------------------------------------
-
-string TotemRPDetId::officialName(ElementLevel level, uint32_t id, NameFlag flag, unsigned char strip)
-{
-  switch (level)
-  {
-    case lSystem: return systemName(flag);
-    case lArm: return armName(id, flag);
-    case lStation: return stationName(id, flag);
-    case lRP: return rpName(id, flag);
-    case lPlane: return planeName(id, flag);
-    case lChip: return chipName(id, flag);
-    case lStrip: return stripName(id, flag);
-    default: return "";
-  }
 }
