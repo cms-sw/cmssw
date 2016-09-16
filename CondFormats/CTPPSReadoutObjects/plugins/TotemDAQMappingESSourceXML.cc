@@ -19,6 +19,8 @@
 #include "FWCore/Framework/interface/SourceFactory.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#include "DataFormats/CTPPSDetId/interface/TotemRPDetId.h"
+
 #include "CondFormats/DataRecord/interface/TotemReadoutRcd.h"
 #include "CondFormats/CTPPSReadoutObjects/interface/TotemDAQMapping.h"
 #include "CondFormats/CTPPSReadoutObjects/interface/TotemAnalysisMask.h"
@@ -401,13 +403,23 @@ void TotemDAQMappingESSourceXML::ParseTreeRP(ParseType pType, xercesc::DOMNode *
 
       if (type == nChip)
       {
-        vfatInfo.symbolicID.symbolicID = parentID * 10 + id;
+        unsigned int armIdx = (parentID / 1000) % 10; 
+        unsigned int stIdx = (parentID / 100) % 10; 
+        unsigned int rpIdx = (parentID / 10) % 10; 
+        unsigned int plIdx = parentID % 10; 
+
+        vfatInfo.symbolicID.symbolicID = TotemRPDetId(armIdx, stIdx, rpIdx, plIdx, id);
         vfatInfo.type = TotemVFATInfo::data;
       }
 
       if (type == nTriggerVFAT)
       {
-        vfatInfo.symbolicID.symbolicID = parentID;
+        unsigned int armIdx = (parentID / 1000) % 10; 
+        unsigned int stIdx = (parentID / 100) % 10; 
+        unsigned int rpIdx = (parentID / 10) % 10; 
+        unsigned int plIdx = parentID % 10; 
+
+        vfatInfo.symbolicID.symbolicID = TotemRPDetId(armIdx, stIdx, rpIdx, plIdx);
         vfatInfo.type = TotemVFATInfo::CC;
       }
 
@@ -419,9 +431,14 @@ void TotemDAQMappingESSourceXML::ParseTreeRP(ParseType pType, xercesc::DOMNode *
     // store mask data
     if (pType == pMask && type == nChip)
     {
+      unsigned int armIdx = (parentID / 1000) % 10; 
+      unsigned int stIdx = (parentID / 100) % 10; 
+      unsigned int rpIdx = (parentID / 10) % 10; 
+      unsigned int plIdx = parentID % 10; 
+
       TotemSymbID symbId;
       symbId.subSystem = TotemSymbID::RP;
-      symbId.symbolicID = parentID * 10 + id;
+      symbId.symbolicID = TotemRPDetId(armIdx, stIdx, rpIdx, plIdx, id);
 
       TotemVFATAnalysisMask am;
       am.fullMask = fullMask;
