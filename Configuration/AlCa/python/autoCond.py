@@ -39,6 +39,8 @@ autoCond = {
     'phase1_2017_design' :  '81X_upgrade2017_design_v9',
     # GlobalTag for MC production with realistic conditions for for Phase1 2017 detector
     'phase1_2017_realistic': '81X_upgrade2017_realistic_v11',
+    # Global Tag for MC production with development HCAL conditions for Phase1 2017 detector
+    'phase1_2017_hcaldev'  : '81X_upgrade2017_HCALdev_v1',
     # GlobalTag for MC production with perfectly aligned and calibrated detector for Phase1 2019
     'phase1_2019_design'   : 'DES19_70_V2', # placeholder (GT not meant for standard RelVal) 
     # GlobalTag for MC production with perfectly aligned and calibrated detector for Phase2
