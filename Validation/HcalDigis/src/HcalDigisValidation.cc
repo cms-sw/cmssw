@@ -216,7 +216,7 @@ void HcalDigisValidation::booking(DQMStore::IBooker &ib, const std::string bsubd
     else if (bsubdet=="HE") isubdet=2;
     else if (bsubdet=="HO") isubdet=3;
     else if (bsubdet=="HF") isubdet=4;
-    else std::cout << "Warning: not HB/HE/HF/HO " << bsubdet << std::endl;
+    else edm::LogWarning("HcalDigisValidation") << "HcalDigisValidation Warning: not HB/HE/HF/HO " << bsubdet << std::endl;
 
     Char_t histo[100];
     const char * sub = bsubdet.c_str();
