@@ -125,6 +125,26 @@ int PixelROC::bpixSidePhase1(uint32_t rawId) const {
   if(module<5) side=-1; // modules 1-4 are on -z
   return side;
 }
+int PixelROC::bpixLayerPhase1(uint32_t rawId) {
+  /// two bits would be enough, but  we could use the number "0" as a wildcard
+  const unsigned int layerStartBit_=   20;
+  //const unsigned int ladderStartBit_=  12;
+  //const unsigned int moduleStartBit_=   2;
+  /// two bits would be enough, but  we could use the number "0" as a wildcard
+  const unsigned int layerMask_=       0xF;
+  //const unsigned int ladderMask_=      0xFF;
+  //const unsigned int moduleMask_=      0x3FF;
+
+  /// layer id
+  unsigned int layer = (rawId>>layerStartBit_) & layerMask_;
+  /// ladder  id
+  //unsigned int ladder = (rawId>>ladderStartBit_) & ladderMask_;
+  /// det id
+  //unsigned int module = (rawId>>moduleStartBit_)& moduleMask_;
+
+  //if(module<5) side=-1; // modules 1-4 are on -z
+  return layer;
+}
 
 int PixelROC::fpixSidePhase0(uint32_t rawId) const {
   int side = 1;
