@@ -137,9 +137,14 @@ class TotemRPDetId : public DetId
       return !isStripsCoordinateUDirection();
     }
     
+    inline uint32_t rpDecId() const
+    {
+      return romanPot() + station()*10 + arm()*100;
+    }
+
     inline uint32_t detectorDecId() const
     {
-      return detector() + romanPot()*10 + station()*100 + arm()*1000;
+      return detector() + rpDecId()*10;
     }
 
     //-------------------------------- static members ---------------------------------------
@@ -195,7 +200,7 @@ class TotemRPDetId : public DetId
     static uint32_t armOfSt(uint32_t i) { return i / 10; }
      
 
-    /// TODO: make non-static
+    /// TODO: remove
     /// is Detector u-detector?
     /// expect symbolic/decimal ID
     static bool isStripsCoordinateUDirection(int Detector)
