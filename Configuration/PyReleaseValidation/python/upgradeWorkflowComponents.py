@@ -21,7 +21,7 @@ upgradeKeys[2023] = [
     '2023D2Timing',
     '2023D2TimingPU',
     '2023D3Timing',
-    '2023D3TimingPU'
+    '2023D3TimingPU',
     '2023D4',
     '2023D4PU',
 ]
@@ -105,14 +105,16 @@ upgradeProperties[2023]['2023D3Timing'] = deepcopy(upgradeProperties[2023]['2023
 upgradeProperties[2023]['2023D3Timing']['Era'] = 'Phase2C2_timing'
 
 #standard PU sequences
-upgradeProperties[2023]['2017PU'] = deepcopy(upgradeProperties[2017]['2017'])
-upgradeProperties[2023]['2017PU']['ScenToRun'] = ['GenSimFull','DigiFullPU','RecoFullPU','HARVESTFullPU']
+upgradeProperties[2017]['2017PU'] = deepcopy(upgradeProperties[2017]['2017'])
+upgradeProperties[2017]['2017PU']['ScenToRun'] = ['GenSimFull','DigiFullPU','RecoFullPU','HARVESTFullPU']
 upgradeProperties[2023]['2023D1PU'] = deepcopy(upgradeProperties[2023]['2023D1'])
 upgradeProperties[2023]['2023D1PU']['ScenToRun'] = ['GenSimFull','DigiFullPU','RecoFullGlobalPU', 'HARVESTFullGlobalPU']
 upgradeProperties[2023]['2023D2PU'] = deepcopy(upgradeProperties[2023]['2023D2'])
 upgradeProperties[2023]['2023D2PU']['ScenToRun'] = ['GenSimFull','DigiFullPU','RecoFullGlobalPU', 'HARVESTFullGlobalPU']
 upgradeProperties[2023]['2023D3PU'] = deepcopy(upgradeProperties[2023]['2023D3'])
 upgradeProperties[2023]['2023D3PU']['ScenToRun'] = ['GenSimFull','DigiFullPU','RecoFullGlobalPU', 'HARVESTFullGlobalPU']
+upgradeProperties[2023]['2023D4PU'] = deepcopy(upgradeProperties[2023]['2023D4'])
+upgradeProperties[2023]['2023D4PU']['ScenToRun'] = ['GenSimFull','DigiFullPU','RecoFullLocalPU']
 
 #Timing PU (for now copy ScenToRun of standard PU)
 upgradeProperties[2023]['2023D1TimingPU'] = deepcopy(upgradeProperties[2023]['2023D1Timing'])
@@ -123,16 +125,6 @@ upgradeProperties[2023]['2023D3TimingPU'] = deepcopy(upgradeProperties[2023]['20
 upgradeProperties[2023]['2023D3TimingPU']['ScenToRun'] = deepcopy(upgradeProperties[2023]['2023D3PU']['ScenToRun'])
 
 
-upgradeProperties['2017PU'] = deepcopy(upgradeProperties['2017'])
-upgradeProperties['2017PU']['ScenToRun'] = ['GenSimFull','DigiFullPU','RecoFullPU','HARVESTFullPU']
-upgradeProperties['2023D1PU'] = deepcopy(upgradeProperties['2023D1'])
-upgradeProperties['2023D1PU']['ScenToRun'] = ['GenSimFull','DigiFullPU','RecoFullGlobalPU', 'HARVESTFullGlobalPU']
-upgradeProperties['2023D2PU'] = deepcopy(upgradeProperties['2023D2'])
-upgradeProperties['2023D2PU']['ScenToRun'] = ['GenSimFull','DigiFullPU','RecoFullGlobalPU', 'HARVESTFullGlobalPU']
-upgradeProperties['2023D3PU'] = deepcopy(upgradeProperties['2023D3'])
-upgradeProperties['2023D3PU']['ScenToRun'] = ['GenSimFull','DigiFullPU','RecoFullGlobalPU', 'HARVESTFullGlobalPU']
-upgradeProperties['2023D4PU'] = deepcopy(upgradeProperties['2023D4'])
-upgradeProperties['2023D4PU']['ScenToRun'] = ['GenSimFull','DigiFullPU','RecoFullLocalPU']
 
 from  Configuration.PyReleaseValidation.relval_steps import Kby
 
