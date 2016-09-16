@@ -12,32 +12,35 @@
 #include <iostream>
 #include "DataFormats/CTPPSDetId/interface/TotemRPDetId.h"
 
+using namespace std;
+
 //----------------------------------------------------------------------------------------------------
 
 char TotemRPGeometry::Build(const DetGeomDesc *gD)
 {
-  using namespace std;
-
   // propagate through the GeometricalDet structure and add
   // all detectors to 'theMap'
   deque<const DetGeomDesc *> buffer;
   buffer.push_back(gD);
-  while (buffer.size() > 0) {
+  while (buffer.size() > 0)
+  {
     const DetGeomDesc *d = buffer.front();
     buffer.pop_front();
 
     // check if it is RP detector
-    if (! d->name().name().compare(DDD_TOTEM_RP_DETECTOR_NAME)) {
-      //std::cout<<d->geographicalID().rawId()<<std::endl;
-      AddDetector(d->geographicalID().rawId(), d);
+    if (! d->name().name().compare(DDD_TOTEM_RP_DETECTOR_NAME))
+    {
+      AddDetector(d->geographicalID(), d);
     }
 
     // check if it is RP device (primary vacuum)
-    if (! d->name().name().compare(DDD_TOTEM_RP_PRIMARY_VACUUM_NAME)) {
-      AddRPDevice(d->copyno(), d);
+    if (! d->name().name().compare(DDD_TOTEM_RP_PRIMARY_VACUUM_NAME))
+    {
+      AddDetector(d->geographicalID(), d);
     }
     
-    for (unsigned int i = 0; i < d->components().size(); i++) {
+    for (unsigned int i = 0; i < d->components().size(); i++)
+    {
       buffer.push_back( d->components()[i] );
     }
   }
@@ -159,11 +162,16 @@ void TotemRPGeometry::BuildSets()
   detsInRP.clear();
 
   // build
-  for (mapType::const_iterator it = theMap.begin(); it != theMap.end(); ++it) {
-    unsigned int id = TotemRPDetId::rawToDecId((*it).first);
-    stationsInArm[TotemRPDetId::armOfDet(id)].insert(TotemRPDetId::stOfDet(id));
-    rpsInStation[TotemRPDetId::stOfDet(id)].insert(TotemRPDetId::rpOfDet(id));
-    detsInRP[TotemRPDetId::rpOfDet(id)].insert(id);
+  for (mapType::const_iterator it = theMap.begin(); it != theMap.end(); ++it)
+  {
+    TotemRPDetId detId(it->first);
+    TotemRPDetId rpId = detId; rpId.setDetector(0);
+    TotemRPDetId stId = rpId; stId.setRomanPot(0);
+    TotemRPDetId armId = stId; armId.setStation(0);
+
+    stationsInArm[armId].insert(armId);
+    rpsInStation[stId].insert(rpId);
+    detsInRP[rpId].insert(detId);
   }
 }
 
@@ -184,19 +192,6 @@ std::set<unsigned int> TotemRPGeometry::RPsInStation(unsigned int id) const
   if (it == rpsInStation.end())
     throw cms::Exception("TotemRPGeometry") << "Station with ID " << id << " not found.";
   return (*it).second;
-}
-
-//----------------------------------------------------------------------------------------------------
-
-double TotemRPGeometry::GetStationCentreZPosition(unsigned int id) const
-{
-  unsigned int st_id = id%10;
-  unsigned int arm_id = id/10;
-  
-  TotemRPDetId near = TotemRPDetId(arm_id, st_id, 0, 0);
-  TotemRPDetId far = TotemRPDetId(arm_id, st_id, 5, 9);
-  
-  return (GetDetTranslation(near).z() + GetDetTranslation(far).z()) / 2.0;
 }
 
 //----------------------------------------------------------------------------------------------------
