@@ -40,10 +40,8 @@ PFConversionProducer::produce(Event& iEvent, const EventSetup& iSetup)
 {
   
   //create the empty collections 
-  auto_ptr< reco::PFConversionCollection > 
-    pfConversionColl (new reco::PFConversionCollection);
-  auto_ptr< reco::PFRecTrackCollection > 
-    pfRecTrackColl (new reco::PFRecTrackCollection);
+  auto pfConversionColl = std::make_unique<reco::PFConversionCollection>();
+  auto pfRecTrackColl = std::make_unique<reco::PFRecTrackCollection>();
   
   edm::ESHandle<TransientTrackBuilder> builder;
   iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder", builder);
@@ -174,8 +172,8 @@ PFConversionProducer::produce(Event& iEvent, const EventSetup& iSetup)
       reco::ConversionRef niRef(convCollH, collindex);
       pfConversionColl->push_back( reco::PFConversion( niRef, pfRecTkcoll ));
     }//end loop over collections
-  iEvent.put(pfRecTrackColl);
-  iEvent.put(pfConversionColl);    
+  iEvent.put(std::move(pfRecTrackColl));
+  iEvent.put(std::move(pfConversionColl));    
 }
   
 // ------------ method called once each job just before starting event loop  ------------

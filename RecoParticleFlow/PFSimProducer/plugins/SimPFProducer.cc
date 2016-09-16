@@ -163,8 +163,8 @@ void SimPFProducer::produce(edm::StreamID, edm::Event& evt, const edm::EventSetu
 
   // make blocks out of calo particles so we can have cluster references
   // likewise fill out superclusters
-  std::unique_ptr<reco::SuperClusterCollection> superclusters(new reco::SuperClusterCollection);
-  std::unique_ptr<reco::PFBlockCollection> blocks(new reco::PFBlockCollection);
+  auto superclusters = std::make_unique<reco::SuperClusterCollection>();
+  auto blocks = std::make_unique<reco::PFBlockCollection>();
   std::unordered_map<size_t,size_t> simCluster2Block;
   std::unordered_map<size_t,size_t> simCluster2BlockIndex;
   std::unordered_multimap<size_t,size_t> caloParticle2SimCluster;
@@ -185,7 +185,7 @@ void SimPFProducer::produce(edm::StreamID, edm::Event& evt, const edm::EventSetu
 	good_simclusters.push_back(isc);
 	etot += clusterRef->energy();
 	pttot += clusterRef->pt();	
-	std::unique_ptr<reco::PFBlockElementCluster> bec( new reco::PFBlockElementCluster(clusterRef,reco::PFBlockElement::HGCAL) );
+	auto bec = std::make_unique<reco::PFBlockElementCluster>(clusterRef,reco::PFBlockElement::HGCAL);
 	block.addElement(bec.get());
 	simCluster2Block[simc.key()] = icp;
 	simCluster2BlockIndex[simc.key()] = bec->index();
@@ -221,7 +221,7 @@ void SimPFProducer::produce(edm::StreamID, edm::Event& evt, const edm::EventSetu
                   //usedGsfTrack(GsfTrackCollection.size(),false), 
                     usedSimCluster(SimClusters.size(),false);
 
-  std::unique_ptr<reco::PFCandidateCollection> candidates(new reco::PFCandidateCollection);
+  auto candidates = std::make_unique<reco::PFCandidateCollection>();
   // in good particle flow fashion, start from the tracks and go out
   for( unsigned itk = 0; itk < TrackCollection.size(); ++itk ) {
     auto tkRef  = TrackCollection.refAt(itk);
