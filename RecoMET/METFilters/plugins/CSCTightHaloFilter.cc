@@ -34,7 +34,7 @@ bool CSCTightHaloFilter::filter(edm::StreamID iID, edm::Event & iEvent, const ed
 
   const bool pass = !beamHaloSummary->CSCTightHaloId();
 
-  iEvent.put( std::auto_ptr<bool>(new bool(pass)) );
+  iEvent.put(std::make_unique<bool>(pass));
 
   return taggingMode_ || pass;  // return false if it is a beamhalo event
 }

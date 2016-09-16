@@ -110,11 +110,11 @@ void QGTagger::produce(edm::Event& iEvent, const edm::EventSetup& iSetup){
 
 /// Function to put product into event
 template <typename T> void QGTagger::putInEvent(std::string name, const edm::Handle<edm::View<reco::Jet>>& jets, std::vector<T>* product, edm::Event& iEvent){
-  std::auto_ptr<edm::ValueMap<T>> out(new edm::ValueMap<T>());
+  auto out = std::make_unique<edm::ValueMap<T>>();
   typename edm::ValueMap<T>::Filler filler(*out);
   filler.insert(jets, product->begin(), product->end());
   filler.fill();
-  iEvent.put(out, name);
+  iEvent.put(std::move(out), name);
   delete product;
 }
 

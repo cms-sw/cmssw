@@ -239,7 +239,7 @@ bool InputGenJetsParticleSelector::hasPartonChildren(ParticleBitmap &invalid,
 void InputGenJetsParticleSelector::produce (edm::Event &evt, const edm::EventSetup &evtSetup){
 
  
-  std::auto_ptr<reco::CandidatePtrVector> selected_ (new reco::CandidatePtrVector);
+  auto selected_ = std::make_unique<reco::CandidatePtrVector>();
     
   ParticleVector particles;
   
@@ -316,7 +316,7 @@ void InputGenJetsParticleSelector::produce (edm::Event &evt, const edm::EventSet
       //cout<<"Finally we have: ["<<setw(4)<<idx<<"] "<<setw(4)<<particle->pdgId()<<" "<<particle->pt()<<endl;
     }
   }
-  evt.put(selected_);
+  evt.put(std::move(selected_));
 }
       
       

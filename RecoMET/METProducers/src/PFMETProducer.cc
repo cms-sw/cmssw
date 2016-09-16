@@ -62,11 +62,10 @@ namespace cms
 	pfmet.setSignificanceMatrix(sigcov);
       }
 
-    std::auto_ptr<reco::PFMETCollection> pfmetcoll;
-    pfmetcoll.reset(new reco::PFMETCollection);
+    auto pfmetcoll = std::make_unique<reco::PFMETCollection>();
 
     pfmetcoll->push_back(pfmet);
-    event.put(pfmetcoll);
+    event.put(std::move(pfmetcoll));
   }
 
 

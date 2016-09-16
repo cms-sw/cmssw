@@ -53,10 +53,9 @@ namespace cms
     math::XYZTLorentzVector p4(commonMETdata.mex, commonMETdata.mey, 0.0, commonMETdata.met);
     math::XYZPoint vtx(0,0,0);
     reco::MET met(commonMETdata.sumet, p4, vtx);
-    std::auto_ptr<reco::METCollection> metcoll;
-    metcoll.reset(new reco::METCollection);
+    auto metcoll = std::make_unique<reco::METCollection>();
     metcoll->push_back(met);
-    event.put(metcoll);
+    event.put(std::move(metcoll));
   }
 
 //____________________________________________________________________________||
