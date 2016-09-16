@@ -67,18 +67,10 @@ void HLTScoutingMuonProducer::produce(edm::StreamID sid, edm::Event & iEvent,
     // Get EcalPFClusterIsoMap
     Handle<RecoChargedCandMap> EcalPFClusterIsoMap;
     iEvent.getByToken(EcalPFClusterIsoMap_, EcalPFClusterIsoMap);
-    // if(!iEvent.getByToken(EcalPFClusterIsoMap_, EcalPFClusterIsoMap)){
-      //        iEvent.put(std::move(outMuons));
-      //  return;
-      // }
 
     // Get HcalPFClusterIsoMap
     Handle<RecoChargedCandMap> HcalPFClusterIsoMap;
     iEvent.getByToken(HcalPFClusterIsoMap_, HcalPFClusterIsoMap);
-    //    if(!iEvent.getByToken(HcalPFClusterIsoMap_, HcalPFClusterIsoMap)){
-    //   iEvent.put(std::move(outMuons));
-    //   return;
-    // }
 
     // Get TrackIsoMap
     Handle<ValueMap<double>> TrackIsoMap;
@@ -113,7 +105,6 @@ void HLTScoutingMuonProducer::produce(edm::StreamID sid, edm::Event & iEvent,
 	else hcalisopf = (*HcalPFClusterIsoMap)[muonRef]; 
 
         outMuons->emplace_back(muon.pt(), muon.eta(), muon.phi(),  muon.mass(),
-			       //  (*EcalPFClusterIsoMap)[muonRef], (*HcalPFClusterIsoMap)[muonRef],
 			       ecalisopf, hcalisopf,
                                (*TrackIsoMap)[muonRef], track->chi2(), track->ndof(),
                                track->charge(), track->dxy(), track->dz(),
