@@ -370,7 +370,7 @@ void FFTJetPatRecoProducer::buildSparseProduct(edm::Event& ev) const
 {
     typedef reco::PattRecoTree<Real,reco::PattRecoPeak<Real> > StoredTree;
 
-    std::auto_ptr<StoredTree> tree(new StoredTree());
+    auto tree = std::make_unique<StoredTree>();
 
     sparsePeakTreeToStorable(sparseTree,
                              sequencer->maxAdaptiveScales(),
@@ -388,7 +388,7 @@ void FFTJetPatRecoProducer::buildSparseProduct(edm::Event& ev) const
                 << std::endl;
     }
 
-    ev.put(tree, outputLabel);
+    ev.put(std::move(tree), outputLabel);
 }
 
 
@@ -397,7 +397,7 @@ void FFTJetPatRecoProducer::buildDenseProduct(edm::Event& ev) const
 {
     typedef reco::PattRecoTree<Real,reco::PattRecoPeak<Real> > StoredTree;
 
-    std::auto_ptr<StoredTree> tree(new StoredTree());
+    auto tree = std::make_unique<StoredTree>();
 
     densePeakTreeToStorable(*clusteringTree,
                             sequencer->maxAdaptiveScales(),
@@ -415,7 +415,7 @@ void FFTJetPatRecoProducer::buildDenseProduct(edm::Event& ev) const
                 << std::endl;
     }
 
-    ev.put(tree, outputLabel);
+    ev.put(std::move(tree), outputLabel);
 }
 
 
@@ -460,10 +460,9 @@ void FFTJetPatRecoProducer::produce(
     {
         const fftjet::Grid2d<Real>& g(*energyFlow);
 
-        std::auto_ptr<reco::DiscretizedEnergyFlow> flow(
-            new reco::DiscretizedEnergyFlow(
+        auto flow = std::make_unique<reco::DiscretizedEnergyFlow>(
                 g.data(), g.title(), g.etaMin(), g.etaMax(),
-                g.phiBin0Edge(), g.nEta(), g.nPhi()));
+                g.phiBin0Edge(), g.nEta(), g.nPhi());
 
         if (verifyDataConversion)
         {
@@ -474,7 +473,7 @@ void FFTJetPatRecoProducer::produce(
             assert(g == check);
         }
 
-        iEvent.put(flow, outputLabel);
+        iEvent.put(std::move(flow), outputLabel);
     }
 
     if (storeGridsExternally)

@@ -139,9 +139,8 @@ void CSCHaloDataProducer::produce(Event& iEvent, const EventSetup& iSetup)
   }
 
 
-  std::auto_ptr<CSCHaloData> TheCSCData(new CSCHaloData( CSCAlgo.Calculate(*TheCSCGeometry, TheCosmics, TheCSCTimeMap, TheMuons, TheCSCSegments, TheCSCRecHits, TheL1GMTReadout, hbhehits,ecalebhits,ecaleehits,TheHLTResults, triggerNames, TheALCTs, TheMatcher, iEvent, iSetup) ) );
   // Put it in the event                                                                                                                                                
-  iEvent.put(TheCSCData);
+  iEvent.put(std::make_unique<CSCHaloData>(CSCAlgo.Calculate(*TheCSCGeometry, TheCosmics, TheCSCTimeMap, TheMuons, TheCSCSegments, TheCSCRecHits, TheL1GMTReadout, hbhehits,ecalebhits,ecaleehits,TheHLTResults, triggerNames, TheALCTs, TheMatcher, iEvent, iSetup)));
   return;
 }
 
