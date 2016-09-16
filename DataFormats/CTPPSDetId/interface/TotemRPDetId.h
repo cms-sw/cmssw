@@ -66,6 +66,7 @@ class TotemRPDetId : public DetId
     static const unsigned int startStationBit = 22, maskStation = 0x3, maxStation = 2;
     static const unsigned int startRPBit = 19, maskRP = 0x7, maxRP = 5;
     static const unsigned int startDetBit = 15, maskDet = 0xF, maxDet = 9;
+    static const unsigned int startChipBit = 13, maskChip = 0x3, maxChip = 3;
      
     inline int arm() const
     {
@@ -87,6 +88,12 @@ class TotemRPDetId : public DetId
       return int ((id_>>startDetBit) & maskDet);
     }
 
+    inline int chip() const
+    {
+      return int ((id_>>startChipBit) & maskChip);
+    }
+
+    // TODO: remove ??
     int rpCopyNumber() const
     {
       return romanPot() + 10*station() + 100*arm();
@@ -109,6 +116,7 @@ class TotemRPDetId : public DetId
 
     //-------------------------------- static members ---------------------------------------
     
+    // TODO: needed ??
     /// returs true it the raw ID is a TOTEM RP one
     static bool check(unsigned int raw)
     {
