@@ -136,7 +136,7 @@ void TotemRPGeometryESModule::ApplyAlignments(const ESHandle<DetGeomDesc> &ideal
     if (! pD->name().name().compare(DDD_TOTEM_RP_PRIMARY_VACUUM_NAME))
     {
       unsigned int rpId = pD->geographicalID();
-
+      
       if (alignments.isValid())
       {
         const RPAlignmentCorrectionData& ac = alignments->GetRPCorrection(rpId);

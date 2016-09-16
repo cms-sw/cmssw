@@ -4,12 +4,16 @@
 <use name="DataFormats/CTPPSDetId"/>
 <use name="DataFormats/CTPPSAlignment"/>
 <use name="Geometry/TrackerNumberingBuilder"/>
+<use name="DataFormats/CTPPSDetId"/>
+
 <use name="clhep"/>
 <use name="hepmc"/>
 <use name="FWCore/Framework"/>
 <use name="FWCore/MessageLogger"/>
 <use name="xerces-c"/>
 <use name="root"/>
+<use name="DataFormats/CTPPSDetId"/>
+
 <export>
 	<lib name="1"/>
 </export>
