@@ -206,7 +206,7 @@ void ElectronSeedProducer::produce(edm::Event& e, const edm::EventSetup& iSetup)
   }
 
   // store the accumulated result
-  std::auto_ptr<ElectronSeedCollection> pSeeds(seeds) ;
+  std::unique_ptr<ElectronSeedCollection> pSeeds(seeds);
   ElectronSeedCollection::iterator is ;
   for ( is=pSeeds->begin() ; is!=pSeeds->end() ; is++ ) {
     edm::RefToBase<CaloCluster> caloCluster = is->caloCluster() ;
@@ -218,7 +218,7 @@ void ElectronSeedProducer::produce(edm::Event& e, const edm::EventSetup& iSetup)
       << " and cluster energy " << superCluster->energy()
       << " PID "<<superCluster.id() ;
   }
-  e.put(pSeeds) ;
+  e.put(std::move(pSeeds));
   if (fromTrackerSeeds_ && prefilteredSeeds_) delete theInitialSeedColl;
  }
 

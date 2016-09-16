@@ -177,11 +177,11 @@ void ElectronIDValueMapProducer::writeValueMap(edm::Event &iEvent,
 {
   using namespace edm; 
   using namespace std;
-  auto_ptr<ValueMap<float> > valMap(new ValueMap<float>());
+  auto valMap = std::make_unique<ValueMap<float>>();
   edm::ValueMap<float>::Filler filler(*valMap);
   filler.insert(handle, values.begin(), values.end());
   filler.fill();
-  iEvent.put(valMap, label);
+  iEvent.put(std::move(valMap), label);
 }
 
 void ElectronIDValueMapProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {

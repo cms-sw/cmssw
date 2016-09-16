@@ -188,14 +188,14 @@ void EgammaHLTGsfTrackVarProducer::produce(edm::Event& iEvent, const edm::EventS
     chi2Map.insert(recoEcalCandRef, chi2Value);
   }
 
-  std::unique_ptr<reco::RecoEcalCandidateIsolationMap> dEtaMapForEvent(new reco::RecoEcalCandidateIsolationMap(dEtaMap));
-  std::unique_ptr<reco::RecoEcalCandidateIsolationMap> dEtaSeedMapForEvent(new reco::RecoEcalCandidateIsolationMap(dEtaSeedMap));
-  std::unique_ptr<reco::RecoEcalCandidateIsolationMap> dPhiMapForEvent(new reco::RecoEcalCandidateIsolationMap(dPhiMap));
-  std::unique_ptr<reco::RecoEcalCandidateIsolationMap> oneOverESuperMinusOneOverPMapForEvent(new reco::RecoEcalCandidateIsolationMap(oneOverESuperMinusOneOverPMap));
-  std::unique_ptr<reco::RecoEcalCandidateIsolationMap> oneOverESeedMinusOneOverPMapForEvent(new reco::RecoEcalCandidateIsolationMap(oneOverESeedMinusOneOverPMap));
-  std::unique_ptr<reco::RecoEcalCandidateIsolationMap> missingHitsForEvent(new reco::RecoEcalCandidateIsolationMap(missingHitsMap));
-  std::unique_ptr<reco::RecoEcalCandidateIsolationMap> validHitsForEvent(new reco::RecoEcalCandidateIsolationMap(validHitsMap));
-  std::unique_ptr<reco::RecoEcalCandidateIsolationMap> chi2ForEvent(new reco::RecoEcalCandidateIsolationMap(chi2Map));
+  auto dEtaMapForEvent = std::make_unique<reco::RecoEcalCandidateIsolationMap>(dEtaMap);
+  auto dEtaSeedMapForEvent = std::make_unique<reco::RecoEcalCandidateIsolationMap>(dEtaSeedMap);
+  auto dPhiMapForEvent = std::make_unique<reco::RecoEcalCandidateIsolationMap>(dPhiMap);
+  auto oneOverESuperMinusOneOverPMapForEvent = std::make_unique<reco::RecoEcalCandidateIsolationMap>(oneOverESuperMinusOneOverPMap);
+  auto oneOverESeedMinusOneOverPMapForEvent = std::make_unique<reco::RecoEcalCandidateIsolationMap>(oneOverESeedMinusOneOverPMap);
+  auto missingHitsForEvent = std::make_unique<reco::RecoEcalCandidateIsolationMap>(missingHitsMap);
+  auto validHitsForEvent = std::make_unique<reco::RecoEcalCandidateIsolationMap>(validHitsMap);
+  auto chi2ForEvent = std::make_unique<reco::RecoEcalCandidateIsolationMap>(chi2Map);
 
   iEvent.put(std::move(dEtaMapForEvent), "Deta" );
   iEvent.put(std::move(dEtaSeedMapForEvent), "DetaSeed" );
