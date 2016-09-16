@@ -77,4 +77,4 @@ REGISTER_PLUGIN(HcalSiPMParametersRcd,HcalSiPMParameters);
 REGISTER_PLUGIN(HcalSiPMCharacteristicsRcd,HcalSiPMCharacteristics);
 REGISTER_PLUGIN(HcalTPParametersRcd,HcalTPParameters);
 REGISTER_PLUGIN(HcalTPChannelParametersRcd,HcalTPChannelParameters);
-REGISTER_PLUGIN(HFPhase1PMTParamsRcd,HFPhase1PMTParams);
+REGISTER_PLUGIN(HFPhase1PMTParamsRcd,HcalItemCollById<HFPhase1PMTData>);
