@@ -31,18 +31,18 @@ echo "INFO: ADDITIONAL CMS OPTIONS:  " $CMS_OPTIONS
 if [ ${xflag} -eq 0 ]
 then
     echo "Writing to sqlite_file:l1config.db instead of ORCON."
-    INDB_OPTIONS="inputDBConnect=sqlite_file:l1config.db inputDBAuth=/data/O2O/L1T/pro/o2o/" 
-    OUTDB_OPTIONS="outputDBConnect=sqlite_file:l1config.db outputDBAuth=/data/O2O/L1T/pro/o2o/" 
+    INDB_OPTIONS="inputDBConnect=sqlite_file:l1config.db inputDBAuth=/data/O2O/L1T/" 
+    OUTDB_OPTIONS="outputDBConnect=sqlite_file:l1config.db outputDBAuth=/data/O2O/L1T/" 
     COPY_OPTIONS="copyNonO2OPayloads=1 copyDBConnect=sqlite_file:l1config.db"
-#    COPY_OPTIONS="copyNonO2OPayloads=1 copyDBConnect=oracle://cms_orcoff_prep/CMS_CONDITIONS copyDBAuth=/data/O2O/L1T/pro/o2o/"
-#    COPY_OPTIONS="copyNonO2OPayloads=1 copyDBConnect=oracle://cms_orcon_prod/CMS_CONDITIONS copyDBAuth=/data/O2O/L1T/pro/o2o/"
+#    COPY_OPTIONS="copyNonO2OPayloads=1 copyDBConnect=oracle://cms_orcoff_prep/CMS_CONDITIONS copyDBAuth=/data/O2O/L1T/"
+#    COPY_OPTIONS="copyNonO2OPayloads=1 copyDBConnect=oracle://cms_orcon_prod/CMS_CONDITIONS copyDBAuth=/data/O2O/L1T/"
 else
 #    echo "Writing to cms_orcoff_prep"
     echo "Writing to cms_orcon_prod"
-    INDB_OPTIONS="inputDBConnect=oracle://cms_orcoff_prep/CMS_CONDITIONS inputDBAuth=/data/O2O/L1T/pro/o2o/"
-    OUTDB_OPTIONS="outputDBConnect=oracle://cms_orcoff_prep/CMS_CONDITIONS outputDBAuth=/data/O2O/L1T/pro/o2o/"
-#    INDB_OPTIONS="inputDBConnect=oracle://cms_orcon_prod/CMS_CONDITIONS inputDBAuth=/data/O2O/L1T/pro/o2o/"
-#    OUTDB_OPTIONS="outputDBConnect=oracle://cms_orcon_prod/CMS_CONDITIONS outputDBAuth=/data/O2O/L1T/pro/o2o/"
+#    INDB_OPTIONS="inputDBConnect=oracle://cms_orcoff_prep/CMS_CONDITIONS inputDBAuth=/data/O2O/L1T/"
+#    OUTDB_OPTIONS="outputDBConnect=oracle://cms_orcoff_prep/CMS_CONDITIONS outputDBAuth=/data/O2O/L1T/"
+    INDB_OPTIONS="inputDBConnect=oracle://cms_orcon_prod/CMS_CONDITIONS inputDBAuth=/data/O2O/L1T/"
+    OUTDB_OPTIONS="outputDBConnect=oracle://cms_orcon_prod/CMS_CONDITIONS outputDBAuth=/data/O2O/L1T/"
     #echo "Cowardly refusing to write to the online database"
     #exit
 fi
@@ -62,8 +62,10 @@ else
     fi
 fi
 
-cmsRun $CMSSW_BASE/src/CondTools/L1TriggerExt/test/L1ConfigWriteIOVOnlineExt_cfg.py ${CMS_OPTIONS} tscKey=${tsckey} rsKey=${rskey} runNumber=${runnum} ${OUTDB_OPTIONS} logTransactions=0 print | grep -Ev "CORAL.*Info|CORAL.*Debug"
+cmsRun $CMSSW_BASE/src/CondTools/L1TriggerExt/test/L1ConfigWriteIOVOnlineExt_cfg.py ${CMS_OPTIONS} tscKey=${tsckey} rsKey=${rskey} runNumber=${runnum} ${OUTDB_OPTIONS} logTransactions=0 print
 o2ocode=$?
+
+# | grep -Ev "CORAL.*Info|CORAL.*Debug"
 
 if [ ${o2ocode} -eq 0 ]
 then

@@ -19,7 +19,7 @@ fi
 # save some time by restoring an always ready template:
 cp l1configBlank.db l1config.db
 
-DBAuth=/data/O2O/L1T/pro/o2o/
+DBAuth=/data/O2O/L1T/
 
 keys=$(cmsRun ${CMSSW_BASE}/src/L1TriggerConfig/Utilities/test/viewTKEonline.py tscKey=$1 rsKey=$2 DBAuth=${DBAuth} 2>/dev/null | grep ' key: ')
 
