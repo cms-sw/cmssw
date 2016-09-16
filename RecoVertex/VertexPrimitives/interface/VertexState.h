@@ -15,8 +15,7 @@ class VertexState final : private  BasicVertexState::Proxy {
   using Base =  BasicVertexState::Proxy;
   using BSVS =  BasicSingleVertexState;
  public:
-  VertexState() :
-  Base ( new BSVS () ) {}
+  VertexState(){}
   VertexState(VertexState const&) = default; 
   VertexState(VertexState &&) = default;
   VertexState & operator=(const VertexState&) = default;
