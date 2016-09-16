@@ -109,8 +109,6 @@ upgradeProperties[2023]['2023D4Timing'] = deepcopy(upgradeProperties[2023]['2023
 upgradeProperties[2023]['2023D4Timing']['Era'] = 'Phase2C2_timing'
 
 #standard PU sequences
-upgradeProperties[2017]['2017PU'] = deepcopy(upgradeProperties[2017]['2017'])
-upgradeProperties[2017]['2017PU']['ScenToRun'] = ['GenSimFull','DigiFullPU','RecoFullPU','HARVESTFullPU']
 upgradeProperties[2023]['2023D1PU'] = deepcopy(upgradeProperties[2023]['2023D1'])
 upgradeProperties[2023]['2023D1PU']['ScenToRun'] = ['GenSimFull','DigiFullPU','RecoFullGlobalPU', 'HARVESTFullGlobalPU']
 upgradeProperties[2023]['2023D2PU'] = deepcopy(upgradeProperties[2023]['2023D2'])
