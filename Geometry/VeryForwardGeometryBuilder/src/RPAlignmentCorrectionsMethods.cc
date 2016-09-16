@@ -11,6 +11,8 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#include "DataFormats/CTPPSDetId/interface/TotemRPDetId.h"
+
 #include "Geometry/VeryForwardGeometryBuilder/interface/RPAlignmentCorrectionsMethods.h"
 //#include "Alignment/RPTrackBased/interface/AlignmentGeometry.h"
 
@@ -85,8 +87,11 @@ RPAlignmentCorrectionsData RPAlignmentCorrectionsMethods::GetCorrectionsDataFrom
 
 RPAlignmentCorrectionsData RPAlignmentCorrectionsMethods::GetCorrectionsData(DOMNode *root)
 {
+  RPAlignmentCorrectionsData result;
+
   DOMNodeList *children = root->getChildNodes();
-  for (unsigned int i = 0; i < children->getLength(); i++) {
+  for (unsigned int i = 0; i < children->getLength(); i++)
+  {
     DOMNode *n = children->item(i);
     if (n->getNodeType() != DOMNode::ELEMENT_NODE)
       continue;
@@ -101,25 +106,29 @@ RPAlignmentCorrectionsData RPAlignmentCorrectionsMethods::GetCorrectionsData(DOM
 
     // check children
     if (n->getChildNodes()->getLength() > 0)
+    {
         edm::LogProblem("RPAlignmentCorrectionsMethods") << ">> RPAlignmentCorrectionsMethods::LoadXMLFile > Warning: tag `" <<
           XMLString::transcode(n->getNodeName()) << "' has " << n->getChildNodes()->getLength() << 
           " children nodes - they will be all ignored.";
+    }
 
     // default values
     double sh_r = 0., sh_x = 0., sh_y = 0., sh_z = 0., rot_z = 0.;
     double sh_r_e = 0., sh_x_e = 0., sh_y_e = 0., sh_z_e = 0., rot_z_e = 0.;
-//    unsigned int id = 0;
+    unsigned int decId = 0;
     bool idSet = false;
 
     // get attributes
     DOMNamedNodeMap* attr = n->getAttributes();
-    for (unsigned int j = 0; j < attr->getLength(); j++) {    
+    for (unsigned int j = 0; j < attr->getLength(); j++)
+    {    
       DOMNode *a = attr->item(j);
  
       //printf("\t%s\n", XMLString::transcode(a->getNodeName()));
 
-      if (!strcmp(XMLString::transcode(a->getNodeName()), "id")) {
-//        id = atoi(XMLString::transcode(a->getNodeValue()));
+      if (!strcmp(XMLString::transcode(a->getNodeName()), "id"))
+      {
+        decId = atoi(XMLString::transcode(a->getNodeValue()));
         idSet = true;
       } else if (!strcmp(XMLString::transcode(a->getNodeName()), "sh_r"))
           sh_r = atof(XMLString::transcode(a->getNodeValue()));
@@ -154,18 +163,26 @@ RPAlignmentCorrectionsData RPAlignmentCorrectionsMethods::GetCorrectionsData(DOM
     RPAlignmentCorrectionData a(sh_r*1E-3, sh_r_e*1E-3, sh_x*1E-3, sh_x_e*1E-3, sh_y*1E-3, sh_y_e*1E-3,
       sh_z*1E-3, sh_z_e*1E-3, rot_z*1E-3, rot_z_e*1E-3);
 
-    //printf("id = %u\n", id);
-   
-//    // add the alignment to the right list
-//    if (nodeType == 1)
-//      AddSensorCorrection(id, a, true);
-//    else
-//      AddRPCorrection(id, a, true);
+    // add the alignment to the right list
+    if (nodeType == 1)
+    {
+      unsigned int arm = decId / 1000;
+      unsigned int st = (decId / 100) % 10;
+      unsigned int rp = (decId / 10) % 10;
+      unsigned int det = decId % 10;
+      result.AddSensorCorrection(TotemRPDetId(arm, st, rp, det), a, true);
+    }
 
-
+    if (nodeType == 2)
+    {
+      unsigned int arm = (decId / 100) % 10;
+      unsigned int st = (decId / 10) % 10;
+      unsigned int rp = decId % 10;
+      result.AddRPCorrection(TotemRPDetId(arm, st, rp), a, true);
+    }
   }
-    return RPAlignmentCorrectionsData();
 
+  return result;
 }
 
 #define WRITE(q, dig, lim) \
