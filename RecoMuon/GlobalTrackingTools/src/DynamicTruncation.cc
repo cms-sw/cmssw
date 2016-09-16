@@ -74,7 +74,10 @@ void DynamicTruncation::updateWithDThits(TrajectoryStateOnSurface& tsos, DTRecSe
   for (ConstRecHitContainer::const_iterator it = tmprecHits.begin(); it != tmprecHits.end(); ++it) {
     DTLayerId layid((*it)->det()->geographicalId());
     TrajectoryStateOnSurface temp = propagator->propagate(tsos, theG->idToDet(layid)->surface());
-    if (temp.isValid()) tsos = updatorHandle->update(temp, **it);
+    if (temp.isValid()) {
+        TrajectoryStateOnSurface tempTsos = updatorHandle->update(temp, **it);
+        if (tempTsos.isValid() ) tsos = tempTsos;
+    }
   }
 }
 
