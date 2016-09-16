@@ -362,6 +362,23 @@
     </MaterialFraction>
   </CompositeMaterial>
 
+  <CompositeMaterial name="Pix_Bar_Cable_Layer1_Upgrade" density="5.72*g/cm3" symbol=" " method="mixture by weight">
+    <MaterialFraction fraction="0.46">
+      <rMaterial name="trackermaterial:T_Aluminium"/>
+    </MaterialFraction>
+    <MaterialFraction fraction="0.54">
+      <rMaterial name="trackermaterial:T_Copper"/>
+    </MaterialFraction>
+  </CompositeMaterial>
+  
+  <CompositeMaterial name="Pix_Bar_Cable_Layer234_Upgrade" density="4.31*g/cm3" symbol=" " method="mixture by weight">
+    <MaterialFraction fraction="0.46">
+      <rMaterial name="trackermaterial:T_Aluminium"/>
+    </MaterialFraction>
+    <MaterialFraction fraction="0.54">
+      <rMaterial name="trackermaterial:T_Copper"/>
+    </MaterialFraction>
+  </CompositeMaterial>
   
   <CompositeMaterial name="Flange_with_Manifold_Layer1" density="5.00093*g/cm3" symbol=" " method="mixture by weight">
     <MaterialFraction fraction="0.1636">
