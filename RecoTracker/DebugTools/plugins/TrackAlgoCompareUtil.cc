@@ -50,9 +50,9 @@ void
 TrackAlgoCompareUtil::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const
 {
      // create output collection instance
-    std::auto_ptr<RecoTracktoTPCollection> outputAlgoA(new RecoTracktoTPCollection());
-    std::auto_ptr<RecoTracktoTPCollection> outputAlgoB(new RecoTracktoTPCollection());
-    std::auto_ptr<TPtoRecoTrackCollection> outputTP(new TPtoRecoTrackCollection());
+    auto outputAlgoA = std::make_unique<RecoTracktoTPCollection>();
+    auto outputAlgoB = std::make_unique<RecoTracktoTPCollection>();
+    auto outputTP = std::make_unique<TPtoRecoTrackCollection>();
   
     // Get Inputs
     edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
@@ -263,9 +263,9 @@ TrackAlgoCompareUtil::produce(edm::StreamID, edm::Event& iEvent, const edm::Even
 
 
     // put the collection in the event record
-    iEvent.put(outputAlgoA, "AlgoA");
-    iEvent.put(outputAlgoB, "AlgoB");
-    iEvent.put(outputTP, "TP");
+    iEvent.put(std::move(outputAlgoA), "AlgoA");
+    iEvent.put(std::move(outputAlgoB), "AlgoB");
+    iEvent.put(std::move(outputTP), "TP");
 }
 
 // ------------ Producer Specific Meber Fucntions ----------------------------------------

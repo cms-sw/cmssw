@@ -36,8 +36,8 @@ namespace edm {
     return getProduct_(k, ep);
   }
 
-  SharedResourcesAcquirer*
+  std::pair<SharedResourcesAcquirer*, std::recursive_mutex*>
   DelayedReader::sharedResources_() const {
-    return nullptr;
+    return std::pair<SharedResourcesAcquirer*, std::recursive_mutex*>(nullptr, nullptr);
   }
 }

@@ -50,6 +50,11 @@ from RecoTracker.SpecialSeedGenerators.cosmicDC_cff import *
 localreco = cms.Sequence(bunchSpacingProducer+trackerlocalreco+muonlocalreco+calolocalreco+castorreco)
 localreco_HcalNZS = cms.Sequence(trackerlocalreco+muonlocalreco+calolocalrecoNZS+castorreco)
 
+_phase2_localreco = localreco.copyAndExclude([castorreco])
+_phase2_localreco_HcalNZS = localreco_HcalNZS.copyAndExclude([castorreco])
+eras.phase2_common.toReplaceWith(localreco, _phase2_localreco)
+eras.phase2_common.toReplaceWith(localreco_HcalNZS, _phase2_localreco_HcalNZS)
+
 _ctpps_2016_localreco = localreco.copy()
 _ctpps_2016_localreco += totemRPLocalReconstruction
 eras.ctpps_2016.toReplaceWith(localreco, _ctpps_2016_localreco)
@@ -88,6 +93,9 @@ globalreco = cms.Sequence(globalreco_tracking*
                           pfTrackingGlobalReco*
                           muoncosmicreco*
                           CastorFullReco)
+
+_phase2_globalreco = globalreco.copyAndExclude([CastorFullReco])
+eras.phase2_common.toReplaceWith(globalreco, _phase2_globalreco)
 
 globalreco_plusPL= cms.Sequence(globalreco*ctfTracksPixelLess)
 

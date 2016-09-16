@@ -162,6 +162,9 @@ class HLTObjectMonitor : public DQMEDAnalyzer {
   edm::ParameterSet bJetCSVCalo_pset;
   edm::ParameterSet bJetCSVPF_pset;
   edm::ParameterSet diMuonMass_pset;
+  edm::ParameterSet pAL1DoubleMuZMass_pset;
+  edm::ParameterSet pAL2DoubleMuZMass_pset;
+  edm::ParameterSet pAL3DoubleMuZMass_pset;
   edm::ParameterSet diElecMass_pset;
   edm::ParameterSet muonDxy_pset;
   edm::ParameterSet wallTime_pset;
@@ -202,6 +205,9 @@ class HLTObjectMonitor : public DQMEDAnalyzer {
   hltPlot bJetCSVCalo_;
   hltPlot bJetCSVPF_;
   hltPlot diMuonMass_;
+  hltPlot pAL1DoubleMuZMass_;
+  hltPlot pAL2DoubleMuZMass_;
+  hltPlot pAL3DoubleMuZMass_;
   hltPlot diElecMass_;
   hltPlot muonDxy_;
   hltPlot wallTime_;
@@ -296,6 +302,12 @@ HLTObjectMonitor::HLTObjectMonitor(const edm::ParameterSet& iConfig)
   plotMap[&bJetCSVPF_] = &bJetCSVPF_pset;
   diMuonMass_pset = iConfig.getParameter<edm::ParameterSet>("diMuonMass");
   plotMap[&diMuonMass_] = &diMuonMass_pset;
+  pAL1DoubleMuZMass_pset = iConfig.getParameter<edm::ParameterSet>("pAL1DoubleMuZMass");
+  plotMap[&pAL1DoubleMuZMass_] = &pAL1DoubleMuZMass_pset;
+  pAL2DoubleMuZMass_pset = iConfig.getParameter<edm::ParameterSet>("pAL2DoubleMuZMass");
+  plotMap[&pAL2DoubleMuZMass_] = &pAL2DoubleMuZMass_pset;
+  pAL3DoubleMuZMass_pset = iConfig.getParameter<edm::ParameterSet>("pAL3DoubleMuZMass");
+  plotMap[&pAL3DoubleMuZMass_] = &pAL3DoubleMuZMass_pset;
   diElecMass_pset = iConfig.getParameter<edm::ParameterSet>("diElecMass");
   plotMap[&diElecMass_] = &diElecMass_pset;
   muonDxy_pset = iConfig.getParameter<edm::ParameterSet>("muonDxy");
@@ -661,6 +673,84 @@ HLTObjectMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 			       mu2.SetPtEtaPhiM(objects[key1].pt(), objects[key1].eta(), objects[key1].phi(), mu_mass);
 			       dimu = mu1+mu2;
 			       diMuonMass_.ME->Fill(dimu.M());
+			     }
+			 }
+		       kCnt1 +=1;
+		     }
+		   kCnt0 +=1;
+		 }
+	     }
+
+	   else if (pathName == pAL1DoubleMuZMass_.pathName)
+	     {
+	       const double mu_mass(.105658);
+	       unsigned int kCnt0 = 0;
+	       for (const auto & key0: keys)
+		 {
+		   unsigned int kCnt1 = 0;
+		   for (const auto & key1: keys)
+		     {
+		       if (key0 != key1 && kCnt1 > kCnt0) // avoid filling hists with same objs && avoid double counting separate objs
+			 {
+                           // if (abs(objects[key0].id()) == 13 && (objects[key0].id()+objects[key1].id()==0))  // id is not filled for l1 stage2 muons
+			   //  {
+                           TLorentzVector mu1, mu2, dimu;
+                           mu1.SetPtEtaPhiM(objects[key0].pt(), objects[key0].eta(), objects[key0].phi(), mu_mass);
+                           mu2.SetPtEtaPhiM(objects[key1].pt(), objects[key1].eta(), objects[key1].phi(), mu_mass);
+                           dimu = mu1+mu2;
+                           if(dimu.M()>pAL1DoubleMuZMass_.xMin && dimu.M()<pAL1DoubleMuZMass_.xMax) pAL1DoubleMuZMass_.ME->Fill(dimu.M());
+                           //  }
+			 }
+		       kCnt1 +=1;
+		     }
+		   kCnt0 +=1;
+		 }
+	     }
+
+	   else if (pathName == pAL2DoubleMuZMass_.pathName)
+	     {
+	       const double mu_mass(.105658);
+	       unsigned int kCnt0 = 0;
+	       for (const auto & key0: keys)
+		 {
+		   unsigned int kCnt1 = 0;
+		   for (const auto & key1: keys)
+		     {
+		       if (key0 != key1 && kCnt1 > kCnt0) // avoid filling hists with same objs && avoid double counting separate objs
+			 {
+			   if (abs(objects[key0].id()) == 13 && (objects[key0].id()+objects[key1].id()==0))  // check muon id and dimuon charge
+			     {
+			       TLorentzVector mu1, mu2, dimu;
+			       mu1.SetPtEtaPhiM(objects[key0].pt(), objects[key0].eta(), objects[key0].phi(), mu_mass);
+			       mu2.SetPtEtaPhiM(objects[key1].pt(), objects[key1].eta(), objects[key1].phi(), mu_mass);
+			       dimu = mu1+mu2;
+			       if(dimu.M()>pAL2DoubleMuZMass_.xMin && dimu.M()<pAL2DoubleMuZMass_.xMax) pAL2DoubleMuZMass_.ME->Fill(dimu.M());
+			     }
+			 }
+		       kCnt1 +=1;
+		     }
+		   kCnt0 +=1;
+		 }
+	     }
+
+	   else if (pathName == pAL3DoubleMuZMass_.pathName)
+	     {
+	       const double mu_mass(.105658);
+	       unsigned int kCnt0 = 0;
+	       for (const auto & key0: keys)
+		 {
+		   unsigned int kCnt1 = 0;
+		   for (const auto & key1: keys)
+		     {
+		       if (key0 != key1 && kCnt1 > kCnt0) // avoid filling hists with same objs && avoid double counting separate objs
+			 {
+			   if (abs(objects[key0].id()) == 13 && (objects[key0].id()+objects[key1].id()==0))  // check muon id and dimuon charge
+			     {
+			       TLorentzVector mu1, mu2, dimu;
+			       mu1.SetPtEtaPhiM(objects[key0].pt(), objects[key0].eta(), objects[key0].phi(), mu_mass);
+			       mu2.SetPtEtaPhiM(objects[key1].pt(), objects[key1].eta(), objects[key1].phi(), mu_mass);
+			       dimu = mu1+mu2;
+			       if(dimu.M()>pAL3DoubleMuZMass_.xMin && dimu.M()<pAL3DoubleMuZMass_.xMax) pAL3DoubleMuZMass_.ME->Fill(dimu.M());
 			     }
 			 }
 		       kCnt1 +=1;

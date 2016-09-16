@@ -112,10 +112,10 @@ ClusterSummaryProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
    }
 
    //Put the filled class into the producer
-   std::auto_ptr<ClusterSummary> result(new ClusterSummary (0) );
+   auto result = std::make_unique<ClusterSummary>();
    //Cleanup empty selections
    result->copyNonEmpty(cCluster);
-   iEvent.put( result );
+   iEvent.put(std::move(result));
 }
 
 

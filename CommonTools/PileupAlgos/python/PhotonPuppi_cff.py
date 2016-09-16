@@ -9,7 +9,7 @@ puppiPhoton = cms.EDProducer("PuppiPhoton",
                              pt             = cms.double(10),
                              eta            = cms.double(2.5),
                              useRefs        = cms.bool(True),
-                             dRMatch        = cms.vdouble(10,10,10,10),
+                             dRMatch        = cms.vdouble(0.005,0.005,0.005,0.005),
                              pdgids         = cms.vint32 (22,11,211,130),
                              weight         = cms.double(1.),
                              useValueMap    = cms.bool(False),
@@ -18,6 +18,13 @@ puppiPhoton = cms.EDProducer("PuppiPhoton",
 
 
 def setupPuppiPhoton(process):
+    my_id_modules = ['RecoEgamma.PhotonIdentification.Identification.cutBasedPhotonID_Spring15_25ns_V1_cff']
+    switchOnVIDPhotonIdProducer(process, DataFormat.AOD)
+    for idmod in my_id_modules:
+        setupAllVIDIdsInModule(process,idmod,setupVIDPhotonSelection)
+
+
+def setupPuppiPhotonMiniAOD(process):
     my_id_modules = ['RecoEgamma.PhotonIdentification.Identification.cutBasedPhotonID_Spring15_25ns_V1_cff']
     switchOnVIDPhotonIdProducer(process, DataFormat.MiniAOD)
     for idmod in my_id_modules:

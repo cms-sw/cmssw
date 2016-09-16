@@ -45,7 +45,7 @@ class DCCEBSRPBlock : public DCCSRPBlock{
 	 
     bool checkSrpIdAndNumbSRFlags();
     
-    std::auto_ptr<EBSrFlagCollection>  * ebSrFlagsDigis_;
+    std::unique_ptr<EBSrFlagCollection>  * ebSrFlagsDigis_;
     
     EcalTrigTowerDetId * pTTDetId_;
 		

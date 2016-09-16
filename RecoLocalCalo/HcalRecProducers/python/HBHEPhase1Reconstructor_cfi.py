@@ -1,5 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 import RecoLocalCalo.HcalRecProducers.HBHEMethod3Parameters_cfi as method3
+import RecoLocalCalo.HcalRecProducers.HBHEMethod2Parameters_cfi as method2
+import RecoLocalCalo.HcalRecProducers.HBHEPulseShapeFlagSetter_cfi as pulseShapeFlag
+import RecoLocalCalo.HcalRecProducers.HBHEStatusBitSetter_cfi as hbheStatusFlag
 
 hbheprereco = cms.EDProducer(
     "HBHEPhase1Reconstructor",
@@ -41,6 +44,7 @@ hbheprereco = cms.EDProducer(
     algorithm = cms.PSet(
         # Parameters for "Method 3" (non-keyword arguments have to go first)
         method3.m3Parameters,
+        method2.m2Parameters,
 
         Class = cms.string("SimpleHBHEPhase1Algo"),
 
@@ -52,35 +56,31 @@ hbheprereco = cms.EDProducer(
         samplesToAdd      = cms.int32(2),
         correctionPhaseNS = cms.double(6.0),
 
-        # Use "Method 2"? Change this to True when implemented.
-        useM2 = cms.bool(False),
-
-        # Parameters for "Method 2"
-        applyPedConstraint    = cms.bool(True),
-        applyTimeConstraint   = cms.bool(True),
-        applyPulseJitter      = cms.bool(False),  
-        applyUnconstrainedFit = cms.bool(False),  #Turn on original Method 2
-        applyTimeSlew         = cms.bool(True),   #units
-        ts4Min                = cms.double(0.),   #fC
-        ts4Max                = cms.double(100.), #fC
-        pulseJitter           = cms.double(1.),   #GeV/bin
-        meanTime              = cms.double(0.),   #ns
-        timeSigma             = cms.double(5.),   #ns
-        meanPed               = cms.double(0.),   #GeV
-        pedSigma              = cms.double(0.5),  #GeV
-        noise                 = cms.double(1),    #fC
-        timeMin               = cms.double(-12.5),#ns
-        timeMax               = cms.double(12.5), #ns
-        ts3chi2               = cms.double(5.),   #chi2 (not used)
-        ts4chi2               = cms.double(15.),  #chi2 for triple pulse 
-        ts345chi2             = cms.double(100.), #chi2 (not used)
-        chargeMax             = cms.double(6.),   #Charge cut (fC) for uncstrianed Fit 
-        fitTimes              = cms.int32(1),     # -1 means no constraint on number of fits per channel
+        # Use "Method 2"?
+        useM2 = cms.bool(True),
 
         # Use "Method 3"? Change this to True when implemented.
         useM3 = cms.bool(False)
     ),
 
     # Reconstruction algorithm configuration data to fetch from DB, if any
-    algoConfigClass = cms.string("")
+    algoConfigClass = cms.string(""),
+
+    # Turn rechit status bit setters on/off
+    setNegativeFlags = cms.bool(False),
+    setNoiseFlagsQIE8 = cms.bool(False), # Set to "True" when the topology map is fixed
+    setNoiseFlagsQIE11 = cms.bool(False),
+    setPulseShapeFlagsQIE8 = cms.bool(True),
+    setPulseShapeFlagsQIE11 = cms.bool(False),
+
+    # Parameter sets configuring rechit status bit setters
+    flagParametersQIE8 = cms.PSet(
+        hbheStatusFlag.qie8Config
+    ),
+    flagParametersQIE11 = cms.PSet(),
+
+    pulseShapeParametersQIE8 = cms.PSet(
+        pulseShapeFlag.qie8Parameters
+    ),
+    pulseShapeParametersQIE11 = cms.PSet()
 )

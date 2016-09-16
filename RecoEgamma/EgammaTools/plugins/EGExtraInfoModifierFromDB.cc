@@ -371,6 +371,9 @@ void EGExtraInfoModifierFromDB::modifyObject(reco::GsfElectron& ele) const {
   const int numberOfClusters =  the_sc->clusters().size();
   const bool missing_clusters = !the_sc->clusters()[numberOfClusters-1].isAvailable();
 
+
+  //skip HGCal for now
+  if( theseed->seed().det() == DetId::Forward ) return;
   if( missing_clusters ) return ; // do not apply corrections in case of missing info (slimmed MiniAOD electrons)
   
   std::array<float, 33> eval;  
@@ -571,6 +574,8 @@ void EGExtraInfoModifierFromDB::modifyObject(reco::Photon& pho) const {
   const int numberOfClusters =  the_sc->clusters().size();
   const bool missing_clusters = !the_sc->clusters()[numberOfClusters-1].isAvailable();
 
+  // skip HGCal for now
+  if( theseed->seed().det() == DetId::Forward ) return;
   if( missing_clusters ) return ; // do not apply corrections in case of missing info (slimmed MiniAOD electrons)
 
   const double raw_energy = the_sc->rawEnergy(); 

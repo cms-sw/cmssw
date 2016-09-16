@@ -28,6 +28,8 @@
 #include "CondFormats/HcalObjects/interface/HcalTPChannelParameters.h"
 #include "CalibCalorimetry/HcalAlgos/interface/HcalHardcodeParameters.h"
 
+#include <vector>
+
 /**
 
    \class HcalDbHardcode
@@ -53,12 +55,14 @@ class HcalDbHardcode {
     void setHFUpgrade(HcalHardcodeParameters p) { theHFUpgradeParameters_ = p; setHFUpgrade_ = true; }
     void useHBUpgrade(bool b) { useHBUpgrade_ = b; }
     void useHEUpgrade(bool b) { useHEUpgrade_ = b; }
+    void useHOUpgrade(bool b) { useHOUpgrade_ = b; }
     void useHFUpgrade(bool b) { useHFUpgrade_ = b; }
     void testHFQIE10(bool b) { testHFQIE10_ = b; }
     
     //getters
     const bool useHBUpgrade() const { return useHBUpgrade_; }
     const bool useHEUpgrade() const { return useHEUpgrade_; }
+    const bool useHOUpgrade() const { return useHOUpgrade_; }
     const bool useHFUpgrade() const { return useHFUpgrade_; }
     const HcalHardcodeParameters& getParameters(HcalGenericDetId fId);
     const int getGainIndex(HcalGenericDetId fId);
@@ -73,7 +77,7 @@ class HcalDbHardcode {
     HcalRecoParam makeRecoParam (HcalGenericDetId fId);
     HcalMCParam makeMCParam (HcalGenericDetId fId);
     HcalTimingParam makeTimingParam (HcalGenericDetId fId);
-    void makeHardcodeMap(HcalElectronicsMap& emap);
+    void makeHardcodeMap(HcalElectronicsMap& emap, const std::vector<HcalGenericDetId>& cells);
     void makeHardcodeDcsMap(HcalDcsMap& dcs_map);
     void makeHardcodeFrontEndMap(HcalFrontEndMap& emap, 
 				 const std::vector<HcalGenericDetId>& cells);
@@ -88,7 +92,7 @@ class HcalDbHardcode {
     HcalHardcodeParameters theHBParameters_, theHEParameters_, theHFParameters_, theHOParameters_;
     HcalHardcodeParameters theHBUpgradeParameters_, theHEUpgradeParameters_, theHFUpgradeParameters_;
     bool setHB_, setHE_, setHF_, setHO_, setHBUpgrade_, setHEUpgrade_, setHFUpgrade_;
-    bool useHBUpgrade_, useHEUpgrade_, useHFUpgrade_, testHFQIE10_;
+    bool useHBUpgrade_, useHEUpgrade_, useHOUpgrade_, useHFUpgrade_, testHFQIE10_;
 };
 
 #endif

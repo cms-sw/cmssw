@@ -10,9 +10,9 @@ const float l1t::CaloTools::kGTEtaLSB = 0.0435;
 const float l1t::CaloTools::kGTPhiLSB = 0.0435;
 const float l1t::CaloTools::kGTEtLSB = 0.5;
 
-const int l1t::CaloTools::cos_coeff[72] = {1023, 1019, 1007, 988, 961, 927, 886, 838, 784, 723, 658, 587, 512, 432, 350, 265, 178, 89, 0, -89, -178, -265, -350, -432, -512, -587, -658, -723, -784, -838, -886, -927, -961, -988, -1007, -1019, -1023, -1019, -1007, -988, -961, -927, -886, -838, -784, -723, -658, -587, -512, -432, -350, -265, -178, -89, 0, 89, 178, 265, 350, 432, 512, 587, 658, 723, 784, 838, 886, 927, 961, 988, 1007, 1019};
+const int64_t l1t::CaloTools::cos_coeff[72] = {1023, 1019, 1007, 988, 961, 927, 886, 838, 784, 723, 658, 587, 512, 432, 350, 265, 178, 89, 0, -89, -178, -265, -350, -432, -512, -587, -658, -723, -784, -838, -886, -927, -961, -988, -1007, -1019, -1023, -1019, -1007, -988, -961, -927, -886, -838, -784, -723, -658, -587, -512, -432, -350, -265, -178, -89, 0, 89, 178, 265, 350, 432, 511, 587, 658, 723, 784, 838, 886, 927, 961, 988, 1007, 1019};
 
-const int l1t::CaloTools::sin_coeff[72] = {0, 89, 178, 265, 350, 432, 512, 587, 658, 723, 784, 838, 886, 927, 961, 988, 1007, 1019, 1023, 1019, 1007, 988, 961, 927, 886, 838, 784, 723, 658, 587, 512, 432, 350, 265, 178, 89, 0, -89, -178, -265, -350, -432, -512, -587, -658, -723, -784, -838, -886, -927, -961, -988, -1007, -1019, -1023, -1019, -1007, -988, -961, -927, -886, -838, -784, -723, -658, -587, -512, -432, -350, -265, -178, -89};
+const int64_t l1t::CaloTools::sin_coeff[72] = {0, 89, 178, 265, 350, 432, 512, 587, 658, 723, 784, 838, 886, 927, 961, 988, 1007, 1019, 1023, 1019, 1007, 988, 961, 927, 886, 838, 784, 723, 658, 587, 512, 432, 350, 265, 178, 89, 0, -89, -178, -265, -350, -432, -512, -587, -658, -723, -784, -838, -886, -927, -961, -988, -1007, -1019, -1023, -1019, -1007, -988, -961, -927, -886, -838, -784, -723, -658, -587, -512, -432, -350, -265, -178, -89};
 
 
 
@@ -29,10 +29,12 @@ bool l1t::CaloTools::insertTower(std::vector<l1t::CaloTower>& towers, const l1t:
 //with standarising the layout of std::vector<l1t::CaloTower>
 const l1t::CaloTower& l1t::CaloTools::getTower(const std::vector<l1t::CaloTower>& towers,int iEta,int iPhi)
 {
+  if(abs(iEta) > CaloTools::kHFEnd) return nullTower_;
+
   size_t towerIndex = CaloTools::caloTowerHash(iEta, iPhi);
   if(towerIndex<towers.size()){
     if(towers[towerIndex].hwEta()!=iEta || towers[towerIndex].hwPhi()!=iPhi){ //it failed, this is bad, but we will not log the error due to policy and silently attempt to do a brute force search instead 
-      // std::cout <<"error, tower "<<towers[towerIndex].hwEta()<<" "<<towers[towerIndex].hwPhi()<<" does not match "<<iEta<<" "<<iPhi<<" index "<<towerIndex<<" nr towrs "<<towers.size()<<std::endl;
+      //std::cout <<"error, tower "<<towers[towerIndex].hwEta()<<" "<<towers[towerIndex].hwPhi()<<" does not match "<<iEta<<" "<<iPhi<<" index "<<towerIndex<<" nr towrs "<<towers.size()<<std::endl;
       for(size_t towerNr=0;towerNr<towers.size();towerNr++){
 	if(towers[towerNr].hwEta()==iEta && towers[towerNr].hwPhi()==iPhi) return towers[towerNr];
       }     
@@ -116,7 +118,7 @@ int l1t::CaloTools::calHwEtSum(int iEta,int iPhi,const std::vector<l1t::CaloTowe
       int towerIEta = l1t::CaloStage2Nav::offsetIEta(iEta,etaNr);
       int towerIPhi = l1t::CaloStage2Nav::offsetIPhi(iPhi,phiNr);
       if(abs(towerIEta)<=iEtaAbsMax){
-	const l1t::CaloTower& tower = getTower(towers,towerIEta,towerIPhi);
+	const l1t::CaloTower& tower = getTower(towers,CaloTools::caloEta(towerIEta),towerIPhi);
 	if(etMode==ECAL) hwEtSum+=tower.hwEtEm();
 	else if(etMode==HCAL) hwEtSum+=tower.hwEtHad();
 	else if(etMode==CALO) hwEtSum+=tower.hwPt();
@@ -134,7 +136,7 @@ size_t l1t::CaloTools::calNrTowers(int iEtaMin,int iEtaMax,int iPhiMin,int iPhiM
   while(nav.currIEta()<=iEtaMax){
     bool finishPhi = false;
     while(!finishPhi){
-      const l1t::CaloTower& tower = l1t::CaloTools::getTower(towers,nav.currIEta(),nav.currIPhi());
+      const l1t::CaloTower& tower = l1t::CaloTools::getTower(towers,CaloTools::caloEta(nav.currIEta()),nav.currIPhi());
       int towerHwEt =0;
       if(etMode==ECAL) towerHwEt+=tower.hwEtEm();
       else if(etMode==HCAL) towerHwEt+=tower.hwEtHad();
@@ -233,6 +235,31 @@ int l1t::CaloTools::regionEta(int ieta)
 }
 
 
+// convert calorimeter ieta to etaBin16 index
+int l1t::CaloTools::bin16Eta(int ieta)
+{
+  int absIEta = abs(ieta);
+
+  if (absIEta>0 && absIEta<=5) return 0;
+  else if (absIEta<=9) return 1;
+  else if (absIEta<=13) return 2;
+  else if (absIEta<=15) return 3;
+  else if (absIEta<=17) return 4;
+  else if (absIEta<=19) return 5;
+  else if (absIEta<=21) return 6;
+  else if (absIEta==22) return 7;
+  else if (absIEta==23) return 8;
+  else if (absIEta==24) return 9;
+  else if (absIEta==25) return 10;
+  else if (absIEta==26) return 11;
+  else if (absIEta<=28) return 12;
+  else if (absIEta<=32) return 13;
+  else if (absIEta<=36) return 14;
+  else if (absIEta<=41) return 15;
+  else return -1; // error
+}
+
+
 int l1t::CaloTools::gtEta(int ieta) {
 
   double eta = towerEta(ieta);
@@ -265,35 +292,65 @@ math::PtEtaPhiMLorentzVector l1t::CaloTools::p4Demux(l1t::L1Candidate* cand) {
 
 l1t::EGamma l1t::CaloTools::egP4Demux(l1t::EGamma& eg) {
   
-  return l1t::EGamma( p4Demux(&eg),
-		      eg.hwPt(),
-		      eg.hwEta(),
-		      eg.hwPhi(),
-		      eg.hwQual(),
-		      eg.hwIso() );
+ l1t::EGamma tmpEG( p4Demux(&eg),
+  		      eg.hwPt(),
+  		      eg.hwEta(),
+  		      eg.hwPhi(),
+  		      eg.hwQual(),
+  		      eg.hwIso() );
+ tmpEG.setTowerIPhi(eg.towerIPhi());
+ tmpEG.setTowerIEta(eg.towerIEta());
+ tmpEG.setRawEt(eg.rawEt());
+ tmpEG.setIsoEt(eg.isoEt());
+ tmpEG.setFootprintEt(eg.footprintEt());
+ tmpEG.setNTT(eg.nTT());
+ tmpEG.setShape(eg.shape());
+
+ return tmpEG;
 
 }
 
 
 l1t::Tau l1t::CaloTools::tauP4Demux(l1t::Tau& tau) {
 
-  return l1t::Tau( p4Demux(&tau),
-		   tau.hwPt(),
-		   tau.hwEta(),
-		   tau.hwPhi(),
-		   tau.hwQual(),
-		   tau.hwIso() );
+  l1t::Tau tmpTau ( p4Demux(&tau),
+		    tau.hwPt(),
+		    tau.hwEta(),
+		    tau.hwPhi(),
+		    tau.hwQual(),
+		    tau.hwIso());
+  tmpTau.setTowerIPhi(tau.towerIPhi());
+  tmpTau.setTowerIEta(tau.towerIEta());
+  tmpTau.setRawEt(tau.rawEt());
+  tmpTau.setIsoEt(tau.isoEt());
+  tmpTau.setNTT(tau.nTT());
+  tmpTau.setHasEM(tau.hasEM());
+  tmpTau.setIsMerged(tau.isMerged());
+
+  return tmpTau;
 
 }
 
 
 l1t::Jet l1t::CaloTools::jetP4Demux(l1t::Jet& jet) {
 
-  return l1t::Jet( p4Demux(&jet),
+  
+  l1t::Jet tmpJet ( p4Demux(&jet),
 		   jet.hwPt(),
 		   jet.hwEta(),
 		   jet.hwPhi(),
 		   jet.hwQual() );
+  tmpJet.setTowerIPhi(jet.towerIPhi());
+  tmpJet.setTowerIEta(jet.towerIEta());
+  tmpJet.setRawEt(jet.rawEt());
+  tmpJet.setSeedEt(jet.seedEt());
+  tmpJet.setPUEt(jet.puEt());
+  tmpJet.setPUDonutEt(0,jet.puDonutEt(0));
+  tmpJet.setPUDonutEt(1,jet.puDonutEt(1));
+  tmpJet.setPUDonutEt(2,jet.puDonutEt(2));
+  tmpJet.setPUDonutEt(3,jet.puDonutEt(3));
+
+  return tmpJet;
   
 }
 
@@ -323,33 +380,63 @@ math::PtEtaPhiMLorentzVector l1t::CaloTools::p4MP(l1t::L1Candidate* cand) {
 
 l1t::EGamma l1t::CaloTools::egP4MP(l1t::EGamma& eg) {
 
-  return l1t::EGamma( p4MP(&eg),
-		      eg.hwPt(),
-		      eg.hwEta(),
-		      eg.hwPhi(),
-		      eg.hwQual(),
-		      eg.hwIso() );
+  l1t::EGamma tmpEG( p4MP(&eg),
+		     eg.hwPt(),
+		     eg.hwEta(),
+		     eg.hwPhi(),
+		     eg.hwQual(),
+		     eg.hwIso() );
+  tmpEG.setTowerIPhi(eg.towerIPhi());
+  tmpEG.setTowerIEta(eg.towerIEta());
+  tmpEG.setRawEt(eg.rawEt());
+  tmpEG.setIsoEt(eg.isoEt());
+  tmpEG.setFootprintEt(eg.footprintEt());
+  tmpEG.setNTT(eg.nTT());
+  tmpEG.setShape(eg.shape());
+  
+  return tmpEG;
+
 }
 
 
 l1t::Tau l1t::CaloTools::tauP4MP(l1t::Tau& tau) {
 
-  return l1t::Tau( p4MP(&tau),
-		   tau.hwPt(),
-		   tau.hwEta(),
-		   tau.hwPhi(),
-		   tau.hwQual(),
-		   tau.hwIso() );
+  l1t::Tau tmpTau ( p4MP(&tau),
+		    tau.hwPt(),
+		    tau.hwEta(),
+		    tau.hwPhi(),
+		    tau.hwQual(),
+		    tau.hwIso());
+  tmpTau.setTowerIPhi(tau.towerIPhi());
+  tmpTau.setTowerIEta(tau.towerIEta());
+  tmpTau.setRawEt(tau.rawEt());
+  tmpTau.setIsoEt(tau.isoEt());
+  tmpTau.setNTT(tau.nTT());
+  tmpTau.setHasEM(tau.hasEM());
+  tmpTau.setIsMerged(tau.isMerged());
+
+  return tmpTau;
 }
 
 
 l1t::Jet l1t::CaloTools::jetP4MP(l1t::Jet& jet) {
 
-  return l1t::Jet( p4MP(&jet),
+  l1t::Jet tmpJet ( p4MP(&jet),
 		   jet.hwPt(),
 		   jet.hwEta(),
 		   jet.hwPhi(),
 		   jet.hwQual() );
+  tmpJet.setTowerIPhi(jet.towerIPhi());
+  tmpJet.setTowerIEta(jet.towerIEta());
+  tmpJet.setRawEt(jet.rawEt());
+  tmpJet.setSeedEt(jet.seedEt());
+  tmpJet.setPUEt(jet.puEt());
+  tmpJet.setPUDonutEt(0,jet.puDonutEt(0));
+  tmpJet.setPUDonutEt(1,jet.puDonutEt(1));
+  tmpJet.setPUDonutEt(2,jet.puDonutEt(2));
+  tmpJet.setPUDonutEt(3,jet.puDonutEt(3));
+
+  return tmpJet;
 
 }
 

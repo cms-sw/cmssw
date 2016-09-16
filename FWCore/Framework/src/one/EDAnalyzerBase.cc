@@ -57,18 +57,15 @@ namespace edm {
                             ModuleCallingContext const* mcc) {
       Event e(ep, moduleDescription_, mcc);
       e.setConsumer(this);
-      {
-        std::lock_guard<std::mutex> guard(mutex_);
-        std::lock_guard<SharedResourcesAcquirer> guardResources(resourcesAcquirer_);
-        e.setSharedResourcesAcquirer(&resourcesAcquirer_);
-        EventSignalsSentry sentry(act,mcc);
-        this->analyze(e, c);
-      }
+      e.setSharedResourcesAcquirer(&resourcesAcquirer_);
+      EventSignalsSentry sentry(act,mcc);
+      this->analyze(e, c);
       return true;
     }
     
     SharedResourcesAcquirer EDAnalyzerBase::createAcquirer() {
-      return SharedResourcesAcquirer{};
+      return SharedResourcesAcquirer{
+        std::vector<std::shared_ptr<SerialTaskQueue>>(1, std::make_shared<SerialTaskQueue>())};
     }
 
     void

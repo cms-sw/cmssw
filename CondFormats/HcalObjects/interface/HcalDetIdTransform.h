@@ -12,6 +12,7 @@ namespace HcalDetIdTransform
         RAWID = 0,    // Raw detector id
         IETA,         // ieta() + shift
         IETAABS,      // ietaAbs()
+        SUBDET,       // subdetId()
         N_TRANSFORMS
     };
 

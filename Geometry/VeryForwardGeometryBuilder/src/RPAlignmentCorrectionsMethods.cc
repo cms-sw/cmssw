@@ -88,7 +88,7 @@ RPAlignmentCorrectionsData RPAlignmentCorrectionsMethods::GetCorrectionsDataFrom
 RPAlignmentCorrectionsData RPAlignmentCorrectionsMethods::GetCorrectionsData(DOMNode *root)
 {
   RPAlignmentCorrectionsData result;
-
+  
   DOMNodeList *children = root->getChildNodes();
   for (unsigned int i = 0; i < children->getLength(); i++)
   {

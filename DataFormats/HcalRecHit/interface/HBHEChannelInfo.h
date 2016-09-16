@@ -19,16 +19,17 @@ public:
     static const unsigned MAXSAMPLES = 10;
 
     inline HBHEChannelInfo()
-        : rawCharge_{0.}, pedestal_{0.}, gain_{0.}, riseTime_{0.f}, adc_{0},
+      : rawCharge_{0.}, pedestal_{0.}, pedestalWidth_{0.}, gain_{0.}, riseTime_{0.f}, adc_{0},
           hasTimeInfo_(false) {clear();}
 
     inline explicit HBHEChannelInfo(const bool hasTimeFromTDC)
-        : rawCharge_{0.}, pedestal_{0.}, gain_{0.}, riseTime_{0.f}, adc_{0},
+      : rawCharge_{0.}, pedestal_{0.}, pedestalWidth_{0.}, gain_{0.}, riseTime_{0.f}, adc_{0},
           hasTimeInfo_(hasTimeFromTDC) {clear();}
 
     inline void clear()
     {
         id_ = HcalDetId(0U);
+	recoShape_ = 0;
         nSamples_ = 0;
         soi_ = 0;
         capid_ = 0;
@@ -37,11 +38,12 @@ public:
         hasCapidError_ = false;
     }
 
-    inline void setChannelInfo(const HcalDetId& detId, const unsigned nSamp,
+    inline void setChannelInfo(const HcalDetId& detId, const int recoShape, const unsigned nSamp,
                                const unsigned iSoi, const int iCapid,
                                const bool linkError, const bool capidError,
                                const bool dropThisChannel)
     {
+        recoShape_ = recoShape;
         id_ = detId;
         nSamples_ = nSamp < MAXSAMPLES ? nSamp : MAXSAMPLES;
         soi_ = iSoi;
@@ -56,11 +58,12 @@ public:
 
     // For speed, the "setSample" function does not perform bounds checking
     inline void setSample(const unsigned ts, const uint8_t rawADC,
-                          const double q, const double ped,
+                          const double q, const double ped, const double pedWidth,
                           const double g, const float t)
     {
         rawCharge_[ts] = q;
         pedestal_[ts] = ped;
+        pedestalWidth_[ts] = pedWidth;
         gain_[ts] = g;
         riseTime_[ts] = t;
         adc_[ts] = rawADC;
@@ -68,6 +71,9 @@ public:
 
     // Inspectors
     inline HcalDetId id() const {return id_;}
+
+    // access the recoShape
+    inline int recoShape() const { return recoShape_;}
 
     inline unsigned nSamples() const {return nSamples_;}
     inline unsigned soi() const {return soi_;}
@@ -80,6 +86,7 @@ public:
     // Direct read-only access to time slice arrays
     inline const double* rawCharge() const {return rawCharge_;}
     inline const double* pedestal() const {return pedestal_;}
+    inline const double* pedestalWidth() const {return pedestalWidth_;}
     inline const double* gain() const {return gain_;}
     inline const uint8_t* adc() const {return adc_;}
     inline const float* riseTime() const
@@ -88,6 +95,7 @@ public:
     // Indexed access to time slice quantities. No bounds checking.
     inline double tsRawCharge(const unsigned ts) const {return rawCharge_[ts];}
     inline double tsPedestal(const unsigned ts) const {return pedestal_[ts];}
+    inline double tsPedestalWidth(const unsigned ts) const {return pedestalWidth_[ts];}
     inline double tsCharge(const unsigned ts) const
         {return rawCharge_[ts] - pedestal_[ts];}
     inline double tsEnergy(const unsigned ts) const
@@ -96,6 +104,7 @@ public:
     inline uint8_t tsAdc(const unsigned ts) const {return adc_[ts];}
     inline float tsRiseTime(const unsigned ts) const
         {return hasTimeInfo_ ? riseTime_[ts] : HcalSpecialTimes::UNKNOWN_T_NOTDC;}
+
 
     // Signal rise time measurement for the SOI, if available
     inline float soiRiseTime() const
@@ -180,6 +189,9 @@ private:
     // Pedestal in fC
     double pedestal_[MAXSAMPLES];
 
+    // Pedestal Width in fC
+    double pedestalWidth_[MAXSAMPLES];
+
     // fC to GeV conversion factor (can depend on CAPID)
     double gain_[MAXSAMPLES];
 
@@ -188,6 +200,9 @@ private:
 
     // Raw QIE ADC values
     uint8_t adc_[MAXSAMPLES];
+
+    // Reco Shapes
+    int32_t recoShape_;
 
     // Number of time slices actually filled
     uint32_t nSamples_;

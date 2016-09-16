@@ -130,7 +130,7 @@ void HLTRechitInRegionsProducer<T1>::produce(edm::Event& evt, const edm::EventSe
 
     edm::Handle<EcalUncalibratedRecHitCollection> urhcH[3];
     for (unsigned int i=0; i<hitLabels.size(); i++) {
-      std::unique_ptr<EcalUncalibratedRecHitCollection> uhits(new EcalUncalibratedRecHitCollection);
+      auto uhits = std::make_unique<EcalUncalibratedRecHitCollection>();
       
       evt.getByToken(uncalibHitTokens[i], urhcH[i]);  
       if (!(urhcH[i].isValid())) {
@@ -142,13 +142,13 @@ void HLTRechitInRegionsProducer<T1>::produce(edm::Event& evt, const edm::EventSe
       if (uncalibRecHits->size() > 0) {
 	if ((*uncalibRecHits)[0].id().subdetId() == EcalBarrel) {
 	  geometry_p = geometry.getSubdetectorGeometry(DetId::Ecal, EcalBarrel);
-	  topology.reset(new EcalBarrelTopology(geoHandle));
+	  topology = std::make_unique<EcalBarrelTopology>(geoHandle);
 	} else if ((*uncalibRecHits)[0].id().subdetId() == EcalEndcap) {
 	  geometry_p = geometry.getSubdetectorGeometry(DetId::Ecal, EcalEndcap);
-	  topology.reset(new EcalEndcapTopology(geoHandle));
+	  topology = std::make_unique<EcalEndcapTopology>(geoHandle);
 	} else if ((*uncalibRecHits)[0].id().subdetId() == EcalPreshower) {
 	  geometry_p = geometry.getSubdetectorGeometry(DetId::Ecal, EcalPreshower);
-	  topology.reset(new EcalPreshowerTopology (geoHandle));
+	  topology = std::make_unique<EcalPreshowerTopology>(geoHandle);
 	} else throw(std::runtime_error("\n\nProducer encountered invalied ecalhitcollection type.\n\n"));
 	
 	if(regions.size() != 0) {
@@ -175,7 +175,7 @@ void HLTRechitInRegionsProducer<T1>::produce(edm::Event& evt, const edm::EventSe
 
     edm::Handle<EcalRecHitCollection> rhcH[3];
     for (unsigned int i=0; i<hitLabels.size(); i++) {
-      std::unique_ptr<EcalRecHitCollection> hits(new EcalRecHitCollection);
+      auto hits = std::make_unique<EcalRecHitCollection>();
     
       evt.getByToken(hitTokens[i], rhcH[i]);  
       if (!(rhcH[i].isValid())) {
@@ -187,13 +187,13 @@ void HLTRechitInRegionsProducer<T1>::produce(edm::Event& evt, const edm::EventSe
       if (recHits->size() > 0) {
 	if ((*recHits)[0].id().subdetId() == EcalBarrel) {
 	  geometry_p = geometry.getSubdetectorGeometry(DetId::Ecal, EcalBarrel);
-	  topology.reset(new EcalBarrelTopology(geoHandle));
+	  topology = std::make_unique<EcalBarrelTopology>(geoHandle);
 	} else if ((*recHits)[0].id().subdetId() == EcalEndcap) {
 	  geometry_p = geometry.getSubdetectorGeometry(DetId::Ecal, EcalEndcap);
-	  topology.reset(new EcalEndcapTopology(geoHandle));
+	  topology = std::make_unique<EcalEndcapTopology>(geoHandle);
 	} else if ((*recHits)[0].id().subdetId() == EcalPreshower) {
 	  geometry_p = geometry.getSubdetectorGeometry(DetId::Ecal, EcalPreshower);
-	  topology.reset(new EcalPreshowerTopology (geoHandle));
+	  topology = std::make_unique<EcalPreshowerTopology>(geoHandle);
 	} else throw(std::runtime_error("\n\nProducer encountered invalied ecalhitcollection type.\n\n"));
 	
 	if(regions.size() != 0) {

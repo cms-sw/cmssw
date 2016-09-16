@@ -19,7 +19,6 @@
 //
 
 // system include files
-#include <mutex>
 
 // user include files
 #include "FWCore/Framework/interface/ProducerBase.h"
@@ -94,6 +93,10 @@ namespace edm {
       }
       std::string workerType() const {return "WorkerT<EDProducer>";}
       
+      SharedResourcesAcquirer& sharedResourcesAcquirer() {
+        return resourcesAcquirer_;
+      }
+      
       virtual void produce(Event&, EventSetup const&) = 0;
       virtual void beginJob() {}
       virtual void endJob(){}
@@ -121,7 +124,6 @@ namespace edm {
       ParentageID previousParentageId_;
 
       SharedResourcesAcquirer resourcesAcquirer_;
-      std::mutex mutex_;
     };
     
   }

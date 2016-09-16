@@ -114,9 +114,9 @@ FP420ClusterMain::~FP420ClusterMain() {
 }
 
 
-//void FP420ClusterMain::run(const DigiCollectionFP420 *input, ClusterCollectionFP420 &soutput,
+//void FP420ClusterMain::run(const DigiCollectionFP420 *input, ClusterCollectionFP420 *soutput,
 //			   const std::vector<ClusterNoiseFP420>& electrodnoise)
-void FP420ClusterMain::run(edm::Handle<DigiCollectionFP420> &input, std::auto_ptr<ClusterCollectionFP420> &soutput,
+void FP420ClusterMain::run(edm::Handle<DigiCollectionFP420> &input, ClusterCollectionFP420 *soutput,
 			   std::vector<ClusterNoiseFP420>& electrodnoise)
 
 {

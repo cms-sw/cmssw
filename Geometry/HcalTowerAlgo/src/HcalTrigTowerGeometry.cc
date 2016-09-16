@@ -6,9 +6,12 @@
 #include <cassert>
 
 HcalTrigTowerGeometry::HcalTrigTowerGeometry( const HcalTopology* topology )
-    : theTopology( topology ) {
-  useRCT_=true;
-  use1x1_=true;
+   : theTopology(topology)
+{
+   auto tmode = theTopology->triggerMode();
+   useRCT_ = tmode <= HcalTopologyMode::TriggerMode_2016;
+   use1x1_ = tmode >= HcalTopologyMode::TriggerMode_2016;
+   use2017_ = tmode == HcalTopologyMode::TriggerMode_2017;
 }
 
 std::vector<HcalTrigTowerDetId> 
@@ -56,9 +59,17 @@ HcalTrigTowerGeometry::towerIds(const HcalDetId & cellId) const {
       // the remaining rings are two-to-one in phi
       int iphi1 = cellId.iphi();
       int ieta = cellId.ieta();
+      int depth = cellId.depth();
       // the last eta ring in HE is split.  Recombine.
       if(ieta == theTopology->lastHERing()) --ieta;
       if(ieta == -theTopology->lastHERing()) ++ieta;
+
+      if (use2017_) {
+         if (ieta == 26 and depth == 7)
+            ++ieta;
+         if (ieta == -26 and depth == 7)
+            --ieta;
+      }
 
       results.push_back( HcalTrigTowerDetId(ieta, iphi1) );
       results.push_back( HcalTrigTowerDetId(ieta, iphi1+1) );
@@ -108,6 +119,15 @@ HcalTrigTowerGeometry::detIds(const HcalTrigTowerDetId & hcalTrigTowerDetId) con
     // Special for double-phi cells
     if (abs(cell_ieta) >= theTopology->firstHEDoublePhiRing())
       if (tower_iphi%2 == 0) cell_iphi = tower_iphi - 1;
+
+    if (use2017_) {
+         if (abs(tower_ieta) == 26)
+            --n_depths;
+         if (tower_ieta == 27)
+            results.push_back(HcalDetId(HcalEndcap, cell_ieta - 1, cell_iphi, 7));
+         if (tower_ieta == -27)
+            results.push_back(HcalDetId(HcalEndcap, cell_ieta + 1, cell_iphi, 7));
+    }
     
     for (int cell_depth = min_depth; cell_depth <= min_depth + n_depths - 1; cell_depth++)
       results.push_back(HcalDetId(HcalEndcap, cell_ieta, cell_iphi, cell_depth));

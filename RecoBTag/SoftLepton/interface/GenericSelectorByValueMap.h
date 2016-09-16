@@ -83,7 +83,7 @@ GenericSelectorByValueMap<T,C>::GenericSelectorByValueMap(edm::ParameterSet cons
 template <typename T, typename C>
 void GenericSelectorByValueMap<T, C>::produce(edm::Event & event, const edm::EventSetup & setup)
 {
-  std::auto_ptr<edm::RefToBaseVector<candidate_type> > candidates(new edm::RefToBaseVector<candidate_type>());
+  auto candidates = std::make_unique<edm::RefToBaseVector<candidate_type>>();
 
   // read the collection of GsfElectrons from the Event
   edm::Handle<edm::View<candidate_type> > h_electrons;
@@ -102,7 +102,7 @@ void GenericSelectorByValueMap<T, C>::produce(edm::Event & event, const edm::Eve
   }
 
   // put the product in the event
-  event.put(candidates);
+  event.put(std::move(candidates));
 }
 
 } // namespace edm;

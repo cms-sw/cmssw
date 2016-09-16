@@ -43,10 +43,8 @@ bool MTCCHLTrigger::filter(edm::Event & e, edm::EventSetup const& c) {
       }
     }
     bool decision= (amplclus>ChargeThreshold) ? true : false;
-    std::auto_ptr< unsigned int > output( new unsigned int(amplclus) );
-    std::auto_ptr< int > output_dec( new int(decision) );
-    e.put(output);
-    e.put(output_dec);
+    e.put(std::make_unique<unsigned int>(amplclus));
+    e.put(std::make_unique<int>(decision));
     return decision;
   }
  }

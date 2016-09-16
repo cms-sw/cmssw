@@ -12,7 +12,6 @@
 <use name="FWCore/MessageLogger"/>
 <use name="xerces-c"/>
 <use name="root"/>
-<use name="DataFormats/CTPPSDetId"/>
 
 <export>
 	<lib name="1"/>

@@ -81,7 +81,7 @@ MuonReSeeder::produce(edm::Event & iEvent, const edm::EventSetup & iSetup) {
     edm::ESHandle<TrackerTopology> tTopo;
     iSetup.get<TrackerTopologyRcd>().get(tTopo);
 
-    auto_ptr<vector<TrajectorySeed> > out(new vector<TrajectorySeed>());
+    auto out = std::make_unique<std::vector<TrajectorySeed>>();
     unsigned int nsrc = src->size();
     out->reserve(nsrc);
 
@@ -146,7 +146,7 @@ MuonReSeeder::produce(edm::Event & iEvent, const edm::EventSetup & iSetup) {
         out->push_back(seed);
     }
 
-    iEvent.put(out);
+    iEvent.put(std::move(out));
 }
 
 

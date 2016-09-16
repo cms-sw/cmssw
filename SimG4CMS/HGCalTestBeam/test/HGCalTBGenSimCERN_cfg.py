@@ -7,7 +7,7 @@ process.load('Configuration.StandardSequences.Services_cff')
 process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
 process.load('Configuration.EventContent.EventContent_cff')
 process.load('SimGeneral.MixingModule.mixNoPU_cfi')
-process.load('SimG4CMS.HGCalTestBeam.HGCalTB161Module1XML_cfi')
+process.load('SimG4CMS.HGCalTestBeam.HGCalTB161Module8XML_cfi')
 process.load('Geometry.HGCalCommonData.hgcalNumberingInitialization_cfi')
 process.load('Geometry.HGCalCommonData.hgcalParametersInitialization_cfi')
 process.load('Configuration.StandardSequences.MagneticField_0T_cff')
@@ -17,6 +17,7 @@ process.load('GeneratorInterface.Core.genFilterSummary_cff')
 process.load('Configuration.StandardSequences.SimIdeal_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
+process.load('SimG4CMS.HGCalTestBeam.HGCalTBCheckGunPosition_cfi')
 process.load('SimG4CMS.HGCalTestBeam.HGCalTBAnalyzer_cfi')
 
 process.maxEvents = cms.untracked.PSet(
@@ -77,10 +78,10 @@ from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc', '')
 
 process.generator = cms.EDProducer("FlatRandomEThetaGunProducer",
-    AddAntiParticle = cms.bool(True),
+    AddAntiParticle = cms.bool(False),
     PGunParameters = cms.PSet(
-        MinE = cms.double(99.99),
-        MaxE = cms.double(100.01),
+        MinE = cms.double(9.99),
+        MaxE = cms.double(10.01),
         MinTheta = cms.double(0.0),
         MaxTheta = cms.double(0.0),
         MinPhi = cms.double(-3.14159265359),
@@ -91,8 +92,8 @@ process.generator = cms.EDProducer("FlatRandomEThetaGunProducer",
     firstRun = cms.untracked.uint32(1),
     psethack = cms.string('single muon E 100')
 )
-process.VtxSmeared.MinZ = -499.90
-process.VtxSmeared.MaxZ = -499.90
+process.VtxSmeared.MinZ = -800.0
+process.VtxSmeared.MaxZ = -800.0
 process.VtxSmeared.MinX = -7.5
 process.VtxSmeared.MaxX =  7.5
 process.VtxSmeared.MinY = -7.5
@@ -102,6 +103,7 @@ process.HGCalTBAnalyzer.DoRecHits = False
 
 # Path and EndPath definitions
 process.generation_step = cms.Path(process.pgen)
+process.gunfilter_step  = cms.Path(process.HGCalTBCheckGunPostion)
 process.simulation_step = cms.Path(process.psim)
 process.genfiltersummary_step = cms.EndPath(process.genFilterSummary)
 process.analysis_step = cms.Path(process.HGCalTBAnalyzer)
@@ -109,7 +111,14 @@ process.endjob_step = cms.EndPath(process.endOfProcess)
 process.RAWSIMoutput_step = cms.EndPath(process.RAWSIMoutput)
 
 # Schedule definition
-process.schedule = cms.Schedule(process.generation_step,process.genfiltersummary_step,process.simulation_step,process.analysis_step,process.endjob_step,process.RAWSIMoutput_step)
+process.schedule = cms.Schedule(process.generation_step,
+				process.genfiltersummary_step,
+				process.simulation_step,
+				process.gunfilter_step,
+				process.analysis_step,
+				process.endjob_step,
+				process.RAWSIMoutput_step,
+				)
 # filter all path with the production filter sequence
 for path in process.paths:
 	getattr(process,path)._seq = process.generator * getattr(process,path)._seq 

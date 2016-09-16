@@ -343,97 +343,97 @@ void EcalRawToDigi::produce(edm::Event& e, const edm::EventSetup& es)
   // Step B: encapsulate vectors in actual collections and set unpacker pointers
 
   // create the collection of Ecal Digis
-  std::auto_ptr<EBDigiCollection> productDigisEB(new EBDigiCollection);
+  auto productDigisEB = std::make_unique<EBDigiCollection>();
   productDigisEB->reserve(1700);
   theUnpacker_->setEBDigisCollection(&productDigisEB);
   
   // create the collection of Ecal Digis
-  std::auto_ptr<EEDigiCollection> productDigisEE(new EEDigiCollection);
+  auto productDigisEE = std::make_unique<EEDigiCollection>();
   theUnpacker_->setEEDigisCollection(&productDigisEE);
   
   // create the collection for headers
-  std::auto_ptr<EcalRawDataCollection> productDccHeaders(new EcalRawDataCollection);
+  auto productDccHeaders = std::make_unique<EcalRawDataCollection>();
   theUnpacker_->setDccHeadersCollection(&productDccHeaders); 
 
   // create the collection for invalid gains
-  std::auto_ptr< EBDetIdCollection> productInvalidGains(new EBDetIdCollection);
+  auto productInvalidGains = std::make_unique<EBDetIdCollection>();
   theUnpacker_->setInvalidGainsCollection(&productInvalidGains); 
 
   // create the collection for invalid gain Switch
-  std::auto_ptr< EBDetIdCollection> productInvalidGainsSwitch(new EBDetIdCollection);
+  auto productInvalidGainsSwitch = std::make_unique<EBDetIdCollection>();
   theUnpacker_->setInvalidGainsSwitchCollection(&productInvalidGainsSwitch);
    
   // create the collection for invalid chids
-  std::auto_ptr< EBDetIdCollection> productInvalidChIds(new EBDetIdCollection);
+  auto productInvalidChIds = std::make_unique<EBDetIdCollection>();
   theUnpacker_->setInvalidChIdsCollection(&productInvalidChIds);
   
   ///////////////// make EEDetIdCollections for these ones
     
   // create the collection for invalid gains
-  std::auto_ptr<EEDetIdCollection> productInvalidEEGains(new EEDetIdCollection);
+  auto productInvalidEEGains = std::make_unique<EEDetIdCollection>();
   theUnpacker_->setInvalidEEGainsCollection(&productInvalidEEGains); 
     
   // create the collection for invalid gain Switch
-  std::auto_ptr<EEDetIdCollection> productInvalidEEGainsSwitch(new EEDetIdCollection);
+  auto productInvalidEEGainsSwitch = std::make_unique<EEDetIdCollection>();
   theUnpacker_->setInvalidEEGainsSwitchCollection(&productInvalidEEGainsSwitch);
     
   // create the collection for invalid chids
-  std::auto_ptr<EEDetIdCollection> productInvalidEEChIds(new EEDetIdCollection);
+  auto productInvalidEEChIds = std::make_unique<EEDetIdCollection>();
   theUnpacker_->setInvalidEEChIdsCollection(&productInvalidEEChIds);
 
   ///////////////// make EEDetIdCollections for these ones    
 
   // create the collection for EB srflags       
-  std::auto_ptr<EBSrFlagCollection> productEBSrFlags(new EBSrFlagCollection);
+  auto productEBSrFlags = std::make_unique<EBSrFlagCollection>();
   theUnpacker_->setEBSrFlagsCollection(&productEBSrFlags);
   
   // create the collection for EB srflags       
-  std::auto_ptr<EESrFlagCollection> productEESrFlags(new EESrFlagCollection);
+  auto productEESrFlags = std::make_unique<EESrFlagCollection>();
   theUnpacker_->setEESrFlagsCollection(&productEESrFlags);
 
   // create the collection for ecal trigger primitives
-  std::auto_ptr<EcalTrigPrimDigiCollection> productEcalTps(new EcalTrigPrimDigiCollection);
+  auto productEcalTps = std::make_unique<EcalTrigPrimDigiCollection>();
   theUnpacker_->setEcalTpsCollection(&productEcalTps);
   /////////////////////// collections for problems pertaining towers are already EE+EB communal
 
   // create the collection for ecal trigger primitives
-  std::auto_ptr<EcalPSInputDigiCollection> productEcalPSs(new EcalPSInputDigiCollection);
+  auto productEcalPSs = std::make_unique<EcalPSInputDigiCollection>();
   theUnpacker_->setEcalPSsCollection(&productEcalPSs);
   /////////////////////// collections for problems pertaining towers are already EE+EB communal
 
   // create the collection for invalid TTIds
-  std::auto_ptr<EcalElectronicsIdCollection> productInvalidTTIds(new EcalElectronicsIdCollection);
+  auto productInvalidTTIds = std::make_unique<EcalElectronicsIdCollection>();
   theUnpacker_->setInvalidTTIdsCollection(&productInvalidTTIds);
  
    // create the collection for invalid TTIds
-  std::auto_ptr<EcalElectronicsIdCollection> productInvalidZSXtalIds(new EcalElectronicsIdCollection);
+  auto productInvalidZSXtalIds = std::make_unique<EcalElectronicsIdCollection>();
   theUnpacker_->setInvalidZSXtalIdsCollection(&productInvalidZSXtalIds);
 
 
  
   // create the collection for invalid BlockLengths
-  std::auto_ptr<EcalElectronicsIdCollection> productInvalidBlockLengths(new EcalElectronicsIdCollection);
+  auto productInvalidBlockLengths = std::make_unique<EcalElectronicsIdCollection>();
   theUnpacker_->setInvalidBlockLengthsCollection(&productInvalidBlockLengths);
 
   // MEMs Collections
   // create the collection for the Pn Diode Digis
-  std::auto_ptr<EcalPnDiodeDigiCollection> productPnDiodeDigis(new EcalPnDiodeDigiCollection);
+  auto productPnDiodeDigis = std::make_unique<EcalPnDiodeDigiCollection>();
   theUnpacker_->setPnDiodeDigisCollection(&productPnDiodeDigis);
 
   // create the collection for invalid Mem Tt id 
-  std::auto_ptr<EcalElectronicsIdCollection> productInvalidMemTtIds(new EcalElectronicsIdCollection);
+  auto productInvalidMemTtIds = std::make_unique<EcalElectronicsIdCollection>();
   theUnpacker_->setInvalidMemTtIdsCollection(& productInvalidMemTtIds);
   
   // create the collection for invalid Mem Block Size 
-  std::auto_ptr<EcalElectronicsIdCollection> productInvalidMemBlockSizes(new EcalElectronicsIdCollection);
+  auto productInvalidMemBlockSizes = std::make_unique<EcalElectronicsIdCollection>();
   theUnpacker_->setInvalidMemBlockSizesCollection(& productInvalidMemBlockSizes);
   
   // create the collection for invalid Mem Block Size 
-  std::auto_ptr<EcalElectronicsIdCollection> productInvalidMemChIds(new EcalElectronicsIdCollection);
+  auto productInvalidMemChIds = std::make_unique<EcalElectronicsIdCollection>();
   theUnpacker_->setInvalidMemChIdsCollection(& productInvalidMemChIds);
  
   // create the collection for invalid Mem Gain Errors 
-  std::auto_ptr<EcalElectronicsIdCollection> productInvalidMemGains(new EcalElectronicsIdCollection);
+  auto productInvalidMemGains = std::make_unique<EcalElectronicsIdCollection>();
   theUnpacker_->setInvalidMemGainsCollection(& productInvalidMemGains); 
   //  double TIME_START = clock(); 
   
@@ -481,40 +481,40 @@ void EcalRawToDigi::produce(edm::Event& e, const edm::EventSetup& es)
   if(put_){
     
     if( headerUnpacking_){ 
-      e.put(productDccHeaders); 
+      e.put(std::move(productDccHeaders));
     }
     
     if(feUnpacking_){
       productDigisEB->sort();
-      e.put(productDigisEB,"ebDigis");
+      e.put(std::move(productDigisEB),"ebDigis");
       productDigisEE->sort();
-      e.put(productDigisEE,"eeDigis");
-      e.put(productInvalidGains,"EcalIntegrityGainErrors");
-      e.put(productInvalidGainsSwitch, "EcalIntegrityGainSwitchErrors");
-      e.put(productInvalidChIds, "EcalIntegrityChIdErrors");
+      e.put(std::move(productDigisEE),"eeDigis");
+      e.put(std::move(productInvalidGains),"EcalIntegrityGainErrors");
+      e.put(std::move(productInvalidGainsSwitch), "EcalIntegrityGainSwitchErrors");
+      e.put(std::move(productInvalidChIds), "EcalIntegrityChIdErrors");
       // EE (leaving for now the same names as in EB)
-      e.put(productInvalidEEGains,"EcalIntegrityGainErrors");
-      e.put(productInvalidEEGainsSwitch, "EcalIntegrityGainSwitchErrors");
-      e.put(productInvalidEEChIds, "EcalIntegrityChIdErrors");
+      e.put(std::move(productInvalidEEGains),"EcalIntegrityGainErrors");
+      e.put(std::move(productInvalidEEGainsSwitch), "EcalIntegrityGainSwitchErrors");
+      e.put(std::move(productInvalidEEChIds), "EcalIntegrityChIdErrors");
       // EE
-      e.put(productInvalidTTIds,"EcalIntegrityTTIdErrors");
-      e.put(productInvalidZSXtalIds,"EcalIntegrityZSXtalIdErrors");
-      e.put(productInvalidBlockLengths,"EcalIntegrityBlockSizeErrors");
-      e.put(productPnDiodeDigis);
+      e.put(std::move(productInvalidTTIds),"EcalIntegrityTTIdErrors");
+      e.put(std::move(productInvalidZSXtalIds),"EcalIntegrityZSXtalIdErrors");
+      e.put(std::move(productInvalidBlockLengths),"EcalIntegrityBlockSizeErrors");
+      e.put(std::move(productPnDiodeDigis));
     }
     if(memUnpacking_){
-      e.put(productInvalidMemTtIds,"EcalIntegrityMemTtIdErrors");
-      e.put(productInvalidMemBlockSizes,"EcalIntegrityMemBlockSizeErrors");
-      e.put(productInvalidMemChIds,"EcalIntegrityMemChIdErrors");
-      e.put(productInvalidMemGains,"EcalIntegrityMemGainErrors");
+      e.put(std::move(productInvalidMemTtIds),"EcalIntegrityMemTtIdErrors");
+      e.put(std::move(productInvalidMemBlockSizes),"EcalIntegrityMemBlockSizeErrors");
+      e.put(std::move(productInvalidMemChIds),"EcalIntegrityMemChIdErrors");
+      e.put(std::move(productInvalidMemGains),"EcalIntegrityMemGainErrors");
     }
     if(srpUnpacking_){
-      e.put(productEBSrFlags);
-      e.put(productEESrFlags);
+      e.put(std::move(productEBSrFlags));
+      e.put(std::move(productEESrFlags));
     }
     if(tccUnpacking_){
-      e.put(productEcalTps,"EcalTriggerPrimitives");
-      e.put(productEcalPSs,"EcalPseudoStripInputs");
+      e.put(std::move(productEcalTps),"EcalTriggerPrimitives");
+      e.put(std::move(productEcalPSs),"EcalPseudoStripInputs");
     }
   }
   

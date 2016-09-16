@@ -1,4 +1,5 @@
 import FWCore.ParameterSet.Config as cms
+from Configuration.StandardSequences.Eras import eras
 
 reducedEgamma = cms.EDProducer("ReducedEGProducer",
   keepPhotons = cms.string("hadTowOverEm()<0.15 && pt>10 && (pt>14 || chargedHadronIso()<10)"), #keep in output
@@ -56,4 +57,8 @@ reducedEgamma = cms.EDProducer("ReducedEGProducer",
         "eleEcalPFClusIso",
         "eleHcalPFClusIso",
   ),
+)
+
+eras.phase2_common.toModify(reducedEgamma, 
+        preshowerEcalHits = cms.InputTag(""),
 )

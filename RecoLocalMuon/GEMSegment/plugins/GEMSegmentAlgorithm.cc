@@ -341,7 +341,7 @@ void GEMSegmentAlgorithm::buildSegments(const GEMEnsemble& ensemble, const Ensem
   #endif
 
   // The actual fit on all hits of the vector of the selected Tracking RecHits:
-  sfit_ = std::unique_ptr<MuonSegFit>(new MuonSegFit(muonRecHits));
+  sfit_ = std::make_unique<MuonSegFit>(muonRecHits);
   bool goodfit = sfit_->fit();
   edm::LogVerbatim("GEMSegmentAlgorithm") << "[GEMSegmentAlgorithm::buildSegments] GEMSegment fit done :: fit is good = "<<goodfit;
 

@@ -19,11 +19,6 @@ HcalTrigTowerGeometryESProducer::produce( const CaloGeometryRecord & iRecord )
     iRecord.getRecord<HcalRecNumberingRecord>().get( hcalTopology );
 
     m_hcalTrigTowerGeom = std::make_shared<HcalTrigTowerGeometry>( &*hcalTopology);
-    HcalTopologyMode::TriggerMode tmode=hcalTopology->triggerMode();
-    bool enableRCTHF=(tmode==HcalTopologyMode::tm_LHC_RCT || tmode==HcalTopologyMode::tm_LHC_RCT_and_1x1);
-    bool enable1x1HF=(tmode==HcalTopologyMode::tm_LHC_1x1 || tmode==HcalTopologyMode::tm_LHC_RCT_and_1x1);
-    m_hcalTrigTowerGeom->setupHFTowers(enableRCTHF,enable1x1HF);
-
     return m_hcalTrigTowerGeom;
 }
 

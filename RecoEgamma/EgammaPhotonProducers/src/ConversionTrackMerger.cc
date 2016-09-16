@@ -102,7 +102,7 @@
     reco::ConversionTrackCollection tC2 = *TC2;
 
     // Step B: create empty output collection
-    outputTrks = std::auto_ptr<reco::ConversionTrackCollection>(new reco::ConversionTrackCollection);
+    outputTrks = std::make_unique<reco::ConversionTrackCollection>();
     int i;
 
     std::vector<int> selected1; for (unsigned int i=0; i<tC1.size(); ++i){selected1.push_back(1);}
@@ -246,7 +246,7 @@
     }//end faux loop over tracks
    }//end more than 0 track
   
-    e.put(outputTrks);
+    e.put(std::move(outputTrks));
     return;
 
   }//end produce

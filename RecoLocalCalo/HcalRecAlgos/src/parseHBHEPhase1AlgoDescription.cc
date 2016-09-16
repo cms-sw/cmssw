@@ -16,34 +16,40 @@ parseHBHEMethod2Description(const edm::ParameterSet& conf)
     const bool iPedestalConstraint = conf.getParameter<bool>  ("applyPedConstraint");
     const bool iTimeConstraint =     conf.getParameter<bool>  ("applyTimeConstraint");
     const bool iAddPulseJitter =     conf.getParameter<bool>  ("applyPulseJitter");
-    const bool iUnConstrainedFit =   conf.getParameter<bool>  ("applyUnconstrainedFit");
     const bool iApplyTimeSlew =      conf.getParameter<bool>  ("applyTimeSlew");
     const double iTS4Min =           conf.getParameter<double>("ts4Min");
-    const double iTS4Max =           conf.getParameter<double>("ts4Max");
+    const std::vector<double> iTS4Max =           conf.getParameter<std::vector<double>>("ts4Max");
     const double iPulseJitter =      conf.getParameter<double>("pulseJitter");
     const double iTimeMean =         conf.getParameter<double>("meanTime");
-    const double iTimeSig =          conf.getParameter<double>("timeSigma");
+    const double iTimeSigHPD =       conf.getParameter<double>("timeSigmaHPD");
+    const double iTimeSigSiPM =      conf.getParameter<double>("timeSigmaSiPM");
     const double iPedMean =          conf.getParameter<double>("meanPed");
-    const double iPedSig =           conf.getParameter<double>("pedSigma");
-    const double iNoise =            conf.getParameter<double>("noise");
+    const double iPedSigHPD =        conf.getParameter<double>("pedSigmaHPD");
+    const double iPedSigSiPM =       conf.getParameter<double>("pedSigmaSiPM");
+    const double iNoiseHPD =         conf.getParameter<double>("noiseHPD");
+    const double iNoiseSiPM =        conf.getParameter<double>("noiseSiPM");
     const double iTMin =             conf.getParameter<double>("timeMin");
     const double iTMax =             conf.getParameter<double>("timeMax");
-    const double its3Chi2 =          conf.getParameter<double>("ts3chi2");
     const double its4Chi2 =          conf.getParameter<double>("ts4chi2");
-    const double its345Chi2 =        conf.getParameter<double>("ts345chi2");
-    const double iChargeThreshold =  conf.getParameter<double>("chargeMax"); //For the unconstrained Fit
     const int iFitTimes =            conf.getParameter<int>   ("fitTimes");
 
-    if (iPedestalConstraint) assert(iPedSig);
-    if (iTimeConstraint) assert(iTimeSig);
+    if (iPedestalConstraint) assert(iPedSigHPD);
+    if (iPedestalConstraint) assert(iPedSigSiPM);
+    if (iTimeConstraint) assert(iTimeSigHPD);
+    if (iTimeConstraint) assert(iTimeSigSiPM);
 
     std::unique_ptr<PulseShapeFitOOTPileupCorrection> corr =
         std::make_unique<PulseShapeFitOOTPileupCorrection>();
+
     corr->setPUParams(iPedestalConstraint, iTimeConstraint, iAddPulseJitter,
-                      iUnConstrainedFit, iApplyTimeSlew, iTS4Min, iTS4Max,
-                      iPulseJitter, iTimeMean, iTimeSig, iPedMean, iPedSig,
-                      iNoise, iTMin, iTMax, its3Chi2, its4Chi2, its345Chi2,
-                      iChargeThreshold, HcalTimeSlew::Medium, iFitTimes);
+                      iApplyTimeSlew, iTS4Min, iTS4Max,
+                      iPulseJitter,
+		      iTimeMean, iTimeSigHPD, iTimeSigSiPM,
+		      iPedMean, iPedSigHPD, iPedSigSiPM,
+                      iNoiseHPD, iNoiseSiPM,
+		      iTMin, iTMax, its4Chi2,
+                      HcalTimeSlew::Medium, iFitTimes);
+
     return corr;
 }
 
@@ -51,7 +57,6 @@ parseHBHEMethod2Description(const edm::ParameterSet& conf)
 static std::unique_ptr<HcalDeterministicFit>
 parseHBHEMethod3Description(const edm::ParameterSet& conf)
 {
-    const int iPedSubMethod =      conf.getParameter<int>   ("pedestalSubtractionType");
     const float iPedSubThreshold = conf.getParameter<double>("pedestalUpperLimit");
     const int iTimeSlewParsType =  conf.getParameter<int>   ("timeSlewParsType");
     const double irespCorrM3 =     conf.getParameter<double>("respCorrM3");
@@ -59,12 +64,12 @@ parseHBHEMethod3Description(const edm::ParameterSet& conf)
                      conf.getParameter<std::vector<double> >("timeSlewPars");
 
     PedestalSub pedSubFxn;
-    pedSubFxn.init(((PedestalSub::Method)iPedSubMethod), 0, iPedSubThreshold, 0.0);
+    pedSubFxn.init(0, iPedSubThreshold, 0.0);
 
     std::unique_ptr<HcalDeterministicFit> fit = std::make_unique<HcalDeterministicFit>();
-    fit->init((HcalTimeSlew::ParaSource)iTimeSlewParsType,
-              HcalTimeSlew::Medium, (HcalDeterministicFit::NegStrategy)2,
-              pedSubFxn, iTimeSlewPars, irespCorrM3);
+    fit->init( (HcalTimeSlew::ParaSource)iTimeSlewParsType,
+	       HcalTimeSlew::Medium,
+	       pedSubFxn, iTimeSlewPars, irespCorrM3);
     return fit;
 }
 

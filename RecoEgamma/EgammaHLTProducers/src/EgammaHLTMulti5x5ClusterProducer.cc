@@ -302,7 +302,7 @@ void EgammaHLTMulti5x5ClusterProducer::clusterizeECALPart(edm::Event &evt, const
   clusters = Multi5x5_p->makeClusters(hitCollection_p, geometry_p, topology_p, geometryES_p, detector, true, regions);
 
   // create an unique_ptr to a BasicClusterCollection, copy the barrel clusters into it and put in the Event:
-  std::unique_ptr< reco::BasicClusterCollection > clusters_p(new reco::BasicClusterCollection);
+  auto clusters_p = std::make_unique<reco::BasicClusterCollection>();
   clusters_p->assign(clusters.begin(), clusters.end());
   edm::OrphanHandle<reco::BasicClusterCollection> bccHandle;
   if (detector == reco::CaloID::DET_ECAL_BARREL) 

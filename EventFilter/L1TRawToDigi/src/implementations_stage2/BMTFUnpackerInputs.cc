@@ -25,9 +25,18 @@ namespace l1t
 			else
 				tagSegID = 1;
 		}
-			
-		bool BMTFUnpackerInputs::unpack(const Block& block, UnpackerCollections *coll)
+
+		bool checkQual(const unsigned int& value, const bool& isNewFw)
 		{
+			if (isNewFw)
+				return (value == 7);
+			else 
+				return (value == 0);
+		}
+
+		bool unpacking(const Block& block, UnpackerCollections *coll, std::map<int, qualityHits>& linkAndQual_, const bool& isNewFw)
+		{
+
 			unsigned int ownLinks[] = {4,5,12,13,20,21,22,23,28,29};
 			bool ownFlag(false);
 			for (int i = 0; i < 10; i++)
@@ -67,7 +76,7 @@ namespace l1t
 				sector = block.amc().getBoardID() - 1;
 				if ( sector < 0 || sector > 11 )
 				{
-					edm::LogInfo ("l1t:stage2::BMTFUnpackerInputs::unpack") << "Sector found out of range so it will be calculated by the old way";
+					edm::LogInfo ("l1t:stage2::BMTFUnpackerInputs::unpack") << "Sector found out of range so it will be calculated by the slot number";
 					if ( block.amc().getAMCNumber()%2 != 0 )
 				                sector = block.amc().getAMCNumber()/2 ;
 				        else
@@ -96,25 +105,27 @@ namespace l1t
 					else
 						mbPhiB[iw] = (inputWords[iw] >> 12) & 0x3FF;
 					
-					mbQual[iw] = (inputWords[iw] >> 22) & 0xF;
+					mbQual[iw] = (inputWords[iw] >> 22) & 0x7;
 					mbRPC[iw] = (inputWords[iw] >> 26) & 0x1;
 					mbBxC[iw] = (inputWords[iw] >> 30) & 0x3;
-					if (mbQual[iw] == 0)
+
+					//if (mbQual[iw] == 0)
+					if (checkQual(mbQual[iw], isNewFw))
 						continue;
 					
 					phiData.push_back( L1MuDTChambPhDigi( ibx, wheel, sector, iw+1, mbPhi[iw], mbPhiB[iw], mbQual[iw], trTag, mbBxC[iw], mbRPC[iw] ) );
 				}//iw
 				
 				
-				int etaHits[3][7];//, etaHitsBxC;
+				int etaHits[3][7];
 				bool zeroFlag[3];
 				for (int i = 0; i < 3; i++)
 				{
 					zeroFlag[i] = false;
 					for(int j=0; j<7; j++)
 					{
-						etaHits[i][6-j] = (inputWords[4] >> (i*7 + j)) & 0x1;
-						if ( etaHits[i][6-j]!=0 )
+						etaHits[i][j] = (inputWords[4] >> (i*7 + j)) & 0x1;
+						if ( etaHits[i][j]!=0 )
 							zeroFlag[i] = true;
 					}
 				}
@@ -138,9 +149,19 @@ namespace l1t
 			}//ibx
 			resThe->setContainer(theData);
 			resPhi->setContainer(phiData);
+
+			return true;
 			
-			
-		return true;
-		}//unpack
+		}
+		
+		bool BMTFUnpackerInputsOldQual::unpack(const Block& block, UnpackerCollections *coll)
+		{
+			return unpacking(block, coll, linkAndQual_, false);
+		}//unpack old quality
+
+		bool BMTFUnpackerInputsNewQual::unpack(const Block& block, UnpackerCollections *coll)
+		{
+			return unpacking(block, coll, linkAndQual_, true);
+		}//unpack new quality
 	}//ns2
 }//ns l1t;

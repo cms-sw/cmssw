@@ -926,7 +926,7 @@ def readSqliteFile(sqliteFileName,tagName,sqliteTemplateFile,tmpDir="/tmp/"):
 
 ###########################################################################################
 def appendSqliteFile(combinedSqliteFileName, sqliteFileName, tagName, IOVSince, IOVTill ,tmpDir="/tmp/"):
-    aCommand = "cmscond_export_iov -d sqlite_file:" + tmpDir + combinedSqliteFileName + " -s sqlite_file:" + sqliteFileName + " -i " + tagName + " -t " + tagName + " -l sqlite_file:" + tmpDir + "log.db" + " -b " + IOVSince + " -e " + IOVTill
+    aCommand = "conddb_import -c sqlite_file:" + tmpDir + combinedSqliteFileName + " -f sqlite_file:" + sqliteFileName + " -i " + tagName + " -t " + tagName + " -b " + IOVSince + " -e " + IOVTill
     print aCommand
     std = commands.getstatusoutput(aCommand)
     print std[1]

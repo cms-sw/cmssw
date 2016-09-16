@@ -50,8 +50,8 @@ void RecHitFilter::produce(edm::StreamID, edm::Event& evt, const edm::EventSetup
   int nTot = hit_collection->size();
   int nRed = 0;
 
-  // create an auto_ptr to a BasicClusterCollection, copy the clusters into it and put in the Event:
-  std::auto_ptr< EcalRecHitCollection > redCollection(new EcalRecHitCollection);
+  // create a unique_ptr to a BasicClusterCollection, copy the clusters into it and put in the Event:
+  auto redCollection = std::make_unique<EcalRecHitCollection>();
 
   for(EcalRecHitCollection::const_iterator it = hit_collection->begin(); it != hit_collection->end(); ++it) {
     //std::cout << *it << std::endl;
@@ -64,6 +64,6 @@ void RecHitFilter::produce(edm::StreamID, edm::Event& evt, const edm::EventSetup
 
   edm::LogInfo("")<< "total # hits: " << nTot << "  #hits with E > " << noiseEnergyThreshold_ << " GeV  and  chi2 < " <<  noiseChi2Threshold_ << " : " << nRed << std::endl;
 
-  evt.put(redCollection, reducedHitCollection_);
+  evt.put(std::move(redCollection), reducedHitCollection_);
 
 }

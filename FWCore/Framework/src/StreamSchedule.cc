@@ -403,11 +403,11 @@ namespace edm {
                                    ProductRegistry& preg,
                                    PreallocationConfiguration const* prealloc,
                                    std::shared_ptr<ProcessConfiguration const> processConfiguration,
-                                   std::string const& name,
+                                   std::string const& pathName,
                                    bool ignoreFilters,
                                    PathWorkers& out,
                                    vstring* labelsOnPaths) {
-    vstring modnames = proc_pset.getParameter<vstring>(name);
+    vstring modnames = proc_pset.getParameter<vstring>(pathName);
     PathWorkers tmpworkers;
 
     unsigned int placeInPath = 0;
@@ -426,12 +426,12 @@ namespace edm {
       ParameterSet* modpset = proc_pset.getPSetForUpdate(moduleLabel, isTracked);
       if (modpset == 0) {
         std::string pathType("endpath");
-        if (!search_all(end_path_name_list_, name)) {
+        if (!search_all(end_path_name_list_, pathName)) {
           pathType = std::string("path");
         }
         throw Exception(errors::Configuration) <<
           "The unknown module label \"" << moduleLabel <<
-          "\" appears in " << pathType << " \"" << name <<
+          "\" appears in " << pathType << " \"" << pathName <<
           "\"\n please check spelling or remove that label from the path.";
       }
       assert(isTracked);
@@ -445,7 +445,7 @@ namespace edm {
           // Filter is not allowed. Ignore the result, and issue a warning.
           filterAction = WorkerInPath::Ignore;
           LogWarning("FilterOnEndPath")
-            << "The EDFilter '" << worker->description().moduleName() << "' with module label '" << moduleLabel << "' appears on EndPath '" << name << "'.\n"
+            << "The EDFilter '" << worker->description().moduleName() << "' with module label '" << moduleLabel << "' appears on EndPath '" << pathName << "'.\n"
             << "The return value of the filter will be ignored.\n"
             << "To suppress this warning, either remove the filter from the endpath,\n"
             << "or explicitly ignore it in the configuration by using cms.ignore().\n";

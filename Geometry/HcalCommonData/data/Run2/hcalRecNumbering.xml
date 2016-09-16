@@ -38,7 +38,7 @@
     <PartSelector path="//HCal"/>
     <Parameter name="OnlyForHcalRecNumbering" value="HCAL" eval="false"/>
     <Parameter name="TopologyMode" value="HcalTopologyMode::LHC" eval="false"/>
-    <Parameter name="TriggerMode"  value="HcalTopologyMode::tm_LHC_RCT" eval="false"/>
+    <Parameter name="TriggerMode"  value="HcalTopologyMode::TriggerMode_2009" eval="false"/>
   </SpecPar>
 </SpecParSection>
 </DDDefinition>

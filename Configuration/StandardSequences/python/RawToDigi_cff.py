@@ -79,12 +79,10 @@ castorDigis.InputLabel = 'rawDataCollector'
 totemTriggerRawToDigi.rawDataTag = cms.InputTag("rawDataCollector")
 totemRPRawToDigi.rawDataTag = cms.InputTag("rawDataCollector")
 
+eras.phase2_common.toReplaceWith(RawToDigi, RawToDigi.copyAndExclude([castorDigis]))
+
 # until we have hcal raw data for phase 2...
 eras.phase2_hcal.toReplaceWith(RawToDigi, RawToDigi.copyAndExclude([hcalDigis]))
-
-
-# Remove siPixelDigis until we have phase1 pixel digis
-eras.phase1Pixel.toReplaceWith(RawToDigi, RawToDigi.copyAndExclude([siPixelDigis])) # FIXME
 
 
 # add CTPPS 2016 raw-to-digi modules

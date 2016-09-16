@@ -585,7 +585,7 @@ void PFCTRecHitProducer::produce(edm::Event& iEvent,
 			      << ". Short fibres were cleaned." << std::endl;
 		    */
 		    shortFibre -= theShortHitEnergy29;
-		    theShortHitEnergy29 = 0.;
+		    theShortHitEnergy29 = 0;
 		  }
 
 		  // Some energy must be in the long fibres is there is some energy in the short fibres ! 
