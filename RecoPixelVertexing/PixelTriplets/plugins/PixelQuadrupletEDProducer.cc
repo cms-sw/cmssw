@@ -104,7 +104,7 @@ void PixelQuadrupletEDProducer::produce(edm::Event& iEvent, const edm::EventSetu
       }
       const auto& fourthLayers = found->second;
 
-      generator_.hitQuadruplets(region, quadruplets, iEvent, iSetup, layerTriplet.tripletsBegin(), layerTriplet.tripletsEnd(), fourthLayers, hitCache);
+      generator_.hitQuadruplets(region, quadruplets, iEvent, iSetup, layerTriplet.begin(), layerTriplet.end(), fourthLayers, hitCache);
 
 #ifdef EDM_ML_DEBUG
       LogTrace("PixelQuadrupletEDProducer") << "  created " << quadruplets.size() << " quadruplets for layer triplet " << layerTriplet.innerLayerIndex() << "," << layerTriplet.middleLayerIndex() << "," << layerTriplet.outerLayerIndex() << " and 4th layers";

@@ -7,8 +7,17 @@
 #include "RecoPixelVertexing/PixelTriplets/interface/OrderedHitTriplets.h"
 
 /**
- * Simple container of temporary information delivered from hit triplet
+ * Container of temporary information delivered from hit triplet
  * generator to hit quadruplet generator via edm::Event.
+ *
+ * The iterator loops over regions, the value_type of that has an
+ * iterator looping over the layer triplets of the region, and the
+ * value_type of that has an iterator looping over the hit triplets of
+ * the layer triplet.
+ *
+ * Pointers to SeedingLayerSetsHits and TrackingRegion are stored, so
+ * the lifetime of those objects should be at least as long as the
+ * lifetime of this object.
  */
 class IntermediateHitTriplets {
 public:
@@ -21,6 +30,14 @@ public:
 
   ////////////////////
 
+  /**
+   * Helper class holding the layer triplet indices (to
+   * SeedingLayerSetsHits), and indices of the hit triplets from this
+   * layer triplet (to the hit triplet vector)
+   *
+   * As only the indices of hit triplets are stored, a separate class
+   * (LayerHitTriplets) is provided with nicer interface.
+   */
   class PLayerHitTriplets {
   public:
     PLayerHitTriplets(const LayerTriplet& layerTriplet, unsigned int tripletsBegin):
@@ -43,8 +60,14 @@ public:
 
   ////////////////////
 
+  /**
+   * Helper class providing a nice interface for the hit triplets of a
+   * layer triplet.
+   */
   class LayerHitTriplets {
   public:
+    using const_iterator = std::vector<OrderedHitTriplet>::const_iterator;
+
     LayerHitTriplets(const IntermediateHitTriplets *hitSets,
                      const PLayerHitTriplets *layerTriplet):
       hitSets_(hitSets),
@@ -58,8 +81,10 @@ public:
     SeedingLayerSetsHits::LayerIndex middleLayerIndex() const { return std::get<1>(layerTriplet_->layerTriplet()); }
     SeedingLayerSetsHits::LayerIndex outerLayerIndex() const { return std::get<2>(layerTriplet_->layerTriplet()); }
 
-    std::vector<OrderedHitTriplet>::const_iterator tripletsBegin() const { return hitSets_->tripletsBegin() + layerTriplet_->tripletsBegin(); }
-    std::vector<OrderedHitTriplet>::const_iterator tripletsEnd() const { return hitSets_->tripletsBegin() + layerTriplet_->tripletsEnd(); }
+    const_iterator begin() const { return hitSets_->tripletsBegin() + layerTriplet_->tripletsBegin(); }
+    const_iterator cbegin() const { return begin(); }
+    const_iterator end() const { return hitSets_->tripletsBegin() + layerTriplet_->tripletsEnd(); }
+    const_iterator cend() const { return end(); }
 
   private:
     const IntermediateHitTriplets *hitSets_;
@@ -68,7 +93,17 @@ public:
 
   ////////////////////
 
-  class RegionLayerHits {
+  /**
+   * Helper class to provide nice interface to loop over the layer sets of a region
+   *
+   * The value_type of the iterator is LayerHitTriplets, which has an
+   * iterator for the hit triplets.
+   *
+   * Can not use ihd::RegionLayerSets<T> here because of having
+   * separate classes for storage (PLayerHitTriplets) and use
+   * (LayerHitTriplets).
+   */
+  class RegionLayerSets {
   public:
     using PLayerHitTripletsConstIterator = std::vector<PLayerHitTriplets>::const_iterator;
     using TripletConstIterator = std::vector<OrderedHitTriplet>::const_iterator;
@@ -81,16 +116,24 @@ public:
 
       struct end_tag {};
 
-      const_iterator(const IntermediateHitTriplets *hitSets, const RegionLayerHits *regionLayerHits):
+      /**
+       * Constructor for an iterator pointing to a valid element
+       */
+      const_iterator(const IntermediateHitTriplets *hitSets, const RegionLayerSets *regionLayerSets):
         hitSets_(hitSets),
-        regionLayerHits_(regionLayerHits),
-        iter_(regionLayerHits->layerSetsBegin())
+        regionLayerSets_(regionLayerSets),
+        iter_(regionLayerSets->layerSetsBegin())
       {
-        assert(regionLayerHits->layerSetsBegin() != regionLayerHits->layerSetsEnd());
+        assert(regionLayerSets->layerSetsBegin() != regionLayerSets->layerSetsEnd());
       }
 
-      const_iterator(const IntermediateHitTriplets *hitSets, const RegionLayerHits *regionLayerHits, end_tag):
-        iter_(regionLayerHits->layerSetsEnd())
+      /**
+       * Constructor for an iterator pointing to an invalid element (i.e. end)
+       *
+       * The end_tag parameter is used to differentiate this constructor from the other one.
+       */
+      const_iterator(const IntermediateHitTriplets *hitSets, const RegionLayerSets *regionLayerSets, end_tag):
+        iter_(regionLayerSets->layerSetsEnd())
       {}
 
       value_type operator*() const {
@@ -113,11 +156,11 @@ public:
 
     private:
       const IntermediateHitTriplets *hitSets_;
-      const RegionLayerHits *regionLayerHits_;
+      const RegionLayerSets *regionLayerSets_;
       internal_iterator_type iter_;
     };
 
-    RegionLayerHits(const TrackingRegion* region,
+    RegionLayerSets(const TrackingRegion* region,
                     const LayerHitMapCache *cache,
                     const IntermediateHitTriplets *hitSets,
                     PLayerHitTripletsConstIterator tripletBegin,
@@ -142,7 +185,7 @@ public:
     const_iterator end() const { return const_iterator(hitSets_, this, const_iterator::end_tag()); }
     const_iterator cend() const { return end(); }
 
-    // used internally
+    // used internally by the LayerHitTriplets helper class
     PLayerHitTripletsConstIterator layerSetsBegin() const { return layerSetsBegin_; }
     PLayerHitTripletsConstIterator layerSetsEnd() const { return layerSetsEnd_; }
 
@@ -156,11 +199,12 @@ public:
 
   ////////////////////
 
-  using const_iterator = ihd::const_iterator<RegionLayerHits, IntermediateHitTriplets>;
+  /// Iterator over regions
+  using const_iterator = ihd::const_iterator<RegionLayerSets, IntermediateHitTriplets>;
 
   ////////////////////
 
-  // helper class to enforce correct usage
+  /// Helper class enforcing correct way of filling the doublets of a region
   class RegionFiller {
   public:
     RegionFiller(): obj_(nullptr) {}
@@ -207,7 +251,9 @@ public:
     IntermediateHitTriplets *obj_;
   };
 
+  // allows declaring local variables with auto
   static RegionFiller dummyFiller() { return RegionFiller(); }
+
   ////////////////////
 
   IntermediateHitTriplets(): seedingLayers_(nullptr) {}
@@ -249,7 +295,7 @@ public:
   const_iterator end() const { return const_iterator(this, regions_.end()); }
   const_iterator cend() const { return end(); }
 
-  // used internally
+  // used internally by all the helper classes
   std::vector<RegionIndex>::const_iterator regionsBegin() const { return regions_.begin(); }
   std::vector<RegionIndex>::const_iterator regionsEnd() const { return regions_.end(); }
   std::vector<PLayerHitTriplets>::const_iterator layerSetsBegin() const { return layerTriplets_.begin(); }
@@ -258,11 +304,11 @@ public:
   std::vector<OrderedHitTriplet>::const_iterator tripletsEnd() const { return hitTriplets_.end(); }
 
 private:
-  const SeedingLayerSetsHits *seedingLayers_;
+  const SeedingLayerSetsHits *seedingLayers_;    /// Pointer to SeedingLayerSetsHits (owned elsewhere)
 
-  std::vector<RegionIndex> regions_;
-  std::vector<PLayerHitTriplets> layerTriplets_;
-  std::vector<OrderedHitTriplet> hitTriplets_;
+  std::vector<RegionIndex> regions_;             /// Container of regions, each element has indices pointing to layerTriplets_
+  std::vector<PLayerHitTriplets> layerTriplets_; /// Container of layer triplets, each element has indices pointing to hitTriplets_
+  std::vector<OrderedHitTriplet> hitTriplets_;   /// Container of hit triplets for all layer triplets and regions
 };
 
 #endif
