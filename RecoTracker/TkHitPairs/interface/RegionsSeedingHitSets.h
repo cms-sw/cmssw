@@ -4,16 +4,23 @@
 #include "RecoTracker/TkSeedingLayers/interface/SeedingHitSet.h"
 #include "RecoTracker/TkHitPairs/interface/IntermediateHitDoublets.h"
 
-// defined in this package instead of RecoTracker/TkSeedingLayers to avoid circular dependencies
-
+/**
+ * Class to store SeedingHitSets (doublet/triplet/quadruplet) per TrackingRegion
+ *
+ * Defined in this package instead of RecoTracker/TkSeedingLayers to avoid circular dependencies
+ */
 class RegionsSeedingHitSets {
 public:
+  /// Helper class containing a region and indices to hitSets_
   using RegionIndex = ihd::RegionIndex;
 
-  using RegionSeedingHitSets = ihd::RegionLayerHits<SeedingHitSet>;
+  /// Helper class providing nice interface to loop over hit sets of a region
+  using RegionSeedingHitSets = ihd::RegionLayerSets<SeedingHitSet>;
+
+  /// Iterator over regions
   using const_iterator = ihd::const_iterator<RegionSeedingHitSets, RegionsSeedingHitSets>;
 
-  // helper class to enforce correct usage
+  /// Helper class enforcing correct way of filling the doublets of a region
   class RegionFiller {
   public:
     RegionFiller(): obj_(nullptr) {}
@@ -33,6 +40,7 @@ public:
     RegionsSeedingHitSets *obj_;
   };
 
+  // allows declaring local variables with auto
   static RegionFiller dummyFiller() { return RegionFiller(); }
 
   // constructors
@@ -68,13 +76,13 @@ public:
   const_iterator end() const { return const_iterator(this, regions_.end()); }
   const_iterator cend() const { return end(); }
 
-  // Used internally
+  // used internally by the helper classes
   std::vector<SeedingHitSet>::const_iterator layerSetsBegin() const { return hitSets_.begin(); }
   std::vector<SeedingHitSet>::const_iterator layerSetsEnd() const { return hitSets_.end(); }
 
 private:
-  std::vector<RegionIndex> regions_;
-  std::vector<SeedingHitSet> hitSets_;
+  std::vector<RegionIndex> regions_;    /// Container of regions, each element has indices pointing to hitSets_
+  std::vector<SeedingHitSet> hitSets_;  /// Container of hit sets for all regions
 };
 
 #endif
