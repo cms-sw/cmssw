@@ -151,8 +151,8 @@ void
 HcalNoiseInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   // this is what we're going to actually write to the EDM
-  std::auto_ptr<HcalNoiseRBXCollection> result1(new HcalNoiseRBXCollection);
-  std::auto_ptr<HcalNoiseSummary> result2(new HcalNoiseSummary);
+  auto result1 = std::make_unique<HcalNoiseRBXCollection>();
+  auto result2 = std::make_unique<HcalNoiseSummary>();
 
   // define an empty HcalNoiseRBXArray that we're going to fill
   HcalNoiseRBXArray rbxarray;
@@ -212,8 +212,8 @@ HcalNoiseInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
   }
   
   // put the rbxcollection and summary into the EDM
-  iEvent.put(result1);
-  iEvent.put(result2);
+  iEvent.put(std::move(result1));
+  iEvent.put(std::move(result2));
   
   return;
 }

@@ -142,7 +142,7 @@ bool EcalLaserCorrFilter::filter(edm::Event & iEvent, const edm::EventSetup & iS
   bool result = goodCalib;
   //std::cout << " *********** Result ******** " << result << std::endl;
 
-  iEvent.put( std::auto_ptr<bool>(new bool(result)) );
+  iEvent.put(std::make_unique<bool>(result));
 
   return taggingMode_ || result;
 
