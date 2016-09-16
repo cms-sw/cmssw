@@ -677,8 +677,8 @@ o Phase I Pixel Barrel module cables
 * 2 "Aluminium"             "Aluminium"                       0.85   1   CAB
 
 # "Phase I BPIX module cables L1"   "micro_twisted_boundle_1"      146   -1.
-* 1 "Signal Cable"                "Copper"                       0.123  18  CAB
-* 2 "Power Cable"                 "micro_twisted_power_cable"    0.877  128 CAB
+* 1 "Signal Cable"                "Copper"                       0.386  18  CAB
+* 2 "Power Cable"                 "micro_twisted_power_cable"    0.614  128 CAB
 
 # "Phase I BPIX module cables L2-4"   "micro_twisted_boundle_2"      110   -1.
 * 1 "Signal Cable"                "Copper"                        0.127  14  CAB
