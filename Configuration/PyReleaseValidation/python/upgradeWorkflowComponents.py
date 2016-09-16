@@ -127,8 +127,8 @@ upgradeProperties[2023]['2023D2TimingPU'] = deepcopy(upgradeProperties[2023]['20
 upgradeProperties[2023]['2023D2TimingPU']['ScenToRun'] = deepcopy(upgradeProperties[2023]['2023D2PU']['ScenToRun'])
 upgradeProperties[2023]['2023D3TimingPU'] = deepcopy(upgradeProperties[2023]['2023D3Timing'])
 upgradeProperties[2023]['2023D3TimingPU']['ScenToRun'] = deepcopy(upgradeProperties[2023]['2023D3PU']['ScenToRun'])
-upgradeProperties[2023]['2023D4TimingPU'] = deepcopy(upgradeProperties[2023]['2024D4Timing'])
-upgradeProperties[2023]['2023D4TimingPU']['ScenToRun'] = deepcopy(upgradeProperties[2023]['2024D4PU']['ScenToRun'])
+upgradeProperties[2023]['2023D4TimingPU'] = deepcopy(upgradeProperties[2023]['2023D4Timing'])
+upgradeProperties[2023]['2023D4TimingPU']['ScenToRun'] = deepcopy(upgradeProperties[2023]['2023D4PU']['ScenToRun'])
 
 
 
