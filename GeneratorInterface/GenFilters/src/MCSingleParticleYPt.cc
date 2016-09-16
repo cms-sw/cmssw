@@ -11,6 +11,8 @@ using namespace std;
 MCSingleParticleYPt::MCSingleParticleYPt(const edm::ParameterSet& iConfig) :
 token_(consumes<edm::HepMCProduct>(edm::InputTag(iConfig.getUntrackedParameter("moduleLabel",std::string("generator")),"unsmeared")))
 {
+   fVerbose = iConfig.getUntrackedParameter("verbose",0);
+   fchekantiparticle = iConfig.getUntrackedParameter("CheckAntiparticle",true);
    //here do whatever other initialization is needed
    vector<int> defpid ;
    defpid.push_back(0) ;
@@ -60,6 +62,16 @@ token_(consumes<edm::HepMCProduct>(edm::InputTag(iConfig.getUntrackedParameter("
        for (unsigned int i = 0; i < particleID.size(); i++){ defstat2.push_back(0);}
        status = defstat2;   
     } 
+
+    if (fVerbose > 0) {
+       std::cout <<     "----------------------------------------------------------------------" << std::endl;
+       std::cout <<     "----- MCSingleParticleYPt" << std::endl;
+       for (unsigned int i=0; i<particleID.size(); ++i) {
+           std::cout << " ID: " <<  particleID[i] << " pT > " << ptMin[i] << ",   " << rapMin[i] << " < y < " << rapMax[i] << ",   status = " << status[i] << std::endl;
+       }
+       if (fchekantiparticle) std::cout << " anti-particles will be tested as well." << std::endl;
+       std::cout <<     "----------------------------------------------------------------------" << std::endl;
+    }
 }
 
 
@@ -81,14 +93,20 @@ bool MCSingleParticleYPt::filter(edm::Event& iEvent, const edm::EventSetup& iSet
    const HepMC::GenEvent * myGenEvent = evt->GetEvent();
    for ( HepMC::GenEvent::particle_const_iterator p = myGenEvent->particles_begin();
 	 p != myGenEvent->particles_end(); ++p ) {
-     rapidity = 0.5*log( ((*p)->momentum().e()+(*p)->momentum().pz()) / ((*p)->momentum().e()-(*p)->momentum().pz()) );
+     if (fVerbose > 3) std::cout << "Looking at particle : " << (*p)->pdg_id() << " status : " << (*p)->status() << std::endl;
+
      for (unsigned int i = 0; i < particleID.size(); i++) {
-       if (particleID[i] == (*p)->pdg_id() || particleID[i] == 0) {
-    
+       if (particleID[i] == (*p)->pdg_id() || (fchekantiparticle && (-particleID[i] == (*p)->pdg_id())) || particleID[i] == 0) {
+         // calculate rapidity just for the desired particle and make sure, this particles has enough energy
+         rapidity = ((*p)->momentum().e()-(*p)->momentum().pz()) > 0. ? 0.5*log( ((*p)->momentum().e()+(*p)->momentum().pz()) / ((*p)->momentum().e()-(*p)->momentum().pz()) ) : rapMax[i]+.1;    
+         if (fVerbose > 2) cout << "Testing particle : " << (*p)->pdg_id() << " pT: " << (*p)->momentum().perp() << " y: " << rapidity << " status : " << (*p)->status() << endl;
 	 if ( (*p)->momentum().perp() > ptMin[i] 
-              && rapidity > rapMin[i] && rapidity < rapMax[i] 
+              && rapidity > rapMin[i] 
+              && rapidity < rapMax[i] 
               && ((*p)->status() == status[i] || status[i] == 0) ) { 
            accepted = true;
+           if (fVerbose > 1) 
+              cout << "Accepted particle : " << (*p)->pdg_id() << " pT: " << (*p)->momentum().perp() << " y: " << rapidity << " status : " << (*p)->status() << endl; 
            break;
 	 }  
 	 
