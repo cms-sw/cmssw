@@ -714,19 +714,15 @@ void PedeSteerer::buildSubSteer(AlignableTracker *aliTracker, AlignableMuon *ali
     //prepare the output files
     //Get the data structure in which the configuration data are stored.
     //The relation between the ostream* and the corresponding file name needs to be filled
-    std::list<GeometryConstraintConfigData>* ConstraintsConfigContainer = GeometryConstraints.getConfigData();
+    auto& ConstraintsConfigContainer = GeometryConstraints.getConfigData();
     
     //loop over all configured constraints
-    for(std::list<GeometryConstraintConfigData>::iterator it = ConstraintsConfigContainer->begin();
-        it != ConstraintsConfigContainer->end(); it++) {
+    for(auto& it: ConstraintsConfigContainer) {
       //each level has its own constraint which means the output is stored in a separate file
-      for(std::vector<std::pair<Alignable*, std::string> >::const_iterator ilevelsFilename = it->levelsFilenames_.begin();
-          ilevelsFilename != it->levelsFilenames_.end(); ilevelsFilename++) {
-        it->mapFileName_.insert(
-                                std::pair<std::string, std::ofstream*>
-                                (ilevelsFilename->second,this->createSteerFile(ilevelsFilename->second,true))
-                                );
-        
+      for(const auto& ilevelsFilename: it.levelsFilenames_) {
+        it.mapFileName_.insert(std::make_pair
+			       (ilevelsFilename.second,this->createSteerFile(ilevelsFilename.second,true))
+			       );
       }
     }
     
