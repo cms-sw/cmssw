@@ -78,8 +78,8 @@ def _adaptToRun2(det):
     det = det.replace('plus', 'Plus')
   return det
 
-if options.geom == 'phaseI':
-  process.load("Configuration.Geometry.GeometryExtended2017NewFPix_cff")
+if options.geom == '2017' or options.geom == 'phaseI':
+  process.load("Configuration.Geometry.GeometryExtended2017_cff")
 elif options.geom == 'run2':
   process.load("Configuration.Geometry.GeometryExtended2016_cff")
   if isinstance(_components, list):
