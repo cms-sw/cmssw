@@ -65,7 +65,7 @@ void EgammaHLTPixelMatchElectronProducers::produce(edm::StreamID sid, edm::Event
   algo_->setupES(iSetup);  
   
   // Create the output collections   
-  std::unique_ptr<ElectronCollection> pOutEle(new ElectronCollection);
+  auto pOutEle = std::make_unique<ElectronCollection>();
   
   // invoke algorithm
     algo_->run(e,*pOutEle);

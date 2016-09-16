@@ -185,7 +185,7 @@ ConversionProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   using namespace edm;
 
   reco::ConversionCollection outputConvPhotonCollection;
-  std::auto_ptr<reco::ConversionCollection> outputConvPhotonCollection_p(new reco::ConversionCollection);
+  auto outputConvPhotonCollection_p = std::make_unique<reco::ConversionCollection>();
 
   //std::cout << " ConversionProducer::produce " << std::endl;
   //Read multiple track input collections
@@ -226,7 +226,7 @@ ConversionProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     the_pvtx = *(vertexCollection.begin());
     
   if (trackCollectionHandle->size()> maxNumOfTrackInPU_){
-    iEvent.put( outputConvPhotonCollection_p, ConvertedPhotonCollection_);
+    iEvent.put(std::move(outputConvPhotonCollection_p), ConvertedPhotonCollection_);
     return;
   }
     
@@ -241,7 +241,7 @@ ConversionProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   buildCollection( iEvent, iSetup, convTrackMap,  superClusterPtrs, basicClusterPtrs, the_pvtx, outputConvPhotonCollection);//allow empty basicClusterPtrs
     
   outputConvPhotonCollection_p->assign(outputConvPhotonCollection.begin(), outputConvPhotonCollection.end());
-  iEvent.put( outputConvPhotonCollection_p, ConvertedPhotonCollection_);
+  iEvent.put(std::move(outputConvPhotonCollection_p), ConvertedPhotonCollection_);
     
 }
 

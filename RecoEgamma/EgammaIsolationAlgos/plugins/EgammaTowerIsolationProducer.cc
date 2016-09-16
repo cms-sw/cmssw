@@ -60,7 +60,7 @@ EgammaTowerIsolationProducer::produce(edm::Event& iEvent, const edm::EventSetup&
   iEvent.getByLabel(towerProducer_, towerHandle);
   const CaloTowerCollection* towers = towerHandle.product();
 
-  std::auto_ptr<edm::ValueMap<double> > isoMap(new edm::ValueMap<double>());
+  auto isoMap = std::make_unique<edm::ValueMap<double>>();
   edm::ValueMap<double>::Filler filler(*isoMap);
   std::vector<double> retV(emObjectHandle->size(),0);
 
@@ -78,7 +78,7 @@ EgammaTowerIsolationProducer::produce(edm::Event& iEvent, const edm::EventSetup&
 
   filler.insert(emObjectHandle,retV.begin(),retV.end());
   filler.fill();
-  iEvent.put(isoMap);
+  iEvent.put(std::move(isoMap));
 
 }
 

@@ -51,11 +51,11 @@ void GEDGsfElectronProducer::produce( edm::Event & event, const edm::EventSetup 
   fillEvent(event) ;
 
   // ValueMap
-  std::auto_ptr<edm::ValueMap<reco::GsfElectronRef> > valMap_p(new edm::ValueMap<reco::GsfElectronRef>);
+  auto valMap_p = std::make_unique<edm::ValueMap<reco::GsfElectronRef>>();
   edm::ValueMap<reco::GsfElectronRef>::Filler valMapFiller(*valMap_p);
   fillGsfElectronValueMap(event,valMapFiller);
   valMapFiller.fill();
-  event.put(valMap_p,outputValueMapLabel_);  
+  event.put(std::move(valMap_p),outputValueMapLabel_);  
   // Done with the ValueMap
 
   endEvent() ;
