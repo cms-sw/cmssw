@@ -12,9 +12,11 @@
 #include "CondFormats/HcalObjects/interface/HcalElectronicsMap.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "SimCalorimetry/HcalTrigPrimAlgos/interface/HcalFeatureHFEMBit.h"//cuts based on short and long energy deposited.
+#include "SimCalorimetry/HcalTrigPrimAlgos/interface/HcalFinegrainBit.h"
 
 #include <map>
 #include <vector>
+
 class CaloGeometry;
 class IntegerCaloSamples;
 
@@ -27,7 +29,7 @@ public:
    };
 
   HcalTriggerPrimitiveAlgo(bool pf, const std::vector<double>& w, int latency,
-                           uint32_t FG_threshold, uint32_t ZS_threshold,
+                           uint32_t FG_threshold, uint32_t FG_HF_threshold, uint32_t ZS_threshold,
                            int numberOfSamples,   int numberOfPresamples,
                            int numberOfSamplesHF, int numberOfPresamplesHF,
                            uint32_t minSignalThreshold=0, uint32_t PMT_NoiseThreshold=0);
@@ -84,11 +86,14 @@ public:
   void addSignal(const QIE11DataFrame& frame);
   void addSignal(const IntegerCaloSamples & samples);
   void addFG(const HcalTrigTowerDetId& id, std::vector<bool>& msb);
+  void addUpgradeFG(const HcalTrigTowerDetId& id, int depth, const std::vector<std::bitset<2>>& bits);
+
+  bool validUpgradeFG(const HcalTrigTowerDetId& id, int depth) const;
 
   /// adds the actual RecHits
   void analyze(IntegerCaloSamples & samples, HcalTriggerPrimitiveDigi & result);
-  // Phase1: QIE11
-  void analyzePhase1(IntegerCaloSamples& samples, HcalTriggerPrimitiveDigi& result);
+  // 2017: QIE11
+  void analyze2017(IntegerCaloSamples& samples, HcalTriggerPrimitiveDigi& result, const HcalFinegrainBit& fg_algo);
   // Version 0: RCT
   void analyzeHF(IntegerCaloSamples & samples, HcalTriggerPrimitiveDigi & result, const int hf_lumi_shift);
   // Version 1: 1x1
@@ -99,7 +104,7 @@ public:
           const HcalFeatureBit* HCALFEM
           );
   // With dual anode readout
-  void analyzeHFPhase1(
+  void analyzeHF2017(
           const IntegerCaloSamples& SAMPLES,
           HcalTriggerPrimitiveDigi& result,
           const int HF_LUMI_SHIFT,
@@ -114,6 +119,7 @@ public:
   std::vector<double> weights_;
   int latency_;
   uint32_t FG_threshold_;
+  uint32_t FG_HF_threshold_;
   uint32_t ZS_threshold_;
   int ZS_threshold_I_;
   int numberOfSamples_;
@@ -175,13 +181,26 @@ public:
   typedef std::map<HcalTrigTowerDetId, std::vector<bool> > FGbitMap;
   FGbitMap fgMap_;
 
+  typedef std::vector<HcalFinegrainBit::Tower> FGUpgradeContainer;
+  typedef std::map<HcalTrigTowerDetId, FGUpgradeContainer> FGUpgradeMap;
+  FGUpgradeMap fgUpgradeMap_;
+
   bool upgrade_hb_ = false;
   bool upgrade_he_ = false;
   bool upgrade_hf_ = false;
 
   std::unique_ptr<const TPParameters> override_parameters_;
 
-  static const int first_he_tower = 16;
+  static const int HBHE_OVERLAP_TOWER = 16;
+  static const int LAST_FINEGRAIN_DEPTH = 6;
+  static const int LAST_FINEGRAIN_TOWER = 28;
+
+  static const int QIE8_LINEARIZATION_ET = HcaluLUTTPGCoder::QIE8_LUT_BITMASK;
+  static const int QIE10_LINEARIZATION_ET = HcaluLUTTPGCoder::QIE10_LUT_BITMASK;
+  static const int QIE11_LINEARIZATION_ET = HcaluLUTTPGCoder::QIE11_LUT_BITMASK;
+  // Consider CaloTPGTranscoderULUT.h for values
+  static const int QIE10_MAX_LINEARIZATION_ET = 0x7FF;
+  static const int QIE11_MAX_LINEARIZATION_ET = 0x7FF;
 };
 
 template<typename... Digis>
@@ -200,11 +219,16 @@ void HcalTriggerPrimitiveAlgo::run(const HcalTPGCoder* incoder,
    theTowerMapFGSum.clear();
    HF_Veto.clear();
    fgMap_.clear();
+   fgUpgradeMap_.clear();
    theHFDetailMap.clear();
    theHFUpgradeDetailMap.clear();
 
    // Add all digi collections
    addDigis(digis...);
+
+   // Prepare the fine-grain calculation algorithm for HB/HE
+   int version = 0;
+   HcalFinegrainBit fg_algo(version);
 
    // VME produces additional bits on the front used by lumi but not the
    // trigger, this shift corrects those out by right shifting over them.
@@ -216,7 +240,7 @@ void HcalTriggerPrimitiveAlgo::run(const HcalTPGCoder* incoder,
             analyzeHF(mapItr->second, result.back(), RCTScaleShift);
          } else if (detId.version() == 1) {
             if (upgrade_hf_)
-               analyzeHFPhase1(mapItr->second, result.back(), NCTScaleShift, LongvrsShortCut);
+               analyzeHF2017(mapItr->second, result.back(), NCTScaleShift, LongvrsShortCut);
             else
                analyzeHF2016(mapItr->second, result.back(), NCTScaleShift, LongvrsShortCut);
          } else {
@@ -224,10 +248,10 @@ void HcalTriggerPrimitiveAlgo::run(const HcalTPGCoder* incoder,
          }
       }
       else {
-         if (upgrade_he_ and abs(detId.ieta()) >= first_he_tower) {
-            analyzePhase1(mapItr->second, result.back());
-         } else if (upgrade_hb_ and detId.subdet() < first_he_tower) {
-            analyzePhase1(mapItr->second, result.back());
+         if (upgrade_he_ and abs(detId.ieta()) > HBHE_OVERLAP_TOWER) {
+            analyze2017(mapItr->second, result.back(), fg_algo);
+         } else if (upgrade_hb_ and detId.subdet() <= HBHE_OVERLAP_TOWER) {
+            analyze2017(mapItr->second, result.back(), fg_algo);
          } else {
             analyze(mapItr->second, result.back());
          }
@@ -239,6 +263,7 @@ void HcalTriggerPrimitiveAlgo::run(const HcalTPGCoder* incoder,
    theTowerMapFGSum.clear();
    HF_Veto.clear();
    fgMap_.clear();
+   fgUpgradeMap_.clear();
    theHFDetailMap.clear();
    theHFUpgradeDetailMap.clear();
 
