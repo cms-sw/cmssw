@@ -45,7 +45,7 @@ TProfile2D* prof2d_x0_det_total;
 const std::vector<std::string> DETECTORS{"BeamPipe", "TIB", "TIDF", "TIDB",
       "InnerServices", "TOB",
       "TEC", "TkStrct", "PixBar",
-      "PixFwdPlus", "PixFwdMinus",
+      "PixFwdPlus", "PixFwdMinus","PixFwd",
       "Tracker", "TrackerSum",
       "Pixel", "Strip",
       "InnerTracker",
