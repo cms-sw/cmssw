@@ -349,7 +349,7 @@ void TauTagValidation::dqmBeginRun(const edm::Run& iRun, const edm::EventSetup& 
 
 void TauTagValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   if (genericTriggerEventFlag_) {
-    if (!genericTriggerEventFlag_->on()) std::cout<<"TauTagValidation::analyze: No working genericTriggerEventFlag. Did you specify a valid globaltag?"<<std::endl;//move to LogDebug?
+    if (!genericTriggerEventFlag_->on()) edm::LogInfo ("NoValidGT") << "TauTagValidation::analyze: No working genericTriggerEventFlag. Did you specify a valid globaltag?\n";
   }
 
   numEvents_++;
@@ -381,7 +381,7 @@ void TauTagValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& 
   iEvent.getByToken( primaryVertexCollectionToken_, pvHandle ); //TO-DO
 
   if (!isGen) {
-    std::cerr << " Reference collection: " << refCollection_ << " not found while running TauTagValidation.cc " << std::endl;
+    edm::LogWarning ("ProductNotFound") << " Reference collection: " << refCollection_ << " not found while running TauTagValidation.cc\n";
     return;
   }
 
