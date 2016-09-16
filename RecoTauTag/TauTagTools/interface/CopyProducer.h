@@ -34,7 +34,7 @@ class CopyProducer : public edm::EDProducer {
     /// process an event
     virtual void produce(edm::Event& evt, const edm::EventSetup& es) {
       // Output collection
-      std::auto_ptr<Collection> coll(new Collection());
+      auto coll = std::make_unique<Collection>();
       typedef edm::View<typename Collection::value_type> CView;
       // Get input
       edm::Handle<CView> input;
@@ -43,7 +43,7 @@ class CopyProducer : public edm::EDProducer {
       coll->reserve(input->size());
       // Copy the input to the output
       std::copy(input->begin(), input->end(), std::back_inserter(*coll));
-      evt.put( coll );
+      evt.put(std::move(coll));
     }
   private:
     /// labels of the collection to be converted
