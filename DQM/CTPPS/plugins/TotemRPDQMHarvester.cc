@@ -109,7 +109,6 @@ void TotemRPDQMHarvester::MakePlaneEfficiencyHistograms(unsigned int id, DQMStor
 
   // get source histograms
   string path = detId.planeName(TotemRPDetId::nPath);
-  path.replace(0, 2, "CTPPS/TrackingStrip");
 
   MonitorElement *efficiency_num = igetter.get(path + "/efficiency num");
   MonitorElement *efficiency_den = igetter.get(path + "/efficiency den");
@@ -134,7 +133,6 @@ void TotemRPDQMHarvester::MakePlaneEfficiencyHistograms(unsigned int id, DQMStor
   // book new RP histogram, if not yet done
   TotemRPDetId rpId = detId.getRPId();
   path = rpId.rpName(TotemRPDetId::nPath);
-  path.replace(0, 2, "CTPPS/TrackingStrip");
   const string rp_efficiency_name = "plane efficiency";
   MonitorElement *rp_efficiency = igetter.get(path + "/" + rp_efficiency_name);
   
@@ -165,7 +163,7 @@ void TotemRPDQMHarvester::MakePlaneEfficiencyHistograms(unsigned int id, DQMStor
       efficiency->setBinContent(bi, p);
       efficiency->setBinError(bi, p_unc);
 
-      int pl_bi = (id%10) + 1;
+      int pl_bi = detId.plane() + 1;
       rp_efficiency->setBinContent(pl_bi, bi, p);
     } else {
       efficiency->setBinContent(bi, 0.);

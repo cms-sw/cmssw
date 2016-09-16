@@ -583,7 +583,7 @@ void TotemRPDQMSource::analyze(edm::Event const& event, edm::EventSetup const& e
 
       for (unsigned int plNum = 0; plNum < 10; ++plNum)
       {
-        TotemRPDetId plId(armIdx, rpIdx, rpIdx, plNum);
+        TotemRPDetId plId(armIdx, stIdx, rpIdx, plNum);
 
         double ft_z = ft.getZ0();
         double ft_x = ft.getX0() + ft.getTx() * (ft_z - rp_z);
