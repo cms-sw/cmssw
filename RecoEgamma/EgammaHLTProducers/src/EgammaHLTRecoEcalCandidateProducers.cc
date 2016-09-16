@@ -47,7 +47,7 @@ void EgammaHLTRecoEcalCandidateProducers::produce(edm::StreamID sid, edm::Event&
   //
 
   reco::RecoEcalCandidateCollection outputRecoEcalCandidateCollection;
-  std::unique_ptr< reco::RecoEcalCandidateCollection > outputRecoEcalCandidateCollection_p(new reco::RecoEcalCandidateCollection);
+  auto outputRecoEcalCandidateCollection_p = std::make_unique<reco::RecoEcalCandidateCollection>();
 
   // Get the  Barrel Super Cluster collection
   Handle<reco::SuperClusterCollection> scBarrelHandle;

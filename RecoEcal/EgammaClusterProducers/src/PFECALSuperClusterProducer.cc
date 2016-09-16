@@ -184,9 +184,9 @@ void PFECALSuperClusterProducer::produce(edm::Event& iEvent,
   superClusterAlgo_.run();
   
   //build collections of output CaloClusters from the used PFClusters
-  std::auto_ptr<reco::CaloClusterCollection> caloClustersEB(new reco::CaloClusterCollection);
-  std::auto_ptr<reco::CaloClusterCollection> caloClustersEE(new reco::CaloClusterCollection);
-  std::auto_ptr<reco::CaloClusterCollection> caloClustersES(new reco::CaloClusterCollection);
+  auto caloClustersEB = std::make_unique<reco::CaloClusterCollection>();
+  auto caloClustersEE = std::make_unique<reco::CaloClusterCollection>();
+  auto caloClustersES = std::make_unique<reco::CaloClusterCollection>();
   
   std::map<reco::CaloClusterPtr, unsigned int> pfClusterMapEB; //maps of pfclusters to caloclusters 
   std::map<reco::CaloClusterPtr, unsigned int> pfClusterMapEE;
@@ -235,8 +235,8 @@ void PFECALSuperClusterProducer::produce(edm::Event& iEvent,
   }
   
   //create ValueMaps from output CaloClusters back to original PFClusters
-  std::auto_ptr<edm::ValueMap<reco::CaloClusterPtr> > pfClusterAssociationEBEE(new edm::ValueMap<reco::CaloClusterPtr>);
-  std::auto_ptr<edm::ValueMap<reco::CaloClusterPtr> > pfClusterAssociationES(new edm::ValueMap<reco::CaloClusterPtr>);    
+  auto pfClusterAssociationEBEE = std::make_unique<edm::ValueMap<reco::CaloClusterPtr>>();
+  auto pfClusterAssociationES = std::make_unique<edm::ValueMap<reco::CaloClusterPtr>>();    
   
   //vectors to fill ValueMaps
   std::vector<reco::CaloClusterPtr> clusptrsEB(caloClustersEB->size());
@@ -244,9 +244,9 @@ void PFECALSuperClusterProducer::produce(edm::Event& iEvent,
   std::vector<reco::CaloClusterPtr> clusptrsES(caloClustersES->size());  
   
   //put calocluster output collections in event and get orphan handles to create ptrs
-  const edm::OrphanHandle<reco::CaloClusterCollection> &caloClusHandleEB = iEvent.put(caloClustersEB,PFBasicClusterCollectionBarrel_);
-  const edm::OrphanHandle<reco::CaloClusterCollection> &caloClusHandleEE = iEvent.put(caloClustersEE,PFBasicClusterCollectionEndcap_);
-  const edm::OrphanHandle<reco::CaloClusterCollection> &caloClusHandleES = iEvent.put(caloClustersES,PFBasicClusterCollectionPreshower_);
+  const edm::OrphanHandle<reco::CaloClusterCollection> &caloClusHandleEB = iEvent.put(std::move(caloClustersEB),PFBasicClusterCollectionBarrel_);
+  const edm::OrphanHandle<reco::CaloClusterCollection> &caloClusHandleEE = iEvent.put(std::move(caloClustersEE),PFBasicClusterCollectionEndcap_);
+  const edm::OrphanHandle<reco::CaloClusterCollection> &caloClusHandleES = iEvent.put(std::move(caloClustersES),PFBasicClusterCollectionPreshower_);
     
   //relink superclusters to output caloclusters and fill vectors for ValueMaps
   for( auto& ebsc : *(superClusterAlgo_.getEBOutputSCCollection()) ) {
@@ -296,11 +296,11 @@ void PFECALSuperClusterProducer::produce(edm::Event& iEvent,
   fillerES.fill();  
 
   //store in the event
-  iEvent.put(pfClusterAssociationEBEE,PFClusterAssociationEBEE_);
-  iEvent.put(pfClusterAssociationES,PFClusterAssociationES_);
-  iEvent.put(superClusterAlgo_.getEBOutputSCCollection(),
+  iEvent.put(std::move(pfClusterAssociationEBEE),PFClusterAssociationEBEE_);
+  iEvent.put(std::move(pfClusterAssociationES),PFClusterAssociationES_);
+  iEvent.put(std::move(superClusterAlgo_.getEBOutputSCCollection()),
 	     PFSuperClusterCollectionBarrel_);
-  iEvent.put(superClusterAlgo_.getEEOutputSCCollection(), 
+  iEvent.put(std::move(superClusterAlgo_.getEEOutputSCCollection()), 
 	     PFSuperClusterCollectionEndcapWithPreshower_);
 }
 

@@ -70,7 +70,6 @@ void EgammaHLTR9Producer::produce(edm::StreamID sid, edm::Event& iEvent, const e
     
   }
 
-  std::unique_ptr<reco::RecoEcalCandidateIsolationMap> R9Map(new reco::RecoEcalCandidateIsolationMap(r9Map));
-  iEvent.put(std::move(R9Map));
+  iEvent.put(std::make_unique<reco::RecoEcalCandidateIsolationMap>(r9Map));
 
 }

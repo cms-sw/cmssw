@@ -37,7 +37,7 @@ class GsfElectronBaseProducer : public edm::stream::EDProducer< edm::GlobalCache
 
     static std::unique_ptr<gsfAlgoHelpers::HeavyObjectCache> 
     initializeGlobalCache( const edm::ParameterSet& conf ) {
-       return std::unique_ptr<gsfAlgoHelpers::HeavyObjectCache>(new gsfAlgoHelpers::HeavyObjectCache(conf));
+       return std::make_unique<gsfAlgoHelpers::HeavyObjectCache>(conf);
    }
   
   static void globalEndJob(gsfAlgoHelpers::HeavyObjectCache const* ) {

@@ -52,7 +52,7 @@ void PhotonCoreProducer::produce(edm::Event &theEvent, const edm::EventSetup& th
   //  nEvt_++;
 
   reco::PhotonCoreCollection outputPhotonCoreCollection;
-  std::auto_ptr< reco::PhotonCoreCollection > outputPhotonCoreCollection_p(new reco::PhotonCoreCollection);
+  auto outputPhotonCoreCollection_p = std::make_unique<reco::PhotonCoreCollection>();
 
   // Get the  Barrel Super Cluster collection
   bool validBarrelSCHandle=true;
@@ -120,7 +120,7 @@ void PhotonCoreProducer::produce(edm::Event &theEvent, const edm::EventSetup& th
   // put the product in the event
   edm::LogInfo("PhotonCoreProducer") << " Put in the event " << iSC << " Photon Candidates \n";
   outputPhotonCoreCollection_p->assign(outputPhotonCoreCollection.begin(),outputPhotonCoreCollection.end());
-  theEvent.put( outputPhotonCoreCollection_p, PhotonCoreCollection_);
+  theEvent.put(std::move(outputPhotonCoreCollection_p), PhotonCoreCollection_);
 
 }
 

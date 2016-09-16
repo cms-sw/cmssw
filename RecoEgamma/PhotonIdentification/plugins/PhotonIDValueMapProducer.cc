@@ -224,24 +224,24 @@ void PhotonIDValueMapProducer::produce(edm::Event& iEvent, const edm::EventSetup
   // Configure Lazy Tools
   if (usesES_) {
       if( isAOD )
-        lazyToolnoZS = std::unique_ptr<noZS::EcalClusterLazyTools>(new noZS::EcalClusterLazyTools(iEvent, iSetup, 
+        lazyToolnoZS = std::make_unique<noZS::EcalClusterLazyTools>(iEvent, iSetup, 
                                                       ebReducedRecHitCollection_,
                                                       eeReducedRecHitCollection_,
-                                                      esReducedRecHitCollection_));
+                                                      esReducedRecHitCollection_);
       else
-        lazyToolnoZS = std::unique_ptr<noZS::EcalClusterLazyTools>(new noZS::EcalClusterLazyTools(iEvent, iSetup, 
+        lazyToolnoZS = std::make_unique<noZS::EcalClusterLazyTools>(iEvent, iSetup, 
                                                       ebReducedRecHitCollectionMiniAOD_,
                                                       eeReducedRecHitCollectionMiniAOD_,
-                                                      esReducedRecHitCollectionMiniAOD_)); 
+                                                      esReducedRecHitCollectionMiniAOD_); 
   } else {
       if( isAOD )
-        lazyToolnoZS = std::unique_ptr<noZS::EcalClusterLazyTools>(new noZS::EcalClusterLazyTools(iEvent, iSetup, 
+        lazyToolnoZS = std::make_unique<noZS::EcalClusterLazyTools>(iEvent, iSetup, 
                                                       ebReducedRecHitCollection_,
-                                                      eeReducedRecHitCollection_));
+                                                      eeReducedRecHitCollection_);
       else
-        lazyToolnoZS = std::unique_ptr<noZS::EcalClusterLazyTools>(new noZS::EcalClusterLazyTools(iEvent, iSetup, 
+        lazyToolnoZS = std::make_unique<noZS::EcalClusterLazyTools>(iEvent, iSetup, 
                                                       ebReducedRecHitCollectionMiniAOD_,
-                                                      eeReducedRecHitCollectionMiniAOD_)); 
+                                                      eeReducedRecHitCollectionMiniAOD_); 
 
   }
   
@@ -426,11 +426,11 @@ void PhotonIDValueMapProducer::writeValueMap(edm::Event &iEvent,
 {
   using namespace edm; 
   using namespace std;
-  auto_ptr<ValueMap<float> > valMap(new ValueMap<float>());
+  auto valMap = std::make_unique<ValueMap<float>>();
   edm::ValueMap<float>::Filler filler(*valMap);
   filler.insert(handle, values.begin(), values.end());
   filler.fill();
-  iEvent.put(valMap, label);
+  iEvent.put(std::move(valMap), label);
 }
 
 void PhotonIDValueMapProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {

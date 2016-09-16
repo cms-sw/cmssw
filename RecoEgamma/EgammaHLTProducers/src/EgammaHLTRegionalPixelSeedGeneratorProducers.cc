@@ -115,7 +115,7 @@ void EgammaHLTRegionalPixelSeedGeneratorProducers::produce(edm::Event& iEvent, c
 {
 
   // resulting collection
-  std::unique_ptr<TrajectorySeedCollection> output(new TrajectorySeedCollection());    
+  auto output = std::make_unique< TrajectorySeedCollection>();    
 
   // Get the recoEcalCandidates
   edm::Handle<reco::RecoEcalCandidateCollection> recoecalcands;

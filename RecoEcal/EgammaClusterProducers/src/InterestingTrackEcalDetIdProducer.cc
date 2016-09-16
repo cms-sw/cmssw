@@ -117,7 +117,7 @@ InterestingTrackEcalDetIdProducer::produce(edm::Event& iEvent, const edm::EventS
 {
    using namespace edm;
 
-   std::auto_ptr< DetIdCollection > interestingDetIdCollection( new DetIdCollection() ) ;
+   auto interestingDetIdCollection = std::make_unique<DetIdCollection>();
 
    // Get tracks from event
    edm::Handle<reco::TrackCollection> tracks;
@@ -150,7 +150,7 @@ InterestingTrackEcalDetIdProducer::produce(edm::Event& iEvent, const edm::EventS
 
    }
 
-   iEvent.put(interestingDetIdCollection);
+   iEvent.put(std::move(interestingDetIdCollection));
 
 }
 

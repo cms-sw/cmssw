@@ -80,7 +80,7 @@ void SiStripElectronSeedProducer::produce(edm::Event& e, const edm::EventSetup& 
   matcher_->setupES(iSetup);
 
   ElectronSeedCollection *seeds = new ElectronSeedCollection;
-  std::auto_ptr<ElectronSeedCollection> pSeeds;
+  std::unique_ptr<ElectronSeedCollection> pSeeds;
 
   // do both barrel and endcap instances
   for (unsigned int i=0; i<2; i++) {
@@ -94,9 +94,9 @@ void SiStripElectronSeedProducer::produce(edm::Event& e, const edm::EventSetup& 
 
   }
 
-  pSeeds = std::auto_ptr<ElectronSeedCollection>(seeds);
+  pSeeds = std::unique_ptr<ElectronSeedCollection>(seeds);
 
-  e.put(pSeeds);
+  e.put(std::move(pSeeds));
 
 }
 

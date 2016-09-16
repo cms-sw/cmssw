@@ -107,7 +107,7 @@ GamIsoDetIdCollectionProducer::produce (edm::Event& iEvent,
         doubleConeSel_= new CaloDualConeSelector<EcalRecHit>(innerRadius_,outerRadius_, &*pG, DetId::Ecal, EcalEndcap);
 
     //Create empty output collections
-    std::auto_ptr< DetIdCollection > detIdCollection (new DetIdCollection() ) ;
+    auto detIdCollection = std::make_unique<DetIdCollection>();
 
     reco::PhotonCollection::const_iterator emObj;
     if(doubleConeSel_) { //if cone selector was created
@@ -175,5 +175,5 @@ GamIsoDetIdCollectionProducer::produce (edm::Event& iEvent,
         delete doubleConeSel_;
     } //end if cone selector was created
     
-    iEvent.put( detIdCollection, interestingDetIdCollection_ );
+    iEvent.put(std::move(detIdCollection), interestingDetIdCollection_ );
 }

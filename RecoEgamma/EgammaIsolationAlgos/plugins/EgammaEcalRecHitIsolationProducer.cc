@@ -97,7 +97,7 @@ EgammaEcalRecHitIsolationProducer::produce(edm::Event& iEvent, const edm::EventS
   const CaloGeometry* caloGeom = pG.product();
 
   //reco::CandViewDoubleAssociations* isoMap = new reco::CandViewDoubleAssociations( reco::CandidateBaseRefProd( emObjectHandle ) );
-  std::auto_ptr<edm::ValueMap<double> > isoMap(new edm::ValueMap<double>());
+  auto isoMap = std::make_unique<edm::ValueMap<double>>();
   edm::ValueMap<double>::Filler filler(*isoMap);
   std::vector<double> retV(emObjectHandle->size(),0);
 
@@ -149,8 +149,7 @@ EgammaEcalRecHitIsolationProducer::produce(edm::Event& iEvent, const edm::EventS
   filler.insert(emObjectHandle,retV.begin(),retV.end());
   filler.fill();
 
-  //std::auto_ptr<reco::CandViewDoubleAssociations> isolMap(isoMap);
-  iEvent.put(isoMap);
+  iEvent.put(std::move(isoMap));
 
 }
 
