@@ -145,7 +145,7 @@ void TotemRPUVPatternFinder::recognizeAndSelect(TotemRPUVPattern::ProjectionType
 
     set<unsigned int> planes;
     for (const auto &ds : p.getHits())
-        planes.insert(TotemRPDetId::rawToDecId(ds.detId()) % 10);
+        planes.insert(TotemRPDetId(ds.detId()).plane());
 
     if (planes.size() < planes_required)
       p.setFittable(false);
@@ -189,11 +189,10 @@ void TotemRPUVPatternFinder::produce(edm::Event& event, const edm::EventSetup& e
   for (auto &ids : *input)
   {
     TotemRPDetId detId(ids.detId());
-    unsigned int plane = detId.detector();
+    unsigned int plane = detId.plane();
     bool uDir = detId.isStripsCoordinateUDirection();
 
-    TotemRPDetId rpId(detId);
-    rpId.setDetector(0);
+    TotemRPDetId rpId = detId.getRPId();
 
     RPData &data = rpData[rpId];
 
@@ -216,7 +215,7 @@ void TotemRPUVPatternFinder::produce(edm::Event& event, const edm::EventSetup& e
   for (auto it : rpData)
   {
     TotemRPDetId rpId(it.first);
-    unsigned int rpDecId = rpId.rpDecId();
+    unsigned int rpDecId = rpId.getRPDecimalId();
     RPData &data = it.second;
 
     // merge default and exceptional settings (if available)
