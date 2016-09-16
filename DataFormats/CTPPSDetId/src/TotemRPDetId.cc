@@ -56,11 +56,11 @@ TotemRPDetId::TotemRPDetId(uint32_t Arm, uint32_t Station, uint32_t RomanPot, ui
 
 std::ostream& operator << (std::ostream& os, const TotemRPDetId& id)
 {
-  os << " Arm " << id.arm()
-     << " Station " << id.station()
-     << " RomanPot " << id.romanPot()
-     << " Detector " << id.detector()
-     << " Chip " << id.chip();
+  os << "arm=" << id.arm()
+     << " station=" << id.station()
+     << " rp=" << id.romanPot()
+     << " detector=" << id.detector()
+     << " chip=" << id.chip();
 
   return os;
 }

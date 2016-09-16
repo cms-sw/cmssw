@@ -29,20 +29,14 @@ char TotemRPGeometry::Build(const DetGeomDesc *gD)
 
     // check if it is RP detector
     if (! d->name().name().compare(DDD_TOTEM_RP_DETECTOR_NAME))
-    {
       AddDetector(d->geographicalID(), d);
-    }
 
     // check if it is RP device (primary vacuum)
     if (! d->name().name().compare(DDD_TOTEM_RP_PRIMARY_VACUUM_NAME))
-    {
-      AddDetector(d->geographicalID(), d);
-    }
+      AddRPDevice(d->geographicalID(), d);
     
     for (unsigned int i = 0; i < d->components().size(); i++)
-    {
-      buffer.push_back( d->components()[i] );
-    }
+      buffer.push_back(d->components()[i]);
   }
 
   // build sets from theMap
@@ -55,11 +49,9 @@ char TotemRPGeometry::Build(const DetGeomDesc *gD)
 
 char TotemRPGeometry::AddDetector(unsigned int id, const DetGeomDesc* &gD)
 {
-  // check if id is RP id?
-
   // check if the ID is already in map
-  //std::cout<<"TotemRPGeometry::AddDetector, Detector added: "<<id<<std::endl;
-  if (theMap.find(id) != theMap.end()) return 1;
+  if (theMap.find(id) != theMap.end())
+    return 1;
 
   // add gD
   theMap[id] = (DetGeomDesc*) gD;
@@ -76,7 +68,8 @@ DetGeomDesc* TotemRPGeometry::GetDetector(unsigned int id) const
 //  std::cout<<"TotemRPGeometry::GetDetector entered, id="<<id<<std::endl;
   mapType::const_iterator it = theMap.find(id);
   if (it == theMap.end())
-    throw cms::Exception("TotemRPGeometry") << "Detector with ID " << id << " not found.";
+    throw cms::Exception("TotemRPGeometry") << "Not found detector with ID " << id << ", i.e. "
+      << TotemRPDetId(id);
 
   // the [] operator cannot be used as this method is const
   // and it must be const and one gets TotemRPGeometry const
@@ -113,25 +106,26 @@ CLHEP::Hep3Vector TotemRPGeometry::GetDetEdgeNormalVector(unsigned int id) const
 
 //----------------------------------------------------------------------------------------------------
 
-char TotemRPGeometry::AddRPDevice(int copy_no, const DetGeomDesc* &gD)
+char TotemRPGeometry::AddRPDevice(unsigned int id, const DetGeomDesc* &gD)
 {
   // check if the copy_no is already in map
-  if (theRomanPotMap.find(copy_no) != theRomanPotMap.end())
+  if (theRomanPotMap.find(id) != theRomanPotMap.end())
     return 1;
 
   // add gD
-  theRomanPotMap[copy_no] = (DetGeomDesc*) gD;
+  theRomanPotMap[id] = (DetGeomDesc*) gD;
   return 0;
 }
 
 //----------------------------------------------------------------------------------------------------
 
-DetGeomDesc* TotemRPGeometry::GetRPDevice(int copy_no) const
+DetGeomDesc* TotemRPGeometry::GetRPDevice(unsigned int id) const
 {
   // check if there is a corresponding key
-  RPDeviceMapType::const_iterator it = theRomanPotMap.find(copy_no);
+  RPDeviceMapType::const_iterator it = theRomanPotMap.find(id);
   if (it == theRomanPotMap.end())
-      throw cms::Exception("TotemRPGeometry") << "RP device with ID " << copy_no << " not found.";
+    throw cms::Exception("TotemRPGeometry") << "Not found RP device with ID " << id << ", i.e. "
+      << TotemRPDetId(id);
 
   return (*it).second;
 }

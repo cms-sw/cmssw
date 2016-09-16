@@ -57,23 +57,14 @@ class TotemRPGeometry
     ///\brief adds an item to the map (detector ID --> DetGeomDesc)
     /// performs necessary checks, returns 0 if succesful
     char AddDetector(unsigned int, const DetGeomDesc * &);
-    char AddDetector(const DetId & id, const DetGeomDesc * &gd)
-    {
-      return AddDetector(id.rawId(), gd);
-    }
 
     ///\brief adds a RP package (primary vacuum) to a map
-    /// copy_no means RPId (i.e. 3 digit decimal number)
-    char AddRPDevice(int copy_no, const DetGeomDesc * &det_geom_desc);
+    char AddRPDevice(unsigned int id, const DetGeomDesc * &det_geom_desc);
 
     ///\brief returns geometry of a detector
     /// performs necessary checks, returns NULL if fails
     /// input is raw ID
     DetGeomDesc *GetDetector(unsigned int) const;
-    DetGeomDesc *GetDetector(const TotemRPDetId & id) const
-    {
-      return GetDetector(id.rawId());
-    }
 
     /// returns the position of the edge of a detector
     CLHEP::Hep3Vector GetDetEdgePosition(unsigned int id) const;
@@ -82,7 +73,7 @@ class TotemRPGeometry
     CLHEP::Hep3Vector GetDetEdgeNormalVector(unsigned int id) const;
 
     /// returns geometry of a RP box
-    DetGeomDesc *GetRPDevice(int copy_no) const;
+    DetGeomDesc *GetRPDevice(unsigned int id) const;
 
     /// returns the (outer) position of the thin foil of a RP box
     CLHEP::Hep3Vector GetRPThinFoilPosition(int copy_no) const;
