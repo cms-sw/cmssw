@@ -7,6 +7,8 @@
   <use   name="DataFormats/Candidate"/>
   <use   name="DataFormats/ParticleFlowCandidate"/>
   <use   name="DQMOffline/PFTau"/>
+  <use   name="CommonTools/Utils"/>
+  <use   name="CommonTools/TriggerUtils"/>
   <flags   EDM_PLUGIN="1"/>
 </library>
 <export>

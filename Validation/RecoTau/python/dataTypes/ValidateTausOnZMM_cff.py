@@ -1,5 +1,5 @@
 import FWCore.ParameterSet.Config as cms
-from Validation.RecoTau.RecoTauValidation_cfi import *
+from Validation.RecoTau.RecoTauMCValidation_cfi import *
 import copy
 
 from PhysicsTools.HepMCCandAlgos.genParticles_cfi import *

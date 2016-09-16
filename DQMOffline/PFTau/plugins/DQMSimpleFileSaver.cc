@@ -1,4 +1,4 @@
-#include "Validation/RecoTau/plugins/DQMSimpleFileSaver.h"
+#include "DQMOffline/PFTau/plugins/DQMSimpleFileSaver.h"
 
 // framework & common header files
 #include "FWCore/Framework/interface/Frameworkfwd.h"

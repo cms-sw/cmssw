@@ -7,7 +7,7 @@
 
  Description: <one line class summary>
 
- Class used to do the Validation of the TauTag
+ Class used to do the Validation of the TauTag for data certification
 
  Implementation:
  <Notes on implementation>
@@ -16,10 +16,11 @@
 // Original Author:  Ricardo Vasquez Sierra
 //         Created:  October 8, 2008
 //
-//Modified by: Atanu Modak to include extra plots
-// user include files
+//Modified by: Atanu Modak to include extra histograms and clean up
+//Package moved to the DQMOffline/PFTau area from Validation/RecoTau
+//following the proposal of RECO group
 
-#include "Validation/RecoTau/interface/TauTagValidation.h"
+#include "DQMOffline/PFTau/plugins/TauTagValidation.h"
 #include "FWCore/Version/interface/GetReleaseVersion.h"
 #include <DataFormats/VertexReco/interface/Vertex.h>
 #include <DataFormats/VertexReco/interface/VertexFwd.h>
@@ -480,17 +481,6 @@ void TauTagValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& 
           //Tau Counter, allHadronic mode
           tauDeacyCountMap_.find( "allHadronic" + currentDiscriminatorLabel)->second++;
 
-	  /*
-          //is there a better way than casting the candidate?
-          const reco::GenJet *tauGenJet = dynamic_cast<const reco::GenJet*>(gen_particle);
-          if(tauGenJet){
-            std::string genTauDecayMode =  JetMCTagUtils::genTauDecayMode(*tauGenJet); // gen_particle is the tauGenJet matched to the reconstructed tau
-            element = plotMap_.find( currentDiscriminatorLabel + "_pTRatio_" + genTauDecayMode );
-            if( element != plotMap_.end() ) element->second->Fill(tauPtRes);
-            tauDeacyCountMap_.find( genTauDecayMode + currentDiscriminatorLabel)->second++;
-          }else{
-            LogInfo("TauTagValidation") << " Failed to cast the MC candidate.";
-	  }*/
 
           if (thePFTau->decayMode() == reco::PFTau::kOneProng0PiZero){
             tauDeacyCountMap_.find("oneProng0Pi0" + currentDiscriminatorLabel)->second++; 

@@ -1,4 +1,4 @@
-#include "Validation/RecoTau/plugins/dqmAuxFunctions.h"
+#include "DQMOffline/PFTau/plugins/dqmAuxFunctions.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 

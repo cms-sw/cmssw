@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
-import Validation.RecoTau.ValidationUtils as Utils
-from Validation.RecoTau.RecoTauValidation_cfi import ApplyFunctionToSequence, SetValidationExtention
+import DQMOffline.PFTau.ValidationUtils as Utils
+from Validation.RecoTau.RecoTauMCValidation_cfi import ApplyFunctionToSequence, SetValidationExtention
 import PhysicsTools.PatAlgos.tools.helpers as helpers
 
 proc = cms.Process('helper')
