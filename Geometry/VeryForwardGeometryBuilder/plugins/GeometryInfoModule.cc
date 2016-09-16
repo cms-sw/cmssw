@@ -198,7 +198,7 @@ void GeometryInfoModule::PrintGeometry(const TotemRPGeometry &geometry, const ed
       double dx = 0., dy = 0.;
       geometry.GetReadoutDirection(it->first, dx, dy);
   
-      printf("%4i  |  %8.3f  |  %8.3f  |  %9.4f | %8.3f | %8.3f |\n", id.detectorDecId(), x, y, z, dx, dy);
+      printf("%4i  |  %8.3f  |  %8.3f  |  %9.4f | %8.3f | %8.3f |\n", id.getPlaneDecimalId(), x, y, z, dx, dy);
     }
   }
   
@@ -211,9 +211,9 @@ void GeometryInfoModule::PrintGeometry(const TotemRPGeometry &geometry, const ed
 
     for (TotemRPGeometry::mapType::const_iterator it = geometry.beginDet(); it != geometry.endDet(); ++it)
     {
-      unsigned int decId = TotemRPDetId::rawToDecId(it->first);
-      unsigned int rpId = decId / 10;
-      bool uDirection = TotemRPDetId::isStripsCoordinateUDirection(decId);
+      TotemRPDetId plId(it->first);
+      unsigned int rpDecId = plId.getRPDecimalId();
+      bool uDirection = plId.isStripsCoordinateUDirection();
   
       double x = it->second->translation().x();
       double y = it->second->translation().y();
@@ -222,7 +222,7 @@ void GeometryInfoModule::PrintGeometry(const TotemRPGeometry &geometry, const ed
       double dx = 0., dy = 0.;
       geometry.GetReadoutDirection(it->first, dx, dy);
   
-      data[rpId].Fill(x, y, z, uDirection, dx, dy);
+      data[rpDecId].Fill(x, y, z, uDirection, dx, dy);
     }
 
     printf("RPId |                center                |      U direction    |      V direction    |\n");
