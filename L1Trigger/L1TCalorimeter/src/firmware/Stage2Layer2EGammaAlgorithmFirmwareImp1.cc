@@ -11,19 +11,12 @@
 #include "L1Trigger/L1TCalorimeter/interface/CaloStage2Nav.h"
 #include "L1Trigger/L1TCalorimeter/interface/CaloTools.h"
 #include "L1Trigger/L1TCalorimeter/interface/BitonicSort.h"
-
+#include "L1Trigger/L1TCalorimeter/interface/AccumulatingSort.h"
 
 
 namespace l1t {
-  bool operator > ( l1t::EGamma& a, l1t::EGamma& b )
+  bool operator > ( const l1t::EGamma& a, const l1t::EGamma& b )
   {
-    if ( a.pt() == b.pt() ){
-      if( a.hwPhi() == b.hwPhi() )
-	return abs(a.hwEta()) > abs(b.hwEta());
-      else
-	return a.hwPhi() > b.hwPhi();
-    }
-    else
       return a.pt() > b.pt();
   }
 }
@@ -67,17 +60,17 @@ void l1t::Stage2Layer2EGammaAlgorithmFirmwareImp1::processEvent(const std::vecto
       int iPhiP2 = caloNav.offsetIPhi(iPhi,  2);
       int iPhiM  = caloNav.offsetIPhi(iPhi, -1);
       int iPhiM2 = caloNav.offsetIPhi(iPhi, -2);
-      const l1t::CaloTower& seed    = l1t::CaloTools::getTower(towers, iEta , iPhi );
-      const l1t::CaloTower& towerNW = l1t::CaloTools::getTower(towers, iEtaM, iPhiM);
-      const l1t::CaloTower& towerN  = l1t::CaloTools::getTower(towers, iEta , iPhiM);
-      const l1t::CaloTower& towerNE = l1t::CaloTools::getTower(towers, iEtaP, iPhiM);
-      const l1t::CaloTower& towerE  = l1t::CaloTools::getTower(towers, iEtaP, iPhi );
-      const l1t::CaloTower& towerSE = l1t::CaloTools::getTower(towers, iEtaP, iPhiP);
-      const l1t::CaloTower& towerS  = l1t::CaloTools::getTower(towers, iEta , iPhiP);
-      const l1t::CaloTower& towerSW = l1t::CaloTools::getTower(towers, iEtaM, iPhiP);
-      const l1t::CaloTower& towerW  = l1t::CaloTools::getTower(towers, iEtaM, iPhi );
-      const l1t::CaloTower& towerNN = l1t::CaloTools::getTower(towers, iEta , iPhiM2);
-      const l1t::CaloTower& towerSS = l1t::CaloTools::getTower(towers, iEta , iPhiP2);
+      const l1t::CaloTower& seed    = l1t::CaloTools::getTower(towers, CaloTools::caloEta(iEta) , iPhi );
+      const l1t::CaloTower& towerNW = l1t::CaloTools::getTower(towers, CaloTools::caloEta(iEtaM), iPhiM);
+      const l1t::CaloTower& towerN  = l1t::CaloTools::getTower(towers, CaloTools::caloEta(iEta) , iPhiM);
+      const l1t::CaloTower& towerNE = l1t::CaloTools::getTower(towers, CaloTools::caloEta(iEtaP), iPhiM);
+      const l1t::CaloTower& towerE  = l1t::CaloTools::getTower(towers, CaloTools::caloEta(iEtaP), iPhi );
+      const l1t::CaloTower& towerSE = l1t::CaloTools::getTower(towers, CaloTools::caloEta(iEtaP), iPhiP);
+      const l1t::CaloTower& towerS  = l1t::CaloTools::getTower(towers, CaloTools::caloEta(iEta) , iPhiP);
+      const l1t::CaloTower& towerSW = l1t::CaloTools::getTower(towers, CaloTools::caloEta(iEtaM), iPhiP);
+      const l1t::CaloTower& towerW  = l1t::CaloTools::getTower(towers, CaloTools::caloEta(iEtaM), iPhi );
+      const l1t::CaloTower& towerNN = l1t::CaloTools::getTower(towers, CaloTools::caloEta(iEta) , iPhiM2);
+      const l1t::CaloTower& towerSS = l1t::CaloTools::getTower(towers, CaloTools::caloEta(iEta) , iPhiP2);
       //
 
       int seedEt    = seed   .hwPt();
@@ -149,8 +142,18 @@ void l1t::Stage2Layer2EGammaAlgorithmFirmwareImp1::processEvent(const std::vecto
           1,72,towers,1,999,CaloTools::CALO);
       unsigned int lutAddress = isoLutIndex(egamma.hwEta(), nrTowers, egamma.hwPt());
 
-      int isolBit = hwEtSum-hwFootPrint <= params_->egIsolationLUT()->data(lutAddress);       
+      int isolBit = (((hwEtSum-hwFootPrint) <= params_->egIsolationLUT()->data(lutAddress)) || (params_->egIsolationLUT()->data(lutAddress)>255));       
       egamma.setHwIso(isolBit);
+      int hwIsoEnergy = hwEtSum-hwFootPrint;
+
+      // development vars
+      egamma.setTowerIPhi((short int)CaloTools::towerEta(cluster.hwEta()));
+      egamma.setTowerIEta((short int)CaloTools::towerPhi(cluster.hwEta(), cluster.hwPhi()));
+      egamma.setRawEt((short int)egamma.hwPt());
+      egamma.setIsoEt((short int)hwIsoEnergy);
+      egamma.setFootprintEt((short int)hwFootPrint);
+      egamma.setNTT((short int)nrTowers);
+      egamma.setShape((short int)returnShape(cluster));
       
       // Energy calibration
       // Corrections function of ieta, ET, and cluster shape
@@ -200,40 +203,57 @@ void l1t::Stage2Layer2EGammaAlgorithmFirmwareImp1::processEvent(const std::vecto
     }//end of cuts on cluster to make EGamma
   }//end of cluster loop
 
-  
-  //Keep only candidates which passes the FG veto and the shape ID
-  std::vector<l1t::EGamma> egammas_eta_neg;  
-  std::vector<l1t::EGamma> egammas_eta_pos;
+  // prepare content to be sorted -- each phi ring contains 18 elements, with Et = 0 if no candidate exists
+  math::PtEtaPhiMLorentzVector emptyP4;
+  l1t::EGamma tempEG (emptyP4, 0, 0, 0, 0);
+  std::vector< std::vector<l1t::EGamma> > egEtaPos( 28 , std::vector<l1t::EGamma>(18, tempEG));
+  std::vector< std::vector<l1t::EGamma> > egEtaNeg( 28 , std::vector<l1t::EGamma>(18, tempEG));
+  for (unsigned int iEG = 0; iEG < egammas_raw.size(); iEG++)
+  {
+      int fgBit     = egammas_raw.at(iEG).hwQual()    & (0x1);
+      int hOverEBit = egammas_raw.at(iEG).hwQual()>>1 & (0x1);
+      int shapeBit  = egammas_raw.at(iEG).hwQual()>>2 & (0x1);
 
-  for(const auto& egamma : egammas_raw){
+      bool IDcuts = (fgBit && hOverEBit && shapeBit) || (egammas_raw.at(iEG).pt()>=params_->egMaxPtHOverE());
 
-    int fgBit = egamma.hwQual() & (0x1);
-    int hOverEBit = egamma.hwQual()>>1 & (0x1);
-    int shapeBit = egamma.hwQual()>>2 & (0x1);
-    if(fgBit && shapeBit && hOverEBit){
-      if(egamma.hwEta()<0)
-	egammas_eta_neg.push_back(egamma);
-      else
-	egammas_eta_pos.push_back(egamma);
-    }
+      if(!IDcuts) continue;
+
+      if (egammas_raw.at(iEG).hwEta() > 0) egEtaPos.at( egammas_raw.at(iEG).hwEta()-1).at((egammas_raw.at(iEG).hwPhi()-1)/4) = egammas_raw.at(iEG);
+      else                                 egEtaNeg.at( -(egammas_raw.at(iEG).hwEta()+1)).at((egammas_raw.at(iEG).hwPhi()-1)/4) = egammas_raw.at(iEG);
   }
 
+  AccumulatingSort <l1t::EGamma> etaPosSorter(6);
+  AccumulatingSort <l1t::EGamma> etaNegSorter(6);
+  std::vector<l1t::EGamma> accumEtaPos;
+  std::vector<l1t::EGamma> accumEtaNeg;
 
- //Keep only 6 candidate with highest Pt in each eta-half
-  std::vector<l1t::EGamma>::iterator start_, end_;
+  for( int ieta = 0 ; ieta < 28 ; ++ieta)
+  {
+      // eta +
+      std::vector<l1t::EGamma>::iterator start_, end_;
+      start_ = egEtaPos.at(ieta).begin();  
+      end_   = egEtaPos.at(ieta).end();
+      BitonicSort<l1t::EGamma>(down, start_, end_);
+      etaPosSorter.Merge( egEtaPos.at(ieta) , accumEtaPos );
+      
+      // eta -
+      start_ = egEtaNeg.at(ieta).begin();  
+      end_   = egEtaNeg.at(ieta).end();
+      BitonicSort<l1t::EGamma>(down, start_, end_);
+      etaNegSorter.Merge( egEtaNeg.at(ieta) , accumEtaNeg );
 
-  start_ = egammas_eta_pos.begin();  
-  end_   = egammas_eta_pos.end();
-  BitonicSort<l1t::EGamma>(down, start_, end_);
-  if (egammas_eta_pos.size()>6) egammas_eta_pos.resize(6);
+  }
 
-  start_ = egammas_eta_neg.begin();  
-  end_   = egammas_eta_neg.end();
-  BitonicSort<l1t::EGamma>(down, start_, end_);
-  if (egammas_eta_neg.size()>6) egammas_eta_neg.resize(6);
-
-  egammas = egammas_eta_pos;
-  egammas.insert(egammas.end(),egammas_eta_neg.begin(),egammas_eta_neg.end());
+  // put all 12 candidates in the original tau vector, removing zero energy ones
+  egammas.clear();
+  for (l1t::EGamma acceg : accumEtaPos)
+  {
+      if (acceg.hwPt() > 0) egammas.push_back(acceg);
+  }
+  for (l1t::EGamma acceg : accumEtaNeg)
+  {
+      if (acceg.hwPt() > 0) egammas.push_back(acceg);
+  }
 
 }
 
@@ -459,3 +479,25 @@ unsigned int l1t::Stage2Layer2EGammaAlgorithmFirmwareImp1::trimmingLutIndex(unsi
   unsigned int index = iEtaNormed*128+shape;
   return index;
 }
+
+/*****************************************************************/
+unsigned int l1t::Stage2Layer2EGammaAlgorithmFirmwareImp1::returnShape(const l1t::CaloCluster& clus)
+/*****************************************************************/
+{
+  l1t::CaloCluster clusCopy = clus;
+
+  unsigned int shape = 0;
+  if( (clus.checkClusterFlag(CaloCluster::INCLUDE_N)) ) shape |= (0x1);
+  if( (clus.checkClusterFlag(CaloCluster::INCLUDE_S)) ) shape |= (0x1<<1);
+  if( clus.checkClusterFlag(CaloCluster::TRIM_LEFT)  && (clus.checkClusterFlag(CaloCluster::INCLUDE_E))  ) shape |= (0x1<<2);
+  if( !clus.checkClusterFlag(CaloCluster::TRIM_LEFT) && (clus.checkClusterFlag(CaloCluster::INCLUDE_W))  ) shape |= (0x1<<2);
+  if( clus.checkClusterFlag(CaloCluster::TRIM_LEFT)  && (clus.checkClusterFlag(CaloCluster::INCLUDE_NE)) ) shape |= (0x1<<3);
+  if( !clus.checkClusterFlag(CaloCluster::TRIM_LEFT) && (clus.checkClusterFlag(CaloCluster::INCLUDE_NW)) ) shape |= (0x1<<3);
+  if( clus.checkClusterFlag(CaloCluster::TRIM_LEFT)  && (clus.checkClusterFlag(CaloCluster::INCLUDE_SE)) ) shape |= (0x1<<4);
+  if( !clus.checkClusterFlag(CaloCluster::TRIM_LEFT) && (clus.checkClusterFlag(CaloCluster::INCLUDE_SW)) ) shape |= (0x1<<4);
+  if( clus.checkClusterFlag(CaloCluster::INCLUDE_NN) ) shape |= (0x1<<5);
+  if( clus.checkClusterFlag(CaloCluster::INCLUDE_SS) ) shape |= (0x1<<6);
+
+  return shape;
+}
+ 
