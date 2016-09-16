@@ -1,10 +1,10 @@
-from L1TriggerConfig.L1TUtmTriggerMenuProducers.L1TUtmTriggerMenuOnline_cfi import *
-from L1TriggerConfig.L1TMuonBarrelParamsProducers.L1TMuonBarrelParamsOnline_cfi import *
-from L1TriggerConfig.L1TMuonGlobalParamsProducers.L1TMuonGlobalParamsOnline_cfi import *
-from L1TriggerConfig.L1TMuonOverlapParamsProducers.L1TMuonOverlapParamsOnline_cfi import *
-from L1TriggerConfig.L1TMuonEndcapParamsProducers.L1TMuonEndcapParamsOnline_cfi import *
-from L1TriggerConfig.L1TCaloParamsProducers.L1TCaloParamsOnline_cfi import *
-from L1TriggerConfig.L1TGlobalPrescalesVetosProducers.L1TGlobalPrescalesVetosOnline_cfi import *
+from L1TriggerConfig.L1TConfigProducers.L1TUtmTriggerMenuOnline_cfi import *
+from L1TriggerConfig.L1TConfigProducers.L1TMuonBarrelParamsOnline_cfi import *
+from L1TriggerConfig.L1TConfigProducers.L1TMuonGlobalParamsOnline_cfi import *
+from L1TriggerConfig.L1TConfigProducers.L1TMuonOverlapParamsOnline_cfi import *
+from L1TriggerConfig.L1TConfigProducers.L1TMuonEndcapParamsOnline_cfi import *
+from L1TriggerConfig.L1TConfigProducers.L1TCaloParamsOnline_cfi import *
+from L1TriggerConfig.L1TConfigProducers.L1TGlobalPrescalesVetosOnline_cfi import *
 
 def setTSCPayloadsDBAuth(process, DBAuth = '.'):
     process.L1TCaloParamsOnlineProd.onlineAuthentication           = cms.string( DBAuth )
