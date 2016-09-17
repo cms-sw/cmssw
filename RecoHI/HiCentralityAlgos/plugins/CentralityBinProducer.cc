@@ -166,8 +166,7 @@ CentralityBinProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
 
   }
 
-   std::auto_ptr<int> binp(new int(bin));
-   iEvent.put(binp,centralityVariable_.data());
+   iEvent.put(std::make_unique<int>(bin),centralityVariable_.data());
  
 }
 

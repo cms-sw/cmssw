@@ -89,19 +89,19 @@ void HiFJRhoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   iEvent.getByToken(jetsToken_, jets);
 
   int neta = (int)etaRanges.size();
-  std::unique_ptr<std::vector<double>> mapEtaRangesOut ( new std::vector<double>(neta,-999.));
+  auto mapEtaRangesOut = std::make_unique<std::vector<double>>(neta,-999.);
 
   for(int ieta = 0; ieta < neta; ieta++){
    mapEtaRangesOut->at(ieta) = etaRanges[ieta];
   }
-  std::unique_ptr<std::vector<double>> mapToRhoOut ( new std::vector<double>(neta-1,1e-6));
-  std::unique_ptr<std::vector<double>> mapToRhoMOut ( new std::vector<double>(neta-1,1e-6));
+  auto mapToRhoOut = std::make_unique<std::vector<double>>(neta-1,1e-6);
+  auto mapToRhoMOut = std::make_unique<std::vector<double>>(neta-1,1e-6);
   
   int njets = jets->size();
   
-  std::unique_ptr<std::vector<double>> ptJetsOut ( new std::vector<double>(njets,1e-6));
-  std::unique_ptr<std::vector<double>> areaJetsOut ( new std::vector<double>(njets,1e-6));
-  std::unique_ptr<std::vector<double>> etaJetsOut ( new std::vector<double>(njets,1e-6));
+  auto ptJetsOut = std::make_unique<std::vector<double>>(njets,1e-6);
+  auto areaJetsOut = std::make_unique<std::vector<double>>(njets,1e-6);
+  auto etaJetsOut = std::make_unique<std::vector<double>>(njets,1e-6);
     
   double rhoVec[999];
   double rhomVec[999];

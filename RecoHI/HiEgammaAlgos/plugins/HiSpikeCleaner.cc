@@ -151,7 +151,7 @@ HiSpikeCleaner::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    EcalClusterLazyTools lazyTool(iEvent, iSetup, rHInputProducerBToken_,rHInputProducerEToken_);
 
    // Define a collection of corrected SuperClusters to put back into the event
-   std::auto_ptr<reco::SuperClusterCollection> corrClusters(new reco::SuperClusterCollection);
+   auto corrClusters = std::make_unique<reco::SuperClusterCollection>();
    
    //  Loop over raw clusters and make corrected ones
    reco::SuperClusterCollection::const_iterator aClus;
@@ -205,7 +205,7 @@ HiSpikeCleaner::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       }
    
    // Put collection of corrected SuperClusters into the event
-   iEvent.put(corrClusters, outputCollection_);   
+   iEvent.put(std::move(corrClusters), outputCollection_);   
    
 }
 
