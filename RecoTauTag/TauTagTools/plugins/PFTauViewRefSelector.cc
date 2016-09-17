@@ -37,7 +37,7 @@ class PFTauViewRefSelector : public edm::EDFilter {
   private:
     edm::InputTag src_;
     std::string cut_;
-    std::auto_ptr<StringCutObjectSelector<reco::PFTau> > outputSelector_;
+    std::unique_ptr<StringCutObjectSelector<reco::PFTau> > outputSelector_;
     bool filter_;
 };
 
@@ -45,13 +45,13 @@ PFTauViewRefSelector::PFTauViewRefSelector(const edm::ParameterSet &pset) {
   src_ = pset.getParameter<edm::InputTag>("src");
   std::string cut = pset.getParameter<std::string>("cut");
   filter_ = pset.exists("filter") ? pset.getParameter<bool>("filter") : false;
-  outputSelector_.reset(new StringCutObjectSelector<reco::PFTau>(cut));
+  outputSelector_ = std::make_unique<StringCutObjectSelector<reco::PFTau>>(cut);
   produces<reco::PFTauRefVector>();
 }
 
 bool
 PFTauViewRefSelector::filter(edm::Event& evt, const edm::EventSetup& es) {
-  std::auto_ptr<reco::PFTauRefVector> output(new reco::PFTauRefVector());
+  auto output = std::make_unique<reco::PFTauRefVector>();
   // Get the input collection to clean
   edm::Handle<reco::CandidateView> input;
   evt.getByLabel(src_, input);
@@ -65,7 +65,7 @@ PFTauViewRefSelector::filter(edm::Event& evt, const edm::EventSetup& es) {
     }
   }
   size_t outputSize = output->size();
-  evt.put(output);
+  evt.put(std::move(output));
   // Filter if desired and no objects passed our cut
   return !(filter_ && outputSize == 0);
 }
