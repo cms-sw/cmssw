@@ -130,7 +130,7 @@ void RecoTauJetRegionProducer::produce(edm::Event& evt, const edm::EventSetup& e
     nOriginalJets = originalJets->size();
   }
 
-  std::auto_ptr<reco::PFJetCollection> newJets(new reco::PFJetCollection);
+  auto newJets = std::make_unique<reco::PFJetCollection>();
 
   // Keep track of the indices of the current jet and the old (original) jet
   // -1 indicates no match.
@@ -178,16 +178,16 @@ void RecoTauJetRegionProducer::produce(edm::Event& evt, const edm::EventSetup& e
   }
 
   // Put our new jets into the event
-  edm::OrphanHandle<reco::PFJetCollection> newJetsInEvent = evt.put(newJets, "jets");
+  edm::OrphanHandle<reco::PFJetCollection> newJetsInEvent = evt.put(std::move(newJets), "jets");
 
   // Create a matching between original jets -> extra collection
-  std::auto_ptr<PFJetMatchMap> matching(new PFJetMatchMap(newJetsInEvent));
+  auto matching = std::make_unique<PFJetMatchMap>(newJetsInEvent);
   if ( nJets ) {
     PFJetMatchMap::Filler filler(*matching);
     filler.insert(originalJets, matchInfo.begin(), matchInfo.end());
     filler.fill();
   }
-  evt.put(matching);
+  evt.put(std::move(matching));
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"
