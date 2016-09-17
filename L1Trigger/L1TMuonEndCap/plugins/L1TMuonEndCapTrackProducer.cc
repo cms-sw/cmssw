@@ -64,13 +64,13 @@ void L1TMuonEndCapTrackProducer::produce(edm::Event& ev,
 
   //fprintf (write,"12345\n"); //<-- part of printing text file to send verilog code, not needed if George's package is included
 
-  //std::auto_ptr<L1TMuon::InternalTrackCollection> FoundTracks (new L1TMuon::InternalTrackCollection);
-  std::auto_ptr<l1t::RegionalMuonCandBxCollection > OutputCands (new l1t::RegionalMuonCandBxCollection);
-  std::auto_ptr<l1t::EMTFTrackCollection> OutTracks (new l1t::EMTFTrackCollection);
-  std::auto_ptr<l1t::EMTFHitCollection> OutHits (new l1t::EMTFHitCollection);
-  std::auto_ptr<l1t::EMTFTrackExtraCollection> OutputTracks (new l1t::EMTFTrackExtraCollection);
-  std::auto_ptr<l1t::EMTFHitExtraCollection> OutputHits (new l1t::EMTFHitExtraCollection);
-  std::auto_ptr<l1t::EMTFHitExtraCollection> OutputHitsRPC (new l1t::EMTFHitExtraCollection);
+  auto FoundTracks = std::make_unique<L1TMuon::InternalTrackCollection>();
+  auto OutputCands = std::make_unique<l1t::RegionalMuonCandBxCollection>();
+  auto OutTracks = std::make_unique<l1t::EMTFTrackCollection>();
+  auto OutHits = std::make_unique<l1t::EMTFHitCollection>();
+  auto OutputTracks = std::make_unique<l1t::EMTFTrackExtraCollection>();
+  auto OutputHits = std::make_unique<l1t::EMTFHitExtraCollection>();
+  auto OutputHitsRPC = std::make_unique<l1t::EMTFHitExtraCollection>();
 
   std::vector<BTrack> PTracks[NUM_SECTORS];
   std::vector<BTrack> PTracks_BX[NUM_SECTORS][3];
@@ -671,13 +671,13 @@ void L1TMuonEndCapTrackProducer::produce(edm::Event& ev,
     }
   }
   
-  //ev.put( FoundTracks, "DataITC");
-  ev.put( OutputCands, "EMTF");
-  ev.put( OutHits, "");      // EMTFHitCollection
-  ev.put( OutTracks, "");    // EMTFTrackCollection
-  ev.put( OutputHits, "CSC");   // EMTFHitExtraCollection
-  ev.put( OutputHitsRPC, "RPC");   // EMTFHitExtraCollection
-  ev.put( OutputTracks, ""); // EMTFTrackExtraCollection
+  //ev.put(std::move(FoundTracks), "DataITC");
+  ev.put(std::move(OutputCands), "EMTF");
+  ev.put(std::move(OutHits), "");      // EMTFHitCollection
+  ev.put(std::move(OutTracks), "");    // EMTFTrackCollection
+  ev.put(std::move(OutputHits), "CSC");   // EMTFHitExtraCollection
+  ev.put(std::move(OutputHitsRPC), "RPC");   // EMTFHitExtraCollection
+  ev.put(std::move(OutputTracks), ""); // EMTFTrackExtraCollection
   
 }//analyzer
 
