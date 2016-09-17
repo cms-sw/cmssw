@@ -59,26 +59,6 @@ public:
   static const HGCalDetId Undefined;
 };
 
-namespace HGCalDetIdUtil
-{
-  // Functions to work on raw HGCAlDetIds
-  int subdetIdOf(uint32_t id);
-  int cellOf(uint32_t id);
-  int waferOf(uint32_t id);
-  int waferTypeOf(uint32_t id);
-  int layerOf(uint32_t id);
-  int zsideOf(uint32_t id);
-
-  void setCellOf(uint32_t& id, int cell);
-  void setWaferOf(uint32_t& id, int mod);
-  void setWaferTypeOf(uint32_t& id, int wafertype);
-  void setLayerOf(uint32_t& id, int lay);
-  void setZsideOf(uint32_t& id, int zside);
-
-  int getMaskedId(uint32_t id, uint32_t shift, uint32_t mask);
-  void setMaskedId(uint32_t& id, uint32_t value, uint32_t shift, uint32_t mask );
-  void resetMaskedId(uint32_t& id, uint32_t shift, uint32_t mask );
-}
 
 std::ostream& operator<<(std::ostream&,const HGCalDetId& id);
 
