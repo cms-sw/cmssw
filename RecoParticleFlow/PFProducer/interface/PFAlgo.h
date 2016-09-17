@@ -193,40 +193,40 @@ class PFAlgo {
   void setPhotonExtraRef(const edm::OrphanHandle<reco::PFCandidatePhotonExtraCollection >& pf_extrah);	
 
   /// \return collection of candidates
-  const std::auto_ptr< reco::PFCandidateCollection >& pfCandidates() const {
+  const std::unique_ptr<reco::PFCandidateCollection>& pfCandidates() const {
     return pfCandidates_;
   }
 
   /// \return the unfiltered electron collection
-  std::auto_ptr< reco::PFCandidateCollection> transferElectronCandidates()  {
-    return pfElectronCandidates_;
+  std::unique_ptr<reco::PFCandidateCollection> transferElectronCandidates() {
+    return std::move(pfElectronCandidates_);
   }
 
   /// \return the unfiltered electron extra collection
-  // done this way because the pfElectronExtra is needed later in the code to create the Refs and with an auto_ptr, it would be destroyed
-  std::auto_ptr< reco::PFCandidateElectronExtraCollection> transferElectronExtra()  {
-    std::auto_ptr< reco::PFCandidateElectronExtraCollection> result(new reco::PFCandidateElectronExtraCollection);
+  // done this way because the pfElectronExtra is needed later in the code to create the Refs and with a unique_ptr, it would be destroyed
+  std::unique_ptr<reco::PFCandidateElectronExtraCollection> transferElectronExtra() {
+    auto result = std::make_unique<reco::PFCandidateElectronExtraCollection>();
     result->insert(result->end(),pfElectronExtra_.begin(),pfElectronExtra_.end());
     return result;
   }
 
 
   /// \return the unfiltered photon extra collection
-  // done this way because the pfPhotonExtra is needed later in the code to create the Refs and with an auto_ptr, it would be destroyed
-  std::auto_ptr< reco::PFCandidatePhotonExtraCollection> transferPhotonExtra()  {
-    std::auto_ptr< reco::PFCandidatePhotonExtraCollection> result(new reco::PFCandidatePhotonExtraCollection);
+  // done this way because the pfPhotonExtra is needed later in the code to create the Refs and with a unique_ptr, it would be destroyed
+  std::unique_ptr< reco::PFCandidatePhotonExtraCollection> transferPhotonExtra()  {
+    auto result = std::make_unique<reco::PFCandidatePhotonExtraCollection>();
     result->insert(result->end(),pfPhotonExtra_.begin(),pfPhotonExtra_.end());
     return result;
   }
 
 
   /// \return collection of cleaned HF candidates
-  std::auto_ptr< reco::PFCandidateCollection >& transferCleanedCandidates() {
-    return pfCleanedCandidates_;
+  std::unique_ptr<reco::PFCandidateCollection> transferCleanedCandidates() {
+    return std::move(pfCleanedCandidates_);
   }
   
-    /// \return auto_ptr to the collection of candidates (transfers ownership)
-  std::auto_ptr< reco::PFCandidateCollection >  transferCandidates() {
+    /// \return unique_ptr to the collection of candidates (transfers ownership)
+  std::unique_ptr< reco::PFCandidateCollection> transferCandidates() {
     return connector_.connect(pfCandidates_);
   }
   
@@ -281,13 +281,13 @@ class PFAlgo {
   double nSigmaHCAL( double clusterEnergy, 
 		     double clusterEta ) const;
 
-  std::auto_ptr< reco::PFCandidateCollection >    pfCandidates_;
+  std::unique_ptr<reco::PFCandidateCollection>    pfCandidates_;
   /// the unfiltered electron collection 
-  std::auto_ptr< reco::PFCandidateCollection >    pfElectronCandidates_;
+  std::unique_ptr<reco::PFCandidateCollection>    pfElectronCandidates_;
   /// the unfiltered photon collection 
-  std::auto_ptr< reco::PFCandidateCollection >    pfPhotonCandidates_;
+  std::unique_ptr<reco::PFCandidateCollection>    pfPhotonCandidates_;
   // the post-HF-cleaned candidates
-  std::auto_ptr< reco::PFCandidateCollection >    pfCleanedCandidates_;
+  std::unique_ptr<reco::PFCandidateCollection>    pfCleanedCandidates_;
 
   /// the unfiltered electron collection 
   reco::PFCandidateElectronExtraCollection    pfElectronExtra_;

@@ -219,8 +219,7 @@ void PFSimParticleProducer::produce(Event& iEvent,
   // deal with true particles 
   if( processParticles_) {
 
-    auto_ptr< reco::PFSimParticleCollection > 
-      pOutputPFSimParticleCollection(new reco::PFSimParticleCollection ); 
+    auto pOutputPFSimParticleCollection = std::make_unique<reco::PFSimParticleCollection>(); 
 
     Handle<vector<SimTrack> > simTracks;
     bool found = iEvent.getByToken(tokenSim_,simTracks);
@@ -517,7 +516,7 @@ void PFSimParticleProducer::produce(Event& iEvent,
       pOutputPFSimParticleCollection->push_back( particle );
     }
     
-    iEvent.put(pOutputPFSimParticleCollection);
+    iEvent.put(std::move(pOutputPFSimParticleCollection));
   }
 
   

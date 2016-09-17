@@ -7,6 +7,7 @@ from SLHCUpgradeSimulations.Configuration.fixMissingUpgradeGTPayloads import fix
 
 from SLHCUpgradeSimulations.Configuration.phase2TkTilted import customise as customiseTiltedTK
 from SLHCUpgradeSimulations.Configuration.phase2TkFlat import customise as customiseFlatTK
+from SLHCUpgradeSimulations.Configuration.phase2TkTilted4021 import customise as customiseTiltedTK4021
 
 import SLHCUpgradeSimulations.Configuration.aging as aging
 
@@ -18,6 +19,11 @@ def cust_2023tilted(process):
 def cust_2023flat(process):
     # To allow simulatenous use of customisation and era while the era migration is in progress
     process=customiseFlatTK(process)
+    return process
+
+def cust_2023tilted4021(process):
+    # To allow simulatenous use of customisation and era while the era migration is in progress
+    process=customiseTiltedTK4021(process)
     return process
 
 def cust_2019(process):
