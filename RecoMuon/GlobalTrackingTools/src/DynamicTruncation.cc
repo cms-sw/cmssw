@@ -91,7 +91,10 @@ void DynamicTruncation::updateWithCSChits(TrajectoryStateOnSurface& tsos, CSCSeg
   for (ConstRecHitContainer::const_iterator it = tmprecHits.begin(); it != tmprecHits.end(); ++it) {
     const CSCLayer* cscLayer = cscGeom->layer((*it)->det()->geographicalId());
     TrajectoryStateOnSurface temp = propagator->propagate(tsos, cscLayer->surface());  
-    if (temp.isValid()) tsos = updatorHandle->update(temp, **it);
+    if (temp.isValid()) {
+      TrajectoryStateOnSurface tempTsos = updatorHandle->update(temp, **it);
+      if (tempTsos.isValid() ) tsos = tempTsos;
+    }
   }
 }
 
