@@ -92,7 +92,7 @@ PATHIPhotonTestModule::analyze(const edm::Event& iEvent, const edm::EventSetup& 
    edm::Handle<edm::View<pat::Photon> > photons;
    iEvent.getByLabel(photons_,photons);
 
-   std::auto_ptr<std::vector<pat::Photon> > output(new std::vector<pat::Photon>());
+   auto output = std::make_unique<std::vector<pat::Photon>>();
 
    for (edm::View<pat::Photon>::const_iterator photon = photons->begin(), end = photons->end(); photon != end; ++photon) {
    	   
