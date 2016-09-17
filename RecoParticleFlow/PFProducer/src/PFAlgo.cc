@@ -444,7 +444,7 @@ void PFAlgo::reconstructParticles( const reco::PFBlockCollection& blocks ) {
   else
     pfCleanedCandidates_.reset( new reco::PFCandidateCollection );
   
-  // not a auto_ptr; shout not be deleted after transfer
+  // not a unique_ptr; should not be deleted after transfer
   pfElectronExtra_.clear();
   pfPhotonExtra_.clear();
   
@@ -3330,8 +3330,7 @@ ostream& operator<<(ostream& out, const PFAlgo& algo) {
   out<<endl;
   out<<"reconstructed particles: "<<endl;
    
-  const std::auto_ptr< reco::PFCandidateCollection >& 
-    candidates = algo.pfCandidates(); 
+  const std::unique_ptr<reco::PFCandidateCollection>& candidates = algo.pfCandidates(); 
 
   if(!candidates.get() ) {
     out<<"candidates already transfered"<<endl;

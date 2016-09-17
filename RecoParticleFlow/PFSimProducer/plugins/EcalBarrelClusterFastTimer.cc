@@ -68,11 +68,11 @@ namespace {
                      const edm::Handle<std::vector<reco::PFCluster> > & handle,
                      const std::vector<T> & values,
                      const std::string    & label) {
-    std::auto_ptr<edm::ValueMap<T> > valMap(new edm::ValueMap<T>());
+    auto valMap = std::make_unique<edm::ValueMap<T>>();
     typename edm::ValueMap<T>::Filler filler(*valMap);
     filler.insert(handle, values.begin(), values.end());
     filler.fill();
-    iEvent.put(valMap, label);
+    iEvent.put(std::move(valMap), label);
   }
 }
 
@@ -139,7 +139,7 @@ void EcalBarrelClusterFastTimer::produce(edm::StreamID sid, edm::Event& evt, con
     std::vector<std::pair<float,DetId> > smeared_times;
     resolutions.reserve(clusters.size());
     smeared_times.reserve(clusters.size());
-    std::auto_ptr<std::vector< std::vector<float> > > outP( new std::vector< std::vector<float> > );
+    auto outP = std::make_unique<std::vector< std::vector<float>>>();
     auto& out = *outP;
     
     // smear once then correct to multiple vertices
@@ -162,7 +162,7 @@ void EcalBarrelClusterFastTimer::produce(edm::StreamID sid, edm::Event& evt, con
       }
     }
 
-    evt.put(outP,name);
+    evt.put(std::move(outP),name);
     writeValueMap(evt,clustersH,resolutions,name+resolution);
   }
 
