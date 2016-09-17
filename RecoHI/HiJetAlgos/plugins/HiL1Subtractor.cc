@@ -62,7 +62,7 @@ HiL1Subtractor::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   // right now, identical loop for calo and PF jets, should template
    if(jetType_ == "GenJet"){
-      std::auto_ptr<reco::GenJetCollection> jets( new reco::GenJetCollection);
+      auto jets = std::make_unique<reco::GenJetCollection>();
       edm::Handle< edm::View<reco::GenJet> > h_jets;
       iEvent.getByToken( genJetSrc_, h_jets );
 
@@ -115,10 +115,10 @@ HiL1Subtractor::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 
       }
-      iEvent.put(jets);
+      iEvent.put(std::move(jets));
 
    }else if(jetType_ == "CaloJet"){
-    std::auto_ptr<reco::CaloJetCollection> jets( new reco::CaloJetCollection);
+    auto jets = std::make_unique<reco::CaloJetCollection>();
     edm::Handle< edm::View<reco::CaloJet> > h_jets;
     iEvent.getByToken( caloJetSrc_, h_jets );
 
@@ -175,11 +175,11 @@ HiL1Subtractor::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 
     }
-    iEvent.put(jets);
+    iEvent.put(std::move(jets));
 
   }
   else if(jetType_ == "PFJet"){
-    std::auto_ptr<reco::PFJetCollection> jets( new reco::PFJetCollection);
+    auto jets = std::make_unique<reco::PFJetCollection>();
     edm::Handle< edm::View<reco::PFJet> > h_jets;
     iEvent.getByToken( pfJetSrc_, h_jets );
 
@@ -236,7 +236,7 @@ HiL1Subtractor::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 
     }
-    iEvent.put(jets);
+    iEvent.put(std::move(jets));
 
   }
 

@@ -43,7 +43,7 @@ void HIBestVertexProducer::produce
   // 3. use beamspot if netither vertexing method succeeds
 
   // New vertex collection
-  std::auto_ptr<reco::VertexCollection> newVertexCollection(new reco::VertexCollection);
+  auto newVertexCollection = std::make_unique<reco::VertexCollection>();
 
   //** Get precise adaptive vertex **/
   edm::Handle<reco::VertexCollection> vc1;
@@ -118,7 +118,7 @@ void HIBestVertexProducer::produce
   }
   
   // put new vertex collection into event
-  ev.put(newVertexCollection);
+  ev.put(std::move(newVertexCollection));
   
 }
 
