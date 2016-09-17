@@ -36,7 +36,7 @@ class PFRecHitCreatorBase {
   }
 
 
-  virtual void importRecHits(std::auto_ptr<reco::PFRecHitCollection>&,std::auto_ptr<reco::PFRecHitCollection>& ,const edm::Event&,const edm::EventSetup&)=0;
+  virtual void importRecHits(std::unique_ptr<reco::PFRecHitCollection>&,std::unique_ptr<reco::PFRecHitCollection>& ,const edm::Event&,const edm::EventSetup&)=0;
 
  protected:
 

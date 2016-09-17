@@ -86,7 +86,7 @@ PFPhotonAlgo::PFPhotonAlgo(std::string mvaweightfile,
 
 void PFPhotonAlgo::RunPFPhoton(const reco::PFBlockRef&  blockRef,
 			       std::vector<bool>& active,
-			       std::auto_ptr<PFCandidateCollection> &pfCandidates,
+			       std::unique_ptr<PFCandidateCollection> &pfCandidates,
 			       std::vector<reco::PFCandidatePhotonExtra>& pfPhotonExtraCandidates,
 			       std::vector<reco::PFCandidate> 
 			       &tempElectronCandidates
