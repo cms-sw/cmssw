@@ -102,6 +102,15 @@ namespace stage2 {
 
        res_->push_back(bx,ht);
 
+
+       //HI-SUM
+
+       l1t::EtSum towCount = l1t::EtSum();
+       towCount.setHwPt( (raw_data>>12) & 0x1FFF );
+       towCount.setType( (l1t::EtSum::kTowerCount) );
+
+       res_->push_back(bx, towCount);
+
        //MBHFMT0
 
        l1t::EtSum mbm0 = l1t::EtSum();
@@ -109,6 +118,7 @@ namespace stage2 {
        mbm0.setType( l1t::EtSum::kMinBiasHFM0 );
 
        res_->push_back(bx, mbm0);
+
 
        //  MET (no HF)
 

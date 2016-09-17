@@ -161,7 +161,7 @@ void create_plot(
 }
 
 
-void compHwEmu_new (
+void compHwEmu (
   int runNo, const char * dataset, bool useEventDisplay = false, bool presentationMode = false
   ) {
 
@@ -257,6 +257,10 @@ void compHwEmu_new (
   // HTyHF
   TH1D* hwMPSumHtyHF = (TH1D*)inFileHw->Get("l1tCaloStage2HwHistos/mpsummhtyhf/et");
   TH1D* emMPSumHtyHF = (TH1D*)inFileEm->Get("l1tStage2CaloAnalyzer/mpsummhtyhf/et");
+  
+  // HITowerCount
+  TH1D* hwMPSumHITowerCount = (TH1D*)inFileHw->Get("l1tCaloStage2HwHistos/mpsumhitowercount/et");
+  TH1D* emMPSumHITowerCount = (TH1D*)inFileEm->Get("l1tStage2CaloAnalyzer/mpsumhitowercount/et");
 
   // Demux sums
 
@@ -286,6 +290,7 @@ void compHwEmu_new (
   TH1D* hwSumHt = (TH1D*)inFileHw->Get("l1tCaloStage2HwHistos/sumht/et");
   TH1D* emSumHt = (TH1D*)inFileEm->Get("l1tStage2CaloAnalyzer/sumht/et");
 
+
   // MHT
   TH1D* hwSumMht = (TH1D*)inFileHw->Get("l1tCaloStage2HwHistos/summht/et");
   TH1D* emSumMht = (TH1D*)inFileEm->Get("l1tStage2CaloAnalyzer/summht/et");
@@ -309,6 +314,10 @@ void compHwEmu_new (
   // MHTHF phi
   TH1D* hwMhtHFPhi = (TH1D*)inFileHw->Get("l1tCaloStage2HwHistos/summhthf/phi");
   TH1D* emMhtHFPhi = (TH1D*)inFileEm->Get("l1tStage2CaloAnalyzer/summhthf/phi");
+
+   // HI Tower count
+  TH1D* hwHITowerCount = (TH1D*)inFileHw->Get("l1tCaloStage2HwHistos/sumhitowercount/et");
+  TH1D* emHITowerCount = (TH1D*)inFileEm->Get("l1tStage2CaloAnalyzer/sumhitowercount/et");
 
   // Sorts
   TH1D* hwSortMP = (TH1D*)inFileHw->Get("l1tCaloStage2HwHistos/sortMP");
@@ -591,6 +600,11 @@ void compHwEmu_new (
       hwMPSumHtyHF, emMPSumHtyHF, runNo, dataset,
       "Jet iH_{T,y}", "MPSums/MPSumHtyHF.pdf", 1, 13, -20000, 20000
       );
+      // plot HI tower count
+    create_plot(
+      hwMPSumHITowerCount, emMPSumHITowerCount, runNo, dataset,
+      "# Towers", "MPSums/MPSumHITowerCount.pdf", 1, 13, 0, 5904
+      );
   } else {
 
     // plot MP sum Ht
@@ -629,6 +643,13 @@ void compHwEmu_new (
       hwMPSumHtyHF, emMPSumHtyHF, runNo, dataset,
       "Jet iH_{T,y}", "MPSums/MPSumHtyHF.pdf"
       );
+
+    // plot HI tower count
+    create_plot(
+      hwMPSumHITowerCount, emMPSumHITowerCount, runNo, dataset,
+      "# Towers", "MPSums/MPSumHITowerCount.pdf"
+      );
+
   }
 // ========================= MP sums end ========================
 // ======================== demux sums start ========================
@@ -638,14 +659,14 @@ void compHwEmu_new (
     create_plot(
       hwSumEt,
       emSumEt,
-      runNo, dataset, "iE_{T}", "DemuxSums/DemSumEt.pdf", 20, 13, 0, 800
+      runNo, dataset, "iE_{T}", "DemuxSums/DemSumEt.pdf", 10, 13, 0, 800
       );
 
     // plot demux sum EtEM
     create_plot(
       hwSumEtEM,
       emSumEtEM,
-      runNo, dataset, "iE_{T}", "DemuxSums/DemSumEtEM.pdf", 20, 13, 0, 800
+      runNo, dataset, "iE_{T}", "DemuxSums/DemSumEtEM.pdf", 10, 13, 0, 800
       );
 
     /*
@@ -653,7 +674,7 @@ void compHwEmu_new (
     create_plot(
     hwSumEtHF,
     emSumEtHF,
-    runNo, dataset, "iE_{T}", "DemuxSums/DemSumEtHF.pdf", 20, 13, 0, 800
+    runNo, dataset, "iE_{T}", "DemuxSums/DemSumEtHF.pdf", 10, 13, 0, 800
     );
     */
 
@@ -689,7 +710,14 @@ void compHwEmu_new (
     create_plot(
       hwSumHt,
       emSumHt,
-      runNo, dataset, "iH_{T}", "DemuxSums/DemSumHt.pdf", 20, 13, 0, 800
+      runNo, dataset, "iH_{T}", "DemuxSums/DemSumHt.pdf", 10, 13, 0, 800
+      );
+
+      // plot demux hi tower count
+    create_plot(
+      hwHITowerCount,
+      emHITowerCount,
+      runNo, dataset, "# Towers", "DemuxSums/DemHITowCount.pdf", 1, 13, 0, 5904
       );
 
     // plot demux sum Mht
@@ -776,6 +804,13 @@ void compHwEmu_new (
       hwSumHt,
       emSumHt,
       runNo, dataset, "iH_{T}", "DemuxSums/DemSumHt.pdf"
+      );
+
+      // plot demux hi tower count
+    create_plot(
+      hwHITowerCount,
+      emHITowerCount,
+      runNo, dataset, "# Towers", "DemuxSums/DemHITowCount.pdf", 1, 13, 0, 5904
       );
 
     // plot demux sum Mht

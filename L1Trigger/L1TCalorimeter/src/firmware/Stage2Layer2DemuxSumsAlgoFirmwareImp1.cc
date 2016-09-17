@@ -100,7 +100,7 @@ void l1t::Stage2Layer2DemuxSumsAlgoFirmwareImp1::processEvent(const std::vector<
 	break;
 
       case l1t::EtSum::EtSumType::kTowerCount:
-	ntow += eSum->hwPt();
+	ntow = eSum->hwPt();
 	break;
 
       default:
