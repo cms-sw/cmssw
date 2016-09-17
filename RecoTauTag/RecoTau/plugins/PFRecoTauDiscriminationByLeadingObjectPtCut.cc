@@ -58,7 +58,7 @@ void PFRecoTauDiscriminationByLeadingPionPtCut::produce(edm::Event& iEvent,const
    iEvent.getByLabel(PFTauProducer_,thePFTauCollection);
 
 
-   auto_ptr<PFTauDiscriminator> thePFTauDiscriminatorByLeadingPionPtCut(new PFTauDiscriminator(PFTauRefProd(thePFTauCollection)));
+   auto thePFTauDiscriminatorByLeadingPionPtCut = std::make_unique<PFTauDiscriminator(PFTauRefProd>(thePFTauCollection));
 
    //loop over the PFTau candidates
    for(size_t iPFTau=0;iPFTau<thePFTauCollection->size();++iPFTau) {
@@ -75,7 +75,7 @@ void PFRecoTauDiscriminationByLeadingPionPtCut::produce(edm::Event& iEvent,const
       thePFTauDiscriminatorByLeadingPionPtCut->setValue(iPFTau,theleadTrackPtCutDiscriminator);
    }
 
-   iEvent.put(thePFTauDiscriminatorByLeadingPionPtCut);
+   iEvent.put(std::move(thePFTauDiscriminatorByLeadingPionPtCut));
 
 }
    

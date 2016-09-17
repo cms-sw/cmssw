@@ -122,7 +122,7 @@ class PFRecoTauDiscriminationAgainstMuonMVA final : public PFTauDiscriminationPr
   double dRmuonMatch_;
 
   edm::Handle<TauCollection> taus_;
-  std::auto_ptr<PFTauDiscriminator> category_output_;
+  std::unique_ptr<PFTauDiscriminator> category_output_;
 
   std::vector<TFile*> inputFilesToDelete_;
 
@@ -239,7 +239,7 @@ double PFRecoTauDiscriminationAgainstMuonMVA::discriminate(const PFTauRef& tau) 
 void PFRecoTauDiscriminationAgainstMuonMVA::endEvent(edm::Event& evt)
 {
   // add all category indices to event
-  evt.put(category_output_, "category");
+  evt.put(std::move(category_output_), "category");
 }
 
 }
