@@ -26,7 +26,7 @@ from RecoLocalCalo.HcalRecProducers.HFPhase1Reconstructor_cfi import hfreco as _
 from RecoLocalCalo.HcalRecProducers.HBHEPhase1Reconstructor_cfi import hbheprereco as _phase1_hbheprereco
 
 _phase1_hcalLocalRecoSequence = hcalLocalRecoSequence.copy()
-_phase1_hcalLocalRecoSequence.insert(_phase1_hcalLocalRecoSequence.index(hbheprereco),hfprereco)
+_phase1_hcalLocalRecoSequence.insert(0,hfprereco)
 
 eras.run2_HF_2017.toReplaceWith( hcalLocalRecoSequence, _phase1_hcalLocalRecoSequence )
 eras.run2_HF_2017.toReplaceWith( hfreco, _phase1_hfreco )
