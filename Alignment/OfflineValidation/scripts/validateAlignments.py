@@ -67,6 +67,11 @@ class ValidationJob:
         self.__valName = valString[1]
         self.__commandLineOptions = options
         self.__config = config
+        self.__preexisting = ("preexisting" in self.__valType)
+        if self.__valType[0] == "*":
+            self.__valType = self.__valType[1:]
+            self.__preexisting = True
+
         # workaround for intermediate parallel version
         if self.__valType == "offlineParallel":
             print ("offlineParallel and offline are now the same.  To run an offline parallel validation,\n"
@@ -109,22 +114,10 @@ class ValidationJob:
                 secondAlign = Alignment( secondAlignName, self.__config,
                                          secondRun )
                 secondAlignName = secondAlign.name
-            # check if alignment was already compared previously
-            try:
-                randomWorkdirPart = \
-                    globalDictionaries.alignRandDict[firstAlignName]
-            except KeyError:
-                randomWorkdirPart = None
                 
             validation = GeometryComparison( name, firstAlign, secondAlign,
                                              self.__config,
-                                             self.__commandLineOptions.getImages,
-                                             randomWorkdirPart )
-            globalDictionaries.alignRandDict[firstAlignName] = \
-                validation.randomWorkdirPart
-            if not secondAlignName == "IDEAL":
-                globalDictionaries.alignRandDict[secondAlignName] = \
-                    validation.randomWorkdirPart
+                                             self.__commandLineOptions.getImages)
         elif valType == "offline":
             validation = OfflineValidation( name, 
                 Alignment( alignments.strip(), self.__config ), self.__config )
@@ -148,13 +141,14 @@ class ValidationJob:
                 Alignment( alignments.strip(), self.__config ), self.__config )
         else:
             raise AllInOneError, "Unknown validation mode '%s'"%valType
-        self.preexisting = ("preexisting" in valType)
         return validation
 
     def __createJob( self, jobMode, outpath ):
         """This private method creates the needed files for the validation job.
            """
         self.validation.createConfiguration( outpath )
+        if self.__preexisting:
+            return
         self.__scripts = sum([addIndex(script, self.validation.NJobs) for script in self.validation.createScript( outpath )], [])
         if jobMode.split( ',' )[0] == "crab":
             self.validation.createCrabCfg( outpath )
@@ -162,13 +156,11 @@ class ValidationJob:
 
     def createJob(self):
         """This is the method called to create the job files."""
-        if self.preexisting:
-            return
         self.__createJob( self.validation.jobmode,
                           os.path.abspath( self.__commandLineOptions.Name) )
 
     def runJob( self ):
-        if self.preexisting:
+        if self.__preexisting:
             log = ">             " + self.validation.name + " is already validated."
             print log
             return log
@@ -510,11 +502,6 @@ To merge the outcome of all validation procedures run TkAlMerge.sh in your valid
     config.set("general","logdir",os.path.join(general["logdir"],options.Name) )
     config.set("general","eosdir",os.path.join("AlignmentValidation", general["eosdir"], options.Name) )
 
-    # clean up of log directory to avoid cluttering with files with different
-    # random numbers for geometry comparison
-    if os.path.isdir( outPath ):
-        shutil.rmtree( outPath )
-    
     if not os.path.exists( outPath ):
         os.makedirs( outPath )
     elif not os.path.isdir( outPath ):

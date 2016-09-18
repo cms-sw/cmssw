@@ -14,6 +14,8 @@ process.MessageLogger.cerr.FwkReport.reportEvery = 5000
 .oO[datasetDefinition]Oo.
 # process.load("Alignment.OfflineValidation..oO[dataset]Oo._cff")
 
+#process.load("Geometry.CMSCommonData.cmsIdealGeometryXML_cfi")
+#process.load("Geometry.CommonDetUnit.globalTrackingGeometry_cfi")
 process.load("RecoMuon.DetLayers.muonDetLayerGeometry_cfi")
 process.load("Geometry.MuonNumbering.muonNumberingInitialization_cfi")
 process.load("RecoMuon.TrackingTools.MuonServiceProxy_cff")
@@ -112,10 +114,14 @@ process.looper = cms.Looper(
     parSmear = cms.vdouble(),
 
     ### taken from J/Psi #########################
-    ResolFitType = cms.int32(14), 
-    parResol = cms.vdouble(0.007,0.015, -0.00077, 0.0063, 0.0018, 0.0164),
-    parResolFix = cms.vint32(0, 0, 0,0, 0,0),
-    parResolOrder = cms.vint32(0, 0, 0, 0, 0, 0),
+#    ResolFitType = cms.int32(14), 
+#    parResol = cms.vdouble(0.007,0.015, -0.00077, 0.0063, 0.0018, 0.0164),
+#    parResolFix = cms.vint32(0, 0, 0,0, 0,0),
+#    parResolOrder = cms.vint32(0, 0, 0, 0, 0, 0),
+    ResolFitType = cms.int32(0), 
+    parResol = cms.vdouble(0),
+    parResolFix = cms.vint32(0),
+    parResolOrder = cms.vint32(0),
 
 
     # -------------------- #
@@ -123,10 +129,14 @@ process.looper = cms.Looper(
     # -------------------- #
 
     # -----------------------------------------------------------------------------------
-    ScaleFitType = cms.int32(18),
-    parScaleOrder = cms.vint32(0, 0, 0, 0),
-    parScaleFix =   cms.vint32(0, 0, 0, 0),
-    parScale = cms.vdouble(1, 1, 1, 1),
+#    ScaleFitType = cms.int32(18),
+#    parScaleOrder = cms.vint32(0, 0, 0, 0),
+#    parScaleFix =   cms.vint32(0, 0, 0, 0),
+#    parScale = cms.vdouble(1, 1, 1, 1),
+    ScaleFitType = cms.int32(0),
+    parScaleOrder = cms.vint32(0),
+    parScaleFix =   cms.vint32(0),
+    parScale = cms.vdouble(0),
 
 
     
@@ -216,13 +226,12 @@ echo  -----------------------
 
 cwd=`pwd`
 cd .oO[CMSSW_BASE]Oo./src
-# export SCRAM_ARCH=slc5_amd64_gcc462
 export SCRAM_ARCH=.oO[SCRAM_ARCH]Oo.
 eval `scram runtime -sh`
 cd $cwd
 
 rfmkdir -p .oO[datadir]Oo.
-
+rfmkdir -p .oO[workingdir]Oo.
 rfmkdir -p .oO[logdir]Oo.
 rm -f .oO[logdir]Oo./*.stdout
 rm -f .oO[logdir]Oo./*.stderr
@@ -242,11 +251,6 @@ fi
 
 ls -lh . 
 
-#source /afs/cern.ch/sw/lcg/external/gcc/4.8.1/x86_64-slc6/setup.sh
-#source /afs/cern.ch/sw/lcg/app/releases/ROOT/5.34.10/x86_64-slc6-gcc48-opt/root/bin/thisroot.sh
-
-# cd .oO[CMSSW_BASE]Oo./src/MuonAnalysis/MomentumScaleCalibration/test/Macros/RooFit
-# ln -fs .oO[workdir]Oo./0_zmumuHisto.root .
 cp .oO[CMSSW_BASE]Oo./src/MuonAnalysis/MomentumScaleCalibration/test/Macros/RooFit/CompareBiasZValidation.cc .
 cp .oO[CMSSW_BASE]Oo./src/MuonAnalysis/MomentumScaleCalibration/test/Macros/RooFit/Legend.h .
 cp .oO[CMSSW_BASE]Oo./src/MuonAnalysis/MomentumScaleCalibration/test/Macros/RooFit/FitMassSlices.cc .
@@ -255,26 +259,25 @@ cp .oO[CMSSW_BASE]Oo./src/MuonAnalysis/MomentumScaleCalibration/test/Macros/RooF
 cp .oO[CMSSW_BASE]Oo./src/MuonAnalysis/MomentumScaleCalibration/test/Macros/RooFit/FitWithRooFit.cc .
 cp .oO[CMSSW_BASE]Oo./src/MuonAnalysis/MomentumScaleCalibration/test/Macros/RooFit/FitMass1D.cc .
 
-root -q -b "CompareBiasZValidation.cc+(\\\"\\\")"
+root -q -b -l "CompareBiasZValidation.cc+()"
 
- 
-# mv BiasCheck.root .oO[workdir]Oo. 
-
-# cd .oO[workdir]Oo.
 cp  .oO[CMSSW_BASE]Oo./src/MuonAnalysis/MomentumScaleCalibration/test/Macros/RooFit/tdrstyle.C .
 cp  .oO[CMSSW_BASE]Oo./src/MuonAnalysis/MomentumScaleCalibration/test/Macros/RooFit/MultiHistoOverlap_.oO[resonance]Oo..C .
-# ln -fs /afs/cern.ch/cms/CAF/CMSALCA/ALCA_TRACKERALIGN2/TMP_EM/ZMuMu/data/MC/BiasCheck_DYToMuMu_Summer11_TkAlZMuMu_IDEAL.root  ./BiasCheck_Reference.root
-if [[ .oO[zmumureference]Oo. == *store* ]]; then cmsStage -f .oO[zmumureference]Oo. BiasCheck_Reference.root; else ln -fs .oO[zmumureference]Oo. ./BiasCheck_Reference.root; fi
-root -q -b MultiHistoOverlap_.oO[resonance]Oo..C
 
-cmsMkdir /store/caf/user/$USER/.oO[eosdir]Oo.
+if [[ .oO[zmumureference]Oo. == *store* ]]; then cmsStage -f .oO[zmumureference]Oo. BiasCheck_Reference.root; else ln -fs .oO[zmumureference]Oo. ./BiasCheck_Reference.root; fi
+root -q -b -l MultiHistoOverlap_.oO[resonance]Oo..C
+
+cmsMkdir /store/caf/user/$USER/.oO[eosdir]Oo./plots/
 for RootOutputFile in $(ls *root )
 do
     cmsStage -f ${RootOutputFile}  /store/caf/user/$USER/.oO[eosdir]Oo./
+    rfcp ${RootOutputFile}  .oO[workingdir]Oo.
 done
 
+mkdir -p .oO[plotsdir]Oo.
 for PngOutputFile in $(ls *png ); do
-    rfcp ${PngOutputFile}  .oO[datadir]Oo.
+    cmsStage -f ${PngOutputFile}  /store/caf/user/$USER/.oO[eosdir]Oo./plots/
+    rfcp ${PngOutputFile}  .oO[plotsdir]Oo.
 done
 
 
