@@ -1940,9 +1940,13 @@ class ConfigBuilder(object):
 			
 		if 'HLT' in self.stepMap.keys() or self._options.hltProcess:
 			self.renameHLTprocessInSequence(sequence)
+                
+                setattr(self.process,pathName, cms.EndPath( getattr(self.process,sequence ) ) )
+                self.schedule.append(getattr(self.process,pathName))
 
-                setattr(self.process,pathName, cms.EndPath( getattr(self.process, sequence ) ) )
-		self.schedule.append(getattr(self.process,pathName))
+                if hasattr(self.process,"genstepfilter") and len(self.process.genstepfilter.triggerConditions):
+                        #will get in the schedule, smoothly
+                        getattr(self.process,pathName).insert(0,self.process.genstepfilter)
 
 	pathName='dqmofflineOnPAT_step'
 	for (i,sequence) in enumerate(postSequenceList):
