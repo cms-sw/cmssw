@@ -1,11 +1,11 @@
-# /dev/CMSSW_8_0_0/PRef/V184 (CMSSW_8_0_19_patch1)
+# /dev/CMSSW_8_0_0/PRef/V186 (CMSSW_8_0_19_patch1)
 
 import FWCore.ParameterSet.Config as cms
 
 fragment = cms.ProcessFragment( "HLT" )
 
 fragment.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_8_0_0/PRef/V184')
+  tableName = cms.string('/dev/CMSSW_8_0_0/PRef/V186')
 )
 
 fragment.HLTPSetJetCoreStepTrajectoryFilter = cms.PSet( 
@@ -5949,9 +5949,9 @@ fragment.hltIter0PFlowTrackCutClassifier = cms.EDProducer( "TrackCutClassifier",
       maxChi2 = cms.vdouble( 9999.0, 25.0, 16.0 ),
       maxChi2n = cms.vdouble( 1.2, 1.0, 0.7 ),
       maxLostLayers = cms.vint32( 1, 1, 1 ),
-      maxDz = cms.vdouble( 0.5, 0.2, 3.4028234663852886E38 ),
-      maxDzWrtBS = cms.vdouble( 3.4028234663852886E38, 24.0, 15.0 ),
-      maxDr = cms.vdouble( 0.5, 0.03, 3.4028234663852886E38 ),
+      maxDz = cms.vdouble( 0.5, 0.2, 3.4028234663853E38 ),
+      maxDzWrtBS = cms.vdouble( 3.4028234663853E38, 24.0, 15.0 ),
+      maxDr = cms.vdouble( 0.5, 0.03, 3.4028234663853E38 ),
       minNdof = cms.vdouble( 1.0E-5, 1.0E-5, 1.0E-5 ),
       min3DLayers = cms.vint32( 0, 0, 0 ),
       minPixelHits = cms.vint32( 0, 0, 0 ),
@@ -6192,23 +6192,23 @@ fragment.hltIter1PFlowTrackCutClassifierPrompt = cms.EDProducer( "TrackCutClassi
     mva = cms.PSet( 
       dr_par = cms.PSet( 
         d0err_par = cms.vdouble( 0.001, 0.001, 0.001 ),
-        dr_par2 = cms.vdouble( 3.4028234663852886E38, 1.0, 0.85 ),
+        dr_par2 = cms.vdouble( 3.4028234663853E38, 1.0, 0.85 ),
         d0err = cms.vdouble( 0.003, 0.003, 0.003 ),
-        dr_par1 = cms.vdouble( 3.4028234663852886E38, 1.0, 0.9 ),
+        dr_par1 = cms.vdouble( 3.4028234663853E38, 1.0, 0.9 ),
         dr_exp = cms.vint32( 3, 3, 3 )
       ),
       minLayers = cms.vint32( 3, 3, 3 ),
       dz_par = cms.PSet( 
-        dz_par1 = cms.vdouble( 3.4028234663852886E38, 1.0, 0.9 ),
+        dz_par1 = cms.vdouble( 3.4028234663853E38, 1.0, 0.9 ),
         dz_exp = cms.vint32( 3, 3, 3 ),
-        dz_par2 = cms.vdouble( 3.4028234663852886E38, 1.0, 0.8 )
+        dz_par2 = cms.vdouble( 3.4028234663853E38, 1.0, 0.8 )
       ),
       maxChi2 = cms.vdouble( 9999.0, 25.0, 16.0 ),
       maxChi2n = cms.vdouble( 1.2, 1.0, 0.7 ),
       maxLostLayers = cms.vint32( 1, 1, 1 ),
-      maxDz = cms.vdouble( 3.4028234663852886E38, 1.0, 3.4028234663852886E38 ),
-      maxDzWrtBS = cms.vdouble( 3.4028234663852886E38, 24.0, 15.0 ),
-      maxDr = cms.vdouble( 3.4028234663852886E38, 1.0, 3.4028234663852886E38 ),
+      maxDz = cms.vdouble( 3.4028234663853E38, 1.0, 3.4028234663853E38 ),
+      maxDzWrtBS = cms.vdouble( 3.4028234663853E38, 24.0, 15.0 ),
+      maxDr = cms.vdouble( 3.4028234663853E38, 1.0, 3.4028234663853E38 ),
       minNdof = cms.vdouble( 1.0E-5, 1.0E-5, 1.0E-5 ),
       min3DLayers = cms.vint32( 0, 0, 0 ),
       minPixelHits = cms.vint32( 0, 0, 2 ),
@@ -6239,9 +6239,9 @@ fragment.hltIter1PFlowTrackCutClassifierDetached = cms.EDProducer( "TrackCutClas
       maxChi2 = cms.vdouble( 9999.0, 25.0, 16.0 ),
       maxChi2n = cms.vdouble( 1.0, 0.7, 0.4 ),
       maxLostLayers = cms.vint32( 99, 3, 3 ),
-      maxDz = cms.vdouble( 3.4028234663852886E38, 1.0, 3.4028234663852886E38 ),
+      maxDz = cms.vdouble( 3.4028234663853E38, 1.0, 3.4028234663853E38 ),
       maxDzWrtBS = cms.vdouble( 3.40282346639E38, 24.0, 15.0 ),
-      maxDr = cms.vdouble( 3.4028234663852886E38, 1.0, 3.4028234663852886E38 ),
+      maxDr = cms.vdouble( 3.4028234663853E38, 1.0, 3.4028234663853E38 ),
       minNdof = cms.vdouble( -1.0, -1.0, -1.0 ),
       min3DLayers = cms.vint32( 1, 2, 3 ),
       minPixelHits = cms.vint32( 0, 0, 1 ),
@@ -6511,23 +6511,23 @@ fragment.hltIter2PFlowTrackCutClassifier = cms.EDProducer( "TrackCutClassifier",
     mva = cms.PSet( 
       dr_par = cms.PSet( 
         d0err_par = cms.vdouble( 0.001, 0.001, 0.001 ),
-        dr_par2 = cms.vdouble( 3.4028234663852886E38, 0.3, 0.3 ),
+        dr_par2 = cms.vdouble( 3.4028234663853E38, 0.3, 0.3 ),
         d0err = cms.vdouble( 0.003, 0.003, 0.003 ),
-        dr_par1 = cms.vdouble( 3.4028234663852886E38, 0.4, 0.4 ),
+        dr_par1 = cms.vdouble( 3.4028234663853E38, 0.4, 0.4 ),
         dr_exp = cms.vint32( 4, 4, 4 )
       ),
       minLayers = cms.vint32( 3, 3, 3 ),
       dz_par = cms.PSet( 
-        dz_par1 = cms.vdouble( 3.4028234663852886E38, 0.4, 0.4 ),
+        dz_par1 = cms.vdouble( 3.4028234663853E38, 0.4, 0.4 ),
         dz_exp = cms.vint32( 4, 4, 4 ),
-        dz_par2 = cms.vdouble( 3.4028234663852886E38, 0.35, 0.35 )
+        dz_par2 = cms.vdouble( 3.4028234663853E38, 0.35, 0.35 )
       ),
       maxChi2 = cms.vdouble( 9999.0, 25.0, 16.0 ),
       maxChi2n = cms.vdouble( 1.2, 1.0, 0.7 ),
       maxLostLayers = cms.vint32( 1, 1, 1 ),
-      maxDz = cms.vdouble( 0.5, 0.2, 3.4028234663852886E38 ),
-      maxDzWrtBS = cms.vdouble( 3.4028234663852886E38, 24.0, 15.0 ),
-      maxDr = cms.vdouble( 0.5, 0.03, 3.4028234663852886E38 ),
+      maxDz = cms.vdouble( 0.5, 0.2, 3.4028234663853E38 ),
+      maxDzWrtBS = cms.vdouble( 3.4028234663853E38, 24.0, 15.0 ),
+      maxDr = cms.vdouble( 0.5, 0.03, 3.4028234663853E38 ),
       minNdof = cms.vdouble( 1.0E-5, 1.0E-5, 1.0E-5 ),
       min3DLayers = cms.vint32( 0, 0, 0 ),
       minPixelHits = cms.vint32( 0, 0, 0 ),

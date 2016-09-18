@@ -18,8 +18,8 @@ l1tMenuLabel = ""
 l1Menus= {
     'Fake'         : ( ','.join( [ 'L1GtTriggerMenu_L1Menu_Collisions2012_v3_mc'             , l1MenuRecord,connectionString, l1MenuLabel, "2015-10-26 12:00:00.000"] ), ),
     'Fake1'        : ( ','.join( [ 'L1Menu_Collisions2015_25nsStage1_v5'                     , l1MenuRecord,connectionString, l1MenuLabel, "2015-10-26 12:00:00.000"] ), ),
-    'FULL'         : ( ','.join( [ 'L1Menu_Collisions2016_v6r5_ugt_1board_xml'               ,l1tMenuRecord,connectionString,l1tMenuLabel, "2016-08-23 20:00:00.000"] ), ),
-    'GRun'         : ( ','.join( [ 'L1Menu_Collisions2016_v6r5_ugt_1board_xml'               ,l1tMenuRecord,connectionString,l1tMenuLabel, "2016-08-23 20:00:00.000"] ), ),
+    'FULL'         : ( ','.join( [ 'L1Menu_Collisions2016_v6r8m_m2'                          ,l1tMenuRecord,connectionString,l1tMenuLabel, "2016-09-16 13:06:50.000"] ), ),
+    'GRun'         : ( ','.join( [ 'L1Menu_Collisions2016_v6r8m_m2'                          ,l1tMenuRecord,connectionString,l1tMenuLabel, "2016-09-16 13:06:50.000"] ), ),
     '25ns15e33_v4' : ( ','.join( [ 'L1Menu_Collisions2016_v6r5_ugt_1board_xml'               ,l1tMenuRecord,connectionString,l1tMenuLabel, "2016-08-23 20:00:00.000"] ), ),
     '25ns10e33_v2' : ( ','.join( [ 'L1Menu_Collisions2016_v4_xml'                            ,l1tMenuRecord,connectionString,l1tMenuLabel, "2016-05-24 14:55:00.000"] ), ),
     'HIon'         : ( ','.join( [ 'L1Menu_CollisionsHeavyIons2015_v5_uGT_xml'               ,l1tMenuRecord,connectionString,l1tMenuLabel, "2016-03-04 15:00:00.000"] ), ),
