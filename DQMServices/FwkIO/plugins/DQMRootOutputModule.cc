@@ -603,7 +603,10 @@ DQMRootOutputModule::fillDescriptions(edm::ConfigurationDescriptions& descriptio
 
   desc.addUntracked<std::string>("fileName");
   desc.addUntracked<std::string>("logicalFileName","");
-  desc.addUntracked<unsigned int>("filterOnRun",0);
+  desc.addUntracked<unsigned int>("filterOnRun",0)
+    ->setComment("Only write the run with this run number. 0 means write all runs.");
+  desc.addOptionalUntracked<int>("splitLevel", 99)
+    ->setComment("UNUSED Only here to allow older configurations written for PoolOutputModule to work.");
   edm::OutputModule::fillDescription(desc, std::vector<std::string>(1U, std::string("drop *")));
 
   edm::ParameterSetDescription dataSet;
