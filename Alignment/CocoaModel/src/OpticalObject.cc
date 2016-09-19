@@ -277,12 +277,12 @@ void OpticalObject::transformCylindrical2Cartesian()
 {
   ALIuint ii;
   ALIuint siz =  theCoordinateEntryVector.size();
-  ALIdouble newcoor[3];
   ALIdouble R = theCoordinateEntryVector[0]->value();
   ALIdouble phi = theCoordinateEntryVector[1]->value()/ALIUtils::LengthValueDimensionFactor()*ALIUtils::AngleValueDimensionFactor();
-  newcoor[0] = R*cos(phi);
-  newcoor[1] = R*sin(phi);
-  newcoor[2] = theCoordinateEntryVector[2]->value(); // Z
+  ALIdouble newcoor[] = { R*cos(phi),
+                          R*sin(phi),
+                          theCoordinateEntryVector[2]->value() // Z
+  };
   //-  std::cout << " phi " << phi << std::endl;
    //----- Name is filled from here to include 'centre' or 'angles'
 
