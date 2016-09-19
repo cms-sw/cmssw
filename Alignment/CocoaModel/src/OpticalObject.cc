@@ -40,6 +40,7 @@
 #include "Alignment/CocoaDDLObjects/interface/CocoaSolidShapeBox.h"
 
 #include "CondFormats/OptAlignObjects/interface/OpticalAlignInfo.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 
@@ -1115,7 +1116,9 @@ void OpticalObject::displaceExtraEntry(const ALIuint entryNo, const ALIdouble di
 
   ALIdouble Pentry_orig_value = *(theExtraEntryValueOriginalVector.begin() + entryNo);
   Pentry_value = (Pentry_orig_value) + disp;
-  //  std::cout << " displaceExtraEntry " << Pentry_value << " <> " << Pentry_orig_value << std::endl;
+  LogDebug("OpticalObject::displaceExtraEntry")
+    << " displaceExtraEntry " << Pentry_value << " <> " << Pentry_orig_value
+    << std::endl;
   theExtraEntryValueVector[entryNo] = Pentry_value;
 }
 
