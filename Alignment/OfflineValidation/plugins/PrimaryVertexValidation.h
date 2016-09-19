@@ -2,8 +2,6 @@
 #define PrimaryVertexValidation_h
 
 // system include files
-#include <iostream>
-#include <memory>
 #include <string>
 #include <sstream>
 #include <vector>
@@ -72,7 +70,7 @@
 // class decleration
 //
 
-class PrimaryVertexValidation : public edm::EDAnalyzer {
+class PrimaryVertexValidation : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 
  public:
   explicit PrimaryVertexValidation(const edm::ParameterSet&);

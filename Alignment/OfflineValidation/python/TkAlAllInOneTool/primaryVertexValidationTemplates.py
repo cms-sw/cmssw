@@ -5,7 +5,7 @@ import sys
 isDA = .oO[isda]Oo.
 isMC = .oO[ismc]Oo.
 
-process = cms.Process("Demo") 
+process = cms.Process("PrimaryVertexValidation") 
 
 ###################################################################
 # Event source and run selection
@@ -86,24 +86,21 @@ process.noscraping = cms.EDFilter("FilterOutScraping",
                                   thresh = cms.untracked.double(0.25)
                                   )
 
-process.noslowpt = cms.EDFilter("FilterOutLowPt",
-                                applyfilter = cms.untracked.bool(True),
-                                src =  cms.untracked.InputTag(".oO[TrackCollection]Oo."),
-                                debugOn = cms.untracked.bool(False),
-                                numtrack = cms.untracked.uint32(0),
-                                thresh = cms.untracked.int32(1),
-                                ptmin  = cms.untracked.double(.oO[ptCut]Oo.),
-                                runControl = cms.untracked.bool(.oO[runControl]Oo.),
-                                runControlNumber = cms.untracked.vuint32(int(runboundary))
-                                )
 
+process.load("Alignment.CommonAlignment.filterOutLowPt_cfi")
+process.filterOutLowPt.src = ".oO[TrackCollection]Oo."
+process.filterOutLowPt.ptmin = .oO[ptCut]Oo.
+process.filterOutLowPt.runControl = .oO[runControl]Oo.
+process.filterOutLowPt.runControlNumber = [runboundary]
+                                
 if isMC:
-     process.goodvertexSkim = cms.Sequence(process.noscraping + process.noslowpt)
+     process.goodvertexSkim = cms.Sequence(process.noscraping + process.filterOutLowPt)
 else:
-     process.goodvertexSkim = cms.Sequence(process.primaryVertexFilter + process.noscraping + process.noslowpt)
+     process.goodvertexSkim = cms.Sequence(process.primaryVertexFilter + process.noscraping + process.filterOutLowPt)
 
 ####################################################################
-# Load and Configure Measurement Tracker Event
+# Load and Configure Measurement Tracker Event 
+# (would be needed in case NavigationSchool is set != from null
 ####################################################################
 #process.load("RecoTracker.MeasurementDet.MeasurementTrackerEventProducer_cfi") 
 #process.MeasurementTrackerEvent.pixelClusterProducer = '.oO[TrackCollection]Oo.'
@@ -257,9 +254,9 @@ do
     rfcp ${RootOutputFile}  .oO[workingdir]Oo.
 done
 
-cp .oO[CMSSW_BASE]Oo./src/Alignment/OfflineValidation/macros/FitPVResiduals.C .
-cp .oO[CMSSW_BASE]Oo./src/Alignment/OfflineValidation/macros/CMS_lumi.C .
-cp .oO[CMSSW_BASE]Oo./src/Alignment/OfflineValidation/macros/CMS_lumi.h .
+cp $CMSSW_BASE/Alignment/OfflineValidation/macros/FitPVResiduals.C .
+cp $CMSSW_BASE/Alignment/OfflineValidation/macros/CMS_lumi.C .
+cp $CMSSW_BASE/Alignment/OfflineValidation/macros/CMS_lumi.h .
 
  if [[ .oO[pvvalidationreference]Oo. == *store* ]]; then xrdcp -f .oO[pvvalidationreference]Oo. PVValidation_reference.root; else ln -fs .oO[pvvalidationreference]Oo. ./PVValidation_reference.root; fi
  
@@ -336,8 +333,8 @@ echo  -----------------------
 PrimaryVertexPlotExecution="""
 #make primary vertex validation plots
 
-cp .oO[CMSSW_BASE]Oo./src/Alignment/OfflineValidation/macros/CMS_lumi.C .
-cp .oO[CMSSW_BASE]Oo./src/Alignment/OfflineValidation/macros/CMS_lumi.h .
+cp $CMSSW_BASE/Alignment/OfflineValidation/macros/CMS_lumi.C .
+cp $CMSSW_BASE/Alignment/OfflineValidation/macros/CMS_lumi.h .
 rfcp .oO[PrimaryVertexPlotScriptPath]Oo. .
 root -x -b -q TkAlPrimaryVertexValidationPlot.C++
 
@@ -365,7 +362,7 @@ It can be run as is, or adjusted to fit
  certain plots
 ****************************************/
 
-#include ".oO[CMSSW_BASE]Oo./src/Alignment/OfflineValidation/macros/FitPVResiduals.C"
+#include "$CMSSW_BASE/Alignment/OfflineValidation/macros/FitPVResiduals.C"
 
 void TkAlPrimaryVertexValidationPlot()
 {

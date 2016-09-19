@@ -86,7 +86,7 @@ void setStyle();
 // global variables
 
 ofstream outfile("FittedDeltaZ.txt");
-Int_t my_colors[10]={kBlack,kRed,kBlue,kMagenta,kBlack,kRed,kBlue,kGreen};
+Int_t my_colors[10]={kBlack,kRed,kBlue,kMagenta,kBlack,kRed,kBlue,kGreen,kOrange,kViolet};
 
 const Int_t nBins_  = 48;
 Float_t _boundMin   = -0.5;
@@ -103,8 +103,7 @@ void FitPVResiduals(TString namesandlabels,bool stdres,bool do2DMaps,TString the
 
   TkAlStyle::set(PRELIMINARY);	// set publication status
 
-  //Int_t colors[10]={kBlack,kRed,kBlue,kMagenta,kBlack,kRed,kBlue,kGreen};
-  Int_t colors[8]={0,1,2,3,4,5,6,7};
+  Int_t colors[10]={0,1,2,3,4,5,6,7,8,9};
   setStyle();
 
   TList *FileList  = new TList();
@@ -187,9 +186,7 @@ void FitPVResiduals(TString namesandlabels,bool stdres,bool do2DMaps,TString the
 	for(Int_t k=0;k<nBins_;k++){
 	  
 	  // absolute residuals
-	  dxyMapResiduals[i][j][k] = (TH1F*)fins[i]->Get(Form("PVValidation/Abs_DoubleDiffResiduals/histo_dxy_eta_plot%i_phi_plot%i",j,k));
-	  //std::cout<<"dxyMapResiduals[i][j][k]->GetMean():" <<dxyMapResiduals[i][j][k]->GetMean()<<std::endl;
-	  
+	  dxyMapResiduals[i][j][k] = (TH1F*)fins[i]->Get(Form("PVValidation/Abs_DoubleDiffResiduals/histo_dxy_eta_plot%i_phi_plot%i",j,k));	  
 	  dzMapResiduals[i][j][k]  = (TH1F*)fins[i]->Get(Form("PVValidation/Abs_DoubleDiffResiduals/histo_dz_eta_plot%i_phi_plot%i",j,k));  
 	  
 	  // normalized residuals
@@ -219,8 +216,6 @@ void FitPVResiduals(TString namesandlabels,bool stdres,bool do2DMaps,TString the
 
 	  // absolute residuals
 	  dxyMapResiduals[i][j][k] = (TH1F*)fins[i]->Get(Form("PVValidation/Abs_DoubleDiffResiduals/histo_dxy_eta_plot%i_phi_plot%i",j,k));
-	  //std::cout<<"dxyMapResiduals[i][j][k]->GetMean():" <<dxyMapResiduals[i][j][k]->GetMean()<<std::endl;
-
 	  dzMapResiduals[i][j][k]  = (TH1F*)fins[i]->Get(Form("PVValidation/Abs_DoubleDiffResiduals/histo_dz_eta_plot%i_phi_plot%i",j,k));  
 	  
 	  // normalized residuals
@@ -386,8 +381,9 @@ void FitPVResiduals(TString namesandlabels,bool stdres,bool do2DMaps,TString the
   TString theStrAlignment  = LegLabels[0];
 
   /*
-  std::vector<TString> vLabels(LegLabels, LegLabels+10);
-  vLabels.shrink_to_fit();
+    // in case labels are needed
+    std::vector<TString> vLabels(LegLabels, LegLabels+10);
+    vLabels.shrink_to_fit();
   */
 
   for(Int_t j=1; j < nFiles_; j++) {
@@ -484,18 +480,7 @@ void FitPVResiduals(TString namesandlabels,bool stdres,bool do2DMaps,TString the
   dzPhiBiasCanvas->SaveAs("dzPhiBiasCanvas_"+theStrDate+theStrAlignment+".png"); 
   dzEtaBiasCanvas->SaveAs("dzEtaBiasCanvas_"+theStrDate+theStrAlignment+".png"); 
 
-  /*
-  dxyPhiBiasCanvas->SaveAs("dxyPhiBiasCanvas.eps");
-  dxyEtaBiasCanvas->SaveAs("dxyEtaBiasCanvas.eps");
-  dzPhiBiasCanvas->SaveAs("dzPhiBiasCanvas.eps"); 
-  dzEtaBiasCanvas->SaveAs("dzEtaBiasCanvas.eps"); 
-
-  dxyPhiBiasCanvas->SaveAs("dxyPhiBiasCanvas.root");
-  dxyEtaBiasCanvas->SaveAs("dxyEtaBiasCanvas.root");
-  dzPhiBiasCanvas->SaveAs("dzPhiBiasCanvas.root"); 
-  dzEtaBiasCanvas->SaveAs("dzEtaBiasCanvas.root"); 
-  */
-
+  
   // 2D Maps
 
   if(do2DMaps){
@@ -532,6 +517,7 @@ void arrangeBiasCanvas(TCanvas *canv,TH1F* dxyPhiMeanTrend[100],TH1F* dzPhiMeanT
 //*************************************************************
 
   TLegend *lego = new TLegend(0.19,0.82,0.79,0.92);
+  // might be useful if many objects are compared
   //lego-> SetNColumns(2);
   lego->SetFillColor(10);
   if(nFiles>4){
@@ -544,45 +530,13 @@ void arrangeBiasCanvas(TCanvas *canv,TH1F* dxyPhiMeanTrend[100],TH1F* dzPhiMeanT
   lego->SetLineColor(10);
   lego->SetShadowColor(10);
 
-  /*
-  TPaveText *pt = new TPaveText(0.20,0.96,0.260,0.99,"NDC");
-  pt->SetFillColor(10);
-  pt->SetTextColor(1);
-  pt->SetTextFont(61);
-  // pt->SetTextAlign(22);
-  TText *text1 = pt->AddText("CMS"); // Preliminary 2015 - 3.8T collision data");
-  text1->SetTextSize(0.05);
-
-  float extraOverCmsTextSize  = 0.85;
-
-  TPaveText *pt2 = new TPaveText(0.28,0.96,0.50,0.99,"NDC");
-  pt2->SetFillColor(10);
-  // pt2->SetTextColor(kBlue);
-  pt2->SetTextFont(52);
-  pt2->SetTextAlign(22);
-  TText *text2 = pt2->AddText(toTString(PRELIMINARY));
-  text2->SetTextSize(0.05*extraOverCmsTextSize);
-
-  TPaveText *pt3 =new TPaveText(0.80,0.96,0.99,0.99,"NDC");
-  pt3->SetFillColor(10);
-  pt3->SetTextColor(1);
-  pt3->SetTextFont(42);
-  pt3->SetTextAlign(22);
-  TText *text3 = pt3->AddText("2.84 fb^{-1} (13 TeV)");//, L=3.67fb^{-1}");
-  text3->SetTextSize(0.05);
-  //text3->SetTextSize(0.05*extraOverCmsTextSize);
-  */
-
   TPaveText *ptDate =new TPaveText(0.3,0.86,0.79,0.92,"blNDC");
   ptDate->SetFillColor(10);
-  // ptDate->SetLineColor(kBlue);
   ptDate->SetBorderSize(0);
   ptDate->SetLineWidth(0);
   ptDate->SetTextFont(32);
-  //ptDate->SetTextColor(kBlue);
-  // ptDate->SetTextAlign(22);
   TText *textDate = ptDate->AddText("Alignment: cosmic rays + 3.8T collisions");
-  textDate->SetTextSize(0.04);//*extraOverCmsTextSize);
+  textDate->SetTextSize(0.04);
 
   canv->SetFillColor(10);  
   canv->Divide(2,2);
@@ -634,15 +588,11 @@ void arrangeBiasCanvas(TCanvas *canv,TH1F* dxyPhiMeanTrend[100],TH1F* dzPhiMeanT
 
     for(Int_t i=0; i<nFiles; i++){
       if(i==0){
-	//dBiasTrend[i]->GetYaxis()->SetRangeUser(absmin-safeDelta/2.,absmax+safeDelta);
-	//std::cout<<"name is: "<< dBiasTrend[k][i]->GetName() <<std::endl;
 	TString theTitle = dBiasTrend[k][i]->GetName();
 	if( theTitle.Contains("Norm")){
 	  dBiasTrend[k][i]->GetYaxis()->SetRangeUser(std::min(-0.48,absmin[k]-safeDelta/2.),std::max(0.48,absmax[k]+safeDelta/2.));
 	} else {
-	  //dBiasTrend[k][i]->GetYaxis()->SetRangeUser(std::min(-8.8,absmin[k]-safeDelta/2.),std::max(8.8,absmax[k]+safeDelta/2.));
 	  dBiasTrend[k][i]->GetYaxis()->SetRangeUser(-theExtreme-(safeDelta/2.),theExtreme+(safeDelta/2.));
-	  //dBiasTrend[k][i]->GetYaxis()->SetRangeUser(-theExtreme,theExtreme);
 	} 
 	dBiasTrend[k][i]->Draw("e1");
 	makeNewXAxis(dBiasTrend[k][i]);
@@ -661,13 +611,10 @@ void arrangeBiasCanvas(TCanvas *canv,TH1F* dxyPhiMeanTrend[100],TH1F* dzPhiMeanT
     }  
   
     lego->Draw();
-    //pt->Draw("same");
-    //pt2->Draw("same");
-    //pt3->Draw("same");
  
     TPad *current_pad = static_cast<TPad*>(canv->GetPad(k+1));
     CMS_lumi(current_pad,4,33 );
-    // ptDate->Draw("same");
+
   }
   
 }
@@ -684,13 +631,13 @@ void arrangeCanvas(TCanvas *canv,TH1F* meanplots[100],TH1F* widthplots[100],Int_
   ali->SetMargin(0.);
   ali->SetLineColor(10);
   ali->SetShadowColor(10);
-  // pt->SetTextAlign(22);
-  TText *alitext = ali->AddText("Alignment: PCL"); //"Preliminary 2015 - 0T collision data");
+  TText *alitext = ali->AddText("Alignment: PCL"); 
   alitext->SetTextSize(0.04);
 
   TLegend *lego = new TLegend(0.18,0.82,0.78,0.92);
-  //lego-> SetNColumns(2);
-  //TLegend *lego = new TLegend(0.18,0.77,0.50,0.86);
+  // in case many objects are compared
+  // lego-> SetNColumns(2);
+  // TLegend *lego = new TLegend(0.18,0.77,0.50,0.86);
   lego->SetFillColor(10);
   if(nFiles>4) {
     lego->SetTextSize(0.02);
@@ -704,57 +651,7 @@ void arrangeCanvas(TCanvas *canv,TH1F* meanplots[100],TH1F* widthplots[100],Int_
 
   TPaveText *ptDate = NULL;
 
-  /*
-  TPaveText *pt  = NULL;
-  TPaveText *pt2 = NULL;
-  TPaveText *pt3 = NULL;
- 
-
-  if(!onlyBias){ 
-    pt =new TPaveText(0.179,0.955,0.260,0.985,"NDC");
-  } else {
-    pt =new TPaveText(0.179,0.955,0.260,0.985,"NDC");
-  }
-
-  pt->SetFillColor(10);
-  pt->SetTextColor(1);
-  pt->SetTextFont(61);
-  // pt->SetTextAlign(22);
-  TText *text1 = pt->AddText("CMS"); //"Preliminary 2015 - 0T collision data");
-  text1->SetTextSize(0.05);
- 
-  float extraOverCmsTextSize  = 0.76;
-
-  if(!onlyBias){ 
-    pt2 =new TPaveText(0.27,0.95,0.503,0.98,"NDC");
-  } else {
-    pt2 =new TPaveText(0.27,0.95,0.503,0.98,"NDC");
-  }
-
-  pt2->SetFillColor(10);
-  pt2->SetTextColor(1);
-  pt2->SetTextFont(52);
-  pt2->SetTextAlign(12);
-  TText *text2 = pt2->AddText(toTString(PRELIMINARY));
-  text2->SetTextSize(0.05*extraOverCmsTextSize);
-
-  if(!onlyBias){ 
-    pt3 =new TPaveText(0.80,0.955,0.99,0.985,"NDC");
-  } else {
-    pt3 =new TPaveText(0.80,0.955,0.99,0.985,"NDC");
-  }
-
-  pt3->SetFillColor(10);
-  pt3->SetTextColor(1);
-  pt3->SetTextFont(42);
-  pt3->SetTextAlign(32);
-  TText *text3 = pt3->AddText("2.84 fb^{-1} (13 TeV)"); // L=3.67fb^{-1}");
-  text3->SetTextSize(0.05);
-  //text3->SetTextSize(0.05*extraOverCmsTextSize);
-  */
-
   canv->SetFillColor(10);  
-  //TPad *myPad = NULL;
 
   if(!onlyBias){ 
     ptDate =new TPaveText(0.3,0.88,0.78,0.91,"blNDC");
@@ -763,14 +660,11 @@ void arrangeCanvas(TCanvas *canv,TH1F* meanplots[100],TH1F* widthplots[100],Int_
   }
   
   ptDate->SetFillColor(10);
-  //ptDate->SetLineColor(kBlue);
   ptDate->SetBorderSize(0);
   ptDate->SetLineWidth(0);
   ptDate->SetTextFont(42);
-  //ptDate->SetTextColor(kBlue);
-  // ptDate->SetTextAlign(22);
   TText *textDate = ptDate->AddText("Alignment: cosmic rays + 3.8T collisions");
-  textDate->SetTextSize(0.04);//*extraOverCmsTextSize);
+  textDate->SetTextSize(0.04);
 
   if(!onlyBias) {
     canv->Divide(2,1);
@@ -785,6 +679,7 @@ void arrangeCanvas(TCanvas *canv,TH1F* meanplots[100],TH1F* widthplots[100],Int_
     canv->cd(2)->SetRightMargin(0.02);
     canv->cd(2)->SetTopMargin(0.06);  
     canv->cd(1);
+
   } else {
     
     canv->cd()->SetBottomMargin(0.14);
@@ -808,8 +703,6 @@ void arrangeCanvas(TCanvas *canv,TH1F* meanplots[100],TH1F* widthplots[100],Int_
   for(Int_t i=0; i<nFiles; i++){
     
     if(i==0){
-      //meanplots[i]->GetYaxis()->SetRangeUser(absmin-safeDelta/2.,absmax+safeDelta);
-      //std::cout<<"name is: "<< meanplots[i]->GetName() << " absmin:" <<absmin<<" absmax: "<<absmax<<" safeDelta: "<<safeDelta<<std::endl;
       TString theTitle = meanplots[i]->GetName();
       if( theTitle.Contains("Norm")){
 	meanplots[i]->GetYaxis()->SetRangeUser(std::min(-0.48,absmin-safeDelta),std::max(0.48,absmax+safeDelta));
@@ -819,7 +712,6 @@ void arrangeCanvas(TCanvas *canv,TH1F* meanplots[100],TH1F* widthplots[100],Int_
 	} else {
 	  meanplots[i]->GetYaxis()->SetRangeUser(-theExtreme-(TMath::Abs(absmin)/10.),theExtreme+(TMath::Abs(absmax/10.)));
 	}
-	//meanplots[i]->GetYaxis()->SetRangeUser(-theExtreme,theExtreme);
       } 
       meanplots[i]->Draw("e1");
       makeNewXAxis(meanplots[i]); 
@@ -839,11 +731,11 @@ void arrangeCanvas(TCanvas *canv,TH1F* meanplots[100],TH1F* widthplots[100],Int_
     lego->AddEntry(meanplots[i],LegLabels[i]); 
   }  
   
-  //ali->Draw();
+
   lego->Draw();
-  //pt->Draw("same");
-  //pt2->Draw("same");
-  //pt3->Draw("same");
+  
+  //ali->Draw("same");
+  //ptDate->Draw("same");
 
   TPad *current_pad;
   if(!onlyBias){
@@ -880,10 +772,7 @@ void arrangeCanvas(TCanvas *canv,TH1F* meanplots[100],TH1F* widthplots[100],Int_
     }
     
     lego->Draw();
-    //pt->Draw("same");
-    //pt2->Draw("same");
-    //pt3->Draw("same");
-
+   
     TPad *current_pad2 = static_cast<TPad*>(canv->GetPad(2));
     CMS_lumi(current_pad2,4,33 );
     //ptDate->Draw("same");
@@ -911,7 +800,7 @@ void arrangeCanvas2D(TCanvas *canv,TH2F* meanmaps[100],TH2F* widthmaps[100],Int_
     pt[i] = new TPaveText(0.13,0.95,0.191,0.975,"NDC");
     //pt[i] = new TPaveText(gPad->GetUxmin(),gPad->GetUymax()+0.3,gPad->GetUxmin()+0.6,gPad->GetUymax()+0.3,"NDC");
     //std::cout<<"gPad->GetUymax():"<<gPad->GetUymax()<<std::endl;
-    // pt[i] = new TPaveText(gPad->GetLeftMargin(),0.95,gPad->GetLeftMargin()+0.3,0.98,"NDC");
+    //pt[i] = new TPaveText(gPad->GetLeftMargin(),0.95,gPad->GetLeftMargin()+0.3,0.98,"NDC");
     pt[i]->SetFillColor(10);
     pt[i]->SetTextColor(1);
     pt[i]->SetTextFont(61);
@@ -1001,28 +890,6 @@ void arrangeFitCanvas(TCanvas *canv,TH1F* meanplots[100],Int_t nFiles, TString L
   lego->SetLineColor(10);
   //lego->SetNColumns(2);
   lego->SetShadowColor(10);
-
-  /*
-  TPaveText *pt = new TPaveText(0.148,0.95,0.89,0.97,"NDC");
-  pt->SetFillColor(10);
-  pt->SetTextColor(1);
-  pt->SetTextFont(42);
-  pt->SetTextAlign(62);
-  TText *text1 = pt->AddText("CMS preliminary 2015: p-p data, #sqrt{s}=13 TeV");
-  text1->SetTextSize(0.05);
-
-  TPaveText *ptDate =new TPaveText(0.78,0.20,0.93,0.30,"blNDC");
-  ptDate->SetFillColor(10);
-  //ptDate->SetLineColor(kBlue);
-  ptDate->SetBorderSize(0);
-  ptDate->SetLineWidth(0);
-  ptDate->SetTextFont(42);
-  //ptDate->SetTextColor(kBlue);
-  // ptDate->SetTextAlign(22);
-  TText *textDate = ptDate->AddText("Alignment: cosmic rays + 3.8T collisions");
-  textDate->SetTextSize(0.04); 
-  //textDate->SetTextSize(0.04*extraOverCmsTextSize);
-  */
 
   TF1 *fleft[nFiles]; 
   TF1 *fright[nFiles];
@@ -1182,7 +1049,6 @@ std::pair<std::pair<Double_t,Double_t>, std::pair<Double_t,Double_t>  > fitStude
   
   result = std::make_pair(resultM,resultW);
   return result;
-
 
 }
 
@@ -1538,20 +1404,6 @@ void FillTrendPlot(TH1F* trendPlot, TH1F* residualsPlot[100], TString fitPar_, T
       trendPlot->SetBinError(i+1,madErr_);
     } else {
       std::cout<<"PrimaryVertexValidation::FillTrendPlot() "<<fitPar_<<" unknown estimator!"<<std::endl;
-    }
-
-    if(var_=="phi"){
-      //  if( ((binn%2==0)&&(binn<=12)) || ((binn%2==1)&&(binn>12)) ) 
-      // if( ((binn%3==1)&&(binn<=12)) || ((binn%3==0)&&(binn>12)) ) 
-      //if((binn%3==0))
-      //  trendPlot->GetXaxis()->SetBinLabel(binn,phipositionString); 
-    } else if(var_=="eta"){
-      // if( ((binn%2==0)&&(binn<=12)) || ((binn%2==1)&&(binn>12)) ) 
-      // if( ((binn%3==1)&&(binn<=12)) || ((binn%3==0)&&(binn>12)) ) 
-      //if((binn%3==0))
-      //trendPlot->GetXaxis()->SetBinLabel(binn,etapositionString); 
-    } else {
-      //std::cout<<"PrimaryVertexValidation::FillTrendPlot() "<<var_<<" unknown track parameter!"<<std::endl;
     }
   }
 

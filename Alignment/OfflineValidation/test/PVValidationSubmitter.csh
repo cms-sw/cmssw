@@ -93,17 +93,17 @@ if(${options} != "--dryRun") then
 
  if(${word} == "") then
  echo "Creating folder $taskname"
-    cmsMkdir /store/caf/user/$USER/Alignment/PVValidation/${taskname} 
+    eos mkdir /store/caf/user/$USER/Alignment/PVValidation/${taskname} 
  else 
     echo "Sorry /store/caf/user/$USER/Alignment/PVValidation/${taskname} already exists!"
  endif
 
  if (! -d  ${CMSSW_DIR}/test/PVValResults) then
      mkdir ${CMSSW_DIR}/PVValResults
-     cmsStage -f ${outfile} /store/caf/user/$USER/Alignment/PVValidation/${taskname}
+     eos cp -f ${outfile} /store/caf/user/$USER/Alignment/PVValidation/${taskname}
      cp ${jobname}.out ${CMSSW_DIR}/PVValResults 
  else     
-     cmsStage -f ${outfile} /store/caf/user/$USER/Alignment/PVValidation/${taskname}
+     eos cp -f ${outfile} /store/caf/user/$USER/Alignment/PVValidation/${taskname}
      cp ${jobname}.out ${CMSSW_DIR}/PVValResults 
  endif
 endif

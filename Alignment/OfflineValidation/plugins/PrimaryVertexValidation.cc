@@ -88,6 +88,8 @@ PrimaryVertexValidation::PrimaryVertexValidation(const edm::ParameterSet& iConfi
   // now do what ever initialization is needed
   // initialize phase space boundaries
   
+  usesResource(TFileService::kSharedResource);
+
   std::vector<unsigned int> defaultRuns;
   defaultRuns.push_back(0);
   runControlNumbers_ = iConfig.getUntrackedParameter<std::vector<unsigned int> >("runControlNumber",defaultRuns);
@@ -142,14 +144,6 @@ PrimaryVertexValidation::analyze(const edm::Event& iEvent, const edm::EventSetup
     edm::LogInfo("PrimaryVertexValidation")<<"Using: "<<nBins_<<" bins plots";
   }
   
-  /*
-    if(runControl_){
-    if (debug_){edm::LogInfo("PrimaryVertexValidation")<<" run number: "<<iEvent.eventAuxiliary().run()<<" keeping run:"<<runControlNumber_;}
-    //std::cout<<" run number:" <<iEvent.eventAuxiliary().run()<<" keeping run:"<<runControlNumber_<<std::endl;}
-    if(iEvent.eventAuxiliary().run() != runControlNumber_) return;
-    }
-  */
-
   bool passesRunControl = false;
 
   if(runControl_){
@@ -157,7 +151,6 @@ PrimaryVertexValidation::analyze(const edm::Event& iEvent, const edm::EventSetup
       if(iEvent.eventAuxiliary().run() == runControlNumbers_[j]){ 
 	if (debug_){
 	  edm::LogInfo("PrimaryVertexValidation")<<" run number: "<<iEvent.eventAuxiliary().run()<<" keeping run:"<<runControlNumbers_[j];
-	  //std::cout<<" run number:" <<iEvent.eventAuxiliary().run()<<" keeping run:"<<runControlNumber_<<std::endl;}
 	}
 	passesRunControl = true;
 	break;
@@ -212,9 +205,8 @@ PrimaryVertexValidation::analyze(const edm::Event& iEvent, const edm::EventSetup
 
   try {
     iEvent.getByToken(theVertexCollectionToken, vertices);
-  } catch (...) {
-    edm::LogError("PrimaryVertexValidation")<<"No offlinePrimaryVertices found!";
-    // if(debug_) {cout << "No offlinePrimaryVertices found!" << endl;}
+  } catch ( cms::Exception& er ) {
+    LogTrace("PrimaryVertexValidation")<<"caught std::exception "<<er.what()<<std::endl;  
   }
 
   std::vector<Vertex> vsorted = *(vertices);
@@ -358,7 +350,6 @@ PrimaryVertexValidation::analyze(const edm::Event& iEvent, const edm::EventSetup
     wxy2_=TMath::Power(BeamWidthX_,2)+TMath::Power(BeamWidthY_,2);
 
   } else {
-    // if(debug_){std::cout<<"No BeamSpot found!"<<std::endl;}
     edm::LogWarning("PrimaryVertexValidation")<<"No BeamSpot found!";
   }
 
@@ -370,7 +361,6 @@ PrimaryVertexValidation::analyze(const edm::Event& iEvent, const edm::EventSetup
   h_BeamWidthY->Fill(BeamWidthY_);
 
   if(debug_)
-    //std::cout<<"Beamspot x:"<<BSx0_<<" y:"<<BSy0_<<" z:"<<BSz0_<<std::endl; 
     edm::LogInfo("PrimaryVertexValidation")<<"Beamspot x:" <<BSx0_<<" y:"<<BSy0_<<" z:"<<BSz0_;
    
   //=======================================================
@@ -383,7 +373,6 @@ PrimaryVertexValidation::analyze(const edm::Event& iEvent, const edm::EventSetup
   EventNumber_=iEvent.eventAuxiliary().id().event();
     
   if(debug_)
-    //std::cout<<"PrimaryVertexValidation::analyze() looping over "<<trackCollectionHandle->size()<< "tracks." <<std::endl;       
     edm::LogInfo("PrimaryVertexValidation")<<" looping over "<<trackCollectionHandle->size()<< "tracks";
 
   h_nTracks->Fill(trackCollectionHandle->size()); 
@@ -403,7 +392,6 @@ PrimaryVertexValidation::analyze(const edm::Event& iEvent, const edm::EventSetup
   }
   
   if(debug_) {
-    //cout << "PrimaryVertexValidation" << "Found: " << t_tks.size() << " reconstructed tracks" << "\n";
     edm::LogInfo("PrimaryVertexValidation") << "Found: " << t_tks.size() << " reconstructed tracks";
   }
   
@@ -420,7 +408,6 @@ PrimaryVertexValidation::analyze(const edm::Event& iEvent, const edm::EventSetup
   vector< vector<TransientTrack> > clusters = theTrackClusterizer_->clusterize(seltks);
   
   if (debug_){
-    // cout <<  " clustering returned  "<< clusters.size() << " clusters  from " << t_tks.size() << " selected tracks" <<endl;
     edm::LogInfo("PrimaryVertexValidation")<<" looping over: "<< clusters.size() << " clusters  from " << t_tks.size() << " selected tracks";
   }
   
@@ -439,7 +426,6 @@ PrimaryVertexValidation::analyze(const edm::Event& iEvent, const edm::EventSetup
     for(vector<TransientTrack>::const_iterator theTTrack = iclus->begin(); theTTrack!= iclus->end(); ++theTTrack, ++i)
       {
 	if ( nTracks_ >= nMaxtracks_ ) {
-	  //std::cout << " PrimaryVertexValidation::analyze() : Warning - Number of tracks: " << nTracks_ << " , greater than " << nMaxtracks_ << std::endl;
 	  edm::LogError("PrimaryVertexValidation")<<" Warning - Number of tracks: " << nTracks_ << " , greater than " << nMaxtracks_;
 	  continue;
 	}
@@ -540,7 +526,6 @@ PrimaryVertexValidation::analyze(const edm::Event& iEvent, const edm::EventSetup
 	if(theFinalTracks.size() > 1){
 	    
 	  if(debug_)
-	    // std::cout <<"PrimaryVertexValidation::analyze() :Transient Track Collection size: "<<theFinalTracks.size()<<std::endl;
 	    edm::LogInfo("PrimaryVertexValidation")<<"Transient Track Collection size: "<<theFinalTracks.size();
 	  try{
 	      
@@ -778,13 +763,6 @@ PrimaryVertexValidation::analyze(const edm::Event& iEvent, const edm::EventSetup
 	      }
   	          
 	      if(debug_){
-		// std::cout<<"PrimaryVertexValidation::analyze() : myVertex.x()= "<<myVertex.x()
-		// 	 <<" myVertex.y()= "<<myVertex.y()
-		// 	 <<" theFittedVertex.z()= "<<myVertex.z()
-		// 	 <<std::endl;	  
-		// std::cout<<"PrimaryVertexValidation::analyze() : theTrack.dz(myVertex)= "<<theTrack.dz(myVertex)<<std::endl;
-		// std::cout<<"PrimaryVertexValidation::analyze() : zPCA -myVertex.z() = "<<(theTrack.vertex().z() -myVertex.z() )<<std::endl;
- 
 		edm::LogInfo("PrimaryVertexValidation")<<" myVertex.x()= "<<myVertex.x()<<"\n"
 						       <<" myVertex.y()= "<<myVertex.y()<<" \n"
 						       <<" myVertex.z()= "<<myVertex.z()<<" \n"
@@ -804,7 +782,6 @@ PrimaryVertexValidation::analyze(const edm::Event& iEvent, const edm::EventSetup
 	
 	else {
 	  if(debug_)
-	    //	      std::cout << "PrimaryVertexValidation::analyze() :Not enough tracks to make a vertex.  Returns no vertex info" << std::endl;
 	    edm::LogInfo("PrimaryVertexValidation")<<"Not enough tracks to make a vertex.  Returns no vertex info";
 	}
 	  
@@ -812,7 +789,6 @@ PrimaryVertexValidation::analyze(const edm::Event& iEvent, const edm::EventSetup
 	++nTracksPerClus_;
 
 	if(debug_)
-	  //cout<< "Track "<<i<<" : pT = "<<theTrack.pt()<<endl;
 	  edm::LogInfo("PrimaryVertexValidation")<<"Track "<<i<<" : pT = "<<theTrack.pt();
 	  
       }// for loop on tracks
@@ -1736,13 +1712,6 @@ void PrimaryVertexValidation::beginJob()
 void PrimaryVertexValidation::endJob() 
 {
 
-  /*
-    std::cout<<"######################################"<<std::endl;
-    std::cout<<"# PrimaryVertexValidation::endJob()"<<std::endl; 
-    std::cout<<"# Number of analyzed events: "<<Nevt_<<std::endl;
-    std::cout<<"######################################"<<std::endl;
-  */
-
   edm::LogInfo("PrimaryVertexValidation")
     <<"######################################\n"
     <<"# PrimaryVertexValidation::endJob()\n" 
@@ -1955,7 +1924,7 @@ std::pair<Double_t,Double_t> PrimaryVertexValidation::getMedian(TH1F *histo)
   median = TMath::Median(nbins, x, y);
   
   delete[] x; x = 0;
-  delete [] y; y = 0;  
+  delete[] y; y = 0;  
 
   std::pair<Double_t,Double_t> result;
   result = std::make_pair(median,median/TMath::Sqrt(histo->GetEntries()));
@@ -1985,6 +1954,9 @@ std::pair<Double_t,Double_t> PrimaryVertexValidation::getMAD(TH1F *histo)
   }
   
   Double_t theMAD = (getMedian(newHisto).first)*1.4826;
+  
+  delete[] residuals; residuals=0;
+  delete[] weights; weights=0;
   newHisto->Delete("");
   
   std::pair<Double_t,Double_t> result;
