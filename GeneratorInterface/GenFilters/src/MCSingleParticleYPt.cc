@@ -35,7 +35,7 @@ token_(consumes<edm::HepMCProduct>(edm::InputTag(iConfig.getUntrackedParameter("
      ||  (rapMin.size() > 1 && particleID.size() != rapMin.size()) 
      ||  (rapMax.size() > 1 && particleID.size() != rapMax.size())
      ||  (status.size() > 1 && particleID.size() != status.size()) ) {
-      cout << "WARNING: MCSingleParticleYPt : size of vector cuts do not match!!" << endl;
+     edm::LogWarning("MCSingleParticleYPt") << "WARNING: MCSingleParticleYPt : size of vector cuts do not match!!" << endl;
     }
 
     // if ptMin size smaller than particleID , fill up further with defaults
@@ -64,13 +64,13 @@ token_(consumes<edm::HepMCProduct>(edm::InputTag(iConfig.getUntrackedParameter("
     } 
 
     if (fVerbose > 0) {
-       std::cout <<     "----------------------------------------------------------------------" << std::endl;
-       std::cout <<     "----- MCSingleParticleYPt" << std::endl;
+       edm::LogInfo("MCSingleParticleYPt") <<     "----------------------------------------------------------------------" << std::endl;
+       edm::LogInfo("MCSingleParticleYPt") <<     "----- MCSingleParticleYPt" << std::endl;
        for (unsigned int i=0; i<particleID.size(); ++i) {
-           std::cout << " ID: " <<  particleID[i] << " pT > " << ptMin[i] << ",   " << rapMin[i] << " < y < " << rapMax[i] << ",   status = " << status[i] << std::endl;
+           edm::LogInfo("MCSingleParticleYPt") << " ID: " <<  particleID[i] << " pT > " << ptMin[i] << ",   " << rapMin[i] << " < y < " << rapMax[i] << ",   status = " << status[i] << std::endl;
        }
-       if (fchekantiparticle) std::cout << " anti-particles will be tested as well." << std::endl;
-       std::cout <<     "----------------------------------------------------------------------" << std::endl;
+       if (fchekantiparticle) edm::LogInfo("MCSingleParticleYPt") << " anti-particles will be tested as well." << std::endl;
+          edm::LogInfo("MCSingleParticleYPt") <<     "----------------------------------------------------------------------" << std::endl;
     }
 }
 
@@ -93,20 +93,20 @@ bool MCSingleParticleYPt::filter(edm::Event& iEvent, const edm::EventSetup& iSet
    const HepMC::GenEvent * myGenEvent = evt->GetEvent();
    for ( HepMC::GenEvent::particle_const_iterator p = myGenEvent->particles_begin();
 	 p != myGenEvent->particles_end(); ++p ) {
-     if (fVerbose > 3) std::cout << "Looking at particle : " << (*p)->pdg_id() << " status : " << (*p)->status() << std::endl;
+     if (fVerbose > 3) edm::LogInfo("MCSingleParticleYPt") << "Looking at particle : " << (*p)->pdg_id() << " status : " << (*p)->status() << std::endl;
 
      for (unsigned int i = 0; i < particleID.size(); i++) {
        if (particleID[i] == (*p)->pdg_id() || (fchekantiparticle && (-particleID[i] == (*p)->pdg_id())) || particleID[i] == 0) {
          // calculate rapidity just for the desired particle and make sure, this particles has enough energy
          rapidity = ((*p)->momentum().e()-(*p)->momentum().pz()) > 0. ? 0.5*log( ((*p)->momentum().e()+(*p)->momentum().pz()) / ((*p)->momentum().e()-(*p)->momentum().pz()) ) : rapMax[i]+.1;    
-         if (fVerbose > 2) cout << "Testing particle : " << (*p)->pdg_id() << " pT: " << (*p)->momentum().perp() << " y: " << rapidity << " status : " << (*p)->status() << endl;
+         if (fVerbose > 2) edm::LogInfo("MCSingleParticleYPt") << "Testing particle : " << (*p)->pdg_id() << " pT: " << (*p)->momentum().perp() << " y: " << rapidity << " status : " << (*p)->status() << endl;
 	 if ( (*p)->momentum().perp() > ptMin[i] 
               && rapidity > rapMin[i] 
               && rapidity < rapMax[i] 
               && ((*p)->status() == status[i] || status[i] == 0) ) { 
            accepted = true;
            if (fVerbose > 1) 
-              cout << "Accepted particle : " << (*p)->pdg_id() << " pT: " << (*p)->momentum().perp() << " y: " << rapidity << " status : " << (*p)->status() << endl; 
+              edm::LogInfo("MCSingleParticleYPt") << "Accepted particle : " << (*p)->pdg_id() << " pT: " << (*p)->momentum().perp() << " y: " << rapidity << " status : " << (*p)->status() << endl; 
            break;
 	 }  
 	 
