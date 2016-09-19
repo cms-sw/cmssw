@@ -76,11 +76,11 @@ namespace {
                      const edm::Handle<edm::View<ParticleType> > & handle,
                      const std::vector<T> & values,
                      const std::string    & label) {
-    std::auto_ptr<edm::ValueMap<T> > valMap(new edm::ValueMap<T>());
+    std::unique_ptr<edm::ValueMap<T> > valMap(new edm::ValueMap<T>());
     typename edm::ValueMap<T>::Filler filler(*valMap);
     filler.insert(handle, values.begin(), values.end());
     filler.fill();
-    iEvent.put(valMap, label);
+    iEvent.put(std::move(valMap), label);
   }
 }
 
