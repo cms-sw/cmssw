@@ -258,7 +258,7 @@ namespace edm {
     
     if (not shouldContinue) {
       //we are leaving the path early
-      for(auto it = workers_.begin()+iModuleIndex, itEnd=workers_.end();
+      for(auto it = workers_.begin()+nextIndex, itEnd=workers_.end();
           it != itEnd; ++it) {
         it->skipWorker(iEP);
       }
