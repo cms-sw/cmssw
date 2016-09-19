@@ -21,7 +21,7 @@
 #include "TMVA/Reader.h"
 
 #include "DataFormats/JetReco/interface/PileupJetIdentifier.h"
-
+#include "CondFormats/EgammaObjects/interface/GBRForest.h"
 
 // ----------------------------------------------------------------------------------------------------
 class PileupJetIdAlgo {
@@ -64,8 +64,8 @@ protected:
 	PileupJetIdentifier internalId_;
 	variables_list_t variables_;
 
-	std::unique_ptr<TMVA::Reader> reader_;
-        std::vector<std::unique_ptr<TMVA::Reader>> etaReader_;
+	std::unique_ptr<const GBRForest> reader_;
+        std::vector<std::unique_ptr<const GBRForest>> etaReader_;
 	std::string    tmvaWeights_, tmvaMethod_;
         std::vector<std::string> tmvaEtaWeights_;
 	std::vector<std::string>  tmvaVariables_;

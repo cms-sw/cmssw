@@ -10,6 +10,7 @@
 
 #include "TMatrixDSym.h"
 #include "TMatrixDSymEigen.h"
+#include "TMVA/MethodBDT.h"
 
 // ------------------------------------------------------------------------------------------
 const float large_val = std::numeric_limits<float>::max();
@@ -139,52 +140,42 @@ void setPtEtaPhi(const reco::Candidate & p, float & pt, float & eta, float &phi 
 	phi = p.phi();
 }
 
-// ------------------------------------------------------------------------------------------
 void PileupJetIdAlgo::bookReader()
 {
 	if(etaBinnedWeights_){
           for(int v=0; v<nEtaBins_;v++){
-                std::unique_ptr<TMVA::Reader> etaReader = std::unique_ptr<TMVA::Reader>(new TMVA::Reader("!Color:Silent"));
-                etaReader_.push_back(std::move(etaReader));
-          }
-	} else {
-		reader_ = std::unique_ptr<TMVA::Reader>(new TMVA::Reader("!Color:Silent"));
-	}
-	if(etaBinnedWeights_){
-          for(int v=0; v<nEtaBins_;v++){
+            TMVA::Reader tmpTMVAReader( "!Color:Silent:!Error" );
             for(std::vector<std::string>::iterator it=tmvaEtaVariables_.at(v).begin(); it!=tmvaEtaVariables_.at(v).end(); ++it) {
-                if(  tmvaNames_[*it].empty() ) { 
-			tmvaNames_[*it] = *it;
-		}
-                etaReader_.at(v)->AddVariable( *it, variables_[ tmvaNames_[*it] ].first );
+                if(  tmvaNames_[*it].empty() ) {
+                        tmvaNames_[*it] = *it;
+                }
+                tmpTMVAReader.AddVariable( *it, variables_[ tmvaNames_[*it] ].first );
             }
+            for(std::vector<std::string>::iterator it=tmvaSpectators_.begin(); it!=tmvaSpectators_.end(); ++it) {
+                if(  tmvaNames_[*it].empty() ) {
+                        tmvaNames_[*it] = *it;
+                }
+                tmpTMVAReader.AddSpectator( *it, variables_[ tmvaNames_[*it] ].first );
+            }
+            reco::details::loadTMVAWeights(&tmpTMVAReader,  tmvaMethod_.c_str(), tmvaEtaWeights_.at(v).c_str() );
+            etaReader_.push_back(std::unique_ptr<const GBRForest> ( new GBRForest( dynamic_cast<TMVA::MethodBDT*>( tmpTMVAReader.FindMVA(tmvaMethod_.c_str()) ) ) ) );
           }
 	} else {
-	  for(std::vector<std::string>::iterator it=tmvaVariables_.begin(); it!=tmvaVariables_.end(); ++it) {
-		if(  tmvaNames_[*it].empty() ) { 
-			tmvaNames_[*it] = *it;
-		}
-		reader_->AddVariable( *it, variables_[ tmvaNames_[*it] ].first );
-	  }
-	}
-	for(std::vector<std::string>::iterator it=tmvaSpectators_.begin(); it!=tmvaSpectators_.end(); ++it) {
-		if(  tmvaNames_[*it].empty() ) { 
-			tmvaNames_[*it] = *it;
-		}
-		if(etaBinnedWeights_){
-                  for(int v=0; v<nEtaBins_;v++){
-                        etaReader_.at(v)->AddSpectator( *it, variables_[ tmvaNames_[*it] ].first );
-                  }
-		} else {
-			reader_->AddSpectator( *it, variables_[ tmvaNames_[*it] ].first );
-		}
-	}
-	if(etaBinnedWeights_){
-          for(int v=0; v<nEtaBins_;v++){
-                reco::details::loadTMVAWeights(etaReader_.at(v).get(),  tmvaMethod_.c_str(), tmvaEtaWeights_.at(v).c_str() );
-          }
-	} else {
-		reco::details::loadTMVAWeights(reader_.get(),  tmvaMethod_.c_str(), tmvaWeights_.c_str() ); 
+            TMVA::Reader tmpTMVAReader( "!Color:Silent:!Error" );
+            for(std::vector<std::string>::iterator it=tmvaVariables_.begin(); it!=tmvaVariables_.end(); ++it) {
+                if(  tmvaNames_[*it].empty() ) {
+                        tmvaNames_[*it] = *it;
+                }
+                tmpTMVAReader.AddVariable( *it, variables_[ tmvaNames_[*it] ].first );
+            }
+            for(std::vector<std::string>::iterator it=tmvaSpectators_.begin(); it!=tmvaSpectators_.end(); ++it) {
+                if(  tmvaNames_[*it].empty() ) {
+                        tmvaNames_[*it] = *it;
+                }
+                tmpTMVAReader.AddSpectator( *it, variables_[ tmvaNames_[*it] ].first );
+            }
+            reco::details::loadTMVAWeights(&tmpTMVAReader,  tmvaMethod_.c_str(), tmvaWeights_.c_str() );
+            reader_ = std::unique_ptr<const GBRForest> ( new GBRForest( dynamic_cast<TMVA::MethodBDT*>( tmpTMVAReader.FindMVA(tmvaMethod_.c_str()) ) ) );
 	}
 }
 
@@ -207,15 +198,25 @@ void PileupJetIdAlgo::runMva()
                           if(std::abs(internalId_.jetEta_) > jEtaMax_.at(nEtaBins_-1)) {
                               internalId_.mva_ = -2.;
                           } else {
-                            for(int v=0; v<nEtaBins_;v++){
-                                if(std::abs(internalId_.jetEta_)>=jEtaMin_.at(v) && std::abs(internalId_.jetEta_)<jEtaMax_.at(v)){
-                                    internalId_.mva_ = etaReader_.at(v)->EvaluateMVA( tmvaMethod_.c_str() );
+                            for(int v=0; v<nEtaBins_; v++){
+                                if(std::abs(internalId_.jetEta_)>=jEtaMin_.at(v) && std::abs(internalId_.jetEta_)<jEtaMax_.at(v)) {
+                                    std::vector<float> vars;
+                                    for(std::vector<std::string>::iterator it=tmvaEtaVariables_.at(v).begin(); it!=tmvaEtaVariables_.at(v).end(); ++it) {
+                                        std::pair<float *,float> var = variables_.at((*it).c_str());
+                                        vars.push_back( *var.first );
+                                    }
+                                    internalId_.mva_ = etaReader_.at(v)->GetClassifier(vars.data());
                                     break;
                                 }
                             } 
                           }
 			} else {
-			  internalId_.mva_ = reader_->EvaluateMVA( tmvaMethod_.c_str() );
+                            std::vector<float> vars;
+                            for(std::vector<std::string>::iterator it=tmvaVariables_.begin(); it!=tmvaVariables_.end(); ++it) {
+                                std::pair<float *,float> var = variables_.at((*it).c_str());
+                                vars.push_back( *var.first ); 
+                            }       
+                            internalId_.mva_ = reader_->GetClassifier(vars.data());
 			}
 		}
 		internalId_.idFlag_ = computeIDflag(internalId_.mva_,internalId_.jetPt_,internalId_.jetEta_);
