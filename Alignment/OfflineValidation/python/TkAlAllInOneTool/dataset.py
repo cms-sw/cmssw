@@ -870,16 +870,26 @@ class Dataset:
         if firstRun is not None or lastRun is not None:
             if firstRun is None: firstRun = -1
             if lastRun is None: lastRun = float('infinity')
-            e = None
+            unknownfilenames, reasons = [], set()
             for filename in fileList[:]:
                 try:
                     if not firstRun < self.getrunnumberfromfilename(filename) < lastRun:
                         fileList.remove(filename)
                 except AllInOneError as e:
                     if forcerunselection: raise
-                    print e.message
-            if e is not None:
-                 print "\nWill include those files.  They will be filtered at the CMSSW level anyway."
+                    unknownfilenames.append(e.message.split("\n")[1])
+                    reasons         .add   (e.message.split("\n")[2])
+            if reasons:
+                if len(unknownfilenames) == len(fileList):
+                    print "Could not figure out the run numbers of any of the filenames for the following reason(s):"
+                else:
+                    print "Could not figure out the run numbers of the following filenames:"
+                    for filename in unknownfilenames:
+                        print "    "+filename
+                    print "for the following reason(s):"
+                for reason in reasons:
+                    print "    "+reason
+                print "Using the files anyway.  The runs will be filtered at the CMSSW level."
         if not parent:
             self.__fileList = fileList
         else:
