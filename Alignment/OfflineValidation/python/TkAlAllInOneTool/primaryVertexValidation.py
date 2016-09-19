@@ -83,8 +83,6 @@ class PrimaryVertexValidation(GenericValidationData):
         """
         repMap = self.getRepMap()
 
-        #print repMap
-
         if validationsSoFar  != "":
             validationsSoFar += ','
             validationsSoFar += "root://eoscms//eos/cms%(finalResultFile)s=%(title)s"%repMap
@@ -92,11 +90,3 @@ class PrimaryVertexValidation(GenericValidationData):
             validationsSoFar += "root://eoscms//eos/cms%(finalResultFile)s=%(title)s"%repMap
         return validationsSoFar
     
-        # comparestring = self.getCompareStrings("PrimaryVertexValidation")
-        # #sep = '|'
-        # #comparestring = comparestring.split(sep,1)[0]
-        # if validationsSoFar != "":
-        #     validationsSoFar += ','
-        # validationsSoFar += comparestring
-
-        # return validationsSoFar

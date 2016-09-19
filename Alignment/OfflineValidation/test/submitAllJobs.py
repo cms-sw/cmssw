@@ -19,11 +19,13 @@ import ConfigParser, json
 from optparse import OptionParser
 from subprocess import Popen, PIPE
 
-CopyRights  = '####################################\n'
-CopyRights += '#        submitAllJobs Script      #\n'
-CopyRights += '#     marco.musich@cern.ch         #\n'
-CopyRights += '#            December 2015         #\n'
-CopyRights += '####################################\n'
+CopyRights  = '##################################\n'
+CopyRights += '#      submitAllJobs Script      #\n'
+CopyRights += '#      marco.musich@cern.ch      #\n'
+CopyRights += '#         December 2015          #\n'
+CopyRights += '##################################\n'
+
+eos = '/afs/cern.ch/project/eos/installation/cms/bin/eos.select'
 
 ##############################################
 def drawProgressBar(percent, barLen=40):
@@ -149,12 +151,12 @@ def mkdir_eos(out_path):
         newpath=os.path.join(newpath,dir)
         # do not issue mkdir from very top of the tree
         if newpath.find('test_out') > 0:
-            p = subprocess.Popen(["cmsMkdir",newpath], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            p = subprocess.Popen([eos+" mkdir",newpath], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             (out, err) = p.communicate()
             p.wait()
 
     # now check that the directory exists
-    p = subprocess.Popen(["cmsLs",out_path], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    p = subprocess.Popen([eos+"ls",out_path], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     (out, err) = p.communicate()
     p.wait()
     if p.returncode !=0:
@@ -297,96 +299,7 @@ class Job:
                         fout.write("                            ) \n")
                         fout.write("          ) \n")
                         fout.write("     process.prefer_conditionsIn"+element+" = cms.ESPrefer(\"PoolDBESSource\", \"conditionsIn"+element[0]+"\") \n \n") 
-                        
-            # if self.isMC:
-            #     if line.find("ISDATEMPLATE")!=-1:
-            #         line=line.replace("ISDATEMPLATE",self.isDA)
-            #     if line.find("ISMCTEMPLATE")!=-1:
-            #         line=line.replace("ISMCTEMPLATE",self.isMC)
-            #     if line.find("APPLYBOWSTEMPLATE")!=-1:
-            #         line=line.replace("APPLYBOWSTEMPLATE",self.applyBOWS)
-            #     if line.find("EXTRACONDTEMPLATE")!=-1:
-            #         line=line.replace("EXTRACONDTEMPLATE",self.applyEXTRACOND)
-            #     if line.find("USEFILELISTTEMPLATE")!=-1:
-            #         line=line.replace("USEFILELISTTEMPLATE","True")  
-            #     if line.find("RUNBOUNDARYTEMPLATE")!=-1:
-            #         line=line.replace("RUNBOUNDARYTEMPLATE",self.runboundary)  
-            #     if line.find("LUMILISTTEMPLATE")!=-1:
-            #         line=line.replace("LUMILISTTEMPLATE",self.lumilist)
-            #     if line.find("MAXEVENTSTEMPLATE")!=-1:
-            #         line=line.replace("MAXEVENTSTEMPLATE",self.maxevents)
-            #     if line.find("GLOBALTAGTEMPLATE")!=-1:
-            #         line=line.replace("GLOBALTAGTEMPLATE",self.gt)    
-            #     if line.find("ALLFROMGTTEMPLATE")!=-1:
-            #         line=line.replace("ALLFROMGTTEMPLATE",self.allFromGT)    
-            #     if line.find("ALIGNOBJTEMPLATE")!=-1:
-            #         line=line.replace("ALIGNOBJTEMPLATE",self.alignmentDB)
-            #     if line.find("GEOMTAGTEMPLATE")!=-1:
-            #         line=line.replace("GEOMTAGTEMPLATE",self.alignmentTAG)
-            #     if line.find("APEOBJTEMPLATE")!=-1:
-            #         line=line.replace("APEOBJTEMPLATE",self.apeDB)
-            #     if line.find("ERRORTAGTEMPLATE")!=-1:
-            #         line=line.replace("ERRORTAGTEMPLATE",self.apeTAG)
-            #     if line.find("BOWSOBJECTTEMPLATE")!=-1:
-            #         line=line.replace("BOWSOBJECTTEMPLATE",self.bowDB)  
-            #     if line.find("BOWSTAGTEMPLATE")!=-1:
-            #         line=line.replace("BOWSTAGTEMPLATE",self.bowTAG)
-            #     if line.find("VERTEXTYPETEMPLATE")!=-1:
-            #         line=line.replace("VERTEXTYPETEMPLATE",self.vertextype) 
-            #     if line.find("TRACKTYPETEMPLATE")!=-1:
-            #         line=line.replace("TRACKTYPETEMPLATE",self.tracktype) 
-            #     if line.find("PTCUTTEMPLATE")!=-1:
-            #         line=line.replace("PTCUTTEMPLATE",self.ptcut) 
-            #     if line.find("RUNCONTROLTEMPLATE")!=-1:
-            #         line=line.replace("RUNCONTROLTEMPLATE",self.applyruncontrol) 
-            # else:                    
-            #     if line.find("ISDATTEMPLATE")!=-1:
-            #         line=line.replace("ISDATEMPLATE",self.isDA)
-            #     if line.find("ISMCTEMPLATE")!=-1:
-            #         line=line.replace("ISMCTEMPLATE",self.isMC)
-            #     if line.find("APPLYBOWSTEMPLATE")!=-1:
-            #         line=line.replace("APPLYBOWSTEMPLATE",self.applyBOWS)
-            #     if line.find("EXTRACONDTEMPLATE")!=-1:
-            #         line=line.replace("EXTRACONDTEMPLATE",self.applyEXTRACOND)
-            #     if line.find("USEFILELISTTEMPLATE")!=-1:
-            #         line=line.replace("USEFILELISTTEMPLATE","True")  
-            #     if line.find("RUNBOUNDARYTEMPLATE")!=-1:
-            #         line=line.replace("RUNBOUNDARYTEMPLATE",self.runboundary)     
-            #     if line.find("LUMILISTTEMPLATE")!=-1:
-            #         line=line.replace("LUMILISTTEMPLATE",self.lumilist)
-            #     if line.find("MAXEVENTSTEMPLATE")!=-1:
-            #         line=line.replace("MAXEVENTSTEMPLATE",self.maxevents)
-            #     if line.find("GLOBALTAGTEMPLATE")!=-1:
-            #         line=line.replace("GLOBALTAGTEMPLATE",self.gt) 
-            #     if line.find("ALLFROMGTTEMPLATE")!=-1:
-            #         line=line.replace("ALLFROMGTTEMPLATE",self.allFromGT)    
-            #     if line.find("ALIGNOBJTEMPLATE")!=-1:
-            #         line=line.replace("ALIGNOBJTEMPLATE",self.alignmentDB)
-            #     if line.find("GEOMTAGTEMPLATE")!=-1:
-            #         line=line.replace("GEOMTAGTEMPLATE",self.alignmentTAG)
-            #     if line.find("APEOBJTEMPLATE")!=-1:
-            #         line=line.replace("APEOBJTEMPLATE",self.apeDB)
-            #     if line.find("ERRORTAGTEMPLATE")!=-1:
-            #         line=line.replace("ERRORTAGTEMPLATE",self.apeTAG)
-            #     if line.find("BOWSOBJECTTEMPLATE")!=-1:
-            #         line=line.replace("BOWSOBJECTTEMPLATE",self.bowDB)  
-            #     if line.find("BOWSTAGTEMPLATE")!=-1:
-            #         line=line.replace("BOWSTAGTEMPLATE",self.bowTAG)
-            #     if line.find("VERTEXTYPETEMPLATE")!=-1:
-            #         line=line.replace("VERTEXTYPETEMPLATE",self.vertextype) 
-            #     if line.find("TRACKTYPETEMPLATE")!=-1:
-            #         line=line.replace("TRACKTYPETEMPLATE",self.tracktype) 
-            #     if line.find("PTCUTTEMPLATE")!=-1:
-            #         line=line.replace("PTCUTTEMPLATE",self.ptcut) 
-            #     if line.find("RUNCONTROLTEMPLATE")!=-1:
-            #         line=line.replace("RUNCONTROLTEMPLATE",self.applyruncontrol) 
-                        
-            # if line.find("FILESOURCETEMPLATE")!=-1:
-            #     lfn_with_quotes = map(lambda x: "\'"+x+"\'",lfn)                   
-            #     #print "["+",".join(lfn_with_quotes)+"]"
-            #     line=line.replace("FILESOURCETEMPLATE","["+",".join(lfn_with_quotes)+"]") 
-            # if line.find("OUTFILETEMPLATE")!=-1:
-            #     line=line.replace("OUTFILETEMPLATE",self.output_full_name+".root")           
+                    
             fout.write(line)    
       
         fout.close()                
@@ -421,8 +334,8 @@ class Job:
         fout.write("cd $LXBATCH_DIR \n") 
         fout.write("cmsRun "+os.path.join(self.cfg_dir,self.outputCfgName)+" \n")
         fout.write("ls -lh . \n")
-        fout.write("for RootOutputFile in $(ls *root ); do cmsStage -f ${RootOutputFile}  ${OUT_DIR}/${RootOutputFile} ; done \n")
-        fout.write("for TxtOutputFile in $(ls *txt ); do cmsStage -f ${TxtOutputFile}  ${OUT_DIR}/${TxtOutputFile} ; done \n")
+        fout.write("for RootOutputFile in $(ls *root ); do eos cp -f ${RootOutputFile}  ${OUT_DIR}/${RootOutputFile} ; done \n")
+        fout.write("for TxtOutputFile in $(ls *txt ); do eos cp -f ${TxtOutputFile}  ${OUT_DIR}/${TxtOutputFile} ; done \n")
 
         fout.close()
 
@@ -688,6 +601,7 @@ def main():
             else:
                 print "this is DATA (not doing full run-based selection)"
                 cmd = 'das_client.py --limit=0 --query \'file dataset='+opts.data+' run='+runboundary[iConf]+'\''
+                #print cmd
                 s = Popen(cmd , shell=True, stdout=PIPE, stderr=PIPE)
                 out,err = s.communicate()
                 mylist = out.split('\n')
@@ -770,7 +684,7 @@ def main():
             aJob.createTheCfgFile(theSrcFiles)
             aJob.createTheLSFFile()
 
-            output_file_list1.append("cmsStage "+aJob.getOutputFileName()+" /tmp/$USER/"+opts.taskname+" \n")
+            output_file_list1.append("eos cp "+aJob.getOutputFileName()+" /tmp/$USER/"+opts.taskname+" \n")
             if jobN == 0:
                 output_file_list2.append("/tmp/$USER/"+opts.taskname+"/"+aJob.getOutputBaseName()+".root ")
             output_file_list2.append("/tmp/$USER/"+opts.taskname+"/"+os.path.split(aJob.getOutputFileName())[1]+" ")    
@@ -794,7 +708,7 @@ def main():
         fout.write("mkdir -p /tmp/$USER/"+opts.taskname+" \n")
         fout.writelines(output_file_list1)
         fout.writelines(output_file_list2)
-        fout.write("cmsStage -f $FILE $OUT_DIR \n")
+        fout.write("eos cp -f $FILE $OUT_DIR \n")
         fout.write("echo \"Harvesting for complete; please find output at $OUT_DIR \" | mail -s \"Harvesting for" +opts.taskname +" compled\" $MAIL \n")
 
         os.system("chmod u+x "+hadd_script_file)
@@ -812,6 +726,3 @@ def main():
         
 if __name__ == "__main__":        
     main()
-
-
-   

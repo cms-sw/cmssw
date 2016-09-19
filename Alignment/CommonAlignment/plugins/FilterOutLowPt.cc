@@ -31,21 +31,25 @@ public:
   explicit FilterOutLowPt( const edm::ParameterSet & );
   ~FilterOutLowPt();
   
+  static void fillDescriptions(edm::ConfigurationDescriptions&);
+
 private:
   virtual void beginJob() ;
   virtual bool filter ( edm::Event &, const edm::EventSetup&); 
   virtual void endJob() ;
 
-  bool applyfilter;
-  bool debugOn;
-  double thresh;
-  unsigned int numtrack;
-  double  ptmin;
-  edm::InputTag tracks_;
+  // ----------member data --------
+  const bool applyfilter;
+  const bool debugOn;
+  const bool runControl_;
+  const double ptmin;
+  const double thresh;
+  const unsigned int numtrack;
+
   double trials;
   double passes;
-  bool runControl_;
-  std::vector<unsigned int> runControlNumbers_;
+
+  const std::vector<unsigned int> runControlNumbers_;
   std::map<unsigned int,std::pair<int,int>> eventsInRun_;
 
   reco::TrackBase::TrackQuality _trackQuality;
@@ -53,23 +57,16 @@ private:
 
 };
 
-
-FilterOutLowPt::FilterOutLowPt(const edm::ParameterSet& iConfig)
-{
-  std::vector<unsigned int> defaultRuns;
-  defaultRuns.push_back(0);
-
-  applyfilter = iConfig.getUntrackedParameter<bool>("applyfilter",true);
-  debugOn     = iConfig.getUntrackedParameter<bool>("debugOn",false);
-  thresh      = iConfig.getUntrackedParameter<int>("thresh",1);
-  numtrack    = iConfig.getUntrackedParameter<unsigned int>("numtrack",0);
-  ptmin       = iConfig.getUntrackedParameter<double>("ptmin",3);
-  runControl_ = iConfig.getUntrackedParameter<bool>("runControl",false);
-  runControlNumbers_ = iConfig.getUntrackedParameter<std::vector<unsigned int> >("runControlNumber",defaultRuns);
-
-  edm::InputTag TrackCollectionTag_ = iConfig.getUntrackedParameter<edm::InputTag>("src",edm::InputTag("generalTracks"));
-  theTrackCollectionToken = consumes<reco::TrackCollection>(TrackCollectionTag_);
-  
+FilterOutLowPt::FilterOutLowPt(const edm::ParameterSet& iConfig):
+  applyfilter(iConfig.getUntrackedParameter<bool>("applyfilter")), 
+  debugOn(iConfig.getUntrackedParameter<bool>("debugOn")),   
+  runControl_(iConfig.getUntrackedParameter<bool>("runControl")),
+  ptmin(iConfig.getUntrackedParameter<double>("ptmin")),       
+  thresh(iConfig.getUntrackedParameter<int>("thresh")),      
+  numtrack(iConfig.getUntrackedParameter<unsigned int>("numtrack")),    
+  runControlNumbers_(iConfig.getUntrackedParameter<std::vector<unsigned int> >("runControlNumber")),
+  theTrackCollectionToken(consumes<reco::TrackCollection>(iConfig.getUntrackedParameter<edm::InputTag>("src")))
+{  
 }
 
 FilterOutLowPt::~FilterOutLowPt()
@@ -162,7 +159,7 @@ bool FilterOutLowPt::filter( edm::Event& iEvent, const edm::EventSetup& iSetup)
 void FilterOutLowPt::endJob(){
   
   double eff =  passes/trials;
-  double eff_err = TMath::Sqrt((eff*(1-eff))/trials);
+  double eff_err = std::sqrt((eff*(1-eff))/trials);
 
   edm::LogVerbatim("FilterOutLowPt")
     <<"###################################### \n"			  
@@ -177,6 +174,26 @@ void FilterOutLowPt::endJob(){
   for (std::map<unsigned int,std::pair<int,int> >::iterator it=eventsInRun_.begin(); it!=eventsInRun_.end(); ++it)			       
     edm::LogVerbatim("FilterOutLowPt")<<"# run:" << it->first << " => events tested: " << (it->second).first << " | events passed: " << (it->second).second;  
   edm::LogVerbatim("FilterOutLowPt")<<"###################################### \n";
+}
+
+// ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
+void
+FilterOutLowPt::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+
+  std::vector<unsigned int> defaultRuns;
+  defaultRuns.push_back(0);
+   
+  edm::ParameterSetDescription desc;
+  desc.setComment("Filters out soft events without at least `numtrack` tracks with pT> `ptmin`");
+  desc.addUntracked<bool>("applyfilter",true);
+  desc.addUntracked<bool>("debugOn",false);
+  desc.addUntracked<bool>("runControl",false);
+  desc.addUntracked<unsigned int>("numtrack",0);
+  desc.addUntracked<double>("ptmin",3.);
+  desc.addUntracked<int>("thresh",1);
+  desc.addUntracked<edm::InputTag>("src",edm::InputTag("generalTracks"));  
+  desc.addUntracked<std::vector<unsigned int> >("runControlNumber",defaultRuns);
+  descriptions.add("filterOutLowPt", desc);
 }
 
 //define this as a plug-in

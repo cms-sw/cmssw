@@ -18,7 +18,6 @@ process.source = cms.Source("PoolSource",
                             duplicateCheckMode = cms.untracked.string('checkAllFilesOpened')
                             )
 
-#process.load("Alignment.OfflineValidation.DATASETTEMPLATE");
 process.load("FWCore.MessageService.MessageLogger_cfi")
 process.MessageLogger.destinations = ['cout', 'cerr']
 process.MessageLogger.cerr.FwkReport.reportEvery = 1000
@@ -35,14 +34,6 @@ if isMC:
      runboundary = 1
 else:
      print ">>>>>>>>>> testPVValidation_cfg.py: msg%-i: This is DATA!"
-
-     ## working recipe for CMSSW_4_X_Y
-     ##import PhysicsTools.PythonAnalysis.LumiList as LumiList
-     #myLumis = LumiList.LumiList(filename = 'None').getCMSSWString().split(',')
-     #process.source.lumisToProcess = cms.untracked.VLuminosityBlockRange()
-     #process.source.lumisToProcess.extend(myLumis)
-
-     ## working recipe for CMSSW_5_X_Y
      import FWCore.PythonUtilities.LumiList as LumiList
      process.source.lumisToProcess = LumiList.LumiList(filename ='None').getVLuminosityBlockRange()
 
@@ -66,12 +57,6 @@ process.load('Configuration.StandardSequences.MagneticField_AutoFromDBCurrent_cf
 ###################################################################
 # Standard loads
 ###################################################################
-#from Geometry.CommonDetUnit.globalTrackingGeometry_cfi import *
-# this line works in 44X, deprecated in 53X
-#process.load("Configuration.StandardSequences.GeometryIdeal_cff")
-#process.load("Configuration.Geometry.GeometryIdeal_cff")
-#process.load("Geometry.CommonDetUnit.globalTrackingGeometry_cfi")
-#process.load("Geometry.TrackerGeometryBuilder.trackerGeometry_cfi")
 process.load("Configuration.Geometry.GeometryRecoDB_cff")
 
 ####################################################################
@@ -171,15 +156,14 @@ process.noslowpt = cms.EDFilter("FilterOutLowPt",
                                 runControlNumber = cms.untracked.vuint32(int(runboundary))
                                 )
 
-#process.goodvertexSkim = cms.Sequence(process.primaryVertexFilter + process.noscraping + process.noslowpt)
 if isMC:
      process.goodvertexSkim = cms.Sequence(process.noscraping)
 else:
-     #process.goodvertexSkim = cms.Sequence(process.primaryVertexFilter + process.noscraping)
      process.goodvertexSkim = cms.Sequence(process.primaryVertexFilter + process.noscraping + process.noslowpt)
 
 ####################################################################
 # Load and Configure Measurement Tracker Event
+# (needed in case NavigationSchool is set != '')
 ####################################################################
 # process.load("RecoTracker.MeasurementDet.MeasurementTrackerEventProducer_cfi") 
 # process.MeasurementTrackerEvent.pixelClusterProducer = 'generalTracks'
@@ -190,7 +174,6 @@ else:
 ####################################################################
 # Load and Configure TrackRefitter
 ####################################################################
-
 #import Alignment.CommonAlignment.tools.trackselectionRefitting as trackselRefit
 #process.seqTrackselRefit = trackselRefit.getSequence(process,'generalTracks')
 #process.seqTrackselRefit.TrackSelector.ptMin = cms.double(3)
@@ -283,7 +266,9 @@ else:
 ####################################################################
 process.p = cms.Path(process.goodvertexSkim*
                      process.offlineBeamSpot*
+                     # in case common fit sequence is uses
                      #process.seqTrackselRefit*
+                     # in case NavigatioSchool is set !='' 
                      #process.MeasurementTrackerEvent*
                      process.FinalTrackRefitter*
                      process.PVValidation)

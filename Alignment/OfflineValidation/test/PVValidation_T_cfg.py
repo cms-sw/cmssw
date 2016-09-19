@@ -7,7 +7,37 @@ allFromGT = ALLFROMGTTEMPLATE
 applyBows = APPLYBOWSTEMPLATE
 applyExtraConditions = EXTRACONDTEMPLATE
 
-process = cms.Process("Demo") 
+process = cms.Process("PrimaryVertexValidation") 
+
+###################################################################
+def customiseAlignmentAndAPE(process):
+###################################################################
+    if not hasattr(process.GlobalTag,'toGet'):
+        process.GlobalTag.toGet=cms.VPSet()
+    process.GlobalTag.toGet.extend( cms.VPSet(cms.PSet(record = cms.string("TrackerAlignmentRcd"),
+                                                       tag = cms.string("GEOMTAGTEMPLATE"),
+                                                       connect = cms.string("ALIGNOBJTEMPLATE")
+                                                       ),
+                                              cms.PSet(record = cms.string("TrackerAlignmentErrorExtendedRcd"),
+                                                       tag = cms.string("ERRORTAGTEMPLATE"),
+                                                       connect = cms.string("APEOBJTEMPLATE")
+                                                       )
+                                              )
+                                    )
+    return process
+
+###################################################################
+def customiseKinksAndBows(process):
+###################################################################
+     if not hasattr(process.GlobalTag,'toGet'):
+          process.GlobalTag.toGet=cms.VPSet()
+     process.GlobalTag.toGet.extend(cms.VPSet(cms.PSet(record = cms.string("TrackerSurfaceDeformationRcd"),
+                                                       tag = cms.string("BOWSTAGTEMPLATE"),
+                                                       connect = cms.string("BOWSOBJECTTEMPLATE")
+                                                       ),        
+                                              )
+                                    )
+     return process
 
 ###################################################################
 # Event source and run selection
@@ -36,14 +66,6 @@ if isMC:
      runboundary = 1
 else:
      print ">>>>>>>>>> testPVValidation_cfg.py: msg%-i: This is DATA!"
-
-     ## working recipe for CMSSW_4_X_Y
-     ##import PhysicsTools.PythonAnalysis.LumiList as LumiList
-     #myLumis = LumiList.LumiList(filename = 'LUMILISTTEMPLATE').getCMSSWString().split(',')
-     #process.source.lumisToProcess = cms.untracked.VLuminosityBlockRange()
-     #process.source.lumisToProcess.extend(myLumis)
-
-     ## working recipe for CMSSW_5_X_Y
      import FWCore.PythonUtilities.LumiList as LumiList
      process.source.lumisToProcess = LumiList.LumiList(filename ='LUMILISTTEMPLATE').getVLuminosityBlockRange()
 
@@ -91,45 +113,16 @@ if allFromGT:
      print ">>>>>>>>>> testPVValidation_cfg.py: msg%-i: All is taken from GT"
 else:
      ####################################################################
-     # Get Alignment constants
+     # Get Alignment constants and APE
      ####################################################################
-     from CondCore.DBCommon.CondDBSetup_cfi import *
-     process.trackerAlignment = cms.ESSource("PoolDBESSource",CondDBSetup,
-                                             connect = cms.string('ALIGNOBJTEMPLATE'),
-                                             timetype = cms.string("runnumber"),
-                                             toGet = cms.VPSet(cms.PSet(record = cms.string('TrackerAlignmentRcd'),
-                                                                        tag = cms.string('GEOMTAGTEMPLATE')
-                                                                        )
-                                                               )
-                                             )
-     process.es_prefer_trackerAlignment = cms.ESPrefer("PoolDBESSource", "trackerAlignment")
-
-     ####################################################################
-     # Get APE
-     ####################################################################
-     process.setAPE = cms.ESSource("PoolDBESSource",CondDBSetup,
-                                   connect = cms.string('APEOBJTEMPLATE'),
-                                   timetype = cms.string("runnumber"),
-                                   toGet = cms.VPSet(cms.PSet(record = cms.string('TrackerAlignmentErrorExtendedRcd'),
-                                                              tag = cms.string('ERRORTAGTEMPLATE')
-                                                              )
-                                                     )
-                                   )
-     process.es_prefer_setAPE = cms.ESPrefer("PoolDBESSource", "setAPE")
+     process=customiseAlignmentAndAPE(process)
 
      ####################################################################
      # Kinks and Bows (optional)
      ####################################################################
      if applyBows:
           print ">>>>>>>>>> testPVValidation_cfg.py: msg%-i: Applying TrackerSurfaceDeformations!"
-          process.trackerBows = cms.ESSource("PoolDBESSource",CondDBSetup,
-                                             connect = cms.string('BOWSOBJECTTEMPLATE'),
-                                             toGet = cms.VPSet(cms.PSet(record = cms.string('TrackerSurfaceDeformationRcd'),
-                                                                        tag = cms.string('BOWSTAGTEMPLATE')
-                                                                        )
-                                                               )
-                                             )
-          process.es_prefer_Bows = cms.ESPrefer("PoolDBESSource", "trackerBows")
+          process=customiseKinksAndBows(process)
      else:
           print ">>>>>>>>>> testPVValidation_cfg.py: msg%-i: MultiPVValidation: Not applying TrackerSurfaceDeformations!"
 
@@ -161,26 +154,23 @@ process.noscraping = cms.EDFilter("FilterOutScraping",
                                   thresh = cms.untracked.double(0.25)
                                   )
 
-process.noslowpt = cms.EDFilter("FilterOutLowPt",
-                                applyfilter = cms.untracked.bool(True),
-                                src =  cms.untracked.InputTag("TRACKTYPETEMPLATE"),
-                                debugOn = cms.untracked.bool(False),
-                                numtrack = cms.untracked.uint32(0),
-                                thresh = cms.untracked.int32(1),
-                                ptmin  = cms.untracked.double(PTCUTTEMPLATE),
-                                runControl = cms.untracked.bool(RUNCONTROLTEMPLATE),
-                                runControlNumber = cms.untracked.uint32(int(runboundary))
-                                )
+process.load("Alignment.CommonAligment.filterOutLowPt_cfi")
+process.filterOutLowPt.applyfilter = True
+process.filterOutLowPt.src = "TRACKTYPETEMPLATE"
+process.filterOutLowPt.numtrack = 0
+process.filterOutLowPt.thresh = 1
+process.filterOutLowPt.ptmin  = PTCUTTEMPLATE
+process.filterOutLowPt.runControl = RUNCONTROLTEMPLATE
+process.filterOutLowPt.runControlNumber = int(runboundary)
 
-#process.goodvertexSkim = cms.Sequence(process.primaryVertexFilter + process.noscraping + process.noslowpt)
 if isMC:
-     process.goodvertexSkim = cms.Sequence(process.noscraping)
+     process.goodvertexSkim = cms.Sequence(process.noscraping+process.filterOutLowPt)
 else:
-     #process.goodvertexSkim = cms.Sequence(process.primaryVertexFilter + process.noscraping)
-     process.goodvertexSkim = cms.Sequence(process.primaryVertexFilter + process.noscraping + process.noslowpt)
+     process.goodvertexSkim = cms.Sequence(process.primaryVertexFilter + process.noscraping + process.filterOutLowPt)
 
 ####################################################################
 # Load and Configure Measurement Tracker Event
+# (this would be needed in case NavigationSchool is set != from ''
 ####################################################################
 # process.load("RecoTracker.MeasurementDet.MeasurementTrackerEventProducer_cfi") 
 # process.MeasurementTrackerEvent.pixelClusterProducer = 'TRACKTYPETEMPLATE'
@@ -314,6 +304,8 @@ else:
 process.p = cms.Path(process.goodvertexSkim*
                      process.offlineBeamSpot*
                      process.seqTrackselRefit*
+                     # in case the navigation shool is removed
                      #process.MeasurementTrackerEvent*
+                     # in case the common refitting sequence is removed
                      #process.TrackRefitter*
                      process.PVValidation)
