@@ -65,7 +65,7 @@ class CaloGeometry
 			      int             subdet,
 			      bool&           ok      ) const ;
 
-      enum { kMaxDet = 5 ,
+      enum { kMaxDet = 6 ,
 	     kMinDet = 3 ,
 	     kNDets  = kMaxDet - kMinDet + 1 ,
 	     kMaxSub = 6 ,
