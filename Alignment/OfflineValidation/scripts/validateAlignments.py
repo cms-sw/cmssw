@@ -365,6 +365,7 @@ def createMergeScript( path, validations ):
 
     if "OfflineValidation" in anythingToMerge:
         repMap["mergeOfflineParJobsScriptPath"] = os.path.join(path, "TkAlOfflineJobsMerge.C")
+        
         createOfflineParJobsMergeScript( comparisonLists["OfflineValidation"],
                                          repMap["mergeOfflineParJobsScriptPath"] )
         repMap["copyMergeScripts"] += ("cp .oO[Alignment/OfflineValidation]Oo./scripts/merge_TrackerOfflineValidation.C .\n"
@@ -410,9 +411,11 @@ def createMergeScript( path, validations ):
     if "PrimaryVertexValidation" in comparisonLists:
         repMap["PrimaryVertexPlotScriptPath"] = \
             os.path.join(path, "TkAlPrimaryVertexValidationPlot.C")
+
         createPrimaryVertexPlotScript(comparisonLists["PrimaryVertexValidation"],
                                       repMap["PrimaryVertexPlotScriptPath"] )
         repMap_PVVal = repMap.copy()
+        repMap_PVVal.update(PlottingOptions(config,"primaryvertex"))
         repMap["RunPrimaryVertexPlot"] = \
             replaceByMap(configTemplates.PrimaryVertexPlotExecution, repMap_PVVal)
 
