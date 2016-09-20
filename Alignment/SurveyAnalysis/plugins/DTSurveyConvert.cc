@@ -83,14 +83,10 @@ DTSurveyConvert::analyze(const edm::Event&, const edm::EventSetup& iSetup)
     wheelList.push_back(wheel);
   }
   outFile.close();
-}
 
-// ------------ method called once each job just after ending the event loop  ------------
-void 
-DTSurveyConvert::endJob(const edm::EventSetup& eventSetup) {
   if(WriteToDB == true) {
     // Instantiate the helper class
-    MuonAlignment align( eventSetup );
+    MuonAlignment align(iSetup);
     std::ifstream inFile(outputFileName.c_str());
     while(!inFile.eof()) {
       float dx, dy, dz, sigma_dx, sigma_dy, sigma_dz;

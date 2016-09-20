@@ -14,25 +14,17 @@ hltMuonOfflineAnalyzer = cms.EDAnalyzer("HLTMuonOfflineAnalyzer",
       "HLT_Mu50_v",
       "HLT_IsoMu24_v",
       "HLT_IsoTkMu24_v",
-      "HLT_Mu17_Mu8_DZ_v",
-      "HLT_Mu17_TkMu8_DZ_v",
-      "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_v",
-      "HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_v",
+#      "HLT_Mu17_Mu8_DZ_v",
+#      "HLT_Mu17_TkMu8_DZ_v",
       "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v",
       "HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_v",
       "HLT_IsoMu20_eta2p1_v",
       "HLT_IsoTkMu20_eta2p1_v",
       "HLT_IsoMu24_eta2p1_v",
       "HLT_IsoTkMu24_eta2p1_v",
-      "HLT_Mu24_eta2p1_v",
-      "HLT_TkMu24_v",
       "HLT_IsoMu27_v",
       "HLT_IsoTkMu27_v",
-      "HLT_Mu27_v",
-      "HLT_TkMu27_v",
       "HLT_IsoMu20_v",
-      "HLT_Mu20_v",
-      "HLT_TkMu20_v",
       "HLT_IsoTkMu20_v",
       "HLT_IsoMu22_v",
       "HLT_IsoTkMu22_v",
@@ -40,22 +32,25 @@ hltMuonOfflineAnalyzer = cms.EDAnalyzer("HLTMuonOfflineAnalyzer",
       "HLT_IsoTkMu22_eta2p1_v",
       "HLT_IsoMu18_v",
       "HLT_IsoTkMu18_v",
-      "HLT_L1SingleMu16_v",
-      "HLT_L2Mu10_v",
-      "HLT_HIL1DoubleMu0", #for HI
-      "HLT_HIL1DoubleMu0BPTX", #for HI
-      "HLT_HIL2Mu3", #for HI
-      "HLT_HIL2Mu3BPTX", #for HI
-      "HLT_HIL2Mu7", #for HI
-      "HLT_HIL2Mu15", #for HI
-      "HLT_HIL2Mu3_NHitQ", #for HI
-      "HLT_HIL2DoubleMu0", #for HI
-      "HLT_HIL2DoubleMu0BPTX", #for HI
-      "HLT_HIL2DoubleMu0_NHitQ", #for HI
-      "HLT_HIL2DoubleMu3", #for HI
-      "HLT_HIL3Mu3", #for HI
-      "HLT_HIL3Mu3BPTX", #for HI
-      "HLT_HIL3DoubleMuOpen" #for HI
+      "HLT_PAL1DoubleMuOpen_v", #for HI
+      "HLT_PAL1DoubleMuOpen_OS_v", #for HI
+      "HLT_PAL1DoubleMuOpen_SS_v", #for HI
+      "HLT_PAL1DoubleMu0_v", #for HI
+      "HLT_PAL1DoubleMu0_HighQ_v", #for HI
+      "HLT_PAL1DoubleMu0_MGT1_v", #for HI
+      "HLT_PAL1DoubleMu10_v", #for HI
+      "HLT_PAL2DoubleMuOpen_v", #for HI
+      "HLT_PAL2DoubleMu10_v", #for HI
+      "HLT_PAL3DoubleMuOpen_v", #for HI
+      "HLT_PAL3DoubleMuOpen_HIon_v", #for HI
+      "HLT_PAL3DoubleMu10_v", #for HI
+      "HLT_PAL2Mu12_v", #for HI
+      "HLT_PAL2Mu15_v", #for HI
+      "HLT_PAL3Mu3_v", #for HI 
+      "HLT_PAL3Mu5_v", #for HI 
+      "HLT_PAL3Mu7_v", #for HI 
+      "HLT_PAL3Mu12_v", #for HI
+      "HLT_PAL3Mu15_v" #for HI
     ),
 
 #HLT_Mu15_eta2p1_TriCentral_40_20_20_BTagIP3D1stTrack_v3 matches HLT_Mu15_eta2p1_v
@@ -82,7 +77,7 @@ hltMuonOfflineAnalyzer = cms.EDAnalyzer("HLTMuonOfflineAnalyzer",
         charge     = cms.untracked.vdouble(  2,  -2.00,   2.00),
         deltaR     = cms.untracked.vdouble( 20,   0.00,   0.05),
         phiCoarse  = cms.untracked.vdouble( 10,  -3.14,   3.14),
-        resolutionRel = cms.untracked.vdouble( 20,  -0.15,   0.15),
+        resolutionRel = cms.untracked.vdouble( 40,  -0.30,   0.30),
         resolutionEta = cms.untracked.vdouble( 20,  -0.01,   0.01),
         resolutionPhi = cms.untracked.vdouble( 20,  -0.01,   0.01),
         ## parameters for variable-width plots

@@ -3,5 +3,6 @@
 <use name="FWCore/ParameterSet"/>
 <use name="CondFormats/Common"/>
 <use name="DQMServices/Core"/>
+<use name="Alignment/MillePedeAlignmentAlgorithm"/>
 <use name="classlib"/>
 <flags EDM_PLUGIN="1"/>

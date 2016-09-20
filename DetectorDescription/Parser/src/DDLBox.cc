@@ -1,28 +1,13 @@
-/***************************************************************************
-                          DDLBox.cc  -  description
-                             -------------------
-    begin                : Wed Oct 24 2001
-    email                : case@ucdhep.ucdavis.edu
- ***************************************************************************/
-
-/***************************************************************************
- *                                                                         *
- *           DDDParser sub-component of DDD                                *
- *                                                                         *
- ***************************************************************************/
-
 #include "DetectorDescription/Parser/src/DDLBox.h"
 
 #include <map>
 #include <utility>
 
-#include "DetectorDescription/Base/interface/DDdebug.h"
 #include "DetectorDescription/Core/interface/DDName.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
 #include "DetectorDescription/ExprAlgo/interface/ClhepEvaluator.h"
 #include "DetectorDescription/Parser/interface/DDLElementRegistry.h"
 #include "DetectorDescription/Parser/src/DDLSolid.h"
-#include "DetectorDescription/Parser/src/DDXMLElement.h"
 
 class DDCompactView;
 
@@ -30,15 +15,10 @@ DDLBox::DDLBox( DDLElementRegistry* myreg )
   : DDLSolid( myreg )
 {}
 
-DDLBox::~DDLBox( void )
-{}
-
 // Upon ending a Box element, call DDCore giving the box name, and dimensions.
 void
 DDLBox::processElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv )
 {
-  DCOUT_V( 'P', "DDLBox::processElement started" );
-  
   ClhepEvaluator & ev = myRegistry_->evaluator();
   DDXMLAttribute atts = getAttributeSet();
   
@@ -49,6 +29,4 @@ DDLBox::processElement( const std::string& name, const std::string& nmspace, DDC
 				       ev.eval( nmspace, atts.find( "dz" )->second ));
   // Attempt to make sure Solid elements can be in LogicalPart elements.
   DDLSolid::setReference( nmspace, cpv );
-
-  DCOUT_V( 'P', "DDLBox::processElement completed" );
 }

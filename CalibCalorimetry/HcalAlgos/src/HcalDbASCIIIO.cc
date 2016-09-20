@@ -381,10 +381,6 @@ bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalZDCLowGainFract
 
 bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalValidationCorrs* fObject) {return getHcalSingleFloatObject (fInput, fObject, new HcalValidationCorr); }
 bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalValidationCorrs& fObject) {return dumpHcalSingleFloatObject (fOutput, fObject); }
-bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalCholeskyMatrices* fObject) {return getHcalMatrixObject (fInput, fObject, new HcalCholeskyMatrix); }
-bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalCholeskyMatrices& fObject) {return dumpHcalMatrixObject (fOutput, fObject); }
-bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalCovarianceMatrices* fObject) {return getHcalMatrixObject (fInput, fObject, new HcalCovarianceMatrix); }
-bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalCovarianceMatrices& fObject) {return dumpHcalMatrixObject (fOutput, fObject); }
 
 bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalQIETypes* fObject) {return getHcalSingleIntObject (fInput, fObject, new HcalQIEType); }
 bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalQIETypes& fObject) {return dumpHcalSingleIntObject (fOutput, fObject); }
@@ -598,8 +594,8 @@ bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalLongRecoParams* fObject
       continue;
     }
     if (items.size() > 7) {
-      edm::LogWarning("Format Problem ?") << "Check line: " << buffer << "\n line must contain 6 items: eta, phi, depth, subdet, signalTSs, noiseTSs. "
-					  << "\n ! signalTS and noiseTS must be of format <ts1,ts2,ts3,...> withOUT spaces. Ignoring line for safety" << std::endl;
+      edm::LogWarning("Format Error") << "Check line: " << buffer << "\n line must contain 6 items: eta, phi, depth, subdet, signalTSs, noiseTSs. "
+				      << "\n ! signalTS and noiseTS must be of format <ts1,ts2,ts3,...> withOUT spaces. Ignoring line for safety" << std::endl;
       continue;
     }
     DetId id = HcalDbASCIIIO::getId (items);
@@ -753,6 +749,7 @@ bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalMCParams* fObject)
   }
   return true;
 }
+
 bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalMCParams& fObject)
 {
   char buffer [1024];
@@ -1204,7 +1201,7 @@ bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalQIEData* fObject) {
 }
 
 bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalQIEData& fObject) {
-  std::cout <<"dumping object\n";
+
   char buffer [1024];
 
   fOutput << "# QIE data" << std::endl;
@@ -1838,3 +1835,249 @@ bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalFlagHFDigiTimeP
 }
 
 
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalFrontEndMap* fObject) {
+  char buffer [1024];
+  unsigned int all(0), good(0);
+  while (fInput.getline(buffer, 1024)) {
+    ++all;
+    if (buffer [0] == '#') continue; //ignore comment
+    std::vector <std::string> items = splitString (std::string (buffer));
+    if (items.size () != 6) {
+      edm::LogError("Format Error") << "HcalFrontEndMap-> line ignored: " << buffer;
+      continue;
+    }
+    ++good;
+    //    std::cout << "HcalFrontEndMap-> processing line: " << buffer << std::endl;
+    DetId id = HcalDbASCIIIO::getId (items);
+    int   rm = atoi (items [5].c_str());
+    fObject->loadObject (id, rm, items[4]);
+  }
+  fObject->sort ();
+  edm::LogInfo("MapFormat") << "HcalFrontEndMap:: processed " << good << " records in " << all << " record" << std::endl;
+  return true;
+}
+
+bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalFrontEndMap& fObject) {
+
+  char buffer [1024];
+  sprintf (buffer, "# %15s %15s %15s %15s %8s %8s\n", "eta", "phi", "dep", "det", "rbx", "rm");
+  fOutput << buffer;
+
+  std::vector<DetId> channels = fObject.allDetIds();
+  std::sort (channels.begin(), channels.end(), DetIdLess ());
+  for (std::vector<DetId>::iterator channel = channels.begin ();
+       channel !=  channels.end (); ++channel) {
+    const std::string rbx = fObject.lookupRBX(*channel);
+    const int         rm  = fObject.lookupRM(*channel);
+    dumpId (fOutput, *channel);
+    sprintf (buffer, " %8s %8d \n", rbx.c_str(), rm);
+    fOutput << buffer;
+  }
+  return true;
+}
+
+
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalSiPMParameters* fObject) {
+  if (!fObject) return false; 
+  char buffer [1024];
+  while (fInput.getline(buffer, 1024)) {
+    if (buffer [0] == '#') continue; //ignore comment
+    std::vector <std::string> items = splitString (std::string (buffer));
+    if (items.size()==0) continue; // blank line
+    if (items.size () < 9) {
+      edm::LogWarning("Format Error") << "Bad line: " << buffer << "\n line must contain 9 items: eta, phi, depth, subdet, 5x values" << std::endl;
+      continue;
+    }
+    DetId id = HcalDbASCIIIO::getId (items);
+    
+    HcalSiPMParameter* obj = new HcalSiPMParameter(id, atoi(items[4].c_str()), 
+						   atof(items[5].c_str()), 
+						   atof(items[6].c_str()),
+						   atoi(items[7].c_str()),
+						   atof(items[8].c_str()));
+    fObject->addValues(*obj);
+    delete obj;
+  }
+  return true;
+}
+
+bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalSiPMParameters& fObject) {
+
+  char buffer [1024];
+  sprintf (buffer, "# %15s %15s %15s %15s %8s %15s %15s %8s %15s\n", 
+	   "eta", "phi", "dep", "det", "type", "fcByPE", "darkCurrent", 
+	   "auxi1", "auxi2");
+  fOutput << buffer;
+  std::vector<DetId> channels = fObject.getAllChannels ();
+  std::sort (channels.begin(), channels.end(), DetIdLess ());
+  for (std::vector<DetId>::iterator channel = channels.begin ();
+       channel !=  channels.end ();
+       ++channel) {
+    const int   type   = fObject.getValues(*channel)->getType();
+    const float fcByPE = fObject.getValues(*channel)->getFCByPE();
+    const float darkC  = fObject.getValues(*channel)->getDarkCurrent();
+    const int   auxi1  = fObject.getValues(*channel)->getauxi1();
+    const float auxi2  = fObject.getValues(*channel)->getauxi2();
+    HcalDbASCIIIO::dumpId (fOutput, *channel);
+    sprintf (buffer, " %8d %15.6f %15.6f %8d %15.6f\n", type, fcByPE, 
+	     darkC, auxi1, auxi2);
+    fOutput << buffer;
+  }
+  return true;
+}
+
+
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalSiPMCharacteristics* fObject) {
+  char buffer [1024];
+  unsigned int all(0), good(0);
+  while (fInput.getline(buffer, 1024)) {
+    ++all;
+    if (buffer [0] == '#') continue; //ignore comment
+    std::vector <std::string> items = splitString (std::string (buffer));
+    if (items.size () != 8) {
+      edm::LogError("MapFormat") << "HcalSiPMCharacteristics-> line ignored: " << buffer;
+      continue;
+    }
+    ++good;
+    //    std::cout << "HcalSiPMCharacteristics-> processing line: " << buffer << std::endl;
+    int   type   = atoi (items [0].c_str());
+    int   pixels = atoi (items [1].c_str());
+    float parL0  = atof (items [2].c_str());
+    float parL1  = atof (items [3].c_str());
+    float parL2  = atof (items [4].c_str());
+    float cTalk  = atof (items [5].c_str());
+    int   auxi1  = atoi (items [6].c_str());
+    float auxi2  = atof (items [7].c_str());
+    fObject->loadObject (type, pixels, parL0, parL1, parL2, cTalk, auxi1, auxi2);
+  }
+  fObject->sort ();
+  edm::LogInfo("MapFormat") << "HcalSiPMCharacteristics:: processed " << good << " records in " << all << " record" << std::endl;
+  return true;
+}
+
+bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalSiPMCharacteristics& fObject) {
+
+  char buffer [1024];
+  sprintf (buffer, "# %8s %8s %15s %15s %15s %15s %8s %15s\n", "type", 
+	   "pixels", "parLin1", "parLin2", "parLin3", "crossTalk", "auxi1", 
+	   "auxi2");
+  fOutput << buffer;
+
+  unsigned int size = fObject.getTypes();
+  for (unsigned int k=0; k<size; ++k) {
+    const int                type   = fObject.getType(k);
+    const int                pixels = fObject.getPixels(type);
+    const std::vector<float> pars   = fObject.getNonLinearities(type);
+    const float              cTalk  = fObject.getCrossTalk(type);
+    const int                auxi1  = fObject.getAuxi1(type);
+    const float              auxi2  = fObject.getAuxi2(type);
+    const float              par0   = (pars.size() > 0) ? pars[0] : 0;
+    const float              par1   = (pars.size() > 1) ? pars[1] : 0;
+    const float              par2   = (pars.size() > 2) ? pars[2] : 0;
+    sprintf (buffer, " %8d %8d %15.6f %15.6f %15.6f %15.6f %8d %15.6f\n", 
+	     type, pixels, par0, par1, par2, cTalk, auxi1, auxi2);
+    fOutput << buffer;
+  }
+  return true;
+}
+
+
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalTPChannelParameters* fObject) {
+  if (!fObject) return false; 
+  char buffer [1024];
+  while (fInput.getline(buffer, 1024)) {
+    if (buffer [0] == '#') continue; //ignore comment
+    std::vector <std::string> items = splitString (std::string (buffer));
+    if (items.size()==0) continue; // blank line
+    if (items.size () < 8) {
+      edm::LogWarning("Format Error") << "Bad line: " << buffer << "\n line must contain 8 items: eta, phi, depth, subdet, 4x values" << std::endl;
+      continue;
+    }
+    DetId id = HcalDbASCIIIO::getId (items);
+    
+    HcalTPChannelParameter* obj = new HcalTPChannelParameter(id.rawId(), 
+							     atoi(items[4].c_str()),
+							     atoi(items[5].c_str()),
+							     atoi(items[6].c_str()),
+							     atoi(items[7].c_str()));
+    fObject->addValues(*obj);
+    delete obj;
+  }
+  return true;
+}
+
+bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalTPChannelParameters& fObject) {
+
+  char buffer [1024];
+  sprintf (buffer, "# %15s %15s %15s %15s %15s %15s %15s %15s\n", 
+	   "eta", "phi", "dep", "det", "Mask", "FGBitInfo", "auxi1", "auxi2");
+  fOutput << buffer;
+  std::vector<DetId> channels = fObject.getAllChannels ();
+  std::sort (channels.begin(), channels.end(), DetIdLess ());
+  for (std::vector<DetId>::iterator channel = channels.begin ();
+       channel !=  channels.end ();
+       ++channel) {
+    const uint32_t mask      = fObject.getValues(*channel)->getMask();
+    const uint32_t fgBitInfo = fObject.getValues(*channel)->getFGBitInfo();
+    const int      auxi1     = fObject.getValues(*channel)->getauxi1();
+    const int      auxi2     = fObject.getValues(*channel)->getauxi2();
+    HcalDbASCIIIO::dumpId (fOutput, *channel);
+    sprintf (buffer, " %15d %15d %15d %15d \n", mask, fgBitInfo, auxi1, auxi2);
+    fOutput << buffer;
+  }
+  return true;
+}
+
+
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalTPParameters* fObject) {
+  char buffer [1024];
+  unsigned int all(0), good(0);
+  while (fInput.getline(buffer, 1024)) {
+    ++all;
+    if (buffer [0] == '#') continue; //ignore comment
+    std::vector <std::string> items = splitString (std::string (buffer));
+    if (items.size () != 6) {
+      edm::LogError("Format Error") << "HcalTPParameters-> line ignored: " << buffer;
+      continue;
+    }
+    ++good;
+    //    std::cout << "HcalTPParameters-> processing line: " << buffer << std::endl;
+    int      version = atoi (items [0].c_str());
+    int      adcCut  = atoi (items [1].c_str());
+    uint64_t tdcMask = atoll(items [2].c_str());
+    uint32_t tbits   = atoi (items [3].c_str());
+    int      auxi1   = atoi (items [4].c_str());
+    int      auxi2   = atoi (items [5].c_str());
+    fObject->loadObject (version, adcCut, tdcMask, tbits, auxi1, auxi2);
+    break;
+  }
+  edm::LogInfo("MapFormat") << "HcalTPParameters:: processed " << good << " records in " << all << " record" << std::endl;
+  return true;
+}
+
+bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalTPParameters& fObject) {
+
+  char buffer [1024];
+  sprintf (buffer, "# %15s %15s %30s %15s %15s %15s\n", "FGAlgo_HBHE", 
+	   "ADCThrHF", "TDCMaskHF", "STBitsHF", "auxi1", "auxi2");
+  fOutput << buffer;
+
+  const int      version  = fObject.getFGVersionHBHE();
+  const int      adcCut   = fObject.getADCThresholdHF();
+  const uint64_t tdcMask  = fObject.getTDCMaskHF();
+  const uint32_t mask1    = (tdcMask>>32)&0xFFFFFFFF;
+  const uint32_t mask2    = tdcMask&0xFFFFFFFF;
+  const uint32_t tbits    = fObject.getHFTriggerInfo();
+  const int      auxi1    = fObject.getAuxi1();
+  const int      auxi2    = fObject.getAuxi2();
+  sprintf (buffer, " %15d %15d %15x %15x %15x %15d %15d\n", version, adcCut,
+	   mask1, mask2, tbits, auxi1, auxi2);
+  fOutput << buffer;
+
+  return true;
+}

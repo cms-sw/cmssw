@@ -169,11 +169,11 @@ class deltas_sector
 
 				void init();
 			};
-			map <ull, pl__class> pl;
+			std::map <ull, pl__class> pl;
 
 			void init();
 		};
-		map <ull, zl11__class> zl11;
+		std::map <ull, zl11__class> zl11;
 		class zl__class
 		{
 		 public:
@@ -184,11 +184,11 @@ class deltas_sector
 
 				void init();
 			};
-			map <ull, pl__class> pl;
+			std::map <ull, pl__class> pl;
 
 			void init();
 		};
-		map <ull, zl__class> zl;
+		std::map <ull, zl__class> zl;
 
 		void init();
 	};

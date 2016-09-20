@@ -21,13 +21,11 @@
 //
 HLTEgammaDoubleEtDeltaPhiFilter::HLTEgammaDoubleEtDeltaPhiFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig)
 {
-   inputTag_ = iConfig.getParameter< edm::InputTag > ("inputTag");
-   etcut_  = iConfig.getParameter<double> ("etcut");
-   minDeltaPhi_ =   iConfig.getParameter<double> ("minDeltaPhi");
-   relaxed_ = iConfig.getUntrackedParameter<bool> ("relaxed",true) ;
-   L1IsoCollTag_= iConfig.getParameter< edm::InputTag > ("L1IsoCand");
-   L1NonIsoCollTag_= iConfig.getParameter< edm::InputTag > ("L1NonIsoCand");
-   inputToken_ = consumes<trigger::TriggerFilterObjectWithRefs>(inputTag_);
+   inputTag_    = iConfig.getParameter< edm::InputTag > ("inputTag");
+   etcut_       = iConfig.getParameter<double> ("etcut");
+   minDeltaPhi_ = iConfig.getParameter<double> ("minDeltaPhi");
+   l1EGTag_     = iConfig.getParameter< edm::InputTag > ("l1EGCand");
+   inputToken_  = consumes<trigger::TriggerFilterObjectWithRefs> (inputTag_);
 }
 
 HLTEgammaDoubleEtDeltaPhiFilter::~HLTEgammaDoubleEtDeltaPhiFilter(){}
@@ -36,13 +34,11 @@ void
 HLTEgammaDoubleEtDeltaPhiFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
    edm::ParameterSetDescription desc;
    makeHLTFilterDescription(desc);
-   desc.add<edm::InputTag>("inputTag",edm::InputTag("hltDoublePhotonEt5L1MatchFilterRegional"));
-   desc.add<edm::InputTag>("L1IsoCand",edm::InputTag("hltL1IsoRecoEcalCandidate"));
-   desc.add<edm::InputTag>("L1NonIsoCand",edm::InputTag("hltL1NonIsoRecoEcalCandidate"));
-   desc.addUntracked<bool>("relaxed",false);
+   desc.add<edm::InputTag>("inputTag", edm::InputTag("hltDoublePhotonEt5L1MatchFilterRegional"));
+   desc.add<edm::InputTag>("l1EGCand", edm::InputTag("hltL1IsoRecoEcalCandidate"));
    desc.add<double>("etcut", 5.0);
    desc.add<double>("minDeltaPhi", 2.5);
-   descriptions.add("hltEgammaDoubleEtDeltaPhiFilter",desc);
+   descriptions.add("hltEgammaDoubleEtDeltaPhiFilter", desc);
 }
 
 // ------------ method called to produce the data  ------------
@@ -52,8 +48,7 @@ HLTEgammaDoubleEtDeltaPhiFilter::hltFilter(edm::Event& iEvent, const edm::EventS
    using namespace trigger;
    // The filter object
    if (saveTags()) {
-     filterproduct.addCollectionTag(L1IsoCollTag_);
-     if (relaxed_) filterproduct.addCollectionTag(L1NonIsoCollTag_);
+     filterproduct.addCollectionTag(l1EGTag_);
    }
 
    // get hold of filtered candidates

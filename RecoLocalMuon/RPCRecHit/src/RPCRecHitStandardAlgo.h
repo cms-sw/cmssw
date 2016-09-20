@@ -9,35 +9,32 @@
 
 #include "RecoLocalMuon/RPCRecHit/interface/RPCRecHitBaseAlgo.h"
 
-
-
 class RPCRecHitStandardAlgo : public RPCRecHitBaseAlgo {
  public:
   /// Constructor
-  RPCRecHitStandardAlgo(const edm::ParameterSet& config);
+  RPCRecHitStandardAlgo(const edm::ParameterSet& config):RPCRecHitBaseAlgo(config) {};
 
   /// Destructor
-  virtual ~RPCRecHitStandardAlgo();
-
-  // Operations
+  virtual ~RPCRecHitStandardAlgo() {};
 
   /// Pass the Event Setup to the algo at each event
-  virtual void setES(const edm::EventSetup& setup);
+  virtual void setES(const edm::EventSetup& setup) {};
 
 
   virtual bool compute(const RPCRoll& roll,
                        const RPCCluster& cluster,
                        LocalPoint& point,
-                       LocalError& error) const;
+                       LocalError& error,
+                       float& time, float& timeErr) const;
 
 
   virtual bool compute(const RPCRoll& roll,
                        const RPCCluster& cluster,
                        const float& angle,
-                       const GlobalPoint& globPos, 
+                       const GlobalPoint& globPos,
                        LocalPoint& point,
-                       LocalError& error) const;
+                       LocalError& error,
+                       float& time, float& timeErr) const;
 };
 #endif
-
 

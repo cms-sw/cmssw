@@ -47,7 +47,7 @@ class L1EmulBias : public edm::EDProducer {
 
  public:
   template <class T>
-  void ModifyCollection (std::auto_ptr<T>& data, const edm::Handle<T> emul, CLHEP::HepRandomEngine*);
+  void ModifyCollection (std::unique_ptr<T>& data, const edm::Handle<T> emul, CLHEP::HepRandomEngine*);
 
  private:
   int verbose_;
@@ -65,12 +65,12 @@ class L1EmulBias : public edm::EDProducer {
 */
 
 template <class T> 
-void L1EmulBias::ModifyCollection(std::auto_ptr<T>& data, const edm::Handle<T> emul, CLHEP::HepRandomEngine*) {
-  data = (std::auto_ptr<T>)(const_cast<T*>(emul.product()));
+void L1EmulBias::ModifyCollection(std::unique_ptr<T>& data, const edm::Handle<T> emul, CLHEP::HepRandomEngine*) {
+  data = (std::unique_ptr<T>)(const_cast<T*>(emul.product()));
 } 
 
 template <> inline void 
-L1EmulBias::ModifyCollection(std::auto_ptr<EcalTrigPrimDigiCollection>& data, 
+L1EmulBias::ModifyCollection(std::unique_ptr<EcalTrigPrimDigiCollection>& data, 
                              const edm::Handle<EcalTrigPrimDigiCollection> emul,
                              CLHEP::HepRandomEngine*) {
   typedef EcalTrigPrimDigiCollection::const_iterator col_cit;
@@ -95,7 +95,7 @@ L1EmulBias::ModifyCollection(std::auto_ptr<EcalTrigPrimDigiCollection>& data,
 }
 
 template <> inline void 
-L1EmulBias::ModifyCollection(std::auto_ptr<HcalTrigPrimDigiCollection>& data, 
+L1EmulBias::ModifyCollection(std::unique_ptr<HcalTrigPrimDigiCollection>& data, 
                              const edm::Handle<HcalTrigPrimDigiCollection> emul,
                              CLHEP::HepRandomEngine*) {
   typedef HcalTrigPrimDigiCollection::const_iterator col_cit;
@@ -116,7 +116,7 @@ L1EmulBias::ModifyCollection(std::auto_ptr<HcalTrigPrimDigiCollection>& data,
 }
 
 template <> inline void 
-L1EmulBias::ModifyCollection(std::auto_ptr<L1CaloEmCollection>& data, 
+L1EmulBias::ModifyCollection(std::unique_ptr<L1CaloEmCollection>& data, 
                              const edm::Handle<L1CaloEmCollection> emul,
                              CLHEP::HepRandomEngine* engine) {
   typedef L1CaloEmCollection::const_iterator col_cit;
@@ -136,7 +136,7 @@ L1EmulBias::ModifyCollection(std::auto_ptr<L1CaloEmCollection>& data,
 
 
 template <> inline void 
-L1EmulBias::ModifyCollection(std::auto_ptr<L1CaloRegionCollection>& data, 
+L1EmulBias::ModifyCollection(std::unique_ptr<L1CaloRegionCollection>& data, 
                              const edm::Handle<L1CaloRegionCollection> emul,
                              CLHEP::HepRandomEngine* engine) {
   typedef L1CaloRegionCollection::const_iterator col_cit;
@@ -154,7 +154,7 @@ L1EmulBias::ModifyCollection(std::auto_ptr<L1CaloRegionCollection>& data,
 }
 
 template <> inline void 
-L1EmulBias::ModifyCollection(std::auto_ptr<L1GctEmCandCollection>& data, 
+L1EmulBias::ModifyCollection(std::unique_ptr<L1GctEmCandCollection>& data, 
                              const edm::Handle<L1GctEmCandCollection>emul,
                              CLHEP::HepRandomEngine* engine) {
   typedef L1GctEmCandCollection::const_iterator col_cit;
@@ -171,7 +171,7 @@ L1EmulBias::ModifyCollection(std::auto_ptr<L1GctEmCandCollection>& data,
 }
 
 template <> inline void 
-L1EmulBias::ModifyCollection(std::auto_ptr<L1GctJetCandCollection>& data, 
+L1EmulBias::ModifyCollection(std::unique_ptr<L1GctJetCandCollection>& data, 
 			     const edm::Handle<L1GctJetCandCollection> emul,
                              CLHEP::HepRandomEngine* engine) {
   typedef L1GctJetCandCollection::const_iterator col_cit;
@@ -187,7 +187,7 @@ L1EmulBias::ModifyCollection(std::auto_ptr<L1GctJetCandCollection>& data,
 }
 
 template <> inline void 
-L1EmulBias::ModifyCollection ( std::auto_ptr<L1MuRegionalCandCollection>& data, 
+L1EmulBias::ModifyCollection ( std::unique_ptr<L1MuRegionalCandCollection>& data, 
                                const edm::Handle<L1MuRegionalCandCollection> emul,
                                CLHEP::HepRandomEngine* engine) {
   typedef L1MuRegionalCandCollection::const_iterator col_cit;
@@ -225,7 +225,7 @@ L1EmulBias::ModifyCollection ( std::auto_ptr<L1MuRegionalCandCollection>& data,
 }
 
 template <> inline void 
-L1EmulBias::ModifyCollection(std::auto_ptr<L1MuDTTrackContainer>& data, 
+L1EmulBias::ModifyCollection(std::unique_ptr<L1MuDTTrackContainer>& data, 
                              const edm::Handle<L1MuDTTrackContainer> emul,
                              CLHEP::HepRandomEngine* engine) {
   typedef std::vector<L1MuDTTrackCand>  TrackContainer;
@@ -256,7 +256,7 @@ L1EmulBias::ModifyCollection(std::auto_ptr<L1MuDTTrackContainer>& data,
 }
 
 template <> inline void 
-L1EmulBias::ModifyCollection(std::auto_ptr<L1MuDTChambPhContainer>& data, 
+L1EmulBias::ModifyCollection(std::unique_ptr<L1MuDTChambPhContainer>& data, 
                              const edm::Handle<L1MuDTChambPhContainer> emul,
                              CLHEP::HepRandomEngine* engine) {
   typedef std::vector<L1MuDTChambPhDigi> Phi_Container;
@@ -276,7 +276,7 @@ L1EmulBias::ModifyCollection(std::auto_ptr<L1MuDTChambPhContainer>& data,
 }
 
 template <> inline void 
-L1EmulBias::ModifyCollection(std::auto_ptr<L1MuDTChambThContainer>& data, 
+L1EmulBias::ModifyCollection(std::unique_ptr<L1MuDTChambThContainer>& data, 
                              const edm::Handle<L1MuDTChambThContainer> emul,
                              CLHEP::HepRandomEngine*) {
   typedef std::vector<L1MuDTChambThDigi> Thi_Container;
@@ -299,7 +299,7 @@ L1EmulBias::ModifyCollection(std::auto_ptr<L1MuDTChambThContainer>& data,
 }
 
 template <> inline void 
-L1EmulBias::ModifyCollection(std::auto_ptr<LTCDigiCollection>& data, 
+L1EmulBias::ModifyCollection(std::unique_ptr<LTCDigiCollection>& data, 
                              const edm::Handle<LTCDigiCollection> emul,
                              CLHEP::HepRandomEngine*) {
   typedef std::vector<LTCDigi>::const_iterator col_cit;
@@ -311,7 +311,7 @@ L1EmulBias::ModifyCollection(std::auto_ptr<LTCDigiCollection>& data,
 }
 
 template <> inline void 
-L1EmulBias::ModifyCollection(std::auto_ptr<L1MuGMTCandCollection>& data, 
+L1EmulBias::ModifyCollection(std::unique_ptr<L1MuGMTCandCollection>& data, 
                              const edm::Handle<L1MuGMTCandCollection> emul,
                              CLHEP::HepRandomEngine*) {
   //typedef std::vector<L1MuGMTCand>          L1MuGMTCandCollection;
@@ -329,7 +329,7 @@ L1EmulBias::ModifyCollection(std::auto_ptr<L1MuGMTCandCollection>& data,
 }
 
 template <> inline void 
-L1EmulBias::ModifyCollection(std::auto_ptr<L1MuGMTReadoutCollection>& data, 
+L1EmulBias::ModifyCollection(std::unique_ptr<L1MuGMTReadoutCollection>& data, 
                              const edm::Handle<L1MuGMTReadoutCollection> emul,
                              CLHEP::HepRandomEngine*) {
   typedef std::vector<L1MuGMTReadoutRecord>::const_iterator col_cit;
@@ -340,10 +340,10 @@ L1EmulBias::ModifyCollection(std::auto_ptr<L1MuGMTReadoutCollection>& data,
     rec.setEvNr (it->getEvNr ());
     rec.setBCERR(it->getBCERR());
     
-    std::auto_ptr<L1MuRegionalCandCollection> new_dttf(new L1MuRegionalCandCollection);
-    std::auto_ptr<L1MuRegionalCandCollection> new_rpcb(new L1MuRegionalCandCollection);
-    std::auto_ptr<L1MuRegionalCandCollection> new_csc (new L1MuRegionalCandCollection);
-    std::auto_ptr<L1MuRegionalCandCollection> new_rpcf(new L1MuRegionalCandCollection);
+    std::unique_ptr<L1MuRegionalCandCollection> new_dttf(new L1MuRegionalCandCollection);
+    std::unique_ptr<L1MuRegionalCandCollection> new_rpcb(new L1MuRegionalCandCollection);
+    std::unique_ptr<L1MuRegionalCandCollection> new_csc (new L1MuRegionalCandCollection);
+    std::unique_ptr<L1MuRegionalCandCollection> new_rpcf(new L1MuRegionalCandCollection);
   
     L1MuRegionalCandCollection old_dttf = it->getDTBXCands();
     L1MuRegionalCandCollection old_rpcb = it->getBrlRPCCands();
@@ -395,7 +395,7 @@ L1EmulBias::ModifyCollection(std::auto_ptr<L1MuGMTReadoutCollection>& data,
 }
 
 template <> inline void 
-L1EmulBias::ModifyCollection(std::auto_ptr<CSCCorrelatedLCTDigiCollection>& data, 
+L1EmulBias::ModifyCollection(std::unique_ptr<CSCCorrelatedLCTDigiCollection>& data, 
                              const edm::Handle<CSCCorrelatedLCTDigiCollection> emul,
                              CLHEP::HepRandomEngine*) {
   //typedef MuonDigiCollection<CSCDetId,CSCCorrelatedLCTDigi> CSCCorrelatedLCTDigiCollection;
@@ -426,7 +426,7 @@ L1EmulBias::ModifyCollection(std::auto_ptr<CSCCorrelatedLCTDigiCollection>& data
   }
 }
 
-template <> inline void L1EmulBias::ModifyCollection(std::auto_ptr<L1CSCTrackCollection>& data, 
+template <> inline void L1EmulBias::ModifyCollection(std::unique_ptr<L1CSCTrackCollection>& data, 
                                                      const edm::Handle<L1CSCTrackCollection> emul,
                                                      CLHEP::HepRandomEngine*) {
   typedef L1CSCTrackCollection::const_iterator col_cit;
@@ -443,7 +443,7 @@ template <> inline void L1EmulBias::ModifyCollection(std::auto_ptr<L1CSCTrackCol
       l1trk.setPtPacked((l1trk.pt_packed()>>2)&0x1f);
     l1trk.setType(l1trk.type_idx());
     //L1MuRegionalCand reg(tcit->first.getDataWord(), tcit->first.bx());
-    std::auto_ptr<CSCCorrelatedLCTDigiCollection> dgcoll(new CSCCorrelatedLCTDigiCollection);
+    std::unique_ptr<CSCCorrelatedLCTDigiCollection> dgcoll(new CSCCorrelatedLCTDigiCollection);
     CSCCorrelatedLCTDigiCollection ldc = tcit->second; //muondigicollection=map
     //get the lct-digi-collection (ie muon-digi-collection)
     //loop over data (map<idx,vec_digi>)

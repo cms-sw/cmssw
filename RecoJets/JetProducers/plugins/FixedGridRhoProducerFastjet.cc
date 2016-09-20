@@ -29,8 +29,7 @@ void FixedGridRhoProducerFastjet::produce(edm::Event& iEvent, const edm::EventSe
      inputs.push_back( fastjet::PseudoJet(i->px(), i->py(), i->pz(), i->energy()) );
    }
    bge_.set_particles(inputs);
-   std::auto_ptr<double> outputRho(new double(bge_.rho()));
-   iEvent.put(outputRho);
+   iEvent.put(std::make_unique<double>(bge_.rho()));
 }
 
 DEFINE_FWK_MODULE(FixedGridRhoProducerFastjet);

@@ -145,13 +145,13 @@ namespace sistrip {
     event.getByToken( productToken_, buffers ); 
     
     //create container for digis
-    std::auto_ptr< edm::DetSetVector<SiStripRawDigi> > digis(new edm::DetSetVector<SiStripRawDigi>);
+    std::unique_ptr< edm::DetSetVector<SiStripRawDigi> > digis(new edm::DetSetVector<SiStripRawDigi>);
     
     //if necessary, create container for event counters
-    std::auto_ptr< std::vector<uint32_t> > pTotalCounts(new std::vector<uint32_t>);
-    std::auto_ptr< std::vector<uint32_t> > pL1ACounts(new std::vector<uint32_t>);
+    std::unique_ptr< std::vector<uint32_t> > pTotalCounts(new std::vector<uint32_t>);
+    std::unique_ptr< std::vector<uint32_t> > pL1ACounts(new std::vector<uint32_t>);
     //and for run number
-    std::auto_ptr<uint32_t> pGlobalRun(new uint32_t);
+    std::unique_ptr<uint32_t> pGlobalRun(new uint32_t);
     //create digis
     // Using FED IDs...
     unpacker_->createDigis(*lCabling, 
@@ -164,16 +164,16 @@ namespace sistrip {
 			   );
     
     // Add digis to event
-    if (storeScopeRawDigis_) event.put( digis, "ScopeRawDigis" );
+    if (storeScopeRawDigis_) event.put(std::move(digis), "ScopeRawDigis" );
     
     //add counters to event
     if (storeCounters_) {
-      event.put(pTotalCounts, "TotalEventCount");
-      event.put(pL1ACounts, "L1ACount");
+      event.put(std::move(pTotalCounts), "TotalEventCount");
+      event.put(std::move(pL1ACounts), "L1ACount");
     }
 
     //add global run to the event
-    event.put(pGlobalRun, "GlobalRunNumber");
+    event.put(std::move(pGlobalRun), "GlobalRunNumber");
 
   } // end of SpyUnpackerModule::produce method.
 

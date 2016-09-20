@@ -20,11 +20,13 @@ namespace ecaldqm
     template<typename DigiCollection> void runOnDigis(DigiCollection const&);
 
   private:
+    void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
     void setParams(edm::ParameterSet const&) override;
 
     bool doPulseMaxCheck_;
     int pulseMaxPosition_;
     int nSamples_;
+    MESet* mePedestalByLS;
   };
 
   inline bool PresampleTask::analyze(void const* _p, Collections _collection){

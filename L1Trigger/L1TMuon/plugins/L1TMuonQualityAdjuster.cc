@@ -103,9 +103,9 @@ L1TMuonQualityAdjuster::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
 {
   using namespace edm;
 
-  std::auto_ptr<l1t::RegionalMuonCandBxCollection> filteredBMTFMuons (new l1t::RegionalMuonCandBxCollection());
-  std::auto_ptr<l1t::RegionalMuonCandBxCollection> filteredOMTFMuons (new l1t::RegionalMuonCandBxCollection());
-  std::auto_ptr<l1t::RegionalMuonCandBxCollection> filteredEMTFMuons (new l1t::RegionalMuonCandBxCollection());
+  std::unique_ptr<l1t::RegionalMuonCandBxCollection> filteredBMTFMuons (new l1t::RegionalMuonCandBxCollection());
+  std::unique_ptr<l1t::RegionalMuonCandBxCollection> filteredOMTFMuons (new l1t::RegionalMuonCandBxCollection());
+  std::unique_ptr<l1t::RegionalMuonCandBxCollection> filteredEMTFMuons (new l1t::RegionalMuonCandBxCollection());
 
   Handle<l1t::RegionalMuonCandBxCollection> bmtfMuons;
   Handle<l1t::RegionalMuonCandBxCollection> omtfMuons;
@@ -165,9 +165,9 @@ L1TMuonQualityAdjuster::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
   //cout << "Size OMTF:  " << filteredOMTFMuons->size(0) << "\n";
   //cout << "Size EMTF:  " << filteredEMTFMuons->size(0) << "\n";
 
-  iEvent.put(filteredBMTFMuons, "BMTF");
-  iEvent.put(filteredOMTFMuons, "OMTF");
-  iEvent.put(filteredEMTFMuons, "EMTF");
+  iEvent.put(std::move(filteredBMTFMuons), "BMTF");
+  iEvent.put(std::move(filteredOMTFMuons), "OMTF");
+  iEvent.put(std::move(filteredEMTFMuons), "EMTF");
 }
 
 // ------------ method called once each job just before starting event loop  ------------

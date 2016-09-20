@@ -12,16 +12,12 @@
 #include "FWCore/Framework/interface/ProductDeletedException.h"
 #include "FWCore/Framework/interface/EDConsumerBase.h"
 #include "ProductResolvers.h"
-#include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/Utilities/interface/EDMException.h"
-#include "FWCore/Utilities/interface/DictionaryTools.h"
 #include "FWCore/Utilities/interface/ProductResolverIndex.h"
 #include "FWCore/Utilities/interface/TypeID.h"
 #include "FWCore/Utilities/interface/WrappedClassName.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-
-#include "TClass.h"
 
 #include <algorithm>
 #include <cstring>
@@ -34,26 +30,6 @@
 namespace edm {
 
   static ProcessHistory const s_emptyProcessHistory;
-
-  static
-  void
-  maybeThrowMissingDictionaryException(TypeID const& productType, bool isElement, std::vector<TypeID> const& missingDictionaries) {
-    if(isElement) {
-      TypeSet missingTypes;
-      if(binary_search_all(missingDictionaries, productType)) {
-        checkTypeDictionary(productType,missingTypes);
-        throwMissingDictionariesException(missingTypes);
-      }
-    } else {
-      TClass* cl = TClass::GetClass(wrappedClassName(productType.className()).c_str());
-      TypeID wrappedProductType = TypeID(cl->GetTypeInfo());
-      TypeSet missingTypes;
-      if(binary_search_all(missingDictionaries, wrappedProductType)) {
-        checkClassDictionary(wrappedProductType,missingTypes);
-        throwMissingDictionariesException(missingTypes);
-      }
-    }
-  }
 
   static
   void
@@ -516,26 +492,26 @@ namespace edm {
     assert(index !=ProductResolverIndexInvalid);
     auto& productResolver = productResolvers_[index];
     assert(0!=productResolver.get());
-    ProductResolverBase::ResolveStatus resolveStatus;
-    ProductData const* productData = productResolver->resolveProduct(resolveStatus, *this, skipCurrentProcess, sra, mcc);
-    if(resolveStatus == ProductResolverBase::Ambiguous) {
+    auto resolution = productResolver->resolveProduct(*this, skipCurrentProcess, sra, mcc);
+    if(resolution.isAmbiguous()) {
       ambiguous = true;
       return BasicHandle();
     }
-    if(productData == 0) {
+    auto productData = resolution.data();
+    if(productData == nullptr) {
       return BasicHandle();
     }
     return BasicHandle(productData->wrapper(), &(productData->provenance()));
   }
 
   void
-  Principal::prefetch(ProductResolverIndex index,
+  Principal::prefetchAsync(WaitingTask * task,
+                      ProductResolverIndex index,
                       bool skipCurrentProcess,
                       ModuleCallingContext const* mcc) const {
     auto const& productResolver = productResolvers_.at(index);
     assert(0!=productResolver.get());
-    ProductResolverBase::ResolveStatus resolveStatus;
-    productResolver->resolveProduct(resolveStatus, *this,skipCurrentProcess, nullptr, mcc);
+    productResolver->prefetchAsync(task,*this, skipCurrentProcess,nullptr,mcc);
   }
 
   void
@@ -556,7 +532,6 @@ namespace edm {
       productLookup().relatedIndexes(PRODUCT_TYPE, typeID);
 
     if (matches.numberOfMatches() == 0) {
-      maybeThrowMissingDictionaryException(typeID, false, preg_->missingDictionaries());
       return;
     }
 
@@ -630,8 +605,7 @@ namespace edm {
             continue;
           }
 
-          ProductResolverBase::ResolveStatus resolveStatus;
-          ProductData const* productData = productResolver->resolveProduct(resolveStatus, *this,false, sra, mcc);
+          ProductData const* productData = productResolver->resolveProduct(*this,false, sra, mcc).data();
           if(productData) {
             // Skip product if not available.
             results.emplace_back(productData->wrapper(), &(productData->provenance()));
@@ -669,12 +643,6 @@ namespace edm {
       if(index == ProductResolverIndexAmbiguous) {
         throwAmbiguousException("findProductByLabel", typeID, inputTag.label(), inputTag.instance(), inputTag.process());
       } else if (index == ProductResolverIndexInvalid) {
-        ProductResolverIndexHelper::Matches matches =
-          productLookup().relatedIndexes(kindOfType, typeID);
-
-        if (matches.numberOfMatches() == 0) {
-          maybeThrowMissingDictionaryException(typeID, kindOfType == ELEMENT_TYPE, preg_->missingDictionaries());
-        }
         return 0;
       }
       inputTag.tryToCacheIndex(index, typeID, branchType(), &productRegistry());
@@ -686,12 +654,11 @@ namespace edm {
     
     auto const& productResolver = productResolvers_[index];
 
-    ProductResolverBase::ResolveStatus resolveStatus;
-    ProductData const* productData = productResolver->resolveProduct(resolveStatus, *this, skipCurrentProcess, sra, mcc);
-    if(resolveStatus == ProductResolverBase::Ambiguous) {
+    auto resolution = productResolver->resolveProduct(*this, skipCurrentProcess, sra, mcc);
+    if(resolution.isAmbiguous()) {
       throwAmbiguousException("findProductByLabel", typeID, inputTag.label(), inputTag.instance(), inputTag.process());
     }
-    return productData;
+    return resolution.data();
   }
 
   ProductData const*
@@ -713,12 +680,6 @@ namespace edm {
     if(index == ProductResolverIndexAmbiguous) {
       throwAmbiguousException("findProductByLabel", typeID, label, instance, process);
     } else if (index == ProductResolverIndexInvalid) {
-      ProductResolverIndexHelper::Matches matches =
-        productLookup().relatedIndexes(kindOfType, typeID);
-
-      if (matches.numberOfMatches() == 0) {
-        maybeThrowMissingDictionaryException(typeID, kindOfType == ELEMENT_TYPE, preg_->missingDictionaries());
-      }
       return 0;
     }
     
@@ -728,12 +689,11 @@ namespace edm {
     
     auto const& productResolver = productResolvers_[index];
 
-    ProductResolverBase::ResolveStatus resolveStatus;
-    ProductData const* productData = productResolver->resolveProduct(resolveStatus, *this, false, sra, mcc);
-    if(resolveStatus == ProductResolverBase::Ambiguous) {
+    auto resolution = productResolver->resolveProduct(*this, false, sra, mcc);
+    if(resolution.isAmbiguous()) {
       throwAmbiguousException("findProductByLabel", typeID, label, instance, process);
     }
-    return productData;
+    return resolution.data();
   }
 
   ProductData const*
@@ -757,8 +717,7 @@ namespace edm {
     }
 
     if(phb->unscheduledWasNotRun()) {
-      ProductResolverBase::ResolveStatus status;
-      if(not phb->resolveProduct(status,*this,false, nullptr, mcc) ) {
+      if(not phb->resolveProduct(*this,false, nullptr, mcc).data() ) {
         throwProductNotFoundException("getProvenance(onDemand)", errors::ProductNotFound, bid);
       }
     }
@@ -870,28 +829,10 @@ namespace edm {
   
   void
   Principal::readAllFromSourceAndMergeImmediately() {
+    if(not reader()) {return;}
+    
     for(auto & prod : *this) {
-      ProductResolverBase & phb = *prod;
-      if(phb.singleProduct() && !phb.branchDescription().produced()) {
-        if(!phb.productUnavailable()) {
-          resolveProductImmediately(phb);
-        }
-      }
+      prod->retrieveAndMerge(*this);
     }
   }
-  void
-  Principal::resolveProductImmediately(ProductResolverBase& phb)  {
-    if(phb.branchDescription().produced()) return; // nothing to do.
-    if(!reader()) return; // nothing to do.
-    
-    // must attempt to load from persistent store
-    BranchKey const bk = BranchKey(phb.branchDescription());
-    std::unique_ptr<WrapperBase> edp(reader()->getProduct(bk, this));
-    
-    // Now fix up the ProductResolver
-    if(edp.get() != nullptr) {
-      putOrMerge(std::move(edp), &phb);
-    }
-  }
-
 }

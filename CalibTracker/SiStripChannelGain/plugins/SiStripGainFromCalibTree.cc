@@ -766,6 +766,10 @@ SiStripGainFromCalibTree::algoEndJob() {
 
 	// Now that we have the full statistics we can extract the information of the 2D histograms
 	algoComputeMPVandGain();
+
+        // Force the DB object writing,
+        // thus setting the IOV as the first processed run (if timeFromEndRun is set to false)
+        storeOnDbNow();
    
 	if(AlgoMode != "PCL" or saveSummary){
             edm::LogInfo("SiStripGainFromCalibTree") << "Saving summary into root file" << std::endl;

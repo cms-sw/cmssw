@@ -1,0 +1,3 @@
+/store/relval/CMSSW_8_1_0_pre10/RelValQCD_Pt_80_120_13/GEN-SIM-RECO/81X_mcRun2_asymptotic_v5_recycle-v1/00000/321C741E-6B67-E611-BCD2-0CC47A7C35C8.root
+/store/relval/CMSSW_8_1_0_pre10/RelValQCD_Pt_80_120_13/GEN-SIM-RECO/81X_mcRun2_asymptotic_v5_recycle-v1/00000/864F5DA8-6B67-E611-90C9-0CC47A7C35C8.root
+/store/relval/CMSSW_8_1_0_pre10/RelValQCD_Pt_80_120_13/GEN-SIM-RECO/81X_mcRun2_asymptotic_v5_recycle-v1/00000/D887E8B0-6B67-E611-BA56-0025905A60BC.root

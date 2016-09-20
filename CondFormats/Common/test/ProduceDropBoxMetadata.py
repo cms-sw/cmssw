@@ -37,15 +37,19 @@ SiStripBadStripRcd_prep_str = encodeJsonInString("SiStripBadStripRcd_prep.json")
 
 #SiStripApvGainRcd
 SiStripApvGainRcd_prod_str = encodeJsonInString("SiStripApvGainRcd_prod.json")
+SiStripApvGainRcd_multirun_prod_str = encodeJsonInString("SiStripApvGainRcd_multirun_prod.json") 
+SiStripApvGainRcdAfterAbortGap_prod_str = encodeJsonInString("SiStripApvGainRcdAfterAbortGap_prod.json")
+
 SiStripApvGainRcd_prep_str = encodeJsonInString("SiStripApvGainRcd_prep.json")
+SiStripApvGainRcd_multirun_prep_str = encodeJsonInString("SiStripApvGainRcd_multirun_prep.json")
+SiStripApvGainRcdAfterAbortGap_prep_str = encodeJsonInString("SiStripApvGainRcdAfterAbortGap_prep.json")
 
 #SiPixelAli
 SiPixelAliRcd_prod_str = encodeJsonInString("SiPixelAliRcd_prod.json")
 SiPixelAliRcd_prep_str = encodeJsonInString("SiPixelAliRcd_prep.json")
 
-
 process.mywriter = cms.EDAnalyzer("ProduceDropBoxMetadata",
-                                  write = cms.untracked.bool(False),
+                                  write = cms.untracked.bool(True),
                                   toWrite = cms.VPSet(cms.PSet(record              = cms.untracked.string("BeamSpotObjectsRcdByRun"), 
                                                                Source              = cms.untracked.string("AlcaHarvesting"),
                                                                FileClass           = cms.untracked.string("ALCA"),
@@ -68,18 +72,25 @@ process.mywriter = cms.EDAnalyzer("ProduceDropBoxMetadata",
                                                                Source              = cms.untracked.string("AlcaHarvesting"),
                                                                FileClass           = cms.untracked.string("ALCA"),
                                                                prodMetaData        = cms.untracked.string(SiStripApvGainRcd_prod_str),
+                                                               prodMetaDataMultiRun = cms.untracked.string(SiStripApvGainRcd_multirun_prod_str),
                                                                prepMetaData        = cms.untracked.string(SiStripApvGainRcd_prep_str),
+                                                               prepMetaDataMultiRun = cms.untracked.string(SiStripApvGainRcd_multirun_prep_str),
                                                                ),
                                                       cms.PSet(record              = cms.untracked.string('TrackerAlignmentRcd'),
                                                                Source              = cms.untracked.string("AlcaHarvesting"),
                                                                FileClass           = cms.untracked.string("ALCA"),
                                                                prodMetaData        = cms.untracked.string(SiPixelAliRcd_prod_str),
                                                                prepMetaData        = cms.untracked.string(SiPixelAliRcd_prep_str),
-                                                               )
-
+                                                               ),
+                                                      cms.PSet(record              = cms.untracked.string('SiStripApvGainRcdAfterAbortGap'),
+                                                               Source              = cms.untracked.string("AlcaHarvesting"),
+                                                               FileClass           = cms.untracked.string("ALCA"),
+                                                               prodMetaData        = cms.untracked.string(SiStripApvGainRcdAfterAbortGap_prod_str),
+                                                               prepMetaData        = cms.untracked.string(SiStripApvGainRcdAfterAbortGap_prep_str),
+                                                               ),
                                                       ),
                                   read = cms.untracked.bool(True),
-                                  toRead = cms.untracked.vstring("BeamSpotObjectsRcdByRun",'BeamSpotObjectsRcdByLumi','SiStripBadStripRcd','SiStripApvGainRcd','TrackerAlignmentRcd') # same strings as fType
+                                  toRead = cms.untracked.vstring("BeamSpotObjectsRcdByRun",'BeamSpotObjectsRcdByLumi','SiStripBadStripRcd','SiStripApvGainRcd','TrackerAlignmentRcd','SiStripApvGainRcdAfterAbortGap') # same strings as fType
                                   )
 
 

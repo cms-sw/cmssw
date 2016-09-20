@@ -95,24 +95,6 @@ CSCMotherboardME21GEM::CSCMotherboardME21GEM(unsigned endcap, unsigned station,
 
   //----------------------------------------------------------------------------------------//
 
-  /// Do GEM matching?
-  do_gem_matching = me21tmbParams.getParameter<bool>("doGemMatching");
-
-  /// GEM matching dphi and deta
-  gem_match_delta_phi_odd = me21tmbParams.getParameter<double>("gemMatchDeltaPhiOdd");
-  gem_match_delta_phi_even = me21tmbParams.getParameter<double>("gemMatchDeltaPhiEven");
-  gem_match_delta_eta = me21tmbParams.getParameter<double>("gemMatchDeltaEta");
-
-  /// delta BX for GEM pads matching
-  gem_match_delta_bx = me21tmbParams.getParameter<int>("gemMatchDeltaBX");
-
-  /// min eta of LCT for which we require GEM match (we don't throw out LCTs below this min eta)
-  gem_match_min_eta = me21tmbParams.getParameter<double>("gemMatchMinEta");
-  gem_match_max_eta = me21tmbParams.getParameter<double>("gemMatchMaxEta");
-
-  /// whether to throw out GEM-fiducial LCTs that have no gem match
-  gem_clear_nomatch_lcts = me21tmbParams.getParameter<bool>("gemClearNomatchLCTs");
-
   // debug gem matching
   debug_gem_matching = me21tmbParams.getParameter<bool>("debugMatching");
   debug_luts = me21tmbParams.getParameter<bool>("debugLUTs");
@@ -288,7 +270,7 @@ CSCMotherboardME21GEM::run(const CSCWireDigiCollection* wiredc,
     //select correct scenario, even or odd
     maxDeltaPadPad_ = (isEven ? maxDeltaPadPadEven_ : maxDeltaPadPadOdd_);
     // build coincidence pads
-    std::auto_ptr<GEMCoPadDigiCollection> pCoPads(new GEMCoPadDigiCollection());
+    std::unique_ptr<GEMCoPadDigiCollection> pCoPads(new GEMCoPadDigiCollection());
     buildCoincidencePads(gemPads, *pCoPads, csc_id);
     
     // retrieve pads and copads in a certain BX window for this CSC 
@@ -501,9 +483,6 @@ CSCMotherboardME21GEM::run(const CSCWireDigiCollection* wiredc,
       }
     }
   }
-  
-  // Possibly use some discrimination from GEMs
-  if (gemGeometryAvailable and runME21ILT_ and do_gem_matching) matchGEMPads();
 
   // reduction of nLCTs per each BX
   for (int bx = 0; bx < MAX_LCT_BINS; bx++)
@@ -1203,158 +1182,6 @@ CSCMotherboardME21GEM::matchingGEMPads(const CSCCLCTDigi& clct, const CSCALCTDig
   }
   if (debug) std::cout << "-----------------------------------------------------------------------"<<std::endl;
   return result;
-}
-
-void CSCMotherboardME21GEM::matchGEMPads()
-{
-  /*
-  using namespace std;
-
-  // check if we have any LCTs at all
-  int nlct = 0;
-  for (int bx = 0; bx < MAX_LCT_BINS; bx++)
-    for (unsigned int mbx = 0; mbx < match_trig_window_size; mbx++)
-      for (int i=0;i<2;i++)
-      {
-        CSCCorrelatedLCTDigi& lct = allLCTs[bx][mbx][i];
-        if (lct.isValid()) nlct++;
-      }
-  if (nlct == 0) return;
-
-  // retrieve CSCChamber geometry
-  CSCTriggerGeomManager* geo_manager = CSCTriggerGeometry::get();
-  CSCChamber* cscChamber = geo_manager->chamber(theEndcap, theStation, theSector, theSubsector, theTrigChamber);
-  const CSCDetId csc_id(cscChamber->id());
-  const int chamber(csc_id.chamber());
-  const bool is_odd(chamber%2==1);
-  
-
-  if (debug_gem_dphi) std::cout<<"++++++++  matchGEMPads "<< csc_id <<" +++++++++ "<<std::endl;
-
-  // check if there are any pads 
-  if (pads_.empty()) {
-    if (debug_gem_dphi) std::cout<<"igotnopads"<<std::endl;
-    return;
-  }
-
-  // walk over BXs
-  for (int bx = 0; bx < MAX_LCT_BINS; ++bx)
-  {
-    auto in_pads = pads_.find(bx);
-
-    // walk over potential LCTs in this BX
-    for (unsigned int mbx = 0; mbx < match_trig_window_size; ++mbx)
-      for (int i=0; i<2; ++i)
-      {
-        CSCCorrelatedLCTDigi& lct = allLCTs[bx][mbx][i];
-        if (!lct.isValid() or fabs(lct.getGEMDPhi()) < 0.000001) continue;
-        if (debug_gem_dphi) std::cout<<"LCTbefore "<<bx<<" "<<mbx<<" "<<i<<" "<<lct;
-
-        // use -99 as default value whe we don't know if there could have been a gem match
-        lct.setGEMDPhi(-99.);
-
-        // "strip" here is actually a half-strip in geometry's terms
-        // note that LCT::getStrip() starts from 0
-        float fractional_strip = 0.5 * (lct.getStrip() + 1) - 0.25;
-        auto layer_geo = cscChamber->layer(CSCConstants::KEY_CLCT_LAYER)->geometry();
-        // LCT::getKeyWG() also starts from 0
-        float wire = layer_geo->middleWireOfGroup(lct.getKeyWG() + 1);
-
-        LocalPoint csc_intersect = layer_geo->intersectionOfStripAndWire(fractional_strip, wire);
-        GlobalPoint csc_gp = csc_g->idToDet(csc_id)->surface().toGlobal(csc_intersect);
-
-        // is LCT located in the high efficiency GEM eta range?
-        bool gem_fid = ( std::abs(csc_gp.eta()) >= gem_match_min_eta );
-
-        if (debug_gem_dphi) std::cout<<" lct eta "<<csc_gp.eta()<<" phi "<<csc_gp.phi()<<std::endl;
-
-        if (!gem_fid)
-        {
-          if (debug_gem_dphi) std::cout<<"    -- lct pass no gem req"<<std::endl;
-          continue;
-        }
-        // use 100 ad default value when within gem fiducial region
-        lct.setGEMDPhi(100.);
-	
-        if (in_pads == pads_.end()) // has no potential GEM hits with similar BX -> zap it
-        {
-          if (gem_clear_nomatch_lcts) lct.clear();
-          if (debug_gem_dphi) std::cout<<"    -- no gem"<<std::endl;
-          continue;
-        }
-        if (debug_gem_dphi) std::cout<<"    -- gem possible"<<std::endl;
-        // use 99 ad default value when we expect there to be a gem match
-        lct.setGEMDPhi(99.);
-
-        // to consider a GEM pad as "matched" it has to be 
-        // within specified delta_eta and delta_phi ranges
-        // and if there are multiple ones, only the min|delta_phi| is considered as matched
-        bool gem_matched = false;
-        //int gem_bx = 99;
-        float min_dphi = 99.;
-        for (auto& id_pad: in_pads->second)
-        {
-          GEMDetId gem_id(id_pad.first);
-          LocalPoint gem_lp = gem_g->etaPartition(gem_id)->centreOfPad(id_pad.second->pad());
-          GlobalPoint gem_gp = gem_g->idToDet(gem_id)->surface().toGlobal(gem_lp);
-          float dphi = deltaPhi(csc_gp.phi(), gem_gp.phi());
-          float deta = csc_gp.eta() - gem_gp.eta();
-          if (debug_gem_dphi) std::cout<<"    gem with dphi "<< std::abs(dphi) <<" deta "<< std::abs(deta) <<std::endl;
-
-          if( (              std::abs(deta) <= gem_match_delta_eta        ) and // within delta_eta
-              ( (  is_odd and std::abs(dphi) <= gem_match_delta_phi_odd ) or
-                ( !is_odd and std::abs(dphi) <= gem_match_delta_phi_even ) ) and // within delta_phi
-              ( std::abs(dphi) < std::abs(min_dphi) )                          // minimal delta phi
-            )
-          {
-            gem_matched = true;
-            min_dphi = dphi;
-            //gem_bx = id_pad.second->bx();
-          }
-        }
-        if (gem_matched)
-        {
-          if (debug_gem_dphi) std::cout<<" GOT MATCHED GEM!"<<std::endl;
-          lct.setGEMDPhi(min_dphi);
-	  // assing the bit value
-	  int oddEven = int(not is_odd) + 1;
-	  int numberOfBendAngles(sizeof lut_pt_vs_dphi_gemcsc / sizeof *lut_pt_vs_dphi_gemcsc);
-	  int iFound = 0;
-	  if (abs(min_dphi) < lut_pt_vs_dphi_gemcsc[numberOfBendAngles-1][oddEven]) iFound = numberOfBendAngles;
-	  else {
-	    for (int i=0; i< numberOfBendAngles-1; ++i) {
-	      if (debug_gem_dphi) std::cout<<"is_odd "<<is_odd <<" min_dphi "<<abs(min_dphi)<<" bend angle lib "<<i<<" "<<lut_pt_vs_dphi_gemcsc[i][oddEven]<< std::endl;
-	      if (abs(min_dphi) < lut_pt_vs_dphi_gemcsc[i][oddEven] and abs(min_dphi) > lut_pt_vs_dphi_gemcsc[i+1][oddEven]) 
-		iFound = i+1;
-	    }
-	  }
-	  lct.setGEMDPhiBits(iFound);
-	  if (debug_gem_dphi) std::cout<<"found bend angle "<<abs(min_dphi)<<" "<<lct.getGEMDPhiBits()<<" "<<lut_pt_vs_dphi_gemcsc[iFound][oddEven]<<" "<<iFound << std::endl;
-        }
-        else
-        {
-          if (debug_gem_dphi) std::cout<<" no gem match";
-          if (gem_clear_nomatch_lcts)
-          {
-            lct.clear();
-            if (debug_gem_dphi) std::cout<<" - cleared lct";
-          }
-          if (debug_gem_dphi) std::cout<<std::endl;
-        }
-        if (debug_gem_dphi) std::cout<<"LCTafter "<<bx<<" "<<mbx<<" "<<i<<" "<<lct;
-      }
-  }
-
-  // final count
-  int nlct_after = 0;
-  for (int bx = 0; bx < MAX_LCT_BINS; bx++)
-    for (unsigned int mbx = 0; mbx < match_trig_window_size; mbx++)
-      for (int i=0;i<2;i++)
-      {
-        if (allLCTs[bx][mbx][i].isValid()) nlct_after++;
-      }
-  if (debug_gem_dphi) std::cout<<"before "<<nlct<<"  after "<<nlct_after<<std::endl;
-  */
 }
 
 

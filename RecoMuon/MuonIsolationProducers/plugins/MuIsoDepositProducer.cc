@@ -137,11 +137,11 @@ void MuIsoDepositProducer::produce(Event& event, const EventSetup& eventSetup){
   }
 
   static const unsigned int MAX_DEPS=10;
-  std::auto_ptr<reco::IsoDepositMap> depMaps[MAX_DEPS];
+  std::unique_ptr<reco::IsoDepositMap> depMaps[MAX_DEPS];
 
   if (nDeps >10 ) LogError(metname)<<"Unable to handle more than 10 input deposits";
   for (unsigned int i =0;i<nDeps; ++i){
-    depMaps[i] =  std::auto_ptr<reco::IsoDepositMap>(new reco::IsoDepositMap());
+    depMaps[i] = std::make_unique<reco::IsoDepositMap>();
   }
 
   //! OK, now we know how many deps for how many muons each we will create
@@ -229,7 +229,7 @@ void MuIsoDepositProducer::produce(Event& event, const EventSetup& eventSetup){
     LogTrace(metname)<<"About to put a deposit named "<<theDepositNames[iMap]
 		     <<" of size "<<depMaps[iMap]->size()
 		     <<" into edm::Event";
-    event.put(depMaps[iMap], theDepositNames[iMap]);
+    event.put(std::move(depMaps[iMap]), theDepositNames[iMap]);
   }
 
   LogTrace(metname) <<" END OF EVENT " <<"================================";

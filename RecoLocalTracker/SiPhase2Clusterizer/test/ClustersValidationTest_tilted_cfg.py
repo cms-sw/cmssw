@@ -10,7 +10,7 @@ process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.EventContent.EventContent_cff')
 process.load('Configuration.StandardSequences.MagneticField_38T_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
-process.load('Configuration.Geometry.GeometryExtended2023devReco_cff')
+process.load('Configuration.Geometry.GeometryExtended2023D1Reco_cff')
 
 # Number of events (-1 = all)
 process.maxEvents = cms.untracked.PSet(
@@ -55,7 +55,7 @@ process.p = cms.Path(process.analysis)
 #customise(process)
 
 # Automatic addition of the customisation function from SLHCUpgradeSimulations.Configuration.combinedCustoms
-from SLHCUpgradeSimulations.Configuration.combinedCustoms import cust_2023dev
+from SLHCUpgradeSimulations.Configuration.combinedCustoms import cust_2023tilted
 
-#call to customisation function cust_2023dev imported from SLHCUpgradeSimulations.Configuration.combinedCustoms
-process = cust_2023dev(process)
+#call to customisation function cust_2023tilted imported from SLHCUpgradeSimulations.Configuration.combinedCustoms
+process = cust_2023tilted(process)

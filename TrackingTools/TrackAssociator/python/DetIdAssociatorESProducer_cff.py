@@ -36,11 +36,17 @@ muonDetIdAssociator = cms.ESProducer("DetIdAssociatorESProducer",
     etaBinSize = cms.double(0.125),
     nEta = cms.int32(48),
     nPhi = cms.int32(48),
-    includeBadChambers = cms.bool(False)
+    includeBadChambers = cms.bool(False),
+    includeGEM = cms.bool(False),
+    includeME0 = cms.bool(False)
 )
 
 # If running in Run 2, include bad chambers
 eras.run2_common.toModify( muonDetIdAssociator, includeBadChambers = True )
+
+# include GEM & ME0 for phase2
+eras.run3_GEM.toModify( muonDetIdAssociator, includeGEM = True )
+eras.phase2_muon.toModify( muonDetIdAssociator, includeME0 = True )
 
 preshowerDetIdAssociator = cms.ESProducer("DetIdAssociatorESProducer",
     ComponentName = cms.string('PreshowerDetIdAssociator'),

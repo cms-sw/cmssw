@@ -79,10 +79,10 @@ std::vector<DetId> EcalRingCalibrationTools::getDetIdsInRing(short etaIndex)
     {
 
       int k =0;
-      if (etaIndex<85)
-	k=-85 + etaIndex;
-      else
-	k= etaIndex - 84;
+	if (etaIndex<85)
+		k=-85 + etaIndex;
+	else
+		k= etaIndex - 84;
 
 	for(int iphi=EBDetId::MIN_IPHI; iphi<=EBDetId::MAX_IPHI; ++iphi) 
 	  

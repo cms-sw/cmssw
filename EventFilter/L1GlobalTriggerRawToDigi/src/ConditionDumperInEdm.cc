@@ -39,8 +39,8 @@ ConditionDumperInEdm::~ConditionDumperInEdm()
 // member functions
 //
 void ConditionDumperInEdm::endLuminosityBlockProduce(edm::LuminosityBlock&lumi, edm::EventSetup const&setup){
-  std::auto_ptr<edm::ConditionsInLumiBlock> lumiOut( new edm::ConditionsInLumiBlock(lumiBlock_));
-  lumi.put( lumiOut );
+  std::unique_ptr<edm::ConditionsInLumiBlock> lumiOut( new edm::ConditionsInLumiBlock(lumiBlock_));
+  lumi.put(std::move(lumiOut));
 }
 
 void ConditionDumperInEdm::endRunProduce(edm::Run& run , const edm::EventSetup& setup){
@@ -53,8 +53,8 @@ void ConditionDumperInEdm::endRunProduce(edm::Run& run , const edm::EventSetup& 
     runBlock_.BAvgCurrent=sum->m_avg_current;
   }
 
-  std::auto_ptr<edm::ConditionsInRunBlock> outBlock(new edm::ConditionsInRunBlock(runBlock_));
-  run.put(outBlock);
+  std::unique_ptr<edm::ConditionsInRunBlock> outBlock(new edm::ConditionsInRunBlock(runBlock_));
+  run.put(std::move(outBlock));
 }
 
 // ------------ method called to produce the data  ------------
@@ -72,8 +72,8 @@ ConditionDumperInEdm::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
               << "\nrequested in configuration, but not found in the event."
               << "\nNo BST quantities retrieved." << std::endl;
 
-      std::auto_ptr<edm::ConditionsInEventBlock> eventOut( new edm::ConditionsInEventBlock(eventBlock_));
-      iEvent.put( eventOut );
+      std::unique_ptr<edm::ConditionsInEventBlock> eventOut( new edm::ConditionsInEventBlock(eventBlock_));
+      iEvent.put(std::move(eventOut));
 
       return;
   }
@@ -95,8 +95,8 @@ ConditionDumperInEdm::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   eventBlock_. bstMasterStatus= gtfeBlockData.bstMasterStatus() ;
   eventBlock_.turnCountNumber = gtfeBlockData.turnCountNumber();
 
-  std::auto_ptr<edm::ConditionsInEventBlock> eventOut( new edm::ConditionsInEventBlock(eventBlock_));
-  iEvent.put( eventOut );
+  std::unique_ptr<edm::ConditionsInEventBlock> eventOut( new edm::ConditionsInEventBlock(eventBlock_));
+  iEvent.put(std::move(eventOut));
 }
 
 

@@ -48,7 +48,7 @@ The script mps_disablejob.pl can be used to disable several Mille jobs by using 
 # disable some Mille jobs:
 % mps_disablejob.pl -N ztomumu
 # submit the Pede job (works only if the "force" option is used):
-% mps_setup.pl -mf
+% mps_fire.py -m -f
 # enable everything
 % mps_enablejob.pl
 
@@ -58,14 +58,14 @@ The script mps_disablejob.pl can be used to disable several Mille jobs by using 
 # disable some Mille jobs
 % mps_disablejob.pl 3 5 6 77 4
 # submit the Pede job (works only if the "force" option is used):
-% mps_fire.pl -mf
+% mps_fire.py -m -f
 
 #third example:
 # disable a sequence of jobs
 % mps_disablejob.pl `seq 2 300`
 #create and submit new Pede job. Note if you want to omit the "force" option when the Pede job is submitted, you need to use the -a option for mps_setupm.pl.
 % mps_setupm.pl -a
-% mps_fire.pl -m
+% mps_fire.py -m
 % mps_enablejob.pl
 ';
       exit;

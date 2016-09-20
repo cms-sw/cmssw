@@ -79,13 +79,13 @@ void MuonWithPFIsoProducer::endJob(){
 void MuonWithPFIsoProducer::produce(edm::Event& ev, const edm::EventSetup& iSetup) {
 
       // Initialize pointer to new output muon collection
-      std::auto_ptr<reco::MuonCollection> newmuons (new reco::MuonCollection);
+      std::unique_ptr<reco::MuonCollection> newmuons (new reco::MuonCollection);
 
       // Get Muon collection
       edm::Handle<edm::View<reco::Muon> > muonCollection;
       if (!ev.getByToken(muonToken_, muonCollection)) {
             edm::LogError("") << ">>> Muon collection does not exist !!!";
-            ev.put(newmuons);
+            ev.put(std::move(newmuons));
             return;
       }
 
@@ -93,7 +93,7 @@ void MuonWithPFIsoProducer::produce(edm::Event& ev, const edm::EventSetup& iSetu
       edm::Handle<edm::View<reco::PFCandidate> > pfCollection;
       if (!ev.getByToken(pfToken_, pfCollection)) {
             edm::LogError("") << ">>> PFCandidate collection does not exist !!!";
-            ev.put(newmuons);
+            ev.put(std::move(newmuons));
             return;
       }
 
@@ -183,7 +183,7 @@ void MuonWithPFIsoProducer::produce(edm::Event& ev, const edm::EventSetup& iSetu
       }
 
       // Add output collection to event
-      ev.put(newmuons);
+      ev.put(std::move(newmuons));
 }
 
 DEFINE_FWK_MODULE(MuonWithPFIsoProducer);

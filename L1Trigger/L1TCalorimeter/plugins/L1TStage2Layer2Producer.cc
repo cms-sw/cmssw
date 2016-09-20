@@ -143,30 +143,30 @@ L1TStage2Layer2Producer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
   LogDebug("L1TDebug") << "First BX=" << bxFirst << ", last BX=" << bxLast << std::endl;
 
   //outputs
-  std::auto_ptr<CaloTowerBxCollection> outTowers (new CaloTowerBxCollection(0, bxFirst, bxLast));
-  std::auto_ptr<CaloClusterBxCollection> clusters (new CaloClusterBxCollection(0, bxFirst, bxLast));
-  std::auto_ptr<EGammaBxCollection> mpegammas (new EGammaBxCollection(0, bxFirst, bxLast));
-  std::auto_ptr<TauBxCollection> mptaus (new TauBxCollection(0, bxFirst, bxLast));
-  std::auto_ptr<JetBxCollection> mpjets (new JetBxCollection(0, bxFirst, bxLast));
-  std::auto_ptr<EtSumBxCollection> mpsums (new EtSumBxCollection(0, bxFirst, bxLast));
-  std::auto_ptr<EGammaBxCollection> egammas (new EGammaBxCollection(0, bxFirst, bxLast));
-  std::auto_ptr<TauBxCollection> taus (new TauBxCollection(0, bxFirst, bxLast));
-  std::auto_ptr<JetBxCollection> jets (new JetBxCollection(0, bxFirst, bxLast));
-  std::auto_ptr<EtSumBxCollection> etsums (new EtSumBxCollection(0, bxFirst, bxLast));
+  std::unique_ptr<CaloTowerBxCollection> outTowers (new CaloTowerBxCollection(0, bxFirst, bxLast));
+  std::unique_ptr<CaloClusterBxCollection> clusters (new CaloClusterBxCollection(0, bxFirst, bxLast));
+  std::unique_ptr<EGammaBxCollection> mpegammas (new EGammaBxCollection(0, bxFirst, bxLast));
+  std::unique_ptr<TauBxCollection> mptaus (new TauBxCollection(0, bxFirst, bxLast));
+  std::unique_ptr<JetBxCollection> mpjets (new JetBxCollection(0, bxFirst, bxLast));
+  std::unique_ptr<EtSumBxCollection> mpsums (new EtSumBxCollection(0, bxFirst, bxLast));
+  std::unique_ptr<EGammaBxCollection> egammas (new EGammaBxCollection(0, bxFirst, bxLast));
+  std::unique_ptr<TauBxCollection> taus (new TauBxCollection(0, bxFirst, bxLast));
+  std::unique_ptr<JetBxCollection> jets (new JetBxCollection(0, bxFirst, bxLast));
+  std::unique_ptr<EtSumBxCollection> etsums (new EtSumBxCollection(0, bxFirst, bxLast));
 
   // loop over BX
   for(int ibx = bxFirst; ibx < bxLast+1; ++ibx) {
-    std::auto_ptr< std::vector<CaloTower> > localTowers (new std::vector<CaloTower>(CaloTools::caloTowerHashMax()+1));
-    std::auto_ptr< std::vector<CaloTower> > localOutTowers (new std::vector<CaloTower>);
-    std::auto_ptr< std::vector<CaloCluster> > localClusters (new std::vector<CaloCluster>);
-    std::auto_ptr< std::vector<EGamma> > localMPEGammas (new std::vector<EGamma>);
-    std::auto_ptr< std::vector<Tau> > localMPTaus (new std::vector<Tau>);
-    std::auto_ptr< std::vector<Jet> > localMPJets (new std::vector<Jet>);
-    std::auto_ptr< std::vector<EtSum> > localMPEtSums (new std::vector<EtSum>);
-    std::auto_ptr< std::vector<EGamma> > localEGammas (new std::vector<EGamma>);
-    std::auto_ptr< std::vector<Tau> > localTaus (new std::vector<Tau>);
-    std::auto_ptr< std::vector<Jet> > localJets (new std::vector<Jet>);
-    std::auto_ptr< std::vector<EtSum> > localEtSums (new std::vector<EtSum>);
+    std::unique_ptr< std::vector<CaloTower> > localTowers (new std::vector<CaloTower>(CaloTools::caloTowerHashMax()+1));
+    std::unique_ptr< std::vector<CaloTower> > localOutTowers (new std::vector<CaloTower>);
+    std::unique_ptr< std::vector<CaloCluster> > localClusters (new std::vector<CaloCluster>);
+    std::unique_ptr< std::vector<EGamma> > localMPEGammas (new std::vector<EGamma>);
+    std::unique_ptr< std::vector<Tau> > localMPTaus (new std::vector<Tau>);
+    std::unique_ptr< std::vector<Jet> > localMPJets (new std::vector<Jet>);
+    std::unique_ptr< std::vector<EtSum> > localMPEtSums (new std::vector<EtSum>);
+    std::unique_ptr< std::vector<EGamma> > localEGammas (new std::vector<EGamma>);
+    std::unique_ptr< std::vector<Tau> > localTaus (new std::vector<Tau>);
+    std::unique_ptr< std::vector<Jet> > localJets (new std::vector<Jet>);
+    std::unique_ptr< std::vector<EtSum> > localEtSums (new std::vector<EtSum>);
 
     LogDebug("L1TDebug") << "BX=" << ibx << ", N(Towers)=" << towers->size(ibx) << std::endl;
 
@@ -174,12 +174,11 @@ L1TStage2Layer2Producer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
 	tower != towers->end(ibx);
 	++tower) {
 
-      int mpEta = CaloTools::mpEta(tower->hwEta());
       CaloTower tow(tower->p4(),
 		    tower->etEm(),
 		    tower->etHad(),
 		    tower->hwPt(),
-		    mpEta,
+		    tower->hwEta(),
 		    tower->hwPhi(),
 		    tower->hwQual(),
 		    tower->hwEtEm(),
@@ -229,16 +228,16 @@ L1TStage2Layer2Producer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
 
   }
 
-  iEvent.put(outTowers, "MP");
-  iEvent.put(clusters, "MP");
-  iEvent.put(mpegammas, "MP");
-  iEvent.put(mptaus, "MP");
-  iEvent.put(mpjets, "MP");
-  iEvent.put(mpsums, "MP");
-  iEvent.put(egammas);
-  iEvent.put(taus);
-  iEvent.put(jets);
-  iEvent.put(etsums);
+  iEvent.put(std::move(outTowers), "MP");
+  iEvent.put(std::move(clusters), "MP");
+  iEvent.put(std::move(mpegammas), "MP");
+  iEvent.put(std::move(mptaus), "MP");
+  iEvent.put(std::move(mpjets), "MP");
+  iEvent.put(std::move(mpsums), "MP");
+  iEvent.put(std::move(egammas));
+  iEvent.put(std::move(taus));
+  iEvent.put(std::move(jets));
+  iEvent.put(std::move(etsums));
 
 }
 

@@ -46,3 +46,8 @@ displacedTracksSequence = cms.Sequence(
     duplicateDisplacedTrackClassifier*
     displacedTracks
     )
+
+# This customization will be removed once we get the templates for
+# phase2 pixel
+from Configuration.StandardSequences.Eras import eras
+eras.phase2_tracker.toModify(duplicateDisplacedTrackCandidates, ttrhBuilderName = "WithTrackAngle") # FIXME

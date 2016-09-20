@@ -27,10 +27,6 @@
 // class declaration
 //
 
-using namespace std;
-using namespace reco;
-using namespace edm;
-
 class ElectronRegressionEnergyProducer : public edm::EDFilter {
 public:
   explicit ElectronRegressionEnergyProducer(const edm::ParameterSet&);
@@ -121,13 +117,13 @@ bool ElectronRegressionEnergyProducer::filter(edm::Event& iEvent, const edm::Eve
     geomInitialized_ = true;
   }
 
-  std::auto_ptr<edm::ValueMap<double> > regrEnergyMap(new edm::ValueMap<double>() );
+  std::unique_ptr<edm::ValueMap<double> > regrEnergyMap(new edm::ValueMap<double>() );
   edm::ValueMap<double>::Filler energyFiller(*regrEnergyMap);
 
-  std::auto_ptr<edm::ValueMap<double> > regrEnergyErrorMap(new edm::ValueMap<double>() );
+  std::unique_ptr<edm::ValueMap<double> > regrEnergyErrorMap(new edm::ValueMap<double>() );
   edm::ValueMap<double>::Filler energyErrorFiller(*regrEnergyErrorMap);
 
-  Handle<reco::GsfElectronCollection> egCollection;
+  edm::Handle<reco::GsfElectronCollection> egCollection;
   iEvent.getByToken(electronToken_,egCollection);
   const reco::GsfElectronCollection egCandidates = (*egCollection.product());
 
@@ -147,7 +143,7 @@ bool ElectronRegressionEnergyProducer::filter(edm::Event& iEvent, const edm::Eve
   //**************************************************************************
   //Get Number of Vertices
   //**************************************************************************
-  Handle<reco::VertexCollection> hVertexProduct;
+  edm::Handle<reco::VertexCollection> hVertexProduct;
   iEvent.getByToken(hVertexToken_,hVertexProduct);
   const reco::VertexCollection inVertices = *(hVertexProduct.product());
 
@@ -169,7 +165,7 @@ bool ElectronRegressionEnergyProducer::filter(edm::Event& iEvent, const edm::Eve
   //Get Rho
   //**************************************************************************
   double rho = 0;
-  Handle<double> hRhoKt6PFJets;
+  edm::Handle<double> hRhoKt6PFJets;
   iEvent.getByToken(hRhoKt6PFJetsToken_, hRhoKt6PFJets);
   rho = (*hRhoKt6PFJets);
 
@@ -206,8 +202,8 @@ bool ElectronRegressionEnergyProducer::filter(edm::Event& iEvent, const edm::Eve
   energyErrorFiller.insert( egCollection, energyErrorValues.begin(), energyErrorValues.end() );
   energyErrorFiller.fill();
 
-  iEvent.put(regrEnergyMap,nameEnergyReg_);
-  iEvent.put(regrEnergyErrorMap,nameEnergyErrorReg_);
+  iEvent.put(std::move(regrEnergyMap),nameEnergyReg_);
+  iEvent.put(std::move(regrEnergyErrorMap),nameEnergyErrorReg_);
 
   return true;
 

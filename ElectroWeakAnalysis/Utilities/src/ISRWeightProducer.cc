@@ -73,7 +73,7 @@ void ISRWeightProducer::produce(edm::Event& iEvent, const edm::EventSetup&) {
       iEvent.getByToken(genToken_, genParticles);
       unsigned int gensize = genParticles->size();
 
-      std::auto_ptr<double> weight (new double);
+      std::unique_ptr<double> weight (new double);
 
       // Set as default weight the asymptotic value at high pt (i.e. value of last bin)
       (*weight) = ptWeights_[ptWeights_.size()-1];
@@ -96,7 +96,7 @@ void ISRWeightProducer::produce(edm::Event& iEvent, const edm::EventSetup&) {
             break;
       }
 
-      iEvent.put(weight);
+      iEvent.put(std::move(weight));
 }
 
 DEFINE_FWK_MODULE(ISRWeightProducer);

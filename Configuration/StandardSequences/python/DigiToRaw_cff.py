@@ -25,12 +25,10 @@ ecalPacker.InstanceEE = 'eeDigis'
 ecalPacker.labelEBSRFlags = "simEcalDigis:ebSrFlags"
 ecalPacker.labelEESRFlags = "simEcalDigis:eeSrFlags"
 
+eras.phase2_common.toReplaceWith(DigiToRaw, DigiToRaw.copyAndExclude([castorRawData]))
 
 #until we have hcal raw data for phase 2....
-eras.phase2_common.toReplaceWith(DigiToRaw, DigiToRaw.copyAndExclude([hcalRawData]))
-
-# Remove siPixelRawData until we have phase1 pixel digis
-eras.phase1Pixel.toReplaceWith(DigiToRaw, DigiToRaw.copyAndExclude([siPixelRawData])) # FIXME
+eras.phase2_hcal.toReplaceWith(DigiToRaw, DigiToRaw.copyAndExclude([hcalRawData]))
 
 if eras.fastSim.isChosen() :
     for _entry in [siPixelRawData,SiStripDigiToRaw,castorRawData]:

@@ -99,14 +99,14 @@ void RHStopTracer::update (const EndOfTrack * fTrack) {
 void RHStopTracer::produce(edm::Event& fEvent, const edm::EventSetup&) {
    LogDebug("SimG4CoreCustomPhysics") << "RHStopTracer::produce->";
 
-   std::auto_ptr<std::vector<std::string> > names (new std::vector<std::string>); 
-   std::auto_ptr<std::vector<float> > xs (new std::vector<float>);
-   std::auto_ptr<std::vector<float> > ys (new std::vector<float>);
-   std::auto_ptr<std::vector<float> > zs (new std::vector<float>);
-   std::auto_ptr<std::vector<float> > ts (new std::vector<float>);
-   std::auto_ptr<std::vector<int> > ids (new std::vector<int>);
-   std::auto_ptr<std::vector<float> > masses (new std::vector<float>);
-   std::auto_ptr<std::vector<float> > charges (new std::vector<float>);
+   std::unique_ptr<std::vector<std::string> > names(new std::vector<std::string>); 
+   std::unique_ptr<std::vector<float> > xs(new std::vector<float>);
+   std::unique_ptr<std::vector<float> > ys(new std::vector<float>);
+   std::unique_ptr<std::vector<float> > zs(new std::vector<float>);
+   std::unique_ptr<std::vector<float> > ts(new std::vector<float>);
+   std::unique_ptr<std::vector<int> > ids(new std::vector<int>);
+   std::unique_ptr<std::vector<float> > masses(new std::vector<float>);
+   std::unique_ptr<std::vector<float> > charges(new std::vector<float>);
 
    std::vector <StopPoint>::const_iterator stopPoint = mStopPoints.begin ();
    for (;  stopPoint != mStopPoints.end(); ++stopPoint) {
@@ -119,13 +119,13 @@ void RHStopTracer::produce(edm::Event& fEvent, const edm::EventSetup&) {
      masses->push_back (stopPoint->mass);
      charges->push_back (stopPoint->charge);
    }
-   fEvent.put (names, "StoppedParticlesName");
-   fEvent.put (xs, "StoppedParticlesX");
-   fEvent.put (ys, "StoppedParticlesY");
-   fEvent.put (zs, "StoppedParticlesZ");
-   fEvent.put (ts, "StoppedParticlesTime");
-   fEvent.put (ids, "StoppedParticlesPdgId");
-   fEvent.put (masses, "StoppedParticlesMass");
-   fEvent.put (charges, "StoppedParticlesCharge");
+   fEvent.put(std::move(names), "StoppedParticlesName");
+   fEvent.put(std::move(xs), "StoppedParticlesX");
+   fEvent.put(std::move(ys), "StoppedParticlesY");
+   fEvent.put(std::move(zs), "StoppedParticlesZ");
+   fEvent.put(std::move(ts), "StoppedParticlesTime");
+   fEvent.put(std::move(ids), "StoppedParticlesPdgId");
+   fEvent.put(std::move(masses), "StoppedParticlesMass");
+   fEvent.put(std::move(charges), "StoppedParticlesCharge");
    mStopPoints.clear ();
 }

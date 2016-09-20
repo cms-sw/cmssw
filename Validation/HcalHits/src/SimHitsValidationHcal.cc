@@ -3,14 +3,14 @@
 #include "Geometry/Records/interface/HcalRecNumberingRecord.h"
 #include "SimDataFormats/CaloTest/interface/HcalTestNumbering.h"
 
-//#define DebugLog
+#define DebugLog
 
 SimHitsValidationHcal::SimHitsValidationHcal(const edm::ParameterSet& ps) {
 
-  g4Label_  = ps.getUntrackedParameter<std::string>("moduleLabel","g4SimHits");
-  hcalHits_ = ps.getUntrackedParameter<std::string>("HitCollection","HcalHits");
-  verbose_  = ps.getUntrackedParameter<bool>("Verbose", false);
-  testNumber_= ps.getUntrackedParameter<bool>("TestNumber", false);
+  g4Label_  = ps.getParameter<std::string>("ModuleLabel");
+  hcalHits_ = ps.getParameter<std::string>("HitCollection");
+  verbose_  = ps.getParameter<bool>("Verbose");
+  testNumber_= ps.getParameter<bool>("TestNumber");
 
   tok_hits_ = consumes<edm::PCaloHitContainer>(edm::InputTag(g4Label_,hcalHits_));
 
@@ -442,6 +442,16 @@ std::vector<std::pair<std::string,std::string> > SimHitsValidationHcal::getHisto
   }
 
   return divisions;
+}
+
+void SimHitsValidationHcal::fillDescriptions(edm::ConfigurationDescriptions & descriptions){
+  edm::ParameterSetDescription desc;
+  desc.add<std::string>("ModuleLabel","g4SimHits");
+  desc.add<std::string>("HitCollection","HcalHits");
+  desc.add<bool>("Verbose",false);
+  desc.add<bool>("TestNumber",false);
+
+  descriptions.addDefault(desc);
 }
 
 DEFINE_FWK_MODULE(SimHitsValidationHcal);

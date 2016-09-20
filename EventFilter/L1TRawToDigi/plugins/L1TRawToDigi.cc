@@ -21,8 +21,6 @@
 #include <iomanip>
 #include <memory>
 
-#define EDM_ML_DEBUG 1
-
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
@@ -59,10 +57,11 @@ namespace l1t {
          // ----------member data ---------------------------
          edm::EDGetTokenT<FEDRawDataCollection> fedData_;
          std::vector<int> fedIds_;
+         unsigned int minFeds_;
          unsigned int fwId_;
          bool fwOverride_;
 
-         std::auto_ptr<PackingSetup> prov_;
+         std::unique_ptr<PackingSetup> prov_;
 
          // header and trailer sizes in chars
          int slinkHeaderSize_;
@@ -75,7 +74,8 @@ namespace l1t {
          bool ctp7_mode_;
          bool mtf7_mode_;
          bool debug_;
-         int warns_;
+         int warnsa_;
+         int warnsb_;
    };
 }
 
@@ -87,6 +87,7 @@ std::ostream & operator<<(std::ostream& o, const l1t::BlockHeader& h) {
 namespace l1t {
    L1TRawToDigi::L1TRawToDigi(const edm::ParameterSet& config) :
       fedIds_(config.getParameter<std::vector<int>>("FedIds")),
+      minFeds_(config.getParameter<unsigned int>("MinFeds")),
       fwId_(config.getParameter<unsigned int>("FWId")),
       fwOverride_(config.getParameter<bool>("FWOverride")),
       ctp7_mode_(config.getUntrackedParameter<bool>("CTP7")),
@@ -109,7 +110,8 @@ namespace l1t {
       amc13TrailerSize_ = config.getUntrackedParameter<int>("lenAMC13Trailer");
 
       debug_ = config.getUntrackedParameter<bool>("debug");
-      warns_ = 0;
+      warnsa_ = 0;
+      warnsb_ = 0;
    }
 
 
@@ -138,6 +140,7 @@ namespace l1t {
          return;
       }
 
+      unsigned valid_count = 0;
       for (const auto& fedId: fedIds_) {
          const FEDRawData& l1tRcd = feds->FEDData(fedId);
 
@@ -145,15 +148,17 @@ namespace l1t {
 
          if ((int) l1tRcd.size() < slinkHeaderSize_ + slinkTrailerSize_ + amc13HeaderSize_ + amc13TrailerSize_ + amcHeaderSize_ + amcTrailerSize_) {
 	   if (l1tRcd.size() > 0) {
-            LogError("L1T") << "Cannot unpack: invalid L1T raw data (size = "
-               << l1tRcd.size() << ") for ID " << fedId << ". Returning empty collections!";
-	   } else if (warns_ < 5) {
-	     warns_++;
-	     LogWarning("L1T") << "Cannot unpack: empty L1T raw data (size = "
-			       << l1tRcd.size() << ") for ID " << fedId << ". Returning empty collections!";
+	     LogError("L1T") << "Cannot unpack: invalid L1T raw data (size = "
+			     << l1tRcd.size() << ") for ID " << fedId << ". Returning empty collections!";
+	   } else if (warnsa_ < 5){
+	     warnsa_++;
+	     LogInfo("L1T") << "During unpacking, encountered empty L1T raw data (size = "
+			       << l1tRcd.size() << ") for FED ID " << fedId << ".";
 	   }
             continue;
-         }
+         } else {
+	   valid_count++;
+	 }
 
          const unsigned char *data = l1tRcd.data();
          FEDHeader header(data);
@@ -210,7 +215,7 @@ namespace l1t {
             // it in 64 bit words → factor 2.
             const uint32_t * end = start + (amc.size() * 2);
 
-            std::auto_ptr<Payload> payload;
+            std::unique_ptr<Payload> payload;
             if (ctp7_mode_) {
                LogDebug("L1T") << "Using CTP7 mode";
                payload.reset(new CTP7Payload(start, end));
@@ -232,8 +237,8 @@ namespace l1t {
 
             auto unpackers = prov_->getUnpackers(fedId, board, amc_no, fw);
 
-            // getBlock() returns a non-null auto_ptr on success
-            std::auto_ptr<Block> block;
+            // getBlock() returns a non-null unique_ptr on success
+            std::unique_ptr<Block> block;
             while ((block = payload->getBlock()).get()) {
                if (debug_) {
                   std::cout << ">>> block to unpack <<<" << std::endl
@@ -267,6 +272,12 @@ namespace l1t {
             }
          }
       }
+      if (valid_count < minFeds_){
+	if (warnsb_ < 5){
+	     warnsb_++;
+	     LogWarning("L1T") << "Unpacked " << valid_count << " non-empty FED IDs but minimum is set to " << minFeds_ << "\n";
+	}
+      }
    }
 
    // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
@@ -290,6 +301,7 @@ namespace l1t {
      desc.addUntracked<int>("lenAMC13Header", 8);
      desc.addUntracked<int>("lenAMC13Trailer", 8);
      desc.addUntracked<bool>("debug", false)->setComment("turn on verbose output");
+     desc.add<unsigned int>("MinFeds", 0)->setComment("optional parameter:  warn if less than MinFeds non-empty FED ids unpacked.");
      descriptions.add("l1tRawToDigi", desc);
    }
 }

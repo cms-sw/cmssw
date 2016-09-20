@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../DDLSchema/DDLSchema.xsd">
+    <ConstantsSection label="RP_Detectors_Assembly.xml">
+        <Constant name="RP_Det_Assembly_z" value="2*[RP_Hybrid:RP_Front_Frame_Z]+10*[RP_Hybrid:RP_Barrette_Thick_z]"/>
+        <Constant name="RP_Frames_dy_base" value="[RP_Box:RP_Box_Secondary_Vacuum_Height]/2-[RP_Box:RP_Box_Bottom_Wall_Thickness]"/>
+        <Constant name="RP_Frames_dy" value="-([RP_Frames_dy_base]-[RP_Hybrid:RP_Front_Frame_Y]/2-[RP_Hybrid:RP_Front_Frame_Leg_y])"/>
+        <Constant name="RP_Front_Frame_dz" value="[RP_Det_Assembly_z]/2-[RP_Hybrid:RP_Front_Frame_Z]/2"/>
+        <Constant name="RP_Barrette_dx" value="-[RP_Hybrid:RP_Front_Frame_X]/2+[RP_Hybrid:RP_Barrette_Thick_x]/2"/>
+        <Constant name="RP_Barrette_dy" value="-([RP_Frames_dy_base]-[RP_Hybrid:RP_Front_Frame_Y]+[RP_Hybrid:RP_Barrette_y]/2-[RP_Hybrid:RP_Front_Frame_Leg_y])"/>
+        <Constant name="RP_Barrette_dz_base" value="[RP_Det_Assembly_z]/2-[RP_Hybrid:RP_Front_Frame_Z]"/>
+        <Constant name="RP_Barrette_dz_base_straight" value="[RP_Barrette_dz_base]-[RP_Hybrid:RP_Barrette_Thick_z]/2"/>
+        <Constant name="RP_Barrette_dz_base_reverse" value="[RP_Barrette_dz_base]-[RP_Hybrid:RP_Barrette_Thick_z]*3/2"/>
+        <Constant name="RP_PCB_dy" value="-([RP_Frames_dy_base]-[RP_Hybrid:RP_Front_Frame_Y]+[RP_Hybrid:RP_PCB_y]/2-[RP_Hybrid:RP_Front_Frame_Leg_y])"/>
+        <Constant name="RP_PCB_dz_base" value="[RP_Barrette_dz_base]-[RP_Hybrid:RP_Barrette_Thin_z]-[RP_Hybrid:RP_PCB_z]/2"/>
+        <Constant name="RP_Det_Ref_y" value="31.631*mm"/>
+        <Constant name="RP_Det_Ref_dy" value="[RP_Hybrid:RP_Front_Frame_Ref_y]-[RP_Det_Ref_y]"/>
+        <Constant name="RP_Det_dx" value="[RP_Hybrid:RP_Det_dx]"/>
+        <Constant name="RP_Det_dy" value="-[RP_Frames_dy_base]+[RP_Det_Ref_dy]+[RP_Hybrid:RP_Det_dy]"/>
+
+        <Constant name="RP_Det_dz_base" value="[RP_PCB_dz_base]-[RP_Hybrid:RP_PCB_z]/2-[RP_Hybrid:RP_Det_Thickness]/2"/>
+    </ConstantsSection>
+</DDDefinition>

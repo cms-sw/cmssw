@@ -46,8 +46,8 @@ void HcalTTPTriggerRecord::produce(edm::Event& e, const edm::EventSetup& eventSe
     }
 
     // Put output into event
-    std::auto_ptr<L1GtTechnicalTriggerRecord> output(new L1GtTechnicalTriggerRecord()) ;
+    std::unique_ptr<L1GtTechnicalTriggerRecord> output(new L1GtTechnicalTriggerRecord()) ;
     output->setGtTechnicalTrigger(vecTT) ;    
-    e.put(output) ;
+    e.put(std::move(output)) ;
 }
 

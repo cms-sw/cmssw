@@ -21,13 +21,19 @@ namespace stage2 {
    GlobalAlgBlkUnpacker::unpack(const Block& block, UnpackerCollections *coll)
    {
 
-     LogDebug("L1T") << "Block ID  = " << block.header().getID() << " size = " << block.header().getSize();
+     LogDebug("L1T") << "AMCNo " << block.amc().getAMCNumber() << " Block ID  = " << block.header().getID() << " size = " << block.header().getSize();
 
+    // ================================================================================
     //Should this be configured someplace?
-     unsigned int wdPerBX = 6;
+     unsigned int wdPerBX      = 6;
      unsigned int initialBlkID = 33; //first block of inital alg bits 
-     unsigned int intermBlkID = 39; //first block of alg bits after intermediate step
-     unsigned int finalBlkID = 45;   //first block of final alg bits 
+     unsigned int intermBlkID  = 39; //first block of alg bits after intermediate step
+     unsigned int finalBlkID   = 45; //first block of final alg bits
+    // ================================================================================ 
+     
+     
+     unsigned int uGTBoard = block.amc().getAMCNumber() - 1;
+
       
      int nBX = int(ceil(block.header().getSize() / 6.)); // FOR GT Not sure what we have here...put at 6 because of 6 frames 
 
@@ -50,10 +56,10 @@ namespace stage2 {
      for (int bx=firstBX; bx<=lastBX; bx++){
 
        
-        // If this is the first block, instantiate GlobalAlg so it is there to fill from mult. blocks
-       if(block.header().getID()==initialBlkID) {
+        // If this is the first block on first board, instantiate GlobalAlg so it is there to fill from mult. blocks
+       if(block.header().getID()==initialBlkID && uGTBoard == 0 ) {
 
-	  LogDebug("L1T") << "Creating GT Algorithm Block for BX =" << bx;
+	  LogDebug("L1T") << "Creating GT Algorithm Block for BX =" << bx << std::endl;
           GlobalAlgBlk talg = GlobalAlgBlk();
           res_->push_back(bx,talg);
 
@@ -78,8 +84,9 @@ namespace stage2 {
            for(unsigned int bt=0; bt<32; bt++) {
 	     int val = ((raw_data >> bt) & 0x1);
 	     unsigned int algBit = bt+wd*32+algOffset;
-             if(val==1 && algBit < alg.maxPhysicsTriggers) { //FIX ME...get dimension from object
-	         LogDebug("L1T") << "Found valid alg bit ("<< algBit <<") on bit ("<<bt<<") word ("<<wd<<") algOffset ("<<algOffset<<") block ID ("<< block.header().getID() <<")" <<std::endl;
+	     
+	     if(val==1 && algBit < alg.maxPhysicsTriggers) { 
+	        LogDebug("L1T") << "Found valid alg bit ("<< algBit <<") on bit ("<<bt<<") word ("<<wd<<") algOffset ("<<algOffset<<") block ID ("<< block.header().getID() <<")" << " Board# " << uGTBoard <<std::endl;
 	        if(block.header().getID()<initialBlkID+5) {
 		  alg.setAlgoDecisionInitial(algBit,true);
 		} else if(block.header().getID()<intermBlkID+5) {  
@@ -88,7 +95,7 @@ namespace stage2 {
 		  alg.setAlgoDecisionFinal(algBit,true);
 		}  
 	     } else if(val==1) {
-	         LogDebug("L1T") << "Found invalid alg bit ("<< algBit <<") out of range (128) on bit ("<<bt<<") word ("<<wd<<") algOffset ("<<algOffset<<") block ID ("<< block.header().getID() <<")" <<std::endl;
+	         LogDebug("L1T") << "Found invalid alg bit ("<< algBit <<") out of range on bit ("<<bt<<") word ("<<wd<<") algOffset ("<<algOffset<<") block ID ("<< block.header().getID() <<")" <<std::endl;
 	     }
            }
 	   
@@ -99,8 +106,7 @@ namespace stage2 {
 	   if(wd==5) alg.setL1FirmwareUUID(raw_data); 	
 	      
 	 } else if(block.header().getID()==finalBlkID+4 && wd==4) {
-           //This is the FINOR
-           if ( (raw_data & 0x10000)>>16 ) alg.setFinalOR(true);
+           //Get the local FINORs and Veto...Global FINOR calculated below
 	   if ( (raw_data &   0x100)>> 8 ) alg.setFinalORVeto(true);
 	   if ( (raw_data &     0x1)>> 0 ) alg.setFinalORPreVeto(true);
            LogDebug("L1T")  << " Packing the FinalOR " << wd << " 0x" << hex << raw_data << endl;	
@@ -109,6 +115,13 @@ namespace stage2 {
            alg.setPreScColumn(raw_data & 0xFF );
            LogDebug("L1T")  << " Packing the Prescale Column " << wd << " 0x" << hex << raw_data << endl;	
          }
+       }
+
+       //Redetermine Final (multiboard)  FINOR
+       if(alg.getFinalORPreVeto() & !alg.getFinalORVeto()) {
+          alg.setFinalOR(true);  
+       } else {
+          alg.setFinalOR(false); //be explicit and must set to false if we find a board with veto set.
        }
 
        // Put the object back into place (Must be better way)

@@ -341,7 +341,7 @@ void create2DPlots(TString plot) {
     zLog = 0;
     iDrawEta = 1;
     histoMin = 0.;
-    histoMax = 2.;
+    histoMax = 2.5;
   } else if(plot.CompareTo("x_vs_z_vs_R") == 0) {
     plotNumber = 60;
     abscissaName = TString("z [mm]");
@@ -531,7 +531,7 @@ void create2DPlots(TString plot) {
   //  can.SaveAs( Form( "%s/%s_%s_col.pdf",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
   //
   
-  makeColorTable();  // Grayscale palette
+//  makeColorTable();  // Grayscale palette
 
   hist2d_x0_total->SetContour(255);      
     

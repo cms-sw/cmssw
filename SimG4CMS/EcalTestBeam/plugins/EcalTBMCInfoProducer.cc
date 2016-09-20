@@ -109,7 +109,7 @@ void EcalTBMCInfoProducer::produce(edm::Event & event, const edm::EventSetup& ev
   edm::Service<edm::RandomNumberGenerator> rng;
   CLHEP::HepRandomEngine* engine = &rng->getEngine(event.streamID());
 
-  auto_ptr<PEcalTBInfo> product(new PEcalTBInfo());
+  unique_ptr<PEcalTBInfo> product(new PEcalTBInfo());
 
   // Fill the run information
 
@@ -158,5 +158,5 @@ void EcalTBMCInfoProducer::produce(edm::Event & event, const edm::EventSetup& ev
 
   // store the object in the framework event
 
-  event.put(product);
+  event.put(std::move(product));
 }

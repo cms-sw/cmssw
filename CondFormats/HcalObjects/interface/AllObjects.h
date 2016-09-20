@@ -22,10 +22,6 @@
 #include "CondFormats/HcalObjects/interface/HcalLutMetadata.h"
 #include "CondFormats/HcalObjects/interface/HcalDcsValues.h"
 #include "CondFormats/HcalObjects/interface/HcalDcsMap.h"
-#include "CondFormats/HcalObjects/interface/HcalCholeskyMatrix.h"
-#include "CondFormats/HcalObjects/interface/HcalCholeskyMatrices.h"
-#include "CondFormats/HcalObjects/interface/HcalCovarianceMatrix.h"
-#include "CondFormats/HcalObjects/interface/HcalCovarianceMatrices.h"
 #include "CondFormats/HcalObjects/interface/HcalRecoParams.h"
 #include "CondFormats/HcalObjects/interface/HcalLongRecoParams.h"
 #include "CondFormats/HcalObjects/interface/HcalZDCLowGainFractions.h"
@@ -36,5 +32,9 @@
 #include "CondFormats/HcalObjects/interface/HcalInterpolatedPulse.h"
 #include "CondFormats/HcalObjects/interface/HBHEChannelGroups.h"
 #include "CondFormats/HcalObjects/interface/HcalInterpolatedPulseColl.h"
-
+#include "CondFormats/HcalObjects/interface/HcalFrontEndMap.h"
+#include "CondFormats/HcalObjects/interface/HcalSiPMParameters.h"
+#include "CondFormats/HcalObjects/interface/HcalSiPMCharacteristics.h"
+#include "CondFormats/HcalObjects/interface/HcalTPParameters.h"
+#include "CondFormats/HcalObjects/interface/HcalTPChannelParameters.h"
 #endif

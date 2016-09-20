@@ -205,11 +205,16 @@ DQMNet::unpackQualityData(QReports &qr, uint32_t &flags, const char *from)
   while (*qdata)
   {
     ++nqv;
-    while (*qdata) ++qdata; ++qdata;
-    while (*qdata) ++qdata; ++qdata;
-    while (*qdata) ++qdata; ++qdata;
-    while (*qdata) ++qdata; ++qdata;
-    while (*qdata) ++qdata; ++qdata;
+    while (*qdata) ++qdata; 
+    ++qdata;
+    while (*qdata) ++qdata; 
+    ++qdata;
+    while (*qdata) ++qdata; 
+    ++qdata;
+    while (*qdata) ++qdata; 
+    ++qdata;
+    while (*qdata) ++qdata; 
+    ++qdata;
   }
 
   // Now extract the qreports.

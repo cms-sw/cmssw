@@ -133,7 +133,7 @@ void EcalListOfFEDSProducer::produce(edm::Event & e, const edm::EventSetup& iSet
     first_ = false;
   }                                                                                              
   
-  std::unique_ptr<EcalListOfFEDS> productAddress(new EcalListOfFEDS);
+  auto productAddress = std::make_unique<EcalListOfFEDS>();
   
   std::vector<int> feds;		// the list of FEDS produced by this module
   

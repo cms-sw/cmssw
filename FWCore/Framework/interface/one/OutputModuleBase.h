@@ -25,7 +25,6 @@
 #include <vector>
 #include <map>
 #include <atomic>
-#include <mutex>
 
 // user include files
 #include "DataFormats/Provenance/interface/BranchID.h"
@@ -179,7 +178,6 @@ namespace edm {
       std::map<BranchID, bool> keepAssociation_;
 
       SharedResourcesAcquirer resourcesAcquirer_;
-      std::mutex mutex_;
 
       //------------------------------------------------------------------
       // private member functions
@@ -198,6 +196,10 @@ namespace edm {
                                          ThinnedAssociationsHelper&) { }
 
       std::string workerType() const {return "WorkerT<edm::one::OutputModuleBase>";}
+      
+      SharedResourcesAcquirer& sharedResourcesAcquirer() {
+        return resourcesAcquirer_;
+      }
       
       /// Tell the OutputModule that is must end the current file.
       void doCloseFile();

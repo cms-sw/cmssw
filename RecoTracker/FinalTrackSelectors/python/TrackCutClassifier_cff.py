@@ -6,3 +6,6 @@ eras.trackingLowPU.toModify(TrackCutClassifier,
 eras.trackingPhase1PU70.toModify(TrackCutClassifier,
     vertices = "pixelVertices"
 )
+eras.trackingPhase2PU140.toModify(TrackCutClassifier,
+    vertices = "pixelVertices"
+)

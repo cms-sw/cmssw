@@ -1,31 +1,14 @@
 import FWCore.ParameterSet.Config as cms
 from Configuration.StandardSequences.Eras import eras
+import RecoTracker.IterativeTracking.iterativeTkConfig as _cfg
 
 #######################################################################
 # Very large impact parameter tracking using TOB + TEC ring 5 seeding #
 #######################################################################
 
-from RecoLocalTracker.SubCollectionProducers.trackClusterRemover_cfi import trackClusterRemover as _trackClusterRemover
-_tobTecStepClustersBase = _trackClusterRemover.clone(
-    maxChi2                                  = cms.double(9.0),
-    trajectories                             = cms.InputTag("pixelLessStepTracks"),
-    pixelClusters                            = cms.InputTag("siPixelClusters"),
-    stripClusters                            = cms.InputTag("siStripClusters"),
-    oldClusterRemovalInfo                    = cms.InputTag("pixelLessStepClusters"),
-    TrackQuality                             = cms.string('highPurity'),
-    minNumberOfLayersWithMeasBeforeFiltering = cms.int32(0),
-)
-tobTecStepClusters = _tobTecStepClustersBase.clone(
-    trackClassifier                          = cms.InputTag('pixelLessStep',"QualityMasks"),
-)
-eras.trackingLowPU.toReplaceWith(tobTecStepClusters, _tobTecStepClustersBase.clone(
-    overrideTrkQuals                         = "pixelLessStepSelector:QualityMasks",
-))
-eras.trackingPhase1PU70.toReplaceWith(tobTecStepClusters, _tobTecStepClustersBase.clone(
-    trajectories                             = "pixelPairStepTracks",
-    oldClusterRemovalInfo                    = "pixelPairStepClusters",
-    overrideTrkQuals                         = "pixelPairStepSelector:pixelPairStep",
-))
+tobTecStepClusters = _cfg.clusterRemoverForIter("TobTecStep")
+for era in _cfg.nonDefaultEras():
+    getattr(eras, era).toReplaceWith(tobTecStepClusters, _cfg.clusterRemoverForIter("TobTecStep", era))
 
 # TRIPLET SEEDING LAYERS
 from RecoLocalTracker.SiStripClusterizer.SiStripClusterChargeCut_cfi import *
@@ -417,6 +400,7 @@ TobTecStep = cms.Sequence(tobTecStepClusters*
 ### Following are specific for LowPU and/or Phase1PU70, they're collected here to
 ### not to interfere too much with the default configuration
 # For Phase1PU70
+from RecoLocalTracker.SubCollectionProducers.trackClusterRemover_cfi import trackClusterRemover as _trackClusterRemover
 tobTecStepSeedClusters = _trackClusterRemover.clone(
     maxChi2                                  = 9.0,
     trajectories                             = "mixedTripletStepTracks",

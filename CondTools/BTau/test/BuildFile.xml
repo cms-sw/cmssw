@@ -1,0 +1,5 @@
+<use name="CondFormats/BTauObjects"/>
+
+<bin file="testBTagCalibrationReader.cpp">
+    <use name="CondTools/BTau"/>
+</bin>

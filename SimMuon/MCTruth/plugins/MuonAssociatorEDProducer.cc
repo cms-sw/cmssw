@@ -61,8 +61,6 @@ MuonAssociatorEDProducer::MuonAssociatorEDProducer(const edm::ParameterSet& pars
 
   LogTrace("MuonAssociatorEDProducer") << "MuonAssociatorEDProducer::beginJob : constructing MuonAssociatorByHits";
   associatorByHits = new MuonAssociatorByHits(parset_,consumesCollector());
-
-
 }
 
 MuonAssociatorEDProducer::~MuonAssociatorEDProducer() {}
@@ -86,8 +84,8 @@ void MuonAssociatorEDProducer::produce(edm::Event& event, const edm::EventSetup&
    if (trackAvailable) LogTrace("MuonAssociatorEDProducer") <<"\t... size = "<<trackCollection->size();
    else LogTrace("MuonAssociatorEDProducer") <<"\t... NOT FOUND.";
 
-   std::auto_ptr<reco::RecoToSimCollection> rts;
-   std::auto_ptr<reco::SimToRecoCollection> str;
+   std::unique_ptr<reco::RecoToSimCollection> rts;
+   std::unique_ptr<reco::SimToRecoCollection> str;
 
    if (ignoreMissingTrackCollection && !trackAvailable) {
      //the track collection is not in the event and we're being told to ignore this.
@@ -116,7 +114,7 @@ void MuonAssociatorEDProducer::produce(edm::Event& event, const edm::EventSetup&
      rts.reset(new reco::RecoToSimCollection(recSimColl));
      str.reset(new reco::SimToRecoCollection(simRecColl));
      
-     event.put(rts);
-     event.put(str);
+     event.put(std::move(rts));
+     event.put(std::move(str));
    }
 }

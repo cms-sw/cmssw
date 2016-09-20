@@ -10,7 +10,7 @@ public:
   
   RandomClusterAlgo(const edm::ParameterSet& conf):
     Algorithm<HGCal64BitRandomCodec>(conf),
-    cluster_product( new l1t::HGCalClusterBxCollection ){
+    cluster_product_( new l1t::HGCalClusterBxCollection ){
   }
 
   virtual void setProduces(edm::EDProducer& prod) const override final {
@@ -21,15 +21,15 @@ public:
                    const std::unique_ptr<HGCalTriggerGeometryBase>& geom) override final;
 
   virtual void putInEvent(edm::Event& evt) override final {
-    evt.put(cluster_product,name());
+    evt.put(std::move(cluster_product_),name());
   }
 
   virtual void reset() override final {
-    cluster_product.reset( new l1t::HGCalClusterBxCollection );
+    cluster_product_.reset( new l1t::HGCalClusterBxCollection );
   }
   
 private:
-  std::auto_ptr<l1t::HGCalClusterBxCollection> cluster_product;
+  std::unique_ptr<l1t::HGCalClusterBxCollection> cluster_product_;
 
 };
 
@@ -47,7 +47,7 @@ void RandomClusterAlgo::run(const l1t::HGCFETriggerDigiCollection& coll,
     l1t::HGCalCluster cluster( reco::LeafCandidate::LorentzVector(), 
                                word1, word2, word3^word4 );
     
-    cluster_product->push_back(0,cluster);
+    cluster_product_->push_back(0,cluster);
   }
 }
 

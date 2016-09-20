@@ -149,8 +149,8 @@ void HcalTBDigiProducer::accumulate(PileUpEventPrincipal const& e, edm::EventSet
 
 void HcalTBDigiProducer::finalizeEvent(edm::Event& e, const edm::EventSetup& eventSetup) {
   // Step B: Create empty output
-  std::auto_ptr<HBHEDigiCollection> hbheResult(new HBHEDigiCollection());
-  std::auto_ptr<HODigiCollection> hoResult(new HODigiCollection());
+  std::unique_ptr<HBHEDigiCollection> hbheResult(new HBHEDigiCollection());
+  std::unique_ptr<HODigiCollection> hoResult(new HODigiCollection());
   LogDebug("HcalSim") << "HcalTBDigiProducer::produce Empty collection created";
   // Step C: Invoke the algorithm, getting back outputs.
   theHBHEDigitizer->run(*hbheResult, randomEngine(e.streamID()));
@@ -160,8 +160,8 @@ void HcalTBDigiProducer::finalizeEvent(edm::Event& e, const edm::EventSetup& eve
 
   // Step D: Put outputs into event
   std::string const instance("simHcalDigis");
-  e.put(hbheResult, instance);
-  e.put(hoResult, instance);
+  e.put(std::move(hbheResult), instance);
+  e.put(std::move(hoResult), instance);
 
 }
 

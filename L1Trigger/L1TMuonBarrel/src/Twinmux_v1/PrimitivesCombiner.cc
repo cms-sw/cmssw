@@ -13,7 +13,7 @@
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
 
 #include "FWCore/Utilities/interface/Exception.h"
-
+using namespace L1TMuon;
 using namespace L1TwinMux;
 
 PrimitiveCombiner::PrimitiveCombiner( const PrimitiveCombiner::resolutions & res,

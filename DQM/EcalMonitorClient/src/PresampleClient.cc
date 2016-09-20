@@ -3,6 +3,7 @@
 #include "DQM/EcalCommon/interface/EcalDQMCommonUtils.h"
 
 #include "CondFormats/EcalObjects/interface/EcalDQMStatusHelper.h"
+#include "CondFormats/EcalObjects/interface/EcalChannelStatusCode.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -44,6 +45,8 @@ namespace ecaldqm
     MESet& meRMSMapAll(MEs_.at("RMSMapAll"));
 
     MESet const& sPedestal(sources_.at("Pedestal"));
+    MESet const& sPedestalByLS(sources_.at("PedestalByLS"));
+    MESet const& sChStatus(sources_.at("ChStatus"));
 
     uint32_t mask(1 << EcalDQMStatusHelper::PEDESTAL_ONLINE_HIGH_GAIN_MEAN_ERROR |
 		  1 << EcalDQMStatusHelper::PEDESTAL_ONLINE_HIGH_GAIN_RMS_ERROR);
@@ -51,6 +54,7 @@ namespace ecaldqm
     MESet::iterator qEnd(meQuality.end());
 
     MESet::const_iterator pItr(sPedestal);
+    MESet::const_iterator pLSItr(sPedestalByLS);
     double maxEB(0.), minEB(0.), maxEE(0.), minEE(0.);
     double rmsMaxEB(0.), rmsMaxEE(0.);
     for(MESet::iterator qItr(meQuality.beginChannel()); qItr != qEnd; qItr.toNextChannel()){
@@ -93,17 +97,31 @@ namespace ecaldqm
         meQualitySummary.setBinContent(id, doMask ? kMGood : kGood);
       }
 
-      if(id.subdetId() == EcalBarrel){
-        if(mean > maxEB) maxEB = mean;
-        if(mean < minEB) minEB = mean;
-        if(rms > rmsMaxEB) rmsMaxEB = rms;
+      // Fill Presample Trend plots:
+      // Use PedestalByLS which only contains digis from "current" LS
+      pLSItr = qItr;
+      double entriesLS( pLSItr->getBinEntries() );
+      double meanLS( pLSItr->getBinContent() );
+      double rmsLS( pLSItr->getBinError() * std::sqrt(entries) );
+      float  chStatus( sChStatus.getBinContent(id) );
+
+      if ( entriesLS < minChannelEntries_ ) continue;
+      if ( chStatus != EcalChannelStatusCode::kOk ) continue; // exclude problematic channels
+
+      // Get max/min
+      // Min is effectively just 0
+      if( id.subdetId() == EcalBarrel ){
+        if( meanLS > maxEB ) maxEB = meanLS;
+        if( meanLS < minEB ) minEB = meanLS;
+        if( rmsLS > rmsMaxEB ) rmsMaxEB = rmsLS;
       }
-      else{
-        if(mean > maxEE) maxEE = mean;
-        if(mean < minEE) minEE = mean;
-        if(rms > rmsMaxEE) rmsMaxEE = rms;
+      else {
+        if( meanLS > maxEE ) maxEE = meanLS;
+        if( meanLS < minEE ) minEE = meanLS;
+        if( rmsLS > rmsMaxEE ) rmsMaxEE = rmsLS;
       }
-    }
+
+    } // qItr
 
     towerAverage_(meRMSMapAll, meRMSMap, -1.);
 

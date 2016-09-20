@@ -118,17 +118,17 @@ void HcalRealisticZS::produce(edm::Event& e, const edm::EventSetup& eventSetup)
   e.getByToken(tok_hbhe_,hbhe);
   
   // create empty output
-  std::auto_ptr<HBHEDigiCollection> zs_hbhe(new HBHEDigiCollection);
+  std::unique_ptr<HBHEDigiCollection> zs_hbhe(new HBHEDigiCollection);
   
   e.getByToken(tok_ho_,ho);
   
   // create empty output
-  std::auto_ptr<HODigiCollection> zs_ho(new HODigiCollection);
+  std::unique_ptr<HODigiCollection> zs_ho(new HODigiCollection);
   
   e.getByToken(tok_hf_,hf);
   
   // create empty output
-  std::auto_ptr<HFDigiCollection> zs_hf(new HFDigiCollection);
+  std::unique_ptr<HFDigiCollection> zs_hf(new HFDigiCollection);
   
   e.getByToken(tok_hbheUpgrade_,hbheUpgrade);
   e.getByToken(tok_hfUpgrade_,hfUpgrade);
@@ -136,10 +136,10 @@ void HcalRealisticZS::produce(edm::Event& e, const edm::EventSetup& eventSetup)
   e.getByToken(tok_hbheQIE11_,hbheQIE11);
   
   // create empty output
-  std::auto_ptr<HBHEUpgradeDigiCollection> zs_hbheUpgrade(new HBHEUpgradeDigiCollection);
-  std::auto_ptr<HFUpgradeDigiCollection> zs_hfUpgrade(new HFUpgradeDigiCollection);
-  std::auto_ptr<QIE10DigiCollection> zs_hfQIE10(new QIE10DigiCollection);
-  std::auto_ptr<QIE11DigiCollection> zs_hbheQIE11(new QIE11DigiCollection);
+  std::unique_ptr<HBHEUpgradeDigiCollection> zs_hbheUpgrade(new HBHEUpgradeDigiCollection);
+  std::unique_ptr<HFUpgradeDigiCollection> zs_hfUpgrade(new HFUpgradeDigiCollection);
+  std::unique_ptr<QIE10DigiCollection> zs_hfQIE10(new QIE10DigiCollection);
+  std::unique_ptr<QIE11DigiCollection> zs_hbheQIE11(new QIE11DigiCollection);
   
   //run the algorithm
 
@@ -162,12 +162,12 @@ void HcalRealisticZS::produce(edm::Event& e, const edm::EventSetup& eventSetup)
   
 
     // return result
-    e.put(zs_hbhe);
-    e.put(zs_ho);
-    e.put(zs_hf);
-    e.put(zs_hbheUpgrade,"HBHEUpgradeDigiCollection");
-    e.put(zs_hfUpgrade,"HFUpgradeDigiCollection");
-    e.put(zs_hfQIE10,"HFQIE10DigiCollection");
-    e.put(zs_hbheQIE11,"HBHEQIE11DigiCollection");
+    e.put(std::move(zs_hbhe));
+    e.put(std::move(zs_ho));
+    e.put(std::move(zs_hf));
+    e.put(std::move(zs_hbheUpgrade),"HBHEUpgradeDigiCollection");
+    e.put(std::move(zs_hfUpgrade),"HFUpgradeDigiCollection");
+    e.put(std::move(zs_hfQIE10),"HFQIE10DigiCollection");
+    e.put(std::move(zs_hbheQIE11),"HBHEQIE11DigiCollection");
 
 }

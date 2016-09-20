@@ -282,8 +282,8 @@ L1CaloHcalScaleConfigOnlineProd::newObject( const std::string& objectKey )
 	   outputLut[k] = (abs(ieta) < theTrigTowerGeometry->firstHFTower(tp_version)) ? analyticalLUT[k] : identityLUT[k];
 	 
 
-	   // tpg - compressed value
-	   unsigned int tpg = outputLut[0];
+	 // tpg - compressed value
+	 unsigned int tpg = outputLut[0];
           
 	   int low = 0;
 

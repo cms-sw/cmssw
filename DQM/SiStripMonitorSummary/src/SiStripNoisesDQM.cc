@@ -60,7 +60,7 @@ void SiStripNoisesDQM::fillMEsForDet(const ModMEs& _selModME_, uint32_t selDetId
     else
       gainFactor=1;
 
-      stripnoise=noiseHandle_->getNoise(istrip,noiseRange)/gainFactor;
+    stripnoise=noiseHandle_->getNoise(istrip,noiseRange)/gainFactor;
     if( CondObj_fillId_ =="onlyProfile" || CondObj_fillId_ =="ProfileAndCumul"){
       selModME_.ProfileDistr->Fill(istrip+1,stripnoise);
     }

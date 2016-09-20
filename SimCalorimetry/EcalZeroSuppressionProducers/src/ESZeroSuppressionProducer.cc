@@ -37,7 +37,7 @@ void ESZeroSuppressionProducer::produce(edm::Event& event, const edm::EventSetup
     fullESDigis = false;
   }  
 
-  std::auto_ptr<ESDigiCollection> ESZSDigis(new ESDigiCollection());
+  std::unique_ptr<ESDigiCollection> ESZSDigis(new ESDigiCollection());
   
   if (fullESDigis) {
     for (ESDigiCollection::const_iterator i (ESDigis->begin()); 
@@ -54,6 +54,6 @@ void ESZeroSuppressionProducer::produce(edm::Event& event, const edm::EventSetup
     }
   }     
   
-  event.put(ESZSDigis, ESZSdigiCollection_);  
+  event.put(std::move(ESZSDigis), ESZSdigiCollection_);
 }
 

@@ -12,6 +12,8 @@ enum class StopReason {
   LOOPER = 7,
   MAX_CCC_LOST_HITS = 8,
   NO_SEGMENTS_FOR_VALID_LAYERS = 9,
+  SEED_EXTENSION = 10,
+  SIZE = 12, // This gives the number of the stopping reasons. The cound needs to be manually maintained, and should be 2 + the last value above .
   NOT_STOPPED = 255 // this is the max allowed since it will be streamed as type uint8_t
 };
 

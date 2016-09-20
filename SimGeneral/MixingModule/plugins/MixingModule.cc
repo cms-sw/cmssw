@@ -219,7 +219,7 @@ namespace edm {
     std::vector<std::string> digiNames = digiPSet.getParameterNames();
     for(auto const& digiName : digiNames) {
         ParameterSet const& pset = digiPSet.getParameterSet(digiName);
-        std::auto_ptr<DigiAccumulatorMixMod> accumulator = std::auto_ptr<DigiAccumulatorMixMod>(DigiAccumulatorMixModFactory::get()->makeDigiAccumulator(pset, *this, iC));
+        std::unique_ptr<DigiAccumulatorMixMod> accumulator = std::unique_ptr<DigiAccumulatorMixMod>(DigiAccumulatorMixModFactory::get()->makeDigiAccumulator(pset, *this, iC));
         // Create appropriate DigiAccumulator
         if(accumulator.get() != 0) {
           digiAccumulators_.push_back(accumulator.release());
@@ -323,6 +323,7 @@ namespace edm {
       adjuster->doOffset(bunchSpace_, bunchCrossing, eventPrincipal, &moduleCallingContext, eventId, vertexOffset);
     }
     PileUpEventPrincipal pep(eventPrincipal, &moduleCallingContext, bunchCrossing);
+
     accumulateEvent(pep, setup, streamID);
 
     for (auto const& worker : workers_) {
@@ -374,6 +375,61 @@ namespace edm {
       source0->CalculatePileup(minBunch_, maxBunch_, PileupList, TrueNumInteractions_, e.streamID());
 
     }
+
+    // pre-populate Pileup information
+    // necessary for luminosity-dependent effects during hit accumulation
+
+    std::vector<int> numInteractionList;
+    std::vector<int> bunchCrossingList;
+    std::vector<float> TrueInteractionList;
+    std::vector<edm::EventID> eventInfoList; // will be empty if we pre-populate, but it's not used in digitizers
+
+    if(!playback_) {
+
+      //Makin' a list: Basically, we don't care about the "other" sources at this point.
+      for (int bunchCrossing=minBunch_;bunchCrossing<=maxBunch_;++bunchCrossing) {
+	bunchCrossingList.push_back(bunchCrossing);
+	if(!inputSources_[0] || !inputSources_[0]->doPileUp(0)) {
+	  numInteractionList.push_back(0);
+	  TrueInteractionList.push_back(0);
+	}
+	else {
+	  numInteractionList.push_back(PileupList[bunchCrossing-minBunch_]);
+	  TrueInteractionList.push_back((TrueNumInteractions_)[bunchCrossing-minBunch_]);
+	}
+      }
+    }
+    else{ // have to read PU information from playback info
+      for (int bunchIdx = minBunch_; bunchIdx <= maxBunch_; ++bunchIdx) {
+
+	for (size_t readSrcIdx=0; readSrcIdx<maxNbSources_; ++readSrcIdx) {
+                                                                      
+	  if(oldFormatPlayback) {
+	    std::vector<edm::EventID> const& playEventID = oldFormatPlaybackInfo_H->getStartEventId(readSrcIdx, bunchIdx);
+	    size_t numberOfEvents = playEventID.size();
+	    if(readSrcIdx == 0) {
+	      PileupList.push_back(numberOfEvents);
+	      TrueNumInteractions_.push_back(numberOfEvents);
+	    }
+	  } else {
+	    size_t numberOfEvents = playbackInfo_H->getNumberOfEvents(bunchIdx, readSrcIdx);
+	    if(readSrcIdx == 0) {
+	      PileupList.push_back(numberOfEvents);
+	      TrueNumInteractions_.push_back(numberOfEvents);
+	    }
+	  }
+	}
+      }
+    }
+
+    for(Accumulators::const_iterator accItr = digiAccumulators_.begin(), accEnd = digiAccumulators_.end(); accItr != accEnd; ++accItr) {
+	(*accItr)->StorePileupInformation( bunchCrossingList,
+					   numInteractionList,
+					   TrueInteractionList,
+					   eventInfoList,
+					   bunchSpace_);
+    }
+
 
     //    for (int bunchIdx = minBunch_; bunchIdx <= maxBunch_; ++bunchIdx) {
     //  std::cout << " bunch ID, Pileup, True " << bunchIdx << " " << PileupList[bunchIdx-minBunch_] << " " <<  TrueNumInteractions_[bunchIdx-minBunch_] << std::endl;
@@ -449,9 +505,8 @@ namespace edm {
         (*accItr)->finalizeBunchCrossing(e, setup, bunchIdx);
       }
     }
-    // Save playback information
 
-    std::vector<edm::EventID> eventInfoList;
+    // Save playback information
     for (auto const item : recordEventID) {
       eventInfoList.emplace_back(item.eventID());
     }
@@ -461,41 +516,16 @@ namespace edm {
 
     // Keep track of pileup accounting...
 
-    std::auto_ptr<PileupMixingContent> PileupMixing_;
 
-    std::vector<int> numInteractionList;
-    std::vector<int> bunchCrossingList;
-    std::vector<float> TrueInteractionList;
+    std::unique_ptr<PileupMixingContent> PileupMixing_;
 
-    //Makin' a list: Basically, we don't care about the "other" sources at this point.
-    for (int bunchCrossing=minBunch_;bunchCrossing<=maxBunch_;++bunchCrossing) {
-      bunchCrossingList.push_back(bunchCrossing);
-      if(!inputSources_[0] || !inputSources_[0]->doPileUp(0)) {
-        numInteractionList.push_back(0);
-        TrueInteractionList.push_back(0);
-      }
-      else {
-        numInteractionList.push_back(PileupList[bunchCrossing-minBunch_]);
-        TrueInteractionList.push_back((TrueNumInteractions_)[bunchCrossing-minBunch_]);
-      }
-    }
-
-    for(Accumulators::const_iterator accItr = digiAccumulators_.begin(), accEnd = digiAccumulators_.end(); accItr != accEnd; ++accItr) {
-      (*accItr)->StorePileupInformation( bunchCrossingList,
-					 numInteractionList,
-					 TrueInteractionList,
-					 eventInfoList,
-					 bunchSpace_);
-    }
-
-
-    PileupMixing_ = std::auto_ptr<PileupMixingContent>(new PileupMixingContent(bunchCrossingList,
+    PileupMixing_ = std::unique_ptr<PileupMixingContent>(new PileupMixingContent(bunchCrossingList,
                                                                                numInteractionList,
                                                                                TrueInteractionList,
 									       eventInfoList,
 									       bunchSpace_));
 
-    e.put(PileupMixing_);
+    e.put(std::move(PileupMixing_));
 
     // we have to do the ToF transformation for PSimHits once all pileup has been added
     for (unsigned int ii=0;ii<workers_.size();++ii) {
@@ -507,8 +537,8 @@ namespace edm {
   void MixingModule::put(edm::Event &e, const edm::EventSetup& setup) {
 
     if (playbackInfo_) {
-      std::auto_ptr<CrossingFramePlaybackInfoNew> pOut(playbackInfo_);
-      e.put(pOut);
+      std::unique_ptr<CrossingFramePlaybackInfoNew> pOut(playbackInfo_);
+      e.put(std::move(pOut));
     }
   }
 

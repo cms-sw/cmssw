@@ -23,7 +23,7 @@ SUSY_HLT_Mu_HT_Control_SingleLepton = cms.EDAnalyzer('SUSY_HLT_SingleLepton',
 
                                                      hltProcess = cms.string('HLT'),
 
-                                                     triggerPath = cms.string('HLT_Mu15_IsoVVL_PFHT350_v'),
+                                                     triggerPath = cms.string('HLT_Mu15_IsoVVVL_PFHT350_v'),
                                                      triggerPathAuxiliary = cms.string('HLT_IsoMu27_v'),
                                                      triggerPathLeptonAuxiliary = cms.string('HLT_PFHT350_PFMET120_NoiseCleaned_v'),
 
@@ -43,7 +43,7 @@ SUSY_HLT_Mu_HT_Control_SingleLepton = cms.EDAnalyzer('SUSY_HLT_SingleLepton',
                                                      )
 
 SUSY_HLT_Mu_HT_Control_SingleLepton_POSTPROCESSING = cms.EDAnalyzer('DQMGenericClient',
-                                                                    subDirs = cms.untracked.vstring('HLT/SUSYBSM/HLT_Mu15_IsoVVL_PFHT350_v'),
+                                                                    subDirs = cms.untracked.vstring('HLT/SUSYBSM/HLT_Mu15_IsoVVVL_PFHT350_v'),
                                                                     efficiency = cms.vstring(
         "leptonTurnOn_eff ';Offline Muon p_{T} [GeV];#epsilon' leptonTurnOn_num leptonTurnOn_den",
         "pfHTTurnOn_eff ';Offline PF H_{T} [GeV];#epsilon' pfHTTurnOn_num pfHTTurnOn_den"

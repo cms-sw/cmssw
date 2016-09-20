@@ -19,9 +19,7 @@
 #include "CalibFormats/HcalObjects/interface/HcalDbService.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalAmplifier.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalCoderFactory.h"
-#include "SimCalorimetry/HcalSimAlgos/interface/HBHEHitFilter.h"
-#include "SimCalorimetry/HcalSimAlgos/interface/HOHitFilter.h"
-#include "SimCalorimetry/HcalSimAlgos/interface/HFHitFilter.h"
+#include "SimCalorimetry/HcalSimAlgos/interface/HcalHitFilter.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/ZDCHitFilter.h"
 #include "CondFormats/HcalObjects/interface/HcalPedestals.h"
 #include "CondFormats/HcalObjects/interface/HcalPedestalWidths.h"
@@ -192,7 +190,7 @@ void HcalDigitizerTest::analyze(const edm::Event& iEvent,
 
   HBHEHitFilter hbheHitFilter;
   HOHitFilter hoHitFilter;
-  HFHitFilter hfHitFilter(true);
+  HFHitFilter hfHitFilter;
   ZDCHitFilter zdcHitFilter;
 
   hbheResponse.setHitFilter(&hbheHitFilter);
@@ -251,10 +249,10 @@ void HcalDigitizerTest::analyze(const edm::Event& iEvent,
   hoDigitizer.setDetIds(hoDetIds);
   zdcDigitizer.setDetIds(hzdcDetIds);
 
-  std::auto_ptr<HBHEDigiCollection> hbheResult(new HBHEDigiCollection);
-  std::auto_ptr<HODigiCollection> hoResult(new HODigiCollection);
-  std::auto_ptr<HFDigiCollection> hfResult(new HFDigiCollection);
-  std::auto_ptr<ZDCDigiCollection> zdcResult(new ZDCDigiCollection);
+  std::unique_ptr<HBHEDigiCollection> hbheResult(new HBHEDigiCollection);
+  std::unique_ptr<HODigiCollection> hoResult(new HODigiCollection);
+  std::unique_ptr<HFDigiCollection> hfResult(new HFDigiCollection);
+  std::unique_ptr<ZDCDigiCollection> zdcResult(new ZDCDigiCollection);
 
   MixCollection<PCaloHit> hitCollection(&crossingFrame);
 

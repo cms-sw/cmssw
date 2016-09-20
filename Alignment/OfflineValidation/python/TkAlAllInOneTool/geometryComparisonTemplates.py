@@ -5,9 +5,7 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("ValidationIntoNTuples")
 
-# global tag
-process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = ".oO[GlobalTag]Oo." 
+.oO[LoadGlobalTagTemplate]Oo.
 
 process.load("Configuration.Geometry.GeometryRecoDB_cff")
 
@@ -43,9 +41,7 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("validation")
 
-# global tag
-process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = ".oO[GlobalTag]Oo." 
+.oO[LoadGlobalTagTemplate]Oo.
 
 process.load("Configuration.Geometry.GeometryRecoDB_cff")
 
@@ -132,7 +128,7 @@ dbOutputTemplate= """
 ######################################################################
 ######################################################################
 visualizationTrackerTemplate= """
-#include ".oO[CMSSW_BASE]Oo./src/Alignment/OfflineValidation/scripts/visualizationTracker.C"
+#include "Alignment/OfflineValidation/scripts/visualizationTracker.C"
 void TkAl3DVisualization_.oO[common]Oo._.oO[name]Oo.(){
             //------------------------------ONLY NEEDED INPUTS-------------------------------//
 //------Tree Read In--------

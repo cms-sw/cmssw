@@ -1,0 +1,10 @@
+{
+    "destinationDatabase": "oracle://cms_orcoff_prep/CMS_CONDITIONS", 
+    "destinationTags": {
+        "SiStripApvGainAfterAbortGap_PCL_v0_prompt": {},
+        "SiStripApvGainAfterAbortGap_PCL_v0_hlt": {}
+    }, 
+    "inputTag": "SiStripApvGainAfterAbortGap_pcl", 
+    "since": null, 
+    "userText": "T0 PCL Upload for SiStrip Gains AfterAbortGap calib. (prep)"
+}

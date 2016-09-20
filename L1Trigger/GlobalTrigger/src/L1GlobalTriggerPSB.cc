@@ -705,7 +705,7 @@ void L1GlobalTriggerPSB::fillPsbBlock(
     const unsigned int altNrBxBoardDaq,
     const std::vector<L1GtBoard>& boardMaps,
     const int iBxInEvent,
-    std::auto_ptr<L1GlobalTriggerReadoutRecord>& gtDaqReadoutRecord)
+    L1GlobalTriggerReadoutRecord* gtDaqReadoutRecord)
 {
 
     // fill in emulator the same bunch crossing (12 bits - hardwired number of bits...)

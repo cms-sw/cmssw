@@ -183,7 +183,7 @@ FW3DViewGeometry::showMuonEndcap( bool showMuonEndcap )
             for( Int_t iRing = 1; iRing <= 4; ++iRing )
       	    {
                if( iStation > 1 && iRing > 2 ) continue;
-               if( iStation > 3 && iRing > 1 ) continue;
+               // if( iStation > 3 && iRing > 1 ) continue;
                std::ostringstream s; s << "Ring" << iRing;
                TEveElementList* cRing  = new TEveElementList( s.str().c_str() );
                cStation->AddElement( cRing );

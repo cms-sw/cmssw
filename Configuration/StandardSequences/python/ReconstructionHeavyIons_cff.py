@@ -53,7 +53,7 @@ localReco_HcalNZS = cms.Sequence(bunchSpacingProducer*offlineBeamSpot*muonReco*c
 
 #--------------------------------------------------------------------------
 # Main Sequence
-reconstruct_PbPb = cms.Sequence(localReco*globalRecoPbPb*CastorFullReco)
+reconstruct_PbPb = cms.Sequence(localReco*CastorFullReco*globalRecoPbPb)
 reconstructionHeavyIons = cms.Sequence(reconstruct_PbPb)
 
 reconstructionHeavyIons_HcalNZS = cms.Sequence(localReco_HcalNZS*globalRecoPbPb)

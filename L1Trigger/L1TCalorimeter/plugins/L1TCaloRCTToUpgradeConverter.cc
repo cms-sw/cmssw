@@ -38,8 +38,8 @@ L1TCaloRCTToUpgradeConverter::produce(edm::Event& iEvent, const edm::EventSetup&
 
 
   // store new formats
-  std::auto_ptr<BXVector<CaloEmCand> > emcands (new CaloEmCandBxCollection);
-  std::auto_ptr<BXVector<CaloRegion> > regions (new CaloRegionBxCollection);
+  std::unique_ptr<BXVector<CaloEmCand> > emcands (new CaloEmCandBxCollection);
+  std::unique_ptr<BXVector<CaloRegion> > regions (new CaloRegionBxCollection);
 
   // get old formats
   edm::Handle<L1CaloEmCollection> ems;
@@ -117,8 +117,8 @@ L1TCaloRCTToUpgradeConverter::produce(edm::Event& iEvent, const edm::EventSetup&
 
   }
 
-  iEvent.put(emcands);
-  iEvent.put(regions);
+  iEvent.put(std::move(emcands));
+  iEvent.put(std::move(regions));
 
 }
 

@@ -74,14 +74,14 @@ void ZllArbitrator<T1>::produce(edm::Event& iEvent,const edm::EventSetup& iSetup
 {
   std::stringstream ss ;
   
-  std::auto_ptr<std::vector<T1> > TheBestZ(new std::vector<T1 >);
+  std::unique_ptr<std::vector<T1> > TheBestZ(new std::vector<T1 >);
   
   edm::Handle< std::vector<T1> > ZCandidatesHandle;
   iEvent.getByToken(srcZCand_,ZCandidatesHandle);
   
   if( ZCandidatesHandle->size() == 0 ) 
   {
-    iEvent.put(TheBestZ);
+    iEvent.put(std::move(TheBestZ));
     return ;
   }
   
@@ -100,7 +100,7 @@ void ZllArbitrator<T1>::produce(edm::Event& iEvent,const edm::EventSetup& iSetup
   }
 
   TheBestZ->push_back( *bestZCand );  
-  iEvent.put(TheBestZ);
+  iEvent.put(std::move(TheBestZ));
   
 }
 

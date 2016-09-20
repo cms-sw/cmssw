@@ -108,6 +108,7 @@ void FEDHistograms::initialise(const edm::ParameterSet& iConfig,
 
   getConfigForHistogram(fedIdVsApvId_,"FedIdVsApvId",iConfig,pDebugStream);
 
+  getConfigForHistogram(fedErrorsVsId_,"FedErrorsVsId",iConfig,pDebugStream);
 }
 
 void FEDHistograms::fillCountersHistograms(const FEDErrors::FEDCounters & fedLevelCounters, 
@@ -164,25 +165,71 @@ void FEDHistograms::fillFEDHistograms(FEDErrors & aFedErr,
 
   if (lFedLevelErrors.DataPresent) fillHistogram(dataPresent_,lFedId);
 
-  if (lFedLevelErrors.HasCabledChannels && lFedLevelErrors.DataMissing) fillHistogram(dataMissing_,lFedId);
+  if (lFedLevelErrors.HasCabledChannels && lFedLevelErrors.DataMissing) {
+    fillHistogram(dataMissing_,lFedId);
+    fillHistogram(fedErrorsVsId_,lFedId,1);
+  }
   
-  if (lFedLevelErrors.InvalidBuffers) fillHistogram(invalidBuffers_,lFedId);
-  else if (lFedLevelErrors.BadFEDCRCs) fillHistogram(badFEDCRCs_,lFedId);
-  else if (lFedLevelErrors.BadDAQCRCs) fillHistogram(badDAQCRCs_,lFedId);
-  else if (lFedLevelErrors.BadIDs) fillHistogram(badIDs_,lFedId);
-  else if (lFedLevelErrors.BadDAQPacket) fillHistogram(badDAQPacket_,lFedId);
-  else if (lFedLevelErrors.CorruptBuffer) fillHistogram(corruptBuffers_,lFedId);
+  if (lFedLevelErrors.InvalidBuffers) {
+    fillHistogram(invalidBuffers_,lFedId);
+    fillHistogram(fedErrorsVsId_,lFedId,2);
+  }
+  else if (lFedLevelErrors.CorruptBuffer) {
+    fillHistogram(corruptBuffers_,lFedId);
+    fillHistogram(fedErrorsVsId_,lFedId,3);
+  }
+  else if (lFedLevelErrors.BadFEDCRCs) {
+    fillHistogram(badFEDCRCs_,lFedId);
+    fillHistogram(fedErrorsVsId_,lFedId,4);
+  }
+  else if (lFedLevelErrors.BadDAQCRCs) {
+    fillHistogram(badDAQCRCs_,lFedId);
+    fillHistogram(fedErrorsVsId_,lFedId,5);
+  }
+  else if (lFedLevelErrors.BadIDs) {
+    fillHistogram(badIDs_,lFedId);
+    fillHistogram(fedErrorsVsId_,lFedId,6);
+  }
+  else if (lFedLevelErrors.BadDAQPacket) {
+    fillHistogram(badDAQPacket_,lFedId);
+    fillHistogram(fedErrorsVsId_,lFedId,7);
+  }
 
-  if (aFedErr.anyFEDErrors()) fillHistogram(anyFEDErrors_,lFedId);
-  if (lFedLevelErrors.HasCabledChannels && aFedErr.anyDAQProblems()) fillHistogram(anyDAQProblems_,lFedId);
-  if (aFedErr.anyFEProblems()) fillHistogram(anyFEProblems_,lFedId);
+  if (aFedErr.anyFEDErrors()) {
+    fillHistogram(anyFEDErrors_,lFedId);
+    fillHistogram(fedErrorsVsId_,lFedId,8);
+  }
 
-  if (lFedLevelErrors.FEsOverflow) fillHistogram(feOverflows_,lFedId);
-  if (lFedLevelErrors.FEsMissing) fillHistogram(feMissing_,lFedId);
-  if (lFedLevelErrors.FEsBadMajorityAddress) fillHistogram(badMajorityAddresses_,lFedId);
+  if (lFedLevelErrors.HasCabledChannels && aFedErr.anyDAQProblems()) {
+    fillHistogram(anyDAQProblems_,lFedId);
+    fillHistogram(fedErrorsVsId_,lFedId,9);
+  }
+  if (aFedErr.anyFEProblems()) {
+    fillHistogram(anyFEProblems_,lFedId);
+    fillHistogram(fedErrorsVsId_,lFedId,10);
+  }
 
-  if (lFedLevelErrors.BadChannelStatusBit) fillHistogram(badChannelStatusBits_,lFedId);
-  if (lFedLevelErrors.BadActiveChannelStatusBit) fillHistogram(badActiveChannelStatusBits_,lFedId);
+  if (lFedLevelErrors.FEsOverflow) {
+    fillHistogram(feOverflows_,lFedId);
+    fillHistogram(fedErrorsVsId_,lFedId,11);
+  }
+  if (lFedLevelErrors.FEsMissing) {
+    fillHistogram(feMissing_,lFedId);
+    fillHistogram(fedErrorsVsId_,lFedId,12);
+  }
+  if (lFedLevelErrors.FEsBadMajorityAddress) {
+    fillHistogram(badMajorityAddresses_,lFedId);
+    fillHistogram(fedErrorsVsId_,lFedId,13);
+  }
+
+  if (lFedLevelErrors.BadChannelStatusBit) {
+    fillHistogram(badChannelStatusBits_,lFedId);
+    fillHistogram(fedErrorsVsId_,lFedId,14);
+  }
+  if (lFedLevelErrors.BadActiveChannelStatusBit) {
+    fillHistogram(badActiveChannelStatusBits_,lFedId);
+    fillHistogram(fedErrorsVsId_,lFedId,15);
+  }
 
   std::vector<FEDErrors::FELevelErrors> & lFeVec = aFedErr.getFELevelErrors();
   
@@ -369,6 +416,28 @@ void FEDHistograms::bookTopLevelHistograms(DQMStore::IBooker & ibooker , std::st
 		  "APV-ID",
 		  "FED-ID");
 
+  book2DHistogram( ibooker , fedErrorsVsId_,"FEDErrorsVsId",
+		   "FED Errors vs ID",
+		   siStripFedIdMax-siStripFedIdMin+1,
+		   siStripFedIdMin,siStripFedIdMax+1,
+		   15,
+		   1,16, "FED ID" , "Error Type");
+  fedErrorsVsId_.monitorEle->setBinLabel(1, "Data Missing", 2);
+  fedErrorsVsId_.monitorEle->setBinLabel(2, "Invalid Buffers", 2);
+  fedErrorsVsId_.monitorEle->setBinLabel(3, "Corrupt Buffers", 2);
+  fedErrorsVsId_.monitorEle->setBinLabel(4, "Bad FED CRC", 2);
+  fedErrorsVsId_.monitorEle->setBinLabel(5, "Bad DAQ CRC", 2);
+  fedErrorsVsId_.monitorEle->setBinLabel(6, "Bad IDs", 2);
+  fedErrorsVsId_.monitorEle->setBinLabel(7, "Bad DAQ Packet", 2);
+  fedErrorsVsId_.monitorEle->setBinLabel(8, "Any FED Errors", 2);
+  fedErrorsVsId_.monitorEle->setBinLabel(9, "Any DAQ Problems", 2);
+  fedErrorsVsId_.monitorEle->setBinLabel(10, "Any FE Problems", 2);
+  fedErrorsVsId_.monitorEle->setBinLabel(11, "FE Overflows", 2);
+  fedErrorsVsId_.monitorEle->setBinLabel(12, "FE Missing", 2);
+  fedErrorsVsId_.monitorEle->setBinLabel(13, "FE Bad Maj Addr", 2);
+  fedErrorsVsId_.monitorEle->setBinLabel(14, "Bad Ch Stat Bit", 2);
+  fedErrorsVsId_.monitorEle->setBinLabel(15, "Bad Active Ch Stat Bit", 2);
+
   const std::string lBaseDir = ibooker.pwd();
 
   ibooker.setCurrentFolder(lBaseDir+"/FED");
@@ -392,7 +461,6 @@ void FEDHistograms::bookTopLevelHistograms(DQMStore::IBooker & ibooker , std::st
 		"nFEDCorruptBuffers",
 		"Number of FEDs with corrupt buffers per event",
 		"# FEDs with corrupt buffer");
-
 
   ibooker.setCurrentFolder(lBaseDir+"/FED/VsId");
 

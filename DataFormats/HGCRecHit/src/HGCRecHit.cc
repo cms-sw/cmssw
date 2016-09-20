@@ -107,9 +107,9 @@ bool HGCRecHit::checkFlags(const std::vector<int>&  flagsvec ) const {
 
 std::ostream& operator<<(std::ostream& s, const HGCRecHit& hit) {
   if (hit.detid().det() == DetId::Forward && hit.detid().subdetId() == HGCEE) 
-    return s << HGCEEDetId(hit.detid()) << ": " << hit.energy() << " GeV, " << hit.time() << " ns";
+    return s << HGCalDetId(hit.detid()) << ": " << hit.energy() << " GeV, " << hit.time() << " ns";
   else if (hit.detid().det() == DetId::Forward && hit.detid().subdetId() == HGCHEF) 
-    return s << HGCHEDetId(hit.detid()) << ": " << hit.energy() << " GeV, " << hit.time() << " ns";
+    return s << HGCalDetId(hit.detid()) << ": " << hit.energy() << " GeV, " << hit.time() << " ns";
   else if (hit.detid().det() == DetId::Forward && hit.detid().subdetId() == HGCHEB) 
     return s << HGCHEDetId(hit.detid()) << ": " << hit.energy() << " GeV, " << hit.time() << " ns";
   else

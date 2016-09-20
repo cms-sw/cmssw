@@ -350,6 +350,10 @@ namespace edm {
     return false;
   }
 
+  bool TypeWithDict::invalidTypeInfo() const {
+    return *ti_ == typeid(dummyType) || isPointer() || isArray();
+  }
+
   std::type_info const&
   TypeWithDict::typeInfo() const {
     if(*ti_ == typeid(dummyType) || isPointer() || isArray()) {

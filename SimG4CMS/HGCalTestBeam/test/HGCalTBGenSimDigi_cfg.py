@@ -71,7 +71,7 @@ from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase1_2017_design', '')
 
 process.generator = cms.EDProducer("FlatRandomEThetaGunProducer",
-    AddAntiParticle = cms.bool(True),
+    AddAntiParticle = cms.bool(False),
     PGunParameters = cms.PSet(
         MinE = cms.double(99.99),
         MaxE = cms.double(100.01),
@@ -85,7 +85,7 @@ process.generator = cms.EDProducer("FlatRandomEThetaGunProducer",
     firstRun = cms.untracked.uint32(1),
     psethack = cms.string('single muon E 100')
 )
-process.VtxSmeared.MeanZ = 10
+process.VtxSmeared.MeanZ = -10.0
 process.VtxSmeared.SigmaZ = 0
 process.HGCalTBAnalyzer.DoRecHits = False
 

@@ -15,12 +15,12 @@
 
 class EventAction;
 class G4VTouchable;
-//class G4Track;
+class CMSSteppingVerbose;
 
 class SteppingAction: public G4UserSteppingAction {
 
 public:
-  SteppingAction(EventAction * ea,const edm::ParameterSet & ps);
+  SteppingAction(EventAction * ea,const edm::ParameterSet & ps, const CMSSteppingVerbose*);
   virtual ~SteppingAction();
 
   virtual void UserSteppingAction(const G4Step * aStep);
@@ -42,6 +42,7 @@ private:
 
   EventAction                   *eventAction_;
   G4VPhysicalVolume             *tracker, *calo;
+  const CMSSteppingVerbose*     steppingVerbose;
   double                        theCriticalEnergyForVacuum;
   double                        theCriticalDensity;
   double                        maxTrackTime;

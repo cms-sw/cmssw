@@ -99,9 +99,9 @@ void MagneticFieldGrid::interpolateAtPoint(double X1, double X2, double X3, floa
   int index1[3] = {0,0,0};
   for (int i=0; i<3; ++i){
     if (NumberOfPoints[i] > 1){
-                                           index0[i] = max(0,index[i]);
+      index0[i] = max(0,index[i]);
       if (index0[i] > NumberOfPoints[i]-2) index0[i] = NumberOfPoints[i]-2;
-                                           index1[i] = max(1,index[i]+1);
+      index1[i] = max(1,index[i]+1);
       if (index1[i] > NumberOfPoints[i]-1) index1[i] = NumberOfPoints[i]-1;
     }
   }

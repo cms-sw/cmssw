@@ -85,7 +85,7 @@ pat::PATMHTProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
   double met_set=0;
 
 
-  std::auto_ptr<pat::MHTCollection>  themetsigcoll (new pat::MHTCollection);
+  auto themetsigcoll = std::make_unique<pat::MHTCollection>();
 
   if(physobjvector_.size() >= 1) { // Only when the vector is not empty
 
@@ -115,7 +115,7 @@ pat::PATMHTProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
   } // If the vector is empty, just put empty product.
 
 
-  iEvent.put( themetsigcoll);
+  iEvent.put(std::move(themetsigcoll));
 
 
 }

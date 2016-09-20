@@ -80,8 +80,8 @@ void PFTauSecondaryVertexProducer::produce(edm::StreamID, edm::Event& iEvent,con
   iEvent.getByToken(PFTauToken_,Tau);
 
   // Set Association Map
-  auto_ptr<edm::AssociationVector<PFTauRefProd, std::vector<std::vector<reco::VertexRef> > > > AVPFTauSV(new edm::AssociationVector<PFTauRefProd, std::vector<std::vector<reco::VertexRef> > >(PFTauRefProd(Tau)));
-  std::auto_ptr<VertexCollection>  VertexCollection_out= std::auto_ptr<VertexCollection>(new VertexCollection);
+  auto AVPFTauSV = std::make_unique<edm::AssociationVector<PFTauRefProd, std::vector<std::vector<reco::VertexRef>>>>(PFTauRefProd(Tau));
+  auto VertexCollection_out = std::make_unique<VertexCollection>();
   reco::VertexRefProd VertexRefProd_out = iEvent.getRefBeforePut<reco::VertexCollection>("PFTauSecondaryVertices");
 
   // For each Tau Run Algorithim
@@ -118,8 +118,8 @@ void PFTauSecondaryVertexProducer::produce(edm::StreamID, edm::Event& iEvent,con
       AVPFTauSV->setValue(iPFTau, SV);
     }
   }
-  iEvent.put(VertexCollection_out,"PFTauSecondaryVertices");
-  iEvent.put(AVPFTauSV);
+  iEvent.put(std::move(VertexCollection_out),"PFTauSecondaryVertices");
+  iEvent.put(std::move(AVPFTauSV));
 }
 
 DEFINE_FWK_MODULE(PFTauSecondaryVertexProducer);

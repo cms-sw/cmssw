@@ -1,21 +1,7 @@
-/***************************************************************************
-                          DDLReflectionSolid.cc  -  description
-                             -------------------
-    begin                : Mon Mar 4, 2002
-    email                : case@ucdhep.ucdavis.edu
- ***************************************************************************/
-
-/***************************************************************************
- *                                                                         *
- *           DDDParser sub-component of DDD                                *
- *                                                                         *
- ***************************************************************************/
-
 #include "DetectorDescription/Parser/src/DDLReflectionSolid.h"
 
 #include <iostream>
 
-#include "DetectorDescription/Base/interface/DDdebug.h"
 #include "DetectorDescription/Core/interface/DDName.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
 #include "DetectorDescription/Parser/interface/DDLElementRegistry.h"
@@ -26,9 +12,6 @@ class DDCompactView;
 
 DDLReflectionSolid::DDLReflectionSolid( DDLElementRegistry* myreg )
   : DDLSolid( myreg )
-{}
-
-DDLReflectionSolid::~DDLReflectionSolid( void )
 {}
 
 // Upon starting a ReflectionSolid element, we need to clear all rSolids.
@@ -42,8 +25,6 @@ DDLReflectionSolid::preProcessElement( const std::string& name, const std::strin
 void
 DDLReflectionSolid::processElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv )
 {
-  DCOUT_V('P', "DDLReflectionSolid::processElement started");
-
   // get solid reference:
   DDXMLElement* myrSolid = myRegistry_->getElement("rSolid");
 
@@ -58,6 +39,4 @@ DDLReflectionSolid::processElement( const std::string& name, const std::string& 
   DDSolid ddreflsol = DDSolidFactory::reflection(getDDName(nmspace), solid);
 
   DDLSolid::setReference(nmspace, cpv);
-
-  DCOUT_V('P', "DDLReflectionSolid::processElement completed");
 }

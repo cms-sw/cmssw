@@ -6,12 +6,12 @@ import FWCore.ParameterSet.Config as cms
 
 # REMOVE HITS ASSIGNED TO GOOD TRACKS FROM PREVIOUS ITERATIONS
 
-from RecoLocalTracker.SubCollectionProducers.trackClusterRemover_cfi import *
-detachedQuadStepClusters = trackClusterRemover.clone(
+from RecoLocalTracker.SubCollectionProducers.phase2trackClusterRemover_cfi import *
+detachedQuadStepClusters = phase2trackClusterRemover.clone(
     maxChi2                                  = cms.double(9.0),
     trajectories                             = cms.InputTag("lowPtTripletStepTracks"),
-    pixelClusters                            = cms.InputTag("siPixelClusters"),
-    stripClusters                            = cms.InputTag("siStripClusters"),
+    phase2pixelClusters                      = cms.InputTag("siPixelClusters"),
+    phase2OTClusters                         = cms.InputTag("siPhase2Clusters"),
     oldClusterRemovalInfo                    = cms.InputTag("lowPtTripletStepClusters"),
     overrideTrkQuals                         = cms.InputTag('lowPtTripletStepSelector','lowPtTripletStep'),
     TrackQuality                             = cms.string('highPurity'),
@@ -115,7 +115,7 @@ detachedQuadStepTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryB
 import RecoTracker.CkfPattern.CkfTrackCandidates_cfi
 detachedQuadStepTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone(
     src = cms.InputTag('detachedQuadStepSeeds'),
-    clustersToSkip = cms.InputTag('detachedQuadStepClusters'),
+    phase2clustersToSkip = cms.InputTag('detachedQuadStepClusters'),
     ### these two parameters are relevant only for the CachingSeedCleanerBySharedInput
     numHitsForSeedCleaner = cms.int32(50),
     onlyPixelHitsForSeedCleaner = cms.bool(True),

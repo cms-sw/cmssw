@@ -53,6 +53,7 @@ def customizeHLTforMC(process,_fastSim=False):
       "HLT_Beam*_v*",
       #"HLT_L1Tech_*_v*",
       "HLT_HI*",
+      "HLT_PA*",
       "HLT_GlobalRunHPDNoise_v*",
       "HLT_L1TrackerCosmics_v*",
       "HLT_HcalUTCA_v*",
@@ -153,9 +154,13 @@ def customizeHLTforMC(process,_fastSim=False):
       "hltL3TrackCandidateFromL2IOHit",
       "hltL3TrackCandidateFromL2NoVtx",
       "hltHcalDigis",
+      "hltHcalDigisL1EGSeeded",
+      "hltHcalDigisL1EGUnseeded",
       "hltHoreco",
       "hltHfreco",
       "hltHbhereco",
+      "hltHbherecoMethod2L1EGSeeded",
+      "hltHbherecoMethod2L1EGUnseeded",
       "hltESRawToRecHitFacility",
       "hltEcalRecHitAll",
       "hltESRecHitAll",
@@ -225,6 +230,8 @@ def customizeHLTforMC(process,_fastSim=False):
       "hltPixelTracksForHighPt",
       "hltHighPtPixelTracks",
       "hltPixelTracksForNoPU",
+      "hltPixelTracksForSeedsTau3mu",
+      "hltPixelTracksGlbDiTrkMuon",
 
       "hltFastPixelHitsVertex",
       "hltFastPixelTracks",
@@ -235,6 +242,7 @@ def customizeHLTforMC(process,_fastSim=False):
       "hltPixelLayerTripletsReg",
       "hltPixelLayerTripletsHITHB",
       "hltPixelLayerTripletsHITHE",
+      "hltPixelLayerTripletsAfterSplitting",
       "hltMixedLayerPairs",
 
       "hltFastPrimaryVertexbbPhi",
@@ -248,6 +256,8 @@ def customizeHLTforMC(process,_fastSim=False):
       "hltFastPVPixelVertexFilter",
       "hltFastPVPixelTracks",
       "hltFastPVPixelTracksRecover",
+
+      "hltPAGoodHighPurityFullTracks",
 
       #   "hltPixelMatchElectronsActivity",
 
@@ -278,6 +288,8 @@ def customizeHLTforMC(process,_fastSim=False):
       "HLTDoLocalStripSequenceRegForBTag",
       "HLTDoLocalPixelSequenceRegForBTag",
       "HLTDoLocalPixelSequenceRegForNoPU",
+      "HLTDoLocalPixelSequenceAfterSplitting",
+      "HLTPADoLocalStripSequenceAfterSplitting",
       "HLTBeginSequence",
       "HLTBeginSequenceL1Fat",
       "HLTBeginSequenceNZS",
@@ -289,6 +301,7 @@ def customizeHLTforMC(process,_fastSim=False):
       "HLTIterativeTracking",
       "HLTIterativeTrackingForHighPt",
       "HLTIterativeTrackingTau3Mu",
+      "HLTIterativeTrackingGlbDiTrkMuonIter02",
       "HLTIterativeTrackingReg",
       "HLTIterativeTrackingForPA",
       "HLTPAIterativeTracking",
@@ -306,6 +319,7 @@ def customizeHLTforMC(process,_fastSim=False):
       "HLTIterativeTrackingDisplacedJpsiIter02",
       "HLTIterativeTrackingDisplacedPsiPrimeIter02",
       "HLTIterativeTrackingDisplacedNRMuMuIter02",
+      "HLTIterativeTrackingDisplacedTau3muIter02",
       "HLTIterativeTrackingForBTagIteration0",
       "HLTIterativeTrackingIteration4DisplacedJets",
       "HLTRegionalCKFTracksForL3Isolation",
@@ -433,6 +447,8 @@ def customizeHLTforMC(process,_fastSim=False):
       ('hltMuonRPCDigis','muonRPCDigis'),
       ('hltEcalPreshowerDigis','ecalPreshowerDigis'),
       ('hltHbhereco', 'hbhereco'),
+      ('hltHbherecoMethod2L1EGSeeded', 'hbhereco'),
+      ('hltHbherecoMethod2L1EGUnseeded', 'hbhereco'),
       ('hltHoreco', 'horeco'),
       ('hltHfreco', 'hfreco'),
 
@@ -449,10 +465,14 @@ def customizeHLTforMC(process,_fastSim=False):
       ('hltIter2DisplacedJpsiMerged', 'generalTracks'),
       ('hltIter2DisplacedPsiPrimeMerged', 'generalTracks'),
       ('hltIter2DisplacedNRMuMuMerged', 'generalTracks'),
+      ('hltIter2DisplacedTau3muMerged', 'generalTracks'),
+      ('hltIter2GlbDiTrkMuonMerged', 'generalTracks'),
       ('hltIter0PFlowTrackSelectionHighPurityForBTag', 'generalTracks'),
       ('hltIter4HighPtMerged', 'generalTracks'),
       ('hltIterativeTrackingForPAMerged', 'generalTracks'),
+      #('hltPAIterativeTrackingMerged', 'generalTracks'),
       ('hltPAIterativeTrackingMerged', 'generalTracks'),
+      ('hltPAGoodHighPurityFullTracks','generalTracks'),
 
       ('hltFastPVPixelTracks','hltPixelTracks'),
       ('hltFastPVPixelTracksRecover','hltPixelTracks'),
@@ -466,6 +486,8 @@ def customizeHLTforMC(process,_fastSim=False):
       ('hltPixelTracksForHighPt','hltPixelTracks'),
       ('hltHighPtPixelTracks','hltPixelTracks'),
       ('hltPixelTracksForNoPU','hltPixelTracks'),
+      ('hltPixelTracksForSeedsTau3mu','hltPixelTracks'),
+      ('hltPixelTracksGlbDiTrkMuon','hltPixelTracks'),
 
       ('hltL1extraParticles','l1extraParticles'),
       ('hltL1extraParticles:Central','l1extraParticles:Central'),
@@ -477,7 +499,7 @@ def customizeHLTforMC(process,_fastSim=False):
       ('hltOfflineBeamSpot','offlineBeamSpot'),
       ('hltOnlineBeamSpot','offlineBeamSpot'),
       ('hltSiStripClusters','MeasurementTrackerEvent'),
-
+      ('hltSiStripClustersAfterSplitting','MeasurementTrackerEvent'),
       )
     from HLTrigger.Configuration.CustomConfigs import MassReplaceInputTag
     for pair in InputTags:

@@ -116,10 +116,10 @@ void TTStubBuilder< T >::produce( edm::Event& iEvent, const edm::EventSetup& iSe
   const TrackerGeometry* const theTrackerGeom = tGeomHandle.product();
 
   /// Prepare output
-  std::auto_ptr< edmNew::DetSetVector< TTCluster< T > > > TTClusterDSVForOutput( new edmNew::DetSetVector< TTCluster< T > > );
-  std::auto_ptr< edmNew::DetSetVector< TTStub< T > > > TTStubDSVForOutputTemp( new edmNew::DetSetVector< TTStub< T > > );
-  std::auto_ptr< edmNew::DetSetVector< TTStub< T > > > TTStubDSVForOutputAccepted( new edmNew::DetSetVector< TTStub< T > > );
-  std::auto_ptr< edmNew::DetSetVector< TTStub< T > > > TTStubDSVForOutputRejected( new edmNew::DetSetVector< TTStub< T > > );
+  std::unique_ptr< edmNew::DetSetVector< TTCluster< T > > > TTClusterDSVForOutput( new edmNew::DetSetVector< TTCluster< T > > );
+  std::unique_ptr< edmNew::DetSetVector< TTStub< T > > > TTStubDSVForOutputTemp( new edmNew::DetSetVector< TTStub< T > > );
+  std::unique_ptr< edmNew::DetSetVector< TTStub< T > > > TTStubDSVForOutputAccepted( new edmNew::DetSetVector< TTStub< T > > );
+  std::unique_ptr< edmNew::DetSetVector< TTStub< T > > > TTStubDSVForOutputRejected( new edmNew::DetSetVector< TTStub< T > > );
 
   /// Get the Clusters already stored away
   edm::Handle< edmNew::DetSetVector< TTCluster< T > > > clusterHandle;
@@ -302,7 +302,7 @@ void TTStubBuilder< T >::produce( edm::Event& iEvent, const edm::EventSetup& iSe
 
   /// Put output in the event (1)
   /// Get also the OrphanHandle of the accepted clusters
-  edm::OrphanHandle< edmNew::DetSetVector< TTCluster< T > > > TTClusterAcceptedHandle = iEvent.put( TTClusterDSVForOutput, "ClusterAccepted" );
+  edm::OrphanHandle< edmNew::DetSetVector< TTCluster< T > > > TTClusterAcceptedHandle = iEvent.put( std::move(TTClusterDSVForOutput), "ClusterAccepted" );
 
   /// Now, correctly reset the output
   typename edmNew::DetSetVector< TTStub< T > >::const_iterator stubDetIter;
@@ -377,8 +377,8 @@ void TTStubBuilder< T >::produce( edm::Event& iEvent, const edm::EventSetup& iSe
   } /// End of loop over stub DetSetVector
     
   /// Put output in the event (2)
-  iEvent.put( TTStubDSVForOutputAccepted, "StubAccepted" );
-  iEvent.put( TTStubDSVForOutputRejected, "StubRejected" );
+  iEvent.put( std::move(TTStubDSVForOutputAccepted), "StubAccepted" );
+  iEvent.put( std::move(TTStubDSVForOutputRejected), "StubRejected" );
 }
 
 /// Sort routine for stub ordering

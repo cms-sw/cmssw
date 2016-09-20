@@ -18,6 +18,9 @@
 #include "CSCDQM_Collection.h"
 #include "FWCore/Concurrency/interface/Xerces.h"
 #include <cstdio>
+#include <string>
+#include <xercesc/util/XMLString.hpp>
+#include <xercesc/util/TransService.hpp>
 
 namespace cscdqm {
 
@@ -35,7 +38,6 @@ namespace cscdqm {
    * @return 
    */
   void Collection::load() {
-
     LOG_INFO << "Reading histograms from " << config->getBOOKING_XML_FILE();
 
     if (config->getBOOKING_XML_FILE().empty()) {
@@ -45,33 +47,30 @@ namespace cscdqm {
     try {
 
       cms::concurrency::xercesInitialize();
-
       {
+	XercesDOMParser parser;
 
-        XercesDOMParser parser;
+	parser.setValidationScheme(XercesDOMParser::Val_Always);
+	parser.setDoNamespaces(true);
+	parser.setDoSchema(true);
+	parser.setExitOnFirstFatalError(true);
+	parser.setValidationConstraintFatal(true);
+	XMLFileErrorHandler eh;
+	parser.setErrorHandler(&eh);
+	parser.parse(config->getBOOKING_XML_FILE().c_str());
+	
+	DOMDocument *doc = parser.getDocument();
+	DOMElement *docNode = doc->getDocumentElement();
+	DOMNodeList *itemList = docNode->getChildNodes();
 
-        parser.setValidationScheme(XercesDOMParser::Val_Always);
-        parser.setDoNamespaces(true);
-        parser.setDoSchema(true);
-        parser.setExitOnFirstFatalError(true);
-        parser.setValidationConstraintFatal(true);
-        XMLFileErrorHandler eh;
-        parser.setErrorHandler(&eh);
-
-        parser.parse(config->getBOOKING_XML_FILE().c_str());
-        DOMDocument *doc = parser.getDocument();
-        DOMNode *docNode = (DOMNode*) doc->getDocumentElement();
-  
-        DOMNodeList *itemList = docNode->getChildNodes();
-
-        CoHisto definitions;
-        for (uint32_t i = 0; i < itemList->getLength(); i++) {
+	CoHisto definitions;
+	for (XMLSize_t i = 0; i < itemList->getLength(); i++) {
   
           DOMNode* node = itemList->item(i);
           if (node->getNodeType() != DOMNode::ELEMENT_NODE) { continue; }
 
           std::string nodeName = XMLString::transcode(node->getNodeName());
-
+	  
           ///
           /// Load histogram definition
           ///
@@ -96,6 +95,7 @@ namespace cscdqm {
             DOMElement* el = dynamic_cast<DOMElement*>(node);
             if (el->hasAttribute(XMLString::transcode(XML_BOOK_DEFINITION_REF))) {
               std::string id(XMLString::transcode(el->getAttribute(XMLString::transcode(XML_BOOK_DEFINITION_REF))));
+
               CoHistoProps d = definitions[id];
               for (CoHistoProps::iterator it = d.begin(); it != d.end(); it++) {
                 hp[it->first] = it->second;
@@ -110,8 +110,8 @@ namespace cscdqm {
             // Check if this histogram is an ON DEMAND histogram?
             hp[XML_BOOK_ONDEMAND] = (Utility::regexMatch(REGEXP_ONDEMAND, name) ? XML_BOOK_ONDEMAND_TRUE : XML_BOOK_ONDEMAND_FALSE );
 
-            LOG_DEBUG << "[Collection::load] loading " << prefix << "::" << name << " XML_BOOK_ONDEMAND = " << hp[XML_BOOK_ONDEMAND]; 
-  
+            LOG_DEBUG << "[Collection::load] loading " << prefix << "::" << name << " XML_BOOK_ONDEMAND = " << hp[XML_BOOK_ONDEMAND];
+	    
             CoHistoMap::iterator it = collection.find(prefix);
             if (it == collection.end()) {
               CoHisto h;
@@ -120,10 +120,8 @@ namespace cscdqm {
             } else {
               it->second.insert(make_pair(name, hp));
             }
-
           }
         }
-
       }
 
       cms::concurrency::xercesTerminate();
@@ -136,7 +134,6 @@ namespace cscdqm {
     for (CoHistoMap::const_iterator i = collection.begin(); i != collection.end(); i++) {
       LOG_INFO << i->second.size() << " " << i->first << " histograms defined";
     }
-    
   }
   
   /**
@@ -146,18 +143,27 @@ namespace cscdqm {
    * @param  p List of properties to fill
    * @return 
    */
+  
   void Collection::getNodeProperties(DOMNode*& node, CoHistoProps& p) {
     DOMNodeList *props  = node->getChildNodes();
-    for(uint32_t j = 0; j < props->getLength(); j++) {
+
+    for(XMLSize_t j = 0; j < props->getLength(); j++) {
       DOMNode* node = props->item(j);
       if (node->getNodeType() != DOMNode::ELEMENT_NODE) { continue; }
-      std::string name  = XMLString::transcode(node->getNodeName());
-      std::string value = XMLString::transcode(node->getTextContent());
+      DOMElement* element = dynamic_cast<DOMElement*>(node);
+      std::string name = XMLString::transcode(element->getNodeName());
+
+      const XMLCh *content = element->getTextContent();
+      XERCES_CPP_NAMESPACE_QUALIFIER TranscodeToStr tc(content, "UTF-8");
+      std::istringstream buffer((const char*)tc.str());
+      std::string value;
+      buffer >> value;
+      
       DOMNamedNodeMap* attributes = node->getAttributes();
       if (attributes) {
-        for (uint32_t i = 0; i < attributes->getLength(); i++) {
+        for (XMLSize_t i = 0; i < attributes->getLength(); i++) {
           DOMNode* attribute = attributes->item(i);
-          std::string aname  = XMLString::transcode(attribute->getNodeName());
+          std::string aname = XMLString::transcode(attribute->getNodeName());
           std::string avalue = XMLString::transcode(attribute->getNodeValue());
           p[name + "_" + aname] = avalue;
         }

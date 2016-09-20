@@ -41,7 +41,7 @@ public:
 
 protected:
    void *getDataPtr() const;   
-   FWItemRandomAccessorBase(const TClass *type, const type_info &modelTypeName);
+   FWItemRandomAccessorBase(const TClass *type, const std::type_info &modelTypeName);
    const TClass* m_type;
    const TClass* m_modelType;
    mutable void* m_data;

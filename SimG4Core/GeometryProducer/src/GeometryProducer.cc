@@ -5,6 +5,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/ESTransientHandle.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 #include "SimG4Core/Watcher/interface/SimProducer.h"
 #include "SimG4Core/Watcher/interface/SimWatcherFactory.h"
@@ -13,7 +14,6 @@
 #include "SimG4Core/Geometry/interface/SensitiveDetectorCatalog.h"
 #include "SimG4Core/MagneticField/interface/FieldBuilder.h"
 #include "SimG4Core/MagneticField/interface/Field.h"
-#include "SimG4Core/Notification/interface/SimG4Exception.h"
 #include "SimG4Core/Application/interface/SimTrackManager.h"
 
 #include "MagneticField/Engine/interface/MagneticField.h"
@@ -44,7 +44,10 @@ void createWatchers(const edm::ParameterSet& iP, SimActivityRegistry& iReg,
     {
 	std::auto_ptr<SimWatcherMakerBase> 
 	    maker(SimWatcherFactory::get()->create(itWatcher->getParameter<std::string> ("type")));
-	if(maker.get()==0) { throw SimG4Exception("Unable to find the requested Watcher"); }
+	if(maker.get()==nullptr) { 
+	  throw cms::Exception("SimG4CoreGeometryProducer", 
+			       " createWatchers: Unable to find the requested Watcher"); 
+	}
     
 	std::shared_ptr<SimWatcher> watcherTemp;
 	std::shared_ptr<SimProducer> producerTemp;
@@ -92,7 +95,6 @@ void GeometryProducer::updateMagneticField( edm::EventSetup const& es) {
 
         edm::LogInfo("GeometryProducer") << "Magentic field updated";
     }
-
 }
  
 void GeometryProducer::beginLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const& es) {

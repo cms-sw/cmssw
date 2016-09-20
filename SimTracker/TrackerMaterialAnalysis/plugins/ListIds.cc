@@ -2,7 +2,7 @@
 #include <vector>
 #include <iostream>
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -42,6 +42,7 @@ bool dddGetStringRaw(const DDFilteredView & view, const std::string & name, std:
   return false;
 }
 
+/*
 static inline
 double dddGetDouble(const std::string & s, const DDFilteredView & view) {
   std::string value;
@@ -50,6 +51,7 @@ double dddGetDouble(const std::string & s, const DDFilteredView & view) {
   else
     return NAN;
 }
+*/
 
 static inline
 std::string dddGetString(const std::string & s, const DDFilteredView & view) {
@@ -65,7 +67,7 @@ std::ostream & operator<<(std::ostream & out, const math::XYZVector & v) {
   return out << "(" << v.rho() << ", " << v.z() << ", " << v.phi() << ")";
 }
 
-class ListIds : public edm::EDAnalyzer
+class ListIds : public edm::one::EDAnalyzer<>
 {
 public:
   ListIds(const edm::ParameterSet &);

@@ -1,91 +1,89 @@
 """
 
-Translates a given database name alias, and credentials taken from a file, into an oracle database string, then connects.
+connection class translates either a connection string for sqlite, oracle of frontier into a connection object.
 Also sets up ORM with SQLAlchemy.
+
+connection class can also take a pre-constructed engine - useful for web services.
 
 """
 
 import sqlalchemy
 from sqlalchemy import create_engine, text, or_
 from sqlalchemy.orm import sessionmaker
+from sqlalchemy.pool import NullPool
 import datetime
 from data_sources import json_data_node
 from copy import deepcopy
+import models
+import traceback
+import os
+import netrc
+import sys
 
-class connection():
-	row_limit = 1000
+class connection(object):
 	engine = None
 	connection = None
 	session = None
 	connection_data = None
-	base = None
 	netrc_authenticators = None
 	secrets = None
-	# init creates a dictionary of secrets found in the secrets file
-	# next stage of this will be to search different directories (assigning priority to directories)
-	# looking for an appropriate netrc file - if none is found, ask for password
-	def __init__(self, connection_data):
-		# is not needed in cmssw
-		"""try:
-			import cx_Oracle
-		except ImportError as e:
-			exit("cx_Oracle cannot be imported - try to run 'source /data/cmssw/setupEnv.sh' and 'source venv/bin/activate'.")"""
+	"""
 
-		# todo translation on connection_data - it may be a string
-		# find out which formats of db string are acceptable
-		frontier_str_length = len("frontier://")
-		sqlite_str_length = len("sqlite:///")
-		if type(connection_data) == str and connection_data[0:frontier_str_length] == "frontier://":
-			db_name = connection_data[frontier_str_length:].split("/")[0]
-			schema = connection_data[frontier_str_length:].split("/")[1]
-			connection_data = {}
-			connection_data["db_alias"] = db_name
-			connection_data["schema"] = schema
-			connection_data["host"] = "frontier"
-		"""elif type(connection_data) == str and connection_data[0:sqlite_str_length] == "sqlite:///":
-			db_name = connection_data[frontier_str_length:]
-			schema = ""
-			connection_data = {}
-			connection_data["db_alias"] = db_name
-			connection_data["schema"] = schema
-			connection_data["host"] = "sqlite"
-		"""
+	Given a connection string, parses the connection string and connects.
 
-		headers = ["login", "account", "password"]
-		self.connection_data = connection_data
+	"""
+	def __init__(self, connection_data, mode=None, map_blobs=False, secrets=None, pooling=False):
 
-		try:
-			self.schema = connection_data["schema"]
-		except KeyError as k:
-			self.schema = ""
+		self._pooling = pooling
 
-		# setup authentication 
-		import netrc
-		if connection_data["host"] == "oracle":
-			self.secrets = dict(zip(headers, netrc.netrc(connection_data["secrets"]).authenticators(connection_data["host"])))
-			self.netrc_authenticators = netrc.netrc(connection_data["secrets"])
+		# add querying utility properties
+		# these must belong to the connection since the way in which their values are handled
+		# depends on the database being connected to.
+		self.range = models.Range
+		self.radius = models.Radius
+		self.regexp = models.RegExp
+		self.regexp.connection_object = self
+
+		if type(connection_data) in [str, unicode]:
+			# if we've been given a connection string, process it
+			self.connection_data = new_connection_dictionary(connection_data, secrets=secrets, mode=mode)
+			self.schema = self.connection_data.get("schema") if self.connection_data.get("schema") != None else ""
+
+			self.range.database_type = self.connection_data["host"]
+			self.radius.database_type = self.connection_data["host"]
+			self.regexp.database_type = self.connection_data["host"]
+		else:
+			self.connection_data = connection_data
+			# assume we have an engine
+			# we need to take the string representation so we know which type of db we're aiming at
+			engine_string = str(connection_data)
+			db_type = None
+			if "oracle" in engine_string:
+				db_type = "oracle"
+			elif "frontier" in engine_string:
+				db_type = "frontier"
+			elif "sqlite" in engine_string:
+				db_type = "sqlite"
+
+			self.range.database_type = db_type
+			self.radius.database_type = db_type
+			self.regexp.database_type = db_type
 
 		import models as ms
-		self.models = ms.generate()
-		self.base = self.models["Base"]
+		self.models = ms.generate(map_blobs)
+		#self.base = self.models["Base"]
 
-	# setup engine with given credentials from netrc file, and make a session maker
 	def setup(self):
+		"""
+		Setup engine with given credentials from netrc file, and make a session maker.
+		"""
 
-		self.db_name = self.connection_data["db_alias"]
-
-		if self.connection_data["host"] != "sqlite":
-			if self.connection_data["host"] != "frontier":
-				# if not frontier, we have to authenticate
-				user = self.secrets["login"]
-				pwd = self.secrets["password"]
-				self.engine = create_engine(self.build_oracle_url(user, pwd, self.db_name))
-			else:
-				# if frontier, no need to authenticate
-				self.engine = create_engine(self.build_frontier_url(self.db_name, self.schema))
+		if type(self.connection_data) == dict:
+			self.engine = engine_from_dictionary(self.connection_data, pooling=self._pooling)
 		else:
-			# if host is sqlite, making the url is easy - no authentication
-			self.engine = create_engine("sqlite:///%s" % self.db_name)
+			# we've been given an engine by the user
+			# use it as the engine
+			self.engine = self.connection_data
 
 		self.sessionmaker = sessionmaker(bind=self.engine)
 		self.session = self.sessionmaker()
@@ -94,73 +92,58 @@ class connection():
 		# assign correct schema for database name to each model
 		tmp_models_dict = {}
 		for key in self.models:
-			try:
-				if self.models[key].__class__ == sqlalchemy.ext.declarative.api.DeclarativeMeta\
-				   and str(self.models[key].__name__) != "Base":
+			if self.models[key].__class__ == sqlalchemy.ext.declarative.api.DeclarativeMeta\
+			   and str(self.models[key].__name__) != "Base":
 
-					self.models[key].__table__.schema = self.schema
+			   	if type(self.connection_data) == dict:
+			   		# we can only extract the secrets and schema individuall
+			   		# if we were given a dictionary...  if we were given an engine
+			   		# we can't do this without parsing the connection string from the engine
+			   		# - a wide range of which it will be difficult to support!
+					self.models[key].__table__.schema = self.connection_data["schema"]
+					self.models[key].secrets = self.connection_data["secrets"]
 
-					self.models[key].session = self.session
-					self.models[key].authentication = self.netrc_authenticators
-					self.models[key].secrets = self.secrets
-					tmp_models_dict[key.lower()] = self.models[key]
-					tmp_models_dict[key.lower()].empty = False
-			except AttributeError:
-				continue
+				self.models[key].session = self.session
+				# isn't used anywhere - comment it out for now
+				#self.models[key].authentication = self.netrc_authenticators
+				self.models[key].connection = self
+				tmp_models_dict[key.lower()] = self.models[key]
+				tmp_models_dict[key.lower()].empty = False
 
 		self.models = tmp_models_dict
 
 		return self
 
-	def deepcopy_model(self, model):
-		new_dict = dict(model.__dict__)
-		new_dict["__table__"] = deepcopy(model.__dict__["__table__"])
-		return type(model.__class__.__name__, (), new_dict)
-
-	def close_session(self):
-		try:
-			self.session.close()
-			return True
-		except Exception as e:
-			exit(e)
-
-	def _get_CMS_frontier_connection_string(self, database):
+	@staticmethod
+	def _get_CMS_frontier_connection_string(database):
 		try:
 		    import subprocess
 		    return subprocess.Popen(['cmsGetFnConnect', 'frontier://%s' % database], stdout = subprocess.PIPE).communicate()[0].strip()
 		except:
-			exit("Frontier connections can only be constructed when inside a CMSSW environment.")
+			raise Exception("Frontier connections can only be constructed when inside a CMSSW environment.")
 
-	# get database string for frontier
-	def _cms_frontier_string(self, database, schema="cms_conditions"):
+	@staticmethod
+	def _cms_frontier_string(database, schema="cms_conditions"):
+		"""
+		Get database string for frontier.
+		"""
 		import urllib
-		return 'oracle+frontier://@%s/%s' % (urllib.quote_plus(self._get_CMS_frontier_connection_string(database)), schema)
+		return 'oracle+frontier://@%s/%s' % (urllib.quote_plus(connection._get_CMS_frontier_connection_string(database)), schema)
 
-	# get database string for oracle
-	def _cms_oracle_string(self, user, pwd, db_name):
+	@staticmethod
+	def _cms_oracle_string(user, pwd, db_name):
+		"""
+		Get database string for oracle.
+		"""
 		return 'oracle://%s:%s@%s' % (user, pwd, db_name)
 
-	# build the connection url, and get credentials from self.secrets dictionary
-	def build_oracle_url(self, user, pwd, db_name):
-		# map db_name to the connection url
-		# pretty much the same as in conddblib.py in cmssw
-		mapping = {
-			'orapro':        (lambda: self._cms_oracle_string(user, pwd, 'cms_orcon_adg')),
-			'oraarc':        (lambda: self._cms_oracle_string(user, pwd, 'cmsarc_lb')),
-			'oraint':        (lambda: self._cms_oracle_string(user, pwd, 'cms_orcoff_int')),
-			'oradev':        (lambda: self._cms_oracle_string('cms_conditions_002', pwd, 'cms_orcoff_prep')),
-			'oraboost':      (lambda: self._cms_oracle_string('cms_conditions', pwd, 'cms_orcon_adg')),
-			'oraboostprep':  (lambda: self._cms_oracle_string('cms_conditions_002', pwd, 'cms_orcoff_prep')),
+	@staticmethod
+	def build_oracle_url(user, pwd, db_name):
+		"""
+		Build the connection url, and get credentials from self.secrets dictionary.
+		"""
 
-			'onlineorapro':  (lambda: self._cms_oracle_string(user, pwd, 'cms_orcon_prod')),
-			'onlineoraint':  (lambda: self._cms_oracle_string(user, pwd, 'cmsintr_lb')),
-		}
-
-		if db_name in mapping.keys():
-			database_url = mapping[db_name]()
-		else:
-			print("Database name given isn't valid.")
-			return
+		database_url = connection._cms_oracle_string(user, pwd, db_name)
 
 		try:
 			url = sqlalchemy.engine.url.make_url(database_url)
@@ -170,44 +153,35 @@ class connection():
 			url = sqlalchemy.engine.url.make_url('sqlite:///%s' % db_name)
 		return url
 
-	def build_frontier_url(self, db_name, schema):
-
-		mapping = {
-			'pro':           lambda: self._cms_frontier_string('PromptProd', schema),
-	        'arc':           lambda: self._cms_frontier_string('FrontierArc', schema),
-	        'int':           lambda: self._cms_frontier_string('FrontierInt', schema),
-	        'dev':           lambda: self._cms_frontier_string('FrontierPrep', schema)
-		}
-
-		if db_name in mapping.keys():
-			database_url = mapping[db_name]()
-		else:
-			print("Database name given isn't valid.")
-			return
+	@staticmethod
+	def build_frontier_url(db_name, schema):
+		database_url = connection._cms_frontier_string(db_name, schema)
 
 		try:
 			url = sqlalchemy.engine.url.make_url(database_url)
 		except sqlalchemy.exc.ArgumentError:
+			"""
+			Is this needed for a use case?
+			"""
 			url = sqlalchemy.engine.url.make_url('sqlite:///%s' % db_name)
 		return url
 
-	def __repr__(self):
-		return "<connection db='%s'>" % self.db_name
+	# currently just commits and closes the current session (ends transaction, closes connection)
+	# may do other things later
+	def tear_down(self):
+		try:
+			self.session.commit()
+			self.close_session()
+		except:
+			return "Couldn't tear down connection on engine %s." % str(self.engine)
 
-	@staticmethod
-	def class_name_to_column(cls):
-		class_name = cls.__name__
-		all_upper_case = True
-		for character in class_name:
-			all_upper_case = character.isupper()
-		if all_upper_case:
-			return class_name
-		for n in range(0, len(class_name)):
-			if class_name[n].isupper() and n != 0:
-				class_name = str(class_name[0:n]) + "".join(["_", class_name[n].lower()]) + str(class_name[n+1:])
-			elif class_name[n].isupper() and n == 0:
-				class_name = str(class_name[0:n]) + "".join([class_name[n].lower()]) + str(class_name[n+1:])
-		return class_name
+	def close_session(self):
+		self.session.close()
+		return True
+
+	def hard_close(self):
+		self.engine.dispose()
+		return True
 
 	# get model based on given model name
 	def model(self, model_name):
@@ -218,7 +192,6 @@ class connection():
 
 	# model should be the class the developer wants to be instantiated
 	# pk_to_value maps primary keys to values
-	# if the result returned from the query is not unique, no object is created
 	def object(self, model, pk_to_value):
 		if self.session == None:
 			return None
@@ -233,8 +206,8 @@ class connection():
 	def global_tag_map(self, **pkargs):
 		return self.factory.object("globaltagmap", **pkargs)
 
-	def global_tag_map_request(self, **pkargs):
-		return self.factory.object("globaltagmaprequest", **pkargs)
+	"""def global_tag_map_request(self, **pkargs):
+		return self.factory.object("globaltagmaprequest", **pkargs)"""
 
 	def tag(self, **pkargs):
 		return self.factory.object("tag", **pkargs)
@@ -245,8 +218,8 @@ class connection():
 	def payload(self, **pkargs):
 		return self.factory.object("payload", **pkargs)
 
-	def record(self, **pkargs):
-		return self.factory.object("payload", **pkargs)
+	"""def record(self, **pkargs):
+		return self.factory.object("record", **pkargs)"""
 
 	# adds %% at the beginning and end so LIKE in SQL searches all of the string
 	def _oracle_match_format(self, string):
@@ -289,35 +262,38 @@ class connection():
 			"payloads" : payloads.all()
 		})
 
-	# if on sqlite
-
 	def write(self, object):
-		if self.connection_data["host"] == "sqlite":
-			if self.session != None:
-				class_of_object = object.__class__
-				new_object = class_of_object(object.as_dicts(), convert_timestamps=False)
-				new_object.__table__.schema = self.schema
-				self.session.add(new_object)
-				return new_object
-		else:
-			print("Writing to non-sqlite databases currently not supported.")
+		new_object = models.session_independent_object(object, schema=self.schema)
+		self.session.add(new_object)
+		return new_object
 
 	def commit(self):
-		if self.connection_data["host"] == "sqlite":
-			if self.session != None:
-				self.session.commit()
-		else:
-			print("Writing to non-sqlite databases currently not supported.")
+		try:
+			self.session.commit()
+		except:
+			traceback.print_exc()
+			self.session.rollback()
 
 	def write_and_commit(self, object):
-		# should be changed to deal with errors - add them to exception handling if they appear
-		self.write(object)
-		self.commit()
+		if type(object) == list:
+			for item in object:
+				self.write_and_commit(item)
+		else:
+			# should be changed to deal with errors - add them to exception handling if they appear
+			self.write(object)
+			self.commit()
 
+	def rollback(self):
+		try:
+			self.session.rollback()
+		except:
+			traceback.print_exc()
+			print("Session couldn't be rolled back.")
 
-# contains methods for creating objects
 class factory():
-
+	"""
+	Contains methods for creating objects.
+	"""
 	def __init__(self, connection):
 		self.connection = connection
 
@@ -326,30 +302,155 @@ class factory():
 	# this dictionary will be used to populate the object of type name class_name
 	def object(self, class_name, **pkargs):
 		from data_sources import json_list
+		from models import apply_filters
+		# get the class that self.connection holds from the class name
 		model = self.connection.model(class_name)
+
 		if self.connection.session == None:
 			return None
+
+		# query for the ORM object, and return the appropriate object (None, CondDBFW object, or json_list)
 		model_data = self.connection.session.query(model)
 		if len(pkargs.items()) != 0:
-			for pk in pkargs:
-				if pkargs[pk].__class__ != list:
-					if pkargs[pk].__class__ == json_list:
-						pkargs[pk] = pkargs[pk].data()
-					else:
-						pkargs[pk] = [pkargs[pk]]
-				model_data = model_data.filter(model.__dict__[pk].in_(pkargs[pk]))
+			# apply the filters defined in **kwargs
+			model_data = apply_filters(model_data, model, **pkargs)
+			amount = pkargs["amount"] if "amount" in pkargs.keys() else None
+			model_data = model_data.limit(amount)
 			if model_data.count() > 1:
+				# if we have multiple objects, return a json_list
 				return json_list(model_data.all())
 			elif model_data.count() == 1:
+				# if we have a single object, return that object
 				return model_data.first()
 			else:
+				# if we have no objects returned, return None
 				return None
 		else:
+			# no column arguments were given, so return an empty object
 			new_object = model()
 			new_object.empty = True
 			return new_object
 
-def connect(connection_data):
-	con = connection(connection_data=connection_data)
+def _get_netrc_data(netrc_file, key):
+	"""
+	Returns a dictionary {login : ..., account : ..., password : ...}
+	"""
+	try:
+		headers = ["login", "account", "password"]
+		authenticator_tuple = netrc.netrc(netrc_file).authenticators(key)
+		if authenticator_tuple == None:
+			raise Exception("netrc file must contain key '%s'." % key)
+	except:
+		raise Exception("Couldn't get credentials from netrc file.")
+	return dict(zip(headers, authenticator_tuple))
+
+def new_connection_dictionary(connection_data, secrets=None, mode="r"):
+	"""
+	Function used to construct connection data dictionaries - internal to framework.
+	"""
+	frontier_str_length = len("frontier://")
+	sqlite_str_length = len("sqlite://")
+	#sqlite_file_str_length = len("sqlite_file://")
+	oracle_str_length = len("oracle://")
+
+	if type(connection_data) in [str, unicode] and connection_data[0:frontier_str_length] == "frontier://":
+		"""
+		frontier://database_name/schema
+		"""
+		db_name = connection_data[frontier_str_length:].split("/")[0]
+		schema = connection_data[frontier_str_length:].split("/")[1]
+		connection_data = {}
+		connection_data["database_name"] = db_name
+		connection_data["schema"] = schema
+		connection_data["host"] = "frontier"
+		connection_data["secrets"] = None
+	elif type(connection_data) in [str, unicode] and connection_data[0:sqlite_str_length] == "sqlite://":
+		"""
+		sqlite://database_file_name
+		"""
+		# for now, just support "sqlite://" format for sqlite connection strings
+		db_name = connection_data[sqlite_str_length:]
+		schema = ""
+		connection_data = {}
+		connection_data["database_name"] = os.path.abspath(db_name)
+		connection_data["schema"] = schema
+		connection_data["host"] = "sqlite"
+		connection_data["secrets"] = None
+	elif type(connection_data) in [str, unicode] and connection_data[0:oracle_str_length] == "oracle://":
+		"""
+		oracle://account:password@database_name
+		or
+		oracle://database_name/schema (requires a separate method of authentication - either dictionary or netrc)
+		"""
+		new_connection_string = connection_data[oracle_str_length:]
+
+		if ":" in new_connection_string:
+			# the user has given a password - usually in the case of the db upload service
+			database_name = new_connection_string[new_connection_string.index("@")+1:]
+			schema_name = new_connection_string[0:new_connection_string.index(":")]
+			# set username based on connection string
+			username = new_connection_string[0:new_connection_string.index(":")]
+			password = new_connection_string[new_connection_string.index(":")+1:new_connection_string.index("@")]
+		else:
+			mode_to_netrc_key_suffix = {"r" : "read", "w" : "write"}
+			database_name = new_connection_string[0:new_connection_string.index("/")]
+			schema_name = new_connection_string[new_connection_string.index("/")+1:]
+			if secrets == None:
+				username = str(raw_input("Enter the username you want to connect to the schema '%s' with: " % (schema_name)))
+				password = str(raw_input("Enter the password for the user '%s' in database '%s': " % (username, database_name)))
+			else:
+				if type(secrets) == str:
+					netrc_key = "%s/%s/%s" % (database_name, schema_name, mode_to_netrc_key_suffix[mode])
+					netrc_data = _get_netrc_data(secrets, key=netrc_key)
+					# take the username from the netrc entry corresponding to the mode the database is opened in
+					# eg, if the user has given mode="read", the database_name/schema_name/read entry will be taken
+					username = netrc_data["login"]
+					password = netrc_data["password"]
+				elif type(secrets) == dict:
+					username = secrets["user"]
+					password = secrets["password"]
+				else:
+					raise Exception("Invalid type given for secrets.  Either an str or a dict must be given.")
+
+		#print("Connected to database %s, schema %s, with username %s." % (database_name, schema_name, username))
+
+		connection_data = {}
+		connection_data["database_name"] = database_name
+		connection_data["schema"] = schema_name
+		connection_data["password"] = password
+		connection_data["host"] = "oracle"
+		connection_data["secrets"] = {"login" : username, "password" : password}
+
+	return connection_data
+
+def engine_from_dictionary(dictionary, pooling=True):
+	if dictionary["host"] != "sqlite":
+		if dictionary["host"] != "frontier":
+			# probably oracle
+			# if not frontier, we have to authenticate
+			user = dictionary["secrets"]["login"]
+			pwd = dictionary["secrets"]["password"]
+			# set max label length for oracle
+			if pooling:
+				return create_engine(connection.build_oracle_url(user, pwd, dictionary["database_name"]), label_length=6)
+			else:
+				return create_engine(connection.build_oracle_url(user, pwd, dictionary["database_name"]), label_length=6, poolclass=NullPool)
+		else:
+			# if frontier, no need to authenticate
+			# set max label length for frontier
+			if pooling:
+				return create_engine(connection.build_frontier_url(dictionary["database_name"], dictionary["schema"]), label_length=6)
+			else:
+				return create_engine(connection.build_frontier_url(dictionary["database_name"], dictionary["schema"]), label_length=6, poolclass=NullPool)
+	else:
+		# if host is sqlite, making the url is easy - no authentication
+		return create_engine("sqlite:///%s" % dictionary["database_name"])
+
+
+def connect(connection_data, mode="r", map_blobs=False, secrets=None, pooling=True):
+	"""
+	Utility method for user - set up a connection object.
+	"""
+	con = connection(connection_data=connection_data, mode=mode, map_blobs=map_blobs, secrets=secrets, pooling=pooling)
 	con = con.setup()
 	return con

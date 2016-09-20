@@ -58,6 +58,7 @@ class QuickTrackAssociatorByHitsProducer : public edm::global::EDProducer<> {
   edm::EDGetTokenT<ClusterTPAssociation> cluster2TPToken_;
   double qualitySimToReco_;
   double puritySimToReco_;
+  double pixelHitWeight_;
   double cutRecoToSim_;
   QuickTrackAssociatorByHitsImpl::SimToRecoDenomType simToRecoDenominator_;
   bool threeHitTracksAreSpecial_;
@@ -82,6 +83,7 @@ QuickTrackAssociatorByHitsProducer::QuickTrackAssociatorByHitsProducer(const edm
   trackerHitAssociatorConfig_(makeHitAssociatorParameters(iConfig), consumesCollector()),
   qualitySimToReco_( iConfig.getParameter<double>( "Quality_SimToReco" ) ),
   puritySimToReco_( iConfig.getParameter<double>( "Purity_SimToReco" ) ),
+  pixelHitWeight_( iConfig.getParameter<double>( "PixelHitWeight" ) ),
   cutRecoToSim_( iConfig.getParameter<double>( "Cut_RecoToSim" ) ),
   threeHitTracksAreSpecial_( iConfig.getParameter<bool>( "ThreeHitTracksAreSpecial" ) ),
   useClusterTPAssociation_( iConfig.getParameter<bool>( "useClusterTPAssociation" ) ),
@@ -185,6 +187,7 @@ QuickTrackAssociatorByHitsProducer::produce(edm::StreamID, edm::Event& iEvent, c
                                                                 absoluteNumberOfHits_,
                                                                 qualitySimToReco_,
                                                                 puritySimToReco_,
+                                                                pixelHitWeight_,
                                                                 cutRecoToSim_,
                                                                 threeHitTracksAreSpecial_,
                                                                 simToRecoDenominator_);

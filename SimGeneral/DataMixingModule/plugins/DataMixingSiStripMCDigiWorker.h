@@ -78,6 +78,11 @@ namespace edm
       edm::InputTag SiStripPileInputTag_ ;    // InputTag for pileup strips
       std::string SiStripDigiCollectionDM_  ; // secondary name to be given to new SiStrip digis
 
+      edm::InputTag SistripAPVLabelSig_;      // where to find vector of dead APVs
+      edm::InputTag SiStripAPVPileInputTag_;
+      std::string SistripAPVListDM_;          // output tag
+
+
       // 
 
       typedef float Amplitude;
@@ -110,14 +115,21 @@ namespace edm
 
       signalMaps signals_;
 
+      // to keep track of dead APVs from HIP interactions
+      typedef std::multimap< uint32_t, std::bitset<6> > APVMap;
+
+      APVMap theAffectedAPVmap_;
+
       // for noise adding:
 
       std::string label_;
 
       std::string gainLabel;
+      bool SingleStripNoise;
       bool peakMode;
       double theThreshold;
       double theElectronPerADC;
+      bool APVSaturationFromHIP_;
       int theFedAlgo;
       std::string geometryType;
 
@@ -129,6 +141,8 @@ namespace edm
 
       // bad channels for each detector ID
       std::map<unsigned int, std::vector<bool> > allBadChannels;
+      // channels killed by HIP interactions for each detector ID
+      std::map<unsigned int, std::vector<bool> > allHIPChannels;
       // first and last channel wit signal for each detector ID
       std::map<unsigned int, size_t> firstChannelsWithSignal;
       std::map<unsigned int, size_t> lastChannelsWithSignal;

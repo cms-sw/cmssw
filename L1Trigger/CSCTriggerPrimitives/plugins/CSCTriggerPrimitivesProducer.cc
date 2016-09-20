@@ -31,7 +31,6 @@
 #include "DataFormats/CSCDigi/interface/CSCCLCTDigiCollection.h"
 #include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigiCollection.h"
 
-#include "DataFormats/CSCDigi/interface/GEMCSCLCTDigiCollection.h"
 #include "DataFormats/GEMDigi/interface/GEMCoPadDigiCollection.h"
 
 // Configuration via EventSetup
@@ -50,6 +49,11 @@ CSCTriggerPrimitivesProducer::CSCTriggerPrimitivesProducer(const edm::ParameterS
   gemPadDigiProducer_ = conf.existsAs<edm::InputTag>("GEMPadDigiProducer")?conf.getParameter<edm::InputTag>("GEMPadDigiProducer"):edm::InputTag("");
   rpcDigiProducer_ = conf.existsAs<edm::InputTag>("RPCDigiProducer")?conf.getParameter<edm::InputTag>("RPCDigiProducer"):edm::InputTag("");
   checkBadChambers_ = conf.getParameter<bool>("checkBadChambers");
+
+  const edm::ParameterSet commonParam(conf.getParameter<edm::ParameterSet>("commonParam"));
+  runME11ILT_ = commonParam.existsAs<bool>("runME11ILT")?commonParam.getParameter<bool>("runME11ILT"):false;
+  runME21ILT_ = commonParam.existsAs<bool>("runME21ILT")?commonParam.getParameter<bool>("runME21ILT"):false;
+
   lctBuilder_.reset( new CSCTriggerPrimitivesBuilder(conf) ); // pass on the conf
   
   wire_token_ = consumes<CSCWireDigiCollection>(wireDigiProducer_);
@@ -63,8 +67,8 @@ CSCTriggerPrimitivesProducer::CSCTriggerPrimitivesProducer(const edm::ParameterS
   produces<CSCCLCTPreTriggerCollection>();
   produces<CSCCorrelatedLCTDigiCollection>();
   produces<CSCCorrelatedLCTDigiCollection>("MPCSORTED");
-  produces<GEMCoPadDigiCollection>();
-  produces<GEMCSCLCTDigiCollection>();
+  if (runME11ILT_ or runME21ILT_)
+    produces<GEMCoPadDigiCollection>();
   usesResource("CSCTriggerGeometry");
   consumes<CSCComparatorDigiCollection>(compDigiProducer_);
   consumes<CSCWireDigiCollection>(wireDigiProducer_);
@@ -159,13 +163,12 @@ void CSCTriggerPrimitivesProducer::produce(edm::Event& ev,
 
  // Create empty collections of ALCTs, CLCTs, and correlated LCTs upstream
   // and downstream of MPC.
-  std::auto_ptr<CSCALCTDigiCollection> oc_alct(new CSCALCTDigiCollection);
-  std::auto_ptr<CSCCLCTDigiCollection> oc_clct(new CSCCLCTDigiCollection);
-  std::auto_ptr<CSCCLCTPreTriggerCollection> oc_pretrig(new CSCCLCTPreTriggerCollection);
-  std::auto_ptr<CSCCorrelatedLCTDigiCollection> oc_lct(new CSCCorrelatedLCTDigiCollection);
-  std::auto_ptr<CSCCorrelatedLCTDigiCollection> oc_sorted_lct(new CSCCorrelatedLCTDigiCollection);
-  std::auto_ptr<GEMCoPadDigiCollection> oc_gemcopad(new GEMCoPadDigiCollection);
-  std::auto_ptr<GEMCSCLCTDigiCollection> oc_gemcsclct(new GEMCSCLCTDigiCollection);
+  std::unique_ptr<CSCALCTDigiCollection> oc_alct(new CSCALCTDigiCollection);
+  std::unique_ptr<CSCCLCTDigiCollection> oc_clct(new CSCCLCTDigiCollection);
+  std::unique_ptr<CSCCLCTPreTriggerCollection> oc_pretrig(new CSCCLCTPreTriggerCollection);
+  std::unique_ptr<CSCCorrelatedLCTDigiCollection> oc_lct(new CSCCorrelatedLCTDigiCollection);
+  std::unique_ptr<CSCCorrelatedLCTDigiCollection> oc_sorted_lct(new CSCCorrelatedLCTDigiCollection);
+  std::unique_ptr<GEMCoPadDigiCollection> oc_gemcopad(new GEMCoPadDigiCollection);
 
   if (!wireDigis.isValid()) {
     edm::LogWarning("L1CSCTPEmulatorNoInputCollection")
@@ -186,17 +189,17 @@ void CSCTriggerPrimitivesProducer::produce(edm::Event& ev,
     const CSCBadChambers* temp = checkBadChambers_ ? pBadChambers.product() : new CSCBadChambers;
     lctBuilder_->build(temp,
 		       wireDigis.product(), compDigis.product(), gemPads, rpcDigis,
-		       *oc_alct, *oc_clct, *oc_pretrig, *oc_lct, *oc_sorted_lct, *oc_gemcopad, *oc_gemcsclct);
+		       *oc_alct, *oc_clct, *oc_pretrig, *oc_lct, *oc_sorted_lct, *oc_gemcopad);
     if (!checkBadChambers_)
       delete temp;
   }
 
   // Put collections in event.
-  ev.put(oc_alct);
-  ev.put(oc_clct);
-  ev.put(oc_pretrig);
-  ev.put(oc_lct);
-  ev.put(oc_sorted_lct,"MPCSORTED");
-  ev.put(oc_gemcopad);
-  ev.put(oc_gemcsclct);
+  ev.put(std::move(oc_alct));
+  ev.put(std::move(oc_clct));
+  ev.put(std::move(oc_pretrig));
+  ev.put(std::move(oc_lct));
+  ev.put(std::move(oc_sorted_lct),"MPCSORTED");
+  if (runME11ILT_ or runME21ILT_)
+    ev.put(std::move(oc_gemcopad));
 }

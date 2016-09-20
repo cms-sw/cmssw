@@ -58,7 +58,7 @@ void ShiftedPFCandidateProducerByMatchedObject::produce(edm::Event& evt, const e
     }
   }
  
-  std::auto_ptr<reco::PFCandidateCollection> shiftedPFCandidates(new reco::PFCandidateCollection);
+  auto shiftedPFCandidates = std::make_unique<reco::PFCandidateCollection>();
     
   for ( reco::PFCandidateCollection::const_iterator originalPFCandidate = originalPFCandidates->begin();
 	originalPFCandidate != originalPFCandidates->end(); ++originalPFCandidate ) {
@@ -93,7 +93,7 @@ void ShiftedPFCandidateProducerByMatchedObject::produce(edm::Event& evt, const e
     shiftedPFCandidates->push_back(shiftedPFCandidate);
   }
   
-  evt.put(shiftedPFCandidates);
+  evt.put(std::move(shiftedPFCandidates));
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"

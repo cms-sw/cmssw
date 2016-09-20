@@ -211,8 +211,8 @@ namespace {
   };
   TauLeptonMultiplicity inferTauLeptonMultiplicity(const HLTConfigProvider& HLTCP, const std::string& filterName, const std::string& moduleType, const std::string& pathName) {
     TauLeptonMultiplicity n;
-//std::cout << "check menu " << HLTCP.tableName() << std::endl;
-    if(moduleType == "HLTLevel1GTSeed") {
+    //std::cout << "check menu " << HLTCP.tableName() << std::endl;
+    if(moduleType == "HLTL1TSeed") {
       n.level = 1;
       if(filterName.find("Single") != std::string::npos) {
 	if(filterName.find("Mu") != std::string::npos) {
@@ -374,7 +374,7 @@ HLTTauDQMPath::HLTTauDQMPath(const std::string& pathName, const std::string& hlt
     edm::LogInfo("HLTTauDQMOffline") << "HLTTauDQMPath: " << pathName_ << " no interesting filters found";
     return;
   }
-  isFirstL1Seed_ = HLTCP.moduleType(std::get<kName>(filterIndices_[0])) == "HLTLevel1GTSeed";
+  isFirstL1Seed_ = HLTCP.moduleType(std::get<kName>(filterIndices_[0])) == "HLTL1TSeed";
 #ifdef EDM_ML_DEBUG
   ss << "  Interesting filters (preceded by the module index in the path)";
 #endif
@@ -399,7 +399,7 @@ HLTTauDQMPath::HLTTauDQMPath(const std::string& pathName, const std::string& hlt
     filterMET_.push_back(n.met);
     filterLevel_.push_back(n.level);
 
-#ifdef EDM_ML_DEBUG
+#ifdef EDM_ML_DEBUG  
     ss << "\n    " << i << " " << std::get<kModuleIndex>(filterIndices_[i])
        << " " << filterName
        << " " << moduleType
@@ -580,14 +580,13 @@ bool HLTTauDQMPath::offlineMatching(size_t i, const std::vector<Object>& trigger
     offlineMask.resize(offlineObjects.taus.size());
     std::fill(offlineMask.begin(), offlineMask.end(), true);
     for(const Object& trgObj: triggerObjects) {
-      //std::cout << "trigger object id " << trgObj.id << std::endl;
-      if(! ((isL1 && (trgObj.id == trigger::TriggerL1TauJet || trgObj.id == trigger::TriggerL1CenJet))
-            || trgObj.id == trigger::TriggerTau) )
+      //std::cout << "trigger object id " << isL1 << " " << trgObj.id << " " << trigger::TriggerL1Tau << " "<< trigger::TriggerTau << std::endl;
+      if(! ((isL1 && trgObj.id == trigger::TriggerL1Tau) || trgObj.id == trigger::TriggerTau ) )
         continue;
       if(deltaRmatch(trgObj.object, offlineObjects.taus, dR, offlineMask, matchedOfflineObjects.taus)) {
         ++matchedObjects;
         matchedTriggerObjects.emplace_back(trgObj);
-      //std::cout << "trigger object DR match" << std::endl;
+        //std::cout << "trigger object DR match" << std::endl;
       }
     }
     if(matchedObjects < filterTauN_[i])
@@ -599,7 +598,7 @@ bool HLTTauDQMPath::offlineMatching(size_t i, const std::vector<Object>& trigger
     std::fill(offlineMask.begin(), offlineMask.end(), true);
     for(const Object& trgObj: triggerObjects) {
       //std::cout << "trigger object id " << trgObj.id << std::endl;
-      if(! ((isL1 && (trgObj.id == trigger::TriggerL1NoIsoEG || trgObj.id == trigger::TriggerL1IsoEG))
+      if(! ((isL1 && (trgObj.id == trigger::TriggerL1EG))
             || trgObj.id == trigger::TriggerElectron || trgObj.id == trigger::TriggerPhoton) )
         continue;
       if(deltaRmatch(trgObj.object, offlineObjects.electrons, dR, offlineMask, matchedOfflineObjects.electrons)) {

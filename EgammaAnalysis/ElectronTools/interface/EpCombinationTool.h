@@ -12,17 +12,18 @@ class EpCombinationTool
     public:
         EpCombinationTool();
         ~EpCombinationTool();
+        // forbid copy and assignment, since we have a custom deleter
+        EpCombinationTool(const EpCombinationTool &other) = delete;
+        EpCombinationTool & operator=(const EpCombinationTool &other) = delete;
 
-        bool init(const std::string& regressionFile, const std::string& bdtName="");
-//        float combine(float energy, float energyError,
-//                float momentum, float momentumError, 
-//                int electronClass,
-//                bool isEcalDriven, bool isTrackerDriven, bool isEB);
-	void combine(SimpleElectron & mySimpleElectron);
+        bool init(const GBRForest *forest) ;
+        bool init(const std::string& regressionFile, const std::string& bdtName);
+	void combine(SimpleElectron & mySimpleElectron) const;
 
 
     private:
-        GBRForest* m_forest;
+        const GBRForest* m_forest;
+        bool  m_ownForest;
 
 };
 

@@ -1,7 +1,6 @@
 #include <algorithm>
 #include <memory>
 
-#include "DetectorDescription/Base/interface/DDdebug.h"
 #include "DetectorDescription/Core/interface/DDName.h"
 #include "DetectorDescription/Core/interface/DDPartSelection.h"
 #include "DetectorDescription/Core/src/LogicalPart.h"
@@ -46,10 +45,6 @@ void LogicalPart::addSpecifics(const std::pair<const DDPartSelection*, const DDs
       hasDDValue_.resize(id+1,false);
       hasDDValue_[id] = true;
     }
-    
-    DCOUT('S', "hasValue_.size()=" << hasDDValue_.size() << " DDValue_id=" << id << std::flush
-          << " DDValue_name=" << DDValue(id).name() << std::flush 
-	   << " DDValue_string=" << DDValue(id).strings().size() );
   }
 }
 

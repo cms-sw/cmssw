@@ -323,13 +323,17 @@ bool MaterialBudgetAction::CheckTouchableInSelectedVolumes( const G4VTouchable* 
 {
   std::vector<G4String>::const_iterator ite;
   size_t volh = touch->GetHistoryDepth();
-  for( ite = theVolumeList.begin(); ite != theVolumeList.end(); ite++ ){
-    //-  std::cout << " CheckTouchableInSelectedVolumes vol " << *ite << std::endl;
+//  for( ite = theVolumeList.begin(); ite != theVolumeList.end(); ite++ ){
+//     //-  std::cout << " CheckTouchableInSelectedVolumes vol " << *ite << std::endl;
     for( int ii = volh; ii >= 0; ii-- ){
-      //-  std::cout << ii << " CheckTouchableInSelectedVolumes parent  " << touch->GetVolume(ii)->GetName() << std::endl;
-      if( touch->GetVolume(ii)->GetName() == *ite ) return true;
+//       //-  std::cout << ii << " CheckTouchableInSelectedVolumes parent  " << touch->GetVolume(ii)->GetName() << std::endl;
+      if ( 
+        std::find(theVolumeList.begin(),
+                  theVolumeList.end(),
+                  touch->GetVolume(ii)->GetName()) != theVolumeList.end() )
+          return true;
     }
-  }
+//  }
 
   return false;
 }

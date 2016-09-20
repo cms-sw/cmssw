@@ -53,8 +53,8 @@ inline TriggerPrimitiveCollection* L1TMuonTPPproducer(
 
 
     double eta,phi,bend;
-    std::auto_ptr<TriggerPrimitiveCollection> subs_out(new TriggerPrimitiveCollection);
-    std::auto_ptr<DTCollector> dtcolltr(new DTCollector);
+    std::unique_ptr<TriggerPrimitiveCollection> subs_out(new TriggerPrimitiveCollection);
+    std::unique_ptr<DTCollector> dtcolltr(new DTCollector);
     dtcolltr->extractPrimitives(phiDigis, thetaDigis, *subs_out);
     auto the_tp = subs_out->begin();
     auto tp_end   = subs_out->end();
@@ -66,7 +66,7 @@ inline TriggerPrimitiveCollection* L1TMuonTPPproducer(
       the_tp->setCMSGlobalPhi(phi);
       the_tp->setThetaBend(bend);
     }
-    std::auto_ptr<RPCCollector> rpccolltr(new RPCCollector);
+    std::unique_ptr<RPCCollector> rpccolltr(new RPCCollector);
     rpccolltr->extractPrimitives(rpcDigis,*subs_out);
     the_tp = subs_out->begin();
     tp_end   = subs_out->end();

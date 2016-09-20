@@ -43,16 +43,11 @@ public:
      the material effects to be considered and a particle mass and a momentum extimate,
      the magnetic field of the event is needed for propagations etc.
    */
-  BzeroReferenceTrajectory(const TrajectoryStateOnSurface &referenceTsos,
-			   const TransientTrackingRecHit::ConstRecHitContainer &recHits,
-			   bool hitsAreReverse,
-			   const MagneticField *magField,
-			   MaterialEffects materialEffects,
-			   PropagationDirection propDir,
-			   double mass,
-			   double momentumEstimate,
-			   bool useBeamSpot,
-			   const reco::BeamSpot &beamSpot);
+  BzeroReferenceTrajectory(const TrajectoryStateOnSurface& tsos,
+                           const TransientTrackingRecHit::ConstRecHitContainer& recHits,
+                           const MagneticField *magField,
+                           const reco::BeamSpot& beamSpot,
+                           const ReferenceTrajectoryBase::Config& config);
 
   virtual ~BzeroReferenceTrajectory() {}
 

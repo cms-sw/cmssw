@@ -82,7 +82,7 @@ namespace muonAssociatorByHitsDiagnostics {
          
     if (crossingframe) {
       event.getByLabel(simtracksXFTag,cf_simtracks);
-      auto_ptr<MixCollection<SimTrack> > SimTk( new MixCollection<SimTrack>(cf_simtracks.product()) );
+      unique_ptr<MixCollection<SimTrack> > SimTk( new MixCollection<SimTrack>(cf_simtracks.product()) );
       edm::LogVerbatim("MuonAssociatorByHits")<<"\n"<<"CrossingFrame<SimTrack> collection with InputTag = "<<simtracksXFTag
                                               <<" has size = "<<SimTk->size();
       int k = 0;
@@ -95,7 +95,7 @@ namespace muonAssociatorByHitsDiagnostics {
           <<"\n * "<<*ITER <<endl;
       }
       event.getByLabel(simtracksXFTag,cf_simvertices);
-      auto_ptr<MixCollection<SimVertex> > SimVtx( new MixCollection<SimVertex>(cf_simvertices.product()) );
+      unique_ptr<MixCollection<SimVertex> > SimVtx( new MixCollection<SimVertex>(cf_simvertices.product()) );
       edm::LogVerbatim("MuonAssociatorByHits")<<"\n"<<"CrossingFrame<SimVertex> collection with InputTag = "<<simtracksXFTag
                                               <<" has size = "<<SimVtx->size();
       int kv = 0;

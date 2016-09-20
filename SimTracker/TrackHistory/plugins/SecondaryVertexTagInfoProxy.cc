@@ -52,8 +52,8 @@ void SecondaryVertexTagInfoProxy::produce(edm::StreamID, edm::Event& event, cons
     event.getByToken(svTagInfoCollection_, svTagInfoCollection);
 
     // Auto pointers to the collection to be added to the event
-    std::auto_ptr<reco::VertexCollection> proxy (new reco::VertexCollection);
-    std::auto_ptr<edm::AssociationMap<edm::OneToMany<reco::SecondaryVertexTagInfoCollection, reco::VertexCollection> > >
+    std::unique_ptr<reco::VertexCollection> proxy (new reco::VertexCollection);
+    std::unique_ptr<edm::AssociationMap<edm::OneToMany<reco::SecondaryVertexTagInfoCollection, reco::VertexCollection> > >
     assoc (new edm::AssociationMap<edm::OneToMany<reco::SecondaryVertexTagInfoCollection, reco::VertexCollection> >);
 
     // Get a reference before to put in the event
@@ -78,8 +78,8 @@ void SecondaryVertexTagInfoProxy::produce(edm::StreamID, edm::Event& event, cons
     }
 
     // Adding the collection to the event
-    event.put(proxy);
-    event.put(assoc);
+    event.put(std::move(proxy));
+    event.put(std::move(assoc));
 }
 
 

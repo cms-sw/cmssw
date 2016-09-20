@@ -143,12 +143,12 @@ ReduceHcalRecHitCollectionProducer::produce(edm::Event& iEvent, const edm::Event
      }
 
    //Create empty output collections
-   std::auto_ptr< HBHERecHitCollection > miniRecHitCollection (new HBHERecHitCollection) ;
+   std::unique_ptr< HBHERecHitCollection > miniRecHitCollection (new HBHERecHitCollection) ;
 
 //loop through tracks.
    Handle<TrackCollection> tkTracks;
    iEvent.getByToken(inputCollectionToken_,tkTracks);
-   std::auto_ptr< DetIdCollection > interestingDetIdCollection( new DetIdCollection() ) ;
+   std::unique_ptr< DetIdCollection > interestingDetIdCollection( new DetIdCollection() ) ;
    for(TrackCollection::const_iterator itTrack = tkTracks->begin();
        itTrack != tkTracks->end();
        ++itTrack) {
@@ -172,7 +172,7 @@ ReduceHcalRecHitCollectionProducer::produce(edm::Event& iEvent, const edm::Event
         }
    }
 
-   iEvent.put( miniRecHitCollection,reducedHitsCollection_ );
+   iEvent.put(std::move(miniRecHitCollection),reducedHitsCollection_ );
 
 
 

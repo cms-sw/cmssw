@@ -58,6 +58,9 @@ pfBTagging = cms.Sequence(
         pfSimpleInclusiveSecondaryVertexHighEffBJetTags *
         pfCombinedInclusiveSecondaryVertexV2BJetTags
 
+        + pfGhostTrackVertexTagInfos *
+        pfGhostTrackBJetTags
+
       ) +
 
       # soft lepton tag infos and algos
@@ -70,6 +73,8 @@ pfBTagging = cms.Sequence(
     # overall combined taggers
     ( #CSV + soft-lepton + jet probability discriminators combined
       pfCombinedMVAV2BJetTags
+
+      + pfChargeBJetTags
 
     )
 )

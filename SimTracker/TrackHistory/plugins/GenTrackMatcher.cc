@@ -59,7 +59,7 @@ void GenTrackMatcher::produce(Event& evt, const EventSetup& es)
     evt.getByToken(genParticles_, barCodes);
     Handle<GenParticleCollection> genParticles;
     evt.getByToken(genParticles_, genParticles);
-    auto_ptr<GenParticleMatch> match(new GenParticleMatch(GenParticleRefProd(genParticles)));
+    unique_ptr<GenParticleMatch> match(new GenParticleMatch(GenParticleRefProd(genParticles)));
     GenParticleMatch::Filler filler(*match);
     size_t n = tracks->size();
     vector<int> indices(n,-1);
@@ -87,7 +87,7 @@ void GenTrackMatcher::produce(Event& evt, const EventSetup& es)
     }
     filler.insert(tracks, indices.begin(), indices.end());
     filler.fill();
-    evt.put(match);
+    evt.put(std::move(match));
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"

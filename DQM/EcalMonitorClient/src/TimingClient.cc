@@ -3,6 +3,7 @@
 #include "DQM/EcalCommon/interface/EcalDQMCommonUtils.h"
 
 #include "CondFormats/EcalObjects/interface/EcalDQMStatusHelper.h"
+#include "CondFormats/EcalObjects/interface/EcalChannelStatusCode.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -56,6 +57,8 @@ namespace ecaldqm
 
     MESet const& sTimeAllMap(sources_.at("TimeAllMap"));
     MESet const& sTimeMap(sources_.at("TimeMap"));
+    MESet const& sTimeMapByLS(sources_.at("TimeMapByLS"));
+    MESet const& sChStatus(sources_.at("ChStatus"));
 
     uint32_t mask(1 << EcalDQMStatusHelper::PHYSICS_BAD_CHANNEL_WARNING);
 
@@ -63,6 +66,7 @@ namespace ecaldqm
 
     MESet::iterator rItr(meRMSMap);
     MESet::const_iterator tItr(sTimeMap);
+    MESet::const_iterator tLSItr(sTimeMapByLS);
 
     float EBentries(0.), EEentries(0.);
     float EBmean(0.), EEmean(0.);
@@ -134,15 +138,24 @@ namespace ecaldqm
         qItr->setBinContent(doMask ? kMGood : kGood);
 
       // For Trend plots:
+      tLSItr = qItr;
+      float entriesLS( tLSItr->getBinEntries() );
+      float meanLS( tLSItr->getBinContent() );
+      float rmsLS( tLSItr->getBinError() * sqrt(entriesLS) );
+      float chStatus( sChStatus.getBinContent(id) );
+      
+      if ( entriesLS < minChannelEntries ) continue;
+      if ( chStatus != EcalChannelStatusCode::kOk ) continue; // exclude problematic channels
+      
       // Keep running count of timing mean, rms, and N_hits
       if ( id.subdetId() == EcalBarrel ) {
-        EBmean += mean;
-        EBrms += rms;
-        EBentries += entries;
+        EBmean += meanLS;
+        EBrms += rmsLS;
+        EBentries += entriesLS;
       } else {
-        EEmean += mean;
-        EErms += rms;
-        EEentries += entries;
+        EEmean += meanLS;
+        EErms += rmsLS;
+        EEentries += entriesLS;
       }
 
     } // channel loop

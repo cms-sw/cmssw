@@ -13,7 +13,6 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DetectorDescription/Base/interface/DDRotationMatrix.h"
-#include "DetectorDescription/Base/interface/DDutils.h"
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
 #include "DetectorDescription/Core/interface/DDMaterial.h"
@@ -186,7 +185,7 @@ void DDPixFwdBlades::execute(DDCompactView& cpv) {
     // create DDRotation for placing the child if not already existent :
 
     DDRotation rotation;   
-    std::string rotstr = DDSplit(mother).first + DDSplit(childName).first + int_to_string(copy);
+    std::string rotstr = DDSplit(mother).first + DDSplit(childName).first + std::to_string(copy);
     rotation = DDRotation(DDName(rotstr, idNameSpace));
 
     if (!rotation) {

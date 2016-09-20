@@ -23,6 +23,7 @@
 #include "DataFormats/Common/interface/ContainerMask.h"
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
+#include "DataFormats/Phase2TrackerCluster/interface/Phase2TrackerCluster1D.h"
 #include "RecoTracker/MeasurementDet/interface/MeasurementTrackerEvent.h"
 
 #include <memory>
@@ -74,10 +75,13 @@ namespace cms
     edm::EDGetTokenT<MeasurementTrackerEvent>     theMTELabel;
 
     bool skipClusters_;
+    bool phase2skipClusters_;
     typedef edm::ContainerMask<edmNew::DetSetVector<SiPixelCluster> > PixelClusterMask;
     typedef edm::ContainerMask<edmNew::DetSetVector<SiStripCluster> > StripClusterMask;
+    typedef edm::ContainerMask<edmNew::DetSetVector<Phase2TrackerCluster1D> > Phase2OTClusterMask;
     edm::EDGetTokenT<PixelClusterMask> maskPixels_;
     edm::EDGetTokenT<StripClusterMask> maskStrips_;
+    edm::EDGetTokenT<Phase2OTClusterMask> maskPhase2OTs_;
 
     // methods for debugging
     virtual TrajectorySeedCollection::const_iterator lastSeed(TrajectorySeedCollection const& theSeedColl){return theSeedColl.end();}

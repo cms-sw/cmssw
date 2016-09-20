@@ -6,28 +6,3 @@ hcalDigitizer = cms.PSet(
     hcalSimBlock,
     accumulatorType = cms.string("HcalDigiProducer"),
     makeDigiSimLinks = cms.untracked.bool(False))
-
-_newFactors = cms.vdouble(
-    210.55, 197.93, 186.12, 189.64, 189.63,
-    189.96, 190.03, 190.11, 190.18, 190.25,
-    190.32, 190.40, 190.47, 190.54, 190.61,
-    190.69, 190.83, 190.94, 190.94, 190.94,
-    190.94, 190.94, 190.94, 190.94, 190.94,
-    190.94, 190.94, 190.94, 190.94, 190.94,
-    190.94, 190.94, 190.94, 190.94, 190.94,
-    190.94, 190.94, 190.94, 190.94, 190.94 )
-
-from Configuration.StandardSequences.Eras import eras
-eras.phase2_hgcal.toModify( hcalDigitizer,
-    HBHEUpgradeQIE = cms.bool(True),
-    HFUpgradeQIE = cms.bool(True),
-    TestNumbering = cms.bool(True),
-    hb = dict(
-        photoelectronsToAnalog = cms.vdouble([10.]*16),
-        pixels = cms.int32(4500*4*2)
-    ),
-    he = dict( samplingFactors = _newFactors,
-        photoelectronsToAnalog = cms.vdouble([10.]*len(_newFactors)),
-        pixels = cms.int32(4500*4*2)
-    )
-)

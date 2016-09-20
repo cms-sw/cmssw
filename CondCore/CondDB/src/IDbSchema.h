@@ -21,7 +21,7 @@ namespace cond {
       virtual void insert( const std::string& name, cond::TimeType timeType, const std::string& objectType, 
 			   cond::SynchronizationType synchronizationType, cond::Time_t endOfValidity, const std::string& description, 
 			   cond::Time_t lastValidatedTime, const boost::posix_time::ptime& insertionTime ) = 0;
-      virtual void update( const std::string& name, cond::Time_t& endOfValidity, const std::string& description, 
+      virtual void update( const std::string& name, cond::SynchronizationType synchronizationType, cond::Time_t& endOfValidity, const std::string& description, 
 			   cond::Time_t lastValidatedTime, const boost::posix_time::ptime& updateTime ) = 0;
       virtual void updateValidity( const std::string& name, cond::Time_t lastValidatedTime, 
 				   const boost::posix_time::ptime& updateTime ) = 0;

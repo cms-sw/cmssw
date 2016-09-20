@@ -54,7 +54,7 @@ bool HcalStripHaloFilter::filter(edm::StreamID iID, edm::Event & iEvent, const e
     }
   }
 
-  iEvent.put( std::auto_ptr<bool>(new bool(pass)) );
+  iEvent.put(std::make_unique<bool>(pass));
 
   return taggingMode_ || pass;  // return false if it is a beamhalo event
 }

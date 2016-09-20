@@ -15,28 +15,28 @@ ClusterRefinerTagMCmerged(const edm::ParameterSet& conf)
 void ClusterRefinerTagMCmerged::
 produce(edm::Event& event, const edm::EventSetup& es)  {
 
-  std::auto_ptr< edmNew::DetSetVector<SiStripCluster> > output(new edmNew::DetSetVector<SiStripCluster>());
+  auto output = std::make_unique<edmNew::DetSetVector<SiStripCluster>>();
   output->reserve(10000,4*10000);
 
   associator_.reset(new TrackerHitAssociator(event, trackerHitAssociatorConfig_));
   edm::Handle< edmNew::DetSetVector<SiStripCluster> >     input;  
 
-  if ( findInput(inputToken, input, event) ) refineCluster(input, output);
+  if ( findInput(inputToken, input, event) ) refineCluster(input, *output);
   else edm::LogError("Input Not Found") << "[ClusterRefinerTagMCmerged::produce] ";// << inputTag;
 
   LogDebug("Output") << output->dataSize() << " clusters from " 
 		     << output->size()     << " modules";
   output->shrink_to_fit();
-  event.put(output);
+  event.put(std::move(output));
 }
 
 void  ClusterRefinerTagMCmerged::
 refineCluster(const edm::Handle< edmNew::DetSetVector<SiStripCluster> >& input,
-	      std::auto_ptr< edmNew::DetSetVector<SiStripCluster> >& output) {
+	      edmNew::DetSetVector<SiStripCluster>& output) {
 
   for (edmNew::DetSetVector<SiStripCluster>::const_iterator det=input->begin(); det!=input->end(); det++) {
     // DetSetVector filler to receive the clusters we produce
-    edmNew::DetSetVector<SiStripCluster>::TSFastFiller outFill(*output, det->id());
+    edmNew::DetSetVector<SiStripCluster>::TSFastFiller outFill(output, det->id());
     uint32_t detId = det->id();
     int ntk = 0;
     int NtkAll = 0;

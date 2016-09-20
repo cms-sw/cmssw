@@ -13,11 +13,14 @@
 
 class NewTrackAction;
 class TrackingAction;
+class CMSSteppingVerbose;
 
 class StackingAction : public G4UserStackingAction {
 
 public:
-  StackingAction(const TrackingAction*, const edm::ParameterSet & ps);
+  StackingAction(const TrackingAction*, const edm::ParameterSet & ps, 
+                 const CMSSteppingVerbose*);
+
   virtual ~StackingAction();
 
   virtual G4ClassificationOfNewTrack ClassifyNewTrack(const G4Track * aTrack);
@@ -67,6 +70,7 @@ private:
   std::vector<const G4Region*>  deadRegions;
 
   const TrackingAction*         trackAction;
+  const CMSSteppingVerbose*     steppingVerbose;
   NewTrackAction*               newTA;
 
   // Russian roulette regions

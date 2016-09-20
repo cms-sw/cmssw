@@ -3,7 +3,7 @@ import sys
 import FWCore.ParameterSet.VarParsing as VarParsing
 from FWCore.Utilities.Enumerate import Enumerate
 
-varType = Enumerate ("Run1 Ideal2015 Ideal2015dev 2015 2015dev RPC4RE11 2017 2019 2023 2023dev 2023sim 2023Muon MaPSA CRack DB")
+varType = Enumerate ("Run1 Ideal2015 Ideal2015dev 2015 2015dev GEMDev RPC4RE11 2017 2019 2023D1 2023D2 2023D3 MaPSA CRack DB")
 
 def help():
    print "Usage: cmsRun dumpSimGeometry_cfg.py  tag=TAG "
@@ -27,6 +27,9 @@ def simGeoLoad(score):
     elif score == "2015dev":
        process.load("Geometry.CMSCommonData.cmsExtendedGeometry2015devXML_cfi")
 
+    elif score == "GEMDev":
+       process.load("Geometry.CMSCommonData.cmsExtendedGeometry2015MuonGEMDevXML_cfi")
+       
     elif score == "Ideal2015":
        process.load("Geometry.CMSCommonData.cmsIdealGeometry2015XML_cfi")
 
@@ -42,17 +45,14 @@ def simGeoLoad(score):
     elif score == "2019":
        process.load('Configuration.Geometry.GeometryExtended2019Reco_cff')
   
-    elif score == "2023dev":
-       process.load('Geometry.CMSCommonData.cmsExtendedGeometry2023devXML_cfi')
+    elif score == "2023D1":
+       process.load('Geometry.CMSCommonData.cmsExtendedGeometry2023D1XML_cfi')
 
-    elif score == "2023sim":
-       process.load('Geometry.CMSCommonData.cmsExtendedGeometry2023simXML_cfi')
+    elif score == "2023D2":
+       process.load('Geometry.CMSCommonData.cmsExtendedGeometry2023D2XML_cfi')
  
-    elif score == "2023Muon":
-       process.load('Configuration.Geometry.GeometryExtended2023MuonReco_cff')
-
-    elif score == "2023":
-       process.load('Configuration.Geometry.GeometryExtended2023Reco_cff')
+    elif score == "2023D3":
+       process.load('Geometry.CMSCommonData.cmsExtendedGeometry2023D3XML_cfi')
 
     elif score == "MaPSA":
        process.load('Geometry.TrackerCommonData.mapsaGeometryXML_cfi')

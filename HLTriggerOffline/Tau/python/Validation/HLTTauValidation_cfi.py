@@ -9,11 +9,8 @@ hltTauValIdealMonitorMC = cms.EDAnalyzer("HLTTauDQMOfflineSource",
     TriggerEventSrc = cms.untracked.InputTag("hltTriggerSummaryAOD", "", hltTauValidationProcess_IDEAL),
     L1Plotter = cms.untracked.PSet(
         DQMFolder             = cms.untracked.string('L1'),
-        L1Taus                = cms.untracked.InputTag("l1extraParticles", "Tau"),
-	L1IsoTaus             = cms.untracked.InputTag("l1extraParticles", "IsoTau"),
-        L1Jets                = cms.untracked.InputTag("l1extraParticles", "Central"),
-        L1JetMinEt            = cms.untracked.double(40), # this value is arbitrary at the moment
-        L1ETM                 = cms.untracked.InputTag("l1extraParticles", "MET"),
+        L1Taus                = cms.untracked.InputTag("hltCaloStage2Digis", "Tau"),
+        L1ETM                 = cms.untracked.InputTag("hltCaloStage2Digis","EtSum"),
         L1ETMMin              = cms.untracked.double(50),
     ),
     Paths = cms.untracked.string("PFTau"),

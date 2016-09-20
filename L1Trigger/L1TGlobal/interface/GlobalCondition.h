@@ -10,7 +10,7 @@
  * Implementation:
  *    <TODO: enter implementation details>
  *
- * \author: Vasile Mihai Ghete - HEPHY Vienna
+ * \author: Brian Winer, OSU   Vasile Mihai Ghete - HEPHY Vienna
  *
  * $Date$
  * $Revision$
@@ -29,7 +29,7 @@
 
 // forward declarations
 
-using namespace l1t;
+
 
 // class declaration
 class GlobalCondition
@@ -87,12 +87,12 @@ public:
     }
 
     /// get / set the trigger object type(s) in the condition
-    inline const std::vector<GlobalObject>& objectType() const
+    inline const std::vector<l1t::GlobalObject>& objectType() const
     {
         return m_objectType;
     }
 
-    inline void setObjectType(const std::vector<GlobalObject>& objType)
+    inline void setObjectType(const std::vector<l1t::GlobalObject>& objType)
     {
         m_objectType = objType;
     }
@@ -162,7 +162,7 @@ protected:
     l1t::GtConditionType m_condType;
 
     /// the trigger object type(s)
-    std::vector<GlobalObject> m_objectType;
+    std::vector<l1t::GlobalObject> m_objectType;
 
     /// the operator used for the condition (>=, =): true for >=
     bool m_condGEq;

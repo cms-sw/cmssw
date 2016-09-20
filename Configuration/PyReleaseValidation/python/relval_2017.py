@@ -17,15 +17,12 @@ numWFStart=10000
 numWFSkip=200
 #2017 WFs to run in IB (TenMuE_0_200, TTbar, ZEE, MinBias, TTbar PU, ZEE PU)
 numWFIB = [10021.0,10024.0,10025.0,10026.0,10023.0,10224.0,10225.0]
-numWFIB.extend([10821.0,10824.0,10825.0,10826.0]) #2023sim scenario
-numWFIB.extend([10621.0,10624.0,10625.0,10626.0]) #2023 with tilted tracker
-numWFIB.extend([11021.0,11024.0,11025.0,11026.0]) #2023lreco
-for i,key in enumerate(upgradeKeys):
+for i,key in enumerate(upgradeKeys[2017]):
     numWF=numWFStart+i*numWFSkip
     for frag in upgradeFragments:
         k=frag[:-4]+'_'+key
         stepList=[]
-        for step in upgradeScenToRun[key]:
+        for step in upgradeProperties[2017][key]['ScenToRun']:
             if 'Sim' in step:
                 stepList.append(k+'_'+step)
             else:
@@ -33,3 +30,44 @@ for i,key in enumerate(upgradeKeys):
         if numWF in numWFIB:
 	    workflows[numWF] = [ upgradeDatasetFromFragment[frag], stepList]
         numWF+=1
+
+# Tracking-specific special workflows
+def _trackingOnly(stepList):
+    res = []
+    for step in stepList:
+        s = step
+        if 'RecoFull' in step or 'HARVESTFull' in step:
+            s = s.replace('Full', 'Full_trackingOnly')
+        res.append(s)
+    return res
+def _trackingRun2(stepList):
+    res = []
+    for step in stepList:
+        s = step
+        if 'RecoFull' in step:
+            if 'trackingOnly' in step:
+                s = s.replace('Only', 'OnlyRun2')
+            else:
+                s = s.replace('Full', 'Full_trackingRun2')
+        res.append(s)
+    return res
+def _trackingPhase1PU70(stepList):
+    res = []
+    for step in stepList:
+        s = step
+        if 'RecoFull' in step:
+            if 'trackingOnly' in step:
+                s = s.replace('Only', 'OnlyPhase1PU70')
+            else:
+                s = s.replace('Full', 'Full_trackingPhase1PU70')
+        res.append(s)
+    return res
+
+# compose and adding tracking specific workflows in the IB test. 
+# NB. those workflows are expected to be only used forIB test.
+#  if you really want to run them locally, do runTheMatrix.py --what 2017  -l workflow numbers
+workflows[10024.1] = [ workflows[10024.0][0], _trackingOnly(workflows[10024.0][1]) ]
+workflows[10024.2] = [ workflows[10024.0][0], _trackingRun2(workflows[10024.0][1]) ]
+workflows[10024.3] = [ workflows[10024.1][0], _trackingRun2(workflows[10024.1][1]) ]
+workflows[10024.4] = [ workflows[10024.0][0], _trackingPhase1PU70(workflows[10024.0][1]) ]
+workflows[10024.5] = [ workflows[10024.1][0], _trackingPhase1PU70(workflows[10024.1][1]) ]

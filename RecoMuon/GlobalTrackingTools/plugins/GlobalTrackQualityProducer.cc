@@ -163,13 +163,13 @@ GlobalTrackQualityProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
   */
 
   // create and fill value maps
-  std::auto_ptr<edm::ValueMap<reco::MuonQuality> > outQual(new edm::ValueMap<reco::MuonQuality>());
+  auto outQual = std::make_unique<edm::ValueMap<reco::MuonQuality>>();
   edm::ValueMap<reco::MuonQuality>::Filler fillerQual(*outQual);
   fillerQual.insert(glbMuons, valuesQual.begin(), valuesQual.end());
   fillerQual.fill();
   
   // put value map into event
-  iEvent.put(outQual);
+  iEvent.put(std::move(outQual));
 }
 
 std::pair<double,double> GlobalTrackQualityProducer::kink(Trajectory& muon) const {

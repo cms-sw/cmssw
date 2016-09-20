@@ -13,6 +13,8 @@ dEdxAnalyzer = cms.EDAnalyzer("dEdxAnalyzer",
        TracksForDeDx       = cms.string('generalTracks'),
        deDxProducers       = cms.vstring('dedxDQMHarm2SP', 'dedxDQMHarm2SO', 'dedxDQMHarm2PO'),
 
+       genericTriggerEventPSet = cms.PSet(),
+
        #cuts on number of hits
        TrackHitMin         = cms.double(8),
        HIPdEdxMin          = cms.double(3.5),
@@ -55,6 +57,8 @@ dEdxHitAnalyzer = cms.EDAnalyzer("dEdxHitAnalyzer",
        #input collections
        TracksForDeDx       = cms.string('generalTracks'),
        deDxHitProducers       = cms.vstring('dedxHitInfo'),
+
+       genericTriggerEventPSet = cms.PSet(),
 
        #histograms definition
        dEdxNHitBin         = cms.int32(30),

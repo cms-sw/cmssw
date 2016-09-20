@@ -21,6 +21,14 @@ public:
                             const edm::Event & ev, const edm::EventSetup& es,
                             const SeedingLayerSetsHits::SeedingLayerSet& pairLayers,
                             const std::vector<SeedingLayerSetsHits::SeedingLayer>& thirdLayers) override;
+  void hitTriplets(
+		   const TrackingRegion& region, 
+		   OrderedHitTriplets & result,
+		   const edm::EventSetup & es,
+		   const HitDoublets & doublets,
+		   const RecHitsSortedInPhi ** thirdHitMap,
+		   const std::vector<const DetLayer *> & thirdLayerDetLayer,
+		   const int nThirdLayers)override;
 
 private:
   float extraHitRZtolerance;

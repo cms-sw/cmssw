@@ -84,8 +84,8 @@ TrackAssociatorEDProducer::produce(edm::StreamID, edm::Event& iEvent, const edm:
    Handle<edm::View<reco::Track> > trackCollection;
    bool trackAvailable = iEvent.getByToken(trackCollectionToken_, trackCollection );
 
-   std::auto_ptr<reco::RecoToSimCollection> rts;
-   std::auto_ptr<reco::SimToRecoCollection> str;
+   std::unique_ptr<reco::RecoToSimCollection> rts;
+   std::unique_ptr<reco::SimToRecoCollection> str;
 
    if (theIgnoremissingtrackcollection && !trackAvailable){
      //the track collection is not in the event and we're being told to ignore this.
@@ -103,8 +103,8 @@ TrackAssociatorEDProducer::produce(edm::StreamID, edm::Event& iEvent, const edm:
      rts.reset(new reco::RecoToSimCollection(recSimColl));
      str.reset(new reco::SimToRecoCollection(simRecColl));
 
-     iEvent.put(rts);
-     iEvent.put(str);
+     iEvent.put(std::move(rts));
+     iEvent.put(std::move(str));
    }
 }
 

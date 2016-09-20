@@ -45,5 +45,20 @@ namespace HcalDbXml {
   bool dumpObject (std::ostream& fOutput,
                    unsigned fRun, unsigned long fGMTIOVBegin, unsigned long fGMTIOVEnd, const std::string& fTag, unsigned fVersion,
                    const HcalQIETypes& fObject) {return false;}
+  bool dumpObject (std::ostream& fOutput, 
+		   unsigned fRun, unsigned long fGMTIOVBegin, unsigned long fGMTIOVEnd, const std::string& fTag, unsigned fVersion, 
+		   const HcalFrontEndMap& fObject) {return false;}
+  bool dumpObject (std::ostream& fOutput, 
+		   unsigned fRun, unsigned long fGMTIOVBegin, unsigned long fGMTIOVEnd, const std::string& fTag, unsigned fVersion,
+		   const HcalSiPMParameters& fObject);
+  bool dumpObject (std::ostream& fOutput, 
+		   unsigned fRun, unsigned long fGMTIOVBegin, unsigned long fGMTIOVEnd, const std::string& fTag, unsigned fVersion,
+		   const HcalSiPMCharacteristics& fObject);
+  bool dumpObject (std::ostream& fOutput, 
+		   unsigned fRun, unsigned long fGMTIOVBegin, unsigned long fGMTIOVEnd, const std::string& fTag, unsigned fVersion,
+		   const HcalTPParameters& fObject);
+  bool dumpObject (std::ostream& fOutput, 
+		   unsigned fRun, unsigned long fGMTIOVBegin, unsigned long fGMTIOVEnd, const std::string& fTag, unsigned fVersion,
+		   const HcalTPChannelParameters& fObject);
 } 
 #endif

@@ -67,6 +67,7 @@ public:
 protected:
 
   template <class T> bool QF(const T& traj) const{
+    if (!theSeedExtensionTrajectoryFilter->qualityFilter(traj)) return false;
     if (!theChargeSignificanceTrajectoryFilter->qualityFilter(traj)) return false;            
     if (!theMinHitsTrajectoryFilter->qualityFilter(traj)) return false;
     if (!theMinPtTrajectoryFilter->qualityFilter(traj)) return false;

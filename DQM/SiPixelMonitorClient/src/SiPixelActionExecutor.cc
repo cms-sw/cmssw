@@ -392,7 +392,7 @@ void SiPixelActionExecutor::fillSummary(DQMStore::IBooker& iBooker, DQMStore::IG
 		(*iv)=="size"||(*iv)=="sizeX"||(*iv)=="sizeY"||(*iv)=="minrow"||
 		(*iv)=="maxrow"||(*iv)=="mincol"||(*iv)=="maxcol")
 	  prefix="SUMCLU";
-          if(currDir.find("Track")!=string::npos) prefix="SUMTRK";
+	if(currDir.find("Track")!=string::npos) prefix="SUMTRK";
 	else if((*iv)=="residualX"||(*iv)=="residualY")
 	  prefix="SUMTRK";
 	else if((*iv)=="ClustX"||(*iv)=="ClustY"||(*iv)=="nRecHits"||(*iv)=="ErrorX"||(*iv)=="ErrorY")
@@ -967,7 +967,7 @@ void SiPixelActionExecutor::fillGrandBarrelSummaryHistos(DQMStore::IBooker & iBo
 		    (*iv)=="size"||(*iv)=="sizeX"||(*iv)=="sizeY"||(*iv)=="minrow"||
 		    (*iv)=="maxrow"||(*iv)=="mincol"||(*iv)=="maxcol")
 	      prefix="SUMCLU";
-	      if(currDir.find("Track")!=string::npos) prefix="SUMTRK";
+	    if(currDir.find("Track")!=string::npos) prefix="SUMTRK";
 	    else if((*iv)=="residualX_mean"||(*iv)=="residualY_mean"||
 		    (*iv)=="residualX_RMS"||(*iv)=="residualY_RMS")
 	      prefix="SUMTRK";
@@ -1215,7 +1215,7 @@ void SiPixelActionExecutor::fillGrandEndcapSummaryHistos(DQMStore::IBooker& iBoo
 		    (*iv)=="size"||(*iv)=="sizeX"||(*iv)=="sizeY"||(*iv)=="minrow"||
 		    (*iv)=="maxrow"||(*iv)=="mincol"||(*iv)=="maxcol")
 	      prefix="SUMCLU";
-	      if(currDir.find("Track")!=string::npos) prefix="SUMTRK";
+	    if(currDir.find("Track")!=string::npos) prefix="SUMTRK";
 	    else if((*iv)=="residualX_mean"||(*iv)=="residualY_mean"||
 		    (*iv)=="residualX_RMS"||(*iv)=="residualY_RMS")
 	      prefix="SUMTRK";
@@ -1661,17 +1661,17 @@ void SiPixelActionExecutor::bookEfficiency(DQMStore::IBooker & iBooker, bool isU
   iBooker.cd();
   iBooker.setCurrentFolder("Pixel/Endcap");
   if (!isUpgrade) {
-  if(Tier0Flag_){
-    HitEfficiency_Dp1 = iBooker.book2D("HitEfficiency_Dp1","Hit Efficiency in Endcap_Disk_p1;Blades;",24,-12.,12.,1,0.,1.);
-    HitEfficiency_Dp2 = iBooker.book2D("HitEfficiency_Dp2","Hit Efficiency in Endcap_Disk_p2;Blades;",24,-12.,12.,1,0.,1.);
-    HitEfficiency_Dm1 = iBooker.book2D("HitEfficiency_Dm1","Hit Efficiency in Endcap_Disk_m1;Blades;",24,-12.,12.,1,0.,1.);
-    HitEfficiency_Dm2 = iBooker.book2D("HitEfficiency_Dm2","Hit Efficiency in Endcap_Disk_m2;Blades;",24,-12.,12.,1,0.,1.);
-  }else{
-    HitEfficiency_Dp1 = iBooker.book2D("HitEfficiency_Dp1","Hit Efficiency in Endcap_Disk_p1;Blades;Modules",24,-12.,12.,7,1.,8.);
-    HitEfficiency_Dp2 = iBooker.book2D("HitEfficiency_Dp2","Hit Efficiency in Endcap_Disk_p2;Blades;Modules",24,-12.,12.,7,1.,8.);
-    HitEfficiency_Dm1 = iBooker.book2D("HitEfficiency_Dm1","Hit Efficiency in Endcap_Disk_m1;Blades;Modules",24,-12.,12.,7,1.,8.);
-    HitEfficiency_Dm2 = iBooker.book2D("HitEfficiency_Dm2","Hit Efficiency in Endcap_Disk_m2;Blades;Modules",24,-12.,12.,7,1.,8.);
-  }
+    if(Tier0Flag_){
+      HitEfficiency_Dp1 = iBooker.book2D("HitEfficiency_Dp1","Hit Efficiency in Endcap_Disk_p1;Blade;Panel",26,-13.,13.,2,0.5,2.5);
+      HitEfficiency_Dp2 = iBooker.book2D("HitEfficiency_Dp2","Hit Efficiency in Endcap_Disk_p2;Blade;Panel",26,-13.,13.,2,0.5,2.5);
+      HitEfficiency_Dm1 = iBooker.book2D("HitEfficiency_Dm1","Hit Efficiency in Endcap_Disk_m1;Blade;Panel",26,-13.,13.,2,0.5,2.5);
+      HitEfficiency_Dm2 = iBooker.book2D("HitEfficiency_Dm2","Hit Efficiency in Endcap_Disk_m2;;Blade;Panel",26,-13.,13.,2,0.5,2.5);   
+    }else{
+      HitEfficiency_Dp1 = iBooker.book2D("HitEfficiency_Dp1","Hit Efficiency in Endcap_Disk_p1;Blades;Modules",24,-12.,12.,7,1.,8.);
+      HitEfficiency_Dp2 = iBooker.book2D("HitEfficiency_Dp2","Hit Efficiency in Endcap_Disk_p2;Blades;Modules",24,-12.,12.,7,1.,8.);
+      HitEfficiency_Dm1 = iBooker.book2D("HitEfficiency_Dm1","Hit Efficiency in Endcap_Disk_m1;Blades;Modules",24,-12.,12.,7,1.,8.);
+      HitEfficiency_Dm2 = iBooker.book2D("HitEfficiency_Dm2","Hit Efficiency in Endcap_Disk_m2;Blades;Modules",24,-12.,12.,7,1.,8.);
+    }
   } else if (isUpgrade) {
     if(Tier0Flag_){
       HitEfficiency_Dp1 = iBooker.book2D("HitEfficiency_Dp1","Hit Efficiency in Endcap_Disk_p1;Blades;",28,-17.,11.,1,0.,1.);
@@ -1825,45 +1825,40 @@ void SiPixelActionExecutor::fillEfficiency(DQMStore::IBooker & iBooker, DQMStore
       for (vector<string>::const_iterator it = meVec.begin(); it != meVec.end(); it++) {
         string full_path = currDir + "/" + (*it);
         if(full_path.find("missing_")!=string::npos){ // If we have missing hits ME
-	  MonitorElement * me = iGetter.get(full_path);
-	  if (!me) continue;
-	  float missingHits = me->getEntries();
+	  MonitorElement * missing = iGetter.get(full_path);
+	  if (!missing) continue;
+	  //float missingHits = missing->getEntries();
 	  string new_path = full_path.replace(full_path.find("missing"),7,"valid");
-	  me = iGetter.get(new_path);
-	  if (!me) continue;
-	  float validHits = me->getEntries();
-	  float hitEfficiency = -1.;
-	  if(validHits + missingHits > 0.) hitEfficiency = validHits / (validHits + missingHits);
-	  int binx = 0; int biny = 1;
+	  MonitorElement * valid = iGetter.get(new_path);
+	  if (!valid) continue;
+	  //float validHits = valid->getEntries();
+	  int binx = 0; int biny = 0;
 	  binx = getBlade(dname);
-	  if(currDir.find("HalfCylinder_mI")!=string::npos || currDir.find("HalfCylinder_pI")!=string::npos){ binx = binx + 12;}
-	  else{ 
-	    if(binx==1) binx = 12;
-	    else if(binx==2) binx = 11;
-	    else if(binx==3) binx = 10;
-	    else if(binx==4) binx = 9;
-	    else if(binx==5) binx = 8;
-	    else if(binx==6) binx = 7;
-	    else if(binx==7) binx = 6;
-	    else if(binx==8) binx = 5;
-	    else if(binx==9) binx = 4;
-	    else if(binx==10) binx = 3;
-	    else if(binx==11) binx = 2;
-	    else if(binx==12) binx = 1;
-	  }
-	  if(currDir.find("Disk_1")!=string::npos && currDir.find("HalfCylinder_m")!=string::npos){
-	    HitEfficiency_Dm1 = iGetter.get("Pixel/Endcap/HitEfficiency_Dm1");
-	    if(HitEfficiency_Dm1) HitEfficiency_Dm1->setBinContent(binx, biny, (float)hitEfficiency);
-	  }else if(currDir.find("Disk_2")!=string::npos && currDir.find("HalfCylinder_m")!=string::npos){
-	    HitEfficiency_Dm2 = iGetter.get("Pixel/Endcap/HitEfficiency_Dm2");
-	    if(HitEfficiency_Dm2) HitEfficiency_Dm2->setBinContent(binx, biny, (float)hitEfficiency);
-	  }else if(currDir.find("Disk_1")!=string::npos && currDir.find("HalfCylinder_p")!=string::npos){
-	    HitEfficiency_Dp1 = iGetter.get("Pixel/Endcap/HitEfficiency_Dp1");
-	    if(HitEfficiency_Dp1) HitEfficiency_Dp1->setBinContent(binx, biny, (float)hitEfficiency);
-	  }else if(currDir.find("Disk_2")!=string::npos && currDir.find("HalfCylinder_p")!=string::npos){
-	    HitEfficiency_Dp2 = iGetter.get("Pixel/Endcap/HitEfficiency_Dp2");
-	    if(HitEfficiency_Dp2) HitEfficiency_Dp2->setBinContent(binx, biny, (float)hitEfficiency);
-          }
+	  if(currDir.find("HalfCylinder_mI")!=string::npos || currDir.find("HalfCylinder_pI")!=string::npos){ binx = binx + 14;}
+	  else{  binx = 13 -binx;}
+	  const int nPanel=2;
+	  for (int i=1; i<nPanel+1; i++){
+	    float hitEfficiency = -1.;
+	    float missingHits=0;
+	    float validHits=0;
+	    biny=i;
+	    missingHits=missing->getBinContent(i);
+	    validHits=valid->getBinContent(i);
+	    if(validHits + missingHits > 0.) hitEfficiency = validHits / (validHits + missingHits);
+	    if(currDir.find("Disk_1")!=string::npos && currDir.find("HalfCylinder_m")!=string::npos){
+	      HitEfficiency_Dm1 = iGetter.get("Pixel/Endcap/HitEfficiency_Dm1");
+	      if(HitEfficiency_Dm1) HitEfficiency_Dm1->setBinContent(binx, biny, (float)hitEfficiency);
+	    }else if(currDir.find("Disk_2")!=string::npos && currDir.find("HalfCylinder_m")!=string::npos){
+	      HitEfficiency_Dm2 = iGetter.get("Pixel/Endcap/HitEfficiency_Dm2");
+	      if(HitEfficiency_Dm2) HitEfficiency_Dm2->setBinContent(binx, biny, (float)hitEfficiency);
+	    }else if(currDir.find("Disk_1")!=string::npos && currDir.find("HalfCylinder_p")!=string::npos){
+	      HitEfficiency_Dp1 = iGetter.get("Pixel/Endcap/HitEfficiency_Dp1");
+	      if(HitEfficiency_Dp1) HitEfficiency_Dp1->setBinContent(binx, biny, (float)hitEfficiency);
+	    }else if(currDir.find("Disk_2")!=string::npos && currDir.find("HalfCylinder_p")!=string::npos){
+	      HitEfficiency_Dp2 = iGetter.get("Pixel/Endcap/HitEfficiency_Dp2");
+	      if(HitEfficiency_Dp2) HitEfficiency_Dp2->setBinContent(binx, biny, (float)hitEfficiency);
+	    }
+	  }//EndOfFor
 	}
       } 
     }else if(!isbarrel && dname.find("Blade_")!=string::npos && isUpgrade){ 

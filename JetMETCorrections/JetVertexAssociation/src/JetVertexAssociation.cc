@@ -103,8 +103,8 @@ namespace cms{
    }
 
    pair<double, bool> result;
-   std::auto_ptr<ResultCollection1> result1 (new ResultCollection1) ;
-   std::auto_ptr<ResultCollection2> result2 (new ResultCollection2) ;
+   std::unique_ptr<ResultCollection1> result1 (new ResultCollection1) ;
+   std::unique_ptr<ResultCollection2> result2 (new ResultCollection2) ;
 
    CaloJetCollection::const_iterator jet = jets->begin ();
 
@@ -117,8 +117,8 @@ namespace cms{
 	}
    }
 
-   iEvent.put(result1, "Var");
-   iEvent.put(result2, "JetType");
+   iEvent.put(std::move(result1), "Var");
+   iEvent.put(std::move(result2), "JetType");
 
   }
 }

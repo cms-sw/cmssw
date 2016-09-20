@@ -65,7 +65,7 @@ void DistortedMETProducer::produce(edm::Event& ev, const edm::EventSetup&) {
       }
       edm::RefToBase<reco::MET> met = metCollection->refAt(0);
 
-      std::auto_ptr<reco::METCollection> newmetCollection (new reco::METCollection);
+      std::unique_ptr<reco::METCollection> newmetCollection (new reco::METCollection);
 
       double met_et = met->et() * (1. + metScaleShift_);
       double sum_et = met->sumEt() * (1. + metScaleShift_);
@@ -78,7 +78,7 @@ void DistortedMETProducer::produce(edm::Event& ev, const edm::EventSetup&) {
 
       newmetCollection->push_back(*newmet);
 
-      ev.put(newmetCollection);
+      ev.put(std::move(newmetCollection));
 }
 
 DEFINE_FWK_MODULE(DistortedMETProducer);

@@ -38,13 +38,13 @@ StoreSecondary::~StoreSecondary() {
 
 void StoreSecondary::produce(edm::Event& e, const edm::EventSetup&) {
 
-  std::auto_ptr<std::vector<math::XYZTLorentzVector> > secMom(new std::vector<math::XYZTLorentzVector>);
+  std::unique_ptr<std::vector<math::XYZTLorentzVector> > secMom(new std::vector<math::XYZTLorentzVector>);
   *secMom = secondaries;
-  e.put(secMom, "SecondaryMomenta");
+  e.put(std::move(secMom), "SecondaryMomenta");
 
-  std::auto_ptr<std::vector<int> > secNumber(new std::vector<int>);
+  std::unique_ptr<std::vector<int> > secNumber(new std::vector<int>);
   *secNumber = nsecs;
-  e.put(secNumber, "SecondaryParticles");
+  e.put(std::move(secNumber), "SecondaryParticles");
 
   LogDebug("CheckSecondary") << "StoreSecondary:: Event " << e.id() << " with "
 			     << nsecs.size() << " hadronic collisions with "

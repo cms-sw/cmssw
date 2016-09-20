@@ -42,6 +42,28 @@ namespace l1t {
   		     (ring == 4) ? 1 : ring, chamber ); // Not sure if this is correct, or what "layer" does. - AWB 27.04.16
   }
 
+  void EMTFHit::ImportRPCDetId( const RPCDetId& _detId) {
+
+    EMTFHit::SetRPCDetId ( _detId ); 
+    
+    EMTFHit::set_endcap    ( _detId.region()    ); // 0 for barrel, +/-1 for +/- endcap
+    EMTFHit::set_station   ( _detId.station()   ); // Same as in CSCs (?)
+    EMTFHit::set_sector    ( _detId.sector()    ); // Same as in CSCs (?)  
+    EMTFHit::set_subsector ( _detId.subsector() ); // Same as in CSCs (?)
+    EMTFHit::set_ring      ( _detId.ring()      ); // Ring number in endcap (from 1 to 3, but only 2 and 3 exist currently)
+    EMTFHit::set_roll      ( _detId.roll()      ); // AKA eta "partition" or "segment": subdivision of ring into 3 parts, noted "C-B-A" in-to-out
+
+    EMTFHit::set_is_CSC_hit ( 0 );
+    EMTFHit::set_is_RPC_hit ( 1 );
+
+  } // End EMTFHit::ImportCSCDetId
+
+  RPCDetId EMTFHit::CreateRPCDetId() {
+    
+    return RPCDetId( endcap, ring, station, sector, rpc_layer, subsector, roll );
+    
+  }
+
   // Based on L1Trigger/L1TMuon/src/MuonTriggerPrimitive.cc
   // TriggerPrimitive::TriggerPrimitive(const CSCDetId& detid, const CSCCorrelatedLCTDigi& digi)
   // This is what gets filled when "getCSCData()" is called in
@@ -80,6 +102,19 @@ namespace l1t {
   				 bx + 6, 0, 0, sync_err, csc_ID );  
     // Unsure of how to fill "trknmb" or "bx0" - for now filling with 1 and 0. - AWB 27.04.16
     // Appear to be unused in the emulator code. mpclink = 0 (after bx) indicates unsorted.
+  }
+
+  void EMTFHit::ImportRPCDigi( const RPCDigi& _digi ) {
+
+    EMTFHit::SetRPCDigi    ( _digi );
+    EMTFHit::set_strip_hi  ( _digi.strip()  );
+    EMTFHit::set_strip_low ( _digi.strip()  );
+    EMTFHit::set_bx        ( _digi.bx() - 6 );  // Started looking at RPCs, not used yet
+
+  }
+
+  RPCDigi EMTFHit::CreateRPCDigi() {
+    return RPCDigi( strip, bx + 6 );
   }
 
   void EMTFHit::ImportME( const emtf::ME _ME) {

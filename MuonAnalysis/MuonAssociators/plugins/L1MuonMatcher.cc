@@ -99,8 +99,8 @@ pat::L1MuonMatcher::produce(edm::Event & iEvent, const edm::EventSetup & iSetup)
     iEvent.getByToken(recoToken_, reco);
     iEvent.getByToken(l1Token_, l1s);
 
-    auto_ptr<PATPrimitiveCollection> propOut(new PATPrimitiveCollection());
-    auto_ptr<PATPrimitiveCollection> l1Out(new PATPrimitiveCollection());
+    unique_ptr<PATPrimitiveCollection> propOut(new PATPrimitiveCollection());
+    unique_ptr<PATPrimitiveCollection> l1Out(new PATPrimitiveCollection());
     std::vector<edm::Ptr<reco::Candidate> > l1rawMatches(reco->size());
     vector<int>   isSelected(l1s->size(), -1);
     std::vector<edm::Ptr<reco::Candidate> > whichRecoMatch(l1s->size());
@@ -137,20 +137,20 @@ pat::L1MuonMatcher::produce(edm::Event & iEvent, const edm::EventSetup & iSetup)
         }
     }
 
-    OrphanHandle<PATPrimitiveCollection> l1Done = iEvent.put(l1Out, "l1muons");
-    OrphanHandle<PATPrimitiveCollection> propDone = iEvent.put(propOut, "propagatedReco");
+    OrphanHandle<PATPrimitiveCollection> l1Done = iEvent.put(std::move(l1Out), "l1muons");
+    OrphanHandle<PATPrimitiveCollection> propDone = iEvent.put(std::move(propOut), "propagatedReco");
 
-    auto_ptr<PATTriggerAssociation> propAss(new PATTriggerAssociation(propDone));
+    unique_ptr<PATTriggerAssociation> propAss(new PATTriggerAssociation(propDone));
     PATTriggerAssociation::Filler propFiller(*propAss);
     propFiller.insert(reco, propMatches.begin(), propMatches.end());
     propFiller.fill();
-    iEvent.put(propAss, "propagatedReco");
+    iEvent.put(std::move(propAss), "propagatedReco");
 
-    auto_ptr<PATTriggerAssociation> fullAss(new PATTriggerAssociation(  l1Done));
+    unique_ptr<PATTriggerAssociation> fullAss(new PATTriggerAssociation(  l1Done));
     PATTriggerAssociation::Filler fullFiller(*fullAss);
     fullFiller.insert(reco, fullMatches.begin(), fullMatches.end());
     fullFiller.fill();
-    iEvent.put(fullAss);
+    iEvent.put(std::move(fullAss));
 
     if (writeExtraInfo_) {
         storeExtraInfo(iEvent, reco, deltaRs,   "deltaR");
@@ -170,11 +170,11 @@ pat::L1MuonMatcher::storeExtraInfo(edm::Event &iEvent,
                      const std::vector<T> & values,
                      const std::string    & label) const {
     using namespace edm; using namespace std;
-    auto_ptr<ValueMap<T> > valMap(new ValueMap<T>());
+    unique_ptr<ValueMap<T> > valMap(new ValueMap<T>());
     typename edm::ValueMap<T>::Filler filler(*valMap);
     filler.insert(handle, values.begin(), values.end());
     filler.fill();
-    iEvent.put(valMap, label);
+    iEvent.put(std::move(valMap), label);
 }
 
 

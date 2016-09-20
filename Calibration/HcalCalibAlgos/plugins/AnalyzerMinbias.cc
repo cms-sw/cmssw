@@ -173,7 +173,7 @@ void AnalyzerMinbias::beginJob() {
   myTree->Branch("mom0_Noise",  &mom0_Noise, "mom0_Noise/F");
   myTree->Branch("mom1_Noise",  &mom1_Noise, "mom1_Noise/F");
   myTree->Branch("mom2_Noise",  &mom2_Noise, "mom2_Noise/F");
-  myTree->Branch("mom3_Noise",  &mom2_Noise, "mom3_Noise/F");
+  myTree->Branch("mom3_Noise",  &mom3_Noise, "mom3_Noise/F");
   myTree->Branch("mom4_Noise",  &mom4_Noise, "mom4_Noise/F");
   myTree->Branch("mom0_Diff",   &mom0_Diff,  "mom0_Diff/F");
   myTree->Branch("mom1_Diff",   &mom1_Diff,  "mom1_Diff/F");

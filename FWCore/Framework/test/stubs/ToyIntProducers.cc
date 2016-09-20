@@ -120,6 +120,72 @@ namespace edmtest {
   }
   
   //--------------------------------------------------------------------
+  //
+  // Produces an IntProduct instance.
+  //
+  //
+  class BusyWaitIntProducer : public edm::global::EDProducer<> {
+  public:
+    explicit BusyWaitIntProducer(edm::ParameterSet const& p) :
+    value_(p.getParameter<int>("ivalue")),
+    iterations_(p.getParameter<unsigned int>("iterations")),
+    pi_(std::acos(-1)){
+      produces<IntProduct>();
+    }
+
+    virtual void produce(edm::StreamID, edm::Event& e, edm::EventSetup const& c) const override;
+    
+  private:
+    const int value_;
+    const unsigned int iterations_;
+    const double pi_;
+    
+  };
+  
+  void
+  BusyWaitIntProducer::produce(edm::StreamID, edm::Event& e, edm::EventSetup const&) const {
+    
+    double sum = 0.;
+    const double stepSize = pi_/iterations_;
+    for(unsigned int i = 0; i < iterations_; ++i) {
+      sum += stepSize*cos(i*stepSize);
+    }
+    
+    e.put(std::make_unique<IntProduct>(value_+sum));
+  }
+
+  //--------------------------------------------------------------------
+  class BusyWaitIntLegacyProducer : public edm::EDProducer {
+  public:
+    explicit BusyWaitIntLegacyProducer(edm::ParameterSet const& p) :
+    value_(p.getParameter<int>("ivalue")),
+    iterations_(p.getParameter<unsigned int>("iterations")),
+    pi_(std::acos(-1)){
+      produces<IntProduct>();
+    }
+    
+    virtual void produce(edm::Event& e, edm::EventSetup const& c) override;
+    
+  private:
+    const int value_;
+    const unsigned int iterations_;
+    const double pi_;
+    
+  };
+  
+  void
+  BusyWaitIntLegacyProducer::produce( edm::Event& e, edm::EventSetup const&) {
+    
+    double sum = 0.;
+    const double stepSize = pi_/iterations_;
+    for(unsigned int i = 0; i < iterations_; ++i) {
+      sum += stepSize*cos(i*stepSize);
+    }
+    
+    e.put(std::make_unique<IntProduct>(value_+sum));
+  }
+  
+  //--------------------------------------------------------------------
 
   class ConsumingIntProducer : public edm::stream::EDProducer<> {
   public:
@@ -287,6 +353,8 @@ using edmtest::FailingProducer;
 using edmtest::NonProducer;
 using edmtest::IntProducer;
 using edmtest::IntLegacyProducer;
+using edmtest::BusyWaitIntProducer;
+using edmtest::BusyWaitIntLegacyProducer;
 using edmtest::ConsumingIntProducer;
 using edmtest::EventNumberIntProducer;
 using edmtest::TransientIntProducer;
@@ -297,6 +365,8 @@ DEFINE_FWK_MODULE(FailingProducer);
 DEFINE_FWK_MODULE(NonProducer);
 DEFINE_FWK_MODULE(IntProducer);
 DEFINE_FWK_MODULE(IntLegacyProducer);
+DEFINE_FWK_MODULE(BusyWaitIntProducer);
+DEFINE_FWK_MODULE(BusyWaitIntLegacyProducer);
 DEFINE_FWK_MODULE(ConsumingIntProducer);
 DEFINE_FWK_MODULE(EventNumberIntProducer);
 DEFINE_FWK_MODULE(TransientIntProducer);

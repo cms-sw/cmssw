@@ -17,13 +17,17 @@ RecoBTagFEVT = cms.PSet(
         'keep *_pfSimpleInclusiveSecondaryVertexHighEffBJetTags_*_*',
         'keep *_pfCombinedSecondaryVertexV2BJetTags_*_*',
         'keep *_pfCombinedInclusiveSecondaryVertexV2BJetTags_*_*',
+        'keep *_pfGhostTrackVertexTagInfos_*_*',
+        'keep *_pfGhostTrackBJetTags_*_*',
         'keep *_pfCombinedMVAV2BJetTags_*_*',
         'keep *_inclusiveCandidateSecondaryVertices_*_*',
         # CTagging
         'keep *_inclusiveCandidateSecondaryVerticesCvsL_*_*',
         'keep *_pfInclusiveSecondaryVertexFinderCvsLTagInfos_*_*',
         'keep *_pfCombinedCvsLJetTags_*_*',
-        'keep *_pfCombinedCvsBJetTags_*_*'
+        'keep *_pfCombinedCvsBJetTags_*_*',
+        # ChargeTag
+        'keep *_pfChargeBJetTags_*_*'
     )
 )
 #RECO content
@@ -43,13 +47,17 @@ RecoBTagRECO = cms.PSet(
         'keep *_pfSimpleInclusiveSecondaryVertexHighEffBJetTags_*_*',
         'keep *_pfCombinedSecondaryVertexV2BJetTags_*_*',
         'keep *_pfCombinedInclusiveSecondaryVertexV2BJetTags_*_*',
+        'keep *_pfGhostTrackVertexTagInfos_*_*',
+				'keep *_pfGhostTrackBJetTags_*_*',
         'keep *_pfCombinedMVAV2BJetTags_*_*',
         'keep *_inclusiveCandidateSecondaryVertices_*_*',
         # CTagging
         'keep *_inclusiveCandidateSecondaryVerticesCvsL_*_*',
         'keep *_pfInclusiveSecondaryVertexFinderCvsLTagInfos_*_*',
         'keep *_pfCombinedCvsLJetTags_*_*',
-        'keep *_pfCombinedCvsBJetTags_*_*'
+        'keep *_pfCombinedCvsBJetTags_*_*',
+        # ChargeTag
+        'keep *_pfChargeBJetTags_*_*'
     )
 )
 #AOD content
@@ -64,11 +72,14 @@ RecoBTagAOD = cms.PSet(
         'keep *_pfSimpleInclusiveSecondaryVertexHighEffBJetTags_*_*',
         'keep *_pfCombinedSecondaryVertexV2BJetTags_*_*',
         'keep *_pfCombinedInclusiveSecondaryVertexV2BJetTags_*_*',
+        'keep *_pfGhostTrackBJetTags_*_*',
         'keep *_pfCombinedMVAV2BJetTags_*_*',
         'keep *_inclusiveCandidateSecondaryVertices_*_*',
         # CTagging
         'keep *_inclusiveCandidateSecondaryVerticesCvsL_*_*',
         'keep *_pfCombinedCvsLJetTags_*_*',
-        'keep *_pfCombinedCvsBJetTags_*_*'
+        'keep *_pfCombinedCvsBJetTags_*_*',
+        # ChargeTag
+        'keep *_pfChargeBJetTags_*_*'
     )
 )

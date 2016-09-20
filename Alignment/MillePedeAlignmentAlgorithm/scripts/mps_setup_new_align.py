@@ -82,7 +82,7 @@ def main(argv = None):
 
             campaign_list = "MP_ali_list.txt"
             with open(campaign_list, "a") as f:
-                add_campaign(f, next_campaign, args)
+                campaign_info = add_campaign(f, next_campaign, args)
             backup_dir = ".MP_ali_list"
             try:
                 os.makedirs(backup_dir)
@@ -91,11 +91,14 @@ def main(argv = None):
                     pass
                 else:
                     raise
-            shutil.copy(campaign_list, backup_dir)
+            with open(os.path.join(backup_dir, campaign_list), "a") as f:
+                fcntl.flock(f, fcntl.LOCK_EX)
+                f.write(campaign_info)
+                fcntl.flock(f, fcntl.LOCK_UN)
             print "    - updated campaign list '"+campaign_list+"'"
 
             if args.copy is None:
-                copy_default_templates(MPS_dir, next_campaign)
+                copy_default_templates(args, next_campaign)
             else:
                 copied_files = []
                 for ext in ("py", "ini", "txt"):
@@ -104,7 +107,7 @@ def main(argv = None):
                         shutil.copy(config_file, next_campaign)
                 if len(copied_files) == 0:
                     print "    - no configuration files for '"+args.copy+"'"
-                    copy_default_templates(MPS_dir, next_campaign)
+                    copy_default_templates(args, next_campaign)
                 else:
                     print "    - copied configuration files from",
                     print "'"+args.copy+"':", ", ".join(copied_files)
@@ -180,20 +183,63 @@ def add_campaign(campaign_file, campaign, args):
     campaign_file.write(campaign_info)
     fcntl.flock(campaign_file, fcntl.LOCK_UN)
 
+    return campaign_info
 
-def copy_default_templates(MPS_dir, next_campaign):
+
+def copy_default_templates(args, next_campaign):
     """Copies the default configuration templates.
 
     Arguments:
-    - `MPS_dir`: location of the default templates
+    - `args`: container with the needed information
     - `next_campaign`: destination for the copy operation
     """
 
-    default_conf_dir = os.path.join(MPS_dir, "test")
-    for f in ("universalConfigTemplate.py", "alignment_config.ini"):
+    default_conf_dir = os.path.join(args.MPS_dir, "test")
+    template_files = ("universalConfigTemplate.py", "alignment_config.ini")
+    for f in template_files:
         shutil.copy(os.path.join(default_conf_dir, f), next_campaign)
+
+    # customize alignment_config.ini
+    # - replace job name with campaign ID as initial value
+    # - replace global tag with the corresponding auto GT depending on data type
+    customize_default_template(os.path.join(next_campaign, "alignment_config.ini"),
+                               (r"(jobname\s*[=:])(.*)", r"\1 "+next_campaign),
+                               (r"(globaltag\s*[=:])(.*)",
+                                r"\1 auto:run2_"+args.type.lower()))
+
     print "    - copied default configuration templates from",
     print "'"+default_conf_dir+"'"
+    print "    - please modify these template files according to your needs:",
+    print ", ".join(template_files)
+
+
+def customize_default_template(file_name, *regex_replace_pairs):
+    """
+    Replace all lines in `file_name` matching `regex_string` with
+    `replace_string`.
+    Lines starting with '#' or ';' are ignored.
+
+    Arguments:
+    - `file_name`: path to the file to be customized
+    - `regex_replace_pairs`: tuples containing a regex string and its
+                             replacement
+    """
+
+    comment = re.compile(r"^\s*[;#]")
+    replacements = []
+    for regex_string, replace_string in regex_replace_pairs:
+        replacements.append((re.compile(regex_string), replace_string))
+
+    customized = ""
+    with open(file_name, "r") as f:
+        for line in f:
+            custom_line = line
+            if not re.match(comment, custom_line):
+                for regex,replace_string in replacements:
+                    custom_line = re.sub(regex, replace_string, custom_line)
+            customized += custom_line
+    with open(file_name, "w") as f:
+        f.write(customized)
 
 
 ################################################################################

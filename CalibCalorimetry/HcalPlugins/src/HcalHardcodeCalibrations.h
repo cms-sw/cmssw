@@ -43,8 +43,11 @@ class HcalZDCLowGainFractionsRcd;
 class HcalMCParamsRcd;
 class HcalFlagHFDigiTimeParamsRcd;
 class HcalTimingParamsRcd;
-class HcalCholeskyMatricesRcd;
-class HcalCovarianceMatricesRcd;
+class HcalFrontEndMapRcd;
+class HcalSiPMParametersRcd;
+class HcalSiPMCharacteristicsRcd;
+class HcalTPChannelParametersRcd;
+class HcalTPParaamersRcd;
 
 class HcalHardcodeCalibrations : public edm::ESProducer, public edm::EventSetupRecordIntervalFinder {
 
@@ -89,9 +92,12 @@ protected:
   std::unique_ptr<HcalMCParams> produceMCParams (const HcalMCParamsRcd& rcd);
   std::unique_ptr<HcalFlagHFDigiTimeParams> produceFlagHFDigiTimeParams (const HcalFlagHFDigiTimeParamsRcd& rcd);
 
-  std::unique_ptr<HcalCholeskyMatrices> produceCholeskyMatrices (const HcalCholeskyMatricesRcd& rcd);
-  std::unique_ptr<HcalCovarianceMatrices> produceCovarianceMatrices (const HcalCovarianceMatricesRcd& rcd);
+  std::unique_ptr<HcalFrontEndMap> produceFrontEndMap (const HcalFrontEndMapRcd& rcd);
 
+  std::unique_ptr<HcalSiPMParameters> produceSiPMParameters (const HcalSiPMParametersRcd& rcd);
+  std::unique_ptr<HcalSiPMCharacteristics> produceSiPMCharacteristics (const HcalSiPMCharacteristicsRcd& rcd);
+  std::unique_ptr<HcalTPChannelParameters> produceTPChannelParameters (const HcalTPChannelParametersRcd& rcd);
+  std::unique_ptr<HcalTPParameters> produceTPParameters (const HcalTPParametersRcd& rcd);
 
 private:
   HcalDbHardcode dbHardcode;

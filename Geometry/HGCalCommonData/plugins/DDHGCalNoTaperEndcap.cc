@@ -3,7 +3,6 @@
 #include <iostream>
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "DetectorDescription/Base/interface/DDutils.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
 #include "DetectorDescription/Core/interface/DDMaterial.h"
 #include "DetectorDescription/Core/interface/DDCurrentNamespace.h"
@@ -98,7 +97,7 @@ DDHGCalNoTaperEndcap::createQuarter( DDCompactView& cpv, int xQuadrant, int yQua
 
 	// Check if we've already created the rotation matrix
 	rotstr   = "R"; 
-	rotstr  += dbl_to_string(copyNo);
+	rotstr  += std::to_string(copyNo);
 	rotation = DDRotation(DDName(rotstr));
 	if (!rotation) {
 	  rotation = DDrot(DDName(rotstr, m_idNameSpace),

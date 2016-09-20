@@ -207,7 +207,13 @@ void TrackBuildingAnalyzer::initHisto(DQMStore::IBooker & ibooker)
 
   if (doAllTCPlots || doStopSource) {
     // DataFormats/TrackReco/interface/TrajectoryStopReasons.h
-    std::vector<std::string> StopReasonName = { "UNINITIALIZED", "MAX_HITS", "MAX_LOST_HITS", "MAX_CONSECUTIVE_LOST_HITS", "LOST_HIT_FRACTION", "MIN_PT", "CHARGE_SIGNIFICANCE", "LOOPER", "MAX_CCC_LOST_HITS", "NO_SEGMENTS_FOR_VALID_LAYERS", "NOT_STOPPED" };
+    std::vector<std::string> StopReasonName = { "UNINITIALIZED", "MAX_HITS", "MAX_LOST_HITS", "MAX_CONSECUTIVE_LOST_HITS", "LOST_HIT_FRACTION", "MIN_PT", "CHARGE_SIGNIFICANCE", "LOOPER", "MAX_CCC_LOST_HITS", "NO_SEGMENTS_FOR_VALID_LAYERS", "SEED_EXTENSION", "NOT_STOPPED" };
+    if(StopReasonName.size() != static_cast<unsigned int>(StopReason::SIZE)) {
+      throw cms::Exception("Assert") << "StopReason::SIZE is " << static_cast<unsigned int>(StopReason::SIZE)
+                                     << " but TrackBuildingAnalyzer has StopReasonName's only for "
+                                     << StopReasonName.size()
+                                     << ". Please update also TrackBuildingAnalyzer.cc near line " << __LINE__ << ".";
+    }
     
     histname = "StoppingSource_"+seedProducer.label() + "_";
     stoppingSource = ibooker.book1D(histname+CatagoryName,

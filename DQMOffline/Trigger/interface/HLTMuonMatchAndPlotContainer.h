@@ -53,8 +53,7 @@ class HLTMuonMatchAndPlotContainer
   ~HLTMuonMatchAndPlotContainer() { plotters_.clear(); };
 
   /// Add a HLTMuonMatchAndPlot for a given path
-  void addPlotter(const edm::ParameterSet &, std::string,
-		  const std::vector<std::string>&);
+  void addPlotter(const edm::ParameterSet &, std::string, std::string, bool);
 
   // Analyzer Methods
   void beginRun(DQMStore::IBooker &, const edm::Run &, const edm::EventSetup &);

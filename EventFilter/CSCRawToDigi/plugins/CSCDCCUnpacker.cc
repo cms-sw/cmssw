@@ -61,6 +61,8 @@
 #include "EventFilter/CSCRawToDigi/interface/CSCDCCExaminer.h"
 #include "CondFormats/CSCObjects/interface/CSCCrateMap.h"
 #include "CondFormats/DataRecord/interface/CSCCrateMapRcd.h"
+#include "CondFormats/CSCObjects/interface/CSCChamberMap.h"
+#include "CondFormats/DataRecord/interface/CSCChamberMapRcd.h"
 #include <EventFilter/CSCRawToDigi/interface/CSCMonitorInterface.h>
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
@@ -178,6 +180,10 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c)
   c.get<CSCCrateMapRcd>().get(hcrate);
   const CSCCrateMap* pcrate = hcrate.product();
 
+  // Need access to CSCChamberMap for chamber<->FED/DDU mapping consistency checks 
+  edm::ESHandle<CSCChamberMap> cscmap;
+  c.get<CSCChamberMapRcd>().get(cscmap);
+  const CSCChamberMap* cscmapping = cscmap.product();
 
   if (printEventNumber) ++numOfEvents;
 
@@ -186,27 +192,33 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c)
   e.getByToken( i_token, rawdata);
 
   /// create the collections of CSC digis
-  std::auto_ptr<CSCWireDigiCollection> wireProduct(new CSCWireDigiCollection);
-  std::auto_ptr<CSCStripDigiCollection> stripProduct(new CSCStripDigiCollection);
-  std::auto_ptr<CSCALCTDigiCollection> alctProduct(new CSCALCTDigiCollection);
-  std::auto_ptr<CSCCLCTDigiCollection> clctProduct(new CSCCLCTDigiCollection);
-  std::auto_ptr<CSCComparatorDigiCollection> comparatorProduct(new CSCComparatorDigiCollection);
-  std::auto_ptr<CSCRPCDigiCollection> rpcProduct(new CSCRPCDigiCollection);
-  std::auto_ptr<CSCCorrelatedLCTDigiCollection> corrlctProduct(new CSCCorrelatedLCTDigiCollection);
-  std::auto_ptr<CSCCFEBStatusDigiCollection> cfebStatusProduct(new CSCCFEBStatusDigiCollection);
-  std::auto_ptr<CSCDMBStatusDigiCollection> dmbStatusProduct(new CSCDMBStatusDigiCollection);
-  std::auto_ptr<CSCTMBStatusDigiCollection> tmbStatusProduct(new CSCTMBStatusDigiCollection);
-  std::auto_ptr<CSCDDUStatusDigiCollection> dduStatusProduct(new CSCDDUStatusDigiCollection);
-  std::auto_ptr<CSCDCCStatusDigiCollection> dccStatusProduct(new CSCDCCStatusDigiCollection);
-  std::auto_ptr<CSCALCTStatusDigiCollection> alctStatusProduct(new CSCALCTStatusDigiCollection);
+  auto wireProduct = std::make_unique<CSCWireDigiCollection>();
+  auto stripProduct = std::make_unique<CSCStripDigiCollection>();
+  auto alctProduct = std::make_unique<CSCALCTDigiCollection>();
+  auto clctProduct = std::make_unique<CSCCLCTDigiCollection>();
+  auto comparatorProduct = std::make_unique<CSCComparatorDigiCollection>();
+  auto rpcProduct = std::make_unique<CSCRPCDigiCollection>();
+  auto corrlctProduct = std::make_unique<CSCCorrelatedLCTDigiCollection>();
+  auto cfebStatusProduct = std::make_unique<CSCCFEBStatusDigiCollection>();
+  auto dmbStatusProduct = std::make_unique<CSCDMBStatusDigiCollection>();
+  auto tmbStatusProduct = std::make_unique<CSCTMBStatusDigiCollection>();
+  auto dduStatusProduct = std::make_unique<CSCDDUStatusDigiCollection>();
+  auto dccStatusProduct = std::make_unique<CSCDCCStatusDigiCollection>();
+  auto alctStatusProduct = std::make_unique<CSCALCTStatusDigiCollection>();
 
-  std::auto_ptr<CSCDCCFormatStatusDigiCollection> formatStatusProduct(new CSCDCCFormatStatusDigiCollection);
+  auto formatStatusProduct = std::make_unique<CSCDCCFormatStatusDigiCollection>();
 
 
   // If set selective unpacking mode
   // hardcoded examiner mask below to check for DCC and DDU level errors will be used first
   // then examinerMask for CSC level errors will be used during unpacking of each CSC block
   unsigned long dccBinCheckMask = 0x06080016;
+
+  // Post-LS1 FED/DDU ID mapping fix 
+  const unsigned postLS1_map [] =  { 841, 842, 843, 844, 845, 846, 847, 848, 849,
+                                     831, 832, 833, 834, 835, 836, 837, 838, 839,
+                                     861, 862, 863, 864, 865, 866, 867, 868, 869,
+                                     851, 852, 853, 854, 855, 856, 857, 858, 859 };
 
 
   // For new CSC readout layout, which wont include DCCs need to loop over DDU FED IDs. DCC IDs are included for backward compatibility with old data
@@ -425,8 +437,23 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c)
                           continue; // to next iteration of iCSC loop
                         }
 
-			
-			// std::cout << "crate = " << vmecrate << "; dmb = " << dmb << " format version = " << cscData[iCSC].getFormatVersion() << std::endl; 
+                      
+                      /// For Post-LS1 readout only. Check Chamber->FED/DDU mapping consistency.
+                      /// Skip chambers (special case of data corruption), which report wrong ID and pose as different chamber 
+                      if (isDDU_FED)
+                        {
+                          unsigned int dduid = cscmapping->ddu(layer);
+                          if ((dduid>=1) && (dduid <= 36)) dduid = postLS1_map[dduid-1]; // Fix for Post-LS1 FED/DDU IDs mappings
+                          // std::cout << "CSC " << layer << " -> " << id << ":" << dduid << ":" << vmecrate << ":" << dmb ;
+                          if (id != dduid )
+                            {
+                              LogTrace ("CSCDDUUnpacker|CSCRawToDigi") << " CSC->FED/DDU mapping inconsistency!!! ";
+                              LogTrace ("CSCDCCUnpacker|CSCRawToDigi")
+                                << "readout FED/DDU ID=" << id << " expected ID=" << dduid
+                                << ", skipping chamber " << layer << " vme= " << vmecrate << " dmb= " << dmb;
+                              continue;
+                            }
+                        } 
 
                       /// check alct data integrity
                       int nalct = cscData[iCSC].dmbHeader()->nalct();
@@ -632,24 +659,24 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c)
         } // end of if fed has data
     } // end of loop over DCCs
   // put into the event
-  e.put(wireProduct,          "MuonCSCWireDigi");
-  e.put(stripProduct,         "MuonCSCStripDigi");
-  e.put(alctProduct,          "MuonCSCALCTDigi");
-  e.put(clctProduct,          "MuonCSCCLCTDigi");
-  e.put(comparatorProduct,    "MuonCSCComparatorDigi");
-  e.put(rpcProduct,           "MuonCSCRPCDigi");
-  e.put(corrlctProduct,       "MuonCSCCorrelatedLCTDigi");
+  e.put(std::move(wireProduct),          "MuonCSCWireDigi");
+  e.put(std::move(stripProduct),         "MuonCSCStripDigi");
+  e.put(std::move(alctProduct),          "MuonCSCALCTDigi");
+  e.put(std::move(clctProduct),          "MuonCSCCLCTDigi");
+  e.put(std::move(comparatorProduct),    "MuonCSCComparatorDigi");
+  e.put(std::move(rpcProduct),           "MuonCSCRPCDigi");
+  e.put(std::move(corrlctProduct),       "MuonCSCCorrelatedLCTDigi");
 
-  if (useFormatStatus)  e.put(formatStatusProduct,    "MuonCSCDCCFormatStatusDigi");
+  if (useFormatStatus)  e.put(std::move(formatStatusProduct),    "MuonCSCDCCFormatStatusDigi");
 
   if (unpackStatusDigis)
     {
-      e.put(cfebStatusProduct,    "MuonCSCCFEBStatusDigi");
-      e.put(dmbStatusProduct,     "MuonCSCDMBStatusDigi");
-      e.put(tmbStatusProduct,     "MuonCSCTMBStatusDigi");
-      e.put(dduStatusProduct,     "MuonCSCDDUStatusDigi");
-      e.put(dccStatusProduct,     "MuonCSCDCCStatusDigi");
-      e.put(alctStatusProduct,    "MuonCSCALCTStatusDigi");
+      e.put(std::move(cfebStatusProduct),    "MuonCSCCFEBStatusDigi");
+      e.put(std::move(dmbStatusProduct),     "MuonCSCDMBStatusDigi");
+      e.put(std::move(tmbStatusProduct),     "MuonCSCTMBStatusDigi");
+      e.put(std::move(dduStatusProduct),     "MuonCSCDDUStatusDigi");
+      e.put(std::move(dccStatusProduct),     "MuonCSCDCCStatusDigi");
+      e.put(std::move(alctStatusProduct),    "MuonCSCALCTStatusDigi");
     }
   if (printEventNumber) LogTrace("CSCDCCUnpacker|CSCRawToDigi")
     <<"[CSCDCCUnpacker]: " << numOfEvents << " events processed ";
@@ -943,7 +970,6 @@ void CSCDCCUnpacker::visual_raw(int hl,int id, int run, int event,bool fedshort,
               std::cout << tempbuf1 << std::endl;
               w=0;
               ddu_h1_check=true;
-              ddu_inst_l1a=0;
               cfeb_sample=0;
             }
         }
@@ -1027,7 +1053,6 @@ void CSCDCCUnpacker::visual_raw(int hl,int id, int run, int event,bool fedshort,
         {
           dmb_inst_crate=0;
           dmb_inst_slot=0;
-          dmb_inst_l1a=0;
           dmb_inst_l1a=((buf[i]&0x0FFF)+((buf[i+1]&0xFFF)<<12));
           dmb_l1a_coll.push_back(dmb_inst_l1a);
           if (dmb_h2_check[2])
@@ -1092,7 +1117,6 @@ void CSCDCCUnpacker::visual_raw(int hl,int id, int run, int event,bool fedshort,
           alct_h1_coll.push_back(word_numbering);
           std::cout << tempbuf1 << std::endl;
           w=0;
-          alct_inst_l1a=0;
         }
 
       else if ((alct_h1_check[0])&&(alct_h2_check[2]))
@@ -1105,7 +1129,6 @@ void CSCDCCUnpacker::visual_raw(int hl,int id, int run, int event,bool fedshort,
           alct_h2_coll.push_back(word_numbering);
           std::cout << tempbuf1 << std::endl;
           w=0;
-          alct_inst_bxn=0;
         }
 
       //ALCT Trailer 1
@@ -1127,7 +1150,6 @@ void CSCDCCUnpacker::visual_raw(int hl,int id, int run, int event,bool fedshort,
           alct_t1_coll.push_back(word_numbering);
           std::cout << tempbuf1 << std::endl;
           w=0;
-          alct_inst_wcnt1=0;
           alct_inst_wcnt2=0;
         }
 
@@ -1196,7 +1218,6 @@ void CSCDCCUnpacker::visual_raw(int hl,int id, int run, int event,bool fedshort,
           tmb_h1_coll.push_back(word_numbering);
           std::cout << tempbuf1 << std::endl;
           w=0;
-          tmb_inst_l1a=0;
         }
       else if (tmb_tr1_check[1])
         {
@@ -1225,7 +1246,6 @@ void CSCDCCUnpacker::visual_raw(int hl,int id, int run, int event,bool fedshort,
                   word_numbering,buf[i+3],buf[i+2],buf[i+1],buf[i],
                   sign1,cfeb_common,cfeb_tr1,sign1,cfeb_common_sample,cfeb_sample);
           cfeb_t1_coll.push_back(word_numbering);
-          w=0;
           std::cout << tempbuf1 << std::endl;
           w=0;
         }

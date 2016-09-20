@@ -20,12 +20,15 @@ namespace ecaldqm {
     void runOnUncalibRecHits(EcalUncalibratedRecHitCollection const&);
 
   private:
+    void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
     void setParams(edm::ParameterSet const&) override;
 
     float chi2ThresholdEB_;
     float chi2ThresholdEE_;
     float energyThresholdEB_;
     float energyThresholdEE_;
+
+    MESet* meTimeMapByLS;
   };
 
   inline bool TimingTask::analyze(void const* _p, Collections _collection){

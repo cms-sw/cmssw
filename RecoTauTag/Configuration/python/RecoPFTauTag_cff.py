@@ -46,11 +46,6 @@ combinatoricRecoTaus.jetRegionSrc = cms.InputTag("recoTauAK4PFJets08Region")
 combinatoricRecoTaus.jetSrc = PFRecoTauPFJetInputs.inputJetCollection
 
 #--------------------------------------------------------------------------------
-# CV: disable reconstruction of 3Prong1Pi0 tau candidates
-combinatoricRecoTaus.builders[0].decayModes.remove(combinatoricRecoTaus.builders[0].decayModes[6])
-#--------------------------------------------------------------------------------
-
-#--------------------------------------------------------------------------------
 # CV: set mass of tau candidates reconstructed in 1Prong0pi0 decay mode to charged pion mass
 combinatoricRecoTaus.modifiers.append(cms.PSet(
     name = cms.string("tau_mass"),

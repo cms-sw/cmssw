@@ -129,7 +129,7 @@ void MuonDetRecHitMixer<T1,T2>::produce(edm::Event& evt, const edm::EventSetup& 
     addRecHits(recHits_output, *recHitCollection1, todoItem->cleanCollection1_, *hitMapMuPlus, *hitMapMuMinus, numHits_cleaned);
     addRecHits(recHits_output, *recHitCollection2, todoItem->cleanCollection2_, *hitMapMuPlus, *hitMapMuMinus, numHits_cleaned);
 
-    std::auto_ptr<RecHitCollection> recHitCollection_output(new RecHitCollection());
+    std::unique_ptr<RecHitCollection> recHitCollection_output(new RecHitCollection());
     for ( typename std::map<T1, std::vector<T2> >::const_iterator recHit = recHits_output.begin();
 	  recHit != recHits_output.end(); ++recHit ) {
       recHitCollection_output->put(recHit->first, recHit->second.begin(), recHit->second.end());
@@ -145,7 +145,7 @@ void MuonDetRecHitMixer<T1,T2>::produce(edm::Event& evt, const edm::EventSetup& 
       if ( verbosity_ >= 2 ) printHitMapRH(es, *recHitCollection_output);
       std::cout << " #Hits = " << numHits_cleaned << " removed during cleaning." << std::endl;   
     }    
-    evt.put(recHitCollection_output, instanceLabel);
+    evt.put(std::move(recHitCollection_output), instanceLabel);
   }
 }
 

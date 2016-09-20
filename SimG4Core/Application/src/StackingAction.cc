@@ -3,6 +3,7 @@
 #include "SimG4Core/Notification/interface/NewTrackAction.h"
 #include "SimG4Core/Notification/interface/TrackInformation.h"
 #include "SimG4Core/Notification/interface/TrackInformationExtractor.h"
+#include "SimG4Core/Notification/interface/CMSSteppingVerbose.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -17,8 +18,9 @@
 
 //#define DebugLog
 
-StackingAction::StackingAction(const TrackingAction* trka, const edm::ParameterSet & p)
-  : trackAction(trka) 
+StackingAction::StackingAction(const TrackingAction* trka, const edm::ParameterSet & p,
+			       const CMSSteppingVerbose* sv)
+  : trackAction(trka),steppingVerbose(sv)
 {
   trackNeutrino  = p.getParameter<bool>("TrackNeutrino");
   killHeavy      = p.getParameter<bool>("KillHeavy");
@@ -258,7 +260,8 @@ G4ClassificationOfNewTrack StackingAction::ClassifyNewTrack(const G4Track * aTra
 	  ((pdg == 2112) && (ke < kmaxNeutron))) { classification = fKill; }
     }
     if (!trackNeutrino  && classification != fKill) {
-      if (pdg == 12 || pdg == 14 || pdg == 16 || pdg == 18) 
+      if (pdg == 12 || pdg == 14 || pdg == 16 || pdg == 18 ||
+	  pdg ==-12 || pdg ==-14 || pdg ==-16 || pdg ==-18 ) 
 	classification = fKill;
     }
     if (classification != fKill && isItLongLived(aTrack)) 
@@ -405,6 +408,9 @@ G4ClassificationOfNewTrack StackingAction::ClassifyNewTrack(const G4Track * aTra
 				   <<aTrack->GetCreatorProcess()->GetProcessSubType()
 				   << " as " << classification << " Flag " << flag;
 #endif
+  if(nullptr != steppingVerbose) { 
+    steppingVerbose->StackFilled(aTrack, (classification == fKill)); 
+  }
   
   return classification;
 }

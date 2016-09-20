@@ -20,7 +20,7 @@ class RPCGeometry;
 
 class CSCMotherboardME3141RPC : public CSCMotherboard
 {
-  typedef std::pair<unsigned int, const RPCDigi*> RPCDigiBX;
+  typedef std::pair<unsigned int, const RPCDigi> RPCDigiBX;
   typedef std::vector<RPCDigiBX> RPCDigisBX;
   typedef std::map<int, RPCDigisBX> RPCDigis;
 
@@ -65,8 +65,6 @@ class CSCMotherboardME3141RPC : public CSCMotherboard
 
   unsigned int findQualityRPC(const CSCALCTDigi& aLCT, const CSCCLCTDigi& cLCT, bool hasRPC);
 
-  void matchRPCDigis(enum MEX1Station st);
-
   void correlateLCTsRPC(CSCALCTDigi bestALCT, CSCALCTDigi secondALCT,
 			CSCCLCTDigi bestCLCT, CSCCLCTDigi secondCLCT,
 			CSCCorrelatedLCTDigi& lct1, CSCCorrelatedLCTDigi& lct2,
@@ -77,7 +75,7 @@ class CSCMotherboardME3141RPC : public CSCMotherboard
                         CSCCorrelatedLCTDigi& lct1,CSCCorrelatedLCTDigi& lct2);
  
   void correlateLCTsRPC(CSCALCTDigi bestALCT, CSCALCTDigi secondALCT,
-                        RPCDigi gemPad,
+                        RPCDigi rpcPad,
                         CSCCorrelatedLCTDigi& lct1, CSCCorrelatedLCTDigi& lct2);
 
   CSCCorrelatedLCTDigi constructLCTsRPC(const CSCALCTDigi& alct, const CSCCLCTDigi& clct, const RPCDigisBX& digis = RPCDigisBX()); 
@@ -88,8 +86,8 @@ class CSCMotherboardME3141RPC : public CSCMotherboard
   /** Methods to sort the LCTs */
   std::vector<CSCCorrelatedLCTDigi> sortLCTsByQuality(int bx);
   std::vector<CSCCorrelatedLCTDigi> sortLCTsByQuality(std::vector<CSCCorrelatedLCTDigi>);
-  std::vector<CSCCorrelatedLCTDigi> sortLCTsByGEMDPhi(int bx);
-  std::vector<CSCCorrelatedLCTDigi> sortLCTsByGEMDPhi(std::vector<CSCCorrelatedLCTDigi>);
+  std::vector<CSCCorrelatedLCTDigi> sortLCTsByRPCDPhi(int bx);
+  std::vector<CSCCorrelatedLCTDigi> sortLCTsByRPCDPhi(std::vector<CSCCorrelatedLCTDigi>);
 
   std::vector<CSCCorrelatedLCTDigi> getLCTs();
   std::vector<CSCCorrelatedLCTDigi> readoutLCTs();
@@ -127,23 +125,6 @@ class CSCMotherboardME3141RPC : public CSCMotherboard
 
   // masterswitch
   bool runME3141ILT_;
-
-  /// Do RPC matching?
-  bool do_rpc_matching;
-
-  /// RPC matching dphi and deta
-  double rpc_match_delta_phi_odd;
-  double rpc_match_delta_phi_even;
-  double rpc_match_delta_eta;
-
-  /// delta BX for RPC pads matching
-  int rpc_match_delta_bx;
-
-  /// min eta of LCT for which we require RPC match (we don't throw out LCTs below this min eta) 
-  double rpc_match_min_eta;
-
-  /// whether to throw out RPC-fiducial LCTs that have no rpc match
-  bool rpc_clear_nomatch_lcts;
 
   // debug 
   bool debug_rpc_matching_;

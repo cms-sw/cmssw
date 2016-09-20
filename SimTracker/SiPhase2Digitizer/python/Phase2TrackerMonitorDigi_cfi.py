@@ -3,8 +3,10 @@ import FWCore.ParameterSet.Config as cms
 digiMon = cms.EDAnalyzer("Phase2TrackerMonitorDigi",
     Verbosity = cms.bool(False),
     TopFolderName = cms.string("Ph2TkDigi"),
-    PixelDigiSource    = cms.InputTag("simSiPixelDigis","Pixel"),                          
-    OuterTrackerDigiSource    = cms.InputTag("mix", "Tracker"),                          
+    PixelPlotFillingFlag = cms.bool(False),
+    InnerPixelDigiSource   = cms.InputTag("simSiPixelDigis","Pixel"),
+    OuterTrackerDigiSource = cms.InputTag("mix", "Tracker"),
+    GeometryType = cms.string('idealForDigi'),
     NumbeOfDigisH = cms.PSet(
            Nbins = cms.int32(200),
            xmin = cms.double(-0.5),
@@ -39,8 +41,24 @@ digiMon = cms.EDAnalyzer("Phase2TrackerMonitorDigi",
       xmax   = cms.double(1024.5)
     ),  
     ClusterPositionH = cms.PSet(
-      Nbins = cms.int32(260),
+      Nbins = cms.int32(1016),
       xmin   = cms.double(0.5),
-      xmax   = cms.double(260.5)
-    )  
+      xmax   = cms.double(1016.5)
+    ),  
+    XYPositionMapH = cms.PSet(
+           Nxbins = cms.int32(1200),
+           xmin   = cms.double(-1200.),
+           xmax   = cms.double(1200.),
+           Nybins = cms.int32(1200),
+           ymin   = cms.double(-1200.),
+           ymax   = cms.double(1200.)
+    ),
+    RZPositionMapH = cms.PSet(
+           Nxbins = cms.int32(3000),
+           xmin   = cms.double(-3000.),
+           xmax   = cms.double(3000.),
+           Nybins = cms.int32(600),
+           ymin   = cms.double(0.),
+           ymax   = cms.double(1200.)
+    )
 )

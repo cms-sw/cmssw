@@ -310,7 +310,7 @@ void PixelMixedSimHitsTest::analyze(const edm::Event& iEvent,
     edm::Handle<CrossingFrame> cf;
     iEvent.getByType(cf);
     
-    std::auto_ptr<MixCollection<PSimHit> > allPixelTrackerHits(new MixCollection<PSimHit>(cf.product(),trackerContainers));
+    std::unique_ptr<MixCollection<PSimHit> > allPixelTrackerHits(new MixCollection<PSimHit>(cf.product(),trackerContainers));
 
     //   for(vector<PSimHit>::const_iterator isim = PixelBarrelHitsLowTof->begin();
     //       isim != PixelBarrelHitsLowTof->end(); ++isim){

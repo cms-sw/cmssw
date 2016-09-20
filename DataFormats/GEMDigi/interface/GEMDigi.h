@@ -22,6 +22,7 @@ public:
   bool operator!=(const GEMDigi& digi) const;
   bool operator<(const GEMDigi& digi) const;
 
+  // return the strip number. counts from 1.
   int strip() const { return strip_; }
   int bx() const {return bx_; }
 

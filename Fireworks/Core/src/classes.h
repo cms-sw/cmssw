@@ -51,6 +51,7 @@
 
 #include "Fireworks/Core/interface/CmsShowModelPopup.h"
 #include "Fireworks/Core/interface/FWGUIEventFilter.h"
+#include "Fireworks/Core/interface/CmsShowCommon.h"
 #include "Fireworks/Core/interface/CmsShowCommonPopup.h"
 #include "Fireworks/Core/interface/CmsShowViewPopup.h"
 #include "Fireworks/Core/interface/FWInvMassDialog.h"

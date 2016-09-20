@@ -100,18 +100,18 @@ void RPCDigiProducer::produce(edm::Event& e, const edm::EventSetup& eventSetup) 
   //New code, based on tokens
   e.getByToken(crossingFrameToken, cf);
 
-  std::auto_ptr<MixCollection<PSimHit> > 
+  std::unique_ptr<MixCollection<PSimHit> >
     hits( new MixCollection<PSimHit>(cf.product()) );
 
   // Create empty output
-  std::auto_ptr<RPCDigiCollection> pDigis(new RPCDigiCollection());
-  std::auto_ptr<RPCDigitizerSimLinks> RPCDigitSimLink(new RPCDigitizerSimLinks() );
+  std::unique_ptr<RPCDigiCollection> pDigis(new RPCDigiCollection());
+  std::unique_ptr<RPCDigitizerSimLinks> RPCDigitSimLink(new RPCDigitizerSimLinks() );
 
   // run the digitizer
   theDigitizer->doAction(*hits, *pDigis, *RPCDigitSimLink, engine);
 
   // store them in the event
-  e.put(pDigis);
-  e.put(RPCDigitSimLink,"RPCDigiSimLink");
+  e.put(std::move(pDigis));
+  e.put(std::move(RPCDigitSimLink),"RPCDigiSimLink");
 }
 

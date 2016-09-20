@@ -139,6 +139,10 @@ private:
               lengths_.empty() && 
               thicknesses_.empty());
     }
+
+  bool doTracker_;
+  bool doMuon_;
+  bool doCalo_;
 };
 
 
@@ -146,6 +150,10 @@ ValidateGeometry::ValidateGeometry(const edm::ParameterSet& iConfig)
   : infileName_(iConfig.getUntrackedParameter<std::string>("infileName")),
     outfileName_(iConfig.getUntrackedParameter<std::string>("outfileName"))
 {
+  doTracker_ = iConfig.getUntrackedParameter<bool>( "Tracker", true );
+  doMuon_ = iConfig.getUntrackedParameter<bool>( "Muon", true );
+  doCalo_ = iConfig.getUntrackedParameter<bool>( "Calo", true );
+
   fwGeometry_.loadMap(infileName_.c_str());
 
   outFile_ = new TFile(outfileName_.c_str(), "RECREATE");
@@ -159,123 +167,130 @@ ValidateGeometry::~ValidateGeometry()
 void 
 ValidateGeometry::analyze(const edm::Event& event, const edm::EventSetup& eventSetup)
 {
-  eventSetup.get<MuonGeometryRecord>().get(rpcGeometry_);
-
-  if ( rpcGeometry_.isValid() )
+  if( doMuon_ )
   {
-    std::cout<<"Validating RPC -z endcap geometry"<<std::endl;
-    validateRPCGeometry(-1, "RPC -z endcap");
+    eventSetup.get<MuonGeometryRecord>().get(rpcGeometry_);
 
-    std::cout<<"Validating RPC +z endcap geometry"<<std::endl;
-    validateRPCGeometry(+1, "RPC +z endcap");
+    if ( rpcGeometry_.isValid() )
+    {
+      std::cout<<"Validating RPC -z endcap geometry"<<std::endl;
+      validateRPCGeometry(-1, "RPC -z endcap");
 
-    std::cout<<"Validating RPC barrel geometry"<<std::endl;
-    validateRPCGeometry(0, "RPC barrel");
+      std::cout<<"Validating RPC +z endcap geometry"<<std::endl;
+      validateRPCGeometry(+1, "RPC +z endcap");
+
+      std::cout<<"Validating RPC barrel geometry"<<std::endl;
+      validateRPCGeometry(0, "RPC barrel");
+    }
+    else
+      fwLog(fwlog::kWarning)<<"Invalid RPC geometry"<<std::endl; 
+
+
+    eventSetup.get<MuonGeometryRecord>().get(dtGeometry_);
+
+    if ( dtGeometry_.isValid() )
+    {
+      std::cout<<"Validating DT chamber geometry"<<std::endl;
+      validateDTChamberGeometry();
+
+      std::cout<<"Validating DT layer geometry"<<std::endl;
+      validateDTLayerGeometry();
+    }
+    else
+      fwLog(fwlog::kWarning)<<"Invalid DT geometry"<<std::endl; 
+
+
+    eventSetup.get<MuonGeometryRecord>().get(cscGeometry_);
+
+    if ( cscGeometry_.isValid() )
+    {
+      std::cout<<"Validating CSC -z geometry"<<std::endl;
+      validateCSChamberGeometry(-1, "CSC chamber -z endcap");
+
+      std::cout<<"Validating CSC +z geometry"<<std::endl;
+      validateCSChamberGeometry(+1, "CSC chamber +z endcap");
+
+      std::cout<<"Validating CSC layer -z geometry"<<std::endl;
+      validateCSCLayerGeometry(-1, "CSC layer -z endcap");
+
+      std::cout<<"Validating CSC layer +z geometry"<<std::endl;
+      validateCSCLayerGeometry(+1, "CSC layer +z endcap");
+    }
+    else
+      fwLog(fwlog::kWarning)<<"Invalid CSC geometry"<<std::endl;
   }
-  else
-    fwLog(fwlog::kWarning)<<"Invalid RPC geometry"<<std::endl; 
 
-
-  eventSetup.get<MuonGeometryRecord>().get(dtGeometry_);
-
-  if ( dtGeometry_.isValid() )
+  if( doTracker_ )
   {
-    std::cout<<"Validating DT chamber geometry"<<std::endl;
-    validateDTChamberGeometry();
+    eventSetup.get<TrackerDigiGeometryRecord>().get(trackerGeometry_);
 
-    std::cout<<"Validating DT layer geometry"<<std::endl;
-    validateDTLayerGeometry();
+    if ( trackerGeometry_.isValid() )
+    {
+      std::cout<<"Validating TIB geometry and topology"<<std::endl;
+      validateTrackerGeometry(trackerGeometry_->detsTIB(), "TIB");
+      validateStripTopology(trackerGeometry_->detsTIB(), "TIB");
+
+      std::cout<<"Validating TOB geometry and topology"<<std::endl;
+      validateTrackerGeometry(trackerGeometry_->detsTOB(), "TOB");
+      validateStripTopology(trackerGeometry_->detsTOB(), "TOB");
+
+      std::cout<<"Validating TEC geometry and topology"<<std::endl;
+      validateTrackerGeometry(trackerGeometry_->detsTEC(), "TEC");
+      validateStripTopology(trackerGeometry_->detsTEC(), "TEC");
+
+      std::cout<<"Validating TID geometry and topology"<<std::endl;
+      validateTrackerGeometry(trackerGeometry_->detsTID(), "TID");
+      validateStripTopology(trackerGeometry_->detsTID(), "TID");
+
+      std::cout<<"Validating PXB geometry and topology"<<std::endl;
+      validateTrackerGeometry(trackerGeometry_->detsPXB(), "PXB");
+      validatePixelTopology(trackerGeometry_->detsPXB(), "PXB");
+
+      std::cout<<"Validating PXF geometry and topology"<<std::endl;
+      validateTrackerGeometry(trackerGeometry_->detsPXF(), "PXF");
+      validatePixelTopology(trackerGeometry_->detsPXF(), "PXF");
+    }
+    else
+      fwLog(fwlog::kWarning)<<"Invalid Tracker geometry"<<std::endl;
   }
-  else
-    fwLog(fwlog::kWarning)<<"Invalid DT geometry"<<std::endl; 
 
-
-  eventSetup.get<MuonGeometryRecord>().get(cscGeometry_);
-
-  if ( cscGeometry_.isValid() )
+  if( doCalo_ )
   {
-    std::cout<<"Validating CSC -z geometry"<<std::endl;
-    validateCSChamberGeometry(-1, "CSC chamber -z endcap");
+    eventSetup.get<CaloGeometryRecord>().get(caloGeometry_);
 
-    std::cout<<"Validating CSC +z geometry"<<std::endl;
-    validateCSChamberGeometry(+1, "CSC chamber +z endcap");
 
-    std::cout<<"Validating CSC layer -z geometry"<<std::endl;
-    validateCSCLayerGeometry(-1, "CSC layer -z endcap");
+    if ( caloGeometry_.isValid() )
+    {
+      std::cout<<"Validating EB geometry"<<std::endl;
+      validateCaloGeometry(DetId::Ecal, EcalBarrel, "EB");
 
-    std::cout<<"Validating CSC layer +z geometry"<<std::endl;
-    validateCSCLayerGeometry(+1, "CSC layer +z endcap");
-  }
-  else
-    fwLog(fwlog::kWarning)<<"Invalid CSC geometry"<<std::endl; 
+      std::cout<<"Validating EE geometry"<<std::endl;
+      validateCaloGeometry(DetId::Ecal, EcalEndcap, "EE");
 
+      std::cout<<"Validating ES geometry"<<std::endl;
+      validateCaloGeometry(DetId::Ecal, EcalPreshower, "ES");
+
+      std::cout<<"Validating HB geometry"<<std::endl;
+      validateCaloGeometry(DetId::Hcal, HcalBarrel, "HB");
   
-  eventSetup.get<TrackerDigiGeometryRecord>().get(trackerGeometry_);
+      std::cout<<"Validating HE geometry"<<std::endl;
+      validateCaloGeometry(DetId::Hcal, HcalEndcap, "HE");
 
-  if ( trackerGeometry_.isValid() )
-  {
-    std::cout<<"Validating TIB geometry and topology"<<std::endl;
-    validateTrackerGeometry(trackerGeometry_->detsTIB(), "TIB");
-    validateStripTopology(trackerGeometry_->detsTIB(), "TIB");
-
-    std::cout<<"Validating TOB geometry and topology"<<std::endl;
-    validateTrackerGeometry(trackerGeometry_->detsTOB(), "TOB");
-    validateStripTopology(trackerGeometry_->detsTOB(), "TOB");
-
-    std::cout<<"Validating TEC geometry and topology"<<std::endl;
-    validateTrackerGeometry(trackerGeometry_->detsTEC(), "TEC");
-    validateStripTopology(trackerGeometry_->detsTEC(), "TEC");
-
-    std::cout<<"Validating TID geometry and topology"<<std::endl;
-    validateTrackerGeometry(trackerGeometry_->detsTID(), "TID");
-    validateStripTopology(trackerGeometry_->detsTID(), "TID");
-
-    std::cout<<"Validating PXB geometry and topology"<<std::endl;
-    validateTrackerGeometry(trackerGeometry_->detsPXB(), "PXB");
-    validatePixelTopology(trackerGeometry_->detsPXB(), "PXB");
-
-    std::cout<<"Validating PXF geometry and topology"<<std::endl;
-    validateTrackerGeometry(trackerGeometry_->detsPXF(), "PXF");
-    validatePixelTopology(trackerGeometry_->detsPXF(), "PXF");
-  }
-  else
-    fwLog(fwlog::kWarning)<<"Invalid Tracker geometry"<<std::endl;
-
-  eventSetup.get<CaloGeometryRecord>().get(caloGeometry_);
-
-
-  if ( caloGeometry_.isValid() )
-  {
-    std::cout<<"Validating EB geometry"<<std::endl;
-    validateCaloGeometry(DetId::Ecal, EcalBarrel, "EB");
-
-    std::cout<<"Validating EE geometry"<<std::endl;
-    validateCaloGeometry(DetId::Ecal, EcalEndcap, "EE");
-
-    std::cout<<"Validating ES geometry"<<std::endl;
-    validateCaloGeometry(DetId::Ecal, EcalPreshower, "ES");
-
-    std::cout<<"Validating HB geometry"<<std::endl;
-    validateCaloGeometry(DetId::Hcal, HcalBarrel, "HB");
-  
-    std::cout<<"Validating HE geometry"<<std::endl;
-    validateCaloGeometry(DetId::Hcal, HcalEndcap, "HE");
-
-    std::cout<<"Validating HO geometry"<<std::endl;
-    validateCaloGeometry(DetId::Hcal, HcalOuter, "HO");
+      std::cout<<"Validating HO geometry"<<std::endl;
+      validateCaloGeometry(DetId::Hcal, HcalOuter, "HO");
     
-    std::cout<<"Validating HF geometry"<<std::endl;
-    validateCaloGeometry(DetId::Hcal, HcalForward, "HF");
+      std::cout<<"Validating HF geometry"<<std::endl;
+      validateCaloGeometry(DetId::Hcal, HcalForward, "HF");
 
-    std::cout<<"Validating Castor geometry"<<std::endl;
-    validateCaloGeometry(DetId::Calo, HcalCastorDetId::SubdetectorId, "Castor");
+      std::cout<<"Validating Castor geometry"<<std::endl;
+      validateCaloGeometry(DetId::Calo, HcalCastorDetId::SubdetectorId, "Castor");
 
-    std::cout<<"Validating ZDC geometry"<<std::endl;
-    validateCaloGeometry(DetId::Calo, HcalZDCDetId::SubdetectorId, "ZDC");
+      std::cout<<"Validating ZDC geometry"<<std::endl;
+      validateCaloGeometry(DetId::Calo, HcalZDCDetId::SubdetectorId, "ZDC");
+    }
+    else
+      fwLog(fwlog::kWarning)<<"Invalid Calo geometry"<<std::endl; 
   }
-  else
-    fwLog(fwlog::kWarning)<<"Invalid Calo geometry"<<std::endl; 
-
 }
 
 

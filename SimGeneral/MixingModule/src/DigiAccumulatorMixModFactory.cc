@@ -29,14 +29,14 @@ namespace edm {
     return &singleInstance_;
   }
 
-  std::auto_ptr<DigiAccumulatorMixMod>
+  std::unique_ptr<DigiAccumulatorMixMod>
   DigiAccumulatorMixModFactory::makeDigiAccumulator(ParameterSet const& conf, stream::EDProducerBase& mixMod, ConsumesCollector& iC) const {
     std::string accumulatorType = conf.getParameter<std::string>("accumulatorType");
     FDEBUG(1) << "DigiAccumulatorMixModFactory: digi_accumulator_type = " << accumulatorType << std::endl;
-    std::auto_ptr<DigiAccumulatorMixMod> wm;
-    wm = std::auto_ptr<DigiAccumulatorMixMod>(DigiAccumulatorMixModPluginFactory::get()->create(accumulatorType, conf, mixMod, iC));
+    std::unique_ptr<DigiAccumulatorMixMod> wm;
+    wm = std::unique_ptr<DigiAccumulatorMixMod>(DigiAccumulatorMixModPluginFactory::get()->create(accumulatorType, conf, mixMod, iC));
     
-    if(wm.get()==0) {
+    if(wm.get()==nullptr) {
 	throw edm::Exception(errors::Configuration,"NoSourceModule")
 	  << "DigiAccumulator Factory:\n"
 	  << "Cannot find dig type from ParameterSet: "

@@ -104,7 +104,7 @@ GSFElectronsMixer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    cols.push_back(tks1);
    cols.push_back(tks2);
 
-   std::auto_ptr<reco::GsfElectronCollection> finalCollection( new reco::GsfElectronCollection ) ;
+   std::unique_ptr<reco::GsfElectronCollection> finalCollection( new reco::GsfElectronCollection ) ;
 
    //std::cout << "##########################################\n";
    //int i  = 0;
@@ -126,7 +126,7 @@ GSFElectronsMixer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    }
 
-   iEvent.put(finalCollection);
+   iEvent.put(std::move(finalCollection));
 
 }
 

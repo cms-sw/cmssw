@@ -42,13 +42,13 @@ void GEMPadDigiProducer::produce(edm::Event& e, const edm::EventSetup& eventSetu
   e.getByToken(digi_token_, hdigis);
 
   // Create empty output
-  std::auto_ptr<GEMPadDigiCollection> pPads(new GEMPadDigiCollection());
+  std::unique_ptr<GEMPadDigiCollection> pPads(new GEMPadDigiCollection());
 
   // build the pads
   buildPads(*(hdigis.product()), *pPads);
 
   // store them in the event
-  e.put(pPads);
+  e.put(std::move(pPads));
 }
 
 

@@ -106,8 +106,8 @@ void
 L1TMuonCaloSumProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   using namespace edm;
-  std::auto_ptr<MuonCaloSumBxCollection> towerSums (new MuonCaloSumBxCollection());
-  std::auto_ptr<MuonCaloSumBxCollection> tower2x2s (new MuonCaloSumBxCollection());
+  std::unique_ptr<MuonCaloSumBxCollection> towerSums (new MuonCaloSumBxCollection());
+  std::unique_ptr<MuonCaloSumBxCollection> tower2x2s (new MuonCaloSumBxCollection());
 
   edm::Handle<CaloTowerBxCollection> caloTowers;
   // Make sure that you can get genParticles
@@ -176,8 +176,8 @@ L1TMuonCaloSumProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
     }
   }
 
-  iEvent.put(towerSums, "TriggerTowerSums");
-  iEvent.put(tower2x2s, "TriggerTower2x2s");
+  iEvent.put(std::move(towerSums), "TriggerTowerSums");
+  iEvent.put(std::move(tower2x2s), "TriggerTower2x2s");
 
 }
 

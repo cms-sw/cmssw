@@ -138,7 +138,7 @@ void DistortedMuonProducer::produce(edm::Event& ev, const edm::EventSetup& iSetu
 
       unsigned int muonCollectionSize = muonCollection->size();
 
-      std::auto_ptr<reco::MuonCollection> newmuons (new reco::MuonCollection);
+      std::unique_ptr<reco::MuonCollection> newmuons (new reco::MuonCollection);
 
       for (unsigned int i=0; i<muonCollectionSize; i++) {
             edm::RefToBase<reco::Muon> mu = muonCollection->refAt(i);
@@ -216,7 +216,7 @@ void DistortedMuonProducer::produce(edm::Event& ev, const edm::EventSetup& iSetu
 
       }
 
-      ev.put(newmuons);
+      ev.put(std::move(newmuons));
 }
 
 DEFINE_FWK_MODULE(DistortedMuonProducer);

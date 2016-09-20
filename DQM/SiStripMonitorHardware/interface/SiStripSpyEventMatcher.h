@@ -34,14 +34,14 @@ namespace sistrip {
       class SpyDataCollections
       {
         public:
-        std::auto_ptr< FEDRawDataCollection > rawData;
-        std::auto_ptr< std::vector<uint32_t> > totalEventCounters;
-        std::auto_ptr< std::vector<uint32_t> > l1aCounters;
-        std::auto_ptr< std::vector<uint32_t> > apvAddresses;
-        std::auto_ptr< edm::DetSetVector<SiStripRawDigi> > scopeDigis;
-        std::auto_ptr< edm::DetSetVector<SiStripRawDigi> > payloadDigis;
-        std::auto_ptr< edm::DetSetVector<SiStripRawDigi> > reorderedDigis;
-        std::auto_ptr< edm::DetSetVector<SiStripRawDigi> > virginRawDigis;
+        std::unique_ptr< FEDRawDataCollection > rawData;
+        std::unique_ptr< std::vector<uint32_t> > totalEventCounters;
+        std::unique_ptr< std::vector<uint32_t> > l1aCounters;
+        std::unique_ptr< std::vector<uint32_t> > apvAddresses;
+        std::unique_ptr< edm::DetSetVector<SiStripRawDigi> > scopeDigis;
+        std::unique_ptr< edm::DetSetVector<SiStripRawDigi> > payloadDigis;
+        std::unique_ptr< edm::DetSetVector<SiStripRawDigi> > reorderedDigis;
+        std::unique_ptr< edm::DetSetVector<SiStripRawDigi> > virginRawDigis;
         SpyDataCollections();
         //NB. This will remove all elements in the containers pasted in. It does not copy the data. 
         SpyDataCollections(FEDRawDataCollection& theRawData,
@@ -52,8 +52,6 @@ namespace sistrip {
                            std::vector< edm::DetSet<SiStripRawDigi> >* thePayloadDigisVector,
                            std::vector< edm::DetSet<SiStripRawDigi> >* theReorderedDigisVector,
                            std::vector< edm::DetSet<SiStripRawDigi> >* theVirginRawDigisVector);
-        //does not copy, orginal object looses ownership of collections
-        SpyDataCollections& operator = (SpyDataCollections original);
       };
       struct MatchingOutput
       {

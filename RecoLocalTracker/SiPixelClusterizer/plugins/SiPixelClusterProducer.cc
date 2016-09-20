@@ -101,7 +101,7 @@
     es.get<TrackerDigiGeometryRecord>().get( geom );
 
     // Step B: create the final output collection
-    std::auto_ptr<SiPixelClusterCollectionNew> output( new SiPixelClusterCollectionNew() );
+    auto output = std::make_unique< SiPixelClusterCollectionNew>();
     //FIXME: put a reserve() here
 
     // Step C: Iterate over DetIds and invoke the pixel clusterizer algorithm
@@ -110,7 +110,7 @@
 
     // Step D: write output to file
     output->shrink_to_fit();
-    e.put( output );
+    e.put(std::move(output));
 
   }
 
@@ -175,6 +175,7 @@
 	// Fatal error!  TO DO: throw an exception!
 	assert(0);
       }
+      {
       // Produce clusters for this DetUnit and store them in 
       // a DetSet
       edmNew::DetSetVector<SiPixelCluster>::FastFiller spc(output, DSViter->detId());
@@ -184,7 +185,7 @@
       } else {
 	numberOfClusters += spc.size();
       }
-
+      } // spc is not deleted and detsetvector updated
       if ((maxTotalClusters_ >= 0) && (numberOfClusters > maxTotalClusters_)) {
         edm::LogError("TooManyClusters") <<  "Limit on the number of clusters exceeded. An empty cluster collection will be produced instead.\n";
         edmNew::DetSetVector<SiPixelCluster> empty;

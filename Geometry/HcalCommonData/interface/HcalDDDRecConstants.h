@@ -74,6 +74,7 @@ public:
   std::vector<HFCellParameters>    getHFCellParameters() const;
   int                       getMaxDepth(const int type) const {return maxDepth[type];}
   int                       getMaxDepth(const int itype, const int ieta) const;
+  int                       getMinDepth(const int itype, const int ieta) const;
   int                       getNEta() const {return hpar->etagroup.size();}
   int                       getNoff(const int i) const {return hpar->noff[i];}
   int                       getNPhi(const int type) const {return nPhiBins[type];}
@@ -87,6 +88,7 @@ public:
   int                       getTopoMode() const {return ((hpar->topologyMode)&0xFF);}
   int                       getTriggerMode() const {return (((hpar->topologyMode)>>8)&0xFF);}
   std::vector<HcalCellType> HcalCellTypes(HcalSubdetector) const;
+  bool                      isBH() const {return hcons.isBH();}
   int                       maxHFDepth(int ieta, int iphi) const {return hcons.maxHFDepth(ieta,iphi);}
   unsigned int              numberOfCells(HcalSubdetector) const;
   unsigned int              nCells(HcalSubdetector) const;

@@ -11,21 +11,21 @@
 HcalDDDSimConstants::HcalDDDSimConstants(const HcalParameters* hp) : hpar(hp) {
 
 #ifdef DebugLog
-  edm::LogInfo("HCalGeom") << "HcalDDDSimConstants::HcalDDDSimConstants (const HcalParameter* hp) constructor";
+  edm::LogInfo("HCalGeom") << "HcalDDDSimConstants::HcalDDDSimConstants (const HcalParameter* hp) constructor\n";
 #endif
 
   initialize();
 #ifdef DebugLog
   std::vector<HcalCellType> cellTypes = HcalCellTypes();
   edm::LogInfo ("HCalGeom") << "HcalDDDSimConstants: " << cellTypes.size()
-			    << " cells of type HCal (All)";
+			    << " cells of type HCal (All)\n";
 #endif
 }
 
 
 HcalDDDSimConstants::~HcalDDDSimConstants() { 
 #ifdef DebugLog
-  edm::LogInfo ("HCalGeom") << "HcalDDDSimConstants::destructed!!!";
+  edm::LogInfo ("HCalGeom") << "HcalDDDSimConstants::destructed!!!\n";
 #endif
 }
 
@@ -76,8 +76,8 @@ HcalCellType::HcalCell HcalDDDSimConstants::cell(int idet, int zside,
 	ok     = false;
 #ifdef DebugLog
 	edm::LogInfo("HCalGeom") << "HcalDDDSimConstants: wrong eta " << etaR 
-			     << " ("  << ir << "/" << nR << ") Detector "
-			     << idet;
+				 << " ("  << ir << "/" << nR << ") Detector "
+				 << idet << std::endl;
 #endif
       }
     } else if (etaR <= nEta) {
@@ -102,14 +102,14 @@ HcalCellType::HcalCell HcalDDDSimConstants::cell(int idet, int zside,
 #ifdef DebugLog
       edm::LogInfo("HCalGeom") << "HcalDDDSimConstants: wrong depth " << depth
 			       << " or etaR " << etaR << " for detector " 
-			       << idet;
+			       << idet << std::endl;
 #endif
     }
   } else {
     ok = false;
 #ifdef DebugLog
     edm::LogInfo("HCalGeom") << "HcalDDDSimConstants: wrong depth " << depth
-			     << " det " << idet;
+			     << " det " << idet << std::endl;
 #endif
   }
   HcalCellType::HcalCell tmp(ok,eta,deta,phi,dphi,rz,drz,flagrz);
@@ -120,7 +120,7 @@ HcalCellType::HcalCell HcalDDDSimConstants::cell(int idet, int zside,
 			   << etaR << "/" << iphi << " Cell Flag " << tmp.ok 
 			   << " "  << tmp.eta << " " << tmp.deta << " phi " 
 			   << tmp.phi << " " << tmp.dphi << " r(z) " << tmp.rz
-			   << " "  << tmp.drz << " " << tmp.flagrz;
+			   << " "  << tmp.drz << " " << tmp.flagrz <<std::endl;
 #endif
   return tmp;
 }
@@ -235,7 +235,7 @@ double HcalDDDSimConstants::getEtaHO(double& etaR, double& x, double& y,
     eta = (z >= 0. ? eta : -eta);
 #ifdef DebugLog
     edm::LogInfo ("HCalGeom") << "R " << r << " Z " << z << " eta " << etaR 
-			      << ":" << eta;
+			      << ":" << eta << std::endl;
     if (eta != etaR) edm::LogInfo ("HCalGeom") << "**** Check *****";
 #endif
     return eta;
@@ -290,35 +290,35 @@ std::vector<HcalCellType> HcalDDDSimConstants::HcalCellTypes() const{
   std::vector<HcalCellType> cellTypes = HcalCellTypes(HcalBarrel);
 #ifdef DebugLog
   edm::LogInfo ("HCalGeom") << "HcalDDDSimConstants: " << cellTypes.size()
-			<< " cells of type HCal Barrel";
+			    << " cells of type HCal Barrel\n";
   for (unsigned int i=0; i<cellTypes.size(); i++)
-    edm::LogInfo ("HCalGeom") << "Cell " << i << " " << cellTypes[i];
+    edm::LogInfo ("HCalGeom") << "Cell " << i << " " << cellTypes[i] << "\n";
 #endif
 
   std::vector<HcalCellType> hoCells   = HcalCellTypes(HcalOuter);
 #ifdef DebugLog
   edm::LogInfo ("HCalGeom") << "HcalDDDSimConstants: " << hoCells.size()
-			<< " cells of type HCal Outer";
+			    << " cells of type HCal Outer\n";
   for (unsigned int i=0; i<hoCells.size(); i++)
-    edm::LogInfo ("HCalGeom") << "Cell " << i << " " << hoCells[i];
+    edm::LogInfo ("HCalGeom") << "Cell " << i << " " << hoCells[i] << "\n";
 #endif
   cellTypes.insert(cellTypes.end(), hoCells.begin(), hoCells.end());
 
   std::vector<HcalCellType> heCells   = HcalCellTypes(HcalEndcap);
 #ifdef DebugLog
   edm::LogInfo ("HCalGeom") << "HcalDDDSimConstants: " << heCells.size()
-			<< " cells of type HCal Endcap";
+			    << " cells of type HCal Endcap\n";
   for (unsigned int i=0; i<heCells.size(); i++)
-    edm::LogInfo ("HCalGeom") << "Cell " << i << " " << heCells[i];
+    edm::LogInfo ("HCalGeom") << "Cell " << i << " " << heCells[i] << "\n";
 #endif
   cellTypes.insert(cellTypes.end(), heCells.begin(), heCells.end());
 
   std::vector<HcalCellType> hfCells   = HcalCellTypes(HcalForward);
 #ifdef DebugLog
   edm::LogInfo ("HCalGeom") << "HcalDDDSimConstants: " << hfCells.size()
-			<< " cells of type HCal Forward";
+			    << " cells of type HCal Forward\n";
   for (unsigned int i=0; i<hfCells.size(); i++)
-    edm::LogInfo ("HCalGeom") << "Cell " << i << " " << hfCells[i];
+    edm::LogInfo ("HCalGeom") << "Cell " << i << " " << hfCells[i] << "\n";
 #endif
   cellTypes.insert(cellTypes.end(), hfCells.begin(), hfCells.end());
 
@@ -438,8 +438,8 @@ unsigned int HcalDDDSimConstants::numberOfCells(HcalSubdetector subdet) const{
   }
 #ifdef DebugLog
   edm::LogInfo ("HCalGeom") << "HcalDDDSimConstants:numberOfCells " 
-			<< cellTypes.size()  << " " << num 
-			<< " for subdetector " << subdet;
+			    << cellTypes.size()  << " " << num 
+			    << " for subdetector " << subdet << std::endl;
 #endif
   return num;
 }
@@ -501,6 +501,7 @@ void HcalDDDSimConstants::initialize( void ) {
   nEta      = hpar->etaTable.size();
   nR        = hpar->rTable.size();
   nPhiF     = nR - 1;
+  isBH_     = false;
 
 #ifdef DebugLog
   for (int i=0; i<nEta-1; ++i) {
@@ -592,11 +593,16 @@ void HcalDDDSimConstants::initialize( void ) {
 #endif
 
   int noffsize = 7 + hpar->noff[5] + hpar->noff[6];
+  int noffl(noffsize+5);
   if ((int)(hpar->noff.size()) > (noffsize+3)) {
     depthEta16[0] = hpar->noff[noffsize];
     depthEta16[1] = hpar->noff[noffsize+1];
     depthEta29[0] = hpar->noff[noffsize+2];
     depthEta29[1] = hpar->noff[noffsize+3];
+    if ((int)(hpar->noff.size()) > (noffsize+4)) {
+      noffl += (2*hpar->noff[noffsize+4]);
+      if ((int)(hpar->noff.size()) > noffl) isBH_ = (hpar->noff[noffl] > 0);
+    }
   } else {
     depthEta16[0] = 2;
     depthEta16[1] = 3;
@@ -604,6 +610,8 @@ void HcalDDDSimConstants::initialize( void ) {
     depthEta29[1] = 1;
   }
 #ifdef DebugLog
+  std::cout << "isBH_ " << hpar->noff.size() << ":" << noffsize << ":" 
+	    << noffl << ":" << isBH_ << std::endl;
   std::cout << "Depth index at ieta = 16 for HB (max) " << depthEta16[0] 
 	    << " HE (min) " << depthEta16[1] << "; max depth for itea = 29 : ("
 	    << depthEta29[0] << ":" << depthEta29[1] << ")" << std::endl;
@@ -658,7 +666,7 @@ double HcalDDDSimConstants::deltaEta(int det, int etaR, int depth) const {
   }
 #ifdef DebugLog
   edm::LogInfo("HCalGeom") << "HcalDDDSimConstants::deltaEta " << etaR << " " 
-			   << depth << " ==> " << tmp;
+			   << depth << " ==> " << tmp << std::endl;
 #endif
   return tmp;
 }
@@ -698,7 +706,7 @@ double HcalDDDSimConstants::getEta(int det, int etaR, int zside,
   if (zside == 0) tmp = -tmp;
 #ifdef DebugLog
   edm::LogInfo("HCalGeom") << "HcalDDDSimConstants::getEta " << etaR << " " 
-		       << zside << " " << depth << " ==> " << tmp;
+			   << zside << " " << depth << " ==> " << tmp << "\n";
 #endif
   return tmp;
 }
@@ -709,7 +717,7 @@ double HcalDDDSimConstants::getEta(double r, double z) const {
   if (z != 0) tmp = -log(tan(0.5*atan(r/z)));
 #ifdef DebugLog
   edm::LogInfo("HCalGeom") << "HcalDDDSimConstants::getEta " << r << " " << z 
-			   << " ==> " << tmp;
+			   << " ==> " << tmp << std::endl;
 #endif
   return tmp;
 }

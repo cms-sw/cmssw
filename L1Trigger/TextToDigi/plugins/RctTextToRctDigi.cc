@@ -74,8 +74,8 @@ RctTextToRctDigi::~RctTextToRctDigi()
 
 /// Append empty digi collection/n
 void RctTextToRctDigi::putEmptyDigi(edm::Event& iEvent) {
-  std::auto_ptr<L1CaloEmCollection> em (new L1CaloEmCollection);
-  std::auto_ptr<L1CaloRegionCollection> rgn (new L1CaloRegionCollection);
+  std::unique_ptr<L1CaloEmCollection> em (new L1CaloEmCollection);
+  std::unique_ptr<L1CaloRegionCollection> rgn (new L1CaloRegionCollection);
     for (unsigned i=0; i<NUM_RCT_CRATES; i++){  
       for (unsigned j=0; j<4; j++) {
 	em->push_back(L1CaloEmCand(0, i, true));
@@ -86,8 +86,8 @@ void RctTextToRctDigi::putEmptyDigi(edm::Event& iEvent) {
       for (unsigned j=0; j<8; j++)
 	rgn->push_back(L1CaloRegion(0,true,i,j));
     }
-    iEvent.put(em);
-    iEvent.put(rgn);
+    iEvent.put(std::move(em));
+    iEvent.put(std::move(rgn));
 }
 
 /// Syncronize bunch crossing number/n
@@ -122,8 +122,8 @@ void RctTextToRctDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
   }
 
   // New collections
-  std::auto_ptr<L1CaloEmCollection> em (new L1CaloEmCollection);
-  std::auto_ptr<L1CaloRegionCollection> rgn (new L1CaloRegionCollection);
+  std::unique_ptr<L1CaloEmCollection> em (new L1CaloEmCollection);
+  std::unique_ptr<L1CaloRegionCollection> rgn (new L1CaloRegionCollection);
 
   // Loop over RCT crates
   for (unsigned i=0; i<NUM_RCT_CRATES; i++){  
@@ -224,8 +224,8 @@ void RctTextToRctDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
     dec(m_file[i]); 
   }
   
-  iEvent.put(em);
-  iEvent.put(rgn);
+  iEvent.put(std::move(em));
+  iEvent.put(std::move(rgn));
 
   m_nevt++;
 }

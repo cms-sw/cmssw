@@ -28,10 +28,10 @@ public:
   
   DDDividedGeometryObject( const DDDivision& div, DDCompactView* cpv );
   
-  virtual ~DDDividedGeometryObject( void );
+  virtual ~DDDividedGeometryObject( void ) = default; // inline
   
   virtual DDTranslation makeDDTranslation( const int copyNo ) const;
-  virtual DDRotation    makeDDRotation   ( const int copyNo ) const ;
+  virtual DDRotation    makeDDRotation   ( const int copyNo ) const;
   virtual DDLogicalPart makeDDLogicalPart( const int copyNo ) const;
 
   virtual const std::string& getType( void ) const;

@@ -93,8 +93,7 @@ HiGenCleaner<T2>::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    using namespace edm;
    using namespace reco;
 
-   auto_ptr<T2Collection> jets;
-   jets = auto_ptr<T2Collection>(new T2Collection);
+   auto jets = std::make_unique<T2Collection>();
    
    edm::Handle<edm::View<T2> > genjets;
    iEvent.getByToken(jetSrc_,genjets);
@@ -141,7 +140,7 @@ HiGenCleaner<T2>::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	 jets->push_back(*jet1);
       }
    }
-   iEvent.put(jets);
+   iEvent.put(std::move(jets));
 
 }
 

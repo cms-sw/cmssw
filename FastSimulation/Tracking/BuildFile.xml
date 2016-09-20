@@ -13,6 +13,9 @@
 <use   name="Geometry/TrackerGeometryBuilder"/>
 <use   name="Geometry/Records"/>
 <use   name="DataFormats/EgammaReco"/>
+<use   name="RecoTracker/TkHitPairs"/>
+<use   name="RecoPixelVertexing/PixelTriplets"/>
+<use   name="RecoTracker/MeasurementDet"/>
 <export>
   <lib   name="1"/>
 </export>

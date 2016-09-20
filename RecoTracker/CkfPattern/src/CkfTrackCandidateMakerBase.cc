@@ -59,7 +59,7 @@ namespace {
 }
 
 namespace cms{
-  CkfTrackCandidateMakerBase::CkfTrackCandidateMakerBase(edm::ParameterSet const& conf, edm::ConsumesCollector && iC) : 
+  CkfTrackCandidateMakerBase::CkfTrackCandidateMakerBase(edm::ParameterSet const& conf, edm::ConsumesCollector && iC) :
     theTrackCandidateOutput(true),
     theTrajectoryOutput(false),
     useSplitting(conf.getParameter<bool>("useHitsSplitting")),
@@ -68,7 +68,7 @@ namespace cms{
     reverseTrajectories(conf.existsAs<bool>("reverseTrajectories") && conf.getParameter<bool>("reverseTrajectories")),
     theMaxNSeeds(conf.getParameter<unsigned int>("maxNSeeds")),
     theTrajectoryBuilder(createBaseCkfTrajectoryBuilder(conf.getParameter<edm::ParameterSet>("TrajectoryBuilderPSet"), iC)),
-    theTrajectoryCleanerName(conf.getParameter<std::string>("TrajectoryCleaner")), 
+    theTrajectoryCleanerName(conf.getParameter<std::string>("TrajectoryCleaner")),
     theTrajectoryCleaner(0),
     theInitialState(new TransientInitialStateEstimator(conf.getParameter<ParameterSet>("TransientInitialStateEstimatorParameters"))),
     theMagFieldName(conf.exists("SimpleMagneticField") ? conf.getParameter<std::string>("SimpleMagneticField") : ""),
@@ -77,17 +77,24 @@ namespace cms{
     theSeedCleaner(0),
     maxSeedsBeforeCleaning_(0),
     theMTELabel(iC.consumes<MeasurementTrackerEvent>(conf.getParameter<edm::InputTag>("MeasurementTrackerEvent"))),
-    skipClusters_(false)
-  {  
+    skipClusters_(false),
+    phase2skipClusters_(false)
+  {
       theSeedLabel= iC.consumes<edm::View<TrajectorySeed> >(conf.getParameter<edm::InputTag>("src"));
 #ifndef	VI_REPRODUCIBLE
-      if ( conf.exists("maxSeedsBeforeCleaning") ) 
+      if ( conf.exists("maxSeedsBeforeCleaning") )
 	   maxSeedsBeforeCleaning_=conf.getParameter<unsigned int>("maxSeedsBeforeCleaning");
 #endif
       if (conf.existsAs<edm::InputTag>("clustersToSkip")) {
         skipClusters_ = true;
         maskPixels_ = iC.consumes<PixelClusterMask>(conf.getParameter<edm::InputTag>("clustersToSkip"));
         maskStrips_ = iC.consumes<StripClusterMask>(conf.getParameter<edm::InputTag>("clustersToSkip"));
+      }
+      //FIXME:: just temporary solution for phase2!
+      if (conf.existsAs<edm::InputTag>("phase2clustersToSkip")) {
+        phase2skipClusters_ = true;
+        maskPixels_ = iC.consumes<PixelClusterMask>(conf.getParameter<edm::InputTag>("phase2clustersToSkip"));
+        maskPhase2OTs_ = iC.consumes<Phase2OTClusterMask>(conf.getParameter<edm::InputTag>("phase2clustersToSkip"));
       }
 #ifndef VI_REPRODUCIBLE
     std::string cleaner = conf.getParameter<std::string>("RedundantSeedCleaner");
@@ -118,11 +125,11 @@ namespace cms{
 
   }
 
-  
+
   // Virtual destructor needed.
   CkfTrackCandidateMakerBase::~CkfTrackCandidateMakerBase() noexcept(false) {
     if (theSeedCleaner) delete theSeedCleaner;
-  }  
+  }
 
   void CkfTrackCandidateMakerBase::beginRunBase (edm::Run const & r, EventSetup const & es)
   {
@@ -151,11 +158,11 @@ namespace cms{
   void CkfTrackCandidateMakerBase::produceBase(edm::Event& e, const edm::EventSetup& es)
   {
     // getting objects from the EventSetup
-    setEventSetup( es ); 
+    setEventSetup( es );
 
     // set the correct navigation
     // NavigationSetter setter( *theNavigationSchool);
-    
+
     // propagator
     edm::ESHandle<Propagator> thePropagator;
     es.get<TrackingComponentsRecord>().get("AnyDirectionAnalyticalPropagator",
@@ -168,38 +175,47 @@ namespace cms{
     edm::Handle<MeasurementTrackerEvent> data;
     e.getByToken(theMTELabel, data);
 
-    std::auto_ptr<MeasurementTrackerEvent> dataWithMasks;
+    std::unique_ptr<MeasurementTrackerEvent> dataWithMasks;
     if (skipClusters_) {
         edm::Handle<PixelClusterMask> pixelMask;
         e.getByToken(maskPixels_, pixelMask);
-            edm::Handle<StripClusterMask> stripMask;
-            e.getByToken(maskStrips_, stripMask);
-            dataWithMasks.reset(new MeasurementTrackerEvent(*data, *stripMask, *pixelMask));
-        //std::cout << "Trajectory builder " << conf_.getParameter<std::string>("@module_label") << " created with masks, " << std::endl;
+        edm::Handle<StripClusterMask> stripMask;
+        e.getByToken(maskStrips_, stripMask);
+        dataWithMasks = std::make_unique<MeasurementTrackerEvent>(*data, *stripMask, *pixelMask);
+        //std::cout << "Trajectory builder " << conf_.getParameter<std::string>("@module_label") << " created with masks " << std::endl;
+        theTrajectoryBuilder->setEvent(e, es, &*dataWithMasks);
+    } else if (phase2skipClusters_) {
+        //FIXME:just temporary solution for phase2!
+        edm::Handle<PixelClusterMask> pixelMask;
+        e.getByToken(maskPixels_, pixelMask);
+        edm::Handle<Phase2OTClusterMask> phase2OTMask;
+        e.getByToken(maskPhase2OTs_, phase2OTMask);
+        dataWithMasks = std::make_unique<MeasurementTrackerEvent>(*data, *pixelMask, *phase2OTMask);
+        //std::cout << "Trajectory builder " << conf_.getParameter<std::string>("@module_label") << " created with phase2 masks " << std::endl;
         theTrajectoryBuilder->setEvent(e, es, &*dataWithMasks);
     } else {
-        //std::cout << "Trajectory builder " << conf_.getParameter<std::string>("@module_label") << " created without masks, " << std::endl;
+        //std::cout << "Trajectory builder " << conf_.getParameter<std::string>("@module_label") << " created without masks " << std::endl;
         theTrajectoryBuilder->setEvent(e, es, &*data);
     }
     // TISE ES must be set here due to dependence on theTrajectoryBuilder
     theInitialState->setEventSetup( es, static_cast<TkTransientTrackingRecHitBuilder const *>(theTrajectoryBuilder->hitBuilder())->cloner() );
 
     // Step B: Retrieve seeds
-    
+
     edm::Handle<View<TrajectorySeed> > collseed;
     e.getByToken(theSeedLabel, collseed);
-    
+
     // Step C: Create empty output collection
-    std::auto_ptr<TrackCandidateCollection> output(new TrackCandidateCollection);    
-    std::auto_ptr<std::vector<Trajectory> > outputT (new std::vector<Trajectory>());
+    auto output = std::make_unique<TrackCandidateCollection>();
+    auto outputT = std::make_unique<std::vector<Trajectory>>();
 
     if ( (*collseed).size()>theMaxNSeeds ) {
       LogError("TooManySeeds")<<"Exceeded maximum numeber of seeds! theMaxNSeeds="<<theMaxNSeeds<<" nSeed="<<(*collseed).size();
-      if (theTrackCandidateOutput){ e.put(output);}
-      if (theTrajectoryOutput){e.put(outputT);}
+      if (theTrackCandidateOutput){e.put(std::move(output));}
+      if (theTrajectoryOutput){e.put(std::move(outputT));}
       return;
     }
-    
+
     // Step D: Invoke the building algorithm
     if ((*collseed).size()>0){
 
@@ -208,7 +224,7 @@ namespace cms{
       rawResult.reserve(collseed->size() * 4);
 
       if (theSeedCleaner) theSeedCleaner->init( &rawResult );
-      
+
       // method for debugging
       countSeedsDebugger();
 
@@ -226,94 +242,95 @@ namespace cms{
 
 #ifdef VI_SORTSEED
       // std::random_shuffle(indeces,indeces+collseed_size);
-       
+
        // here only for reference: does not seems to help
-     
+
       auto const & seeds = *collseed;
-      
-      
-      float val[collseed_size]; 
-      for (auto i=0U; i< collseed_size; ++i) 
+
+
+      float val[collseed_size];
+      for (auto i=0U; i< collseed_size; ++i)
         {  val[i] =  seeds[i].startingState().pt();};
       //  { val[i] =  std::abs((*seeds[i].recHits().first).surface()->eta());}
-      
+
       /*
       unsigned long long val[collseed_size];
       for (auto i=0U; i< collseed_size; ++i) {
         if (seeds[i].nHits()<2) { val[i]=0; continue;}
-        auto h = seeds[i].recHits().first;  
+        auto h = seeds[i].recHits().first;
         auto const & hit = static_cast<BaseTrackerRecHit const&>(*h);
-        val[i] = hit.firstClusterRef().key(); 
+        val[i] = hit.firstClusterRef().key();
         if (++h != seeds[i].recHits().second) {
           auto	const &	hit = static_cast<BaseTrackerRecHit const&>(*h);
-    	  val[i] |= (unsigned long long)(hit.firstClusterRef().key())<<32; 
+    	  val[i] |= (unsigned long long)(hit.firstClusterRef().key())<<32;
         }
       }
       */
       std::sort(indeces,indeces+collseed_size, [&](unsigned int i, unsigned int j){return val[i]<val[j];});
-             
+
 
       // std::cout << spt(indeces[0]) << ' ' << spt(indeces[collseed_size-1]) << std::endl;
-#endif      
-      
+#endif
+
       std::atomic<unsigned int> ntseed(0);
-      auto theLoop = [&](size_t ii) {    
+      auto theLoop = [&](size_t ii) {
         auto j = indeces[ii];
 
-        ntseed++; 
+        ntseed++;
 
         // to be moved inside a par section (how with tbb??)
         std::vector<Trajectory> theTmpTrajectories;
 
 
 	LogDebug("CkfPattern") << "======== Begin to look for trajectories from seed " << j << " ========\n";
-	
-        { Lock lock(theMutex); 
+
+        { Lock lock(theMutex);
 	// Check if seed hits already used by another track
 	if (theSeedCleaner && !theSeedCleaner->good( &((*collseed)[j])) ) {
           LogDebug("CkfTrackCandidateMakerBase")<<" Seed cleaning kills seed "<<j;
-          return;  // from the lambda! 
+          return;  // from the lambda!
         }}
+
 
 	// Build trajectory from seed outwards
         theTmpTrajectories.clear();
 	auto const & startTraj = theTrajectoryBuilder->buildTrajectories( (*collseed)[j], theTmpTrajectories, nullptr );
-	
+
 	LogDebug("CkfPattern") << "======== In-out trajectory building found " << theTmpTrajectories.size()
 			            << " trajectories from seed " << j << " ========\n"
 			       <<PrintoutHelper::dumpCandidates(theTmpTrajectories);
-	
+
         if (cleanTrajectoryAfterInOut) {
 
 	  // Select the best trajectory from this seed (declare others invalid)
   	  theTrajectoryCleaner->clean(theTmpTrajectories);
 
   	  LogDebug("CkfPattern") << "======== In-out trajectory cleaning gave the following " << theTmpTrajectories.size()
-                                      << " valid trajectories from seed " 
+                                      << " valid trajectories from seed "
                                  << j << " ========\n"
 				 << PrintoutHelper::dumpCandidates(theTmpTrajectories);
         }
 
-	// Optionally continue building trajectory back through 
+	// Optionally continue building trajectory back through
 	// seed and if possible further inwards.
-	
+
 	if (doSeedingRegionRebuilding) {
-	  theTrajectoryBuilder->rebuildTrajectories(startTraj,(*collseed)[j],theTmpTrajectories);      
+	  theTrajectoryBuilder->rebuildTrajectories(startTraj,(*collseed)[j],theTmpTrajectories);
 
   	  LogDebug("CkfPattern") << "======== Out-in trajectory building found " << theTmpTrajectories.size()
   			              << " valid/invalid trajectories from seed " << j << " ========\n"
 				 <<PrintoutHelper::dumpCandidates(theTmpTrajectories);
         }
-	
+
 
         // Select the best trajectory from this seed (after seed region rebuilding, can be more than one)
 	theTrajectoryCleaner->clean(theTmpTrajectories);
 
-        LogDebug("CkfPattern") << "======== Trajectory cleaning gave the following " << theTmpTrajectories.size() << " valid trajectories from seed " 
+        LogDebug("CkfPattern") << "======== Trajectory cleaning gave the following " << theTmpTrajectories.size() << " valid trajectories from seed "
                                << j << " ========\n"
 			       <<PrintoutHelper::dumpCandidates(theTmpTrajectories);
 
-        { Lock lock(theMutex); 
+        { Lock lock(theMutex);
 	for(vector<Trajectory>::iterator it=theTmpTrajectories.begin();
 	    it!=theTmpTrajectories.end(); it++){
 	  if( it->isValid() ) {
@@ -328,7 +345,7 @@ namespace cms{
 	}}
 
         theTmpTrajectories.clear();
-        
+
 	LogDebug("CkfPattern") << "rawResult trajectories found so far = " << rawResult.size();
 
         { Lock lock(theMutex);
@@ -355,13 +372,13 @@ namespace cms{
        theLoop(j);
       }
 #endif
-      assert(ntseed==collseed_size); 
+      assert(ntseed==collseed_size);
       if (theSeedCleaner) theSeedCleaner->done();
-   
+
       // std::cout << "VICkfPattern " << "rawResult trajectories found = " << rawResult.size() << " in " << ntseed << " seeds " << collseed_size << std::endl;
 
 #ifdef VI_REPRODUCIBLE
-      // sort trajectory	
+      // sort trajectory
      std::sort(rawResult.begin(), rawResult.end(),[](const Trajectory & a, const Trajectory & b)
                { return a.seedRef().key() < b.seedRef().key();});
              //{ return a.chiSquared()*b.ndof() < b.chiSquared()*a.ndof();});
@@ -371,7 +388,7 @@ namespace cms{
       // Rejected ones just flagged as invalid.
       theTrajectoryCleaner->clean(rawResult);
 
-      LogDebug("CkfPattern") << "======== Final cleaning of entire event found " << rawResult.size() 
+      LogDebug("CkfPattern") << "======== Final cleaning of entire event found " << rawResult.size()
                              << " valid/invalid trajectories ======="<<endl
 			     <<PrintoutHelper::dumpCandidates(rawResult);
 
@@ -386,7 +403,7 @@ namespace cms{
       if (reverseTrajectories) {
         for (auto it = unsmoothedResult.begin(), ed = unsmoothedResult.end(); it != ed; ++it) {
           // reverse the trajectory only if it has valid hit on the last measurement (should happen)
-          if (it->lastMeasurement().updatedState().isValid() && 
+          if (it->lastMeasurement().updatedState().isValid() &&
               it->lastMeasurement().recHit().get() != 0     &&
               it->lastMeasurement().recHit()->isValid()) {
             // I can't use reverse in place, because I want to change the seed
@@ -398,7 +415,7 @@ namespace cms{
             TrajectoryStateOnSurface const & initState = it->lastMeasurement().updatedState();
             auto                    initId = it->lastMeasurement().recHitR().rawId();
             PTrajectoryStateOnDet && state = trajectoryStateTransform::persistentState( initState, initId);
-            TrajectorySeed::recHitContainer hits; 
+            TrajectorySeed::recHitContainer hits;
             hits.push_back(it->lastMeasurement().recHit()->hit()->clone());
             boost::shared_ptr<const TrajectorySeed> seed(new TrajectorySeed(state, std::move(hits), direction));
             // 3) make a trajectory
@@ -413,16 +430,16 @@ namespace cms{
               trajectory.push(std::move(*itmeas));
             }
             // replace
-            (*it)= std::move(trajectory); 
+            (*it)= std::move(trajectory);
           } else {
             edm::LogWarning("CkfPattern_InvalidLastMeasurement") << "Last measurement of the trajectory is invalid, cannot reverse it";
-          }     
+          }
         }
       }
 
-   
-      int viTotHits=0;   
-   
+
+      int viTotHits=0;
+
       if (theTrackCandidateOutput){
 	// Step F: Convert to TrackCandidates
        output->reserve(unsmoothedResult.size());
@@ -430,13 +447,13 @@ namespace cms{
 
        for (vector<Trajectory>::const_iterator it = unsmoothedResult.begin();
 	    it != unsmoothedResult.end(); ++it) {
-	
+
 	 LogDebug("CkfPattern") << "copying "<<(useSplitting?"splitted":"un-splitted")<<" hits from trajectory";
 	 edm::OwnVector<TrackingRecHit> recHits;
          if(it->direction() != alongMomentum) LogDebug("CkfPattern") << "not along momentum... " << std::endl;
          t2t(*it,recHits,useSplitting);
 
-         viTotHits+=recHits.size();        
+         viTotHits+=recHits.size();
 
 
          LogDebug("CkfPattern") << "getting initial state.";
@@ -465,7 +482,7 @@ namespace cms{
 
 
 	 PTrajectoryStateOnDet state;
-	 if(useSplitting && (initState.second != recHits.front().det()) && recHits.front().det() ){	 
+	 if(useSplitting && (initState.second != recHits.front().det()) && recHits.front().det() ){
 	   LogDebug("CkfPattern") << "propagating to hit front in case of splitting.";
 	   TrajectoryStateOnSurface && propagated = thePropagator->propagate(initState.first,recHits.front().det()->surface());
 	   if (!propagated.isValid()) continue;
@@ -480,25 +497,24 @@ namespace cms{
       }//output trackcandidates
 
       edm::ESHandle<TrackerGeometry> tracker;
-      es.get<TrackerDigiGeometryRecord>().get(tracker);            
+      es.get<TrackerDigiGeometryRecord>().get(tracker);
       LogTrace("CkfPattern|TrackingRegressionTest") << "========== CkfTrackCandidateMaker Info =========="
 						    << "number of Seed: " << collseed->size()<<'\n'
       						    <<PrintoutHelper::regressionTest(*tracker,unsmoothedResult);
 
       assert(viTotHits>=0); // just to use it...
       // std::cout << "VICkfPattern result " << output->size() << " " << viTotHits << std::endl;
-     
+
       if (theTrajectoryOutput){ outputT->swap(unsmoothedResult);}
 
     }// end of ((*collseed).size()>0)
-    
+
     // method for debugging
     deleteAssocDebugger();
 
     // Step G: write output to file
-    if (theTrackCandidateOutput){ e.put(output);}
-    if (theTrajectoryOutput){e.put(outputT);}
+    if (theTrackCandidateOutput){e.put(std::move(output));}
+    if (theTrajectoryOutput){e.put(std::move(outputT));}
   }
-  
-}
 
+}

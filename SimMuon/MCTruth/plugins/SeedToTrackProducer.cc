@@ -17,29 +17,10 @@
 //
 //
 
-
-
-
 #include "SeedToTrackProducer.h"
 
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
-
-
-//
-// class declaration
-//
-
-
-
-//
-// constants, enums and typedefs
-//
-
-
-//
-// static data member definitions
-//
 
 //
 // constructors and destructor
@@ -50,25 +31,14 @@ SeedToTrackProducer::SeedToTrackProducer(const edm::ParameterSet& iConfig)
   L2seedsTagT_ = consumes<TrajectorySeedCollection>(iConfig.getParameter<edm::InputTag>("L2seedsCollection"));
   L2seedsTagS_ = consumes<edm::View<TrajectorySeed> >(iConfig.getParameter<edm::InputTag>("L2seedsCollection"));
 
-
-    
-    
     produces<reco::TrackCollection>();
     produces<reco::TrackExtraCollection>();
     produces<TrackingRecHitCollection>();
-    
-  
 }
-
 
 SeedToTrackProducer::~SeedToTrackProducer()
 {
- 
-   // do anything here that needs to be done at desctruction time
-   // (e.g. close files, deallocate resources etc.)
-
 }
-
 
 //
 // member functions
@@ -81,9 +51,9 @@ SeedToTrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     using namespace edm;
     using namespace std;
 
-    std::auto_ptr<reco::TrackCollection> selectedTracks(new reco::TrackCollection);
-    std::auto_ptr<reco::TrackExtraCollection> selectedTrackExtras( new reco::TrackExtraCollection() );
-    std::auto_ptr<TrackingRecHitCollection> selectedTrackHits( new TrackingRecHitCollection() );
+    std::unique_ptr<reco::TrackCollection> selectedTracks(new reco::TrackCollection);
+    std::unique_ptr<reco::TrackExtraCollection> selectedTrackExtras( new reco::TrackExtraCollection() );
+    std::unique_ptr<TrackingRecHitCollection> selectedTrackHits( new TrackingRecHitCollection() );
     
     reco::TrackRefProd rTracks = iEvent.getRefBeforePut<reco::TrackCollection>();
     reco::TrackExtraRefProd rTrackExtras = iEvent.getRefBeforePut<reco::TrackExtraCollection>();
@@ -162,9 +132,9 @@ SeedToTrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
         selectedTrackExtras->push_back(theTrackExtra);
 
     }
-    iEvent.put(selectedTracks);
-    iEvent.put(selectedTrackExtras);
-    iEvent.put(selectedTrackHits);
+    iEvent.put(std::move(selectedTracks));
+    iEvent.put(std::move(selectedTrackExtras));
+    iEvent.put(std::move(selectedTrackHits));
     
 }
 
@@ -186,48 +156,6 @@ SeedToTrackProducer::beginJob()
 // ------------ method called once each job just after ending the event loop  ------------
 void 
 SeedToTrackProducer::endJob() {
-}
-
-// ------------ method called when starting to processes a run  ------------
-/*
-void
-SeedToTrackProducer::beginRun(edm::Run const&, edm::EventSetup const&)
-{
-}
-*/
- 
-// ------------ method called when ending the processing of a run  ------------
-/*
-void
-SeedToTrackProducer::endRun(edm::Run const&, edm::EventSetup const&)
-{
-}
-*/
- 
-// ------------ method called when starting to processes a luminosity block  ------------
-/*
-void
-SeedToTrackProducer::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
-{
-}
-*/
- 
-// ------------ method called when ending the processing of a luminosity block  ------------
-/*
-void
-SeedToTrackProducer::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
-{
-}
-*/
- 
-// ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
-void
-SeedToTrackProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-  //The following says we do not know what parameters are allowed so do no validation
-  // Please change this to state exactly what you do use, even if it is no parameters
-  edm::ParameterSetDescription desc;
-  desc.setUnknown();
-  descriptions.addDefault(desc);
 }
 
 //define this as a plug-in

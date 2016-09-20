@@ -104,7 +104,7 @@ void L1GTEvmDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& evSetu
 
     // define new FEDRawDataCollection
     // it contains ALL FEDs in an event
-    std::auto_ptr<FEDRawDataCollection> allFedRawData(new FEDRawDataCollection);
+    std::unique_ptr<FEDRawDataCollection> allFedRawData(new FEDRawDataCollection);
 
     FEDRawData& gtRawData = allFedRawData->FEDData(m_evmGtFedId);
 
@@ -150,7 +150,7 @@ void L1GTEvmDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& evSetu
                 << "\nQuit packing this event" << std::endl;
 
         // put the raw data in the event
-        iEvent.put(allFedRawData);
+        iEvent.put(std::move(allFedRawData));
 
         return;
     }
@@ -445,7 +445,7 @@ void L1GTEvmDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& evSetu
 
     // put the raw data in the event
 
-    iEvent.put(allFedRawData);
+    iEvent.put(std::move(allFedRawData));
 
 
 }

@@ -159,8 +159,8 @@ void Type2CorrectionProducer::produce(edm::Event& evt, const edm::EventSetup& es
       product += (unclEnergyScaleFactor - 1.)*unclEnergySum;
   }
 
-  std::auto_ptr<CorrMETData> pprod(new CorrMETData(product));
-  evt.put(pprod, "");
+  std::unique_ptr<CorrMETData> pprod(new CorrMETData(product));
+  evt.put(std::move(pprod), "");
 }
 
 //____________________________________________________________________________||

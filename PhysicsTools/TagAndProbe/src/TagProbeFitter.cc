@@ -381,10 +381,10 @@ void TagProbeFitter::doFitEfficiency(RooWorkspace* w, string pdfName, RooRealVar
   createPdf(w, pdfs[pdfName]);
   //set the initial values for the yields of signal and background
   setInitialValues(w);  
-  std::auto_ptr<RooFitResult> res(0);
+  std::unique_ptr<RooFitResult> res;
   
   RooAbsData *data = w->data("data");
-  std::auto_ptr<RooDataHist> bdata;
+  std::unique_ptr<RooDataHist> bdata;
   if (binnedFit) { 
     // get variables from data, which contain also other binning or expression variables
     const RooArgSet *dataObs = data->get(0); 
@@ -617,7 +617,7 @@ void TagProbeFitter::saveFitPlot(RooWorkspace* w){
   RooAbsData* dataPass = dataAll->reduce(Cut("_efficiencyCategory_==_efficiencyCategory_::Passed")); 
   RooAbsData* dataFail = dataAll->reduce(Cut("_efficiencyCategory_==_efficiencyCategory_::Failed")); 
   RooAbsPdf& pdf = *w->pdf("simPdf");
-  std::auto_ptr<RooArgSet> obs(pdf.getObservables(*dataAll));
+  std::unique_ptr<RooArgSet> obs(pdf.getObservables(*dataAll));
   RooRealVar* mass = 0;
   RooLinkedListIter it = obs->iterator();
   for(RooAbsArg* v = (RooAbsArg*)it.Next(); v!=0; v = (RooAbsArg*)it.Next() ){
@@ -742,7 +742,7 @@ void TagProbeFitter::saveEfficiencyPlots(RooDataSet& eff, const TString& effName
       }else{
         RooDataSet myEff(eff);
         myEff.addColumn(allCats2D);
-        std::auto_ptr<TIterator> catIt(allCats2D.typeIterator());
+        std::unique_ptr<TIterator> catIt(allCats2D.typeIterator());
         for(RooCatType* t = (RooCatType*)catIt->Next(); t!=0; t = (RooCatType*)catIt->Next() ){
           TString catName = t->GetName();
           if(catName.Contains("NotMapped")) continue;
@@ -757,7 +757,7 @@ void TagProbeFitter::saveEfficiencyPlots(RooDataSet& eff, const TString& effName
     }else{
       RooDataSet myEff(eff);
       myEff.addColumn(allCats1D);
-      std::auto_ptr<TIterator> catIt(allCats1D.typeIterator());
+      std::unique_ptr<TIterator> catIt(allCats1D.typeIterator());
       for(RooCatType* t = (RooCatType*)catIt->Next(); t!=0; t = (RooCatType*)catIt->Next() ){
         TString catName = t->GetName();
         if(catName.Contains("NotMapped")) continue;

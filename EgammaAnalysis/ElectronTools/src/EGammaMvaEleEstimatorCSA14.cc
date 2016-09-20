@@ -259,7 +259,7 @@ Double_t EGammaMvaEleEstimatorCSA14::mvaValue(const reco::GsfElectron& ele,
   }
 
   if ( (fMVAType != EGammaMvaEleEstimatorCSA14::kTrig) && (fMVAType != EGammaMvaEleEstimatorCSA14::kNonTrig) && (fMVAType != EGammaMvaEleEstimatorCSA14::kNonTrigPhys14) ) {
-    std::cout << "Error: This method should be called for kTrig or kNonTrig or kNonTrigPhys14 MVA only" << std::endl;
+    std::cout << "Error: This method should be called for kTrig or kNonTrig or kNonTrigPhys14 MVA only" <<std::endl;
     return -9999;
   }
  
@@ -352,8 +352,8 @@ Double_t EGammaMvaEleEstimatorCSA14::mvaValue(const reco::GsfElectron& ele,
 
 
   if(printDebug) {
-    std::cout << " *** Inside the class fMethodname " << fMethodname << " fMVAType " << fMVAType << std::endl;
-    std::cout << " fbrem " <<  fMVAVar_fbrem  
+   std::cout << " *** Inside the class fMethodname " << fMethodname << " fMVAType " << fMVAType <<std::endl;
+   std::cout << " fbrem " <<  fMVAVar_fbrem  
       	 << " kfchi2 " << fMVAVar_kfchi2  
 	 << " mykfhits " << fMVAVar_kfhits  
 	 << " gsfchi2 " << fMVAVar_gsfchi2  
@@ -373,8 +373,8 @@ Double_t EGammaMvaEleEstimatorCSA14::mvaValue(const reco::GsfElectron& ele,
 	 << " d0 " << fMVAVar_d0  
 	 << " ip3d " << fMVAVar_ip3d  
 	 << " eta " << fMVAVar_eta  
-	 << " pt " << fMVAVar_pt << std::endl;
-    std::cout << " ### MVA " << mva << std::endl;
+	 << " pt " << fMVAVar_pt <<std::endl;
+   std::cout << " ### MVA " << mva <<std::endl;
   }
 
 
@@ -393,7 +393,7 @@ Double_t EGammaMvaEleEstimatorCSA14::mvaValue(const pat::Electron& ele,
     }
     
     if ( (fMVAType != EGammaMvaEleEstimatorCSA14::kTrig) && (fMVAType != EGammaMvaEleEstimatorCSA14::kNonTrig) && (fMVAType != EGammaMvaEleEstimatorCSA14::kNonTrigPhys14) ) {
-        std::cout << "Error: This method should be called for kTrig or kNonTrig or kNonTrigPhys14 MVA only" << std::endl;
+        std::cout << "Error: This method should be called for kTrig or kNonTrig or kNonTrigPhys14 MVA only" <<std::endl;
         return -9999;
     }
     
@@ -456,8 +456,8 @@ Double_t EGammaMvaEleEstimatorCSA14::mvaValue(const pat::Electron& ele,
     
     
     if(printDebug) {
-        std::cout << " *** Inside the class fMethodname " << fMethodname << " fMVAType " << fMVAType << std::endl;
-        std::cout << " fbrem " <<  fMVAVar_fbrem
+       std::cout << " *** Inside the class fMethodname " << fMethodname << " fMVAType " << fMVAType <<std::endl;
+       std::cout << " fbrem " <<  fMVAVar_fbrem
         << " kfchi2 " << fMVAVar_kfchi2
         << " mykfhits " << fMVAVar_kfhits
         << " gsfchi2 " << fMVAVar_gsfchi2
@@ -475,8 +475,8 @@ Double_t EGammaMvaEleEstimatorCSA14::mvaValue(const pat::Electron& ele,
         << " IoEmIoP " << fMVAVar_IoEmIoP  
         << " eleEoPout " << fMVAVar_eleEoPout  
         << " eta " << fMVAVar_eta
-        << " pt " << fMVAVar_pt << std::endl;
-        std::cout << " ### MVA " << mva << std::endl;
+        << " pt " << fMVAVar_pt <<std::endl;
+       std::cout << " ### MVA " << mva <<std::endl;
     }
     
     

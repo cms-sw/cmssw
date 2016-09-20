@@ -353,8 +353,8 @@ void L1RCTProducer::produce(edm::Event& event, const edm::EventSetup& eventSetup
 {
 
 
-  std::auto_ptr<L1CaloEmCollection> rctEmCands (new L1CaloEmCollection);
-  std::auto_ptr<L1CaloRegionCollection> rctRegions (new L1CaloRegionCollection);
+  std::unique_ptr<L1CaloEmCollection> rctEmCands (new L1CaloEmCollection);
+  std::unique_ptr<L1CaloRegionCollection> rctRegions (new L1CaloRegionCollection);
 
 
   if(!(ecalDigis.size()==hcalDigis.size()&&hcalDigis.size()==bunchCrossings.size()))
@@ -416,8 +416,8 @@ void L1RCTProducer::produce(edm::Event& event, const edm::EventSetup& eventSetup
 
   
   //putting stuff back into event
-  event.put(rctEmCands);
-  event.put(rctRegions);
+  event.put(std::move(rctEmCands));
+  event.put(std::move(rctRegions));
   
 }
 

@@ -7,7 +7,6 @@
 using namespace std;
 using namespace edm;
 using namespace reco;
-using namespace l1extra;
 using namespace trigger;
 
 //

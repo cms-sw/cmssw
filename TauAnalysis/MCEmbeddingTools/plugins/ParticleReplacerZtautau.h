@@ -45,7 +45,7 @@ class ParticleReplacerZtautau : public ParticleReplacerBase
 
   virtual void declareExtraProducts(MCParticleReplacer*);
 
-  virtual std::auto_ptr<HepMC::GenEvent> produce(const std::vector<reco::Particle>&, const reco::Vertex* = 0, const HepMC::GenEvent* = 0, MCParticleReplacer* = 0);
+  virtual std::unique_ptr<HepMC::GenEvent> produce(const std::vector<reco::Particle>&, const reco::Vertex* = 0, const HepMC::GenEvent* = 0, MCParticleReplacer* = 0);
   virtual void beginRun(edm::Run&, const edm::EventSetup&);
   virtual void beginJob();
   virtual void endJob();

@@ -8,49 +8,48 @@
 
 #include "Alignment/ReferenceTrajectories/interface/ReferenceTrajectory.h"
 
-DualReferenceTrajectory::DualReferenceTrajectory( const TrajectoryStateOnSurface &referenceTsos,
-						  const ConstRecHitContainer &forwardRecHits,
-						  const ConstRecHitContainer &backwardRecHits,
-						  const MagneticField *magField,
-						  MaterialEffects materialEffects,
-						  PropagationDirection propDir,
-						  double mass, 
-						  bool useBeamSpot,
-						  const reco::BeamSpot &beamSpot)
-  : ReferenceTrajectoryBase(referenceTsos.localParameters().mixedFormatVector().kSize,
-			    numberOfUsedRecHits(forwardRecHits) + numberOfUsedRecHits(backwardRecHits) - 1,
-			    0, 0)
+DualReferenceTrajectory::DualReferenceTrajectory(const TrajectoryStateOnSurface& tsos,
+                                                 const ConstRecHitContainer& forwardRecHits,
+                                                 const ConstRecHitContainer& backwardRecHits,
+                                                 const MagneticField* magField,
+                                                 const reco::BeamSpot& beamSpot,
+                                                 const ReferenceTrajectoryBase::Config& config) :
+  ReferenceTrajectoryBase(tsos.localParameters().mixedFormatVector().kSize,
+                          numberOfUsedRecHits(forwardRecHits) + numberOfUsedRecHits(backwardRecHits) - 1,
+                          0, 0),
+  mass_(config.mass),
+  materialEffects_(config.materialEffects),
+  propDir_(config.propDir),
+  useBeamSpot_(config.useBeamSpot)
 {
-  theValidityFlag = this->construct( referenceTsos, forwardRecHits, backwardRecHits,
-				     mass, materialEffects, propDir, magField, useBeamSpot, beamSpot );
+  theValidityFlag = this->construct(tsos, forwardRecHits, backwardRecHits, magField, beamSpot);
 }
 
 
 
-DualReferenceTrajectory::DualReferenceTrajectory(unsigned int nPar, unsigned int nHits)
-  : ReferenceTrajectoryBase(nPar, nHits, 0, 0)
+DualReferenceTrajectory::DualReferenceTrajectory(unsigned int nPar, unsigned int nHits,
+						 const ReferenceTrajectoryBase::Config& config)
+  : ReferenceTrajectoryBase(nPar, nHits, 0, 0),
+  mass_(config.mass),
+  materialEffects_(config.materialEffects),
+  propDir_(config.propDir),
+  useBeamSpot_(config.useBeamSpot)
 {}
 
 
-bool DualReferenceTrajectory::construct( const TrajectoryStateOnSurface &refTsos, 
-					 const ConstRecHitContainer &forwardRecHits,
-					 const ConstRecHitContainer &backwardRecHits,
-					 double mass, MaterialEffects materialEffects,
-					 const PropagationDirection propDir,
-					 const MagneticField *magField,
-					 bool useBeamSpot,
-					 const reco::BeamSpot &beamSpot)
+bool DualReferenceTrajectory::construct(const TrajectoryStateOnSurface &refTsos,
+                                        const ConstRecHitContainer &forwardRecHits,
+                                        const ConstRecHitContainer &backwardRecHits,
+                                        const MagneticField *magField,
+                                        const reco::BeamSpot &beamSpot)
 {
-  if (materialEffects >= breakPoints)  throw cms::Exception("BadConfig")
-    << "[DualReferenceTrajectory::construct] Wrong MaterialEffects: " << materialEffects;
+  if (materialEffects_ >= breakPoints)  throw cms::Exception("BadConfig")
+    << "[DualReferenceTrajectory::construct] Wrong MaterialEffects: " << materialEffects_;
     
-  ReferenceTrajectoryBase* fwdTraj = construct(refTsos, forwardRecHits,
-					       mass, materialEffects,
-					       propDir, magField, useBeamSpot, beamSpot);
+  ReferenceTrajectoryBase* fwdTraj = construct(refTsos, forwardRecHits, magField, beamSpot);
 
-  ReferenceTrajectoryBase* bwdTraj = construct(refTsos, backwardRecHits,
-					       mass, materialEffects,
-					       oppositeDirection(propDir), magField, false, beamSpot);
+  // set flag for opposite direction to true
+  ReferenceTrajectoryBase* bwdTraj = construct(refTsos, backwardRecHits, magField, beamSpot, true);
 
   if ( !( fwdTraj->isValid() && bwdTraj->isValid() ) )
   {
@@ -124,18 +123,19 @@ bool DualReferenceTrajectory::construct( const TrajectoryStateOnSurface &refTsos
 ReferenceTrajectory*
 DualReferenceTrajectory::construct(const TrajectoryStateOnSurface &referenceTsos, 
 				   const ConstRecHitContainer &recHits,
-				   double mass, MaterialEffects materialEffects,
-				   const PropagationDirection propDir,
 				   const MagneticField *magField,
-				   bool useBeamSpot,
-				   const reco::BeamSpot &beamSpot) const
+				   const reco::BeamSpot &beamSpot,
+				   const bool revertDirection) const
 {
-  if (materialEffects >= breakPoints)  throw cms::Exception("BadConfig")
-    << "[DualReferenceTrajectory::construct] Wrong MaterialEffects: " << materialEffects;
+  if (materialEffects_ >= breakPoints)  throw cms::Exception("BadConfig")
+    << "[DualReferenceTrajectory::construct] Wrong MaterialEffects: " << materialEffects_;
   
-  return new ReferenceTrajectory(referenceTsos, recHits, false,
-				 magField, materialEffects, propDir, mass,
-				 useBeamSpot, beamSpot);
+  ReferenceTrajectoryBase::Config config(materialEffects_,
+                                         (revertDirection ? oppositeDirection(propDir_): propDir_),
+                                         mass_);
+  config.useBeamSpot = useBeamSpot_;
+  config.hitsAreReverse = false;
+  return new ReferenceTrajectory(referenceTsos, recHits, magField, beamSpot, config);
 }
 
 

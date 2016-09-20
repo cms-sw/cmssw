@@ -2,8 +2,8 @@
 
 SimHitSelectorFromDB::SimHitSelectorFromDB():theNewSimHitList(0){}
 
-//std::vector<PSimHit> SimHitSelectorFromDB::getSimHit(std::auto_ptr<MixCollection<PSimHit> >& simhit, 
-std::vector<std::pair<const PSimHit*,int> > SimHitSelectorFromDB::getSimHit(std::auto_ptr<MixCollection<PSimHit> >& simhit, 
+//std::vector<PSimHit> SimHitSelectorFromDB::getSimHit(std::unique_ptr<MixCollection<PSimHit> >& simhit, 
+std::vector<std::pair<const PSimHit*,int> > SimHitSelectorFromDB::getSimHit(std::unique_ptr<MixCollection<PSimHit> >& simhit, 
 						     std::map<uint32_t, std::vector<int> >& detId){
   theNewSimHitList.clear();
   int counter =0;

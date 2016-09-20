@@ -1,0 +1,119 @@
+
+// ROOT includes
+#include "TLatex.h"
+#include "TEveCalo.h"
+#include "TEveStraightLineSet.h"
+#include "TEvePointSet.h"
+#include "TEveScene.h"
+#include "TEveViewer.h"
+#include "TGLViewer.h"
+#include "TGLOverlay.h"
+#include "TCanvas.h"
+#include "TLegend.h"
+#include "TEveCaloLegoOverlay.h"
+#include "TRootEmbeddedCanvas.h"
+
+// Fireworks includes
+#include "Fireworks/Calo/interface/FWECALDetailViewBase.h"
+#include "Fireworks/Calo/interface/FWECALDetailViewBuilder.h"
+#include "Fireworks/Core/interface/FWColorManager.h"
+#include "Fireworks/Core/interface/FWModelId.h"
+#include "Fireworks/Core/interface/FWEventItem.h"
+#include "Fireworks/Core/interface/FWGLEventHandler.h"
+
+// CMSSW includes
+#include "DataFormats/Candidate/interface/Candidate.h"
+#include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
+
+
+template <typename T>
+FWECALDetailViewBase<T>::FWECALDetailViewBase () : m_data(0), m_builder(0), m_legend(0)
+{
+}
+template <typename T>
+FWECALDetailViewBase<T>::~FWECALDetailViewBase () 
+{
+   FWDetailViewGL<T>::m_eveViewer->GetGLViewer()->DeleteOverlayElements(TGLOverlayElement::kUser);
+
+   delete m_builder;
+   if (m_data) m_data->DecDenyDestroy();
+}
+
+template <typename T>
+void FWECALDetailViewBase<T>::build( const FWModelId &id, const T* element )
+{
+   double eta = element->eta();
+   double phi = element->phi();
+
+   // build ECAL objects
+   m_builder = new FWECALDetailViewBuilder( id.item()->getEvent(), id.item()->getGeom(), eta, phi, 25);
+					   
+   TEveCaloLego* lego = m_builder->build();
+   m_data = lego->GetData();
+   m_data->IncDenyDestroy(); // needed ??? 
+   FWDetailViewGL<T>::m_eveScene->AddElement( lego );
+
+   m_legend = new TLegend(0.01, 0.01, 0.99, 0.99, 0, "NDC");
+   m_legend->SetTextSize(0.075);
+   m_legend->SetBorderSize(0);
+   m_legend->SetMargin(0.15);
+   m_legend->SetEntrySeparation(0.05);
+
+   
+   // draw axis at the window corners
+   if (1)
+   {
+   TEveCaloLegoOverlay* overlay = new TEveCaloLegoOverlay();
+   overlay->SetShowPlane( kFALSE );
+   overlay->SetShowPerspective( kFALSE );
+   overlay->SetCaloLego( lego );
+   overlay->SetShowScales( 1 ); // temporary
+
+   FWDetailViewGL<T>::viewerGL()->AddOverlayElement( overlay );
+   }
+   // set event handler and flip camera to top view at beginning
+   FWDetailViewGL<T>::viewerGL()->SetCurrentCamera( TGLViewer::kCameraOrthoXOY );
+   FWGLEventHandler* eh =
+      new FWGLEventHandler( (TGWindow*) FWDetailViewGL<T>::viewerGL()->GetGLWidget(), (TObject*) FWDetailViewGL<T>::viewerGL(), lego );
+   FWDetailViewGL<T>::viewerGL()->SetEventHandler( eh );
+   FWDetailViewGL<T>::viewerGL()->ResetCamerasAfterNextUpdate();
+   FWDetailViewGL<T>::viewerGL()->UpdateScene(kFALSE);
+   gEve->Redraw3D();
+
+   setTextInfo( id, element );
+}
+
+template <typename T>
+void FWECALDetailViewBase<T>::setTextInfo( const FWModelId& id, const  T* element )
+{
+   FWDetailViewGL<T>::m_infoCanvas->cd();
+
+   float_t x  = 0.02;
+   float   y  = 0.95;
+
+   TLatex* latex = new TLatex( x, y, "" );
+   const double textsize( 0.1 );
+   latex->SetTextSize( textsize );
+
+   latex->DrawLatex( x, y, id.item()->modelName( id.index() ).c_str() );
+   y -= latex->GetTextSize()*0.8;
+
+   latex->SetTextSize( textsize * 0.8 );
+   float lineH = latex->GetTextSize()*0.6;
+
+   latex->DrawLatex( x, y, Form( "#eta = %0.2f" , element->eta()));
+   y -= lineH;
+   latex->DrawLatex( x, y, Form( "#phi = %0.2f" , element->phi()));
+   y -= lineH;
+   // summary
+   if( element->charge() > 0 )
+      latex->DrawLatex( x, y, "charge = +1" );
+   else
+      latex->DrawLatex( x, y, "charge = -1" );
+   y -= lineH;
+
+   m_legend->SetY2(y);
+   m_legend->Draw();
+   m_legend = 0; // Deleted together with TPad.
+}
+

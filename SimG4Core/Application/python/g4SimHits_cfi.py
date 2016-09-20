@@ -63,6 +63,11 @@ g4SimHits = cms.EDProducer("OscarMTProducer",
         NodeNames = cms.vstring('World')
     ),
     G4Commands = cms.vstring(),
+    SteppingVerbosity = cms.int32(0),
+    StepVerboseThreshold = cms.double(0.1), # in GeV
+    VerboseEvents = cms.vint32(),
+    VertexNumber  = cms.vint32(),
+    VerboseTracks = cms.vint32(),
     FileNameField = cms.untracked.string(''),
     FileNameGDML = cms.untracked.string(''),
     FileNameRegions = cms.untracked.string(''),
@@ -102,7 +107,7 @@ g4SimHits = cms.EDProducer("OscarMTProducer",
         #        please select "SimG4Core/Physics/DummyPhysics" for type
         #        and turn ON DummyEMPhysics
         #
-        type = cms.string('SimG4Core/Physics/QGSP_FTFP_BERT_EML'),
+        type = cms.string('SimG4Core/Physics/FTFP_BERT_EMM'),
         DummyEMPhysics = cms.bool(False),
         CutsPerRegion = cms.bool(True),
         CutsOnProton  = cms.untracked.bool(True),
@@ -436,6 +441,13 @@ g4SimHits = cms.EDProducer("OscarMTProducer",
         BirkC1 = cms.double(0.013),
         BirkC3 = cms.double(1.75),
         BirkC2 = cms.double(0.0568)
+    ),
+    HGCalTestBeamSD = cms.PSet(
+        Material   = cms.string('Scintillator'),
+        UseBirkLaw = cms.bool(False),
+        BirkC1 = cms.double(0.013),
+        BirkC3 = cms.double(1.75),
+        BirkC2 = cms.double(0.0568),
     ),
     HcalTB06BeamSD = cms.PSet(
         UseBirkLaw = cms.bool(False),

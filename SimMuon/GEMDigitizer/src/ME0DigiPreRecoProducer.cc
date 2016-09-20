@@ -68,10 +68,10 @@ void ME0DigiPreRecoProducer::produce(edm::Event& e, const edm::EventSetup& event
   edm::Handle<CrossingFrame<PSimHit> > cf;
   e.getByToken(cf_token, cf);
 
-  std::auto_ptr<MixCollection<PSimHit> > hits( new MixCollection<PSimHit>(cf.product()) );
+  std::unique_ptr<MixCollection<PSimHit> > hits( new MixCollection<PSimHit>(cf.product()) );
 
   // Create empty output
-  std::auto_ptr<ME0DigiPreRecoCollection> digis(new ME0DigiPreRecoCollection());
+  std::unique_ptr<ME0DigiPreRecoCollection> digis(new ME0DigiPreRecoCollection());
 
   // arrange the hits by eta partition
   std::map<uint32_t, edm::PSimHitContainer> hitMap;
@@ -96,6 +96,6 @@ void ME0DigiPreRecoProducer::produce(edm::Event& e, const edm::EventSetup& event
   }
   
   // store them in the event
-  e.put(digis);
+  e.put(std::move(digis));
 }
 

@@ -243,12 +243,12 @@ IPProducer<Container,Base,Helper>::produce(edm::Event& iEvent, const edm::EventS
    // m_algo.setTransientTrackBuilder(builder.product());
 
    // output collections 
-   std::auto_ptr<Product> result(new Product);
+   auto result = std::make_unique<Product>();
 
-   std::auto_ptr<reco::TrackCollection> ghostTracks;
+   std::unique_ptr<reco::TrackCollection> ghostTracks;
    reco::TrackRefProd ghostTrackRefProd;
    if (m_computeGhostTrack) {
-     ghostTracks.reset(new reco::TrackCollection);
+     ghostTracks = std::make_unique<reco::TrackCollection>();
      ghostTrackRefProd = iEvent.getRefBeforePut<reco::TrackCollection>("ghostTracks");
    }
 
@@ -417,8 +417,8 @@ IPProducer<Container,Base,Helper>::produce(edm::Event& iEvent, const edm::EventS
    }
  
    if (m_computeGhostTrack)
-     iEvent.put(ghostTracks, "ghostTracks");
-   iEvent.put(result);
+     iEvent.put(std::move(ghostTracks), "ghostTracks");
+   iEvent.put(std::move(result));
 }
 
 
@@ -431,11 +431,9 @@ IPProducer<Container,Base,Helper>::produce(edm::Event& iEvent, const edm::EventS
 
 template <class Container, class Base, class Helper> void IPProducer<Container,Base,Helper>::checkEventSetup(const edm::EventSetup & iSetup)
  {
-  using namespace edm;
-  using namespace edm::eventsetup;
-
-   const EventSetupRecord & re2D= iSetup.get<BTagTrackProbability2DRcd>();
-   const EventSetupRecord & re3D= iSetup.get<BTagTrackProbability3DRcd>();
+  
+   const edm::eventsetup::EventSetupRecord & re2D= iSetup.get<BTagTrackProbability2DRcd>();
+   const edm::eventsetup::EventSetupRecord & re3D= iSetup.get<BTagTrackProbability3DRcd>();
    unsigned long long cacheId2D= re2D.cacheIdentifier();
    unsigned long long cacheId3D= re3D.cacheIdentifier();
 

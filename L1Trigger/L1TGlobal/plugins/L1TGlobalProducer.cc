@@ -59,7 +59,8 @@ void L1TGlobalProducer::fillDescriptions(edm::ConfigurationDescriptions& descrip
   desc.add<unsigned int> ("AlternativeNrBxBoardDaq",0);
   desc.add<int> ("BstLengthBytes",-1);
   desc.add<unsigned int> ("PrescaleSet",1);    
-  desc.addUntracked<int>("Verbosity",0);            
+  desc.addUntracked<int>("Verbosity",0); 
+  desc.addUntracked<bool> ("PrintL1Menu",false);           
   desc.add<std::string>("TriggerMenuLuminosity","startup");
   desc.add<std::string>("PrescaleCSVFile","prescale_L1TGlobal.csv");
   descriptions.add("L1TGlobalProducer", desc);
@@ -92,6 +93,7 @@ L1TGlobalProducer::L1TGlobalProducer(const edm::ParameterSet& parSet) :
             m_algorithmTriggersUnmasked(parSet.getParameter<bool> ("AlgorithmTriggersUnmasked")),
 
             m_verbosity(parSet.getUntrackedParameter<int>("Verbosity")),
+	    m_printL1Menu(parSet.getUntrackedParameter<bool>("PrintL1Menu")),
             m_isDebugEnabled(edm::isDebugEnabled())
 {
 
@@ -504,8 +506,8 @@ void L1TGlobalProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSet
 
         (const_cast<TriggerMenu*>(m_l1GtMenu))->buildGtConditionMap();
         
-	//int printV = 2;
-        //m_l1GtMenu->print(std::cout, printV);
+	int printV = 2;
+        if(m_printL1Menu) m_l1GtMenu->print(std::cout, printV);
 	
         m_l1GtMenuCacheID = l1GtMenuCacheID;
     }
@@ -653,10 +655,10 @@ void L1TGlobalProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSet
 
 
     // Produce the Output Records for the GT
-    std::auto_ptr<GlobalAlgBlkBxCollection> uGtAlgRecord( new GlobalAlgBlkBxCollection(0,minEmulBxInEvent,maxEmulBxInEvent));
+    std::unique_ptr<GlobalAlgBlkBxCollection> uGtAlgRecord( new GlobalAlgBlkBxCollection(0,minEmulBxInEvent,maxEmulBxInEvent));
 
     // * produce the GlobalObjectMapRecord  
-    std::auto_ptr<GlobalObjectMapRecord> gtObjectMapRecord(
+    std::unique_ptr<GlobalObjectMapRecord> gtObjectMapRecord(
         new GlobalObjectMapRecord() );
 
 
@@ -825,12 +827,12 @@ void L1TGlobalProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSet
     
     // register products
     if( m_produceL1GtDaqRecord ){
-      iEvent.put( uGtAlgRecord );
+      iEvent.put(std::move(uGtAlgRecord));
     }
 
 
     if( m_produceL1GtObjectMapRecord ){
-      iEvent.put( gtObjectMapRecord );
+      iEvent.put(std::move(gtObjectMapRecord));
     }
 
 

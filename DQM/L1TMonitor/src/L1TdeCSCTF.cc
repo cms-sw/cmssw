@@ -304,7 +304,7 @@ void L1TdeCSCTF::analyze(Event const& e, EventSetup const& es){
   {
     if (nDataMuons>=8)
       break;
-      if ( (trk->first.BX() <2) && (trk->first.BX() > -1) )
+    if ( (trk->first.BX() <2) && (trk->first.BX() > -1) )
         {
 	  //int mOdE = (trk->first.ptLUTAddress()>>16)&0xf; 
 	  //cout << "D->Mode: " << mOdE << ", Rank " << trk->first.rank() << endl;
@@ -341,7 +341,7 @@ void L1TdeCSCTF::analyze(Event const& e, EventSetup const& es){
   {
      if(nEmulMuons>=8)
        break;
-       if((trk->first.BX() <2) && (trk->first.BX() >-1))
+     if((trk->first.BX() <2) && (trk->first.BX() >-1))
          {
 	    //int mOdE = (trk->first.ptLUTAddress()>>16)&0xf; 
 	    //cout << "E->Mode: " << mOdE << ", Rank " << trk->first.rank() << endl;
@@ -504,7 +504,7 @@ void L1TdeCSCTF::analyze(Event const& e, EventSetup const& es){
     {
       if(dDtCounter>=15)
         break;
-        if((stu->BX()>4) && (stu->BX()<9))
+      if((stu->BX()>4) && (stu->BX()<9))
         {
           dDtStub[0][dDtCounter] = stu->phiPacked();
 	  dDtStub[1][dDtCounter] = stu->getQuality();
@@ -537,7 +537,7 @@ void L1TdeCSCTF::analyze(Event const& e, EventSetup const& es){
     {		
       if (eDtCounter>=15)
         break;
-	if((eStu->BX()>4) && (eStu->BX()<9) )
+      if((eStu->BX()>4) && (eStu->BX()<9) )
 	{
 	  eDtStub[0][eDtCounter] = eStu->phiPacked();
 	  eDtStub[1][eDtCounter] = eStu->getQuality();

@@ -39,9 +39,9 @@ public:
     // -----------------------------------------------------------------------
     //  Implementations of the format target interface
     // -----------------------------------------------------------------------
-    virtual void writeChars(const XMLByte* const toWrite
-                          , const unsigned int   count
-                          , XMLFormatter* const  formatter);
+    virtual void writeChars(const XMLByte* const toWrite,
+			    const XMLSize_t count,
+			    XMLFormatter* const  formatter) override;
 
     virtual void flush();
 

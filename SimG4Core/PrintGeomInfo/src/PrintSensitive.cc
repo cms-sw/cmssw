@@ -1,7 +1,6 @@
 #include "SimG4Core/PrintGeomInfo/interface/PrintSensitive.h"
 
 #include "SimG4Core/Notification/interface/BeginOfRun.h"
-#include "SimG4Core/Notification/interface/SimG4Exception.h"
 
 #include "G4Run.hh"
 #include "G4VPhysicalVolume.hh"

@@ -158,7 +158,7 @@ class ConditionDBWriter : public edm::EDAnalyzer {
   
 public:
 
-  explicit ConditionDBWriter(const edm::ParameterSet& iConfig) : LumiBlockMode_(false), RunMode_(false), JobMode_(false), AlgoDrivenMode_(false), Time_(0), setSinceTime_(false), firstRun_(true)
+  explicit ConditionDBWriter(const edm::ParameterSet& iConfig) : minRunRange_(1<<31), maxRunRange_(0), LumiBlockMode_(false), RunMode_(false), JobMode_(false), AlgoDrivenMode_(false), Time_(0), setSinceTime_(false), firstRun_(true)
   {
     edm::LogInfo("ConditionDBWriter::ConditionDBWriter()") << std::endl;
     SinceAppendMode_=iConfig.getParameter<bool>("SinceAppendMode");
@@ -171,7 +171,8 @@ public:
     Record_=iConfig.getParameter<std::string>("Record");
     doStore_=iConfig.getParameter<bool>("doStoreOnDB");
     timeFromEndRun_=iConfig.getUntrackedParameter<bool>("TimeFromEndRun", false);
-    
+    timeFromStartOfRunRange_=iConfig.getUntrackedParameter<bool>("TimeFromStartOfRunRange", false);
+
     if(! SinceAppendMode_ ) 
       edm::LogError("ConditionDBWriter::endJob(): ERROR - only SinceAppendMode support!!!!");
   }
@@ -213,6 +214,10 @@ private:
       algoBeginJob(es);
       firstRun_ = false;
     }
+
+    if( run.id().run() < minRunRange_ ) minRunRange_=run.id().run();
+    if( run.id().run() > maxRunRange_ ) maxRunRange_=run.id().run();
+
     edm::LogInfo("ConditionDBWriter::beginRun") << std::endl;
     if(RunMode_ && SinceAppendMode_) setSinceTime_=true;
     algoBeginRun(run,es);
@@ -317,6 +322,9 @@ private:
     cond::Time_t since = 
       ( mydbservice->isNewTagRequest(Record_) && !timeFromEndRun_ ) ? mydbservice->beginOfTime() : Time_;
 
+    //overwrite tim in the case we have the flag TimeFromStartOfRunRange set to on
+    if (timeFromStartOfRunRange_ ) since = minRunRange_; 
+
     edm::LogInfo("ConditionDBWriter") << "appending a new object to tag " 
 				      <<Record_ <<" in since mode " << std::endl;
     mydbservice->writeOne<T>(objPointer, since, Record_);
@@ -371,6 +379,9 @@ protected:
   void setDoStore(const bool doStore) {doStore_ = doStore;}
 
 private:
+
+  unsigned int minRunRange_;
+  unsigned int maxRunRange_;
   
   bool SinceAppendMode_; // till or since append mode 
 
@@ -388,6 +399,7 @@ private:
   bool firstRun_;
 
   bool timeFromEndRun_;
+  bool timeFromStartOfRunRange_;
 };
 
 #endif

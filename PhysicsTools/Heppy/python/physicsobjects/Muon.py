@@ -2,6 +2,7 @@ from PhysicsTools.Heppy.physicsobjects.Lepton import Lepton
 from PhysicsTools.HeppyCore.utils.deltar import deltaR
 
 class Muon( Lepton ):
+
     def __init__(self, *args, **kwargs):
         super(Muon, self).__init__(*args, **kwargs)
         self._trackForDxyDz = "muonBestTrack"
@@ -16,7 +17,12 @@ class Muon( Lepton ):
         return self.physObj.isLooseMuon()
 
     def tightId( self ):
-        '''Tight ID as recommended by mu POG (unless redefined in the lepton analyzer).'''
+        '''Tight ID as recommended by mu POG 
+        (unless redefined in the lepton analyzer).
+
+        If not using the LeptonAnalyzer, make sure to set self.associatedVertex, 
+        that is necessary for tight muon identification. 
+        '''
         return getattr(self,"tightIdResult",self.muonID("POG_ID_Tight"))
 
     def muonID(self, name, vertex=None):
@@ -124,3 +130,7 @@ class Muon( Lepton ):
         else:
              raise RuntimeError("Unsupported PU correction scheme %s" % puCorr)
         return self.chargedHadronIsoR(R)+max(0.,photonIso+self.neutralHadronIsoR(R)-offset)            
+
+    def ptErr(self):
+        if "_ptErr" in self.__dict__: return self.__dict__['_ptErr']
+        return self.bestTrack().ptError()

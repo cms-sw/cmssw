@@ -1,43 +1,136 @@
-# You will need separate scenarios HERE for full and fast. DON'T CHANGE THE ORDER, only
-# append new keys. Otherwise the numbering for the runTheMatrix tests will change.
-upgradeKeys=['2017',
-             '2017PU',
-	     '2023',   
-	     '2023tilted', 
-	     '2023sim',
-	     '2023LReco',
-	     '2023GReco'
-	     ]
+from copy import deepcopy
+
+# DON'T CHANGE THE ORDER, only append new keys. Otherwise the numbering for the runTheMatrix tests will change.
+
+upgradeKeys = {}
+
+upgradeKeys[2017] = [
+    '2017',
+    '2017PU',
+]
+
+upgradeKeys[2023] = [
+    '2023D1',
+    '2023D1PU',
+    '2023D2',
+    '2023D2PU',    
+    '2023D3',    
+    '2023D3PU',
+    '2023D4',
+    '2023D4PU',
+    '2023D1Timing',
+    '2023D1TimingPU',
+    '2023D2Timing',
+    '2023D2TimingPU',
+    '2023D3Timing',
+    '2023D3TimingPU',
+    '2023D4Timing',
+    '2023D4TimingPU'
+]
+
+upgradeSteps=[
+    'GenSimFull',
+    'GenSimHLBeamSpotFull',
+    'DigiFull',
+    'RecoFullLocal',
+    'RecoFullLocalPU',
+    'RecoFull',
+    'RecoFullGlobal',
+    'RecoFullGlobalPU',
+    'HARVESTFull',
+    'FastSim',
+    'HARVESTFast',
+    'DigiFullPU',
+    'RecoFullPU',
+    'HARVESTFullPU',
+    'RecoFull_trackingOnly',
+    'RecoFull_trackingOnlyPU',
+    'HARVESTFull_trackingOnly',
+    'HARVESTFull_trackingOnlyPU',
+    'HARVESTFullGlobal',
+    'HARVESTFullGlobalPU'
+]
+
+upgradeProperties = {}
+
+upgradeProperties[2017] = {
+    '2017' : {
+        'Geom' : 'DB:Extended',
+        'GT' : 'auto:phase1_2017_realistic',
+        'Era' : 'Run2_2017',
+        'ScenToRun' : ['GenSimFull','DigiFull','RecoFull','HARVESTFull'],
+    },
+}
+
+upgradeProperties[2017]['2017PU'] = deepcopy(upgradeProperties[2017]['2017'])
+upgradeProperties[2017]['2017PU']['ScenToRun'] = ['GenSimFull','DigiFullPU','RecoFullPU','HARVESTFullPU']
+
+upgradeProperties[2023] = {
+    '2023D1' : {
+        'Geom' : 'Extended2023D1',
+        'GT' : 'auto:run2_mc',
+        'Custom' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2023tilted',
+        'Era' : 'Phase2C1',
+        'ScenToRun' : ['GenSimFull','DigiFull','RecoFullGlobal','HARVESTFullGlobal'],
+    },    
+    '2023D2' : {
+        'Geom' : 'Extended2023D2',
+        'GT' : 'auto:run2_mc',
+        'Custom' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2023flat',
+        'Era' : 'Phase2C1',
+        'ScenToRun' : ['GenSimFull','DigiFull','RecoFullGlobal','HARVESTFullGlobal'],
+    },    
+    '2023D3' : {
+        'Geom' : 'Extended2023D3',
+        'GT' : 'auto:run2_mc',
+        'Custom' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2023tilted',
+        'Era' : 'Phase2C2',
+        'ScenToRun' : ['GenSimFull','DigiFull','RecoFullGlobal', 'HARVESTFullGlobal'],
+    },    
+    '2023D4' : {
+        'Geom' : 'Extended2023D4',
+        'GT' : 'auto:run2_mc',
+        'Custom' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2023tilted4021',
+        'Era' : 'Phase2C2',
+        'ScenToRun' : ['GenSimFull','DigiFull','RecoFullLocal'],
+    }
+}
 
 
-upgradeGeoms={ '2017' : 'Extended2017',
-               '2023' : 'Extended2023',   
-               '2023tilted' : 'Extended2023tilted', 
-               '2023sim' : 'Extended2023sim',
-               '2023LReco': 'Extended2023LReco',
-               '2023GReco' : 'Extended2023GReco'
-               }
-	       
-upgradeGTs={ '2017' : 'auto:phase1_2017_realistic',
-	     '2023' :  'auto:run2_mc',
-	     '2023tilted' :  'auto:run2_mc',
-	     '2023sim' : 'auto:run2_mc',
-	     '2023LReco': 'auto:run2_mc',
-	     '2023GReco' : 'auto:run2_mc'
-             }
-upgradeCustoms={ '2023' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2023',
- 		 '2023tilted' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2023tilted',
- 		 '2023sim' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2023sim',
- 		 '2023LReco' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2023LReco',
- 		 '2023GReco' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2023GReco'
-		 
-                 }
-upgradeEras={ '2017' : 'Run2_2017',
-	      '2023sim' : 'Phase2',
-	      '2023tilted' : 'Phase2',
-	      '2023LReco' : 'Phase2',
-	      '2023GReco' : 'Phase2'
-              }
+
+#Timing (later we can alter geometry, etc, if need be)
+upgradeProperties[2023]['2023D1Timing'] = deepcopy(upgradeProperties[2023]['2023D1'])
+upgradeProperties[2023]['2023D1Timing']['Era'] = 'Phase2C1_timing'
+upgradeProperties[2023]['2023D2Timing'] = deepcopy(upgradeProperties[2023]['2023D2'])
+upgradeProperties[2023]['2023D2Timing']['Era'] = 'Phase2C1_timing'
+upgradeProperties[2023]['2023D3Timing'] = deepcopy(upgradeProperties[2023]['2023D3'])
+upgradeProperties[2023]['2023D3Timing']['Era'] = 'Phase2C2_timing'
+upgradeProperties[2023]['2023D4Timing'] = deepcopy(upgradeProperties[2023]['2023D4'])
+upgradeProperties[2023]['2023D4Timing']['Era'] = 'Phase2C2_timing'
+
+#standard PU sequences
+upgradeProperties[2023]['2023D1PU'] = deepcopy(upgradeProperties[2023]['2023D1'])
+upgradeProperties[2023]['2023D1PU']['ScenToRun'] = ['GenSimFull','DigiFullPU','RecoFullGlobalPU', 'HARVESTFullGlobalPU']
+upgradeProperties[2023]['2023D2PU'] = deepcopy(upgradeProperties[2023]['2023D2'])
+upgradeProperties[2023]['2023D2PU']['ScenToRun'] = ['GenSimFull','DigiFullPU','RecoFullGlobalPU', 'HARVESTFullGlobalPU']
+upgradeProperties[2023]['2023D3PU'] = deepcopy(upgradeProperties[2023]['2023D3'])
+upgradeProperties[2023]['2023D3PU']['ScenToRun'] = ['GenSimFull','DigiFullPU','RecoFullGlobalPU', 'HARVESTFullGlobalPU']
+upgradeProperties[2023]['2023D4PU'] = deepcopy(upgradeProperties[2023]['2023D4'])
+upgradeProperties[2023]['2023D4PU']['ScenToRun'] = ['GenSimFull','DigiFullPU','RecoFullLocalPU']
+
+#Timing PU (for now copy ScenToRun of standard PU)
+upgradeProperties[2023]['2023D1TimingPU'] = deepcopy(upgradeProperties[2023]['2023D1Timing'])
+upgradeProperties[2023]['2023D1TimingPU']['ScenToRun'] = deepcopy(upgradeProperties[2023]['2023D1PU']['ScenToRun'])
+upgradeProperties[2023]['2023D2TimingPU'] = deepcopy(upgradeProperties[2023]['2023D2Timing'])
+upgradeProperties[2023]['2023D2TimingPU']['ScenToRun'] = deepcopy(upgradeProperties[2023]['2023D2PU']['ScenToRun'])
+upgradeProperties[2023]['2023D3TimingPU'] = deepcopy(upgradeProperties[2023]['2023D3Timing'])
+upgradeProperties[2023]['2023D3TimingPU']['ScenToRun'] = deepcopy(upgradeProperties[2023]['2023D3PU']['ScenToRun'])
+upgradeProperties[2023]['2023D4TimingPU'] = deepcopy(upgradeProperties[2023]['2023D4Timing'])
+upgradeProperties[2023]['2023D4TimingPU']['ScenToRun'] = deepcopy(upgradeProperties[2023]['2023D4PU']['ScenToRun'])
+
+
+
+from  Configuration.PyReleaseValidation.relval_steps import Kby
 
 upgradeFragments=['FourMuPt_1_200_pythia8_cfi',
                   'SingleElectronPt10_cfi',
@@ -62,8 +155,8 @@ upgradeFragments=['FourMuPt_1_200_pythia8_cfi',
                   'DoubleMuPt1000Extended_pythia8_cfi',
                   'TenMuE_0_200_pythia8_cfi',
                   'SinglePiE50HCAL_cfi',
-		  'MinBias_13TeV_pythia8_TuneCUETP8M1_cfi', 
-		  'TTbar_13TeV_TuneCUETP8M1_cfi',
+		          'MinBias_13TeV_pythia8_TuneCUETP8M1_cfi', 
+		          'TTbar_13TeV_TuneCUETP8M1_cfi',
                   'ZEE_13TeV_TuneCUETP8M1_cfi',
                   'QCD_Pt_600_800_13TeV_TuneCUETP8M1_cfi',
                   'Wjet_Pt_80_120_14TeV_cfi',
@@ -82,36 +175,11 @@ upgradeFragments=['FourMuPt_1_200_pythia8_cfi',
                   'MinBias_TuneZ2star_14TeV_pythia6_cff',
                   'WM_14TeV_cfi',
                   'ZMM_13TeV_TuneCUETP8M1_cfi',
-		  'QCDForPF_14TeV_cfi',
-		  'DYToLL_M_50_TuneZ2star_14TeV_pythia6_tauola_cff',
-		  'DYtoTauTau_M_50_TuneD6T_14TeV_pythia6_tauola_cff',
-                 ]
-
-
-
-### remember that you need to add a new step for phase 2 to include the track trigger
-### remember that you need to add fastsim
-
-# step1 is normal gen-sim
-# step2 is digi
-# step3 is reco
-# step4 is harvest
-# step5 is digi+l1tracktrigger
-# step6 is fastsim
-# step7 is fastsim harvesting
-upgradeSteps=['GenSimFull','GenSimHLBeamSpotFull','DigiFull','RecoFullLocal','RecoFull','RecoFullHGCAL','RecoFullTracking','HARVESTFull','DigiTrkTrigFull','FastSim','HARVESTFast','DigiFullPU','RecoFullPU','RecoFullPUHGCAL','RecoFullPUTracking','HARVESTFullPU','DigiFullTrigger']
-
-upgradeScenToRun={ '2017':['GenSimFull','DigiFull','RecoFull','HARVESTFull'],
-                   #'2017':['GenSimFull'],
-		   '2017PU':['GenSimFull','DigiFullPU','RecoFullPU','HARVESTFullPU'],#full sequence
-		   '2023':['GenSimFull','DigiFull','RecoFull'],#full sequence
-		   '2023tilted':['GenSimFull','DigiFull','RecoFullTracking'],#full (or almost..) reco tilted scenario
-		   '2023sim':['GenSimFull'],#sim scenario
-		   '2023LReco':['GenSimFull','DigiFull','RecoFullLocal'],#local reco scenario
-		   '2023GReco':['GenSimFull','DigiFull','RecoFullTracking']#full (or almost..)  reco scenario
-                   }
-
-from  Configuration.PyReleaseValidation.relval_steps import Kby
+		          'QCDForPF_14TeV_cfi',
+		          'DYToLL_M_50_TuneZ2star_14TeV_pythia6_tauola_cff',
+		          'DYtoTauTau_M_50_TuneD6T_14TeV_pythia6_tauola_cff',
+                  'ZEE_14TeV_TuneCUETP8M1_cfi',
+]
 
 howMuches={'FourMuPt_1_200_pythia8_cfi':Kby(10,100),
            'TenMuE_0_200_pythia8_cfi':Kby(10,100),
@@ -154,12 +222,13 @@ howMuches={'FourMuPt_1_200_pythia8_cfi':Kby(10,100),
            'MinBias_TuneZ2star_14TeV_pythia6_cff':Kby(90,100),
            'WM_14TeV_cfi':Kby(9,100),
            'ZMM_13TeV_TuneCUETP8M1_cfi':Kby(18,100),
-	   'QCDForPF_14TeV_cfi':Kby(9,50),
-	   'DYToLL_M_50_TuneZ2star_14TeV_pythia6_tauola_cff':Kby(9,100),
-	   'DYtoTauTau_M_50_TuneD6T_14TeV_pythia6_tauola_cff':Kby(9,100),
+	       'QCDForPF_14TeV_cfi':Kby(9,50),
+	       'DYToLL_M_50_TuneZ2star_14TeV_pythia6_tauola_cff':Kby(9,100),
+	       'DYtoTauTau_M_50_TuneD6T_14TeV_pythia6_tauola_cff':Kby(9,100),
            'TTbar_13TeV_TuneCUETP8M1_cfi':Kby(9,50),
-	   'MinBias_13TeV_pythia8_TuneCUETP8M1_cfi':Kby(90,100)
-           }
+	       'MinBias_13TeV_pythia8_TuneCUETP8M1_cfi':Kby(90,100),
+           'ZEE_14TeV_TuneCUETP8M1_cfi':Kby(9,100),
+}
 
 upgradeDatasetFromFragment={'FourMuPt_1_200_pythia8_cfi': 'FourMuPt1_200',
                             'FourMuExtendedPt_1_200_pythia8_cfi': 'FourMuExtendedPt1_200',
@@ -202,13 +271,10 @@ upgradeDatasetFromFragment={'FourMuPt_1_200_pythia8_cfi': 'FourMuPt1_200',
                             'MinBias_TuneZ2star_14TeV_pythia6_cff' : 'MinBias_TuneZ2star_14TeV',
                             'WM_14TeV_cfi' : 'WM_14TeV',
                             'ZMM_13TeV_TuneCUETP8M1_cfi' : 'ZMM_13',
-			    'QCDForPF_14TeV_cfi' : 'QCDForPF_14TeV',
-			    'DYToLL_M_50_TuneZ2star_14TeV_pythia6_tauola_cff' : 'DYToLL_M_50_TuneZ2star_14TeV',
-			    'DYtoTauTau_M_50_TuneD6T_14TeV_pythia6_tauola_cff' : 'DYtoTauTau_M_50_TuneD6T_14TeV',
-			    'TTbar_13TeV_TuneCUETP8M1_cfi' : 'TTbar_13',
-			    'MinBias_13TeV_pythia8_TuneCUETP8M1_cfi' : 'MinBias_13'
-                            }
-
-
-
-#just do everything...
+			                'QCDForPF_14TeV_cfi' : 'QCDForPF_14TeV',
+			                'DYToLL_M_50_TuneZ2star_14TeV_pythia6_tauola_cff' : 'DYToLL_M_50_TuneZ2star_14TeV',
+			                'DYtoTauTau_M_50_TuneD6T_14TeV_pythia6_tauola_cff' : 'DYtoTauTau_M_50_TuneD6T_14TeV',
+			                'TTbar_13TeV_TuneCUETP8M1_cfi' : 'TTbar_13',
+			                'MinBias_13TeV_pythia8_TuneCUETP8M1_cfi' : 'MinBias_13',
+                            'ZEE_14TeV_TuneCUETP8M1_cfi' : 'ZEE_14',
+}

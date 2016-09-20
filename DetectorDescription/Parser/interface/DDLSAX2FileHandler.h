@@ -1,23 +1,16 @@
-#ifndef DDL_SAX2FileHandler_H
-#define DDL_SAX2FileHandler_H
+#ifndef DETECTORDESCRIPTION_PARSER_DDL_SAX2FILEHANDLER_H
+#define DETECTORDESCRIPTION_PARSER_DDL_SAX2FILEHANDLER_H
 
 #include <stddef.h>
-// Xerces dependencies
 #include <xercesc/sax2/Attributes.hpp>
 #include <map>
 #include <string>
 #include <vector>
 
 #include "DetectorDescription/Core/interface/DDCompactView.h"
-// DDCore parts
 #include "DetectorDescription/Core/interface/DDName.h"
 #include "DetectorDescription/Parser/interface/DDLElementRegistry.h"
-// ---------------------------------------------------------------------------
-//  Includes
-// ---------------------------------------------------------------------------
-// Parser parts.
 #include "DetectorDescription/Parser/interface/DDLSAX2Handler.h"
-#include "xercesc/util/Compilers/GCCDefs.hpp"
 
 class DDCompactView;
 
@@ -28,7 +21,6 @@ class DDCompactView;
  *  DDLSAX2FileHandler.h  -  description
  *  -------------------
  *  begin: Tue Oct 23 2001
- *  email: case@ucdhep.ucdavis.edu
  *
  *  DDLSAX2FileHandler has the same structure as the DDLSAX2ConfigHandler as they
  *  both inherit from DDLSAX2Handler which inherits from Xerces C++ DefaultHandler.
@@ -41,51 +33,35 @@ class DDCompactView;
  */
 class DDLSAX2FileHandler : public DDLSAX2Handler 
 {
-  
  public:
   
-  // -----------------------------------------------------------------------
-  //  Constructor and Destructor
-  // -----------------------------------------------------------------------
-  
-  //  DDLSAX2FileHandler();
   DDLSAX2FileHandler( DDCompactView& cpv );
   ~DDLSAX2FileHandler();
 
   void init() ;
-  //  void setStorage( DDCompactView & cpv );
 
   // -----------------------------------------------------------------------
   //  Handlers for the SAX ContentHandler interface
   // -----------------------------------------------------------------------
   
-  void startElement(const XMLCh* const uri, const XMLCh* const localname
-		    , const XMLCh* const qname, const Attributes& attrs);
-  void endElement(const XMLCh* const uri, const XMLCh* const localname
-		  , const XMLCh* const qname);
-  void characters (const XMLCh *const chars, const unsigned int length);
-  void comment (const XMLCh *const chars, const unsigned int length );
+  void startElement(const XMLCh* const uri, const XMLCh* const localname,
+		    const XMLCh* const qname, const Attributes& attrs) override;
+  void endElement(const XMLCh* const uri, const XMLCh* const localname,
+		  const XMLCh* const qname) override;
+  void characters (const XMLCh *const chars, const XMLSize_t length) override;
+  void comment (const XMLCh *const chars, const XMLSize_t length ) override;
   
-  //  virtual std::string extractFileName(std::string fullname);
-  
+ private:
   virtual const std::string& parent() const;
   virtual const std::string& self() const;
   
-  // -----------------------------------------------------------------------
-  //  Dump information on number and name of elements processed.
-  // -----------------------------------------------------------------------
-  /// This dumps some statistics on elements encountered in the file.
-  void dumpElementTypeCounter();
-
- protected:
+ private:
   //! creates all DDConstant from the evaluator which has been already 'filled' in the first scan of the documents
   void createDDConstants() const; 
-  //  Map that holds name and number of elements processed.
-  std::map < std::string, int> elementTypeCounter_;
-  std::vector<std::string> namesMap_;
-  std::vector < size_t > names_;
+
+  std::vector< std::string > namesMap_;
+  std::vector< size_t > names_;
   DDCompactView& cpv_;
-  DDLElementRegistry xmlelems_;
 };
 
 #endif

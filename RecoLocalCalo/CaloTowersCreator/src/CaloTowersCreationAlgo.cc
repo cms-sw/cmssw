@@ -1000,7 +1000,8 @@ void CaloTowersCreationAlgo::convert(const CaloTowerDetId& id, const MetaTower& 
     
     // insert in collection (remove and return if below threshold)
     if unlikely ( (towerP4[3]==0) & (E_outer>0)  ) {
-      collection.emplace_back(id, E_em, E_had, E_outer, -1, -1, CaloTower::PolarLorentzVector(0,hadPoint.eta(), hadPoint.phi(),0),  emPoint, hadPoint);
+        float val = theHOIsUsed ? 0 : 1E-9; // to keep backwards compatibility for theHOIsUsed == true
+        collection.emplace_back(id, E_em, E_had, E_outer, -1, -1, CaloTower::PolarLorentzVector(val,hadPoint.eta(), hadPoint.phi(),0),  emPoint, hadPoint); 
     } else {
       collection.emplace_back(id, E_em, E_had, E_outer, -1, -1, GlobalVector(towerP4), towerP4[3], mass2, emPoint, hadPoint);
     }
@@ -1359,7 +1360,8 @@ GlobalPoint CaloTowersCreationAlgo::hadShwrPos(CaloTowerDetId towerId, float fra
     for(unsigned i = 0; i < items.size(); i++){
       if(items[i].det()!=DetId::Hcal) continue;
       HcalDetId hid(items[i]);
-	  if(hid.subdet() == HcalOuter) continue;
+      if(hid.subdet() == HcalOuter) continue;
+      if(!theHcalTopology->validHcal(hid)) continue;
 	  
       if(hid.depth()<frontDepth) { frontCellId = hid; frontDepth = hid.depth(); }
       if(hid.depth()>backDepth) { backCellId = hid; backDepth = hid.depth(); }
@@ -1372,13 +1374,12 @@ GlobalPoint CaloTowersCreationAlgo::hadShwrPos(CaloTowerDetId towerId, float fra
       for(unsigned i = 0; i < items28.size(); i++){
         if(items28[i].det()!=DetId::Hcal) continue;
         HcalDetId hid(items28[i]);
-		if(hid.subdet() == HcalOuter) continue;
+	if(hid.subdet() == HcalOuter) continue;
 		
         if(hid.depth()>backDepth) { backCellId = hid; backDepth = hid.depth(); }
       }
     }
   }
-
   point = hadShwPosFromCells(DetId(frontCellId), DetId(backCellId), fracDepth);
 
   return point;

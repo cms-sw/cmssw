@@ -1,17 +1,11 @@
 #ifndef TrackerSingleRecHit_H
 #define TrackerSingleRecHit_H
 
-#include <vector>
-#include "DataFormats/DetId/interface/DetId.h"
-#include "DataFormats/GeometrySurface/interface/LocalError.h"
-#include "DataFormats/GeometryVector/interface/LocalPoint.h"
+
 #include "DataFormats/TrackerRecHit2D/interface/BaseTrackerRecHit.h"
 #include "DataFormats/TrackerRecHit2D/interface/OmniClusterRef.h"
-#include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
-#include "Geometry/CommonDetUnit/interface/GeomDet.h"
+#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
 
-class SiPixelCluster;
-class SiStripCluster;
 
 /*  a Hit composed by a "single" measurement
  * it has a reference to a cluster and a local position&error
@@ -26,6 +20,7 @@ public:
   
   typedef OmniClusterRef::ClusterPixelRef ClusterPixelRef;
   typedef OmniClusterRef::ClusterStripRef ClusterStripRef;
+  typedef OmniClusterRef::Phase2Cluster1DRef ClusterPhase2Ref;
 
   // no position (as in persistent)
   TrackerSingleRecHit(DetId id,
@@ -43,13 +38,11 @@ public:
 		      GeomDet const & idet, trackerHitRTTI::RTTI rt,
 		      CluRef const&  clus) : Base(p,e,idet, rt), cluster_(clus){}
 
-
   // a single hit is on a detunit
   const GeomDetUnit* detUnit() const {
     return static_cast<const GeomDetUnit*>(det());
   }
 
-  
   // used by trackMerger (to be improved)
   virtual OmniClusterRef const & firstClusterRef() const  final { return cluster_;}
 
@@ -67,6 +60,10 @@ public:
     return cluster_.cluster_strip();
   }
   
+  ClusterPhase2Ref cluster_phase2OT()  const { 
+    return cluster_.cluster_phase2OT();
+  }
+
   SiStripCluster const & stripCluster() const { 
     return cluster_.stripCluster();
   }  
@@ -75,12 +72,14 @@ public:
     return cluster_.pixelCluster();
   }
 
+  Phase2TrackerCluster1D const & phase2OTCluster() const {
+    return cluster_.phase2OTCluster();
+  }
 
   // void setClusterRef(const &  OmniClusterRef ref) {  cluster_ =ref;}
   void setClusterPixelRef(ClusterPixelRef const & ref) {  cluster_ = OmniClusterRef(ref); }
   void setClusterStripRef(ClusterStripRef const & ref) {  cluster_ = OmniClusterRef(ref); }
-
-
+  void setClusterPhase2Ref(ClusterPhase2Ref const & ref) { cluster_ = OmniClusterRef(ref); }
 
   virtual bool sharesInput( const TrackingRecHit* other, SharedInputType what) const  final;
 

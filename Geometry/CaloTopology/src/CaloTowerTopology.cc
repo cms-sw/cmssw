@@ -1,28 +1,42 @@
 #include "DataFormats/CaloTowers/interface/CaloTowerDetId.h"
 #include "Geometry/CaloTopology/interface/CaloTowerTopology.h"
 #include <assert.h>
+#include <algorithm>
+
+//#define DebugLog
 
 CaloTowerTopology::CaloTowerTopology(const HcalTopology * topology) : hcaltopo(topology) {
 
   //get number of towers in each hcal subdet from hcaltopo
-  int nEtaHB, nEtaHE, nEtaHO, nEtaHF;
+  int nEtaHB, nEtaHO, nEtaHF;
   nEtaHB = hcaltopo->lastHBRing() - hcaltopo->firstHBRing() + 1;
-  nEtaHE = hcaltopo->lastHERing() - hcaltopo->firstHERing() + 1;
+  nEtaHE_= hcaltopo->lastHERing() - hcaltopo->firstHERing() + 1;
   nEtaHO = hcaltopo->lastHORing() - hcaltopo->firstHORing() + 1;
   nEtaHF = hcaltopo->lastHFRing() - hcaltopo->firstHFRing() + 1;
+#ifdef DebugLog
+  std::cout << "CaloTowerTopology:(1) " << nEtaHB << ":" << nEtaHE_ << ":"
+	    << nEtaHO << ":" << nEtaHF << ":" << hcaltopo->isBH() << std::endl;
+#endif
+  if (hcaltopo->isBH()) nEtaHE_ = 0;
 
   //setup continuous ieta  
   firstHBRing_ = 1;
   lastHBRing_ = firstHBRing_ + nEtaHB - 1;
   firstHERing_ = lastHBRing_; //crossover
-  lastHERing_ = firstHERing_ + nEtaHE - 1;
+  lastHERing_ = firstHERing_ + std::max(nEtaHE_ - 1,0); //max = protection for case with no HE
   firstHFRing_ = lastHERing_ + 1; //no crossover for CaloTowers; HF crossover cells go in the subsequent non-crossover HF tower
   lastHFRing_ = firstHFRing_ + (nEtaHF - 1) - 1; //nEtaHF - 1 to account for no crossover
   firstHORing_ = 1;
   lastHORing_ = firstHORing_ + nEtaHO - 1;
-  
+#ifdef DebugLog
+  std::cout << "CaloTowerTopology: (2) " << firstHBRing_ << ":" << lastHBRing_
+	    << ":" << firstHERing_ << ":" << lastHERing_ << ":" << firstHFRing_
+	    << ":" << lastHFRing_ << ":" << firstHORing_ << ":" << lastHORing_
+	    << std::endl;
+#endif
+
   //translate phi segmentation boundaries into continuous ieta
-  if(hcaltopo->firstHEDoublePhiRing()==999) firstHEDoublePhiRing_ = firstHFRing_;
+  if(hcaltopo->firstHEDoublePhiRing()==999 || nEtaHE_ == 0) firstHEDoublePhiRing_ = firstHFRing_;
   else firstHEDoublePhiRing_ = firstHERing_ + (hcaltopo->firstHEDoublePhiRing() - hcaltopo->firstHERing());
   firstHEQuadPhiRing_ = firstHERing_ + (hcaltopo->firstHEQuadPhiRing() - hcaltopo->firstHERing());
   firstHFQuadPhiRing_ = firstHFRing_ - 1 + (hcaltopo->firstHFQuadPhiRing() - hcaltopo->firstHFRing());
@@ -37,6 +51,12 @@ CaloTowerTopology::CaloTowerTopology(const HcalTopology * topology) : hcaltopo(t
   nSinglePhi_ = nEtaSinglePhi_*72;
   nDoublePhi_ = nEtaDoublePhi_*36;
   nQuadPhi_ = nEtaQuadPhi_*18;
+
+#ifdef DebugLog
+  std::cout << "CaloTowerTopology: (3) " << nEtaSinglePhi_ << ":" 
+	    << nEtaDoublePhi_ << ":" << nEtaQuadPhi_ << ":" << nSinglePhi_
+	    << ":" << nDoublePhi_ << ":" << nQuadPhi_ << std::endl;
+#endif
   
   //calculate maximum dense index size
   kSizeForDenseIndexing = 2*(nSinglePhi_ + nDoublePhi_ + nQuadPhi_);
@@ -57,7 +77,7 @@ int CaloTowerTopology::convertHcaltoCT(int hcal_ieta, HcalSubdetector subdet) co
     return hcal_ieta - hcaltopo->firstHBRing() + firstHBRing_;
   }
   else if(subdet == HcalEndcap && hcal_ieta >= hcaltopo->firstHERing() && hcal_ieta <= hcaltopo->lastHERing()){
-    return hcal_ieta - hcaltopo->firstHERing() + firstHERing_;
+    return ((nEtaHE_ == 0) ? 0 : (hcal_ieta - hcaltopo->firstHERing() + firstHERing_));
   }
   else if(subdet == HcalForward && hcal_ieta >= hcaltopo->firstHFRing() && hcal_ieta <= hcaltopo->lastHFRing()) {
   	if(hcal_ieta == hcaltopo->firstHFRing()) hcal_ieta++; //account for no HF crossover

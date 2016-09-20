@@ -62,7 +62,7 @@ public:
   
   static std::unique_ptr<gsfidhelper::HeavyObjectCache> 
   initializeGlobalCache( const edm::ParameterSet& conf ) {
-    return std::unique_ptr<gsfidhelper::HeavyObjectCache>(new gsfidhelper::HeavyObjectCache(conf));
+    return std::make_unique<gsfidhelper::HeavyObjectCache>(conf);
   }
   
   static void globalEndJob(gsfidhelper::HeavyObjectCache const* ) {
@@ -124,7 +124,7 @@ bool ElectronIdMVABased::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
 
   constexpr double etaEBEE = 1.485;
   
-  std::auto_ptr<reco::GsfElectronCollection> mvaElectrons(new reco::GsfElectronCollection);
+  auto mvaElectrons = std::make_unique<reco::GsfElectronCollection>();
   
   Handle<reco::VertexCollection>  vertexCollection;
   iEvent.getByToken(vertexToken, vertexCollection);
@@ -151,7 +151,7 @@ bool ElectronIdMVABased::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
     }
   }
     
-  iEvent.put(mvaElectrons);
+  iEvent.put(std::move(mvaElectrons));
   
   return true;
 }

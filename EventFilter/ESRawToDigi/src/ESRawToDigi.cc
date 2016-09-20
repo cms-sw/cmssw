@@ -66,9 +66,9 @@ void ESRawToDigi::produce(edm::Event& e, const edm::EventSetup& es) {
   }
 
   // Output
-  std::auto_ptr<ESRawDataCollection> productDCC(new ESRawDataCollection);
-  std::auto_ptr<ESLocalRawDataCollection> productKCHIP(new ESLocalRawDataCollection);
-  std::auto_ptr<ESDigiCollection> productDigis(new ESDigiCollection);  
+  auto productDCC = std::make_unique<ESRawDataCollection>();
+  auto productKCHIP = std::make_unique<ESLocalRawDataCollection>();
+  auto productDigis = std::make_unique<ESDigiCollection>();  
   
   ESDigiCollection digis;
 
@@ -90,8 +90,8 @@ void ESRawToDigi::produce(edm::Event& e, const edm::EventSetup& es) {
     }   
   }
 
-  e.put(productDCC);
-  e.put(productKCHIP);
-  e.put(productDigis, ESdigiCollection_);
+  e.put(std::move(productDCC));
+  e.put(std::move(productKCHIP));
+  e.put(std::move(productDigis), ESdigiCollection_);
 }
 

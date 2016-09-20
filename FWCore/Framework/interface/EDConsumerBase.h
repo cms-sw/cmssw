@@ -78,7 +78,8 @@ namespace edm {
     
     // ---------- member functions ---------------------------
     void updateLookup(BranchType iBranchType,
-                      ProductResolverIndexHelper const&);
+                      ProductResolverIndexHelper const&,
+                      bool iPrefetchMayGet);
     
     typedef ProductLabels Labels;
     void labelsForToken(EDGetToken iToken, Labels& oLabels) const;

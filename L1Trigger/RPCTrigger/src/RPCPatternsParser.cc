@@ -31,7 +31,7 @@ string xMLCh2String(const XMLCh* ch) {
 #else
 	if(ch == 0) return "";
 
-	//auto_ptr<char> v(XMLString::transcode(ch));
+	//unique_ptr<char> v(XMLString::transcode(ch));
   //return string(v.get());
   char* buf = XMLString::transcode(ch);
   string str(buf);

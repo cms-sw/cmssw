@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../DDLSchema/DDLSchema.xsd">
+    <ConstantsSection label="RP_Device.xml">
+        <Constant name="RP_Device_RP_Hole_Diam" value="150*mm"/>
+        <Constant name="RP_Device_Beam_Hole_Diam" value="80*mm"/>
+        <Constant name="RP_Device_Wall_Thickness" value="2*mm"/>
+        <Constant name="RP_Device_Length_z" value="180*mm"/>
+        <Constant name="RP_Device_Length_y" value="112*mm"/>
+        <Constant name="RP_Device_Det_Bellow_Length" value="93.7*mm"/>
+        <Constant name="RP_Device_Envelope_Radius" value="450*mm"/>
+    </ConstantsSection>
+    <!--SolidSection label="RP_Device.xml">  
+        <Tube rMin="0*mm" rMax="[RP_Device_Beam_Hole_Diam]/2+[RP_Device_Wall_Thickness]" dz="[RP_Device_Length_z]/2" name="RP_Device_Beam_Pipe"/>
+        <Tube rMin="0*mm" rMax="[RP_Device_RP_Hole_Diam]/2+[RP_Device_Wall_Thickness]" dz="[RP_Device_Length_y]/2" name="RP_Device_RP_Hole"/>
+        <Tube rMin="0*mm" rMax="[RP_Device_Beam_Hole_Diam]/2" dz="[RP_Device_Length_z]" name="RP_Device_Beam_Pipe_Interior"/>
+        <Tube rMin="0*mm" rMax="[RP_Device_RP_Hole_Diam]/2" dz="[RP_Device_Length_y]" name="RP_Device_RP_Hole_Interior"/>
+        <UnionSolid name="RP_Device_Corp_1">
+            <rSolid name="RP_Device_Beam_Pipe"/>
+            <rSolid name="RP_Device_RP_Hole"/>
+            <rRotation name="RP_Transformations:RP_x_90_rot"/>
+        </UnionSolid>
+        <SubtractionSolid name="RP_Device_Corp_2">
+            <rSolid name="RP_Device_Corp_1"/>
+            <rSolid name="RP_Device_Beam_Pipe_Interior"/>
+        </SubtractionSolid>
+        <SubtractionSolid name="RP_Device_Corp_3">
+            <rSolid name="RP_Device_Corp_2"/>
+            <rSolid name="RP_Device_RP_Hole_Interior"/>
+            <rRotation name="RP_Transformations:RP_x_90_rot"/>
+        </SubtractionSolid>
+    </SolidSection>
+    
+    <LogicalPartSection label="RP_Device.xml">
+        <LogicalPart name="RP_Device_Corp_3">
+            <rSolid name="RP_Device_Corp_3"/>
+            <rMaterial name="RP_Materials:AISI-316L-Steel"/>
+        </LogicalPart>
+    </LogicalPartSection>
+    
+    <PosPartSection label="RP_Device.xml">
+    </PosPartSection-->
+</DDDefinition>

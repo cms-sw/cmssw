@@ -123,6 +123,9 @@ class GeneratorAnalyzer( Analyzer ):
                 if not ok and p.pt() > 10 and id in [1,2,3,4,5,21,22] and any(interestingPdgId(d.pdgId()) for d in realGenDaughters(mom)):
                     # interesting for being a parton brother of an interesting particle (to get the extra jets in ME+PS) 
                     ok = True 
+                if not ok and id in [11, 13, 15] and abs(mom.pdgId()) in [1,2,3,4,5,21]:
+                    # Lepton e.g. in off-shell DY with the mother being one of the incoming partons
+                    ok = True
             if ok:
                 gp = p
                 gp.rawIndex = rawIndex # remember its index, so that we can set the mother index later

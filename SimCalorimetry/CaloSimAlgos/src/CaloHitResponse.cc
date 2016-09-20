@@ -30,8 +30,7 @@ CaloHitResponse::CaloHitResponse(const CaloVSimParameterMap * parametersMap,
   theGeometry(0),
   theMinBunch(-10), 
   theMaxBunch(10),
-  thePhaseShift_(1.),
-  changeScale(false) {}
+  thePhaseShift_(1.) {}
 
 CaloHitResponse::CaloHitResponse(const CaloVSimParameterMap * parametersMap,
                                  const CaloShapes * shapes)
@@ -45,44 +44,9 @@ CaloHitResponse::CaloHitResponse(const CaloVSimParameterMap * parametersMap,
   theGeometry(0),
   theMinBunch(-10),
   theMaxBunch(10),
-  thePhaseShift_(1.),
-  changeScale(false) {}
+  thePhaseShift_(1.) {}
 
 CaloHitResponse::~CaloHitResponse() {
-}
-
-void CaloHitResponse::initHBHEScale() {
-#ifdef ChangeHcalEnergyScale
-  for (int ij=0; ij<100; ij++) {
-    for (int jk=0; jk<72; jk++) {	
-      for (int kl=0; kl<4; kl++) {
-	hcal_en_scale[ij][jk][kl] = 1.0;
-      }
-    }
-  }
-#endif
-}
-
-void CaloHitResponse::setHBHEScale(std::string & fileIn) {
-  
-  std::ifstream infile(fileIn.c_str());
-  LogDebug("CaloHitResponse") << "Reading from " << fileIn;
-#ifdef ChangeHcalEnergyScale
-  if (!infile.is_open()) {
-    edm::LogError("CaloHitResponse") << "** ERROR: Can't open '" << fileIn << "' for the input file";
-  } else {
-    int     eta, phi, depth;
-    double  cFactor;
-    while(1) {
-      infile >> eta >> phi >> depth >> cFactor;
-      if (!infile.good()) break;
-      hcal_en_scale[eta][phi][depth] = cFactor;
-      //      LogDebug("CaloHitResponse") << "hcal_en_scale[" << eta << "][" << phi << "][" << depth << "] = " << hcal_en_scale[eta][phi][depth];
-    }
-    infile.close();
-  }
-  changeScale = true;
-#endif
 }
 
 void CaloHitResponse::setBunchRange(int minBunch, int maxBunch) {
@@ -184,22 +148,7 @@ double CaloHitResponse::analogSignalAmplitude(const DetId & detId, float energy,
   // OK, the "energy" in the hit could be a real energy, deposited energy,
   // or pe count.  This factor converts to photoelectrons
   //GMA Smeared in photon production it self  
-  double scl =1.0;
-#ifdef ChangeHcalEnergyScale
-  if (changeScale) {
-    if (detId.det()==DetId::Hcal ) { 
-      HcalDetId dId = HcalDetId(detId); 
-      if (dId.subdet()==HcalBarrel || dId.subdet()==HcalEndcap) { 
-	int ieta = dId.ieta()+50;
-	int iphi = dId.iphi()-1;
-	int idep = dId.depth()-1;
-	scl = hcal_en_scale[ieta][iphi][idep];
-	LogDebug("CaloHitResponse") << " ID " << dId << " Scale " << scl;
-      }
-    }
-  } 
-#endif
-  double npe = scl * energy * parameters.simHitToPhotoelectrons(detId);
+  double npe = energy * parameters.simHitToPhotoelectrons(detId);
   // do we need to doPoisson statistics for the photoelectrons?
   if(parameters.doPhotostatistics()) {
     npe = CLHEP::RandPoissonQ::shoot(engine,npe);

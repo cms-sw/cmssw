@@ -13,6 +13,26 @@ b2gSingleMuonHLTValidationHarvest = cms.EDAnalyzer("DQMGenericClient",
         resolution = cms.vstring(""),
         )
 
+b2gDoubleLeptonEleMuHLTValidationHarvest = cms.EDAnalyzer("DQMGenericClient",
+        subDirs = cms.untracked.vstring("HLT/B2GHLTValidation/B2G/EleMu"),
+        efficiency = cms.vstring(
+            "hEffLeptonEta 'Efficiency vs Eta Lepton ' EtaLeptonSel EtaLeptonAll ",
+            "hEffLeptonPt 'Efficiency vs Pt Lepton' PtLeptonSel PtLeptonAll ",
+            "hTriggerMon 'Efficiency per trigger bit' TriggerMonSel TriggerMonAll"
+            ),
+        resolution = cms.vstring(""),
+        )
+
+b2gDoubleElectronHLTValidationHarvest = cms.EDAnalyzer("DQMGenericClient",
+        subDirs = cms.untracked.vstring("HLT/B2GHLTValidation/B2G/DoubleEle"),
+        efficiency = cms.vstring(
+            "hEffLeptonEta 'Efficiency vs Eta Lepton ' EtaLeptonSel EtaLeptonAll ",
+            "hEffLeptonPt 'Efficiency vs Pt Lepton' PtLeptonSel PtLeptonAll ",
+            "hTriggerMon 'Efficiency per trigger bit' TriggerMonSel TriggerMonAll"
+            ),
+        resolution = cms.vstring(""),
+        )
+
 b2gSingleElectronHLTValidationHarvest = cms.EDAnalyzer("DQMGenericClient",
         subDirs = cms.untracked.vstring("HLT/B2GHLTValidation/B2G/SemiElectronic"),
         efficiency = cms.vstring(
@@ -51,5 +71,7 @@ b2gHLTriggerValidationHarvest = cms.Sequence(
     *b2gSingleElectronHLTValidationHarvest
     *b2gSingleJetHLTValidationHarvest
     *b2gDiJetHLTValidationHarvest
+    *b2gDoubleElectronHLTValidationHarvest
+    *b2gDoubleLeptonEleMuHLTValidationHarvest
     )
 

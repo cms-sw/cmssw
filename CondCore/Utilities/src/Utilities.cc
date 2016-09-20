@@ -4,13 +4,10 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 //local includes
-//#include "CondCore/DBCommon/interface/DbConnection.h"
-//#include "CondCore/DBCommon/interface/SQLReport.h"
 #include "CondCore/Utilities/interface/Utilities.h"
 #include "FWCore/PluginManager/interface/PluginManager.h"
 #include "FWCore/PluginManager/interface/standard.h"
 #include "FWCore/PluginManager/interface/SharedLibrary.h"
-//#include "CondCore/ORA/interface/SharedLibraryName.h"
 #include <boost/foreach.hpp>                   
 #include <fstream>
 #include <iostream>
@@ -87,7 +84,7 @@ cond::Utilities::addConnectOption(const std::string& connectionOptionName,
 
 void 
 cond::Utilities::addAuthenticationOptions(){
-  addOption<std::string>("authPath","P","path to authentication xml");
+  addOption<std::string>("authPath","P","path to the authentication key");
   addOption<std::string>("user","u","user name");
   addOption<std::string>("pass","p","password");
 }
@@ -157,75 +154,6 @@ bool cond::Utilities::hasDebug(){
 void cond::Utilities::initializePluginManager(){
   // dummy, to avoid to adapt non-CondCore clients
 }
-
-/**
-void cond::Utilities::initializeForDbConnection(){
-  if(!m_dbConnection){
-    m_dbConnection = new cond::DbConnection();
-    if( hasDebug() ){
-      m_dbConnection->configuration().setMessageLevel(coral::Debug);
-    } else {
-      m_dbConnection->configuration().setMessageLevel(coral::Error);
-    }
-    m_dbConnection->configuration().setPoolAutomaticCleanUp( false );
-    m_dbConnection->configuration().setConnectionTimeOut(0);
-
-    if(m_options.find_nothrow("authPath", false) &&
-       m_options.find_nothrow("user",false) &&
-       m_options.find_nothrow("pass",false)){
-      std::string authPath = getValueIfExists("authPath");
-      std::string user = getValueIfExists("user");
-      std::string pass = getValueIfExists("pass");
-      if( !authPath.empty() ){
-        m_dbConnection->configuration().setAuthenticationPath(authPath);
-      } else {
-        if( !user.empty()  && !pass.empty() ){
-          std::string userenv(std::string("CORAL_AUTH_USER=")+user);
-          std::string passenv(std::string("CORAL_AUTH_PASSWORD=")+pass);
-          ::putenv(const_cast<char*>(userenv.c_str()));
-          ::putenv(const_cast<char*>(passenv.c_str()));
-        }
-      }
-    }
-    if(m_options.find_nothrow("sql",false)){
-      if(m_values.count("sql")) {
-	m_dbConnection->configuration().setSQLMonitoring( true );
-      } 
-    }
-    m_dbConnection->configure();
-    
-  }
-  
-}
-
-cond::DbSession cond::Utilities::newDbSession( const std::string& connectionString, 
-						bool readOnly ){
-  initializeForDbConnection();
-  cond::DbSession session = m_dbConnection->createSession();
-  session.open( connectionString, readOnly );
-  return session;
-}
-cond::DbSession cond::Utilities::newDbSession( const std::string& connectionString, 
-					       const std::string& role, 
-					       bool readOnly ){
-  initializeForDbConnection();
-  cond::DbSession session = m_dbConnection->createSession();
-  session.open( connectionString, role, readOnly );
-  return session;
-}
-cond::DbSession cond::Utilities::openDbSession( const std::string& connectionParameterName, 
-						const std::string& role, 
-						bool readOnly ){
-  std::string connectionString = getOptionValue<std::string>( connectionParameterName );
-  return newDbSession( connectionString, role, readOnly );
-}
-
-cond::DbSession cond::Utilities::openDbSession( const std::string& connectionParameterName, 
-						bool readOnly ){
-  std::string connectionString = getOptionValue<std::string>( connectionParameterName );
-  return newDbSession( connectionString, readOnly );
-}
-**/
 
 std::string cond::Utilities::getValueIfExists(const std::string& fullName){
   std::string val("");

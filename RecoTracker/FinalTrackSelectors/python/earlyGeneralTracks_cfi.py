@@ -51,7 +51,7 @@ eras.trackingPhase1.toModify(
         'lowPtQuadStepTracks',
         'lowPtTripletStepTracks',
         'detachedQuadStepTracks',
-        #'detachedTripletStepTracks', # FIXME: disabled for now
+        'detachedTripletStepTracks',
         'mixedTripletStepTracks',
         'pixelLessStepTracks',
         'tobTecStepTracks'
@@ -63,7 +63,7 @@ eras.trackingPhase1.toModify(
         "lowPtQuadStep",
         "lowPtTripletStep",
         "detachedQuadStep",
-        #"detachedTripletStep", # FIXME: disabled for now
+        "detachedTripletStep",
         "mixedTripletStep",
         "pixelLessStep",
         "tobTecStep"
@@ -95,3 +95,26 @@ eras.trackingPhase1PU70.toReplaceWith(earlyGeneralTracks, _trackListMerger.clone
     copyExtras = True,
     makeReKeyedSeeds = cms.untracked.bool(False)
 ))
+# For Phase2PU140
+eras.trackingPhase2PU140.toReplaceWith(earlyGeneralTracks, _trackListMerger.clone(
+    TrackProducers =['initialStepTracks',
+                     'highPtTripletStepTracks',
+                     'lowPtQuadStepTracks',
+                     'lowPtTripletStepTracks',
+                     'detachedQuadStepTracks',
+                     'pixelPairStepTracks'],
+    hasSelector = [1,1,1,1,1,1],
+    indivShareFrac = [1.0,0.16,0.095,0.09,0.09,0.09],
+    selectedTrackQuals = cms.VInputTag(cms.InputTag("initialStepSelector","initialStep"),
+                                       cms.InputTag("highPtTripletStepSelector","highPtTripletStep"),
+                                       cms.InputTag("lowPtQuadStepSelector","lowPtQuadStep"),
+                                       cms.InputTag("lowPtTripletStepSelector","lowPtTripletStep"),
+                                       cms.InputTag("detachedQuadStep"),
+                                       cms.InputTag("pixelPairStepSelector","pixelPairStep")
+                                       ),
+    setsToMerge = cms.VPSet( cms.PSet( tLists=cms.vint32(0,1,2,3,4,5), pQual=cms.bool(True) )
+                             ),
+    copyExtras = True,
+    makeReKeyedSeeds = cms.untracked.bool(False)
+    )
+)

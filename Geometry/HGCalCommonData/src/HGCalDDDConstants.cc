@@ -4,11 +4,6 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "Geometry/HGCalCommonData/interface/HGCalGeometryMode.h"
 
-#include "DetectorDescription/Base/interface/DDutils.h"
-#include "DetectorDescription/Core/interface/DDValue.h"
-#include "DetectorDescription/Core/interface/DDFilter.h"
-#include "DetectorDescription/Core/interface/DDSolid.h"
-#include "DetectorDescription/Core/interface/DDFilteredView.h"
 #include "CLHEP/Units/GlobalPhysicalConstants.h"
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 
@@ -519,7 +514,9 @@ std::pair<int,int> HGCalDDDConstants::simToReco(int cell, int lay, int mod,
   
   std::pair<int,float> index = getIndex(lay, false);
   int i = index.first;
-  if (i < 0) return std::pair<int,int>(-1,-1);
+  if (i < 0) {
+    return std::pair<int,int>(-1,-1);
+  }
   int kx(-1), depth(-1);
   if (mode_ == HGCalGeometryMode::Square) {
     float h  = hgpar_->moduleHS_[i];
@@ -552,7 +549,7 @@ std::pair<int,int> HGCalDDDConstants::simToReco(int cell, int lay, int mod,
       depth = hgpar_->layerGroupM_[i];
     } else {
       depth = hgpar_->layerGroupO_[i];
-    }
+    }    
   }
   return std::pair<int,int>(kx,depth);
 }

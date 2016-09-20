@@ -53,6 +53,7 @@ class SimpleDAFHitCollector :public MultiRecHitCollector {
           auto const & thit = static_cast<BaseTrackerRecHit const&>(hit);
           auto const & clus = thit.firstClusterRef();
           if (clus.isPixel()) return std::unique_ptr<TrackingRecHit>{hit.clone()};
+          else if (clus.isPhase2()) return std::unique_ptr<TrackingRecHit>{hit.clone()};
           else if (thit.isMatched()) {
             LogDebug("MultiRecHitCollector") << " SiStripMatchedRecHit2D to check!!!";
             return std::unique_ptr<TrackingRecHit>{hit.clone()};

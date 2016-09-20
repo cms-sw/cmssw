@@ -26,9 +26,9 @@ namespace l1t {
 						inline L1MuDTChambThContainer* getInMuonsTh() { return inputMuonsTh_.get(); };
 
          private:
-						std::auto_ptr<RegionalMuonCandBxCollection> outputMuons_;
-						std::auto_ptr<L1MuDTChambPhContainer> inputMuonsPh_;
-						std::auto_ptr<L1MuDTChambThContainer> inputMuonsTh_;
+						std::unique_ptr<RegionalMuonCandBxCollection> outputMuons_;
+						std::unique_ptr<L1MuDTChambPhContainer> inputMuonsPh_;
+						std::unique_ptr<L1MuDTChambThContainer> inputMuonsTh_;
       };
    }
 }

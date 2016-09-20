@@ -268,7 +268,7 @@ DDEcalEndcapAlgo::execute( DDCompactView& cpv )
 	    scrys.translate( DDTranslation( 0., 0., -eezOff() ) ) ;
 
 	    DDName rname ( envName( isctype ).name()
-			   + int_to_string( icol ) + "R" + int_to_string( irow ) ) ;
+			   + std::to_string( icol ) + "R" + std::to_string( irow ) ) ;
 /*
          edm::LogInfo("EcalGeom") << "Quadrant, SC col/row " 
 				  << eeQuaName() << " " << icol << " / " << irow << std::endl
@@ -303,7 +303,7 @@ DDEcalEndcapAlgo::EECreateSC( const unsigned int iSCType ,
    
 //   edm::LogInfo("EcalGeom") << "EECreateSC: Creating SC envelope" << std::endl;
 
-   const string anum ( int_to_string(iSCType) ) ;
+   const string anum ( std::to_string(iSCType) ) ;
 
    const double eFront ( 0.5*eeSCEFront() ) ;
    const double eRear  ( 0.5*eeSCERear()  ) ;
@@ -507,7 +507,7 @@ DDEcalEndcapAlgo::EEPositionCRs( const DDName&        pName,
 	       crystal.moveto( cryFCtr( icol, irow ) ,
 			       cryRCtr( icol, irow )   );
 
-	       DDName rname ( "EECrRoC" + int_to_string( icol ) + "R" + int_to_string( irow ) ) ;
+	       DDName rname ( "EECrRoC" + std::to_string( icol ) + "R" + std::to_string( irow ) ) ;
 
 	       cpv.position( cryName(),
 			     pName,

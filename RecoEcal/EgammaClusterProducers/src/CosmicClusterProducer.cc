@@ -166,33 +166,32 @@ void CosmicClusterProducer::clusterizeECALPart(edm::Event &evt, const edm::Event
   }
   
   //Put clustershapes in event, but retain a Handle on them.
-  std::auto_ptr< reco::ClusterShapeCollection> clustersshapes_p(new reco::ClusterShapeCollection);
+  auto clustersshapes_p = std::make_unique<reco::ClusterShapeCollection>();
   clustersshapes_p->assign(ClusVec.begin(), ClusVec.end());
   edm::OrphanHandle<reco::ClusterShapeCollection> clusHandle; 
   if (ecalPart == CosmicClusterAlgo::barrel) 
-    clusHandle= evt.put(clustersshapes_p, clustershapecollectionEB_);
+    clusHandle= evt.put(std::move(clustersshapes_p), clustershapecollectionEB_);
   else
-    clusHandle= evt.put(clustersshapes_p, clustershapecollectionEE_);
+    clusHandle= evt.put(std::move(clustersshapes_p), clustershapecollectionEE_);
   
-  // create an auto_ptr to a BasicClusterCollection, copy the barrel clusters into it and put in the Event:
-  std::auto_ptr< reco::BasicClusterCollection > clusters_p(new reco::BasicClusterCollection);
+  // create a unique_ptr to a BasicClusterCollection, copy the barrel clusters into it and put in the Event:
+  auto clusters_p = std::make_unique<reco::BasicClusterCollection>();
   clusters_p->assign(clusters.begin(), clusters.end());
   edm::OrphanHandle<reco::BasicClusterCollection> bccHandle;
   
   if (ecalPart == CosmicClusterAlgo::barrel) 
-    bccHandle = evt.put(clusters_p, barrelClusterCollection_);
+    bccHandle = evt.put(std::move(clusters_p), barrelClusterCollection_);
   else
-    bccHandle = evt.put(clusters_p, endcapClusterCollection_);
+    bccHandle = evt.put(std::move(clusters_p), endcapClusterCollection_);
 
   
   // BasicClusterShapeAssociationMap 
-  std::auto_ptr<reco::BasicClusterShapeAssociationCollection> shapeAssocs_p(
-    new reco::BasicClusterShapeAssociationCollection(bccHandle, clusHandle));
+  auto shapeAssocs_p = std::make_unique<reco::BasicClusterShapeAssociationCollection>(bccHandle, clusHandle);
 
   for (unsigned int i = 0; i < clusHandle->size(); i++){
     shapeAssocs_p->insert(edm::Ref<reco::BasicClusterCollection>(bccHandle,i),edm::Ref<reco::ClusterShapeCollection>(clusHandle,i));
   }  
-  evt.put(shapeAssocs_p,clusterShapeAssociation);
+  evt.put(std::move(shapeAssocs_p),clusterShapeAssociation);
   
   delete topology_p;
 }

@@ -1,5 +1,5 @@
 #include "Validation/RecoTrack/interface/MultiTrackValidator.h"
-#include "DQMServices/ClientConfig/interface/FitSlicesYTool.h"
+#include "Validation/RecoTrack/interface/trackFromSeedFitFailed.h"
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -55,7 +55,7 @@ MultiTrackValidator::MultiTrackValidator(const edm::ParameterSet& pset):
   doSeedPlots_(pset.getUntrackedParameter<bool>("doSeedPlots"))
 {
   ParameterSet psetForHistoProducerAlgo = pset.getParameter<ParameterSet>("histoProducerAlgoBlock");
-  histoProducerAlgo_ = std::make_unique<MTVHistoProducerAlgoForTracker>(psetForHistoProducerAlgo, consumesCollector());
+  histoProducerAlgo_ = std::make_unique<MTVHistoProducerAlgoForTracker>(psetForHistoProducerAlgo, doSeedPlots_, consumesCollector());
 
   dirName_ = pset.getParameter<std::string>("dirName");
   UseAssociators = pset.getParameter< bool >("UseAssociators");
@@ -138,12 +138,6 @@ MultiTrackValidator::MultiTrackValidator(const edm::ParameterSet& pset):
     for (auto const& src: associators) {
       associatormapStRs.push_back(consumes<reco::SimToRecoCollection>(src));
       associatormapRtSs.push_back(consumes<reco::RecoToSimCollection>(src));
-    }
-  }
-
-  if(doSeedPlots_) {
-    for(const auto& tag: pset.getParameter< std::vector<edm::InputTag> >("label")) {
-      seedToTrackTokens_.push_back(consumes<std::vector<int>>(tag));
     }
   }
 }
@@ -595,15 +589,6 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
       reco::SimToRecoCollection const & simRecColl = *simRecCollP;
  
 
-      // Fill seed-specific histograms
-      if(doSeedPlots_) {
-        edm::Handle<std::vector<int>> hseedToTrack;
-        event.getByToken(seedToTrackTokens_[www], hseedToTrack);
-        const int failed = std::count(hseedToTrack->begin(), hseedToTrack->end(), -1);
-        histoProducerAlgo_->fill_seed_histos(www, failed, hseedToTrack->size());
-      }
-
-
       // ########################################################
       // fill simulation histograms (LOOP OVER TRACKINGPARTICLES)
       // ########################################################
@@ -747,6 +732,7 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
       int sat(0); //This counter counts the number of recoTracks that are associated to SimTracks from Signal only
       int at(0); //This counter counts the number of recoTracks that are associated to SimTracks
       int rT(0); //This counter counts the number of recoTracks in general
+      int seed_fit_failed = 0;
 
       //calculate dR for tracks
       const edm::View<Track> *trackCollectionDr = &trackCollection;
@@ -757,28 +743,34 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
       int i=0;
       float etaL[trackCollectionDr->size()];
       float phiL[trackCollectionDr->size()];
+      bool validL[trackCollectionDr->size()];
       for (auto const & track2 : *trackCollectionDr) {
          auto  && p = track2.momentum();
          etaL[i] = etaFromXYZ(p.x(),p.y(),p.z());
          phiL[i] = atan2f(p.y(),p.x());
+         validL[i] = !trackFromSeedFitFailed(track2);
          ++i;
       }
       for(View<Track>::size_type i=0; i<trackCollection.size(); ++i){
 	auto const &  track = trackCollection[i];
 	auto dR = std::numeric_limits<float>::max();
-        auto  && p = track.momentum();
-        float eta = etaFromXYZ(p.x(),p.y(),p.z());
-        float phi = atan2f(p.y(),p.x());
-	for(View<Track>::size_type j=0; j<trackCollectionDr->size(); ++j){
-	  auto dR_tmp = reco::deltaR2(eta, phi, etaL[j], phiL[j]);
-	  if ( (dR_tmp<dR) & (dR_tmp>std::numeric_limits<float>::min())) dR=dR_tmp;
-	}
+        if(!trackFromSeedFitFailed(track)) {
+          auto  && p = track.momentum();
+          float eta = etaFromXYZ(p.x(),p.y(),p.z());
+          float phi = atan2f(p.y(),p.x());
+          for(View<Track>::size_type j=0; j<trackCollectionDr->size(); ++j){
+            if(!validL[j]) continue;
+            auto dR_tmp = reco::deltaR2(eta, phi, etaL[j], phiL[j]);
+            if ( (dR_tmp<dR) & (dR_tmp>std::numeric_limits<float>::min())) dR=dR_tmp;
+          }
+        }
 	dR_trk[i] = std::sqrt(dR);
       }
 
       for(View<Track>::size_type i=0; i<trackCollection.size(); ++i){
         auto track = trackCollection.refAt(i);
 	rT++;
+        if(trackFromSeedFitFailed(*track)) ++seed_fit_failed;
  
 	bool isSigSimMatched(false);
 	bool isSimMatched(false);
@@ -868,6 +860,11 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
       } // End of for(View<Track>::size_type i=0; i<trackCollection.size(); ++i){
 
       histoProducerAlgo_->fill_trackBased_histos(w,at,rT,st);
+      // Fill seed-specific histograms
+      if(doSeedPlots_) {
+        histoProducerAlgo_->fill_seed_histos(www, seed_fit_failed, trackCollection.size());
+      }
+
 
       LogTrace("TrackValidator") << "Total Simulated: " << st << "\n"
                                  << "Total Associated (simToReco): " << ats << "\n"

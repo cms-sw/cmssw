@@ -67,24 +67,24 @@ void HGCDigitizer::finalizeEvent(edm::Event& e, edm::EventSetup const& es, CLHEP
 {
   if( producesEEDigis() ) 
     {
-      std::auto_ptr<HGCEEDigiCollection> digiResult(new HGCEEDigiCollection() );
+      std::unique_ptr<HGCEEDigiCollection> digiResult(new HGCEEDigiCollection() );
       theHGCEEDigitizer_->run(digiResult,*simHitAccumulator_,digitizationType_, hre);
       edm::LogInfo("HGCDigitizer") << " @ finalize event - produced " << digiResult->size() <<  " EE hits";      
-      e.put(digiResult,digiCollection());
+      e.put(std::move(digiResult),digiCollection());
     }
   if( producesHEfrontDigis())
     {
-      std::auto_ptr<HGCHEDigiCollection> digiResult(new HGCHEDigiCollection() );
+      std::unique_ptr<HGCHEDigiCollection> digiResult(new HGCHEDigiCollection() );
       theHGCHEfrontDigitizer_->run(digiResult,*simHitAccumulator_,digitizationType_, hre);
       edm::LogInfo("HGCDigitizer") << " @ finalize event - produced " << digiResult->size() <<  " HE front hits";
-      e.put(digiResult,digiCollection());
+      e.put(std::move(digiResult),digiCollection());
     }
   if( producesHEbackDigis() )
     {
-      std::auto_ptr<HGCHEDigiCollection> digiResult(new HGCHEDigiCollection() );
+      std::unique_ptr<HGCHEDigiCollection> digiResult(new HGCHEDigiCollection() );
       theHGCHEbackDigitizer_->run(digiResult,*simHitAccumulator_,digitizationType_, hre);
       edm::LogInfo("HGCDigitizer") << " @ finalize event - produced " << digiResult->size() <<  " HE back hits";
-      e.put(digiResult,digiCollection());
+      e.put(std::move(digiResult),digiCollection());
     }
 }
 
@@ -144,6 +144,7 @@ void HGCDigitizer::accumulate(edm::Handle<edm::PCaloHitContainer> const &hits,
   HGCCellInfo baseData;
   baseData.hit_info[0].fill(0.); //accumulated energy
   baseData.hit_info[1].fill(0.); //time-of-flight
+  baseData.size = 0.0;
   baseData.thickness = std::numeric_limits<int>::max();
   
   //configuration to apply for the computation of time-of-flight
@@ -292,12 +293,17 @@ void HGCDigitizer::accumulate(edm::Handle<edm::PCaloHitContainer> const &hits,
       uint32_t id(it->rawId());
       auto itr = simHitAccumulator_->emplace(id, baseData);
       int waferTypeL = 0;
+      bool isHalf = false;
       if(dddConst.geomMode() == HGCalGeometryMode::Square) {
         waferTypeL = producesEEDigis() ? 2 : 3;
+        isHalf = false;
       } else {
+        HGCalDetId hid(id);
         int wafer = HGCalDetId(id).wafer();
         waferTypeL = dddConst.waferTypeL(wafer);        
+        isHalf = dddConst.isHalfCell(wafer,hid.cell());
       }
+      itr.first->second.size = (isHalf ? 0.5 : 1.0);
       itr.first->second.thickness = waferTypeL;
       nadded++;
     }

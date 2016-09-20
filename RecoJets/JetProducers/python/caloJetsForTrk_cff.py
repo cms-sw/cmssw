@@ -11,6 +11,12 @@ eras.trackingLowPU.toModify(ak4CaloJetsForTrk,
 eras.trackingPhase1PU70.toModify(ak4CaloJetsForTrk,
     srcPVs = "pixelVertices"
 )
+eras.trackingPhase2PU140.toModify(ak4CaloJetsForTrk,
+    srcPVs = "pixelVertices"
+)
 
 caloJetsForTrk = cms.Sequence(caloTowerForTrk*ak4CaloJetsForTrk)
+
+from Configuration.StandardSequences.Eras import eras
+eras.phase2_hcal.toModify( caloTowerForTrk, hbheInput = cms.InputTag("hbhereco") )
 

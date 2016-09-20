@@ -33,7 +33,7 @@ class TrackerGeometryAnalyzer : public edm::EDAnalyzer {
     virtual ~TrackerGeometryAnalyzer() {};
 
     virtual void beginRun(const edm::Run&,   const edm::EventSetup&) override;
-    virtual void analyze (const edm::Event&, const edm::EventSetup&) {};
+    virtual void analyze (const edm::Event&, const edm::EventSetup&) override {};
 
   //========================= PRIVATE METHODS =================================
   private: //==================================================================

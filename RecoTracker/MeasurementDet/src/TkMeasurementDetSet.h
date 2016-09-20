@@ -8,13 +8,17 @@ class TkPixelMeasurementDet;
 class SiStripRecHitMatcher;
 class StripClusterParameterEstimator;
 class PixelClusterParameterEstimator;
+class Phase2StripCPE;
 
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
+#include "DataFormats/Phase2TrackerCluster/interface/Phase2TrackerCluster1D.h"
+#include "RecoLocalTracker/Phase2TrackerRecHits/interface/Phase2StripCPE.h"
 #include "DataFormats/Common/interface/Handle.h"
 
 #include "CondFormats/SiStripObjects/interface/SiStripBadStrip.h"
+#include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -383,6 +387,95 @@ private:
 
   // Locals, per-event
   std::vector<PixelDetSet> detSet_;
+  std::vector<bool> empty_;
+  std::vector<bool> activeThisEvent_;
+};
+
+//FIXME:just temporary solution for phase2 OT that works!
+class Phase2OTMeasurementConditionSet {
+public:
+  Phase2OTMeasurementConditionSet(const ClusterParameterEstimator<Phase2TrackerCluster1D> *cpe) :
+    theCPE(cpe) {}
+
+  void init(int size);
+
+  int nDet() const { return id_.size();}
+  unsigned int id(int i) const { return id_[i]; }
+  int find(unsigned int jd, int i=0) const {
+    return std::lower_bound(id_.begin()+i,id_.end(),jd)-id_.begin();
+  }
+
+  const ClusterParameterEstimator<Phase2TrackerCluster1D>*  cpe() const { return theCPE;}
+  bool isActiveThisPeriod(int i) const { return activeThisPeriod_[i]; }
+
+  /** \brief Turn on/off the module for reconstruction, for the full run or lumi (using info from DB, usually).
+ *       This also resets the 'setActiveThisEvent' to true */
+  void setActive(int i, bool active) { activeThisPeriod_[i] = active; }
+
+
+private:
+  friend class MeasurementTrackerImpl;
+
+  // Globals (not-per-event)
+  const ClusterParameterEstimator<Phase2TrackerCluster1D>* theCPE;
+  
+  // Locals, per-event
+  std::vector<unsigned int> id_;
+  std::vector<bool> activeThisPeriod_;
+  
+};
+
+class Phase2OTMeasurementDetSet {
+public:
+  typedef edm::Ref<edmNew::DetSetVector<Phase2TrackerCluster1D>, Phase2TrackerCluster1D> Phase2TrackerCluster1DRef;
+  typedef edmNew::DetSet<Phase2TrackerCluster1D> Phase2DetSet;
+
+  Phase2OTMeasurementDetSet(const Phase2OTMeasurementConditionSet &cond) :
+    conditionSet_(&cond),
+    detSet_(cond.nDet()),
+    empty_(cond.nDet(), true),
+    activeThisEvent_(cond.nDet(), true)  {}
+
+  const Phase2OTMeasurementConditionSet & conditions() const { return *conditionSet_; }
+
+  int size() const { return conditions().nDet(); }
+  int nDet() const { return size();}
+  unsigned int id(int i) const { return conditions().id(i); }
+  int find(unsigned int jd, int i=0) const {
+    return conditions().find(jd,i);
+  }
+
+  void update(int i,const Phase2DetSet & detSet ) {
+    detSet_[i] = detSet;
+    empty_[i] = false;
+  }
+
+  bool empty(int i) const { return empty_[i];}
+  bool isActive(int i) const { return activeThisEvent_[i] && conditions().isActiveThisPeriod(i); }
+
+  void setEmpty(int i) {empty_[i] = true; activeThisEvent_[i] = true; }
+
+  void setEmpty() {
+    std::fill(empty_.begin(),empty_.end(),true);
+    std::fill(activeThisEvent_.begin(), activeThisEvent_.end(),true);
+  }
+  void setActiveThisEvent(bool active) {
+    std::fill(activeThisEvent_.begin(), activeThisEvent_.end(),active);
+  }
+  void setActiveThisEvent(int i, bool active) { activeThisEvent_[i] = active;  if (!active) empty_[i] = true; }
+  const edm::Handle<edmNew::DetSetVector<Phase2TrackerCluster1D> > & handle() const {  return handle_;}
+  edm::Handle<edmNew::DetSetVector<Phase2TrackerCluster1D> > & handle() {  return handle_;}
+  const Phase2DetSet & detSet(int i) const { return detSet_[i];}
+private:
+  friend class MeasurementTrackerImpl;
+
+  const Phase2OTMeasurementConditionSet *conditionSet_;
+
+  //Globals, per-event
+  edm::Handle<edmNew::DetSetVector<Phase2TrackerCluster1D> > handle_;
+ 
+  // Locals, per-event
+  std::vector<Phase2DetSet> detSet_;
   std::vector<bool> empty_;
   std::vector<bool> activeThisEvent_;
 };

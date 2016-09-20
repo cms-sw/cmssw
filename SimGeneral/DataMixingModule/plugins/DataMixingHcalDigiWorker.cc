@@ -159,8 +159,8 @@ namespace {
   }
   
   template <class DIGIS>
-  std::auto_ptr<DIGIS> buildHcalDigis (const HcalDigiMap& map, const HcalDbService& conditions) {
-    std::auto_ptr<DIGIS> digis( new DIGIS );
+  std::unique_ptr<DIGIS> buildHcalDigis (const HcalDigiMap& map, const HcalDbService& conditions) {
+    std::unique_ptr<DIGIS> digis( new DIGIS );
     // loop over the maps we have, re-making individual hits or digis if necessary.
     DetId formerID = 0;
     CaloSamples resultSample;
@@ -393,12 +393,12 @@ namespace edm
     ES.get<HcalDbRecord>().get(conditions);
 
     // collection of digis to put in the event
-    std::auto_ptr< HBHEDigiCollection > HBHEdigis = buildHcalDigis<HBHEDigiCollection> (HBHEDigiStorage_, *conditions);
-    std::auto_ptr< HODigiCollection > HOdigis = buildHcalDigis<HODigiCollection> (HODigiStorage_, *conditions);
-    std::auto_ptr< HFDigiCollection > HFdigis = buildHcalDigis<HFDigiCollection> (HFDigiStorage_, *conditions);
-    std::auto_ptr< QIE10DigiCollection > QIE10digis = buildHcalDigis<QIE10DigiCollection> (QIE10DigiStorage_, *conditions);
-    std::auto_ptr< QIE11DigiCollection > QIE11digis = buildHcalDigis<QIE11DigiCollection> (QIE11DigiStorage_, *conditions);
-    std::auto_ptr< ZDCDigiCollection > ZDCdigis( new ZDCDigiCollection );
+    std::unique_ptr< HBHEDigiCollection > HBHEdigis = buildHcalDigis<HBHEDigiCollection> (HBHEDigiStorage_, *conditions);
+    std::unique_ptr< HODigiCollection > HOdigis = buildHcalDigis<HODigiCollection> (HODigiStorage_, *conditions);
+    std::unique_ptr< HFDigiCollection > HFdigis = buildHcalDigis<HFDigiCollection> (HFDigiStorage_, *conditions);
+    std::unique_ptr< QIE10DigiCollection > QIE10digis = buildHcalDigis<QIE10DigiCollection> (QIE10DigiStorage_, *conditions);
+    std::unique_ptr< QIE11DigiCollection > QIE11digis = buildHcalDigis<QIE11DigiCollection> (QIE11DigiStorage_, *conditions);
+    std::unique_ptr< ZDCDigiCollection > ZDCdigis( new ZDCDigiCollection );
 
     // loop over the maps we have, re-making individual hits or digis if necessary.
     DetId formerID = 0;
@@ -514,18 +514,18 @@ namespace edm
 
 
     // make empty collections for now:
-    std::auto_ptr<HBHEUpgradeDigiCollection> hbheupgradeResult(new HBHEUpgradeDigiCollection());
-    std::auto_ptr<HFUpgradeDigiCollection> hfupgradeResult(new HFUpgradeDigiCollection());
+    std::unique_ptr<HBHEUpgradeDigiCollection> hbheupgradeResult(new HBHEUpgradeDigiCollection());
+    std::unique_ptr<HFUpgradeDigiCollection> hfupgradeResult(new HFUpgradeDigiCollection());
 
 
-    e.put( HBHEdigis, HBHEDigiCollectionDM_ );
-    e.put( HOdigis, HODigiCollectionDM_ );
-    e.put( HFdigis, HFDigiCollectionDM_ );
-    e.put( QIE10digis, QIE10DigiCollectionDM_ );
-    e.put( QIE11digis, QIE11DigiCollectionDM_ );
-    e.put( ZDCdigis, ZDCDigiCollectionDM_ );
-    e.put( hbheupgradeResult, "HBHEUpgradeDigiCollection" );
-    e.put( hfupgradeResult, "HFUpgradeDigiCollection" );
+    e.put(std::move(HBHEdigis), HBHEDigiCollectionDM_);
+    e.put(std::move(HOdigis), HODigiCollectionDM_);
+    e.put(std::move(HFdigis), HFDigiCollectionDM_);
+    e.put(std::move(QIE10digis), QIE10DigiCollectionDM_);
+    e.put(std::move(QIE11digis), QIE11DigiCollectionDM_);
+    e.put(std::move(ZDCdigis), ZDCDigiCollectionDM_);
+    e.put(std::move(hbheupgradeResult), "HBHEUpgradeDigiCollection");
+    e.put(std::move(hfupgradeResult), "HFUpgradeDigiCollection");
 
     // clear local storage after this event
     HBHEDigiStorage_.clear();

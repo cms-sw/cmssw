@@ -107,6 +107,7 @@ public:
     theChiSquared(rh.theChiSquared),
     theChiSquaredBad(rh.theChiSquaredBad),
     theNumberOfFoundHits(rh.theNumberOfFoundHits),
+    theNumberOfFoundPixelHits(rh.theNumberOfFoundPixelHits),
     theNumberOfLostHits(rh.theNumberOfLostHits),
     theNumberOfTrailingFoundHits(rh.theNumberOfTrailingFoundHits),
     theNumberOfCCCBadHits_(rh.theNumberOfCCCBadHits_),
@@ -129,6 +130,7 @@ public:
     theCCCThreshold_=rh.theCCCThreshold_;
     theNLoops=rh.theNLoops;  
     theNumberOfFoundHits=rh.theNumberOfFoundHits;
+    theNumberOfFoundPixelHits=rh.theNumberOfFoundPixelHits;
     theNumberOfLostHits=rh.theNumberOfLostHits;
     theNumberOfTrailingFoundHits=rh.theNumberOfTrailingFoundHits;
     theNumberOfCCCBadHits_=rh.theNumberOfCCCBadHits_;
@@ -222,6 +224,10 @@ public:
 
   int foundHits() const { return theNumberOfFoundHits;}
 
+  /** Number of valid pixel RecHits used to determine the trajectory.
+   */
+  int foundPixelHits() const { return theNumberOfFoundPixelHits;}
+
   /** Number of detector layers crossed without valid RecHits.
    *  Used mainly as a criteria for abandoning a trajectory candidate
    *  during trajectory building.
@@ -294,6 +300,11 @@ public:
    */
   static bool isBad( const TrackingRecHit& hit);
 
+  /** Returns true if the hit type is TrackingRecHit::bad
+   *  Used in trajectory filtering
+   */
+  static bool pixel( const TrackingRecHit& hit);
+
   /// Redundant method, returns the layer of lastMeasurement() .
   const DetLayer* lastLayer() const {
     check();
@@ -357,6 +368,7 @@ private:
   float theChiSquaredBad=0;
 
   signed short theNumberOfFoundHits=0;
+  signed short theNumberOfFoundPixelHits=0;
   signed short theNumberOfLostHits=0;
   signed short theNumberOfTrailingFoundHits=0;
   signed short theNumberOfCCCBadHits_=0;

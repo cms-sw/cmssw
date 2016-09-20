@@ -2,7 +2,6 @@
 #include "EgammaAnalysis/ElectronTools/interface/EGammaMvaEleEstimator.h"
 #include <cmath>
 #include <vector>
-using namespace std;
 
 #ifndef STANDALONE
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -22,7 +21,6 @@ using namespace std;
 #include "DataFormats/Common/interface/RefToPtr.h"
 #include <cstdio>
 #include <zlib.h>
-using namespace reco;
 #endif
 
 //--------------------------------------------------------------------------------------------------
@@ -486,7 +484,7 @@ Double_t EGammaMvaEleEstimator::mvaValue(Double_t fbrem,
   }
 
   if (fMVAType != EGammaMvaEleEstimator::kTrig) {
-    std::cout << "Error: This method should be called for kTrig MVA only" << endl;
+    std::cout << "Error: This method should be called for kTrig MVA only" <<std::endl;
     return -9999;
   }
 
@@ -530,8 +528,8 @@ Double_t EGammaMvaEleEstimator::mvaValue(Double_t fbrem,
   }
 
   if(printDebug) {
-    cout << " *** Inside the class fMethodname " << fMethodname << endl;
-    cout << " fbrem " <<  fMVAVar_fbrem  
+    std::cout << " *** Inside the class fMethodname " << fMethodname << std::endl;
+    std::cout << " fbrem " <<  fMVAVar_fbrem  
       	 << " kfchi2 " << fMVAVar_kfchi2  
 	 << " mykfhits " << fMVAVar_kfhits  
 	 << " gsfchi2 " << fMVAVar_gsfchi2  
@@ -552,8 +550,8 @@ Double_t EGammaMvaEleEstimator::mvaValue(Double_t fbrem,
 	 << " d0 " << fMVAVar_d0  
 	 << " ip3d " << fMVAVar_ip3d  
 	 << " eta " << fMVAVar_eta  
-	 << " pt " << fMVAVar_pt << endl;
-    cout << " ### MVA " << mva << endl;
+	 << " pt " << fMVAVar_pt <<std::endl;
+    std::cout << " ### MVA " << mva << std::endl;
   }
 
 
@@ -591,7 +589,7 @@ Double_t EGammaMvaEleEstimator::mvaValue(Double_t fbrem,
   }
 
   if (fMVAType != EGammaMvaEleEstimator::kTrigNoIP) {
-    std::cout << "Error: This method should be called for kTrigNoIP MVA only" << endl;
+    std::cout << "Error: This method should be called for kTrigNoIP MVA only" <<std::endl;
     return -9999;
   }
 
@@ -633,8 +631,8 @@ Double_t EGammaMvaEleEstimator::mvaValue(Double_t fbrem,
   }
 
   if(printDebug) {
-    cout << " *** Inside the class fMethodname " << fMethodname << endl;
-    cout << " fbrem " <<  fMVAVar_fbrem  
+    std::cout << " *** Inside the class fMethodname " << fMethodname << std::endl;
+    std::cout << " fbrem " <<  fMVAVar_fbrem  
       	 << " kfchi2 " << fMVAVar_kfchi2  
 	 << " mykfhits " << fMVAVar_kfhits  
 	 << " gsfchi2 " << fMVAVar_gsfchi2  
@@ -654,8 +652,8 @@ Double_t EGammaMvaEleEstimator::mvaValue(Double_t fbrem,
 	 << " rho " << fMVAVar_rho 
 	 << " PreShowerOverRaw " << fMVAVar_PreShowerOverRaw  
        	 << " eta " << fMVAVar_eta  
-	 << " pt " << fMVAVar_pt << endl;
-    cout << " ### MVA " << mva << endl;
+	 << " pt " << fMVAVar_pt <<std::endl;
+    std::cout << " ### MVA " << mva << std::endl;
   }
 
 
@@ -695,7 +693,7 @@ Double_t EGammaMvaEleEstimator::mvaValue(Double_t fbrem,
   }
 
   if (fMVAType != EGammaMvaEleEstimator::kNonTrig) {
-    std::cout << "Error: This method should be called for kNonTrig MVA only" << endl;
+    std::cout << "Error: This method should be called for kNonTrig MVA only" <<std::endl;
     return -9999;
   }
 
@@ -739,8 +737,8 @@ Double_t EGammaMvaEleEstimator::mvaValue(Double_t fbrem,
 
 
   if(printDebug) {
-    cout << " *** Inside the class fMethodname " << fMethodname << endl;
-    cout << " fbrem " <<  fMVAVar_fbrem  
+    std::cout << " *** Inside the class fMethodname " << fMethodname << std::endl;
+    std::cout << " fbrem " <<  fMVAVar_fbrem  
       	 << " kfchi2 " << fMVAVar_kfchi2  
 	 << " mykfhits " << fMVAVar_kfhits  
 	 << " gsfchi2 " << fMVAVar_gsfchi2  
@@ -759,8 +757,8 @@ Double_t EGammaMvaEleEstimator::mvaValue(Double_t fbrem,
 	 << " eleEoPout " << fMVAVar_eleEoPout  
 	 << " PreShowerOverRaw " << fMVAVar_PreShowerOverRaw  
 	 << " eta " << fMVAVar_eta  
-	 << " pt " << fMVAVar_pt << endl;
-    cout << " ### MVA " << mva << endl;
+	 << " pt " << fMVAVar_pt <<std::endl;
+    std::cout << " ### MVA " << mva << std::endl;
   }
 
 
@@ -827,7 +825,7 @@ Double_t EGammaMvaEleEstimator::IDIsoCombinedMvaValue(Double_t fbrem,
   fMVAVar_spp             = spp;
   fMVAVar_etawidth        = etawidth;
   fMVAVar_phiwidth        = phiwidth;
-  fMVAVar_OneMinusE1x5E5x5= max(min(double(OneMinusE1x5E5x5),2.0),-1.0);
+  fMVAVar_OneMinusE1x5E5x5= std::max(std::min(double(OneMinusE1x5E5x5),2.0),-1.0);
   fMVAVar_R9              = (R9 > 5) ? 5: R9;
 
   fMVAVar_HoE             = HoE;
@@ -868,8 +866,8 @@ Double_t EGammaMvaEleEstimator::IDIsoCombinedMvaValue(Double_t fbrem,
   }
 
   if(printDebug) {
-    cout << " *** Inside the class fMethodname " << fMethodname << endl;
-    cout << " fbrem " <<  fMVAVar_fbrem  
+    std::cout << " *** Inside the class fMethodname " << fMethodname << std::endl;
+    std::cout << " fbrem " <<  fMVAVar_fbrem  
       	 << " kfchi2 " << fMVAVar_kfchi2  
 	 << " mykfhits " << fMVAVar_kfhits  
 	 << " gsfchi2 " << fMVAVar_gsfchi2  
@@ -906,8 +904,8 @@ Double_t EGammaMvaEleEstimator::IDIsoCombinedMvaValue(Double_t fbrem,
          << " NeutralHadronIso_DR0p4To0p5 " <<  NeutralHadronIso_DR0p4To0p5
          << " Rho " <<  Rho
 	 << " eta " << fMVAVar_eta  
-	 << " pt " << fMVAVar_pt << endl;
-    cout << " ### MVA " << mva << endl;
+	 << " pt " << fMVAVar_pt <<std::endl;
+    std::cout << " ### MVA " << mva << std::endl;
   }
 
   return mva;
@@ -965,27 +963,27 @@ Double_t EGammaMvaEleEstimator::isoMvaValue(Double_t Pt,
   Double_t mva = fTMVAReader[bin]->EvaluateMVA(fTMVAMethod[bin]);
 
   if(printDebug) {
-    cout << " *** Inside the class fMethodname " << fMethodname << " fMVAType " << fMVAType << endl;
-    cout  << "ChargedIso ( 0.0 | 0.1 | 0.2 | 0.3 | 0.4 | 0.5 ): " 
+   std::cout << " *** Inside the class fMethodname " << fMethodname << " fMVAType " << fMVAType << std::endl;
+   std::cout  << "ChargedIso ( 0.0 | 0.1 | 0.2 | 0.3 | 0.4 | 0.5 ): " 
           << fMVAVar_ChargedIso_DR0p0To0p1   << " "
           << fMVAVar_ChargedIso_DR0p1To0p2   << " "
           << fMVAVar_ChargedIso_DR0p2To0p3 << " "
           << fMVAVar_ChargedIso_DR0p3To0p4 << " "
-          << fMVAVar_ChargedIso_DR0p4To0p5 << endl;
-    cout  << "PF Gamma Iso ( 0.0 | 0.1 | 0.2 | 0.3 | 0.4 | 0.5 ): " 
+          << fMVAVar_ChargedIso_DR0p4To0p5 <<std::endl;
+   std::cout  << "PF Gamma Iso ( 0.0 | 0.1 | 0.2 | 0.3 | 0.4 | 0.5 ): " 
           << fMVAVar_GammaIso_DR0p0To0p1 << " "
           << fMVAVar_GammaIso_DR0p1To0p2 << " "
           << fMVAVar_GammaIso_DR0p2To0p3 << " "
           << fMVAVar_GammaIso_DR0p3To0p4 << " "
-          << fMVAVar_GammaIso_DR0p4To0p5 << endl;
-    cout  << "PF Neutral Hadron Iso ( 0.0 | 0.1 | 0.2 | 0.3 | 0.4 | 0.5 ): " 
+          << fMVAVar_GammaIso_DR0p4To0p5 <<std::endl;
+   std::cout  << "PF Neutral Hadron Iso ( 0.0 | 0.1 | 0.2 | 0.3 | 0.4 | 0.5 ): " 
           << fMVAVar_NeutralHadronIso_DR0p0To0p1 << " "
           << fMVAVar_NeutralHadronIso_DR0p1To0p2 << " "
           << fMVAVar_NeutralHadronIso_DR0p2To0p3 << " "
           << fMVAVar_NeutralHadronIso_DR0p3To0p4 << " "
           << fMVAVar_NeutralHadronIso_DR0p4To0p5 << " "
-          << endl;
-    cout << " ### MVA " << mva << endl;
+          <<std::endl;
+   std::cout << " ### MVA " << mva <<std::endl;
   }
 
   return mva;
@@ -1008,7 +1006,7 @@ Double_t EGammaMvaEleEstimator::mvaValue(const reco::GsfElectron& ele,
   }
 
   if ( (fMVAType != EGammaMvaEleEstimator::kTrig) && (fMVAType != EGammaMvaEleEstimator::kNonTrig )) {
-    std::cout << "Error: This method should be called for kTrig or kNonTrig MVA only" << endl;
+    std::cout << "Error: This method should be called for kTrig or kNonTrig MVA only" <<std::endl;
     return -9999;
   }
   
@@ -1098,8 +1096,8 @@ Double_t EGammaMvaEleEstimator::mvaValue(const reco::GsfElectron& ele,
 
 
   if(printDebug) {
-    cout << " *** Inside the class fMethodname " << fMethodname << " fMVAType " << fMVAType << endl;
-    cout << " fbrem " <<  fMVAVar_fbrem  
+   std::cout << " *** Inside the class fMethodname " << fMethodname << " fMVAType " << fMVAType <<std::endl;
+   std::cout << " fbrem " <<  fMVAVar_fbrem  
       	 << " kfchi2 " << fMVAVar_kfchi2  
 	 << " mykfhits " << fMVAVar_kfhits  
 	 << " gsfchi2 " << fMVAVar_gsfchi2  
@@ -1119,8 +1117,8 @@ Double_t EGammaMvaEleEstimator::mvaValue(const reco::GsfElectron& ele,
 	 << " d0 " << fMVAVar_d0  
 	 << " ip3d " << fMVAVar_ip3d  
 	 << " eta " << fMVAVar_eta  
-	 << " pt " << fMVAVar_pt << endl;
-    cout << " ### MVA " << mva << endl;
+	 << " pt " << fMVAVar_pt <<std::endl;
+   std::cout << " ### MVA " << mva <<std::endl;
   }
 
 
@@ -1143,7 +1141,7 @@ Double_t EGammaMvaEleEstimator::mvaValue(const reco::GsfElectron& ele,
   }
   
   if (fMVAType != EGammaMvaEleEstimator::kTrigNoIP) {
-    std::cout << "Error: This method should be called for kTrigNoIP MVA only" << endl;
+    std::cout << "Error: This method should be called for kTrigNoIP MVA only" <<std::endl;
     return -9999;
   }
 
@@ -1208,8 +1206,8 @@ Double_t EGammaMvaEleEstimator::mvaValue(const reco::GsfElectron& ele,
 
 
   if(printDebug) {
-    cout << " *** Inside the class fMethodname " << fMethodname << " fMVAType " << fMVAType << endl;
-    cout << " fbrem " <<  fMVAVar_fbrem  
+   std::cout << " *** Inside the class fMethodname " << fMethodname << " fMVAType " << fMVAType <<std::endl;
+   std::cout << " fbrem " <<  fMVAVar_fbrem  
       	 << " kfchi2 " << fMVAVar_kfchi2  
 	 << " mykfhits " << fMVAVar_kfhits  
 	 << " gsfchi2 " << fMVAVar_gsfchi2  
@@ -1231,8 +1229,8 @@ Double_t EGammaMvaEleEstimator::mvaValue(const reco::GsfElectron& ele,
 	 << " rho " << fMVAVar_rho
       // << " EoPout " << fMVAVar_EoPout  
 	 << " eta " << fMVAVar_eta  
-	 << " pt " << fMVAVar_pt << endl;
-    cout << " ### MVA " << mva << endl;
+	 << " pt " << fMVAVar_pt <<std::endl;
+   std::cout << " ### MVA " << mva <<std::endl;
   }
 
 
@@ -1333,8 +1331,8 @@ Double_t EGammaMvaEleEstimator::mvaValue(const pat::Electron& ele,
   }
 
   if(printDebug) {
-    cout << " *** Inside the class fMethodname " << fMethodname << " fMVAType " << fMVAType << endl;
-    cout << " fbrem " <<  fMVAVar_fbrem
+   std::cout << " *** Inside the class fMethodname " << fMethodname << " fMVAType " << fMVAType <<std::endl;
+   std::cout << " fbrem " <<  fMVAVar_fbrem
          << " kfchi2 " << fMVAVar_kfchi2
          << " mykfhits " << fMVAVar_kfhits
          << " gsfchi2 " << fMVAVar_gsfchi2
@@ -1358,8 +1356,8 @@ Double_t EGammaMvaEleEstimator::mvaValue(const pat::Electron& ele,
          << " d0 " << fMVAVar_d0
          << " ip3d " << fMVAVar_ip3d
          << " eta " << fMVAVar_eta
-         << " pt " << fMVAVar_pt << endl;
-    cout << " ### MVA " << mva << endl;
+         << " pt " << fMVAVar_pt <<std::endl;
+   std::cout << " ### MVA " << mva <<std::endl;
   }
 
   return mva;
@@ -1377,7 +1375,7 @@ Double_t EGammaMvaEleEstimator::mvaValue(const pat::Electron& ele,
   }
 
   if ( (fMVAType != EGammaMvaEleEstimator::kTrigNoIP) ) {
-    std::cout << "Error: This method should be called for kTrigNoIP mva only" << endl;
+    std::cout << "Error: This method should be called for kTrigNoIP mva only" <<std::endl;
     return -9999;
   }
   
@@ -1440,8 +1438,8 @@ Double_t EGammaMvaEleEstimator::mvaValue(const pat::Electron& ele,
 
 
   if(printDebug) {
-    cout << " *** Inside the class fMethodname " << fMethodname << " fMVAType " << fMVAType << endl;
-    cout << " fbrem " <<  fMVAVar_fbrem  
+   std::cout << " *** Inside the class fMethodname " << fMethodname << " fMVAType " << fMVAType <<std::endl;
+   std::cout << " fbrem " <<  fMVAVar_fbrem  
       	 << " kfchi2 " << fMVAVar_kfchi2  
 	 << " mykfhits " << fMVAVar_kfhits  
 	 << " gsfchi2 " << fMVAVar_gsfchi2  
@@ -1463,8 +1461,8 @@ Double_t EGammaMvaEleEstimator::mvaValue(const pat::Electron& ele,
 	 << " rho " << fMVAVar_rho
       // << " EoPout " << fMVAVar_EoPout  
 	 << " eta " << fMVAVar_eta  
-	 << " pt " << fMVAVar_pt << endl;
-    cout << " ### MVA " << mva << endl;
+	 << " pt " << fMVAVar_pt <<std::endl;
+   std::cout << " ### MVA " << mva <<std::endl;
   }
 
 
@@ -1634,7 +1632,7 @@ Double_t EGammaMvaEleEstimator::isoMvaValue(const reco::GsfElectron& ele,
   fMVAVar_NeutralHadronIso_DR0p4To0p5 = TMath::Max(TMath::Min((tmpNeutralHadronIso_DR0p4To0p5 - Rho*ElectronEffectiveArea::GetElectronEffectiveArea(ElectronEffectiveArea::kEleNeutralHadronIsoDR0p4To0p5, fMVAVar_eta, EATarget))/ele.pt(), 2.5), 0.0);
  
   if (printDebug) {
-    cout << "UseBinnedVersion=" << fUseBinnedVersion << " -> BIN: " << fMVAVar_eta << " " << fMVAVar_pt << " : " << GetMVABin(fMVAVar_eta,fMVAVar_pt) << endl;
+   std::cout << "UseBinnedVersion=" << fUseBinnedVersion << " -> BIN: " << fMVAVar_eta << " " << fMVAVar_pt << " : " << GetMVABin(fMVAVar_eta,fMVAVar_pt) <<std::endl;
   }
 
   // evaluate
@@ -1651,27 +1649,27 @@ Double_t EGammaMvaEleEstimator::isoMvaValue(const reco::GsfElectron& ele,
 
 
   if(printDebug) {
-    cout << " *** Inside the class fMethodname " << fMethodname << " fMVAType " << fMVAType << endl;
-    cout  << "ChargedIso ( 0.0 | 0.1 | 0.2 | 0.3 | 0.4 | 0.5 ): " 
+   std::cout << " *** Inside the class fMethodname " << fMethodname << " fMVAType " << fMVAType <<std::endl;
+   std::cout  << "ChargedIso ( 0.0 | 0.1 | 0.2 | 0.3 | 0.4 | 0.5 ): " 
           << fMVAVar_ChargedIso_DR0p0To0p1   << " "
           << fMVAVar_ChargedIso_DR0p1To0p2   << " "
           << fMVAVar_ChargedIso_DR0p2To0p3 << " "
           << fMVAVar_ChargedIso_DR0p3To0p4 << " "
-          << fMVAVar_ChargedIso_DR0p4To0p5 << endl;
-    cout  << "PF Gamma Iso ( 0.0 | 0.1 | 0.2 | 0.3 | 0.4 | 0.5 ): " 
+          << fMVAVar_ChargedIso_DR0p4To0p5 <<std::endl;
+   std::cout  << "PF Gamma Iso ( 0.0 | 0.1 | 0.2 | 0.3 | 0.4 | 0.5 ): " 
           << fMVAVar_GammaIso_DR0p0To0p1 << " "
           << fMVAVar_GammaIso_DR0p1To0p2 << " "
           << fMVAVar_GammaIso_DR0p2To0p3 << " "
           << fMVAVar_GammaIso_DR0p3To0p4 << " "
-          << fMVAVar_GammaIso_DR0p4To0p5 << endl;
-    cout  << "PF Neutral Hadron Iso ( 0.0 | 0.1 | 0.2 | 0.3 | 0.4 | 0.5 ): " 
+          << fMVAVar_GammaIso_DR0p4To0p5 <<std::endl;
+   std::cout  << "PF Neutral Hadron Iso ( 0.0 | 0.1 | 0.2 | 0.3 | 0.4 | 0.5 ): " 
           << fMVAVar_NeutralHadronIso_DR0p0To0p1 << " "
           << fMVAVar_NeutralHadronIso_DR0p1To0p2 << " "
           << fMVAVar_NeutralHadronIso_DR0p2To0p3 << " "
           << fMVAVar_NeutralHadronIso_DR0p3To0p4 << " "
           << fMVAVar_NeutralHadronIso_DR0p4To0p5 << " "
-          << endl;
-    cout << " ### MVA " << mva << endl;
+          <<std::endl;
+   std::cout << " ### MVA " << mva <<std::endl;
   }
   
 
@@ -1725,7 +1723,7 @@ Double_t EGammaMvaEleEstimator::IDIsoCombinedMvaValue(const reco::GsfElectron& e
   fMVAVar_etawidth        =  ele.superCluster()->etaWidth();
   fMVAVar_phiwidth        =  ele.superCluster()->phiWidth();
   fMVAVar_OneMinusE1x5E5x5        =  (ele.e5x5()) !=0. ? 1.-(ele.e1x5()/ele.e5x5()) : -1. ;
-  fMVAVar_OneMinusE1x5E5x5 = max(min(double(fMVAVar_OneMinusE1x5E5x5),2.0),-1.0);
+  fMVAVar_OneMinusE1x5E5x5 = std::max(std::min(double(fMVAVar_OneMinusE1x5E5x5),2.0),-1.0);
   fMVAVar_R9              =  myEcalCluster.e3x3(*(ele.superCluster()->seed())) / ele.superCluster()->rawEnergy();
   if (fMVAVar_R9 > 5) fMVAVar_R9 = 5;
 
@@ -1874,7 +1872,7 @@ Double_t EGammaMvaEleEstimator::IDIsoCombinedMvaValue(const reco::GsfElectron& e
     fMVAVar_NeutralHadronIso_DR0p4To0p5 = TMath::Max(TMath::Min((tmpNeutralHadronIso_DR0p4To0p5)/ele.pt(), 2.5), 0.0);
     fMVAVar_rho = Rho;
   } else {
-    cout << "Warning: Type " << fMVAType << " is not supported.\n";
+   std::cout << "Warning: Type " << fMVAType << " is not supported.\n";
   }
 
   // evaluate
@@ -1889,8 +1887,8 @@ Double_t EGammaMvaEleEstimator::IDIsoCombinedMvaValue(const reco::GsfElectron& e
 
 
   if(printDebug) {
-    cout << " *** Inside the class fMethodname " << fMethodname << " fMVAType " << fMVAType << endl;
-    cout << " fbrem " <<  fMVAVar_fbrem  
+   std::cout << " *** Inside the class fMethodname " << fMethodname << " fMVAType " << fMVAType <<std::endl;
+   std::cout << " fbrem " <<  fMVAVar_fbrem  
       	 << " kfchi2 " << fMVAVar_kfchi2  
 	 << " mykfhits " << fMVAVar_kfhits  
 	 << " gsfchi2 " << fMVAVar_gsfchi2  
@@ -1910,28 +1908,28 @@ Double_t EGammaMvaEleEstimator::IDIsoCombinedMvaValue(const reco::GsfElectron& e
 	 << " d0 " << fMVAVar_d0  
 	 << " ip3d " << fMVAVar_ip3d  
 	 << " eta " << fMVAVar_eta  
-	 << " pt " << fMVAVar_pt << endl;
-    cout  << "ChargedIso ( 0.0 | 0.1 | 0.2 | 0.3 | 0.4 | 0.5 ): " 
+	 << " pt " << fMVAVar_pt <<std::endl;
+   std::cout  << "ChargedIso ( 0.0 | 0.1 | 0.2 | 0.3 | 0.4 | 0.5 ): " 
           << fMVAVar_ChargedIso_DR0p0To0p1   << " "
           << fMVAVar_ChargedIso_DR0p1To0p2   << " "
           << fMVAVar_ChargedIso_DR0p2To0p3 << " "
           << fMVAVar_ChargedIso_DR0p3To0p4 << " "
-          << fMVAVar_ChargedIso_DR0p4To0p5 << endl;
-    cout  << "PF Gamma Iso ( 0.0 | 0.1 | 0.2 | 0.3 | 0.4 | 0.5 ): " 
+          << fMVAVar_ChargedIso_DR0p4To0p5 <<std::endl;
+   std::cout  << "PF Gamma Iso ( 0.0 | 0.1 | 0.2 | 0.3 | 0.4 | 0.5 ): " 
           << fMVAVar_GammaIso_DR0p0To0p1 << " "
           << fMVAVar_GammaIso_DR0p1To0p2 << " "
           << fMVAVar_GammaIso_DR0p2To0p3 << " "
           << fMVAVar_GammaIso_DR0p3To0p4 << " "
-          << fMVAVar_GammaIso_DR0p4To0p5 << endl;
-    cout  << "PF Neutral Hadron Iso ( 0.0 | 0.1 | 0.2 | 0.3 | 0.4 | 0.5 ): " 
+          << fMVAVar_GammaIso_DR0p4To0p5 <<std::endl;
+   std::cout  << "PF Neutral Hadron Iso ( 0.0 | 0.1 | 0.2 | 0.3 | 0.4 | 0.5 ): " 
           << fMVAVar_NeutralHadronIso_DR0p0To0p1 << " "
           << fMVAVar_NeutralHadronIso_DR0p1To0p2 << " "
           << fMVAVar_NeutralHadronIso_DR0p2To0p3 << " "
           << fMVAVar_NeutralHadronIso_DR0p3To0p4 << " "
           << fMVAVar_NeutralHadronIso_DR0p4To0p5 << " "
-          << endl;
-    cout  << "Rho : " << Rho << endl;
-    cout << " ### MVA " << mva << endl;
+          <<std::endl;
+   std::cout  << "Rho : " << Rho <<std::endl;
+   std::cout << " ### MVA " << mva <<std::endl;
   }
 
 

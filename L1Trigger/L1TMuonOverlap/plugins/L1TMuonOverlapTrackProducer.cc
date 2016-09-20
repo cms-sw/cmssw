@@ -59,13 +59,13 @@ void L1TMuonOverlapTrackProducer::produce(edm::Event& iEvent, const edm::EventSe
 
   std::ostringstream str;
   
-  std::auto_ptr<l1t::RegionalMuonCandBxCollection > candidates = m_Reconstruction.reconstruct(iEvent, evSetup);
+  std::unique_ptr<l1t::RegionalMuonCandBxCollection > candidates = m_Reconstruction.reconstruct(iEvent, evSetup);
 
   int bx = 0;
   str<<" Number of candidates: "<<candidates->size(bx);
   edm::LogInfo("OMTFOMTFProducer")<<str.str();
 
-  iEvent.put(candidates, "OMTF");
+  iEvent.put(std::move(candidates), "OMTF");
 }
 /////////////////////////////////////////////////////
 /////////////////////////////////////////////////////

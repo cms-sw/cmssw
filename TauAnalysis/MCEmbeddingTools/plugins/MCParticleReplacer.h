@@ -51,9 +51,9 @@ class MCParticleReplacer : public edm::EDProducer
   }
 
   template <typename T>
-  void call_put(T& product, const std::string& instanceName)
+  void call_put(T product, const std::string& instanceName)
   {
-    evt_->put(product, instanceName);
+    evt_->put(std::move(product), instanceName);
   }
 
   edm::StreamID getStreamID() const { assert(evt_ != nullptr); return evt_->streamID(); }

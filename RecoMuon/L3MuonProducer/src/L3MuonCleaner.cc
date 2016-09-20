@@ -40,13 +40,13 @@ L3MuonCleaner::L3MuonCleaner(const edm::ParameterSet& parameterSet){
 void L3MuonCleaner::produce(edm::StreamID, edm::Event& event, const edm::EventSetup&) const{
   edm::Handle<reco::TrackCollection> tracks; 
   event.getByToken(inputToken_,tracks);
-  std::auto_ptr<reco::TrackCollection> outTracks( new reco::TrackCollection() );
+  auto outTracks = std::make_unique<reco::TrackCollection>();
   for ( reco::TrackCollection::const_iterator trk=tracks->begin(); trk!=tracks->end(); ++trk ){
     if (trk->normalizedChi2()>m_maxNormalizedChi2) continue;
     if (trk->hitPattern().numberOfValidTrackerHits()<m_minTrkHits) continue;
     if (trk->hitPattern().numberOfValidMuonHits()<m_minMuonHits) continue;
     outTracks->push_back(*trk);
   }
-  event.put(outTracks);
+  event.put(std::move(outTracks));
 }
 DEFINE_FWK_MODULE(L3MuonCleaner);

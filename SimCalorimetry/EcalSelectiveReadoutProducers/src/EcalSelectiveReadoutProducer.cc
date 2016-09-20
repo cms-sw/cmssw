@@ -19,7 +19,7 @@
 using namespace std;
 
 EcalSelectiveReadoutProducer::EcalSelectiveReadoutProducer(const edm::ParameterSet& params)
-  : params_(params)
+  : params_(params),firstCallEB_(true),firstCallEE_(true),iEvent_(0)
 {
   //settings:
   //  settings which are only in python config files:
@@ -49,7 +49,7 @@ EcalSelectiveReadoutProducer::EcalSelectiveReadoutProducer(const edm::ParameterS
       "Selective readout configuration will be read from python file.";
   }
   if(!useCondDb_){
-    settingsFromFile_ = auto_ptr<EcalSRSettings>(new EcalSRSettings());
+    settingsFromFile_ = unique_ptr<EcalSRSettings>(new EcalSRSettings());
     EcalSRCondTools::importParameterSet(*settingsFromFile_, params);
     settings_ = settingsFromFile_.get();
   }
@@ -116,19 +116,19 @@ EcalSelectiveReadoutProducer::produce(edm::Event& event, const edm::EventSetup& 
     :&dummyEeDigiColl;
 
   //runs the selective readout algorithm:
-  auto_ptr<EBDigiCollection> selectedEBDigis;
-  auto_ptr<EEDigiCollection> selectedEEDigis;
-  auto_ptr<EBSrFlagCollection> ebSrFlags;
-  auto_ptr<EESrFlagCollection> eeSrFlags;
+  unique_ptr<EBDigiCollection> selectedEBDigis;
+  unique_ptr<EEDigiCollection> selectedEEDigis;
+  unique_ptr<EBSrFlagCollection> ebSrFlags;
+  unique_ptr<EESrFlagCollection> eeSrFlags;
 
   if(produceDigis_){
-    selectedEBDigis = auto_ptr<EBDigiCollection>(new EBDigiCollection);
-    selectedEEDigis = auto_ptr<EEDigiCollection>(new EEDigiCollection);
+    selectedEBDigis = unique_ptr<EBDigiCollection>(new EBDigiCollection);
+    selectedEEDigis = unique_ptr<EEDigiCollection>(new EEDigiCollection);
   }
 
   if(writeSrFlags_){
-    ebSrFlags = auto_ptr<EBSrFlagCollection>(new EBSrFlagCollection);
-    eeSrFlags = auto_ptr<EESrFlagCollection>(new EESrFlagCollection);
+    ebSrFlags = unique_ptr<EBSrFlagCollection>(new EBSrFlagCollection);
+    eeSrFlags = unique_ptr<EESrFlagCollection>(new EESrFlagCollection);
   }
 
   if(suppressor_.get() == 0){
@@ -136,7 +136,7 @@ EcalSelectiveReadoutProducer::produce(edm::Event& event, const edm::EventSetup& 
     checkValidity(*settings_);
     
     //instantiates the selective readout algorithm:
-    suppressor_ = auto_ptr<EcalSelectiveReadoutSuppressor>(new EcalSelectiveReadoutSuppressor(params_, settings_));
+    suppressor_ = unique_ptr<EcalSelectiveReadoutSuppressor>(new EcalSelectiveReadoutSuppressor(params_, settings_));
 
     // check that everything is up-to-date
     checkGeometry(eventSetup);
@@ -148,68 +148,65 @@ EcalSelectiveReadoutProducer::produce(edm::Event& event, const edm::EventSetup& 
 		   selectedEBDigis.get(), selectedEEDigis.get(),
 		   ebSrFlags.get(), eeSrFlags.get());
 
-  static int iEvent = 1;
-  if(dumpFlags_>=iEvent){
-    ofstream ttfFile("TTF.txt", (iEvent==1?ios::trunc:ios::app));
-    suppressor_->printTTFlags(ttfFile, iEvent,
-			      iEvent==1?true:false);
+  if(dumpFlags_>=iEvent_){
+    ofstream ttfFile("TTF.txt", (iEvent_==1?ios::trunc:ios::app));
+    suppressor_->printTTFlags(ttfFile, iEvent_,
+			      iEvent_==1?true:false);
 
-    ofstream srfFile("SRF.txt", (iEvent==1?ios::trunc:ios::app));
-    if(iEvent==1){
+    ofstream srfFile("SRF.txt", (iEvent_==1?ios::trunc:ios::app));
+    if(iEvent_==1){
       suppressor_->getEcalSelectiveReadout()->printHeader(srfFile);
     }
-    srfFile << "# Event " << iEvent << "\n";
+    srfFile << "# Event " << iEvent_ << "\n";
     suppressor_->getEcalSelectiveReadout()->print(srfFile);
     srfFile << "\n";
 
-    ofstream afFile("AF.txt", (iEvent==1?ios::trunc:ios::app));
-    printSrFlags(afFile, *ebSrFlags, *eeSrFlags, iEvent,
-		 iEvent==1?true:false);
+    ofstream afFile("AF.txt", (iEvent_==1?ios::trunc:ios::app));
+    printSrFlags(afFile, *ebSrFlags, *eeSrFlags, iEvent_,
+		 iEvent_==1?true:false);
   }
 
-  ++iEvent; //event counter
+  ++iEvent_; //event counter
 
   if(produceDigis_){
     //puts the selected digis into the event:
-    event.put(selectedEBDigis, ebSRPdigiCollection_);
-    event.put(selectedEEDigis, eeSRPdigiCollection_);
+    event.put(std::move(selectedEBDigis), ebSRPdigiCollection_);
+    event.put(std::move(selectedEEDigis), eeSRPdigiCollection_);
   }
 
   //puts the SR flags into the event:
   if(writeSrFlags_) {
-    event.put(ebSrFlags, ebSrFlagCollection_);
-    event.put(eeSrFlags, eeSrFlagCollection_);
+    event.put(std::move(ebSrFlags), ebSrFlagCollection_);
+    event.put(std::move(eeSrFlags), eeSrFlagCollection_);
   }
 }
 
 const EBDigiCollection*
-EcalSelectiveReadoutProducer::getEBDigis(edm::Event& event) const
+EcalSelectiveReadoutProducer::getEBDigis(edm::Event& event)
 {
   edm::Handle<EBDigiCollection> hEBDigis;
   event.getByToken(EB_token, hEBDigis);
   //product() method is called before id() in order to get an exception
   //if the handle is not available (check not done by id() method).
   const EBDigiCollection* result = hEBDigis.product();
-  static bool firstCall= true;
-  if(firstCall){
+  if(firstCallEB_){
     checkWeights(event, hEBDigis.id());
-    firstCall = false;
+    firstCallEB_ = false;
   }
   return result;
 }
 
 const EEDigiCollection*
-EcalSelectiveReadoutProducer::getEEDigis(edm::Event& event) const
+EcalSelectiveReadoutProducer::getEEDigis(edm::Event& event)
 {
   edm::Handle<EEDigiCollection> hEEDigis;
   event.getByToken(EE_token, hEEDigis);
   //product() method is called before id() in order to get an exception
   //if the handle is not available (check not done by id() method).
   const EEDigiCollection* result = hEEDigis.product();
-  static bool firstCall = true;
-  if(firstCall){
+  if(firstCallEE_){
     checkWeights(event, hEEDigis.id());
-    firstCall = false;
+    firstCallEE_ = false;
   }
   return result;
 }

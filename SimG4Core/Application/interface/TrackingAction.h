@@ -11,11 +11,13 @@ class EventAction;
 class TrackWithHistory; 
 class BeginOfTrack;
 class EndOfTrack;
+class CMSSteppingVerbose;
 
 class TrackingAction : public G4UserTrackingAction
 {
 public:
-    TrackingAction(EventAction * ea, const edm::ParameterSet & ps);
+    explicit TrackingAction(EventAction * ea, const edm::ParameterSet & ps, 
+                            CMSSteppingVerbose*);
     virtual ~TrackingAction();
 
     virtual void PreUserTrackingAction(const G4Track * aTrack);
@@ -31,6 +33,7 @@ public:
 private:
     EventAction * eventAction_;
     TrackWithHistory * currentTrack_;
+    CMSSteppingVerbose* steppingVerbose_;
     const G4Track * g4Track_;
     G4VSolid * worldSolid;
     bool detailedTiming;

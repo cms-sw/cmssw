@@ -63,14 +63,14 @@ bestPVselector<T1>::~bestPVselector(){}
 template<typename T1>
 void bestPVselector<T1>::produce(edm::Event& iEvent,const edm::EventSetup& iSetup)
 {  
-  std::auto_ptr<std::vector<T1> > theBestPV(new std::vector<T1 >);
+  std::unique_ptr<std::vector<T1> > theBestPV(new std::vector<T1 >);
   
   edm::Handle< std::vector<T1> > VertexHandle;
   iEvent.getByToken(src_,VertexHandle);
   
   if( VertexHandle->size() == 0 ) 
   {
-    iEvent.put(theBestPV);
+    iEvent.put(std::move(theBestPV));
     return ;
   }
   
@@ -89,7 +89,7 @@ void bestPVselector<T1>::produce(edm::Event& iEvent,const edm::EventSetup& iSetu
   }
 
   theBestPV->push_back( *bestPV );  
-  iEvent.put(theBestPV);
+  iEvent.put(std::move(theBestPV));
   
 }
 

@@ -10,23 +10,26 @@
 #include "Mille.h"
 
 #include <iostream>
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 //___________________________________________________________________________
 
-Mille::Mille(const char *outFileName, bool asBinary, bool writeZero) : 
-  myOutFile(outFileName, (asBinary ? (std::ios::binary | std::ios::out) : std::ios::out)),
-  myAsBinary(asBinary), myWriteZero(writeZero), myBufferPos(-1), myHasSpecial(false)
+Mille::Mille(const char *outFileName, bool asBinary, bool writeZero) :
+  fileMode_(asBinary ? (std::ios::binary | std::ios::out) : std::ios::out),
+  fileName_(outFileName),
+  outFile_(fileName_, fileMode_),
+  asBinary_(asBinary), writeZero_(writeZero), bufferPos_(-1), hasSpecial_(false)
 {
   // opens outFileName, by default as binary file
 
-  // Instead myBufferPos(-1), myHasSpecial(false) and the following two lines
+  // Instead bufferPos_(-1), hasSpecial_(false) and the following two lines
   // we could call newSet() and kill()...
-  myBufferInt[0]   = 0;
-  myBufferFloat[0] = 0.;
+  bufferInt_[0]   = 0;
+  bufferFloat_[0] = 0.;
 
-  if (!myOutFile.is_open()) {
-    std::cerr << "Mille::Mille: Could not open " << outFileName 
-	      << " as output file." << std::endl;
+  if (!outFile_.is_open()) {
+    edm::LogError("Alignment")
+      << "Mille::Mille: Could not open " << fileName_ << " as output file.";
   }
 }
 
@@ -35,48 +38,49 @@ Mille::Mille(const char *outFileName, bool asBinary, bool writeZero) :
 Mille::~Mille()
 {
   // closes file
-  myOutFile.close();
+  outFile_.close();
 }
 
 //___________________________________________________________________________
 
 void Mille::mille(int NLC, const float *derLc,
-		  int NGL, const float *derGl, const int *label,
-		  float rMeas, float sigma)
+                  int NGL, const float *derGl, const int *label,
+                  float rMeas, float sigma)
 {
   if (sigma <= 0.) return;
-  if (myBufferPos == -1) this->newSet(); // start, e.g. new track
+  if (bufferPos_ == -1) this->newSet(); // start, e.g. new track
   if (!this->checkBufferSize(NLC, NGL)) return;
 
   // first store measurement
-  ++myBufferPos;
-  myBufferFloat[myBufferPos] = rMeas;
-  myBufferInt  [myBufferPos] = 0;
+  ++bufferPos_;
+  bufferFloat_[bufferPos_] = rMeas;
+  bufferInt_  [bufferPos_] = 0;
 
   // store local derivatives and local 'lables' 1,...,NLC
   for (int i = 0; i < NLC; ++i) {
-    if (derLc[i] || myWriteZero) { // by default store only non-zero derivatives
-      ++myBufferPos;
-      myBufferFloat[myBufferPos] = derLc[i]; // local derivatives
-      myBufferInt  [myBufferPos] = i+1;      // index of local parameter
+    if (derLc[i] || writeZero_) { // by default store only non-zero derivatives
+      ++bufferPos_;
+      bufferFloat_[bufferPos_] = derLc[i]; // local derivatives
+      bufferInt_  [bufferPos_] = i+1;      // index of local parameter
     }
   }
 
   // store uncertainty of measurement in between locals and globals
-  ++myBufferPos;
-  myBufferFloat[myBufferPos] = sigma;
-  myBufferInt  [myBufferPos] = 0;
+  ++bufferPos_;
+  bufferFloat_[bufferPos_] = sigma;
+  bufferInt_  [bufferPos_] = 0;
 
   // store global derivatives and their lables
   for (int i = 0; i < NGL; ++i) {
-    if (derGl[i] || myWriteZero) { // by default store only non-zero derivatives
-      if ((label[i] > 0 || myWriteZero) && label[i] <= myMaxLabel) { // and for valid labels
-	++myBufferPos;
-	myBufferFloat[myBufferPos] = derGl[i]; // global derivatives
-	myBufferInt  [myBufferPos] = label[i]; // index of global parameter
+    if (derGl[i] || writeZero_) { // by default store only non-zero derivatives
+      if ((label[i] > 0 || writeZero_) && label[i] <= maxLabel_) { // and for valid labels
+        ++bufferPos_;
+        bufferFloat_[bufferPos_] = derGl[i]; // global derivatives
+        bufferInt_  [bufferPos_] = label[i]; // index of global parameter
       } else {
-	std::cerr << "Mille::mille: Invalid label " << label[i] 
-		  << " <= 0 or > " << myMaxLabel << std::endl; 
+        edm::LogError("Alignment")
+          << "Mille::mille: Invalid label " << label[i]
+          << " <= 0 or > " << maxLabel_;
       }
     }
   }
@@ -86,33 +90,33 @@ void Mille::mille(int NLC, const float *derLc,
 void Mille::special(int nSpecial, const float *floatings, const int *integers)
 {
   if (nSpecial == 0) return;
-  if (myBufferPos == -1) this->newSet(); // start, e.g. new track
-  if (myHasSpecial) {
-    std::cerr << "Mille::special: Special values already stored for this record."
-	      << std::endl; 
+  if (bufferPos_ == -1) this->newSet(); // start, e.g. new track
+  if (hasSpecial_) {
+    edm::LogError("Alignment")
+      << "Mille::special: Special values already stored for this record.";
     return;
   }
   if (!this->checkBufferSize(nSpecial, 0)) return;
-  myHasSpecial = true; // after newSet() (Note: MILLSP sets to buffer position...)
+  hasSpecial_ = true; // after newSet() (Note: MILLSP sets to buffer position...)
 
-  //  myBufferFloat[.]  | myBufferInt[.]
+  //  bufferFloat_[.]   | bufferInt_[.]
   // ------------------------------------
   //      0.0           |      0
   //  -float(nSpecial)  |      0
   //  The above indicates special data, following are nSpecial floating and nSpecial integer data.
 
-  ++myBufferPos; // zero pair
-  myBufferFloat[myBufferPos] = 0.;
-  myBufferInt  [myBufferPos] = 0;
+  ++bufferPos_; // zero pair
+  bufferFloat_[bufferPos_] = 0.;
+  bufferInt_  [bufferPos_] = 0;
 
-  ++myBufferPos; // nSpecial and zero
-  myBufferFloat[myBufferPos] = -nSpecial; // automatic conversion to float
-  myBufferInt  [myBufferPos] = 0;
+  ++bufferPos_; // nSpecial and zero
+  bufferFloat_[bufferPos_] = -nSpecial; // automatic conversion to float
+  bufferInt_  [bufferPos_] = 0;
 
   for (int i = 0; i < nSpecial; ++i) {
-    ++myBufferPos;
-    myBufferFloat[myBufferPos] = floatings[i];
-    myBufferInt  [myBufferPos] = integers[i];
+    ++bufferPos_;
+    bufferFloat_[bufferPos_] = floatings[i];
+    bufferInt_  [bufferPos_] = integers[i];
   }
 }
 
@@ -121,7 +125,7 @@ void Mille::special(int nSpecial, const float *floatings, const int *integers)
 void Mille::kill()
 {
   // reset buffers, i.e. kill derivatives accumulated for current set
-  myBufferPos = -1;
+  bufferPos_ = -1;
 }
 
 //___________________________________________________________________________
@@ -129,7 +133,20 @@ void Mille::kill()
 
 void Mille::flushOutputFile() {
   // flush output file
-  myOutFile.flush();
+  outFile_.flush();
+}
+
+//___________________________________________________________________________
+
+
+void Mille::resetOutputFile() {
+  // flush output file
+  outFile_.close();
+  outFile_.open(fileName_, fileMode_);
+  if (!outFile_.is_open()) {
+    edm::LogError("Alignment")
+      << "Mille::resetOutputFile: Could not reopen " << fileName_ << ".";
+  }
 }
 
 //___________________________________________________________________________
@@ -137,30 +154,30 @@ void Mille::flushOutputFile() {
 void Mille::end()
 {
   // write set of derivatives with same local parameters to file
-  if (myBufferPos > 0) { // only if anything stored...
-    const int numWordsToWrite = (myBufferPos + 1)*2;
+  if (bufferPos_ > 0) { // only if anything stored...
+    const int numWordsToWrite = (bufferPos_ + 1)*2;
 
-    if (myAsBinary) {
-      myOutFile.write(reinterpret_cast<const char*>(&numWordsToWrite), 
-		      sizeof(numWordsToWrite));
-      myOutFile.write(reinterpret_cast<char*>(myBufferFloat), 
-		      (myBufferPos+1) * sizeof(myBufferFloat[0]));
-      myOutFile.write(reinterpret_cast<char*>(myBufferInt), 
-		      (myBufferPos+1) * sizeof(myBufferInt[0]));
+    if (asBinary_) {
+      outFile_.write(reinterpret_cast<const char*>(&numWordsToWrite),
+                     sizeof(numWordsToWrite));
+      outFile_.write(reinterpret_cast<char*>(bufferFloat_),
+                     (bufferPos_+1) * sizeof(bufferFloat_[0]));
+      outFile_.write(reinterpret_cast<char*>(bufferInt_),
+                     (bufferPos_+1) * sizeof(bufferInt_[0]));
     } else {
-      myOutFile << numWordsToWrite << "\n";
-      for (int i = 0; i < myBufferPos+1; ++i) {
-	myOutFile << myBufferFloat[i] << " ";
+      outFile_ << numWordsToWrite << "\n";
+      for (int i = 0; i < bufferPos_+1; ++i) {
+        outFile_ << bufferFloat_[i] << " ";
       }
-      myOutFile << "\n";
-      
-      for (int i = 0; i < myBufferPos+1; ++i) {
-	myOutFile << myBufferInt[i] << " ";
+      outFile_ << "\n";
+
+      for (int i = 0; i < bufferPos_+1; ++i) {
+        outFile_ << bufferInt_[i] << " ";
       }
-      myOutFile << "\n";
+      outFile_ << "\n";
     }
   }
-  myBufferPos = -1; // reset buffer for next set of derivatives
+  bufferPos_ = -1; // reset buffer for next set of derivatives
 }
 
 //___________________________________________________________________________
@@ -168,10 +185,10 @@ void Mille::end()
 void Mille::newSet()
 {
   // initilise for new set of locals, e.g. new track
-  myBufferPos = 0;
-  myHasSpecial = false;
-  myBufferFloat[0] = 0.0;
-  myBufferInt  [0] = 0;   // position 0 used as error counter
+  bufferPos_ = 0;
+  hasSpecial_ = false;
+  bufferFloat_[0] = 0.0;
+  bufferInt_  [0] = 0;   // position 0 used as error counter
 }
 
 //___________________________________________________________________________
@@ -180,14 +197,14 @@ bool Mille::checkBufferSize(int nLocal, int nGlobal)
 {
   // enough space for next nLocal + nGlobal derivatives incl. measurement?
 
-  if (myBufferPos + nLocal + nGlobal + 2 >= myBufferSize) {
-    ++(myBufferInt[0]); // increase error count
-    std::cerr << "Mille::checkBufferSize: Buffer too short (" 
-	      << myBufferSize << "),"
-	      << "\n need space for nLocal (" << nLocal<< ")"
-	      << "/nGlobal (" << nGlobal << ") local/global derivatives, " 
-	      << myBufferPos + 1 << " already stored!"
-	      << std::endl;
+  if (bufferPos_ + nLocal + nGlobal + 2 >= bufferSize_) {
+    ++(bufferInt_[0]); // increase error count
+    edm::LogError("Alignment")
+      << "Mille::checkBufferSize: Buffer too short ("
+      << bufferSize_ << "),"
+      << "\n need space for nLocal (" << nLocal<< ")"
+      << "/nGlobal (" << nGlobal << ") local/global derivatives, "
+      << bufferPos_ + 1 << " already stored!";
     return false;
   } else {
     return true;

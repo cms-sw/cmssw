@@ -102,8 +102,8 @@ ElectronIdFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   }
 
   //cout << "Putting in the event" << endl;
-  std::auto_ptr<reco::GsfElectronCollection> collection(product);
-  iEvent.put(collection);
+  std::unique_ptr<reco::GsfElectronCollection> collection(product);
+  iEvent.put(std::move(collection));
   return true;
 }
 

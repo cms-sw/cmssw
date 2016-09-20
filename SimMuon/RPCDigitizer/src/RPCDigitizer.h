@@ -35,16 +35,13 @@ class RPCDigitizer
 public:
   typedef edm::DetSetVector<RPCDigiSimLink> RPCDigiSimLinks;
   RPCDigitizer(const edm::ParameterSet& config);
-
   ~RPCDigitizer();
-
-  /**  digitize
-   */
+  
+  // *** digitize ***
   void doAction(MixCollection<PSimHit> & simHits,
                 RPCDigiCollection & rpcDigis,
 		RPCDigiSimLinks & rpcDigiSimLink,
                 CLHEP::HepRandomEngine*);
-
 
   /// sets geometry
   void setGeometry(const RPCGeometry * geom) {theGeometry = geom;}

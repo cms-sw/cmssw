@@ -98,7 +98,7 @@ void TrackingMaterialAnalyser::saveXml(const char* name)
     xml << "  <Group name=\"" << layer.name() << "\">\n"
         << "    <Parameter name=\"TrackerRadLength\" value=\"" << layer.averageRadiationLengths() << "\"/>\n"
         << "    <Parameter name=\"TrackerXi\" value=\"" << layer.averageEnergyLoss() << "\"/>\n"
-        << "  </Group>\n" 
+        << "  </Group>\n"
         << std::endl;
   }
   xml << "</Groups>" << std::endl;
@@ -145,13 +145,13 @@ void TrackingMaterialAnalyser::analyze(const edm::Event& event, const edm::Event
   // over again in the eventloop, at each call of the analyze method.
   if (m_groups.size() == 0) {
     for (unsigned int i = 0; i < m_groupNames.size(); ++i)
-      m_groups.push_back( new MaterialAccountingGroup( m_groupNames[i], * hDDD) ); 
+      m_groups.push_back( new MaterialAccountingGroup( m_groupNames[i], * hDDD) );
 
     LogDebug("TrackingMaterialAnalyser")
         << "TrackingMaterialAnalyser: List of the tracker groups: " << std::endl;
     for (unsigned int i = 0; i < m_groups.size(); ++i)
       LogDebug("TrackingMaterialAnalyser")
-          << "TrackingMaterialAnalyser:\t" << m_groups[i]->info() << std::endl;
+        << i << " TrackingMaterialAnalyser:\t" << m_groups[i]->info() << std::endl;
   }
   edm::Handle< std::vector<MaterialAccountingTrack> > h_tracks;
   event.getByToken(m_materialToken, h_tracks);
@@ -173,10 +173,22 @@ void TrackingMaterialAnalyser::analyze(const edm::Event& event, const edm::Event
 
 void TrackingMaterialAnalyser::split( MaterialAccountingTrack & track )
 {
+  using namespace edm;
   // group sensitive detectors by their DetLayer
   std::vector<int> group( track.detectors().size() );
   for (unsigned int i = 0; i < track.detectors().size(); ++i)
     group[i] = findLayer( track.detectors()[i] );
+
+  for (unsigned int i = 0; i < group.size(); ++i)
+    if (group[i] > 0)
+      LogInfo("TrackingMaterialAnalyser") << "For detector i: " << i << " index: "
+                                          << group[i] << " R-ranges: "
+                                          << m_groups[group[i]-1]->getBoundingR().first
+                                          << ", " << m_groups[group[i]-1]->getBoundingR().second
+                                          << group[i] << " Z-ranges: "
+                                          << m_groups[group[i]-1]->getBoundingZ().first
+                                          << ", " << m_groups[group[i]-1]->getBoundingZ().second
+                                          << std::endl;
 
   unsigned int detectors = track.detectors().size();
   if (detectors == 0) {
@@ -205,8 +217,9 @@ void TrackingMaterialAnalyser::split( MaterialAccountingTrack & track )
       // assign each segment to the the nearest layer
       // e.g. the material between pixel barrel 3 and TIB 1 will be split among the two
       case NEAREST_LAYER:
-        for (unsigned int i = 1; i < detectors; ++i)
+        for (unsigned int i = 1; i < detectors; ++i) {
           limits[i] = (track.detectors()[i-1].m_curvilinearOut + track.detectors()[i].m_curvilinearIn) / 2.;
+        }
         break;
 
       // assign each segment to the the inner layer
@@ -229,15 +242,12 @@ void TrackingMaterialAnalyser::split( MaterialAccountingTrack & track )
         throw edm::Exception(edm::errors::LogicError) << "Invalid SplitMode";
     }
 
-    //for (unsigned int i = 0; i < detectors; ++i)
-    //  std::cout << "MaterialAccountingTrack::split(): detector region boundaries: [" << limits[i] << ", " << limits[i+1] << "] along track" << std::endl;
 
     double begin = 0.;          // beginning of step, along the track
     double end   = 0.;          // end of step, along the track
     unsigned int i = 1;         // step conter
 
     // skip the material before the first layer
-    //std::cout << "before first layer, skipping" << std::endl;
     while (end < limits[0]) {
       const MaterialAccountingStep & step = track.steps()[i++];
       end = begin + step.length();
@@ -247,9 +257,7 @@ void TrackingMaterialAnalyser::split( MaterialAccountingTrack & track )
         m_plotter->plotSegmentUnassigned( step );
 
       begin = end;
-      //std::cout << '.';
     }
-    //std::cout << std::endl;
 
     unsigned int index = 0;     // which detector
     while (i < track.steps().size()) {
@@ -275,7 +283,6 @@ void TrackingMaterialAnalyser::split( MaterialAccountingTrack & track )
         break;
       }
 
-      //std::cout << '.';
       if (limits[index] <= begin and end <= limits[index+1]) {
         // step completely inside current detector range
         track.detectors()[index].account( step, begin, end );
@@ -284,6 +291,7 @@ void TrackingMaterialAnalyser::split( MaterialAccountingTrack & track )
       } else {
         // step shared beteewn two detectors, transition at limits[index+1]
         double fraction = (limits[index+1] - begin) / (end - begin);
+        assert(fraction < 1.);
         std::pair<MaterialAccountingStep, MaterialAccountingStep> parts = step.split(fraction);
 
         if (m_plotter) {
@@ -302,10 +310,6 @@ void TrackingMaterialAnalyser::split( MaterialAccountingTrack & track )
 
         track.detectors()[index].account( parts.first, begin, limits[index+1] );
         ++index;          // next layer
-        //std::cout << '!' << std::endl;
-        // std::cout << "next layer (" << index << "): "
-        //           << " old det: " << group[index-1] << " new det: " << group[index]
-        //           << " " << limits[index] << ".." << limits[index+1] << std::endl;
         if (index < detectors)
           track.detectors()[index].account( parts.second, limits[index+1], end );
       }
@@ -313,7 +317,6 @@ void TrackingMaterialAnalyser::split( MaterialAccountingTrack & track )
     }
 
   }
-  //std::cout << std::endl;
 
   // add the material from each detector to its layer (if there is one and only one)
   for (unsigned int i = 0; i < track.detectors().size(); ++i)
@@ -326,7 +329,9 @@ void TrackingMaterialAnalyser::split( MaterialAccountingTrack & track )
 }
 
 //-------------------------------------------------------------------------
-// find the layer index (0: none, 1-3: PixelBarrel, 4-7: TID, 8-13: TOB, 14-15,28-29: PixelEndcap, 16-18,30-32: TID, 19-27,33-41: TEC)
+// find the layer index (0: none, 1-3: PixelBarrel,
+//                       4-7: TID, 8-13: TOB, 14-15,28-29: PixelEndcap,
+//                       16-18,30-32: TID, 19-27,33-41: TEC)
 int TrackingMaterialAnalyser::findLayer( const MaterialAccountingDetector & detector )
 {
   int    index  = 0;
@@ -342,7 +347,7 @@ int TrackingMaterialAnalyser::findLayer( const MaterialAccountingDetector & dete
     std::cerr << "TrackingMaterialAnalyser::findLayer(...): detector position: " << std::fixed
               << " (r: " << std::setprecision(1) << std::setw(5) << detector.position().perp()
               << ", z: " << std::setprecision(1) << std::setw(6) << detector.position().z()
-              << ", phi: " << std::setprecision(3) << std::setw(6) << detector.position().phi() << ")" 
+              << ", phi: " << std::setprecision(3) << std::setw(6) << detector.position().phi() << ")"
               << std::endl;
   }
   if (inside > 1) {
@@ -351,12 +356,10 @@ int TrackingMaterialAnalyser::findLayer( const MaterialAccountingDetector & dete
     std::cerr << "TrackingMaterialAnalyser::findLayer(...): detector position: " << std::fixed
               << " (r: " << std::setprecision(1) << std::setw(5) << detector.position().perp()
               << ", z: " << std::setprecision(1) << std::setw(6) << detector.position().z()
-              << ", phi: " << std::setprecision(3) << std::setw(6) << detector.position().phi() << ")" 
+              << ", phi: " << std::setprecision(3) << std::setw(6) << detector.position().phi() << ")"
               << std::endl;
   }
 
-  // if (index > 0)
-  //   std::cout << m_groups[index-1]->info() << " " << index << std::endl;
   return index;
 }
 

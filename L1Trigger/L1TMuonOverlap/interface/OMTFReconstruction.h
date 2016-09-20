@@ -47,7 +47,7 @@ class OMTFReconstruction {
 
     void beginRun(edm::Run const& run, edm::EventSetup const& iSetup);  
 
-    std::auto_ptr<l1t::RegionalMuonCandBxCollection > reconstruct(const edm::Event&, const edm::EventSetup&);
+    std::unique_ptr<l1t::RegionalMuonCandBxCollection> reconstruct(const edm::Event&, const edm::EventSetup&);
 
   private:
 
@@ -63,8 +63,9 @@ class OMTFReconstruction {
     void getProcessorCandidates(unsigned int iProcessor, l1t::tftype mtfType, int bx,
             l1t::RegionalMuonCandBxCollection & myCandidates);
   
-    void writeResultToXML(unsigned int iProcessor, const OMTFinput &myInput, 
-      const std::vector<OMTFProcessor::resultsMap> & myResults);
+    void writeResultToXML(unsigned int iProcessor, l1t::tftype mtfType,  const OMTFinput &myInput, 
+      const std::vector<OMTFProcessor::resultsMap> & myResults,
+      const std::vector<l1t::RegionalMuonCand> & candMuons);
 
 
     bool dumpResultToXML, dumpDetailedResultToXML;

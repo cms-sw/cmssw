@@ -142,13 +142,13 @@ void DTDigitizer::produce(Event& iEvent, const EventSetup& iSetup){
   Handle<CrossingFrame<PSimHit> > xFrame;
   iEvent.getByToken(cf_token, xFrame);
   
-  auto_ptr<MixCollection<PSimHit> > 
+  unique_ptr<MixCollection<PSimHit> >
     simHits( new MixCollection<PSimHit>(xFrame.product()) );
 
    // create the pointer to the Digi container
-  auto_ptr<DTDigiCollection> output(new DTDigiCollection());
+  unique_ptr<DTDigiCollection> output(new DTDigiCollection());
    // pointer to the DigiSimLink container
-  auto_ptr<DTDigiSimLinkCollection> outputLinks(new DTDigiSimLinkCollection());
+  unique_ptr<DTDigiSimLinkCollection> outputLinks(new DTDigiSimLinkCollection());
   
   // Muon Geometry
   ESHandle<DTGeometry> muonGeom;
@@ -220,9 +220,9 @@ void DTDigitizer::produce(Event& iEvent, const EventSetup& iSetup){
 
   //************ 8 ***************  
   // Load the Digi Container in the Event
-  //iEvent.put(output,"MuonDTDigis");
-  iEvent.put(output);
-  iEvent.put(outputLinks);
+  //iEvent.put(std::move(output),"MuonDTDigis");
+  iEvent.put(std::move(output));
+  iEvent.put(std::move(outputLinks));
 
 }
 

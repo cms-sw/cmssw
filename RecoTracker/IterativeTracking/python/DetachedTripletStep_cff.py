@@ -1,35 +1,16 @@
 import FWCore.ParameterSet.Config as cms
 from Configuration.StandardSequences.Eras import eras
+from Configuration.Eras.Modifier_tracker_apv_vfp30_2016_cff import tracker_apv_vfp30_2016 as _tracker_apv_vfp30_2016
+import RecoTracker.IterativeTracking.iterativeTkConfig as _cfg
 
 ###############################################
 # Low pT and detached tracks from pixel triplets
 ###############################################
 
 # REMOVE HITS ASSIGNED TO GOOD TRACKS FROM PREVIOUS ITERATIONS
-
-from RecoLocalTracker.SubCollectionProducers.trackClusterRemover_cfi import trackClusterRemover as _trackClusterRemover
-_detachedTripletStepClustersBase = _trackClusterRemover.clone(
-    maxChi2                                  = cms.double(9.0),
-    trajectories                             = cms.InputTag("initialStepTracks"),
-    pixelClusters                            = cms.InputTag("siPixelClusters"),
-    stripClusters                            = cms.InputTag("siStripClusters"),
-    oldClusterRemovalInfo                    = cms.InputTag(""),
-    TrackQuality                             = cms.string('highPurity'),
-    minNumberOfLayersWithMeasBeforeFiltering = cms.int32(0),
-)
-detachedTripletStepClusters = _detachedTripletStepClustersBase.clone(
-   trackClassifier                          = cms.InputTag('initialStep',"QualityMasks"),
-)
-eras.trackingLowPU.toReplaceWith(detachedTripletStepClusters, _detachedTripletStepClustersBase.clone(
-    trajectories                             = "pixelPairStepTracks",
-    oldClusterRemovalInfo                    = "pixelPairStepClusters",
-    overrideTrkQuals                         = "pixelPairStepSelector:QualityMasks",
-))
-eras.trackingPhase1.toModify(detachedTripletStepClusters,
-    trajectories                             = "detachedQuadStepTracks",
-    oldClusterRemovalInfo                    = "detachedQuadStepClusters",
-    trackClassifier                          = "detachedQuadStep:QualityMasks",
-)
+detachedTripletStepClusters = _cfg.clusterRemoverForIter("DetachedTripletStep")
+for era in _cfg.nonDefaultEras():
+    getattr(eras, era).toReplaceWith(detachedTripletStepClusters, _cfg.clusterRemoverForIter("DetachedTripletStep", era))
 
 # SEEDING LAYERS
 import RecoTracker.TkSeedingLayers.PixelLayerTriplets_cfi
@@ -40,17 +21,17 @@ eras.trackingPhase1.toModify(detachedTripletStepSeedLayers,
     layerList = [
         'BPix1+BPix2+BPix3',
         'BPix2+BPix3+BPix4',
-        'BPix1+BPix3+BPix4',
-        'BPix1+BPix2+BPix4',
+#        'BPix1+BPix3+BPix4', # has "hole", not tested
+#        'BPix1+BPix2+BPix4', # has "hole", not tested
         'BPix2+BPix3+FPix1_pos', 'BPix2+BPix3+FPix1_neg',
-        'BPix1+BPix2+FPix1_pos', 'BPix1+BPix2+FPix1_neg',
-        'BPix1+BPix3+FPix1_pos', 'BPix1+BPix3+FPix1_neg',
+#        'BPix1+BPix2+FPix1_pos', 'BPix1+BPix2+FPix1_neg', # mostly fake tracks, lots of seeds
+#        'BPix1+BPix3+FPix1_pos', 'BPix1+BPix3+FPix1_neg',  # has "hole", not tested
         'BPix2+FPix1_pos+FPix2_pos', 'BPix2+FPix1_neg+FPix2_neg',
-        'BPix1+FPix1_pos+FPix2_pos', 'BPix1+FPix1_neg+FPix2_neg',
-        'BPix1+BPix2+FPix2_pos', 'BPix1+BPix2+FPix2_neg',
+#        'BPix1+FPix1_pos+FPix2_pos', 'BPix1+FPix1_neg+FPix2_neg', # mostly fake tracks, lots of seeds
+#        'BPix1+BPix2+FPix2_pos', 'BPix1+BPix2+FPix2_neg',  # has "hole", not tested
         'FPix1_pos+FPix2_pos+FPix3_pos', 'FPix1_neg+FPix2_neg+FPix3_neg',
-        'BPix1+FPix2_pos+FPix3_pos', 'BPix1+FPix2_neg+FPix3_neg',
-        'BPix1+FPix1_pos+FPix3_pos', 'BPix1+FPix1_neg+FPix3_neg'
+#        'BPix1+FPix2_pos+FPix3_pos', 'BPix1+FPix2_neg+FPix3_neg',  # has "hole", not tested
+#        'BPix1+FPix1_pos+FPix3_pos', 'BPix1+FPix1_neg+FPix3_neg'  # has "hole", not tested
     ]
 )
 
@@ -85,9 +66,10 @@ _detachedTripletStepTrajectoryFilterBase = TrackingTools.TrajectoryFiltering.Tra
     minPt = 0.075,
 )
 detachedTripletStepTrajectoryFilterBase = _detachedTripletStepTrajectoryFilterBase.clone(
-    maxCCCLostHits = 2,
+    maxCCCLostHits = 0,
     minGoodStripCharge = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutLoose'))
 )
+_tracker_apv_vfp30_2016.toModify(detachedTripletStepTrajectoryFilterBase, maxCCCLostHits = 2)
 eras.trackingLowPU.toReplaceWith(detachedTripletStepTrajectoryFilterBase, _detachedTripletStepTrajectoryFilterBase.clone(
     maxLostHitsFraction = 1./10.,
     constantValueForLostHitsFractionFilter = 0.701,
@@ -108,7 +90,10 @@ detachedTripletStepChi2Est = RecoTracker.MeasurementDet.Chi2ChargeMeasurementEst
     ComponentName = cms.string('detachedTripletStepChi2Est'),
     nSigma = cms.double(3.0),
     MaxChi2 = cms.double(9.0),
-    clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutTiny')),
+    clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutTight')),
+)
+_tracker_apv_vfp30_2016.toModify(detachedTripletStepChi2Est,
+    clusterChargeCut = dict(refToPSet_ = "SiStripClusterChargeCutTiny")
 )
 
 # TRACK BUILDING

@@ -35,7 +35,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/DebugMacros.h"
-
+#include "FWCore/Utilities/interface/DictionaryTools.h"
 
 namespace edm {
   namespace one {
@@ -143,6 +143,13 @@ namespace edm {
                                                    trueBranchIDToKeptBranchDesc);
 
       EDGetToken token;
+
+      std::vector<std::string> missingDictionaries;
+      if (!checkDictionary(missingDictionaries, desc.className(), desc.unwrappedType())) {
+        std::string context("Calling OutputModuleBase::keepThisBranch, checking dictionaries for kept types");
+        throwMissingDictionariesException(missingDictionaries, context);
+      }
+
       switch (desc.branchType()) {
       case InEvent:
         {
@@ -184,7 +191,8 @@ namespace edm {
     OutputModuleBase::~OutputModuleBase() { }
     
     SharedResourcesAcquirer OutputModuleBase::createAcquirer() {
-      return SharedResourcesAcquirer{};
+      return SharedResourcesAcquirer{
+        std::vector<std::shared_ptr<SerialTaskQueue>>(1, std::make_shared<SerialTaskQueue>())};
     }
     
     void OutputModuleBase::doPreallocate(PreallocationConfiguration const& iPC) {
@@ -229,14 +237,10 @@ namespace edm {
                               ModuleCallingContext const* mcc) {
       
       {
-        std::lock_guard<std::mutex> guard(mutex_);
-        {
-          std::lock_guard<SharedResourcesAcquirer> guard(resourcesAcquirer_);
-          EventForOutput e(ep, moduleDescription_, mcc);
-          e.setConsumer(this);
-          EventSignalsSentry sentry(act,mcc);
-          write(e);
-        }
+        EventForOutput e(ep, moduleDescription_, mcc);
+        e.setConsumer(this);
+        EventSignalsSentry sentry(act,mcc);
+        write(e);
       }
       if(remainingEvents_ > 0) {
         --remainingEvents_;

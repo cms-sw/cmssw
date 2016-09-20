@@ -175,8 +175,8 @@ ChainedJetCorrectorProducer::produce(edm::Event& iEvent, const edm::EventSetup& 
      correctors.emplace_back(&(*hCorrector));
    }
 
-   std::auto_ptr<reco::JetCorrector> pCorr( new reco::JetCorrector( std::unique_ptr<reco::JetCorrectorImpl>(new ChainedJetCorrectorImpl(std::move(correctors)) )));
-   iEvent.put(pCorr);
+   std::unique_ptr<reco::JetCorrector> pCorr( new reco::JetCorrector( std::unique_ptr<reco::JetCorrectorImpl>(new ChainedJetCorrectorImpl(std::move(correctors)) )));
+   iEvent.put(std::move(pCorr));
 }
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------

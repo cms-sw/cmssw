@@ -6,16 +6,16 @@ namespace l1t {
    namespace stage2 {
       CaloCollections::~CaloCollections()
       {
-         event_.put(towers_,"CaloTower");
-         event_.put(egammas_,"EGamma");
-         event_.put(etsums_,"EtSum");
-         event_.put(jets_,"Jet");
-         event_.put(taus_,"Tau");
+         event_.put(std::move(towers_),"CaloTower");
+         event_.put(std::move(egammas_),"EGamma");
+         event_.put(std::move(etsums_),"EtSum");
+         event_.put(std::move(jets_),"Jet");
+         event_.put(std::move(taus_),"Tau");
 
-         event_.put(mp_etsums_, "MP");
-         event_.put(mp_jets_, "MP");
-	 event_.put(mp_egammas_,"MP");
-	 event_.put(mp_taus_,"MP");
+         event_.put(std::move(mp_etsums_), "MP");
+         event_.put(std::move(mp_jets_), "MP");
+	 event_.put(std::move(mp_egammas_),"MP");
+	 event_.put(std::move(mp_taus_),"MP");
       }
    }
 }

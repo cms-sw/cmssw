@@ -58,7 +58,7 @@ ElectronIsolatorFromEffectiveArea(const edm::ParameterSet& config)
 bool ElectronIsolatorFromEffectiveArea::
 filter(edm::Event& event, const edm::EventSetup& )
 {
-  std::auto_ptr<CandDoubleMap> product(new CandDoubleMap());
+  std::unique_ptr<CandDoubleMap> product(new CandDoubleMap());
   CandDoubleMap::Filler filler(*product);
 
   edm::Handle<double> rho;                               event.getByToken(rhoIsoToken, rho);
@@ -94,7 +94,7 @@ filter(edm::Event& event, const edm::EventSetup& )
   }
 
   filler.fill();
-  event.put(product);
+  event.put(std::move(product));
   return true;
 }
 

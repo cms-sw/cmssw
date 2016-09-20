@@ -122,10 +122,10 @@ L1TMicroGMTInputProducerFromGen::produce(edm::Event& iEvent, const edm::EventSet
 {
   using namespace edm;
 
-  std::auto_ptr<RegionalMuonCandBxCollection> barrelMuons (new RegionalMuonCandBxCollection());
-  std::auto_ptr<RegionalMuonCandBxCollection> overlapMuons (new RegionalMuonCandBxCollection());
-  std::auto_ptr<RegionalMuonCandBxCollection> endcapMuons (new RegionalMuonCandBxCollection());
-  std::auto_ptr<MuonCaloSumBxCollection> towerSums (new MuonCaloSumBxCollection());
+  std::unique_ptr<RegionalMuonCandBxCollection> barrelMuons (new RegionalMuonCandBxCollection());
+  std::unique_ptr<RegionalMuonCandBxCollection> overlapMuons (new RegionalMuonCandBxCollection());
+  std::unique_ptr<RegionalMuonCandBxCollection> endcapMuons (new RegionalMuonCandBxCollection());
+  std::unique_ptr<MuonCaloSumBxCollection> towerSums (new MuonCaloSumBxCollection());
 
   std::vector<RegionalMuonCand> bmMuons;
   std::vector<RegionalMuonCand> omMuons;
@@ -246,10 +246,10 @@ L1TMicroGMTInputProducerFromGen::produce(edm::Event& iEvent, const edm::EventSet
     towerSums->push_back(0, sum);
   }
 
-  iEvent.put(barrelMuons, "BarrelTFMuons");
-  iEvent.put(overlapMuons, "OverlapTFMuons");
-  iEvent.put(endcapMuons, "ForwardTFMuons");
-  iEvent.put(towerSums, "TriggerTowerSums");
+  iEvent.put(std::move(barrelMuons), "BarrelTFMuons");
+  iEvent.put(std::move(overlapMuons), "OverlapTFMuons");
+  iEvent.put(std::move(endcapMuons), "ForwardTFMuons");
+  iEvent.put(std::move(towerSums), "TriggerTowerSums");
   m_currEvt++;
 
 }

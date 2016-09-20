@@ -21,6 +21,7 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "HLTrigger/HLTcore/interface/defaultModuleLabel.h"
 
+#include "DataFormats/Math/interface/deltaR.h"
 
 //
 // constructors and destructor
@@ -128,11 +129,11 @@ HLTFatJetMassFilter<jetType>::hltFilter(edm::Event& iEvent, const edm::EventSetu
   
   // apply radiation recovery
   for ( recojet = recojets.begin() ; recojet != recojets.end() ; recojet++) {
-    double DeltaR1 = sqrt(pow(recojet->phi()-j1.phi(), 2.)+pow(recojet->eta()-j1.eta(),2.));
-    double DeltaR2 = sqrt(pow(recojet->phi()-j2.phi(), 2.)+pow(recojet->eta()-j2.eta(),2.));
-    if(DeltaR1 < DeltaR2 && DeltaR1 < fatJetDeltaR_) {
+    double DeltaR1sq = reco::deltaR2(*recojet, j1);
+    double DeltaR2sq = reco::deltaR2(*recojet, j2);
+    if(DeltaR1sq < DeltaR2sq && DeltaR1sq < fatJetDeltaR_*fatJetDeltaR_) {
       fj1 += recojet->p4();
-    } else if(DeltaR2 < fatJetDeltaR_) {
+    } else if(DeltaR2sq < fatJetDeltaR_*fatJetDeltaR_) {
       fj2 += recojet->p4();
     }
   }

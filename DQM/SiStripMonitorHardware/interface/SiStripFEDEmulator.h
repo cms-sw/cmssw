@@ -59,7 +59,7 @@ namespace sistrip {
 
     void zeroSuppress(const std::vector<SiStripRawDigi> & cmSubtrDetSetData,
 		      edm::DetSet<SiStripDigi>    & zsDetSetData,
-		      const std::auto_ptr<SiStripRawProcessingAlgorithms> & algorithms);
+		      const std::unique_ptr<SiStripRawProcessingAlgorithms> & algorithms);
 
     uint32_t fedIndex(const uint16_t aFedChannel);
 

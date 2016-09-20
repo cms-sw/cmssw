@@ -88,8 +88,8 @@ namespace edm
   }
  
   void DataMixingPileupCopy::putPileupInfo(edm::Event &e) {
-    std::auto_ptr<std::vector<PileupSummaryInfo> > PSIVector(new std::vector<PileupSummaryInfo>);
-    std::auto_ptr<int> bsInt(new int);
+    std::unique_ptr<std::vector<PileupSummaryInfo> > PSIVector(new std::vector<PileupSummaryInfo>);
+    std::unique_ptr<int> bsInt(new int);
 
     std::vector<PileupSummaryInfo>::const_iterator PSiter;
     for(PSiter = PileupSummaryStorage_.begin(); PSiter != PileupSummaryStorage_.end(); PSiter++){
@@ -99,11 +99,11 @@ namespace edm
     *bsInt=bsStorage_;
 
     if(FoundPlayback_ ) {
-      std::auto_ptr<CrossingFramePlaybackInfoNew> CFPlaybackInfo(new CrossingFramePlaybackInfoNew(CrossingFramePlaybackStorage_));
-      e.put(CFPlaybackInfo);
+      std::unique_ptr<CrossingFramePlaybackInfoNew> CFPlaybackInfo(new CrossingFramePlaybackInfoNew(CrossingFramePlaybackStorage_));
+      e.put(std::move(CFPlaybackInfo));
     }
-    e.put(PSIVector);
-    e.put(bsInt,"bunchSpacing");
+    e.put(std::move(PSIVector));
+    e.put(std::move(bsInt),"bunchSpacing");
 
     // clear local storage after this event
     PileupSummaryStorage_.clear();

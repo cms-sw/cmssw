@@ -6,7 +6,6 @@
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/Utilities/interface/ExceptionCollector.h"
-#include "FWCore/Utilities/interface/DictionaryTools.h"
 
 static const std::string kFilterType("EDFilter");
 static const std::string kProducerType("EDProducer");

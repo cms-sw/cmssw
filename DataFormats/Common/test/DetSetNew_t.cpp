@@ -328,6 +328,10 @@ namespace {
       n(in), incr(iincr), test(*itest){}
 
     void operator()(DST const & df) {
+      if (df.id()>1000) {
+        CPPUNIT_ASSERT(df.size()==0);
+        return; 
+      }
       CPPUNIT_ASSERT(df.id()==20+n);
       CPPUNIT_ASSERT(df.size()==n);
       std::vector<DST::data_type> v1(n);
@@ -347,16 +351,21 @@ namespace {
     Getter(TestDetSet * itest):ntot(0), test(*itest){}
 
     void fill(TSFF& ff) override {
+      aborted=false;
       try {
         int n=ff.id()-20;
         CPPUNIT_ASSERT(n>0);
         ff.resize(n);
         std::copy(test.sv.begin(),test.sv.begin()+n,ff.begin());
-        ntot+=n;
-      } catch (edmNew::CapacityExaustedException) {}
+        if (ff.full()) { ff.abort(); aborted=true;}
+        else { ntot+=n; }
+      } catch (edmNew::CapacityExaustedException) { 
+         CPPUNIT_ASSERT("cannot be here"==0);
+      }
     }
 
     unsigned int ntot;
+    bool aborted=false;
     TestDetSet & test;
   };
 
@@ -502,7 +511,8 @@ using namespace boost::assign;
 void TestDetSet::onDemand() {
   auto pg = std::make_shared<Getter>(this);
   Getter & g = *pg;
-  std::vector<unsigned int> v; v+= 21,23,25,27;
+  assert(!g.aborted);
+  std::vector<unsigned int> v; v+= 21,23,25,27,1020;
   DSTV detsets(pg,v,2);
   CPPUNIT_ASSERT(g.ntot==0);
   CPPUNIT_ASSERT(detsets.onDemand());
@@ -520,13 +530,23 @@ void TestDetSet::onDemand() {
       CPPUNIT_ASSERT(detsets.isValid(21));
       CPPUNIT_ASSERT(!detsets.isValid(23));
       CPPUNIT_ASSERT(g.ntot==1);
+      assert(!g.aborted);
     }
     {
       DST df = detsets[25];
       CPPUNIT_ASSERT(df.id()==25);
       CPPUNIT_ASSERT(df.size()==5);
       CPPUNIT_ASSERT(g.ntot==1+5);
+      assert(!g.aborted);
     }
+    {
+      DST df = detsets[1020];
+      CPPUNIT_ASSERT(df.id()==1020);
+      CPPUNIT_ASSERT(df.size()==0);
+      CPPUNIT_ASSERT(g.ntot==1+5);
+      assert(g.aborted);
+    }
+
   }
   catch (edm::Exception const &) {
     CPPUNIT_ASSERT("DetSetVector threw when not expected"==0);
@@ -538,11 +558,11 @@ void TestDetSet::onDemand() {
     ++i;
     auto ds = *di;
     auto id = ds.id();
-    CPPUNIT_ASSERT(id>20&&id<28&& id%2==1);
-    if (21==id || 25==id) CPPUNIT_ASSERT(ds.isValid());
+    CPPUNIT_ASSERT(id==1020 || (id>20&&id<28&& id%2==1));
+    if (1020==id || 21==id || 25==id) CPPUNIT_ASSERT(ds.isValid());
     else CPPUNIT_ASSERT(!ds.isValid());
   }
-  CPPUNIT_ASSERT(4==i);
+  CPPUNIT_ASSERT(5==i);
   CPPUNIT_ASSERT(g.ntot==1+5);
 
   //  CPPUNIT_ASSERT(std::for_each(detsets.begin(),detsets.end(),VerifyIter(this,1,2)).n==9);

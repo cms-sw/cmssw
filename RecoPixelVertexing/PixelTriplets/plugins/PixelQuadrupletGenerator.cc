@@ -7,7 +7,7 @@
 #include "RecoPixelVertexing/PixelTriplets/plugins/KDTreeLinkerTools.h"
 #include "TrackingTools/DetLayers/interface/BarrelDetLayer.h"
 
-#include "RecoPixelVertexing/PixelTrackFitting/src/RZLine.h"
+#include "RecoPixelVertexing/PixelTrackFitting/interface/RZLine.h"
 #include "RecoTracker/TkSeedGenerator/interface/FastCircleFit.h"
 #include "RecoTracker/TkMSParametrization/interface/PixelRecoUtilities.h"
 #include "RecoTracker/TkMSParametrization/interface/LongitudinalBendingCorrection.h"
@@ -113,8 +113,13 @@ void PixelQuadrupletGenerator::hitQuadruplets(const TrackingRegion& region, Orde
   const QuantityDependsPtEval maxChi2Eval = maxChi2.evaluator(es);
   const QuantityDependsPtEval extraPhiToleranceEval = extraPhiTolerance.evaluator(es);
 
-  // re-used thoughout, need to be vectors because of RZLine interface
-  std::vector<float> bc_r(4), bc_z(4), bc_errZ(4);
+  // re-used thoughout
+  std::array<float, 4> bc_r;
+  std::array<float, 4> bc_z;
+  std::array<float, 4> bc_errZ2;
+  std::array<GlobalPoint, 4> gps;
+  std::array<GlobalError, 4> ges;
+  std::array<bool, 4> barrels;
 
   // Loop over triplets
   for(const auto& triplet: triplets) {
@@ -137,9 +142,6 @@ void PixelQuadrupletGenerator::hitQuadruplets(const TrackingRegion& region, Orde
       return id == PixelSubdetector::PixelBarrel;
     };
 
-    declareDynArray(GlobalPoint,4, gps);
-    declareDynArray(GlobalError,4, ges);
-    declareDynArray(bool,4, barrels);
     gps[0] = triplet.inner()->globalPosition();
     ges[0] = triplet.inner()->globalPositionError();
     barrels[0] = isBarrel(triplet.inner()->geographicalId().subdetId());
@@ -220,18 +222,14 @@ void PixelQuadrupletGenerator::hitQuadruplets(const TrackingRegion& region, Orde
             bc_r[i] = sqrt( sqr(point.x()-region.origin().x()) + sqr(point.y()-region.origin().y()) );
             bc_r[i] += pixelrecoutilities::LongitudinalBendingCorrection(pt,es)(bc_r[i]);
             bc_z[i] = point.z()-region.origin().z();
-            bc_errZ[i] =  (barrels[i]) ? sqrt(error.czz()) : sqrt( error.rerr(point) )*simpleCot;
+            bc_errZ2[i] =  (barrels[i]) ? error.czz() : error.rerr(point)*sqr(simpleCot);
           }
-          RZLine rzLine(bc_r,bc_z,bc_errZ);
-          float      cottheta, intercept, covss, covii, covsi;
-          rzLine.fit(cottheta, intercept, covss, covii, covsi);
-          chi2 = rzLine.chi2(cottheta, intercept);
+          RZLine rzLine(bc_r,bc_z,bc_errZ2, RZLine::ErrZ2_tag());
+          chi2 = rzLine.chi2();
         }
         else {
           RZLine rzLine(gps, ges, barrels);
-          float  cottheta, intercept, covss, covii, covsi;
-          rzLine.fit(cottheta, intercept, covss, covii, covsi);
-          chi2 = rzLine.chi2(cottheta, intercept);
+          chi2 = rzLine.chi2();
         }
         if(edm::isNotFinite(chi2) || chi2 > thisMaxChi2) {
           continue;

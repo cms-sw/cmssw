@@ -17,10 +17,11 @@ TrajectoryStateCombiner::combine(const TSOS& Tsos1, const TSOS& Tsos2) const {
   AlgebraicMatrix55 && K = C1*Csum;
 
   if(!ok) {
-    edm::LogError("MatrixInversionFailure")
-      <<"the inversion of the combined error matrix failed. Impossible to get a combined state."
-      <<"\nmatrix 1:"<<C1
-      <<"\nmatrix 2:"<<C2;
+    if (! (C1(0,0) == 0.0 && C2(0,0) == 0.0) )//do not make noise about obviously bad input
+      edm::LogWarning("MatrixInversionFailure")
+	<<"the inversion of the combined error matrix failed. Impossible to get a combined state."
+	<<"\nmatrix 1:"<<C1
+	<<"\nmatrix 2:"<<C2;
     return TSOS();
   }
 

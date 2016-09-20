@@ -149,8 +149,6 @@
 - HcalAllRcds
 - HcalCalibrationQIEDataRcd
 - HcalChannelQualityRcd
-- HcalCholeskyMatricesRcd
-- HcalCovarianceMatricesRcd
 - HcalDcsMapRcd
 - HcalDcsRcd
 - HcalElectronicsMapRcd

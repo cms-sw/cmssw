@@ -347,8 +347,8 @@ L1RCTTPGProvider::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       sprintf(ecal_label,"ECALBxminus%d",preSamples-i);
       sprintf(hcal_label,"HCALBxminus%d",preSamples-i);
 
-      std::auto_ptr<EcalTrigPrimDigiCollection> ecalIn(new EcalTrigPrimDigiCollection); 
-      std::auto_ptr<HcalTrigPrimDigiCollection> hcalIn(new HcalTrigPrimDigiCollection);
+      std::unique_ptr<EcalTrigPrimDigiCollection> ecalIn(new EcalTrigPrimDigiCollection); 
+      std::unique_ptr<HcalTrigPrimDigiCollection> hcalIn(new HcalTrigPrimDigiCollection);
 	  for(unsigned int j=0;j<ecalColl[i].size();++j)
 	    {
 	      ecalIn->push_back((ecalColl[i])[j]);
@@ -356,21 +356,21 @@ L1RCTTPGProvider::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	  for(unsigned int j=0;j<hcalColl[i].size();++j)
 	    hcalIn->push_back((hcalColl[i])[j]);
 
-         iEvent.put(ecalIn,ecal_label);
-         iEvent.put(hcalIn,hcal_label);
+         iEvent.put(std::move(ecalIn),ecal_label);
+         iEvent.put(std::move(hcalIn),hcal_label);
 
     }
 
 
-   std::auto_ptr<EcalTrigPrimDigiCollection> ecal0(new EcalTrigPrimDigiCollection); 
-   std::auto_ptr<HcalTrigPrimDigiCollection> hcal0(new HcalTrigPrimDigiCollection);
+   std::unique_ptr<EcalTrigPrimDigiCollection> ecal0(new EcalTrigPrimDigiCollection); 
+   std::unique_ptr<HcalTrigPrimDigiCollection> hcal0(new HcalTrigPrimDigiCollection);
    for(unsigned int j=0;j<ecalColl[preSamples].size();++j)
      ecal0->push_back((ecalColl[preSamples])[j]);
    for(unsigned int j=0;j<hcalColl[preSamples].size();++j)
      hcal0->push_back((hcalColl[preSamples])[j]);
 
-   iEvent.put(ecal0,"ECALBx0");
-   iEvent.put(hcal0,"HCALBx0");
+   iEvent.put(std::move(ecal0),"ECALBx0");
+   iEvent.put(std::move(hcal0),"HCALBx0");
 
 
   for(int i=preSamples+1;i<preSamples+postSamples+1;++i)
@@ -381,8 +381,8 @@ L1RCTTPGProvider::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       sprintf(ecal_label,"ECALBxplus%d",i-preSamples);
       sprintf(hcal_label,"HCALBxplus%d",i-preSamples);
 
-      std::auto_ptr<EcalTrigPrimDigiCollection> ecalIn2(new EcalTrigPrimDigiCollection); 
-      std::auto_ptr<HcalTrigPrimDigiCollection> hcalIn2(new HcalTrigPrimDigiCollection);
+      std::unique_ptr<EcalTrigPrimDigiCollection> ecalIn2(new EcalTrigPrimDigiCollection); 
+      std::unique_ptr<HcalTrigPrimDigiCollection> hcalIn2(new HcalTrigPrimDigiCollection);
 
       for(unsigned int j=0;j<ecalColl[i].size();++j)
 	ecalIn2->push_back((ecalColl[i])[j]);
@@ -391,8 +391,8 @@ L1RCTTPGProvider::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	hcalIn2->push_back((hcalColl[i])[j]);
 
 
-         iEvent.put(ecalIn2,ecal_label);
-         iEvent.put(hcalIn2,hcal_label);
+         iEvent.put(std::move(ecalIn2),ecal_label);
+         iEvent.put(std::move(hcalIn2),hcal_label);
     }
 }
 

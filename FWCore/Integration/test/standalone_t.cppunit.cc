@@ -16,6 +16,7 @@ if the MessageLogger is not runnning.
 // #include "FWCore/PluginManager/interface/PresenceFactory.h"
 
 #include <cppunit/extensions/HelperMacros.h>
+#include "tbb/task_scheduler_init.h"
 
 #include <memory>
 #include <string>
@@ -32,6 +33,7 @@ class testStandalone: public CppUnit::TestFixture
   void setUp()
   {
     m_handler = std::make_unique<edm::AssertHandler>();
+    m_scheduler = std::make_unique<tbb::task_scheduler_init>(1);
   }
 
   void tearDown(){
@@ -43,6 +45,9 @@ class testStandalone: public CppUnit::TestFixture
  private:
 
   edm::propagate_const<std::unique_ptr<edm::AssertHandler>> m_handler;
+  edm::propagate_const<std::unique_ptr<tbb::task_scheduler_init>> m_scheduler;
+  
+  
 };
 
 ///registration of the test so that the runner can find it

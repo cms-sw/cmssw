@@ -55,6 +55,9 @@
 #include "Geometry/CSCGeometry/interface/CSCGeometry.h"
 #include "Geometry/CSCGeometry/interface/CSCChamberSpecs.h"
 
+#include "Geometry/GEMGeometry/interface/GEMGeometry.h"
+#include "Geometry/GEMGeometry/interface/ME0Geometry.h"
+
 #include "DataFormats/GeometrySurface/interface/Cylinder.h"
 #include "DataFormats/GeometrySurface/interface/Plane.h"
 
@@ -81,6 +84,8 @@
 #include "DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h"
 #include "DataFormats/DTRecHit/interface/DTRecSegment2D.h"
 #include "DataFormats/CSCRecHit/interface/CSCSegmentCollection.h"
+#include "DataFormats/GEMRecHit/interface/GEMSegmentCollection.h"
+#include "DataFormats/GEMRecHit/interface/ME0SegmentCollection.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/ErrorFrameTransformer.h"
 
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
@@ -750,6 +755,11 @@ void TrackDetectorAssociator::fillMuon( const edm::Event& iEvent,
    if (! cscSegments.isValid()) 
      throw cms::Exception("FatalError") << "Unable to find CSCSegmentCollection in event!\n";
 
+   edm::Handle<GEMSegmentCollection> gemSegments;
+   if (parameters.useGEM) iEvent.getByToken(parameters.gemSegmentsToken, gemSegments );
+   edm::Handle<ME0SegmentCollection> me0Segments;
+   if (parameters.useME0) iEvent.getByToken(parameters.me0SegmentsToken, me0Segments );
+   
    ///// get a set of DetId's in a given direction
    
    // check the map of available segments
@@ -782,9 +792,9 @@ void TrackDetectorAssociator::fillMuon( const edm::Event& iEvent,
                 matchedChamber->segments.back().dtSegmentRef = DTRecSegment4DRef(dtSegments, segment - dtSegments->begin());
              }
            }
-	}else{
-	   // CSC Chamber
-	   if(const CSCChamber* chamber = dynamic_cast<const CSCChamber*>(geomDet) ) {
+	}
+	// CSC Chamber
+	else if(const CSCChamber* chamber = dynamic_cast<const CSCChamber*>(geomDet) ) {
 	      // Get the range for the corresponding segments
 	      CSCSegmentCollection::range  range = cscSegments->get(chamber->id());
 	      // Loop over the segments
@@ -793,10 +803,34 @@ void TrackDetectorAssociator::fillMuon( const edm::Event& iEvent,
                      matchedChamber->segments.back().cscSegmentRef = CSCSegmentRef(cscSegments, segment - cscSegments->begin());
                  }
               }
-	   }else{
-	     // throw cms::Exception("FatalError") << "Failed to cast GeomDet object to either DTChamber or CSCChamber. Who is this guy anyway?\n";
-	   }
 	}
+	// GEM Chamber   
+	else if (parameters.useGEM){
+	  if(const GEMSuperChamber* chamber = dynamic_cast<const GEMSuperChamber*>(geomDet) ) {	 
+	    // Get the range for the corresponding segments
+	    GEMSegmentCollection::range  range = gemSegments->get(chamber->id());
+	    // Loop over the segments
+	    for (GEMSegmentCollection::const_iterator segment = range.first; segment!=range.second; segment++) {
+	      if (addTAMuonSegmentMatch(*matchedChamber, &(*segment), parameters)) {
+		matchedChamber->segments.back().gemSegmentRef = GEMSegmentRef(gemSegments, segment - gemSegments->begin());
+	      }
+	    }
+	  }
+	}
+	// ME0 Chamber   
+	else if (parameters.useME0){
+	  if(const ME0Chamber* chamber = dynamic_cast<const ME0Chamber*>(geomDet) ) {
+	    // Get the range for the corresponding segments
+	    ME0SegmentCollection::range  range = me0Segments->get(chamber->id());
+	    // Loop over the segments
+	    for (ME0SegmentCollection::const_iterator segment = range.first; segment!=range.second; segment++) {
+	      if (addTAMuonSegmentMatch(*matchedChamber, &(*segment), parameters)) {
+		matchedChamber->segments.back().me0SegmentRef = ME0SegmentRef(me0Segments, segment - me0Segments->begin());
+	      }
+	    }
+	  }
+	}
+   	
 	info.chambers.push_back(*matchedChamber);
      }
 }
@@ -877,10 +911,10 @@ bool TrackDetectorAssociator::addTAMuonSegmentMatch(TAMuonChamberMatch& matchedC
 //	  if (zHits>3) {
 //	    t0+=s->zSegment()->t0()*zHits;
 //	    hits+=zHits;
-//	    std::cout << "   Z t0: " << s->zSegment()->t0() << " hits: " << zHits << std::endl;
+//	    LogTrace("TrackAssociator") << "   Z t0: " << s->zSegment()->t0() << " hits: " << zHits << std::endl;
 //	  }
 	  if (hits) muonSegment.t0 = t0/hits;
-//	  std::cout << " --- t0: " << muonSegment.t0 << std::endl;
+//	  LogTrace("TrackAssociator") << " --- t0: " << muonSegment.t0 << std::endl;
         } else {
            // check and set dimensionality
            if (isDTWithoutY) muonSegment.hasZed = false;

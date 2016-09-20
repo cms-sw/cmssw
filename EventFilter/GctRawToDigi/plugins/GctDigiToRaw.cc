@@ -151,7 +151,7 @@ GctDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   }
   
   // create the raw data collection
-  std::auto_ptr<FEDRawDataCollection> rawColl(new FEDRawDataCollection()); 
+  std::unique_ptr<FEDRawDataCollection> rawColl(new FEDRawDataCollection()); 
  
   // get the GCT buffer
   FEDRawData& fedRawData=rawColl->FEDData(fedId_);
@@ -211,7 +211,7 @@ GctDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   if (verbose_) { print(fedRawData); }
  
   // Put the collection in the event.
-  iEvent.put(rawColl);
+  iEvent.put(std::move(rawColl));
 }
 
 

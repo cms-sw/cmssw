@@ -20,10 +20,13 @@ from Validation.RecoMET.METPostProcessor_cff import *
 from DQMOffline.RecoB.dqmCollector_cff import *
 
 
+postValidationTracking = cms.Sequence(
+      postProcessorTrackSequence
+    + postProcessorVertexSequence
+)
 postValidation = cms.Sequence(
       recoMuonPostProcessors
-    + postProcessorTrackSequence
-    + postProcessorVertexSequence
+    + postValidationTracking
     + MuIsoValPostProcessor
     + calotowersPostProcessor
     + hcalSimHitsPostProcessor
@@ -56,9 +59,28 @@ postValidation_fastsim = cms.Sequence(
     + runTauEff
 )
 
+from Validation.MuonGEMHits.PostProcessor_cff import *
+from Validation.MuonGEMDigis.PostProcessor_cff import *
+from Validation.MuonGEMRecHits.PostProcessor_cff import *
+from Validation.HGCalValidation.HGCalPostProcessor_cff import *
+
+postValidation_common = cms.Sequence()
+
 postValidation_trackingOnly = cms.Sequence(
       postProcessorTrackSequenceTrackingOnly
-    + postProcessorVertex
+    + postProcessorVertexSequence
+)
+
+postValidation_muons = cms.Sequence(
+    recoMuonPostProcessors
+    + MuonGEMHitsPostProcessors
+    + MuonGEMDigisPostProcessors
+    + MuonGEMRecHitsPostProcessors
+    + rpcRecHitPostValidation_step
+)
+
+postValidation_JetMET = cms.Sequence(
+    METPostProcessor
 )
  
 postValidation_gen = cms.Sequence(
@@ -72,11 +94,6 @@ postValidationCosmics = cms.Sequence(
 postValidationMiniAOD = cms.Sequence(
     electronPostValidationSequenceMiniAOD
 )
-
-from Validation.MuonGEMHits.PostProcessor_cff import *
-from Validation.MuonGEMDigis.PostProcessor_cff import *
-from Validation.MuonGEMRecHits.PostProcessor_cff import *
-from Validation.HGCalValidation.HGCalPostProcessor_cff import *
 
 _run3_postValidation = postValidation.copy()
 _run3_postValidation += MuonGEMHitsPostProcessors

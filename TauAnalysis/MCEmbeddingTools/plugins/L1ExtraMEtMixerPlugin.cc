@@ -49,7 +49,7 @@ void L1ExtraMEtMixerPlugin::produce(edm::Event& evt, const edm::EventSetup& es)
   edm::Handle<detIdToFloatMap> distanceMapMuMinus;
   evt.getByLabel(srcDistanceMapMuMinus_, distanceMapMuMinus);
 
-  std::auto_ptr<l1extra::L1EtMissParticleCollection> metSum(new l1extra::L1EtMissParticleCollection());
+  std::unique_ptr<l1extra::L1EtMissParticleCollection> metSum(new l1extra::L1EtMissParticleCollection());
 
   // CV: entries in MET collections refer to different bunch-crossings.
   //     The number of entries in the two MET collections is not necessarily the same
@@ -191,7 +191,7 @@ void L1ExtraMEtMixerPlugin::produce(edm::Event& evt, const edm::EventSetup& es)
     metSum->push_back(metSum_bx);					       
   }
   
-  evt.put(metSum, instanceLabel_);
+  evt.put(std::move(metSum), instanceLabel_);
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"

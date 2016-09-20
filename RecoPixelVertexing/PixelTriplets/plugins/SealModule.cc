@@ -18,6 +18,9 @@ DEFINE_EDM_PLUGIN(HitTripletGeneratorFromPairAndLayersFactory,PixelTripletNoTipG
 #include "CombinedHitTripletGenerator.h"
 DEFINE_EDM_PLUGIN(OrderedHitsGeneratorFactory, CombinedHitTripletGenerator, "StandardHitTripletGenerator");
 
+#include "CAHitTripletGenerator.h"
+DEFINE_EDM_PLUGIN(OrderedHitsGeneratorFactory, CAHitTripletGenerator, "CAHitTripletGenerator");
+
 #include "CombinedHitQuadrupletGenerator.h"
 DEFINE_EDM_PLUGIN(OrderedHitsGeneratorFactory, CombinedHitQuadrupletGenerator, "CombinedHitQuadrupletGenerator");
 
@@ -25,3 +28,6 @@ DEFINE_EDM_PLUGIN(OrderedHitsGeneratorFactory, CombinedHitQuadrupletGenerator, "
 #include "RecoPixelVertexing/PixelTriplets/interface/HitQuadrupletGeneratorFromTripletAndLayersFactory.h"
 #include "PixelQuadrupletGenerator.h"
 DEFINE_EDM_PLUGIN(HitQuadrupletGeneratorFromTripletAndLayersFactory, PixelQuadrupletGenerator, "PixelQuadrupletGenerator");
+
+#include "CAHitQuadrupletGenerator.h"
+DEFINE_EDM_PLUGIN(OrderedHitsGeneratorFactory, CAHitQuadrupletGenerator, "CAHitQuadrupletGenerator");

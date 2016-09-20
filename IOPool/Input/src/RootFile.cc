@@ -1776,6 +1776,13 @@ namespace edm {
       }
     }
   }
+  
+  void 
+  RootFile::setSignals(signalslot::Signal<void(StreamContext const&, ModuleCallingContext const&)> const* preEventReadSource,
+                      signalslot::Signal<void(StreamContext const&, ModuleCallingContext const&)> const* postEventReadSource) {
+    eventTree_.setSignals(preEventReadSource,postEventReadSource);
+  }
+
 
   std::unique_ptr<MakeProvenanceReader>
   RootFile::makeProvenanceReaderMaker(InputType inputType) {
@@ -1818,7 +1825,7 @@ namespace edm {
     StoredProductProvenanceVector const* pProvVector_;
     std::vector<ParentageID> const& parentageIDLookup_;
     DaqProvenanceHelper const* daqProvenanceHelper_;
-    mutable SharedResourcesAcquirer resourceAcquirer_;
+    std::shared_ptr<std::recursive_mutex> mutex_;
   };
 
   ReducedProvenanceReader::ReducedProvenanceReader(
@@ -1830,7 +1837,7 @@ namespace edm {
       pProvVector_(&provVector_),
       parentageIDLookup_(iParentageIDLookup),
       daqProvenanceHelper_(daqProvenanceHelper),
-      resourceAcquirer_(SharedResourcesRegistry::instance()->createAcquirerForSourceDelayedReader())
+      mutex_(SharedResourcesRegistry::instance()->createAcquirerForSourceDelayedReader().second)
   {
     provBranch_ = rootTree_->tree()->GetBranch(BranchTypeToProductProvenanceBranchName(rootTree_->branchType()).c_str());
   }
@@ -1838,7 +1845,7 @@ namespace edm {
   std::set<ProductProvenance>
   ReducedProvenanceReader::readProvenance(unsigned int transitionIndex) const {
     {
-      std::lock_guard<SharedResourcesAcquirer> guard(resourceAcquirer_);
+      std::lock_guard<std::recursive_mutex> guard(*mutex_);
       ReducedProvenanceReader* me = const_cast<ReducedProvenanceReader*>(this);
       me->rootTree_->fillBranchEntry(me->provBranch_, me->rootTree_->entryNumberForIndex(transitionIndex), me->pProvVector_);
       setRefCoreStreamer(true);
@@ -1875,7 +1882,7 @@ namespace edm {
     ProductProvenanceVector infoVector_;
     mutable ProductProvenanceVector* pInfoVector_;
     DaqProvenanceHelper const* daqProvenanceHelper_;
-    mutable SharedResourcesAcquirer resourceAcquirer_;
+    std::shared_ptr<std::recursive_mutex> mutex_;
   };
 
   FullProvenanceReader::FullProvenanceReader(RootTree* rootTree, DaqProvenanceHelper const* daqProvenanceHelper) :
@@ -1884,13 +1891,13 @@ namespace edm {
          infoVector_(),
          pInfoVector_(&infoVector_),
          daqProvenanceHelper_(daqProvenanceHelper),
-         resourceAcquirer_(SharedResourcesRegistry::instance()->createAcquirerForSourceDelayedReader()) {
+         mutex_(SharedResourcesRegistry::instance()->createAcquirerForSourceDelayedReader().second) {
   }
 
   std::set<ProductProvenance>
   FullProvenanceReader::readProvenance(unsigned int transitionIndex) const {
     {
-      std::lock_guard<SharedResourcesAcquirer> guard(resourceAcquirer_);
+      std::lock_guard<std::recursive_mutex> guard(*mutex_);
       rootTree_->fillBranchEntryMeta(rootTree_->branchEntryInfoBranch(), rootTree_->entryNumberForIndex(transitionIndex), pInfoVector_);
       setRefCoreStreamer(true);
     }
@@ -1919,7 +1926,7 @@ namespace edm {
     mutable std::vector<EventEntryInfo> *pInfoVector_;
     EntryDescriptionMap const& entryDescriptionMap_;
     DaqProvenanceHelper const* daqProvenanceHelper_;
-    mutable SharedResourcesAcquirer resourceAcquirer_;
+    std::shared_ptr<std::recursive_mutex> mutex_;
   };
 
   OldProvenanceReader::OldProvenanceReader(RootTree* rootTree, EntryDescriptionMap const& theMap, DaqProvenanceHelper const* daqProvenanceHelper) :
@@ -1929,13 +1936,13 @@ namespace edm {
          pInfoVector_(&infoVector_),
          entryDescriptionMap_(theMap),
          daqProvenanceHelper_(daqProvenanceHelper),
-         resourceAcquirer_(SharedResourcesRegistry::instance()->createAcquirerForSourceDelayedReader()) {
+         mutex_(SharedResourcesRegistry::instance()->createAcquirerForSourceDelayedReader().second) {
   }
 
   std::set<ProductProvenance>
   OldProvenanceReader::readProvenance(unsigned int transitionIndex) const {
     {
-      std::lock_guard<SharedResourcesAcquirer> guard(resourceAcquirer_);
+      std::lock_guard<std::recursive_mutex> guard(*mutex_);
       rootTree_->branchEntryInfoBranch()->SetAddress(&pInfoVector_);
       roottree::getEntry(rootTree_->branchEntryInfoBranch(), rootTree_->entryNumberForIndex(transitionIndex));
       setRefCoreStreamer(true);

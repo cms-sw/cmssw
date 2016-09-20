@@ -6,10 +6,8 @@
 
 #include "FWCore/Utilities/interface/InputTag.h"
 
-#include "DataFormats/L1Trigger/interface/L1JetParticle.h"
-#include "DataFormats/L1Trigger/interface/L1JetParticleFwd.h"
-#include "DataFormats/L1Trigger/interface/L1EtMissParticle.h"
-#include "DataFormats/L1Trigger/interface/L1EtMissParticleFwd.h"
+#include "DataFormats/L1Trigger/interface/Tau.h"
+#include "DataFormats/L1Trigger/interface/EtSum.h"
 
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 
@@ -25,14 +23,10 @@ public:
 
 private:
     //The filters
-    edm::InputTag l1ExtraTaus_;
-    edm::EDGetTokenT<l1extra::L1JetParticleCollection> l1ExtraTausToken_;
-    edm::InputTag l1ExtraIsoTaus_;
-    edm::EDGetTokenT<l1extra::L1JetParticleCollection> l1ExtraIsoTausToken_;
-    edm::InputTag l1ExtraJets_;
-    edm::EDGetTokenT<l1extra::L1JetParticleCollection> l1ExtraJetsToken_;
-    edm::InputTag l1ExtraMET_;
-    edm::EDGetTokenT<l1extra::L1EtMissParticleCollection> l1ExtraMETToken_;
+    edm::InputTag l1stage2Taus_;
+    edm::EDGetTokenT<l1t::TauBxCollection> l1stage2TausToken_;
+    edm::InputTag l1stage2Sums_;
+    edm::EDGetTokenT<l1t::EtSumBxCollection> l1stage2SumsToken_;
 
     const bool doRefAnalysis_;
     const double matchDeltaR_;

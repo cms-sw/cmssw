@@ -72,8 +72,8 @@ DEFINE_FWK_MODULE(CorrectedECALPFClusterProducer);
 
 void CorrectedECALPFClusterProducer::
 produce(edm::Event& e, const edm::EventSetup& es) {
-  std::unique_ptr<reco::PFClusterCollection> clusters_out(new reco::PFClusterCollection);    
-  std::unique_ptr<reco::PFCluster::EEtoPSAssociation> association_out(new reco::PFCluster::EEtoPSAssociation);
+  auto clusters_out = std::make_unique<reco::PFClusterCollection>();
+  auto association_out = std::make_unique<reco::PFCluster::EEtoPSAssociation>();
   
   edm::Handle<reco::PFClusterCollection> handleECAL;
   e.getByToken(_inputECAL,handleECAL);

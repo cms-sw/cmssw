@@ -33,12 +33,12 @@ class PFRecHitNavigatorBase {
   virtual ~PFRecHitNavigatorBase() {}
 
   virtual void beginEvent(const edm::EventSetup&)=0;
-  virtual void associateNeighbours(reco::PFRecHit&,std::auto_ptr<reco::PFRecHitCollection>&,edm::RefProd<reco::PFRecHitCollection>&)=0;
+  virtual void associateNeighbours(reco::PFRecHit&,std::unique_ptr<reco::PFRecHitCollection>&,edm::RefProd<reco::PFRecHitCollection>&)=0;
 
 
  protected:
 
-  void associateNeighbour(const DetId& id, reco::PFRecHit& hit,std::auto_ptr<reco::PFRecHitCollection>& hits,edm::RefProd<reco::PFRecHitCollection>& refProd,short eta, short phi,short depth) {
+  void associateNeighbour(const DetId& id, reco::PFRecHit& hit,std::unique_ptr<reco::PFRecHitCollection>& hits,edm::RefProd<reco::PFRecHitCollection>& refProd,short eta, short phi,short depth) {
     auto found_hit = std::lower_bound(hits->begin(),hits->end(),
 				      id,
 				      [](const reco::PFRecHit& a, 

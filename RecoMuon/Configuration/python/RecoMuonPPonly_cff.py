@@ -58,9 +58,8 @@ muonreco = cms.Sequence(muontracking*muonIdProducerSequence)
 
 # Muon Reconstruction plus Isolation
 muonreco_plus_isolation = cms.Sequence(muonreco*muIsolation)
-muonreco_plus_isolation_plus_SET = cms.Sequence(muonreco_plus_isolation*muonreco_with_SET)
 
-muonrecoComplete = cms.Sequence(muonreco_plus_isolation_plus_SET*muonSelectionTypeSequence)
+muonrecoComplete = cms.Sequence(muonreco_plus_isolation*muonSelectionTypeSequence)
 
 
 # _-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_- #
@@ -72,7 +71,7 @@ muonrecoComplete = cms.Sequence(muonreco_plus_isolation_plus_SET*muonSelectionTy
 
 #from RecoMuon.MuonIdentification.earlyMuons_cfi import earlyMuons
 
-muonGlobalReco = cms.Sequence(globalmuontracking*muonIdProducerSequence*muonSelectionTypeSequence*muIsolation*muonreco_with_SET)
+muonGlobalReco = cms.Sequence(globalmuontracking*muonIdProducerSequence*muonSelectionTypeSequence*muIsolation)
 
 # ... instead, the sequences will be run in the following order:
 # 1st - standalonemuontracking

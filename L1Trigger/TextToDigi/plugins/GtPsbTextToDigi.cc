@@ -57,12 +57,12 @@ GtPsbTextToDigi::~GtPsbTextToDigi() {
 
 /// Append empty digi collection
 void GtPsbTextToDigi::putEmptyDigi(edm::Event& iEvent) {
-  std::auto_ptr<L1GctEmCandCollection>  gctIsolaEm( new L1GctEmCandCollection () );
-  std::auto_ptr<L1GctEmCandCollection>  gctNoIsoEm( new L1GctEmCandCollection () );
-  std::auto_ptr<L1GctJetCandCollection> gctCenJets( new L1GctJetCandCollection() );
-  std::auto_ptr<L1GctJetCandCollection> gctForJets( new L1GctJetCandCollection() );
-  std::auto_ptr<L1GctJetCandCollection> gctTauJets( new L1GctJetCandCollection() );
-  //std::auto_ptr<L1GctEtTotal>           gctEtTotal( new L1GctEtTotal          () );
+  std::unique_ptr<L1GctEmCandCollection>  gctIsolaEm( new L1GctEmCandCollection () );
+  std::unique_ptr<L1GctEmCandCollection>  gctNoIsoEm( new L1GctEmCandCollection () );
+  std::unique_ptr<L1GctJetCandCollection> gctCenJets( new L1GctJetCandCollection() );
+  std::unique_ptr<L1GctJetCandCollection> gctForJets( new L1GctJetCandCollection() );
+  std::unique_ptr<L1GctJetCandCollection> gctTauJets( new L1GctJetCandCollection() );
+  //std::unique_ptr<L1GctEtTotal>           gctEtTotal( new L1GctEtTotal          () );
   for (int i=0; i<4; i++){  
     gctIsolaEm->push_back(L1GctEmCand (0,1));
     gctNoIsoEm->push_back(L1GctEmCand (0,0));
@@ -71,12 +71,12 @@ void GtPsbTextToDigi::putEmptyDigi(edm::Event& iEvent) {
     gctTauJets->push_back(L1GctJetCand(0,1,0));
     //gctEtTotal->push_back(());
   }
-  iEvent.put(gctIsolaEm, "isoEm");
-  iEvent.put(gctNoIsoEm, "nonIsoEm");
-  iEvent.put(gctCenJets, "cenJets");
-  iEvent.put(gctForJets, "forJets");
-  iEvent.put(gctTauJets, "tauJets");
-  //iEvent.put(gctEtTotal);
+  iEvent.put(std::move(gctIsolaEm), "isoEm");
+  iEvent.put(std::move(gctNoIsoEm), "nonIsoEm");
+  iEvent.put(std::move(gctCenJets), "cenJets");
+  iEvent.put(std::move(gctForJets), "forJets");
+  iEvent.put(std::move(gctTauJets), "tauJets");
+  //iEvent.put(std::move(gctEtTotal));
 
   LogDebug("GtPsbTextToDigi") << "putting empty digi (evt:" << m_nevt << ")\n"; 
 }
@@ -125,12 +125,12 @@ void GtPsbTextToDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   m_nevt++;
   
   // New collections
-  std::auto_ptr<L1GctEmCandCollection>  gctIsolaEm( new L1GctEmCandCollection () );
-  std::auto_ptr<L1GctEmCandCollection>  gctNoIsoEm( new L1GctEmCandCollection () );
-  std::auto_ptr<L1GctJetCandCollection> gctCenJets( new L1GctJetCandCollection() ); 
-  std::auto_ptr<L1GctJetCandCollection> gctForJets( new L1GctJetCandCollection() ); 
-  std::auto_ptr<L1GctJetCandCollection> gctTauJets( new L1GctJetCandCollection() );
-  //std::auto_ptr<L1GctEtTotal>           gctEtTotal( new L1GctEtTotal          () );
+  std::unique_ptr<L1GctEmCandCollection>  gctIsolaEm( new L1GctEmCandCollection () );
+  std::unique_ptr<L1GctEmCandCollection>  gctNoIsoEm( new L1GctEmCandCollection () );
+  std::unique_ptr<L1GctJetCandCollection> gctCenJets( new L1GctJetCandCollection() ); 
+  std::unique_ptr<L1GctJetCandCollection> gctForJets( new L1GctJetCandCollection() ); 
+  std::unique_ptr<L1GctJetCandCollection> gctTauJets( new L1GctJetCandCollection() );
+  //std::unique_ptr<L1GctEtTotal>           gctEtTotal( new L1GctEtTotal          () );
 
   /// buffer
   uint16_t data[4][2]= {{0}};
@@ -211,12 +211,12 @@ void GtPsbTextToDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   }
 
   /// Put collections
-  iEvent.put(gctIsolaEm, "isoEm");
-  iEvent.put(gctNoIsoEm, "nonIsoEm");
-  iEvent.put(gctCenJets, "cenJets");
-  iEvent.put(gctForJets, "forJets");
-  iEvent.put(gctTauJets, "tauJets");
-  //iEvent.put(gctEtTotal);
+  iEvent.put(std::move(gctIsolaEm), "isoEm");
+  iEvent.put(std::move(gctNoIsoEm), "nonIsoEm");
+  iEvent.put(std::move(gctCenJets), "cenJets");
+  iEvent.put(std::move(gctForJets), "forJets");
+  iEvent.put(std::move(gctTauJets), "tauJets");
+  //iEvent.put(std::move(gctEtTotal));
 
 }
 

@@ -7,7 +7,6 @@
 #include <algorithm>
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "DetectorDescription/Base/interface/DDutils.h"
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
 #include "DetectorDescription/Core/interface/DDMaterial.h"
@@ -128,7 +127,7 @@ void DDPixBarLayerUpgradeAlgo::execute(DDCompactView& cpv) {
 	}
     rrr = coolDist*cos(0.5*dphi)+iup*dr;
     tran = DDTranslation(rrr*cos(phi), rrr*sin(phi), 0);
-    rots = idName + dbl_to_string(copy);
+    rots = idName + std::to_string(copy);
     if (iup > 0) phix = phi-90*CLHEP::deg;
     else         phix = phi+90*CLHEP::deg;
     phiy = phix+90.*CLHEP::deg;
@@ -145,7 +144,7 @@ void DDPixBarLayerUpgradeAlgo::execute(DDCompactView& cpv) {
     rrr  = coolDist*cos(0.5*dphi);
     tran = DDTranslation(rrr*cos(phi)-x2*sin(phi), 
 			 rrr*sin(phi)+x2*cos(phi), 0);
-    rots = idName + dbl_to_string(i+100);
+    rots = idName + std::to_string(i+100);
     phix = phi+0.5*dphi;
     if (iup > 0) phix += 180*CLHEP::deg;
     phiy = phix+90.*CLHEP::deg;

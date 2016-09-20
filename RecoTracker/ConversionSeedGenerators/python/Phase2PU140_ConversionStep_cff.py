@@ -3,12 +3,12 @@ import FWCore.ParameterSet.Config as cms
 from RecoTracker.ConversionSeedGenerators.Phase2PU140_PhotonConversionTrajectorySeedProducerFromSingleLeg_cfi import *
 from RecoTracker.ConversionSeedGenerators.ConversionStep2_cff import *
 
-from RecoLocalTracker.SubCollectionProducers.trackClusterRemover_cfi import *
-convClusters = trackClusterRemover.clone(
+from RecoLocalTracker.SubCollectionProducers.phase2trackClusterRemover_cfi import *
+convClusters = phase2trackClusterRemover.clone(
    maxChi2               = cms.double(30.0),
    trajectories          = cms.InputTag("pixelPairStepTracks"),
-   pixelClusters         = cms.InputTag("siPixelClusters"),
-   stripClusters         = cms.InputTag("siStripClusters"),
+   phase2pixelClusters   = cms.InputTag("siPixelClusters"),
+   phase2OTClusters      = cms.InputTag("siPhase2Clusters"),
    oldClusterRemovalInfo = cms.InputTag("pixelPairStepClusters"),
    overrideTrkQuals      = cms.InputTag('pixelPairStepSelector','pixelPairStep'),
    TrackQuality          = cms.string('highPurity'),
@@ -79,7 +79,7 @@ convCkfTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cf
 import RecoTracker.CkfPattern.CkfTrackCandidates_cfi
 convTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone(
     src = cms.InputTag('photonConvTrajSeedFromSingleLeg:convSeedCandidates'),
-    clustersToSkip = cms.InputTag("convClusters"),
+    phase2clustersToSkip = cms.InputTag("convClusters"),
     TrajectoryBuilderPSet = cms.PSet(refToPSet_ = cms.string('convCkfTrajectoryBuilder'))
 )
 

@@ -19,6 +19,7 @@ import itertools
 import collections
 import Alignment.MillePedeAlignmentAlgorithm.mpslib.Mpslibclass as mpslib
 from Alignment.MillePedeAlignmentAlgorithm.alignmentsetup.helper import checked_out_MPS
+from functools import reduce
 
 
 def get_weight_configs(config):
@@ -122,7 +123,8 @@ match = re.search(re.compile('mpproduction\/mp(.+?)$', re.M|re.I),currentDir)
 if match:
     mpsdirname = 'mp'+match.group(1)
 else:
-    print 'there seems to be a problem to determine the current directory name:',currentDir
+    print "Current location does not seem to be a MillePede campaign directory:",
+    print currentDir
     sys.exit(1)
 
 # set directory on eos

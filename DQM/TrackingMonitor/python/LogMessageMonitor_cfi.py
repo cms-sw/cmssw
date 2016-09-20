@@ -45,5 +45,6 @@ LogMessageMon = cms.EDAnalyzer("LogMessageMonitor",
     LogFolderName       = cms.string('Tracking/MessageLog'),
     OutputMEsInRootFile = cms.bool(False),
     OutputFileName      = cms.string('MonitorTrack.root'),
-    BXlumiSetup         = BXlumiSetup.clone()
+    BXlumiSetup         = BXlumiSetup.clone(),
+    genericTriggerEventPSet = cms.PSet()
 )    

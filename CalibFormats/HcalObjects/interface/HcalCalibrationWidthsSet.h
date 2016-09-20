@@ -5,7 +5,8 @@
 #include "CondFormats/HcalObjects/interface/HcalDetIdRelationship.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalZDCDetId.h"
-#include <vector>
+#include <unordered_map>
+#include <stdint.h>
 
 /** \class HcalCalibrationWidthsSet
   *  
@@ -16,7 +17,6 @@ public:
   HcalCalibrationWidthsSet();
   const HcalCalibrationWidths& getCalibrationWidths(const DetId id) const;
   void setCalibrationWidths(const DetId id, const HcalCalibrationWidths& ca);
-  void sort();
   void clear();
 private:
   struct CalibWidthSetObject {
@@ -30,8 +30,7 @@ private:
   };
   typedef CalibWidthSetObject Item;
   HcalCalibrationWidths dummy;
-  std::vector<CalibWidthSetObject> mItems;
-  bool sorted_;
+  std::unordered_map<uint32_t,CalibWidthSetObject> mItems;
 };
 
 #endif

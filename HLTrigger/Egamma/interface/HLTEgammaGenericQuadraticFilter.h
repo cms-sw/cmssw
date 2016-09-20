@@ -29,12 +29,11 @@ class HLTEgammaGenericQuadraticFilter : public HLTFilter {
       static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
    private:
-      edm::InputTag candTag_; // input tag identifying product that contains filtered photons
-      edm::InputTag isoTag_; // input tag identifying product that contains isolated map
-      edm::InputTag nonIsoTag_; // input tag identifying product that contains non-isolated map
+      edm::InputTag candTag_; // input tag identifying product that contains filtered candidates
+      edm::InputTag varTag_; // input tag identifying product that contains the variable map
       edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> candToken_;
-      edm::EDGetTokenT<reco::RecoEcalCandidateIsolationMap> isoToken_;
-      edm::EDGetTokenT<reco::RecoEcalCandidateIsolationMap> nonIsoToken_;
+      edm::EDGetTokenT<reco::RecoEcalCandidateIsolationMap> varToken_;
+
       bool lessThan_;           // the cut is "<" or ">" ?
       bool useEt_;              // use E or Et in relative isolation cuts
 /*  Barrel quadratic threshold function:
@@ -48,11 +47,9 @@ class HLTEgammaGenericQuadraticFilter : public HLTFilter {
       double thrOverEEE_;       // coefficient for first order term - ECAL endcap
       double thrOverE2EB_;      // coefficient for second order term - ECAL barrel
       double thrOverE2EE_;      // coefficient for second order term - ECAL endcap
-      int    ncandcut_;        // number of photons required
-      bool doIsolated_;
+      int    ncandcut_;        // number of candidates required
 
-      edm::InputTag L1IsoCollTag_;
-      edm::InputTag L1NonIsoCollTag_;
+      edm::InputTag l1EGTag_;
 };
 
 #endif //HLTEgammaGenericQuadraticFilter_h

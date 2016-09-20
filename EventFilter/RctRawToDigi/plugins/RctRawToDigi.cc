@@ -64,7 +64,7 @@ void RctRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   using namespace edm;
 
   // Instantiate all the collections the unpacker needs; puts them in event when this object goes out of scope.
-  std::auto_ptr<RctUnpackCollections> colls(new RctUnpackCollections(iEvent));  
+  std::unique_ptr<RctUnpackCollections> colls(new RctUnpackCollections(iEvent));  
   
   // get raw data collection
   edm::Handle<FEDRawDataCollection> feds;

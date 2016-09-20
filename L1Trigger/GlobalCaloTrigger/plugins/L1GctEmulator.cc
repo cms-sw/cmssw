@@ -196,26 +196,26 @@ void L1GctEmulator::produce(edm::Event& e, const edm::EventSetup& c) {
   // the setup and input data are present. Start by making empty output collections.
 
   // create the em and jet collections
-  std::auto_ptr<L1GctEmCandCollection> isoEmResult   (new L1GctEmCandCollection( ) );
-  std::auto_ptr<L1GctEmCandCollection> nonIsoEmResult(new L1GctEmCandCollection( ) );
-  std::auto_ptr<L1GctJetCandCollection> cenJetResult(new L1GctJetCandCollection( ) );
-  std::auto_ptr<L1GctJetCandCollection> forJetResult(new L1GctJetCandCollection( ) );
-  std::auto_ptr<L1GctJetCandCollection> tauJetResult(new L1GctJetCandCollection( ) );
+  std::unique_ptr<L1GctEmCandCollection> isoEmResult   (new L1GctEmCandCollection( ) );
+  std::unique_ptr<L1GctEmCandCollection> nonIsoEmResult(new L1GctEmCandCollection( ) );
+  std::unique_ptr<L1GctJetCandCollection> cenJetResult(new L1GctJetCandCollection( ) );
+  std::unique_ptr<L1GctJetCandCollection> forJetResult(new L1GctJetCandCollection( ) );
+  std::unique_ptr<L1GctJetCandCollection> tauJetResult(new L1GctJetCandCollection( ) );
 
   // create the energy sum digis
-  std::auto_ptr<L1GctEtTotalCollection> etTotResult (new L1GctEtTotalCollection( ) );
-  std::auto_ptr<L1GctEtHadCollection>   etHadResult (new L1GctEtHadCollection  ( ) );
-  std::auto_ptr<L1GctEtMissCollection>  etMissResult(new L1GctEtMissCollection ( ) );
-  std::auto_ptr<L1GctHtMissCollection>  htMissResult(new L1GctHtMissCollection ( ) );
+  std::unique_ptr<L1GctEtTotalCollection> etTotResult (new L1GctEtTotalCollection( ) );
+  std::unique_ptr<L1GctEtHadCollection>   etHadResult (new L1GctEtHadCollection  ( ) );
+  std::unique_ptr<L1GctEtMissCollection>  etMissResult(new L1GctEtMissCollection ( ) );
+  std::unique_ptr<L1GctHtMissCollection>  htMissResult(new L1GctHtMissCollection ( ) );
 
   // create the Hf sums digis
-  std::auto_ptr<L1GctHFBitCountsCollection>  hfBitCountResult (new L1GctHFBitCountsCollection ( ) );
-  std::auto_ptr<L1GctHFRingEtSumsCollection> hfRingEtSumResult(new L1GctHFRingEtSumsCollection( ) );
+  std::unique_ptr<L1GctHFBitCountsCollection>  hfBitCountResult (new L1GctHFBitCountsCollection ( ) );
+  std::unique_ptr<L1GctHFRingEtSumsCollection> hfRingEtSumResult(new L1GctHFRingEtSumsCollection( ) );
 
   // create internal data collections
-  std::auto_ptr<L1GctInternJetDataCollection> internalJetResult   (new L1GctInternJetDataCollection( ));
-  std::auto_ptr<L1GctInternEtSumCollection>   internalEtSumResult (new L1GctInternEtSumCollection  ( ));
-  std::auto_ptr<L1GctInternHtMissCollection>  internalHtMissResult(new L1GctInternHtMissCollection ( ));
+  std::unique_ptr<L1GctInternJetDataCollection> internalJetResult   (new L1GctInternJetDataCollection( ));
+  std::unique_ptr<L1GctInternEtSumCollection>   internalEtSumResult (new L1GctInternEtSumCollection  ( ));
+  std::unique_ptr<L1GctInternHtMissCollection>  internalHtMissResult(new L1GctInternHtMissCollection ( ));
 
   // get config data from EventSetup.
   // check this has been done successfully before proceeding
@@ -293,21 +293,21 @@ void L1GctEmulator::produce(edm::Event& e, const edm::EventSetup& c) {
   }
 
   // put the collections into the event
-  e.put(isoEmResult,"isoEm");
-  e.put(nonIsoEmResult,"nonIsoEm");
-  e.put(cenJetResult,"cenJets");
-  e.put(forJetResult,"forJets");
-  e.put(tauJetResult,"tauJets");
-  e.put(etTotResult);
-  e.put(etHadResult);
-  e.put(etMissResult);
-  e.put(htMissResult);
-  e.put(hfBitCountResult);
-  e.put(hfRingEtSumResult);
+  e.put(std::move(isoEmResult),"isoEm");
+  e.put(std::move(nonIsoEmResult),"nonIsoEm");
+  e.put(std::move(cenJetResult),"cenJets");
+  e.put(std::move(forJetResult),"forJets");
+  e.put(std::move(tauJetResult),"tauJets");
+  e.put(std::move(etTotResult));
+  e.put(std::move(etHadResult));
+  e.put(std::move(etMissResult));
+  e.put(std::move(htMissResult));
+  e.put(std::move(hfBitCountResult));
+  e.put(std::move(hfRingEtSumResult));
 
-  e.put(internalJetResult);
-  e.put(internalEtSumResult);
-  e.put(internalHtMissResult);
+  e.put(std::move(internalJetResult));
+  e.put(std::move(internalEtSumResult));
+  e.put(std::move(internalHtMissResult));
 
 }
 

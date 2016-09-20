@@ -2,18 +2,29 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <sstream>
 
 TrackerTopology::TrackerTopology( const PixelBarrelValues& pxb, const PixelEndcapValues& pxf,
-				  const TECValues& tecv, const TIBValues& tibv, 
-				  const TIDValues& tidv, const TOBValues& tobv) {
-  pbVals_=pxb;
-  pfVals_=pxf;
-  tecVals_=tecv;
-  tibVals_=tibv;
-  tidVals_=tidv;
-  tobVals_=tobv;
-}
+                                  const TECValues& tecv, const TIBValues& tibv, 
+                                  const TIDValues& tidv, const TOBValues& tobv) 
+    : pbVals_(pxb),
+      pfVals_(pxf),
+      tobVals_(tobv),
+      tibVals_(tibv),
+      tidVals_(tidv),
+      tecVals_(tecv),
+      bits_per_field{
+        [PBModule] = { pbVals_.moduleStartBit_, pbVals_.moduleMask_, PixelSubdetector::PixelBarrel},
+        [PBLadder] = { pbVals_.ladderStartBit_, pbVals_.ladderMask_, PixelSubdetector::PixelBarrel},
+        [PBLayer]  = { pbVals_.layerStartBit_,  pbVals_.layerMask_,  PixelSubdetector::PixelBarrel},
+        [PFModule] = { pfVals_.moduleStartBit_, pfVals_.moduleMask_, PixelSubdetector::PixelEndcap},
+        [PFPanel]  = { pfVals_.panelStartBit_,  pfVals_.panelMask_,  PixelSubdetector::PixelEndcap},
+        [PFBlade]  = { pfVals_.bladeStartBit_,  pfVals_.bladeMask_,  PixelSubdetector::PixelEndcap},
+        [PFDisk]   = { pfVals_.diskStartBit_,   pfVals_.diskMask_,   PixelSubdetector::PixelEndcap},
+        [PFSide]   = { pfVals_.sideStartBit_,   pfVals_.sideMask_,   PixelSubdetector::PixelEndcap}
+      } 
+{}
 
 
 
@@ -421,3 +432,33 @@ SiStripDetId::ModuleGeometry TrackerTopology::moduleGeometry(const DetId &id) co
   }
   return SiStripDetId::UNKNOWNGEOMETRY;
 }
+int TrackerTopology::getOTLayerNumber(const DetId &id) const {
+    int layer = -1;
+    
+    if (id.det() == DetId::Tracker) {
+      if (id.subdetId() == StripSubdetector::TOB) {
+	layer = tobLayer(id);
+      } else if (id.subdetId() == StripSubdetector::TID) {
+	layer = 100 * tidSide(id)  + tidWheel(id);
+      } else {
+	edm::LogInfo("TrackerTopology") << ">>> Invalid subdetId()  " ;
+      }
+    }
+    return layer;
+}
+
+int TrackerTopology::getITPixelLayerNumber(const DetId &id) const {
+    int layer = -1;
+    
+    if (id.det() == DetId::Tracker) {
+      if (id.subdetId() == PixelSubdetector::PixelBarrel) {
+	layer = pxbLayer(id);
+      } else if (id.subdetId() == PixelSubdetector::PixelEndcap) {
+	layer = 100 * pxfSide(id)  + pxfDisk(id);
+      } else {
+	edm::LogInfo("TrackerTopology") << ">>> Invalid subdetId()  " ;
+      }
+    }
+    return layer;
+}
+

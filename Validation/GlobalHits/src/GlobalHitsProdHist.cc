@@ -722,9 +722,9 @@ void GlobalHitsProdHist::endRunProduce(edm::Run& iRun, const edm::EventSetup& iS
   for (std::size_t i = 0; i < histName_.size(); ++i) {
     iter = histMap_.find(histName_[i]);
     if (iter != histMap_.end()) {
-      std::auto_ptr<TH1F> hist1D(iter->second);
+      std::unique_ptr<TH1F> hist1D(iter->second);
       eventout += "\n Storing histogram " + histName_[i];
-      iRun.put(hist1D, histName_[i]);
+      iRun.put(std::move(hist1D), histName_[i]);
     } else {
       warning = true;
       eventoutw += "\n Unable to find histogram with name " + histName_[i];

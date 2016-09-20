@@ -1,13 +1,8 @@
-/**
-   Editted By     On
-   Michael Case   Sun Nov 13 2005
- **/
 #include "GeometryReaders/XMLIdealGeometryESSource/interface/GeometryConfiguration.h"
 
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 
 #include "DetectorDescription/Parser/interface/DDLParser.h"
-#include "DetectorDescription/Base/interface/DDdebug.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 

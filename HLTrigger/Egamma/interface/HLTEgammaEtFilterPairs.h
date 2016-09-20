@@ -34,9 +34,7 @@ class HLTEgammaEtFilterPairs : public HLTFilter {
       double etcutEB2_;           // Et threshold in GeV
       double etcutEE1_;           // Et threshold in GeV
       double etcutEE2_;           // Et threshold in GeV
-      bool   relaxed_;
-      edm::InputTag L1IsoCollTag_;
-      edm::InputTag L1NonIsoCollTag_;
+      edm::InputTag l1EGTag_;
 };
 
 #endif //HLTEgammaEtFilterPairs_h

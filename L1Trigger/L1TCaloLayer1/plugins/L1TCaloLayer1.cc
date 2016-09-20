@@ -131,7 +131,11 @@ L1TCaloLayer1::L1TCaloLayer1(const edm::ParameterSet& iConfig) :
 {
   produces<CaloTowerBxCollection>();
   produces<L1CaloRegionCollection>();
-  layer1 = new UCTLayer1;
+
+  // See UCTLayer1.hh for firmware version definitions
+  int fwVersion = iConfig.getParameter<int>("firmwareVersion");
+  layer1 = new UCTLayer1(fwVersion);
+
   vector<UCTCrate*> crates = layer1->getCrates();
   for(uint32_t crt = 0; crt < crates.size(); crt++) {
     vector<UCTCard*> cards = crates[crt]->getCards();
@@ -172,8 +176,8 @@ L1TCaloLayer1::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   edm::Handle<HcalTrigPrimDigiCollection> hcalTPs;
   iEvent.getByToken(hcalTPSource, hcalTPs);
 
-  std::auto_ptr<CaloTowerBxCollection> towersColl (new CaloTowerBxCollection);
-  std::auto_ptr<L1CaloRegionCollection> rgnCollection (new L1CaloRegionCollection);
+  std::unique_ptr<CaloTowerBxCollection> towersColl (new CaloTowerBxCollection);
+  std::unique_ptr<L1CaloRegionCollection> rgnCollection (new L1CaloRegionCollection);
 
   uint32_t expectedTotalET = 0;
   if(!layer1->clearEvent()) {
@@ -253,7 +257,7 @@ L1TCaloLayer1::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     towersColl->push_back(theBX, caloTower);
   }
 
-  iEvent.put(towersColl);
+  iEvent.put(std::move(towersColl));
 
   UCTGeometry g;
   vector<UCTCrate*> crates = layer1->getCrates();
@@ -277,7 +281,7 @@ L1TCaloLayer1::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       }
     }
   }  
-  iEvent.put(rgnCollection);
+  iEvent.put(std::move(rgnCollection));
 
 }
 

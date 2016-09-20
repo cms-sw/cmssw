@@ -98,6 +98,8 @@ public:
 
    // ---------- static member  ---------------------------
 
+   static Context* getInstance();
+
    static float  caloR1(bool offset = true);
    static float  caloR2(bool offset = true);
    static float  caloZ1(bool offset = true);
@@ -136,6 +138,8 @@ private:
 
    TEveCaloDataHist     *m_caloData;
    TEveCaloDataVec      *m_caloDataHF;
+
+   static Context* s_fwContext;
 
    // calo data
    static const float s_caloTransEta;

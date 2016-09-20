@@ -70,6 +70,8 @@ public:
   /// base detId for HF dual channels
   bool sameBaseDetId(const DetId&) const;
   HcalDetId baseDetId() const;
+  /// second PMT anode detId for HF dual channels
+  HcalDetId secondAnodeId() const;
 
   /// get the smallest crystal_ieta of the crystal in front of this tower (HB and HE tower 17 only)
   int crystal_ieta_low() const { return ((ieta()-zside())*5)+zside(); }

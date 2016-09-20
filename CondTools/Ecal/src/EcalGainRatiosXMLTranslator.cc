@@ -96,27 +96,17 @@ int EcalGainRatiosXMLTranslator::writeXML(const std::string& filename,
 
 std::string EcalGainRatiosXMLTranslator::dumpXML(const EcalCondHeader& header,const EcalGainRatios& record){
 
-    cms::concurrency::xercesInitialize();
+  cms::concurrency::xercesInitialize();
 
-    DOMImplementation*  impl =
-      DOMImplementationRegistry::getDOMImplementation(fromNative("LS").c_str());
-
-    DOMWriter* writer =static_cast<DOMImplementationLS*>(impl)->createDOMWriter( );
-    writer->setFeature(XMLUni::fgDOMWRTFormatPrettyPrint, true);
-
-    DOMDocumentType* doctype = impl->createDocumentType(fromNative("XML").c_str(), 0, 0 );
-    DOMDocument *    doc = 
-         impl->createDocument( 0, fromNative(GainRatios_tag).c_str(), doctype );
-
-
-    doc->setEncoding(fromNative("UTF-8").c_str() );
-    doc->setStandalone(true);
-    doc->setVersion(fromNative("1.0").c_str() );
-
-    
-    DOMElement* root = doc->getDocumentElement();
- 
-
+  unique_ptr<DOMImplementation> impl( DOMImplementationRegistry::getDOMImplementation(fromNative("LS").c_str()));
+  
+  DOMLSSerializer* writer = impl->createLSSerializer();
+  if( writer->getDomConfig()->canSetParameter( XMLUni::fgDOMWRTFormatPrettyPrint, true ))
+    writer->getDomConfig()->setParameter( XMLUni::fgDOMWRTFormatPrettyPrint, true );
+  
+  DOMDocumentType* doctype = impl->createDocumentType( fromNative("XML").c_str(), 0, 0 );
+  DOMDocument* doc = impl->createDocument( 0, fromNative(GainRatios_tag).c_str(), doctype );
+  DOMElement* root = doc->getDocumentElement();
 
     xuti::writeHeader(root,header);
     if (!record.barrelItems().size()) return std::string();
@@ -157,7 +147,10 @@ std::string EcalGainRatiosXMLTranslator::dumpXML(const EcalCondHeader& header,co
       }
 
  
-    std::string dump= toNative(writer->writeToString(*root)); 
-    doc->release(); 
+  std::string dump = toNative( writer->writeToString( root ));
+  doc->release();
+  doctype->release();
+  writer->release();
+
     return dump;
 }

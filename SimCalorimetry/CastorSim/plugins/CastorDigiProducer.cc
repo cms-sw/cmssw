@@ -119,7 +119,7 @@ void CastorDigiProducer::accumulate(PileUpEventPrincipal const& e, edm::EventSet
 void CastorDigiProducer::finalizeEvent(edm::Event& e, const edm::EventSetup& eventSetup) {
   // Step B: Create empty output
 
-  std::auto_ptr<CastorDigiCollection> castorResult(new CastorDigiCollection());
+  std::unique_ptr<CastorDigiCollection> castorResult(new CastorDigiCollection());
 
   // Step C: Invoke the algorithm, getting back outputs.
   theCastorDigitizer->run(*castorResult, randomEngine(e.streamID()));
@@ -127,7 +127,7 @@ void CastorDigiProducer::finalizeEvent(edm::Event& e, const edm::EventSetup& eve
   edm::LogInfo("CastorDigiProducer") << "HCAL/Castor digis   : " << castorResult->size();
 
   // Step D: Put outputs into event
-  e.put(castorResult);
+  e.put(std::move(castorResult));
 }
 
 

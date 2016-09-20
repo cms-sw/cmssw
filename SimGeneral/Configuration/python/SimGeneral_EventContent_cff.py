@@ -11,6 +11,7 @@ SimGeneralFEVTDEBUG = cms.PSet(
 SimGeneralRAW = cms.PSet(
     outputCommands = cms.untracked.vstring('keep CrossingFramePlaybackInfoNew_*_*_*',
                                            'keep PileupSummaryInfos_*_*_*',
+                                           'keep int6stdbitsetstdpairs_*_AffectedAPVList_*',
                                            'keep int_*_bunchSpacing_*')
 )
 #RECO content
@@ -25,7 +26,8 @@ SimGeneralAOD = cms.PSet(
 )
 
 # mods for HGCAL
-_phase2_hgc_extraCommands = [ 'keep *_mix_HGCDigisEE_*', 'keep *_mix_HGCDigisHEfront_*', 'keep *_mix_HGCDigisHEback_*' ]
+_phase2_hgc_extraCommands = [ 'keep *_mix_HGCDigisEE_*', 'keep *_mix_HGCDigisHEfront_*', 'keep *_mix_HGCDigisHEback_*', 
+                              'keep *_mix_MergedCaloTruth_*' ]
 from Configuration.StandardSequences.Eras import eras
 eras.phase2_hgcal.toModify( SimGeneralRAW, outputCommands = SimGeneralRAW.outputCommands + _phase2_hgc_extraCommands )
 eras.phase2_hgcal.toModify( SimGeneralFEVTDEBUG, outputCommands = SimGeneralFEVTDEBUG.outputCommands + _phase2_hgc_extraCommands )

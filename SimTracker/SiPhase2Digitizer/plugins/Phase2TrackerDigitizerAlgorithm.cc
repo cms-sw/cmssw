@@ -92,7 +92,7 @@ Phase2TrackerDigitizerAlgorithm::Phase2TrackerDigitizerAlgorithm(const edm::Para
   theElectronPerADC(conf_common.getParameter<double>("ElectronPerAdc")),
 
   // ADC saturation value, 255(8bit adc.
-  theAdcFullScale(conf_common.getParameter<int>("AdcFullScale")),
+  theAdcFullScale(conf_specific.getParameter<int>("AdcFullScale")),
   
   // Noise in electrons:
   // Pixel cell noise, relevant for generating noisy pixels
@@ -890,7 +890,7 @@ void Phase2TrackerDigitizerAlgorithm::module_killing_DB(uint32_t detID) {
         for (auto & k : badPixels ) {       
 	  if ( p.row == k.getParameter<int>("row") && 
 	       ip.first == k.getParameter<int>("row")  && 
-	       fabs(ip.second - p.col) < k.getParameter<int>("col")) {s.second.set(0.);}
+	       std::abs(ip.second - p.col) < k.getParameter<int>("col")) {s.second.set(0.);}
 	}
       }
     }
@@ -945,9 +945,11 @@ void Phase2TrackerDigitizerAlgorithm::digitize(const Phase2TrackerGeomDetUnit* p
     if (signalInElectrons >= theThresholdInE) { // check threshold
 
       if (doDigitalReadout) adc = theAdcFullScale;
-      else adc = int(signalInElectrons / theElectronPerADC);
+      else adc = std::min( int(signalInElectrons / theElectronPerADC), theAdcFullScale );
+
       DigitizerUtility::DigiSimInfo info;
       info.sig_tot     = adc;
+      info.ot_bit      = ( int(signalInElectrons / theElectronPerADC) > theAdcFullScale ? true : false);
       if (makeDigiSimLinks_ && sig_data.hitInfo() != 0) {
 	info.hit_counter = sig_data.hitIndex();
 	info.tof_bin     = sig_data.tofBin();

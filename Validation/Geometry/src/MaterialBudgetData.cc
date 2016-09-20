@@ -250,7 +250,7 @@ void MaterialBudgetData::dataPerStep( const G4Step* aStep )
   
   //fill data per step
   if( allStepsToTree ){
-    if( stepN > MAXNUMBERSTEPS ) stepN = MAXNUMBERSTEPS;
+    if( stepN > MAXNUMBERSTEPS ) stepN = MAXNUMBERSTEPS - 1;
     theDmb[theStepN] = dmb; 
     theDil[theStepN] = dil; 
     theSupportDmb[theStepN]     = (dmb * theSupportFractionMB);

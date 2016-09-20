@@ -32,7 +32,6 @@ class Phase2OTtiltedBarrelLayer final : public Phase2OTBarrelLayer {
  private:
   std::vector<const GeometricSearchDet*> theNegativeRingsComps;
   std::vector<const GeometricSearchDet*> thePositiveRingsComps;
-  std::vector<const GeomDet*> theBasicComps;
 
   ReferenceCountingPointer<BoundCylinder>  theCylinder;
   

@@ -43,6 +43,8 @@ from RecoBTag.SecondaryVertex.pfInclusiveSecondaryVertexFinderTagInfos_cfi impor
 from RecoBTag.SecondaryVertex.pfSimpleInclusiveSecondaryVertexHighEffBJetTags_cfi import *
 from RecoBTag.SecondaryVertex.pfSimpleInclusiveSecondaryVertexHighPurBJetTags_cfi import *
 from RecoBTag.SecondaryVertex.pfCombinedInclusiveSecondaryVertexV2BJetTags_cfi import *
+from RecoBTag.SecondaryVertex.pfGhostTrackVertexTagInfos_cfi import *
+from RecoBTag.SecondaryVertex.pfGhostTrackBJetTags_cfi import *
 from RecoBTag.SecondaryVertex.pfInclusiveSecondaryVertexFinderAK8TagInfos_cfi import *
 from RecoBTag.SecondaryVertex.pfBoostedDoubleSecondaryVertexAK8BJetTags_cfi import *
 from RecoBTag.SecondaryVertex.pfInclusiveSecondaryVertexFinderCA15TagInfos_cfi import *

@@ -20,6 +20,7 @@ class HcalQIEDataRcd;
 class HcalQIETypesRcd;
 class HcalChannelQualityRcd;
 class HcalElectronicsMapRcd;
+class HcalFrontEndMapRcd;
 class HcalRespCorrsRcd;
 class HcalTimeCorrsRcd;
 class HcalLUTCorrsRcd;
@@ -30,17 +31,19 @@ class HcalValidationCorrsRcd;
 class HcalLutMetadataRcd;
 class HcalDcsRcd;
 class HcalDcsMapRcd;
-class HcalCholeskyMatricesRcd;
-class HcalCovarianceMatricesRcd;
 class HcalRecoParamsRcd;
 class HcalLongRecoParamsRcd;
 class HcalZDCLowGainFractionsRcd;
 class HcalMCParamsRcd;
 class HcalFlagHFDigiTimeParamsRcd;
 class HcalTimingParamsRcd;
+class HcalSiPMParametersRcd;
+class HcalSiPMCharacteristicsRcd;
+class HcalTPChannelParametersRcd;
+class HcalTPParaamersRcd;
 
 class HcalTextCalibrations : public edm::ESProducer,
-		       public edm::EventSetupRecordIntervalFinder
+  public edm::EventSetupRecordIntervalFinder
 {
 public:
   HcalTextCalibrations (const edm::ParameterSet& );
@@ -61,6 +64,7 @@ protected:
   std::unique_ptr<HcalQIETypes> produceQIETypes (const HcalQIETypesRcd& rcd);
   std::unique_ptr<HcalChannelQuality> produceChannelQuality (const HcalChannelQualityRcd& rcd);
   std::unique_ptr<HcalElectronicsMap> produceElectronicsMap (const HcalElectronicsMapRcd& rcd);
+  std::unique_ptr<HcalFrontEndMap> produceFrontEndMap (const HcalFrontEndMapRcd& rcd);
 
   std::unique_ptr<HcalRespCorrs> produceRespCorrs (const HcalRespCorrsRcd& rcd);
   std::unique_ptr<HcalZSThresholds> produceZSThresholds (const HcalZSThresholdsRcd& rcd);
@@ -79,11 +83,14 @@ protected:
   std::unique_ptr<HcalLutMetadata> produceLutMetadata (const HcalLutMetadataRcd& rcd);
   std::unique_ptr<HcalDcsValues> produceDcsValues (HcalDcsRcd const & rcd);
   std::unique_ptr<HcalDcsMap> produceDcsMap (const HcalDcsMapRcd& rcd);
-  std::unique_ptr<HcalCholeskyMatrices> produceCholeskyMatrices (const HcalCholeskyMatricesRcd& rcd);
-  std::unique_ptr<HcalCovarianceMatrices> produceCovarianceMatrices (const HcalCovarianceMatricesRcd& rcd);
   
   std::unique_ptr<HcalTimingParams> produceTimingParams (const HcalTimingParamsRcd& rcd);
- private:
+  std::unique_ptr<HcalSiPMParameters> produceSiPMParameters (const HcalSiPMParametersRcd& rcd);
+  std::unique_ptr<HcalSiPMCharacteristics> produceSiPMCharacteristics (const HcalSiPMCharacteristicsRcd& rcd);
+  std::unique_ptr<HcalTPChannelParameters> produceTPChannelParameters (const HcalTPChannelParametersRcd& rcd);
+  std::unique_ptr<HcalTPParameters> produceTPParameters (const HcalTPParametersRcd& rcd);
+
+private:
   std::map <std::string, std::string> mInputs;
 };
 

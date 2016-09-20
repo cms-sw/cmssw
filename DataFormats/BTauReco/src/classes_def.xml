@@ -151,6 +151,21 @@
   <class name="reco::CATopJetTagInfoRefVector"/>
   <class name="edm::Wrapper<reco::CATopJetTagInfoCollection>"/>
 
+  <class name="reco::HTTTopJetProperties" ClassVersion="3">
+    <version ClassVersion="3" checksum="3737009156"/>
+  </class>
+  <class name="std::pair<edm::RefToBase<reco::Jet>, reco::HTTTopJetProperties>"/>
+ 
+  <class name="reco::HTTTopJetTagInfo" ClassVersion="3">
+    <version ClassVersion="3" checksum="3013029993"/>
+  </class>
+  <class name="reco::HTTTopJetTagInfoCollection"/>
+  <class name="reco::HTTTopJetTagInfoRef"/>
+  <class name="reco::HTTTopJetTagInfoRefProd"/>
+  <class name="reco::HTTTopJetTagInfoRefVector"/>
+  <class name="edm::Wrapper<reco::HTTTopJetTagInfoCollection>"/>
+  <class name="edm::reftobase::Holder<reco::BaseTagInfo, reco::HTTTopJetTagInfoRef>" />
+  <class name="edm::reftobase::RefHolder<reco::HTTTopJetTagInfoRef>" />
 
   <class name="std::pair< reco::btau::TaggingVariableName, float >"/>
   <class name="std::vector<std::pair<reco::btau::TaggingVariableName,float> >"/>

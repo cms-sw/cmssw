@@ -14,6 +14,12 @@ setDataPayloadImpl(const Module& ,
   codecImpl_.setDataPayload(data_);
 }
 
+void HGCal64BitRandomCodec::
+setDataPayloadImpl(const Module& mod, 
+                   const l1t::HGCFETriggerDigi& digi) {
+  codecImpl_.setDataPayload(data_);
+}
+
 std::vector<bool>
 HGCal64BitRandomCodec::
 encodeImpl(const HGCal64BitRandomCodec::data_type& data) const {

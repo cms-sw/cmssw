@@ -4,7 +4,7 @@
  *  \author Marcello Maggi
  */
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include <DataFormats/GEMRecHit/interface/ME0Segment.h>
+#include "DataFormats/GEMRecHit/interface/ME0Segment.h"
 #include <iostream>
 
 namespace {
@@ -31,9 +31,8 @@ public:
   }
 };
 
-
-ME0Segment::ME0Segment(const std::vector<const ME0RecHit*>& proto_segment, LocalPoint origin, 
-	LocalVector direction, AlgebraicSymMatrix errors, double chi2) : 
+ME0Segment::ME0Segment(const std::vector<const ME0RecHit*>& proto_segment, const LocalPoint& origin, 
+	   const LocalVector& direction, const AlgebraicSymMatrix& errors, double chi2) : 
   RecSegment(buildDetId(proto_segment.front()->me0Id())),
   theOrigin(origin), 
   theLocalDirection(direction), theCovMatrix(errors), theChi2(chi2){
@@ -43,8 +42,8 @@ ME0Segment::ME0Segment(const std::vector<const ME0RecHit*>& proto_segment, Local
     theME0RecHits.push_back(*proto_segment[i]);
 }
 
-ME0Segment::ME0Segment(const std::vector<const ME0RecHit*>& proto_segment, LocalPoint origin, 
-		       LocalVector direction, AlgebraicSymMatrix errors, double chi2, double time, double timeErr) : 
+ME0Segment::ME0Segment(const std::vector<const ME0RecHit*>& proto_segment, const LocalPoint& origin, 
+	   const LocalVector& direction, const AlgebraicSymMatrix& errors, double chi2, double time, double timeErr) : 
   RecSegment(buildDetId(proto_segment.front()->me0Id())),
   theOrigin(origin), 
   theLocalDirection(direction), theCovMatrix(errors), theChi2(chi2){

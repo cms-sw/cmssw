@@ -102,6 +102,13 @@ class TrackerTopology {
     unsigned int sterMask_;
   };
 
+  enum DetIdFields {
+    PBModule, PBLadder, PBLayer,
+    PFModule, PFPanel, PFBlade, PFDisk, PFSide, 
+    /* TODO: this can be extended for all subdetectors */
+    DETID_FIELDS_MAX
+  };
+
   class SameLayerComparator {
   public:
     explicit SameLayerComparator(const TrackerTopology *topo): topo_(topo) {}
@@ -576,17 +583,41 @@ class TrackerTopology {
   std::string print(DetId detid) const;
 
   SiStripDetId::ModuleGeometry moduleGeometry(const DetId &id) const; 
+  
+  int getOTLayerNumber(const DetId &id)const;
+  int getITPixelLayerNumber(const DetId &id)const;
 
+  // Those is only implemented for Pixel right now, but can be extended to all 
+  // subdetectors.
+
+  // Extract the raw bit value for a given field type.
+  // E.g. getField(id, PBLadder) == pxbLadder(id)
+  unsigned int getField(const DetId &id, DetIdFields idx) const {
+    return ((id.rawId()>>bits_per_field[idx].startBit)&bits_per_field[idx].mask);
+  }
+  // checks whether a given field can be extracted from a given DetId.
+  // This boils down to checking whether it is the correct subdetector.
+  bool hasField(const DetId &id, DetIdFields idx) const {
+    return id.subdetId() == bits_per_field[idx].subdet;
+  }
+ 
  private:
 
-  PixelBarrelValues pbVals_;
-  PixelEndcapValues pfVals_;
+  const PixelBarrelValues pbVals_;
+  const PixelEndcapValues pfVals_;
 
-  TOBValues tobVals_;
-  TIBValues tibVals_;
-  TIDValues tidVals_;
-  TECValues tecVals_;
-  
+  const TOBValues tobVals_;
+  const TIBValues tibVals_;
+  const TIDValues tidVals_;
+  const TECValues tecVals_;
+
+  struct BitmaskAndSubdet { 
+    unsigned int startBit; 
+    unsigned int mask;
+    int subdet;
+  };
+  const BitmaskAndSubdet bits_per_field[DETID_FIELDS_MAX];
+
 };
 
 #endif

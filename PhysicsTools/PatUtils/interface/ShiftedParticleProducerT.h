@@ -70,7 +70,7 @@ class ShiftedParticleProducerT : public edm::stream::EDProducer<>
     edm::Handle<ParticleCollection> originalParticles;
     evt.getByToken(srcToken_, originalParticles);
 
-    std::auto_ptr<ParticleCollection> shiftedParticles(new ParticleCollection);
+    auto shiftedParticles = std::make_unique<ParticleCollection>();
 
     for ( typename ParticleCollection::const_iterator originalParticle = originalParticles->begin();
 	  originalParticle != originalParticles->end(); ++originalParticle ) {
@@ -96,7 +96,7 @@ class ShiftedParticleProducerT : public edm::stream::EDProducer<>
       shiftedParticles->push_back(shiftedParticle);
     }
 
-    evt.put(shiftedParticles);
+    evt.put(std::move(shiftedParticles));
   }
 
   std::string moduleLabel_;

@@ -36,9 +36,9 @@ PFV0Producer::produce(Event& iEvent, const EventSetup& iSetup)
   LogDebug("PFV0Producer")<<"START event: "<<iEvent.id().event()
 			  <<" in run "<<iEvent.id().run();
   //create the empty collections 
-  auto_ptr< PFV0Collection > pfV0Coll (new PFV0Collection);
+  auto pfV0Coll = std::make_unique<PFV0Collection>();
 
-  auto_ptr<reco::PFRecTrackCollection> pfV0RecTrackColl(new reco::PFRecTrackCollection);
+  auto pfV0RecTrackColl = std::make_unique<reco::PFRecTrackCollection>();
 
 
   reco::PFRecTrackRefProd pfTrackRefProd = iEvent.getRefBeforePut<reco::PFRecTrackCollection>();
@@ -81,8 +81,8 @@ PFV0Producer::produce(Event& iEvent, const EventSetup& iSetup)
   }
   
   
-  iEvent.put(pfV0Coll);
-  iEvent.put(pfV0RecTrackColl);
+  iEvent.put(std::move(pfV0Coll));
+  iEvent.put(std::move(pfV0RecTrackColl));
 }
 
 // ------------ method called once each job just before starting event loop  ------------

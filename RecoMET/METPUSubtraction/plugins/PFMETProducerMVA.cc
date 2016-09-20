@@ -53,9 +53,9 @@ void PFMETProducerMVA::produce(edm::Event& evt, const edm::EventSetup& es)
 	<< " numLeptons = " << numLeptons << ", minNumLeptons = " << minNumLeptons_ << " --> skipping !!" << std::endl;
       
       reco::PFMET pfMEt;
-      std::auto_ptr<reco::PFMETCollection> pfMEtCollection(new reco::PFMETCollection());
+      auto pfMEtCollection = std::make_unique<reco::PFMETCollection>();
       pfMEtCollection->push_back(pfMEt);
-      evt.put(pfMEtCollection);
+      evt.put(std::move(pfMEtCollection));
       return;
     }
   }
@@ -132,9 +132,9 @@ void PFMETProducerMVA::produce(edm::Event& evt, const edm::EventSetup& es)
     <<(mvaMEtAlgo_.getMEtCov())(1,0)<<"  "<<(mvaMEtAlgo_.getMEtCov())(1,1)<<std::endl  << std::endl;
  
   // add PFMET object to the event
-  std::auto_ptr<reco::PFMETCollection> pfMEtCollection(new reco::PFMETCollection());
+  auto pfMEtCollection = std::make_unique<reco::PFMETCollection>();
   pfMEtCollection->push_back(pfMEt);
-  evt.put(pfMEtCollection);
+  evt.put(std::move(pfMEtCollection));
 }
 
 std::vector<reco::PUSubMETCandInfo>

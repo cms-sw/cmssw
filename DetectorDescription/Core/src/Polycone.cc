@@ -6,7 +6,6 @@
 #include "CLHEP/Units/GlobalPhysicalConstants.h"
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 #include "CLHEP/Units/SystemOfUnits.h"
-#include "DetectorDescription/Base/interface/DDdebug.h"
 #include "DetectorDescription/Core/interface/DDSolidShapes.h"
 #include "DetectorDescription/Core/src/Solid.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -65,17 +64,13 @@ double Polycone::volume() const
       unsigned int loop = (p_.size()-2)/3 -1;
       assert(loop>0);
       double sec=0;
-      DCOUT('V',"Polycone::volume(), loop=" << loop);
       int i=2;
       for (unsigned int j=2; j<(loop+2); ++j) {
          double dz= std::fabs(p_[i]-p_[i+3]);
-         DCOUT('v', "   dz=" << dz/cm << "cm zi=" << p_[i] << " zii=" << p_[i+3] );
          double v_min = dz * pi/3. *(  p_[i+1]*p_[i+1] + p_[i+4]*p_[i+4]
                                      + p_[i+1]*p_[i+4] );
-         DCOUT('v', "   v_min" << v_min/cm3 << "cm3 rmi=" << p_[i+1]);		    
          double v_max = dz * pi/3. *(  p_[i+2]*p_[i+2] + p_[i+5]*p_[i+5]
                                      + p_[i+2]*p_[i+5] );
-         DCOUT('v', "   v_max" << v_max/cm3 << "cm3");		    
          double s = v_max - v_min;
          //assert(s>=0);
          sec += s;
@@ -125,4 +120,13 @@ double Polycone::volume() const
       result = volume;
    }
    return result;
+}
+
+void DDI::Polycone::stream(std::ostream & os) const
+{
+  os << " startPhi[deg]=" << p_[0]/deg
+     << " dPhi[deg]=" << p_[1]/deg 
+     << " Sizes[cm]=";
+  for (unsigned k=2; k<p_.size(); ++k)
+    os << p_[k]/cm << " ";
 }

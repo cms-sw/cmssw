@@ -62,21 +62,15 @@ std::string EcalTimeBiasCorrectionsXMLTranslator::dumpXML(const EcalCondHeader& 
 
   cms::concurrency::xercesInitialize();
   
-  DOMImplementation*  impl =
-    DOMImplementationRegistry::getDOMImplementation(fromNative("LS").c_str());
+  unique_ptr<DOMImplementation> impl( DOMImplementationRegistry::getDOMImplementation(fromNative("LS").c_str()));
   
-  DOMWriter* writer =static_cast<DOMImplementationLS*>(impl)->createDOMWriter( );
-  writer->setFeature(XMLUni::fgDOMWRTFormatPrettyPrint, true);
+  DOMLSSerializer* writer = impl->createLSSerializer();
+  if( writer->getDomConfig()->canSetParameter( XMLUni::fgDOMWRTFormatPrettyPrint, true ))
+    writer->getDomConfig()->setParameter( XMLUni::fgDOMWRTFormatPrettyPrint, true );
   
-  DOMDocumentType* doctype = impl->createDocumentType(fromNative("XML").c_str(), 0, 0 );
-  DOMDocument *    doc = 
+  DOMDocumentType* doctype = impl->createDocumentType( fromNative("XML").c_str(), 0, 0 );
+  DOMDocument* doc =
     impl->createDocument( 0, fromNative(IntercalibConstants_tag).c_str(), doctype );
-
-
-  doc->setEncoding(fromNative("UTF-8").c_str() );
-  doc->setStandalone(true);
-  doc->setVersion(fromNative("1.0").c_str() );
-    
   DOMElement* root = doc->getDocumentElement();
  
   xuti::writeHeader(root,header);
@@ -125,8 +119,11 @@ std::string EcalTimeBiasCorrectionsXMLTranslator::dumpXML(const EcalCondHeader& 
   }
   //  std::cout << "\n";
  
-  std::string dump= toNative(writer->writeToString(*root));
+  std::string dump = toNative( writer->writeToString( root ));
   doc->release();
+  doctype->release();
+  writer->release();
+
   return dump;
 }
 

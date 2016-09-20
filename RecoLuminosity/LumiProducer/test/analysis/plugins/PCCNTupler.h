@@ -35,9 +35,6 @@
 #include "TObject.h"
 #include "TH1F.h"
 
-
-using namespace reco;
-
 class TObject;
 class TTree;
 class TH1D;

@@ -78,10 +78,11 @@ else:
     simOmtfDigis.srcRPC              = cms.InputTag('unpackRPC')
     simOmtfDigis.srcDTPh             = cms.InputTag("unpackBmtf")
     simOmtfDigis.srcDTTh             = cms.InputTag("unpackBmtf")
-    simEmtfDigis.CSCInput            = cms.InputTag("unpackCsctf") # replace when emtfDigis availalbe 
+    simOmtfDigis.srcCSC              = cms.InputTag("unpackCsctf") # replace when emtfDigis availalbe
 
     # EMTF
     simEmtfDigis.CSCInput            = cms.InputTag("unpackCsctf") # replace when emtfDigis availalbe 
+    simEmtfDigis.RPCInput            = cms.InputTag('unpackRPC')
 
     simCaloStage2Layer1Digis.ecalToken = cms.InputTag('unpackEcal:EcalTriggerPrimitives')
     simCaloStage2Layer1Digis.hcalToken = cms.InputTag('unpackHcal')

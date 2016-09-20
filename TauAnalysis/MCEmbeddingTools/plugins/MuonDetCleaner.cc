@@ -33,8 +33,8 @@ MuonDetCleaner::~MuonDetCleaner()
 
 void MuonDetCleaner::produce(edm::Event& evt, const edm::EventSetup& es)
 {
-  std::auto_ptr<detIdToIntMap> hitsMuPlus(new detIdToIntMap());
-  std::auto_ptr<detIdToIntMap> hitsMuMinus(new detIdToIntMap());
+  std::unique_ptr<detIdToIntMap> hitsMuPlus(new detIdToIntMap());
+  std::unique_ptr<detIdToIntMap> hitsMuMinus(new detIdToIntMap());
   
   std::vector<reco::CandidateBaseRef> selMuons = getSelMuons(evt, srcSelectedMuons_);
   const reco::CandidateBaseRef muPlus  = getTheMuPlus(selMuons);
@@ -43,8 +43,8 @@ void MuonDetCleaner::produce(edm::Event& evt, const edm::EventSetup& es)
   if ( muPlus.isNonnull()  ) fillHitMap(evt, es, &(*muPlus), *hitsMuPlus);
   if ( muMinus.isNonnull() ) fillHitMap(evt, es, &(*muMinus), *hitsMuMinus);
 
-  evt.put(hitsMuPlus, "hitsMuPlus");
-  evt.put(hitsMuMinus, "hitsMuMinus");
+  evt.put(std::move(hitsMuPlus), "hitsMuPlus");
+  evt.put(std::move(hitsMuMinus), "hitsMuMinus");
 }
 
 namespace

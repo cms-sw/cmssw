@@ -1,7 +1,7 @@
 #ifndef HCALSIMPLEAMPLITUDEZS_H
 #define HCALSIMPLEAMPLITUDEZS_H 1
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
 
@@ -17,13 +17,13 @@
 	
 \author J. Mans - Minnesota
 */
-class HcalSimpleAmplitudeZS : public edm::EDProducer {
+class HcalSimpleAmplitudeZS : public edm::stream::EDProducer<> {
 public:
   explicit HcalSimpleAmplitudeZS(const edm::ParameterSet& ps);
   virtual ~HcalSimpleAmplitudeZS();
   virtual void produce(edm::Event& e, const edm::EventSetup& c);
 private:
-  std::auto_ptr<HcalZSAlgoEnergy> hbhe_,ho_,hf_,hbheUpgrade_,hfUpgrade_,hfQIE10_,hbheQIE11_;
+  std::unique_ptr<HcalZSAlgoEnergy> hbhe_,ho_,hf_,hbheUpgrade_,hfUpgrade_,hfQIE10_,hbheQIE11_;
   std::string inputLabel_;
   edm::EDGetTokenT<HBHEDigiCollection> tok_hbhe_;
   edm::EDGetTokenT<HODigiCollection> tok_ho_;

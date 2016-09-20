@@ -43,9 +43,9 @@ void DTTFFEDSim::produce(edm::Event& e, const edm::EventSetup& c) {
 
   if (!fillRawData(e, data)) return;
 
-  auto_ptr<FEDRawDataCollection> fed_product(new FEDRawDataCollection(data));
+  unique_ptr<FEDRawDataCollection> fed_product(new FEDRawDataCollection(data));
 
-  e.put(fed_product);
+  e.put(std::move(fed_product));
 
 }
 

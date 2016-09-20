@@ -37,11 +37,11 @@ namespace l1t {
       
     private:
       
-      std::auto_ptr<RegionalMuonCandBxCollection> regionalMuonCands_;
-      std::auto_ptr<EMTFDaqOutCollection>         EMTFDaqOuts_;
-      std::auto_ptr<EMTFHitCollection>            EMTFHits_;
-      std::auto_ptr<EMTFTrackCollection>          EMTFTracks_;
-      std::auto_ptr<CSCCorrelatedLCTDigiCollection> EMTFLCTs_;
+      std::unique_ptr<RegionalMuonCandBxCollection> regionalMuonCands_;
+      std::unique_ptr<EMTFDaqOutCollection>         EMTFDaqOuts_;
+      std::unique_ptr<EMTFHitCollection>            EMTFHits_;
+      std::unique_ptr<EMTFTrackCollection>          EMTFTracks_;
+      std::unique_ptr<CSCCorrelatedLCTDigiCollection> EMTFLCTs_;
       
     };
   }

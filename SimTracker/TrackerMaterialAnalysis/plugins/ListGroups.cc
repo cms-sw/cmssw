@@ -6,7 +6,7 @@
 
 #include "boost/format.hpp"
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESTransientHandle.h"
@@ -56,6 +56,7 @@ bool dddGetStringRaw(const DDFilteredView & view, const std::string & name, std:
   return false;
 }
 
+/*
 static inline
 double dddGetDouble(const std::string & s, DDFilteredView const & view) {
   std::string value;
@@ -64,6 +65,7 @@ double dddGetDouble(const std::string & s, DDFilteredView const & view) {
   else
     return NAN;
 }
+*/
 
 static inline
 std::string dddGetString(const std::string & s, DDFilteredView const & view) {
@@ -80,7 +82,7 @@ std::ostream & operator<<(std::ostream & out, const math::XYZVector & v) {
   return out << "(" << v.rho() << ", " << v.z() << ", " << v.phi() << ")";
 }
 
-class ListGroups : public edm::EDAnalyzer
+class ListGroups : public edm::one::EDAnalyzer<>
 {
 public:
   ListGroups(const edm::ParameterSet &);
@@ -175,36 +177,50 @@ void ListGroups::fillColor(void)
 {
   m_color.push_back(kBlack);          // unassigned
 
-  m_color.push_back(kAzure);          // PixelBarrelLayer0
+  m_color.push_back(kAzure);          // PixelBarrelLayer0_Z0
+  m_color.push_back(kAzure - 1);      // PixelBarrelLayer0_Z20
   m_color.push_back(kAzure + 1) ;     // Layer1_Z0
-  m_color.push_back(kAzure + 2) ;     // Layer1_Z10
-  m_color.push_back(kAzure + 3) ;     // Layer2_Z0
-  m_color.push_back(kAzure + 10);     // Layer2_Z15
+  m_color.push_back(kAzure + 2) ;     // Layer1_Z20
+//  m_color.push_back(kAzure + 3) ;     // Layer2_Z0
+//  m_color.push_back(kAzure + 10);     // Layer2_Z15
 
   m_color.push_back(kGreen);          // EndCapDisk1_R0
   m_color.push_back(kGreen + 2);      // EndcapDisk1_R11
   m_color.push_back(kGreen + 4);      // EndcapDisk1_R7
   m_color.push_back(kSpring + 9);     // EndcapDisk2_R0
   m_color.push_back(kSpring + 4);     // EndcapDisk2_R7
+  m_color.push_back(kSpring    );     // EndcapDisk2_R7
 
   m_color.push_back(kRed);            // TECDisk0_R20
   m_color.push_back(kRed + 2);        // TECDisk0_R40
   m_color.push_back(kRed - 7);        // TECDisk0_R50
   m_color.push_back(kRed - 5);        // TECDisk0_R60
   m_color.push_back(kRed - 10);       // TECDisk0_R90
+  m_color.push_back(kRed - 1);        // TECDisk1_Inner
+  m_color.push_back(kRed - 2);        // TECDisk1_Outer
   m_color.push_back(kRed - 3);        // TECDisk1_R20
-  m_color.push_back(kPink - 2);       // TECDisk2_R20
-  m_color.push_back(kPink + 9);       // TECDisk3
-  m_color.push_back(kMagenta - 2);    // TECDisk4_R33
-  m_color.push_back(kMagenta - 4);    // TECDisk5_R33
+  m_color.push_back(kPink - 2);       // TECDisk2_Inner
+  m_color.push_back(kPink - 3);       // TECDisk2_Outer
+  m_color.push_back(kPink - 4);       // TECDisk2_R20
+  m_color.push_back(kPink + 9);       // TECDisk3_Inner
+  m_color.push_back(kPink + 8);       // TECDisk3_Outer
+  m_color.push_back(kPink + 7);       // TECDisk3
+  m_color.push_back(kMagenta - 2);    // TECDisk4_Inner
+  m_color.push_back(kMagenta - 3);    // TECDisk4_Outer
+  m_color.push_back(kMagenta - 4);    // TECDisk4_R33
+  m_color.push_back(kMagenta - 5);    // TECDisk5_Inner
+  m_color.push_back(kMagenta - 6);    // TECDisk5_Outer
+  m_color.push_back(kMagenta - 7);    // TECDisk5_R33
   m_color.push_back(kRed);            // TECDisk6
   m_color.push_back(kMagenta - 9);    // TECDisk7_R40
   m_color.push_back(kViolet);         // TECDisk8
 
   m_color.push_back(kOrange + 9);     // TIBLayer0_Z0
   m_color.push_back(kOrange + 7);     // TIBLayer0_Z20
+  m_color.push_back(kOrange + 5);     // TIBLayer0_Z40
   m_color.push_back(kOrange - 2);     // TIBLayer1_Z0
   m_color.push_back(kOrange - 3);     // TIBLayer1_Z30
+  m_color.push_back(kOrange - 6);     // TIBLayer1_Z60
   m_color.push_back(kOrange + 4);     // TIBLayer2_Z0
   m_color.push_back(kOrange - 7);     // TIBLayer2_Z40
   m_color.push_back(kOrange);         // TIBLayer3_Z0
@@ -212,29 +228,38 @@ void ListGroups::fillColor(void)
 
   m_color.push_back(kViolet + 10);    // TIDDisk1_R0
   m_color.push_back(kViolet + 6);     // TIDDisk1_R30
+  m_color.push_back(kViolet + 3);     // TIDDisk1_R40
   m_color.push_back(kViolet - 7);     // TIDDisk2_R25
   m_color.push_back(kViolet - 1);     // TIDDisk2_R30
   m_color.push_back(kViolet + 9);     // TIDDisk2_R40
-  m_color.push_back(kViolet);         // TIDDisk3_R24
+  m_color.push_back(kViolet - 5);     // TIDDisk3_R24
+  m_color.push_back(kViolet - 3);     // TIDDisk3_R30
+  m_color.push_back(kViolet);         // TIDDisk3_R40
 
   m_color.push_back(kAzure    );    // TOBLayer0_Z0
   m_color.push_back(kAzure + 8);    // TOBLayer0_Z20
   m_color.push_back(kAzure + 2);    // TOBLayer0_Z70
+  m_color.push_back(kAzure + 4);    // TOBLayer0_Z80
   m_color.push_back(kCyan + 1);     // TOBLayer1_Z0
   m_color.push_back(kCyan - 9);     // TOBLayer1_Z20
   m_color.push_back(kCyan + 3);     // TOBLayer1_Z80
+  m_color.push_back(kCyan + 4);     // TOBLayer1_Z90
   m_color.push_back(kAzure    );    // TOBLayer2_Z0
   m_color.push_back(kAzure + 8);    // TOBLayer2_Z25
   m_color.push_back(kAzure + 2);    // TOBLayer2_Z80
+  m_color.push_back(kAzure + 5);    // TOBLayer2_Z90
   m_color.push_back(kCyan + 1);     // TOBLayer3_Z0
   m_color.push_back(kCyan - 9);     // TOBLayer3_Z25
   m_color.push_back(kCyan + 3);     // TOBLayer3_Z80
+  m_color.push_back(kCyan + 4);     // TOBLayer3_Z90
   m_color.push_back(kAzure    );    // TOBLayer4_Z0
   m_color.push_back(kAzure + 8);    // TOBLayer4_Z25
   m_color.push_back(kAzure + 2);    // TOBLayer4_Z80
+  m_color.push_back(kAzure + 5);    // TOBLayer4_Z90
   m_color.push_back(kCyan + 1);     // TOBLayer5_Z0
   m_color.push_back(kCyan - 9);     // TOBLayer5_Z25
   m_color.push_back(kCyan + 3);     // TOBLayer5_Z80
+  m_color.push_back(kCyan + 4);     // TOBLayer5_Z90
 }
 
 std::vector<std::pair<std::shared_ptr<TLine>, std::shared_ptr<TText> > >
@@ -297,6 +322,7 @@ ListGroups::overlayEtaReferences() {
 void ListGroups::produceAndSaveSummaryPlot(const edm::EventSetup &setup) {
   const double scale = 10.;
   std::vector<TText *> nukem_text;
+  static int markerStyles[10] = {kFullCircle, kFullSquare, kFullTriangleUp, kFullTriangleDown, kOpenCircle, kOpenSquare, kOpenTriangleUp, kOpenDiamond, kOpenCross, kFullStar};
 
   edm::ESTransientHandle<DDCompactView> hDdd;
   setup.get<IdealGeometryRecord>().get( hDdd );
@@ -331,14 +357,16 @@ void ListGroups::produceAndSaveSummaryPlot(const edm::EventSetup &setup) {
       new TProfile2D( "OverallDifferencesEnergyLoss", "OverallDifferencesEnergyLoss",
                       600., -300., 300, 120., 0., 120.));
 
+//  assert(m_color.size() - 1 == m_groups.size());
   for (auto g : m_groups) {
     m_plots.push_back(
         new TH2F( g->name().c_str(), g->name().c_str(),
                   6000., -300., 300, 1200., 0., 120.)); // 10x10 points per cm2
     TH2F &current = *m_plots.back();
     current.SetMarkerColor(m_color[color_index]);
-    current.SetMarkerStyle( color_index%2 == 0 ? kFullCircle : kOpenCircle);
+    current.SetMarkerStyle(markerStyles[color_index%10]);
     current.SetMarkerSize(0.8);
+    current.SetLineWidth(1);
     for (auto element : g->elements()) {
       current.Fill(element.z(), element.perp());
       radlen->Fill(element.z(), element.perp(), m_values[g->name()].first);

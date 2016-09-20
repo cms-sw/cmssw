@@ -20,7 +20,7 @@ EmbeddingKineReweightProducer::EmbeddingKineReweightProducer(const edm::Paramete
   if ( inputFileName.location() == edm::FileInPath::Unknown) 
     throw cms::Exception("EmbeddingReweightProducer") 
       << " Failed to find File = " << inputFileName << " !!\n";
-  std::auto_ptr<TFile> inputFile(new TFile(inputFileName.fullPath().data()));
+  std::unique_ptr<TFile> inputFile(new TFile(inputFileName.fullPath().data()));
 
   edm::ParameterSet cfgLUTs = cfg.getParameter<edm::ParameterSet>("lutNames"); 
   std::vector<std::string> variables = cfgLUTs.getParameterNamesForType<std::string>();
@@ -77,8 +77,7 @@ void EmbeddingKineReweightProducer::produce(edm::Event& evt, const edm::EventSet
     if ( verbosity_ ) {
       std::cout << " " << (*lutEntry)->variableName_ << " = " << weight << std::endl;
     }
-    std::auto_ptr<double> weightPtr(new double(weight));
-    evt.put(weightPtr, (*lutEntry)->variableName_);
+    evt.put(std::make_unique<double>(weight), (*lutEntry)->variableName_);
   }
 }
 

@@ -84,6 +84,8 @@ void GEMSimpleModel::simulateSignal(const GEMEtaPartition* roll, const edm::PSim
   stripDigiSimLinks_.clear();
   detectorHitMap_.clear();
   stripDigiSimLinks_ = StripDigiSimLinks(roll->id().rawId());
+  theGemDigiSimLinks_.clear();
+  theGemDigiSimLinks_ = GEMDigiSimLinks(roll->id().rawId());
   bool digiMuon = false;
   bool digiElec = false;
   for (edm::PSimHitContainer::const_iterator hit = simHits.begin(); hit != simHits.end(); ++hit)
@@ -138,7 +140,7 @@ int GEMSimpleModel::getSimHitBx(const PSimHit* simhit, CLHEP::HepRandomEngine* e
   {
     throw cms::Exception("Geometry") << "GEMSimpleModel::getSimHitBx() - this GEM id is from barrel, which cannot happen: " << roll->id() << "\n";
   }
-  const double cspeed = 299792458;	 // signal propagation speed in vacuum in [m/s]
+  const double cspeed = 299792458;   // signal propagation speed in vacuum in [m/s]
   const int nstrips = roll->nstrips();
   float middleStrip = nstrips/2.;
   LocalPoint middleOfRoll = roll->centreOfStrip(middleStrip);
@@ -195,7 +197,7 @@ void GEMSimpleModel::simulateNoise(const GEMEtaPartition* roll, CLHEP::HepRandom
   trArea = trStripArea * nstrips;
   const int nBxing(maxBunch_ - minBunch_ + 1);
   const float rollRadius(fixedRollRadius_ ? top_->radius() : 
-			 top_->radius() + CLHEP::RandFlat::shoot(engine, -1.*top_->stripLength()/2., top_->stripLength()/2.));
+       top_->radius() + CLHEP::RandFlat::shoot(engine, -1.*top_->stripLength()/2., top_->stripLength()/2.));
 
 //calculate noise from model
   double averageNeutralNoiseRatePerRoll = 0.;

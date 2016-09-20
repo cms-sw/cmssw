@@ -47,6 +47,8 @@
 #include "Fireworks/Core/src/FWNumberEntry.h"
 
 #include "Fireworks/Core/interface/fwPaths.h"
+#include "Fireworks/Core/interface/Context.h"
+#include "Fireworks/Core/interface/CmsShowCommon.h"
 
 #include <fstream>
 
@@ -260,7 +262,9 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIMana
    while ((title = (TGMenuTitle *)next()))
       title->SetTextColor(textColor);
 
-   menuTopFrame->AddFrame(menuBar, new TGLayoutHints(kLHintsExpandX, 0, 0, 0, 0));
+   menuTopFrame->AddFrame(menuBar, new TGLayoutHints(kLHintsLeft, 0, 0, 0, 0));
+
+   
    AddFrame(menuTopFrame, new TGLayoutHints(kLHintsExpandX, 0, 0, 0, 0));
 
    // !!!! MT Line separating menu from other window components.

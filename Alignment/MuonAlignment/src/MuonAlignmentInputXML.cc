@@ -267,7 +267,7 @@ AlignableMuon *MuonAlignmentInputXML::newAlignableMuon(const edm::EventSetup& iS
    XercesDOMParser *parser = new XercesDOMParser();
    parser->setValidationScheme(XercesDOMParser::Val_Always);
 
-   ErrorHandler *errHandler = (ErrorHandler*)(new HandlerBase());
+   XERCES_CPP_NAMESPACE::ErrorHandler *errHandler = (XERCES_CPP_NAMESPACE::ErrorHandler*)(new HandlerBase());
    parser->setErrorHandler(errHandler);
 
    try {

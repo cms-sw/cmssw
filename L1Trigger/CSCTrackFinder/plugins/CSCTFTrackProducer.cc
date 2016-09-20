@@ -82,9 +82,9 @@ void CSCTFTrackProducer::produce(edm::Event & e, const edm::EventSetup& c)
   CSCTriggerGeometry::setGeometry(pDD);
 
   edm::Handle<CSCCorrelatedLCTDigiCollection> LCTs;
-  std::auto_ptr<L1CSCTrackCollection> track_product(new L1CSCTrackCollection);
+  std::unique_ptr<L1CSCTrackCollection> track_product(new L1CSCTrackCollection);
   e.getByToken(input_module, LCTs);
-  std::auto_ptr<CSCTriggerContainer<csctf::TrackStub> > dt_stubs(new CSCTriggerContainer<csctf::TrackStub>);
+  std::unique_ptr<CSCTriggerContainer<csctf::TrackStub> > dt_stubs(new CSCTriggerContainer<csctf::TrackStub>);
  
   // Either emulate or directly read in DT stubs based on switch
   //////////////////////////////////////////////////////////////
@@ -104,6 +104,6 @@ void CSCTFTrackProducer::produce(edm::Event & e, const edm::EventSetup& c)
 
   my_builder->buildTracks(LCTs.product(), (useDT?&emulStub:0), track_product.get(), dt_stubs.get());
 
-  e.put(track_product);
-  e.put(dt_stubs);
+  e.put(std::move(track_product));
+  e.put(std::move(dt_stubs));
 }

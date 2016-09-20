@@ -1,13 +1,13 @@
-#include <RecoLocalMuon/GEMSegment/plugins/ME0SegmentBuilder.h>
-#include <DataFormats/MuonDetId/interface/ME0DetId.h>
-#include <DataFormats/GEMRecHit/interface/ME0RecHit.h>
-#include <Geometry/GEMGeometry/interface/ME0Geometry.h>
-#include <Geometry/GEMGeometry/interface/ME0EtaPartition.h>
-#include <RecoLocalMuon/GEMSegment/plugins/ME0SegmentAlgorithm.h>
-#include <RecoLocalMuon/GEMSegment/plugins/ME0SegmentBuilderPluginFactory.h>
-
-#include <FWCore/Utilities/interface/Exception.h>
-#include <FWCore/MessageLogger/interface/MessageLogger.h> 
+#include "RecoLocalMuon/GEMSegment/plugins/ME0SegmentBuilder.h"
+#include "DataFormats/MuonDetId/interface/ME0DetId.h"
+#include "DataFormats/GEMRecHit/interface/ME0RecHit.h"
+#include "Geometry/GEMGeometry/interface/ME0Geometry.h"
+#include "Geometry/GEMGeometry/interface/ME0EtaPartition.h"
+#include "RecoLocalMuon/GEMSegment/plugins/ME0SegmentAlgorithmBase.h"
+#include "RecoLocalMuon/GEMSegment/plugins/ME0SegmentBuilderPluginFactory.h"
+	 
+#include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h" 
 
 ME0SegmentBuilder::ME0SegmentBuilder(const edm::ParameterSet& ps) : geom_(0) {
   
@@ -20,12 +20,11 @@ ME0SegmentBuilder::ME0SegmentBuilder(const edm::ParameterSet& ps) : geom_(0) {
   edm::ParameterSet segAlgoPSet = ps.getParameter<edm::ParameterSet>("algo_pset");
   
   // Ask factory to build this algorithm, giving it appropriate ParameterSet  
-  algo = ME0SegmentBuilderPluginFactory::get()->create(algoName, segAlgoPSet);
+  algo = std::unique_ptr<ME0SegmentAlgorithmBase>(ME0SegmentBuilderPluginFactory::get()->create(algoName, segAlgoPSet));
   
 }
-ME0SegmentBuilder::~ME0SegmentBuilder() {
-  delete algo;
-}
+
+ME0SegmentBuilder::~ME0SegmentBuilder() {}
 
 void ME0SegmentBuilder::build(const ME0RecHitCollection* recHits, ME0SegmentCollection& oc) {
   	
@@ -45,9 +44,8 @@ void ME0SegmentBuilder::build(const ME0RecHitCollection* recHits, ME0SegmentColl
     // [At a later stage one will have to mask also the rolls 
     // if one wants to recover segments that are at the border of a roll]
     ME0DetId id(it2->me0Id().region(),1,it2->me0Id().chamber(),it2->me0Id().roll());
-    std::vector<ME0RecHit* > pp = ensembleRH[id.rawId()];
-    pp.push_back(it2->clone());
-    ensembleRH[id.rawId()]=pp;
+    // save current ME0RecHit in vector associated to the reference id
+    ensembleRH[id.rawId()].push_back(it2->clone());    
   }
   
   for(auto enIt=ensembleRH.begin(); enIt != ensembleRH.end(); ++enIt) {
@@ -61,19 +59,21 @@ void ME0SegmentBuilder::build(const ME0RecHitCollection* recHits, ME0SegmentColl
       me0RecHits.push_back(*rechit);
       ens[(*rechit)->me0Id()]=geom_->etaPartition((*rechit)->me0Id());
     }    
-    ME0SegmentAlgorithm::ME0Ensemble ensemble(std::pair<const ME0EtaPartition*, std::map<uint32_t,const ME0EtaPartition*> >(firstlayer,ens));
+    ME0SegmentAlgorithmBase::ME0Ensemble ensemble(std::pair<const ME0EtaPartition*, std::map<uint32_t,const ME0EtaPartition*> >(firstlayer,ens));
     
+    #ifdef EDM_ML_DEBUG
     LogDebug("ME0SegmentBuilder") << "found " << me0RecHits.size() << " rechits in chamber " /*<< *enIt */;
+    #endif
     
     // given the chamber select the appropriate algo... and run it
     std::vector<ME0Segment> segv = algo->run(ensemble, me0RecHits);
     ME0DetId mid(enIt->first);
     
-    //FIXME
-    //HACK to make it a chamberID
-    ME0DetId midchamber(mid.region(),1,mid.chamber(),0);
+    ME0DetId midchamber(mid.chamberId());
 
+    #ifdef EDM_ML_DEBUG
     LogDebug("ME0SegmentBuilder") << "found " << segv.size() << " segments in chamber " << mid;
+    #endif
     
     // Add the segments to master collection
     //FIXME

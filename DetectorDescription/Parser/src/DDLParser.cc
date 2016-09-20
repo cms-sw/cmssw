@@ -1,22 +1,4 @@
-/***************************************************************************
-                          DDLParser.cc  -  description
-                             -------------------
-    begin                : Mon Oct 22 2001
-    email                : case@ucdhep.ucdavis.edu
-***************************************************************************/
-
-/***************************************************************************
- *                                                                         *
- *           DDDParser sub-component of DDD                                *
- *                                                                         *
- ***************************************************************************/
-
 #include "DetectorDescription/Parser/interface/DDLParser.h"
-
-#include <xercesc/framework/MemBufInputSource.hpp>
-#include <iostream>
-
-#include "DetectorDescription/Base/interface/DDdebug.h"
 #include "DetectorDescription/Parser/interface/DDLDocumentProvider.h"
 #include "DetectorDescription/Parser/interface/DDLSAX2ExpressionHandler.h"
 #include "DetectorDescription/Parser/interface/DDLSAX2FileHandler.h"
@@ -24,17 +6,16 @@
 #include "FWCore/Concurrency/interface/Xerces.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
-#include "xercesc/sax2/XMLReaderFactory.hpp"
-#include "xercesc/util/XMLUni.hpp"
+#include <xercesc/framework/MemBufInputSource.hpp>
+#include <xercesc/sax2/XMLReaderFactory.hpp>
+#include <xercesc/util/XMLUni.hpp>
+#include <iostream>
 
 class DDCompactView;
-namespace xercesc_2_8 {
-class SAX2XMLReader;
-}  // namespace xercesc_2_8
+
+XERCES_CPP_NAMESPACE_USE
 
 using namespace std;
-
-using namespace XERCES_CPP_NAMESPACE;
 
 /// Constructor MUST associate a DDCompactView storage.
 DDLParser::DDLParser( DDCompactView& cpv )
@@ -46,16 +27,12 @@ DDLParser::DDLParser( DDCompactView& cpv )
   
   SAX2Parser_->setFeature(XMLUni::fgSAX2CoreValidation, false);   // optional
   SAX2Parser_->setFeature(XMLUni::fgSAX2CoreNameSpaces, false);   // optional
-  // Specify other parser features, e.g.
-  //  SAX2Parser_->setFeature(XMLUni::fgXercesSchemaFullChecking, false);
   
   expHandler_  = new DDLSAX2ExpressionHandler(cpv);
   fileHandler_ = new DDLSAX2FileHandler(cpv);
   errHandler_  = new DDLSAX2Handler();
   SAX2Parser_->setErrorHandler(errHandler_); 
   SAX2Parser_->setContentHandler(fileHandler_); 
-  
-  DCOUT_V('P', "DDLParser::DDLParser(): new (and only) DDLParser"); 
 }
 
 /// Destructor terminates the XMLPlatformUtils (as required by Xerces)
@@ -66,7 +43,6 @@ DDLParser::~DDLParser( void )
   delete fileHandler_;
   delete errHandler_;
   cms::concurrency::xercesTerminate();
-  DCOUT_V('P', "DDLParser::~DDLParser(): destruct DDLParser"); 
 }
 
 /**  This method allows external "users" to use the current DDLParser on their own.
@@ -117,74 +93,39 @@ DDLParser::isParsed( const std::string& filename )
 // Must receive a filename and path relative to the src directory of a CMSSW release
 // e.g. DetectorDescription/test/myfile.xml
 bool
-DDLParser::parseOneFile( const std::string& fullname ) //, const std::string& url)
+DDLParser::parseOneFile( const std::string& fullname )
 {
-  //  std::string filename = expHandler_->extractFileName(fullname);
-  std::string filename = extractFileName(fullname);
-  //  std::cout << "parseOneFile - fullname = " << fullname << std::endl;
-  //  std::cout << "parseOneFile - filename = " << filename << std::endl;
-  edm::FileInPath fp(fullname);
+  std::string filename = extractFileName( fullname );
+  edm::FileInPath fp( fullname );
   std::string absoluteFileName = fp.fullPath();
-  size_t foundFile = isFound(filename);
-  if (!foundFile)
+  size_t foundFile = isFound( filename );
+  if( !foundFile )
   {
-    pair <std::string, std::string> pss;
+    pair< std::string, std::string > pss;
     pss.first = filename;
     pss.second = absoluteFileName; //url+filename;
     int fIndex = nFiles_;
     fileNames_[nFiles_] = pss;
     ++nFiles_;
-    parsed_[fIndex]=false;
+    parsed_[fIndex] = false;
 
     currFileName_ = fileNames_[fIndex].second;
 
-    // in cleaning up try-catch blocks 2007-06-26 I decided to remove
-    // this because of CMSSW rules. but keep the commented way I used to
-    // do it...
-    //       DO NOT UNCOMMENT FOR ANY RELEASE; ONLY FOR DEBUGGING! try
-    //         {
-    SAX2Parser_->setContentHandler(expHandler_);
-    expHandler_->setNameSpace( getNameSpace(filename) );
-    //	  std::cout << "0) namespace = " << getNameSpace(filename) << std::endl;
-    LogDebug ("DDLParser") << "ParseOneFile() Parsing: " << fileNames_[fIndex].second << std::endl;
-    parseFile ( fIndex );
+    SAX2Parser_->setContentHandler( expHandler_ );
+    expHandler_->setNameSpace( getNameSpace( filename ));
 
-    //         }
-    //       DO NOT UNCOMMENT FOR ANY RELEASE; ONLY FOR DEBUGGING! catch (const XMLException& toCatch) {
-    //         edm::LogError ("DDLParser") << "\nDDLParser::ParseOneFile, PASS1: XMLException while processing files... \n"
-    //              << "Exception message is: \n"
-    //              << StrX(toCatch.getMessage()) << "\n" ;
-    //         cms::concurrency::xercesTerminate();
-    //         throw (DDException("  See XMLException above. "));
-    //       }
+    LogDebug ("DDLParser") << "ParseOneFile() Parsing: " << fileNames_[fIndex].second << std::endl;
+    parseFile( fIndex );
 
     // PASS 2:
 
-    DCOUT_V('P', "DDLParser::ParseOneFile(): PASS2: Just before setting Xerces content and error handlers... ");
-
-    //       DO NOT UNCOMMENT FOR ANY RELEASE; ONLY FOR DEBUGGING! try
-    //         {
-
     SAX2Parser_->setContentHandler(fileHandler_);
-    //      std::cout << "currFileName = " << currFileName_ << std::endl;
-    fileHandler_->setNameSpace( getNameSpace(extractFileName(currFileName_)) );
-    //      std::cout << "1)  namespace = " << getNameSpace(currFileName_) << std::endl;
+    fileHandler_->setNameSpace( getNameSpace( extractFileName( currFileName_ )));
     parseFile ( fIndex );
     parsed_[fIndex] = true;
-
-    //         }
-    //       DO NOT UNCOMMENT FOR ANY RELEASE; ONLY FOR DEBUGGING! catch (const XMLException& toCatch) {
-    //         edm::LogError ("DDLParser") << "\nDDLParser::ParseOneFile, PASS2: XMLException while processing files... \n"
-    //              << "Exception message is: \n"
-    //              << StrX(toCatch.getMessage()) << "\n" ;
-    //         cms::concurrency::xercesTerminate();
-    //         throw (DDException("  See XMLException above."));
-    //       }
   }
   else // was found and is parsed...
   {
-    DCOUT('P', " WARNING: DDLParser::ParseOneFile() file " + filename
-	  + " was already parsed as " + fileNames_[foundFile].second);
     return true;
   }
   return false;
@@ -199,49 +140,24 @@ DDLParser::parse( const std::vector<unsigned char>& ablob, unsigned int bsize )
   SAX2Parser_->parse(mbis);
 }
 
-std::vector < std::string >
-DDLParser::getFileList( void ) 
-{
-  std::vector<std::string> flist;
-  for (FileNameHolder::const_iterator fit = fileNames_.begin(); fit != fileNames_.end(); ++fit)
-  {
-    flist.push_back(fit->second.first); // was .second (mec: 2003:02:19
-  }
-  return flist;
-}
-
 int
 DDLParser::parse( const DDLDocumentProvider& dp )
 {
-  //  edm::LogInfo ("DDLParser") << "Start Parsing.  Validation is set to " << dp.doValidation() << "." << std::endl;
   edm::LogInfo ("DDLParser") << "Start Parsing.  Validation is set off for the time being." << std::endl;
   // prep for pass 1 through DDD XML
-  //   // Since this block does nothing for CMSSW right now, I have taken it all out
-  //   This clean-up involves interface changes such as the removal of doValidation() everywhere (OR NOT 
-  //   if I decide to keep it for other testing reasons.)
-  //    if (dp.doValidation())
-  //      { 
-  // //       DCOUT_V('P', "WARNING:  PARSER VALIDATION IS TURNED OFF REGARDLESS OF <Schema... ELEMENT");
-  //   SAX2Parser_->setFeature(XMLUni::fgSAX2CoreValidation, true);
-  //   SAX2Parser_->setFeature(XMLUni::fgSAX2CoreNameSpaces, true);
-  // //       //  SAX2Parser_->setFeature(XMLUni::fgXercesSchemaFullChecking, true);
-  //      }
-  //    else
-  //     {
-  SAX2Parser_->setFeature(XMLUni::fgSAX2CoreValidation, false);
-  SAX2Parser_->setFeature(XMLUni::fgSAX2CoreNameSpaces, false);
-  //       //  SAX2Parser_->setFeature(XMLUni::fgXercesSchemaFullChecking, false);
-
-  //     }
+  SAX2Parser_->setFeature( XMLUni::fgSAX2CoreValidation, false );
+  SAX2Parser_->setFeature( XMLUni::fgSAX2CoreNameSpaces, false );
 
   //  This need be only done once, so might as well to it here.
   size_t fileIndex = 0;
   std::vector<std::string> fullFileName;
-
-  for (; fileIndex < (dp.getFileList()).size(); ++fileIndex)
+  const std::vector < std::string >& fileList = dp.getFileList();
+  const std::vector < std::string >& urlList = dp.getURLList();
+  
+  for(; fileIndex < fileList.size(); ++fileIndex )
   { 
-    std::string ts = dp.getURLList()[fileIndex];
-    std::string tf = dp.getFileList()[fileIndex];
+    std::string ts = urlList[fileIndex];
+    std::string tf = fileList[fileIndex];
     if ( ts.size() > 0 ) {
       if ( ts[ts.size() - 1] == '/') {
 	fullFileName.push_back( ts + tf );
@@ -253,98 +169,57 @@ DDLParser::parse( const DDLDocumentProvider& dp )
     }
   }
 
-  for (std::vector<std::string>::const_iterator fnit = fullFileName.begin(); 
-       fnit != fullFileName.end();
-       ++fnit)
+  for( const auto& fnit : fullFileName ) 
   {
-    size_t foundFile = isFound(extractFileName( *fnit )); 
+    size_t foundFile = isFound( extractFileName( fnit )); 
 	
-    if (!foundFile)
+    if( !foundFile )
     {
       pair <std::string, std::string> pss;
-      pss.first = extractFileName( *fnit );
-      pss.second = *fnit;
+      pss.first = extractFileName( fnit );
+      pss.second = fnit;
       fileNames_[nFiles_++] = pss;
-      parsed_[nFiles_ - 1]=false;
+      parsed_[nFiles_ - 1] = false;
     }
   }
     
   // Start processing the files found in the config file.
-  
+  assert( fileNames_.size() == nFiles_ );
+
   // PASS 1:  This was added later (historically) to implement the DDD
   // requirement for Expressions.
-  DCOUT('P', "DDLParser::parse(): PASS1: Just before setting Xerces content and error handlers... ");
   
-  
-  // in cleaning up try-catch blocks 2007-06-26 I decided to remove
-  // this because of CMSSW rules. but keep the commented way I used to
-  // do it...
-  //   DO NOT UNCOMMENT FOR ANY RELEASE; ONLY FOR DEBUGGING! try
-  //     {
   SAX2Parser_->setContentHandler(expHandler_);
-  for (size_t i = 0; i < fileNames_.size(); ++i)
+  for( size_t i = 0; i < nFiles_; ++i )
   {
-    if (!parsed_[i])
+    if( !parsed_[i])
     {
       currFileName_ = fileNames_[i].second;
-      //	      std::cout << "currFileName = " << currFileName_ << std::endl;
-      expHandler_->setNameSpace( getNameSpace(extractFileName(currFileName_)) );
-      //	      std::cout << "2)  namespace = " << getNameSpace(extractFileName(currFileName_)) << std::endl;
+      expHandler_->setNameSpace( getNameSpace( extractFileName( currFileName_ )));
       parseFile(i);
     }
   }
-  expHandler_->dumpElementTypeCounter();
-  //     }
-  //   DO NOT UNCOMMENT FOR ANY RELEASE; ONLY FOR DEBUGGING! catch (const XMLException& toCatch) {
-  //     edm::LogInfo ("DDLParser") << "\nPASS1: XMLException while processing files... \n"
-  // 	 << "Exception message is: \n"
-  // 	 << StrX(toCatch.getMessage()) << "\n" ;
-  //     cms::concurrency::xercesTerminate();
-  //     // FIX use this after DEPRECATED stuff removed:    throw(DDException("See XML Exception above"));
-  //     return -1;
-  //   }
+
   // PASS 2:
 
-  DCOUT('P', "DDLParser::parse(): PASS2: Just before setting Xerces content and error handlers... ");
-
-  // in cleaning up try-catch blocks 2007-06-26 I decided to remove
-  // this because of CMSSW rules. but keep the commented way I used to
-  // do it...
-  //   DO NOT UNCOMMENT FOR ANY RELEASE; ONLY FOR DEBUGGING! try
-  //     {
   SAX2Parser_->setContentHandler(fileHandler_);
 
   // No need to validate (regardless of user's doValidation
   // because the files have already been validated on the first pass.
   // This optimization suggested by Martin Liendl.
-  //       SAX2Parser_->setFeature(StrX("http://xml.org/sax/features/validation"), false);   // optional
-  //       SAX2Parser_->setFeature(StrX("http://xml.org/sax/features/namespaces"), false);   // optional
-  //       SAX2Parser_->setFeature(StrX("http://apache.org/xml/features/validation/dynamic"), false);
-
 
   // Process files again.
-  for (size_t i = 0; i < fileNames_.size(); ++i)
+  for( size_t i = 0; i < nFiles_; ++i )
   {
-    // 	  seal::SealTimer t("DDLParser: parsing all elements of file " +fileNames_[i].first);
-    if (!parsed_[i]) {
+    if( !parsed_[i]) {
       currFileName_ = fileNames_[i].second;
-      //	    std::cout << "currFileName = " << currFileName_ << std::endl;
-      fileHandler_->setNameSpace( getNameSpace(extractFileName(currFileName_)) );
-      //	    std::cout << "3)  namespace = " << getNameSpace(extractFileName(currFileName_)) << std::endl;
+      fileHandler_->setNameSpace( getNameSpace( extractFileName( currFileName_ )));
       parseFile(i);
       parsed_[i] = true;
       pair<std::string, std::string> namePair = fileNames_[i];
       LogDebug ("DDLParser") << "Completed parsing file " << namePair.second << std::endl;
     }
   }
-  //     }
-  //   DO NOT UNCOMMENT FOR ANY RELEASE; ONLY FOR DEBUGGING! catch (const XMLException& toCatch) {
-  //     edm::LogError ("DDLParser") << "\nPASS2: XMLException while processing files... \n"
-  // 	 << "Exception message is: \n"
-  // 	 << StrX(toCatch.getMessage()) << "\n" ;
-  //     cms::concurrency::xercesTerminate();
-  //     return -1;
-  //   }
   return 0;
 }
 
@@ -355,27 +230,8 @@ DDLParser::parseFile( const int& numtoproc )
   {
     const std::string & fname = fileNames_[numtoproc].second;
 
-    // in cleaning up try-catch blocks 2007-06-26 I decided to remove
-    // this because of CMSSW rules. but keep the commented way I used to
-    // do it...
-    //       DO NOT UNCOMMENT FOR ANY RELEASE; ONLY FOR DEBUGGING! try
-    // 	{
     currFileName_ = fname;
     SAX2Parser_->parse(currFileName_.c_str());
-    // 	}
-    //       DO NOT UNCOMMENT FOR ANY RELEASE; ONLY FOR DEBUGGING! catch (const XMLException& toCatch)
-    // 	{
-    // 	  std::string e("\nWARNING: DDLParser::parseFile, File: '");
-    // 	  e += currFileName_ + "'\n"
-    // 	    + "Exception message is: \n"
-    // 	    + std::string(StrX(toCatch.getMessage()).localForm()) + "\n";
-    // 	  throw(DDException(e));
-    // 	}
-  }
-  else
-  {
-    DCOUT('P', "\nWARNING: File " + fileNames_[numtoproc].first 
-	  + " has already been processed as " + fileNames_[numtoproc].second);
   }
 }
 
@@ -386,18 +242,13 @@ DDLParser::clearFiles( void )
   parsed_.clear();
 }
 
-std::string
-DDLParser::extractFileName( std::string fullname )
+std::string const
+DDLParser::extractFileName( const std::string& fullname )
 {
-  std::string ret = "";
-  size_t bit = fullname.rfind('/');
-  if ( bit < fullname.size() - 2 ) {
-    ret=fullname.substr(bit+1);
-  }
-  return ret;
+  return( fullname.substr( fullname.rfind( '/' ) + 1 ));
 }
 
-std::string
+std::string const
 DDLParser::getNameSpace( const std::string& fname )
 {
   size_t j = 0;

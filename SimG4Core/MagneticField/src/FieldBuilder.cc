@@ -9,13 +9,6 @@
 #include "SimG4Core/MagneticField/interface/FieldStepper.h"
 #include "SimG4Core/MagneticField/interface/G4MonopoleEquation.hh"
 #include "SimG4Core/MagneticField/interface/ChordFinderSetter.h"
-#include "SimG4Core/Notification/interface/SimG4Exception.h"
-
-/*
-#include "DetectorDescription/Parser/interface/DDLConfiguration.h"
-#include "DetectorDescription/Base/interface/DDException.h"
-#include "DetectorDescription/Algorithm/src/AlgoInit.h"
-*/
 
 #include "G4Mag_UsualEqRhs.hh"
 #include "G4ClassicalRK4.hh"
@@ -35,7 +28,7 @@ FieldBuilder::FieldBuilder(const MagneticField * f,
 			   const edm::ParameterSet & p) 
   : theField(new Field(f, p.getParameter<double>("delta"))),
     theFieldEquation(new G4Mag_UsualEqRhs(theField.get())),
-    theTopVolume(0),
+    theTopVolume(nullptr),
     fieldValue(0.), minStep(0.), dChord(0.), dOneStep(0.),
     dIntersection(0.), dIntersectionAndOneStep(0.), 
     maxLoopCount(0), minEpsilonStep(0.), maxEpsilonStep(0.), 
@@ -57,8 +50,6 @@ void FieldBuilder::build( G4FieldManager* fM, G4PropagatorInField* fP, ChordFind
     
   configureForVolume( volName, volPSet, fM, fP, setter );
     
-  // configure( "MagneticFieldType", fM, fP ) ;
-
   if ( thePSet.getParameter<bool>("UseLocalMagFieldManager") )  {
 
     edm::LogInfo("SimG4CoreApplication") 
@@ -72,7 +63,8 @@ void FieldBuilder::build( G4FieldManager* fM, G4PropagatorInField* fP, ChordFind
     // In principal, need to throw an exception
     //
     if ( thePSetForLMFM == defpset )  {
-      std::cout << " Patology ! Local Mag.Field Manager requested but config not given !\n";
+      edm::LogError("SimG4CoreApplication") 
+	<< " FieldBuilder::build: Patology! Local Mag.Field Manager requested but config not given!";
       return ;
     }
        
@@ -84,14 +76,14 @@ void FieldBuilder::build( G4FieldManager* fM, G4PropagatorInField* fP, ChordFind
       volPSet = thePSetForLMFM.getParameter< edm::ParameterSet >(ListOfVolumes[i]);
       G4FieldManager* fAltM = new G4FieldManager() ;
       configureForVolume( ListOfVolumes[i], volPSet, fAltM, nullptr, setter ) ;
-      //configureLocalFM( ListOfVolumes[i], fAltM ) ;
+
       LocalFieldManager* fLM = new LocalFieldManager( theField.get(), fM, fAltM ) ;
       fLM->SetVerbosity(thePSet.getUntrackedParameter<bool>("Verbosity",false));
       theTopVolume->SetFieldManager( fLM, true ) ;
     }
   } else {
     edm::LogInfo("SimG4CoreApplication") 
-      << " FieldBuilder: Global magnetic field is used";
+      << " FieldBuilder::build: Global magnetic field is used";
   }
 }
 
@@ -126,8 +118,8 @@ void FieldBuilder::configureForVolume( const std::string& volName,
   maxEpsilonStep = 
     stpPSet.getUntrackedParameter<double>("MaximumEpsilonStep",0.01);
    
-  if (fM!=0) configureFieldManager(fM, setter);
-  if (fP!=0) configurePropagatorInField(fP);	
+  if (fM!=nullptr) configureFieldManager(fM, setter);
+  if (fP!=nullptr) configurePropagatorInField(fP);	
 
   edm::LogInfo("SimG4CoreApplication") 
     << " FieldBuilder: Selected stepper: <" << stepper 
@@ -138,7 +130,7 @@ G4LogicalVolume * FieldBuilder::fieldTopVolume() { return theTopVolume; }
 
 void FieldBuilder::configureFieldManager(G4FieldManager * fM, ChordFinderSetter *setter) {
 
-  if (fM!=0) {
+  if (fM!=nullptr) {
     fM->SetDetectorField(theField.get());
     FieldStepper * theStepper = 
       new FieldStepper(theField->fieldEquation(), delta);

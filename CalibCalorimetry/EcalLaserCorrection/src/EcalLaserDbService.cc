@@ -190,9 +190,9 @@ float EcalLaserDbService::getLaserCorrection (DetId const & xid, edm::Timestamp 
   // interpolation
 
   edm::TimeValue_t t = iTime.value();
-  edm::TimeValue_t t_i = 0, t_f = 0;
+  long long t_i = 0, t_f = 0;
   float p_i = 0, p_f = 0;
-  edm::TimeValue_t lt_i = 0, lt_f = 0;
+  long long lt_i = 0, lt_f = 0;
   float lp_i = 0, lp_f = 0;
 
   if ( t >= timestamp.t1.value() && t < timestamp.t2.value() ) {
@@ -244,9 +244,10 @@ float EcalLaserDbService::getLaserCorrection (DetId const & xid, edm::Timestamp 
   }
 
   if ( apdpnref != 0 && (t_i - t_f) != 0 && (lt_i - lt_f) != 0) {
-    float interpolatedLaserResponse = p_i/apdpnref + float(t-t_i)*(p_f-p_i)/(apdpnref*float(t_f-t_i)); 
-    float interpolatedLinearResponse = lp_i/apdpnref + float(t-lt_i)*(lp_f-lp_i)/(apdpnref*float(lt_f-lt_i)); // FIXED BY FC
-
+    long long tt = t; // never subtract two unsigned!
+    float interpolatedLaserResponse = p_i/apdpnref + float(tt-t_i)*(p_f-p_i)/(apdpnref*float(t_f-t_i)); 
+    float interpolatedLinearResponse = lp_i/apdpnref + float(tt-lt_i)*(lp_f-lp_i)/(apdpnref*float(lt_f-lt_i)); // FIXED BY FC
+    
     if(interpolatedLinearResponse >2.f || interpolatedLinearResponse <0.1f) 
 		interpolatedLinearResponse=1.f;
     if ( interpolatedLaserResponse <= 0. ) {

@@ -16,6 +16,7 @@
 class SiStripRecHitMatcher;
 class StMeasurementConditionSet;
 class PxMeasurementConditionSet;
+class Phase2OTMeasurementConditionSet;
 
 class MeasurementTracker : public MeasurementDetSystem {
 public:
@@ -41,6 +42,7 @@ public:
   /// Provide templates to be filled in
   virtual const StMeasurementConditionSet & stripDetConditions() const = 0;
   virtual const PxMeasurementConditionSet & pixelDetConditions() const = 0;
+  virtual const Phase2OTMeasurementConditionSet & phase2DetConditions() const = 0;
 
 protected:
   const TrackerGeometry*                theTrackerGeom;

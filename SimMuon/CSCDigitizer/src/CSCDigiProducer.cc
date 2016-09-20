@@ -82,16 +82,16 @@ void CSCDigiProducer::produce(edm::Event& ev, const edm::EventSetup& eventSetup)
   edm::Handle<CrossingFrame<PSimHit> > cf;
   ev.getByToken(cf_token, cf);
 
-  std::auto_ptr<MixCollection<PSimHit> > 
+  std::unique_ptr<MixCollection<PSimHit> >
     hits( new MixCollection<PSimHit>(cf.product()) );
 
   // Create empty output
 
-  std::auto_ptr<CSCWireDigiCollection> pWireDigis(new CSCWireDigiCollection());
-  std::auto_ptr<CSCStripDigiCollection> pStripDigis(new CSCStripDigiCollection());
-  std::auto_ptr<CSCComparatorDigiCollection> pComparatorDigis(new CSCComparatorDigiCollection());
-  std::auto_ptr<DigiSimLinks> pWireDigiSimLinks(new DigiSimLinks() );
-  std::auto_ptr<DigiSimLinks> pStripDigiSimLinks(new DigiSimLinks() );
+  std::unique_ptr<CSCWireDigiCollection> pWireDigis(new CSCWireDigiCollection());
+  std::unique_ptr<CSCStripDigiCollection> pStripDigis(new CSCStripDigiCollection());
+  std::unique_ptr<CSCComparatorDigiCollection> pComparatorDigis(new CSCComparatorDigiCollection());
+  std::unique_ptr<DigiSimLinks> pWireDigiSimLinks(new DigiSimLinks() );
+  std::unique_ptr<DigiSimLinks> pStripDigiSimLinks(new DigiSimLinks() );
 
   //@@ DOES NOTHING IF NO HITS.  Remove this for when there's real neutrons
   if(hits->size() > 0) 
@@ -124,10 +124,10 @@ void CSCDigiProducer::produce(edm::Event& ev, const edm::EventSetup& eventSetup)
 
 
   // store them in the event
-  ev.put(pWireDigis, "MuonCSCWireDigi");
-  ev.put(pStripDigis, "MuonCSCStripDigi");
-  ev.put(pComparatorDigis, "MuonCSCComparatorDigi");
-  ev.put(pWireDigiSimLinks, "MuonCSCWireDigiSimLinks");
-  ev.put(pStripDigiSimLinks, "MuonCSCStripDigiSimLinks");
+  ev.put(std::move(pWireDigis), "MuonCSCWireDigi");
+  ev.put(std::move(pStripDigis), "MuonCSCStripDigi");
+  ev.put(std::move(pComparatorDigis), "MuonCSCComparatorDigi");
+  ev.put(std::move(pWireDigiSimLinks), "MuonCSCWireDigiSimLinks");
+  ev.put(std::move(pStripDigiSimLinks), "MuonCSCStripDigiSimLinks");
 }
 

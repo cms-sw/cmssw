@@ -77,6 +77,8 @@ class MuonIdProducer : public edm::stream::EDProducer<> {
    
    static double sectorPhi( const DetId& id );
 
+   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+   
  private:
    void          fillMuonId( edm::Event&, const edm::EventSetup&, reco::Muon&, 
 			     TrackDetectorAssociator::Direction direction = TrackDetectorAssociator::InsideOut );
@@ -104,6 +106,8 @@ class MuonIdProducer : public edm::stream::EDProducer<> {
    
    bool          isGoodTrackerMuon( const reco::Muon& muon );
    bool          isGoodRPCMuon( const reco::Muon& muon );
+   bool          isGoodGEMMuon( const reco::Muon& muon );
+   bool          isGoodME0Muon( const reco::Muon& muon );
    
    // check number of common DetIds for a given trackerMuon and a stand alone
    // muon track
@@ -224,7 +228,7 @@ class MuonIdProducer : public edm::stream::EDProducer<> {
    edm::InputTag globalTrackQualityInputTag_;
 
    bool fillTrackerKink_;
-   std::auto_ptr<MuonKinkFinder> trackerKinkFinder_;
+   std::unique_ptr<MuonKinkFinder> trackerKinkFinder_;
 
    double caloCut_;
    

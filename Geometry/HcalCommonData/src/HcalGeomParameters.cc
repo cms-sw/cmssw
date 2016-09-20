@@ -78,6 +78,9 @@ void HcalGeomParameters::loadGeometry(const DDFilteredView& _fv,
   std::vector<int>    ib(20,0),   ie(20,0);
   std::vector<int>    izb, phib, ize, phie;
   std::vector<double> rxb;
+#ifdef DebugLog
+  std::vector<double> rminHE(20,0.0), rmaxHE(20,0.0);
+#endif
   php.rhoxHB.clear(); php.zxHB.clear(); php.dyHB.clear(); php.dxHB.clear();
   php.layHB.clear(); php.layHE.clear();
   php.zxHE.clear(); php.rhoxHE.clear(); php.dyHE.clear(); php.dx1HE.clear(); php.dx2HE.clear();
@@ -92,6 +95,9 @@ void HcalGeomParameters::loadGeometry(const DDFilteredView& _fv,
     if (nsiz>0) lay  = copy[nsiz-1]/10;
     if (nsiz>1) idet = copy[nsiz-2]/1000;
     double dx=0, dy=0, dz=0, dx1=0, dx2=0;
+#ifdef DebugLog
+    double alp(0);
+#endif
     if (sol.shape() == 1) {
       const DDBox & box = static_cast<DDBox>(fv.logicalPart().solid());
       dx = box.halfX();
@@ -104,6 +110,9 @@ void HcalGeomParameters::loadGeometry(const DDFilteredView& _fv,
       dx = 0.25*(trp.x1()+trp.x2()+trp.x3()+trp.x4());
       dy = 0.5*(trp.y1()+trp.y2());
       dz = trp.halfZ();
+#ifdef DebugLog
+      alp= 0.5*(trp.alpha1()+trp.alpha2());
+#endif
     } else if (sol.shape() == 2) {
       const DDTubs & tub = static_cast<DDTubs>(fv.logicalPart().solid());
       dx = tub.rIn();
@@ -199,6 +208,12 @@ void HcalGeomParameters::loadGeometry(const DDFilteredView& _fv,
 	ie[lay]++;
 	ze[lay] += std::abs(t.z());
 	if (thke[lay] <= 0) thke[lay] = dz;
+#ifdef DebugLog
+	double rinHE  = t.Rho()*cos(alp) - dy;
+	double routHE = t.Rho()*cos(alp) + dy;
+	rminHE[lay] += rinHE;
+	rmaxHE[lay] += routHE;
+#endif
 	bool found = false;
 	for (unsigned int k=0; k<php.zxHE.size(); k++) {
 	  if (std::abs(php.zxHE[k]-std::abs(t.z())) < 0.01) {
@@ -266,8 +281,13 @@ void HcalGeomParameters::loadGeometry(const DDFilteredView& _fv,
       iemx   = i+1;
     }
 #ifdef DebugLog
+    if (ie[i]> 0) {
+      rminHE[i] /= (double)(ie[i]);
+      rmaxHE[i] /= (double)(ie[i]);
+    }
     std::cout << "Index " << i << " Barrel " << ib[i] << " "
-	      << rb[i] << " Endcap " << ie[i] << " " << ze[i] << std::endl;
+	      << rb[i] << " Endcap " << ie[i] << " " << ze[i] << ":"
+	      << rminHE[i] << ":" << rmaxHE[i] << std::endl;
 #endif
   }
   for (int i = 4; i >= 0; i--) {

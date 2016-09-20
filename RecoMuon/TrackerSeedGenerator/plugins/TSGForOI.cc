@@ -57,7 +57,7 @@ void TSGForOI::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 	edm::Handle<reco::TrackCollection> l2TrackCol;					iEvent.getByToken(src_, l2TrackCol);
 
 //	The product:
-	std::auto_ptr<std::vector<TrajectorySeed> > result(new std::vector<TrajectorySeed>());
+	auto result = std::make_unique<std::vector<TrajectorySeed>>();
 
 //	Get vector of Detector layers once:
 	std::vector<BarrelDetLayer const*> const& tob = measurementTracker_->geometricSearchTracker()->tobLayers();
@@ -77,7 +77,7 @@ void TSGForOI::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 	edm::LogInfo(theCategory) << "TSGForOI::produce: Number of L2's: " << l2TrackCol->size();
 	for (unsigned int l2TrackColIndex(0);l2TrackColIndex!=l2TrackCol->size();++l2TrackColIndex){
 		const reco::TrackRef l2(l2TrackCol, l2TrackColIndex);
-		std::auto_ptr<std::vector<TrajectorySeed> > out(new std::vector<TrajectorySeed>());
+		auto out = std::make_unique<std::vector<TrajectorySeed>>();
 
 		FreeTrajectoryState fts = trajectoryStateTransform::initialFreeState(*l2, magfield_.product());
 		dummyPlane_->move(fts.position() - dummyPlane_->position());
@@ -143,7 +143,7 @@ void TSGForOI::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 	} //L2Collection
 	edm::LogInfo(theCategory) << "TSGForOI::produce: number of seeds made: " << result->size();
 
-	iEvent.put(result);
+	iEvent.put(std::move(result));
 }
 
 void TSGForOI::findSeedsOnLayer(const GeometricSearchDet &layer,
@@ -152,7 +152,7 @@ void TSGForOI::findSeedsOnLayer(const GeometricSearchDet &layer,
 		const Propagator& propagatorAlong,
 		const Propagator& propagatorOpposite,
 		const reco::TrackRef l2,
-		std::auto_ptr<std::vector<TrajectorySeed> >& out) {
+		std::unique_ptr<std::vector<TrajectorySeed> >& out) {
 
 	if (numSeedsMade_<numOfMaxSeeds_){
 		double errorSFHits_=1.0;

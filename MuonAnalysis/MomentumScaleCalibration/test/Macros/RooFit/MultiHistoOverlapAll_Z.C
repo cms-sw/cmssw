@@ -15,7 +15,7 @@
 #include "TROOT.h"
 #include "TString.h"
 #include "TSystem.h"
-#include "tdrstyle.C"
+#include "Alignment/OfflineValidation/plugins/TkAlStyle.cc"
 
 
 using namespace ROOT::Math;
@@ -45,7 +45,9 @@ void splitOptionRecursive(string rawoption, vector<string>& splitoptions, char d
 void MultiHistoOverlapAll_Z(string files, string labels, string colors = "", string linestyles = "", TString directory = ".", bool switchONfit = false){
   gSystem->mkdir(directory, true);
   gROOT->Reset();
-  setTDRStyle();
+  if (TkAlStyle::status() == NO_STATUS)
+    TkAlStyle::set(INTERNAL);
+  gROOT->ForceStyle();
 
   vector<string> strValidation_file;
   vector<string> strValidation_label;
@@ -72,20 +74,6 @@ void MultiHistoOverlapAll_Z(string files, string labels, string colors = "", str
     return;
   }
 
-  TPaveText *cmsPlotTitle = new TPaveText(0.15, 0.93, 0.85, 1, "brNDC");
-  cmsPlotTitle->SetBorderSize(0);
-  cmsPlotTitle->SetFillStyle(0);
-  cmsPlotTitle->SetTextAlign(12);
-  cmsPlotTitle->SetTextFont(42);
-  cmsPlotTitle->SetTextSize(0.045);
-  TText* text = cmsPlotTitle->AddText(0.025, 0.45, "#font[61]{CMS}");
-  text->SetTextSize(0.044);
-  text = cmsPlotTitle->AddText(0.165, 0.42, "#font[52]{Preliminary}");
-  text->SetTextSize(0.0315);
-  TString cErgTev = "#font[42]{      TkAl Z#rightarrow#mu#mu (|#eta_{#mu}|<2.4) 13 TeV}";
-  text = cmsPlotTitle->AddText(0.537, 0.40, cErgTev);
-  text->SetTextSize(0.0315);
-
   TH1D** histo[7];
   TF1** hfit[7];
   TFile** file = new TFile*[nfiles];
@@ -102,35 +90,9 @@ void MultiHistoOverlapAll_Z(string files, string labels, string colors = "", str
   for (int i=0; i<7; i++){
     TString cname = Form("c%i", i);
     c[i] = new TCanvas(cname, cname, 8, 30, 800, 800);
-    gStyle->SetOptStat(0);
-    c[i]->SetFillColor(0);
-    c[i]->SetBorderMode(0);
-    c[i]->SetBorderSize(2);
-    c[i]->SetTickx(1);
-    c[i]->SetTicky(1);
-    c[i]->SetLeftMargin(0.17);
-    c[i]->SetRightMargin(0.05);
-    c[i]->SetTopMargin(0.07);
-    c[i]->SetBottomMargin(0.13);
-    c[i]->SetFrameFillStyle(0);
-    c[i]->SetFrameBorderMode(0);
-    c[i]->SetFrameFillStyle(0);
-    c[i]->SetFrameBorderMode(0);
   }
 
-  float lxmin = 0.22, lxwidth = 0.38;
-  float lymax = 0.9, lywidth = 0.15*nfiles/3;
-  float lxmax = lxmin + lxwidth;
-  float lymin = lymax - lywidth;
-  TLegend* leg = new TLegend(lxmin, lymin, lxmax, lymax);
-  leg->SetBorderSize(0);
-  leg->SetTextFont(42);
-  leg->SetTextSize(0.04);
-  leg->SetLineColor(1);
-  leg->SetLineStyle(1);
-  leg->SetLineWidth(1);
-  leg->SetFillColor(0);
-  leg->SetFillStyle(0);
+  TLegend *leg = TkAlStyle::legend("topleft", nfiles);
 
   //----------------- CANVAS C0 --------------//
   pIndex=0;
@@ -203,19 +165,6 @@ void MultiHistoOverlapAll_Z(string files, string labels, string colors = "", str
       histo[iP][f]=(TH1D*)file[f]->Get(histoName[iP]);
 
       histo[iP][f]->SetTitle("");
-      histo[iP][f]->GetXaxis()->SetLabelFont(42);
-      histo[iP][f]->GetXaxis()->SetLabelOffset(0.007);
-      histo[iP][f]->GetXaxis()->SetLabelSize(0.04);
-      histo[iP][f]->GetXaxis()->SetTitleSize(0.06);
-      histo[iP][f]->GetXaxis()->SetTitleOffset(0.9);
-      histo[iP][f]->GetXaxis()->SetTitleFont(42);
-      histo[iP][f]->GetYaxis()->SetNdivisions(505);
-      histo[iP][f]->GetYaxis()->SetLabelFont(42);
-      histo[iP][f]->GetYaxis()->SetLabelOffset(0.007);
-      histo[iP][f]->GetYaxis()->SetLabelSize(0.04);
-      histo[iP][f]->GetYaxis()->SetTitleSize(0.06);
-      histo[iP][f]->GetYaxis()->SetTitleOffset(1.2);
-      histo[iP][f]->GetYaxis()->SetTitleFont(42);
 
       histo[iP][f]->GetYaxis()->SetTitle("M_{#mu#mu} (GeV)");
       histo[iP][f]->SetLineWidth(1);
@@ -276,7 +225,9 @@ void MultiHistoOverlapAll_Z(string files, string labels, string colors = "", str
 
       if (nlinestyles!=0){
         int linestyle = stoi(strValidation_linestyle[f]);
-        histo[iP][f]->SetLineStyle(linestyle);
+        histo[iP][f]->SetLineStyle(linestyle % 100);
+        if (linestyle > 100)
+          histo[iP][f]->SetMarkerStyle(linestyle / 100);
       }
 
       if (iP==0) leg->AddEntry(histo[iP][f], (strValidation_label.at(f)).c_str(), "lp");
@@ -331,7 +282,7 @@ void MultiHistoOverlapAll_Z(string files, string labels, string colors = "", str
       }
     }
     leg->Draw("same");
-    cmsPlotTitle->Draw("same");
+    TkAlStyle::drawStandardTitle();
     c[pIndex]->RedrawAxis();
     c[pIndex]->Modified();
     c[pIndex]->Update();

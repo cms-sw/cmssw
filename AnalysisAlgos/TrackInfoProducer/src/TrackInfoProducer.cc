@@ -27,7 +27,7 @@ void TrackInfoProducer::produce(edm::Event& theEvent, const edm::EventSetup& set
   // create empty output collections
   //
 
-  std::auto_ptr<reco::TrackInfoCollection>    outputColl (new reco::TrackInfoCollection);
+  std::unique_ptr<reco::TrackInfoCollection>    outputColl (new reco::TrackInfoCollection);
 
   edm::Handle<std::vector<Trajectory> > TrajectoryCollection;
   edm::Handle<reco::TrackCollection > trackCollection;
@@ -65,19 +65,19 @@ void TrackInfoProducer::produce(edm::Event& theEvent, const edm::EventSetup& set
     //put everything in the event
     edm::OrphanHandle<reco::TrackInfoCollection> rTrackInfo;
 
-//     if(forwardPredictedStateTag_!="") rTrackInfof = theEvent.put(outputFwdColl,forwardPredictedStateTag_ );
-//     if(backwardPredictedStateTag_!="") rTrackInfob =   theEvent.put(outputBwdColl,backwardPredictedStateTag_);
-//     if(updatedStateTag_!="") rTrackInfou =   theEvent.put(outputUpdatedColl,updatedStateTag_ );
-//     if(combinedStateTag_!="") rTrackInfoc =   theEvent.put(outputCombinedColl,combinedStateTag_ );
-    rTrackInfo=theEvent.put(outputColl);
-    std::auto_ptr<reco::TrackInfoTrackAssociationCollection>    TIassociationColl (new reco::TrackInfoTrackAssociationCollection(assoMap->refProd().val, rTrackInfo));
+//     if(forwardPredictedStateTag_!="") rTrackInfof = theEvent.put(std::move(outputFwdColl),forwardPredictedStateTag_ );
+//     if(backwardPredictedStateTag_!="") rTrackInfob =   theEvent.put(std::move(outputBwdColl),backwardPredictedStateTag_);
+//     if(updatedStateTag_!="") rTrackInfou =   theEvent.put(std::move(outputUpdatedColl),updatedStateTag_ );
+//     if(combinedStateTag_!="") rTrackInfoc =   theEvent.put(std::move(outputCombinedColl),combinedStateTag_ );
+    rTrackInfo=theEvent.put(std::move(outputColl));
+    std::unique_ptr<reco::TrackInfoTrackAssociationCollection>    TIassociationColl (new reco::TrackInfoTrackAssociationCollection(assoMap->refProd().val, rTrackInfo));
 
     for(std::map<reco::TrackRef,unsigned int>::iterator ref_iter=trackid.begin();ref_iter!=trackid.end();++ref_iter){
 
       TIassociationColl->insert( ref_iter->first,edm::Ref<reco::TrackInfoCollection>(rTrackInfo,ref_iter->second ));
     }
 
-    theEvent.put(TIassociationColl);
+    theEvent.put(std::move(TIassociationColl));
 }
 
 

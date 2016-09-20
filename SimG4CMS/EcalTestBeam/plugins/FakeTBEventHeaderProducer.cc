@@ -21,7 +21,7 @@ FakeTBEventHeaderProducer::~FakeTBEventHeaderProducer()
 
 void FakeTBEventHeaderProducer::produce(edm::Event & event, const edm::EventSetup& eventSetup)
 {
-  auto_ptr<EcalTBEventHeader> product(new EcalTBEventHeader());
+  unique_ptr<EcalTBEventHeader> product(new EcalTBEventHeader());
 
   // get the vertex information from the event
 
@@ -48,6 +48,6 @@ void FakeTBEventHeaderProducer::produce(edm::Event & event, const edm::EventSetu
 //   LogDebug("FakeTBHeader") << (*product);
 //   LogDebug("FakeTBHeader") << (*product).eventType();
 //   LogDebug("FakeTBHeader") << (*product).crystalInBeam();
-  event.put(product);
+  event.put(std::move(product));
   
 }

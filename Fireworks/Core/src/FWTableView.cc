@@ -278,6 +278,7 @@ FWTableView::FWTableView (TEveWindowSlot* iParent, FWTableViewManager *manager)
      column_control_fields->AddFrame(del_button, new TGLayoutHints);
      column_control_fields->AddFrame(mod_button, new TGLayoutHints);
      m_tableWidget = new FWTableWidget(m_tableManager, m_vert);
+     m_tableWidget->disableGrowInWidth();
      resetColors(m_manager->colorManager());
      m_tableWidget->SetHeaderBackgroundColor(gVirtualX->GetPixel(kWhite));
      m_tableWidget->Connect("rowClicked(Int_t,Int_t,Int_t,Int_t,Int_t)", "FWTableView",

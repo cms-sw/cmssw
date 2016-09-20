@@ -231,7 +231,7 @@ namespace
   }
 }
 
-std::auto_ptr<HepMC::GenEvent> ParticleReplacerZtautau::produce(const std::vector<reco::Particle>& muons, const reco::Vertex* evtVtx, const HepMC::GenEvent* genEvt, MCParticleReplacer* producer)
+std::unique_ptr<HepMC::GenEvent> ParticleReplacerZtautau::produce(const std::vector<reco::Particle>& muons, const reco::Vertex* evtVtx, const HepMC::GenEvent* genEvt, MCParticleReplacer* producer)
 {
   edm::Service<edm::RandomNumberGenerator> rng;
   if ( !rng.isAvailable() ) 
@@ -246,8 +246,8 @@ std::auto_ptr<HepMC::GenEvent> ParticleReplacerZtautau::produce(const std::vecto
   if ( evtVtx != 0 ) throw cms::Exception("Configuration") 
     << "ParticleReplacerZtautau does NOT support using primary vertex as the origin for taus !!\n";
 
-  std::auto_ptr<ParticleCollection> muonsBeforeRad(new ParticleCollection());
-  std::auto_ptr<ParticleCollection> muonsAfterRad(new ParticleCollection());
+  std::unique_ptr<ParticleCollection> muonsBeforeRad(new ParticleCollection());
+  std::unique_ptr<ParticleCollection> muonsAfterRad(new ParticleCollection());
 
 //--- transform the muons to the desired gen. particles
   std::vector<reco::Particle> embedParticles;	
@@ -256,7 +256,7 @@ std::auto_ptr<HepMC::GenEvent> ParticleReplacerZtautau::produce(const std::vecto
     if ( muons.size() != 2 ) {
       edm::LogError ("Replacer") 
 	<< "The decay mode Z->ll requires exactly two muons --> returning empty HepMC event !!" << std::endl;
-      return std::auto_ptr<HepMC::GenEvent>(0);
+      return nullptr;
     }
 
     switch ( transformationMode_ ) {
@@ -292,7 +292,7 @@ std::auto_ptr<HepMC::GenEvent> ParticleReplacerZtautau::produce(const std::vecto
     if ( muons.size() != 2 ) {
       edm::LogError ("Replacer") 
 	<< "The decay mode W->taunu requires exactly two muons --> returning empty HepMC event !!" << std::endl;
-      return std::auto_ptr<HepMC::GenEvent>(0);
+      return nullptr;
     }
     
     targetParticle1Mass_     = tauMass;
@@ -312,7 +312,7 @@ std::auto_ptr<HepMC::GenEvent> ParticleReplacerZtautau::produce(const std::vecto
     if ( muons.size() != 2 ) {
       edm::LogError ("Replacer") 
 	<< "The decay mode W->taunu requires exactly two gen. leptons --> returning empty HepMC event !!" << std::endl;
-      return std::auto_ptr<HepMC::GenEvent>(0);
+      return nullptr;
     }
 
     targetParticle1Mass_     = tauMass;
@@ -335,7 +335,7 @@ std::auto_ptr<HepMC::GenEvent> ParticleReplacerZtautau::produce(const std::vecto
   if ( embedParticles.size() != 2 ){
     edm::LogError ("Replacer") 
       << "The creation of gen. particles failed somehow --> returning empty HepMC event !!" << std::endl;	
-    return std::auto_ptr<HepMC::GenEvent>(0);
+    return nullptr;
   }
 
   HepMC::GenEvent* genEvt_output = 0;
@@ -562,7 +562,7 @@ std::auto_ptr<HepMC::GenEvent> ParticleReplacerZtautau::produce(const std::vecto
       std::cout << " muon #" << idx << " (charge = " << muon->charge() << "): Pt = " << muon->pt() << ", eta = " << muon->eta() << ", phi = " << muon->phi() << std::endl;
       ++idx;
     }
-    return std::auto_ptr<HepMC::GenEvent>(0);
+    return nullptr;
   }
 
   // use PYTHIA to decay unstable hadrons (e.g. pi0 -> gamma gamma)
@@ -681,7 +681,7 @@ std::auto_ptr<HepMC::GenEvent> ParticleReplacerZtautau::produce(const std::vecto
       << " differs from transverse momentum of replaced muons = " << sumMuonP4_replaced.pt() << " !!" << std::endl;
   }
 
-  std::auto_ptr<HepMC::GenEvent> passedEvt_output_ptr(passedEvt_output);    
+  std::unique_ptr<HepMC::GenEvent> passedEvt_output_ptr(passedEvt_output);    
   if ( verbosity_ ) {
     passedEvt_output_ptr->print(std::cout);
     std::cout << " numEvents: tried = " << numEvents_tried << ", passed = " << numEvents_passed << std::endl;
@@ -690,8 +690,8 @@ std::auto_ptr<HepMC::GenEvent> ParticleReplacerZtautau::produce(const std::vecto
   delete genVtx_output;
   delete genEvt_output;
   
-  producer->call_put(muonsBeforeRad, "muonsBeforeRad");
-  producer->call_put(muonsAfterRad, "muonsAfterRad");
+  producer->call_put(std::move(muonsBeforeRad), "muonsBeforeRad");
+  producer->call_put(std::move(muonsAfterRad), "muonsAfterRad");
 
   return passedEvt_output_ptr;
 }

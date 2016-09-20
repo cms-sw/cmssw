@@ -104,7 +104,7 @@ L1TMuonLegacyConverter::produce( edm::Event& iEvent,
    // ~~~~~~~~~~~~~~~~~~~~ Muons ~~~~~~~~~~~~~~~~~~~~
    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-   auto_ptr< MuonBxCollection > imdMuonsLegacy( new MuonBxCollection() );
+   std::unique_ptr< MuonBxCollection > imdMuonsLegacy( new MuonBxCollection() );
 
    if( produceMuonParticles_ )
    {
@@ -187,7 +187,7 @@ L1TMuonLegacyConverter::produce( edm::Event& iEvent,
 	}
    }
    
-   iEvent.put( imdMuonsLegacy, "imdMuonsLegacy" );
+   iEvent.put( std::move(imdMuonsLegacy), "imdMuonsLegacy" );
 
 } // closing produce
 

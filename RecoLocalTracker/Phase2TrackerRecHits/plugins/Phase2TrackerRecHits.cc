@@ -17,11 +17,12 @@
 
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/Phase2TrackerCluster/interface/Phase2TrackerCluster1D.h"
-#include "DataFormats/Phase2TrackerRecHit/interface/Phase2TrackerRecHit1D.h"
+#include "DataFormats/TrackerRecHit2D/interface/Phase2TrackerRecHit1D.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "DataFormats/DetId/interface/DetId.h"
 
 #include "RecoLocalTracker/Records/interface/TkStripCPERecord.h"
-#include "RecoLocalTracker/Phase2TrackerRecHits/interface/Phase2StripCPETrivial.h"
+#include "RecoLocalTracker/Phase2TrackerRecHits/interface/Phase2StripCPE.h"
 
 #include <vector>
 #include <string>
@@ -63,7 +64,7 @@ void Phase2TrackerRecHits::produce(edm::StreamID sid, edm::Event& event, const e
   const TrackerGeometry* tkGeom(&(*geomHandle));
 
   // Global container for the RecHits of each module
-  std::auto_ptr< Phase2TrackerRecHit1DCollectionNew > outputRecHits(new Phase2TrackerRecHit1DCollectionNew());
+  auto outputRecHits = std::make_unique<Phase2TrackerRecHit1DCollectionNew>();
 
   // Loop over clusters
   for (auto DSViter : *clusters) { 
@@ -83,14 +84,14 @@ void Phase2TrackerRecHits::produce(edm::StreamID sid, edm::Event& event, const e
       edm::Ref< Phase2TrackerCluster1DCollectionNew, Phase2TrackerCluster1D > cluster = edmNew::makeRefTo(clusters, &clustIt);
 
       // Make a RecHit and add it to the DetSet
-      Phase2TrackerRecHit1D hit(lv.first, lv.second, cluster);
+      Phase2TrackerRecHit1D hit(lv.first, lv.second, *geomDetUnit, cluster);
 
       rechits.push_back(hit);
     }
   }
 
   outputRecHits->shrink_to_fit();
-  event.put(outputRecHits);
+  event.put(std::move(outputRecHits));
 
 }
 

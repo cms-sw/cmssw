@@ -13,11 +13,11 @@ TkStackMeasurementDet::TkStackMeasurementDet( const StackGeomDet* gdet,
 
 void TkStackMeasurementDet::init(const MeasurementDet* lowerDet,
                                  const MeasurementDet* upperDet) {
-  theInnerDet = dynamic_cast<const TkPixelMeasurementDet *>(lowerDet);
-  theOuterDet = dynamic_cast<const TkPixelMeasurementDet *>(upperDet);
+  theInnerDet = dynamic_cast<const TkPhase2OTMeasurementDet *>(lowerDet);
+  theOuterDet = dynamic_cast<const TkPhase2OTMeasurementDet *>(upperDet);
 
   if ((theInnerDet == 0) || (theOuterDet == 0)) {
-    throw MeasurementDetException("TkStackMeasurementDet ERROR: Trying to glue a det which is not a TkPixelMeasurementDet");
+    throw MeasurementDetException("TkStackMeasurementDet ERROR: Trying to glue a det which is not a TkPhase2OTMeasurementDet");
   }
 }
 

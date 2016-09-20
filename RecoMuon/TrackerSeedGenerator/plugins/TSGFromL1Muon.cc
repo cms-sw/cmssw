@@ -94,7 +94,7 @@ void TSGFromL1Muon::beginRun(const edm::Run & run, const edm::EventSetup&es)
 
 void TSGFromL1Muon::produce(edm::Event& ev, const edm::EventSetup& es)
 {
-  std::auto_ptr<L3MuonTrajectorySeedCollection> result(new L3MuonTrajectorySeedCollection());
+  auto result = std::make_unique<L3MuonTrajectorySeedCollection>();
 
   edm::Handle<L1MuonParticleCollection> l1muon;
   ev.getByToken(theSourceToken, l1muon);
@@ -153,6 +153,6 @@ void TSGFromL1Muon::produce(edm::Event& ev, const edm::EventSetup& es)
   }
 
   LogDebug("TSGFromL1Muon")<<result->size()<<" seeds to the event.";
-  ev.put(result);
+  ev.put(std::move(result));
 }
 

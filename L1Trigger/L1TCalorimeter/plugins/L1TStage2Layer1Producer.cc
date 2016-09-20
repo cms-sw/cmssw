@@ -163,7 +163,7 @@ L1TStage2Layer1Producer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
 
 
   // output collection
-  std::auto_ptr<CaloTowerBxCollection> towersColl (new CaloTowerBxCollection);
+  std::unique_ptr<CaloTowerBxCollection> towersColl (new CaloTowerBxCollection);
 
 
   // loop over crossings
@@ -178,8 +178,8 @@ L1TStage2Layer1Producer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
     iEvent.getByToken(ecalToken_[ibx], ecalTPs);
 
     // create input and output tower vectors for this BX
-    std::auto_ptr< std::vector<CaloTower> > localInTowers (new std::vector<CaloTower>(CaloTools::caloTowerHashMax()+1));
-    std::auto_ptr< std::vector<CaloTower> > localOutTowers (new std::vector<CaloTower>()); //this is later filled to the same size as localInTowers
+    std::unique_ptr< std::vector<CaloTower> > localInTowers (new std::vector<CaloTower>(CaloTools::caloTowerHashMax()+1));
+    std::unique_ptr< std::vector<CaloTower> > localOutTowers (new std::vector<CaloTower>()); //this is later filled to the same size as localInTowers
 
     // loop over ECAL TPs
     EcalTrigPrimDigiCollection::const_iterator ecalItr;
@@ -323,7 +323,7 @@ L1TStage2Layer1Producer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
 
   }
 
-  iEvent.put(towersColl);
+  iEvent.put(std::move(towersColl));
 
 }
 

@@ -34,6 +34,16 @@ Text file formats for different data types is as following:
   if electronics channel is known to be unconnected, either "subdet" or "eta" should be NA
 - HcalDcsMap:
   line# Ring Slice Subchannel Type Subdetector Eta Phi Depth
+- HcalFrontEndMap:
+  eta(int)  phi(int) depth(int) det(HB,HE,HF) RM# RBX#
+- HcalSiPMParameters:
+ eta phi depth det fcByPE darkCurrent auxi1 auxi2
+- HcalSiPMCharacteristics:
+ type pixels non-linearityParameters(3) auxi1 auxi2 
+- HcalTPParameters
+ HBHE-FGAlgorithm HF-ADCThreshold HF-TDCMask HF-SelfTriggerBits auxi1 auxi2
+- HcalTPChannelParameters
+ eta(int)  phi(int) depth(int) det(HB,HE,HF) Mask FGBitInfo auxi1 auxi2
 */
 namespace HcalDbASCIIIO {
   bool getObject (std::istream& fInput, HcalPedestals* fObject);
@@ -66,6 +76,8 @@ namespace HcalDbASCIIIO {
   bool dumpObject (std::ostream& fOutput, const HcalZSThresholds& fObject);
   bool getObject (std::istream& fInput, HcalL1TriggerObjects* fObject);
   bool dumpObject (std::ostream& fOutput, const HcalL1TriggerObjects& fObject);
+  bool getObject (std::istream& fInput, HcalFrontEndMap* fObject);
+  bool dumpObject (std::ostream& fOutput, const HcalFrontEndMap& fObject);
 
   bool getObject (std::istream& fInput, HcalValidationCorrs* fObject);
   bool dumpObject (std::ostream& fOutput, const HcalValidationCorrs& fObject);
@@ -90,13 +102,19 @@ namespace HcalDbASCIIIO {
   bool getObject (std::istream& fInput, HcalMCParams* fObject);
   bool dumpObject (std::ostream& fOutput, const HcalMCParams& fObject);
 
-  bool getObject (std::istream& fInput, HcalCholeskyMatrices* fObject);
-  bool dumpObject (std::ostream& fOutput, const HcalCholeskyMatrices& fObject);
-  bool getObject (std::istream& fInput, HcalCovarianceMatrices* fObject);
-  bool dumpObject (std::ostream& fOutput, const HcalCovarianceMatrices& fObject);
   // Getting/Dumping Hcal Flag information
   bool getObject (std::istream& fInput, HcalFlagHFDigiTimeParams* fObject);
   bool dumpObject (std::ostream& fOutput, const HcalFlagHFDigiTimeParams& fObject);
+
+  bool getObject (std::istream& fInput, HcalSiPMParameters* fObject);
+  bool dumpObject (std::ostream& fOutput, const HcalSiPMParameters& fObject);
+  bool getObject (std::istream& fInput, HcalSiPMCharacteristics* fObject);
+  bool dumpObject (std::ostream& fOutput, const HcalSiPMCharacteristics& fObject);
+
+  bool getObject (std::istream& fInput, HcalTPParameters* fObject);
+  bool dumpObject (std::ostream& fOutput, const HcalTPParameters& fObject);
+  bool getObject (std::istream& fInput, HcalTPChannelParameters* fObject);
+  bool dumpObject (std::ostream& fOutput, const HcalTPChannelParameters& fObject);
 
   DetId getId (const std::vector <std::string> & items);
   void dumpId (std::ostream& fOutput, DetId id);

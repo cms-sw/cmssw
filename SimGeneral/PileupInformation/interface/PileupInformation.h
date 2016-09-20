@@ -68,8 +68,8 @@ private:
 
     std::string MessageCategory_;
     //std::string simHitLabel_;
-    //std::auto_ptr<MixCollection<SimTrack> >   simTracks_;
-    //std::auto_ptr<MixCollection<SimVertex> >  simVertexes_;
+    //std::unique_ptr<MixCollection<SimTrack> >   simTracks_;
+    //std::unique_ptr<MixCollection<SimVertex> >  simVertexes_;
 
 
 

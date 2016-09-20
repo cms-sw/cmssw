@@ -107,7 +107,7 @@ namespace edm{
 	 }
 	 
          if(get){
-	    std::auto_ptr<CrossingFrame<T> > crFrame(new CrossingFrame<T>() );	    
+	    std::unique_ptr<CrossingFrame<T> > crFrame(new CrossingFrame<T>() );
 	    crFrame->addSignals(handles[0].product(),e.id());
 	    for(size_t itag = 1; itag < tags_.size(); ++itag){
                std::vector<T>* product = const_cast<std::vector<T>*>(handles[itag].product());
@@ -117,7 +117,7 @@ namespace edm{
                }
 	       crFrame->addPileups(*product);	 
 	    }
-	    e.put(crFrame,label_);
+	    e.put(std::move(crFrame),label_);
 	 }
       }
    };
@@ -139,13 +139,13 @@ void HiMixingWorker<HepMCProduct>::addSignals(edm::Event &e){
    }
    
    if(get){
-      std::auto_ptr<CrossingFrame<HepMCProduct> > crFrame(new CrossingFrame<HepMCProduct>() );
+      std::unique_ptr<CrossingFrame<HepMCProduct> > crFrame(new CrossingFrame<HepMCProduct>() );
       crFrame->addSignals(handles[0].product(),e.id());
       for(size_t itag = 1; itag < tags_.size(); ++itag){
          HepMCProduct* product = const_cast<HepMCProduct*>(handles[itag].product());
          crFrame->addPileups(*product);	 
       }
-      e.put(crFrame,label_);
+      e.put(std::move(crFrame),label_);
    }
 }
 
@@ -260,8 +260,8 @@ HiMixingModule::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       (workers_[i])->addSignals(iEvent);
    }
 
-   std::auto_ptr< PileupMixingContent > PileupMixing_ = std::auto_ptr< PileupMixingContent >(new PileupMixingContent());
-   iEvent.put(PileupMixing_);
+   std::unique_ptr< PileupMixingContent > PileupMixing_ = std::unique_ptr< PileupMixingContent >(new PileupMixingContent());
+   iEvent.put(std::move(PileupMixing_));
 
 }
 

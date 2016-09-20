@@ -201,13 +201,13 @@ void L3MuonCombinedRelativeIsolationProducer::produce(Event& event, const EventS
   if( useRhoCorrectedCaloDeps )
     event.getByToken(theCaloDepsToken, caloDepWithCorrMap);
 
-  std::auto_ptr<reco::IsoDepositMap> caloDepMap( new reco::IsoDepositMap());
-  std::auto_ptr<reco::IsoDepositMap> trkDepMap( new reco::IsoDepositMap());
+  auto caloDepMap = std::make_unique<reco::IsoDepositMap>();
+  auto trkDepMap = std::make_unique<reco::IsoDepositMap>();
 
-  std::auto_ptr<edm::ValueMap<bool> > comboIsoDepMap( new edm::ValueMap<bool> ());
+  auto comboIsoDepMap = std::make_unique<edm::ValueMap<bool>>();
 
-  //std::auto_ptr<std::vector<double> > combinedRelativeDeps(new std::vector<double>());
-  std::auto_ptr<edm::ValueMap<double> > combinedRelativeDepMap(new edm::ValueMap<double>());
+  //auto combinedRelativeDeps = std::make_unique<std::vector<double>>();
+  auto combinedRelativeDepMap = std::make_unique<edm::ValueMap<double>>();
 
 
   //
@@ -325,26 +325,26 @@ void L3MuonCombinedRelativeIsolationProducer::produce(Event& event, const EventS
     reco::IsoDepositMap::Filler depFillerTrk(*trkDepMap);
     depFillerTrk.insert(muons, trkDeps.begin(), trkDeps.end());
     depFillerTrk.fill();
-    event.put(trkDepMap, "trkIsoDeposits");
+    event.put(std::move(trkDepMap), "trkIsoDeposits");
 
     if( useCaloIso && (useRhoCorrectedCaloDeps==false) ) {
       reco::IsoDepositMap::Filler depFillerCalo(*caloDepMap);
       depFillerCalo.insert(muons, caloDeps.begin(), caloDeps.end());
       depFillerCalo.fill();
-      event.put(caloDepMap, "caloIsoDeposits");
+      event.put(std::move(caloDepMap), "caloIsoDeposits");
     }
 
-    //event.put(combinedRelativeDeps, "combinedRelativeIsoDeposits");
+    //event.put(std::move(combinedRelativeDeps, "combinedRelativeIsoDeposits");
     edm::ValueMap<double>::Filler depFillerCombRel(*combinedRelativeDepMap);
     depFillerCombRel.insert(muons, combinedRelativeDeps.begin(), combinedRelativeDeps.end());
     depFillerCombRel.fill();
-    event.put(combinedRelativeDepMap, "combinedRelativeIsoDeposits");
+    event.put(std::move(combinedRelativeDepMap), "combinedRelativeIsoDeposits");
 
   }
   edm::ValueMap<bool>::Filler isoFiller(*comboIsoDepMap);
   isoFiller.insert(muons, combinedRelativeIsos.begin(), combinedRelativeIsos.end());
   isoFiller.fill();
-  event.put(comboIsoDepMap);
+  event.put(std::move(comboIsoDepMap));
 
   if (printDebug) std::cout  <<" END OF EVENT " <<"================================";
 }

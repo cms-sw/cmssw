@@ -156,11 +156,13 @@ METAnalyzer::METAnalyzer(const edm::ParameterSet& pSet) {
   HcalStripHaloTag_= parameters.getParameter<edm::InputTag>("HcalStripHaloFilterLabel");
   HcalStripHaloToken_=consumes<bool>(HcalStripHaloTag_);
 
-  METFilterMiniAODLabel_=parameters.getParameter<edm::InputTag>("FilterResultsLabelMiniAOD");
-  METFilterMiniAODToken_=consumes<edm::TriggerResults>(METFilterMiniAODLabel_);
+  if(isMiniAODMet_) {
+    METFilterMiniAODLabel_=parameters.getParameter<edm::InputTag>("FilterResultsLabelMiniAOD");
+    METFilterMiniAODToken_=consumes<edm::TriggerResults>(METFilterMiniAODLabel_);
 
-  METFilterMiniAODLabel2_=parameters.getParameter<edm::InputTag>("FilterResultsLabelMiniAOD2");
-  METFilterMiniAODToken2_=consumes<edm::TriggerResults>(METFilterMiniAODLabel2_);
+    METFilterMiniAODLabel2_=parameters.getParameter<edm::InputTag>("FilterResultsLabelMiniAOD2");
+    METFilterMiniAODToken2_=consumes<edm::TriggerResults>(METFilterMiniAODLabel2_);
+  }
 
   // 
   nbinsPV_ = parameters.getParameter<int>("pVBin");
@@ -1735,7 +1737,8 @@ void METAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
       if (verbose_) std::cout << "METAnalyzer: CSCTightHalo2015FilterResultHandle" << std::endl;
     }
     filter_decisions[7]= *HcalStripHaloFilterHandle;
-  }else{
+  }else if (isMiniAODMet_) {
+    //miniaodFilterIndex_ is only filled in dqmBeginRun if isMiniAODMet_ true 
     edm::Handle<edm::TriggerResults> metFilterResults;
     iEvent.getByToken(METFilterMiniAODToken_, metFilterResults);
     if(metFilterResults.isValid()){

@@ -1,4 +1,5 @@
 import FWCore.ParameterSet.Config as cms
+import RecoTracker.IterativeTracking.iterativeTkConfig as _cfg
 
 seedInputTag      = {}
 trackCandInputTag = {}
@@ -135,53 +136,18 @@ clusterLabel     ['jetCoreRegionalStep'] = cms.vstring('Tot')
 clusterBin       ['jetCoreRegionalStep'] = cms.int32(500)
 clusterMax       ['jetCoreRegionalStep'] = cms.double(100000)
 
-selectedIterTrackingStep = [
-    'initialStep',
-    'lowPtTripletStep',
-    'pixelPairStep',
-    'detachedTripletStep',
-    'mixedTripletStep',
-    'pixelLessStep',
-    'tobTecStep',
-    'jetCoreRegionalStep',
-    'muonSeededStepInOut',
-    'muonSeededStepOutIn',
-#    'muonSeededStepOutInDisplaced'
-]
-selectedIterTrackingStep_trackingLowPU = [
-    "initialStep",
-    "lowPtTripletStep",
-    "pixelPairStep",
-    "detachedTripletStep",
-    "mixedTripletStep",
-    "pixelLessStep",
-    "tobTecStep",
-    "muonSeededStepInOut",
-    "muonSeededStepOutIn",
-]
-selectedIterTrackingStep_trackingPhase1 = [
-    "initialStep",
-    "highPtTripletStep",
-    "detachedQuadStep",
-#    "detachedTripletStep",
-    "lowPtQuadStep",
-    "lowPtTripletStep",
-    "mixedTripletStep",
-    "pixelLessStep",
-    "tobTecStep",
-    "jetCoreRegionalStep",
-    "muonSeededStepInOut",
-    "muonSeededStepOutIn",
-]
-selectedIterTrackingStep_trackingPhase1PU70 = [
+for era in _cfg.allEras():
+    pf = _cfg.postfix(era)
+    locals()["selectedIterTrackingStep"+pf] = _cfg.iterationAlgos(era)
+#selectedIterTrackingStep.append('muonSeededStepOutInDisplaced')
+
+# FIXME ::  this part will be removed when phase2 tracking is migrated to eras
+selectedIterTrackingStep_trackingPhase2PU140 = [
     "initialStep",
     "highPtTripletStep",
     "lowPtQuadStep",
     "lowPtTripletStep",
     "detachedQuadStep",
-    "mixedTripletStep",
     "pixelPairStep",
-    "tobTecStep",
     "muonSeededStepInOut",
-    "muonSeededStepOutIn",
 ]

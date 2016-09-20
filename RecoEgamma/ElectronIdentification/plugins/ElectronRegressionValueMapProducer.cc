@@ -226,11 +226,11 @@ void ElectronRegressionValueMapProducer::writeValueMap(edm::Event &iEvent,
   using namespace std;
   typedef ValueMap<T> TValueMap;
 
-  auto_ptr<TValueMap> valMap(new TValueMap());
+  auto valMap = std::make_unique<TValueMap>();
   typename TValueMap::Filler filler(*valMap);
   filler.insert(handle, values.begin(), values.end());
   filler.fill();
-  iEvent.put(valMap, label);
+  iEvent.put(std::move(valMap), label);
 }
 
 void ElectronRegressionValueMapProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {

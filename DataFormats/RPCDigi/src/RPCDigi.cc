@@ -2,6 +2,11 @@
  * 
  *
  * \author Ilaria Segoni
+ *
+ * modified by Borislav Pavlov - University of Sofia
+ * modification to be used for upgrade and for "pseudodigi"
+ *
+ *
  */
 
 
@@ -10,27 +15,42 @@
 
 RPCDigi::RPCDigi (int strip, int bx) :
   strip_(strip),
-  bx_(bx)
+  bx_(bx),
+  time_(0),
+  coordinateX_(0),
+  coordinateY_(0),
+  deltaTime_(0),
+  deltaX_(0),
+  deltaY_(0),
+  hasTime_(false),
+  hasX_(false),
+  hasY_(false)
 {}
 
 RPCDigi::RPCDigi ():
   strip_(0),
-  bx_(0) 
+  bx_(0),
+  time_(0),
+  coordinateX_(0),
+  coordinateY_(0),
+  deltaTime_(0),
+  deltaX_(0),
+  deltaY_(0),
+  hasTime_(false),
+  hasX_(false),
+  hasY_(false)
 {}
 
 
 // Comparison
-bool
-RPCDigi::operator == (const RPCDigi& digi) const {
+bool RPCDigi::operator == (const RPCDigi& digi) const {
   if ( strip_ != digi.strip() ||
        bx_    != digi.bx() ) return false;
   return true;
 }
 
 ///Precedence operator
-bool 
-RPCDigi::operator<(const RPCDigi& digi) const{
-
+bool RPCDigi::operator<(const RPCDigi& digi) const{
   if(digi.bx() == this->bx())
     return digi.strip()<this->strip();
   else 
@@ -42,13 +62,7 @@ std::ostream & operator<<(std::ostream & o, const RPCDigi& digi) {
            << " " << digi.bx();
 }
 
-int RPCDigi::strip() const { return strip_; }
-
-int RPCDigi::bx() const { return bx_; }
-
-void
-RPCDigi::print() const {
+void RPCDigi::print() const {
   std::cout << "Strip " << strip() 
-       << " bx " << bx() <<std::endl;
+	    << " bx " << bx() <<std::endl;
 }
-

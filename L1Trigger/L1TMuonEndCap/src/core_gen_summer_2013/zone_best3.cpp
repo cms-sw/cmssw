@@ -6,7 +6,7 @@
 // Timestamp : Thu Mar 12 14:54:01 2015
 
 #include "zone_best3.h"
-
+using namespace std;
 extern size_t __glob_alwaysn__;
 
 void zone_best3::operator()

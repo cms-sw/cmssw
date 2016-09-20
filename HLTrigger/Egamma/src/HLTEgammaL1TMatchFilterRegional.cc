@@ -39,6 +39,7 @@ HLTEgammaL1TMatchFilterRegional::HLTEgammaL1TMatchFilterRegional(const edm::Para
    candNonIsolatedTag_ = iConfig.getParameter< edm::InputTag > ("candNonIsolatedTag");
    L1SeedFilterTag_ = iConfig.getParameter< edm::InputTag > ("L1SeedFilterTag"); 
    l1JetsTag_ = iConfig.getParameter< edm::InputTag > ("l1CenJetsTag"); //will be renamed l1JetsTag for step 2 of the new L1 migration
+   l1TausTag_ = iConfig.getParameter< edm::InputTag > ("l1TausTag"); //will be renamed l1JetsTag for step 2 of the new L1 migration
    ncandcut_  = iConfig.getParameter<int> ("ncandcut");
    doIsolated_   = iConfig.getParameter<bool>("doIsolated");   
    region_eta_size_      = iConfig.getParameter<double> ("region_eta_size");
@@ -64,6 +65,7 @@ HLTEgammaL1TMatchFilterRegional::fillDescriptions(edm::ConfigurationDescriptions
   desc.add<edm::InputTag>("l1NonIsolatedTag",edm::InputTag("l1extraParticles","NonIsolated")); //drop for step 2 of the L1 migration
   desc.add<edm::InputTag>("L1SeedFilterTag",edm::InputTag("theL1SeedFilter"));
   desc.add<edm::InputTag>("l1CenJetsTag",edm::InputTag("hltCaloStage2Digis")); //rename for step 2 of L1 migration
+  desc.add<edm::InputTag>("l1TausTag",edm::InputTag("hltCaloStage2Digis","Tau")); //rename for step 2 of L1 migration
   desc.add<int>("ncandcut",1);
   desc.add<bool>("doIsolated",true);
   desc.add<double>("region_eta_size",0.522);
@@ -88,6 +90,7 @@ HLTEgammaL1TMatchFilterRegional::hltFilter(edm::Event& iEvent, const edm::EventS
   if (saveTags()) {
     filterproduct.addCollectionTag(l1EGTag_);
     filterproduct.addCollectionTag(l1JetsTag_);
+    filterproduct.addCollectionTag(l1TausTag_);
   }
 
   edm::Ref<reco::RecoEcalCandidateCollection> ref;
@@ -114,6 +117,9 @@ HLTEgammaL1TMatchFilterRegional::hltFilter(edm::Event& iEvent, const edm::EventS
   std::vector<l1t::JetRef> l1Jets;
   L1SeedOutput->getObjects(TriggerL1Jet, l1Jets);
 
+  std::vector<l1t::TauRef> l1Taus;
+  L1SeedOutput->getObjects(TriggerL1Tau, l1Taus);
+
   int countCand=0;
   for (reco::RecoEcalCandidateCollection::const_iterator recoecalcand= recoIsolecalcands->begin(); recoecalcand!=recoIsolecalcands->end(); recoecalcand++) {
     countCand++;
@@ -124,8 +130,9 @@ HLTEgammaL1TMatchFilterRegional::hltFilter(edm::Event& iEvent, const edm::EventS
       //it is assumed the HLTL1TSeed module fills it with the correct seeds
       bool matchedSCEG = matchedToL1Cand(l1EGs,recoecalcand->eta(),recoecalcand->phi());
       bool matchedSCJet = matchedToL1Cand(l1Jets,recoecalcand->eta(),recoecalcand->phi());
+      bool matchedSCTau = matchedToL1Cand(l1Taus,recoecalcand->eta(),recoecalcand->phi());
 
-      if(matchedSCEG || matchedSCJet) {
+      if(matchedSCEG || matchedSCJet || matchedSCTau) {
 	n++;
 	ref = edm::Ref<reco::RecoEcalCandidateCollection>(recoIsolecalcands, distance(recoIsolecalcands->begin(),recoecalcand) );
 	filterproduct.addObject(TriggerCluster, ref);
@@ -148,8 +155,9 @@ HLTEgammaL1TMatchFilterRegional::hltFilter(edm::Event& iEvent, const edm::EventS
       if(fabs(recoecalcand->eta()) < endcap_end_){
 	bool matchedSCEG =  matchedToL1Cand(l1EGs,recoecalcand->eta(),recoecalcand->phi());
 	bool matchedSCJet = matchedToL1Cand(l1Jets,recoecalcand->eta(),recoecalcand->phi());
+	bool matchedSCTau = matchedToL1Cand(l1Taus,recoecalcand->eta(),recoecalcand->phi());
 	
-	if(matchedSCEG || matchedSCJet) {
+	if(matchedSCEG || matchedSCJet || matchedSCTau) {
 	  n++;
 	  ref = edm::Ref<reco::RecoEcalCandidateCollection>(recoNonIsolecalcands, distance(recoNonIsolecalcands->begin(),recoecalcand) );
 	  filterproduct.addObject(TriggerCluster, ref);
@@ -198,6 +206,33 @@ HLTEgammaL1TMatchFilterRegional::matchedToL1Cand(const std::vector<l1t::EGammaRe
 bool
 //HLTEgammaL1TMatchFilterRegional::matchedToL1Cand(const std::vector<l1extra::L1JetParticleRef >& l1Cands,const float scEta,const float scPhi) const
 HLTEgammaL1TMatchFilterRegional::matchedToL1Cand(const std::vector<l1t::JetRef>& l1Cands,const float scEta,const float scPhi) const
+{
+  for (unsigned int i=0; i<l1Cands.size(); i++) {
+    //ORCA matching method
+    double etaBinLow  = 0.;
+    double etaBinHigh = 0.;	
+    if(fabs(scEta) < barrel_end_){
+      etaBinLow = l1Cands[i]->eta() - region_eta_size_/2.;
+      etaBinHigh = etaBinLow + region_eta_size_;
+    }
+    else{
+      etaBinLow = l1Cands[i]->eta() - region_eta_size_ecap_/2.;
+      etaBinHigh = etaBinLow + region_eta_size_ecap_;
+    }
+
+    float deltaphi=fabs(scPhi -l1Cands[i]->phi());
+    if(deltaphi>TWOPI) deltaphi-=TWOPI;
+    if(deltaphi>TWOPI/2.) deltaphi=TWOPI-deltaphi;
+
+    if(scEta < etaBinHigh && scEta > etaBinLow && deltaphi <region_phi_size_/2. )  {
+      return true;
+    }
+  }
+  return false;
+}
+bool
+//HLTEgammaL1TMatchFilterRegional::matchedToL1Cand(const std::vector<l1extra::L1JetParticleRef >& l1Cands,const float scEta,const float scPhi) const
+HLTEgammaL1TMatchFilterRegional::matchedToL1Cand(const std::vector<l1t::TauRef>& l1Cands,const float scEta,const float scPhi) const
 {
   for (unsigned int i=0; i<l1Cands.size(); i++) {
     //ORCA matching method

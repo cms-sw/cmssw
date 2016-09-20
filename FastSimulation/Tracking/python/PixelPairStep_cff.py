@@ -1,21 +1,21 @@
 import FWCore.ParameterSet.Config as cms
 
 # import the full tracking equivalent of this file
-import RecoTracker.IterativeTracking.PixelPairStep_cff
+import RecoTracker.IterativeTracking.PixelPairStep_cff as _standard
 
 # fast tracking mask producer
 import FastSimulation.Tracking.FastTrackerRecHitMaskProducer_cfi
-pixelPairStepMasks = FastSimulation.Tracking.FastTrackerRecHitMaskProducer_cfi.maskProducerFromClusterRemover(RecoTracker.IterativeTracking.PixelPairStep_cff.pixelPairStepClusters)
+pixelPairStepMasks = FastSimulation.Tracking.FastTrackerRecHitMaskProducer_cfi.maskProducerFromClusterRemover(_standard.pixelPairStepClusters)
                                
 # trajectory seeds
 import FastSimulation.Tracking.TrajectorySeedProducer_cfi
 pixelPairStepSeeds = FastSimulation.Tracking.TrajectorySeedProducer_cfi.trajectorySeedProducer.clone(
-    minLayersCrossed = 2,
-    layerList = RecoTracker.IterativeTracking.PixelPairStep_cff.pixelPairStepSeedLayers.layerList.value(),
-    RegionFactoryPSet = RecoTracker.IterativeTracking.PixelPairStep_cff.pixelPairStepSeeds.RegionFactoryPSet,
+    layerList = _standard.pixelPairStepSeedLayers.layerList.value(),
+    RegionFactoryPSet = _standard.pixelPairStepSeeds.RegionFactoryPSet,
     hitMasks = cms.InputTag("pixelPairStepMasks"),
 )
 pixelPairStepSeeds.RegionFactoryPSet.RegionPSet.VertexCollection = cms.InputTag("firstStepPrimaryVerticesBeforeMixing")
+
 # track candidate 
 import FastSimulation.Tracking.TrackCandidateProducer_cfi
 pixelPairStepTrackCandidates = FastSimulation.Tracking.TrackCandidateProducer_cfi.trackCandidateProducer.clone(
@@ -25,10 +25,10 @@ pixelPairStepTrackCandidates = FastSimulation.Tracking.TrackCandidateProducer_cf
 )
 
 # tracks
-pixelPairStepTracks = RecoTracker.IterativeTracking.PixelPairStep_cff.pixelPairStepTracks.clone(TTRHBuilder = 'WithoutRefit')
+pixelPairStepTracks = _standard.pixelPairStepTracks.clone(TTRHBuilder = 'WithoutRefit')
 
 # final Selection
-pixelPairStep = RecoTracker.IterativeTracking.PixelPairStep_cff.pixelPairStep.clone()
+pixelPairStep = _standard.pixelPairStep.clone()
 pixelPairStep.vertices = "firstStepPrimaryVerticesBeforeMixing"
 
 # Final sequence 

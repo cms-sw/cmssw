@@ -99,6 +99,9 @@ class PhotonIDValueMapProducer : public edm::stream::EDProducer<> {
   edm::EDGetTokenT<edm::View<reco::Candidate> > pfCandidatesTokenMiniAOD_;
   edm::EDGetToken srcMiniAOD_;
 
+  // check whether a non-null preshower is there
+  bool usesES_;
+
   // Cluster shapes
   constexpr static char phoFull5x5SigmaIEtaIEta_[] = "phoFull5x5SigmaIEtaIEta";
   constexpr static char phoFull5x5SigmaIEtaIPhi_[] = "phoFull5x5SigmaIEtaIPhi";
@@ -144,10 +147,17 @@ PhotonIDValueMapProducer::PhotonIDValueMapProducer(const edm::ParameterSet& iCon
   eeReducedRecHitCollectionMiniAOD_ = mayConsume<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>
 								       ("eeReducedRecHitCollectionMiniAOD"));
 
-  esReducedRecHitCollection_        = mayConsume<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>
-								       ("esReducedRecHitCollection"));
-  esReducedRecHitCollectionMiniAOD_ = mayConsume<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>
-								       ("esReducedRecHitCollectionMiniAOD"));
+  if (!iConfig.getParameter<edm::InputTag>("esReducedRecHitCollection").label().empty() ||
+      !iConfig.getParameter<edm::InputTag>("esReducedRecHitCollectionMiniAOD").label().empty()) {
+      usesES_ = true;
+      esReducedRecHitCollection_        = mayConsume<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>
+                                                                           ("esReducedRecHitCollection"));
+      esReducedRecHitCollectionMiniAOD_ = mayConsume<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>
+                                                                           ("esReducedRecHitCollectionMiniAOD"));
+      
+  } else {
+      usesES_ = false;
+  }
 
   vtxToken_        = mayConsume<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("vertices"));
   vtxTokenMiniAOD_ = mayConsume<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("verticesMiniAOD"));
@@ -212,16 +222,28 @@ void PhotonIDValueMapProducer::produce(edm::Event& iEvent, const edm::EventSetup
   }
 
   // Configure Lazy Tools
-  if( isAOD )
-    lazyToolnoZS = std::unique_ptr<noZS::EcalClusterLazyTools>(new noZS::EcalClusterLazyTools(iEvent, iSetup, 
-						  ebReducedRecHitCollection_,
-						  eeReducedRecHitCollection_,
-						  esReducedRecHitCollection_));
-  else
-    lazyToolnoZS = std::unique_ptr<noZS::EcalClusterLazyTools>(new noZS::EcalClusterLazyTools(iEvent, iSetup, 
-						  ebReducedRecHitCollectionMiniAOD_,
-              eeReducedRecHitCollectionMiniAOD_,
-              esReducedRecHitCollectionMiniAOD_)); 
+  if (usesES_) {
+      if( isAOD )
+        lazyToolnoZS = std::make_unique<noZS::EcalClusterLazyTools>(iEvent, iSetup, 
+                                                      ebReducedRecHitCollection_,
+                                                      eeReducedRecHitCollection_,
+                                                      esReducedRecHitCollection_);
+      else
+        lazyToolnoZS = std::make_unique<noZS::EcalClusterLazyTools>(iEvent, iSetup, 
+                                                      ebReducedRecHitCollectionMiniAOD_,
+                                                      eeReducedRecHitCollectionMiniAOD_,
+                                                      esReducedRecHitCollectionMiniAOD_); 
+  } else {
+      if( isAOD )
+        lazyToolnoZS = std::make_unique<noZS::EcalClusterLazyTools>(iEvent, iSetup, 
+                                                      ebReducedRecHitCollection_,
+                                                      eeReducedRecHitCollection_);
+      else
+        lazyToolnoZS = std::make_unique<noZS::EcalClusterLazyTools>(iEvent, iSetup, 
+                                                      ebReducedRecHitCollectionMiniAOD_,
+                                                      eeReducedRecHitCollectionMiniAOD_); 
+
+  }
   
   // Get PV
   edm::Handle<reco::VertexCollection> vertices;
@@ -404,11 +426,11 @@ void PhotonIDValueMapProducer::writeValueMap(edm::Event &iEvent,
 {
   using namespace edm; 
   using namespace std;
-  auto_ptr<ValueMap<float> > valMap(new ValueMap<float>());
+  auto valMap = std::make_unique<ValueMap<float>>();
   edm::ValueMap<float>::Filler filler(*valMap);
   filler.insert(handle, values.begin(), values.end());
   filler.fill();
-  iEvent.put(valMap, label);
+  iEvent.put(std::move(valMap), label);
 }
 
 void PhotonIDValueMapProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {

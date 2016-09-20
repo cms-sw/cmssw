@@ -96,12 +96,17 @@ namespace cond {
     }
     
     void TAG::Table::update( const std::string& name, 
-		      cond::Time_t& endOfValidity, 
-		      const std::string& description, 
-		      cond::Time_t lastValidatedTime,
-		      const boost::posix_time::ptime& updateTime ){
+			     cond::SynchronizationType synchronizationType,
+			     cond::Time_t& endOfValidity, 
+			     const std::string& description, 
+			     cond::Time_t lastValidatedTime,
+			     const boost::posix_time::ptime& updateTime ){
       UpdateBuffer buffer;
-      buffer.setColumnData< END_OF_VALIDITY, DESCRIPTION, LAST_VALIDATED_TIME, MODIFICATION_TIME >( std::tie( endOfValidity, description, lastValidatedTime, updateTime  ) );
+      buffer.setColumnData< SYNCHRONIZATION, END_OF_VALIDITY, DESCRIPTION, LAST_VALIDATED_TIME, MODIFICATION_TIME >( std::tie( synchronizationType, 
+															       endOfValidity, 
+															       description, 
+															       lastValidatedTime, 
+															       updateTime  ) );
       buffer.addWhereCondition<NAME>( name );
       updateTable( m_schema, tname, buffer );  
     }

@@ -58,8 +58,8 @@ $done = 0;
 $iter = 0;
 while ($done == 0) {
   if ($iter != 0) {
-    print  "mps_stat.pl > /dev/null; mps_fetch.pl\n";
-    system "mps_stat.pl > /dev/null; mps_fetch.pl";
+    print  "mps_stat.py > /dev/null; mps_fetch.py\n";
+    system "mps_stat.py > /dev/null; mps_fetch.py";
     read_db();
     # loop over mille jobs
     for ($i=0; $i<$nJobs; ++$i) {
@@ -71,8 +71,8 @@ while ($done == 0) {
 	 }
     }
     if ($done == 0) { # only in case of no problem...
-	print  "mps_fire.pl -m; date; sleep $seconds\n";
-	system "mps_fire.pl -m; date; sleep $seconds";
+	print  "mps_fire.py -m; date; sleep $seconds\n";
+	system "mps_fire.py -m; date; sleep $seconds";
     }
   }
   $iter = $iter + 1;

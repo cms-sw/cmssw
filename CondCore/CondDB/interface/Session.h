@@ -128,10 +128,13 @@ namespace cond {
       // functions to store a payload in the database. return the identifier of the item in the db. 
       template <typename T> cond::Hash storePayload( const T& payload, 
 						     const boost::posix_time::ptime& creationTime = boost::posix_time::microsec_clock::universal_time() );
+
       template <typename T> std::shared_ptr<T> fetchPayload( const cond::Hash& payloadHash );
       
-      // low-level function to access the payload data as a blob. mainly used for the data migration and testing.
-      // the version for ROOT 
+      cond::Hash storePayloadData( const std::string& payloadObjectType,
+                                   const std::pair<Binary,Binary>& payloadAndStreamerInfoData,
+                                   const boost::posix_time::ptime& creationTime );
+
       bool fetchPayloadData( const cond::Hash& payloadHash, 
 			     std::string& payloadType, 
 			     cond::Binary& payloadData,
@@ -157,11 +160,6 @@ namespace cond {
       coral::ISessionProxy& coralSession();
       // TO BE REMOVED in the long term. The new code will use coralSession().
       coral::ISchema& nominalSchema();
-      
-    private:
-      cond::Hash storePayloadData( const std::string& payloadObjectType, 
-				   const std::pair<Binary,Binary>& payloadAndStreamerInfoData, 
-				   const boost::posix_time::ptime& creationTime );
       
     private:
       

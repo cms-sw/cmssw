@@ -36,7 +36,7 @@ class CSCCorrelatedLCTDigi
   /// return the 4 bit Correlated LCT Quality
   int getQuality() const { return quality; }
 
-  /// return the key wire group
+  /// return the key wire group. counts from 0.
   int getKeyWG()   const { return keywire; }
 
   /// return the key halfstrip from 0,159
@@ -83,6 +83,30 @@ class CSCCorrelatedLCTDigi
 
   /// set quality code
   void setQuality(unsigned int q) {quality=q;}
+
+  /// set valid
+  void setValid(unsigned int v) {valid=v;}
+
+  /// set strip
+  void setStrip(unsigned int s) {strip=s;}
+
+  /// set pattern
+  void setPattern(unsigned int p) {pattern=p;}
+
+  /// set bend
+  void setBend(unsigned int b) {bend=b;}
+
+  /// set bx
+  void setBX(unsigned int b) {bx=b;}
+
+  /// set bx0
+  void setBX0(unsigned int b) {bx0=b;}
+
+  /// set syncErr
+  void setSyncErr(unsigned int s) {syncErr=s;}
+
+  /// set cscID
+  void setCSCID(unsigned int c) {cscID=c;}
 
  private:
   uint16_t trknmb;

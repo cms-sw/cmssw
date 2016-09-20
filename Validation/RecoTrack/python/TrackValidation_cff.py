@@ -18,80 +18,24 @@ from SimGeneral.TrackingAnalysis.trackingParticleNumberOfLayersProducer_cff impo
 from CommonTools.RecoAlgos.recoChargedRefCandidateToTrackRefProducer_cfi import recoChargedRefCandidateToTrackRefProducer as _recoChargedRefCandidateToTrackRefProducer
 
 from Configuration.StandardSequences.Eras import eras
+import RecoTracker.IterativeTracking.iterativeTkConfig as _cfg
 
 ### First define the stuff for the standard validation sequence
 ## Track selectors
-_algos = [
-    "generalTracks",
-    "initialStep",
-    "lowPtTripletStep",
-    "pixelPairStep",
-    "detachedTripletStep",
-    "mixedTripletStep",
-    "pixelLessStep",
-    "tobTecStep",
-    "jetCoreRegionalStep",
-    "muonSeededStepInOut",
-    "muonSeededStepOutIn",
-    "duplicateMerge",
-]
-_algos_trackingLowPU = [
-    "generalTracks",
-    "initialStep",
-    "lowPtTripletStep",
-    "pixelPairStep",
-    "detachedTripletStep",
-    "mixedTripletStep",
-    "pixelLessStep",
-    "tobTecStep",
-    "muonSeededStepInOut",
-    "muonSeededStepOutIn",
-]
-_algos_trackingPhase1 = [
-    "generalTracks",
-    "initialStep",
-    "highPtTripletStep",
-    "detachedQuadStep",
-    #"detachedTripletStep",
-    "lowPtQuadStep",
-    "lowPtTripletStep",
-    "mixedTripletStep",
-    "pixelLessStep",
-    "tobTecStep",
-    "jetCoreRegionalStep",
-    "muonSeededStepInOut",
-    "muonSeededStepOutIn",
-    "duplicateMerge",
-]
-_algos_trackingPhase1PU70 = [
-    "generalTracks",
-    "initialStep",
-    "highPtTripletStep",
-    "lowPtQuadStep",
-    "lowPtTripletStep",
-    "detachedQuadStep",
-    "mixedTripletStep",
-    "pixelPairStep",
-    "tobTecStep",
-    "muonSeededStepInOut",
-    "muonSeededStepOutIn",
-]
+for era in _cfg.allEras():
+    pf = _cfg.postfix(era)
+    _seedProd = ["initialStepSeedsPreSplitting"]
+    _trackProd = ["initialStepTracksPreSplitting"]
+    if era in ["trackingLowPU", "trackingPhase1PU70", "trackingPhase2PU140"]: # these don't have preSplitting
+        _seedProd = []
+        _trackProd = []
 
-_seedProducers = [
-    "initialStepSeedsPreSplitting",
-    "initialStepSeeds",
-    "detachedTripletStepSeeds",
-    "lowPtTripletStepSeeds",
-    "pixelPairStepSeeds",
-    "mixedTripletStepSeedsA",
-    "mixedTripletStepSeedsB",
-    "pixelLessStepSeeds",
-    "tobTecStepSeedsPair",
-    "tobTecStepSeedsTripl",
-    "jetCoreRegionalStepSeeds",
-    "muonSeededSeedsInOut",
-    "muonSeededSeedsOutIn",
-]
+    locals()["_algos"+pf] = ["generalTracks"] + _cfg.iterationAlgos(era) + ["duplicateMerge"]
+    locals()["_seedProducers"+pf] = _seedProd + _cfg.seedProducers(era)
+    locals()["_trackProducers"+pf] = _trackProd + _cfg.trackProducers(era)
+
+#FIXME::ERICA : # for strict "no changes" in phase2 era migration, this line will be removed later
+_algos_trackingPhase2PU140.remove("duplicateMerge") 
 
 _removeForFastSimSeedProducers =["initialStepSeedsPreSplitting",
                                  "jetCoreRegionalStepSeeds",
@@ -99,107 +43,11 @@ _removeForFastSimSeedProducers =["initialStepSeedsPreSplitting",
                                  "muonSeededSeedsOutIn"]
 _seedProducers_fastSim = [ x for x in _seedProducers if x not in _removeForFastSimSeedProducers]
 
-_seedProducers_trackingLowPU = [
-    "initialStepSeeds",
-    "lowPtTripletStepSeeds",
-    "pixelPairStepSeeds",
-    "detachedTripletStepSeeds",
-    "mixedTripletStepSeedsA",
-    "mixedTripletStepSeedsB",
-    "pixelLessStepSeeds",
-    "tobTecStepSeeds",
-    "muonSeededSeedsInOut",
-    "muonSeededSeedsOutIn",
-]
-_seedProducers_trackingPhase1 = [
-    "initialStepSeedsPreSplitting",
-    "initialStepSeeds",
-    "highPtTripletStepSeeds",
-    "detachedQuadStepSeeds",
-    #"detachedTripletStepSeeds",
-    "lowPtQuadStepSeeds",
-    "lowPtTripletStepSeeds",
-    "mixedTripletStepSeedsA",
-    "mixedTripletStepSeedsB",
-    "pixelLessStepSeeds",
-    "tobTecStepSeedsPair",
-    "tobTecStepSeedsTripl",
-    "jetCoreRegionalStepSeeds",
-    "muonSeededSeedsInOut",
-    "muonSeededSeedsOutIn",
-]
-_seedProducers_trackingPhase1PU70 = [
-    "initialStepSeeds",
-    "highPtTripletStepSeeds",
-    "lowPtQuadStepSeeds",
-    "lowPtTripletStepSeeds",
-    "detachedQuadStepSeeds",
-    "mixedTripletStepSeedsA",
-    "mixedTripletStepSeedsB",
-    "pixelPairStepSeeds",
-    "tobTecStepSeeds",
-    "muonSeededSeedsInOut",
-    "muonSeededSeedsOutIn",
-]
-
-
-_trackProducers = [
-    "initialStepTracksPreSplitting",
-    "initialStepTracks",
-    "lowPtTripletStepTracks",
-    "pixelPairStepTracks",
-    "detachedTripletStepTracks",
-    "mixedTripletStepTracks",
-    "pixelLessStepTracks",
-    "tobTecStepTracks",
-    "jetCoreRegionalStepTracks",
-    "muonSeededTracksInOut",
-    "muonSeededTracksOutIn",
-]
 _removeForFastTrackProducers = ["initialStepTracksPreSplitting",
                                 "jetCoreRegionalStepTracks",
                                 "muonSeededTracksInOut",
                                 "muonSeededTracksOutIn"]
 _trackProducers_fastSim = [ x for x in _trackProducers if x not in _removeForFastTrackProducers]
-
-_trackProducers_trackingLowPU = [
-    "initialStepTracks",
-    "lowPtTripletStepTracks",
-    "pixelPairStepTracks",
-    "detachedTripletStepTracks",
-    "mixedTripletStepTracks",
-    "pixelLessStepTracks",
-    "tobTecStepTracks",
-    "muonSeededTracksInOut",
-    "muonSeededTracksOutIn",
-]
-_trackProducers_trackingPhase1 = [
-    "initialStepTracksPreSplitting",
-    "initialStepTracks",
-    "highPtTripletStepTracks",
-    "detachedQuadStepTracks",
-#    "detachedTripletStepTracks",
-    "lowPtQuadStepTracks",
-    "lowPtTripletStepTracks",
-    "mixedTripletStepTracks",
-    "pixelLessStepTracks",
-    "tobTecStepTracks",
-    "jetCoreRegionalStepTracks",
-    "muonSeededTracksInOut",
-    "muonSeededTracksOutIn",
-]
-_trackProducers_trackingPhase1PU70 = [
-    "initialStepTracks",
-    "highPtTripletStepTracks",
-    "lowPtQuadStepTracks",
-    "lowPtTripletStepTracks",
-    "detachedQuadStepTracks",
-    "mixedTripletStepTracks",
-    "pixelPairStepTracks",
-    "tobTecStepTracks",
-    "muonSeededTracksInOut",
-    "muonSeededTracksOutIn",
-]
 
 def _algoToSelector(algo):
     sel = ""
@@ -293,6 +141,7 @@ _relevantEras = [
     _eraPostfix("trackingLowPU"),
     _eraPostfix("trackingPhase1"),
     _eraPostfix("trackingPhase1PU70"),
+    _eraPostfix("trackingPhase2PU140"),
 ]
 _relevantErasAndFastSim = _relevantEras + [_eraPostfix("fastSim")]
 def _translateArgs(args, postfix, modDict):

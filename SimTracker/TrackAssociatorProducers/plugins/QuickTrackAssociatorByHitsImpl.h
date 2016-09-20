@@ -75,6 +75,7 @@ public:
                                  double qualitySimToReco,
                                  double puritySimToReco,
                                  double cutRecoToSim,
+                                 double pixelHitWeight,
                                  bool threeHitTracksAreSpecial,
                                  SimToRecoDenomType simToRecoDenominator);
   
@@ -134,7 +135,7 @@ public:
    * Return value is a vector of pairs, where first is an edm::Ref to the associated TrackingParticle, and second is
    * the number of associated hits.
    */
-  template<typename T_TPCollection,typename iter> std::vector< std::pair<edm::Ref<TrackingParticleCollection>,size_t> > associateTrack( const TrackerHitAssociator& hitAssociator, const T_TPCollection& trackingParticles, const TrackingParticleRefKeySet *trackingParticleKeys, iter begin, iter end ) const;
+  template<typename T_TPCollection,typename iter> std::vector< std::pair<edm::Ref<TrackingParticleCollection>,double> > associateTrack( const TrackerHitAssociator& hitAssociator, const T_TPCollection& trackingParticles, const TrackingParticleRefKeySet *trackingParticleKeys, iter begin, iter end ) const;
   /** @brief Returns the TrackingParticle that has the most associated hits to the given track.
    *
    * See the notes for the other overload for the return type.
@@ -142,7 +143,7 @@ public:
    * Note that the trackingParticles parameter is not actually required since all the information is in clusterToTPMap,
    * but the method signature has to match the other overload because it is called from a templated method.
    */
-  template<typename T_TPCollection,typename iter> std::vector< std::pair<edm::Ref<TrackingParticleCollection>,size_t> > associateTrack( const ClusterTPAssociation& clusterToTPMap, const T_TPCollection& trackingParticles, const TrackingParticleRefKeySet *trackingParticleKeys, iter begin, iter end ) const;
+  template<typename T_TPCollection,typename iter> std::vector< std::pair<edm::Ref<TrackingParticleCollection>,double> > associateTrack( const ClusterTPAssociation& clusterToTPMap, const T_TPCollection& trackingParticles, const TrackingParticleRefKeySet *trackingParticleKeys, iter begin, iter end ) const;
   
   
   /** @brief Returns true if the supplied TrackingParticle has the supplied g4 track identifiers. */
@@ -152,10 +153,10 @@ public:
    *
    * Modified 01/May/2014 to take the TrackerHitAssociator as a parameter rather than using a member.
    */
-  template<typename iter> int getDoubleCount( const TrackerHitAssociator& hitAssociator, iter begin, iter end, TrackingParticleRef associatedTrackingParticle ) const;
+  template<typename iter> double getDoubleCount( const TrackerHitAssociator& hitAssociator, iter begin, iter end, TrackingParticleRef associatedTrackingParticle ) const;
   /** @brief Overload for when using cluster to TrackingParticle association list.
    */
-  template<typename iter> int getDoubleCount( const ClusterTPAssociation& clusterToTPList, iter begin, iter end, TrackingParticleRef associatedTrackingParticle ) const;
+  template<typename iter> double getDoubleCount( const ClusterTPAssociation& clusterToTPList, iter begin, iter end, TrackingParticleRef associatedTrackingParticle ) const;
   
   /** @brief Returns a vector of pairs where first is a SimTrackIdentifiers (see typedef above) and second is the number of hits that came from that sim track.
    *
@@ -163,7 +164,7 @@ public:
    * E.g. If all the hits in the reco track come from the same sim track, then there will only be one entry with second as the number of hits in
    * the track.
    */
-  template<typename iter> std::vector< std::pair<SimTrackIdentifiers,size_t> > getAllSimTrackIdentifiers( const TrackerHitAssociator& hitAssociator, iter begin, iter end ) const;
+  template<typename iter> std::vector< std::pair<SimTrackIdentifiers,double> > getAllSimTrackIdentifiers( const TrackerHitAssociator& hitAssociator, iter begin, iter end ) const;
   
   // Added by S. Sarkar
   template<typename iter> std::vector< OmniClusterRef> getMatchedClusters( iter begin, iter end ) const;
@@ -176,6 +177,9 @@ public:
     return &(*iter);
   }
   
+  double weightedNumberOfTrackHits(const reco::Track& track) const;
+  double weightedNumberOfTrackHits(const TrajectorySeed& seed) const;
+
   /** @brief creates either a ClusterTPAssociation OR a TrackerHitAssociator and stores it in the provided unique_ptr. The other will be null.
    *
    * A decision is made whether to create a ClusterTPAssociation or a TrackerHitAssociator depending on how this
@@ -197,6 +201,7 @@ public:
   
   double qualitySimToReco_;
   double puritySimToReco_;
+  double pixelHitWeight_;
   double cutRecoToSim_;
   SimToRecoDenomType simToRecoDenominator_;
   bool threeHitTracksAreSpecial_;

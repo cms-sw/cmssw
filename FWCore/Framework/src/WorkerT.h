@@ -106,6 +106,8 @@ namespace edm {
                                                unsigned int iNumberOfChildren) override;
     virtual void implRegisterThinnedAssociations(ProductRegistry const&, ThinnedAssociationsHelper&) override;
     virtual std::string workerType() const override;
+    virtual SerialTaskQueueChain* serializeRunModule() override;
+
 
     virtual void modulesDependentUpon(std::vector<const char*>& oModuleLabels, bool iPrint) const override {
       module_->modulesDependentUpon(module_->moduleDescription().processName(),module_->moduleDescription().moduleLabel(), iPrint, oModuleLabels);

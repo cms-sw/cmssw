@@ -365,9 +365,65 @@ namespace edm{
   }
 
   template<typename T>
+  inline
+  SerialTaskQueueChain* WorkerT<T>::serializeRunModule() {
+    return nullptr;
+  }
+  template<> SerialTaskQueueChain* WorkerT<EDAnalyzer>::serializeRunModule() {
+    return &(module_->sharedResourcesAcquirer().serialQueueChain());
+  }
+  template<> SerialTaskQueueChain* WorkerT<EDFilter>::serializeRunModule() {
+    return &(module_->sharedResourcesAcquirer().serialQueueChain());
+  }
+  template<> SerialTaskQueueChain* WorkerT<EDProducer>::serializeRunModule() {
+    return &(module_->sharedResourcesAcquirer().serialQueueChain());
+  }
+  template<> SerialTaskQueueChain* WorkerT<OutputModule>::serializeRunModule() {
+    return &(module_->sharedResourcesAcquirer().serialQueueChain());
+  }
+  template<> SerialTaskQueueChain* WorkerT<one::EDAnalyzerBase>::serializeRunModule() {
+    return &(module_->sharedResourcesAcquirer().serialQueueChain());
+  }
+  template<> SerialTaskQueueChain* WorkerT<one::EDFilterBase>::serializeRunModule() {
+    return &(module_->sharedResourcesAcquirer().serialQueueChain());
+  }
+  template<> SerialTaskQueueChain* WorkerT<one::EDProducerBase>::serializeRunModule() {
+    return &(module_->sharedResourcesAcquirer().serialQueueChain());
+  }
+  template<> SerialTaskQueueChain* WorkerT<one::OutputModuleBase>::serializeRunModule() {
+    return &(module_->sharedResourcesAcquirer().serialQueueChain());
+  }
+  
+  
+  namespace {
+    template <typename T> bool mustPrefetchMayGet();
+    
+    template<> bool mustPrefetchMayGet<EDAnalyzer>() { return true;}
+    template<> bool mustPrefetchMayGet<EDProducer>() { return true;}
+    template<> bool mustPrefetchMayGet<EDFilter>() { return true;}
+    template<> bool mustPrefetchMayGet<OutputModule>() { return true;}
+    
+    template<> bool mustPrefetchMayGet<edm::one::EDProducerBase>() { return true;}
+    template<> bool mustPrefetchMayGet<edm::one::EDFilterBase>() { return true;}
+    template<> bool mustPrefetchMayGet<edm::one::EDAnalyzerBase>() { return true;}
+    template<> bool mustPrefetchMayGet<edm::one::OutputModuleBase>() { return true;}
+
+    template<> bool mustPrefetchMayGet<edm::global::EDProducerBase>() { return true;}
+    template<> bool mustPrefetchMayGet<edm::global::EDFilterBase>() { return true;}
+    template<> bool mustPrefetchMayGet<edm::global::EDAnalyzerBase>() { return true;}
+    template<> bool mustPrefetchMayGet<edm::global::OutputModuleBase>() { return true;}
+    
+    template<> bool mustPrefetchMayGet<edm::stream::EDProducerAdaptorBase>() { return true;}
+    template<> bool mustPrefetchMayGet<edm::stream::EDFilterAdaptorBase>() { return true;}
+    template<> bool mustPrefetchMayGet<edm::stream::EDAnalyzerAdaptorBase>() { return true;}
+
+  }
+  
+  
+  template<typename T>
   void WorkerT<T>::updateLookup(BranchType iBranchType,
                                 ProductResolverIndexHelper const& iHelper) {
-    module_->updateLookup(iBranchType,iHelper);
+    module_->updateLookup(iBranchType,iHelper,mustPrefetchMayGet<T>());
   }
 
   template<>

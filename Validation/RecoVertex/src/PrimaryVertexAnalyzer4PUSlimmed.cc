@@ -22,6 +22,20 @@
 
 #include <numeric>
 
+namespace {
+  template <typename T, size_t N>
+  std::array<T, N+1> makeLogBins(const double min, const double max) {
+    const double minLog10 = std::log10(min);
+    const double maxLog10 = std::log10(max);
+    const double width = (maxLog10-minLog10)/N;
+    std::array<T, N+1> ret;
+    for(size_t i=0; i<= N; ++i) {
+      ret[i] = std::pow(10, minLog10 + i*width);
+    }
+    return ret;
+  }
+}
+
 //
 // constructors and destructor
 //
@@ -30,19 +44,12 @@ PrimaryVertexAnalyzer4PUSlimmed::PrimaryVertexAnalyzer4PUSlimmed(
     : verbose_(iConfig.getUntrackedParameter<bool>("verbose", false)),
       use_only_charged_tracks_(iConfig.getUntrackedParameter<bool>(
           "use_only_charged_tracks", true)),
-      sigma_z_match_(
-          iConfig.getUntrackedParameter<double>("sigma_z_match", 3.0)),
-      abs_z_match_(
-          iConfig.getUntrackedParameter<double>("abs_z_match", 0.1)),
+      do_generic_sim_plots_(iConfig.getUntrackedParameter<bool>("do_generic_sim_plots")),
       root_folder_(
           iConfig.getUntrackedParameter<std::string>("root_folder",
                                                 "Validation/Vertices")),
       vecPileupSummaryInfoToken_(consumes<std::vector<PileupSummaryInfo> >(
           edm::InputTag(std::string("addPileupInfo")))),
-      recoTrackCollectionToken_(consumes<reco::TrackCollection>(
-          iConfig.getUntrackedParameter<edm::InputTag>("recoTrackProducer"))),
-      edmView_recoTrack_Token_(consumes<edm::View<reco::Track> >(
-          iConfig.getUntrackedParameter<edm::InputTag>("recoTrackProducer"))),
       trackingParticleCollectionToken_(consumes<TrackingParticleCollection>(
           iConfig.getUntrackedParameter<edm::InputTag>("trackingParticleCollection"))),
       trackingVertexCollectionToken_(consumes<TrackingVertexCollection>(
@@ -84,6 +91,8 @@ void PrimaryVertexAnalyzer4PUSlimmed::bookHistograms(
     0.0, 0.0025, 0.005, 0.0075, 0.01, 0.025, 0.05, 0.075, 0.1,
     0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0
   };
+
+  auto const log_pt_bins = makeLogBins<float, 100>(0.1, 1e4);
   float log_pt2_bins[16] = {
     0.0, 0.1, 0.5, 
     1.0, 2.0, 5.0,
@@ -98,6 +107,7 @@ void PrimaryVertexAnalyzer4PUSlimmed::bookHistograms(
     45.0, 50.0, 55.0, 60.0, 70.0,
     80.0, 90.0, 100.0, 150.0, 200.0
   };
+
   // TODO(rovere) Possibly change or add the main DQMStore booking
   // interface to allow booking a TProfile with variable bin-width
   // using an array of floats, as done for the TH1F case, not of
@@ -111,48 +121,50 @@ void PrimaryVertexAnalyzer4PUSlimmed::bookHistograms(
   };
 
   i.setCurrentFolder(root_folder_);
-  mes_["root_folder"]["GenVtx_vs_BX"] =
+  if(do_generic_sim_plots_) {
+    mes_["root_folder"]["GenVtx_vs_BX"] =
       i.book2D("GenVtx_vs_BX", "GenVtx_vs_BX", 16, -12.5, 3.5, 200, 0., 200.);
-  // Generated Primary Vertex Plots
-  mes_["root_folder"]["GenPV_X"] =
+    // Generated Primary Vertex Plots
+    mes_["root_folder"]["GenPV_X"] =
       i.book1D("GenPV_X", "GeneratedPV_X", 120, -0.6, 0.6);
-  mes_["root_folder"]["GenPV_Y"] =
+    mes_["root_folder"]["GenPV_Y"] =
       i.book1D("GenPV_Y", "GeneratedPV_Y", 120, -0.6, 0.6);
-  mes_["root_folder"]["GenPV_Z"] =
+    mes_["root_folder"]["GenPV_Z"] =
       i.book1D("GenPV_Z", "GeneratedPV_Z", 120, -60., 60.);
-  mes_["root_folder"]["GenPV_R"] =
+    mes_["root_folder"]["GenPV_R"] =
       i.book1D("GenPV_R", "GeneratedPV_R", 120, 0, 0.6);
-  mes_["root_folder"]["GenPV_Pt2"] =
+    mes_["root_folder"]["GenPV_Pt2"] =
       i.book1D("GenPV_Pt2", "GeneratedPV_Sum-pt2", 15, &log_pt2_bins[0]);
-  mes_["root_folder"]["GenPV_NumTracks"] =
+    mes_["root_folder"]["GenPV_NumTracks"] =
       i.book1D("GenPV_NumTracks", "GeneratedPV_NumTracks", 24, &log_ntrk_bins[0]);
-  mes_["root_folder"]["GenPV_ClosestDistanceZ"] =
+    mes_["root_folder"]["GenPV_ClosestDistanceZ"] =
       i.book1D("GenPV_ClosestDistanceZ", "GeneratedPV_ClosestDistanceZ", 30,
                &log_bins[0]);
 
-  // All Generated Vertices, used for efficiency plots
-  mes_["root_folder"]["GenAllV_NumVertices"] = i.book1D(
-      "GenAllV_NumVertices", "GeneratedAllV_NumVertices", 100, 0., 200.);
-  mes_["root_folder"]["GenAllV_X"] =
+    // All Generated Vertices, used for efficiency plots
+    mes_["root_folder"]["GenAllV_NumVertices"] = i.book1D(
+                                                          "GenAllV_NumVertices", "GeneratedAllV_NumVertices", 100, 0., 200.);
+    mes_["root_folder"]["GenAllV_X"] =
       i.book1D("GenAllV_X", "GeneratedAllV_X", 120, -0.6, 0.6);
-  mes_["root_folder"]["GenAllV_Y"] =
+    mes_["root_folder"]["GenAllV_Y"] =
       i.book1D("GenAllV_Y", "GeneratedAllV_Y", 120, -0.6, 0.6);
-  mes_["root_folder"]["GenAllV_Z"] =
+    mes_["root_folder"]["GenAllV_Z"] =
       i.book1D("GenAllV_Z", "GeneratedAllV_Z", 120, -60, 60);
-  mes_["root_folder"]["GenAllV_R"] =
+    mes_["root_folder"]["GenAllV_R"] =
       i.book1D("GenAllV_R", "GeneratedAllV_R", 120, 0, 0.6);
-  mes_["root_folder"]["GenAllV_Pt2"] =
+    mes_["root_folder"]["GenAllV_Pt2"] =
       i.book1D("GenAllV_Pt2", "GeneratedAllV_Sum-pt2", 15, &log_pt2_bins[0]);
-  mes_["root_folder"]["GenAllV_NumTracks"] =
+    mes_["root_folder"]["GenAllV_NumTracks"] =
       i.book1D("GenAllV_NumTracks", "GeneratedAllV_NumTracks", 24, &log_ntrk_bins[0]);
-  mes_["root_folder"]["GenAllV_ClosestDistanceZ"] =
+    mes_["root_folder"]["GenAllV_ClosestDistanceZ"] =
       i.book1D("GenAllV_ClosestDistanceZ", "GeneratedAllV_ClosestDistanceZ", 30,
                &log_bins[0]);
-  mes_["root_folder"]["GenAllV_PairDistanceZ"] =
+    mes_["root_folder"]["GenAllV_PairDistanceZ"] =
       i.book1D("GenAllV_PairDistanceZ", "GeneratedAllV_PairDistanceZ",
                1000, 0, 20);
-  mes_["root_folder"]["SignalIsHighestPt2"] =
+    mes_["root_folder"]["SignalIsHighestPt2"] =
         i.book1D("SignalIsHighestPt2", "SignalIsHighestPt2", 2, -0.5, 1.5);
+  }
 
   for (auto const& l : reco_vertex_collections_) {
     std::string label = l.label();
@@ -475,7 +487,7 @@ void PrimaryVertexAnalyzer4PUSlimmed::bookHistograms(
     auto book1d = [&](const char *name, int bins, double min, double max) {
       mes_[label][name] = i.book1D(name, name, bins, min, max);
     };
-    auto book1dlogx = [&](const char *name, int bins, float *xbinedges) {
+    auto book1dlogx = [&](const char *name, int bins, const float *xbinedges) {
       mes_[label][name] = i.book1D(name, name, bins, xbinedges);
     };
     auto book2d = [&](const char *name,
@@ -484,7 +496,7 @@ void PrimaryVertexAnalyzer4PUSlimmed::bookHistograms(
       mes_[label][name] = i.book2D(name, name, xbins,xmin,xmax, ybins,ymin,ymax);
     };
     auto book2dlogx = [&](const char *name,
-                          int xbins, float *xbinedges,
+                          int xbins, const float *xbinedges,
                           int ybins, double ymin, double ymax) {
       auto me = i.book2D(name, name, xbins,xbinedges[0],xbinedges[xbins], ybins,ymin,ymax);
       me->getTH2F()->GetXaxis()->Set(xbins, xbinedges);
@@ -512,6 +524,16 @@ void PrimaryVertexAnalyzer4PUSlimmed::bookHistograms(
     book2dlogx("RecoAllAssoc2GenMatched_ResolZ_vs_NumTracks",   24,&log_ntrk_bins[0], 100,-resolz,resolz);
     book2dlogx("RecoAllAssoc2GenMatched_ResolPt2_vs_NumTracks", 24,&log_ntrk_bins[0], 100,-resolpt2,resolpt2);
 
+    book2d("RecoAllAssoc2GenMatched_ResolX_vs_Z",   120,-60,60, 100,-resolx,resolx);
+    book2d("RecoAllAssoc2GenMatched_ResolY_vs_Z",   120,-60,60, 100,-resoly,resoly);
+    book2d("RecoAllAssoc2GenMatched_ResolZ_vs_Z",   120,-60,60, 100,-resolz,resolz);
+    book2d("RecoAllAssoc2GenMatched_ResolPt2_vs_Z", 120,-60,60, 100,-resolpt2,resolpt2);
+
+    book2dlogx("RecoAllAssoc2GenMatched_ResolX_vs_Pt",   log_pt_bins.size()-1,&log_pt_bins[0], 100,-resolx,resolx);
+    book2dlogx("RecoAllAssoc2GenMatched_ResolY_vs_Pt",   log_pt_bins.size()-1,&log_pt_bins[0], 100,-resoly,resoly);
+    book2dlogx("RecoAllAssoc2GenMatched_ResolZ_vs_Pt",   log_pt_bins.size()-1,&log_pt_bins[0], 100,-resolz,resolz);
+    book2dlogx("RecoAllAssoc2GenMatched_ResolPt2_vs_Pt", log_pt_bins.size()-1,&log_pt_bins[0], 100,-resolpt2,resolpt2);
+
     book1d("RecoAllAssoc2GenMatched_PullX", 250,-25,25);
     book1d("RecoAllAssoc2GenMatched_PullY", 250,-25,25);
     book1d("RecoAllAssoc2GenMatched_PullZ", 250,-25,25);
@@ -531,6 +553,16 @@ void PrimaryVertexAnalyzer4PUSlimmed::bookHistograms(
     book2dlogx("RecoAllAssoc2GenMatchedMerged_ResolY_vs_NumTracks",   24,&log_ntrk_bins[0], 100,-resoly,resoly);
     book2dlogx("RecoAllAssoc2GenMatchedMerged_ResolZ_vs_NumTracks",   24,&log_ntrk_bins[0], 100,-resolz,resolz);
     book2dlogx("RecoAllAssoc2GenMatchedMerged_ResolPt2_vs_NumTracks", 24,&log_ntrk_bins[0], 100,-resolpt2,resolpt2);
+
+    book2d("RecoAllAssoc2GenMatchedMerged_ResolX_vs_Z",   120,-60,60, 100,-resolx,resolx);
+    book2d("RecoAllAssoc2GenMatchedMerged_ResolY_vs_Z",   120,-60,60, 100,-resoly,resoly);
+    book2d("RecoAllAssoc2GenMatchedMerged_ResolZ_vs_Z",   120,-60,60, 100,-resolz,resolz);
+    book2d("RecoAllAssoc2GenMatchedMerged_ResolPt2_vs_Z", 120,-60,60, 100,-resolpt2,resolpt2);
+
+    book2dlogx("RecoAllAssoc2GenMatchedMerged_ResolX_vs_Pt",   log_pt_bins.size()-1,&log_pt_bins[0], 100,-resolx,resolx);
+    book2dlogx("RecoAllAssoc2GenMatchedMerged_ResolY_vs_Pt",   log_pt_bins.size()-1,&log_pt_bins[0], 100,-resoly,resoly);
+    book2dlogx("RecoAllAssoc2GenMatchedMerged_ResolZ_vs_Pt",   log_pt_bins.size()-1,&log_pt_bins[0], 100,-resolz,resolz);
+    book2dlogx("RecoAllAssoc2GenMatchedMerged_ResolPt2_vs_Pt", log_pt_bins.size()-1,&log_pt_bins[0], 100,-resolpt2,resolpt2);
 
     book1d("RecoAllAssoc2GenMatchedMerged_PullX", 250,-25,25);
     book1d("RecoAllAssoc2GenMatchedMerged_PullY", 250,-25,25);
@@ -765,6 +797,16 @@ void PrimaryVertexAnalyzer4PUSlimmed::fillResolutionAndPullHistograms(
   mes_[label][prefix+"_ResolY_vs_NumTracks"]->Fill(v.nRecoTrk, yresol);
   mes_[label][prefix+"_ResolZ_vs_NumTracks"]->Fill(v.nRecoTrk, zresol);
   mes_[label][prefix+"_ResolPt2_vs_NumTracks"]->Fill(v.nRecoTrk, pt2resol);
+
+  mes_[label][prefix+"_ResolX_vs_Z"]->Fill(v.z, xresol);
+  mes_[label][prefix+"_ResolY_vs_Z"]->Fill(v.z, yresol);
+  mes_[label][prefix+"_ResolZ_vs_Z"]->Fill(v.z, zresol);
+  mes_[label][prefix+"_ResolPt2_vs_Z"]->Fill(v.z, pt2resol);
+
+  mes_[label][prefix+"_ResolX_vs_Pt"]->Fill(v.pt, xresol);
+  mes_[label][prefix+"_ResolY_vs_Pt"]->Fill(v.pt, yresol);
+  mes_[label][prefix+"_ResolZ_vs_Pt"]->Fill(v.pt, zresol);
+  mes_[label][prefix+"_ResolPt2_vs_Pt"]->Fill(v.pt, pt2resol);
 
   mes_[label][prefix+"_PullX"]->Fill(xres/v.recVtx->xError());
   mes_[label][prefix+"_PullY"]->Fill(yres/v.recVtx->yError());
@@ -1063,6 +1105,7 @@ PrimaryVertexAnalyzer4PUSlimmed::getRecoPVs(
         std::cout << "  Daughter momentum:      " << momentum;
         std::cout << std::endl;
       }
+      vp->pt += std::sqrt(momentum.perp2());
       vp->ptsq += (momentum.perp2());
       vp->nRecoTrk++;
 
@@ -1207,8 +1250,10 @@ void PrimaryVertexAnalyzer4PUSlimmed::analyze(const edm::Event& iEvent,
   edm::Handle<std::vector<PileupSummaryInfo> > puinfoH;
   if (iEvent.getByToken(vecPileupSummaryInfoToken_, puinfoH)) {
     for (auto const& pu_info : *puinfoH.product()) {
-      mes_["root_folder"]["GenVtx_vs_BX"]
+      if(do_generic_sim_plots_) {
+        mes_["root_folder"]["GenVtx_vs_BX"]
           ->Fill(pu_info.getBunchCrossing(), pu_info.getPU_NumInteractions());
+      }
       if (pu_info.getBunchCrossing() == 0) {
         pileUpInfo_z = pu_info.getPU_zpositions();
         if (verbose_) {
@@ -1220,13 +1265,6 @@ void PrimaryVertexAnalyzer4PUSlimmed::analyze(const edm::Event& iEvent,
       }
     }
   }
-
-  Handle<reco::TrackCollection> recTrks;
-  iEvent.getByToken(recoTrackCollectionToken_, recTrks);
-
-  // for the associator
-  Handle<View<Track> > trackCollectionH;
-  iEvent.getByToken(edmView_recoTrack_Token_, trackCollectionH);
 
   edm::Handle<TrackingParticleCollection> TPCollectionH;
   iEvent.getByToken(trackingParticleCollectionToken_, TPCollectionH);
@@ -1261,17 +1299,17 @@ void PrimaryVertexAnalyzer4PUSlimmed::analyze(const edm::Event& iEvent,
   // probably be subtracted?
   int kind_of_signal_vertex = 0;
   int num_pileup_vertices = simpv.size();
-  mes_["root_folder"]["GenAllV_NumVertices"]->Fill(simpv.size());
+  if(do_generic_sim_plots_) mes_["root_folder"]["GenAllV_NumVertices"]->Fill(simpv.size());
   bool signal_is_highest_pt = std::max_element(simpv.begin(), simpv.end(),
                                                [](const simPrimaryVertex& lhs,
                                                   const simPrimaryVertex& rhs) {
                                                  return lhs.ptsq < rhs.ptsq;
                                                }) == simpv.begin();
   kind_of_signal_vertex |= (signal_is_highest_pt << HIGHEST_PT);
-  mes_["root_folder"]["SignalIsHighestPt2"]->Fill(
-      signal_is_highest_pt ? 1. : 0.);
-  computePairDistance(simpv,
-                      mes_["root_folder"]["GenAllV_PairDistanceZ"]);
+  if(do_generic_sim_plots_) {
+    mes_["root_folder"]["SignalIsHighestPt2"]->Fill(signal_is_highest_pt ? 1. : 0.);
+    computePairDistance(simpv, mes_["root_folder"]["GenAllV_PairDistanceZ"]);
+  }
 
   int label_index = -1;
   for (auto const& vertex_token : reco_vertex_collection_tokens_) {
@@ -1391,7 +1429,7 @@ void PrimaryVertexAnalyzer4PUSlimmed::analyze(const edm::Event& iEvent,
       if (v.rec_vertices.size() > 1) num_total_gen_vertices_multiassoc2reco++;
       // No need to N-tplicate the Gen-related cumulative histograms:
       // fill them only at the first iteration
-      if (label_index == 0) fillGenericGenVertexHistograms(v);
+      if (do_generic_sim_plots_ && label_index == 0) fillGenericGenVertexHistograms(v);
       fillRecoAssociatedGenVertexHistograms(label, v);
     }
     calculatePurityAndFillHistograms(label, recopv, genpv_position_in_reco_collection, signal_is_highest_pt);

@@ -3,7 +3,30 @@
 using namespace hgc_digi;
 
 template<class DFr>
-void HGCDigitizerBase<DFr>::run( std::auto_ptr<HGCDigitizerBase::DColl> &digiColl,
+HGCDigitizerBase<DFr>::HGCDigitizerBase(const edm::ParameterSet& ps) {
+  bxTime_        = ps.getParameter<double>("bxTime");
+  myCfg_         = ps.getParameter<edm::ParameterSet>("digiCfg");
+  doTimeSamples_ = myCfg_.getParameter< bool >("doTimeSamples");
+  if(myCfg_.exists("keV2fC"))   keV2fC_   = myCfg_.getParameter<double>("keV2fC");
+  else                          keV2fC_   = 1.0;
+  if(myCfg_.existsAs<double>("noise_fC")) {
+    noise_fC_.resize(1);
+    noise_fC_[0] = myCfg_.getParameter<double>("noise_fC");
+  } else if ( myCfg_.existsAs<std::vector<double> >("noise_fC") ) {
+    const auto& noises = myCfg_.getParameter<std::vector<double> >("noise_fC");
+    noise_fC_.resize(0);
+    noise_fC_.reserve(noises.size());
+    for( auto noise : noises ) { noise_fC_.push_back( noise ); }
+  } else {
+    noise_fC_.resize(1);
+    noise_fC_[0] = 1.f;
+  }
+  edm::ParameterSet feCfg = myCfg_.getParameter<edm::ParameterSet>("feCfg");
+  myFEelectronics_        = std::unique_ptr<HGCFEElectronics<DFr> >( new HGCFEElectronics<DFr>(feCfg) );
+}
+
+template<class DFr>
+void HGCDigitizerBase<DFr>::run( std::unique_ptr<HGCDigitizerBase::DColl> &digiColl,
                                   HGCSimHitDataAccumulator &simData,
                                   uint32_t digitizationType,
                                   CLHEP::HepRandomEngine* engine) {
@@ -12,7 +35,7 @@ void HGCDigitizerBase<DFr>::run( std::auto_ptr<HGCDigitizerBase::DColl> &digiCol
 }
 
 template<class DFr>
-void HGCDigitizerBase<DFr>::runSimple(std::auto_ptr<HGCDigitizerBase::DColl> &coll,
+void HGCDigitizerBase<DFr>::runSimple(std::unique_ptr<HGCDigitizerBase::DColl> &coll,
                                        HGCSimHitDataAccumulator &simData, 
                                        CLHEP::HepRandomEngine* engine) {
   HGCSimHitData chargeColl,toa;
@@ -35,7 +58,7 @@ void HGCDigitizerBase<DFr>::runSimple(std::auto_ptr<HGCDigitizerBase::DColl> &co
       
       //add noise (in fC)
       //we assume it's randomly distributed and won't impact ToA measurement
-      totalCharge += std::max( (float)CLHEP::RandGaussQ::shoot(engine,0,noise_fC_) , 0.f );
+      totalCharge += std::max( (float)CLHEP::RandGaussQ::shoot(engine,0.0,it->second.size*noise_fC_[it->second.thickness-1]) , 0.f );
       if(totalCharge<0.f) totalCharge=0.f;
       
       chargeColl[i]= totalCharge;
@@ -51,7 +74,7 @@ void HGCDigitizerBase<DFr>::runSimple(std::auto_ptr<HGCDigitizerBase::DColl> &co
 }
 
 template<class DFr>
-void HGCDigitizerBase<DFr>::updateOutput(std::auto_ptr<HGCDigitizerBase::DColl> &coll,
+void HGCDigitizerBase<DFr>::updateOutput(std::unique_ptr<HGCDigitizerBase::DColl> &coll,
                                           const DFr& rawDataFrame) {
   int itIdx(9);
   if(rawDataFrame.size()<=itIdx+2) return;
@@ -72,4 +95,4 @@ void HGCDigitizerBase<DFr>::updateOutput(std::auto_ptr<HGCDigitizerBase::DColl> 
 // cause the compiler to generate the appropriate code
 #include "DataFormats/HGCDigi/interface/HGCDigiCollections.h"
 template class HGCDigitizerBase<HGCEEDataFrame>;
-template class HGCDigitizerBase<HGCHEDataFrame>;
+//template class HGCDigitizerBase<HGCHEDataFrame>;

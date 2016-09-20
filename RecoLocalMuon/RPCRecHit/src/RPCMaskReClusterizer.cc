@@ -1,87 +1,42 @@
-
 /** \Class RPCMaskReClusterizer
  *  \author J.C. Sanabria -- UniAndes, Bogota
  */
 
+#include "RPCCluster.h"
+#include "RPCClusterizer.h"
 #include "RPCMaskReClusterizer.h"
 
-
-
-RPCMaskReClusterizer::RPCMaskReClusterizer()
-{
-
-}
-
-
-RPCMaskReClusterizer::~RPCMaskReClusterizer()
-{
-
-}
-
-
 RPCClusterContainer RPCMaskReClusterizer::doAction(const RPCDetId& id,
-                                                    RPCClusterContainer& initClusters,
-                                                    const RollMask& mask)
+                                                   RPCClusterContainer& initClusters,
+                                                   const RollMask& mask) const
 {
-
   RPCClusterContainer finClusters;
-  RPCCluster prev;
+  if ( initClusters.empty() ) return finClusters;
 
-  unsigned int j = 0;
-
-
-  for (RPCClusterContainer::const_iterator i = initClusters.begin(); i != initClusters.end(); i++ ) {
-
-    RPCCluster cl = *i;
-
-    if ( i == initClusters.begin() ) {
-      prev = cl;
-      j++;
-      if ( j == initClusters.size() ) {
-	finClusters.insert(prev);
-      }
-      else if ( j < initClusters.size() ) {
-	continue;
-      }
-    }
-
-
-    if ( ((prev.firstStrip()-cl.lastStrip()) == 2 && this->get(mask,(cl.lastStrip()+1)))
-	 && (cl.bx() == prev.bx()) ) {
-
-      RPCCluster merged(cl.firstStrip(),prev.lastStrip(),cl.bx());
+  RPCCluster prev = *initClusters.begin();
+  for ( auto cl = std::next(initClusters.begin()); cl != initClusters.end(); ++cl ) {
+    // Merge this cluster if it is adjacent by 1 masked strip
+    // Note that the RPCClusterContainer collection is sorted in DECREASING ORDER of strip #
+    // So the prev. cluster is placed after the current cluster (check the < operator of RPCCluster carefully)
+    if ( (prev.firstStrip()-cl->lastStrip()) == 2 and
+         this->get(mask, cl->lastStrip()+1) and prev.bx() == cl->bx() ) {
+      RPCCluster merged(cl->firstStrip(), prev.lastStrip(), cl->bx());
       prev = merged;
-      j++;
-      if ( j == initClusters.size() ) {
-	finClusters.insert(prev);
-      }
     }
-
     else {
-
-      j++;
-      if ( j < initClusters.size() ) {
-	finClusters.insert(prev);
-	prev = cl;
-      }
-      if ( j == initClusters.size() ) {
-	finClusters.insert(prev);
-	finClusters.insert(cl);
-      }
+      finClusters.insert(prev);
+      prev = *cl;
     }
- 
   }
+
+  // Finalize by putting the last cluster to the collection
+  finClusters.insert(prev);
 
   return finClusters;
 
 }
 
-
-
-int RPCMaskReClusterizer::get(const RollMask& mask, int strip)
+bool RPCMaskReClusterizer::get(const RollMask& mask, int strip) const
 {
-
-  if ( mask.test(strip-1) ) return 1;
-  else return 0;
-
+  return mask.test(strip-1);
 }

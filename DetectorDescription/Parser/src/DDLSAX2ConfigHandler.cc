@@ -1,29 +1,15 @@
-/***************************************************************************
-                          DDLSAX2ConfigHandler.cc  -  description
-                             -------------------
-    begin                : Mon Oct 22 2001
-    email                : case@ucdhep.ucdavis.edu
- ***************************************************************************/
-
-/***************************************************************************
- *                                                                         *
- *           DDDParser sub-component of DDD                                *
- *                                                                         *
- ***************************************************************************/
-
-#include <string>
-#include <vector>
-
-#include "DetectorDescription/Base/interface/DDdebug.h"
+#include "DetectorDescription/Parser/interface/DDLSAX2ConfigHandler.h"
+#include "DetectorDescription/Parser/interface/DDLSAX2Handler.h"
 #include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
 #include "DetectorDescription/Core/interface/DDName.h"
 #include "DetectorDescription/Core/interface/DDRoot.h"
-#include "DetectorDescription/Parser/interface/DDLSAX2ConfigHandler.h"
-#include "DetectorDescription/Parser/interface/DDLSAX2Handler.h"
-#include "DetectorDescription/Parser/src/StrX.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "xercesc/util/Compilers/GCCDefs.hpp"
+#include "Utilities/Xerces/interface/XercesStrUtils.h"
+#include <string>
+#include <vector>
+
+using namespace cms::xerces;
 
 DDLSAX2ConfigHandler::DDLSAX2ConfigHandler( DDCompactView& cpv)
   : doValidation_(false),
@@ -54,73 +40,29 @@ DDLSAX2ConfigHandler::startElement( const XMLCh* const uri,
 				    const XMLCh* const qname,
 				    const Attributes& attrs )
 {
-
-  ++elementCount_;
-  attrCount_ += attrs.getLength();
-
-  std::string myelemname(StrX(qname).localForm());
-  DCOUT_V('P', "DetectorDescription/Parser/interface/DDLSAX2ConfigHandler::startElement" << myelemname << " started...");
-
-  unsigned int numAtts = attrs.getLength();
-  unsigned int i = 0;
-  if (myelemname == "File")
+  if( XMLString::equals( qname, uStr("File").ptr()))
   {
-    std::string name="", url="";
-    while ( i < numAtts )
-    {
-      std::string myattname(StrX(attrs.getLocalName(i)).localForm());
-      std::string myvalue(StrX(attrs.getValue(i)).localForm());
+    std::string name = toString(attrs.getValue(uStr("name").ptr()));
+    std::string url = toString(attrs.getValue(uStr("url").ptr()));
 
-      if (myattname == "name")
-	name=myvalue;
-      if (myattname == "url")
-	url=myvalue;
-      ++i;
-    }
-    DCOUT('P', "file name = " << name << " and url = " << url);
     files_.push_back(name);
     urls_.push_back(url);
   }
-  else if (myelemname == "Root")
+  else if( XMLString::equals( qname, uStr("Root").ptr()))
   {
-    std::string fileName="", logicalPartName="";
-    while ( i < numAtts )
-    {
-      std::string myattname(StrX(attrs.getLocalName(i)).localForm());
-      std::string myvalue(StrX(attrs.getValue(i)).localForm());
-
-      if (myattname == "fileName")
-	fileName = myvalue;
-      if (myattname == "logicalPartName")
-	logicalPartName = myvalue;
-      ++i;
-    }
+    std::string fileName = toString(attrs.getValue(uStr("fileName").ptr()));
+    std::string logicalPartName = toString(attrs.getValue(uStr("logicalPartName").ptr()));
 
     fileName = fileName.substr(0, fileName.find("."));
-    //      std::cout << fileName << ":" << logicalPartName << " is the ROOT" << std::endl;
     DDLogicalPart root(DDName(logicalPartName,fileName));
-    DDRootDef::instance().set(root);//DDName(logicalPartName, fileName));
-    /// bad, just testing...
-    //      DDCompactView cpv;
-    //DDName rt(DDName(logicalPartName, fileName));
+    DDRootDef::instance().set(root);
     cpv_.setRoot(root);
-    DCOUT_V('P', std::string("DetectorDescription/Parser/interface/DDLSAX2ConfigHandler::startElement.  Setting DDRoot LogicalPart=") + logicalPartName + std::string(" in ") + fileName);  
-
   }
-  else if (myelemname == "Schema")
+  else if( XMLString::equals( qname, uStr("Schema").ptr()))
   {
-    while ( i < numAtts )
-    {
-      std::string myattname(StrX(attrs.getLocalName(i)).localForm());
-      std::string myvalue(StrX(attrs.getValue(i)).localForm());
-      if (myattname == "schemaLocation")
-	schemaLocation_ = myvalue;
-      else if (myattname == "validation")
-	doValidation_ = (myvalue == "true" ? true : false);
-      ++i;
-    }
+    schemaLocation_ = toString(attrs.getValue(uStr("schemaLocation").ptr()));
+    doValidation_ = (XMLString::equals(attrs.getValue(uStr("validation").ptr()), uStr("true").ptr()) ? true : false);
   }
-  //  std::cout <<  "DetectorDescription/Parser/interface/DDLSAX2ConfigHandler::startElement " << myelemname << " completed..." << std::endl;
 }
 
 const std::vector<std::string>&

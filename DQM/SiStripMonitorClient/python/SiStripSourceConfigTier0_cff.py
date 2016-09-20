@@ -34,6 +34,8 @@ SiStripMonitorDigi.TProfNShotsVsTime.subdetswitchon = False
 SiStripMonitorDigi.TProfNShotsVsTime.globalswitchon = False
 SiStripMonitorDigi.TProfGlobalNShots.globalswitchon = True
 
+from DQM.SiStripMonitorClient.pset4GenericTriggerEventFlag_cfi import *
+
 # SiStripMonitorCluster ####
 from DQM.SiStripMonitorCluster.SiStripMonitorCluster_cfi import *
 SiStripMonitorClusterBPTX = SiStripMonitorCluster.clone()
@@ -48,14 +50,7 @@ SiStripMonitorClusterBPTX.TH1MainDiagonalPosition.globalswitchon = True
 SiStripMonitorClusterBPTX.TH1StripNoise2ApvCycle.globalswitchon  = True
 SiStripMonitorClusterBPTX.TH1StripNoise3ApvCycle.globalswitchon  = True
 SiStripMonitorClusterBPTX.ClusterHisto = True
-SiStripMonitorClusterBPTX.BPTXfilter = cms.PSet(
-    andOr         = cms.bool( False ),
-    dbLabel       = cms.string("SiStripDQMTrigger"),
-    l1Algorithms = cms.vstring( 'L1Tech_BPTX_plus_AND_minus.v0', 'L1_ZeroBias' ),
-    andOrL1       = cms.bool( True ),
-    errorReplyL1  = cms.bool( True ),
-    l1BeforeMask  = cms.bool( True ) # specifies, if the L1 algorithm decision should be read as before (true) or after (false) masking is applied. 
-)
+SiStripMonitorClusterBPTX.BPTXfilter = genericTriggerEventFlag4L1bd
 SiStripMonitorClusterBPTX.PixelDCSfilter = cms.PSet(
     andOr         = cms.bool( False ),
     dcsInputTag   = cms.InputTag( "scalersRawToDigi" ),
@@ -71,6 +66,14 @@ SiStripMonitorClusterBPTX.StripDCSfilter = cms.PSet(
     errorReplyDcs = cms.bool( True ),
 )
 
+from Configuration.StandardSequences.Eras import eras
+eras.stage2L1Trigger.toModify(SiStripMonitorClusterBPTX, 
+    BPTXfilter = dict(
+        stage2 = cms.bool(True),
+        l1tAlgBlkInputTag = cms.InputTag("gtStage2Digis"),
+        l1tExtBlkInputTag = cms.InputTag("gtStage2Digis")
+    )
+)
 
 
 # Clone for SiStripMonitorTrack for all PDs but Minimum Bias and Jet ####
@@ -80,34 +83,38 @@ SiStripMonitorTrackCommon.TrackProducer = 'generalTracks'
 SiStripMonitorTrackCommon.Mod_On        = False
 SiStripMonitorTrackCommon.TH1ClusterCharge.ringView = cms.bool( True )
 SiStripMonitorTrackCommon.TH1ClusterStoNCorr.ringView = cms.bool( True )
+SiStripMonitorTrackCommon.TH1ClusterPos.layerView = cms.bool( False )
+SiStripMonitorTrackCommon.TH1ClusterPos.ringView = cms.bool( True )
 
 # Clone for SiStripMonitorTrack for Minimum Bias ####
 import DQM.SiStripMonitorTrack.SiStripMonitorTrack_cfi
 SiStripMonitorTrackMB = DQM.SiStripMonitorTrack.SiStripMonitorTrack_cfi.SiStripMonitorTrack.clone()
 SiStripMonitorTrackMB.TrackProducer = 'generalTracks'
 SiStripMonitorTrackMB.Mod_On        = False
-SiStripMonitorTrackMB.andOr         = cms.bool( False )
-SiStripMonitorTrackMB.dbLabel       = cms.string("SiStripDQMTrigger")
-SiStripMonitorTrackMB.hltInputTag = cms.InputTag( "TriggerResults::HLT" )
-SiStripMonitorTrackMB.hltPaths = cms.vstring("HLT_ZeroBias_v*","HLT_HIZeroBias_v*")
-SiStripMonitorTrackMB.hltDBKey = cms.string("Tracker_MB")
-SiStripMonitorTrackMB.errorReplyHlt  = cms.bool( False )
-SiStripMonitorTrackMB.andOrHlt = cms.bool(True) # True:=OR; False:=AND
+SiStripMonitorTrackMB.genericTriggerEventPSet = genericTriggerEventFlag4HLTdb
 SiStripMonitorTrackMB.TH1ClusterCharge.ringView = cms.bool( True )
 SiStripMonitorTrackMB.TH1ClusterStoNCorr.ringView = cms.bool( True )
+
+# Clone for SiStripMonitorTrack for Isolated Bunches ####
+import DQM.SiStripMonitorTrack.SiStripMonitorTrack_cfi
+SiStripMonitorTrackIB = DQM.SiStripMonitorTrack.SiStripMonitorTrack_cfi.SiStripMonitorTrack.clone()
+SiStripMonitorTrackIB.TrackProducer = 'generalTracks'
+SiStripMonitorTrackIB.Mod_On        = False
+SiStripMonitorTrackIB.genericTriggerEventPSet = genericTriggerEventFlag4HLTdbIB
+SiStripMonitorTrackIB.TH1ClusterCharge.ringView = cms.bool( True )
+SiStripMonitorTrackIB.TH1ClusterStoNCorr.ringView = cms.bool( True )
+SiStripMonitorTrackIB.TkHistoMap_On = cms.bool(False)
+SiStripMonitorTrackIB.TH1ClusterNoise.layerView = cms.bool(False) 
+SiStripMonitorTrackIB.TH1ClusterWidth.layerView = cms.bool(False) 
+SiStripMonitorTrackIB.TH1ClusterChargePerCM.ringView = cms.bool(False) 
+SiStripMonitorTrackIB.TopFolderName = cms.string("SiStrip/IsolatedBunches")
 
 ### TrackerMonitorTrack defined and used only for MinimumBias ####
 from DQM.TrackerMonitorTrack.MonitorTrackResiduals_cfi import *
 MonitorTrackResiduals.trajectoryInput = 'generalTracks'
 MonitorTrackResiduals.Tracks          = 'generalTracks'
 MonitorTrackResiduals.Mod_On        = False
-MonitorTrackResiduals.andOr         = cms.bool( False )
-MonitorTrackResiduals.dbLabel       = cms.string("SiStripDQMTrigger")
-MonitorTrackResiduals.hltInputTag = cms.InputTag( "TriggerResults::HLT" )
-MonitorTrackResiduals.hltPaths = cms.vstring("HLT_ZeroBias_v*","HLT_HIZeroBias_v*")
-MonitorTrackResiduals.hltDBKey = cms.string("Tracker_MB")
-MonitorTrackResiduals.errorReplyHlt  = cms.bool( False )
-MonitorTrackResiduals.andOrHlt = cms.bool(True) 
+MonitorTrackResiduals.genericTriggerEventPSet = genericTriggerEventFlag4HLTdb
 
 # DQM Services
 dqmInfoSiStrip = cms.EDAnalyzer("DQMEventInfo",
@@ -145,7 +152,7 @@ from RecoLuminosity.LumiProducer.lumiProducer_cff import *
 
 SiStripDQMTier0 = cms.Sequence(
     APVPhases*consecutiveHEs*siStripFEDCheck*siStripFEDMonitor*SiStripMonitorDigi*SiStripMonitorClusterBPTX
-    *SiStripMonitorTrackCommon*MonitorTrackResiduals
+    *SiStripMonitorTrackCommon*SiStripMonitorTrackIB*MonitorTrackResiduals
     *dqmInfoSiStrip)
 eras.phase1Pixel.toReplaceWith(SiStripDQMTier0, SiStripDQMTier0.copyAndExclude([ # FIXME
     MonitorTrackResiduals # Excessive printouts because 2017 doesn't have HLT yet
@@ -153,12 +160,12 @@ eras.phase1Pixel.toReplaceWith(SiStripDQMTier0, SiStripDQMTier0.copyAndExclude([
 
 SiStripDQMTier0Common = cms.Sequence(
     APVPhases*consecutiveHEs*siStripFEDCheck*siStripFEDMonitor*SiStripMonitorDigi*SiStripMonitorClusterBPTX        
-    *SiStripMonitorTrackCommon
+    *SiStripMonitorTrackCommon*SiStripMonitorTrackIB
     *dqmInfoSiStrip)
 
 SiStripDQMTier0MinBias = cms.Sequence(
     APVPhases*consecutiveHEs*siStripFEDCheck*siStripFEDMonitor*SiStripMonitorDigi*SiStripMonitorClusterBPTX
-    *SiStripMonitorTrackMB*MonitorTrackResiduals
+    *SiStripMonitorTrackMB*SiStripMonitorTrackIB*MonitorTrackResiduals
     *dqmInfoSiStrip)
 eras.phase1Pixel.toReplaceWith(SiStripDQMTier0MinBias, SiStripDQMTier0MinBias.copyAndExclude([ # FIXME
     MonitorTrackResiduals # Excessive printouts because 2017 doesn't have HLT yet

@@ -6,7 +6,7 @@
 // Timestamp : Thu Mar 12 14:54:01 2015
 
 #include "ph_pattern_sector.h"
-
+using namespace std;
 extern size_t __glob_alwaysn__;
 
 void ph_pattern_sector::operator()

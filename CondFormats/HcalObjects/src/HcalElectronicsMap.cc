@@ -62,7 +62,7 @@ const HcalElectronicsMap::PrecisionItem* HcalElectronicsMap::findById (unsigned 
 
   sortById();
   
-  auto ptr = (*mPItemsById.load(std::memory_order_acquire));
+  auto const& ptr = (*mPItemsById.load(std::memory_order_acquire));
   item = std::lower_bound (ptr.begin(), ptr.end(), &target, hcal_impl::LessById());
   if (item == ptr.end() || (*item)->mId != fId)
     //    throw cms::Exception ("Conditions not found") << "Unavailable Electronics map for cell " << fId;
@@ -93,7 +93,7 @@ const HcalElectronicsMap::TriggerItem* HcalElectronicsMap::findByTrigId (unsigne
 
   sortByTriggerId();
   
-  auto ptr = (*mTItemsByTrigId.load(std::memory_order_acquire));
+  auto const& ptr = (*mTItemsByTrigId.load(std::memory_order_acquire));
   item = std::lower_bound (ptr.begin(), ptr.end(), &target, hcal_impl::LessByTrigId());
   if (item == (*mTItemsByTrigId).end() || (*item)->mTrigId != fTrigId)
     //    throw cms::Exception ("Conditions not found") << "Unavailable Electronics map for cell " << fId;

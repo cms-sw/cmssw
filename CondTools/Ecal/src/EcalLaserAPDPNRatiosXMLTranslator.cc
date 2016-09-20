@@ -127,28 +127,20 @@ std::string EcalLaserAPDPNRatiosXMLTranslator::dumpXML(
 
    cms::concurrency::xercesInitialize();
 
-    DOMImplementation*  impl =
-      DOMImplementationRegistry::getDOMImplementation(fromNative("LS").c_str());
-
-    DOMWriter* writer =static_cast<DOMImplementationLS*>(impl)->createDOMWriter( );
-    writer->setFeature(XMLUni::fgDOMWRTFormatPrettyPrint, true);
-
-    DOMDocumentType* doctype = impl->createDocumentType( fromNative("XML").c_str(), 0, 0 );
-    DOMDocument *    doc = 
-         impl->createDocument( 0, fromNative(Laser_tag).c_str(), doctype );
-
-
-    doc->setEncoding(fromNative("UTF-8").c_str() );
-    doc->setStandalone(true);
-    doc->setVersion(fromNative("1.0").c_str() );
-
-    
-    DOMElement* root = doc->getDocumentElement();
+   unique_ptr<DOMImplementation> impl( DOMImplementationRegistry::getDOMImplementation(fromNative("LS").c_str()));
+  
+   DOMLSSerializer* writer = impl->createLSSerializer();
+   if( writer->getDomConfig()->canSetParameter( XMLUni::fgDOMWRTFormatPrettyPrint, true ))
+     writer->getDomConfig()->setParameter( XMLUni::fgDOMWRTFormatPrettyPrint, true );
+  
+   DOMDocumentType* doctype = impl->createDocumentType( fromNative("XML").c_str(), 0, 0 );
+   DOMDocument* doc = impl->createDocument( 0, fromNative(WeightGroups_tag).c_str(), doctype );
+   DOMElement* root = doc->getDocumentElement();
  
-    xuti::writeHeader(root,header);
+   xuti::writeHeader(root,header);
 
-    string Lasertag = "Laser", LMtag = "LM";
-    for(int cellid = 0; cellid < (int)record.getTimeMap().size(); cellid++) {
+   string Lasertag = "Laser", LMtag = "LM";
+   for(int cellid = 0; cellid < (int)record.getTimeMap().size(); cellid++) {
 
       DOMElement* cellnode = doc->createElement( fromNative(Lasertag).c_str());
       root->appendChild(cellnode); 
@@ -179,7 +171,7 @@ std::string EcalLaserAPDPNRatiosXMLTranslator::dumpXML(
 	subdoc->createTextNode(fromNative(newstr).c_str());
       new_node->appendChild(tvalue);
       }
-    }
+   }
  
     for(int cellid = EBDetId::MIN_HASH;
 	cellid < EBDetId::kSizeForDenseIndexing;
@@ -225,10 +217,11 @@ std::string EcalLaserAPDPNRatiosXMLTranslator::dumpXML(
       }
     
 
-    std::string dump= toNative(writer->writeToString(*root)); 
+    std::string dump = toNative(writer->writeToString( root )); 
     doc->release();
+    doctype->release();
+    writer->release();
     //   cms::concurrency::xercesTerminate();
 
     return dump;
-
 }

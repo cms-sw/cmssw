@@ -265,6 +265,22 @@ private:
   DDTubs( void );
 };
 
+class DDCutTubs : public DDSolid
+{
+public:
+  DDCutTubs( const DDSolid & s );
+  double zhalf( void ) const;
+  double rIn( void ) const;
+  double rOut( void ) const;
+  double startPhi( void ) const;
+  double deltaPhi( void ) const;
+  std::array<double, 3> lowNorm( void ) const;
+  std::array<double, 3> highNorm( void ) const;
+
+private:
+  DDCutTubs( void );
+};
+
 class DDCons : public DDSolid
 {
 public:
@@ -492,6 +508,14 @@ struct DDSolidFactory
 		       double rIn, double rOut,	      	      
 		       double startPhi, 
 		       double deltaPhi );
+
+  static DDSolid cuttubs( const DDName & name,
+			  double zhalf,
+			  double rIn, double rOut,	      	      
+			  double startPhi, 
+			  double deltaPhi,
+			  double lx, double ly, double lz,
+			  double tx, double ty, double tz);
 
   static DDSolid cons( const DDName & name,
 		       double zhalf,

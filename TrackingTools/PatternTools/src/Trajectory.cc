@@ -32,6 +32,7 @@ void Trajectory::pop() {
       theNumberOfFoundHits--;
       theChiSquared -= theData.back().estimate();
       if(badForCCC(theData.back())) theNumberOfCCCBadHits_--; 
+      if(pixel(*(theData.back().recHit()))) theNumberOfFoundPixelHits--;
     }
     else if(lost(* (theData.back().recHit()) )) {
       theNumberOfLostHits--;
@@ -73,6 +74,7 @@ void Trajectory::pushAux(double chi2Increment) {
     theNumberOfFoundHits++;
     theNumberOfTrailingFoundHits++;
     if (badForCCC(tm)) theNumberOfCCCBadHits_++;
+    if(pixel(*(tm.recHit())))  theNumberOfFoundPixelHits++;
   }
   // else if (lost( tm.recHit()) && !inactive(tm.recHit().det())) theNumberOfLostHits++;
   else if (lost( *(tm.recHit()) ) ) {
@@ -172,6 +174,13 @@ bool Trajectory::isBad( const TrackingRecHit& hit)
   }
 }
 
+bool Trajectory::pixel(const TrackingRecHit& hit) {
+  if (trackerHitRTTI::isUndef(hit))
+    return false;
+  auto const * thit = static_cast<const BaseTrackerRecHit*>( hit.hit() );
+  return thit->isPixel();
+}
+
 bool Trajectory::badForCCC(const TrajectoryMeasurement &tm) {
   if (trackerHitRTTI::isUndef(*tm.recHit()) |
       trackerHitRTTI::isFast(*tm.recHit())
@@ -179,7 +188,7 @@ bool Trajectory::badForCCC(const TrajectoryMeasurement &tm) {
   auto const * thit = static_cast<const BaseTrackerRecHit*>( tm.recHit()->hit() );
   if (!thit)
     return false;
-  if (thit->isPixel())
+  if (thit->isPixel() || thit->isPhase2())
     return false;
   if (!tm.updatedState().isValid())
     return false;

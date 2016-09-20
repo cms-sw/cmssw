@@ -1,26 +1,14 @@
 import FWCore.ParameterSet.Config as cms
 from Configuration.StandardSequences.Eras import eras
+import RecoTracker.IterativeTracking.iterativeTkConfig as _cfg
 
 ##########################################################################
 # Large impact parameter tracking using TIB/TID/TEC stereo layer seeding #
 ##########################################################################
 
-from RecoLocalTracker.SubCollectionProducers.trackClusterRemover_cfi import trackClusterRemover as _trackClusterRemover
-_pixelLessStepClustersBase = _trackClusterRemover.clone(
-    maxChi2                                  = cms.double(9.0),
-    trajectories                             = cms.InputTag("mixedTripletStepTracks"),
-    pixelClusters                            = cms.InputTag("siPixelClusters"),
-    stripClusters                            = cms.InputTag("siStripClusters"),
-    oldClusterRemovalInfo                    = cms.InputTag("mixedTripletStepClusters"),
-    TrackQuality                             = cms.string('highPurity'),
-    minNumberOfLayersWithMeasBeforeFiltering = cms.int32(0),
-)
-pixelLessStepClusters = _pixelLessStepClustersBase.clone(
-    trackClassifier                          = cms.InputTag('mixedTripletStep',"QualityMasks"),
-)
-eras.trackingLowPU.toReplaceWith(pixelLessStepClusters, _pixelLessStepClustersBase.clone(
-    overrideTrkQuals                         = "mixedTripletStep",
-))
+pixelLessStepClusters = _cfg.clusterRemoverForIter("PixelLessStep")
+for era in _cfg.nonDefaultEras():
+    getattr(eras, era).toReplaceWith(pixelLessStepClusters, _cfg.clusterRemoverForIter("PixelLessStep", era))
 
 # SEEDING LAYERS
 from RecoLocalTracker.SiStripClusterizer.SiStripClusterChargeCut_cfi import *

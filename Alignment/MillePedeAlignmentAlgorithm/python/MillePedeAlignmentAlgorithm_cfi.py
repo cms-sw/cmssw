@@ -21,6 +21,12 @@ MillePedeAlignmentAlgorithm = cms.PSet(
 
     monitorFile = cms.untracked.string('millePedeMonitor.root'), ## if empty: no monitoring...
 
+    runAtPCL = cms.bool(False), # at the PCL the mille binaries are reset at lumi-section boundaries
+    ignoreHitsWithoutGlobalDerivatives = cms.bool(False), # - if all alignables and calibration for a
+                                                          #   hit are set to '0', the hit is ignored
+                                                          # - has only an effect with non-GBL
+                                                          #   material-effects description
+
     # PSet that allows to configure the pede labeler, i.e. select the actual
     # labeler plugin to use and parameters for the selected plugin
     pedeLabeler = cms.PSet(
@@ -40,7 +46,7 @@ MillePedeAlignmentAlgorithm = cms.PSet(
         #    'pedeCommand' 'steerFile'Master.txt 
         # (and - if pedeDump is not empty - extended by: > 'pedeDump')
         # (MillePedeAlignmentAlgorithm.theDir is taken into account...)
-        pedeCommand = cms.untracked.string('pede_1GB'),
+        pedeCommand = cms.untracked.string('pede'),
 
         parameterSign = cms.untracked.int32(1), ## old pede versions (before May '07) need a sign flip
         pedeDump = cms.untracked.string('pede.dump'),

@@ -26,6 +26,7 @@ cond::CopyIovUtilities::CopyIovUtilities():Utilities("conddb_copy_iov"){
   addOption<std::string>("tag","t","destination tag (optional)");
   addOption<cond::Time_t>("sourceSince","s","since time of the iov to copy (required)");
   addOption<cond::Time_t>("destSince","d","since time of the destination iov (optional, default=sourceSince)");
+  addOption<std::string>("description","x","user text (for new tags, optional)");
 }
 
 cond::CopyIovUtilities::~CopyIovUtilities(){
@@ -45,6 +46,9 @@ int cond::CopyIovUtilities::execute(){
   cond::Time_t destSince = sourceSince;
   if( hasOptionValue("destSince") ) destSince = getOptionValue<cond::Time_t>( "destSince");
 
+  std::string description("");
+  if( hasOptionValue("description") ) description = getOptionValue<std::string>( "description" );
+
   persistency::ConnectionPool connPool;
   if( hasOptionValue("authPath") ){
     connPool.setAuthenticationPath( getOptionValue<std::string>( "authPath") ); 
@@ -57,7 +61,7 @@ int cond::CopyIovUtilities::execute(){
   std::cout <<"# input tag is "<<inputTag<<std::endl;
   std::cout <<"# destination tag is "<<tag<<std::endl;
 
-  bool imported = copyIov( session, inputTag, tag, sourceSince, destSince, "", true );
+  bool imported = copyIov( session, inputTag, tag, sourceSince, destSince, description );
     
   if( imported ) {
     std::cout <<"# 1 iov copied. "<<std::endl;

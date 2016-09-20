@@ -61,8 +61,8 @@ CollectionFromZLegProducer::~CollectionFromZLegProducer()
 //______________________________________________________________________________
 void CollectionFromZLegProducer::produce(edm::Event& iEvent,const edm::EventSetup& iSetup)
 {  
-  std::auto_ptr<std::vector<reco::CompositeCandidate> > theTagLeg(new std::vector<reco::CompositeCandidate>) ;	     
-  std::auto_ptr<std::vector<reco::CompositeCandidate> > theProbeLeg(new std::vector<reco::CompositeCandidate>) ;	     
+  std::unique_ptr<std::vector<reco::CompositeCandidate> > theTagLeg(new std::vector<reco::CompositeCandidate>) ;	     
+  std::unique_ptr<std::vector<reco::CompositeCandidate> > theProbeLeg(new std::vector<reco::CompositeCandidate>) ;	     
   
   edm::Handle< std::vector<reco::CompositeCandidate> > theZHandle;
   iEvent.getByToken( v_RecoCompositeCandidateToken_,theZHandle );
@@ -90,8 +90,8 @@ void CollectionFromZLegProducer::produce(edm::Event& iEvent,const edm::EventSetu
 	  c++ ;
 	}
   } 
-  iEvent.put(theTagLeg  , "theTagLeg"   ) ;
-  iEvent.put(theProbeLeg, "theProbeLeg" ) ;
+  iEvent.put(std::move(theTagLeg), "theTagLeg"   ) ;
+  iEvent.put(std::move(theProbeLeg), "theProbeLeg" ) ;
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"
