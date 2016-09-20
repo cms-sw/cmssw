@@ -11,14 +11,12 @@ process = cms.Process("PrimaryVertexValidation")
 # Event source and run selection
 ###################################################################
 .oO[datasetDefinition]Oo.
-#process.load("Alignment.OfflineValidation..oO[dataset]Oo._cff")
 
 ###################################################################
 #  Runs and events
 ###################################################################
 runboundary = .oO[runboundary]Oo.
 process.source.firstRun = cms.untracked.uint32(int(runboundary))
-#process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(MAXEVENTSTEMPLATE) )
 
 ###################################################################
 # JSON Filtering
@@ -254,9 +252,9 @@ do
     rfcp ${RootOutputFile}  .oO[workingdir]Oo.
 done
 
-cp $CMSSW_BASE/Alignment/OfflineValidation/macros/FitPVResiduals.C .
-cp $CMSSW_BASE/Alignment/OfflineValidation/macros/CMS_lumi.C .
-cp $CMSSW_BASE/Alignment/OfflineValidation/macros/CMS_lumi.h .
+cp .oO[Alignment/OfflineValidation]Oo./macros/FitPVResiduals.C . 
+cp .oO[Alignment/OfflineValidation]Oo./macros/CMS_lumi.C .
+cp .oO[Alignment/OfflineValidation]Oo./macros/CMS_lumi.h .
 
  if [[ .oO[pvvalidationreference]Oo. == *store* ]]; then xrdcp -f .oO[pvvalidationreference]Oo. PVValidation_reference.root; else ln -fs .oO[pvvalidationreference]Oo. ./PVValidation_reference.root; fi
  
@@ -333,8 +331,8 @@ echo  -----------------------
 PrimaryVertexPlotExecution="""
 #make primary vertex validation plots
 
-cp $CMSSW_BASE/Alignment/OfflineValidation/macros/CMS_lumi.C .
-cp $CMSSW_BASE/Alignment/OfflineValidation/macros/CMS_lumi.h .
+cp .oO[Alignment/OfflineValidation]Oo./macros/CMS_lumi.C .
+cp .oO[Alignment/OfflineValidation]Oo./macros/CMS_lumi.h .
 rfcp .oO[PrimaryVertexPlotScriptPath]Oo. .
 root -x -b -q TkAlPrimaryVertexValidationPlot.C++
 
@@ -362,7 +360,7 @@ It can be run as is, or adjusted to fit
  certain plots
 ****************************************/
 
-#include "$CMSSW_BASE/Alignment/OfflineValidation/macros/FitPVResiduals.C"
+#include "Alignment/OfflineValidation/macros/FitPVResiduals.C"
 
 void TkAlPrimaryVertexValidationPlot()
 {

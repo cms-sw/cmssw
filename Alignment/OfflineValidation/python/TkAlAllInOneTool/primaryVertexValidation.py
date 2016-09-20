@@ -61,6 +61,7 @@ class PrimaryVertexValidation(GenericValidationData):
             "workingdir": ".oO[datadir]Oo./%s/%s/%s" % (self.outputBaseName, self.name, alignment.name),
             "plotsdir": ".oO[datadir]Oo./%s/%s/%s/plots" % (self.outputBaseName, self.name, alignment.name),
             })
+
         return repMap
 
     def appendToMerge( self, validationsSoFar = "" ):
