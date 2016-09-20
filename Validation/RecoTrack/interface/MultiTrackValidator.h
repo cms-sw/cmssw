@@ -54,6 +54,7 @@ class MultiTrackValidator : public DQMEDAnalyzer, protected MultiTrackValidatorB
   std::string dirName_;
 
   bool useGsf;
+  const double simPVMaxZ_;
   // select tracking particles 
   //(i.e. "denominator" of the efficiency ratio)
   TrackingParticleSelector tpSelector;				      
