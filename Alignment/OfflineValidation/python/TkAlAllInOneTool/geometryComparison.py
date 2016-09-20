@@ -252,9 +252,6 @@ class GeometryComparison(GenericValidation):
                 resultingFile = os.path.expandvars( resultingFile )
                 resultingFile = os.path.abspath( resultingFile )
                 resultingFile = "root://eoscms//eos/cms" + resultingFile   #needs to be AFTER abspath so that it doesn't eat the //
-                repMap["runComparisonScripts"] += \
-                    ("xrdcp -f OUTPUT_comparison.root %s\n"
-                     %resultingFile)
                 self.filesToCompare[ name ] = resultingFile
 
             else:
