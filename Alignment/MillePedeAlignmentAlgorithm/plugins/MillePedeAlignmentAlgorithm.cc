@@ -879,8 +879,8 @@ bool MillePedeAlignmentAlgorithm::areEmptyParams(const std::vector<Alignable*> &
        iAli != alignables.end(); ++iAli) {
     const AlignmentParameters *params = (*iAli)->alignmentParameters();
     if (params) {
-      const AlgebraicVector &parVec(params->parameters());
-      const AlgebraicMatrix &parCov(params->covariance());
+      const auto& parVec(params->parameters());
+      const auto& parCov(params->covariance());
       for (int i = 0; i < parVec.num_row(); ++i) {
         if (parVec[i] != 0.) return false;
         for (int j = i; j < parCov.num_col(); ++j) {
