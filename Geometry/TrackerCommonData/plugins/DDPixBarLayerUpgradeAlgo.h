@@ -35,6 +35,8 @@ private:
   double                   cool2Offset;    //cooling pipe 2 offset for ladder at interface
   std::string              coolMat;     //Cooling fluid material name
   std::string              tubeMat;     //Cooling piece material name
+  std::string              coolMatHalf; //Cooling fluid material name
+  std::string              tubeMatHalf; //Cooling piece material name
   std::string              ladder;      //Name  of ladder
   double                   ladderWidth; //Width of ladder 
   double                   ladderThick; //Thicknes of ladder 
