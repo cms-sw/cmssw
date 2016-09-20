@@ -37,7 +37,7 @@ namespace evf{
      "Invalid"};
 
   const std::string FastMonitoringService::inputStateNames[FastMonitoringThread::inCOUNT] = 
-    {"Ignore","Init","WaitInput","NewLumi","RunEnd","ProcessingFile","WaitChunk","ChunkReceived",
+    {"Ignore","Init","WaitInput","NewLumi","NewLumiBusyEndingLS","NewLumiIdleEndingLS","RunEnd","ProcessingFile","WaitChunk","ChunkReceived",
      "ChecksumEvent","CachedEvent","ReadEvent","ReadCleanup","NoRequest","NoRequestWithIdleThreads",
      "NoRequestWithIdleAndEoLThreads","NoRequestWithGlobalEoL","NoRequestWithAllEoLThreads","NoRequestWithEoLThreads",
      "SupFileLimit", "SupWaitFreeChunk","SupWaitFreeChunkCopying", "SupWaitFreeThread","SupWaitFreeThreadCopying",
@@ -280,7 +280,8 @@ namespace evf{
     fmt_.m_data.inputstateBins_ = FastMonitoringThread::inCOUNT;
  
     lastGlobalLumi_=0; 
-    isGlobalLumiTransition_=true;
+    isGlobalLumiTransition_=false;
+    isInitTransition_=true;
     lumiFromSource_=0;
 
     //startup monitoring
@@ -389,6 +390,7 @@ namespace evf{
   void FastMonitoringService::postGlobalBeginRun(edm::GlobalContext const& gc)
   {
     macrostate_ = FastMonitoringThread::sRunning;
+    isInitTransition_=false;
   }
 
   void FastMonitoringService::preGlobalBeginLumi(edm::GlobalContext const& gc)
@@ -739,7 +741,7 @@ namespace evf{
     fmt_.m_data.fastMacrostateJ_ = macrostate_;
 
     //update these unless in the midst of a global transition
-    if (!isGlobalLumiTransition_) {
+    if (!isGlobalLumiTransition_ && !isInitTransition_) {
 
       auto itd = avgLeadTime_.find(ls);
       if (itd != avgLeadTime_.end()) 
@@ -762,8 +764,11 @@ namespace evf{
       }
     }
     else {
+      if (isGlobalLumiTransition_)
       for (unsigned int i=0;i<nStreams_;i++) {
-        microstate_[i]=&reservedMicroStateNames[mGlobEoL];
+        if (microstate_[i]==&reservedMicroStateNames[mFwkEoL]) {
+          microstate_[i]=&reservedMicroStateNames[mGlobEoL];
+        }
       }
     }
     //else return;
@@ -771,13 +776,18 @@ namespace evf{
     bool anyThreadsIdle=false;
     bool anyThreadsEoL=false;
     bool allThreadsEoL=true;
+    unsigned int t_idle=0,t_eol=0;
     for (unsigned int i=0;i<nStreams_;i++) {
       fmt_.m_data.ministateEncoded_[i] = encPath_[i].encode(ministate_[i]);
       fmt_.m_data.microstateEncoded_[i] = encModule_.encode(microstate_[i]);
-      if (microstate_[i]==&reservedMicroStateNames[mIdle]) anyThreadsIdle=true;
-      if (microstate_[i]==&reservedMicroStateNames[mEoL]) anyThreadsEoL=true;
+      if (microstate_[i]==&reservedMicroStateNames[mIdle]) {anyThreadsIdle=true;t_idle++;}
+
+      if (microstate_[i]==&reservedMicroStateNames[mEoL] || 
+          microstate_[i]==&reservedMicroStateNames[mFwkEoL] || 
+          microstate_[i]==&reservedMicroStateNames[mGlobEoL]) {anyThreadsEoL=true;t_eol++;}
       else allThreadsEoL=false;
     }
+    bool allThreadsEoLIdle = (t_idle+t_eol==nStreams_);
 
     if (inputState_==FastMonitoringThread::inWaitInput) {
       switch (inputSupervisorState_) {
@@ -883,7 +893,7 @@ namespace evf{
       }
     }
     else if (inputState_==FastMonitoringThread::inNoRequest) {
-      if (isGlobalLumiTransition_)
+      if (isGlobalLumiTransition_ && !isInitTransition_)
         fmt_.m_data.inputState_[0]=FastMonitoringThread::inNoRequestWithGlobalEoL;
       else if (anyThreadsEoL && anyThreadsIdle)
         fmt_.m_data.inputState_[0]=FastMonitoringThread::inNoRequestWithIdleAndEoLThreads;
@@ -896,9 +906,19 @@ namespace evf{
       else
         fmt_.m_data.inputState_[0]=FastMonitoringThread::inNoRequest;
     }
+    else if (inputState_ == FastMonitoringThread::inNewLumi && allThreadsEoL) {
+      if (!allThreadsEoLIdle) 
+        fmt_.m_data.inputState_[0] = FastMonitoringThread::inNewLumiBusyEndingLS;
+      else
+        fmt_.m_data.inputState_[0] = FastMonitoringThread::inNewLumiIdleEndingLS;
+    }
     else
       fmt_.m_data.inputState_[0]=inputState_;
 
+    //this is same for all streams
+    for (unsigned int i=1;i<nStreams_;i++) {
+      fmt_.m_data.inputState_[i]=fmt_.m_data.inputState_[0];
+    }
     //for (unsigned int i=0;i<nThreads_;i++)
     //  fmt_.m_data.threadMicrostateEncoded_[i] = encModule_.encode(threadMicrostate_[i]);
     
