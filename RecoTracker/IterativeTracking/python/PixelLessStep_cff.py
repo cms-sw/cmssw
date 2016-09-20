@@ -116,7 +116,6 @@ pixelLessStepSeeds.RegionFactoryPSet.RegionPSet.originRadius = 1.0
 import RecoPixelVertexing.PixelLowPtUtilities.ClusterShapeHitFilterESProducer_cfi
 pixelLessStepClusterShapeHitFilter  = RecoPixelVertexing.PixelLowPtUtilities.ClusterShapeHitFilterESProducer_cfi.ClusterShapeHitFilterESProducer.clone(
 	ComponentName = cms.string('pixelLessStepClusterShapeHitFilter'),
-        PixelShapeFile= cms.string('RecoPixelVertexing/PixelLowPtUtilities/data/pixelShape.par'),
         doStripShapeCut = cms.bool(False),
 	clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutTight'))
 	)
