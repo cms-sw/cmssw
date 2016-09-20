@@ -355,6 +355,7 @@ namespace HcalSimpleRecAlgoImpl {
     if( puCorrMethod == 2 ){
 
       bool useTriple=false;
+      float chi2=-1;
 
       CaloSamples cs;
       coder.adc2fC(digi,cs);
@@ -363,7 +364,7 @@ namespace HcalSimpleRecAlgoImpl {
         const int capid = digi[ip].capid();
         capidvec.push_back(capid);
       }
-      psFitOOTpuCorr->apply(cs, capidvec, calibs, ampl, time, useTriple);
+      psFitOOTpuCorr->apply(cs, capidvec, calibs, ampl, time, useTriple,chi2);
     }
     
     // S. Brandt - Feb 19th : Adding Section for HLT
@@ -422,6 +423,7 @@ namespace HcalSimpleRecAlgoImpl {
     float t0 =0, t2 =0;
     float time = -9999;
     bool useTriple = false;
+    float chi2 = -1;
     
     // Disable method 1 inside the removePileup function this way!
     // Some code in removePileup does NOT do pileup correction & to make sure maximum share of code
@@ -460,7 +462,7 @@ namespace HcalSimpleRecAlgoImpl {
 	const int capid = digi[ip].capid();
 	capidvec.push_back(capid);
       }
-      psFitOOTpuCorr->apply(cs, capidvec, calibs, ampl, time, useTriple);
+      psFitOOTpuCorr->apply(cs, capidvec, calibs, ampl, time, useTriple,chi2);
     }
     
     // S. Brandt - Feb 19th : Adding Section for HLT

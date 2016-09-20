@@ -72,6 +72,7 @@ HBHERecHit SimpleHBHEPhase1Algo::reconstruct(const HBHEChannelInfo& info,
     // Run "Method 2"
     float m2t = 0.f, m2E = 0.f;
     bool useTriple = false;
+    float chi2=-1;
     const PulseShapeFitOOTPileupCorrection* method2 = psFitOOTpuCorr_.get();
     if (method2)
     {
@@ -79,7 +80,7 @@ HBHERecHit SimpleHBHEPhase1Algo::reconstruct(const HBHEChannelInfo& info,
                                                !info.hasTimeInfo());
         // "phase1Apply" call below sets m2E, m2t, and useTriple.
         // These parameters are pased by non-const reference.
-        method2->phase1Apply(info, m2E, m2t, useTriple);
+        method2->phase1Apply(info, m2E, m2t, useTriple, chi2);
         m2E *= hbminusCorrectionFactor(channelId, m2E, isData);
     }
 
@@ -112,6 +113,7 @@ HBHERecHit SimpleHBHEPhase1Algo::reconstruct(const HBHEChannelInfo& info,
     rh = HBHERecHit(channelId, rhE, rht, tdcTime);
     rh.setRawEnergy(m0E);
     rh.setAuxEnergy(m3E);
+    rh.setChiSquared(chi2);
 
     // Set rechit aux words
     HBHERecHitAuxSetter::setAux(info, &rh);
