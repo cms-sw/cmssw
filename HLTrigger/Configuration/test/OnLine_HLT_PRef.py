@@ -1,11 +1,11 @@
-# /dev/CMSSW_8_0_0/PRef/V186 (CMSSW_8_0_19_patch1)
+# /dev/CMSSW_8_0_0/PRef/V188 (CMSSW_8_0_19_patch2)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLTPRef" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_8_0_0/PRef/V186')
+  tableName = cms.string('/dev/CMSSW_8_0_0/PRef/V188')
 )
 
 process.HLTPSetJetCoreStepTrajectoryFilter = cms.PSet( 
@@ -8349,9 +8349,9 @@ process.hltIslandBasicClustersHI = cms.EDProducer( "IslandClusterProducer",
     clustershapecollectionEE = cms.string( "islandEndcapShape" ),
     clustershapecollectionEB = cms.string( "islandBarrelShape" ),
     VerbosityLevel = cms.string( "ERROR" ),
-    barrelClusterCollection = cms.string( "islandBarrelBasicClustersHI" ),
+    IslandBarrelSeedThr = cms.double( 0.5 ),
     endcapClusterCollection = cms.string( "islandEndcapBasicClustersHI" ),
-    IslandBarrelSeedThr = cms.double( 0.5 )
+    barrelClusterCollection = cms.string( "islandBarrelBasicClustersHI" )
 )
 process.hltHiIslandSuperClustersHI = cms.EDProducer( "HiSuperClusterProducer",
     barrelSuperclusterCollection = cms.string( "islandBarrelSuperClustersHI" ),
@@ -9650,6 +9650,7 @@ process.hltHIDimuonOpenOSm2p5to4p5L3Filter = cms.EDFilter( "HLTMuonDimuonL3Filte
     MaxPtMin = cms.vdouble( 1.0E125 ),
     FastAccept = cms.bool( False ),
     CandTag = cms.InputTag( "hltHIL3MuonCandidates" ),
+    PreviousCandIsL2 = cms.bool( True ),
     PreviousCandTag = cms.InputTag( "hltHIDimuonOpenL2FilteredNoMBHFgated" ),
     MaxPtBalance = cms.double( 999999.0 ),
     MaxPtPair = cms.vdouble( 1.0E125 ),
@@ -9658,6 +9659,7 @@ process.hltHIDimuonOpenOSm2p5to4p5L3Filter = cms.EDFilter( "HLTMuonDimuonL3Filte
     MaxInvMass = cms.vdouble( 4.5 ),
     MinPtMax = cms.vdouble( 0.0 ),
     BeamSpotTag = cms.InputTag( "hltOnlineBeamSpot" ),
+    MinN = cms.int32( 1 ),
     MaxDz = cms.double( 9999.0 ),
     MinPtPair = cms.vdouble( 0.0 ),
     MaxDr = cms.double( 20.0 ),
@@ -9681,6 +9683,7 @@ process.hltHIDimuonOpenOSm7to14L3Filter = cms.EDFilter( "HLTMuonDimuonL3Filter",
     MaxPtMin = cms.vdouble( 1.0E125 ),
     FastAccept = cms.bool( False ),
     CandTag = cms.InputTag( "hltHIL3MuonCandidates" ),
+    PreviousCandIsL2 = cms.bool( True ),
     PreviousCandTag = cms.InputTag( "hltHIDimuonOpenL2FilteredNoMBHFgated" ),
     MaxPtBalance = cms.double( 999999.0 ),
     MaxPtPair = cms.vdouble( 1.0E125 ),
@@ -9689,6 +9692,7 @@ process.hltHIDimuonOpenOSm7to14L3Filter = cms.EDFilter( "HLTMuonDimuonL3Filter",
     MaxInvMass = cms.vdouble( 14.0 ),
     MinPtMax = cms.vdouble( 0.0 ),
     BeamSpotTag = cms.InputTag( "hltOnlineBeamSpot" ),
+    MinN = cms.int32( 1 ),
     MaxDz = cms.double( 9999.0 ),
     MinPtPair = cms.vdouble( 0.0 ),
     MaxDr = cms.double( 20.0 ),
