@@ -3,6 +3,15 @@
 # utility functions used to generate HLT tables from master table in ConfDB
 #
 
+# load common HLT functions
+if [ -f "$CMSSW_BASE/src/HLTrigger/Configuration/common/utils.sh" ]; then
+  source "$CMSSW_BASE/src/HLTrigger/Configuration/common/utils.sh"
+elif [ -f "$CMSSW_RELEASE_BASE/src/HLTrigger/Configuration/common/utils.sh" ]; then
+  source "$CMSSW_RELEASE_BASE/src/HLTrigger/Configuration/common/utils.sh"
+else
+  exit 1
+fi
+
 CONFDB_TAG="HEAD"
 
 function cleanup() {
@@ -15,7 +24,7 @@ function cleanup() {
 }
 
 function getPathList() {
-  local DATA=$(hltConfigFromDB --cff --configName $MASTER --noedsources --noes --noservices --nosequences --nomodules)
+  local DATA=$(hltConfigFromDB --$Vx --$DB --cff --configName $MASTER --noedsources --noes --noservices --nosequences --nomodules)
   if echo "$DATA" | grep -q 'Exhausted Resultset\|CONFIG_NOT_FOUND'; then
     echo "Error: $MASTER is not a valid HLT menu"
     exit 1
@@ -27,7 +36,7 @@ function makeCreateConfig() {
   # if not already present, check out and build the ConfDB converter
   if ! [ -d "$CMSSW_BASE/hlt-confdb/.git" ]; then
     mkdir -p "$CMSSW_BASE/hlt-confdb"
-    git clone "https://github.com/cms-sw/hlt-confdb.git" "$CMSSW_BASE/hlt-confdb" 1>&2
+    git clone -b $BRANCH "https://github.com/cms-sw/hlt-confdb.git" "$CMSSW_BASE/hlt-confdb" 1>&2
   fi
   if ! [ -f "$CMSSW_BASE/hlt-confdb/lib/cmssw-evf-confdb-gui.jar" ]; then
     ant -f "$CMSSW_BASE/hlt-confdb/build.xml" gui 1>&2
@@ -35,12 +44,19 @@ function makeCreateConfig() {
 }
 
 function loadConfiguration() {
-  case "$1" in 
-    hltdev)
-      # hltdev
+  case "$1" in
+    "v1/hltdev")
+      # v1 offline aka "hltdev"
       DBHOST="cmsr1-v.cern.ch"
       DBNAME="cms_cond.cern.ch"
       DBUSER="cms_hltdev_writer"
+      PWHASH="0196d34dd35b04c0f3597dc89fbbe6e2"
+      ;;
+    "v2/offline")
+      # v2 offline
+      DBHOST="cmsr1-v.cern.ch"
+      DBNAME="cms_cond.cern.ch"
+      DBUSER="cms_hlt_gdr_w"
       PWHASH="0196d34dd35b04c0f3597dc89fbbe6e2"
       ;;
     *)
@@ -109,6 +125,12 @@ function createSubtables() {
   local TARGET="$1";   shift
   local TABLES="$@"
 
+  # extract the schema version from the database name
+  local Vx DB
+  read Vx DB <<< $(parse_HLT_schema "$DATABASE")
+  local DATABASE="${Vx}/${DB}"
+  local BRANCH="confdb${Vx}"
+
   # dump the requested configuration
   echo "ConfDB master: $DATABASE:$MASTER"
   echo "Subtables:     $TABLES"
@@ -129,7 +151,7 @@ function createSubtables() {
   fi
 
   # ask the user for the database password
-  readPassword $DATABASE
+  readPassword
 
   # make sure the needed sripts are available
   makeCreateConfig
