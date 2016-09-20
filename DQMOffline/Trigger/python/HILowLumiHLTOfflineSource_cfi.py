@@ -211,7 +211,7 @@ def getFullTrackVPSet():
             triggerSelection = cms.string(partialPathName+"*"),
             handlerType = cms.string("FromHLT"),
             partialPathName = cms.string(partialPathName),
-            partialFilterName  = cms.string("hltPAFullTrackHighMult"),
+            partialFilterName  = cms.string("hltFullTrackHighMult"),
             dqmhistolabel  = cms.string("hltFullTrackHighMult"),
             mainDQMDirname = cms.untracked.string(dirname),
             singleObjectsPreselection = cms.string("1==1"),
@@ -244,7 +244,7 @@ def getPAHighMultVPSet():
             mainDQMDirname = cms.untracked.string(dirname),
             singleObjectsPreselection = cms.string("1==1"),
             singleObjectDrawables =  cms.VPSet(
-                cms.PSet (name = cms.string("pt"), expression = cms.string("pt"), bins = cms.int32(200), min = cms.double(0.0), max = cms.double(10)),
+                cms.PSet (name = cms.string("pt"), expression = cms.string("pt"), bins = cms.int32(200), min = cms.double(0.0), max = cms.double(100)),
                 cms.PSet (name = cms.string("eta"), expression = cms.string("eta"), bins = cms.int32(100), min = cms.double(-2.5), max = cms.double(2.5)),
                 cms.PSet (name = cms.string("phi"), expression = cms.string("phi"), bins = cms.int32(100), min = cms.double(-3.15), max = cms.double(3.15))
             ),
@@ -272,7 +272,7 @@ def getPAHighMultHighPtVPSet():
             mainDQMDirname = cms.untracked.string(dirname),
             singleObjectsPreselection = cms.string("1==1"),
             singleObjectDrawables =  cms.VPSet(
-                cms.PSet (name = cms.string("pt"), expression = cms.string("pt"), bins = cms.int32(200), min = cms.double(0.0), max = cms.double(10)),
+                cms.PSet (name = cms.string("pt"), expression = cms.string("pt"), bins = cms.int32(200), min = cms.double(0.0), max = cms.double(100)),
                 cms.PSet (name = cms.string("eta"), expression = cms.string("eta"), bins = cms.int32(100), min = cms.double(-2.5), max = cms.double(2.5)),
                 cms.PSet (name = cms.string("phi"), expression = cms.string("phi"), bins = cms.int32(100), min = cms.double(-3.15), max = cms.double(3.15))
             ),
