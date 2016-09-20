@@ -640,10 +640,7 @@ def main():
             # setup toolbar
             print "********************************************************"
             print " Retrieving run info"
-            #sys.stdout.write("[%s]" % (" " * toolbar_width))
-            #sys.stdout.flush()
-            #sys.stdout.write("\b" * (toolbar_width+1)) # return to start of line, after '['
-
+            
             for i,p in enumerate(procs):
                 out2,err2 = p.communicate()
                 mylist = out2.split('\n')
