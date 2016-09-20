@@ -89,12 +89,6 @@ process.load('Configuration.StandardSequences.MagneticField_AutoFromDBCurrent_cf
 ###################################################################
 # Standard loads
 ###################################################################
-#from Geometry.CommonDetUnit.globalTrackingGeometry_cfi import *
-# this line works in 44X, deprecated in 53X
-#process.load("Configuration.StandardSequences.GeometryIdeal_cff")
-#process.load("Configuration.Geometry.GeometryIdeal_cff")
-#process.load("Geometry.CommonDetUnit.globalTrackingGeometry_cfi")
-#process.load("Geometry.TrackerGeometryBuilder.trackerGeometry_cfi")
 process.load("Configuration.Geometry.GeometryRecoDB_cff")
 
 ####################################################################
@@ -183,11 +177,11 @@ else:
 ####################################################################
 # process.load("RecoTracker.TrackProducer.TrackRefitters_cff")
 # import RecoTracker.TrackProducer.TrackRefitters_cff
-# process.TrackRefitter = RecoTracker.TrackProducer.TrackRefitter_cfi.TrackRefitter.clone()
-# process.TrackRefitter.src = "TRACKTYPETEMPLATE"
-# process.TrackRefitter.TrajectoryInEvent = True
-# process.TrackRefitter.NavigationSchool = ''
-# process.TrackRefitter.TTRHBuilder = "WithAngleAndTemplate"
+# process.FinalTrackRefitter = RecoTracker.TrackProducer.TrackRefitter_cfi.TrackRefitter.clone()
+# process.FinalTrackRefitter.src = "TRACKTYPETEMPLATE"
+# process.FinalTrackRefitter.TrajectoryInEvent = True
+# process.FinalTrackRefitter.NavigationSchool = ''
+# process.FinalTrackRefitter.TTRHBuilder = "WithAngleAndTemplate"
 
 ####################################################################
 # Load and Configure common selection sequence
@@ -202,26 +196,6 @@ process.AlignmentTrackSelector.d0Min     = cms.double(-999999.0)
 process.AlignmentTrackSelector.d0Max     = cms.double(+999999.0)                  
 process.AlignmentTrackSelector.dzMin     = cms.double(-999999.0)
 process.AlignmentTrackSelector.dzMax     = cms.double(+999999.0)  
-
-####################################################################
-# Debugging facility
-####################################################################
-#print process.seqTrackselRefit
-#print process.seqTrackselRefit.dumpSequencePython
-
-#obj = process.AlignmentTrackSelector
-#obj = process.HighPurityTrackSelector
-
-#for i in obj._Parameterizable__parameterNames:
-#     print i 
-
-#itemDir = obj.__dict__
-#for i in itemDir:
-#    print '{0}  :  {1}'.format(i, itemDir[i])
-
-#for attr in dir(obj):
-#    print "obj.%s = %s" % (attr, getattr(obj, attr))
-
 
 ####################################################################
 # Output file
