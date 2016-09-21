@@ -109,10 +109,6 @@ namespace edm {
     virtual SerialTaskQueueChain* serializeRunModule() override;
 
 
-    virtual void modulesDependentUpon(std::vector<const char*>& oModuleLabels, bool iPrint) const override {
-      module_->modulesDependentUpon(module_->moduleDescription().processName(),module_->moduleDescription().moduleLabel(), iPrint, oModuleLabels);
-    }
-
     virtual void modulesWhoseProductsAreConsumed(std::vector<ModuleDescription const*>& modules,
                                                  ProductRegistry const& preg,
                                                  std::map<std::string, ModuleDescription const*> const& labelsToDesc) const override {

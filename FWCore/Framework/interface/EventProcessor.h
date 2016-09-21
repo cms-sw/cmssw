@@ -318,6 +318,8 @@ namespace edm {
     typedef std::set<std::pair<std::string, std::string> > ExcludedData;
     typedef std::map<std::string, ExcludedData> ExcludedDataMap;
     ExcludedDataMap                               eventSetupDataToExcludeFromPrefetching_;
+    
+    bool printDependencies_ = false;
   }; // class EventProcessor
 
   //--------------------------------------------------------------------
