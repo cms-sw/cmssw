@@ -5,7 +5,7 @@ GlobalTag.pfnPrefix = cms.untracked.string("frontier://(proxyurl=http://localhos
 # Default Express GT: it is the GT that will be used in case we are not able
 # to retrieve the one used at Tier0.
 # It should be kept in synch with Express processing at Tier0.
-GlobalTag.globaltag = cms.string( "80X_dataRun2_Express_v11" )
+GlobalTag.globaltag = cms.string( "80X_dataRun2_Express_v14" )
 es_prefer_GlobalTag = cms.ESPrefer('PoolDBESSource','GlobalTag')
 
 # ===== auto -> Automatically get the GT string from current Tier0 configuration via a Tier0Das call.
