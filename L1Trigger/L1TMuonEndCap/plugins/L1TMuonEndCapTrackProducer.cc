@@ -378,24 +378,37 @@ void L1TMuonEndCapTrackProducer::produce(edm::Event& ev,
     }
   }
 
-  // Cancel out duplicate tracks
-  for (unsigned int i1=0; i1 < AllTracks_PreCancel.size(); i1++) {
+  // Cancel out tracks with identical hits
+  for (unsigned int i1 = 0; i1 < AllTracks_PreCancel.size(); i1++) {
     bool dup = false;
-    int ebx = 20, sindex = -1;
-    for (std::vector<ConvertedHit>::iterator A = AllTracks_PreCancel[i1].AHits.begin(); A != AllTracks_PreCancel[i1].AHits.end(); A++) {
-      if (A->TP().getCSCData().bx < ebx) ebx = A->TP().getCSCData().bx;
-      sindex = A->SectorIndex();
-    }
-    for (unsigned int i2 = i1+1; i2 < AllTracks_PreCancel.size(); i2++) {
-      int ebx2 = 20, sindex2 = -1;
-      for (std::vector<ConvertedHit>::iterator A2 = AllTracks_PreCancel[i1].AHits.begin(); A2 != AllTracks_PreCancel[i1].AHits.end(); A2++) {
-	if (A2->TP().getCSCData().bx < ebx2) ebx2 = A2->TP().getCSCData().bx;
-	sindex2 = A2->SectorIndex();
-      }
-      if (ebx == ebx2 && AllTracks_PreCancel[i1].theta == AllTracks_PreCancel[i2].theta && AllTracks_PreCancel[i1].phi == AllTracks_PreCancel[i2].phi && AllTracks_PreCancel[i1].winner.Rank() == AllTracks_PreCancel[i2].winner.Rank() && sindex == sindex2 && sindex != -1 && sindex2 != -1) dup = true;
-    }
-    if (!dup) AllTracks.push_back(AllTracks_PreCancel[i1]);
-  }
+    int rank1 = AllTracks_PreCancel[i1].winner.Rank();
+    int rank2 = -99;
+    int i1_dup = i1;
+    int i2_dup = -99;
+    for (unsigned int i2 = 0; i2 < AllTracks_PreCancel.size(); i2++) {
+      if (i1 == i2) continue;
+      for (std::vector<ConvertedHit>::iterator A1 = AllTracks_PreCancel[i1].AHits.begin(); A1 != AllTracks_PreCancel[i1].AHits.end(); A1++) {
+	CSCDetId D1 = A1->TP().detId<CSCDetId>();
+	TriggerPrimitive::CSCData C1 = A1->TP().getCSCData();
+	for (std::vector<ConvertedHit>::iterator A2 = AllTracks_PreCancel[i2].AHits.begin(); A2 != AllTracks_PreCancel[i2].AHits.end(); A2++) {
+	  CSCDetId D2 = A2->TP().detId<CSCDetId>();
+	  TriggerPrimitive::CSCData C2 = A2->TP().getCSCData();
+	  if ( A1->SectorIndex() == A2->SectorIndex() &&  D1.endcap() == D2.endcap() && D1.station() == D2.station() && 
+	       D1.ring() == D2.ring() && D1.triggerSector() == D2.triggerSector() && D1.chamber() == D2.chamber() &&
+	       C1.bx == C2.bx && C1.strip == C2.strip && C1.keywire == C2.keywire ) {
+	    dup = true;
+	    if (AllTracks_PreCancel[i2].winner.Rank() > rank2) {
+	      i2_dup = i2;
+	      rank2 = AllTracks_PreCancel[i2].winner.Rank();
+	    } // Find the highest-ranked duplicate track
+	  } // End if hits are identical
+	} // End loop over hits in track 2
+      } // End loop over hits in track 1
+    } // End second loop over tracks
+
+    // Only use ordering when ranks are equal.  Track order is not necessarily the same as FW. - AWB 21.09.16
+    if ( (!dup) || (rank1 > rank2) || (rank1 == rank2 && i1_dup < i2_dup) ) AllTracks.push_back(AllTracks_PreCancel[i1]);
+  } // End first loop over tracks
 
   
   ///////////////////////////////////
@@ -501,6 +514,10 @@ void L1TMuonEndCapTrackProducer::produce(edm::Event& ev,
 	  thisTrack.set_sector_index ( thisHit.Sector_index() );
 	  thisTrack.set_sector       ( l1t::calc_sector_from_index( thisHit.Sector_index() ) );
 	  thisTrack.set_sector_GMT   ( l1t::calc_sector_GMT( thisHit.Sector() ) );
+	  if ( thisHit.Neighbor() == 0 ) thisTrack.set_all_neighbor(0);
+	  if ( thisHit.Neighbor() == 1 ) thisTrack.set_has_neighbor(1);
+	  if ( thisHit.Neighbor() == 0 && thisTrack.Has_neighbor() == -999 ) thisTrack.set_has_neighbor(0);
+	  if ( thisHit.Neighbor() == 1 && thisTrack.All_neighbor() == -999 ) thisTrack.set_all_neighbor(0);
 	  
 	  int station = A->TP().detId<CSCDetId>().station();
 	  int id = A->TP().getCSCData().cscID;
