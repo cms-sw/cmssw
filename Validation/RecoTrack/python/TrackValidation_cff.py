@@ -34,9 +34,6 @@ for era in _cfg.allEras():
     locals()["_seedProducers"+pf] = _seedProd + _cfg.seedProducers(era)
     locals()["_trackProducers"+pf] = _trackProd + _cfg.trackProducers(era)
 
-#FIXME::ERICA : # for strict "no changes" in phase2 era migration, this line will be removed later
-_algos_trackingPhase2PU140.remove("duplicateMerge") 
-
 _removeForFastSimSeedProducers =["initialStepSeedsPreSplitting",
                                  "jetCoreRegionalStepSeeds",
                                  "muonSeededSeedsInOut",
