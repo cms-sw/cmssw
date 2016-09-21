@@ -157,7 +157,7 @@ void PileupJetIdAlgo::bookReader()
                 }
                 tmpTMVAReader.AddSpectator( *it, variables_[ tmvaNames_[*it] ].first );
             }
-            reco::details::loadTMVAWeights(&tmpTMVAReader,  tmvaMethod_.c_str(), tmvaEtaWeights_.at(v).c_str() );
+            std::unique_ptr<TMVA::IMethod> temp( reco::details::loadTMVAWeights(&tmpTMVAReader,  tmvaMethod_.c_str(), tmvaEtaWeights_.at(v).c_str() ) );
             etaReader_.push_back(std::unique_ptr<const GBRForest> ( new GBRForest( dynamic_cast<TMVA::MethodBDT*>( tmpTMVAReader.FindMVA(tmvaMethod_.c_str()) ) ) ) );
           }
 	} else {
@@ -174,7 +174,7 @@ void PileupJetIdAlgo::bookReader()
                 }
                 tmpTMVAReader.AddSpectator( *it, variables_[ tmvaNames_[*it] ].first );
             }
-            reco::details::loadTMVAWeights(&tmpTMVAReader,  tmvaMethod_.c_str(), tmvaWeights_.c_str() );
+            std::unique_ptr<TMVA::IMethod> temp( reco::details::loadTMVAWeights(&tmpTMVAReader,  tmvaMethod_.c_str(), tmvaWeights_.c_str() ) );
             reader_ = std::unique_ptr<const GBRForest> ( new GBRForest( dynamic_cast<TMVA::MethodBDT*>( tmpTMVAReader.FindMVA(tmvaMethod_.c_str()) ) ) );
 	}
 }
