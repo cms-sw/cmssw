@@ -1,8 +1,0 @@
-<algo id="ugmt">
-  <context id="processors">
-    <param id="caloInputsDisable" type="bool">true</param>
-    <param id="bmtfInputsToDisable" type="string"></param>
-    <param id="omtfInputsToDisable" type="string"></param>
-    <param id="emtfInputsToDisable" type="string"></param>
-  </context>
-</algo>

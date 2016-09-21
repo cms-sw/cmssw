@@ -1,9 +1,0 @@
-<db>
-  <key id="TestKey1">
-    <load module="UGMT_MP7_ALGO_LUTS.xml"/>
-    <load module="UGMT_MP7_ALGO.xml"/>
-    <load module="UGMT_AMC13_RS_MONITORING.xml"/>
-    <load module="UGMT_MP7_RS_MASKS.xml"/>
-    <load module="UGMT_MP7_RS_MONITORING.xml"/>
-  </key>
-</db>
