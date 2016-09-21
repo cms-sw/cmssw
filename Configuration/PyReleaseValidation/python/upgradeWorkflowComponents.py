@@ -36,6 +36,7 @@ upgradeKeys[2023] = [
 upgradeSteps=[
     'GenSimFull',
     'GenSimHLBeamSpotFull',
+    'GenSimHLBeamSpotFull14',
     'DigiFull',
     'RecoFullLocal',
     'RecoFullLocalPU',
@@ -94,21 +95,21 @@ upgradeProperties[2023] = {
         'GT' : 'auto:run2_mc',
         'Custom' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2023tilted',
         'Era' : 'Phase2C1',
-        'ScenToRun' : ['GenSimFull','DigiFull','RecoFullGlobal','HARVESTFullGlobal'],
+        'ScenToRun' : ['GenSimHLBeamSpotFull','DigiFull','RecoFullGlobal','HARVESTFullGlobal'],
     },    
     '2023D2' : {
         'Geom' : 'Extended2023D2',
         'GT' : 'auto:run2_mc',
         'Custom' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2023flat',
         'Era' : 'Phase2C1',
-        'ScenToRun' : ['GenSimFull','DigiFull','RecoFullGlobal','HARVESTFullGlobal'],
+        'ScenToRun' : ['GenSimHLBeamSpotFull','DigiFull','RecoFullGlobal','HARVESTFullGlobal'],
     },    
     '2023D3' : {
         'Geom' : 'Extended2023D3',
         'GT' : 'auto:run2_mc',
         'Custom' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2023tilted',
         'Era' : 'Phase2C2',
-        'ScenToRun' : ['GenSimFull','DigiFull','RecoFullGlobal', 'HARVESTFullGlobal'],
+        'ScenToRun' : ['GenSimHLBeamSpotFull','DigiFull','RecoFullGlobal', 'HARVESTFullGlobal'],
     },    
     '2023D4' : {
         'Geom' : 'Extended2023D4',
@@ -140,11 +141,11 @@ upgradeProperties[2023]['2023D4Timing']['Era'] = 'Phase2C2_timing'
 
 #standard PU sequences
 upgradeProperties[2023]['2023D1PU'] = deepcopy(upgradeProperties[2023]['2023D1'])
-upgradeProperties[2023]['2023D1PU']['ScenToRun'] = ['GenSimFull','DigiFullPU','RecoFullGlobalPU', 'HARVESTFullGlobalPU']
+upgradeProperties[2023]['2023D1PU']['ScenToRun'] = ['GenSimHLBeamSpotFull','DigiFullPU','RecoFullGlobalPU', 'HARVESTFullGlobalPU']
 upgradeProperties[2023]['2023D2PU'] = deepcopy(upgradeProperties[2023]['2023D2'])
-upgradeProperties[2023]['2023D2PU']['ScenToRun'] = ['GenSimFull','DigiFullPU','RecoFullGlobalPU', 'HARVESTFullGlobalPU']
+upgradeProperties[2023]['2023D2PU']['ScenToRun'] = ['GenSimHLBeamSpotFull','DigiFullPU','RecoFullGlobalPU', 'HARVESTFullGlobalPU']
 upgradeProperties[2023]['2023D3PU'] = deepcopy(upgradeProperties[2023]['2023D3'])
-upgradeProperties[2023]['2023D3PU']['ScenToRun'] = ['GenSimFull','DigiFullPU','RecoFullGlobalPU', 'HARVESTFullGlobalPU']
+upgradeProperties[2023]['2023D3PU']['ScenToRun'] = ['GenSimHLBeamSpotFull','DigiFullPU','RecoFullGlobalPU', 'HARVESTFullGlobalPU']
 upgradeProperties[2023]['2023D4PU'] = deepcopy(upgradeProperties[2023]['2023D4'])
 upgradeProperties[2023]['2023D4PU']['ScenToRun'] = ['GenSimFull','DigiFullPU','RecoFullLocalPU']
 upgradeProperties[2023]['2023D5PU'] = deepcopy(upgradeProperties[2023]['2023D5'])

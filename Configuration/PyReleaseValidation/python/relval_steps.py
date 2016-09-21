@@ -1681,6 +1681,18 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
                                        }
     if cust!=None : upgradeStepDict['GenSimHLBeamSpotFull'][k]['--customise']=cust
     if era is not None: upgradeStepDict['GenSimHLBeamSpotFull'][k]['--era']=era
+
+    upgradeStepDict['GenSimHLBeamSpotFull14'][k]= {'-s' : 'GEN,SIM',
+                                       '-n' : 10,
+                                       '--conditions' : gt,
+                                       '--beamspot' : 'HLLHC14TeV',
+                                       '--datatier' : 'GEN-SIM',
+                                       '--eventcontent': 'FEVTDEBUG',
+                                       '--geometry' : geom
+                                       }
+    
+    if cust!=None : upgradeStepDict['GenSimHLBeamSpotFull14'][k]['--customise']=cust
+    if era is not None: upgradeStepDict['GenSimHLBeamSpotFull14'][k]['--era']=era
     
     upgradeStepDict['DigiFull'][k] = {'-s':'DIGI:pdigi_valid,L1,DIGI2RAW,HLT:@fake',
                                       '--conditions':gt,
