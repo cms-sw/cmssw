@@ -257,7 +257,8 @@
   <class name="edm::Wrapper<std::vector<reco::PFDisplacedVertexCandidate> >"/>
   <class name="edm::Ref< std::vector<reco::PFDisplacedVertexCandidate>, reco::PFDisplacedVertexCandidate, edm::refhelper::FindUsingAdvance<std::vector<reco::PFDisplacedVertexCandidate>,reco::PFDisplacedVertexCandidate> >"/>
 
-  <class name="reco::PFDisplacedVertex" ClassVersion="12">
+  <class name="reco::PFDisplacedVertex" ClassVersion="13">
+   <version ClassVersion="13" checksum="3552936040"/>
    <version ClassVersion="12" checksum="2818127737"/>
    <version ClassVersion="11" checksum="4172417049"/>
    <version ClassVersion="10" checksum="4202892065"/>

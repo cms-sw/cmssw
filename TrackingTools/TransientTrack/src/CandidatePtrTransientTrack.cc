@@ -21,19 +21,34 @@
 using namespace reco;
 
 CandidatePtrTransientTrack::CandidatePtrTransientTrack() : 
-  Track(), ptr_(), theField(0), m_TSOS(kUnset), m_TSCP(kUnset), m_SCTBL(kUnset)
+  Track(), ptr_(), hasTime(false), timeExt_(0), dtErrorExt_(0), theField(0), m_TSOS(kUnset), m_TSCP(kUnset), m_SCTBL(kUnset)
 {
 }
 
 
-CandidatePtrTransientTrack::CandidatePtrTransientTrack( const CandidatePtr & ptr , const MagneticField* field) : 
-  Track(* ptr->bestTrack()), ptr_(ptr), theField(field), m_TSOS(kUnset), m_TSCP(kUnset), m_SCTBL(kUnset)
+CandidatePtrTransientTrack::CandidatePtrTransientTrack(const CandidatePtr & ptr, const MagneticField* field) : 
+  Track(* ptr->bestTrack()), ptr_(ptr), hasTime(false), timeExt_(0), dtErrorExt_(0), theField(field), m_TSOS(kUnset), m_TSCP(kUnset), m_SCTBL(kUnset)
 {
   
   initialFTS = trajectoryStateTransform::initialFreeState(* ptr->bestTrack(), field);
 }
-CandidatePtrTransientTrack::CandidatePtrTransientTrack( const CandidatePtr & ptr , const MagneticField* field, const edm::ESHandle<GlobalTrackingGeometry>& tg) :
-Track(* ptr->bestTrack()), ptr_(ptr), theField(field), m_TSOS(kUnset), m_TSCP(kUnset), m_SCTBL(kUnset), theTrackingGeometry(tg)
+
+CandidatePtrTransientTrack::CandidatePtrTransientTrack(const CandidatePtr & ptr, const double time, const double dtime, const MagneticField* field) : 
+  Track(* ptr->bestTrack()), ptr_(ptr), hasTime(true), timeExt_(time), dtErrorExt_(dtime), theField(field), m_TSOS(kUnset), m_TSCP(kUnset), m_SCTBL(kUnset)
+{
+  
+  initialFTS = trajectoryStateTransform::initialFreeState(* ptr->bestTrack(), field);
+}
+
+CandidatePtrTransientTrack::CandidatePtrTransientTrack(const CandidatePtr & ptr, const MagneticField* field, const edm::ESHandle<GlobalTrackingGeometry>& tg) :
+Track(* ptr->bestTrack()), ptr_(ptr), hasTime(false), timeExt_(0), dtErrorExt_(0), theField(field), m_TSOS(kUnset), m_TSCP(kUnset), m_SCTBL(kUnset), theTrackingGeometry(tg)
+{
+  
+  initialFTS = trajectoryStateTransform::initialFreeState(* ptr->bestTrack(), field);
+}
+
+CandidatePtrTransientTrack::CandidatePtrTransientTrack(const CandidatePtr & ptr, const double time, const double dtime, const MagneticField* field, const edm::ESHandle<GlobalTrackingGeometry>& tg) :
+Track(* ptr->bestTrack()), ptr_(ptr), hasTime(true), timeExt_(time), dtErrorExt_(dtime), theField(field), m_TSOS(kUnset), m_TSCP(kUnset), m_SCTBL(kUnset), theTrackingGeometry(tg)
 {
   
   initialFTS = trajectoryStateTransform::initialFreeState(* ptr->bestTrack(), field);
@@ -41,7 +56,10 @@ Track(* ptr->bestTrack()), ptr_(ptr), theField(field), m_TSOS(kUnset), m_TSCP(kU
 
 
 CandidatePtrTransientTrack::CandidatePtrTransientTrack( const CandidatePtrTransientTrack & tt ) :
-  Track(tt), ptr_(tt.candidate()), theField(tt.field()), 
+  Track(tt), ptr_(tt.candidate()), 
+  hasTime(tt.hasTime),
+  timeExt_(tt.timeExt_), dtErrorExt_(tt.dtErrorExt_),
+  theField(tt.field()), 
   initialFTS(tt.initialFreeState()), m_TSOS(kUnset), m_TSCP(kUnset)
 {
   // see ThreadSafe statement above about the order of operator= and store
