@@ -222,9 +222,15 @@ typedef std::vector<edm::BranchDescription const*> VCBDP;
       partial_match(processName_, branch->processName());
   }
 
+  const std::vector<std::string>&
+  ProductSelectorRules::defaultSelectionStrings() {
+    static const std::vector<std::string> s_defaultStrings(1U, std::string("keep *"));
+    return s_defaultStrings;
+  }
+
   void
-  ProductSelectorRules::fillDescription(ParameterSetDescription& desc, char const* parameterName) {
-    std::vector<std::string> defaultStrings(1U, std::string("keep *"));
+  ProductSelectorRules::fillDescription(ParameterSetDescription& desc, char const* parameterName, std::vector<std::string> const& defaultStrings) {
+    ;
     desc.addUntracked<std::vector<std::string> >(parameterName, defaultStrings)
         ->setComment("Specifies which branches are kept or dropped.");
   }
