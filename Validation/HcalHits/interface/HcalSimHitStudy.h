@@ -55,6 +55,9 @@ private:
   MonitorElement *meHBEtaHit_, *meHEEtaHit_, *meHOEtaHit_, *meHFEtaHit_;
   MonitorElement *meHBPhiHit_, *meHEPhiHit_, *meHOPhiHit_, *meHFPhiHit_;
   MonitorElement *meHBEneHit_, *meHEEneHit_, *meHOEneHit_, *meHFEneHit_;
+  MonitorElement *meHBEneMap_, *meHEEneMap_, *meHOEneMap_, *meHFEneMap_;
+  MonitorElement *meHBEneSum_, *meHEEneSum_, *meHOEneSum_, *meHFEneSum_;
+  MonitorElement *meHBEneSum_vs_ieta_, *meHEEneSum_vs_ieta_, *meHOEneSum_vs_ieta_, *meHFEneSum_vs_ieta_;
   MonitorElement *meHBTimHit_, *meHETimHit_, *meHOTimHit_, *meHFTimHit_;
   MonitorElement *meHBEneHit2_, *meHEEneHit2_, *meHOEneHit2_, *meHFEneHit2_;
   MonitorElement *meHBL10Ene_, *meHEL10Ene_, *meHOL10Ene_, *meHFL10Ene_;

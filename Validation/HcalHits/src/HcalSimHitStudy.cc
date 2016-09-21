@@ -60,7 +60,23 @@ void HcalSimHitStudy::bookHistograms(DQMStore::IBooker &ib, edm::Run const & run
       meHBEneHit_ = ib.book1D("Hit29","Energy in HB",         2000,0.,20.);
       meHEEneHit_ = ib.book1D("Hit30","Energy in HE",         500,0.,5.);
       meHOEneHit_ = ib.book1D("Hit31","Energy in HO",         500,0.,5.);
-      meHFEneHit_ = ib.book1D("Hit32","Energy in HF",         1000,0.5,1000.5);
+      meHFEneHit_ = ib.book1D("Hit32","Energy in HF",         1001,-0.5,1000.5);
+
+      meHBEneMap_ = ib.book2D("HBEneMap","HBEneMap", 85, -42.5, 42.5, 73, -0.5, 72.5);
+      meHEEneMap_ = ib.book2D("HEEneMap","HEEneMap", 85, -42.5, 42.5, 73, -0.5, 72.5);
+      meHOEneMap_ = ib.book2D("HOEneMap","HOEneMap", 85, -42.5, 42.5, 73, -0.5, 72.5);
+      meHFEneMap_ = ib.book2D("HFEneMap","HFEneMap", 85, -42.5, 42.5, 73, -0.5, 72.5);
+
+      meHBEneSum_ = ib.book1D("HBEneSum","HBEneSum", 2000, 0., 20.);
+      meHEEneSum_ = ib.book1D("HEEneSum","HEEneSum", 500, 0., 5.);
+      meHOEneSum_ = ib.book1D("HOEneSum","HOEneSum", 500, 0., 5.);
+      meHFEneSum_ = ib.book1D("HFEneSum","HFEneSum", 1001, -0.5, 1000.5);
+
+      meHBEneSum_vs_ieta_ = ib.bookProfile("HBEneSum_vs_ieta","HBEneSum_vs_ieta", 85, -42.5, 42.5, 2011, -10.5, 2000.5, " ");
+      meHEEneSum_vs_ieta_ = ib.bookProfile("HEEneSum_vs_ieta","HEEneSum_vs_ieta", 85, -42.5, 42.5, 2011, -10.5, 2000.5, " ");
+      meHOEneSum_vs_ieta_ = ib.bookProfile("HOEneSum_vs_ieta","HOEneSum_vs_ieta", 85, -42.5, 42.5, 2011, -10.5, 2000.5, " ");
+      meHFEneSum_vs_ieta_ = ib.bookProfile("HFEneSum_vs_ieta","HFEneSum_vs_ieta", 85, -42.5, 42.5, 2011, -10.5, 2000.5, " ");
+
       meHBTimHit_ = ib.book1D("Hit33","Time in HB",           528,0.,528.);
       meHETimHit_ = ib.book1D("Hit34","Time in HE",           528,0.,528.);
       meHOTimHit_ = ib.book1D("Hit35","Time in HO",           528,0.,528.);
@@ -121,6 +137,20 @@ void HcalSimHitStudy::analyzeHits (std::vector<PCaloHit>& hits) {
   std::vector<double> encontHO(140, 0.);
   double entotHB = 0, entotHE = 0, entotHF = 0, entotHO = 0; 
 
+  double HBEneMap[82][72];
+  double HEEneMap[82][72];
+  double HOEneMap[82][72];
+  double HFEneMap[82][72];
+ 
+  for(int i = 0; i < 82; i++){
+     for(int j = 0; j < 72; j++){
+       HBEneMap[i][j] = 0.;
+       HEEneMap[i][j] = 0.;
+       HOEneMap[i][j] = 0.;
+       HFEneMap[i][j] = 0.;
+     }
+  }
+
   for (int i=0; i<nHit; i++) {
     double energy    = hits[i].energy();
     double log10en   = log10(energy);
@@ -152,6 +182,8 @@ void HcalSimHitStudy::analyzeHits (std::vector<PCaloHit>& hits) {
 	meDepthHit_->Fill(double(depth));
 	meEtaHit_->Fill(double(eta));
 
+        
+
 	//We will group the phi plots by HB,HO and HE,HF since these groups share similar segmentation schemes
 	if      (subdet == static_cast<int>(HcalBarrel))  mePhiHit_->Fill(double(phi));
 	else if (subdet == static_cast<int>(HcalEndcap))  mePhiHitb_->Fill(double(phi));
@@ -178,6 +210,9 @@ void HcalSimHitStudy::analyzeHits (std::vector<PCaloHit>& hits) {
 	  meHBL10Ene_->Fill(log10en);
 	  if( log10i >=0 && log10i < 140 ) encontHB[log10i] += energy;
 	  entotHB += energy;
+    
+          HBEneMap[(eta < 0 ? eta + 41 : eta + 40)][phi-1] += energy;
+
 	} else if (subdet == static_cast<int>(HcalEndcap)) {
 	  meHEDepHit_->Fill(double(depth));
 	  meHEEtaHit_->Fill(double(eta));
@@ -188,6 +223,9 @@ void HcalSimHitStudy::analyzeHits (std::vector<PCaloHit>& hits) {
 	  meHEL10Ene_->Fill(log10en);
 	  if( log10i >=0 && log10i < 140 ) encontHE[log10i] += energy;
 	  entotHE += energy;
+    
+          HEEneMap[(eta < 0 ? eta + 41 : eta + 40)][phi-1] += energy;
+
 	} else if (subdet == static_cast<int>(HcalOuter)) {
 	  meHODepHit_->Fill(double(depth));
 	  meHOEtaHit_->Fill(double(eta));
@@ -198,6 +236,9 @@ void HcalSimHitStudy::analyzeHits (std::vector<PCaloHit>& hits) {
 	  meHOL10Ene_->Fill(log10en);
 	  if( log10i >=0 && log10i < 140 ) encontHO[log10i] += energy;
 	  entotHO += energy;
+    
+          HOEneMap[(eta < 0 ? eta + 41 : eta + 40)][phi-1] += energy;
+
 	} else if (subdet == static_cast<int>(HcalForward)) {
 	  meHFDepHit_->Fill(double(depth));
 	  meHFEtaHit_->Fill(double(eta));
@@ -208,6 +249,9 @@ void HcalSimHitStudy::analyzeHits (std::vector<PCaloHit>& hits) {
 	  meHFL10Ene_->Fill(log10en);
 	  if( log10i >=0 && log10i < 140 ) encontHF[log10i] += energy;
 	  entotHF += energy;
+    
+          HFEneMap[(eta < 0 ? eta + 41 : eta + 40)][phi-1] += energy;
+
 	}
       }
   }
@@ -224,6 +268,32 @@ void HcalSimHitStudy::analyzeHits (std::vector<PCaloHit>& hits) {
     meHENHit_->Fill(double(nHE));
     meHONHit_->Fill(double(nHO));
     meHFNHit_->Fill(double(nHF));
+
+  for(int i = 0; i < 82; i++){
+     for(int j = 0; j < 72; j++){
+
+        if(HBEneMap[i][j] != 0){
+           meHBEneSum_->Fill(HBEneMap[i][j]);
+           meHBEneSum_vs_ieta_->Fill((i < 41 ? i - 41 : i - 40), HBEneMap[i][j]);
+        }
+
+        if(HEEneMap[i][j] != 0){
+           meHEEneSum_->Fill(HEEneMap[i][j]);
+           meHEEneSum_vs_ieta_->Fill((i < 41 ? i - 41 : i - 40), HEEneMap[i][j]);
+        }
+
+        if(HOEneMap[i][j] != 0){
+           meHOEneSum_->Fill(HOEneMap[i][j]);
+           meHOEneSum_vs_ieta_->Fill((i < 41 ? i - 41 : i - 40), HOEneMap[i][j]);
+        }
+
+        if(HFEneMap[i][j] != 0){
+           meHFEneSum_->Fill(HFEneMap[i][j]);
+           meHFEneSum_vs_ieta_->Fill((i < 41 ? i - 41 : i - 40), HFEneMap[i][j]);
+        }
+
+     }
+  }
   
   LogDebug("HcalSim") << "HcalSimHitStudy::analyzeHits: HB " << nHB 
 		      << " HE " << nHE << " HO " << nHO << " HF " << nHF 
