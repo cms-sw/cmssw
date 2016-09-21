@@ -35,6 +35,7 @@
   <ElementaryMaterial name="Lanthanum" density="6.127*g/cm3" symbol=" " atomicWeight="138.9055*g/mole" atomicNumber="57"/>
   <ElementaryMaterial name="Lead" density="11.35*g/cm3" symbol=" " atomicWeight="207.19*g/mole" atomicNumber="82"/>
   <ElementaryMaterial name="Lithium" density="534*mg/cm3" symbol=" " atomicWeight="6.941*g/mole" atomicNumber="3"/>
+   <ElementaryMaterial name="Lutecium" density="9.841*g/cm3" symbol=" " atomicWeight="174.96*g/mole" atomicNumber="71"/>
   <ElementaryMaterial name="Magnesium" density="1.735*g/cm3" symbol=" " atomicWeight="24.305*g/mole" atomicNumber="12"/>
   <ElementaryMaterial name="Manganese" density="7.43*g/cm3" symbol=" " atomicWeight="54.938*g/mole" atomicNumber="25"/>
   <ElementaryMaterial name="Molybdenum" density="10.2*g/cm3" symbol=" " atomicWeight="95.94*g/mole" atomicNumber="42"/>
@@ -4605,6 +4606,20 @@
    </MaterialFraction>
    <MaterialFraction fraction="0.2422">
     <rMaterial name="materials:M_GEM_Gas"/>
+   </MaterialFraction>
+  </CompositeMaterial>
+  <CompositeMaterial name="LYSO" density="7.11*g/cm3" symbol=" " method="mixture by weight">
+   <MaterialFraction fraction="0.7145">
+    <rMaterial name="materials:Lutecium"/>
+   </MaterialFraction>
+   <MaterialFraction fraction="0.0403">
+    <rMaterial name="materials:Yttrium"/>
+   </MaterialFraction>
+   <MaterialFraction fraction="0.0637">
+    <rMaterial name="materials:Silicon"/>
+   </MaterialFraction>
+   <MaterialFraction fraction="0.1815">
+    <rMaterial name="materials:Oxygen"/>
    </MaterialFraction>
   </CompositeMaterial>
  </MaterialSection>
