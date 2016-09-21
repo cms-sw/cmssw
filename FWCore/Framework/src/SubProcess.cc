@@ -219,6 +219,8 @@ namespace edm {
     }
     ServiceRegistry::Operate operate(serviceToken_);
     pathsAndConsumesOfModules_.initialize(schedule_.get(), preg_);
+    //NOTE: this may throw
+    checkForModuleDependencyCorrectness(pathsAndConsumesOfModules_, false);
     actReg_->preBeginJobSignal_(pathsAndConsumesOfModules_, processContext_);
     schedule_->beginJob(*preg_);
     if(hasSubProcesses()) {

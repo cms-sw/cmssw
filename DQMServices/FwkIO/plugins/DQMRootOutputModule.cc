@@ -271,11 +271,11 @@ DQMRootOutputModule::DQMRootOutputModule(edm::ParameterSet const& pset):
 edm::one::OutputModuleBase::OutputModuleBase(pset),
 edm::one::OutputModule<>(pset),
 m_fileName(pset.getUntrackedParameter<std::string>("fileName")),
-m_logicalFileName(pset.getUntrackedParameter<std::string>("logicalFileName","")),
+m_logicalFileName(pset.getUntrackedParameter<std::string>("logicalFileName")),
 m_file(0),
 m_treeHelpers(kNIndicies,boost::shared_ptr<TreeHelperBase>()),
 m_presentHistoryIndex(0),
-m_filterOnRun(pset.getUntrackedParameter<unsigned int>("filterOnRun",0)),
+m_filterOnRun(pset.getUntrackedParameter<unsigned int>("filterOnRun")),
 m_enableMultiThread(false),
 m_fullNameBufferPtr(&m_fullNameBuffer),
 m_indicesTree(0)
@@ -599,14 +599,23 @@ void DQMRootOutputModule::finishEndFile() {
 //
 void
 DQMRootOutputModule::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-  //The following says we do not know what parameters are allowed so do no validation
-  // Please change this to state exactly what you do use, even if it is no parameters
   edm::ParameterSetDescription desc;
-  desc.setUnknown();
+
+  desc.addUntracked<std::string>("fileName");
+  desc.addUntracked<std::string>("logicalFileName","");
+  desc.addUntracked<unsigned int>("filterOnRun",0)
+    ->setComment("Only write the run with this run number. 0 means write all runs.");
+  desc.addOptionalUntracked<int>("splitLevel", 99)
+    ->setComment("UNUSED Only here to allow older configurations written for PoolOutputModule to work.");
+  edm::OutputModule::fillDescription(desc, std::vector<std::string>(1U, std::string("drop *")));
+
+  edm::ParameterSetDescription dataSet;
+  dataSet.setAllowAnything();
+  desc.addUntracked<edm::ParameterSetDescription>("dataset", dataSet)
+    ->setComment("PSet is only used by Data Operations and not by this module.");
+
   descriptions.addDefault(desc);
 
-  //NOTE: when actually filling this in, do not forget to add a untracked PSet 'dataset'
-  // which is used for bookkeeping by the DMWM
 }
 
 

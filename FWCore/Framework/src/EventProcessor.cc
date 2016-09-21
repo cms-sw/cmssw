@@ -82,6 +82,7 @@
 #include <sys/fcntl.h>
 #include <unistd.h>
 
+
 //Used for CPU affinity
 #ifndef __APPLE__
 #include <sched.h>
@@ -106,9 +107,8 @@ namespace {
     }
   private:
     edm::ActivityRegistry* reg_; // We do not use propagate_const because the registry itself is mutable.
-
-    
   };
+  
 }
 
 namespace edm {
@@ -480,6 +480,8 @@ namespace edm {
     }
     IllegalParameters::setThrowAnException(optionsPset.getUntrackedParameter<bool>("throwIfIllegalParameter", true));
 
+    printDependencies_ =  optionsPset.getUntrackedParameter("printDependencies", false);
+
     // Now do general initialization
     ScheduleItems items;
 
@@ -605,6 +607,9 @@ namespace edm {
                                  preallocations_.numberOfThreads());
     actReg_->preallocateSignal_(bounds);
     pathsAndConsumesOfModules_.initialize(schedule_.get(), preg());
+
+    //NOTE: this may throw
+    checkForModuleDependencyCorrectness(pathsAndConsumesOfModules_, printDependencies_);
     actReg_->preBeginJobSignal_(pathsAndConsumesOfModules_, processContext_);
 
     //NOTE:  This implementation assumes 'Job' means one call
