@@ -27,7 +27,7 @@
 
 #include <memory>
 
-#include "ResolutionModel.h"
+#include "SimTracker/TrackAssociation/interface/ResolutionModel.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 #include "FWCore/Utilities/interface/isFinite.h"
 #include "CLHEP/Random/RandGauss.h"
