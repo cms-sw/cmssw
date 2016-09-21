@@ -134,8 +134,11 @@ namespace edm {
     public:
       ProducedProductResolver(std::shared_ptr<BranchDescription const> bd, ProductStatus iDefaultStatus) : DataManagingProductResolver(bd, iDefaultStatus) {assert(bd->produced());}
 
-    private:
+      virtual void resetFailedFromThisProcess() override;
+
+    protected:
       virtual void putProduct_(std::unique_ptr<WrapperBase> edp) const override;
+    private:
       virtual bool isFromCurrentProcess() const override final;
     
   };
@@ -155,6 +158,11 @@ namespace edm {
                                  SharedResourcesAcquirer* sra,
                                  ModuleCallingContext const* mcc) const override;
     virtual bool unscheduledWasNotRun_() const override {return false;}
+    
+    virtual void putProduct_(std::unique_ptr<WrapperBase> edp) const;
+    virtual void resetProductData_(bool deleteEarly) override;
+
+    mutable WaitingTaskList m_waitingTasks;
   };
   
   class UnscheduledProductResolver : public ProducedProductResolver {

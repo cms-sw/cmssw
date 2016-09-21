@@ -19,6 +19,7 @@ namespace edm {
 
   class PathContext;
   class StreamID;
+  class WaitingTask;
 
   class WorkerInPath {
   public:
@@ -28,9 +29,24 @@ namespace edm {
 
     template <typename T>
     bool runWorker(typename T::MyPrincipal const&, EventSetup const&,
-		   StreamID streamID,
+                   StreamID streamID,
                    typename T::Context const* context);
 
+    template <typename T>
+    void runWorkerAsync(WaitingTask* iTask,
+                        typename T::MyPrincipal const&, EventSetup const&,
+                        StreamID streamID,
+                        typename T::Context const* context);
+
+    
+    bool checkResultsOfRunWorker(bool wasEvent);
+    
+    void skipWorker(EventPrincipal const& iPrincipal) {
+      worker_->skipOnPath(iPrincipal);
+    }
+    void skipWorker(RunPrincipal const&) {}
+    void skipWorker(LuminosityBlockPrincipal const&) {}
+    
     void clearCounters() {
       timesVisited_ = timesPassed_ = timesFailed_ = timesExcept_ = 0;
     }
@@ -56,7 +72,65 @@ namespace edm {
 
     PlaceInPathContext placeInPathContext_;
   };
+  
+  inline bool WorkerInPath::checkResultsOfRunWorker(bool wasEvent) {
+    if(not wasEvent) {
+      return true;
+    }
+    auto state = worker_->state();
+    bool rc = true;
+    switch (state) {
+      case Worker::Fail:
+      {
+        ++timesFailed_;
+        rc = false;
+        break;
+      }
+      case Worker::Pass:
+        break;
+      case Worker::Exception:
+      {
+        ++timesExcept_;
+        return true;
+      }
+        
+      default:
+        assert(false);
+    }
+    
+    if(Ignore == filterAction()) {
+      rc = true;
+    } else if(Veto == filterAction()) {
+      rc = !rc;
+    }
+    
+    if(rc) {
+      ++timesPassed_;
+    } else {
+      ++timesFailed_;
+    }
+    return rc;
+    
+  }
 
+  template <typename T>
+  void WorkerInPath::runWorkerAsync(WaitingTask* iTask,
+                                    typename T::MyPrincipal const& ep, EventSetup const & es,
+                                    StreamID streamID,
+                                    typename T::Context const* context) {
+    if (T::isEvent_) {
+      ++timesVisited_;
+    }
+    
+    if(T::isEvent_) {
+      ParentContext parentContext(&placeInPathContext_);
+      worker_->doWorkAsync<T>(iTask,ep, es,streamID, parentContext, context);
+    } else {
+      ParentContext parentContext(context);
+      worker_->doWorkAsync<T>(iTask,ep, es,streamID, parentContext, context);
+    }
+  }
+  
   template <typename T>
   bool WorkerInPath::runWorker(typename T::MyPrincipal const& ep, EventSetup const & es,
                                StreamID streamID,

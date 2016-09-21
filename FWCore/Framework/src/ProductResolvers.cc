@@ -187,26 +187,6 @@ namespace edm {
     return new (iAlloc) FunctorTask<F>(f);
   }
 
-  template<typename F>
-  class FunctorWaitingTask : public WaitingTask {
-  public:
-    explicit FunctorWaitingTask( F f): func_(f) {}
-    
-    task* execute() override {
-      func_(exceptionPtr());
-      return nullptr;
-    };
-    
-  private:
-    F func_;
-  };
-  
-  template< typename ALLOC, typename F>
-  FunctorWaitingTask<F>* make_waiting_task( ALLOC&& iAlloc, F f) {
-    return new (iAlloc) FunctorWaitingTask<F>(f);
-  }
-
-  
   void InputProductResolver::prefetchAsync_(WaitingTask* waitTask,
                                             Principal const& principal,
                                             bool skipCurrentProcess,
@@ -295,8 +275,24 @@ namespace edm {
                                                bool skipCurrentProcess,
                                                SharedResourcesAcquirer* sra,
                                                ModuleCallingContext const* mcc) const {
-    //The caller should be checking to see if waitTask needs to be run
+    if(not skipCurrentProcess) {
+      m_waitingTasks.add(waitTask);
+    }
   }
+  
+  void
+  PuttableProductResolver::putProduct_(std::unique_ptr<WrapperBase> edp) const {
+    ProducedProductResolver::putProduct_(std::move(edp));
+    m_waitingTasks.doneWaiting(std::exception_ptr());
+  }
+
+  
+  void
+  PuttableProductResolver::resetProductData_(bool deleteEarly) {
+    m_waitingTasks.reset();
+    DataManagingProductResolver::resetProductData_(deleteEarly);
+  }
+
   
   void
   UnscheduledProductResolver::setupUnscheduled(UnscheduledConfigurator const& iConfigure) {
@@ -407,7 +403,6 @@ namespace edm {
       throw Exception(errors::InsertFailure)
           << "Attempt to insert more than one product on branch " << branchDescription().branchName() << "\n";
     }
-    assert(edp.get() != nullptr);
     
     setProduct(std::move(edp));  // ProductResolver takes ownership
   }
@@ -423,6 +418,13 @@ namespace edm {
   bool
   ProducedProductResolver::isFromCurrentProcess() const {
     return true;
+  }
+  
+  void
+  ProducedProductResolver::resetFailedFromThisProcess() {
+    if(ProductStatus::ResolveFailed == status()) {
+      resetProductData_(false);
+    }
   }
 
   

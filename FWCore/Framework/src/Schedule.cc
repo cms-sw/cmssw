@@ -943,7 +943,15 @@ namespace edm {
     assert(iStreamID<streamSchedules_.size());
     streamSchedules_[iStreamID]->endStream();
   }
-
+  
+  void Schedule::processOneEvent(unsigned int iStreamID,
+                                 EventPrincipal& ep,
+                                 EventSetup const& es,
+                                 bool cleaningUpAfterException) {
+    assert(iStreamID<streamSchedules_.size());
+    streamSchedules_[iStreamID]->processOneEvent(ep,es,cleaningUpAfterException);
+  }
+  
   void Schedule::preForkReleaseResources() {
     using std::placeholders::_1;
     for_all(allWorkers(), std::bind(&Worker::preForkReleaseResources, _1));

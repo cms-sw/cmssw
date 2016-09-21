@@ -2104,8 +2104,7 @@ namespace edm {
     //espController_->eventSetupForInstance(ts);
     EventSetup const& es = esp_->eventSetup();
     {
-      typedef OccurrenceTraits<EventPrincipal, BranchActionStreamBegin> Traits;
-      schedule_->processOneEvent<Traits>(iStreamIndex,*pep, es);
+      schedule_->processOneEvent(iStreamIndex,*pep, es);
       if(hasSubProcesses()) {
         for(auto& subProcess : *subProcesses_) {
           subProcess.doEvent(*pep);

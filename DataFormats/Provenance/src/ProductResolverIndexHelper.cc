@@ -581,6 +581,24 @@ namespace edm {
     return 0;
   }
 
+  ProductResolverIndexHelper::ModulesToIndiciesMap
+  ProductResolverIndexHelper::indiciesForModulesInProcess(const std::string& iProcessName) const {
+    
+    ModulesToIndiciesMap result;
+    for(unsigned int i=0; i<beginElements_; ++i) {
+      auto const& range= ranges_[i];
+      for(unsigned int j=range.begin(); j<range.end();++j) {
+        auto const& indexAndNames = indexAndNames_[j];
+        if(0 == strcmp(&processNames_[indexAndNames.startInProcessNames()], iProcessName.c_str())) {
+          //The first null terminated string is the module label
+          result.emplace(&bigNamesContainer_[indexAndNames.startInBigNamesContainer()],indexAndNames.index());
+        }
+      }
+    }
+    return result;
+  }
+
+  
   void ProductResolverIndexHelper::sanityCheck() const {
     bool sanityChecksPass = true;
     if (sortedTypeIDs_.size() != ranges_.size()) sanityChecksPass = false;

@@ -6,6 +6,7 @@
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/Utilities/interface/ExceptionCollector.h"
+#include "DataFormats/Provenance/interface/ProductResolverIndexHelper.h"
 
 static const std::string kFilterType("EDFilter");
 static const std::string kProducerType("EDProducer");
@@ -100,13 +101,22 @@ namespace edm {
     auto const runLookup = iRegistry.productLookup(InRun);
     auto const lumiLookup = iRegistry.productLookup(InLumi);
     auto const eventLookup = iRegistry.productLookup(InEvent);
-    for(auto& worker : allWorkers_) {
-      worker->updateLookup(InRun,*runLookup);
-      worker->updateLookup(InLumi,*lumiLookup);
-      worker->updateLookup(InEvent,*eventLookup);
+    if(allWorkers_.size()>0) {
+      auto const& processName = allWorkers_[0]->description().processName();
+      auto runModuleToIndicies = runLookup->indiciesForModulesInProcess(processName);
+      auto lumiModuleToIndicies = lumiLookup->indiciesForModulesInProcess(processName);
+      auto eventModuleToIndicies = eventLookup->indiciesForModulesInProcess(processName);
+      for(auto& worker : allWorkers_) {
+        worker->updateLookup(InRun,*runLookup);
+        worker->updateLookup(InLumi,*lumiLookup);
+        worker->updateLookup(InEvent,*eventLookup);
+        worker->resolvePutIndicies(InRun,runModuleToIndicies);
+        worker->resolvePutIndicies(InLumi,lumiModuleToIndicies);
+        worker->resolvePutIndicies(InEvent,eventModuleToIndicies);
+      }
+      
+      for_all(allWorkers_, std::bind(&Worker::beginJob, std::placeholders::_1));
     }
-    
-    for_all(allWorkers_, std::bind(&Worker::beginJob, std::placeholders::_1));
   }
 
   void

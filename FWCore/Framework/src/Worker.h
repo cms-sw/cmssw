@@ -55,6 +55,7 @@ the worker is reset().
 #include <string>
 #include <vector>
 #include <exception>
+#include <unordered_map>
 
 namespace edm {
   class EventPrincipal;
@@ -94,6 +95,7 @@ namespace edm {
                      ParentContext const& parentContext,
                      typename T::Context const* context);
 
+    void skipOnPath(EventPrincipal const& );
     void beginJob() ;
     void endJob();
     void beginStream(StreamID id, StreamContext& streamContext);
@@ -110,6 +112,7 @@ namespace edm {
       state_ = Ready;
       waitingTasks_.reset();
       workStarted_ = false;
+      numberOfPathsLeftToRun_ = numberOfPathsOn_;
     }
 
     void pathFinished(EventPrincipal const&);
@@ -126,6 +129,8 @@ namespace edm {
     //Used to make EDGetToken work
     virtual void updateLookup(BranchType iBranchType,
                       ProductResolverIndexHelper const&) = 0;
+    virtual void resolvePutIndicies(BranchType iBranchType,
+                                    std::unordered_multimap<std::string, edm::ProductResolverIndex> const& iIndicies) = 0;
 
     virtual void modulesWhoseProductsAreConsumed(std::vector<ModuleDescription const*>& modules,
                                                  ProductRegistry const& preg,
@@ -139,6 +144,9 @@ namespace edm {
       timesRun_ = timesVisited_ = timesPassed_ = timesFailed_ = timesExcept_ = 0;
     }
 
+    void addedToPath() {
+      ++numberOfPathsOn_;
+    }
     //NOTE: calling state() is done to force synchronization across threads
     int timesRun() const { state(); return timesRun_; }
     int timesVisited() const { return timesVisited_; }
@@ -194,6 +202,8 @@ namespace edm {
     virtual void itemsMayGet(BranchType, std::vector<ProductResolverIndexAndSkipBit>&) const = 0;
 
     virtual std::vector<ProductResolverIndexAndSkipBit> const& itemsToGetFromEvent() const = 0;
+
+    virtual std::vector<ProductResolverIndex> const& itemsShouldPutInEvent() const = 0;
 
     virtual void implRespondToOpenInputFile(FileBlock const& fb) = 0;
     virtual void implRespondToCloseInputFile(FileBlock const& fb) = 0;
@@ -367,7 +377,9 @@ namespace edm {
     CMS_THREAD_GUARD(state_) int timesFailed_;
     CMS_THREAD_GUARD(state_) int timesExcept_;
     std::atomic<State> state_;
-
+    int numberOfPathsOn_;
+    std::atomic<int> numberOfPathsLeftToRun_;
+        
     ModuleCallingContext moduleCallingContext_;
 
     ExceptionToActionTable const* actions_; // memory assumed to be managed elsewhere
@@ -589,8 +601,18 @@ namespace edm {
     if(T::isEvent_) {
       ++timesVisited_;
     }
+
     bool expected = false;
     if(workStarted_.compare_exchange_strong(expected,true)) {
+      moduleCallingContext_.setContext(ModuleCallingContext::State::kPrefetching,parentContext,nullptr);
+
+      //if have TriggerResults based selection we want to reject the event before doing prefetching
+      if( not workerhelper::CallImpl<T>::prePrefetchSelection(this,streamID,ep,&moduleCallingContext_) ) {
+        setPassed<T::isEvent_>();
+        waitingTasks_.doneWaiting(nullptr);
+        return;
+      }
+      
       auto runTask = new (tbb::task::allocate_root()) RunModuleTask<T>(
         this, ep,es,streamID,parentContext,context);
       prefetchAsync(runTask, parentContext, ep);
