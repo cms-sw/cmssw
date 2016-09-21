@@ -35,10 +35,9 @@ process.MessageLogger = cms.Service("MessageLogger",
                                     cout = cms.untracked.PSet(threshold = cms.untracked.string('WARNING'))
                                     )
 
-# Global tag: load the standard configuration fragment, then change and possibly customise the GT
-process.load("Configuration.StandardSequences.CondDBESSource_cff")
-from Configuration.AlCa.GlobalTag import GlobalTag as gtCustomise
-process.GlobalTag = gtCustomise(process.GlobalTag, 'auto:run2_data', '')
+# Global tag
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cfi")
+process.GlobalTag.globaltag ="GR10_P_V4::All"
 
 #-----------------------------
 #### Sub-system configuration follows
