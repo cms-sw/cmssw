@@ -316,6 +316,18 @@
       <rMaterial name="trackermaterial:T_Aluminium"/>
     </MaterialFraction>
   </CompositeMaterial>
+  
+  <CompositeMaterial name="Bpix_CO2_-20C_Half" density="2.0654*g/cm3" symbol=" " method="mixture by weight">
+    <MaterialFraction fraction="1.00000000">
+      <rMaterial name="materials:Bpix_CO2_-20C"/>
+    </MaterialFraction>
+  </CompositeMaterial>
+  
+  <CompositeMaterial name="Bpix_Pipe_Steel_Half" density="16.04*g/cm3" symbol=" " method="mixture by weight">
+    <MaterialFraction fraction="1.00000000">
+      <rMaterial name="materials:Bpix_Pipe_Steel"/>
+    </MaterialFraction>
+  </CompositeMaterial>
 
   <CompositeMaterial name="Pix_Bar_Cable" density="1.67629*g/cm3" symbol=" " method="mixture by weight">
     <MaterialFraction fraction="0.43796">

@@ -27,6 +27,8 @@
   <Numeric name="Cool2Offset"         value="[pixbarlayer0:Cool2Offset]"/>
   <String name="CoolMaterial"      value="materials:Bpix_CO2_-20C"/>
   <String name="CoolTubeMaterial"  value="materials:Bpix_Pipe_Steel"/>
+  <String name="CoolMaterialHalf"      value="pixbarmaterial:Bpix_CO2_-20C_Half"/>
+  <String name="CoolTubeMaterialHalf"  value="pixbarmaterial:Bpix_Pipe_Steel_Half"/>
   <String name="LadderName"        value="pixbarladderfull0:PixelBarrelLadderFull0"/> 
   <Numeric name="LadderWidth"      value="[pixbarladderfull0:LadderWidth]"/>
   <Numeric name="LadderThick"      value="[pixbarladderfull0:LadderThick]"/>
