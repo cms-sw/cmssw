@@ -1,5 +1,0 @@
-<db>
-  <key id="RunKey_1">
-    <load module="BMTF_ALGO.xml"/>
-  </key>
-</db>
