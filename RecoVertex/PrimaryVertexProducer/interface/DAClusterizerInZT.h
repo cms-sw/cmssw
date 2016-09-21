@@ -95,6 +95,7 @@ private:
   float vertexSize_;
   int maxIterations_;
   double coolingFactor_;
+  double logCoolingFactor_;
   float betamax_;
   float betastop_;
   double dzCutOff_;
