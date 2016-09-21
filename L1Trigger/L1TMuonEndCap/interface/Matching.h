@@ -69,7 +69,7 @@ MatchingOutput PhiMatching(SortingOutput Sout){
 					if(verbose)
 						std::cout<<"setstation = "<<setstation<<std::endl;
 					
-					if((fabs((Winners[z][w].Strip()) - i->Zhit()) <= phdiff[setstation]) ){//is close to winner keystrip and in same zone?
+					if((abs((Winners[z][w].Strip()) - i->Zhit()) <= phdiff[setstation]) ){//is close to winner keystrip and in same zone?
 					
 						if(ph_output[z][w][setstation].Phi() == -999){//has this already been set? no
 						
@@ -84,8 +84,8 @@ MatchingOutput PhiMatching(SortingOutput Sout){
 						
 							if(verbose) std::cout<<"has already been set"<<std::endl;
 						
-							int d1 = fabs(ph_output[z][w][setstation].Zhit() - Winners[z][w].Strip());
-							int d2 = fabs(i->Zhit() - Winners[z][w].Strip());
+							int d1 = abs(ph_output[z][w][setstation].Zhit() - Winners[z][w].Strip());
+							int d2 = abs(i->Zhit() - Winners[z][w].Strip());
 							
 							if(d2 < d1){//if new hit is closer then replace phi
 							

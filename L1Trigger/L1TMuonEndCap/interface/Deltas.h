@@ -110,7 +110,7 @@ DeltaOutput Deltas(MatchingOutput Mout, int zone, int winner){
 		
 			//if(dth[p][l] != -999 && verbose){std::cout<<"dth["<<p<<"]["<<l<<"] = "<<dth[p][l]<<"\n\n";}
 		
-			if(abs(dth[p][l]) < fabs(dtmp[p])){//get best dtheta(i.e. the smallest)
+			if(abs(dth[p][l]) < abs(dtmp[p])){//get best dtheta(i.e. the smallest)
 			
 				//if(verbose) std::cout<<"chose second hit theta  index-"<<p<<std::endl;
 			
