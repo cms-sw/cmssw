@@ -7,9 +7,39 @@
  *
  */
 
+
+
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
+#include "FWCore/Framework/interface/Event.h"
+
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+
+#include "DQMServices/Core/interface/DQMStore.h"  //This is  added
+#include "DQMServices/Core/interface/MonitorElement.h" //This is  added
+
+
+#include "DataFormats/TrackReco/interface/Track.h" //This is  added
+#include "DataFormats/BeamSpot/interface/BeamSpot.h" //This is  added
+#include "DataFormats/VertexReco/interface/Vertex.h" //This is  added
+
+
+
+#include "DataFormats/Candidate/interface/Candidate.h"
+
+#include "FWCore/Utilities/interface/InputTag.h"
+#include "DataFormats/PatCandidates/interface/Muon.h"
+
+
+
+#include "DataFormats/PatCandidates/interface/MET.h"
+#include "DataFormats/PatCandidates/interface/Jet.h"
+#include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
+#include "DataFormats/EgammaCandidates/interface/Photon.h"
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
+#include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "HLTrigger/HLTcore/interface/HLTPrescaleProvider.h"
+//#include "HLTrigger/HLTcore/interface/HLTPrescaleProvider.h"
 
 // #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
@@ -84,8 +114,8 @@ class EwkMuDQM : public DQMEDAnalyzer {
   double ptThrForPhoton_;
   int nPhoMax_;
 
-  bool isValidHltConfig_;
-  HLTPrescaleProvider hltPrescaleProvider_;
+//  bool isValidHltConfig_;
+  //HLTPrescaleProvider hltPrescaleProvider_;
 
   unsigned int nall;
   unsigned int nrec;
