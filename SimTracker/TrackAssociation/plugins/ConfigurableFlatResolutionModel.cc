@@ -1,4 +1,4 @@
-#include "ResolutionModel.h"
+#include "SimTracker/TrackAssociation/interface/ResolutionModel.h"
 
 class ConfigurableFlatResolutionModel : public ResolutionModel {
 public:

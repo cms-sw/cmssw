@@ -13,13 +13,27 @@ using namespace std;
 
 
 GsfTransientTrack::GsfTransientTrack() : 
-  GsfTrack(), tkr_(), theField(0), initialTSOSAvailable(false),
+  GsfTrack(), tkr_(), hasTime(false), timeExt_(0.), dtErrorExt_(0.),
+  theField(0), initialTSOSAvailable(false),
   initialTSCPAvailable(false), blStateAvailable(false), theTIPExtrapolator()
 {}
 
 GsfTransientTrack::GsfTransientTrack( const GsfTrack & tk , const MagneticField* field) : 
   GsfTrack(tk),
-  tkr_(), theField(field), initialTSOSAvailable(false),
+  tkr_(), hasTime(false), timeExt_(0.), dtErrorExt_(0.),
+  theField(field), initialTSOSAvailable(false),
+  initialTSCPAvailable(false), blStateAvailable(false)
+{
+  
+  initialFTS = trajectoryStateTransform::initialFreeState(tk, field);
+}
+
+GsfTransientTrack::GsfTransientTrack( const GsfTrack & tk , const double time,
+                                      const double dtime,
+                                      const MagneticField* field) : 
+  GsfTrack(tk),
+  tkr_(), hasTime(true), timeExt_(time), dtErrorExt_(dtime), 
+  theField(field), initialTSOSAvailable(false),
   initialTSCPAvailable(false), blStateAvailable(false)
 {
   
@@ -29,7 +43,22 @@ GsfTransientTrack::GsfTransientTrack( const GsfTrack & tk , const MagneticField*
 
 GsfTransientTrack::GsfTransientTrack( const GsfTrackRef & tk , const MagneticField* field) : 
   GsfTrack(*tk), 
-  tkr_(tk), theField(field), initialTSOSAvailable(false),
+  tkr_(tk), hasTime(false), timeExt_(0.), dtErrorExt_(0.), 
+  theField(field), initialTSOSAvailable(false),
+  initialTSCPAvailable(false), blStateAvailable(false),
+  theTIPExtrapolator(AnalyticalPropagator(field, alongMomentum))
+{
+  
+  initialFTS = trajectoryStateTransform::initialFreeState(*tk, field);
+}
+
+GsfTransientTrack::GsfTransientTrack( const GsfTrackRef & tk ,
+                                      const double time,
+                                      const double dtime, 
+                                      const MagneticField* field) : 
+  GsfTrack(*tk), 
+  tkr_(tk), hasTime(true), timeExt_(time), dtErrorExt_(dtime), 
+  theField(field), initialTSOSAvailable(false),
   initialTSCPAvailable(false), blStateAvailable(false),
   theTIPExtrapolator(AnalyticalPropagator(field, alongMomentum))
 {
@@ -40,7 +69,23 @@ GsfTransientTrack::GsfTransientTrack( const GsfTrackRef & tk , const MagneticFie
 GsfTransientTrack::GsfTransientTrack( const GsfTrack & tk , const MagneticField* field,
 				      const edm::ESHandle<GlobalTrackingGeometry>& tg) :
   GsfTrack(tk),
-   tkr_(), theField(field), initialTSOSAvailable(false),
+  tkr_(), hasTime(false), timeExt_(0.), dtErrorExt_(0.), 
+  theField(field), initialTSOSAvailable(false),
+  initialTSCPAvailable(false), blStateAvailable(false), theTrackingGeometry(tg),
+  theTIPExtrapolator(AnalyticalPropagator(field, alongMomentum))
+{
+  
+  initialFTS = trajectoryStateTransform::initialFreeState(tk, field);
+}
+
+GsfTransientTrack::GsfTransientTrack( const GsfTrack & tk , const double time,
+                                      const double dtime,
+                                      const MagneticField* field,
+				      const edm::ESHandle<GlobalTrackingGeometry>& tg) :
+  GsfTrack(tk),
+  tkr_(), 
+  hasTime(true), timeExt_(time), dtErrorExt_(dtime),
+  theField(field), initialTSOSAvailable(false),
   initialTSCPAvailable(false), blStateAvailable(false), theTrackingGeometry(tg),
   theTIPExtrapolator(AnalyticalPropagator(field, alongMomentum))
 {
@@ -51,7 +96,22 @@ GsfTransientTrack::GsfTransientTrack( const GsfTrack & tk , const MagneticField*
 GsfTransientTrack::GsfTransientTrack( const GsfTrackRef & tk , const MagneticField* field, 
 				      const edm::ESHandle<GlobalTrackingGeometry>& tg) :
   GsfTrack(*tk),
-   tkr_(tk), theField(field), initialTSOSAvailable(false),
+  tkr_(tk), hasTime(false), timeExt_(0.), dtErrorExt_(0.),
+  theField(field), initialTSOSAvailable(false),
+  initialTSCPAvailable(false), blStateAvailable(false), theTrackingGeometry(tg),
+  theTIPExtrapolator(AnalyticalPropagator(field, alongMomentum))
+{
+  
+  initialFTS = trajectoryStateTransform::initialFreeState(*tk, field);
+}
+
+GsfTransientTrack::GsfTransientTrack( const GsfTrackRef & tk , const double time,
+                                      const double dtime,
+                                      const MagneticField* field, 
+				      const edm::ESHandle<GlobalTrackingGeometry>& tg) :
+  GsfTrack(*tk),
+  tkr_(tk), hasTime(true), timeExt_(time), dtErrorExt_(dtime),
+  theField(field), initialTSOSAvailable(false),
   initialTSCPAvailable(false), blStateAvailable(false), theTrackingGeometry(tg),
   theTIPExtrapolator(AnalyticalPropagator(field, alongMomentum))
 {
@@ -62,7 +122,9 @@ GsfTransientTrack::GsfTransientTrack( const GsfTrackRef & tk , const MagneticFie
 
 GsfTransientTrack::GsfTransientTrack( const GsfTransientTrack & tt ) :
   GsfTrack(tt),
-  tkr_(tt.persistentTrackRef()), theField(tt.field()), 
+  tkr_(tt.persistentTrackRef()), 
+  hasTime(tt.hasTime), timeExt_(tt.timeExt_), dtErrorExt_(tt.dtErrorExt_),
+  theField(tt.field()), 
   initialFTS(tt.initialFreeState()), initialTSOSAvailable(false),
   initialTSCPAvailable(false),
   theTIPExtrapolator(AnalyticalPropagator(tt.field(), alongMomentum))

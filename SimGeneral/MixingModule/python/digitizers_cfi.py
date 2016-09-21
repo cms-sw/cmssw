@@ -68,4 +68,6 @@ theDigitizersValid = cms.PSet(
 eras.phase2_hgcal.toModify( theDigitizersValid,
                             calotruth = cms.PSet( caloParticles ) )
 
+eras.phase2_timing.toModify( theDigitizersValid.mergedtruth,
+                             createInitialVertexCollection = cms.bool(True) )
 
