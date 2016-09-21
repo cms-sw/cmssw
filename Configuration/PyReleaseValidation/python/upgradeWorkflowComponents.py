@@ -7,7 +7,8 @@ upgradeKeys = {}
 upgradeKeys[2017] = [
     '2017',
     '2017PU',
-    '2017NewFPix'
+    '2017NewFPix',
+    '2017HCALdev',
 ]
 
 upgradeKeys[2023] = [
@@ -56,8 +57,8 @@ upgradeProperties = {}
 
 upgradeProperties[2017] = {
     '2017' : {
-        'Geom' : 'Extended2017dev',
-        'GT' : 'auto:phase1_2017_hcaldev',
+        'Geom' : 'DB:Extended',
+        'GT' : 'auto:phase1_2017_realistic',
         'Era' : 'Run2_2017',
         'ScenToRun' : ['GenSimFull','DigiFull','RecoFull','HARVESTFull'],
     },
@@ -66,7 +67,13 @@ upgradeProperties[2017] = {
         'GT' : 'auto:phase1_2017_realistic',
         'Era' : 'Run2_2017_NewFPix',
         'ScenToRun' : ['GenSimFull','DigiFull','RecoFull','HARVESTFull'],
-    },    
+    },
+    '2017HCALdev' : {
+        'Geom' : 'Extended2017dev',
+        'GT' : 'auto:phase1_2017_hcaldev',
+        'Era' : 'Run2_2017_HCALdev',
+        'ScenToRun' : ['GenSimFull','DigiFull','RecoFull','HARVESTFull'],
+    },
 }
 
 upgradeProperties[2017]['2017PU'] = deepcopy(upgradeProperties[2017]['2017'])
