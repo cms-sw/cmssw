@@ -2,18 +2,11 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
-//#include "L1Trigger/L1THGCal/interface/HGCalTriggerGeometryBase.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-//#include "FWCore/Framework/interface/ESTransientHandle.h"
-//#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "L1Trigger/L1THGCal/interface/HGCalTriggerNtupleBase.h"
-//#include "TTree.h"
-//#include <iostream>
-//#include <string>
-//#include <vector>
 
 class HGCalTriggerNtupleManager : public edm::EDAnalyzer 
 {

@@ -17,7 +17,7 @@ class HGCalTriggerNtupleHGCDigis : public HGCalTriggerNtupleBase
     private:
         virtual void clear() override final;
 
-        edm::EDGetToken ee_token_, fh_token_, bh_token_;
+        edm::EDGetToken ee_token_, fh_token_;
 
         int hgcdigi_n_ ;
         std::vector<int> hgcdigi_id_;
