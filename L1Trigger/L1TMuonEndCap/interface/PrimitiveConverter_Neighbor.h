@@ -4,6 +4,10 @@
 ////and outputs vector of 'ConvertedHits'
 ////
 
+#ifndef ADD_PrimitiveConverter_Neighbor
+#define ADD_PrimitiveConverter_Neighbor
+
+
 #include "L1Trigger/L1TMuonEndCap/interface/EmulatorClasses.h"
 #include "L1Trigger/L1TMuonEndCap/interface/PhThLUT_Neighbor.h"
 
@@ -490,3 +494,5 @@ std::vector<ConvertedHit> PrimConv(std::vector<TriggerPrimitive> TriggPrim, int 
   return ConvHits;
   
 }
+
+#endif

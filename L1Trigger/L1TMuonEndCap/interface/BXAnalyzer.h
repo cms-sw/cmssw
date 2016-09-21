@@ -7,6 +7,10 @@
 //////Author M. Carver, UF
 //////
 
+#ifndef ADD_BXAnalyzer
+#define ADD_BXAnalyzer
+
+
 #include "L1Trigger/L1TMuonEndCap/interface/EmulatorClasses.h"
 #include "L1Trigger/L1TMuonEndCap/interface/PhiMemoryImage.h"
 
@@ -127,3 +131,5 @@ PatternOutput DeleteDuplicatePatterns(std::vector<PatternOutput> Pout){
   return output;
   
 }
+
+#endif

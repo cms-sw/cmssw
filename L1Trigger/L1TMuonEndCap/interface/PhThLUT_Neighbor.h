@@ -1,3 +1,7 @@
+
+#ifndef ADD_PhThLUT_Neighbor
+#define ADD_PhThLUT_Neighbor
+
 unsigned int Ph_Disp_Neighbor[12][61] = {
 
 // Endcap: 1 Sector: 1
@@ -9908,3 +9912,5 @@ int Th_LUT_St234_Neighbor[3][12][11][112] = {
 },
 },
 };
+
+#endif

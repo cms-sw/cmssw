@@ -2,6 +2,10 @@
 //////L1TReginalMuonCandidate with proper values and legths
 //////
 
+#ifndef ADD_MakeRegionalCand
+#define ADD_MakeRegionalCand
+
+
 #include "DataFormats/L1TMuon/interface/RegionalMuonCand.h"
 #include "DataFormats/L1TMuon/interface/RegionalMuonCandFwd.h"
 
@@ -118,3 +122,5 @@ l1t::RegionalMuonCand MakeRegionalCand(float pt, int phi, int theta,
   return Cand;
   
 }
+
+#endif
