@@ -43,6 +43,8 @@ void DDPixBarLayerUpgradeAlgo::initialize(const DDNumericArguments & nArgs,
   cool2Offset = nArgs["Cool2Offset"];
   coolMat   = sArgs["CoolMaterial"];
   tubeMat   = sArgs["CoolTubeMaterial"];
+  coolMatHalf   = sArgs["CoolMaterialHalf"];
+  tubeMatHalf   = sArgs["CoolTubeMaterialHalf"];
   phiFineTune = nArgs["PitchFineTune"];
   rOuterFineTune = nArgs["OuterOffsetFineTune"];
   rInnerFineTune = nArgs["InnerOffsetFineTune"];
@@ -104,10 +106,10 @@ void DDPixBarLayerUpgradeAlgo::execute(DDCompactView& cpv) {
   solid = DDSolidFactory::tubs(DDName(name,idNameSpace), 0.5*coolDz,
 			       0, coolRadius, 0, CLHEP::pi);
   LogDebug("PixelGeom") << "DDPixBarLayerUpgradeAlgo test: " <<solid.name() 
-			<< " Tubs made of " << tubeMat << " from 0 to " <<
+			<< " Tubs made of " << tubeMatHalf << " from 0 to " <<
 			CLHEP::twopi/CLHEP::deg << " with Rout " << coolRadius <<
 			" ZHalf " << 0.5*coolDz;		
-  matter = DDMaterial(DDName(DDSplit(tubeMat).first, DDSplit(tubeMat).second));
+  matter = DDMaterial(DDName(DDSplit(tubeMatHalf).first, DDSplit(tubeMatHalf).second));
   DDLogicalPart coolTubeHalf(solid.ddname(), matter, solid);
   
   // Full Coolant
@@ -130,10 +132,10 @@ void DDPixBarLayerUpgradeAlgo::execute(DDCompactView& cpv) {
   solid = DDSolidFactory::tubs(DDName(name,idNameSpace), 0.5*coolDz,
 			       0, coolRadius-coolThick, 0, CLHEP::pi);
   LogDebug("PixelGeom") << "DDPixBarLayerUpgradeAlgo test: " <<solid.name() 
-			<< " Tubs made of " << tubeMat << " from 0 to " <<
+			<< " Tubs made of " << tubeMatHalf << " from 0 to " <<
 			CLHEP::twopi/CLHEP::deg << " with Rout " << coolRadius-coolThick <<
 			" ZHalf " << 0.5*coolDz;		
-  matter = DDMaterial(DDName(DDSplit(coolMat).first, DDSplit(coolMat).second));
+  matter = DDMaterial(DDName(DDSplit(coolMatHalf).first, DDSplit(coolMatHalf).second));
   DDLogicalPart coolHalf(solid.ddname(), matter, solid);
   cpv.position (coolHalf, coolTubeHalf, 1, DDTranslation(0.0, 0.0, 0.0), DDRotation());
   LogDebug("PixelGeom") << "DDPixBarLayerUpgradeAlgo test: " << cool.name() 
