@@ -37,7 +37,7 @@ autoCond = {
     'run2_hlt_hi'       :   '81X_dataRun2_HLTHI_frozen_v1',
     # GlobalTag for MC production with perfectly aligned and calibrated detector for Phase1 2017
     'phase1_2017_design' :  '81X_upgrade2017_design_v11',
-    # GlobalTag for MC production with realistic conditions for for Phase1 2017 detector
+    # GlobalTag for MC production with realistic conditions for Phase1 2017 detector
     'phase1_2017_realistic': '81X_upgrade2017_realistic_v13',
     # Global Tag for MC production with development HCAL conditions for Phase1 2017 detector
     'phase1_2017_hcaldev'  : '81X_upgrade2017_HCALdev_v2',
@@ -45,6 +45,8 @@ autoCond = {
     'phase1_2019_design'   : 'DES19_70_V2', # placeholder (GT not meant for standard RelVal) 
     # GlobalTag for MC production with perfectly aligned and calibrated detector for Phase2
     'phase2_design'        : 'POSTLS262_V1', # placeholder (GT not meant for standard RelVal)
+    # GlobalTag for MC production with realistic conditions for Phase2 2023
+    'phase2_realistic'     : '81X_upgrade2023_realistic_v0'
 }
 
 aliases = {
