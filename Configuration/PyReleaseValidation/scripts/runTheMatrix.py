@@ -61,6 +61,7 @@ if __name__ == '__main__':
                      10024.0, #2017 ttbar
                      10424.0, #2017 NewPix ttbar
                      10624.0, #2017 HCALdev ttbar
+                     10824.0, #2017 all new ttbar
                      20024.0, #2023D1 ttbar (Run2 calo)
                      20824.0, #2023D3 ttbar (HGCal)
                      ],
