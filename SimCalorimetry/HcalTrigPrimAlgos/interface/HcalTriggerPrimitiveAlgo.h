@@ -226,7 +226,9 @@ void HcalTriggerPrimitiveAlgo::run(const HcalTPGCoder* incoder,
    addDigis(digis...);
 
    // Prepare the fine-grain calculation algorithm for HB/HE
-   int version = conditions_->getHcalTPParameters()->getFGVersionHBHE();
+   int version = 0;
+   if (upgrade_he_ or upgrade_hb_)
+      version = conditions_->getHcalTPParameters()->getFGVersionHBHE();
    if (override_parameters_.exists("FGVersionHBHE"))
       version = override_parameters_.getParameter<uint32_t>("FGVersionHBHE");
    HcalFinegrainBit fg_algo(version);
