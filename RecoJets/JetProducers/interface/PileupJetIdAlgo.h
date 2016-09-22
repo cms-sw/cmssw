@@ -37,6 +37,8 @@ public:
 					       float jec, const reco::Vertex *, const reco::VertexCollection &, double rho);
 
 	void set(const PileupJetIdentifier &);
+        std::unique_ptr<const GBRForest> getMVA(std::vector<std::string>, const std::string &);
+        std::vector<float> getMVAvars(std::vector<std::string>);
 	PileupJetIdentifier computeMva();
 	const std::string method() const { return tmvaMethod_; }
 	
@@ -51,7 +53,7 @@ public:
 
 	/// const PileupJetIdentifier::variables_list_t & getVariables() const { return variables_; };
 	const variables_list_t & getVariables() const { return variables_; };
-	
+
 protected:
 
 	void setup(); 
@@ -66,12 +68,12 @@ protected:
 
 	std::unique_ptr<const GBRForest> reader_;
         std::vector<std::unique_ptr<const GBRForest>> etaReader_;
-	std::string    tmvaWeights_, tmvaMethod_;
+	std::string tmvaWeights_, tmvaMethod_;
         std::vector<std::string> tmvaEtaWeights_;
-	std::vector<std::string>  tmvaVariables_;
+	std::vector<std::string> tmvaVariables_;
         std::vector<std::vector<std::string>> tmvaEtaVariables_;
-	std::vector<std::string>  tmvaSpectators_;
-	std::map<std::string,std::string>  tmvaNames_;
+	std::vector<std::string> tmvaSpectators_;
+	std::map<std::string,std::string> tmvaNames_;
 	
 	int   version_;
 	float impactParTkThreshod_;
