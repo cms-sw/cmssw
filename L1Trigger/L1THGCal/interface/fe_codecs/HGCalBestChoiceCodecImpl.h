@@ -12,7 +12,7 @@
 
 struct HGCalBestChoiceDataPayload
 {
-    static const size_t size = 114;
+    static const size_t size = 116; 
     typedef std::array<uint32_t, size> trigger_cell_list; // list of trigger cell values
     trigger_cell_list payload;
 
@@ -34,11 +34,10 @@ class HGCalBestChoiceCodecImpl
         std::vector<bool> encode(const data_type&) const ;
         data_type         decode(const std::vector<bool>&) const;  
 
-        void linearize(const HGCalTriggerGeometry::Module& ,
-                const std::vector<HGCDataFrame<HGCalDetId,HGCSample>>&,
+        void linearize(const std::vector<HGCDataFrame<HGCalDetId,HGCSample>>&,
                 std::vector<std::pair<HGCalDetId, uint32_t > >&);
 
-        void triggerCellSums(const HGCalTriggerGeometry::Module& ,
+        void triggerCellSums(const HGCalTriggerGeometryBase& ,
                 const std::vector<std::pair<HGCalDetId, uint32_t > >&,
                 data_type&);
         void bestChoiceSelect(data_type&);
