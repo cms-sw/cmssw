@@ -1,133 +1,98 @@
-#include "DQM/Physics/src/EwkMuDQM.h"
-
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "DataFormats/Common/interface/Handle.h"
-
-#include "FWCore/ServiceRegistry/interface/Service.h"
+// system include files
+#include <memory>
+#include <vector>
+#include <string>
+#include <cmath>
+#include <iostream>
+#include <fstream>
+// user include files
+#include "EwkMuDQM.h" //This is  added  
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "DataFormats/Common/interface/View.h" //This is  added
+#include<TFile.h>
+#include<TTree.h>
+#include<TH1.h>
+#include<TH2.h>
+//
+// class declaration
+//
 
-#include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
-
-#include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/BeamSpot/interface/BeamSpot.h"
-#include "DataFormats/VertexReco/interface/Vertex.h"
-
-#include "DataFormats/MuonReco/interface/Muon.h"
-#include "DataFormats/MuonReco/interface/MuonSelectors.h"
-#include "DataFormats/METReco/interface/MET.h"
-#include "DataFormats/JetReco/interface/Jet.h"
-#include "DataFormats/EgammaCandidates/interface/Photon.h"
-
-#include "DataFormats/GeometryVector/interface/Phi.h"
-
-#include "FWCore/Common/interface/TriggerNames.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "DataFormats/Common/interface/TriggerResults.h"
-
-#include "DataFormats/Common/interface/View.h"
-
-#include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
+// If the analyzer does not use TFileService, please remove
+// the template argument to the base class so the class inherits
+// from  edm::one::EDAnalyzer<> and also remove the line from
+// constructor "usesResource("TFileService");"
+// This will improve performance in multithreaded jobs.
 
 using namespace edm;
 using namespace std;
 using namespace reco;
 
-EwkMuDQM::EwkMuDQM(const ParameterSet& cfg)
-    :
-      // Input collections
-      metTag_(cfg.getUntrackedParameter<edm::InputTag>("METTag",
-                                                       edm::InputTag("pfmet"))),
-      jetTag_(cfg.getUntrackedParameter<edm::InputTag>(
-          "JetTag", edm::InputTag("ak4PFJets"))),
-      trigTag_(consumes<edm::TriggerResults>(
-          cfg.getUntrackedParameter<edm::InputTag>(
-              "TrigTag", edm::InputTag("TriggerResults::HLT")))),
-      muonTag_(consumes<edm::View<reco::Muon> >(
-          cfg.getUntrackedParameter<edm::InputTag>("MuonTag",
-                                                   edm::InputTag("muons")))),
-      metToken_(consumes<edm::View<reco::MET> >(
-          cfg.getUntrackedParameter<edm::InputTag>("METTag",
-                                                   edm::InputTag("pfmet")))),
-      jetToken_(consumes<edm::View<reco::Jet> >(
-          cfg.getUntrackedParameter<edm::InputTag>(
-              "JetTag", edm::InputTag("ak4PFJets")))),
-      phoTag_(consumes<edm::View<reco::Photon> >(
-          cfg.getUntrackedParameter<edm::InputTag>("phoTag",
-                                                   edm::InputTag("photons")))),
-      vertexTag_(consumes<edm::View<reco::Vertex> >(
-          cfg.getUntrackedParameter<edm::InputTag>(
-              "VertexTag", edm::InputTag("offlinePrimaryVertices")))),
-      beamSpotTag_(
-          consumes<reco::BeamSpot>(cfg.getUntrackedParameter<edm::InputTag>(
-              "beamSpotTag", edm::InputTag("offlineBeamSpot")))),
-      trigPathNames_(cfg.getUntrackedParameter<std::vector<std::string> >(
-          "TrigPathNames")),
+EwkMuDQM::EwkMuDQM(const edm::ParameterSet& iConfig) {
+   metTag_ = iConfig.getUntrackedParameter<edm::InputTag>("METTag",edm::InputTag("pfmet"));
+   jetTag_ = iConfig.getUntrackedParameter<edm::InputTag>("JetTag", edm::InputTag("ak4PFJets"));
+   
+   muonTag_ = consumes<edm::View<reco::Muon> >(iConfig.getUntrackedParameter<edm::InputTag>("MuonTag",edm::InputTag("muons")));
+   metToken_ = consumes<edm::View<reco::MET> >(iConfig.getUntrackedParameter<edm::InputTag>("METTag",edm::InputTag("pfmet")));
+   jetToken_ = consumes<edm::View<reco::Jet> >(iConfig.getUntrackedParameter<edm::InputTag>("JetTag", edm::InputTag("ak4PFJets")));
+   phoTag_   = consumes<edm::View<reco::Photon> >(iConfig.getUntrackedParameter<edm::InputTag>("phoTag",edm::InputTag("photons")));
+   vertexTag_ = consumes<edm::View<reco::Vertex> >(iConfig.getUntrackedParameter<edm::InputTag>("VertexTag", edm::InputTag("offlinePrimaryVertices")));
+   beamSpotTag_ = consumes<reco::BeamSpot>(iConfig.getUntrackedParameter<edm::InputTag>("beamSpotTag", edm::InputTag("offlineBeamSpot")));
+   
 
       // Muon quality cuts
-      isAlsoTrackerMuon_(cfg.getUntrackedParameter<bool>(
-          "IsAlsoTrackerMuon", true)),  // Glb muon also tracker muon
-      dxyCut_(
-          cfg.getUntrackedParameter<double>("DxyCut", 0.2)),  // dxy < 0.2 cm
-      normalizedChi2Cut_(cfg.getUntrackedParameter<double>(
-          "NormalizedChi2Cut", 10.)),  // chi2/ndof (of global fit) <10.0
-      trackerHitsCut_(cfg.getUntrackedParameter<int>("TrackerHitsCut",
-                                                     11)),  // Tracker Hits >10
-      pixelHitsCut_(
-          cfg.getUntrackedParameter<int>("PixelHitsCut", 1)),  // Pixel Hits >0
-      muonHitsCut_(cfg.getUntrackedParameter<int>("MuonHitsCut",
-                                                  1)),  // Valid Muon Hits >0
-      nMatchesCut_(cfg.getUntrackedParameter<int>(
-          "NMatchesCut", 2)),  // At least 2 Chambers with matches
-
+     isAlsoTrackerMuon_ = iConfig.getUntrackedParameter<bool>(
+          "IsAlsoTrackerMuon", true); // Glb muon also tracker muon
+     dxyCut_ = 
+          iConfig.getUntrackedParameter<double>("DxyCut", 0.2);// dxy < 0.2 cm
+     normalizedChi2Cut_ = iConfig.getUntrackedParameter<double>(
+          "NormalizedChi2Cut", 10.);  // chi2/ndof (of global fit) <10.0
+     trackerHitsCut_ = iConfig.getUntrackedParameter<int>("TrackerHitsCut",
+                                                     11);  // Tracker Hits >10
+      pixelHitsCut_ = 
+          iConfig.getUntrackedParameter<int>("PixelHitsCut", 1);  // Pixel Hits >0
+      muonHitsCut_ = iConfig.getUntrackedParameter<int>("MuonHitsCut",
+                                                  1);  // Valid Muon Hits >0
+      nMatchesCut_ = iConfig.getUntrackedParameter<int>(
+          "NMatchesCut", 2);  // At least 2 Chambers with matches
       // W-boson cuts
-      isRelativeIso_(cfg.getUntrackedParameter<bool>("IsRelativeIso", true)),
-      isCombinedIso_(cfg.getUntrackedParameter<bool>("IsCombinedIso", false)),
-      isoCut03_(cfg.getUntrackedParameter<double>("IsoCut03", 0.1)),
-      acopCut_(cfg.getUntrackedParameter<double>("AcopCut", 999.)),
-      metMin_(cfg.getUntrackedParameter<double>("MetMin", -999999.)),
-      metMax_(cfg.getUntrackedParameter<double>("MetMax", 999999.)),
-      mtMin_(cfg.getUntrackedParameter<double>("MtMin", 50.)),
-      mtMax_(cfg.getUntrackedParameter<double>("MtMax", 200.)),
-      ptCut_(cfg.getUntrackedParameter<double>("PtCut", 20.)),
-      etaCut_(cfg.getUntrackedParameter<double>("EtaCut", 2.4)),
+      isRelativeIso_ = iConfig.getUntrackedParameter<bool>("IsRelativeIso", true);
+      isCombinedIso_ = iConfig.getUntrackedParameter<bool>("IsCombinedIso", false);
+      isoCut03_ = iConfig.getUntrackedParameter<double>("IsoCut03", 0.1);
+      acopCut_ = iConfig.getUntrackedParameter<double>("AcopCut", 999.);
+      metMin_ = iConfig.getUntrackedParameter<double>("MetMin", -999999.);
+      metMax_ = iConfig.getUntrackedParameter<double>("MetMax", 999999.);
+      mtMin_ = iConfig.getUntrackedParameter<double>("MtMin", 50.);
+      mtMax_ = iConfig.getUntrackedParameter<double>("MtMax", 200.);
+      ptCut_ = iConfig.getUntrackedParameter<double>("PtCut", 20.);
+      etaCut_ = iConfig.getUntrackedParameter<double>("EtaCut", 2.4);
 
       // Z rejection
-      ptThrForZ1_(cfg.getUntrackedParameter<double>("PtThrForZ1", 20.)),
-      ptThrForZ2_(cfg.getUntrackedParameter<double>("PtThrForZ2", 10.)),
+      ptThrForZ1_ = iConfig.getUntrackedParameter<double>("PtThrForZ1", 20.);
+      ptThrForZ2_ = iConfig.getUntrackedParameter<double>("PtThrForZ2", 10.);
 
       // Z selection
-      dimuonMassMin_(cfg.getUntrackedParameter<double>("dimuonMassMin", 80.)),
-      dimuonMassMax_(cfg.getUntrackedParameter<double>("dimuonMassMax", 120.)),
+      dimuonMassMin_ = iConfig.getUntrackedParameter<double>("dimuonMassMin", 80.);
+      dimuonMassMax_ = iConfig.getUntrackedParameter<double>("dimuonMassMax", 120.);
 
       // Top rejection
-      eJetMin_(cfg.getUntrackedParameter<double>("EJetMin", 999999.)),
-      nJetMax_(cfg.getUntrackedParameter<int>("NJetMax", 999999)),
-
+      eJetMin_ = iConfig.getUntrackedParameter<double>("EJetMin", 999999.);
+      nJetMax_ = iConfig.getUntrackedParameter<int>("NJetMax", 999999);
+      
       // Photon cuts
-      ptThrForPhoton_(cfg.getUntrackedParameter<double>("ptThrForPhoton", 5.)),
-      nPhoMax_(cfg.getUntrackedParameter<int>("nPhoMax", 999999)),
-      hltPrescaleProvider_(cfg, consumesCollector(), *this) {
-  isValidHltConfig_ = false;
+      ptThrForPhoton_ = iConfig.getUntrackedParameter<double>("ptThrForPhoton", 5.);
+      nPhoMax_ = iConfig.getUntrackedParameter<int>("nPhoMax", 999999);
 
-}
+ }   
+//Histograms  
 
-void EwkMuDQM::dqmBeginRun(const Run& iRun, const EventSetup& iSet) {
+  void EwkMuDQM::dqmBeginRun(const Run& iRun, const EventSetup& iSet) {
   nall = 0;
   nsel = 0;
   nz = 0;
-
   nrec = 0;
   niso = 0;
-  nhlt = 0;
   nmet = 0;
-
-  // passed as parameter to HLTConfigProvider::init(), not yet used
-  bool isConfigChanged = false;
-  // isValidHltConfig_ used to short-circuit analyze() in case of problems
-  isValidHltConfig_ =
-      hltPrescaleProvider_.init(iRun, iSet, "HLT", isConfigChanged);
 }
 
 void EwkMuDQM::bookHistograms(DQMStore::IBooker & ibooker,
@@ -135,6 +100,9 @@ void EwkMuDQM::bookHistograms(DQMStore::IBooker & ibooker,
 
   ibooker.setCurrentFolder("Physics/EwkMuDQM");
 
+
+
+ 
   char chtitle[256] = "";
 
   pt_before_ = ibooker.book1D("PT_BEFORECUTS",
@@ -151,7 +119,6 @@ void EwkMuDQM::bookHistograms(DQMStore::IBooker & ibooker,
       "Muon transverse distance to beam spot [cm]", 100, -0.5, 0.5);
   dxy_after_ = ibooker.book1D("DXY_AFTERWCUTS",
     "Muon transverse distance to beam spot [cm]", 100, -0.5, 0.5);
-
   goodewkmuon_before_ = ibooker.book1D("GOODEWKMUON_BEFORECUTS",
       "Quality-muon flag", 2, -0.5, 1.5);
   goodewkmuon_after_ = ibooker.book1D("GOODEWKMUON_AFTERWCUTS",
@@ -169,7 +136,7 @@ void EwkMuDQM::bookHistograms(DQMStore::IBooker & ibooker,
       iso_after_ = ibooker.book1D("ISO_AFTERWCUTS",
           "Relative (tracker) isolation variable", 100, 0., 1.);
     }
-  } else {
+   } else {
     if (isCombinedIso_) {
       iso_before_ = ibooker.book1D("ISO_BEFORECUTS",
           "Absolute (combined) isolation variable [GeV]", 100, 0., 20.);
@@ -183,10 +150,6 @@ void EwkMuDQM::bookHistograms(DQMStore::IBooker & ibooker,
     }
   }
 
-  trig_before_ = ibooker.book1D("TRIG_BEFORECUTS",
-      "Trigger response (boolean of muon triggers)", 2, -0.5, 1.5);
-  trig_after_ = ibooker.book1D("TRIG_AFTERWCUTS",
-      "Trigger response (boolean of muon triggers)", 2, -0.5, 1.5);
 
   snprintf(chtitle, 255, "Transverse mass (%s) [GeV]", metTag_.label().data());
   mt_before_ = ibooker.book1D("MT_BEFORECUTS", chtitle, 150, 0., 300.);
@@ -208,32 +171,139 @@ void EwkMuDQM::bookHistograms(DQMStore::IBooker & ibooker,
   n_zselPt2thr_ = ibooker.book1D("NZSELPT2THR", chtitle, 10, -0.5, 9.5);
 
   snprintf(chtitle, 255, "Number of jets (%s) above %.2f GeV",
-      jetTag_.label().data(), eJetMin_);
+      jetTag_.label().data() , eJetMin_);
   njets_before_ = ibooker.book1D("NJETS_BEFORECUTS", chtitle, 16, -0.5, 15.5);
   njets_after_ = ibooker.book1D("NJETS_AFTERWCUTS", chtitle, 16, -0.5, 15.5);
   njets_afterZ_ = ibooker.book1D("NJETS_AFTERZCUTS", chtitle, 16, -0.5, 15.5);
+  jet_HT_ = ibooker.book1D("Jet_HT",
+    "HT of jets", 1400, 0., 1400.);
+  jet_HT1_ = ibooker.book1D("Jet_HT_2",
+    "HT of jets", 1400, 0., 1400.);
+  jet_HT2_ = ibooker.book1D("Jet_HT_3",
+    "HT of jets", 1400, 0., 1400.);
+
+  jet_HT_after_ = ibooker.book1D("Jet_HT_AFTERWCUTS",
+    "HT of jets", 1400, 0., 1400.);
+  jet_HT_afterZ_ = ibooker.book1D("Jet_HT_AFTERZCUTS",
+    "HT of jets", 1400, 0., 1400.);
+
+
 
   leadingjet_pt_before_ = ibooker.book1D("LEADINGJET_PT_BEFORECUTS",
       "Leading Jet transverse momentum", 300, 0., 300.);
+  leadingjet_phi_before_ = ibooker.book1D("LEADINGJET_PHI_BEFORECUTS",
+      "Leading Jet phi", 50, 0., 3.); 
+
+ 
+   Phistar_= ibooker.book1D("PHISTAR",
+     "Phi star", 100, 0., 10);
+   Phistar_afterZ_= ibooker.book1D("PHISTAR_AFTERZCUTS",
+     "Phi star", 100, 0., 10);
+
+
+   CosineThetaStar_= ibooker.book1D("COSTHETASTAR",
+     "Cos theta star before cuts", 100, -1, 1);
+   CosineThetaStar_afterZ_= ibooker.book1D("COSTHETASTAR_AFTERZCUTS",
+     "Costheta star after z cuts", 100, -1, 1);
+
+  char name[100],title[100];
+     for(int m=0;m<ZMassBins-1;m++){
+        sprintf(name,"CosineThetastar_ZMassBin_%i",m);
+        sprintf(title,"CosineThetaStar for %f<ZMASS<%f",ZMassGrid[m],ZMassGrid[m+1]);
+    CosineThetaStar_2D[m]=ibooker.book1D(name,title,100,-1,1);
+   }  
+
+  char name1[100],title1[100];
+     for(int m=0;m<ZMassBins-1;m++){
+        sprintf(name1,"CosineThetastar_AfterZcuts_ZMassBin_%i",m);
+        sprintf(title1,"CosineThetaStar for %f<ZMASS<%f",ZMassGrid[m],ZMassGrid[m+1]);
+   CosineThetaStar_afterZ_2D[m]=ibooker.book1D(name1,
+     title1, 100, -1.,1.);
+   }  
+
+          const int MuRapBins = 4;
+          double MuRapGrid[4] = {0,0.8,1.6,2.4};
+
+    char name2[100],title2[100];
+      for(int m=0;m<MuRapBins-1;m++){
+        sprintf(name2,"CosineThetastar_YBin_%i",m);
+        sprintf(title2,"CosineThetaStar for %f<Y<%f",MuRapGrid[m],MuRapGrid[m+1]);
+    CosineThetaStar_Y_2D[m]=ibooker.book1D(name2,title2,100,-1,1);
+   }
+
+   char name3[100],title3[100];
+     for(int m=0;m<MuRapBins-1;m++){
+        sprintf(name3,"CosineThetastar_AFTERZCUTS_YBin_%i",m);
+        sprintf(title3,"CosineThetaStar for %f<Y<%f",MuRapGrid[m],MuRapGrid[m+1]);
+    CosineThetaStar_Y_afterZ_2D[m]=ibooker.book1D(name3,title3,100,-1,1);
+  } 
+
+
   leadingjet_pt_after_ = ibooker.book1D("LEADINGJET_PT_AFTERWCUTS",
       "Leading Jet transverse momentum", 300, 0., 300.);
   leadingjet_pt_afterZ_ = ibooker.book1D("LEADINGJET_PT_AFTERZCUTS",
       "Leading Jet transverse momentum", 300, 0., 300.);
-
   leadingjet_eta_before_ = ibooker.book1D("LEADINGJET_ETA_BEFORECUTS",
     "Leading Jet pseudo-rapidity", 50, -2.5, 2.5);
   leadingjet_eta_after_ = ibooker.book1D("LEADINGJET_ETA_AFTERWCUTS",
     "Leading Jet pseudo-rapidity", 50, -2.5, 2.5);
   leadingjet_eta_afterZ_ = ibooker.book1D("LEADINGJET_ETA_AFTERZCUTS",
     "Leading Jet pseudo-rapidity", 50, -2.5, 2.5);
+  deltaPhi_ = ibooker.book1D("DELTA_PHI_J1_J2",
+     "deltaphi b/w j1 and j2", 50, 0.,3.);
+  deltaPhi_after_ = ibooker.book1D("DELTA_PHI_AFTERWCUTS_J1_J2",
+     "deltaphi b/w j1 and j2", 50, 0.,3.);
 
+   deltaPhi_afterZ_ = ibooker.book1D("DELTA_PHI_AFTERZCUTS_J1_J2",
+   "deltaphi b/w j1 and j2", 50, 0.,3.);
+
+
+  subleadingjet_pt_before_ = ibooker.book1D("SUBLEADINGJET_PT_BEFORECUTS",
+      "SubLeading Jet transverse momentum", 300, 0., 300.);
+  subleadingjet_phi_before_ = ibooker.book1D("SUBLEADINGJET_PHI_BEFORECUTS",
+      "SubLeading Jet phi", 50, 0., 3.);
+
+  subleadingjet_pt_after_ = ibooker.book1D("SUBLEADINGJET_PT_AFTERWCUTS"  ,
+      "SubLeading Jet transverse momentum", 300, 0., 300.);
+  subleadingjet_pt_afterZ_ = ibooker.book1D("SUBLEADINGJET_PT_AFTERZCUTS",
+      "SubLeading Jet transverse momentum", 300, 0., 300.);
+  subleadingjet_eta_before_ = ibooker.book1D("SUBLEADINGJET_ETA_BEFORECUTS",
+    "SubLeading Jet pseudo-rapidity", 50, -2.5, 2.5);
+  subleadingjet_eta_after_ = ibooker.book1D("SUBLEADINGJET_ETA_AFTERWCUTS",
+    "SubLeading Jet pseudo-rapidity", 50, -2.5, 2.5);
+  subleadingjet_eta_afterZ_ = ibooker.book1D("SUBLEADINGJET_ETA_AFTERZCUTS",
+    "SubLeading Jet pseudo-rapidity", 50, -2.5, 2.5);
+
+
+  thirdleadingjet_pt_before_ = ibooker.book1D("THIRDLEADINGJET_PT_BEFORECUTS",
+      "ThirdLeading Jet transverse momentum", 300, 0., 300.);
+  thirdleadingjet_phi_before_ = ibooker.book1D("THIRDLEADINGJET_PHI_BEFORECUTS",      
+      "ThirdLeading Jet phi", 50, 0., 3.);
+
+  thirdleadingjet_pt_after_ = ibooker.book1D("THIRDLEADINGJET_PT_AFTERWCUTS",
+      "ThirdLeading Jet transverse momentum", 300, 0., 300.);
+  thirdleadingjet_pt_afterZ_ = ibooker.book1D("THIRDLEADINGJET_PT_AFTERZCUTS",
+      "ThirdLeading Jet transverse momentum", 300, 0., 300.);
+  thirdleadingjet_eta_before_ = ibooker.book1D("THIRDLEADINGJET_ETA_BEFORECUTS",
+      "ThirdLeading Jet pseudo-rapidity", 50, -2.5, 2.5);
+  thirdleadingjet_eta_after_ = ibooker.book1D("THIRDLEADINGJET_ETA_AFTERWCUTS",
+      "ThirdLeading Jet pseudo-rapidity", 50, -2.5, 2.5);
+  thirdleadingjet_eta_afterZ_ = ibooker.book1D("THIRDLEADINGJET_ETA_AFTERZCUTS",
+      "ThirdLeading Jet pseudo-rapidity", 50, -2.5, 2.5);
+
+  InVaMassJJ_ = ibooker.book1D("INVARIANT MASS_JJ",
+    "Invariant mass", 100, 0, 700);
+  InVaMassJJ_afterZ_ = ibooker.book1D("INVARIANT MASS_JJ_AFTERZCUTS",
+    "Invariant mass", 100, 0, 700);
+  
+  ptDiffPM_before_ = ibooker.book1D("PTDIFFPM_BEFORE_CUTS",
+      "pt(Muon+)-pt(Muon-) after Z cuts [GeV]", 200, -100., 100.);
+
+//LEADJET
   ptDiffPM_before_ = ibooker.book1D("PTDIFFPM_BEFORE_CUTS",
       "pt(Muon+)-pt(Muon-) after Z cuts [GeV]", 200, -100., 100.);
   ptDiffPM_afterZ_ = ibooker.book1D("PTDIFFPM_AFTERZ_CUTS",
       "pt(Muon+)-pt(Muon-) after Z cuts [GeV]", 200, -100., 100.);
-
-  /**\ For Z-boson events  */
-
   pt1_afterZ_ = ibooker.book1D("PT1_AFTERZCUTS",
       "Muon transverse momentum (global muon) [GeV]", 100, 0., 100.);
   eta1_afterZ_ = ibooker.book1D("ETA1_AFTERZCUTS",
@@ -255,7 +325,7 @@ void EwkMuDQM::bookHistograms(DQMStore::IBooker & ibooker,
       iso2_afterZ_ = ibooker.book1D("ISO2_AFTERZCUTS",
           "Relative (tracker) isolation variable", 100, 0., 1.);
     }
-  } else {
+  }else {
     if (isCombinedIso_) {
       iso1_afterZ_ = ibooker.book1D("ISO1_AFTERZCUTS",
         "Absolute (combined) isolation variable [GeV]", 100, 0., 20.);
@@ -268,21 +338,28 @@ void EwkMuDQM::bookHistograms(DQMStore::IBooker & ibooker,
         "Absolute (tracker) isolation variable [GeV]", 100, 0., 20.);
     }
   }
-
-  pt2_afterZ_ = ibooker.book1D("PT2_AFTERZCUTS",
+   pt2_afterZ_ = ibooker.book1D("PT2_AFTERZCUTS",
       "Muon transverse momentum (global muon) [GeV]", 100, 0., 100.);
-  eta2_afterZ_ = ibooker.book1D("ETA2_AFTERZCUTS",
+   eta2_afterZ_ = ibooker.book1D("ETA2_AFTERZCUTS",
       "Muon pseudo-rapidity", 50, -2.5, 2.5);
-  dxy2_afterZ_ = ibooker.book1D("DXY2_AFTERZCUTS",
+   dxy2_afterZ_ = ibooker.book1D("DXY2_AFTERZCUTS",
       "Muon transverse distance to beam spot [cm]", 100, -0.5, 0.5);
-  goodewkmuon2_afterZ_ = ibooker.book1D("GOODEWKMUON2_AFTERZCUTS",
+   goodewkmuon2_afterZ_ = ibooker.book1D("GOODEWKMUON2_AFTERZCUTS",
       "Quality-muon flag", 2, -0.5, 1.5);
-  ztrig_afterZ_ = ibooker.book1D("ZTRIG_AFTERZCUTS",
-      "Trigger response (boolean of muon triggers)", 2, -0.5, 1.5);
+ 
   dimuonmass_before_ = ibooker.book1D("DIMUONMASS_BEFORECUTS",
       "DiMuonMass (2 globals)", 100, 0, 200);
+  dimuonpt_before_ = ibooker.book1D("DIMUONPT_BEFORECUTS",
+      "DiMuonPt (2 globals)", 100, 0, 200); 
+
   dimuonmass_afterZ_ = ibooker.book1D("DIMUONMASS_AFTERZCUTS",
       "DiMuonMass (2 globals)", 100, 0, 200);
+
+  dimuonpt_afterZ_ = ibooker.book1D("DIMUONPT_AFTERZCUTS",
+      "DiMuonPt (2 globals)", 100, 0, 200);
+
+
+
   npvs_before_ = ibooker.book1D("NPVs_BEFORECUTS",
       "Number of Valid Primary Vertices", 51, -0.5, 50.5);
   npvs_after_ = ibooker.book1D("NPVs_AFTERWCUTS",
@@ -295,9 +372,6 @@ void EwkMuDQM::bookHistograms(DQMStore::IBooker & ibooker,
     "Muon Charge", 3, -1.5, 1.5);
   muoncharge_afterZ_ = ibooker.book1D("MUONCHARGE_AFTERZCUTS",
     "Muon Charge", 3, -1.5, 1.5);
-
-  // Adding these to replace the NZ ones (more useful, since they are more
-  // general?)
   nmuons_ = ibooker.book1D("NMuons",
       "Number of muons in the event", 10, -0.5, 9.5);
   ngoodmuons_ = ibooker.book1D("NGoodMuons",
@@ -307,30 +381,46 @@ void EwkMuDQM::bookHistograms(DQMStore::IBooker & ibooker,
   phPt_ = ibooker.book1D("phPt", "Photon transverse momentum [GeV]", 100, 0.,1000.);
   snprintf(chtitle, 255, "Photon pseudorapidity (pT>%4.1f)", ptThrForPhoton_);
   phEta_ = ibooker.book1D("phEta", chtitle, 100, -2.5, 2.5);
+   }
+ 
+EwkMuDQM::~EwkMuDQM()
+{
+   // do anything here that needs to be done at desctruction time
+   // (e.g. close files, deallocate resources etc.)
 }
-
 void EwkMuDQM::endRun(const Run& r, const EventSetup& iSet) {}
 
-void EwkMuDQM::analyze(const Event& ev, const EventSetup& iSet) {
-
-  // Muon collection
+// ------------ method called for each event  ------------
+void EwkMuDQM::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
+{
+   using namespace edm;
   Handle<View<Muon> > muonCollection;
-  if (!ev.getByToken(muonTag_, muonCollection)) {
-    // LogWarning("") << ">>> Muon collection does not exist !!!";
-    return;
-  }
-  unsigned int muonCollectionSize = muonCollection->size();
+  if (!iEvent.getByToken(muonTag_, muonCollection)) {
+     std::cout  << ">>> Muon collection does not exist !!!" << std::endl;
+         return;
+           }
+   unsigned int muonCollectionSize = muonCollection->size();
 
-  // Beam spot
   Handle<reco::BeamSpot> beamSpotHandle;
-  if (!ev.getByToken(beamSpotTag_, beamSpotHandle)) {
-    // LogWarning("") << ">>> No beam spot found !!!";
-    return;
-  }
-
-  // Loop to reject/control Z->mumu is done separately
+  if (!iEvent.getByToken(beamSpotTag_, beamSpotHandle)) {
+       std::cout << ">>> No beam spot found !!!" << std::endl;
+         return;
+           }
+    
   unsigned int nmuonsForZ1 = 0;
   unsigned int nmuonsForZ2 = 0;
+  double deltam = 0.;
+  double acopl = 0.;
+  double Rapdiff = 0.;
+  double Thetastar = 0.;
+  double halfacopl = 0.;
+  double angle = 0;
+  double Cos_thetastar=0;
+  double tan_acopl=0.;
+  double result_phistar = 0.;
+
+
+
   bool cosmic = false;
   for (unsigned int i = 0; i < muonCollectionSize; i++) {
     const Muon& mu = muonCollection->at(i);
@@ -352,7 +442,45 @@ void EwkMuDQM::analyze(const Event& ev, const EventSetup& iSet) {
         const math::XYZTLorentzVector ZRecoGlb(
             mu.px() + mu2.px(), mu.py() + mu2.py(), mu.pz() + mu2.pz(),
             mu.p() + mu2.p());
-        dimuonmass_before_->Fill(ZRecoGlb.mass());
+ 
+      if (fabs(mu.phi() - mu2.phi()) <= M_PI)
+       {
+        deltam  =  (fabs(mu.phi() - mu2.phi()));
+       }
+     else
+      {
+        deltam =  (2*M_PI - fabs(mu.phi() - mu2.phi()));
+     }
+
+      acopl = (M_PI - deltam);
+      if (mu.charge()<0){
+       Rapdiff = ((mu.eta()-mu2.eta())/2);
+      }
+      else Rapdiff = ((mu2.eta()-mu.eta())/2);
+
+   Cos_thetastar = tanh (Rapdiff);
+   Thetastar = acos (Cos_thetastar);
+   angle = sin (Thetastar);
+   halfacopl = acopl/2 ;
+   tan_acopl = tan (halfacopl);
+   result_phistar = (tan_acopl*angle);
+   Phistar_->Fill(result_phistar);
+ 
+   dimuonmass_before_->Fill(ZRecoGlb.mass());
+
+    int bin = FindMassBin(ZMassGrid,ZRecoGlb.mass(),ZMassBins);  //calling function
+    CosineThetaStar_->Fill(Cos_thetastar);
+    CosineThetaStar_2D[bin]->Fill(Cos_thetastar);
+      
+   const int MuRapBins = 4;
+   double MuRapGrid[4] = {0,0.8,1.6,2.4};
+   int Rapbin = FindRapBin(MuRapGrid,fabs(ZRecoGlb.Rapidity()),MuRapBins);  //calling functio
+   CosineThetaStar_Y_2D[Rapbin]->Fill(Cos_thetastar);
+
+
+
+
+  dimuonpt_before_->Fill(ZRecoGlb.pt());
         if (mu.charge() > 0) {
           ptDiffPM_before_->Fill(mu.pt() - mu2.pt());
         } else {
@@ -361,28 +489,27 @@ void EwkMuDQM::analyze(const Event& ev, const EventSetup& iSet) {
       }
     }
   }
-  if (cosmic) return;
 
+  if (cosmic) return;
   LogTrace("") << "> Z rejection: muons above " << ptThrForZ1_
                << " [GeV]: " << nmuonsForZ1;
   LogTrace("") << "> Z rejection: muons above " << ptThrForZ2_
                << " [GeV]: " << nmuonsForZ2;
-
-  // MET
+//MET
   Handle<View<MET> > metCollection;
-  if (!ev.getByToken(metToken_, metCollection)) {
-    // LogWarning("") << ">>> MET collection does not exist !!!";
-    return;
-  }
+  if (!iEvent.getByToken(metToken_, metCollection)) {
+     LogWarning("") << ">>> MET collection does not exist !!!";
+         return;
+          }
   const MET& met = metCollection->at(0);
   double met_et = met.pt();
   LogTrace("") << ">>> MET, MET_px, MET_py: " << met_et << ", " << met.px()
                << ", " << met.py() << " [GeV]";
   met_before_->Fill(met_et);
 
-  // Vertices in the event
+ //Primary Vertices
   Handle<View<reco::Vertex> > vertexCollection;
-  if (!ev.getByToken(vertexTag_, vertexCollection)) {
+  if (!iEvent.getByToken(vertexTag_, vertexCollection)) {
     LogError("") << ">>> Vertex collection does not exist !!!";
     return;
   }
@@ -393,109 +520,38 @@ void EwkMuDQM::analyze(const Event& ev, const EventSetup& iSet) {
     const Vertex& vertex = vertexCollection->at(i);
     if (vertex.isValid()) nvvertex++;
   }
+ npvs_before_->Fill(nvvertex);
 
-  npvs_before_->Fill(nvvertex);
-
-  bool trigger_fired = false;
-  Handle<TriggerResults> triggerResults;
-  if (!ev.getByToken(trigTag_, triggerResults)) {
-    // LogWarning("") << ">>> TRIGGER collection does not exist !!!";
-    return;
-  }
-  const edm::TriggerNames& trigNames = ev.triggerNames(*triggerResults);
-  //  LogWarning("")<<"Loop over triggers";
-
-  HLTConfigProvider const&  hltConfigProvider = hltPrescaleProvider_.hltConfigProvider();
-
-  /*  change faulty logic of triggering
-  for (unsigned int i=0; i<triggerResults->size(); i++)
-  {
-          const std::string trigName = trigNames.triggerName(i);
-
-          bool found=false;
-          for(unsigned int index=0; index<trigPathNames_.size() && found==false;
-  index++) {
-               size_t trigPath = trigName.find(trigPathNames_[index]); // 0 if
-  found, pos if not
-               if (trigPath==0) found=true;
-          }
-          if(!found) {continue;}
-
-          bool prescaled=false;
-          for (unsigned int ps= 0; ps<  hltConfigProvider.prescaleSize();
-  ps++){
-              const unsigned int prescaleValue =
-  hltConfigProvider.prescaleValue(ps, trigName) ;
-              if (prescaleValue != 1) prescaled =true;
-          }
-
-          if( triggerResults->accept(i) && !prescaled){   trigger_fired=true;}
-                    // LogWarning("")<<"TrigNo: "<<i<<"  "<<found<<"
-  "<<trigName<<" ---> FIRED";}
-  }
-  */
-
-  // get the prescale set for this event
-  const int prescaleSet = hltPrescaleProvider_.prescaleSet(ev, iSet);
-  if (prescaleSet == -1) {
-    LogTrace("") << "Failed to determine prescaleSet\n";
-    // std::cout << "Failed to determine prescaleSet. Check the GlobalTag in
-    // cfg\n";
-    return;
-  }
-
-  for (unsigned int i = 0;
-       (i < triggerResults->size()) && (trigger_fired == false); i++) {
-    // skip trigger, if it did not fire
-    if (!triggerResults->accept(i)) continue;
-
-    // skip trigger, if it is not on our list
-    bool found = false;
-    const std::string trigName = trigNames.triggerName(i);
-    for (unsigned int index = 0;
-         index < trigPathNames_.size() && found == false; index++) {
-      if (trigName.find(trigPathNames_.at(index)) == 0) found = true;
-    }
-    if (!found) continue;
-
-    // skip trigger, if it is prescaled
-    if (prescaleSet != -1) {
-      if (hltConfigProvider.prescaleValue(prescaleSet, trigName) != 1)
-        continue;
-    } else {
-      // prescaleSet is not known.
-      // This branch is not needed, if prescaleSet=-1 forces to skip event
-      int prescaled = 0;
-      for (unsigned int ps = 0;
-           !prescaled && (ps < hltConfigProvider.prescaleSize()); ++ps) {
-        if (hltConfigProvider.prescaleValue(ps, trigName) != 1) {
-          prescaled = 1;
-        }
-      }
-      if (prescaled) {
-        // std::cout << "trigger prescaled\n";
-        continue;
-      }
-    }
-
-    // std::cout << "found unprescaled trigger that fired: " << trigName <<
-    // "\n";
-    trigger_fired = true;
-  }
-  // if (trigger_fired) std::cout << "\n\tGot Trigger\n";
-
-  trig_before_->Fill(trigger_fired);
-
-  // Jet collection
-  Handle<View<Jet> > jetCollection;
-  if (!ev.getByToken(jetToken_, jetCollection)) {
-    // LogError("") << ">>> JET collection does not exist !!!";
-    return;
+ 
+  //Jet Collection
+   Handle<View<Jet> > jetCollection;
+   if (!iEvent.getByToken(jetToken_, jetCollection)) {
+     LogError("") << ">>> JET collection does not exist !!!";
+         return;
   }
   unsigned int jetCollectionSize = jetCollection->size();
   int njets = 0;
   int LEADJET = -1;
-  double max_pt = 0;
+  double max_pt = 0.;
+  int SUBLEADJET =-1;
+  int THIRDLEADJET =-1;
+  double max_pt1 = 0.;
+  double max_pt2 = 0.; 
+  unsigned int num = 999;
+  double lead_jet_pt = -1;
+  double lead_jet_eta = -100;
+  double lead_jet_phi = -1;
+  double sublead_jet_pt = -1;
+  double sublead_jet_eta = -100;
+  double sublead_jet_phi = -1;
+  double thirdlead_jet_pt = -1;
+  double thirdlead_jet_eta = -100;
+  double delta = -999;
+  double invariant_mass = -1;
+
+ // unsigned int newnum = 999; 
+  double jetHT = 0.;
+  const math::XYZTLorentzVector subleadjet,thirdleadjet;
   for (unsigned int i = 0; i < jetCollectionSize; i++) {
     const Jet& jet = jetCollection->at(i);
     double minDistance = 99999;  // This is in order to use PFJets
@@ -506,34 +562,78 @@ void EwkMuDQM::analyze(const Event& ev, const EventSetup& iSet) {
       if (minDistance > distance) minDistance = distance;
     }
     if (minDistance < 0.3)
-      continue;  // 0.3 is the isolation cone around the muon
-    if (jet.et() > max_pt) {
+    continue;
+   if (jet.et() > max_pt) {
       LEADJET = i;
+      num = i;
       max_pt = jet.et();
     }
-    if (jet.et() > eJetMin_) {
+    if (jet.et() > max_pt1 && num != i) {
+      SUBLEADJET  = i;                     //what  to assign sublead
+     num = i;
+      max_pt1 = jet.et();
+    }
+
+   if (jet.et() > max_pt2 && num != i) {
+      THIRDLEADJET  = i;                     //what  to assign sublead
+      max_pt2 = jet.et();
+    }
+
+   if (jet.et() > eJetMin_) {
       njets++;
     }
-  }
-
-  LogTrace("") << ">>> Total number of jets: " << jetCollectionSize;
-  LogTrace("") << ">>> Number of jets above " << eJetMin_
-               << " [GeV]: " << njets;
+     jetHT += jet.pt();
+   }
+  jet_HT_->Fill(jetHT);
   njets_before_->Fill(njets);
-  double lead_jet_pt = -1;
-  double lead_jet_eta = -100;
-  if (LEADJET != -1) {
+  if( njets > 1) {
+   jet_HT1_ ->Fill(jetHT/2);
+    }
+
+  if (njets > 2) {
+  jet_HT2_ ->Fill(jetHT/2);
+//  jet_HT2_->Divide(jet_HT1_);
+    }
+ if ((LEADJET != -1) && (SUBLEADJET != -1) && (THIRDLEADJET != -1)) {
     const Jet& leadJet = jetCollection->at(LEADJET);
     leadingjet_pt_before_->Fill(leadJet.pt());
     leadingjet_eta_before_->Fill(leadJet.eta());
+    leadingjet_phi_before_->Fill(leadJet.phi());
     lead_jet_pt = leadJet.pt();
     lead_jet_eta = leadJet.eta();
-  }
-  // Photon Collection
-  Handle<View<Photon> > photonCollection;
-  if (!ev.getByToken(phoTag_, photonCollection)) {
-    // LogError("")
-    return;
+    lead_jet_phi = leadJet.phi();
+    const Jet& subleadJet = jetCollection->at(SUBLEADJET);
+    subleadingjet_pt_before_->Fill(subleadJet.pt());
+    subleadingjet_eta_before_->Fill(subleadJet.eta());
+    subleadingjet_phi_before_->Fill(subleadJet.phi());
+    sublead_jet_pt =  subleadJet.pt();
+    sublead_jet_eta = subleadJet.eta();
+    sublead_jet_phi = subleadJet.phi();       
+    const Jet& thirdleadJet = jetCollection->at(THIRDLEADJET);
+    thirdleadingjet_pt_before_->Fill(thirdleadJet.pt());
+    thirdleadingjet_eta_before_->Fill(thirdleadJet.eta());
+    thirdleadingjet_phi_before_->Fill(thirdleadJet.phi());
+    thirdlead_jet_pt =  thirdleadJet.pt();
+    thirdlead_jet_eta = thirdleadJet.eta();
+
+    const math::XYZTLorentzVector jets(subleadJet.px()+thirdleadJet.px(),subleadJet.py()+thirdleadJet.py(),subleadJet.pz()+thirdleadJet.pz(),subleadJet.p()+thirdleadJet.p()); 
+     invariant_mass = jets.M();
+     InVaMassJJ_->Fill(invariant_mass);
+     if (fabs(lead_jet_phi - sublead_jet_phi) <= M_PI)
+      {
+        delta  =  (fabs(lead_jet_phi - sublead_jet_phi));
+      }
+      else
+       {
+        delta =  (2*M_PI - fabs(lead_jet_phi - sublead_jet_phi));
+       }  
+        deltaPhi_->Fill(delta);
+   }
+
+  //Photon Collection
+   Handle<View<Photon> > photonCollection;
+   if (!iEvent.getByToken(phoTag_, photonCollection)) {
+     return;
   }
   unsigned int ngam = 0;
 
@@ -550,23 +650,22 @@ void EwkMuDQM::analyze(const Event& ev, const EventSetup& iSet) {
   LogTrace("") << " >>> N photons " << ngam << std::endl;
 
   nmuons_->Fill(muonCollectionSize);
-
-  // Start counting
+ 
+ //Start Counting
   nall++;
 
-  // Histograms per event should be done only once, so keep track of them
-  bool hlt_hist_done = false;
-  bool zhlt_hist_done = false;
+ //Histograms per event should be done only once, so keep track of them
+ 
   bool zjets_hist_done = false;
   bool zfullsel_hist_done = false;
   bool met_hist_done = false;
   bool njets_hist_done = false;
   bool wfullsel_hist_done = false;
 
-  // Central W->mu nu selection criteria
-  const int NFLAGS = 11;
+ //Central W->mu nu selection criteria
+  const int NFLAGS = 10;
   bool muon_sel[NFLAGS];
-  const int NFLAGSZ = 13;
+  const int NFLAGSZ = 12;
   bool zmuon_sel[NFLAGSZ];
   bool muon4Z = false;
 
@@ -589,7 +688,7 @@ void EwkMuDQM::analyze(const Event& ev, const EventSetup& iSet) {
     reco::TrackRef gm = mu.globalTrack();
     reco::TrackRef tk = mu.innerTrack();
 
-    // Pt,eta cuts
+  //Pt,eta cuts
     double pt = mu.pt();
     double eta = mu.eta();
     LogTrace("") << "\t... pt, eta: " << pt << " [GeV], " << eta;
@@ -623,20 +722,13 @@ void EwkMuDQM::analyze(const Event& ev, const EventSetup& iSet) {
     if (nMatches < nMatchesCut_) quality = false;
     muon_sel[3] = quality;
     if (quality) number_of_goodMuons++;
-
     pt_before_->Fill(pt);
     eta_before_->Fill(eta);
     dxy_before_->Fill(dxy);
     muoncharge_before_->Fill(charge);
     goodewkmuon_before_->Fill(quality);
-
-    // Charge asymmetry
-    // if (quality) {
-    //  if (charge>0) ptPlus_before_->Fill(pt);
-    //  if (charge<0) ptMinus_before_->Fill(pt);
-    //}
-
-    // Isolation cuts
+ 
+   // Isolation cuts
     double isovar = mu.isolationR03().sumPt;
     if (isCombinedIso_) {
       isovar += mu.isolationR03().emEt;
@@ -646,19 +738,11 @@ void EwkMuDQM::analyze(const Event& ev, const EventSetup& iSet) {
     if (isovar < isoCut03_) muon_sel[4] = true;
 
     LogTrace("") << "\t... isolation value" << isovar << ", isolated? "
-                 << muon_sel[6];
+                 << muon_sel[4];
     iso_before_->Fill(isovar);
 
-    // HLT (not mtched to muon for the time being)
-    if (trigger_fired) muon_sel[5] = true;
-
-    // For Z:
-    if (pt > ptThrForZ1_ && fabs(eta) < etaCut_ && fabs(dxy) < dxyCut_ &&
-        quality && trigger_fired && isovar < isoCut03_) {
-      muon4Z = true;
-    }
-
-    // MET/MT cuts
+    
+  // MET/MT cuts
     double w_et = met_et + mu.pt();
     double w_px = met.px() + mu.px();
     double w_py = met.py() + mu.py();
@@ -668,30 +752,30 @@ void EwkMuDQM::analyze(const Event& ev, const EventSetup& iSet) {
 
     LogTrace("") << "\t... W mass, W_et, W_px, W_py: " << massT << ", " << w_et
                  << ", " << w_px << ", " << w_py << " [GeV]";
-    if (massT > mtMin_ && massT < mtMax_) muon_sel[6] = true;
+    if (massT > mtMin_ && massT < mtMax_) muon_sel[5] = true;
     mt_before_->Fill(massT);
-    if (met_et > metMin_ && met_et < metMax_) muon_sel[7] = true;
-
-    // Acoplanarity cuts
+    if (met_et > metMin_ && met_et < metMax_) muon_sel[6] = true;
+  
+  // Acoplanarity cuts
     Geom::Phi<double> deltaphi(mu.phi() - atan2(met.py(), met.px()));
     double acop = deltaphi.value();
     if (acop < 0) acop = -acop;
     acop = M_PI - acop;
     LogTrace("") << "\t... acoplanarity: " << acop;
-    if (acop < acopCut_) muon_sel[8] = true;
+    if (acop < acopCut_) muon_sel[7] = true;
     acop_before_->Fill(acop);
 
-    // Remaining flags (from global event information)
-    if (nmuonsForZ1 < 1 || nmuonsForZ2 < 2) muon_sel[9] = true;
-    if (njets <= nJetMax_) muon_sel[10] = true;
+  // Remaining flags (from global event information)
+    if (nmuonsForZ1 < 1 || nmuonsForZ2 < 2) muon_sel[8] = true;
+    if (njets <= nJetMax_) muon_sel[9] = true;
 
-    // Collect necessary flags "per muon"
+  // Collect necessary flags "per muon"
     int flags_passed = 0;
     for (int j = 0; j < NFLAGS; ++j) {
       if (muon_sel[j]) flags_passed += 1;
     }
 
-    // Do N-1 histograms now (and only once for global event quantities)
+  // Do N-1 histograms now (and only once for global event quantities)
     if (flags_passed >= (NFLAGS - 1)) {
       if (!muon_sel[0] || flags_passed == NFLAGS) pt_after_->Fill(pt);
       if (!muon_sel[1] || flags_passed == NFLAGS) eta_after_->Fill(eta);
@@ -699,49 +783,45 @@ void EwkMuDQM::analyze(const Event& ev, const EventSetup& iSet) {
       if (!muon_sel[3] || flags_passed == NFLAGS)
         goodewkmuon_after_->Fill(quality);
       if (!muon_sel[4] || flags_passed == NFLAGS) iso_after_->Fill(isovar);
-      if (!muon_sel[5] || flags_passed == NFLAGS)
-        if (!hlt_hist_done) trig_after_->Fill(trigger_fired);
-      hlt_hist_done = true;
-      if (!muon_sel[6] || flags_passed == NFLAGS) mt_after_->Fill(massT);
-      if (!muon_sel[7] || flags_passed == NFLAGS)
+    
+       if (!muon_sel[5] || flags_passed == NFLAGS) mt_after_->Fill(massT);
+      if (!muon_sel[6] || flags_passed == NFLAGS)
         if (!met_hist_done) met_after_->Fill(met_et);
       met_hist_done = true;
-      if (!muon_sel[8] || flags_passed == NFLAGS) acop_after_->Fill(acop);
-      // no action here for muon_sel[9]
-      if (!muon_sel[10] || flags_passed == NFLAGS) {
+      if (!muon_sel[7] || flags_passed == NFLAGS) acop_after_->Fill(acop);
+      if (!muon_sel[9] || flags_passed == NFLAGS) {
         if (!njets_hist_done) {
-          njets_after_->Fill(njets);
-          leadingjet_pt_after_->Fill(lead_jet_pt);
-          leadingjet_eta_after_->Fill(lead_jet_eta);
-        }
+           njets_after_->Fill(njets);
+           leadingjet_pt_after_->Fill(lead_jet_pt);
+           leadingjet_eta_after_->Fill(lead_jet_eta);
+           jet_HT_after_->Fill(jetHT);
+           deltaPhi_after_->Fill(delta) ;
+           subleadingjet_pt_after_->Fill(sublead_jet_pt);
+           subleadingjet_eta_after_->Fill(sublead_jet_eta);
+           thirdleadingjet_pt_after_->Fill(thirdlead_jet_pt);
+           thirdleadingjet_eta_after_->Fill(thirdlead_jet_eta);
+     }
         njets_hist_done = true;
       }
       if (flags_passed == NFLAGS) {
         if (!wfullsel_hist_done) {
           npvs_after_->Fill(nvvertex);
           muoncharge_after_->Fill(charge);
-          // if (charge>0) ptPlus_afterW_->Fill(pt);
-          // if (charge<0) ptMinus_afterW_->Fill(pt);
-        }
+          }
         wfullsel_hist_done = true;
       }
     }
-
-    // The cases in which the event is rejected as a Z are considered
-    // independently:
-    if (muon4Z && !muon_sel[9]) {
-
-      // Plots for 2 muons
+ 
+   // The cases in which the event is rejected as a Z are considered
+   //      independently:
+      if (muon4Z && !muon_sel[8]) {
       for (unsigned int j = i + 1; j < muonCollectionSize; j++) {
-
         for (int ij = 0; ij < NFLAGSZ; ++ij) {
           zmuon_sel[ij] = false;
         }
-
         for (int ji = 0; ji < 5; ++ji) {
           zmuon_sel[ji] = muon_sel[ji];
         }
-
         const Muon& mu2 = muonCollection->at(j);
         if (!mu2.isGlobalMuon()) continue;
         if (mu2.charge() * charge != -1) continue;
@@ -773,106 +853,149 @@ void EwkMuDQM::analyze(const Event& ev, const EventSetup& iSet) {
         }
         if (isRelativeIso_) isovar2 /= pt2;
         if (isovar2 < isoCut03_) zmuon_sel[9] = true;
-        if (trigger_fired) zmuon_sel[10] = true;
+        
         const math::XYZTLorentzVector ZRecoGlb(
             mu.px() + mu2.px(), mu.py() + mu2.py(), mu.pz() + mu2.pz(),
             mu.p() + mu2.p());
         if (ZRecoGlb.mass() > dimuonMassMin_ &&
             ZRecoGlb.mass() < dimuonMassMax_)
-          zmuon_sel[11] = true;
+        zmuon_sel[10]= true;
+       // jet flag
+        if (njets <= nJetMax_) zmuon_sel[11] = true;
 
-        // jet flag
-        if (njets <= nJetMax_) zmuon_sel[12] = true;
-
-        // start filling histos: N-1 plots
+       // start filling histos: N-1 plots
         int flags_passed_z = 0;
 
         for (int jj = 0; jj < NFLAGSZ; ++jj) {
           if (zmuon_sel[jj]) ++flags_passed_z;
-        }
-
-        if (flags_passed_z >= (NFLAGSZ - 1)) {
-          if (!zmuon_sel[0] || flags_passed_z == NFLAGSZ) {
-            pt1_afterZ_->Fill(pt);
           }
-          if (!zmuon_sel[1] || flags_passed_z == NFLAGSZ) {
-            eta1_afterZ_->Fill(eta);
-          }
-          if (!zmuon_sel[2] || flags_passed_z == NFLAGSZ) {
-            dxy1_afterZ_->Fill(dxy);
-          }
-          if (!zmuon_sel[3] || flags_passed_z == NFLAGSZ) {
-            goodewkmuon1_afterZ_->Fill(quality);
-          }
-          if (!zmuon_sel[4] || flags_passed_z == NFLAGSZ) {
-            iso1_afterZ_->Fill(isovar);
-          }
-          if (!zmuon_sel[5] || flags_passed_z == NFLAGSZ) {
-            pt2_afterZ_->Fill(pt2);
-          }
-          if (!zmuon_sel[6] || flags_passed_z == NFLAGSZ) {
-            eta2_afterZ_->Fill(eta2);
-          }
-          if (!zmuon_sel[7] || flags_passed_z == NFLAGSZ) {
-            dxy2_afterZ_->Fill(dxy2);
-          }
-          if (!zmuon_sel[8] || flags_passed_z == NFLAGSZ) {
-            goodewkmuon2_afterZ_->Fill(quality2);
-          }
-          if (!zmuon_sel[9] || flags_passed_z == NFLAGSZ) {
-            iso2_afterZ_->Fill(isovar2);
-          }
-          if (!zmuon_sel[10] || flags_passed_z == NFLAGSZ) {
-            if (!zhlt_hist_done) ztrig_afterZ_->Fill(trigger_fired);
-            zhlt_hist_done = true;
-          }
-          if (!zmuon_sel[11] || flags_passed_z == NFLAGSZ) {
-            dimuonmass_afterZ_->Fill(ZRecoGlb.mass());
-          }
-          if (!zmuon_sel[12] || flags_passed_z == NFLAGSZ) {
-            if (!zjets_hist_done) {
-              njets_afterZ_->Fill(njets);
-              leadingjet_pt_afterZ_->Fill(lead_jet_pt);
-              leadingjet_eta_afterZ_->Fill(lead_jet_eta);
+          if (flags_passed_z >= (NFLAGSZ - 1)) {
+            if (!zmuon_sel[0] || flags_passed_z == NFLAGSZ) {
+                pt1_afterZ_->Fill(pt);
+              }
+            if (!zmuon_sel[1] || flags_passed_z == NFLAGSZ) {
+                eta1_afterZ_->Fill(eta);
+              }
+            if (!zmuon_sel[2] || flags_passed_z == NFLAGSZ) {
+                dxy1_afterZ_->Fill(dxy);
+              }
+            if (!zmuon_sel[3] || flags_passed_z == NFLAGSZ) {
+                goodewkmuon1_afterZ_->Fill(quality);
+              }
+            if (!zmuon_sel[4] || flags_passed_z == NFLAGSZ) {
+                iso1_afterZ_->Fill(isovar);
+              }
+            if (!zmuon_sel[5] || flags_passed_z == NFLAGSZ) {
+                 pt2_afterZ_->Fill(pt2);
+              }
+            if (!zmuon_sel[6] || flags_passed_z == NFLAGSZ) {
+                eta2_afterZ_->Fill(eta2);
+              }
+            if (!zmuon_sel[7] || flags_passed_z == NFLAGSZ) {
+               dxy2_afterZ_->Fill(dxy2);
+             }
+            if (!zmuon_sel[8] || flags_passed_z == NFLAGSZ) {
+                goodewkmuon2_afterZ_->Fill(quality2);
+             }
+            if (!zmuon_sel[9] || flags_passed_z == NFLAGSZ) {
+               iso2_afterZ_->Fill(isovar2);
             }
-            zjets_hist_done = true;
-          }
-          if (flags_passed_z == NFLAGSZ) {
-            met_afterZ_->Fill(met_et);
+            if (!zmuon_sel[10] || flags_passed_z == NFLAGSZ) {
+               dimuonmass_afterZ_->Fill(ZRecoGlb.mass());
+               dimuonpt_afterZ_->Fill(ZRecoGlb.pt());
+        
+                int bin=1;
+                const int MuRapBins = 4;
+                double MuRapGrid[4] = {0,0.8,1.6,2.4};
+                int Rapbin = FindRapBin(MuRapGrid,fabs(ZRecoGlb.Rapidity()),MuRapBins);  //calling functio
+	        CosineThetaStar_afterZ_->Fill(Cos_thetastar);
+        	CosineThetaStar_afterZ_2D[bin]->Fill(Cos_thetastar);
+                CosineThetaStar_Y_afterZ_2D[Rapbin]->Fill(Cos_thetastar);
+                Phistar_afterZ_->Fill(result_phistar);       
+               }
+            if (!zmuon_sel[11] || flags_passed_z == NFLAGSZ) {
+               if (!zjets_hist_done) {
+                 njets_afterZ_->Fill(njets);
+                 leadingjet_pt_afterZ_->Fill(lead_jet_pt);
+                 leadingjet_eta_afterZ_->Fill(lead_jet_eta);
+                 jet_HT_afterZ_->Fill(jetHT);
+                 if(delta!=-999){ 
+                    deltaPhi_afterZ_->Fill(delta);
+                   }
+                 subleadingjet_pt_afterZ_->Fill(sublead_jet_pt);
+                 subleadingjet_eta_afterZ_->Fill(sublead_jet_eta);
+                 thirdleadingjet_pt_afterZ_->Fill(thirdlead_jet_pt);
+                 thirdleadingjet_eta_afterZ_->Fill(thirdlead_jet_eta);  
+
+                  if(invariant_mass != -1) {
+                     InVaMassJJ_afterZ_->Fill(invariant_mass);
+                 }
+              }
+               zjets_hist_done = true;
+             }
+         
+            if (flags_passed_z == NFLAGSZ) {
+                met_afterZ_->Fill(met_et);
             if (!zfullsel_hist_done) {
-              npvs_afterZ_->Fill(nvvertex);
-              muoncharge_afterZ_->Fill(charge);
-              if (charge > 0) {
-                // ptPlus_afterZ_->Fill(mu.pt());
-                // ptMinus_afterZ_->Fill(mu2.pt());
-                ptDiffPM_afterZ_->Fill(mu.pt() - mu2.pt());
-              } else {
-                // ptPlus_afterZ_->Fill(mu2.pt());
-                // ptMinus_afterZ_->Fill(mu.pt());
-                ptDiffPM_afterZ_->Fill(mu2.pt() - mu.pt());
+                npvs_afterZ_->Fill(nvvertex);
+                muoncharge_afterZ_->Fill(charge);
+                if (charge > 0) {
+                   ptDiffPM_afterZ_->Fill(mu.pt() - mu2.pt());
+                } else {
+                   ptDiffPM_afterZ_->Fill(mu2.pt() - mu.pt());
               }
             }
-            zfullsel_hist_done = true;
+              zfullsel_hist_done = true;
           }
         }
       }
     }
-  }
-
+ 
   if (zfullsel_hist_done) {
-    // here was a Z candidate
-    n_zselPt1thr_->Fill(nmuonsForZ1);
-    n_zselPt2thr_->Fill(nmuonsForZ2);
+     n_zselPt1thr_->Fill(nmuonsForZ1);
+     n_zselPt2thr_->Fill(nmuonsForZ2);
   }
-
-  // nmuons_->Fill(number_of_muons);
-  // nmuons_->Fill(muonCollectionSize);
   ngoodmuons_->Fill(number_of_goodMuons);
-
   return;
+  }
 }
 
-// Local Variables:
-// show-trailing-whitespace: t
-// truncate-lines: t
-// End:
+  int EwkMuDQM::FindMassBin(double MassGrid[],double Mass,const int size){
+     for(int m=0;m<size-1;m++){
+        if(Mass>=MassGrid[m] && Mass<MassGrid[m+1])
+             return m;
+         }
+       return -1;
+      }
+      
+  int EwkMuDQM::FindRapBin(double RapGrid[],double Rap,const int size){
+     for(int m=0;m<size-1;m++){
+        if(Rap>=RapGrid[m] && Rap<RapGrid[m+1])
+            return m;
+         }
+       return -1;
+      }
+// ------------ method called once each job just before starting event loop  ------------
+/*void 
+EwkMuDQM::beginJob()
+{
+}
+
+// ------------ method called once each job just after ending the event loop  ------------
+void 
+EwkMuDQM::endJob() 
+{
+}
+
+// ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
+void
+EwkMuDQM::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  //The following says we do not know what parameters are allowed so do no validation
+  // Please change this to state exactly what you do use, even if it is no parameters
+  edm::ParameterSetDescription desc;
+  desc.setUnknown();
+  descriptions.addDefault(desc);
+}*/
+
+//define this as a plug-in
+DEFINE_FWK_MODULE(EwkMuDQM);
