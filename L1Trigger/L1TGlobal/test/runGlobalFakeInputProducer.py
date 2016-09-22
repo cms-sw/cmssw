@@ -215,7 +215,8 @@ process.simGtStage2Digis.JetInputTag = cms.InputTag("gtInput")
 process.simGtStage2Digis.EtSumInputTag = cms.InputTag("gtInput")
 process.simGtStage2Digis.EmulateBxInEvent = cms.int32(1)
 #process.simGtStage2Digis.Verbosity = cms.untracked.int32(1)
-
+#process.simGtStage2Digis.AlgorithmTriggersUnprescaled = cms.bool(True)
+#process.simGtStage2Digis.AlgorithmTriggersUnmasked = cms.bool(True)
 
 process.dumpGTRecord = cms.EDAnalyzer("l1t::GtRecordDump",
                 egInputTag    = cms.InputTag("gtInput"),
@@ -238,7 +239,9 @@ process.dumpGTRecord = cms.EDAnalyzer("l1t::GtRecordDump",
 		tvFileName     = cms.string( ("TestVector_%03d.txt") % job ),
 		tvVersion      = cms.int32(2),
                 psFileName     = cms.string( "prescale_L1TGlobal.csv" ),
-                psColumn       = cms.int32(1)
+                psColumn       = cms.int32(1),
+		unprescaleL1Algos = cms.bool(False),
+                unmaskL1Algos     = cms.bool(False)
 		 )
 
 
