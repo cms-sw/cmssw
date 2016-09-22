@@ -521,7 +521,7 @@ HcalTriggerPrimitiveAlgo::validChannel(const QIE10DataFrame& digi, int ts) const
    if (override_parameters_.exists("ADCThresholdHF"))
       adc_threshold = override_parameters_.getParameter<uint32_t>("ADCThresholdHF");
    if (override_parameters_.exists("TDCMaskHF"))
-      adc_threshold = override_parameters_.getParameter<unsigned long long>("TDCMaskHF");
+      tdc_mask = override_parameters_.getParameter<unsigned long long>("TDCMaskHF");
 
    if (digi[ts].adc() < adc_threshold)
       return true;
