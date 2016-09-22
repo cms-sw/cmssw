@@ -508,6 +508,7 @@ namespace HcalSimpleRecAlgoImpl {
       {
 	rh.setFlagField(1, HcalCaloFlagLabels::HBHEPulseFitBit);
       }
+    rh.setChiSquared(chi2);
     setRawEnergy(rh, static_cast<float>(uncorr_ampl));
     setAuxEnergy(rh, static_cast<float>(m3_ampl));
     return rh;
