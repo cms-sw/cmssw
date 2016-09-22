@@ -773,12 +773,10 @@ namespace evf{
     }
 
     for (unsigned int i=0;i<nStreams_;i++) {
-       fmt_.m_data.ministateEncoded_[i] = encPath_[i].encode(ministate_[i]);
-       fmt_.m_data.microstateEncoded_[i] = encModule_.encode(microstate_[i]);
+      fmt_.m_data.ministateEncoded_[i] = encPath_[i].encode(ministate_[i]);
+      fmt_.m_data.microstateEncoded_[i] = encModule_.encode(microstate_[i]);
     }
 
-    //else return;
-    //capture latest mini/microstate of streams
     bool inputStatePerThread=false;
 
     if (inputState_==FastMonitoringThread::inWaitInput) {
