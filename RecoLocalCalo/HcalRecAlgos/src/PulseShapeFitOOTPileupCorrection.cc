@@ -270,7 +270,8 @@ void PulseShapeFitOOTPileupCorrection::setPUParams(bool   iPedestalConstraint, b
 }
 
 void PulseShapeFitOOTPileupCorrection::setPulseShapeTemplate(const HcalPulseShapes::Shape& ps, bool isHPD) {
-  // comment this otherwise he siPM is not correctly initialized
+  // initialize for every hit now to avoid incorrect settings for different channel types (HPD vs SiPM)
+  // FIXME: keep this as a reminder to improve and reduce CPU use
   //  if( cntsetPulseShape ) return;
 
    // set the M2 parameters before defining the shape
