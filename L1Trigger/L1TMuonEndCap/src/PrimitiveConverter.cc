@@ -260,13 +260,13 @@ std::vector<ConvertedHit> PrimitiveConverter::convert(std::vector<L1TMuon::Trigg
       }
 
       if (station == 0 || nId == -1 || SectIndex < 0 || SectIndex > 11 || LUTi < 0 || LUTi > 60) {
-	std::cout << "\n*********************************************************************" << std::endl;
-	std::cout << "EMTF malformed LCT: BX " << C3.getCSCData().bx << ", endcap " << Det.endcap() 
+	LogDebug("L1TMuonEndCap") << "\n*********************************************************************" << std::endl;
+	LogDebug("L1TMuonEndCap") << "EMTF malformed LCT: BX " << C3.getCSCData().bx << ", endcap " << Det.endcap() 
 		  << ", station " << Det.station() << ", sector " << Det.triggerSector()
 		  << ", ring " << Det.ring() << ", ID " << C3.Id() << ", chamber " << Det.chamber() 
 		  << ", strip " << C3.getCSCData().strip << ", wire " << C3.getCSCData().keywire
 		  << ", pattern " << C3.getPattern() << ", quality " << C3.getCSCData().quality << std::endl;
-	std::cout << "Produces: station " << station << ", nId " << nId
+	LogDebug("L1TMuonEndCap") << "Produces: station " << station << ", nId " << nId
 		  << ", SectIndex " << SectIndex << ", LUTi " << LUTi << std::endl;
 	continue;
       }
@@ -397,13 +397,13 @@ std::vector<ConvertedHit> PrimitiveConverter::convert(std::vector<L1TMuon::Trigg
 	ConvHits.push_back(Hit);
       }
       else {
-	std::cout << "\n#####################################################################" << std::endl;
-	std::cout << "LCT w/o theta/phi: BX " << C3.getCSCData().bx << ", endcap " << Det.endcap() 
+	LogDebug("L1TMuonEndCap") << "\n#####################################################################" << std::endl;
+	LogDebug("L1TMuonEndCap") << "LCT w/o theta/phi: BX " << C3.getCSCData().bx << ", endcap " << Det.endcap() 
 		  << ", station " << Det.station() << ", sector " << Det.triggerSector()
 		  << ", ring " << Det.ring() << ", ID " << C3.Id() << ", chamber " << Det.chamber() 
 		  << ", strip " << C3.getCSCData().strip << ", wire " << C3.getCSCData().keywire
 		  << ", pattern " << C3.getPattern() << ", quality " << C3.getCSCData().quality << std::endl;
-	std::cout << "Has fph " << fph << ", th " << th << ", ph_hit " << ph_hit 
+	LogDebug("L1TMuonEndCap") << "Has fph " << fph << ", th " << th << ", ph_hit " << ph_hit 
 		  << ", phzvl " << phzvl << ", station " << station << ", sub " << sub
 		  << ", Id " << Id << ", quality " << quality << ", pattern " << pattern
 		  << ", wire " << wire << ", strip " << strip << ", BX " << BX << std::endl;
