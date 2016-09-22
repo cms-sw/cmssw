@@ -20,7 +20,6 @@ public:
 
   void SetFrontEndMap(const HcalFrontEndMap* m); 
   void Clear();
-  void setTopo(const HcalTopology* topo);
   void SetFlagsFromDigi(HBHERecHit& hbhe, const HBHEDataFrame& digi,
                         const HcalCoder& coder, const HcalCalibrations& calib);
   void rememberHit(const HBHERecHit& hbhe);
