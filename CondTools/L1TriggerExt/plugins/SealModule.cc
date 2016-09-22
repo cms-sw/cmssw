@@ -35,37 +35,7 @@ REGISTER_L1_WRITER(L1TriggerKeyListExtRcd, L1TriggerKeyListExt);
 // Ext Records:
 
 #include "CondFormats/L1TObjects/interface/L1TUtmTriggerMenu.h"
-#include "CondFormats/DataRecord/interface/L1TUtmTriggerMenuO2ORcd.h"
+#include "CondFormats/DataRecord/interface/L1TUtmTriggerMenuRcd.h"
 
-REGISTER_L1_WRITER(L1TUtmTriggerMenuO2ORcd, L1TUtmTriggerMenu);
-
-#include "CondFormats/L1TObjects/interface/L1TGlobalPrescalesVetos.h"
-#include "CondFormats/DataRecord/interface/L1TGlobalPrescalesVetosO2ORcd.h"
-
-REGISTER_L1_WRITER(L1TGlobalPrescalesVetosO2ORcd, L1TGlobalPrescalesVetos);
-
-#include "CondFormats/L1TObjects/interface/L1TMuonBarrelParams.h"
-#include "CondFormats/DataRecord/interface/L1TMuonBarrelParamsO2ORcd.h"
-
-REGISTER_L1_WRITER(L1TMuonBarrelParamsO2ORcd, L1TMuonBarrelParams);
-
-#include "CondFormats/L1TObjects/interface/L1TMuonEndCapParams.h"
-#include "CondFormats/DataRecord/interface/L1TMuonEndcapParamsO2ORcd.h"
-
-REGISTER_L1_WRITER(L1TMuonEndcapParamsO2ORcd, L1TMuonEndCapParams);
-
-#include "CondFormats/L1TObjects/interface/L1TMuonOverlapParams.h"
-#include "CondFormats/DataRecord/interface/L1TMuonOverlapParamsO2ORcd.h"
-
-REGISTER_L1_WRITER(L1TMuonOverlapParamsO2ORcd, L1TMuonOverlapParams);
-
-#include "CondFormats/L1TObjects/interface/L1TMuonGlobalParams.h"
-#include "CondFormats/DataRecord/interface/L1TMuonGlobalParamsO2ORcd.h"
-
-REGISTER_L1_WRITER(L1TMuonGlobalParamsO2ORcd, L1TMuonGlobalParams);
-
-#include "CondFormats/L1TObjects/interface/CaloParams.h"
-#include "CondFormats/DataRecord/interface/L1TCaloParamsO2ORcd.h"
 using namespace l1t;
-REGISTER_L1_WRITER(L1TCaloParamsO2ORcd, CaloParams);
-
+REGISTER_L1_WRITER(L1TUtmTriggerMenuRcd, L1TUtmTriggerMenu);

@@ -41,6 +41,7 @@ options.register('outputDBAuth',
 options.parseArguments()
 
 # Get L1TriggerKeyListExt from DB
+process.load("CondCore.DBCommon.CondDBCommon_cfi")
 
 # Define CondDB tags
 if options.useO2OTags == 0:
@@ -53,18 +54,6 @@ else:
     from CondTools.L1TriggerExt.L1O2OTagsExt_cfi import initL1O2OTagsExt
     initL1O2OTagsExt()
     tagBaseVec = initL1O2OTagsExt.tagBaseVec
-
-##
-#process.load("CondTools.L1TriggerExt.L1TriggerKeyDummyExt_cff")
-#process.L1TriggerKeyDummyExt.tscKey = cms.string('dummyL1TMuonEndcap2')
-#process.L1TriggerKeyDummyExt.objectKeys = cms.VPSet(
-#    cms.PSet(
-#        record = cms.string('L1TMuonEndcapParamsO2ORcd'),
-#        type = cms.string('L1TMuonEndCapParams'),
-#        key = cms.string('EMTF_ALGO_PTLUTv4')
-#    )
-#)
-
     
 # writer modules
 from CondTools.L1TriggerExt.L1CondDBIOVWriterExt_cff import initIOVWriterExt
@@ -84,17 +73,14 @@ process.source = cms.Source("EmptyIOVSource",
     interval = cms.uint64(1)
 )
 
-process.load("CondCore.CondDB.CondDB_cfi")
-process.CondDB.connect = cms.string(options.outputDBConnect)
-
 process.outputDB = cms.ESSource("PoolDBESSource",
-    process.CondDB,
+    process.CondDBCommon,
     toGet = cms.VPSet(cms.PSet(
         record = cms.string('L1TriggerKeyListExtRcd'),
         tag = cms.string('L1TriggerKeyListExt_' + tagBaseVec[ L1CondEnumExt.L1TriggerKeyListExt ])
     ))
 )
 
-process.outputDB.DBParameters.authenticationPath = options.outputDBAuth
-
 process.p = cms.Path(process.L1CondDBIOVWriterExt)
+process.outputDB.connect = cms.string(options.outputDBConnect)
+process.outputDB.DBParameters.authenticationPath = options.outputDBAuth

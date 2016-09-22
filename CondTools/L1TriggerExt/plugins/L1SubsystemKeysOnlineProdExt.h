@@ -23,7 +23,7 @@ class L1SubsystemKeysOnlineProdExt : public edm::ESProducer {
       ReturnType produce(const L1TriggerKeyExtRcd&);
    private:
       // ----------member data ---------------------------
-      std::string m_tscKey, m_rsKey ;
+      std::string m_tscKey ;
       l1t::OMDSReader m_omdsReader ;
       bool m_forceGeneration ;
 };

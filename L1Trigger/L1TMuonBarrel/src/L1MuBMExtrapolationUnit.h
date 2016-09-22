@@ -40,8 +40,6 @@
 //------------------------------------
 
 #include "CondFormats/L1TObjects/interface/L1MuDTExtParam.h"
-#include "CondFormats/L1TObjects/interface/L1TMuonBarrelParams.h"
-#include "CondFormats/DataRecord/interface/L1TMuonBarrelParamsRcd.h"
 #include <FWCore/Framework/interface/ESHandle.h>
 class L1MuBMSectorProcessor;
 class L1MuBMSEU;
@@ -100,9 +98,7 @@ class L1MuBMExtrapolationUnit : public L1AbstractProcessor {
 
     mutable SEUmap m_SEUs;               // Single Extrapolation Units
 
-    //edm::ESHandle< L1MuDTTFParameters > pars;
-    edm::ESHandle< L1TMuonBarrelParams > bmtfParamsHandle;
-    L1MuDTTFParameters  pars;
+    edm::ESHandle< L1MuDTTFParameters > pars;
 
 };
 

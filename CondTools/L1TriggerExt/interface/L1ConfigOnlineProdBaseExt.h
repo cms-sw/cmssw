@@ -39,7 +39,7 @@ class L1ConfigOnlineProdBaseExt : public edm::ESProducer {
       boost::shared_ptr< TData > produce(const TRcd& iRecord);
 
       virtual boost::shared_ptr< TData > newObject(
-	const std::string& objectKey, const TRcd& iRecord) = 0 ;
+	const std::string& objectKey ) = 0 ;
 
    private:
       // ----------member data ---------------------------
@@ -154,7 +154,7 @@ L1ConfigOnlineProdBaseExt<TRcd, TData>::produce( const TRcd& iRecord )
        }
      else
        {
-	 pData = newObject( key, iRecord ) ;
+	 pData = newObject( key ) ;
        }
 
      //     if( pData.get() == 0 )

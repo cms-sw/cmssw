@@ -5,7 +5,8 @@ process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.MessageLogger.cout.placeholder = cms.untracked.bool(False)
 process.MessageLogger.cout.threshold = cms.untracked.string('DEBUG')
 process.MessageLogger.debugModules = cms.untracked.vstring('*')
-process.MessageLogger.suppressInfo = cms.untracked.vstring('L1TMuonBarrelParamsOnlineProd') # suppressDebug, suppressWarning
+
+process.load("CondCore.DBCommon.CondDBCommon_cfi")
 
 import FWCore.ParameterSet.VarParsing as VarParsing
 options = VarParsing.VarParsing()
@@ -14,11 +15,6 @@ options.register('tscKey',
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.string,
                  "TSC key")
-options.register('rsKey',
-                 '', #default value
-                 VarParsing.VarParsing.multiplicity.singleton,
-                 VarParsing.VarParsing.varType.string,
-                 "RS key")
 options.register('outputDBConnect',
                  'sqlite_file:l1config.db', #default value
                  VarParsing.VarParsing.multiplicity.singleton,
@@ -54,40 +50,19 @@ options.register('copyDBAuth',
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.string,
                  "Authentication path for copy DB")
-options.register('subsystemLabels',
-                 'uGT,uGTrs,uGMT,CALO,BMTF,OMTF,EMTF', #default value
-                 VarParsing.VarParsing.multiplicity.singleton,
-                 VarParsing.VarParsing.varType.string,
-                 "Coma separated list of specific payloads to be processed")
-
 options.parseArguments()
 
 # Generate L1TriggerKeyExt from OMDS
 process.load("CondTools.L1TriggerExt.L1SubsystemKeysOnlineExt_cfi")
 process.L1SubsystemKeysOnlineExt.tscKey = cms.string( options.tscKey )
-process.L1SubsystemKeysOnlineExt.rsKey  = cms.string( options.rsKey )
-process.L1SubsystemKeysOnlineExt.onlineAuthentication = cms.string( options.outputDBAuth )
-
 process.load("CondTools.L1TriggerExt.L1ConfigTSCKeysExt_cff")
-from CondTools.L1TriggerExt.L1ConfigTSCKeysExt_cff import setTSCKeysDBAuth
-setTSCKeysDBAuth( process, options.outputDBAuth )
-
 process.load("CondTools.L1TriggerExt.L1TriggerKeyOnlineExt_cfi")
-#process.L1TriggerKeyOnlineExt.subsystemLabels = cms.vstring(
-#                                                          'uGT',
-#                                                          'uGTrs',
-#                                                          'uGMT',
-#                                                          'CALO',
-#                                                          'BMTF',
-#                                                          'OMTF',
-#                                                          'EMTF'
-#                                                        )
-process.L1TriggerKeyOnlineExt.subsystemLabels = cms.vstring( options.subsystemLabels.split(',') )
+process.L1TriggerKeyOnlineExt.subsystemLabels = cms.vstring(
+                                                          'uGT'
+                                                        )
 
 # Generate configuration data from OMDS
 process.load("CondTools.L1TriggerExt.L1ConfigTSCPayloadsExt_cff")
-from CondTools.L1TriggerExt.L1ConfigTSCPayloadsExt_cff import setTSCPayloadsDBAuth
-setTSCPayloadsDBAuth( process, options.outputDBAuth )
 
 # Define CondDB tags
 from CondTools.L1TriggerExt.L1CondEnumExt_cfi import L1CondEnumExt
@@ -115,12 +90,9 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
 )
 
-process.load("CondCore.CondDB.CondDB_cfi")
-process.CondDB.connect = options.outputDBConnect if options.copyNonO2OPayloads == 0 else options.copyDBConnect
-
 # Suppress warnings, not actually used, except for copyNonO2OPayloads
 process.outputDB = cms.ESSource("PoolDBESSource",
-                                process.CondDB,
+                                process.CondDBCommon,
                                 toGet = cms.VPSet(cms.PSet(
     record = cms.string('L1TriggerKeyListExtRcd'),
     tag = cms.string( "L1TriggerKeyListExt_" + initL1O2OTagsExt.tagBaseVec[ L1CondEnumExt.L1TriggerKeyListExt ] )
@@ -129,9 +101,11 @@ process.outputDB = cms.ESSource("PoolDBESSource",
                                 )
 
 if options.copyNonO2OPayloads == 0:
+    process.outputDB.connect = options.outputDBConnect
     process.outputDB.DBParameters.authenticationPath = options.outputDBAuth
     process.source = cms.Source("EmptySource")
 else:
+    process.outputDB.connect = options.copyDBConnect
     process.outputDB.DBParameters.authenticationPath = options.copyDBAuth
     process.source = cms.Source("EmptyIOVSource",
                                 timetype = cms.string('runnumber'),

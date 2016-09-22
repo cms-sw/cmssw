@@ -2,8 +2,7 @@ def initIOVWriterExt( process,
                    outputDBConnect = 'sqlite_file:l1config.db',
                    outputDBAuth = '.',
                    tagBaseVec = [],
-                   tscKey = 'dummy',
-                   rsKey  = 'dummy' ):
+                   tscKey = 'dummy' ):
     import FWCore.ParameterSet.Config as cms
     from CondTools.L1TriggerExt.L1CondEnumExt_cfi import L1CondEnumExt
 
@@ -14,13 +13,11 @@ def initIOVWriterExt( process,
 
     process.load('CondTools.L1TriggerExt.L1CondDBIOVWriterExt_cfi')
     process.L1CondDBIOVWriterExt.tscKey = cms.string( tscKey )
-    process.L1CondDBIOVWriterExt.rsKey  = cms.string( rsKey )
 
-    from CondCore.CondDB.CondDB_cfi import CondDB
-    CondDB.connect = cms.string(outputDBConnect)
-
+    from CondCore.DBCommon.CondDBSetup_cfi import CondDBSetup
     initIOVWriterExt.outputDB = cms.Service("PoolDBOutputService",
-                                         CondDB,
+                                         CondDBSetup,
+                                         connect = cms.string(outputDBConnect),
                                          toPut = cms.VPSet(cms.PSet(
         record = cms.string("L1TriggerKeyExtRcd"),
         tag = cms.string("L1TriggerKeyExt_" + tagBaseVec[ L1CondEnumExt.L1TriggerKeyExt ])),

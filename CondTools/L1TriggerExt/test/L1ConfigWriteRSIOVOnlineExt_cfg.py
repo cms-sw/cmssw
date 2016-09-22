@@ -50,16 +50,15 @@ else:
     process.L1TriggerKeyDummyExt.objectKeys = initL1RSSubsystemsExt.params.recordInfo
 
 # Get L1TriggerKeyListExt from DB
-process.load("CondCore.CondDB.CondDB_cfi")
-process.CondDB.connect = options.outputDBConnect
-
+process.load("CondCore.DBCommon.CondDBCommon_cfi")
 process.outputDB = cms.ESSource("PoolDBESSource",
-                                process.CondDB,
+                                process.CondDBCommon,
                                 toGet = cms.VPSet(cms.PSet(
     record = cms.string('L1TriggerKeyListExtRcd'),
     tag = cms.string('L1TriggerKeyListExt_' + initL1O2OTagsExt.tagBaseVec[ L1CondEnumExt.L1TriggerKeyListExt ] )
     ))
                                 )
+process.outputDB.connect = options.outputDBConnect
 process.outputDB.DBParameters.authenticationPath = options.outputDBAuth
 
 # writer modules

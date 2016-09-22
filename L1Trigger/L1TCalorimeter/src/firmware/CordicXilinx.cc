@@ -29,7 +29,6 @@
 #include <iomanip> 
 #include <cassert>
 #include <math.h>
-#include <cmath>
 
 CordicXilinx::CordicXilinx(int inputBits, int outputBits, bool debug) :
     inputBits_(inputBits),
@@ -60,7 +59,7 @@ CordicXilinx::CordicXilinx(int inputBits, int outputBits, bool debug) :
 
 int CordicXilinx::encodeAngle(const double angleFloat) const
 {
-    assert(fabs(angleFloat)<=M_PI);
+    assert(abs(angleFloat)<=M_PI);
     // Xilinx seems to store rounded rotation table
     return angleFloat*pow(2., internalBits_-3)+0.5;
 }

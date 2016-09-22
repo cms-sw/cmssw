@@ -28,7 +28,7 @@ class L1CondDBIOVWriterExt : public edm::EDAnalyzer {
       l1t::DataWriterExt m_writer ;
 ///      l1t::DataWriter m_writer ;
 
-      std::string m_tscKey, m_rsKey ;
+      std::string m_tscKey ;
 
       // List of record@type, used only for objects not tied to TSC key.
       // Otherwise, list of records comes from L1TriggerKeyExt.

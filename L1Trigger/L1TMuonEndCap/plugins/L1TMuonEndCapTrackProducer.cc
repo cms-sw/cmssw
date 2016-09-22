@@ -13,6 +13,7 @@
 
 #include "L1Trigger/L1TMuonEndCap/plugins/L1TMuonEndCapTrackProducer.h"
 #include "L1Trigger/CSCCommonTrigger/interface/CSCPatternLUT.h"
+#include "L1Trigger/CSCTrackFinder/test/src/RefTrack.h"
 
 #include <stdio.h>
 #include <stdlib.h>
