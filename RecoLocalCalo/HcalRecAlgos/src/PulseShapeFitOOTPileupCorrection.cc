@@ -195,8 +195,8 @@ namespace FitterFuncs{
    }
 
    double PulseShapeFunctor::sigmaSiPMQIE10(double ifC) {
-     // to be implemented
-     return 0;
+     if(ifC < 200) return (0.7416 + 0.0358*ifC)/3.;
+     return (15.225  + 0.0268*ifC + 9e-8*ifC*ifC)/3.;
    }
   
 }
@@ -270,7 +270,8 @@ void PulseShapeFitOOTPileupCorrection::setPUParams(bool   iPedestalConstraint, b
 }
 
 void PulseShapeFitOOTPileupCorrection::setPulseShapeTemplate(const HcalPulseShapes::Shape& ps, bool isHPD) {
-   if( cntsetPulseShape ) return;
+  // comment this otherwise he siPM is not correctly initialized
+  //  if( cntsetPulseShape ) return;
 
    // set the M2 parameters before defining the shape
    setChi2Term(isHPD);
