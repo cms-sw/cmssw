@@ -231,21 +231,33 @@ public:
 
   bool isLinkMisaligned(CaloType cType, bool negativeEta, uint32_t cEta, uint32_t iPhi) {
     uint32_t linkStatus = getLinkStatus(cType, negativeEta, cEta, iPhi);
+    if ( cType == EBEE && (cEta==17||cEta==21) ) {
+      return ((linkStatus & 0x00000100) != 0);
+    }
     return ((linkStatus & 0x00001000) != 0);
   }
 
   bool isLinkInError(CaloType cType, bool negativeEta, uint32_t cEta, uint32_t iPhi) {
     uint32_t linkStatus = getLinkStatus(cType, negativeEta, cEta, iPhi);
+    if ( cType == EBEE && (cEta==17||cEta==21) ) {
+      return ((linkStatus & 0x00000200) != 0);
+    }
     return ((linkStatus & 0x00002000) != 0);
   }
 
   bool isLinkDown(CaloType cType, bool negativeEta, uint32_t cEta, uint32_t iPhi) {
     uint32_t linkStatus = getLinkStatus(cType, negativeEta, cEta, iPhi);
+    if ( cType == EBEE && (cEta==17||cEta==21) ) {
+      return ((linkStatus & 0x00000400) != 0);
+    }
     return ((linkStatus & 0x00004000) != 0);
   }
 
   bool isLinkMasked(CaloType cType, bool negativeEta, uint32_t cEta, uint32_t iPhi) {
     uint32_t linkStatus = getLinkStatus(cType, negativeEta, cEta, iPhi);
+    if ( cType == EBEE && (cEta==17||cEta==21) ) {
+      return ((linkStatus & 0x00000800) != 0);
+    }
     return ((linkStatus & 0x00008000) != 0);
   }
 
