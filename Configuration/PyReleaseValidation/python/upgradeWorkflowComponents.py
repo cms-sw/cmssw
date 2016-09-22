@@ -9,6 +9,7 @@ upgradeKeys[2017] = [
     '2017PU',
     '2017NewFPix',
     '2017HCALdev',
+    '2017AllNew',
 ]
 
 upgradeKeys[2023] = [
@@ -72,6 +73,12 @@ upgradeProperties[2017] = {
         'Geom' : 'Extended2017dev',
         'GT' : 'auto:phase1_2017_hcaldev',
         'Era' : 'Run2_2017_HCALdev',
+        'ScenToRun' : ['GenSimFull','DigiFull','RecoFull','HARVESTFull'],
+    },
+    '2017AllNew' : {
+        'Geom' : 'Extended2017new',
+        'GT' : 'auto:phase1_2017_hcaldev',
+        'Era' : 'Run2_2017_new',
         'ScenToRun' : ['GenSimFull','DigiFull','RecoFull','HARVESTFull'],
     },
 }

@@ -23,6 +23,7 @@ GeometryConf={
     'Extended2016'   : 'Extended2016,Extended2016Reco',
     'Extended2017'   : 'Extended2017,Extended2017Reco',
     'Extended2017dev': 'Extended2017dev,Extended2017devReco',
+    'Extended2017new': 'Extended2017new,Extended2017newReco',
     'Extended2019'   : 'Extended2019,Extended2019Reco',
     'ExtendedGFlash' : 'ExtendedGFlash,ExtendedGFlashReco',
     'All'         : 'Configuration.Geometry.GeometrySimAll_cff,Reco',
