@@ -69,7 +69,7 @@ upgradeProperties[2017] = {
         'ScenToRun' : ['GenSimFull','DigiFull','RecoFull','HARVESTFull'],
     },
     '2017HCALdev' : {
-        'Geom' : 'DB:Extended',
+        'Geom' : 'Extended2017dev',
         'GT' : 'auto:phase1_2017_hcaldev',
         'Era' : 'Run2_2017_HCALdev',
         'ScenToRun' : ['GenSimFull','DigiFull','RecoFull','HARVESTFull'],
