@@ -15,16 +15,17 @@ process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring("file:patMiniAOD_standard.root")
 )
 ## Maximal number of events
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(100) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1000) )
 ## Load dump of tau variables
-process.load("RecoTauTag.Configuration.dumpBoostedTauVariables_cfi")
+process.load("RecoTauTag.Configuration.dumpTauVariables_cfi")
+process.dumpTauVariables.src = "slimmedTausBoosted"
 ## Define variables to be dumped to out
 from RecoTauTag.Configuration.tauVariables_cff import slimmedVariables
-process.dumpBoostedTauVariables.variables = slimmedVariables
+process.dumpTauVariables.variables = slimmedVariables
 
 ## OutputModule configuration (expects a path 'p')
 process.out = cms.OutputModule("PoolOutputModule",
-                               fileName = cms.untracked.string('dumpTauVariables_slimmed_v0.root'),
+                               fileName = cms.untracked.string('dumpTauVariables_slimmed.root'),
                                outputCommands = cms.untracked.vstring('drop *', 'keep *_*_*_DUMP' )
                                )
 process.outpath = cms.EndPath(process.out)
