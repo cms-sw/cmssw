@@ -21,7 +21,7 @@ note: see OT_Tilted_362_200_Pixel_4021_2016_08_09.cfg for full config files
 <PartSelector path="//pixbar:Phase1PixelBarrel/pixel:Layer1/pixel:RodFlipped1/pixel:BModule4Layer1/pixel:BModule4Layer1InnerPixelwafer/pixel:BModule4Layer1InnerPixelActive"/>
 <PartSelector path="//pixbar:Phase1PixelBarrel/pixel:Layer1/pixel:RodFlipped1/pixel:BModule5Layer1/pixel:BModule5Layer1InnerPixelwafer/pixel:BModule5Layer1InnerPixelActive"/>
 <Parameter name="TrackerRadLength" value="0.0220911"/>
-<Parameter name="TrackerXi" value="0.00463354"/>
+<Parameter name="TrackerXi" value="4.41822e-05"/>
 </SpecPar>
 
 <SpecPar name="TrackerRecMaterialPhase1PixelBarrelLayer2" eval="true">
@@ -36,7 +36,7 @@ note: see OT_Tilted_362_200_Pixel_4021_2016_08_09.cfg for full config files
 <PartSelector path="//pixbar:Phase1PixelBarrel/pixel:Layer2/pixel:RodFlipped2/pixel:BModule4Layer2/pixel:BModule4Layer2InnerPixelwafer/pixel:BModule4Layer2InnerPixelActive"/>
 <PartSelector path="//pixbar:Phase1PixelBarrel/pixel:Layer2/pixel:RodFlipped2/pixel:BModule5Layer2/pixel:BModule5Layer2InnerPixelwafer/pixel:BModule5Layer2InnerPixelActive"/>
 <Parameter name="TrackerRadLength" value="0.0211847"/>
-<Parameter name="TrackerXi" value="0.00432954"/>
+<Parameter name="TrackerXi" value="4.23694e-05"/>
 </SpecPar>
 
 <SpecPar name="TrackerRecMaterialPhase1PixelBarrelLayer3" eval="true">
@@ -51,7 +51,7 @@ note: see OT_Tilted_362_200_Pixel_4021_2016_08_09.cfg for full config files
 <PartSelector path="//pixbar:Phase1PixelBarrel/pixel:Layer3/pixel:RodFlipped3/pixel:BModule4Layer3/pixel:BModule4Layer3InnerPixelwafer/pixel:BModule4Layer3InnerPixelActive"/>
 <PartSelector path="//pixbar:Phase1PixelBarrel/pixel:Layer3/pixel:RodFlipped3/pixel:BModule5Layer3/pixel:BModule5Layer3InnerPixelwafer/pixel:BModule5Layer3InnerPixelActive"/>
 <Parameter name="TrackerRadLength" value="0.0200078"/>
-<Parameter name="TrackerXi" value="0.00394108"/>
+<Parameter name="TrackerXi" value="4.00156e-05"/>
 </SpecPar>
 
 <SpecPar name="TrackerRecMaterialPhase1PixelBarrelLayer4" eval="true">
@@ -66,7 +66,7 @@ note: see OT_Tilted_362_200_Pixel_4021_2016_08_09.cfg for full config files
 <PartSelector path="//pixbar:Phase1PixelBarrel/pixel:Layer4/pixel:RodFlipped4/pixel:BModule4Layer4/pixel:BModule4Layer4InnerPixelwafer/pixel:BModule4Layer4InnerPixelActive"/>
 <PartSelector path="//pixbar:Phase1PixelBarrel/pixel:Layer4/pixel:RodFlipped4/pixel:BModule5Layer4/pixel:BModule5Layer4InnerPixelwafer/pixel:BModule5Layer4InnerPixelActive"/>
 <Parameter name="TrackerRadLength" value="0.0200078"/>
-<Parameter name="TrackerXi" value="0.00394108"/>
+<Parameter name="TrackerXi" value="4.00156e-05"/>
 </SpecPar>
 
 <SpecPar name="TrackerRecMaterialPhase2PixelEndcapDisk1Fw" eval="true">
@@ -75,7 +75,7 @@ note: see OT_Tilted_362_200_Pixel_4021_2016_08_09.cfg for full config files
 <PartSelector path="//pixfwd:Phase2PixelEndcap/pixel:Disc1/pixel:Ring3Disc1/pixel:EModule3Disc1/pixel:EModule3Disc1InnerPixelwafer/pixel:EModule3Disc1InnerPixelActive"/>
 <PartSelector path="//pixfwd:Phase2PixelEndcap/pixel:Disc1/pixel:Ring4Disc1/pixel:EModule4Disc1/pixel:EModule4Disc1InnerPixelwafer/pixel:EModule4Disc1InnerPixelActive"/>
 <Parameter name="TrackerRadLength" value="0.0172137"/>
-<Parameter name="TrackerXi" value="0.00326016"/>
+<Parameter name="TrackerXi" value="3.44274e-05"/>
 </SpecPar>
 
 <SpecPar name="TrackerRecMaterialPhase2PixelEndcapDisk2Fw" eval="true">
@@ -84,7 +84,7 @@ note: see OT_Tilted_362_200_Pixel_4021_2016_08_09.cfg for full config files
 <PartSelector path="//pixfwd:Phase2PixelEndcap/pixel:Disc2/pixel:Ring3Disc2/pixel:EModule3Disc2/pixel:EModule3Disc2InnerPixelwafer/pixel:EModule3Disc2InnerPixelActive"/>
 <PartSelector path="//pixfwd:Phase2PixelEndcap/pixel:Disc2/pixel:Ring4Disc2/pixel:EModule4Disc2/pixel:EModule4Disc2InnerPixelwafer/pixel:EModule4Disc2InnerPixelActive"/>
 <Parameter name="TrackerRadLength" value="0.0172137"/>
-<Parameter name="TrackerXi" value="0.00326016"/>
+<Parameter name="TrackerXi" value="3.44274e-05"/>
 </SpecPar>
 
 <SpecPar name="TrackerRecMaterialPhase2PixelEndcapDisk3Fw" eval="true">
@@ -93,7 +93,7 @@ note: see OT_Tilted_362_200_Pixel_4021_2016_08_09.cfg for full config files
 <PartSelector path="//pixfwd:Phase2PixelEndcap/pixel:Disc3/pixel:Ring3Disc3/pixel:EModule3Disc3/pixel:EModule3Disc3InnerPixelwafer/pixel:EModule3Disc3InnerPixelActive"/>
 <PartSelector path="//pixfwd:Phase2PixelEndcap/pixel:Disc3/pixel:Ring4Disc3/pixel:EModule4Disc3/pixel:EModule4Disc3InnerPixelwafer/pixel:EModule4Disc3InnerPixelActive"/>
 <Parameter name="TrackerRadLength" value="0.0172137"/>
-<Parameter name="TrackerXi" value="0.00326016"/>
+<Parameter name="TrackerXi" value="3.44274e-05"/>
 </SpecPar>
 
 <SpecPar name="TrackerRecMaterialPhase2PixelEndcapDisk4Fw" eval="true">
@@ -102,7 +102,7 @@ note: see OT_Tilted_362_200_Pixel_4021_2016_08_09.cfg for full config files
 <PartSelector path="//pixfwd:Phase2PixelEndcap/pixel:Disc4/pixel:Ring3Disc4/pixel:EModule3Disc4/pixel:EModule3Disc4InnerPixelwafer/pixel:EModule3Disc4InnerPixelActive"/>
 <PartSelector path="//pixfwd:Phase2PixelEndcap/pixel:Disc4/pixel:Ring4Disc4/pixel:EModule4Disc4/pixel:EModule4Disc4InnerPixelwafer/pixel:EModule4Disc4InnerPixelActive"/>
 <Parameter name="TrackerRadLength" value="0.0172137"/>
-<Parameter name="TrackerXi" value="0.00326016"/>
+<Parameter name="TrackerXi" value="3.44274e-05"/>
 </SpecPar>
 
 <SpecPar name="TrackerRecMaterialPhase2PixelEndcapDisk5Fw" eval="true">
@@ -111,7 +111,7 @@ note: see OT_Tilted_362_200_Pixel_4021_2016_08_09.cfg for full config files
 <PartSelector path="//pixfwd:Phase2PixelEndcap/pixel:Disc5/pixel:Ring3Disc5/pixel:EModule3Disc5/pixel:EModule3Disc5InnerPixelwafer/pixel:EModule3Disc5InnerPixelActive"/>
 <PartSelector path="//pixfwd:Phase2PixelEndcap/pixel:Disc5/pixel:Ring4Disc5/pixel:EModule4Disc5/pixel:EModule4Disc5InnerPixelwafer/pixel:EModule4Disc5InnerPixelActive"/>
 <Parameter name="TrackerRadLength" value="0.0172137"/>
-<Parameter name="TrackerXi" value="0.00326016"/>
+<Parameter name="TrackerXi" value="3.44274e-05"/>
 </SpecPar>
 
 <SpecPar name="TrackerRecMaterialPhase2PixelEndcapDisk6Fw" eval="true">
@@ -120,7 +120,7 @@ note: see OT_Tilted_362_200_Pixel_4021_2016_08_09.cfg for full config files
 <PartSelector path="//pixfwd:Phase2PixelEndcap/pixel:Disc6/pixel:Ring3Disc6/pixel:EModule3Disc6/pixel:EModule3Disc6InnerPixelwafer/pixel:EModule3Disc6InnerPixelActive"/>
 <PartSelector path="//pixfwd:Phase2PixelEndcap/pixel:Disc6/pixel:Ring4Disc6/pixel:EModule4Disc6/pixel:EModule4Disc6InnerPixelwafer/pixel:EModule4Disc6InnerPixelActive"/>
 <Parameter name="TrackerRadLength" value="0.0172137"/>
-<Parameter name="TrackerXi" value="0.00326016"/>
+<Parameter name="TrackerXi" value="3.44274e-05"/>
 </SpecPar>
 
 <SpecPar name="TrackerRecMaterialPhase2PixelEndcapDisk7Fw" eval="true">
@@ -129,7 +129,7 @@ note: see OT_Tilted_362_200_Pixel_4021_2016_08_09.cfg for full config files
 <PartSelector path="//pixfwd:Phase2PixelEndcap/pixel:Disc7/pixel:Ring3Disc7/pixel:EModule3Disc7/pixel:EModule3Disc7InnerPixelwafer/pixel:EModule3Disc7InnerPixelActive"/>
 <PartSelector path="//pixfwd:Phase2PixelEndcap/pixel:Disc7/pixel:Ring4Disc7/pixel:EModule4Disc7/pixel:EModule4Disc7InnerPixelwafer/pixel:EModule4Disc7InnerPixelActive"/>
 <Parameter name="TrackerRadLength" value="0.0172137"/>
-<Parameter name="TrackerXi" value="0.00326016"/>
+<Parameter name="TrackerXi" value="3.44274e-05"/>
 </SpecPar>
 
 <SpecPar name="TrackerRecMaterialPhase2PixelEndcapDisk8Fw" eval="true">
@@ -139,7 +139,7 @@ note: see OT_Tilted_362_200_Pixel_4021_2016_08_09.cfg for full config files
 <PartSelector path="//pixfwd:Phase2PixelEndcap/pixel:Disc8/pixel:Ring4Disc8/pixel:EModule4Disc8/pixel:EModule4Disc8InnerPixelwafer/pixel:EModule4Disc8InnerPixelActive"/>
 <PartSelector path="//pixfwd:Phase2PixelEndcap/pixel:Disc8/pixel:Ring5Disc8/pixel:EModule5Disc8/pixel:EModule5Disc8InnerPixelwafer/pixel:EModule5Disc8InnerPixelActive"/>
 <Parameter name="TrackerRadLength" value="0.0172096"/>
-<Parameter name="TrackerXi" value="0.00325924"/>
+<Parameter name="TrackerXi" value="3.44192e-05"/>
 </SpecPar>
 
 <SpecPar name="TrackerRecMaterialPhase2PixelEndcapDisk9Fw" eval="true">
@@ -149,7 +149,7 @@ note: see OT_Tilted_362_200_Pixel_4021_2016_08_09.cfg for full config files
 <PartSelector path="//pixfwd:Phase2PixelEndcap/pixel:Disc9/pixel:Ring4Disc9/pixel:EModule4Disc9/pixel:EModule4Disc9InnerPixelwafer/pixel:EModule4Disc9InnerPixelActive"/>
 <PartSelector path="//pixfwd:Phase2PixelEndcap/pixel:Disc9/pixel:Ring5Disc9/pixel:EModule5Disc9/pixel:EModule5Disc9InnerPixelwafer/pixel:EModule5Disc9InnerPixelActive"/>
 <Parameter name="TrackerRadLength" value="0.0172096"/>
-<Parameter name="TrackerXi" value="0.00325924"/>
+<Parameter name="TrackerXi" value="3.44192e-05"/>
 </SpecPar>
 
 <SpecPar name="TrackerRecMaterialPhase2PixelEndcapDisk10Fw" eval="true">
@@ -159,7 +159,7 @@ note: see OT_Tilted_362_200_Pixel_4021_2016_08_09.cfg for full config files
 <PartSelector path="//pixfwd:Phase2PixelEndcap/pixel:Disc10/pixel:Ring4Disc10/pixel:EModule4Disc10/pixel:EModule4Disc10InnerPixelwafer/pixel:EModule4Disc10InnerPixelActive"/>
 <PartSelector path="//pixfwd:Phase2PixelEndcap/pixel:Disc10/pixel:Ring5Disc10/pixel:EModule5Disc10/pixel:EModule5Disc10InnerPixelwafer/pixel:EModule5Disc10InnerPixelActive"/>
 <Parameter name="TrackerRadLength" value="0.0172096"/>
-<Parameter name="TrackerXi" value="0.00325924"/>
+<Parameter name="TrackerXi" value="3.44192e-05"/>
 </SpecPar>
 
 <SpecPar name="TrackerRecMaterialPhase2PixelEndcapDisk11Fw" eval="true">
@@ -169,7 +169,7 @@ note: see OT_Tilted_362_200_Pixel_4021_2016_08_09.cfg for full config files
 <PartSelector path="//pixfwd:Phase2PixelEndcap/pixel:Disc11/pixel:Ring4Disc11/pixel:EModule4Disc11/pixel:EModule4Disc11InnerPixelwafer/pixel:EModule4Disc11InnerPixelActive"/>
 <PartSelector path="//pixfwd:Phase2PixelEndcap/pixel:Disc11/pixel:Ring5Disc11/pixel:EModule5Disc11/pixel:EModule5Disc11InnerPixelwafer/pixel:EModule5Disc11InnerPixelActive"/>
 <Parameter name="TrackerRadLength" value="0.0172096"/>
-<Parameter name="TrackerXi" value="0.00325924"/>
+<Parameter name="TrackerXi" value="3.44192e-05"/>
 </SpecPar>
 
 

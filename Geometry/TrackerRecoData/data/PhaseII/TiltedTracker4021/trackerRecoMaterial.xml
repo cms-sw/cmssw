@@ -63,7 +63,7 @@ note: see OT_Tilted_362_200_Pixel_4021_2016_08_09.cfg for full config files
 <PartSelector path="//Phase2OTBarrel/tracker:Layer1/tracker:Ring15Layer1Plus/tracker:BModule15Layer1/BModule15Layer1Lowerwafer/BModule15Layer1LowerPSMacroPixelactive"/>
 <PartSelector path="//Phase2OTBarrel/tracker:Layer1/tracker:Ring15Layer1Plus/tracker:BModule15Layer1/BModule15Layer1Upperwafer/BModule15Layer1UpperPSStripactive"/>
 <Parameter name="TrackerRadLength" value="0.0417389"/>
-<Parameter name="TrackerXi" value="0.0130888"/>
+<Parameter name="TrackerXi" value="8.34778e-05"/>
 </SpecPar>
 
 <SpecPar name="TrackerRecMaterialTOBPixelBarrelLayer2" eval="true">
@@ -128,7 +128,7 @@ note: see OT_Tilted_362_200_Pixel_4021_2016_08_09.cfg for full config files
 <PartSelector path="//Phase2OTBarrel/tracker:Layer2/tracker:Ring18Layer2Plus/tracker:BModule18Layer2/BModule18Layer2Lowerwafer/BModule18Layer2LowerPSMacroPixelactive"/>
 <PartSelector path="//Phase2OTBarrel/tracker:Layer2/tracker:Ring18Layer2Plus/tracker:BModule18Layer2/BModule18Layer2Upperwafer/BModule18Layer2UpperPSStripactive"/>
 <Parameter name="TrackerRadLength" value="0.0398313"/>
-<Parameter name="TrackerXi" value="0.0123022"/>
+<Parameter name="TrackerXi" value="7.96626e-05"/>
 </SpecPar>
 
 <SpecPar name="TrackerRecMaterialTOBPixelBarrelLayer3" eval="true">
@@ -197,7 +197,7 @@ note: see OT_Tilted_362_200_Pixel_4021_2016_08_09.cfg for full config files
 <PartSelector path="//Phase2OTBarrel/tracker:Layer3/tracker:Ring20Layer3Plus/tracker:BModule20Layer3/BModule20Layer3Lowerwafer/BModule20Layer3LowerPSMacroPixelactive"/>
 <PartSelector path="//Phase2OTBarrel/tracker:Layer3/tracker:Ring20Layer3Plus/tracker:BModule20Layer3/BModule20Layer3Upperwafer/BModule20Layer3UpperPSStripactive"/>
 <Parameter name="TrackerRadLength" value="0.0390256"/>
-<Parameter name="TrackerXi" value="0.0119901"/>
+<Parameter name="TrackerXi" value="7.80512e-05"/>
 </SpecPar>
 
 <SpecPar name="TrackerRecMaterialTOBPixelBarrelLayer4" eval="true">
@@ -226,7 +226,7 @@ note: see OT_Tilted_362_200_Pixel_4021_2016_08_09.cfg for full config files
 <PartSelector path="//Phase2OTBarrel/tracker:Layer4/tracker:Rod4/tracker:BModule12Layer4/BModule12Layer4Lowerwafer/BModule12Layer4Lower2Sactive"/>
 <PartSelector path="//Phase2OTBarrel/tracker:Layer4/tracker:Rod4/tracker:BModule12Layer4/BModule12Layer4Upperwafer/BModule12Layer4Upper2Sactive"/>
 <Parameter name="TrackerRadLength" value="0.0161855"/>
-<Parameter name="TrackerXi" value="0.00413452"/>
+<Parameter name="TrackerXi" value="3.2371e-05"/>
 </SpecPar>
 
 <SpecPar name="TrackerRecMaterialTOBPixelBarrelLayer5" eval="true">
@@ -255,7 +255,7 @@ note: see OT_Tilted_362_200_Pixel_4021_2016_08_09.cfg for full config files
 <PartSelector path="//Phase2OTBarrel/tracker:Layer5/tracker:Rod5/tracker:BModule12Layer5/BModule12Layer5Lowerwafer/BModule12Layer5Lower2Sactive"/>
 <PartSelector path="//Phase2OTBarrel/tracker:Layer5/tracker:Rod5/tracker:BModule12Layer5/BModule12Layer5Upperwafer/BModule12Layer5Upper2Sactive"/>
 <Parameter name="TrackerRadLength" value="0.0161855"/>
-<Parameter name="TrackerXi" value="0.00413452"/>
+<Parameter name="TrackerXi" value="3.2371e-05"/>
 </SpecPar>
 
 <SpecPar name="TrackerRecMaterialTOBPixelBarrelLayer6" eval="true">
@@ -284,7 +284,7 @@ note: see OT_Tilted_362_200_Pixel_4021_2016_08_09.cfg for full config files
 <PartSelector path="//Phase2OTBarrel/tracker:Layer6/tracker:Rod6/tracker:BModule12Layer6/BModule12Layer6Lowerwafer/BModule12Layer6Lower2Sactive"/>
 <PartSelector path="//Phase2OTBarrel/tracker:Layer6/tracker:Rod6/tracker:BModule12Layer6/BModule12Layer6Upperwafer/BModule12Layer6Upper2Sactive"/>
 <Parameter name="TrackerRadLength" value="0.0161855"/>
-<Parameter name="TrackerXi" value="0.00413452"/>
+<Parameter name="TrackerXi" value="3.2371e-05"/>
 </SpecPar>
 
 <SpecPar name="TrackerRecMaterialTIDDisk3" eval="true">
@@ -349,7 +349,7 @@ note: see OT_Tilted_362_200_Pixel_4021_2016_08_09.cfg for full config files
 <PartSelector path="//Phase2OTForward/tracker:Disc2/tracker:Ring15Disc2/tracker:EModule15Disc2/EModule15Disc2Lowerwafer/EModule15Disc2Lower2Sactive"/>
 <PartSelector path="//Phase2OTForward/tracker:Disc2/tracker:Ring15Disc2/tracker:EModule15Disc2/EModule15Disc2Upperwafer/EModule15Disc2Upper2Sactive"/>
 <Parameter name="TrackerRadLength" value="0.0248974"/>
-<Parameter name="TrackerXi" value="0.0064385"/>
+<Parameter name="TrackerXi" value="4.97948e-05"/>
 </SpecPar>
 
 <SpecPar name="TrackerRecMaterialTIDDisk4" eval="true">
@@ -406,7 +406,7 @@ note: see OT_Tilted_362_200_Pixel_4021_2016_08_09.cfg for full config files
 <PartSelector path="//Phase2OTForward/tracker:Disc4/tracker:Ring15Disc4/tracker:EModule15Disc4/EModule15Disc4Lowerwafer/EModule15Disc4Lower2Sactive"/>
 <PartSelector path="//Phase2OTForward/tracker:Disc4/tracker:Ring15Disc4/tracker:EModule15Disc4/EModule15Disc4Upperwafer/EModule15Disc4Upper2Sactive"/>
 <Parameter name="TrackerRadLength" value="0.0240819"/>
-<Parameter name="TrackerXi" value="0.00622843"/>
+<Parameter name="TrackerXi" value="4.81638e-05"/>
 </SpecPar>
 
 <SpecPar name="TrackerRecMaterialTIDDisk5" eval="true">
@@ -437,7 +437,7 @@ note: see OT_Tilted_362_200_Pixel_4021_2016_08_09.cfg for full config files
 <PartSelector path="//Phase2OTForward/tracker:Disc5/tracker:Ring15Disc5/tracker:EModule15Disc5/EModule15Disc5Lowerwafer/EModule15Disc5Lower2Sactive"/>
 <PartSelector path="//Phase2OTForward/tracker:Disc5/tracker:Ring15Disc5/tracker:EModule15Disc5/EModule15Disc5Upperwafer/EModule15Disc5Upper2Sactive"/>
 <Parameter name="TrackerRadLength" value="0.0241458"/>
-<Parameter name="TrackerXi" value="0.00624989"/>
+<Parameter name="TrackerXi" value="4.82916e-05"/>
 </SpecPar>
 
 
