@@ -343,7 +343,6 @@ void HcalHitReconstructor::beginRun(edm::Run const&r, edm::EventSetup const & es
     }
 
   if (hbheFlagSetter_) {
-    hbheFlagSetter_->setTopo(htopo.product());
     edm::ESHandle<HcalFrontEndMap> hfemap;
     es.get<HcalFrontEndMapRcd>().get(hfemap);
     if (hfemap.isValid()) {
