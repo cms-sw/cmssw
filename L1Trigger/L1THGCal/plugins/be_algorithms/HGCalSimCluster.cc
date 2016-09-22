@@ -14,6 +14,8 @@
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/EDConsumerBase.h"
 
+// Print out something before crashing or throwing exceptions
+#include <iostream>
 
 
 /* Original Author: Andrea Carlo Marini
@@ -24,7 +26,9 @@
  */
 
 
+
 namespace HGCalTriggerBackend{
+
     template<typename FECODEC, typename DATA>
         class HGCalTriggerSimCluster : public Algorithm<FECODEC>
     {
@@ -81,24 +85,60 @@ namespace HGCalTriggerBackend{
                 //1. construct a cluster container that hosts the cluster per truth-particle
                 std::unordered_map<uint64_t,std::pair<int,l1t::HGCalCluster> > cluster_container;// PID-> bx,cluster
                 evt.getByToken(sim_token,sim_handle);
+
+                if (not sim_handle.isValid()) { std::cout<<"[HGCalTriggerSimCluster]::[run]::[ERROR] PFCluster collection for HGC sim clustering not available"<<std::endl; throw 39;}
+
+                // 1.5. pre-process the sim cluster to have easy accessible information
+                // I want a map cell-> [ (pid, fraction),  ... 
+                std::unordered_map<uint32_t, std::vector<std::pair< uint64_t, float > > > simclusters;
+                for (auto& cluster : *sim_handle)
+                {
+                    auto& pid= cluster.particleId(); // not pdgId
+                    auto& hf = cluster.hits_and_fractions();
+                    for (const auto & p : hf ) 
+                    {
+                        simclusters[p.first].push_back( std::pair<uint64_t, float>( pid,p.second) ) ;
+                    }
+                }
+                
+
                 //2. run on the digits,
                 for( const auto& digi : coll ) 
                 {
                     DATA data;
-                    const HGCTriggerDetId& tcellId = digi.getDetId<HGCTriggerDetId>();
                     digi.decode(codec_,data);
                     //2.A get the trigger-cell information energy/id
-                    //uint32_t digiEnergy = data.payload; i
-                    auto digiEnergy= data.energy();  // if it is implemented an energy() method, etherwise it will not compile
-                    // XXX this depends on  the DATA type
-                    //2.B get the HGCAL-base-cell associated to it / geometry
-                    //const auto& tc=geom->triggerCells()[ tcellId() ] ;//HGCalTriggerGeometry::TriggerCell&
-                    //for(const auto& cell : tc.components() )  // HGcell -- unsigned
-                    for(const auto& cell : geom->getCellsFromTriggerCell( tcellId()) )  // HGCcell -- unsigned
+                    const HGCTriggerDetId& moduleId = digi.getDetId<HGCTriggerDetId>(); // this is a module Det Id
+
+                    const auto& trcells=geom->getOrderedTriggerCellsFromModule( moduleId() );
+
+                    // check
+                    if ( trcells.size() != data.payload.size() )
+                    { 
+                        std::cout<<"[HGCalTriggerSimCluster]::[run]::[ERROR] Mapping outside of assumptions."<<std::endl;
+                        throw 42; // yes, I like integer number, they are so many ...
+                    }
+
+                    // there is a loss of generality here, due to the restriction imposed by the data formats
+                    // it will work if inside a module there is a data.payload with an ordered list of all the energies
+                    // one may think to add on top of it a wrapper if this stop to be the case for some of the data classes
+                    for( const auto valIt=data.payload.begin(), const auto tcIt = trcells.begin(); 
+                            valIt != data.payload.end() and tcIt != trcells.end();
+                            valIt++, tcIt++
+                            )
                     {
-                        HGCalDetId cellId(cell);
-                        //2.C get the particleId and energy fractions
-                        //2.D add to the corresponding cluster
+                        const HGCTriggerDetId tcellId(*tcIt);
+                        //uint32_t digiEnergy = data.payload; i
+                        auto digiEnergy=*valIt;  // if it is implemented an energy() method, etherwise it will not compile
+                        //2.B get the HGCAL-base-cell associated to it / geometry
+                        //const auto& tc=geom->triggerCells()[ tcellId() ] ;//HGCalTriggerGeometry::TriggerCell&
+                        //for(const auto& cell : tc.components() )  // HGcell -- unsigned
+                        for(const auto& cell : geom->getCellsFromTriggerCell( tcellId()) )  // HGCcell -- unsigned
+                        {
+                            HGCalDetId cellId(cell);
+                            //2.C get the particleId and energy fractions
+                            //2.D add to the corresponding cluster
+                        }
                     }
                 }
 
