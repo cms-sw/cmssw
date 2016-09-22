@@ -13,14 +13,6 @@ gmtParamsSource = cms.ESSource(
 )
 
 gmtParams = cms.ESProducer('L1TMuonGlobalParamsESProducer',
-    # id for uGMT settings
-    uGmtProcessorId = cms.string('ugmt_processor'),
-    hwXmlFile = cms.string('L1Trigger/L1TMuon/data/o2o/ugmt/UGMT_HW.xml'),
-    topCfgXmlFile = cms.string('L1Trigger/L1TMuon/data/o2o/ugmt/ugmt_top_config_p5.xml'),
-    xmlCfgKey = cms.string('TestKey1'),
-    # get configuration from DB and ignore values below this one
-    configFromXml = cms.bool(True),
-
     #fwVersion = cms.uint32(1),
     fwVersion = cms.uint32(0x2020000),
 

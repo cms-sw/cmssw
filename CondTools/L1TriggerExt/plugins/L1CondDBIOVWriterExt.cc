@@ -12,7 +12,6 @@
 
 L1CondDBIOVWriterExt::L1CondDBIOVWriterExt(const edm::ParameterSet& iConfig)
    : m_tscKey( iConfig.getParameter<std::string> ("tscKey") ),
-     m_rsKey(  iConfig.getParameter<std::string> ("rsKey") ),
      m_ignoreTriggerKey( iConfig.getParameter<bool> ("ignoreTriggerKey") ),
      m_logKeys( iConfig.getParameter<bool>( "logKeys" ) ),
      m_logTransactions( iConfig.getParameter<bool>( "logTransactions" ) ),
@@ -65,19 +64,17 @@ L1CondDBIOVWriterExt::analyze(const edm::Event& iEvent, const edm::EventSetup& i
    std::string log = "KEYLOG runNumber=" + ss.str() ;
    bool logRecords = true ;
 
-   std::string m_Key = m_tscKey + ":" + m_rsKey;
-
    if( !m_ignoreTriggerKey )
      {
-       if( !m_tscKey.empty() && !m_rsKey.empty() )
+       if( !m_tscKey.empty() )
 	 {
            edm::LogVerbatim( "L1-O2O" )
              << "Object key for L1TriggerKeyExt@L1TriggerKeyExtRcd: "
-             << m_tscKey << " : " << m_rsKey ;
+             << m_tscKey ;
 
 	   // Use TSC key and L1TriggerKeyListExt to find next run's
 	   // L1TriggerKey token
-	   std::string keyToken = keyList.token( m_Key ) ;
+	   std::string keyToken = keyList.token( m_tscKey ) ;
 
 	   // Update IOV sequence for this token with since-time = new run 
 	   triggerKeyIOVUpdated =
@@ -91,9 +88,9 @@ L1CondDBIOVWriterExt::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 
            // Replace spaces in key with ?s.  Do reverse substitution when
            // making L1TriggerKeyExt.
-	   std::string tmpKey = m_Key ;
+	   std::string tmpKey = m_tscKey ;
            replace( tmpKey.begin(), tmpKey.end(), ' ', '?' ) ;
-           log += " tscKey:rsKey=" + tmpKey ;
+           log += " tscKey=" + tmpKey ;
 	   logRecords = false ;
 	 }
        else
@@ -118,7 +115,7 @@ L1CondDBIOVWriterExt::analyze(const edm::Event& iEvent, const edm::EventSetup& i
        for( ; recordTypeItr != recordTypeEnd ; ++recordTypeItr )
 	 {
 	   recordTypeToKeyMap.insert(
-	     std::make_pair( *recordTypeItr, m_Key ) ) ;
+	     std::make_pair( *recordTypeItr, m_tscKey ) ) ;
 	 }
      }
 

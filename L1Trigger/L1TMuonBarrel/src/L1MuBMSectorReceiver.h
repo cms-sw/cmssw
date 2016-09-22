@@ -86,9 +86,8 @@ class L1MuBMSectorReceiver {
 
     edm::ESHandle< L1TMuonBarrelParams > bmtfParamsHandle;
     L1MuDTTFMasks       msks;
-    L1MuDTTFParameters  pars;
 
-    //edm::ESHandle< L1MuDTTFParameters > pars;
+    edm::ESHandle< L1MuDTTFParameters > pars;
     //edm::ESHandle< L1MuDTTFMasks >      msks;
     edm::EDGetTokenT<L1MuDTChambPhContainer> m_DTDigiToken;
 

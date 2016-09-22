@@ -6,6 +6,8 @@ process.MessageLogger.cout.placeholder = cms.untracked.bool(False)
 process.MessageLogger.cout.threshold = cms.untracked.string('DEBUG')
 process.MessageLogger.debugModules = cms.untracked.vstring('*')
 
+# Get L1TriggerKeyListExtExt from DB
+process.load("CondCore.DBCommon.CondDBCommon_cfi")
 
 import FWCore.ParameterSet.VarParsing as VarParsing
 options = VarParsing.VarParsing()
@@ -14,11 +16,6 @@ options.register('tscKey',
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.string,
                  "TSC key")
-options.register('rsKey',
-                 '', #default value
-                 VarParsing.VarParsing.multiplicity.singleton,
-                 VarParsing.VarParsing.varType.string,
-                 "RS key")
 options.register('runNumber',
                  0, #default value
                  VarParsing.VarParsing.multiplicity.singleton,
@@ -57,8 +54,7 @@ initIOVWriterExt( process,
                outputDBConnect = options.outputDBConnect,
                outputDBAuth = options.outputDBAuth,
                tagBaseVec = initL1O2OTagsExt.tagBaseVec,
-               tscKey = options.tscKey,
-               rsKey  = options.rsKey )
+               tscKey = options.tscKey )
 
 if options.forceUpdate == 1:
     process.L1CondDBIOVWriterExt.forceUpdate = True
@@ -78,19 +74,15 @@ process.source = cms.Source("EmptyIOVSource",
     interval = cms.uint64(1)
 )
 
-# Get L1TriggerKeyListExtExt from DB
-process.load("CondCore.CondDB.CondDB_cfi")
-process.CondDB.connect = cms.string(options.outputDBConnect)
-
 process.outputDB = cms.ESSource("PoolDBESSource",
-                                process.CondDB,
+                                process.CondDBCommon,
                                 toGet = cms.VPSet(cms.PSet(
     record = cms.string('L1TriggerKeyListExtRcd'),
     tag = cms.string('L1TriggerKeyListExt_' + initL1O2OTagsExt.tagBaseVec[ L1CondEnumExt.L1TriggerKeyListExt ])
     )),
                                 RefreshEachRun=cms.untracked.bool(True)
                                 )
-
+process.outputDB.connect = cms.string(options.outputDBConnect)
 process.outputDB.DBParameters.authenticationPath = options.outputDBAuth
 
 # CORAL debugging

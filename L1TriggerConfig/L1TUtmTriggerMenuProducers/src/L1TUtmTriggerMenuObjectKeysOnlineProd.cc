@@ -21,18 +21,17 @@ void L1TUtmTriggerMenuObjectKeysOnlineProd::fillObjectKeys( ReturnType pL1Trigge
 
     std::string uGTKey = pL1TriggerKey->subsystemKey( L1TriggerKeyExt::kuGT ) ;
 
-    uGTKey = uGTKey.substr( 0, uGTKey.find(":") );
-
     std::string stage2Schema = "CMS_TRG_L1_CONF" ;
 
-    std::string l1_menu_key;
-    std::vector< std::string > queryStrings ;
-    queryStrings.push_back( "L1_MENU" ) ;
+    if( !uGTKey.empty() ) {
+       std::string l1_menu_key;
+       std::vector< std::string > queryStrings ;
+       queryStrings.push_back( "L1_MENU" ) ;
 
-    std::string l1_menu_name, ugt_key;
+        std::string l1_menu_name, ugt_key;
 
-    // select L1_MENU from CMS_TRG_L1_CONF.UGT_KEYS where ID = objectKey ;
-    l1t::OMDSReader::QueryResults queryResult =
+        // select MP7_PP_CONF_KEY from CMS_S1CALOL2.S1CALOL2_CONF where S1CALOL2_CONF_KEY = objectKey ;
+        l1t::OMDSReader::QueryResults queryResult =
             m_omdsReader.basicQuery( queryStrings,
                                      stage2Schema,
                                      "UGT_KEYS",
@@ -40,16 +39,17 @@ void L1TUtmTriggerMenuObjectKeysOnlineProd::fillObjectKeys( ReturnType pL1Trigge
                                      m_omdsReader.singleAttribute(uGTKey)
                                    ) ;
 
-    if( queryResult.queryFailed() || queryResult.numberRows() != 1 ){
-        edm::LogError( "L1-O2O" ) << "Cannot get UGT_KEYS.L1_MENU for ID = " << uGTKey << " expect a crash later " ;
-        return ;
-    }
+        if( queryResult.queryFailed() || queryResult.numberRows() != 1 ){
+            edm::LogError( "L1-O2O" ) << "Cannot get UGT_KEYS.L1_MENU}" ;
+            return ;
+        }
 
-    if( !queryResult.fillVariable( "L1_MENU", l1_menu_key) ) l1_menu_key = "";
+        if( !queryResult.fillVariable( "L1_MENU", l1_menu_key) ) l1_menu_key = "";
         
-    pL1TriggerKey->add( "L1TUtmTriggerMenuO2ORcd",
-                        "L1TUtmTriggerMenu",
-                        l1_menu_key) ;
+        pL1TriggerKey->add( "L1TUtmTriggerMenuRcd",
+                            "L1TUtmTriggerMenu",
+			    l1_menu_key) ;
+    }
 }
 
 

@@ -58,11 +58,11 @@ initCondDBSourceExt( process,
                   tagBaseVec = initL1O2OTagsExt.tagBaseVec,
                   includeRSTags = options.printRSKeys )
 
-from CondCore.CondDB.CondDB_cfi import CondDB
-CondDB.connect = cms.string(options.inputDBConnect)
+from CondCore.DBCommon.CondDBSetup_cfi import CondDBSetup
 outputDB = cms.Service("PoolDBOutputService",
-                       CondDB,
+                       CondDBSetup,
                        # BlobStreamerName = cms.untracked.string('TBufferBlobStreamingService'),
+                       connect = cms.string(options.inputDBConnect),
                        toPut = cms.VPSet(cms.PSet(
     record = cms.string("L1TriggerKeyExtRcd"),
     tag = cms.string("L1TriggerKeyExt_" + initL1O2OTagsExt.tagBaseVec[ L1CondEnumExt.L1TriggerKeyExt ])),
