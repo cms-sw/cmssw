@@ -1,3 +1,6 @@
+#ifndef L1Trigger_L1TCommon_Tools_h
+#define L1Trigger_L1TCommon_Tools_h
+
 #include <vector>
 #include <map>
 
@@ -28,10 +31,12 @@ template <class varType> varType convertVariable(const std::string& aVar)
 		if ( aVar.substr(0,2) == "0x" && aVar.substr(2,aVar.size()).find_first_not_of(strHexNums) == std::string::npos)
 			temp = convertFromHexStringToInt(aVar);
 		else
-			throw std::runtime_error("Method convertVariable error: " + (*e.what()));
+			throw std::runtime_error(std::string("Method convertVariable error: ") + e.what());
 	}
 
 	return temp;
 }
 
 }//ns
+
+#endif

@@ -16,10 +16,11 @@ def initIOVWriterExt( process,
     process.L1CondDBIOVWriterExt.tscKey = cms.string( tscKey )
     process.L1CondDBIOVWriterExt.rsKey  = cms.string( rsKey )
 
-    from CondCore.DBCommon.CondDBSetup_cfi import CondDBSetup
+    from CondCore.CondDB.CondDB_cfi import CondDB
+    CondDB.connect = cms.string(outputDBConnect)
+
     initIOVWriterExt.outputDB = cms.Service("PoolDBOutputService",
-                                         CondDBSetup,
-                                         connect = cms.string(outputDBConnect),
+                                         CondDB,
                                          toPut = cms.VPSet(cms.PSet(
         record = cms.string("L1TriggerKeyExtRcd"),
         tag = cms.string("L1TriggerKeyExt_" + tagBaseVec[ L1CondEnumExt.L1TriggerKeyExt ])),
