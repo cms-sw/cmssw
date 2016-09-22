@@ -39,7 +39,7 @@ namespace evf{
   const std::string FastMonitoringService::inputStateNames[FastMonitoringThread::inCOUNT] = 
     {"Ignore","Init","WaitInput","NewLumi","NewLumiBusyEndingLS","NewLumiIdleEndingLS","RunEnd","ProcessingFile","WaitChunk","ChunkReceived",
      "ChecksumEvent","CachedEvent","ReadEvent","ReadCleanup","NoRequest","NoRequestWithIdleThreads",
-     "NoRequestWithIdleAndEoLThreads","NoRequestWithGlobalEoL","NoRequestWithAllEoLThreads","NoRequestWithEoLThreads",
+     "NoRequestWithGlobalEoL","NoRequestWithEoLThreads",
      "SupFileLimit", "SupWaitFreeChunk","SupWaitFreeChunkCopying", "SupWaitFreeThread","SupWaitFreeThreadCopying",
      "SupBusy", "SupLockPolling","SupLockPollingCopying",
      "SupNoFile", "SupNewFile", "SupNewFileWaitThreadCopying", "SupNewFileWaitThread",
@@ -771,23 +771,15 @@ namespace evf{
         }
       }
     }
+
+    for (unsigned int i=0;i<nStreams_;i++) {
+       fmt_.m_data.ministateEncoded_[i] = encPath_[i].encode(ministate_[i]);
+       fmt_.m_data.microstateEncoded_[i] = encModule_.encode(microstate_[i]);
+    }
+
     //else return;
     //capture latest mini/microstate of streams
-    bool anyThreadsIdle=false;
-    bool anyThreadsEoL=false;
-    bool allThreadsEoL=true;
-    unsigned int t_idle=0,t_eol=0;
-    for (unsigned int i=0;i<nStreams_;i++) {
-      fmt_.m_data.ministateEncoded_[i] = encPath_[i].encode(ministate_[i]);
-      fmt_.m_data.microstateEncoded_[i] = encModule_.encode(microstate_[i]);
-      if (microstate_[i]==&reservedMicroStateNames[mIdle]) {anyThreadsIdle=true;t_idle++;}
-
-      if (microstate_[i]==&reservedMicroStateNames[mEoL] || 
-          microstate_[i]==&reservedMicroStateNames[mFwkEoL] || 
-          microstate_[i]==&reservedMicroStateNames[mGlobEoL]) {anyThreadsEoL=true;t_eol++;}
-      else allThreadsEoL=false;
-    }
-    bool allThreadsEoLIdle = (t_idle+t_eol==nStreams_);
+    bool inputStatePerThread=false;
 
     if (inputState_==FastMonitoringThread::inWaitInput) {
       switch (inputSupervisorState_) {
@@ -895,32 +887,40 @@ namespace evf{
     else if (inputState_==FastMonitoringThread::inNoRequest) {
       if (isGlobalLumiTransition_ && !isInitTransition_)
         fmt_.m_data.inputState_[0]=FastMonitoringThread::inNoRequestWithGlobalEoL;
-      else if (anyThreadsEoL && anyThreadsIdle)
-        fmt_.m_data.inputState_[0]=FastMonitoringThread::inNoRequestWithIdleAndEoLThreads;
-      else if (anyThreadsIdle)
-        fmt_.m_data.inputState_[0]=FastMonitoringThread::inNoRequestWithIdleThreads;
-      else if (anyThreadsEoL)
-        fmt_.m_data.inputState_[0]=FastMonitoringThread::inNoRequestWithEoLThreads;
-      else if (allThreadsEoL)
-        fmt_.m_data.inputState_[0]=FastMonitoringThread::inNoRequestWithAllEoLThreads;
-      else
-        fmt_.m_data.inputState_[0]=FastMonitoringThread::inNoRequest;
+      else {
+        inputStatePerThread=true;
+        for (unsigned int i=0;i<nStreams_;i++) {
+          if (microstate_[i]==&reservedMicroStateNames[mIdle])
+            fmt_.m_data.inputState_[i]=FastMonitoringThread::inNoRequestWithIdleThreads;
+          else if (microstate_[i]==&reservedMicroStateNames[mEoL] || 
+            microstate_[i]==&reservedMicroStateNames[mFwkEoL] || 
+            microstate_[i]==&reservedMicroStateNames[mGlobEoL])
+            fmt_.m_data.inputState_[i]=FastMonitoringThread::inNoRequestWithEoLThreads;
+          else
+            fmt_.m_data.inputState_[i]=FastMonitoringThread::inNoRequest;
+        }
+      }
     }
-    else if (inputState_ == FastMonitoringThread::inNewLumi && allThreadsEoL) {
-      if (!allThreadsEoLIdle) 
-        fmt_.m_data.inputState_[0] = FastMonitoringThread::inNewLumiBusyEndingLS;
-      else
-        fmt_.m_data.inputState_[0] = FastMonitoringThread::inNewLumiIdleEndingLS;
+    else if (inputState_ == FastMonitoringThread::inNewLumi) {
+      inputStatePerThread=true;
+      for (unsigned int i=0;i<nStreams_;i++) {
+        if (microstate_[i]==&reservedMicroStateNames[mEoL] || 
+          microstate_[i]==&reservedMicroStateNames[mFwkEoL] || 
+          microstate_[i]==&reservedMicroStateNames[mGlobEoL])
+          fmt_.m_data.inputState_[i]=FastMonitoringThread::inNewLumi;
+        else if (microstate_[i]==&reservedMicroStateNames[mIdle])
+          fmt_.m_data.inputState_[i]=FastMonitoringThread::inNewLumiIdleEndingLS;
+        else
+          fmt_.m_data.inputState_[i]=FastMonitoringThread::inNewLumiBusyEndingLS;
+      }
     }
     else
       fmt_.m_data.inputState_[0]=inputState_;
 
     //this is same for all streams
-    for (unsigned int i=1;i<nStreams_;i++) {
-      fmt_.m_data.inputState_[i]=fmt_.m_data.inputState_[0];
-    }
-    //for (unsigned int i=0;i<nThreads_;i++)
-    //  fmt_.m_data.threadMicrostateEncoded_[i] = encModule_.encode(threadMicrostate_[i]);
+    if (!inputStatePerThread)
+      for (unsigned int i=1;i<nStreams_;i++)
+        fmt_.m_data.inputState_[i]=fmt_.m_data.inputState_[0];
     
     if (isGlobalEOL)
     {//only update global variables
