@@ -10,8 +10,8 @@ class SingleCellClusterAlgo : public Algorithm<HGCalBestChoiceCodec>
 {
     public:
 
-        SingleCellClusterAlgo(const edm::ParameterSet& conf):
-            Algorithm<HGCalBestChoiceCodec>(conf),
+        SingleCellClusterAlgo(const edm::ParameterSet& conf, const HGCalTriggerGeometryBase* const geom):
+            Algorithm<HGCalBestChoiceCodec>(conf,geom),
             cluster_product_( new l1t::HGCalClusterBxCollection ){}
 
         virtual void setProduces(edm::EDProducer& prod) const override final 
@@ -19,8 +19,7 @@ class SingleCellClusterAlgo : public Algorithm<HGCalBestChoiceCodec>
             prod.produces<l1t::HGCalClusterBxCollection>(name());
         }
 
-        virtual void run(const l1t::HGCFETriggerDigiCollection& coll,
-                const std::unique_ptr<HGCalTriggerGeometryBase>& geom) override final;
+        virtual void run(const l1t::HGCFETriggerDigiCollection& coll) override final;
 
         virtual void putInEvent(edm::Event& evt) override final 
         {
@@ -38,8 +37,7 @@ class SingleCellClusterAlgo : public Algorithm<HGCalBestChoiceCodec>
 };
 
 /*****************************************************************/
-void SingleCellClusterAlgo::run(const l1t::HGCFETriggerDigiCollection& coll,
-        const std::unique_ptr<HGCalTriggerGeometryBase>& geom) 
+void SingleCellClusterAlgo::run(const l1t::HGCFETriggerDigiCollection& coll) 
 /*****************************************************************/
 {
     for( const auto& digi : coll ) 
@@ -53,7 +51,7 @@ void SingleCellClusterAlgo::run(const l1t::HGCFETriggerDigiCollection& coll,
         {
             if(value>0)
             {
-                GlobalPoint point = geom->getModulePosition(moduleId);
+                GlobalPoint point = geometry_->getModulePosition(moduleId);
                 math::PtEtaPhiMLorentzVector p4((double)value/cosh(point.eta()), point.eta(), point.phi(), 0.);
                 // index in module stored as hwEta
                 l1t::HGCalCluster cluster( 

@@ -25,7 +25,8 @@
 
 class HGCalTriggerFECodecBase { 
  public:  
-  HGCalTriggerFECodecBase(const edm::ParameterSet& conf) : 
+  HGCalTriggerFECodecBase(const edm::ParameterSet& conf, const HGCalTriggerGeometryBase* const geom) : 
+    geometry_(geom),
     name_(conf.getParameter<std::string>("CodecName")),
     codec_idx_(static_cast<unsigned char>(conf.getParameter<uint32_t>("CodecIndex")))
     {}
@@ -37,12 +38,10 @@ class HGCalTriggerFECodecBase {
   
   // give the FECodec the trigger geometry + input digis and it sets itself
   // with the approprate data
-  virtual void setDataPayload(const HGCalTriggerGeometryBase&, 
-                              const HGCEEDigiCollection&,
+  virtual void setDataPayload(const HGCEEDigiCollection&,
                               const HGCHEDigiCollection&,
                               const HGCHEDigiCollection& ) = 0;
-  virtual void setDataPayload(const HGCalTriggerGeometryBase& ,
-                              const l1t::HGCFETriggerDigi&) = 0;
+  virtual void setDataPayload(const l1t::HGCFETriggerDigi&) = 0;
   virtual void unSetDataPayload() = 0;
   // get the set data out for your own enjoyment
   virtual std::vector<bool> getDataPayload() const = 0;
@@ -53,6 +52,9 @@ class HGCalTriggerFECodecBase {
   virtual void decode(const l1t::HGCFETriggerDigi&) = 0;
   virtual void print(const l1t::HGCFETriggerDigi& digi,
                      std::ostream& out = std::cout) const = 0;
+
+ protected:
+  const HGCalTriggerGeometryBase* const geometry_;
 
  private:
   const std::string name_;
@@ -65,8 +67,8 @@ namespace HGCalTriggerFE {
   template<typename Impl,typename DATA>
   class Codec : public HGCalTriggerFECodecBase { 
   public:
-    Codec(const edm::ParameterSet& conf) :  
-    HGCalTriggerFECodecBase(conf),
+    Codec(const edm::ParameterSet& conf, const HGCalTriggerGeometryBase* const geom) :  
+    HGCalTriggerFECodecBase(conf, geom),
     dataIsSet_(false) {
     }
     
@@ -90,8 +92,7 @@ namespace HGCalTriggerFE {
       dataIsSet_ = true;
     }  
     
-    virtual void setDataPayload(const HGCalTriggerGeometryBase& geom, 
-                                const HGCEEDigiCollection& ee, 
+    virtual void setDataPayload(const HGCEEDigiCollection& ee, 
                                 const HGCHEDigiCollection& fh,
                                 const HGCHEDigiCollection& bh ) override final {
       if( dataIsSet_ ) {
@@ -99,18 +100,17 @@ namespace HGCalTriggerFE {
           << "Data payload was already set for HGCTriggerFECodec: "
           << this->name() << " overwriting current data!";
       }
-      static_cast<Impl&>(*this).setDataPayloadImpl(geom,ee,fh,bh);
+      static_cast<Impl&>(*this).setDataPayloadImpl(ee,fh,bh);
       dataIsSet_ = true;
     }
 
-    virtual void setDataPayload(const HGCalTriggerGeometryBase& geom, 
-                              const l1t::HGCFETriggerDigi& digi) override final {
+    virtual void setDataPayload(const l1t::HGCFETriggerDigi& digi) override final {
       if( dataIsSet_ ) {
         edm::LogWarning("HGCalTriggerFECodec|OverwritePayload")
           << "Data payload was already set for HGCTriggerFECodec: "
           << this->name() << " overwriting current data!";
       }
-      static_cast<Impl&>(*this).setDataPayloadImpl(geom,digi);
+      static_cast<Impl&>(*this).setDataPayloadImpl(digi);
       dataIsSet_ = true;
     }
 
@@ -143,6 +143,6 @@ namespace HGCalTriggerFE {
 }
 
 #include "FWCore/PluginManager/interface/PluginFactory.h"
-typedef edmplugin::PluginFactory< HGCalTriggerFECodecBase* (const edm::ParameterSet&) > HGCalTriggerFECodecFactory;
+typedef edmplugin::PluginFactory< HGCalTriggerFECodecBase* (const edm::ParameterSet&, const HGCalTriggerGeometryBase* const) > HGCalTriggerFECodecFactory;
 
 #endif

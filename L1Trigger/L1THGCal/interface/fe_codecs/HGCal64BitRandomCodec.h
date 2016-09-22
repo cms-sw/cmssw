@@ -16,19 +16,17 @@ class HGCal64BitRandomCodec : public HGCalTriggerFE::Codec<HGCal64BitRandomCodec
 public:
   typedef HGCal64BitRandomDataPayload data_type;
   
-  HGCal64BitRandomCodec(const edm::ParameterSet& conf) :
-    Codec(conf),
+  HGCal64BitRandomCodec(const edm::ParameterSet& conf, const HGCalTriggerGeometryBase* const geom) :
+    Codec(conf,geom),
     codecImpl_(conf) {
     data_.payload = std::numeric_limits<uint64_t>::max();
   }
 
-  void setDataPayloadImpl(const HGCalTriggerGeometryBase& geom, 
-                          const HGCEEDigiCollection& ee,
+  void setDataPayloadImpl(const HGCEEDigiCollection& ee,
                           const HGCHEDigiCollection& fh,
                           const HGCHEDigiCollection& bh );
 
-  void setDataPayloadImpl(const HGCalTriggerGeometryBase& geom, 
-                          const l1t::HGCFETriggerDigi& digi);
+  void setDataPayloadImpl(const l1t::HGCFETriggerDigi& digi);
   
   std::vector<bool> encodeImpl(const data_type&) const ;
   data_type         decodeImpl(const std::vector<bool>&) const;  
