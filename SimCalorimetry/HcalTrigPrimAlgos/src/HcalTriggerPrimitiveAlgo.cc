@@ -526,7 +526,7 @@ HcalTriggerPrimitiveAlgo::validChannel(const QIE10DataFrame& digi, int ts) const
    if (digi[ts].adc() < adc_threshold)
       return true;
 
-   return (1ul << (digi[ts].le_tdc() - 1)) & tdc_mask;
+   return (1ul << digi[ts].le_tdc()) & tdc_mask;
 }
 
 void HcalTriggerPrimitiveAlgo::analyzeHF2017(
