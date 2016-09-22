@@ -39,9 +39,6 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-//#include "HLTrigger/HLTcore/interface/HLTPrescaleProvider.h"
-
-// #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
@@ -60,6 +57,7 @@ class MonitorElement;
 class EwkMuDQM : public DQMEDAnalyzer {
  public:
   EwkMuDQM(const edm::ParameterSet&);
+   ~EwkMuDQM();
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   //Book histograms
   void bookHistograms(DQMStore::IBooker &,
@@ -80,6 +78,11 @@ class EwkMuDQM : public DQMEDAnalyzer {
   edm::EDGetTokenT<edm::View<reco::Vertex> > vertexTag_;
   edm::EDGetTokenT<reco::BeamSpot> beamSpotTag_;
   std::vector<std::string> trigPathNames_;
+  int FindMassBin (double MassGrid[], double Mass, const int size);
+  int FindRapBin (double RapGrid[], double Rap, const int size);
+
+ 
+
 
   bool isAlsoTrackerMuon_;
   double dxyCut_;
@@ -113,9 +116,6 @@ class EwkMuDQM : public DQMEDAnalyzer {
 
   double ptThrForPhoton_;
   int nPhoMax_;
-
-//  bool isValidHltConfig_;
-  //HLTPrescaleProvider hltPrescaleProvider_;
 
   unsigned int nall;
   unsigned int nrec;
@@ -154,13 +154,7 @@ class EwkMuDQM : public DQMEDAnalyzer {
   MonitorElement* leadingjet_eta_after_;
   MonitorElement* leadingjet_eta_afterZ_;
 
-  // MonitorElement* ptPlus_before_;
-  // MonitorElement* ptMinus_before_;
   MonitorElement* ptDiffPM_before_;
-  // MonitorElement* ptPlus_afterW_;
-  // MonitorElement* ptMinus_afterW_;
-  // MonitorElement* ptPlus_afterZ_;
-  // MonitorElement* ptMinus_afterZ_;
   MonitorElement* ptDiffPM_afterZ_;
 
   MonitorElement* met_afterZ_;
@@ -200,6 +194,52 @@ class EwkMuDQM : public DQMEDAnalyzer {
   MonitorElement* phPt_;
   MonitorElement* pfphEta_;
   MonitorElement* phEta_;
+  
+  MonitorElement*  jet_HT_ ;
+  MonitorElement*  jet_HT1_;
+  MonitorElement*  jet_HT2_;
+  MonitorElement*  jet_HT_after_;
+  MonitorElement*  jet_HT_afterZ_; 
+  MonitorElement*  Phistar_;
+  MonitorElement*  Phistar_afterZ_;
+  MonitorElement*  CosineThetaStar_;
+  MonitorElement*  CosineThetaStar_afterZ_;
+
+
+ MonitorElement*  leadingjet_phi_before_;
+ MonitorElement*  deltaPhi_;
+ MonitorElement*  deltaPhi_after_;
+ MonitorElement*  deltaPhi_afterZ_;
+ MonitorElement*  subleadingjet_pt_before_;
+ MonitorElement*  subleadingjet_phi_before_;
+ MonitorElement*  subleadingjet_pt_after_;
+ MonitorElement*  subleadingjet_pt_afterZ_;
+ MonitorElement*  subleadingjet_eta_before_;
+ MonitorElement*  thirdleadingjet_phi_before_;
+ MonitorElement*  InVaMassJJ_;
+
+
+ MonitorElement*  CosineThetaStar_2D[3];
+ MonitorElement*  CosineThetaStar_Y_2D[3];
+ MonitorElement*  CosineThetaStar_afterZ_2D[3];
+ MonitorElement*  CosineThetaStar_Y_afterZ_2D[3]; 
+ MonitorElement*  subleadingjet_eta_after_;
+ MonitorElement*  subleadingjet_eta_afterZ_;
+ MonitorElement*  thirdleadingjet_pt_before_;
+ MonitorElement*  thirdleadingjet_eta_before_;
+ MonitorElement*  thirdleadingjet_pt_after_;
+ MonitorElement*  thirdleadingjet_eta_after_;
+ MonitorElement*  dimuonpt_afterZ_;
+ 
+
+ MonitorElement*  thirdleadingjet_pt_afterZ_;
+ MonitorElement*  thirdleadingjet_eta_afterZ_;
+ MonitorElement*  InVaMassJJ_afterZ_;
+ MonitorElement*  dimuonpt_before_;
+
+  const int ZMassBins = 4;
+  double ZMassGrid[4] = {60,80,100,120};
+
 };
 
 #endif
