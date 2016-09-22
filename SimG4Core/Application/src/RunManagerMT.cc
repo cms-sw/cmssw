@@ -152,8 +152,7 @@ void RunManagerMT::initG4(const DDCompactView *pDD, const MagneticField *pMF,
   edm::LogInfo("SimG4CoreApplication") 
     << "RunManagerMT: start initialisation of PhysicsList for master";
 
-  int verb = std::max(m_pPhysics.getUntrackedParameter<int>("Verbosity",0),
-		      m_p.getParameter<int>("SteppingVerbosity"));
+  int verb = m_pPhysics.getUntrackedParameter<int>("Verbosity",0);
 
   m_physicsList->SetDefaultCutValue(m_pPhysics.getParameter<double>("DefaultCutValue")*CLHEP::cm);
   m_physicsList->SetCutsWithDefault();
