@@ -101,7 +101,8 @@ def getSequence(process, collection,
         options["TrackHitFilter"]["Tracker"].update({
                 "minimumHits": 10,
                 })
-    elif collection == "ALCARECOTkAlCosmicsCTF0T":
+    elif collection in ("ALCARECOTkAlCosmicsCTF0T",
+                        "ALCARECOTkAlCosmicsInCollisions"):
         isCosmics = True
         options["TrackSelector"]["HighPurity"] = {} # drop high purity cut
         if not cosmicsDecoMode:
