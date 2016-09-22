@@ -765,11 +765,11 @@ namespace evf{
     }
     else {
       if (isGlobalLumiTransition_)
-      for (unsigned int i=0;i<nStreams_;i++) {
-        if (microstate_[i]==&reservedMicroStateNames[mFwkEoL]) {
-          microstate_[i]=&reservedMicroStateNames[mGlobEoL];
+        for (unsigned int i=0;i<nStreams_;i++) {
+          if (microstate_[i]==&reservedMicroStateNames[mFwkEoL]) {
+            microstate_[i]=&reservedMicroStateNames[mGlobEoL];
+          }
         }
-      }
     }
 
     for (unsigned int i=0;i<nStreams_;i++) {
