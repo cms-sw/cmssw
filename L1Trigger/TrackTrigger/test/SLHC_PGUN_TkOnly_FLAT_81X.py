@@ -119,8 +119,11 @@ for path in process.paths:
 	getattr(process,path)._seq = process.generator * getattr(process,path)._seq
 	
 # Automatic addition of the customisation function from SLHCUpgradeSimulations.Configuration.combinedCustoms
-from SLHCUpgradeSimulations.Configuration.combinedCustoms import cust_2023LReco
 
-process = cust_2023LReco(process)
+from L1Trigger.TrackTrigger.TkOnlyDigi_cff import TkOnlyDigi
+from SLHCUpgradeSimulations.Configuration.combinedCustoms import cust_2023flat
+
+process = cust_2023flat(process)
+process = TkOnlyDigi(process)
 # End of customisation functions	
 

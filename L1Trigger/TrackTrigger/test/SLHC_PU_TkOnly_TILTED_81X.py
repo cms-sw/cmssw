@@ -134,9 +134,11 @@ for path in process.paths:
 
 
 # Automatic addition of the customisation function from SLHCUpgradeSimulations.Configuration.combinedCustoms
+from L1Trigger.TrackTrigger.TkOnlyDigi_cff import TkOnlyDigi
 from SLHCUpgradeSimulations.Configuration.combinedCustoms import cust_2023tilted
 
 process = cust_2023tilted(process)
+process = TkOnlyDigi(process)
 # End of customisation functions
 
 

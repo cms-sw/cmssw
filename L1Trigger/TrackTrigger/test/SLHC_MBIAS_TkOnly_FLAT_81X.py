@@ -115,8 +115,8 @@ for path in process.paths:
 
 	
 # Automatic addition of the customisation function from SLHCUpgradeSimulations.Configuration.combinedCustoms
-from SLHCUpgradeSimulations.Configuration.combinedCustoms import cust_2023LReco 
+from SLHCUpgradeSimulations.Configuration.combinedCustoms import cust_2023flat 
 
-process = cust_2023LReco(process)
+process = cust_2023flat(process)
 # End of customisation functions	
 
