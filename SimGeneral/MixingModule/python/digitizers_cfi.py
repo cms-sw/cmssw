@@ -51,7 +51,11 @@ eras.phase2_hgcal.toModify( theDigitizers,
                             hgchefrontDigitizer = cms.PSet(hgchefrontDigitizer),
 )
 
+eras.phase2_common.toModify( theDigitizers, castor = None )
 
+from SimGeneral.MixingModule.ecalTimeDigitizer_cfi import ecalTimeDigitizer
+eras.phase2_timing.toModify( theDigitizers,
+                             ecalTime = ecalTimeDigitizer.clone() )
     
 theDigitizersValid = cms.PSet(
     theDigitizers,
@@ -63,3 +67,5 @@ theDigitizersValid = cms.PSet(
 
 eras.phase2_hgcal.toModify( theDigitizersValid,
                             calotruth = cms.PSet( caloParticles ) )
+
+

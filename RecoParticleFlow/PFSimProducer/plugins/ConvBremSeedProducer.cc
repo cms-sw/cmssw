@@ -101,7 +101,7 @@ ConvBremSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
 
 
   ///OUTPUT COLLECTION
-  std::auto_ptr<ConvBremSeedCollection> output(new ConvBremSeedCollection);
+  auto output = std::make_unique<ConvBremSeedCollection>();
 
 
   ///INITIALIZE
@@ -381,7 +381,7 @@ ConvBremSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
 
   } //END GSF TRACK COLLECTION LOOP 
   LogDebug("ConvBremSeedProducerProducer")<<"END";
-  iEvent.put(output);
+  iEvent.put(std::move(output));
     
 }
 

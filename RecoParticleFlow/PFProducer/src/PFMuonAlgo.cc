@@ -15,12 +15,12 @@ using namespace reco;
 using namespace boost;
 
 PFMuonAlgo::PFMuonAlgo() {
-  pfCosmicsMuonCleanedCandidates_ = std::auto_ptr<reco::PFCandidateCollection>(new reco::PFCandidateCollection);
-  pfCleanedTrackerAndGlobalMuonCandidates_= std::auto_ptr<reco::PFCandidateCollection>(new reco::PFCandidateCollection);
-  pfFakeMuonCleanedCandidates_= std::auto_ptr<reco::PFCandidateCollection>(new reco::PFCandidateCollection);
-  pfPunchThroughMuonCleanedCandidates_= std::auto_ptr<reco::PFCandidateCollection>(new reco::PFCandidateCollection);
-  pfPunchThroughHadronCleanedCandidates_= std::auto_ptr<reco::PFCandidateCollection>(new reco::PFCandidateCollection);
-  pfAddedMuonCandidates_= std::auto_ptr<reco::PFCandidateCollection>(new reco::PFCandidateCollection);
+  pfCosmicsMuonCleanedCandidates_ = std::make_unique<reco::PFCandidateCollection>();
+  pfCleanedTrackerAndGlobalMuonCandidates_= std::make_unique<reco::PFCandidateCollection>();
+  pfFakeMuonCleanedCandidates_= std::make_unique<reco::PFCandidateCollection>();
+  pfPunchThroughMuonCleanedCandidates_= std::make_unique<reco::PFCandidateCollection>();
+  pfPunchThroughHadronCleanedCandidates_= std::make_unique<reco::PFCandidateCollection>();
+  pfAddedMuonCandidates_ = std::make_unique<reco::PFCandidateCollection>();
   
 }
 

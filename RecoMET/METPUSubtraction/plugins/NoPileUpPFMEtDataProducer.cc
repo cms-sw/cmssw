@@ -159,8 +159,8 @@ void NoPileUpPFMEtDataProducer::produce(edm::Event& evt, const edm::EventSetup& 
   edm::Handle<reco::VertexCollection> hardScatterVertex;
   evt.getByToken(srcHardScatterVertex_, hardScatterVertex);
   
-  std::auto_ptr<reco::PUSubMETCandInfoCollection> jetInfos(new reco::PUSubMETCandInfoCollection());
-  std::auto_ptr<reco::PUSubMETCandInfoCollection> pfCandInfos(new reco::PUSubMETCandInfoCollection());
+  auto jetInfos = std::make_unique<reco::PUSubMETCandInfoCollection>();
+  auto pfCandInfos = std::make_unique<reco::PUSubMETCandInfoCollection>();
  
   const JetCorrector* jetEnOffsetCorrector = nullptr;
   if ( jetEnOffsetCorrLabel_ != "" ) {
@@ -266,8 +266,8 @@ void NoPileUpPFMEtDataProducer::produce(edm::Event& evt, const edm::EventSetup& 
   
   LogDebug ("produce") << "#pfCandInfos = " << pfCandInfos->size() << std::endl;
     
-  evt.put(jetInfos,"jetInfos");
-  evt.put(pfCandInfos,"pfCandInfos");
+  evt.put(std::move(jetInfos),"jetInfos");
+  evt.put(std::move(pfCandInfos),"pfCandInfos");
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"

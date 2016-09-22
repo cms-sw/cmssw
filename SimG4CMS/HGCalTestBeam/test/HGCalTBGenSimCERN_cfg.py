@@ -78,7 +78,7 @@ from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc', '')
 
 process.generator = cms.EDProducer("FlatRandomEThetaGunProducer",
-    AddAntiParticle = cms.bool(True),
+    AddAntiParticle = cms.bool(False),
     PGunParameters = cms.PSet(
         MinE = cms.double(9.99),
         MaxE = cms.double(10.01),
@@ -111,7 +111,14 @@ process.endjob_step = cms.EndPath(process.endOfProcess)
 process.RAWSIMoutput_step = cms.EndPath(process.RAWSIMoutput)
 
 # Schedule definition
-process.schedule = cms.Schedule(process.generation_step,process.gunfilter_step,process.genfiltersummary_step,process.simulation_step,process.analysis_step,process.endjob_step,process.RAWSIMoutput_step)
+process.schedule = cms.Schedule(process.generation_step,
+				process.genfiltersummary_step,
+				process.simulation_step,
+				process.gunfilter_step,
+				process.analysis_step,
+				process.endjob_step,
+				process.RAWSIMoutput_step,
+				)
 # filter all path with the production filter sequence
 for path in process.paths:
 	getattr(process,path)._seq = process.generator * getattr(process,path)._seq 

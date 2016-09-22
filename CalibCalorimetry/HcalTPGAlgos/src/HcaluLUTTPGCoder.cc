@@ -183,8 +183,8 @@ void HcaluLUTTPGCoder::update(const char* filename, bool appendMSB) {
 	      // Append FG bit LUT to MSB
 	      // MSB = Most Significant Bit = bit 10
 	      // Overwrite bit 10
-	      LutElement msb = (lutFromFile[i][adc] != 0 ? 0x400 : 0);
-	      inputLUT_[lutId][adc] = (msb | (inputLUT_[lutId][adc] & 0x3FF));
+	      LutElement msb = (lutFromFile[i][adc] != 0 ? QIE8_LUT_MSB : 0);
+	      inputLUT_[lutId][adc] = (msb | (inputLUT_[lutId][adc] & QIE8_LUT_BITMASK));
 	    }
 	    else inputLUT_[lutId][adc] = lutFromFile[i][adc];
 	  }// for adc
@@ -301,7 +301,7 @@ void HcaluLUTTPGCoder::update(const HcalDbService& conditions) {
             for (unsigned int adc = 0; adc < UPGRADE_LUT_SIZE; ++adc) {
                upgradeFrame.setSample(0, adc, 0, true);
                coder.adc2fC(upgradeFrame, upgradeSamples);
-               float adc2fC = samples[0];
+               float adc2fC = upgradeSamples[0];
 
                if (isMasked)
                   upgradeQIE11LUT_[lutId][adc] = 0;
@@ -377,7 +377,7 @@ void HcaluLUTTPGCoder::adc2Linear(const QIE11DataFrame& df, IntegerCaloSamples& 
 
 unsigned short HcaluLUTTPGCoder::adc2Linear(HcalQIESample sample, HcalDetId id) const {
   int lutId = getLUTId(id);
-  return ((inputLUT_.at(lutId)).at(sample.adc()) & 0x3FF);
+  return ((inputLUT_.at(lutId)).at(sample.adc()) & QIE8_LUT_BITMASK);
 }
 
 float HcaluLUTTPGCoder::getLUTPedestal(HcalDetId id) const {
@@ -404,5 +404,16 @@ void HcaluLUTTPGCoder::lookupMSB(const HBHEDataFrame& df, std::vector<bool>& msb
 bool HcaluLUTTPGCoder::getMSB(const HcalDetId& id, int adc) const{
   int lutId = getLUTId(id);
   const Lut& lut = inputLUT_.at(lutId);
-  return (lut.at(adc) & 0x400);
+  return (lut.at(adc) & QIE8_LUT_MSB);
+}
+
+void
+HcaluLUTTPGCoder::lookupMSB(const QIE11DataFrame& df, std::vector<std::bitset<2>>& msb) const
+{
+   int lutId = getLUTId(HcalDetId(df.id()));
+   const Lut& lut = upgradeQIE11LUT_.at(lutId);
+   for (int i = 0; i < df.samples(); ++i) {
+      msb[0] = lut.at(df[i].adc()) & QIE11_LUT_MSB0;
+      msb[1] = lut.at(df[i].adc()) & QIE11_LUT_MSB1;
+   }
 }

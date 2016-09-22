@@ -137,8 +137,8 @@ SiStripElectronProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
    algo_p->prepareEvent(trackerHandle, rphiHitsHandle, stereoHitsHandle, matchedHitsHandle, magneticFieldHandle);
 
    // Prepare the output electron candidates and clouds to be filled
-   std::auto_ptr<reco::SiStripElectronCollection> electronOut(new reco::SiStripElectronCollection);
-   std::auto_ptr<TrackCandidateCollection> trackCandidateOut(new TrackCandidateCollection);
+   auto electronOut = std::make_unique<reco::SiStripElectronCollection>();
+   auto trackCandidateOut = std::make_unique<TrackCandidateCollection>();
 
    //Retrieve tracker topology from geometry
    edm::ESHandle<TrackerTopology> tTopoHand;
@@ -174,8 +174,8 @@ SiStripElectronProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
    LogDebug("SiStripElectronProducer") << str.str();
 
    // Put the electron candidates and the tracking trajectories into the event
-   iEvent.put(electronOut, siStripElectronsLabel_);
-   iEvent.put(trackCandidateOut, trackCandidatesLabel_);
+   iEvent.put(std::move(electronOut), siStripElectronsLabel_);
+   iEvent.put(std::move(trackCandidateOut), trackCandidatesLabel_);
 }
 
 //

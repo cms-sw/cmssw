@@ -90,11 +90,11 @@ void PreshowerPhiClusterProducer::produce(edm::Event& evt, const edm::EventSetup
   const CaloSubdetectorGeometry *geometry = geoHandle->getSubdetectorGeometry(DetId::Ecal, EcalPreshower);
   const CaloSubdetectorGeometry *& geometry_p = geometry;
   
-  // create auto_ptr to a PreshowerClusterCollection
-  std::auto_ptr< reco::PreshowerClusterCollection > clusters_p1(new reco::PreshowerClusterCollection);
-  std::auto_ptr< reco::PreshowerClusterCollection > clusters_p2(new reco::PreshowerClusterCollection);
+  // create unique_ptr to a PreshowerClusterCollection
+  auto clusters_p1 = std::make_unique<reco::PreshowerClusterCollection>();
+  auto clusters_p2 = std::make_unique<reco::PreshowerClusterCollection>();
   // create new collection of corrected super clusters
-  std::auto_ptr< reco::SuperClusterCollection > superclusters_p(new reco::SuperClusterCollection);
+  auto superclusters_p = std::make_unique<reco::SuperClusterCollection>();
   
   CaloSubdetectorTopology * topology_p=0;
   if (geometry)
@@ -265,13 +265,13 @@ void PreshowerPhiClusterProducer::produce(edm::Event& evt, const edm::EventSetup
   clusters_p1->assign(clusters1.begin(), clusters1.end());
   clusters_p2->assign(clusters2.begin(), clusters2.end());
   // put collection of preshower clusters to the event
-  evt.put( clusters_p1, preshClusterCollectionX_ );
-  evt.put( clusters_p2, preshClusterCollectionY_ );
+  evt.put(std::move(clusters_p1), preshClusterCollectionX_ );
+  evt.put(std::move(clusters_p2), preshClusterCollectionY_ );
   LogTrace("EcalClusters") << "Preshower clusters added to the event" ;
   
   // put collection of corrected super clusters to the event
   superclusters_p->assign(new_SC.begin(), new_SC.end());
-  evt.put(superclusters_p, assocSClusterCollection_);
+  evt.put(std::move(superclusters_p), assocSClusterCollection_);
   LogTrace("EcalClusters") << "Corrected SClusters added to the event" ;
   
   if (topology_p) delete topology_p;

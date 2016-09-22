@@ -108,17 +108,17 @@ PileupJPTJetIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
     
     }
      
-    auto_ptr<ValueMap<float> > mvaout(new ValueMap<float>());
+    auto mvaout = std::make_unique<ValueMap<float>>();
     ValueMap<float>::Filler mvafiller(*mvaout);
     mvafiller.insert(jets,mva.begin(),mva.end());
     mvafiller.fill();
-    iEvent.put(mvaout,"JPTPUDiscriminant");
+    iEvent.put(std::move(mvaout),"JPTPUDiscriminant");
 
-    auto_ptr<ValueMap<int> > idflagout(new ValueMap<int>());
+    auto idflagout = std::make_unique<ValueMap<int>>();
     ValueMap<int>::Filler idflagfiller(*idflagout);
     idflagfiller.insert(jets,idflag.begin(),idflag.end());
     idflagfiller.fill();
-    iEvent.put(idflagout,"JPTPUId");
+    iEvent.put(std::move(idflagout),"JPTPUId");
        
 }
 

@@ -17,7 +17,8 @@ HcalDbHardcode::HcalDbHardcode()
 : theDefaultParameters_(3.0,0.5,{0.2,0.2},{0.0,0.0},0,{0.0,0.0,0.0,0.0},{0.9,0.9,0.9,0.9},125,105), //"generic" set of conditions
   setHB_(false), setHE_(false), setHF_(false), setHO_(false), 
   setHBUpgrade_(false), setHEUpgrade_(false), setHFUpgrade_(false), 
-  useHBUpgrade_(false), useHEUpgrade_(false), useHFUpgrade_(false), testHFQIE10_(false)
+  useHBUpgrade_(false), useHEUpgrade_(false), useHOUpgrade_(true),
+  useHFUpgrade_(false), testHFQIE10_(false)
 {
 }
 
@@ -543,14 +544,17 @@ HcalSiPMParameter HcalDbHardcode::makeHardcodeSiPMParameter (HcalGenericDetId fI
   //  These numbers come from some measurements done with SiPM's
   if (fId.isHcalDetId()) {
     if (fId.subdetId() == HcalBarrel) {
-      return HcalSiPMParameter(fId.rawId(), HcalHBHamamatsu1, 57.5, 0.055, 0, 0);
+      if (useHBUpgrade_) 
+	return HcalSiPMParameter(fId.rawId(), HcalHBHamamatsu1, 57.5, 0.055, 0, 0);
     } else if (fId.subdetId() == HcalEndcap) {
-      return HcalSiPMParameter(fId.rawId(), HcalHEHamamatsu1, 57.5, 0.055, 0, 0);
+      if (useHEUpgrade_) 
+	return HcalSiPMParameter(fId.rawId(), HcalHEHamamatsu1, 57.5, 0.055, 0, 0);
     } else if (fId.subdetId() == HcalOuter) {
-      return HcalSiPMParameter(fId.rawId(), HcalHOHamamatsu, 4.0, 0.055, 0, 0);
+      if (useHOUpgrade_)
+	return HcalSiPMParameter(fId.rawId(), HcalHOHamamatsu, 4.0, 0.055, 0, 0);
     }
   } 
-  return HcalSiPMParameter(fId.rawId(), 0, 0, 0, 0, 0);
+  return HcalSiPMParameter(fId.rawId(), HcalNoSiPM, 0, 0, 0, 0);
 }
 
 void HcalDbHardcode::makeHardcodeSiPMCharacteristics (HcalSiPMCharacteristics& sipm) {

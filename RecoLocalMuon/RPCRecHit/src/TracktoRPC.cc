@@ -53,7 +53,7 @@ bool TracktoRPC::ValidRPCSurface(RPCDetId rpcid, LocalPoint LocalP, const edm::E
 
 TracktoRPC::TracktoRPC(const reco::TrackCollection * alltracks, const edm::EventSetup& iSetup, bool debug,const edm::ParameterSet& iConfig, const edm::InputTag& tracklabel){ 
 
- _ThePoints.reset(new RPCRecHitCollection());
+ _ThePoints = std::make_unique<RPCRecHitCollection>();
 // if(alltracks->empty()) return;
 
  if(tracklabel.label().find("cosmic")==0) theTrackTransformer = new TrackTransformerForCosmicMuons(iConfig);

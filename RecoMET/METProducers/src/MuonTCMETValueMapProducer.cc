@@ -139,7 +139,7 @@ void MuonTCMETValueMapProducer::produce(edm::Event& iEvent, const edm::EventSetu
   iSetup.get<IdealMagneticFieldRecord>().get(theMagField);
   bField = theMagField.product();
 
-  std::auto_ptr<edm::ValueMap<reco::MuonMETCorrectionData> > vm_muCorrData(new edm::ValueMap<reco::MuonMETCorrectionData>());
+  auto vm_muCorrData = std::make_unique<edm::ValueMap<reco::MuonMETCorrectionData>>();
 
   std::vector<reco::MuonMETCorrectionData> v_muCorrData;
 
@@ -195,7 +195,7 @@ void MuonTCMETValueMapProducer::produce(edm::Event& iEvent, const edm::EventSetu
   dataFiller.insert( muons_, v_muCorrData.begin(), v_muCorrData.end());
   dataFiller.fill();
     
-  iEvent.put(vm_muCorrData, "muCorrData");
+  iEvent.put(std::move(vm_muCorrData), "muCorrData");
 }
   
 //____________________________________________________________________________||

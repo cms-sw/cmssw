@@ -4,11 +4,17 @@
 #include "DataFormats/Common/interface/PtrVector.h"
 
 #include "DataFormats/PatCandidates/interface/PATObject.h"
+#include "DataFormats/PatCandidates/interface/CompositeCandidate.h"
+#include "DataFormats/PatCandidates/interface/UserData.h"
 
 #include "DataFormats/PatCandidates/interface/Vertexing.h"
 
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
+
+#include "DataFormats/VertexReco/interface/Vertex.h"
+
+#include <vector>
 
 namespace DataFormats_PatCandidates {
   struct dictionaryuser {
@@ -35,6 +41,12 @@ namespace DataFormats_PatCandidates {
   pat::UserHolder<reco::Track>                   p_udh_tk;
   pat::UserHolder<reco::Vertex>                  p_udh_vtx;
   pat::UserHolder<std::vector<unsigned int> >    p_udh_vunit;
+
+  pat::UserHolder< bool >                        p_udh_bool;
+  pat::UserHolder< Vector3DBase< float, GlobalTag > > p_udh_v3base;
+  pat::UserHolder< edm::Ref< std::vector< reco::Vertex, std::allocator< reco::Vertex > >, reco::Vertex, edm::refhelper::FindUsingAdvance< std::vector< reco::Vertex, std::allocator< reco::Vertex > >, reco::Vertex > > > p_udh_refvertex;
+
+  pat::UserHolder< edm::Ref< std::vector< pat::CompositeCandidate, std::allocator< pat::CompositeCandidate > >, pat::CompositeCandidate, edm::refhelper::FindUsingAdvance< std::vector< pat::CompositeCandidate, std::allocator< pat::CompositeCandidate > >, pat::CompositeCandidate > > > p_udh_refvcompcand;
 
   };
 

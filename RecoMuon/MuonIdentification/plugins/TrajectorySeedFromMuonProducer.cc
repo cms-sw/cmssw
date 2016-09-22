@@ -80,7 +80,7 @@ void TrajectorySeedFromMuonProducer::produce(edm::Event& iEvent, const edm::Even
   using namespace std;
 
   // Product
-  std::auto_ptr<TrajectorySeedCollection> result(new TrajectorySeedCollection());
+  auto result = std::make_unique<TrajectorySeedCollection>();
   
   edm::ESHandle<MagneticField> magneticField;
   iSetup.get<IdealMagneticFieldRecord>().get(magneticField);
@@ -129,7 +129,7 @@ void TrajectorySeedFromMuonProducer::produce(edm::Event& iEvent, const edm::Even
     result->push_back(trajectorySeed);
   }
   
-  iEvent.put(result);
+  iEvent.put(std::move(result));
 
 }
 

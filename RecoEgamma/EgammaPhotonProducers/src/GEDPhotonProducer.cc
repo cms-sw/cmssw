@@ -235,7 +235,7 @@ void GEDPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
   //  nEvt_++;
  
   reco::PhotonCollection outputPhotonCollection;
-  std::auto_ptr< reco::PhotonCollection > outputPhotonCollection_p(new reco::PhotonCollection);
+  auto outputPhotonCollection_p = std::make_unique<reco::PhotonCollection>();
   edm::ValueMap<reco::PhotonRef> pfEGCandToPhotonMap;
 
 
@@ -398,12 +398,12 @@ void GEDPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
   // put the product in the event
   edm::LogInfo("GEDPhotonProducer") << " Put in the event " << iSC << " Photon Candidates \n";
   outputPhotonCollection_p->assign(outputPhotonCollection.begin(),outputPhotonCollection.end());
-  const edm::OrphanHandle<reco::PhotonCollection> photonOrphHandle = theEvent.put(outputPhotonCollection_p, photonCollection_);
+  const edm::OrphanHandle<reco::PhotonCollection> photonOrphHandle = theEvent.put(std::move(outputPhotonCollection_p), photonCollection_);
 
 
   if ( reconstructionStep_ != "final" ) { 
     //// Define the value map which associate to each  Egamma-unbiassaed candidate (key-ref) the corresponding PhotonRef 
-    std::auto_ptr<edm::ValueMap<reco::PhotonRef> >  pfEGCandToPhotonMap_p(new edm::ValueMap<reco::PhotonRef>());
+    auto pfEGCandToPhotonMap_p = std::make_unique<edm::ValueMap<reco::PhotonRef>>();
     edm::ValueMap<reco::PhotonRef>::Filler filler(*pfEGCandToPhotonMap_p);
     unsigned nObj = pfEGCandidateHandle->size();
     std::vector<reco::PhotonRef> values(nObj);
@@ -423,7 +423,7 @@ void GEDPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
     
     filler.insert(pfEGCandidateHandle,values.begin(),values.end());
     filler.fill(); 
-    theEvent.put(pfEGCandToPhotonMap_p,valueMapPFCandPhoton_);
+    theEvent.put(std::move(pfEGCandToPhotonMap_p),valueMapPFCandPhoton_);
 
 
   }

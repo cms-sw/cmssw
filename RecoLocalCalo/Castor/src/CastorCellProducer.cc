@@ -105,7 +105,7 @@ void CastorCellProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
   edm::Handle<CastorRecHitCollection> InputRecHits;
   iEvent.getByToken(tok_input_, InputRecHits);
     
-  std::auto_ptr<CastorCellCollection> OutputCells (new CastorCellCollection);
+  auto OutputCells = std::make_unique<CastorCellCollection>();
    
   // looping over all CastorRecHits
 
@@ -170,7 +170,7 @@ void CastorCellProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
   LogDebug("CastorCellProducer")
     <<"total number of cells in the event: "<<InputRecHits->size();
 
-  iEvent.put(OutputCells);
+  iEvent.put(std::move(OutputCells));
 
 
 }

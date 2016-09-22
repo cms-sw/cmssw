@@ -123,7 +123,7 @@ class HLTCaloObjInRegionsProducer : public edm::stream::EDProducer<> {
 
  private:
   EtaPhiRegionDataBase* createEtaPhiRegionData(const std::string&,const edm::ParameterSet&,edm::ConsumesCollector &&); //calling function owns this
-  static std::auto_ptr<CaloObjCollType> 
+  static std::unique_ptr<CaloObjCollType> 
   makeFilteredColl(const edm::Handle<CaloObjCollType>& inputColl,
 		   const edm::ESHandle<CaloGeometry>& caloGeomHandle,
 		   const std::vector<EtaPhiRegion>& regions);
@@ -210,19 +210,19 @@ void HLTCaloObjInRegionsProducer<CaloObjType,CaloObjCollType>::produce(edm::Even
       continue;
     }
     auto outputColl = makeFilteredColl(inputColl,caloGeomHandle,regions);
-    event.put(outputColl,outputProductNames_[inputCollNr]);
+    event.put(std::move(outputColl),outputProductNames_[inputCollNr]);
   }
 }
 
 template<typename CaloObjType,typename CaloObjCollType>
-std::auto_ptr<CaloObjCollType> 
+std::unique_ptr<CaloObjCollType> 
 HLTCaloObjInRegionsProducer<CaloObjType,CaloObjCollType>::
 makeFilteredColl(const edm::Handle<CaloObjCollType>& inputColl,
 		 const edm::ESHandle<CaloGeometry>& caloGeomHandle,
 		 const std::vector<EtaPhiRegion>& regions)
 {  
   
-  std::auto_ptr<CaloObjCollType> outputColl(new CaloObjCollType);
+  auto outputColl = std::make_unique<CaloObjCollType>();
   if(!inputColl->empty()){
     const CaloSubdetectorGeometry* subDetGeom=caloGeomHandle->getSubdetectorGeometry(inputColl->front().id());
     if(!regions.empty()){

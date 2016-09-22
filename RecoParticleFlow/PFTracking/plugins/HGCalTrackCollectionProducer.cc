@@ -131,8 +131,8 @@ void HGCalTrackCollectionProducer::produce(edm::Event & evt, const edm::EventSet
   evt.getByToken(src_,trackHandle);
   const auto& tracks = *trackHandle;  
   
-  std::auto_ptr<reco::PFRecTrackCollection> outputInHGCal(new reco::PFRecTrackCollection);
-  std::auto_ptr<reco::PFRecTrackCollection> outputNotInHGCal(new reco::PFRecTrackCollection);
+  auto outputInHGCal = std::make_unique<reco::PFRecTrackCollection>();
+  auto outputNotInHGCal = std::make_unique<reco::PFRecTrackCollection>();
 
   for ( unsigned int i = 0 ; i < tracks.size() ; i++) {
     const auto track = tracks.ptrAt(i);
@@ -177,8 +177,8 @@ void HGCalTrackCollectionProducer::produce(edm::Event & evt, const edm::EventSet
     }
   } // track loop
 
-  evt.put(outputInHGCal,"TracksInHGCal");
-  evt.put(outputNotInHGCal,"TracksNotInHGCal");
+  evt.put(std::move(outputInHGCal),"TracksInHGCal");
+  evt.put(std::move(outputNotInHGCal),"TracksNotInHGCal");
 }
 
 DEFINE_FWK_MODULE(HGCalTrackCollectionProducer);

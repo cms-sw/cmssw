@@ -98,34 +98,64 @@ public:
 
     }
 
-    void checkAlignmentAndTag(CACell* innerCell, const float ptmin, const float region_origin_x, const float region_origin_y, const float region_origin_radius, const float thetaCut, const float phiCut) {
 
-        if (areAlignedRZ(innerCell, ptmin, thetaCut) && haveSimilarCurvature(innerCell, region_origin_x, region_origin_y, region_origin_radius, phiCut)) {
+    void checkAlignmentAndTag(CACell* innerCell, const float ptmin, const float region_origin_x,
+    		const float region_origin_y, const float region_origin_radius, const float thetaCut,
+			const float phiCut, const float hardPtCut) {
+
+        if (areAlignedRZ(innerCell, ptmin, thetaCut) &&
+        		haveSimilarCurvature(innerCell,ptmin, region_origin_x, region_origin_y,
+        				region_origin_radius, phiCut, hardPtCut)) {
             tagAsInnerNeighbor(innerCell);
             innerCell->tagAsOuterNeighbor(this);
         }
     }
 
-    bool areAlignedRZ(const CACell* otherCell, const float ptmin, const float thetaCut) const {
+    void checkAlignmentAndPushTriplet(CACell* innerCell, std::vector<CACell::CAntuplet>& foundTriplets,
+    		const float ptmin, const float region_origin_x, const float region_origin_y,
+			const float region_origin_radius, const float thetaCut, const float phiCut,
+			const float hardPtCut) {
+
+        if (areAlignedRZ(innerCell, ptmin, thetaCut) &&
+        		haveSimilarCurvature(innerCell,ptmin, region_origin_x, region_origin_y,
+        				region_origin_radius, phiCut, hardPtCut)) {
+        	foundTriplets.emplace_back(CACell::CAntuplet{innerCell,this});
+
+        }
+    }
+
+
+
+    bool areAlignedRZ(const CACell* otherCell, const float ptmin, const float thetaCut) const
+    {
 
         float r1 = otherCell->getInnerR();
         float z1 = otherCell->getInnerZ();
-        float distance_13_squared = (r1 - theOuterR)*(r1 - theOuterR) + (z1 - theOuterZ)*(z1 - theOuterZ);
+        float radius_diff = fabs(r1 - theOuterR);
+        float distance_13_squared = radius_diff*radius_diff + (z1 - theOuterZ)*(z1 - theOuterZ);
+
+        float pMin = ptmin*sqrt(distance_13_squared); //this needs to be divided by radius_diff later
+
         float tan_12_13_half_mul_distance_13_squared = fabs(z1 * (theInnerR - theOuterR) + theInnerZ * (theOuterR - r1) + theOuterZ * (r1 - theInnerR)) ;
-        return tan_12_13_half_mul_distance_13_squared * ptmin <= thetaCut * distance_13_squared;
+        return tan_12_13_half_mul_distance_13_squared * pMin <= thetaCut * distance_13_squared * radius_diff;
     }
 
-    void tagAsOuterNeighbor(CACell* otherCell) {
+    void tagAsOuterNeighbor(CACell* otherCell)
+    {
         theOuterNeighbors.push_back(otherCell);
     }
 
-    void tagAsInnerNeighbor(CACell* otherCell) {
+    void tagAsInnerNeighbor(CACell* otherCell)
+    {
         theInnerNeighbors.push_back(otherCell);
     }
 
-    bool haveSimilarCurvature(const CACell* otherCell,
-            const float region_origin_x, const float region_origin_y, const float region_origin_radius, const float phiCut) const {
-        auto x1 = otherCell->getInnerX();
+    bool haveSimilarCurvature(const CACell* otherCell, const float ptmin,
+            const float region_origin_x, const float region_origin_y, const float region_origin_radius, const float phiCut, const float hardPtCut) const
+    {
+
+
+    	auto x1 = otherCell->getInnerX();
         auto y1 = otherCell->getInnerY();
 
         auto x2 = getInnerX();
@@ -134,18 +164,29 @@ public:
         auto x3 = getOuterX();
         auto y3 = getOuterY();
 
-        auto precision = 0.5f;
+        float distance_13_squared = (x1 - x3)*(x1 - x3) + (y1 - y3)*(y1 - y3);
+        float tan_12_13_half_mul_distance_13_squared = fabs(y1 * (x2 - x3) + y2 * (x3 - x1) + y3 * (x1 - x2)) ;
+        if(tan_12_13_half_mul_distance_13_squared * ptmin <= 1.0e-4f*distance_13_squared)
+        {
+        	return true;
+
+        }
+
+        //87 cm/GeV = 1/(3.8T * 0.3)
+
+        //take less than radius given by the hardPtCut and reject everything below
+        float minRadius = hardPtCut*87.f;
+
+        auto det = (x1 - x2) * (y2 - y3) - (x2 - x3) * (y1 - y2);
+
+
         auto offset = x2 * x2 + y2*y2;
 
         auto bc = (x1 * x1 + y1 * y1 - offset)*0.5f;
 
         auto cd = (offset - x3 * x3 - y3 * y3)*0.5f;
 
-        auto det = (x1 - x2) * (y2 - y3) - (x2 - x3)* (y1 - y2);
 
-        //points are aligned
-        if (fabs(det) < precision)
-            return true;
 
         auto idet = 1.f / det;
 
@@ -153,12 +194,15 @@ public:
         auto y_center = (cd * (x1 - x2) - bc * (x2 - x3)) * idet;
 
         auto radius = std::sqrt((x2 - x_center)*(x2 - x_center) + (y2 - y_center)*(y2 - y_center));
-        auto centers_distance_squared = (x_center - region_origin_x)*(x_center - region_origin_x) + (y_center - region_origin_y)*(y_center - region_origin_y);
 
-        auto minimumOfIntersectionRange = (radius - region_origin_radius)*(radius - region_origin_radius) - phiCut;
+        if(radius < minRadius)
+        	return false;
+        auto centers_distance_squared = (x_center - region_origin_x)*(x_center - region_origin_x) + (y_center - region_origin_y)*(y_center - region_origin_y);
+        auto region_origin_radius_plus_tolerance = region_origin_radius + phiCut;
+        auto minimumOfIntersectionRange = (radius - region_origin_radius_plus_tolerance)*(radius - region_origin_radius_plus_tolerance);
 
         if (centers_distance_squared >= minimumOfIntersectionRange) {
-            auto minimumOfIntersectionRange = (radius + region_origin_radius)*(radius + region_origin_radius) + phiCut;
+            auto minimumOfIntersectionRange = (radius + region_origin_radius_plus_tolerance)*(radius + region_origin_radius_plus_tolerance);
             return centers_distance_squared <= minimumOfIntersectionRange;
         } else {
 
@@ -188,23 +232,32 @@ public:
     void findNtuplets(std::vector<CAntuplet>& foundNtuplets, CAntuplet& tmpNtuplet, const unsigned int minHitsPerNtuplet) const {
 
         // the building process for a track ends if:
-        // it has no right neighbor
+        // it has no outer neighbor
         // it has no compatible neighbor
         // the ntuplets is then saved if the number of hits it contains is greater than a threshold
 
-        if (theOuterNeighbors.size() == 0) {
-            if (tmpNtuplet.size() >= minHitsPerNtuplet - 1)
-                foundNtuplets.push_back(tmpNtuplet);
-            else
-                return;
-        } else {
-            unsigned int numberOfOuterNeighbors = theOuterNeighbors.size();
-            for (unsigned int i = 0; i < numberOfOuterNeighbors; ++i) {
-                tmpNtuplet.push_back((theOuterNeighbors[i]));
-                theOuterNeighbors[i]->findNtuplets(foundNtuplets, tmpNtuplet, minHitsPerNtuplet);
-                tmpNtuplet.pop_back();
-            }
+        if (tmpNtuplet.size() == minHitsPerNtuplet - 1)
+        {
+            foundNtuplets.push_back(tmpNtuplet);
         }
+        else
+        {
+        	if(theOuterNeighbors.size() == 0)
+        	{
+        		return;
+        	}
+        	else
+        	{
+                unsigned int numberOfOuterNeighbors = theOuterNeighbors.size();
+                for (unsigned int i = 0; i < numberOfOuterNeighbors; ++i) {
+                    tmpNtuplet.push_back((theOuterNeighbors[i]));
+                    theOuterNeighbors[i]->findNtuplets(foundNtuplets, tmpNtuplet, minHitsPerNtuplet);
+                    tmpNtuplet.pop_back();
+                }
+        	}
+
+        }
+
     }
     
     

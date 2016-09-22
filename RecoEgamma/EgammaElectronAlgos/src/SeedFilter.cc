@@ -87,7 +87,7 @@ SeedFilter::~SeedFilter() {
 void SeedFilter::seeds(edm::Event& e, const edm::EventSetup& setup, const reco::SuperClusterRef &scRef, TrajectorySeedCollection *output) {
 
   setup.get<IdealMagneticFieldRecord>().get(theMagField);
-  std::auto_ptr<TrajectorySeedCollection> seedColl(new TrajectorySeedCollection());
+  auto seedColl = std::make_unique<TrajectorySeedCollection>();
 
   GlobalPoint vtxPos;
   double deltaZVertex;

@@ -148,7 +148,7 @@ void ME0SegmentMatcher::produce(edm::Event& ev, const edm::EventSetup& setup) {
     //ev.getByLabel("me0Segments","",OurSegments);
     ev.getByToken(OurSegmentsToken_,OurSegments);
 
-    std::auto_ptr<std::vector<ME0Muon> > oc( new std::vector<ME0Muon> ); 
+    auto oc = std::make_unique<std::vector<ME0Muon>>(); 
     std::vector<ME0Muon> TempStore; 
 
     Handle <TrackCollection > generalTracks;
@@ -305,7 +305,7 @@ void ME0SegmentMatcher::produce(edm::Event& ev, const edm::EventSetup& setup) {
 
     // put collection in event
 
-    ev.put(oc);
+    ev.put(std::move(oc));
 }
 
 FreeTrajectoryState

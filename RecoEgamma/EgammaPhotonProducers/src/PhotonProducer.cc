@@ -174,7 +174,7 @@ void PhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& theEve
   //  nEvt_++;
 
   reco::PhotonCollection outputPhotonCollection;
-  std::auto_ptr< reco::PhotonCollection > outputPhotonCollection_p(new reco::PhotonCollection);
+  auto outputPhotonCollection_p = std::make_unique<reco::PhotonCollection>();
 
 
   // Get the PhotonCore collection
@@ -269,7 +269,7 @@ void PhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& theEve
   // put the product in the event
   edm::LogInfo("PhotonProducer") << " Put in the event " << iSC << " Photon Candidates \n";
   outputPhotonCollection_p->assign(outputPhotonCollection.begin(),outputPhotonCollection.end());
-  theEvent.put( outputPhotonCollection_p, PhotonCollection_);
+  theEvent.put(std::move(outputPhotonCollection_p), PhotonCollection_);
 
 }
 

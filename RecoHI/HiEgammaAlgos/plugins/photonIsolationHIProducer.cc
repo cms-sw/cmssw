@@ -89,7 +89,7 @@ photonIsolationHIProducer::produce(edm::Event& evt, const edm::EventSetup& es)
   edm::Handle<reco::TrackCollection> trackCollection;
   evt.getByToken(tracks_, trackCollection);
 
-  std::auto_ptr<reco::HIPhotonIsolationMap> outputMap (new reco::HIPhotonIsolationMap);
+  auto outputMap = std::make_unique<reco::HIPhotonIsolationMap>();
   reco::HIPhotonIsolationMap::Filler filler(*outputMap);
   std::vector<reco::HIPhotonIsolation> isoVector;
 
@@ -143,7 +143,7 @@ photonIsolationHIProducer::produce(edm::Event& evt, const edm::EventSetup& es)
   }
   filler.insert(photons, isoVector.begin(), isoVector.end() );
   filler.fill();
-  evt.put(outputMap);
+  evt.put(std::move(outputMap));
 }
 
 void

@@ -57,7 +57,7 @@ void GEDGsfElectronFinalizer::produce( edm::Event & event, const edm::EventSetup
  {
    
    // Output collection
-   std::auto_ptr<reco::GsfElectronCollection> outputElectrons_p(new reco::GsfElectronCollection);
+   auto outputElectrons_p = std::make_unique<reco::GsfElectronCollection>();
    
    if( gedRegression_ ) {
      gedRegression_->setEvent(event);
@@ -128,7 +128,7 @@ void GEDGsfElectronFinalizer::produce( edm::Event & event, const edm::EventSetup
      outputElectrons_p->push_back(newElectron);
    }
    
-   event.put(outputElectrons_p,outputCollectionLabel_);
+   event.put(std::move(outputElectrons_p),outputCollectionLabel_);
  }
 
 

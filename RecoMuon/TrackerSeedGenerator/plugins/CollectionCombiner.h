@@ -55,12 +55,12 @@ void CollectionCombiner<Collection>::produce(edm::StreamID, edm::Event& iEvent, 
 {
   unsigned int i=0,i_max=labels.size();
   edm::Handle<Collection> handle;
-  std::auto_ptr<Collection> merged(new Collection());
+  auto merged = std::make_unique<Collection>();
   for (;i!=i_max;++i){
     iEvent.getByToken(collectionTokens[i], handle);
     merged->insert(merged->end(), handle->begin(), handle->end());
   }
-  iEvent.put(merged);
+  iEvent.put(std::move(merged));
 }
 
 

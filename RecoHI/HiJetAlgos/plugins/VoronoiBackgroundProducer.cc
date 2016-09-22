@@ -161,8 +161,8 @@ VoronoiBackgroundProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
    std::vector<double> equalized_momenta = voronoi_->subtracted_equalized_perp();
    std::vector<double> particle_area = voronoi_->particle_area();
    std::vector<double> voronoi_vn = voronoi_->perp_fourier();
-   std::auto_ptr<std::vector<float> > vnout(new std::vector<float>(voronoi_vn.begin(), voronoi_vn.end()));
-   std::auto_ptr<reco::VoronoiMap> mapout(new reco::VoronoiMap());
+   auto vnout = std::make_unique<std::vector<float>>(voronoi_vn.begin(), voronoi_vn.end());
+   auto mapout = std::make_unique<reco::VoronoiMap>();
    reco::VoronoiMap::Filler filler(*mapout);
 
    for(unsigned int i = 0; i < inputsHandle->size(); ++i){
@@ -181,8 +181,8 @@ VoronoiBackgroundProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
 
    filler.insert(inputsHandle,vvm.begin(),vvm.end());
    filler.fill();
-   iEvent.put(vnout);
-   iEvent.put(mapout);
+   iEvent.put(std::move(vnout));
+   iEvent.put(std::move(mapout));
  
 }
 

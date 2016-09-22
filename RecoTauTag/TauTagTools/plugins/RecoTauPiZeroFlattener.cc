@@ -56,8 +56,7 @@ RecoTauPiZeroFlattener::produce(edm::Event& evt, const edm::EventSetup& es) {
   evt.getByLabel(piZeroSrc_, piZeroAssoc);
 
   // Create output collection
-  std::auto_ptr<std::vector<reco::RecoTauPiZero> > output(
-      new std::vector<reco::RecoTauPiZero>());
+  auto output = std::make_unique<std::vector<reco::RecoTauPiZero>>();
 
   // Loop over the jets and append the pizeros for each jet to our output
   // collection.
@@ -67,7 +66,7 @@ RecoTauPiZeroFlattener::produce(edm::Event& evt, const edm::EventSetup& es) {
     output->insert(output->end(), pizeros.begin(), pizeros.end());
   }
 
-  evt.put(output);
+  evt.put(std::move(output));
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"

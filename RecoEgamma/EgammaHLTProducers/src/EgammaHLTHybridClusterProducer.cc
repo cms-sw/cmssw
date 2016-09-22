@@ -291,7 +291,7 @@ void EgammaHLTHybridClusterProducer::produce(edm::Event& evt, const edm::EventSe
   hybrid_p->makeClusters(hit_collection, geometry_p, basicClusters, sevLevel, true, regions);
   
   // create an unique_ptr to a BasicClusterCollection, copy the clusters into it and put in the Event:
-  std::unique_ptr< reco::BasicClusterCollection > basicclusters_p(new reco::BasicClusterCollection);
+  auto basicclusters_p = std::make_unique<reco::BasicClusterCollection>();
   basicclusters_p->assign(basicClusters.begin(), basicClusters.end());
   edm::OrphanHandle<reco::BasicClusterCollection> bccHandle =  evt.put(std::move(basicclusters_p),
                                                                        basicclusterCollection_);
@@ -307,7 +307,7 @@ void EgammaHLTHybridClusterProducer::produce(edm::Event& evt, const edm::EventSe
 
   reco::SuperClusterCollection superClusters = hybrid_p->makeSuperClusters(clusterRefVector);
 
-  std::unique_ptr< reco::SuperClusterCollection > superclusters_p(new reco::SuperClusterCollection);
+  auto superclusters_p = std::make_unique<reco::SuperClusterCollection>();
   superclusters_p->assign(superClusters.begin(), superClusters.end());
   evt.put(std::move(superclusters_p), superclusterCollection_);
 

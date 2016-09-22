@@ -61,7 +61,7 @@ void L2MuonCandidateProducer::produce(edm::StreamID sid, Event& event, const Eve
 
   // Create a RecoChargedCandidate collection
   LogTrace(metname)<<" Creating the RecoChargedCandidate collection";
-  auto_ptr<RecoChargedCandidateCollection> candidates( new RecoChargedCandidateCollection());
+  auto candidates = std::make_unique<RecoChargedCandidateCollection>();
 
   for (unsigned int i=0; i<tracks->size(); i++) {
       TrackRef tkref(tracks,i);
@@ -76,7 +76,7 @@ void L2MuonCandidateProducer::produce(edm::StreamID sid, Event& event, const Eve
       candidates->push_back(cand);
   }
   
-  event.put(candidates);
+  event.put(std::move(candidates));
  
   LogTrace(metname)<<" Event loaded"
 		   <<"================================";

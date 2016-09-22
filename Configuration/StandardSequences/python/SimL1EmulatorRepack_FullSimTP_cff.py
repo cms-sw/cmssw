@@ -78,6 +78,7 @@ else:
     # simOmtfDigis.srcCSC              = cms.InputTag("simCscTriggerPrimitiveDigis")   # DEFAULT
 
     # EMTF
+    simEmtfDigis.RPCInput            = cms.InputTag('unpackRPC')
     simEmtfDigis.CSCInput            = cms.InputTag("unpackCsctf")
     # simEmtfDigis.CSCInput            = cms.InputTag("simCscTriggerPrimitiveDigis")     # DEFAULT
 
