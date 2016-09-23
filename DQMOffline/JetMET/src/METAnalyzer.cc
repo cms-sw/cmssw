@@ -142,7 +142,7 @@ METAnalyzer::METAnalyzer(const edm::ParameterSet& pSet) {
   hbheNoiseFilterResultTag_    = parameters.getParameter<edm::InputTag>("HBHENoiseFilterResultLabel");
   hbheNoiseFilterResultToken_=consumes<bool>(hbheNoiseFilterResultTag_);
   hbheNoiseIsoFilterResultTag_  = parameters.getParameter<edm::InputTag>("HBHENoiseIsoFilterResultLabel");
-  hbheIsoNoiseFilterResultToken_ =consumes<bool> (hbheNoiseFilterResultTag_);
+  hbheIsoNoiseFilterResultToken_ =consumes<bool> (hbheNoiseIsoFilterResultTag_);
   CSCHaloResultTag_= parameters.getParameter<edm::InputTag>("CSCHaloResultLabel");
   CSCHaloResultToken_=consumes<bool>(CSCHaloResultTag_);
   CSCHalo2015ResultTag_= parameters.getParameter<edm::InputTag>("CSCHalo2015ResultLabel");
