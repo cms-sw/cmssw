@@ -1,5 +1,4 @@
 import FWCore.ParameterSet.Config as cms
-from Configuration.StandardSequences.Eras import eras
 
 # RAW content 
 L1TriggerRAW = cms.PSet(
@@ -107,7 +106,8 @@ def _appendStage2Digis(obj):
     obj.outputCommands += l1Stage2Digis
 
 # adding them to all places where we had l1extraParticles
-eras.stage2L1Trigger.toModify(L1TriggerRAWDEBUG, func=_appendStage2Digis)
-eras.stage2L1Trigger.toModify(L1TriggerRECO, func=_appendStage2Digis)
-eras.stage2L1Trigger.toModify(L1TriggerAOD, func=_appendStage2Digis)
-eras.stage2L1Trigger.toModify(L1TriggerFEVTDEBUG, func=_appendStage2Digis)
+from Configuration.Eras.Modifier_stage2L1Trigger_cff import stage2L1Trigger
+stage2L1Trigger.toModify(L1TriggerRAWDEBUG, func=_appendStage2Digis)
+stage2L1Trigger.toModify(L1TriggerRECO, func=_appendStage2Digis)
+stage2L1Trigger.toModify(L1TriggerAOD, func=_appendStage2Digis)
+stage2L1Trigger.toModify(L1TriggerFEVTDEBUG, func=_appendStage2Digis)

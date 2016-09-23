@@ -7,7 +7,6 @@
 import FWCore.ParameterSet.Config as cms
 
 # Used to make conditional changes for different running scenarios
-from Configuration.StandardSequences.Eras import eras
 
 #Full Event content with DIGI
 SimMuonFEVTDEBUG = cms.PSet(
@@ -25,8 +24,9 @@ SimMuonRAW = cms.PSet(
 # Add extra collections if running in Run 2. Not sure why but these
 # collections were added to pretty much all event content in the old
 # customisation function.
-eras.run2_common.toModify( SimMuonRAW.outputCommands, func=lambda outputCommands: outputCommands.append('keep *_simMuonCSCDigis_*_*') )
-eras.run2_common.toModify( SimMuonRAW.outputCommands, func=lambda outputCommands: outputCommands.append('keep *_simMuonRPCDigis_*_*') )
+from Configuration.Eras.Modifier_run2_common_cff import run2_common
+run2_common.toModify( SimMuonRAW.outputCommands, func=lambda outputCommands: outputCommands.append('keep *_simMuonCSCDigis_*_*') )
+run2_common.toModify( SimMuonRAW.outputCommands, func=lambda outputCommands: outputCommands.append('keep *_simMuonRPCDigis_*_*') )
 
 #RECO content
 SimMuonRECO = cms.PSet(
@@ -39,10 +39,11 @@ SimMuonAOD = cms.PSet(
     outputCommands = cms.untracked.vstring()
 )
 
-from Configuration.StandardSequences.Eras import eras
-eras.run3_GEM.toModify( SimMuonFEVTDEBUG, outputCommands = SimMuonFEVTDEBUG.outputCommands + ['keep *_simMuonGEMDigis_*_*',
+from Configuration.Eras.Modifier_run3_GEM_cff import run3_GEM
+run3_GEM.toModify( SimMuonFEVTDEBUG, outputCommands = SimMuonFEVTDEBUG.outputCommands + ['keep *_simMuonGEMDigis_*_*',
                                                                                               'keep *_simMuonGEMPadDigis_*_*',
                                                                                               'keep *_simMuonGEMPadDigiClusters_*_*'] )
-eras.run3_GEM.toModify( SimMuonRAW, outputCommands = SimMuonRAW.outputCommands + ['keep StripDigiSimLinkedmDetSetVector_simMuonGEMDigis_*_*'] )
-eras.run3_GEM.toModify( SimMuonRECO, outputCommands = SimMuonRECO.outputCommands + ['keep StripDigiSimLinkedmDetSetVector_simMuonGEMDigis_*_*'] )
-eras.phase2_muon.toModify( SimMuonFEVTDEBUG, outputCommands = SimMuonFEVTDEBUG.outputCommands + ['keep *_simMuonME0Digis_*_*'] )
+run3_GEM.toModify( SimMuonRAW, outputCommands = SimMuonRAW.outputCommands + ['keep StripDigiSimLinkedmDetSetVector_simMuonGEMDigis_*_*'] )
+run3_GEM.toModify( SimMuonRECO, outputCommands = SimMuonRECO.outputCommands + ['keep StripDigiSimLinkedmDetSetVector_simMuonGEMDigis_*_*'] )
+from Configuration.Eras.Modifier_phase2_muon_cff import phase2_muon
+phase2_muon.toModify( SimMuonFEVTDEBUG, outputCommands = SimMuonFEVTDEBUG.outputCommands + ['keep *_simMuonME0Digis_*_*'] )

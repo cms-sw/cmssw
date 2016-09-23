@@ -1,5 +1,4 @@
 import FWCore.ParameterSet.Config as cms
-from Configuration.StandardSequences.Eras import eras
 from RecoTracker.FinalTrackSelectors.TrackCollectionMerger_cfi import *
 
 import RecoTracker.FinalTrackSelectors.trackListMerger_cfi
@@ -22,7 +21,8 @@ earlyGeneralTracks.inputClassifiers =["initialStep",
                                       "pixelLessStep",
                                       "tobTecStep"
                                       ]
-eras.trackingLowPU.toModify(earlyGeneralTracks,
+from Configuration.Eras.Modifier_trackingLowPU_cff import trackingLowPU
+trackingLowPU.toModify(earlyGeneralTracks,
     trackProducers = [
         'initialStepTracks',
         'lowPtTripletStepTracks',
@@ -42,7 +42,8 @@ eras.trackingLowPU.toModify(earlyGeneralTracks,
         "tobTecStep"
     ]
 )
-eras.trackingPhase1.toModify(
+from Configuration.Eras.Modifier_trackingPhase1_cff import trackingPhase1
+trackingPhase1.toModify(
     earlyGeneralTracks,
     trackProducers = [
         'initialStepTracks',
@@ -72,7 +73,8 @@ eras.trackingPhase1.toModify(
 
 # For Phase1PU70
 from RecoTracker.FinalTrackSelectors.trackListMerger_cfi import trackListMerger as _trackListMerger
-eras.trackingPhase1PU70.toReplaceWith(earlyGeneralTracks, _trackListMerger.clone(
+from Configuration.Eras.Modifier_trackingPhase1PU70_cff import trackingPhase1PU70
+trackingPhase1PU70.toReplaceWith(earlyGeneralTracks, _trackListMerger.clone(
     TrackProducers = ['initialStepTracks',
                       'highPtTripletStepTracks',
                       'lowPtQuadStepTracks',
@@ -96,7 +98,8 @@ eras.trackingPhase1PU70.toReplaceWith(earlyGeneralTracks, _trackListMerger.clone
     makeReKeyedSeeds = cms.untracked.bool(False)
 ))
 # For Phase2PU140
-eras.trackingPhase2PU140.toReplaceWith(earlyGeneralTracks, _trackListMerger.clone(
+from Configuration.Eras.Modifier_trackingPhase2PU140_cff import trackingPhase2PU140
+trackingPhase2PU140.toReplaceWith(earlyGeneralTracks, _trackListMerger.clone(
     TrackProducers =['initialStepTracks',
                      'highPtTripletStepTracks',
                      'lowPtQuadStepTracks',

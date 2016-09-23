@@ -21,7 +21,7 @@ metreco = cms.Sequence(
 ##____________________________________________________________________________||
 metrecoPlusHCALNoise = cms.Sequence( metreco + hcalnoise )
 
-from Configuration.StandardSequences.Eras import eras
-eras.phase2_hcal.toReplaceWith( metrecoPlusHCALNoise, metreco )
+from Configuration.Eras.Modifier_phase2_hcal_cff import phase2_hcal
+phase2_hcal.toReplaceWith( metrecoPlusHCALNoise, metreco )
 
 ##____________________________________________________________________________||

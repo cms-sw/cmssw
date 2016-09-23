@@ -25,8 +25,8 @@ siPixelClusters = cms.EDProducer("SiPixelClusterProducer",
 
 
 # Need these until phase2 pixel templates are used
-from Configuration.StandardSequences.Eras import eras
-eras.phase2_tracker.toModify(siPixelClusters, # FIXME
+from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
+phase2_tracker.toModify(siPixelClusters, # FIXME
   src = cms.InputTag('simSiPixelDigis', "Pixel"),
   MissCalibrate = False
 )

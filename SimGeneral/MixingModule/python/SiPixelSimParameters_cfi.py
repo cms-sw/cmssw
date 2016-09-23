@@ -3,7 +3,6 @@ import FWCore.ParameterSet.Config as cms
 # This object is used to make configuration changes for different running
 # scenarios, in this case for Run 2. See the code at the end of the
 # SiPixelSimBlock definition.
-from Configuration.StandardSequences.Eras import eras
 
 def _modifyPixelDigitizerForPhase1Pixel( digitizer ) :
     """
@@ -88,7 +87,8 @@ SiPixelSimBlock = cms.PSet(
 #
 # Apply the changes for the different Run 2 running scenarios
 #
-eras.phase1Pixel.toModify( SiPixelSimBlock, func=_modifyPixelDigitizerForPhase1Pixel )
+from Configuration.Eras.Modifier_phase1Pixel_cff import phase1Pixel
+phase1Pixel.toModify( SiPixelSimBlock, func=_modifyPixelDigitizerForPhase1Pixel )
 
 # Threshold in electrons are the Official CRAFT09 numbers:
 # FPix(smearing)/BPix(smearing) = 2480(160)/2730(200)

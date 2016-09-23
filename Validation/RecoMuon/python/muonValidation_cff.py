@@ -408,9 +408,9 @@ recoMuonValidation = cms.Sequence(
     muonValidation_seq + muonValidationTEV_seq + muonValidationRefit_seq + muonValidationDisplaced_seq
 )
 
-from Configuration.StandardSequences.Eras import eras
 # no displaces in fastsim
-if eras.fastSim.isChosen():
+from Configuration.Eras.Modifier_fastSim_cff import fastSim
+if fastSim.isChosen():
     recoMuonValidation = cms.Sequence(muonValidation_seq + muonValidationTEV_seq + muonValidationRefit_seq)
 
 # sequence for cosmic muons

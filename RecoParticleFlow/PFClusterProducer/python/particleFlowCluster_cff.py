@@ -55,8 +55,8 @@ pfClusteringHGCal = cms.Sequence(particleFlowRecHitHGC)
 _phase2_hgcal_particleFlowCluster = particleFlowCluster.copy()
 _phase2_hgcal_particleFlowCluster += pfClusteringHGCal
 
-from Configuration.StandardSequences.Eras import eras
-eras.phase2_hgcal.toReplaceWith( particleFlowCluster, _phase2_hgcal_particleFlowCluster )
+from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
+phase2_hgcal.toReplaceWith( particleFlowCluster, _phase2_hgcal_particleFlowCluster )
 
 #timing
 
@@ -65,7 +65,8 @@ from RecoParticleFlow.PFSimProducer.ecalBarrelClusterFastTimer_cfi import ecalBa
 _phase2_timing_particleFlowClusterECALSequence = cms.Sequence(ecalBarrelClusterFastTimer*
                                                               particleFlowTimeAssignerECAL*
                                                               particleFlowClusterECALSequence.copy())
-eras.phase2_timing.toReplaceWith(particleFlowClusterECALSequence, 
+from Configuration.Eras.Modifier_phase2_timing_cff import phase2_timing
+phase2_timing.toReplaceWith(particleFlowClusterECALSequence, 
                                  _phase2_timing_particleFlowClusterECALSequence)
-eras.phase2_timing.toModify(particleFlowClusterECAL,
+phase2_timing.toModify(particleFlowClusterECAL,
                             inputECAL = cms.InputTag('particleFlowTimeAssignerECAL'))

@@ -6,6 +6,6 @@ from SimCalorimetry.Configuration.castorDigiSequence_cff import *
 calDigi = cms.Sequence(ecalDigiSequence+hcalDigiSequence+castorDigiSequence)
 
 # fastsim has no castor model
-from Configuration.StandardSequences.Eras import eras
-if eras.fastSim.isChosen():
+from Configuration.Eras.Modifier_fastSim_cff import fastSim
+if fastSim.isChosen():
     calDigi.remove(castorDigiSequence)
