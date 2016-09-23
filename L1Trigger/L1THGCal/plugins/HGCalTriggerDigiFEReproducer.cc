@@ -31,7 +31,7 @@ class HGCalTriggerDigiFEReproducer : public edm::EDProducer
         // algorithm containers
         std::unique_ptr<HGCalTriggerGeometryBase> triggerGeometry_;
         std::unique_ptr<HGCalTriggerFECodecBase> codec_;
-        HGCalTriggerBackendProcessor backEndProcessor_;
+        std::unique_ptr<HGCalTriggerBackendProcessor> backEndProcessor_;
 };
 
 DEFINE_FWK_MODULE(HGCalTriggerDigiFEReproducer);
@@ -39,8 +39,7 @@ DEFINE_FWK_MODULE(HGCalTriggerDigiFEReproducer);
 
 /*****************************************************************/
 HGCalTriggerDigiFEReproducer::HGCalTriggerDigiFEReproducer(const edm::ParameterSet& conf):
-    inputdigi_(consumes<l1t::HGCFETriggerDigiCollection>(conf.getParameter<edm::InputTag>("feDigis"))), 
-    backEndProcessor_(conf.getParameterSet("BEConfiguration")) 
+    inputdigi_(consumes<l1t::HGCFETriggerDigiCollection>(conf.getParameter<edm::InputTag>("feDigis")))
 /*****************************************************************/
 {
     //setup geometry configuration
@@ -52,13 +51,15 @@ HGCalTriggerDigiFEReproducer::HGCalTriggerDigiFEReproducer(const edm::ParameterS
     //setup FE codec
     const edm::ParameterSet& feCodecConfig =  conf.getParameterSet("FECodec");
     const std::string& feCodecName = feCodecConfig.getParameter<std::string>("CodecName");
-    HGCalTriggerFECodecBase* codec = HGCalTriggerFECodecFactory::get()->create(feCodecName,feCodecConfig);
+    HGCalTriggerFECodecBase* codec = HGCalTriggerFECodecFactory::get()->create(feCodecName,feCodecConfig,triggerGeometry_.get());
     codec_.reset(codec);
     codec_->unSetDataPayload();
 
     produces<l1t::HGCFETriggerDigiCollection>();
+    //setup BE processor
+    backEndProcessor_ = std::make_unique<HGCalTriggerBackendProcessor>(conf.getParameterSet("BEConfiguration"), triggerGeometry_.get());
     // register backend processor products
-    backEndProcessor_.setProduces(*this);
+    backEndProcessor_->setProduces(*this);
 }
 
 /*****************************************************************/
@@ -97,7 +98,7 @@ void HGCalTriggerDigiFEReproducer::produce(edm::Event& e, const edm::EventSetup&
     {    
         fe_output->push_back(l1t::HGCFETriggerDigi());
         l1t::HGCFETriggerDigi& digi_out = fe_output->back();
-        codec_->setDataPayload(*triggerGeometry_, digi_in);
+        codec_->setDataPayload(digi_in);
         codec_->encode(digi_out);
         digi_out.setDetId( digi_in.getDetId<HGCalDetId>() );
         codec_->print(digi_out,output);
@@ -113,7 +114,7 @@ void HGCalTriggerDigiFEReproducer::produce(edm::Event& e, const edm::EventSetup&
     auto fe_digis_coll = *fe_digis_handle;
 
     //now we run the emulation of the back-end processor
-    backEndProcessor_.run(fe_digis_coll,triggerGeometry_);
-    backEndProcessor_.putInEvent(e);
-    backEndProcessor_.reset();  
+    backEndProcessor_->run(fe_digis_coll);
+    backEndProcessor_->putInEvent(e);
+    backEndProcessor_->reset();  
 }

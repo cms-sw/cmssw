@@ -7,16 +7,14 @@ DEFINE_EDM_PLUGIN(HGCalTriggerFECodecFactory,
                   "HGCal64BitRandomCodec");
 
 void HGCal64BitRandomCodec::
-setDataPayloadImpl(const HGCalTriggerGeometryBase& , 
-                   const HGCEEDigiCollection&,
+setDataPayloadImpl(const HGCEEDigiCollection&,
                    const HGCHEDigiCollection&,
                    const HGCHEDigiCollection& ) {
   codecImpl_.setDataPayload(data_);
 }
 
 void HGCal64BitRandomCodec::
-setDataPayloadImpl(const HGCalTriggerGeometryBase& geom, 
-                   const l1t::HGCFETriggerDigi& digi) {
+setDataPayloadImpl(const l1t::HGCFETriggerDigi& digi) {
   codecImpl_.setDataPayload(data_);
 }
 
