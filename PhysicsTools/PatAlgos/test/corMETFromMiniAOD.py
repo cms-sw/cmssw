@@ -75,9 +75,9 @@ if usePrivateSQlite:
 ### =====================================================================================================
 # Define the input source
 if runOnData:
-  fname = 'root://eoscms.cern.ch//store/relval/CMSSW_8_1_0_pre10/DoubleEG/MINIAOD/81X_dataRun2_relval_v4_RelVal_doubEG2015D-v1/00000/88859857-6168-E611-9E79-0025905A60AA.root'
+  fname = 'root://eoscms.cern.ch//store/relval/CMSSW_8_1_0_pre11/DoubleEG/MINIAOD/81X_dataRun2_relval_v6_resub_RelVal_doubEG2015D-v1/00000/1CF62687-8374-E611-A98B-0025905A6090.root'
 else:
-  fname = 'root://eoscms.cern.ch//store/relval/CMSSW_8_1_0_pre10/RelValTTbar_13/MINIAODSIM/81X_mcRun2_asymptotic_v5_recycle-v1/00000/B49E8325-6E67-E611-BFE7-0025905A60D0.root'
+  fname = 'root://eoscms.cern.ch//store/relval/CMSSW_8_1_0_pre11/RelValTTbar_13/MINIAODSIM/81X_mcRun2_asymptotic_Candidate_2016_08_30_11_31_55-v1/00000/7836FEC5-6C74-E611-97C0-0CC47A745250.root'
 
 # Define the input source
 process.source = cms.Source("PoolSource", 

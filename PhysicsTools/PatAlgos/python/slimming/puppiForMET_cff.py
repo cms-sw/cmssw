@@ -44,3 +44,6 @@ def makePuppiesFromMiniAOD( process ):
     #process.puppiForMET.puppiCandName    = 'puppiMerged'
     #process.puppiForMET.useRefs          = False
 
+    #making a sequence for people running the MET tool in scheduled mode
+    puppiMETSequence = cms.Sequence(process.puppi*process.puppiForMET)
+    setattr(process, "puppiMETSequence", puppiMETSequence)
