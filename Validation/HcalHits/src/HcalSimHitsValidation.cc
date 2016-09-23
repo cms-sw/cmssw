@@ -71,25 +71,25 @@ void HcalSimHitsValidation::bookHistograms(DQMStore::IBooker &ib, edm::Run const
        if(depth == 0){ sprintf  (histo, "emean_vs_ieta_HB" ); }
        else {          sprintf  (histo, "emean_vs_ieta_HB%d", depth ); }
 
-       emean_vs_ieta_HB.push_back( ib.bookProfile(histo, histo, 82, -41., 41., 2010, -10., 2000., "s") );
+       emean_vs_ieta_HB.push_back( ib.bookProfile(histo, histo, 85, -42.5, 42.5, 2010, -10., 2000., "s") );
     }
     for(int depth = 0; depth <= maxDepthHE_; depth++){
        if(depth == 0){ sprintf  (histo, "emean_vs_ieta_HE" ); }
        else {          sprintf  (histo, "emean_vs_ieta_HE%d", depth ); }
 
-       emean_vs_ieta_HE.push_back( ib.bookProfile(histo, histo, 82, -41., 41., 2010, -10., 2000., "s") );
+       emean_vs_ieta_HE.push_back( ib.bookProfile(histo, histo, 85, -42.5, 42.5, 2010, -10., 2000., "s") );
     }
     for(int depth = 0; depth <= maxDepthHO_; depth++){
        if(depth == 0){ sprintf  (histo, "emean_vs_ieta_HO" ); }
        else {          sprintf  (histo, "emean_vs_ieta_HO%d", depth ); }
 
-       emean_vs_ieta_HO.push_back( ib.bookProfile(histo, histo, 82, -41., 41., 2010, -10., 2000., "s") );
+       emean_vs_ieta_HO.push_back( ib.bookProfile(histo, histo, 85, -42.5, 42.5, 2010, -10., 2000., "s") );
     }
     for(int depth = 0; depth <= maxDepthHF_; depth++){
        if(depth == 0){ sprintf  (histo, "emean_vs_ieta_HF" ); }
        else {          sprintf  (histo, "emean_vs_ieta_HF%d", depth ); }
 
-       emean_vs_ieta_HF.push_back( ib.bookProfile(histo, histo, 82, -41., 41., 2010, -10., 2000., "s") );
+       emean_vs_ieta_HF.push_back( ib.bookProfile(histo, histo, 85, -42.5, 42.5, 2010, -10., 2000., "s") );
     }
 
     //Occupancy vs. iEta TH1Fs
@@ -97,25 +97,25 @@ void HcalSimHitsValidation::bookHistograms(DQMStore::IBooker &ib, edm::Run const
        if(depth == 0){ sprintf  (histo, "occupancy_vs_ieta_HB" ); }
        else {          sprintf  (histo, "occupancy_vs_ieta_HB%d", depth ); }
 
-       occupancy_vs_ieta_HB.push_back( ib.book1D(histo, histo, 82, -41., 41.) );
+       occupancy_vs_ieta_HB.push_back( ib.book1D(histo, histo, 85, -42.5, 42.5) );
     }
     for(int depth = 0; depth <= maxDepthHE_; depth++){
        if(depth == 0){ sprintf  (histo, "occupancy_vs_ieta_HE" ); }
        else {          sprintf  (histo, "occupancy_vs_ieta_HE%d", depth ); }
 
-       occupancy_vs_ieta_HE.push_back( ib.book1D(histo, histo, 82, -41., 41.) );
+       occupancy_vs_ieta_HE.push_back( ib.book1D(histo, histo, 85, -42.5, 42.5) );
     }
     for(int depth = 0; depth <= maxDepthHO_; depth++){
        if(depth == 0){ sprintf  (histo, "occupancy_vs_ieta_HO" ); }
        else {          sprintf  (histo, "occupancy_vs_ieta_HO%d", depth ); }
 
-       occupancy_vs_ieta_HO.push_back( ib.book1D(histo, histo, 82, -41., 41.) );
+       occupancy_vs_ieta_HO.push_back( ib.book1D(histo, histo, 85, -42.5, 42.5) );
     }
     for(int depth = 0; depth <= maxDepthHF_; depth++){
        if(depth == 0){ sprintf  (histo, "occupancy_vs_ieta_HF" ); }
        else {          sprintf  (histo, "occupancy_vs_ieta_HF%d", depth ); }
 
-       occupancy_vs_ieta_HF.push_back( ib.book1D(histo, histo, 82, -41., 41.) );
+       occupancy_vs_ieta_HF.push_back( ib.book1D(histo, histo, 85, -42.5, 42.5) );
     }
 
     //Energy spectra
@@ -146,13 +146,13 @@ void HcalSimHitsValidation::bookHistograms(DQMStore::IBooker &ib, edm::Run const
 
     //Energy in Cone
     sprintf (histo, "HcalSimHitTask_En_simhits_cone_profile_vs_ieta_all_depths");
-    meEnConeEtaProfile = ib.bookProfile(histo, histo, 82, -41., 41., 210, -10., 200.);  
+    meEnConeEtaProfile = ib.bookProfile(histo, histo, 85, -42.5, 42.5, 210, -10., 200.);  
     
     sprintf (histo, "HcalSimHitTask_En_simhits_cone_profile_vs_ieta_all_depths_E");
-    meEnConeEtaProfile_E = ib.bookProfile(histo, histo, 82, -41., 41., 210, -10., 200.);  
+    meEnConeEtaProfile_E = ib.bookProfile(histo, histo, 85, -42.5, 42.5, 210, -10., 200.);  
       
     sprintf (histo, "HcalSimHitTask_En_simhits_cone_profile_vs_ieta_all_depths_EH");
-    meEnConeEtaProfile_EH = ib.bookProfile(histo, histo, 82, -41., 41., 210, -10., 200.);  
+    meEnConeEtaProfile_EH = ib.bookProfile(histo, histo, 85, -42.5, 42.5, 210, -10., 200.);  
     
 
 }
