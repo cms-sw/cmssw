@@ -68,7 +68,6 @@ process.hcalRecoAnalyzer = cms.EDAnalyzer("HcalRecHitsValidation",
     sign = cms.untracked.string('*'),
     hcalselector = cms.untracked.string('noise'),
     ecalselector = cms.untracked.string('no'),
-    useAllHistos              = cms.untracked.bool(True) 
 )
 
 process.hcalTowerAnalyzer = cms.EDAnalyzer("CaloTowersValidation",
