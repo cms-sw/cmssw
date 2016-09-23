@@ -68,16 +68,10 @@ caloStage2Params.jetPUSType            = cms.string("ChunkyDonut")
 
 # Calibration options
 # function6PtParams22EtaBins or None
-<<<<<<< HEAD
-#caloStage2Params.jetCalibrationType    = cms.string("None")
-#caloStage2Params.jetCalibrationType = cms.string("function8PtParams22EtaBins")
-caloStage2Params.jetCalibrationType = cms.string("LUT")
-=======
 # caloStage2Params.jetCalibrationType    = cms.string("None")
 # caloStage2Params.jetCalibrationType = cms.string("function8PtParams22EtaBins")
 caloStage2Params.jetCalibrationType = cms.string("functionErf11PtParams16EtaBins")
 # caloStage2Params.jetCalibrationType = cms.string("None")
->>>>>>> Fixed conflict
 
 #Vector with 6 parameters for eta bin, from low eta to high
 # 1,0,1,0,1,1 gives no correction
@@ -147,13 +141,8 @@ caloStage2Params.jetCalibrationParams  = jetCalibParamsVector16
 
 
 caloStage2Params.jetCompressPtLUTFile     = cms.FileInPath("L1Trigger/L1TCalorimeter/data/lut_pt_compress.txt")
-<<<<<<< HEAD
-caloStage2Params.jetCompressEtaLUTFile    = cms.FileInPath("L1Trigger/L1TCalorimeter/data/lut_30to40_hfHighPt_experiment2_changeLimits_eta.txt")
-caloStage2Params.jetCalibrationLUTFile    = cms.FileInPath("L1Trigger/L1TCalorimeter/data/lut_30to40_hfHighPt_experiment2_changeLimits_add_mult.txt")
-=======
 caloStage2Params.jetCompressEtaLUTFile    = cms.FileInPath("L1Trigger/L1TCalorimeter/data/lut_eta_compress.txt")
 caloStage2Params.jetCalibrationLUTFile    = cms.FileInPath("L1Trigger/L1TCalorimeter/data/lut_add_mult.txt")
->>>>>>> Fixed conflict
 
 
 # sums: 0=ET, 1=HT, 2=MET, 3=MHT
