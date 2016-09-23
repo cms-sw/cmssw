@@ -314,6 +314,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
         if onMiniAOD:
             if not reclusterJets and reapplyJEC:
                 jetCollectionUnskimmed = self.updateJECs(process, jetCollectionUnskimmed, patMetModuleSequence, postfix)
+                    
 
         #getting the jet collection that will be used for corrections 
         #and uncertainty computation
@@ -323,6 +324,10 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
                                                             autoJetCleaning,
                                                             patMetModuleSequence,
                                                             postfix)
+
+        #pre-preparation to run over miniAOD 
+        if onMiniAOD:
+            self.miniAODConfigurationPre(process, patMetModuleSequence, postfix)
 
         #default MET production
         self.produceMET(process, metType,patMetModuleSequence, postfix)
@@ -557,7 +562,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
                 getattr(process, "pat"+metType+"Met"+postfix).parameters = METSignificanceParams_Data
             if self._parameters["Puppi"].value:
                 getattr(process, "pat"+metType+"Met"+postfix).srcPFCands = cms.InputTag('puppiForMET')
-                getattr(process, "pat"+metType+"Met"+postfix).srcJets = cms.InputTag('selectedPatJets'+postfix)
+                getattr(process, "pat"+metType+"Met"+postfix).srcJets = cms.InputTag('cleanedPatJets'+postfix)
                 getattr(process, "pat"+metType+"Met"+postfix).srcJetSF = cms.string('AK4PFPuppi')
                 getattr(process, "pat"+metType+"Met"+postfix).srcJetResPt = cms.string('AK4PFPuppi_pt')
                 getattr(process, "pat"+metType+"Met"+postfix).srcJetResPhi = cms.string('AK4PFPuppi_phi')
@@ -1265,7 +1270,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
             configtools.cloneProcessingSnippet(process, getattr(process,"patMETCorrections"), postfix)
                   
             #T1 pfMet for AOD to mAOD only
-            if not onMiniAOD or self._parameters["Puppi"].value:
+            if not onMiniAOD: #or self._parameters["Puppi"].value:
                 #correction duplication needed
                 getattr(process, "pfMetT1"+postfix).src = cms.InputTag("pfMet"+postfix)
                 patMetModuleSequence += getattr(process, "pfMetT1"+postfix)
@@ -1278,7 +1283,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
                 getattr(process, "patCaloMet").computeMETSignificance = cms.bool(False)
                 if self._parameters["Puppi"].value:
                     getattr(process, 'patMETs'+postfix).srcPFCands = cms.InputTag('puppiForMET')
-                    getattr(process, 'patMETs'+postfix).srcJets = cms.InputTag('selectedPatJets'+postfix)
+                    getattr(process, 'patMETs'+postfix).srcJets = cms.InputTag('cleanedPatJets'+postfix)
                     getattr(process, 'patMETs'+postfix).srcJetSF = cms.string('AK4PFPuppi')
                     getattr(process, 'patMETs'+postfix).srcJetResPt = cms.string('AK4PFPuppi_pt')
                     getattr(process, 'patMETs'+postfix).srcJetResPhi = cms.string('AK4PFPuppi_phi')
@@ -1385,6 +1390,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
             
             if not hasattr(process, "pfCHS"+postfix):
                 setattr(process,"pfCHS"+postfix,pfCHS)
+                patMetModuleSequence += getattr(process, "pfCHS"+postfix)
             pfCandColl = cms.InputTag("pfCHS"+postfix)
                    
 
@@ -1430,10 +1436,23 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
             getattr(process,"patJetCorrFactors"+postfix).primaryVertices= cms.InputTag("offlineSlimmedPrimaryVertices")
             if self._parameters["Puppi"].value:
                 getattr(process,"patJetCorrFactors"+postfix).payload=cms.string('AK4PFPuppi')
+            patMetModuleSequence += getattr(process, "patJetCorrFactors"+postfix)
+            patMetModuleSequence += getattr(process, "patJets"+postfix)
 
         return cms.InputTag("patJets"+postfix)
         
 
+
+    def miniAODConfigurationPre(self, process, patMetModuleSequence, postfix):
+        
+            #extractor for caloMET === temporary for the beginning of the data taking
+            self.extractMET(process,"rawCalo",patMetModuleSequence,postfix)
+            from PhysicsTools.PatAlgos.tools.metTools import addMETCollection
+            addMETCollection(process,
+                             labelName = "patCaloMet",
+                             metSource = "metrawCalo"+postfix if not self._parameters["Puppi"].value else "metrawCalo" 
+                             )
+            getattr(process,"patCaloMet").addGenMET = False
 
     def miniAODConfigurationPost(self, process, postfix):
 
@@ -1487,14 +1506,6 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
             getattr(process,"slimmedMETs"+postfix).runningOnMiniAOD = True
             getattr(process,"slimmedMETs"+postfix).t01Variation = cms.InputTag("slimmedMETs",processName=cms.InputTag.skipCurrentProcess())
          
-            #extractor for caloMET === temporary for the beginning of the data taking
-            self.extractMET(process,"rawCalo",patMetModuleSequence,postfix)
-            from PhysicsTools.PatAlgos.tools.metTools import addMETCollection
-            addMETCollection(process,
-                             labelName = "patCaloMet",
-                             metSource = "metrawCalo"+postfix
-                             )
-            getattr(process,"patCaloMet").addGenMET = False
 
             #smearing and type0 variations not yet supported in reprocessing
             #del getattr(process,"slimmedMETs"+postfix).t1SmearedVarsAndUncs
