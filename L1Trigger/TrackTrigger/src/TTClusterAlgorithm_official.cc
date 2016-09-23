@@ -154,8 +154,14 @@ void TTClusterAlgorithm_official< Ref_Phase2TrackerDigi_ >::Cluster( std::vector
       /// Check output
       /// Sort the vector by row index
       std::sort( candCluster.begin(), candCluster.end(), CompareClusters );
-
-      if ( fabs( candCluster.at(0)->row() - candCluster.back()->row() ) < mWidthCut || /// one should add 1 to use <=
+      /*
+      std::cout << candCluster.at(0)->row() - candCluster.back()->row() << " / " 
+		<< static_cast<int>(candCluster.at(0)->row() - candCluster.back()->row()) << " / " 
+		<< abs( candCluster.at(0)->row() - candCluster.back()->row() ) << " / " 
+		<< std::abs( candCluster.at(0)->row() - candCluster.back()->row() ) << " / " 
+		<< mWidthCut << std::endl;
+      */
+      if ( std::abs(  static_cast<int>(candCluster.at(0)->row() - candCluster.back()->row()) ) < mWidthCut || /// one should add 1 to use <=
            mWidthCut < 1 )
       {
         output.push_back( candCluster );
@@ -169,7 +175,7 @@ void TTClusterAlgorithm_official< Ref_Phase2TrackerDigi_ >::Cluster( std::vector
       /// Sort the vector by row index
       std::sort( candCluster.begin(), candCluster.end(), CompareClusters );
 
-      if ( fabs( candCluster.at(0)->row() - candCluster.back()->row() ) < mWidthCut || /// one should add 1 to use <=
+      if ( std::abs(  static_cast<int>(candCluster.at(0)->row() - candCluster.back()->row()) ) < mWidthCut || /// one should add 1 to use <=
            mWidthCut < 1 )
       {
         output.push_back( candCluster );
