@@ -22,6 +22,8 @@ template <class DFr>
 class HGCDigitizerBase {
  public:
   
+  typedef DFr DigiType;
+
   typedef edm::SortedCollection<DFr> DColl;
   
   /**

@@ -81,7 +81,7 @@ void HGCDigitizer::finalizeEvent(edm::Event& e, edm::EventSetup const& es, CLHEP
     }
   if( producesHEbackDigis() )
     {
-      std::unique_ptr<HGCHEDigiCollection> digiResult(new HGCHEDigiCollection() );
+      std::unique_ptr<HGCBHDigiCollection> digiResult(new HGCBHDigiCollection() );
       theHGCHEbackDigitizer_->run(digiResult,*simHitAccumulator_,digitizationType_, hre);
       edm::LogInfo("HGCDigitizer") << " @ finalize event - produced " << digiResult->size() <<  " HE back hits";
       e.put(std::move(digiResult),digiCollection());
