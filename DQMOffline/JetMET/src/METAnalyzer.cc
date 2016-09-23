@@ -1188,7 +1188,7 @@ void METAnalyzer::dqmBeginRun(const edm::Run& iRun, const edm::EventSetup& iSetu
 	}
       }
     }else{
-      std::cout<<"nothing found with both RECO and reRECO label"<<std::endl;
+      edm::LogWarning("MiniAOD METAN Filter HLT OBject version")<<"nothing found with both RECO and reRECO label"<<std::endl;
     }
   }
 }
