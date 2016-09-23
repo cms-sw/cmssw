@@ -38,6 +38,10 @@ namespace L1Analysis
     charge.clear();
     mt.clear();
     met.clear();
+    etaSt1.clear();
+    phiSt1.clear();
+    etaSt2.clear();
+    phiSt2.clear();
     }
 
     unsigned short nMuons;
@@ -58,6 +62,10 @@ namespace L1Analysis
     std::vector<int> charge;
     std::vector<double> met;
     std::vector<double> mt;
+    std::vector<float> etaSt1;
+    std::vector<float> phiSt1;
+    std::vector<float> etaSt2;
+    std::vector<float> phiSt2;
   };
 }
 #endif
