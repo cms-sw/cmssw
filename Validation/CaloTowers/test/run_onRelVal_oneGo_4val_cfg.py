@@ -87,7 +87,6 @@ process.hcalRecoAnalyzer = cms.EDAnalyzer("HcalRecHitsValidation",
     ecalselector              = cms.untracked.string('yes'),
     hcalselector              = cms.untracked.string('all'),
     mc                        = cms.untracked.string('no'),
-    useAllHistos              = cms.untracked.bool(False)                                                                                                          
 )
 
 

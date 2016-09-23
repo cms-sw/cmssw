@@ -22,6 +22,8 @@
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
+#include "Geometry/Records/interface/HcalGeometryRecord.h"
+#include "Geometry/HcalTowerAlgo/interface/HcalGeometry.h"
 
 #include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
 #include "CalibFormats/HcalObjects/interface/HcalCoderDb.h"
@@ -33,6 +35,8 @@
 
 #include "CalibFormats/HcalObjects/interface/HcalDbService.h"
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
+
+#include "Geometry/CaloTopology/interface/HcalTopology.h"
 
 /*TP Code*/
 #include "Geometry/CaloTopology/interface/HcalTopology.h"
@@ -58,6 +62,7 @@ public:
     ~HcalDigisValidation(); 
 
     virtual void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &);
+    virtual void dqmBeginRun(const edm::Run& run, const edm::EventSetup& c);
 
 private:
 
@@ -98,25 +103,32 @@ private:
     std::string str(int x);
 
     template<class Digi> void reco(const edm::Event& iEvent, const edm::EventSetup& iSetup, const edm::EDGetTokenT<edm::SortedCollection<Digi> > &tok);
-    void eval_occupancy();
+    template<class dataFrameType> void reco(const edm::Event& iEvent, const edm::EventSetup& iSetup, const edm::EDGetTokenT<HcalDataFrameContainer<dataFrameType> > &tok);
 
     std::string outputFile_;
     std::string subdet_;
     std::string zside_;
     std::string dirName_;
+    std::string inputLabel_;
     edm::InputTag inputTag_;
+    edm::InputTag emulTPsTag_;
+    edm::InputTag dataTPsTag_;
     std::string mode_;
     std::string mc_;
     int noise_;
 
     edm::EDGetTokenT<edm::PCaloHitContainer> tok_mc_;
-    edm::EDGetTokenT<edm::SortedCollection<HBHEDataFrame> > tok_hbhe_; 
-    edm::EDGetTokenT<edm::SortedCollection<HODataFrame> > tok_ho_;
-    edm::EDGetTokenT<edm::SortedCollection<HFDataFrame> > tok_hf_;
+    edm::EDGetTokenT< HBHEDigiCollection > tok_hbhe_; 
+    edm::EDGetTokenT< HODigiCollection > tok_ho_;
+    edm::EDGetTokenT< HFDigiCollection > tok_hf_;
     edm::EDGetTokenT<HcalTrigPrimDigiCollection> tok_emulTPs_;
     edm::EDGetTokenT<HcalTrigPrimDigiCollection> tok_dataTPs_;
 
+    edm::EDGetTokenT< QIE10DigiCollection > tok_qie10_hf_; 
+    edm::EDGetTokenT< QIE11DigiCollection > tok_qie11_hbhe_; 
+    
     edm::ESHandle<CaloGeometry> geometry;
+
     edm::ESHandle<HcalDbService> conditions;
 
     //TP Code
@@ -128,6 +140,12 @@ private:
     int nevent3;
     int nevent4;
     int nevtot;
+
+    const HcalDDDRecConstants *hcons;
+    const HcalTopology *htopology;    
+
+    int maxDepth_[5]; // 0:any, 1:HB, 2:HE, 3:HF
+    int nChannels_[5]; // 0:any, 1:HB, 2:HE, 
 
 };
 
