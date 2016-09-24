@@ -23,7 +23,7 @@ public:
   inline HcalDetId id() const { return HcalDetId(detid()); }
 
   inline void setChiSquared(const float chi2) {chiSquared_ = chi2;}
-  inline float getChiSquared() const {return chiSquared_;}
+  inline float chi2() const {return chiSquared_;}
 
   inline void setRawEnergy(const float en) {rawEnergy_ = en;}
   inline float eraw() const {return rawEnergy_;}
