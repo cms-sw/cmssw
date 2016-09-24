@@ -113,9 +113,8 @@
        int noOfDisks;
 
        void getrococcupancy(DetId detId,const edm::DetSetVector<PixelDigi> diginp,const TrackerTopology* const tTopo,std::vector<MonitorElement*> meinput);
-       void getrococcupancye(DetId detId,auto const & clustColl,const TrackerTopology* const pTT,
+       void getrococcupancye(DetId detId,const edmNew::DetSetVector<SiPixelCluster> & clustColl,const TrackerTopology* const pTT,
 						   edm::ESHandle<TrackerGeometry> pDD,MonitorElement* meinput);
-
 
   //define Token(-s)
   edm::EDGetTokenT<edmNew::DetSetVector<SiPixelCluster> > srcToken_;
