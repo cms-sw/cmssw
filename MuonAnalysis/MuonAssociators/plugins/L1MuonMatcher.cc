@@ -76,8 +76,6 @@ namespace pat {
 pat::L1MuonMatcher::L1MuonMatcher(const edm::ParameterSet & iConfig) :
     matcher_(iConfig),
     recoToken_(consumes<edm::View<reco::Candidate> >(iConfig.getParameter<edm::InputTag>("src"))),
-    l1Token_(consumes<std::vector<l1extra::L1MuonParticle> >(iConfig.getParameter<edm::InputTag>("matched"))),
-    l1tToken_(consumes<l1t::MuonBxCollection>(iConfig.getParameter<edm::InputTag>("matched"))),
     labelL1_(iConfig.getParameter<std::string>("setL1Label")),
     labelProp_(iConfig.getParameter<std::string>("setPropLabel")),
     writeExtraInfo_(iConfig.getParameter<bool>("writeExtraInfo")),
@@ -85,6 +83,11 @@ pat::L1MuonMatcher::L1MuonMatcher(const edm::ParameterSet & iConfig) :
     firstBX_(iConfig.getParameter<int>("firstBX")),
     lastBX_(iConfig.getParameter<int>("lastBX"))
 {
+    if (useStage2L1_) {
+      l1tToken_ = consumes<l1t::MuonBxCollection>(iConfig.getParameter<edm::InputTag>("matched"));
+    } else {
+      l1Token_ = consumes<std::vector<l1extra::L1MuonParticle> >(iConfig.getParameter<edm::InputTag>("matched"));
+    }
     produces<PATPrimitiveCollection>("l1muons");        // l1 in PAT format
     produces<PATPrimitiveCollection>("propagatedReco"); // reco to muon station 2
     produces<PATTriggerAssociation>("propagatedReco");  // asso reco to propagated reco
@@ -94,6 +97,10 @@ pat::L1MuonMatcher::L1MuonMatcher(const edm::ParameterSet & iConfig) :
         produces<edm::ValueMap<float> >("deltaPhi");
         produces<edm::ValueMap<int>   >("quality");
         produces<edm::ValueMap<int>   >("bx");
+        if(useStage2L1_) { 
+	  produces<edm::ValueMap<int> >("iPhi");
+	  produces<edm::ValueMap<int> >("tfIndex");
+	}
         produces<edm::ValueMap<int>   >("isolated");
         produces<edm::ValueMap<reco::CandidatePtr> >();
         produces<edm::ValueMap<reco::CandidatePtr> >("l1ToReco");
@@ -135,8 +142,8 @@ pat::L1MuonMatcher::produce(edm::Event & iEvent, const edm::EventSetup & iSetup)
       l1size = l1s->size();
     }
 
-    auto_ptr<PATPrimitiveCollection> propOut(new PATPrimitiveCollection());
-    auto_ptr<PATPrimitiveCollection> l1Out(new PATPrimitiveCollection());
+    unique_ptr<PATPrimitiveCollection> propOut(new PATPrimitiveCollection());
+    unique_ptr<PATPrimitiveCollection> l1Out(new PATPrimitiveCollection());
     std::vector<edm::Ptr<reco::Candidate> > l1rawMatches(reco->size());
     vector<int>   isSelected(l1size, -1);
     std::vector<edm::Ptr<reco::Candidate> > whichRecoMatch(l1size);
@@ -144,6 +151,7 @@ pat::L1MuonMatcher::produce(edm::Event & iEvent, const edm::EventSetup & iSetup)
     vector<int>   fullMatches(reco->size(), -1);
     vector<float> deltaRs(reco->size(), 999), deltaPhis(reco->size(), 999);
     vector<int>   quality(reco->size(),   0), bx(reco->size(), -999), isolated(reco->size(), -999);
+    vector<int>   iPhi(reco->size(),   0), tfIndex(reco->size(), -999);
     for (int i = 0, n = reco->size(); i < n; ++i) {
         TrajectoryStateOnSurface propagated;
         const reco::Candidate &mu = (*reco)[i];
@@ -194,6 +202,8 @@ pat::L1MuonMatcher::produce(edm::Event & iEvent, const edm::EventSetup & iSetup)
 	      bx[i] = l1tBX->getFirstBX() + (std::upper_bound(bxIdxs.begin(),bxIdxs.end(), match) - bxIdxs.begin()); 
 	      isolated[i] = l1t.hwIso();
 	      l1rawMatches[i] = edm::Ptr<reco::Candidate>(l1tBX, size_t(match));
+	      iPhi[i]    = l1t.hwPhi();
+	      tfIndex[i] = l1t.tfMuonIndex();      
 	    }
 	    else {
 	      const L1MuGMTCand & gmt = (*l1s)[match].gmtMuonCand();
@@ -205,20 +215,20 @@ pat::L1MuonMatcher::produce(edm::Event & iEvent, const edm::EventSetup & iSetup)
 	}
     }
 
-    OrphanHandle<PATPrimitiveCollection> l1Done = iEvent.put(l1Out, "l1muons");
-    OrphanHandle<PATPrimitiveCollection> propDone = iEvent.put(propOut, "propagatedReco");
+    OrphanHandle<PATPrimitiveCollection> l1Done = iEvent.put(std::move(l1Out), "l1muons");
+    OrphanHandle<PATPrimitiveCollection> propDone = iEvent.put(std::move(propOut), "propagatedReco");
 
-    auto_ptr<PATTriggerAssociation> propAss(new PATTriggerAssociation(propDone));
+    unique_ptr<PATTriggerAssociation> propAss(new PATTriggerAssociation(propDone));
     PATTriggerAssociation::Filler propFiller(*propAss);
     propFiller.insert(reco, propMatches.begin(), propMatches.end());
     propFiller.fill();
-    iEvent.put(propAss, "propagatedReco");
+    iEvent.put(std::move(propAss), "propagatedReco");
 
-    auto_ptr<PATTriggerAssociation> fullAss(new PATTriggerAssociation(  l1Done));
+    unique_ptr<PATTriggerAssociation> fullAss(new PATTriggerAssociation(  l1Done));
     PATTriggerAssociation::Filler fullFiller(*fullAss);
     fullFiller.insert(reco, fullMatches.begin(), fullMatches.end());
     fullFiller.fill();
-    iEvent.put(fullAss);
+    iEvent.put(std::move(fullAss));
 
     if (writeExtraInfo_) {
         storeExtraInfo(iEvent, reco, deltaRs,   "deltaR");
@@ -227,10 +237,14 @@ pat::L1MuonMatcher::produce(edm::Event & iEvent, const edm::EventSetup & iSetup)
         storeExtraInfo(iEvent, reco, isolated,  "isolated");
         storeExtraInfo(iEvent, reco, quality,   "quality");
 	storeExtraInfo(iEvent, reco, l1rawMatches,   "");
-	if (useStage2L1_)
+	if (useStage2L1_) {
 	  storeExtraInfo(iEvent, l1tBX,  whichRecoMatch, "l1ToReco");
-	else
+	  storeExtraInfo(iEvent, reco, tfIndex, "tfIndex");
+	  storeExtraInfo(iEvent, reco, iPhi, "iPhi");
+	}
+	else {
 	  storeExtraInfo(iEvent, l1s,  whichRecoMatch, "l1ToReco");
+	}
     }
 
 }
@@ -242,11 +256,11 @@ pat::L1MuonMatcher::storeExtraInfo(edm::Event &iEvent,
                      const std::vector<T> & values,
                      const std::string    & label) const {
     using namespace edm; using namespace std;
-    auto_ptr<ValueMap<T> > valMap(new ValueMap<T>());
+    unique_ptr<ValueMap<T> > valMap(new ValueMap<T>());
     typename edm::ValueMap<T>::Filler filler(*valMap);
     filler.insert(handle, values.begin(), values.end());
     filler.fill();
-    iEvent.put(valMap, label);
+    iEvent.put(std::move(valMap), label);
 }
 
 

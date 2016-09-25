@@ -13,6 +13,7 @@
 
 
 #include <cmath>
+#include <type_traits>
 #include "DataFormats/Math/interface/deltaR.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
@@ -24,6 +25,7 @@
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 #include "CommonTools/Utils/interface/AnySelector.h"
 #include "MuonAnalysis/MuonAssociators/interface/PropagateToMuon.h"
+#include "FWCore/MessageService/interface/MessageLogger.h"
 
 class L1MuonMatcherAlgo {
     public:
@@ -177,6 +179,9 @@ class L1MuonMatcherAlgo {
         void setL1PhiOffset(double l1PhiOffset) { l1PhiOffset_ = l1PhiOffset; }
 
     private:
+
+	template<class T> int genericQuality(const T & cand) const;
+
         PropagateToMuon prop_;
 
 	bool useStage2L1_;
@@ -189,7 +194,7 @@ class L1MuonMatcherAlgo {
         double deltaR2_, deltaPhi_, deltaEta_;
 
         /// Sort by deltaPhi or deltaEta instead of deltaR
-        enum SortBy { SortByDeltaR, SortByDeltaPhi, SortByDeltaEta, SortByPt };
+        enum SortBy { SortByDeltaR = 0, SortByDeltaPhi, SortByDeltaEta, SortByPt, SortByQual};
         SortBy sortBy_;
 
         /// offset to be added to the L1 phi before the match
@@ -197,15 +202,37 @@ class L1MuonMatcherAlgo {
 
 };
 
+template<>
+inline int L1MuonMatcherAlgo::genericQuality<l1extra::L1MuonParticle>(const l1extra::L1MuonParticle & cand) const
+{
+  return cand.gmtMuonCand().rank();
+}
+
+template<>
+inline int L1MuonMatcherAlgo::genericQuality<l1t::Muon>(const l1t::Muon & cand) const
+{
+  return cand.hwQual();
+}
+
+template<class T>
+inline int L1MuonMatcherAlgo::genericQuality(const T & cand) const
+{
+    return 0;
+}
+
+
+
 template<typename Collection, typename Selector>
 int 
 L1MuonMatcherAlgo::matchGeneric(TrajectoryStateOnSurface &propagated, const Collection &l1s, const Selector &sel, float &deltaR, float &deltaPhi) const {
-    typedef typename Collection::value_type obj;
+    typedef typename Collection::value_type obj;    
+
     int match = -1;
     double minDeltaPhi = deltaPhi_;
     double minDeltaEta = deltaEta_;
     double minDeltaR2  = deltaR2_;
-    double minPt       = -1.0;
+    double maxPt       = -1.0;
+    int maxQual        = 0;
     GlobalPoint pos = propagated.globalPosition();
     for (int i = 0, n = l1s.size(); i < n; ++i) {
         const obj &l1 = l1s[i];
@@ -213,14 +240,17 @@ L1MuonMatcherAlgo::matchGeneric(TrajectoryStateOnSurface &propagated, const Coll
             double thisDeltaPhi = ::deltaPhi(double(pos.phi()),  l1.phi()+l1PhiOffset_);
             double thisDeltaEta = pos.eta() - l1.eta();
             double thisDeltaR2  = ::deltaR2(double(pos.eta()), double(pos.phi()), l1.eta(), l1.phi()+l1PhiOffset_);
+            int    thisQual     = genericQuality<obj>(l1);
             double thisPt       = l1.pt();
             if ((fabs(thisDeltaPhi) < deltaPhi_) && (fabs(thisDeltaEta) < deltaEta_) && (thisDeltaR2 < deltaR2_)) { // check all
                 bool betterMatch = (match == -1);
-                switch (sortBy_) {
+		switch (sortBy_) {
                     case SortByDeltaR:   betterMatch = (thisDeltaR2        < minDeltaR2);        break;
                     case SortByDeltaEta: betterMatch = (fabs(thisDeltaEta) < fabs(minDeltaEta)); break;
                     case SortByDeltaPhi: betterMatch = (fabs(thisDeltaPhi) < fabs(minDeltaPhi)); break;
-                    case SortByPt:       betterMatch = (thisPt             > minPt);             break;
+		    case SortByPt:       betterMatch = (thisPt             > maxPt);             break;
+		    // Quality is an int, adding sorting by pT in case of identical qualities
+		    case SortByQual:     betterMatch = (thisQual > maxQual || ((thisQual == maxQual) && (thisPt > maxPt)));  break;
                 }
                 if (betterMatch) { // sort on one
                     match = i;
@@ -229,7 +259,8 @@ L1MuonMatcherAlgo::matchGeneric(TrajectoryStateOnSurface &propagated, const Coll
                     minDeltaR2  = thisDeltaR2;
                     minDeltaEta = thisDeltaEta;
                     minDeltaPhi = thisDeltaPhi;
-                    minPt       = thisPt;
+                    maxQual     = thisQual;
+                    maxPt       = thisPt;
                 }
             }
         }

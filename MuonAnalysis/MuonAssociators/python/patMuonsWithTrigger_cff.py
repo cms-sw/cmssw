@@ -77,7 +77,7 @@ from PhysicsTools.PatAlgos.triggerLayer1.triggerProducer_cfi import patTrigger a
 patTriggerFull.onlyStandAlone = True
 patTrigger = cms.EDProducer("TriggerObjectFilterByCollection",
     src = cms.InputTag("patTriggerFull"),
-    collections = cms.vstring("hltL1extraParticles", "hltL2MuonCandidates", "hltL3MuonCandidates", "hltHighPtTkMuonCands", "hltGlbTrkMuonCands", "hltMuTrackJpsiCtfTrackCands", "hltMuTrackJpsiEffCtfTrackCands", "hltMuTkMuJpsiTrackerMuonCands","hltTracksIter"),
+    collections = cms.vstring("hltL1extraParticles", "hltGmtStage2Digis", "hltL2MuonCandidates", "hltL3MuonCandidates", "hltHighPtTkMuonCands", "hltGlbTrkMuonCands", "hltMuTrackJpsiCtfTrackCands", "hltMuTrackJpsiEffCtfTrackCands", "hltMuTkMuJpsiTrackerMuonCands","hltTracksIter"),
 )
 #patTrigger = cms.EDFilter("PATTriggerObjectStandAloneSelector",
 #    src = cms.InputTag("patTriggerFull"),
@@ -256,5 +256,15 @@ def useL1Stage2Candidates(process):
         process.muonL1Info.preselection = cms.string("")
         process.muonL1Info.matched = cms.InputTag("gmtStage2Digis:Muon:")
 
-         
+def appendL1MatchingAlgo(process, algo = "quality"):
+    if hasattr(process, 'muonL1Info'): 
+        newMuonL1Info = process.muonL1Info.clone(sortBy = cms.string(algo), 
+                                                         sortByQuality  = cms.bool(algo == "quality"), 
+                                                         sortByDeltaPhi = cms.bool(algo == "deltaEta"), 
+                                                         sortByDeltaEta = cms.bool(algo == "deltaPhi"), 
+                                                         sortByPt       = cms.bool(algo == "pt"), 
+                                                         maxDeltaR  = cms.double(0.3))
+        setattr(process, "muonL1Info" + algo.title(), newMuonL1Info)
+        process.patMuonsWithTriggerSequence.replace(process.muonL1Info, process.muonL1Info + getattr(process, 'muonL1Info' + algo.title()))
+        addL1UserData(patMuonsWithoutTrigger, "muonL1Info" + algo.title())
 
