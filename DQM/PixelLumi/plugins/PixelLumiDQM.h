@@ -47,8 +47,8 @@ public:
   static constexpr double XSEC_PIXEL_CLUSTER_UNC = 0.17e-24;
 
   // Excluding the inner barrel layer.
-  static constexpr double rXSEC_PIXEL_CLUSTER = 6.08e-24; //in cm^2
-  static constexpr double rXSEC_PIXEL_CLUSTER_UNC = 0.084e-24;
+  static constexpr double rXSEC_PIXEL_CLUSTER = 9.4e-24; //in cm^2
+  static constexpr double rXSEC_PIXEL_CLUSTER_UNC = 0.119e-24;
   static constexpr double CM2_TO_NANOBARN = 1.0/1.e-33;
   static const unsigned int lastBunchCrossing = 3564;
 
