@@ -83,6 +83,10 @@ class L1TCSCTF : public thread_unsafe::DQMEDAnalyzer {
   MonitorElement* csctfoccupancies;
   MonitorElement* csctfoccupancies_H;
 
+
+  MonitorElement* csctferrors_mpc;
+  MonitorElement* cscWireStripOverflow;
+
   //MonitorElement* runId_;
   //MonitorElement* lumisecId_;
 
