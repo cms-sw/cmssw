@@ -7,7 +7,7 @@ fe_codec = cms.PSet( CodecName  = cms.string('HGCalBestChoiceCodec'),
                      NData = cms.uint32(12),
                      DataLength = cms.uint32(8),
                      linLSB = cms.double(100./1024.),
-                     triggerCellTruncationBits = cms.uint32(2),
+                     triggerCellTruncationBits = cms.uint32(7),
                      #take the following parameters from the digitization config file
                      adcsaturation = digiparam.hgceeDigitizer.digiCfg.feCfg.adcSaturation_fC,
                      adcnBits = digiparam.hgceeDigitizer.digiCfg.feCfg.adcNbits,
@@ -16,7 +16,7 @@ fe_codec = cms.PSet( CodecName  = cms.string('HGCalBestChoiceCodec'),
                      tdcOnsetfC = digiparam.hgceeDigitizer.digiCfg.feCfg.tdcOnset_fC
                    )
 
-geometry = cms.PSet( TriggerGeometryName = cms.string('HGCalTriggerGeometryHexImp1'),
+geometry = cms.PSet( TriggerGeometryName = cms.string('HGCalTriggerGeometryHexImp2'),
                      L1TCellsMapping = cms.FileInPath("L1Trigger/L1THGCal/data/triggercell_mapping.txt"),
                      L1TModulesMapping = cms.FileInPath("L1Trigger/L1THGCal/data/module_mapping.txt"),
                      eeSDName = cms.string('HGCalEESensitive'),

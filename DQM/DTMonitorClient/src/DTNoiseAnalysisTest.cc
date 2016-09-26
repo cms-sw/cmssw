@@ -37,7 +37,6 @@ using namespace std;
 
 
 DTNoiseAnalysisTest::DTNoiseAnalysisTest(const edm::ParameterSet& ps){
-
   LogTrace("DTDQM|DTMonitorClient|DTNoiseAnalysisTest") << "[DTNoiseAnalysisTest]: Constructor";
 
   // get the cfi parameters
@@ -76,56 +75,10 @@ void DTNoiseAnalysisTest::beginRun(Run const& run, EventSetup const& context) {
 
   if (!bookingdone) {
     // book the histos
-    bookHistos(ibooker);
-
-   //How many channels per sector?
-
-    for (int isec=0; isec<12; isec++) {
-      NwSec[isec]=0;
-
-      for (int ist=0; ist<4; ist++) {
-        NwCh[isec][ist]=0;
-
-        DTChamberId chID (0, ist+1, isec+1);
-        for (int isl=1; isl<4; isl++) {
-
-         if ( chID.station() == 4 && isl ==2 ) continue;
-         const DTSuperLayer * SL = (muonGeom->chamber(chID))->superLayer(isl);
-         for (int ilay=1; ilay<5; ilay++) { 
-          int nw =  ((SL->layer(ilay))->specificTopology()).channels();
-          NwCh[isec][ist]+=nw;
-          NwSec[isec]+=nw;
-         }
-        } // on superlayers
-      } // on stations
-    } // on sectors
-
-    // add Sec 13 and 14
-    DTChamberId chID (0, 4, 13);
-    for (int isl=1; isl<4; isl++) {
-
-      if (isl ==2) continue;
-      const DTSuperLayer * SL = (muonGeom->chamber(chID))->superLayer(isl);
-      for (int ilay=1; ilay<5; ilay++) { 
-       int nw =  ((SL->layer(ilay))->specificTopology()).channels();
-       NwCh[3][3]+=nw;
-       NwSec[3]+=nw;
-      }
-    } // on superlayers
-
-    chID = DTChamberId (0, 4, 14);
-    for (int isl=1; isl<4; isl++) {
-
-      if (isl ==2) continue;
-      const DTSuperLayer * SL = (muonGeom->chamber(chID))->superLayer(isl);
-      for (int ilay=1; ilay<5; ilay++) { 
-       int nw =  ((SL->layer(ilay))->specificTopology()).channels();
-       NwCh[9][3]+=nw;
-       NwSec[9]+=nw;
-      }
-    } // on superlayers
+  bookHistos(ibooker);
   }
   bookingdone = 1; 
+
 
   LogVerbatim ("DTDQM|DTMonitorClient|DTNoiseAnalysisTest")
     <<"[DTNoiseAnalysisTest]: End of LS transition, performing the DQM client operation";
@@ -143,6 +96,8 @@ void DTNoiseAnalysisTest::beginRun(Run const& run, EventSetup const& context) {
 
   summaryNoiseHisto->Reset();
 
+
+
   vector<const DTChamber*>::const_iterator ch_it = muonGeom->chambers().begin();
   vector<const DTChamber*>::const_iterator ch_end = muonGeom->chambers().end();
 
@@ -151,6 +106,7 @@ void DTNoiseAnalysisTest::beginRun(Run const& run, EventSetup const& context) {
 
   for (; ch_it != ch_end; ++ch_it) { // loop over chambers
     DTChamberId chID = (*ch_it)->id();
+
     MonitorElement * histo = igetter.get(getMEName(chID));
 
     if(histo) { // check the pointer
@@ -186,8 +142,8 @@ void DTNoiseAnalysisTest::beginRun(Run const& run, EventSetup const& context) {
               } else if(sector == 14) {
                 sector = 10;
               }
-              noisyCellHistos[chID.wheel()]->Fill(sector,chID.station(),1./float(NwCh[sector][chID.station()]));
-              summaryNoiseHisto->Fill(sector,chID.wheel(),1./float(NwSec[sector-1]));
+              noisyCellHistos[chID.wheel()]->Fill(sector,chID.station());
+              summaryNoiseHisto->Fill(sector,chID.wheel());
             }
           }
         }

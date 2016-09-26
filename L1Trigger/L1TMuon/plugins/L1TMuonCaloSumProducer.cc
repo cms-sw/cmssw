@@ -53,14 +53,14 @@ class L1TMuonCaloSumProducer : public edm::EDProducer {
       static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
    private:
-      virtual void beginJob() ;
-      virtual void produce(edm::Event&, const edm::EventSetup&);
-      virtual void endJob() ;
+      virtual void beginJob() override ;
+      virtual void produce(edm::Event&, const edm::EventSetup&) override ;
+      virtual void endJob() override ;
 
-      virtual void beginRun(edm::Run&, edm::EventSetup const&);
-      virtual void endRun(edm::Run&, edm::EventSetup const&);
-      virtual void beginLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&);
-      virtual void endLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&);
+      virtual void beginRun(const edm::Run&, edm::EventSetup const&) override ;
+      virtual void endRun(const edm::Run&, edm::EventSetup const&) override ;
+      virtual void beginLuminosityBlock(const edm::LuminosityBlock&, edm::EventSetup const&) override ;
+      virtual void endLuminosityBlock(const edm::LuminosityBlock&, edm::EventSetup const&) override ;
 
       edm::EDGetTokenT <CaloTowerBxCollection> m_caloTowerToken;
       edm::InputTag m_caloLabel;
@@ -194,25 +194,25 @@ L1TMuonCaloSumProducer::endJob() {
 
 // ------------ method called when starting to processes a run  ------------
 void
-L1TMuonCaloSumProducer::beginRun(edm::Run&, edm::EventSetup const&)
+L1TMuonCaloSumProducer::beginRun(const edm::Run&, edm::EventSetup const&)
 {
 }
 
 // ------------ method called when ending the processing of a run  ------------
 void
-L1TMuonCaloSumProducer::endRun(edm::Run&, edm::EventSetup const&)
+L1TMuonCaloSumProducer::endRun(const edm::Run&, edm::EventSetup const&)
 {
 }
 
 // ------------ method called when starting to processes a luminosity block  ------------
 void
-L1TMuonCaloSumProducer::beginLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&)
+L1TMuonCaloSumProducer::beginLuminosityBlock(const edm::LuminosityBlock&, edm::EventSetup const&)
 {
 }
 
 // ------------ method called when ending the processing of a luminosity block  ------------
 void
-L1TMuonCaloSumProducer::endLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&)
+L1TMuonCaloSumProducer::endLuminosityBlock(const edm::LuminosityBlock&, edm::EventSetup const&)
 {
 }
 

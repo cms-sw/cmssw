@@ -34,7 +34,7 @@ class DataManager
 
     protected:
         //Returns type object for provided type name
-        edm::eventsetup::TypeTag findType (const std::string & type);
+        edm::eventsetup::TypeTag findType (const std::string & type) ;
 
         // Database connection management
   cond::persistency::Session  session;

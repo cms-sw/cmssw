@@ -5,10 +5,13 @@
  <Constant name="Ladders"           value="64"/> 
  <Constant name="CoolDist"          value="16.0*cm"/>
  <Constant name="CoolRadius"        value="0.0900*cm"/>
- <Constant name="LadderOffset"        value="0.225*cm"/>
+ <Constant name="LadderOffset"        value="0.270*cm"/>
  <Constant name="Cool1Offset"        value="0.9*cm"/>
  <Constant name="Cool2Offset"        value="-0.1*cm"/>
  <Constant name="OuterFirst"        value="1"/>
+ <Constant name="PitchFineTune"     value="0.0535*deg"/>
+ <Constant name="OuterOffsetFineTune"    value="-0.0405*cm+[pixbarladder:SensorThick]/2"/>
+ <Constant name="InnerOffsetFineTune"    value="0.0405*cm-[pixbarladder:SensorThick]/2"/>
 </ConstantsSection>
 
 <Algorithm name="track:DDPixBarLayerUpgradeAlgo">
@@ -24,12 +27,16 @@
   <Numeric name="Cool2Offset"         value="[pixbarlayer3:Cool2Offset]"/>
   <String name="CoolMaterial"      value="materials:Bpix_CO2_-20C"/>
   <String name="CoolTubeMaterial"  value="materials:Bpix_Pipe_Steel"/>
+  <String name="CoolMaterialHalf"      value="pixbarmaterial:Bpix_CO2_-20C_Half"/>
+  <String name="CoolTubeMaterialHalf"  value="pixbarmaterial:Bpix_Pipe_Steel_Half"/>
   <String name="LadderName"        value="pixbarladderfull3:PixelBarrelLadderFull3"/>
   <Numeric name="LadderWidth"      value="[pixbarladderfull3:LadderWidth]"/>
   <Numeric name="LadderThick"      value="[pixbarladderfull3:LadderThick]"/>
   <Numeric name="LadderOffset"      value="[pixbarlayer3:LadderOffset]"/>
   <Numeric name="OuterFirst"       value="[pixbarlayer3:OuterFirst]"/>
-
+  <Numeric name="PitchFineTune"       value="[pixbarlayer3:PitchFineTune]"/>
+  <Numeric name="OuterOffsetFineTune"       value="[pixbarlayer3:OuterOffsetFineTune]"/>
+  <Numeric name="InnerOffsetFineTune"       value="[pixbarlayer3:InnerOffsetFineTune]"/>
 </Algorithm>
 
 </DDDefinition>

@@ -54,7 +54,7 @@ double JetSignalVertexCompatibilityAlgo::trackVertexCompat(
 	                  tsos.cartesianError().position();
 
 	return ROOT::Math::Mag2(dir) /
-	       std::sqrt(ROOT::Math::Similarity(cov.matrix_new(), dir));
+	       std::sqrt(ROOT::Math::Similarity(cov.matrix(), dir));
 }
 
 const TransientTrack&

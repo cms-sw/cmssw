@@ -43,11 +43,17 @@ public:
    */
   virtual GlobalPoint position() const = 0;
   virtual GlobalError error() const = 0;
+  virtual GlobalError error4D() const = 0;
+  virtual double time() const = 0;
+  virtual double timeError() const = 0;
   virtual GlobalWeight weight() const = 0;
+  virtual GlobalWeight weight4D() const = 0;
   virtual AlgebraicVector3 weightTimesPosition() const = 0;
+  virtual AlgebraicVector4 weightTimesPosition4D() const = 0;
   virtual double weightInMixture() const = 0;
   virtual std::vector<VertexState> components() const;
   virtual bool isValid() const = 0;
+  virtual bool is4D() const = 0;
 
 
   /** conversion to VertexSeed

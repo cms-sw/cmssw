@@ -11,7 +11,7 @@ rawDataCollector = cms.EDProducer("RawDataCollectorByLabel",
                                        cms.InputTag('ecalPacker'),
                                        cms.InputTag('esDigiToRaw'),
                                        cms.InputTag('gctDigiToRaw'),
-                                       cms.InputTag('hcalRawData'),
+                                       cms.InputTag('hcalRawDataVME'),
                                        cms.InputTag('l1GtEvmPack'),
                                        cms.InputTag('l1GtPack'),
                                        cms.InputTag('rpcpacker'),
@@ -24,3 +24,4 @@ rawDataCollector = cms.EDProducer("RawDataCollectorByLabel",
 #
 from Configuration.StandardSequences.Eras import eras
 eras.stage1L1Trigger.toModify( rawDataCollector.RawCollectionList, func = lambda list: list.append(cms.InputTag("l1tDigiToRaw")) )
+eras.run2_HCAL_2017.toModify( rawDataCollector.RawCollectionList, func = lambda list: list.append(cms.InputTag("hcalRawDatauHTR")) )

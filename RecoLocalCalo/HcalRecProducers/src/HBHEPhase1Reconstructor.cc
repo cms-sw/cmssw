@@ -582,12 +582,21 @@ HBHEPhase1Reconstructor::beginRun(edm::Run const& r, edm::EventSetup const& es)
                 << std::endl;
     }
 
-    edm::ESHandle<HcalTopology> htopo;
-    es.get<HcalRecNumberingRecord>().get(htopo);
-    if (setNoiseFlagsQIE8_)
-        hbheFlagSetterQIE8_->setTopo(htopo.product());
-    if (setNoiseFlagsQIE11_)
-        hbheFlagSetterQIE11_->setTopo(htopo.product());
+    if (setNoiseFlagsQIE8_ || setNoiseFlagsQIE11_)
+    {
+        edm::ESHandle<HcalFrontEndMap> hfemap;
+        es.get<HcalFrontEndMapRcd>().get(hfemap);
+        if (hfemap.isValid())
+        {
+            if (setNoiseFlagsQIE8_)
+                hbheFlagSetterQIE8_->SetFrontEndMap(hfemap.product());
+            if (setNoiseFlagsQIE11_)
+                hbheFlagSetterQIE11_->SetFrontEndMap(hfemap.product());
+        }
+        else
+            edm::LogWarning("EventSetup") <<
+                "HBHEPhase1Reconstructor failed to get HcalFrontEndMap!" << std::endl;
+    }
 
     reco_->beginRun(r, es);
 }

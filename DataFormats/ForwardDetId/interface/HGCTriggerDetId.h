@@ -4,7 +4,6 @@
 #include <iosfwd>
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/ForwardDetId/interface/ForwardSubdetector.h"
-#include "TObject.h"
 
 
 class HGCTriggerDetId : public DetId {

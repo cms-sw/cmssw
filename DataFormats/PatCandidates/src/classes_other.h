@@ -24,6 +24,9 @@
 namespace DataFormats_PatCandidates {
   struct dictionaryother {
 
+  std::vector<std::vector<float> > vecvecf;
+  edm::Wrapper<std::vector<std::vector<float> > > wvecvecf;
+
   std::pair<std::string, std::vector<float> > jcfcf;
   edm::Wrapper<std::pair<std::string, std::vector<float> > > w_jcfcf;
   std::vector<pat::JetCorrFactors::CorrectionFactor> v_jcfcf;

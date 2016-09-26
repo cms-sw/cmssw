@@ -978,7 +978,7 @@ TemplatedSecondaryVertexProducer<CandIPTagInfo,reco::VertexCompositePtrCandidate
 		edm::LogError("UnexpectedInputs") << "Building from Tracks, should not happen!";
 		VertexCompositePtrCandidate vtxCompPtrCand;
 		
-		vtxCompPtrCand.setCovariance(sv.vertexState().error().matrix_new());
+		vtxCompPtrCand.setCovariance(sv.vertexState().error().matrix());
 		vtxCompPtrCand.setChi2AndNdof(sv.totalChiSquared(), sv.degreesOfFreedom());
 		vtxCompPtrCand.setVertex(Candidate::Point(sv.position().x(),sv.position().y(),sv.position().z()));
 		
@@ -988,7 +988,7 @@ TemplatedSecondaryVertexProducer<CandIPTagInfo,reco::VertexCompositePtrCandidate
 	{
 		VertexCompositePtrCandidate vtxCompPtrCand;
 		
-		vtxCompPtrCand.setCovariance(sv.vertexState().error().matrix_new());
+		vtxCompPtrCand.setCovariance(sv.vertexState().error().matrix());
 		vtxCompPtrCand.setChi2AndNdof(sv.totalChiSquared(), sv.degreesOfFreedom());
 		vtxCompPtrCand.setVertex(Candidate::Point(sv.position().x(),sv.position().y(),sv.position().z()));
 		
