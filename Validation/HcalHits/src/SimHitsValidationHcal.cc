@@ -3,7 +3,7 @@
 #include "Geometry/Records/interface/HcalRecNumberingRecord.h"
 #include "SimDataFormats/CaloTest/interface/HcalTestNumbering.h"
 
-#include "Validation/HcalHits/interface/SimHitsConstants.h"
+#include "Validation/HcalHits/interface/HcalSimHitsConstants.h"
 
 #define DebugLog
 

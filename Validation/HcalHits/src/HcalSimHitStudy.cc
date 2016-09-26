@@ -4,7 +4,7 @@
 #include "FWCore/Utilities/interface/Exception.h"
 
 //Include Constant Definitions.
-#include "Validation/HcalHits/interface/SimHitsConstants.h"
+#include "Validation/HcalHits/interface/HcalSimHitsConstants.h"
 
 HcalSimHitStudy::HcalSimHitStudy(const edm::ParameterSet& ps) {
 

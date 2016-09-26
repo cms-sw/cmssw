@@ -1,7 +1,7 @@
 #include "Validation/HcalHits/interface/HcalSimHitsValidation.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 
-#include "Validation/HcalHits/interface/SimHitsConstants.h"
+#include "Validation/HcalHits/interface/HcalSimHitsConstants.h"
 
 
 HcalSimHitsValidation::HcalSimHitsValidation(edm::ParameterSet const& conf) {
