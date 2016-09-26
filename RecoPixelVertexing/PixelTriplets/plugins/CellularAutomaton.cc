@@ -1,6 +1,6 @@
 #include "CellularAutomaton.h"
 
-void CellularAutomaton::createAndConnectCells(const std::vector<HitDoublets>& hitDoublets, const TrackingRegion& region,
+void CellularAutomaton::createAndConnectCells(const std::vector<const HitDoublets *>& hitDoublets, const TrackingRegion& region,
 		const float thetaCut, const float phiCut, const float hardPtCut)
 {
 	unsigned int cellId = 0;
@@ -48,7 +48,7 @@ void CellularAutomaton::createAndConnectCells(const std::vector<HitDoublets>& hi
 			{
 
 				const HitDoublets* doubletLayerPairId =
-						&(hitDoublets[currentLayerPair]);
+						hitDoublets[currentLayerPair];
 				auto numberOfDoublets = doubletLayerPairId->size();
 				currentLayerPairRef.theFoundCells.reserve(numberOfDoublets);
 				for (unsigned int i = 0; i < numberOfDoublets; ++i)
