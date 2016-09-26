@@ -580,5 +580,5 @@ void HcalDbHardcode::makeHardcodeTPParameters (HcalTPParameters& tppar) {
   // Parameters for a given TP algorithm:
   // FineGrain Algorithm Version for HBHE, ADC threshold fof TDC mask of HF,
   // TDC mask for HF, Self Trigger bits, auxiliary words
-  tppar.loadObject(0,0,0xFFFFFFFFFFFFFFF,0,0,0);
+  tppar.loadObject(0,0,0xFFFFFFFFFFFFFFFF,0,0,0);
 }
