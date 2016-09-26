@@ -136,6 +136,7 @@ HcalHardcodeCalibrations::HcalHardcodeCalibrations ( const edm::ParameterSet& iC
   dbHardcode.useHFUpgrade(iConfig.getParameter<bool>("useHFUpgrade"));
   dbHardcode.useHOUpgrade(iConfig.getParameter<bool>("useHOUpgrade"));
   dbHardcode.testHFQIE10(iConfig.getParameter<bool>("testHFQIE10"));
+  dbHardcode.setSiPMCharacteristics(iConfig.getParameter<std::vector<edm::ParameterSet>>("SiPMCharacteristics"));
 
   // HE and HF recalibration preparation
   iLumi=iConfig.getParameter<double>("iLumi");
@@ -928,6 +929,14 @@ void HcalHardcodeCalibrations::fillDescriptions(edm::ConfigurationDescriptions &
 	desc_ho.add<double>("darkCurrent",0.055);
 	desc.add<edm::ParameterSetDescription>("ho", desc_ho);
 
+	edm::ParameterSetDescription validator_sipm;
+	validator_sipm.add<int>("pixels",1);
+	validator_sipm.add<double>("crosstalk",0);
+	validator_sipm.add<double>("nonlin1",1);
+	validator_sipm.add<double>("nonlin2",0);
+	validator_sipm.add<double>("nonlin3",0);
+	std::vector<edm::ParameterSet> default_sipm(1);
+	desc.addVPSet("SiPMCharacteristics",validator_sipm,default_sipm);
 	
 	descriptions.addDefault(desc);
 }

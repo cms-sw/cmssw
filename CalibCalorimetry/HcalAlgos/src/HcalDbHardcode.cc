@@ -560,11 +560,18 @@ void HcalDbHardcode::makeHardcodeSiPMCharacteristics (HcalSiPMCharacteristics& s
   // SiPMCharacteristics are constants for each type of SiPM:
   // Type, # of pixels, 3 parameters for non-linearity, cross talk parameter, ..
   // Obtained from data sheet and measurements
-  sipm.loadObject(HcalHOZecotek,36000,1,0,0,0.32,0,0);
-  sipm.loadObject(HcalHOHamamatsu,2500,1,0,0,0.32,0,0);
-  sipm.loadObject(HcalHEHamamatsu1,27370,1.000669,1.34646E-5,1.57918E-10,0.32,0,0);
-  sipm.loadObject(HcalHEHamamatsu2,38018,1.000669,1.34646E-5,1.57918E-10,0.32,0,0);
-  sipm.loadObject(HcalHBHamamatsu1,27370,1.000669,1.34646E-5,1.57918E-10,0.32,0,0);
+  // types (in order): HcalHOZecotek=1, HcalHOHamamatsu, HcalHEHamamatsu1, HcalHEHamamatsu2, HcalHBHamamatsu1
+  for(unsigned ip = 0; ip < theSiPMCharacteristics_.size(); ++ip){
+    auto& ps = theSiPMCharacteristics_[ip];
+    sipm.loadObject(ip+1,
+      ps.getParameter<int>("pixels"),
+      ps.getParameter<double>("nonlin1"),
+      ps.getParameter<double>("nonlin2"),
+      ps.getParameter<double>("nonlin3"),
+      ps.getParameter<double>("crosstalk"),
+      0,0
+    );
+  }
 }
 
 HcalTPChannelParameter HcalDbHardcode::makeHardcodeTPChannelParameter (HcalGenericDetId fId) {

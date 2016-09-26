@@ -114,6 +114,14 @@ es_hardcode = cms.ESSource("HcalHardcodeCalibrations",
         photoelectronsToAnalog = cms.double(0.0),
         darkCurrent   = cms.double(0.0),
     ),
+    # types (in order): HcalHOZecotek, HcalHOHamamatsu, HcalHEHamamatsu1, HcalHEHamamatsu2, HcalHBHamamatsu1
+    SiPMCharacteristics = cms.VPSet(
+        cms.PSet( pixels = cms.int32(36000), crosstalk = cms.double(0.32), nonlin1 = cms.double(1.0), nonlin2 = cms.double(0.0), nonlin3 = cms.double(0.0) ),
+        cms.PSet( pixels = cms.int32(2500), crosstalk = cms.double(0.32), nonlin1 = cms.double(1.0), nonlin2 = cms.double(0.0), nonlin3 = cms.double(0.0) ),
+        cms.PSet( pixels = cms.int32(27370), crosstalk = cms.double(0.32), nonlin1 = cms.double(1.000669), nonlin2 = cms.double(1.34646E-5), nonlin3 = cms.double(1.57918E-10) ),
+        cms.PSet( pixels = cms.int32(38018), crosstalk = cms.double(0.32), nonlin1 = cms.double(1.000669), nonlin2 = cms.double(1.34646E-5), nonlin3 = cms.double(1.57918E-10) ),
+        cms.PSet( pixels = cms.int32(27370), crosstalk = cms.double(0.32), nonlin1 = cms.double(1.000669), nonlin2 = cms.double(1.34646E-5), nonlin3 = cms.double(1.57918E-10) ),
+    ),
 )
 
 es_prefer_hcalHardcode = cms.ESPrefer("HcalHardcodeCalibrations", "es_hardcode")
