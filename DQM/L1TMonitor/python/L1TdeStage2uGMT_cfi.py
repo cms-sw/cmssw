@@ -22,5 +22,7 @@ l1tdeStage2uGMT = cms.EDAnalyzer(
     monitorDir = cms.untracked.string("L1T2016EMU/L1TdeStage2uGMT/data_vs_emulator_comparison"),
     muonCollection1Title = cms.untracked.string("uGMT data"),
     muonCollection2Title = cms.untracked.string("uGMT emulator"),
+    summaryTitle = cms.untracked.string("Summary of comparison between uGMT muons and uGMT emulator muons"),
     verbose = cms.untracked.bool(False),
 )
+

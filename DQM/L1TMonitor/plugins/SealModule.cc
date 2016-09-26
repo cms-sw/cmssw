@@ -36,6 +36,9 @@ DEFINE_FWK_MODULE(L1TStage2uGMT);
 #include <DQM/L1TMonitor/interface/L1TStage2MuonComp.h>
 DEFINE_FWK_MODULE(L1TStage2MuonComp);
 
+#include <DQM/L1TMonitor/interface/L1TStage2RegionalMuonCandComp.h>
+DEFINE_FWK_MODULE(L1TStage2RegionalMuonCandComp);
+
 #include <DQM/L1TMonitor/interface/L1TStage2uGT.h>
 DEFINE_FWK_MODULE(L1TStage2uGT);
 
@@ -47,6 +50,9 @@ DEFINE_FWK_MODULE(L1TStage2OMTF);
 
 #include <DQM/L1TMonitor/interface/L1TStage2EMTF.h>
 DEFINE_FWK_MODULE(L1TStage2EMTF);
+
+#include <DQM/L1TMonitor/interface/L1TMP7ZeroSupp.h>
+DEFINE_FWK_MODULE(L1TMP7ZeroSupp);
 
 #include <DQM/L1TMonitor/interface/L1TGCT.h>
 DEFINE_FWK_MODULE(L1TGCT);
