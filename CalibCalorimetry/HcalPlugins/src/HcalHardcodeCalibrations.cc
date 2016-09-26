@@ -134,6 +134,7 @@ HcalHardcodeCalibrations::HcalHardcodeCalibrations ( const edm::ParameterSet& iC
   dbHardcode.useHBUpgrade(iConfig.getParameter<bool>("useHBUpgrade"));
   dbHardcode.useHEUpgrade(iConfig.getParameter<bool>("useHEUpgrade"));
   dbHardcode.useHFUpgrade(iConfig.getParameter<bool>("useHFUpgrade"));
+  dbHardcode.useHOUpgrade(iConfig.getParameter<bool>("useHOUpgrade"));
   dbHardcode.testHFQIE10(iConfig.getParameter<bool>("testHFQIE10"));
 
   // HE and HF recalibration preparation
@@ -817,6 +818,7 @@ void HcalHardcodeCalibrations::fillDescriptions(edm::ConfigurationDescriptions &
 	desc.add<bool>("useHBUpgrade",false);
 	desc.add<bool>("useHEUpgrade",false);
 	desc.add<bool>("useHFUpgrade",false);
+	desc.add<bool>("useHOUpgrade",true);
 	desc.add<bool>("testHFQIE10",false);
 	desc.addUntracked<std::vector<std::string>>("toGet",std::vector<std::string>());
 	desc.addUntracked<bool>("fromDDD",false);

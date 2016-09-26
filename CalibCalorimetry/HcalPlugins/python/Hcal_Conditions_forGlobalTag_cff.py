@@ -21,6 +21,7 @@ es_hardcode = cms.ESSource("HcalHardcodeCalibrations",
     useHBUpgrade = cms.bool(False),
     useHEUpgrade = cms.bool(False),
     useHFUpgrade = cms.bool(False),
+    useHOUpgrade = cms.bool(True),
     testHFQIE10  = cms.bool(False),
     hb = cms.PSet(
         pedestal      = cms.double(3.0),
