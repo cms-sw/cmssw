@@ -178,5 +178,14 @@ eras.phase2_muon.toModify(RandomNumberGeneratorService, simMuonME0Digis = cms.PS
         initialSeed = cms.untracked.uint32(1234567),
         engineName = cms.untracked.string('HepJamesRandom')) )
 
-eras.phase2_timing.toModify(RandomNumberGeneratorService,
-                            trackTimeValueMapProducer = cms.PSet(initialSeed = cms.untracked.uint32(1234567), engineName = cms.untracked.string('HepJamesRandom') ) )
+eras.phase2_timing.toModify(
+    RandomNumberGeneratorService,
+    trackTimeValueMapProducer = cms.PSet( 
+        initialSeed = cms.untracked.uint32(1234567), 
+        engineName = cms.untracked.string('HepJamesRandom') 
+        ),
+    ecalBarrelClusterFastTimer = cms.PSet(
+        initialSeed = cms.untracked.uint32(1234567),
+        engineName = cms.untracked.string('HepJamesRandom')
+        )
+)
