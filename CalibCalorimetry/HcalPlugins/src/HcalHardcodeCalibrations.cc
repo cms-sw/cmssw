@@ -591,22 +591,41 @@ std::unique_ptr<HcalLutMetadata> HcalHardcodeCalibrations::produceLutMetadata (c
   auto result = std::make_unique<HcalLutMetadata>(topo);
 
   result->setRctLsb( 0.5 );
-  result->setNominalGain(0.003333);  // for HBHE SiPMs
+  result->setNominalGain(0.177);  // for HBHE SiPMs
 
   std::vector <HcalGenericDetId> cells = allCells(*topo);
-  for (std::vector <HcalGenericDetId>::const_iterator cell = cells.begin (); cell != cells.end (); ++cell) {
+  for (const auto& cell: cells) {
+    float rcalib = 1.;
+    int granularity = 1;
+    int threshold = 1;
 
-    /*
-    if (cell->isHcalTrigTowerDetId()) {
-      HcalTrigTowerDetId ht = HcalTrigTowerDetId(*cell);
-      int ieta = ht.ieta();
-      int iphi = ht.iphi();
-      std::cout << " HcalTrigTower cell (ieta,iphi) = " 
-	       <<  ieta << ",  " << iphi << std::endl;
+    if (dbHardcode.useHEUpgrade() or dbHardcode.useHFUpgrade()) {
+       switch (cell.genericSubdet()) {
+          case HcalGenericDetId::HcalGenBarrel:
+             rcalib = 1.128;
+             break;
+         case HcalGenericDetId::HcalGenEndcap:
+             {
+                HcalDetId id(cell);
+                if (id.ietaAbs() >= 28)
+                   rcalib = 1.188;
+                else
+                   rcalib = 1.117;
+             }
+             break;
+         case HcalGenericDetId::HcalGenForward:
+             rcalib = 1.02;
+             break;
+         default:
+             break;
+       }
+
+       if (cell.isHcalTrigTowerDetId()) {
+          rcalib = 0.;
+       }
     }
-    */
 
-    HcalLutMetadatum item(cell->rawId(),1.0,1,1);
+    HcalLutMetadatum item(cell.rawId(), rcalib, granularity, threshold);
     result->addValues(item);
   }
   
