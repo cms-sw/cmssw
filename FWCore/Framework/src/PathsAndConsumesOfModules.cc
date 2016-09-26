@@ -7,7 +7,6 @@
 #include "FWCore/Utilities/interface/EDMException.h"
 
 #include <algorithm>
-
 namespace edm {
 
   PathsAndConsumesOfModules::~PathsAndConsumesOfModules() {
@@ -146,20 +145,32 @@ namespace edm {
     //for testing, state that TriggerResults is at the end of all paths
     const std::string kTriggerResults("TriggerResults");
     unsigned int kTriggerResultsIndex = kInvalidIndex;
+    unsigned int largestIndex = 0;
+    unsigned int kPathToTriggerResultsDependencyLastIndex = kInvalidIndex;
     for(auto const& description: iPnC.allModules()) {
       moduleIndexToNames.insert(std::make_pair(description->id(),
                                                description->moduleLabel()));
       if(kTriggerResults == description->moduleLabel()) {
         kTriggerResultsIndex = description->id();
       }
+      if(description->id() > largestIndex) {
+        largestIndex = description->id();
+      }
+    }
+    if(kTriggerResultsIndex != kInvalidIndex) {
+      kPathToTriggerResultsDependencyLastIndex = largestIndex ;
     }
 
     //If a module to module dependency comes from a path, remember which path
     EdgeToPathMap edgeToPathMap;
-        
+
     //determine the path dependencies
     std::vector<std::string> pathNames = iPnC.paths();
     const unsigned int kFirstEndPathIndex = pathNames.size();
+
+    const std::string kPathEnded("PathEnded");
+    const std::string kEndPathStart("EndPathStart");
+
     pathNames.insert(pathNames.end(), iPnC.endPaths().begin(), iPnC.endPaths().end());
     std::vector<std::vector<unsigned int>> pathIndexToModuleIndexOrder(pathNames.size());
     {
@@ -175,7 +186,7 @@ namespace edm {
         }
         unsigned int lastModuleIndex = kInvalidIndex;
         auto& pathOrder =pathIndexToModuleIndexOrder[pathIndex];
-        pathOrder.reserve(moduleDescriptions->size());
+        pathOrder.reserve(moduleDescriptions->size() + 1);
         for(auto const& description: *moduleDescriptions) {
           auto found = alreadySeenIndex.insert(description->id());
           if(found.second) {
@@ -188,15 +199,31 @@ namespace edm {
             lastModuleIndex = moduleIndex;
           }
         }
-        //Stick TriggerResults at end of paths
+        //Have TriggerResults depend on the end of all paths 
+        // Have all EndPaths depend on TriggerResults
         if( pathIndex < kFirstEndPathIndex) {
           if( (lastModuleIndex  != kInvalidIndex) and (kTriggerResultsIndex != kInvalidIndex) ) {
-            edgeToPathMap[std::make_pair(kTriggerResultsIndex,lastModuleIndex)].push_back(pathIndex);
+            ++kPathToTriggerResultsDependencyLastIndex;
+            edgeToPathMap[std::make_pair(kPathToTriggerResultsDependencyLastIndex,lastModuleIndex)].push_back(pathIndex);
+            moduleIndexToNames.insert(std::make_pair(kPathToTriggerResultsDependencyLastIndex,
+                                                     kPathEnded));
+            edgeToPathMap[std::make_pair(kTriggerResultsIndex, kPathToTriggerResultsDependencyLastIndex)].push_back(kDataDependencyIndex);
+            pathOrder.push_back(kPathToTriggerResultsDependencyLastIndex);
+          }
+        } else {
+          if( (not moduleDescriptions->empty()) and (kTriggerResultsIndex != kInvalidIndex) ) {
+            ++kPathToTriggerResultsDependencyLastIndex;
+            edgeToPathMap[std::make_pair(moduleDescriptions->front()->id(),kPathToTriggerResultsDependencyLastIndex)].push_back(pathIndex);
+            moduleIndexToNames.insert(std::make_pair(kPathToTriggerResultsDependencyLastIndex,
+                                                     kEndPathStart));
+            edgeToPathMap[std::make_pair(kPathToTriggerResultsDependencyLastIndex,kTriggerResultsIndex)].push_back(kDataDependencyIndex);
+            pathOrder.insert(pathOrder.begin(),kPathToTriggerResultsDependencyLastIndex);
           }
         }
       }
     }
     {
+
       //determine the data dependencies
       for(auto const& description: iPnC.allModules()) {
         unsigned int const moduleIndex = description->id();
