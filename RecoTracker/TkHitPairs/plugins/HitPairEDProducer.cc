@@ -14,7 +14,6 @@
 #include "RecoTracker/TkHitPairs/interface/HitPairGeneratorFromLayerPair.h"
 #include "RecoTracker/TkHitPairs/interface/IntermediateHitDoublets.h"
 #include "RecoTracker/TkHitPairs/interface/RegionsSeedingHitSets.h"
-#include "RecoPixelVertexing/PixelTriplets/interface/LayerTriplets.h"
 
 class HitPairEDProducer: public edm::stream::EDProducer<> {
 public:
@@ -35,6 +34,7 @@ private:
   const unsigned int maxElement_;
 
   HitPairGeneratorFromLayerPair generator_;
+  std::vector<unsigned> layerPairBegins_;
 
   const bool produceSeedingHitSets_;
   const bool produceIntermediateHitDoublets_;
@@ -46,12 +46,16 @@ HitPairEDProducer::HitPairEDProducer(const edm::ParameterSet& iConfig):
   regionToken_(consumes<edm::OwnVector<TrackingRegion> >(iConfig.getParameter<edm::InputTag>("trackingRegions"))),
   clusterCheckToken_(consumes<bool>(iConfig.getParameter<edm::InputTag>("clusterCheck"))),
   maxElement_(iConfig.getParameter<unsigned int>("maxElement")),
-  generator_(0, 1, nullptr, maxElement_), // TODO: make layer indices configurable?
+  generator_(0, 1, nullptr, maxElement_), // these indices are dummy, TODO: cleanup HitPairGeneratorFromLayerPair
+  layerPairBegins_(iConfig.getParameter<std::vector<unsigned> >("layerPairs")),
   produceSeedingHitSets_(iConfig.getParameter<bool>("produceSeedingHitSets")),
   produceIntermediateHitDoublets_(iConfig.getParameter<bool>("produceIntermediateHitDoublets"))
 {
   if(!produceIntermediateHitDoublets_ && !produceSeedingHitSets_)
     throw cms::Exception("Configuration") << "HitPairEDProducer requires either produceIntermediateHitDoublets or produceSeedingHitSets to be True. If neither are needed, just remove this module from your sequence/path as it doesn't do anything useful";
+
+  if(layerPairBegins_.empty())
+    throw cms::Exception("Configuration") << "HitPairEDProducer requires at least index for layer pairs (layerPairs parameter), none was given";
 
   if(produceSeedingHitSets_)
     produces<RegionsSeedingHitSets>();
@@ -68,6 +72,7 @@ void HitPairEDProducer::fillDescriptions(edm::ConfigurationDescriptions& descrip
   desc.add<bool>("produceSeedingHitSets", false);
   desc.add<bool>("produceIntermediateHitDoublets", false);
   desc.add<unsigned int>("maxElement", 1000000);
+  desc.add<std::vector<unsigned> >("layerPairs", std::vector<unsigned>{{0}})->setComment("Indices to the pairs of consecutive layers, i.e. 0 means (0,1), 1 (1,2) etc.");
 
   descriptions.add("hitPairEDProducer", desc);
 }
@@ -110,19 +115,38 @@ void HitPairEDProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
 
   LogDebug("HitPairEDProducer") << "Creating doublets for " << regions.size() << " and " << layers.size() << " layer sets";
 
-  // This is the easiest way to extract the layer pairs from the full
-  // set of seeding layers. It feels a bit stupid to do it for each
-  // event given the input is defined in configuration. Maybe do it
-  // once-per-job in SeedingLayerSetsEDProducer?
   std::vector<SeedingLayerSetsHits::SeedingLayerSet> layerPairs;
   if(layers.numberOfLayersInSet() > 2) {
-    std::vector<LayerTriplets::LayerSetAndLayers> trilayers = LayerTriplets::layers(layers);
-    layerPairs.reserve(trilayers.size());
-    for(const auto& setAndLayers: trilayers) {
-      layerPairs.push_back(setAndLayers.first);
+    for(const auto& layerSet: layers) {
+      for(const auto pairBeginIndex: layerPairBegins_) {
+        if(pairBeginIndex+1 >= layers.numberOfLayersInSet()) {
+          throw cms::Exception("Configuration") << "Layer pair index " << pairBeginIndex << " is out of bounds, input SeedingLayerSetsHits has only " << layers.numberOfLayersInSet() << " layers per set, and the index+1 must be < than the number of layers in set";
+        }
+
+        // Take only the requested pair of the set
+        SeedingLayerSetsHits::SeedingLayerSet pairCandidate = layerSet.slice(pairBeginIndex, pairBeginIndex+1);
+
+        // it would be trivial to use 128-bit bitfield for O(1) check
+        // if a layer pair has been inserted, but let's test first how
+        // a "straightforward" solution works
+        auto found = std::find_if(layerPairs.begin(), layerPairs.end(), [&](const SeedingLayerSetsHits::SeedingLayerSet& pair) {
+            return pair[0].index() == pairCandidate[0].index() && pair[1].index() == pairCandidate[1].index();
+          });
+        if(found != layerPairs.end())
+          continue;
+
+        layerPairs.push_back(pairCandidate);
+      }
     }
   }
   else {
+    if(layerPairBegins_.size() != 1) {
+      throw cms::Exception("Configuration") << "With pairs of input layers, it doesn't make sense to specify more than one input layer pair, got " << layerPairBegins_.size();
+    }
+    if(layerPairBegins_[0] != 0) {
+      throw cms::Exception("Configuration") << "With pairs of input layers, it doesn't make sense to specify other input layer pair than 0; got " << layerPairBegins_[0];
+    }
+
     layerPairs.reserve(layers.size());
     for(const auto& set: layers)
       layerPairs.push_back(set);

@@ -14,7 +14,7 @@ public:
 
 	}
 
-	void createAndConnectCells(const std::vector<HitDoublets>&,
+	void createAndConnectCells(const std::vector<const HitDoublets *>&,
 			const TrackingRegion&, const float, const float, const float);
 
 	void evolve(const unsigned int);

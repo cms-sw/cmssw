@@ -107,6 +107,25 @@ public:
     /// Number of layers in this set
     LayerSetIndex size() const { return end_-begin_; }
 
+    /**
+     * Slices the layer set
+     *
+     * E.g. slicing BPix1+BPix2+BPix3+BPix4 with (0,2) will give
+     * BPix1+BPix2.
+     *
+     * \param begin  Index for the first layer of the slice
+     * \param end    Index for the one-beyond-last layer of the slice
+     *
+     * It is caller's responsibility to guarantee that "begin <
+     * size()" and "0 < end <= size()" and "begin < end".
+     */
+    SeedingLayerSet slice(size_t begin, size_t end) const {
+      assert(begin < size());
+      assert(0 < end && end <= size());
+      assert(begin < end);
+      return SeedingLayerSet(seedingLayerSets_, begin_+begin, begin_+end);
+    }
+
     /// Get a given SeedingLayer (index is between 0 and size()-1)
     SeedingLayer operator[](LayerSetIndex index) const {
       return SeedingLayer(seedingLayerSets_, *(begin_+index));
