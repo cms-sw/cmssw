@@ -13,6 +13,8 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/HGCalCommonData/interface/HGCalGeometryMode.h"
 
 #include <algorithm>
@@ -100,13 +102,24 @@ void HGCDigitizer::accumulate(edm::Event const& e, edm::EventSetup const& eventS
   }
 
   //get geometry
-  edm::ESHandle<HGCalGeometry> geom;
-  if( producesEEDigis() )      eventSetup.get<IdealGeometryRecord>().get("HGCalEESensitive"            , geom);
-  if( producesHEfrontDigis() ) eventSetup.get<IdealGeometryRecord>().get("HGCalHESiliconSensitive"     , geom);
-  if( producesHEbackDigis() )  eventSetup.get<IdealGeometryRecord>().get("HGCalHEScintillatorSensitive", geom);
+  edm::ESHandle<CaloGeometry> geom;
+  eventSetup.get<CaloGeometryRecord>().get(geom);
+  
+  const HGCalGeometry* gHGCal = nullptr;
+  const HcalGeometry* gHcal = nullptr;
+  if( producesEEDigis() ) gHGCal = dynamic_cast<const HGCalGeometry*>(geom->getSubdetectorGeometry(DetId::Forward, HGCEE));
+  if( producesHEfrontDigis() ) gHGCal = dynamic_cast<const HGCalGeometry*>(geom->getSubdetectorGeometry(DetId::Forward, HGCHEF));
+  if( producesHEbackDigis() )  gHcal = dynamic_cast<const HcalGeometry*>(geom->getSubdetectorGeometry(DetId::Hcal, HcalBarrel));
 
   //accumulate in-time the main event
-  accumulate(hits, 0, geom, hre);
+  if( nullptr != gHGCal ) {
+    accumulate(hits, 0, gHGCal, hre);
+  } else if( nullptr != gHcal ) {
+    accumulate(hits, 0, gHcal, hre);
+  } else {
+    throw cms::Exception("BadConfiguration")
+      << "HGCDigitizer is not producing EE, FH, or BH digis!";
+  }
 }
 
 //
@@ -121,22 +134,39 @@ void HGCDigitizer::accumulate(PileUpEventPrincipal const& e, edm::EventSetup con
   }
 
   //get geometry
-  edm::ESHandle<HGCalGeometry> geom;
-  if( producesEEDigis() )      eventSetup.get<IdealGeometryRecord>().get("HGCalEESensitive"            , geom);
-  if( producesHEfrontDigis() ) eventSetup.get<IdealGeometryRecord>().get("HGCalHESiliconSensitive"     , geom);
-  if( producesHEbackDigis() )  eventSetup.get<IdealGeometryRecord>().get("HGCalHEScintillatorSensitive", geom);
-
+  edm::ESHandle<CaloGeometry> geom;
+  eventSetup.get<CaloGeometryRecord>().get(geom);
+  
+  const HGCalGeometry* gHGCal = nullptr;
+  const HcalGeometry* gHcal = nullptr;
+  if( producesEEDigis() ) gHGCal = dynamic_cast<const HGCalGeometry*>(geom->getSubdetectorGeometry(DetId::Forward, HGCEE));
+  if( producesHEfrontDigis() ) gHGCal = dynamic_cast<const HGCalGeometry*>(geom->getSubdetectorGeometry(DetId::Forward, HGCHEF));
+  if( producesHEbackDigis() )  gHcal = dynamic_cast<const HcalGeometry*>(geom->getSubdetectorGeometry(DetId::Hcal, HcalBarrel));
+  
   //accumulate for the simulated bunch crossing  
-  accumulate(hits, e.bunchCrossing(), geom, hre);
+  if( nullptr != gHGCal ) {
+    accumulate(hits, e.bunchCrossing(), gHGCal, hre);
+  } else if ( nullptr != gHcal ) {
+    accumulate(hits, e.bunchCrossing(), gHcal, hre);
+  } else {
+    throw cms::Exception("BadConfiguration")
+      << "HGCDigitizer is not producing EE, FH, or BH digis!";
+  }
 }
 
 //
 void HGCDigitizer::accumulate(edm::Handle<edm::PCaloHitContainer> const &hits, 
 			      int bxCrossing,
-			      const edm::ESHandle<HGCalGeometry> &geom,
-                              CLHEP::HepRandomEngine* hre)
-{
-  if(!geom.isValid()) return;
+			      const HcalGeometry* geom,
+                              CLHEP::HepRandomEngine* hre) {
+}
+
+//
+void HGCDigitizer::accumulate(edm::Handle<edm::PCaloHitContainer> const &hits, 
+			      int bxCrossing,
+			      const HGCalGeometry* geom,
+                              CLHEP::HepRandomEngine* hre) {
+  if( nullptr == geom ) return;
   const HGCalTopology &topo=geom->topology();
   const HGCalDDDConstants &dddConst=topo.dddConstants();
 
@@ -163,7 +193,7 @@ void HGCDigitizer::accumulate(edm::Handle<edm::PCaloHitContainer> const &hits,
     break;
   case ForwardSubdetector::HGCHEB:
     weightToAbyEnergy = theHGCHEbackDigitizer_->toaModeByEnergy();
-    tdcOnset          = std::numeric_limits<float>::max();//theHGCHEbackDigitizer_->tdcOnset();
+    tdcOnset          = theHGCHEbackDigitizer_->tdcOnset();
     keV2fC            = theHGCHEbackDigitizer_->keV2fC();     
     break;
   default:
@@ -285,7 +315,7 @@ void HGCDigitizer::accumulate(edm::Handle<edm::PCaloHitContainer> const &hits,
   
   //add base data for noise simulation (and thicknesses)
   if(!checkValidDetIds_) return;
-  if(!geom.isValid()) return;
+  if(nullptr == geom) return;
   const std::vector<DetId> &validIds=geom->getValidDetIds();   
   int nadded(0);
   if (useAllChannels_) {
