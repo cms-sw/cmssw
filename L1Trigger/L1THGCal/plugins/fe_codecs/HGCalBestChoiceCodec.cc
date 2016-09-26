@@ -8,7 +8,7 @@ DEFINE_EDM_PLUGIN(HGCalTriggerFECodecFactory,
         "HGCalBestChoiceCodec");
 
 /*****************************************************************/
-HGCalBestChoiceCodec::HGCalBestChoiceCodec(const edm::ParameterSet& conf) : Codec(conf),
+HGCalBestChoiceCodec::HGCalBestChoiceCodec(const edm::ParameterSet& conf, const HGCalTriggerGeometryBase* const geom) : Codec(conf,geom),
     codecImpl_(conf)
 /*****************************************************************/
 {
@@ -16,8 +16,7 @@ HGCalBestChoiceCodec::HGCalBestChoiceCodec(const edm::ParameterSet& conf) : Code
 
 
 /*****************************************************************/
-void HGCalBestChoiceCodec::setDataPayloadImpl(const HGCalTriggerGeometryBase& geom, 
-        const HGCEEDigiCollection& ee,
+void HGCalBestChoiceCodec::setDataPayloadImpl(const HGCEEDigiCollection& ee,
         const HGCHEDigiCollection& fh,
         const HGCHEDigiCollection& ) 
 /*****************************************************************/
@@ -51,14 +50,13 @@ void HGCalBestChoiceCodec::setDataPayloadImpl(const HGCalTriggerGeometryBase& ge
     // linearize input energy on 16 bits
     codecImpl_.linearize(dataframes, linearized_dataframes);
     // sum energy in trigger cells
-    codecImpl_.triggerCellSums(geom, linearized_dataframes, data_);
+    codecImpl_.triggerCellSums(*geometry_, linearized_dataframes, data_);
     // choose best trigger cells in the module
     codecImpl_.bestChoiceSelect(data_);
 }
 
 /*****************************************************************/
-void HGCalBestChoiceCodec::setDataPayloadImpl(const HGCalTriggerGeometryBase& geom, 
-        const l1t::HGCFETriggerDigi& digi)
+void HGCalBestChoiceCodec::setDataPayloadImpl(const l1t::HGCFETriggerDigi& digi)
 /*****************************************************************/
 {
     data_.reset();
@@ -81,7 +79,7 @@ void HGCalBestChoiceCodec::setDataPayloadImpl(const HGCalTriggerGeometryBase& ge
     conf.addParameter<uint32_t>   ("tdcnBits",      codecImpl_.tdcnBits());
     conf.addParameter<double>     ("tdcOnsetfC",    codecImpl_.tdcOnsetfC());
     conf.addParameter<uint32_t>   ("triggerCellTruncationBits", codecImpl_.triggerCellTruncationBits());
-    HGCalBestChoiceCodec codecInput(conf);
+    HGCalBestChoiceCodec codecInput(conf, geometry_);
     digi.decode(codecInput,data_);
     // choose best trigger cells in the module
     codecImpl_.bestChoiceSelect(data_);
