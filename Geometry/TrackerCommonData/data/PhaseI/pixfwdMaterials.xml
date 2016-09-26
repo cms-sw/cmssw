@@ -25,7 +25,7 @@
 
 -->
 
-<MaterialSection label="PixelForwardMaterial.xml">
+<MaterialSection label="pixfwdMaterials.xml">
 
   <CompositeMaterial name="FPix_Alumina" density="3.96*g/cm3" symbol=" " method="mixture by weight">
     <MaterialFraction fraction="0.52924272">
@@ -191,7 +191,7 @@
     </MaterialFraction>
   </CompositeMaterial>
 
-  <CompositeMaterial name="Pix_Fwd_Bump" density="0.41391*g/cm3" symbol=" " method="mixture by weight">
+  <CompositeMaterial name="Pix_Fwd_Bump" density="0.20075*g/cm3" symbol=" " method="mixture by weight">
     <MaterialFraction fraction="1.00">
       <rMaterial name="pixfwdMaterials:FPix_TinLeadSolder"/>
     </MaterialFraction>
@@ -209,6 +209,24 @@
     </MaterialFraction>
     <MaterialFraction fraction="0.12502">
       <rMaterial name="pixfwdMaterials:FPix_Kapton"/>
+    </MaterialFraction>
+  </CompositeMaterial>
+
+  <CompositeMaterial name="Pix_Fwd_InnerBlade_AdhFilm" density="2.93833*g/cm3" symbol=" " method="mixture by weight">
+    <MaterialFraction fraction="0.55706">
+      <rMaterial name="pixfwdMaterials:FPix_Epoxy"/>
+    </MaterialFraction>
+    <MaterialFraction fraction="0.44294">
+      <rMaterial name="pixfwdMaterials:FPix_BNPowder"/>
+    </MaterialFraction>
+  </CompositeMaterial>
+
+  <CompositeMaterial name="Pix_Fwd_OuterBlade_AdhFilm" density="2.87*g/cm3" symbol=" " method="mixture by weight">
+    <MaterialFraction fraction="0.55706">
+      <rMaterial name="pixfwdMaterials:FPix_Epoxy"/>
+    </MaterialFraction>
+    <MaterialFraction fraction="0.44294">
+      <rMaterial name="pixfwdMaterials:FPix_BNPowder"/>
     </MaterialFraction>
   </CompositeMaterial>
 
@@ -285,6 +303,24 @@
   <CompositeMaterial name="Aluminium_InnerRing" density="1.92*g/cm3" symbol=" " method="mixture by weight">
     <MaterialFraction fraction="1.0">
       <rMaterial name="trackermaterial:T_Aluminium"/>
+    </MaterialFraction>
+  </CompositeMaterial>
+
+  <CompositeMaterial name="Pix_Fwd_Conn" density="1.580*g/cm3" symbol=" " method="mixture by weight">
+    <MaterialFraction fraction="0.8062">
+      <rMaterial name="materials:Peek"/>
+    </MaterialFraction>
+    <MaterialFraction fraction="0.1938">
+      <rMaterial name="materials:Copper"/>
+    </MaterialFraction>
+  </CompositeMaterial>
+
+  <CompositeMaterial name="Pix_Fwd_AluFelxCable" density="2.463*g/cm3" symbol=" " method="mixture by weight">
+    <MaterialFraction fraction="0.3985">
+      <rMaterial name="materials:Aluminium"/>
+    </MaterialFraction>
+    <MaterialFraction fraction="0.6015">
+      <rMaterial name="materials:Kapton"/>
     </MaterialFraction>
   </CompositeMaterial>
 
