@@ -1,5 +1,6 @@
 #include "Validation/HcalHits/interface/HcalSimHitStudy.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
+#include "SimDataFormats/CaloTest/interface/HcalTestNumbering.h"
 
 #include "FWCore/Utilities/interface/Exception.h"
 
@@ -12,6 +13,7 @@ HcalSimHitStudy::HcalSimHitStudy(const edm::ParameterSet& ps) {
   hcalHits = ps.getUntrackedParameter<std::string>("HitCollection","HcalHits");
   outFile_ = ps.getUntrackedParameter<std::string>("outputFile", "hcHit.root");
   verbose_ = ps.getUntrackedParameter<bool>("Verbose", false);
+  testNumber_= ps.getUntrackedParameter<bool>("TestNumber", false);
   checkHit_= true;
 
   tok_hits_ = consumes<edm::PCaloHitContainer>(edm::InputTag(g4Label,hcalHits));
@@ -162,12 +164,22 @@ void HcalSimHitStudy::analyzeHits (std::vector<PCaloHit>& hits) {
     int log10i       = int( (log10en+10.)*10. );
     double time      = hits[i].time();
     unsigned int id_ = hits[i].id();
-    HcalDetId id     = HcalDetId(id_);
-    int det          = id.det();
-    int subdet       = id.subdet();
-    int depth        = id.depth();
-    int eta          = id.ieta();
-    int phi          = id.iphi();
+    int det, subdet, depth, eta, phi;
+    if (testNumber_) {
+      int z, lay;
+      HcalTestNumbering::unpackHcalIndex(id_, subdet, z, depth, eta, phi, lay);
+      int sign = (z==0) ? (-1):(1);
+      eta     *= sign;
+      det      = 4;
+    } else {
+      HcalDetId id = HcalDetId(id_);
+      det          = id.det();
+      subdet       = id.subdet();
+      depth        = id.depth();
+      eta          = id.ieta();
+      phi          = id.iphi();
+    }
+
     LogDebug("HcalSim") << "Hit[" << i << "] ID " << std::hex << id_ 
 			<< std::dec << " Det " << det << " Sub " 
 			<< subdet << " depth " << depth << " Eta " << eta

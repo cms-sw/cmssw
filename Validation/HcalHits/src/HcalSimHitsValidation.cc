@@ -1,5 +1,6 @@
 #include "Validation/HcalHits/interface/HcalSimHitsValidation.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
+#include "SimDataFormats/CaloTest/interface/HcalTestNumbering.h"
 
 #include "Validation/HcalHits/interface/HcalSimHitsConstants.h"
 
@@ -7,6 +8,7 @@
 HcalSimHitsValidation::HcalSimHitsValidation(edm::ParameterSet const& conf) {
   // DQM ROOT output
   outputFile_ = conf.getUntrackedParameter<std::string>("outputFile", "myfile.root");
+  testNumber_ = conf.getUntrackedParameter<bool>("TestNumber",false);
 
   // register for data access
   tok_evt_ = consumes<edm::HepMCProduct>(edm::InputTag("generatorSmeared"));
@@ -261,7 +263,18 @@ void HcalSimHitsValidation::analyze(edm::Event const& ev, edm::EventSetup const&
   c.get<CaloGeometryRecord>().get (geometry);
     
   for (std::vector<PCaloHit>::const_iterator SimHits = SimHitResult->begin () ; SimHits != SimHitResult->end(); ++SimHits) {
-    HcalDetId cell(SimHits->id());
+    HcalDetId cell;
+    if (testNumber_) {
+      int subdet, z, depth, eta, phi, lay;
+      HcalTestNumbering::unpackHcalIndex(SimHits->id(), subdet, z, depth, eta,
+                                        phi, lay);
+      int sign = (z==0) ? (-1):(1);
+      eta     *= sign;
+      cell     = HcalDetId((HcalSubdetector)(subdet), eta, phi, depth);
+    } else {
+      cell = HcalDetId(SimHits->id());
+    }
+
     const CaloCellGeometry* cellGeometry = geometry->getSubdetectorGeometry (cell)->getGeometry (cell);
     double etaS = cellGeometry->getPosition().eta () ;
     double phiS = cellGeometry->getPosition().phi () ;

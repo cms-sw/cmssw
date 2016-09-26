@@ -43,7 +43,7 @@ protected:
 private:
 
   std::string    g4Label, hcalHits, outFile_;
-  bool           verbose_, checkHit_;
+  bool           verbose_, checkHit_, testNumber_;
 
   edm::EDGetTokenT<edm::PCaloHitContainer> tok_hits_;
 
