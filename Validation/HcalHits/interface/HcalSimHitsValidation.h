@@ -72,7 +72,7 @@ private:
   // Hits counters
   std::vector<MonitorElement*> Nhb;
   std::vector<MonitorElement*> Nhe;
-  std::vector<MonitorElement*> Nho;
+  MonitorElement* Nho;
   std::vector<MonitorElement*> Nhf;
 
   // In ALL other cases : 2D ieta-iphi maps 
@@ -82,12 +82,12 @@ private:
 
   std::vector<MonitorElement*> emean_vs_ieta_HB;
   std::vector<MonitorElement*> emean_vs_ieta_HE;
-  std::vector<MonitorElement*> emean_vs_ieta_HO;
+  MonitorElement* emean_vs_ieta_HO;
   std::vector<MonitorElement*> emean_vs_ieta_HF;
 
   std::vector<MonitorElement*> occupancy_vs_ieta_HB;
   std::vector<MonitorElement*> occupancy_vs_ieta_HE;
-  std::vector<MonitorElement*> occupancy_vs_ieta_HO;
+  MonitorElement* occupancy_vs_ieta_HO;
   std::vector<MonitorElement*> occupancy_vs_ieta_HF;
 
   // for single monoenergetic particles - cone collection profile vs ieta.
@@ -98,7 +98,7 @@ private:
   // energy of rechits
   std::vector<MonitorElement*> meSimHitsEnergyHB;
   std::vector<MonitorElement*> meSimHitsEnergyHE;
-  std::vector<MonitorElement*> meSimHitsEnergyHO;
+  MonitorElement* meSimHitsEnergyHO;
   std::vector<MonitorElement*> meSimHitsEnergyHF;
 
   edm::ESHandle<CaloGeometry> geometry ;

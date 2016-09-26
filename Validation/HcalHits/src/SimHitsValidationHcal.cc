@@ -3,6 +3,8 @@
 #include "Geometry/Records/interface/HcalRecNumberingRecord.h"
 #include "SimDataFormats/CaloTest/interface/HcalTestNumbering.h"
 
+#include "Validation/HcalHits/interface/SimHitsConstants.h"
+
 #define DebugLog
 
 SimHitsValidationHcal::SimHitsValidationHcal(const edm::ParameterSet& ps) {
@@ -55,19 +57,19 @@ void SimHitsValidationHcal::bookHistograms(DQMStore::IBooker &ib, edm::Run const
       
     sprintf (name, "HcalHitE25%s", divisions[i].first.c_str());
     sprintf (title, "Energy in time window 0 to 25 for a tower in %s", divisions[i].second.c_str());
-    meHcalEnergyl25_.push_back(ib.book2D(name, title, limit.bins, limit.low, limit.high, 72, 0., 72.));
+    meHcalEnergyl25_.push_back(ib.book2D(name, title, limit.bins, limit.low, limit.high, IPHI_BINS_, IPHI_MIN_, IPHI_MAX_));
       
     sprintf (name, "HcalHitE50%s", divisions[i].first.c_str());
     sprintf (title, "Energy in time window 0 to 50 for a tower in %s", divisions[i].second.c_str());
-    meHcalEnergyl50_.push_back(ib.book2D(name, title, limit.bins, limit.low, limit.high, 72, 0., 72.));
+    meHcalEnergyl50_.push_back(ib.book2D(name, title, limit.bins, limit.low, limit.high, IPHI_BINS_, IPHI_MIN_, IPHI_MAX_));
       
     sprintf (name, "HcalHitE100%s", divisions[i].first.c_str());
     sprintf (title, "Energy in time window 0 to 100 for a tower in %s", divisions[i].second.c_str());
-    meHcalEnergyl100_.push_back(ib.book2D(name, title, limit.bins, limit.low, limit.high, 72, 0., 72.));
+    meHcalEnergyl100_.push_back(ib.book2D(name, title, limit.bins, limit.low, limit.high, IPHI_BINS_, IPHI_MIN_, IPHI_MAX_));
       
     sprintf (name, "HcalHitE250%s", divisions[i].first.c_str());
     sprintf (title, "Energy in time window 0 to 250 for a tower in %s", divisions[i].second.c_str());
-    meHcalEnergyl250_.push_back(ib.book2D(name, title, limit.bins, limit.low, limit.high, 72, 0., 72.));
+    meHcalEnergyl250_.push_back(ib.book2D(name, title, limit.bins, limit.low, limit.high, IPHI_BINS_, IPHI_MIN_, IPHI_MAX_));
   }
 
   sprintf (name, "Energy_HB");
