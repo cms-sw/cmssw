@@ -14,7 +14,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
  
 HcalDbHardcode::HcalDbHardcode()
-: theDefaultParameters_(3.0,0.5,{0.2,0.2},{0.0,0.0},0,{0.0,0.0,0.0,0.0},{0.9,0.9,0.9,0.9},125,105), //"generic" set of conditions
+: theDefaultParameters_(3.0,0.5,{0.2,0.2},{0.0,0.0},0,{0.0,0.0,0.0,0.0},{0.9,0.9,0.9,0.9},125,105,0.0,0.0), //"generic" set of conditions
   setHB_(false), setHE_(false), setHF_(false), setHO_(false), 
   setHBUpgrade_(false), setHEUpgrade_(false), setHFUpgrade_(false), 
   useHBUpgrade_(false), useHEUpgrade_(false), useHOUpgrade_(true),
@@ -540,21 +540,20 @@ void HcalDbHardcode::makeHardcodeFrontEndMap(HcalFrontEndMap& emap, const std::v
 
 HcalSiPMParameter HcalDbHardcode::makeHardcodeSiPMParameter (HcalGenericDetId fId) {
   // SiPMParameter defined for each DetId the following quantities:
-  //  SiPM type, PhotoElectronToAnalog, Dark Current, two auxilairy words
-  //  These numbers come from some measurements done with SiPM's
-  if (fId.isHcalDetId()) {
-    if (fId.subdetId() == HcalBarrel) {
-      if (useHBUpgrade_) 
-	return HcalSiPMParameter(fId.rawId(), HcalHBHamamatsu1, 57.5, 0.055, 0, 0);
-    } else if (fId.subdetId() == HcalEndcap) {
-      if (useHEUpgrade_) 
-	return HcalSiPMParameter(fId.rawId(), HcalHEHamamatsu1, 57.5, 0.055, 0, 0);
-    } else if (fId.subdetId() == HcalOuter) {
-      if (useHOUpgrade_)
-	return HcalSiPMParameter(fId.rawId(), HcalHOHamamatsu, 4.0, 0.055, 0, 0);
-    }
-  } 
-  return HcalSiPMParameter(fId.rawId(), HcalNoSiPM, 0, 0, 0, 0);
+  //  SiPM type, PhotoElectronToAnalog, Dark Current, two auxiliary words
+  //  These numbers come from some measurements done with SiPMs
+  HcalSiPMType theType = HcalNoSiPM;
+  double thePe2fC = getParameters(fId).photoelectronsToAnalog();
+  double theDC = getParameters(fId).darkCurrent();
+  if (fId.genericSubdet() == HcalGenericDetId::HcalGenBarrel) {
+    theType = HcalHBHamamatsu1;
+  } else if (fId.genericSubdet() == HcalGenericDetId::HcalGenEndcap) {
+    theType = HcalHEHamamatsu1;
+  } else if (fId.genericSubdet() == HcalGenericDetId::HcalGenOuter) {
+    theType = HcalHOHamamatsu;
+  }
+  
+  return HcalSiPMParameter(fId.rawId(), theType, thePe2fC, theDC, 0, 0);
 }
 
 void HcalDbHardcode::makeHardcodeSiPMCharacteristics (HcalSiPMCharacteristics& sipm) {
@@ -571,7 +570,7 @@ void HcalDbHardcode::makeHardcodeSiPMCharacteristics (HcalSiPMCharacteristics& s
 HcalTPChannelParameter HcalDbHardcode::makeHardcodeTPChannelParameter (HcalGenericDetId fId) {
   // For each detId parameters for trigger primitive
   // mask for channel validity and self trigger information, fine grain
-  // bit information and auxilairy words
+  // bit information and auxiliary words
   uint32_t bitInfo = ((44 << 16) | 30);
   return HcalTPChannelParameter(fId.rawId(), 0, bitInfo, 0, 0);
 }
