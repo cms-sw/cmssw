@@ -140,6 +140,15 @@ globalPrevalidationJetMETOnly = cms.Sequence(
 				  +metPreValidSeq
 )
 
+globalPrevalidationHCAL = cms.Sequence()
+
+globalValidationHCAL = cms.Sequence(
+      hcalSimHitsValidationSequence
+    + hcaldigisValidationSequence
+    + hcalSimHitStudy
+    + hcalRecHitsValidationSequence
+)
+
 globalPrevalidationMuons = cms.Sequence(
       gemSimValid
     + me0SimValid
