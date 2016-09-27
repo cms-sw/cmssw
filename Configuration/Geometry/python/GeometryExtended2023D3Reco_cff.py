@@ -21,12 +21,11 @@ from Geometry.CaloEventSetup.CaloGeometryBuilder_cfi import *
 CaloGeometryBuilder = cms.ESProducer("CaloGeometryBuilder",
     SelectedCalos = cms.vstring("HCAL"                   ,
                                 "ZDC"                    ,
-                                "CASTOR"                 ,
                                 "EcalBarrel"             ,
                                 "TOWER"                  ,
                                 "HGCalEESensitive"       ,
-                                "HGCalHESiliconSensitive", 
-   )
+                                "HGCalHESiliconSensitive" 
+    )
 )
 from Geometry.EcalAlgo.EcalBarrelGeometry_cfi import *
 from Geometry.HcalEventSetup.HcalGeometry_cfi import *
