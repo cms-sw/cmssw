@@ -300,9 +300,6 @@ void HcalSimHitsValidation::analyze(edm::Event const& ev, edm::EventSetup const&
       else if (sub == 4 && (depth == 2 || depth == 4)) HcalCone += en*calib_HF2;
     }
     
-    //Account for lack of ieta = 0
-    if (ieta > 0) ieta--;
-
     //HB
     if (sub == 1){
       meSimHitsEnergyHB[0]->Fill(en);
