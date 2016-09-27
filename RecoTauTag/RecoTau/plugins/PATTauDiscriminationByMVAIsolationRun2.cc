@@ -79,7 +79,7 @@ class PATTauDiscriminationByMVAIsolationRun2 : public PATTauDiscriminationProduc
         moduleLabel_(cfg.getParameter<std::string>("@module_label")),
 	mvaReader_(0),
 	mvaInput_(0),
-	category_output_(0)
+	category_output_()
     {
        mvaName_ = cfg.getParameter<std::string>("mvaName");
        loadMVAfromDB_ = cfg.exists("loadMVAfromDB") ? cfg.getParameter<bool>("loadMVAfromDB") : false;
@@ -153,7 +153,7 @@ class PATTauDiscriminationByMVAIsolationRun2 : public PATTauDiscriminationProduc
     std::string footprintCorrection_;
 		
     edm::Handle<TauCollection> taus_;
-    std::auto_ptr<pat::PATTauDiscriminator> category_output_;		
+    std::unique_ptr<pat::PATTauDiscriminator> category_output_;		
     std::vector<TFile*> inputFilesToDelete_;
     TauIdMVAAuxiliaries clusterVariables_;
     	
@@ -225,7 +225,7 @@ double PATTauDiscriminationByMVAIsolationRun2::discriminate(const TauRef& tau) c
       mvaInput_[4]  = std::log(std::max((float)1.e-2, puCorrPtSum));
       mvaInput_[5]  = tauDecayMode;
       mvaInput_[6]  = TMath::Sign((float)+1., tau->dxy());
-      mvaInput_[7]  = std::sqrt(std::fabs(std::min((float)1., tau->dxy())));
+      mvaInput_[7]  = std::sqrt(std::min((float)1., std::fabs(tau->dxy())));
       mvaInput_[8]  = std::min((float)10., std::fabs(tau->dxy_Sig()));
       mvaInput_[9]  = ( tau->hasSecondaryVertex() ) ? 1. : 0.;
       mvaInput_[10] = std::sqrt(decayDistMag);
@@ -246,10 +246,10 @@ double PATTauDiscriminationByMVAIsolationRun2::discriminate(const TauRef& tau) c
       mvaInput_[12] = std::min((float)100., leadingTrackChi2);
       mvaInput_[13] = std::min((float)1., eRatio);
       mvaInput_[14]  = TMath::Sign((float)+1., tau->dxy());
-      mvaInput_[15]  = std::sqrt(std::fabs(std::min((float)1., std::fabs(tau->dxy()))));
+      mvaInput_[15]  = std::sqrt(std::min((float)1., std::fabs(tau->dxy())));
       mvaInput_[16]  = std::min((float)10., std::fabs(tau->dxy_Sig()));
       mvaInput_[17]  = TMath::Sign((float)+1., tau->ip3d());
-      mvaInput_[18]  = std::sqrt(std::fabs(std::min((float)1., std::fabs(tau->ip3d()))));
+      mvaInput_[18]  = std::sqrt(std::min((float)1., std::fabs(tau->ip3d())));
       mvaInput_[19]  = std::min((float)10., std::fabs(tau->ip3d_Sig()));
       mvaInput_[20]  = ( tau->hasSecondaryVertex() ) ? 1. : 0.;
       mvaInput_[21] = std::sqrt(decayDistMag);
@@ -300,7 +300,7 @@ double PATTauDiscriminationByMVAIsolationRun2::discriminate(const TauRef& tau) c
 void PATTauDiscriminationByMVAIsolationRun2::endEvent(edm::Event& evt)
 {
   // add all category indices to event
-  evt.put(category_output_, "category");
+  evt.put(std::move(category_output_), "category");
 }
 
 DEFINE_FWK_MODULE(PATTauDiscriminationByMVAIsolationRun2);
