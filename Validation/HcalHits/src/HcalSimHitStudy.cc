@@ -13,7 +13,7 @@ HcalSimHitStudy::HcalSimHitStudy(const edm::ParameterSet& ps) {
   hcalHits = ps.getUntrackedParameter<std::string>("HitCollection","HcalHits");
   outFile_ = ps.getUntrackedParameter<std::string>("outputFile", "hcHit.root");
   verbose_ = ps.getUntrackedParameter<bool>("Verbose", false);
-  testNumber_= ps.getUntrackedParameter<bool>("TestNumber", false);
+  testNumber_= ps.getParameter<bool>("TestNumber");
   checkHit_= true;
 
   tok_hits_ = consumes<edm::PCaloHitContainer>(edm::InputTag(g4Label,hcalHits));
