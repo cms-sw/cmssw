@@ -1,5 +1,4 @@
 import FWCore.ParameterSet.Config as cms
-from Configuration.Eras.Modifier_phase1PixelNewFPix_cff import phase1PixelNewFPix as _phase1PixelNewFPix
 
 ClusterShapeHitFilterESProducer = cms.ESProducer("ClusterShapeHitFilterESProducer",
                                                         ComponentName = cms.string('ClusterShapeHitFilter'),
