@@ -22,6 +22,113 @@
 
 using namespace hgc_digi;
 
+namespace {
+
+  void getValidDetIds(const HGCalGeometry* geom, std::vector<DetId>& valid) {
+    const std::vector<DetId>& ids = geom->getValidDetIds();
+    valid.reserve(ids.size());
+    valid.insert(valid.end(),ids.begin(),ids.end());
+  }
+
+  void getValidDetIds(const HcalGeometry* geom, std::vector<DetId>& valid) {
+    const std::vector<DetId>& ids = geom->getValidDetIds();
+    valid.reserve(ids.size());
+    for( const auto& id : ids ) {
+      if( DetId::Hcal == id.det() && 
+	  HcalEndcap == id.subdetId() ) 
+	valid.emplace(id);
+    }
+    valid.shrink_to_fit();    
+  }
+
+  DetId simToReco(const HcalGeometry* geom, unsigned simid) {
+    DetId result(0);
+    const auto& topo     = geom->topology();
+    const auto& dddConst = topo.dddConstants();
+
+    int subdet, z, depth0, eta0, phi0, lay;
+    HcalTestNumbering::unpackHcalIndex(simid, subdet, z, depth0, eta0, phi0, lay);
+    int sign = (z==0) ? (-1):(1);
+    HcalDDDRecConstants::HcalID id = dddConst->getHCID(subdet, eta0, phi0, lay, depth0);
+    if (subdet==int(HcalEndcap)) {
+      result = HcalDetId(HcalEndcap,sign*id.eta,id.phi,id.depth);    
+    }
+
+    return result;
+  }
+
+  DetId simToReco(const HGCalGeometry* geom, unsigned simId) {
+    DetId result(0);
+    const auto& topo     = geom->topology();
+    const auto& dddConst = topo.dddConstants();
+    
+    int layer, cell, sec, subsec, zp;
+
+    const bool isSqr = (dddConst.geomMode() == HGCalGeometryMode::Square);
+    if (isSqr) {
+      HGCalTestNumbering::unpackSquareIndex(simId, zp, layer, sec, subsec, cell);
+    } else {
+      int subdet;
+      HGCalTestNumbering::unpackHexagonIndex(simId, subdet, zp, layer, sec, subsec, cell); 
+      mySubDet_ = (ForwardSubdetector)(subdet);
+      //sec is wafer and subsec is celltyp
+    }
+    //skip this hit if after ganging it is not valid
+    std::pair<int,int> recoLayerCell=dddConst.simToReco(cell,layer,sec,topo.detectorType());
+    cell  = recoLayerCell.first;
+    layer = recoLayerCell.second;    
+    if (layer<0 || cell<0) {
+      return result;
+    }
+
+    //assign the RECO DetId
+    DetId id;
+    if (dddConst.geomMode() == HGCalGeometryMode::Square) {
+      result = (producesEEDigis() ?	
+	    (uint32_t)HGCEEDetId(mySubDet_,zp,layer,sec,subsec,cell):
+	    (uint32_t)HGCHEDetId(mySubDet_,zp,layer,sec,subsec,cell) );
+    } else {
+      result = HGCalDetId(mySubDet_,zp,layer,subsec,sec,cell);
+    }
+
+    return result;
+  }  
+
+  void addBaseData(const HcalGeometry* geom,
+		   const DetId& detid,
+		   HGCCellInfo& baseData,
+		   std::unique_ptr<hgc::HGCSimHitDataAccumulator>& acc ) {
+    uint32_t id(detid->rawId());
+    auto itr = acc->emplace(id, baseData);
+    itr.first->second.size = 1.0;
+    itr.first->second.thickness = 1.0;
+  }
+  
+  void addBaseData(const HGCalGeometry* geom, 
+		   const DetId& detid,
+		   HGCCellInfo& baseData,
+		   std::unique_ptr<hgc::HGCSimHitDataAccumulator>& acc ) {
+    const auto& topo     = geom->topology();
+    const auto& dddConst = topo.dddConstants();
+    uint32_t id(detid.rawId());
+    auto itr = acc->emplace(id, baseData);
+    int waferTypeL = 0;
+    bool isHalf = false;
+    if(dddConst.geomMode() == HGCalGeometryMode::Square) {
+      waferTypeL = producesEEDigis() ? 2 : 3;
+      isHalf = false;
+    } else {
+      HGCalDetId hid(id);
+      int wafer = HGCalDetId(id).wafer();
+      waferTypeL = dddConst.waferTypeL(wafer);        
+      isHalf = dddConst.isHalfCell(wafer,hid.cell());
+    }
+    itr.first->second.size = (isHalf ? 0.5 : 1.0);
+    itr.first->second.thickness = waferTypeL;
+  }
+
+}
+
 //
 HGCDigitizer::HGCDigitizer(const edm::ParameterSet& ps,
                            edm::ConsumesCollector& iC) :
@@ -155,16 +262,10 @@ void HGCDigitizer::accumulate(PileUpEventPrincipal const& e, edm::EventSetup con
 }
 
 //
+template<typename GEOM>
 void HGCDigitizer::accumulate(edm::Handle<edm::PCaloHitContainer> const &hits, 
 			      int bxCrossing,
-			      const HcalGeometry* geom,
-                              CLHEP::HepRandomEngine* hre) {
-}
-
-//
-void HGCDigitizer::accumulate(edm::Handle<edm::PCaloHitContainer> const &hits, 
-			      int bxCrossing,
-			      const HGCalGeometry* geom,
+			      const GEOM* geom,
                               CLHEP::HepRandomEngine* hre) {
   if( nullptr == geom ) return;
   const HGCalTopology &topo=geom->topology();
@@ -204,47 +305,24 @@ void HGCDigitizer::accumulate(edm::Handle<edm::PCaloHitContainer> const &hits,
   int nchits=(int)hits->size();  
   std::vector< HGCCaloHitTuple_t > hitRefs(nchits);
   for(int i=0; i<nchits; i++) {
-    const auto& the_hit = hits->at(i);
-    int layer, cell, sec, subsec, zp;
-    uint32_t simId = the_hit.id();
-    const bool isSqr = (dddConst.geomMode() == HGCalGeometryMode::Square);
-    if (isSqr) {
-      HGCalTestNumbering::unpackSquareIndex(simId, zp, layer, sec, subsec, cell);
-    } else {
-      int subdet;
-      HGCalTestNumbering::unpackHexagonIndex(simId, subdet, zp, layer, sec, subsec, cell); 
-      mySubDet_ = (ForwardSubdetector)(subdet);
-      //sec is wafer and subsec is celltyp
-    }
-    //skip this hit if after ganging it is not valid
-    std::pair<int,int> recoLayerCell=dddConst.simToReco(cell,layer,sec,topo.detectorType());
-    cell  = recoLayerCell.first;
-    layer = recoLayerCell.second;    
-    if (layer<0 || cell<0) {
-      hitRefs[i]=std::make_tuple( i, 0, 0. );
-      continue;
-    }
-
-    //assign the RECO DetId
-    DetId id;
-    if (dddConst.geomMode() == HGCalGeometryMode::Square) {
-      id = (producesEEDigis() ?	
-	    (uint32_t)HGCEEDetId(mySubDet_,zp,layer,sec,subsec,cell):
-	    (uint32_t)HGCHEDetId(mySubDet_,zp,layer,sec,subsec,cell) );
-    } else {
-      id = HGCalDetId(mySubDet_,zp,layer,subsec,sec,cell);
-    }
-
+    const auto& the_hit = hits->at(i);    
+    
+    DetId id = simToReco(geom,the_hit.id());
+    
     if (verbosity_>0) {
       if (producesEEDigis())
-	  edm::LogInfo("HGCDigitizer") <<" i/p " << std::hex << simId << std::dec << " o/p " << HGCEEDetId(id) << std::endl;
+	  edm::LogInfo("HGCDigitizer") <<" i/p " << std::hex << simId << std::dec << " o/p " << id << std::endl;
       else
-	  edm::LogInfo("HGCDigitizer") << " i/p " << std::hex << simId << std::dec << " o/p " << HGCHEDetId(id) << std::endl;
+	  edm::LogInfo("HGCDigitizer") << " i/p " << std::hex << simId << std::dec << " o/p " << id << std::endl;
     }
 
-    hitRefs[i]=std::make_tuple( i, 
-				id.rawId(), 
-				(float)the_hit.time() );
+    if( 0 == id.rawId() ) {
+      hitRefs[i]=std::make_tuple( i, 0, 0. );
+    } else {
+      hitRefs[i]=std::make_tuple( i, 
+				  id.rawId(), 
+				  (float)the_hit.time() );
+    }
   }
   std::sort(hitRefs.begin(),hitRefs.end(),this->orderByDetIdThenTime);
   
@@ -316,26 +394,13 @@ void HGCDigitizer::accumulate(edm::Handle<edm::PCaloHitContainer> const &hits,
   //add base data for noise simulation (and thicknesses)
   if(!checkValidDetIds_) return;
   if(nullptr == geom) return;
-  const std::vector<DetId> &validIds=geom->getValidDetIds();   
+  std::vector<DetId> validIds;
+  getValidDetIds(geom,validIds);
   int nadded(0);
   if (useAllChannels_) {
     for(std::vector<DetId>::const_iterator it=validIds.begin(); it!=validIds.end(); it++) {
-      uint32_t id(it->rawId());
-      auto itr = simHitAccumulator_->emplace(id, baseData);
-      int waferTypeL = 0;
-      bool isHalf = false;
-      if(dddConst.geomMode() == HGCalGeometryMode::Square) {
-        waferTypeL = producesEEDigis() ? 2 : 3;
-        isHalf = false;
-      } else {
-        HGCalDetId hid(id);
-        int wafer = HGCalDetId(id).wafer();
-        waferTypeL = dddConst.waferTypeL(wafer);        
-        isHalf = dddConst.isHalfCell(wafer,hid.cell());
-      }
-      itr.first->second.size = (isHalf ? 0.5 : 1.0);
-      itr.first->second.thickness = waferTypeL;
-      nadded++;
+      addBaseData(geom, *it, baseData, simHitAccumulator_);
+      ++nadded;
     }
   }
   
@@ -367,7 +432,5 @@ void HGCDigitizer::resetSimHitDataAccumulator()
     }
 }
 
-
-
-
-
+template HGCDigitizer::accumulate<HcalGeometry>(edm::Handle<edm::PCaloHitContainer> const &hits, int bxCrossing,const HcalGeometry *geom, CLHEP::HepRandomEngine* hre);
+template HGCDigitizer::accumulate<HGCalGeometry>(edm::Handle<edm::PCaloHitContainer> const &hits, int bxCrossing,const HGCalGeometry *geom, CLHEP::HepRandomEngine* hre)

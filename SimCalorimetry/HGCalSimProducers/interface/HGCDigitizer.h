@@ -52,8 +52,8 @@ public:
    */
   void accumulate(edm::Event const& e, edm::EventSetup const& c, CLHEP::HepRandomEngine* hre);
   void accumulate(PileUpEventPrincipal const& e, edm::EventSetup const& c, CLHEP::HepRandomEngine* hre);
-  void accumulate(edm::Handle<edm::PCaloHitContainer> const &hits, int bxCrossing,const HGCalGeometry *geom, CLHEP::HepRandomEngine* hre);
-  void accumulate(edm::Handle<edm::PCaloHitContainer> const &hits, int bxCrossing,const HcalGeometry *geom, CLHEP::HepRandomEngine* hre);
+  template<typename GEOM>
+  void accumulate(edm::Handle<edm::PCaloHitContainer> const &hits, int bxCrossing,const GEOM *geom, CLHEP::HepRandomEngine* hre);
 
   /**
      @short actions at the start/end of event
