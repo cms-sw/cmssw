@@ -87,7 +87,10 @@ PATElectronProducer::PATElectronProducer(const edm::ParameterSet & iConfig) :
   isolator_(iConfig.exists("userIsolation") ? iConfig.getParameter<edm::ParameterSet>("userIsolation") : edm::ParameterSet(), consumesCollector(), false) ,
   addEfficiencies_(iConfig.getParameter<bool>("addEfficiencies")),
   addResolutions_(iConfig.getParameter<bool>( "addResolutions" )),
-  useUserData_(iConfig.exists("userData"))
+  useUserData_(iConfig.exists("userData")),
+  PUPPIIsolation_charged_hadrons_(consumes<edm::ValueMap<float> >(iConfig.getParameter<edm::InputTag>("puppiIsolationChargedHadrons"))),
+  PUPPIIsolation_neutral_hadrons_(consumes<edm::ValueMap<float> >(iConfig.getParameter<edm::InputTag>("puppiIsolationNeutralHadrons"))),
+  PUPPIIsolation_photons_(consumes<edm::ValueMap<float> >(iConfig.getParameter<edm::InputTag>("puppiIsolationPhotons")))
   
 { 
   // MC matching configurables (scheduled mode)
@@ -279,6 +282,13 @@ void PATElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
             << "No primary vertex available from EventSetup, not adding high level selection \n";
     }
   }
+  //value maps for puppi isolation
+  edm::Handle<edm::ValueMap<float>> PUPPIIsolation_charged_hadrons;
+  edm::Handle<edm::ValueMap<float>> PUPPIIsolation_neutral_hadrons;
+  edm::Handle<edm::ValueMap<float>> PUPPIIsolation_photons;
+  iEvent.getByToken(PUPPIIsolation_charged_hadrons_, PUPPIIsolation_charged_hadrons);
+  iEvent.getByToken(PUPPIIsolation_neutral_hadrons_, PUPPIIsolation_neutral_hadrons);
+  iEvent.getByToken(PUPPIIsolation_photons_, PUPPIIsolation_photons);
 
   std::vector<Electron> * patElectrons = new std::vector<Electron>();
 
@@ -300,6 +310,7 @@ void PATElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
       bool MatchedToAmbiguousGsfTrack=false;
       for (edm::View<reco::GsfElectron>::const_iterator itElectron = electrons->begin(); itElectron != electrons->end(); ++itElectron) {
 	unsigned int idx = itElectron - electrons->begin();
+  auto elePtr = electrons -> ptrAt(idx);
 	if (Matched || MatchedToAmbiguousGsfTrack) continue;
 
 	reco::GsfTrackRef EgTk= itElectron->gsfTrack();
@@ -323,6 +334,7 @@ void PATElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
 	  const edm::RefToBase<reco::GsfElectron>& elecsRef = electrons->refAt(idx);
 	  Electron anElectron(elecsRef);
 	  anElectron.setPFCandidateRef( pfRef  );
+    anElectron.setIsolationPUPPI((*PUPPIIsolation_charged_hadrons)[elePtr], (*PUPPIIsolation_neutral_hadrons)[elePtr], (*PUPPIIsolation_photons)[elePtr]);
 
           //it should be always true when particleFlow electrons are used.
           anElectron.setIsPF( true );
@@ -503,6 +515,8 @@ void PATElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
       edm::RefToBase<reco::GsfElectron> elecsRef = electrons->refAt(idx);
       reco::CandidateBaseRef elecBaseRef(elecsRef);
       Electron anElectron(elecsRef);
+      auto elePtr = electrons -> ptrAt(idx);
+      anElectron.setIsolationPUPPI((*PUPPIIsolation_charged_hadrons)[elePtr], (*PUPPIIsolation_neutral_hadrons)[elePtr], (*PUPPIIsolation_photons)[elePtr]);
 
       // Is this GsfElectron also identified as an e- in the particle flow?
       bool pfId = false;
@@ -979,6 +993,11 @@ void PATElectronProducer::fillDescriptions(edm::ConfigurationDescriptions & desc
   edm::ParameterSetDescription userDataPSet;
   PATUserDataHelper<Electron>::fillDescription(userDataPSet);
   iDesc.addOptional("userData", userDataPSet);
+
+  //puppi isolations
+  iDesc.add<edm::InputTag>("puppiIsolationChargedHadrons", edm::InputTag("egmElectronIsolationAODPUPPI","h+-DR030-BarVeto000-EndVeto001"))->setComment("puppi isolation sum for charged hadrons");
+  iDesc.add<edm::InputTag>("puppiIsolationNeutralHadrons", edm::InputTag("egmElectronIsolationAODPUPPI","h0-DR030-BarVeto000-EndVeto000"))->setComment("puppi isolation sum for neutral hadrons");
+  iDesc.add<edm::InputTag>("puppiIsolationPhotons", edm::InputTag("egmElectronIsolationAODPUPPI","gamma-DR030-BarVeto000-EndVeto008"))->setComment("puppi isolation sum for photons");
 
   // electron shapes
   iDesc.add<bool>("addElectronShapes", true);
