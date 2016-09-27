@@ -7,10 +7,11 @@
 <use   name="DataFormats/Common"/>
 <use   name="DataFormats/EcalDetId"/>
 <use   name="CondCore/DBOutputService"/>
-<use   name="CondFormats/EcalObjects"/>
+<use   name="CondFormats/Alignment"/>
 <use   name="CondFormats/DataRecord"/>
-  <use   name="CondFormats/Alignment"/>
-  <use name="Utilities/General"/>
+<use   name="CondFormats/EcalObjects"/>
+<use   name="CondFormats/RunInfo"/>
+<use name="Utilities/General"/>
 <library   file="*.cc" name="CondToolsEcalPlugin">
   <flags   EDM_PLUGIN="1"/>
 </library>
