@@ -95,14 +95,16 @@ public:
     void phase1Apply(const HBHEChannelInfo& channelData,
 		     float& reconstructedEnergy,
 		     float& reconstructedTime,
-		     bool & useTriple) const;
+		     bool & useTriple,
+		     float& chi2) const;
 
     void apply(const CaloSamples & cs,
 	       const std::vector<int> & capidvec,
 	       const HcalCalibrations & calibs,
 	       double& reconstructedEnergy,
 	       float& reconstructedTime,
-	       bool & useTriple) const;
+	       bool & useTriple,
+	       float& chi2) const;
 
     void setPUParams(bool   iPedestalConstraint, bool iTimeConstraint,bool iAddPulseJitter,bool iApplyTimeSlew,
 		     double iTS4Min, std::vector<double> iTS4Max,
