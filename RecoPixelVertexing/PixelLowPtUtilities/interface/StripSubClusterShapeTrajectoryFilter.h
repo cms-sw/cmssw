@@ -103,9 +103,7 @@ class StripSubClusterShapeSeedFilter: public StripSubClusterShapeFilterBase, pub
         virtual bool compatible(const TrajectoryStateOnSurface &tsos,  SeedingHitSet::ConstRecHitPointer hit) const ;
         // not implemented 
         virtual bool compatible(const SeedingHitSet &hits, const TrackingRegion & region) const { return true; }
-        virtual bool compatible(const TrajectorySeed &seed) const { return true; }
         virtual bool compatible(const SeedingHitSet &hits, const GlobalTrajectoryParameters &helixStateAtVertex, const FastHelix &helix, const TrackingRegion & region) const ;
-        virtual bool compatible(const SeedingHitSet &hits, const GlobalTrajectoryParameters &straightLineStateAtVertex, const TrackingRegion & region) const { return true; }
 
     protected:
         bool filterAtHelixStage_;
