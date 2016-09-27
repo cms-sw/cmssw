@@ -28,7 +28,7 @@ void SeedGeneratorFromRegionHits::run(TrajectorySeedCollection & seedCollection,
   //                                                            // as it will cause N re-allocations instead of the normal log(N)/log(2)
   for (unsigned int iHits = 0; iHits < nHitss; ++iHits) { 
     const SeedingHitSet & hits =  hitss[iHits];
-    if (!theComparitor || theComparitor->compatible(hits, region) ) {
+    if (!theComparitor || theComparitor->compatible(hits) ) {
       theSeedCreator->makeSeed(seedCollection, hits);
     }
   }
