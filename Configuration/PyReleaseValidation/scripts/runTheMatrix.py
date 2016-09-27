@@ -63,7 +63,7 @@ if __name__ == '__main__':
                      10624.0, #2017 HCALdev ttbar
                      10824.0, #2017 all new ttbar
                      20024.0, #2023D1 ttbar (Run2 calo)
-                     20824.0, #2023D3 ttbar (HGCal)
+                     22424.0, #2023D3Timing ttbar (HGCal + timing)
                      ],
         'jetmc': [5.1, 13, 15, 25, 38, 39], #MC
         'metmc' : [5.1, 15, 25, 37, 38, 39], #MC
