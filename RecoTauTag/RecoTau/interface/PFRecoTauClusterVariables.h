@@ -216,15 +216,15 @@ class TauIdMVAAuxiliaries {
     }
     /// decide if photon candidate is inside the cone to be associated to the tau signal
     bool isInside(float photon_pt, float deta, float dphi) const {
-      double stripEtaAssociationDistance_0p95_p0 = 0.197077;
-      double stripEtaAssociationDistance_0p95_p1 = 0.658701;
-      double stripPhiAssociationDistance_0p95_p0 = 0.352476;
-      double stripPhiAssociationDistance_0p95_p1 = 0.707716;
+      const double stripEtaAssociationDistance_0p95_p0 = 0.197077;
+      const double stripEtaAssociationDistance_0p95_p1 = 0.658701;
+      const double stripPhiAssociationDistance_0p95_p0 = 0.352476;
+      const double stripPhiAssociationDistance_0p95_p1 = 0.707716;
       if(photon_pt==0){
         return false;
       }
-      if((dphi < std::min(0.3, std::max(0.05, stripPhiAssociationDistance_0p95_p0*std::pow(photon_pt, -(stripPhiAssociationDistance_0p95_p1))))) && \
-         (deta < std::min(0.15, std::max(0.05, stripEtaAssociationDistance_0p95_p0*std::pow(photon_pt, -(stripEtaAssociationDistance_0p95_p1)))))){
+      if((dphi<0.3  && dphi<std::max(0.05, stripPhiAssociationDistance_0p95_p0*std::pow(photon_pt, -stripPhiAssociationDistance_0p95_p1))) && \
+         (deta<0.15 && deta<std::max(0.05, stripEtaAssociationDistance_0p95_p0*std::pow(photon_pt, -stripEtaAssociationDistance_0p95_p1)))){
         return true;
       }
       return false;
