@@ -11,6 +11,7 @@ g4SimHits.Watchers = cms.VPSet(cms.PSet(
                 'HGCScint2',
                 'HGCFSiTrack',
                 'HGCAlPlate',
+                'HGCalExtra',
                 ),
             MaximumZ = cms.double(200.),
             StopName = cms.string("HGCal"),
