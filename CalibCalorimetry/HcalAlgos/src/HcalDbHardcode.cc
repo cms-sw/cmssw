@@ -538,18 +538,43 @@ void HcalDbHardcode::makeHardcodeFrontEndMap(HcalFrontEndMap& emap, const std::v
   emap.sort();
 }
 
-HcalSiPMParameter HcalDbHardcode::makeHardcodeSiPMParameter (HcalGenericDetId fId) {
+int HcalDbHardcode::getLayersInDepth(int ieta, int depth, const HcalTopology* topo){
+    //check for cached value
+    auto eta_depth_pair = std::make_pair(ieta,depth);
+    auto nLayers = theLayersInDepths_.find(eta_depth_pair);
+    if(nLayers != theLayersInDepths_.end()){
+        return nLayers->second;
+    }
+    else {
+        std::vector<int> segmentation;
+        topo->getDepthSegmentation(ieta,segmentation);
+        //assume depth segmentation vector is sorted
+        int nLayersInDepth = std::distance(std::lower_bound(segmentation.begin(),segmentation.end(),depth),
+                                       std::upper_bound(segmentation.begin(),segmentation.end(),depth));
+        theLayersInDepths_.insert(std::make_pair(eta_depth_pair,nLayersInDepth));
+        return nLayersInDepth;
+    }
+}
+
+HcalSiPMParameter HcalDbHardcode::makeHardcodeSiPMParameter (HcalGenericDetId fId, const HcalTopology* topo) {
   // SiPMParameter defined for each DetId the following quantities:
   //  SiPM type, PhotoElectronToAnalog, Dark Current, two auxiliary words
   //  These numbers come from some measurements done with SiPMs
+  // rule for type: cells with >4 layers use larger device (3.3mm diameter), otherwise 2.8mm
   HcalSiPMType theType = HcalNoSiPM;
   double thePe2fC = getParameters(fId).photoelectronsToAnalog();
   double theDC = getParameters(fId).darkCurrent();
-  if (fId.genericSubdet() == HcalGenericDetId::HcalGenBarrel) {
-    theType = HcalHBHamamatsu1;
-  } else if (fId.genericSubdet() == HcalGenericDetId::HcalGenEndcap) {
-    theType = HcalHEHamamatsu1;
-  } else if (fId.genericSubdet() == HcalGenericDetId::HcalGenOuter) {
+  if (fId.genericSubdet() == HcalGenericDetId::HcalGenBarrel && useHBUpgrade_) {
+    HcalDetId hid(fId);
+    int nLayersInDepth = getLayersInDepth(hid.ietaAbs(),hid.depth(),topo);
+    if(nLayersInDepth > 4) theType = HcalHBHamamatsu2;
+    else theType = HcalHBHamamatsu1;
+  } else if (fId.genericSubdet() == HcalGenericDetId::HcalGenEndcap && useHEUpgrade_) {
+    HcalDetId hid(fId);
+    int nLayersInDepth = getLayersInDepth(hid.ietaAbs(),hid.depth(),topo);
+    if(nLayersInDepth > 4) theType = HcalHEHamamatsu2;
+    else theType = HcalHEHamamatsu1;
+  } else if (fId.genericSubdet() == HcalGenericDetId::HcalGenOuter && useHOUpgrade_) {
     theType = HcalHOHamamatsu;
   }
   

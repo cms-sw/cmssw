@@ -28,8 +28,11 @@
 #include "CondFormats/HcalObjects/interface/HcalTPChannelParameters.h"
 #include "CalibCalorimetry/HcalAlgos/interface/HcalHardcodeParameters.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "Geometry/CaloTopology/interface/HcalTopology.h"
 
 #include <vector>
+#include <map>
+#include <utility>
 
 /**
 
@@ -82,12 +85,13 @@ class HcalDbHardcode {
     void makeHardcodeMap(HcalElectronicsMap& emap, const std::vector<HcalGenericDetId>& cells);
     void makeHardcodeDcsMap(HcalDcsMap& dcs_map);
     void makeHardcodeFrontEndMap(HcalFrontEndMap& emap, const std::vector<HcalGenericDetId>& cells);
-    HcalSiPMParameter makeHardcodeSiPMParameter (HcalGenericDetId fId);
+    HcalSiPMParameter makeHardcodeSiPMParameter (HcalGenericDetId fId, const HcalTopology* topo);
     void makeHardcodeSiPMCharacteristics (HcalSiPMCharacteristics& sipm);
     HcalTPChannelParameter makeHardcodeTPChannelParameter (HcalGenericDetId fId);
     void makeHardcodeTPParameters (HcalTPParameters& tppar);
     
   private:
+    int getLayersInDepth(int ieta, int depth, const HcalTopology* topo);
     //member variables
     HcalHardcodeParameters theDefaultParameters_;
     HcalHardcodeParameters theHBParameters_, theHEParameters_, theHFParameters_, theHOParameters_;
@@ -95,6 +99,7 @@ class HcalDbHardcode {
     bool setHB_, setHE_, setHF_, setHO_, setHBUpgrade_, setHEUpgrade_, setHFUpgrade_;
     bool useHBUpgrade_, useHEUpgrade_, useHOUpgrade_, useHFUpgrade_, testHFQIE10_;
     std::vector<edm::ParameterSet> theSiPMCharacteristics_;
+    std::map<std::pair<int,int>,int> theLayersInDepths_;
 };
 
 #endif

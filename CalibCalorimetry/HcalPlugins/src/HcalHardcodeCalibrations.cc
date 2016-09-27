@@ -771,7 +771,7 @@ std::unique_ptr<HcalSiPMParameters> HcalHardcodeCalibrations::produceSiPMParamet
   auto result = std::make_unique<HcalSiPMParameters>(topo);
   std::vector <HcalGenericDetId> cells = allCells(*htopo);
   for (std::vector <HcalGenericDetId>::const_iterator cell = cells.begin (); cell != cells.end (); ++cell) {
-    HcalSiPMParameter item = dbHardcode.makeHardcodeSiPMParameter (*cell);
+    HcalSiPMParameter item = dbHardcode.makeHardcodeSiPMParameter (*cell,topo);
     result->addValues(item);
   }
   return result;
