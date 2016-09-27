@@ -37,8 +37,8 @@ public:
 					       float jec, const reco::Vertex *, const reco::VertexCollection &, double rho);
 
 	void set(const PileupJetIdentifier &);
-        std::unique_ptr<const GBRForest> getMVA(std::vector<std::string>, const std::string &);
-        std::vector<float> getMVAvars(std::vector<std::string>);
+        std::unique_ptr<const GBRForest> getMVA(const std::vector<std::string> &, const std::string &);
+        float getMVAval(const std::vector<std::string> &, const std::unique_ptr<const GBRForest> &);
 	PileupJetIdentifier computeMva();
 	const std::string method() const { return tmvaMethod_; }
 	

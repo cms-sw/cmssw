@@ -140,10 +140,10 @@ void setPtEtaPhi(const reco::Candidate & p, float & pt, float & eta, float &phi 
 	phi = p.phi();
 }
 
-std::unique_ptr<const GBRForest> PileupJetIdAlgo::getMVA(std::vector<std::string> varList, const std::string &tmvaWeights)
+std::unique_ptr<const GBRForest> PileupJetIdAlgo::getMVA(const std::vector<std::string> &varList, const std::string &tmvaWeights)
 {
         TMVA::Reader tmpTMVAReader( "!Color:Silent:!Error" );
-        for(std::vector<std::string>::iterator it=varList.begin(); it!=varList.end(); ++it) {
+        for(std::vector<std::string>::const_iterator it=varList.begin(); it!=varList.end(); ++it) {
             if( tmvaNames_[*it].empty() ) tmvaNames_[*it] = *it;
             tmpTMVAReader.AddVariable( *it, variables_[ tmvaNames_[*it] ].first );
         }
@@ -172,14 +172,16 @@ void PileupJetIdAlgo::set(const PileupJetIdentifier & id)
 
 // ------------------------------------------------------------------------------------------
 
-std::vector<float> PileupJetIdAlgo::getMVAvars(std::vector<std::string> varList)
+float PileupJetIdAlgo::getMVAval(const std::vector<std::string> &varList, const std::unique_ptr<const GBRForest> &reader)
 {
+        float mvaval = -2;
         std::vector<float> vars;
-        for(std::vector<std::string>::iterator it=varList.begin(); it!=varList.end(); ++it) {
+        for(std::vector<std::string>::const_iterator it=varList.begin(); it!=varList.end(); ++it) {
             std::pair<float *,float> var = variables_.at((*it).c_str());
             vars.push_back( *var.first );
         }
-        return vars;
+        mvaval = reader->GetClassifier(vars.data());
+        return mvaval;
 }
 
 void PileupJetIdAlgo::runMva()
@@ -196,15 +198,13 @@ void PileupJetIdAlgo::runMva()
                           } else {
                             for(int v=0; v<nEtaBins_; v++){
                                 if(std::abs(internalId_.jetEta_)>=jEtaMin_.at(v) && std::abs(internalId_.jetEta_)<jEtaMax_.at(v)) {
-                                    std::vector<float> vars = getMVAvars(tmvaEtaVariables_.at(v));
-                                    internalId_.mva_ = etaReader_.at(v)->GetClassifier(vars.data());
+                                    internalId_.mva_ = getMVAval(tmvaEtaVariables_.at(v),etaReader_.at(v));  
                                     break;
                                 }
                             } 
                           }
 			} else {
-                            std::vector<float> vars = getMVAvars(tmvaVariables_);
-                            internalId_.mva_ = reader_->GetClassifier(vars.data());
+                            internalId_.mva_ = getMVAval(tmvaVariables_,reader_);
 			}
 		}
 		internalId_.idFlag_ = computeIDflag(internalId_.mva_,internalId_.jetPt_,internalId_.jetEta_);
