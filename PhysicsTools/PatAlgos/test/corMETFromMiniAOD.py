@@ -38,23 +38,27 @@ redoPuppi=False # rebuild puppiMET
 #from Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff import *
 #process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
-#from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
-from Configuration.AlCa.autoCond import autoCond
+from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
+#from Configuration.AlCa.autoCond import autoCond
 if runOnData:
-  process.GlobalTag.globaltag = autoCond['run2_data']
+  process.GlobalTag.globaltag =  cms.string('80X_dataRun2_Prompt_ICHEP16JEC_v0')
 else:
-  process.GlobalTag.globaltag = autoCond['run2_mc']
+  process.GlobalTag.globaltag =  cms.string('80X_mcRun2_asymptotic_2016_miniAODv2_v1')
+
 
 if usePrivateSQlite:
     from CondCore.DBCommon.CondDBSetup_cfi import *
     import os
     if runOnData:
-      era="Summer15_25nsV6_DATA"
+      era="Spring16_25nsV6_DATA"
     else:
-      era="Summer15_25nsV6_MC"
-      
+      era="Spring16_25nsV6_MC"
+    jerera="Spring16_25nsV6"
+
+##___________________________External JEC file________________________________||
+
     process.jec = cms.ESSource("PoolDBESSource",CondDBSetup,
-                               connect = cms.string( "frontier://FrontierPrep/CMS_COND_PHYSICSTOOLS"),
+                               connect = cms.string("sqlite:PhysicsTools/PatUtils/data/"+era+".db"),
                                toGet =  cms.VPSet(
             cms.PSet(
                 record = cms.string("JetCorrectionsRecord"),
@@ -66,18 +70,68 @@ if usePrivateSQlite:
                 tag = cms.string("JetCorrectorParametersCollection_"+era+"_AK4PFchs"),
                 label= cms.untracked.string("AK4PFchs")
                 ),
+            cms.PSet(record  = cms.string("JetCorrectionsRecord"),
+                tag     = cms.string("JetCorrectorParametersCollection_"+era+"_AK4PFPuppi"),
+                label   = cms.untracked.string("AK4PFPuppi")
+                ),
             )
                                )
     process.es_prefer_jec = cms.ESPrefer("PoolDBESSource",'jec')
 
+##___________________________External JER file________________________________||
+
+    process.jer = cms.ESSource("PoolDBESSource",CondDBSetup,
+                               connect = cms.string("sqlite:PhysicsTools/PatUtils/data/JER/"+jerera+"_MC.db"),
+                               toGet =  cms.VPSet(
+        #######
+        ### read the PFchs
+
+        cms.PSet(
+          record = cms.string('JetResolutionRcd'),
+          tag    = cms.string('JR_'+jerera+'_MC_PtResolution_AK4PFchs'),
+          label  = cms.untracked.string('AK4PFchs_pt')
+          ),
+        cms.PSet(
+          record = cms.string("JetResolutionRcd"),
+          tag    = cms.string('JR_'+jerera+'_MC_PhiResolution_AK4PFchs'),
+          label  = cms.untracked.string("AK4PFchs_phi")
+          ),
+        cms.PSet(
+          record = cms.string('JetResolutionScaleFactorRcd'),
+          tag    = cms.string('JR_'+jerera+'_MC_SF_AK4PFchs'),
+          label  = cms.untracked.string('AK4PFchs')
+          ),
+
+        #######
+        ### read the Puppi JER
+
+        cms.PSet(
+          record = cms.string('JetResolutionRcd'),
+          tag    = cms.string('JR_'+jerera+'_MC_PtResolution_AK4PFPuppi'),
+          label  = cms.untracked.string('AK4PFPuppi_pt')
+          ),
+        cms.PSet(
+          record = cms.string("JetResolutionRcd"),
+          tag = cms.string('JR_'+jerera+'_MC_PhiResolution_AK4PFPuppi'),
+          label= cms.untracked.string("AK4PFPuppi_phi")
+          ),
+        cms.PSet(
+          record = cms.string('JetResolutionScaleFactorRcd'),
+          tag    = cms.string('JR_'+jerera+'_MC_SF_AK4PFPuppi'),
+          label  = cms.untracked.string('AK4PFPuppi')
+          ),
+
+        ) )
+
+    process.es_prefer_jer = cms.ESPrefer("PoolDBESSource",'jer')
 
 
 ### =====================================================================================================
 # Define the input source
 if runOnData:
-  fname = 'root://eoscms.cern.ch//store/relval/CMSSW_8_0_0_pre4/SinglePhoton/MINIAOD/80X_dataRun2_v0_RelVal_sigPh2015D-v1/00000/600919D1-51AA-E511-8E4C-0025905B855C.root'
+  fname = 'root://eoscms.cern.ch//store/relval/CMSSW_8_0_11/SinglePhoton/MINIAOD/80X_dataRun2_relval_v12_RelVal_sigPh2015D-v2/10000/62F5F051-ED35-E611-BD3C-0CC47A4D76C8.root'
 else:
-  fname = 'root://eoscms.cern.ch//store/relval/CMSSW_8_0_3/RelValTTbar_13/MINIAODSIM/PU25ns_80X_mcRun2_asymptotic_2016_v3_gs7120p2NewGTv3-v1/00000/36E82F31-D6EF-E511-A22B-0025905B8574.root'
+  fname = 'root://eoscms.cern.ch//store/relval/CMSSW_8_0_11/RelValTTbar_13/MINIAODSIM/80X_mcRun2_asymptotic_v14-v1/10000/863A92CE-C134-E611-9989-0CC47A4D760C.root'
 
 # Define the input source
 process.source = cms.Source("PoolSource", 
@@ -158,3 +212,4 @@ process.MINIAODSIMoutput = cms.OutputModule("PoolOutputModule",
 
 
 process.MINIAODSIMoutput_step = cms.EndPath(process.MINIAODSIMoutput)
+
