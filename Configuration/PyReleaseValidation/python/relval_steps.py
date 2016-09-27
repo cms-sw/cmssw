@@ -976,7 +976,7 @@ steps['DIGI']=merge([step2Defaults])
 steps['DIGICOS']=merge([{'--scenario':'cosmics','--eventcontent':'FEVTDEBUG','--datatier':'GEN-SIM-DIGI-RAW'},stCond,step2Defaults])
 steps['DIGIHAL']=merge([{'--scenario':'cosmics','--eventcontent':'FEVTDEBUG','--datatier':'GEN-SIM-DIGI-RAW'},step2Upg2015Defaults])
 steps['DIGICOS_UP15']=merge([{'--conditions':'auto:run2_mc_cosmics','--scenario':'cosmics','--eventcontent':'FEVTDEBUG','--datatier':'GEN-SIM-DIGI-RAW'},step2Upg2015Defaults])
-steps['DIGICOS_UP17']=merge([{'--conditions':'81X_upgrade2017cosmics_realistic_peak_v1','-s':'DIGI:pdigi_valid,DIGI2RAW','--scenario':'cosmics','--eventcontent':'FEVTDEBUG','--datatier':'GEN-SIM-DIGI-RAW', '--era' : 'Run2_2017'},step2Upg2015Defaults])
+steps['DIGICOS_UP17']=merge([{'--conditions':'81X_upgrade2017cosmics_realistic_peak_v1','-s':'DIGI:pdigi_valid,L1,DIGI2RAW,HLT:@fake','--scenario':'cosmics','--eventcontent':'FEVTDEBUG','--datatier':'GEN-SIM-DIGI-RAW', '--era' : 'Run2_2017'},step2Upg2015Defaults])
 
 steps['DIGIPU1']=merge([PU,step2Defaults])
 steps['DIGIPU2']=merge([PU2,step2Defaults])
@@ -1263,7 +1263,7 @@ steps['RECOPRODUP15']=merge([{ '-s':'RAW2DIGI,L1Reco,RECO,EI,PAT,DQM:DQMOfflineP
 steps['RECOCOS']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,ALCA:MuAlGlobalCosmics,DQM','--scenario':'cosmics'},stCond,step3Defaults])
 steps['RECOHAL']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,ALCA:MuAlBeamHalo+MuAlBeamHaloOverlaps,DQM','--scenario':'cosmics'},step3Up2015Hal])
 steps['RECOCOS_UP15']=merge([{'--conditions':'auto:run2_mc_cosmics','-s':'RAW2DIGI,L1Reco,RECO,ALCA:MuAlGlobalCosmics,DQM','--scenario':'cosmics'},step3Up2015Hal])
-steps['RECOCOS_UP17']=merge([{'--conditions':'81X_upgrade2017cosmics_realistic_peak_v1','-s':'RAW2DIGI,RECO,ALCA:MuAlGlobalCosmics,DQM','--scenario':'cosmics','--era':'Run2_2017'},step3Up2015Hal])
+steps['RECOCOS_UP17']=merge([{'--conditions':'81X_upgrade2017cosmics_realistic_peak_v1','-s':'RAW2DIGI,L1Reco,RECO,ALCA:MuAlGlobalCosmics,DQM','--scenario':'cosmics','--era':'Run2_2017'},step3Up2015Hal])
 
 steps['RECOMIN']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,EI,ALCA:SiStripCalZeroBias+SiStripCalMinBias,VALIDATION,DQM'},stCond,step3Defaults])
 steps['RECOMINUP15']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,EI,ALCA:SiStripCalZeroBias+SiStripCalMinBias,VALIDATION,DQM'},step3Up2015Defaults])
