@@ -113,6 +113,12 @@ BadChargedCandidateFilter::filter(edm::StreamID iID, edm::Event& iEvent, const e
           continue;
         }
 
+	// Consider only Global Muons  	
+	if (muon.isGlobalMuon() == 0) {
+	  if(debug_) cout << "Skipping this muon because not a Global Muon" << endl;
+	  continue;
+	}
+
 	if (debug_) cout << "SegmentCompatibility :"<< muon::segmentCompatibility(muon) << "RelPtErr:" << bestMuonTrack->ptError()/bestMuonTrack->pt() << endl;
 	if (muon::segmentCompatibility(muon) > segmentCompatibility_ && bestMuonTrack->ptError()/bestMuonTrack->pt() < minMuonTrackRelErr_) {
 	  if (debug_) cout <<"Skipping this muon because segment compatiblity > 0.3 and relErr(best track) <2 " << endl;
@@ -127,9 +133,8 @@ BadChargedCandidateFilter::filter(edm::StreamID iID, edm::Event& iEvent, const e
             float dpt = ( pfCandidate.pt() - innerMuonTrack->pt())/(0.5*(innerMuonTrack->pt() + pfCandidate.pt()));
             if ( (debug_)  and (dr<0.5) ) cout<<" pt(it) "<<innerMuonTrack->pt()<<" candidate "<<pfCandidate.pt()<<" dr "<< dr
                 <<" dpt "<<dpt<<endl;
-            // require similar pt ( one sided ) and small dR
-            if ( ( deltaR( innerMuonTrack->eta(), innerMuonTrack->phi(), pfCandidate.eta(), pfCandidate.phi() ) < maxDR_ ) 
-                and ( ( pfCandidate.pt() - innerMuonTrack->pt())/(0.5*(innerMuonTrack->pt() + pfCandidate.pt())) > minPtDiffRel_ ) ) {
+            // require similar pt and small dR , updated to tight comditions and PF check
+            if ( ( dr < maxDR_ )  and ( fabs(dpt) < minPtDiffRel_ ) and (muon.isPFMuon()==0) ) {
                     foundBadChargedCandidate = true;
                     cout <<"found bad track!"<<endl; 
                     break;
@@ -141,7 +146,7 @@ BadChargedCandidateFilter::filter(edm::StreamID iID, edm::Event& iEvent, const e
 
   bool pass = !foundBadChargedCandidate;
 
-  if (debug_) cout<<"pass: "<<pass<<endl;
+  if (debug_) cout<<"BadChargedCandidateFilter pass: "<<pass<<endl;
 
   iEvent.put( std::auto_ptr<bool>(new bool(pass)) );
 

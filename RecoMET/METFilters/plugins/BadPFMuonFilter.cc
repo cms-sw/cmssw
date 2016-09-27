@@ -111,8 +111,15 @@ BadPFMuonFilter::filter(edm::StreamID iID, edm::Event& iEvent, const edm::EventS
     if (debug_) cout<<"Muon inner track original algo: "<<innerMuonTrack->originalAlgo() << endl;
     if (not ( innerMuonTrack->originalAlgo() == algo_  && innerMuonTrack->algo() == algo_ ) ) {
       if (debug_) cout<<"Skipping this muon because is not coming from the muonSeededStepOutIn"<<endl; 
-          continue;
+      continue;
     }
+
+    // Consider only Global Muons
+    if (muon.isGlobalMuon() == 0) {
+      if(debug_) cout << "Skipping this muon because not a Global Muon" << endl;
+      continue;
+    }
+    
 
     if (debug_) cout << "SegmentCompatibility :"<< muon::segmentCompatibility(muon) << "RelPtErr:" << bestMuonTrack->ptError()/bestMuonTrack->pt() << endl;    
     if (muon::segmentCompatibility(muon) > segmentCompatibility_ && bestMuonTrack->ptError()/bestMuonTrack->pt() < minPtError_) {
