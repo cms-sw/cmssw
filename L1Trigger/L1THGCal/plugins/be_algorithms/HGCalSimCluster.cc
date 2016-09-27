@@ -37,10 +37,8 @@ namespace HGCalTriggerBackend{
         private:
             std::unique_ptr<l1t::HGCalClusterBxCollection> cluster_product;
             // token
-            //edm::EDGetTokenT< reco::PFClusterCollection > sim_token;
             edm::EDGetTokenT< std::vector<SimCluster> > sim_token;
             // handle
-            //edm::Handle< reco::PFClusterCollection > sim_handle;
             edm::Handle< std::vector<SimCluster> > sim_handle;
 
         protected:
@@ -59,7 +57,9 @@ namespace HGCalTriggerBackend{
             //Consumes tokens
             HGCalTriggerSimCluster(const edm::ParameterSet& conf,edm::ConsumesCollector&cc) : Algorithm<FECODEC>(conf,cc) { 
                 // I need to consumes the PF Cluster Collection with the sim clustering, TODO: make it configurable (?)
-                sim_token = cc.consumes< std::vector< SimCluster > >(edm::InputTag("particleFlowClusterHGCal")); 
+                // vector<SimCluster>                    "mix"                       "MergedCaloTruth"   "HLT"
+                // pf clusters cannot be safely cast to SimCluster
+                sim_token = cc.consumes< std::vector< SimCluster > >(edm::InputTag("MergedCaloTruth")); 
             }
 
             // setProduces
