@@ -22,6 +22,9 @@ public:
   /// get the id
   inline HcalDetId id() const { return HcalDetId(detid()); }
 
+  inline void setChiSquared(const float chi2) {chiSquared_ = chi2;}
+  inline float chi2() const {return chiSquared_;}
+
   inline void setRawEnergy(const float en) {rawEnergy_ = en;}
   inline float eraw() const {return rawEnergy_;}
 
@@ -36,6 +39,7 @@ public:
 
 private:
   float timeFalling_;
+  float chiSquared_;
   float rawEnergy_;
   float auxEnergy_;
   uint32_t auxHBHE_;
