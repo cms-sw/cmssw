@@ -240,9 +240,9 @@ loadAndSortPFClusters(const edm::Event &iEvent) {
   }  
   
   // reset the system for running
-  superClustersEB_.reset(new reco::SuperClusterCollection);
+  superClustersEB_ = std::make_unique<reco::SuperClusterCollection>();
   _clustersEB.clear();
-  superClustersEE_.reset(new reco::SuperClusterCollection);    
+  superClustersEE_ = std::make_unique<reco::SuperClusterCollection>();
   _clustersEE.clear();  
   EEtoPS_ = &psclusters;
 

@@ -4,7 +4,7 @@
 HcalTPGCompressor::HcalTPGCompressor(const CaloTPGTranscoder* coder) : coder_(coder) {
 }
   
-void HcalTPGCompressor::compress(const IntegerCaloSamples& ics, const std::vector<bool>& fineGrain, HcalTriggerPrimitiveDigi& digi) const {
+void HcalTPGCompressor::compress(const IntegerCaloSamples& ics, const std::vector<int>& fineGrain, HcalTriggerPrimitiveDigi& digi) const {
   digi.setSize(ics.size());
   digi.setPresamples(ics.presamples());
   for (int i=0; i<ics.size(); i++)

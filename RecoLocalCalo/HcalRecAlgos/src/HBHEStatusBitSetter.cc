@@ -2,7 +2,7 @@
 #include "RecoLocalCalo/HcalRecAlgos/interface/HBHEStatusBitSetter.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-HBHEStatusBitSetter::HBHEStatusBitSetter() : frontEndMap_(0) {
+HBHEStatusBitSetter::HBHEStatusBitSetter() : frontEndMap_(nullptr) {
   nominalPedestal_=3.0;
   hitEnergyMinimum_=2.0;
   hitMultiplicityThreshold_=17;
@@ -15,7 +15,7 @@ HBHEStatusBitSetter::HBHEStatusBitSetter(double nominalPedestal,
   : hitEnergyMinimum_(hitEnergyMinimum),
     hitMultiplicityThreshold_(hitMultiplicityThreshold),
     nominalPedestal_(nominalPedestal),
-    frontEndMap_(0) {
+    frontEndMap_(nullptr) {
   const unsigned sz = pulseShapeParameterSets.size();
   pulseShapeParameters_.reserve(sz);
   for (unsigned iPSet=0; iPSet<sz; iPSet++) {
@@ -29,8 +29,11 @@ HBHEStatusBitSetter::~HBHEStatusBitSetter() { }
 
 void HBHEStatusBitSetter::SetFrontEndMap(const HcalFrontEndMap* m) {
   frontEndMap_ = m;
+  hpdMultiplicity_.clear();
   if (frontEndMap_) {
-    for (int iRm=0; iRm<frontEndMap_->maxRMIndex(); iRm++) {
+    const int sz = frontEndMap_->maxRMIndex();
+    hpdMultiplicity_.reserve(sz);
+    for (int iRm=0; iRm<sz; iRm++) {
       hpdMultiplicity_.push_back(0);
     }
   }
@@ -42,16 +45,14 @@ void HBHEStatusBitSetter::Clear() {
     hpdMultiplicity_[i] = 0;
 }
 
-void HBHEStatusBitSetter::setTopo(const HcalTopology*) { }
-  
 void HBHEStatusBitSetter::rememberHit(const HBHERecHit& hbhe) {
-  if (frontEndMap_==0) {
-    edm::LogError("HcalHitSelection") << "No HcalFrontEndMap in SetFlagsFromDigi";
+  if (frontEndMap_==nullptr) {
+    edm::LogError("HBHEStatusBitSetter") << "No HcalFrontEndMap in rememberHit";
     return;
   }
   //increment hit multiplicity
   if (hbhe.energy()>hitEnergyMinimum_) {
-    int index=frontEndMap_->lookupRMIndex(hbhe.detid());
+    const int index=frontEndMap_->lookupRMIndex(hbhe.detid());
     hpdMultiplicity_.at(index)++;
   }
 }
@@ -60,6 +61,10 @@ void HBHEStatusBitSetter::SetFlagsFromDigi(HBHERecHit& hbhe,
 					   const HBHEDataFrame& digi,
 					   const HcalCoder& coder,
 					   const HcalCalibrations& calib) {
+  if (frontEndMap_==nullptr) {
+    edm::LogError("HBHEStatusBitSetter") << "No HcalFrontEndMap in SetFlagsFromDigi";
+    return;
+  }
   rememberHit(hbhe);
   
   //set pulse shape bits
@@ -107,13 +112,13 @@ void HBHEStatusBitSetter::SetFlagsFromDigi(HBHERecHit& hbhe,
 
 void HBHEStatusBitSetter::SetFlagsFromRecHits(HBHERecHitCollection& rec) {
 
-  if (frontEndMap_==0) {
-    edm::LogError("HcalHitSelection") << "No HcalFrontEndMap in SetFlagsFromRecHits";
+  if (frontEndMap_==nullptr) {
+    edm::LogError("HBHEStatusBitSetter") << "No HcalFrontEndMap in SetFlagsFromRecHits";
     return;
   }
 
   for (HBHERecHitCollection::iterator iHBHE=rec.begin();iHBHE!=rec.end();++iHBHE) {
-    int index=frontEndMap_->lookupRMIndex(iHBHE->detid());
+    const int index=frontEndMap_->lookupRMIndex(iHBHE->detid());
     if (hpdMultiplicity_.at(index)<hitMultiplicityThreshold_) continue;
     iHBHE->setFlagField(1,HcalCaloFlagLabels::HBHEHpdHitMultiplicity);
   }

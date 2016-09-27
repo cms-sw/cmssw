@@ -45,9 +45,9 @@ HGCalUncalibRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& es) 
   worker_->set(es);
   
   // prepare output
-  std::auto_ptr< HGCeeUncalibratedRecHitCollection > eeUncalibRechits( new HGCeeUncalibratedRecHitCollection );
-  std::auto_ptr< HGChefUncalibratedRecHitCollection > hefUncalibRechits( new HGChefUncalibratedRecHitCollection );
-  std::auto_ptr< HGChefUncalibratedRecHitCollection > hebUncalibRechits( new HGChebUncalibratedRecHitCollection );
+  auto eeUncalibRechits = std::make_unique<HGCeeUncalibratedRecHitCollection>();
+  auto hefUncalibRechits = std::make_unique<HGChefUncalibratedRecHitCollection>();
+  auto hebUncalibRechits = std::make_unique<HGChebUncalibratedRecHitCollection>();
   
   // loop over HGCEE digis
   if (isEE_) {
@@ -84,9 +84,9 @@ HGCalUncalibRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& es) 
   }
   
   // put the collection of recunstructed hits in the event
-  evt.put( eeUncalibRechits, eeHitCollection_ );
-  evt.put( hefUncalibRechits, hefHitCollection_ );
-  evt.put( hebUncalibRechits, hebHitCollection_ );
+  evt.put(std::move(eeUncalibRechits), eeHitCollection_);
+  evt.put(std::move(hefUncalibRechits), hefHitCollection_);
+  evt.put(std::move(hebUncalibRechits), hebHitCollection_);
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"                                                                                                            

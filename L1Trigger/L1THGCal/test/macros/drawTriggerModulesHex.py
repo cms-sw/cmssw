@@ -71,7 +71,7 @@ for ie in xrange(nentry):
     triggercell.center.y = treeTriggerCells.y
     triggercell.center.z = treeTriggerCells.z
     for cellid in treeTriggerCells.c_id:
-        if not cellid in cells: raise StandardError("Cannot find cell {0} in trigger cell".format(cellid))
+        if not cellid in cells: raise Exception("Cannot find cell {0} in trigger cell".format(cellid))
         cell = cells[cellid]
         triggercell.cells.append(cell)
     triggercells[triggercell.id] = triggercell
@@ -97,7 +97,7 @@ for ie in xrange(nentry):
     module.center.y = treeModules.y
     module.center.z = treeModules.z
     for cellid in treeModules.tc_id:
-        if not cellid in triggercells: raise StandardError("Cannot find trigger cell {0} in module".format(cellid))
+        if not cellid in triggercells: raise Exception("Cannot find trigger cell {0} in module".format(cellid))
         cell = triggercells[cellid]
         module.cells.append(cell)
     modules[module.id] = module
@@ -108,9 +108,9 @@ maxx = -99999.
 minx = 99999.
 maxy = -99999.
 miny = 99999.
-for id,triggercell in triggercells.items():
-    x = triggercell.center.x
-    y = triggercell.center.y
+for id,cell in cells.items():
+    x = cell.center.x
+    y = cell.center.y
     if x>maxx: maxx=x
     if x<minx: minx=x
     if y>maxy: maxy=y

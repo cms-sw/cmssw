@@ -57,7 +57,8 @@ class XMLConfigReader{
 
   GoldenPattern * buildGP(xercesc::DOMElement* aGPElement,
 			  const L1TMuonOverlapParams & aConfig,
-			  unsigned int index=0);
+			  unsigned int index=0,
+			  unsigned int aGPNumber=999);
   
   xercesc::XercesDOMParser *parser;
   xercesc::DOMDocument* doc;

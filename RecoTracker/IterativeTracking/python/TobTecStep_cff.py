@@ -100,7 +100,6 @@ tobTecStepSeedLayersPair = cms.EDProducer("SeedingLayersEDProducer",
 import RecoPixelVertexing.PixelLowPtUtilities.ClusterShapeHitFilterESProducer_cfi
 tobTecStepClusterShapeHitFilter  = RecoPixelVertexing.PixelLowPtUtilities.ClusterShapeHitFilterESProducer_cfi.ClusterShapeHitFilterESProducer.clone(
 	ComponentName = cms.string('tobTecStepClusterShapeHitFilter'),
-        PixelShapeFile= cms.string('RecoPixelVertexing/PixelLowPtUtilities/data/pixelShape.par'),
 	clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutTight')),
 	doStripShapeCut  = cms.bool(False)
 	)

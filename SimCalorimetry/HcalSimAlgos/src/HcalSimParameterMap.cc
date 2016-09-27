@@ -86,7 +86,7 @@ const CaloSimParameters & HcalSimParameterMap::simParameters(const DetId & detId
        return theHOParameters;
      }
   } else { // HF
-    if(hcalDetId.depth() == 1) {
+    if(hcalDetId.depth() == 1 || hcalDetId.depth() == 3) {
       return theHFParameters1;
     } else {
       return theHFParameters2;

@@ -203,9 +203,9 @@ class Electron( Lepton ):
             if name == "NonTrigSpring15MiniAOD" and self.physObj.hasUserFloat("ElectronMVAEstimatorRun2Spring15NonTrig25nsV1Values"):
                 self._mvaRun2[name] =  self.physObj.userFloat("ElectronMVAEstimatorRun2Spring15NonTrig25nsV1Values")
                 return self._mvaRun2[name]
-            if name not in ElectronMVAID_ByName: raise RuntimeError, "Unknown electron run2 mva id %s (known ones are: %s)\n" % (name, ElectronMVAID_ByName.keys())
-            if self.associatedVertex == None: raise RuntimeError, "You need to set electron.associatedVertex before calling any MVA"
-            if self.rho              == None: raise RuntimeError, "You need to set electron.rho before calling any MVA"
+            if name not in ElectronMVAID_ByName: raise RuntimeError("Unknown electron run2 mva id %s (known ones are: %s)\n" % (name, ElectronMVAID_ByName.keys()))
+            if self.associatedVertex == None: raise RuntimeError("You need to set electron.associatedVertex before calling any MVA")
+            if self.rho              == None: raise RuntimeError("You need to set electron.rho before calling any MVA")
             # -v---- below is correct in Heppy 74X, but probably not functional anyway
             self._mvaRun2[name] = ElectronMVAID_ByName[name](self.physObj, self.associatedVertex, self.rho, True, debug)
             # -v---- below would be correct for CMGTools 74X witht the updated Spring15 MVA electron ID
@@ -250,7 +250,7 @@ class Electron( Lepton ):
                     if   (eta < 0.8)  : return self.mvaRun2(name) > 0.73;
                     elif (eta < 1.479): return self.mvaRun2(name) > 0.57;
                     else              : return self.mvaRun2(name) > 0.05;
-                else: raise RuntimeError, "Ele MVA ID Working point not found"
+                else: raise RuntimeError("Ele MVA ID Working point not found")
             elif name == "NonTrigPhys14Fix":
                 if wp == "HZZ":
                     if self.pt() <= 10:
@@ -261,7 +261,7 @@ class Electron( Lepton ):
                         if   eta < 0.8  : return self.mvaRun2(name) > -0.652;
                         elif eta < 1.479: return self.mvaRun2(name) > -0.701;
                         else            : return self.mvaRun2(name) > -0.350;
-                else: raise RuntimeError, "Ele MVA ID Working point not found"
+                else: raise RuntimeError("Ele MVA ID Working point not found")
             elif name in ("NonTrigSpring15","NonTrigSpring15MiniAOD"):
                 if wp=="VLoose":
                     if self.pt() <= 10:
@@ -311,8 +311,8 @@ class Electron( Lepton ):
                         if eta < 0.8: return self.mvaRun2(name) > -0.083313
                         elif eta < 1.479: return self.mvaRun2(name) > -0.235222
                         else: return self.mvaRun2(name) > -0.67099
-                else: raise RuntimeError, "Ele MVA ID Working point not found"
-            else: raise RuntimeError, "Ele MVA ID type not found"
+                else: raise RuntimeError("Ele MVA ID Working point not found")
+            else: raise RuntimeError("Ele MVA ID type not found")
 
 
 

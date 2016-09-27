@@ -4,7 +4,7 @@ dtTPTriggerMonitor = cms.EDAnalyzer("DTLocalTriggerTask",
     # set static booking (all the detector)
     staticBooking = cms.untracked.bool(True),
     # labels of DDU/TM data and 4D segments
-    tm_label = cms.untracked.string('twinMuxStage2Digis'),
+    tm_label = cms.untracked.string('twinMuxStage2Digis:PhIn'),
     ros_label = cms.untracked.string('dtunpacker'),
     seg_label = cms.untracked.string('dt4DSegments'),
     minBXDDU = cms.untracked.int32(0),  # min BX for DDU plots

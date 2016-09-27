@@ -1,4 +1,4 @@
-<library   name="RecoParticleFlowPFProducerSimPlugins" file="SimPFProducer.cc,TauHadronDecayFilter.cc,PFSimParticleProducer.cc,SealModuleSim.cc">
+<library   name="RecoParticleFlowPFProducerSimPlugins" file="SimPFProducer.cc,TauHadronDecayFilter.cc,PFSimParticleProducer.cc,EcalBarrelClusterFastTimer.cc,,SealModuleSim.cc">
   <use   name="DataFormats/EcalDetId"/>
   <use   name="Geometry/HGCalGeometry"/>
   <use   name="TrackingTools/MaterialEffects"/>
@@ -24,6 +24,7 @@
   <use   name="RecoTracker/TrackProducer"/>
   <use   name="SimDataFormats/CaloHit"/>
   <use   name="SimGeneral/HepPDTRecord"/>
+  <use   name="SimTracker/TrackAssociation"/>
   <use   name="TrackingTools/GeomPropagators"/>
   <use   name="TrackingTools/PatternTools"/>
   <use   name="TrackingTools/Records"/>

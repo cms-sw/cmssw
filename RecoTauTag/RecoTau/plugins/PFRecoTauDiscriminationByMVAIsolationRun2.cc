@@ -71,7 +71,7 @@ class PFRecoTauDiscriminationByMVAIsolationRun2 : public PFTauDiscriminationProd
       moduleLabel_(cfg.getParameter<std::string>("@module_label")),
       mvaReader_(0),
       mvaInput_(0),
-      category_output_(0)
+      category_output_()
   {
     mvaName_ = cfg.getParameter<std::string>("mvaName");
     loadMVAfromDB_ = cfg.exists("loadMVAfromDB") ? cfg.getParameter<bool>("loadMVAfromDB") : false;
@@ -156,7 +156,7 @@ class PFRecoTauDiscriminationByMVAIsolationRun2 : public PFTauDiscriminationProd
   edm::Handle<reco::PFTauDiscriminator> footprintCorrection_;
 
   edm::Handle<TauCollection> taus_;
-  std::auto_ptr<PFTauDiscriminator> category_output_;
+  std::unique_ptr<PFTauDiscriminator> category_output_;
 
   std::vector<TFile*> inputFilesToDelete_;
   TauIdMVAAuxiliaries clusterVariables_;
@@ -311,7 +311,7 @@ double PFRecoTauDiscriminationByMVAIsolationRun2::discriminate(const PFTauRef& t
 void PFRecoTauDiscriminationByMVAIsolationRun2::endEvent(edm::Event& evt)
 {
   // add all category indices to event
-  evt.put(category_output_, "category");
+  evt.put(std::move(category_output_), "category");
 }
 
 DEFINE_FWK_MODULE(PFRecoTauDiscriminationByMVAIsolationRun2);

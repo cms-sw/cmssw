@@ -34,7 +34,7 @@ class PlotData:
         if (mode == "rot"):
             self.xyz = {0: "#alpha", 1: "#beta", 2: "#gamma"}
             self.data = [3, 4, 5]
-            self.unit = ""
+            self.unit = "mrad"
         if (mode == "dist"):
             self.xyz = {0: "A", 1: "B", 2: "C"}
             self.data = [6, 7, 8]

@@ -55,7 +55,7 @@ EgammaHLTRemoveDuplicatedSC::produce(edm::Event& evt, const edm::EventSetup& es)
 
 
   // Define a collection of corrected SuperClusters to put back into the event
-  std::unique_ptr<reco::SuperClusterCollection> corrClusters(new reco::SuperClusterCollection);
+  auto corrClusters = std::make_unique<reco::SuperClusterCollection>();
   
   //  Loop over raw clusters and make corrected ones
   reco::SuperClusterCollection::const_iterator aClus;

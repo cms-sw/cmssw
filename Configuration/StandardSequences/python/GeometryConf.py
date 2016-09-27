@@ -22,6 +22,8 @@ GeometryConf={
     'Extended2015dev': 'Extended2015dev,Extended2015devReco',
     'Extended2016'   : 'Extended2016,Extended2016Reco',
     'Extended2017'   : 'Extended2017,Extended2017Reco',
+    'Extended2017dev': 'Extended2017dev,Extended2017devReco',
+    'Extended2017new': 'Extended2017new,Extended2017newReco',
     'Extended2019'   : 'Extended2019,Extended2019Reco',
     'ExtendedGFlash' : 'ExtendedGFlash,ExtendedGFlashReco',
     'All'         : 'Configuration.Geometry.GeometrySimAll_cff,Reco',
@@ -31,4 +33,6 @@ GeometryConf={
     'Extended2023D1' : 'Extended2023D1,Extended2023D1Reco',
     'Extended2023D2' : 'Extended2023D2,Extended2023D2Reco',
     'Extended2023D3' : 'Extended2023D3,Extended2023D3Reco',
+    'Extended2023D4' : 'Extended2023D4,Extended2023D4Reco',
+    'Extended2017NewFPix' : 'Extended2017NewFPix,Extended2017NewFPixReco',
     }

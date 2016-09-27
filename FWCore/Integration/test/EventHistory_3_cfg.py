@@ -29,7 +29,8 @@ process.intvec = cms.EDProducer("IntVectorProducer",
 )
 
 process.out = cms.OutputModule("PoolOutputModule",
-    fileName = cms.untracked.string('testEventHistory_3.root')
+    fileName = cms.untracked.string('testEventHistory_3.root'),
+    outputCommands = cms.untracked.vstring('keep *', 'drop *_intvec_*_THIRD')
 )
 
 process.outother = cms.OutputModule("PoolOutputModule",

@@ -168,7 +168,7 @@ DTMeantimerPatternReco4D::reconstruct(){
     for (vector<DTSegmentCand*>::const_iterator phi=resultPhi.begin();
          phi!=resultPhi.end(); ++phi) {
 
-      std::auto_ptr<DTChamberRecSegment2D> superPhi(**phi);
+      std::unique_ptr<DTChamberRecSegment2D> superPhi(**phi);
 
       theUpdator->update(superPhi.get(),1);
       if(debug) cout << "superPhi: " << *superPhi << endl;

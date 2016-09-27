@@ -19,6 +19,7 @@ import itertools
 import collections
 import Alignment.MillePedeAlignmentAlgorithm.mpslib.Mpslibclass as mpslib
 from Alignment.MillePedeAlignmentAlgorithm.alignmentsetup.helper import checked_out_MPS
+from functools import reduce
 
 
 def get_weight_configs(config):
@@ -107,13 +108,13 @@ config.read(aligmentConfig)
 # construct directories
 
 # set variables that are not too specific (millescript, pedescript, etc.)
-mpsScriptsDir = os.path.join("src", "Alignment", "MillePedeAlignmentAlgorithm", "scripts")
+mpsTemplates = os.path.join("src", "Alignment", "MillePedeAlignmentAlgorithm", "templates")
 if checked_out_MPS()[0]:
-    mpsScriptsDir = os.path.join(os.environ["CMSSW_BASE"], mpsScriptsDir)
+    mpsTemplates = os.path.join(os.environ["CMSSW_BASE"], mpsTemplates)
 else:
-    mpsScriptsDir = os.path.join(os.environ["CMSSW_RELEASE_BASE"], mpsScriptsDir)
-milleScript = os.path.join(mpsScriptsDir, "mps_runMille_template.sh")
-pedeScript  = os.path.join(mpsScriptsDir, "mps_runPede_rfcp_template.sh")
+    mpsTemplates = os.path.join(os.environ["CMSSW_RELEASE_BASE"], mpsTemplates)
+milleScript = os.path.join(mpsTemplates, "mps_runMille_template.sh")
+pedeScript  = os.path.join(mpsTemplates, "mps_runPede_rfcp_template.sh")
 
 # get working directory name
 currentDir = os.getcwd()
@@ -412,14 +413,15 @@ for section in config.sections():
         print 'Submitting dataset:', datasetOptions['name']
         print 'Baseconfig:        ', datasetOptions['configTemplate']
         print 'Collection:        ', datasetOptions['collection']
-        if datasetOptions['collection']=='ALCARECOTkAlCosmicsCTF0T':
+        if datasetOptions["collection"] in ("ALCARECOTkAlCosmicsCTF0T",
+                                            "ALCARECOTkAlCosmicsInCollisions"):
             print 'cosmicsDecoMode:   ', datasetOptions['cosmicsDecoMode']
             print 'cosmicsZeroTesla:  ', datasetOptions['cosmicsZeroTesla']
         print 'Globaltag:         ', datasetOptions['globaltag']
         print 'Number of jobs:    ', datasetOptions['njobs']
         print 'Inputfilelist:     ', datasetOptions['inputFileList']
         if datasetOptions['json'] != '':
-            print 'Jsonfile:      ', datasetOptions['json']
+            print 'Jsonfile:          ', datasetOptions['json']
         print 'Pass to mps_setup: ', command
 
         # call the command and toggle verbose output

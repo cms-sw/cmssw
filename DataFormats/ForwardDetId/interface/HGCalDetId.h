@@ -59,6 +59,7 @@ public:
   static const HGCalDetId Undefined;
 };
 
+
 std::ostream& operator<<(std::ostream&,const HGCalDetId& id);
 
 #endif

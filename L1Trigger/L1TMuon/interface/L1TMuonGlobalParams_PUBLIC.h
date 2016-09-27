@@ -20,6 +20,8 @@
 
 class L1TMuonGlobalParams_PUBLIC {
 public:
+  enum { Version = 1 };
+
   class Node {
   public:
     std::string type_;
@@ -38,6 +40,8 @@ public:
   int bxMin_;  //obsolete
   int bxMax_;  //obsolete
   std::vector<Node> pnodes_;
+
+  L1TMuonGlobalParams_PUBLIC(){ version_=Version; fwVersion_ = 0; bxMin_ = 0; bxMax_ = 0; }
 };
 
 const L1TMuonGlobalParams_PUBLIC & cast_to_L1TMuonGlobalParams_PUBLIC(const L1TMuonGlobalParams & x);

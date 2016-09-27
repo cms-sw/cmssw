@@ -39,8 +39,8 @@ RPCRecHitProducer::RPCRecHitProducer(const ParameterSet& config):
                 config.getParameter<ParameterSet>("recAlgoConfig")));
 
   // Get masked- and dead-strip information
-  theRPCMaskedStripsObj.reset(new RPCMaskedStrips());
-  theRPCDeadStripsObj.reset(new RPCDeadStrips());
+  theRPCMaskedStripsObj = std::make_unique<RPCMaskedStrips>();
+  theRPCDeadStripsObj = std::make_unique<RPCDeadStrips>();
 
   const string maskSource = config.getParameter<std::string>("maskSource");
   if (maskSource == "File") {
@@ -130,7 +130,7 @@ void RPCRecHitProducer::produce(Event& event, const EventSetup& setup) {
   theAlgo->setES(setup);
 
   // Create the pointer to the collection which will store the rechits
-  auto_ptr<RPCRecHitCollection> recHitCollection(new RPCRecHitCollection());
+  auto recHitCollection = std::make_unique<RPCRecHitCollection>();
 
   // Iterate through all digi collections ordered by LayerId   
 
@@ -172,7 +172,7 @@ void RPCRecHitProducer::produce(Event& event, const EventSetup& setup) {
       recHitCollection->put(rpcId, recHits.begin(), recHits.end());
   }
 
-  event.put(recHitCollection);
+  event.put(std::move(recHitCollection));
 
 }
 

@@ -47,8 +47,8 @@ void
  PFRecHitProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
    using namespace edm;
-   std::auto_ptr<reco::PFRecHitCollection> out(new reco::PFRecHitCollection );
-   std::auto_ptr<reco::PFRecHitCollection> cleaned(new reco::PFRecHitCollection );
+   auto out = std::make_unique<reco::PFRecHitCollection>();
+   auto cleaned = std::make_unique<reco::PFRecHitCollection>();
 
    navigator_->beginEvent(iSetup);
 
@@ -71,8 +71,8 @@ void
      navigator_->associateNeighbours(pfrechit,out,refProd);
    }
 
-   iEvent.put(out,"");
-   iEvent.put(cleaned,"Cleaned");
+   iEvent.put(std::move(out),"");
+   iEvent.put(std::move(cleaned),"Cleaned");
 
 }
 

@@ -175,6 +175,8 @@ def MassReplaceInputTag(aProcess,oldT="rawDataCollector",newT="rawDataRepacker")
 	from PhysicsTools.PatAlgos.tools.helpers import massSearchReplaceAnyInputTag
 	for s in aProcess.paths_().keys():
 		massSearchReplaceAnyInputTag(getattr(aProcess,s),oldT,newT)
+	for s in aProcess.endpaths_().keys():
+		massSearchReplaceAnyInputTag(getattr(aProcess,s),oldT,newT)
 
 def anyOf(listOfKeys,dict,opt=None):
 	for k in listOfKeys:
@@ -1502,7 +1504,7 @@ class ConfigBuilder(object):
 
     def prepare_L1REPACK(self, sequence = None):
             """ Enrich the schedule with the L1 simulation step, running the L1 emulator on data unpacked from the RAW collection, and repacking the result in a new RAW collection"""
-	    supported = ['GT','GT1','GT2','GCTGT','Full','FullMC','Full2015Data','uGT']
+	    supported = ['GT','GT1','GT2','GCTGT','Full','FullSimTP','FullMC','Full2015Data','uGT']
             if sequence in supported:
                 self.loadAndRemember('Configuration/StandardSequences/SimL1EmulatorRepack_%s_cff'%sequence)
 		if self._options.scenario == 'HeavyIons':
@@ -1938,30 +1940,20 @@ class ConfigBuilder(object):
 			
 		if 'HLT' in self.stepMap.keys() or self._options.hltProcess:
 			self.renameHLTprocessInSequence(sequence)
+                
+                setattr(self.process,pathName, cms.EndPath( getattr(self.process,sequence ) ) )
+                self.schedule.append(getattr(self.process,pathName))
 
-		# if both HLT and DQM are run in the same process, schedule [HLT]DQM in an EndPath
-	        # not for fastsim
-		if 'HLT' in self.stepMap.keys() and not self._options.fast:
-			# need to put [HLT]DQM in an EndPath, to access the HLT trigger results
-			setattr(self.process,pathName, cms.EndPath( getattr(self.process, sequence ) ) )
-		else:
-			# schedule DQM as a standard Path
-			setattr(self.process,pathName, cms.Path( getattr(self.process, sequence) ) ) 
-		self.schedule.append(getattr(self.process,pathName))
+                if hasattr(self.process,"genstepfilter") and len(self.process.genstepfilter.triggerConditions):
+                        #will get in the schedule, smoothly
+                        getattr(self.process,pathName).insert(0,self.process.genstepfilter)
 
 	pathName='dqmofflineOnPAT_step'
 	for (i,sequence) in enumerate(postSequenceList):
                 if (i!=0):
                         pathName='dqmofflineOnPAT_%d_step'%(i)
 
-		# if both MINIAOD and DQM are run in the same process, schedule DQM in an EndPath
-		if 'PAT' in self.stepMap.keys():
-			# need to put DQM in an EndPath, to access the miniAOD filter results
-			setattr(self.process,pathName, cms.EndPath( getattr(self.process, sequence ) ) )
-		else:
-			# schedule DQM as a standard Path
-			setattr(self.process,pathName, cms.Path( getattr(self.process, sequence) ) )
-		self.schedule.append(getattr(self.process,pathName))
+                setattr(self.process,pathName, cms.EndPath( getattr(self.process, sequence ) ) )
 
     def prepare_HARVESTING(self, sequence = None):
         """ Enrich the process with harvesting step """

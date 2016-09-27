@@ -79,6 +79,8 @@ castorDigis.InputLabel = 'rawDataCollector'
 totemTriggerRawToDigi.rawDataTag = cms.InputTag("rawDataCollector")
 totemRPRawToDigi.rawDataTag = cms.InputTag("rawDataCollector")
 
+eras.phase2_common.toReplaceWith(RawToDigi, RawToDigi.copyAndExclude([castorDigis]))
+
 # until we have hcal raw data for phase 2...
 eras.phase2_hcal.toReplaceWith(RawToDigi, RawToDigi.copyAndExclude([hcalDigis]))
 

@@ -16,24 +16,29 @@ class Eras (object):
                  'Run2_2016_HIPM',
                  'Run2_2016_trackingLowPU',
                  'Run2_2017',
+                 'Run2_2017_NewFPix',
+                 'Run2_2017_HCALdev',
+                 'Run2_2017_new',
                  'Run2_2017_trackingRun2',
                  'Run2_2017_trackingPhase1PU70',
                  'Run3',
                  'Phase2C1',
-                 'Phase2C2']
+                 'Phase2C2',
+                 'Phase2C1_timing',
+                 'Phase2C2_timing']
 
         internalUseMods = ['run2_common', 'run2_25ns_specific',
                            'run2_50ns_specific', 'run2_HI_specific',
                            'stage1L1Trigger', 'fastSim',
                            'run2_HE_2017', 'stage2L1Trigger',
-                           'phase1Pixel', 'run3_GEM',
+                           'run2_HF_2017', 'run2_HCAL_2017',
+                           'phase1Pixel', 'phase1PixelNewFPix', 'run3_GEM',
                            'phase2_common', 'phase2_tracker',
-                           'phase2_hgcal', 'phase2_muon',
+                           'phase2_hgcal', 'phase2_muon', 'phase2_timing',
                            'phase2_hcal',
                            'trackingLowPU', 'trackingPhase1', 'trackingPhase1PU70', 'ctpps_2016', 'trackingPhase2PU140',
                            'tracker_apv_vfp30_2016']
                            
-        
         for e in allEras:
             eObj=getattr(__import__('Configuration.Eras.Era_'+e+'_cff',globals(),locals(),[e],0),e)
             self.addEra(e,eObj)
@@ -78,8 +83,7 @@ class Eras (object):
             if name is None:
                 if not onlyChosen or getattr(self,e).isChosen(): 
                     self.inspectEra(e,details)
-
-
+        
 eras=Eras()
 
 

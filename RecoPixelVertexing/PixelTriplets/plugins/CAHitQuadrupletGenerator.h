@@ -9,6 +9,7 @@
 #include "RecoTracker/TkMSParametrization/interface/PixelRecoUtilities.h"
 #include "RecoTracker/TkMSParametrization/interface/LongitudinalBendingCorrection.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
+#include "CAGraph.h"
 
 
 #include "RecoTracker/TkHitPairs/interface/HitPairGeneratorFromLayerPair.h"
@@ -38,14 +39,10 @@ public:
     virtual ~CAHitQuadrupletGenerator();
 
     /// from base class
-    virtual void hitQuadruplets(const TrackingRegion& reg, OrderedHitSeeds & triplets,
+    virtual void hitQuadruplets(const TrackingRegion& reg, OrderedHitSeeds & quadruplets,
             const edm::Event & ev, const edm::EventSetup& es);
 
-    void findQuadruplets(const TrackingRegion& region, OrderedHitSeeds& result,
-            const edm::Event& ev, const edm::EventSetup& es,
-            const SeedingLayerSetsHits::SeedingLayerSet& fourLayers);
-    
-    
+
 private:
     edm::EDGetTokenT<SeedingLayerSetsHits> theSeedingLayerToken;
 
@@ -124,8 +121,9 @@ private:
     const bool fitFastCircleChi2Cut;
     const bool useBendingCorrection;
 
-    const float CAThetaCut = 0.00125f;
-    const float CAPhiCut = 10.f;
+    const float caThetaCut = 0.00125f;
+    const float caPhiCut = 0.1f;
+    const float caHardPtCut = 0.f;
 
 };
 #endif

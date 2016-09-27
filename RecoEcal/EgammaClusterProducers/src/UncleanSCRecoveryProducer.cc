@@ -121,10 +121,10 @@ void UncleanSCRecoveryProducer::produce(edm::StreamID, edm::Event& evt,
         }
         //
         // now export the basic clusters into the event and get them back
-        std::auto_ptr< reco::BasicClusterCollection> basicClusters_p(new reco::BasicClusterCollection);
+        auto basicClusters_p = std::make_unique<reco::BasicClusterCollection>();
         basicClusters_p->assign(basicClusters.begin(), basicClusters.end());
         edm::OrphanHandle<reco::BasicClusterCollection> bccHandle =  
-                evt.put(basicClusters_p, bcCollection_);
+                evt.put(std::move(basicClusters_p), bcCollection_);
         if (!(bccHandle.isValid())) {
 
                 edm::LogWarning("MissingInput") << "could not handle the new BasicClusters!";
@@ -181,11 +181,10 @@ void UncleanSCRecoveryProducer::produce(edm::StreamID, edm::Event& evt,
                 superClusters.push_back(newSC);
         }
 
-        std::auto_ptr< reco::SuperClusterCollection> 
-                superClusters_p(new reco::SuperClusterCollection);
+        auto superClusters_p = std::make_unique<reco::SuperClusterCollection>();
         superClusters_p->assign(superClusters.begin(), superClusters.end());
 
-        evt.put(superClusters_p, scCollection_);
+        evt.put(std::move(superClusters_p), scCollection_);
 
         LogTrace("EcalCleaning")<<"Clusters (Basic/Super) added to the Event! :-)";
 

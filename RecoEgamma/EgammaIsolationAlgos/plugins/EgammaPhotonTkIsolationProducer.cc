@@ -71,7 +71,7 @@ EgammaPhotonTkIsolationProducer::produce(edm::Event& iEvent, const edm::EventSet
   reco::TrackBase::Point beamspot = beamSpotH->position();
 
   //prepare product
-  std::auto_ptr<edm::ValueMap<double> > isoMap(new edm::ValueMap<double>());
+  auto isoMap = std::make_unique<edm::ValueMap<double>>();
   edm::ValueMap<double>::Filler filler(*isoMap);
   std::vector<double> retV(photonHandle->size(),0);
 
@@ -85,7 +85,7 @@ EgammaPhotonTkIsolationProducer::produce(edm::Event& iEvent, const edm::EventSet
   //fill and insert valuemap
   filler.insert(photonHandle,retV.begin(),retV.end());
   filler.fill();
-  iEvent.put(isoMap);
+  iEvent.put(std::move(isoMap));
 
 }
 

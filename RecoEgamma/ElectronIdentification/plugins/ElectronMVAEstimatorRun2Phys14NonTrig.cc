@@ -186,7 +186,7 @@ createSingleReader(const int iCategory, const edm::FileInPath &weightFile) {
   //
   std::unique_ptr<TMVA::IMethod> temp( tmpTMVAReader.BookMVA(_MethodName , weightFile.fullPath() ) );
   
-  return std::unique_ptr<const GBRForest> ( new GBRForest( dynamic_cast<TMVA::MethodBDT*>( tmpTMVAReader.FindMVA(_MethodName) ) ) );
+  return std::make_unique<const GBRForest>(dynamic_cast<TMVA::MethodBDT*>(tmpTMVAReader.FindMVA(_MethodName) ) );
 }
 
 // A function that should work on both pat and reco objects

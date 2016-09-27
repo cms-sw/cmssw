@@ -97,8 +97,8 @@ void PFTauTransverseImpactParameters::produce(edm::Event& iEvent,const edm::Even
   iEvent.getByToken(PFTauSVAToken_,PFTauSVA);
 
   // Set Association Map
-  auto_ptr<edm::AssociationVector<PFTauRefProd, std::vector<reco::PFTauTransverseImpactParameterRef> > > AVPFTauTIP(new edm::AssociationVector<PFTauRefProd, std::vector<reco::PFTauTransverseImpactParameterRef> >(PFTauRefProd(Tau)));
-  std::auto_ptr<PFTauTransverseImpactParameterCollection>  TIPCollection_out= std::auto_ptr<PFTauTransverseImpactParameterCollection>(new PFTauTransverseImpactParameterCollection());
+  auto AVPFTauTIP = std::make_unique< edm::AssociationVector<PFTauRefProd, std::vector<reco::PFTauTransverseImpactParameterRef>>>(PFTauRefProd(Tau));
+  auto TIPCollection_out = std::make_unique<PFTauTransverseImpactParameterCollection>();
   reco::PFTauTransverseImpactParameterRefProd TIPRefProd_out = iEvent.getRefBeforePut<reco::PFTauTransverseImpactParameterCollection>("PFTauTIP");
 
 
@@ -161,8 +161,8 @@ void PFTauTransverseImpactParameters::produce(edm::Event& iEvent,const edm::Even
       }
     }
   }
-  iEvent.put(TIPCollection_out,"PFTauTIP");
-  iEvent.put(AVPFTauTIP);
+  iEvent.put(std::move(TIPCollection_out),"PFTauTIP");
+  iEvent.put(std::move(AVPFTauTIP));
 }
 
 DEFINE_FWK_MODULE(PFTauTransverseImpactParameters);

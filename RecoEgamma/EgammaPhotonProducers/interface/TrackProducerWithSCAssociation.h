@@ -44,10 +44,10 @@ private:
   void putInEvt(edm::Event& evt,
 		const Propagator* thePropagator,
 		const MeasurementTracker* theMeasTk,
-		std::auto_ptr<TrackingRecHitCollection>& selHits,
-		std::auto_ptr<reco::TrackCollection>& selTracks,
-		std::auto_ptr<reco::TrackExtraCollection>& selTrackExtras,
-		std::auto_ptr<std::vector<Trajectory> >&   selTrajectories,
+		std::unique_ptr<TrackingRecHitCollection> selHits,
+		std::unique_ptr<reco::TrackCollection> selTracks,
+		std::unique_ptr<reco::TrackExtraCollection> selTrackExtras,
+		std::unique_ptr<std::vector<Trajectory>> selTrajectories,
 		AlgoProductCollection& algoResults, TransientTrackingRecHitBuilder const * hitBuilder,
                 const TrackerTopology *ttopo);
 };

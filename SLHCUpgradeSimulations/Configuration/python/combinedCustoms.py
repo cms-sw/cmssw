@@ -3,11 +3,11 @@ from SLHCUpgradeSimulations.Configuration.postLS1Customs import customisePostLS1
 from SLHCUpgradeSimulations.Configuration.customise_mixing import customise_NoCrossing
 from SLHCUpgradeSimulations.Configuration.phase1TkCustoms import customise as customisePhase1Tk
 from SLHCUpgradeSimulations.Configuration.HCalCustoms import customise_HcalPhase1, customise_HcalPhase0
-
 from SLHCUpgradeSimulations.Configuration.fixMissingUpgradeGTPayloads import fixRPCConditions
 
 from SLHCUpgradeSimulations.Configuration.phase2TkTilted import customise as customiseTiltedTK
 from SLHCUpgradeSimulations.Configuration.phase2TkFlat import customise as customiseFlatTK
+from SLHCUpgradeSimulations.Configuration.phase2TkTilted4021 import customise as customiseTiltedTK4021
 
 import SLHCUpgradeSimulations.Configuration.aging as aging
 
@@ -21,8 +21,11 @@ def cust_2023flat(process):
     process=customiseFlatTK(process)
     return process
 
+def cust_2023tilted4021(process):
+    # To allow simulatenous use of customisation and era while the era migration is in progress
+    process=customiseTiltedTK4021(process)
+    return process
 
-######Below are the customized used for SLHC releases 
 def cust_2019(process):
     process=customisePostLS1(process,displayDeprecationWarning=False)
     process=customisePhase1Tk(process)

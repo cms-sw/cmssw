@@ -95,7 +95,7 @@ void Setting::setValue(const std::string& value)
 l1t::LUT Setting::getLUT(size_t addrWidth, size_t dataWidth, int padding, std::string delim)
 {
 	if ( type_.find("vector:uint") == std::string::npos )
-		throw std::runtime_error("Cannot build LUT from type: " + type_ + ". Only vector:uint is allowed.");
+		throw std::runtime_error("Cannot build LUT from type: " + type_ + ". Only vector:unsigned int is allowed.");
 
 	if ( delim.empty() )
 		delim = ",";

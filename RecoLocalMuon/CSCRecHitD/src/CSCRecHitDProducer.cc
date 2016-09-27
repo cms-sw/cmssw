@@ -68,14 +68,14 @@ void  CSCRecHitDProducer::produce( edm::Event& ev, const edm::EventSetup& setup 
   ev.getByToken( w_token, wireDigis);
 
   // Create empty collection of rechits  
-  std::auto_ptr<CSCRecHit2DCollection> oc( new CSCRecHit2DCollection );
+  auto oc = std::make_unique<CSCRecHit2DCollection>();
 
   // Fill the CSCRecHit2DCollection
   recHitBuilder_->build( stripDigis.product(), wireDigis.product(), *oc);
 
   // Put collection in event
   LogTrace("CSCRecHit")<< "[CSCRecHitDProducer] putting collection of " << oc->size() << " rechits into event.";
-  ev.put( oc );
+  ev.put(std::move(oc));
 
 }
 

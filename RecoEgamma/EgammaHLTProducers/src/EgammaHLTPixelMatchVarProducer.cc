@@ -126,10 +126,10 @@ void EgammaHLTPixelMatchVarProducer::produce(edm::StreamID sid, edm::Event& iEve
 
   if(!recoEcalCandHandle.isValid() || !pixelSeedsHandle.isValid()) return;
 
-  std::unique_ptr<reco::RecoEcalCandidateIsolationMap> dPhi1BestS2Map(new reco::RecoEcalCandidateIsolationMap(recoEcalCandHandle));
-  std::unique_ptr<reco::RecoEcalCandidateIsolationMap> dPhi2BestS2Map(new reco::RecoEcalCandidateIsolationMap(recoEcalCandHandle));
-  std::unique_ptr<reco::RecoEcalCandidateIsolationMap> dzBestS2Map(new reco::RecoEcalCandidateIsolationMap(recoEcalCandHandle));
-  std::unique_ptr<reco::RecoEcalCandidateIsolationMap> s2Map(new reco::RecoEcalCandidateIsolationMap(recoEcalCandHandle));
+  auto dPhi1BestS2Map = std::make_unique<reco::RecoEcalCandidateIsolationMap>(recoEcalCandHandle);
+  auto dPhi2BestS2Map = std::make_unique<reco::RecoEcalCandidateIsolationMap>(recoEcalCandHandle);
+  auto dzBestS2Map = std::make_unique<reco::RecoEcalCandidateIsolationMap>(recoEcalCandHandle);
+  auto s2Map = std::make_unique<reco::RecoEcalCandidateIsolationMap>(recoEcalCandHandle);
   
   for(unsigned int candNr = 0; candNr<recoEcalCandHandle->size(); candNr++) {
     

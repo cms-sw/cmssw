@@ -105,8 +105,7 @@ void EgammaHLTElectronTrackIsolationProducers::produce(edm::StreamID sid, edm::E
       recoEcalCandMap.insert(recoEcalCandRef,isol);
     }//end reco ecal candidate ref
 
-    std::unique_ptr<reco::RecoEcalCandidateIsolationMap> mapForEvent(new reco::RecoEcalCandidateIsolationMap(recoEcalCandMap));
-    iEvent.put(std::move(mapForEvent));
+    iEvent.put(std::make_unique<reco::RecoEcalCandidateIsolationMap>(recoEcalCandMap));
 
   }else{ //we are going to loop over electron instead
     for(reco::ElectronCollection::const_iterator iElectron = electronHandle->begin(); iElectron != electronHandle->end(); iElectron++){
@@ -116,8 +115,7 @@ void EgammaHLTElectronTrackIsolationProducers::produce(edm::StreamID sid, edm::E
       eleMap.insert(eleRef, isol);
     }
 
-    std::unique_ptr<reco::ElectronIsolationMap> mapForEvent(new reco::ElectronIsolationMap(eleMap));
-    iEvent.put(std::move(mapForEvent));
+    iEvent.put(std::make_unique<reco::ElectronIsolationMap>(eleMap));
   }
 }
 

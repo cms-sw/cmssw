@@ -343,7 +343,6 @@ void HcalHitReconstructor::beginRun(edm::Run const&r, edm::EventSetup const & es
     }
 
   if (hbheFlagSetter_) {
-    hbheFlagSetter_->setTopo(htopo.product());
     edm::ESHandle<HcalFrontEndMap> hfemap;
     es.get<HcalFrontEndMapRcd>().get(hfemap);
     if (hfemap.isValid()) {
@@ -449,7 +448,7 @@ void HcalHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSe
       e.getByToken(tok_hbhe_,digi);
       
       // create empty output
-      std::auto_ptr<HBHERecHitCollection> rec(new HBHERecHitCollection);
+      auto rec = std::make_unique<HBHERecHitCollection>();
       rec->reserve(digi->size());
       // run the algorithm
       if (setNoiseFlags_) hbheFlagSetter_->Clear();
@@ -589,7 +588,7 @@ void HcalHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSe
       if (setNoiseFlags_) hbheFlagSetter_->SetFlagsFromRecHits(*rec);
       if (setHSCPFlags_)  hbheHSCPFlagSetter_->hbheSetTimeFlagsFromDigi(rec.get(), HBDigis, RecHitIndex);
       // return result
-      e.put(rec);
+      e.put(std::move(rec));
 
       //  HO ------------------------------------------------------------------
     } else if (subdet_==HcalOuter) {
@@ -597,7 +596,7 @@ void HcalHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSe
       e.getByToken(tok_ho_,digi);
       
       // create empty output
-      std::auto_ptr<HORecHitCollection> rec(new HORecHitCollection);
+      auto rec = std::make_unique<HORecHitCollection>();
       rec->reserve(digi->size());
       // run the algorithm
       HODigiCollection::const_iterator i;
@@ -672,7 +671,7 @@ void HcalHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSe
 	  HcalTimingCorrector::Correct(rec->back(), *i, favorite_capid);
       }
       // return result
-      e.put(rec);    
+      e.put(std::move(rec));    
 
       // HF -------------------------------------------------------------------
     } else if (subdet_==HcalForward) {
@@ -682,7 +681,7 @@ void HcalHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSe
 
       ///////////////////////////////////////////////////////////////// HF
       // create empty output
-      std::auto_ptr<HFRecHitCollection> rec(new HFRecHitCollection);
+      auto rec = std::make_unique<HFRecHitCollection>();
       rec->reserve(digi->size());
       // run the algorithm
       HFDigiCollection::const_iterator i;
@@ -817,13 +816,13 @@ void HcalHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSe
 	}
 
       // return result
-      e.put(rec);     
+      e.put(std::move(rec));     
     } else if (subdet_==HcalOther && subdetOther_==HcalCalibration) {
       edm::Handle<HcalCalibDigiCollection> digi;
       e.getByToken(tok_calib_,digi);
       
       // create empty output
-      std::auto_ptr<HcalCalibRecHitCollection> rec(new HcalCalibRecHitCollection);
+      auto rec = std::make_unique<HcalCalibRecHitCollection>();
       rec->reserve(digi->size());
       // run the algorithm
       int first = firstSample_;
@@ -868,7 +867,7 @@ void HcalHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSe
 	*/
       }
       // return result
-      e.put(rec);     
+      e.put(std::move(rec));     
     }
   } 
   //DL  delete myqual;
