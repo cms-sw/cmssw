@@ -147,6 +147,7 @@ private:
     int maxDepth_[5]; // 0:any, 1:HB, 2:HE, 3:HF
     int nChannels_[5]; // 0:any, 1:HB, 2:HE, 
 
+    bool skipDataTPs;
 };
 
 #endif
