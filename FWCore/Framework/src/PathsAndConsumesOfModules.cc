@@ -161,6 +161,47 @@ namespace edm {
       kPathToTriggerResultsDependencyLastIndex = largestIndex ;
     }
 
+
+    {
+      //We need to explicitly check that modules on Paths do not try to read data from
+      // Modules which are only on EndPaths. The circular dependency finder has been
+      // known to miss these.
+      std::unordered_set<unsigned int> modulesOnlyOnEndPaths;
+      auto const& endPaths = iPnC.endPaths();
+      for( unsigned int pathIndex = 0; pathIndex != endPaths.size(); ++pathIndex) {
+        auto const& moduleDescriptions = iPnC.modulesOnEndPath(pathIndex);
+        for(auto const& description: moduleDescriptions) {
+          modulesOnlyOnEndPaths.insert(description->id());
+        }
+      }
+
+      std::unordered_set<unsigned int> modulesOnPaths;
+      auto const& paths = iPnC.paths();
+      for( unsigned int pathIndex = 0; pathIndex != paths.size(); ++pathIndex) {
+        auto const& moduleDescriptions = iPnC.modulesOnPath(pathIndex);
+        for(auto const& description: moduleDescriptions) {
+          auto itFind =modulesOnlyOnEndPaths.find(description->id());
+          if(modulesOnlyOnEndPaths.end() != itFind) {
+            modulesOnlyOnEndPaths.erase(itFind);
+          }
+          modulesOnPaths.insert(description->id());
+        }
+      }
+      
+      for(auto moduleIndex : modulesOnPaths) {
+        auto const& dependentModules = iPnC.modulesWhoseProductsAreConsumedBy(moduleIndex);
+        for(auto const& depDescription: dependentModules) {
+          auto itFind = modulesOnlyOnEndPaths.find(depDescription->id());
+          if(itFind != modulesOnlyOnEndPaths.end()) {
+            throw edm::Exception(edm::errors::ScheduleExecutionFailure, "Unrunnable schedule\n") 
+              <<"The module "<<moduleIndexToNames[moduleIndex]<<" is on a Path and depends on data from module "
+              <<moduleIndexToNames[depDescription->id()]<<" which is on an EndPath.";
+          }
+        }
+      }
+
+    }
+
     //If a module to module dependency comes from a path, remember which path
     EdgeToPathMap edgeToPathMap;
 
