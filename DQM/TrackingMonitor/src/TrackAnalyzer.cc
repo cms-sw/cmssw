@@ -207,9 +207,14 @@ void TrackAnalyzer::bookHistosForEfficiencyFromHitPatter(DQMStore::IBooker &iboo
 
     ibooker.setCurrentFolder(TopFolder_ + "/HitEffFromHitPattern" + suffix);
     
-    int NBINS[]        = { 50,   int(GetLumi::lastBunchCrossing),  300  , 3600};
-    float MIN[]        = { 0.5,     0.5,  0., 3000. };
-    float MAX[]        = { 50.5, float(GetLumi::lastBunchCrossing)+0.5,  3., 12000. };
+    int LUMIBin   = conf_.getParameter<int>("LUMIBin");
+    float LUMIMin = conf_.getParameter<double>("LUMIMin");
+    float LUMIMax = conf_.getParameter<double>("LUMIMax");
+    
+
+    int NBINS[]        = { 50,   int(GetLumi::lastBunchCrossing),  300  , LUMIBin};
+    float MIN[]        = { 0.5,     0.5,  0., LUMIMin };
+    float MAX[]        = { 50.5, float(GetLumi::lastBunchCrossing)+0.5,  3., LUMIMax };
     std::string NAME[] = { "", "VsBX", "VsLUMI", "VsLUMI" };
     
     int mon = -1;
