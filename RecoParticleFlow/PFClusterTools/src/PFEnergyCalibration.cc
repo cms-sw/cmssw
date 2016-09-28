@@ -813,13 +813,15 @@ PFEnergyCalibration::EcorrPS(double eEcal,double ePS1,double ePS2,double etaEcal
   }
   else if(outputPS1 == 0 && outputPS2 == -1 && esEEInterCalib_ != 0){
     // ESP1 only working
-    outputPS1 = gammaprime*ePS1 * esEEInterCalib_->getGammaLow0() * esEEInterCalib_->getGammaLow1();
-    outputPS2 = gammaprime*Alpha(etaEcal)*ePS2 * esEEInterCalib_->getGammaLow3() * esEEInterCalib_->getGammaLow1();
+    double corrTotES = gammaprime*ePS1 * esEEInterCalib_->getGammaLow0() * esEEInterCalib_->getGammaLow1();
+    outputPS1 = gammaprime*ePS1 * esEEInterCalib_->getGammaLow0();
+    outputPS2 = corrTotES - outputPS1;
   }
   else if(outputPS1 == -1 && outputPS2 == 0 && esEEInterCalib_ != 0){
     // ESP2 only working
-    outputPS1 = gammaprime*ePS1 * esEEInterCalib_->getGammaLow0() * esEEInterCalib_->getGammaLow2();
-    outputPS2 = gammaprime*Alpha(etaEcal)*ePS2 * esEEInterCalib_->getGammaLow3() * esEEInterCalib_->getGammaLow2();
+    double corrTotES = gammaprime*Alpha(etaEcal)*ePS2 * esEEInterCalib_->getGammaLow3() * esEEInterCalib_->getGammaLow2();
+    outputPS2 = gammaprime*Alpha(etaEcal)*ePS2 * esEEInterCalib_->getGammaLow3();
+    outputPS1 = corrTotES - outputPS2;
   }
   else{
     // none working
