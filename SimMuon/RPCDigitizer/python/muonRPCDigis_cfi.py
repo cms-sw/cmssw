@@ -31,10 +31,11 @@ simMuonRPCDigis = cms.EDProducer("RPCDigiProducer",
 )
 
 #the digitizer for PhaseII muon upgrade is RPCSimModelTiming and for the moment is based on  RPCSimAverageNoiseEffCls
-from Configuration.StandardSequences.Eras import eras
-if eras.fastSim.isChosen():
+from Configuration.Eras.Modifier_fastSim_cff import fastSim
+if fastSim.isChosen():
     simMuonRPCDigis.InputCollection = 'MuonSimHitsMuonRPCHits'
-if eras.phase2_muon.isChosen():
+from Configuration.Eras.Modifier_phase2_muon_cff import phase2_muon
+if phase2_muon.isChosen():
     simMuonRPCDigis = cms.EDProducer("RPCandIRPCDigiProducer",
                                      Noise = cms.bool(True),
                                      digiModelConfig = cms.PSet(

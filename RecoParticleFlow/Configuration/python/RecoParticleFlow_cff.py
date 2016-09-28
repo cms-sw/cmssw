@@ -42,7 +42,6 @@ from RecoParticleFlow.PFTracking.hgcalTrackCollection_cfi import *
 from RecoParticleFlow.PFProducer.simPFProducer_cfi import *
 from SimTracker.TrackerHitAssociation.tpClusterProducer_cfi import *
 from SimTracker.TrackAssociatorProducers.quickTrackAssociatorByHits_cfi import *
-from Configuration.StandardSequences.Eras import eras
 particleFlowTmpBarrel = particleFlowTmp.clone()
 _phase2_hgcal_particleFlowTmp = cms.EDProducer(
     "PFCandidateListMerger",
@@ -59,15 +58,16 @@ _phase2_hgcal_simPFSequence = cms.Sequence( pfTrack +
 _phase2_hgcal_particleFlowReco = cms.Sequence( _phase2_hgcal_simPFSequence * particleFlowReco.copy() )
 _phase2_hgcal_particleFlowReco.replace( particleFlowTmpSeq, cms.Sequence( particleFlowTmpBarrel * particleFlowTmp ) )
 
-eras.phase2_hgcal.toModify( quickTrackAssociatorByHits,
+from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
+phase2_hgcal.toModify( quickTrackAssociatorByHits,
                             pixelSimLinkSrc = cms.InputTag("simSiPixelDigis","Pixel"),
                             stripSimLinkSrc = cms.InputTag("simSiPixelDigis","Tracker")
                             )
 
-eras.phase2_hgcal.toModify( tpClusterProducer,
+phase2_hgcal.toModify( tpClusterProducer,
                             pixelSimLinkSrc = cms.InputTag("simSiPixelDigis", "Pixel"),
                             phase2OTSimLinkSrc = cms.InputTag("simSiPixelDigis","Tracker")
                             )
 
-eras.phase2_hgcal.toReplaceWith( particleFlowTmp, _phase2_hgcal_particleFlowTmp )
-eras.phase2_hgcal.toReplaceWith( particleFlowReco, _phase2_hgcal_particleFlowReco )
+phase2_hgcal.toReplaceWith( particleFlowTmp, _phase2_hgcal_particleFlowTmp )
+phase2_hgcal.toReplaceWith( particleFlowReco, _phase2_hgcal_particleFlowReco )

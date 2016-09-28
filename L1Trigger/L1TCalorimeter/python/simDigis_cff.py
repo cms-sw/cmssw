@@ -1,10 +1,11 @@
 import FWCore.ParameterSet.Config as cms
-from Configuration.StandardSequences.Eras import eras
 
 #
 # Legacy Trigger:
 #
-if not (eras.stage1L1Trigger.isChosen() or eras.stage2L1Trigger.isChosen()):
+from Configuration.Eras.Modifier_stage1L1Trigger_cff import stage1L1Trigger
+from Configuration.Eras.Modifier_stage2L1Trigger_cff import stage2L1Trigger
+if not (stage1L1Trigger.isChosen() or stage2L1Trigger.isChosen()):
     print "L1TCalorimeter Sequence configured for Run1 (Legacy) trigger. "
 # -  RCT (Regional Calorimeter Trigger) emulator
     import L1Trigger.RegionalCaloTrigger.rctDigis_cfi
@@ -20,7 +21,7 @@ if not (eras.stage1L1Trigger.isChosen() or eras.stage2L1Trigger.isChosen()):
 #
 # Stage-1 Trigger
 #
-if eras.stage1L1Trigger.isChosen() and not eras.stage2L1Trigger.isChosen():
+if stage1L1Trigger.isChosen() and not stage2L1Trigger.isChosen():
     print "L1TCalorimeter Sequence configured for Stage-1 (2015) trigger. "    
 #
 # -  RCT (Regional Calorimeter Trigger) emulator
@@ -40,7 +41,7 @@ if eras.stage1L1Trigger.isChosen() and not eras.stage2L1Trigger.isChosen():
 #
 # Stage-2 Trigger
 #
-if eras.stage2L1Trigger.isChosen():
+if stage2L1Trigger.isChosen():
     print "L1TCalorimeter Sequence configured for Stage-2 (2016) trigger. "
     # select one of the following two options:
     # - layer1 from L1Trigger/L1TCalorimeter package

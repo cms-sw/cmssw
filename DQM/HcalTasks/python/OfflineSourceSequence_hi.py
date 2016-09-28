@@ -42,6 +42,6 @@ hcalOfflineSourceSequence = cms.Sequence(
 _phase1_hcalOfflineSourceSequence = hcalOfflineSourceSequence.copy() 
 _phase1_hcalOfflineSourceSequence.insert(0,digiPhase1Task)
 
-from Configuration.StandardSequences.Eras import eras
-eras.run2_HCAL_2017.toReplaceWith( hcalOfflineSourceSequence, _phase1_hcalOfflineSourceSequence )
+from Configuration.Eras.Modifier_run2_HCAL_2017_cff import run2_HCAL_2017
+run2_HCAL_2017.toReplaceWith( hcalOfflineSourceSequence, _phase1_hcalOfflineSourceSequence )
 

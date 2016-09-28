@@ -21,14 +21,15 @@ ecalDigitizer = cms.PSet(
     makeDigiSimLinks = cms.untracked.bool(False)
 )
 
-from Configuration.StandardSequences.Eras import eras
-if eras.fastSim.isChosen():
+from Configuration.Eras.Modifier_fastSim_cff import fastSim
+if fastSim.isChosen():
     ecalDigitizer.hitsProducer = cms.string("famosSimHits")
     
 ecalDigitizer.doEB = cms.bool(True)
 ecalDigitizer.doEE = cms.bool(True)
 ecalDigitizer.doES = cms.bool(True)
 
-from Configuration.StandardSequences.Eras import eras
-eras.phase2_common.toModify( ecalDigitizer, doES = cms.bool(False) )
-eras.phase2_hgcal.toModify( ecalDigitizer, doEE = cms.bool(False) )
+from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
+phase2_common.toModify( ecalDigitizer, doES = cms.bool(False) )
+from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
+phase2_hgcal.toModify( ecalDigitizer, doEE = cms.bool(False) )

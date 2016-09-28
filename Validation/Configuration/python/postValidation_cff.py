@@ -1,5 +1,4 @@
 import FWCore.ParameterSet.Config as cms
-from Configuration.StandardSequences.Eras import eras
 
 from Validation.RecoMuon.PostProcessor_cff import *
 from Validation.RecoTrack.PostProcessorTracker_cfi import *
@@ -39,7 +38,8 @@ postValidation = cms.Sequence(
     + bTagCollectorSequenceMCbcl
     + METPostProcessor
 )
-eras.phase1Pixel.toReplaceWith(postValidation, postValidation.copyAndExclude([ # FIXME
+from Configuration.Eras.Modifier_phase1Pixel_cff import phase1Pixel
+phase1Pixel.toReplaceWith(postValidation, postValidation.copyAndExclude([ # FIXME
     runTauEff # Excessive printouts because 2017 doesn't have HLT yet
 ]))
 
@@ -103,6 +103,7 @@ _run3_postValidation += MuonGEMRecHitsPostProcessors
 _phase2_postValidation = _run3_postValidation.copy()
 _phase2_postValidation += hgcalPostProcessor
 
-from Configuration.StandardSequences.Eras import eras
-eras.run3_GEM.toReplaceWith( postValidation, _run3_postValidation )
-eras.phase2_hgcal.toReplaceWith( postValidation, _phase2_postValidation )
+from Configuration.Eras.Modifier_run3_GEM_cff import run3_GEM
+run3_GEM.toReplaceWith( postValidation, _run3_postValidation )
+from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
+phase2_hgcal.toReplaceWith( postValidation, _phase2_postValidation )

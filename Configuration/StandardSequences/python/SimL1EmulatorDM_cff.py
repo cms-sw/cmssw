@@ -1,7 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
 from Configuration.StandardSequences.SimL1Emulator_cff import *
-from Configuration.StandardSequences.Eras import eras
 
 # Modifications for DataMixer input:
 simDtTriggerPrimitiveDigis.digiTag = 'mixData'
@@ -14,7 +13,8 @@ simRpcTechTrigDigis.RPCDigiLabel = 'mixData'
 simHcalTechTrigDigis.ttpDigiCollection = "DMHcalTTPDigis"
 #
 
-if not eras.stage2L1Trigger.isChosen():
+from Configuration.Eras.Modifier_stage2L1Trigger_cff import stage2L1Trigger
+if not stage2L1Trigger.isChosen():
     simRpcTriggerDigis.label = 'mixData'
     simRctDigis.hcalDigis=cms.VInputTag(cms.InputTag("DMHcalTriggerPrimitiveDigis"))   
     simRctDigis.ecalDigis=cms.VInputTag(cms.InputTag("DMEcalTriggerPrimitiveDigis"))   

@@ -1,5 +1,4 @@
 import FWCore.ParameterSet.Config as cms
-from Configuration.StandardSequences.Eras import eras
 
 # This step runs over all clusters
 
@@ -48,7 +47,8 @@ jetCoreRegionalStepSeedLayers = cms.EDProducer("SeedingLayersEDProducer",
         #skipClusters = cms.InputTag('jetCoreRegionalStepClusters')
     )
 )
-eras.trackingPhase1.toModify(jetCoreRegionalStepSeedLayers,
+from Configuration.Eras.Modifier_trackingPhase1_cff import trackingPhase1
+trackingPhase1.toModify(jetCoreRegionalStepSeedLayers,
     layerList = [
         'BPix1+BPix2', 'BPix1+BPix3', 'BPix1+BPix4',
         'BPix2+BPix3', 'BPix2+BPix4',
