@@ -495,9 +495,10 @@ void HistogramManager::book(DQMStore::IBooker& iBooker,
         h.me = iBooker.bookProfile(h.name, (h.title + ";" + h.xlabel + ";" + h.ylabel).c_str(),
                        h.range_x_nbins, h.range_x_min, h.range_x_max, -(1./0.), 1./0.);
       } else if (h.kind == MonitorElement::DQM_KIND_TPROFILE2D) {
-        h.me = iBooker.book2D(h.name, (h.title + ";" + h.xlabel + ";" + h.ylabel).c_str(),
+        h.me = iBooker.bookProfile2D(h.name, (h.title + ";" + h.xlabel + ";" + h.ylabel).c_str(),
                        h.range_x_nbins, h.range_x_min, h.range_x_max,
-                       h.range_y_nbins, h.range_y_min, h.range_y_max);
+                       h.range_y_nbins, h.range_y_min, h.range_y_max,
+                       0.0, 0.0); // Z range is ignored if min==max
       } else if (h.kind == MonitorElement::DQM_KIND_INT) {
         // counter, nothing to do
         continue; // avoid the getTH1 below
