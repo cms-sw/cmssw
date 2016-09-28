@@ -24,6 +24,7 @@ process.source = cms.Source("PoolSource",
 from RecoTauTag.RecoTau.TauDiscriminatorTools import noPrediscriminants
 process.load('RecoTauTag.Configuration.loadRecoTauTagMVAsFromPrepDB_cfi')
 from RecoTauTag.RecoTau.PATTauDiscriminationByMVAIsolationRun2_cff import *
+from RecoTauTag.RecoTau.PATTauDiscriminationAgainstElectronMVA6_cfi import *
 
 process.rerunDiscriminationByIsolationMVArun2v1raw = patDiscriminationByIsolationMVArun2v1raw.clone(
     PATTauProducer = cms.InputTag('slimmedTaus'),
@@ -50,6 +51,33 @@ process.rerunDiscriminationByIsolationMVArun2v1VLoose = patDiscriminationByIsola
         )
     )
 )
+
+process.rerunDiscriminationAgainstElectronMVA6 = patTauDiscriminationAgainstElectronMVA6.clone(
+    PATTauProducer = cms.InputTag('slimmedTaus'),
+    Prediscriminants = noPrediscriminants,
+    #Prediscriminants = requireLeadTrack,
+    loadMVAfromDB = cms.bool(True),
+    returnMVA = cms.bool(True),
+    method = cms.string("BDTG"),
+    mvaName_NoEleMatch_woGwoGSF_BL = cms.string("RecoTauTag_antiElectronMVA6v1_gbr_NoEleMatch_woGwoGSF_BL"),
+    mvaName_NoEleMatch_wGwoGSF_BL = cms.string("RecoTauTag_antiElectronMVA6v1_gbr_NoEleMatch_wGwoGSF_BL"),
+    mvaName_woGwGSF_BL = cms.string("RecoTauTag_antiElectronMVA6v1_gbr_woGwGSF_BL"),
+    mvaName_wGwGSF_BL = cms.string("RecoTauTag_antiElectronMVA6v1_gbr_wGwGSF_BL"),
+    mvaName_NoEleMatch_woGwoGSF_EC = cms.string("RecoTauTag_antiElectronMVA6v1_gbr_NoEleMatch_woGwoGSF_EC"),
+    mvaName_NoEleMatch_wGwoGSF_EC = cms.string("RecoTauTag_antiElectronMVA6v1_gbr_NoEleMatch_wGwoGSF_EC"),
+    mvaName_woGwGSF_EC = cms.string("RecoTauTag_antiElectronMVA6v1_gbr_woGwGSF_EC"),
+    mvaName_wGwGSF_EC = cms.string("RecoTauTag_antiElectronMVA6v1_gbr_wGwGSF_EC"),
+    minMVANoEleMatchWOgWOgsfBL = cms.double(0.0),
+    minMVANoEleMatchWgWOgsfBL  = cms.double(0.0),
+    minMVAWOgWgsfBL            = cms.double(0.0),
+    minMVAWgWgsfBL             = cms.double(0.0),
+    minMVANoEleMatchWOgWOgsfEC = cms.double(0.0),
+    minMVANoEleMatchWgWOgsfEC  = cms.double(0.0),
+    minMVAWOgWgsfEC            = cms.double(0.0),
+    minMVAWgWgsfEC             = cms.double(0.0),
+    srcElectrons = cms.InputTag('slimmedElectrons')
+)
+
 process.rerunDiscriminationByIsolationMVArun2v1Loose = process.rerunDiscriminationByIsolationMVArun2v1VLoose.clone()
 process.rerunDiscriminationByIsolationMVArun2v1Loose.mapping[0].cut = cms.string("RecoTauTag_tauIdMVADBoldDMwLTv1_WPEff80")
 process.rerunDiscriminationByIsolationMVArun2v1Medium = process.rerunDiscriminationByIsolationMVArun2v1VLoose.clone()
@@ -77,4 +105,8 @@ process.rerunMVAIsolationOnMiniAOD = cms.EDAnalyzer('rerunMVAIsolationOnMiniAOD'
 process.rerunMVAIsolationOnMiniAOD.verbosity = cms.int32(0)
 process.rerunMVAIsolationOnMiniAOD.additionalCollectionsAvailable = cms.bool(True)
 
-process.p = cms.Path(process.rerunMvaIsolation2SeqRun2*process.rerunMVAIsolationOnMiniAOD)
+process.p = cms.Path(
+   process.rerunMvaIsolation2SeqRun2
+  *process.rerunDiscriminationAgainstElectronMVA6
+  *process.rerunMVAIsolationOnMiniAOD
+)
