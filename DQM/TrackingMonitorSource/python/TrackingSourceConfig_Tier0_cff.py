@@ -1,5 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 from Configuration.StandardSequences.Eras import eras
+import RecoTracker.IterativeTracking.iterativeTkConfig as _cfg
 
 ### load which are the tracks collection 2 be monitored
 from DQM.TrackingMonitorSource.TrackCollections2monitor_cff import *
@@ -36,6 +37,7 @@ for tracks in selectedTracks :
     locals()[label].doBeamSpotPlots                     = doBeamSpotPlots                     [tracks]
     locals()[label].doSeedParameterHistos               = doSeedParameterHistos               [tracks]
     locals()[label].doRecHitVsPhiVsEtaPerTrack          = doRecHitVsPhiVsEtaPerTrack          [tracks]
+    locals()[label].doRecHitVsPtVsEtaPerTrack           = doRecHitVsPtVsEtaPerTrack           [tracks]
     locals()[label].doGoodTrackRecHitVsPhiVsEtaPerTrack = doGoodTrackRecHitVsPhiVsEtaPerTrack [tracks]
     locals()[label].doLayersVsPhiVsEtaPerTrack          = doLayersVsPhiVsEtaPerTrack          [tracks]
     locals()[label].doGoodTrackLayersVsPhiVsEtaPerTrack = doGoodTrackLayersVsPhiVsEtaPerTrack [tracks]
@@ -75,6 +77,7 @@ for tracks in selectedTracks :
     locals()[label].doBeamSpotPlots                     = doBeamSpotPlots                     [tracks]
     locals()[label].doSeedParameterHistos               = doSeedParameterHistos               [tracks]
     locals()[label].doRecHitVsPhiVsEtaPerTrack          = doRecHitVsPhiVsEtaPerTrack          [tracks]
+    locals()[label].doRecHitVsPtVsEtaPerTrack           = doRecHitVsPtVsEtaPerTrack           [tracks]
     locals()[label].doGoodTrackRecHitVsPhiVsEtaPerTrack = doGoodTrackRecHitVsPhiVsEtaPerTrack [tracks]
     locals()[label].doLayersVsPhiVsEtaPerTrack          = doLayersVsPhiVsEtaPerTrack          [tracks]
     locals()[label].doGoodTrackLayersVsPhiVsEtaPerTrack = doGoodTrackLayersVsPhiVsEtaPerTrack [tracks]
@@ -114,6 +117,7 @@ for tracks in selectedTracks :
     locals()[label].doBeamSpotPlots                     = doBeamSpotPlots                     [tracks]
     locals()[label].doSeedParameterHistos               = doSeedParameterHistos               [tracks]
     locals()[label].doRecHitVsPhiVsEtaPerTrack          = doRecHitVsPhiVsEtaPerTrack          [tracks]
+    locals()[label].doRecHitVsPtVsEtaPerTrack           = doRecHitVsPtVsEtaPerTrack           [tracks]
     locals()[label].doGoodTrackRecHitVsPhiVsEtaPerTrack = doGoodTrackRecHitVsPhiVsEtaPerTrack [tracks]
     locals()[label].doLayersVsPhiVsEtaPerTrack          = doLayersVsPhiVsEtaPerTrack          [tracks]
     locals()[label].doGoodTrackLayersVsPhiVsEtaPerTrack = doGoodTrackLayersVsPhiVsEtaPerTrack [tracks]
@@ -153,6 +157,7 @@ for tracks in selectedTracks :
     locals()[label].doBeamSpotPlots                     = doBeamSpotPlots                     [tracks]
     locals()[label].doSeedParameterHistos               = doSeedParameterHistos               [tracks]
     locals()[label].doRecHitVsPhiVsEtaPerTrack          = doRecHitVsPhiVsEtaPerTrack          [tracks]
+    locals()[label].doRecHitVsPtVsEtaPerTrack           = doRecHitVsPtVsEtaPerTrack           [tracks]
     locals()[label].doGoodTrackRecHitVsPhiVsEtaPerTrack = doGoodTrackRecHitVsPhiVsEtaPerTrack [tracks]
     locals()[label].doLayersVsPhiVsEtaPerTrack          = doLayersVsPhiVsEtaPerTrack          [tracks]
     locals()[label].doGoodTrackLayersVsPhiVsEtaPerTrack = doGoodTrackLayersVsPhiVsEtaPerTrack [tracks]
@@ -193,6 +198,7 @@ for tracks in selectedTracks :
     locals()[label].doBeamSpotPlots                     = doBeamSpotPlots                     [tracks]
     locals()[label].doSeedParameterHistos               = doSeedParameterHistos               [tracks]
     locals()[label].doRecHitVsPhiVsEtaPerTrack          = doRecHitVsPhiVsEtaPerTrack          [tracks]
+    locals()[label].doRecHitVsPtVsEtaPerTrack           = doRecHitVsPtVsEtaPerTrack           [tracks]
     locals()[label].doGoodTrackRecHitVsPhiVsEtaPerTrack = doGoodTrackRecHitVsPhiVsEtaPerTrack [tracks]
     locals()[label].doLayersVsPhiVsEtaPerTrack          = doLayersVsPhiVsEtaPerTrack          [tracks]
     locals()[label].doGoodTrackLayersVsPhiVsEtaPerTrack = doGoodTrackLayersVsPhiVsEtaPerTrack [tracks]
@@ -214,8 +220,9 @@ for tracks in selectedTracks :
 import DQM.TrackingMonitor.TrackingMonitorSeed_cfi
 
 from DQM.TrackingMonitorSource.IterTrackingModules4seedMonitoring_cfi import *
-
-for step in selectedIterTrackingStep :
+# Create first modules for all possible iterations, select later which
+# ones to actually use based on era
+for step in seedInputTag.iterkeys():
     label = 'TrackSeedMon'+str(step)
     locals()[label] = DQM.TrackingMonitor.TrackingMonitorSeed_cfi.TrackMonSeed.clone(
         doTrackCandHistos = cms.bool(True)
@@ -304,16 +311,22 @@ for tracks in selectedTracks :
     if tracks != 'generalTracks':
         TrackingDQMSourceTier0 += sequenceName[tracks]
     label = 'TrackerCollisionSelectedTrackMonCommon' + str(tracks)
-    TrackingDQMSourceTier0 += cms.Sequence(locals()[label])
+    TrackingDQMSourceTier0 += locals()[label]
 # seeding monitoring
-for step in selectedIterTrackingStep :
-    label = 'TrackSeedMon'+str(step)
-    TrackingDQMSourceTier0 += cms.Sequence(locals()[label])
-eras.trackingLowPU.toReplaceWith(TrackingDQMSourceTier0, TrackingDQMSourceTier0.copyAndExclude([TrackSeedMonjetCoreRegionalStep]))
+for era in _cfg.allEras() + ["trackingPhase2PU140"]: # FIXME:: allEras() extension should be removed when phase2 tracking is migrated to eras
+    postfix = _cfg.postfix(era)
+    _seq = cms.Sequence()
+    for step in locals()["selectedIterTrackingStep"+postfix]:
+        _seq += locals()["TrackSeedMon"+step]
+    if era == "":
+        locals()["TrackSeedMonSequence"] = _seq
+    else:
+        getattr(eras, era).toReplaceWith(TrackSeedMonSequence, _seq)
+TrackingDQMSourceTier0 += TrackSeedMonSequence
 # MessageLog
 for module in selectedModules :
     label = str(module)+'LogMessageMonCommon'
-    TrackingDQMSourceTier0 += cms.Sequence(locals()[label])
+    TrackingDQMSourceTier0 += locals()[label]
 TrackingDQMSourceTier0 += voMonitoringSequence
 TrackingDQMSourceTier0 += dqmInfoTracking
 
@@ -326,16 +339,13 @@ for tracks in selectedTracks :
     if tracks != 'generalTracks':
         TrackingDQMSourceTier0Common+=sequenceName[tracks]
     label = 'TrackerCollisionSelectedTrackMonCommon' + str(tracks)
-    TrackingDQMSourceTier0Common += cms.Sequence(locals()[label])
+    TrackingDQMSourceTier0Common += locals()[label]
 # seeding monitoring
-for step in selectedIterTrackingStep :
-    label = 'TrackSeedMon'+str(step)
-    TrackingDQMSourceTier0Common += cms.Sequence(locals()[label])
-eras.trackingLowPU.toReplaceWith(TrackingDQMSourceTier0Common, TrackingDQMSourceTier0Common.copyAndExclude([TrackSeedMonjetCoreRegionalStep]))
+TrackingDQMSourceTier0Common += TrackSeedMonSequence
 # MessageLog
 for module in selectedModules :
     label = str(module)+'LogMessageMonCommon'
-    TrackingDQMSourceTier0Common += cms.Sequence(locals()[label])
+    TrackingDQMSourceTier0Common += locals()[label]
 TrackingDQMSourceTier0Common += voMonitoringCommonSequence
 TrackingDQMSourceTier0Common += dqmInfoTracking
 
@@ -353,14 +363,11 @@ for tracks in selectedTracks :
         label = 'TrackerCollisionSelectedTrackMon' + str(topology) + str(tracks)
         TrackingDQMSourceTier0MinBias += locals()[label]
 # seeding monitoring
-for step in selectedIterTrackingStep :
-    label = 'TrackSeedMon'+str(step)
-    TrackingDQMSourceTier0MinBias += cms.Sequence(locals()[label])
-eras.trackingLowPU.toReplaceWith(TrackingDQMSourceTier0MinBias, TrackingDQMSourceTier0MinBias.copyAndExclude([TrackSeedMonjetCoreRegionalStep]))
+TrackingDQMSourceTier0MinBias += TrackSeedMonSequence
 # MessageLog
 for module in selectedModules :
     label = str(module)+'LogMessageMonMB'
-    TrackingDQMSourceTier0MinBias += cms.Sequence(locals()[label])
+    TrackingDQMSourceTier0MinBias += locals()[label]
 # V0 monitoring
 TrackingDQMSourceTier0MinBias += voMonitoringMBSequence
 TrackingDQMSourceTier0MinBias += voMonitoringZBnoHIPnoOOTSequence
