@@ -47,10 +47,6 @@ void GEMCheckGeometry::bookHistograms(DQMStore::IBooker & ibooker, edm::Run cons
         temp_me->setBinLabel(6,"St2,La1_odd",2);
         temp_me->setBinLabel(7,"St2,La2_even",2);
         temp_me->setBinLabel(8,"St2,La2_odd",2);
-        temp_me->setBinLabel(9,"St3,La1_even",2);
-        temp_me->setBinLabel(10,"St3,La1_odd",2);
-        temp_me->setBinLabel(11,"St3,La2_even",2);
-        temp_me->setBinLabel(12,"St3,La2_odd",2);
         theStdPlots.insert( std::map< UInt_t, MonitorElement*>::value_type(name.Hash(), temp_me ));
    }
 
