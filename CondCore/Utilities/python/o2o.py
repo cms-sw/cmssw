@@ -6,16 +6,19 @@ import subprocess
 from datetime import datetime
 import os
 import sys
-import netrc
 import logging
+import string
+
+import CondCore.Utilities.credentials as auth
 
 prod_db_service = ['cms_orcon_prod','o2o_prod']
 dev_db_service = ['cms_orcoff_prep','o2o_dev']
 schema_name = 'CMS_CONDITIONS'
-oracle_tpl = 'oracle://%s:%s@%s'
+sqlalchemy_tpl = 'oracle://%s:%s@%s'
+coral_tpl = 'oracle://%s/%s'
 private_db = 'sqlite:///o2o_jobs.db'
 startStatus = -1
-authPathEnvVar = 'O2O_AUTH_PATH'
+authPathEnvVar = 'COND_AUTH_PATH'
 messageLevelEnvVar = 'O2O_LOG_LEVEL'
 logFolderEnvVar = 'O2O_LOG_FOLDER'
 
@@ -47,13 +50,7 @@ class O2ORun(_Base):
     log                = sqlalchemy.Column(sqlalchemy.CLOB,           nullable=True)
 
 def get_db_credentials( db_service, authFile ):
-    pwd = None
-    if authFile is None:
-       if authPathEnvVar in os.environ:
-            authPath = os.environ[authPathEnvVar]
-            authFile = os.path.join(authPath,'.netrc')
-            logging.debug('Retrieving credentials from file %s' %authFile )
-    (username, account, pwd) = netrc.netrc( authFile ).authenticators(db_service[1])
+    (username, account, pwd) = auth.get_credentials( authPathEnvVar, db_service[1], authFile )
     return username,pwd
 
 
@@ -82,9 +79,9 @@ class O2OMgr(object):
                 username = None
                 pwd = None
             if username is None:
-                logging.error('Credentials for service %s are not available',db_service[0])
+                logging.error('Credentials for service %s (machine=%s) are not available' %(db_service[0],db_service[1]))
                 return None
-            url = oracle_tpl %(username,pwd,db_service[0])
+            url = sqlalchemy_tpl %(username,pwd,db_service[0])
         session = None
         try:
             self.eng = sqlalchemy.create_engine( url )
@@ -137,6 +134,8 @@ class O2ORunMgr(O2OMgr):
         self.job_name = None
         self.start = None
         self.end = None
+        self.tag_name = None
+        self.db_connection = None
 
     def log( self, level, message ):
         consoleLog = getattr(O2OMgr.logger( self ),level)
@@ -151,6 +150,7 @@ class O2ORunMgr(O2OMgr):
         if self.session is None:
             return False
         else:
+            self.db_connection = coral_tpl %(service[0],schema_name)
             return True
 
     def startJob( self, job_name ):
@@ -158,10 +158,11 @@ class O2ORunMgr(O2OMgr):
         exists = None
         enabled = None
         try:
-            res = self.session.query(O2OJob.enabled).filter_by(name=job_name)
+            res = self.session.query(O2OJob.enabled,O2OJob.tag_name).filter_by(name=job_name)
             for r in res:
                 exists = True
                 enabled = int(r[0])
+                self.tag_name = str(r[1]) 
             if exists is None:
                 exists = False
                 enabled = False
@@ -187,7 +188,9 @@ class O2ORunMgr(O2OMgr):
         except sqlalchemy.exc.SQLAlchemyError as dberror:
             O2OMgr.logger( self ).error( str(dberror) )
 
-    def executeJob( self, job_name, command ):
+    def executeJob( self, args ):
+        job_name = args.name
+        command = args.executable
         logFolder = os.getcwd()
         if logFolderEnvVar in os.environ:
             logFolder = os.environ[logFolderEnvVar]
@@ -197,13 +200,22 @@ class O2ORunMgr(O2OMgr):
         exists, enabled = self.startJob( job_name )
         if exists is None:
             return 3
-        if enabled is None:
+        if not exists:
             O2OMgr.logger( self).error( 'The job %s is unknown.', job_name )
             return 2
         else:
             if enabled == 0:
                 O2OMgr.logger( self).info( 'The job %s has been disabled.', job_name )
                 return 5
+        if args.inputFromDb:
+            try:
+                O2OMgr.logger( self ).info('Setting db input parameters...') 
+                input_params = {'db':self.db_connection,'tag':self.tag_name }
+                commandTpl = string.Template( command )
+                command = commandTpl.substitute( input_params )
+            except KeyError as exc:
+                O2OMgr.logger( self).error( str(exc)+': Unknown template key in the command.' )
+        O2OMgr.logger( self ).info('O2O Command: "%s"', command )
         try:
             O2OMgr.logger( self ).info('Executing job %s', job_name )
             pipe = subprocess.Popen( command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT )

@@ -36,6 +36,8 @@ defaultWorkflow = 'offline'
 prodLogDbSrv = 'cms_orcoff_prod'
 devLogDbSrv = 'cms_orcoff_prep'
 logDbSchema = 'CMS_COND_DROPBOX'
+authPathEnvVar = 'COND_AUTH_PATH'
+waitForRetry = 15
 
 # common/http.py start (plus the "# Try to extract..." section bit)
 import time
@@ -307,7 +309,6 @@ class HTTP(object):
         #-end hmmm ...
         #-review(2015-09-25): check and see - action: AP
 
-
         self.curl.setopt(pycurl.HTTPHEADER, ['Accept: application/json'])
         # self.curl.setopt( self.curl.POST, {})
         self.curl.setopt(self.curl.HTTPGET, 0)
@@ -315,26 +316,47 @@ class HTTP(object):
         response = cStringIO.StringIO()
         self.curl.setopt(pycurl.WRITEFUNCTION, response.write)
         self.curl.setopt(pycurl.USERPWD, '%s:%s' % (username, password) )
-
         logging.debug('going to connect to server at: %s' % url )
 
         self.curl.perform()
         code = self.curl.getinfo(pycurl.RESPONSE_CODE)
         logging.debug('got: %s ', str(code))
-        
-        try:
-            self.token = json.loads( response.getvalue() )['token']
-        except Exception as e:
-            logging.error('http::getToken> got error from server: %s ', str(e) )
-            if 'No JSON object could be decoded' in str(e):
-                return None
-            logging.error("error getting token: %s", str(e))
+        if code in ( 502,503,504 ):
+            logging.debug('Trying again after %d seconds...', waitForRetry)
+            time.sleep( waitForRetry )
+            response = cStringIO.StringIO()
+            self.curl.setopt(pycurl.WRITEFUNCTION, response.write)
+            self.curl.setopt(pycurl.USERPWD, '%s:%s' % (username, password) )
+            self.curl.perform()
+            code = self.curl.getinfo(pycurl.RESPONSE_CODE)
+        resp = response.getvalue()
+        errorMsg = None
+        if code==500 and not resp.find("INVALID_CREDENTIALS")==-1:
+            logging.error("Invalid credentials provided.")
             return None
-
+        if code==403 and not resp.find("Unauthorized access")==-1:
+            logging.error("Unauthorized access. Please check the membership of group 'cms-cond-dropbox'")
+            return None
+        if code==200:
+            try:
+                self.token = json.loads( resp )['token']
+            except Exception as e:
+                errorMsg = 'Error while decoding returned json string'
+                logging.debug('http::getToken> error while decoding json: %s ', str(resp) )
+                logging.debug("error getting token: %s", str(e))
+                resp = None
+        else:
+            errorMsg = 'HTTP Error code %s ' %code
+            logging.debug('got: %s ', str(code))
+            logging.debug('http::getToken> got error from server: %s ', str(resp) )
+            resp = None
+        if resp is None:
+            raise Exception(errorMsg)
+            
         logging.debug('token: %s', self.token)
         logging.debug('returning: %s', response.getvalue())
 
-        return response.getvalue()
+        return resp
 
     def query(self, url, data = None, files = None, keepCookies = True):
         '''Queries a URL, optionally with some data (dictionary).
@@ -430,38 +452,47 @@ class ConditionsUploader(object):
         self.userName = None
         self.http = None
         self.password = None
+        self.token = None
 
     def setHost( self, hostname ):
-        self.hostname = hostname
+        if not hostname==self.hostname:
+            self.token = None
+            self.hostname = hostname
 
-    def signIn(self, username, password):
-        ''' init the server.
-        '''
-        self.http = HTTP()
-        if socket.getfqdn().strip().endswith('.cms'):
-            self.http.setProxy('https://cmsproxy.cms:3128/')
-        self.http.setBaseUrl(self.urlTemplate % self.hostname)
-        '''Signs in the server.
-        '''
+    def signIn(self, username, password ):
+        if self.token is None:
+            logging.debug("Initializing connection with server %s",self.hostname)
+            ''' init the server.
+            '''
+            self.http = HTTP()
+            if socket.getfqdn().strip().endswith('.cms'):
+                self.http.setProxy('https://cmsproxy.cms:3128/')
+            self.http.setBaseUrl(self.urlTemplate % self.hostname)
+            '''Signs in the server.
+            '''
 
-        logging.info('%s: Signing in user %s ...', self.hostname, username)
-        try:
-            self.token = self.http.getToken(username, password)
-        except Exception as e:
-            logging.error("Caught exception when trying to get token for user %s from %s: %s" % (username, self.hostname, str(e)) )
-            return False
+            logging.info('%s: Signing in user %s ...', self.hostname, username)
+            try:
+                self.token = self.http.getToken(username, password)
+            except Exception as e:
+                ret = -1
+                # optionally, we may want to have a different return for network related errors:
+                #code = self.http.curl.getinfo(pycurl.RESPONSE_CODE)
+                #if code in ( 502,503,504 ):
+                #    ret = -10
+                logging.error("Caught exception when trying to connect to %s: %s" % (self.hostname, str(e)) )
+                return ret
 
-        if not self.token:
-            logging.error("could not get token for user %s from %s" % (username, self.hostname) )
-            return False
+            if not self.token:
+                logging.error("could not get token for user %s from %s" % (username, self.hostname) )
+                return -2
 
-        logging.debug( "got: '%s'", str(self.token) )
-        self.userName = username
-        self.password = password
-        return True
-
-    def signInAgain(self):
-        return self.signIn( self.userName, self.password )
+            logging.debug( "got: '%s'", str(self.token) )
+            self.userName = username
+            self.password = password
+        else:
+            logging.debug("User %s has been already authenticated." %username)
+        return 0
 
     def signOut(self):
         '''Signs out the server.
@@ -592,9 +623,14 @@ class ConditionsUploader(object):
 
         return len(okTags)>0
 
-def authenticateUser(dropBox, options):
+def getCredentials( options ):
 
+    username = None
+    password = None
     netrcPath = None
+    if authPathEnvVar in os.environ:
+        authPath = os.environ[authPathEnvVar]
+        netrcPath = os.path.join(authPath,'.netrc')
     if options.authPath is not None:
         netrcPath = os.path.join( options.authPath,'.netrc' )
     try:
@@ -614,8 +650,7 @@ def authenticateUser(dropBox, options):
         username = getInput(defaultUsername, '\nUsername [%s]: ' % defaultUsername)
         password = getpass.getpass('Password: ')
 
-    # Now we have a username and password, authenticate with them
-    return dropBox.signIn(username, password)
+    return username, password
 
 
 def uploadAllFiles(options, arguments):
@@ -693,12 +728,7 @@ def uploadAllFiles(options, arguments):
         dropBox = ConditionsUploader(options.hostname, options.urlTemplate)
 
         # Authentication
-        if not authenticateUser(dropBox, options):
-            logging.error("Error authenticating user. Aborting.")
-            return { 'status' : -2, 'error' : "Error authenticating user. Aborting." }
-
-        # At this point we must be authenticated
-        dropBox._checkForUpdates()
+        username, password = getCredentials(options)
 
         results = {}
         for filename in arguments:
@@ -711,15 +741,18 @@ def uploadAllFiles(options, arguments):
             forceHost = False
             destDb = metadata['destinationDatabase']
             if destDb.startswith('oracle://cms_orcon_prod') or destDb.startswith('oracle://cms_orcoff_prep'):
+                hostName = defaultHostname
                 if destDb.startswith('oracle://cms_orcoff_prep'):
-                    dropBox.setHost( defaultDevHostname )
-                    dropBox.signInAgain()
-                    forceHost = True
+                     hostName = defaultDevHostname
+                dropBox.setHost( hostName )
+                authRet = dropBox.signIn( username, password )
+                if not authRet==0:
+                    msg = "Error trying to connect to the server. Aborting."
+                    if authRet==-2:
+                        msg = "Error while signin in. Aborting."
+                    logging.error(msg)
+                    return { 'status' : authRet, 'error' : msg }
                 results[filename] = dropBox.uploadFile(filename, options.backend, options.temporaryFile)
-                if forceHost:
-                    # set back the hostname to the original global setting
-                    dropBox.setHost( options.hostname )
-                    dropBox.signInAgain()
             else:
                 results[filename] = False
                 logging.error("DestinationDatabase %s is not valid. Skipping the upload." %destDb)
