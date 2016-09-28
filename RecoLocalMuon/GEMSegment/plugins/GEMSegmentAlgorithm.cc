@@ -34,7 +34,6 @@ GEMSegmentAlgorithm::GEMSegmentAlgorithm(const edm::ParameterSet& ps) : GEMSegme
   dEtaChainBoxMax           = ps.getParameter<double>("dEtaChainBoxMax");
   maxRecHitsInCluster       = ps.getParameter<int>("maxRecHitsInCluster");
   clusterOnlySameBXRecHits  = ps.getParameter<bool>("clusterOnlySameBXRecHits");
-  // useGE21Short              = ps.getParameter<bool>("useGE21Short"); --> needed in GEMSegmentBuilder.cc
 
   // maybe to be used in the future ???
   // Pruning                = ps.getParameter<bool>("Pruning");
