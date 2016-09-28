@@ -145,8 +145,6 @@ void CAHitTripletGenerator::hitTriplets(const TrackingRegion& region,
 	ca.findTriplets(hitDoublets, foundTriplets, region, caThetaCut, caPhiCut,
 			caHardPtCut);
 
-	theLayerCache.clear();
-
 	unsigned int numberOfFoundTriplets = foundTriplets.size();
 
 	const QuantityDependsPtEval maxChi2Eval = maxChi2.evaluator(es);
@@ -241,5 +239,6 @@ void CAHitTripletGenerator::hitTriplets(const TrackingRegion& region,
 		result.push_back(tmpTriplet);
 
 	}
+	theLayerCache.clear();
 }
 
