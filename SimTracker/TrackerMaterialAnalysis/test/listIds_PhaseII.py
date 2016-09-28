@@ -37,7 +37,10 @@ process.source = cms.Source("EmptySource",
             firstRun = cms.untracked.uint32(1)
             )
 
-process.listIds = cms.EDAnalyzer("ListIds")
+process.listIds = cms.EDAnalyzer("ListIds",
+                                materials = cms.untracked.vstring("materials:Silicon" , "tracker:SenSi"),
+                                printMaterial = cms.untracked.bool(True)
+                                )
 process.path = cms.Path(process.listIds)
 
 # customisation of the process.
