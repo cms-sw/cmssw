@@ -159,6 +159,7 @@ class PFRecoTauDiscriminationByMVAIsolationRun2 : public PFTauDiscriminationProd
   std::unique_ptr<PFTauDiscriminator> category_output_;
 
   std::vector<TFile*> inputFilesToDelete_;
+  TauIdMVAAuxiliaries clusterVariables_;
 
   int verbosity_;
 };
@@ -199,95 +200,95 @@ double PFRecoTauDiscriminationByMVAIsolationRun2::discriminate(const PFTauRef& t
   if ( ((mvaOpt_ == kOldDMwoLT || mvaOpt_ == kOldDMwLT || mvaOpt_ == kDBoldDMwLT || mvaOpt_ == kPWoldDMwLT) && (tauDecayMode == 0 || tauDecayMode == 1 || tauDecayMode == 2 || tauDecayMode == 10)) ||
        ((mvaOpt_ == kNewDMwoLT || mvaOpt_ == kNewDMwLT || mvaOpt_ == kDBnewDMwLT || mvaOpt_ == kPWnewDMwLT) && (tauDecayMode == 0 || tauDecayMode == 1 || tauDecayMode == 2 || tauDecayMode == 5 || tauDecayMode == 6 || tauDecayMode == 10)) ) {
 
-    double chargedIsoPtSum = (*chargedIsoPtSums_)[tau];
-    double neutralIsoPtSum = (*neutralIsoPtSums_)[tau];
-    double puCorrPtSum     = (*puCorrPtSums_)[tau];
-    double photonPtSumOutsideSignalCone = (*photonPtSumOutsideSignalCone_)[tau];
-    double footprintCorrection = (*footprintCorrection_)[tau];
+    float chargedIsoPtSum = (*chargedIsoPtSums_)[tau];
+    float neutralIsoPtSum = (*neutralIsoPtSums_)[tau];
+    float puCorrPtSum     = (*puCorrPtSums_)[tau];
+    float photonPtSumOutsideSignalCone = (*photonPtSumOutsideSignalCone_)[tau];
+    float footprintCorrection = (*footprintCorrection_)[tau];
     
     const reco::PFTauTransverseImpactParameter& tauLifetimeInfo = *(*tauLifetimeInfos)[tau];
     
-    double decayDistX = tauLifetimeInfo.flightLength().x();
-    double decayDistY = tauLifetimeInfo.flightLength().y();
-    double decayDistZ = tauLifetimeInfo.flightLength().z();
-    double decayDistMag = std::sqrt(decayDistX*decayDistX + decayDistY*decayDistY + decayDistZ*decayDistZ);
+    float decayDistX = tauLifetimeInfo.flightLength().x();
+    float decayDistY = tauLifetimeInfo.flightLength().y();
+    float decayDistZ = tauLifetimeInfo.flightLength().z();
+    float decayDistMag = std::sqrt(decayDistX*decayDistX + decayDistY*decayDistY + decayDistZ*decayDistZ);
 
-    double nPhoton = double(tau_n_photons_total(*tau));
-    double ptWeightedDetaStrip = tau_pt_weighted_deta_strip(*tau, tauDecayMode);
-    double ptWeightedDphiStrip = tau_pt_weighted_dphi_strip(*tau, tauDecayMode);
-    double ptWeightedDrSignal = tau_pt_weighted_dr_signal(*tau, tauDecayMode);
-    double ptWeightedDrIsolation = tau_pt_weighted_dr_iso(*tau, tauDecayMode);
-    double leadingTrackChi2 = tau_leadTrackChi2(*tau);
-    double eRatio = tau_Eratio(*tau);
+    float nPhoton = (float)clusterVariables_.tau_n_photons_total(*tau);
+    float ptWeightedDetaStrip = clusterVariables_.tau_pt_weighted_deta_strip(*tau, tauDecayMode);
+    float ptWeightedDphiStrip = clusterVariables_.tau_pt_weighted_dphi_strip(*tau, tauDecayMode);
+    float ptWeightedDrSignal = clusterVariables_.tau_pt_weighted_dr_signal(*tau, tauDecayMode);
+    float ptWeightedDrIsolation = clusterVariables_.tau_pt_weighted_dr_iso(*tau, tauDecayMode);
+    float leadingTrackChi2 = clusterVariables_.tau_leadTrackChi2(*tau);
+    float eRatio = clusterVariables_.tau_Eratio(*tau);
 
     if ( mvaOpt_ == kOldDMwoLT || mvaOpt_ == kNewDMwoLT ) {
-      mvaInput_[0]  = std::log(std::max(1., Double_t(tau->pt())));
-      mvaInput_[1]  = std::fabs(tau->eta());
-      mvaInput_[2]  = std::log(std::max(1.e-2, chargedIsoPtSum));
-      mvaInput_[3]  = std::log(std::max(1.e-2, neutralIsoPtSum - 0.125*puCorrPtSum));
-      mvaInput_[4]  = std::log(std::max(1.e-2, puCorrPtSum));
+      mvaInput_[0]  = std::log(std::max((float)1., (float)tau->pt()));
+      mvaInput_[1]  = std::fabs((float)tau->eta());
+      mvaInput_[2]  = std::log(std::max((float)1.e-2, chargedIsoPtSum));
+      mvaInput_[3]  = std::log(std::max((float)1.e-2, neutralIsoPtSum - (float)0.125*puCorrPtSum));
+      mvaInput_[4]  = std::log(std::max((float)1.e-2, puCorrPtSum));
       mvaInput_[5]  = tauDecayMode;
     } else if ( mvaOpt_ == kOldDMwLT || mvaOpt_ == kNewDMwLT  ) {
-      mvaInput_[0]  = std::log(std::max(1., Double_t(tau->pt())));
-      mvaInput_[1]  = std::fabs(tau->eta());
-      mvaInput_[2]  = std::log(std::max(1.e-2, chargedIsoPtSum));
-      mvaInput_[3]  = std::log(std::max(1.e-2, neutralIsoPtSum - 0.125*puCorrPtSum));
-      mvaInput_[4]  = std::log(std::max(1.e-2, puCorrPtSum));
+      mvaInput_[0]  = std::log(std::max((float)1., (float)tau->pt()));
+      mvaInput_[1]  = std::fabs((float)tau->eta());
+      mvaInput_[2]  = std::log(std::max((float)1.e-2, chargedIsoPtSum));
+      mvaInput_[3]  = std::log(std::max((float)1.e-2, neutralIsoPtSum - (float)0.125*puCorrPtSum));
+      mvaInput_[4]  = std::log(std::max((float)1.e-2, puCorrPtSum));
       mvaInput_[5]  = tauDecayMode;
-      mvaInput_[6]  = TMath::Sign(+1., tauLifetimeInfo.dxy());
-      mvaInput_[7]  = std::sqrt(std::fabs(std::min(1., tauLifetimeInfo.dxy())));
-      mvaInput_[8]  = std::min(10., std::fabs(tauLifetimeInfo.dxy_Sig()));
+      mvaInput_[6]  = TMath::Sign((float)+1., (float)tauLifetimeInfo.dxy());
+      mvaInput_[7]  = std::sqrt(std::fabs(std::min((float)1., (float)tauLifetimeInfo.dxy())));
+      mvaInput_[8]  = std::min((float)10., std::fabs((float)tauLifetimeInfo.dxy_Sig()));
       mvaInput_[9]  = ( tauLifetimeInfo.hasSecondaryVertex() ) ? 1. : 0.;
       mvaInput_[10] = std::sqrt(decayDistMag);
-      mvaInput_[11] = std::min(10., tauLifetimeInfo.flightLengthSig());
+      mvaInput_[11] = std::min((float)10., (float)tauLifetimeInfo.flightLengthSig());
     } else if ( mvaOpt_ == kDBoldDMwLT || mvaOpt_ == kDBnewDMwLT ) {
-      mvaInput_[0]  = std::log(std::max(1., Double_t(tau->pt())));
-      mvaInput_[1]  = std::fabs(tau->eta());
-      mvaInput_[2]  = std::log(std::max(1.e-2, chargedIsoPtSum));
-      mvaInput_[3]  = std::log(std::max(1.e-2, neutralIsoPtSum));
-      mvaInput_[4]  = std::log(std::max(1.e-2, puCorrPtSum));
-      mvaInput_[5]  = std::log(std::max(1.e-2, photonPtSumOutsideSignalCone));
+      mvaInput_[0]  = std::log(std::max((float)1., (float)tau->pt()));
+      mvaInput_[1]  = std::fabs((float)tau->eta());
+      mvaInput_[2]  = std::log(std::max((float)1.e-2, chargedIsoPtSum));
+      mvaInput_[3]  = std::log(std::max((float)1.e-2, neutralIsoPtSum));
+      mvaInput_[4]  = std::log(std::max((float)1.e-2, puCorrPtSum));
+      mvaInput_[5]  = std::log(std::max((float)1.e-2, photonPtSumOutsideSignalCone));
       mvaInput_[6]  = tauDecayMode;
-      mvaInput_[7]  = std::min(30., nPhoton);
-      mvaInput_[8]  = std::min(0.5, ptWeightedDetaStrip);
-      mvaInput_[9]  = std::min(0.5, ptWeightedDphiStrip);
-      mvaInput_[10] = std::min(0.5, ptWeightedDrSignal);
-      mvaInput_[11] = std::min(0.5, ptWeightedDrIsolation);
-      mvaInput_[12] = std::min(100., leadingTrackChi2);
-      mvaInput_[13] = std::min(1., eRatio);
-      mvaInput_[14]  = TMath::Sign(+1., tauLifetimeInfo.dxy());
-      mvaInput_[15]  = std::sqrt(std::fabs(std::min(1., std::fabs(tauLifetimeInfo.dxy()))));
-      mvaInput_[16]  = std::min(10., std::fabs(tauLifetimeInfo.dxy_Sig()));
-      mvaInput_[17]  = TMath::Sign(+1., tauLifetimeInfo.ip3d());
-      mvaInput_[18]  = std::sqrt(std::fabs(std::min(1., std::fabs(tauLifetimeInfo.ip3d()))));
-      mvaInput_[19]  = std::min(10., std::fabs(tauLifetimeInfo.ip3d_Sig()));
+      mvaInput_[7]  = std::min((float)30., nPhoton);
+      mvaInput_[8]  = std::min((float)0.5, ptWeightedDetaStrip);
+      mvaInput_[9]  = std::min((float)0.5, ptWeightedDphiStrip);
+      mvaInput_[10] = std::min((float)0.5, ptWeightedDrSignal);
+      mvaInput_[11] = std::min((float)0.5, ptWeightedDrIsolation);
+      mvaInput_[12] = std::min((float)100., leadingTrackChi2);
+      mvaInput_[13] = std::min((float)1., eRatio);
+      mvaInput_[14]  = TMath::Sign((float)+1., (float)tauLifetimeInfo.dxy());
+      mvaInput_[15]  = std::sqrt(std::fabs(std::min((float)1., std::fabs((float)tauLifetimeInfo.dxy()))));
+      mvaInput_[16]  = std::min((float)10., std::fabs((float)tauLifetimeInfo.dxy_Sig()));
+      mvaInput_[17]  = TMath::Sign((float)+1., (float)tauLifetimeInfo.ip3d());
+      mvaInput_[18]  = std::sqrt(std::fabs(std::min((float)1., std::fabs((float)tauLifetimeInfo.ip3d()))));
+      mvaInput_[19]  = std::min((float)10., std::fabs((float)tauLifetimeInfo.ip3d_Sig()));
       mvaInput_[20]  = ( tauLifetimeInfo.hasSecondaryVertex() ) ? 1. : 0.;
       mvaInput_[21] = std::sqrt(decayDistMag);
-      mvaInput_[22] = std::min(10., tauLifetimeInfo.flightLengthSig());
+      mvaInput_[22] = std::min((float)10., (float)tauLifetimeInfo.flightLengthSig());
     } else if ( mvaOpt_ == kPWoldDMwLT || mvaOpt_ == kPWnewDMwLT ) {
-      mvaInput_[0]  = std::log(std::max(1., Double_t(tau->pt())));
-      mvaInput_[1]  = std::fabs(tau->eta());
-      mvaInput_[2]  = std::log(std::max(1.e-2, chargedIsoPtSum));
-      mvaInput_[3]  = std::log(std::max(1.e-2, neutralIsoPtSum));
-      mvaInput_[4]  = std::log(std::max(1.e-2, footprintCorrection));
-      mvaInput_[5]  = std::log(std::max(1.e-2, photonPtSumOutsideSignalCone));
+      mvaInput_[0]  = std::log(std::max((float)1., (float)tau->pt()));
+      mvaInput_[1]  = std::fabs((float)tau->eta());
+      mvaInput_[2]  = std::log(std::max((float)1.e-2, chargedIsoPtSum));
+      mvaInput_[3]  = std::log(std::max((float)1.e-2, neutralIsoPtSum));
+      mvaInput_[4]  = std::log(std::max((float)1.e-2, footprintCorrection));
+      mvaInput_[5]  = std::log(std::max((float)1.e-2, photonPtSumOutsideSignalCone));
       mvaInput_[6]  = tauDecayMode;
-      mvaInput_[7]  = std::min(30., nPhoton);
-      mvaInput_[8]  = std::min(0.5, ptWeightedDetaStrip);
-      mvaInput_[9]  = std::min(0.5, ptWeightedDphiStrip);
-      mvaInput_[10] = std::min(0.5, ptWeightedDrSignal);
-      mvaInput_[11] = std::min(0.5, ptWeightedDrIsolation);
-      mvaInput_[12] = std::min(100., leadingTrackChi2);
-      mvaInput_[13] = std::min(1., eRatio);
-      mvaInput_[14]  = TMath::Sign(+1., tauLifetimeInfo.dxy());
-      mvaInput_[15]  = std::sqrt(std::fabs(std::min(1., std::fabs(tauLifetimeInfo.dxy()))));
-      mvaInput_[16]  = std::min(10., std::fabs(tauLifetimeInfo.dxy_Sig()));
-      mvaInput_[17]  = TMath::Sign(+1., tauLifetimeInfo.ip3d());
-      mvaInput_[18]  = std::sqrt(std::fabs(std::min(1., std::fabs(tauLifetimeInfo.ip3d()))));
-      mvaInput_[19]  = std::min(10., std::fabs(tauLifetimeInfo.ip3d_Sig()));
+      mvaInput_[7]  = std::min((float)30., nPhoton);
+      mvaInput_[8]  = std::min((float)0.5, ptWeightedDetaStrip);
+      mvaInput_[9]  = std::min((float)0.5, ptWeightedDphiStrip);
+      mvaInput_[10] = std::min((float)0.5, ptWeightedDrSignal);
+      mvaInput_[11] = std::min((float)0.5, ptWeightedDrIsolation);
+      mvaInput_[12] = std::min((float)100., leadingTrackChi2);
+      mvaInput_[13] = std::min((float)1., eRatio);
+      mvaInput_[14]  = TMath::Sign((float)+1., (float)tauLifetimeInfo.dxy());
+      mvaInput_[15]  = std::sqrt(std::fabs(std::min((float)1., std::fabs((float)tauLifetimeInfo.dxy()))));
+      mvaInput_[16]  = std::min((float)10., std::fabs((float)tauLifetimeInfo.dxy_Sig()));
+      mvaInput_[17]  = TMath::Sign((float)+1., (float)tauLifetimeInfo.ip3d());
+      mvaInput_[18]  = std::sqrt(std::fabs(std::min((float)1., std::fabs((float)tauLifetimeInfo.ip3d()))));
+      mvaInput_[19]  = std::min((float)10., std::fabs((float)tauLifetimeInfo.ip3d_Sig()));
       mvaInput_[20]  = ( tauLifetimeInfo.hasSecondaryVertex() ) ? 1. : 0.;
       mvaInput_[21] = std::sqrt(decayDistMag);
-      mvaInput_[22] = std::min(10., tauLifetimeInfo.flightLengthSig());
+      mvaInput_[22] = std::min((float)10., (float)tauLifetimeInfo.flightLengthSig());
     }
 
     double mvaValue = mvaReader_->GetClassifier(mvaInput_);

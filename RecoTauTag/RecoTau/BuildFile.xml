@@ -4,6 +4,7 @@
 <use   name="DataFormats/Math"/>
 <use   name="DataFormats/TauReco"/>
 <use   name="DataFormats/VertexReco"/>
+<use   name="DataFormats/PatCandidates"/>
 <use   name="DataFormats/ParticleFlowCandidate"/>
 <use   name="DataFormats/TrackReco"/>
 <use   name="FWCore/Framework"/>
