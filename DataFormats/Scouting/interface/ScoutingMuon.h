@@ -14,7 +14,8 @@ class ScoutingMuon
 	      int nValidMuonHits, int nValidPixelHits, int nMatchedStations,
 	      int nTrackerLayersWithMeasurement, int type, int nValidStripHits, float trk_qoverp, 
 	      float trk_lambda, float trk_pt, float trk_vx, float trk_vy, float trk_vz, 
-	      float trk_phi, float trk_eta, float dxyError, float dzError, float trk_qoverpError, float trk_lambdaError, float trk_phiError, float trk_dsz, float trk_dszError):
+	      float trk_phi, float trk_eta, float dxyError, float dzError, float trk_qoverpError, 
+	      float trk_lambdaError, float trk_phiError, float trk_dsz, float trk_dszError, std::vector<int> vtxIndx):
   pt_(pt), eta_(eta), phi_(phi), m_(m),
     ecalIso_(ecalIso), hcalIso_(hcalIso), trackIso_(trackIso),
     chi2_(chi2), ndof_(ndof), charge_(charge), dxy_(dxy), dz_(dz),
@@ -24,7 +25,7 @@ class ScoutingMuon
     trk_lambda_(trk_lambda), trk_pt_(trk_pt), 
     trk_vx_(trk_vx), trk_vy_(trk_vy), trk_vz_(trk_vz),
     trk_phi_(trk_phi), trk_eta_(trk_eta), dxyError_(dxyError), dzError_(dzError), trk_qoverpError_(trk_qoverpError), trk_lambdaError_(trk_lambdaError), 
-    trk_phiError_(trk_phiError), trk_dsz_(trk_dsz), trk_dszError_(trk_dszError){}
+    trk_phiError_(trk_phiError), trk_dsz_(trk_dsz), trk_dszError_(trk_dszError), vtxIndx_(vtxIndx){}
   //default constructor
  ScoutingMuon():pt_(0), eta_(0), phi_(0), m_(0), ecalIso_(0), hcalIso_(0), trackIso_(0),
     chi2_(0), ndof_(0), charge_(0), dxy_(0), dz_(0), nValidMuonHits_(0),
@@ -32,7 +33,7 @@ class ScoutingMuon
     type_(0), nValidStripHits_(0), trk_qoverp_(0),
     trk_lambda_(0), trk_pt_(0), trk_vx_(0), trk_vy_(0), trk_vz_(0), 
     trk_phi_(0), trk_eta_(0), dxyError_(0), dzError_(0), trk_qoverpError_(0), trk_lambdaError_(0), 
-    trk_phiError_(0), trk_dsz_(0), trk_dszError_(0){}
+    trk_phiError_(0), trk_dsz_(0), trk_dszError_(0), vtxIndx_(0){}
   
   //accessor functions
   float pt() const { return pt_; }
@@ -69,7 +70,8 @@ class ScoutingMuon
   float trk_lambdaError() const { return trk_lambdaError_; }
   float trk_phiError() const { return trk_phiError_; }
   float trk_dsz() const { return trk_dsz_; }
-  float trk_dszError() const{ return trk_dszError_; }
+  float trk_dszError() const { return trk_dszError_; }
+  std::vector<int> vtxIndx() const { return vtxIndx_; }
 
  private:
   float pt_;
@@ -105,6 +107,7 @@ class ScoutingMuon
   float trk_phiError_;
   float trk_dsz_;
   float trk_dszError_;
+  std::vector<int> vtxIndx_;
 };
 
 typedef std::vector<ScoutingMuon> ScoutingMuonCollection;

@@ -15,6 +15,8 @@ Description: Producer for ScoutingMuon
 //
 
 #include "HLTrigger/Muon/interface/HLTScoutingMuonProducer.h"
+#include "DataFormats/Math/interface/deltaR.h"
+#include "TMath.h"
 
 //
 // constructors and destructor
@@ -51,6 +53,8 @@ void HLTScoutingMuonProducer::produce(edm::StreamID sid, edm::Event & iEvent,
     using namespace edm;
 
     std::unique_ptr<ScoutingMuonCollection> outMuons(new ScoutingMuonCollection());
+    std::unique_ptr<ScoutingVertexCollection> outVertices(new ScoutingVertexCollection());
+    std::unique_ptr<ScoutingVertexCollection> dispVertices(new ScoutingVertexCollection());
 
     // Get RecoChargedCandidate
     Handle<reco::RecoChargedCandidateCollection> ChargedCandidateCollection;
@@ -81,9 +85,69 @@ void HLTScoutingMuonProducer::produce(edm::StreamID sid, edm::Event & iEvent,
         return;
     }
 
-    // Produce muons
-    int index = 0;
-    for (auto &muon : *ChargedCandidateCollection) {
+    //get vertices
+    Handle<reco::VertexCollection> vertexCollection;
+    if(!iEvent.getByToken(vertexCollection_, vertexCollection)){
+      iEvent.put(std::move(outVertices), "primaryVtx");
+      return;
+    }
+    for(auto &vtx : *vertexCollection){
+      if ( !vtx.isValid() ) continue ;
+      outVertices->emplace_back(
+				vtx.x(), vtx.y(), vtx.z(), vtx.zError(), vtx.xError(), vtx.yError(), vtx.tracksSize(), vtx.chi2(), vtx.ndof()
+				);
+    }
+    
+
+    //get displaced vertices
+    Handle<reco::VertexCollection> displacedvertexCollection;
+    if(!iEvent.getByToken(displacedvertexCollection_, displacedvertexCollection)){
+      iEvent.put(std::move(dispVertices), "displacedVtx");
+      return;
+    }
+
+    float minVtxProbability=0.001;
+    std::pair<reco::RecoChargedCandidate,reco::RecoChargedCandidate> ivtxMuPair;
+    std::vector<std::pair<reco::RecoChargedCandidate,reco::RecoChargedCandidate> > vtxMuPair;
+    vtxMuPair.clear();
+
+    for(auto &dispvtx : *displacedvertexCollection){
+      if ( !dispvtx.isValid() ) continue ;
+      float vtxProb = 0.0;
+      if( (dispvtx.chi2()>=0.0) && (dispvtx.ndof()>0) ) vtxProb = TMath::Prob(dispvtx.chi2(), dispvtx.ndof() );
+      if (vtxProb < minVtxProbability) continue;
+
+      // Get the 2 tracks associated to displaced vertex
+      reco::Vertex::trackRef_iterator trackIt =  dispvtx.tracks_begin();
+      reco::TrackRef vertextkRef1 =  (*trackIt).castTo<reco::TrackRef>() ;
+      trackIt++;
+      reco::TrackRef vertextkRef2 =  (*trackIt).castTo<reco::TrackRef>();
+
+      // Get the muons associated with the tracks
+      int iFoundRefs = 0;
+      for (reco::RecoChargedCandidateCollection::const_iterator cand=ChargedCandidateCollection->begin(); cand!=ChargedCandidateCollection->end(); cand++) {
+	reco::TrackRef tkRef = cand->get<reco::TrackRef>();
+	if(tkRef == vertextkRef1) {ivtxMuPair.first= (*cand); iFoundRefs++ ;}
+	if(tkRef == vertextkRef2) {ivtxMuPair.second= (*cand); iFoundRefs++ ;}
+      }
+      if (iFoundRefs<2) continue;
+      vtxMuPair.push_back(ivtxMuPair);
+      
+      dispVertices->emplace_back(
+				dispvtx.x(), dispvtx.y(), dispvtx.z(), 
+				dispvtx.zError(), dispvtx.xError(), 
+				dispvtx.yError(), dispvtx.tracksSize(), 
+				dispvtx.chi2(), dispvtx.ndof()
+				);
+      
+    }
+
+     // Produce muons
+     std::vector<int> vtxInd;
+     vtxInd.clear();
+     float minDR=0.001;
+     int index = 0;
+     for (auto &muon : *ChargedCandidateCollection) {
         reco::RecoChargedCandidateRef muonRef = getRef(ChargedCandidateCollection, index);
         ++index;
         if (muonRef.isNull() || !muonRef.isAvailable())
@@ -105,6 +169,13 @@ void HLTScoutingMuonProducer::produce(edm::StreamID sid, edm::Event & iEvent,
 	double hcalisopf=-99.0;
 	if  ( !HcalPFClusterIsoMap.isValid() ) hcalisopf = -1.0 ;
 	else hcalisopf = (*HcalPFClusterIsoMap)[muonRef]; 
+
+	
+	for (unsigned int i=0; i<vtxMuPair.size(); i++) {
+	  float dr1 = reco::deltaR( ((vtxMuPair.at(i)).first),muon );
+	  float dr2 = reco::deltaR( ((vtxMuPair.at(i)).second),muon );
+	  if ( (dr1<minDR) || (dr2<minDR) )  vtxInd.push_back(i) ;
+	}
 
         outMuons->emplace_back(muon.pt(), muon.eta(), muon.phi(),  muon.mass(),
 			       ecalisopf, hcalisopf,
@@ -130,46 +201,11 @@ void HLTScoutingMuonProducer::produce(edm::StreamID sid, edm::Event & iEvent,
 			       track->lambdaError(),
 			       track->phiError(),
 			       track->dsz(),
-			       track->dszError()
+			       track->dszError(),
+			       vtxInd
 			       );
     }
 
-    //get vertices
-    std::unique_ptr<ScoutingVertexCollection> outVertices(new ScoutingVertexCollection());
-    
-    Handle<reco::VertexCollection> vertexCollection;
-    if(!iEvent.getByToken(vertexCollection_, vertexCollection)){
-      iEvent.put(std::move(outVertices));
-      return;
-    }
-    //produce vertices (only if present; otherwise return an empty collection)
-    for(auto &vtx : *vertexCollection){
-      if ( !vtx.isValid() ) continue ;
-      outVertices->emplace_back(
-				vtx.x(), vtx.y(), vtx.z(), vtx.zError(), vtx.xError(), vtx.yError(), vtx.tracksSize(), vtx.chi2(), vtx.ndof()
-				);
-      
-    }
-
-
-
-   
-    //get displaced vertices
-    std::unique_ptr<ScoutingVertexCollection> dispVertices(new ScoutingVertexCollection());
-    
-    Handle<reco::VertexCollection> displacedvertexCollection;
-    if(!iEvent.getByToken(displacedvertexCollection_, displacedvertexCollection)){
-      iEvent.put(std::move(dispVertices));
-      return;
-    }
-    //produce vertices (only if present; otherwise return an empty collection)
-    for(auto &dispvtx : *displacedvertexCollection){
-      if ( !dispvtx.isValid() ) continue ;
-      dispVertices->emplace_back(
-				dispvtx.x(), dispvtx.y(), dispvtx.z(), dispvtx.zError(), dispvtx.xError(), dispvtx.yError(), dispvtx.tracksSize(), dispvtx.chi2(), dispvtx.ndof()
-				);
-      
-    }
 
 
    

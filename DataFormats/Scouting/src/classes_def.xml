@@ -19,7 +19,7 @@
   </class>
   <class name="ScoutingMuon" ClassVersion="3">
      <version ClassVersion="2" checksum="9151"/>
-     <version ClassVersion="3" checksum="3686690670"/>
+     <version ClassVersion="3" checksum="71287590"/>
   </class>
   <class name="ScoutingPhoton" ClassVersion="2">
       <version ClassVersion="2" checksum="2797410539"/>
