@@ -8,4 +8,4 @@ TARGET="/online/collisions/2016/25ns15e33/v4.0/HLT" # where to store the online-
 TABLES="online_grun"
 
 source subtables.sh
-createSubtables "hltdev" "$MASTER" "$TARGET" "$TABLES"
+createSubtables "v2/offline" "$MASTER" "$TARGET" "$TABLES"
