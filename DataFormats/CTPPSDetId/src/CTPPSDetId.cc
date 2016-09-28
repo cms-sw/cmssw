@@ -141,6 +141,6 @@ string CTPPSDetId::rpName(NameFlag flag) const
   if (id == 3) name += "fr_hr";
   if (id == 4) name += "fr_tp";
   if (id == 5) name += "fr_bt";
-
+  if (id == 6) name += "cyl_hr";
   return name;
 }
