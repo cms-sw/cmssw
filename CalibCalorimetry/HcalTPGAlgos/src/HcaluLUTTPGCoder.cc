@@ -236,8 +236,7 @@ void HcaluLUTTPGCoder::update(const HcalDbService& conditions) {
   HcalSubdetector subdets[] = {HcalBarrel, HcalEndcap, HcalForward};
   for (int isub = 0; isub < 3; ++isub){
     HcalSubdetector subdet = subdets[isub];
-    for (int ieta = -HcalDetId::kHcalEtaMask2; 
-	 ieta <= HcalDetId::kHcalEtaMask2; ++ieta) {
+    for (int ieta = -HcalDetId::kHcalEtaMask2; ieta <= HcalDetId::kHcalEtaMask2; ++ieta) {
       for (int iphi = 0; iphi <= HcalDetId::kHcalPhiMask2; ++iphi) {
 	for (int depth = 1; depth < HcalDetId::kHcalDepthMask2; ++depth) {
 	  HcalDetId cell(subdet, ieta, iphi, depth);
@@ -265,8 +264,7 @@ void HcaluLUTTPGCoder::update(const HcalDbService& conditions) {
 	    //Get Channel Quality
 	    const HcalChannelStatus* channelStatus = conditions.getHcalChannelStatus(cell);
 	    status = channelStatus->getValue();
-	  }
-	  else {
+	  } else {
 	    const HcalL1TriggerObject* myL1TObj = conditions.getHcalL1TriggerObject(cell);
 	    ped = myL1TObj->getPedestal();
 	    gain = myL1TObj->getRespGain();
