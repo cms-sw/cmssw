@@ -19,6 +19,7 @@
 #include "DataFormats/PatCandidates/interface/Conversion.h"
 #include "DataFormats/PatCandidates/interface/PackedCandidate.h"
 #include "DataFormats/PatCandidates/interface/PackedGenParticle.h"
+#include "DataFormats/PatCandidates/interface/PATTauDiscriminator.h"
 
 namespace DataFormats_PatCandidates {
   struct dictionaryobjects {
@@ -181,7 +182,15 @@ namespace DataFormats_PatCandidates {
   edm::Wrapper< std::vector< edm::Ptr<pat::Jet> > > wvptr_jet; 
   edm::Wrapper< std::vector< std::vector< edm::Ptr<pat::Jet> > > > wvvptr_jet;
 
-
+  pat::PATTauDiscriminatorBase                     pattdiscr_b;
+  pat::PATTauDiscriminator                         pattdiscr_o;
+  pat::PATTauDiscriminatorRef                      pattdiscr_r;
+  pat::PATTauDiscriminatorRefProd                  pattdiscr_rp;
+  pat::PATTauDiscriminatorRefVector                pattdiscr_rv;
+  edm::Wrapper<pat::PATTauDiscriminator>           pattdiscr_w;
+   
+  std::pair<pat::TauRef, float>                              pattdiscr_p;
+  std::vector<std::pair<pat::TauRef, float> >                pattdiscr_v;    
   };
 
 }
