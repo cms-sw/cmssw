@@ -113,7 +113,7 @@ hgchefrontDigitizer = cms.PSet(
 # HCAL back (CALICE-like version, no pulse shape)
 hgchebackDigitizer = cms.PSet( 
     accumulatorType   = cms.string("HGCDigiProducer"),
-    hitCollection = cms.string("HGCHitsHEback"),
+    hitCollection = cms.string("HcalHits"),
     digiCollection = cms.string("HGCDigisHEback"),
     maxSimHitsAccTime = cms.uint32(100),
     bxTime            = cms.double(25),
@@ -124,7 +124,7 @@ hgchebackDigitizer = cms.PSet(
     verbosity         = cms.untracked.uint32(0),
     digiCfg = cms.PSet( 
         keV2MIP           = cms.double(1./1498.4),
-        noise_MIP         = cms.double(0.20),
+        noise_MIP         = cms.double(0.2),
         doTimeSamples = cms.bool(False),
         nPEperMIP = cms.double(11.0),
         nTotalPE  = cms.double(1156), #1156 pixels => saturation ~600MIP
@@ -138,7 +138,7 @@ hgchebackDigitizer = cms.PSet(
             # ADC saturation : in this case we use the same variable but fC=MIP
             adcSaturation_fC = cms.double(1024),
             # threshold for digi production : in this case we use the same variable but fC=MIP
-            adcThreshold_fC = cms.double(1.0)
+            adcThreshold_fC = cms.double(0.95)
             )
         )                              
     )

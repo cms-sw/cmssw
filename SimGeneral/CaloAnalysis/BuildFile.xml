@@ -16,6 +16,7 @@
 <use   name="SimDataFormats/Vertex"/>
 <use   name="SimDataFormats/TrackingHit"/>
 <use   name="SimTracker/Common"/>
+<use   name="Geometry/HcalTowerAlgo"/>
 
 <export>
   <lib   name="1"/>

@@ -16,6 +16,7 @@
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/HGCalCommonData/interface/HGCalGeometryMode.h"
+#include "SimDataFormats/CaloTest/interface/HcalTestNumbering.h"
 
 #include <algorithm>
 #include <boost/foreach.hpp>
@@ -23,6 +24,14 @@
 using namespace hgc_digi;
 
 namespace {
+
+  float getPositionDistance(const HGCalGeometry* geom, const DetId& id) {
+    return geom->getPosition(id).mag();
+  }
+
+  float getPositionDistance(const HcalGeometry* geom, const DetId& id) {
+    return geom->getGeometry(id)->getPosition().mag();
+  }
 
   void getValidDetIds(const HGCalGeometry* geom, std::vector<DetId>& valid) {
     const std::vector<DetId>& ids = geom->getValidDetIds();
@@ -36,7 +45,7 @@ namespace {
     for( const auto& id : ids ) {
       if( DetId::Hcal == id.det() && 
 	  HcalEndcap == id.subdetId() ) 
-	valid.emplace(id);
+	valid.emplace_back(id);
     }
     valid.shrink_to_fit();    
   }
@@ -62,15 +71,13 @@ namespace {
     const auto& topo     = geom->topology();
     const auto& dddConst = topo.dddConstants();
     
-    int layer, cell, sec, subsec, zp;
+    int subdet, layer, cell, sec, subsec, zp;
 
     const bool isSqr = (dddConst.geomMode() == HGCalGeometryMode::Square);
     if (isSqr) {
       HGCalTestNumbering::unpackSquareIndex(simId, zp, layer, sec, subsec, cell);
     } else {
-      int subdet;
       HGCalTestNumbering::unpackHexagonIndex(simId, subdet, zp, layer, sec, subsec, cell); 
-      mySubDet_ = (ForwardSubdetector)(subdet);
       //sec is wafer and subsec is celltyp
     }
     //skip this hit if after ganging it is not valid
@@ -82,15 +89,8 @@ namespace {
     }
 
     //assign the RECO DetId
-    DetId id;
-    if (dddConst.geomMode() == HGCalGeometryMode::Square) {
-      result = (producesEEDigis() ?	
-	    (uint32_t)HGCEEDetId(mySubDet_,zp,layer,sec,subsec,cell):
-	    (uint32_t)HGCHEDetId(mySubDet_,zp,layer,sec,subsec,cell) );
-    } else {
-      result = HGCalDetId(mySubDet_,zp,layer,subsec,sec,cell);
-    }
-
+    result = HGCalDetId((ForwardSubdetector)subdet,zp,layer,subsec,sec,cell);
+    
     return result;
   }  
 
@@ -98,7 +98,7 @@ namespace {
 		   const DetId& detid,
 		   HGCCellInfo& baseData,
 		   std::unique_ptr<hgc::HGCSimHitDataAccumulator>& acc ) {
-    uint32_t id(detid->rawId());
+    uint32_t id(detid.rawId());
     auto itr = acc->emplace(id, baseData);
     itr.first->second.size = 1.0;
     itr.first->second.thickness = 1.0;
@@ -114,15 +114,10 @@ namespace {
     auto itr = acc->emplace(id, baseData);
     int waferTypeL = 0;
     bool isHalf = false;
-    if(dddConst.geomMode() == HGCalGeometryMode::Square) {
-      waferTypeL = producesEEDigis() ? 2 : 3;
-      isHalf = false;
-    } else {
-      HGCalDetId hid(id);
-      int wafer = HGCalDetId(id).wafer();
-      waferTypeL = dddConst.waferTypeL(wafer);        
-      isHalf = dddConst.isHalfCell(wafer,hid.cell());
-    }
+    HGCalDetId hid(id);
+    int wafer = HGCalDetId(id).wafer();
+    waferTypeL = dddConst.waferTypeL(wafer);        
+    isHalf = dddConst.isHalfCell(wafer,hid.cell());
     itr.first->second.size = (isHalf ? 0.5 : 1.0);
     itr.first->second.thickness = waferTypeL;
   }
@@ -158,7 +153,7 @@ HGCDigitizer::HGCDigitizer(const edm::ParameterSet& ps,
       mySubDet_=ForwardSubdetector::HGCHEF;
       theHGCHEfrontDigitizer_=std::unique_ptr<HGCHEfrontDigitizer>(new HGCHEfrontDigitizer(ps) );
     }
-  if(hitCollection_.find("HitsHEback")!=std::string::npos)
+  if(hitCollection_.find("HcalHits")!=std::string::npos)
     { 
       mySubDet_=ForwardSubdetector::HGCHEB;
       theHGCHEbackDigitizer_=std::unique_ptr<HGCHEbackDigitizer>(new HGCHEbackDigitizer(ps) );
@@ -268,9 +263,7 @@ void HGCDigitizer::accumulate(edm::Handle<edm::PCaloHitContainer> const &hits,
 			      const GEOM* geom,
                               CLHEP::HepRandomEngine* hre) {
   if( nullptr == geom ) return;
-  const HGCalTopology &topo=geom->topology();
-  const HGCalDDDConstants &dddConst=topo.dddConstants();
-
+  
   //base time samples for each DetId, initialized to 0
   HGCCellInfo baseData;
   baseData.hit_info[0].fill(0.); //accumulated energy
@@ -311,9 +304,9 @@ void HGCDigitizer::accumulate(edm::Handle<edm::PCaloHitContainer> const &hits,
     
     if (verbosity_>0) {
       if (producesEEDigis())
-	  edm::LogInfo("HGCDigitizer") <<" i/p " << std::hex << simId << std::dec << " o/p " << id << std::endl;
+	edm::LogInfo("HGCDigitizer") << " i/p " << std::hex << the_hit.id() << std::dec << " o/p " << id.rawId() << std::endl;
       else
-	  edm::LogInfo("HGCDigitizer") << " i/p " << std::hex << simId << std::dec << " o/p " << id << std::endl;
+	edm::LogInfo("HGCDigitizer") << " i/p " << std::hex << the_hit.id() << std::dec << " o/p " << id.rawId() << std::endl;
     }
 
     if( 0 == id.rawId() ) {
@@ -337,7 +330,7 @@ void HGCDigitizer::accumulate(edm::Handle<edm::PCaloHitContainer> const &hits,
     const float charge = hit.energy()*1e6*keV2fC;
       
     //distance to the center of the detector
-    const float dist2center( geom->getPosition(id).mag() );
+    const float dist2center( getPositionDistance(geom,id) );
       
     //hit time: [time()]=ns  [centerDist]=cm [refSpeed_]=cm/ns + delay by 1ns
     //accumulate in 15 buckets of 25ns (9 pre-samples, 1 in-time, 5 post-samples)
@@ -432,5 +425,5 @@ void HGCDigitizer::resetSimHitDataAccumulator()
     }
 }
 
-template HGCDigitizer::accumulate<HcalGeometry>(edm::Handle<edm::PCaloHitContainer> const &hits, int bxCrossing,const HcalGeometry *geom, CLHEP::HepRandomEngine* hre);
-template HGCDigitizer::accumulate<HGCalGeometry>(edm::Handle<edm::PCaloHitContainer> const &hits, int bxCrossing,const HGCalGeometry *geom, CLHEP::HepRandomEngine* hre)
+template void HGCDigitizer::accumulate<HcalGeometry>(edm::Handle<edm::PCaloHitContainer> const &hits, int bxCrossing,const HcalGeometry *geom, CLHEP::HepRandomEngine* hre);
+template void HGCDigitizer::accumulate<HGCalGeometry>(edm::Handle<edm::PCaloHitContainer> const &hits, int bxCrossing,const HGCalGeometry *geom, CLHEP::HepRandomEngine* hre);
