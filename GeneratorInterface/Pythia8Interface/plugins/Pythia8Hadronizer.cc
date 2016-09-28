@@ -33,6 +33,9 @@ using namespace Pythia8;
 //decay filter hook
 #include "GeneratorInterface/Pythia8Interface/interface/ResonanceDecayFilterHook.h"
 
+//decay filter hook
+#include "GeneratorInterface/Pythia8Interface/interface/PTFilterHook.h"
+
 // EvtGen plugin
 //
 #include "Pythia8Plugins/EvtGen.h"
@@ -124,6 +127,9 @@ class Pythia8Hadronizer : public BaseHadronizer, public Py8InterfaceBase {
     //resonance decay filter hook
     ResonanceDecayFilterHook *fResonanceDecayFilterHook;
     
+    //PT filter hook
+    PTFilterHook *fPTFilterHook;
+
     int  EV1_nFinal;
     bool EV1_vetoOn;
     int  EV1_maxVetoCount;
@@ -157,7 +163,7 @@ Pythia8Hadronizer::Pythia8Hadronizer(const edm::ParameterSet &params) :
   fInitialState(PP),
   fMultiUserHook(new MultiUserHook), fReweightUserHook(0),fReweightRapUserHook(0),fReweightPtHatRapUserHook(0),
   fJetMatchingHook(0),fJetMatchingPy8InternalHook(0), fMergingHook(0),
-  fEmissionVetoHook(0), fEmissionVetoHook1(0), fResonanceDecayFilterHook(0), nME(-1), nMEFiltered(-1), nISRveto(0), nFSRveto(0),
+  fEmissionVetoHook(0), fEmissionVetoHook1(0), fResonanceDecayFilterHook(0), fPTFilterHook(0), nME(-1), nMEFiltered(-1), nISRveto(0), nFSRveto(0),
   NHooks(0)
 {
 
@@ -243,6 +249,13 @@ Pythia8Hadronizer::Pythia8Hadronizer(const edm::ParameterSet &params) :
   fMasterGen->settings.addFlag("ResonanceDecayFilter:allNuAsEquivalent",false);
   fMasterGen->settings.addMVec("ResonanceDecayFilter:mothers",std::vector<int>(),false,false,0,0);
   fMasterGen->settings.addMVec("ResonanceDecayFilter:daughters",std::vector<int>(),false,false,0,0);
+
+  //add settings for PT filter
+  fMasterGen->settings.addFlag("PTFilter:filter",false);
+  fMasterGen->settings.addMode("PTFilter:quarkToFilter", 5  ,true,true,3,    6);
+  fMasterGen->settings.addParm("PTFilter:scaleToFilter", 0.4,true,true,0.0, 10.);
+  fMasterGen->settings.addParm("PTFilter:quarkRapidity",10.0,true,true,0.0, 10.);
+  fMasterGen->settings.addParm("PTFilter:quarkPt",       -.1,true,true,-.1,100.);
 
   // Reweight user hook
   //
@@ -391,6 +404,12 @@ bool Pythia8Hadronizer::initializeForInternalPartons()
     fResonanceDecayFilterHook = new ResonanceDecayFilterHook;
     fMultiUserHook->addHook(fResonanceDecayFilterHook);
   }
+
+  bool PTFilter = fMasterGen->settings.flag("PTFilter:filter");
+  if (PTFilter && !fPTFilterHook) {
+    fPTFilterHook = new PTFilterHook;
+    fMultiUserHook->addHook(fPTFilterHook);
+  }
   
   if (fMultiUserHook->nHooks()>0) {
     fMasterGen->setUserHooksPtr(fMultiUserHook);
@@ -479,6 +498,12 @@ bool Pythia8Hadronizer::initializeForExternalPartons()
     fMultiUserHook->addHook(fResonanceDecayFilterHook);
   }
   
+  bool PTFilter = fMasterGen->settings.flag("PTFilter:filter");
+  if (PTFilter && !fPTFilterHook) {
+    fPTFilterHook = new PTFilterHook;
+    fMultiUserHook->addHook(fPTFilterHook);
+  }
+
   if (fMultiUserHook->nHooks()>0) {
     fMasterGen->setUserHooksPtr(fMultiUserHook);
   }  
