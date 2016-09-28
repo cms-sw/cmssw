@@ -1,77 +1,63 @@
 #ifndef PrimaryVertexValidation_h
 #define PrimaryVertexValidation_h
 
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
+// system include files
+#include <string>
+#include <sstream>
+#include <vector>
+#include <map>
 
+// ROOT Included
 #include "TFile.h"
 #include "TH1D.h"
 #include "TH1I.h"
 #include "TH2D.h"
 #include "TTree.h"
 
-#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
-
-#include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
-#include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
+// CMSSW includes
+#include "CommonTools/UtilAlgos/interface/TFileService.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
+#include "DataFormats/GeometryVector/interface/LocalPoint.h"
 #include "DataFormats/TrackCandidate/interface/TrackCandidate.h"
 #include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
-#include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
-#include "DataFormats/DetId/interface/DetId.h"
-#include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
-#include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DCollection.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2DCollection.h"
 #include "DataFormats/TrackerRecHit2D/interface/ProjectedSiStripRecHit2D.h"
-
-#include "TrackingTools/IPTools/interface/IPTools.h"
-#include "DataFormats/SiStripDigi/interface/SiStripRawDigi.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2DCollection.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
-#include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
-#include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
-#include "DataFormats/Common/interface/DetSetVector.h"
-
+#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DCollection.h"
+#include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
+#include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
+#include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h" 
+#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
+#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
-#include "DataFormats/GeometryVector/interface/LocalPoint.h"
-#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
-
-#include "DataFormats/TrackReco/interface/Track.h"
-#include "SimDataFormats/TrackingHit/interface/PSimHit.h"
-#include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
-
-#include "RecoVertex/VertexPrimitives/interface/VertexFitter.h"
 #include "RecoVertex/AdaptiveVertexFit/interface/AdaptiveVertexFitter.h"
-#include "TrackingTools/TrajectoryState/interface/TrajectoryStateClosestToPoint.h"
-
-
-#include "RecoVertex/PrimaryVertexProducer/interface/TrackFilterForPVFindingBase.h"
-#include "RecoVertex/PrimaryVertexProducer/interface/TrackFilterForPVFinding.h"
-#include "RecoVertex/PrimaryVertexProducer/interface/TrackClusterizerInZ.h"
 #include "RecoVertex/PrimaryVertexProducer/interface/PrimaryVertexProducerAlgorithm.h"
+#include "RecoVertex/PrimaryVertexProducer/interface/TrackClusterizerInZ.h"
+#include "RecoVertex/PrimaryVertexProducer/interface/TrackFilterForPVFinding.h"
+#include "RecoVertex/PrimaryVertexProducer/interface/TrackFilterForPVFindingBase.h"
+#include "RecoVertex/VertexPrimitives/interface/VertexFitter.h"
+#include "TrackingTools/IPTools/interface/IPTools.h"
+#include "TrackingTools/TrajectoryState/interface/TrajectoryStateClosestToPoint.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
-
-// system include files
-#include <iostream>
-#include <memory>
-#include <string>
-#include <sstream>
-#include <vector>
-#include <map>
 
 //
 // class decleration
 //
 
-class PrimaryVertexValidation : public edm::EDAnalyzer {
+class PrimaryVertexValidation : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 
  public:
   explicit PrimaryVertexValidation(const edm::ParameterSet&);
@@ -83,13 +69,19 @@ class PrimaryVertexValidation : public edm::EDAnalyzer {
   virtual void endJob();
   bool isHit2D(const TrackingRecHit &hit) const;
   bool hasFirstLayerPixelHits(const reco::TransientTrack track);
-  AlgebraicVector3 displacementFromTrack(const GlobalPoint& pv, const GlobalPoint& dcaPosition_,  const GlobalVector& tangent_);
-  double approximateTrackError(const GlobalPoint& refPoint, const GlobalPoint& dcaPosition,const GlobalVector& tangent, const AlgebraicMatrix33& covMatrix);
   std::pair<Double_t,Double_t> getMedian(TH1F *histo);
   std::pair<Double_t,Double_t> getMAD(TH1F *histo);
   std::pair<std::pair<Double_t,Double_t>, std::pair<Double_t,Double_t> > fitResiduals(TH1 *hist);
-  void FillTrendPlot(TH1F* trendPlot, TH1F *residualsPlot[100], const TString& fitPar_, const TString& var_);
-
+  void fillTrendPlot(TH1F* trendPlot, TH1F *residualsPlot[100], TString fitPar_, TString var_);
+  static bool vtxSort( const reco::Vertex &  a, const reco::Vertex & b );
+  bool passesTrackCuts(const reco::Track & track, const reco::Vertex & vertex,std::string qualityString_, double dxyErrMax_,double dzErrMax_, double ptErrMax_);
+  std::map<std::string, TH1*> bookVertexHistograms(TFileDirectory dir);
+  void fillTrackHistos(std::map<std::string, TH1*> & h, const std::string & ttype, const reco::TransientTrack *tt, const reco::Vertex & v,const reco::BeamSpot & beamSpot, double fBfield);
+  void add(std::map<std::string, TH1*>& h, TH1* hist);
+  void fill(std::map<std::string, TH1*>& h, std::string s, double x);
+  void fill(std::map<std::string, TH1*>& h, std::string s, double x, double y);
+  void fillMap(TH2F* trendMap, TH1F* residualsMapPlot[100][100], TString fitPar_);
+  
   inline double square(double x){
     return x*x;
   }
@@ -97,27 +89,34 @@ class PrimaryVertexValidation : public edm::EDAnalyzer {
   // ----------member data ---------------------------
   edm::ParameterSet theConfig;
   int Nevt_;
-
+ 
   TrackFilterForPVFindingBase* theTrackFilter_; 
   TrackClusterizerInZ* theTrackClusterizer_;
 
   // setting of the number of plots 
   static const int nMaxBins_ = 100; // maximum number of bookable histograms
 
-
   // Output 
   bool storeNtuple_;
   bool lightNtupleSwitch_;   // switch to keep only info for daily validation     
   bool useTracksFromRecoVtx_; 
   
+  // requirements on the vertex
+  double vertexZMax_;
+
   // requirements on the probe
   bool    askFirstLayerHit_;  // ask hit in the first layer of pixels 
   double  ptOfProbe_;
   double  etaOfProbe_; 
   int nBins_;                 // actual number of histograms     
+  std::vector<unsigned int> runControlNumbers_;
 
   bool debug_;
-  edm::InputTag  TrackCollectionTag_;
+  bool runControl_;
+
+  edm::EDGetTokenT<reco::TrackCollection>  theTrackCollectionToken; 
+  edm::EDGetTokenT<reco::VertexCollection> theVertexCollectionToken; 
+  edm::EDGetTokenT<reco::BeamSpot>         theBeamspotToken;
 
   TTree* rootTree_;
   
@@ -128,8 +127,8 @@ class PrimaryVertexValidation : public edm::EDAnalyzer {
   static const int nMaxtracks_ = 1000;
   static const int cmToum = 10000;
 
-  float phipitch_;
-  float etapitch_;
+  float phiSect_;
+  float etaSect_;
 
   // event-related quantities
   int nTracks_;
@@ -142,6 +141,11 @@ class PrimaryVertexValidation : public edm::EDAnalyzer {
   double  xOfflineVertex_;
   double  yOfflineVertex_;
   double  zOfflineVertex_;
+
+  double xErrOfflineVertex_; 
+  double yErrOfflineVertex_;
+  double zErrOfflineVertex_;
+
   double BSx0_;
   double BSy0_;
   double BSz0_;
@@ -149,6 +153,7 @@ class PrimaryVertexValidation : public edm::EDAnalyzer {
   double Beamdxdz_;   
   double BeamWidthX_;
   double BeamWidthY_;
+  double wxy2_;
 
   // track-related quantities
   double pt_[nMaxtracks_];   
@@ -182,20 +187,23 @@ class PrimaryVertexValidation : public edm::EDAnalyzer {
   double zUnbiasedVertex_[nMaxtracks_];
   float  chi2normUnbiasedVertex_[nMaxtracks_]; 
   float  chi2UnbiasedVertex_[nMaxtracks_];
+  float  chi2ProbUnbiasedVertex_[nMaxtracks_];
   float  DOFUnbiasedVertex_[nMaxtracks_];
   float  sumOfWeightsUnbiasedVertex_[nMaxtracks_];
   int    tracksUsedForVertexing_[nMaxtracks_];
   
   double dxyFromMyVertex_[nMaxtracks_];
   double dzFromMyVertex_[nMaxtracks_];
+  double d3DFromMyVertex_[nMaxtracks_];
 
   double dxyErrorFromMyVertex_[nMaxtracks_];
   double dzErrorFromMyVertex_[nMaxtracks_];
+  double d3DErrorFromMyVertex_[nMaxtracks_];
 
   double IPTsigFromMyVertex_[nMaxtracks_];
   double IPLsigFromMyVertex_[nMaxtracks_];
+  double IP3DsigFromMyVertex_[nMaxtracks_];
 
-  double dszFromMyVertex_[nMaxtracks_];
   int   hasRecVertex_[nMaxtracks_];
   int   isGoodTrack_[nMaxtracks_];
 
@@ -209,6 +217,18 @@ class PrimaryVertexValidation : public edm::EDAnalyzer {
   TH1F* a_dzPhiResiduals[nMaxBins_];
   TH1F* a_dzEtaResiduals[nMaxBins_];
   
+  TH1F* a_IP2DPhiResiduals[nMaxBins_];
+  TH1F* a_IP2DEtaResiduals[nMaxBins_];
+  
+  TH1F* a_IP3DPhiResiduals[nMaxBins_];
+  TH1F* a_IP3DEtaResiduals[nMaxBins_];
+
+  TH1F* a_reszPhiResiduals[nMaxBins_];
+  TH1F* a_reszEtaResiduals[nMaxBins_];
+
+  TH1F* a_d3DPhiResiduals[nMaxBins_];
+  TH1F* a_d3DEtaResiduals[nMaxBins_];
+
   // normalized residuals
 
   TH1F* n_dxyPhiResiduals[nMaxBins_];
@@ -217,14 +237,28 @@ class PrimaryVertexValidation : public edm::EDAnalyzer {
   TH1F* n_dzPhiResiduals[nMaxBins_];
   TH1F* n_dzEtaResiduals[nMaxBins_];
   
+  TH1F* n_IP2DPhiResiduals[nMaxBins_];
+  TH1F* n_IP2DEtaResiduals[nMaxBins_];
+  
+  TH1F* n_IP3DPhiResiduals[nMaxBins_];
+  TH1F* n_IP3DEtaResiduals[nMaxBins_];
+
+  TH1F* n_reszPhiResiduals[nMaxBins_];
+  TH1F* n_reszEtaResiduals[nMaxBins_];
+
+  TH1F* n_d3DPhiResiduals[nMaxBins_];
+  TH1F* n_d3DEtaResiduals[nMaxBins_];
+
   // for the maps
 
   TH1F* a_dxyResidualsMap[nMaxBins_][nMaxBins_];
   TH1F* a_dzResidualsMap[nMaxBins_][nMaxBins_];
-        				 				    
-  TH1F* n_dxyResidualsMap[nMaxBins_][nMaxBins_];  				    
+  TH1F* a_d3DResidualsMap[nMaxBins_][nMaxBins_];
+      				 				    
+  TH1F* n_dxyResidualsMap[nMaxBins_][nMaxBins_];  				 
   TH1F* n_dzResidualsMap[nMaxBins_][nMaxBins_];
-
+  TH1F* n_d3DResidualsMap[nMaxBins_][nMaxBins_];
+  
   // ---- trends as function of phi
   
   TH1F* a_dxyPhiMeanTrend;
@@ -269,6 +303,20 @@ class PrimaryVertexValidation : public edm::EDAnalyzer {
   TH1F* n_dzEtaMedianTrend;
   TH1F* n_dzEtaMADTrend;
 
+  // 2D residuals
+  
+  TH2F* a_dxyVsPhi;
+  TH2F* a_dzVsPhi;
+
+  TH2F* n_dxyVsPhi;
+  TH2F* n_dzVsPhi;
+
+  TH2F* a_dxyVsEta;
+  TH2F* a_dzVsEta;
+
+  TH2F* n_dxyVsEta;
+  TH2F* n_dzVsEta;
+
   // 2D maps
 
   TH2F* a_dxyMeanMap;
@@ -306,7 +354,7 @@ class PrimaryVertexValidation : public edm::EDAnalyzer {
   TH1F* a_dxyBiasResidualsMap[nMaxBins_][nMaxBins_];
   TH1F* a_dzBiasResidualsMap[nMaxBins_][nMaxBins_];
         				 				    
-  TH1F* n_dxyBiasResidualsMap[nMaxBins_][nMaxBins_];  				    
+  TH1F* n_dxyBiasResidualsMap[nMaxBins_][nMaxBins_];  				 
   TH1F* n_dzBiasResidualsMap[nMaxBins_][nMaxBins_];
 
   // ---- trends as function of phi
@@ -367,8 +415,30 @@ class PrimaryVertexValidation : public edm::EDAnalyzer {
   TH2F* n_dxyWidthBiasMap;
   TH2F* n_dzWidthBiasMap;
 
+  // check event
+  TH1F* h_nTracks;
+  TH1F* h_nClus;
+  TH1F* h_nOfflineVertices;
+  TH1F* h_runNumber;
+  TH1F* h_xOfflineVertex;
+  TH1F* h_yOfflineVertex;
+  TH1F* h_zOfflineVertex;
+  TH1F* h_xErrOfflineVertex;
+  TH1F* h_yErrOfflineVertex;
+  TH1F* h_zErrOfflineVertex;
+  TH1F* h_BSx0;    
+  TH1F* h_BSy0;    
+  TH1F* h_BSz0;    
+  TH1F* h_Beamsigmaz; 
+  TH1F* h_BeamWidthX;
+  TH1F* h_BeamWidthY;          
+
   // check probe 
 
+  TH2F* h2_probeEtaPhi_;
+  TH2F* h2_probeEtaPt_;
+
+  TH1F* h_probeP_;
   TH1F* h_probePt_;
   TH1F* h_probeEta_;
   TH1F* h_probePhi_;
@@ -376,9 +446,28 @@ class PrimaryVertexValidation : public edm::EDAnalyzer {
   TH1F* h_probeNormChi2_;
   TH1F* h_probeCharge_;
   TH1F* h_probeQoverP_;
-  TH1F* h_probedz_;
-  TH1F* h_probedxy_;
   
+  TH1F* h_probedzRecoV_;
+  TH1F* h_probedxyRecoV_;
+
+  TH1F* h_probedzRefitV_;
+  TH1F* h_probedxyRefitV_;
+
+  TH1F* h_probed0RefitV_;
+  TH1F* h_probez0RefitV_;
+
+  TH1F* h_probesignIP2DRefitV_;
+  TH1F* h_probed3DRefitV_;
+  TH1F* h_probereszRefitV_;
+  
+  TH1F* h_probeRecoVSigZ_;
+  TH1F* h_probeRecoVSigXY_;
+  TH1F* h_probeRefitVSigZ_;
+  TH1F* h_probeRefitVSigXY_;
+  TH1F* h_probeRefitVSig3D_;
+  TH1F* h_probeRefitVLogSig3D_;
+  TH1F* h_probeRefitVSigResZ_;
+
   TH1F* h_probeHits_;  
   TH1F* h_probeHits1D_; 
   TH1F* h_probeHits2D_; 
@@ -396,11 +485,15 @@ class PrimaryVertexValidation : public edm::EDAnalyzer {
   TH1F* h_fitVtxNtracks_;  
   TH1F* h_fitVtxChi2ndf_;  
   TH1F* h_fitVtxChi2Prob_; 
-  		    
+  TH1F* h_fitVtxTrackWeights_;
+  TH1F* h_fitVtxTrackAverageWeight_;
+
   TH1F* h_recoVtxNtracks_; 
   TH1F* h_recoVtxChi2ndf_; 
   TH1F* h_recoVtxChi2Prob_;
   TH1F* h_recoVtxSumPt_;   
+
+  std::map<std::string, TH1*> hDA;
 
 };
 
