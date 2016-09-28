@@ -199,14 +199,14 @@ L1TStage2InputPatternWriter::analyze(const edm::Event& iEvent, const edm::EventS
 	int iphi = 1+(iLink % 2==0 ? iLink : iLink-1);
 
 	// get tower 1 data
-	l1t::CaloTower tower = l1t::CaloTools::getTower(towers, ieta, iphi);
+	l1t::CaloTower tower = l1t::CaloTools::getTower(towers, l1t::CaloTools::caloEta(ieta), iphi);
 	data |= tower.hwPt() & 0x1ff;
 	data |= (tower.hwEtRatio() & 0x7)<<9;
 	data |= (tower.hwQual() & 0xf)<<12;
 
 	// get tower 2
 	iphi = iphi + 1;
-	tower = l1t::CaloTools::getTower(towers, ieta, iphi);
+	tower = l1t::CaloTools::getTower(towers, l1t::CaloTools::caloEta(ieta), iphi);
 	data |= (tower.hwPt() & 0x1ff)<<16;
 	data |= (tower.hwEtRatio() & 0x7)<<25;
 	data |= (tower.hwQual() & 0xf)<<28;
