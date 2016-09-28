@@ -1,5 +1,4 @@
 import FWCore.ParameterSet.Config as cms
-from Configuration.StandardSequences.Eras import eras
 
 from DQMOffline.JetMET.metDQMConfig_cff     import *
 from DQMOffline.JetMET.jetAnalyzer_cff   import *
@@ -109,7 +108,8 @@ jetMETDQMOfflineSource = cms.Sequence(AnalyzeSUSYDQM*QGTagger*
                                       dqmCorrPfMetType1*pfMETT1*jetDQMAnalyzerSequence*HBHENoiseFilterResultProducer*
                                       CSCTightHaloFilterDQM*CSCTightHalo2015FilterDQM*eeBadScFilterDQM*EcalDeadCellTriggerPrimitiveFilterDQM*EcalDeadCellBoundaryEnergyFilterDQM*HcalStripHaloFilterDQM
                                       *METDQMAnalyzerSequence)
-eras.phase1Pixel.toReplaceWith(jetMETDQMOfflineSource, jetMETDQMOfflineSource.copyAndExclude([ # FIXME
+from Configuration.Eras.Modifier_phase1Pixel_cff import phase1Pixel
+phase1Pixel.toReplaceWith(jetMETDQMOfflineSource, jetMETDQMOfflineSource.copyAndExclude([ # FIXME
     jetDQMAnalyzerSequence, # Excessive printouts because 2017 doesn't have HLT yet
     METDQMAnalyzerSequence, # Excessive printouts because 2017 doesn't have HLT yet
 ]))

@@ -4,11 +4,11 @@
 # All changes must be explicitly discussed with the L1T offline coordinator.
 #
 import FWCore.ParameterSet.Config as cms
-from Configuration.StandardSequences.Eras import eras
 #
 # Legacy Trigger:
 #
-if not (eras.stage2L1Trigger.isChosen()):
+from Configuration.Eras.Modifier_stage2L1Trigger_cff import stage2L1Trigger
+if not (stage2L1Trigger.isChosen()):
     print "L1TGlobal Sequence configured for Legacy trigger (Run1 and Run 2015). "
 #
 # -  Global Trigger emulator
@@ -28,7 +28,7 @@ if not (eras.stage2L1Trigger.isChosen()):
 #
 # Stage-2 Trigger
 #
-if eras.stage2L1Trigger.isChosen():
+if stage2L1Trigger.isChosen():
 #
 # -  Global Trigger emulator
 #

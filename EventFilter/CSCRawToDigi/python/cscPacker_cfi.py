@@ -21,8 +21,8 @@ cscpacker = cms.EDProducer("CSCDigiToRawModule",
 ##
 ## Make changes for running in Run 2
 ##
-from Configuration.StandardSequences.Eras import eras
 # packer - simply get rid of it
-eras.run2_common.toModify( cscpacker, useFormatVersion = cms.uint32(2013) )
-eras.run2_common.toModify( cscpacker, usePreTriggers = cms.bool(False) )
-eras.run2_common.toModify( cscpacker, packEverything = cms.bool(True) )
+from Configuration.Eras.Modifier_run2_common_cff import run2_common
+run2_common.toModify( cscpacker, useFormatVersion = cms.uint32(2013) )
+run2_common.toModify( cscpacker, usePreTriggers = cms.bool(False) )
+run2_common.toModify( cscpacker, packEverything = cms.bool(True) )

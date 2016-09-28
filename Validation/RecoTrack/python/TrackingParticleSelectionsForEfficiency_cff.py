@@ -14,8 +14,8 @@ generalTpSelectorBlock = cms.PSet(
     tip = cms.double(3.5)
 )
 
-from Configuration.StandardSequences.Eras import eras
-if eras.fastSim.isChosen():
+from Configuration.Eras.Modifier_fastSim_cff import fastSim
+if fastSim.isChosen():
     generalTpSelectorBlock.stableOnly = True
 
 TpSelectorForEfficiencyVsEtaBlock = generalTpSelectorBlock.clone()
@@ -27,7 +27,9 @@ TpSelectorForEfficiencyVsVTXZBlock = generalTpSelectorBlock.clone()
 def _modifyForPhase1(pset):
     pset.minRapidity = -3
     pset.maxRapidity = 3
-eras.phase1Pixel.toModify(generalTpSelectorBlock, _modifyForPhase1)
-eras.phase1Pixel.toModify(TpSelectorForEfficiencyVsEtaBlock, _modifyForPhase1)
-eras.phase2_tracker.toModify(generalTpSelectorBlock, minRapidity=-4.5, maxRapidity=4.5)
-eras.phase2_tracker.toModify(TpSelectorForEfficiencyVsEtaBlock, minRapidity=-4.5, maxRapidity=4.5)
+from Configuration.Eras.Modifier_phase1Pixel_cff import phase1Pixel
+phase1Pixel.toModify(generalTpSelectorBlock, _modifyForPhase1)
+phase1Pixel.toModify(TpSelectorForEfficiencyVsEtaBlock, _modifyForPhase1)
+from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
+phase2_tracker.toModify(generalTpSelectorBlock, minRapidity=-4.5, maxRapidity=4.5)
+phase2_tracker.toModify(TpSelectorForEfficiencyVsEtaBlock, minRapidity=-4.5, maxRapidity=4.5)

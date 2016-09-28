@@ -21,6 +21,6 @@ muonIdVal = cms.EDAnalyzer("MuonIdVal",
 )
 
 # fastsim has no cosmic muon veto in place
-from Configuration.StandardSequences.Eras import eras
-if eras.fastSim.isChosen():
+from Configuration.Eras.Modifier_fastSim_cff import fastSim
+if fastSim.isChosen():
     muonIdVal.makeCosmicCompatibilityPlots = False

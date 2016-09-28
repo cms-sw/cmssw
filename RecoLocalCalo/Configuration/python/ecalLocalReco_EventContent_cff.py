@@ -30,12 +30,12 @@ ecalLocalRecoAOD = cms.PSet(
         )
 )
 
-from Configuration.StandardSequences.Eras import eras
 #mods for timing
 _phase2_timing_EcalOutputCommands = ['keep *_mix_EBTimeDigi_*',
                                      'keep *_mix_EETimeDigi_*', 
                                      'keep *_ecalDetailedTimeRecHit_*_*']
 
-eras.phase2_timing.toModify( ecalLocalRecoFEVT, outputCommands = ecalLocalRecoFEVT.outputCommands + _phase2_timing_EcalOutputCommands )
-eras.phase2_timing.toModify( ecalLocalRecoRECO, outputCommands = ecalLocalRecoRECO.outputCommands + _phase2_timing_EcalOutputCommands )
+from Configuration.Eras.Modifier_phase2_timing_cff import phase2_timing
+phase2_timing.toModify( ecalLocalRecoFEVT, outputCommands = ecalLocalRecoFEVT.outputCommands + _phase2_timing_EcalOutputCommands )
+phase2_timing.toModify( ecalLocalRecoRECO, outputCommands = ecalLocalRecoRECO.outputCommands + _phase2_timing_EcalOutputCommands )
 

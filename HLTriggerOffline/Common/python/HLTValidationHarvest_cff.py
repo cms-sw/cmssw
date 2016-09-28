@@ -1,4 +1,3 @@
-from Configuration.StandardSequences.Eras import eras
 
 from HLTriggerOffline.Tau.Validation.HLTTauPostValidation_cfi import *
 from HLTriggerOffline.Muon.HLTMuonPostVal_cff import *
@@ -37,11 +36,12 @@ hltpostvalidation = cms.Sequence(
     +HLTSMPPostVal
     +HltBTagPostVal
     )
-eras.phase1Pixel.toReplaceWith(hltpostvalidation, cms.Sequence()) # FIXME: No HLT yet for 2017, so no need to run the DQM (avoiding excessive printouts)
+from Configuration.Eras.Modifier_phase1Pixel_cff import phase1Pixel
+phase1Pixel.toReplaceWith(hltpostvalidation, cms.Sequence()) # FIXME: No HLT yet for 2017, so no need to run the DQM (avoiding excessive printouts)
 
 # fastsim customs
-from Configuration.StandardSequences.Eras import eras
-if eras.fastSim.isChosen():
+from Configuration.Eras.Modifier_fastSim_cff import fastSim
+if fastSim.isChosen():
     hltpostvalidation.remove(postProcessorHLTtrackingSequence)
     hltpostvalidation.remove(postProcessorHLTvertexing)
     # remove this:     +hltvalidationqt ?
