@@ -1,6 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 from Configuration.StandardSequences.Eras import eras
-import RecoTracker.IterativeTracking.iterativeTkConfig as _cfg
 
 ### load which are the tracks collection 2 be monitored
 from DQM.TrackingMonitorSource.TrackCollections2monitor_cff import *
@@ -220,9 +219,8 @@ for tracks in selectedTracks :
 import DQM.TrackingMonitor.TrackingMonitorSeed_cfi
 
 from DQM.TrackingMonitorSource.IterTrackingModules4seedMonitoring_cfi import *
-# Create first modules for all possible iterations, select later which
-# ones to actually use based on era
-for step in seedInputTag.iterkeys():
+
+for step in selectedIterTrackingStep :
     label = 'TrackSeedMon'+str(step)
     locals()[label] = DQM.TrackingMonitor.TrackingMonitorSeed_cfi.TrackMonSeed.clone(
         doTrackCandHistos = cms.bool(True)
@@ -311,22 +309,16 @@ for tracks in selectedTracks :
     if tracks != 'generalTracks':
         TrackingDQMSourceTier0 += sequenceName[tracks]
     label = 'TrackerCollisionSelectedTrackMonCommon' + str(tracks)
-    TrackingDQMSourceTier0 += locals()[label]
+    TrackingDQMSourceTier0 += cms.Sequence(locals()[label])
 # seeding monitoring
-for era in _cfg.allEras() + ["trackingPhase2PU140"]: # FIXME:: allEras() extension should be removed when phase2 tracking is migrated to eras
-    postfix = _cfg.postfix(era)
-    _seq = cms.Sequence()
-    for step in locals()["selectedIterTrackingStep"+postfix]:
-        _seq += locals()["TrackSeedMon"+step]
-    if era == "":
-        locals()["TrackSeedMonSequence"] = _seq
-    else:
-        getattr(eras, era).toReplaceWith(TrackSeedMonSequence, _seq)
-TrackingDQMSourceTier0 += TrackSeedMonSequence
+for step in selectedIterTrackingStep :
+    label = 'TrackSeedMon'+str(step)
+    TrackingDQMSourceTier0 += cms.Sequence(locals()[label])
+eras.trackingLowPU.toReplaceWith(TrackingDQMSourceTier0, TrackingDQMSourceTier0.copyAndExclude([TrackSeedMonjetCoreRegionalStep]))
 # MessageLog
 for module in selectedModules :
     label = str(module)+'LogMessageMonCommon'
-    TrackingDQMSourceTier0 += locals()[label]
+    TrackingDQMSourceTier0 += cms.Sequence(locals()[label])
 TrackingDQMSourceTier0 += voMonitoringSequence
 TrackingDQMSourceTier0 += dqmInfoTracking
 
@@ -339,13 +331,16 @@ for tracks in selectedTracks :
     if tracks != 'generalTracks':
         TrackingDQMSourceTier0Common+=sequenceName[tracks]
     label = 'TrackerCollisionSelectedTrackMonCommon' + str(tracks)
-    TrackingDQMSourceTier0Common += locals()[label]
+    TrackingDQMSourceTier0Common += cms.Sequence(locals()[label])
 # seeding monitoring
-TrackingDQMSourceTier0Common += TrackSeedMonSequence
+for step in selectedIterTrackingStep :
+    label = 'TrackSeedMon'+str(step)
+    TrackingDQMSourceTier0Common += cms.Sequence(locals()[label])
+eras.trackingLowPU.toReplaceWith(TrackingDQMSourceTier0Common, TrackingDQMSourceTier0Common.copyAndExclude([TrackSeedMonjetCoreRegionalStep]))
 # MessageLog
 for module in selectedModules :
     label = str(module)+'LogMessageMonCommon'
-    TrackingDQMSourceTier0Common += locals()[label]
+    TrackingDQMSourceTier0Common += cms.Sequence(locals()[label])
 TrackingDQMSourceTier0Common += voMonitoringCommonSequence
 TrackingDQMSourceTier0Common += dqmInfoTracking
 
@@ -363,11 +358,14 @@ for tracks in selectedTracks :
         label = 'TrackerCollisionSelectedTrackMon' + str(topology) + str(tracks)
         TrackingDQMSourceTier0MinBias += locals()[label]
 # seeding monitoring
-TrackingDQMSourceTier0MinBias += TrackSeedMonSequence
+for step in selectedIterTrackingStep :
+    label = 'TrackSeedMon'+str(step)
+    TrackingDQMSourceTier0MinBias += cms.Sequence(locals()[label])
+eras.trackingLowPU.toReplaceWith(TrackingDQMSourceTier0MinBias, TrackingDQMSourceTier0MinBias.copyAndExclude([TrackSeedMonjetCoreRegionalStep]))
 # MessageLog
 for module in selectedModules :
     label = str(module)+'LogMessageMonMB'
-    TrackingDQMSourceTier0MinBias += locals()[label]
+    TrackingDQMSourceTier0MinBias += cms.Sequence(locals()[label])
 # V0 monitoring
 TrackingDQMSourceTier0MinBias += voMonitoringMBSequence
 TrackingDQMSourceTier0MinBias += voMonitoringZBnoHIPnoOOTSequence
