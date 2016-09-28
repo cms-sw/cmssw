@@ -206,7 +206,7 @@ class MillePedeAlignmentAlgorithm : public AlignmentAlgorithmBase
 
   /// Generates list of files to read, given the list and dir from the configuration.
   /// This will automatically expand formatting directives, if they appear.
-  std::vector<std::string> getExistingFormattedFiles(const std::vector<std::string> plainFiles, std::string theDir);
+  std::vector<std::string> getExistingFormattedFiles(const std::vector<std::string>& plainFiles, const std::string& theDir);
 
   void addLaserData(const EventInfo &eventInfo, 
 		    const TkFittedLasBeamCollection &tkLasBeams,
