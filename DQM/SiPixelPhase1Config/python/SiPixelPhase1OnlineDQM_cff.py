@@ -5,6 +5,11 @@ from DQM.SiPixelPhase1Common.HistogramManager_cfi import *
 # Configure Phase1 DQM for Phase0 data
 SiPixelPhase1Geometry.n_inner_ring_blades = 24 # no outer ring
 
+# Turn on 'online' harvesting. This has to be set before other configs are 
+# loaded (due to how the DefaultHisto PSet is later cloned), therefore it is
+# here and not in the harvestng config.
+DefaultHisto.perLumiHarvesting = True
+
 # Pixel Digi Monitoring
 from DQM.SiPixelPhase1Digis.SiPixelPhase1Digis_cfi import *
 SiPixelPhase1DigisAnalyzer.src = cms.InputTag("siPixelDigis") # adapt for real data

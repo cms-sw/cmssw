@@ -28,7 +28,6 @@
 #include "DQM/SiPixelPhase1Common/interface/GeometryInterface.h"
 #include "DQM/SiPixelPhase1Common/interface/AbstractHistogram.h"
 
-// TODO: Should we use a namespace, and if yes, which?
 class HistogramManager {
 public:
   explicit HistogramManager(const edm::ParameterSet& iConfig, GeometryInterface& geo);
@@ -47,9 +46,9 @@ public:
   void book(DQMStore::IBooker& iBooker, edm::EventSetup const& iSetup);
 
   // These functions perform step2, for online (per lumisection) or offline (endRun) respectively.
-  // TODO: we need a EventSetup in offline as well. we'll see.
-  void executeHarvestingOnline(DQMStore::IBooker& iBooker, DQMStore::IGetter& iGetter, edm::EventSetup const& iSetup);
-  void executeHarvestingOffline(DQMStore::IBooker& iBooker, DQMStore::IGetter& iGetter);
+  // Note that the EventSetup from PerLumi is used in offline as well, so PerLumi always has to be called first.
+  void executePerLumiHarvesting(DQMStore::IBooker& iBooker, DQMStore::IGetter& iGetter, edm::EventSetup const& iSetup);
+  void executeHarvesting(DQMStore::IBooker& iBooker, DQMStore::IGetter& iGetter);
 
   typedef std::map<GeometryInterface::Values, AbstractHistogram> Table;
   // Set a handler to be called when a custom() step is hit. This can do 
@@ -84,6 +83,7 @@ private:
 
 public: // these are available in config as is, and may be used in harvesting.
   bool enabled;
+  bool perLumiHarvesting;
   bool bookUndefined;
   std::string top_folder_name;
   std::string default_grouping;
