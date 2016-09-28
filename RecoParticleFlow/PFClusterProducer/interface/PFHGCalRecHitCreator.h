@@ -4,6 +4,7 @@
 #include "RecoParticleFlow/PFClusterProducer/interface/PFRecHitCreatorBase.h"
 
 #include "Geometry/HGCalGeometry/interface/HGCalGeometry.h"
+#include "Geometry/HcalTowerAlgo/interface/HcalGeometry.h"
 #include "DataFormats/HGCRecHit/interface/HGCRecHitCollections.h"
 
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
@@ -19,7 +20,7 @@
 #include "Geometry/CaloTopology/interface/EcalPreshowerTopology.h"
 #include "RecoCaloTools/Navigation/interface/CaloNavigator.h"
 
-template <typename DET,PFLayer::Layer Layer,ForwardSubdetector subdet>
+template <typename DET,PFLayer::Layer Layer,unsigned subdet>
   class PFHGCalRecHitCreator :  public  PFRecHitCreatorBase {
 
  public:  
@@ -40,10 +41,10 @@ template <typename DET,PFLayer::Layer Layer,ForwardSubdetector subdet>
       iEvent.getByToken(recHitToken_,recHitHandle);
       const HGCRecHitCollection& rechits = *recHitHandle;
 
-      edm::ESHandle<HGCalGeometry> geoHandle;
-      iSetup.get<IdealGeometryRecord>().get(geometryInstance_,geoHandle);
-      const HGCalGeometry& hgcGeo = *geoHandle;
-      
+      edm::ESHandle<CaloGeometry> geoHandle;
+      iSetup.get<CaloGeometryRecord>().get(geoHandle);
+      const CaloGeometry* geom = geoHandle.product();
+
       unsigned skipped_rechits = 0;
       for (unsigned int i=0;i<rechits.size();++i) {
 	const HGCRecHit& hgrh = rechits[i];
@@ -58,8 +59,15 @@ template <typename DET,PFLayer::Layer Layer,ForwardSubdetector subdet>
 	double energy = hgrh.energy();
 	double time = hgrh.time();	
 	
-	const FlatTrd *thisCell = 
-	  static_cast<const FlatTrd*>(hgcGeo.getGeometry(detid));	
+	const CaloCellGeometry *thisCell = nullptr;
+	
+	if( DetId::Forward == detid.det() ) {
+	  const auto* hgGeom = static_cast<const HGCalGeometry*>(geom->getSubdetectorGeometry(detid.det(),detid.subdetId()));
+	  thisCell = static_cast<const FlatTrd*>(hgGeom->getGeometry(detid));
+	} else {
+	  const auto* hcGeom = static_cast<const HcalGeometry*>(geom->getSubdetectorGeometry(detid.det(),detid.subdetId()));
+	  thisCell = hcGeom->getGeometry(detid);
+	}
 
 	// find rechit geometry
 	if(!thisCell) {
@@ -114,7 +122,7 @@ template <typename DET,PFLayer::Layer Layer,ForwardSubdetector subdet>
 
 typedef PFHGCalRecHitCreator<HGCalDetId,PFLayer::HGCAL,HGCEE> PFHGCEERecHitCreator;
 typedef PFHGCalRecHitCreator<HGCalDetId,PFLayer::HGCAL,HGCHEF> PFHGCHEFRecHitCreator;
-typedef PFHGCalRecHitCreator<HGCHEDetId,PFLayer::HGCAL,HGCHEB> PFHGCHEBRecHitCreator;
+typedef PFHGCalRecHitCreator<HcalDetId ,PFLayer::HGCAL,HcalEndcap> PFHGCHEBRecHitCreator;
 
 
 #endif
