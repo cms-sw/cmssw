@@ -45,7 +45,7 @@ class CTPPSDetId : public DetId
   
     static const uint32_t startArmBit = 24, maskArm = 0x1, maxArm = 1, lowMaskArm = 0xFFFFFF;
     static const uint32_t startStationBit = 22, maskStation = 0x3, maxStation = 2, lowMaskStation = 0x3FFFFF;
-    static const uint32_t startRPBit = 19, maskRP = 0x7, maxRP = 5, lowMaskRP = 0x7FFFF;
+    static const uint32_t startRPBit = 19, maskRP = 0x7, maxRP = 6, lowMaskRP = 0x7FFFF;
     
     //-------------------- component getters and setters --------------------
      
