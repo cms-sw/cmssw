@@ -51,6 +51,12 @@ def addL1UserData(patMuonProducer, l1ModuleLabel = "muonL1Info"):
     patMuonProducer.userData.userFloats.src += [  
         cms.InputTag(l1ModuleLabel, "deltaR"),  # will be 999 in case of no match
     ]
+    patMuonProducer.userData.userFloats.src += [  
+        cms.InputTag(l1ModuleLabel, "deltaPhi"),  # will be 999 in case of no match
+    ]
+    patMuonProducer.userData.userInts.src += [  
+        cms.InputTag(l1ModuleLabel, "bx"),  # will be -999 in case of no match
+    ]
     patMuonProducer.userData.userCands.src += [
         cms.InputTag(l1ModuleLabel)
     ]
@@ -71,7 +77,7 @@ from PhysicsTools.PatAlgos.triggerLayer1.triggerProducer_cfi import patTrigger a
 patTriggerFull.onlyStandAlone = True
 patTrigger = cms.EDProducer("TriggerObjectFilterByCollection",
     src = cms.InputTag("patTriggerFull"),
-    collections = cms.vstring("hltL1extraParticles", "hltL2MuonCandidates", "hltL3MuonCandidates", "hltHighPtTkMuonCands", "hltGlbTrkMuonCands", "hltMuTrackJpsiCtfTrackCands", "hltMuTrackJpsiEffCtfTrackCands", "hltMuTkMuJpsiTrackerMuonCands","hltTracksIter"),
+    collections = cms.vstring("hltL1extraParticles", "hltGmtStage2Digis", "hltL2MuonCandidates", "hltL3MuonCandidates", "hltHighPtTkMuonCands", "hltGlbTrkMuonCands", "hltMuTrackJpsiCtfTrackCands", "hltMuTrackJpsiEffCtfTrackCands", "hltMuTkMuJpsiTrackerMuonCands","hltTracksIter"),
 )
 #patTrigger = cms.EDFilter("PATTriggerObjectStandAloneSelector",
 #    src = cms.InputTag("patTriggerFull"),
@@ -218,15 +224,6 @@ def addHLTL1Passthrough(process, embedder="patMuonsWithTrigger"):
     process.patMuonsWithTriggerSequence.replace(process.muonMatchHLTL3, process.muonMatchHLTL1 + process.muonMatchHLTL3)
     getattr(process,embedder).matches += [ cms.InputTag('muonMatchHLTL1'), cms.InputTag('muonMatchHLTL1','propagatedReco') ]
 
-def useExtendedL1Match(process, patMuonProd="patMuonsWithoutTrigger", byWhat=["ByQ"]):
-    process.load("MuonAnalysis.MuonAssociators.muonL1MultiMatch_cfi")
-    process.globalReplace('muonL1Info', process.muonL1MultiMatch.clone(src = process.muonL1Info.src.value()))
-    pmp = getattr(process, patMuonProd)
-    for X in byWhat:
-        pmp.userData.userInts.src   += [ cms.InputTag('muonL1Info', "quality"+X) ]
-        pmp.userData.userFloats.src += [ cms.InputTag('muonL1Info', "deltaR"+X) ]
-        pmp.userData.userCands.src  += [ cms.InputTag('muonL1Info', X) ]
-
 def useL1MatchingWindowForSinglets(process):
     "Change the L1 trigger matching window to be suitable also for CSC single triggers"
     if hasattr(process, 'muonL1Info'):
@@ -237,4 +234,28 @@ def useL1MatchingWindowForSinglets(process):
         process.muonMatchHLTL1.maxDeltaR     = 0.3 #Changed accordingly to Zoltan tuning. It was: 1.2
         process.muonMatchHLTL1.maxDeltaEta   = 0.2
         process.muonMatchHLTL1.fallbackToME1 = True
+
+
+def useL1Stage2Candidates(process):
+    if hasattr(process, 'muonL1Info'): 
+        # l1PhiOffest might need a second look 
+        # barrel seems not to requre it, whereas encaps do
+        # anyhow the effect is of the order of 0.02
+        #process.muonL1Info.l1PhiOffset = cms.double() 
+        process.muonL1Info.useMB2InOverlap = cms.bool(True)
+        process.muonL1Info.useStage2L1 = cms.bool(True)
+        process.muonL1Info.preselection = cms.string("")
+        process.muonL1Info.matched = cms.InputTag("gmtStage2Digis:Muon:")
+
+def appendL1MatchingAlgo(process, algo = "quality"):
+    if hasattr(process, 'muonL1Info'): 
+        newMuonL1Info = process.muonL1Info.clone(sortBy = cms.string(algo), 
+                                                         sortByQuality  = cms.bool(algo == "quality"), 
+                                                         sortByDeltaPhi = cms.bool(algo == "deltaEta"), 
+                                                         sortByDeltaEta = cms.bool(algo == "deltaPhi"), 
+                                                         sortByPt       = cms.bool(algo == "pt"), 
+                                                         maxDeltaR  = cms.double(0.3))
+        setattr(process, "muonL1Info" + algo.title(), newMuonL1Info)
+        process.patMuonsWithTriggerSequence.replace(process.muonL1Info, process.muonL1Info + getattr(process, 'muonL1Info' + algo.title()))
+        addL1UserData(patMuonsWithoutTrigger, "muonL1Info" + algo.title())
 
