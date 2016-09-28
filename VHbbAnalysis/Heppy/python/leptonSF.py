@@ -27,85 +27,103 @@ class LeptonSF:
         self.res = results[lep_name]
         self.lep_name = lep_name
         self.lep_binning = lep_binning
+
         self.valid = True
+        
+        # use the closest bin with twice the uncertainty
         self.extrapolateFromClosestBin = extrapolateFromClosestBin
+
+        # number of characters for correct string parsing
+        self.stripForEta = 5
+        if "abseta" in self.lep_binning:
+            self.stripForEta = 8
+
+        # map between eta-pt bin and scale factors
+        self.eta_edge = {}
+
+        # for 2D reweighting, allow each eta bin to have its own pt binning
+        if lep_binning.find("pt")>-1 and lep_binning.find("eta")>-1:
+            for etaKey, values in sorted(self.res[self.lep_binning].iteritems()) :
+                self.eta_edge[etaKey] = {}
+                self.eta_edge[etaKey]['low'] = float(((etaKey[self.stripForEta:]).rstrip(']').split(',')[0]))
+                self.eta_edge[etaKey]['high'] = float(((etaKey[self.stripForEta:]).rstrip(']').split(',')[1]))
+                self.eta_edge[etaKey]['pt_edge'] = {}
+                for ptKey, result in sorted(values.iteritems()) :
+                    self.eta_edge[etaKey]['pt_edge'][ptKey] = {}
+                    self.eta_edge[etaKey]['pt_edge'][ptKey]['low'] = float(((ptKey[4:]).rstrip(']').split(',')[0]))
+                    self.eta_edge[etaKey]['pt_edge'][ptKey]['high'] = float(((ptKey[4:]).rstrip(']').split(',')[1]))
+        else:
+            for ptKey, result in sorted(self.res[self.lep_binning].iteritems()) :
+                self.eta_edge[ptKey] = {}
+                self.eta_edge[ptKey]['low'] = float(((ptKey[4:]).rstrip(']').split(',')[0]))
+                self.eta_edge[ptKey]['high'] = float(((ptKey[4:]).rstrip(']').split(',')[1]))        
+
         f.close()
 
+    # method to get 1D factors
     def get_1D(self, pt):
-        if not self.valid:
-            return [1.0, 0.0]
 
-        stripForEta = 5
-        if self.lep_binning not in self.res.keys():
-            return [1.0, 0.0]
+        if not self.valid or self.lep_binning not in self.res.keys():
+            return [1.0, 0.0]        
 
         # if no bin is found, search for closest one, and double the uncertainty
         closestPtBin = ""
         closestPt = 9999.
-
         ptFound = False
 
         for ptKey, result in sorted(self.res[self.lep_binning].iteritems()) :
-            #print 'ptKey is', ptKey
-            ptL = float(((ptKey[7:]).rstrip(']').split(',')[0]))
-            ptH = float(((ptKey[7:]).rstrip(']').split(',')[1]))
 
-            #print 'ptL is', ptL
-            #print 'ptH is', ptH
+            ptL = self.eta_edge[ptKey]['low']
+            ptH = self.eta_edge[ptKey]['high']
 
             if abs(ptL-pt)<closestPt or abs(ptH-pt)<closestPt and not ptFound:
                 closestPt = min(abs(ptL-pt), abs(ptH-pt))
                 closestPtBin = ptKey
-
-                if (pt>ptL and pt<ptH):
-                    closestPtBin = ptKey
-                    ptFound = True
-
-                if ptFound:
-                    return [result["value"], result["error"]]
+            if (pt>ptL and pt<ptH):
+                closestPtBin = ptKey
+                ptFound = True
+            if ptFound:
+                return [result["value"], result["error"]]
 
         if self.extrapolateFromClosestBin and not (closestPtBin==""):
             return [self.res[self.lep_binning][closestPtBin]["value"],2*self.res[self.lep_binning][closestPtBin]["error"]]
         else:
             return [1.0, 0.0]
                     
-
+    # method to get 2D factors
     def get_2D(self, pt, eta):
-        if not self.valid:
-            return [1.0, 0.0]        
 
-        stripForEta = 5
-        if self.lep_binning not in self.res.keys():
-            return [1.0, 0.0]
+        if not self.valid or self.lep_binning not in self.res.keys():
+            return [1.0, 0.0]        
 
         if "abseta" in self.lep_binning:
             eta = abs(eta)
-            stripForEta = 8
 
         # if no bin is found, search for closest one, and double the uncertainty
         closestEtaBin = ""
         closestPtBin = ""
         closestEta = 9999.
         closestPt = 9999.
-
         etaFound = False
+
         for etaKey, values in sorted(self.res[self.lep_binning].iteritems()) :
-            etaL = float(((etaKey[stripForEta:]).rstrip(']').split(',')[0]))
-            etaH = float(((etaKey[stripForEta:]).rstrip(']').split(',')[1]))
+
+            etaL = self.eta_edge[etaKey]['low']
+            etaH = self.eta_edge[etaKey]['high']
 
             ptFound = False
 
             if abs(etaL-eta)<closestEta or abs(etaH-eta)<closestEta and not etaFound:
                 closestEta = min(abs(etaL-eta), abs(etaH-eta))
                 closestEtaBin = etaKey
-
             if (eta>etaL and eta<etaH):
                 closestEtaBin = etaKey
                 etaFound = True                
 
             for ptKey, result in sorted(values.iteritems()) :
-                ptL = float(((ptKey[4:]).rstrip(']').split(',')[0]))
-                ptH = float(((ptKey[4:]).rstrip(']').split(',')[1]))                
+
+                ptL = self.eta_edge[etaKey]['pt_edge'][ptKey]['low']
+                ptH = self.eta_edge[etaKey]['pt_edge'][ptKey]['high']
 
                 if abs(ptL-pt)<closestPt or abs(ptH-pt)<closestPt and not ptFound:
                     closestPt = min(abs(ptL-pt), abs(ptH-pt))
@@ -133,20 +151,36 @@ if __name__ == "__main__":
 
     jsonpath = os.environ['CMSSW_BASE']+"/src/VHbbAnalysis/Heppy/data/leptonSF/"
     jsons = {    
-        jsonpath+'SingleMuonTrigger_LooseMuons_beforeL2fix_Z_RunBCD_prompt80X_7p65.json' :['MuonTrigger_data_all_IsoMu22_OR_IsoTkMu22_pteta_Run2016B_beforeL2Fix', 'abseta_pt_MC'],
-        #jsonpath+'SingleMuonTrigger_Z_RunBCD_prompt80X_7p65.json' :['IsoMu22_OR_IsoTkMu22_PtEtaBins_Run273158_to_274093', 'abseta_pt_DATA' ],
-        #jsonpath+'MuonIso_Z_RunBCD_prompt80X_7p65.json' : ['MC_NUM_LooseRelIso_DEN_TightID_PAR_pt_spliteta_bin1', 'abseta_pt_ratio'],
-        #jsonpath+'SingleMuonTrigger_Z_RunBCD_prompt80X_7p65.json' :['IsoMu22_OR_IsoTkMu22_PtEtaBins_Run274094_to_276097', 'abseta_pt_DATA' ],
-        #jsonpath+'MuonTrkHIP_80X_Jul28.json' :[ 'ratio_eta', 'ratio_eta' ],
-        #jsonpath+'MuonTrkHIP_80X_Jul28.json' :['ratio_vtx', 'ratio_vtx' ],
-        #jsonpath+'SingleMuonTrigger_Z_RunCD_Reco76X_Feb15.json' : ['runC_IsoMu20_OR_IsoTkMu20_PtEtaBins', 'abseta_pt_ratio' ]
-        #jsonpath+'SingleMuonTrigger_Z_RunCD_Reco76X_Feb15.json' : ['runD_IsoMu20_OR_IsoTkMu20_HLTv4p2_PtEtaBins', 'abseta_pt_ratio' ],
-        #jsonpath+'SingleMuonTrigger_Z_RunCD_Reco76X_Feb15.json' : ['runD_IsoMu20_OR_IsoTkMu20_HLTv4p3_PtEtaBins', 'abseta_pt_ratio' ]
+        #'muEff_HLT_RunC' : [ jsonpath+'SingleMuonTrigger_Z_RunCD_Reco76X_Feb15_eff.json' , 'runC_IsoMu20_OR_IsoTkMu20_PtEtaBins', 'abseta_pt_MC' ],
+        #'muEff_HLT_RunD4p2' : [ jsonpath+'SingleMuonTrigger_Z_RunCD_Reco76X_Feb15_eff.json' , 'runD_IsoMu20_OR_IsoTkMu20_HLTv4p2_PtEtaBins', 'abseta_pt_MC' ],
+        #'muEff_HLT_RunD4p3' : [ jsonpath+'SingleMuonTrigger_Z_RunCD_Reco76X_Feb15_eff.json' , 'runD_IsoMu20_OR_IsoTkMu20_HLTv4p3_PtEtaBins', 'abseta_pt_MC' ],
+        #'muSF_HLT_RunC' : [ jsonpath+'SingleMuonTrigger_Z_RunCD_Reco76X_Feb15.json' , 'runC_IsoMu20_OR_IsoTkMu20_PtEtaBins', 'abseta_pt_ratio' ],
+        #'eleEff_HLT_RunC' : [jsonpath+'ScaleFactor_HLT_Ele23_WPLoose_Gsf_v.json','ScaleFactor_HLT_Ele23_WPLoose_Gsf_v', 'eta_pt_ratio'],
+        #'eleEff_HLT_RunD4p2' : [jsonpath+'ScaleFactor_HLT_Ele23_WPLoose_Gsf_v.json','ScaleFactor_HLT_Ele23_WPLoose_Gsf_v', 'eta_pt_ratio'],
+        #'eleEff_HLT_RunD4p3' : [jsonpath+'ScaleFactor_HLT_Ele23_WPLoose_Gsf_v.json','ScaleFactor_HLT_Ele23_WPLoose_Gsf_v', 'eta_pt_ratio'],
+        #'eleSF_HLT_RunC' : [jsonpath+'ScaleFactor_HLT_Ele23_WPLoose_Gsf_v.json','ScaleFactor_HLT_Ele23_WPLoose_Gsf_v', 'eta_pt_ratio'],
+        #'eleSF_HLT_RunD4p2' : [jsonpath+'ScaleFactor_HLT_Ele23_WPLoose_Gsf_v.json','ScaleFactor_HLT_Ele23_WPLoose_Gsf_v', 'eta_pt_ratio'],
+        'eleSF_HLT_RunD4p3' : [jsonpath+'ScaleFactor_HLT_Ele23_WPLoose_Gsf_v.json','ScaleFactor_HLT_Ele23_WPLoose_Gsf_v', 'eta_pt_ratio'],
+        #'eleSF_IdCutLoose' : [jsonpath+'CutBasedID_LooseWP.json', 'CutBasedID_LooseWP', 'abseta_pt_ratio'],
+        #'eleSF_IdCutTight' : [jsonpath+'CutBasedID_TightWP.json', 'CutBasedID_TightWP', 'abseta_pt_ratio'],
+        #'eleSF_IdMVALoose' : [jsonpath+'ScaleFactor_egammaEff_WP80.json', 'ScaleFactor_egammaEff_WP80', 'eta_pt_ratio'],
+        #'eleSF_IdMVATight' : [jsonpath+'ScaleFactor_egammaEff_WP90.json', 'ScaleFactor_egammaEff_WP90', 'eta_pt_ratio'],
+        #'eleSF_trk_eta' : [jsonpath+'EleGSFTrk_80X.json','ScaleFactor_GsfTracking_80X','eta_ratio'],
+        #'muSF_HLT_RunD4p2' : [ jsonpath+'SingleMuonTrigger_Z_RunBCD_prompt80X_7p65.json' , 'IsoMu22_OR_IsoTkMu22_PtEtaBins_Run273158_to_274093', 'abseta_pt_DATA' ],
+        #'muSF_HLT_RunD4p3' : [ jsonpath+'SingleMuonTrigger_Z_RunBCD_prompt80X_7p65.json' , 'IsoMu22_OR_IsoTkMu22_PtEtaBins_Run274094_to_276097', 'abseta_pt_DATA' ],
+        #'muSF_IsoLoose' : [ jsonpath+'MuonIso_Z_RunBCD_prompt80X_7p65.json' , 'MC_NUM_LooseRelIso_DEN_TightID_PAR_pt_spliteta_bin1', 'abseta_pt_ratio'],
+        #'muSF_IsoTight' : [ jsonpath+'MuonIso_Z_RunBCD_prompt80X_7p65.json' , 'MC_NUM_TightRelIso_DEN_TightID_PAR_pt_spliteta_bin1', 'abseta_pt_ratio'],
+        #'muSF_IdCutLoose' : [ jsonpath+'MuonID_Z_RunBCD_prompt80X_7p65.json' , 'MC_NUM_LooseID_DEN_genTracks_PAR_pt_spliteta_bin1', 'abseta_pt_ratio'],
+        #'muSF_IdCutTight' : [ jsonpath+'MuonID_Z_RunBCD_prompt80X_7p65.json' , 'MC_NUM_TightIDandIPCut_DEN_genTracks_PAR_pt_spliteta_bin1', 'abseta_pt_ratio'],
+        #'muSF_trk_eta' : [ jsonpath+'MuonTrkHIP_80X_Jul28.json' , 'ScaleFactor_MuonTrkHIP_80X_eta', 'eta_ratio' ],
         }
 
     for j, name in jsons.iteritems():
-        lepCorr = LeptonSF(j , name[0], name[1])
-        weight = lepCorr.get_2D( 65 , -1.5)
+        lepCorr = LeptonSF(name[0] , name[1], name[2])
+        if name[2].find('pt')>-1 and name[2].find('eta')>-1 :
+            weight = lepCorr.get_2D( 50 , 0.9)
+        else:
+            weight = lepCorr.get_1D(-0.7)
         val = weight[0]
         err = weight[1]
         print 'SF: ',  val, ' +/- ', err

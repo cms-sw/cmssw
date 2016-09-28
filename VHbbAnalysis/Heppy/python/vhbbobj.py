@@ -239,7 +239,7 @@ jsons = {
     'eleSF_IdMVATight' : [jsonpath+'ScaleFactor_egammaEff_WP90.json', 'ScaleFactor_egammaEff_WP90', 'eta_pt_ratio'],
     'eleSF_IsoLoose' : ['','',''],
     'eleSF_IsoTight' : ['','',''],
-    'eleSF_trk_eta' : ['','',''],
+    'eleSF_trk_eta' : [jsonpath+'EleGSFTrk_80X.json','ScaleFactor_GsfTracking_80X','eta_ratio'],
     #NEW
     'muSF_HLT_RunD4p2' : [ jsonpath+'SingleMuonTrigger_Z_RunBCD_prompt80X_7p65.json' , 'IsoMu22_OR_IsoTkMu22_PtEtaBins_Run273158_to_274093', 'abseta_pt_DATA' ],
     'muSF_HLT_RunD4p3' : [ jsonpath+'SingleMuonTrigger_Z_RunBCD_prompt80X_7p65.json' , 'IsoMu22_OR_IsoTkMu22_PtEtaBins_Run274094_to_276097', 'abseta_pt_DATA' ],
@@ -247,7 +247,7 @@ jsons = {
     'muSF_IsoTight' : [ jsonpath+'MuonIso_Z_RunBCD_prompt80X_7p65.json' , 'MC_NUM_TightRelIso_DEN_TightID_PAR_pt_spliteta_bin1', 'abseta_pt_ratio'],
     'muSF_IdCutLoose' : [ jsonpath+'MuonID_Z_RunBCD_prompt80X_7p65.json' , 'MC_NUM_LooseID_DEN_genTracks_PAR_pt_spliteta_bin1', 'abseta_pt_ratio'],
     'muSF_IdCutTight' : [ jsonpath+'MuonID_Z_RunBCD_prompt80X_7p65.json' , 'MC_NUM_TightIDandIPCut_DEN_genTracks_PAR_pt_spliteta_bin1', 'abseta_pt_ratio'],
-    'muSF_trk_eta' : [ jsonpath+'MuonTrkHIP_80X_Jul28.json' , 'ratio_eta', 'ratio_eta' ],
+    'muSF_trk_eta' : [ jsonpath+'MuonTrkHIP_80X_Jul28.json' , 'ScaleFactor_MuonTrkHIP_80X_eta', 'eta_ratio' ],
     }
 
 correctors = {}
