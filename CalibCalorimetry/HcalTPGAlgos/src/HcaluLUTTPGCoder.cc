@@ -247,6 +247,15 @@ void HcaluLUTTPGCoder::update(const HcalDbService& conditions) {
 	  HcalCoderDb coder (*channelCoder, *shape);
 	  const HcalLutMetadatum *meta = metadata->getValues(cell);
 
+          unsigned int mipMax = 0;
+          unsigned int mipMin = 0;
+
+          if (topo_->triggerMode() >= HcalTopologyMode::TriggerMode_2017) {
+             const HcalTPChannelParameter *channelParameters = conditions.getHcalTPChannelParameter(cell);
+             mipMax = channelParameters->getFGBitInfo() >> 16;
+             mipMin = channelParameters->getFGBitInfo() & 0xFFFF;
+          }
+
 	  int lutId = getLUTId(subdet, ieta, iphi, depth);
 	  float ped = 0;
 	  float gain = 0;
@@ -301,10 +310,15 @@ void HcaluLUTTPGCoder::update(const HcalDbService& conditions) {
                coder.adc2fC(upgradeFrame, upgradeSamples);
                float adc2fC = upgradeSamples[0];
 
-               if (isMasked)
+               if (isMasked) {
                   upgradeQIE11LUT_[lutId][adc] = 0;
-               else
+               } else {
                   upgradeQIE11LUT_[lutId][adc] = (LutElement) std::min(std::max(0, int((adc2fC -ped) * gain * rcalib / nominalgain_ / granularity)), QIE11_LUT_BITMASK);
+                  if (adc >= mipMin and adc < mipMax)
+                     upgradeQIE11LUT_[lutId][adc] |= QIE11_LUT_MSB0;
+                  else if (adc >= mipMax)
+                     upgradeQIE11LUT_[lutId][adc] |= QIE11_LUT_MSB1;
+               }
             }
 	  }  // endif HBHE
 	  else if (subdet == HcalForward){
