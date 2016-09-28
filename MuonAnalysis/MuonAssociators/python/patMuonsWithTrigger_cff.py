@@ -51,6 +51,12 @@ def addL1UserData(patMuonProducer, l1ModuleLabel = "muonL1Info"):
     patMuonProducer.userData.userFloats.src += [  
         cms.InputTag(l1ModuleLabel, "deltaR"),  # will be 999 in case of no match
     ]
+    patMuonProducer.userData.userFloats.src += [  
+        cms.InputTag(l1ModuleLabel, "deltaPhi"),  # will be 999 in case of no match
+    ]
+    patMuonProducer.userData.userInts.src += [  
+        cms.InputTag(l1ModuleLabel, "bx"),  # will be -999 in case of no match
+    ]
     patMuonProducer.userData.userCands.src += [
         cms.InputTag(l1ModuleLabel)
     ]
@@ -237,4 +243,18 @@ def useL1MatchingWindowForSinglets(process):
         process.muonMatchHLTL1.maxDeltaR     = 0.3 #Changed accordingly to Zoltan tuning. It was: 1.2
         process.muonMatchHLTL1.maxDeltaEta   = 0.2
         process.muonMatchHLTL1.fallbackToME1 = True
+
+
+def useL1Stage2Candidates(process):
+    if hasattr(process, 'muonL1Info'): 
+        # l1PhiOffest might need a second look 
+        # barrel seems not to requre it, whereas encaps do
+        # anyhow the effect is of the order of 0.02
+        #process.muonL1Info.l1PhiOffset = cms.double() 
+        process.muonL1Info.useMB2InOverlap = cms.bool(True)
+        process.muonL1Info.useStage2L1 = cms.bool(True)
+        process.muonL1Info.preselection = cms.string("")
+        process.muonL1Info.matched = cms.InputTag("gmtStage2Digis:Muon:")
+
+         
 

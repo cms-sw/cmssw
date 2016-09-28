@@ -18,6 +18,7 @@
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/L1Trigger/interface/L1MuonParticle.h"
+#include "DataFormats/L1Trigger/interface/Muon.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
@@ -70,10 +71,13 @@ class L1MuonMatcherAlgo {
             return propagated.isValid() ? match(propagated, l1, deltaR, deltaPhi) : false;
         }
 
-
         /// Try to match one track to one L1. Return true if succeeded (and update deltaR, deltaPhi accordingly)
         /// The preselection cut on L1, if specified in the config, is applied before the match
         bool match(TrajectoryStateOnSurface & propagated, const l1extra::L1MuonParticle &l1, float &deltaR, float &deltaPhi) const ;
+
+
+
+	// Methods to match with vectors of legacy L1 muon trigger objects
 
         /// Find the best match to L1, and return its index in the vector (and update deltaR, deltaPhi and propagated TSOS accordingly)
         /// Returns -1 if the match fails
@@ -99,12 +103,48 @@ class L1MuonMatcherAlgo {
             return propagated.isValid() ? match(propagated, l1, deltaR, deltaPhi) : -1;
         }
 
-
         /// Find the best match to L1, and return its index in the vector (and update deltaR, deltaPhi accordingly)
         /// Returns -1 if the match fails
         /// The preselection cut on L1, if specified in the config, is applied before the match
         int match(TrajectoryStateOnSurface &propagated, const std::vector<l1extra::L1MuonParticle> &l1, float &deltaR, float &deltaPhi) const ;
 
+
+
+
+	// Methods to match with vectors of stage2 L1 muon trigger objects
+
+        /// Find the best match to stage2 L1, and return its index in the vector (and update deltaR, deltaPhi and propagated TSOS accordingly)
+        /// Returns -1 if the match fails
+        /// The preselection cut on stage2 L1, if specified in the config, is applied before the match
+        int match(const reco::Track &tk, const std::vector<l1t::Muon> &l1, float &deltaR, float &deltaPhi, TrajectoryStateOnSurface &propagated) const {
+            propagated = extrapolate(tk);
+            return propagated.isValid() ? match(propagated, l1, deltaR, deltaPhi) : -1;
+        }
+
+        /// Find the best match to stage2 L1, and return its index in the vector (and update deltaR, deltaPhi and propagated TSOS accordingly)
+        /// Returns -1 if the match fails
+        /// The preselection cut on stage2 L1, if specified in the config, is applied before the match
+        int match(const reco::Candidate &c, const std::vector<l1t::Muon> &l1, float &deltaR, float &deltaPhi, TrajectoryStateOnSurface &propagated) const {
+            propagated = extrapolate(c);
+            return propagated.isValid() ? match(propagated, l1, deltaR, deltaPhi) : -1;
+        }
+
+        /// Find the best match to stage2 L1, and return its index in the vector (and update deltaR, deltaPhi and propagated TSOS accordingly)
+        /// Returns -1 if the match fails
+        /// The preselection cut on stage 2 L1, if specified in the config, is applied before the match
+        int match(const SimTrack &tk, const edm::SimVertexContainer &vtxs, const std::vector<l1t::Muon> &l1, float &deltaR, float &deltaPhi, TrajectoryStateOnSurface &propagated) const {
+            propagated = extrapolate(tk, vtxs);
+            return propagated.isValid() ? match(propagated, l1, deltaR, deltaPhi) : -1;
+        }
+
+        /// Find the best match to stage 2 L1, and return its index in the vector (and update deltaR, deltaPhi accordingly)
+        /// Returns -1 if the match fails
+        /// The preselection cut on stage 2 L1, if specified in the config, is applied before the match
+        int match(TrajectoryStateOnSurface &propagated, const std::vector<l1t::Muon> &l1, float &deltaR, float &deltaPhi) const ;
+
+
+
+	// Generic matching
 
         /// Find the best match to L1, and return its index in the vector (and update deltaR, deltaPhi and propagated TSOS accordingly)
         /// Returns -1 if the match fails
@@ -133,14 +173,15 @@ class L1MuonMatcherAlgo {
         template<typename Collection, typename Selector>
         int matchGeneric(TrajectoryStateOnSurface &propagated, const Collection &l1, const Selector &sel, float &deltaR, float &deltaPhi) const ;
 
-
         /// Add this offset to the L1 phi before doing the match, to correct for different scales in L1 vs offline
         void setL1PhiOffset(double l1PhiOffset) { l1PhiOffset_ = l1PhiOffset; }
 
     private:
         PropagateToMuon prop_;
 
-        typedef StringCutObjectSelector<l1extra::L1MuonParticle> L1Selector;
+	bool useStage2L1_;
+
+        typedef StringCutObjectSelector<reco::Candidate,true> L1Selector;
         /// Preselection cut to apply to L1 candidates before matching
         L1Selector preselectionCut_;
 
@@ -153,6 +194,7 @@ class L1MuonMatcherAlgo {
 
         /// offset to be added to the L1 phi before the match
         double l1PhiOffset_;
+
 };
 
 template<typename Collection, typename Selector>
