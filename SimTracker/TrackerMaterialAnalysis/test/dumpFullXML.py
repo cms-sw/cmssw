@@ -184,6 +184,7 @@ def createTMGFromRelease(args):
     sections = root.getchildren()
 
     for spec_par in root.iter('%sSpecPar' % TAG_PREFIX):
+        spec_par.attrib.pop('eval', None)
         # Cannot remove elements in place: store them all here and remove them later on.
         to_be_removed = []
         for parameter in spec_par.iter('%sParameter' % TAG_PREFIX):
