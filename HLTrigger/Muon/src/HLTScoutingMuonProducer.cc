@@ -31,12 +31,14 @@ HLTScoutingMuonProducer::HLTScoutingMuonProducer(const edm::ParameterSet& iConfi
     TrackIsoMap_(consumes<edm::ValueMap<double>>(iConfig.getParameter<edm::InputTag>(
                                                      "TrackIsoMap"))),
     vertexCollection_(consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("vertexCollection"))),
+    displacedvertexCollection_(consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("displacedvertexCollection"))),
     muonPtCut(iConfig.getParameter<double>("muonPtCut")),
     muonEtaCut(iConfig.getParameter<double>("muonEtaCut"))
 {
     //register products
     produces<ScoutingMuonCollection>();
-    produces<ScoutingVertexCollection>();
+    produces<ScoutingVertexCollection>("primaryVtx");
+    produces<ScoutingVertexCollection>("displacedVtx");
 }
 
 HLTScoutingMuonProducer::~HLTScoutingMuonProducer()
@@ -151,10 +153,30 @@ void HLTScoutingMuonProducer::produce(edm::StreamID sid, edm::Event & iEvent,
 
 
 
+   
+    //get displaced vertices
+    std::unique_ptr<ScoutingVertexCollection> dispVertices(new ScoutingVertexCollection());
+    
+    Handle<reco::VertexCollection> displacedvertexCollection;
+    if(!iEvent.getByToken(displacedvertexCollection_, displacedvertexCollection)){
+      iEvent.put(std::move(dispVertices));
+      return;
+    }
+    //produce vertices (only if present; otherwise return an empty collection)
+    for(auto &dispvtx : *displacedvertexCollection){
+      if ( !dispvtx.isValid() ) continue ;
+      dispVertices->emplace_back(
+				dispvtx.x(), dispvtx.y(), dispvtx.z(), dispvtx.zError(), dispvtx.xError(), dispvtx.yError(), dispvtx.tracksSize(), dispvtx.chi2(), dispvtx.ndof()
+				);
+      
+    }
 
+
+   
     // Put output
     iEvent.put(std::move(outMuons));
-    iEvent.put(std::move(outVertices));
+    iEvent.put(std::move(outVertices), "primaryVtx");
+    iEvent.put(std::move(dispVertices), "displacedVtx");
 }
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
@@ -167,6 +189,7 @@ void HLTScoutingMuonProducer::fillDescriptions(edm::ConfigurationDescriptions& d
     desc.add<edm::InputTag>("TrackIsoMap", edm::InputTag(
                                 "hltMuonTkRelIsolationCut0p09Map:combinedRelativeIsoDeposits"));
     desc.add<edm::InputTag>("vertexCollection", edm::InputTag("hltPixelVertices"));
+    desc.add<edm::InputTag>("displacedvertexCollection", edm::InputTag("hltDisplacedmumuVtxProducerDoubleMu3NoVtx"));
     desc.add<double>("muonPtCut", 4.0);
     desc.add<double>("muonEtaCut", 2.4);
     descriptions.add("hltScoutingMuonProducer", desc);

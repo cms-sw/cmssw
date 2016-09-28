@@ -61,6 +61,7 @@ class HLTScoutingMuonProducer : public edm::global::EDProducer<> {
         const edm::EDGetTokenT<RecoChargedCandMap> HcalPFClusterIsoMap_;
         const edm::EDGetTokenT<edm::ValueMap<double>> TrackIsoMap_;
 	const edm::EDGetTokenT<reco::VertexCollection> vertexCollection_;
+	const edm::EDGetTokenT<reco::VertexCollection> displacedvertexCollection_;
 
         const double muonPtCut;
         const double muonEtaCut;
