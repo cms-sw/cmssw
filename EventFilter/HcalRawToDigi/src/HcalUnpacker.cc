@@ -622,6 +622,8 @@ void HcalUnpacker::unpackUTCA(const FEDRawData& raw, const HcalElectronicsMap& e
           for (++i; i != iend && !i.isHeader(); ++i) {
               ns++;
           }
+          //account for packed flag word from simulation
+          if(uhtr.wasSimulatedHTR()) ns--;
           // Check QEI11 container exists
           if (colls.qie11 == 0) {
               colls.qie11 = new QIE11DigiCollection(ns);
