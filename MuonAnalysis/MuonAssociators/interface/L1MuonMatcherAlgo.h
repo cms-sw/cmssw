@@ -25,7 +25,6 @@
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 #include "CommonTools/Utils/interface/AnySelector.h"
 #include "MuonAnalysis/MuonAssociators/interface/PropagateToMuon.h"
-#include "FWCore/MessageService/interface/MessageLogger.h"
 
 class L1MuonMatcherAlgo {
     public:
