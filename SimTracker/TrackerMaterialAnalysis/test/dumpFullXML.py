@@ -28,6 +28,12 @@ def checkEnvironment():
         print 'CMSSW Environments not setup, quitting\n'
         sys.exit(CMSSW_NOT_SET)
 
+def checkFileInRelease(filename):
+   fullpathname = os.path.join(os.environ['CMSSW_RELEASE_BASE'], filename)
+   if not os.path.exists(fullpathname):
+     return None
+   return fullpathname
+
 def getTrackerRecoMaterialCopy(filename):
     tracker_reco_material = os.path.join(os.environ['CMSSW_BASE'],
                                          'src/Geometry/TrackerRecoData/data/trackerRecoMaterial.xml')
@@ -38,7 +44,7 @@ def getTrackerRecoMaterialCopy(filename):
           print 'Something is wrong with the CMSSW installation. The file %s is missing. Quitting.\n' % tracker_reco_material
           sys.exit(TRACKER_MATERIAL_FILE_MISSING)
     copy2(tracker_reco_material, filename)
-                                                
+
 def produceXMLFromParameterFile():
     """
     Starting from the file parameters.xml produced by the
@@ -98,7 +104,7 @@ def compareNewXMLWithOld(format_for_twiki):
 
     Results are flushed at the terminal, nothing is saved.
     """
-    
+
     tracker_reco_material = './trackerRecoMaterialFromRelease.xml'
     tracker_reco_material_updated = os.path.join(os.environ['CMSSW_BASE'],
                                                  'src/SimTracker/TrackerMaterialAnalysis/test/trackerRecoMaterial.xml')
@@ -166,8 +172,30 @@ def compareNewXMLWithOld(format_for_twiki):
                                                 )
     header.write(TRAILER)
     header.close
-    
-    
+
+def createTMGFromRelease(args):
+    tracker_reco_material = checkFileInRelease(args.createTMG)
+    if not tracker_reco_material:
+      print "Input file not found in release, quitting"
+      sys.exit(1)
+    ET.register_namespace('', "http://www.cern.ch/cms/DDL")
+    tree = ET.parse(tracker_reco_material)
+    root = tree.getroot()
+    sections = root.getchildren()
+
+    for spec_par in root.iter('%sSpecPar' % TAG_PREFIX):
+        # Cannot remove elements in place: store them all here and remove them later on.
+        to_be_removed = []
+        for parameter in spec_par.iter('%sParameter' % TAG_PREFIX):
+          to_be_removed.append(parameter)
+        el = ET.Element("Parameter")
+        el.set('name', 'TrackingMaterialGroup')
+        el.set('value', spec_par.attrib['name'])
+        spec_par.append(el)
+        for d in to_be_removed:
+          spec_par.remove(d)
+    tree.write('trackingMaterialGroupFromRelease.xml', encoding='UTF-8', xml_declaration=True)
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Easily manipulate and inspect XML files related to Tracking Material.')
     parser.add_argument('-p', '--produce', action='store_true',
@@ -181,10 +209,22 @@ if __name__ == '__main__':
                         help="""Compares a local trackerRecoMaterial.xml against the one bundled
                                 with the release and produces and output that is Twiki compatible
                                 to be put into a table.""")
+    parser.add_argument('--createTMG',
+                       help="""Given an input trackerRecoMaterial.xml from the release,
+                               it will produce locally a trackingMaterialGroups.xml files.
+                               The main difference is the addition of a proper naming
+                               parameter, so that the listGroups will be able to identify
+                               and print the detectors gathered in a single group.
+                               No definition of radiation length nor energy loss is
+                               maintained in the converion process. It is mainly useful
+                               only at the very beginnig of the tuning process, when
+                               maybe a local trackingMaterialGroups is missing.""")
     args = parser.parse_args()
     checkEnvironment()
-    getTrackerRecoMaterialCopy('trackerRecoMaterialFromRelease.xml')
     if args.produce:
-        produceXMLFromParameterFile()
+      getTrackerRecoMaterialCopy('trackerRecoMaterialFromRelease.xml')
+      produceXMLFromParameterFile()
     if args.compare or args.twiki:
-        compareNewXMLWithOld(args.twiki)
+      compareNewXMLWithOld(args.twiki)
+    if args.createTMG != None:
+      createTMGFromRelease(args)
