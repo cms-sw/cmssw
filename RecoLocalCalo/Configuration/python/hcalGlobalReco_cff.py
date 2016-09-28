@@ -5,6 +5,6 @@ hcalGlobalRecoSequence = cms.Sequence(hbhereco)
 
 from RecoLocalCalo.HcalRecProducers.HBHEUpgradeReconstructor_cfi import hbheUpgradeReco as _hbheUpgradeReco
 
-from Configuration.StandardSequences.Eras import eras
-eras.phase2_hcal.toReplaceWith( hbhereco, _hbheUpgradeReco )
-eras.phase2_hcal.toModify( hbhereco, digiLabel = cms.InputTag('simHcalDigis','HBHEUpgradeDigiCollection') )
+from Configuration.Eras.Modifier_phase2_hcal_cff import phase2_hcal
+phase2_hcal.toReplaceWith( hbhereco, _hbheUpgradeReco )
+phase2_hcal.toModify( hbhereco, digiLabel = cms.InputTag('simHcalDigis','HBHEUpgradeDigiCollection') )

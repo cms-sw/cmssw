@@ -29,5 +29,5 @@ MeasurementTracker = cms.ESProducer("MeasurementTrackerESProducer",
     DebugPixelROCQualityDB    = cms.untracked.bool(False), ## dump out info om module status
 )
 
-from Configuration.StandardSequences.Eras import eras
-eras.trackingPhase2PU140.toModify(MeasurementTracker, Phase2StripCPE = cms.string('Phase2StripCPEGeometric'))
+from Configuration.Eras.Modifier_trackingPhase2PU140_cff import trackingPhase2PU140
+trackingPhase2PU140.toModify(MeasurementTracker, Phase2StripCPE = cms.string('Phase2StripCPEGeometric'))

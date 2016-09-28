@@ -14,5 +14,5 @@ HBHENoiseFilterResultProducer = cms.EDProducer(
     useBunchSpacingProducer = cms.bool(True)
 )
 
-from Configuration.StandardSequences.Eras import eras
-eras.run2_common.toModify(HBHENoiseFilterResultProducer, IgnoreTS4TS5ifJetInLowBVRegion=False)
+from Configuration.Eras.Modifier_run2_common_cff import run2_common
+run2_common.toModify(HBHENoiseFilterResultProducer, IgnoreTS4TS5ifJetInLowBVRegion=False)

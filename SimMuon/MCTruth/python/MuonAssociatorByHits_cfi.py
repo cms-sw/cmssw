@@ -93,8 +93,8 @@ muonAssociatorByHitsCommonParameters = cms.PSet(
 )
 
 
-from Configuration.StandardSequences.Eras import eras
-if eras.fastSim.isChosen():
+from Configuration.Eras.Modifier_fastSim_cff import fastSim
+if fastSim.isChosen():
 #if True:
     obj = muonAssociatorByHitsCommonParameters
     obj.simtracksTag = "famosSimHits"
@@ -139,8 +139,9 @@ muonAssociatorByHits = cms.EDProducer("MuonAssociatorEDProducer",
     ignoreMissingTrackCollection = cms.untracked.bool(False),
 )
 
-from Configuration.StandardSequences.Eras import eras
-eras.run3_GEM.toModify( muonAssociatorByHits, useGEMs = cms.bool(True) )
-eras.phase2_tracker.toModify( muonAssociatorByHits, pixelSimLinkSrc = "simSiPixelDigis:Pixel" )
-eras.phase2_tracker.toModify( muonAssociatorByHits, stripSimLinkSrc = "simSiPixelDigis:Tracker" )
+from Configuration.Eras.Modifier_run3_GEM_cff import run3_GEM
+run3_GEM.toModify( muonAssociatorByHits, useGEMs = cms.bool(True) )
+from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
+phase2_tracker.toModify( muonAssociatorByHits, pixelSimLinkSrc = "simSiPixelDigis:Pixel" )
+phase2_tracker.toModify( muonAssociatorByHits, stripSimLinkSrc = "simSiPixelDigis:Tracker" )
 

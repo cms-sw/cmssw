@@ -64,6 +64,6 @@ offlinePrimaryVertices = cms.EDProducer(
 # not included in data-taking, like it was the case for "Quiet Beam"
 # collisions on 2016 with run 269207.
 
-from Configuration.StandardSequences.Eras import eras
-eras.trackingLowPU.toModify(offlinePrimaryVertices,
+from Configuration.Eras.Modifier_trackingLowPU_cff import trackingLowPU
+trackingLowPU.toModify(offlinePrimaryVertices,
                             TkFilterParameters = dict(minPixelLayersWithHits = 0))

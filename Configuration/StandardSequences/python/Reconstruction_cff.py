@@ -1,5 +1,4 @@
 import FWCore.ParameterSet.Config as cms
-from Configuration.StandardSequences.Eras import eras
 
 from RecoLuminosity.LumiProducer.lumiProducer_cff import *
 from RecoLuminosity.LumiProducer.bunchSpacingProducer_cfi import *
@@ -52,16 +51,18 @@ localreco_HcalNZS = cms.Sequence(trackerlocalreco+muonlocalreco+calolocalrecoNZS
 
 _phase2_localreco = localreco.copyAndExclude([castorreco])
 _phase2_localreco_HcalNZS = localreco_HcalNZS.copyAndExclude([castorreco])
-eras.phase2_common.toReplaceWith(localreco, _phase2_localreco)
-eras.phase2_common.toReplaceWith(localreco_HcalNZS, _phase2_localreco_HcalNZS)
+from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
+phase2_common.toReplaceWith(localreco, _phase2_localreco)
+phase2_common.toReplaceWith(localreco_HcalNZS, _phase2_localreco_HcalNZS)
 
 _ctpps_2016_localreco = localreco.copy()
 _ctpps_2016_localreco += totemRPLocalReconstruction
-eras.ctpps_2016.toReplaceWith(localreco, _ctpps_2016_localreco)
+from Configuration.Eras.Modifier_ctpps_2016_cff import ctpps_2016
+ctpps_2016.toReplaceWith(localreco, _ctpps_2016_localreco)
 
 _ctpps_2016_localreco_HcalNZS = localreco_HcalNZS.copy()
 _ctpps_2016_localreco_HcalNZS += totemRPLocalReconstruction
-eras.ctpps_2016.toReplaceWith(localreco_HcalNZS, _ctpps_2016_localreco_HcalNZS)
+ctpps_2016.toReplaceWith(localreco_HcalNZS, _ctpps_2016_localreco_HcalNZS)
 
 #
 # temporarily switching off recoGenJets; since this are MC and wil be moved to a proper sequence
@@ -78,9 +79,12 @@ globalreco_tracking = cms.Sequence(offlineBeamSpot*
                           vertexreco)
 _globalreco_tracking_LowPU_Phase1PU70 = globalreco_tracking.copy()
 _globalreco_tracking_LowPU_Phase1PU70.replace(trackingGlobalReco, recopixelvertexing+trackingGlobalReco)
-eras.trackingLowPU.toReplaceWith(globalreco_tracking, _globalreco_tracking_LowPU_Phase1PU70)
-eras.trackingPhase1PU70.toReplaceWith(globalreco_tracking, _globalreco_tracking_LowPU_Phase1PU70)
-eras.trackingPhase2PU140.toReplaceWith(globalreco_tracking, _globalreco_tracking_LowPU_Phase1PU70)
+from Configuration.Eras.Modifier_trackingLowPU_cff import trackingLowPU
+trackingLowPU.toReplaceWith(globalreco_tracking, _globalreco_tracking_LowPU_Phase1PU70)
+from Configuration.Eras.Modifier_trackingPhase1PU70_cff import trackingPhase1PU70
+trackingPhase1PU70.toReplaceWith(globalreco_tracking, _globalreco_tracking_LowPU_Phase1PU70)
+from Configuration.Eras.Modifier_trackingPhase2PU140_cff import trackingPhase2PU140
+trackingPhase2PU140.toReplaceWith(globalreco_tracking, _globalreco_tracking_LowPU_Phase1PU70)
 
 globalreco = cms.Sequence(globalreco_tracking*
                           hcalGlobalRecoSequence*
@@ -95,7 +99,7 @@ globalreco = cms.Sequence(globalreco_tracking*
                           CastorFullReco)
 
 _phase2_globalreco = globalreco.copyAndExclude([CastorFullReco])
-eras.phase2_common.toReplaceWith(globalreco, _phase2_globalreco)
+phase2_common.toReplaceWith(globalreco, _phase2_globalreco)
 
 globalreco_plusPL= cms.Sequence(globalreco*ctfTracksPixelLess)
 

@@ -1,4 +1,5 @@
 import FWCore.ParameterSet.Config as cms
+from Configuration.Eras.Modifier_phase2_timing_cff import phase2_timing
 
 RecoVertexFEVT = cms.PSet(
     outputCommands = cms.untracked.vstring('keep  *_offlinePrimaryVertices__*', 
@@ -33,10 +34,9 @@ _phase2_tktiming_RecoVertexEventContent = [ 'keep *_offlinePrimaryVertices1D__*'
                                             'keep *_offlinePrimaryVertices4DWithBS__*',
                                             'keep *_trackTimeValueMapProducer_*_*' ]
 
-from Configuration.StandardSequences.Eras import eras
 def _phase2_tktiming_AddNewContent(mod):
     temp = mod.outputCommands + _phase2_tktiming_RecoVertexEventContent
-    eras.phase2_timing.toModify( mod, outputCommands = temp )
+    phase2_timing.toModify( mod, outputCommands = temp )
 
 _phase2_tktiming_AddNewContent(RecoVertexFEVT)
 _phase2_tktiming_AddNewContent(RecoVertexRECO)

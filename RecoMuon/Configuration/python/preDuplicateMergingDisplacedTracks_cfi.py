@@ -1,5 +1,4 @@
 import FWCore.ParameterSet.Config as cms
-from Configuration.StandardSequences.Eras import eras
 from RecoTracker.FinalTrackSelectors.TrackCollectionMerger_cfi import *
 
 preDuplicateMergingDisplacedTracks = TrackCollectionMerger.clone()
@@ -20,13 +19,15 @@ preDuplicateMergingDisplacedTracks.lostHitPenalty =   1.0
 # that configuration is indended only for tracking comparisons (not
 # for production), it is not worth of the effort to try to fix the
 # situation.
-eras.trackingPhase1PU70.toModify(preDuplicateMergingDisplacedTracks,
+from Configuration.Eras.Modifier_trackingPhase1PU70_cff import trackingPhase1PU70
+trackingPhase1PU70.toModify(preDuplicateMergingDisplacedTracks,
     trackProducers = [x for x in preDuplicateMergingDisplacedTracks.trackProducers if x != "muonSeededTracksInOut"],
     inputClassifiers = [x for x in preDuplicateMergingDisplacedTracks.inputClassifiers if x != "muonSeededTracksInOutClassifier"],
 )
 
 # Same for Phase2PU140
-eras.trackingPhase2PU140.toModify(preDuplicateMergingDisplacedTracks,
+from Configuration.Eras.Modifier_trackingPhase2PU140_cff import trackingPhase2PU140
+trackingPhase2PU140.toModify(preDuplicateMergingDisplacedTracks,
     trackProducers = [x for x in preDuplicateMergingDisplacedTracks.trackProducers if x != "muonSeededTracksInOut"],
     inputClassifiers = [x for x in preDuplicateMergingDisplacedTracks.inputClassifiers if x != "muonSeededTracksInOutClassifier"],
 )

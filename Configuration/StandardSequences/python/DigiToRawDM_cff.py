@@ -33,12 +33,12 @@ DigiToRaw.remove(castorRawData)
 #castorRawData.CASTOR = cms.untracked.InputTag("castorDigis")
 #
 
-from Configuration.StandardSequences.Eras import eras
-eras.run2_HCAL_2017.toModify( hcalRawDataVME,
+from Configuration.Eras.Modifier_run2_HCAL_2017_cff import run2_HCAL_2017
+run2_HCAL_2017.toModify( hcalRawDataVME,
     HBHE = cms.untracked.InputTag(""),
     HF = cms.untracked.InputTag(""),
 )
-eras.run2_HCAL_2017.toModify( hcalRawDatauHTR,
+run2_HCAL_2017.toModify( hcalRawDatauHTR,
     HBHE = cms.untracked.InputTag("DMHcalDigis"),
     HF = cms.untracked.InputTag("DMHcalDigis")
 )
