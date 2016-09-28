@@ -10,6 +10,7 @@
 
 #include "TMatrixDSym.h"
 #include "TMatrixDSymEigen.h"
+#include "TMVA/MethodBDT.h"
 
 // ------------------------------------------------------------------------------------------
 const float large_val = std::numeric_limits<float>::max();
@@ -139,53 +140,28 @@ void setPtEtaPhi(const reco::Candidate & p, float & pt, float & eta, float &phi 
 	phi = p.phi();
 }
 
-// ------------------------------------------------------------------------------------------
+std::unique_ptr<const GBRForest> PileupJetIdAlgo::getMVA(const std::vector<std::string> &varList, const std::string &tmvaWeights)
+{
+        TMVA::Reader tmpTMVAReader( "!Color:Silent:!Error" );
+        for(std::vector<std::string>::const_iterator it=varList.begin(); it!=varList.end(); ++it) {
+            if( tmvaNames_[*it].empty() ) tmvaNames_[*it] = *it;
+            tmpTMVAReader.AddVariable( *it, variables_[ tmvaNames_[*it] ].first );
+        }
+        for(std::vector<std::string>::iterator it=tmvaSpectators_.begin(); it!=tmvaSpectators_.end(); ++it) {
+            if( tmvaNames_[*it].empty() ) tmvaNames_[*it] = *it;
+            tmpTMVAReader.AddSpectator( *it, variables_[ tmvaNames_[*it] ].first );
+        }
+        std::unique_ptr<TMVA::IMethod> temp( reco::details::loadTMVAWeights(&tmpTMVAReader,  tmvaMethod_.c_str(), tmvaWeights.c_str() ) );
+        return( std::make_unique<const GBRForest> ( dynamic_cast<TMVA::MethodBDT*>( tmpTMVAReader.FindMVA(tmvaMethod_.c_str()) ) ) );
+}
+
 void PileupJetIdAlgo::bookReader()
 {
-	if(etaBinnedWeights_){
-          for(int v=0; v<nEtaBins_;v++){
-                std::unique_ptr<TMVA::Reader> etaReader = std::unique_ptr<TMVA::Reader>(new TMVA::Reader("!Color:Silent"));
-                etaReader_.push_back(std::move(etaReader));
-          }
-	} else {
-		reader_ = std::unique_ptr<TMVA::Reader>(new TMVA::Reader("!Color:Silent"));
-	}
-	if(etaBinnedWeights_){
-          for(int v=0; v<nEtaBins_;v++){
-            for(std::vector<std::string>::iterator it=tmvaEtaVariables_.at(v).begin(); it!=tmvaEtaVariables_.at(v).end(); ++it) {
-                if(  tmvaNames_[*it].empty() ) { 
-			tmvaNames_[*it] = *it;
-		}
-                etaReader_.at(v)->AddVariable( *it, variables_[ tmvaNames_[*it] ].first );
-            }
-          }
-	} else {
-	  for(std::vector<std::string>::iterator it=tmvaVariables_.begin(); it!=tmvaVariables_.end(); ++it) {
-		if(  tmvaNames_[*it].empty() ) { 
-			tmvaNames_[*it] = *it;
-		}
-		reader_->AddVariable( *it, variables_[ tmvaNames_[*it] ].first );
-	  }
-	}
-	for(std::vector<std::string>::iterator it=tmvaSpectators_.begin(); it!=tmvaSpectators_.end(); ++it) {
-		if(  tmvaNames_[*it].empty() ) { 
-			tmvaNames_[*it] = *it;
-		}
-		if(etaBinnedWeights_){
-                  for(int v=0; v<nEtaBins_;v++){
-                        etaReader_.at(v)->AddSpectator( *it, variables_[ tmvaNames_[*it] ].first );
-                  }
-		} else {
-			reader_->AddSpectator( *it, variables_[ tmvaNames_[*it] ].first );
-		}
-	}
-	if(etaBinnedWeights_){
-          for(int v=0; v<nEtaBins_;v++){
-                reco::details::loadTMVAWeights(etaReader_.at(v).get(),  tmvaMethod_.c_str(), tmvaEtaWeights_.at(v).c_str() );
-          }
-	} else {
-		reco::details::loadTMVAWeights(reader_.get(),  tmvaMethod_.c_str(), tmvaWeights_.c_str() ); 
-	}
+        if(etaBinnedWeights_){
+          for(int v=0; v<nEtaBins_;v++) etaReader_.push_back(getMVA(tmvaEtaVariables_.at(v), tmvaEtaWeights_.at(v)));
+        } else {
+            reader_ = getMVA(tmvaVariables_, tmvaWeights_);
+        }
 }
 
 // ------------------------------------------------------------------------------------------
@@ -195,6 +171,19 @@ void PileupJetIdAlgo::set(const PileupJetIdentifier & id)
 }
 
 // ------------------------------------------------------------------------------------------
+
+float PileupJetIdAlgo::getMVAval(const std::vector<std::string> &varList, const std::unique_ptr<const GBRForest> &reader)
+{
+        float mvaval = -2;
+        std::vector<float> vars;
+        for(std::vector<std::string>::const_iterator it=varList.begin(); it!=varList.end(); ++it) {
+            std::pair<float *,float> var = variables_.at((*it).c_str());
+            vars.push_back( *var.first );
+        }
+        mvaval = reader->GetClassifier(vars.data());
+        return mvaval;
+}
+
 void PileupJetIdAlgo::runMva()
 {
   	if( cutBased_ ) {
@@ -207,15 +196,15 @@ void PileupJetIdAlgo::runMva()
                           if(std::abs(internalId_.jetEta_) > jEtaMax_.at(nEtaBins_-1)) {
                               internalId_.mva_ = -2.;
                           } else {
-                            for(int v=0; v<nEtaBins_;v++){
-                                if(std::abs(internalId_.jetEta_)>=jEtaMin_.at(v) && std::abs(internalId_.jetEta_)<jEtaMax_.at(v)){
-                                    internalId_.mva_ = etaReader_.at(v)->EvaluateMVA( tmvaMethod_.c_str() );
+                            for(int v=0; v<nEtaBins_; v++){
+                                if(std::abs(internalId_.jetEta_)>=jEtaMin_.at(v) && std::abs(internalId_.jetEta_)<jEtaMax_.at(v)) {
+                                    internalId_.mva_ = getMVAval(tmvaEtaVariables_.at(v),etaReader_.at(v));  
                                     break;
                                 }
                             } 
                           }
 			} else {
-			  internalId_.mva_ = reader_->EvaluateMVA( tmvaMethod_.c_str() );
+                            internalId_.mva_ = getMVAval(tmvaVariables_,reader_);
 			}
 		}
 		internalId_.idFlag_ = computeIDflag(internalId_.mva_,internalId_.jetPt_,internalId_.jetEta_);
