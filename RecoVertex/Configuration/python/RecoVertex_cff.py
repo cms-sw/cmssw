@@ -34,13 +34,13 @@ vertexreco = cms.Sequence(unsortedOfflinePrimaryVertices*
 
 #timing
 unsortedOfflinePrimaryVertices1D = unsortedOfflinePrimaryVertices.clone()
-unsortedOfflinePrimaryVertices1D.TkFilterParameters.minPt = cms.double(1.0)
+unsortedOfflinePrimaryVertices1D.TkFilterParameters.minPt = cms.double(0.7)
 offlinePrimaryVertices1D=sortedPrimaryVertices.clone(vertices="unsortedOfflinePrimaryVertices1D", particles="trackRefsForJetsBeforeSorting")
 offlinePrimaryVertices1DWithBS=sortedPrimaryVertices.clone(vertices="unsortedOfflinePrimaryVertices1D:WithBS", particles="trackRefsForJetsBeforeSorting")
 DA2DParameters.TkDAClusParameters.verbose = cms.untracked.bool(False)
 unsortedOfflinePrimaryVertices4D = unsortedOfflinePrimaryVertices.clone( verbose = cms.untracked.bool(False),
                                                                          TkClusParameters = DA2DParameters )
-unsortedOfflinePrimaryVertices4D.TkFilterParameters.minPt = cms.double(1.0)
+unsortedOfflinePrimaryVertices4D.TkFilterParameters.minPt = cms.double(0.7)
 unsortedOfflinePrimaryVertices4D.TrackTimesLabel = cms.InputTag("trackTimeValueMapProducer:generalTracksConfigurableFlatResolutionModel")
 unsortedOfflinePrimaryVertices4D.TrackTimeResosLabel = cms.InputTag("trackTimeValueMapProducer:generalTracksConfigurableFlatResolutionModelResolution")
 offlinePrimaryVertices4D=sortedPrimaryVertices.clone(vertices="unsortedOfflinePrimaryVertices4D", particles="trackRefsForJetsBeforeSorting")
