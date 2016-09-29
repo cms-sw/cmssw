@@ -9,6 +9,7 @@
 #include "CondFormats/DataRecord/interface/L1TCaloParamsRcd.h"
 #include "CondFormats/L1TObjects/interface/CaloParams.h"
 #include "L1Trigger/L1TCalorimeter/interface/CaloParamsHelper.h"
+#include <iomanip> 
 
 class L1TCaloParamsViewer: public edm::EDAnalyzer {
 private:
