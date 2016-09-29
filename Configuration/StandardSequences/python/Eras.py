@@ -35,13 +35,19 @@ class Eras (object):
                            'phase2_hcal',
                            'trackingLowPU', 'trackingPhase1', 'trackingPhase1PU70', 'ctpps_2016', 'trackingPhase2PU140',
                            'tracker_apv_vfp30_2016']
-                           
+        internalUseModChains = ['run2_2017_core']
+
+
         for e in allEras:
             eObj=getattr(__import__('Configuration.Eras.Era_'+e+'_cff',globals(),locals(),[e],0),e)
             self.addEra(e,eObj)
 
         for e in internalUseMods:
             eObj=getattr(__import__('Configuration.Eras.Modifier_'+e+'_cff',globals(),locals(),[e],0),e)
+            self.addEra(e,eObj)
+
+        for e in internalUseModChains:
+            eObj=getattr(__import__('Configuration.Eras.ModifierChain_'+e+'_cff',globals(),locals(),[e],0),e)
             self.addEra(e,eObj)
 
 
