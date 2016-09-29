@@ -2,6 +2,7 @@
 #include "DataFormats/HcalRecHit/interface/HFQIE10Info.h"
 
 const unsigned HFQIE10Info::N_RAW_MAX;
+const HFQIE10Info::raw_type HFQIE10Info::INVALID_RAW;
  
 
 HFQIE10Info::HFQIE10Info()
