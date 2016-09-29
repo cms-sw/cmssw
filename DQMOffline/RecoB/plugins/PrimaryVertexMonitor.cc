@@ -270,9 +270,11 @@ void PrimaryVertexMonitor::analyze(const edm::Event& iEvent, const edm::EventSet
 
   vertexPlots(recVtxs->front(), beamSpot, 1);
 
-  auto pvScore = (*scores).get(0);
-  score[1]->Fill(std::sqrt(pvScore));
-  for (unsigned int i=1; i<(*scores).size(); ++i) score[0]->Fill(std::sqrt((*scores).get(i)));
+  if (scores.isValid() && (*scores).size()>0) {
+    auto pvScore = (*scores).get(0);
+    score[1]->Fill(std::sqrt(pvScore));
+    for (unsigned int i=1; i<(*scores).size(); ++i) score[0]->Fill(std::sqrt((*scores).get(i)));
+  }
 
   // fill PV tracks MEs (as now, for alignment)
   pvTracksPlots(recVtxs->front());
