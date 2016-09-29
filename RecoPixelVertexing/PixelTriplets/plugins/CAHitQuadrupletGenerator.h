@@ -33,6 +33,9 @@ class CAHitQuadrupletGenerator : public HitQuadrupletGenerator {
 public:
     typedef LayerHitMapCache LayerCacheType;
 
+    static constexpr unsigned int minLayers = 4;
+    typedef OrderedHitSeeds ResultType;
+
 public:
 
     CAHitQuadrupletGenerator(const edm::ParameterSet& cfg, edm::ConsumesCollector&& iC, bool needSeedingLayerSetsHits=true): CAHitQuadrupletGenerator(cfg, iC, needSeedingLayerSetsHits) {}
@@ -41,6 +44,7 @@ public:
     virtual ~CAHitQuadrupletGenerator();
 
     static void fillDescriptions(edm::ParameterSetDescription& desc);
+    static const char *fillDescriptionsLabel() { return "caHitQuadruplet"; }
 
     void initEvent(const edm::Event& ev, const edm::EventSetup& es);
 
@@ -50,10 +54,10 @@ public:
             const edm::Event & ev, const edm::EventSetup& es);
 
     // new-style
-    void hitQuadruplets(const IntermediateHitDoublets::RegionLayerSets& regionLayerPairs,
-                        OrderedHitSeeds& result,
-                        const edm::EventSetup& es,
-                        const SeedingLayerSetsHits& layers);
+    void hitNtuplets(const IntermediateHitDoublets::RegionLayerSets& regionLayerPairs,
+                     OrderedHitSeeds& result,
+                     const edm::EventSetup& es,
+                     const SeedingLayerSetsHits& layers);
 
 private:
     // actual work
