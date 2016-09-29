@@ -31,12 +31,11 @@ class HGCalTriggerBackendProcessor {
  public:
   typedef std::unique_ptr<HGCalTriggerBackendAlgorithmBase> algo_ptr;
 
-  HGCalTriggerBackendProcessor(const edm::ParameterSet& conf);
+  HGCalTriggerBackendProcessor(const edm::ParameterSet& conf, const HGCalTriggerGeometryBase* const geom);
 
   void setProduces(edm::EDProducer& prod) const;
 
-  void run(const l1t::HGCFETriggerDigiCollection& coll,
-           const std::unique_ptr<HGCalTriggerGeometryBase>& geom);
+  void run(const l1t::HGCFETriggerDigiCollection& coll);
 
   void putInEvent(edm::Event& evt);
 
