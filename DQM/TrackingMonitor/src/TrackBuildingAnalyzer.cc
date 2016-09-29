@@ -207,13 +207,20 @@ void TrackBuildingAnalyzer::initHisto(DQMStore::IBooker & ibooker)
 
   if (doAllTCPlots || doStopSource) {
     // DataFormats/TrackReco/interface/TrajectoryStopReasons.h
-    std::vector<std::string> StopReasonName = { "UNINITIALIZED", "MAX_HITS", "MAX_LOST_HITS", "MAX_CONSECUTIVE_LOST_HITS", "LOST_HIT_FRACTION", "MIN_PT", "CHARGE_SIGNIFICANCE", "LOOPER", "MAX_CCC_LOST_HITS", "NO_SEGMENTS_FOR_VALID_LAYERS", "NOT_STOPPED" };
+    size_t StopReasonNameSize = sizeof(StopReasonName::StopReasonName)/sizeof(std::string);
+    if(StopReasonNameSize != static_cast<unsigned int>(StopReason::SIZE)) {
+      throw cms::Exception("Assert") << "StopReason::SIZE is " << static_cast<unsigned int>(StopReason::SIZE)
+				     << " but StopReasonName's only for "
+				     << StopReasonNameSize
+				     << ". Please update DataFormats/TrackReco/interface/TrajectoryStopReasons.h.";
+    }
+    
     
     histname = "StoppingSource_"+seedProducer.label() + "_";
     stoppingSource = ibooker.book1D(histname+CatagoryName,
                                     histname+CatagoryName,
-                                    StopReasonName.size(),
-                                    0., double(StopReasonName.size()));
+                                    StopReasonNameSize,
+                                    0., double(StopReasonNameSize));
     stoppingSource->setAxisTitle("stopping reason",1);
     stoppingSource->setAxisTitle("Number of Tracks",2);
     
@@ -223,8 +230,8 @@ void TrackBuildingAnalyzer::initHisto(DQMStore::IBooker & ibooker)
                                          EtaBin,
                                          EtaMin,
                                          EtaMax,
-                                         StopReasonName.size(),
-                                         0., double(StopReasonName.size()));
+                                         StopReasonNameSize,
+                                         0., double(StopReasonNameSize));
     stoppingSourceVSeta->setAxisTitle("track #eta",1);
     stoppingSourceVSeta->setAxisTitle("stopping reason",2);
     
@@ -234,15 +241,15 @@ void TrackBuildingAnalyzer::initHisto(DQMStore::IBooker & ibooker)
                                          PhiBin,
                                          PhiMin,
                                          PhiMax,
-                                         StopReasonName.size(),
-                                         0., double(StopReasonName.size()));
+                                         StopReasonNameSize,
+                                         0., double(StopReasonNameSize));
     stoppingSourceVSphi->setAxisTitle("track #phi",1);
     stoppingSourceVSphi->setAxisTitle("stopping reason",2);
     
-    for (size_t ibin=0; ibin<StopReasonName.size(); ibin++) {
-      stoppingSource->setBinLabel(ibin+1,StopReasonName[ibin],1);
-      stoppingSourceVSeta->setBinLabel(ibin+1,StopReasonName[ibin],2);
-      stoppingSourceVSphi->setBinLabel(ibin+1,StopReasonName[ibin],2);
+    for (size_t ibin=0; ibin<StopReasonNameSize; ibin++) {
+      stoppingSource->setBinLabel(ibin+1,StopReasonName::StopReasonName[ibin],1);
+      stoppingSourceVSeta->setBinLabel(ibin+1,StopReasonName::StopReasonName[ibin],2);
+      stoppingSourceVSphi->setBinLabel(ibin+1,StopReasonName::StopReasonName[ibin],2);
     }
   }
   
