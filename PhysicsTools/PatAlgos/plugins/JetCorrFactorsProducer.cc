@@ -235,7 +235,6 @@ JetCorrFactorsProducer::produce(edm::Event& event, const edm::EventSetup& setup)
       std::vector<float> factors;
       if(corrLevel->second[idx].find("L5Flavor")!=std::string::npos ||
 	 corrLevel->second[idx].find("L7Parton")!=std::string::npos){
-	// after the first encounter all subsequent correction levels are flavor dependent
 	for(FlavorCorrLevelMap::const_iterator flavor=corrLevel; flavor!=levels_.end(); ++flavor){
 	  if(!primaryVertices_.label().empty()){
 	    // if primaryVerticesToken_ has a value the number of primary vertices needs to be
