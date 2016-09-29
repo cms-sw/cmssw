@@ -193,7 +193,7 @@ void CAHitQuadrupletGenerator::hitQuadruplets(const TrackingRegion& region,
         theLayerCache.clear();
 }
 
-void CAHitQuadrupletGenerator::hitQuadruplets(const IntermediateHitDoublets::RegionLayerSets& regionLayerPairs,
+void CAHitQuadrupletGenerator::hitNtuplets(const IntermediateHitDoublets::RegionLayerSets& regionLayerPairs,
                                               OrderedHitSeeds& result,
                                               const edm::EventSetup& es,
                                               const SeedingLayerSetsHits& layers) {
