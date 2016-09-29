@@ -37,5 +37,5 @@ def customiseForTripletsHLTPixelTracksByCellularAutomaton(process):
         )
 
         if hasattr(triplets.GeneratorPSet, "SeedComparitorPSet"):
-            pset.SeedComparitorPSet = triplets.GeneratorPSet.SeedComparitorPSet
+            module.OrderedHitsFactoryPSet.SeedComparitorPSet = triplets.GeneratorPSet.SeedComparitorPSet
     return process
