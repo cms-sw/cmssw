@@ -2,6 +2,7 @@
 #include "SimG4Core/Application/interface/TrackingAction.h"
 #include "SimG4Core/Notification/interface/NewTrackAction.h"
 #include "SimG4Core/Notification/interface/TrackInformation.h"
+#include "SimG4Core/Notification/interface/TrackInformationExtractor.h"
 #include "SimG4Core/Notification/interface/CMSSteppingVerbose.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -12,8 +13,10 @@
 #include "G4RegionStore.hh"
 #include "Randomize.hh"
 #include "G4SystemOfUnits.hh"
-#include "G4VSolid.hh"
-#include "G4TransportationManager.hh"
+
+#include<algorithm>
+
+//#define DebugLog
 
 StackingAction::StackingAction(const TrackingAction* trka, const edm::ParameterSet & p,
 			       const CMSSteppingVerbose* sv)
@@ -59,6 +62,7 @@ StackingAction::StackingAction(const TrackingAction* trka, const edm::ParameterS
 
   gRusRoEnerLim = p.getParameter<double>("RusRoGammaEnergyLimit")*MeV;
   nRusRoEnerLim = p.getParameter<double>("RusRoNeutronEnergyLimit")*MeV;
+  pRusRoEnerLim = p.getParameter<double>("RusRoProtonEnergyLimit")*MeV;
 
   gRusRoEcal = p.getParameter<double>("RusRoEcalGamma");
   gRusRoHcal = p.getParameter<double>("RusRoHcalGamma");
@@ -74,8 +78,16 @@ StackingAction::StackingAction(const TrackingAction* trka, const edm::ParameterS
   nRusRoCastor = p.getParameter<double>("RusRoCastorNeutron");
   nRusRoWorld = p.getParameter<double>("RusRoWorldNeutron");
 
+  pRusRoEcal = p.getParameter<double>("RusRoEcalProton");
+  pRusRoHcal = p.getParameter<double>("RusRoHcalProton");
+  pRusRoMuonIron = p.getParameter<double>("RusRoMuonIronProton");
+  pRusRoPreShower = p.getParameter<double>("RusRoPreShowerProton");
+  pRusRoCastor = p.getParameter<double>("RusRoCastorProton");
+  pRusRoWorld = p.getParameter<double>("RusRoWorldProton");
+
   gRRactive = false;
   nRRactive = false;
+  pRRactive = false;
   if(gRusRoEnerLim > 0.0 && 
      (gRusRoEcal < 1.0 || gRusRoHcal < 1.0 || 
       gRusRoMuonIron < 1.0 || gRusRoPreShower < 1.0 || gRusRoCastor < 1.0 ||
@@ -84,6 +96,10 @@ StackingAction::StackingAction(const TrackingAction* trka, const edm::ParameterS
      (nRusRoEcal < 1.0 || nRusRoHcal < 1.0 || 
       nRusRoMuonIron < 1.0 || nRusRoPreShower < 1.0 || nRusRoCastor < 1.0 ||
       nRusRoWorld < 1.0)) { nRRactive = true; }
+  if(pRusRoEnerLim > 0.0 && 
+     (pRusRoEcal < 1.0 || pRusRoHcal < 1.0 || 
+      pRusRoMuonIron < 1.0 || pRusRoPreShower < 1.0 || pRusRoCastor < 1.0 ||
+      pRusRoWorld < 1.0)) { pRRactive = true; }
 
   if ( p.exists("TestKillingOptions") ) {
     killInCalo = (p.getParameter<edm::ParameterSet>("TestKillingOptions"))
@@ -123,7 +139,6 @@ StackingAction::StackingAction(const TrackingAction* trka, const edm::ParameterS
 					 << kmaxNeutron/MeV << " MeV and ions"
 					 << " below " << kmaxIon/MeV << " MeV";
   }
-  killExtra = killDeltaRay || killHeavy || killInCalo || killInCaloEfH;
 
   edm::LogInfo("SimG4CoreApplication") << "StackingAction kill tracks with "
 				       << "time larger than " << maxTrackTime/ns
@@ -172,6 +187,18 @@ StackingAction::StackingAction(const TrackingAction* trka, const edm::ParameterS
       << "               CASTOR Prob= " << nRusRoCastor << "\n"
       << "                World Prob= " << nRusRoWorld;
   }
+  if(pRRactive) {
+    edm::LogInfo("SimG4CoreApplication") 
+      << "StackingAction: "
+      << "Russian Roulette for proton Elimit(MeV)= " 
+      << pRusRoEnerLim/MeV << "\n"
+      << "                 ECAL Prob= " << pRusRoEcal << "\n"
+      << "                 HCAL Prob= " << pRusRoHcal << "\n"
+      << "             MuonIron Prob= " << pRusRoMuonIron << "\n"
+      << "            PreShower Prob= " << pRusRoPreShower << "\n"
+      << "               CASTOR Prob= " << pRusRoCastor << "\n"
+      << "                World Prob= " << pRusRoWorld;
+  }
 
   if(savePDandCinTracker) {
     edm::LogInfo("SimG4CoreApplication") << "StackingAction Tracker regions: ";
@@ -185,7 +212,6 @@ StackingAction::StackingAction(const TrackingAction* trka, const edm::ParameterS
     edm::LogInfo("SimG4CoreApplication") << "StackingAction Muon regions: ";
     printRegions(muonRegions,"Muon"); 
   }
-  worldSolid = G4TransportationManager::GetTransportationManager()->GetNavigatorForTracking()->GetWorldVolume()->GetLogicalVolume()->GetSolid();
 }
 
 StackingAction::~StackingAction() 
@@ -197,148 +223,195 @@ G4ClassificationOfNewTrack StackingAction::ClassifyNewTrack(const G4Track * aTra
 {
   // G4 interface part
   G4ClassificationOfNewTrack classification = fUrgent;
-  int pdg = aTrack->GetDefinition()->GetPDGEncoding();
-  int abspdg = std::abs(pdg);
-
-  // primary
-  if (aTrack->GetCreatorProcess()==nullptr || aTrack->GetParentID()==0) {
-    if (!trackNeutrino && (abspdg == 12 || abspdg == 14 || abspdg == 16 || abspdg == 18)) {
-      classification = fKill;
-    } else if (worldSolid->Inside(aTrack->GetPosition()) == kOutside) {
-      classification = fKill;
-    } else {
-      newTA->primary(aTrack);
-    }
-  } else {
-
-    // secondary
-    const G4Region* reg = aTrack->GetVolume()->GetLogicalVolume()->GetRegion();
-    // definetly killed tracks
-    if (aTrack->GetTrackStatus() == fStopAndKill) { classification = fKill; }
-    else if (!trackNeutrino && (abspdg == 12 || abspdg == 14 || abspdg == 16 || abspdg == 18)) 
-      { classification = fKill; }
-    else if (isItOutOfTimeWindow(reg, aTrack)) { classification = fKill; }
-
-    // potentially good for tracking
-    else {
-      double ke  = aTrack->GetKineticEnergy();
-
-      // kill tracks in specific regions
-      if (classification != fKill && isThisRegion(reg, deadRegions)) {
-	classification = fKill; 
+  if (aTrack->GetCreatorProcess()==0 || aTrack->GetParentID()==0) {
+    /*
+    std::cout << "StackingAction: primary weight= " 
+	      << aTrack->GetWeight() << " "
+	      << aTrack->GetDefinition()->GetParticleName()
+	      << " " << aTrack->GetKineticEnergy()
+	      << " Id=" << aTrack->GetTrackID()
+	      << "  trackInfo " << aTrack->GetUserInformation() 
+	      << std::endl;
+    */
+    newTA->primary(aTrack);
+    /*
+    if (!trackNeutrino) {
+      int pdg = std::abs(aTrack->GetDefinition()->GetPDGEncoding());
+      if (pdg == 12 || pdg == 14 || pdg == 16 || pdg == 18) {
+	classification = fKill;
       }
-      if (ke <= limitEnergyForVacuum && isThisRegion(reg, lowdensRegions) ) {
-	classification = fKill; 
+    }
+    */
+  } else if (aTrack->GetTouchable() == 0) {
+    edm::LogError("SimG4CoreApplication")
+      << "StackingAction: no touchable for track " << aTrack->GetTrackID()
+      << " from " << aTrack->GetParentID()
+      << " with PDG code " << aTrack->GetDefinition()->GetParticleName();
+    classification = fKill;
+  } else {
+    int pdg = aTrack->GetDefinition()->GetPDGEncoding();
+    double ke  = aTrack->GetKineticEnergy();
 
-      } else {
-	// very low-energy gamma
-	if (pdg == 22 && killGamma && ke < kmaxGamma) { classification = fKill; }
-      
-	// specific track killing - not for production
-	if(killExtra && classification != fKill) {
-	  if (killHeavy && classification != fKill) {
-	    if (((pdg/1000000000 == 1) && (((pdg/10000)%100) > 0) && 
-		 (((pdg/10)%100) > 0) && (ke<kmaxIon)) || 
-		((pdg == 2212) && (ke < kmaxProton)) ||
-		((pdg == 2112) && (ke < kmaxNeutron))) { classification = fKill; }
-	  }
+    if (aTrack->GetTrackStatus() == fStopAndKill) { classification = fKill; }
+    if (killHeavy && classification != fKill) {
+      if (((pdg/1000000000 == 1) && (((pdg/10000)%100) > 0) && 
+	   (((pdg/10)%100) > 0) && (ke<kmaxIon)) || 
+	  ((pdg == 2212) && (ke < kmaxProton)) ||
+	  ((pdg == 2112) && (ke < kmaxNeutron))) { classification = fKill; }
+    }
+    if (!trackNeutrino  && classification != fKill) {
+      if (pdg == 12 || pdg == 14 || pdg == 16 || pdg == 18 ||
+	  pdg ==-12 || pdg ==-14 || pdg ==-16 || pdg ==-18 ) 
+	classification = fKill;
+    }
+    if (classification != fKill && isItLongLived(aTrack)) 
+      { classification = fKill; }
     
-	  if (killDeltaRay && classification != fKill 
-	      && aTrack->GetCreatorProcess()->GetProcessSubType() == fIonisation) {
-	    classification = fKill;
+    if (classification != fKill && killGamma && pdg == 22 && ke < kmaxGamma) 
+      { 
+	classification = fKill; 
+	//std::cout << "### next gamma killed E(MeV)= " << ke
+	//	  << "  " <<  aTrack->GetCreatorProcess()->GetProcessName()
+	//	  << std::endl;
+      }
+    
+
+    if (killDeltaRay && classification != fKill 
+	&& aTrack->GetCreatorProcess()->GetProcessSubType() == fIonisation) {
+      classification = fKill;
+    }
+
+    const G4Region* reg = aTrack->GetVolume()->GetLogicalVolume()->GetRegion();
+    if (killInCalo && classification != fKill 
+	&& isThisRegion(reg, caloRegions)) {
+      classification = fKill; 
+    }
+    if (classification != fKill && ke <= limitEnergyForVacuum  
+	&& isThisRegion(reg, lowdensRegions)) {
+      classification = fKill; 
+    }
+    if (classification != fKill && isThisRegion(reg, deadRegions)) {
+      classification = fKill; 
+    }
+
+    // Russian roulette && MC truth
+    if(classification != fKill) {
+      const G4Track * mother = trackAction->geant4Track();
+      int flag = 0;
+      if(savePDandCinAll) {
+	flag = isItPrimaryDecayProductOrConversion(aTrack, *mother);
+      } else {
+	if ((savePDandCinTracker && isThisRegion(reg,trackerRegions)) ||
+	    (savePDandCinCalo    && isThisRegion(reg,caloRegions)) ||
+	    (savePDandCinMuon    && isThisRegion(reg,muonRegions))) {
+	  flag = isItPrimaryDecayProductOrConversion(aTrack, *mother);
+	}
+      }
+      if (saveFirstSecondary && 0 == flag) { 
+	flag = isItFromPrimary(*mother, flag); 
+      }
+
+      // Russian roulette
+      if(2112 == pdg || 22 == pdg || 2212 == pdg) {
+	double currentWeight = aTrack->GetWeight();
+
+	if(1.0 >= currentWeight) {
+	  double prob = 1.0;
+	  double elim = 0.0;
+
+	  // neutron
+	  if(nRRactive && pdg == 2112) {
+	    elim = nRusRoEnerLim;
+	    if(reg == regionEcal)             { prob = nRusRoEcal; }
+	    else if(reg == regionHcal)        { prob = nRusRoHcal; }
+	    else if(reg == regionMuonIron)    { prob = nRusRoMuonIron; }
+	    else if(reg == regionPreShower)   { prob = nRusRoPreShower; }
+	    else if(reg == regionCastor)      { prob = nRusRoCastor; }
+	    else if(reg == regionWorld)       { prob = nRusRoWorld; }
+
+	    // gamma
+	  } else if(gRRactive && pdg == 22) {
+	    elim = gRusRoEnerLim;
+	    if(reg == regionEcal || reg == regionPreShower) {
+              if(rrApplicable(aTrack, *mother)) {
+		if(reg == regionEcal)         { prob = gRusRoEcal; }
+                else                          { prob = gRusRoPreShower; }
+	      }
+	    } else {
+	      if(reg == regionHcal)           { prob = gRusRoHcal; }
+	      else if(reg == regionMuonIron)  { prob = gRusRoMuonIron; }
+	      else if(reg == regionCastor)    { prob = gRusRoCastor; }
+	      else if(reg == regionWorld)     { prob = gRusRoWorld; }
+	    }
+
+	    // proton
+	  } else if(pRRactive && pdg == 2212) {
+	    elim = pRusRoEnerLim;
+	    if(reg == regionEcal)             { prob = pRusRoEcal; }
+	    else if(reg == regionHcal)        { prob = pRusRoHcal; }
+	    else if(reg == regionMuonIron)    { prob = pRusRoMuonIron; }
+	    else if(reg == regionPreShower)   { prob = pRusRoPreShower; }
+	    else if(reg == regionCastor)      { prob = pRusRoCastor; }
+	    else if(reg == regionWorld)       { prob = pRusRoWorld; }
 	  }
-	  if (killInCalo && classification != fKill 
-	      && isThisRegion(reg, caloRegions)) {
+	  if(prob < 1.0 && aTrack->GetKineticEnergy() < elim) {
+	    if(G4UniformRand() < prob) {
+	      const_cast<G4Track*>(aTrack)->SetWeight(currentWeight/prob);
+	    } else {
+	      classification = fKill;
+	    }
+	  }
+	}
+      }
+	
+      if(classification != fKill && killInCaloEfH) {
+	int pdgMother = mother->GetDefinition()->GetPDGEncoding();
+	if ( (pdg == 22 || std::abs(pdg) == 11) && 
+	     (std::abs(pdgMother) < 11 || std::abs(pdgMother) > 17) && 
+	     pdgMother != 22  ) {
+	  if ( isThisRegion(reg,caloRegions)) { 
 	    classification = fKill; 
 	  }
-	  if (killInCaloEfH && classification != fKill) {
-	    int pdgMother = std::abs(trackAction->geant4Track()->GetDefinition()->GetPDGEncoding());
-	    if ((pdg == 22 || abspdg == 11) && pdgMother != 11 && pdgMother != 22 && 
-		isThisRegion(reg,caloRegions)) { 
-	      classification = fKill; 
-	    }
-	  }
-	}
-
-	// Russian roulette && MC truth
-	if(classification != fKill) {
-	  const G4Track* mother = trackAction->geant4Track();
-	  int flag = 0;
-	  if(savePDandCinAll) {
-	    flag = isItPrimaryDecayProductOrConversion(aTrack, *mother);
-	  } else {
-	    if ((savePDandCinTracker && isThisRegion(reg,trackerRegions)) ||
-		(savePDandCinCalo    && isThisRegion(reg,caloRegions)) ||
-		(savePDandCinMuon    && isThisRegion(reg,muonRegions))) {
-	      flag = isItPrimaryDecayProductOrConversion(aTrack, *mother);
-	    }
-	  }
-	  if (saveFirstSecondary && 0 == flag) { 
-	    flag = isItFromPrimary(*mother, flag); 
-	  }
-
-	  // Russian roulette
-	  if(2112 == pdg || 22 == pdg) {
-	    double currentWeight = aTrack->GetWeight();
-
-	    if(1.0 >= currentWeight) {
-	      double prob = 1.0;
-	      double elim = 0.0;
-
-	      // neutron
-	      if(nRRactive && pdg == 2112) {
-		elim = nRusRoEnerLim;
-		if(reg == regionEcal)             { prob = nRusRoEcal; }
-		else if(reg == regionHcal)        { prob = nRusRoHcal; }
-		else if(reg == regionMuonIron)    { prob = nRusRoMuonIron; }
-		else if(reg == regionPreShower)   { prob = nRusRoPreShower; }
-		else if(reg == regionCastor)      { prob = nRusRoCastor; }
-		else if(reg == regionWorld)       { prob = nRusRoWorld; }
-
-		// gamma
-	      } else if(gRRactive && pdg == 22) {
-		elim = gRusRoEnerLim;
-		if(reg == regionEcal || reg == regionPreShower) {
-		  if(rrApplicable(aTrack, *mother)) {
-		    if(reg == regionEcal)         { prob = gRusRoEcal; }
-		    else                          { prob = gRusRoPreShower; }
-		  }
-		} else {
-		  if(reg == regionHcal)           { prob = gRusRoHcal; }
-		  else if(reg == regionMuonIron)  { prob = gRusRoMuonIron; }
-		  else if(reg == regionCastor)    { prob = gRusRoCastor; }
-		  else if(reg == regionWorld)     { prob = gRusRoWorld; }
-		}
-	      }
-	      if(prob < 1.0 && aTrack->GetKineticEnergy() < elim) {
-		if(G4UniformRand() < prob) {
-		  const_cast<G4Track*>(aTrack)->SetWeight(currentWeight/prob);
-		} else {
-		  classification = fKill;
-		}
-	      }
-	    }
-	  }
-	  if (classification != fKill) {
-	    newTA->secondary(aTrack, *mother, flag);
-	  }
-	  LogDebug("SimG4CoreApplication") << "StackingAction:Classify Track "
-					   << aTrack->GetTrackID() << " Parent " 
-					   << aTrack->GetParentID() << " Type "
-					   << aTrack->GetDefinition()->GetParticleName() 
-					   << " K.E. " << aTrack->GetKineticEnergy()/MeV
-					   << " MeV from process/subprocess " 
-					   << aTrack->GetCreatorProcess()->GetProcessType() 
-					   << "|"
-					   <<aTrack->GetCreatorProcess()->GetProcessSubType()
-					   << " as " << classification << " Flag " << flag;
 	}
       }
+      
+      if (classification != fKill) {
+	newTA->secondary(aTrack, *mother, flag);
+      }
     }
+  /*
+  double wt2 = aTrack->GetWeight();
+  if(wt2 != 1.0) { 
+    G4Region* reg = aTrack->GetVolume()->GetLogicalVolume()->GetRegion();
+    std::cout << "StackingAction: weight= " << wt2 << " "
+	      << aTrack->GetDefinition()->GetParticleName()
+	      << " " << aTrack->GetKineticEnergy()
+	      << " Id=" << aTrack->GetTrackID()
+	      << " IdP=" << aTrack->GetParentID();
+    const G4VProcess* pr = aTrack->GetCreatorProcess();
+    if(pr) std::cout << " from  " << pr->GetProcessName();
+    if(reg) std::cout << " in  " << reg->GetName()
+		      << "  trackInfo " << aTrack->GetUserInformation(); 
+    std::cout << std::endl;
   }
+  */
+  }
+#ifdef DebugLog
+  LogDebug("SimG4CoreApplication") << "StackingAction:Classify Track "
+				   << aTrack->GetTrackID() << " Parent " 
+				   << aTrack->GetParentID() << " Type "
+				   << aTrack->GetDefinition()->GetParticleName() 
+				   << " K.E. " << aTrack->GetKineticEnergy()/MeV
+				   << " MeV from process/subprocess " 
+				   << aTrack->GetCreatorProcess()->GetProcessType() 
+				   << "|"
+				   <<aTrack->GetCreatorProcess()->GetProcessSubType()
+				   << " as " << classification << " Flag " << flag;
+#endif
   if(nullptr != steppingVerbose) { 
     steppingVerbose->StackFilled(aTrack, (classification == fKill)); 
   }
+  
   return classification;
 }
 
@@ -356,22 +429,28 @@ void StackingAction::initPointer()
   for (rcite = rs->begin(); rcite != rs->end(); ++rcite) {
     const G4Region* reg = (*rcite);
     G4String rname = reg->GetName(); 
-    if ((gRusRoEcal < 1.0 || nRusRoEcal < 1.0) && rname == "EcalRegion") {  
+    if ((gRusRoEcal < 1.0 || nRusRoEcal < 1.0 || pRusRoEcal < 1.0) && 
+	rname == "EcalRegion") {  
       regionEcal = reg; 
     }
-    if ((gRusRoHcal < 1.0 || nRusRoHcal < 1.0) && rname == "HcalRegion") {  
+    if ((gRusRoHcal < 1.0 || nRusRoHcal < 1.0 || pRusRoHcal < 1.0) && 
+	rname == "HcalRegion") {  
       regionHcal = reg; 
     }
-    if ((gRusRoMuonIron < 1.0 || nRusRoMuonIron < 1.0) && rname == "MuonIron") {  
+    if ((gRusRoMuonIron < 1.0 || nRusRoMuonIron < 1.0 || pRusRoMuonIron < 1.0) && 
+	rname == "MuonIron") {  
       regionMuonIron = reg; 
     }
-    if ((gRusRoPreShower < 1.0 || nRusRoPreShower < 1.0) && rname == "PreshowerRegion") {  
+    if ((gRusRoPreShower < 1.0 || nRusRoPreShower < 1.0 || pRusRoPreShower < 1.0) 
+	&& rname == "PreshowerRegion") {  
       regionPreShower = reg; 
     }
-    if ((gRusRoCastor < 1.0 || nRusRoCastor < 1.0) && rname == "CastorRegion") {  
+    if ((gRusRoCastor < 1.0 || nRusRoCastor < 1.0 || pRusRoCastor < 1.0) && 
+	rname == "CastorRegion") {  
       regionCastor = reg; 
     }
-    if ((nRusRoWorld < 1.0 || nRusRoWorld < 1.0) && rname == "DefaultRegionForTheWorld") {  
+    if ((nRusRoWorld < 1.0 || nRusRoWorld < 1.0 || pRusRoWorld < 1.0) && 
+	rname == "DefaultRegionForTheWorld") {  
       regionWorld = reg; 
     }
 
@@ -434,6 +513,7 @@ int StackingAction::isItPrimaryDecayProductOrConversion(const G4Track * aTrack,
 							const G4Track & mother) const
 {
   int flag = 0;
+  TrackInformationExtractor extractor;
   const TrackInformation & motherInfo(extractor(mother));
   // Check whether mother is a primary
   if (motherInfo.isPrimary()) {
@@ -449,33 +529,58 @@ int StackingAction::isItPrimaryDecayProductOrConversion(const G4Track * aTrack,
 bool StackingAction::rrApplicable(const G4Track * aTrack,
 				  const G4Track & mother) const
 {
+  bool flag = true;
+  TrackInformationExtractor extractor;
   const TrackInformation & motherInfo(extractor(mother));
-
-  // Check whether mother is gamma, e+, e-
+  // Check whether mother is a primary
+  //if (motherInfo.isPrimary()) {
+  // }   
   int genID = motherInfo.genParticlePID();
-  return (22 == genID || 11 == genID || -11 == genID) ? false : true;     
+  if(22 == genID || 11 == genID || -11 == genID) { flag = false; }
+    
+  /*
+  //check if the primary was g, e+, e-
+  int genID = motherInfo.genParticlePID();
+  double genp = motherInfo.genParticleP();
+  std::cout << "Track# " << aTrack->GetTrackID() << "  " 
+	    << aTrack->GetDefinition()->GetParticleName()  
+	    << "  E(MeV)= " << aTrack->GetKineticEnergy()/MeV 
+	    << " mother: " << mother.GetTrackID()
+	    << "  " << mother.GetDefinition()->GetParticleName()
+	    << " E(GeV)= " <<  mother.GetKineticEnergy()/GeV
+	    << " flag: " << flag << " genID= " << genID 
+	    << " p(GeV)= " << genp/GeV << std::endl; 
+    */
+  return flag;
 }
 
 int StackingAction::isItFromPrimary(const G4Track & mother, int flagIn) const 
 {
   int flag = flagIn;
   if (flag != 1) {
+    TrackInformationExtractor extractor;
     const TrackInformation & motherInfo(extractor(mother));
     if (motherInfo.isPrimary()) { flag = 3; }
   }
   return flag;
 }
 
- bool StackingAction::isItOutOfTimeWindow(const G4Region* reg, const G4Track* aTrack) const 
+bool StackingAction::isItLongLived(const G4Track * aTrack) const 
 {
+  bool   flag = false;
   double tofM = maxTrackTime;
-  for (unsigned int i=0; i<numberTimes; ++i) {
-    if (reg == maxTimeRegions[i]) {
-      tofM = maxTrackTimes[i];
-      break;
+  if (numberTimes > 0) {
+    G4Region* reg = 
+      aTrack->GetVolume()->GetLogicalVolume()->GetRegion();
+    for (unsigned int i=0; i<numberTimes; ++i) {
+      if (reg == maxTimeRegions[i]) {
+	tofM = maxTrackTimes[i];
+	break;
+      }
     }
   }
-  return (aTrack->GetGlobalTime() > tofM) ? true : false;
+  if (aTrack->GetGlobalTime() > tofM) { flag = true; }
+  return flag;
 }
 
 void StackingAction::printRegions(const std::vector<const G4Region*>& reg, 

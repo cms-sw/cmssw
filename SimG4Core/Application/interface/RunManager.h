@@ -51,7 +51,6 @@ class CMSSteppingVerbose;
 
 class DDDWorld;
 class DDG4ProductionCuts;
-class CustomUIsession;
 
 class G4RunManagerKernel;
 class G4Run;
@@ -112,18 +111,14 @@ private:
   edm::EDGetTokenT<edm::LHCTransportLinkContainer> m_LHCtr;
     
   bool m_nonBeam;
-  std::unique_ptr<CustomUIsession> m_UIsession;
   std::unique_ptr<PhysicsList> m_physicsList;
   PrimaryTransformer * m_primaryTransformer;
-
   bool m_managerInitialized;
   bool m_runInitialized;
   bool m_runTerminated;
   bool m_runAborted;
   bool firstRun;
   bool m_pUseMagneticField;
-  bool m_hasWatchers;
-
   G4Run * m_currentRun;
   G4Event * m_currentEvent;
   G4SimEvent * m_simEvent;
