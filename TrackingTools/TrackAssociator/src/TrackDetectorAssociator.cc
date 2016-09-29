@@ -804,9 +804,9 @@ void TrackDetectorAssociator::fillMuon( const edm::Event& iEvent,
                  }
               }
 	}
-	// GEM Chamber   
-	else if (parameters.useGEM){
-	  if(const GEMSuperChamber* chamber = dynamic_cast<const GEMSuperChamber*>(geomDet) ) {	 
+	// GEM Chamber or ME0 Chamber
+	else if (parameters.useGEM || parameters.useME0){
+	  if (const GEMSuperChamber* chamber = dynamic_cast<const GEMSuperChamber*>(geomDet) ) {	 
 	    // Get the range for the corresponding segments
 	    GEMSegmentCollection::range  range = gemSegments->get(chamber->id());
 	    // Loop over the segments
@@ -815,11 +815,8 @@ void TrackDetectorAssociator::fillMuon( const edm::Event& iEvent,
 		matchedChamber->segments.back().gemSegmentRef = GEMSegmentRef(gemSegments, segment - gemSegments->begin());
 	      }
 	    }
-	  }
-	}
-	// ME0 Chamber   
-	else if (parameters.useME0){
-	  if(const ME0Chamber* chamber = dynamic_cast<const ME0Chamber*>(geomDet) ) {
+	  }	
+	  else if (const ME0Chamber* chamber = dynamic_cast<const ME0Chamber*>(geomDet) ) {
 	    // Get the range for the corresponding segments
 	    ME0SegmentCollection::range  range = me0Segments->get(chamber->id());
 	    // Loop over the segments
