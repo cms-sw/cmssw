@@ -32,6 +32,7 @@ void l1t::Stage2Layer2DemuxSumsAlgoFirmwareImp1::processEvent(const std::vector<
   int32_t et(0), etem(0), metx(0), mety(0), metxHF(0), metyHF(0), ht(0), mhtx(0), mhty(0), mhtxHF(0), mhtyHF(0), metPhi(0), metPhiHF(0), mhtPhi(0), mhtPhiHF(0);
   uint32_t met(0), metHF(0), mht(0), mhtHF(0);
   uint32_t mbp0(0), mbm0(0), mbp1(0), mbm1(0);
+  uint32_t ntow(0);
 
   // Add up the x, y and scalar components
   for (std::vector<l1t::EtSum>::const_iterator eSum = inputSums.begin() ; eSum != inputSums.end() ; ++eSum )
@@ -98,6 +99,10 @@ void l1t::Stage2Layer2DemuxSumsAlgoFirmwareImp1::processEvent(const std::vector<
 	mbm1 = eSum->hwPt();
 	break;
 
+      case l1t::EtSum::EtSumType::kTowerCount:
+	ntow = eSum->hwPt();
+	break;
+
       default:
         continue; // Should throw an exception or something?
       }
@@ -149,6 +154,7 @@ void l1t::Stage2Layer2DemuxSumsAlgoFirmwareImp1::processEvent(const std::vector<
   l1t::EtSum etSumMinBiasHFM0(p4,l1t::EtSum::EtSumType::kMinBiasHFM0,mbm0,0,0,0);
   l1t::EtSum etSumMinBiasHFP1(p4,l1t::EtSum::EtSumType::kMinBiasHFP1,mbp1,0,0,0);
   l1t::EtSum etSumMinBiasHFM1(p4,l1t::EtSum::EtSumType::kMinBiasHFM1,mbm1,0,0,0);
+  l1t::EtSum etSumTowCount(p4,l1t::EtSum::EtSumType::kTowerCount,ntow,0,0,0);
 
   outputSums.push_back(etSumTotalEt);
   outputSums.push_back(etSumTotalEtEm);
@@ -161,5 +167,6 @@ void l1t::Stage2Layer2DemuxSumsAlgoFirmwareImp1::processEvent(const std::vector<
   outputSums.push_back(etSumMinBiasHFM1);
   outputSums.push_back(etSumMissingEtHF);
   outputSums.push_back(htSumMissingHtHF);
+  outputSums.push_back(etSumTowCount);
   
 }

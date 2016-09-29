@@ -38,7 +38,8 @@ namespace l1t {
       kTotalHtHF,
       kTotalHtxHF,
       kTotalHtyHF,
-      kMissingHtHF
+      kMissingHtHF,
+      kTowerCount      
     };
 
     EtSum(){}
