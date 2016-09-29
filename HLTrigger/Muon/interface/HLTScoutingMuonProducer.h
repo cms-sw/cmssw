@@ -65,6 +65,7 @@ class HLTScoutingMuonProducer : public edm::global::EDProducer<> {
 
         const double muonPtCut;
         const double muonEtaCut;
+	const double minVtxProbCut;
 };
 
 #endif

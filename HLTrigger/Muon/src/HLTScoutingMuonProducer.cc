@@ -35,7 +35,8 @@ HLTScoutingMuonProducer::HLTScoutingMuonProducer(const edm::ParameterSet& iConfi
     vertexCollection_(consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("vertexCollection"))),
     displacedvertexCollection_(consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("displacedvertexCollection"))),
     muonPtCut(iConfig.getParameter<double>("muonPtCut")),
-    muonEtaCut(iConfig.getParameter<double>("muonEtaCut"))
+    muonEtaCut(iConfig.getParameter<double>("muonEtaCut")),
+    minVtxProbCut(iConfig.getParameter<double>("minVtxProbCut"))
 {
     //register products
     produces<ScoutingMuonCollection>();
@@ -87,128 +88,115 @@ void HLTScoutingMuonProducer::produce(edm::StreamID sid, edm::Event & iEvent,
 
     //get vertices
     Handle<reco::VertexCollection> vertexCollection;
-    if(!iEvent.getByToken(vertexCollection_, vertexCollection)){
-      iEvent.put(std::move(outVertices), "primaryVtx");
-      return;
-    }
-    for(auto &vtx : *vertexCollection){
-      if ( !vtx.isValid() ) continue ;
-      outVertices->emplace_back(
-				vtx.x(), vtx.y(), vtx.z(), vtx.zError(), vtx.xError(), vtx.yError(), vtx.tracksSize(), vtx.chi2(), vtx.ndof()
-				);
-    }
-    
-
-    //get displaced vertices
-    Handle<reco::VertexCollection> displacedvertexCollection;
-    if(!iEvent.getByToken(displacedvertexCollection_, displacedvertexCollection)){
-      iEvent.put(std::move(dispVertices), "displacedVtx");
-      return;
+    if(iEvent.getByToken(vertexCollection_, vertexCollection)){
+      for(auto &vtx : *vertexCollection){
+	if ( !vtx.isValid() ) continue ;
+	outVertices->emplace_back(
+				  vtx.x(), vtx.y(), vtx.z(), vtx.zError(), vtx.xError(), vtx.yError(), vtx.tracksSize(), vtx.chi2(), vtx.ndof()
+				  );
+      }
     }
 
-    float minVtxProbability=0.001;
     std::pair<reco::RecoChargedCandidate,reco::RecoChargedCandidate> ivtxMuPair;
     std::vector<std::pair<reco::RecoChargedCandidate,reco::RecoChargedCandidate> > vtxMuPair;
     vtxMuPair.clear();
-
-    for(auto &dispvtx : *displacedvertexCollection){
-      if ( !dispvtx.isValid() ) continue ;
-      float vtxProb = 0.0;
-      if( (dispvtx.chi2()>=0.0) && (dispvtx.ndof()>0) ) vtxProb = TMath::Prob(dispvtx.chi2(), dispvtx.ndof() );
-      if (vtxProb < minVtxProbability) continue;
-
-      // Get the 2 tracks associated to displaced vertex
-      reco::Vertex::trackRef_iterator trackIt =  dispvtx.tracks_begin();
-      reco::TrackRef vertextkRef1 =  (*trackIt).castTo<reco::TrackRef>() ;
-      trackIt++;
-      reco::TrackRef vertextkRef2 =  (*trackIt).castTo<reco::TrackRef>();
-
-      // Get the muons associated with the tracks
-      int iFoundRefs = 0;
-      for (reco::RecoChargedCandidateCollection::const_iterator cand=ChargedCandidateCollection->begin(); cand!=ChargedCandidateCollection->end(); cand++) {
-	reco::TrackRef tkRef = cand->get<reco::TrackRef>();
-	if(tkRef == vertextkRef1) {ivtxMuPair.first= (*cand); iFoundRefs++ ;}
-	if(tkRef == vertextkRef2) {ivtxMuPair.second= (*cand); iFoundRefs++ ;}
-      }
-      if (iFoundRefs<2) continue;
-      vtxMuPair.push_back(ivtxMuPair);
+    
+    //get displaced vertices
+    Handle<reco::VertexCollection> displacedvertexCollection;
+    if(iEvent.getByToken(displacedvertexCollection_, displacedvertexCollection)){
       
-      dispVertices->emplace_back(
-				dispvtx.x(), dispvtx.y(), dispvtx.z(), 
-				dispvtx.zError(), dispvtx.xError(), 
-				dispvtx.yError(), dispvtx.tracksSize(), 
-				dispvtx.chi2(), dispvtx.ndof()
-				);
-      
-    }
-
-     // Produce muons
-     std::vector<int> vtxInd;
-     vtxInd.clear();
-     float minDR=0.001;
-     int index = 0;
-     for (auto &muon : *ChargedCandidateCollection) {
-        reco::RecoChargedCandidateRef muonRef = getRef(ChargedCandidateCollection, index);
-        ++index;
-        if (muonRef.isNull() || !muonRef.isAvailable())
-            continue;
-
-        reco::TrackRef track = muon.track();
-        if (track.isNull() || !track.isAvailable())
-            continue;
-
-        if (muon.pt() < muonPtCut)
-            continue;
-        if (fabs(muon.eta()) > muonEtaCut)
-            continue;
-
-	double ecalisopf=-99.0;
-	if  ( !EcalPFClusterIsoMap.isValid() ) ecalisopf = -1.0 ;
-	else ecalisopf = (*EcalPFClusterIsoMap)[muonRef]; 
-
-	double hcalisopf=-99.0;
-	if  ( !HcalPFClusterIsoMap.isValid() ) hcalisopf = -1.0 ;
-	else hcalisopf = (*HcalPFClusterIsoMap)[muonRef]; 
-
+      for(auto &dispvtx : *displacedvertexCollection){
+	if ( !dispvtx.isValid() ) continue ;
+	float vtxProb = 0.0;
+	if( (dispvtx.chi2()>=0.0) && (dispvtx.ndof()>0) ) vtxProb = TMath::Prob(dispvtx.chi2(), dispvtx.ndof() );
+	if (vtxProb < minVtxProbCut) continue;
 	
-	for (unsigned int i=0; i<vtxMuPair.size(); i++) {
-	  float dr1 = reco::deltaR( ((vtxMuPair.at(i)).first),muon );
-	  float dr2 = reco::deltaR( ((vtxMuPair.at(i)).second),muon );
-	  if ( (dr1<minDR) || (dr2<minDR) )  vtxInd.push_back(i) ;
+	// Get the 2 tracks associated to displaced vertex
+	reco::Vertex::trackRef_iterator trackIt =  dispvtx.tracks_begin();
+	reco::TrackRef vertextkRef1 =  (*trackIt).castTo<reco::TrackRef>() ;
+	trackIt++;
+	reco::TrackRef vertextkRef2 =  (*trackIt).castTo<reco::TrackRef>();
+	
+	// Get the muons associated with the tracks
+	int iFoundRefs = 0;
+	for (reco::RecoChargedCandidateCollection::const_iterator cand=ChargedCandidateCollection->begin(); cand!=ChargedCandidateCollection->end(); cand++) {
+	  reco::TrackRef tkRef = cand->get<reco::TrackRef>();
+	  if(tkRef == vertextkRef1) {ivtxMuPair.first= (*cand); iFoundRefs++ ;}
+	  if(tkRef == vertextkRef2) {ivtxMuPair.second= (*cand); iFoundRefs++ ;}
 	}
-
-        outMuons->emplace_back(muon.pt(), muon.eta(), muon.phi(),  muon.mass(),
-			       ecalisopf, hcalisopf,
-                               (*TrackIsoMap)[muonRef], track->chi2(), track->ndof(),
-                               track->charge(), track->dxy(), track->dz(),
-                               track->hitPattern().numberOfValidMuonHits(),
-                               track->hitPattern().numberOfValidPixelHits(),
-                               0, // nMatchedStations
-                               track->hitPattern().trackerLayersWithMeasurement(),
-                               2, // Global muon
-			       track->hitPattern().numberOfValidStripHits(),
-			       track->qoverp(),
-			       track->lambda(),
-			       track->pt(),
-			       track->vx(),
-			       track->vy(),
-			       track->vz(),
-			       track->phi(),
-			       track->eta(),
-			       track->dxyError(),
-			       track->dzError(),
-			       track->qoverpError(),
-			       track->lambdaError(),
-			       track->phiError(),
-			       track->dsz(),
-			       track->dszError(),
-			       vtxInd
-			       );
+	if (iFoundRefs<2) continue;
+	vtxMuPair.push_back(ivtxMuPair);
+	
+	dispVertices->emplace_back(
+				   dispvtx.x(), dispvtx.y(), dispvtx.z(), 
+				   dispvtx.zError(), dispvtx.xError(), 
+				   dispvtx.yError(), dispvtx.tracksSize(), 
+				   dispvtx.chi2(), dispvtx.ndof()
+				   );
+	
+      }
     }
-
-
-
-   
+    
+    // Produce muons
+    std::vector<int> vtxInd;
+    vtxInd.clear();
+    float minDR2=1e-06;
+    int index = 0;
+    for (auto &muon : *ChargedCandidateCollection) {
+      reco::RecoChargedCandidateRef muonRef = getRef(ChargedCandidateCollection, index);
+      ++index;
+      if (muonRef.isNull() || !muonRef.isAvailable())
+	continue;
+      
+      reco::TrackRef track = muon.track();
+      if (track.isNull() || !track.isAvailable())
+	continue;
+      
+      if (muon.pt() < muonPtCut)
+	continue;
+      if (fabs(muon.eta()) > muonEtaCut)
+	continue;
+      
+      double ecalisopf=-99.0;
+      if  ( !EcalPFClusterIsoMap.isValid() ) ecalisopf = -1.0 ;
+      else ecalisopf = (*EcalPFClusterIsoMap)[muonRef]; 
+      
+      double hcalisopf=-99.0;
+      if  ( !HcalPFClusterIsoMap.isValid() ) hcalisopf = -1.0 ;
+      else hcalisopf = (*HcalPFClusterIsoMap)[muonRef]; 
+      
+      for (unsigned int i=0; i<vtxMuPair.size(); i++) {
+	float dr2_1 = reco::deltaR2( ((vtxMuPair.at(i)).first),muon );
+	float dr2_2 = reco::deltaR2( ((vtxMuPair.at(i)).second),muon );
+	if ( (dr2_1<minDR2) || (dr2_2<minDR2) )  vtxInd.push_back(i) ;
+      }
+      
+      outMuons->emplace_back(muon.pt(), muon.eta(), muon.phi(),  muon.mass(),
+			     ecalisopf, hcalisopf,
+			     (*TrackIsoMap)[muonRef], track->chi2(), track->ndof(),
+			     track->charge(), track->dxy(), track->dz(),
+			     track->hitPattern().numberOfValidMuonHits(),
+			     track->hitPattern().numberOfValidPixelHits(),
+			     0, // nMatchedStations
+			     track->hitPattern().trackerLayersWithMeasurement(),
+			     2, // Global muon
+			     track->hitPattern().numberOfValidStripHits(),
+			     track->qoverp(),
+			     track->lambda(),
+			     track->pt(),
+			     track->phi(),
+			     track->eta(),
+			     track->dxyError(),
+			     track->dzError(),
+			     track->qoverpError(),
+			     track->lambdaError(),
+			     track->phiError(),
+			     track->dsz(),
+			     track->dszError(),
+			     vtxInd
+			     );
+    }
+    
     // Put output
     iEvent.put(std::move(outMuons));
     iEvent.put(std::move(outVertices), "primaryVtx");
@@ -228,5 +216,6 @@ void HLTScoutingMuonProducer::fillDescriptions(edm::ConfigurationDescriptions& d
     desc.add<edm::InputTag>("displacedvertexCollection", edm::InputTag("hltDisplacedmumuVtxProducerDoubleMu3NoVtx"));
     desc.add<double>("muonPtCut", 4.0);
     desc.add<double>("muonEtaCut", 2.4);
+    desc.add<double>("minVtxProbCut", 0.001);
     descriptions.add("hltScoutingMuonProducer", desc);
 }

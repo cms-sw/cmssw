@@ -13,7 +13,7 @@ class ScoutingMuon
 	      float trackIso, float chi2, float ndof, int charge, float dxy, float dz,
 	      int nValidMuonHits, int nValidPixelHits, int nMatchedStations,
 	      int nTrackerLayersWithMeasurement, int type, int nValidStripHits, float trk_qoverp, 
-	      float trk_lambda, float trk_pt, float trk_vx, float trk_vy, float trk_vz, 
+	      float trk_lambda, float trk_pt, 
 	      float trk_phi, float trk_eta, float dxyError, float dzError, float trk_qoverpError, 
 	      float trk_lambdaError, float trk_phiError, float trk_dsz, float trk_dszError, std::vector<int> vtxIndx):
   pt_(pt), eta_(eta), phi_(phi), m_(m),
@@ -23,7 +23,6 @@ class ScoutingMuon
     nMatchedStations_(nMatchedStations),
     nTrackerLayersWithMeasurement_(nTrackerLayersWithMeasurement), type_(type), nValidStripHits_(nValidStripHits), trk_qoverp_(trk_qoverp), 
     trk_lambda_(trk_lambda), trk_pt_(trk_pt), 
-    trk_vx_(trk_vx), trk_vy_(trk_vy), trk_vz_(trk_vz),
     trk_phi_(trk_phi), trk_eta_(trk_eta), dxyError_(dxyError), dzError_(dzError), trk_qoverpError_(trk_qoverpError), trk_lambdaError_(trk_lambdaError), 
     trk_phiError_(trk_phiError), trk_dsz_(trk_dsz), trk_dszError_(trk_dszError), vtxIndx_(vtxIndx){}
   //default constructor
@@ -31,7 +30,7 @@ class ScoutingMuon
     chi2_(0), ndof_(0), charge_(0), dxy_(0), dz_(0), nValidMuonHits_(0),
     nValidPixelHits_(0), nMatchedStations_(0), nTrackerLayersWithMeasurement_(0),
     type_(0), nValidStripHits_(0), trk_qoverp_(0),
-    trk_lambda_(0), trk_pt_(0), trk_vx_(0), trk_vy_(0), trk_vz_(0), 
+    trk_lambda_(0), trk_pt_(0), 
     trk_phi_(0), trk_eta_(0), dxyError_(0), dzError_(0), trk_qoverpError_(0), trk_lambdaError_(0), 
     trk_phiError_(0), trk_dsz_(0), trk_dszError_(0), vtxIndx_(0){}
   
@@ -59,9 +58,6 @@ class ScoutingMuon
   float trk_qoverp() const { return trk_qoverp_; }
   float trk_lambda() const { return trk_lambda_; }
   float trk_pt() const { return trk_pt_; }
-  float trk_vx() const { return trk_vx_; }
-  float trk_vy() const { return trk_vy_; }
-  float trk_vz() const { return trk_vz_; }
   float trk_phi() const { return trk_phi_; }
   float trk_eta() const { return trk_eta_; }
   float dxyError() const { return dxyError_; }
@@ -95,9 +91,6 @@ class ScoutingMuon
   float trk_qoverp_;
   float trk_lambda_;
   float trk_pt_;
-  float trk_vx_;
-  float trk_vy_;
-  float trk_vz_;
   float trk_phi_;
   float trk_eta_;
   float dxyError_;
