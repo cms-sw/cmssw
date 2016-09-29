@@ -1,17 +1,26 @@
-#!/bin/bash
+#!/bin/sh
+
+if [ $# -ne 2 ] ; then echo 'Please, provide the 2 arguments: tscKey and rsKey'; exit 2; fi
+
+#source /opt/offline/cmsset_default.sh
+#cd /data/O2O/L1T/v9.0/CMSSW_8_0_18
+#cmsenv
+#cd -
+
+DBAuth=/data/O2O/L1T/
 
 rm -f l1config.db
 
 if [ -e l1configBlank.db ] ; then
     echo "Using pre-initialized l1configBlank.db sqlite file";
 else
-    cmsRun ${CMSSW_BASE}/src/CondTools/L1TriggerExt/test/init_cfg.py useO2OTags=1 outputDBConnect=sqlite:./l1configBlank.db outputDBAuth=./
+    cmsRun ${CMSSW_BASE}/src/CondTools/L1TriggerExt/test/init_cfg.py useO2OTags=1 outputDBConnect=sqlite:./l1configBlank.db outputDBAuth=${DBAuth}
     initcode=$?
     if [ $initcode -ne 0 ] ; then echo "Failed to initialize sqlite file"; exit 1 ; fi
-    cmsRun ${CMSSW_BASE}/src/CondTools/L1TriggerExt/test/L1ConfigWriteSinglePayloadExt_cfg.py objectKey="OMTF_ALGO_EMPTY" objectType=L1TMuonOverlapParams recordName=L1TMuonOverlapParamsO2ORcd useO2OTags=1 outputDBConnect=sqlite:l1configBlank.db outputDBAuth=/data/O2O/L1T/pro/o2o/
+    cmsRun ${CMSSW_BASE}/src/CondTools/L1TriggerExt/test/L1ConfigWriteSinglePayloadExt_cfg.py objectKey="OMTF_ALGO_EMPTY" objectType=L1TMuonOverlapParams recordName=L1TMuonOverlapParamsO2ORcd useO2OTags=1 outputDBConnect=sqlite:l1configBlank.db outputDBAuth=${DBAuth}
     initcode=$?
     if [ $initcode -ne 0 ] ; then echo "Failed to write OMTF_ALGO_EMPTY in sqlite file" ; exit 1 ; fi
-    cmsRun ${CMSSW_BASE}/src/CondTools/L1TriggerExt/test/L1ConfigWriteSinglePayloadExt_cfg.py objectKey="EMTF_ALGO_EMPTY" objectType=L1TMuonEndCapParams recordName=L1TMuonEndcapParamsO2ORcd useO2OTags=1 outputDBConnect=sqlite:l1configBlank.db outputDBAuth=/data/O2O/L1T/pro/o2o/
+    cmsRun ${CMSSW_BASE}/src/CondTools/L1TriggerExt/test/L1ConfigWriteSinglePayloadExt_cfg.py objectKey="EMTF_ALGO_EMPTY" objectType=L1TMuonEndCapParams recordName=L1TMuonEndcapParamsO2ORcd useO2OTags=1 outputDBConnect=sqlite:l1configBlank.db outputDBAuth=${DBAuth}
     initcode=$?
     if [ $initcode -ne 0 ] ; then echo "Failed to write EMTF_ALGO_EMPTY in sqlite files" ; exit 1 ; fi
 fi
@@ -19,12 +28,10 @@ fi
 # save some time by restoring an always ready template:
 cp l1configBlank.db l1config.db
 
-DBAuth=/data/O2O/L1T/
-
 keys=$(cmsRun ${CMSSW_BASE}/src/L1TriggerConfig/Utilities/test/viewTKEonline.py tscKey=$1 rsKey=$2 DBAuth=${DBAuth} 2>/dev/null | grep ' key: ')
 
 keyscode=$?
-if [ $keyscode -ne 0 ] ; then echo "Failed to get the list of trigger keys for L1T subsystems. Did you supply the 2 arguments: tscKey and rsKey ? " ; exit 2 ; fi
+if [ $keyscode -ne 0 ] ; then echo "Failed to get the list of trigger keys for L1T subsystems. Did you provide the 2 arguments: tscKey and rsKey ? " ; exit 2 ; fi
 
 uGT_key=$(echo $keys | sed -n -e's|.*uGT *key: \([^ ]*\).*|\1|gp')
 uGMT_key=$(echo $keys | sed -n -e's|.*uGMT *key: \([^ ]*\).*|\1|gp')
@@ -67,8 +74,8 @@ if [ $emtfcode    -ne 0 ] ; then exitcode=`expr $exitcode + 10000000`; fi
 
 echo "Status codes: uGT: $ugtcode,  CALO: $caloparcode,  BMTF: $bmtfcode,  uGMT: $ugmtcode,  uGTrs: $ugtrscode,  OMTF: $omtfcode,  EMTF:$emtfcode,  Total: $exitcode"
 
-if [ -n $exitcode ] ; then
-    echo "Everythin looks good"
+if [ $exitcode -eq 0 ] ; then
+    echo "Everything looks good"
 else
     echo "Problems encountered, NOT ok"
 fi
