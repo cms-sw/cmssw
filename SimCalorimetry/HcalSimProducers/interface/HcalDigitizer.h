@@ -153,6 +153,7 @@ private:
   bool isZDC,isHCAL,zdcgeo,hbhegeo,hogeo,hfgeo;
   bool testNumbering_;
   bool doHFWindow_;
+  bool killHE_;
 
   std::string hitsProducer_;
 
