@@ -120,6 +120,8 @@ class TriggerSummaryProducerAOD : public edm::stream::EDProducer<edm::GlobalCach
  private:
   /// process name
   std::string pn_;
+  /// module labels which should be avoided
+  const std::vector<std::string> moduleLabelsToSkip_;
 
   /// InputTag ordering class
   struct OrderInputTag {
