@@ -13,6 +13,7 @@
 #include <cstdio>
 #include <vector>
 #include <map>
+#include <cmath>
 
 namespace CDFHeaderSpec{
   static const int OFFSET_H = 0; 
@@ -394,13 +395,13 @@ public:
      return header;
   }
 
-  uhtrData* newUHTR( int uhtrIndex , int orn = 0 , int bcn = 0 , uint64_t evt = 0 ){
+  uhtrData* newUHTR( int uhtrIndex , int ps = 0, int orn = 0 , int bcn = 0 , uint64_t evt = 0 ){
     
     // initialize vector of 16-bit words
     uhtrs[uhtrIndex] = uhtrData(8);
     // build header -- some information will be updated at the end    
     
-    uint64_t presamples    = 10;
+    uint64_t presamples    = std::max(ps,0);
     uint64_t uhtrCrate     = uhtrIndex&0xFF;
     uint64_t uhtrSlot      = (uhtrIndex&0xF00)>>8; 
 // From Jeremy:
