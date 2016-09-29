@@ -8,10 +8,20 @@
 
 REGISTER_PLUGIN(L1TriggerKeyRcd, L1TriggerKey);
 
+#include "CondFormats/DataRecord/interface/L1TriggerKeyExtRcd.h"
+#include "CondFormats/L1TObjects/interface/L1TriggerKeyExt.h"
+
+REGISTER_PLUGIN(L1TriggerKeyExtRcd, L1TriggerKeyExt);
+
 #include "CondFormats/DataRecord/interface/L1TriggerKeyListRcd.h"
 #include "CondFormats/L1TObjects/interface/L1TriggerKeyList.h"
 
 REGISTER_PLUGIN(L1TriggerKeyListRcd, L1TriggerKeyList);
+
+#include "CondFormats/DataRecord/interface/L1TriggerKeyListExtRcd.h"
+#include "CondFormats/L1TObjects/interface/L1TriggerKeyListExt.h"
+
+REGISTER_PLUGIN(L1TriggerKeyListExtRcd, L1TriggerKeyListExt);
 
 // L1 scales
 #include "CondFormats/L1TObjects/interface/L1CaloEtScale.h"
@@ -202,24 +212,41 @@ REGISTER_PLUGIN(L1CaloGeometryRecord, L1CaloGeometry);
 
 #include "CondFormats/L1TObjects/interface/CaloParams.h"
 #include "CondFormats/DataRecord/interface/L1TCaloParamsRcd.h"
+#include "CondFormats/DataRecord/interface/L1TCaloStage2ParamsRcd.h"
+#include "CondFormats/DataRecord/interface/L1TCaloParamsO2ORcd.h"
 #include "CondFormats/L1TObjects/interface/CaloConfig.h"
 #include "CondFormats/DataRecord/interface/L1TCaloConfigRcd.h"
 using namespace l1t;
+REGISTER_PLUGIN(L1TCaloParamsO2ORcd, CaloParams);
 REGISTER_PLUGIN(L1TCaloParamsRcd, CaloParams);
+REGISTER_PLUGIN(L1TCaloStage2ParamsRcd, CaloParams);
 REGISTER_PLUGIN(L1TCaloConfigRcd, CaloConfig);
+
+#include "CondFormats/L1TObjects/interface/L1TMuonEndCapParams.h"
+#include "CondFormats/DataRecord/interface/L1TMuonEndcapParamsRcd.h"
+#include "CondFormats/DataRecord/interface/L1TMuonEndcapParamsO2ORcd.h"
 
 #include "CondFormats/L1TObjects/interface/L1TMuonOverlapParams.h"
 #include "CondFormats/DataRecord/interface/L1TMuonOverlapParamsRcd.h"
+#include "CondFormats/DataRecord/interface/L1TMuonOverlapParamsO2ORcd.h"
 
 #include "CondFormats/L1TObjects/interface/L1TMuonBarrelParams.h"
 #include "CondFormats/DataRecord/interface/L1TMuonBarrelParamsRcd.h"
+#include "CondFormats/DataRecord/interface/L1TMuonBarrelParamsO2ORcd.h"
 
 #include "CondFormats/L1TObjects/interface/L1TMuonGlobalParams.h"
 #include "CondFormats/DataRecord/interface/L1TMuonGlobalParamsRcd.h"
+#include "CondFormats/DataRecord/interface/L1TMuonGlobalParamsO2ORcd.h"
 
+REGISTER_PLUGIN(L1TMuonEndcapParamsRcd,  L1TMuonEndCapParams);
 REGISTER_PLUGIN(L1TMuonOverlapParamsRcd, L1TMuonOverlapParams);
 REGISTER_PLUGIN(L1TMuonBarrelParamsRcd, L1TMuonBarrelParams);
 REGISTER_PLUGIN(L1TMuonGlobalParamsRcd, L1TMuonGlobalParams);
+
+REGISTER_PLUGIN(L1TMuonEndcapParamsO2ORcd,  L1TMuonEndCapParams);
+REGISTER_PLUGIN(L1TMuonOverlapParamsO2ORcd, L1TMuonOverlapParams);
+REGISTER_PLUGIN(L1TMuonBarrelParamsO2ORcd, L1TMuonBarrelParams);
+REGISTER_PLUGIN(L1TMuonGlobalParamsO2ORcd, L1TMuonGlobalParams);
 
 #include "CondFormats/L1TObjects/interface/L1TUtmAlgorithm.h"
 #include "CondFormats/DataRecord/interface/L1TUtmAlgorithmRcd.h"
@@ -251,7 +278,9 @@ REGISTER_PLUGIN(L1TUtmScaleRcd, L1TUtmScale);
 
 #include "CondFormats/L1TObjects/interface/L1TUtmTriggerMenu.h"
 #include "CondFormats/DataRecord/interface/L1TUtmTriggerMenuRcd.h"
+#include "CondFormats/DataRecord/interface/L1TUtmTriggerMenuO2ORcd.h"
 REGISTER_PLUGIN(L1TUtmTriggerMenuRcd, L1TUtmTriggerMenu);
+REGISTER_PLUGIN(L1TUtmTriggerMenuO2ORcd, L1TUtmTriggerMenu);
 
 #include "CondFormats/L1TObjects/interface/L1TGlobalParameters.h"
 #include "CondFormats/DataRecord/interface/L1TGlobalParametersRcd.h"
@@ -259,4 +288,6 @@ REGISTER_PLUGIN(L1TGlobalParametersRcd, L1TGlobalParameters);
 
 #include "CondFormats/L1TObjects/interface/L1TGlobalPrescalesVetos.h"
 #include "CondFormats/DataRecord/interface/L1TGlobalPrescalesVetosRcd.h"
+#include "CondFormats/DataRecord/interface/L1TGlobalPrescalesVetosO2ORcd.h"
 REGISTER_PLUGIN(L1TGlobalPrescalesVetosRcd, L1TGlobalPrescalesVetos);
+REGISTER_PLUGIN(L1TGlobalPrescalesVetosO2ORcd, L1TGlobalPrescalesVetos);

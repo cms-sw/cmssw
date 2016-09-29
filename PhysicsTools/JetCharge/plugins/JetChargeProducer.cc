@@ -14,11 +14,10 @@ void JetChargeProducer::produce(edm::StreamID, edm::Event &iEvent, const edm::Ev
 
     if (hJTAs->keyProduct().isNull()) {
         // need to work around this bug someway, altough it's not stricly my fault
-        std::auto_ptr<JetChargeCollection> ret(new JetChargeCollection());
-        iEvent.put(ret);
+        iEvent.put(std::make_unique<JetChargeCollection>());
         return;
     }
-    std::auto_ptr<JetChargeCollection> ret(new JetChargeCollection(hJTAs->keyProduct()));
+    auto ret = std::make_unique<JetChargeCollection>(hJTAs->keyProduct());
     for (IT it = hJTAs->begin(), ed = hJTAs->end(); it != ed; ++it) {
         const JetRef &jet = it->first;
         const reco::TrackRefVector &tracks = it->second;
@@ -26,5 +25,5 @@ void JetChargeProducer::produce(edm::StreamID, edm::Event &iEvent, const edm::Ev
         reco::JetFloatAssociation::setValue(*ret, jet, val);
     }
 
-    iEvent.put(ret);
+    iEvent.put(std::move(ret));
 }

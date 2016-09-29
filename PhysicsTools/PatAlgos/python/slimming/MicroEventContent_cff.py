@@ -15,7 +15,6 @@ MicroEventContent = cms.PSet(
         'keep *_slimmedMETsNoHF_*_*',
         'keep *_slimmedMETsPuppi_*_*',
         'keep *_slimmedSecondaryVertices_*_*',
-        'keep *_slimmedJetsAK8PFCHSSoftDropPacked_SubJets_*',
         'keep *_slimmedJetsAK8PFPuppiSoftDropPacked_SubJets_*',
 
         'keep recoPhotonCores_reducedEgamma_*_*',
@@ -63,14 +62,18 @@ MicroEventContent = cms.PSet(
         'keep patPackedCandidates_lostTracks_*_*',
         'keep HcalNoiseSummary_hcalnoise__*',
         'keep recoCSCHaloData_CSCHaloData_*_*',
-        'keep recoBeamHaloSummary_BeamHaloSummary_*_*'
+        'keep recoBeamHaloSummary_BeamHaloSummary_*_*',
+        # Lumi
+        'keep LumiScalerss_scalersRawToDigi_*_*',
     )
 )
 MicroEventContentMC = cms.PSet(
     outputCommands = cms.untracked.vstring(MicroEventContent.outputCommands)
 )
 MicroEventContentMC.outputCommands += [
-        'keep *_slimmedGenJets*_*_*',
+        #'keep *_slimmedGenJets*_*_*',
+        'keep *_slimmedGenJets_*_*',
+        'keep *_slimmedGenJetsAK8_*_*',
         'keep patPackedGenParticles_packedGenParticles_*_*',
         'keep recoGenParticles_prunedGenParticles_*_*',
         'keep LHEEventProduct_*_*_*',

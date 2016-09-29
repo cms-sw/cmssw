@@ -16,11 +16,6 @@ public:
   std::vector<HcalTrigTowerDetId> towerIds(const HcalDetId & cellId) const;
   std::vector<HcalDetId> detIds(const HcalTrigTowerDetId &) const;
 
-  void setupHFTowers(bool enableRCT, bool enable1x1) {
-    useRCT_=enableRCT;
-    use1x1_=enable1x1;
-  }
-
   int firstHFTower(int version) const {return (version==0)?(29):(30);} 
 
   /// where this tower begins and ends in eta
@@ -53,8 +48,10 @@ public:
 
  private:
   const HcalTopology* theTopology;
+
   bool useRCT_;
   bool use1x1_;
+  bool use2017_;
 };
 
 #endif

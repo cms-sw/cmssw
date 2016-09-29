@@ -41,7 +41,7 @@ pat::PATVertexSlimmer::~PATVertexSlimmer() {}
 void pat::PATVertexSlimmer::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
     edm::Handle<std::vector<reco::Vertex> > vertices;
     iEvent.getByToken(src_, vertices);
-    std::auto_ptr<std::vector<reco::Vertex> > outPtr(new std::vector<reco::Vertex>());
+    auto outPtr = std::make_unique<std::vector<reco::Vertex>>();
 
     outPtr->reserve(vertices->size());
     for (unsigned int i = 0, n = vertices->size(); i < n; ++i) {
@@ -57,11 +57,11 @@ void pat::PATVertexSlimmer::produce(edm::StreamID, edm::Event& iEvent, const edm
         outPtr->push_back(reco::Vertex(v.position(), co, v.chi2(), v.ndof(), 0));
     }
 
-    auto oh = iEvent.put(outPtr);
+    auto oh = iEvent.put(std::move(outPtr));
     if(rekeyScores_) {
       edm::Handle<edm::ValueMap<float> > scores;
       iEvent.getByToken(score_, scores);
-      std::auto_ptr<edm::ValueMap<float> >  vertexScoreOutput( new edm::ValueMap<float> );
+      auto vertexScoreOutput = std::make_unique<edm::ValueMap<float>>();
       edm::ValueMap<float>::const_iterator idIt=scores->begin();
       for(;idIt!=scores->end();idIt++) {
           if(idIt.id() ==  vertices.id()) break;
@@ -70,7 +70,7 @@ void pat::PATVertexSlimmer::produce(edm::StreamID, edm::Event& iEvent, const edm
       edm::ValueMap<float>::Filler vertexScoreFiller(*vertexScoreOutput);
       vertexScoreFiller.insert(oh,idIt.begin(),idIt.end());
       vertexScoreFiller.fill();
-      iEvent.put( vertexScoreOutput );
+      iEvent.put(std::move(vertexScoreOutput));
     }
 }
 

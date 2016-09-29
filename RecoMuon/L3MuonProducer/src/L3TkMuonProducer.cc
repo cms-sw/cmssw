@@ -193,10 +193,10 @@ void L3TkMuonProducer::produce(Event& event, const EventSetup& eventSetup) {
 
 
   //prepare the output
-  std::auto_ptr<TrackCollection> outTracks( new TrackCollection(LXtoL3s.size()));
-  std::auto_ptr<TrackExtraCollection> outTrackExtras( new TrackExtraCollection(LXtoL3s.size()));
+  auto outTracks = std::make_unique<TrackCollection>(LXtoL3s.size());
+  auto outTrackExtras = std::make_unique<TrackExtraCollection>(LXtoL3s.size());
   reco::TrackExtraRefProd rTrackExtras = event.getRefBeforePut<TrackExtraCollection>();
-  std::auto_ptr<TrackingRecHitCollection> outRecHits( new TrackingRecHitCollection());
+  auto outRecHits = std::make_unique<TrackingRecHitCollection>();
   TrackingRecHitRefProd rHits = event.getRefBeforePut<TrackingRecHitCollection>();
 
   LogDebug(metname)<<"reading the map to make "<< LXtoL3s.size()<<"products.";
@@ -233,9 +233,9 @@ void L3TkMuonProducer::produce(Event& event, const EventSetup& eventSetup) {
 
   //put the collection in the event
   LogDebug(metname)<<"loading...";
-  event.put(outTracks);
-  event.put(outTrackExtras);
-  event.put(outRecHits);
+  event.put(std::move(outTracks));
+  event.put(std::move(outTrackExtras));
+  event.put(std::move(outRecHits));
   LogDebug(metname)<<" Event loaded"
 		   <<"================================";
 }

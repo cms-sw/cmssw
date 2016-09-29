@@ -207,30 +207,30 @@ void GenHFHadronMatcher::produce ( edm::Event& evt, const edm::EventSetup& setup
     evt.getByToken(jetFlavourInfosToken_, jetFlavourInfos);
     
     // Defining adron matching variables
-    std::auto_ptr<std::vector<reco::GenParticle> > hadMothers ( new std::vector<reco::GenParticle> );
-    std::auto_ptr<std::vector<std::vector<int> > > hadMothersIndices ( new std::vector<std::vector<int> > );
-    std::auto_ptr<std::vector<int> > hadIndex ( new std::vector<int> );
-    std::auto_ptr<std::vector<int> > hadFlavour ( new std::vector<int> );
-    std::auto_ptr<std::vector<int> > hadJetIndex ( new std::vector<int> );
-    std::auto_ptr<std::vector<int> > hadLeptonIndex ( new std::vector<int> );
-    std::auto_ptr<std::vector<int> > hadLeptonHadIndex ( new std::vector<int> );
-    std::auto_ptr<std::vector<int> > hadLeptonViaTau( new std::vector<int> );
-    std::auto_ptr<std::vector<int> > hadFromTopWeakDecay ( new std::vector<int> );
-    std::auto_ptr<std::vector<int> > hadBHadronId ( new std::vector<int> );
+    auto hadMothers = std::make_unique<std::vector<reco::GenParticle> >();
+    auto hadMothersIndices = std::make_unique<std::vector<std::vector<int> > >();
+    auto hadIndex = std::make_unique<std::vector<int> >();
+    auto hadFlavour = std::make_unique<std::vector<int> >();
+    auto hadJetIndex = std::make_unique<std::vector<int> >();
+    auto hadLeptonIndex = std::make_unique<std::vector<int> >();
+    auto hadLeptonHadIndex = std::make_unique<std::vector<int> >();
+    auto hadLeptonViaTau = std::make_unique<std::vector<int> >();
+    auto hadFromTopWeakDecay = std::make_unique<std::vector<int> >();
+    auto hadBHadronId = std::make_unique<std::vector<int> >();
     
     *hadJetIndex = findHadronJets (genParticles.product(), jetFlavourInfos.product(), *hadIndex, *hadMothers, *hadMothersIndices, *hadLeptonIndex, *hadLeptonHadIndex, *hadLeptonViaTau, *hadFlavour, *hadFromTopWeakDecay, *hadBHadronId );
 
     // Putting products to the event
-    evt.put ( hadMothers,         "gen"+flavourStr_+"HadPlusMothers" );
-    evt.put ( hadMothersIndices,  "gen"+flavourStr_+"HadPlusMothersIndices" );
-    evt.put ( hadIndex,           "gen"+flavourStr_+"HadIndex" );
-    evt.put ( hadFlavour,         "gen"+flavourStr_+"HadFlavour" );
-    evt.put ( hadJetIndex,        "gen"+flavourStr_+"HadJetIndex" );
-    evt.put ( hadLeptonIndex,     "gen"+flavourStr_+"HadLeptonIndex" );
-    evt.put ( hadLeptonHadIndex,  "gen"+flavourStr_+"HadLeptonHadronIndex" );
-    evt.put ( hadLeptonViaTau,    "gen"+flavourStr_+"HadLeptonViaTau" );
-    evt.put ( hadFromTopWeakDecay,"gen"+flavourStr_+"HadFromTopWeakDecay" );
-    evt.put ( hadBHadronId,       "gen"+flavourStr_+"HadBHadronId" );
+    evt.put(std::move(hadMothers),         "gen"+flavourStr_+"HadPlusMothers" );
+    evt.put(std::move(hadMothersIndices),  "gen"+flavourStr_+"HadPlusMothersIndices" );
+    evt.put(std::move(hadIndex),           "gen"+flavourStr_+"HadIndex" );
+    evt.put(std::move(hadFlavour),         "gen"+flavourStr_+"HadFlavour" );
+    evt.put(std::move(hadJetIndex),        "gen"+flavourStr_+"HadJetIndex" );
+    evt.put(std::move(hadLeptonIndex),     "gen"+flavourStr_+"HadLeptonIndex" );
+    evt.put(std::move(hadLeptonHadIndex),  "gen"+flavourStr_+"HadLeptonHadronIndex" );
+    evt.put(std::move(hadLeptonViaTau),    "gen"+flavourStr_+"HadLeptonViaTau" );
+    evt.put(std::move(hadFromTopWeakDecay),"gen"+flavourStr_+"HadFromTopWeakDecay" );
+    evt.put(std::move(hadBHadronId),       "gen"+flavourStr_+"HadBHadronId" );
 }
 
 // ------------ method called once each job just before starting event loop  ------------

@@ -21,7 +21,7 @@
 
 // forward declarations
 
-FWItemRandomAccessorBase::FWItemRandomAccessorBase(const TClass *type, const type_info &modelTypeName)
+FWItemRandomAccessorBase::FWItemRandomAccessorBase(const TClass *type, const std::type_info &modelTypeName)
 :m_type(type),
  m_modelType(TClass::GetClass(modelTypeName)),
  m_data(0)

@@ -70,12 +70,12 @@ void TrackProducerWithSCAssociation::produce(edm::Event& theEvent, const edm::Ev
   //
   // create empty output collections
   //
-  std::auto_ptr<TrackingRecHitCollection>    outputRHColl (new TrackingRecHitCollection);
-  std::auto_ptr<reco::TrackCollection>       outputTColl(new reco::TrackCollection);
-  std::auto_ptr<reco::TrackExtraCollection>  outputTEColl(new reco::TrackExtraCollection);
-  std::auto_ptr<std::vector<Trajectory> >    outputTrajectoryColl(new std::vector<Trajectory>);
+  auto outputRHColl = std::make_unique<TrackingRecHitCollection>();
+  auto outputTColl = std::make_unique<reco::TrackCollection>();
+  auto outputTEColl = std::make_unique<reco::TrackExtraCollection>();
+  auto outputTrajectoryColl = std::make_unique<std::vector<Trajectory>>();
   //   Reco Track - Super Cluster Association
-  std::auto_ptr<reco::TrackCaloClusterPtrAssociation> scTrkAssoc_p(new reco::TrackCaloClusterPtrAssociation);
+  auto scTrkAssoc_p = std::make_unique<reco::TrackCaloClusterPtrAssociation>();
 
   //
   //declare and get stuff to be retrieved from ES
@@ -184,7 +184,8 @@ void TrackProducerWithSCAssociation::produce(edm::Event& theEvent, const edm::Ev
     //put everything in the event
     // we copy putInEvt to get OrphanHandle filled...
     putInEvt(theEvent,thePropagator.product(),theMeasTk.product(), 
-	     outputRHColl, outputTColl, outputTEColl, outputTrajectoryColl, algoResults, theBuilder.product(), ttopo);
+	     std::move(outputRHColl), std::move(outputTColl), std::move(outputTEColl), std::move(outputTrajectoryColl),
+             algoResults, theBuilder.product(), ttopo);
     
     // now construct associationmap and put it in the  event
     if (  validTrackCandidateSCAssociationInput_ ) {    
@@ -203,7 +204,7 @@ void TrackProducerWithSCAssociation::produce(edm::Event& theEvent, const edm::Ev
       filler.fill();
     }    
     
-    theEvent.put(scTrkAssoc_p,trackSuperClusterAssociationCollection_ ); 
+    theEvent.put(std::move(scTrkAssoc_p),trackSuperClusterAssociationCollection_ ); 
     
   }
 
@@ -264,10 +265,10 @@ std::vector<reco::TransientTrack> TrackProducerWithSCAssociation::getTransient(e
 void TrackProducerWithSCAssociation::putInEvt(edm::Event& evt,
 					       const Propagator* thePropagator,
 					       const MeasurementTracker* theMeasTk,
-					       std::auto_ptr<TrackingRecHitCollection>& selHits,
-					       std::auto_ptr<reco::TrackCollection>& selTracks,
-					       std::auto_ptr<reco::TrackExtraCollection>& selTrackExtras,
-					       std::auto_ptr<std::vector<Trajectory> >&   selTrajectories,
+					       std::unique_ptr<TrackingRecHitCollection> selHits,
+					       std::unique_ptr<reco::TrackCollection> selTracks,
+					       std::unique_ptr<reco::TrackExtraCollection> selTrackExtras,
+					       std::unique_ptr<std::vector<Trajectory>> selTrajectories,
                                                AlgoProductCollection& algoResults, TransientTrackingRecHitBuilder const * hitBuilder,
                                                const TrackerTopology *ttopo)
 {
@@ -408,17 +409,17 @@ TrackingRecHitRefProd rHits = evt.getRefBeforePut<TrackingRecHitCollection>();
   //LogTrace("TrackingRegressionTest") << "=================================================";
 
 
-  rTracks_ = evt.put( selTracks );
+  rTracks_ = evt.put(std::move(selTracks));
 
 
-  evt.put( selTrackExtras );
-  evt.put( selHits );
+  evt.put(std::move(selTrackExtras));
+  evt.put(std::move(selHits));
   
   if(myTrajectoryInEvent_) {
-    edm::OrphanHandle<std::vector<Trajectory> > rTrajs = evt.put(selTrajectories);
+    edm::OrphanHandle<std::vector<Trajectory> > rTrajs = evt.put(std::move(selTrajectories));
     
     // Now Create traj<->tracks association map
-    std::auto_ptr<TrajTrackAssociationCollection> trajTrackMap( new TrajTrackAssociationCollection(rTrajs, rTracks_) );
+    auto trajTrackMap = std::make_unique<TrajTrackAssociationCollection>(rTrajs, rTracks_);
     for ( std::map<unsigned int, unsigned int>::iterator i = tjTkMap.begin();
           i != tjTkMap.end(); i++ ) {
       edm::Ref<std::vector<Trajectory> > trajRef( rTrajs, (*i).first );
@@ -426,6 +427,6 @@ TrackingRecHitRefProd rHits = evt.getRefBeforePut<TrackingRecHitCollection>();
       trajTrackMap->insert( edm::Ref<std::vector<Trajectory> >( rTrajs, (*i).first ),
                             edm::Ref<reco::TrackCollection>( rTracks_, (*i).second ) );
     }
-    evt.put( trajTrackMap );
+    evt.put(std::move(trajTrackMap));
   }
 }

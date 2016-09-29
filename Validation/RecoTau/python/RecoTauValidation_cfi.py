@@ -121,7 +121,17 @@ proc.templateAnalyzer = cms.EDAnalyzer(
    )
 )
 
+
 proc.RunHPSValidation = proc.templateAnalyzer.clone()
+
+#for fast sim we need to ignore the HLT TriggerResults
+from Configuration.StandardSequences.Eras import eras as _eras
+_eras.fastSim.toModify(
+   proc.RunHPSValidation, 
+   hltInputTag = cms.InputTag(""), 
+   GenericTriggerSelection=dict(hltInputTag = cms.InputTag("")) 
+)
+
 proc.RunHPSValidation.ExtensionName = ""
 #RunHPSValidation.TauPtCut = cms.double(15.)
 proc.RunHPSValidation.TauProducer   = cms.InputTag('hpsPFTauProducer')

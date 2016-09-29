@@ -181,17 +181,16 @@ MatacqProducer::addMatacqData(edm::Event& event){
   edm::Handle<FEDRawDataCollection> sourceColl;
   event.getByToken(inputRawCollectionToken_, sourceColl);
 
-  std::auto_ptr<FEDRawDataCollection> rawColl;
+  std::unique_ptr<FEDRawDataCollection> rawColl;
   if(produceRaw_){
     if(mergeRaw_){
-      rawColl = auto_ptr<FEDRawDataCollection>(new FEDRawDataCollection(*sourceColl));
+      rawColl = std::make_unique<FEDRawDataCollection>(*sourceColl);
     } else{
-      rawColl = auto_ptr<FEDRawDataCollection>(new FEDRawDataCollection());
+      rawColl = std::make_unique<FEDRawDataCollection>();
     }
   }
   
-  std::auto_ptr<EcalMatacqDigiCollection>
-    digiColl(new EcalMatacqDigiCollection());
+  auto digiColl = std::make_unique<EcalMatacqDigiCollection>();
   
   if(eventSkipCounter_==0){
     if(sourceColl->FEDData(matacqFedId_).size()>4 && !produceRaw_){
@@ -282,14 +281,14 @@ MatacqProducer::addMatacqData(edm::Event& event){
     if(verbosity_>1) cout << "[Matacq " << now() << "] "
                           << "Adding FEDRawDataCollection collection "
                           << " to event.\n";
-    event.put(rawColl, rawInstanceName_);
+    event.put(std::move(rawColl), rawInstanceName_);
   }
 
   if(produceDigis_){
     if(verbosity_>1) cout << "[Matacq " << now() << "] "
                           << "Adding EcalMatacqDigiCollection collection "
                           << " to event.\n";
-    event.put(digiColl, digiInstanceName_);
+    event.put(std::move(digiColl), digiInstanceName_);
   }
 }
 

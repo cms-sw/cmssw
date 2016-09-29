@@ -62,18 +62,18 @@ void HLTTauDQML1Plotter::bookHistograms(DQMStore::IBooker &iBooker) {
   l1etmEt_  = iBooker.book1D("L1ETM","L1 ETM E_{T};L1 ETM E_{T};entries",binsEt_,0,maxPt_);
   l1etmPhi_ = iBooker.book1D("L1ETMPhi","L1 ETM #phi;L1 ETM #phi;entries",binsPhi_,minPhi,maxPhi);
         
-  snprintf(buffer, BUFMAX, "L1 leading (#tau OR central jet E_{T} > %.1f) E_{T};L1 (#tau or central jet) E_{T};entries", l1JetMinEt_);
+  snprintf(buffer, BUFMAX, "L1 leading #tau E_{T};L1 #tau E_{T};entries");
   firstTauEt_ = iBooker.book1D("L1LeadTauEt", buffer, binsEt_, 0, maxPt_);
-  snprintf(buffer, BUFMAX, "L1 leading (#tau OR central jet E_{T} > %.1f) #eta;L1 (#tau or central jet) #eta;entries", l1JetMinEt_);
+  snprintf(buffer, BUFMAX, "L1 leading #tau #eta;L1 #tau #eta;entries");
   firstTauEta_ = iBooker.book1D("L1LeadTauEta", buffer, binsEta_, -maxEta_, maxEta_);
-  snprintf(buffer, BUFMAX, "L1 leading (#tau OR central jet E_{T} > %.1f) #phi;L1 (#tau or central jet) #phi;entries", l1JetMinEt_);
+  snprintf(buffer, BUFMAX, "L1 leading #tau #phi;L1 #tau #phi;entries");
   firstTauPhi_ = iBooker.book1D("L1LeadTauPhi", buffer, binsPhi_, minPhi, maxPhi);
         
-  snprintf(buffer, BUFMAX, "L1 second-leading (#tau OR central jet E_{T} > %.1f) E_{T};L1 (#tau or central jet) E_{T};entries", l1JetMinEt_);
+  snprintf(buffer, BUFMAX, "L1 second-leading #tau E_{T};L1 #tau E_{T};entries");
   secondTauEt_ = iBooker.book1D("L1SecondTauEt", buffer, binsEt_, 0, maxPt_);
-  snprintf(buffer, BUFMAX, "L1 second-leading (#tau OR central jet E_{T} > %.1f) #eta;L1 (#tau or central jet) #eta;entries", l1JetMinEt_);
+  snprintf(buffer, BUFMAX, "L1 second-leading #tau #eta;L1 #tau #eta;entries");
   secondTauEta_ = iBooker.book1D("L1SecondTauEta", buffer, binsEta_, -maxEta_, maxEta_);
-  snprintf(buffer, BUFMAX, "L1 second-leading (#tau OR central jet E_{T} > %.1f) #phi;L1 (#tau or central jet) #phi;entries", l1JetMinEt_);
+  snprintf(buffer, BUFMAX, "L1 second-leading #tau #phi;L1 #tau #phi;entries");
   secondTauPhi_ = iBooker.book1D("L1SecondTauPhi", buffer, binsPhi_, minPhi, maxPhi);
         
   if (doRefAnalysis_) {

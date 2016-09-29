@@ -9,6 +9,7 @@
 #include "Alignment/CommonAlignment/interface/AlignableComposite.h"
 #include "Alignment/CommonAlignment/interface/AlignableIndexer.h"
 #include "Alignment/CommonAlignment/interface/AlignmentLevel.h"
+#include "Alignment/CommonAlignment/interface/Utilities.h"
 
 
 
@@ -24,7 +25,7 @@ class AlignableCompositeBuilder {
     /// calling buildAll(), the order matters!
     /// Example for PixelBarrel-RunI geometry:
     /// -> PXBModule, PXBLadder, TPBLayer, TPBHalfBarrel, TPBBarrel
-    void addAlignmentLevel(AlignmentLevel* level);
+    void addAlignmentLevel(std::unique_ptr<AlignmentLevel> level);
 
     /// Resets the alignment-levels.
     void clearAlignmentLevels();
@@ -62,11 +63,11 @@ class AlignableCompositeBuilder {
     //       ever be used to build other kinds of alignables than tracker-
     //       alignables one has to add/implement something more general than
     //       the TrackerTopology
-    const TrackerTopology* trackerTopology;
+    const TrackerTopology* trackerTopology_;
 
-    AlignableIndexer alignableIndexer;
+    AlignableIndexer alignableIndexer_;
 
-    std::vector<AlignmentLevel*> alignmentLevels;
+    align::AlignmentLevels alignmentLevels_;
 
 };
 

@@ -25,6 +25,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/DebugMacros.h"
+#include "FWCore/Utilities/interface/DictionaryTools.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
 
 #include "SharedResourcesRegistry.h"
@@ -139,6 +140,13 @@ namespace edm {
                                                  trueBranchIDToKeptBranchDesc);
 
     EDGetToken token;
+
+    std::vector<std::string> missingDictionaries;
+    if (!checkDictionary(missingDictionaries, desc.className(), desc.unwrappedType())) {
+      std::string context("Calling OutputModule::keepThisBranch, checking dictionaries for kept types");
+      throwMissingDictionariesException(missingDictionaries, context);
+    }
+
     switch (desc.branchType()) {
     case InEvent:
       {
@@ -233,15 +241,10 @@ namespace edm {
     FDEBUG(2) << "writeEvent called\n";
 
     {
-      std::lock_guard<std::mutex> guard(mutex_);
-      
-      {
-        std::lock_guard<SharedResourcesAcquirer> guardAcq(resourceAcquirer_);
-        EventForOutput e(ep, moduleDescription_, mcc);
-        e.setConsumer(this);
-        EventSignalsSentry sentry(act,mcc);
-        write(e);
-      }
+      EventForOutput e(ep, moduleDescription_, mcc);
+      e.setConsumer(this);
+      EventSignalsSentry sentry(act,mcc);
+      write(e);
     }
     if(remainingEvents_ > 0) {
       --remainingEvents_;
@@ -404,8 +407,8 @@ namespace edm {
   }
   
   void
-  OutputModule::fillDescription(ParameterSetDescription& desc) {
-    ProductSelectorRules::fillDescription(desc, "outputCommands");
+  OutputModule::fillDescription(ParameterSetDescription& desc, std::vector<std::string> const& defaultOutputCommands) {
+    ProductSelectorRules::fillDescription(desc, "outputCommands",defaultOutputCommands);
     EventSelector::fillDescription(desc);
   }
   

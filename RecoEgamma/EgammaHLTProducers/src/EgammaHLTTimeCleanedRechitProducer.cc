@@ -60,7 +60,7 @@ void EgammaHLTTimeCleanedRechitProducer::produce(edm::Event& evt, const edm::Eve
     
 
   for (unsigned int i=0; i<hitLabels.size(); i++) {
-    std::unique_ptr<EcalRecHitCollection> hits(new EcalRecHitCollection);
+    auto hits = std::make_unique<EcalRecHitCollection>();
     
     evt.getByToken(hitTokens[i], rhcH[i]);  
     if (!(rhcH[i].isValid())) {

@@ -1,8 +1,10 @@
 import FWCore.ParameterSet.Config as cms
+import CondTools.Ecal.conddb_init as conddb_init
+import CondTools.Ecal.db_credentials as auth
 
 process = cms.Process("ProcessOne")
 
-process.MessageLogger = cms.Service("MessageLogger",
+rocess.MessageLogger = cms.Service("MessageLogger",
     debugModules = cms.untracked.vstring('*'),
     cout = cms.untracked.PSet(
         threshold = cms.untracked.string('DEBUG')
@@ -19,19 +21,18 @@ process.source = cms.Source("EmptyIOVSource",
 
 process.load("CondCore.CondDB.CondDB_cfi")
 
-#process.CondDB.connect = 'sqlite_file:EcalTPGPedestals_v2_hlt.db'
-process.CondDBCommon.connect = 'oracle://cms_orcon_prod/CMS_CONDITIONS'
+process.CondDB.connect = conddb_init.options.destinationDatabase
 process.CondDB.DBParameters.authenticationPath = ''
 
 process.PoolDBOutputService = cms.Service("PoolDBOutputService",
     process.CondDB, 
-    logconnect = cms.untracked.string('oracle://cms_orcon_prod/CMS_COND_31X_POPCONLOG'),
-#   logconnect = cms.untracked.string('sqlite_file:log.db'),   
     toPut = cms.VPSet(cms.PSet(
         record = cms.string('EcalTPGPedestalsRcd'),
-        tag = cms.string('EcalTPGPedestals_v2_hlt')
+        tag = cms.string(conddb_init.options.destinationTag)
     ))
 )
+
+db_service,db_user,db_pwd = auth.get_readOnly_db_credentials()
 
 process.Test1 = cms.EDAnalyzer("ExTestEcalTPGPedestalsAnalyzer",
     record = cms.string('EcalTPGPedestalsRcd'),
@@ -41,10 +42,9 @@ process.Test1 = cms.EDAnalyzer("ExTestEcalTPGPedestalsAnalyzer",
     Source=cms.PSet(
      firstRun = cms.string('200000'),
      lastRun = cms.string('10000000'),
-     OnlineDBSID = cms.string('cms_omds_lb'),
-#     OnlineDBSID = cms.string('cms_orcon_adg'),  test on lxplus
-     OnlineDBUser = cms.string('cms_ecal_conf'),
-     OnlineDBPassword = cms.string('***'),
+     OnlineDBSID = cms.string(db_service),
+     OnlineDBUser = cms.string(db_user),
+     OnlineDBPassword = cms.string( db_pwd ),
      LocationSource = cms.string('P5'),
      Location = cms.string('P5_Co'),
      GenTag = cms.string('GLOBAL'),

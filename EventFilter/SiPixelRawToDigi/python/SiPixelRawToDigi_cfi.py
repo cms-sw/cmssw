@@ -17,3 +17,6 @@ siPixelDigis.UsePhase1 = cms.bool(False)
 ## Empty Regions PSet means complete unpacking
 siPixelDigis.Regions = cms.PSet( ) 
 siPixelDigis.CablingMapLabel = cms.string("")
+
+from Configuration.Eras.Modifier_phase1Pixel_cff import phase1Pixel
+phase1Pixel.toModify(siPixelDigis, UsePhase1=True)

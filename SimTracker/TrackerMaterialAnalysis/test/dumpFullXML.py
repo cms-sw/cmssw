@@ -29,11 +29,14 @@ def checkEnvironment():
         sys.exit(CMSSW_NOT_SET)
 
 def getTrackerRecoMaterialCopy(filename):
-    tracker_reco_material = os.path.join(os.environ['CMSSW_RELEASE_BASE'],
+    tracker_reco_material = os.path.join(os.environ['CMSSW_BASE'],
                                          'src/Geometry/TrackerRecoData/data/trackerRecoMaterial.xml')
     if not os.path.exists(tracker_reco_material):
-        print 'Something is wrong with the CMSSW installation. The file %s is missing. Quitting.\n' % tracker_reco_material
-        sys.exit(TRACKER_MATERIAL_FILE_MISSING)
+      tracker_reco_material = os.path.join(os.environ['CMSSW_RELEASE_BASE'],
+                                           'src/Geometry/TrackerRecoData/data/trackerRecoMaterial.xml')
+      if not os.path.exists(tracker_reco_material):
+          print 'Something is wrong with the CMSSW installation. The file %s is missing. Quitting.\n' % tracker_reco_material
+          sys.exit(TRACKER_MATERIAL_FILE_MISSING)
     copy2(tracker_reco_material, filename)
                                                 
 def produceXMLFromParameterFile():
@@ -67,11 +70,14 @@ def produceXMLFromParameterFile():
         for parameter in spec_par.iter('%sParameter' % TAG_PREFIX):
             print current_detector, parameter.attrib['name'], parameter.attrib['value']
             updated_current_detector_node = root_updated.find(".//Group[@name='%s']" % current_detector)
-            for child in updated_current_detector_node:
-                if child.attrib['name'] == parameter.attrib['name']:
-                    parameter.set('name', child.attrib['name'])
-                    parameter.set('value', child.attrib['value'])
-                    print current_detector, parameter.attrib['name'], parameter.attrib['value']
+            if updated_current_detector_node:
+              for child in updated_current_detector_node:
+                  if child.attrib['name'] == parameter.attrib['name']:
+                      parameter.set('name', child.attrib['name'])
+                      parameter.set('value', child.attrib['value'])
+                      print current_detector, parameter.attrib['name'], parameter.attrib['value']
+            else:
+              print "Missing group: %s" % current_detector
     tree.write('trackerRecoMaterial.xml', encoding='UTF-8', xml_declaration=True)
 
 def compareNewXMLWithOld(format_for_twiki):
@@ -95,7 +101,7 @@ def compareNewXMLWithOld(format_for_twiki):
     
     tracker_reco_material = './trackerRecoMaterialFromRelease.xml'
     tracker_reco_material_updated = os.path.join(os.environ['CMSSW_BASE'],
-                                                 'src/Geometry/TrackerRecoData/data/trackerRecoMaterial.xml')
+                                                 'src/SimTracker/TrackerMaterialAnalysis/test/trackerRecoMaterial.xml')
     if not os.path.exists(tracker_reco_material_updated):
         tracker_reco_material_updated = './trackerRecoMaterial.xml'
         if not os.path.exists(tracker_reco_material_updated):

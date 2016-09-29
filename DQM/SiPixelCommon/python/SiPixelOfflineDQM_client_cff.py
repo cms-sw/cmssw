@@ -3,7 +3,6 @@ import FWCore.ParameterSet.Config as cms
 #
 # This object is used to make changes for different running scenarios
 #
-from Configuration.StandardSequences.Eras import eras
 
 #Client:
 sipixelEDAClient = cms.EDAnalyzer("SiPixelEDAClient",
@@ -53,7 +52,8 @@ PixelOfflineDQMClientWithDataCertificationHI.replace(sipixelQTester,sipixelQTest
 
 # Modify for running with the Phase 1 pixel detector.
 from DQM.SiPixelPhase1Config.SiPixelPhase1OfflineDQM_harvesting_cff import *
-eras.phase1Pixel.toReplaceWith(PixelOfflineDQMClient, siPixelPhase1OfflineDQM_harvesting)
+from Configuration.Eras.Modifier_phase1Pixel_cff import phase1Pixel
+phase1Pixel.toReplaceWith(PixelOfflineDQMClient, siPixelPhase1OfflineDQM_harvesting)
 #TODO: properly upgrade these and the others
-eras.phase1Pixel.toReplaceWith(PixelOfflineDQMClientNoDataCertification, siPixelPhase1OfflineDQM_harvesting)
-eras.phase1Pixel.toReplaceWith(PixelOfflineDQMClientWithDataCertification, siPixelPhase1OfflineDQM_harvesting)
+phase1Pixel.toReplaceWith(PixelOfflineDQMClientNoDataCertification, siPixelPhase1OfflineDQM_harvesting)
+phase1Pixel.toReplaceWith(PixelOfflineDQMClientWithDataCertification, siPixelPhase1OfflineDQM_harvesting)

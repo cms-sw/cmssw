@@ -1,10 +1,10 @@
 import FWCore.ParameterSet.Config as cms
 from Configuration.StandardSequences.FrontierConditions_GlobalTag_cff import * 
-
+GlobalTag.connect = cms.string("frontier://(proxyurl=http://localhost:3128)(serverurl=http://localhost:8000/FrontierOnProd)(serverurl=http://localhost:8000/FrontierOnProd)(retrieve-ziplevel=0)(failovertoserver=no)/CMS_CONDITIONS")
 # Default Express GT: it is the GT that will be used in case we are not able
 # to retrieve the one used at Tier0.
 # It should be kept in synch with Express processing at Tier0.
-GlobalTag.globaltag = cms.string( "80X_dataRun2_Express_v10" )
+GlobalTag.globaltag = cms.string( "80X_dataRun2_Express_v15" )
 
 # ===== auto -> Automatically get the GT string from current Tier0 configuration via a Tier0Das call.
 #       This needs a valid proxy to access the cern.ch network from the .cms one.
@@ -40,8 +40,8 @@ def unique(seq, keepstr=True):
     except TypeError: # hashing didn't work, see if seq is sortable
         try:
             from itertools import groupby
-            s = sorted(enumerate(seq),key=lambda (i,v):(v,i))
-            return t(g.next() for k,g in groupby(s, lambda (i,v): v))
+            s = sorted(enumerate(seq),key=lambda i_v1:(i_v1[1],i_v1[0]))
+            return t(next(g) for k,g in groupby(s, lambda i_v: i_v[1]))
         except:  # not sortable, use brute force
             seen = []
             return t(c for c in seq if not (c in seen or seen.append(c)))
@@ -85,7 +85,7 @@ class Tier0Handler( object ):
         userAgent = "User-Agent: DQMIntegration/2.0 python/%d.%d.%d PycURL/%s" % ( sys.version_info[ :3 ] + ( pycurl.version_info()[ 1 ], ) )
 
         proxy = ""
-        if self._proxy: proxy = ' --proxy=%s ' % self._proxy
+        if self._proxy: proxy = ' --proxy %s ' % self._proxy
         
         debug = " -s -S "
         if self._debug: debug = " -v "

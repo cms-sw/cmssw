@@ -39,7 +39,7 @@ class PFHFRecHitCreator final :  public  PFRecHitCreatorBase {
 
 
 
-    void importRecHits(std::auto_ptr<reco::PFRecHitCollection>&out,std::auto_ptr<reco::PFRecHitCollection>& cleaned ,const edm::Event& iEvent,const edm::EventSetup& iSetup) {
+    void importRecHits(std::unique_ptr<reco::PFRecHitCollection>&out,std::unique_ptr<reco::PFRecHitCollection>& cleaned ,const edm::Event& iEvent,const edm::EventSetup& iSetup) {
 
 
       reco::PFRecHitCollection tmpOut;
@@ -59,6 +59,9 @@ class PFHFRecHitCreator final :  public  PFRecHitCreatorBase {
       for( const auto& erh : *recHitHandle ) {      
 	const HcalDetId& detid = (HcalDetId)erh.detid();
 	auto depth = detid.depth();
+
+	// ATTN: skip dual anode in HF for now (should be fixed in upstream changes)
+	if( depth > 2 ) continue; 
 
 	auto energy = erh.energy();
 	auto time = erh.time();

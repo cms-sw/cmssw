@@ -40,10 +40,13 @@ from Validation.L1T.L1Validator_cfi import *
 from DQMOffline.RecoB.dqmAnalyzer_cff import *
 
 # filter/producer "pre-" sequence for globalValidation
-globalPrevalidation = cms.Sequence( 
+globalPrevalidationTracking = cms.Sequence(
     simHitTPAssocProducer
   * tracksValidation
   * vertexValidation
+)
+globalPrevalidation = cms.Sequence(
+    globalPrevalidationTracking
   * photonPrevalidationSequence
   * produceDenoms
   * prebTagSequenceMC
@@ -84,15 +87,15 @@ globalValidation = cms.Sequence(   trackerHitsValidation
                                  + pfJetResValidationSequence
                                  + pfMuonValidationSequence
                                  + rpcRecHitValidation_step
-				 + dtLocalRecoValidation_no2D
+                                 + dtLocalRecoValidation_no2D
                                  + pfTauRunDQMValidation
                                  + bTagPlotsMCbcl
                                  + L1Validator
 )
 
 
-from Configuration.StandardSequences.Eras import eras
-if eras.fastSim.isChosen():
+from Configuration.Eras.Modifier_fastSim_cff import fastSim
+if fastSim.isChosen():
     # fastsim has no tracker digis and different tracker rechit and simhit structure => skipp
     globalValidation.remove(trackerHitsValidation)
     globalValidation.remove(trackerDigisValidation)
@@ -112,6 +115,12 @@ globalValidationLiteTracking = cms.Sequence(globalValidation)
 globalPrevalidationLiteTracking = cms.Sequence(globalPrevalidation)
 globalPrevalidationLiteTracking.replace(tracksValidation, tracksValidationLite)
 
+from Validation.Configuration.gemSimValid_cff import *
+from Validation.Configuration.me0SimValid_cff import *
+
+baseCommonPreValidation = cms.Sequence(cms.SequencePlaceholder("mix"))
+baseCommonValidation = cms.Sequence()
+
 # Tracking-only validation
 globalPrevalidationTrackingOnly = cms.Sequence(
       simHitTPAssocProducer
@@ -120,8 +129,31 @@ globalPrevalidationTrackingOnly = cms.Sequence(
 )
 globalValidationTrackingOnly = cms.Sequence()
 
-from Validation.Configuration.gemSimValid_cff import *
-from Validation.Configuration.me0SimValid_cff import *
+
+globalValidationJetMETonly = cms.Sequence(
+                                   JetValidation 
+                                 + METValidation
+)
+
+globalPrevalidationJetMETOnly = cms.Sequence(
+				   jetPreValidSeq
+				  +metPreValidSeq
+)
+
+globalPrevalidationMuons = cms.Sequence(
+      gemSimValid
+    + me0SimValid
+    + validSimHit
+    + muondtdigianalyzer
+    + cscDigiValidation
+    + validationMuonRPCDigis
+    + recoMuonValidation
+    + rpcRecHitValidation_step
+    + dtLocalRecoValidation_no2D
+    + muonIdValDQMSeq
+)
+
+globalValidationMuons = cms.Sequence()
 
 _run3_globalValidation = globalValidation.copy()
 _run3_globalValidation += gemSimValid
@@ -129,6 +161,7 @@ _run3_globalValidation += gemSimValid
 _phase2_globalValidation = _run3_globalValidation.copy()
 _phase2_globalValidation += me0SimValid
 
-from Configuration.StandardSequences.Eras import eras
-eras.run3_GEM.toReplaceWith( globalValidation, _run3_globalValidation )
-eras.phase2_muon.toReplaceWith( globalValidation, _phase2_globalValidation )
+from Configuration.Eras.Modifier_run3_GEM_cff import run3_GEM
+run3_GEM.toReplaceWith( globalValidation, _run3_globalValidation )
+from Configuration.Eras.Modifier_phase2_muon_cff import phase2_muon
+phase2_muon.toReplaceWith( globalValidation, _phase2_globalValidation )

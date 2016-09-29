@@ -19,6 +19,10 @@
 #include "L1Trigger/L1TGlobal/interface/GlobalBoard.h"
 
 #include "CondFormats/L1TObjects/interface/L1TGlobalParameters.h"
+#include "L1Trigger/L1TGlobal/interface/GlobalParamsHelper.h"
+#include "L1Trigger/L1TGlobal/interface/PrescalesVetosHelper.h"
+
+
 
 class L1TGlobalParameters;
 class L1GtParameters;
@@ -86,7 +90,7 @@ private:
     unsigned long long m_l1GtBMCacheID;
 
     /// prescale factors
-    const L1GtPrescaleFactors* m_l1GtPfAlgo;
+    const l1t::PrescalesVetosHelper* m_l1GtPrescalesVetoes;
     unsigned long long m_l1GtPfAlgoCacheID;
 
     const std::vector<std::vector<int> >* m_prescaleFactorsAlgoTrig;
@@ -105,8 +109,8 @@ private:
     const std::vector<unsigned int>* m_triggerMaskAlgoTrig;
     std::vector<unsigned int> m_initialTriggerMaskAlgoTrig;
 
-    const std::vector<unsigned int>* m_triggerMaskVetoAlgoTrig;
-    std::vector<unsigned int> m_initialTriggerMaskVetoAlgoTrig;
+    const std::vector<int>* m_triggerMaskVetoAlgoTrig;
+    std::vector<int> m_initialTriggerMaskVetoAlgoTrig;
 
     l1t::GlobalBoard* m_uGtBrd;
 
@@ -167,7 +171,9 @@ private:
 
     /// verbosity level
     int m_verbosity;
+    bool m_printL1Menu;
     bool m_isDebugEnabled;
+    
 
 };
 

@@ -57,8 +57,12 @@ class HcalDbProducer : public edm::ESProducer {
   void LUTCorrsCallback (const HcalLUTCorrsRcd& fRecord);
   void PFCorrsCallback (const HcalPFCorrsRcd& fRecord);
   void lutMetadataCallback (const HcalLutMetadataRcd& fRecord);
+  void SiPMParametersCallback (const HcalSiPMParametersRcd& fRecord);
+  void SiPMCharacteristicsCallback (const HcalSiPMCharacteristicsRcd& fRecord);
+  void TPChannelParametersCallback (const HcalTPChannelParametersRcd& fRecord);
+  void TPParametersCallback (const HcalTPParametersRcd& fRecord);
 
-   private:
+private:
       // ----------member data ---------------------------
   std::shared_ptr<HcalDbService> mService;
   std::vector<std::string> mDumpRequest;
@@ -77,5 +81,9 @@ class HcalDbProducer : public edm::ESProducer {
   std::unique_ptr<HcalZSThresholds> mZSThresholds;
   std::unique_ptr<HcalL1TriggerObjects> mL1TriggerObjects;
   std::unique_ptr<HcalLutMetadata> mLutMetadata;
+  std::unique_ptr<HcalSiPMParameters> mSiPMParameters;
+  std::unique_ptr<HcalSiPMCharacteristics> mSiPMCharacteristics;
+  std::unique_ptr<HcalTPChannelParameters> mTPChannelParameters;
+  std::unique_ptr<HcalTPParameters> mTPParameters;
 
 };

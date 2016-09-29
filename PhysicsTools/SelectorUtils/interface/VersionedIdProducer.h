@@ -139,12 +139,12 @@ produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   const Collection& physicsobjects = *physicsObjectsHandle;
 
   for( const auto& id : ids_ ) {
-    std::auto_ptr<edm::ValueMap<bool> > outPass(new edm::ValueMap<bool>() );
-    std::auto_ptr<edm::ValueMap<float> > outPassf(new edm::ValueMap<float>() );
-    std::auto_ptr<edm::ValueMap<unsigned> > outHowFar(new edm::ValueMap<unsigned>() );
-    std::auto_ptr<edm::ValueMap<unsigned> > outBitmap(new edm::ValueMap<unsigned>() );
-    std::auto_ptr<edm::ValueMap<vid::CutFlowResult> > out_cfrs(new edm::ValueMap<vid::CutFlowResult>() );
-    std::auto_ptr<pat::UserDataCollection> out_usrd(new pat::UserDataCollection);
+    auto outPass = std::make_unique<edm::ValueMap<bool>>();
+    auto outPassf = std::make_unique<edm::ValueMap<float>>();
+    auto outHowFar = std::make_unique<edm::ValueMap<unsigned>>();
+    auto outBitmap = std::make_unique<edm::ValueMap<unsigned>>();
+    auto out_cfrs = std::make_unique<edm::ValueMap<vid::CutFlowResult>>();
+    auto out_usrd = std::make_unique<pat::UserDataCollection>();
         
     std::vector<bool> passfail;
     std::vector<float> passfailf;
@@ -182,16 +182,16 @@ produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     fillercfr.insert(physicsObjectsHandle, cfrs.begin(), cfrs.end() );
     fillercfr.fill(); 
 
-    iEvent.put(outPass,id->name());
-    iEvent.put(outPassf,id->name());
-    iEvent.put(outHowFar,id->name());
-    iEvent.put(outBitmap,id->name()+std::string(bitmap_label));
-    iEvent.put(out_cfrs,id->name());
-    iEvent.put(std::auto_ptr<std::string>(new std::string(id->md5String())),
+    iEvent.put(std::move(outPass),id->name());
+    iEvent.put(std::move(outPassf),id->name());
+    iEvent.put(std::move(outHowFar),id->name());
+    iEvent.put(std::move(outBitmap),id->name()+std::string(bitmap_label));
+    iEvent.put(std::move(out_cfrs),id->name());
+    iEvent.put(std::make_unique<std::string>(id->md5String()),
 	       id->name());
-    auto usrd_handle = iEvent.put(out_usrd,id->name());
+    auto usrd_handle = iEvent.put(std::move(out_usrd),id->name());
     //now add the value map of ptrs to user datas
-    std::auto_ptr<edm::ValueMap<edm::Ptr<pat::UserData> > > out_usrdptrs(new edm::ValueMap<edm::Ptr<pat::UserData> >);
+    auto out_usrdptrs = std::make_unique<edm::ValueMap<edm::Ptr<pat::UserData>>>();
     std::vector<edm::Ptr<pat::UserData> > usrdptrs;
     for( unsigned i = 0; i < usrd_handle->size(); ++i ){
       usrdptrs.push_back(edm::Ptr<pat::UserData>(usrd_handle,i));
@@ -201,7 +201,7 @@ produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     fillerusrdptrs.insert(physicsObjectsHandle, usrdptrs.begin(), usrdptrs.end());
     fillerusrdptrs.fill();
 
-    iEvent.put(out_usrdptrs,id->name());        
+    iEvent.put(std::move(out_usrdptrs),id->name());        
   }   
 }
 

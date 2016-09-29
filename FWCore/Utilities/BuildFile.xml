@@ -4,6 +4,7 @@
 <use   name="rootcore"/>
 <use   name="libuuid"/>
 <use   name="tbb"/>
+<use   name="md5"/>
 <export>
   <lib   name="1"/>
 </export>

@@ -24,7 +24,7 @@ void CandidateChargeBTagComputer::initialize(const JetTagComputerRecord & record
 {
   // Saving MVA variable names;
   // names and order need to be the same as in the training
-  std::vector< std::string > variables ({"tr_ch","sv_ch","mu_sip2d",/*"mu_sip3d",*/"mu_delR","mu_ptrel","mu_pfrac","mu_char",/*"el_sip2d","el_sip3d",*/"el_delR","el_ptrel","el_pfrac","el_mva","el_char","pt1_ch/j_pt","pt2_ch/j_pt","pt3_ch/j_pt"});
+  std::vector< std::string > variables ({"tr_ch_inc","sv_ch","mu_sip2d",/*"mu_sip3d",*/"mu_delR","mu_ptrel","mu_pfrac","mu_char",/*"el_sip2d","el_sip3d",*/"el_delR","el_ptrel","el_pfrac","el_mva","el_char","pt1_ch/j_pt","pt2_ch/j_pt","pt3_ch/j_pt"});
   std::vector< std::string > spectators (0);
 
   if (useCondDB_)
@@ -46,7 +46,7 @@ float CandidateChargeBTagComputer::discriminator(const TagInfoHelper & tagInfo) 
   const reco::CandSoftLeptonTagInfo& sm_info = tagInfo.get<reco::CandSoftLeptonTagInfo>(2);
   const reco::CandSoftLeptonTagInfo& se_info = tagInfo.get<reco::CandSoftLeptonTagInfo>(3);
 
-  size_t n_ip_info = ip_info.selectedTracks().size();
+  size_t n_ip_info = ip_info.jet()->getJetConstituents().size();
   size_t n_sv_info = sv_info.nVertices();
   size_t n_sm_info = sm_info.leptons();
   size_t n_se_info = se_info.leptons();
@@ -58,7 +58,7 @@ float CandidateChargeBTagComputer::discriminator(const TagInfoHelper & tagInfo) 
   if ( n_ip_info + n_sv_info + n_sm_info + n_se_info > 0 ) {
 
     // default variable values
-    float tr_ch = 0;
+    float tr_ch_inc = 0;
     float pt_ratio1_ch = 0;
     float pt_ratio2_ch = 0;
     float pt_ratio3_ch = 0;
@@ -87,8 +87,8 @@ float CandidateChargeBTagComputer::discriminator(const TagInfoHelper & tagInfo) 
     // loop over tracks associated to the jet
     for (size_t i_ip=0; i_ip < n_ip_info; ++i_ip)
     {
-      const reco::CandidatePtr trackRef = ip_info.selectedTracks()[i_ip];
-      const reco::Track * trackPtr = reco::btag::toTrack(trackRef);
+      const reco::Candidate * trackPtr = ip_info.jet()->getJetConstituents().at(i_ip).get();
+      if ( trackPtr->charge() == 0 ) continue;
 
       float tr_ch_weight = pow(trackPtr->pt(),jetChargeExp_);
       tr_ch_num += tr_ch_weight * trackPtr->charge();
@@ -108,45 +108,61 @@ float CandidateChargeBTagComputer::discriminator(const TagInfoHelper & tagInfo) 
     }
     if ( n_ip_info>0 ) {
       float jet_pt = ip_info.jet()->pt();
-      pt_ratio1_ch = pt_ratio1_ch / jet_pt;
-      pt_ratio2_ch = pt_ratio1_ch / jet_pt;
-      pt_ratio3_ch = pt_ratio1_ch / jet_pt;
+      if ( jet_pt>0 ) {
+	pt_ratio1_ch = pt_ratio1_ch / jet_pt;
+	pt_ratio2_ch = pt_ratio2_ch / jet_pt;
+	pt_ratio3_ch = pt_ratio3_ch / jet_pt;
+      }
     }
 
-    if ( tr_ch_den > 0 ) tr_ch = tr_ch_num / tr_ch_den;
+    if ( tr_ch_den > 0 ) tr_ch_inc = tr_ch_num / tr_ch_den;
 
     // compute secondary vertex charge
     if ( n_sv_info > 0 )
     {
+      float jet_pt = sv_info.jet()->pt();
+      
       float sv_ch_num = 0;
       float sv_ch_den = 0;
       
-      // find the secondary vertex with higher invariant mass
-      int vtx_idx = 0;
+      // find the selected secondary vertex with highest invariant mass 
+      int vtx_idx = -1;
       float max_mass = 0;
       for (size_t i_vtx=0; i_vtx<n_sv_info; ++i_vtx)
       {
 	float sv_mass = sv_info.secondaryVertex(i_vtx).p4().mass();
-	if ( sv_mass > max_mass )
+	float sv_chi2 = sv_info.secondaryVertex(i_vtx).vertexNormalizedChi2();
+	float sv_pfrac = sv_info.secondaryVertex(i_vtx).pt()/jet_pt;
+	float sv_L = sv_info.flightDistance(i_vtx).value();
+	float sv_sL = sv_info.flightDistance(i_vtx).significance();
+	float delEta = sv_info.secondaryVertex(i_vtx).momentum().eta()-sv_info.flightDirection(i_vtx).eta();
+	float delPhi = sv_info.secondaryVertex(i_vtx).momentum().phi()-sv_info.flightDirection(i_vtx).phi();
+	if ( fabs(delPhi)>M_PI ) delPhi = 2*M_PI - fabs(delPhi);
+	float sv_delR = sqrt( delEta*delEta + delPhi*delPhi );
+	
+	if ( sv_mass>max_mass && sv_mass>1.4 && sv_chi2<3 && sv_chi2>0 && sv_pfrac>0.25 && sv_L<2.5 && sv_sL>4 && sv_delR<0.1 )
 	{
 	  max_mass = sv_mass;
 	  vtx_idx = i_vtx;
 	}
       }
-
-      // loop over tracks associated to the vertex
-      size_t n_sv_tracks = sv_info.vertexTracks(vtx_idx).size();
-      for (size_t i_tr=0; i_tr < n_sv_tracks; ++i_tr)
+    
+      if (vtx_idx>=0)
       {
-	const reco::CandidatePtr trackRef = sv_info.vertexTracks(vtx_idx)[i_tr];
-	const reco::Track * trackPtr = reco::btag::toTrack(trackRef);
+	// loop over tracks associated to the vertex
+	size_t n_sv_tracks = sv_info.vertexTracks(vtx_idx).size();
+	for (size_t i_tr=0; i_tr < n_sv_tracks; ++i_tr)
+	  {
+	    const reco::CandidatePtr trackRef = sv_info.vertexTracks(vtx_idx)[i_tr];
+	    const reco::Track * trackPtr = reco::btag::toTrack(trackRef);
+	    
+	    float sv_ch_weight = pow(trackPtr->pt(),svChargeExp_);
+	    sv_ch_num += sv_ch_weight * trackPtr->charge();
+	    sv_ch_den += sv_ch_weight;
+	  }
 	
-	float sv_ch_weight = pow(trackPtr->pt(),svChargeExp_);
-	sv_ch_num += sv_ch_weight * trackPtr->charge();
-	sv_ch_den += sv_ch_weight;
+	if ( sv_ch_den > 0 ) sv_ch = sv_ch_num / sv_ch_den;
       }
-      
-      if ( sv_ch_den > 0 ) sv_ch = sv_ch_num / sv_ch_den;
     }
 
     // fill soft muon variables
@@ -199,7 +215,7 @@ float CandidateChargeBTagComputer::discriminator(const TagInfoHelper & tagInfo) 
     }
       
     std::map<std::string,float> inputs;
-    inputs["tr_ch"]    = tr_ch;
+    inputs["tr_ch_inc"]    = tr_ch_inc;
     inputs["pt1_ch/j_pt"] = pt_ratio1_ch;
     inputs["pt2_ch/j_pt"] = pt_ratio2_ch;
     inputs["pt3_ch/j_pt"] = pt_ratio3_ch;

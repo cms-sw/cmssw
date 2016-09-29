@@ -53,7 +53,7 @@ parser.add_argument('menu',
                     action  = 'store', 
                     type    = options.ConnectionHLTMenu,
                     metavar = 'MENU', 
-                    help    = 'HLT menu to dump from the database. Supported formats are:\n- [hltdev:]/path/to/configuration[/Vn]\n- orcoff:/path/to/configuration[/Vn]\n- run:runnumber\nThe possible databases are "hltdev" (default, used for offline development) and "orcoff" (used for online menus). If no version is specified, the latest one is automatically used.\nIf "run:" is used instead, the actual HLT menu for the given run number is looked up and used.' )
+                    help    = 'HLT menu to dump from the database. Supported formats are:\n  - /path/to/configuration[/Vn]\n  - [[{v1|v2}/]{offline|online|adg}:]/path/to/configuration[/Vn]\n  - run:runnumber\nThe possible database schemas are "v1" and "v2" (default).\nThe possible databases are "offline" (default, used for offline development), "online" (used to extract online menus within Point 5) and "adg" (used to extract the online menus outside Point 5).\nIf no menu version is specified, the latest one is automatically used.\nIf "run:" is used instead, the HLT menu used for the given run number is looked up and used.' )
 
 # options
 group = parser.add_mutually_exclusive_group()

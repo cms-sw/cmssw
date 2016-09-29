@@ -3,9 +3,6 @@
 
 #include <string>
 
-// -------------------------------------------------------------------------
-// Includes
-// -------------------------------------------------------------------------
 #include "DDXMLElement.h"
 #include "DetectorDescription/Base/interface/DDTranslation.h"
 
@@ -25,20 +22,16 @@ class DDLElementRegistry;
  *  This is the Rotation and Reflection element processor.
  *
  */
-class DDLRotationAndReflection : public DDXMLElement
+class DDLRotationAndReflection final : public DDXMLElement
 {
-public:
+ public:
 
-  /// Constructor 
   DDLRotationAndReflection( DDLElementRegistry* myreg );
-
-  /// Destructor
-  ~DDLRotationAndReflection( void );
 
   /// returns 1 = left handed rotation matrix, 0 = right-handed, -1 = not orthonormal.
   int isLeftHanded( DD3Vector x, DD3Vector y, DD3Vector z, const std::string & nmspace );
 
-  void processElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv );
+  void processElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv ) override;
 
 private:
 
@@ -46,4 +39,5 @@ private:
   DD3Vector makeY( std::string nmspace );
   DD3Vector makeZ( std::string nmspace );
 };
+
 #endif

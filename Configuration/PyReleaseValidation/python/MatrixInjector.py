@@ -49,6 +49,8 @@ class MatrixInjector(object):
         self.testMode=((mode!='submit') and (mode!='force'))
         self.version =1
         self.keep = opt.keep
+        self.memoryOffset = opt.memoryOffset
+        self.memPerCore = opt.memPerCore
 
         #wagemt stuff
         if not self.wmagent:
@@ -186,11 +188,21 @@ class MatrixInjector(object):
             wmsplit['RECODR2_50nsreHLT']=5
             wmsplit['RECODR2_25nsreHLT']=5
             wmsplit['RECODR2_2016reHLT']=5
+            wmsplit['RECODR2_50nsreHLT_HIPM']=5
+            wmsplit['RECODR2_25nsreHLT_HIPM']=5
+            wmsplit['RECODR2_2016reHLT_HIPM']=5
             wmsplit['RECODR2_2016reHLT_skimSingleMu']=5
             wmsplit['RECODR2_2016reHLT_skimDoubleEG']=5
             wmsplit['RECODR2_2016reHLT_skimMuonEG']=5
             wmsplit['RECODR2_2016reHLT_skimJetHT']=5
+            wmsplit['RECODR2_2016reHLT_skimSinglePh']=5
             wmsplit['RECODR2_2016reHLT_skimMuOnia']=5
+            wmsplit['RECODR2_2016reHLT_skimSingleMu_HIPM']=5
+            wmsplit['RECODR2_2016reHLT_skimDoubleEG_HIPM']=5
+            wmsplit['RECODR2_2016reHLT_skimMuonEG_HIPM']=5
+            wmsplit['RECODR2_2016reHLT_skimJetHT_HIPM']=5
+            wmsplit['RECODR2_2016reHLT_skimSinglePh_HIPM']=5
+            wmsplit['RECODR2_2016reHLT_skimMuOnia_HIPM']=5
             wmsplit['HLTDR2_50ns']=1
             wmsplit['HLTDR2_25ns']=1
             wmsplit['HLTDR2_2016']=1
@@ -348,7 +360,8 @@ class MatrixInjector(object):
                                 # https://hypernews.cern.ch/HyperNews/CMS/get/edmFramework/3509/1/1/1.html
                                 # now change to 1.5GB / additional thread according to discussion:
                                 # https://hypernews.cern.ch/HyperNews/CMS/get/relval/4817/1/1.html
-                                chainDict['nowmTasklist'][-1]['Memory'] = 3000 + int( chainDict['nowmTasklist'][-1]['Multicore']  -1 )*1500
+#                                chainDict['nowmTasklist'][-1]['Memory'] = 3000 + int( chainDict['nowmTasklist'][-1]['Multicore']  -1 )*1500
+                                chainDict['nowmTasklist'][-1]['Memory'] = self.memoryOffset + int( chainDict['nowmTasklist'][-1]['Multicore']  -1 ) * self.memPerCore
 
                         index+=1
                     #end of loop through steps

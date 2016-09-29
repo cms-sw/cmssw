@@ -101,8 +101,7 @@ produceSuperclustersForECALPart(edm::Event& evt,
   getClusterPtrVector(evt, clustersToken, clusterPtrVector_p);
 
   // run the brem recovery and get the SC collection
-  std::auto_ptr<reco::SuperClusterCollection> 
-    superclusters_ap(new reco::SuperClusterCollection(bremAlgo_p->makeSuperClusters(*clusterPtrVector_p)));
+  auto superclusters_ap = std::make_unique<reco::SuperClusterCollection>(bremAlgo_p->makeSuperClusters(*clusterPtrVector_p));
 
   // count the total energy and the number of superclusters
   reco::SuperClusterCollection::iterator it;
@@ -113,7 +112,7 @@ produceSuperclustersForECALPart(edm::Event& evt,
     }
 
   // put the SC collection in the event
-  evt.put(superclusters_ap, superclusterCollection);
+  evt.put(std::move(superclusters_ap), superclusterCollection);
 
   delete clusterPtrVector_p;
 }

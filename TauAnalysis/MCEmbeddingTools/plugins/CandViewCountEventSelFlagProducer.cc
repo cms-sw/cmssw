@@ -10,8 +10,7 @@ CandViewCountEventSelFlagProducer::CandViewCountEventSelFlagProducer(const edm::
 
 void CandViewCountEventSelFlagProducer::produce(edm::Event& evt, const edm::EventSetup& es)
 {
-  std::auto_ptr<bool> boolPtr(new bool(eventSelector_(evt, es)));
-  evt.put(boolPtr);
+  evt.put(std::make_unique<bool>(eventSelector_(evt, es)));
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"

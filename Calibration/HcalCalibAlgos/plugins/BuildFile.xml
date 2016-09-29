@@ -1,5 +1,4 @@
 <use   name="Calibration/HcalCalibAlgos"/>
-<use   name="SimDataFormats/Track"/>
 <use   name="CondFormats/HcalObjects"/>
 <use   name="CondFormats/L1TObjects"/>
 <use   name="DQMServices/Core"/>
@@ -30,7 +29,6 @@
 <use   name="boost"/>
 <use   name="root"/>
 <use   name="DataFormats/CaloRecHit"/>
-<use   name="SimDataFormats/GeneratorProducts"/>
 <use   name="clhep"/>
 <use   name="hepmc"/>
 <use   name="CommonTools/UtilAlgos"/>

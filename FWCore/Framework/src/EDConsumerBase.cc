@@ -135,7 +135,8 @@ EDConsumerBase::recordConsumes(BranchType iBranch, TypeToGet const& iType, edm::
 
 void
 EDConsumerBase::updateLookup(BranchType iBranchType,
-                             ProductResolverIndexHelper const& iHelper)
+                             ProductResolverIndexHelper const& iHelper,
+                             bool iPrefetchMayGet)
 {
   frozen_ = true;
   {
@@ -188,6 +189,9 @@ EDConsumerBase::updateLookup(BranchType iBranchType,
 
   if(iBranchType == InEvent) {
     itemsToGet(iBranchType, itemsToGetFromEvent_);
+    if(iPrefetchMayGet) {
+      itemsMayGet(iBranchType, itemsToGetFromEvent_);
+    }
   }
 }
 
@@ -379,35 +383,6 @@ namespace {
   };
 }
 
-void
-EDConsumerBase::modulesDependentUpon(std::string const& iProcessName,
-                                     std::string const& iModuleLabel,
-                                     bool iPrint,
-                                     std::vector<char const*>& oModuleLabels) const {
-  std::set<char const*, CharStarComp> uniqueModules;
-  for(unsigned int index = 0, iEnd = m_tokenInfo.size(); index < iEnd; ++index) {
-    auto const& info = m_tokenInfo.get<kLookupInfo>(index);
-    if(not info.m_index.skipCurrentProcess()) {
-      auto const& labels = m_tokenInfo.get<kLabels>(index);
-      unsigned int const start = labels.m_startOfModuleLabel;
-      char const* processName = &(m_tokenLabels[start+labels.m_deltaToProcessName]);
-      if(iPrint) {
-        LogAbsolute("ModuleDependency") << "ModuleDependency '" << iModuleLabel <<
-        "' may consume product of type '" << info.m_type.className() << 
-        "' with input tag '" << &(m_tokenLabels[start]) <<
-        ':' << &(m_tokenLabels[start+labels.m_deltaToProductInstance]) <<
-        ':' << processName << "'";
-      }
-      if((not processName) or processName[0]==0 or iProcessName == processName) {
-        uniqueModules.insert(&(m_tokenLabels[start]));
-      }
-    }
-  }
-  
-  oModuleLabels = std::vector<const char*>(uniqueModules.begin(),uniqueModules.end());
-}
-
-
 namespace {
   void
   insertFoundModuleLabel(const char* consumedModuleLabel,
@@ -465,7 +440,8 @@ EDConsumerBase::modulesWhoseProductsAreConsumed(std::vector<ModuleDescription co
   for(auto itInfo = m_tokenInfo.begin<kLookupInfo>(),itEnd = m_tokenInfo.end<kLookupInfo>();
       itInfo != itEnd; ++itInfo,++itKind,++itLabels) {
 
-    if(itInfo->m_branchType == InEvent) {
+    if(itInfo->m_branchType == InEvent and
+       (not itInfo->m_index.skipCurrentProcess())) {
 
       const unsigned int labelStart = itLabels->m_startOfModuleLabel;
       const char* consumedModuleLabel = &(m_tokenLabels[labelStart]);

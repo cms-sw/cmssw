@@ -1,14 +1,24 @@
 #include "DataFormats/HcalRecHit/interface/HBHERecHit.h"
 
 
-HBHERecHit::HBHERecHit() : CaloRecHit(), rawEnergy_(-1.0e21), auxEnergy_(-1.0e21) {
+HBHERecHit::HBHERecHit()
+    : CaloRecHit(),
+      chiSquared_(-1),
+      rawEnergy_(-1.0e21),
+      auxEnergy_(-1.0e21),
+      auxHBHE_(0),
+      auxPhase1_(0)
+{
 }
 
-HBHERecHit::HBHERecHit(const HcalDetId& id, float energy, float timeRising, float timeFalling) :
-  CaloRecHit(id,energy,timeRising),
-  timeFalling_(timeFalling),
-  rawEnergy_(-1.0e21),
-  auxEnergy_(-1.0e21)
+HBHERecHit::HBHERecHit(const HcalDetId& id, float energy, float timeRising, float timeFalling)
+    : CaloRecHit(id,energy,timeRising),
+      timeFalling_(timeFalling),
+      chiSquared_(-1),
+      rawEnergy_(-1.0e21),
+      auxEnergy_(-1.0e21),
+      auxHBHE_(0),
+      auxPhase1_(0)
 {
 }
 

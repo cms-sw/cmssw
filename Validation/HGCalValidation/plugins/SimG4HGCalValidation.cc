@@ -256,6 +256,13 @@ void SimG4HGCalValidation::update(const G4Step * aStep) {
 	  HcalNumberingFromDDD::HcalID tmp = numberingFromDDD_->unitID(det, hitPoint, depth, lay);
 	  index = HcalTestNumbering::packHcalIndex(tmp.subdet,tmp.zside,tmp.depth,tmp.etaR,tmp.phis,tmp.lay);
 	  layer = tmp.lay;
+	  edm::LogInfo("ValidHGCal") << "HCAL: " << det << ":" << depth << ":"
+				     << lay << " o/p " << tmp.subdet << ":" 
+				     << tmp.zside << ":" << tmp.depth << ":" 
+				     << tmp.etaR << ":" << tmp.phis << ":" 
+				     << tmp.lay << " point " << hitPoint << " "
+				     << hitPoint.rho() << ":" << hitPoint.eta()
+				     << ":" << hitPoint.phi();
 	}
 
 	double edeposit = aStep->GetTotalEnergyDeposit();

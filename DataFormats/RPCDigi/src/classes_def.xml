@@ -1,6 +1,6 @@
 <lcgdict>
-<class name="RPCDigi" ClassVersion="10">
- <version ClassVersion="10" checksum="3371330358"/>
+<class name="RPCDigi" ClassVersion="13">
+ <version ClassVersion="13" checksum="3650334651"/>
 </class>
 <class name="std::vector<RPCDigi>"/>
 <class name="std::map<RPCDetId,std::vector<RPCDigi> >"/>

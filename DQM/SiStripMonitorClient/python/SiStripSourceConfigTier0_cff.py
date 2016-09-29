@@ -1,5 +1,4 @@
 import FWCore.ParameterSet.Config as cms
-from Configuration.StandardSequences.Eras import eras
 
 # FED integrity Check
 from DQM.SiStripMonitorHardware.siStripFEDCheck_cfi import *
@@ -66,8 +65,8 @@ SiStripMonitorClusterBPTX.StripDCSfilter = cms.PSet(
     errorReplyDcs = cms.bool( True ),
 )
 
-from Configuration.StandardSequences.Eras import eras
-eras.stage2L1Trigger.toModify(SiStripMonitorClusterBPTX, 
+from Configuration.Eras.Modifier_stage2L1Trigger_cff import stage2L1Trigger
+stage2L1Trigger.toModify(SiStripMonitorClusterBPTX, 
     BPTXfilter = dict(
         stage2 = cms.bool(True),
         l1tAlgBlkInputTag = cms.InputTag("gtStage2Digis"),
@@ -83,6 +82,8 @@ SiStripMonitorTrackCommon.TrackProducer = 'generalTracks'
 SiStripMonitorTrackCommon.Mod_On        = False
 SiStripMonitorTrackCommon.TH1ClusterCharge.ringView = cms.bool( True )
 SiStripMonitorTrackCommon.TH1ClusterStoNCorr.ringView = cms.bool( True )
+SiStripMonitorTrackCommon.TH1ClusterPos.layerView = cms.bool( False )
+SiStripMonitorTrackCommon.TH1ClusterPos.ringView = cms.bool( True )
 
 # Clone for SiStripMonitorTrack for Minimum Bias ####
 import DQM.SiStripMonitorTrack.SiStripMonitorTrack_cfi
@@ -92,6 +93,20 @@ SiStripMonitorTrackMB.Mod_On        = False
 SiStripMonitorTrackMB.genericTriggerEventPSet = genericTriggerEventFlag4HLTdb
 SiStripMonitorTrackMB.TH1ClusterCharge.ringView = cms.bool( True )
 SiStripMonitorTrackMB.TH1ClusterStoNCorr.ringView = cms.bool( True )
+
+# Clone for SiStripMonitorTrack for Isolated Bunches ####
+import DQM.SiStripMonitorTrack.SiStripMonitorTrack_cfi
+SiStripMonitorTrackIB = DQM.SiStripMonitorTrack.SiStripMonitorTrack_cfi.SiStripMonitorTrack.clone()
+SiStripMonitorTrackIB.TrackProducer = 'generalTracks'
+SiStripMonitorTrackIB.Mod_On        = False
+SiStripMonitorTrackIB.genericTriggerEventPSet = genericTriggerEventFlag4HLTdbIB
+SiStripMonitorTrackIB.TH1ClusterCharge.ringView = cms.bool( True )
+SiStripMonitorTrackIB.TH1ClusterStoNCorr.ringView = cms.bool( True )
+SiStripMonitorTrackIB.TkHistoMap_On = cms.bool(False)
+SiStripMonitorTrackIB.TH1ClusterNoise.layerView = cms.bool(False) 
+SiStripMonitorTrackIB.TH1ClusterWidth.layerView = cms.bool(False) 
+SiStripMonitorTrackIB.TH1ClusterChargePerCM.ringView = cms.bool(False) 
+SiStripMonitorTrackIB.TopFolderName = cms.string("SiStrip/IsolatedBunches")
 
 ### TrackerMonitorTrack defined and used only for MinimumBias ####
 from DQM.TrackerMonitorTrack.MonitorTrackResiduals_cfi import *
@@ -136,22 +151,23 @@ from RecoLuminosity.LumiProducer.lumiProducer_cff import *
 
 SiStripDQMTier0 = cms.Sequence(
     APVPhases*consecutiveHEs*siStripFEDCheck*siStripFEDMonitor*SiStripMonitorDigi*SiStripMonitorClusterBPTX
-    *SiStripMonitorTrackCommon*MonitorTrackResiduals
+    *SiStripMonitorTrackCommon*SiStripMonitorTrackIB*MonitorTrackResiduals
     *dqmInfoSiStrip)
-eras.phase1Pixel.toReplaceWith(SiStripDQMTier0, SiStripDQMTier0.copyAndExclude([ # FIXME
+from Configuration.Eras.Modifier_phase1Pixel_cff import phase1Pixel
+phase1Pixel.toReplaceWith(SiStripDQMTier0, SiStripDQMTier0.copyAndExclude([ # FIXME
     MonitorTrackResiduals # Excessive printouts because 2017 doesn't have HLT yet
 ]))
 
 SiStripDQMTier0Common = cms.Sequence(
     APVPhases*consecutiveHEs*siStripFEDCheck*siStripFEDMonitor*SiStripMonitorDigi*SiStripMonitorClusterBPTX        
-    *SiStripMonitorTrackCommon
+    *SiStripMonitorTrackCommon*SiStripMonitorTrackIB
     *dqmInfoSiStrip)
 
 SiStripDQMTier0MinBias = cms.Sequence(
     APVPhases*consecutiveHEs*siStripFEDCheck*siStripFEDMonitor*SiStripMonitorDigi*SiStripMonitorClusterBPTX
-    *SiStripMonitorTrackMB*MonitorTrackResiduals
+    *SiStripMonitorTrackMB*SiStripMonitorTrackIB*MonitorTrackResiduals
     *dqmInfoSiStrip)
-eras.phase1Pixel.toReplaceWith(SiStripDQMTier0MinBias, SiStripDQMTier0MinBias.copyAndExclude([ # FIXME
+phase1Pixel.toReplaceWith(SiStripDQMTier0MinBias, SiStripDQMTier0MinBias.copyAndExclude([ # FIXME
     MonitorTrackResiduals # Excessive printouts because 2017 doesn't have HLT yet
 ]))
 

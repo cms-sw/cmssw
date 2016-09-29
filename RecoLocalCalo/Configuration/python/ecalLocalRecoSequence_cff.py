@@ -18,6 +18,7 @@ from RecoLocalCalo.EcalRecProducers.ecalDetIdToBeRecovered_cfi import *
 from RecoLocalCalo.EcalRecProducers.ecalCompactTrigPrim_cfi import *
 from RecoLocalCalo.EcalRecProducers.ecalTPSkim_cfi import *
 
+from RecoLocalCalo.EcalRecProducers.ecalDetailedTimeRecHit_cfi import *
 
 #ecalUncalibRecHitSequence = cms.Sequence(ecalGlobalUncalibRecHit*
 #                                         ecalDetIdToBeRecovered)
@@ -33,3 +34,7 @@ ecalRecHitSequence        = cms.Sequence(ecalRecHit*
 ecalLocalRecoSequence     = cms.Sequence(ecalUncalibRecHitSequence*
                                          ecalRecHitSequence)
 
+from RecoLocalCalo.EcalRecProducers.ecalDetailedTimeRecHit_cfi import *
+_phase2_timing_ecalRecHitSequence = cms.Sequence( ecalRecHitSequence.copy() + ecalDetailedTimeRecHit )
+from Configuration.Eras.Modifier_phase2_timing_cff import phase2_timing
+phase2_timing.toReplaceWith( ecalRecHitSequence, _phase2_timing_ecalRecHitSequence )

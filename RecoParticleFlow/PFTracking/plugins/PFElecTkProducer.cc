@@ -113,12 +113,9 @@ PFElecTkProducer::produce(Event& iEvent, const EventSetup& iSetup)
 
 
   //create the empty collections 
-  auto_ptr< GsfPFRecTrackCollection > 
-    gsfPFRecTrackCollection(new GsfPFRecTrackCollection);
-
+  auto gsfPFRecTrackCollection = std::make_unique<GsfPFRecTrackCollection>();
   
-  auto_ptr< GsfPFRecTrackCollection > 
-    gsfPFRecTrackCollectionSecondary(new GsfPFRecTrackCollection);
+  auto gsfPFRecTrackCollectionSecondary = std::make_unique<GsfPFRecTrackCollection>();
 
   //read collections of tracks
   Handle<GsfTrackCollection> gsftrackscoll;
@@ -350,7 +347,7 @@ PFElecTkProducer::produce(Event& iEvent, const EventSetup& iSetup)
   
   
   const edm::OrphanHandle<GsfPFRecTrackCollection> gsfPfRefProd = 
-    iEvent.put(gsfPFRecTrackCollectionSecondary,"Secondary");
+    iEvent.put(std::move(gsfPFRecTrackCollectionSecondary),"Secondary");
   
   
   //now the secondary GsfPFRecTracks are in the event, the Ref can be created
@@ -359,7 +356,7 @@ PFElecTkProducer::produce(Event& iEvent, const EventSetup& iSetup)
   for(unsigned int iGSF = 0; iGSF<primaryGsfPFRecTracks.size();iGSF++){
     gsfPFRecTrackCollection->push_back(primaryGsfPFRecTracks[iGSF]);
   }
-  iEvent.put(gsfPFRecTrackCollection);
+  iEvent.put(std::move(gsfPFRecTrackCollection));
 
   selGsfPFRecTracks.clear();
   GsfPFMap.clear();

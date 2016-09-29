@@ -401,16 +401,6 @@ me11tmbSLHCGEM = cms.PSet(
     promoteCLCTGEMquality_ME1a = cms.bool(True),
     promoteCLCTGEMquality_ME1b = cms.bool(True),
 
-    ## rate reduction
-    doGemMatching = cms.bool(True),
-    gemMatchDeltaEta = cms.double(0.08),
-    gemMatchDeltaBX = cms.int32(1),
-    gemMatchDeltaPhiOdd = cms.double(1),
-    gemMatchDeltaPhiEven = cms.double(1),
-    gemMatchMinEta = cms.double(1.55),
-    gemMatchMaxEta = cms.double(2.15),
-    gemClearNomatchLCTs = cms.bool(False),
-
     ## cross BX algorithm
     firstTwoLCTsInChamber = cms.bool(True),
 )
@@ -467,16 +457,6 @@ me21tmbSLHCGEM = cms.PSet(
     promoteALCTGEMquality = cms.bool(True),
     promoteCLCTGEMquality = cms.bool(True),
 
-    ## rate reduction
-    doGemMatching = cms.bool(True),
-    gemMatchDeltaEta = cms.double(0.08),
-    gemMatchDeltaBX = cms.int32(1),
-    gemMatchDeltaPhiOdd = cms.double(1),
-    gemMatchDeltaPhiEven = cms.double(1),
-    gemMatchMinEta = cms.double(1.5),
-    gemMatchMaxEta = cms.double(2.45),
-    gemClearNomatchLCTs = cms.bool(False),
-
     firstTwoLCTsInChamber = cms.bool(True),
 )
 
@@ -519,27 +499,19 @@ me3141tmbSLHCRPC = cms.PSet(
     promoteCLCTRPCquality = cms.bool(True),
     promoteALCTRPCpattern = cms.bool(True),
     promoteALCTRPCquality = cms.bool(True),
-
-    ## rate reduction
-    doRpcMatching = cms.bool(True),
-    rpcMatchDeltaEta = cms.double(0.08),
-    rpcMatchDeltaBX = cms.int32(1),
-    rpcMatchDeltaPhiOdd = cms.double(1),
-    rpcMatchDeltaPhiEven = cms.double(1),
-    rpcMatchMinEta = cms.double(1.5),
-    rpcClearNomatchLCTs = cms.bool(False),
 )
 
-from Configuration.StandardSequences.Eras import eras
 ## unganging in ME1/a
-eras.run2_common.toModify( cscTriggerPrimitiveDigis,
+from Configuration.Eras.Modifier_run2_common_cff import run2_common
+run2_common.toModify( cscTriggerPrimitiveDigis,
                            debugParameters = True,
                            checkBadChambers = False,
                            commonParam = dict(gangedME1a = False)
                            )
 
 ## GEM-CSC ILT in ME1/1
-eras.run3_GEM.toModify( cscTriggerPrimitiveDigis,
+from Configuration.Eras.Modifier_run3_GEM_cff import run3_GEM
+run3_GEM.toModify( cscTriggerPrimitiveDigis,
                         GEMPadDigiProducer = cms.InputTag("simMuonGEMPadDigis"),
                         commonParam = dict(
                             isSLHC = cms.bool(True),
@@ -550,10 +522,11 @@ eras.run3_GEM.toModify( cscTriggerPrimitiveDigis,
 )
 
 ## GEM-CSC ILT in ME2/1, CSC-RPC ILT in ME3/1 and ME4/1
-eras.phase2_muon.toModify( cscTriggerPrimitiveDigis,
+from Configuration.Eras.Modifier_phase2_muon_cff import phase2_muon
+phase2_muon.toModify( cscTriggerPrimitiveDigis,
                            RPCDigiProducer = cms.InputTag("simMuonRPCDigis"),
                            commonParam = dict(runME21ILT = cms.bool(True),
-                                              runME3141ILT = cms.bool(True)),
+                                              runME3141ILT = cms.bool(False)),
                            alctSLHCME21 = cscTriggerPrimitiveDigis.alctSLHC.clone(alctNplanesHitPattern = 3),
                            clctSLHCME21 = cscTriggerPrimitiveDigis.clctSLHC.clone(clctNplanesHitPattern = 3),
                            alctSLHCME3141 = cscTriggerPrimitiveDigis.alctSLHC.clone(alctNplanesHitPattern = 3),

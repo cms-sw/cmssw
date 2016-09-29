@@ -5,7 +5,7 @@ fastTrackerRecHitMaskProducer = cms.EDProducer(
     minNumberOfLayersWithMeasBeforeFiltering_ = cms.int32(0),
     trackQuality = cms.string("hightPurity"),
     trajectories = cms.InputTag("generalTracks"),
-    recHits = cms.InputTag("siTrackerGaussianSmearingRecHits"),
+    recHits = cms.InputTag("fastTrackerRecHits"),
     )
 
 def maskProducerFromClusterRemover(clusterRemover):

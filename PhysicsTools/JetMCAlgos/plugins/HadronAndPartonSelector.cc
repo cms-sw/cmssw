@@ -203,11 +203,11 @@ HadronAndPartonSelector::produce(edm::Event& iEvent, const edm::EventSetup& iSet
    edm::Handle<reco::GenParticleCollection> particles;
    iEvent.getByToken(particlesToken_, particles);
 
-   std::auto_ptr<reco::GenParticleRefVector> bHadrons ( new reco::GenParticleRefVector );
-   std::auto_ptr<reco::GenParticleRefVector> cHadrons ( new reco::GenParticleRefVector );
-   std::auto_ptr<reco::GenParticleRefVector> partons  ( new reco::GenParticleRefVector );
-   std::auto_ptr<reco::GenParticleRefVector> physicsPartons  ( new reco::GenParticleRefVector );
-   std::auto_ptr<reco::GenParticleRefVector> leptons  ( new reco::GenParticleRefVector );
+   auto bHadrons = std::make_unique<reco::GenParticleRefVector>();
+   auto cHadrons = std::make_unique<reco::GenParticleRefVector>();
+   auto partons  = std::make_unique<reco::GenParticleRefVector>();
+   auto physicsPartons  = std::make_unique<reco::GenParticleRefVector>();
+   auto leptons  = std::make_unique<reco::GenParticleRefVector>();
 
    // loop over particles and select b and c hadrons and leptons
    for(reco::GenParticleCollection::const_iterator it = particles->begin(); it != particles->end(); ++it)
@@ -260,11 +260,11 @@ HadronAndPartonSelector::produce(edm::Event& iEvent, const edm::EventSetup& iSet
      }
    }
 
-   iEvent.put( bHadrons, "bHadrons" );
-   iEvent.put( cHadrons, "cHadrons" );
-   iEvent.put( partons,  "algorithmicPartons" );
-   iEvent.put( physicsPartons,  "physicsPartons" );
-   iEvent.put( leptons,  "leptons" );
+   iEvent.put(std::move(bHadrons), "bHadrons" );
+   iEvent.put(std::move(cHadrons), "cHadrons" );
+   iEvent.put(std::move(partons),  "algorithmicPartons" );
+   iEvent.put(std::move(physicsPartons),  "physicsPartons" );
+   iEvent.put(std::move(leptons),  "leptons" );
 }
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------

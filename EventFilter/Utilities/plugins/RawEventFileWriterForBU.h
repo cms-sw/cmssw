@@ -12,7 +12,6 @@
 #include <stdio.h>
 #include <sys/types.h>
 #include <sys/stat.h>
-#include <fcntl.h>
 
 #include "boost/shared_array.hpp"
 
@@ -38,9 +37,6 @@ class RawEventFileWriterForBU
   void endOfLS(int ls);
   bool sharedMode() const {return false;}
   void makeRunPrefix(std::string const& destinationDir);
-
-  void handler(int s);
-  static void staticHandler(int s) { instance->handler(s); }
 
  private:
 
@@ -84,8 +80,6 @@ class RawEventFileWriterForBU
 
   uint32 adlera_;
   uint32 adlerb_;
-
-  static RawEventFileWriterForBU* instance;
 
   unsigned int lumiOpen_ = 0;
   unsigned int lumiClosed_ = 0;

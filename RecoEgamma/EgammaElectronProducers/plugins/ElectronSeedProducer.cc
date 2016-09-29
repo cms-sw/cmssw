@@ -37,6 +37,8 @@
 #include "DataFormats/EgammaReco/interface/ElectronSeedFwd.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
+#include "DataFormats/ForwardDetId/interface/ForwardSubdetector.h"
+#include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDProducer.h"
@@ -45,6 +47,7 @@
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/isFinite.h"
 
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterLazyTools.h"
@@ -203,7 +206,7 @@ void ElectronSeedProducer::produce(edm::Event& e, const edm::EventSetup& iSetup)
   }
 
   // store the accumulated result
-  std::auto_ptr<ElectronSeedCollection> pSeeds(seeds) ;
+  std::unique_ptr<ElectronSeedCollection> pSeeds(seeds);
   ElectronSeedCollection::iterator is ;
   for ( is=pSeeds->begin() ; is!=pSeeds->end() ; is++ ) {
     edm::RefToBase<CaloCluster> caloCluster = is->caloCluster() ;
@@ -215,7 +218,7 @@ void ElectronSeedProducer::produce(edm::Event& e, const edm::EventSetup& iSetup)
       << " and cluster energy " << superCluster->energy()
       << " PID "<<superCluster.id() ;
   }
-  e.put(pSeeds) ;
+  e.put(std::move(pSeeds));
   if (fromTrackerSeeds_ && prefilteredSeeds_) delete theInitialSeedColl;
  }
 
@@ -257,7 +260,7 @@ void ElectronSeedProducer::filterClusters
          scle = scl.energy() ;
          int detector = scl.seed()->hitsAndFractions()[0].first.subdetId() ;
          if (detector==EcalBarrel && (had<maxHBarrel_ || had/scle<maxHOverEBarrel_)) HoeVeto=true;
-         else if (detector==EcalEndcap && (had<maxHEndcaps_ || had/scle<maxHOverEEndcaps_)) HoeVeto=true;
+         else if ( (detector==EcalEndcap || detector==HGCEE) && (had<maxHEndcaps_ || had/scle<maxHOverEEndcaps_)) HoeVeto=true;
          if (HoeVeto)
           {
            sclRefs.push_back(edm::Ref<reco::SuperClusterCollection>(superClusters,i)) ;
@@ -278,8 +281,8 @@ void ElectronSeedProducer::filterClusters
 	noZS::EcalClusterLazyTools lazyTool_noZS(event, setup, ebRecHitCollection_, eeRecHitCollection_);
 	std::vector<float> vCov = lazyTool_noZS.localCovariances(*(scl.seed()));
 	int detector = scl.seed()->hitsAndFractions()[0].first.subdetId() ;
-	if (detector==EcalBarrel) sigmaIEtaIEtaEB_ .push_back(isnan(vCov[0]) ? 0. : sqrt(vCov[0]));
-	if (detector==EcalEndcap) sigmaIEtaIEtaEE_ .push_back(isnan(vCov[0]) ? 0. : sqrt(vCov[0]));
+	if (detector==EcalBarrel) sigmaIEtaIEtaEB_ .push_back(edm::isNotFinite(vCov[0]) ? 0. : sqrt(vCov[0]));
+	if (detector==EcalEndcap) sigmaIEtaIEtaEE_ .push_back(edm::isNotFinite(vCov[0]) ? 0. : sqrt(vCov[0]));
       }
    }
   LogDebug("ElectronSeedProducer")<<"Filtered out "<<sclRefs.size()<<" superclusters from "<<superClusters->size() ;

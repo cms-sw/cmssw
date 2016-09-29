@@ -181,29 +181,6 @@ namespace edm {
     phb->putProduct(std::move(edp));
   }
 
-   void
-  EventPrincipal::readFromSource_(ProductResolverBase const& phb, ModuleCallingContext const* mcc) const {
-    if(!reader()) return; // nothing to do.
-    
-    // must attempt to load from persistent store
-    BranchKey const bk = BranchKey(phb.branchDescription());
-    {
-      if(mcc) {
-        preModuleDelayedGetSignal_.emit(*(mcc->getStreamContext()),*mcc);
-      }
-      std::shared_ptr<void> guard(nullptr,[this,mcc](const void*){
-        if(mcc) {
-          postModuleDelayedGetSignal_.emit(*(mcc->getStreamContext()),*mcc);
-        }
-      });
-      
-      std::unique_ptr<WrapperBase> edp(reader()->getProduct(bk, this, &preReadFromSourceSignal_, &postReadFromSourceSignal_, mcc));
-
-      // Now fix up the ProductResolver
-      phb.putProduct(std::move(edp));
-    }
-  }
-
   BranchID
   EventPrincipal::pidToBid(ProductID const& pid) const {
     if(!pid.isValid()) {
@@ -280,9 +257,9 @@ namespace edm {
         return whyFailed;
       }));
     }
-    ProductResolverBase::ResolveStatus status;
-    auto data = phb->resolveProduct(status,*this,false,nullptr,nullptr);
+    auto resolution = phb->resolveProduct(*this,false,nullptr,nullptr);
 
+    auto data = resolution.data();
     if(data) {
       return BasicHandle(data->wrapper(), &(data->provenance()));
     }
@@ -433,8 +410,7 @@ namespace edm {
         << "EventPrincipal::getThinnedAssociation, ThinnedAssociation ProductResolver cannot be found\n"
         << "This should never happen. Contact a Framework developer";
     }
-    ProductResolverBase::ResolveStatus status;
-    ProductData const* productData = phb->resolveProduct(status,*this,false,nullptr,nullptr);
+    ProductData const* productData = (phb->resolveProduct(*this,false,nullptr,nullptr)).data();
     if (productData == nullptr) {
       return nullptr;
     }

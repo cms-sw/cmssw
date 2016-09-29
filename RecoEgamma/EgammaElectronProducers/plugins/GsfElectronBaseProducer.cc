@@ -429,9 +429,9 @@ void GsfElectronBaseProducer::fillEvent( edm::Event & event )
     algo_->displayInternalElectrons("GsfElectronAlgo Info (after amb. solving)") ;
    }
   // final filling
-  std::auto_ptr<GsfElectronCollection> finalCollection( new GsfElectronCollection ) ;
+  auto finalCollection = std::make_unique<GsfElectronCollection>();
   algo_->copyElectrons(*finalCollection) ;
-  orphanHandle_ = event.put(finalCollection) ;
+  orphanHandle_ = event.put(std::move(finalCollection));
 }
 
 void GsfElectronBaseProducer::endEvent()

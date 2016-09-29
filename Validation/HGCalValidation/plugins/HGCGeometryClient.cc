@@ -39,33 +39,33 @@ HGCalGeometryClient::~HGCalGeometryClient() { }
 
 void HGCalGeometryClient::dqmEndJob(DQMStore::IBooker &ib, DQMStore::IGetter &ig) {
   ig.setCurrentFolder("/"); 
-#ifdef DebugLog
-  std::cout << "HGCalGeometryValidation :: runClient" << std::endl;
+#ifdef EDM_ML_DEBUG
+  edm::LogInfo("HGCalValid") << "HGCalGeometry :: runClient" << std::endl;
 #endif
   std::vector<MonitorElement*> hgcalMEs;
   std::vector<std::string> fullDirPath = ig.getSubdirs();
 
   for (unsigned int i=0; i<fullDirPath.size(); i++) {
-#ifdef DebugLog
-    std::cout << "HGCalGeometryValidation::fullPath: " << fullDirPath.at(i) 
-	      << std::endl;
+#ifdef EDM_ML_DEBUG
+    edm::LogInfo("HGCalValid") << "HGCalGeometry::fullPath: " 
+			       << fullDirPath.at(i) << std::endl;
 #endif
     ig.setCurrentFolder(fullDirPath.at(i));
     std::vector<std::string> fullSubDirPath = ig.getSubdirs();
 
     for (unsigned int j=0; j<fullSubDirPath.size(); j++) {
-#ifdef DebugLog
-      std::cout << "HGCalGeometryValidation:: fullSubPath: " 
-		<< fullSubDirPath.at(j) << std::endl;
+#ifdef EDM_ML_DEBUG
+      edm::LogInfo("HGCalValid") << "HGCalGeometry:: fullSubPath: " 
+				 << fullSubDirPath.at(j) << std::endl;
 #endif
       if (strcmp(fullSubDirPath.at(j).c_str(), subDirectory_.c_str()) == 0) {
         hgcalMEs = ig.getContents(fullSubDirPath.at(j));
-#ifdef DebugLog
-	std::cout << "HGCalGeometryValidation:: hgcalMES size : " 
-		  << hgcalMEs.size() << std::endl;
+#ifdef EDM_ML_DEBUG
+	edm::LogInfo("HGCalValid") << "HGCalGeometry:: hgcalMES size : " 
+				   << hgcalMEs.size() << std::endl;
 #endif
         if (!geometryEndjob(hgcalMEs)) 
-          edm::LogWarning("HGCalValidation") << "\nError in GeometryEndjob!";
+          edm::LogWarning("HGCalValid") << "\nError in GeometryEndjob!";
       }
     }
   }

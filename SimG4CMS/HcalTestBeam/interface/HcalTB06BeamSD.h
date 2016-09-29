@@ -39,7 +39,6 @@ private:
   double                birk1, birk2, birk3;
   std::vector<G4String> wcNames;
   G4String              matName;
-  const G4Material*     matScin;
 };
 
 #endif // HcalTB06BeamSD_h

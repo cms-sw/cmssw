@@ -138,12 +138,12 @@ FWDetailViewManager::findViewersFor(const std::string& iType) const
    if(itFind != m_typeToViewers.end()) {
       return itFind->second;
    }
-   //create a list of the available ViewManager's
+
    std::set<std::string> detailViews;
 
-   std::vector<edmplugin::PluginInfo> available = FWDetailViewFactory::get()->available();
-   std::transform(available.begin(),
-                  available.end(),
+   std::vector<edmplugin::PluginInfo> all = edmplugin::PluginManager::get()->categoryToInfos().find(FWDetailViewFactory::get()->category())->second;
+   std::transform(all.begin(),
+                  all.end(),
                   std::inserter(detailViews,detailViews.begin()),
                   boost::bind(&edmplugin::PluginInfo::name_,_1));
    unsigned int closestMatch= 0xFFFFFFFF;

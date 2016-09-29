@@ -7,7 +7,7 @@ caloSimHitStudy = cms.EDAnalyzer("CaloSimHitStudy",
     EECollection = cms.untracked.string('EcalHitsEE'),
     ESCollection = cms.untracked.string('EcalHitsES'),
     HCCollection = cms.untracked.string('HcalHits'),
-    MaxEnergy = cms.untracked.double(200.0)
+    MaxEnergy = cms.untracked.double(200.0),
+    TimeCut   = cms.untracked.double(100.0),
+    MIPCut    = cms.untracked.double(0.70)
 )
-
-

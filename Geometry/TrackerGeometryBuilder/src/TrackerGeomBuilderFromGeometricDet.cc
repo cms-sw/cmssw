@@ -64,7 +64,7 @@ TrackerGeomBuilderFromGeometricDet::build( const GeometricDet* gd, const PTracke
     gdsubdetmap[subdetgd[i]->geographicalId().subdetId()-1]= subdetgd[i]->type();
     LogTrace("SubDetectorGeometricDetType") << "subdet " << i 
 					    << " type " << subdetgd[i]->type()
-					    << " detid " <<  subdetgd[i]->geographicalId()
+					    << " detid " <<  subdetgd[i]->geographicalId().rawId()
 					    << " subdetid " <<  subdetgd[i]->geographicalId().subdetId();
   }
   

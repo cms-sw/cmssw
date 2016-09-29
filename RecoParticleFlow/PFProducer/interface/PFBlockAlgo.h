@@ -126,11 +126,11 @@ class PFBlockAlgo {
   
   /// \return collection of blocks
   /*   const  reco::PFBlockCollection& blocks() const {return *blocks_;} */
-  const std::auto_ptr< reco::PFBlockCollection >& blocks() const 
+  const std::unique_ptr< reco::PFBlockCollection >& blocks() const 
     {return blocks_;}
   
-  /// \return auto_ptr to collection of blocks
-  std::auto_ptr< reco::PFBlockCollection > transferBlocks() {return blocks_;}
+  //uniquen unique_ptr to collection of blocks
+  std::unique_ptr< reco::PFBlockCollection > transferBlocks() {return std::move(blocks_);}
 
   
   
@@ -152,8 +152,7 @@ class PFBlockAlgo {
 		    reco::PFBlock::LinkTest& linktest,
 		    double& dist) const;
   
-  std::auto_ptr< reco::PFBlockCollection >    blocksNew_;
-  std::auto_ptr< reco::PFBlockCollection >    blocks_;
+  std::unique_ptr< reco::PFBlockCollection >    blocks_;
   
   // the test elements will be transferred to the blocks
   ElementList       elements_; 
@@ -166,14 +165,14 @@ class PFBlockAlgo {
   friend std::ostream& operator<<(std::ostream&, const PFBlockAlgo&);
   bool useHO_;
 
-  std::vector<ImporterPtr> _importers;
+  std::vector<ImporterPtr> importers_;
 
   const std::unordered_map<std::string,reco::PFBlockElement::Type> 
-    _elementTypes;
-  std::vector<LinkTestPtr> _linkTests;
-  unsigned int _linkTestSquare[reco::PFBlockElement::kNBETypes][reco::PFBlockElement::kNBETypes];
+    elementTypes_;
+  std::vector<LinkTestPtr> linkTests_;
+  unsigned int linkTestSquare_[reco::PFBlockElement::kNBETypes][reco::PFBlockElement::kNBETypes];
   
-  std::vector<KDTreePtr> _kdtrees;
+  std::vector<KDTreePtr> kdtrees_;
 };
 
 #include "DataFormats/ParticleFlowReco/interface/PFBlockElementGsfTrack.h"

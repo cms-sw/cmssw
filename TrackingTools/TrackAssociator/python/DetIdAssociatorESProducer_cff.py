@@ -1,7 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
 # Use this object to make changes when different configurations are active
-from Configuration.StandardSequences.Eras import eras
 
 ecalDetIdAssociator = cms.ESProducer("DetIdAssociatorESProducer",
     ComponentName = cms.string('EcalDetIdAssociator'),
@@ -36,11 +35,20 @@ muonDetIdAssociator = cms.ESProducer("DetIdAssociatorESProducer",
     etaBinSize = cms.double(0.125),
     nEta = cms.int32(48),
     nPhi = cms.int32(48),
-    includeBadChambers = cms.bool(False)
+    includeBadChambers = cms.bool(False),
+    includeGEM = cms.bool(False),
+    includeME0 = cms.bool(False)
 )
 
 # If running in Run 2, include bad chambers
-eras.run2_common.toModify( muonDetIdAssociator, includeBadChambers = True )
+from Configuration.Eras.Modifier_run2_common_cff import run2_common
+run2_common.toModify( muonDetIdAssociator, includeBadChambers = True )
+
+# include GEM & ME0 for phase2
+from Configuration.Eras.Modifier_run3_GEM_cff import run3_GEM
+run3_GEM.toModify( muonDetIdAssociator, includeGEM = True )
+from Configuration.Eras.Modifier_phase2_muon_cff import phase2_muon
+phase2_muon.toModify( muonDetIdAssociator, includeME0 = True )
 
 preshowerDetIdAssociator = cms.ESProducer("DetIdAssociatorESProducer",
     ComponentName = cms.string('PreshowerDetIdAssociator'),

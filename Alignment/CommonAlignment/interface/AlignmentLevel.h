@@ -19,8 +19,15 @@ class AlignmentLevel {
       levelType(levelType),
       maxNumComponents(maxNumComponents),
       isFlat(isFlat) {};
+    // copy construction + assignment
+    AlignmentLevel(const AlignmentLevel&) = default;
+    AlignmentLevel& operator=(const AlignmentLevel&) = default;
 
-    virtual ~AlignmentLevel() {};
+    // move construction + assignment
+    AlignmentLevel(AlignmentLevel&&) = default;
+    AlignmentLevel& operator=(AlignmentLevel&&) = default;
+
+    virtual ~AlignmentLevel() = default;
 
   //=========================== PUBLIC DATA ===================================
   //===========================================================================

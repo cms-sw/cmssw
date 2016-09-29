@@ -26,7 +26,7 @@ void PileupSummaryInfoSlimmer::produce(edm::StreamID,
                                        edm::Event& evt,
                                        const edm::EventSetup& es ) const {
   edm::Handle<std::vector<PileupSummaryInfo> > input;
-  std::auto_ptr<std::vector<PileupSummaryInfo> > output( new std::vector<PileupSummaryInfo> );
+  auto output = std::make_unique<std::vector<PileupSummaryInfo>>();
 
   evt.getByToken(src_,input);
   
@@ -69,7 +69,7 @@ void PileupSummaryInfoSlimmer::produce(edm::StreamID,
                          bunchSpacing);
   }
 
-  evt.put(output);
+  evt.put(std::move(output));
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"

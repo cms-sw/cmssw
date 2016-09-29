@@ -82,6 +82,7 @@
 #include <sys/fcntl.h>
 #include <unistd.h>
 
+
 //Used for CPU affinity
 #ifndef __APPLE__
 #include <sched.h>
@@ -106,9 +107,8 @@ namespace {
     }
   private:
     edm::ActivityRegistry* reg_; // We do not use propagate_const because the registry itself is mutable.
-
-    
   };
+  
 }
 
 namespace edm {
@@ -174,6 +174,8 @@ namespace edm {
       std::shared_ptr<int> sentry(nullptr,[areg,&md](void*){areg->postSourceConstructionSignal_(md);});
       convertException::wrap([&]() {
         input = std::unique_ptr<InputSource>(InputSourceFactory::get()->makeInputSource(*main_input, isdesc).release());
+        input->preEventReadFromSourceSignal_.connect(std::cref(areg->preEventReadFromSourceSignal_));
+        input->postEventReadFromSourceSignal_.connect(std::cref(areg->postEventReadFromSourceSignal_));
       });
     }
     catch (cms::Exception& iException) {
@@ -478,6 +480,8 @@ namespace edm {
     }
     IllegalParameters::setThrowAnException(optionsPset.getUntrackedParameter<bool>("throwIfIllegalParameter", true));
 
+    printDependencies_ =  optionsPset.getUntrackedParameter("printDependencies", false);
+
     // Now do general initialization
     ScheduleItems items;
 
@@ -544,10 +548,6 @@ namespace edm {
       // Reusable event principal
       auto ep = std::make_shared<EventPrincipal>(preg(), branchIDListHelper(),
            thinnedAssociationsHelper(), *processConfiguration_, historyAppender_.get(), index);
-      ep->preModuleDelayedGetSignal_.connect(std::cref(actReg_->preModuleEventDelayedGetSignal_));
-      ep->postModuleDelayedGetSignal_.connect(std::cref(actReg_->postModuleEventDelayedGetSignal_));
-      ep->preReadFromSourceSignal_.connect(std::cref(actReg_->preEventReadFromSourceSignal_));
-      ep->postReadFromSourceSignal_.connect(std::cref(actReg_->postEventReadFromSourceSignal_));
       principalCache_.insert(ep);
     }
     // initialize the subprocesses, if there are any
@@ -607,6 +607,9 @@ namespace edm {
                                  preallocations_.numberOfThreads());
     actReg_->preallocateSignal_(bounds);
     pathsAndConsumesOfModules_.initialize(schedule_.get(), preg());
+
+    //NOTE: this may throw
+    checkForModuleDependencyCorrectness(pathsAndConsumesOfModules_, printDependencies_);
     actReg_->preBeginJobSignal_(pathsAndConsumesOfModules_, processContext_);
 
     //NOTE:  This implementation assumes 'Job' means one call
@@ -2001,10 +2004,10 @@ namespace edm {
             }
 
             //If source and DelayedReader share a resource we must serialize them
-            auto sr = input_->resourceSharedWithDelayedReader();
-            std::unique_lock<SharedResourcesAcquirer> delayedReaderGuard;
+            auto sr = input_->resourceSharedWithDelayedReader().second;
+            std::unique_lock<std::recursive_mutex> delayedReaderGuard;
             if(sr) {
-              delayedReaderGuard = std::unique_lock<SharedResourcesAcquirer>(*sr);
+              delayedReaderGuard = std::unique_lock<std::recursive_mutex>(*sr);
             }
             InputSource::ItemType itemType = input_->nextItemType();
             if (InputSource::IsEvent !=itemType) {

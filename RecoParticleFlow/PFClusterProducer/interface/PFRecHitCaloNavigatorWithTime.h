@@ -36,7 +36,7 @@ class PFRecHitCaloNavigatorWithTime : public PFRecHitNavigatorBase {
  virtual ~PFRecHitCaloNavigatorWithTime() { if(!ownsTopo) { topology_.release(); } }
 
 
-  void associateNeighbours(reco::PFRecHit& hit,std::auto_ptr<reco::PFRecHitCollection>& hits,edm::RefProd<reco::PFRecHitCollection>& refProd) {
+  void associateNeighbours(reco::PFRecHit& hit,std::unique_ptr<reco::PFRecHitCollection>& hits,edm::RefProd<reco::PFRecHitCollection>& refProd) {
       DetId detid( hit.detId() );
       
       CaloNavigator<D> navigator(detid, topology_.get());
@@ -116,7 +116,7 @@ class PFRecHitCaloNavigatorWithTime : public PFRecHitNavigatorBase {
   std::unique_ptr<CaloRecHitResolutionProvider> _timeResolutionCalc;
 
 
-  void associateNeighbour(const DetId& id, reco::PFRecHit& hit,std::auto_ptr<reco::PFRecHitCollection>& hits,edm::RefProd<reco::PFRecHitCollection>& refProd,short eta, short phi) {
+  void associateNeighbour(const DetId& id, reco::PFRecHit& hit,std::unique_ptr<reco::PFRecHitCollection>& hits,edm::RefProd<reco::PFRecHitCollection>& refProd,short eta, short phi) {
     double sigma2=10000.0;
     
 

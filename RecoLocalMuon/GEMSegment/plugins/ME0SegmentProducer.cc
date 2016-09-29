@@ -39,7 +39,7 @@ private:
 ME0SegmentProducer::ME0SegmentProducer(const edm::ParameterSet& ps) : iev(0) {
 	
   theME0RecHitToken = consumes<ME0RecHitCollection>(ps.getParameter<edm::InputTag>("me0RecHitLabel"));
-  segmentBuilder_ = std::unique_ptr<ME0SegmentBuilder>(new ME0SegmentBuilder(ps)); // pass on the Parameter Set
+  segmentBuilder_ = std::make_unique<ME0SegmentBuilder>(ps); // pass on the Parameter Set
 
   // register what this produces
   produces<ME0SegmentCollection>();
@@ -61,13 +61,13 @@ void ME0SegmentProducer::produce(edm::Event& ev, const edm::EventSetup& setup) {
   ev.getByToken(theME0RecHitToken,me0RecHits);
 
   // create empty collection of Segments
-  std::auto_ptr<ME0SegmentCollection> oc( new ME0SegmentCollection );
+  auto oc = std::make_unique<ME0SegmentCollection>();
 
   // fill the collection
   segmentBuilder_->build(me0RecHits.product(), *oc); //@@ FILL oc
 
   // put collection in event
-  ev.put(oc);
+  ev.put(std::move(oc));
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"

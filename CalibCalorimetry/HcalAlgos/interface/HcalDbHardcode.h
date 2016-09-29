@@ -22,7 +22,13 @@
 #include "CondFormats/HcalObjects/interface/HcalRecoParam.h"
 #include "CondFormats/HcalObjects/interface/HcalTimingParam.h"
 #include "CondFormats/HcalObjects/interface/HcalMCParam.h"
+#include "CondFormats/HcalObjects/interface/HcalSiPMParameter.h"
+#include "CondFormats/HcalObjects/interface/HcalSiPMCharacteristics.h"
+#include "CondFormats/HcalObjects/interface/HcalTPParameters.h"
+#include "CondFormats/HcalObjects/interface/HcalTPChannelParameters.h"
 #include "CalibCalorimetry/HcalAlgos/interface/HcalHardcodeParameters.h"
+
+#include <vector>
 
 /**
 
@@ -49,22 +55,19 @@ class HcalDbHardcode {
     void setHFUpgrade(HcalHardcodeParameters p) { theHFUpgradeParameters_ = p; setHFUpgrade_ = true; }
     void useHBUpgrade(bool b) { useHBUpgrade_ = b; }
     void useHEUpgrade(bool b) { useHEUpgrade_ = b; }
+    void useHOUpgrade(bool b) { useHOUpgrade_ = b; }
     void useHFUpgrade(bool b) { useHFUpgrade_ = b; }
     void testHFQIE10(bool b) { testHFQIE10_ = b; }
-    void setLumi(double lumi) { lumi_ = lumi; }
-    void setLumiOffset(double offset) { lumiOffset_ = offset; }
-    void setHBSiPMLumiDep(double dep) { theHBSiPMLumiDep_ = dep; }
-    void setHESiPMLumiDep(double dep) { theHESiPMLumiDep_ = dep; }
     
     //getters
     const bool useHBUpgrade() const { return useHBUpgrade_; }
     const bool useHEUpgrade() const { return useHEUpgrade_; }
+    const bool useHOUpgrade() const { return useHOUpgrade_; }
     const bool useHFUpgrade() const { return useHFUpgrade_; }
     const HcalHardcodeParameters& getParameters(HcalGenericDetId fId);
     const int getGainIndex(HcalGenericDetId fId);
     HcalPedestal makePedestal (HcalGenericDetId fId, bool fSmear = false);
     HcalPedestalWidth makePedestalWidth (HcalGenericDetId fId);
-    HcalPedestalWidth makePedestalWidth (HcalGenericDetId fId, double lumi);
     HcalGain makeGain (HcalGenericDetId fId, bool fSmear = false);
     HcalGainWidth makeGainWidth (HcalGenericDetId fId);
     HcalQIECoder makeQIECoder (HcalGenericDetId fId);
@@ -74,9 +77,14 @@ class HcalDbHardcode {
     HcalRecoParam makeRecoParam (HcalGenericDetId fId);
     HcalMCParam makeMCParam (HcalGenericDetId fId);
     HcalTimingParam makeTimingParam (HcalGenericDetId fId);
-    void makeHardcodeMap(HcalElectronicsMap& emap);
+    void makeHardcodeMap(HcalElectronicsMap& emap, const std::vector<HcalGenericDetId>& cells);
     void makeHardcodeDcsMap(HcalDcsMap& dcs_map);
-    void makeHardcodeFrontEndMap(HcalFrontEndMap& emap);
+    void makeHardcodeFrontEndMap(HcalFrontEndMap& emap, 
+				 const std::vector<HcalGenericDetId>& cells);
+    HcalSiPMParameter makeHardcodeSiPMParameter (HcalGenericDetId fId);
+    void makeHardcodeSiPMCharacteristics (HcalSiPMCharacteristics& sipm);
+    HcalTPChannelParameter makeHardcodeTPChannelParameter (HcalGenericDetId fId);
+    void makeHardcodeTPParameters (HcalTPParameters& tppar);
     
   private:
     //member variables
@@ -84,8 +92,7 @@ class HcalDbHardcode {
     HcalHardcodeParameters theHBParameters_, theHEParameters_, theHFParameters_, theHOParameters_;
     HcalHardcodeParameters theHBUpgradeParameters_, theHEUpgradeParameters_, theHFUpgradeParameters_;
     bool setHB_, setHE_, setHF_, setHO_, setHBUpgrade_, setHEUpgrade_, setHFUpgrade_;
-    bool useHBUpgrade_, useHEUpgrade_, useHFUpgrade_, testHFQIE10_;
-    double lumi_, lumiOffset_, theHBSiPMLumiDep_, theHESiPMLumiDep_;
+    bool useHBUpgrade_, useHEUpgrade_, useHOUpgrade_, useHFUpgrade_, testHFQIE10_;
 };
 
 #endif

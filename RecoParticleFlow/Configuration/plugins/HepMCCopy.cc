@@ -19,11 +19,11 @@ void HepMCCopy::produce(edm::Event & iEvent, const edm::EventSetup & es)
   edm::Handle<edm::HepMCProduct> theHepMCProduct;
   bool source = iEvent.getByLabel("generatorSmeared",theHepMCProduct);
   if ( !source ) { 
-    std::auto_ptr<edm::HepMCProduct> pu_product(new edm::HepMCProduct());  
-    iEvent.put(pu_product);
+    auto pu_product = std::make_unique<edm::HepMCProduct>();  
+    iEvent.put(std::move(pu_product));
   } else { 
-    std::auto_ptr<edm::HepMCProduct> pu_product(new edm::HepMCProduct(*theHepMCProduct));  
-    iEvent.put(pu_product);
+    auto pu_product = std::make_unique<edm::HepMCProduct>(*theHepMCProduct);  
+    iEvent.put(std::move(pu_product));
   }
 
 }

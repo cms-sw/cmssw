@@ -211,10 +211,11 @@ void CastorRecHitMonitor::processEvent(const CastorRecHitCollection& castorHits)
     etot += es;
   } // end for(int phi=0;
 
- if(ievt_ %100 == 0) 
-  for(int mod=1; mod<=14; mod++) for(int sec=1; sec<=16;sec++) {
-    double a= h2RHmap->getTH2F()->GetBinContent(mod,sec);
-    h2RHoccmap->getTH2F()->SetBinContent(mod,sec,a/double(ievt_));
+  if(ievt_ %100 == 0){ 
+   for(int mod=1; mod<=14; mod++) for(int sec=1; sec<=16;sec++) {
+     double a= h2RHmap->getTH2F()->GetBinContent(mod,sec);
+     h2RHoccmap->getTH2F()->SetBinContent(mod,sec,a/double(ievt_));
+   }
   }
 
   if(fVerbosity>0) std::cout << "CastorRecHitMonitor::processEvent (end)"<< std::endl;

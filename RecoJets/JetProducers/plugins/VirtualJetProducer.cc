@@ -10,6 +10,10 @@
 #include "RecoJets/JetProducers/interface/BackgroundEstimator.h"
 #include "RecoJets/JetProducers/interface/VirtualJetProducerHelper.h"
 
+#include "DataFormats/Common/interface/RefProd.h"
+#include "DataFormats/Common/interface/Ref.h"
+#include "DataFormats/Common/interface/RefVector.h"
+
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -136,6 +140,7 @@ VirtualJetProducer::VirtualJetProducer(const edm::ParameterSet& iConfig)
   , jetCollInstanceName_ ("")
   , writeCompound_ ( false )
   , verbosity_(0)
+  , fromHTTTopJetProducer_(0)
 {
   anomalousTowerDef_ = std::auto_ptr<AnomalousTower>(new AnomalousTower(iConfig));
 
@@ -609,8 +614,8 @@ void VirtualJetProducer::writeJets( edm::Event & iEvent, edm::EventSetup const& 
     if(fjexcluded_jets.size()>2) fjexcluded_jets.resize(nExclude_);
     
     if(doFastJetNonUniform_){
-      std::auto_ptr<std::vector<double> > rhos(new std::vector<double>);
-      std::auto_ptr<std::vector<double> > sigmas(new std::vector<double>);
+      auto rhos = std::make_unique<std::vector<double>>();
+      auto sigmas = std::make_unique<std::vector<double>>();
       int nEta = puCenters_.size();
       rhos->reserve(nEta);
       sigmas->reserve(nEta);
@@ -633,11 +638,11 @@ void VirtualJetProducer::writeJets( edm::Event & iEvent, edm::EventSetup const& 
 	  sigmas->push_back(bkgestim.sigma());
 	}
       }
-      iEvent.put(rhos,"rhos");
-      iEvent.put(sigmas,"sigmas");
+      iEvent.put(std::move(rhos),"rhos");
+      iEvent.put(std::move(sigmas),"sigmas");
     }else{
-      std::auto_ptr<double> rho(new double(0.0));
-      std::auto_ptr<double> sigma(new double(0.0));
+      auto rho = std::make_unique<double>(0.0);
+      auto sigma = std::make_unique<double>(0.0);
       double mean_area = 0;
       
       fastjet::ClusterSequenceAreaBase const* clusterSequenceWithArea =
@@ -660,8 +665,8 @@ void VirtualJetProducer::writeJets( edm::Event & iEvent, edm::EventSetup const& 
 	  *rho = 0;
 	}
       }
-      iEvent.put(rho,"rho");
-      iEvent.put(sigma,"sigma");
+      iEvent.put(std::move(rho),"rho");
+      iEvent.put(std::move(sigma),"sigma");
     }
   } // doRhoFastjet_
   
@@ -759,9 +764,9 @@ void VirtualJetProducer::writeCompoundJets(  edm::Event & iEvent, edm::EventSetu
   }
 
   // get a list of output jets
-  std::auto_ptr<reco::BasicJetCollection>  jetCollection( new reco::BasicJetCollection() );
+  auto jetCollection = std::make_unique<reco::BasicJetCollection>();
   // get a list of output subjets
-  std::auto_ptr<std::vector<T> >  subjetCollection( new std::vector<T>() );
+  auto subjetCollection = std::make_unique<std::vector<T>>();
 
   // This will store the handle for the subjets after we write them
   edm::OrphanHandle< std::vector<T> > subjetHandleAfterPut;
@@ -855,7 +860,7 @@ void VirtualJetProducer::writeCompoundJets(  edm::Event & iEvent, edm::EventSetu
   }
 
   // put subjets into event record
-  subjetHandleAfterPut = iEvent.put( subjetCollection, jetCollInstanceName_ );
+  subjetHandleAfterPut = iEvent.put(std::move(subjetCollection), jetCollInstanceName_);
   
   // Now create the hard jets with ptr's to the subjets as constituents
   std::vector<math::XYZTLorentzVector>::const_iterator ip4 = p4_hardJets.begin(),
@@ -879,5 +884,11 @@ void VirtualJetProducer::writeCompoundJets(  edm::Event & iEvent, edm::EventSetu
   }
 
   // put hard jets into event record
-  iEvent.put( jetCollection);
+  // Store the Orphan handle for adding HTT information
+  edm::OrphanHandle<reco::BasicJetCollection>  oh = iEvent.put(std::move(jetCollection));
+
+  if (fromHTTTopJetProducer_){
+    addHTTTopJetTagInfoCollection( iEvent, iSetup, oh);
+  }
+
 }

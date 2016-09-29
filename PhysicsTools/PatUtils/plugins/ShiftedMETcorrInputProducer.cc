@@ -63,14 +63,14 @@ void ShiftedMETcorrInputProducer::produce(edm::Event& evt, const edm::EventSetup
 
       double shift = shiftBy_*(*binningEntry)->binUncertainty_;
 
-      std::auto_ptr<CorrMETData> shiftedObject(new CorrMETData(*originalObject));
+      auto shiftedObject = std::make_unique<CorrMETData>(*originalObject);
 //--- MET balances momentum of reconstructed particles,
 //    hence variations of "unclustered energy" and MET are opposite in sign
       shiftedObject->mex   = -shift*originalObject->mex;
       shiftedObject->mey   = -shift*originalObject->mey;
       shiftedObject->sumet = shift*originalObject->sumet;
 
-      evt.put(shiftedObject, (*binningEntry)->getInstanceLabel_full(src_i->instance()));
+      evt.put(std::move(shiftedObject), (*binningEntry)->getInstanceLabel_full(src_i->instance()));
     }
   }
 }

@@ -9,6 +9,7 @@ from SimGeneral.MixingModule.hcalDigitizer_cfi import *
 from SimGeneral.MixingModule.castorDigitizer_cfi import *
 from SimGeneral.MixingModule.pileupVtxDigitizer_cfi import *
 from SimGeneral.MixingModule.trackingTruthProducerSelection_cfi import *
+from SimGeneral.MixingModule.caloTruthProducer_cfi import *
 from FastSimulation.Tracking.recoTrackAccumulator_cfi import *
 
 theDigitizers = cms.PSet(
@@ -32,8 +33,8 @@ theDigitizers = cms.PSet(
   )
 )
 
-from Configuration.StandardSequences.Eras import eras
-if eras.fastSim.isChosen():
+from Configuration.Eras.Modifier_fastSim_cff import fastSim
+if fastSim.isChosen():
     # fastsim does not model castor
     delattr(theDigitizers,"castor")
     # fastsim does not digitize pixel and strip hits
@@ -42,13 +43,22 @@ if eras.fastSim.isChosen():
     setattr(theDigitizers,"tracks",recoTrackAccumulator)
 
 
-from SimCalorimetry.HGCalSimProducers.hgcalDigitizer_cfi import hgceeDigitizer, hgchefrontDigitizer 
+from SimCalorimetry.HGCalSimProducers.hgcalDigitizer_cfi import hgceeDigitizer, hgchebackDigitizer, hgchefrontDigitizer 
     
-eras.phase2_hgcal.toModify( theDigitizers,
+from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
+phase2_hgcal.toModify( theDigitizers,
                             hgceeDigitizer = cms.PSet(hgceeDigitizer),
+                            #hgchebackDigitizer = cms.PSet(hgchebackDigitizer),
                             hgchefrontDigitizer = cms.PSet(hgchefrontDigitizer),
 )
 
+from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
+phase2_common.toModify( theDigitizers, castor = None )
+
+from SimGeneral.MixingModule.ecalTimeDigitizer_cfi import ecalTimeDigitizer
+from Configuration.Eras.Modifier_phase2_timing_cff import phase2_timing
+phase2_timing.toModify( theDigitizers,
+                             ecalTime = ecalTimeDigitizer.clone() )
     
 theDigitizersValid = cms.PSet(
     theDigitizers,
@@ -56,3 +66,11 @@ theDigitizersValid = cms.PSet(
         trackingParticles
         )
     )
+
+
+phase2_hgcal.toModify( theDigitizersValid,
+                            calotruth = cms.PSet( caloParticles ) )
+
+phase2_timing.toModify( theDigitizersValid.mergedtruth,
+                             createInitialVertexCollection = cms.bool(True) )
+

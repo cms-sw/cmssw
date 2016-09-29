@@ -24,6 +24,17 @@ def esproducers_by_type(process, *types):
 #                     pset.minGoodStripCharge = cms.PSet(refToPSet_ = cms.string('HLTSiStripClusterChargeCutNone'))
 #     return process
 
+# Module restructuring for PR #15440
+def customiseFor15440(process):
+    for producer in producers_by_type(process, "EgammaHLTBcHcalIsolationProducersRegional", "EgammaHLTEcalPFClusterIsolationProducer", "EgammaHLTHcalPFClusterIsolationProducer", "MuonHLTEcalPFClusterIsolationProducer", "MuonHLTHcalPFClusterIsolationProducer"):
+        if hasattr(producer, "effectiveAreaBarrel") and hasattr(producer, "effectiveAreaEndcap"):
+            if not hasattr(producer, "effectiveAreas") and not hasattr(producer, "absEtaLowEdges"):
+                producer.absEtaLowEdges = cms.vdouble( 0.0, 1.479 )
+                producer.effectiveAreas = cms.vdouble( producer.effectiveAreaBarrel.value(), producer.effectiveAreaEndcap.value() )
+                del producer.effectiveAreaBarrel
+                del producer.effectiveAreaEndcap
+    return process
+
 # Add quadruplet-specific pixel track duplicate cleaning mode (PR #13753)
 def customiseFor13753(process):
     for producer in producers_by_type(process, "PixelTrackProducer"):
@@ -38,6 +49,26 @@ def customiseFor14356(process):
             pset.pixelSeedExtension = cms.bool(False)
     return process
 
+def customiseFor14833(process):
+    for producer in esproducers_by_type(process, "DetIdAssociatorESProducer"):
+        if (producer.ComponentName.value() == 'MuonDetIdAssociator'):
+            if not hasattr(producer,'includeGEM'):
+                producer.includeGEM = cms.bool(False)
+            if not hasattr(producer,'includeME0'):
+                producer.includeME0 = cms.bool(False)
+    return process
+
+def customiseFor15499(process):
+    for producer in producers_by_type(process,"HcalHitReconstructor"):
+        producer.ts4Max = cms.vdouble(100.0,70000.0)
+        if (producer.puCorrMethod.value() == 2):
+            producer.timeSigmaHPD = cms.double(5.0)
+            producer.timeSigmaSiPM = cms.double(3.5)
+            producer.pedSigmaHPD = cms.double(0.5)
+            producer.pedSigmaSiPM = cms.double(1.5)
+            producer.noiseHPD = cms.double(1.0)
+            producer.noiseSiPM = cms.double(2.)
+    return process
 #
 # CMSSW version specific customizations
 def customizeHLTforCMSSW(process, menuType="GRun"):
@@ -48,12 +79,17 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
     if cmsswVersion >= "CMSSW_8_1":
         process = customiseFor14356(process)
         process = customiseFor13753(process)
+        process = customiseFor14833(process)
+        process = customiseFor15440(process)
+        process = customiseFor15499(process)
 #       process = customiseFor12718(process)
         pass
 
 #   stage-2 changes only if needed
     if ("Fake" in menuType):
         return process
+
+    
 
 #    if ( menuType in ("FULL","GRun","PIon")):
 #        from HLTrigger.Configuration.CustomConfigs import L1XML

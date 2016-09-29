@@ -1,5 +1,5 @@
 import FWCore.ParameterSet.Config as cms
-from Configuration.StandardSequences.Eras import eras
+from Configuration.Eras.Modifier_tracker_apv_vfp30_2016_cff import tracker_apv_vfp30_2016 as _tracker_apv_vfp30_2016
 
 ### STEP 0 ###
 
@@ -13,7 +13,8 @@ import RecoPixelVertexing.PixelTriplets.quadrupletseedmerging_cff
 initialStepSeedLayersPreSplitting = RecoTracker.TkSeedingLayers.PixelLayerTriplets_cfi.PixelLayerTriplets.clone()
 initialStepSeedLayersPreSplitting.FPix.HitProducer = 'siPixelRecHitsPreSplitting'
 initialStepSeedLayersPreSplitting.BPix.HitProducer = 'siPixelRecHitsPreSplitting'
-eras.trackingPhase1.toModify(initialStepSeedLayersPreSplitting,
+from Configuration.Eras.Modifier_trackingPhase1_cff import trackingPhase1
+trackingPhase1.toModify(initialStepSeedLayersPreSplitting,
     layerList = RecoPixelVertexing.PixelTriplets.quadrupletseedmerging_cff.PixelSeedMergerQuadruplets.layerList.value()
 )
 
@@ -38,7 +39,7 @@ initialStepSeedsPreSplitting.OrderedHitsFactoryPSet.GeneratorPSet.SeedComparitor
 initialStepSeedsPreSplitting.OrderedHitsFactoryPSet.GeneratorPSet.SeedComparitorPSet.clusterShapeCacheSrc = 'siPixelClusterShapeCachePreSplitting'
 initialStepSeedsPreSplitting.ClusterCheckPSet.PixelClusterCollectionLabel = 'siPixelClustersPreSplitting'
 
-eras.trackingPhase1.toModify(initialStepSeedsPreSplitting,
+trackingPhase1.toModify(initialStepSeedsPreSplitting,
     OrderedHitsFactoryPSet = cms.PSet(
         ComponentName = cms.string("CombinedHitQuadrupletGenerator"),
         GeneratorPSet = _PixelQuadrupletGenerator.clone(
@@ -70,9 +71,11 @@ import TrackingTools.TrajectoryFiltering.TrajectoryFilter_cff
 initialStepTrajectoryFilterBasePreSplitting = TrackingTools.TrajectoryFiltering.TrajectoryFilter_cff.CkfBaseTrajectoryFilter_block.clone(
     minimumNumberOfHits = 3,
     minPt = 0.2,
-    maxCCCLostHits = 2,
+    maxCCCLostHits = 0,
     minGoodStripCharge = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutLoose'))
     )
+from Configuration.Eras.Modifier_tracker_apv_vfp30_2016_cff import tracker_apv_vfp30_2016
+_tracker_apv_vfp30_2016.toModify(initialStepTrajectoryFilterBasePreSplitting, maxCCCLostHits = 2)
 import RecoPixelVertexing.PixelLowPtUtilities.StripSubClusterShapeTrajectoryFilter_cfi
 initialStepTrajectoryFilterShapePreSplitting = RecoPixelVertexing.PixelLowPtUtilities.StripSubClusterShapeTrajectoryFilter_cfi.StripSubClusterShapeTrajectoryFilterTIX12.clone()
 initialStepTrajectoryFilterPreSplitting = cms.PSet(
@@ -87,8 +90,11 @@ initialStepChi2EstPreSplitting = RecoTracker.MeasurementDet.Chi2ChargeMeasuremen
     ComponentName = cms.string('initialStepChi2EstPreSplitting'),
     nSigma = cms.double(3.0),
     MaxChi2 = cms.double(30.0),
-    clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutTiny')),
+    clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutLoose')),
     pTChargeCutThreshold = cms.double(15.)
+)
+_tracker_apv_vfp30_2016.toModify(initialStepChi2EstPreSplitting,
+    clusterChargeCut = dict(refToPSet_ = "SiStripClusterChargeCutTiny")
 )
 
 import RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi
@@ -188,13 +194,18 @@ InitialStepPreSplitting = cms.Sequence(initialStepSeedLayersPreSplitting*
 # one place (within Reconstruction_cff) where siPixelClusters
 # module is defined.
 from RecoLocalTracker.SiPixelClusterizer.SiPixelClusterizer_cfi import siPixelClusters as _siPixelClusters
-eras.trackingLowPU.toReplaceWith(siPixelClusters, _siPixelClusters)
-eras.trackingPhase1PU70.toReplaceWith(siPixelClusters, _siPixelClusters)
+from Configuration.Eras.Modifier_trackingLowPU_cff import trackingLowPU
+trackingLowPU.toReplaceWith(siPixelClusters, _siPixelClusters)
+from Configuration.Eras.Modifier_trackingPhase1PU70_cff import trackingPhase1PU70
+trackingPhase1PU70.toReplaceWith(siPixelClusters, _siPixelClusters)
+from Configuration.Eras.Modifier_trackingPhase2PU140_cff import trackingPhase2PU140
+trackingPhase2PU140.toReplaceWith(siPixelClusters, _siPixelClusters)
 _InitialStepPreSplitting_LowPU_Phase1PU70 = cms.Sequence(
     siPixelClusters +
     siPixelRecHits +
     MeasurementTrackerEvent +
     siPixelClusterShapeCache
 )
-eras.trackingLowPU.toReplaceWith(InitialStepPreSplitting, _InitialStepPreSplitting_LowPU_Phase1PU70)
-eras.trackingPhase1PU70.toReplaceWith(InitialStepPreSplitting, _InitialStepPreSplitting_LowPU_Phase1PU70)
+trackingLowPU.toReplaceWith(InitialStepPreSplitting, _InitialStepPreSplitting_LowPU_Phase1PU70)
+trackingPhase1PU70.toReplaceWith(InitialStepPreSplitting, _InitialStepPreSplitting_LowPU_Phase1PU70)
+trackingPhase2PU140.toReplaceWith(InitialStepPreSplitting, _InitialStepPreSplitting_LowPU_Phase1PU70)

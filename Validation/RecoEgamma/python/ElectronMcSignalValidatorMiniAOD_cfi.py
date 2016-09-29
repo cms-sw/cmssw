@@ -28,6 +28,10 @@ electronMcSignalValidatorMiniAOD = cms.EDAnalyzer("ElectronMcSignalValidatorMini
     mcTruthCollection = cms.InputTag("prunedGenParticles"),
     electrons = cms.InputTag("slimmedElectrons"),
 
+    ValueMaps_ChargedHadrons_src = cms.InputTag("ElectronIsolation", "h+-DR030-BarVeto000-EndVeto001"),
+    ValueMaps_NeutralHadrons_src = cms.InputTag("ElectronIsolation", "h0-DR030-BarVeto000-EndVeto000"),
+    ValueMaps_Photons_src = cms.InputTag("ElectronIsolation", "gamma-DR030-BarVeto000-EndVeto008"),
+
     MaxPt = cms.double(100.0),
     DeltaR = cms.double(0.05),
     MaxAbsEta = cms.double(2.5),

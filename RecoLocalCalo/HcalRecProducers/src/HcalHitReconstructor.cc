@@ -11,9 +11,11 @@
 #include "CalibCalorimetry/HcalAlgos/interface/HcalDbASCIIIO.h"
 #include "Geometry/CaloTopology/interface/HcalTopology.h"
 #include "Geometry/Records/interface/HcalRecNumberingRecord.h"
+#include "CondFormats/DataRecord/interface/HcalFrontEndMapRcd.h"
 #include "CondFormats/DataRecord/interface/HcalOOTPileupCorrectionRcd.h"
 #include "CondFormats/DataRecord/interface/HcalOOTPileupCompatibilityRcd.h"
 #include "CondFormats/DataRecord/interface/HBHENegativeEFilterRcd.h"
+#include "CondFormats/HcalObjects/interface/HcalFrontEndMap.h"
 #include "CondFormats/HcalObjects/interface/OOTPileupCorrectionColl.h"
 #include "CondFormats/HcalObjects/interface/OOTPileupCorrData.h"
 #include <iostream>
@@ -257,27 +259,25 @@ HcalHitReconstructor::HcalHitReconstructor(edm::ParameterSet const& conf):
 			  conf.getParameter<bool>  ("applyPedConstraint"),
 			  conf.getParameter<bool>  ("applyTimeConstraint"),
 			  conf.getParameter<bool>  ("applyPulseJitter"),
-			  conf.getParameter<bool>  ("applyUnconstrainedFit"),
 			  conf.getParameter<bool>  ("applyTimeSlew"),
 			  conf.getParameter<double>("ts4Min"),
-			  conf.getParameter<double>("ts4Max"),
+			  conf.getParameter<std::vector<double>>("ts4Max"),
 			  conf.getParameter<double>("pulseJitter"),
 			  conf.getParameter<double>("meanTime"),
-			  conf.getParameter<double>("timeSigma"),
+			  conf.getParameter<double>("timeSigmaHPD"),
+			  conf.getParameter<double>("timeSigmaSiPM"),
 			  conf.getParameter<double>("meanPed"),
-			  conf.getParameter<double>("pedSigma"),
-			  conf.getParameter<double>("noise"),
+			  conf.getParameter<double>("pedSigmaHPD"),
+			  conf.getParameter<double>("pedSigmaSiPM"),
+			  conf.getParameter<double>("noiseHPD"),
+			  conf.getParameter<double>("noiseSiPM"),
 			  conf.getParameter<double>("timeMin"),
 			  conf.getParameter<double>("timeMax"),
-			  conf.getParameter<double>("ts3chi2"),
 			  conf.getParameter<double>("ts4chi2"),
-			  conf.getParameter<double>("ts345chi2"),
-			  conf.getParameter<double>("chargeMax"), //For the unconstrained Fit
                           conf.getParameter<int>   ("fitTimes")
 			  );
   }
   reco_.setMeth3Params(
-            conf.getParameter<int>     ("pedestalSubtractionType"),
             conf.getParameter<double>  ("pedestalUpperLimit"),
             conf.getParameter<int>     ("timeSlewParsType"),
             conf.getParameter<std::vector<double> >("timeSlewPars"),
@@ -290,7 +290,6 @@ HcalHitReconstructor::HcalHitReconstructor(edm::ParameterSet const& conf):
 void HcalHitReconstructor::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.setAllowAnything();
-  desc.add<int>("pedestalSubtractionType", 1); 
   desc.add<double>("pedestalUpperLimit", 2.7); 
   desc.add<int>("timeSlewParsType",3);
   desc.add<std::vector<double>>("timeSlewPars", { 12.2999, -2.19142, 0, 12.2999, -2.19142, 0, 12.2999, -2.19142, 0 });
@@ -340,12 +339,18 @@ void HcalHitReconstructor::beginRun(edm::Run const&r, edm::EventSetup const & es
       edm::ESHandle<HcalFlagHFDigiTimeParams> p;
       es.get<HcalFlagHFDigiTimeParamsRcd>().get(p);
       HFDigiTimeParams.reset( new HcalFlagHFDigiTimeParams( *p ) );
-
-      edm::ESHandle<HcalTopology> htopo;
-      es.get<HcalRecNumberingRecord>().get(htopo);
       HFDigiTimeParams->setTopo(htopo.product());
-
     }
+
+  if (hbheFlagSetter_) {
+    edm::ESHandle<HcalFrontEndMap> hfemap;
+    es.get<HcalFrontEndMapRcd>().get(hfemap);
+    if (hfemap.isValid()) {
+      hbheFlagSetter_->SetFrontEndMap(hfemap.product());
+    } else {
+      edm::LogWarning("Configuration") << "HcalHitReconstructor cannot get HcalFrontEndMap!" << std::endl;
+    }
+  }
 
   reco_.beginRun(es);
 }
@@ -443,7 +448,7 @@ void HcalHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSe
       e.getByToken(tok_hbhe_,digi);
       
       // create empty output
-      std::auto_ptr<HBHERecHitCollection> rec(new HBHERecHitCollection);
+      auto rec = std::make_unique<HBHERecHitCollection>();
       rec->reserve(digi->size());
       // run the algorithm
       if (setNoiseFlags_) hbheFlagSetter_->Clear();
@@ -557,7 +562,7 @@ void HcalHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSe
 	if (hbheTimingShapedFlagSetter_!=0)
 	  hbheTimingShapedFlagSetter_->SetTimingShapedFlags(rec->back());
 	if (setNoiseFlags_)
-	  hbheFlagSetter_->SetFlagsFromDigi(&(*topo),rec->back(),*i,coder,calibrations,first,toadd);
+	  hbheFlagSetter_->SetFlagsFromDigi(rec->back(), *i, coder, calibrations);
 	if (setPulseShapeFlags_)
 	  hbhePulseShapeFlagSetter_->SetPulseShapeFlags(rec->back(), *i, coder, calibrations);
 	if (setNegativeFlags_)
@@ -580,10 +585,10 @@ void HcalHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSe
       } // loop over HBHE digis
 
 
-      if (setNoiseFlags_) hbheFlagSetter_->SetFlagsFromRecHits(&(*topo),*rec);
+      if (setNoiseFlags_) hbheFlagSetter_->SetFlagsFromRecHits(*rec);
       if (setHSCPFlags_)  hbheHSCPFlagSetter_->hbheSetTimeFlagsFromDigi(rec.get(), HBDigis, RecHitIndex);
       // return result
-      e.put(rec);
+      e.put(std::move(rec));
 
       //  HO ------------------------------------------------------------------
     } else if (subdet_==HcalOuter) {
@@ -591,7 +596,7 @@ void HcalHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSe
       e.getByToken(tok_ho_,digi);
       
       // create empty output
-      std::auto_ptr<HORecHitCollection> rec(new HORecHitCollection);
+      auto rec = std::make_unique<HORecHitCollection>();
       rec->reserve(digi->size());
       // run the algorithm
       HODigiCollection::const_iterator i;
@@ -666,7 +671,7 @@ void HcalHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSe
 	  HcalTimingCorrector::Correct(rec->back(), *i, favorite_capid);
       }
       // return result
-      e.put(rec);    
+      e.put(std::move(rec));    
 
       // HF -------------------------------------------------------------------
     } else if (subdet_==HcalForward) {
@@ -676,7 +681,7 @@ void HcalHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSe
 
       ///////////////////////////////////////////////////////////////// HF
       // create empty output
-      std::auto_ptr<HFRecHitCollection> rec(new HFRecHitCollection);
+      auto rec = std::make_unique<HFRecHitCollection>();
       rec->reserve(digi->size());
       // run the algorithm
       HFDigiCollection::const_iterator i;
@@ -811,13 +816,13 @@ void HcalHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSe
 	}
 
       // return result
-      e.put(rec);     
+      e.put(std::move(rec));     
     } else if (subdet_==HcalOther && subdetOther_==HcalCalibration) {
       edm::Handle<HcalCalibDigiCollection> digi;
       e.getByToken(tok_calib_,digi);
       
       // create empty output
-      std::auto_ptr<HcalCalibRecHitCollection> rec(new HcalCalibRecHitCollection);
+      auto rec = std::make_unique<HcalCalibRecHitCollection>();
       rec->reserve(digi->size());
       // run the algorithm
       int first = firstSample_;
@@ -862,7 +867,7 @@ void HcalHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSe
 	*/
       }
       // return result
-      e.put(rec);     
+      e.put(std::move(rec));     
     }
   } 
   //DL  delete myqual;

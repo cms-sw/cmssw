@@ -102,7 +102,7 @@ private:
   //////////////////////////////////////////////////////
   HLTConfigProvider hltConfig_;
   int               verbosity_;
-  bool              isAOD_, isSLHC_, useRaw_;
+  bool              isAOD_, useRaw_;
   std::string       hltlabel_;
   std::vector<std::string> all_triggers,all_triggers1,all_triggers2,all_triggers3,all_triggers4,all_triggers5;
   ////////////////////////////////////////////////////////////
@@ -144,7 +144,6 @@ HcalRaddamMuon::HcalRaddamMuon(const edm::ParameterSet& iConfig) {
   muonsrc_          = iConfig.getUntrackedParameter<edm::InputTag>("MuonSource");
   verbosity_        = iConfig.getUntrackedParameter<int>("Verbosity",0);
   isAOD_            = iConfig.getUntrackedParameter<bool>("IsAOD",false);
-  isSLHC_           = iConfig.getUntrackedParameter<bool>("IsSLHC",true);
   maxDepth_         = iConfig.getUntrackedParameter<int>("MaxDepth",4);
   useRaw_           = iConfig.getUntrackedParameter<bool>("UseRaw",false);
 
@@ -158,19 +157,11 @@ HcalRaddamMuon::HcalRaddamMuon(const edm::ParameterSet& iConfig) {
   if (isAOD_) {
     tok_EB_    = consumes<EcalRecHitCollection>(edm::InputTag("reducedEcalRecHitsEB"));
     tok_EE_    = consumes<EcalRecHitCollection>(edm::InputTag("reducedEcalRecHitsEE"));
-    if (isSLHC_) {
-      tok_hbhe_= consumes<HBHERecHitCollection>(edm::InputTag("reducedHcalRecHits","hbheUpgradeReco"));
-    } else {
-      tok_hbhe_= consumes<HBHERecHitCollection>(edm::InputTag("reducedHcalRecHits", "hbhereco"));
-    }
+    tok_hbhe_= consumes<HBHERecHitCollection>(edm::InputTag("reducedHcalRecHits", "hbhereco"));
   } else {
     tok_EB_    = consumes<EcalRecHitCollection>(edm::InputTag("ecalRecHit","EcalRecHitsEB"));
     tok_EE_    = consumes<EcalRecHitCollection>(edm::InputTag("ecalRecHit","EcalRecHitsEE"));
-    if (isSLHC_) {
-      tok_hbhe_= consumes<HBHERecHitCollection>(edm::InputTag("hbheUpgradeReco"));
-    } else {
-      tok_hbhe_= consumes<HBHERecHitCollection>(edm::InputTag("hbhereco"));
-    }
+    tok_hbhe_= consumes<HBHERecHitCollection>(edm::InputTag("hbhereco"));
   }
   tok_muon_    = consumes<reco::MuonCollection>(muonsrc_);
 }

@@ -143,12 +143,34 @@ def _modifyPFEventContentForHGCalFEVT( obj ):
 
 
 # mods for HGCAL
-from Configuration.StandardSequences.Eras import eras
-eras.phase2_hgcal.toModify( RecoParticleFlowFEVT, outputCommands = RecoParticleFlowFEVT.outputCommands + [ 
+from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
+phase2_hgcal.toModify( RecoParticleFlowFEVT, outputCommands = RecoParticleFlowFEVT.outputCommands + [ 
         'keep recoPFRecHits_particleFlowClusterECAL__*',
-        'keep recoPFRecHits_particleFlowClusterECAL_Cleaned_*'
+        'keep recoPFRecHits_particleFlowClusterECAL_Cleaned_*',
+        'keep recoPFRecHits_particleFlowRecHitHGC__*',
+        'keep recoPFRecHits_particleFlowRecHitHGC_Cleaned_*',
+        'keep recoPFClusters_particleFlowClusterHGCal__*',
+        'keep *_simPFProducer_*_*',
+        'keep *_particleFlowTmpBarrel_*_*',
     ]
 )
-eras.phase2_hgcal.toModify( RecoParticleFlowRECO, outputCommands = RecoParticleFlowRECO.outputCommands + [ 'keep recoPFRecHits_particleFlowClusterECAL_Cleaned_*' ] )
-eras.phase2_hgcal.toModify( RecoParticleFlowAOD,  outputCommands = RecoParticleFlowAOD.outputCommands + [ 'keep recoPFRecHits_particleFlowClusterECAL_Cleaned_*' ] )
+phase2_hgcal.toModify( RecoParticleFlowRECO, outputCommands = RecoParticleFlowRECO.outputCommands + [ 'keep recoPFRecHits_particleFlowClusterECAL_Cleaned_*', 'keep recoPFRecHits_particleFlowRecHitHGC_Cleaned_*', 'keep recoPFClusters_particleFlowClusterHGCal__*', 'keep recoPFBlocks_simPFProducer_*_*', 'keep recoSuperClusters_simPFProducer_*_*','keep *_particleFlowTmpBarrel_*_*' ] )
+phase2_hgcal.toModify( RecoParticleFlowAOD,  outputCommands = RecoParticleFlowAOD.outputCommands + [ 'keep recoPFRecHits_particleFlowClusterECAL_Cleaned_*', 'keep recoPFRecHits_particleFlowRecHitHGC_Cleaned_*', 'keep recoPFClusters_particleFlowClusterHGCal__*', 'keep recoSuperClusters_simPFProducer_*_*' ] )
 
+#timing
+from Configuration.Eras.Modifier_phase2_timing_cff import phase2_timing
+phase2_timing.toModify( 
+    RecoParticleFlowFEVT, 
+    outputCommands = RecoParticleFlowFEVT.outputCommands + [
+        'keep *_ecalBarrelClusterFastTimer_*_*'
+        ])
+phase2_timing.toModify( 
+    RecoParticleFlowRECO, 
+    outputCommands = RecoParticleFlowRECO.outputCommands + [
+        'keep *_ecalBarrelClusterFastTimer_*_*'
+        ])
+phase2_timing.toModify( 
+    RecoParticleFlowAOD, 
+    outputCommands = RecoParticleFlowAOD.outputCommands + [
+        'keep *_ecalBarrelClusterFastTimer_*_*'
+        ])

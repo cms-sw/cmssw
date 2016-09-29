@@ -23,6 +23,7 @@ HcalShapes::HcalShapes()
   theHcalShape125(),
   theHcalShape201(),
   theHcalShape202(),
+  theHcalShape203(),
   theHcalShape301(),
   theHcalShape401()
  {
@@ -32,17 +33,10 @@ HcalShapes::HcalShapes()
         102 - "special" HB HPD#14 long shape
         201 - SiPMs Zecotec shape   (HO)
         202 - SiPMs Hamamatsu shape (HO)
+        203 - SiPMs Hamamatsu shape (HE 2017)
         301 - regular HF PMT shape
         401 - regular ZDC shape
   */
-
-/*  
-  theShapes[HPD] = new CaloCachedShapeIntegrator(&theHcalShape);
-  theShapes[LONG] = theShapes[HPD];
-  theShapes[ZECOTEK] = new CaloCachedShapeIntegrator(&theSiPMShape);
-  theShapes[HAMAMATSU] = theShapes[ZECOTEK];
-  theShapes[HF] = new CaloCachedShapeIntegrator(&theHFShape);
-*/
 
   theHcalShape101.setShape(101); 
   theShapes[101] = new CaloCachedShapeIntegrator(&theHcalShape101);
@@ -64,23 +58,14 @@ HcalShapes::HcalShapes()
   theShapes[201] = new CaloCachedShapeIntegrator(&theHcalShape201);
   theHcalShape202.setShape(202);                  
   theShapes[202] = new CaloCachedShapeIntegrator(&theHcalShape202);
+  theHcalShape203.setShape(203);
+  theShapes[203] = new CaloCachedShapeIntegrator(&theHcalShape203);
   theHcalShape301.setShape(301);
   theShapes[301] = new CaloCachedShapeIntegrator(&theHcalShape301);
   //    ZDC not yet defined in CalibCalorimetry/HcalAlgos/src/HcalPulseShapes.cc
   // theHcalShape401(401);
   // theShapes[401] = new CaloCachedShapeIntegrator(&theHcalShape401);
   theShapes[ZDC] = new CaloCachedShapeIntegrator(&theZDCShape);
-
-
-
-  // backward-compatibility with old scheme
-
-  theShapes[0] = theShapes[HPD];
-  //FIXME "special" HB
-  theShapes[1] = theShapes[LONG];
-  theShapes[2] = theShapes[ZECOTEK];
-  theShapes[3] = theShapes[HF];
-  theShapes[4] = theShapes[ZDC];
 
   theMCParams=0;
   theTopology=0;
@@ -130,19 +115,6 @@ const CaloVShape * HcalShapes::shape(const DetId & detId) const
     return defaultShape(detId);
   }
   int shapeType = theMCParams->getValues(detId)->signalShape();
-  /*
-	  HcalDetId cell(detId);
-	  int sub     = cell.subdet();
-	  int depth   = cell.depth();
-	  int inteta  = cell.ieta();
-	  int intphi  = cell.iphi();
-	  
-	  std::cout << "(SIM)HcalShapes::shape  cell:" 
-		    << " sub, ieta, iphi, depth = " 
-		    << sub << "  " << inteta << "  " << intphi 
-		    << "  " << depth  << " => ShapeId "<<  shapeType 
-		    << std::endl;
-  */
   ShapeMap::const_iterator shapeMapItr = theShapes.find(shapeType);
   if(shapeMapItr == theShapes.end()) {
        edm::LogWarning("HcalShapes") << "HcalShapes::shape - shapeType ?  = "
@@ -160,13 +132,13 @@ const CaloVShape * HcalShapes::defaultShape(const DetId & detId) const
   HcalGenericDetId::HcalGenericSubdetector subdet 
     = HcalGenericDetId(detId).genericSubdet();
   if(subdet == HcalGenericDetId::HcalGenBarrel 
-  || subdet == HcalGenericDetId::HcalGenEndcap) result = theShapes.find(0)->second;
-  else if(subdet == HcalGenericDetId::HcalGenOuter) result = theShapes.find(2)->second;
-  else if(subdet == HcalGenericDetId::HcalGenForward) result = theShapes.find(3)->second;
-  else if(subdet == HcalGenericDetId::HcalGenZDC) result = theShapes.find(3)->second;
+  || subdet == HcalGenericDetId::HcalGenEndcap) result = theShapes.find(HPD)->second;
+  else if(subdet == HcalGenericDetId::HcalGenOuter) result = theShapes.find(HPD)->second;
+  else if(subdet == HcalGenericDetId::HcalGenForward) result = theShapes.find(HF)->second;
+  else if(subdet == HcalGenericDetId::HcalGenZDC) result = theShapes.find(ZDC)->second;
   else result = 0;
 
-  edm::LogWarning("HcalShapes") << "Cannot find HCAL MC Params, so the defalut one is taken for  subdet " << subdet;  
+  edm::LogWarning("HcalShapes") << "Cannot find HCAL MC Params, so the default one is taken for subdet " << subdet;  
 
   return result;
 }

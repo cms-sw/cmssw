@@ -384,12 +384,15 @@ void DDEcalPreshowerAlgo::doLadders(DDCompactView& cpv) {
 	  boxay =  ladder_length-LdrFrnt_Length-LdrBck_Length; boxax = ladder_width; boxaz = ladder_thick;
 	  
 	  DDSolid solid_5a = DDSolidFactory::box(dd_tmp_name_5a,boxax/2,boxay/2,boxaz/2.);
-	  if(ladd_side==0) sdxe[enb] = ladder_width/4; sdye[enb]= -boxay/2 - LdrFrnt_Length/2; sdze[enb] = -ladder_thick/2. + LdrFrnt_Offset;
+	  if(ladd_side==0) sdxe[enb] = ladder_width/4; 
+	  sdye[enb]= -boxay/2 - LdrFrnt_Length/2; 
+	  sdze[enb] = -ladder_thick/2. + LdrFrnt_Offset;
 	  if(ladd_side==1) sdxe[enb] = -ladder_width/4;
 	  
 	  DDSolid solid_5b = DDSolidFactory::unionSolid(dd_tmp_name_5b,solid_5a,solid_lfhalf,DDTranslation(sdxe[enb],sdye[enb],sdze[enb]),DDRotation("esalgo:RM1299"));
 	  
-	  if(ladd_side==0) sdxe2[enb] = -ladder_width/4; sdye2[enb]= -boxay/2 - LdrFrnt_Length/2 + waf_active/2;
+	  if(ladd_side==0) sdxe2[enb] = -ladder_width/4; 
+     sdye2[enb]= -boxay/2 - LdrFrnt_Length/2 + waf_active/2;
 	  sdze2[enb] = -ladder_thick/2. + LdrFrnt_Offset + (waf_active*sin(wedge_angle*2))/4;
 	  if(ladd_side==1) sdxe2[enb] = ladder_width/4;
 	  
@@ -466,7 +469,9 @@ void DDEcalPreshowerAlgo::doLadders(DDCompactView& cpv) {
 	  sdxe[enb] = 0; sdye[enb]= -boxay/2 - LdrFrnt_Length/2; sdze[enb] = -ladder_thick/2. + LdrFrnt_Offset;
 	  DDSolid solid_b = DDSolidFactory::unionSolid(dd_tmp_name_b,solid_a,solid_lfront,DDTranslation(sdxe[enb],sdye[enb],sdze[enb]),DDRotation("esalgo:RM1299"));
 	  
-	  if(ladd_side==0) sdxe2[enb] = ladder_width/4; sdye2[enb] = boxay/2 + LdrBck_Length/2; sdze2[enb] = -ladder_thick/2. + LdrBck_Offset;
+	  if(ladd_side==0) sdxe2[enb] = ladder_width/4; 
+	  sdye2[enb] = boxay/2 + LdrBck_Length/2; 
+	  sdze2[enb] = -ladder_thick/2. + LdrBck_Offset;
 	  if(ladd_side==1) sdxe2[enb] = -ladder_width/4; 
           DDSolid solid = DDSolidFactory::unionSolid(ddname,solid_b,solid_lbhalf,DDTranslation(sdxe2[enb],sdye2[enb],sdze2[enb]),DDRotation("esalgo:RM1299"));      
 	  
@@ -491,7 +496,9 @@ void DDEcalPreshowerAlgo::doLadders(DDCompactView& cpv) {
 	    boxay =  ladder_length-LdrFrnt_Length-LdrBck_Length; boxax = ladder_width; boxaz = ladder_thick;
 
 	    DDSolid solid_a = DDSolidFactory::box(dd_tmp_name_a,boxax/2,boxay/2,boxaz/2.);
-	    if(ladd_side==0) sdxe[enb] = ladder_width/4; sdye[enb]= -boxay/2 - LdrFrnt_Length/2; sdze[enb] = -ladder_thick/2. + LdrFrnt_Offset;
+	    if(ladd_side==0) sdxe[enb] = ladder_width/4; 
+	    sdye[enb]= -boxay/2 - LdrFrnt_Length/2; 
+	    sdze[enb] = -ladder_thick/2. + LdrFrnt_Offset;
 	    if(ladd_side==1) sdxe[enb] = -ladder_width/4;
 	    
 	    DDSolid solid_b = DDSolidFactory::unionSolid(dd_tmp_name_b,solid_a,solid_lfhalf,DDTranslation(sdxe[enb],sdye[enb],sdze[enb]),DDRotation("esalgo:RM1299"));
@@ -516,12 +523,15 @@ void DDEcalPreshowerAlgo::doLadders(DDCompactView& cpv) {
 	    
 	    boxay =  ladder_length-LdrFrnt_Length-LdrBck_Length; boxax = ladder_width; boxaz = ladder_thick;
 	    DDSolid solid_a = DDSolidFactory::box(dd_tmp_name_a,boxax/2,boxay/2,boxaz/2.);
-	    if(ladd_side==0) sdxe[enb] = ladder_width/4; sdye[enb]= -boxay/2 - LdrFrnt_Length/2; sdze[enb] = -ladder_thick/2. + LdrFrnt_Offset;
+	    if(ladd_side==0) sdxe[enb] = ladder_width/4; 
+	    sdye[enb]= -boxay/2 - LdrFrnt_Length/2;
+	    sdze[enb] = -ladder_thick/2. + LdrFrnt_Offset;
 	    if(ladd_side==1) sdxe[enb] = -ladder_width/4;
 	    
 	    DDSolid solid_b = DDSolidFactory::unionSolid(dd_tmp_name_b,solid_a,solid_lfhalf,DDTranslation(sdxe[enb],sdye[enb],sdze[enb]),DDRotation("esalgo:RM1299"));
 	    
-	    if(ladd_side==0) sdxe2[enb] = -ladder_width/4; sdye2[enb]= -boxay/2 - LdrFrnt_Length/2 + waf_active/2;
+	    if(ladd_side==0) sdxe2[enb] = -ladder_width/4; 
+	    sdye2[enb]= -boxay/2 - LdrFrnt_Length/2 + waf_active/2;
 	    sdze2[enb] = -ladder_thick/2. + LdrFrnt_Offset + (waf_active*sin(wedge_angle*2))/4;
 	    if(ladd_side==1) sdxe2[enb] = ladder_width/4;
 	    

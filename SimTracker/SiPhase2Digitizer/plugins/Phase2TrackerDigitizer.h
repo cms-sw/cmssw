@@ -22,6 +22,9 @@
 #include "SimTracker/SiPhase2Digitizer/plugins/Phase2TrackerDigitizerFwd.h"
 #include "FWCore/Framework/interface/ESWatcher.h"
 #include "FWCore/Framework/interface/stream/EDProducerBase.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+
+#include <unordered_map>
 
 // Forward declaration
 namespace CLHEP {
@@ -40,7 +43,6 @@ class MagneticField;
 class PileUpEventPrincipal;
 class PSimHit;
 class Phase2TrackerDigitizerAlgorithm;
-class TrackerGeometry;
 class TrackerDigiGeometryRecord;
 
 namespace cms 
@@ -48,6 +50,8 @@ namespace cms
   class Phase2TrackerDigitizer: public DigiAccumulatorMixMod {
 
   public:
+    typedef std::unordered_map<unsigned, TrackerGeometry::ModuleType>  ModuleTypeCache;
+
     explicit Phase2TrackerDigitizer(const edm::ParameterSet& iConfig, edm::stream::EDProducerBase& mixMod, edm::ConsumesCollector& iC);
     virtual ~Phase2TrackerDigitizer();
     virtual void initializeEvent(edm::Event const& e, edm::EventSetup const& c) override;
@@ -105,6 +109,9 @@ namespace cms
     edm::ESWatcher<TrackerDigiGeometryRecord> theTkDigiGeomWatcher;
     const edm::ParameterSet& iconfig_;
 
+    // cache for detector types
+    ModuleTypeCache moduleTypeCache_;
+    
   };
 }
 #endif

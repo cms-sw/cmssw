@@ -196,6 +196,8 @@ private:
     outOfSyncDetailedMap_;
 
 
+  HistogramConfig fedErrorsVsId_;
+
   //has individual FED histogram been booked? (index is FedId)
   std::vector<bool> histosBooked_, 
     debugHistosBooked_;

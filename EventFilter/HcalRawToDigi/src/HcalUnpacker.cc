@@ -297,8 +297,8 @@ void HcalUnpacker::unpackVME(const FEDRawData& raw, const HcalElectronicsMap& em
     int htr_slot=(smid>>1)&0x1F;
     int htr_cr=(smid>>6)&0x1F;
     
-    tp_begin=(HcalTriggerPrimitiveSample*)tp_first;
-    tp_end=(HcalTriggerPrimitiveSample*)(tp_last+1); // one beyond last..
+    tp_begin=(const HcalTriggerPrimitiveSample*)tp_first;
+    tp_end=(const HcalTriggerPrimitiveSample*)(tp_last+1); // one beyond last..
     
     /// work through the samples
     int currFiberChan=0x3F; // invalid fiber+channel...
@@ -405,13 +405,10 @@ void HcalUnpacker::unpackVME(const FEDRawData& raw, const HcalElectronicsMap& em
     /// branch point between 2006-2011 data format and 2012+ data format
     if (htr.getFormatVersion() < HcalHTRData::FORMAT_VERSION_COMPACT_DATA) {
  
-      qie_begin=(HcalQIESample*)daq_first;
-      qie_end=(HcalQIESample*)(daq_last+1); // one beyond last..
+      qie_begin=(const HcalQIESample*)daq_first;
+      qie_end=(const HcalQIESample*)(daq_last+1); // one beyond last..
 
       /// work through the samples
-      currFiberChan=0x3F; // invalid fiber+channel...
-      ncurr=0;
-      valid=false;
 
     
       for (qie_work=qie_begin; qie_work!=qie_end; ) {
@@ -420,7 +417,6 @@ void HcalUnpacker::unpackVME(const FEDRawData& raw, const HcalElectronicsMap& em
 	  continue; // filler word
 	}
 	// always at the beginning ...
-	currFiberChan=qie_work->fiberAndChan();
 	
 	// lookup the right channel
 	HcalElectronicsId eid(qie_work->fiberChan(),qie_work->fiber(),spigot,dccid);
@@ -589,7 +585,9 @@ void HcalUnpacker::unpackUTCA(const FEDRawData& raw, const HcalElectronicsMap& e
     
     HcalUHTRData uhtr(amc13->AMCPayload(iamc),amc13->AMCSize(iamc));
     //Check to make sure uMNio is not unpacked here
-    if(uhtr.getFormatVersion() != 1) continue;
+    if(uhtr.getFormatVersion() != 1) {
+      unpackUMNio(raw, slot, colls);
+    }  
 #ifdef DebugLog
     //debug printouts
     int nwords=uhtr.getRawLengthBytes()/2;
@@ -796,6 +794,7 @@ HcalUnpacker::Collections::Collections() {
   ttp=0;
   qie10=0;
   qie11=0;
+  umnio=0;
 }
 
 void HcalUnpacker::unpack(const FEDRawData& raw, const HcalElectronicsMap& emap, std::vector<HcalHistogramDigi>& histoDigis) {
@@ -857,18 +856,18 @@ void HcalUnpacker::unpack(const FEDRawData& raw, const HcalElectronicsMap& emap,
   }
 }
 // Method to unpack uMNio data
-void HcalUnpacker::unpackUMNio(const FEDRawData& raw, int slot, HcalUMNioDigi& umnio) {
+void HcalUnpacker::unpackUMNio(const FEDRawData& raw, int slot, Collections& colls) {
   const hcal::AMC13Header* amc13=(const hcal::AMC13Header*)(raw.data());
   int namc=amc13->NAMC();
   //Find AMC corresponding to uMNio slot
   for (int iamc=0; iamc<namc; iamc++) {
     if (amc13->AMCSlot(iamc) == slot) namc = iamc;
   }
-  if (namc==amc13->NAMC()) return;
-  
+  if (namc==amc13->NAMC()) {
+    return;
+  }
   const uint16_t* data = (const uint16_t*)(amc13->AMCPayload(namc));
   size_t nwords = amc13->AMCSize(namc) * ( sizeof(uint64_t) / sizeof(uint16_t) );
-
-  umnio = HcalUMNioDigi(data, nwords);
+  *(colls.umnio) = HcalUMNioDigi(data, nwords);
   
 }

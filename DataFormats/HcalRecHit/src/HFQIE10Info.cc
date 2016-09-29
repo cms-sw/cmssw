@@ -58,3 +58,20 @@ HFQIE10Info::HFQIE10Info(const HcalDetId& id,
             *to++ = *from++;
     }
 }
+
+bool HFQIE10Info::isDataframeOK(const bool checkAllTimeSlices) const
+{
+    bool hardwareOK = true;
+    if (soi_ >= nRaw_ || checkAllTimeSlices)
+        for (unsigned i=0; i<nRaw_ && hardwareOK; ++i)
+        {
+            const QIE10DataFrame::Sample s(raw_[i]);
+            hardwareOK = s.ok();
+        }
+    else
+    {
+        const QIE10DataFrame::Sample s(raw_[soi_]);
+        hardwareOK = s.ok();
+    }
+    return hardwareOK;
+}

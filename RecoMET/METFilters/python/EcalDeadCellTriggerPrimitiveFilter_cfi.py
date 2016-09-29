@@ -27,3 +27,8 @@ EcalDeadCellTriggerPrimitiveFilter = cms.EDFilter(
     useTTsum = cms.bool ( True ),
     usekTPSaturated = cms.bool ( False)
 )
+
+from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
+phase2_hgcal.toModify( EcalDeadCellTriggerPrimitiveFilter, 
+    doEEfilter = cms.untracked.bool(False)
+)

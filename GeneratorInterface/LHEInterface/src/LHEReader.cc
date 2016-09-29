@@ -99,7 +99,8 @@ class LHEReader::XMLHandler : public XMLDocument::Handler {
     public:
   typedef std::vector<std::pair<std::string,std::string> > wgt_info;
 	XMLHandler() :
-		impl(0), gotObject(kNone), mode(kNone),
+		impl(nullptr),
+		gotObject(kNone), mode(kNone),
 		xmlHeader(0), xmlEvent(0), headerOk(false), npLO(-99), npNLO(-99) {}
 	~XMLHandler()
 	{ if (xmlHeader) xmlHeader->release(); 
@@ -134,7 +135,7 @@ class LHEReader::XMLHandler : public XMLDocument::Handler {
 	friend class LHEReader;
 
         bool                            skipEvent = false;
-	DOMImplementation		*impl;
+        std::unique_ptr<DOMImplementation>	impl;
 	std::string			buffer;
 	Object				gotObject;
 	Object				mode;
@@ -241,8 +242,8 @@ void LHEReader::XMLHandler::startElement(const XMLCh *const uri,
   
   if (name == "header") {
     if (!impl)
-      impl = DOMImplementationRegistry::getDOMImplementation(
-							  XMLUniStr("Core"));
+      impl.reset(DOMImplementationRegistry::getDOMImplementation(XMLUniStr("Core")));
+
     xmlHeader = impl->createDocument(0, qname, 0);
     xmlNodes.resize(1);
     xmlNodes[0] = xmlHeader->getDocumentElement();
@@ -253,8 +254,8 @@ void LHEReader::XMLHandler::startElement(const XMLCh *const uri,
     if (!skipEvent)
     {
       if (!impl)
-        impl = DOMImplementationRegistry::getDOMImplementation(
-  							  XMLUniStr("Core"));
+	impl.reset(DOMImplementationRegistry::getDOMImplementation(XMLUniStr("Core")));
+
       if(xmlEvent)  xmlEvent->release();
       xmlEvent = impl->createDocument(0, qname, 0);
       weightsinevent.resize(0);
@@ -298,8 +299,8 @@ void LHEReader::XMLHandler::endElement(const XMLCh *const uri,
       xmlNodes.resize(xmlNodes.size() - 1);
       return;
     } else if (mode == kHeader) {
-      std::auto_ptr<DOMLSSerializer> writer(((DOMImplementationLS*)(impl))->createLSSerializer());
-      std::auto_ptr<DOMLSOutput> outputDesc(((DOMImplementationLS*)impl)->createLSOutput());
+      std::unique_ptr<DOMLSSerializer> writer(impl->createLSSerializer());
+      std::unique_ptr<DOMLSOutput> outputDesc(impl->createLSOutput());
       assert(outputDesc.get());
       outputDesc->setEncoding(XMLUniStr("UTF-8"));
 
@@ -472,6 +473,13 @@ LHEReader::LHEReader(const std::vector<std::string> &fileNames,
 
 LHEReader::~LHEReader()
 {
+  // Explicitly release "orphaned" resources
+  // that were created through DOM implementation
+  // createXXXX factory method *before* last
+  // XMLPlatformUtils::Terminate is called.
+  handler.release();
+  curDoc.release();
+  curSource.release();
 }
 
   boost::shared_ptr<LHEEvent> LHEReader::next(bool* newFileOpened)

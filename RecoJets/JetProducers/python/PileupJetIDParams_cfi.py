@@ -2,6 +2,110 @@ import FWCore.ParameterSet.Config as cms
 from RecoJets.JetProducers.PileupJetIDCutParams_cfi import *
 
 ####################################################################################################################
+full_81x_chs = cms.PSet(
+        impactParTkThreshold = cms.double(1.),
+        cutBased = cms.bool(False),
+        etaBinnedWeights = cms.bool(True),
+        tmvaMethod = cms.string("JetIDMVAHighPt"),
+        version = cms.int32(-1),
+        nEtaBins = cms.int32(4),
+        trainings = cms.VPSet(
+            cms.PSet(
+                jEtaMin = cms.double(0.),
+                jEtaMax = cms.double(2.5),
+                tmvaWeights  = cms.string("RecoJets/JetProducers/data/pileupJetId_80XvarFix_Eta0to2p5_BDT.weights.xml.gz"),
+                tmvaVariables = cms.vstring(
+                    "nvtx",
+                    "dR2Mean"     ,
+                    "nParticles"     ,
+                    "nCharged" ,
+                    "majW" ,
+                    "minW",
+                    "frac01"  ,
+                    "frac02"      ,
+                    "frac03"   ,
+                    "frac04"   ,
+                    "ptD"   ,
+                    "beta"   ,
+                    "pull"   ,
+                    "jetR"   ,
+                    "jetRchg"   ,
+                )
+                ),
+            cms.PSet(
+                jEtaMin = cms.double(2.5),
+                jEtaMax = cms.double(2.75),
+                tmvaWeights   = cms.string("RecoJets/JetProducers/data/pileupJetId_80XvarFix_Eta2p5to2p75_BDT.weights.xml.gz"),
+                tmvaVariables = cms.vstring(
+                    "nvtx",
+                    "dR2Mean"     ,
+                    "nParticles"     ,
+                    "nCharged" ,
+                    "majW" ,
+                    "minW",
+                    "frac01"  ,
+                    "frac02"      ,
+                    "frac03"   ,
+                    "frac04"   ,
+                    "ptD"   ,
+                    "beta"   ,
+                    "pull"   ,
+                    "jetR"   ,
+                    "jetRchg"   ,
+                )
+                ),
+            cms.PSet(
+                jEtaMin = cms.double(2.75),
+                jEtaMax = cms.double(3.),
+                tmvaWeights   = cms.string("RecoJets/JetProducers/data/pileupJetId_80XvarFix_Eta2p75to3_BDT.weights.xml.gz"),
+                tmvaVariables = cms.vstring(
+                    "nvtx",
+                    "dR2Mean"     ,
+                    "nParticles"     ,
+                    "nCharged" ,
+                    "majW" ,
+                    "minW",
+                    "frac01"  ,
+                    "frac02"      ,
+                    "frac03"   ,
+                    "frac04"   ,
+                    "ptD"   ,
+                    "beta"   ,
+                    "pull"   ,
+                    "jetR"   ,
+                    "jetRchg"   ,
+                )
+                ),
+            cms.PSet(
+                jEtaMin = cms.double(3.),
+                jEtaMax = cms.double(5.),
+                tmvaWeights   = cms.string("RecoJets/JetProducers/data/pileupJetId_80XvarFix_Eta3to5_BDT.weights.xml.gz"),
+                tmvaVariables = cms.vstring(
+                    "nvtx",
+                    "dR2Mean"     ,
+                    "nParticles"     ,
+                    "majW" ,
+                    "minW",
+                    "frac01"  ,
+                    "frac02"      ,
+                    "frac03"   ,
+                    "frac04"   ,
+                    "ptD"   ,
+                    "pull"   ,
+                    "jetR"   ,
+                )
+                ),
+        ),
+        tmvaSpectators = cms.vstring(
+            "jetPt"   ,
+            "jetEta"   ,
+        ),
+        JetIdParams = full_81x_chs_wp,
+        label = cms.string("full")
+)
+
+
+####################################################################################################################
 full_80x_chs = cms.PSet(
         impactParTkThreshold = cms.double(1.),
         cutBased = cms.bool(False),

@@ -42,8 +42,10 @@ simSiStripDigis = cms.EDAlias(
 #)
 
 # no castor,pixel,strip digis in fastsim
-from Configuration.StandardSequences.Eras import eras
-if eras.fastSim.isChosen():
-    del simCastorDigis
-    del simSiPixelDigis
-    del simSiStripDigis
+from Configuration.Eras.Modifier_fastSim_cff import fastSim
+fastSim.toModify(simCastorDigis, mix = None)
+fastSim.toModify(simSiPixelDigis, mix = None)
+fastSim.toModify(simSiStripDigis, mix = None)
+
+from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
+phase2_common.toModify(simCastorDigis, mix = None)

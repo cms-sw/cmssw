@@ -12,8 +12,6 @@
 #include <DataFormats/CSCDigi/interface/CSCALCTDigiCollection.h>
 #include <DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigi.h>
 #include <DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigiCollection.h>
-#include <DataFormats/CSCDigi/interface/GEMCSCLCTDigi.h>
-#include <DataFormats/CSCDigi/interface/GEMCSCLCTDigiCollection.h>
 #include <DataFormats/CSCDigi/interface/CSCCFEBStatusDigi.h>
 #include <DataFormats/CSCDigi/interface/CSCCFEBStatusDigiCollection.h>
 #include <DataFormats/CSCDigi/interface/CSCDMBStatusDigi.h>
@@ -30,7 +28,9 @@
 #include <DataFormats/CSCDigi/interface/CSCDCCStatusDigiCollection.h>
 #include "DataFormats/CSCDigi/interface/CSCCLCTPreTriggerCollection.h"
 
-
+// dummy structs to ensure backward compatibility
+struct GEMCSCLCTDigi {};
+struct GEMCSCLCTDigiCollection {};
 
 #include <DataFormats/Common/interface/Wrapper.h>
 #include <vector>
@@ -98,7 +98,7 @@ namespace DataFormats_CSCDigi {
   CSCCLCTDigiCollection clCLCTD_;
   CSCALCTDigiCollection clALCTD_;
   CSCCorrelatedLCTDigiCollection clCorLCTD_;
-  GEMCSCLCTDigiCollection clgcLCTD_;  
+  GEMCSCLCTDigiCollection clgcLCTD_;
   CSCCFEBStatusDigiCollection clCSD_;
   CSCTMBStatusDigiCollection clTMBSD_;
   CSCDCCFormatStatusDigiCollection clDFSD_;

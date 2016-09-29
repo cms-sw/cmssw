@@ -16,9 +16,7 @@
 //
 //
 
-
 // system include files
-#include <memory>
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -36,8 +34,6 @@
 #include "CalibFormats/HcalObjects/interface/HcalDbService.h"
 #include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
 
-#include "CondFormats/HcalObjects/interface/AbsHFPhase1AlgoData.h"
-
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalSeverityLevelComputer.h"
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalSeverityLevelComputerRcd.h"
 
@@ -45,86 +41,11 @@
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalHF_PETalgorithm.h"
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalHF_S9S1algorithm.h"
 
-// Phase 1 HF reco algorithms
-#include "RecoLocalCalo/HcalRecAlgos/interface/HFSimpleTimeCheck.h"
+// Parser for Phase 1 HF reco algorithms
+#include "RecoLocalCalo/HcalRecAlgos/interface/parseHFPhase1AlgoDescription.h"
 
-//
-// If you need to make HFPhase1Reconstructor aware of some new
-// algorithms, update the functions "fetchHFPhase1AlgoData" and/or
-// "parseHFPhase1AlgoDescription" in the unnamed namespace below.
-// It is not necessary to modify the code of HFPhase1Reconstructor
-// class for this purpose.
-//
-namespace {
-    // Class Data must inherit from AbsHFPhase1AlgoData
-    // and must have a copy constructor. This function
-    // returns an object allocated on the heap.
-    template <class Data, class Record>
-    Data* fetchHFPhase1AlgoDataHelper(const edm::EventSetup& es)
-    {
-        edm::ESHandle<Data> p;
-        es.get<Record>().get(p);
-        return new Data(*p.product());
-    }
-
-    // Factory function for fetching (from EventSetup) objects
-    // of the types inheriting from AbsHFPhase1AlgoData
-    std::unique_ptr<AbsHFPhase1AlgoData>
-    fetchHFPhase1AlgoData(const std::string& className, const edm::EventSetup& es)
-    {
-        AbsHFPhase1AlgoData* data = 0;
-        // Compare with possibe class names
-        // if (className == "MyHFPhase1AlgoData")
-        //     data = fetchHFPhase1AlgoDataHelper<MyHFPhase1AlgoData, MyHFPhase1AlgoDataRcd>(es);
-        // else if (className == "OtherHFPhase1AlgoData")
-        //     ...;
-        return std::unique_ptr<AbsHFPhase1AlgoData>(data);
-    }
-
-    // Factory function for creating objects of types
-    // inheriting from AbsHFPhase1Algo out of parameter sets
-    std::unique_ptr<AbsHFPhase1Algo>
-    parseHFPhase1AlgoDescription(const edm::ParameterSet& ps)
-    {
-        std::unique_ptr<AbsHFPhase1Algo> algo;
-
-        const std::string& className = ps.getParameter<std::string>("Class");
-
-        if (className == "HFSimpleTimeCheck")
-        {
-            const std::vector<double>& tlimitsVec =
-                ps.getParameter<std::vector<double> >("tlimits");
-            const std::vector<double>& energyWeightsVec =
-                ps.getParameter<std::vector<double> >("energyWeights");
-            const unsigned soiPhase =
-                ps.getParameter<unsigned>("soiPhase");
-            const bool rejectAllFailures =
-                ps.getParameter<bool>("rejectAllFailures");
-
-            std::pair<float,float> tlimits[2];
-            float energyWeights[2*HFAnodeStatus::N_POSSIBLE_STATES-1][2];
-            const unsigned sz = sizeof(energyWeights)/sizeof(energyWeights[0][0]);
-
-            if (tlimitsVec.size() == 4 && energyWeightsVec.size() == sz)
-            {
-                tlimits[0] = std::pair<float,float>(tlimitsVec[0], tlimitsVec[1]);
-                tlimits[1] = std::pair<float,float>(tlimitsVec[2], tlimitsVec[3]);
-
-                // Same order of elements as in the natural C array mapping
-                float* to = &energyWeights[0][0];
-                for (unsigned i=0; i<sz; ++i)
-                    to[i] = energyWeightsVec[i];
-
-                algo = std::unique_ptr<AbsHFPhase1Algo>(
-                    new HFSimpleTimeCheck(tlimits, energyWeights,
-                                          soiPhase, rejectAllFailures));
-            }
-        }
-
-        return algo;
-    }
-}
-
+// Fetcher for reco algorithm data
+#include "RecoLocalCalo/HcalRecAlgos/interface/fetchHcalAlgoData.h"
 
 //
 // class declaration
@@ -150,7 +71,7 @@ private:
     // Other members
     edm::EDGetTokenT<HFPreRecHitCollection> tok_PreRecHit_;
     std::unique_ptr<AbsHFPhase1Algo> reco_;
-    std::unique_ptr<AbsHFPhase1AlgoData> recoConfig_;
+    std::unique_ptr<AbsHcalAlgoData> recoConfig_;
 
     // Noise cleanup algos
     std::unique_ptr<HcalHF_S9S1algorithm> hfS9S1_;
@@ -235,7 +156,7 @@ HFPhase1Reconstructor::beginRun(const edm::Run& r, const edm::EventSetup& es)
 {
     if (reco_->isConfigurable())
     {
-        recoConfig_ = fetchHFPhase1AlgoData(algoConfigClass_, es);
+        recoConfig_ = fetchHcalAlgoData(algoConfigClass_, es);
         if (!recoConfig_.get())
             throw cms::Exception("HFPhase1BadConfig")
                 << "Invalid HFPhase1Reconstructor \"algoConfigClass\" parameter value \""
@@ -277,11 +198,16 @@ HFPhase1Reconstructor::produce(edm::Event& e, const edm::EventSetup& eventSetup)
     for (HFPreRecHitCollection::const_iterator it = preRecHits->begin();
          it != preRecHits->end(); ++it)
     {
+        // The check whether this PMT is single-anode one should go here.
+        // Fix this piece of code if/when mixed-anode readout configurations
+        // become available.
+        const bool thisIsSingleAnodePMT = false;
+
         // Check if the anodes were tagged bad in the database
         bool taggedBadByDb[2] = {false, false};
         if (useChannelQualityFromDB_)
         {
-            if (checkChannelQualityForDepth3and4_)
+            if (checkChannelQualityForDepth3and4_ && !thisIsSingleAnodePMT)
             {
                 HcalDetId anodeIds[2];
                 anodeIds[0] = it->id();
@@ -303,7 +229,8 @@ HFPhase1Reconstructor::produce(edm::Event& e, const edm::EventSetup& eventSetup)
 
         // Reconstruct the rechit
         const HFRecHit& rh = reco_->reconstruct(
-            *it, conditions->getHcalCalibrations(it->id()), taggedBadByDb);
+            *it, conditions->getHcalCalibrations(it->id()),
+            taggedBadByDb, thisIsSingleAnodePMT);
 
         // The rechit will have the id of 0 if the algorithm
         // decides that it should be dropped

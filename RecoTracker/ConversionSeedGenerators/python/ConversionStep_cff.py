@@ -1,5 +1,4 @@
 import FWCore.ParameterSet.Config as cms
-from Configuration.StandardSequences.Eras import eras
 
 from RecoTracker.TkSeedingLayers.seedingLayersEDProducer_cfi import *
 
@@ -18,9 +17,25 @@ _convClustersBase = _trackClusterRemover.clone(
 convClusters = _convClustersBase.clone(
   trackClassifier       = cms.InputTag('tobTecStep',"QualityMasks"),
 )
-eras.trackingPhase1PU70.toReplaceWith(convClusters, _convClustersBase.clone(
+from Configuration.Eras.Modifier_trackingPhase1PU70_cff import trackingPhase1PU70
+trackingPhase1PU70.toReplaceWith(convClusters, _convClustersBase.clone(
   overrideTrkQuals      = "tobTecStepSelector:tobTecStep",
 ))
+
+#Phase2 : configuring the phase2 track Cluster Remover
+from RecoLocalTracker.SubCollectionProducers.phase2trackClusterRemover_cfi import phase2trackClusterRemover as _phase2trackClusterRemover
+from Configuration.Eras.Modifier_trackingPhase2PU140_cff import trackingPhase2PU140
+trackingPhase2PU140.toReplaceWith(convClusters, _phase2trackClusterRemover.clone(
+    maxChi2                                  = 30.0,
+    phase2pixelClusters                      = "siPixelClusters",
+    phase2OTClusters                         = "siPhase2Clusters",
+    TrackQuality                             = 'highPurity',
+    minNumberOfLayersWithMeasBeforeFiltering = 0,
+    trajectories                             = cms.InputTag("pixelPairStepTracks"),
+    oldClusterRemovalInfo                    = cms.InputTag("pixelPairStepClusters"),
+    overrideTrkQuals                         = cms.InputTag("pixelPairStepSelector","pixelPairStep"),
+    )
+)
 
 convLayerPairs = cms.EDProducer("SeedingLayersEDProducer",
                                 layerList = cms.vstring('BPix1+BPix2', 
@@ -207,7 +222,7 @@ convLayerPairs = cms.EDProducer("SeedingLayersEDProducer",
                                     skipClusters = cms.InputTag('convClusters'),
                                     )
                                 )
-eras.trackingPhase1PU70.toModify(convLayerPairs,
+trackingPhase1PU70.toModify(convLayerPairs,
     layerList = [
         'BPix1+BPix2',
 
@@ -310,13 +325,51 @@ eras.trackingPhase1PU70.toModify(convLayerPairs,
     TOB5 = dict(clusterChargeCut = dict(refToPSet_ = "SiStripClusterChargeCutNone")),
     TOB6 = dict(clusterChargeCut = dict(refToPSet_ = "SiStripClusterChargeCutNone")),
 )
+trackingPhase2PU140.toReplaceWith(convLayerPairs, cms.EDProducer("SeedingLayersEDProducer",
+                                layerList = cms.vstring('BPix1+BPix2',
+                                                        'BPix2+BPix3',
+                                                        'BPix3+BPix4',
+
+                                                        'BPix1+FPix1_pos',
+                                                        'BPix1+FPix1_neg',
+                                                        'BPix2+FPix1_pos',
+                                                        'BPix2+FPix1_neg',
+                                                        'BPix3+FPix1_pos',
+                                                        'BPix3+FPix1_neg',
+
+                                                        'FPix1_pos+FPix2_pos',
+                                                        'FPix1_neg+FPix2_neg',
+                                                        'FPix2_pos+FPix3_pos',
+                                                        'FPix2_neg+FPix3_neg'
+                                                        ),
+
+                                BPix = cms.PSet(
+                                    hitErrorRZ = cms.double(0.006),
+                                    hitErrorRPhi = cms.double(0.0027),
+                                    TTRHBuilder = cms.string('TTRHBuilderWithoutAngle4PixelPairs'),
+                                    HitProducer = cms.string('siPixelRecHits'),
+                                    useErrorsFromParam = cms.bool(True),
+                                    skipClusters = cms.InputTag('convClusters'),
+                                    ),
+                                FPix = cms.PSet(
+                                    hitErrorRZ = cms.double(0.0036),
+                                    hitErrorRPhi = cms.double(0.0051),
+                                    TTRHBuilder = cms.string('TTRHBuilderWithoutAngle4PixelPairs'),
+                                    HitProducer = cms.string('siPixelRecHits'),
+                                    useErrorsFromParam = cms.bool(True),
+                                    skipClusters = cms.InputTag('convClusters'),
+                                    )
+    )
+)
 
 photonConvTrajSeedFromSingleLeg.TrackRefitter = cms.InputTag('generalTracks')
 photonConvTrajSeedFromSingleLeg.primaryVerticesTag = cms.InputTag('firstStepPrimaryVertices')
 #photonConvTrajSeedFromQuadruplets.TrackRefitter = cms.InputTag('generalTracks')
 #photonConvTrajSeedFromQuadruplets.primaryVerticesTag = cms.InputTag('pixelVertices')
-eras.trackingLowPU.toModify(photonConvTrajSeedFromSingleLeg, primaryVerticesTag   = "pixelVertices")
-eras.trackingPhase1PU70.toModify(photonConvTrajSeedFromSingleLeg, primaryVerticesTag = "pixelVertices")
+from Configuration.Eras.Modifier_trackingLowPU_cff import trackingLowPU
+trackingLowPU.toModify(photonConvTrajSeedFromSingleLeg, primaryVerticesTag   = "pixelVertices")
+trackingPhase1PU70.toModify(photonConvTrajSeedFromSingleLeg, primaryVerticesTag = "pixelVertices")
+trackingPhase2PU140.toModify(photonConvTrajSeedFromSingleLeg, primaryVerticesTag = "pixelVertices")
 
 # TRACKER DATA CONTROL
 
@@ -350,7 +403,10 @@ _convCkfTrajectoryBuilderBase = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuild
 convCkfTrajectoryBuilder = _convCkfTrajectoryBuilderBase.clone(
     estimator = cms.string('convStepChi2Est')
     )
-eras.trackingPhase1PU70.toReplaceWith(convCkfTrajectoryBuilder, _convCkfTrajectoryBuilderBase.clone(
+trackingPhase1PU70.toReplaceWith(convCkfTrajectoryBuilder, _convCkfTrajectoryBuilderBase.clone(
+    maxCand = 2,
+))
+trackingPhase2PU140.toReplaceWith(convCkfTrajectoryBuilder, _convCkfTrajectoryBuilderBase.clone(
     maxCand = 2,
 ))
 
@@ -360,6 +416,10 @@ convTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCand
     src = cms.InputTag('photonConvTrajSeedFromSingleLeg:convSeedCandidates'),
     clustersToSkip = cms.InputTag('convClusters'),
     TrajectoryBuilderPSet = cms.PSet(refToPSet_ = cms.string('convCkfTrajectoryBuilder'))
+)
+trackingPhase2PU140.toModify(convTrackCandidates,
+    clustersToSkip = None,
+    phase2clustersToSkip = cms.InputTag("convClusters")
 )
 
 import TrackingTools.TrackFitters.RungeKuttaFitters_cff

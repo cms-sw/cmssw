@@ -107,7 +107,11 @@ private:
   // iq/significantvalues are also used to cache the last set of columns 
   // per-spec, to avoid unnecessary extractions.
   GeometryInterface::InterestingQuantities iq;
+  // "immutable" cache
   std::vector<GeometryInterface::Values> significantvalues;
+  // copy that executeStep1Spec can freely clobber
+  GeometryInterface::Values significantvalues_scratch;
+  // temporary copy for executeStep1Spec, to avoid the alloc.
   GeometryInterface::Values new_vals;
   // Direct links to the Histogram if the caching above succeeds.
   std::vector<AbstractHistogram*> fastpath;

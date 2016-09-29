@@ -12,7 +12,8 @@
  <class name="edm::helpers::KeyVal<edm::Ref<std::vector<SimTrack>,SimTrack,edm::refhelper::FindUsingAdvance<std::vector<SimTrack>,SimTrack> >,edm::RefVector<std::vector<OmniClusterRef>,OmniClusterRef,edm::refhelper::FindUsingAdvance<std::vector<OmniClusterRef>,OmniClusterRef> > >" />
  <class name="edm::RefVector<std::vector<OmniClusterRef>,OmniClusterRef,edm::refhelper::FindUsingAdvance<std::vector<OmniClusterRef>,OmniClusterRef> >" />
 
-  <class name="std::pair<OmniClusterRef, TrackingParticleRef>" persistent="true" /> 
+  <class name="std::pair<OmniClusterRef, TrackingParticleRef>" persistent="true" />
+  <class name="std::vector<std::pair<OmniClusterRef, TrackingParticleRef> >" />
   <class name="ClusterTPAssociation" persistent="true" />
   <class name="edm::Wrapper<ClusterTPAssociation>" />
   <class name="std::map<TrackingParticleRef, std::vector<OmniClusterRef> >" persistent="false" /> 

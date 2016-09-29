@@ -69,7 +69,7 @@ void DoubleVertexFilter::produce(edm::StreamID, edm::Event &event, const edm::Ev
 
 	std::vector<reco::Vertex>::const_iterator pv = primaryVertices->begin();
 
-	std::auto_ptr<VertexCollection> recoVertices(new VertexCollection);
+	auto recoVertices = std::make_unique<VertexCollection>();
 	for(std::vector<reco::Vertex>::const_iterator sv = secondaryVertices->begin();
 	    sv != secondaryVertices->end(); ++sv) {
 		if (computeSharedTracks(*pv, *sv) > maxFraction)
@@ -78,7 +78,7 @@ void DoubleVertexFilter::produce(edm::StreamID, edm::Event &event, const edm::Ev
 		recoVertices->push_back(*sv);
 	}
 
-	event.put(recoVertices);
+	event.put(std::move(recoVertices));
 }
 
 DEFINE_FWK_MODULE(DoubleVertexFilter);

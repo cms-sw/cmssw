@@ -10,6 +10,7 @@
 #include "DataFormats/Common/interface/AssociationVector.h"
 #include "DataFormats/Common/interface/Wrapper.h"
 
+#include "DataFormats/TestObjects/interface/MissingDictionaryTestObject.h"
 #include "DataFormats/TestObjects/interface/OtherThingCollection.h"
 #include "DataFormats/TestObjects/interface/ThingCollection.h"
 #include "DataFormats/TestObjects/interface/ToyProducts.h"
@@ -30,6 +31,8 @@
 
 #include "DataFormats/Provenance/interface/EventID.h"
 #include "DataFormats/Provenance/interface/ProductID.h"
+
+#include <list>
 
 namespace DataFormats_TestObjects {
 struct dictionary {

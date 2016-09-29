@@ -31,6 +31,7 @@ class DigiTask : public hcaldqm::DQTask
 	public:
 		DigiTask(edm::ParameterSet const&);
 		virtual ~DigiTask() {}
+
 		virtual void bookHistograms(DQMStore::IBooker&,
 			edm::Run const&, edm::EventSetup const&);
 		virtual void beginLuminosityBlock(edm::LuminosityBlock const&,
@@ -41,12 +42,14 @@ class DigiTask : public hcaldqm::DQTask
 	protected:
 		virtual void _process(edm::Event const&, edm::EventSetup const&);
 		virtual void _resetMonitors(hcaldqm::UpdateFreq);
+
 		edm::InputTag		_tagHBHE;
 		edm::InputTag		_tagHO;
 		edm::InputTag		_tagHF;
 		edm::EDGetTokenT<HBHEDigiCollection> _tokHBHE;
 		edm::EDGetTokenT<HODigiCollection>	 _tokHO;
 		edm::EDGetTokenT<HFDigiCollection>	_tokHF;
+
 		double _cutSumQ_HBHE, _cutSumQ_HO, _cutSumQ_HF;
 		double _thresh_unihf;
 
@@ -57,7 +60,8 @@ class DigiTask : public hcaldqm::DQTask
 			fDigiSize=0,
 			fUni = 1,
 			fNChsHF = 2,
-			nDigiFlag = 3
+			fUnknownIds = 3,
+			nDigiFlag = 4
 		};
 
 		//	hashes/FED vectors
@@ -66,6 +70,7 @@ class DigiTask : public hcaldqm::DQTask
 		//	emap
 		HcalElectronicsMap const* _emap;
 		hcaldqm::electronicsmap::ElectronicsMap _ehashmap; // online only
+		hcaldqm::electronicsmap::ElectronicsMap _dhashmap;
 
 		//	Filters
 		hcaldqm::filter::HashFilter _filter_VME;
@@ -73,7 +78,7 @@ class DigiTask : public hcaldqm::DQTask
 		hcaldqm::filter::HashFilter _filter_FEDHF;
 		hcaldqm::filter::HashFilter _filter_HF;
 
-		/* Containers */
+		/* hcaldqm::Containers */
 		//	ADC, fC - Charge - just filling - no summary!
 		hcaldqm::Container1D _cADC_SubdetPM;
 		hcaldqm::Container1D _cfC_SubdetPM;
@@ -138,6 +143,8 @@ class DigiTask : public hcaldqm::DQTask
 
 		//	#events counters
 		MonitorElement *meNumEvents1LS; // to transfer the #events to harvesting
+		MonitorElement *meUnknownIds1LS;
+		bool _unknownIdsPresent;
 
 		hcaldqm::Container2D _cSummaryvsLS_FED; // online only
 		hcaldqm::ContainerSingle2D _cSummaryvsLS; // online only

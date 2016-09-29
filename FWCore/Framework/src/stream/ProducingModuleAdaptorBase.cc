@@ -106,16 +106,6 @@ namespace edm {
 
     template< typename T>
     void
-    ProducingModuleAdaptorBase<T>::modulesDependentUpon(std::string const& iProcessName,
-                                                        std::string const& iModuleLabel,
-                                                        bool iPrint,
-                                                        std::vector<char const*>& oModuleLabels) const {
-      assert(not m_streamModules.empty());
-      return m_streamModules[0]->modulesDependentUpon(iProcessName, iModuleLabel, iPrint, oModuleLabels);
-    }
-
-    template< typename T>
-    void
     ProducingModuleAdaptorBase<T>::modulesWhoseProductsAreConsumed(std::vector<ModuleDescription const*>& modules,
                                                                    ProductRegistry const& preg,
                                                                    std::map<std::string, ModuleDescription const*> const& labelsToDesc,
@@ -134,9 +124,10 @@ namespace edm {
     template< typename T>
     void
     ProducingModuleAdaptorBase<T>::updateLookup(BranchType iType,
-                                        ProductResolverIndexHelper const& iHelper) {
+                                                ProductResolverIndexHelper const& iHelper,
+                                                bool iPrefetchMayGet) {
       for(auto mod: m_streamModules) {
-        mod->updateLookup(iType,iHelper);
+        mod->updateLookup(iType,iHelper,iPrefetchMayGet);
       }
     }
 

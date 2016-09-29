@@ -86,6 +86,8 @@ private:
 
   int lsCounter;
   int nMinEvts;
+  int nMinEvtsPC;
+  int nZeroEvtsPC;
 
   bool writeRootFile;
   TFile *rootFile;
@@ -98,6 +100,9 @@ private:
   std::string nameMonitoredHisto;
 
   bool bookingdone;
+
+  int nChannelTotal;
+  int nChannelDead;
 
 };
 

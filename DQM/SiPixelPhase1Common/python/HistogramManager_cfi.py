@@ -16,7 +16,7 @@ SiPixelPhase1Geometry = cms.PSet(
   n_rocs = cms.int32(16), # two-row geometry is assumed
 
   # "time geometry" parameters
-  max_lumisection = cms.int32(100),
+  max_lumisection = cms.int32(1000),
   max_bunchcrossing = cms.int32(3600)
 
   # other geometry parameters (n_layers, n_ladders per layer, etc.) are inferred.
@@ -24,7 +24,11 @@ SiPixelPhase1Geometry = cms.PSet(
 )
 
 # the wrapping here is necessary to switch 'enabled' later.
-PerModule = cms.PSet(enabled = cms.bool(True))
+PerModule = cms.PSet(enabled = cms.bool(True)) # normal histos per module
+PerLadder = cms.PSet(enabled = cms.bool(True)) # histos per ladder, profiles
+PerLayer2D = cms.PSet(enabled = cms.bool(True)) # 2D maps/profiles of layers
+PerLayer1D = cms.PSet(enabled = cms.bool(True)) # normal histos per layer
+PerLumisection = cms.PSet(enabled = cms.bool(True)) # trend profiles
 
 # Default histogram configuration. This is _not_ used automatically, but you 
 # can import and pass this (or clones of it) in the plugin config.
@@ -54,7 +58,7 @@ DefaultHisto = cms.PSet(
   # The "|" means "try the first, if not present try the second", it should be used to have Barrel- and 
   # Endcap names side by side. The "/" separates columns and also defines how the output folders are nested.
   defaultGrouping  = cms.string("PXBarrel|PXForward/Shell|HalfCylinder/PXLayer|PXDisk/PXRing|/PXLadder|PXBlade"),
-  defaultPerModule = cms.string("PXBarrel|PXForward/Shell|HalfCylinder/PXLayer|PXDisk/PXRing|/PXLadder|PXBlade/PXBModule|PXPanel"),
+  defaultPerModule = cms.string("PXBarrel|PXForward/PXLayer|PXDisk/DetId"),
 
   # This structure is output by the SpecficationBuilder.
   specs = cms.VPSet()
@@ -77,3 +81,66 @@ DefaultHisto = cms.PSet(
   #)
 )
 
+# Commonly used specifications. 
+StandardSpecifications1D = [
+    Specification(PerLadder).groupBy(DefaultHisto.defaultGrouping) # per-ladder and profiles
+                            .save()
+                            .reduce("MEAN")
+                            .groupBy(parent(DefaultHisto.defaultGrouping), "EXTEND_X")
+                            .saveAll(),
+    Specification(PerLayer1D).groupBy(parent(DefaultHisto.defaultGrouping)) # per-layer
+                             .save(),
+    Specification(PerModule).groupBy(DefaultHisto.defaultPerModule).save()
+]
+
+StandardSpecificationTrend = ( # the () are only for syntax reasons
+    Specification().groupBy("PXBarrel|PXForward/Lumisection")
+                   .reduce("MEAN") 
+                   .groupBy("PXBarrel|PXForward", "EXTEND_X")
+                   .save()
+)
+
+
+StandardSpecification2DProfile = (
+    Specification(PerLayer2D)
+       .groupBy("PXBarrel|PXForward/PXLayer|PXDisk/signedLadder|PXBlade/signedModule|PXPanel")
+       .reduce("MEAN")
+       .groupBy("PXBarrel|PXForward/PXLayer|PXDisk/signedLadder|PXBlade", "EXTEND_X")
+       .groupBy("PXBarrel|PXForward/PXLayer|PXDisk", "EXTEND_Y")
+       .save()
+)
+
+# the same for NDigis and friends. Needed due to technical limitations...
+StandardSpecifications1D_Num = [
+    Specification(PerLadder).groupBy(DefaultHisto.defaultGrouping.value() + "/DetId/Event") 
+                            .reduce("COUNT") # per-event counting
+                            .groupBy(DefaultHisto.defaultGrouping).save()
+                            .reduce("MEAN")
+                            .groupBy(parent(DefaultHisto.defaultGrouping), "EXTEND_X")
+                            .saveAll(),
+    Specification(PerModule).groupBy(DefaultHisto.defaultPerModule.value() + "/Event")
+                            .reduce("COUNT")
+                            .groupBy(DefaultHisto.defaultPerModule)
+                            .save()
+]
+
+StandardSpecificationTrend_Num = (
+    Specification().groupBy("PXBarrel|PXForward/Lumisection" + "/PXLayer|PXDisk/Event")
+                   .reduce("COUNT")
+                   .groupBy("PXBarrel|PXForward/Lumisection")
+                   .reduce("MEAN")
+                   .groupBy("PXBarrel|PXForward", "EXTEND_X")
+                   .save()
+)
+
+
+StandardSpecification2DProfile_Num = (
+    Specification(PerLayer2D)
+       .groupBy("PXBarrel|PXForward/PXLayer|PXDisk/signedLadder|PXBlade/signedModule|PXPanel" + "/DetId/Event")
+       .reduce("COUNT")
+       .groupBy("PXBarrel|PXForward/PXLayer|PXDisk/signedLadder|PXBlade/signedModule|PXPanel")
+       .reduce("MEAN") 
+       .groupBy("PXBarrel|PXForward/PXLayer|PXDisk/signedLadder|PXBlade", "EXTEND_X")
+       .groupBy("PXBarrel|PXForward/PXLayer|PXDisk", "EXTEND_Y")
+       .save()
+)

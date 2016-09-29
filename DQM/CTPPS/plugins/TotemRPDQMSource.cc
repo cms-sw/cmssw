@@ -19,9 +19,9 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 
 #include "DataFormats/Common/interface/DetSetVector.h"
-#include "DataFormats/TotemRPDetId/interface/TotemRPDetId.h"
-#include "DataFormats/TotemDigi/interface/TotemRPDigi.h"
-#include "DataFormats/TotemDigi/interface/TotemVFATStatus.h"
+#include "DataFormats/CTPPSDetId/interface/TotemRPDetId.h"
+#include "DataFormats/CTPPSDigi/interface/TotemRPDigi.h"
+#include "DataFormats/CTPPSDigi/interface/TotemVFATStatus.h"
 #include "DataFormats/CTPPSReco/interface/TotemRPCluster.h"
 #include "DataFormats/CTPPSReco/interface/TotemRPRecHit.h"
 #include "DataFormats/CTPPSReco/interface/TotemRPUVPattern.h"
@@ -186,6 +186,7 @@ TotemRPDQMSource::DiagonalPlots::DiagonalPlots(DQMStore::IBooker &ibooker, int _
 
   ibooker.setCurrentFolder(string("CTPPS/TrackingStrip/") + name);
 
+  // TODO: define ranges! If defined automatically, can lead to problems when histograms are merged from several instances of the module.
   h_lrc_x_d = ibooker.book2D("dx left vs right", string(name) + " : dx left vs. right, histogram;#Delta x_{45};#Delta x_{56}", 50, 0., 0., 50, 0., 0.);
   h_lrc_x_n = ibooker.book2D("xn left vs right", string(name) + " : xn left vs. right, histogram;x^{N}_{45};x^{N}_{56}", 50, 0., 0., 50, 0., 0.);
   h_lrc_x_f = ibooker.book2D("xf left vs right", string(name) + " : xf left vs. right, histogram;x^{F}_{45};x^{F}_{56}", 50, 0., 0., 50, 0., 0.);

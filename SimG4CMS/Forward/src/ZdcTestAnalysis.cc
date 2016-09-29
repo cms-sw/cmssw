@@ -56,29 +56,20 @@ ZdcTestAnalysis::ZdcTestAnalysis(const edm::ParameterSet &p){
        new TNtuple("NTzdcevent","NTzdcevent",
 		   "evt:ihit:fiberid:zside:subdet:layer:fiber:channel:enem:enhad:hitenergy:x:y:z:time:etot");
 
+   theZdcNumScheme = nullptr;
    //theZdcSD = new ZdcSD("ZDCHITSB", new ZdcNumberingScheme());
 }
    
 ZdcTestAnalysis::~ZdcTestAnalysis() {
   // destructor
   finish();
-  if (verbosity > 0) {
-    std::cout << std::endl << "ZdcTestAnalysis Dextructor  -------->  End of ZdcTestAnalysis : "
-      << std::endl << std::endl; 
-  }
-
-  //if (doNTzdcstep  > 0)delete zdcstepntuple;
-  //if (doNTzdcevent > 0)delete zdceventntuple;
-
-  std::cout<<"ZdcTestAnalysis: End of process"<<std::endl;
+  delete theZdcNumScheme;
 }
-
 
 void ZdcTestAnalysis::update(const BeginOfJob * job) {
   //job
   std::cout<<"beggining of job"<<std::endl;;
 }
-
 
 //==================================================================== per RUN
 void ZdcTestAnalysis::update(const BeginOfRun * run) {
@@ -101,16 +92,12 @@ void ZdcTestAnalysis::update(const BeginOfRun * run) {
   eventIndex = 0;
 }
 
-
-
-
 void ZdcTestAnalysis::update(const BeginOfEvent * evt) {
   //event
   std::cout << "ZdcTest: Processing Event Number: "<<eventIndex<< std::endl;
   eventIndex++;
   stepIndex = 0;
 }
-
 
 void ZdcTestAnalysis::update(const G4Step * aStep) {
   //step;
@@ -257,7 +244,7 @@ void ZdcTestAnalysis::update(const EndOfEvent * evt) {
   CaloG4HitCollection* theZDCHC = (CaloG4HitCollection*) allHC->GetHC(theZDCHCid);
   std::cout << " - theZDCHC = " << theZDCHC << std::endl;
   
-  ZdcNumberingScheme * theZdcNumScheme = new ZdcNumberingScheme(1);
+  if(!theZdcNumScheme) { theZdcNumScheme = new ZdcNumberingScheme(1); }
   
   float ETot=0., SEnergy=0.;
   int maxTime=0;
@@ -404,6 +391,5 @@ void ZdcTestAnalysis::finish(){
    std::cout << "ZdcTestAnalysis: Ntuple event written for event: "<<eventIndex<<std::endl;   
    zdcOutputEventFile->Close();
    std::cout << "ZdcTestAnalysis: Event file closed" << std::endl;
- }
- 
+ } 
 }

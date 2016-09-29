@@ -10,7 +10,6 @@
 #include "G4ThreeVector.hh"
 #include "G4LogicalVolume.hh"
 
-#include <boost/cstdint.hpp>
 #include <vector>
 
 class HFShowerG4Hit : public G4VHit {

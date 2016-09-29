@@ -89,8 +89,8 @@ void PlotCompareUtility::makePlots<Plot1D>(HistoData *HD) {
 
   // place the test results as the title
   TString title = HD->getName();
-  if (ksThreshold > 0) title += " KS Score = "; title += HD->getKSScore();
-  if (chi2Threshold > 0) title += " Chi^2 Score = "; title += HD->getChi2Score();
+  if (ksThreshold > 0) {title += " KS Score = "; title += HD->getKSScore();} 
+  if (chi2Threshold > 0) { title += " Chi^2 Score = "; title += HD->getChi2Score();} 
 
   // the canvas is rescaled during gif conversion, so add padding to Canvas dimensions
   int plotsCanvasWidth = plotsWidth + 4;

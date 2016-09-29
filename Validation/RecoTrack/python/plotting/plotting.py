@@ -3,6 +3,7 @@ import math
 import copy
 import array
 import difflib
+import collections
 
 import ROOT
 ROOT.gROOT.SetBatch(True)
@@ -11,6 +12,35 @@ ROOT.PyConfig.IgnoreCommandLineOptions = True
 import html
 
 verbose=False
+ratioYTitle = "Ratio"
+
+def _setStyle():
+    _absoluteSize = True
+    if _absoluteSize:
+        font = 43
+        titleSize = 22
+        labelSize = 22
+        statSize = 14
+    else:
+        font = 42
+        titleSize = 0.05
+        labelSize = 0.05
+        statSize = 0.025
+
+    ROOT.gROOT.SetStyle("Plain")
+    ROOT.gStyle.SetPadRightMargin(0.07)
+    ROOT.gStyle.SetPadLeftMargin(0.13)
+    ROOT.gStyle.SetTitleFont(font, "XYZ")
+    ROOT.gStyle.SetTitleSize(titleSize, "XYZ")
+    ROOT.gStyle.SetTitleOffset(1.2, "Y")
+    #ROOT.gStyle.SetTitleFontSize(0.05)
+    ROOT.gStyle.SetLabelFont(font, "XYZ")
+    ROOT.gStyle.SetLabelSize(labelSize, "XYZ")
+    ROOT.gStyle.SetTextSize(labelSize)
+    ROOT.gStyle.SetStatFont(font)
+    ROOT.gStyle.SetStatFontSize(statSize)
+
+    ROOT.TGaxis.SetMaxDigits(4)
 
 def _getObject(tdirectory, name):
     obj = tdirectory.Get(name)
@@ -63,6 +93,15 @@ def _getDirectoryDetailed(tfile, possibleDirs, subDir=None):
 def _getDirectory(*args, **kwargs):
     return GetDirectoryCode.codesToNone(_getDirectoryDetailed(*args, **kwargs))
 
+def _th1ToOrderedDict(th1, renameBin=None):
+    values = collections.OrderedDict()
+    for i in xrange(1, th1.GetNbinsX()+1):
+        binLabel = th1.GetXaxis().GetBinLabel(i)
+        if renameBin is not None:
+            binLabel = renameBin(binLabel)
+        values[binLabel] = (th1.GetBinContent(i), th1.GetBinError(i))
+    return values
+
 def _createCanvas(name, width, height):
     # silence warning of deleting canvas with the same name
     if not verbose:
@@ -72,6 +111,226 @@ def _createCanvas(name, width, height):
     if not verbose:
         ROOT.gErrorIgnoreLevel = backup
     return canvas
+
+def _modifyPadForRatio(pad, ratioFactor):
+    pad.Divide(1, 2)
+
+    divisionPoint = 1-1/ratioFactor
+
+    topMargin = pad.GetTopMargin()
+    bottomMargin = pad.GetBottomMargin()
+    divisionPoint += (1-divisionPoint)*bottomMargin # correct for (almost-)zeroing bottom margin of pad1
+    divisionPointForPad1 = 1-( (1-divisionPoint) / (1-0.02) ) # then correct for the non-zero bottom margin, but for pad1 only
+
+    # Set the lower point of the upper pad to divisionPoint
+    pad1 = pad.cd(1)
+    yup = 1.0
+    ylow = divisionPointForPad1
+    xup = 1.0
+    xlow = 0.0
+    pad1.SetPad(xlow, ylow, xup, yup)
+    pad1.SetFillStyle(4000) # transparent
+    pad1.SetBottomMargin(0.02) # need some bottom margin here for eps/pdf output (at least in ROOT 5.34)
+
+    # Set the upper point of the lower pad to divisionPoint
+    pad2 = pad.cd(2)
+    yup = divisionPoint
+    ylow = 0.0
+    pad2.SetPad(xlow, ylow, xup, yup)
+    pad2.SetFillStyle(4000) # transparent
+    pad2.SetTopMargin(0.0)
+    pad2.SetBottomMargin(bottomMargin/(ratioFactor*divisionPoint))
+
+def _calculateRatios(histos, ratioUncertainty=False):
+    """Calculate the ratios for a list of histograms"""
+
+    def _divideOrZero(numerator, denominator):
+        if denominator == 0:
+            return 0
+        return numerator/denominator
+
+    def equal(a, b):
+        if a == 0. and b == 0.:
+            return True
+        return abs(a-b)/max(abs(a),abs(b)) < 1e-3
+
+    def findBins(wrap, bins_xvalues):
+        ret = []
+        currBin = wrap.begin()
+        i = 0
+        while i < len(bins_xvalues) and currBin < wrap.end():
+            (xcenter, xlow, xhigh) = bins_xvalues[i]
+            xlowEdge = xcenter-xlow
+            xupEdge = xcenter+xhigh
+
+            (curr_center, curr_low, curr_high) = wrap.xvalues(currBin)
+            curr_lowEdge = curr_center-curr_low
+            curr_upEdge = curr_center+curr_high
+
+            if equal(xlowEdge, curr_lowEdge) and equal(xupEdge,  curr_upEdge):
+                ret.append(currBin)
+                currBin += 1
+                i += 1
+            elif curr_upEdge <= xlowEdge:
+                currBin += 1
+            elif curr_lowEdge >= xupEdge:
+                ret.append(None)
+                i += 1
+            else:
+                ret.append(None)
+                currBin += 1
+                i += 1
+        if len(ret) != len(bins_xvalues):
+            ret.extend([None]*( len(bins_xvalues) - len(ret) ))
+        return ret
+
+    # Define wrappers for TH1/TGraph/TGraph2D to have uniform interface
+    # TODO: having more global wrappers would make some things simpler also elsewhere in the code
+    class WrapTH1:
+        def __init__(self, th1, uncertainty):
+            self._th1 = th1
+            self._uncertainty = uncertainty
+
+            xaxis = th1.GetXaxis()
+            xaxis_arr = xaxis.GetXbins()
+            if xaxis_arr.GetSize() > 0: # unequal binning
+                lst = [xaxis_arr[i] for i in xrange(0, xaxis_arr.GetSize())]
+                arr = array.array("d", lst)
+                self._ratio = ROOT.TH1F("foo", "foo", xaxis.GetNbins(), arr)
+            else:
+                self._ratio = ROOT.TH1F("foo", "foo", xaxis.GetNbins(), xaxis.GetXmin(), xaxis.GetXmax())
+            _copyStyle(th1, self._ratio)
+            self._ratio.SetStats(0)
+            self._ratio.SetLineColor(ROOT.kBlack)
+            self._ratio.SetLineWidth(1)
+        def draw(self, style=None):
+            st = style
+            if st is None:
+                if self._uncertainty:
+                    st = "EP"
+                else:
+                    st = "HIST P"
+            self._ratio.Draw("same "+st)
+        def begin(self):
+            return 1
+        def end(self):
+            return self._th1.GetNbinsX()+1
+        def xvalues(self, bin):
+            xval = self._th1.GetBinCenter(bin)
+            xlow = xval-self._th1.GetXaxis().GetBinLowEdge(bin)
+            xhigh = self._th1.GetXaxis().GetBinUpEdge(bin)-xval
+            return (xval, xlow, xhigh)
+        def yvalues(self, bin):
+            yval = self._th1.GetBinContent(bin)
+            yerr = self._th1.GetBinError(bin)
+            return (yval, yerr, yerr)
+        def y(self, bin):
+            return self._th1.GetBinContent(bin)
+        def divide(self, bin, scale):
+            self._ratio.SetBinContent(bin, _divideOrZero(self._th1.GetBinContent(bin), scale))
+            self._ratio.SetBinError(bin, _divideOrZero(self._th1.GetBinError(bin), scale))
+        def makeRatio(self):
+            pass
+        def getRatio(self):
+            return self._ratio
+
+    class WrapTGraph:
+        def __init__(self, gr, uncertainty):
+            self._gr = gr
+            self._uncertainty = uncertainty
+            self._xvalues = []
+            self._xerrslow = []
+            self._xerrshigh = []
+            self._yvalues = []
+            self._yerrshigh = []
+            self._yerrslow = []
+        def draw(self, style=None):
+            if self._ratio is None:
+                return
+            st = style
+            if st is None:
+                if self._uncertainty:
+                    st = "PZ"
+                else:
+                    st = "PX"
+            self._ratio.Draw("same "+st)
+        def begin(self):
+            return 0
+        def end(self):
+            return self._gr.GetN()
+        def xvalues(self, bin):
+            return (self._gr.GetX()[bin], self._gr.GetErrorXlow(bin), self._gr.GetErrorXhigh(bin))
+        def yvalues(self, bin):
+            return (self._gr.GetY()[bin], self._gr.GetErrorYlow(bin), self._gr.GetErrorYhigh(bin))
+        def y(self, bin):
+            return self._gr.GetY()[bin]
+        def divide(self, bin, scale):
+            # Ignore bin if denominator is zero
+            if scale == 0:
+                return
+            # No more items in the numerator
+            if bin >= self._gr.GetN():
+                return
+            # denominator is missing an item
+            xvals = self.xvalues(bin)
+            xval = xvals[0]
+
+            self._xvalues.append(xval)
+            self._xerrslow.append(xvals[1])
+            self._xerrshigh.append(xvals[2])
+            yvals = self.yvalues(bin)
+            self._yvalues.append(yvals[0] / scale)
+            if self._uncertainty:
+                self._yerrslow.append(yvals[1] / scale)
+                self._yerrshigh.append(yvals[2] / scale)
+            else:
+                self._yerrslow.append(0)
+                self._yerrshigh.append(0)
+        def makeRatio(self):
+            if len(self._xvalues) == 0:
+                self._ratio = None
+                return
+            self._ratio = ROOT.TGraphAsymmErrors(len(self._xvalues), array.array("d", self._xvalues), array.array("d", self._yvalues),
+                                                 array.array("d", self._xerrslow), array.array("d", self._xerrshigh),
+                                                 array.array("d", self._yerrslow), array.array("d", self._yerrshigh))
+            _copyStyle(self._gr, self._ratio)
+        def getRatio(self):
+            return self._ratio
+    class WrapTGraph2D(WrapTGraph):
+        def __init__(self, gr, uncertainty):
+            WrapTGraph.__init__(self, gr, uncertainty)
+        def xvalues(self, bin):
+            return (self._gr.GetX()[bin], self._gr.GetErrorX(bin), self._gr.GetErrorX(bin))
+        def yvalues(self, bin):
+            return (self._gr.GetY()[bin], self._gr.GetErrorY(bin), self._gr.GetErrorY(bin))
+
+    def wrap(o):
+        if isinstance(o, ROOT.TH1):
+            return WrapTH1(o, ratioUncertainty)
+        elif isinstance(o, ROOT.TGraph):
+            return WrapTGraph(o, ratioUncertainty)
+        elif isinstance(o, ROOT.TGraph2D):
+            return WrapTGraph2D(o, ratioUncertainty)
+
+    wrappers = [wrap(h) for h in histos]
+    ref = wrappers[0]
+
+    wrappers_bins = []
+    ref_bins = [ref.xvalues(b) for b in xrange(ref.begin(), ref.end())]
+    for w in wrappers:
+        wrappers_bins.append(findBins(w, ref_bins))
+
+    for i, bin in enumerate(xrange(ref.begin(), ref.end())):
+        (scale, ylow, yhigh) = ref.yvalues(bin)
+        for w, bins in zip(wrappers, wrappers_bins):
+            if bins[i] is None:
+                continue
+            w.divide(bins[i], scale)
+
+    for w in wrappers:
+        w.makeRatio()
+
+    return wrappers
 
 
 def _getXmin(obj, limitToNonZeroContent=False):
@@ -86,7 +345,8 @@ def _getXmin(obj, limitToNonZeroContent=False):
         else:
             return xaxis.GetBinLowEdge(xaxis.GetFirst())
     elif isinstance(obj, ROOT.TGraph) or isinstance(obj, ROOT.TGraph2D):
-        return min([obj.GetX()[i] for i in xrange(0, obj.GetN())])*0.9
+        m = min([obj.GetX()[i] for i in xrange(0, obj.GetN())])
+        return m*0.9 if m > 0 else m*1.1
     raise Exception("Unsupported type %s" % str(obj))
 
 def _getXmax(obj, limitToNonZeroContent=False):
@@ -101,21 +361,30 @@ def _getXmax(obj, limitToNonZeroContent=False):
         else:
             return xaxis.GetBinUpEdge(xaxis.GetLast())
     elif isinstance(obj, ROOT.TGraph) or isinstance(obj, ROOT.TGraph2D):
-        return max([obj.GetX()[i] for i in xrange(0, obj.GetN())])*1.02
+        m = max([obj.GetX()[i] for i in xrange(0, obj.GetN())])
+        return m*1.1 if m > 0 else m*0.9
     raise Exception("Unsupported type %s" % str(obj))
 
 def _getYmin(obj):
-    if isinstance(obj, ROOT.TH1):
+    if isinstance(obj, ROOT.TH2):
+        yaxis = obj.GetYaxis()
+        return yaxis.GetBinLowEdge(yaxis.GetFirst())
+    elif isinstance(obj, ROOT.TH1):
         return obj.GetMinimum()
     elif isinstance(obj, ROOT.TGraph) or isinstance(obj, ROOT.TGraph2D):
-        return min([obj.GetY()[i] for i in xrange(0, obj.GetN())])
+        m = min([obj.GetY()[i] for i in xrange(0, obj.GetN())])
+        return m*0.9 if m > 0 else m*1.1
     raise Exception("Unsupported type %s" % str(obj))
 
 def _getYmax(obj):
-    if isinstance(obj, ROOT.TH1):
+    if isinstance(obj, ROOT.TH2):
+        yaxis = obj.GetYaxis()
+        return yaxis.GetBinUpEdge(yaxis.GetLast())
+    elif isinstance(obj, ROOT.TH1):
         return obj.GetMaximum()
     elif isinstance(obj, ROOT.TGraph) or isinstance(obj, ROOT.TGraph2D):
-        return max([obj.GetY()[i] for i in xrange(0, obj.GetN())])
+        m = max([obj.GetY()[i] for i in xrange(0, obj.GetN())])
+        return m*1.1 if m > 0 else m*0.9
     raise Exception("Unsupported type %s" % str(obj))
 
 def _getYmaxWithError(th1):
@@ -138,6 +407,42 @@ def _getYminIgnoreOutlier(th1):
 
     return min_val
 
+def _getYminMaxAroundMedian(obj, coverage, coverageRange=None):
+    inRange = lambda x: True
+    inRange2 = lambda xmin,xmax: True
+    if coverageRange:
+        inRange = lambda x: coverageRange[0] <= x <= coverageRange[1]
+        inRange2 = lambda xmin,xmax: coverageRange[0] <= xmin and xmax <= coverageRange[1]
+
+    if isinstance(obj, ROOT.TH1):
+        yvals = [obj.GetBinContent(i) for i in xrange(1, obj.GetNbinsX()+1) if inRange2(obj.GetXaxis().GetBinLowEdge(i), obj.GetXaxis().GetBinUpEdge(i))]
+        yvals = filter(lambda x: x != 0, yvals)
+    elif isinstance(obj, ROOT.TGraph) or isinstance(obj, ROOT.TGraph2D):
+        yvals = [obj.GetY()[i] for i in xrange(0, obj.GetN()) if inRange(obj.GetX()[i])]
+    else:
+        raise Exception("Unsupported type %s" % str(obj))
+    if len(yvals) == 0:
+        return (0, 0)
+    if len(yvals) == 1:
+        return (yvals[0], yvals[0])
+    if len(yvals) == 2:
+        return (yvals[0], yvals[1])
+
+    yvals.sort()
+    nvals = int(len(yvals)*coverage)
+    if nvals < 2:
+        # Take median and +- 1 values
+        if len(yvals) % 2 == 0:
+            half = len(yvals)/2
+            return ( yvals[half-1], yvals[half] )
+        else:
+            middle = len(yvals)/2
+            return ( yvals[middle-1], yvals[middle+1] )
+    ind_min = (len(yvals)-nvals)/2
+    ind_max = len(yvals)-1 - ind_min
+
+    return (yvals[ind_min], yvals[ind_max])
+
 def _findBounds(th1s, ylog, xmin=None, xmax=None, ymin=None, ymax=None):
     """Find x-y axis boundaries encompassing a list of TH1s if the bounds are not given in arguments.
 
@@ -148,34 +453,18 @@ def _findBounds(th1s, ylog, xmin=None, xmax=None, ymin=None, ymax=None):
     Keyword arguments:
     xmin -- Minimum x value; if None, take the minimum of TH1s
     xmax -- Maximum x value; if None, take the maximum of TH1s
-    xmin -- Minimum y value; if None, take the minimum of TH1s
-    xmax -- Maximum y value; if None, take the maximum of TH1s
+    ymin -- Minimum y value; if None, take the minimum of TH1s
+    ymax -- Maximum y value; if None, take the maximum of TH1s
     """
 
-    def y_scale_max(y):
-        if ylog:
-            return 1.5*y
-        return 1.05*y
+    (ymin, ymax) = _findBoundsY(th1s, ylog, ymin, ymax)
 
-    def y_scale_min(y):
-        # assuming log
-        return 0.9*y
-
-    if xmin is None or xmax is None or ymin is None or ymax is None or \
-       isinstance(xmin, list) or isinstance(max, list) or isinstance(ymin, list) or isinstance(ymax, list):
+    if xmin is None or xmax is None or isinstance(xmin, list) or isinstance(max, list):
         xmins = []
         xmaxs = []
-        ymins = []
-        ymaxs = []
         for th1 in th1s:
             xmins.append(_getXmin(th1, limitToNonZeroContent=isinstance(xmin, list)))
             xmaxs.append(_getXmax(th1, limitToNonZeroContent=isinstance(xmax, list)))
-            if ylog and isinstance(ymin, list):
-                ymins.append(_getYminIgnoreOutlier(th1))
-            else:
-                ymins.append(_getYmin(th1))
-            ymaxs.append(_getYmax(th1))
-#            ymaxs.append(_getYmaxWithError(th1))
 
         # Filter out cases where histograms have zero content
         xmins = filter(lambda h: h is not None, xmins)
@@ -217,6 +506,54 @@ def _findBounds(th1s, ylog, xmin=None, xmax=None, ymin=None, ymax=None):
                 else:
                     xmax = min(xmaxs_above)
 
+    for th1 in th1s:
+        th1.GetXaxis().SetRangeUser(xmin, xmax)
+
+    return (xmin, ymin, xmax, ymax)
+
+def _findBoundsY(th1s, ylog, ymin=None, ymax=None, coverage=None, coverageRange=None):
+    """Find y axis boundaries encompassing a list of TH1s if the bounds are not given in arguments.
+
+    Arguments:
+    th1s -- List of TH1s
+    ylog -- Boolean indicating if y axis is in log scale or not (affects the automatic ymax)
+
+    Keyword arguments:
+    ymin -- Minimum y value; if None, take the minimum of TH1s
+    ymax -- Maximum y value; if None, take the maximum of TH1s
+    coverage -- If set, use only values within the 'coverage' part around the median are used for min/max (useful for ratio)
+    coverageRange -- If coverage and this are set, use only the x axis specified by an (xmin,xmax) pair for the coverage 
+    """
+    if coverage is not None:
+        # the only use case for coverage for now is ratio, for which
+        # the scalings are not needed (actually harmful), so let's
+        # just ignore them if 'coverage' is set
+        y_scale_max = lambda y: y
+        y_scale_min = lambda y: y
+    else:
+        if ylog:
+            y_scale_max = lambda y: y*1.5
+        else:
+            y_scale_max = lambda y: y*1.05
+        y_scale_min = lambda y: y*0.9 # assuming log
+
+    if ymin is None or ymax is None or isinstance(ymin, list) or isinstance(ymax, list):
+        ymins = []
+        ymaxs = []
+        for th1 in th1s:
+            if coverage is not None:
+                (_ymin, _ymax) = _getYminMaxAroundMedian(th1, coverage, coverageRange)
+            else:
+                if ylog and isinstance(ymin, list):
+                    _ymin = _getYminIgnoreOutlier(th1)
+                else:
+                    _ymin = _getYmin(th1)
+                _ymax = _getYmax(th1)
+#                _ymax = _getYmaxWithError(th1)
+
+            ymins.append(_ymin)
+            ymaxs.append(_ymax)
+
         if ymin is None:
             ymin = min(ymins)
         elif isinstance(ymin, list):
@@ -248,10 +585,9 @@ def _findBounds(th1s, ylog, xmin=None, xmax=None, ymin=None, ymax=None):
                 ymax = min(ymaxs_above)
 
     for th1 in th1s:
-        th1.GetXaxis().SetRangeUser(xmin, xmax)
         th1.GetYaxis().SetRangeUser(ymin, ymax)
 
-    return (xmin, ymin, xmax, ymax)
+    return (ymin, ymax)
 
 class Subtract:
     """Class for subtracting two histograms"""
@@ -350,28 +686,25 @@ class FakeDuplicate:
 
 class AggregateBins:
     """Class to create a histogram by aggregating bins of another histogram to a bin of the resulting histogram."""
-    def __init__(self, name, histoName, mapping, normalizeTo=None, scale=None, renameBin=None, ignoreMissingBins=False, minExistingBins=None):
+    def __init__(self, name, histoName, mapping, normalizeTo=None, scale=None, renameBin=None, ignoreMissingBins=False, minExistingBins=None, originalOrder=False):
         """Constructor.
 
         Arguments:
         name      -- String for the name of the resulting histogram
         histoName -- String for the name of the source histogram
-        mapping   -- Dictionary or list for mapping the bins (see below)
+        mapping   -- Dictionary for mapping the bins (see below)
 
         Keyword arguments:
         normalizeTo -- Optional string of a bin label in the source histogram. If given, all bins of the resulting histogram are divided by the value of this bin.
         scale       -- Optional number for scaling the histogram (passed to ROOT.TH1.Scale())
         renameBin   -- Optional function (string -> string) to rename the bins of the input histogram
+        originalOrder -- Boolean for using the order of bins in the histogram (default False)
 
         Mapping structure (mapping):
 
         Dictionary (you probably want to use collections.OrderedDict)
         should be a mapping from the destination bin label to a list
         of source bin labels ("dst -> [src]").
-
-        If the mapping is a list, it should only contain the source
-        bin labels. In this case, the resulting histogram contains a
-        subset of the bins of the source histogram.
         """
         self._name = name
         self._histoName = histoName
@@ -381,6 +714,7 @@ class AggregateBins:
         self._renameBin = renameBin
         self._ignoreMissingBins = ignoreMissingBins
         self._minExistingBins = minExistingBins
+        self._originalOrder = originalOrder
 
     def __str__(self):
         """String representation, returns the name"""
@@ -396,36 +730,45 @@ class AggregateBins:
         binValues = [None]*len(self._mapping)
 
         # TH1 can't really be used as a map/dict, so convert it here:
-        values = {}
-        for i in xrange(1, th1.GetNbinsX()+1):
-            binLabel = th1.GetXaxis().GetBinLabel(i)
-            if self._renameBin is not None:
-                binLabel = self._renameBin(binLabel)
-            values[binLabel] = (th1.GetBinContent(i), th1.GetBinError(i))
+        values = _th1ToOrderedDict(th1, self._renameBin)
 
-        if isinstance(self._mapping, list):
-            for i, label in enumerate(self._mapping):
+        binIndexOrder = [] # for reordering bins if self._originalOrder is True
+        for i, (key, labels) in enumerate(self._mapping.iteritems()):
+            sumTime = 0.
+            sumErrorSq = 0.
+            nsum = 0
+            for l in labels:
                 try:
-                    binValues[i] = values[label]
+                    sumTime += values[l][0]
+                    sumErrorSq += values[l][1]**2
+                    nsum += 1
                 except KeyError:
                     pass
-                binLabels[i] = label
-        else:
-            for i, (key, labels) in enumerate(self._mapping.iteritems()):
-                sumTime = 0.
-                sumErrorSq = 0.
-                nsum = 0
-                for l in labels:
-                    try:
-                        sumTime += values[l][0]
-                        sumErrorSq += values[l][1]**2
-                        nsum += 1
-                    except KeyError:
-                        pass
 
-                if nsum > 0:
-                    binValues[i] = (sumTime, math.sqrt(sumErrorSq))
-                binLabels[i] = key
+            if nsum > 0:
+                binValues[i] = (sumTime, math.sqrt(sumErrorSq))
+            binLabels[i] = key
+
+            ivalue = len(values)+1
+            if len(labels) > 0:
+                # first label doesn't necessarily exist (especially for
+                # the iteration timing plots), so let's test them all
+                for lab in labels:
+                    if lab in values:
+                        ivalue = values.keys().index(lab)
+                        break
+            binIndexOrder.append( (ivalue, i) )
+
+        if self._originalOrder:
+            binIndexOrder.sort(key=lambda t: t[0])
+            tmpVal = []
+            tmpLab = []
+            for i in xrange(0, len(binValues)):
+                fromIndex = binIndexOrder[i][1]
+                tmpVal.append(binValues[fromIndex])
+                tmpLab.append(binLabels[fromIndex])
+            binValues = tmpVal
+            binLabels = tmpLab
 
         if self._minExistingBins is not None and (len(binValues)-binValues.count(None)) < self._minExistingBins:
             return None
@@ -716,7 +1059,7 @@ class FrameRatio:
 
         self._frameRatio.GetYaxis().SetNdivisions(4, 5, 0)
 
-        self._frameRatio.GetYaxis().SetTitle("Ratio")
+        self._frameRatio.GetYaxis().SetTitle(ratioYTitle)
 
     def setLogx(self, log):
         self._pad.SetLogx(log)
@@ -760,7 +1103,7 @@ class FrameRatio:
     def setXTitleSize(self, size):
         self._frameRatio.GetXaxis().SetTitleSize(size)
 
-    def setYTitleOffset(self, offset):
+    def setXTitleOffset(self, offset):
         self._frameRatio.GetXaxis().SetTitleOffset(offset)
 
     def setXLabelSize(self, size):
@@ -905,6 +1248,137 @@ class FrameTGraph2D:
         if hasattr(self, "_ytitleoffset"):
             axis.GetYaxis().SetTitleOffset(self._ytitleoffset)
 
+class PlotText:
+    """Abstraction on top of TLatex"""
+    def __init__(self, x, y, text, size=None, bold=True, align="left", color=ROOT.kBlack, font=None):
+        """Constructor.
+
+        Arguments:
+        x     -- X coordinate of the text (in NDC)
+        y     -- Y coordinate of the text (in NDC)
+        text  -- String to draw
+        size  -- Size of text (None for the default value, taken from gStyle)
+        bold  -- Should the text be bold?
+        align -- Alignment of text (left, center, right)
+        color -- Color of the text
+        font  -- Specify font explicitly
+        """
+        self._x = x
+        self._y = y
+        self._text = text
+
+        self._l = ROOT.TLatex()
+        self._l.SetNDC()
+        if not bold:
+            self._l.SetTextFont(self._l.GetTextFont()-20) # bold -> normal
+        if font is not None:
+            self._l.SetTextFont(font)
+        if size is not None:
+            self._l.SetTextSize(size)
+        if isinstance(align, basestring):
+            if align.lower() == "left":
+                self._l.SetTextAlign(11)
+            elif align.lower() == "center":
+                self._l.SetTextAlign(21)
+            elif align.lower() == "right":
+                self._l.SetTextAlign(31)
+            else:
+                raise Exception("Error: Invalid option '%s' for text alignment! Options are: 'left', 'center', 'right'."%align)
+        else:
+            self._l.SetTextAlign(align)
+        self._l.SetTextColor(color)
+
+    def Draw(self, options=None):
+        """Draw the text to the current TPad.
+
+        Arguments:
+        options -- For interface compatibility, ignored
+
+        Provides interface compatible with ROOT's drawable objects.
+        """
+        self._l.DrawLatex(self._x, self._y, self._text)
+
+
+class PlotTextBox:
+    """Class for drawing text and a background box."""
+    def __init__(self, xmin, ymin, xmax, ymax, lineheight=0.04, fillColor=ROOT.kWhite, transparent=True, **kwargs):
+        """Constructor
+
+        Arguments:
+        xmin        -- X min coordinate of the box (NDC)
+        ymin        -- Y min coordinate of the box (NDC) (if None, deduced automatically)
+        xmax        -- X max coordinate of the box (NDC)
+        ymax        -- Y max coordinate of the box (NDC)
+        lineheight  -- Line height
+        fillColor   -- Fill color of the box
+        transparent -- Should the box be transparent? (in practive the TPave is not created)
+
+        Keyword arguments are forwarded to constructor of PlotText
+        """
+        # ROOT.TPave Set/GetX1NDC() etc don't seem to work as expected.
+        self._xmin = xmin
+        self._xmax = xmax
+        self._ymin = ymin
+        self._ymax = ymax
+        self._lineheight = lineheight
+        self._fillColor = fillColor
+        self._transparent = transparent
+        self._texts = []
+        self._textArgs = {}
+        self._textArgs.update(kwargs)
+
+        self._currenty = ymax
+
+    def addText(self, text):
+        """Add text to current position"""
+        self._currenty -= self._lineheight
+        self._texts.append(PlotText(self._xmin+0.01, self._currenty, text, **self._textArgs))
+
+    def width(self):
+        return self._xmax-self._xmin
+
+    def move(self, dx=0, dy=0, dw=0, dh=0):
+        """Move the box and the contained text objects
+
+        Arguments:
+        dx -- Movement in x (positive is to right)
+        dy -- Movement in y (positive is to up)
+        dw -- Increment of width (negative to decrease width)
+        dh -- Increment of height (negative to decrease height)
+
+        dx and dy affect to both box and text objects, dw and dh
+        affect the box only.
+        """
+        self._xmin += dx
+        self._xmax += dx
+        if self._ymin is not None:
+            self._ymin += dy
+        self._ymax += dy
+
+        self._xmax += dw
+        if self._ymin is not None:
+            self._ymin -= dh
+
+        for t in self._texts:
+            t._x += dx
+            t._y += dy
+
+    def Draw(self, options=""):
+        """Draw the box and the text to the current TPad.
+
+        Arguments:
+        options -- Forwarded to ROOT.TPave.Draw(), and the Draw() of the contained objects
+        """
+        if not self._transparent:
+            ymin = self.ymin
+            if ymin is None:
+                ymin = self.currenty - 0.01
+            self._pave = ROOT.TPave(self.xmin, self.ymin, self.xmax, self.ymax, 0, "NDC")
+            self._pave.SetFillColor(self.fillColor)
+            self._pave.Draw(options)
+        for t in self._texts:
+            t.Draw(options)
+
 def _copyStyle(src, dst):
     properties = []
     if hasattr(src, "GetLineColor") and hasattr(dst, "SetLineColor"):
@@ -952,6 +1426,7 @@ class Plot:
         staty        -- Stat box y coordinate (default 0.8)
         statyadjust  -- List of floats for stat box y coordinate adjustments (default None)
         normalizeToUnitArea -- Normalize histograms to unit area? (default False)
+        normalizeToNumberOfEvents -- Normalize histograms to number of events? If yes, the PlotFolder needs 'numberOfEventsHistogram' set to a histogram filled once per event (default False)
         profileX     -- Take histograms via ProfileX()? (default False)
         fitSlicesY   -- Take histograms via FitSlicesY() (default False)
         rebinX       -- rebin x axis (default None)
@@ -970,9 +1445,12 @@ class Plot:
         legendDh     -- Float for changing TLegend height for separate=True (default None)
         legend       -- Bool to enable/disable legend (default True)
         adjustMarginRight  -- Float for adjusting right margin (default None)
-        ratioYmin    -- Float for y axis minimum in ratio pad (default 0.9)
-        ratioYmax    -- Float for y axis maximum in ratio pad (default 1.1)
+        ratio        -- Possibility to disable ratio for this particular plot (default None)
+        ratioYmin    -- Float for y axis minimum in ratio pad (default: list of values)
+        ratioYmax    -- Float for y axis maximum in ratio pad (default: list of values)
+        ratioFit     -- Fit straight line in ratio? (default None)
         ratioUncertainty -- Plot uncertainties on ratio? (default True)
+        ratioCoverageXrange -- Range of x axis values (xmin,xmax) to limit the automatic ratio y axis range calculation to (default None for disabled)
         histogramModifier -- Function to be called in create() to modify the histograms (default None)
         """
         self._name = name
@@ -1012,6 +1490,7 @@ class Plot:
         _set("statyadjust", None)
 
         _set("normalizeToUnitArea", False)
+        _set("normalizeToNumberOfEvents", False)
         _set("profileX", False)
         _set("fitSlicesY", False)
         _set("rebinX", None)
@@ -1035,9 +1514,12 @@ class Plot:
 
         _set("adjustMarginRight", None)
 
-        _set("ratioYmin", 0.9)
-        _set("ratioYmax", 1.1)
+        _set("ratio", None)
+        _set("ratioYmin", [0, 0.2, 0.5, 0.7, 0.8, 0.9, 0.95])
+        _set("ratioYmax", [1.05, 1.1, 1.2, 1.3, 1.5, 1.8, 2, 2.5, 3, 4, 5])
+        _set("ratioFit", None)
         _set("ratioUncertainty", True)
+        _set("ratioCoverageXrange", None)
 
         _set("histogramModifier", None)
 
@@ -1070,6 +1552,11 @@ class Plot:
                 return True
         return False
 
+    def isRatio(self, ratio):
+        if self._ratio is None:
+            return ratio
+        return ratio and self._ratio
+
     def getName(self):
         if self._outname is not None:
             return self._outname
@@ -1082,7 +1569,7 @@ class Plot:
         """Return true if the ratio uncertainty should be drawn"""
         return self._ratioUncertainty
 
-    def _createOne(self, name, index, tdir):
+    def _createOne(self, name, index, tdir, nevents):
         """Create one histogram from a TDirectory."""
         if tdir == None:
             return None
@@ -1091,17 +1578,20 @@ class Plot:
         if isinstance(name, list):
             name = name[index]
 
-        return _getOrCreateObject(tdir, name)
+        h = _getOrCreateObject(tdir, name)
+        if h is not None and self._normalizeToNumberOfEvents and nevents is not None and nevents != 0:
+            h.Scale(1.0/nevents)
+        return h
 
-    def create(self, tdirs, requireAllHistograms=False):
+    def create(self, tdirNEvents, requireAllHistograms=False):
         """Create histograms from list of TDirectories"""
-        self._histograms = [self._createOne(self._name, i, tdir) for i, tdir in enumerate(tdirs)]
+        self._histograms = [self._createOne(self._name, i, tdirNEvent[0], tdirNEvent[1]) for i, tdirNEvent in enumerate(tdirNEvents)]
 
         if self._fallback is not None:
             profileX = [self._profileX]*len(self._histograms)
             for i in xrange(0, len(self._histograms)):
                 if self._histograms[i] is None:
-                    self._histograms[i] = self._createOne(self._fallback["name"], i, tdirs[i])
+                    self._histograms[i] = self._createOne(self._fallback["name"], i, tdirNEvents[i][0], tdirNEvents[i][1])
                     profileX[i] = self._fallback.get("profileX", self._profileX)
 
         if self._histogramModifier is not None:
@@ -1258,22 +1748,31 @@ class Plot:
                 # Merge bin labels with difflib
                 for h in histos[1:]:
                     labels = [h.GetXaxis().GetBinLabel(i) for i in xrange(1, h.GetNbinsX()+1)]
-                    diff = difflib.ndiff(xbinlabels, labels)
+                    diff = difflib.unified_diff(xbinlabels, labels, n=max(len(xbinlabels), len(labels)))
                     xbinlabels = []
                     operation = []
+                    for item in diff: # skip the "header" lines
+                        if item[:2] == "@@":
+                            break
                     for item in diff:
                         operation.append(item[0])
-                        lab = item[2:]
+                        lab = item[1:]
                         if lab in xbinlabels:
                             # pick the last addition of the bin
                             ind = xbinlabels.index(lab)
                             if operation[ind] == "-" and operation[-1] == "+":
                                 xbinlabels.remove(lab)
+                                del operation[ind] # to keep xbinlabels and operation indices in sync
                             elif operation[ind] == "+" and operation[-1] == "-":
+                                del operation[-1] # to keep xbinlabels and operation indices in sync
                                 continue
                             else:
                                 raise Exception("This should never happen")
                         xbinlabels.append(lab)
+                    # unified_diff returns empty diff if xbinlabels and labels are equal
+                    # so if xbinlabels is empty here, it can be just set to labels
+                    if len(xbinlabels) == 0:
+                        xbinlabels = labels
 
                 histos_new = []
                 for h in histos:
@@ -1354,6 +1853,38 @@ class Plot:
                              xmin=self._xmin, xmax=self._xmax,
                              ymin=self._ymin, ymax=self._ymax)
 
+        # need to keep these in memory
+        self._mainAdditional = []
+        self._ratioAdditional = []
+
+        if ratio:
+            self._ratios = _calculateRatios(histos, self._ratioUncertainty) # need to keep these in memory too ...
+            ratioHistos = filter(lambda h: h is not None, [r.getRatio() for r in self._ratios[1:]])
+
+            if len(ratioHistos) > 0:
+                ratioBoundsY = _findBoundsY(ratioHistos, ylog=False, ymin=self._ratioYmin, ymax=self._ratioYmax, coverage=0.68, coverageRange=self._ratioCoverageXrange)
+            else:
+                ratioBoundsY = (0.9, 1,1) # hardcoded default in absence of valid ratio calculations
+
+            if self._ratioFit is not None:
+                for i, rh in enumerate(ratioHistos):
+                    tf_line = ROOT.TF1("line%d"%i, "[0]+x*[1]")
+                    tf_line.SetRange(self._ratioFit["rangemin"], self._ratioFit["rangemax"])
+                    fitres = rh.Fit(tf_line, "RINSQ")
+                    tf_line.SetLineColor(rh.GetMarkerColor())
+                    tf_line.SetLineWidth(2)
+                    self._ratioAdditional.append(tf_line)
+                    box = PlotTextBox(xmin=self._ratioFit.get("boxXmin", 0.14), ymin=None, # None for automatix
+                                      xmax=self._ratioFit.get("boxXmax", 0.35), ymax=self._ratioFit.get("boxYmax", 0.09),
+                                      color=rh.GetMarkerColor(), font=43, size=11, lineheight=0.02)
+                    box.move(dx=(box.width()+0.01)*i)
+                    #box.addText("Const: %.4f" % fitres.Parameter(0))
+                    #box.addText("Slope: %.4f" % fitres.Parameter(1))
+                    box.addText("Const: %.4f#pm%.4f" % (fitres.Parameter(0), fitres.ParError(0)))
+                    box.addText("Slope: %.4f#pm%.4f" % (fitres.Parameter(1), fitres.ParError(1)))
+                    self._mainAdditional.append(box)
+
+
         # Create bounds before stats in order to have the
         # SetRangeUser() calls made before the fit
         #
@@ -1368,7 +1899,7 @@ class Plot:
             frame = FrameTGraph2D(pad, bounds, histos, ratioOrig, ratioFactor)
         else:
             if ratio:
-                ratioBounds = (bounds[0], self._ratioYmin, bounds[2], self._ratioYmax)
+                ratioBounds = (bounds[0], ratioBoundsY[0], bounds[2], ratioBoundsY[1])
                 frame = FrameRatio(pad, bounds, ratioBounds, ratioFactor, nrows, xbinlabels, self._xbinlabelsize, self._xbinlabeloption)
             else:
                 frame = Frame(pad, bounds, nrows, xbinlabels, self._xbinlabelsize, self._xbinlabeloption)
@@ -1422,20 +1953,26 @@ class Plot:
         for h in histos:
             h.Draw(opt)
 
+        for addl in self._mainAdditional:
+            addl.Draw("same")
+
         # Draw ratios
         if ratio and len(histos) > 0:
             frame._padRatio.cd()
-            self._ratios = self._calculateRatios(histos) # need to keep these in memory too ...
-            if self._ratioUncertainty and self._ratios[0]._ratio is not None:
-                self._ratios[0]._ratio.SetFillStyle(1001)
-                self._ratios[0]._ratio.SetFillColor(ROOT.kGray)
-                self._ratios[0]._ratio.SetLineColor(ROOT.kGray)
-                self._ratios[0]._ratio.SetMarkerColor(ROOT.kGray)
-                self._ratios[0]._ratio.SetMarkerSize(0)
+            firstRatio = self._ratios[0].getRatio()
+            if self._ratioUncertainty and firstRatio is not None:
+                firstRatio.SetFillStyle(1001)
+                firstRatio.SetFillColor(ROOT.kGray)
+                firstRatio.SetLineColor(ROOT.kGray)
+                firstRatio.SetMarkerColor(ROOT.kGray)
+                firstRatio.SetMarkerSize(0)
                 self._ratios[0].draw("E2")
                 frame._padRatio.RedrawAxis("G") # redraw grid on top of the uncertainty of denominator
             for r in self._ratios[1:]:
                 r.draw()
+
+            for addl in self._ratioAdditional:
+                addl.Draw("same")
 
         frame.redrawAxis()
         self._frame = frame # keep the frame in memory for sure
@@ -1460,193 +1997,6 @@ class Plot:
                 first = False
             else:
                 legend.AddEntry(h, label, "LP")
-
-    def _calculateRatios(self, histos):
-        """Calculate the ratios for a list of histograms"""
-
-        def _divideOrZero(numerator, denominator):
-            if denominator == 0:
-                return 0
-            return numerator/denominator
-
-        def equal(a, b):
-            if a == 0. and b == 0.:
-                return True
-            return abs(a-b)/max(abs(a),abs(b)) < 1e-3
-
-        def findBins(wrap, bins_xvalues):
-            ret = []
-            currBin = wrap.begin()
-            i = 0
-            while i < len(bins_xvalues) and currBin < wrap.end():
-                (xcenter, xlow, xhigh) = bins_xvalues[i]
-                xlowEdge = xcenter-xlow
-                xupEdge = xcenter+xhigh
-
-                (curr_center, curr_low, curr_high) = wrap.xvalues(currBin)
-                curr_lowEdge = curr_center-curr_low
-                curr_upEdge = curr_center+curr_high
-
-                if equal(xlowEdge, curr_lowEdge) and equal(xupEdge,  curr_upEdge):
-                    ret.append(currBin)
-                    currBin += 1
-                    i += 1
-                elif curr_upEdge <= xlowEdge:
-                    currBin += 1
-                elif curr_lowEdge >= xupEdge:
-                    ret.append(None)
-                    i += 1
-                else:
-                    ret.append(None)
-                    currBin += 1
-                    i += 1
-            if len(ret) != len(bins_xvalues):
-                ret.extend([None]*( len(bins_xvalues) - len(ret) ))
-            return ret
-
-        # Define wrappers for TH1/TGraph/TGraph2D to have uniform interface
-        # TODO: having more global wrappers would make some things simpler also elsewhere in the code
-        class WrapTH1:
-            def __init__(self, th1, uncertainty):
-                self._th1 = th1
-                self._uncertainty = uncertainty
-
-                xaxis = th1.GetXaxis()
-                xaxis_arr = xaxis.GetXbins()
-                if xaxis_arr.GetSize() > 0: # unequal binning
-                    lst = [xaxis_arr[i] for i in xrange(0, xaxis_arr.GetSize())]
-                    arr = array.array("d", lst)
-                    self._ratio = ROOT.TH1F("foo", "foo", xaxis.GetNbins(), arr)
-                else:
-                    self._ratio = ROOT.TH1F("foo", "foo", xaxis.GetNbins(), xaxis.GetXmin(), xaxis.GetXmax())
-                _copyStyle(th1, self._ratio)
-                self._ratio.SetStats(0)
-                self._ratio.SetLineColor(ROOT.kBlack)
-                self._ratio.SetLineWidth(1)
-            def draw(self, style=None):
-                st = style
-                if st is None:
-                    if self._uncertainty:
-                        st = "EP"
-                    else:
-                        st = "HIST P"
-                self._ratio.Draw("same "+st)
-            def begin(self):
-                return 1
-            def end(self):
-                return self._th1.GetNbinsX()+1
-            def xvalues(self, bin):
-                xval = self._th1.GetBinCenter(bin)
-                xlow = xval-self._th1.GetXaxis().GetBinLowEdge(bin)
-                xhigh = self._th1.GetXaxis().GetBinUpEdge(bin)-xval
-                return (xval, xlow, xhigh)
-            def yvalues(self, bin):
-                yval = self._th1.GetBinContent(bin)
-                yerr = self._th1.GetBinError(bin)
-                return (yval, yerr, yerr)
-            def y(self, bin):
-                return self._th1.GetBinContent(bin)
-            def divide(self, bin, scale):
-                self._ratio.SetBinContent(bin, _divideOrZero(self._th1.GetBinContent(bin), scale))
-                self._ratio.SetBinError(bin, _divideOrZero(self._th1.GetBinError(bin), scale))
-            def makeRatio(self):
-                pass
-
-        class WrapTGraph:
-            def __init__(self, gr, uncertainty):
-                self._gr = gr
-                self._uncertainty = uncertainty
-                self._xvalues = []
-                self._xerrslow = []
-                self._xerrshigh = []
-                self._yvalues = []
-                self._yerrshigh = []
-                self._yerrslow = []
-            def draw(self, style=None):
-                if self._ratio is None:
-                    return
-                st = style
-                if st is None:
-                    if self._uncertainty:
-                        st = "PZ"
-                    else:
-                        st = "PX"
-                self._ratio.Draw("same "+st)
-            def begin(self):
-                return 0
-            def end(self):
-                return self._gr.GetN()
-            def xvalues(self, bin):
-                return (self._gr.GetX()[bin], self._gr.GetErrorXlow(bin), self._gr.GetErrorXhigh(bin))
-            def yvalues(self, bin):
-                return (self._gr.GetY()[bin], self._gr.GetErrorYlow(bin), self._gr.GetErrorYhigh(bin))
-            def y(self, bin):
-                return self._gr.GetY()[bin]
-            def divide(self, bin, scale):
-                # Ignore bin if denominator is zero
-                if scale == 0:
-                    return
-                # No more items in the numerator
-                if bin >= self._gr.GetN():
-                    return
-                # denominator is missing an item
-                xvals = self.xvalues(bin)
-                xval = xvals[0]
-
-                self._xvalues.append(xval)
-                self._xerrslow.append(xvals[1])
-                self._xerrshigh.append(xvals[2])
-                yvals = self.yvalues(bin)
-                self._yvalues.append(yvals[0] / scale)
-                if self._uncertainty:
-                    self._yerrslow.append(yvals[1] / scale)
-                    self._yerrshigh.append(yvals[2] / scale)
-                else:
-                    self._yerrslow.append(0)
-                    self._yerrshigh.append(0)
-            def makeRatio(self):
-                if len(self._xvalues) == 0:
-                    self._ratio = None
-                    return
-                self._ratio = ROOT.TGraphAsymmErrors(len(self._xvalues), array.array("d", self._xvalues), array.array("d", self._yvalues),
-                                                     array.array("d", self._xerrslow), array.array("d", self._xerrshigh), 
-                                                     array.array("d", self._yerrslow), array.array("d", self._yerrshigh))
-                _copyStyle(self._gr, self._ratio)
-        class WrapTGraph2D(WrapTGraph):
-            def __init__(self, gr, uncertainty):
-                WrapTGraph.__init__(self, gr, uncertainty)
-            def xvalues(self, bin):
-                return (self._gr.GetX()[bin], self._gr.GetErrorX(bin), self._gr.GetErrorX(bin))
-            def yvalues(self, bin):
-                return (self._gr.GetY()[bin], self._gr.GetErrorY(bin), self._gr.GetErrorY(bin))
-
-        def wrap(o):
-            if isinstance(o, ROOT.TH1):
-                return WrapTH1(o, self._ratioUncertainty)
-            elif isinstance(o, ROOT.TGraph):
-                return WrapTGraph(o, self._ratioUncertainty)
-            elif isinstance(o, ROOT.TGraph2D):
-                return WrapTGraph2D(o, self._ratioUncertainty)
-
-        wrappers = [wrap(h) for h in histos]
-        ref = wrappers[0]
-
-        wrappers_bins = []
-        ref_bins = [ref.xvalues(b) for b in xrange(ref.begin(), ref.end())]
-        for w in wrappers:
-            wrappers_bins.append(findBins(w, ref_bins))
-
-        for i, bin in enumerate(xrange(ref.begin(), ref.end())):
-            (scale, ylow, yhigh) = ref.yvalues(bin)
-            for w, bins in zip(wrappers, wrappers_bins):
-                if bins[i] is None:
-                    continue
-                w.divide(bins[i], scale)
-
-        for w in wrappers:
-            w.makeRatio()
-
-        return wrappers
 
 class PlotGroup:
     """Group of plots, results a TCanvas"""
@@ -1722,17 +2072,17 @@ class PlotGroup:
         """Return True if the PlotGroup is intended only for pileup samples"""
         return self._onlyForPileup
 
-    def create(self, tdirectories, requireAllHistograms=False):
+    def create(self, tdirectoryNEvents, requireAllHistograms=False):
         """Create histograms from a list of TDirectories.
 
         Arguments:
-        tdirectories         -- List of TDirectory objects
+        tdirectoryNEvents    -- List of (TDirectory, nevents) pairs
         requireAllHistograms -- If True, a plot is produced if histograms from all files are present (default: False)
         """
         for plot in self._plots:
-            plot.create(tdirectories, requireAllHistograms)
+            plot.create(tdirectoryNEvents, requireAllHistograms)
 
-    def draw(self, legendLabels, prefix=None, separate=False, saveFormat=".pdf", ratio=False):
+    def draw(self, legendLabels, prefix=None, separate=False, saveFormat=".pdf", ratio=True):
         """Draw the histograms using values for a given algorithm.
 
         Arguments:
@@ -1740,7 +2090,7 @@ class PlotGroup:
         prefix        -- Optional string for file name prefix (default None)
         separate      -- Save the plots of a group to separate files instead of a file per group (default False)
         saveFormat   -- String specifying the plot format (default '.pdf')
-        ratio        -- Add ratio to the plot (default False)
+        ratio        -- Add ratio to the plot (default True)
         """
 
         if self._overrideLegendLabels is not None:
@@ -1769,7 +2119,7 @@ class PlotGroup:
 
         canvas.Divide(self._ncols, nrows)
         if ratio:
-            for i in xrange(0, len(self._plots)):
+            for i, plot in enumerate(self._plots):
                 pad = canvas.cd(i+1)
                 self._modifyPadForRatio(pad)
 
@@ -1812,15 +2162,16 @@ class PlotGroup:
         """Internal method to do the drawing to separate files per Plot instead of a file per PlotGroup"""
         width = 500
         height = 500
-        if ratio:
-            height = int(height*self._ratioFactor)
 
         canvas = _createCanvas(self._name+"Single", width, height)
+        canvasRatio = _createCanvas(self._name+"SingleRatio", width, int(height*self._ratioFactor))
+
         # from TDRStyle
-        canvas.SetTopMargin(0.05)
-        canvas.SetBottomMargin(0.13)
-        canvas.SetLeftMargin(0.16)
-        canvas.SetRightMargin(0.05)
+        for c in [canvas, canvasRatio]:
+            c.SetTopMargin(0.05)
+            c.SetBottomMargin(0.13)
+            c.SetLeftMargin(0.16)
+            c.SetRightMargin(0.05)
 
         lx1def = 0.6
         lx2def = 0.95
@@ -1833,13 +2184,16 @@ class PlotGroup:
             if plot.isEmpty():
                 continue
 
-            if ratio:
-                canvas.cd()
-                self._modifyPadForRatio(canvas)
+            ratioForThisPlot = plot.isRatio(ratio)
+            c = canvas
+            if ratioForThisPlot:
+                c = canvasRatio
+                c.cd()
+                self._modifyPadForRatio(c)
 
             # Draw plot to canvas
-            canvas.cd()
-            plot.draw(canvas, ratio, self._ratioFactor, 1)
+            c.cd()
+            plot.draw(c, ratioForThisPlot, self._ratioFactor, 1)
 
             if plot._legend:
                 # Setup legend
@@ -1859,42 +2213,16 @@ class PlotGroup:
                 if plot._legendDh is not None:
                     ly1 -= plot._legendDh
 
-                canvas.cd()
+                c.cd()
                 legend = self._createLegend(plot, legendLabels, lx1, ly1, lx2, ly2, textSize=0.03,
-                                            denomUncertainty=(ratio and plot.drawRatioUncertainty))
+                                            denomUncertainty=(ratioForThisPlot and plot.drawRatioUncertainty))
 
-            ret.extend(self._save(canvas, saveFormat, prefix=prefix, postfix="_"+plot.getName(), single=True))
+            ret.extend(self._save(c, saveFormat, prefix=prefix, postfix="_"+plot.getName(), single=True))
         return ret
 
     def _modifyPadForRatio(self, pad):
         """Internal method to set divide a pad to two for ratio plots"""
-        pad.Divide(1, 2)
-
-        divisionPoint = 1-1/self._ratioFactor
-
-        topMargin = pad.GetTopMargin()
-        bottomMargin = pad.GetBottomMargin()
-        divisionPoint += (1-divisionPoint)*bottomMargin # correct for (almost-)zeroing bottom margin of pad1
-        divisionPointForPad1 = 1-( (1-divisionPoint) / (1-0.02) ) # then correct for the non-zero bottom margin, but for pad1 only
-
-        # Set the lower point of the upper pad to divisionPoint
-        pad1 = pad.cd(1)
-        yup = 1.0
-        ylow = divisionPointForPad1
-        xup = 1.0
-        xlow = 0.0
-        pad1.SetPad(xlow, ylow, xup, yup)
-        pad1.SetFillStyle(4000) # transparent
-        pad1.SetBottomMargin(0.02) # need some bottom margin here for eps/pdf output (at least in ROOT 5.34)
-
-        # Set the upper point of the lower pad to divisionPoint
-        pad2 = pad.cd(2)
-        yup = divisionPoint
-        ylow = 0.0
-        pad2.SetPad(xlow, ylow, xup, yup)
-        pad2.SetFillStyle(4000) # transparent
-        pad2.SetTopMargin(0.0)
-        pad2.SetBottomMargin(bottomMargin/(self._ratioFactor*divisionPoint))
+        _modifyPadForRatio(pad, self._ratioFactor)
 
     def _createLegend(self, plot, legendLabels, lx1, ly1, lx2, ly2, textSize=0.016, denomUncertainty=True):
         if not self._legend:
@@ -1952,6 +2280,7 @@ class PlotFolder:
         purpose        -- html.PlotPurpose member class for the purpose of the folder, used for grouping of the plots to the HTML pages
         page           -- Optional string for the page in HTML generatin
         section        -- Optional string for the section within a page in HTML generation
+        numberOfEventsHistogram -- Optional path to histogram filled once per event. Needed if there are any plots normalized by number of events. Path is relative to "possibleDqmFolders".
         """
         self._plotGroups = list(plotGroups)
         self._loopSubFolders = kwargs.pop("loopSubFolders", True)
@@ -1961,6 +2290,7 @@ class PlotFolder:
         self._purpose = kwargs.pop("purpose", None)
         self._page = kwargs.pop("page", None)
         self._section = kwargs.pop("section", None)
+        self._numberOfEventsHistogram = kwargs.pop("numberOfEventsHistogram", None)
         if len(kwargs) > 0:
             raise Exception("Got unexpected keyword arguments: "+ ",".join(kwargs.keys()))
 
@@ -1987,6 +2317,9 @@ class PlotFolder:
     def getSection(self):
         return self._section
 
+    def getNumberOfEventsHistogram(self):
+        return self._numberOfEventsHistogram
+
     def append(self, plotGroup):
         self._plotGroups.append(plotGroup)
 
@@ -2002,34 +2335,34 @@ class PlotFolder:
                 return pg
         raise Exception("No PlotGroup named '%s'" % name)
 
-    def create(self, dirs, labels, isPileupSample=True, requireAllHistograms=False):
+    def create(self, dirsNEvents, labels, isPileupSample=True, requireAllHistograms=False):
         """Create histograms from a list of TFiles.
 
         Arguments:
-        dirs   -- List of TDirectories
+        dirsNEvents   -- List of (TDirectory, nevents) pairs
         labels -- List of strings for legend labels corresponding the files
         isPileupSample -- Is sample pileup (some PlotGroups may limit themselves to pileup)
         requireAllHistograms -- If True, a plot is produced if histograms from all files are present (default: False)
         """
 
-        if len(dirs) != len(labels):
-            raise Exception("len(files) should be len(labels), now they are %d and %d" % (len(files), len(labels)))
+        if len(dirsNEvents) != len(labels):
+            raise Exception("len(dirsNEvents) should be len(labels), now they are %d and %d" % (len(dirsNEvents), len(labels)))
 
         self._labels = labels
 
         for pg in self._plotGroups:
             if pg.onlyForPileup() and not isPileupSample:
                 continue
-            pg.create(dirs, requireAllHistograms)
+            pg.create(dirsNEvents, requireAllHistograms)
 
-    def draw(self, prefix=None, separate=False, saveFormat=".pdf", ratio=False):
+    def draw(self, prefix=None, separate=False, saveFormat=".pdf", ratio=True):
         """Draw and save all plots using settings of a given algorithm.
 
         Arguments:
         prefix   -- Optional string for file name prefix (default None)
         separate -- Save the plots of a group to separate files instead of a file per group (default False)
         saveFormat   -- String specifying the plot format (default '.pdf')
-        ratio    -- Add ratio to the plot (default False)
+        ratio    -- Add ratio to the plot (default True)
         """
         ret = []
 
@@ -2182,7 +2515,8 @@ class PlotterFolder:
         """
 
         subfolder = dqmSubFolder.subfolder if dqmSubFolder is not None else None
-        dirs = []
+        neventsHisto = self._plotFolder.getNumberOfEventsHistogram()
+        dirsNEvents = []
 
         for tfile in files:
             ret = _getDirectoryDetailed(tfile, self._possibleDqmFolders, subfolder)
@@ -2194,9 +2528,15 @@ class PlotterFolder:
                         ret = _getDirectoryDetailed(tfile, self._possibleDqmFolders, fallback)
                         if ret is not GetDirectoryCode.SubDirNotExist:
                             break
-            dirs.append(GetDirectoryCode.codesToNone(ret))
+            d = GetDirectoryCode.codesToNone(ret)
+            nev = None
+            if neventsHisto is not None and tfile is not None:
+                hnev = _getObject(tfile, neventsHisto)
+                if hnev is not None:
+                    nev = hnev.GetEntries()
+            dirsNEvents.append( (d, nev) )
 
-        self._plotFolder.create(dirs, labels, isPileupSample, requireAllHistograms)
+        self._plotFolder.create(dirsNEvents, labels, isPileupSample, requireAllHistograms)
 
     def draw(self, *args, **kwargs):
         """Draw and save all plots using settings of a given algorithm."""
@@ -2265,6 +2605,9 @@ class PlotterItem:
             subFolders = []
         possibleDirFound = False
         for fname in files:
+            if fname is None:
+                continue
+
             isOpenFile = isinstance(fname, ROOT.TFile)
             if isOpenFile:
                 tfile = fname
@@ -2334,34 +2677,8 @@ class Plotter:
     """Contains PlotFolders, i.e. the information what plots to do, and creates a helper object to actually produce the plots."""
     def __init__(self):
         self._plots = []
-
-        _absoluteSize = True
-        if _absoluteSize:
-            font = 43
-            titleSize = 22
-            labelSize = 22
-            statSize = 14
-        else:
-            font = 42
-            titleSize = 0.05
-            labelSize = 0.05
-            statSize = 0.025
-
-        ROOT.gROOT.SetStyle("Plain")
-        ROOT.gStyle.SetPadRightMargin(0.07)
-        ROOT.gStyle.SetPadLeftMargin(0.13)
-        ROOT.gStyle.SetTitleFont(font, "XYZ")
-        ROOT.gStyle.SetTitleSize(titleSize, "XYZ")
-        ROOT.gStyle.SetTitleOffset(1.2, "Y")
-        #ROOT.gStyle.SetTitleFontSize(0.05)
-        ROOT.gStyle.SetLabelFont(font, "XYZ")
-        ROOT.gStyle.SetLabelSize(labelSize, "XYZ")
-        ROOT.gStyle.SetTextSize(labelSize)
-        ROOT.gStyle.SetStatFont(font)
-        ROOT.gStyle.SetStatFontSize(statSize)
-
+        _setStyle()
         ROOT.TH1.AddDirectory(False)
-        ROOT.TGaxis.SetMaxDigits(4)
 
     def append(self, *args, **kwargs):
         """Append a plot folder to the plotter.

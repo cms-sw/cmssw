@@ -40,6 +40,15 @@ public:
     inline raw_type getRaw(const unsigned which) const
        {return which >= nRaw_ ? INVALID_RAW : raw_[which];}
 
+    // Check whether the "ok" flag is set in the dataframe.
+    //
+    // If "checkAllTimeSlices" is "true" or if the raw data
+    // does not contain the "sample of interest" time slice,
+    // we are going to check all time slices. Otherwise only
+    // the "sample of interest" time slice is checked.
+    //
+    bool isDataframeOK(bool checkAllTimeSlices = false) const;
+
 private:
     HcalDetId id_;
 

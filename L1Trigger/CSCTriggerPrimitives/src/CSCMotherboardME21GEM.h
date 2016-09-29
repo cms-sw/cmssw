@@ -76,8 +76,6 @@ class CSCMotherboardME21GEM : public CSCMotherboard
 		     CSCCLCTDigi bestCLCT, CSCCLCTDigi secondCLCT,
                      CSCCorrelatedLCTDigi& lct1, CSCCorrelatedLCTDigi& lct2,
                      const GEMPadsBX& pads = GEMPadsBX(), const GEMPadsBX& copads = GEMPadsBX());
- 
-  void matchGEMPads();
   
   void correlateLCTsGEM(CSCALCTDigi bestALCT, CSCALCTDigi secondALCT,
 			GEMPadDigi gemPad,
@@ -143,24 +141,6 @@ class CSCMotherboardME21GEM : public CSCMotherboard
 
   // masterswitch
   bool runME21ILT_;
-
-  /// Do GEM matching?
-  bool do_gem_matching;
-
-  /// GEM matching dphi and deta
-  double gem_match_delta_phi_odd;
-  double gem_match_delta_phi_even;
-  double gem_match_delta_eta;
-
-  /// delta BX for GEM pads matching
-  int gem_match_delta_bx;
-
-  /// min eta of LCT for which we require GEM match (we don't throw out LCTs below this min eta) 
-  double gem_match_min_eta;
-  double gem_match_max_eta;
-
-  /// whether to throw out GEM-fiducial LCTs that have no gem match
-  bool gem_clear_nomatch_lcts;
 
   // debug gem matching
   bool debug_gem_matching;

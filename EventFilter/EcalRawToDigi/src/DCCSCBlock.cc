@@ -273,7 +273,7 @@ int DCCSCBlock::unpackXtalData(unsigned int expStripID, unsigned int expXtalID){
 }
 
 
-void DCCSCBlock::fillEcalElectronicsError( std::auto_ptr<EcalElectronicsIdCollection> * errorColection){
+void DCCSCBlock::fillEcalElectronicsError( std::unique_ptr<EcalElectronicsIdCollection> * errorColection){
 
   const int activeDCC = mapper_->getActiveSM();
 

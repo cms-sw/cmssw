@@ -51,8 +51,6 @@ class HcalRecHitsClient : public DQMEDHarvester {
 
   virtual void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &);
   
-  virtual void runClient_(DQMStore::IBooker &, DQMStore::IGetter &);   
-
   int HcalRecHitsEndjob(const std::vector<MonitorElement*> &hcalMEs);
 
 };

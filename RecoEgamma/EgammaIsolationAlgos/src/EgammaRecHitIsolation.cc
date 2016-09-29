@@ -83,6 +83,8 @@ double EgammaRecHitIsolation::getSum_(const reco::Candidate* emObject,bool retur
     std::vector< std::pair<DetId, float> >::const_iterator rhIt;
     
     for(int subdetnr=0; subdetnr<=1 ; subdetnr++){  // look in barrel and endcap
+      if( nullptr == subdet_[subdetnr] ) continue;
+
       CaloSubdetectorGeometry::DetIdSet chosen = subdet_[subdetnr]->getCells(pclu,extRadius_);// select cells around cluster
       EcalRecHitCollection::const_iterator j = caloHits_.end();
 
@@ -199,6 +201,7 @@ double EgammaRecHitIsolation::getSum_(const reco::SuperCluster* sc, bool returnE
     
     
     for(int subdetnr=0; subdetnr<=1 ; subdetnr++){  // look in barrel and endcap
+      if( nullptr == subdet_[subdetnr] ) continue;
       CaloSubdetectorGeometry::DetIdSet chosen = subdet_[subdetnr]->getCells(pclu,extRadius_);// select cells around cluster
       EcalRecHitCollection::const_iterator j=caloHits_.end();
       for (CaloSubdetectorGeometry::DetIdSet::const_iterator  i = chosen.begin ();i!= chosen.end ();++i){//loop selected cells

@@ -1,7 +1,7 @@
 #ifndef HCALSIMPLEAMPLITUDEZS_H
 #define HCALSIMPLEAMPLITUDEZS_H 1
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
 
@@ -17,7 +17,7 @@
 	
 \author J. Mans - Minnesota
 */
-class HcalSimpleAmplitudeZS : public edm::EDProducer {
+class HcalSimpleAmplitudeZS : public edm::stream::EDProducer<> {
 public:
   explicit HcalSimpleAmplitudeZS(const edm::ParameterSet& ps);
   virtual ~HcalSimpleAmplitudeZS();

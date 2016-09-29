@@ -170,10 +170,6 @@ namespace edm {
                                                  &(historyAppenders_[index]),
                                                  index,
                                                  false /*not primary process*/);
-      ep->preModuleDelayedGetSignal_.connect(std::cref(items.actReg_->preModuleEventDelayedGetSignal_));
-      ep->postModuleDelayedGetSignal_.connect(std::cref(items.actReg_->postModuleEventDelayedGetSignal_));
-      ep->preReadFromSourceSignal_.connect(std::cref(items.actReg_->preEventReadFromSourceSignal_));
-      ep->postReadFromSourceSignal_.connect(std::cref(items.actReg_->postEventReadFromSourceSignal_));
       principalCache_.insert(ep);
     }
     if(hasSubProcesses) {
@@ -216,13 +212,15 @@ namespace edm {
     // object(s) in the parent process from the event. This next call is needed for
     // getByToken to work properly. Normally, this is done by the worker, but since
     // a SubProcess is not a module, it has no worker.
-    updateLookup(InEvent, *parentPreg_->productLookup(InEvent));
+    updateLookup(InEvent, *parentPreg_->productLookup(InEvent),false);
 
     if(!droppedBranchIDToKeptBranchID().empty()) {
       fixBranchIDListsForEDAliases(droppedBranchIDToKeptBranchID());
     }
     ServiceRegistry::Operate operate(serviceToken_);
     pathsAndConsumesOfModules_.initialize(schedule_.get(), preg_);
+    //NOTE: this may throw
+    checkForModuleDependencyCorrectness(pathsAndConsumesOfModules_, false);
     actReg_->preBeginJobSignal_(pathsAndConsumesOfModules_, processContext_);
     schedule_->beginJob(*preg_);
     if(hasSubProcesses()) {

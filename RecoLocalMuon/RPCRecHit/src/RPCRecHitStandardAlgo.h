@@ -24,7 +24,8 @@ class RPCRecHitStandardAlgo : public RPCRecHitBaseAlgo {
   virtual bool compute(const RPCRoll& roll,
                        const RPCCluster& cluster,
                        LocalPoint& point,
-                       LocalError& error) const;
+                       LocalError& error,
+                       float& time, float& timeErr) const;
 
 
   virtual bool compute(const RPCRoll& roll,
@@ -32,7 +33,8 @@ class RPCRecHitStandardAlgo : public RPCRecHitBaseAlgo {
                        const float& angle,
                        const GlobalPoint& globPos,
                        LocalPoint& point,
-                       LocalError& error) const;
+                       LocalError& error,
+                       float& time, float& timeErr) const;
 };
 #endif
 

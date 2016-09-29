@@ -248,9 +248,9 @@ PFEGammaProducer::produce(edm::Event& iEvent,
   
 
   // reset output collection  
-  egCandidates_.reset( new reco::PFCandidateCollection );   
-  egExtra_.reset( new reco::PFCandidateEGammaExtraCollection ); 
-  sClusters_.reset( new reco::SuperClusterCollection );      
+  egCandidates_ = std::make_unique<reco::PFCandidateCollection>();
+  egExtra_ = std::make_unique<reco::PFCandidateEGammaExtraCollection>();
+  sClusters_ = std::make_unique<reco::SuperClusterCollection>();
     
   // Get the EE-PS associations
   edm::Handle<reco::PFCluster::EEtoPSAssociation> eetops;
@@ -435,8 +435,8 @@ PFEGammaProducer::produce(edm::Event& iEvent,
   }
   
   //build collections of output CaloClusters from the used PFClusters
-  std::auto_ptr<reco::CaloClusterCollection> caloClustersEBEE(new reco::CaloClusterCollection);
-  std::auto_ptr<reco::CaloClusterCollection> caloClustersES(new reco::CaloClusterCollection);
+  auto caloClustersEBEE = std::make_unique<reco::CaloClusterCollection>();
+  auto caloClustersES = std::make_unique<reco::CaloClusterCollection>();
   
   std::map<edm::Ptr<reco::CaloCluster>, unsigned int> pfClusterMapEBEE; //maps of pfclusters to caloclusters 
   std::map<edm::Ptr<reco::CaloCluster>, unsigned int> pfClusterMapES;  
@@ -469,8 +469,8 @@ PFEGammaProducer::produce(edm::Event& iEvent,
   }
   
   //put calocluster output collections in event and get orphan handles to create ptrs
-  const edm::OrphanHandle<reco::CaloClusterCollection> &caloClusHandleEBEE = iEvent.put(caloClustersEBEE,ebeeClustersCollection_);
-  const edm::OrphanHandle<reco::CaloClusterCollection> &caloClusHandleES = iEvent.put(caloClustersES,esClustersCollection_);
+  const edm::OrphanHandle<reco::CaloClusterCollection> &caloClusHandleEBEE = iEvent.put(std::move(caloClustersEBEE),ebeeClustersCollection_);
+  const edm::OrphanHandle<reco::CaloClusterCollection> &caloClusHandleES = iEvent.put(std::move(caloClustersES),esClustersCollection_);
   
   //relink superclusters to output caloclusters
   for( auto& sc : *sClusters_ ) {
@@ -494,14 +494,14 @@ PFEGammaProducer::produce(edm::Event& iEvent,
   
   //create and fill references to single leg conversions
   edm::RefProd<reco::ConversionCollection> convProd = iEvent.getRefBeforePut<reco::ConversionCollection>();
-  singleLegConv_.reset(new reco::ConversionCollection);  
+  singleLegConv_ = std::make_unique<reco::ConversionCollection>();  
   createSingleLegConversions(*egExtra_, *singleLegConv_, convProd);
   
   // release our demonspawn into the wild to cause havoc
-  iEvent.put(sClusters_);
-  iEvent.put(egExtra_);  
-  iEvent.put(singleLegConv_);
-  iEvent.put(egCandidates_); 
+  iEvent.put(std::move(sClusters_));
+  iEvent.put(std::move(egExtra_));
+  iEvent.put(std::move(singleLegConv_));
+  iEvent.put(std::move(egCandidates_));
 }
 
 //PFEGammaAlgo: a new method added to set the parameters for electron and photon reconstruction. 

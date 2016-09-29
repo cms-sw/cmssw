@@ -37,8 +37,8 @@ void PFClusterTimeSelector::produce(edm::Event& iEvent,
 
   edm::Handle<reco::PFClusterCollection> clusters; 
   iEvent.getByToken(clusters_,clusters);
-  std::auto_ptr<reco::PFClusterCollection> out(new reco::PFClusterCollection);
-  std::auto_ptr<reco::PFClusterCollection> outOOT(new reco::PFClusterCollection);
+  auto out = std::make_unique<reco::PFClusterCollection>();
+  auto outOOT = std::make_unique<reco::PFClusterCollection>();
 
   for(const auto& cluster : *clusters ) {    
     const double energy = cluster.energy();
@@ -67,8 +67,8 @@ void PFClusterTimeSelector::produce(edm::Event& iEvent,
 
 
 
-  iEvent.put( out);
-  iEvent.put( outOOT,"OOT");
+  iEvent.put(std::move(out));
+  iEvent.put(std::move(outOOT),"OOT");
 
 }
 

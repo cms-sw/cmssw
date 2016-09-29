@@ -24,7 +24,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -34,10 +34,10 @@
 // class declaration
 //
 
-class Mixing2DB : public edm::EDAnalyzer {
+class Mixing2DB : public edm::one::EDAnalyzer<> {
    public:
       explicit Mixing2DB(const edm::ParameterSet&);
-      ~Mixing2DB();
+      virtual ~Mixing2DB();
 
       static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 

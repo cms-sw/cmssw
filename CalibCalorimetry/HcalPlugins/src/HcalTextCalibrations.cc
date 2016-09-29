@@ -112,14 +112,6 @@ HcalTextCalibrations::HcalTextCalibrations ( const edm::ParameterSet& iConfig )
       setWhatProduced (this, &HcalTextCalibrations::produceDcsMap);
       findingRecord <HcalDcsMapRcd> ();
     }
-    else if (objectName == "CholeskyMatrices") {
-      setWhatProduced (this, &HcalTextCalibrations::produceCholeskyMatrices);
-      findingRecord <HcalCholeskyMatricesRcd> ();
-    }
-    else if (objectName == "CovarianceMatrices") {
-      setWhatProduced (this, &HcalTextCalibrations::produceCovarianceMatrices);
-      findingRecord <HcalCovarianceMatricesRcd> ();
-    }
     else if (objectName == "RecoParams") {
       setWhatProduced (this, &HcalTextCalibrations::produceRecoParams);
       findingRecord <HcalRecoParamsRcd> ();
@@ -144,14 +136,30 @@ HcalTextCalibrations::HcalTextCalibrations ( const edm::ParameterSet& iConfig )
       setWhatProduced (this, &HcalTextCalibrations::produceFlagHFDigiTimeParams);
       findingRecord <HcalFlagHFDigiTimeParamsRcd> ();
     }
+    else if (objectName == "SiPMParameters") {
+      setWhatProduced (this, &HcalTextCalibrations::produceSiPMParameters);
+      findingRecord <HcalSiPMParametersRcd> ();
+    }
+    else if (objectName == "SiPMCharacteristics") {
+      setWhatProduced (this, &HcalTextCalibrations::produceSiPMCharacteristics);
+      findingRecord <HcalSiPMCharacteristicsRcd> ();
+    }
+    else if (objectName == "TPChannelParameters") {
+      setWhatProduced (this, &HcalTextCalibrations::produceTPChannelParameters);
+      findingRecord <HcalTPChannelParametersRcd> ();
+    }
+    else if (objectName == "TPParameters") {
+      setWhatProduced (this, &HcalTextCalibrations::produceTPParameters);
+      findingRecord <HcalTPParametersRcd> ();
+    }
     else {
       std::cerr << "HcalTextCalibrations-> Unknown object name '" << objectName 
 		<< "', known names are: "
 		<< "Pedestals PedestalWidths Gains GainWidths QIEData QIETypes ChannelQuality ElectronicsMap "
 		<< "FrontEndMap ZSThresholds RespCorrs LUTCorrs PFCorrs TimeCorrs L1TriggerObjects "
-		<< "ValidationCorrs LutMetadata DcsValues DcsMap CholeskyMatrices CovarianceMatrices "
+		<< "ValidationCorrs LutMetadata DcsValues DcsMap "
 		<< "RecoParams LongRecoParams ZDCLowGainFraction FlagHFDigiTimeParams MCParams "
-		<< std::endl;
+		<< "SiPMParameters SiPMCharacteristics" << std::endl;
     }
   }
   //  setWhatProduced(this);
@@ -328,20 +336,6 @@ std::unique_ptr<HcalDcsMap> HcalTextCalibrations::produceDcsMap (const HcalDcsMa
   return produce_impl<HcalDcsMap> (mInputs ["DcsMap"]);
 }
 
-std::unique_ptr<HcalCovarianceMatrices> HcalTextCalibrations::produceCovarianceMatrices (const HcalCovarianceMatricesRcd& rcd) {
-  edm::ESHandle<HcalTopology> htopo;
-  rcd.getRecord<HcalRecNumberingRecord>().get(htopo);
-  const HcalTopology* topo=&(*htopo);
-  return produce_impl<HcalCovarianceMatrices> (topo,mInputs ["CovarianceMatrices"]);
-}
-
-std::unique_ptr<HcalCholeskyMatrices> HcalTextCalibrations::produceCholeskyMatrices (const HcalCholeskyMatricesRcd& rcd) {
-  edm::ESHandle<HcalTopology> htopo;
-  rcd.getRecord<HcalRecNumberingRecord>().get(htopo);
-  const HcalTopology* topo=&(*htopo);
-  return produce_impl<HcalCholeskyMatrices> (topo,mInputs ["CholeskyMatrices"]);
-}
-
 std::unique_ptr<HcalRecoParams> HcalTextCalibrations::produceRecoParams (const HcalRecoParamsRcd& rcd) {
   edm::ESHandle<HcalTopology> htopo;
   rcd.getRecord<HcalRecNumberingRecord>().get(htopo);
@@ -381,4 +375,26 @@ std::unique_ptr<HcalFlagHFDigiTimeParams> HcalTextCalibrations::produceFlagHFDig
   rcd.getRecord<HcalRecNumberingRecord>().get(htopo);
   const HcalTopology* topo=&(*htopo);
   return produce_impl<HcalFlagHFDigiTimeParams> (topo,mInputs ["FlagHFDigiTimeParams"]);
+}
+
+std::unique_ptr<HcalSiPMParameters> HcalTextCalibrations::produceSiPMParameters (const HcalSiPMParametersRcd& rcd) {
+  edm::ESHandle<HcalTopology> htopo;
+  rcd.getRecord<HcalRecNumberingRecord>().get(htopo);
+  const HcalTopology* topo=&(*htopo);
+  return produce_impl<HcalSiPMParameters> (topo,mInputs ["SiPMParameters"]);
+}
+
+std::unique_ptr<HcalSiPMCharacteristics> HcalTextCalibrations::produceSiPMCharacteristics (const HcalSiPMCharacteristicsRcd& rcd) {
+  return produce_impl<HcalSiPMCharacteristics> (mInputs ["SiPMCharacteristics"]);
+}
+
+std::unique_ptr<HcalTPChannelParameters> HcalTextCalibrations::produceTPChannelParameters (const HcalTPChannelParametersRcd& rcd) {
+  edm::ESHandle<HcalTopology> htopo;
+  rcd.getRecord<HcalRecNumberingRecord>().get(htopo);
+  const HcalTopology* topo=&(*htopo);
+  return produce_impl<HcalTPChannelParameters> (topo,mInputs ["TPChannelParameters"]);
+}
+
+std::unique_ptr<HcalTPParameters> HcalTextCalibrations::produceTPParameters (const HcalTPParametersRcd& rcd) {
+  return produce_impl<HcalTPParameters> (mInputs ["TPParameters"]);
 }

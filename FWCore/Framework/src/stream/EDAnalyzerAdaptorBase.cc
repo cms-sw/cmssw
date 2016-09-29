@@ -102,24 +102,16 @@ EDAnalyzerAdaptorBase::itemsToGetFromEvent() const {
 
 void
 EDAnalyzerAdaptorBase::updateLookup(BranchType iType,
-                                    ProductResolverIndexHelper const& iHelper) {
+                                    ProductResolverIndexHelper const& iHelper,
+                                    bool iPrefetchMayGet) {
   for(auto mod: m_streamModules) {
-    mod->updateLookup(iType,iHelper);
+    mod->updateLookup(iType,iHelper,iPrefetchMayGet);
   }
 }
 
 const edm::EDConsumerBase*
 EDAnalyzerAdaptorBase::consumer() const {
   return m_streamModules[0];
-}
-
-void
-EDAnalyzerAdaptorBase::modulesDependentUpon(std::string const& iProcessName,
-                                            std::string const& iModuleLabel,
-                                            bool iPrint,
-                                            std::vector<char const*>& oModuleLabels) const {
-  assert(not m_streamModules.empty());
-  return m_streamModules[0]->modulesDependentUpon(iProcessName, iModuleLabel, iPrint, oModuleLabels);
 }
 
 void

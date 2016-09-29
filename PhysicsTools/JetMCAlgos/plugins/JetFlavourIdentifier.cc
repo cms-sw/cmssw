@@ -152,7 +152,7 @@ void JetFlavourIdentifier::produce( Event& iEvent, const EventSetup& iEs )
   } else {
     jfmc = new JetFlavourMatchingCollection();
   }
-  auto_ptr<reco::JetFlavourMatchingCollection> jetFlavMatching(jfmc);
+  std::unique_ptr<reco::JetFlavourMatchingCollection> jetFlavMatching(jfmc);
 
   // Loop over the matched partons and see which match.
   for ( JetMatchedPartonsCollection::const_iterator j  = theTagByRef->begin();
@@ -278,7 +278,7 @@ void JetFlavourIdentifier::produce( Event& iEvent, const EventSetup& iEs )
 
 
   // Put the object into the event.
-  iEvent.put(  jetFlavMatching );
+  iEvent.put(std::move(jetFlavMatching));
 
 }
 

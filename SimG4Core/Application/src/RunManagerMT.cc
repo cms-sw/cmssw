@@ -5,6 +5,7 @@
 #include "SimG4Core/Application/interface/SimTrackManager.h"
 #include "SimG4Core/Application/interface/G4SimEvent.h"
 #include "SimG4Core/Application/interface/ParametrisedEMPhysics.h"
+#include "SimG4Core/Application/interface/CustomUIsession.h"
 
 #include "SimG4Core/Geometry/interface/DDDWorld.h"
 #include "SimG4Core/Geometry/interface/G4LogicalVolumeToDDLogicalPartMap.h"
@@ -69,9 +70,10 @@ RunManagerMT::RunManagerMT(edm::ParameterSet const & p):
       m_pRunAction(p.getParameter<edm::ParameterSet>("RunAction")),
       m_g4overlap(p.getParameter<edm::ParameterSet>("G4CheckOverlap")),
       m_G4Commands(p.getParameter<std::vector<std::string> >("G4Commands")),
-      m_fieldBuilder(nullptr)
+      m_p(p),m_fieldBuilder(nullptr)
 {    
   m_currentRun = nullptr;
+  m_UIsession.reset(new CustomUIsession());
   m_kernel = new G4MTRunManagerKernel();
 
   m_check = p.getUntrackedParameter<bool>("CheckOverlap",false);
@@ -150,7 +152,9 @@ void RunManagerMT::initG4(const DDCompactView *pDD, const MagneticField *pMF,
   edm::LogInfo("SimG4CoreApplication") 
     << "RunManagerMT: start initialisation of PhysicsList for master";
 
-  int verb = m_pPhysics.getUntrackedParameter<int>("Verbosity",0);
+  int verb = std::max(m_pPhysics.getUntrackedParameter<int>("Verbosity",0),
+		      m_p.getParameter<int>("SteppingVerbosity"));
+
   m_physicsList->SetDefaultCutValue(m_pPhysics.getParameter<double>("DefaultCutValue")*CLHEP::cm);
   m_physicsList->SetCutsWithDefault();
   m_prodCuts.reset(new DDG4ProductionCuts(map_, verb, m_pPhysics));	
@@ -221,7 +225,7 @@ void RunManagerMT::initG4(const DDCompactView *pDD, const MagneticField *pMF,
 
 void RunManagerMT::initializeUserActions() {
   m_runInterface.reset(new SimRunInterface(this, true));
-  m_userRunAction = new RunAction(m_pRunAction, m_runInterface.get());
+  m_userRunAction = new RunAction(m_pRunAction, m_runInterface.get(), true);
   Connect(m_userRunAction);
 }
 

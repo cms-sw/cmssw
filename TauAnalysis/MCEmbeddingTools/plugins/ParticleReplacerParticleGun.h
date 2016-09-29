@@ -31,7 +31,7 @@ class ParticleReplacerParticleGun: public ParticleReplacerBase
   virtual void beginJob();
   virtual void endJob();
 
-  std::auto_ptr<HepMC::GenEvent> produce(const std::vector<reco::Particle>&, const reco::Vertex* = 0, const HepMC::GenEvent* = 0, MCParticleReplacer* = 0);
+  std::unique_ptr<HepMC::GenEvent> produce(const std::vector<reco::Particle>&, const reco::Vertex* = 0, const HepMC::GenEvent* = 0, MCParticleReplacer* = 0);
 
  private:
   void correctTauMass(const std::vector<reco::Particle>&, std::vector<HepMC::FourVector>&);

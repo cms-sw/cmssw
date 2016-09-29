@@ -121,7 +121,7 @@ void MuIsolatorResultProducer<BT>::writeOutImpl(edm::Event& event, const CandMap
   //! make an output vec of what's to be written with a concrete type
   std::vector<RT> resV(results.size());   
   for (unsigned int i = 0; i< resV.size(); ++i) resV[i] = results[i].val<RT>(); 
-  std::auto_ptr<edm::ValueMap<RT> > outMap(new edm::ValueMap<RT>()); 
+  auto outMap = std::make_unique<edm::ValueMap<RT>>(); 
   typename edm::ValueMap<RT>::Filler filler(*outMap); 
 
   //! fill/insert of non-empty values only
@@ -130,7 +130,7 @@ void MuIsolatorResultProducer<BT>::writeOutImpl(edm::Event& event, const CandMap
     filler.fill(); 
   }
   
-  event.put(outMap); 
+  event.put(std::move(outMap)); 
 }
 
 

@@ -29,7 +29,7 @@ void
 JetSubstructurePacker::produce(edm::Event& iEvent, const edm::EventSetup&)
 {  
 
-  std::auto_ptr< std::vector<pat::Jet> > outputs( new std::vector<pat::Jet> );
+  auto outputs = std::make_unique<std::vector<pat::Jet>>();
  
   edm::Handle< edm::View<pat::Jet> > jetHandle;
   std::vector< edm::Handle< edm::View<pat::Jet> > > algoHandles;
@@ -121,7 +121,7 @@ JetSubstructurePacker::produce(edm::Event& iEvent, const edm::EventSetup&)
     }
   }
 
-  iEvent.put(outputs);
+  iEvent.put(std::move(outputs));
 
 }
 

@@ -7,7 +7,6 @@
 #include "DataFormats/L1THGCal/interface/HGCFETriggerDigi.h"
 #include "DataFormats/L1THGCal/interface/HGCFETriggerDigiFwd.h"
 #include "DataFormats/HGCDigi/interface/HGCDigiCollections.h"
-#include "DataFormats/ForwardDetId/interface/HGCTriggerDetId.h"
 
 #include "L1Trigger/L1THGCal/interface/HGCalTriggerGeometryBase.h"
 #include "L1Trigger/L1THGCal/interface/HGCalTriggerFECodecBase.h"
@@ -40,7 +39,7 @@ HGCalTriggerDigiProducer::
 HGCalTriggerDigiProducer(const edm::ParameterSet& conf):
   inputee_(consumes<HGCEEDigiCollection>(conf.getParameter<edm::InputTag>("eeDigis"))),
   inputfh_(consumes<HGCHEDigiCollection>(conf.getParameter<edm::InputTag>("fhDigis"))), 
-  inputbh_(consumes<HGCHEDigiCollection>(conf.getParameter<edm::InputTag>("bhDigis"))), 
+  //inputbh_(consumes<HGCHEDigiCollection>(conf.getParameter<edm::InputTag>("bhDigis"))), 
   backEndProcessor_(conf.getParameterSet("BEConfiguration")) {
   
   //setup geometry configuration
@@ -92,26 +91,56 @@ void HGCalTriggerDigiProducer::produce(edm::Event& e, const edm::EventSetup& es)
 
   e.getByToken(inputee_,ee_digis_h);
   e.getByToken(inputfh_,fh_digis_h);
-  e.getByToken(inputbh_,bh_digis_h);
+  //e.getByToken(inputbh_,bh_digis_h);
 
   const HGCEEDigiCollection& ee_digis = *ee_digis_h;
   const HGCHEDigiCollection& fh_digis = *fh_digis_h;
   const HGCHEDigiCollection& bh_digis = *bh_digis_h;
 
-  //we produce one output trigger digi per module in the FE
-  //so we use the geometry to tell us what to loop over
-  for( const auto& module : triggerGeometry_->modules() ) {    
+  // First find modules containing hits and prepare list of hits for each module
+  std::unordered_map<uint32_t, HGCEEDigiCollection> hit_modules_ee;
+  for(const auto& eedata : ee_digis) {
+    uint32_t module = triggerGeometry_->getModuleFromCell(eedata.id());
+    auto itr_insert = hit_modules_ee.emplace(module,HGCEEDigiCollection());
+    itr_insert.first->second.push_back(eedata);
+  }
+  std::unordered_map<uint32_t,HGCHEDigiCollection> hit_modules_fh;
+  for(const auto& fhdata : fh_digis) {
+    uint32_t module = triggerGeometry_->getModuleFromCell(fhdata.id());
+    auto itr_insert = hit_modules_fh.emplace(module, HGCHEDigiCollection());
+    itr_insert.first->second.push_back(fhdata);
+  }
+  // loop on modules containing hits and call front-end processing
+  // we produce one output trigger digi per module in the FE
+  fe_output->reserve(hit_modules_ee.size() + hit_modules_fh.size());
+  std::stringstream output;
+  for( const auto& module_hits : hit_modules_ee ) {        
     fe_output->push_back(l1t::HGCFETriggerDigi());
     l1t::HGCFETriggerDigi& digi = fe_output->back();
-    codec_->setDataPayload(*(module.second),ee_digis,fh_digis,bh_digis);
+    codec_->setDataPayload(*triggerGeometry_, module_hits.second,HGCHEDigiCollection(),HGCHEDigiCollection());
     codec_->encode(digi);
-    digi.setDetId( HGCTriggerDetId(module.first) );
-    std::stringstream output;
+    digi.setDetId( DetId(module_hits.first) );
+    codec_->print(digi,output);
+    edm::LogInfo("HGCalTriggerDigiProducer")
+      << output.str();
+    codec_->unSetDataPayload(); 
+    output.str(std::string());
+    output.clear();
+  } //end loop on EE modules
+  for( const auto& module_hits : hit_modules_fh ) {        
+    fe_output->push_back(l1t::HGCFETriggerDigi());
+    l1t::HGCFETriggerDigi& digi = fe_output->back();
+    codec_->setDataPayload(*triggerGeometry_,HGCEEDigiCollection(),module_hits.second,HGCHEDigiCollection());
+    codec_->encode(digi);
+    digi.setDetId( DetId(module_hits.first) );
     codec_->print(digi,output);
     edm::LogInfo("HGCalTriggerDigiProducer")
       << output.str();
     codec_->unSetDataPayload();
-  }
+    output.str(std::string());
+    output.clear();
+  } //end loop on FH modules
+
 
   // get the orphan handle and fe digi collection
   auto fe_digis_handle = e.put(std::move(fe_output));

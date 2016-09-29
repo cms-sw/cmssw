@@ -43,6 +43,7 @@
 #include "DataFormats/BTauReco/interface/JTATagInfo.h"
 #include "DataFormats/BTauReco/interface/JetTagInfo.h"
 #include "DataFormats/BTauReco/interface/CATopJetTagInfo.h"
+#include "DataFormats/BTauReco/interface/HTTTopJetTagInfo.h"
 
 namespace reco {
     typedef TrackTauImpactParameterAssociationCollection::map_type          TrackTauImpactParameterAssociationMapType;
@@ -249,6 +250,18 @@ namespace DataFormats_BTauReco {
     reco::CATopJetTagInfoRefProd                                        catopjet_rp;
     reco::CATopJetTagInfoRefVector                                      catopjet_rv;
     edm::Wrapper<reco::CATopJetTagInfoCollection>                       catopjet_wc;
+
+    reco::HTTTopJetProperties                                            htttopjetp;
+    std::pair<edm::RefToBase<reco::Jet>, reco::HTTTopJetProperties>      htttopjetp_p;
+
+    reco::HTTTopJetTagInfo                                               htttopjet;
+    reco::HTTTopJetTagInfoCollection                                     htttopjet_c;
+    reco::HTTTopJetTagInfoRef                                            htttopjet_r;
+    reco::HTTTopJetTagInfoRefProd                                        htttopjet_rp;
+    reco::HTTTopJetTagInfoRefVector                                      htttopjet_rv;
+    edm::Wrapper<reco::HTTTopJetTagInfoCollection>                       htttopjet_wc;
+    edm::reftobase::Holder<reco::BaseTagInfo, reco::HTTTopJetTagInfoRef> rb_htttopjet;
+    edm::reftobase::RefHolder<reco::HTTTopJetTagInfoRef>                 rbh_htttopjet; 
 
     std::vector<Measurement1D>                                          vm1d;
 

@@ -24,7 +24,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -42,11 +42,10 @@
 //
 namespace edm
 {
-class TestMixedSource : public edm::EDAnalyzer {
+  class TestMixedSource : public edm::one::EDAnalyzer<> {
    public:
       explicit TestMixedSource(const edm::ParameterSet&);
       ~TestMixedSource();
-
 
    private:
       virtual void beginJob() ;
@@ -80,7 +79,6 @@ class TestMixedSource : public edm::EDAnalyzer {
     edm::EDGetTokenT<CrossingFrame<SimTrack>> SimTrackToken_;
     edm::EDGetTokenT<CrossingFrame<SimVertex>> SimVertexToken_;
     edm::EDGetTokenT<CrossingFrame<edm::HepMCProduct>> HepMCToken_;
-
 
 };
 }//edm

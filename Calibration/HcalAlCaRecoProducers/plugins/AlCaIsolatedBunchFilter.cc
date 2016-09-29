@@ -21,8 +21,6 @@
 #include "DataFormats/Common/interface/Handle.h"
 //Triggers
 #include "DataFormats/Common/interface/TriggerResults.h"
-#include "DataFormats/HLTReco/interface/TriggerEvent.h"
-
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 //
 // class declaration
@@ -58,10 +56,9 @@ private:
   // ----------member data ---------------------------
   HLTConfigProvider             hltConfig_;
   std::vector<std::string>      trigJetNames_, trigIsoBunchNames_;
-  edm::InputTag                 triggerEvent_, theTriggerResultsLabel_;
+  edm::InputTag                 theTriggerResultsLabel_;
   std::string                   processName_;
   unsigned int                  nRun_, nAll_, nGood_;
-  edm::EDGetTokenT<trigger::TriggerEvent>  tok_trigEvt_;
   edm::EDGetTokenT<edm::TriggerResults>    tok_trigRes_;
 };
 
@@ -74,15 +71,13 @@ AlCaIsolatedBunchFilter::AlCaIsolatedBunchFilter(const edm::ParameterSet& iConfi
   trigJetNames_           = iConfig.getParameter<std::vector<std::string> >("TriggerJet");
   trigIsoBunchNames_      = iConfig.getParameter<std::vector<std::string> >("TriggerIsoBunch");
   processName_            = iConfig.getParameter<std::string>("ProcessName");
-  triggerEvent_           = iConfig.getParameter<edm::InputTag>("TriggerEventLabel");
   theTriggerResultsLabel_ = iConfig.getParameter<edm::InputTag>("TriggerResultLabel");
 
   // define tokens for access
-  tok_trigEvt_  = consumes<trigger::TriggerEvent>(triggerEvent_);
   tok_trigRes_  = consumes<edm::TriggerResults>(theTriggerResultsLabel_);
 
-  edm::LogInfo("AlCaIsoBunch") << "Input tag for trigger " << triggerEvent_
-			       << " and results " << theTriggerResultsLabel_
+  edm::LogInfo("AlCaIsoBunch") << "Input tag for trigger results "
+			       << theTriggerResultsLabel_
 			       << " with " << trigIsoBunchNames_.size() << ":"
 			       << trigJetNames_.size() << " trigger names and"
 			       << " process " << processName_ << std::endl;
@@ -115,63 +110,53 @@ bool AlCaIsolatedBunchFilter::filter(edm::Event& iEvent,
   if ((trigIsoBunchNames_.size() == 0) && (trigJetNames_.size() == 0)) {
     accept = true;
   } else {
-    trigger::TriggerEvent triggerEvent;
-    edm::Handle<trigger::TriggerEvent> triggerEventHandle;
-    iEvent.getByToken(tok_trigEvt_, triggerEventHandle);
-    if (!triggerEventHandle.isValid()) {
-      edm::LogWarning("HcalIsoBunch") << "Error! Can't get the product "
-                                      << triggerEvent_.label() ;
-    } else {
-      triggerEvent = *(triggerEventHandle.product());
-      /////////////////////////////TriggerResults
-      edm::Handle<edm::TriggerResults> triggerResults;
-      iEvent.getByToken(tok_trigRes_, triggerResults);
-      if (triggerResults.isValid()) {
-        std::vector<std::string> modules;
-        const edm::TriggerNames & triggerNames = iEvent.triggerNames(*triggerResults);
-        const std::vector<std::string> & triggerNames_ = triggerNames.triggerNames();
-	bool jet(false), isobunch(false);
-        for (unsigned int iHLT=0; iHLT<triggerResults->size(); iHLT++) {
-          int hlt    = triggerResults->accept(iHLT);
-	  if (!jet) {
-	    for (unsigned int i=0; i<trigJetNames_.size(); ++i) {
-	      if (triggerNames_[iHLT].find(trigJetNames_[i].c_str()) !=
-		  std::string::npos) {
-		if (hlt > 0) jet = true;	
-		if (jet) {
+    /////////////////////////////TriggerResults
+    edm::Handle<edm::TriggerResults> triggerResults;
+    iEvent.getByToken(tok_trigRes_, triggerResults);
+    if (triggerResults.isValid()) {
+      const edm::TriggerNames & triggerNames = iEvent.triggerNames(*triggerResults);
+      const std::vector<std::string> & triggerNames_ = triggerNames.triggerNames();
+      bool jet(false), isobunch(false);
+      for (unsigned int iHLT=0; iHLT<triggerResults->size(); iHLT++) {
+	int hlt    = triggerResults->accept(iHLT);
+	if (!jet) {
+	  for (unsigned int i=0; i<trigJetNames_.size(); ++i) {
+	    if (triggerNames_[iHLT].find(trigJetNames_[i].c_str()) !=
+		std::string::npos) {
+	      if (hlt > 0) jet = true;	
+	      if (jet) {
 #ifdef DebugLog
-		  edm::LogInfo("AlCaIsoBunch") << triggerNames_[iHLT] 
-					       << " has got HLT flag " << hlt 
-					       << ":" << jet << ":" << isobunch
-					       << std::endl;
+		edm::LogInfo("AlCaIsoBunch") << triggerNames_[iHLT] 
+					     << " has got HLT flag " << hlt 
+					     << ":" << jet << ":" << isobunch
+					     << std::endl;
 #endif
-		  break;
-		}
+		break;
 	      }
 	    }
 	  }
-	  if (!isobunch) {
-	    for (unsigned int i=0; i<trigIsoBunchNames_.size(); ++i) {
-	      if (triggerNames_[iHLT].find(trigIsoBunchNames_[i].c_str()) !=
-		  std::string::npos) {
-		if (hlt > 0) isobunch = true;
-		if (isobunch) {
+	}
+	if (!isobunch) {
+	  for (unsigned int i=0; i<trigIsoBunchNames_.size(); ++i) {
+	    if (triggerNames_[iHLT].find(trigIsoBunchNames_[i].c_str()) !=
+		std::string::npos) {
+	      if (hlt > 0) isobunch = true;
+	      if (isobunch) {
 #ifdef DebugLog
-		  edm::LogInfo("AlCaIsoBunch") << triggerNames_[iHLT] 
-					       << " has got HLT flag " << hlt 
-					       << ":" << jet << ":" << isobunch
-					       << std::endl;
+		edm::LogInfo("AlCaIsoBunch") << triggerNames_[iHLT] 
+					     << " has got HLT flag " << hlt 
+					     << ":" << jet << ":" << isobunch
+					     << std::endl;
 #endif
-		  break;
-		}
+		break;
 	      }
 	    }
 	  }
-	  if (jet && isobunch) {
-	    accept = true;
-	    break;
-	  }
-        }
+	}
+	if (jet && isobunch) {
+	  accept = true;
+	  break;
+	}
       }
     }
   }

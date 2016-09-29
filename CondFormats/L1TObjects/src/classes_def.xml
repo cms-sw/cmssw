@@ -10,7 +10,19 @@
     <field name="sparams_" mapping="blob"/>  
     <field name="uparams_" mapping="blob"/>  
   </class>
-    
+
+  <class name="L1TMuonEndCapParams">
+  </class>
+
+  <class name="L1TMuonEndCapForest::DTree"/>
+  <class name="L1TMuonEndCapForest::DForest"/>
+  <class name="L1TMuonEndCapForest::DForestColl"/>
+  <class name="L1TMuonEndCapForest::DForestMap"/>
+  <class name="L1TMuonEndCapForest">
+    <field name="forest_coll_" mapping="blob"/>  
+    <field name="forest_map_" mapping="blob"/>  
+  </class>
+  
   <class name="l1t::LUT">
     <field name="data_" mapping="blob"/>  
   </class>
@@ -144,9 +156,16 @@
   <class name="L1TriggerKey">
     <field name="m_recordToKey" mapping="blob" />
   </class>
+  <class name="L1TriggerKeyExt">
+      <field name="m_recordToKey" mapping="blob" />
+  </class>
   <class name="L1TriggerKeyList">
     <field name="m_recordKeyToken" mapping="blob" />
     <field name="m_tscKeyToToken" mapping="blob" />
+  </class>
+  <class name="L1TriggerKeyListExt">
+      <field name="m_recordKeyToken" mapping="blob" />
+      <field name="m_tscKeyToToken" mapping="blob" />
   </class>
   <class name="L1RCTParameters">
     <field name="HoverE_smear_high_" mapping="blob" />

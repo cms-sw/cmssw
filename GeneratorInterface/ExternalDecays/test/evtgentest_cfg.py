@@ -10,14 +10,13 @@ process.MessageLogger = cms.Service("MessageLogger",
     destinations = cms.untracked.vstring('cout')
 )
 
+#Before this test run for example Py6EvtGenFilter_cfg.py to produce the file
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring('file:/tmp/TestEvtGen.root')
 )
 
 process.Test = cms.EDAnalyzer("EvtGenTestAnalyzer",
-    HistOutFile = cms.untracked.string('Test.root'),
-    theSrc = cms.untracked.string('VtxSmeared')
+    HistOutFile = cms.untracked.string('Test.root')
 )
 
 process.p1 = cms.Path(process.Test)
-

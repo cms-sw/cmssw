@@ -3,6 +3,7 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/MessageLogger/interface/MessageDrop.h"
+using namespace edm;
 
 class UCTCTP7RawData {
 public:
@@ -12,7 +13,7 @@ public:
   UCTCTP7RawData(const uint32_t *d) : myDataPtr(d) {
     if(myDataPtr != 0) {
       if(sof() != 0xA110CA7E) {
-	edm::LogError("UCTCTP7RawData") << "Failed to see 0xA110CA7E at start - but continuing" << std::endl;
+	LogError("UCTCTP7RawData") << "Failed to see 0xA110CA7E at start - but continuing" << std::endl;
       }
     }
   }
@@ -33,11 +34,11 @@ public:
     uint32_t index = 0xDEADBEEF;
     if(cType == EBEE || cType == HBHE) {
       if(iPhi > 3) {
-	edm::LogError("UCTCTP7RawData") << "Incorrect iPhi; iPhi = " << iPhi << "; should be in [0,3]" << std::endl;
+	LogError("UCTCTP7RawData") << "Incorrect iPhi; iPhi = " << iPhi << "; should be in [0,3]" << std::endl;
 	return 0xDEADBEEF;
       }
       if(cEta < 1 || cEta > 28) {
-	edm::LogError("UCTCTP7RawData") << "Incorrect caloEta; cEta = " << cEta << "; should be in [1-28]" << std::endl;
+	LogError("UCTCTP7RawData") << "Incorrect caloEta; cEta = " << cEta << "; should be in [1-28]" << std::endl;
 	return 0xDEADBEEF;
       }
       // ECAL/HB+HE fragment size is 3 32-bit words
@@ -67,11 +68,11 @@ public:
     }
     else if(cType == HF) {
       if(iPhi > 1) {
-	edm::LogError("UCTCTP7RawData") << "HF iPhi should be 0 or 1 (for a , b) - invalid iPhi  = " << iPhi << std::endl;
+	LogError("UCTCTP7RawData") << "HF iPhi should be 0 or 1 (for a , b) - invalid iPhi  = " << iPhi << std::endl;
 	return 0xDEADBEEF;
       }
       if(cEta < 30 || cEta > 41) {
-	edm::LogError("UCTCTP7RawData") << "HF cEta should be between 30 and 41 - invalid cEta = " << cEta << std::endl;
+	LogError("UCTCTP7RawData") << "HF cEta should be between 30 and 41 - invalid cEta = " << cEta << std::endl;
 	return 0xDEADBEEF;
       }
       if(negativeEta) {
@@ -98,7 +99,7 @@ public:
       }
     }
     else {
-      edm::LogError("UCTCTP7RawData") << "Unknown CaloType " << cType << std::endl;
+      LogError("UCTCTP7RawData") << "Unknown CaloType " << cType << std::endl;
       return 0xDEADBEEF;
     }
     return index;
@@ -230,29 +231,41 @@ public:
 
   bool isLinkMisaligned(CaloType cType, bool negativeEta, uint32_t cEta, uint32_t iPhi) {
     uint32_t linkStatus = getLinkStatus(cType, negativeEta, cEta, iPhi);
+    if ( cType == EBEE && (cEta==17||cEta==21) ) {
+      return ((linkStatus & 0x00000100) != 0);
+    }
     return ((linkStatus & 0x00001000) != 0);
   }
 
   bool isLinkInError(CaloType cType, bool negativeEta, uint32_t cEta, uint32_t iPhi) {
     uint32_t linkStatus = getLinkStatus(cType, negativeEta, cEta, iPhi);
+    if ( cType == EBEE && (cEta==17||cEta==21) ) {
+      return ((linkStatus & 0x00000200) != 0);
+    }
     return ((linkStatus & 0x00002000) != 0);
   }
 
   bool isLinkDown(CaloType cType, bool negativeEta, uint32_t cEta, uint32_t iPhi) {
     uint32_t linkStatus = getLinkStatus(cType, negativeEta, cEta, iPhi);
+    if ( cType == EBEE && (cEta==17||cEta==21) ) {
+      return ((linkStatus & 0x00000400) != 0);
+    }
     return ((linkStatus & 0x00004000) != 0);
   }
 
   bool isLinkMasked(CaloType cType, bool negativeEta, uint32_t cEta, uint32_t iPhi) {
     uint32_t linkStatus = getLinkStatus(cType, negativeEta, cEta, iPhi);
+    if ( cType == EBEE && (cEta==17||cEta==21) ) {
+      return ((linkStatus & 0x00000800) != 0);
+    }
     return ((linkStatus & 0x00008000) != 0);
   }
 
   void print() {
     using namespace std;
-    edm::LogError("UCTCTP7RawData") << "CTP7 Payload Header:" << endl;
-    edm::LogError("UCTCTP7RawData") << "No BX per L1A = " << dec << nBXPerL1A() << endl;
-    edm::LogError("UCTCTP7RawData") << "Calo BX ID    = " << dec << caloLinkBXID() << endl;
+    LogError("UCTCTP7RawData") << "CTP7 Payload Header:" << endl;
+    LogError("UCTCTP7RawData") << "No BX per L1A = " << dec << nBXPerL1A() << endl;
+    LogError("UCTCTP7RawData") << "Calo BX ID    = " << dec << caloLinkBXID() << endl;
     CaloType cType = EBEE;
     bool negativeEta = false;
     bool first = true;
@@ -264,9 +277,9 @@ public:
 	for(uint32_t iPhi = 0; iPhi < 4; iPhi++) {
 	  if(getLinkStatus(cType, negativeEta, cEta, iPhi) != 0 ||
 	     getET(cType, negativeEta, cEta, iPhi) != 0) {
-	    if(first) edm::LogError("UCTCTP7RawData") << "EcalET FG    LinkStatus" << endl;
+	    if(first) LogError("UCTCTP7RawData") << "EcalET FG    LinkStatus" << endl;
 	    first = false;
-	    edm::LogError("UCTCTP7RawData") << dec << setfill(' ') << setw(6) << getET(cType, negativeEta, cEta, iPhi) << "  "
+	    LogError("UCTCTP7RawData") << dec << setfill(' ') << setw(6) << getET(cType, negativeEta, cEta, iPhi) << "  "
 		 << getFB(cType, negativeEta, cEta, iPhi) << "    "
 		 << showbase << internal << setfill('0') << setw(10) << hex << getLinkStatus(cType, negativeEta, cEta, iPhi)
 		 << " (" << dec << getIndex(cType, negativeEta, cEta, iPhi) << ", " << negativeEta << ", " << cEta << ", " << iPhi << ")"
@@ -280,9 +293,9 @@ public:
 	for(uint32_t iPhi = 0; iPhi < 4; iPhi++) {
 	  if(getLinkStatus(cType, negativeEta, cEta, iPhi) != 0 ||
 	     getET(cType, negativeEta, cEta, iPhi) != 0) {
-	    if(first) edm::LogError("UCTCTP7RawData") << "HcalET Feature LinkStatus" << endl;
+	    if(first) LogError("UCTCTP7RawData") << "HcalET Feature LinkStatus" << endl;
 	    first = false;
-	    edm::LogError("UCTCTP7RawData") << dec << setfill(' ') << setw(6) << getET(cType, negativeEta, cEta, iPhi) << "  "
+	    LogError("UCTCTP7RawData") << dec << setfill(' ') << setw(6) << getET(cType, negativeEta, cEta, iPhi) << "  "
 		 << getFB(cType, negativeEta, cEta, iPhi) << "   "
 		 << showbase << internal << setfill('0') << setw(10) << hex << getLinkStatus(cType, negativeEta, cEta, iPhi)
 		 << " (" << dec << getIndex(cType, negativeEta, cEta, iPhi) << ", " << negativeEta << ", " << cEta << ", " << iPhi << ")"
@@ -297,9 +310,9 @@ public:
 	  if(iPhi == 1 && cEta == 40) cEta = 41;
 	  if(getLinkStatus(cType, negativeEta, cEta, iPhi) != 0 ||
 	     getET(cType, negativeEta, cEta, iPhi) != 0) {
-	    if(first) edm::LogError("UCTCTP7RawData") << "HF-ET    Feature LinkStatus" << endl;
+	    if(first) LogError("UCTCTP7RawData") << "HF-ET    Feature LinkStatus" << endl;
 	    first = false;
-	    edm::LogError("UCTCTP7RawData") << dec << setfill(' ') << setw(6) << getET(cType, negativeEta, cEta, iPhi) << "  "
+	    LogError("UCTCTP7RawData") << dec << setfill(' ') << setw(6) << getET(cType, negativeEta, cEta, iPhi) << "  "
 		 << dec << setfill(' ') << setw(2) << getHFFeatureBits(negativeEta, cEta, iPhi) << "   "
 		 << showbase << internal << setfill('0') << setw(10) << hex << getLinkStatus(cType, negativeEta, cEta, iPhi)
 		 << " (" << dec << getIndex(cType, negativeEta, cEta, iPhi) << ", " << negativeEta << ", " << cEta << ", " << iPhi << ")"
@@ -309,9 +322,9 @@ public:
       }
       first = true;
       for(uint32_t region = 0; region < 7; region++) {
-	if(first) edm::LogError("UCTCTP7RawData") << "Region      ET   EGVeto  TauVeto HitLocation" << endl;
+	if(first) LogError("UCTCTP7RawData") << "Region      ET   EGVeto  TauVeto HitLocation" << endl;
 	first = false;
-	edm::LogError("UCTCTP7RawData") << dec << setfill(' ') << setw(6) << region
+	LogError("UCTCTP7RawData") << dec << setfill(' ') << setw(6) << region
 	     << "  " << hex << showbase << internal << setfill('0') << setw(6) << getRegionET(negativeEta, region) << dec
 	     << "        " << getRegionEGVeto(negativeEta, region)
 	     << "        " << getRegionTauVeto(negativeEta, region)

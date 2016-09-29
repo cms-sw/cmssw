@@ -176,7 +176,7 @@ namespace cond {
 	editor = session.editIov( destTag );
 	if( editor.timeType() != p.timeType() )
 	  throwException( "TimeType of the destination tag does not match with the source tag timeType.", "importIovs"); 
-	  if( editor.payloadType() != p.payloadObjectType() )
+	if( editor.payloadType() != p.payloadObjectType() )
 	  throwException( "PayloadType of the destination tag does not match with the source tag payloadType.", "importIovs");
       } else {
 	editor = session.createIov( p.payloadObjectType(), destTag, p.timeType(), p.synchronizationType() );

@@ -56,7 +56,14 @@ if __name__ == '__main__':
                      136.731, #2016B Photon data
                      140.53, #2011 HI data
                      1330, #Run2 MC Zmm
-                     135.4 #Run 2 Zee ttbar
+                     135.4, #Run 2 Zee ttbar
+                     10021.0, #2017 tenmu
+                     10024.0, #2017 ttbar
+                     10424.0, #2017 NewPix ttbar
+                     10624.0, #2017 HCALdev ttbar
+                     10824.0, #2017 all new ttbar
+                     20024.0, #2023D1 ttbar (Run2 calo)
+                     22424.0, #2023D3Timing ttbar (HGCal + timing)
                      ],
         'jetmc': [5.1, 13, 15, 25, 38, 39], #MC
         'metmc' : [5.1, 15, 25, 37, 38, 39], #MC
@@ -69,6 +76,16 @@ if __name__ == '__main__':
 
     parser = optparse.OptionParser(usage)
 
+    parser.add_option('-m','--memoryOffset',
+                      help='memory of the wf for single core',
+                      dest='memoryOffset',
+                      default=3000
+                     )
+    parser.add_option('--addMemPerCore',
+                      help='increase of memory per each n > 1 core:  memory(n_core) = memoryOffset + (n_core-1) * memPerCore',
+                      dest='memPerCore',
+                      default=1500
+                     )
     parser.add_option('-j','--nproc',
                       help='number of processes. 0 Will use 4 processes, not execute anything but create the wfs',
                       dest='nProcs',
@@ -251,6 +268,8 @@ if __name__ == '__main__':
     if opt.fromScratch: opt.fromScratch = opt.fromScratch.split(',')
     if opt.nProcs: opt.nProcs=int(opt.nProcs)
     if opt.nThreads: opt.nThreads=int(opt.nThreads)
+    if (opt.memoryOffset): opt.memoryOffset=int(opt.memoryOffset)
+    if (opt.memPerCore): opt.memPerCore=int(opt.memPerCore)
 
     if opt.wmcontrol:
         performInjectionOptionTest(opt)

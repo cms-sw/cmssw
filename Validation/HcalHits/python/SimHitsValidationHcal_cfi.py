@@ -1,15 +1,11 @@
 import FWCore.ParameterSet.Config as cms
 
 simHitsValidationHcal = cms.EDAnalyzer("SimHitsValidationHcal",
-    ModuleLabel   = cms.untracked.string('g4SimHits'),
-    HitCollection = cms.untracked.string('HcalHits'),
-    Verbose       = cms.untracked.bool(False),
-    TestNumber    = cms.untracked.bool(False),
+    ModuleLabel   = cms.string('g4SimHits'),
+    HitCollection = cms.string('HcalHits'),
+    Verbose       = cms.bool(False),
+    TestNumber    = cms.bool(False),
 )
 
-from Configuration.StandardSequences.Eras import eras
-if eras.fastSim.isChosen():
-    simHitsValidationHcal.ModuleLabel = cms.untracked.string("famosSimHits")
-    
-
-
+from Configuration.Eras.Modifier_fastSim_cff import fastSim
+fastSim.toModify( simHitsValidationHcal, ModuleLabel = cms.string("famosSimHits") )

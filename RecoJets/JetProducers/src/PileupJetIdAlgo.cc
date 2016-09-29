@@ -10,6 +10,7 @@
 
 #include "TMatrixDSym.h"
 #include "TMatrixDSymEigen.h"
+#include "TMVA/MethodBDT.h"
 
 // ------------------------------------------------------------------------------------------
 const float large_val = std::numeric_limits<float>::max();
@@ -139,53 +140,28 @@ void setPtEtaPhi(const reco::Candidate & p, float & pt, float & eta, float &phi 
 	phi = p.phi();
 }
 
-// ------------------------------------------------------------------------------------------
+std::unique_ptr<const GBRForest> PileupJetIdAlgo::getMVA(const std::vector<std::string> &varList, const std::string &tmvaWeights)
+{
+        TMVA::Reader tmpTMVAReader( "!Color:Silent:!Error" );
+        for(std::vector<std::string>::const_iterator it=varList.begin(); it!=varList.end(); ++it) {
+            if( tmvaNames_[*it].empty() ) tmvaNames_[*it] = *it;
+            tmpTMVAReader.AddVariable( *it, variables_[ tmvaNames_[*it] ].first );
+        }
+        for(std::vector<std::string>::iterator it=tmvaSpectators_.begin(); it!=tmvaSpectators_.end(); ++it) {
+            if( tmvaNames_[*it].empty() ) tmvaNames_[*it] = *it;
+            tmpTMVAReader.AddSpectator( *it, variables_[ tmvaNames_[*it] ].first );
+        }
+        std::unique_ptr<TMVA::IMethod> temp( reco::details::loadTMVAWeights(&tmpTMVAReader,  tmvaMethod_.c_str(), tmvaWeights.c_str() ) );
+        return( std::make_unique<const GBRForest> ( dynamic_cast<TMVA::MethodBDT*>( tmpTMVAReader.FindMVA(tmvaMethod_.c_str()) ) ) );
+}
+
 void PileupJetIdAlgo::bookReader()
 {
-	if(etaBinnedWeights_){
-          for(int v=0; v<nEtaBins_;v++){
-                std::unique_ptr<TMVA::Reader> etaReader = std::unique_ptr<TMVA::Reader>(new TMVA::Reader("!Color:Silent"));
-                etaReader_.push_back(std::move(etaReader));
-          }
-	} else {
-		reader_ = std::unique_ptr<TMVA::Reader>(new TMVA::Reader("!Color:Silent"));
-	}
-	if(etaBinnedWeights_){
-          for(int v=0; v<nEtaBins_;v++){
-            for(std::vector<std::string>::iterator it=tmvaEtaVariables_.at(v).begin(); it!=tmvaEtaVariables_.at(v).end(); ++it) {
-                if(  tmvaNames_[*it].empty() ) { 
-			tmvaNames_[*it] = *it;
-		}
-                etaReader_.at(v)->AddVariable( *it, variables_[ tmvaNames_[*it] ].first );
-            }
-          }
-	} else {
-	  for(std::vector<std::string>::iterator it=tmvaVariables_.begin(); it!=tmvaVariables_.end(); ++it) {
-		if(  tmvaNames_[*it].empty() ) { 
-			tmvaNames_[*it] = *it;
-		}
-		reader_->AddVariable( *it, variables_[ tmvaNames_[*it] ].first );
-	  }
-	}
-	for(std::vector<std::string>::iterator it=tmvaSpectators_.begin(); it!=tmvaSpectators_.end(); ++it) {
-		if(  tmvaNames_[*it].empty() ) { 
-			tmvaNames_[*it] = *it;
-		}
-		if(etaBinnedWeights_){
-                  for(int v=0; v<nEtaBins_;v++){
-                        etaReader_.at(v)->AddSpectator( *it, variables_[ tmvaNames_[*it] ].first );
-                  }
-		} else {
-			reader_->AddSpectator( *it, variables_[ tmvaNames_[*it] ].first );
-		}
-	}
-	if(etaBinnedWeights_){
-          for(int v=0; v<nEtaBins_;v++){
-                reco::details::loadTMVAWeights(etaReader_.at(v).get(),  tmvaMethod_.c_str(), tmvaEtaWeights_.at(v).c_str() );
-          }
-	} else {
-		reco::details::loadTMVAWeights(reader_.get(),  tmvaMethod_.c_str(), tmvaWeights_.c_str() ); 
-	}
+        if(etaBinnedWeights_){
+          for(int v=0; v<nEtaBins_;v++) etaReader_.push_back(getMVA(tmvaEtaVariables_.at(v), tmvaEtaWeights_.at(v)));
+        } else {
+            reader_ = getMVA(tmvaVariables_, tmvaWeights_);
+        }
 }
 
 // ------------------------------------------------------------------------------------------
@@ -195,6 +171,19 @@ void PileupJetIdAlgo::set(const PileupJetIdentifier & id)
 }
 
 // ------------------------------------------------------------------------------------------
+
+float PileupJetIdAlgo::getMVAval(const std::vector<std::string> &varList, const std::unique_ptr<const GBRForest> &reader)
+{
+        float mvaval = -2;
+        std::vector<float> vars;
+        for(std::vector<std::string>::const_iterator it=varList.begin(); it!=varList.end(); ++it) {
+            std::pair<float *,float> var = variables_.at((*it).c_str());
+            vars.push_back( *var.first );
+        }
+        mvaval = reader->GetClassifier(vars.data());
+        return mvaval;
+}
+
 void PileupJetIdAlgo::runMva()
 {
   	if( cutBased_ ) {
@@ -207,15 +196,15 @@ void PileupJetIdAlgo::runMva()
                           if(std::abs(internalId_.jetEta_) > jEtaMax_.at(nEtaBins_-1)) {
                               internalId_.mva_ = -2.;
                           } else {
-                            for(int v=0; v<nEtaBins_;v++){
-                                if(std::abs(internalId_.jetEta_)>=jEtaMin_.at(v) && std::abs(internalId_.jetEta_)<jEtaMax_.at(v)){
-                                    internalId_.mva_ = etaReader_.at(v)->EvaluateMVA( tmvaMethod_.c_str() );
+                            for(int v=0; v<nEtaBins_; v++){
+                                if(std::abs(internalId_.jetEta_)>=jEtaMin_.at(v) && std::abs(internalId_.jetEta_)<jEtaMax_.at(v)) {
+                                    internalId_.mva_ = getMVAval(tmvaEtaVariables_.at(v),etaReader_.at(v));  
                                     break;
                                 }
                             } 
                           }
 			} else {
-			  internalId_.mva_ = reader_->EvaluateMVA( tmvaMethod_.c_str() );
+                            internalId_.mva_ = getMVAval(tmvaVariables_,reader_);
 			}
 		}
 		internalId_.idFlag_ = computeIDflag(internalId_.mva_,internalId_.jetPt_,internalId_.jetEta_);
@@ -338,7 +327,7 @@ PileupJetIdentifier PileupJetIdAlgo::computeIdVariables(const reco::Jet * jet, f
 	    float candPt = icand->pt();
 	    float candPtFrac = candPt/jetPt;
 	    float candDr   = reco::deltaR(*icand,*jet);
-	    float candDeta = std::abs( icand->eta() - jet->eta() );
+	    float candDeta = icand->eta() - jet->eta();
 	    float candDphi = reco::deltaPhi(*icand,*jet);
 	    float candPtDr = candPt * candDr;
 	    size_t icone = std::lower_bound(&cones[0],&cones[ncones],candDr) - &cones[0];
@@ -428,7 +417,7 @@ PileupJetIdentifier PileupJetIdAlgo::computeIdVariables(const reco::Jet * jet, f
 				sumTkPt += tkpt;
 				// 'classic' beta definition based on track-vertex association
 				bool inVtx0 = vtx->trackWeight ( lPF->trackRef()) > 0 ;
-					
+
 				bool inAnyOther = false;
 				// alternative beta definition based on track-vertex distance of closest approach
 				double dZ0 = std::abs(lPF->trackRef()->dz(vtx->position()));
@@ -459,21 +448,41 @@ PileupJetIdentifier PileupJetIdAlgo::computeIdVariables(const reco::Jet * jet, f
 				    internalId_.betaStar_ += tkpt;
 				}
 			   } 
-			}
+		        }
 			else{
-				// setting classic and alternative to be the same for now
 			        float tkpt = candPt;
 			        sumTkPt += tkpt;
 				bool inVtx0 = false; 
 				bool inVtxOther = false; 
-				if (lPack->fromPV() == pat::PackedCandidate::PVUsedInFit) inVtx0 = true;
-				if (lPack->fromPV() == 0) inVtxOther = true;
+				double dZ0=9999.;
+				double dZ_tmp = 9999.;
+				for (unsigned vtx_i = 0 ; vtx_i < allvtx.size() ; vtx_i++ ) {
+         			        auto iv = allvtx[vtx_i];
+
+					if (iv.isFake())
+						continue;
+
+					// Match to vertex in case of copy as above
+                                        bool isVtx0  = (iv.position() - vtx->position()).r() < 0.02;
+
+					if (isVtx0) {
+					    if (lPack->fromPV(vtx_i) == pat::PackedCandidate::PVUsedInFit) inVtx0 = true;
+					    if (lPack->fromPV(vtx_i) == 0) inVtxOther = true;
+					    dZ0 = lPack->dz(vtx_i);
+					}
+
+					if (fabs(lPack->dz(iv.position())) < fabs(dZ_tmp)) {
+						dZ_tmp = lPack->dz(iv.position());
+					}
+				}
 				if (inVtx0){
 					internalId_.betaClassic_ += tkpt;
-					internalId_.beta_ += tkpt;
-				}
-				if (inVtxOther){
+				} else if (inVtxOther){
 					internalId_.betaStarClassic_ += tkpt;
+				}
+				if (fabs(dZ0) < 0.2){
+					internalId_.beta_ += tkpt;
+				} else if (fabs(dZ_tmp) < 0.2){
 					internalId_.betaStar_ += tkpt;
 				}
 			}
@@ -617,7 +626,7 @@ PileupJetIdentifier PileupJetIdAlgo::computeIdVariables(const reco::Jet * jet, f
 	internalId_.sumNePt_ = sumPtNe;
 
 	internalId_.jetR_    = lLead->pt()/sumPt;
-	internalId_.jetRchg_ = lLeadEm->pt()/sumPt;
+	internalId_.jetRchg_ = lLeadCh->pt()/sumPt;
 	internalId_.dRMatch_ = dRmin;
 
 	if( sumTkPt != 0. ) {

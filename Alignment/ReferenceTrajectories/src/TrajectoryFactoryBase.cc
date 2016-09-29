@@ -8,14 +8,22 @@
 
 
 TrajectoryFactoryBase::TrajectoryFactoryBase(const edm::ParameterSet& config) :
+  TrajectoryFactoryBase(config, 1)
+{
+}
+
+TrajectoryFactoryBase::TrajectoryFactoryBase(const edm::ParameterSet& config,
+                                             unsigned int tracksPerTrajectory) :
   cfg_(config),
+  tracksPerTrajectory_(tracksPerTrajectory),
   materialEffects_(materialEffects(config.getParameter<std::string>("MaterialEffects"))),
   propDir_(propagationDirection(config.getParameter<std::string>("PropagationDirection"))),
   useWithoutDet_(config.getParameter<bool>("UseHitWithoutDet")),
   useInvalidHits_(config.getParameter<bool>("UseInvalidHits")),
   useProjectedHits_(config.getParameter<bool>("UseProjectedHits")),
   useBeamSpot_(config.getParameter<bool>("UseBeamSpot")),
-  includeAPEs_(config.getParameter<bool>("IncludeAPEs"))
+  includeAPEs_(config.getParameter<bool>("IncludeAPEs")),
+  allowZeroMaterial_(config.getParameter<bool>("AllowZeroMaterial"))
 {
   edm::LogInfo("Alignment")
     << "@SUB=TrajectoryFactoryBase"
@@ -27,7 +35,8 @@ TrajectoryFactoryBase::TrajectoryFactoryBase(const edm::ParameterSet& config) :
     << "\nuse invalid hits: " << (useInvalidHits_ ? "yes" : "no")
     << "\nuse projected hits: " << (useProjectedHits_ ? "yes" : "no")
     << "\nuse beamspot: " << (useBeamSpot_ ? "yes" : "no")
-    << "\ninclude APEs: " << (includeAPEs_ ? "yes" : "no");
+    << "\ninclude APEs: " << (includeAPEs_ ? "yes" : "no")
+    << "\nallow zero material: " << (allowZeroMaterial_ ? "yes" : "no");
 }
 
 

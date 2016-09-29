@@ -2,8 +2,8 @@
 // Usage:
 // .L CalibTree.C+g
 //  Run(inFileName, dirName, treeName, outFileName, corrFileName, dupFileName,
-//     useweight, useMean, nMin, inverse, ratMin, ratMax, ietaMax, 
-//     applyL1Cut, l1Cut, truncateFlag, writeDebugHisto, debug);
+//     useweight, useMean, nMin, inverse, ratMin, ratMax, ietaMax, applyL1Cut,
+//     l1Cut, truncateFlag, sysmode, fraction, writeDebugHisto, debug);
 //
 //  where:
 //
@@ -32,6 +32,8 @@
 //  l1Cut       (double)      = Cut value for the closeness parameter (0.5)
 //  truncateFlag    (bool)    = Flag to treat both depths of ieta 15, 16 of
 //                              HB as depth 1 (True -- treat together)
+//  sysmode         (int)     = systematic error study (0 if default)
+//  fraction        (double)  = fraction of events to be done (-1)    
 //  writeDebugHisto (bool)    = Flag to check writing intermediate histograms
 //                              in o/p file (False)
 //  debug           (bool)    = To produce more debug printing on screen
@@ -66,7 +68,8 @@ void Run(const char *inFileName="Silver",
 	 bool useweight=true, bool useMean=true, int nMin=0, bool inverse=false,
 	 double ratMin=0.25, double ratMax=10., int ietaMax=21, 
 	 int applyL1Cut=1, double l1Cut=0.5, bool truncateFlag=true,
-	 bool writeDebugHisto=false, bool debug=false);
+	 int sysmode=0, double fraction=1.0, bool writeDebugHisto=false,
+	 bool debug=false);
 
 // Fixed size dimensions of array or collections stored in the TTree if any.
 
@@ -131,9 +134,11 @@ public :
   TBranch                   *b_t_HitEnergies;   //!
   TBranch                   *b_t_trgbits;       //!
 
-  TH1D                                             *h_pbyE;
+  TH1D                                             *h_pbyE, *h_cvg;
   TProfile                                         *h_Ebyp_bfr, *h_Ebyp_aftr;
   bool                                              truncateFlag_, useMean_;
+  int                                               sysmode_;
+  double                                            log16by24_;
   std::vector<Long64_t>                             entries;
   std::vector<unsigned int>                         detIds;
   std::map<unsigned int, TH1D*>                     histos;
@@ -146,7 +151,8 @@ public :
     double fact0, fact1, fact2;
   };
 
-  CalibTree(const char *dupFileName, bool flag, bool useMean, TTree *tree=0);
+  CalibTree(const char *dupFileName, bool flag, bool useMean, int sysmode,
+	    TTree *tree=0);
   virtual ~CalibTree();
   virtual Int_t    Cut(Long64_t entry);
   virtual Int_t    GetEntry(Long64_t entry);
@@ -155,7 +161,7 @@ public :
   virtual Double_t Loop(int k, TFile *fout, bool useweight, int nMin, 
 			bool inverse, double rMin, double rMax, int ietaMax,
 			int applyL1Cut, double l1Cut, bool last, 
-			bool writeHisto, bool debug);
+			double fraction, bool writeHisto, bool debug);
   virtual Bool_t   Notify();
   virtual void     Show(Long64_t entry = -1);
   bool             goodTrack();
@@ -163,30 +169,50 @@ public :
   unsigned int     truncateId(unsigned int detId);
   std::pair<double,double> fitMean(TH1D*, int);
   void             makeplots(double rmin, double rmax, int ietaMax,
-			     bool useWeight, bool debug);
+			     bool useWeight, double fraction, bool debug);
   void             fitPol0(TH1D* hist, bool debug);
 };
 
+
+void doIt(const char* infile, const char* dup) {
+  char outf1[100], outf2[100];
+  double lumt(1.0), fac(0.5);
+  for (int k=0; k<4; ++k) {
+    sprintf (outf1, "%s_%d.root", infile, k);
+    sprintf (outf2, "%s_%d.txt",  infile, k);
+    double lumi = (k==0) ? -1 : lumt;
+    lumt *= fac;
+    Run(infile,"HcalIsoTrkAnalyzer","CalibTree",outf1,outf2,dup,true,true,0,true,0.25,5.0,25,1,0.5,false,0,lumi,false,false);
+  
+  }
+}
 
 void Run(const char *inFileName, const char *dirName, const char *treeName, 
 	 const char *outFileName, const char *corrFileName,
 	 const char *dupFileName, bool useweight, bool useMean, int nMin, 
 	 bool inverse, double ratMin, double ratMax, int ietaMax, 
-	 int applyL1Cut, double l1Cut, bool truncateFlag, bool writeHisto,
-	 bool debug) {
+	 int applyL1Cut, double l1Cut, bool truncateFlag, int sysmode,
+	 double fraction, bool writeHisto, bool debug) {
  
   char name[500];
   sprintf(name, "%s.root",inFileName);
   TFile *infile = TFile::Open(name);
   TDirectory *dir = (TDirectory*)infile->FindObjectAny(dirName);
   TTree *tree = (TTree*)dir->FindObjectAny(treeName);
+  Long64_t nentryTot = tree->GetEntriesFast();
+  Long64_t nentries = (fraction > 0.01 && fraction < 0.99) ? 
+    (Long64_t)(fraction*nentryTot) : nentryTot;
   std::cout << "Tree " << treeName << " " << tree << " in directory " 
 	    << dirName << " from file " << name << " with nentries (tracks): " 
-	    << tree->GetEntries() << std::endl;
-  CalibTree t(dupFileName, truncateFlag, useMean, tree); 
+	    << nentries << std::endl;
+  unsigned int k(0), kmax(30);
+  CalibTree t(dupFileName, truncateFlag, useMean, sysmode, tree); 
   t.h_pbyE      = new TH1D("pbyE", "pbyE", 100, -1.0, 9.0);
   t.h_Ebyp_bfr  = new TProfile("Ebyp_bfr","Ebyp_bfr",60,-30,30,0,10);
   t.h_Ebyp_aftr = new TProfile("Ebyp_aftr","Ebyp_aftr",60,-30,30,0,10);
+  t.h_cvg       = new TH1D("Cvg0", "Convergence", kmax, 0, kmax);
+  t.h_cvg->SetMarkerStyle(7);
+  t.h_cvg->SetMarkerSize(5.0);
   
   TFile *fout = new TFile(outFileName, "RECREATE");
   std::cout << "Output file: " << outFileName << " opened in recreate mode" 
@@ -194,11 +220,11 @@ void Run(const char *inFileName, const char *dirName, const char *treeName,
   fout->cd();
 
   double cvgs[100], itrs[100]; 
-  unsigned int k(0), kmax(30);
   for (; k<=kmax; ++k) {
     std::cout << "Calling Loop() "  << k << "th time\n"; 
     double cvg = t.Loop(k, fout, useweight, nMin, inverse, ratMin, ratMax, 
-			ietaMax, applyL1Cut, l1Cut, k==kmax, writeHisto, debug);
+			ietaMax, applyL1Cut, l1Cut, k==kmax, fraction, 
+			writeHisto, debug);
     itrs[k] = k;
     cvgs[k] = cvg;
     if (cvg < 0.00001) break;
@@ -206,21 +232,21 @@ void Run(const char *inFileName, const char *dirName, const char *treeName,
 
   t.writeCorrFactor(corrFileName, ietaMax);
 
+  fout->cd();
   TGraph *g_cvg;
   g_cvg = new TGraph(k, itrs, cvgs);
-  fout->cd();
   g_cvg->SetMarkerStyle(7);
   g_cvg->SetMarkerSize(5.0);
   g_cvg->Draw("AP");
   g_cvg->Write("Cvg");
   std::cout << "Finish looping after " << k << " iterations" << std::endl;
-  t.makeplots(ratMin, ratMax, ietaMax, useweight, debug);
+  t.makeplots(ratMin, ratMax, ietaMax, useweight, fraction, debug);
   fout->Close();
 }
 
-CalibTree::CalibTree(const char *dupFileName, bool flag, bool useMean,
+CalibTree::CalibTree(const char *dupFileName, bool flag, bool useMean, int mode,
 		     TTree *tree) : fChain(0), truncateFlag_(flag), 
-				    useMean_(useMean) {
+				    useMean_(useMean), sysmode_(mode) {
   // if parameter tree is not specified (or zero), connect the file
   // used to generate this class and read the Tree.
   if (tree == 0) {
@@ -231,6 +257,7 @@ CalibTree::CalibTree(const char *dupFileName, bool flag, bool useMean,
     TDirectory * dir = (TDirectory*)f->Get("/afs/cern.ch/work/g/gwalia/public/QCD_5_3000_PUS14.root:/isopf");
     dir->GetObject("CalibTree",tree);
   }
+  log16by24_ = std::log(16.0)/24.0;
   Init(tree, dupFileName);
 }
 
@@ -347,13 +374,15 @@ Int_t CalibTree::Cut(Long64_t ) {
 Double_t CalibTree::Loop(int loop, TFile *fout, bool useweight, int nMin,
 			 bool inverse, double rmin, double rmax, int ietaMax,
 			 int applyL1Cut, double l1Cut, bool last, 
-			 bool writeHisto, bool debug) {
+			 double fraction, bool writeHisto, bool debug) {
 
   if (fChain == 0) return 0;
-  Long64_t nentries = fChain->GetEntriesFast();
   Long64_t nbytes(0), nb(0);
+  Long64_t nentryTot = fChain->GetEntriesFast();
+  Long64_t nentries = (fraction > 0.01 && fraction < 0.99) ? 
+    (Long64_t)(fraction*nentryTot) : nentryTot;
   if (detIds.size() == 0) {
-    for (Long64_t jentry=0; jentry<nentries;jentry++) {
+    for (Long64_t jentry=0; jentry<nentries; jentry++) {
       Long64_t ientry = LoadTree(jentry);
       if (ientry < 0) break;
       nb = fChain->GetEntry(jentry);   nbytes += nb;
@@ -435,7 +464,10 @@ Double_t CalibTree::Loop(int loop, TFile *fout, bool useweight, int nMin,
 	Etot += hitEn;
       }
       double evWt = (useweight) ? t_EventWeight : 1.0; 
-      double ratio= Etot/(t_p-t_eMipDR);
+      double pufac= (sysmode_ == -1 || t_p > 0) ? 
+	(1.0 - 0.375 * (Etot/t_p) * 
+	 ((t_eHcalDelta/t_p)-0.45*(t_eHcalDelta/t_p)*(t_eHcalDelta/t_p))) : 1.;
+      double ratio= Etot*pufac/(t_p-t_eMipDR);
       if (loop==0) {
 	h_pbyE->Fill(ratio, evWt);
         h_Ebyp_bfr->Fill(t_ieta, ratio, evWt);
@@ -459,7 +491,8 @@ Double_t CalibTree::Loop(int loop, TFile *fout, bool useweight, int nMin,
 	  else 
 	    hitEn = (*t_HitEnergies)[idet];
 	  double Wi  = evWt * hitEn/Etot;
-	  double Fac = (inverse) ? (Etot/(t_p-t_eMipDR)) : ((t_p-t_eMipDR)/Etot);
+	  double Fac = (inverse) ? (pufac*Etot/(t_p-t_eMipDR)) : 
+	    ((t_p-t_eMipDR)/(pufac*Etot));
 	  double Fac2= Wi*Fac*Fac;
 	  TH1D* hist(0);
 	  std::map<unsigned int,TH1D*>::iterator itr = histos.find(detid);
@@ -642,13 +675,51 @@ Double_t CalibTree::Loop(int loop, TFile *fout, bool useweight, int nMin,
   double mean = (kountus > 0) ? (sumfactor/kountus) : 0;
   std::cout << "Mean deviation " << mean << " from 1 for " << kountus 
 	    << " DetIds" << std::endl;
+  h_cvg->SetBinContent(loop+1,mean);
+  if (last) h_cvg->Write("Cvg0");
   return mean;
 }
 
 bool CalibTree::goodTrack() {
-  bool ok = ((t_selectTk) && (t_qltyMissFlag) && (t_hmaxNearP < 2.0) && 
-	     (t_eMipDR < 1.0) && (t_mindR1 > 1.0) && (t_p > 40.0) &&
-	     (t_p < 60.0));
+  bool ok(true);
+  double cut(2.0);
+  if        (sysmode_ == 1) {
+    ok = ((t_qltyFlag) && (t_hmaxNearP < cut) && 
+	  (t_eMipDR < 1.0) && (t_mindR1 > 1.0) && (t_p > 40.0) &&
+	  (t_p < 60.0));
+  } else if (sysmode_ == 2) {
+    ok = ((t_qltyFlag) && (t_qltyPVFlag) && (t_hmaxNearP < cut) && 
+	  (t_eMipDR < 1.0) && (t_mindR1 > 1.0) && (t_p > 40.0) &&
+	  (t_p < 60.0));
+  } else if (sysmode_ == 3) {
+    ok = ((t_selectTk) && (t_hmaxNearP < cut) && 
+	  (t_eMipDR < 1.0) && (t_mindR1 > 1.0) && (t_p > 40.0) &&
+	  (t_p < 60.0));
+  } else if (sysmode_ == 4) {
+    ok = ((t_selectTk) && (t_qltyMissFlag) && (t_hmaxNearP < 0.0) && 
+	  (t_eMipDR < 1.0) && (t_mindR1 > 1.0) && (t_p > 40.0) &&
+	  (t_p < 60.0));
+  } else if (sysmode_ == 5) {
+    ok = ((t_selectTk) && (t_qltyMissFlag) && (t_hmaxNearP < cut) && 
+	  (t_eMipDR < 0.5) && (t_mindR1 > 1.0) && (t_p > 40.0) &&
+	  (t_p < 60.0));
+  } else if (sysmode_ == 6) {
+    ok = ((t_selectTk) && (t_qltyMissFlag) && (t_hmaxNearP < cut) && 
+	  (t_eMipDR < 2.0) && (t_mindR1 > 1.0) && (t_p > 40.0) &&
+	  (t_p < 60.0));
+  } else if (sysmode_ == 7) {
+    ok = ((t_selectTk) && (t_qltyMissFlag) && (t_hmaxNearP < cut) &&
+	  (t_eMipDR < 1.0) && (t_mindR1 > 0.5) && (t_p > 40.0) &&
+	  (t_p < 60.0));
+  } else if (sysmode_ ==-1) {
+    double eta = (t_ieta > 0) ? t_ieta : -t_ieta;
+    cut        = 2.0*exp(eta*log16by24_);
+    ok         = ((t_qltyFlag) && (t_hmaxNearP < cut) && (t_eMipDR < 1.0));
+  } else                    {
+    ok = ((t_selectTk) && (t_qltyMissFlag) && (t_hmaxNearP < cut) && 
+	  (t_eMipDR < 1.0) && (t_mindR1 > 1.0) && (t_p > 40.0) &&
+	  (t_p < 60.0));
+  }
   return ok;
 }
 
@@ -658,9 +729,9 @@ void CalibTree::writeCorrFactor(const char *corrFileName, int ietaMax) {
   if (!myfile.is_open()) {
     std::cout << "** ERROR: Can't open '" << corrFileName << std::endl;
   } else {
-    myfile << std::setprecision(4) << std::setw(10) << "detId" 
+    myfile << "#" << std::setprecision(4) << std::setw(10) << "detId" 
 	   << std::setw(10) << "ieta" << std::setw(10) << "depth" 
-	   << std::setw(10) << "corrFactor" << std::endl;
+	   << std::setw(15) << "corrFactor" << std::endl;
     std::map<unsigned int, std::pair<double,double> >::const_iterator itr;
     for (itr=Cprev.begin(); itr != Cprev.end(); ++itr) {
       unsigned int detId = itr->first;
@@ -672,6 +743,7 @@ void CalibTree::writeCorrFactor(const char *corrFileName, int ietaMax) {
 	       << std::dec << ieta << std::setw(10) << depth << std::setw(10) 
 	       << itr->second.first << " " << std::setw(10) 
 	       << itr->second.second << std::endl;
+        cout << itr->second.first << ",";
       }
     }
     myfile.close();
@@ -683,7 +755,7 @@ unsigned int CalibTree::truncateId(unsigned int detId) {
   //std::cout << "Truncate 1 " << std::hex << detId << " " << id << std::dec << std::endl;
   int subdet = ((detId >> 25) & (0x7));
   int ieta, zside, depth;
-  if ((id&0x80000) == 0) {
+  if ((id&0x1000000) == 0) {
     ieta   = ((detId >> 7) & 0x3F);
     zside  = (detId&0x2000)?(1):(-1);
     depth  = ((detId >> 14) & 0x1F);
@@ -696,7 +768,7 @@ unsigned int CalibTree::truncateId(unsigned int detId) {
     if ((subdet == 1) && (ieta > 14)) depth  = 1;
   }
   id = (subdet<<25) | (0x1000000) | ((depth&0xF)<<20) | ((zside>0)?(0x80000|(ieta<<10)):(ieta<<10));
-  //std::cout << "Truncate 2: " << subdet << " " << zside*ieta << " " << depth << " " << std::hex << id << std::dec << std::endl;
+  //  std::cout << "Truncate 2: " << subdet << " " << zside*ieta << " " << depth << " " << std::hex << id << " input " << detId << std::dec << std::endl;
   return id;
 }
 
@@ -736,10 +808,12 @@ std::pair<double,double> CalibTree::fitMean(TH1D* hist, int mode) {
 }
 
 void CalibTree::makeplots(double rmin, double rmax, int ietaMax,
-			  bool useweight, bool debug) {
+			  bool useweight, double fraction, bool debug) {
 
   if (fChain == 0) return;
-  Long64_t nentries = fChain->GetEntriesFast();
+  Long64_t nentryTot = fChain->GetEntriesFast();
+  Long64_t nentries = (fraction > 0.01 && fraction < 0.99) ? 
+    (Long64_t)(fraction*nentryTot) : nentryTot;
 
   // Book the histograms
   std::map<int,std::pair<TH1D*,TH1D*> > histos;
@@ -757,7 +831,6 @@ void CalibTree::makeplots(double rmin, double rmax, int ietaMax,
     h2->Sumw2();
     histos[ieta] = std::pair<TH1D*,TH1D*>(h1,h2);
   }
-
   //Fill the histograms
   Long64_t nbytes(0), nb(0);
   for (Long64_t jentry=0; jentry<nentries;jentry++) {

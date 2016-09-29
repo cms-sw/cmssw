@@ -59,13 +59,18 @@
   <Constant name="dx112L"       value="([dxTop]-[slope]*([dzInL]-[z110L]-[dzS11L]))"/>
   <Constant name="dx121L"       value="([dxTop]-[slope]*([dzInL]-[z120L]+[dzS12L]))"/>
   <Constant name="dx122L"       value="([dxTop]-[slope]*([dzInL]-[z120L]-[dzS12L]))"/>
-  <Constant name="zFront"       value="7928*mm"/>
-  <Constant name="thickness"    value="72.8*mm"/>
+  <Constant name="zFront"       value="7930.0*mm"/>
+  <Constant name="thickness"    value="71.5*mm"/>
+  <Constant name="zseparate"    value="35.5*mm"/>
   <Constant name="hthick"	value="[thickness]/2."/>
   <Constant name="Angle0"	value="5.0*deg"/>
   <Constant name="slope0"	value="tan([Angle0])"/>
   <Constant name="dzGB21L"	value="92.20*cm"/>
   <Constant name="dyGB21"	value="8.100*mm"/>
+  <Constant name="zposl4"       value="(-[hthick]+[dyGB21]+1.3*mm)"/>
+  <Constant name="zposl3"       value="([zposl4]+[zseparate])"/>
+  <Constant name="zposl2"       value="([zposl4]+2*[dyGB21]+1.0*mm)"/>
+  <Constant name="zposl1"       value="([zposl3]+2*[dyGB21]+1.0*mm)"/>
   <Constant name="dxTopGB21L"   value="31.205*cm"/>
   <Constant name="dxBotGB21L"   value="([dxTopGB21L]-2*[slope0]*[dzGB21L])"/>
   <Constant name="dyGA21"       value="9.250*mm"/>
@@ -76,7 +81,7 @@
   <Constant name="dxFrame"      value="10.0*mm"/>
   <Constant name="dyBase"       value="3.2*mm"/>
   <Constant name="dyTop"        value="1.0*mm"/>
-  <Constant name="zOff"         value="(-28.3*mm-[dyGB21]+[dyBase]+[hthick])"/>
+  <Constant name="zOff"         value="([dyBase])"/>
   <Constant name="dzGBI21L"     value="([dzGB21L]-[dxFrame])"/>
   <Constant name="dyGBI21"      value="([dyGB21]-0.5*([dyBase]+[dyTop]))"/>
   <Constant name="dxTopGBI21L"  value="([dxTopGB21L]-[slope0]*[dxFrame])"/>
@@ -1215,7 +1220,7 @@
     <Numeric name="stepAngle"   value="20*deg"/>
     <Numeric name="startAngle"  value="0*deg"/>
     <Numeric name="rPosition"   value="[rPosL]"/>
-    <Numeric name="zoffset"     value="+28.30*mm"/>
+    <Numeric name="zoffset"     value="[zposl1]"/>
   </Algorithm>
   <Algorithm name="muon:DDGEMAngular">
     <rParent name="GEMDisk21LP"/>
@@ -1228,7 +1233,7 @@
     <Numeric name="stepAngle"   value="20*deg"/>
     <Numeric name="startAngle"  value="0*deg"/>
     <Numeric name="rPosition"   value="[rPosL]"/>
-    <Numeric name="zoffset"     value=" -9.10*mm"/>
+    <Numeric name="zoffset"     value="[zposl2]"/>
   </Algorithm>
   <Algorithm name="muon:DDGEMAngular">
     <rParent name="GEMDisk21LP"/>
@@ -1241,7 +1246,7 @@
     <Numeric name="stepAngle"   value="20*deg"/>
     <Numeric name="startAngle"  value="10*deg"/>
     <Numeric name="rPosition"   value="[rPosL]"/>
-    <Numeric name="zoffset"     value=" +9.10*mm"/>
+    <Numeric name="zoffset"     value="[zposl3]"/>
   </Algorithm>
   <Algorithm name="muon:DDGEMAngular">
     <rParent name="GEMDisk21LP"/>
@@ -1254,7 +1259,7 @@
     <Numeric name="stepAngle"   value="20*deg"/>
     <Numeric name="startAngle"  value="10*deg"/>
     <Numeric name="rPosition"   value="[rPosL]"/>
-    <Numeric name="zoffset"     value="-28.30*mm"/>
+    <Numeric name="zoffset"     value="[zposl4]"/>
   </Algorithm>
 
   <Algorithm name="muon:DDGEMAngular">
@@ -1268,7 +1273,7 @@
     <Numeric name="stepAngle"   value="-20*deg"/>
     <Numeric name="startAngle"  value="180*deg"/>
     <Numeric name="rPosition"   value="[rPosL]"/>
-    <Numeric name="zoffset"     value="+28.30*mm"/>
+    <Numeric name="zoffset"     value="[zposl1]"/>
   </Algorithm>
   <Algorithm name="muon:DDGEMAngular">
     <rParent name="GEMDisk21LN"/>
@@ -1281,7 +1286,7 @@
     <Numeric name="stepAngle"   value="-20*deg"/>
     <Numeric name="startAngle"  value="180*deg"/>
     <Numeric name="rPosition"   value="[rPosL]"/>
-    <Numeric name="zoffset"     value=" -9.10*mm"/>
+    <Numeric name="zoffset"     value="[zposl2]"/>
   </Algorithm>
   <Algorithm name="muon:DDGEMAngular">
     <rParent name="GEMDisk21LN"/>
@@ -1294,7 +1299,7 @@
     <Numeric name="stepAngle"   value="-20*deg"/>
     <Numeric name="startAngle"  value="170*deg"/>
     <Numeric name="rPosition"   value="[rPosL]"/>
-    <Numeric name="zoffset"     value=" +9.10*mm"/>
+    <Numeric name="zoffset"     value="[zposl3]"/>
   </Algorithm>
   <Algorithm name="muon:DDGEMAngular">
     <rParent name="GEMDisk21LN"/>
@@ -1307,7 +1312,7 @@
     <Numeric name="stepAngle"   value="-20*deg"/>
     <Numeric name="startAngle"  value="170*deg"/>
     <Numeric name="rPosition"   value="[rPosL]"/>
-    <Numeric name="zoffset"     value="-28.30*mm"/>
+    <Numeric name="zoffset"     value="[zposl4]"/>
   </Algorithm>
       
 </DDDefinition>

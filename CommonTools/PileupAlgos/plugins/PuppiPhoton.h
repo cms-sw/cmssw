@@ -37,11 +37,12 @@ private:
 	edm::EDGetTokenT< edm::ValueMap<float> > tokenWeights_; 
 	edm::EDGetTokenT< edm::ValueMap<bool>  > tokenPhotonId_; 
 	double pt_;
+	double eta_;
 	bool   usePFRef_;
 	bool   usePhotonId_;
 	std::vector<double>  dRMatch_;
 	std::vector<int32_t> pdgIds_; 
-        std::unique_ptr< PFOutputCollection > corrCandidates_;
+	std::unique_ptr< PFOutputCollection > corrCandidates_;
 	double weight_;
 	bool   useValueMap_;
 };

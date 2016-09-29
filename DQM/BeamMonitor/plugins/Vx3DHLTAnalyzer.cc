@@ -34,7 +34,7 @@ Vx3DHLTAnalyzer::Vx3DHLTAnalyzer (const ParameterSet& iConfig)
   debugMode          = true;
   nLumiFit           = 2;     // Number of integrated lumis to perform the fit
   maxLumiIntegration = 15;    // If failing fits, this is the maximum number of integrated lumis after which a reset is issued
-  nLumiXaxisRange    = 5000;  // Correspond to about 20h of data taking: 32h * 60min * 60s / 23s per lumi-block = 5009
+  nLumiXaxisRange    = 5000;  // Correspond to about 32h of data taking: 32h * 60min * 60s / 23s per lumi-block = 5009
   dataFromFit        = true;  // The Beam Spot data can be either taken from the histograms or from the fit results
   minNentries        = 20;    // Minimum number of good vertices to perform the fit
   xRange             = 0.8;   // [cm]
@@ -905,7 +905,7 @@ void Vx3DHLTAnalyzer::endLuminosityBlock (const LuminosityBlock& lumiBlock, cons
       vector<double> vals;
 
       hitCounter->getTH1()->SetBinContent(lastLumiOfFit, (double)totalHits);
-      hitCounter->getTH1()->SetBinError(lastLumiOfFit, std::sqrt((double)totalHits));
+      hitCounter->getTH1()->SetBinError(lastLumiOfFit, (totalHits != 0 ? 1. : 0.)); // It's not sqrt(n) because we want to weight all entries in the same way for the fit
 
       if (dataFromFit == true)
 	{
@@ -1134,7 +1134,7 @@ void Vx3DHLTAnalyzer::endLuminosityBlock (const LuminosityBlock& lumiBlock, cons
       hitCounter->getTH1()->Fit(myLinFit,"QR");
 
       goodVxCounter->getTH1()->SetBinContent(lastLumiOfFit, (double)counterVx);
-      goodVxCounter->getTH1()->SetBinError(lastLumiOfFit, std::sqrt((double)counterVx));
+      goodVxCounter->getTH1()->SetBinError(lastLumiOfFit, (counterVx != 0 ? 1. : 0.)); // It's not sqrt(n) because we want to weight all entries in the same way for the fit
       myLinFit->SetParameter(0, goodVxCounter->getTH1()->GetMean(2));
       myLinFit->SetParameter(1, 0.0);
       goodVxCounter->getTH1()->Fit(myLinFit,"QR");

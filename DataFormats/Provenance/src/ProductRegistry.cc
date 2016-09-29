@@ -19,9 +19,12 @@
 #include "FWCore/Utilities/interface/TypeWithDict.h"
 #include "FWCore/Utilities/interface/WrappedClassName.h"
 
+#include "TDictAttributeMap.h"
+
 #include <cassert>
 #include <iterator>
 #include <limits>
+#include <set>
 #include <sstream>
 #include <ostream>
 
@@ -43,8 +46,7 @@ namespace edm {
       lumiNextIndexValue_(0),
       runNextIndexValue_(0),
 
-      branchIDToIndex_(),
-      missingDictionaries_() {
+      branchIDToIndex_() {
     for(bool& isProduced : productProduced_) isProduced = false;
   }
 
@@ -64,7 +66,6 @@ namespace edm {
     runNextIndexValue_ = 0;
 
     branchIDToIndex_.clear();
-    missingDictionaries_.clear();
   }
 
   ProductRegistry::ProductRegistry(ProductList const& productList, bool toBeFrozen) :
@@ -89,9 +90,12 @@ namespace edm {
           << "Please remove the redundant 'produces' call(s).\n";
       } else {
         // Duplicate registration in previous process
-        throw Exception(errors::Configuration, "Duplicate Process")
-          << "The process name " << productDesc.processName() << " was previously used on these products.\n"
-          << "Please modify the configuration file to use a distinct process name.\n";
+        throw Exception(errors::Configuration, "Duplicate Process Name.\n")
+          << "The process name " << productDesc.processName() << " was previously used for products in the input.\n"
+          << "This has caused branch name conflicts between input products and new products.\n"
+          << "Please modify the configuration file to use a distinct process name.\n"
+          << "Alternately, drop all input products using that process name and the\n"
+          << "descendants of those products.\n";
       }
     }
     addCalled(productDesc, fromListener);
@@ -158,16 +162,18 @@ namespace edm {
     if(frozen()) return;
     freezeIt();
     if(initializeLookupInfo) {
-      initializeLookupTables(nullptr);
+      initializeLookupTables(nullptr, nullptr, nullptr);
     }
     sort_all(transient_.aliasToOriginal_);
   }
 
   void
-  ProductRegistry::setFrozen(std::set<TypeID> const& typesConsumed) {
+  ProductRegistry::setFrozen(std::set<TypeID> const& productTypesConsumed,
+                             std::set<TypeID> const& elementTypesConsumed,
+                             std::string const& processName) {
     if(frozen()) return;
     freezeIt();
-    initializeLookupTables(&typesConsumed);
+    initializeLookupTables(&productTypesConsumed, &elementTypesConsumed, &processName);
     sort_all(transient_.aliasToOriginal_);
   }
 
@@ -273,15 +279,23 @@ namespace edm {
     return differences.str();
   }
 
-  void ProductRegistry::initializeLookupTables(std::set<TypeID> const* typesConsumed) {
+  void ProductRegistry::initializeLookupTables(std::set<TypeID> const* productTypesConsumed,
+                                               std::set<TypeID> const* elementTypesConsumed,
+                                               std::string const* processName) {
 
     std::map<TypeID, TypeID> containedTypeMap;
-    TypeSet missingDicts;
+    std::map<TypeID, std::vector<TypeWithDict> > containedTypeToBaseTypesMap;
+
+    std::vector<std::string> missingDictionaries;
+    std::vector<std::string> branchNamesForMissing;
+    std::vector<std::string> producedTypes;
 
     transient_.branchIDToIndex_.clear();
 
     for(auto const& product : productList_) {
       auto const& desc = product.second;
+
+      checkForDuplicateProcessName(desc, processName);
 
       if(desc.produced()) {
         setProductProduced(desc.branchType());
@@ -289,65 +303,130 @@ namespace edm {
 
       //only do the following if the data is supposed to be available in the event
       if(desc.present()) {
-        if(!bool(desc.unwrappedType())) {
-          missingDicts.insert(TypeID(desc.unwrappedType().typeInfo()));
-        } else if(!bool(desc.wrappedType())) {
-          missingDicts.insert(TypeID(desc.wrappedType().typeInfo()));
-        } else {
-          TypeID wrappedTypeID(desc.wrappedType().typeInfo());
-          TypeID typeID(desc.unwrappedType().typeInfo());
-          TypeID containedTypeID;
-          auto const& iter = containedTypeMap.find(typeID);
-          if(iter != containedTypeMap.end()) {
-             containedTypeID = iter->second;
-          } else {
-             containedTypeID = productholderindexhelper::getContainedTypeFromWrapper(wrappedTypeID, typeID.className());
-             containedTypeMap.emplace(typeID, containedTypeID);
+
+        // Check dictionaries (we already checked for the produced ones earlier somewhere else).
+        // We have to have the dictionaries to properly setup the lookup tables for support of
+        // Views. Also we need them to determine which present products are declared to be
+        // consumed in the case where the consumed type is a View<T>.
+        if (!desc.produced()) {
+          if (!checkDictionary(missingDictionaries, desc.className(), desc.unwrappedType())) {
+            checkDictionaryOfWrappedType(missingDictionaries, desc.className());
+            branchNamesForMissing.emplace_back(desc.branchName());
+            producedTypes.emplace_back(desc.className() + std::string(" (read from input)"));
+            continue;
           }
-          if(typesConsumed != nullptr && !desc.produced()) {
-            bool mainTypeConsumed = (typesConsumed->find(typeID) != typesConsumed->end());
-            bool hasContainedType = (containedTypeID != TypeID(typeid(void)) && containedTypeID != TypeID());
-            bool containedTypeConsumed = hasContainedType && (typesConsumed->find(containedTypeID) != typesConsumed->end());
-            if(hasContainedType && !containedTypeConsumed) {
-              TypeWithDict containedType(containedTypeID.typeInfo());
+        }
+        TypeID typeID(desc.unwrappedType().typeInfo());
+
+        auto iter = containedTypeMap.find(typeID);
+        bool alreadySawThisType = (iter != containedTypeMap.end());
+
+        if (!desc.produced() && !alreadySawThisType) {
+          if (!checkDictionary(missingDictionaries, desc.wrappedName(), desc.wrappedType())) {
+            branchNamesForMissing.emplace_back(desc.branchName());
+            producedTypes.emplace_back(desc.className() + std::string(" (read from input)"));
+            continue;
+          }
+        }
+
+        TypeID wrappedTypeID(desc.wrappedType().typeInfo());
+
+        TypeID containedTypeID;
+        if (alreadySawThisType) {
+          containedTypeID = iter->second;
+        } else {
+          containedTypeID = productholderindexhelper::getContainedTypeFromWrapper(wrappedTypeID, typeID.className());
+        }
+        bool hasContainedType = (containedTypeID != TypeID(typeid(void)) && containedTypeID != TypeID());
+
+        std::vector<TypeWithDict>* baseTypesOfContainedType = nullptr;
+
+        if (!alreadySawThisType) {
+          bool alreadyCheckedConstituents = desc.produced() && !desc.transient();
+          if (!alreadyCheckedConstituents && !desc.transient()) {
+            // This checks dictionaries of the wrapped class and all its constituent classes
+            if (!checkClassDictionaries(missingDictionaries, desc.wrappedName(), desc.wrappedType())) {
+              branchNamesForMissing.emplace_back(desc.branchName());
+              producedTypes.emplace_back(desc.className() + std::string(" (read from input)"));
+              continue;
+            }
+          }
+
+          if (hasContainedType) {
+            auto iter = containedTypeToBaseTypesMap.find(containedTypeID);
+            if (iter == containedTypeToBaseTypesMap.end()) {
               std::vector<TypeWithDict> baseTypes;
-              public_base_classes(containedType, baseTypes);
-              for(TypeWithDict const& baseType : baseTypes) {
-                 if(typesConsumed->find(TypeID(baseType.typeInfo())) != typesConsumed->end()) {
-                   containedTypeConsumed = true;
-                   break;
-                 }
+              if (!public_base_classes(missingDictionaries, containedTypeID, baseTypes)) {
+                branchNamesForMissing.emplace_back(desc.branchName());
+                if (desc.produced()) {
+                  producedTypes.emplace_back(desc.className() + std::string(" (produced in current process)"));
+                } else {
+                  producedTypes.emplace_back(desc.className() + std::string(" (read from input)"));
+                }
+                continue;
+              }
+              iter = containedTypeToBaseTypesMap.insert(std::make_pair(containedTypeID, baseTypes)).first;
+            }
+            baseTypesOfContainedType = &iter->second;
+          }
+
+          // Do this after the dictionary checks of constituents so the list of branch names for missing types
+          // is complete
+          containedTypeMap.emplace(typeID, containedTypeID);
+        } else {
+          if (hasContainedType) {
+            auto iter = containedTypeToBaseTypesMap.find(containedTypeID);
+            if (iter != containedTypeToBaseTypesMap.end()) {
+              baseTypesOfContainedType = &iter->second;
+            }
+          }
+        }
+
+        if(productTypesConsumed != nullptr && !desc.produced()) {
+          bool mainTypeConsumed = (productTypesConsumed->find(typeID) != productTypesConsumed->end());
+          bool containedTypeConsumed = hasContainedType && (elementTypesConsumed->find(containedTypeID) != elementTypesConsumed->end());
+          if(hasContainedType && !containedTypeConsumed && baseTypesOfContainedType != nullptr) {
+            for(TypeWithDict const& baseType : *baseTypesOfContainedType) {
+              if(elementTypesConsumed->find(TypeID(baseType.typeInfo())) != elementTypesConsumed->end()) {
+                containedTypeConsumed = true;
+                break;
               }
             }
-            if(!containedTypeConsumed) {
-              if(mainTypeConsumed) {
-                // The main type is consumed, but either
-                // there is no contained type, or if there is,
-                // neither it nor any of its base classes are consumed.
-                // Set the contained type, if there is one, to void,
-                if(hasContainedType) {
-		  containedTypeID = TypeID(typeid(void)); 
-                }
-              } else {
-                // The main type is not consumed, and either
-                // there is no contained type, or if there is,
-                // neither it nor any of its base classes are consumed.
-                // Don't insert anything in the lookup tables.
-                continue;
-              } 
+          }
+          if(!containedTypeConsumed) {
+            if(mainTypeConsumed) {
+              // The main type is consumed, but either
+              // there is no contained type, or if there is,
+              // neither it nor any of its base classes are consumed.
+              // Set the contained type, if there is one, to void,
+              if(hasContainedType) {
+	        containedTypeID = TypeID(typeid(void));
+              }
+            } else {
+              // The main type is not consumed, and either
+              // there is no contained type, or if there is,
+              // neither it nor any of its base classes are consumed.
+              // Don't insert anything in the lookup tables.
+              continue;
             }
           }
-          ProductResolverIndex index =
-            productLookup(desc.branchType())->insert(typeID,
-                                                     desc.moduleLabel().c_str(),
-                                                     desc.productInstanceName().c_str(),
-                                                     desc.processName().c_str(),
-                                                     containedTypeID);
-
-          transient_.branchIDToIndex_[desc.branchID()] = index;
         }
+        ProductResolverIndex index =
+          productLookup(desc.branchType())->insert(typeID,
+                                                   desc.moduleLabel().c_str(),
+                                                   desc.productInstanceName().c_str(),
+                                                   desc.processName().c_str(),
+                                                   containedTypeID,
+                                                   baseTypesOfContainedType);
+
+        transient_.branchIDToIndex_[desc.branchID()] = index;
       }
     }
+    if (!missingDictionaries.empty()) {
+      std::string context("Calling ProductRegistry::initializeLookupTables");
+      throwMissingDictionariesException(missingDictionaries, context, producedTypes, branchNamesForMissing);
+    }
+
     productLookup(InEvent)->setFrozen();
     productLookup(InLumi)->setFrozen();
     productLookup(InRun)->setFrozen();
@@ -363,9 +442,102 @@ namespace edm {
         ++nextIndexValue(desc.branchType());
       }
     }
+    checkDictionariesOfConsumedTypes(productTypesConsumed, elementTypesConsumed, containedTypeMap, containedTypeToBaseTypesMap);
+  }
 
-    missingDictionariesForUpdate().reserve(missingDicts.size());
-    copy_all(missingDicts, std::back_inserter(missingDictionariesForUpdate()));
+  void
+  ProductRegistry::checkDictionariesOfConsumedTypes(std::set<TypeID> const* productTypesConsumed,
+                                                    std::set<TypeID> const* elementTypesConsumed,
+                                                    std::map<TypeID, TypeID> const& containedTypeMap,
+                                                    std::map<TypeID, std::vector<TypeWithDict> >& containedTypeToBaseTypesMap) {
+
+    std::vector<std::string> missingDictionaries;
+    std::set<std::string> consumedTypesWithMissingDictionaries;
+
+    if (productTypesConsumed) {
+
+
+      // Check dictionaries for all classes declared to be consumed
+      for (auto const& consumedTypeID : *productTypesConsumed) {
+
+        // We use the containedTypeMap to see which types have already
+        // had their dictionaries checked. We do not waste time rechecking
+        // those dictionaries.
+        if (containedTypeMap.find(consumedTypeID) == containedTypeMap.end()) {
+
+          std::string wrappedName = wrappedClassName(consumedTypeID.className());
+          TypeWithDict wrappedType = TypeWithDict::byName(wrappedName);
+          if (!checkDictionary(missingDictionaries, wrappedName, wrappedType)) {
+            checkDictionary(missingDictionaries, consumedTypeID);
+            consumedTypesWithMissingDictionaries.emplace(consumedTypeID.className());
+            continue;
+          }
+          bool transient = false;
+          TDictAttributeMap* wp = wrappedType.getClass()->GetAttributeMap();
+          if (wp && wp->HasKey("persistent") && !strcmp(wp->GetPropertyAsString("persistent"), "false")) {
+            transient = true;
+          }
+          if (transient) {
+            if(!checkDictionary(missingDictionaries, consumedTypeID)) {
+              consumedTypesWithMissingDictionaries.emplace(consumedTypeID.className());
+            }
+
+            TypeID containedTypeID = productholderindexhelper::getContainedTypeFromWrapper(TypeID(wrappedType.typeInfo()), consumedTypeID.className());
+            bool hasContainedType = (containedTypeID != TypeID(typeid(void)) && containedTypeID != TypeID());
+            if (hasContainedType) {
+              if (containedTypeToBaseTypesMap.find(containedTypeID) == containedTypeToBaseTypesMap.end()) {
+                std::vector<TypeWithDict> bases;
+                // Run this to check for missing dictionaries, bases is not really used
+                if (!public_base_classes(missingDictionaries, containedTypeID, bases)) {
+                  consumedTypesWithMissingDictionaries.emplace(consumedTypeID.className());
+                }
+                containedTypeToBaseTypesMap.insert(std::make_pair(containedTypeID, bases));
+              }
+            }
+          } else {
+            if (!checkClassDictionaries(missingDictionaries, wrappedName, wrappedType)) {
+              consumedTypesWithMissingDictionaries.emplace(consumedTypeID.className());
+            }
+          }
+        }
+      }
+      if (!missingDictionaries.empty()) {
+        std::string context("Calling ProductRegistry::initializeLookupTables, checking dictionaries for consumed products");
+        throwMissingDictionariesException(missingDictionaries, context, consumedTypesWithMissingDictionaries, false);
+      }
+    }
+
+    if (elementTypesConsumed) {
+      missingDictionaries.clear();
+      consumedTypesWithMissingDictionaries.clear();
+      for (auto const& consumedTypeID : *elementTypesConsumed) {
+        if (containedTypeToBaseTypesMap.find(consumedTypeID) == containedTypeToBaseTypesMap.end()) {
+          std::vector<TypeWithDict> bases;
+          // Run this to check for missing dictionaries, bases is not really used
+          if (!public_base_classes(missingDictionaries, consumedTypeID, bases)) {
+            consumedTypesWithMissingDictionaries.emplace(consumedTypeID.className());
+          }
+        }
+      }
+      if (!missingDictionaries.empty()) {
+        std::string context("Calling ProductRegistry::initializeLookupTables, checking dictionaries for elements of products consumed using View");
+        throwMissingDictionariesException(missingDictionaries, context, consumedTypesWithMissingDictionaries, true);
+      }
+    }
+  }
+
+  void ProductRegistry::checkForDuplicateProcessName(BranchDescription const& desc,
+                                                     std::string const* processName) const {
+    if (processName &&
+        !desc.produced() &&
+        (*processName == desc.processName())) {
+
+      throw Exception(errors::Configuration, "Duplicate Process Name.\n")
+        << "The process name " << *processName << " was previously used for products in the input.\n"
+        << "Please modify the configuration file to use a distinct process name.\n"
+        << "Alternately, drop all input products using that process name and the\n"
+        << "descendants of those products.\n";
+    }
   }
 
   ProductResolverIndex ProductRegistry::indexFrom(BranchID const& iID) const {

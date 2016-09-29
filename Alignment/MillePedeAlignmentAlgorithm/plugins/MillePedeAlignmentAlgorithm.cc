@@ -9,15 +9,12 @@
  */
 
 #include "MillePedeAlignmentAlgorithm.h"
-//#include "MillePedeAlignmentAlgorithm.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
-// in header, too
-// end in header, too
 
 #include "Alignment/MillePedeAlignmentAlgorithm/interface/MillePedeMonitor.h"
 #include "Alignment/MillePedeAlignmentAlgorithm/interface/MillePedeVariables.h"
@@ -25,8 +22,8 @@
 #include "Alignment/MillePedeAlignmentAlgorithm/src/Mille.h"       // 'unpublished' interface located in src
 #include "Alignment/MillePedeAlignmentAlgorithm/src/PedeSteerer.h" // dito
 #include "Alignment/MillePedeAlignmentAlgorithm/src/PedeReader.h" // dito
-#include "Alignment/MillePedeAlignmentAlgorithm/interface/PedeLabelerBase.h" // dito
-#include "Alignment/MillePedeAlignmentAlgorithm/interface/PedeLabelerPluginFactory.h" // dito
+#include "Alignment/MillePedeAlignmentAlgorithm/interface/PedeLabelerBase.h"
+#include "Alignment/MillePedeAlignmentAlgorithm/interface/PedeLabelerPluginFactory.h"
 
 #include "Alignment/ReferenceTrajectories/interface/TrajectoryFactoryBase.h"
 #include "Alignment/ReferenceTrajectories/interface/TrajectoryFactoryPlugin.h"
@@ -96,7 +93,8 @@ MillePedeAlignmentAlgorithm::MillePedeAlignmentAlgorithm(const edm::ParameterSet
   theMaximalCor2D(cfg.getParameter<double>("max2Dcorrelation")),
   theLastWrittenIov(0),
   theGblDoubleBinary(cfg.getParameter<bool>("doubleBinary")),
-  runAtPCL_(cfg.getParameter<bool>("runAtPCL"))
+  runAtPCL_(cfg.getParameter<bool>("runAtPCL")),
+  ignoreHitsWithoutGlobalDerivatives_(cfg.getParameter<bool>("ignoreHitsWithoutGlobalDerivatives"))
 {
   if (!theDir.empty() && theDir.find_last_of('/') != theDir.size()-1) theDir += '/';// may need '/'
   edm::LogInfo("Alignment") << "@SUB=MillePedeAlignmentAlgorithm" << "Start in mode '"
@@ -368,34 +366,34 @@ std::vector<std::string> MillePedeAlignmentAlgorithm::getExistingFormattedFiles(
 void MillePedeAlignmentAlgorithm::run(const edm::EventSetup &setup, const EventInfo &eventInfo)
 {
   if (!this->isMode(myMilleBit)) return; // no theMille created...
-  const ConstTrajTrackPairCollection &tracks = eventInfo.trajTrackPairs();
+  const auto& tracks = eventInfo.trajTrackPairs();
 
   if (theMonitor) { // monitor input tracks
-    for (ConstTrajTrackPairCollection::const_iterator iTrajTrack = tracks.begin();
-	 iTrajTrack != tracks.end(); ++iTrajTrack) {
-      theMonitor->fillTrack((*iTrajTrack).second);
+    for (const auto& iTrajTrack: tracks) {
+      theMonitor->fillTrack(iTrajTrack.second);
     }
   }
 
   const RefTrajColl trajectories(theTrajectoryFactory->trajectories(setup, tracks, eventInfo.beamSpot()));
 
   // Now loop over ReferenceTrajectoryCollection
-  unsigned int refTrajCount = 0; // counter for track monitoring if 1 track per trajectory
-  for (RefTrajColl::const_iterator iRefTraj = trajectories.begin(), iRefTrajE = trajectories.end();
+  unsigned int refTrajCount = 0; // counter for track monitoring
+  const auto tracksPerTraj = theTrajectoryFactory->tracksPerTrajectory();
+  for (auto iRefTraj = trajectories.cbegin(), iRefTrajE = trajectories.cend();
        iRefTraj != iRefTrajE; ++iRefTraj, ++refTrajCount) {
 
     RefTrajColl::value_type refTrajPtr = *iRefTraj; 
     if (theMonitor) theMonitor->fillRefTrajectory(refTrajPtr);
 
-    const std::pair<unsigned int, unsigned int> nHitXy 
-      = this->addReferenceTrajectory(setup, eventInfo, refTrajPtr);
+    const auto nHitXy = this->addReferenceTrajectory(setup, eventInfo, refTrajPtr);
 
     if (theMonitor && (nHitXy.first || nHitXy.second)) {
-      // if track used (i.e. some hits), fill monitoring
-      // track NULL ptr if trajectories and tracks do not match
-      const reco::Track *trackPtr = 
-	(trajectories.size() == tracks.size() ? tracks[refTrajCount].second : 0);
-      theMonitor->fillUsedTrack(trackPtr, nHitXy.first, nHitXy.second);
+      // if trajectory used (i.e. some hits), fill monitoring
+      const auto offset = tracksPerTraj*refTrajCount;
+      for (unsigned int iTrack = 0; iTrack < tracksPerTraj; ++iTrack) {
+	theMonitor->fillUsedTrack(tracks[offset+iTrack].second,
+				  nHitXy.first, nHitXy.second);
+      }
     }
 
   } // end of reference trajectory and track loop
@@ -578,9 +576,11 @@ int MillePedeAlignmentAlgorithm::addMeasurementData(const edm::EventSetup &setup
 					tsos, alidet, alidet, theFloatBufferX, // 2x alidet, sic!
 					theFloatBufferY, theIntBuffer, params)) {
     return -1; // problem
-  } else if (theFloatBufferX.empty()) {
+  } else if (theFloatBufferX.empty() && ignoreHitsWithoutGlobalDerivatives_) {
      return 0; // empty for X: no alignable for hit, nor calibrations
-  } else { // now even if no alignable, but calibrations!
+  } else {
+    // store measurement even if no alignable or calibrations
+    // -> measurement used for pede-internal track-fit
     return this->callMille(refTrajPtr, iHit, theIntBuffer, theFloatBufferX, theFloatBufferY);
   }
 }
@@ -1086,7 +1086,10 @@ void MillePedeAlignmentAlgorithm::diagonalize
   
   //edm::LogInfo("Alignment") << "NEW HIT loca in matrix after diag:"<<aLocalDerivativesM(0,0);
   aHitResidualsM      = aTranfoToDiagonalSystemInvF * aHitResidualsM;
-  aGlobalDerivativesM = aTranfoToDiagonalSystemInvF * aGlobalDerivativesM;
+  if (aGlobalDerivativesM.GetNoElements() > 0) {
+    // diagnoalize only if measurement depends on alignables or calibrations
+    aGlobalDerivativesM = aTranfoToDiagonalSystemInvF * aGlobalDerivativesM;
+  }
 }
 
 //__________________________________________________________________________________________________

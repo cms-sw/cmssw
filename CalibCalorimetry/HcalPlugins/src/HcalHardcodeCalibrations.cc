@@ -140,10 +140,6 @@ HcalHardcodeCalibrations::HcalHardcodeCalibrations ( const edm::ParameterSet& iC
   iLumi=iConfig.getParameter<double>("iLumi");
 
   if( iLumi > 0.0 ) {
-    dbHardcode.setLumi(iLumi);
-    dbHardcode.setLumiOffset(iConfig.getParameter<double>("iLumiOffset"));
-    dbHardcode.setHBSiPMLumiDep(iConfig.getParameter<double>("HBSiPMLumiDep"));
-    dbHardcode.setHESiPMLumiDep(iConfig.getParameter<double>("HESiPMLumiDep"));
     bool he_recalib = iConfig.getParameter<bool>("HERecalibration");
     bool hf_recalib = iConfig.getParameter<bool>("HFRecalibration");
     if(he_recalib) {
@@ -255,17 +251,25 @@ HcalHardcodeCalibrations::HcalHardcodeCalibrations ( const edm::ParameterSet& iC
       setWhatProduced (this, &HcalHardcodeCalibrations::produceFlagHFDigiTimeParams);
       findingRecord <HcalFlagHFDigiTimeParamsRcd> ();
     }
-    if ((*objectName == "CholeskyMatrices") || all) {
-      setWhatProduced (this, &HcalHardcodeCalibrations::produceCholeskyMatrices);
-      findingRecord <HcalCholeskyMatricesRcd> ();
-    }
-    if ((*objectName == "CovarianceMatrices") || all) {
-      setWhatProduced (this, &HcalHardcodeCalibrations::produceCovarianceMatrices);
-      findingRecord <HcalCovarianceMatricesRcd> ();
-    }
     if ((*objectName == "FrontEndMap") || (*objectName == "frontEndMap") || all) {
       setWhatProduced (this, &HcalHardcodeCalibrations::produceFrontEndMap);
       findingRecord <HcalFrontEndMapRcd> ();
+    }
+    if ((*objectName == "SiPMParameters") || all) {
+      setWhatProduced (this, &HcalHardcodeCalibrations::produceSiPMParameters);
+      findingRecord <HcalSiPMParametersRcd> ();
+    }
+    if ((*objectName == "SiPMCharacteristics") || all) {
+      setWhatProduced (this, &HcalHardcodeCalibrations::produceSiPMCharacteristics);
+      findingRecord <HcalSiPMCharacteristicsRcd> ();
+    }
+    if ((*objectName == "TPChannelParameters") || all) {
+      setWhatProduced (this, &HcalHardcodeCalibrations::produceTPChannelParameters);
+      findingRecord <HcalTPChannelParametersRcd> ();
+    }
+    if ((*objectName == "TPParameters") || all) {
+      setWhatProduced (this, &HcalHardcodeCalibrations::produceTPParameters);
+      findingRecord <HcalTPParametersRcd> ();
     }
   }
 }
@@ -551,13 +555,15 @@ std::unique_ptr<HcalL1TriggerObjects> HcalHardcodeCalibrations::produceL1Trigger
 }
 
 
-
-
 std::unique_ptr<HcalElectronicsMap> HcalHardcodeCalibrations::produceElectronicsMap (const HcalElectronicsMapRcd& rcd) {
   edm::LogInfo("HCAL") << "HcalHardcodeCalibrations::produceElectronicsMap-> ...";
+  edm::ESHandle<HcalTopology> htopo;
+  rcd.getRecord<HcalRecNumberingRecord>().get(htopo);
+  const HcalTopology* topo=&(*htopo);
 
+  std::vector <HcalGenericDetId> cells = allCells(*topo);
   auto result = std::make_unique<HcalElectronicsMap>();
-  dbHardcode.makeHardcodeMap(*result);
+  dbHardcode.makeHardcodeMap(*result,cells);
   return result;
 }
 
@@ -635,6 +641,7 @@ std::unique_ptr<HcalRecoParams> HcalHardcodeCalibrations::produceRecoParams (con
   }
   return result;
 }
+
 std::unique_ptr<HcalTimingParams> HcalHardcodeCalibrations::produceTimingParams (const HcalTimingParamsRcd& rec) {
   edm::LogInfo("HCAL") << "HcalHardcodeCalibrations::produceTimingParams-> ...";
   edm::ESHandle<HcalTopology> htopo;
@@ -649,6 +656,7 @@ std::unique_ptr<HcalTimingParams> HcalHardcodeCalibrations::produceTimingParams 
   }
   return result;
 }
+
 std::unique_ptr<HcalLongRecoParams> HcalHardcodeCalibrations::produceLongRecoParams (const HcalLongRecoParamsRcd& rec) {
   edm::LogInfo("HCAL") << "HcalHardcodeCalibrations::produceLongRecoParams-> ...";
   edm::ESHandle<HcalTopology> htopo;
@@ -739,59 +747,69 @@ std::unique_ptr<HcalFlagHFDigiTimeParams> HcalHardcodeCalibrations::produceFlagH
 } 
 
 
-std::unique_ptr<HcalCholeskyMatrices> HcalHardcodeCalibrations::produceCholeskyMatrices (const HcalCholeskyMatricesRcd& rec) {
-
+std::unique_ptr<HcalFrontEndMap> HcalHardcodeCalibrations::produceFrontEndMap (const HcalFrontEndMapRcd& rec) {
+  edm::LogInfo("HCAL") << "HcalHardcodeCalibrations::produceFrontEndMap-> ...";
   edm::ESHandle<HcalTopology> htopo;
   rec.getRecord<HcalRecNumberingRecord>().get(htopo);
   const HcalTopology* topo=&(*htopo);
-  auto result = std::make_unique<HcalCholeskyMatrices>(topo);
-
   std::vector <HcalGenericDetId> cells = allCells(*topo);
-  for (std::vector <HcalGenericDetId>::const_iterator cell = cells.begin (); cell != cells.end (); ++cell) {
 
-    int sub = cell->genericSubdet();
-
-    if (sub == HcalGenericDetId::HcalGenBarrel  || 
-        sub == HcalGenericDetId::HcalGenEndcap  ||
-	sub == HcalGenericDetId::HcalGenOuter   ||
-	sub == HcalGenericDetId::HcalGenForward  ) {
-      HcalCholeskyMatrix item(cell->rawId());
-      result->addValues(item);
-    }
-  }
+  auto result = std::make_unique<HcalFrontEndMap>();
+  dbHardcode.makeHardcodeFrontEndMap(*result, cells);
   return result;
-
 }
 
-std::unique_ptr<HcalCovarianceMatrices> HcalHardcodeCalibrations::produceCovarianceMatrices (const HcalCovarianceMatricesRcd& rec) {
 
+std::unique_ptr<HcalSiPMParameters> HcalHardcodeCalibrations::produceSiPMParameters (const HcalSiPMParametersRcd& rec) {
+  edm::LogInfo("HCAL") << "HcalHardcodeCalibrations::produceSiPMParameters-> ...";
   edm::ESHandle<HcalTopology> htopo;
   rec.getRecord<HcalRecNumberingRecord>().get(htopo);
   const HcalTopology* topo=&(*htopo);
-  auto result = std::make_unique<HcalCovarianceMatrices>(topo);
-  std::vector <HcalGenericDetId> cells = allCells(*topo);
-  for (std::vector <HcalGenericDetId>::const_iterator cell = cells.begin (); cell != cells.end (); ++cell) {
 
-    HcalCovarianceMatrix item(cell->rawId());
+  auto result = std::make_unique<HcalSiPMParameters>(topo);
+  std::vector <HcalGenericDetId> cells = allCells(*htopo);
+  for (std::vector <HcalGenericDetId>::const_iterator cell = cells.begin (); cell != cells.end (); ++cell) {
+    HcalSiPMParameter item = dbHardcode.makeHardcodeSiPMParameter (*cell);
     result->addValues(item);
   }
   return result;
 }
 
-std::unique_ptr<HcalFrontEndMap> HcalHardcodeCalibrations::produceFrontEndMap (const HcalFrontEndMapRcd& rcd) {
-  edm::LogInfo("HCAL") << "HcalHardcodeCalibrations::produceFrontEndMap-> ...";
+std::unique_ptr<HcalSiPMCharacteristics> HcalHardcodeCalibrations::produceSiPMCharacteristics (const HcalSiPMCharacteristicsRcd& rcd) {
+  edm::LogInfo("HCAL") << "HcalHardcodeCalibrations::produceSiPMCharacteristics-> ...";
 
-  auto result = std::make_unique<HcalFrontEndMap>();
-  dbHardcode.makeHardcodeFrontEndMap(*result);
+  auto result = std::make_unique<HcalSiPMCharacteristics>();
+  dbHardcode.makeHardcodeSiPMCharacteristics(*result);
+  return result;
+}
+
+
+std::unique_ptr<HcalTPChannelParameters> HcalHardcodeCalibrations::produceTPChannelParameters (const HcalTPChannelParametersRcd& rec) {
+  edm::LogInfo("HCAL") << "HcalHardcodeCalibrations::produceTPChannelParameters-> ...";
+  edm::ESHandle<HcalTopology> htopo;
+  rec.getRecord<HcalRecNumberingRecord>().get(htopo);
+  const HcalTopology* topo=&(*htopo);
+
+  auto result = std::make_unique<HcalTPChannelParameters>(topo);
+  std::vector <HcalGenericDetId> cells = allCells(*htopo);
+  for (std::vector <HcalGenericDetId>::const_iterator cell = cells.begin (); cell != cells.end (); ++cell) {
+    HcalTPChannelParameter item = dbHardcode.makeHardcodeTPChannelParameter (*cell);
+    result->addValues(item);
+  }
+  return result;
+}
+
+std::unique_ptr<HcalTPParameters> HcalHardcodeCalibrations::produceTPParameters (const HcalTPParametersRcd& rcd) {
+  edm::LogInfo("HCAL") << "HcalHardcodeCalibrations::produceTPParameters-> ...";
+
+  auto result = std::make_unique<HcalTPParameters>();
+  dbHardcode.makeHardcodeTPParameters(*result);
   return result;
 }
 
 void HcalHardcodeCalibrations::fillDescriptions(edm::ConfigurationDescriptions & descriptions){
 	edm::ParameterSetDescription desc;
 	desc.add<double>("iLumi",-1.);
-	desc.add<double>("iLumiOffset",-1.);
-	desc.add<double>("HBSiPMLumiDep",1.7);
-	desc.add<double>("HESiPMLumiDep",0.7);
 	desc.add<bool>("HERecalibration",false);
 	desc.add<double>("HEreCalibCutoff",20.);
 	desc.add<bool>("HFRecalibration",false);
@@ -811,6 +829,8 @@ void HcalHardcodeCalibrations::fillDescriptions(edm::ConfigurationDescriptions &
 	desc_hb.add<std::vector<double>>("qieOffset", std::vector<double>({-0.49, 1.8, 7.2, 37.9}));
 	desc_hb.add<std::vector<double>>("qieSlope", std::vector<double>({0.912, 0.917, 0.922, 0.923}));
 	desc_hb.add<int>("qieType", 0);
+	desc_hb.add<int>("mcShape",125);
+	desc_hb.add<int>("recoShape",105);
 	desc.add<edm::ParameterSetDescription>("hb", desc_hb);
 
 	edm::ParameterSetDescription desc_hbUpgrade;
@@ -821,6 +841,8 @@ void HcalHardcodeCalibrations::fillDescriptions(edm::ConfigurationDescriptions &
 	desc_hbUpgrade.add<std::vector<double>>("qieOffset", std::vector<double>({0.0, 0.0, 0.0, 0.0}));
 	desc_hbUpgrade.add<std::vector<double>>("qieSlope", std::vector<double>({0.333, 0.333, 0.333, 0.333}));
 	desc_hbUpgrade.add<int>("qieType", 2);
+	desc_hbUpgrade.add<int>("mcShape",203);
+	desc_hbUpgrade.add<int>("recoShape",203);
 	desc.add<edm::ParameterSetDescription>("hbUpgrade", desc_hbUpgrade);
 
 	edm::ParameterSetDescription desc_he;
@@ -831,6 +853,8 @@ void HcalHardcodeCalibrations::fillDescriptions(edm::ConfigurationDescriptions &
 	desc_he.add<std::vector<double>>("qieOffset", std::vector<double>({-0.38, 2.0, 7.6, 39.6}));
 	desc_he.add<std::vector<double>>("qieSlope", std::vector<double>({0.912, 0.916, 0.92, 0.922}));
 	desc_he.add<int>("qieType", 0);
+	desc_he.add<int>("mcShape",125);
+	desc_he.add<int>("recoShape",105);
 	desc.add<edm::ParameterSetDescription>("he", desc_he);
 
 	edm::ParameterSetDescription desc_heUpgrade;
@@ -841,6 +865,8 @@ void HcalHardcodeCalibrations::fillDescriptions(edm::ConfigurationDescriptions &
 	desc_heUpgrade.add<std::vector<double>>("qieOffset", std::vector<double>({0.0, 0.0, 0.0, 0.0}));
 	desc_heUpgrade.add<std::vector<double>>("qieSlope", std::vector<double>({0.333, 0.333, 0.333, 0.333}));
 	desc_heUpgrade.add<int>("qieType", 2);
+	desc_heUpgrade.add<int>("mcShape",203);
+	desc_heUpgrade.add<int>("recoShape",203);
 	desc.add<edm::ParameterSetDescription>("heUpgrade", desc_heUpgrade);
 
 	edm::ParameterSetDescription desc_hf;
@@ -851,6 +877,8 @@ void HcalHardcodeCalibrations::fillDescriptions(edm::ConfigurationDescriptions &
 	desc_hf.add<std::vector<double>>("qieOffset", std::vector<double>({-0.87, 1.4, 7.8, -29.6}));
 	desc_hf.add<std::vector<double>>("qieSlope", std::vector<double>({0.359, 0.358, 0.36, 0.367}));
 	desc_hf.add<int>("qieType", 0);
+	desc_hf.add<int>("mcShape",301);
+	desc_hf.add<int>("recoShape",301);
 	desc.add<edm::ParameterSetDescription>("hf", desc_hf);
 
 	edm::ParameterSetDescription desc_hfUpgrade;
@@ -861,14 +889,16 @@ void HcalHardcodeCalibrations::fillDescriptions(edm::ConfigurationDescriptions &
 	desc_hfUpgrade.add<std::vector<double>>("qieOffset", std::vector<double>({0.0697, -0.7405, 12.38, -671.9}));
 	desc_hfUpgrade.add<std::vector<double>>("qieSlope", std::vector<double>({0.297, 0.298, 0.298, 0.313}));
 	desc_hfUpgrade.add<int>("qieType", 1);
+	desc_hfUpgrade.add<int>("mcShape",301);
+	desc_hfUpgrade.add<int>("recoShape",301);
 	desc.add<edm::ParameterSetDescription>("hfUpgrade", desc_hfUpgrade);
   
-  edm::ParameterSetDescription desc_hfrecal;
-  desc_hfrecal.add<std::vector<double>>("HFdepthOneParameterA", std::vector<double>());
-  desc_hfrecal.add<std::vector<double>>("HFdepthOneParameterB", std::vector<double>());
-  desc_hfrecal.add<std::vector<double>>("HFdepthTwoParameterA", std::vector<double>());
-  desc_hfrecal.add<std::vector<double>>("HFdepthTwoParameterB", std::vector<double>());
-  desc.add<edm::ParameterSetDescription>("HFRecalParameterBlock", desc_hfrecal);
+	edm::ParameterSetDescription desc_hfrecal;
+	desc_hfrecal.add<std::vector<double>>("HFdepthOneParameterA", std::vector<double>());
+	desc_hfrecal.add<std::vector<double>>("HFdepthOneParameterB", std::vector<double>());
+	desc_hfrecal.add<std::vector<double>>("HFdepthTwoParameterA", std::vector<double>());
+	desc_hfrecal.add<std::vector<double>>("HFdepthTwoParameterB", std::vector<double>());
+	desc.add<edm::ParameterSetDescription>("HFRecalParameterBlock", desc_hfrecal);
 
 	edm::ParameterSetDescription desc_ho;
 	desc_ho.add<std::vector<double>>("gain", std::vector<double>({0.006, 0.0087}));
@@ -878,6 +908,8 @@ void HcalHardcodeCalibrations::fillDescriptions(edm::ConfigurationDescriptions &
 	desc_ho.add<std::vector<double>>("qieOffset", std::vector<double>({-0.44, 1.4, 7.1, 38.5}));
 	desc_ho.add<std::vector<double>>("qieSlope", std::vector<double>({0.907, 0.915, 0.92, 0.921}));
 	desc_ho.add<int>("qieType", 0);
+	desc_ho.add<int>("mcShape",201);
+	desc_ho.add<int>("recoShape",201);
 	desc.add<edm::ParameterSetDescription>("ho", desc_ho);
 
 	

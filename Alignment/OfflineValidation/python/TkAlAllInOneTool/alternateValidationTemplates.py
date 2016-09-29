@@ -95,11 +95,7 @@ process.AlignmentTrackSelector.chi2nMax = 99.
 process.AlignmentTrackSelector.applyMultiplicityFilter = True# False
 process.AlignmentTrackSelector.maxMultiplicity = 1
 
-## GlobalTag Conditions (if needed)
-##
-process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = ".oO[GlobalTag]Oo."
-
+.oO[LoadGlobalTagTemplate]Oo.
 
 ##
 ## Geometry
@@ -250,12 +246,7 @@ process.TrackRefitter2 = process.TrackRefitter1.clone(
  ##
 process.load("RecoVertex.BeamSpotProducer.BeamSpot_cff")
  
- ##
- ## GlobalTag Conditions (if needed)
- ##
-process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = ".oO[GlobalTag]Oo."
-# process.GlobalTag.connect="frontier://FrontierProd/CMS_COND_31X_GLOBALTAG"
+.oO[LoadGlobalTagTemplate]Oo.
 
 .oO[LorentzAngleTemplate]Oo.
   

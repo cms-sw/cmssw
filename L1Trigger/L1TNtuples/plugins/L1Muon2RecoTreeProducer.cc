@@ -23,6 +23,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Common/interface/TriggerNames.h"
 
 // cond formats
 #include "JetMETCorrections/JetCorrector/interface/JetCorrector.h"
@@ -31,6 +32,8 @@
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
 #include "DataFormats/JetReco/interface/PFJetCollection.h"
 #include "DataFormats/JetReco/interface/JetID.h"
+#include "DataFormats/METReco/interface/PFMET.h"
+#include "DataFormats/METReco/interface/PFMETCollection.h"
 
 // RECO TRIGGER MATCHING:
 #include "DataFormats/Math/interface/deltaR.h"
@@ -68,6 +71,12 @@
 //local  data formats
 #include "L1Trigger/L1TNtuples/interface/L1AnalysisRecoMuon2.h"
 #include "L1Trigger/L1TNtuples/interface/L1AnalysisRecoMet.h"
+
+
+//vertices
+#include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "L1Trigger/L1TNtuples/interface/L1AnalysisRecoVertexDataFormat.h"
 
 using namespace std;
 
@@ -108,6 +117,8 @@ private:
   edm::EDGetTokenT<reco::MuonCollection>       MuonToken_;
   edm::EDGetTokenT<edm::TriggerResults>        TriggerResultsToken_;
   edm::EDGetTokenT<trigger::TriggerEvent>      triggerSummaryLabelToken_;
+  edm::EDGetTokenT<reco::VertexCollection>      VtxToken_;
+  edm::EDGetTokenT<reco::PFMETCollection>      metToken_;
 
   // bool triggerMatching_;
   // edm::InputTag triggerSummaryLabel_;
@@ -115,7 +126,8 @@ private:
   // std::vector<std::string> isoTriggerNames_;
   // std::vector<std::string> triggerNames_;
 
-  // edm::Handle<edm::TriggerResults>     isoTriggerToken_;
+  edm::Handle<edm::TriggerResults>     isoTriggerToken_;
+  edm::Handle<std::vector<std::string>> isoTriggerNamesToken_;
   // edm::Handle<edm::TriggerResults>     TriggerToken_;
 
   HLTConfigProvider hltConfig_;
@@ -138,15 +150,18 @@ L1Muon2RecoTreeProducer::L1Muon2RecoTreeProducer(const edm::ParameterSet& iConfi
 {
 
   maxMuon_         = iConfig.getParameter<unsigned int>("maxMuon");
+  isoTriggerNames_         = iConfig.getParameter<std::vector<std::string>>("isoTriggerNames");
   // isoTriggerToken_         = iConfig.getParameter<std::vector<std::string>>("isoTriggerNames");
   // TriggerToken_         = iConfig.getParameter<std::vector<std::string>>("triggerNames");
   MuonToken_ = consumes<reco::MuonCollection>(iConfig.getUntrackedParameter("MuonToken",edm::InputTag("muons")));
-
-  TriggerResultsToken_      = consumes<edm::TriggerResults>(iConfig.getUntrackedParameter("TriggerResultsToken",edm::InputTag("TriggerResults")));
+  VtxToken_  = consumes<reco::VertexCollection>(iConfig.getUntrackedParameter("VertexToken",edm::InputTag("offlinePrimaryVertices"))); 
+    
+  TriggerResultsToken_      = consumes<edm::TriggerResults>(iConfig.getUntrackedParameter("TriggerResultsToken",edm::InputTag("TriggerResults","","HLT")));
   triggerSummaryLabelToken_ = consumes<trigger::TriggerEvent>(iConfig.getUntrackedParameter("triggerSummaryLabelToken",edm::InputTag("hltTriggerSummaryAOD","","HLT")));
   // TriggerResultsToken_      = consumes<edm::TriggerResults>(iConfig.getUntrackedParameter("TriggerResultsToken",edm::InputTag("triggerSummaryLabel")));
   // triggerSummaryLabelToken_ = consumes<trigger::TriggerEvent>(iConfig.getUntrackedParameter("triggerSummaryLabelToken",edm::InputTag("triggerSummaryLabel")));
     //iConfig.getParameter<edm::InputTag>("triggerSummaryLabel");
+  metToken_               = consumes<reco::PFMETCollection>(iConfig.getUntrackedParameter("metToken",edm::InputTag("pfMet")));
 
   muon           = new L1Analysis::L1AnalysisRecoMuon2();
   muon_data           = muon->getData();
@@ -191,21 +206,40 @@ void L1Muon2RecoTreeProducer::analyze(const edm::Event& iEvent, const edm::Event
   edm::Handle<reco::MuonCollection> recoMuons;
   iEvent.getByToken(MuonToken_, recoMuons);
 
+  edm::Handle<reco::VertexCollection> vertices;
+  iEvent.getByToken(VtxToken_, vertices);
+
   edm::Handle<edm::TriggerResults> triggerResults;
   iEvent.getByToken(TriggerResultsToken_, triggerResults);
 
   edm::Handle<trigger::TriggerEvent> triggerSummaryLabel_;
   iEvent.getByToken(triggerSummaryLabelToken_, triggerSummaryLabel_);
 
+  edm::Handle<reco::PFMETCollection> metLabel_;
+  iEvent.getByToken(metToken_, metLabel_);
+
+  int counter_met = 0;
+
+  double METx = 0.;
+  double METy = 0.;
+
+  for(reco::PFMETCollection::const_iterator imet = metLabel_->begin(); 
+      imet != metLabel_->end() && (unsigned) counter_met < 1; imet++) {
+    
+    METx = imet->px();
+    METy = imet->py();
+    
+  }
+
   if (recoMuons.isValid()) {
-    muon->SetMuon(iEvent, iSetup, recoMuons, maxMuon_);
+    muon->SetMuon(iEvent, iSetup, recoMuons, vertices, METx, METy, maxMuon_);
   }
   else {
 
   }
 
+
   int counter_mu = 0;
-  
   for(reco::MuonCollection::const_iterator imu = recoMuons->begin(); 
       imu != recoMuons->end() && (unsigned) counter_mu < maxMuon_; imu++) {
 
@@ -219,9 +253,33 @@ void L1Muon2RecoTreeProducer::analyze(const edm::Event& iEvent, const edm::Event
       int hasIsoTriggered = 0;
       int hasTriggered = 0;
 
+      int passesSingleMuonFlag = 0;
       
       // first check if the trigger results are valid:
-      if (triggerResults.isValid()) {      
+      if (triggerResults.isValid()) {   
+
+	if (triggerSummaryLabel_.isValid()) {   
+
+	const edm::TriggerNames& trigNames = iEvent.triggerNames(*triggerResults); 
+	// for(UInt_t iPath = 0 ; iPath < trigNames.size() ; ++iPath)
+	//   {
+	//     cout<<iPath<<": "<<trigNames.triggerName(iPath)<<endl;
+	//   }
+	
+	for(UInt_t iPath = 0 ; iPath < isoTriggerNames_.size() ; ++iPath)
+	  {
+	    if(passesSingleMuonFlag==1) continue;
+	    std::string pathName=isoTriggerNames_.at(iPath);
+
+	    bool passTrig=false;
+	    //cout<<"testing pathName                         = "<<pathName<<endl;
+	    //cout<<"trigNames.triggerIndex(pathName) = "<<trigNames.triggerIndex(pathName)<<endl;
+	    // cout<<"trigNames.triggerIndex(pathName)<trigNames.size()= "<<(trigNames.triggerIndex(pathName)<trigNames.size())<<endl;
+	    
+	    if(trigNames.triggerIndex(pathName)<trigNames.size()) passTrig=triggerResults->accept(trigNames.triggerIndex(pathName));
+	    // cout<<"pass = "<<passTrig<<endl;
+	    if(passTrig) passesSingleMuonFlag=1;
+	  }   
 	
 	if (triggerSummaryLabel_.isValid()) {
 	  // get trigger objects:
@@ -243,11 +301,14 @@ void L1Muon2RecoTreeProducer::analyze(const edm::Event& iEvent, const edm::Event
 	
       } // end if (triggerResults.isValid())
 
+      } // end if (triggerResults.isValid())
+
         // fill trigger matching variables:
       muon_data->hlt_isomu.push_back(hasIsoTriggered);
       muon_data->hlt_mu.push_back(hasTriggered);
       muon_data->hlt_isoDeltaR.push_back(isoMatchDeltaR);
       muon_data->hlt_deltaR.push_back(matchDeltaR);
+      muon_data->passesSingleMuon.push_back(passesSingleMuonFlag);
       
     } else {
       empty_hlt();

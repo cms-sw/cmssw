@@ -20,6 +20,8 @@ Original Author: John Paul Chou (Brown University)
 #include "RecoMET/METAlgorithms/interface/HcalHPDRBXMap.h"
 #include "CondFormats/HcalObjects/interface/HcalChannelQuality.h"
 #include "CondFormats/DataRecord/interface/HcalChannelQualityRcd.h"
+#include "CondFormats/DataRecord/interface/HcalFrontEndMapRcd.h"
+#include "CondFormats/HcalObjects/interface/HcalFrontEndMap.h"
 
 HBHEIsolatedNoiseReflagger::HBHEIsolatedNoiseReflagger(const edm::ParameterSet& iConfig) :
   
@@ -98,7 +100,12 @@ HBHEIsolatedNoiseReflagger::produce(edm::Event& iEvent, const edm::EventSetup& e
   // get the calotower mappings
   edm::ESHandle<CaloTowerConstituentsMap> ctcm;
   evSetup.get<CaloGeometryRecord>().get(ctcm);
-  
+
+  // get hcal frontend map
+  edm::ESHandle<HcalFrontEndMap> hfemapHndl;
+  evSetup.get<HcalFrontEndMapRcd>().get(hfemapHndl);
+  hfemap = hfemapHndl.product();
+
   // get the HB/HE hits
   edm::Handle<HBHERecHitCollection> hbhehits_h;
   iEvent.getByToken(tok_hbhe_, hbhehits_h);
@@ -123,7 +130,7 @@ HBHEIsolatedNoiseReflagger::produce(edm::Event& iEvent, const edm::EventSetup& e
 
   // organizer the hits
   PhysicsTowerOrganizer pto(iEvent, evSetup, hbhehits_h, ebhits_h, eehits_h, trackextraps_h, objvalidator_, *(ctcm.product()));
-  HBHEHitMapOrganizer organizer(hbhehits_h, objvalidator_, pto);
+  HBHEHitMapOrganizer organizer(hbhehits_h, objvalidator_, pto, hfemap);
 
   // get the rbxs, hpds, dihits, and monohits
   std::vector<HBHEHitMap> rbxs;
@@ -226,7 +233,7 @@ HBHEIsolatedNoiseReflagger::produce(edm::Event& iEvent, const edm::EventSetup& e
   }
 
   // prepare the output HBHE RecHit collection
-  std::auto_ptr<HBHERecHitCollection> pOut(new HBHERecHitCollection());
+  auto pOut = std::make_unique<HBHERecHitCollection>();
   // loop over rechits, and set the new bit you wish to use
   for(HBHERecHitCollection::const_iterator it=hbhehits_h->begin(); it!=hbhehits_h->end(); ++it) {
     const HBHERecHit* hit=&(*it);
@@ -237,7 +244,7 @@ HBHEIsolatedNoiseReflagger::produce(edm::Event& iEvent, const edm::EventSetup& e
     pOut->push_back(newhit);
   }
 
-  iEvent.put(pOut);
+  iEvent.put(std::move(pOut));
 
   return;  
 }
@@ -255,9 +262,10 @@ void HBHEIsolatedNoiseReflagger::DumpHBHEHitMap(std::vector<HBHEHitMap>& i) cons
         edm::LogInfo("HBHEIsolatedNoiseReflagger") << "hits:" << std::endl;
         for(HBHEHitMap::hitmap_const_iterator it2=it->beginHits(); it2!=it->endHits(); ++it2) {
           const HBHERecHit *hit=it2->first;
-            edm::LogInfo("HBHEIsolatedNoiseReflagger") << "RBX #=" << HcalHPDRBXMap::indexRBX(hit->id())
-                      << "; HPD #=" << HcalHPDRBXMap::indexHPD(hit->id())
-                      << "; " << (*hit) << std::endl;
+            edm::LogInfo("HBHEIsolatedNoiseReflagger") 
+	      << "RBX #=" << hfemap->lookupRBX(hit->id())
+	      << "; HPD #=" << hfemap->lookupRMIndex(hit->id())
+	      << "; " << (*hit) << std::endl;
         }
   }
   return;

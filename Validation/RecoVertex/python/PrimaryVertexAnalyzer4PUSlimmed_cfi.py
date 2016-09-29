@@ -1,5 +1,4 @@
 import FWCore.ParameterSet.Config as cms
-from Configuration.StandardSequences.Eras import eras
 
 selectedOfflinePrimaryVertices = cms.EDFilter("VertexSelector",
                                                src = cms.InputTag('offlinePrimaryVertices'),
@@ -35,9 +34,12 @@ vertexAnalysisTrackingOnly = vertexAnalysis.clone(
         "firstStepPrimaryVertices"
     ]
 )
-eras.trackingLowPU.toModify(vertexAnalysisTrackingOnly, vertexRecoCollections = vertexAnalysis.vertexRecoCollections.value())
-eras.trackingPhase1PU70.toModify(vertexAnalysisTrackingOnly, vertexRecoCollections = vertexAnalysis.vertexRecoCollections.value())
-eras.trackingPhase2PU140.toModify(vertexAnalysisTrackingOnly, vertexRecoCollections = vertexAnalysis.vertexRecoCollections.value())
+from Configuration.Eras.Modifier_trackingLowPU_cff import trackingLowPU
+trackingLowPU.toModify(vertexAnalysisTrackingOnly, vertexRecoCollections = vertexAnalysis.vertexRecoCollections.value())
+from Configuration.Eras.Modifier_trackingPhase1PU70_cff import trackingPhase1PU70
+trackingPhase1PU70.toModify(vertexAnalysisTrackingOnly, vertexRecoCollections = vertexAnalysis.vertexRecoCollections.value())
+from Configuration.Eras.Modifier_trackingPhase2PU140_cff import trackingPhase2PU140
+trackingPhase2PU140.toModify(vertexAnalysisTrackingOnly, vertexRecoCollections = vertexAnalysis.vertexRecoCollections.value())
 
 pixelVertexAnalysisTrackingOnly = vertexAnalysis.clone(
     do_generic_sim_plots = False,
@@ -78,6 +80,6 @@ _vertexAnalysisSequenceTrackingOnly_trackingLowPU += (
     + selectedPixelVertices
     + pixelVertexAnalysisTrackingOnly
 )
-eras.trackingLowPU.toReplaceWith(vertexAnalysisSequenceTrackingOnly, _vertexAnalysisSequenceTrackingOnly_trackingLowPU)
-eras.trackingPhase1PU70.toReplaceWith(vertexAnalysisSequenceTrackingOnly, _vertexAnalysisSequenceTrackingOnly_trackingLowPU)
-eras.trackingPhase2PU140.toReplaceWith(vertexAnalysisSequenceTrackingOnly, _vertexAnalysisSequenceTrackingOnly_trackingLowPU)
+trackingLowPU.toReplaceWith(vertexAnalysisSequenceTrackingOnly, _vertexAnalysisSequenceTrackingOnly_trackingLowPU)
+trackingPhase1PU70.toReplaceWith(vertexAnalysisSequenceTrackingOnly, _vertexAnalysisSequenceTrackingOnly_trackingLowPU)
+trackingPhase2PU140.toReplaceWith(vertexAnalysisSequenceTrackingOnly, _vertexAnalysisSequenceTrackingOnly_trackingLowPU)

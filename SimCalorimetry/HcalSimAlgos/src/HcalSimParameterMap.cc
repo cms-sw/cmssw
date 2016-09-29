@@ -9,23 +9,23 @@ HcalSimParameterMap::HcalSimParameterMap() :
   theHBParameters(2000., std::vector<double>(16, 0.3305),
 		  117, 5, 
 		  10, 5, true, true,
-		  1, std::vector<double>(16, 117.)),
+		  1, std::vector<double>(16, 117.),0.055,0.32),
   theHEParameters(2000., std::vector<double>(16, 0.3305),
 		  178, 5,
 		  10, 5, true, true,
-		  16, std::vector<double>(16, 178.)),
+		  16, std::vector<double>(16, 178.),0.055,0.32),
   theHOParameters( 4000., std::vector<double>(16, 0.3065), 
                    217., 5, 
                    10, 5, true, true,
-                   1, std::vector<double>(16, 217.)),
+                   1, std::vector<double>(16, 217.),0.,0.),
   theHOZecotekSiPMParameters( 4000., std::vector<double>(16, 3.0), // 1 mip = 15 pe = 45 fC
                    217., 5,
                    10, 5, true, true,
-                   1, std::vector<double>(16, 217.)),
+	           1, std::vector<double>(16, 217.),0.055,0.32),
   theHOHamamatsuSiPMParameters( 4000., std::vector<double>(16, 3.0),
                    217., 5,
                    10, 5, true, true,
-                   1, std::vector<double>(16, 217.)),
+		   1, std::vector<double>(16, 217.),0.055,0.32),
   theHFParameters1(6., 2.79,
 		   1/0.278 , -4,
 		   true),
@@ -86,7 +86,7 @@ const CaloSimParameters & HcalSimParameterMap::simParameters(const DetId & detId
        return theHOParameters;
      }
   } else { // HF
-    if(hcalDetId.depth() == 1) {
+    if(hcalDetId.depth() == 1 || hcalDetId.depth() == 3) {
       return theHFParameters1;
     } else {
       return theHFParameters2;

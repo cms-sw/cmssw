@@ -4,9 +4,6 @@
 #include <string>
 #include <vector>
 
-// -------------------------------------------------------------------------
-// Includes
-// -------------------------------------------------------------------------
 #include "DDLSolid.h"
 
 class DDCompactView;
@@ -23,16 +20,13 @@ class DDLElementRegistry;
  * PseudoTrap processor processes PseudoTrap element.
  *
  */
-class DDLPseudoTrap : public DDLSolid
+class DDLPseudoTrap final : public DDLSolid
 {
-public:
+ public:
 
-  /// Constructor
   DDLPseudoTrap( DDLElementRegistry* myreg );
 
-  /// Destructor
-  ~DDLPseudoTrap( void );
-
-  void processElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv ); 
+  void processElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv ) override; 
 };
+
 #endif

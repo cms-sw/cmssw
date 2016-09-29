@@ -7,8 +7,8 @@
 #include <algorithm>
 
 namespace std{} using namespace std;
+
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "DetectorDescription/Base/interface/DDutils.h"
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
 #include "DetectorDescription/Core/interface/DDMaterial.h"
@@ -161,7 +161,7 @@ void DDHCalTBCableAlgo::execute(DDCompactView& cpv) {
     if (phideg != 0) {
       rotstr = "R"; 
       if (phideg < 100)	rotstr = "R0"; 
-      rotstr = rotstr + dbl_to_string(phideg);
+      rotstr = rotstr + std::to_string(phideg);
       rotation = DDRotation(DDName(rotstr, rotns)); 
       if (!rotation) {
 	LogDebug("HCalGeom") << "DDHCalTBCableAlgo test: Creating a new "

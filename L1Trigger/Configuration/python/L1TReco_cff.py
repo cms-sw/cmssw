@@ -7,7 +7,6 @@
 #
 
 import FWCore.ParameterSet.Config as cms
-from Configuration.StandardSequences.Eras import eras
 
 #
 # These might be more widely useful...  L1T_customs?
@@ -48,7 +47,9 @@ def config_L1ExtraForStage2Sim(coll):
 #
 # Legacy Trigger:
 #
-if not (eras.stage1L1Trigger.isChosen() or eras.stage2L1Trigger.isChosen()):
+from Configuration.Eras.Modifier_stage1L1Trigger_cff import stage1L1Trigger
+from Configuration.Eras.Modifier_stage2L1Trigger_cff import stage2L1Trigger
+if not (stage1L1Trigger.isChosen() or stage2L1Trigger.isChosen()):
     print "L1TReco Sequence configured for Run1 (Legacy) trigger. "
     from L1Trigger.L1ExtraFromDigis.l1extraParticles_cfi import *
     l1extraParticles.centralBxOnly = False
@@ -66,7 +67,7 @@ if not (eras.stage1L1Trigger.isChosen() or eras.stage2L1Trigger.isChosen()):
 #
 # Stage-1 Trigger
 #
-if eras.stage1L1Trigger.isChosen() and not eras.stage2L1Trigger.isChosen():
+if stage1L1Trigger.isChosen() and not stage2L1Trigger.isChosen():
     print "L1TReco Sequence configured for Stage-1 (2015) trigger. "    
     from L1Trigger.L1ExtraFromDigis.l1extraParticles_cfi import *
     config_L1ExtraForStage1Raw(l1extraParticles)
@@ -75,13 +76,14 @@ if eras.stage1L1Trigger.isChosen() and not eras.stage2L1Trigger.isChosen():
 #
 # Stage-2 Trigger:  fow now, reco Stage-1 as before:
 #
-if eras.stage2L1Trigger.isChosen():
+if stage2L1Trigger.isChosen():
     print "L1TReco Sequence configured for Stage-2 (2016) trigger. "    
     from L1Trigger.L1ExtraFromDigis.l1extraParticles_cfi import *
     config_L1ExtraForStage1Raw(l1extraParticles)
     L1Reco = cms.Sequence(l1extraParticles)
 
-if eras.fastSim.isChosen():
+from Configuration.Eras.Modifier_fastSim_cff import fastSim
+if fastSim.isChosen():
     # fastsim runs L1Reco and HLT in one step
     # this requires to set :
     from L1Trigger.L1ExtraFromDigis.l1extraParticles_cfi import *

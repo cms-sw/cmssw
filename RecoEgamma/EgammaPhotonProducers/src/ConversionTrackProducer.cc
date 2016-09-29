@@ -103,7 +103,7 @@ ConversionTrackProducer::ConversionTrackProducer(edm::ParameterSet const& conf) 
     }
 
     // Step B: create empty output collection
-    outputTrks = std::auto_ptr<reco::ConversionTrackCollection>(new reco::ConversionTrackCollection);    
+    outputTrks = std::make_unique<reco::ConversionTrackCollection>();    
 
     //--------------------------------------------------
     //Added by D. Giordano
@@ -161,7 +161,7 @@ ConversionTrackProducer::ConversionTrackProducer(edm::ParameterSet const& conf) 
       outputTrks->push_back(convTrack);
     }
     
-    e.put(outputTrks);
+    e.put(std::move(outputTrks));
     return;
 
   }//end produce

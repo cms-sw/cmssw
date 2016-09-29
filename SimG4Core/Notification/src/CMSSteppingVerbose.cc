@@ -11,11 +11,14 @@
 
 CMSSteppingVerbose::CMSSteppingVerbose(G4int verb, G4double ekin,
 				       std::vector<G4int>& evtNum,
+				       std::vector<G4int>& primV,
 				       std::vector<G4int>& trNum)
   : m_PrintEvent(false),m_PrintTrack(false),m_verbose(verb),
-    m_EventNumbers(evtNum),m_TrackNumbers(trNum),m_EkinThreshold(ekin)
+    m_EventNumbers(evtNum),m_PrimaryVertex(primV),m_TrackNumbers(trNum),
+    m_EkinThreshold(ekin)
 {
   m_nEvents = m_EventNumbers.size();
+  m_nVertex = m_PrimaryVertex.size();
   m_nTracks = m_TrackNumbers.size();
 }
 
@@ -29,14 +32,24 @@ void CMSSteppingVerbose::BeginOfEvent(const G4Event* evt)
   if(m_nEvents == 0) { m_PrintEvent = true; }
   else {
     for(G4int i=0; i<m_nEvents; ++i) {
+
+      // check event number
       if(evt->GetEventID() == m_EventNumbers[i]) {
+
+	// check number of vertex
+        if(m_nVertex == m_nEvents && 
+	   evt->GetNumberOfPrimaryVertex() != m_PrimaryVertex[i]) {
+	  continue;
+	}
 	m_PrintEvent = true;
 	break;
       }
     }
   }
   if(!m_PrintEvent) { return; }
-  G4cout << "========== Event #" << evt->GetEventID() << " =============" << G4endl;
+  G4cout << "========== Event #" << evt->GetEventID() << "   "
+	 << evt->GetNumberOfPrimaryVertex() << " primary vertexes ======" 
+	 << G4endl;
   G4cout << G4endl;
 }
 
@@ -268,6 +281,52 @@ void CMSSteppingVerbose::NextStep(const G4Step* step,
 	   << "-------------------------------" << G4endl;
   }
 
+  // geometry information
+  if(4 <= m_verbose) {
+    const G4VTouchable* tch1 = preStep->GetTouchable();
+    const G4VTouchable* tch2 = postStep->GetTouchable();
+
+    G4double x = postStep->GetPosition().x();
+    G4double y = postStep->GetPosition().y();
+    G4cout << "Touchable depth pre= " << tch1->GetHistoryDepth() 
+	   << " post= " << tch2->GetHistoryDepth() 
+	   << " trans1= " << tch1->GetTranslation(tch1->GetHistoryDepth())
+	   << " trans2= " << tch2->GetTranslation(tch2->GetHistoryDepth())
+	   << " r= " << std::sqrt(x*x + y*y)
+	   << G4endl;
+    const G4VPhysicalVolume* pv1 = preStep->GetPhysicalVolume();
+    const G4VPhysicalVolume* pv2 = postStep->GetPhysicalVolume();
+    G4cout << "PreStepVolume: " << pv1->GetName() << G4endl;
+    G4cout << "       Translation: " << pv1->GetObjectTranslation() << G4endl;
+    G4cout << "       Rotation:    " << pv1->GetObjectRotationValue() << G4endl;
+    const G4VSolid* sv1 = pv1->GetLogicalVolume()->GetSolid();
+    sv1->StreamInfo(G4cout);
+    G4cout << G4endl; 
+    if(pv2) {
+      G4cout << "PostStepVolume: " << pv2->GetName() << G4endl; 
+      G4cout << "       Translation: " << pv2->GetObjectTranslation() << G4endl;
+      G4cout << "       Rotation:    " << pv2->GetObjectRotationValue() << G4endl;
+      const G4VSolid* sv2 = pv2->GetLogicalVolume()->GetSolid();
+      sv2->StreamInfo(G4cout);
+    }
+    G4cout << G4endl; 
+  
+    if(5 <= m_verbose) {
+      G4cout << "##### Geometry Depth Analysis" << G4endl;
+      for(G4int k=1; k<tch1->GetHistoryDepth(); ++k) {
+	const G4VPhysicalVolume* pv = tch1->GetVolume(k);
+	if(pv) {
+	  const G4VSolid* sol = pv->GetLogicalVolume()->GetSolid();
+	  G4cout << " Depth # " << k << "  PhysVolume " << pv->GetName() << G4endl; 
+	  G4cout << "       Translation: " << pv->GetObjectTranslation() << G4endl;
+	  G4cout << "       Rotation:    " << pv->GetObjectRotationValue() << G4endl;
+	  sol->StreamInfo(G4cout);
+	}
+      }
+    }
+    G4cout << G4endl; 
+  }
+
   // verbose == 1
   prec = G4cout.precision(4);
   G4cout << std::setw( 5) << track->GetCurrentStepNumber() << " "
@@ -322,5 +381,6 @@ void CMSSteppingVerbose::NextStep(const G4Step* step,
 	   << std::setw(18)
 	   << (*tv)[i]->GetDefinition()->GetParticleName() << G4endl;
   }
+  G4cout.precision(prec);
 }
 

@@ -5,6 +5,7 @@
 
  <class name="FileBlob" class_version="0">
  </class>
+ <class name="std::vector<FileBlob>"/>
  <class name="FileBlobCollection" class_version="0"/>
  <class name="edm::Wrapper<FileBlobCollection>" class_version="0"/>
 

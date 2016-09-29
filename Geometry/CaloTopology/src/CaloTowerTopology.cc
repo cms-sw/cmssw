@@ -3,15 +3,21 @@
 #include <assert.h>
 #include <algorithm>
 
+//#define DebugLog
+
 CaloTowerTopology::CaloTowerTopology(const HcalTopology * topology) : hcaltopo(topology) {
 
   //get number of towers in each hcal subdet from hcaltopo
   int nEtaHB, nEtaHO, nEtaHF;
   nEtaHB = hcaltopo->lastHBRing() - hcaltopo->firstHBRing() + 1;
   nEtaHE_= hcaltopo->lastHERing() - hcaltopo->firstHERing() + 1;
-  if (hcaltopo->isBH()) nEtaHE_ = 0;
   nEtaHO = hcaltopo->lastHORing() - hcaltopo->firstHORing() + 1;
   nEtaHF = hcaltopo->lastHFRing() - hcaltopo->firstHFRing() + 1;
+#ifdef DebugLog
+  std::cout << "CaloTowerTopology:(1) " << nEtaHB << ":" << nEtaHE_ << ":"
+	    << nEtaHO << ":" << nEtaHF << ":" << hcaltopo->isBH() << std::endl;
+#endif
+  if (hcaltopo->isBH()) nEtaHE_ = 0;
 
   //setup continuous ieta  
   firstHBRing_ = 1;
@@ -22,7 +28,13 @@ CaloTowerTopology::CaloTowerTopology(const HcalTopology * topology) : hcaltopo(t
   lastHFRing_ = firstHFRing_ + (nEtaHF - 1) - 1; //nEtaHF - 1 to account for no crossover
   firstHORing_ = 1;
   lastHORing_ = firstHORing_ + nEtaHO - 1;
-  
+#ifdef DebugLog
+  std::cout << "CaloTowerTopology: (2) " << firstHBRing_ << ":" << lastHBRing_
+	    << ":" << firstHERing_ << ":" << lastHERing_ << ":" << firstHFRing_
+	    << ":" << lastHFRing_ << ":" << firstHORing_ << ":" << lastHORing_
+	    << std::endl;
+#endif
+
   //translate phi segmentation boundaries into continuous ieta
   if(hcaltopo->firstHEDoublePhiRing()==999 || nEtaHE_ == 0) firstHEDoublePhiRing_ = firstHFRing_;
   else firstHEDoublePhiRing_ = firstHERing_ + (hcaltopo->firstHEDoublePhiRing() - hcaltopo->firstHERing());
@@ -39,6 +51,12 @@ CaloTowerTopology::CaloTowerTopology(const HcalTopology * topology) : hcaltopo(t
   nSinglePhi_ = nEtaSinglePhi_*72;
   nDoublePhi_ = nEtaDoublePhi_*36;
   nQuadPhi_ = nEtaQuadPhi_*18;
+
+#ifdef DebugLog
+  std::cout << "CaloTowerTopology: (3) " << nEtaSinglePhi_ << ":" 
+	    << nEtaDoublePhi_ << ":" << nEtaQuadPhi_ << ":" << nSinglePhi_
+	    << ":" << nDoublePhi_ << ":" << nQuadPhi_ << std::endl;
+#endif
   
   //calculate maximum dense index size
   kSizeForDenseIndexing = 2*(nSinglePhi_ + nDoublePhi_ + nQuadPhi_);

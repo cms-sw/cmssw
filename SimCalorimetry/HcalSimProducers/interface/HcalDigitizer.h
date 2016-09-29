@@ -103,6 +103,7 @@ private:
   // we need separate amplifiers (and electronicssims)
   // because they might have separate noise generators
   HcalAmplifier * theHBHEAmplifier;
+  HcalAmplifier * theUpgradeHBHEAmplifier;
   HcalAmplifier * theHFAmplifier;
   HcalAmplifier * theHOAmplifier;
   HcalAmplifier * theZDCAmplifier;

@@ -40,7 +40,7 @@ private:
 
   //member data
   std::string  nameDetector_;
-  int          verbosity_;
+  int          nTimes_, verbosity_;
   unsigned int layers_;
 
 public:

@@ -8,15 +8,8 @@ SiPixelPhase1TrackResidualsResidualsX = DefaultHisto.clone(
   xlabel = "(x_rec - x_pred) [cm]",
   dimensions = 1,
   specs = cms.VPSet(
-    Specification().groupBy(DefaultHisto.defaultGrouping) 
-                   .save()
-                   .reduce("MEAN")
-                   .groupBy(parent(DefaultHisto.defaultGrouping), "EXTEND_X")
-                   .saveAll(),
-    Specification().groupBy(parent(DefaultHisto.defaultGrouping))
-                   .save(),
-    Specification(PerModule).groupBy(DefaultHisto.defaultPerModule)
-                            .save()
+    StandardSpecification2DProfile,
+    *StandardSpecifications1D
   )
 )
 

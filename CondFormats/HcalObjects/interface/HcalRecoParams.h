@@ -1,5 +1,5 @@
-#ifndef HcalRecoParams_h
-#define HcalRecoParams_h
+#ifndef CondFormatsHcalObjectsHcalRecoParams_h
+#define CondFormatsHcalObjectsHcalRecoParams_h
 
 
 #include "CondFormats/Serialization/interface/Serializable.h"

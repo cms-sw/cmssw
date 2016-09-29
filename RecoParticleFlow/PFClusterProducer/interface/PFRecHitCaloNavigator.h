@@ -27,7 +27,7 @@ class PFRecHitCaloNavigator : public PFRecHitNavigatorBase {
 
  virtual ~PFRecHitCaloNavigator() { if(!ownsTopo) { topology_.release(); } }
 
-  void associateNeighbours(reco::PFRecHit& hit,std::auto_ptr<reco::PFRecHitCollection>& hits,edm::RefProd<reco::PFRecHitCollection>& refProd) {
+  void associateNeighbours(reco::PFRecHit& hit,std::unique_ptr<reco::PFRecHitCollection>& hits,edm::RefProd<reco::PFRecHitCollection>& refProd) {
       DetId detid( hit.detId() );
       
       CaloNavigator<DET> navigator(detid, topology_.get());

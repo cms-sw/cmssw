@@ -15,6 +15,7 @@ charmTagsNegativeComputerCvsL = charmTagsComputerCvsL.clone()
 
 charmTagsNegativeComputerCvsL.slComputerCfg.vertexFlip = cms.bool(True)
 charmTagsNegativeComputerCvsL.slComputerCfg.trackFlip = cms.bool(True)
+charmTagsNegativeComputerCvsL.slComputerCfg.SoftLeptonFlip = cms.bool(True)
 charmTagsNegativeComputerCvsL.slComputerCfg.trackSelection.sip3dSigMax = 0
 charmTagsNegativeComputerCvsL.slComputerCfg.trackPseudoSelection.sip3dSigMax = 0
 charmTagsNegativeComputerCvsL.slComputerCfg.trackPseudoSelection.sip2dSigMin = -99999.9
@@ -24,6 +25,7 @@ charmTagsNegativeComputerCvsB = charmTagsComputerCvsB.clone()
 
 charmTagsNegativeComputerCvsB.slComputerCfg.vertexFlip = cms.bool(True)
 charmTagsNegativeComputerCvsB.slComputerCfg.trackFlip = cms.bool(True)
+charmTagsNegativeComputerCvsB.slComputerCfg.SoftLeptonFlip = cms.bool(True)
 charmTagsNegativeComputerCvsB.slComputerCfg.trackSelection.sip3dSigMax = 0
 charmTagsNegativeComputerCvsB.slComputerCfg.trackPseudoSelection.sip3dSigMax = 0
 charmTagsNegativeComputerCvsB.slComputerCfg.trackPseudoSelection.sip2dSigMin = -99999.9

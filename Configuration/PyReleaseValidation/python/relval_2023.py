@@ -12,18 +12,20 @@ workflows = Matrix()
 
 #just define all of them
 
-numWFStart=10000
+numWFStart=20000
 numWFSkip=200
-#2023 WFs to run in IB (TenMuE_0_200, TTbar, ZEE, MinBias, TTbar PU, ZEE PU)
-numWFIB = [10821.0,10824.0,10825.0,10826.0] #2023sim scenario
-numWFIB.extend([10621.0,10624.0,10625.0,10626.0]) #2023 with tilted tracker
-numWFIB.extend([11221.0,11224.0,11225.0,11226.0]) #2023Greco
-for i,key in enumerate(upgradeKeys):
+#2023 WFs to run in IB (TenMuE_0_200, TTbar, ZEE, MinBias)
+numWFIB = [20021.0,20024.0,20025.0,20026.0] #2023D1 scenario
+numWFIB.extend([20421.0,20424.0,20425.0,20426.0]) #2023D2
+numWFIB.extend([20821.0,20824.0,20825.0,20826.0]) #2023D3
+numWFIB.extend([21221.0,21224.0,21225.0,21226.0]) #2023D4
+numWFIB.extend([22424.0]) #2023D3Timing
+for i,key in enumerate(upgradeKeys[2023]):
     numWF=numWFStart+i*numWFSkip
     for frag in upgradeFragments:
         k=frag[:-4]+'_'+key
         stepList=[]
-        for step in upgradeScenToRun[key]:
+        for step in upgradeProperties[2023][key]['ScenToRun']:
             if 'Sim' in step:
                 stepList.append(k+'_'+step)
             else:

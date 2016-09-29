@@ -15,7 +15,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 // Alignment
-
+#include "Alignment/CommonAlignment/interface/AlignableObjectId.h"
 #include "Alignment/TrackerAlignment/interface/TrackerScenarioBuilder.h"
 #include "Alignment/TrackerAlignment/interface/AlignableTracker.h"
 
@@ -30,13 +30,13 @@ TrackerScenarioBuilder::TrackerScenarioBuilder(AlignableTracker* alignable)
   }
 
   // Fill what is needed for possiblyPartOf(..):
-  theSubdets.push_back("TPB"); // Take care, order matters: 1st pixel, 2nd strip.
-  theSubdets.push_back("TPE");
+  theSubdets.push_back(stripOffModule(align::TPBModule)); // Take care, order matters: 1st pixel, 2nd strip.
+  theSubdets.push_back(stripOffModule(align::TPEModule));
   theFirstStripIndex = theSubdets.size();
-  theSubdets.push_back("TIB");
-  theSubdets.push_back("TID");
-  theSubdets.push_back("TOB");
-  theSubdets.push_back("TEC");
+  theSubdets.push_back(stripOffModule(align::TIBModule));
+  theSubdets.push_back(stripOffModule(align::TIDModule));
+  theSubdets.push_back(stripOffModule(align::TOBModule));
+  theSubdets.push_back(stripOffModule(align::TECModule));
 }
 
 
@@ -109,3 +109,15 @@ bool TrackerScenarioBuilder::possiblyPartOf(const std::string &subStruct, const 
   return true; 
 }
 
+//__________________________________________________________________________________________________
+std::string TrackerScenarioBuilder::stripOffModule(const align::StructureType& type) const {
+  const std::string module{"Module"};
+  std::string name{AlignableObjectId::typeToName(type)};
+  auto start = name.find(module);
+  if (start == std::string::npos) {
+    throw cms::Exception("LogicError")
+      << "[TrackerScenarioBuilder] '" << name << "' is not a module type";
+  }
+  name.replace(start, module.length(), "");
+  return name;
+}

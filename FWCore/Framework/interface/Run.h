@@ -108,17 +108,9 @@ namespace edm {
     ///Put a new product.
     template <typename PROD>
     void
-    put(std::auto_ptr<PROD> product) {put<PROD>(product, std::string());}
-
-    template <typename PROD>
-    void
     put(std::unique_ptr<PROD> product) {put<PROD>(std::move(product), std::string());}
 
     ///Put a new product with a 'product instance name'
-    template <typename PROD>
-    void
-    put(std::auto_ptr<PROD> product, std::string const& productInstanceName);
-
     template <typename PROD>
     void
     put(std::unique_ptr<PROD> product, std::string const& productInstanceName);
@@ -179,12 +171,6 @@ namespace edm {
     static const std::string emptyString_;
   };
 
-  template <typename PROD>
-  void
-  Run::put(std::auto_ptr<PROD> product, std::string const& productInstanceName) {
-    put(std::unique_ptr<PROD>(product.release()),productInstanceName);
-  }
-  
   template <typename PROD>
   void
   Run::put(std::unique_ptr<PROD> product, std::string const& productInstanceName) {

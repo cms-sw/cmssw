@@ -12,8 +12,8 @@
 
 struct HGCalBestChoiceDataPayload
 {
-    static const size_t size = 64;
-    typedef std::array<uint32_t, size> trigger_cell_list; // list of data in 64 trigger cells
+    static const size_t size = 116; 
+    typedef std::array<uint32_t, size> trigger_cell_list; // list of trigger cell values
     trigger_cell_list payload;
 
     void reset() 
@@ -34,13 +34,41 @@ class HGCalBestChoiceCodecImpl
         std::vector<bool> encode(const data_type&) const ;
         data_type         decode(const std::vector<bool>&) const;  
 
-        void triggerCellSums(const HGCalTriggerGeometry::Module& , const std::vector<HGCEEDataFrame>&, data_type&);
+        void linearize(const std::vector<HGCDataFrame<HGCalDetId,HGCSample>>&,
+                std::vector<std::pair<HGCalDetId, uint32_t > >&);
+
+        void triggerCellSums(const HGCalTriggerGeometryBase& ,
+                const std::vector<std::pair<HGCalDetId, uint32_t > >&,
+                data_type&);
         void bestChoiceSelect(data_type&);
 
+        // Retrieve parameters
+        size_t   nData()         const {return nData_;}
+        size_t   dataLength()    const {return dataLength_;}
+        double   linLSB()        const {return linLSB_;}
+        double   adcsaturation() const {return adcsaturation_;}
+        uint32_t adcnBits()      const {return adcnBits_;}
+        double   tdcsaturation() const {return tdcsaturation_;}
+        uint32_t tdcnBits()      const {return tdcnBits_;}
+        double   tdcOnsetfC()    const {return tdcOnsetfC_;}
+        uint32_t triggerCellTruncationBits() const {return triggerCellTruncationBits_;}
+        uint32_t triggerCellSaturationBits() const {return triggerCellSaturationBits_;}
+
+
     private:
-        size_t nData_;
-        size_t dataLength_;
-        size_t nCellsInModule_;
+        size_t   nData_;
+        size_t   dataLength_;
+        size_t   nCellsInModule_;
+        double   linLSB_;
+        double   adcsaturation_;
+        uint32_t adcnBits_;
+        double   tdcsaturation_ ;
+        uint32_t tdcnBits_ ;
+        double   tdcOnsetfC_ ;
+        double   adcLSB_;
+        double   tdcLSB_;
+        uint32_t triggerCellTruncationBits_;
+        uint32_t triggerCellSaturationBits_;
 
 };
 

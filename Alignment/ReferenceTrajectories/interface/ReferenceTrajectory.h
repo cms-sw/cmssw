@@ -194,6 +194,7 @@ private:
   const PropagationDirection propDir_;
   const bool useBeamSpot_;
   const bool includeAPEs_;
+  const bool allowZeroMaterial_;
 };
 
 #endif

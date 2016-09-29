@@ -1,4 +1,6 @@
 import FWCore.ParameterSet.Config as cms
+import CondTools.Ecal.conddb_init as conddb_init
+import CondTools.Ecal.db_credentials as auth
 
 process = cms.Process("ProcessOne")
 
@@ -20,20 +22,17 @@ process.source = cms.Source("EmptyIOVSource",
 process.load("CondCore.CondDB.CondDB_cfi")
 
 process.CondDB.DBParameters.authenticationPath = ''
-
-#process.CondDB.connect = 'sqlite_file:EcalIntercalibConstants_V1_express.db'
-process.CondDB.connect = 'oracle://cms_orcon_prod/CMS_CONDITIONS'
-
+process.CondDB.connect = conddb_init.options.destinationDatabase
 
 process.PoolDBOutputService = cms.Service("PoolDBOutputService",
     process.CondDB, 
-    logconnect = cms.untracked.string('oracle://cms_orcon_prod/CMS_COND_31X_POPCONLOG'),
-#   logconnect = cms.untracked.string('sqlite_file:log.db'),   
     toPut = cms.VPSet(cms.PSet(
         record = cms.string('EcalIntercalibConstantsRcd'),
-        tag = cms.string('EcalIntercalibConstants_V1_express')
+        tag = cms.string(conddb_init.options.destinationTag)
     ))
 )
+
+db_service,db_user,db_pwd = auth.get_readOnly_db_credentials()
 
 process.Test1 = cms.EDAnalyzer("ExTestEcalIntercalibAnalyzer",
     record = cms.string('EcalIntercalibConstantsRcd'),
@@ -41,17 +40,14 @@ process.Test1 = cms.EDAnalyzer("ExTestEcalIntercalibAnalyzer",
     IsDestDbCheckedInQueryLog=cms.untracked.bool(True),
     SinceAppendMode=cms.bool(True),
     Source=cms.PSet(
-     FileLowField = cms.string('/data/O2O/Ecal/TPG/Intercalib_Boff.xml'),
-     FileHighField = cms.string('/data/O2O/Ecal/TPG/Intercalib_Bon.xml'),
-# Run1 :    Value_Bon = cms.untracked.double(0.76724),
+     FileLowField = cms.string('Intercalib_Boff.xml'),
+     FileHighField = cms.string('Intercalib_Bon.xml'),
      Value_Bon = cms.untracked.double(0.7041),
-# March 2016 : IC value for Xtal iX="50" iY="5" iZ="-1"
      firstRun = cms.string('207149'),
      lastRun = cms.string('10000000'),
-     OnlineDBSID = cms.string('cms_omds_lb'),
-#     OnlineDBSID = cms.string('cms_orcon_adg'),  test on lxplus
-     OnlineDBUser = cms.string('cms_ecal_r'),
-     OnlineDBPassword = cms.string('3c4l_r34d3r'),
+     OnlineDBSID = cms.string(db_service),
+     OnlineDBUser = cms.string(db_user),
+     OnlineDBPassword = cms.string( db_pwd ),
      LocationSource = cms.string('P5'),
      Location = cms.string('P5_Co'),
      GenTag = cms.string('GLOBAL'),

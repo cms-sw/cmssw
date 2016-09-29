@@ -79,9 +79,8 @@ class LogErrorEventFilter : public edm::one::EDFilter<edm::one::WatchRuns,
         template<typename Collection> static void increment(ErrorSet &scoreboard, Collection &list);
         template<typename Collection> static void print(const Collection &errors) ;
 
-        static std::auto_ptr<ErrorList > serialize(const ErrorSet &set) {
-            std::auto_ptr<ErrorList> ret(new ErrorList(set.begin(), set.end()));
-            return ret;
+        static std::unique_ptr<ErrorList > serialize(const ErrorSet &set) {
+            return std::make_unique<ErrorList>(set.begin(), set.end());
         }
 };
 
@@ -170,8 +169,8 @@ LogErrorEventFilter::endLuminosityBlock(edm::LuminosityBlock const &lumi, const 
 void
 LogErrorEventFilter::endLuminosityBlockProduce(edm::LuminosityBlock &lumi, const edm::EventSetup &iSetup) {
     lumi.put(serialize(errorCollectionThisLumi_));
-    std::auto_ptr<int> outpass(new int(npassLumi_)); lumi.put(outpass, "pass");
-    std::auto_ptr<int> outfail(new int(nfailLumi_)); lumi.put(outfail, "fail");
+    lumi.put(std::make_unique<int>(npassLumi_), "pass");
+    lumi.put(std::make_unique<int>(nfailLumi_), "fail");
 }
 
 
@@ -232,7 +231,7 @@ LogErrorEventFilter::filter(edm::Event & iEvent, const edm::EventSetup & iSetup)
    
     if (errors->empty()) { 
         npassRun_++; npassLumi_++;
-	iEvent.put( std::auto_ptr<bool>(new bool(false)) );
+	iEvent.put(std::make_unique<bool>(false));
 
 	if(taggedMode_) return forcedValue_;
         return false;
@@ -262,7 +261,7 @@ LogErrorEventFilter::filter(edm::Event & iEvent, const edm::EventSetup & iSetup)
 
 
     if (fail) { nfailLumi_++; nfailRun_++; } else { npassRun_++; npassLumi_++; }
-    iEvent.put( std::auto_ptr<bool>(new bool(fail)) );  // fail is the unbiased boolean 
+    iEvent.put(std::make_unique<bool>(fail));  // fail is the unbiased boolean 
 
     if(taggedMode_) return forcedValue_;
     return save;

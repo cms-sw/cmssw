@@ -94,7 +94,7 @@ bool
   using namespace reco;
   using namespace trigger;
 
-  auto_ptr<RecoChargedCandidateCollection> chargedCandidates( new std::vector<RecoChargedCandidate> );
+  auto chargedCandidates = std::make_unique<std::vector<RecoChargedCandidate>>();
 
   ModuleDescription moduleDesc_;
 
@@ -182,7 +182,7 @@ bool
 
   // put filter object into the Event
    if(saveTags()){
-     edm::OrphanHandle<RecoChargedCandidateCollection> chargedCandidatesHandle = iEvent.put(chargedCandidates);
+     edm::OrphanHandle<RecoChargedCandidateCollection> chargedCandidatesHandle = iEvent.put(std::move(chargedCandidates));
      for(int i=0; i<NTracks; i++){
           filterproduct.addObject(TriggerMuon,RecoChargedCandidateRef(chargedCandidatesHandle,i));
      }

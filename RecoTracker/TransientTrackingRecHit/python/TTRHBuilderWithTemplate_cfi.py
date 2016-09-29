@@ -5,7 +5,9 @@ TTRHBuilderAngleAndTemplate = cms.ESProducer("TkTransientTrackingRecHitBuilderES
     ComponentName = cms.string('WithAngleAndTemplate'),
     PixelCPE = cms.string('PixelCPETemplateReco'),
     Matcher = cms.string('StandardMatcher'),
-    ComputeCoarseLocalPositionFromDisk = cms.bool(False)                                             
+    ComputeCoarseLocalPositionFromDisk = cms.bool(False),
 )
 
+from Configuration.Eras.Modifier_trackingPhase2PU140_cff import trackingPhase2PU140
+trackingPhase2PU140.toModify(TTRHBuilderAngleAndTemplate, Phase2StripCPE = cms.string('Phase2StripCPEGeometric'))
 

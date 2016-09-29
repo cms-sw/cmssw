@@ -51,24 +51,17 @@ class DDLSAX2FileHandler : public DDLSAX2Handler
   void characters (const XMLCh *const chars, const XMLSize_t length) override;
   void comment (const XMLCh *const chars, const XMLSize_t length ) override;
   
+ private:
   virtual const std::string& parent() const;
   virtual const std::string& self() const;
   
-  // -----------------------------------------------------------------------
-  //  Dump information on number and name of elements processed.
-  // -----------------------------------------------------------------------
-  /// This dumps some statistics on elements encountered in the file.
-  void dumpElementTypeCounter();
-
- protected:
+ private:
   //! creates all DDConstant from the evaluator which has been already 'filled' in the first scan of the documents
   void createDDConstants() const; 
-  //  Map that holds name and number of elements processed.
-  std::map < std::string, int> elementTypeCounter_;
-  std::vector<std::string> namesMap_;
-  std::vector < size_t > names_;
+
+  std::vector< std::string > namesMap_;
+  std::vector< size_t > names_;
   DDCompactView& cpv_;
-  DDLElementRegistry xmlelems_;
 };
 
 #endif

@@ -23,3 +23,9 @@ photonIDValueMapProducer = cms.EDProducer('PhotonIDValueMapProducer',
                                           # there is no need for the isolation map here, for miniAOD it is inside packedPFCandidates
                                           srcMiniAOD = cms.InputTag('slimmedPhotons',processName=cms.InputTag.skipCurrentProcess()),
                                           )
+
+from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
+phase2_common.toModify(photonIDValueMapProducer, 
+    esReducedRecHitCollection = cms.InputTag(""),
+    esReducedRecHitCollectionMiniAOD = cms.InputTag(""),
+)

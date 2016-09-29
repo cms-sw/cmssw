@@ -171,8 +171,9 @@ void pat::PackedCandidate::unpackTrk() const {
     m(4,3)=dxydz_;
     m(4,4)=dzdz_;
     math::RhoEtaPhiVector p3(p4_.load()->pt(),p4_.load()->eta(),phiAtVtx());
-    int numberOfPixelHits = packedHits_ & trackPixelHitsMask ;
-    int numberOfHits = (packedHits_>>trackStripHitsShift) + numberOfPixelHits;
+    int numberOfStripLayers = stripLayersWithMeasurement(), numberOfPixelLayers = pixelLayersWithMeasurement();
+    int numberOfPixelHits = this->numberOfPixelHits();
+    int numberOfHits = this->numberOfHits();
 
     int ndof = numberOfHits+numberOfPixelHits-5;
     reco::HitPattern hp, hpExpIn;
@@ -181,14 +182,44 @@ void pat::PackedCandidate::unpackTrk() const {
     
     auto track = std::make_unique<reco::Track>(normalizedChi2_*ndof,ndof,*vertex_,math::XYZVector(p3.x(),p3.y(),p3.z()),charge(),m,reco::TrackBase::undefAlgorithm,reco::TrackBase::loose);
     
+    // add hits to match the number of laters and validHitInFirstPixelBarrelLayer
     if(innerLost == validHitInFirstPixelBarrelLayer){
+        // first we add one hit on the first barrel layer
         track->appendTrackerHitPattern(PixelSubdetector::PixelBarrel, 1, 0, TrackingRecHit::valid); 
-        i++; 
+        // then to encode the number of layers, we add more hits on distinct layers (B2, B3, B4, F1, ...)
+        for(i++; i<numberOfPixelLayers; i++) {
+            if (i <= 3) { 
+                track->appendTrackerHitPattern(PixelSubdetector::PixelBarrel, i+1, 0, TrackingRecHit::valid); 
+            } else {    
+                track->appendTrackerHitPattern(PixelSubdetector::PixelEndcap, i-3, 0, TrackingRecHit::valid); 
+            }
+        }
+    } else {
+        // to encode the information on the layers, we add one valid hits per layer but skipping PXB1
+        for(;i<numberOfPixelLayers; i++) {
+            if (i <= 2 ) { 
+                track->appendTrackerHitPattern(PixelSubdetector::PixelBarrel, i+2, 0, TrackingRecHit::valid); 
+            } else {    
+                track->appendTrackerHitPattern(PixelSubdetector::PixelEndcap, i-3, 0, TrackingRecHit::valid); 
+            }
+        }
     }
-    for(;i<numberOfPixelHits; i++) {
-       track->appendTrackerHitPattern(PixelSubdetector::PixelBarrel, i > 1 ? 3 : 2, 0, TrackingRecHit::valid); 
+    // add extra hits (overlaps, etc), all on the first layer with a hit - to avoid increasing the layer count
+    for(;i<numberOfPixelHits; i++) { 
+       track->appendTrackerHitPattern(PixelSubdetector::PixelBarrel, (innerLost == validHitInFirstPixelBarrelLayer ? 1 : 2), 0, TrackingRecHit::valid); 
     }
-    
+    // now start adding strip layers, putting one hit on each layer so that the hitPattern.stripLayersWithMeasurement works.
+    // we don't know what the layers where, so we just start with TIB (4 layers), then TOB (6 layers), then TEC (9)
+    // and then TID(3), so that we can get a number of valid strip layers up to 4+6+9+3
+    for(int sl = 0; sl < numberOfStripLayers; ++sl, ++i) {
+        if      (sl < 4)    track->appendTrackerHitPattern(StripSubdetector::TIB,   sl   +1, 1, TrackingRecHit::valid);
+        else if (sl < 4+6)  track->appendTrackerHitPattern(StripSubdetector::TOB, (sl- 4)+1, 1, TrackingRecHit::valid);
+        else if (sl < 10+9) track->appendTrackerHitPattern(StripSubdetector::TEC, (sl-10)+1, 1, TrackingRecHit::valid);
+        else if (sl < 19+3) track->appendTrackerHitPattern(StripSubdetector::TID, (sl-13)+1, 1, TrackingRecHit::valid);
+        else break; // wtf?
+    }
+    // finally we account for extra strip hits beyond the one-per-layer added above. we put them all on TIB1,
+    // to avoid incrementing the number of layersWithMeasurement.
     for(;i<numberOfHits;i++) {
           track->appendTrackerHitPattern(StripSubdetector::TIB, 1, 1, TrackingRecHit::valid);
     }

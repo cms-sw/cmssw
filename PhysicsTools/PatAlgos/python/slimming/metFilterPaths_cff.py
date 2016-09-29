@@ -49,3 +49,9 @@ def miniAOD_customizeMETFiltersFastSim(process):
     for X in 'manystripclus53X', 'toomanystripclus53X', 'logErrorTooManyClusters':
         process.globalReplace(X, cms.EDFilter("HLTBool", result=cms.bool(False)))
     return process
+
+from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
+phase2_hgcal.toReplaceWith( Flag_HBHENoiseFilter, cms.Path() )
+phase2_hgcal.toReplaceWith( Flag_HBHENoiseIsoFilter, cms.Path() )
+phase2_hgcal.toReplaceWith( Flag_eeBadScFilter, cms.Path() )
+

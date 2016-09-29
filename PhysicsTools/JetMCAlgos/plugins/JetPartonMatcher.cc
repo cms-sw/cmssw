@@ -164,7 +164,7 @@ void JetPartonMatcher::produce( Event& iEvent, const EventSetup& iEs )
                                              aParton.phi()    << endl;
   }
 
-  auto_ptr<reco::JetMatchedPartonsCollection> jetMatchedPartons( new JetMatchedPartonsCollection(reco::JetRefBaseProd(jets_h)));
+  auto jetMatchedPartons = std::make_unique<JetMatchedPartonsCollection>(reco::JetRefBaseProd(jets_h));
 
   for (size_t j = 0; j < jets_h->size(); j++) {
 
@@ -186,7 +186,7 @@ void JetPartonMatcher::produce( Event& iEvent, const EventSetup& iEs )
     (*jetMatchedPartons)[jets_h->refAt(j)]=MatchedPartons(pHV,pN2,pN3,pPH,pAL);
   }
 
-  iEvent.put(  jetMatchedPartons );
+  iEvent.put(std::move(jetMatchedPartons));
 
 }
 

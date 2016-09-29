@@ -50,7 +50,7 @@
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetType.h"
 
@@ -109,6 +109,8 @@ namespace cms
     
     if (theTkDigiGeomWatcher.check(iSetup)) {
       iSetup.get<TrackerDigiGeometryRecord>().get(geometryType_, pDD_);
+      //reset cache
+      ModuleTypeCache().swap(moduleTypeCache_);
       detectorUnits_.clear();
       for (auto const & det_u : pDD_->detUnits()) {
 	unsigned int detId_raw = det_u->geographicalId().rawId();
@@ -218,13 +220,29 @@ namespace cms
     DetId detId(detId_raw); 
 
     AlgorithmType algotype = AlgorithmType::Unknown;
-    TrackerGeometry::ModuleType mType = pDD_->getDetectorType(detId);    
+    
+    //get mType either from the geometry or from our cache (faster)
+    TrackerGeometry::ModuleType mType = TrackerGeometry::ModuleType::UNKNOWN;
+    auto itr = moduleTypeCache_.find(detId_raw);
+    if( itr != moduleTypeCache_.end() ) {
+      mType = itr->second; 
+    } else {
+      mType = pDD_->getDetectorType(detId);
+      moduleTypeCache_.emplace(detId_raw,mType);
+    }
+    
     switch(mType){
 
     case TrackerGeometry::ModuleType::Ph1PXB:
       algotype = AlgorithmType::InnerPixel;
       break;
     case TrackerGeometry::ModuleType::Ph1PXF:
+      algotype = AlgorithmType::InnerPixel;
+      break;
+    case TrackerGeometry::ModuleType::Ph2PXB:
+      algotype = AlgorithmType::InnerPixel;
+      break;
+    case TrackerGeometry::ModuleType::Ph2PXF:
       algotype = AlgorithmType::InnerPixel;
       break;
     case TrackerGeometry::ModuleType::Ph2PSP:
@@ -299,7 +317,7 @@ namespace cms
       for (auto const & digi_p : digi_map) {
 	DigitizerUtility::DigiSimInfo info = digi_p.second;  
 	std::pair<int,int> ip = Phase2TrackerDigi::channelToPixel(digi_p.first);
-	collector.data.emplace_back(ip.first, ip.second);
+	collector.data.emplace_back(ip.first, ip.second, info.ot_bit);
         for (auto const & track_p : info.track_map) {
 	  linkcollector.data.emplace_back(digi_p.first, track_p.first, info.hit_counter, info.tof_bin, info.event_id, track_p.second);
 	}

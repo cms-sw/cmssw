@@ -1,8 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
 def fixRPCConditions(process):
-    if hasattr(process,'simMuonRPCDigis'):
-    	process.simMuonRPCDigis.digiModel = cms.string('RPCSimAverageNoiseEffCls')
     if not hasattr(process.GlobalTag,'toGet'):
         process.GlobalTag.toGet=cms.VPSet()
     process.GlobalTag.toGet.extend( cms.VPSet(
@@ -17,5 +15,3 @@ def fixRPCConditions(process):
         )
     )
     return process
-
-

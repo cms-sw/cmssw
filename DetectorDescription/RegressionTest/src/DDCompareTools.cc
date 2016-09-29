@@ -228,6 +228,7 @@ bool DDCompareSolid::operator()(const DDSolid& lhs, const DDSolid& rhs) const {
     case dd_not_init:
     case ddbox:
     case ddtubs:
+    case ddcuttubs:
     case ddtrap: 
     case ddcons:
     case ddpolycone_rz:

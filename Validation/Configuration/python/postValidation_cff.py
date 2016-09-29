@@ -1,5 +1,4 @@
 import FWCore.ParameterSet.Config as cms
-from Configuration.StandardSequences.Eras import eras
 
 from Validation.RecoMuon.PostProcessor_cff import *
 from Validation.RecoTrack.PostProcessorTracker_cfi import *
@@ -20,10 +19,13 @@ from Validation.RecoMET.METPostProcessor_cff import *
 from DQMOffline.RecoB.dqmCollector_cff import *
 
 
+postValidationTracking = cms.Sequence(
+      postProcessorTrackSequence
+    + postProcessorVertexSequence
+)
 postValidation = cms.Sequence(
       recoMuonPostProcessors
-    + postProcessorTrackSequence
-    + postProcessorVertexSequence
+    + postValidationTracking
     + MuIsoValPostProcessor
     + calotowersPostProcessor
     + hcalSimHitsPostProcessor
@@ -36,7 +38,8 @@ postValidation = cms.Sequence(
     + bTagCollectorSequenceMCbcl
     + METPostProcessor
 )
-eras.phase1Pixel.toReplaceWith(postValidation, postValidation.copyAndExclude([ # FIXME
+from Configuration.Eras.Modifier_phase1Pixel_cff import phase1Pixel
+phase1Pixel.toReplaceWith(postValidation, postValidation.copyAndExclude([ # FIXME
     runTauEff # Excessive printouts because 2017 doesn't have HLT yet
 ]))
 
@@ -56,9 +59,28 @@ postValidation_fastsim = cms.Sequence(
     + runTauEff
 )
 
+from Validation.MuonGEMHits.PostProcessor_cff import *
+from Validation.MuonGEMDigis.PostProcessor_cff import *
+from Validation.MuonGEMRecHits.PostProcessor_cff import *
+from Validation.HGCalValidation.HGCalPostProcessor_cff import *
+
+postValidation_common = cms.Sequence()
+
 postValidation_trackingOnly = cms.Sequence(
       postProcessorTrackSequenceTrackingOnly
-    + postProcessorVertex
+    + postProcessorVertexSequence
+)
+
+postValidation_muons = cms.Sequence(
+    recoMuonPostProcessors
+    + MuonGEMHitsPostProcessors
+    + MuonGEMDigisPostProcessors
+    + MuonGEMRecHitsPostProcessors
+    + rpcRecHitPostValidation_step
+)
+
+postValidation_JetMET = cms.Sequence(
+    METPostProcessor
 )
  
 postValidation_gen = cms.Sequence(
@@ -73,11 +95,6 @@ postValidationMiniAOD = cms.Sequence(
     electronPostValidationSequenceMiniAOD
 )
 
-from Validation.MuonGEMHits.PostProcessor_cff import *
-from Validation.MuonGEMDigis.PostProcessor_cff import *
-from Validation.MuonGEMRecHits.PostProcessor_cff import *
-from Validation.HGCalValidation.HGCalPostProcessor_cff import *
-
 _run3_postValidation = postValidation.copy()
 _run3_postValidation += MuonGEMHitsPostProcessors
 _run3_postValidation += MuonGEMDigisPostProcessors
@@ -86,6 +103,7 @@ _run3_postValidation += MuonGEMRecHitsPostProcessors
 _phase2_postValidation = _run3_postValidation.copy()
 _phase2_postValidation += hgcalPostProcessor
 
-from Configuration.StandardSequences.Eras import eras
-eras.run3_GEM.toReplaceWith( postValidation, _run3_postValidation )
-eras.phase2_hgcal.toReplaceWith( postValidation, _phase2_postValidation )
+from Configuration.Eras.Modifier_run3_GEM_cff import run3_GEM
+run3_GEM.toReplaceWith( postValidation, _run3_postValidation )
+from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
+phase2_hgcal.toReplaceWith( postValidation, _phase2_postValidation )

@@ -8,10 +8,14 @@ process.load("Geometry.CMSCommonData.cmsIdealGeometryXML_cfi")
 process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
 process.load("Geometry.HcalCommonData.hcalParameters_cfi")
 process.load("Geometry.HcalCommonData.hcalDDDSimConstants_cfi")
-process.load("Configuration.StandardSequences.MagneticField_38T_cff")
-process.load("SimG4Core.Application.g4SimHits_cfi")
-
+process.load("Configuration.StandardSequences.MagneticField_cff")
+process.load("Configuration.EventContent.EventContent_cff")
+process.load('Configuration.StandardSequences.Generator_cff')
+process.load('Configuration.StandardSequences.SimIdeal_cff')
 process.load("SimG4CMS.Calo.CaloSimHitStudy_cfi")
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+from Configuration.AlCa.autoCond import autoCond
+process.GlobalTag.globaltag = autoCond['run1_mc']
 
 process.source = cms.Source("EmptySource")
 
@@ -79,10 +83,6 @@ process.MessageLogger = cms.Service("MessageLogger",
     )
 )
 
-process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
-from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run1_mc', '')
-
 process.Timing = cms.Service("Timing")
 
 process.SimpleMemoryCheck = cms.Service("SimpleMemoryCheck",
@@ -99,22 +99,23 @@ process.RandomNumberGeneratorService.VtxSmeared.initialSeed = 123456789
 process.rndmStore = cms.EDProducer("RandomEngineStateProducer")
 
 process.TFileService = cms.Service("TFileService",
-    fileName = cms.string('minbias_QGSP_BERT_EML.root')
+    fileName = cms.string('minbias_QGSP_FTFP_BERT_EML.root')
 )
 
 # Event output
-process.load("Configuration.EventContent.EventContent_cff")
-
-process.o1 = cms.OutputModule("PoolOutputModule",
+process.output = cms.OutputModule("PoolOutputModule",
     process.FEVTSIMEventContent,
-    fileName = cms.untracked.string('simevent_minbias_QGSP_BERT_EML.root')
+    fileName = cms.untracked.string('simevent_minbias_QGSP_FTFP_BERT_EML.root')
 )
 
-process.p1 = cms.Path(process.generator*process.VtxSmeared*process.g4SimHits*process.caloSimHitStudy*process.rndmStore)
-process.outpath = cms.EndPath(process.o1)
+process.generation_step = cms.Path(process.pgen)
+process.simulation_step = cms.Path(process.psim)
+process.analysis_step   = cms.Path(process.caloSimHitStudy)
+process.out_step = cms.EndPath(process.output)
+
 process.generator.pythiaHepMCVerbosity = False
 process.generator.pythiaPylistVerbosity = 0
-process.g4SimHits.Physics.type = 'SimG4Core/Physics/QGSP_BERT_EML'
+process.g4SimHits.Physics.type = 'SimG4Core/Physics/QGSP_FTFP_BERT_EML'
 
 # process.g4SimHits.ECalSD.IgnoreTrackID      = True
 # process.g4SimHits.HCalSD.IgnoreTrackID      = True
@@ -130,3 +131,15 @@ process.g4SimHits.Physics.type = 'SimG4Core/Physics/QGSP_BERT_EML'
 # process.g4SimHits.HFShower.TrackEM          = False
 # process.g4SimHits.HFShower.OnlyLong         = True
 # process.g4SimHits.HFShower.EminLibrary      = 0.0
+
+# Schedule definition                                                          
+process.schedule = cms.Schedule(process.generation_step,
+                                process.simulation_step,
+                                process.analysis_step,
+                                process.out_step
+                                )
+
+# filter all path with the production filter sequence                          
+for path in process.paths:
+        getattr(process,path)._seq = process.generator * getattr(process,path)._seq
+

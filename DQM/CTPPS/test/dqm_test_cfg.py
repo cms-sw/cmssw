@@ -28,7 +28,7 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 # raw-to-digi conversion
-process.load("EventFilter.TotemRawToDigi.totemRawToDigi_cff")
+process.load("EventFilter.CTPPSRawToDigi.totemRawToDigi_cff")
 
 # local RP reconstruction chain with standard settings
 process.load("RecoCTPPS.Configuration.recoCTPPS_cff")

@@ -45,21 +45,6 @@ struct HFRecHitAuxSetter
                        const unsigned anodeStates[2],
                        unsigned soiPhase,
                        HFRecHit* rechit);
-
-    // Useful helpers for unsigned fields
-    inline static void setField(unsigned* u, const unsigned mask,
-                                const unsigned offset, const unsigned value)
-        {*u &= ~(mask << offset); *u |= ((value & mask) << offset);}
-
-    inline static unsigned getField(const unsigned u, const unsigned mask,
-                                    const unsigned offset)
-        {return (u >> offset) & mask;}
-
-    inline static void setBit(unsigned* u, const unsigned bitnum, const bool b)
-        {if (b) {*u |= (1U << bitnum);} else {*u &= ~(1U << bitnum);}}
-
-    inline static bool getBit(const unsigned u, const unsigned bitnum)
-        {return u & (1U << bitnum);}
 };
 
 #endif // RecoLocalCalo_HcalRecAlgos_HFRecHitAuxSetter_h_

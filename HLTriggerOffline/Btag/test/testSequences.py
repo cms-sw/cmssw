@@ -5,14 +5,14 @@ process.load("L1TriggerConfig.L1GtConfigProducers.L1GtConfig_cff")
 process.load("DQMServices.Components.EDMtoMEConverter_cff")
 
 process.load("HLTriggerOffline.Btag.HltBtagValidation_cff")
-process.load("HLTriggerOffline.Btag.HltBtagValidationFastSim_cff")
+#process.load("HLTriggerOffline.Btag.HltBtagValidationFastSim_cff")
 process.load("HLTriggerOffline.Btag.HltBtagPostValidation_cff")
 
 process.DQM_BTag = cms.Path(    process.hltbtagValidationSequence + process.HltBTagPostVal + process.dqmSaver)
 
 
 process.source = cms.Source("PoolSource",
-	fileNames = cms.untracked.vstring("root://xrootd.ba.infn.it///store/relval/CMSSW_7_5_0_pre6/RelValTTbar_13/GEN-SIM-DIGI-RAW-HLTDEBUG/PU25ns_75X_mcRun2_asymptotic_v1-v1/00000/00DE8AFD-1D1C-E511-988E-0025905A612C.root")
+	fileNames = cms.untracked.vstring("root://cms-xrd-global.cern.ch//store/relval/CMSSW_8_1_0_pre7/RelValTTbar_13/GEN-SIM-DIGI-RAW-HLTDEBUG/81X_mcRun2_asymptotic_v0-v1/10000/1E660EDB-F135-E611-9E57-0CC47A4D76C8.root")
 #	fileNames = cms.untracked.vstring("file:RelVal750pre3.root")
 )
 

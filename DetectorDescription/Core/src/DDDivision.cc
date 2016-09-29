@@ -2,7 +2,6 @@
 
 #include <ostream>
 
-#include "DetectorDescription/Base/interface/DDdebug.h"
 #include "DetectorDescription/Base/interface/Store.h"
 #include "Division.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -43,7 +42,6 @@ DDDivision::DDDivision( const DDName & name,
 			const double width,
 			const double offset ) :  DDBase<DDName,DDI::Division*>()
 {
-  DCOUT('C', "create Division name=" << name << " parent=" << parent.name() << " axis=" << DDAxesNames::name(axis) << " nReplicas=" << nReplicas << " width=" << width << " offset=" << offset);
   prep_ = StoreT::instance().create(name, new Division(parent, axis, nReplicas, width, offset)); 
 } 
 
@@ -53,7 +51,6 @@ DDDivision::DDDivision( const DDName & name,
 			const int nReplicas,
 			const double offset )
 {
-  DCOUT('C', "create Division name=" << name << " parent=" << parent.name() << " axis=" << DDAxesNames::name(axis) << " nReplicas=" << nReplicas << " offset=" << offset);
   prep_ = StoreT::instance().create(name, new Division(parent, axis, nReplicas, offset)); 
 }
 
@@ -63,7 +60,6 @@ DDDivision::DDDivision( const DDName & name,
 			const double width,
 			const double offset )
 {
-  DCOUT('C', "create Division name=" << name << " parent=" << parent.name() << " axis=" << DDAxesNames::name(axis) << " width=" << width << " offset=" << offset);
   prep_ = StoreT::instance().create(name, new Division(parent, axis, width, offset)); 
 }
 

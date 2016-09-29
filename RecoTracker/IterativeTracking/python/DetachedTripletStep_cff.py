@@ -1,5 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 from Configuration.StandardSequences.Eras import eras
+from Configuration.Eras.Modifier_tracker_apv_vfp30_2016_cff import tracker_apv_vfp30_2016 as _tracker_apv_vfp30_2016
 import RecoTracker.IterativeTracking.iterativeTkConfig as _cfg
 
 ###############################################
@@ -16,7 +17,8 @@ import RecoTracker.TkSeedingLayers.PixelLayerTriplets_cfi
 detachedTripletStepSeedLayers = RecoTracker.TkSeedingLayers.PixelLayerTriplets_cfi.PixelLayerTriplets.clone()
 detachedTripletStepSeedLayers.BPix.skipClusters = cms.InputTag('detachedTripletStepClusters')
 detachedTripletStepSeedLayers.FPix.skipClusters = cms.InputTag('detachedTripletStepClusters')
-eras.trackingPhase1.toModify(detachedTripletStepSeedLayers,
+from Configuration.Eras.Modifier_trackingPhase1_cff import trackingPhase1
+trackingPhase1.toModify(detachedTripletStepSeedLayers,
     layerList = [
         'BPix1+BPix2+BPix3',
         'BPix2+BPix3+BPix4',
@@ -65,10 +67,13 @@ _detachedTripletStepTrajectoryFilterBase = TrackingTools.TrajectoryFiltering.Tra
     minPt = 0.075,
 )
 detachedTripletStepTrajectoryFilterBase = _detachedTripletStepTrajectoryFilterBase.clone(
-    maxCCCLostHits = 2,
+    maxCCCLostHits = 0,
     minGoodStripCharge = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutLoose'))
 )
-eras.trackingLowPU.toReplaceWith(detachedTripletStepTrajectoryFilterBase, _detachedTripletStepTrajectoryFilterBase.clone(
+from Configuration.Eras.Modifier_tracker_apv_vfp30_2016_cff import tracker_apv_vfp30_2016
+_tracker_apv_vfp30_2016.toModify(detachedTripletStepTrajectoryFilterBase, maxCCCLostHits = 2)
+from Configuration.Eras.Modifier_trackingLowPU_cff import trackingLowPU
+trackingLowPU.toReplaceWith(detachedTripletStepTrajectoryFilterBase, _detachedTripletStepTrajectoryFilterBase.clone(
     maxLostHitsFraction = 1./10.,
     constantValueForLostHitsFractionFilter = 0.701,
 ))
@@ -88,7 +93,10 @@ detachedTripletStepChi2Est = RecoTracker.MeasurementDet.Chi2ChargeMeasurementEst
     ComponentName = cms.string('detachedTripletStepChi2Est'),
     nSigma = cms.double(3.0),
     MaxChi2 = cms.double(9.0),
-    clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutTiny')),
+    clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutTight')),
+)
+_tracker_apv_vfp30_2016.toModify(detachedTripletStepChi2Est,
+    clusterChargeCut = dict(refToPSet_ = "SiStripClusterChargeCutTiny")
 )
 
 # TRACK BUILDING
@@ -102,7 +110,7 @@ detachedTripletStepTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajecto
     maxDPhiForLooperReconstruction = cms.double(2.0),
     maxPtForLooperReconstruction = cms.double(0.7) 
     )
-eras.trackingLowPU.toModify(detachedTripletStepTrajectoryBuilder,
+trackingLowPU.toModify(detachedTripletStepTrajectoryBuilder,
     maxCand = 2,
     alwaysUseInvalidHits = False,
 )
@@ -127,7 +135,7 @@ detachedTripletStepTrajectoryCleanerBySharedHits = trajectoryCleanerBySharedHits
             allowSharedFirstHit = cms.bool(True)
             )
 detachedTripletStepTrackCandidates.TrajectoryCleaner = 'detachedTripletStepTrajectoryCleanerBySharedHits'
-eras.trackingLowPU.toModify(detachedTripletStepTrajectoryCleanerBySharedHits, fractionShared = 0.19)
+trackingLowPU.toModify(detachedTripletStepTrajectoryCleanerBySharedHits, fractionShared = 0.19)
 
 
 # TRACK FITTING
@@ -239,7 +247,7 @@ detachedTripletStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector
 ) #end of clone
 
 import RecoTracker.FinalTrackSelectors.trackListMerger_cfi
-eras.trackingLowPU.toReplaceWith(detachedTripletStep, RecoTracker.FinalTrackSelectors.trackListMerger_cfi.trackListMerger.clone(
+trackingLowPU.toReplaceWith(detachedTripletStep, RecoTracker.FinalTrackSelectors.trackListMerger_cfi.trackListMerger.clone(
     TrackProducers = [
         'detachedTripletStepTracks',
         'detachedTripletStepTracks',
@@ -262,4 +270,4 @@ DetachedTripletStep = cms.Sequence(detachedTripletStepClusters*
                                    detachedTripletStep)
 _DetachedTripletStep_LowPU = DetachedTripletStep.copyAndExclude([detachedTripletStepClassifier2])
 _DetachedTripletStep_LowPU.replace(detachedTripletStepClassifier1, detachedTripletStepSelector)
-eras.trackingLowPU.toReplaceWith(DetachedTripletStep, _DetachedTripletStep_LowPU)
+trackingLowPU.toReplaceWith(DetachedTripletStep, _DetachedTripletStep_LowPU)

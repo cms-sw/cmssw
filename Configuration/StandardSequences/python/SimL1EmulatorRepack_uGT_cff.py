@@ -1,10 +1,10 @@
 import FWCore.ParameterSet.Config as cms
-from Configuration.StandardSequences.Eras import eras
 
 ## L1REPACK FULL:  Re-Emulate all of L1 and repack into RAW
 
 
-if not (eras.stage2L1Trigger.isChosen()):
+from Configuration.Eras.Modifier_stage2L1Trigger_cff import stage2L1Trigger
+if not (stage2L1Trigger.isChosen()):
     print "L1T WARN:  L1REPACK:Full (intended for 2016 data) only supports Stage 2 eras for now."
     print "L1T WARN:  Use a legacy version of L1REPACK for now."
 else:
@@ -30,6 +30,14 @@ else:
 
     # Finally, pack the new L1T output back into RAW
     
+    # pack unpacked
+    from EventFilter.L1TRawToDigi.caloStage2Raw_cfi import caloStage2Raw as packCaloStage2
+    packCaloStage2.InputLabel = cms.InputTag("unpackCaloStage2")
+
+    # pack unpacked
+    from EventFilter.L1TRawToDigi.gmtStage2Raw_cfi import gmtStage2Raw as packGmtStage2
+    packGmtStage2.InputLabel = cms.InputTag("unpackGmtStage2")
+
     # pack simulated uGT
     from EventFilter.L1TRawToDigi.gtStage2Raw_cfi import gtStage2Raw as packGtStage2
     packGtStage2.MuonInputTag   = cms.InputTag("unpackGmtStage2","Muon")

@@ -16,10 +16,10 @@ ecalPacker.labelEESRFlags = "DMEcalDigis:eeSrFlags"
 ecalPacker.labelTT = cms.InputTag('DMEcalTriggerPrimitiveDigis')
 esDigiToRaw.Label = cms.string('DMEcalPreshowerDigis')
 #
-hcalRawData.HBHE = cms.untracked.InputTag("DMHcalDigis")
-hcalRawData.HF = cms.untracked.InputTag("DMHcalDigis")
-hcalRawData.HO = cms.untracked.InputTag("DMHcalDigis") 
-hcalRawData.ZDC = cms.untracked.InputTag("mixData")
+hcalRawDataVME.HBHE = cms.untracked.InputTag("DMHcalDigis")
+hcalRawDataVME.HF = cms.untracked.InputTag("DMHcalDigis")
+hcalRawDataVME.HO = cms.untracked.InputTag("DMHcalDigis") 
+hcalRawDataVME.ZDC = cms.untracked.InputTag("mixData")
 #
 cscpacker.wireDigiTag = cms.InputTag("mixData","MuonCSCWireDigisDM")
 cscpacker.stripDigiTag = cms.InputTag("mixData","MuonCSCStripDigisDM")
@@ -32,3 +32,14 @@ DigiToRaw.remove(castorRawData)
 
 #castorRawData.CASTOR = cms.untracked.InputTag("castorDigis")
 #
+
+from Configuration.Eras.Modifier_run2_HCAL_2017_cff import run2_HCAL_2017
+run2_HCAL_2017.toModify( hcalRawDataVME,
+    HBHE = cms.untracked.InputTag(""),
+    HF = cms.untracked.InputTag(""),
+)
+run2_HCAL_2017.toModify( hcalRawDatauHTR,
+    HBHE = cms.untracked.InputTag("DMHcalDigis"),
+    HF = cms.untracked.InputTag("DMHcalDigis")
+)
+

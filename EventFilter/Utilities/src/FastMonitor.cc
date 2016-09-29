@@ -16,6 +16,7 @@
 #include <assert.h>
 #include <sys/types.h>
 #include <unistd.h>
+#include <boost/filesystem/fstream.hpp>
 
 using namespace jsoncollector;
 
@@ -214,14 +215,14 @@ void FastMonitor::snapStreamAtomic(unsigned int ls, unsigned int streamID)
   }
 }
 
-std::string FastMonitor::getCSVString()
+std::string FastMonitor::getCSVString(int sid)
 {
   //output what was specified in JSON in the same order (including dummies)
   unsigned int monSize = jsonDpIndexFast_.size();
   std::stringstream ss;
   if (monSize) {
     for (unsigned int j=0; j< monSize;j++) { 
-      ss << jsonDpIndexFast_[j]->fastOutCSV();
+      ss << jsonDpIndexFast_[j]->fastOutCSV(sid);
       if (j<monSize-1) ss << ",";
     }
   }
@@ -246,17 +247,38 @@ JsonMonitorable* FastMonitor::getMergedIntJForLumi(std::string const& name,unsig
   return  dataPoints_[it->second]->mergeAndRetrieveValue(forLumi);
 }
 
-bool FastMonitor::outputFullJSON(std::string const& path, unsigned int lumi, bool log)
+bool FastMonitor::outputFullJSONs(std::string const& pathstem, std::string const& ext, unsigned int lumi)
 {
-  if (log)
-    LogDebug("FastMonitor") << "SNAP updates -: " <<  recentSnaps_ << " (by timer: " << recentSnapsTimer_ 
-                              << ") in lumisection ";
+  LogDebug("FastMonitor") << "SNAP updates -: " <<  recentSnaps_ << " (by timer: " << recentSnapsTimer_ 
+                          << ") in lumisection ";
 
   recentSnaps_ = recentSnapsTimer_ = 0;
+  for (unsigned int i=0;i<nStreams_;i++) {
+    Json::Value serializeRoot;
+    for (unsigned int j=0; j< jsonDpIndex_.size();j++) {
+      dataPoints_[jsonDpIndex_[j]]->mergeAndSerialize(serializeRoot,lumi,true,i);
+    }
+    //get extension
+    std::stringstream tidext;
+    tidext << "_tid" << i;
+    std::string path = pathstem + tidext.str() + ext;
 
+    Json::StyledWriter writer;
+    std::string && result = writer.write(serializeRoot);
+    FileIO::writeStringToFile(path, result);
+  }
+  return true;
+}
+
+bool FastMonitor::outputFullJSON(std::string const& path, unsigned int lumi)
+{
+  LogDebug("FastMonitor") << "SNAP updates -: " <<  recentSnaps_ << " (by timer: " << recentSnapsTimer_ 
+                          << ") in lumisection ";
+
+  recentSnaps_ = recentSnapsTimer_ = 0;
   Json::Value serializeRoot;
   for (unsigned int j=0; j< jsonDpIndex_.size();j++) {
-    dataPoints_[jsonDpIndex_[j]]->mergeAndSerialize(serializeRoot,lumi,j==0);
+    dataPoints_[jsonDpIndex_[j]]->mergeAndSerialize(serializeRoot,lumi,j==0,-1);
   }
 
   Json::StyledWriter writer;

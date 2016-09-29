@@ -3,17 +3,21 @@
 
 #include "RecoLocalCalo/HcalRecAlgos/interface/HFAnodeStatus.h"
 #include "RecoLocalCalo/HcalRecAlgos/interface/HFRecHitAuxSetter.h"
+#include "RecoLocalCalo/HcalRecAlgos/interface/CaloRecHitAuxSetter.h"
+
 
 void HFRecHitAuxSetter::setAux(const HFPreRecHit& prehit,
                                const unsigned anodeStates[2],
                                const unsigned u_soiPhase,
                                HFRecHit* rechit)
 {
+    using namespace CaloRecHitAuxSetter;
+
     const int wantedPhase = u_soiPhase < 2U ? u_soiPhase : 2U;
 
     for (unsigned ianode=0; ianode<2; ++ianode)
     {
-        unsigned aux = 0;
+        uint32_t aux = 0;
         const HFQIE10Info* anodeInfo = prehit.getHFQIE10Info(ianode);
         if (anodeInfo)
         {

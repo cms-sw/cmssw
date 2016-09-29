@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 from Configuration.StandardSequences.Eras import eras
 
-process = cms.Process("testHGCalRecoLocal",eras.Phase2LReco)
+process = cms.Process("testHGCalRecoLocal",eras.Phase2C2)
 
 # import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')
@@ -9,8 +9,8 @@ process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.EventContent.EventContent_cff')
 process.load('SimGeneral.MixingModule.mixNoPU_cfi')
-process.load('Configuration.Geometry.GeometryExtended2023simReco_cff')
-process.load('Configuration.Geometry.GeometryExtended2023sim_cff')
+process.load('Configuration.Geometry.GeometryExtended2023D3Reco_cff')
+process.load('Configuration.Geometry.GeometryExtended2023D3_cff')
 process.load('Configuration.StandardSequences.MagneticField_cff')
 process.load('Configuration.StandardSequences.Generator_cff')
 process.load('IOMC.EventVertexGenerators.VtxSmearedRealistic50ns13TeVCollision_cfi')
@@ -28,7 +28,7 @@ process.load('Configuration.StandardSequences.Reconstruction_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(500)
+    input = cms.untracked.int32(1000)
 )
 
 process.MessageLogger.cerr.FwkReport.reportEvery = 5
@@ -104,9 +104,9 @@ process.generator = cms.EDProducer("FlatRandomPtGunProducer",
         #PartID = cms.vint32(11), #--->electron
         PartID = cms.vint32(13), #--->muon
         #PartID = cms.vint32(211), #--->pion
-        MaxEta = cms.double(2.9),
+        MaxEta = cms.double(3.0),
         MaxPhi = cms.double(3.14159265359),
-        MinEta = cms.double(1.6),
+        MinEta = cms.double(1.2),
         MinPhi = cms.double(-3.14159265359)
     ),
     Verbosity = cms.untracked.int32(0),
@@ -149,9 +149,9 @@ for path in process.paths:
 # customisation of the process.
 
 # Automatic addition of the customisation function from SLHCUpgradeSimulations.Configuration.combinedCustoms
-from SLHCUpgradeSimulations.Configuration.combinedCustoms import cust_2023LReco
+from SLHCUpgradeSimulations.Configuration.combinedCustoms import cust_2023tilted
 
-#call to customisation function cust_2023LReco imported from SLHCUpgradeSimulations.Configuration.combinedCustoms
-process = cust_2023LReco(process)
+#call to customisation function cust_2023tilted imported from SLHCUpgradeSimulations.Configuration.combinedCustoms
+process = cust_2023tilted(process)
 
 # End of customisation functions

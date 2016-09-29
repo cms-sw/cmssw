@@ -47,6 +47,7 @@ namespace edm {
   class EDConsumerBase;
   class SharedResourcesAcquirer;
   class InputProductResolver;
+  class WaitingTask;
 
   struct FilledProductPtr {
     bool operator()(propagate_const<std::shared_ptr<ProductResolverBase>> const& iObj) { return bool(iObj);}
@@ -120,9 +121,10 @@ namespace edm {
                            SharedResourcesAcquirer* sra,
                            ModuleCallingContext const* mcc) const;
 
-    void prefetch(ProductResolverIndex index,
-                  bool skipCurrentProcess,
-                  ModuleCallingContext const* mcc) const;
+    void prefetchAsync(WaitingTask* waitTask,
+                       ProductResolverIndex index,
+                       bool skipCurrentProcess,
+                       ModuleCallingContext const* mcc) const;
 
     void getManyByType(TypeID const& typeID,
                        BasicHandleVec& results,
@@ -210,17 +212,6 @@ namespace edm {
     
   private:
 
-    // Make my DelayedReader get the EDProduct for a ProductResolver.
-    // The ProductResolver is a cache, and so can be modified through the const
-    // reference.
-    // We do not change the *number* of products through this call, and so
-    // *this is const.
-    // This function is only meant to be called by InputProductResolver
-    friend class InputProductResolver;
-    void readFromSource(ProductResolverBase const& phb, ModuleCallingContext const* mcc) const {
-      readFromSource_(phb, mcc);
-    }
-
     void addScheduledProduct(std::shared_ptr<BranchDescription const> bd);
     void addSourceProduct(std::shared_ptr<BranchDescription const> bd);
     void addInputProduct(std::shared_ptr<BranchDescription const> bd);
@@ -257,10 +248,6 @@ namespace edm {
                                           SharedResourcesAcquirer* sra,
                                           ModuleCallingContext const* mcc) const;
 
-    virtual void readFromSource_(ProductResolverBase const& /* phb */, ModuleCallingContext const* /* mcc */) const {}
-    
-    void resolveProductImmediately(ProductResolverBase& phb);
-    
     virtual bool isComplete_() const {return true;}
     
     void putOrMerge(std::unique_ptr<WrapperBase> prod, ProductResolverBase const* productResolver) const;

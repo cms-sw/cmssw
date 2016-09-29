@@ -1,15 +1,11 @@
-#ifndef DetectorDescription_Parser_XMLConfiguration_H
-#define DetectorDescription_Parser_XMLConfiguration_H
+#ifndef DETECTOR_DESCRIPTION_PARSER_FIP_CONFIGURATION_H
+#define DETECTOR_DESCRIPTION_PARSER_FIP_CONFIGURATION_H
 
 #include <map>
 #include <string>
 #include <vector>
 
-// From DD Core
 #include "DetectorDescription/Core/interface/DDCompactView.h"
-// ---------------------------------------------------------------------------
-//  Includes
-// ---------------------------------------------------------------------------
 #include "DetectorDescription/Parser/interface/DDLDocumentProvider.h"
 #include "DetectorDescription/Parser/interface/DDLSAX2ConfigHandler.h"
 
@@ -28,9 +24,8 @@ class DDLSAX2Handler;
  *  email: case@ucdhep.ucdavis.edu
  *
  */
-class FIPConfiguration : public DDLDocumentProvider {
-
-
+class FIPConfiguration : public DDLDocumentProvider
+{
  public:
 
   FIPConfiguration( DDCompactView& cpv);
@@ -59,8 +54,6 @@ class FIPConfiguration : public DDLDocumentProvider {
 
   /// Return the designation for where to look for the schema.
   std::string getSchemaLocation() const;
-
- protected:
 
  private:
   DDLSAX2ConfigHandler configHandler_;

@@ -45,13 +45,13 @@ GhostTrackState::GhostTrackState(const GlobalPoint &pos,
 
 GhostTrackState::GhostTrackState(const GlobalPoint &pos,
                                  const GlobalError &error) :
-	Base(new VertexGhostTrackState(pos, error.matrix_new()))
+	Base(new VertexGhostTrackState(pos, error.matrix()))
 {
 }
 
 GhostTrackState::GhostTrackState(const VertexState &state) :
 	Base(new VertexGhostTrackState(state.position(),
-	                               state.error().matrix_new()))
+	                               state.error().matrix()))
 {
 }
 
@@ -111,7 +111,7 @@ double GhostTrackState::lambdaError(const GhostTrackPrediction &pred,
 	return std::sqrt(
 	       	ROOT::Math::Similarity(
 	       		conv(pred.direction()),
-	       		(vertexStateOnGhostTrack(pred).second.matrix_new() +
-			 pvError.matrix_new()))
+	       		(vertexStateOnGhostTrack(pred).second.matrix() +
+			 pvError.matrix()))
 	        / pred.rho2());
 }

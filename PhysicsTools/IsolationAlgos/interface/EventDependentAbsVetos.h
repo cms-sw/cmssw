@@ -58,7 +58,7 @@ namespace reco {
       private:
           edm::EDGetTokenT<edm::View<reco::Candidate> > src_;
           std::vector<Direction> items_;
-          std::auto_ptr<AbsVeto> veto_;
+          std::unique_ptr<AbsVeto> veto_;
     };
 
     class OtherJetConstituentsDeltaRVeto : public EventDependentAbsVeto {

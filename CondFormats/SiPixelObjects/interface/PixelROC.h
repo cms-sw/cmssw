@@ -63,11 +63,14 @@ public:
     return result;
   }
 
-  // recognise the detector side 
+  // recognise the detector side and layer number
+  // this methods use hardwired constants
+  // if the numberg changes the methods have to be modified
   int bpixSidePhase0(uint32_t rawId) const;
   int fpixSidePhase0(uint32_t rawId) const;
   int bpixSidePhase1(uint32_t rawId) const;
   int fpixSidePhase1(uint32_t rawId) const;
+  static int bpixLayerPhase1(uint32_t rawId);
 
   /// printout for debug
   std::string print(int depth = 0) const;

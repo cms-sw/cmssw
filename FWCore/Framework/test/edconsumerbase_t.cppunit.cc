@@ -157,7 +157,7 @@ TestEDConsumerBase::testRegularType()
   {
     std::vector<edm::InputTag> vTags={ {"label","instance","process"}, {"labelC","instanceC","processC"} };
     IntsConsumer intConsumer{vTags};
-    intConsumer.updateLookup(edm::InEvent,helper);
+    intConsumer.updateLookup(edm::InEvent,helper,false);
   
     CPPUNIT_ASSERT(intConsumer.m_tokens[0].index()==0);
     CPPUNIT_ASSERT(intConsumer.m_tokens[1].index()==1);
@@ -180,7 +180,7 @@ TestEDConsumerBase::testRegularType()
   {
     std::vector<edm::InputTag> vTags={ {"label","instance","process"}, {"labelC","instanceC","processC"} };
     IntsConsumesCollectorConsumer intConsumer{vTags};
-    intConsumer.updateLookup(edm::InEvent,helper);
+    intConsumer.updateLookup(edm::InEvent,helper,false);
     
     CPPUNIT_ASSERT(intConsumer.m_tokens[0].index()==0);
     CPPUNIT_ASSERT(intConsumer.m_tokens[1].index()==1);
@@ -203,7 +203,7 @@ TestEDConsumerBase::testRegularType()
   {
     std::vector<edm::InputTag> vTagsRev={ {"labelC","instanceC","processC"},{"label","instance","process"} };
     IntsConsumer intConsumerRev{vTagsRev};
-    intConsumerRev.updateLookup(edm::InEvent,helper);
+    intConsumerRev.updateLookup(edm::InEvent,helper,false);
 
     CPPUNIT_ASSERT(intConsumerRev.m_tokens[0].index()==0);
     CPPUNIT_ASSERT(intConsumerRev.m_tokens[1].index()==1);
@@ -225,7 +225,7 @@ TestEDConsumerBase::testRegularType()
   {
     std::vector<edm::InputTag> vTagsRev={ {"labelC","instanceC","processC"},{"label","instance","process"} };
     IntsConsumesCollectorConsumer intConsumerRev{vTagsRev};
-    intConsumerRev.updateLookup(edm::InEvent,helper);
+    intConsumerRev.updateLookup(edm::InEvent,helper,false);
     
     CPPUNIT_ASSERT(intConsumerRev.m_tokens[0].index()==0);
     CPPUNIT_ASSERT(intConsumerRev.m_tokens[1].index()==1);
@@ -250,7 +250,7 @@ TestEDConsumerBase::testRegularType()
     //test default process
     std::vector<edm::InputTag> vTags={ {"label","instance"}, {"labelC","instanceC","@skipCurrentProcess"} };
     IntsConsumer intConsumer{vTags};
-    intConsumer.updateLookup(edm::InEvent,helper);
+    intConsumer.updateLookup(edm::InEvent,helper,false);
     
     CPPUNIT_ASSERT(intConsumer.m_tokens[0].index()==0);
     CPPUNIT_ASSERT(intConsumer.m_tokens[1].index()==1);
@@ -275,7 +275,7 @@ TestEDConsumerBase::testRegularType()
     //Ask for something that doesn't exist
     std::vector<edm::InputTag> vTags={ {"notHere"} };
     IntsConsumer intConsumer{vTags};
-    intConsumer.updateLookup(edm::InEvent,helper);
+    intConsumer.updateLookup(edm::InEvent,helper,false);
     
     CPPUNIT_ASSERT(intConsumer.m_tokens[0].index()==0);
     CPPUNIT_ASSERT(edm::ProductResolverIndexInvalid == intConsumer.indexFrom(intConsumer.m_tokens[0],edm::InEvent,typeID_vint).productResolverIndex());
@@ -290,7 +290,7 @@ TestEDConsumerBase::testRegularType()
     //Use an empty tag
     std::vector<edm::InputTag> vTags={ {} };
     IntsConsumer intConsumer{vTags};
-    intConsumer.updateLookup(edm::InEvent,helper);
+    intConsumer.updateLookup(edm::InEvent,helper,false);
     
     CPPUNIT_ASSERT(intConsumer.m_tokens[0].index()==0);
     CPPUNIT_ASSERT(edm::ProductResolverIndexInvalid == intConsumer.indexFrom(intConsumer.m_tokens[0],edm::InEvent,typeID_vint).productResolverIndex());
@@ -347,7 +347,7 @@ TestEDConsumerBase::testViewType()
     };
     TypeToGetConsumer consumer{vT};
     
-    consumer.updateLookup(edm::InEvent,helper);
+    consumer.updateLookup(edm::InEvent,helper,false);
     CPPUNIT_ASSERT(edm::ProductResolverIndexAndSkipBit(v_int, false) ==
                    consumer.indexFrom(consumer.m_tokens[0],edm::InEvent,typeID_int));
     CPPUNIT_ASSERT(edm::ProductResolverIndexAndSkipBit(v_simple, false) ==
@@ -374,7 +374,7 @@ TestEDConsumerBase::testViewType()
     };
     TypeToGetConsumer consumer{vT};
 
-    consumer.updateLookup(edm::InEvent,helper);
+    consumer.updateLookup(edm::InEvent,helper,false);
 
     CPPUNIT_ASSERT(edm::ProductResolverIndexAndSkipBit(v_int_no_proc, false) ==
                    consumer.indexFrom(consumer.m_tokens[0],edm::InEvent,typeID_int));
@@ -400,7 +400,7 @@ TestEDConsumerBase::testViewType()
       {edm::TypeToGet::make<edm::View<int>>(),{"notHere",  ""}}
     };
     TypeToGetConsumer consumer{vT};
-    consumer.updateLookup(edm::InEvent,helper);
+    consumer.updateLookup(edm::InEvent,helper,false);
     
     CPPUNIT_ASSERT(consumer.m_tokens[0].index()==0);
     CPPUNIT_ASSERT(edm::ProductResolverIndexInvalid == consumer.indexFrom(consumer.m_tokens[0],edm::InEvent,typeID_int).productResolverIndex());
@@ -458,7 +458,7 @@ TestEDConsumerBase::testMany()
 
   {
     ManyEventIDConsumer consumer{};
-    consumer.updateLookup(edm::InEvent,helper);
+    consumer.updateLookup(edm::InEvent,helper,false);
 
     std::vector<edm::ProductResolverIndexAndSkipBit> indices;
     consumer.itemsToGet(edm::InEvent,indices);
@@ -506,7 +506,7 @@ TestEDConsumerBase::testMay()
     std::vector<edm::InputTag> vTags={ {"label","instance","process"}, {"labelC","instanceC","processC"} };
     std::vector<edm::InputTag> vMayTags;
     IntsMayConsumer consumer{vTags,vMayTags};
-    consumer.updateLookup(edm::InEvent,helper);
+    consumer.updateLookup(edm::InEvent,helper,false);
     
     CPPUNIT_ASSERT(consumer.m_tokens[0].index()==0);
     CPPUNIT_ASSERT(consumer.m_tokens[1].index()==1);
@@ -533,7 +533,7 @@ TestEDConsumerBase::testMay()
     std::vector<edm::InputTag> vTags;
     std::vector<edm::InputTag> vMayTags={ {"label","instance","process"}, {"labelC","instanceC","processC"} };
     IntsMayConsumer consumer{vTags,vMayTags};
-    consumer.updateLookup(edm::InEvent,helper);
+    consumer.updateLookup(edm::InEvent,helper,false);
     
     CPPUNIT_ASSERT(consumer.m_mayTokens.size()==2);
     CPPUNIT_ASSERT(consumer.m_mayTokens[0].index()==0);
@@ -558,7 +558,7 @@ TestEDConsumerBase::testMay()
     std::vector<edm::InputTag> vTags={ {"label","instance","process"} };
     std::vector<edm::InputTag> vMayTags={{"labelC","instanceC","processC"} };
     IntsMayConsumer consumer{vTags,vMayTags};
-    consumer.updateLookup(edm::InEvent,helper);
+    consumer.updateLookup(edm::InEvent,helper,false);
     
     CPPUNIT_ASSERT(consumer.m_mayTokens.size()==1);
     CPPUNIT_ASSERT(consumer.m_tokens.size()==1);
@@ -583,7 +583,7 @@ TestEDConsumerBase::testMay()
     std::vector<edm::InputTag> vTags;
     std::vector<edm::InputTag> vMayTags={ {"label","instance",""}, {"labelC","instanceC","@skipCurrentProcess"} };
     IntsMayConsumer consumer{vTags,vMayTags};
-    consumer.updateLookup(edm::InEvent,helper);
+    consumer.updateLookup(edm::InEvent,helper,false);
     
     CPPUNIT_ASSERT(consumer.m_mayTokens.size()==2);
     CPPUNIT_ASSERT(consumer.m_mayTokens[0].index()==0);

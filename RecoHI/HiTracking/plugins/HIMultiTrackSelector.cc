@@ -320,7 +320,7 @@ void HIMultiTrackSelector::run( edm::Event& evt, const edm::EventSetup& es ) con
 
   for (unsigned int i=0; i<qualityToSet_.size(); i++) {  
     std::vector<int> selTracks(trkSize,0);
-    auto_ptr<edm::ValueMap<int> > selTracksValueMap = auto_ptr<edm::ValueMap<int> >(new edm::ValueMap<int>);
+    auto selTracksValueMap = std::make_unique<edm::ValueMap<int>>();
     edm::ValueMap<int>::Filler filler(*selTracksValueMap);
 
     std::vector<Point> points;
@@ -389,8 +389,8 @@ void HIMultiTrackSelector::run( edm::Event& evt, const edm::EventSetup& es ) con
     filler.insert(hSrcTrack, selTracks.begin(),selTracks.end());
     filler.fill();
 
-    //    evt.put(selTracks,name_[i]);
-    evt.put(selTracksValueMap,name_[i]);
+    //    evt.put(std::move(selTracks),name_[i]);
+    evt.put(std::move(selTracksValueMap),name_[i]);
   }
 }
 
@@ -609,7 +609,7 @@ void HIMultiTrackSelector::processMVA(edm::Event& evt, const edm::EventSetup& es
   const TrackingRecHitCollection & srcHits(*hSrcHits);
 
 
-  auto_ptr<edm::ValueMap<float> >mvaValValueMap = auto_ptr<edm::ValueMap<float> >(new edm::ValueMap<float>);
+  auto mvaValValueMap = std::make_unique<edm::ValueMap<float>>();
   edm::ValueMap<float>::Filler mvaFiller(*mvaValValueMap);
 
 
@@ -617,7 +617,7 @@ void HIMultiTrackSelector::processMVA(edm::Event& evt, const edm::EventSetup& es
     // mvaVals_ already initalized...
     mvaFiller.insert(hSrcTrack,mvaVals_.begin(),mvaVals_.end());
     mvaFiller.fill();
-    evt.put(mvaValValueMap,"MVAVals");
+    evt.put(std::move(mvaValValueMap),"MVAVals");
     return;
   }
 
@@ -697,7 +697,7 @@ void HIMultiTrackSelector::processMVA(edm::Event& evt, const edm::EventSetup& es
   }
   mvaFiller.insert(hSrcTrack,mvaVals_.begin(),mvaVals_.end());
   mvaFiller.fill();
-  evt.put(mvaValValueMap,"MVAVals");
+  evt.put(std::move(mvaValValueMap),"MVAVals");
 
 }
 

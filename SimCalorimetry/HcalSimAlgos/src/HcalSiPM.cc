@@ -1,11 +1,13 @@
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalSiPM.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "CLHEP/Random/RandGaussQ.h"
 #include "CLHEP/Random/RandPoissonQ.h"
 #include "CLHEP/Random/RandFlat.h"
-
+#include "TMath.h"
 #include <cmath>
 #include <cassert>
+#include <utility>
 
 using std::vector;
 //345678911234567892123456789312345678941234567895123456789612345678971234567898
@@ -20,37 +22,79 @@ HcalSiPM::HcalSiPM(int nCells, double tau) :
 HcalSiPM::~HcalSiPM() {
 }
 
-int HcalSiPM::hitCells(CLHEP::HepRandomEngine* engine, unsigned int photons, unsigned int integral) const {
-  //don't need to do zero or negative photons.
-  if (photons < 1) return 0;
-  if (integral >= theCellCount) return 0;
-
-  //normalize by theCellCount to remove dependency on SiPM size and pixel density.
-  if ((theCrossTalk > 0.) && (theCrossTalk < 1.)) {
-    CLHEP::RandPoissonQ randPoissonQ(*engine, photons/(1.-theCrossTalk)-photons);
-    photons += randPoissonQ.fire();
+//================================================================================
+//implementation of Borel-Tanner distribution
+double HcalSiPM::Borel(unsigned int n, double lambda, unsigned int k){
+  if(n<k) return 0;
+  double dn = double(n);
+  double dk = double(k);
+  double dnk = dn-dk;
+  double ldn = lambda * dn;
+  double logb = -ldn + dnk*log(ldn) - TMath::LnGamma(dnk+1);
+  double b=0;
+  if (logb >= -20)  { // protect against underflow
+    b=(dk/dn);
+    if ((n-k)<100)
+      b *= (exp(-ldn)*pow(ldn,dnk))/TMath::Factorial(n-k);
+    else
+      b *= exp( logb );
   }
-  double x(photons/double(theCellCount));
-  double prehit(integral/double(theCellCount));
-
-  //calculate the width and mean of the distribution for a given x
-  double mean(1. - std::exp(-x));
-  double width2(std::exp(-x)*(1-(1+x)*std::exp(-x)));
-
-  //you can't hit more than everything.
-  if (mean > 1.) mean = 1.;
-
-  //convert back to absolute pixels
-  mean *= (1-prehit)*theCellCount;
-  width2 *= (1-prehit)*theCellCount;
-
-  double npe;
-  while (true) {
-    npe = CLHEP::RandGaussQ::shoot(engine, mean, std::sqrt(width2 + (mean*prehit)));
-    if ((npe > -0.5) && (npe <= theCellCount-integral))
-      return int(npe + 0.5);
-  }
+  return b;
 }
+
+const HcalSiPM::cdfpair& HcalSiPM::BorelCDF(unsigned int k){
+  // EPSILON determines the min and max # of xtalk cells that can be
+  // simulated.
+  static const double EPSILON = 1e-6;
+  typename cdfmap::const_iterator it;
+  it = borelcdfs.find(k);
+  if (it == borelcdfs.end()) {
+    vector<double> cdf;
+
+    // Find the first n=k+i value for which cdf[i] > EPSILON
+    unsigned int i;
+    double b=0., sumb=0.;
+    for (i=0; ; i++) {
+      b = Borel(k+i,theCrossTalk,k);
+      sumb += b;
+      if (sumb >= EPSILON) break;
+    }
+
+    cdf.push_back(sumb);
+    unsigned int borelstartn = i;
+
+    // calculate cdf[i]
+    for(++i; ; ++i){
+      b = Borel(k+i,theCrossTalk,k);
+      sumb += b;
+      cdf.push_back(sumb);
+      if (1-sumb < EPSILON) break;
+    }
+
+    it = (borelcdfs.emplace(k,make_pair(borelstartn, cdf))).first;
+  }
+
+  return it->second;
+}
+
+unsigned int HcalSiPM::addCrossTalkCells(CLHEP::HepRandomEngine* engine,
+					 unsigned int in_pes) {
+  const cdfpair& cdf = BorelCDF(in_pes);
+
+  double U = CLHEP::RandFlat::shoot(engine);
+  std::vector<double>::const_iterator up;
+  up= std::lower_bound (cdf.second.cbegin(), cdf.second.cend(), U);
+
+  LogDebug("HcalSiPM") << "cdf size = " << cdf.second.size()
+		       << ", U = " << U
+		       << ", in_pes = " << in_pes
+		       << ", 2ndary_pes = " << (up-cdf.second.cbegin()+cdf.first);
+
+  // returns the number of secondary pes produced
+  return (up - cdf.second.cbegin() + cdf.first);
+}
+
+//================================================================================
 
 double HcalSiPM::hitCells(CLHEP::HepRandomEngine* engine, unsigned int pes, double tempDiff,
 			  double photonTime) {
@@ -61,10 +105,8 @@ double HcalSiPM::hitCells(CLHEP::HepRandomEngine* engine, unsigned int pes, doub
   // hit pixel.  Pixels which are fractionally charged return a fractional
   // number of hit pixels.
 
-  if ((theCrossTalk > 0.) && (theCrossTalk < 1.)) {
-    CLHEP::RandPoissonQ randPoissonQ(*engine, pes/(1. - theCrossTalk) - pes);
-    pes += randPoissonQ.fire();
-  }
+  if ((theCrossTalk > 0.) && (theCrossTalk < 1.)) 
+    pes += addCrossTalkCells(engine, pes);
 
   unsigned int pixel;
   double sum(0.), hit(0.);
@@ -92,16 +134,6 @@ double HcalSiPM::totalCharge(double time) const {
   return tot;
 }
 
-// void HcalSiPM::recoverForTime(double time, double dt) {
-//   // apply the RC recover model to the pixels for time.  If dt is not
-//   // positive then tau/5 will be used for dt.
-//   if (dt <= 0.)
-//     dt = 1.0/(theTauInv*5.);
-//   for (double t = 0; t < time; t += dt) {
-//     expRecover(dt);
-//   }
-// }
-
 void HcalSiPM::setNCells(int nCells) {
   assert(nCells>0);
   theCellCount = nCells;
@@ -118,24 +150,17 @@ void HcalSiPM::setCrossTalk(double xTalk) {
     theCrossTalk = xTalk;
   }   
 
+  // Recalculate the crosstalk CDFs
+  borelcdfs.clear();
+  if (theCrossTalk > 0)
+    for (int k=1; k<=100; k++)
+      BorelCDF(k);
 }
 
 void HcalSiPM::setTemperatureDependence(double dTemp) {
   // set the temperature dependence
   theTempDep = dTemp;
 }
-
-// void HcalSiPM::expRecover(double dt) {
-//   // recover each micro-pixel using the RC model.  For this to work well.
-//   // dt << tau (typically dt = 0.2*tau or less)
-//   double newval;
-  
-//   for (unsigned int i=0; i<theCellCount; ++i) {
-//     if (theSiPM[i] < 0.999) {
-//       newval = theSiPM[i] + (1 - theSiPM[i])*dt*theTauInv;
-//       theSiPM[i] = (newval > 0.99) ? 1.0 : newval;
-//   }
-// }
 
 double HcalSiPM::cellCharge(double deltaTime) const {
   if (deltaTime <= 0.) return 0.;

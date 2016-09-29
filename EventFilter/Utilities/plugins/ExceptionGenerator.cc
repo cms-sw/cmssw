@@ -145,13 +145,13 @@ namespace evf{
     gettimeofday(&tv_start_,0);
   }
 
-  void ExceptionGenerator::analyze(const edm::Event & e, const edm::EventSetup& c)
+  void __attribute__((optimize("O0"))) ExceptionGenerator::analyze(const edm::Event & e, const edm::EventSetup& c)
     {
       float dummy = 0.;
       unsigned int iterations = 0;
       if(actionRequired_) 
 	{
-	  int *pi = 0;
+	  int *pi = 0;//null-pointer used with actionId_ 8 and 12 to intentionally cause segfault
 	  int ind = 0; 
 	  int step = 1; 
 	  switch(actionId_)
@@ -181,7 +181,7 @@ namespace evf{
 	      edm::LogError("TestErrorMessage") << qualifier_;
 	      break;
 	    case 8:
-	      *pi=0;
+	      *pi=0;//intentionally caused segfault by assigning null pointer (this produces static-checker warning)
 	      break;
 	    case 9:
 	      for(unsigned int j=0; j<intqualifier_*1000;j++){
@@ -220,7 +220,7 @@ namespace evf{
 		timeval tv_now;
 	        gettimeofday(&tv_now,0);
 		if ((unsigned)(tv_now.tv_sec-tv_start_.tv_sec)>intqualifier_)
-		  *pi=0;
+		  *pi=0;//intentionally caused segfault by assigning null pointer (this produces static-checker warning)
 	      }
 	      break;
 	    case 13:

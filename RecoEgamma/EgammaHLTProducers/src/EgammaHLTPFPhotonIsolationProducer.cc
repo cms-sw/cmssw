@@ -188,8 +188,7 @@ void EgammaHLTPFPhotonIsolationProducer::produce(edm::Event& iEvent, const edm::
       
       recoEcalCandMap.insert(candRef, sum);
     }
-    std::unique_ptr<reco::RecoEcalCandidateIsolationMap> mapForEvent(new reco::RecoEcalCandidateIsolationMap(recoEcalCandMap));
-    iEvent.put(std::move(mapForEvent));
+    iEvent.put(std::make_unique<reco::RecoEcalCandidateIsolationMap>(recoEcalCandMap));
     
   } else {
 
@@ -270,7 +269,6 @@ void EgammaHLTPFPhotonIsolationProducer::produce(edm::Event& iEvent, const edm::
 
       eleMap.insert(eleRef, sum);
     }   
-    std::unique_ptr<reco::ElectronIsolationMap> mapForEvent(new reco::ElectronIsolationMap(eleMap));
-    iEvent.put(std::move(mapForEvent));
+    iEvent.put(std::make_unique<reco::ElectronIsolationMap>(eleMap));
   }
 }

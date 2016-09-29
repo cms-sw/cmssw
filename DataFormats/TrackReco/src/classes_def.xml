@@ -403,6 +403,7 @@
      <class name="std::pair<edm::RefToBase<reco::Track>,double>" />
      <class name="std::vector<std::pair<edm::RefToBase<reco::Track>,double> >" />
 
+     <class name="edm::reftobase::BaseVectorHolder<reco::Track>" />
      <class name="reco::TrackBaseRefVector"/>
      <class name="edm::Wrapper<reco::TrackBaseRefVector>"/>
 

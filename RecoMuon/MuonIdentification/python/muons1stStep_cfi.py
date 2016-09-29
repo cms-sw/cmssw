@@ -45,7 +45,7 @@ muons1stStep = cms.EDProducer("MuonIdProducer",
     # AND
     maxAbsDy = cms.double(9999.0),
     minP = cms.double(2.5),
-    minPCaloMuon = cms.double(1.0),
+    minPCaloMuon = cms.double(1e9),
 
     # Match parameters
     maxAbsDx = cms.double(3.0),
@@ -79,7 +79,12 @@ muons1stStep = cms.EDProducer("MuonIdProducer",
                                           ClusterDTheta = cms.double(0.02) # 1.14
     )
 )
-                       
+
+from Configuration.Eras.Modifier_run3_GEM_cff import run3_GEM
+run3_GEM.toModify( muons1stStep, TrackAssociatorParameters = dict(useGEM = cms.bool(True) ) )
+from Configuration.Eras.Modifier_phase2_muon_cff import phase2_muon
+phase2_muon.toModify( muons1stStep, TrackAssociatorParameters = dict(useME0 = cms.bool(True) ) )
+
 muonEcalDetIds = cms.EDProducer("InterestingEcalDetIdProducer",
                                 inputCollection = cms.InputTag("muons1stStep")
 )

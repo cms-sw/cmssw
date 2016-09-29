@@ -81,20 +81,23 @@ public:
   void setpuCorrMethod(int method){ 
     puCorrMethod_ = method;
     if( puCorrMethod_ == 2 )
-        psFitOOTpuCorr_ = std::auto_ptr<PulseShapeFitOOTPileupCorrection>(new PulseShapeFitOOTPileupCorrection());
+        psFitOOTpuCorr_ = std::make_unique<PulseShapeFitOOTPileupCorrection>();
   }
 
-  void setpuCorrParams(bool   iPedestalConstraint, bool iTimeConstraint,bool iAddPulseJitter,bool iUnConstrainedFit,bool iApplyTimeSlew,
-		       double iTS4Min, double iTS4Max, double iPulseJitter,double iTimeMean,double iTimeSig,double iPedMean,double iPedSig,
-		       double iNoise,double iTMin,double iTMax,
-		       double its3Chi2,double its4Chi2,double its345Chi2,double iChargeThreshold, int iFitTimes); 
-  void setMeth3Params(int iPedSubMethod, float iPedSubThreshold, int iTimeSlewParsType, std::vector<double> iTimeSlewPars, double irespCorrM3);
+  void setpuCorrParams(bool   iPedestalConstraint, bool iTimeConstraint,bool iAddPulseJitter,bool iApplyTimeSlew,
+		       double iTS4Min, std::vector<double> iTS4Max, double iPulseJitter,
+		       double iTimeMean,double iTimeSig,double iTimeSigSiPM,
+		       double iPedMean,double iPedSig, double iPedSigSiPM,
+		       double iNoise,double iNoiseSiPM,
+		       double iTMin, double iTMax,
+		       double its4Chi2, int iFitTimes);
+  void setMeth3Params(float iPedSubThreshold, int iTimeSlewParsType, std::vector<double> iTimeSlewPars, double irespCorrM3);
                
 private:
   bool correctForTimeslew_;
   bool correctForPulse_;
   float phaseNS_;
-  std::auto_ptr<HcalPulseContainmentManager> pulseCorr_;
+  std::unique_ptr<HcalPulseContainmentManager> pulseCorr_;
   int runnum_;  // data run numer
   bool setLeakCorrection_;
   int pileupCleaningID_;
@@ -108,12 +111,12 @@ private:
 
   int puCorrMethod_;
 
-  std::auto_ptr<PulseShapeFitOOTPileupCorrection> psFitOOTpuCorr_;
+  std::unique_ptr<PulseShapeFitOOTPileupCorrection> psFitOOTpuCorr_;
   
-  std::auto_ptr<PedestalSub> pedSubFxn_;
+  std::unique_ptr<PedestalSub> pedSubFxn_;
 
   // S.Brandt Feb19 : Add a pointer to the HLT algo
-  std::auto_ptr<HcalDeterministicFit> hltOOTpuCorr_;
+  std::unique_ptr<HcalDeterministicFit> hltOOTpuCorr_;
 };
 
 #endif

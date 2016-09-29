@@ -36,23 +36,23 @@ namespace sistrip {
     void createFedBuffers( edm::Event&, 
 			   edm::ESHandle<SiStripFedCabling>& cabling,
 			   edm::Handle< edm::DetSetVector<SiStripDigi> >& digis,
-			   std::auto_ptr<FEDRawDataCollection>& buffers );
+			   std::unique_ptr<FEDRawDataCollection>& buffers );
     void createFedBuffers( edm::Event&, 
 			   edm::ESHandle<SiStripFedCabling>& cabling,
 			   edm::Handle< edm::DetSetVector<SiStripRawDigi> >& digis,
-			   std::auto_ptr<FEDRawDataCollection>& buffers);
+			   std::unique_ptr<FEDRawDataCollection>& buffers);
 
     //with input raw data for copying header   
     void createFedBuffers( edm::Event&, 
 			   edm::ESHandle<SiStripFedCabling>& cabling,
 			   edm::Handle<FEDRawDataCollection> & rawbuffers,
 			   edm::Handle< edm::DetSetVector<SiStripDigi> >& digis,
-			   std::auto_ptr<FEDRawDataCollection>& buffers );
+			   std::unique_ptr<FEDRawDataCollection>& buffers );
     void createFedBuffers( edm::Event&, 
 			   edm::ESHandle<SiStripFedCabling>& cabling,
 			   edm::Handle<FEDRawDataCollection> & rawbuffers,
 			   edm::Handle< edm::DetSetVector<SiStripRawDigi> >& digis,
-			   std::auto_ptr<FEDRawDataCollection>& buffers);
+			   std::unique_ptr<FEDRawDataCollection>& buffers);
     
     inline void fedReadoutMode( FEDReadoutMode mode ) { mode_ = mode; }
 
@@ -62,7 +62,7 @@ namespace sistrip {
     void createFedBuffers_( edm::Event&, 
 			    edm::ESHandle<SiStripFedCabling>& cabling,
 			    edm::Handle< edm::DetSetVector<Digi_t> >& digis,
-			    std::auto_ptr<FEDRawDataCollection>& buffers,
+			    std::unique_ptr<FEDRawDataCollection>& buffers,
 			    bool zeroSuppressed);
 
     template<class Digi_t>
@@ -70,7 +70,7 @@ namespace sistrip {
 			    edm::ESHandle<SiStripFedCabling>& cabling,
 			    edm::Handle<FEDRawDataCollection> & rawbuffers,
 			    edm::Handle< edm::DetSetVector<Digi_t> >& digis,
-			    std::auto_ptr<FEDRawDataCollection>& buffers,
+			    std::unique_ptr<FEDRawDataCollection>& buffers,
 			    bool zeroSuppressed);
 
 

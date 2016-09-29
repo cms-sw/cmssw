@@ -45,6 +45,7 @@ public:
    */
   virtual DirectionType direction( double s) const = 0;
 
+  virtual ~HelixPlaneCrossing() = default;
 };
 
 #endif

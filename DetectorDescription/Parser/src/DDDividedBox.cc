@@ -1,15 +1,9 @@
-//
-// ********************************************************************
-// 25.04.04 - M. Case ddd-ize G4ParameterisationBox*
-// ********************************************************************
-
 #include "DetectorDescription/Parser/src/DDDividedBox.h"
 
 #include <ostream>
 #include <string>
 #include <utility>
 
-#include "DetectorDescription/Base/interface/DDdebug.h"
 #include "DetectorDescription/Core/interface/DDAxes.h"
 #include "DetectorDescription/Core/interface/DDDivision.h"
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
@@ -49,12 +43,7 @@ DDDividedBoxX::DDDividedBoxX( const DDDivision& div, DDCompactView* cpv)
   //  	    , makeDDRotation(i)    // rotation.  box is default (i.e. identity).
   //  	    );
   //      }
-
-  DCOUT_V ('P', " DDDividedBoxX:DDDividedBoxX"  << std::endl);
 }
-
-DDDividedBoxX::~DDDividedBoxX( void )
-{}
 
 double
 DDDividedBoxX::getMaxParameter( void ) const
@@ -80,7 +69,6 @@ DDDividedBoxX::makeDDTranslation( const int copyNo ) const
   double posi = -mdx + div_.offset() + (copyNo+0.5) * compWidth_;
   translation.SetX( posi );
 
-  DCOUT_V ('P', " DDDividedBoxX: " << copyNo << "\n Position " << translation << " Axis " << DDAxesNames::name(div_.axis()) << "\n");
   return translation;
 }
 
@@ -102,7 +90,6 @@ DDDividedBoxX::makeDDLogicalPart( const int copyNo ) const
     ddbox = DDSolidFactory::box(solname, pDx, pDy, pDz);
     ddlp =  DDLogicalPart(solname, usemat, ddbox);
   }
-  DCOUT_V ('P', " DDDividedBoxX::computeDimensions() lp:\n" << ddlp); 
   return ddlp;
 }
 
@@ -134,12 +121,7 @@ DDDividedBoxY::DDDividedBoxY( const DDDivision& div, DDCompactView* cpv)
   //  	    , makeDDRotation(i)    // rotation.  box is default (i.e. identity).
   //  	    );
   //      }
-
-  DCOUT_V ('P', " DDDividedBoxY:DDDividedBoxY"  << std::endl);
 }
-
-DDDividedBoxY::~DDDividedBoxY( void )
-{}
 
 double
 DDDividedBoxY::getMaxParameter( void ) const
@@ -166,7 +148,6 @@ DDDividedBoxY::makeDDTranslation( const int copyNo ) const
   double posi = -mdx + div_.offset() + (copyNo+0.5) * compWidth_;
   translation.SetY( posi );
 
-  DCOUT_V ('P', " DDDividedBoxY: " << copyNo << "\n Position " << translation << " Axis " << DDAxesNames::name(div_.axis()) << "\n");
   return translation;
 }
 
@@ -187,7 +168,6 @@ DDDividedBoxY::makeDDLogicalPart( const int copyNo ) const
     ddbox = DDSolidFactory::box(solname, pDx, pDy, pDz);
     ddlp =  DDLogicalPart(solname, usemat, ddbox);
   }
-  DCOUT_V ('P', " DDDividedBoxY::computeDimensions() lp:\n" << ddlp); 
   return ddlp;
 }
 
@@ -218,12 +198,7 @@ DDDividedBoxZ::DDDividedBoxZ( const DDDivision& div, DDCompactView* cpv)
   //  	    , makeDDRotation(i)    // rotation.  box is default (i.e. identity).
   //  	    );
   //      }
-
-  DCOUT_V ('P', " DDDividedBoxZ:DDDividedBoxZ"  << std::endl);
 }
-
-DDDividedBoxZ::~DDDividedBoxZ( void )
-{}
 
 double
 DDDividedBoxZ::getMaxParameter( void ) const
@@ -250,7 +225,6 @@ DDDividedBoxZ::makeDDTranslation( const int copyNo ) const
   double posi = -mdx + div_.offset() + (copyNo+0.5) * compWidth_;
   translation.SetZ( posi );
 
-  DCOUT_V ('P', " DDDividedBoxZ: " << copyNo << "\n Position " << translation << " Axis " << DDAxesNames::name(div_.axis()) << "\n");
   return translation;
 }
 
@@ -271,9 +245,5 @@ DDDividedBoxZ::makeDDLogicalPart( const int copyNo ) const
     ddbox = DDSolidFactory::box(solname, pDx, pDy, pDz);
     ddlp =  DDLogicalPart(solname, usemat, ddbox);
   }
-  DCOUT_V ('P', " DDDividedBoxZ::computeDimensions() lp:\n" << ddlp); 
   return ddlp;
 }
-
-
-

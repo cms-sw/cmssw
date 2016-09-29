@@ -1,11 +1,11 @@
 from alternateValidationTemplates import *
 from offlineValidationTemplates import *
+from primaryVertexValidationTemplates import *
 from geometryComparisonTemplates import *
 from monteCarloValidationTemplates import *
 from trackSplittingValidationTemplates import *
 from zMuMuValidationTemplates import *
 from TkAlExceptions import AllInOneError
-
 
 ######################################################################
 ######################################################################
@@ -14,6 +14,16 @@ from TkAlExceptions import AllInOneError
 ###                                                                ###
 ######################################################################
 ######################################################################
+
+######################################################################
+######################################################################
+loadGlobalTagTemplate="""
+#Global tag
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+from Configuration.AlCa.GlobalTag import GlobalTag
+process.GlobalTag = GlobalTag(process.GlobalTag,".oO[GlobalTag]Oo.")
+"""
+
 
 ######################################################################
 ######################################################################
@@ -153,6 +163,7 @@ root_files=$($eos ls /store/caf/user/$USER/.oO[eosdir]Oo. \
 .oO[RunExtendedOfflineValidation]Oo.
 .oO[RunTrackSplitPlot]Oo.
 .oO[MergeZmumuPlots]Oo.
+.oO[RunPrimaryVertexPlot]Oo.
 
 # clean-up
 # ls -l *.root
@@ -186,52 +197,20 @@ compareAlignmentsExecution="""
 #merge for .oO[validationId]Oo. if it does not exist or is not up-to-date
 echo -e "\n\nComparing validations"
 $eos mkdir -p /store/caf/user/$USER/.oO[eosdir]Oo./
-cp .oO[CMSSW_BASE]Oo./src/Alignment/OfflineValidation/scripts/compareFileAges.C .
+cp .oO[Alignment/OfflineValidation]Oo./scripts/compareFileAges.C .
 root -x -q -b -l "compareFileAges.C(\\\"root://eoscms.cern.ch//eos/cms/store/caf/user/$USER/.oO[eosdir]Oo./.oO[validationId]Oo._result.root\\\", \\\".oO[compareStringsPlain]Oo.\\\")"
 comparisonNeeded=${?}
 
 if [[ ${comparisonNeeded} -eq 1 ]]
 then
-    cp .oO[CMSSW_BASE]Oo./src/Alignment/OfflineValidation/scripts/compareAlignments.cc .
-    root -x -q -b -l 'compareAlignments.cc++(\".oO[compareStrings]Oo.\")'
+    cp .oO[Alignment/OfflineValidation]Oo./scripts/compareAlignments.cc .
+    root -x -q -b -l 'compareAlignments.cc++(\".oO[compareStrings]Oo.\", ".oO[legendheader]Oo.", ".oO[customtitle]Oo.", ".oO[customrighttitle]Oo.", .oO[bigtext]Oo.)'
     mv result.root .oO[validationId]Oo._result.root
     xrdcp -f .oO[validationId]Oo._result.root root://eoscms//eos/cms/store/caf/user/$USER/.oO[eosdir]Oo.
 else
     echo ".oO[validationId]Oo._result.root is up-to-date, no need to compare again."
     xrdcp -f root://eoscms//eos/cms/store/caf/user/$USER/.oO[eosdir]Oo./.oO[validationId]Oo._result.root .
 fi
-"""
-
-
-######################################################################
-######################################################################
-extendedValidationExecution="""
-#run extended offline validation scripts
-echo -e "\n\nRunning extended offline validation"
-
-rfcp .oO[extendedValScriptPath]Oo. .
-root -x -b -q -l TkAlExtendedOfflineValidation.C
-
-"""
-
-
-######################################################################
-######################################################################
-extendedValidationTemplate="""
-#include ".oO[CMSSW_BASE]Oo./src/Alignment/OfflineValidation/macros/PlotAlignmentValidation.C"
-void TkAlExtendedOfflineValidation()
-{
-  // load framework lite just to find the CMSSW libs...
-  gSystem->Load("libFWCoreFWLite");
-  FWLiteEnabler::enable();
-
-  .oO[extendedInstantiation]Oo.
-  p.setOutputDir(".oO[datadir]Oo./ExtendedOfflineValidation_Images");
-  p.setTreeBaseDir(".oO[OfflineTreeBaseDir]Oo.");
-  p.plotDMR(".oO[DMRMethod]Oo.",.oO[DMRMinimum]Oo.,".oO[DMROptions]Oo.");
-  p.plotSurfaceShapes(".oO[SurfaceShapes]Oo.");
-  p.plotChi2("root://eoscms//eos/cms/store/caf/user/$USER/.oO[eosdir]Oo./.oO[resultPlotFile]Oo._result.root");
-}
 """
 
 
