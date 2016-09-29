@@ -59,5 +59,5 @@ from  L1Trigger.L1THGCal.hgcalTriggerPrimitives_cff import *
 _phase2_siml1emulator = SimL1Emulator.copy()
 _phase2_siml1emulator += hgcalTriggerPrimitives
 
-from Configuration.StandardSequences.Eras import eras
-eras.phase2_hgcal.toReplaceWith( SimL1Emulator , _phase2_siml1emulator )
+from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
+phase2_hgcal.toReplaceWith( SimL1Emulator , _phase2_siml1emulator )
