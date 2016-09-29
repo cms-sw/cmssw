@@ -13,4 +13,3 @@ from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
 phase2_tracker.toModify(ClusterShapeHitFilterESProducer,
     PixelShapeFile = 'RecoPixelVertexing/PixelLowPtUtilities/data/pixelShape_Phase1Tk.par'
 )
-from Configuration.Eras.Modifier_phase1PixelNewFPix_cff import phase1PixelNewFPix
