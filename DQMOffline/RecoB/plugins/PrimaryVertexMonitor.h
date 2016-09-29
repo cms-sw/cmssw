@@ -8,6 +8,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "DataFormats/Common/interface/ValueMap.h"
+#include "DataFormats/Common/interface/Association.h"
 
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
@@ -38,6 +40,8 @@ class PrimaryVertexMonitor : public DQMEDAnalyzer {
 
   edm::EDGetTokenT<reco::VertexCollection> vertexToken_;
   edm::EDGetTokenT<reco::BeamSpot>         beamspotToken_;
+  using VertexScore = edm::ValueMap<float>;
+  edm::EDGetTokenT<VertexScore>        scoreToken_;
   
   edm::InputTag vertexInputTag_, beamSpotInputTag_;
 
@@ -49,7 +53,7 @@ class PrimaryVertexMonitor : public DQMEDAnalyzer {
   std::string AlignmentLabel_;
 
   // the histos
-  MonitorElement *nbvtx, *nbgvtx, *nbtksinvtx[2], *trksWeight[2];
+  MonitorElement *nbvtx, *nbgvtx, *nbtksinvtx[2], *trksWeight[2], *score[2];
   MonitorElement *tt[2];
   MonitorElement *xrec[2] , *yrec[2], *zrec[2], *xDiff[2] , *yDiff[2], *xerr[2] , *yerr[2], *zerr[2] ;
   MonitorElement *xerrVsTrks[2] , *yerrVsTrks[2], *zerrVsTrks[2] ;
