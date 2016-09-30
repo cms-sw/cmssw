@@ -31,7 +31,7 @@ process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring('file:material.root')
 )
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(100)
+    input = cms.untracked.int32(200000)
 )
 
 process.path = cms.Path(process.trackingMaterialAnalyser)
