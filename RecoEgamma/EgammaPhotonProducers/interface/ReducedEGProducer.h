@@ -101,6 +101,8 @@ class ReducedEGProducer : public edm::stream::EDProducer<> {
  const StringCutObjectSelector<reco::GsfElectron> keepGsfElectronSel_;
  const StringCutObjectSelector<reco::GsfElectron> slimRelinkGsfElectronSel_;
  const StringCutObjectSelector<reco::GsfElectron> relinkGsfElectronSel_; 
+ const edm::EDGetTokenT<pat::PackedCandidateCollection>  pc_;
+ const edm::EDGetTokenT<edm::Association<pat::PackedCandidateCollection> > pf2pc_;
 };
 #endif
 
