@@ -54,7 +54,16 @@ class TauRegionalPixelSeedGenerator : public TrackingRegionProducer {
       }
       m_howToUseMeasurementTracker = RectangularEtaPhiTrackingRegion::stringToUseMeasurementTracker(regionPSet.getParameter<std::string>("howToUseMeasurementTracker"));
       if(m_howToUseMeasurementTracker != RectangularEtaPhiTrackingRegion::UseMeasurementTracker::kNever) {
-        token_measurementTracker = iC.consumes<MeasurementTrackerEvent>(regionPSet.getParameter<std::string>("measurementTrackerName"));
+        // temporary until everything migrated to InputTag
+        edm::InputTag tag;
+        if(regionPSet.existsAs<edm::InputTag>("measurementTrackerName")) {
+          tag = regionPSet.getParameter<edm::InputTag>("measurementTrackerName");
+        }
+        else {
+          tag = edm::InputTag(regionPSet.getParameter<std::string>("measurementTrackerName"));
+        }
+
+        token_measurementTracker = iC.consumes<MeasurementTrackerEvent>(tag);
       }
     }
   
@@ -73,7 +82,10 @@ class TauRegionalPixelSeedGenerator : public TrackingRegionProducer {
     desc.add<bool>("searchOpt", false);
 
     desc.add<std::string>("howToUseMeasurementTracker", "ForSiStrips");
-    desc.add<edm::InputTag>("measurementTrackerName", edm::InputTag("MeasurementTrackerEvent"));
+
+    // allow both InputTag and string for the moment, use InputTag as the default
+    desc.addNode(edm::ParameterDescription<edm::InputTag>("measurementTrackerName", edm::InputTag("MeasurementTrackerEvent"), true) xor
+                 edm::ParameterDescription<std::string>("measurementTrackerName", "MeasurementTrackerEvent", true));
 
     // Only for backwards-compatibility
     edm::ParameterSetDescription descRegion;
