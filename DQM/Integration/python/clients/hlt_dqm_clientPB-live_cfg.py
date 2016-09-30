@@ -32,9 +32,9 @@ process.fastTimerServiceClient.doPlotsVsPixelLumi = cms.bool(False)
 process.fastTimerServiceClient.scalLumiME = cms.PSet(
     folder = cms.string('HLT/LumiMonitoring'),
     name   = cms.string('lumiVsLS'),
-    nbins  = cms.int32(6500),
+    nbins  = cms.int32(5000),
     xmin   = cms.double(0),
-    xmax   = cms.double(13000)
+    xmax   = cms.double(20000)
 )
 
 # PS column VS lumi
@@ -44,13 +44,13 @@ process.psColumnVsLumi = process.dqmCorrelationClient.clone(
       folder = cms.string("HLT/PSMonitoring"),
       name   = cms.string("psColumnVSlumi"),
       doXaxis = cms.bool( True ),
-      nbinsX = cms.int32( 6500),
+      nbinsX = cms.int32( 5000),
       xminX  = cms.double(    0.),
-      xmaxX  = cms.double(13000.),
+      xmaxX  = cms.double(20000.),
       doYaxis = cms.bool( False ),
-      nbinsY = cms.int32 (   8),
+      nbinsY = cms.int32 (   20),
       xminY  = cms.double(   0.),
-      xmaxY  = cms.double(   8.),
+      xmaxY  = cms.double(   20.),
    ),
    me1 = cms.PSet(
       folder   = cms.string("HLT/LumiMonitoring"),
