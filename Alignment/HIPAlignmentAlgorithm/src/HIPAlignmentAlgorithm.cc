@@ -814,7 +814,6 @@ void HIPAlignmentAlgorithm::run(const edm::EventSetup& setup, const EventInfo &e
 	// which excludes current hit
 	
 	//////////Hit prescaling part 	 
-	bool skiphit = false; 	 
 	if (eventInfo.clusterValueMap()) { 	 
 	  // check from the PrescalingMap if the hit was taken. 	 
 	  // If not skip to the next TM 	 
@@ -872,16 +871,10 @@ void HIPAlignmentAlgorithm::run(const edm::EventSetup& setup, const EventInfo &e
 	  } //end 'else' it is a pixel hit 	 
 	    // bool hitTaken=myflag.isTaken(); 	 
 	  if (!myflag.isTaken()) { 	 
-	    skiphit=true;
 	    continue;
 	  }
 	}//end if Prescaled Hits 	 
 	//////////////////////////////// 	 
-	if (skiphit) { 	 
-	  throw cms::Exception("LogicError")
-	    << "ERROR  in <HIPAlignmentAlgorithm::run>: this hit should have been skipped!"
-	    << std::endl;	 
-	}
 	
 	TrajectoryStateOnSurface tsos = tsoscomb.combine(meas.forwardPredictedState(),
 							 meas.backwardPredictedState());
