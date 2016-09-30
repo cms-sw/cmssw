@@ -14,7 +14,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
  
 HcalDbHardcode::HcalDbHardcode()
-: theDefaultParameters_(3.0,0.5,{0.2,0.2},{0.0,0.0},0,{0.0,0.0,0.0,0.0},{0.9,0.9,0.9,0.9},125,105), //"generic" set of conditions
+: theDefaultParameters_(3.0,0.5,{0.2,0.2},{0.0,0.0},0,{0.0,0.0,0.0,0.0},{0.9,0.9,0.9,0.9},125,105,0.0,0.0), //"generic" set of conditions
   setHB_(false), setHE_(false), setHF_(false), setHO_(false), 
   setHBUpgrade_(false), setHEUpgrade_(false), setHFUpgrade_(false), 
   useHBUpgrade_(false), useHEUpgrade_(false), useHOUpgrade_(true),
@@ -538,40 +538,71 @@ void HcalDbHardcode::makeHardcodeFrontEndMap(HcalFrontEndMap& emap, const std::v
   emap.sort();
 }
 
-HcalSiPMParameter HcalDbHardcode::makeHardcodeSiPMParameter (HcalGenericDetId fId) {
-  // SiPMParameter defined for each DetId the following quantities:
-  //  SiPM type, PhotoElectronToAnalog, Dark Current, two auxilairy words
-  //  These numbers come from some measurements done with SiPM's
-  if (fId.isHcalDetId()) {
-    if (fId.subdetId() == HcalBarrel) {
-      if (useHBUpgrade_) 
-	return HcalSiPMParameter(fId.rawId(), HcalHBHamamatsu1, 57.5, 0.055, 0, 0);
-    } else if (fId.subdetId() == HcalEndcap) {
-      if (useHEUpgrade_) 
-	return HcalSiPMParameter(fId.rawId(), HcalHEHamamatsu1, 57.5, 0.055, 0, 0);
-    } else if (fId.subdetId() == HcalOuter) {
-      if (useHOUpgrade_)
-	return HcalSiPMParameter(fId.rawId(), HcalHOHamamatsu, 4.0, 0.055, 0, 0);
+int HcalDbHardcode::getLayersInDepth(int ieta, int depth, const HcalTopology* topo){
+    //check for cached value
+    auto eta_depth_pair = std::make_pair(ieta,depth);
+    auto nLayers = theLayersInDepths_.find(eta_depth_pair);
+    if(nLayers != theLayersInDepths_.end()){
+        return nLayers->second;
     }
-  } 
-  return HcalSiPMParameter(fId.rawId(), HcalNoSiPM, 0, 0, 0, 0);
+    else {
+        std::vector<int> segmentation;
+        topo->getDepthSegmentation(ieta,segmentation);
+        //assume depth segmentation vector is sorted
+        int nLayersInDepth = std::distance(std::lower_bound(segmentation.begin(),segmentation.end(),depth),
+                                       std::upper_bound(segmentation.begin(),segmentation.end(),depth));
+        theLayersInDepths_.insert(std::make_pair(eta_depth_pair,nLayersInDepth));
+        return nLayersInDepth;
+    }
+}
+
+HcalSiPMParameter HcalDbHardcode::makeHardcodeSiPMParameter (HcalGenericDetId fId, const HcalTopology* topo) {
+  // SiPMParameter defined for each DetId the following quantities:
+  //  SiPM type, PhotoElectronToAnalog, Dark Current, two auxiliary words
+  //  These numbers come from some measurements done with SiPMs
+  // rule for type: cells with >4 layers use larger device (3.3mm diameter), otherwise 2.8mm
+  HcalSiPMType theType = HcalNoSiPM;
+  double thePe2fC = getParameters(fId).photoelectronsToAnalog();
+  double theDC = getParameters(fId).darkCurrent();
+  if (fId.genericSubdet() == HcalGenericDetId::HcalGenBarrel && useHBUpgrade_) {
+    HcalDetId hid(fId);
+    int nLayersInDepth = getLayersInDepth(hid.ietaAbs(),hid.depth(),topo);
+    if(nLayersInDepth > 4) theType = HcalHBHamamatsu2;
+    else theType = HcalHBHamamatsu1;
+  } else if (fId.genericSubdet() == HcalGenericDetId::HcalGenEndcap && useHEUpgrade_) {
+    HcalDetId hid(fId);
+    int nLayersInDepth = getLayersInDepth(hid.ietaAbs(),hid.depth(),topo);
+    if(nLayersInDepth > 4) theType = HcalHEHamamatsu2;
+    else theType = HcalHEHamamatsu1;
+  } else if (fId.genericSubdet() == HcalGenericDetId::HcalGenOuter && useHOUpgrade_) {
+    theType = HcalHOHamamatsu;
+  }
+  
+  return HcalSiPMParameter(fId.rawId(), theType, thePe2fC, theDC, 0, 0);
 }
 
 void HcalDbHardcode::makeHardcodeSiPMCharacteristics (HcalSiPMCharacteristics& sipm) {
   // SiPMCharacteristics are constants for each type of SiPM:
   // Type, # of pixels, 3 parameters for non-linearity, cross talk parameter, ..
   // Obtained from data sheet and measurements
-  sipm.loadObject(HcalHOZecotek,36000,1,0,0,0.32,0,0);
-  sipm.loadObject(HcalHOHamamatsu,2500,1,0,0,0.32,0,0);
-  sipm.loadObject(HcalHEHamamatsu1,27370,1.000669,1.34646E-5,1.57918E-10,0.32,0,0);
-  sipm.loadObject(HcalHEHamamatsu2,38018,1.000669,1.34646E-5,1.57918E-10,0.32,0,0);
-  sipm.loadObject(HcalHBHamamatsu1,27370,1.000669,1.34646E-5,1.57918E-10,0.32,0,0);
+  // types (in order): HcalHOZecotek=1, HcalHOHamamatsu, HcalHEHamamatsu1, HcalHEHamamatsu2, HcalHBHamamatsu1
+  for(unsigned ip = 0; ip < theSiPMCharacteristics_.size(); ++ip){
+    auto& ps = theSiPMCharacteristics_[ip];
+    sipm.loadObject(ip+1,
+      ps.getParameter<int>("pixels"),
+      ps.getParameter<double>("nonlin1"),
+      ps.getParameter<double>("nonlin2"),
+      ps.getParameter<double>("nonlin3"),
+      ps.getParameter<double>("crosstalk"),
+      0,0
+    );
+  }
 }
 
 HcalTPChannelParameter HcalDbHardcode::makeHardcodeTPChannelParameter (HcalGenericDetId fId) {
   // For each detId parameters for trigger primitive
   // mask for channel validity and self trigger information, fine grain
-  // bit information and auxilairy words
+  // bit information and auxiliary words
   uint32_t bitInfo = ((44 << 16) | 30);
   return HcalTPChannelParameter(fId.rawId(), 0, bitInfo, 0, 0);
 }
