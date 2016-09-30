@@ -1,20 +1,11 @@
 #include "FWCore/Framework/interface/Event.h"
-
-#include "EventFilter/L1TRawToDigi/interface/Packer.h"
+#include "EventFilter/L1TRawToDigi/plugins/PackerFactory.h"
 
 #include "L1Trigger/L1TMuon/interface/MuonRawDigiTranslator.h"
 #include "GMTTokens.h"
 
-namespace l1t {
-   namespace stage2 {
-      class IntermediateMuonPacker : public Packer {
-         public:
-            virtual Blocks pack(const edm::Event&, const PackerTokens*) override;
-      };
-   }
-}
+#include "IntermediateMuonPacker.h"
 
-// Implementation
 namespace l1t {
    namespace stage2 {
       Blocks
