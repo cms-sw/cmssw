@@ -16,15 +16,17 @@ HcalDeterministicFit::HcalDeterministicFit() {
 HcalDeterministicFit::~HcalDeterministicFit() { 
 }
 
-void HcalDeterministicFit::init(HcalTimeSlew::ParaSource tsParam, HcalTimeSlew::BiasSetting bias, PedestalSub pedSubFxn_, std::vector<double> pars, double respCorr) {
+void HcalDeterministicFit::init(HcalTimeSlew::ParaSource tsParam, HcalTimeSlew::BiasSetting bias, bool iApplyTimeSlew, PedestalSub pedSubFxn_, std::vector<double> pars, double respCorr) {
   for(int fi=0; fi<9; fi++){
 	fpars[fi] = pars.at(fi);
   }
 
+  applyTimeSlew_=iApplyTimeSlew;
   fTimeSlew=tsParam;
   fTimeSlewBias=bias;
   fPedestalSubFxn_=pedSubFxn_;
   frespCorr=respCorr;
+
 }
 
 constexpr float HcalDeterministicFit::landauFrac[];
@@ -92,6 +94,12 @@ void HcalDeterministicFit::phase1Apply(const HBHEChannelInfo& channelData,
   float tsShift3=HcalTimeSlew::delay(inputCharge[3], fTimeSlew, fTimeSlewBias, fpar0, fpar1 ,fpar2);
   float tsShift4=HcalTimeSlew::delay(inputCharge[4], fTimeSlew, fTimeSlewBias, fpar0, fpar1 ,fpar2);
   float tsShift5=HcalTimeSlew::delay(inputCharge[5], fTimeSlew, fTimeSlewBias, fpar0, fpar1 ,fpar2);
+
+  if(!applyTimeSlew_) {
+    tsShift3=0;
+    tsShift4=0;
+    tsShift5=0;
+  }
 
   float i3=0;
   getLandauFrac(-tsShift3,-tsShift3+tsWidth,i3);
