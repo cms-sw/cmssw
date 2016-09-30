@@ -804,8 +804,8 @@ void TrackDetectorAssociator::fillMuon( const edm::Event& iEvent,
                  }
               }
 	}
-	// GEM Chamber or ME0 Chamber
 	else {
+	  // GEM Chamber
 	  if (parameters.useGEM){
 	    if (const GEMSuperChamber* chamber = dynamic_cast<const GEMSuperChamber*>(geomDet) ) {	 
 	      // Get the range for the corresponding segments
@@ -818,6 +818,7 @@ void TrackDetectorAssociator::fillMuon( const edm::Event& iEvent,
 	      }
 	    }
 	  }
+	  // ME0 Chamber
 	  if (parameters.useME0){
 	    if (const ME0Chamber* chamber = dynamic_cast<const ME0Chamber*>(geomDet) ) {
 	      // Get the range for the corresponding segments
