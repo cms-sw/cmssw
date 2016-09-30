@@ -43,7 +43,7 @@ HcalDigitizer::HcalDigitizer(const edm::ParameterSet& ps, edm::ConsumesCollector
   theParameterMap(new HcalSimParameterMap(ps)),
   theShapes(new HcalShapes()),
   theHBHEResponse(new CaloHitResponse(theParameterMap, theShapes)),
-  theHBHESiPMResponse(new HcalSiPMHitResponse(theParameterMap, theShapes)),
+  theHBHESiPMResponse(new HcalSiPMHitResponse(theParameterMap, theShapes, ps.getParameter<bool>("HcalPreMixStage1"))),
   theHOResponse(new CaloHitResponse(theParameterMap, theShapes)),   
   theHOSiPMResponse(new HcalSiPMHitResponse(theParameterMap, theShapes)),
   theHFResponse(new CaloHitResponse(theParameterMap, theShapes)),
