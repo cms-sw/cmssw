@@ -67,7 +67,7 @@ private:
   TFile *             hf;
   TBranch             *emBranch, *hadBranch;
 
-  bool                verbose, applyFidCut, newForm;
+  bool                verbose, applyFidCut, newForm, v3version;
   int                 nMomBin, totEvents, evtPerBin;
   float               libVers, listVersion; 
   std::vector<double> pmom;
