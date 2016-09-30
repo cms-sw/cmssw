@@ -10,6 +10,6 @@ NoiseRatesValidation = Validation.HcalRecHits.HcalRecHitParam_cfi.hcalNoiseRates
 hcalRecHitsValidationSequence = cms.Sequence(NoiseRatesValidation*RecHitsValidation)
 
 # fastsim hasn't got the right noise collection for the moment => no noise validation
-from Configuration.StandardSequences.Eras import eras
-if eras.fastSim.isChosen():
+from Configuration.Eras.Modifier_fastSim_cff import fastSim
+if fastSim.isChosen():
     hcalRecHitsValidationSequence.remove(NoiseRatesValidation)

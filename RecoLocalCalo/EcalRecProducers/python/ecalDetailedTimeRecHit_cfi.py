@@ -11,8 +11,8 @@ ecalDetailedTimeRecHit = cms.EDProducer("EcalDetailedTimeRecHitProducer",
                                         EEDetailedTimeRecHitCollection = cms.string('EcalRecHitsEE'),
                                         EBTimeLayer = ecal_time_digi_parameters.timeLayerBarrel,
                                         EETimeLayer = ecal_time_digi_parameters.timeLayerEndcap,
-                                        correctForVertexZPosition=cms.bool(True),
-                                        useMCTruthVertex=cms.bool(True),
+                                        correctForVertexZPosition=cms.bool(False),
+                                        useMCTruthVertex=cms.bool(False),
                                         recoVertex = cms.InputTag("offlinePrimaryVerticesWithBS"),
                                         simVertex = cms.InputTag("g4SimHits")
                                         )

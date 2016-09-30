@@ -53,5 +53,5 @@ SUSY_HLT_Ele_HT_Control_SingleLepton_POSTPROCESSING = cms.EDAnalyzer('DQMGeneric
 
 
 # fastsim has no conversion collection (yet)
-from Configuration.StandardSequences.Eras import eras
-eras.fastSim.toModify(SUSY_HLT_Ele_HT_Control_SingleLepton,conversionCollection=cms.InputTag(''))
+from Configuration.Eras.Modifier_fastSim_cff import fastSim
+fastSim.toModify(SUSY_HLT_Ele_HT_Control_SingleLepton,conversionCollection=cms.InputTag(''))

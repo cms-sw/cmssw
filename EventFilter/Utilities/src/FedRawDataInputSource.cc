@@ -65,6 +65,7 @@ FedRawDataInputSource::FedRawDataInputSource(edm::ParameterSet const& pset,
   useL1EventID_(pset.getUntrackedParameter<bool> ("useL1EventID", false)),
   fileNames_(pset.getUntrackedParameter<std::vector<std::string>> ("fileNames",std::vector<std::string>())),
   fileListMode_(pset.getUntrackedParameter<bool> ("fileListMode", false)),
+  fileListLoopMode_(pset.getUntrackedParameter<bool> ("fileListLoopMode", false)),
   runNumber_(edm::Service<evf::EvFDaqDirector>()->getRunNumber()),
   fuOutputDir_(std::string()),
   daqProvenanceHelper_(edm::TypeID(typeid(FEDRawDataCollection))),
@@ -84,11 +85,13 @@ FedRawDataInputSource::FedRawDataInputSource(edm::ParameterSet const& pset,
   long autoRunNumber = -1;
   if (fileListMode_)  {
     autoRunNumber = initFileList();
-    if (autoRunNumber<0)
-      throw cms::Exception("FedRawDataInputSource::FedRawDataInputSource") << "Run number not found from filename";
-    //override run number
-    runNumber_ = (edm::RunNumber_t)autoRunNumber;
-    edm::Service<evf::EvFDaqDirector>()->overrideRunNumber((unsigned int)autoRunNumber);
+    if (!fileListLoopMode_) {
+      if (autoRunNumber<0)
+        throw cms::Exception("FedRawDataInputSource::FedRawDataInputSource") << "Run number not found from filename";
+      //override run number
+      runNumber_ = (edm::RunNumber_t)autoRunNumber;
+      edm::Service<evf::EvFDaqDirector>()->overrideRunNumber((unsigned int)autoRunNumber);
+    }
   }
 
   processHistoryID_ = daqProvenanceHelper_.daqInit(productRegistryUpdate(), processHistoryRegistryForUpdate());
@@ -292,7 +295,10 @@ bool FedRawDataInputSource::checkNextEvent()
           maybeOpenNewLumiSection( event_->lumi() );
 	}
       }
-      eventRunNumber_=event_->run();
+      if (fileListLoopMode_)
+        eventRunNumber_=runNumber_;
+      else 
+        eventRunNumber_=event_->run();
       L1EventID_ = event_->event();
 
       setEventCached();
@@ -692,7 +698,7 @@ void FedRawDataInputSource::read(edm::EventPrincipal& eventPrincipal)
     evf::evtn::TCDSRecord record((unsigned char *)(tcds_pointer_));
     edm::EventAuxiliary aux = evf::evtn::makeEventAuxiliary(&record,
 						 eventRunNumber_,currentLumiSection_,
-                                                 processGUID());
+                                                 processGUID(),!fileListLoopMode_);
     aux.setProcessHistoryID(processHistoryID_);
     makeEvent(eventPrincipal, aux);
   }
@@ -1448,12 +1454,25 @@ evf::EvFDaqDirector::FileStatus FedRawDataInputSource::getFile(unsigned int& ls,
           std::string fileStem = fileName.stem().string();
           if (fileStem.find("ls")) fileStem = fileStem.substr(fileStem.find("ls")+2);
           if (fileStem.find("_")) fileStem = fileStem.substr(0,fileStem.find("_"));
-          ls = boost::lexical_cast<unsigned int>(fileStem);
+
+          if (!fileListLoopMode_)
+            ls = boost::lexical_cast<unsigned int>(fileStem);
+          else //always starting from LS 1 in loop mode
+            ls = 1 + loopModeIterationInc_;
+
           //fsize = 0;
           //lockWaitTime = 0;
           fileListIndex_++;
           return evf::EvFDaqDirector::newFile;
   }
-  else
-    return evf::EvFDaqDirector::runEnded;
+  else {
+    if (!fileListLoopMode_)
+      return evf::EvFDaqDirector::runEnded;
+    else {
+      //loop through files until interrupted
+      loopModeIterationInc_++;
+      fileListIndex_=0;
+      return getFile(ls,nextFile,fsize,lockWaitTime);
+    }
+  }
 }

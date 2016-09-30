@@ -52,8 +52,8 @@ seg4dvalidation = cms.EDAnalyzer("DTSegment4DQuality",
 dtLocalRecoValidation = cms.Sequence(rechivalidation*seg2dvalidation*seg2dsuperphivalidation*seg4dvalidation)
 dtLocalRecoValidation_no2D = cms.Sequence(rechivalidation*seg2dsuperphivalidation*seg4dvalidation)
 
-from Configuration.StandardSequences.Eras import eras
-if eras.fastSim.isChosen():
+from Configuration.Eras.Modifier_fastSim_cff import fastSim
+if fastSim.isChosen():
     rechivalidation.simHitLabel = cms.untracked.InputTag("MuonSimHits","MuonDTHits")
     seg2dvalidation.simHitLabel = cms.untracked.InputTag("MuonSimHits","MuonDTHits")
     seg2dsuperphivalidation.simHitLabel = cms.untracked.InputTag("MuonSimHits","MuonDTHits")

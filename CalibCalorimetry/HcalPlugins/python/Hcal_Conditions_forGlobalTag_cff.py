@@ -103,8 +103,8 @@ es_hardcode = cms.ESSource("HcalHardcodeCalibrations",
 
 es_prefer_hcalHardcode = cms.ESPrefer("HcalHardcodeCalibrations", "es_hardcode")
 
-from Configuration.StandardSequences.Eras import eras
-eras.phase2_hcal.toModify( es_hardcode,
+from Configuration.Eras.Modifier_phase2_hcal_cff import phase2_hcal
+phase2_hcal.toModify( es_hardcode,
                              toGet = cms.untracked.vstring(
                                          'GainWidths',
                                          'MCParams',

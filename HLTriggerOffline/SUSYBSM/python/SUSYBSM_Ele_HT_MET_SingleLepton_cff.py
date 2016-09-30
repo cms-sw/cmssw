@@ -105,9 +105,9 @@ SUSY_HLT_Ele15_HT400_MET50_SingleLepton_POSTPROCESSING = cms.EDAnalyzer('DQMGene
 
 
 # fastsim has no conversion collection (yet)
-from Configuration.StandardSequences.Eras import eras
-eras.fastSim.toModify(SUSY_HLT_Ele15_HT350_MET50_SingleLepton,conversionCollection=cms.InputTag(''))
-eras.fastSim.toModify(SUSY_HLT_Ele15_HT400_MET50_SingleLepton,conversionCollection=cms.InputTag(''))
+from Configuration.Eras.Modifier_fastSim_cff import fastSim
+fastSim.toModify(SUSY_HLT_Ele15_HT350_MET50_SingleLepton,conversionCollection=cms.InputTag(''))
+fastSim.toModify(SUSY_HLT_Ele15_HT400_MET50_SingleLepton,conversionCollection=cms.InputTag(''))
 
 SUSY_HLT_Ele_HT_MET_SingleLepton = cms.Sequence( SUSY_HLT_Ele15_HT350_MET50_SingleLepton
                                                  + SUSY_HLT_Ele15_HT400_MET50_SingleLepton

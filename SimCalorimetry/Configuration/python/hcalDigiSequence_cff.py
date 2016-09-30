@@ -13,5 +13,5 @@ _phase2_hcalDigiSequence = hcalDigiSequence.copy()
 _phase2_hcalDigiSequence.remove(simHcalTriggerPrimitiveDigis)
 _phase2_hcalDigiSequence.remove(simHcalTTPDigis)
 
-from Configuration.StandardSequences.Eras import eras
-eras.phase2_hcal.toReplaceWith( hcalDigiSequence, _phase2_hcalDigiSequence )
+from Configuration.Eras.Modifier_phase2_hcal_cff import phase2_hcal
+phase2_hcal.toReplaceWith( hcalDigiSequence, _phase2_hcalDigiSequence )

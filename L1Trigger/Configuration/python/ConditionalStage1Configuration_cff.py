@@ -19,7 +19,6 @@ import FWCore.ParameterSet.Config as cms
 # run, so the era customisations will not be applied.
 #
 
-from Configuration.StandardSequences.Eras import eras
 
 def _loadStage1Fragments( processObject ) :
 #    processObject.load('L1Trigger.L1TCalorimeter.caloStage1Params_cfi')
@@ -27,4 +26,5 @@ def _loadStage1Fragments( processObject ) :
     processObject.load('L1Trigger.L1TCalorimeter.caloConfigStage1PP_cfi')
 
 # A unique name is required so I'll use make sure the name includes the filename
-modifyL1TriggerConfigurationConditionalStage1Configuration_cff_ = eras.stage1L1Trigger.makeProcessModifier( _loadStage1Fragments )
+from Configuration.Eras.Modifier_stage1L1Trigger_cff import stage1L1Trigger
+modifyL1TriggerConfigurationConditionalStage1Configuration_cff_ = stage1L1Trigger.makeProcessModifier( _loadStage1Fragments )

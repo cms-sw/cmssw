@@ -34,13 +34,13 @@ vertexreco = cms.Sequence(unsortedOfflinePrimaryVertices*
 
 #timing
 unsortedOfflinePrimaryVertices1D = unsortedOfflinePrimaryVertices.clone()
-unsortedOfflinePrimaryVertices1D.TkFilterParameters.minPt = cms.double(1.0)
+unsortedOfflinePrimaryVertices1D.TkFilterParameters.minPt = cms.double(0.7)
 offlinePrimaryVertices1D=sortedPrimaryVertices.clone(vertices="unsortedOfflinePrimaryVertices1D", particles="trackRefsForJetsBeforeSorting")
 offlinePrimaryVertices1DWithBS=sortedPrimaryVertices.clone(vertices="unsortedOfflinePrimaryVertices1D:WithBS", particles="trackRefsForJetsBeforeSorting")
 DA2DParameters.TkDAClusParameters.verbose = cms.untracked.bool(False)
 unsortedOfflinePrimaryVertices4D = unsortedOfflinePrimaryVertices.clone( verbose = cms.untracked.bool(False),
                                                                          TkClusParameters = DA2DParameters )
-unsortedOfflinePrimaryVertices4D.TkFilterParameters.minPt = cms.double(1.0)
+unsortedOfflinePrimaryVertices4D.TkFilterParameters.minPt = cms.double(0.7)
 unsortedOfflinePrimaryVertices4D.TrackTimesLabel = cms.InputTag("trackTimeValueMapProducer:generalTracksConfigurableFlatResolutionModel")
 unsortedOfflinePrimaryVertices4D.TrackTimeResosLabel = cms.InputTag("trackTimeValueMapProducer:generalTracksConfigurableFlatResolutionModelResolution")
 offlinePrimaryVertices4D=sortedPrimaryVertices.clone(vertices="unsortedOfflinePrimaryVertices4D", particles="trackRefsForJetsBeforeSorting")
@@ -49,7 +49,6 @@ offlinePrimaryVertices4DWithBS=sortedPrimaryVertices.clone(vertices="unsortedOff
 from SimTracker.TrackerHitAssociation.tpClusterProducer_cfi import *
 from SimTracker.TrackAssociatorProducers.quickTrackAssociatorByHits_cfi import *
 from SimTracker.TrackAssociation.trackTimeValueMapProducer_cfi import *
-from Configuration.StandardSequences.Eras import eras
 _phase2_tktiming_vertexreco = cms.Sequence( vertexreco.copy() *
                                             tpClusterProducer *
                                             quickTrackAssociatorByHits *
@@ -62,13 +61,14 @@ _phase2_tktiming_vertexreco = cms.Sequence( vertexreco.copy() *
                                             offlinePrimaryVertices4DWithBS 
                                             )
 
-eras.phase2_timing.toModify( quickTrackAssociatorByHits,
+from Configuration.Eras.Modifier_phase2_timing_cff import phase2_timing
+phase2_timing.toModify( quickTrackAssociatorByHits,
                              pixelSimLinkSrc = cms.InputTag("simSiPixelDigis","Pixel"),
                              stripSimLinkSrc = cms.InputTag("simSiPixelDigis","Tracker")
                              )
 
-eras.phase2_timing.toModify( tpClusterProducer,
+phase2_timing.toModify( tpClusterProducer,
                              pixelSimLinkSrc = cms.InputTag("simSiPixelDigis", "Pixel"),
                              phase2OTSimLinkSrc = cms.InputTag("simSiPixelDigis","Tracker")
                              )
-eras.phase2_timing.toReplaceWith(vertexreco, _phase2_tktiming_vertexreco)
+phase2_timing.toReplaceWith(vertexreco, _phase2_tktiming_vertexreco)
