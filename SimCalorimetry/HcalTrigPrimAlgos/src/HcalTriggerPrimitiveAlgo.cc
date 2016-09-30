@@ -202,6 +202,9 @@ HcalTriggerPrimitiveAlgo::addSignal(const QIE10DataFrame& frame)
       auto& details = theHFUpgradeDetailMap[id][fid.maskDepth()];
       details[fid.depth() - 1].samples = samples;
       details[fid.depth() - 1].digi = frame;
+      details[fid.depth() - 1].validity.resize(frame.samples());
+      for (int idx = 0; idx < frame.samples(); ++idx)
+         details[fid.depth() - 1].validity[idx] = validChannel(frame, idx);
    }
 }
 
@@ -565,21 +568,17 @@ void HcalTriggerPrimitiveAlgo::analyzeHF2017(
             bool saturated = false;
 
             for (auto i: {0, 2}) {
-               if (idx < details[i].samples.size()) {
-                  if (validChannel(details[i].digi, idx)) {
-                     long_fiber_val += details[i].samples[idx];
-                     saturated = saturated || (details[i].samples[idx] == QIE10_LINEARIZATION_ET);
-                     ++long_fiber_count;
-                  }
+               if (idx < details[i].samples.size() and details[i].validity[idx]) {
+                  long_fiber_val += details[i].samples[idx];
+                  saturated = saturated || (details[i].samples[idx] == QIE10_LINEARIZATION_ET);
+                  ++long_fiber_count;
                }
             }
             for (auto i: {1, 3}) {
-               if (idx < details[i].samples.size()) {
-                  if (validChannel(details[i].digi, idx)) {
-                     short_fiber_val += details[i].samples[idx];
-                     saturated = saturated || (details[i].samples[idx] == QIE10_LINEARIZATION_ET);
-                     ++short_fiber_count;
-                  }
+               if (idx < details[i].samples.size() and details[i].validity[idx]) {
+                  short_fiber_val += details[i].samples[idx];
+                  saturated = saturated || (details[i].samples[idx] == QIE10_LINEARIZATION_ET);
+                  ++short_fiber_count;
                }
             }
 

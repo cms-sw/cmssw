@@ -154,6 +154,7 @@ public:
   struct HFUpgradeDetails {
      IntegerCaloSamples samples;
      QIE10DataFrame digi;
+     std::vector<bool> validity;
   };
   typedef std::map<HcalTrigTowerDetId, std::map<uint32_t, std::array<HFUpgradeDetails, 4>>> HFUpgradeDetailMap;
   HFUpgradeDetailMap theHFUpgradeDetailMap;
