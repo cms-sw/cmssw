@@ -19,8 +19,6 @@
 
 double const MaterialAccountingGroup::s_tolerance = 0.01; // 100um should be small enough that no elements from different layers/groups are so close
 
-using edm::LogInfo;
-
 MaterialAccountingGroup::MaterialAccountingGroup( const std::string & name, const DDCompactView & geometry ) :
   m_name( name ),
   m_elements(),
@@ -36,11 +34,11 @@ MaterialAccountingGroup::MaterialAccountingGroup( const std::string & name, cons
   DDSpecificsFilter filter;
   filter.setCriteria(DDValue("TrackingMaterialGroup", name), DDCompOp::equals);
   fv.addFilter(filter);
-  LogInfo("MaterialAccountingGroup") << "Elements within: " << name << std::endl;
+  LogTrace("MaterialAccountingGroup") << "Elements within: " << name << std::endl;
   while (fv.next()) {
     // DD3Vector and DDTranslation are the same type as math::XYZVector
     math::XYZVector position = fv.translation() / 10.;  // mm -> cm
-    LogInfo("MaterialAccountingGroup") << "Adding element at(r,z): ("
+    LogTrace("MaterialAccountingGroup") << "Adding element at(r,z): ("
               << GlobalPoint(position.x(), position.y(), position.z()).perp()
               << ", " << GlobalPoint(position.x(), position.y(), position.z()).z()
               << ") cm" << std::endl;
@@ -52,7 +50,7 @@ MaterialAccountingGroup::MaterialAccountingGroup( const std::string & name, cons
     m_boundingbox.grow(m_elements[i].perp(), m_elements[i].z());
   }
   m_boundingbox.grow(s_tolerance);
-  LogInfo("MaterialAccountingGroup") << "Final BBox r_range: "
+  LogTrace("MaterialAccountingGroup") << "Final BBox r_range: "
             << m_boundingbox.range_r().first << ", " << m_boundingbox.range_r().second
             << std::endl
             << "Final BBox z_range: "
@@ -98,12 +96,12 @@ bool MaterialAccountingGroup::inside( const MaterialAccountingDetector& detector
 {
   const GlobalPoint & position = detector.position();
   // first check to see if the point is inside the bounding box
-  LogInfo("MaterialAccountingGroup") << "Testing position: (x, y, z, r) = "
+  LogTrace("MaterialAccountingGroup") << "Testing position: (x, y, z, r) = "
             << position.x() << ", " << position.y()
             << ", " << position.z() << ", " << position.perp()
             << std::endl;
   if (not m_boundingbox.inside(position.perp(), position.z())) {
-    LogInfo("MaterialAccountingGroup") << "r outside of: ("
+    LogTrace("MaterialAccountingGroup") << "r outside of: ("
               << m_boundingbox.range_r().first << ", "
               << m_boundingbox.range_r().second
               << "), Z ouside of: ("
@@ -112,14 +110,14 @@ bool MaterialAccountingGroup::inside( const MaterialAccountingDetector& detector
     return false;
   } else {
     // now check if the point is actually close enough to any element
-    LogInfo("MaterialAccountingGroup") << "r within: ("
+    LogTrace("MaterialAccountingGroup") << "r within: ("
               << m_boundingbox.range_r().first << ", "
               << m_boundingbox.range_r().second
               << "), Z within: ("
               << m_boundingbox.range_z().first << ", "
               << m_boundingbox.range_z().second << ")" << std::endl;
     for (unsigned int i = 0; i < m_elements.size(); ++i) {
-      LogInfo("MaterialAccountingGroup") << "Closest testing agains(x, y, z, r): ("
+      LogTrace("MaterialAccountingGroup") << "Closest testing agains(x, y, z, r): ("
                 << m_elements[i].x() << ", " << m_elements[i].y()
                 << ", " << m_elements[i].z() << ", " << m_elements[i].perp() << ") --> "
                 << (position - m_elements[i]).mag()
