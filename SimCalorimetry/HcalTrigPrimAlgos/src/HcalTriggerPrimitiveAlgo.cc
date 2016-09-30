@@ -549,7 +549,7 @@ void HcalTriggerPrimitiveAlgo::analyzeHF2017(
         return;
     }
 
-    std::vector<int> finegrain(numberOfSamples_, false);
+    std::vector<std::bitset<2>> finegrain(numberOfSamples_, false);
 
     // Set up out output of IntergerCaloSamples
     IntegerCaloSamples output(samples.id(), numberOfSamples_);
@@ -599,11 +599,19 @@ void HcalTriggerPrimitiveAlgo::analyzeHF2017(
                output[ibin] += sum;
             }
 
-            // int ADCLong = details.LongDigi[ibin].adc();
-            // int ADCShort = details.ShortDigi[ibin].adc();
-            // if(hcalfem != 0)
-            // {
-            //     finegrain[ibin] = (finegrain[ibin] || hcalfem->fineGrainbit(ADCShort, details.ShortDigi.id(), details.ShortDigi[ibin].capid(), ADCLong, details.LongDigi.id(), details.LongDigi[ibin].capid()));
+            for (const auto& detail: details) {
+               if (detail.validity[idx] and HcalDetId(detail.digi.id()).ietaAbs() != 29) {
+                  finegrain[ibin][1] = finegrain[ibin][1] or (detail.digi[idx].adc() > (int) FG_HF_threshold_);
+               }
+            }
+
+            // if (HCALFEM != 0) {
+            //    finegrain[ibin][0] = HCALFEM->fineGrainbit(
+            //          ADCShort, details.ShortDigi.id(),
+            //          details.ShortDigi[ibin].capid(),
+            //          ADCLong, details.LongDigi.id(),
+            //          details.LongDigi[ibin].capid()
+            //    );
             // }
         }
     }
@@ -611,7 +619,10 @@ void HcalTriggerPrimitiveAlgo::analyzeHF2017(
     for (int bin = 0; bin < numberOfSamples_; ++bin) {
        output[bin] = min({(unsigned int) QIE10_MAX_LINEARIZATION_ET, output[bin]});
     }
-    outcoder_->compress(output, finegrain, result);
+    std::vector<int> finegrain_converted;
+    for (const auto& fg: finegrain)
+       finegrain_converted.push_back(fg.to_ulong());
+    outcoder_->compress(output, finegrain_converted, result);
 }
 
 void HcalTriggerPrimitiveAlgo::runZS(HcalTrigPrimDigiCollection & result){
