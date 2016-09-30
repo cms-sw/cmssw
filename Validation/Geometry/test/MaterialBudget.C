@@ -103,7 +103,11 @@ void MaterialBudget(TString detector) {
   // open root files
   theDetectorFile = new TFile(theDetectorFileName);
   //
-  
+
+  //output root file
+  TString outputPlotsFileName = theDirName + "/matbdg_" + theDetector + "_plots.root";
+  TFile* outputPlotsFile = new TFile(outputPlotsFileName, "RECREATE");
+
   // plots
   createPlots("x_vs_eta");
   createPlots("x_vs_phi");
@@ -275,7 +279,8 @@ void createPlots(TString plot) {
   //
   
   // canvas
-  TCanvas can("can","can",800,800);
+  TString canname("MBCan_1D_" + theDetector + "_" + plot);
+  TCanvas can(canname,canname,800,800);
   can.Range(0,0,25,25);
   can.SetFillColor(kWhite);
   gStyle->SetOptStat(0);
@@ -304,6 +309,7 @@ void createPlots(TString plot) {
   //  can.SaveAs( Form( "%s/%s_%s.gif",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
   //  can.SaveAs( Form( "%s/%s_%s.pdf",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
   can.SaveAs( Form( "%s/%s_%s.png",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
+  can.Write();
   //
   
 }
@@ -474,12 +480,13 @@ void create2DPlots(TString plot) {
 
 
   //
-  TCanvas can("can","can",2480+248,580+58+58);
-  can.SetTopMargin(0.1);
-  can.SetBottomMargin(0.1);
-  can.SetLeftMargin(0.04);
-  can.SetRightMargin(0.06);
-  can.SetFillColor(kWhite);
+  TString can2name("MBCan_2D_" + theDetector + "_" + plot);
+  TCanvas can2(can2name,can2name,2480+248,580+58+58);
+  can2.SetTopMargin(0.1);
+  can2.SetBottomMargin(0.1);
+  can2.SetLeftMargin(0.04);
+  can2.SetRightMargin(0.06);
+  can2.SetFillColor(kWhite);
   gStyle->SetOptStat(0);
   gStyle->SetTitleFillColor(0);
   gStyle->SetTitleBorderSize(0);
@@ -490,14 +497,14 @@ void create2DPlots(TString plot) {
   gStyle->SetPalette(1);
 
   // Log?
-  can.SetLogz(zLog);
+  can2.SetLogz(zLog);
 
   // Draw in colors
   frame->Draw(); 
   hist2d_x0_total->Draw("COLZsame"); //Dummy draw to create the palette object
 
   // Store
-  can.Update();
+  can2.Update();
 
   //Aesthetic
   TPaletteAxis *palette = 
@@ -523,12 +530,12 @@ void create2DPlots(TString plot) {
   //Add eta labels
   if( iDrawEta ) drawEtaValues();
 
-  can.Modified();
+  can2.Modified();
 
   //Color plots are not supported!
-  //  can.SaveAs( Form( "%s/%s_%s_col.eps",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
-  //  can.SaveAs( Form( "%s/%s_%s_col.gif",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
-  //  can.SaveAs( Form( "%s/%s_%s_col.pdf",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
+  //  can2.SaveAs( Form( "%s/%s_%s_col.eps",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
+  //  can2.SaveAs( Form( "%s/%s_%s_col.gif",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
+  //  can2.SaveAs( Form( "%s/%s_%s_col.pdf",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
   //
   
 //  makeColorTable();  // Grayscale palette
@@ -536,14 +543,15 @@ void create2DPlots(TString plot) {
   hist2d_x0_total->SetContour(255);      
     
   // Store
-  can.Update();
+  can2.Update();
 
-  can.Modified();
+  can2.Modified();
 
-  //  can.SaveAs( Form( "%s/%s_%s_bw.eps",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
-  //  can.SaveAs( Form( "%s/%s_%s_bw.gif",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
-  //  can.SaveAs( Form( "%s/%s_%s_bw.pdf",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
-  can.SaveAs( Form( "%s/%s_%s_bw.png",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
+  //  can2.SaveAs( Form( "%s/%s_%s_bw.eps",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
+  //  can2.SaveAs( Form( "%s/%s_%s_bw.gif",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
+  //  can2.SaveAs( Form( "%s/%s_%s_bw.pdf",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
+  can2.SaveAs( Form( "%s/%s_%s_bw.png",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
+  can2.Write();
   //
   
   // restore properties
@@ -644,9 +652,10 @@ void createRatioPlots(TString plot) {
   //
   
   // canvas
-  TCanvas can("can","can",800,800);
-  can.Range(0,0,25,25);
-  can.SetFillColor(kWhite);
+  TString canRname("MBRatio_" + theDetector + "_" + plot);
+  TCanvas canR(canRname,canRname,800,800);
+  canR.Range(0,0,25,25);
+  canR.SetFillColor(kWhite);
   gStyle->SetOptStat(0);
   //
   
@@ -655,11 +664,12 @@ void createRatioPlots(TString plot) {
   //
   
   // Store
-  can.Update();
-  //  can.SaveAs( Form( "%s/%s_%s.eps",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
-  //  can.SaveAs( Form( "%s/%s_%s.gif",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
-  //  can.SaveAs( Form( "%s/%s_%s.pdf",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
-  can.SaveAs( Form( "%s/%s_%s.png",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
+  canR.Update();
+  //  canR.SaveAs( Form( "%s/%s_%s.eps",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
+  //  canR.SaveAs( Form( "%s/%s_%s.gif",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
+  //  canR.SaveAs( Form( "%s/%s_%s.pdf",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
+  canR.SaveAs( Form( "%s/%s_%s.png",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
+  canR.Write();
   //
   
 }
