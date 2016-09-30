@@ -61,7 +61,7 @@ process.MessageLogger = cms.Service("MessageLogger",
             limit = cms.untracked.int32(0)
         ),
         HcalIsoTrack = cms.untracked.PSet(
-            limit = cms.untracked.int32(-1)
+            limit = cms.untracked.int32(0)
        )
     )
 )
