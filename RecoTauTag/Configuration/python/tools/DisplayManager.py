@@ -46,8 +46,8 @@ def checkDifferences(histos):
         for ib in range(0, histos[0].GetNbinsX()):
             for ih, h in enumerate(histos):
                 if not ih == 0:
-                    if not histos[0].GetBinContent(ib) == 0:
-                        rel_diff+=((h.GetBinContent(ib)-histos[0].GetBinContent(ib))/histos[0].GetBinContent(ib))*((h.GetBinContent(ib)-histos[0].GetBinContent(ib))/histos[0].GetBinContent(ib))
+                    if not histos[0].GetBinContent(ib+1) == 0:
+                        rel_diff+=((h.GetBinContent(ib+1)-histos[0].GetBinContent(ib+1))/histos[0].GetBinContent(ib+1))*((h.GetBinContent(ib+1)-histos[0].GetBinContent(ib+1))/histos[0].GetBinContent(ib+1))
     return math.sqrt(rel_diff)
 
 class DisplayManager(object):
