@@ -130,7 +130,8 @@ ListIds::analyze(const edm::Event& evt, const edm::EventSetup& setup){
       const DDGeoHistory & history = fv.geoHistory();
       std::cout << '/';
       for (unsigned int h = 2; h < history.size(); ++h) {
-        std::cout << '/' << history[h].logicalPart().name().name() << '[' << history[h].copyno() << ']';
+        std::cout << '/' << history[h].logicalPart().name().ns()
+                  << ":" << history[h].logicalPart().name().name() << '[' << history[h].copyno() << ']';
       }
       if (printMaterial_)
         std::cout << " Material: |" << fv.logicalPart().material().name() << "|";
