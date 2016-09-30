@@ -556,7 +556,9 @@ void  HcalDigitizer::updateGeometry(const edm::EventSetup & eventSetup) {
   // combine HB & HE
 
   hbheCells = hbCells;
-  hbheCells.insert(hbheCells.end(), heCells.begin(), heCells.end());
+  if( !killHE_) {
+    hbheCells.insert(hbheCells.end(), heCells.begin(), heCells.end());
+  }
   //handle mixed QIE8/11 scenario in HBHE
   if(theHBHEUpgradeDigitizer) {
     theHBHEUpgradeDigitizer->setDetIds(hbheCells);

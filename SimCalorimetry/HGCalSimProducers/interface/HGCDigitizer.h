@@ -75,10 +75,7 @@ public:
   void endRun();
 
 private :
-
-  //used for initialization
-  bool checkValidDetIds_;
-
+  
   //input/output names
   std::string hitCollection_,digiCollection_;
 
@@ -96,11 +93,15 @@ private :
   std::unique_ptr<HGCHEbackDigitizer>  theHGCHEbackDigitizer_;
   std::unique_ptr<HGCHEfrontDigitizer> theHGCHEfrontDigitizer_;
 
+  //geometries
+  std::vector<DetId> validIds_;
+  const HGCalGeometry* gHGCal_;
+  const HcalGeometry* gHcal_;
+
   //subdetector id
   ForwardSubdetector mySubDet_;
 
   //misc switches
-  bool useAllChannels_;
   uint32_t verbosity_;
 
   //reference speed to evaluate time of arrival at the sensititive detector, assuming the center of CMS
