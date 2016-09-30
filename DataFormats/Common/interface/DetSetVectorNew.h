@@ -52,24 +52,34 @@ namespace edmNew {
     void throw_range(det_id_type iid);
 
     struct DetSetVectorTrans {
-      DetSetVectorTrans(): m_filling(false){}
+      typedef unsigned int size_type; // for persistency
+      typedef unsigned int id_type;
+
+      DetSetVectorTrans(): m_filling(false), m_dataSize(0){}
       DetSetVectorTrans& operator=(const DetSetVectorTrans&) = delete;
       DetSetVectorTrans(const DetSetVectorTrans&) = delete;
       DetSetVectorTrans(DetSetVectorTrans&&) = default;
       DetSetVectorTrans& operator=(DetSetVectorTrans&&) = default;
       mutable std::atomic<bool> m_filling;
       boost::any m_getter;
-
+#ifdef DSVN_USE_ATOMIC
+      mutable std::atomic<size_type> m_dataSize;
+#else
+      mutable size_type m_dataSize;
+#endif
 
       void swap(DetSetVectorTrans& rh) {
         // better no one is filling...
         assert(m_filling==false); assert(rh.m_filling==false);	
         //	std::swap(m_filling,rh.m_filling);
         std::swap(m_getter,rh.m_getter);
+#ifdef DSVN_USE_ATOMIC
+        m_dataSize.store(rh.m_dataSize.exchange(m_dataSize.load()));
+#else
+        std::swap(m_dataSize,rh.m_dataSize);
+#endif
       }
 
-      typedef unsigned int size_type; // for persistency
-      typedef unsigned int id_type;
 
       struct Item {
 
@@ -237,6 +247,7 @@ namespace edmNew {
       void resize(size_type s) {
         checkCapacityExausted(s);
         m_v.m_data.resize(m_item.offset+s);
+        m_v.m_dataSize = m_v.m_data.size();
         m_item.size=s;
       }
 
@@ -253,11 +264,13 @@ namespace edmNew {
       void push_back(data_type const & d) {
         checkCapacityExausted();
         m_v.m_data.push_back(d);
+        ++m_v.m_dataSize;
         m_item.size++;
       }
       void push_back(data_type && d) {
         checkCapacityExausted();
         m_v.m_data.push_back(std::move(d));
+        ++m_v.m_dataSize;
         m_item.size++;
       }
 
@@ -307,6 +320,7 @@ namespace edmNew {
         m_item.size=m_lv.size();
         m_item.offset = offset;
 
+        m_v.m_dataSize = m_v.m_data.size();
         assert(m_v.m_filling==true);
         m_v.m_filling = false;
       }
@@ -314,7 +328,7 @@ namespace edmNew {
 #endif
       
      bool full() const {
-        int offset = m_v.m_data.size();
+        int offset = m_v.m_dataSize;
         return m_v.m_data.capacity()<offset+m_lv.size();
      }
 
@@ -430,6 +444,7 @@ namespace edmNew {
     void resize(size_t isize, size_t dsize) {
       m_ids.resize(isize);
       m_data.resize(dsize);
+      m_dataSize = m_data.size();
     }
 
     void clean() {
@@ -441,12 +456,14 @@ namespace edmNew {
       Item & item = addItem(iid,isize);
       m_data.resize(m_data.size()+isize);
       std::copy(idata,idata+isize,m_data.begin()+item.offset);
+      m_dataSize = m_data.size();
       return DetSet(*this,item,false);
     }
     //make space for it
     DetSet insert(id_type iid, size_type isize) {
       Item & item = addItem(iid,isize);
       m_data.resize(m_data.size()+isize);
+      m_dataSize = m_data.size();
       return DetSet(*this,item,false);
     }
 
@@ -461,8 +478,10 @@ namespace edmNew {
       if (p==m_ids.end()) return; //bha!
       // sanity checks...  (shall we throw or assert?)
       if ( (*p).isValid() && (*p).size>0 && 
-          m_data.size()==(*p).offset+(*p).size)
+          m_data.size()==(*p).offset+(*p).size) {
         m_data.resize((*p).offset);
+        m_dataSize = m_data.size();
+      }
       m_ids.erase(m_ids.begin()+(p-m_ids.begin()));
     }
 
@@ -553,7 +572,7 @@ namespace edmNew {
     bool empty() const { return m_ids.empty();}
 
 
-    size_type dataSize() const { return m_data.size(); }
+    size_type dataSize() const { return onDemand()? size_type(m_dataSize) : size_type(m_data.size()); }
     
     size_type size() const { return m_ids.size();}
     
