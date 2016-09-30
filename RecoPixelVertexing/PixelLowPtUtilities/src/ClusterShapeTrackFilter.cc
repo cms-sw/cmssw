@@ -61,6 +61,10 @@ void ClusterShapeTrackFilter::update(const edm::Event& ev, const edm::EventSetup
   edm::ESHandle<ClusterShapeHitFilter> shape;
   es.get<CkfComponentsRecord>().get("ClusterShapeHitFilter",shape);
   theFilter = shape.product();
+
+  edm::ESHandle<TrackerTopology> tTopoHand;
+  es.get<TrackerTopologyRcd>().get(tTopoHand);
+  tTopo = tTopoHand.product();
 }
 
 /*****************************************************************************/
@@ -144,8 +148,7 @@ vector<GlobalPoint> ClusterShapeTrackFilter::getGlobalPoss
 /*****************************************************************************/
 bool ClusterShapeTrackFilter::operator()
   (const reco::Track* track,
-   const vector<const TrackingRecHit *> & recHits,
-   const TrackerTopology *tTopo ) const
+   const vector<const TrackingRecHit *> & recHits) const
 {
   // Do not even look at pairs
   if(recHits.size() <= 2) return true;

@@ -85,6 +85,10 @@ void ValidHitPairFilter::update(const edm::Event& ev, const edm::EventSetup& es)
                                           thePropagatorHandle);
   thePropagator = thePropagatorHandle.product();
 
+  edm::ESHandle<TrackerTopology> tTopoHand;
+  es.get<TrackerTopologyRcd>().get(tTopoHand);
+  tTopo = tTopoHand.product();
+
   // Bounds, hardwired FIXME
   rzBounds[0].resize(8); phBounds[0].resize(20);
   rzBounds[1].resize(8); phBounds[1].resize(32);
@@ -269,8 +273,7 @@ vector<const GeomDet *> ValidHitPairFilter::getCloseDets
 
 /*****************************************************************************/
 bool ValidHitPairFilter::operator() 
-  (const reco::Track * track, const vector<const TrackingRecHit *>& recHits,
-   const TrackerTopology *tTopo) const
+  (const reco::Track * track, const vector<const TrackingRecHit *>& recHits) const
 {
   bool hasGap = true;
 

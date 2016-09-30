@@ -13,8 +13,6 @@ public:
   virtual ~PixelTrackFilter() {}
   typedef std::vector<const TrackingRecHit *> Hits;
   virtual void update(const edm::Event& ev, const edm::EventSetup& es) = 0;
-  virtual bool operator()(const reco::Track*) const {return false;}
-  virtual bool operator()(const reco::Track*, const Hits&) const {return false;} 
-  virtual bool operator()(const reco::Track*, const Hits&, const TrackerTopology *tTopo) const {return false;} 
+  virtual bool operator()(const reco::Track*, const Hits&) const = 0;
 };
 #endif

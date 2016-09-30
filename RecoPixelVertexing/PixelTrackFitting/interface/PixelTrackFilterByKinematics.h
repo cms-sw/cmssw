@@ -12,7 +12,6 @@ public:
   PixelTrackFilterByKinematics(double ptmin = 0.9, double tipmax = 0.1, double chi2max = 100.);
   virtual ~PixelTrackFilterByKinematics();
   void update(const edm::Event&, const edm::EventSetup&) override;
-  virtual bool operator()(const reco::Track*) const override;
   virtual bool operator()(const reco::Track*, const PixelTrackFilter::Hits & hits) const override;
 private:
   float theoPtMin, theNSigmaInvPtTolerance; 
