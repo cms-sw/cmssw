@@ -130,7 +130,7 @@ PixelTracksProducer::produce(edm::Event& e, const edm::EventSetup& es) {
       reco::Track* track = theFitter->run(es, TripletHits, region);
       
       // decide if track should be skipped according to filter 
-      if ( ! (*theFilter)(track) ) { 
+      if ( ! (*theFilter)(track, TripletHits) ) {
 	delete track; 
 	continue; 
       }

@@ -24,8 +24,7 @@ public:
   virtual ~ValidHitPairFilter();
   void update(const edm::Event& ev, const edm::EventSetup& es) override;
   virtual bool operator()(const reco::Track * track,
-                          const std::vector<const TrackingRecHit *>& recHits,
-			  const TrackerTopology *tTopo) const override;
+                          const std::vector<const TrackingRecHit *>& recHits) const override;
 
 private:
   int getLayer(const TrackingRecHit & recHit, const TrackerTopology *tTopo) const;
@@ -39,6 +38,7 @@ private:
   const GeometricSearchTracker * theGSTracker;
   const MagneticField * theMagneticField;
   const Propagator*    thePropagator;
+  const TrackerTopology *tTopo;
 
   const std::vector<DetLayer *> detLayers;
   std::vector<float> rzBounds[7];
