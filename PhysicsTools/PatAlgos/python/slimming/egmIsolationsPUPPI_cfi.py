@@ -8,7 +8,8 @@ def makeInputForPUPPIIsolationEgm(process):
 
 	process.egmPhotonPUPPIIsolation = _egmPhotonPUPPIIsolationForPhotons.clone()
 	process.egmPhotonPUPPIIsolation.srcToIsolate = cms.InputTag("reducedEgamma","reducedGedPhotons")
-	process.egmPhotonPUPPIIsolation.srcForIsolationCone = cms.InputTag("packedPFCandidates")
+	process.egmPhotonPUPPIIsolation.srcForIsolationCone = cms.InputTag("particleFlow")
+	process.egmPhotonPUPPIIsolation.puppiValueMap = cms.InputTag('puppi')
 
 	process.egmElectronPUPPIIsolation = _egmElectronIsolationMiniAODPUPPI.clone()
 	process.egmElectronPUPPIIsolation.srcToIsolate = cms.InputTag("reducedEgamma","reducedGedGsfElectrons")
