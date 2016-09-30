@@ -2,7 +2,7 @@
 //
 // Package:    CentralityBinProducer
 // Class:      CentralityBinProducer
-// 
+//
 /**\class CentralityBinProducer CentralityBinProducer.cc RecoHI/CentralityBinProducer/src/CentralityBinProducer.cc
 
  Description: [one line class summary]
@@ -45,7 +45,7 @@
 //
 
 class CentralityBinProducer : public edm::EDProducer {
-  enum VariableType {HFtowers = 0, HFtowersPlus = 1, HFtowersMinus = 2, HFtowersTrunc = 3, HFtowersPlusTrunc = 4, HFtowersMinusTrunc = 5, HFhits = 6, PixelHits = 7, PixelTracks = 8, Tracks = 9, EB = 10, EE = 11, Missing = 12};
+  enum VariableType {HFtowers = 0, HFtowersPlus = 1, HFtowersMinus = 2, HFtowersTrunc = 3, HFtowersPlusTrunc = 4, HFtowersMinusTrunc = 5, HFhits = 6, PixelHits = 7, PixelTracks = 8, Tracks = 9, EB = 10, EE = 11, ZDChitsPlus = 12, ZDChitsMinus = 13, Missing = 14};
    public:
       explicit CentralityBinProducer(const edm::ParameterSet&);
       ~CentralityBinProducer();
@@ -53,7 +53,7 @@ class CentralityBinProducer : public edm::EDProducer {
    private:
       virtual void beginRun(edm::Run const& run, const edm::EventSetup& iSetup) override;
       virtual void produce(edm::Event&, const edm::EventSetup&) override;
-      
+
       // ----------member data ---------------------------
 
 
@@ -104,6 +104,8 @@ CentralityBinProducer::CentralityBinProducer(const edm::ParameterSet& iConfig):
    if(centralityVariable_.compare("Tracks") == 0) varType_ = Tracks;
    if(centralityVariable_.compare("EB") == 0) varType_ = EB;
    if(centralityVariable_.compare("EE") == 0) varType_ = EE;
+   if(centralityVariable_.compare("ZDChitsPlus") == 0) varType_ = ZDChitsPlus;
+   if(centralityVariable_.compare("ZDChitsMinus") == 0) varType_ = ZDChitsMinus;
    if(varType_ == Missing){
      std::string errorMessage="Requested Centrality variable does not exist : "+centralityVariable_+"\n" +
        "Supported variables are: \n" + "HFtowers HFtowersPlus HFtowersMinus HFtowersTrunc HFtowersPlusTrunc HFtowersMinusTrunc HFhits PixelHits PixelTracks Tracks EB EE" + "\n";
@@ -115,13 +117,13 @@ CentralityBinProducer::CentralityBinProducer(const edm::ParameterSet& iConfig):
    }
    centralityLabel_ = centralityVariable_+centralityMC_;
 
-   produces<int>(centralityVariable_.data());  
+   produces<int>(centralityVariable_.data());
 }
 
 
 CentralityBinProducer::~CentralityBinProducer()
 {
- 
+
    // do anything here that needs to be done at desctruction time
    // (e.g. close files, deallocate resources etc.)
 
@@ -153,6 +155,8 @@ CentralityBinProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
   case Tracks : value = chandle_->Ntracks();break;
   case EB : value = chandle_->EtEBSum();break;
   case EE : value = chandle_->EtEESum();break;
+  case ZDChitsPlus : value = chandle_->zdcSumPlus();break;
+  case ZDChitsMinus : value = chandle_->zdcSumMinus();break;
   default:
     throw cms::Exception("CentralityBinProducer","Centrality variable not recognized.");
   }
@@ -166,8 +170,8 @@ CentralityBinProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
 
   }
 
-   iEvent.put(std::make_unique<int>(bin),centralityVariable_.data());
- 
+  iEvent.put(std::make_unique<int>(bin),centralityVariable_.data());
+
 }
 
 
@@ -180,6 +184,8 @@ CentralityBinProducer::beginRun(edm::Run const& iRun, const edm::EventSetup& iSe
      if(centralityVariable_.compare("HFtowersMinus") == 0) varType_ = HFtowersPlus;
      if(centralityVariable_.compare("HFtowersPlusTrunc") == 0) varType_ = HFtowersMinusTrunc;
      if(centralityVariable_.compare("HFtowersMinusTrunc") == 0) varType_ = HFtowersPlusTrunc;
+     if(centralityVariable_.compare("ZDChitsPlus") == 0) varType_ = ZDChitsMinus;
+     if(centralityVariable_.compare("ZDChitsMinus") == 0) varType_ = ZDChitsPlus;
   }
   prevRun_ = iRun.run();
 
