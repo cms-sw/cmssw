@@ -805,29 +805,32 @@ void TrackDetectorAssociator::fillMuon( const edm::Event& iEvent,
               }
 	}
 	// GEM Chamber or ME0 Chamber
-	else if (parameters.useGEM || parameters.useME0){
-	  if (const GEMSuperChamber* chamber = dynamic_cast<const GEMSuperChamber*>(geomDet) ) {	 
-	    // Get the range for the corresponding segments
-	    GEMSegmentCollection::range  range = gemSegments->get(chamber->id());
-	    // Loop over the segments
-	    for (GEMSegmentCollection::const_iterator segment = range.first; segment!=range.second; segment++) {
-	      if (addTAMuonSegmentMatch(*matchedChamber, &(*segment), parameters)) {
-		matchedChamber->segments.back().gemSegmentRef = GEMSegmentRef(gemSegments, segment - gemSegments->begin());
-	      }
-	    }
-	  }	
-	  else if (const ME0Chamber* chamber = dynamic_cast<const ME0Chamber*>(geomDet) ) {
-	    // Get the range for the corresponding segments
-	    ME0SegmentCollection::range  range = me0Segments->get(chamber->id());
-	    // Loop over the segments
-	    for (ME0SegmentCollection::const_iterator segment = range.first; segment!=range.second; segment++) {
-	      if (addTAMuonSegmentMatch(*matchedChamber, &(*segment), parameters)) {
-		matchedChamber->segments.back().me0SegmentRef = ME0SegmentRef(me0Segments, segment - me0Segments->begin());
+	else {
+	  if (parameters.useGEM){
+	    if (const GEMSuperChamber* chamber = dynamic_cast<const GEMSuperChamber*>(geomDet) ) {	 
+	      // Get the range for the corresponding segments
+	      GEMSegmentCollection::range  range = gemSegments->get(chamber->id());
+	      // Loop over the segments
+	      for (GEMSegmentCollection::const_iterator segment = range.first; segment!=range.second; segment++) {
+		if (addTAMuonSegmentMatch(*matchedChamber, &(*segment), parameters)) {
+		  matchedChamber->segments.back().gemSegmentRef = GEMSegmentRef(gemSegments, segment - gemSegments->begin());
+		}
 	      }
 	    }
 	  }
-	}
-   	
+	  if (parameters.useME0){
+	    if (const ME0Chamber* chamber = dynamic_cast<const ME0Chamber*>(geomDet) ) {
+	      // Get the range for the corresponding segments
+	      ME0SegmentCollection::range  range = me0Segments->get(chamber->id());
+	      // Loop over the segments
+	      for (ME0SegmentCollection::const_iterator segment = range.first; segment!=range.second; segment++) {
+		if (addTAMuonSegmentMatch(*matchedChamber, &(*segment), parameters)) {
+		  matchedChamber->segments.back().me0SegmentRef = ME0SegmentRef(me0Segments, segment - me0Segments->begin());
+		}
+	      }
+	    }
+	  }
+   	}
 	info.chambers.push_back(*matchedChamber);
      }
 }
