@@ -52,12 +52,30 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Framework/interface/TriggerNamesService.h"
 
+#include "boost/algorithm/string.hpp"
+
+namespace {
+  std::vector<std::regex> convertToRegex(std::vector<std::string> const& iPatterns) {
+    std::vector<std::regex> result;
+
+    for(auto const& pattern: iPatterns) {
+      auto regexPattern = pattern;
+      boost::replace_all(regexPattern, "*", ".*");
+      boost::replace_all(regexPattern, "?", ".");
+
+      result.emplace_back(regexPattern);
+    }
+    return result;
+  }
+}
+
 //
 // constructors and destructor
 //
 TriggerSummaryProducerAOD::TriggerSummaryProducerAOD(const edm::ParameterSet& ps, const GlobalInputTags * gt) : 
   pn_(ps.getParameter<std::string>("processName")),
-  moduleLabelsToSkip_(ps.getParameter<std::vector<std::string>>("moduleLabelsToSkip")),
+  moduleLabelPatternsToMatch_(convertToRegex(ps.getParameter<std::vector<std::string>>("moduleLabelPatternsToMatch"))),
+  moduleLabelPatternsToSkip_(convertToRegex(ps.getParameter<std::vector<std::string>>("moduleLabelPatternsToSkip"))),
   filterTagsEvent_(pn_!="*"),
   filterTagsStream_(pn_!="*"),
   collectionTagsEvent_(pn_!="*"),
@@ -91,18 +109,21 @@ TriggerSummaryProducerAOD::TriggerSummaryProducerAOD(const edm::ParameterSet& ps
   produces<trigger::TriggerEvent>();
 
   auto const* pProcessName = &pn_;
-  auto const& moduleLabelsToSkip = moduleLabelsToSkip_;
-  auto productMatch = [pProcessName,&moduleLabelsToSkip](edm::BranchDescription const& iBranch) -> bool {
+  auto const& moduleLabelPatternsToMatch = moduleLabelPatternsToMatch_;
+  auto const& moduleLabelPatternsToSkip = moduleLabelPatternsToSkip_;
+  auto productMatch = [pProcessName,&moduleLabelPatternsToSkip,&moduleLabelPatternsToMatch](edm::BranchDescription const& iBranch) -> bool {
     if(iBranch.processName() == *pProcessName || *pProcessName == "*") {
-      //require that the label begin with hlt to reduce the chance of
-      // picking up non HLT related data
-      if(0 == iBranch.moduleLabel().find("hlt")) {
-        for(auto const& shouldSkip : moduleLabelsToSkip) {
-          if(iBranch.moduleLabel() == shouldSkip) {
-            return false;
+      auto const& label = iBranch.moduleLabel();
+      for(auto& match: moduleLabelPatternsToMatch) {
+        if(std::regex_match(label,match)) {
+          //make sure this is not in the reject list
+          for(auto& reject: moduleLabelPatternsToSkip) {
+            if(std::regex_match(label,reject)) {
+              return false;
+            }
           }
+          return true;
         }
-        return true;
       }
     }
     return false;
@@ -196,7 +217,8 @@ namespace {
 void TriggerSummaryProducerAOD::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<std::string>("processName","@")->setComment("Process name to use when getting data. The value of '@' is used to denote the current process name.");
-  desc.add<std::vector<std::string>>("moduleLabelsToSkip",std::vector<std::string>())->setComment("module labels for data products which should not be gotten.");
+  desc.add<std::vector<std::string>>("moduleLabelPatternsToMatch",std::vector<std::string>(1,"hlt*"))->setComment("glob patterns for module labels to get data.");
+  desc.add<std::vector<std::string>>("moduleLabelPatternsToSkip",std::vector<std::string>())->setComment("module labels for data products which should not be gotten.");
   descriptions.add("triggerSummaryProducerAOD", desc);
 }
 
