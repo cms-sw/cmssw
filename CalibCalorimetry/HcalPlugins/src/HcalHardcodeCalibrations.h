@@ -107,6 +107,5 @@ private:
   bool switchGainWidthsForTrigPrims; 
   bool setHEdsegm;
   bool setHBdsegm;
-  bool testHFQIE10;
 };
 

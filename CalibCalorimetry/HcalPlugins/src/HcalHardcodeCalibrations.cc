@@ -115,7 +115,7 @@ namespace {
 }
 
 HcalHardcodeCalibrations::HcalHardcodeCalibrations ( const edm::ParameterSet& iConfig ): 
-	he_recalibration(0), hf_recalibration(0), setHEdsegm(false), setHBdsegm(false), testHFQIE10(iConfig.getParameter<bool>("testHFQIE10"))
+	he_recalibration(0), hf_recalibration(0), setHEdsegm(false), setHBdsegm(false)
 {
   edm::LogInfo("HCAL") << "HcalHardcodeCalibrations::HcalHardcodeCalibrations->...";
 
@@ -134,7 +134,9 @@ HcalHardcodeCalibrations::HcalHardcodeCalibrations ( const edm::ParameterSet& iC
   dbHardcode.useHBUpgrade(iConfig.getParameter<bool>("useHBUpgrade"));
   dbHardcode.useHEUpgrade(iConfig.getParameter<bool>("useHEUpgrade"));
   dbHardcode.useHFUpgrade(iConfig.getParameter<bool>("useHFUpgrade"));
+  dbHardcode.useHOUpgrade(iConfig.getParameter<bool>("useHOUpgrade"));
   dbHardcode.testHFQIE10(iConfig.getParameter<bool>("testHFQIE10"));
+  dbHardcode.setSiPMCharacteristics(iConfig.getParameter<std::vector<edm::ParameterSet>>("SiPMCharacteristics"));
 
   // HE and HF recalibration preparation
   iLumi=iConfig.getParameter<double>("iLumi");
@@ -769,7 +771,7 @@ std::unique_ptr<HcalSiPMParameters> HcalHardcodeCalibrations::produceSiPMParamet
   auto result = std::make_unique<HcalSiPMParameters>(topo);
   std::vector <HcalGenericDetId> cells = allCells(*htopo);
   for (std::vector <HcalGenericDetId>::const_iterator cell = cells.begin (); cell != cells.end (); ++cell) {
-    HcalSiPMParameter item = dbHardcode.makeHardcodeSiPMParameter (*cell);
+    HcalSiPMParameter item = dbHardcode.makeHardcodeSiPMParameter (*cell,topo);
     result->addValues(item);
   }
   return result;
@@ -817,6 +819,7 @@ void HcalHardcodeCalibrations::fillDescriptions(edm::ConfigurationDescriptions &
 	desc.add<bool>("useHBUpgrade",false);
 	desc.add<bool>("useHEUpgrade",false);
 	desc.add<bool>("useHFUpgrade",false);
+	desc.add<bool>("useHOUpgrade",true);
 	desc.add<bool>("testHFQIE10",false);
 	desc.addUntracked<std::vector<std::string>>("toGet",std::vector<std::string>());
 	desc.addUntracked<bool>("fromDDD",false);
@@ -831,6 +834,8 @@ void HcalHardcodeCalibrations::fillDescriptions(edm::ConfigurationDescriptions &
 	desc_hb.add<int>("qieType", 0);
 	desc_hb.add<int>("mcShape",125);
 	desc_hb.add<int>("recoShape",105);
+	desc_hb.add<double>("photoelectronsToAnalog",0.0);
+	desc_hb.add<double>("darkCurrent",0.0);
 	desc.add<edm::ParameterSetDescription>("hb", desc_hb);
 
 	edm::ParameterSetDescription desc_hbUpgrade;
@@ -843,6 +848,8 @@ void HcalHardcodeCalibrations::fillDescriptions(edm::ConfigurationDescriptions &
 	desc_hbUpgrade.add<int>("qieType", 2);
 	desc_hbUpgrade.add<int>("mcShape",203);
 	desc_hbUpgrade.add<int>("recoShape",203);
+	desc_hbUpgrade.add<double>("photoelectronsToAnalog",57.5);
+	desc_hbUpgrade.add<double>("darkCurrent",0.055);
 	desc.add<edm::ParameterSetDescription>("hbUpgrade", desc_hbUpgrade);
 
 	edm::ParameterSetDescription desc_he;
@@ -855,6 +862,8 @@ void HcalHardcodeCalibrations::fillDescriptions(edm::ConfigurationDescriptions &
 	desc_he.add<int>("qieType", 0);
 	desc_he.add<int>("mcShape",125);
 	desc_he.add<int>("recoShape",105);
+	desc_he.add<double>("photoelectronsToAnalog",0.0);
+	desc_he.add<double>("darkCurrent",0.0);
 	desc.add<edm::ParameterSetDescription>("he", desc_he);
 
 	edm::ParameterSetDescription desc_heUpgrade;
@@ -867,6 +876,8 @@ void HcalHardcodeCalibrations::fillDescriptions(edm::ConfigurationDescriptions &
 	desc_heUpgrade.add<int>("qieType", 2);
 	desc_heUpgrade.add<int>("mcShape",203);
 	desc_heUpgrade.add<int>("recoShape",203);
+	desc_heUpgrade.add<double>("photoelectronsToAnalog",57.5);
+	desc_heUpgrade.add<double>("darkCurrent",0.055);
 	desc.add<edm::ParameterSetDescription>("heUpgrade", desc_heUpgrade);
 
 	edm::ParameterSetDescription desc_hf;
@@ -879,6 +890,8 @@ void HcalHardcodeCalibrations::fillDescriptions(edm::ConfigurationDescriptions &
 	desc_hf.add<int>("qieType", 0);
 	desc_hf.add<int>("mcShape",301);
 	desc_hf.add<int>("recoShape",301);
+	desc_hf.add<double>("photoelectronsToAnalog",0.0);
+	desc_hf.add<double>("darkCurrent",0.0);
 	desc.add<edm::ParameterSetDescription>("hf", desc_hf);
 
 	edm::ParameterSetDescription desc_hfUpgrade;
@@ -891,6 +904,8 @@ void HcalHardcodeCalibrations::fillDescriptions(edm::ConfigurationDescriptions &
 	desc_hfUpgrade.add<int>("qieType", 1);
 	desc_hfUpgrade.add<int>("mcShape",301);
 	desc_hfUpgrade.add<int>("recoShape",301);
+	desc_hfUpgrade.add<double>("photoelectronsToAnalog",0.0);
+	desc_hfUpgrade.add<double>("darkCurrent",0.0);
 	desc.add<edm::ParameterSetDescription>("hfUpgrade", desc_hfUpgrade);
   
 	edm::ParameterSetDescription desc_hfrecal;
@@ -910,8 +925,18 @@ void HcalHardcodeCalibrations::fillDescriptions(edm::ConfigurationDescriptions &
 	desc_ho.add<int>("qieType", 0);
 	desc_ho.add<int>("mcShape",201);
 	desc_ho.add<int>("recoShape",201);
+	desc_ho.add<double>("photoelectronsToAnalog",4.0);
+	desc_ho.add<double>("darkCurrent",0.055);
 	desc.add<edm::ParameterSetDescription>("ho", desc_ho);
 
+	edm::ParameterSetDescription validator_sipm;
+	validator_sipm.add<int>("pixels",1);
+	validator_sipm.add<double>("crosstalk",0);
+	validator_sipm.add<double>("nonlin1",1);
+	validator_sipm.add<double>("nonlin2",0);
+	validator_sipm.add<double>("nonlin3",0);
+	std::vector<edm::ParameterSet> default_sipm(1);
+	desc.addVPSet("SiPMCharacteristics",validator_sipm,default_sipm);
 	
 	descriptions.addDefault(desc);
 }
