@@ -4,14 +4,14 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("Geometry")
 
-readGeometryFromDB = True
+readGeometryFromDB = False
 
 # N.B. for the time being we load the geometry from local
 # XML, whle in future we will have to use the DB. This is
 # only a temporary hack, since the material description has
 # been updated in release via XML and the DB is behind.
 if not readGeometryFromDB:
-  process.load('Configuration.Geometry.GeometryExtended2023D1_cff')
+  process.load('Configuration.Geometry.GeometryExtended2017NewFPix_cff')
 else:
 # GlobalTag and geometry via GT
   process.load('Configuration.Geometry.GeometrySimDB_cff')
@@ -85,4 +85,4 @@ def customizeMessageLogger(process):
 
     return process
 
-#process = customizeMessageLogger(process)
+process = customizeMessageLogger(process)
