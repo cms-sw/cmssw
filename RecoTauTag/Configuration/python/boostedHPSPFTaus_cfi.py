@@ -19,6 +19,8 @@ def addBoostedTaus(process):
     process.combinatoricRecoTausBoosted.modifiers.remove(process.combinatoricRecoTausBoosted.modifiers[3])
     #process.combinatoricRecoTausBoosted.builders[0].pfCandSrc = cms.InputTag('pfNoPileUpForBoostedTaus')
     process.combinatoricRecoTausBoosted.builders[0].pfCandSrc = cms.InputTag('particleFlow')
+    process.hpsPFTauDiscriminationByLooseMuonRejection3Boosted.dRmuonMatchLimitedToJetArea = cms.bool(True)
+    process.hpsPFTauDiscriminationByTightMuonRejection3Boosted.dRmuonMatchLimitedToJetArea = cms.bool(True)
     massSearchReplaceAnyInputTag(process.PATTauSequenceBoosted,cms.InputTag("ak4PFJets"),cms.InputTag("boostedTauSeeds"))  
     process.slimmedTausBoosted = process.slimmedTaus.clone(src = cms.InputTag("selectedPatTausBoosted"))
     
