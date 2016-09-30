@@ -167,8 +167,8 @@ void MuonGeometryArrange::endHist(){
 
    int size=_mgacollection.size();
    if(size<=0) return;	// nothing to do here.
-   float* xp = new float[size+1];
-   float* yp = new float[size+1];
+   std::vector<float> xp(size+1);
+   std::vector<float> yp(size+1);
    int i;
    float minV, maxV;
    int minI, maxI;
@@ -205,7 +205,7 @@ void MuonGeometryArrange::endHist(){
    
    makeGraph(sizeI, smi, sma, minV, maxV,
        dxh, grx, "delX_vs_position", "Local #delta X vs position", 
-       "GdelX_vs_position","#delta x in cm", xp, yp, size);
+       "GdelX_vs_position","#delta x in cm", xp.data(), yp.data(), size);
 // Dy plot
    minV=99999999.; maxV=-minV;
    for(i=0; i<size; i++){
@@ -217,7 +217,7 @@ void MuonGeometryArrange::endHist(){
    
    makeGraph(sizeI, smi, sma, minV, maxV,
        dxh, grx, "delY_vs_position", "Local #delta Y vs position", 
-       "GdelY_vs_position","#delta y in cm", xp, yp, size);
+       "GdelY_vs_position","#delta y in cm", xp.data(), yp.data(), size);
 
 // Dz plot
    minV=99999999.; maxV=-minV;
@@ -230,7 +230,7 @@ void MuonGeometryArrange::endHist(){
    
    makeGraph(sizeI, smi, sma, minV, maxV,
        dxh, grx, "delZ_vs_position", "Local #delta Z vs position", 
-       "GdelZ_vs_position","#delta z in cm", xp, yp, size);
+       "GdelZ_vs_position","#delta z in cm", xp.data(), yp.data(), size);
 
 // Dphi plot
    minV=99999999.; maxV=-minV;
@@ -243,7 +243,7 @@ void MuonGeometryArrange::endHist(){
    
    makeGraph(sizeI, smi, sma, minV, maxV,
        dxh, grx, "delphi_vs_position", "#delta #phi vs position", 
-       "Gdelphi_vs_position","#delta #phi in radians", xp, yp, size);
+       "Gdelphi_vs_position","#delta #phi in radians", xp.data(), yp.data(), size);
 
 // Dr plot
    minV=99999999.; maxV=-minV;
@@ -256,7 +256,7 @@ void MuonGeometryArrange::endHist(){
    
    makeGraph(sizeI, smi, sma, minV, maxV,
        dxh, grx, "delR_vs_position", "#delta R vs position", 
-       "GdelR_vs_position","#delta R in cm", xp, yp, size);
+       "GdelR_vs_position","#delta R in cm", xp.data(), yp.data(), size);
 
 // Drphi plot
    minV=99999999.; maxV=-minV;
@@ -270,7 +270,7 @@ void MuonGeometryArrange::endHist(){
    
    makeGraph(sizeI, smi, sma, minV, maxV,
        dxh, grx, "delRphi_vs_position", "R #delta #phi vs position", 
-       "GdelRphi_vs_position","R #delta #phi in cm", xp, yp, size);
+       "GdelRphi_vs_position","R #delta #phi in cm", xp.data(), yp.data(), size);
 
 // Dalpha plot
    minV=99999999.; maxV=-minV;
@@ -283,7 +283,7 @@ void MuonGeometryArrange::endHist(){
    
    makeGraph(sizeI, smi, sma, minV, maxV,
        dxh, grx, "delalpha_vs_position", "#delta #alpha vs position", 
-       "Gdelalpha_vs_position","#delta #alpha in rad", xp, yp, size);
+       "Gdelalpha_vs_position","#delta #alpha in rad", xp.data(), yp.data(), size);
 
 // Dbeta plot
    minV=99999999.; maxV=-minV;
@@ -296,7 +296,7 @@ void MuonGeometryArrange::endHist(){
    
    makeGraph(sizeI, smi, sma, minV, maxV,
        dxh, grx, "delbeta_vs_position", "#delta #beta vs position", 
-       "Gdelbeta_vs_position","#delta #beta in rad", xp, yp, size);
+       "Gdelbeta_vs_position","#delta #beta in rad", xp.data(), yp.data(), size);
 
 // Dgamma plot
    minV=99999999.; maxV=-minV;
@@ -309,7 +309,7 @@ void MuonGeometryArrange::endHist(){
    
    makeGraph(sizeI, smi, sma, minV, maxV,
        dxh, grx, "delgamma_vs_position", "#delta #gamma vs position", 
-       "Gdelgamma_vs_position","#delta #gamma in rad", xp, yp, size);
+       "Gdelgamma_vs_position","#delta #gamma in rad", xp.data(), yp.data(), size);
 
 // Drotx plot
    minV=99999999.; maxV=-minV;
@@ -322,7 +322,7 @@ void MuonGeometryArrange::endHist(){
    
    makeGraph(sizeI, smi, sma, minV, maxV,
        dxh, grx, "delrotX_vs_position", "#delta rotX vs position", 
-       "GdelrotX_vs_position","#delta rotX in rad", xp, yp, size);
+       "GdelrotX_vs_position","#delta rotX in rad", xp.data(), yp.data(), size);
 
 // Droty plot
    minV=99999999.; maxV=-minV;
@@ -335,7 +335,7 @@ void MuonGeometryArrange::endHist(){
    
    makeGraph(sizeI, smi, sma, minV, maxV,
        dxh, grx, "delrotY_vs_position", "#delta rotY vs position", 
-       "GdelrotY_vs_position","#delta rotY in rad", xp, yp, size);
+       "GdelrotY_vs_position","#delta rotY in rad", xp.data(), yp.data(), size);
 
 // Drotz plot
    minV=99999999.; maxV=-minV;
@@ -348,7 +348,7 @@ void MuonGeometryArrange::endHist(){
    
    makeGraph(sizeI, smi, sma, minV, maxV,
        dxh, grx, "delrotZ_vs_position", "#delta rotZ vs position", 
-       "GdelrotZ_vs_position","#delta rotZ in rad", xp, yp, size);
+       "GdelrotZ_vs_position","#delta rotZ in rad", xp.data(), yp.data(), size);
 
 
 
@@ -409,7 +409,6 @@ void MuonGeometryArrange::endHist(){
    _theFile->Write();   
    _theFile->Close();
 
-   delete [] yp;  delete [] xp;
 
 }
 //////////////////////////////////////////////////
@@ -417,7 +416,7 @@ void MuonGeometryArrange::makeGraph(int sizeI, float smi, float sma,
 	float minV, float maxV,
 	TH2F* dxh, TGraph* grx, const char* name, const char* title, 
 	const char* titleg, const char* axis,
-	float* xp, float* yp, int size){
+	const float* xp, const float* yp, int size){
 
   if(minV>=maxV || smi>=sma || sizeI<=1 || xp==0x0 || yp==0x0) return;
   	// out of bounds, bail

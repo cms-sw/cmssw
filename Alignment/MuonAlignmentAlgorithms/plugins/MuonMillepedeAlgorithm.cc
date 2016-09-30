@@ -254,7 +254,9 @@
 	    //int   ndof = track->ndof();
 	    int   nhit  = track->numberOfValidHits();
 
-	    if (0) edm::LogInfo("Alignment") << "New track pt,eta,phi,chi2n,hits: " << pt <<","<< eta <<","<< phi <<","<< chi2n << ","<<nhit;
+	    LogDebug("Alignment")
+	      << "New track pt,eta,phi,chi2n,hits: "
+	      << pt << "," << eta << "," << phi << "," << chi2n << "," << nhit;
 
 	    //Accept or not accept the track
 	    if( pt > ptCut && chi2n < chi2nCut ) 
