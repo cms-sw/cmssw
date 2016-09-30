@@ -65,4 +65,4 @@ def customizeMessageLogger(process):
     return process
 
 
-process = customizeMessageLogger(process)
+#process = customizeMessageLogger(process)
