@@ -425,7 +425,7 @@ HcaluLUTTPGCoder::lookupMSB(const QIE11DataFrame& df, std::vector<std::bitset<2>
    int lutId = getLUTId(HcalDetId(df.id()));
    const Lut& lut = upgradeQIE11LUT_.at(lutId);
    for (int i = 0; i < df.samples(); ++i) {
-      msb[0] = lut.at(df[i].adc()) & QIE11_LUT_MSB0;
-      msb[1] = lut.at(df[i].adc()) & QIE11_LUT_MSB1;
+      msb[i][0] = lut.at(df[i].adc()) & QIE11_LUT_MSB0;
+      msb[i][1] = lut.at(df[i].adc()) & QIE11_LUT_MSB1;
    }
 }
