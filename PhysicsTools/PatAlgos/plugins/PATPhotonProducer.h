@@ -81,6 +81,7 @@ namespace pat {
       edm::EDGetTokenT<EcalRecHitCollection> reducedEndcapRecHitCollectionToken_;      
       
       bool addPFClusterIso_;
+      bool addPuppiIsolation_;
       edm::EDGetTokenT<edm::ValueMap<float> > ecalPFClusterIsoT_;
       edm::EDGetTokenT<edm::ValueMap<float> > hcalPFClusterIsoT_;
 
