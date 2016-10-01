@@ -1,11 +1,19 @@
+<<<<<<< HEAD
 # /dev/CMSSW_8_0_0/PIon/V198 (CMSSW_8_0_19_patch2)
+=======
+# /dev/CMSSW_8_0_0/PIon/V203 (CMSSW_8_0_19_patch2)
+>>>>>>> e45276c... sync with V597
 
 import FWCore.ParameterSet.Config as cms
 
 fragment = cms.ProcessFragment( "HLT" )
 
 fragment.HLTConfigVersion = cms.PSet(
+<<<<<<< HEAD
   tableName = cms.string('/dev/CMSSW_8_0_0/PIon/V198')
+=======
+  tableName = cms.string('/dev/CMSSW_8_0_0/PIon/V203')
+>>>>>>> e45276c... sync with V597
 )
 
 fragment.HLTPSetJetCoreStepTrajectoryFilter = cms.PSet( 
@@ -1362,10 +1370,27 @@ fragment.HLTIter0HighPtTkMuPSetTrajectoryBuilderIT = cms.PSet(
 )
 fragment.streams = cms.PSet( 
   DQM = cms.vstring( 'OnlineMonitor' ),
+<<<<<<< HEAD
   PhysicsCommissioning = cms.vstring( 'HLTPhysics' )
 )
 fragment.datasets = cms.PSet( 
   HLTPhysics = cms.vstring( 'HLT_Physics_v4' ),
+=======
+  PhysicsCommissioning = cms.vstring( 'HLTPhysics' ),
+  PhysicsPAHighMultiplicity0 = cms.vstring( 'PAHighMultiplicity0',
+    'PAHighMultiplicity7' ),
+  PhysicsPAHighMultiplicity1 = cms.vstring( 'PAHighMultiplicity1',
+    'PAHighMultiplicity2',
+    'PAHighMultiplicity3' ),
+  PhysicsPAHighMultiplicity2 = cms.vstring( 'PAHighMultiplicity4',
+    'PAHighMultiplicity5',
+    'PAHighMultiplicity6' ),
+  PhysicsPAMuons = cms.vstring( 'PADoubleMuon',
+    'PASingleMuon' )
+)
+fragment.datasets = cms.PSet( 
+  HLTPhysics = cms.vstring( 'HLT_Physics_v5' ),
+>>>>>>> e45276c... sync with V597
   OnlineMonitor = cms.vstring( 'HLT_PAFullTracks_Multiplicity120_HighPt16_v1',
     'HLT_PAFullTracks_Multiplicity120_HighPt8_v1',
     'HLT_PAFullTracks_Multiplicity120_v1',
@@ -1398,7 +1423,43 @@ fragment.datasets = cms.PSet(
     'HLT_PAL3Mu3_v1',
     'HLT_PAL3Mu5_v1',
     'HLT_PAL3Mu7_v1',
+<<<<<<< HEAD
     'HLT_Physics_v4' )
+=======
+    'HLT_Physics_v5' ),
+  PADoubleMuon = cms.vstring( 'HLT_PAL1DoubleMu0_HighQ_v1',
+    'HLT_PAL1DoubleMu0_MGT1_v1',
+    'HLT_PAL1DoubleMu0_v1',
+    'HLT_PAL1DoubleMu10_v1',
+    'HLT_PAL1DoubleMuOpen_OS_v1',
+    'HLT_PAL1DoubleMuOpen_SS_v1',
+    'HLT_PAL1DoubleMuOpen_v1',
+    'HLT_PAL2DoubleMu10_v1',
+    'HLT_PAL2DoubleMuOpen_v1',
+    'HLT_PAL3DoubleMu10_v1',
+    'HLT_PAL3DoubleMuOpen_HIon_v1',
+    'HLT_PAL3DoubleMuOpen_v1' ),
+  PAHighMultiplicity0 = cms.vstring( 'HLT_PAFullTracks_Multiplicity120_HighPt16_v1',
+    'HLT_PAFullTracks_Multiplicity120_HighPt8_v1',
+    'HLT_PAFullTracks_Multiplicity120_v1',
+    'HLT_PAFullTracks_Multiplicity150_v1' ),
+  PAHighMultiplicity1 = cms.vstring( 'HLT_PAFullTracks_Multiplicity185_part1_v1' ),
+  PAHighMultiplicity2 = cms.vstring( 'HLT_PAFullTracks_Multiplicity185_part2_v1' ),
+  PAHighMultiplicity3 = cms.vstring( 'HLT_PAFullTracks_Multiplicity185_part3_v1' ),
+  PAHighMultiplicity4 = cms.vstring( 'HLT_PAFullTracks_Multiplicity185_part4_v1' ),
+  PAHighMultiplicity5 = cms.vstring( 'HLT_PAFullTracks_Multiplicity185_part5_v1' ),
+  PAHighMultiplicity6 = cms.vstring( 'HLT_PAFullTracks_Multiplicity185_part6_v1' ),
+  PAHighMultiplicity7 = cms.vstring( 'HLT_PAFullTracks_Multiplicity220_v1',
+    'HLT_PAFullTracks_Multiplicity250_v1',
+    'HLT_PAFullTracks_Multiplicity280_v1' ),
+  PASingleMuon = cms.vstring( 'HLT_PAL2Mu12_v1',
+    'HLT_PAL2Mu15_v1',
+    'HLT_PAL3Mu12_v1',
+    'HLT_PAL3Mu15_v1',
+    'HLT_PAL3Mu3_v1',
+    'HLT_PAL3Mu5_v1',
+    'HLT_PAL3Mu7_v1' )
+>>>>>>> e45276c... sync with V597
 )
 
 fragment.CSCChannelMapperESSource = cms.ESSource( "EmptyESSource",
@@ -8316,12 +8377,20 @@ fragment.HLT_PAFullTracks_Multiplicity185_part6_v1 = cms.Path( fragment.HLTBegin
 fragment.HLT_PAFullTracks_Multiplicity220_v1 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sTowerCount74BptxAND + fragment.hltPrePAFullTracksMultiplicity220 + fragment.HLTDoLocalPixelSequence + fragment.HLTRecopixelvertexingForHighMultSequence + fragment.hltGoodPixelTracksForHighMult + fragment.hltPixelCandsForHighMult + fragment.hltHighMult40 + fragment.HLTPAPixelClusterSplitting + fragment.HLTPADoLocalStripSequenceAfterSplitting + fragment.HLTPAIterativeTracking + fragment.hltPAOnlinePrimaryVertices + fragment.hltPAGoodHighPurityFullTrackCutClassifier + fragment.hltPAGoodHighPurityFullTracks + fragment.hltPAFullCandsForHighMultTrigger + fragment.hltPAFullTrackHighMult220 + fragment.HLTEndSequence )
 fragment.HLT_PAFullTracks_Multiplicity250_v1 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sTowerCount74BptxAND + fragment.hltPrePAFullTracksMultiplicity250 + fragment.HLTDoLocalPixelSequence + fragment.HLTRecopixelvertexingForHighMultSequence + fragment.hltGoodPixelTracksForHighMult + fragment.hltPixelCandsForHighMult + fragment.hltHighMult40 + fragment.HLTPAPixelClusterSplitting + fragment.HLTPADoLocalStripSequenceAfterSplitting + fragment.HLTPAIterativeTracking + fragment.hltPAOnlinePrimaryVertices + fragment.hltPAGoodHighPurityFullTrackCutClassifier + fragment.hltPAGoodHighPurityFullTracks + fragment.hltPAFullCandsForHighMultTrigger + fragment.hltPAFullTrackHighMult250 + fragment.HLTEndSequence )
 fragment.HLT_PAFullTracks_Multiplicity280_v1 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sTowerCount74BptxAND + fragment.hltPrePAFullTracksMultiplicity280 + fragment.HLTDoLocalPixelSequence + fragment.HLTRecopixelvertexingForHighMultSequence + fragment.hltGoodPixelTracksForHighMult + fragment.hltPixelCandsForHighMult + fragment.hltHighMult40 + fragment.HLTPAPixelClusterSplitting + fragment.HLTPADoLocalStripSequenceAfterSplitting + fragment.HLTPAIterativeTracking + fragment.hltPAOnlinePrimaryVertices + fragment.hltPAGoodHighPurityFullTrackCutClassifier + fragment.hltPAGoodHighPurityFullTracks + fragment.hltPAFullCandsForHighMultTrigger + fragment.hltPAFullTrackHighMult280 + fragment.HLTEndSequence )
+<<<<<<< HEAD
 fragment.HLT_Physics_v4 = cms.Path( fragment.HLTBeginSequenceL1Fat + fragment.hltPrePhysics + fragment.HLTEndSequence )
+=======
+fragment.HLT_Physics_v5 = cms.Path( fragment.HLTBeginSequenceL1Fat + fragment.hltPrePhysics + fragment.HLTEndSequence )
+>>>>>>> e45276c... sync with V597
 fragment.HLTriggerFinalPath = cms.Path( fragment.hltGtStage2Digis + fragment.hltScalersRawToDigi + fragment.hltFEDSelector + fragment.hltTriggerSummaryAOD + fragment.hltTriggerSummaryRAW + fragment.hltBoolFalse )
 fragment.HLTAnalyzerEndpath = cms.EndPath( fragment.hltGtStage2Digis + fragment.hltPreHLTAnalyzerEndpath + fragment.hltL1TGlobalSummary + fragment.hltTrigReport )
 
 
+<<<<<<< HEAD
 fragment.HLTSchedule = cms.Schedule( *(fragment.HLTriggerFirstPath, fragment.HLT_PAL1DoubleMu0_MGT1_v1, fragment.HLT_PAL1DoubleMu0_HighQ_v1, fragment.HLT_PAL1DoubleMu0_v1, fragment.HLT_PAL1DoubleMu10_v1, fragment.HLT_PAL1DoubleMuOpen_OS_v1, fragment.HLT_PAL1DoubleMuOpen_SS_v1, fragment.HLT_PAL1DoubleMuOpen_v1, fragment.HLT_PAL2DoubleMu10_v1, fragment.HLT_PAL2DoubleMuOpen_v1, fragment.HLT_PAL3DoubleMu10_v1, fragment.HLT_PAL3DoubleMuOpen_HIon_v1, fragment.HLT_PAL3DoubleMuOpen_v1, fragment.HLT_PAL2Mu15_v1, fragment.HLT_PAL2Mu12_v1, fragment.HLT_PAL3Mu12_v1, fragment.HLT_PAL3Mu15_v1, fragment.HLT_PAL3Mu3_v1, fragment.HLT_PAL3Mu5_v1, fragment.HLT_PAL3Mu7_v1, fragment.HLT_PAFullTracks_Multiplicity120_v1, fragment.HLT_PAFullTracks_Multiplicity150_v1, fragment.HLT_PAFullTracks_Multiplicity120_HighPt8_v1, fragment.HLT_PAFullTracks_Multiplicity120_HighPt16_v1, fragment.HLT_PAFullTracks_Multiplicity185_part1_v1, fragment.HLT_PAFullTracks_Multiplicity185_part2_v1, fragment.HLT_PAFullTracks_Multiplicity185_part3_v1, fragment.HLT_PAFullTracks_Multiplicity185_part4_v1, fragment.HLT_PAFullTracks_Multiplicity185_part5_v1, fragment.HLT_PAFullTracks_Multiplicity185_part6_v1, fragment.HLT_PAFullTracks_Multiplicity220_v1, fragment.HLT_PAFullTracks_Multiplicity250_v1, fragment.HLT_PAFullTracks_Multiplicity280_v1, fragment.HLT_Physics_v4, fragment.HLTriggerFinalPath, fragment.HLTAnalyzerEndpath ))
+=======
+fragment.HLTSchedule = cms.Schedule( *(fragment.HLTriggerFirstPath, fragment.HLT_PAL1DoubleMu0_MGT1_v1, fragment.HLT_PAL1DoubleMu0_HighQ_v1, fragment.HLT_PAL1DoubleMu0_v1, fragment.HLT_PAL1DoubleMu10_v1, fragment.HLT_PAL1DoubleMuOpen_OS_v1, fragment.HLT_PAL1DoubleMuOpen_SS_v1, fragment.HLT_PAL1DoubleMuOpen_v1, fragment.HLT_PAL2DoubleMu10_v1, fragment.HLT_PAL2DoubleMuOpen_v1, fragment.HLT_PAL3DoubleMu10_v1, fragment.HLT_PAL3DoubleMuOpen_HIon_v1, fragment.HLT_PAL3DoubleMuOpen_v1, fragment.HLT_PAL2Mu15_v1, fragment.HLT_PAL2Mu12_v1, fragment.HLT_PAL3Mu12_v1, fragment.HLT_PAL3Mu15_v1, fragment.HLT_PAL3Mu3_v1, fragment.HLT_PAL3Mu5_v1, fragment.HLT_PAL3Mu7_v1, fragment.HLT_PAFullTracks_Multiplicity120_v1, fragment.HLT_PAFullTracks_Multiplicity150_v1, fragment.HLT_PAFullTracks_Multiplicity120_HighPt8_v1, fragment.HLT_PAFullTracks_Multiplicity120_HighPt16_v1, fragment.HLT_PAFullTracks_Multiplicity185_part1_v1, fragment.HLT_PAFullTracks_Multiplicity185_part2_v1, fragment.HLT_PAFullTracks_Multiplicity185_part3_v1, fragment.HLT_PAFullTracks_Multiplicity185_part4_v1, fragment.HLT_PAFullTracks_Multiplicity185_part5_v1, fragment.HLT_PAFullTracks_Multiplicity185_part6_v1, fragment.HLT_PAFullTracks_Multiplicity220_v1, fragment.HLT_PAFullTracks_Multiplicity250_v1, fragment.HLT_PAFullTracks_Multiplicity280_v1, fragment.HLT_Physics_v5, fragment.HLTriggerFinalPath, fragment.HLTAnalyzerEndpath ))
+>>>>>>> e45276c... sync with V597
 
 
 # dummyfy hltGetConditions in cff's
