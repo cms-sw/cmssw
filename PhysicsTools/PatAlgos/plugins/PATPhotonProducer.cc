@@ -20,6 +20,8 @@
 #include "RecoEgamma/EgammaTools/interface/EcalRegressionData.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterTools.h"
 
+#include "FWCore/ParameterSet/interface/EmptyGroupDescription.h"
+
 #include "TVector2.h"
 #include "DataFormats/Math/interface/deltaR.h"
 
@@ -30,10 +32,7 @@ using namespace pat;
 
 PATPhotonProducer::PATPhotonProducer(const edm::ParameterSet & iConfig) :
   isolator_(iConfig.exists("userIsolation") ? iConfig.getParameter<edm::ParameterSet>("userIsolation") : edm::ParameterSet(), consumesCollector(), false) ,
-  useUserData_(iConfig.exists("userData")),
-  PUPPIIsolation_charged_hadrons_(consumes<edm::ValueMap<float> >(iConfig.getParameter<edm::InputTag>("puppiIsolationChargedHadrons"))),
-  PUPPIIsolation_neutral_hadrons_(consumes<edm::ValueMap<float> >(iConfig.getParameter<edm::InputTag>("puppiIsolationNeutralHadrons"))),
-  PUPPIIsolation_photons_(consumes<edm::ValueMap<float> >(iConfig.getParameter<edm::InputTag>("puppiIsolationPhotons")))
+  useUserData_(iConfig.exists("userData"))
 {
   // initialize the configurables
   photonToken_ = consumes<edm::View<reco::Photon> >(iConfig.getParameter<edm::InputTag>("photonSource"));
@@ -67,6 +66,12 @@ hConversionsToken_ = consumes<reco::ConversionCollection>(iConfig.getParameter<e
   }
   // PFCluster Isolation maps
   addPFClusterIso_   = iConfig.getParameter<bool>("addPFClusterIso");
+  addPuppiIsolation_   = iConfig.getParameter<bool>("addPuppiIsolation");
+  if (addPuppiIsolation_){
+    PUPPIIsolation_charged_hadrons_ = consumes<edm::ValueMap<float> >(iConfig.getParameter<edm::InputTag>("puppiIsolationChargedHadrons"));
+    PUPPIIsolation_neutral_hadrons_ = consumes<edm::ValueMap<float> >(iConfig.getParameter<edm::InputTag>("puppiIsolationNeutralHadrons"));
+    PUPPIIsolation_photons_ = consumes<edm::ValueMap<float> >(iConfig.getParameter<edm::InputTag>("puppiIsolationPhotons"));
+  }
   ecalPFClusterIsoT_ = consumes<edm::ValueMap<float> >(iConfig.getParameter<edm::InputTag>("ecalPFClusterIsoMap"));
   hcalPFClusterIsoT_ = consumes<edm::ValueMap<float> >(iConfig.getParameter<edm::InputTag>("hcalPFClusterIsoMap"));
   // photon ID configurables
@@ -194,9 +199,11 @@ void PATPhotonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSe
   edm::Handle<edm::ValueMap<float>> PUPPIIsolation_charged_hadrons;
   edm::Handle<edm::ValueMap<float>> PUPPIIsolation_neutral_hadrons;
   edm::Handle<edm::ValueMap<float>> PUPPIIsolation_photons;
-  iEvent.getByToken(PUPPIIsolation_charged_hadrons_, PUPPIIsolation_charged_hadrons);
-  iEvent.getByToken(PUPPIIsolation_neutral_hadrons_, PUPPIIsolation_neutral_hadrons);
-  iEvent.getByToken(PUPPIIsolation_photons_, PUPPIIsolation_photons);
+  if (addPuppiIsolation_){
+    iEvent.getByToken(PUPPIIsolation_charged_hadrons_, PUPPIIsolation_charged_hadrons);
+    iEvent.getByToken(PUPPIIsolation_neutral_hadrons_, PUPPIIsolation_neutral_hadrons);
+    iEvent.getByToken(PUPPIIsolation_photons_, PUPPIIsolation_photons);
+  }
 
   // loop over photons
   std::vector<Photon> * PATPhotons = new std::vector<Photon>();
@@ -363,7 +370,8 @@ void PATPhotonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSe
     aPhoton.setCryEta( ecalRegData.seedCrysEtaOrX() );
     aPhoton.setIEta( ecalRegData.seedCrysIEtaOrIX() );
     aPhoton.setIPhi( ecalRegData.seedCrysIPhiOrIY() );
-    aPhoton.setIsolationPUPPI((*PUPPIIsolation_charged_hadrons)[phoPtr], (*PUPPIIsolation_neutral_hadrons)[phoPtr], (*PUPPIIsolation_photons)[phoPtr]);
+    if (addPuppiIsolation_)aPhoton.setIsolationPUPPI((*PUPPIIsolation_charged_hadrons)[phoPtr], (*PUPPIIsolation_neutral_hadrons)[phoPtr], (*PUPPIIsolation_photons)[phoPtr]);
+    else aPhoton.setIsolationPUPPI(-999., -999.,-999.);
 
     // Get PFCluster Isolation
     if (addPFClusterIso_) {
@@ -411,6 +419,12 @@ void PATPhotonProducer::fillDescriptions(edm::ConfigurationDescriptions & descri
 			 edm::ParameterDescription<edm::InputTag>("hcalPFClusterIsoMap", edm::InputTag("photonHcalPFClusterIsolationProducer"),true)) or
 		false >> (edm::ParameterDescription<edm::InputTag>("ecalPFClusterIsoMap", edm::InputTag(""), true) and
 			  edm::ParameterDescription<edm::InputTag>("hcalPFClusterIsoMap", edm::InputTag(""),true)));
+  
+  iDesc.ifValue(edm::ParameterDescription<bool>("addPuppiIsolation", false, true),
+    true >> (edm::ParameterDescription<edm::InputTag>("puppiIsolationChargedHadrons", edm::InputTag("egmPhotonPUPPIIsolation","h+-DR030-"), true) and
+       edm::ParameterDescription<edm::InputTag>("puppiIsolationNeutralHadrons", edm::InputTag("egmPhotonPUPPIIsolation","h0-DR030-"), true) and 
+       edm::ParameterDescription<edm::InputTag>("puppiIsolationPhotons", edm::InputTag("egmPhotonPUPPIIsolation","gamma-DR030-"), true)) or
+    false >> edm::EmptyGroupDescription());
   
   iDesc.add<bool>("embedSuperCluster", true)->setComment("embed external super cluster");
   iDesc.add<bool>("embedSeedCluster", true)->setComment("embed external seed cluster");
@@ -474,10 +488,6 @@ void PATPhotonProducer::fillDescriptions(edm::ConfigurationDescriptions & descri
   edm::ParameterSetDescription userDataPSet;
   PATUserDataHelper<Photon>::fillDescription(userDataPSet);
   iDesc.addOptional("userData", userDataPSet);
-  // isolation sums for PUPPI
-  iDesc.add<edm::InputTag>("puppiIsolationChargedHadrons", edm::InputTag("egmElectronIsolationAODPUPPI","h+-DR030-BarVeto000-EndVeto001"))->setComment("puppi isolation sum for charged hadrons");
-  iDesc.add<edm::InputTag>("puppiIsolationNeutralHadrons", edm::InputTag("egmElectronIsolationAODPUPPI","h0-DR030-BarVeto000-EndVeto000"))->setComment("puppi isolation sum for neutral hadrons");
-  iDesc.add<edm::InputTag>("puppiIsolationPhotons", edm::InputTag("egmElectronIsolationAODPUPPI","gamma-DR030-BarVeto000-EndVeto008"))->setComment("puppi isolation sum for photons");
 
   edm::ParameterSetDescription isolationPSet;
   isolationPSet.setAllowAnything(); // TODO: the pat helper needs to implement a description.
