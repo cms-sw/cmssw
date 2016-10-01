@@ -145,7 +145,9 @@ namespace edm {
 
   class PuttableProductResolver : public ProducedProductResolver {
   public:
-    explicit PuttableProductResolver(std::shared_ptr<BranchDescription const> bd) : ProducedProductResolver(bd, ProductStatus::NotPut) {}
+    explicit PuttableProductResolver(std::shared_ptr<BranchDescription const> bd) : ProducedProductResolver(bd, ProductStatus::NotPut), worker_(nullptr), prefetchRequested_(false) {}
+
+    virtual void setupUnscheduled(UnscheduledConfigurator const&) override final;
 
   private:
     virtual Resolution resolveProduct_(Principal const& principal,
@@ -163,6 +165,9 @@ namespace edm {
     virtual void resetProductData_(bool deleteEarly) override;
 
     mutable WaitingTaskList m_waitingTasks;
+    Worker* worker_;
+    mutable std::atomic<bool> prefetchRequested_;
+
   };
   
   class UnscheduledProductResolver : public ProducedProductResolver {

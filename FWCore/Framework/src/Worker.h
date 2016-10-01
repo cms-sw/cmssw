@@ -95,6 +95,9 @@ namespace edm {
                      ParentContext const& parentContext,
                      typename T::Context const* context);
 
+    void callWhenDoneAsync(WaitingTask* task) {
+      waitingTasks_.add(task);
+    }
     void skipOnPath(EventPrincipal const& );
     void beginJob() ;
     void endJob();
@@ -651,6 +654,7 @@ namespace edm {
         iException.addContext(iost.str());
         setException<T::isEvent_>(std::current_exception());
         waitingTasks_.doneWaiting(cached_exception_);
+        return;
       } else {
         setPassed<T::isEvent_>();
       }
