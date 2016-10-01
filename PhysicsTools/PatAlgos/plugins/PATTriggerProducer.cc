@@ -408,11 +408,10 @@ void PATTriggerProducer::produce( Event& iEvent, const EventSetup& iSetup )
       for ( size_t indexPath = 0; indexPath < sizePaths; ++indexPath ) {
         const std::string & namePath = pathNames.at( indexPath );
         unsigned indexLastFilterPathModules( handleTriggerResults->index( indexPath ) + 1 );
-        unsigned indexLastFilterFilters( sizeFilters );
         while ( indexLastFilterPathModules > 0 ) {
           --indexLastFilterPathModules;
           const std::string & labelLastFilterPathModules( hltConfig.moduleLabel( indexPath, indexLastFilterPathModules ) );
-          indexLastFilterFilters = handleTriggerEvent->filterIndex( InputTag( labelLastFilterPathModules, "", nameProcess_ ) );
+          unsigned indexLastFilterFilters = handleTriggerEvent->filterIndex( InputTag( labelLastFilterPathModules, "", nameProcess_ ) );
           if ( indexLastFilterFilters < sizeFilters ) {
             if ( hltConfig.moduleType( labelLastFilterPathModules ) == "HLTBool" ) continue;
             break;
