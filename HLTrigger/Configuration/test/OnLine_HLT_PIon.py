@@ -1,11 +1,11 @@
-# /dev/CMSSW_8_0_0/PIon/V198 (CMSSW_8_0_19_patch2)
+# /dev/CMSSW_8_0_0/PIon/V203 (CMSSW_8_0_19_patch2)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLTPIon" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_8_0_0/PIon/V198')
+  tableName = cms.string('/dev/CMSSW_8_0_0/PIon/V203')
 )
 
 process.HLTPSetJetCoreStepTrajectoryFilter = cms.PSet( 
@@ -1362,10 +1362,20 @@ process.HLTIter0HighPtTkMuPSetTrajectoryBuilderIT = cms.PSet(
 )
 process.streams = cms.PSet( 
   DQM = cms.vstring( 'OnlineMonitor' ),
-  PhysicsCommissioning = cms.vstring( 'HLTPhysics' )
+  PhysicsCommissioning = cms.vstring( 'HLTPhysics' ),
+  PhysicsPAHighMultiplicity0 = cms.vstring( 'PAHighMultiplicity0',
+    'PAHighMultiplicity7' ),
+  PhysicsPAHighMultiplicity1 = cms.vstring( 'PAHighMultiplicity1',
+    'PAHighMultiplicity2',
+    'PAHighMultiplicity3' ),
+  PhysicsPAHighMultiplicity2 = cms.vstring( 'PAHighMultiplicity4',
+    'PAHighMultiplicity5',
+    'PAHighMultiplicity6' ),
+  PhysicsPAMuons = cms.vstring( 'PADoubleMuon',
+    'PASingleMuon' )
 )
 process.datasets = cms.PSet( 
-  HLTPhysics = cms.vstring( 'HLT_Physics_v4' ),
+  HLTPhysics = cms.vstring( 'HLT_Physics_v5' ),
   OnlineMonitor = cms.vstring( 'HLT_PAFullTracks_Multiplicity120_HighPt16_v1',
     'HLT_PAFullTracks_Multiplicity120_HighPt8_v1',
     'HLT_PAFullTracks_Multiplicity120_v1',
@@ -1398,7 +1408,39 @@ process.datasets = cms.PSet(
     'HLT_PAL3Mu3_v1',
     'HLT_PAL3Mu5_v1',
     'HLT_PAL3Mu7_v1',
-    'HLT_Physics_v4' )
+    'HLT_Physics_v5' ),
+  PADoubleMuon = cms.vstring( 'HLT_PAL1DoubleMu0_HighQ_v1',
+    'HLT_PAL1DoubleMu0_MGT1_v1',
+    'HLT_PAL1DoubleMu0_v1',
+    'HLT_PAL1DoubleMu10_v1',
+    'HLT_PAL1DoubleMuOpen_OS_v1',
+    'HLT_PAL1DoubleMuOpen_SS_v1',
+    'HLT_PAL1DoubleMuOpen_v1',
+    'HLT_PAL2DoubleMu10_v1',
+    'HLT_PAL2DoubleMuOpen_v1',
+    'HLT_PAL3DoubleMu10_v1',
+    'HLT_PAL3DoubleMuOpen_HIon_v1',
+    'HLT_PAL3DoubleMuOpen_v1' ),
+  PAHighMultiplicity0 = cms.vstring( 'HLT_PAFullTracks_Multiplicity120_HighPt16_v1',
+    'HLT_PAFullTracks_Multiplicity120_HighPt8_v1',
+    'HLT_PAFullTracks_Multiplicity120_v1',
+    'HLT_PAFullTracks_Multiplicity150_v1' ),
+  PAHighMultiplicity1 = cms.vstring( 'HLT_PAFullTracks_Multiplicity185_part1_v1' ),
+  PAHighMultiplicity2 = cms.vstring( 'HLT_PAFullTracks_Multiplicity185_part2_v1' ),
+  PAHighMultiplicity3 = cms.vstring( 'HLT_PAFullTracks_Multiplicity185_part3_v1' ),
+  PAHighMultiplicity4 = cms.vstring( 'HLT_PAFullTracks_Multiplicity185_part4_v1' ),
+  PAHighMultiplicity5 = cms.vstring( 'HLT_PAFullTracks_Multiplicity185_part5_v1' ),
+  PAHighMultiplicity6 = cms.vstring( 'HLT_PAFullTracks_Multiplicity185_part6_v1' ),
+  PAHighMultiplicity7 = cms.vstring( 'HLT_PAFullTracks_Multiplicity220_v1',
+    'HLT_PAFullTracks_Multiplicity250_v1',
+    'HLT_PAFullTracks_Multiplicity280_v1' ),
+  PASingleMuon = cms.vstring( 'HLT_PAL2Mu12_v1',
+    'HLT_PAL2Mu15_v1',
+    'HLT_PAL3Mu12_v1',
+    'HLT_PAL3Mu15_v1',
+    'HLT_PAL3Mu3_v1',
+    'HLT_PAL3Mu5_v1',
+    'HLT_PAL3Mu7_v1' )
 )
 
 process.CSCChannelMapperESSource = cms.ESSource( "EmptyESSource",
@@ -8560,15 +8602,19 @@ process.hltPrePhysicsCommissioningOutput = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
     offset = cms.uint32( 0 )
 )
-process.hltPrePhysicsEGammaOutput = cms.EDFilter( "HLTPrescaler",
+process.hltPrePhysicsPAMuonsOutput = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
     offset = cms.uint32( 0 )
 )
-process.hltPrePhysicsHadronsTausOutput = cms.EDFilter( "HLTPrescaler",
+process.hltPrePhysicsPAHighMultiplicity0Output = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
     offset = cms.uint32( 0 )
 )
-process.hltPrePhysicsMuonsOutput = cms.EDFilter( "HLTPrescaler",
+process.hltPrePhysicsPAHighMultiplicity1Output = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+process.hltPrePhysicsPAHighMultiplicity2Output = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
     offset = cms.uint32( 0 )
 )
@@ -8611,7 +8657,7 @@ process.hltPreDQMOutputSmart = cms.EDFilter( "TriggerResultsFilter",
       'HLT_PAFullTracks_Multiplicity220_v1 / 3',
       'HLT_PAFullTracks_Multiplicity250_v1 / 3',
       'HLT_PAFullTracks_Multiplicity280_v1 / 3',
-      'HLT_Physics_v4' ),
+      'HLT_Physics_v5' ),
     l1tIgnoreMaskAndPrescale = cms.bool( False ),
     throw = cms.bool( True )
 )
@@ -8623,7 +8669,95 @@ process.hltOutputPhysicsCommissioning = cms.OutputModule( "PoolOutputModule",
         filterName = cms.untracked.string( "" ),
         dataTier = cms.untracked.string( "RAW" )
     ),
-    SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'HLT_Physics_v4' ) ),
+    SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'HLT_Physics_v5' ) ),
+    outputCommands = cms.untracked.vstring( 'drop *',
+      'keep FEDRawDataCollection_rawDataCollector_*_*',
+      'keep FEDRawDataCollection_source_*_*',
+      'keep GlobalObjectMapRecord_hltGtStage2ObjectMap_*_*',
+      'keep edmTriggerResults_*_*_*',
+      'keep triggerTriggerEvent_*_*_*' )
+)
+process.hltOutputPhysicsPAMuons = cms.OutputModule( "PoolOutputModule",
+    fileName = cms.untracked.string( "outputPhysicsPAMuons.root" ),
+    fastCloning = cms.untracked.bool( False ),
+    dataset = cms.untracked.PSet(
+        filterName = cms.untracked.string( "" ),
+        dataTier = cms.untracked.string( "RAW" )
+    ),
+    SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'HLT_PAL1DoubleMu0_HighQ_v1',
+  'HLT_PAL1DoubleMu0_MGT1_v1',
+  'HLT_PAL1DoubleMu0_v1',
+  'HLT_PAL1DoubleMu10_v1',
+  'HLT_PAL1DoubleMuOpen_OS_v1',
+  'HLT_PAL1DoubleMuOpen_SS_v1',
+  'HLT_PAL1DoubleMuOpen_v1',
+  'HLT_PAL2DoubleMu10_v1',
+  'HLT_PAL2DoubleMuOpen_v1',
+  'HLT_PAL2Mu12_v1',
+  'HLT_PAL2Mu15_v1',
+  'HLT_PAL3DoubleMu10_v1',
+  'HLT_PAL3DoubleMuOpen_HIon_v1',
+  'HLT_PAL3DoubleMuOpen_v1',
+  'HLT_PAL3Mu12_v1',
+  'HLT_PAL3Mu15_v1',
+  'HLT_PAL3Mu3_v1',
+  'HLT_PAL3Mu5_v1',
+  'HLT_PAL3Mu7_v1' ) ),
+    outputCommands = cms.untracked.vstring( 'drop *',
+      'keep FEDRawDataCollection_rawDataCollector_*_*',
+      'keep FEDRawDataCollection_source_*_*',
+      'keep GlobalObjectMapRecord_hltGtStage2ObjectMap_*_*',
+      'keep edmTriggerResults_*_*_*',
+      'keep triggerTriggerEvent_*_*_*' )
+)
+process.hltOutputPhysicsPAHighMultiplicity0 = cms.OutputModule( "PoolOutputModule",
+    fileName = cms.untracked.string( "outputPhysicsPAHighMultiplicity0.root" ),
+    fastCloning = cms.untracked.bool( False ),
+    dataset = cms.untracked.PSet(
+        filterName = cms.untracked.string( "" ),
+        dataTier = cms.untracked.string( "RAW" )
+    ),
+    SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'HLT_PAFullTracks_Multiplicity120_HighPt16_v1',
+  'HLT_PAFullTracks_Multiplicity120_HighPt8_v1',
+  'HLT_PAFullTracks_Multiplicity120_v1',
+  'HLT_PAFullTracks_Multiplicity150_v1',
+  'HLT_PAFullTracks_Multiplicity220_v1',
+  'HLT_PAFullTracks_Multiplicity250_v1',
+  'HLT_PAFullTracks_Multiplicity280_v1' ) ),
+    outputCommands = cms.untracked.vstring( 'drop *',
+      'keep FEDRawDataCollection_rawDataCollector_*_*',
+      'keep FEDRawDataCollection_source_*_*',
+      'keep GlobalObjectMapRecord_hltGtStage2ObjectMap_*_*',
+      'keep edmTriggerResults_*_*_*',
+      'keep triggerTriggerEvent_*_*_*' )
+)
+process.hltOutputPhysicsPAHighMultiplicity1 = cms.OutputModule( "PoolOutputModule",
+    fileName = cms.untracked.string( "outputPhysicsPAHighMultiplicity1.root" ),
+    fastCloning = cms.untracked.bool( False ),
+    dataset = cms.untracked.PSet(
+        filterName = cms.untracked.string( "" ),
+        dataTier = cms.untracked.string( "RAW" )
+    ),
+    SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'HLT_PAFullTracks_Multiplicity185_part1_v1',
+  'HLT_PAFullTracks_Multiplicity185_part2_v1',
+  'HLT_PAFullTracks_Multiplicity185_part3_v1' ) ),
+    outputCommands = cms.untracked.vstring( 'drop *',
+      'keep FEDRawDataCollection_rawDataCollector_*_*',
+      'keep FEDRawDataCollection_source_*_*',
+      'keep GlobalObjectMapRecord_hltGtStage2ObjectMap_*_*',
+      'keep edmTriggerResults_*_*_*',
+      'keep triggerTriggerEvent_*_*_*' )
+)
+process.hltOutputPhysicsPAHighMultiplicity2 = cms.OutputModule( "PoolOutputModule",
+    fileName = cms.untracked.string( "outputPhysicsPAHighMultiplicity2.root" ),
+    fastCloning = cms.untracked.bool( False ),
+    dataset = cms.untracked.PSet(
+        filterName = cms.untracked.string( "" ),
+        dataTier = cms.untracked.string( "RAW" )
+    ),
+    SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'HLT_PAFullTracks_Multiplicity185_part4_v1',
+  'HLT_PAFullTracks_Multiplicity185_part5_v1',
+  'HLT_PAFullTracks_Multiplicity185_part6_v1' ) ),
     outputCommands = cms.untracked.vstring( 'drop *',
       'keep FEDRawDataCollection_rawDataCollector_*_*',
       'keep FEDRawDataCollection_source_*_*',
@@ -8670,7 +8804,7 @@ process.hltOutputDQM = cms.OutputModule( "PoolOutputModule",
   'HLT_PAL3Mu3_v1',
   'HLT_PAL3Mu5_v1',
   'HLT_PAL3Mu7_v1',
-  'HLT_Physics_v4' ) ),
+  'HLT_Physics_v5' ) ),
     outputCommands = cms.untracked.vstring( 'drop *',
       'keep *_hltCombinedSecondaryVertexBJetTagsCalo_*_*',
       'keep *_hltCombinedSecondaryVertexBJetTagsPF_*_*',
@@ -8760,13 +8894,14 @@ process.HLT_PAFullTracks_Multiplicity185_part6_v1 = cms.Path( process.HLTBeginSe
 process.HLT_PAFullTracks_Multiplicity220_v1 = cms.Path( process.HLTBeginSequence + process.hltL1sTowerCount74BptxAND + process.hltPrePAFullTracksMultiplicity220 + process.HLTDoLocalPixelSequence + process.HLTRecopixelvertexingForHighMultSequence + process.hltGoodPixelTracksForHighMult + process.hltPixelCandsForHighMult + process.hltHighMult40 + process.HLTPAPixelClusterSplitting + process.HLTPADoLocalStripSequenceAfterSplitting + process.HLTPAIterativeTracking + process.hltPAOnlinePrimaryVertices + process.hltPAGoodHighPurityFullTrackCutClassifier + process.hltPAGoodHighPurityFullTracks + process.hltPAFullCandsForHighMultTrigger + process.hltPAFullTrackHighMult220 + process.HLTEndSequence )
 process.HLT_PAFullTracks_Multiplicity250_v1 = cms.Path( process.HLTBeginSequence + process.hltL1sTowerCount74BptxAND + process.hltPrePAFullTracksMultiplicity250 + process.HLTDoLocalPixelSequence + process.HLTRecopixelvertexingForHighMultSequence + process.hltGoodPixelTracksForHighMult + process.hltPixelCandsForHighMult + process.hltHighMult40 + process.HLTPAPixelClusterSplitting + process.HLTPADoLocalStripSequenceAfterSplitting + process.HLTPAIterativeTracking + process.hltPAOnlinePrimaryVertices + process.hltPAGoodHighPurityFullTrackCutClassifier + process.hltPAGoodHighPurityFullTracks + process.hltPAFullCandsForHighMultTrigger + process.hltPAFullTrackHighMult250 + process.HLTEndSequence )
 process.HLT_PAFullTracks_Multiplicity280_v1 = cms.Path( process.HLTBeginSequence + process.hltL1sTowerCount74BptxAND + process.hltPrePAFullTracksMultiplicity280 + process.HLTDoLocalPixelSequence + process.HLTRecopixelvertexingForHighMultSequence + process.hltGoodPixelTracksForHighMult + process.hltPixelCandsForHighMult + process.hltHighMult40 + process.HLTPAPixelClusterSplitting + process.HLTPADoLocalStripSequenceAfterSplitting + process.HLTPAIterativeTracking + process.hltPAOnlinePrimaryVertices + process.hltPAGoodHighPurityFullTrackCutClassifier + process.hltPAGoodHighPurityFullTracks + process.hltPAFullCandsForHighMultTrigger + process.hltPAFullTrackHighMult280 + process.HLTEndSequence )
-process.HLT_Physics_v4 = cms.Path( process.HLTBeginSequenceL1Fat + process.hltPrePhysics + process.HLTEndSequence )
+process.HLT_Physics_v5 = cms.Path( process.HLTBeginSequenceL1Fat + process.hltPrePhysics + process.HLTEndSequence )
 process.HLTriggerFinalPath = cms.Path( process.hltGtStage2Digis + process.hltScalersRawToDigi + process.hltFEDSelector + process.hltTriggerSummaryAOD + process.hltTriggerSummaryRAW + process.hltBoolFalse )
 process.HLTAnalyzerEndpath = cms.EndPath( process.hltGtStage2Digis + process.hltPreHLTAnalyzerEndpath + process.hltL1TGlobalSummary + process.hltTrigReport )
 process.PhysicsCommissioningOutput = cms.EndPath( process.hltGtStage2Digis + process.hltPrePhysicsCommissioningOutput + process.hltOutputPhysicsCommissioning )
-process.PhysicsEGammaOutput = cms.EndPath( process.hltGtStage2Digis + process.hltPrePhysicsEGammaOutput )
-process.PhysicsHadronsTausOutput = cms.EndPath( process.hltGtStage2Digis + process.hltPrePhysicsHadronsTausOutput )
-process.PhysicsMuonsOutput = cms.EndPath( process.hltGtStage2Digis + process.hltPrePhysicsMuonsOutput )
+process.PhysicsPAMuonsOutput = cms.EndPath( process.hltGtStage2Digis + process.hltPrePhysicsPAMuonsOutput + process.hltOutputPhysicsPAMuons )
+process.PhysicsPAHighMultiplicity0Output = cms.EndPath( process.hltGtStage2Digis + process.hltPrePhysicsPAHighMultiplicity0Output + process.hltOutputPhysicsPAHighMultiplicity0 )
+process.PhysicsPAHighMultiplicity1Output = cms.EndPath( process.hltGtStage2Digis + process.hltPrePhysicsPAHighMultiplicity1Output + process.hltOutputPhysicsPAHighMultiplicity1 )
+process.PhysicsPAHighMultiplicity2Output = cms.EndPath( process.hltGtStage2Digis + process.hltPrePhysicsPAHighMultiplicity2Output + process.hltOutputPhysicsPAHighMultiplicity2 )
 
 # load the DQMStore and DQMRootOutputModule
 process.load( "DQMServices.Core.DQMStore_cfi" )
@@ -8778,7 +8913,7 @@ process.dqmOutput = cms.OutputModule("DQMRootOutputModule",
 process.DQMOutput = cms.EndPath( process.dqmOutput + process.hltGtStage2Digis + process.hltPreDQMOutput + process.hltPreDQMOutputSmart + process.hltOutputDQM )
 
 
-process.HLTSchedule = cms.Schedule( *(process.HLTriggerFirstPath, process.HLT_PAL1DoubleMu0_MGT1_v1, process.HLT_PAL1DoubleMu0_HighQ_v1, process.HLT_PAL1DoubleMu0_v1, process.HLT_PAL1DoubleMu10_v1, process.HLT_PAL1DoubleMuOpen_OS_v1, process.HLT_PAL1DoubleMuOpen_SS_v1, process.HLT_PAL1DoubleMuOpen_v1, process.HLT_PAL2DoubleMu10_v1, process.HLT_PAL2DoubleMuOpen_v1, process.HLT_PAL3DoubleMu10_v1, process.HLT_PAL3DoubleMuOpen_HIon_v1, process.HLT_PAL3DoubleMuOpen_v1, process.HLT_PAL2Mu15_v1, process.HLT_PAL2Mu12_v1, process.HLT_PAL3Mu12_v1, process.HLT_PAL3Mu15_v1, process.HLT_PAL3Mu3_v1, process.HLT_PAL3Mu5_v1, process.HLT_PAL3Mu7_v1, process.HLT_PAFullTracks_Multiplicity120_v1, process.HLT_PAFullTracks_Multiplicity150_v1, process.HLT_PAFullTracks_Multiplicity120_HighPt8_v1, process.HLT_PAFullTracks_Multiplicity120_HighPt16_v1, process.HLT_PAFullTracks_Multiplicity185_part1_v1, process.HLT_PAFullTracks_Multiplicity185_part2_v1, process.HLT_PAFullTracks_Multiplicity185_part3_v1, process.HLT_PAFullTracks_Multiplicity185_part4_v1, process.HLT_PAFullTracks_Multiplicity185_part5_v1, process.HLT_PAFullTracks_Multiplicity185_part6_v1, process.HLT_PAFullTracks_Multiplicity220_v1, process.HLT_PAFullTracks_Multiplicity250_v1, process.HLT_PAFullTracks_Multiplicity280_v1, process.HLT_Physics_v4, process.HLTriggerFinalPath, process.HLTAnalyzerEndpath, process.PhysicsCommissioningOutput, process.PhysicsEGammaOutput, process.PhysicsHadronsTausOutput, process.PhysicsMuonsOutput, process.DQMOutput ))
+process.HLTSchedule = cms.Schedule( *(process.HLTriggerFirstPath, process.HLT_PAL1DoubleMu0_MGT1_v1, process.HLT_PAL1DoubleMu0_HighQ_v1, process.HLT_PAL1DoubleMu0_v1, process.HLT_PAL1DoubleMu10_v1, process.HLT_PAL1DoubleMuOpen_OS_v1, process.HLT_PAL1DoubleMuOpen_SS_v1, process.HLT_PAL1DoubleMuOpen_v1, process.HLT_PAL2DoubleMu10_v1, process.HLT_PAL2DoubleMuOpen_v1, process.HLT_PAL3DoubleMu10_v1, process.HLT_PAL3DoubleMuOpen_HIon_v1, process.HLT_PAL3DoubleMuOpen_v1, process.HLT_PAL2Mu15_v1, process.HLT_PAL2Mu12_v1, process.HLT_PAL3Mu12_v1, process.HLT_PAL3Mu15_v1, process.HLT_PAL3Mu3_v1, process.HLT_PAL3Mu5_v1, process.HLT_PAL3Mu7_v1, process.HLT_PAFullTracks_Multiplicity120_v1, process.HLT_PAFullTracks_Multiplicity150_v1, process.HLT_PAFullTracks_Multiplicity120_HighPt8_v1, process.HLT_PAFullTracks_Multiplicity120_HighPt16_v1, process.HLT_PAFullTracks_Multiplicity185_part1_v1, process.HLT_PAFullTracks_Multiplicity185_part2_v1, process.HLT_PAFullTracks_Multiplicity185_part3_v1, process.HLT_PAFullTracks_Multiplicity185_part4_v1, process.HLT_PAFullTracks_Multiplicity185_part5_v1, process.HLT_PAFullTracks_Multiplicity185_part6_v1, process.HLT_PAFullTracks_Multiplicity220_v1, process.HLT_PAFullTracks_Multiplicity250_v1, process.HLT_PAFullTracks_Multiplicity280_v1, process.HLT_Physics_v5, process.HLTriggerFinalPath, process.HLTAnalyzerEndpath, process.PhysicsCommissioningOutput, process.PhysicsPAMuonsOutput, process.PhysicsPAHighMultiplicity0Output, process.PhysicsPAHighMultiplicity1Output, process.PhysicsPAHighMultiplicity2Output, process.DQMOutput ))
 
 
 process.source = cms.Source( "PoolSource",

@@ -1,49 +1,55 @@
-# "PIon" menu
+# "PIon" menu (placeholder)
 
-HLT_PAL1DoubleMuOpen_v*                         #CMSHLT-1013
-HLT_PAL2DoubleMuOpen_v*                         #CMSHLT-1013
-HLT_PAL3DoubleMuOpen_v*                         #CMSHLT-1013
-HLT_PAL3DoubleMuOpen_HIon_v*                    #CMSHLT-1013
-HLT_PAL1DoubleMu0_v*                            #CMSHLT-1013
-HLT_PAL1DoubleMu0_HighQ_v*                      #CMSHLT-1013
-HLT_PAL1DoubleMu0_MGT1_v*                       #CMSHLT-1013
-HLT_PAL1DoubleMuOpen_OS_v*                      #CMSHLT-1013
-HLT_PAL1DoubleMuOpen_SS_v*                      #CMSHLT-1013
-HLT_PAL1DoubleMu10_v*                           #CMSHLT-1013
-HLT_PAL2DoubleMu10_v*                           #CMSHLT-1013
-HLT_PAL3DoubleMu10_v*                           #CMSHLT-1013
+HLT_PAFullTracks_Multiplicity120_v*					#CMSHLT-1000
+HLT_PAFullTracks_Multiplicity150_v*					#CMSHLT-1000
+HLT_PAFullTracks_Multiplicity120_HighPt8_v*			#CMSHLT-1000
+HLT_PAFullTracks_Multiplicity120_HighPt16_v*		#CMSHLT-1000
+HLT_PAFullTracks_Multiplicity185_part1_v*			#CMSHLT-1000
+HLT_PAFullTracks_Multiplicity185_part2_v*			#CMSHLT-1000
+HLT_PAFullTracks_Multiplicity185_part3_v*			#CMSHLT-1000
+HLT_PAFullTracks_Multiplicity185_part4_v*			#CMSHLT-1000
+HLT_PAFullTracks_Multiplicity185_part5_v*			#CMSHLT-1000
+HLT_PAFullTracks_Multiplicity185_part6_v*			#CMSHLT-1000
+HLT_PAFullTracks_Multiplicity220_v*					#CMSHLT-1000
+HLT_PAFullTracks_Multiplicity250_v*					#CMSHLT-1000
+HLT_PAFullTracks_Multiplicity280_v*					#CMSHLT-1000
 
-HLT_PAL3Mu3_v*                                  #CMSHLT-1013
-HLT_PAL3Mu5_v*                                  #CMSHLT-1013
-HLT_PAL3Mu7_v*                                  #CMSHLT-1013
-HLT_PAL2Mu12_v*                                 #CMSHLT-1013
-HLT_PAL3Mu12_v*                                 #CMSHLT-1013
-HLT_PAL2Mu15_v*                                 #CMSHLT-1013
-HLT_PAL3Mu15_v*                                 #CMSHLT-1013
-
-HLT_PAFullTracks_Multiplicity120_v*             #CMSHLT-1000
-HLT_PAFullTracks_Multiplicity150_v*             #CMSHLT-1000
-HLT_PAFullTracks_Multiplicity120_HighPt8_v*     #CMSHLT-1000
-HLT_PAFullTracks_Multiplicity120_HighPt16_v*    #CMSHLT-1000
-HLT_PAFullTracks_Multiplicity185_part1_v*       #CMSHLT-1000
-HLT_PAFullTracks_Multiplicity185_part2_v*       #CMSHLT-1000
-HLT_PAFullTracks_Multiplicity185_part3_v*       #CMSHLT-1000
-HLT_PAFullTracks_Multiplicity185_part4_v*       #CMSHLT-1000
-HLT_PAFullTracks_Multiplicity185_part5_v*       #CMSHLT-1000
-HLT_PAFullTracks_Multiplicity185_part6_v*       #CMSHLT-1000
-HLT_PAFullTracks_Multiplicity220_v*             #CMSHLT-1000
-HLT_PAFullTracks_Multiplicity250_v*             #CMSHLT-1000
-HLT_PAFullTracks_Multiplicity280_v*             #CMSHLT-1000
+HLT_PAL1DoubleMu0_MGT1_v*							#CMSHLT-1013
+HLT_PAL1DoubleMu0_HighQ_v*							#CMSHLT-1013
+HLT_PAL1DoubleMu0_v*								#CMSHLT-1013
+HLT_PAL1DoubleMu10_v*								#CMSHLT-1013
+HLT_PAL1DoubleMuOpen_OS_v*							#CMSHLT-1013
+HLT_PAL1DoubleMuOpen_SS_v*							#CMSHLT-1013
+HLT_PAL1DoubleMuOpen_v*								#CMSHLT-1013
+HLT_PAL2DoubleMu10_v*								#CMSHLT-1013
+HLT_PAL2DoubleMuOpen_v*								#CMSHLT-1013
+HLT_PAL3DoubleMu10_v*								#CMSHLT-1013
+HLT_PAL3DoubleMuOpen_HIon_v*						#CMSHLT-1013
+HLT_PAL3DoubleMuOpen_v*								#CMSHLT-1013
+HLT_PAL2Mu15_v*										#CMSHLT-1013
+HLT_PAL2Mu12_v*										#CMSHLT-1013
+HLT_PAL3Mu12_v*										#CMSHLT-1013
+HLT_PAL3Mu15_v*										#CMSHLT-1013
+HLT_PAL3Mu3_v*										#CMSHLT-1013
+HLT_PAL3Mu5_v*										#CMSHLT-1013
+HLT_PAL3Mu7_v*										#CMSHLT-1013
 
 HLT_Physics_v*
 
 HLTriggerFirstPath
 HLTriggerFinalPath
-#HLTAnalyzerEndpath			# only in 'GRun', not in 'online'
 
 PhysicsCommissioningOutput
-PhysicsEGammaOutput
-PhysicsHadronsTausOutput
-PhysicsMuonsOutput
-RatesMonitoring				# only in 'online'
+#PhysicsEGammaOutput				#templates to be removed
+#PhysicsHadronsTausOutput			#templates to be removed
+#PhysicsMuonsOutput					#templates to be removed
+PhysicsPAMuonsOutput				# CMSHLT-1013
+PhysicsPAHighMultiplicity0Output	# CMSHLT-1000
+PhysicsPAHighMultiplicity1Output	# CMSHLT-1000
+PhysicsPAHighMultiplicity2Output	# CMSHLT-1000
 DQMOutput
+
+######## paths that are different between PIon and online_pion ################################
+
+#HLTAnalyzerEndpath			# only in 'GRun', not in 'online'
+RatesMonitoring						# only in 'online'

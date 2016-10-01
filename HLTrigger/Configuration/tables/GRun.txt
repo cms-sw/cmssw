@@ -611,8 +611,10 @@ HLT_DiPFJet25_FBEta3_NoCaloMatched_v*				# JIRA: CMSHLT-720
 HLT_DiPFJetAve15_HFJEC_v*					# JIRA: CMSHLT-720
 HLT_DiPFJetAve25_HFJEC_v*					# JIRA: CMSHLT-720
 HLT_DiPFJetAve35_HFJEC_v*					# JIRA: CMSHLT-720
-HLT_L1MinimumBiasHF_OR_v*					# JIRA: CMSHLT-720
 HLT_L1MinimumBiasHF_AND_v*					# JIRA: CMSHLT-720
+
+#HLT_L1MinimumBiasHF_OR_v*					# JIRA: CMSHLT-720 # removed CMSHLT-1027
+HLT_L1MinimumBiasHF_OR_part*					# JIRA: CMSHLT-1027
 
 HLT_L1SingleMu18_v*						# JIRA: CMSHLT-500, CMSHLT-857
 HLT_L2Mu10_v*							# JIRA: CMSHLT-500
@@ -711,6 +713,41 @@ DST_L1DoubleMu_CaloScouting_PFScouting_v*			# JIRA: CMSHLT-604 renamed & changed
 DST_DoubleMu3_Mass10_BTagScouting_v*				# JIRA: CMSHLT-604
 DST_DoubleMu3_Mass10_CaloScouting_PFScouting_v*			# JIRA: CMSHLT-604 renamed & changed in CMSHLT-825
 
+HLTriggerFirstPath
+HLTriggerFinalPath
+PhysicsEndOfFillOutput
+PhysicsCommissioningOutput
+PhysicsEGammaOutput
+PhysicsHadronsTausOutput
+PhysicsMuonsOutput
+PhysicsMinimumBias0Output				# JIRA: CMSHLT-1027
+PhysicsMinimumBias1Output				# JIRA: CMSHLT-1027
+PhysicsMinimumBias2Output				# JIRA: CMSHLT-1027
+PhysicsCirculating						# JIRA: CMSHLT-1006
+ParkingOutput							# JIRA: CMSHLT-487, CMSHLT-603
+ParkingHLTPhysicsOutput
+ParkingZeroBiasOutput
+PhysicsParkingScoutingMonitorOutput				# JIRA: CMSHLT-487, CMSHLT-548, CMSHLT-599, CMSHLT-603
+ScoutingCaloOutput						# JIRA: CMSHLT-548
+ScoutingPFOutput						# JIRA: CMSHLT-548
+DQMOutput
+DQMEventDisplayOutput
+DQMCalibrationOutput
+HLTMonitorOutput                                                # JIRA: CMSHLT-462, CMSHLT-481
+CalibrationOutput
+EcalCalibrationOutput
+#TrackerCalibrationOutput
+RPCMONOutput
+ALCAPHISYMOutput
+ALCAP0Output
+ALCALUMIPIXELSOutput
+ALCAELECTRONOutput						# JIRA: CMSHLT-366, renamed
+ExpressOutput
+#LookAreaOutput
+NanoDSTOutput
+
+######## paths that are different between GRun and online_grun ################################
+
 MC_ReducedIterativeTracking_v*					# JIRA: CMSHLT-68, updated by CMSHLT-107 -> TEMPLATE PATH, in GRun but prescaled to 0
 MC_PFMET_v*							# JIRA: CMSHLT-314 (template paths only for MC)
 MC_AK4PFJets_v*							# JIRA: CMSHLT-314 (template paths only for MC)
@@ -738,34 +775,7 @@ MC_DoubleL1Tau_MediumIsoPFTau32_Trk1_eta2p1_Reg_v*		# JIRA: CMSHLT-839
 MC_LooseIsoPFTau20_v*						# JIRA: CMSHLT-839
 MC_LooseIsoPFTau50_Trk30_eta2p1_v*				# JIRA: CMSHTL-839
 
-HLTriggerFirstPath
-HLTriggerFinalPath
 HLTAnalyzerEndpath						# only in 'GRun', not in 'online'
 #RatesMonitoring						# only in 'online', not in 'GRun'
 #DQMHistograms							# only in 'online', not in 'GRun'
-PhysicsEndOfFillOutput
-PhysicsCommissioningOutput
-PhysicsEGammaOutput
-PhysicsHadronsTausOutput
-PhysicsMuonsOutput
-ParkingOutput							# JIRA: CMSHLT-487, CMSHLT-603
-ParkingHLTPhysicsOutput
-ParkingZeroBiasOutput
-PhysicsParkingScoutingMonitorOutput				# JIRA: CMSHLT-487, CMSHLT-548, CMSHLT-599, CMSHLT-603
-ScoutingCaloOutput						# JIRA: CMSHLT-548
-ScoutingPFOutput						# JIRA: CMSHLT-548
-DQMOutput
-DQMEventDisplayOutput
-DQMCalibrationOutput
-HLTMonitorOutput                                                # JIRA: CMSHLT-462, CMSHLT-481
-CalibrationOutput
-EcalCalibrationOutput
-#TrackerCalibrationOutput
-RPCMONOutput
-ALCAPHISYMOutput
-ALCAP0Output
-ALCALUMIPIXELSOutput
-ALCAELECTRONOutput						# JIRA: CMSHLT-366, renamed
-ExpressOutput
-#LookAreaOutput
-NanoDSTOutput
+
