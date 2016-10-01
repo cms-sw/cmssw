@@ -89,7 +89,7 @@ process.mix.digitizers.hcal.ho.pixels = cms.int32(2500)
 process.mix.digitizers.hcal.ho.doSiPMSmearing = cms.bool(False)
 process.mix.digitizers.hcal.hf1.samplingFactor = cms.double(0.67)
 process.mix.digitizers.hcal.hf2.samplingFactor = cms.double(0.67)
-process.g4SimHits.HFShowerLibrary.FileName = 'SimG4CMS/Calo/data/HFShowerLibrary_npmt_noatt_eta4_16en_v3.root'
+process.g4SimHits.HFShowerLibrary.FileName = 'SimG4CMS/Calo/data/HFShowerLibrary_npmt_noatt_eta4_16en_v4.root'
 
 
 

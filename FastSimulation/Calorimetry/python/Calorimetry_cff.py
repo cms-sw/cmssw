@@ -299,4 +299,4 @@ FamosCalorimetryBlock.Calorimetry.ECAL.Digitizer = True
 FamosCalorimetryBlock.Calorimetry.HCAL.Digitizer = True
 
 from Configuration.Eras.Modifier_run2_common_cff import run2_common
-run2_common.toModify(FamosCalorimetryBlock.Calorimetry.HFShowerLibrary, FileName = 'SimG4CMS/Calo/data/HFShowerLibrary_npmt_noatt_eta4_16en_v3.root' )
+run2_common.toModify(FamosCalorimetryBlock.Calorimetry.HFShowerLibrary, FileName = 'SimG4CMS/Calo/data/HFShowerLibrary_npmt_noatt_eta4_16en_v4.root' )
