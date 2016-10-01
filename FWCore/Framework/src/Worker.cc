@@ -310,10 +310,7 @@ private:
   
   void Worker::skipOnPath(EventPrincipal const& iPrincipal) {
     if( 0 == --numberOfPathsLeftToRun_) {
-      for(auto index : itemsShouldPutInEvent()) {
-        auto resolver = iPrincipal.getProductResolverByIndex(index);
-        resolver->putProduct(std::unique_ptr<WrapperBase>());
-      }
+      waitingTasks_.doneWaiting(cached_exception_);
     }
   }
 
