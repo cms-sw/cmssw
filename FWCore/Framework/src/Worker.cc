@@ -308,17 +308,12 @@ private:
     }
   }
   
-  void Worker::skipOnPath(EventPrincipal const& iPrincipal) {
+  void Worker::skipOnPath() {
     if( 0 == --numberOfPathsLeftToRun_) {
       waitingTasks_.doneWaiting(cached_exception_);
     }
   }
 
-  void Worker::pathFinished(EventPrincipal const& iEvent) {
-    if(earlyDeleteHelper_) {
-      earlyDeleteHelper_->pathFinished(iEvent);
-    }
-  }
   void Worker::postDoEvent(EventPrincipal const& iEvent) {
     if(earlyDeleteHelper_) {
       earlyDeleteHelper_->moduleRan(iEvent);

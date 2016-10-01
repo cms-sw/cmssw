@@ -42,7 +42,7 @@ namespace edm {
     bool checkResultsOfRunWorker(bool wasEvent);
     
     void skipWorker(EventPrincipal const& iPrincipal) {
-      worker_->skipOnPath(iPrincipal);
+      worker_->skipOnPath();
     }
     void skipWorker(RunPrincipal const&) {}
     void skipWorker(LuminosityBlockPrincipal const&) {}

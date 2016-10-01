@@ -98,7 +98,7 @@ namespace edm {
     void callWhenDoneAsync(WaitingTask* task) {
       waitingTasks_.add(task);
     }
-    void skipOnPath(EventPrincipal const& );
+    void skipOnPath();
     void beginJob() ;
     void endJob();
     void beginStream(StreamID id, StreamContext& streamContext);
@@ -118,7 +118,6 @@ namespace edm {
       numberOfPathsLeftToRun_ = numberOfPathsOn_;
     }
 
-    void pathFinished(EventPrincipal const&);
     void postDoEvent(EventPrincipal const&);
 
     ModuleDescription const& description() const {return *(moduleCallingContext_.moduleDescription());}
