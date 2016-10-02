@@ -92,16 +92,10 @@ hcalSimParameters = cms.PSet(
 )
 
 hcalSimParameters.hoZecotek = hcalSimParameters.ho.clone()
-hcalSimParameters.hoZecotek.pixels = cms.int32(36000)
 hcalSimParameters.hoZecotek.photoelectronsToAnalog = [3.0]*16
-hcalSimParameters.hoZecotek.sipmDarkCurrentuA = cms.double(0.055)
-hcalSimParameters.hoZecotek.sipmCrossTalk = cms.double(0.32)
 
 hcalSimParameters.hoHamamatsu = hcalSimParameters.ho.clone()
-hcalSimParameters.hoHamamatsu.pixels = cms.int32(960)
 hcalSimParameters.hoHamamatsu.photoelectronsToAnalog = [3.0]*16
-hcalSimParameters.hoHamamatsu.sipmDarkCurrentuA = cms.double(0.055)
-hcalSimParameters.hoHamamatsu.sipmCrossTalk = cms.double(0.32)
 
 # Customises the HCal digitiser for post LS1 running
 from Configuration.Eras.Modifier_run2_common_cff import run2_common
@@ -109,7 +103,6 @@ run2_common.toModify( hcalSimParameters,
     ho = dict(
         photoelectronsToAnalog = cms.vdouble([4.0]*16),
         siPMCode = cms.int32(1),
-        pixels = cms.int32(2500),
         doSiPMSmearing = cms.bool(False)
     ),
     hf1 = dict( samplingFactor = cms.double(0.67) ),
@@ -119,12 +112,8 @@ run2_common.toModify( hcalSimParameters,
 from Configuration.Eras.Modifier_run2_HE_2017_cff import run2_HE_2017
 run2_HE_2017.toModify( hcalSimParameters,
     he = dict(
-        photoelectronsToAnalog = cms.vdouble([57.5]*14),
-        pixels = cms.int32(27370), 
-        sipmDarkCurrentuA = cms.double(0.055),
-        sipmCrossTalk = cms.double(0.32),
-        doSiPMSmearing = cms.bool(True),
-    )
+        photoelectronsToAnalog = cms.vdouble([57.5]*14)
+        )
 )
 
 _newFactors = cms.vdouble(
@@ -149,18 +138,10 @@ _newFactors = cms.vdouble(
 from Configuration.Eras.Modifier_phase2_hcal_cff import phase2_hcal
 phase2_hcal.toModify( hcalSimParameters,
     hb = dict(
-        photoelectronsToAnalog = cms.vdouble([57.5]*16),
-        pixels = cms.int32(27370),
-        sipmDarkCurrentuA = cms.double(0.055),
-        sipmCrossTalk = cms.double(0.32),
-        doSiPMSmearing = cms.bool(True),
+        photoelectronsToAnalog = cms.vdouble([57.5]*16)
     ),
     he = dict(
         samplingFactors = _newFactors,
-        photoelectronsToAnalog = cms.vdouble([57.5]*len(_newFactors)),
-        pixels = cms.int32(27370),
-        sipmDarkCurrentuA = cms.double(0.055),
-        sipmCrossTalk = cms.double(0.32),
-        doSiPMSmearing = cms.bool(True),
+        photoelectronsToAnalog = cms.vdouble([57.5]*len(_newFactors))
     )
 )
