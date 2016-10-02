@@ -69,12 +69,9 @@ streamParkingHLTPhysics_datasetHLTPhysics3_selector.throw      = cms.bool(False)
 streamParkingHLTPhysics_datasetHLTPhysics3_selector.triggerConditions = cms.vstring('HLT_L1FatEvents_part3_v1')
 
 
-<<<<<<< HEAD
-=======
 # stream PhysicsCirculating
 
 
->>>>>>> e45276c... sync with V597
 # stream PhysicsCommissioning
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsCommissioning_datasetCommissioning_selector
@@ -90,13 +87,8 @@ from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter a
 streamPhysicsCommissioning_datasetHLTPhysics_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
 streamPhysicsCommissioning_datasetHLTPhysics_selector.l1tResults = cms.InputTag('')
 streamPhysicsCommissioning_datasetHLTPhysics_selector.throw      = cms.bool(False)
-<<<<<<< HEAD
-streamPhysicsCommissioning_datasetHLTPhysics_selector.triggerConditions = cms.vstring('HLT_L1FatEvents_v1', 
-    'HLT_Physics_v4')
-=======
 streamPhysicsCommissioning_datasetHLTPhysics_selector.triggerConditions = cms.vstring('HLT_L1FatEvents_v2', 
     'HLT_Physics_v5')
->>>>>>> e45276c... sync with V597
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsCommissioning_datasetHcalHPDNoise_selector
 streamPhysicsCommissioning_datasetHcalHPDNoise_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
@@ -108,13 +100,8 @@ from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter a
 streamPhysicsCommissioning_datasetHcalNZS_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
 streamPhysicsCommissioning_datasetHcalNZS_selector.l1tResults = cms.InputTag('')
 streamPhysicsCommissioning_datasetHcalNZS_selector.throw      = cms.bool(False)
-<<<<<<< HEAD
-streamPhysicsCommissioning_datasetHcalNZS_selector.triggerConditions = cms.vstring('HLT_HcalNZS_v3', 
-    'HLT_HcalPhiSym_v3')
-=======
 streamPhysicsCommissioning_datasetHcalNZS_selector.triggerConditions = cms.vstring('HLT_HcalNZS_v10', 
     'HLT_HcalPhiSym_v11')
->>>>>>> e45276c... sync with V597
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsCommissioning_datasetMonteCarlo_selector
 streamPhysicsCommissioning_datasetMonteCarlo_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
@@ -349,12 +336,7 @@ from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter a
 streamPhysicsEndOfFill_datasetL1MinimumBias_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
 streamPhysicsEndOfFill_datasetL1MinimumBias_selector.l1tResults = cms.InputTag('')
 streamPhysicsEndOfFill_datasetL1MinimumBias_selector.throw      = cms.bool(False)
-<<<<<<< HEAD
-streamPhysicsEndOfFill_datasetL1MinimumBias_selector.triggerConditions = cms.vstring('HLT_L1MinimumBiasHF_AND_v2', 
-    'HLT_L1MinimumBiasHF_OR_v2')
-=======
 streamPhysicsEndOfFill_datasetL1MinimumBias_selector.triggerConditions = cms.vstring('HLT_L1MinimumBiasHF_AND_v2')
->>>>>>> e45276c... sync with V597
 
 
 # stream PhysicsHadronsTaus
@@ -584,10 +566,6 @@ streamPhysicsHadronsTaus_datasetTau_selector.triggerConditions = cms.vstring('HL
     'HLT_VLooseIsoPFTau140_Trk50_eta2p1_v5')
 
 
-<<<<<<< HEAD
-# stream PhysicsMuons
-
-=======
 # stream PhysicsMinimumBias0
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsMinimumBias0_datasetL1MinimumBias0_selector
@@ -659,7 +637,6 @@ streamPhysicsMinimumBias2_datasetL1MinimumBias9_selector.triggerConditions = cms
 
 # stream PhysicsMuons
 
->>>>>>> e45276c... sync with V597
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsMuons_datasetCharmonium_selector
 streamPhysicsMuons_datasetCharmonium_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
 streamPhysicsMuons_datasetCharmonium_selector.l1tResults = cms.InputTag('')
@@ -831,15 +808,12 @@ streamPhysicsMuons_datasetSingleMuon_selector.triggerConditions = cms.vstring('H
     'HLT_TkMu50_v3')
 
 
-<<<<<<< HEAD
-=======
 # stream PhysicsPAHighMultiplicity1
 
 
 # stream PhysicsPAHighMultiplicity2
 
 
->>>>>>> e45276c... sync with V597
 # stream PhysicsParkingScoutingMonitor
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsParkingScoutingMonitor_datasetParkingScoutingMonitor_selector
