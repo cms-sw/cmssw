@@ -73,6 +73,10 @@ bool HcalSiPMCharacteristics::loadObject(int type, int pixels, float parLin1,
 						  parLin2,parLin3,crossTalk,
 						  auxi1,auxi2);
     mPItems.push_back(target);
+    if (mPItemsByType) {
+      delete mPItemsByType.load();
+      mPItemsByType = nullptr;
+    }
     return true;
   }
 }
