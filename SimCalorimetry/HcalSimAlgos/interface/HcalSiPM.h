@@ -13,6 +13,8 @@
 #include <algorithm>
 #include <unordered_map>
 
+#include "CalibCalorimetry/HcalAlgos/interface/HcalSiPMnonlinearity.h"
+
 namespace CLHEP {
   class HepRandomEngine;
 }
@@ -35,13 +37,12 @@ class HcalSiPM {
   double getTau()         const { return 1.0/theTauInv; }
   double getCrossTalk()   const { return theCrossTalk; }
   double getTempDep()     const { return theTempDep; }
-  double getDarkCurrent() const { return darkCurrent_uA; }
 
   void setNCells(int nCells);
   void setTau(double tau) {theTauInv=1.0/tau;}
   void setCrossTalk(double xtalk); //  Borel-Tanner "lambda"
   void setTemperatureDependence(double tempDep);
-  void setDarkCurrent(double dc_uA) {darkCurrent_uA = dc_uA;}
+  void setSaturationPars(const std::vector<float>& pars);
 
  protected:
 
@@ -63,7 +64,8 @@ class HcalSiPM {
   double theCrossTalk;
   double theTempDep;
   double theLastHitTime;
-  double darkCurrent_uA;
+
+  HcalSiPMnonlinearity *nonlin;
 
   cdfmap borelcdfs;
 };
