@@ -15,15 +15,13 @@ public:
                     double samplingFactor, double timePhase,
                     int readoutFrameSize, int binOfMaximum,
                     bool doPhotostatistics, bool syncPhase,
-                    int firstRing, const std::vector<double> & samplingFactors,
-		    double sipmDarkCurrentuA,
-		    double sipmCrossTalk
+                    int firstRing, const std::vector<double> & samplingFactors
                     );
   HcalSimParameters(const edm::ParameterSet & p);
 
   virtual ~HcalSimParameters() {}
 
-  void setDbService(const HcalDbService * service) {theDbService = service;}
+  void setDbService(const HcalDbService * service);
 
   virtual double simHitToPhotoelectrons(const DetId & detId) const;
   virtual double photoelectronsToAnalog(const DetId & detId) const;
@@ -38,26 +36,25 @@ public:
 
   double timeSmearRMS(double ampl) const;
 
-  int pixels() const {return thePixels;}
+  int pixels(const DetId & detId) const;
   bool doSiPMSmearing() const { return theSiPMSmearing; }
 
-  double sipmDarkCurrentuA() const { return theSiPMdarkCurrentuA; }
-  double sipmCrossTalk() const { return theSiPMcrossTalk; }
+  double sipmDarkCurrentuA(const DetId & detId) const;
+  double sipmCrossTalk(const DetId & detId) const;
+  std::vector<float> sipmNonlinearity(const DetId & detId) const;
 
   friend class HcalSimParameterMap;
 
 private:
   void defaultTimeSmearing();
   const HcalDbService * theDbService;
+  const HcalSiPMCharacteristics* theSiPMcharacteristics;
   int theFirstRing;
   std::vector<double> theSamplingFactors;
   std::vector<double> thePE2fCByRing;
-  int thePixels;
   bool theSiPMSmearing;
   bool doTimeSmear_;
   HcalTimeSmearSettings theSmearSettings;
-  double theSiPMdarkCurrentuA;
-  double theSiPMcrossTalk;
 };
 
 #endif
