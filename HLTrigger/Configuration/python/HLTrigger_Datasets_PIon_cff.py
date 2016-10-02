@@ -9,9 +9,6 @@ from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter a
 streamPhysicsCommissioning_datasetHLTPhysics_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
 streamPhysicsCommissioning_datasetHLTPhysics_selector.l1tResults = cms.InputTag('')
 streamPhysicsCommissioning_datasetHLTPhysics_selector.throw      = cms.bool(False)
-<<<<<<< HEAD
-streamPhysicsCommissioning_datasetHLTPhysics_selector.triggerConditions = cms.vstring('HLT_Physics_v4')
-=======
 streamPhysicsCommissioning_datasetHLTPhysics_selector.triggerConditions = cms.vstring('HLT_Physics_v5')
 
 
@@ -107,5 +104,4 @@ streamPhysicsPAMuons_datasetPASingleMuon_selector.triggerConditions = cms.vstrin
     'HLT_PAL3Mu3_v1', 
     'HLT_PAL3Mu5_v1', 
     'HLT_PAL3Mu7_v1')
->>>>>>> e45276c... sync with V597
 
