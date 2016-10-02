@@ -95,7 +95,10 @@ namespace edm {
                      ParentContext const& parentContext,
                      typename T::Context const* context);
 
-    void skipOnPath(EventPrincipal const& );
+    void callWhenDoneAsync(WaitingTask* task) {
+      waitingTasks_.add(task);
+    }
+    void skipOnPath();
     void beginJob() ;
     void endJob();
     void beginStream(StreamID id, StreamContext& streamContext);
@@ -115,7 +118,6 @@ namespace edm {
       numberOfPathsLeftToRun_ = numberOfPathsOn_;
     }
 
-    void pathFinished(EventPrincipal const&);
     void postDoEvent(EventPrincipal const&);
 
     ModuleDescription const& description() const {return *(moduleCallingContext_.moduleDescription());}
@@ -651,6 +653,7 @@ namespace edm {
         iException.addContext(iost.str());
         setException<T::isEvent_>(std::current_exception());
         waitingTasks_.doneWaiting(cached_exception_);
+        return;
       } else {
         setPassed<T::isEvent_>();
       }

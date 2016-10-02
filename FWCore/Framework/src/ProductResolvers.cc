@@ -277,13 +277,34 @@ namespace edm {
                                                ModuleCallingContext const* mcc) const {
     if(not skipCurrentProcess) {
       m_waitingTasks.add(waitTask);
+      
+      bool expected = false;
+      if(worker_ and prefetchRequested_.compare_exchange_strong(expected,true)) {
+        //using a waiting task to do a callback guarantees that
+        // the m_waitingTasks list will be released from waiting even
+        // if the module does not put this data product or the
+        // module has an exception while running
+        
+        auto waiting = make_waiting_task(tbb::task::allocate_root(),
+                                         [this](std::exception_ptr const *  iException) {
+                                           if(nullptr != iException) {
+                                             m_waitingTasks.doneWaiting(*iException);
+                                           } else {
+                                             m_waitingTasks.doneWaiting(std::exception_ptr());
+                                           }
+                                         });
+        worker_->callWhenDoneAsync(waiting);
+      }
     }
   }
   
   void
   PuttableProductResolver::putProduct_(std::unique_ptr<WrapperBase> edp) const {
     ProducedProductResolver::putProduct_(std::move(edp));
-    m_waitingTasks.doneWaiting(std::exception_ptr());
+    bool expected = false;
+    if(prefetchRequested_.compare_exchange_strong(expected,true)) {
+      m_waitingTasks.doneWaiting(std::exception_ptr());
+    }
   }
 
   
@@ -291,6 +312,12 @@ namespace edm {
   PuttableProductResolver::resetProductData_(bool deleteEarly) {
     m_waitingTasks.reset();
     DataManagingProductResolver::resetProductData_(deleteEarly);
+    prefetchRequested_ = false;
+  }
+
+  void
+  PuttableProductResolver::setupUnscheduled(UnscheduledConfigurator const& iConfigure) {
+    worker_ = iConfigure.findWorker(branchDescription().moduleLabel());
   }
 
   

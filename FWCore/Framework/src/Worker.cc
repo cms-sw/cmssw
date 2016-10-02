@@ -308,20 +308,12 @@ private:
     }
   }
   
-  void Worker::skipOnPath(EventPrincipal const& iPrincipal) {
+  void Worker::skipOnPath() {
     if( 0 == --numberOfPathsLeftToRun_) {
-      for(auto index : itemsShouldPutInEvent()) {
-        auto resolver = iPrincipal.getProductResolverByIndex(index);
-        resolver->putProduct(std::unique_ptr<WrapperBase>());
-      }
+      waitingTasks_.doneWaiting(cached_exception_);
     }
   }
 
-  void Worker::pathFinished(EventPrincipal const& iEvent) {
-    if(earlyDeleteHelper_) {
-      earlyDeleteHelper_->pathFinished(iEvent);
-    }
-  }
   void Worker::postDoEvent(EventPrincipal const& iEvent) {
     if(earlyDeleteHelper_) {
       earlyDeleteHelper_->moduleRan(iEvent);
