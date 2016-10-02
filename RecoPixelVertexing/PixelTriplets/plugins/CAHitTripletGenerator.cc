@@ -231,7 +231,7 @@ void CAHitTripletGenerator::hitTriplets(const TrackingRegion& region,
 
 		if (theComparitor)
 		{
-			if (!theComparitor->compatible(tmpTriplet, region))
+			if (!theComparitor->compatible(tmpTriplet))
 			{
 
 				continue;

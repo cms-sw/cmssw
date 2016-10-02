@@ -309,7 +309,7 @@ void PixelTripletHLTGenerator::hitTriplets(
 	  if (checkPhiInRange(p3_phi, rangeRPhi.first*ir-phiErr, rangeRPhi.second*ir+phiErr,maxPhiErr)) {
 	    // insert here check with comparitor
 	    OrderedHitTriplet hittriplet( doublets.hit(ip,HitDoublets::inner), doublets.hit(ip,HitDoublets::outer), hits.theHits[KDdata].hit());
-	    if (!theComparitor  || theComparitor->compatible(hittriplet,region) ) {
+	    if (!theComparitor  || theComparitor->compatible(hittriplet) ) {
 	      result.push_back( hittriplet );
 	    } else {
 	      LogDebug("RejectedTriplet") << "rejected triplet from comparitor ";

@@ -10,17 +10,12 @@ class CombinedSeedComparitor : public SeedComparitor {
         CombinedSeedComparitor(const edm::ParameterSet &cfg, edm::ConsumesCollector& iC) ;
         virtual ~CombinedSeedComparitor() ; 
         virtual void init(const edm::Event& ev, const edm::EventSetup& es) override ;
-        virtual bool compatible(const SeedingHitSet  &hits, const TrackingRegion & region) const override ;
-        virtual bool compatible(const TrajectorySeed &seed) const override ;
+        virtual bool compatible(const SeedingHitSet  &hits) const override ;
         virtual bool compatible(const TrajectoryStateOnSurface &,  
                 SeedingHitSet::ConstRecHitPointer hit) const override ;
         virtual bool compatible(const SeedingHitSet  &hits, 
                 const GlobalTrajectoryParameters &helixStateAtVertex,
-                const FastHelix                  &helix,
-                const TrackingRegion & region) const override ;
-        virtual bool compatible(const SeedingHitSet  &hits, 
-                const GlobalTrajectoryParameters &straightLineStateAtVertex,
-                const TrackingRegion & region) const override ;
+                const FastHelix                  &helix) const override ;
 
     private:
         boost::ptr_vector<SeedComparitor> comparitors_;
@@ -56,22 +51,11 @@ CombinedSeedComparitor::init(const edm::Event& ev, const edm::EventSetup& es) {
 }
 
 bool
-CombinedSeedComparitor::compatible(const SeedingHitSet  &hits, const TrackingRegion & region) const
+CombinedSeedComparitor::compatible(const SeedingHitSet  &hits) const
 {
     typedef boost::ptr_vector<SeedComparitor>::const_iterator ITC;
     for (ITC it = comparitors_.begin(), ed = comparitors_.end(); it != ed; ++it) {
-        bool pass = it->compatible(hits, region);
-        if (isAnd_ != pass) return pass; // break on failures if doing an AND, and on successes if doing an OR
-    }
-    return isAnd_; // if we arrive here, we have no successes for OR, and no failures for AND
-}
-
-bool
-CombinedSeedComparitor::compatible(const TrajectorySeed &seed) const
-{
-    typedef boost::ptr_vector<SeedComparitor>::const_iterator ITC;
-    for (ITC it = comparitors_.begin(), ed = comparitors_.end(); it != ed; ++it) {
-        bool pass = it->compatible(seed);
+        bool pass = it->compatible(hits);
         if (isAnd_ != pass) return pass; // break on failures if doing an AND, and on successes if doing an OR
     }
     return isAnd_; // if we arrive here, we have no successes for OR, and no failures for AND
@@ -92,25 +76,11 @@ CombinedSeedComparitor::compatible(const TrajectoryStateOnSurface &tsos,
 bool
 CombinedSeedComparitor::compatible(const SeedingHitSet  &hits, 
                           const GlobalTrajectoryParameters &helixStateAtVertex,
-                          const FastHelix                  &helix,
-                          const TrackingRegion & region) const
+                          const FastHelix                  &helix) const
 {
     typedef boost::ptr_vector<SeedComparitor>::const_iterator ITC;
     for (ITC it = comparitors_.begin(), ed = comparitors_.end(); it != ed; ++it) {
-        bool pass = it->compatible(hits, helixStateAtVertex, helix, region);
-        if (isAnd_ != pass) return pass; // break on failures if doing an AND, and on successes if doing an OR
-    }
-    return isAnd_; // if we arrive here, we have no successes for OR, and no failures for AND
-}
-
-bool
-CombinedSeedComparitor::compatible(const SeedingHitSet  &hits,
-                          const GlobalTrajectoryParameters &straightLineStateAtVertex,
-                          const TrackingRegion & region) const
-{
-    typedef boost::ptr_vector<SeedComparitor>::const_iterator ITC;
-    for (ITC it = comparitors_.begin(), ed = comparitors_.end(); it != ed; ++it) {
-        bool pass = it->compatible(hits, straightLineStateAtVertex, region);
+        bool pass = it->compatible(hits, helixStateAtVertex, helix);
         if (isAnd_ != pass) return pass; // break on failures if doing an AND, and on successes if doing an OR
     }
     return isAnd_; // if we arrive here, we have no successes for OR, and no failures for AND

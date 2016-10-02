@@ -27,17 +27,12 @@ class PixelClusterShapeSeedComparitor : public SeedComparitor {
         PixelClusterShapeSeedComparitor(const edm::ParameterSet &cfg, edm::ConsumesCollector& iC) ;
         virtual ~PixelClusterShapeSeedComparitor() ; 
         virtual void init(const edm::Event& ev, const edm::EventSetup& es) override ;
-        virtual bool compatible(const SeedingHitSet  &hits, const TrackingRegion & region) const override { return true; }
-        virtual bool compatible(const TrajectorySeed &seed) const override { return true; }
+        virtual bool compatible(const SeedingHitSet  &hits) const override { return true; }
         virtual bool compatible(const TrajectoryStateOnSurface &,
                 SeedingHitSet::ConstRecHitPointer hit) const override ;
         virtual bool compatible(const SeedingHitSet  &hits, 
                 const GlobalTrajectoryParameters &helixStateAtVertex,
-                const FastHelix                  &helix,
-                const TrackingRegion & region) const override ;
-        virtual bool compatible(const SeedingHitSet  &hits, 
-                const GlobalTrajectoryParameters &straightLineStateAtVertex,
-                const TrackingRegion & region) const override ;
+                const FastHelix                  &helix) const override ;
 
     private:
         bool compatibleHit(const TrackingRecHit &hit, const GlobalVector &direction) const ;
@@ -89,17 +84,8 @@ PixelClusterShapeSeedComparitor::compatible(const TrajectoryStateOnSurface &tsos
 
 bool
 PixelClusterShapeSeedComparitor::compatible(const SeedingHitSet  &hits, 
-        const GlobalTrajectoryParameters &straightLineStateAtVertex,
-        const TrackingRegion & region) const 
-{ 
-    return true; 
-}
-
-bool
-PixelClusterShapeSeedComparitor::compatible(const SeedingHitSet  &hits, 
         const GlobalTrajectoryParameters &helixStateAtVertex,
-        const FastHelix                  &helix,
-        const TrackingRegion & region) const 
+        const FastHelix                  &helix) const
 { 
     if (!filterAtHelixStage_) return true;
 
