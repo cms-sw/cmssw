@@ -201,7 +201,7 @@ void CAHitQuadrupletGenerator::hitQuadruplets(const TrackingRegion& region,
       SeedingHitSet tmpTriplet(foundQuadruplets[quadId][0]->getInnerHit(), foundQuadruplets[quadId][2]->getInnerHit(), foundQuadruplets[quadId][2]->getOuterHit());
 
 
-      if (!theComparitor->compatible(tmpTriplet, region) )
+      if (!theComparitor->compatible(tmpTriplet) )
       {
         continue;
       }

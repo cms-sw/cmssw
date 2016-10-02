@@ -119,7 +119,7 @@ bool SeedFromConsecutiveHitsCreator::initialKinematic(GlobalTrajectoryParameters
 					kine.charge(),
 					&*bfield);
   }
-  return (filter ? filter->compatible(hits, kine, helix, *region) : true); 
+  return (filter ? filter->compatible(hits, kine, helix) : true); 
 }
 
 
@@ -186,8 +186,7 @@ void SeedFromConsecutiveHitsCreator::buildSeed(
   
   PTrajectoryStateOnDet const & PTraj = 
     trajectoryStateTransform::persistentState(updatedState, hit->geographicalId().rawId());
-  TrajectorySeed seed(PTraj,std::move(seedHits),alongMomentum); 
-  if ( !filter || filter->compatible(seed)) seedCollection.push_back(std::move(seed));
+  seedCollection.emplace_back(PTraj,std::move(seedHits),alongMomentum);
 
 }
 
@@ -203,6 +202,6 @@ SeedFromConsecutiveHitsCreator::checkHit(
       const TrajectoryStateOnSurface &tsos,
       SeedingHitSet::ConstRecHitPointer hit) const 
 { 
-    return (filter ? filter->compatible(tsos,hit) : true); 
+    return (filter ? filter->compatible(tsos,hit) : true);
 }
 
