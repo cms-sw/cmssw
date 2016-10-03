@@ -9,7 +9,7 @@
 
 class PixelFitter;
 class PixelTrackCleaner;
-class PixelTrackFilter;
+class PixelTrackFilterBase;
 class OrderedHitsGenerator;
 class TrackingRegionProducer;
 class QuadrupletSeedMerger;
@@ -31,7 +31,7 @@ public:
 private:
   edm::ParameterSet theConfig;
   const PixelFitter       * theFitter;
-  std::unique_ptr<PixelTrackFilter> theFilter;
+  std::unique_ptr<PixelTrackFilterBase> theFilter;
   PixelTrackCleaner * theCleaner;
   std::unique_ptr<OrderedHitsGenerator> theGenerator;
   std::unique_ptr<TrackingRegionProducer> theRegionProducer;

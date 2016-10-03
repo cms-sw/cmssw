@@ -2,7 +2,7 @@
 #define _ClusterShapeTrackFilter_h_
 
 
-#include "RecoPixelVertexing/PixelTrackFitting/interface/PixelTrackFilter.h"
+#include "RecoPixelVertexing/PixelTrackFitting/interface/PixelTrackFilterBase.h"
 
 #include "DataFormats/GeometryVector/interface/GlobalTag.h"
 #include "DataFormats/GeometryVector/interface/Vector2DBase.h"
@@ -24,7 +24,7 @@ class ClusterShapeHitFilter;
 class TrackerTopology;
 class SiPixelClusterShapeCache;
 
-class ClusterShapeTrackFilter : public PixelTrackFilter 
+class ClusterShapeTrackFilter : public PixelTrackFilterBase
 {
  public:
   ClusterShapeTrackFilter(const edm::ParameterSet& ps,

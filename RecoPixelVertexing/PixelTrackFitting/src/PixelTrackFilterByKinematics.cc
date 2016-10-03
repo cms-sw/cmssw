@@ -35,7 +35,7 @@ PixelTrackFilterByKinematics::~PixelTrackFilterByKinematics()
 
 void PixelTrackFilterByKinematics::update(const edm::Event&, const edm::EventSetup&) {}
 
-bool PixelTrackFilterByKinematics::operator()(const reco::Track* ptrack, const PixelTrackFilter::Hits & hits) const
+bool PixelTrackFilterByKinematics::operator()(const reco::Track* ptrack, const PixelTrackFilterBase::Hits & hits) const
 {
   if (!ptrack) return false;
   auto const & track = *ptrack;

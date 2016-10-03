@@ -1,16 +1,15 @@
-#ifndef PixelTrackFitting_PixelTrackFilter_H
-#define PixelTrackFitting_PixelTrackFilter_H
+#ifndef RecoPixelVertexing_PixelTrackFitting_PixelTrackFilterBase_H
+#define RecoPixelVertexing_PixelTrackFitting_PixelTrackFilterBase_H
 
 namespace reco { class Track; }
 namespace edm { class Event; class EventSetup; class ConsumesCollector;}
 class TrackingRecHit;
 
 #include <vector>
-#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 
-class PixelTrackFilter {
+class PixelTrackFilterBase {
 public:
-  virtual ~PixelTrackFilter() {}
+  virtual ~PixelTrackFilterBase() {}
   typedef std::vector<const TrackingRecHit *> Hits;
   virtual void update(const edm::Event& ev, const edm::EventSetup& es) = 0;
   virtual bool operator()(const reco::Track*, const Hits&) const = 0;

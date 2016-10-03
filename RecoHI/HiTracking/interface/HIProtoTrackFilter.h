@@ -1,7 +1,7 @@
 #ifndef _HIProtoTrackFilter_h_
 #define _HIProtoTrackFilter_h_
 
-#include "RecoPixelVertexing/PixelTrackFitting/interface/PixelTrackFilter.h"
+#include "RecoPixelVertexing/PixelTrackFitting/interface/PixelTrackFilterBase.h"
 
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
@@ -10,11 +10,11 @@
 
 namespace edm { class ParameterSet; class EventSetup; class Event;}
 
-class HIProtoTrackFilter : public PixelTrackFilter {
+class HIProtoTrackFilter : public PixelTrackFilterBase {
 public:
 	HIProtoTrackFilter(const edm::ParameterSet& ps, edm::ConsumesCollector& iC);
 	virtual ~HIProtoTrackFilter();
-	virtual bool operator() (const reco::Track*, const PixelTrackFilter::Hits & hits) const override;
+	virtual bool operator() (const reco::Track*, const PixelTrackFilterBase::Hits & hits) const override;
 	virtual void update(const edm::Event& ev, const edm::EventSetup& es) override;
 private:
 	double theTIPMax;
