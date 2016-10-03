@@ -141,13 +141,3 @@ for era in _cfg.allEras():
     locals()["selectedIterTrackingStep"+pf] = _cfg.iterationAlgos(era)
 #selectedIterTrackingStep.append('muonSeededStepOutInDisplaced')
 
-# FIXME ::  this part will be removed when phase2 tracking is migrated to eras
-selectedIterTrackingStep_trackingPhase2PU140 = [
-    "initialStep",
-    "highPtTripletStep",
-    "lowPtQuadStep",
-    "lowPtTripletStep",
-    "detachedQuadStep",
-    "pixelPairStep",
-    "muonSeededStepInOut",
-]

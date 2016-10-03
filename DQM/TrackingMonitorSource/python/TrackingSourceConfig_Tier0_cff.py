@@ -313,7 +313,7 @@ for tracks in selectedTracks :
     label = 'TrackerCollisionSelectedTrackMonCommon' + str(tracks)
     TrackingDQMSourceTier0 += locals()[label]
 # seeding monitoring
-for era in _cfg.allEras() + ["trackingPhase2PU140"]: # FIXME:: allEras() extension should be removed when phase2 tracking is migrated to eras
+for era in _cfg.allEras():
     postfix = _cfg.postfix(era)
     _seq = cms.Sequence()
     for step in locals()["selectedIterTrackingStep"+postfix]:
