@@ -24,7 +24,7 @@ HcalTBDigiProducer::HcalTBDigiProducer(const edm::ParameterSet& ps, edm::stream:
   theHBHEResponse(new CaloHitResponse(theParameterMap, theHcalIntegratedShape)),
   theHOResponse(new CaloHitResponse(theParameterMap, theHcalIntegratedShape)),
   theAmplifier(0), theCoderFactory(0), theElectronicsSim(0), 
-  theHitCorrection(0), theTimeSlewSim(0), theHBHEDigitizer(0), theHODigitizer(0), theHBHEHits(),
+  theTimeSlewSim(0), theHBHEDigitizer(0), theHODigitizer(0), theHBHEHits(),
   theHOHits(), thisPhaseShift(0) {
   std::string const instance("simHcalDigis");
   mixMod.produces<HBHEDigiCollection>(instance);
@@ -80,7 +80,6 @@ HcalTBDigiProducer::~HcalTBDigiProducer() {
   if (theElectronicsSim)      delete theElectronicsSim;
   if (theAmplifier)           delete theAmplifier;
   if (theCoderFactory)        delete theCoderFactory;
-  if (theHitCorrection)       delete theHitCorrection;
   if (theTimeSlewSim)         delete theTimeSlewSim;
 }
 
@@ -119,9 +118,6 @@ void HcalTBDigiProducer::accumulateCaloHits(edm::Handle<std::vector<PCaloHit> > 
 
   if(hcalHandle.isValid()) {
     std::vector<PCaloHit> hits = *hcalHandle.product();
-    if(theHitCorrection != 0) {
-      theHitCorrection->fillChargeSums(hits);
-    }
     LogDebug("HcalSim") << "HcalTBDigiProducer::accumulate Hits corrected";
     theHBHEDigitizer->add(hits, bunchCrossing, engine);
     theHODigitizer->add(hits, bunchCrossing, engine);
