@@ -266,6 +266,8 @@ void TotemDAQMappingESSourceXML::setIntervalFor(const edm::eventsetup::EventSetu
       LogVerbatim("TotemDAQMappingESSourceXML")
         << "    block found: index=" << currentBlock
         << ", interval=(" << bl.validityRange.startEventID() << " - " << bl.validityRange.endEventID() << ")";
+
+      return;
     }
   }
 
