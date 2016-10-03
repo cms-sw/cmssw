@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 from RecoPixelVertexing.PixelTriplets.PixelTripletHLTGenerator_cfi import *
-from RecoHI.HiTracking.HIPixelTrackFilter_cfi import *
+from RecoHI.HiTracking.HIPixelTrackFilter_cff import *
 from RecoHI.HiTracking.HITrackingRegionProducer_cfi import *
 from RecoTracker.TkSeedingLayers.PixelLayerTriplets_cfi import *
 
@@ -34,10 +34,7 @@ hiPixel3ProtoTracks = cms.EDProducer( "PixelTrackProducer",
     ),
 	
     # Filter
-    useFilterWithES = cms.bool( False ),
-    FilterPSet = cms.PSet( 
-      HiProtoTrackFilterBlock
-    ),
+    Filter = cms.InputTag("hiProtoTrackFilter"),
 	
     # Cleaner
     CleanerPSet = cms.PSet(  

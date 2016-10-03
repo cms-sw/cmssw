@@ -65,7 +65,7 @@ GBlock= cms.PSet(
 
 process.pixelTracks2 = pixelTracks.clone()
 process.pixelTracks2.RegionFactoryPSet= cms.PSet( GBlock )
-process.pixelTracks2.FilterPSet.ComponentName = cms.string('none')
+process.pixelTracks2.Filter = ""
 
 process.test = cms.EDAnalyzer("PixelTrackTest", TrackCollection = cms.string("pixelTracks2"))
 

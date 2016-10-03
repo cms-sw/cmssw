@@ -5,7 +5,7 @@
 
 #include "RecoPixelVertexing/PixelTrackFitting/interface/PixelTrackFilterBase.h"
 
-namespace edm { class ParameterSet; class EventSetup; }
+namespace edm { class EventSetup; }
 class TrackingRecHit;
 class Track;
 class FreeTrajectoryState;
@@ -20,19 +20,18 @@ class TrackerTopology;
 class ValidHitPairFilter : public PixelTrackFilterBase
 {
 public:
-  ValidHitPairFilter(const edm::ParameterSet& ps, edm::ConsumesCollector& iC);
+  ValidHitPairFilter(const edm::EventSetup& es);
   virtual ~ValidHitPairFilter();
-  void update(const edm::Event& ev, const edm::EventSetup& es) override;
   virtual bool operator()(const reco::Track * track,
                           const std::vector<const TrackingRecHit *>& recHits) const override;
 
 private:
-  int getLayer(const TrackingRecHit & recHit, const TrackerTopology *tTopo) const;
+  int getLayer(const TrackingRecHit & recHit) const;
   std::vector<int> getMissingLayers(int a, int b) const;
   FreeTrajectoryState getTrajectory(const reco::Track & track) const;
   std::vector<const GeomDet *> getCloseDets
     (int il, float rz, const std::vector<float>& rzB,
-     float ph, const std::vector<float>& phB, const TrackerTopology *tTopo) const;
+     float ph, const std::vector<float>& phB) const;
 
   const TrackerGeometry * theTracker;
   const GeometricSearchTracker * theGSTracker;

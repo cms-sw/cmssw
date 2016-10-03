@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 from RecoPixelVertexing.PixelTriplets.PixelTripletHLTGenerator_cfi import *
 from RecoPixelVertexing.PixelLowPtUtilities.ClusterShapeHitFilterESProducer_cfi import *
 from RecoPixelVertexing.PixelTrackFitting.PixelFitterByConformalMappingAndLine_cfi import *
-from RecoHI.HiTracking.HIPixelTrackFilter_cfi import *
+from RecoHI.HiTracking.HIPixelTrackFilter_cff import *
 from RecoHI.HiTracking.HITrackingRegionProducer_cfi import *
 
 hiConformalPixelTracks = cms.EDProducer("PixelTrackProducer",
@@ -32,10 +32,7 @@ hiConformalPixelTracks = cms.EDProducer("PixelTrackProducer",
                                                                ),
                                         
                                         # Filter
-                                        useFilterWithES = cms.bool( True ),
-                                        FilterPSet = cms.PSet( 
-    HiConformalPixelFilterBlock 
-    ),
+                                        Filter = cms.InputTag("hiConformalPixelFilter"),
                                         
                                         # Cleaner
                                         CleanerPSet = cms.PSet(  

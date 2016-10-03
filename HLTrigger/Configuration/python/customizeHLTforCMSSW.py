@@ -81,6 +81,41 @@ def customiseFor16569(process):
     for mod in ['hltHbhereco','hltHbherecoMethod2L1EGSeeded','hltHbherecoMethod2L1EGUnseeded','hltHfreco','hltHoreco']:
         if hasattr(process,mod):
             getattr(process,mod).ts4chi2 = cms.vdouble(15.,5000.)
+
+    return process
+
+# Move pixel track fitter, filter, and cleaner to ED/ESProducts (PR #16792)
+def customiseFor16792(process):
+    def _copy(old, new, skip=[]):
+        skipSet = set(skip)
+        for key in old.parameterNames_():
+            if key not in skipSet:
+                setattr(new, key, getattr(old, key))
+
+    for producer in producers_by_type(process, "PixelTrackProducer"):
+        label = producer.label()
+        filterName = producer.FilterPSet.ComponentName.value()
+
+        filterProducerLabel = label+"Filter"
+        filterProducerName = filterName+"Producer"
+        filterProducer = cms.EDProducer(filterProducerName)
+        _copy(producer.FilterPSet, filterProducer, skip=["ComponentName"])
+        setattr(process, filterProducerLabel, filterProducer)
+
+        del producer.FilterPSet
+        producer.Filter = cms.InputTag(filterProducerLabel)
+        # Modify sequences (also paths to be sure, altough in practice
+        # the seeding modules should be only in sequences in HLT?)
+        for seqs in [process.sequences_(), process.paths_()]:
+            for seqName, seq in seqs.iteritems():
+                # cms.Sequence.replace() would look simpler, but it expands
+                # the contained sequences if a replacement occurs there.
+                try:
+                    index = seq.index(producer)
+                except:
+                    continue
+                seq.insert(index, filterProducer)
+
     return process
 
 #
@@ -97,6 +132,7 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
         process = customiseFor15440(process)
         process = customiseFor15499(process)
         process = customiseFor16569(process)
+        process = customiseFor16792(process)
 #       process = customiseFor12718(process)
         process = customiseFor16670(process)
         pass

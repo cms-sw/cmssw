@@ -5,11 +5,13 @@
 #include "RecoPixelVertexing/PixelTrackFitting/interface/TracksWithHits.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 
+#include "FWCore/Utilities/interface/EDGetToken.h"
+
 #include <memory>
 
 class PixelFitter;
 class PixelTrackCleaner;
-class PixelTrackFilterBase;
+class PixelTrackFilter;
 class OrderedHitsGenerator;
 class TrackingRegionProducer;
 class QuadrupletSeedMerger;
@@ -31,7 +33,7 @@ public:
 private:
   edm::ParameterSet theConfig;
   const PixelFitter       * theFitter;
-  std::unique_ptr<PixelTrackFilterBase> theFilter;
+  edm::EDGetTokenT<PixelTrackFilter> theFilterToken;
   PixelTrackCleaner * theCleaner;
   std::unique_ptr<OrderedHitsGenerator> theGenerator;
   std::unique_ptr<TrackingRegionProducer> theRegionProducer;

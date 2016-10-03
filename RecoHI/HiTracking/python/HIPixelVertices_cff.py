@@ -20,6 +20,7 @@ from RecoHI.HiTracking.HISelectedVertex_cfi import *
 
 hiPixelVertices = cms.Sequence(hiPixelClusterVertex
                                 * PixelLayerTriplets
+                                * hiProtoTrackFilter
                                 * hiPixel3ProtoTracks 
                                 * hiPixelMedianVertex 
                                 * hiSelectedProtoTracks 
