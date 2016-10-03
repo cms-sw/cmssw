@@ -559,6 +559,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
             if postfix=="NoHF":
                 getattr(process, "pat"+metType+"Met"+postfix).computeMETSignificance = cms.bool(False)
             if self._parameters["runOnData"].value:
+                from RecoMET.METProducers.METSignificanceParams_cfi import METSignificanceParams_Data
                 getattr(process, "pat"+metType+"Met"+postfix).parameters = METSignificanceParams_Data
             if self._parameters["Puppi"].value:
                 getattr(process, "pat"+metType+"Met"+postfix).srcPFCands = cms.InputTag('puppiForMET')
@@ -1404,9 +1405,8 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
             getattr(process, jetColName).doAreaFastjet = True
             
             #puppi
-            #if "Puppi" in postfix:
-            #    getattr(process, jetColName).doAreaFastjet = cms.bool(True)
-            #    getattr(process, jetColName).src = cms.InputTag("puppiNoLep")
+            if self._parameters["Puppi"].value:
+                getattr(process, jetColName).src = cms.InputTag("puppi")
 
             patMetModuleSequence += getattr(process, jetColName)
 
