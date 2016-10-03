@@ -158,10 +158,10 @@ void TotemRPGeometry::BuildSets()
   // build
   for (mapType::const_iterator it = theMap.begin(); it != theMap.end(); ++it)
   {
-    TotemRPDetId detId(it->first);
-    TotemRPDetId rpId = detId.getRPId();
-    TotemRPDetId stId = detId.getStationId();
-    TotemRPDetId armId = detId.getArmId();
+    const TotemRPDetId detId(it->first);
+    const TotemRPDetId rpId = detId.getRPId();
+    const TotemRPDetId stId = detId.getStationId();
+    const TotemRPDetId armId = detId.getArmId();
 
     stationsInArm[armId].insert(armId);
     rpsInStation[stId].insert(rpId);
