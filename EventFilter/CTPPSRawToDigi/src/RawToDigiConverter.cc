@@ -227,8 +227,7 @@ void RawToDigiConverter::Run(const VFATFrameCollection &input,
     // calculate ids
     TotemRPDetId chipId(record.info->symbolicID.symbolicID);
     uint8_t chipPosition = chipId.chip();
-    TotemRPDetId detId(chipId);
-    detId.setChip(0);
+    TotemRPDetId detId = chipId.getPlaneId();
 
     // update chipPosition in status
     record.status.setChipPosition(chipPosition);
