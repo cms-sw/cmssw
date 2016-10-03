@@ -78,18 +78,24 @@ string CTPPSDetId::subDetectorName(NameFlag flag) const
 
   if (flag == nFull)
   {
-    if (subdetId() == sdTrackingStrip) name = "ctpps_tr_strip";
-    if (subdetId() == sdTrackingPixel) name = "ctpps_tr_pixel";
-    if (subdetId() == sdTimingDiamond) name = "ctpps_ti_diamond";
-    if (subdetId() == sdTimingFastSilicon) name = "ctpps_ti_fastsilicon";
+    switch (subdetId())
+    {
+      case sdTrackingStrip: name = "ctpps_tr_strip"; break;
+      case sdTrackingPixel: name = "ctpps_tr_pixel"; break;
+      case sdTimingDiamond: name = "ctpps_ti_diamond"; break;
+      case sdTimingFastSilicon: name = "ctpps_ti_fastsilicon"; break;
+    }
   }
 
   if (flag == nPath)
   {
-    if (subdetId() == sdTrackingStrip) name = "CTPPS/TrackingStrip";
-    if (subdetId() == sdTrackingPixel) name = "CTPPS/TrackingPixel";
-    if (subdetId() == sdTimingDiamond) name = "CTPPS/TimingDiamond";
-    if (subdetId() == sdTimingFastSilicon) name = "CTPPS/TimingFastSilicon";
+    switch (subdetId())
+    {
+      case sdTrackingStrip: name = "CTPPS/TrackingStrip"; break;
+      case sdTrackingPixel: name = "CTPPS/TrackingPixel"; break;
+      case sdTimingDiamond: name = "CTPPS/TimingDiamond"; break;
+      case sdTimingFastSilicon: name = "CTPPS/TimingFastSilicon"; break;
+    }
   }
 
   return name;
@@ -100,12 +106,19 @@ string CTPPSDetId::subDetectorName(NameFlag flag) const
 string CTPPSDetId::armName(NameFlag flag) const
 {
   string name;
-  if (flag == nFull) name = subDetectorName(flag) + "_";
-  if (flag == nPath) name = subDetectorName(flag) + "/sector ";
 
-  uint32_t id = arm();
-  if (id == 0) name += "45";
-  if (id == 1) name += "56";
+  switch (flag)
+  {
+    case nShort: name = ""; break;
+    case nFull: name = subDetectorName(flag) + "_"; break;
+    case nPath: name = subDetectorName(flag) + "/sector "; break;
+  }
+
+  switch (arm())
+  {
+    case 0: name += "45"; break;
+    case 1: name += "56"; break;
+  }
 
   return name;
 }
@@ -115,13 +128,20 @@ string CTPPSDetId::armName(NameFlag flag) const
 string CTPPSDetId::stationName(NameFlag flag) const
 {
   string name;
-  if (flag == nFull) name = armName(flag) + "_";
-  if (flag == nPath) name = armName(flag) + "/station ";
 
-  uint32_t id = station();
-  if (id == 0) name += "210";
-  if (id == 1) name += "220cyl";
-  if (id == 2) name += "220";
+  switch (flag)
+  {
+    case nShort: name = ""; break;
+    case nFull: name = armName(flag) + "_"; break;
+    case nPath: name = armName(flag) + "/station "; break;
+  }
+
+  switch (station())
+  {
+    case 0: name += "210"; break;
+    case 1: name += "220cyl"; break;
+    case 2: name += "220"; break;
+  }
 
   return name;
 }
@@ -130,17 +150,26 @@ string CTPPSDetId::stationName(NameFlag flag) const
 
 string CTPPSDetId::rpName(NameFlag flag) const
 {
-  string name; 
-  if (flag == nFull) name = stationName(flag) + "_";
-  if (flag == nPath) name = stationName(flag) + "/";
+  string name;
+
+  switch (flag)
+  {
+    case nShort: name = ""; break;
+    case nFull: name = stationName(flag) + "_"; break;
+    case nPath: name = stationName(flag) + "/"; break;
+  }
 
   uint32_t id = rp();
-  if (id == 0) name += "nr_tp";
-  if (id == 1) name += "nr_bt";
-  if (id == 2) name += "nr_hr";
-  if (id == 3) name += "fr_hr";
-  if (id == 4) name += "fr_tp";
-  if (id == 5) name += "fr_bt";
-  if (id == 6) name += "cyl_hr";
+  switch (id)
+  {
+    case 0: name += "nr_tp"; break;
+    case 1: name += "nr_bt"; break;
+    case 2: name += "nr_hr"; break;
+    case 3: name += "fr_hr"; break;
+    case 4: name += "fr_tp"; break;
+    case 5: name += "fr_bt"; break;
+    case 6: name += "cyl_hr"; break;
+  }
+
   return name;
 }

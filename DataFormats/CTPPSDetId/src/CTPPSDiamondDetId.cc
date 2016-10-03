@@ -63,17 +63,18 @@ std::ostream& operator << (std::ostream& os, const CTPPSDiamondDetId& id)
   return os;
 }
 
-
-
-
-
 //----------------------------------------------------------------------------------------------------
 
-string CTPPSDiamondDetId::planeName( NameFlag flag)
+string CTPPSDiamondDetId::planeName(NameFlag flag)
 {
   string name;
-  if (flag == nFull) name = rpName(flag) + "_";
-  if (flag == nPath) name = rpName(flag) + "/plane ";
+
+  switch (flag)
+  {
+    case nShort: name = ""; break;
+    case nFull: name = rpName(flag) + "_"; break;
+    case nPath: name = rpName(flag) + "/plane "; break;
+  }
 
   char buf[10];
   uint32_t planeID = plane();
@@ -87,8 +88,12 @@ string CTPPSDiamondDetId::planeName( NameFlag flag)
 string CTPPSDiamondDetId::channelName(NameFlag flag)
 {
   string name;
-  if (flag == nFull) name = planeName(flag) + "_";
-  if (flag == nPath) name = planeName(flag) + "/ch ";
+  switch (flag)
+  {
+    case nShort: name = ""; break;
+    case nFull: name = planeName(flag) + "_"; break;
+    case nPath: name = planeName(flag) + "/ch "; break;
+  }
 
   char buf[10];
   uint32_t detID = det();
