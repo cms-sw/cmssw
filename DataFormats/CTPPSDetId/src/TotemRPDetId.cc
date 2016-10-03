@@ -74,8 +74,13 @@ std::ostream& operator << (std::ostream& os, const TotemRPDetId& id)
 string TotemRPDetId::planeName(NameFlag flag) const
 {
   string name;
-  if (flag == nFull) name = rpName(flag) + "_";
-  if (flag == nPath) name = rpName(flag) + "/plane ";
+
+  switch (flag)
+  {
+    case nShort: name = ""; break;
+    case nFull: name = rpName(flag) + "_"; break;
+    case nPath: name = rpName(flag) + "/plane "; break;
+  }
 
   uint32_t id = plane();
   char buf[10];
@@ -89,8 +94,13 @@ string TotemRPDetId::planeName(NameFlag flag) const
 string TotemRPDetId::chipName(NameFlag flag) const
 {
   string name;
-  if (flag == nFull) name = planeName(flag) + "_";
-  if (flag == nPath) name = planeName(flag) + "/chip ";
+
+  switch (flag)
+  {
+    case nShort: name = ""; break;
+    case nFull: name = planeName(flag) + "_"; break;
+    case nPath: name = planeName(flag) + "/chip "; break;
+  }
 
   uint32_t id = chip();
   char buf[10];
