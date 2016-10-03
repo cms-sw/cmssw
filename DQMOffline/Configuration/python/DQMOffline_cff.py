@@ -149,9 +149,3 @@ from DQMOffline.Muon.miniAOD_cff import *
 
 PostDQMOfflineMiniAOD = cms.Sequence(miniAODDQMSequence*jetMETDQMOfflineSourceMiniAOD*tracksDQMMiniAOD*muonMonitors_miniAOD*MuonMiniAOD)
 PostDQMOffline = cms.Sequence()
-
-
-
-#DQMOfflineNoHWW = cms.Sequence(DQMOffline)
-#DQMOfflineNoHWW.remove(hwwAnalyzer)
-
