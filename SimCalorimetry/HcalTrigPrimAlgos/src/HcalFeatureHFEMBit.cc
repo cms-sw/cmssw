@@ -21,48 +21,36 @@ HcalFeatureHFEMBit::HcalFeatureHFEMBit(double ShortMinE, double LongMinE,
 
 HcalFeatureHFEMBit::~HcalFeatureHFEMBit() { }
 
-bool HcalFeatureHFEMBit::fineGrainbit(int ADCShort, HcalDetId Sid, int CapIdS, int ADCLong, HcalDetId Lid, int CapIdL) const//pass det id
+float
+HcalFeatureHFEMBit::getE(const HFDataFrame& f, int idx) const
 {
+   const HcalDetId id(f.id());
+   const HcalCalibrations& calibrations = conditions_.getHcalCalibrations(id);
+   const auto* coder = conditions_.getHcalCoder(id);
+   const auto* shape = conditions_.getHcalShape(coder);
 
-    float ShortE = 0; //holds deposited energy
-    float LongE = 0;
+   HcalCoderDb db(*coder, *shape);
+   CaloSamples samples;
+   db.adc2fC(f, samples);
 
+   auto ped = calibrations.pedestal(f[idx].capid());
+   auto corr = calibrations.respcorrgain(f[idx].capid());
 
-    HcalQIESample sQIESample(ADCShort, CapIdS, 1, 1);
-    //makes a QIE sample for the short fiber.
-    HFDataFrame shortf(Sid);
-    shortf.setSize(1); //not planning on there being anything else here at this point in time so setting the size to 1 shouldn't matter
-    shortf.setSample(0, sQIESample); //inputs data into digi.
-    const HcalCalibrations& calibrations = conditions_.getHcalCalibrations(Sid);
-    const HcalQIECoder* channelCoderS = conditions_.getHcalCoder(Sid);
-    const HcalQIEShape* shapeS = conditions_.getHcalShape(channelCoderS);
+   return (samples[idx] - ped) * corr;
+}
 
-    HcalCoderDb coders(*channelCoderS, *shapeS);
+bool
+HcalFeatureHFEMBit::fineGrainbit(const HFDataFrame& shortDigi, const HFDataFrame& longDigi, int idx) const
+{
+    float shortE = getE(shortDigi, idx);
+    float longE = getE(longDigi, idx);
 
-    CaloSamples tools;
-    coders.adc2fC(shortf, tools);
-    ShortE = (tools[0] - calibrations.pedestal(CapIdS)) * calibrations.respcorrgain(CapIdS);
+    if (shortE < ShortMinE_)
+       return false;
+    if (longE < LongMinE_)
+       return false;
 
-    HcalQIESample lQIESample(ADCLong, CapIdL, 1, 1);
-    HFDataFrame longf(Lid);
-    longf.setSize(1);
-    longf.setSample(0, lQIESample);
-    const HcalCalibrations& calibrationL = conditions_.getHcalCalibrations(Lid);
-
-    CaloSamples tool_l;
-
-    const HcalQIECoder* channelCoderL = conditions_.getHcalCoder(Lid);
-    const HcalQIEShape* shapeL = conditions_.getHcalShape(channelCoderL);
-
-    HcalCoderDb coderL(*channelCoderL, *shapeL);
-
-    coderL.adc2fC(longf, tool_l); // this fills tool_l[0] with linearized adc
-    LongE = (tool_l[0] - calibrationL.pedestal(CapIdL)) * calibrationL.respcorrgain(CapIdL);
-
-    
-    // this actually does the cut
-    if((ShortE < ((LongE)-(ShortLongCutOffset_)) * ShortLongCutSlope_) && LongE > LongMinE_ && ShortE > ShortMinE_) return true;
-    else return false;
+    return (shortE < (longE - ShortLongCutOffset_) * ShortLongCutSlope_);
 }
 
 

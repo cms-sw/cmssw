@@ -487,11 +487,7 @@ void HcalTriggerPrimitiveAlgo::analyzeHF2016(
                finegrain[ibin][1] = (ADCLong > FG_HF_threshold_ || ADCShort > FG_HF_threshold_);
 
                if (HCALFEM != 0) {
-                  finegrain[ibin][0] = HCALFEM->fineGrainbit(
-                        ADCShort, details.ShortDigi.id(),
-                        details.ShortDigi[ibin].capid(),
-                        ADCLong, details.LongDigi.id(),
-                        details.LongDigi[ibin].capid()
+                  finegrain[ibin][0] = HCALFEM->fineGrainbit(details.ShortDigi, details.LongDigi, ibin)
                   );
                }
             }
