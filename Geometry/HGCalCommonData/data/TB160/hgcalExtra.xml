@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../../DetectorDescription/Schema/DDLSchema.xsd">
+
+<ConstantsSection label="hgcalExtra.xml" eval="true">
+  <Constant name="rmaxExtra"   value="5.*cm"/>
+  <Constant name="zmaxExtra"   value="3.0*cm"/>
+  <Constant name="zposExtra"   value="-30.0*m"/>
+</ConstantsSection>
+
+<SolidSection label="hgcalExtra.xml">
+  <Tubs name="HGCalExtra" rMin="0.0*fm" rMax="[rmaxExtra]" dz="[zmaxExtra]" startPhi="0*deg" deltaPhi="360*deg"/>
+ </SolidSection>
+
+<LogicalPartSection label="hgcalExtra.xml">
+  <LogicalPart name="HGCalExtra" category="unspecified">
+    <rSolid name="HGCalExtra"/>
+    <rMaterial name="materials:Glass"/>
+  </LogicalPart>
+</LogicalPartSection>
+
+<PosPartSection label="hgcalExtra.xml">
+  <PosPart copyNumber="1">
+    <rParent name="cms:CMSE"/>
+    <rChild name="hgcalExtra:HGCalExtra"/>
+    <Translation x="0*fm" y="0*fm" z="[zposExtra]"/>
+  </PosPart>
+</PosPartSection>
+</DDDefinition>
