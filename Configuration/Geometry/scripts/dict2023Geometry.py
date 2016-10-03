@@ -431,9 +431,10 @@ forwardDict = {
 }
 
 timingDict = {
-    "abbrev" = "I",
-    "name" = "timing",
-    "I1" : {
+    "abbrev" : "I",
+    "name" : "timing",
+    "I1" : {},
+    "I2" : {
         1 : [
             'Geometry/HGCalCommonData/data/fastTimingBarrel.xml',
             'Geometry/HGCalCommonData/data/fastTiming.xml',
@@ -445,18 +446,18 @@ timingDict = {
             ],
         4 : [
             'Geometry/HGCalSimData/data/fasttimeProdCuts.xml'
-            ]
-        "era" : "self.phase2_timing"
+            ],
+        "era" : "self.phase2_timing",
     }
 }
 
 allDicts = [ commonDict, trackerDict, caloDict, muonDict, forwardDict, timingDict ]
 
 detectorVersionDict = {
-    ("O1","T1","C1","M1","F1") : "D1",
-    ("O1","T2","C1","M1","F1") : "D2",
-    ("O1","T1","C2","M1","F1") : "D3",
-    ("O1","T3","C2","M1","F1") : "D4",
-    ("O1","T3","C2","I1","M1","F1") : "D5"
+    ("O1","T1","C1","M1","F1","I1") : "D1",
+    ("O1","T2","C1","M1","F1","I1") : "D2",
+    ("O1","T1","C2","M1","F1","I1") : "D3",
+    ("O1","T3","C2","M1","F1","I1") : "D4",
+    ("O1","T1","C2","M1","F1","I2") : "D5",
 }
 
