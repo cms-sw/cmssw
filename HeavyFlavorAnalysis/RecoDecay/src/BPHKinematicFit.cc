@@ -118,9 +118,10 @@ const vector<RefCountedKinematicParticle>& BPHKinematicFit::kinParticles()
 vector<RefCountedKinematicParticle> BPHKinematicFit::kinParticles(
                                     const vector<string>& names ) const {
   if ( oldKPs ) buildParticles();
-  set<RefCountedKinematicParticle> pset;
-  vector<RefCountedKinematicParticle> plist;
   const vector<const reco::Candidate*>& daugs = daughFull();
+  vector<RefCountedKinematicParticle> plist;
+  if ( allParticles.size() != daugs.size() ) return plist;
+  set<RefCountedKinematicParticle> pset;
   int i;
   int n = names.size();
   int m = daugs.size();
