@@ -35,7 +35,7 @@ HIPixelTrackFilter::~HIPixelTrackFilter()
 { }
 
 /*****************************************************************************/
-bool HIPixelTrackFilter::operator() (const reco::Track* track,const PixelTrackFilter::Hits & recHits) const
+bool HIPixelTrackFilter::operator() (const reco::Track* track,const PixelTrackFilterBase::Hits & recHits) const
 {
 
   if (!track) return false; 

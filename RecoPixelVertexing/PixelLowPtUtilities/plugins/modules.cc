@@ -26,7 +26,7 @@ DEFINE_EDM_PLUGIN(HitTripletGeneratorFromPairAndLayersFactory, PixelTripletLowPt
 
 // Filters
 #include "RecoPixelVertexing/PixelLowPtUtilities/interface/ClusterShapeTrackFilter.h"
-#include "RecoPixelVertexing/PixelTrackFitting/interface/PixelTrackFilter.h"
+#include "RecoPixelVertexing/PixelTrackFitting/interface/PixelTrackFilterBase.h"
 #include "RecoPixelVertexing/PixelTrackFitting/interface/PixelTrackFilterFactory.h"
 DEFINE_EDM_PLUGIN(PixelTrackFilterFactory, ClusterShapeTrackFilter, "ClusterShapeTrackFilter");
 

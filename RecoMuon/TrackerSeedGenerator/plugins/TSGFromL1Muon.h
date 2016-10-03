@@ -17,7 +17,7 @@ namespace edm { class Event; class EventSetup; }
 class L1MuonRegionProducer;
 class L1MuonPixelTrackFitter;
 class OrderedHitsGenerator;
-class PixelTrackFilter;
+class PixelTrackFilterBase;
 class L1MuonSeedsMerger;
 
 
@@ -37,7 +37,7 @@ private:
   std::unique_ptr<L1MuonRegionProducer> theRegionProducer;
   OrderedHitsGenerator * theHitGenerator;
   std::unique_ptr<L1MuonPixelTrackFitter> theFitter;
-  std::unique_ptr<PixelTrackFilter> theFilter;
+  std::unique_ptr<PixelTrackFilterBase> theFilter;
   L1MuonSeedsMerger * theMerger;
 
 };

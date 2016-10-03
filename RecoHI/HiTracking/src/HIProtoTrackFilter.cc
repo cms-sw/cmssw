@@ -39,7 +39,7 @@ HIProtoTrackFilter::~HIProtoTrackFilter()
 { }
 
 /*****************************************************************************/
-bool HIProtoTrackFilter::operator() (const reco::Track* track,const PixelTrackFilter::Hits & recHits) const
+bool HIProtoTrackFilter::operator() (const reco::Track* track,const PixelTrackFilterBase::Hits & recHits) const
 {
 
   if (!track) return false; 

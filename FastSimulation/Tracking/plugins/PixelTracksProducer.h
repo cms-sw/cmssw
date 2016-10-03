@@ -9,7 +9,7 @@
 #include <string>
 
 class PixelFitter;
-class PixelTrackFilter;
+class PixelTrackFilterBase;
 class TrackingRegionProducer;
 
 namespace edm { 
@@ -31,7 +31,7 @@ public:
 private:
 
   const PixelFitter       * theFitter;
-  const PixelTrackFilter  * theFilter;
+  const PixelTrackFilterBase  * theFilter;
   TrackingRegionProducer* theRegionProducer;
 
   edm::InputTag seedProducer;
