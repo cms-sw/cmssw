@@ -20,19 +20,15 @@ def main( argv ):
     parser.add_argument("-t","--tag", type=str, help="the CondDB Tag name")
     parser.add_argument("-i","--interval", type=str, help="the chron job interval")
     parser.add_argument("-d","--dev", action="store_true", help="bookkeeping in dev database")
-    parser.add_argument("-p","--private", action="store_true", help="bookkeeping in private database")
     parser.add_argument("-a","--auth", type=str,  help="path of the authentication file")
     args = parser.parse_args()  
 
     if not args.create and not args.enable and not args.disable:
         parser.error("Command not given. Possible choices: create, enable, disable")
 
-    db_service = None
-    if not args.private:
-        if args.dev:
-            db_service = o2olib.dev_db_service
-        else:
-            db_service = o2olib.prod_db_service
+    db_service = o2olib.prod_db_service
+    if args.dev:
+        db_service = o2olib.dev_db_service
     mgr = o2olib.O2OJobMgr()
     ret = -1
     if mgr.connect( db_service, args.auth ):
