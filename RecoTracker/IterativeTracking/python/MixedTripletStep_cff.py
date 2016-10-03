@@ -1,5 +1,4 @@
 import FWCore.ParameterSet.Config as cms
-from Configuration.StandardSequences.Eras import eras
 import RecoTracker.IterativeTracking.iterativeTkConfig as _cfg
 
 ###############################################################
@@ -17,8 +16,8 @@ chargeCut2069Clusters =  cms.EDProducer("ClusterChargeMasker",
 mixedTripletStepClusters = _cfg.clusterRemoverForIter("MixedTripletStep")
 chargeCut2069Clusters.oldClusterRemovalInfo = mixedTripletStepClusters.oldClusterRemovalInfo.value()
 mixedTripletStepClusters.oldClusterRemovalInfo = "chargeCut2069Clusters"
-for era in _cfg.nonDefaultEras():
-    getattr(eras, era).toReplaceWith(mixedTripletStepClusters, _cfg.clusterRemoverForIter("MixedTripletStep", era))
+for _eraName, _postfix, _era in _cfg.nonDefaultEras():
+    _era.toReplaceWith(mixedTripletStepClusters, _cfg.clusterRemoverForIter("MixedTripletStep", _eraName, _postfix))
 from Configuration.Eras.Modifier_trackingPhase1_cff import trackingPhase1
 trackingPhase1.toModify(chargeCut2069Clusters, oldClusterRemovalInfo = mixedTripletStepClusters.oldClusterRemovalInfo.value())
 trackingPhase1.toModify(mixedTripletStepClusters, oldClusterRemovalInfo="chargeCut2069Clusters")

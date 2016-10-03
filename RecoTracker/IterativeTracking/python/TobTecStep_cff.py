@@ -1,5 +1,4 @@
 import FWCore.ParameterSet.Config as cms
-from Configuration.StandardSequences.Eras import eras
 import RecoTracker.IterativeTracking.iterativeTkConfig as _cfg
 
 #######################################################################
@@ -7,8 +6,8 @@ import RecoTracker.IterativeTracking.iterativeTkConfig as _cfg
 #######################################################################
 
 tobTecStepClusters = _cfg.clusterRemoverForIter("TobTecStep")
-for era in _cfg.nonDefaultEras():
-    getattr(eras, era).toReplaceWith(tobTecStepClusters, _cfg.clusterRemoverForIter("TobTecStep", era))
+for _eraName, _postfix, _era in _cfg.nonDefaultEras():
+    _era.toReplaceWith(tobTecStepClusters, _cfg.clusterRemoverForIter("TobTecStep", _eraName, _postfix))
 
 # TRIPLET SEEDING LAYERS
 from RecoLocalTracker.SiStripClusterizer.SiStripClusterChargeCut_cfi import *
