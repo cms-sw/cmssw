@@ -18,8 +18,11 @@
 #include "HeavyFlavorAnalysis/SpecificDecay/interface/BPHParticlePtSelect.h"
 #include "HeavyFlavorAnalysis/SpecificDecay/interface/BPHParticleEtaSelect.h"
 #include "HeavyFlavorAnalysis/SpecificDecay/interface/BPHMassSelect.h"
+#include "HeavyFlavorAnalysis/SpecificDecay/interface/BPHMassSymSelect.h"
 #include "HeavyFlavorAnalysis/SpecificDecay/interface/BPHChi2Select.h"
 #include "HeavyFlavorAnalysis/SpecificDecay/interface/BPHParticleMasses.h"
+#include "DataFormats/Candidate/interface/Candidate.h"
+#include "DataFormats/Math/interface/LorentzVector.h"
 
 //---------------
 // C++ Headers --
@@ -77,8 +80,8 @@ vector<BPHPlusMinusConstCandPtr> BPHKx0ToKPiBuilder::build() {
   bKx0.filter( pionName, *ptSel );
   bKx0.filter( kaonName, *etaSel );
   bKx0.filter( pionName, *etaSel );
-
-  bKx0.filter( *chi2Sel );
+  BPHMassSymSelect mTmpSel( kaonName, pionName, massSel );
+  bKx0.filter( mTmpSel );
 
   vector<BPHPlusMinusConstCandPtr>
   tmpList = BPHPlusMinusCandidate::build( bKx0, kaonName, pionName );
@@ -87,25 +90,24 @@ vector<BPHPlusMinusConstCandPtr> BPHKx0ToKPiBuilder::build() {
   int nkx = tmpList.size();
   kx0List.clear();
   kx0List.reserve( nkx );
+  BPHPlusMinusConstCandPtr pxt( 0 );
   for ( ikx = 0; ikx < nkx; ++ikx ) {
     BPHPlusMinusConstCandPtr& px0 = tmpList[ikx];
+    BPHPlusMinusCandidatePtr  pxb( new BPHPlusMinusCandidate( evSetup ) );
     const
     BPHPlusMinusCandidate* kx0 = px0.get();
-    BPHPlusMinusCandidate* kxb = new BPHPlusMinusCandidate( evSetup );
+    BPHPlusMinusCandidate* kxb = pxb.get();
     kxb->add( pionName, kx0->originalReco( kx0->getDaug( kaonName ) ),
               BPHParticleMasses::pionMass );
     kxb->add( kaonName, kx0->originalReco( kx0->getDaug( pionName ) ),
               BPHParticleMasses::kaonMass );
-    BPHPlusMinusConstCandPtr pxb( kxb );
     if ( fabs( kx0->composite().mass() - BPHParticleMasses::kx0Mass ) <
-         fabs( kxb->composite().mass() - BPHParticleMasses::kx0Mass ) ) {
-      if ( !massSel->accept( *kx0 ) ) continue;
-      kx0List.push_back( px0 );
-    }
-    else {
-      if ( !massSel->accept( *kxb ) ) continue;
-      kx0List.push_back( pxb );
-    }
+         fabs( kxb->composite().mass() - BPHParticleMasses::kx0Mass ) )
+         pxt = px0;
+    else pxt = pxb;
+    if ( !massSel->accept( *pxt ) ) continue;
+    if ( !chi2Sel->accept( *pxt ) ) continue;
+    kx0List.push_back( pxt );
   }
 
   updated = true;
