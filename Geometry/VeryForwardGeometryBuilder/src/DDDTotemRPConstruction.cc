@@ -66,20 +66,20 @@ void DDDTotemRPContruction::buildDetGeomDesc(DDFilteredView *fv, DetGeomDesc *gd
           << cN.size() << ". It must be >= 3." << endl;
 
       // extract information
-      unsigned int A = cN[cN.size() - 3];
-      unsigned int arm = A / 100;
-      unsigned int station = (A % 100) / 10;
-      unsigned int rp = A % 10;
-      unsigned int detector = cN[cN.size() - 1];
+      const unsigned int A = cN[cN.size() - 3];
+      const unsigned int arm = A / 100;
+      const unsigned int station = (A % 100) / 10;
+      const unsigned int rp = A % 10;
+      const unsigned int detector = cN[cN.size() - 1];
       newGD->setGeographicalID(TotemRPDetId(arm, station, rp, detector));
     }
 
     if (fv->logicalPart().name().name().compare(DDD_TOTEM_RP_PRIMARY_VACUUM_NAME) == 0)
     {
-      uint32_t decRPId = fv->copyno();
-      uint32_t armIdx = (decRPId / 100) % 10;
-      uint32_t stIdx = (decRPId / 10) % 10;
-      uint32_t rpIdx = decRPId % 10;
+      const uint32_t decRPId = fv->copyno();
+      const uint32_t armIdx = (decRPId / 100) % 10;
+      const uint32_t stIdx = (decRPId / 10) % 10;
+      const uint32_t rpIdx = decRPId % 10;
       
       newGD->setGeographicalID(TotemRPDetId(armIdx, stIdx, rpIdx));
     }

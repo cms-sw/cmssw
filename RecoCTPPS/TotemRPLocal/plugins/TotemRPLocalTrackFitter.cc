@@ -159,9 +159,9 @@ void TotemRPLocalTrackFitter::produce(edm::Event& e, const edm::EventSetup& setu
     }
 
     // run fit
-    unsigned int armIdx = rpDecId / 100;
-    unsigned int stIdx = (rpDecId / 10) % 10;
-    unsigned int rpIdx = rpDecId % 10;
+    const unsigned int armIdx = rpDecId / 100;
+    const unsigned int stIdx = (rpDecId / 10) % 10;
+    const unsigned int rpIdx = rpDecId % 10;
     TotemRPDetId rpId(armIdx, stIdx, rpIdx);
 
     double z0 = geometry->GetRPGlobalTranslation(rpId).z();
