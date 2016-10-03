@@ -525,7 +525,6 @@ void PATElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
       reco::CandidateBaseRef elecBaseRef(elecsRef);
       Electron anElectron(elecsRef);
       auto elePtr = electrons -> ptrAt(idx);
-      anElectron.setIsolationPUPPI((*PUPPIIsolation_charged_hadrons)[elePtr], (*PUPPIIsolation_neutral_hadrons)[elePtr], (*PUPPIIsolation_photons)[elePtr]);
 
       // Is this GsfElectron also identified as an e- in the particle flow?
       bool pfId = false;
