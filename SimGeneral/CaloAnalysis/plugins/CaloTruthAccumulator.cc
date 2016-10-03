@@ -7,6 +7,7 @@
 #include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
 #include "SimDataFormats/CaloTest/interface/HGCalTestNumbering.h"
 #include "SimDataFormats/CaloTest/interface/HcalTestNumbering.h"
+#include "SimDataFormats/Vertex/interface/SimVertex.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
@@ -19,16 +20,12 @@
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "SimGeneral/TrackingAnalysis/interface/EncodedTruthId.h"
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
-#include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
-#include "SimDataFormats/TrackingAnalysis/interface/TrackingVertex.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHit.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
-#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
