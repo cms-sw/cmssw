@@ -163,8 +163,9 @@ phase2_hcal.toModify( es_hardcode,
                              useHFUpgrade = cms.bool(True)
 )
 
-eras.phase2_hgcal.toModify( es_hardcode,
-                            toGet = cms.untracked.vstring(
+from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
+phase2_hgcal.toModify( es_hardcode,
+                       toGet = cms.untracked.vstring(
                                          'GainWidths',
                                          'MCParams',
                                          'RecoParams',
