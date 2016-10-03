@@ -24,7 +24,7 @@ HcalTBDigiProducer::HcalTBDigiProducer(const edm::ParameterSet& ps, edm::stream:
   theHBHEResponse(new CaloHitResponse(theParameterMap, theHcalIntegratedShape)),
   theHOResponse(new CaloHitResponse(theParameterMap, theHcalIntegratedShape)),
   theAmplifier(0), theCoderFactory(0), theElectronicsSim(0), 
-  theHitCorrection(0), theHBHEDigitizer(0), theHODigitizer(0), theHBHEHits(),
+  theHitCorrection(0), theTimeSlewSim(0), theHBHEDigitizer(0), theHODigitizer(0), theHBHEHits(),
   theHOHits(), thisPhaseShift(0) {
   std::string const instance("simHcalDigis");
   mixMod.produces<HBHEDigiCollection>(instance);
@@ -38,20 +38,20 @@ HcalTBDigiProducer::HcalTBDigiProducer(const edm::ParameterSet& ps, edm::stream:
   theHBHEResponse->setHitFilter(&theHBHEHitFilter);
   theHOResponse->setHitFilter(&theHOHitFilter);
 
-  bool doTimeSlew = ps.getParameter<bool>("doTimeSlew");
-  if(doTimeSlew) {
-    // no time slewing for HF
-    theHitCorrection = new HcalHitCorrection(theParameterMap);
-    theHBHEResponse->setHitCorrection(theHitCorrection);
-    theHOResponse->setHitCorrection(theHitCorrection);
-  }
-
   bool doNoise = ps.getParameter<bool>("doNoise");
   bool dummy1 = false; 
   bool dummy2 = false;  // extra arguments for premixing
   theAmplifier = new HcalAmplifier(theParameterMap, doNoise, dummy1, dummy2);
   theCoderFactory = new HcalCoderFactory(HcalCoderFactory::DB);
   theElectronicsSim = new HcalElectronicsSim(theAmplifier, theCoderFactory, dummy1);
+
+  double minFCToDelay= ps.getParameter<double>("minFCToDelay");
+  bool doTimeSlew = ps.getParameter<bool>("doTimeSlew");
+  if(doTimeSlew) {
+    // no time slewing for HF
+    theTimeSlewSim = new HcalTimeSlewSim(theParameterMap,minFCToDelay);
+    theAmplifier->setTimeSlewSim(theTimeSlewSim);
+  }
 
   theHBHEDigitizer = new HBHEDigitizer(theHBHEResponse, theElectronicsSim, doNoise);
   theHODigitizer = new HODigitizer(theHOResponse, theElectronicsSim, doNoise);
@@ -81,6 +81,7 @@ HcalTBDigiProducer::~HcalTBDigiProducer() {
   if (theAmplifier)           delete theAmplifier;
   if (theCoderFactory)        delete theCoderFactory;
   if (theHitCorrection)       delete theHitCorrection;
+  if (theTimeSlewSim)         delete theTimeSlewSim;
 }
 
 
