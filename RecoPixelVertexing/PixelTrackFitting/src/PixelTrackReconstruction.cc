@@ -14,8 +14,7 @@
 #include "RecoPixelVertexing/PixelTrackFitting/interface/PixelFitter.h"
 #include "RecoPixelVertexing/PixelTrackFitting/interface/PixelFitterFactory.h"
 
-#include "RecoPixelVertexing/PixelTrackFitting/interface/PixelTrackFilterBase.h"
-#include "RecoPixelVertexing/PixelTrackFitting/interface/PixelTrackFilterFactory.h"
+#include "RecoPixelVertexing/PixelTrackFitting/interface/PixelTrackFilter.h"
 
 #include "RecoPixelVertexing/PixelTrackFitting/interface/PixelTrackCleaner.h"
 #include "RecoPixelVertexing/PixelTrackFitting/interface/PixelTrackCleanerFactory.h"
@@ -50,13 +49,9 @@ PixelTrackReconstruction::PixelTrackReconstruction(const ParameterSet& cfg,
     theMerger_->setTTRHBuilderLabel( seedmergerTTRHBuilderLabel );
   }
 
-  ParameterSet filterPSet = theConfig.getParameter<ParameterSet>("FilterPSet");
-  std::string  filterName = filterPSet.getParameter<std::string>("ComponentName");
-  if (filterName != "none") {
-    theFilter.reset(PixelTrackFilterFactory::get()->create( filterName, filterPSet, iC));
-    if(theConfig.exists("useFilterWithES")) {
-      edm::LogInfo("Obsolete") << "useFilterWithES parameter is obsolete and can be removed";
-    }
+  edm::InputTag filterTag = cfg.getParameter<edm::InputTag>("Filter");
+  if(filterTag.label() != "") {
+    theFilterToken = iC.consumes<PixelTrackFilter>(filterTag);
   }
 
   ParameterSet orderedPSet =
@@ -107,7 +102,12 @@ void PixelTrackReconstruction::run(TracksWithTTRHs& tracks, edm::Event& ev, cons
   es.get<TrackerTopologyRcd>().get(tTopoHand);
   const TrackerTopology *tTopo=tTopoHand.product();
 
-  if (theFilter) theFilter->update(ev, es);
+  const PixelTrackFilter *filter = nullptr;
+  if(!theFilterToken.isUninitialized()) {
+    edm::Handle<PixelTrackFilter> hfilter;
+    ev.getByToken(theFilterToken, hfilter);
+    filter = hfilter.product();
+  }
   
   std::vector<const TrackingRecHit *> hits;hits.reserve(4); 
   for (IR ir=regions.begin(), irEnd=regions.end(); ir < irEnd; ++ir) {
@@ -130,8 +130,8 @@ void PixelTrackReconstruction::run(TracksWithTTRHs& tracks, edm::Event& ev, cons
       reco::Track* track = theFitter->run( ev, es, hits, region);
       if (!track) continue;
 
-      if (theFilter) {
-	if (!(*theFilter)(track, hits)) {
+      if (filter) {
+	if (!(*filter)(track, hits)) {
 	  delete track;
 	  continue;
 	}

@@ -31,8 +31,15 @@ hiLowPtTripletStepSeedLayers.FPix.skipClusters = cms.InputTag('hiLowPtTripletSte
 # SEEDS
 from RecoPixelVertexing.PixelTriplets.PixelTripletHLTGenerator_cfi import *
 from RecoPixelVertexing.PixelLowPtUtilities.ClusterShapeHitFilterESProducer_cfi import *
-from RecoHI.HiTracking.HIPixelTrackFilter_cfi import *
+from RecoHI.HiTracking.HIPixelTrackFilter_cff import *
 from RecoHI.HiTracking.HITrackingRegionProducer_cfi import *
+hiLowPtTripletStepPixelTracksFilter = hiFilter.clone(
+    nSigmaLipMaxTolerance = 4.0,
+    nSigmaTipMaxTolerance = 4.0,
+    lipMax = 0,
+    ptMin = 0.4,
+)
+
 hiLowPtTripletStepPixelTracks = cms.EDProducer("PixelTrackProducer",
 
     passLabel  = cms.string('Pixel primary tracks with vertex constraint'),
@@ -72,19 +79,7 @@ hiLowPtTripletStepPixelTracks = cms.EDProducer("PixelTrackProducer",
     ),
 	
     # Filter
-    useFilterWithES = cms.bool( True ),
-    FilterPSet = cms.PSet( 
-        nSigmaLipMaxTolerance = cms.double(4.0),
-        chi2 = cms.double(1000.0),
-        ComponentName = cms.string('HIPixelTrackFilter'),
-        nSigmaTipMaxTolerance = cms.double(4.0),
-        clusterShapeCacheSrc = cms.InputTag("siPixelClusterShapeCache"),
-        VertexCollection = cms.InputTag("hiSelectedVertex"),
-        useClusterShape = cms.bool(False),
-        lipMax = cms.double(0),
-        tipMax = cms.double(0),
-        ptMin = cms.double(0.4)
-    ),
+    Filter = cms.InputTag("hiLowPtTripletStepPixelTracksFilter"),
 	
     # Cleaner
     CleanerPSet = cms.PSet(  
@@ -198,6 +193,7 @@ hiLowPtTripletStepQual = RecoTracker.FinalTrackSelectors.trackListMerger_cfi.tra
 
 hiLowPtTripletStep = cms.Sequence(hiLowPtTripletStepClusters*
                                         hiLowPtTripletStepSeedLayers*
+                                        hiLowPtTripletStepPixelTracksFilter*
                                         hiLowPtTripletStepPixelTracks*hiLowPtTripletStepSeeds*
                                         hiLowPtTripletStepTrackCandidates*
                                         hiLowPtTripletStepTracks*

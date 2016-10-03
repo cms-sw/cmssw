@@ -4,16 +4,15 @@ hltPreIsoTrackHE = cms.EDFilter("HLTPrescaler",
                                 L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
                                 offset = cms.uint32( 0 )
                                 )
+hltHITPixelTracksHBFilter = cms.EDProducer('PixelTrackFilterByKinematicsProducer',
+    chi2 = cms.double( 1000.0 ),
+    nSigmaTipMaxTolerance = cms.double( 0.0 ),
+    nSigmaInvPtTolerance = cms.double( 0.0 ),
+    ptMin = cms.double( 0.7 ),
+    tipMax = cms.double( 1.0 )
+)
 hltHITPixelTracksHB = cms.EDProducer("PixelTrackProducer",
-                                     useFilterWithES = cms.bool( False ),
-                                     FilterPSet = cms.PSet( 
-        chi2 = cms.double( 1000.0 ),
-        nSigmaTipMaxTolerance = cms.double( 0.0 ),
-        ComponentName = cms.string( "PixelTrackFilterByKinematics" ),
-        nSigmaInvPtTolerance = cms.double( 0.0 ),
-        ptMin = cms.double( 0.7 ),
-        tipMax = cms.double( 1.0 )
-        ),
+                                     Filter = cms.InputTag("hltHITPixelTracksHBFilter"),
                                      passLabel = cms.string( "Pixel triplet primary tracks with vertex constraint" ),
                                      FitterPSet = cms.PSet( 
         ComponentName = cms.string( "PixelFitterByConformalMappingAndLine" ),
@@ -51,16 +50,15 @@ hltHITPixelTracksHB = cms.EDProducer("PixelTrackProducer",
         )
                                      )
 
+hltHITPixelTracksHEFilter = cms.EDProducer('PixelTrackFilterByKinematicsProducer',
+    chi2 = cms.double( 1000.0 ),
+    nSigmaTipMaxTolerance = cms.double( 0.0 ),
+    nSigmaInvPtTolerance = cms.double( 0.0 ),
+    ptMin = cms.double( 0.35 ),
+    tipMax = cms.double( 1.0 )
+)
 hltHITPixelTracksHE = cms.EDProducer("PixelTrackProducer",
-                                     useFilterWithES = cms.bool( False ),
-                                     FilterPSet = cms.PSet( 
-        chi2 = cms.double( 1000.0 ),
-        nSigmaTipMaxTolerance = cms.double( 0.0 ),
-        ComponentName = cms.string( "PixelTrackFilterByKinematics" ),
-        nSigmaInvPtTolerance = cms.double( 0.0 ),
-        ptMin = cms.double( 0.35 ),
-        tipMax = cms.double( 1.0 )
-        ),
+                                     Filter = cms.InputTag("hltHITPixelTracksHEFilter"),
                                      passLabel = cms.string( "Pixel triplet primary tracks with vertex constraint" ),
                                      FitterPSet = cms.PSet( 
         ComponentName = cms.string( "PixelFitterByConformalMappingAndLine" ),
@@ -429,7 +427,7 @@ hltEcalIsolPixelTrackL2FilterHE = cms.EDFilter("HLTEcalPixelIsolTrackFilter",
                                                saveTags = cms.bool( False )
                                                )
 
-HLT_IsoTrackHE_v15 = cms.Path( HLTBeginSequence + hltL1sV0SingleJet60 + hltPreIsoTrackHE + HLTDoLocalPixelSequence + hltHITPixelTracksHB + hltHITPixelTracksHE + hltHITPixelVerticesHE + hltIsolPixelTrackProdHE + hltIsolPixelTrackL2FilterHE + HLTDoLocalStripSequence + hltHITPixelTripletSeedGeneratorHE + hltHITCkfTrackCandidatesHE + hltHITCtfWithMaterialTracksHE + hltHITIPTCorrectorHE + hltIsolPixelTrackL3FilterHE + HLTEndSequence )
+HLT_IsoTrackHE_v15 = cms.Path( HLTBeginSequence + hltL1sV0SingleJet60 + hltPreIsoTrackHE + HLTDoLocalPixelSequence + hltHITPixelTracksHBFilter + hltHITPixelTracksHEFilter + hltHITPixelTracksHB + hltHITPixelTracksHE + hltHITPixelVerticesHE + hltIsolPixelTrackProdHE + hltIsolPixelTrackL2FilterHE + HLTDoLocalStripSequence + hltHITPixelTripletSeedGeneratorHE + hltHITCkfTrackCandidatesHE + hltHITCtfWithMaterialTracksHE + hltHITIPTCorrectorHE + hltIsolPixelTrackL3FilterHE + HLTEndSequence )
 
-HLT_IsoTrackHB_v14 = cms.Path( HLTBeginSequence + hltL1sV0SingleJet60 + hltPreIsoTrackHB + HLTDoLocalPixelSequence + hltHITPixelTracksHB + hltHITPixelVerticesHB + hltIsolPixelTrackProdHB + hltIsolPixelTrackL2FilterHB + HLTDoLocalStripSequence + hltHITPixelTripletSeedGeneratorHB + hltHITCkfTrackCandidatesHB + hltHITCtfWithMaterialTracksHB + hltHITIPTCorrectorHB + hltIsolPixelTrackL3FilterHB + HLTEndSequence )
+HLT_IsoTrackHB_v14 = cms.Path( HLTBeginSequence + hltL1sV0SingleJet60 + hltPreIsoTrackHB + HLTDoLocalPixelSequence + hltHITPixelTracksHBFilter + hltHITPixelTracksHB + hltHITPixelVerticesHB + hltIsolPixelTrackProdHB + hltIsolPixelTrackL2FilterHB + HLTDoLocalStripSequence + hltHITPixelTripletSeedGeneratorHB + hltHITCkfTrackCandidatesHB + hltHITCtfWithMaterialTracksHB + hltHITIPTCorrectorHB + hltIsolPixelTrackL3FilterHB + HLTEndSequence )
 

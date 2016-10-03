@@ -1,5 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
+from RecoPixelVertexing.PixelLowPtUtilities.clusterShapeTrackFilter_cfi import clusterShapeTrackFilter
+
 ##########################
 # The base for all steps
 allPixelTracks = cms.EDProducer("PixelTrackProducer",
@@ -41,13 +43,7 @@ allPixelTracks = cms.EDProducer("PixelTrackProducer",
     ),
 
     # Filter
-    useFilterWithES = cms.bool(True),
-    FilterPSet = cms.PSet(
-        ComponentName = cms.string('ClusterShapeTrackFilter'),
-        clusterShapeCacheSrc = cms.InputTag("siPixelClusterShapeCache")
-#       ptMin  = cms.double()
-#       ptMax  = cms.double()
-    ),
+    Filter = cms.InputTag("clusterShapeTrackFilter"),
 
     # Cleaner
     CleanerPSet = cms.PSet(
@@ -62,3 +58,7 @@ allPixelTracks = cms.EDProducer("PixelTrackProducer",
 )
 
 
+allPixelTracksSequence = cms.Sequence(
+    clusterShapeTrackFilter +
+    allPixelTracks
+)

@@ -47,16 +47,10 @@ def addL3ToHLT(process):
 		process.hltDiMuonLinks.LinkCollection = cms.InputTag("hltBRSL3MuonsLinksCombination")
 	#############################################################
 	#Making Pixel Vertices:
+        from RecoPixelVertexing.PixelTrackFitting.pixelTrackFilterByKinematics_cfi import pixelTrackFilterByKinematics as _pixelTrackFilterByKinematics
+        process.hltPixelTrackFilterByKinematics = _pixelTrackFilterByKinematics.clone()
 	process.hltPixelTracks = cms.EDProducer( "PixelTrackProducer",
-	    FilterPSet = cms.PSet(
-	      chi2 = cms.double( 1000.0 ),
-	      nSigmaTipMaxTolerance = cms.double( 0.0 ),
-	      ComponentName = cms.string( "PixelTrackFilterByKinematics" ),
-	      nSigmaInvPtTolerance = cms.double( 0.0 ),
-	      ptMin = cms.double( 0.1 ),
-	      tipMax = cms.double( 1.0 )
-	    ),
-	    useFilterWithES = cms.bool( False ),
+	    Filter = cms.InputTag("hltPixelTrackFilterByKinematics"),
 	    passLabel = cms.string( "Pixel triplet primary tracks with vertex constraint" ),
 	    FitterPSet = cms.PSet(
 	      ComponentName = cms.string( "PixelFitterByHelixProjections" ),
@@ -115,6 +109,7 @@ def addL3ToHLT(process):
 	
 	process.HLTRecopixelvertexingSequence = cms.Sequence(
 	 process.hltPixelLayerTriplets
+	 + process.hltPixelTrackFilterByKinematics
 	 + process.hltPixelTracks
 	 + process.hltPixelVertices
 	)
@@ -435,15 +430,7 @@ def addL3ToHLT(process):
 	########## IO Algorthim:
 	#Making Pixel Vertices:
 	process.hltPixelTracks = cms.EDProducer( "PixelTrackProducer",
-	    FilterPSet = cms.PSet(
-	      chi2 = cms.double( 1000.0 ),
-	      nSigmaTipMaxTolerance = cms.double( 0.0 ),
-	      ComponentName = cms.string( "PixelTrackFilterByKinematics" ),
-	      nSigmaInvPtTolerance = cms.double( 0.0 ),
-	      ptMin = cms.double( 0.1 ),
-	      tipMax = cms.double( 1.0 )
-	    ),
-	    useFilterWithES = cms.bool( False ),
+	    Filter = cms.InputTag("hltPixelTrackFilterByKinematics"),
 	    passLabel = cms.string( "Pixel triplet primary tracks with vertex constraint" ),
 	    FitterPSet = cms.PSet(
 	      ComponentName = cms.string( "PixelFitterByHelixProjections" ),
@@ -502,15 +489,7 @@ def addL3ToHLT(process):
 	
 	#Start Iterative tracking:
 	process.hltBRSIter0HighPtTkMuPixelTracks = cms.EDProducer( "PixelTrackProducer",
-	    FilterPSet = cms.PSet(
-	      chi2 = cms.double( 1000.0 ),
-	      nSigmaTipMaxTolerance = cms.double( 0.0 ),
-	      ComponentName = cms.string( "PixelTrackFilterByKinematics" ),
-	      nSigmaInvPtTolerance = cms.double( 0.0 ),
-	      ptMin = cms.double( 0.1 ),
-	      tipMax = cms.double( 1.0 )
-	    ),
-	    useFilterWithES = cms.bool( False ),
+	    Filter = cms.InputTag("hltPixelTrackFilterByKinematics"),
 	    passLabel = cms.string( "Pixel triplet primary tracks with vertex constraint" ),
 	    FitterPSet = cms.PSet(
 	      ComponentName = cms.string( "PixelFitterByHelixProjections" ),
@@ -974,6 +953,7 @@ def addL3ToHLT(process):
 	####################### NEW Combo:
 	process.HLTBRSIterativeTrackingHighPtTkMuIteration0 = cms.Sequence(
 	 process.hltPixelLayerTriplets +
+	 process.hltPixelTrackFilterByKinematics +
 	 process.hltBRSIter0HighPtTkMuPixelTracks +
 	 process.hltBRSIter0HighPtTkMuPixelSeedsFromPixelTracks +
 	 process.hltBRSIter0HighPtTkMuCkfTrackCandidates +
