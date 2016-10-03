@@ -1292,7 +1292,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
 
     def extractMET(self, process, correctionLevel, patMetModuleSequence, postfix):
         pfMet = cms.EDProducer("RecoMETExtractor",
-                               metSource= cms.InputTag("slimmedMETs",processName=cms.InputTag.skipCurrentProcess()),
+                               metSource= cms.InputTag("slimmedMETs" if not self_.parameters["Puppi"].value else "slimmedMETsPuppi",processName=cms.InputTag.skipCurrentProcess()),
                                correctionLevel = cms.string(correctionLevel)
                                )
         if(correctionLevel=="raw"):
