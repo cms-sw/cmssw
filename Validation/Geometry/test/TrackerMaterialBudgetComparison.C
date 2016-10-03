@@ -61,6 +61,7 @@ void createPlots(TString plot);
 void create2DPlots(TString plot);
 void drawEtaValues();
 void makeColorTableRB();
+bool checkSameness(TH1D *h1, TH1D *h2);
 
 using namespace std;
 
@@ -121,7 +122,11 @@ void TrackerMaterialBudgetComparison(TString detector) {
   theDetectorFile_old = new TFile(theDetectorFileName_old);
   theDetectorFile_new = new TFile(theDetectorFileName_new);
   //
-  
+
+  //output root file
+  TString outputPlotsFileName = theDirName + "/comparison_" + theDetector + "_plots.root";
+  TFile* outputPlotsFile = new TFile(outputPlotsFileName, "RECREATE");
+
   // plots
   createPlots("x_vs_eta");
   createPlots("x_vs_phi");
@@ -309,23 +314,40 @@ void createPlots(TString plot) {
 
   // Comparison
   // canvas
-  TCanvas can_comparison("TkMB_Comparison","TkMB_Comparison",1200,800);
+  TString cancompname("TkMB_Comparison_"+plot);
+  TCanvas can_comparison(cancompname, cancompname,1200,800);
   can_comparison.Range(0,0,25,25);
   can_comparison.Divide(4,2);
   can_comparison.SetFillColor(kWhite);
   can_comparison.SetGridy(1);
   can_comparison.SetLogy(0);
-  // canvas
-  TCanvas can_ratio("TkMB_ComparisonRatio","TkMB_ComparisonRatio",1200,800);
+  // ratio canvas
+  TString canratname("TkMB_ComparisonRatio_"+plot);
+  TCanvas can_ratio(canratname,canratname,1200,800);
   can_ratio.Range(0,0,25,25);
   can_ratio.Divide(4,2);
   can_ratio.SetFillColor(kWhite);
   can_ratio.SetGridy(1);
   can_ratio.SetLogy(0);
+  // difference canvas
+  TString candiffname("TkMB_ComparisonDiff_"+plot);
+  TCanvas can_diff(candiffname,candiffname,1200,800);
+  can_diff.Range(0,0,25,25);
+  can_diff.Divide(4,2);
+  can_diff.SetFillColor(kWhite);
+  can_diff.SetGridy(1);
+  can_diff.SetLogy(0);
+
   // settings
   gStyle->SetOptStat(0);
   gStyle->SetOptFit(0);
   
+  //output text file
+  ofstream outp("Images/MBDiff.txt");
+  outp << "Histogram\tIdentical?" << endl;
+
+  int isega = 0;
+
   for(unsigned int i_category=1; i_category<=8; i_category++) {
     TH1D* histo_old;
     TH1D* histo_new;
@@ -368,12 +390,17 @@ void createPlots(TString plot) {
     case 8: {
       histo_old = hist_x0_total_old;
       histo_new = hist_x0_total_new;
+      isega = 1;
       break;
     }
     }
     
     // Ratio
     TH1D* histo_ratio = new TH1D(*histo_new);
+    //
+
+    // Difference
+    TH1D* histo_diff = new TH1D(*histo_new);
     //
     
     // canvas
@@ -390,6 +417,9 @@ void createPlots(TString plot) {
     histo_old->SetFillStyle(3002); // small points
     histo_old->SetFillColor(4);    // blue
     histo_old->SetLineWidth(1.0);  // 
+    
+    outp << histo_new->GetName() << "\t\t" << checkSameness(histo_new, histo_old) << endl;
+
     //
     // Draw
     histo_old->GetXaxis()->SetTitle(abscissaName);
@@ -435,7 +465,28 @@ void createPlots(TString plot) {
     histo_ratio->GetXaxis()->SetTitle(abscissaName);
     histo_ratio->GetYaxis()->SetTitle( Form( "%s Ratio (New/Old)",  ordinateName.Data() ));
     histo_ratio->Draw("HIST P E1");
+
     //
+
+    // Difference
+    // canvas
+    can_diff.cd();
+    can_diff.cd(i_category);
+    //
+    // Compare
+    histo_diff->Add(histo_old,-1.);
+    histo_diff->SetMarkerColor(4);   // blue
+    histo_diff->SetLineColor(102);   // dark red
+    histo_diff->SetFillColor(0);     // white
+    histo_diff->SetMarkerStyle(20);  // cyrcles
+    histo_diff->SetMarkerSize(0.2);  // 
+    histo_diff->SetLineWidth(1);  // 
+    //
+    // Draw
+    histo_diff->GetXaxis()->SetTitle(abscissaName);
+    histo_diff->GetYaxis()->SetTitle( Form( "%s Difference (New-Old)",  ordinateName.Data() ));
+    histo_diff->Draw("HIST P E1");
+
     
   }
   
@@ -454,6 +505,23 @@ void createPlots(TString plot) {
   //  can_ratio.SaveAs( Form( "%s/%s_ComparisonRatio_%s.pdf",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
   can_ratio.SaveAs( Form( "%s/%s_ComparisonRatio_%s.png",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
   //
+
+  // Store Diff
+  can_diff.Update();
+  //  can_diff.SaveAs( Form( "%s/%s_ComparisonRatio_%s.eps",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
+  //  can_diff.SaveAs( Form( "%s/%s_ComparisonRatio_%s.gif",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
+  //  can_diff.SaveAs( Form( "%s/%s_ComparisonRatio_%s.pdf",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
+  can_diff.SaveAs( Form( "%s/%s_ComparisonDiff_%s.png",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
+  //
+
+    if (isega)
+      {
+	//histo_ratio->SaveAs(Form("%s/prc_%s.root",theDirName.Data(),plot.Data()));
+	can_comparison.Write();
+	can_ratio.Write();
+	can_diff.Write();
+      }
+    outp.close();
   
 }
 
@@ -542,6 +610,8 @@ void create2DPlots(TString plot) {
   TH2D* hist_x0_total_new = (TH2D*)prof2d_x0_det_total_new->ProjectionXY();
   //
   
+  int isega = 1;
+
   if(theDetector=="TrackerSum" || theDetector=="Pixel" || theDetector=="Strip" || theDetector=="InnerTracker") {
     TString subDetector = "TIB";
     for(unsigned int i_detector=iFirst; i_detector<=iLast; i_detector++) {
@@ -640,7 +710,8 @@ void create2DPlots(TString plot) {
   if ( histoMax != -1. ) histo_ratio->SetMaximum(histoMax);      
 
   // canvas
-  TCanvas can("can","can",2480+248,580+58+58);
+  TString canname("TkMBComparison_2DRatio_" + theDetector + "_" + plot);
+  TCanvas can(canname,canname,2480+248,580+58+58);
   can.SetTopMargin(0.1);
   can.SetBottomMargin(0.1);
   can.SetLeftMargin(0.04);
@@ -711,7 +782,10 @@ void create2DPlots(TString plot) {
   //  can.SaveAs( Form( "%s/%s_ComparisonRatio_%s.pdf",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
   can.SaveAs( Form( "%s/%s_ComparisonRatio_%s.png",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
   //
-
+  if ( isega )
+    {
+      can.Write();
+    }
   // restore properties
   gStyle->SetStripDecimals(true);
   //
@@ -785,4 +859,22 @@ void makeColorTableRB(){
   TColor::CreateGradientColorTable(NRGBs, stops, red, green, blue, NCont);
   gStyle->SetNumberContours(NCont);
 
+}
+
+bool checkSameness(TH1D *h1, TH1D *h2)
+{
+
+  if (h1->GetNbinsX() != h2->GetNbinsX())
+    return false;
+  else
+    {
+      bool result = true;
+      int nbins = h1->GetNbinsX();
+      for (int i = 1; i < nbins+1; i++)
+	{
+	  if (h1->GetBinContent(i) != h2->GetBinContent(i))
+	    result = false;
+	}
+      return result;
+    }
 }
