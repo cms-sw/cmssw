@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../../DetectorDescription/Schema/DDLSchema.xsd">
+
+<SolidSection label="fastTimingElement.xml">
+  <Tubs name="SFBX" rMin="[fastTiming:rInTiming]" rMax="[fastTiming:rOutTiming]" dz="0.5*[fastTiming:dzTiming]"  startPhi="0*deg" deltaPhi="360*deg"/>
+</SolidSection>
+
+<LogicalPartSection label="fastTimingElement.xml">
+  <LogicalPart name="SFBX" category="unspecified">
+    <rSolid name="SFBX"/>
+    <rMaterial name="materials:E_Silicon"/>
+  </LogicalPart>
+</LogicalPartSection>
+
+<PosPartSection label="fastTimingElement.xml">
+  <PosPart copyNumber="1">
+    <rParent name="fastTiming:SFLY"/>
+    <rChild name="fastTimingElement:SFBX"/>
+  </PosPart>
+</PosPartSection>
+
+<SpecParSection label="FastTimingElement.xml" eval="true">
+  <SpecPar name="fastTiminingElement">
+    <PartSelector path="//SFBX"/>
+    <Parameter name="Volume" value="SFBX" eval="false"/>
+    <Parameter name="geomType" value="2"/>
+   </SpecPar>
+</SpecParSection>
+
+</DDDefinition>
