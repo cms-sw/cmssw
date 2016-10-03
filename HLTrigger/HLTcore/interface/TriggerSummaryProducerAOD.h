@@ -53,6 +53,7 @@
 
 #include <functional>
 #include "tbb/concurrent_unordered_set.h"
+#include <regex>
 
 namespace edm {
   class EventSetup;
@@ -120,6 +121,9 @@ class TriggerSummaryProducerAOD : public edm::stream::EDProducer<edm::GlobalCach
  private:
   /// process name
   std::string pn_;
+  /// module labels which should be avoided
+  std::vector<std::regex> moduleLabelPatternsToMatch_;
+  std::vector<std::regex> moduleLabelPatternsToSkip_;
 
   /// InputTag ordering class
   struct OrderInputTag {
