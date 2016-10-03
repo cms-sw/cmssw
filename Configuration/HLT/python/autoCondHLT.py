@@ -39,7 +39,7 @@ hltGTs = {
     'run2_mc_25ns15e33_v4'   : ('run2_mc'             ,l1Menus['25ns15e33_v4']),
     'run2_mc_25ns10e33_v2'   : ('run2_mc'             ,l1Menus['25ns10e33_v2']),
     'run2_mc_HIon'           : ('run2_mc_hi'          ,l1Menus['HIon']),
-    'run2_mc_PIon'           : ('run2_mc'             ,l1Menus['PIon']),
+    'run2_mc_PIon'           : ('run2_mc_pa'          ,l1Menus['PIon']),
     'run2_mc_PRef'           : ('run2_mc'             ,l1Menus['PRef']),
 
     'run1_hlt_Fake'          : ('run1_hlt'            ,l1Menus['Fake']),
