@@ -38,17 +38,17 @@ namespace reco {
     /// point in the space
     typedef math::XYZPoint Point;
     /// error matrix dimension
-    enum { dimension = 3 };
+    enum { dimension = 3, dimension4D = 4 };
     /// covariance error matrix (3x3)
     typedef math::Error<dimension>::type Error;
     /// covariance error matrix (3x3)
     typedef math::Error<dimension>::type CovarianceMatrix;
     /// covariance error matrix (4x4)
-    typedef math::Error<dimension+1>::type Error4D;
+    typedef math::Error<dimension4D>::type Error4D;
     /// covariance error matrix (4x4)
-    typedef math::Error<dimension+1>::type CovarianceMatrix4D;    
+    typedef math::Error<dimension4D>::type CovarianceMatrix4D;    
     /// matix size
-    enum { size = dimension * ( dimension + 1 ) / 2, size4D = ( dimension + 1 ) * ( dimension + 2 ) / 2 };    
+    enum { size = dimension * ( dimension + 1 ) / 2, size4D = ( dimension4D ) * ( dimension4D + 1 ) / 2 };    
     /// index type
     typedef unsigned int index;
     /// default constructor - The vertex will not be valid. Position, error,
@@ -185,7 +185,7 @@ namespace reco {
     /// position
     Point position_;
     /// covariance matrix (4x4) as vector
-    float covariance_[ size4D];
+    float covariance_[size4D];
     /// reference to tracks
     std::vector<TrackBaseRef> tracks_;
     /// The vector of refitted tracks
