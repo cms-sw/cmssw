@@ -52,11 +52,30 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Framework/interface/TriggerNamesService.h"
 
+#include "boost/algorithm/string.hpp"
+
+namespace {
+  std::vector<std::regex> convertToRegex(std::vector<std::string> const& iPatterns) {
+    std::vector<std::regex> result;
+
+    for(auto const& pattern: iPatterns) {
+      auto regexPattern = pattern;
+      boost::replace_all(regexPattern, "*", ".*");
+      boost::replace_all(regexPattern, "?", ".");
+
+      result.emplace_back(regexPattern);
+    }
+    return result;
+  }
+}
+
 //
 // constructors and destructor
 //
 TriggerSummaryProducerAOD::TriggerSummaryProducerAOD(const edm::ParameterSet& ps, const GlobalInputTags * gt) : 
   pn_(ps.getParameter<std::string>("processName")),
+  moduleLabelPatternsToMatch_(convertToRegex(ps.getParameter<std::vector<std::string>>("moduleLabelPatternsToMatch"))),
+  moduleLabelPatternsToSkip_(convertToRegex(ps.getParameter<std::vector<std::string>>("moduleLabelPatternsToSkip"))),
   filterTagsEvent_(pn_!="*"),
   filterTagsStream_(pn_!="*"),
   collectionTagsEvent_(pn_!="*"),
@@ -89,28 +108,49 @@ TriggerSummaryProducerAOD::TriggerSummaryProducerAOD(const edm::ParameterSet& ps
 
   produces<trigger::TriggerEvent>();
 
-  getTriggerFilterObjectWithRefs_ = edm::GetterOfProducts<trigger::TriggerFilterObjectWithRefs>(edm::ProcessMatch(pn_), this);
-  getRecoEcalCandidateCollection_ = edm::GetterOfProducts<reco::RecoEcalCandidateCollection>(edm::ProcessMatch(pn_), this);
-  getElectronCollection_ = edm::GetterOfProducts<reco::ElectronCollection>(edm::ProcessMatch(pn_), this);
-  getRecoChargedCandidateCollection_ = edm::GetterOfProducts<reco::RecoChargedCandidateCollection>(edm::ProcessMatch(pn_), this);
-  getCaloJetCollection_ = edm::GetterOfProducts<reco::CaloJetCollection>(edm::ProcessMatch(pn_), this);
-  getCompositeCandidateCollection_ = edm::GetterOfProducts<reco::CompositeCandidateCollection>(edm::ProcessMatch(pn_), this);
-  getMETCollection_ = edm::GetterOfProducts<reco::METCollection>(edm::ProcessMatch(pn_), this);
-  getCaloMETCollection_ = edm::GetterOfProducts<reco::CaloMETCollection>(edm::ProcessMatch(pn_), this);
-  getIsolatedPixelTrackCandidateCollection_ = edm::GetterOfProducts<reco::IsolatedPixelTrackCandidateCollection>(edm::ProcessMatch(pn_), this);
-  getL1EmParticleCollection_ = edm::GetterOfProducts<l1extra::L1EmParticleCollection>(edm::ProcessMatch(pn_), this);
-  getL1MuonParticleCollection_ = edm::GetterOfProducts<l1extra::L1MuonParticleCollection>(edm::ProcessMatch(pn_), this);
-  getL1JetParticleCollection_ = edm::GetterOfProducts<l1extra::L1JetParticleCollection>(edm::ProcessMatch(pn_), this);
-  getL1EtMissParticleCollection_ = edm::GetterOfProducts<l1extra::L1EtMissParticleCollection>(edm::ProcessMatch(pn_), this);
-  getL1HFRingsCollection_ = edm::GetterOfProducts<l1extra::L1HFRingsCollection>(edm::ProcessMatch(pn_), this);
-  getL1TMuonParticleCollection_ = edm::GetterOfProducts<l1t::MuonBxCollection>(edm::ProcessMatch(pn_), this);
-  getL1TEGammaParticleCollection_ = edm::GetterOfProducts<l1t::EGammaBxCollection>(edm::ProcessMatch(pn_), this);
-  getL1TJetParticleCollection_ = edm::GetterOfProducts<l1t::JetBxCollection>(edm::ProcessMatch(pn_), this);
-  getL1TTauParticleCollection_ = edm::GetterOfProducts<l1t::TauBxCollection>(edm::ProcessMatch(pn_), this);
-  getL1TEtSumParticleCollection_ = edm::GetterOfProducts<l1t::EtSumBxCollection>(edm::ProcessMatch(pn_), this);
-  getPFJetCollection_ = edm::GetterOfProducts<reco::PFJetCollection>(edm::ProcessMatch(pn_), this);
-  getPFTauCollection_ = edm::GetterOfProducts<reco::PFTauCollection>(edm::ProcessMatch(pn_), this);
-  getPFMETCollection_ = edm::GetterOfProducts<reco::PFMETCollection>(edm::ProcessMatch(pn_), this);
+  auto const* pProcessName = &pn_;
+  auto const& moduleLabelPatternsToMatch = moduleLabelPatternsToMatch_;
+  auto const& moduleLabelPatternsToSkip = moduleLabelPatternsToSkip_;
+  auto productMatch = [pProcessName,&moduleLabelPatternsToSkip,&moduleLabelPatternsToMatch](edm::BranchDescription const& iBranch) -> bool {
+    if(iBranch.processName() == *pProcessName || *pProcessName == "*") {
+      auto const& label = iBranch.moduleLabel();
+      for(auto& match: moduleLabelPatternsToMatch) {
+        if(std::regex_match(label,match)) {
+          //make sure this is not in the reject list
+          for(auto& reject: moduleLabelPatternsToSkip) {
+            if(std::regex_match(label,reject)) {
+              return false;
+            }
+          }
+          return true;
+        }
+      }
+    }
+    return false;
+  };
+
+  getTriggerFilterObjectWithRefs_ = edm::GetterOfProducts<trigger::TriggerFilterObjectWithRefs>(productMatch, this);
+  getRecoEcalCandidateCollection_ = edm::GetterOfProducts<reco::RecoEcalCandidateCollection>(productMatch, this);
+  getElectronCollection_ = edm::GetterOfProducts<reco::ElectronCollection>(productMatch, this);
+  getRecoChargedCandidateCollection_ = edm::GetterOfProducts<reco::RecoChargedCandidateCollection>(productMatch, this);
+  getCaloJetCollection_ = edm::GetterOfProducts<reco::CaloJetCollection>(productMatch, this);
+  getCompositeCandidateCollection_ = edm::GetterOfProducts<reco::CompositeCandidateCollection>(productMatch, this);
+  getMETCollection_ = edm::GetterOfProducts<reco::METCollection>(productMatch, this);
+  getCaloMETCollection_ = edm::GetterOfProducts<reco::CaloMETCollection>(productMatch, this);
+  getIsolatedPixelTrackCandidateCollection_ = edm::GetterOfProducts<reco::IsolatedPixelTrackCandidateCollection>(productMatch, this);
+  getL1EmParticleCollection_ = edm::GetterOfProducts<l1extra::L1EmParticleCollection>(productMatch, this);
+  getL1MuonParticleCollection_ = edm::GetterOfProducts<l1extra::L1MuonParticleCollection>(productMatch, this);
+  getL1JetParticleCollection_ = edm::GetterOfProducts<l1extra::L1JetParticleCollection>(productMatch, this);
+  getL1EtMissParticleCollection_ = edm::GetterOfProducts<l1extra::L1EtMissParticleCollection>(productMatch, this);
+  getL1HFRingsCollection_ = edm::GetterOfProducts<l1extra::L1HFRingsCollection>(productMatch, this);
+  getL1TMuonParticleCollection_ = edm::GetterOfProducts<l1t::MuonBxCollection>(productMatch, this);
+  getL1TEGammaParticleCollection_ = edm::GetterOfProducts<l1t::EGammaBxCollection>(productMatch, this);
+  getL1TJetParticleCollection_ = edm::GetterOfProducts<l1t::JetBxCollection>(productMatch, this);
+  getL1TTauParticleCollection_ = edm::GetterOfProducts<l1t::TauBxCollection>(productMatch, this);
+  getL1TEtSumParticleCollection_ = edm::GetterOfProducts<l1t::EtSumBxCollection>(productMatch, this);
+  getPFJetCollection_ = edm::GetterOfProducts<reco::PFJetCollection>(productMatch, this);
+  getPFTauCollection_ = edm::GetterOfProducts<reco::PFTauCollection>(productMatch, this);
+  getPFMETCollection_ = edm::GetterOfProducts<reco::PFMETCollection>(productMatch, this);
 
   callWhenNewProductsRegistered([this](edm::BranchDescription const& bd){
     getTriggerFilterObjectWithRefs_(bd);
@@ -176,7 +216,9 @@ namespace {
 
 void TriggerSummaryProducerAOD::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  desc.add<std::string>("processName","@");
+  desc.add<std::string>("processName","@")->setComment("Process name to use when getting data. The value of '@' is used to denote the current process name.");
+  desc.add<std::vector<std::string>>("moduleLabelPatternsToMatch",std::vector<std::string>(1,"hlt*"))->setComment("glob patterns for module labels to get data.");
+  desc.add<std::vector<std::string>>("moduleLabelPatternsToSkip",std::vector<std::string>())->setComment("module labels for data products which should not be gotten.");
   descriptions.add("triggerSummaryProducerAOD", desc);
 }
 
