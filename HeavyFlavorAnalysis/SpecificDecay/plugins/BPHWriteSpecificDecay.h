@@ -74,12 +74,15 @@ class BPHWriteSpecificDecay:
   std::string   bdName;
   std::string   bsName;
 
-  enum recoType { Pmm , Psi1, Psi2, Ups , Ups1, Ups2, Ups3,
+  enum recoType { Onia, Pmm , Psi1, Psi2, Ups , Ups1, Ups2, Ups3,
                   Kx0, Pkk, Bu, Bd, Bs };
   enum  parType { ptMin, etaMax,
                   mPsiMin, mPsiMax, mKx0Min, mKx0Max, mPhiMin, mPhiMax, 
                   massMin, massMax, probMin, mFitMin, mFitMax,
-                  constrMass, constrSigma, constrMJPsi };
+                  constrMass, constrSigma, constrMJPsi, writeCandidate };
+  std::map<std::string,int> rMap;
+  std::map<std::string,int> pMap;
+  std::map<std::string,int> fMap;
   std::map< int, std::map<int,double> >  parMap;
   bool writeVertex;
   bool writeMomentum;

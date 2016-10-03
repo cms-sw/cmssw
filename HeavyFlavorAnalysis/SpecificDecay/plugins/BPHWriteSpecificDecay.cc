@@ -73,6 +73,39 @@ BPHWriteSpecificDecay::BPHWriteSpecificDecay( const edm::ParameterSet& ps ) {
                                writeVertex   =
        ps.getParameter<bool>( "writeVertex"   );
 
+  rMap["Onia"   ] = Onia;
+  rMap["PHiMuMu"] = Pmm;
+  rMap["Psi1"   ] = Psi1;
+  rMap["Psi2"   ] = Psi2;
+  rMap["Ups"    ] = Ups;
+  rMap["Ups1"   ] = Ups1;
+  rMap["Ups2"   ] = Ups2;
+  rMap["Ups3"   ] = Ups3;
+  rMap["Kx0"    ] = Kx0;
+  rMap["PhiKK"  ] = Pkk;
+  rMap["Bu"     ] = Bu;
+  rMap["Bd"     ] = Bd;
+  rMap["Bs"     ] = Bs;
+
+  pMap["ptMin"      ] = ptMin;
+  pMap["etaMax"     ] = etaMax;
+  pMap["mJPsiMin"   ] = mPsiMin;
+  pMap["mJPsiMax"   ] = mPsiMax;
+  pMap["mKx0Min"    ] = mKx0Min;
+  pMap["mKx0Max"    ] = mKx0Max;
+  pMap["mPhiMin"    ] = mPhiMin;
+  pMap["mPhiMax"    ] = mPhiMax;
+  pMap["massMin"    ] = massMin;
+  pMap["massMax"    ] = massMax;
+  pMap["probMin"    ] = probMin;
+  pMap["massFitMin" ] = mFitMin;
+  pMap["massFitMax" ] = mFitMax;
+  pMap["constrMass" ] = constrMass;
+  pMap["constrSigma"] = constrSigma;
+
+  fMap["constrMJPsi"   ] = constrMJPsi;
+  fMap["writeCandidate"] = writeCandidate;
+
   if ( ps.exists( "recoSelect" ) ) {
     const vector<edm::ParameterSet> recoSelect =
           ps.getParameter< vector<edm::ParameterSet> >( "recoSelect" );
@@ -614,40 +647,6 @@ string BPHWriteSpecificDecay::getParameter( const edm::ParameterSet& ps,
 
 
 void BPHWriteSpecificDecay::setRecoParameters( const edm::ParameterSet& ps ) {
-
-  map<string,int> rMap;
-  rMap["PHiMuMu"] = Pmm;
-  rMap["Psi1"   ] = Psi1;
-  rMap["Psi2"   ] = Psi2;
-  rMap["Ups"    ] = Ups;
-  rMap["Ups1"   ] = Ups1;
-  rMap["Ups2"   ] = Ups2;
-  rMap["Ups3"   ] = Ups3;
-  rMap["Kx0"    ] = Kx0;
-  rMap["PhiKK"  ] = Pkk;
-  rMap["Bu"     ] = Bu;
-  rMap["Bd"     ] = Bd;
-  rMap["Bs"     ] = Bs;
-
-  map<string,int> pMap;
-  pMap["ptMin"      ] = ptMin;
-  pMap["etaMax"     ] = etaMax;
-  pMap["mJPsiMin"   ] = mPsiMin;
-  pMap["mJPsiMax"   ] = mPsiMax;
-  pMap["mKx0Min"    ] = mKx0Min;
-  pMap["mKx0Max"    ] = mKx0Max;
-  pMap["mPhiMin"    ] = mPhiMin;
-  pMap["mPhiMax"    ] = mPhiMax;
-  pMap["massMin"    ] = massMin;
-  pMap["massMax"    ] = massMax;
-  pMap["probMin"    ] = probMin;
-  pMap["massFitMin" ] = mFitMin;
-  pMap["massFitMax" ] = mFitMax;
-  pMap["constrMass" ] = constrMass;
-  pMap["constrSigma"] = constrSigma;
-
-  map<string,int> fMap;
-  fMap["constrMJPsi"] = constrMJPsi;
 
   const string& name = ps.getParameter<string>( "name" );
 
