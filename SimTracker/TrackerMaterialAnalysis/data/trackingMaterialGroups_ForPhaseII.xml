@@ -18,124 +18,124 @@
       <PartSelector path="//PixelBarrel/PixelBarrelLayer3/PixelBarrelLadderFull3/pixbarladderfull3:PixelBarrelModuleBoxFull/pixbarladderfull3:PixelBarrelModuleFullMinus/pixbarladderfull3:PixelBarrelSensorFull/PixelBarrelActiveFull3" />
       <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterialPixelBarrelLayer3" /></SpecPar>
     <SpecPar name="TrackerRecMaterialPixelEndcapDisk1Fw">
-      <PartSelector path="//PixelForward[1]/PixelForwardDisk1/PixelForwardModule1[1]/PixelForwardWafer1/PixelForwardSensor1" />
-      <PartSelector path="//PixelForward[1]/PixelForwardDisk1/PixelForwardModule1[2]/PixelForwardWafer1/PixelForwardSensor1" />
-      <PartSelector path="//PixelForward[1]/PixelForwardDisk1/PixelForwardModule1[1]/PixelForwardWafer1/PixelForwardSensor1" />
-      <PartSelector path="//PixelForward[1]/PixelForwardDisk1/PixelForwardModule1[2]/PixelForwardWafer1/PixelForwardSensor1" />
+      <PartSelector path="//PixelForward[1]/PixelForwardDisk1/pixfwdblade.*:PixelForwardBlade/PixelForwardModule1[1]/PixelForwardWafer1/PixelForwardSensor1" />
+      <PartSelector path="//PixelForward[1]/PixelForwardDisk1/pixfwdblade.*:PixelForwardBlade/PixelForwardModule1[2]/PixelForwardWafer1/PixelForwardSensor1" />
+      <PartSelector path="//PixelForward[1]/PixelForwardDisk1/pixfwdblade.*:PixelForwardBlade/PixelForwardModule1[1]/PixelForwardWafer1/PixelForwardSensor1" />
+      <PartSelector path="//PixelForward[1]/PixelForwardDisk1/pixfwdblade.*:PixelForwardBlade/PixelForwardModule1[2]/PixelForwardWafer1/PixelForwardSensor1" />
       <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterialPixelEndcapDisk1Fw" /></SpecPar>
     <SpecPar name="TrackerRecMaterialPixelEndcapDisk2Fw">
-      <PartSelector path="//PixelForward[1]/PixelForwardDisk2/PixelForwardModule2[1]/PixelForwardWafer2/PixelForwardSensor2" />
-      <PartSelector path="//PixelForward[1]/PixelForwardDisk2/PixelForwardModule2[2]/PixelForwardWafer2/PixelForwardSensor2" />
-      <PartSelector path="//PixelForward[1]/PixelForwardDisk2/PixelForwardModule2[1]/PixelForwardWafer2/PixelForwardSensor2" />
-      <PartSelector path="//PixelForward[1]/PixelForwardDisk2/PixelForwardModule2[2]/PixelForwardWafer2/PixelForwardSensor2" />
+      <PartSelector path="//PixelForward[1]/PixelForwardDisk2/pixfwdblade.*:PixelForwardBlade/PixelForwardModule2[1]/PixelForwardWafer2/PixelForwardSensor2" />
+      <PartSelector path="//PixelForward[1]/PixelForwardDisk2/pixfwdblade.*:PixelForwardBlade/PixelForwardModule2[2]/PixelForwardWafer2/PixelForwardSensor2" />
+      <PartSelector path="//PixelForward[1]/PixelForwardDisk2/pixfwdblade.*:PixelForwardBlade/PixelForwardModule2[1]/PixelForwardWafer2/PixelForwardSensor2" />
+      <PartSelector path="//PixelForward[1]/PixelForwardDisk2/pixfwdblade.*:PixelForwardBlade/PixelForwardModule2[2]/PixelForwardWafer2/PixelForwardSensor2" />
       <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterialPixelEndcapDisk2Fw" /></SpecPar>
     <SpecPar name="TrackerRecMaterialPixelEndcapDisk3Fw">
-      <PartSelector path="//PixelForward[1]/PixelForwardDisk3/PixelForwardModule3[1]/PixelForwardWafer3/PixelForwardSensor3" />
-      <PartSelector path="//PixelForward[1]/PixelForwardDisk3/PixelForwardModule3[2]/PixelForwardWafer3/PixelForwardSensor3" />
-      <PartSelector path="//PixelForward[1]/PixelForwardDisk3/PixelForwardModule3[1]/PixelForwardWafer3/PixelForwardSensor3" />
-      <PartSelector path="//PixelForward[1]/PixelForwardDisk3/PixelForwardModule3[2]/PixelForwardWafer3/PixelForwardSensor3" />
+      <PartSelector path="//PixelForward[1]/PixelForwardDisk3/pixfwdblade.*:PixelForwardBlade/PixelForwardModule3[1]/PixelForwardWafer3/PixelForwardSensor3" />
+      <PartSelector path="//PixelForward[1]/PixelForwardDisk3/pixfwdblade.*:PixelForwardBlade/PixelForwardModule3[2]/PixelForwardWafer3/PixelForwardSensor3" />
+      <PartSelector path="//PixelForward[1]/PixelForwardDisk3/pixfwdblade.*:PixelForwardBlade/PixelForwardModule3[1]/PixelForwardWafer3/PixelForwardSensor3" />
+      <PartSelector path="//PixelForward[1]/PixelForwardDisk3/pixfwdblade.*:PixelForwardBlade/PixelForwardModule3[2]/PixelForwardWafer3/PixelForwardSensor3" />
       <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterialPixelEndcapDisk3Fw" /></SpecPar>
     <SpecPar name="TrackerRecMaterialPixelEndcapDisk4Fw">
-      <PartSelector path="//PixelForward[1]/PixelForwardDisk4/PixelForwardModule4[1]/PixelForwardWafer4/PixelForwardSensor4" />
-      <PartSelector path="//PixelForward[1]/PixelForwardDisk4/PixelForwardModule4[2]/PixelForwardWafer4/PixelForwardSensor4" />
-      <PartSelector path="//PixelForward[1]/PixelForwardDisk4/PixelForwardModule4[1]/PixelForwardWafer4/PixelForwardSensor4" />
-      <PartSelector path="//PixelForward[1]/PixelForwardDisk4/PixelForwardModule4[2]/PixelForwardWafer4/PixelForwardSensor4" />
+      <PartSelector path="//PixelForward[1]/PixelForwardDisk4/pixfwdblade.*:PixelForwardBlade/PixelForwardModule4[1]/PixelForwardWafer4/PixelForwardSensor4" />
+      <PartSelector path="//PixelForward[1]/PixelForwardDisk4/pixfwdblade.*:PixelForwardBlade/PixelForwardModule4[2]/PixelForwardWafer4/PixelForwardSensor4" />
+      <PartSelector path="//PixelForward[1]/PixelForwardDisk4/pixfwdblade.*:PixelForwardBlade/PixelForwardModule4[1]/PixelForwardWafer4/PixelForwardSensor4" />
+      <PartSelector path="//PixelForward[1]/PixelForwardDisk4/pixfwdblade.*:PixelForwardBlade/PixelForwardModule4[2]/PixelForwardWafer4/PixelForwardSensor4" />
       <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterialPixelEndcapDisk4Fw" /></SpecPar>
     <SpecPar name="TrackerRecMaterialPixelEndcapDisk5Fw">
-      <PartSelector path="//PixelForward[1]/PixelForwardDisk5/PixelForwardModule5[1]/PixelForwardWafer5/PixelForwardSensor5" />
-      <PartSelector path="//PixelForward[1]/PixelForwardDisk5/PixelForwardModule5[2]/PixelForwardWafer5/PixelForwardSensor5" />
-      <PartSelector path="//PixelForward[1]/PixelForwardDisk5/PixelForwardModule5[1]/PixelForwardWafer5/PixelForwardSensor5" />
-      <PartSelector path="//PixelForward[1]/PixelForwardDisk5/PixelForwardModule5[2]/PixelForwardWafer5/PixelForwardSensor5" />
+      <PartSelector path="//PixelForward[1]/PixelForwardDisk5/pixfwdblade.*:PixelForwardBlade/PixelForwardModule5[1]/PixelForwardWafer5/PixelForwardSensor5" />
+      <PartSelector path="//PixelForward[1]/PixelForwardDisk5/pixfwdblade.*:PixelForwardBlade/PixelForwardModule5[2]/PixelForwardWafer5/PixelForwardSensor5" />
+      <PartSelector path="//PixelForward[1]/PixelForwardDisk5/pixfwdblade.*:PixelForwardBlade/PixelForwardModule5[1]/PixelForwardWafer5/PixelForwardSensor5" />
+      <PartSelector path="//PixelForward[1]/PixelForwardDisk5/pixfwdblade.*:PixelForwardBlade/PixelForwardModule5[2]/PixelForwardWafer5/PixelForwardSensor5" />
       <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterialPixelEndcapDisk5Fw" /></SpecPar>
     <SpecPar name="TrackerRecMaterialPixelEndcapDisk6Fw">
-      <PartSelector path="//PixelForward[1]/PixelForwardDisk6/PixelForwardModule6[1]/PixelForwardWafer6/PixelForwardSensor6" />
-      <PartSelector path="//PixelForward[1]/PixelForwardDisk6/PixelForwardModule6[2]/PixelForwardWafer6/PixelForwardSensor6" />
-      <PartSelector path="//PixelForward[1]/PixelForwardDisk6/PixelForwardModule6[1]/PixelForwardWafer6/PixelForwardSensor6" />
-      <PartSelector path="//PixelForward[1]/PixelForwardDisk6/PixelForwardModule6[2]/PixelForwardWafer6/PixelForwardSensor6" />
+      <PartSelector path="//PixelForward[1]/PixelForwardDisk6/pixfwdblade.*:PixelForwardBlade/PixelForwardModule6[1]/PixelForwardWafer6/PixelForwardSensor6" />
+      <PartSelector path="//PixelForward[1]/PixelForwardDisk6/pixfwdblade.*:PixelForwardBlade/PixelForwardModule6[2]/PixelForwardWafer6/PixelForwardSensor6" />
+      <PartSelector path="//PixelForward[1]/PixelForwardDisk6/pixfwdblade.*:PixelForwardBlade/PixelForwardModule6[1]/PixelForwardWafer6/PixelForwardSensor6" />
+      <PartSelector path="//PixelForward[1]/PixelForwardDisk6/pixfwdblade.*:PixelForwardBlade/PixelForwardModule6[2]/PixelForwardWafer6/PixelForwardSensor6" />
       <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterialPixelEndcapDisk6Fw" /></SpecPar>
     <SpecPar name="TrackerRecMaterialPixelEndcapDisk7Fw">
-      <PartSelector path="//PixelForward[1]/PixelForwardDisk7/PixelForwardModule7[1]/PixelForwardWafer7/PixelForwardSensor7" />
-      <PartSelector path="//PixelForward[1]/PixelForwardDisk7/PixelForwardModule7[2]/PixelForwardWafer7/PixelForwardSensor7" />
-      <PartSelector path="//PixelForward[1]/PixelForwardDisk7/PixelForwardModule7[1]/PixelForwardWafer7/PixelForwardSensor7" />
-      <PartSelector path="//PixelForward[1]/PixelForwardDisk7/PixelForwardModule7[2]/PixelForwardWafer7/PixelForwardSensor7" />
+      <PartSelector path="//PixelForward[1]/PixelForwardDisk7/pixfwdblade.*:PixelForwardBlade/PixelForwardModule7[1]/PixelForwardWafer7/PixelForwardSensor7" />
+      <PartSelector path="//PixelForward[1]/PixelForwardDisk7/pixfwdblade.*:PixelForwardBlade/PixelForwardModule7[2]/PixelForwardWafer7/PixelForwardSensor7" />
+      <PartSelector path="//PixelForward[1]/PixelForwardDisk7/pixfwdblade.*:PixelForwardBlade/PixelForwardModule7[1]/PixelForwardWafer7/PixelForwardSensor7" />
+      <PartSelector path="//PixelForward[1]/PixelForwardDisk7/pixfwdblade.*:PixelForwardBlade/PixelForwardModule7[2]/PixelForwardWafer7/PixelForwardSensor7" />
       <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterialPixelEndcapDisk7Fw" /></SpecPar>
     <SpecPar name="TrackerRecMaterialPixelEndcapDisk8Fw">
-      <PartSelector path="//PixelForward[1]/PixelForwardDisk8/PixelForwardModule8[1]/PixelForwardWafer8/PixelForwardSensor8" />
-      <PartSelector path="//PixelForward[1]/PixelForwardDisk8/PixelForwardModule8[2]/PixelForwardWafer8/PixelForwardSensor8" />
-      <PartSelector path="//PixelForward[1]/PixelForwardDisk8/PixelForwardModule8[1]/PixelForwardWafer8/PixelForwardSensor8" />
-      <PartSelector path="//PixelForward[1]/PixelForwardDisk8/PixelForwardModule8[2]/PixelForwardWafer8/PixelForwardSensor8" />
+      <PartSelector path="//PixelForward[1]/PixelForwardDisk8/pixfwdblade.*:PixelForwardBlade/PixelForwardModule8[1]/PixelForwardWafer8/PixelForwardSensor8" />
+      <PartSelector path="//PixelForward[1]/PixelForwardDisk8/pixfwdblade.*:PixelForwardBlade/PixelForwardModule8[2]/PixelForwardWafer8/PixelForwardSensor8" />
+      <PartSelector path="//PixelForward[1]/PixelForwardDisk8/pixfwdblade.*:PixelForwardBlade/PixelForwardModule8[1]/PixelForwardWafer8/PixelForwardSensor8" />
+      <PartSelector path="//PixelForward[1]/PixelForwardDisk8/pixfwdblade.*:PixelForwardBlade/PixelForwardModule8[2]/PixelForwardWafer8/PixelForwardSensor8" />
       <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterialPixelEndcapDisk8Fw" /></SpecPar>
     <SpecPar name="TrackerRecMaterialPixelEndcapDisk9Fw">
-      <PartSelector path="//PixelForward[1]/PixelForwardDisk9/PixelForwardModule9[1]/PixelForwardWafer9/PixelForwardSensor9" />
-      <PartSelector path="//PixelForward[1]/PixelForwardDisk9/PixelForwardModule9[2]/PixelForwardWafer9/PixelForwardSensor9" />
-      <PartSelector path="//PixelForward[1]/PixelForwardDisk9/PixelForwardModule9[1]/PixelForwardWafer9/PixelForwardSensor9" />
-      <PartSelector path="//PixelForward[1]/PixelForwardDisk9/PixelForwardModule9[2]/PixelForwardWafer9/PixelForwardSensor9" />
+      <PartSelector path="//PixelForward[1]/PixelForwardDisk9/pixfwdblade.*:PixelForwardBlade/PixelForwardModule9[1]/PixelForwardWafer9/PixelForwardSensor9" />
+      <PartSelector path="//PixelForward[1]/PixelForwardDisk9/pixfwdblade.*:PixelForwardBlade/PixelForwardModule9[2]/PixelForwardWafer9/PixelForwardSensor9" />
+      <PartSelector path="//PixelForward[1]/PixelForwardDisk9/pixfwdblade.*:PixelForwardBlade/PixelForwardModule9[1]/PixelForwardWafer9/PixelForwardSensor9" />
+      <PartSelector path="//PixelForward[1]/PixelForwardDisk9/pixfwdblade.*:PixelForwardBlade/PixelForwardModule9[2]/PixelForwardWafer9/PixelForwardSensor9" />
       <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterialPixelEndcapDisk9Fw" /></SpecPar>
     <SpecPar name="TrackerRecMaterialPixelEndcapDisk10Fw">
-      <PartSelector path="//PixelForward[1]/PixelForwardDisk10/PixelForwardModule10[1]/PixelForwardWafer10/PixelForwardSensor10" />
-      <PartSelector path="//PixelForward[1]/PixelForwardDisk10/PixelForwardModule10[2]/PixelForwardWafer10/PixelForwardSensor10" />
-      <PartSelector path="//PixelForward[1]/PixelForwardDisk10/PixelForwardModule10[1]/PixelForwardWafer10/PixelForwardSensor10" />
-      <PartSelector path="//PixelForward[1]/PixelForwardDisk10/PixelForwardModule10[2]/PixelForwardWafer10/PixelForwardSensor10" />
+      <PartSelector path="//PixelForward[1]/PixelForwardDisk10/pixfwdblade.*:PixelForwardBlade/PixelForwardModule10[1]/PixelForwardWafer10/PixelForwardSensor10" />
+      <PartSelector path="//PixelForward[1]/PixelForwardDisk10/pixfwdblade.*:PixelForwardBlade/PixelForwardModule10[2]/PixelForwardWafer10/PixelForwardSensor10" />
+      <PartSelector path="//PixelForward[1]/PixelForwardDisk10/pixfwdblade.*:PixelForwardBlade/PixelForwardModule10[1]/PixelForwardWafer10/PixelForwardSensor10" />
+      <PartSelector path="//PixelForward[1]/PixelForwardDisk10/pixfwdblade.*:PixelForwardBlade/PixelForwardModule10[2]/PixelForwardWafer10/PixelForwardSensor10" />
       <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterialPixelEndcapDisk10Fw" /></SpecPar>
     <SpecPar name="TrackerRecMaterialPixelEndcapDisk1Bw">
-      <PartSelector path="//PixelForward[2]/PixelForwardDisk1/PixelForwardModule1[1]/PixelForwardWafer1/PixelForwardSensor1" />
-      <PartSelector path="//PixelForward[2]/PixelForwardDisk1/PixelForwardModule1[2]/PixelForwardWafer1/PixelForwardSensor1" />
-      <PartSelector path="//PixelForward[2]/PixelForwardDisk1/PixelForwardModule1[1]/PixelForwardWafer1/PixelForwardSensor1" />
-      <PartSelector path="//PixelForward[2]/PixelForwardDisk1/PixelForwardModule1[2]/PixelForwardWafer1/PixelForwardSensor1" />
+      <PartSelector path="//PixelForward[2]/PixelForwardDisk1/pixfwdblade.*:PixelForwardBlade/PixelForwardModule1[1]/PixelForwardWafer1/PixelForwardSensor1" />
+      <PartSelector path="//PixelForward[2]/PixelForwardDisk1/pixfwdblade.*:PixelForwardBlade/PixelForwardModule1[2]/PixelForwardWafer1/PixelForwardSensor1" />
+      <PartSelector path="//PixelForward[2]/PixelForwardDisk1/pixfwdblade.*:PixelForwardBlade/PixelForwardModule1[1]/PixelForwardWafer1/PixelForwardSensor1" />
+      <PartSelector path="//PixelForward[2]/PixelForwardDisk1/pixfwdblade.*:PixelForwardBlade/PixelForwardModule1[2]/PixelForwardWafer1/PixelForwardSensor1" />
       <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterialPixelEndcapDisk1Bw" /></SpecPar>
     <SpecPar name="TrackerRecMaterialPixelEndcapDisk2Bw">
-      <PartSelector path="//PixelForward[2]/PixelForwardDisk2/PixelForwardModule2[1]/PixelForwardWafer2/PixelForwardSensor2" />
-      <PartSelector path="//PixelForward[2]/PixelForwardDisk2/PixelForwardModule2[2]/PixelForwardWafer2/PixelForwardSensor2" />
-      <PartSelector path="//PixelForward[2]/PixelForwardDisk2/PixelForwardModule2[1]/PixelForwardWafer2/PixelForwardSensor2" />
-      <PartSelector path="//PixelForward[2]/PixelForwardDisk2/PixelForwardModule2[2]/PixelForwardWafer2/PixelForwardSensor2" />
+      <PartSelector path="//PixelForward[2]/PixelForwardDisk2/pixfwdblade.*:PixelForwardBlade/PixelForwardModule2[1]/PixelForwardWafer2/PixelForwardSensor2" />
+      <PartSelector path="//PixelForward[2]/PixelForwardDisk2/pixfwdblade.*:PixelForwardBlade/PixelForwardModule2[2]/PixelForwardWafer2/PixelForwardSensor2" />
+      <PartSelector path="//PixelForward[2]/PixelForwardDisk2/pixfwdblade.*:PixelForwardBlade/PixelForwardModule2[1]/PixelForwardWafer2/PixelForwardSensor2" />
+      <PartSelector path="//PixelForward[2]/PixelForwardDisk2/pixfwdblade.*:PixelForwardBlade/PixelForwardModule2[2]/PixelForwardWafer2/PixelForwardSensor2" />
       <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterialPixelEndcapDisk2Bw" /></SpecPar>
     <SpecPar name="TrackerRecMaterialPixelEndcapDisk3Bw">
-      <PartSelector path="//PixelForward[2]/PixelForwardDisk3/PixelForwardModule3[1]/PixelForwardWafer3/PixelForwardSensor3" />
-      <PartSelector path="//PixelForward[2]/PixelForwardDisk3/PixelForwardModule3[2]/PixelForwardWafer3/PixelForwardSensor3" />
-      <PartSelector path="//PixelForward[2]/PixelForwardDisk3/PixelForwardModule3[1]/PixelForwardWafer3/PixelForwardSensor3" />
-      <PartSelector path="//PixelForward[2]/PixelForwardDisk3/PixelForwardModule3[2]/PixelForwardWafer3/PixelForwardSensor3" />
+      <PartSelector path="//PixelForward[2]/PixelForwardDisk3/pixfwdblade.*:PixelForwardBlade/PixelForwardModule3[1]/PixelForwardWafer3/PixelForwardSensor3" />
+      <PartSelector path="//PixelForward[2]/PixelForwardDisk3/pixfwdblade.*:PixelForwardBlade/PixelForwardModule3[2]/PixelForwardWafer3/PixelForwardSensor3" />
+      <PartSelector path="//PixelForward[2]/PixelForwardDisk3/pixfwdblade.*:PixelForwardBlade/PixelForwardModule3[1]/PixelForwardWafer3/PixelForwardSensor3" />
+      <PartSelector path="//PixelForward[2]/PixelForwardDisk3/pixfwdblade.*:PixelForwardBlade/PixelForwardModule3[2]/PixelForwardWafer3/PixelForwardSensor3" />
       <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterialPixelEndcapDisk3Bw" /></SpecPar>
     <SpecPar name="TrackerRecMaterialPixelEndcapDisk4Bw">
-      <PartSelector path="//PixelForward[2]/PixelForwardDisk4/PixelForwardModule4[1]/PixelForwardWafer4/PixelForwardSensor4" />
-      <PartSelector path="//PixelForward[2]/PixelForwardDisk4/PixelForwardModule4[2]/PixelForwardWafer4/PixelForwardSensor4" />
-      <PartSelector path="//PixelForward[2]/PixelForwardDisk4/PixelForwardModule4[1]/PixelForwardWafer4/PixelForwardSensor4" />
-      <PartSelector path="//PixelForward[2]/PixelForwardDisk4/PixelForwardModule4[2]/PixelForwardWafer4/PixelForwardSensor4" />
+      <PartSelector path="//PixelForward[2]/PixelForwardDisk4/pixfwdblade.*:PixelForwardBlade/PixelForwardModule4[1]/PixelForwardWafer4/PixelForwardSensor4" />
+      <PartSelector path="//PixelForward[2]/PixelForwardDisk4/pixfwdblade.*:PixelForwardBlade/PixelForwardModule4[2]/PixelForwardWafer4/PixelForwardSensor4" />
+      <PartSelector path="//PixelForward[2]/PixelForwardDisk4/pixfwdblade.*:PixelForwardBlade/PixelForwardModule4[1]/PixelForwardWafer4/PixelForwardSensor4" />
+      <PartSelector path="//PixelForward[2]/PixelForwardDisk4/pixfwdblade.*:PixelForwardBlade/PixelForwardModule4[2]/PixelForwardWafer4/PixelForwardSensor4" />
       <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterialPixelEndcapDisk4Bw" /></SpecPar>
     <SpecPar name="TrackerRecMaterialPixelEndcapDisk5Bw">
-      <PartSelector path="//PixelForward[2]/PixelForwardDisk5/PixelForwardModule5[1]/PixelForwardWafer5/PixelForwardSensor5" />
-      <PartSelector path="//PixelForward[2]/PixelForwardDisk5/PixelForwardModule5[2]/PixelForwardWafer5/PixelForwardSensor5" />
-      <PartSelector path="//PixelForward[2]/PixelForwardDisk5/PixelForwardModule5[1]/PixelForwardWafer5/PixelForwardSensor5" />
-      <PartSelector path="//PixelForward[2]/PixelForwardDisk5/PixelForwardModule5[2]/PixelForwardWafer5/PixelForwardSensor5" />
+      <PartSelector path="//PixelForward[2]/PixelForwardDisk5/pixfwdblade.*:PixelForwardBlade/PixelForwardModule5[1]/PixelForwardWafer5/PixelForwardSensor5" />
+      <PartSelector path="//PixelForward[2]/PixelForwardDisk5/pixfwdblade.*:PixelForwardBlade/PixelForwardModule5[2]/PixelForwardWafer5/PixelForwardSensor5" />
+      <PartSelector path="//PixelForward[2]/PixelForwardDisk5/pixfwdblade.*:PixelForwardBlade/PixelForwardModule5[1]/PixelForwardWafer5/PixelForwardSensor5" />
+      <PartSelector path="//PixelForward[2]/PixelForwardDisk5/pixfwdblade.*:PixelForwardBlade/PixelForwardModule5[2]/PixelForwardWafer5/PixelForwardSensor5" />
       <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterialPixelEndcapDisk5Bw" /></SpecPar>
     <SpecPar name="TrackerRecMaterialPixelEndcapDisk6Bw">
-      <PartSelector path="//PixelForward[2]/PixelForwardDisk6/PixelForwardModule6[1]/PixelForwardWafer6/PixelForwardSensor6" />
-      <PartSelector path="//PixelForward[2]/PixelForwardDisk6/PixelForwardModule6[2]/PixelForwardWafer6/PixelForwardSensor6" />
-      <PartSelector path="//PixelForward[2]/PixelForwardDisk6/PixelForwardModule6[1]/PixelForwardWafer6/PixelForwardSensor6" />
-      <PartSelector path="//PixelForward[2]/PixelForwardDisk6/PixelForwardModule6[2]/PixelForwardWafer6/PixelForwardSensor6" />
+      <PartSelector path="//PixelForward[2]/PixelForwardDisk6/pixfwdblade.*:PixelForwardBlade/PixelForwardModule6[1]/PixelForwardWafer6/PixelForwardSensor6" />
+      <PartSelector path="//PixelForward[2]/PixelForwardDisk6/pixfwdblade.*:PixelForwardBlade/PixelForwardModule6[2]/PixelForwardWafer6/PixelForwardSensor6" />
+      <PartSelector path="//PixelForward[2]/PixelForwardDisk6/pixfwdblade.*:PixelForwardBlade/PixelForwardModule6[1]/PixelForwardWafer6/PixelForwardSensor6" />
+      <PartSelector path="//PixelForward[2]/PixelForwardDisk6/pixfwdblade.*:PixelForwardBlade/PixelForwardModule6[2]/PixelForwardWafer6/PixelForwardSensor6" />
       <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterialPixelEndcapDisk6Bw" /></SpecPar>
     <SpecPar name="TrackerRecMaterialPixelEndcapDisk7Bw">
-      <PartSelector path="//PixelForward[2]/PixelForwardDisk7/PixelForwardModule7[1]/PixelForwardWafer7/PixelForwardSensor7" />
-      <PartSelector path="//PixelForward[2]/PixelForwardDisk7/PixelForwardModule7[2]/PixelForwardWafer7/PixelForwardSensor7" />
-      <PartSelector path="//PixelForward[2]/PixelForwardDisk7/PixelForwardModule7[1]/PixelForwardWafer7/PixelForwardSensor7" />
-      <PartSelector path="//PixelForward[2]/PixelForwardDisk7/PixelForwardModule7[2]/PixelForwardWafer7/PixelForwardSensor7" />
+      <PartSelector path="//PixelForward[2]/PixelForwardDisk7/pixfwdblade.*:PixelForwardBlade/PixelForwardModule7[1]/PixelForwardWafer7/PixelForwardSensor7" />
+      <PartSelector path="//PixelForward[2]/PixelForwardDisk7/pixfwdblade.*:PixelForwardBlade/PixelForwardModule7[2]/PixelForwardWafer7/PixelForwardSensor7" />
+      <PartSelector path="//PixelForward[2]/PixelForwardDisk7/pixfwdblade.*:PixelForwardBlade/PixelForwardModule7[1]/PixelForwardWafer7/PixelForwardSensor7" />
+      <PartSelector path="//PixelForward[2]/PixelForwardDisk7/pixfwdblade.*:PixelForwardBlade/PixelForwardModule7[2]/PixelForwardWafer7/PixelForwardSensor7" />
       <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterialPixelEndcapDisk7Bw" /></SpecPar>
     <SpecPar name="TrackerRecMaterialPixelEndcapDisk8Bw">
-      <PartSelector path="//PixelForward[2]/PixelForwardDisk8/PixelForwardModule8[1]/PixelForwardWafer8/PixelForwardSensor8" />
-      <PartSelector path="//PixelForward[2]/PixelForwardDisk8/PixelForwardModule8[2]/PixelForwardWafer8/PixelForwardSensor8" />
-      <PartSelector path="//PixelForward[2]/PixelForwardDisk8/PixelForwardModule8[1]/PixelForwardWafer8/PixelForwardSensor8" />
-      <PartSelector path="//PixelForward[2]/PixelForwardDisk8/PixelForwardModule8[2]/PixelForwardWafer8/PixelForwardSensor8" />
+      <PartSelector path="//PixelForward[2]/PixelForwardDisk8/pixfwdblade.*:PixelForwardBlade/PixelForwardModule8[1]/PixelForwardWafer8/PixelForwardSensor8" />
+      <PartSelector path="//PixelForward[2]/PixelForwardDisk8/pixfwdblade.*:PixelForwardBlade/PixelForwardModule8[2]/PixelForwardWafer8/PixelForwardSensor8" />
+      <PartSelector path="//PixelForward[2]/PixelForwardDisk8/pixfwdblade.*:PixelForwardBlade/PixelForwardModule8[1]/PixelForwardWafer8/PixelForwardSensor8" />
+      <PartSelector path="//PixelForward[2]/PixelForwardDisk8/pixfwdblade.*:PixelForwardBlade/PixelForwardModule8[2]/PixelForwardWafer8/PixelForwardSensor8" />
       <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterialPixelEndcapDisk8Bw" /></SpecPar>
     <SpecPar name="TrackerRecMaterialPixelEndcapDisk9Bw">
-      <PartSelector path="//PixelForward[2]/PixelForwardDisk9/PixelForwardModule9[1]/PixelForwardWafer9/PixelForwardSensor9" />
-      <PartSelector path="//PixelForward[2]/PixelForwardDisk9/PixelForwardModule9[2]/PixelForwardWafer9/PixelForwardSensor9" />
-      <PartSelector path="//PixelForward[2]/PixelForwardDisk9/PixelForwardModule9[1]/PixelForwardWafer9/PixelForwardSensor9" />
-      <PartSelector path="//PixelForward[2]/PixelForwardDisk9/PixelForwardModule9[2]/PixelForwardWafer9/PixelForwardSensor9" />
+      <PartSelector path="//PixelForward[2]/PixelForwardDisk9/pixfwdblade.*:PixelForwardBlade/PixelForwardModule9[1]/PixelForwardWafer9/PixelForwardSensor9" />
+      <PartSelector path="//PixelForward[2]/PixelForwardDisk9/pixfwdblade.*:PixelForwardBlade/PixelForwardModule9[2]/PixelForwardWafer9/PixelForwardSensor9" />
+      <PartSelector path="//PixelForward[2]/PixelForwardDisk9/pixfwdblade.*:PixelForwardBlade/PixelForwardModule9[1]/PixelForwardWafer9/PixelForwardSensor9" />
+      <PartSelector path="//PixelForward[2]/PixelForwardDisk9/pixfwdblade.*:PixelForwardBlade/PixelForwardModule9[2]/PixelForwardWafer9/PixelForwardSensor9" />
       <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterialPixelEndcapDisk9Bw" /></SpecPar>
     <SpecPar name="TrackerRecMaterialPixelEndcapDisk10Bw">
-      <PartSelector path="//PixelForward[2]/PixelForwardDisk10/PixelForwardModule10[1]/PixelForwardWafer10/PixelForwardSensor10" />
-      <PartSelector path="//PixelForward[2]/PixelForwardDisk10/PixelForwardModule10[2]/PixelForwardWafer10/PixelForwardSensor10" />
-      <PartSelector path="//PixelForward[2]/PixelForwardDisk10/PixelForwardModule10[1]/PixelForwardWafer10/PixelForwardSensor10" />
-      <PartSelector path="//PixelForward[2]/PixelForwardDisk10/PixelForwardModule10[2]/PixelForwardWafer10/PixelForwardSensor10" />
+      <PartSelector path="//PixelForward[2]/PixelForwardDisk10/pixfwdblade.*:PixelForwardBlade/PixelForwardModule10[1]/PixelForwardWafer10/PixelForwardSensor10" />
+      <PartSelector path="//PixelForward[2]/PixelForwardDisk10/pixfwdblade.*:PixelForwardBlade/PixelForwardModule10[2]/PixelForwardWafer10/PixelForwardSensor10" />
+      <PartSelector path="//PixelForward[2]/PixelForwardDisk10/pixfwdblade.*:PixelForwardBlade/PixelForwardModule10[1]/PixelForwardWafer10/PixelForwardSensor10" />
+      <PartSelector path="//PixelForward[2]/PixelForwardDisk10/pixfwdblade.*:PixelForwardBlade/PixelForwardModule10[2]/PixelForwardWafer10/PixelForwardSensor10" />
       <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterialPixelEndcapDisk10Bw" /></SpecPar>
 
 <SpecPar name="TrackerRecMaterialTOBPixelBarrelLayer1">
@@ -728,3 +728,4 @@
 
   </SpecParSection>
 </DDDefinition>
+
