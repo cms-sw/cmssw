@@ -93,7 +93,8 @@ void SteppingAction::UserSteppingAction(const G4Step * aStep)
 {
   if (!initialized) { initialized = initPointer(); }
 
-  if(hasWatcher) { m_g4StepSignal(aStep); }
+  //  if(hasWatcher) { m_g4StepSignal(aStep); }
+  m_g4StepSignal(aStep); 
 
   G4Track * theTrack = aStep->GetTrack();
   TrackStatus tstat = (theTrack->GetTrackStatus() == fAlive) ? sAlive : sKilledByProcess;
