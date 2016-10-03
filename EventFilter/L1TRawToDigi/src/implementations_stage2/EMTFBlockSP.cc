@@ -220,8 +220,8 @@ namespace l1t {
 	///////////////////////
 
 	int St_hits[4] = {0, 0, 0, 0}; // Number of matched hits in each station
-	int dBX[3] = {0, 1, 2};        // Hit - track BX values for earliest LCT configuration
-	// int dBX[3] = [0, 1, -1];      // Hit - track BX values for 2nd-earliest LCT configuration
+	// int dBX[3] = {0, 1, 2};         // Hit - track BX values for earliest LCT configuration
+	int dBX[5] = {0, -1, 1, -2, 2}; // Hit - track BX values for 2nd-earliest LCT configuration
 
 	Track_.set_has_neighbor(false);
 	Track_.set_all_neighbor(true);
@@ -229,12 +229,20 @@ namespace l1t {
 	conv_vals_SP = convert_SP_location( SP_.ME1_CSC_ID(), (res->at(iOut)).PtrEventHeader()->Sector(), SP_.ME1_subsector(), 1 );
 	if ( conv_vals_SP.at(3) == 1 and not Track_.Has_neighbor() ) Track_.set_has_neighbor(true);
 	if ( conv_vals_SP.at(3) == 0 and     Track_.All_neighbor() ) Track_.set_all_neighbor(false); 
-	for (uint iBX = 0; iBX < 3; iBX++) { // Loop over BX values nearest to the track BX
+	// if (abs(SP_.TBIN() - 3) < 2)
+	  // std::cout << "\nTrack: ID = " << conv_vals_SP.at(0) << ", sector = " << conv_vals_SP.at(1) << ", sub = " << conv_vals_SP.at(2)
+	  // 	    << ", neighbor = " << conv_vals_SP.at(3) << ", station = 1"
+	  // 	    << ", stub = " << SP_.ME1_stub_num() << ", BX = " << SP_.TBIN() - 3 << std::endl;
+	for (uint iBX = 0; iBX < 5; iBX++) { // Loop over BX values nearest to the track BX
 	  for (uint iHit = 0; iHit < res_hit->size(); iHit++) {
+	    // if (abs(SP_.TBIN() - 3) < 2 && iBX == 0)
+	      // std::cout << "Hit:   ID = " << (res_hit->at(iHit)).CSC_ID() << ", sector = " << (res_hit->at(iHit)).Sector() << ", sub = " << (res_hit->at(iHit)).Subsector()
+	      // 		<< ", neighbor = " << (res_hit->at(iHit)).Neighbor() << ", station = " << (res_hit->at(iHit)).Station()
+	      // 		<< ", stub = " << (res_hit->at(iHit)).Stub_num() << ", BX = " << (res_hit->at(iHit)).BX() << std::endl;
 	    if ( (res_hit->at(iHit)).CSC_ID() == conv_vals_SP.at(0) && (res_hit->at(iHit)).Sector() == conv_vals_SP.at(1) &&
 		 (res_hit->at(iHit)).Subsector() == conv_vals_SP.at(2) && (res_hit->at(iHit)).Neighbor() == conv_vals_SP.at(3) &&
 		 (res_hit->at(iHit)).Station() == 1 && (res_hit->at(iHit)).Stub_num() == SP_.ME1_stub_num() &&
-		 (res_hit->at(iHit)).BX() - (SP_.TBIN() - 3) == dBX[iBX] ) {
+		 (res_hit->at(iHit)).Endcap() == Track_.Endcap() && (res_hit->at(iHit)).BX() - (SP_.TBIN() - 3) == dBX[iBX] ) {
 	      if (St_hits[0] == 0 ) Track_.push_Hit( res_hit->at(iHit) );
 	      St_hits[0] += 1; }
 	  }
@@ -246,13 +254,14 @@ namespace l1t {
 	conv_vals_SP = convert_SP_location( SP_.ME2_CSC_ID(), (res->at(iOut)).PtrEventHeader()->Sector(), -99, 2 );
 	if ( conv_vals_SP.at(3) == 1 and not Track_.Has_neighbor() ) Track_.set_has_neighbor(true);
 	if ( conv_vals_SP.at(3) == 0 and     Track_.All_neighbor() ) Track_.set_all_neighbor(false); 
-	for (uint iBX = 0; iBX < 3; iBX++) { 
+	for (uint iBX = 0; iBX < 5; iBX++) { 
 	  for (uint iHit = 0; iHit < res_hit->size(); iHit++) {
 	    if ( (res_hit->at(iHit)).CSC_ID() == conv_vals_SP.at(0) && (res_hit->at(iHit)).Sector() == conv_vals_SP.at(1) && 
 	    // if ( ( (res_hit->at(iHit)).CSC_ID() == conv_vals_SP.at(0) || (res_hit->at(iHit)).CSC_ID() == conv_vals_SP.at(0) + 3 ) && 
 	    // 	 (res_hit->at(iHit)).Sector() == conv_vals_SP.at(1) && 
 		 (res_hit->at(iHit)).Neighbor() == conv_vals_SP.at(3) && (res_hit->at(iHit)).Station() == 2 && 
-		 (res_hit->at(iHit)).Stub_num() == SP_.ME2_stub_num() && (res_hit->at(iHit)).BX() - (SP_.TBIN() - 3) == dBX[iBX] ) {
+		 (res_hit->at(iHit)).Stub_num() == SP_.ME2_stub_num() && (res_hit->at(iHit)).Endcap() == Track_.Endcap() && 
+		 (res_hit->at(iHit)).BX() - (SP_.TBIN() - 3) == dBX[iBX] ) {
 	      if (St_hits[1] == 0 ) Track_.push_Hit( res_hit->at(iHit) );
 	      St_hits[1] += 1; }
 	  }
@@ -264,13 +273,14 @@ namespace l1t {
 	conv_vals_SP = convert_SP_location( SP_.ME3_CSC_ID(), (res->at(iOut)).PtrEventHeader()->Sector(), -99, 3 );
 	if ( conv_vals_SP.at(3) == 1 and not Track_.Has_neighbor() ) Track_.set_has_neighbor(true);
 	if ( conv_vals_SP.at(3) == 0 and     Track_.All_neighbor() ) Track_.set_all_neighbor(false); 
-	for (uint iBX = 0; iBX < 3; iBX++) { 
+	for (uint iBX = 0; iBX < 5; iBX++) { 
 	  for (uint iHit = 0; iHit < res_hit->size(); iHit++) {
 	    if ( (res_hit->at(iHit)).CSC_ID() == conv_vals_SP.at(0) && (res_hit->at(iHit)).Sector() == conv_vals_SP.at(1) &&
 	    // if ( ( (res_hit->at(iHit)).CSC_ID() == conv_vals_SP.at(0) || (res_hit->at(iHit)).CSC_ID() == conv_vals_SP.at(0) + 3 ) && 
 	    // 	 (res_hit->at(iHit)).Sector() == conv_vals_SP.at(1) && 
 		 (res_hit->at(iHit)).Neighbor() == conv_vals_SP.at(3) && (res_hit->at(iHit)).Station() == 3 && 
-		 (res_hit->at(iHit)).Stub_num() == SP_.ME3_stub_num() && (res_hit->at(iHit)).BX() - (SP_.TBIN() - 3) == dBX[iBX] ) {
+		 (res_hit->at(iHit)).Stub_num() == SP_.ME3_stub_num() && (res_hit->at(iHit)).Endcap() == Track_.Endcap() &&
+		 (res_hit->at(iHit)).BX() - (SP_.TBIN() - 3) == dBX[iBX] ) {
 	      if (St_hits[2] == 0 ) Track_.push_Hit( res_hit->at(iHit) );
 	      St_hits[2] += 1; }
 	  }
@@ -282,13 +292,14 @@ namespace l1t {
 	conv_vals_SP = convert_SP_location( SP_.ME4_CSC_ID(), (res->at(iOut)).PtrEventHeader()->Sector(), -99, 4 );
 	if ( conv_vals_SP.at(3) == 1 and not Track_.Has_neighbor() ) Track_.set_has_neighbor(true);
 	if ( conv_vals_SP.at(3) == 0 and     Track_.All_neighbor() ) Track_.set_all_neighbor(false); 
-	for (uint iBX = 0; iBX < 3; iBX++) { 
+	for (uint iBX = 0; iBX < 5; iBX++) { 
 	  for (uint iHit = 0; iHit < res_hit->size(); iHit++) {
 	    if ( (res_hit->at(iHit)).CSC_ID() == conv_vals_SP.at(0) && (res_hit->at(iHit)).Sector() == conv_vals_SP.at(1) && 
 	    // if ( ( (res_hit->at(iHit)).CSC_ID() == conv_vals_SP.at(0) || (res_hit->at(iHit)).CSC_ID() == conv_vals_SP.at(0) + 3 ) && 
 	    // 	 (res_hit->at(iHit)).Sector() == conv_vals_SP.at(1) && 
 		 (res_hit->at(iHit)).Neighbor() == conv_vals_SP.at(3) && (res_hit->at(iHit)).Station() == 4 && 
-		 (res_hit->at(iHit)).Stub_num() == SP_.ME4_stub_num() && (res_hit->at(iHit)).BX() - (SP_.TBIN() - 3) == dBX[iBX] ) {
+		 (res_hit->at(iHit)).Stub_num() == SP_.ME4_stub_num() && (res_hit->at(iHit)).Endcap() == Track_.Endcap() && 
+		 (res_hit->at(iHit)).BX() - (SP_.TBIN() - 3) == dBX[iBX] ) {
 	      if (St_hits[3] == 0 ) Track_.push_Hit( res_hit->at(iHit) );
 	      St_hits[3] += 1; }
 	  }
@@ -298,16 +309,20 @@ namespace l1t {
 	mu_.setTrackSubAddress( RegionalMuonCand::kME4Ch,  calc_uGMT_chamber(conv_vals_SP.at(0), conv_vals_SP.at(2), conv_vals_SP.at(3), 4) );
 
 
-	// if ( Track_.Mode() != St_hits[0]*8 + St_hits[1]*4 + St_hits[2]*2 + St_hits[3] ) {
+	// if ( Track_.Mode() != St_hits[0]*8 + St_hits[1]*4 + St_hits[2]*2 + St_hits[3] && abs(Track_.BX()) < 2) {
 	//   std::cout << "" << std::endl;
 	//   std::cout << "***********************************************************" << std::endl;
-	//   std::cout << "Bug in EMTF event! Mode " << Track_.Mode() << " track with (" << St_hits[0] << ", " << St_hits[1] 
+	//   std::cout << "Bug in EMTF event! Mode " << Track_.Mode() << " track in sector " << Track_.Sector()*Track_.Endcap() 
+	// 	    << ", BX " << Track_.BX() << " with (" << St_hits[0] << ", " << St_hits[1] 
 	// 	    << ", " << St_hits[2] << ", " << St_hits[3] << ") hits in stations (1, 2, 3, 4)" << std::endl;
-	//   std::cout << "Sector = " << (res->at(iOut)).PtrEventHeader()->Sector() << ", ME1_stub_num = " << SP_.ME1_stub_num() << ", ME1_CSC_ID = " << SP_.ME1_CSC_ID() 
-	// 	    << ", ME1_subsector = " << SP_.ME1_subsector() << std::endl;
-	//   std::cout << "Sector = " << (res->at(iOut)).PtrEventHeader()->Sector() << ", ME2_stub_num = " << SP_.ME2_stub_num() << ", ME2_CSC_ID = " << SP_.ME2_CSC_ID() << std::endl;
-	//   std::cout << "Sector = " << (res->at(iOut)).PtrEventHeader()->Sector() << ", ME3_stub_num = " << SP_.ME3_stub_num() << ", ME3_CSC_ID = " << SP_.ME3_CSC_ID() << std::endl;
-	//   std::cout << "Sector = " << (res->at(iOut)).PtrEventHeader()->Sector() << ", ME4_stub_num = " << SP_.ME4_stub_num() << ", ME4_CSC_ID = " << SP_.ME4_CSC_ID() << std::endl;
+	//   std::cout << "Sector = " << (res->at(iOut)).PtrEventHeader()->Sector() << ", ME1_stub_num = " << SP_.ME1_stub_num() 
+	// 	    << ", ME1_delay = " <<  SP_.ME1_delay() << ", ME1_CSC_ID = " << SP_.ME1_CSC_ID() <<  ", ME1_subsector = " << SP_.ME1_subsector() << std::endl;
+	//   std::cout << "Sector = " << (res->at(iOut)).PtrEventHeader()->Sector() << ", ME2_stub_num = " << SP_.ME2_stub_num() 
+	// 	    << ", ME2_delay = " <<  SP_.ME2_delay() << ", ME2_CSC_ID = " << SP_.ME2_CSC_ID() << std::endl;
+	//   std::cout << "Sector = " << (res->at(iOut)).PtrEventHeader()->Sector() << ", ME3_stub_num = " << SP_.ME3_stub_num() 
+	// 	    << ", ME3_delay = " <<  SP_.ME3_delay() << ", ME3_CSC_ID = " << SP_.ME3_CSC_ID() << std::endl;
+	//   std::cout << "Sector = " << (res->at(iOut)).PtrEventHeader()->Sector() << ", ME4_stub_num = " << SP_.ME4_stub_num() 
+	// 	    << ", ME4_delay = " <<  SP_.ME4_delay() << ", ME4_CSC_ID = " << SP_.ME4_CSC_ID() << std::endl;
 
 	//   for (uint iHit = 0; iHit < res_hit->size(); iHit++)
 	//     std::cout << "ID = " << (res_hit->at(iHit)).CSC_ID() << ", sector = " << (res_hit->at(iHit)).Sector()

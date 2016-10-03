@@ -167,7 +167,9 @@ private:
 
     /// verbosity level
     int m_verbosity;
+    bool m_printL1Menu;
     bool m_isDebugEnabled;
+    
 
 };
 

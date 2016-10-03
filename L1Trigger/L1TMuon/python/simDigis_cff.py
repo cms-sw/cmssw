@@ -75,8 +75,7 @@ if eras.stage2L1Trigger.isChosen():
     from L1Trigger.L1TMuonEndCap.simEmtfDigis_cfi import *
     from L1Trigger.L1TMuonOverlap.simOmtfDigis_cfi import *
     from L1Trigger.L1TMuon.simGmtCaloSumDigis_cfi import *
-    from L1Trigger.L1TMuon.simMuonQualityAdjusterDigis_cfi import *
     from L1Trigger.L1TMuon.simGmtStage2Digis_cfi import *
 #
 #
-    SimL1TMuon = cms.Sequence(SimL1TMuonCommon + simTwinMuxDigis + simBmtfDigis + simEmtfDigis + simOmtfDigis + simGmtCaloSumDigis + simMuonQualityAdjusterDigis + simGmtStage2Digis)
+    SimL1TMuon = cms.Sequence(SimL1TMuonCommon + simTwinMuxDigis + simBmtfDigis + simEmtfDigis + simOmtfDigis + simGmtCaloSumDigis + simGmtStage2Digis)
