@@ -126,9 +126,6 @@ class TotemRPDetId : public CTPPSDetId
       name += chipNames[chip()];
     }
 
-    std::string planeName(NameFlag flag = nFull) const;
-    std::string chipName(NameFlag flag = nFull) const;
-
   private:
     static const std::string planeNames[];
     static const std::string chipNames[];

@@ -101,9 +101,6 @@ class CTPPSDiamondDetId : public CTPPSDetId
 
       name += channelNames[det()];
     }
-   
-    std::string planeName(NameFlag flag = nFull) const;
-    std::string channelName(NameFlag flag = nFull) const;
     
   private:
     static const std::string planeNames[];
