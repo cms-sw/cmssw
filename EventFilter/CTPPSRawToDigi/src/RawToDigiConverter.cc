@@ -261,6 +261,14 @@ void RawToDigiConverter::Run(const VFATFrameCollection &input,
 
 //----------------------------------------------------------------------------------------------------
 
+void RawToDigiConverter::Run(const VFATFrameCollection &coll, const TotemDAQMapping &mapping, const TotemAnalysisMask &mask,
+      edm::DetSetVector<CTPPSDiamondDigi> &digi, edm::DetSetVector<TotemVFATStatus> &status)
+{
+  // TODO
+}
+
+//----------------------------------------------------------------------------------------------------
+
 void RawToDigiConverter::PrintSummaries()
 {
   if (printErrorSummary)
