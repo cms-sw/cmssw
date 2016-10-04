@@ -63,6 +63,7 @@ namespace edm {
     bool (RootEmbeddedFileSequence::* fptr_)(EventPrincipal&, size_t&, CLHEP::HepRandomEngine*, EventID const*);
     int eventsRemainingInFile_;
     int initialNumberOfEventsToSkip_;
+    unsigned int treeCacheSize_;
     bool enablePrefetching_;
   }; // class RootEmbeddedFileSequence
 }
