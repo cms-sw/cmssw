@@ -600,6 +600,9 @@ std::unique_ptr<HcalLutMetadata> HcalHardcodeCalibrations::produceLutMetadata (c
     int threshold = 1;
 
     if (dbHardcode.useHEUpgrade() or dbHardcode.useHFUpgrade()) {
+       // Use values from 2016 as starting conditions for 2017+.  These are
+       // averaged over the subdetectors, with the last two HE towers split
+       // off due to diverging correction values.
        switch (cell.genericSubdet()) {
           case HcalGenericDetId::HcalGenBarrel:
              rcalib = 1.128;
