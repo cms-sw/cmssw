@@ -27,7 +27,7 @@ process.maxEvents = cms.untracked.PSet(
 
 #configurable options =======================================================================
 runOnData=False #data/MC switch
-usePrivateSQlite=False #use external JECs (sqlite file)
+usePrivateSQlite=True #use external JECs (sqlite file)
 useHFCandidates=True #create an additionnal NoHF slimmed MET collection if the option is set to false
 redoPuppi=True # rebuild puppiMET
 #===================================================================
@@ -54,11 +54,13 @@ if usePrivateSQlite:
     if runOnData:
       era="Summer15_25nsV6_DATA"
     else:
-      era="Summer15_25nsV6_MC"
+      era="Summer16_25nsV1_MC"
 
+    #process.jec.connect = cms.string('sqlite:'+era+'.db')
+    #connect = cms.string( "frontier://FrontierPrep/CMS_COND_PHYSICSTOOLS"),
+      
     process.jec = cms.ESSource("PoolDBESSource",CondDBSetup,
-                               connect = cms.string( "frontier://FrontierPrep/CMS_COND_PHYSICSTOOLS"),
-                               #connect = cms.string('sqlite:'+era+'.db'),
+                               connect = cms.string('sqlite:'+era+'.db'),
                                toGet =  cms.VPSet(
             cms.PSet(
                 record = cms.string("JetCorrectionsRecord"),
