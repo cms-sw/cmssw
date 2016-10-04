@@ -1,79 +1,41 @@
 import FWCore.ParameterSet.Config as cms
 import sys
+from PhysicsTools.PatAlgos.patInputFiles_cff import filesRelValTTbarPileUpGENSIMRECO
  
-isDA = ISDATEMPLATE
-isMC = ISMCTEMPLATE
-allFromGT = ALLFROMGTTEMPLATE
-applyBows = APPLYBOWSTEMPLATE
-applyExtraConditions = EXTRACONDTEMPLATE
-useFileList = USEFILELISTTEMPLATE
+isDA = True
+isMC = True
+allFromGT = True
+applyBows = True
+applyExtraConditions = True
 
-process = cms.Process("PrimaryVertexValidation") 
-
-###################################################################
-def customiseAlignmentAndAPE(process):
-###################################################################
-    if not hasattr(process.GlobalTag,'toGet'):
-        process.GlobalTag.toGet=cms.VPSet()
-    process.GlobalTag.toGet.extend( cms.VPSet(cms.PSet(record = cms.string("TrackerAlignmentRcd"),
-                                                       tag = cms.string("GEOMTAGTEMPLATE"),
-                                                       connect = cms.string("ALIGNOBJTEMPLATE")
-                                                       ),
-                                              cms.PSet(record = cms.string("TrackerAlignmentErrorExtendedRcd"),
-                                                       tag = cms.string("ERRORTAGTEMPLATE"),
-                                                       connect = cms.string("APEOBJTEMPLATE")
-                                                       )
-                                              )
-                                    )
-    return process
-
-###################################################################
-def customiseKinksAndBows(process):
-###################################################################
-     if not hasattr(process.GlobalTag,'toGet'):
-          process.GlobalTag.toGet=cms.VPSet()
-     process.GlobalTag.toGet.extend(cms.VPSet(cms.PSet(record = cms.string("TrackerSurfaceDeformationRcd"),
-                                                       tag = cms.string("BOWSTAGTEMPLATE"),
-                                                       connect = cms.string("BOWSOBJECTTEMPLATE")
-                                                       ),        
-                                              )
-                                    )
-     return process
+process = cms.Process("Demo") 
 
 ###################################################################
 # Event source and run selection
 ###################################################################
-if (useFileList):
-     print ">>>>>>>>>> testPVValidation_cfg.py: msg%-i: Reading local input files list"
-     readFiles = cms.untracked.vstring()
-     readFiles.extend(FILESOURCETEMPLATE)
-     process.source = cms.Source("PoolSource",
-                                 fileNames = readFiles ,
-                                 duplicateCheckMode = cms.untracked.string('checkAllFilesOpened')
-                                 )
-else:
-     print ">>>>>>>>>> testPVValidation_cfg.py: msg%-i: Reading from configuration fragment"
-     process.load("Alignment.OfflineValidation.DATASETTEMPLATE")
+process.source = cms.Source("PoolSource",
+                            fileNames = filesRelValTTbarPileUpGENSIMRECO,
+                            duplicateCheckMode = cms.untracked.string('checkAllFilesOpened')
+                            )
 
-###################################################################
-#  Runs and events
-###################################################################
-runboundary = RUNBOUNDARYTEMPLATE
+process.load("FWCore.MessageService.MessageLogger_cfi")
+process.MessageLogger.destinations = ['cout', 'cerr']
+process.MessageLogger.cerr.FwkReport.reportEvery = 1000
+
+runboundary = 1
 process.source.firstRun = cms.untracked.uint32(int(runboundary))
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(MAXEVENTSTEMPLATE) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10) )
 
 ###################################################################
 # JSON Filtering
 ###################################################################
 if isMC:
-     print ">>>>>>>>>> testPVValidation_cfg.py: msg%-i: This is simulation!"
+     print ">>>>>>>>>> testPVValidation_cfg.py: msg%-i: This is Simulation!"
      runboundary = 1
 else:
-     print ">>>>>>>>>> testPVValidation_cfg.py: msg%-i: This is real DATA!"
-     if ('LUMILISTTEMPLATE'):
-          print ">>>>>>>>>> testPVValidation_cfg.py: msg%-i: JSON filtering with: LUMILISTTEMPLATE"
-          import FWCore.PythonUtilities.LumiList as LumiList
-          process.source.lumisToProcess = LumiList.LumiList(filename ='LUMILISTTEMPLATE').getVLuminosityBlockRange()
+     print ">>>>>>>>>> testPVValidation_cfg.py: msg%-i: This is DATA!"
+     import FWCore.PythonUtilities.LumiList as LumiList
+     process.source.lumisToProcess = LumiList.LumiList(filename ='None').getVLuminosityBlockRange()
 
 ###################################################################
 # Messages
@@ -90,10 +52,10 @@ process.load("TrackingTools.TransientTrack.TransientTrackBuilder_cfi")
 ####################################################################
 # Get the Magnetic Field
 ####################################################################
-process.load('Configuration.StandardSequences.MagneticField_cff')
+process.load('Configuration.StandardSequences.MagneticField_AutoFromDBCurrent_cff')
 
 ###################################################################
-# Geometry load
+# Standard loads
 ###################################################################
 process.load("Configuration.Geometry.GeometryRecoDB_cff")
 
@@ -107,97 +69,128 @@ process.load("RecoVertex.BeamSpotProducer.BeamSpot_cff")
 ####################################################################
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'GLOBALTAGTEMPLATE', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc', '')
 
 if allFromGT:
      print ">>>>>>>>>> testPVValidation_cfg.py: msg%-i: All is taken from GT"
 else:
      ####################################################################
-     # Get Alignment and APE constants
+     # Get Alignment constants
      ####################################################################
-     process=customiseAlignmentAndAPE(process)
+     from CondCore.DBCommon.CondDBSetup_cfi import *
+     process.trackerAlignment = cms.ESSource("PoolDBESSource",CondDBSetup,
+                                             connect = cms.string('frontier://FrontierProd/CMS_CONDITIONS'),
+                                             timetype = cms.string("runnumber"),
+                                             toGet = cms.VPSet(cms.PSet(record = cms.string('TrackerAlignmentRcd'),
+                                                                        tag = cms.string('TrackerAlignment_2015StartupPessimisticScenario_mc')
+                                                                        )
+                                                               )
+                                             )
+     process.es_prefer_trackerAlignment = cms.ESPrefer("PoolDBESSource", "trackerAlignment")
+
+     ####################################################################
+     # Get APE
+     ####################################################################
+     process.setAPE = cms.ESSource("PoolDBESSource",CondDBSetup,
+                                   connect = cms.string('frontier://FrontierProd/CMS_CONDITIONS'),
+                                   timetype = cms.string("runnumber"),
+                                   toGet = cms.VPSet(cms.PSet(record = cms.string('TrackerAlignmentErrorExtendedRcd'),
+                                                              tag = cms.string('TrackerAlignmentExtendedErrors_2015StartupPessimisticScenario_mc')
+                                                              )
+                                                     )
+                                   )
+     process.es_prefer_setAPE = cms.ESPrefer("PoolDBESSource", "setAPE")
 
      ####################################################################
      # Kinks and Bows (optional)
      ####################################################################
      if applyBows:
           print ">>>>>>>>>> testPVValidation_cfg.py: msg%-i: Applying TrackerSurfaceDeformations!"
-          process=customiseKinksAndBows(process)
+          process.trackerBows = cms.ESSource("PoolDBESSource",CondDBSetup,
+                                             connect = cms.string('frontier://FrontierProd/CMS_CONDITIONS'),
+                                             toGet = cms.VPSet(cms.PSet(record = cms.string('TrackerSurfaceDeformationRcd'),
+                                                                        tag = cms.string('TrackerSurfaceDeformations_2011Realistic_v2_mc')
+                                                                        )
+                                                               )
+                                             )
+          process.es_prefer_Bows = cms.ESPrefer("PoolDBESSource", "trackerBows")
      else:
           print ">>>>>>>>>> testPVValidation_cfg.py: msg%-i: MultiPVValidation: Not applying TrackerSurfaceDeformations!"
 
-          ####################################################################
-          # Extra corrections not included in the GT
-          ####################################################################
-          if applyExtraConditions:
-               print ">>>>>>>>>> testPVValidation_cfg.py: msg%-i: Applying extra calibration constants!"
+     ####################################################################
+     # Extra corrections not included in the GT
+     ####################################################################
+     if applyExtraConditions:
 
-               import CalibTracker.Configuration.Common.PoolDBESSource_cfi
-
-               # Extra conditions to be plugged here
-               ##### END OF EXTRA CONDITIONS
-               
-          else:
-               print ">>>>>>>>>> testPVValidation_cfg.py: msg%-i: Not applying extra calibration constants!"
-               
+          import CalibTracker.Configuration.Common.PoolDBESSource_cfi
+          ##### END OF EXTRA CONDITIONS
+ 
+     else:
+          print ">>>>>>>>>> testPVValidation_cfg.py: msg%-i: Not applying extra calibration constants!"
      
 ####################################################################
 # Load and Configure event selection
 ####################################################################
 process.primaryVertexFilter = cms.EDFilter("VertexSelector",
-                                           src = cms.InputTag("VERTEXTYPETEMPLATE"),
-                                           cut = cms.string("!isFake && ndof > 4 && abs(z) <= 24 && position.Rho <= 2"),
-                                           filter = cms.bool(True)
-                                           )
+                                             src = cms.InputTag("offlinePrimaryVertices"),
+                                             cut = cms.string("!isFake && ndof > 4 && abs(z) <= 24 && position.Rho <= 2"),
+                                             filter = cms.bool(True)
+                                             )
 
 process.noscraping = cms.EDFilter("FilterOutScraping",
                                   applyfilter = cms.untracked.bool(True),
-                                  src =  cms.untracked.InputTag("TRACKTYPETEMPLATE"),
+                                  src =  cms.untracked.InputTag("generalTracks"),
                                   debugOn = cms.untracked.bool(False),
                                   numtrack = cms.untracked.uint32(10),
                                   thresh = cms.untracked.double(0.25)
                                   )
 
-process.load("Alignment.CommonAlignment.filterOutLowPt_cfi")
-process.filterOutLowPt.applyfilter = True
-process.filterOutLowPt.src = "TRACKTYPETEMPLATE"
-process.filterOutLowPt.numtrack = 0
-process.filterOutLowPt.thresh = 1
-process.filterOutLowPt.ptmin  = PTCUTTEMPLATE
-process.filterOutLowPt.runControl = RUNCONTROLTEMPLATE
-process.filterOutLowPt.runControlNumber = [runboundary]
-                                
+process.noslowpt = cms.EDFilter("FilterOutLowPt",
+                                applyfilter = cms.untracked.bool(True),
+                                src =  cms.untracked.InputTag("generalTracks"),
+                                debugOn = cms.untracked.bool(False),
+                                numtrack = cms.untracked.uint32(0),
+                                thresh = cms.untracked.int32(1),
+                                ptmin  = cms.untracked.double(3.),
+                                runControl = cms.untracked.bool(True),
+                                runControlNumber = cms.untracked.vuint32(int(runboundary))
+                                )
+
 if isMC:
-     process.goodvertexSkim = cms.Sequence(process.noscraping + process.filterOutLowPt)
+     process.goodvertexSkim = cms.Sequence(process.noscraping)
 else:
-     process.goodvertexSkim = cms.Sequence(process.primaryVertexFilter + process.noscraping + process.filterOutLowPt)
+     process.goodvertexSkim = cms.Sequence(process.primaryVertexFilter + process.noscraping + process.noslowpt)
 
 ####################################################################
 # Load and Configure Measurement Tracker Event
-# (this would be needed in case NavigationSchool is set != from ''
+# (needed in case NavigationSchool is set != '')
 ####################################################################
-#process.load("RecoTracker.MeasurementDet.MeasurementTrackerEventProducer_cfi") 
-#process.MeasurementTrackerEvent.pixelClusterProducer = 'TRACKTYPETEMPLATE'
-#process.MeasurementTrackerEvent.stripClusterProducer = 'TRACKTYPETEMPLATE'
-#process.MeasurementTrackerEvent.inactivePixelDetectorLabels = cms.VInputTag()
-#process.MeasurementTrackerEvent.inactiveStripDetectorLabels = cms.VInputTag()
+# process.load("RecoTracker.MeasurementDet.MeasurementTrackerEventProducer_cfi") 
+# process.MeasurementTrackerEvent.pixelClusterProducer = 'generalTracks'
+# process.MeasurementTrackerEvent.stripClusterProducer = 'generalTracks'
+# process.MeasurementTrackerEvent.inactivePixelDetectorLabels = cms.VInputTag()
+# process.MeasurementTrackerEvent.inactiveStripDetectorLabels = cms.VInputTag()
 
 ####################################################################
 # Load and Configure TrackRefitter
 ####################################################################
+#import Alignment.CommonAlignment.tools.trackselectionRefitting as trackselRefit
+#process.seqTrackselRefit = trackselRefit.getSequence(process,'generalTracks')
+#process.seqTrackselRefit.TrackSelector.ptMin = cms.double(3)
+
 process.load("RecoTracker.TrackProducer.TrackRefitters_cff")
 import RecoTracker.TrackProducer.TrackRefitters_cff
-process.TrackRefitter = RecoTracker.TrackProducer.TrackRefitter_cfi.TrackRefitter.clone()
-process.TrackRefitter.src = "TRACKTYPETEMPLATE"
-process.TrackRefitter.TrajectoryInEvent = True
-process.TrackRefitter.NavigationSchool = ''
-process.TrackRefitter.TTRHBuilder = "WithAngleAndTemplate"
+process.FinalTrackRefitter = RecoTracker.TrackProducer.TrackRefitter_cfi.TrackRefitter.clone()
+process.FinalTrackRefitter.src = "generalTracks"
+process.FinalTrackRefitter.TrajectoryInEvent = True
+process.FinalTrackRefitter.NavigationSchool = ''
+process.FinalTrackRefitter.TTRHBuilder = "WithAngleAndTemplate"
 
 ####################################################################
 # Output file
 ####################################################################
 process.TFileService = cms.Service("TFileService",
-                                   fileName=cms.string("OUTFILETEMPLATE")
+                                   fileName=cms.string("PVValidation_test_0.root")
                                   )                                    
 
 ####################################################################
@@ -206,15 +199,15 @@ process.TFileService = cms.Service("TFileService",
 if isDA:
      print ">>>>>>>>>> testPVValidation_cfg.py: msg%-i: Running DA Algorithm!"
      process.PVValidation = cms.EDAnalyzer("PrimaryVertexValidation",
-                                           TrackCollectionTag = cms.InputTag("TrackRefitter"),
-                                           VertexCollectionTag = cms.InputTag("VERTEXTYPETEMPLATE"),  
+                                           TrackCollectionTag = cms.InputTag("FinalTrackRefitter"),
+                                           VertexCollectionTag = cms.InputTag("offlinePrimaryVertices"),  
                                            Debug = cms.bool(False),
                                            storeNtuple = cms.bool(False),
                                            useTracksFromRecoVtx = cms.bool(False),
                                            isLightNtuple = cms.bool(True),
                                            askFirstLayerHit = cms.bool(False),
-                                           probePt = cms.untracked.double(PTCUTTEMPLATE),
-                                           runControl = cms.untracked.bool(RUNCONTROLTEMPLATE),
+                                           probePt = cms.untracked.double(3.),
+                                           runControl = cms.untracked.bool(True),
                                            runControlNumber = cms.untracked.vuint32(int(runboundary)),
                                            
                                            TkFilterParameters = cms.PSet(algorithm=cms.string('filter'),                           
@@ -242,15 +235,15 @@ if isDA:
 else:
      print ">>>>>>>>>> testPVValidation_cfg.py: msg%-i: Running GAP Algorithm!"
      process.PVValidation = cms.EDAnalyzer("PrimaryVertexValidation",
-                                           TrackCollectionTag = cms.InputTag("TrackRefitter"),
-                                           VertexCollectionTag = cms.InputTag("VERTEXTYPETEMPLATE"), 
+                                           TrackCollectionTag = cms.InputTag("FinalTrackRefitter"),
+                                           VertexCollectionTag = cms.InputTag("offlinePrimaryVertices"), 
                                            Debug = cms.bool(False),
                                            isLightNtuple = cms.bool(True),
                                            storeNtuple = cms.bool(False),
                                            useTracksFromRecoVtx = cms.bool(False),
                                            askFirstLayerHit = cms.bool(False),
-                                           probePt = cms.untracked.double(PTCUTTEMPLATE),
-                                           runControl = cms.untracked.bool(RUNCONTROLTEMPLATE),
+                                           probePt = cms.untracked.double(3.),
+                                           runControl = cms.untracked.bool(True),
                                            runControlNumber = cms.untracked.vuint32(int(runboundary)),
                                            
                                            TkFilterParameters = cms.PSet(algorithm=cms.string('filter'),                             
@@ -273,5 +266,9 @@ else:
 ####################################################################
 process.p = cms.Path(process.goodvertexSkim*
                      process.offlineBeamSpot*
-                     process.TrackRefitter*
+                     # in case common fit sequence is uses
+                     #process.seqTrackselRefit*
+                     # in case NavigatioSchool is set !='' 
+                     #process.MeasurementTrackerEvent*
+                     process.FinalTrackRefitter*
                      process.PVValidation)

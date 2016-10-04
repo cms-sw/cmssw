@@ -4,4 +4,5 @@
 <use name="CondFormats/DataRecord"/>
 <use name="CondFormats/RunInfo"/>
 <use name="CondFormats/SiStripObjects"/>
+<use name="DataFormats/TrackReco"/> 
 <flags EDM_PLUGIN="1"/>
