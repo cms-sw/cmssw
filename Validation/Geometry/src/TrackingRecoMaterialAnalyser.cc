@@ -226,6 +226,7 @@ void TrackingRecoMaterialAnalyser::analyze(const edm::Event& event,
             << " are invalid at: "
             << current_tsos.globalPosition() << " "
             << (SiStripDetId)current_det << endl;
+           assert(0);
           continue;
         }
         float p2 = localP.mag2();
