@@ -1,87 +1,169 @@
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include <string>
+#include <iostream>
+#include <vector>
+#include <array>
+#include <cstdint>
+
+#include "FWCore/Framework/interface/stream/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/GetterOfProducts.h"
-#include "FWCore/Framework/interface/ProcessMatch.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
-#include "DataFormats/HcalRecHit/interface/HcalSourcePositionData.h"
 
-#include <string>
-#include <iostream>
+namespace {
+    std::ostream& operator<<(std::ostream& s, const HFQIE10Info& i)
+    {
+        s << i.id() << ": " << i.energy() << " GeV"
+          << ", t= " << i.timeRising() << " to " << i.timeFalling() << " ns";
+        return s;
+    }
+
+    std::ostream& operator<<(std::ostream& s, const HFPreRecHit& hit)
+    {
+        s << "{ ";
+        const HFQIE10Info* i = hit.getHFQIE10Info(0);
+        if (i) {s << *i;}
+        s << " }, ";
+        s << "{ ";
+        i = hit.getHFQIE10Info(1);
+        if (i) {s << *i;}
+        s << " }";      
+        return s;
+    }
+
+    template <std::size_t N>
+    void printBits(std::ostream& s, const std::array<uint32_t,N>& allbits,
+                   const std::vector<int>& bits)
+    {
+        const int maxbit = N*32;
+        const unsigned len = bits.size();
+        for (unsigned i=0; i<len; ++i)
+        {
+            const int bitnum = bits[i];
+            if (bitnum >= 0 && bitnum < maxbit)
+            {
+                const unsigned ibit = bitnum % 32;
+                const bool bit = (allbits[bitnum / 32] & (1U << ibit)) >> ibit;
+                s << bit;
+            }
+            else
+                s << '-';
+        }
+    }
+
+    void printRecHitAuxInfo(std::ostream& s, const HFPreRecHit& i,
+                            const std::vector<int>& bits)
+    {
+    }
+
+    void printRecHitAuxInfo(std::ostream& s, const HBHERecHit& i,
+                            const std::vector<int>& bits)
+    {
+        if (!bits.empty())
+        {
+            std::array<uint32_t,4> allbits;
+            allbits[0] = i.flags();
+            allbits[1] = i.aux();
+            allbits[2] = i.auxHBHE();
+            allbits[3] = i.auxPhase1();
+            s << "; bits: ";
+            printBits(s, allbits, bits);
+        }
+    }
+
+    void printRecHitAuxInfo(std::ostream& s, const HFRecHit& i,
+                            const std::vector<int>& bits)
+    {
+        if (!bits.empty())
+        {
+            std::array<uint32_t,3> allbits;
+            allbits[0] = i.flags();
+            allbits[1] = i.aux();
+            allbits[2] = i.getAuxHF();
+            s << "; bits: ";
+            printBits(s, allbits, bits);
+        }
+    }
+}
+
 
 using namespace std;
 
-namespace cms {
 
-  /** \class HcalRecHitDump
-      
-  \author J. Mans - Minnesota
-  */
-  class HcalRecHitDump : public edm::EDAnalyzer
-  {
-  public:
+class HcalRecHitDump : public edm::stream::EDAnalyzer<>
+{
+public:
     explicit HcalRecHitDump(edm::ParameterSet const& conf);
-    virtual void analyze(edm::Event const& e, edm::EventSetup const& c);
+    virtual void analyze(edm::Event const& e, edm::EventSetup const& c) override;
 
-  private:
-    edm::GetterOfProducts<HcalSourcePositionData> getHcalSourcePositionData_;
-
+private:
     string hbhePrefix_;
-    string hoPrefix_;
     string hfPrefix_;
-  };
+    string hfprePrefix_;
+    std::vector<int> bits_;
 
-  HcalRecHitDump::HcalRecHitDump(edm::ParameterSet const& conf) :
-    getHcalSourcePositionData_(edm::ProcessMatch("*"), this),
-    hbhePrefix_(conf.getUntrackedParameter<string>("hbhePrefix", "")),
-    hoPrefix_(conf.getUntrackedParameter<string>("hoPrefix", "")),
-    hfPrefix_(conf.getUntrackedParameter<string>("hfPrefix", ""))
-  {
-    callWhenNewProductsRegistered(getHcalSourcePositionData_);
-  }
+    edm::EDGetTokenT<HBHERecHitCollection> tok_hbhe_;
+    edm::EDGetTokenT<HFRecHitCollection> tok_hf_;
+    edm::EDGetTokenT<HFPreRecHitCollection> tok_prehf_;
 
-  template<typename COLL>
-  static void analyzeT(edm::Event const& e, const char* name=0, const char* prefix=0)
-  {
-    const string marker(prefix ? prefix : "");
-    try {
-      vector<edm::Handle<COLL> > colls;
-      e.getManyByType(colls);
-      typename std::vector<edm::Handle<COLL> >::iterator i;
-      for (i=colls.begin(); i!=colls.end(); i++) {
-        for (typename COLL::const_iterator j=(*i)->begin(); j!=(*i)->end(); j++)
-          cout << marker << *j << endl;
-      }
-    } catch (...) {
-      if(name) cout << "No " << name << " RecHits." << endl;
+    unsigned long long counter_;
+
+    template<class Collection, class Token>
+    void analyzeT(edm::Event const& e, const Token& tok,
+                  const char* name, const string& prefix) const
+    {
+        cout << prefix << " rechit dump " << counter_ << endl;
+
+        edm::Handle<Collection> coll;
+        bool found = false;
+        try {
+            e.getByToken(tok, coll);
+            found = true;
+        } catch (...) {
+            cout << prefix << " Error: no " << name << " rechit data" << endl;
+        }
+        if (found)
+        {
+            for (typename Collection::const_iterator j = coll->begin(); j != coll->end(); ++j)
+            {
+                cout << prefix << *j;
+                printRecHitAuxInfo(cout, *j, bits_);
+                cout << endl;
+            }
+        }
     }
-  }
+};
 
-  void HcalRecHitDump::analyze(edm::Event const& e, edm::EventSetup const& c) {
-    analyzeT<HBHERecHitCollection>(e, "HB/HE", hbhePrefix_.c_str()); 
-    analyzeT<HFRecHitCollection>(e, "HF", hfPrefix_.c_str());
-    analyzeT<HORecHitCollection>(e, "HO", hoPrefix_.c_str());
-    analyzeT<HcalCalibRecHitCollection>(e);
-    analyzeT<ZDCRecHitCollection>(e);
-    analyzeT<CastorRecHitCollection>(e);
-
-    std::vector<edm::Handle<HcalSourcePositionData> > handles;
-    getHcalSourcePositionData_.fillHandles(e, handles);
-    for (auto const& spd : handles){
-      cout << *spd << endl;
-    }
-    cout << endl;    
-  }
+HcalRecHitDump::HcalRecHitDump(edm::ParameterSet const& conf)
+    : hbhePrefix_(conf.getUntrackedParameter<string>("hbhePrefix", "")),
+      hfPrefix_(conf.getUntrackedParameter<string>("hfPrefix", "")),
+      hfprePrefix_(conf.getUntrackedParameter<string>("hfprePrefix", "")),
+      bits_(conf.getUntrackedParameter<std::vector<int> >("bits")),
+      counter_(0)
+{
+    if (!hbhePrefix_.empty())
+        tok_hbhe_ = consumes<HBHERecHitCollection>(
+            conf.getParameter<edm::InputTag>("tagHBHE"));
+    if (!hfPrefix_.empty())
+        tok_hf_ = consumes<HFRecHitCollection>(
+            conf.getParameter<edm::InputTag>("tagHF"));
+    if (!hfprePrefix_.empty())
+        tok_prehf_ = consumes<HFPreRecHitCollection>(
+            conf.getParameter<edm::InputTag>("tagPreHF"));
 }
 
-#include "FWCore/PluginManager/interface/ModuleDef.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-
-using namespace cms;
-
+void HcalRecHitDump::analyze(edm::Event const& e, edm::EventSetup const& c)
+{
+    if (!hbhePrefix_.empty())
+        analyzeT<HBHERecHitCollection>(e, tok_hbhe_, "HBHE", hbhePrefix_);
+    if (!hfPrefix_.empty())
+        analyzeT<HFRecHitCollection>(e, tok_hf_, "HF", hfPrefix_);
+    if (!hfprePrefix_.empty())
+        analyzeT<HFPreRecHitCollection>(e, tok_prehf_, "PreHF", hfprePrefix_);
+    ++counter_;
+}
 
 DEFINE_FWK_MODULE(HcalRecHitDump);
-
