@@ -106,6 +106,14 @@ BPHWriteSpecificDecay::BPHWriteSpecificDecay( const edm::ParameterSet& ps ) {
   fMap["constrMJPsi"   ] = constrMJPsi;
   fMap["writeCandidate"] = writeCandidate;
 
+  recoOnia = 
+  recoKx0  = writeKx0  =
+  recoPkk  = writePkk  =
+  recoBu   = writeBu   =
+  recoBd   = writeBd   =
+  recoBs   = writeBs   = false;
+
+  writeOnia = true;
   if ( ps.exists( "recoSelect" ) ) {
     const vector<edm::ParameterSet> recoSelect =
           ps.getParameter< vector<edm::ParameterSet> >( "recoSelect" );
@@ -115,6 +123,14 @@ BPHWriteSpecificDecay::BPHWriteSpecificDecay( const edm::ParameterSet& ps ) {
       setRecoParameters( recoSelect[iSel] );
     }
   }
+  if ( !recoOnia ) writeOnia = false;
+
+  if (  recoBu )  recoOnia = true;
+  if (  recoBd )  recoOnia =  recoKx0 = true;
+  if (  recoBs )  recoOnia =  recoPkk = true;
+  if ( writeBu ) writeOnia = true;
+  if ( writeBd ) writeOnia = writeKx0 = true;
+  if ( writeBs ) writeOnia = writePkk = true;
 
   if ( usePV ) consume< vector<reco::Vertex                > >( pVertexToken,
                                                                 pVertexLabel );
@@ -129,12 +145,12 @@ BPHWriteSpecificDecay::BPHWriteSpecificDecay( const edm::ParameterSet& ps ) {
   if ( useGP ) consume< vector<pat::GenericParticle        > >( gpCandsToken,
                                                                 gpCandsLabel );
 
-  produces<pat::CompositeCandidateCollection>( oniaName );
-  produces<pat::CompositeCandidateCollection>(   sdName );
-  produces<pat::CompositeCandidateCollection>(   ssName );
-  produces<pat::CompositeCandidateCollection>(   buName );
-  produces<pat::CompositeCandidateCollection>(   bdName );
-  produces<pat::CompositeCandidateCollection>(   bsName );
+  if ( writeOnia ) produces<pat::CompositeCandidateCollection>( oniaName );
+  if ( writeKx0  ) produces<pat::CompositeCandidateCollection>(   sdName );
+  if ( writePkk  ) produces<pat::CompositeCandidateCollection>(   ssName );
+  if ( writeBu   ) produces<pat::CompositeCandidateCollection>(   buName );
+  if ( writeBd   ) produces<pat::CompositeCandidateCollection>(   bdName );
+  if ( writeBs   ) produces<pat::CompositeCandidateCollection>(   bsName );
 
 }
 
@@ -151,12 +167,12 @@ void BPHWriteSpecificDecay::beginJob() {
 void BPHWriteSpecificDecay::produce( edm::Event& ev,
                                      const edm::EventSetup& es ) {
   fill( ev, es );
-  write( ev, lFull, oniaName );
-  write( ev, lSd, sdName );
-  write( ev, lSs, ssName );
-  write( ev, lBu, buName );
-  write( ev, lBd, bdName );
-  write( ev, lBs, bsName );
+  if ( writeOnia ) write( ev, lFull, oniaName );
+  if ( writeKx0  ) write( ev, lSd  ,   sdName );
+  if ( writePkk  ) write( ev, lSs  ,   ssName );
+  if ( writeBu   ) write( ev, lBu  ,   buName );
+  if ( writeBd   ) write( ev, lBd  ,   bdName );
+  if ( writeBs   ) write( ev, lBs  ,   bsName );
   return;
 }
 
@@ -260,57 +276,61 @@ void BPHWriteSpecificDecay::fill( edm::Event& ev,
     while ( iter != iend ) muDaugs.push_back( *iter++ );
   }
 
+  map< recoType, map<parType,double> >::const_iterator rIter = parMap.begin();
+  map< recoType, map<parType,double> >::const_iterator rIend = parMap.end();
+
   // reconstruct quarkonia
 
   BPHOniaToMuMuBuilder* onia = 0;
-  if ( usePM ) onia = new BPHOniaToMuMuBuilder( es,
-                      BPHRecoBuilder::createCollection( patMuon, "cfmig" ),
-                      BPHRecoBuilder::createCollection( patMuon, "cfmig" ) );
-  else
-  if ( useCC ) onia = new BPHOniaToMuMuBuilder( es,
-                      BPHRecoBuilder::createCollection( muDaugs, "cfmig" ),
-                      BPHRecoBuilder::createCollection( muDaugs, "cfmig" ) );
-
-  map< recoType, map<parType,double> >::const_iterator rIter = parMap.begin();
-  map< recoType, map<parType,double> >::const_iterator rIend = parMap.end();
-  while ( rIter != rIend ) {
-    const map< recoType, map<parType,double> >::value_type& rEntry = *rIter++;
-    recoType                   rType = rEntry.first;
-    const map<parType,double>& pMap  = rEntry.second;
-    BPHOniaToMuMuBuilder::oniaType type;
-    switch( rType ) {
-    case Pmm : type = BPHOniaToMuMuBuilder::Phi;  break;
-    case Psi1: type = BPHOniaToMuMuBuilder::Psi1; break;
-    case Psi2: type = BPHOniaToMuMuBuilder::Psi2; break;
-    case Ups : type = BPHOniaToMuMuBuilder::Ups ; break;
-    case Ups1: type = BPHOniaToMuMuBuilder::Ups1; break;
-    case Ups2: type = BPHOniaToMuMuBuilder::Ups2; break;
-    case Ups3: type = BPHOniaToMuMuBuilder::Ups3; break;
-    default: continue;
-    }
-    map<parType,double>::const_iterator pIter = pMap.begin();
-    map<parType,double>::const_iterator pIend = pMap.end();
-    while ( pIter != pIend ) {
-      const map<parType,double>::value_type& pEntry = *pIter++;
-      parType id = pEntry.first;
-      double  pv = pEntry.second;
-      switch( id ) {
-      case ptMin      : onia->setPtMin  ( type, pv ); break;
-      case etaMax     : onia->setEtaMax ( type, pv ); break;
-      case massMin    : onia->setMassMin( type, pv ); break;
-      case massMax    : onia->setMassMax( type, pv ); break;
-      case probMin    : onia->setProbMin( type, pv ); break;
-      case constrMass : onia->setConstr ( type, pv, 
-                                                onia->getConstrSigma( type )
-                                                   ); break;
-      case constrSigma: onia->setConstr ( type, onia->getConstrMass ( type ),
-                                                pv ); break;
-      default: break;
-      }
-    }
+  if ( recoOnia ) {
+    if ( usePM ) onia = new BPHOniaToMuMuBuilder( es,
+                        BPHRecoBuilder::createCollection( patMuon, "cfmig" ),
+                        BPHRecoBuilder::createCollection( patMuon, "cfmig" ) );
+    else
+    if ( useCC ) onia = new BPHOniaToMuMuBuilder( es,
+                        BPHRecoBuilder::createCollection( muDaugs, "cfmig" ),
+                        BPHRecoBuilder::createCollection( muDaugs, "cfmig" ) );
   }
 
-  lFull = onia->build();
+  if ( onia != 0 ) {
+    while ( rIter != rIend ) {
+      const map< recoType, map<parType,double> >::value_type& rEntry = *rIter++;
+      recoType                   rType = rEntry.first;
+      const map<parType,double>& pMap  = rEntry.second;
+      BPHOniaToMuMuBuilder::oniaType type;
+      switch( rType ) {
+      case Pmm : type = BPHOniaToMuMuBuilder::Phi ; break;
+      case Psi1: type = BPHOniaToMuMuBuilder::Psi1; break;
+      case Psi2: type = BPHOniaToMuMuBuilder::Psi2; break;
+      case Ups : type = BPHOniaToMuMuBuilder::Ups ; break;
+      case Ups1: type = BPHOniaToMuMuBuilder::Ups1; break;
+      case Ups2: type = BPHOniaToMuMuBuilder::Ups2; break;
+      case Ups3: type = BPHOniaToMuMuBuilder::Ups3; break;
+      default: continue;
+      }
+      map<parType,double>::const_iterator pIter = pMap.begin();
+      map<parType,double>::const_iterator pIend = pMap.end();
+      while ( pIter != pIend ) {
+        const map<parType,double>::value_type& pEntry = *pIter++;
+        parType id = pEntry.first;
+        double  pv = pEntry.second;
+        switch( id ) {
+        case ptMin      : onia->setPtMin  ( type, pv ); break;
+        case etaMax     : onia->setEtaMax ( type, pv ); break;
+        case massMin    : onia->setMassMin( type, pv ); break;
+        case massMax    : onia->setMassMax( type, pv ); break;
+        case probMin    : onia->setProbMin( type, pv ); break;
+        case constrMass : onia->setConstr ( type, pv, 
+                                                  onia->getConstrSigma( type )
+                                                     ); break;
+        case constrSigma: onia->setConstr ( type, onia->getConstrMass ( type ),
+                                                  pv ); break;
+        default: break;
+        }
+      }
+    }
+    lFull = onia->build();
+  }
 
   // associate onia to primary vertex
 
@@ -398,7 +418,7 @@ void BPHWriteSpecificDecay::fill( edm::Event& ev,
 
   // get JPsi subsample and associate JPsi candidate to original 
   // generic onia candidate
-  lJPsi = onia->getList( BPHOniaToMuMuBuilder::Psi1 );
+  if ( nFull ) lJPsi = onia->getList( BPHOniaToMuMuBuilder::Psi1 );
 
   int nJPsi = lJPsi.size();
   delete onia;
@@ -427,211 +447,226 @@ void BPHWriteSpecificDecay::fill( edm::Event& ev,
   // build and dump Bu
 
   BPHBuToJPsiKBuilder* bu = 0;
-  if ( usePF ) bu = new BPHBuToJPsiKBuilder( es, lJPsi,
-                        BPHRecoBuilder::createCollection( pfCands ) );
-  else
-  if ( usePC ) bu = new BPHBuToJPsiKBuilder( es, lJPsi,
-                        BPHRecoBuilder::createCollection( pcCands ) );
-  else
-  if ( useGP ) bu = new BPHBuToJPsiKBuilder( es, lJPsi,
-                        BPHRecoBuilder::createCollection( gpCands ) );
-
-  rIter = parMap.find( Bu );
-  if ( rIter != rIend ) {
-    const map<parType,double>& pMap = rIter->second;
-    map<parType,double>::const_iterator pIter = pMap.begin();
-    map<parType,double>::const_iterator pIend = pMap.end();
-    while ( pIter != pIend ) {
-      const map<parType,double>::value_type& pEntry = *pIter++;
-      parType id = pEntry.first;
-      double  pv = pEntry.second;
-      switch( id ) {
-      case ptMin       : bu->setKPtMin     ( pv ); break;
-      case etaMax      : bu->setKEtaMax    ( pv ); break;
-      case mPsiMin     : bu->setJPsiMassMin( pv ); break;
-      case mPsiMax     : bu->setJPsiMassMax( pv ); break;
-      case massMin     : bu->setMassMin    ( pv ); break;
-      case massMax     : bu->setMassMax    ( pv ); break;
-      case probMin     : bu->setProbMin    ( pv ); break;
-      case mFitMin     : bu->setMassFitMin ( pv ); break;
-      case mFitMax     : bu->setMassFitMax ( pv ); break;
-      case constrMJPsi : bu->setConstr     ( pv > 0 ); break;
-      default: break;
-      }
-    }
+  if ( recoBu ) {
+    if ( usePF ) bu = new BPHBuToJPsiKBuilder( es, lJPsi,
+                          BPHRecoBuilder::createCollection( pfCands ) );
+    else
+    if ( usePC ) bu = new BPHBuToJPsiKBuilder( es, lJPsi,
+                          BPHRecoBuilder::createCollection( pcCands ) );
+    else
+    if ( useGP ) bu = new BPHBuToJPsiKBuilder( es, lJPsi,
+                          BPHRecoBuilder::createCollection( gpCands ) );
   }
 
-  lBu = bu->build();
-  delete bu;
+  if ( bu != 0 ) {
+    rIter = parMap.find( Bu );
+    if ( rIter != rIend ) {
+      const map<parType,double>& pMap = rIter->second;
+      map<parType,double>::const_iterator pIter = pMap.begin();
+      map<parType,double>::const_iterator pIend = pMap.end();
+      while ( pIter != pIend ) {
+        const map<parType,double>::value_type& pEntry = *pIter++;
+        parType id = pEntry.first;
+        double  pv = pEntry.second;
+        switch( id ) {
+        case ptMin      : bu->setKPtMin     ( pv ); break;
+        case etaMax     : bu->setKEtaMax    ( pv ); break;
+        case mPsiMin    : bu->setJPsiMassMin( pv ); break;
+        case mPsiMax    : bu->setJPsiMassMax( pv ); break;
+        case massMin    : bu->setMassMin    ( pv ); break;
+        case massMax    : bu->setMassMax    ( pv ); break;
+        case probMin    : bu->setProbMin    ( pv ); break;
+        case mFitMin    : bu->setMassFitMin ( pv ); break;
+        case mFitMax    : bu->setMassFitMax ( pv ); break;
+        case constrMJPsi: bu->setConstr     ( pv > 0 ); break;
+        case writeCandidate: writeBu =      ( pv > 0 ); break;
+        default: break;
+        }
+      }
+    }
+    lBu = bu->build();
+    delete bu;
+  }
 
   // build and dump Kx0
 
+  vector<BPHPlusMinusConstCandPtr> lKx0;
   BPHKx0ToKPiBuilder* kx0 = 0;
-  if ( usePF ) kx0 = new BPHKx0ToKPiBuilder( es,
-                     BPHRecoBuilder::createCollection( pfCands ),
-                     BPHRecoBuilder::createCollection( pfCands ) );
-  else
-  if ( usePC ) kx0 = new BPHKx0ToKPiBuilder( es,
-                     BPHRecoBuilder::createCollection( pcCands ),
-                     BPHRecoBuilder::createCollection( pcCands ) );
-  else
-  if ( useGP ) kx0 = new BPHKx0ToKPiBuilder( es,
-                     BPHRecoBuilder::createCollection( gpCands ),
-                     BPHRecoBuilder::createCollection( gpCands ) );
-
-  rIter = parMap.find( Kx0 );
-  if ( rIter != rIend ) {
-    const map<parType,double>& pMap = rIter->second;
-    map<parType,double>::const_iterator pIter = pMap.begin();
-    map<parType,double>::const_iterator pIend = pMap.end();
-    while ( pIter != pIend ) {
-      const map<parType,double>::value_type& pEntry = *pIter++;
-      parType id = pEntry.first;
-      double  pv = pEntry.second;
-      switch( id ) {
-      case ptMin      : kx0->setPtMin  ( pv ); break;
-      case etaMax     : kx0->setEtaMax ( pv ); break;
-      case massMin    : kx0->setMassMin( pv ); break;
-      case massMax    : kx0->setMassMax( pv ); break;
-      case probMin    : kx0->setProbMin( pv ); break;
-      case constrMass : kx0->setConstr ( pv, kx0->getConstrSigma() ); break;
-      case constrSigma: kx0->setConstr ( kx0->getConstrMass() , pv ); break;
-      default: break;
-      }
-    }
+  if ( recoKx0 ) {
+    if ( usePF ) kx0 = new BPHKx0ToKPiBuilder( es,
+                       BPHRecoBuilder::createCollection( pfCands ),
+                       BPHRecoBuilder::createCollection( pfCands ) );
+    else
+    if ( usePC ) kx0 = new BPHKx0ToKPiBuilder( es,
+                       BPHRecoBuilder::createCollection( pcCands ),
+                       BPHRecoBuilder::createCollection( pcCands ) );
+    else
+    if ( useGP ) kx0 = new BPHKx0ToKPiBuilder( es,
+                       BPHRecoBuilder::createCollection( gpCands ),
+                       BPHRecoBuilder::createCollection( gpCands ) );
   }
 
-  vector<BPHPlusMinusConstCandPtr> lKx0 = kx0->build();
+  if ( kx0 != 0 ) {
+    rIter = parMap.find( Kx0 );
+    if ( rIter != rIend ) {
+      const map<parType,double>& pMap = rIter->second;
+      map<parType,double>::const_iterator pIter = pMap.begin();
+      map<parType,double>::const_iterator pIend = pMap.end();
+      while ( pIter != pIend ) {
+        const map<parType,double>::value_type& pEntry = *pIter++;
+        parType id = pEntry.first;
+        double  pv = pEntry.second;
+        switch( id ) {
+        case ptMin      : kx0->setPtMin  ( pv ); break;
+        case etaMax     : kx0->setEtaMax ( pv ); break;
+        case massMin    : kx0->setMassMin( pv ); break;
+        case massMax    : kx0->setMassMax( pv ); break;
+        case probMin    : kx0->setProbMin( pv ); break;
+        case constrMass : kx0->setConstr ( pv, kx0->getConstrSigma() ); break;
+        case constrSigma: kx0->setConstr ( kx0->getConstrMass() , pv ); break;
+        case writeCandidate: writeKx0 =  ( pv > 0 ); break;
+        default: break;
+        }
+      }
+    }
+    lKx0 = kx0->build();
+    delete kx0;
+  }
+
   int nKx0 = lKx0.size();
-  lSd.clear();
-  delete kx0;
 
   // build and dump Bd
 
-  if ( nKx0 ) {
+  if ( recoBd && nKx0 ) {
 
-  BPHBdToJPsiKxBuilder* bd = new BPHBdToJPsiKxBuilder( es, lJPsi, lKx0 );
-  rIter = parMap.find( Bd );
-  if ( rIter != rIend ) {
-    const map<parType,double>& pMap = rIter->second;
-    map<parType,double>::const_iterator pIter = pMap.begin();
-    map<parType,double>::const_iterator pIend = pMap.end();
-    while ( pIter != pIend ) {
-      const map<parType,double>::value_type& pEntry = *pIter++;
-      parType id = pEntry.first;
-      double  pv = pEntry.second;
-      switch( id ) {
-      case mPsiMin     : bd->setJPsiMassMin( pv ); break;
-      case mPsiMax     : bd->setJPsiMassMax( pv ); break;
-      case mKx0Min     : bd->setKxMassMin  ( pv ); break;
-      case mKx0Max     : bd->setKxMassMax  ( pv ); break;
-      case massMin     : bd->setMassMin    ( pv ); break;
-      case massMax     : bd->setMassMax    ( pv ); break;
-      case probMin     : bd->setProbMin    ( pv ); break;
-      case mFitMin     : bd->setMassFitMin ( pv ); break;
-      case mFitMax     : bd->setMassFitMax ( pv ); break;
-      case constrMJPsi : bd->setConstr     ( pv > 0 ); break;
-      default: break;
+    BPHBdToJPsiKxBuilder* bd = new BPHBdToJPsiKxBuilder( es, lJPsi, lKx0 );
+    rIter = parMap.find( Bd );
+    if ( rIter != rIend ) {
+      const map<parType,double>& pMap = rIter->second;
+      map<parType,double>::const_iterator pIter = pMap.begin();
+      map<parType,double>::const_iterator pIend = pMap.end();
+      while ( pIter != pIend ) {
+        const map<parType,double>::value_type& pEntry = *pIter++;
+        parType id = pEntry.first;
+        double  pv = pEntry.second;
+        switch( id ) {
+        case mPsiMin    : bd->setJPsiMassMin( pv ); break;
+        case mPsiMax    : bd->setJPsiMassMax( pv ); break;
+        case mKx0Min    : bd->setKxMassMin  ( pv ); break;
+        case mKx0Max    : bd->setKxMassMax  ( pv ); break;
+        case massMin    : bd->setMassMin    ( pv ); break;
+        case massMax    : bd->setMassMax    ( pv ); break;
+        case probMin    : bd->setProbMin    ( pv ); break;
+        case mFitMin    : bd->setMassFitMin ( pv ); break;
+        case mFitMax    : bd->setMassFitMax ( pv ); break;
+        case constrMJPsi: bd->setConstr     ( pv > 0 ); break;
+        case writeCandidate: writeBd =      ( pv > 0 ); break;
+        default: break;
+        }
       }
     }
-  }
 
-  lBd = bd->build();
-  delete bd;
+    lBd = bd->build();
+    delete bd;
 
-  set<BPHRecoConstCandPtr> sKx0;
-  int iBd;
-  int nBd = lBd.size();
-  for ( iBd = 0; iBd < nBd; ++iBd ) sKx0.insert( lBd[iBd]->getComp( "Kx0" ) );
-  set<BPHRecoConstCandPtr>::const_iterator iter = sKx0.begin();
-  set<BPHRecoConstCandPtr>::const_iterator iend = sKx0.end();
-  while ( iter != iend ) lSd.push_back( *iter++ );
+    set<BPHRecoConstCandPtr> sKx0;
+    int iBd;
+    int nBd = lBd.size();
+    for ( iBd = 0; iBd < nBd; ++iBd ) sKx0.insert( lBd[iBd]->getComp( "Kx0" ) );
+    set<BPHRecoConstCandPtr>::const_iterator iter = sKx0.begin();
+    set<BPHRecoConstCandPtr>::const_iterator iend = sKx0.end();
+    while ( iter != iend ) lSd.push_back( *iter++ );
 
   }
 
   // build and dump Phi
 
+  vector<BPHPlusMinusConstCandPtr> lPhi;
   BPHPhiToKKBuilder* phi = 0;
-  if ( usePF ) phi = new BPHPhiToKKBuilder( es,
-                     BPHRecoBuilder::createCollection( pfCands ),
-                     BPHRecoBuilder::createCollection( pfCands ) );
-  else
-  if ( usePC ) phi = new BPHPhiToKKBuilder( es,
-                     BPHRecoBuilder::createCollection( pcCands ),
-                     BPHRecoBuilder::createCollection( pcCands ) );
-  else
-  if ( useGP ) phi = new BPHPhiToKKBuilder( es,
-                     BPHRecoBuilder::createCollection( gpCands ),
-                     BPHRecoBuilder::createCollection( gpCands ) );
-
-  rIter = parMap.find( Pkk );
-  if ( rIter != rIend ) {
-    const map<parType,double>& pMap = rIter->second;
-    map<parType,double>::const_iterator pIter = pMap.begin();
-    map<parType,double>::const_iterator pIend = pMap.end();
-    while ( pIter != pIend ) {
-      const map<parType,double>::value_type& pEntry = *pIter++;
-      parType id = pEntry.first;
-      double  pv = pEntry.second;
-      switch( id ) {
-      case ptMin      : phi->setPtMin  ( pv ); break;
-      case etaMax     : phi->setEtaMax ( pv ); break;
-      case massMin    : phi->setMassMin( pv ); break;
-      case massMax    : phi->setMassMax( pv ); break;
-      case probMin    : phi->setProbMin( pv ); break;
-      case constrMass : phi->setConstr ( pv, phi->getConstrSigma() ); break;
-      case constrSigma: phi->setConstr ( phi->getConstrMass() , pv ); break;
-      default: break;
-      }
-    }
+  if ( recoPkk ) {
+    if ( usePF ) phi = new BPHPhiToKKBuilder( es,
+                       BPHRecoBuilder::createCollection( pfCands ),
+                       BPHRecoBuilder::createCollection( pfCands ) );
+    else
+    if ( usePC ) phi = new BPHPhiToKKBuilder( es,
+                       BPHRecoBuilder::createCollection( pcCands ),
+                       BPHRecoBuilder::createCollection( pcCands ) );
+    else
+    if ( useGP ) phi = new BPHPhiToKKBuilder( es,
+                       BPHRecoBuilder::createCollection( gpCands ),
+                       BPHRecoBuilder::createCollection( gpCands ) );
   }
 
-  vector<BPHPlusMinusConstCandPtr> lPhi = phi->build();
-  int nPhi = lPhi.size();
-  lSs.clear();
+  if ( phi != 0 ) {
+    rIter = parMap.find( Pkk );
+    if ( rIter != rIend ) {
+      const map<parType,double>& pMap = rIter->second;
+      map<parType,double>::const_iterator pIter = pMap.begin();
+      map<parType,double>::const_iterator pIend = pMap.end();
+      while ( pIter != pIend ) {
+        const map<parType,double>::value_type& pEntry = *pIter++;
+        parType id = pEntry.first;
+        double  pv = pEntry.second;
+        switch( id ) {
+        case ptMin      : phi->setPtMin  ( pv ); break;
+        case etaMax     : phi->setEtaMax ( pv ); break;
+        case massMin    : phi->setMassMin( pv ); break;
+        case massMax    : phi->setMassMax( pv ); break;
+        case probMin    : phi->setProbMin( pv ); break;
+        case constrMass : phi->setConstr ( pv, phi->getConstrSigma() ); break;
+        case constrSigma: phi->setConstr ( phi->getConstrMass() , pv ); break;
+        case writeCandidate: writePkk =  ( pv > 0 ); break;
+        default: break;
+        }
+      }
+    }
+    lPhi = phi->build();
+    delete phi;
+  }
 
-  delete phi;
+  int nPhi = lPhi.size();
 
   // build and dump Bs
 
-  if ( nPhi ) {
+  if ( recoBs && nPhi ) {
 
-  BPHBsToJPsiPhiBuilder* bs = new BPHBsToJPsiPhiBuilder( es, lJPsi, lPhi );
-  rIter = parMap.find( Bs );
-  if ( rIter != rIend ) {
-    const map<parType,double>& pMap = rIter->second;
-    map<parType,double>::const_iterator pIter = pMap.begin();
-    map<parType,double>::const_iterator pIend = pMap.end();
-    while ( pIter != pIend ) {
-      const map<parType,double>::value_type& pEntry = *pIter++;
-      parType id = pEntry.first;
-      double  pv = pEntry.second;
-      switch( id ) {
-      case mPsiMin     : bs->setJPsiMassMin( pv ); break;
-      case mPsiMax     : bs->setJPsiMassMax( pv ); break;
-      case mPhiMin     : bs->setPhiMassMin ( pv ); break;
-      case mPhiMax     : bs->setPhiMassMax ( pv ); break;
-      case massMin     : bs->setMassMin    ( pv ); break;
-      case massMax     : bs->setMassMax    ( pv ); break;
-      case probMin     : bs->setProbMin    ( pv ); break;
-      case mFitMin     : bs->setMassFitMin ( pv ); break;
-      case mFitMax     : bs->setMassFitMax ( pv ); break;
-      case constrMJPsi : bs->setConstr     ( pv > 0 ); break;
-      default: break;
+    BPHBsToJPsiPhiBuilder* bs = new BPHBsToJPsiPhiBuilder( es, lJPsi, lPhi );
+    rIter = parMap.find( Bs );
+    if ( rIter != rIend ) {
+      const map<parType,double>& pMap = rIter->second;
+      map<parType,double>::const_iterator pIter = pMap.begin();
+      map<parType,double>::const_iterator pIend = pMap.end();
+      while ( pIter != pIend ) {
+        const map<parType,double>::value_type& pEntry = *pIter++;
+        parType id = pEntry.first;
+        double  pv = pEntry.second;
+        switch( id ) {
+        case mPsiMin    : bs->setJPsiMassMin( pv ); break;
+        case mPsiMax    : bs->setJPsiMassMax( pv ); break;
+        case mPhiMin    : bs->setPhiMassMin ( pv ); break;
+        case mPhiMax    : bs->setPhiMassMax ( pv ); break;
+        case massMin    : bs->setMassMin    ( pv ); break;
+        case massMax    : bs->setMassMax    ( pv ); break;
+        case probMin    : bs->setProbMin    ( pv ); break;
+        case mFitMin    : bs->setMassFitMin ( pv ); break;
+        case mFitMax    : bs->setMassFitMax ( pv ); break;
+        case constrMJPsi: bs->setConstr     ( pv > 0 ); break;
+        case writeCandidate: writeBs =      ( pv > 0 ); break;
+        default: break;
+        }
       }
     }
-  }
 
-  lBs = bs->build();
-  delete bs;
+    lBs = bs->build();
+    delete bs;
 
-  set<BPHRecoConstCandPtr> sPhi;
-  int iBs;
-  int nBs = lBs.size();
-  for ( iBs = 0; iBs < nBs; ++iBs ) sPhi.insert( lBs[iBs]->getComp( "Phi" ) );
-  set<BPHRecoConstCandPtr>::const_iterator iter = sPhi.begin();
-  set<BPHRecoConstCandPtr>::const_iterator iend = sPhi.end();
-  while ( iter != iend ) lSs.push_back( *iter++ );
+    set<BPHRecoConstCandPtr> sPhi;
+    int iBs;
+    int nBs = lBs.size();
+    for ( iBs = 0; iBs < nBs; ++iBs ) sPhi.insert( lBs[iBs]->getComp( "Phi" ) );
+    set<BPHRecoConstCandPtr>::const_iterator iter = sPhi.begin();
+    set<BPHRecoConstCandPtr>::const_iterator iend = sPhi.end();
+    while ( iter != iend ) lSs.push_back( *iter++ );
 
   }
 
@@ -655,6 +690,22 @@ string BPHWriteSpecificDecay::getParameter( const edm::ParameterSet& ps,
 void BPHWriteSpecificDecay::setRecoParameters( const edm::ParameterSet& ps ) {
 
   const string& name = ps.getParameter<string>( "name" );
+  bool writeCandidate = ps.getParameter<bool>( "writeCandidate" );
+  switch( rMap[name] ) {
+  case Onia: recoOnia = true; writeOnia = writeCandidate; break;
+  case Pmm:
+  case Psi1:
+  case Psi2:
+  case Ups:
+  case Ups1:
+  case Ups2:
+  case Ups3: recoOnia = true;                             break;
+  case Kx0 : recoKx0  = true; writeKx0  = writeCandidate; break;
+  case Pkk : recoPkk  = true; writePkk  = writeCandidate; break;
+  case Bu  : recoBu   = true; writeBu   = writeCandidate; break;
+  case Bd  : recoBd   = true; writeBd   = writeCandidate; break;
+  case Bs  : recoBs   = true; writeBs   = writeCandidate; break;
+  }
 
   map<string,parType>::const_iterator pIter = pMap.begin();
   map<string,parType>::const_iterator pIend = pMap.end();

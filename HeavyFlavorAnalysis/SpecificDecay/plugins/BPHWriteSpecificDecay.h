@@ -84,6 +84,21 @@ class BPHWriteSpecificDecay:
   std::map<std::string, parType> pMap;
   std::map<std::string, parType> fMap;
   std::map< recoType, std::map<parType,double> > parMap;
+
+  bool recoOnia;
+  bool recoKx0;
+  bool recoPkk;
+  bool recoBu;
+  bool recoBd;
+  bool recoBs;
+
+  bool writeOnia;
+  bool writeKx0;
+  bool writePkk;
+  bool writeBu;
+  bool writeBd;
+  bool writeBs;
+
   bool writeVertex;
   bool writeMomentum;
 
