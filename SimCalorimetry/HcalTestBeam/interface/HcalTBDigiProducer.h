@@ -15,7 +15,7 @@
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloHitResponse.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalAmplifier.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalCoderFactory.h"
-#include "SimCalorimetry/HcalSimAlgos/interface/HcalHitCorrection.h"
+#include "SimCalorimetry/HcalSimAlgos/interface/HcalTimeSlewSim.h"
 #include "SimGeneral/MixingModule/interface/DigiAccumulatorMixMod.h"
 
 #include<vector>
@@ -76,7 +76,7 @@ private:
   HBHEHitFilter theHBHEHitFilter;
   HOHitFilter   theHOHitFilter;
 
-  HcalHitCorrection * theHitCorrection;
+  HcalTimeSlewSim * theTimeSlewSim;
 
   HBHEDigitizer * theHBHEDigitizer;
   HODigitizer   * theHODigitizer;
