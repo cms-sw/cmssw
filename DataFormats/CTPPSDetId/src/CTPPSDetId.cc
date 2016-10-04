@@ -16,6 +16,14 @@ using namespace std;
 
 //----------------------------------------------------------------------------------------------------
 
+const string CTPPSDetId::subDetectorNames[] = { "", "", "", "ctpps_tr_strip", "ctpps_tr_pixel", "ctpps_ti_diamond", "ctpps_ti_fastsilicon" };
+const string CTPPSDetId::subDetectorPaths[] = { "", "", "", "CTPPS/TrackingStrip", "CTPPS/TrackingPixel", "CTPPS/TimingDiamond", "CTPPS/TimingFastSilicon" };
+const string CTPPSDetId::armNames[] = { "45", "56" };
+const string CTPPSDetId::stationNames[] = { "210", "220cyl", "220" };
+const string CTPPSDetId::rpNames[] = { "nr_tp", "nr_bt", "nr_hr", "fr_hr", "fr_tp", "fr_bt", "cyl_hr" };
+
+//----------------------------------------------------------------------------------------------------
+
 CTPPSDetId::CTPPSDetId(uint32_t id) : DetId(id)
 {
   bool inputOK = (det() == DetId::VeryForward);
