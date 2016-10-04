@@ -123,6 +123,6 @@ DQMHarvestJetMET = cms.Sequence( SusyPostProcessorSequence )
 
 DQMHarvestEGamma = cms.Sequence( egammaPostProcessing )                     
 
-DQMHarvestBTag = cms.Sequence( bTagCollectorSequenceDATA )  
+DQMHarvestBTag = cms.Sequence( bTagCollectorSequenceDATA ) 
 
 DQMHarvestMiniAOD = cms.Sequence( dataCertificationJetMETSequence * muonQualityTests_miniAOD)
