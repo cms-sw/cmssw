@@ -7,7 +7,8 @@
 //
 //  where:
 //
-//  inFileName  (std::string) = name of the input file ("Silver")
+//  inFileName  (std::string) = name of the input file without ".root"
+//                              extension ("Silver")
 //  dirName     (std::string) = name of the directory where the Tree resides
 //                              ("HcalIsoTrkAnalyzer")
 //  treeName    (std::string) = name of the Tree ("CalibTree")
@@ -23,9 +24,9 @@
 //  inverse     (bool)        = Use the ratio E/p or p/E in determining the
 //                              coefficients (False -- use p/E)
 //  ratMin      (double)      = Lower  cut on E/p to select a track (0.25)
-//  ratMax      (double)      = Higher cut on E/p to select a track (10.0)
+//  ratMax      (double)      = Higher cut on E/p to select a track (3.0)
 //  ietaMax     (int)         = Maximum ieta value for which correcttion
-//                              factor is to be determined (21)
+//                              factor is to be determined (25)
 //  applyL1Cut  (int)         = Flag to see if closeness to L1 object to be
 //                              applied: 0 no check; 1 only to events with
 //                              datatype not equal to 1; 2 to all (1)
@@ -38,6 +39,9 @@
 //                              in o/p file (False)
 //  debug           (bool)    = To produce more debug printing on screen
 //                              (False)
+//
+//  doIt(inFileName, dupFileName)
+//  calls Run 5 times reducing # of events by a factor of 2 in each case
 //////////////////////////////////////////////////////////////////////////////
 
 #include <TStyle.h>
@@ -66,7 +70,7 @@ void Run(const char *inFileName="Silver",
 	 const char *corrFileName="Silver_Input.txt",
 	 const char *dupFileName="events_DXS2.txt", 
 	 bool useweight=true, bool useMean=true, int nMin=0, bool inverse=false,
-	 double ratMin=0.25, double ratMax=10., int ietaMax=21, 
+	 double ratMin=0.25, double ratMax=3., int ietaMax=25, 
 	 int applyL1Cut=1, double l1Cut=0.5, bool truncateFlag=true,
 	 int sysmode=0, double fraction=1.0, bool writeDebugHisto=false,
 	 bool debug=false);
@@ -177,7 +181,7 @@ public :
 void doIt(const char* infile, const char* dup) {
   char outf1[100], outf2[100];
   double lumt(1.0), fac(0.5);
-  for (int k=0; k<4; ++k) {
+  for (int k=0; k<5; ++k) {
     sprintf (outf1, "%s_%d.root", infile, k);
     sprintf (outf2, "%s_%d.txt",  infile, k);
     double lumi = (k==0) ? -1 : lumt;
@@ -453,21 +457,35 @@ Double_t CalibTree::Loop(int loop, TFile *fout, bool useweight, int nMin,
 		<< t_eMipDR << "/" << (*t_DetIds).size() << std::endl;
     }
     if (goodTrack()) {
-      double Etot(0);
+      double Etot(0), Etot2(0);
       for (unsigned int idet=0; idet<(*t_DetIds).size(); idet++) { 
+	unsigned int id = (*t_DetIds)[idet];
 	double hitEn(0);
-        unsigned int detid = truncateId((*t_DetIds)[idet]);
+	unsigned int detid = truncateId(id);
 	if (Cprev.find(detid) != Cprev.end()) 
 	  hitEn = Cprev[detid].first * (*t_HitEnergies)[idet];
 	else 
 	  hitEn = (*t_HitEnergies)[idet];
-	Etot += hitEn;
+	Etot  += hitEn;
+	Etot2 += ((*t_HitEnergies)[idet]);
       }
       double evWt = (useweight) ? t_EventWeight : 1.0; 
-      double pufac= (sysmode_ == -1 || t_p > 0) ? 
-	(1.0 - 0.375 * (Etot/t_p) * 
-	 ((t_eHcalDelta/t_p)-0.45*(t_eHcalDelta/t_p)*(t_eHcalDelta/t_p))) : 1.;
+      double pufac(1.0);
+      if (sysmode_ < 0 && t_p > 0 && t_eHcalDelta > 0.02*t_p) { 
+	double a1(-0.35), a2(-0.65);
+	if (std::abs(t_ieta) == 25) {
+	  a2 = -0.30;
+	} else if (std::abs(t_ieta) > 25) {
+	  a1 = -0.45; a2 = -0.10;
+	}
+	pufac = (1.0 + a1 * (Etot/t_p) * (t_eHcalDelta/t_p) *
+		 (1 + a2 * (t_eHcalDelta/t_p)));
+      }
       double ratio= Etot*pufac/(t_p-t_eMipDR);
+      if (debug) std::cout << " Weights " << evWt << ":" << pufac << " Energy "
+			   << Etot2 << ":" << Etot << ":" << t_p << ":" 
+			   << t_eMipDR << ":" << t_eHcal << " ratio " << ratio
+			   << std::endl;
       if (loop==0) {
 	h_pbyE->Fill(ratio, evWt);
         h_Ebyp_bfr->Fill(t_ieta, ratio, evWt);
@@ -711,7 +729,7 @@ bool CalibTree::goodTrack() {
     ok = ((t_selectTk) && (t_qltyMissFlag) && (t_hmaxNearP < cut) &&
 	  (t_eMipDR < 1.0) && (t_mindR1 > 0.5) && (t_p > 40.0) &&
 	  (t_p < 60.0));
-  } else if (sysmode_ ==-1) {
+  } else if (sysmode_ == -1) {
     double eta = (t_ieta > 0) ? t_ieta : -t_ieta;
     cut        = 2.0*exp(eta*log16by24_);
     ok         = ((t_qltyFlag) && (t_hmaxNearP < cut) && (t_eMipDR < 1.0));
@@ -743,10 +761,11 @@ void CalibTree::writeCorrFactor(const char *corrFileName, int ietaMax) {
 	       << std::dec << ieta << std::setw(10) << depth << std::setw(10) 
 	       << itr->second.first << " " << std::setw(10) 
 	       << itr->second.second << std::endl;
-        cout << itr->second.first << ",";
+	std::cout << itr->second.first << ",";
       }
     }
     myfile.close();
+    std::cout << std::endl;
   }
 }
 
