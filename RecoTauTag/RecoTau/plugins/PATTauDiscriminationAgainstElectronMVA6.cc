@@ -26,10 +26,10 @@ class PATTauDiscriminationAgainstElectronMVA6 : public PATTauDiscriminationProdu
  public:
   explicit PATTauDiscriminationAgainstElectronMVA6(const edm::ParameterSet& cfg)
     : PATTauDiscriminationProducerBase(cfg),
-      mva_(0),
+      mva_(),
       category_output_()
   {
-    mva_ = new AntiElectronIDMVA6(cfg);
+    mva_ = std::make_unique<AntiElectronIDMVA6>(cfg);
 
     srcElectrons = cfg.getParameter<edm::InputTag>("srcElectrons");
     electronToken = consumes<pat::ElectronCollection>(srcElectrons);
@@ -46,19 +46,14 @@ class PATTauDiscriminationAgainstElectronMVA6 : public PATTauDiscriminationProdu
 
   void endEvent(edm::Event&);
 
-  ~PATTauDiscriminationAgainstElectronMVA6()
-  {
-    delete mva_;
-  }
+  ~PATTauDiscriminationAgainstElectronMVA6(){}
 
 private:
   bool isInEcalCrack(double) const;
 
   std::string moduleLabel_;
-
-  AntiElectronIDMVA6* mva_;
-  float* mvaInput_;
-
+  std::unique_ptr<AntiElectronIDMVA6> mva_;
+  
   edm::InputTag srcElectrons;
   edm::EDGetTokenT<pat::ElectronCollection> electronToken;
   edm::Handle<pat::ElectronCollection> Electrons;
