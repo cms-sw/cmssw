@@ -104,12 +104,6 @@ class CTPPSDetId : public DetId
     /// type of name returned by *Name functions
     enum NameFlag { nShort, nFull, nPath };
 
-    static const std::string subDetectorNames[];
-    static const std::string subDetectorPaths[];
-    static const std::string armNames[];
-    static const std::string stationNames[];
-    static const std::string rpNames[];
-
     inline void subDetectorName(std::string &name, NameFlag flag = nFull) const
     {
       if (flag == nPath)
@@ -158,6 +152,13 @@ class CTPPSDetId : public DetId
     std::string armName(NameFlag flag = nFull) const;
     std::string stationName(NameFlag flag = nFull) const;
     std::string rpName(NameFlag flag = nFull) const;
+
+  private:
+    static const std::string subDetectorNames[];
+    static const std::string subDetectorPaths[];
+    static const std::string armNames[];
+    static const std::string stationNames[];
+    static const std::string rpNames[];
 };
 
 std::ostream& operator<<(std::ostream& os, const CTPPSDetId& id);

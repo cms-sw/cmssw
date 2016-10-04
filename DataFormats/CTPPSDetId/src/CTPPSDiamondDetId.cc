@@ -12,6 +12,11 @@ using namespace std;
 
 //----------------------------------------------------------------------------------------------------
 
+const string CTPPSDiamondDetId::planeNames[] = { "0", "1", "2", "3" };
+const string CTPPSDiamondDetId::channelNames[] = { "0", "1", "2", "3", "4", "05", "06", "07", "08", "09", "10", "11", "12" };
+
+//----------------------------------------------------------------------------------------------------
+
 CTPPSDiamondDetId::CTPPSDiamondDetId(uint32_t id) : CTPPSDetId(id)
 {
   if (! check(id))
