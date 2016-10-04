@@ -58,7 +58,8 @@ TotemRPDQMHarvester::~TotemRPDQMHarvester()
 void TotemRPDQMHarvester::MakeHitNumberRatios(unsigned int id, DQMStore::IBooker& ibooker, DQMStore::IGetter& igetter)
 {
   // get source histogram
-  string path = TotemRPDetId(id).rpName(TotemRPDetId::nPath);
+  string path;
+  TotemRPDetId(id).rpName(path, TotemRPDetId::nPath);
 
   MonitorElement *activity = igetter.get(path + "/activity in planes (2D)");
 
@@ -72,7 +73,8 @@ void TotemRPDQMHarvester::MakeHitNumberRatios(unsigned int id, DQMStore::IBooker
   if (hit_ratio == NULL)
   {
     ibooker.setCurrentFolder(path);
-    string title = TotemRPDetId(id).rpName(TotemRPDetId::nFull);
+    string title;
+    TotemRPDetId(id).rpName(title, TotemRPDetId::nFull);
     hit_ratio = ibooker.book1D(hit_ratio_name, title+";plane;N_hits(320<strip<440) / N_hits(all)", 10, -0.5, 9.5);
   } else {
     hit_ratio->getTH1F()->Reset();
@@ -108,7 +110,8 @@ void TotemRPDQMHarvester::MakePlaneEfficiencyHistograms(unsigned int id, DQMStor
   TotemRPDetId detId(id);
 
   // get source histograms
-  string path = detId.planeName(TotemRPDetId::nPath);
+  string path;
+  detId.planeName(path, TotemRPDetId::nPath);
 
   MonitorElement *efficiency_num = igetter.get(path + "/efficiency num");
   MonitorElement *efficiency_den = igetter.get(path + "/efficiency den");
@@ -122,7 +125,8 @@ void TotemRPDQMHarvester::MakePlaneEfficiencyHistograms(unsigned int id, DQMStor
 
   if (efficiency == NULL)
   {
-    string title = detId.planeName(TotemRPDetId::nFull);
+    string title;
+    detId.planeName(title, TotemRPDetId::nFull);
     TAxis *axis = efficiency_den->getTH1()->GetXaxis();
     ibooker.setCurrentFolder(path);
     efficiency = ibooker.book1D(efficiency_name, title+";track position   (mm)", axis->GetNbins(), axis->GetXmin(), axis->GetXmax());
@@ -132,13 +136,14 @@ void TotemRPDQMHarvester::MakePlaneEfficiencyHistograms(unsigned int id, DQMStor
 
   // book new RP histogram, if not yet done
   TotemRPDetId rpId = detId.getRPId();
-  path = rpId.rpName(TotemRPDetId::nPath);
+  rpId.rpName(path, TotemRPDetId::nPath);
   const string rp_efficiency_name = "plane efficiency";
   MonitorElement *rp_efficiency = igetter.get(path + "/" + rp_efficiency_name);
   
   if (rp_efficiency == NULL)
   {
-    string title = rpId.rpName(TotemRPDetId::nFull);
+    string title;
+    rpId.rpName(title, TotemRPDetId::nFull);
     TAxis *axis = efficiency_den->getTH1()->GetXaxis();
     ibooker.setCurrentFolder(path);
     rp_efficiency = ibooker.book2D(rp_efficiency_name, title+";plane;track position   (mm)",
