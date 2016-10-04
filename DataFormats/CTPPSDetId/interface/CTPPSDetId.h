@@ -104,6 +104,56 @@ class CTPPSDetId : public DetId
     /// type of name returned by *Name functions
     enum NameFlag { nShort, nFull, nPath };
 
+    static const std::string subDetectorNames[];
+    static const std::string subDetectorPaths[];
+    static const std::string armNames[];
+    static const std::string stationNames[];
+    static const std::string rpNames[];
+
+    inline void subDetectorName(std::string &name, NameFlag flag = nFull) const
+    {
+      if (flag == nPath)
+        name = subDetectorPaths[subdetId()];
+      else
+        name = subDetectorNames[subdetId()];
+    }
+
+    inline void armName(std::string &name, NameFlag flag = nFull) const
+    {
+      switch (flag)
+      {
+        case nShort: name = ""; break;
+        case nFull: subDetectorName(name, flag); name += "_"; break;
+        case nPath: subDetectorName(name, flag); name += "/sector "; break;
+      }
+
+      name += armNames[arm()];
+    }
+
+    inline void stationName(std::string &name, NameFlag flag = nFull) const
+    {
+      switch (flag)
+      {
+        case nShort: name = ""; break;
+        case nFull: armName(name, flag); name += "_"; break;
+        case nPath: armName(name, flag); name += "/station "; break;
+      }
+
+      name += stationNames[station()];
+    }
+
+    inline void rpName(std::string &name, NameFlag flag = nFull) const
+    {
+      switch (flag)
+      {
+        case nShort: name = ""; break;
+        case nFull: stationName(name, flag); name += "_"; break;
+        case nPath: stationName(name, flag); name += "/"; break;
+      }
+
+      name += rpNames[rp()];
+    }
+
     std::string subDetectorName(NameFlag flag = nFull) const;
     std::string armName(NameFlag flag = nFull) const;
     std::string stationName(NameFlag flag = nFull) const;
