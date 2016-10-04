@@ -1,3 +1,4 @@
 *.root
 *.log
 *.txt
+Images/*
