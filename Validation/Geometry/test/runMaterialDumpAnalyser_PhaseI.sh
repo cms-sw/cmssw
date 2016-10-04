@@ -5,11 +5,35 @@ set -x
 # Check if CMSSW envs are setup
 : ${CMSSW_BASE:?'You need to set CMSSW environemnt first.'}
 
+# DEFAULTS
+
+events=5000
+
+# ARGUMENT PARSING
+
+while getopts ":n:" opt; do
+  case $opt in
+    n)
+      echo "Generating $OPTARG events" >&1
+      events=${OPTARG}
+      ;;
+    \?)
+      echo "Invalid option: -$OPTARG" >&2
+      exit 1
+      ;;
+    :)
+      echo "Option -$OPTARG requires an argument." >&2
+      exit 1
+      ;;
+  esac
+done
+
+
 # GEN-SIM goes first
 cmsDriver.py SingleMuPt10_pythia8_cfi \
 -s GEN,SIM \
 --conditions auto:phase1_2017_realistic \
--n 500 \
+-n ${events} \
 --era Run2_2017_NewFPix \
 --eventcontent FEVTDEBUG \
 --datatier GEN-SIM \
