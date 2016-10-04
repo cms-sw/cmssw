@@ -48,6 +48,7 @@ cmsDriver.py SingleMuPt10_pythia8_cfi \
 --datatier GEN-SIM \
 --geometry Extended2017NewFPix  \
 --beamspot NoSmear \
+--customise Validation/Geometry/customiseForDumpMaterialAnalyser_ForPhaseI.customiseForMaterialAnalyser_ForPhaseI \
 --fileout file:SingleMuPt10_pythia8_cfi_GEN_SIM_PhaseI.root \
 --python_filename SingleMuPt10_pythia8_cfi_GEN_SIM_PhaseI.py > SingleMuPt10_pythia8_cfi_GEN_SIM_PhaseI.log 2>&1
 
@@ -145,5 +146,13 @@ done
 waitPendingJobs
 
 # Always run the comparison at this stage, since you are guaranteed that all the ingredients are there
+
+for t in BeamPipe Tracker PixBar PixFwdMinus PixFwdPlus TIB TOB TIDB TIDF TEC TkStrct InnerServices; do
+  root -b -q "MaterialBudget.C(\"${t}\")"
+  if [ $? -ne 0 ]; then
+    echo "Error while producing simulation material for ${t}, aborting"
+    exit 1
+  fi
+done
 
 root -b -q 'MaterialBudget_Simul_vs_Reco.C("DQM_V0001_R000000001__Global__CMSSW_X_Y_Z__RECO.root", "PhaseIDetector")'
