@@ -647,7 +647,15 @@ void PATElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
 	anElectron.setEcalPFClusterIso(-999.);
 	anElectron.setHcalPFClusterIso(-999.);
       }
-
+      if (addPuppiIsolation_) {
+      anElectron.setIsolationPUPPI((*PUPPIIsolation_charged_hadrons)[elePtr], (*PUPPIIsolation_neutral_hadrons)[elePtr], (*PUPPIIsolation_photons)[elePtr]);
+      anElectron.setIsolationPUPPINoLeptons((*PUPPINoLeptonsIsolation_charged_hadrons)[elePtr], (*PUPPINoLeptonsIsolation_neutral_hadrons)[elePtr], (*PUPPINoLeptonsIsolation_photons)[elePtr]);
+      }
+      else {
+      anElectron.setIsolationPUPPI(-999., -999.,-999.);
+      anElectron.setIsolationPUPPINoLeptons(-999., -999.,-999.);
+      }
+        
       std::vector<DetId> selectedCells;
       bool barrel = itElectron->isEB();
       //loop over sub clusters
