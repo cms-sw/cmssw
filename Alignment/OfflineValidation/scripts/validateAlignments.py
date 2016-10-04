@@ -370,6 +370,10 @@ def createMergeScript( path, validations ):
                                          repMap["mergeOfflineParJobsScriptPath"] )
         repMap["copyMergeScripts"] += ("cp .oO[Alignment/OfflineValidation]Oo./scripts/merge_TrackerOfflineValidation.C .\n"
                                        "rfcp %s .\n" % repMap["mergeOfflineParJobsScriptPath"])
+        repMap_offline = repMap.copy()
+        repMap_offline.update(PlottingOptions(config, "offline"))
+        repMap["copyMergeScripts"] = \
+            replaceByMap(repMap["copyMergeScripts"], repMap_offline)
 
     if anythingToMerge:
         # DownloadData is the section which merges output files from parallel jobs
