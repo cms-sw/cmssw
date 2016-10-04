@@ -76,20 +76,38 @@ class CTPPSDiamondDetId : public CTPPSDetId
     return CTPPSDiamondDetId( rawId() & (~lowMaskPlane) );
   }
 
+  //-------------------- name methods --------------------
 
+    inline void planeName(std::string &name, NameFlag flag = nFull) const
+    {
+      switch (flag)
+      {
+        case nShort: name = ""; break;
+        case nFull: rpName(name, flag); name += "_"; break;
+        case nPath: rpName(name, flag); name += "/plane "; break;
+      }
+
+      name += planeNames[plane()];
+    }
+
+    inline void channelName(std::string &name, NameFlag flag = nFull) const
+    {
+      switch (flag)
+      {
+        case nShort: name = ""; break;
+        case nFull: planeName(name, flag); name += "_"; break;
+        case nPath: planeName(name, flag); name += "/channel "; break;
+      }
+
+      name += channelNames[det()];
+    }
    
-    /// returns official name of a plane characterized by ''id''; if ''full'' is true, name of RP is prefixed
     std::string planeName(NameFlag flag = nFull) const;
-  
-    /// returns official name of a channel characterized by ''id''; if ''full'' is true, name of plane is prefixed
     std::string channelName(NameFlag flag = nFull) const;
     
-    
-
-
-
-
-
+  private:
+    static const std::string planeNames[];
+    static const std::string channelNames[];
 };
 
 std::ostream& operator<<(std::ostream& os, const CTPPSDiamondDetId& id);

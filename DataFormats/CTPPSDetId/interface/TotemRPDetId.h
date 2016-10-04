@@ -102,8 +102,36 @@ class TotemRPDetId : public CTPPSDetId
 
     //-------------------- name methods --------------------
 
+    inline void planeName(std::string &name, NameFlag flag = nFull) const
+    {
+      switch (flag)
+      {
+        case nShort: name = ""; break;
+        case nFull: rpName(name, flag); name += "_"; break;
+        case nPath: rpName(name, flag); name += "/plane "; break;
+      }
+
+      name += planeNames[plane()];
+    }
+
+    inline void chipName(std::string &name, NameFlag flag = nFull) const
+    {
+      switch (flag)
+      {
+        case nShort: name = ""; break;
+        case nFull: planeName(name, flag); name += "_"; break;
+        case nPath: planeName(name, flag); name += "/chip "; break;
+      }
+
+      name += chipNames[chip()];
+    }
+
     std::string planeName(NameFlag flag = nFull) const;
     std::string chipName(NameFlag flag = nFull) const;
+
+  private:
+    static const std::string planeNames[];
+    static const std::string chipNames[];
 };
 
 std::ostream& operator<<(std::ostream& os, const TotemRPDetId& id);
