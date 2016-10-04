@@ -7,6 +7,7 @@
 #include <iostream>
 #include <fstream>
 
+const int HGCalDetId::kHGCalCellMask;
 
 class HGCalTriggerGeometryHexImp1 : public HGCalTriggerGeometryGenericMapping
 {
