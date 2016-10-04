@@ -36,5 +36,5 @@ def customiseForQuadrupletsByCellularAutomaton(process):
         )
 
         if hasattr(quadruplets.GeneratorPSet, "SeedComparitorPSet"):
-            pset.SeedComparitorPSet = quadruplets.GeneratorPSet.SeedComparitorPSet
+            module.OrderedHitsFactoryPSet.SeedComparitorPSet = quadruplets.GeneratorPSet.SeedComparitorPSet
     return process
