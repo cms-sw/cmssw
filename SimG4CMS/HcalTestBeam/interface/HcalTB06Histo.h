@@ -54,7 +54,7 @@ private:
   double                 eBeam_, etaBeam_, phiBeam_;
   double                 edepEC_, edepHB_, edepHO_;
   double                 noiseEC_, noiseHB_, noiseHO_;
-  double                 edepS1_, edepS2_, edepS3_, edepS4_, edepVC_;
+  double                 edepS1_, edepS2_, edepS3_, edepS4_, edepVC_, edepS7_, edepS8_;
 };
  
 #endif
