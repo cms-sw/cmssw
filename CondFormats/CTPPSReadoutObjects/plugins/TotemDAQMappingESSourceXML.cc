@@ -401,24 +401,19 @@ void TotemDAQMappingESSourceXML::ParseTreeRP(ParseType pType, xercesc::DOMNode *
       vfatInfo.hwID = hw_id;
       vfatInfo.symbolicID.subSystem = TotemSymbID::RP;
 
+      const unsigned int armIdx = (parentID / 1000) % 10; 
+      const unsigned int stIdx = (parentID / 100) % 10; 
+      const unsigned int rpIdx = (parentID / 10) % 10; 
+      const unsigned int plIdx = parentID % 10; 
+
       if (type == nChip)
       {
-        unsigned int armIdx = (parentID / 1000) % 10; 
-        unsigned int stIdx = (parentID / 100) % 10; 
-        unsigned int rpIdx = (parentID / 10) % 10; 
-        unsigned int plIdx = parentID % 10; 
-
         vfatInfo.symbolicID.symbolicID = TotemRPDetId(armIdx, stIdx, rpIdx, plIdx, id);
         vfatInfo.type = TotemVFATInfo::data;
       }
 
       if (type == nTriggerVFAT)
       {
-        unsigned int armIdx = (parentID / 1000) % 10; 
-        unsigned int stIdx = (parentID / 100) % 10; 
-        unsigned int rpIdx = (parentID / 10) % 10; 
-        unsigned int plIdx = parentID % 10; 
-
         vfatInfo.symbolicID.symbolicID = TotemRPDetId(armIdx, stIdx, rpIdx, plIdx);
         vfatInfo.type = TotemVFATInfo::CC;
       }
@@ -431,10 +426,10 @@ void TotemDAQMappingESSourceXML::ParseTreeRP(ParseType pType, xercesc::DOMNode *
     // store mask data
     if (pType == pMask && type == nChip)
     {
-      unsigned int armIdx = (parentID / 1000) % 10; 
-      unsigned int stIdx = (parentID / 100) % 10; 
-      unsigned int rpIdx = (parentID / 10) % 10; 
-      unsigned int plIdx = parentID % 10; 
+      const unsigned int armIdx = (parentID / 1000) % 10; 
+      const unsigned int stIdx = (parentID / 100) % 10; 
+      const unsigned int rpIdx = (parentID / 10) % 10; 
+      const unsigned int plIdx = parentID % 10; 
 
       TotemSymbID symbId;
       symbId.subSystem = TotemSymbID::RP;
