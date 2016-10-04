@@ -62,7 +62,6 @@ public:
   /// COMMON Chip XML tags
   static const std::string tagChip1;
   static const std::string tagChip2;
-  static const std::string tagTriggerVFAT1;
 
   TotemDAQMappingESSourceXML(const edm::ParameterSet &);
   ~TotemDAQMappingESSourceXML();
@@ -79,7 +78,7 @@ private:
   std::vector<std::string> maskFileNames;
 
   /// enumeration of XML node types
-  enum NodeType { nUnknown, nTop, nArm, nRPStation, nRPPot, nRPPlane, nChip, nTriggerVFAT, nChannel };
+  enum NodeType { nUnknown, nTop, nArm, nRPStation, nRPPot, nRPPlane, nChip, nChannel };
 
   /// whether to parse a mapping of a mask XML
   enum ParseType { pMapping, pMask };
@@ -126,7 +125,7 @@ private:
 
   bool RPNode(NodeType type)
   {
-    return ((type == nArm)||(type == nRPStation)||(type == nRPPot)||(type == nRPPlane)||(type == nChip)||(type == nTriggerVFAT));
+    return ((type == nArm)||(type == nRPStation)||(type == nRPPot)||(type == nRPPlane)||(type == nChip));
   }
 
   bool CommonNode(NodeType type)
@@ -155,7 +154,6 @@ const string TotemDAQMappingESSourceXML::tagArm = "arm";
 // common XML Chip tags
 const string TotemDAQMappingESSourceXML::tagChip1 = "vfat";
 const string TotemDAQMappingESSourceXML::tagChip2 = "test_vfat";
-const string TotemDAQMappingESSourceXML::tagTriggerVFAT1 = "trigger_vfat";
 
 // specific RP XML tags
 const string TotemDAQMappingESSourceXML::tagRPStation = "station";
@@ -291,7 +289,7 @@ void TotemDAQMappingESSourceXML::ParseTreeRP(ParseType pType, xercesc::DOMNode *
     if (!RPNode(type))
       continue;
 
-    if ((type != parentType + 1)&&(parentType != nRPPot || type != nTriggerVFAT))
+    if ((type != parentType + 1)&&(parentType != nRPPot))
     {
       if (parentType == nTop && type == nRPPot)
       {
@@ -331,7 +329,7 @@ void TotemDAQMappingESSourceXML::ParseTreeRP(ParseType pType, xercesc::DOMNode *
     }
 
     // content control
-    if (!id_set && type != nTriggerVFAT)
+    if (!id_set)
       throw cms::Exception("TotemDAQMappingESSourceXML::ParseTreeRP") << "id not given for element `"
        << XMLString::transcode(n->getNodeName()) << "'" << endl;
 
@@ -348,7 +346,7 @@ void TotemDAQMappingESSourceXML::ParseTreeRP(ParseType pType, xercesc::DOMNode *
 #endif
 
     // store mapping data
-    if (pType == pMapping && (type == nChip || type == nTriggerVFAT))
+    if (pType == pMapping && type == nChip)
     {
       const TotemFramePosition &framepos = ChipFramePosition(n);
       TotemVFATInfo vfatInfo;
@@ -359,17 +357,7 @@ void TotemDAQMappingESSourceXML::ParseTreeRP(ParseType pType, xercesc::DOMNode *
       const unsigned int rpIdx = (parentID / 10) % 10; 
       const unsigned int plIdx = parentID % 10; 
 
-      if (type == nChip)
-      {
-        vfatInfo.symbolicID.symbolicID = TotemRPDetId(armIdx, stIdx, rpIdx, plIdx, id);
-        vfatInfo.type = TotemVFATInfo::data;
-      }
-
-      if (type == nTriggerVFAT)
-      {
-        vfatInfo.symbolicID.symbolicID = TotemRPDetId(armIdx, stIdx, rpIdx, plIdx);
-        vfatInfo.type = TotemVFATInfo::CC;
-      }
+      vfatInfo.symbolicID.symbolicID = TotemRPDetId(armIdx, stIdx, rpIdx, plIdx, id);
 
       mapping->insert(framepos, vfatInfo);
 
@@ -439,7 +427,6 @@ TotemDAQMappingESSourceXML::NodeType TotemDAQMappingESSourceXML::GetNodeType(xer
   if (Test(n, tagArm)) return nArm;
   if (Test(n, tagChip1)) return nChip;
   if (Test(n, tagChip2)) return nChip;
-  if (Test(n, tagTriggerVFAT1)) return nTriggerVFAT;
 
   // RP node types
   if (Test(n, tagRPStation)) return nRPStation;
