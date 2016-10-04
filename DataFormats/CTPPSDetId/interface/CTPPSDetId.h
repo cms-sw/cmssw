@@ -148,11 +148,6 @@ class CTPPSDetId : public DetId
       name += rpNames[rp()];
     }
 
-    std::string subDetectorName(NameFlag flag = nFull) const;
-    std::string armName(NameFlag flag = nFull) const;
-    std::string stationName(NameFlag flag = nFull) const;
-    std::string rpName(NameFlag flag = nFull) const;
-
   private:
     static const std::string subDetectorNames[];
     static const std::string subDetectorPaths[];

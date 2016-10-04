@@ -200,10 +200,12 @@ TotemRPDQMSource::DiagonalPlots::DiagonalPlots(DQMStore::IBooker &ibooker, int _
 
 TotemRPDQMSource::ArmPlots::ArmPlots(DQMStore::IBooker &ibooker, int _id) : id(_id)
 {
-  string path = TotemRPDetId(id).armName(TotemRPDetId::nPath);
+  string path;
+  TotemRPDetId(id).armName(path, TotemRPDetId::nPath);
   ibooker.setCurrentFolder(path);
 
-  string title = TotemRPDetId(id).armName(TotemRPDetId::nFull);
+  string title;
+  TotemRPDetId(id).armName(title, TotemRPDetId::nFull);
 
   h_numRPWithTrack_top = ibooker.book1D("number of top RPs with tracks", title+";number of top RPs with tracks", 5, -0.5, 4.5);
   h_numRPWithTrack_hor = ibooker.book1D("number of hor RPs with tracks", title+";number of hor RPs with tracks", 5, -0.5, 4.5);
@@ -246,7 +248,8 @@ TotemRPDQMSource::ArmPlots::ArmPlots(DQMStore::IBooker &ibooker, int _id) : id(_
 
 TotemRPDQMSource::StationPlots::StationPlots(DQMStore::IBooker &ibooker, int id) 
 {
-  string path = TotemRPDetId(id).stationName(TotemRPDetId::nPath);
+  string path;
+  TotemRPDetId(id).stationName(path, TotemRPDetId::nPath);
   ibooker.setCurrentFolder(path);
 }
 
@@ -255,10 +258,12 @@ TotemRPDQMSource::StationPlots::StationPlots(DQMStore::IBooker &ibooker, int id)
 
 TotemRPDQMSource::PotPlots::PotPlots(DQMStore::IBooker &ibooker, unsigned int id)
 {
-  string path = TotemRPDetId(id).rpName(TotemRPDetId::nPath);
+  string path;
+  TotemRPDetId(id).rpName(path, TotemRPDetId::nPath);
   ibooker.setCurrentFolder(path);
 
-  string title = TotemRPDetId(id).rpName(TotemRPDetId::nFull);
+  string title;
+  TotemRPDetId(id).rpName(title, TotemRPDetId::nFull);
 
   vfat_problem = ibooker.book2D("vfats with any problem", title+";plane;vfat index", 10, -0.5, 9.5, 4, -0.5, 3.5);
   vfat_missing = ibooker.book2D("vfats missing", title+";plane;vfat index", 10, -0.5, 9.5, 4, -0.5, 3.5);
@@ -299,10 +304,12 @@ TotemRPDQMSource::PotPlots::PotPlots(DQMStore::IBooker &ibooker, unsigned int id
 
 TotemRPDQMSource::PlanePlots::PlanePlots(DQMStore::IBooker &ibooker, unsigned int id)
 {
-  string path = TotemRPDetId(id).planeName(TotemRPDetId::nPath);
+  string path;
+  TotemRPDetId(id).planeName(path, TotemRPDetId::nPath);
   ibooker.setCurrentFolder(path);
 
-  string title = TotemRPDetId(id).planeName(TotemRPDetId::nFull);
+  string title;
+  TotemRPDetId(id).planeName(title, TotemRPDetId::nFull);
 
   digi_profile_cumulative = ibooker.book1D("digi profile", title+";strip number", 512, -0.5, 511.5);
   cluster_profile_cumulative = ibooker.book1D("cluster profile", title+";cluster center", 1024, -0.25, 511.75);
