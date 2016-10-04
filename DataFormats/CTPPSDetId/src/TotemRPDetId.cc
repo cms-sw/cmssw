@@ -16,6 +16,11 @@ using namespace std;
 
 //----------------------------------------------------------------------------------------------------
 
+const string TotemRPDetId::planeNames[] = { "01", "02", "03", "04", "05", "06", "07", "08", "09", "10" };
+const string TotemRPDetId::chipNames[] = { "1", "2", "3", "4" };
+
+//----------------------------------------------------------------------------------------------------
+
 TotemRPDetId::TotemRPDetId(uint32_t id) : CTPPSDetId(id)
 {
   bool inputOK = (det() == DetId::VeryForward && subdetId() == sdTrackingStrip);
