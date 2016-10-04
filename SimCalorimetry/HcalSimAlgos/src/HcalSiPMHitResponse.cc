@@ -97,9 +97,6 @@ void HcalSiPMHitResponse::add(const PCaloHit& hit, CLHEP::HepRandomEngine* engin
       LogDebug("HcalSiPMHitResponse") << " energy: " << hit.energy()
 		<< " photons: " << photons 
 		<< " time: " << time;
-      if (theHitCorrection != 0)
-	time += theHitCorrection->delay(hit, engine);
-      LogDebug("HcalSiPMHitResponse") << " corrected time: " << time;
       LogDebug("HcalSiPMHitResponse") << " timePhase: " << pars.timePhase()
 		<< " tof: " << timeOfFlight(id)
 		<< " binOfMaximum: " << pars.binOfMaximum()
