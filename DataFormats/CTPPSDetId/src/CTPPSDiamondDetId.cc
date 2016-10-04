@@ -14,7 +14,7 @@ using namespace std;
 
 CTPPSDiamondDetId::CTPPSDiamondDetId(uint32_t id) : CTPPSDetId(id)
 {
-  if (! Check(id))
+  if (! check(id))
     {
       throw cms::Exception("InvalidDetId") << "CTPPSDiamondDetId ctor:"
 					   << " det: " << det()
@@ -69,7 +69,7 @@ std::ostream& operator << (std::ostream& os, const CTPPSDiamondDetId& id)
 
 //----------------------------------------------------------------------------------------------------
 
-string CTPPSDiamondDetId::planeName( NameFlag flag)
+string CTPPSDiamondDetId::planeName( NameFlag flag) const
 {
   string name;
   if (flag == nFull) name = rpName(flag) + "_";
@@ -84,7 +84,7 @@ string CTPPSDiamondDetId::planeName( NameFlag flag)
 
 //----------------------------------------------------------------------------------------------------
 
-string CTPPSDiamondDetId::channelName(NameFlag flag)
+string CTPPSDiamondDetId::channelName(NameFlag flag) const
 {
   string name;
   if (flag == nFull) name = planeName(flag) + "_";
