@@ -1642,6 +1642,26 @@ def _copyStyle(src, dst):
     for prop in properties:
         getattr(dst, "Set"+prop)(getattr(src, "Get"+prop)())
 
+class PlotEmpty:
+    """Denotes an empty place in a group."""
+    def __init__(self):
+        pass
+
+    def getName(self):
+        return None
+
+    def drawRatioUncertainty(self):
+        return False
+
+    def create(self, *args, **kwargs):
+        pass
+
+    def isEmpty(self):
+        return True
+
+    def getNumberOfHistograms(self):
+        return 0
+
 class Plot:
     """Represents one plot, comparing one or more histograms."""
     def __init__(self, name, **kwargs):

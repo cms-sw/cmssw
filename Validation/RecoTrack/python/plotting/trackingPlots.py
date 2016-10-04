@@ -5,7 +5,7 @@ import ROOT
 ROOT.gROOT.SetBatch(True)
 ROOT.PyConfig.IgnoreCommandLineOptions = True
 
-from plotting import Subtract, FakeDuplicate, CutEfficiency, Transform, AggregateBins, ROC, Plot, PlotGroup, PlotOnSideGroup, PlotFolder, Plotter
+from plotting import Subtract, FakeDuplicate, CutEfficiency, Transform, AggregateBins, ROC, Plot, PlotEmpty, PlotGroup, PlotOnSideGroup, PlotFolder, Plotter
 import plotting
 import validation
 from html import PlotPurpose
@@ -754,6 +754,23 @@ _packedCandidateHits = PlotGroup("hits", [
                                  ncols=3, legendDy=_legendDy_2rows_3cols
 )
 
+_packedCandidateLayers = PlotGroup("layers", [
+    PlotEmpty(),
+    Plot("diffNumberOfPixelLayers", xtitle="Pixel layers",  **_common),
+    Plot("diffNumberOfStripLayers", xtitle="Strip layers", **_common),
+    #
+    Plot("diffHitPatternTrackerLayersWithMeasurement", xtitle="Layers (via HitPattern)", **_common),
+    Plot("diffHitPatternPixelLayersWithMeasurement", xtitle="Pixel layers (via HitPattern)", **_common),
+    Plot("diffHitPatternStripLayersWithMeasurement", xtitle="Strip layers (via HitPattern)", **_common),
+    #
+    Plot("numberLayersOverMax", xtitle="Number of overflown layers", **_common),
+    Plot("numberPixelLayersOverMax", xtitle="Number of overflown pixel layers", **_common),
+    Plot("numberStripLayersOverMax", xtitle="Number of overflown strip layers", **_common),
+],
+                                   ncols=3
+)
+
+
 _packedCandidateImpactParameter1 = PlotGroup("impactParameter1", [
     Plot("diffDxyAssocPV", xtitle="dxy(assocPV)", adjustMarginRight=0.02, **_commonLabelSize),
     Plot("diffDxyAssocPVStatus", **_commonStatus),
@@ -1051,6 +1068,7 @@ _packedCandidatePlots = [
     _packedCandidateCovarianceMatrix2,
     _packedCandidateHits,
     _packedCandidateHitsHitPattern,
+    _packedCandidateLayers,
 ]
 plotter = Plotter()
 plotterExt = Plotter()
