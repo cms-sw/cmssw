@@ -22,6 +22,20 @@
 
 //----------------------------------------------------------------------------------------------------
 
+// TODO: fake class, to be removed
+class CTPPSDiamondDigi
+{
+  public:
+    unsigned int channel;
+
+  bool operator< (const CTPPSDiamondDigi &other) const
+  {
+    return (channel < other.channel);
+  }
+};
+
+//----------------------------------------------------------------------------------------------------
+
 /// \brief Collection of code to convert TOTEM raw data into digi.
 class RawToDigiConverter
 {
@@ -31,6 +45,10 @@ class RawToDigiConverter
     /// Creates RP digi.
     void Run(const VFATFrameCollection &coll, const TotemDAQMapping &mapping, const TotemAnalysisMask &mask,
       edm::DetSetVector<TotemRPDigi> &digi, edm::DetSetVector<TotemVFATStatus> &status);
+
+    /// Creates Diamond digi.
+    void Run(const VFATFrameCollection &coll, const TotemDAQMapping &mapping, const TotemAnalysisMask &mask,
+      edm::DetSetVector<CTPPSDiamondDigi> &digi, edm::DetSetVector<TotemVFATStatus> &status);
 
     /// Print error summaries.
     void PrintSummaries();

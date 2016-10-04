@@ -90,6 +90,10 @@ private:
   void ParseTreeRP(ParseType, xercesc::DOMNode *, NodeType, unsigned int parentID,
     const boost::shared_ptr<TotemDAQMapping>&, const boost::shared_ptr<TotemAnalysisMask>&);
 
+  /// recursive method to extract RP-related information from the DOM tree
+  void ParseTreeDiamond(ParseType, xercesc::DOMNode *, NodeType, unsigned int parentID,
+    const boost::shared_ptr<TotemDAQMapping>&, const boost::shared_ptr<TotemAnalysisMask>&);
+
 private:
   /// adds the path prefix, if needed
   string CompleteFileName(const string &fn);
@@ -258,6 +262,7 @@ void TotemDAQMappingESSourceXML::ParseXML(ParseType pType, const string &file,
       file << "' is empty." << endl;
 
   ParseTreeRP(pType, elementRoot, nTop, 0, mapping, mask);
+  ParseTreeDiamond(pType, elementRoot, nTop, 0, mapping, mask);
 }
 
 //-----------------------------------------------------------------------------------------------------------
@@ -390,6 +395,14 @@ void TotemDAQMappingESSourceXML::ParseTreeRP(ParseType pType, xercesc::DOMNode *
 }
 
 //----------------------------------------------------------------------------------------------------
+
+void TotemDAQMappingESSourceXML::ParseTreeDiamond(ParseType pType, xercesc::DOMNode * parent, NodeType parentType,
+  unsigned int parentID, const boost::shared_ptr<TotemDAQMapping>& mapping,
+  const boost::shared_ptr<TotemAnalysisMask>& mask)
+{
+  // TODO
+}
+
 //----------------------------------------------------------------------------------------------------
 
 TotemFramePosition TotemDAQMappingESSourceXML::ChipFramePosition(xercesc::DOMNode *chipnode)
