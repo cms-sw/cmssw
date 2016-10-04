@@ -92,16 +92,6 @@ namespace hcaldqm
 					_xQuality.push(did, mask);
 				}
 			}
-			
-			/*
-			 * TODO: use Channel Quality Information 
-			if (HcalGenericDetId(*it).isHcalTrigTowerDetId())
-			{
-				HcalTrigTowerDetId tid(*it);
-				uint32_t mask = (cq->getValues(tid))->getValue();
-				std::cout << tid << "  " << mask << std::endl;
-			}
-			*/
 		}
 
 		//	book some base guys

@@ -76,8 +76,8 @@ process.maxEvents = cms.untracked.PSet(
 process.source = cms.Source("PoolSource",
     secondaryFileNames = cms.untracked.vstring(),
     fileNames = cms.untracked.vstring(
-        #"/store/user/puigh/L1Upgrade/GEN-SIM-DIGI-RAW-HLTDEBUG/CMSSW_7_6_0/4C462F65-9F7F-E511-972A-0026189438A9.root",
-        "/store/relval/CMSSW_7_6_0_pre7/RelValTTbar_13/GEN-SIM/76X_mcRun2_asymptotic_v9_realBS-v1/00000/0A812333-427C-E511-A80A-0025905964A2.root",
+        "/store/user/puigh/L1Upgrade/GEN-SIM-DIGI-RAW-HLTDEBUG/CMSSW_7_6_0/4C462F65-9F7F-E511-972A-0026189438A9.root",
+        #"/store/relval/CMSSW_7_6_0_pre7/RelValTTbar_13/GEN-SIM/76X_mcRun2_asymptotic_v9_realBS-v1/00000/0A812333-427C-E511-A80A-0025905964A2.root",
         #"root://xrootd.ba.infn.it//store/relval/CMSSW_7_6_0/RelValTTbar_13/GEN-SIM-DIGI-RAW-HLTDEBUG/76X_mcRun2_asymptotic_v11-v1/00000/4C462F65-9F7F-E511-972A-0026189438A9.root",
         #"root://xrootd.ba.infn.it//store/relval/CMSSW_7_6_0/RelValTTbar_13/GEN-SIM-DIGI-RAW-HLTDEBUG/76X_mcRun2_asymptotic_v11-v1/00000/703E7EAB-9D7F-E511-B886-003048FFCBFC.root",
         #"root://xrootd.ba.infn.it//store/relval/CMSSW_7_6_0/RelValTTbar_13/GEN-SIM-DIGI-RAW-HLTDEBUG/76X_mcRun2_asymptotic_v11-v1/00000/8AF07AAB-9D7F-E511-B8B4-003048FFCBFC.root",
@@ -97,6 +97,12 @@ process.output =cms.OutputModule("PoolOutputModule",
 	)
 	
 process.options = cms.untracked.PSet()
+
+
+# Additional output definition
+# TTree output file
+process.load("CommonTools.UtilAlgos.TFileService_cfi")
+process.TFileService.fileName = cms.string('l1t_histos.root')
 
 # Other statements
 from Configuration.AlCa.GlobalTag import GlobalTag
@@ -180,10 +186,11 @@ process.fakeL1GTinput = cms.EDProducer("l1t::FakeInputProducer",
                     )
 
 ## Load our L1 menu
-process.load('L1Trigger.L1TGlobal.StableParameters_cff')
+process.load('L1Trigger.L1TGlobal.GlobalParameters_cff')
 
 process.load("L1Trigger.L1TGlobal.TriggerMenu_cff")
-process.TriggerMenu.L1TriggerMenuFile = cms.string('L1Menu_Collisions2016_dev_v3.xml')
+process.TriggerMenu.L1TriggerMenuFile = cms.string('L1Menu_Collisions2016_v2c.xml')
+#process.TriggerMenu.L1TriggerMenuFile = cms.string('L1Menu_test_ettem_etmhf.xml')
 #process.menuDumper = cms.EDAnalyzer("L1TUtmTriggerMenuDumper")
 
 ## Fill External conditions
@@ -206,8 +213,10 @@ process.simGtStage2Digis.EGammaInputTag = cms.InputTag("gtInput")
 process.simGtStage2Digis.TauInputTag = cms.InputTag("gtInput")
 process.simGtStage2Digis.JetInputTag = cms.InputTag("gtInput")
 process.simGtStage2Digis.EtSumInputTag = cms.InputTag("gtInput")
+process.simGtStage2Digis.EmulateBxInEvent = cms.int32(1)
 #process.simGtStage2Digis.Verbosity = cms.untracked.int32(1)
-
+#process.simGtStage2Digis.AlgorithmTriggersUnprescaled = cms.bool(True)
+#process.simGtStage2Digis.AlgorithmTriggersUnmasked = cms.bool(True)
 
 process.dumpGTRecord = cms.EDAnalyzer("l1t::GtRecordDump",
                 egInputTag    = cms.InputTag("gtInput"),
@@ -217,17 +226,22 @@ process.dumpGTRecord = cms.EDAnalyzer("l1t::GtRecordDump",
 		etsumInputTag = cms.InputTag("gtInput"),
 		uGtAlgInputTag = cms.InputTag("simGtStage2Digis"),
 		uGtExtInputTag = cms.InputTag("simGtExtFakeProd"),
+		uGtObjectMapInputTag = cms.InputTag("simGtStage2Digis"),
 		bxOffset       = cms.int32(skip),
-		minBx          = cms.int32(0),
-		maxBx          = cms.int32(0),
+		minBx          = cms.int32(-2),
+		maxBx          = cms.int32(2),
 		minBxVec       = cms.int32(0),
 		maxBxVec       = cms.int32(0),		
 		dumpGTRecord   = cms.bool(True),
+		dumpGTObjectMap= cms.bool(True),
                 dumpTrigResults= cms.bool(True),
 		dumpVectors    = cms.bool(True),
 		tvFileName     = cms.string( ("TestVector_%03d.txt") % job ),
+		tvVersion      = cms.int32(2),
                 psFileName     = cms.string( "prescale_L1TGlobal.csv" ),
-                psColumn       = cms.int32(1)
+                psColumn       = cms.int32(1),
+		unprescaleL1Algos = cms.bool(False),
+                unmaskL1Algos     = cms.bool(False)
 		 )
 
 
@@ -244,17 +258,90 @@ if useMCtoGT:
 else:
     process.gtInput = process.fakeL1GTinput.clone()
 
+# Setup Digi to Raw to Digi
+process.load('EventFilter.L1TRawToDigi.gtStage2Raw_cfi')
+process.gtStage2Raw.GtInputTag = cms.InputTag("simGtStage2Digis")
+process.gtStage2Raw.ExtInputTag = cms.InputTag("simGtExtFakeProd")
+process.gtStage2Raw.EGammaInputTag = cms.InputTag("gtInput")
+process.gtStage2Raw.TauInputTag = cms.InputTag("gtInput")
+process.gtStage2Raw.JetInputTag = cms.InputTag("gtInput")
+process.gtStage2Raw.EtSumInputTag = cms.InputTag("gtInput")
+process.gtStage2Raw.MuonInputTag = cms.InputTag("gtInput")
+
+process.load('EventFilter.L1TRawToDigi.gtStage2Digis_cfi')
+process.newGtStage2Digis = process.gtStage2Digis.clone()
+process.newGtStage2Digis.InputLabel = cms.InputTag('gtStage2Raw')
+process.newGtStage2Digis.debug = cms.untracked.bool(False)
+
+process.dumpRaw = cms.EDAnalyzer(
+    "DumpFEDRawDataProduct",
+    label = cms.untracked.string("gtStage2Raw"),
+    feds = cms.untracked.vint32 ( 1404 ),
+    dumpPayload = cms.untracked.bool ( True )
+)
+
+process.newDumpGTRecord = cms.EDAnalyzer("l1t::GtRecordDump",
+                egInputTag    = cms.InputTag("newGtStage2Digis","EGamma"),
+		muInputTag    = cms.InputTag("newGtStage2Digis","Muon"),
+		tauInputTag   = cms.InputTag("newGtStage2Digis","Tau"),
+		jetInputTag   = cms.InputTag("newGtStage2Digis","Jet"),
+		etsumInputTag = cms.InputTag("newGtStage2Digis","EtSum"),
+		uGtAlgInputTag = cms.InputTag("newGtStage2Digis"),
+		uGtExtInputTag = cms.InputTag("newGtStage2Digis"),
+		uGtObjectMapInputTag = cms.InputTag("simGtStage2Digis"),
+		bxOffset       = cms.int32(skip),
+		minBx          = cms.int32(0),
+		maxBx          = cms.int32(0),
+		minBxVec       = cms.int32(0),
+		maxBxVec       = cms.int32(0),		
+		dumpGTRecord   = cms.bool(True),
+		dumpGTObjectMap= cms.bool(True),
+                dumpTrigResults= cms.bool(False),
+		dumpVectors    = cms.bool(False),
+		tvFileName     = cms.string( ("TestVector_%03d.txt") % job ),
+                psFileName     = cms.string( "prescale_L1TGlobal.csv" ),
+                psColumn       = cms.int32(1)
+		 )
+
+# gt analyzer
+process.l1tGlobalAnalyzer = cms.EDAnalyzer('L1TGlobalAnalyzer',
+    doText = cms.untracked.bool(False),
+    gmuToken = cms.InputTag("None"),
+    dmxEGToken = cms.InputTag("None"),
+    dmxTauToken = cms.InputTag("None"),
+    dmxJetToken = cms.InputTag("None"),
+    dmxEtSumToken = cms.InputTag("None"),
+    muToken = cms.InputTag("gtInput"),
+    egToken = cms.InputTag("gtInput"),
+    tauToken = cms.InputTag("gtInput"),
+    jetToken = cms.InputTag("gtInput"),
+    etSumToken = cms.InputTag("gtInput"),
+    gtAlgToken = cms.InputTag("simGtStage2Digis"),
+    emulDxAlgToken = cms.InputTag("None"),
+    emulGtAlgToken = cms.InputTag("simGtStage2Digis")
+)
 
 
 
 process.p1 = cms.Path(
+
+## Generate input, emulate, dump results
     process.gtInput
 #    *process.dumpGT
     *process.simGtExtFakeProd
     *process.simGtStage2Digis
     *process.dumpGTRecord
-#    +process.menuDumper
-#    * process.debug
+    
+## Sequence for packing and unpacking uGT data    
+#    +process.gtStage2Raw
+#    +process.dumpRaw
+#    +process.newGtStage2Digis
+#    +process.newDumpGTRecord
+
+## Analysis/Dumping 
+    *process.l1tGlobalAnalyzer
+#    *process.menuDumper
+#    *process.debug
 #    *process.dumpED
 #    *process.dumpES
     )

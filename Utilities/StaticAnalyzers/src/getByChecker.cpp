@@ -88,7 +88,7 @@ void Walker::VisitCXXMemberCallExpr( CXXMemberCallExpr *CE ) {
 			os <<"'\n";	
 		} else {
 			os <<"calls edm::Event::getManyByType with argument '";
-			QualType QT = CE->arg_begin()->getType();
+			QualType QT = (*CE->arg_begin())->getType();
 			const CXXRecordDecl * RD = QT->getAsCXXRecordDecl();
 			os << "getManyByType , ";
 			const ClassTemplateSpecializationDecl *SD = dyn_cast<ClassTemplateSpecializationDecl>(RD);

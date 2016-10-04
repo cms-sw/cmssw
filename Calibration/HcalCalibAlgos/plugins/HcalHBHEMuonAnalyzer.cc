@@ -85,7 +85,7 @@ private:
   edm::InputTag              HLTriggerResults_;
   std::string                labelEBRecHit_, labelEERecHit_;
   std::string                labelVtx_, labelHBHERecHit_, labelMuon_;
-  int                        verbosity_, maxDepth_;
+  int                        verbosity_, maxDepth_, kount_;
   bool                       useRaw_;
 
   edm::EDGetTokenT<edm::TriggerResults>                   tok_trigRes_;
@@ -129,6 +129,7 @@ private:
 
 HcalHBHEMuonAnalyzer::HcalHBHEMuonAnalyzer(const edm::ParameterSet& iConfig) {
   //now do what ever initialization is needed
+  kount_            = 0;
   HLTriggerResults_ = iConfig.getParameter<edm::InputTag>("HLTriggerResults");
   labelVtx_         = iConfig.getParameter<std::string>("LabelVertex");
   labelEBRecHit_    = iConfig.getParameter<std::string>("LabelEBRecHit");
@@ -180,7 +181,7 @@ HcalHBHEMuonAnalyzer::~HcalHBHEMuonAnalyzer() {
 
 // ------------ method called for each event  ------------
 void HcalHBHEMuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  
+  ++kount_;
   clearVectors();
   RunNumber   = iEvent.id().run();
   EventNumber = iEvent.id().event();

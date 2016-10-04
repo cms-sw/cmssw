@@ -23,12 +23,38 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condD
 from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc', '')
 
+path = "/home/akalinow/scratch/CMS/OverlapTrackFinder/Emulator/job_3_pat/8_0_9_20_06_2016/"
 
-path = "job_3_pat/8_0_0_29_01_2016/" #Note: make a link of job_3_pat directory under CMSSW/src
-patternsXMLFiles = cms.VPSet()
+# Strip XML files from heading and trailing OMTF tags
+sedCommand = "sed '/OMTF/d' "
+command = "echo \<OMTF version=\\\"0x0004\\\"\> > mergedPatterns.xml"
+os.system(command)
 for ipt in xrange(4,32):
-    patternsXMLFiles.append(cms.PSet(patternsXMLFile = cms.FileInPath(path+"SingleMu_"+str(ipt)+"_p/GPs.xml")))
-    patternsXMLFiles.append(cms.PSet(patternsXMLFile = cms.FileInPath(path+"SingleMu_"+str(ipt)+"_m/GPs.xml")))
+
+    fileName = path+"SingleMu_"+str(ipt)+"_p/GPs.xml"
+    outputFileName = path+"SingleMu_"+str(ipt)+"_p/GPs_stripped.xml"
+    command = sedCommand+fileName+" > "+outputFileName
+    os.system(command)
+
+    command = "cat "+outputFileName+" >> mergedPatterns.xml"
+    os.system(command)
+    
+    fileName = path+"SingleMu_"+str(ipt)+"_m/GPs.xml"
+    outputFileName = path+"SingleMu_"+str(ipt)+"_m/GPs_stripped.xml"
+    command = sedCommand+fileName+" > "+outputFileName
+    os.system(command)
+
+    command = "cat "+outputFileName+" >> mergedPatterns.xml"
+    os.system(command)
+
+command = "echo \<\\/OMTF\> >> mergedPatterns.xml"
+os.system(command)
+
+process.load('L1Trigger.L1TMuonOverlap.fakeOmtfParams_cff')
+
+process.omtfParams.patternsXMLFiles = cms.VPSet(
+        cms.PSet(patternsXMLFile = cms.FileInPath("L1Trigger/L1TMuonOverlap/test/expert/mergedPatterns.xml")),
+)
             
 ###OMTF pattern maker configuration
 process.omtfPatternMaker = cms.EDAnalyzer("OMTFPatternMaker",
@@ -45,15 +71,6 @@ process.omtfPatternMaker = cms.EDAnalyzer("OMTFPatternMaker",
                                           dropCSCPrimitives = cms.bool(False),   
                                           ptCode = cms.int32(25),#this is old PAC pt scale.
                                           charge = cms.int32(1),
-                                          omtf = cms.PSet(
-                                              configFromXML = cms.bool(True),   
-                                              patternsXMLFiles = cms.VPSet(                                       
-                                                  cms.PSet(patternsXMLFile = cms.FileInPath("L1Trigger/L1TMuon/data/omtf_config/Patterns_0x00020007.xml")),
-                                              ),
-                                              configXMLFile = cms.FileInPath("L1Trigger/L1TMuon/data/omtf_config/hwToLogicLayer_0x00020005.xml"),
                                           )
-                                          )
-
-process.omtfPatternMaker.omtf.patternsXMLFiles = patternsXMLFiles
 
 process.p = cms.Path(process.omtfPatternMaker)

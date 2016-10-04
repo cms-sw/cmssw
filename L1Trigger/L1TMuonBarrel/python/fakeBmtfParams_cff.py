@@ -15,10 +15,13 @@ bmbtfParamsSource = cms.ESSource(
 )
 
 fakeBmtfParams = cms.ESProducer('L1TMuonBarrelParamsESProducer',
+    configFromXML = cms.bool(False),
+    hwXmlFile = cms.string('L1Trigger/L1TMuonBarell/test/BMTF_HW.xml'),
+    topCfgXmlFile = cms.string('L1Trigger/L1TMuonBarell/test/bmtf_top_config_p5.xml'),
+    xmlCfgKey = cms.string('RunKey_1'),
+
     fwVersion = cms.uint32(2),
-
     AssLUTPath        = cms.string(os.path.join(l1tbmtfluts_dir, 'LUTs_Ass/')),
-
     OutOfTime_Filter = cms.bool(False),
     BX_min = cms.int32(-2),
     Extrapolation_Filter = cms.int32(1),
@@ -33,7 +36,8 @@ fakeBmtfParams = cms.ESProducer('L1TMuonBarrelParamsESProducer',
     PHI_Assignment_nbits_Phi = cms.int32(12),
     PHI_Assignment_nbits_PhiB = cms.int32(10),
     OutOfTime_Filter_Window = cms.int32(1),
-    
+    DisableNewAlgo           = cms.bool(False),
+ 
     #Each element in vstring corresponds to one TF (-2,-1,-0,+0,+1,+2)
     mask_phtf_st1        = cms.vstring(maskdisable, maskenable, maskenable, maskenable, maskenable, maskenable, maskdisable),
     mask_phtf_st2        = cms.vstring(maskenable,  maskenable, maskenable, maskenable, maskenable, maskenable, maskenable),

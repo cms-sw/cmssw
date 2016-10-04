@@ -455,7 +455,7 @@ template<class Type1> const bool ConditionEvaluation::checkRangePhi(const unsign
 template<class Type1> const bool ConditionEvaluation::checkRangeDeltaPhi(const unsigned int obj1Phi, const unsigned int obj2Phi, 
 									      const Type1& lowerR, const Type1& upperR )  const {
 
-  int deltaPhi = abs(obj1Phi-obj2Phi);
+  int deltaPhi = abs(int(obj1Phi)-int(obj2Phi));
   if( deltaPhi>71 ) deltaPhi = 143 - deltaPhi + 1; // Add +1 if the calculation is over 0
 
   int diff1 = upperR - lowerR;

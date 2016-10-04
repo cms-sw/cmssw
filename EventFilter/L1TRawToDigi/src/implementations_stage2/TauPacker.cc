@@ -39,6 +39,7 @@ namespace stage2 {
 
       std::vector<uint32_t> load1, load2;
 
+      int nBx=0;
       for (int i = taus->getFirstBX(); i <= taus->getLastBX(); ++i) {
 
 	for (auto j = taus->begin(i); j != taus->end(i); ++j) {
@@ -49,21 +50,26 @@ namespace stage2 {
 	    }
 
             uint32_t word = \
-                            std::min(j->hwPt(), 0x1FF) |
-                            packed_eta << 9 |
-                            (j->hwPhi() & 0xFF) << 17 |
-                            (j->hwIso() & 0x1) << 25 |
-                            (j->hwQual() & 0x7) << 26;
+	      std::min(j->hwPt(), 0x1FF) |
+	      packed_eta << 9 |
+	      (j->hwPhi() & 0xFF) << 17 |
+	      (j->hwIso() & 0x3) << 25 |//two bits for tau isolation
+	      (j->hwQual() & 0x7) << 27;
 
-	    if (load1.size() < l1t::stage2::layer2::demux::nEGPerLink) load1.push_back(word);
+	    // Depending on the number, push onto appropriate link
+	    if (load1.size() - nBx*l1t::stage2::layer2::demux::nTauPerLink < l1t::stage2::layer2::demux::nTauPerLink) load1.push_back(word);
 	    else load2.push_back(word);
 
         }
+	
+	// push zeroes if not enough taus must do this for each BX and each link                                     
+ 	while (load1.size() - nBx*l1t::stage2::layer2::demux::nOutputFramePerBX <l1t::stage2::layer2::demux::nOutputFramePerBX) load1.push_back(0);
+ 	while (load2.size() - nBx*l1t::stage2::layer2::demux::nOutputFramePerBX <l1t::stage2::layer2::demux::nOutputFramePerBX) load2.push_back(0);
+ 	
+ 	nBx++;
       }
-
-      // push zeroes if jets are missing                                       
-      while (load1.size()<l1t::stage2::layer2::demux::nOutputFramePerBX) load1.push_back(0);
-      while (load2.size()<l1t::stage2::layer2::demux::nOutputFramePerBX) load2.push_back(0);
+      
+     
 
       return {Block(b1_, load1), Block(b2_, load2)};
 

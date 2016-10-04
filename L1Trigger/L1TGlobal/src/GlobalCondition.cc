@@ -7,7 +7,7 @@
  * Implementation:
  *    <TODO: enter implementation details>
  *
- * \author: Vasile Mihai Ghete - HEPHY Vienna
+ * \author: Brian Winer, OSU   Vasile Mihai Ghete - HEPHY Vienna
  *
  * $Date$
  * $Revision$
@@ -109,7 +109,7 @@ const int GlobalCondition::nrObjects() const
         case l1t::TypeETM:
         case l1t::TypeHTT:
         case l1t::TypeHTM:
-	case l1t::TypeETM2:
+	case l1t::TypeETMHF:
 	case l1t::TypeMinBiasHFP0:
 	case l1t::TypeMinBiasHFM0:
 	case l1t::TypeMinBiasHFP1:
@@ -257,8 +257,8 @@ void GlobalCondition::print(std::ostream& myCout) const
                 myCout << "  Condition type:     " << "TypeHTM"  << std::endl;
             }
 
-        case l1t::TypeETM2: {
-                myCout << "  Condition type:     " << "TypeETM2"  << std::endl;
+        case l1t::TypeETMHF: {
+                myCout << "  Condition type:     " << "TypeETMHF"  << std::endl;
             }
 
         case l1t::TypeMinBiasHFP0: {
@@ -278,6 +278,11 @@ void GlobalCondition::print(std::ostream& myCout) const
             break;	    
         case l1t::TypeMinBiasHFM1: {
                 myCout << "  Condition type:     " << "TypeMinBiasHFM1"  << std::endl;
+            }
+
+            break;
+        case l1t::TypeETTem: {
+                myCout << "  Condition type:     " << "TypeETTem"  << std::endl;
             }
 
             break;
@@ -343,8 +348,8 @@ void GlobalCondition::print(std::ostream& myCout) const
 
                 break;
 
-            case l1t::gtETM2: {
-                    myCout << " ETM2 ";
+            case l1t::gtETMHF: {
+                    myCout << " ETMHF ";
                 }
 		
 		break;
@@ -368,6 +373,11 @@ void GlobalCondition::print(std::ostream& myCout) const
                 }		
 
                 break;	
+            case l1t::gtETTem: {
+                    myCout << " ETTem ";
+                }
+
+                break;
             case l1t::gtExternal: {
                     myCout << " External ";
                 }

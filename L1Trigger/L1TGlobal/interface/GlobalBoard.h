@@ -105,7 +105,7 @@ public:
         const unsigned int numberPhysTriggers,
         const std::vector<int>& prescaleFactorsAlgoTrig,
 	const std::vector<unsigned int>& triggerMaskAlgoTrig,
-	const std::vector<unsigned int>& triggerMaskVetoAlgoTrig,
+	const std::vector<int>& triggerMaskVetoAlgoTrig,
         const bool algorithmTriggersUnprescaled,
         const bool algorithmTriggersUnmasked );
 

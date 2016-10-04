@@ -94,7 +94,7 @@ L1EventTreeProducer::L1EventTreeProducer(const edm::ParameterSet& iConfig)
  
   l1Event     = new L1Analysis::L1AnalysisEvent(puMCFile, puMCHist, 
 							  puDataFile, puDataHist,
-							  useAvgVtx, maxAllowedWeight);
+							  useAvgVtx, maxAllowedWeight,consumesCollector());
   l1EventData = l1Event->getData();
   
   // set up output

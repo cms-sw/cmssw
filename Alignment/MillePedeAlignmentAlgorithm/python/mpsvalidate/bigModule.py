@@ -46,13 +46,17 @@ def plot(MillePedeUser, alignables, config):
             for i in range(3):
                 if (mode == "xyz"):
                     plot.histo.append(TH1F("{0} {1} {2}".format(struct.get_name(), plot.xyz[
-                                      i], mode), "Parameter {0}".format(plot.xyz[i]), numberOfBins, -1000, 1000))
+                                      i], mode), "", numberOfBins, -1000, 1000))
                 else:
                     plot.histo.append(TH1F("{0} {1} {2}".format(struct.get_name(), plot.xyz[
-                                      i], mode), "Parameter {0}".format(plot.xyz[i]), numberOfBins, -0.1, 0.1))
+                                      i], mode), "", numberOfBins, -0.1, 0.1))
 
-                plot.histo[i].SetXTitle(plot.unit)
-                plot.histo[i].GetXaxis().SetTitleOffset(0.85)
+                if (plot.unit!=""):
+                    plot.histo[i].SetXTitle("#Delta"+plot.xyz[i]+" ["+plot.unit+"]")
+                else:
+                    plot.histo[i].SetXTitle("#Delta"+plot.xyz[i])
+                plot.histo[i].SetYTitle("number of alignables")
+                plot.histo[i].GetXaxis().SetTitleOffset(0.8)
                 plot.histoAxis.append(plot.histo[i].GetXaxis())
 
             # add labels
@@ -215,13 +219,17 @@ def plot(MillePedeUser, alignables, config):
             for i in range(3):
                 # skip empty
                 if (plot.histo[i].GetEntries() > 0):
-                    plot.text.AddText("max. shift {0}: {1:.2}".format(
-                        plot.xyz[i], plot.maxShift[i]))
-                    if (abs(plot.maxShift[i]) > limit):
-                        plot.text.AddText(
-                            "! {0} shift bigger than {1} !".format(plot.xyz[i], limit))
+                    if (plot.unit!=""):
+                        plot.text.AddText("max. shift {0}: {1:.2} {2}".format(plot.xyz[i], plot.maxShift[i], plot.unit))
+                        if (abs(plot.maxShift[i]) > limit):
+                            plot.text.AddText("! {0} shift bigger than {1} {2}".format(plot.xyz[i], limit, plot.unit))
+                    else:
+                        plot.text.AddText("max. shift {0}: {1:.2}".format(plot.xyz[i], plot.maxShift[i]))
+                        if (abs(plot.maxShift[i]) > limit):
+                            plot.text.AddText("! {0} shift bigger than {1}".format(plot.xyz[i], limit))
+
                     if (plot.hiddenEntries[i] != 0):
-                        plot.text.AddText("! {0} {1} outlier !".format(
+                        plot.text.AddText("! {0}: {1} outlier !".format(
                             plot.xyz[i], int(plot.hiddenEntries[i])))
 
             # save copy

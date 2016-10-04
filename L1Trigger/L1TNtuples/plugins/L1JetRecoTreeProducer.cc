@@ -129,7 +129,7 @@ L1JetRecoTreeProducer::L1JetRecoTreeProducer(const edm::ParameterSet& iConfig):
   //  caloJetIdToken_ = consumes<edm::ValueMap<reco::JetID> >(iConfig.getUntrackedParameter("jetIdToken",edm::InputTag("ak4JetID")));
   jecToken_ = consumes<reco::JetCorrector>(iConfig.getUntrackedParameter<edm::InputTag>("jecToken",edm::InputTag("ak4PFCHSL1FastL2L3ResidualCorrector")));
 
-  pfMetToken_ = consumes<reco::PFMETCollection>(iConfig.getUntrackedParameter("pfMetToken",edm::InputTag("pfMet")));
+  pfMetToken_ = consumes<reco::PFMETCollection>(iConfig.getUntrackedParameter("pfMetToken",edm::InputTag("pfMetT1")));
   caloMetToken_ = consumes<reco::CaloMETCollection>(iConfig.getUntrackedParameter("caloMetToken",edm::InputTag("caloMet")));
   caloMetBEToken_ = consumes<reco::CaloMETCollection>(iConfig.getUntrackedParameter("caloMetBEToken",edm::InputTag("caloMetBE")));
 
@@ -326,7 +326,7 @@ L1JetRecoTreeProducer::doPFJetCorr(edm::Handle<reco::PFJetCollection> pfJets, ed
 
   
   float corrFactor = 1.;
-  uint nJets = 0;
+  unsigned int nJets = 0;
   
   float mHx = 0;
   float mHy = 0;
@@ -375,7 +375,7 @@ L1JetRecoTreeProducer::doPFJetCorr(edm::Handle<reco::PFJetCollection> pfJets, ed
   
   // //fill jet data array with sorted jet ets and corr factors
   // std::vector<std::pair<float,float> >::iterator it;
-  // uint nJets = 0;
+  // unsigned int nJets = 0;
     
   // for(it = corrJetEtsAndCorrs.begin(); it != corrJetEtsAndCorrs.end() && nJets < maxJet_; ++it){
   //   jet_data->etCorr.push_back(it->first);
@@ -394,6 +394,8 @@ L1JetRecoTreeProducer::doPFMet(edm::Handle<reco::PFMETCollection> pfMet) {
   met_data->met     = theMet.et();
   met_data->metPhi  = theMet.phi();
   met_data->sumEt   = theMet.sumEt();
+  met_data->metPx   = theMet.px();
+  met_data->metPy   = theMet.py();
 
 }
 
