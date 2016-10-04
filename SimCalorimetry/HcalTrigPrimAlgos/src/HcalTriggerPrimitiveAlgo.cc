@@ -486,10 +486,8 @@ void HcalTriggerPrimitiveAlgo::analyzeHF2016(
             if (details.LongDigi.id().ietaAbs() != 29) {
                finegrain[ibin][1] = (ADCLong > FG_HF_threshold_ || ADCShort > FG_HF_threshold_);
 
-               if (HCALFEM != 0) {
-                  finegrain[ibin][0] = HCALFEM->fineGrainbit(details.ShortDigi, details.LongDigi, ibin)
-                  );
-               }
+               if (HCALFEM != 0)
+                  finegrain[ibin][0] = HCALFEM->fineGrainbit(details.ShortDigi, details.LongDigi, ibin);
             }
         }
     }
@@ -530,7 +528,7 @@ HcalTriggerPrimitiveAlgo::validChannel(const QIE10DataFrame& digi, int ts) const
 
 void HcalTriggerPrimitiveAlgo::analyzeHF2017(
         const IntegerCaloSamples& samples, HcalTriggerPrimitiveDigi& result,
-        const int hf_lumi_shift, const HcalFeatureBit* hcalfem)
+        const int hf_lumi_shift, const HcalFeatureBit* embit)
 {
     // Align digis and TP
     const int shift = samples.presamples() - numberOfPresamples_;
@@ -601,14 +599,15 @@ void HcalTriggerPrimitiveAlgo::analyzeHF2017(
                }
             }
 
-            // if (HCALFEM != 0) {
-            //    finegrain[ibin][0] = HCALFEM->fineGrainbit(
-            //          ADCShort, details.ShortDigi.id(),
-            //          details.ShortDigi[ibin].capid(),
-            //          ADCLong, details.LongDigi.id(),
-            //          details.LongDigi[ibin].capid()
-            //    );
-            // }
+            if (embit != 0) {
+               finegrain[ibin][0] = embit->fineGrainbit(
+                     details[1].digi, details[3].digi,
+                     details[0].digi, details[2].digi,
+                     details[1].validity[idx], details[3].validity[idx],
+                     details[0].validity[idx], details[2].validity[idx],
+                     idx
+               );
+            }
         }
     }
 
