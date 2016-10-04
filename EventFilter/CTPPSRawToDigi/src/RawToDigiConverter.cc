@@ -212,10 +212,6 @@ void RawToDigiConverter::Run(const VFATFrameCollection &input,
   {
     Record &record = p.second;
 
-    // silently ignore RP CC VFATs
-    if (record.info->type != TotemVFATInfo::data)
-      continue;
-
     // calculate ids
     TotemRPDetId chipId(record.info->symbolicID.symbolicID);
     uint8_t chipPosition = chipId.chip();
