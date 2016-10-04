@@ -40,7 +40,7 @@ class CTPPSDiamondDetId : public CTPPSDetId
 
 
   /// returns true if the raw ID is a PPS-timing one
-  static bool Check(unsigned int raw)
+  static bool check(unsigned int raw)
   {
     return (((raw >>DetId::kDetOffset) & 0xF) == DetId::VeryForward &&
 	    ((raw >> DetId::kSubdetOffset) & 0x7) == sdTimingDiamond);
@@ -79,10 +79,10 @@ class CTPPSDiamondDetId : public CTPPSDetId
 
    
     /// returns official name of a plane characterized by ''id''; if ''full'' is true, name of RP is prefixed
-    std::string planeName(NameFlag flag = nFull);
+    std::string planeName(NameFlag flag = nFull) const;
   
-    /// returns official name of a chip characterized by ''id''; if ''full'' is true, name of plane is prefixed
-    std::string channelName(NameFlag flag = nFull);
+    /// returns official name of a channel characterized by ''id''; if ''full'' is true, name of plane is prefixed
+    std::string channelName(NameFlag flag = nFull) const;
     
     
 
