@@ -1,5 +1,3 @@
-#include "EventFilter/L1TRawToDigi/plugins/UnpackerFactory.h"
-
 #include "L1Trigger/L1TMuon/interface/RegionalMuonRawDigiTranslator.h"
 
 #include "BMTFUnpackerOutput.h"
@@ -74,4 +72,3 @@ namespace l1t
 	}//ns stage2
 }//ns lt1
 			
-DEFINE_L1T_UNPACKER(l1t::stage2::BMTFUnpackerOutput);

@@ -1,9 +1,5 @@
 #include "FWCore/Framework/interface/stream/EDProducerBase.h"
 
-#include "EventFilter/L1TRawToDigi/plugins/PackerFactory.h"
-#include "EventFilter/L1TRawToDigi/plugins/PackingSetupFactory.h"
-#include "EventFilter/L1TRawToDigi/plugins/UnpackerFactory.h"
-
 #include "GTSetup.h"
 
 namespace l1t {
@@ -125,4 +121,5 @@ namespace l1t {
    }
 }
 
-DEFINE_L1T_PACKING_SETUP(l1t::stage2::GTSetup);
+// moved to plugins/SealModule.cc
+// DEFINE_L1T_PACKING_SETUP(l1t::stage2::GTSetup);

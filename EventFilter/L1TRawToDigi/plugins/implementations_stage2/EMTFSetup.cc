@@ -1,10 +1,6 @@
 #include "FWCore/Framework/interface/stream/EDProducerBase.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
-#include "EventFilter/L1TRawToDigi/plugins/PackerFactory.h"
-#include "EventFilter/L1TRawToDigi/plugins/PackingSetupFactory.h"
-#include "EventFilter/L1TRawToDigi/plugins/UnpackerFactory.h"
-
 #include "EMTFSetup.h"
 
 namespace l1t {
@@ -86,4 +82,5 @@ namespace l1t {
    } // End namespace stage2
 } // End namespace l1t
 
-DEFINE_L1T_PACKING_SETUP(l1t::stage2::EMTFSetup);
+// moved to plugins/SealModule.cc
+// DEFINE_L1T_PACKING_SETUP(l1t::stage2::EMTFSetup);

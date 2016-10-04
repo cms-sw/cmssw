@@ -1,5 +1,4 @@
 #include "FWCore/Framework/interface/Event.h"
-#include "EventFilter/L1TRawToDigi/plugins/PackerFactory.h"
 
 #include "CaloTokens.h"
 #include "MissEtPacker.h"
@@ -46,4 +45,5 @@ namespace stage1 {
 }
 }
 
-DEFINE_L1T_PACKER(l1t::stage1::MissEtPacker);
+// moved to plugins/SealModule.cc
+// DEFINE_L1T_PACKER(l1t::stage1::MissEtPacker);
