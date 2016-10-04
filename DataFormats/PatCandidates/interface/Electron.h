@@ -164,11 +164,23 @@ namespace pat {
       float puppiNeutralHardonsIso() const {return puppiNeutralHardonsIso_; };
       float puppiPhotonsIso() const {return puppiPhotonsIso_; };
 
+      float puppiNoLeptonsChargedHardonsIso() const {return puppiNoLeptonsChargedHardonsIso_; };
+      float puppiNoLeptonsNeutralHardonsIso() const {return puppiNoLeptonsNeutralHardonsIso_; };
+      float puppiNoLeptonsPhotonsIso() const {return puppiNoLeptonsPhotonsIso_; };
+
       void setIsolationPUPPI(float chargedhadrons_, float neutralhadrons_, float photons_)
       {  
          puppiChargedHardonsIso_ = chargedhadrons_;
          puppiNeutralHardonsIso_ = neutralhadrons_;
          puppiPhotonsIso_ = photons_;
+
+      }
+
+      void setIsolationPUPPINoLeptons(float chargedhadrons_, float neutralhadrons_, float photons_)
+      {  
+         puppiNoLeptonsChargedHardonsIso_ = chargedhadrons_;
+         puppiNoLeptonsNeutralHardonsIso_ = neutralhadrons_;
+         puppiNoLeptonsPhotonsIso_ = photons_;
 
       }
       // ---- PF specific methods ----
@@ -359,6 +371,11 @@ namespace pat {
       float puppiChargedHardonsIso_;
       float puppiNeutralHardonsIso_;
       float puppiPhotonsIso_;
+
+      //PUPPI isolations
+      float puppiNoLeptonsChargedHardonsIso_;
+      float puppiNoLeptonsNeutralHardonsIso_;
+      float puppiNoLeptonsPhotonsIso_;
 
       /// conversion veto
       bool passConversionVeto_;
