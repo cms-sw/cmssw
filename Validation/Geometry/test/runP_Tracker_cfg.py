@@ -19,16 +19,12 @@ process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 # line, e.g.:
 # cmsRun runP_GenericComponent.py comp="XYZ"
 
-_ALLOWED_LABELS = ['BeamPipe', 'Tracker', 'PixBar',
-                   'PixFwdMinus', 'PixFwdPlus',
-                   'TIB', 'TOB', 'TIDB', 'TIDF',
-                   'TEC', 'TkStrct', 'ECAL', 'InnerServices']
-
 _LABELS2COMPS = {'BeamPipe': 'BEAM',
                  'Tracker': 'Tracker',
                  'PixBar':  'PixelBarrel',
-                 'PixFwdMinus': 'PixelForwardZMinus',
-                 'PixFwdPlus':  'PixelForwardZPlus',
+                 'PixFwd':  ['PixelForwardZplus', 'PixelForwardZminus', 'PixelForward'],
+                 'PixFwdMinus': 'PixelForwardZiminus',
+                 'PixFwdPlus':  'PixelForwardZplus',
                  'TIB':         'TIB',
                  'TOB':         'TOB',
                  'TIDB':        'TIDB',
@@ -36,6 +32,8 @@ _LABELS2COMPS = {'BeamPipe': 'BEAM',
                  'TEC':         'TEC',
                  'InnerServices': ['TIBTIDServicesF', 'TIBTIDServicesB'],
                  'TkStrct': ['TrackerOuterCylinder', 'TrackerBulkhead']}
+
+_ALLOWED_LABELS = _LABELS2COMPS.keys()
 
 options = VarParsing('analysis')
 options.register('geom',        #name
@@ -73,6 +71,8 @@ _components = _LABELS2COMPS[options.label]
 #
 if options.geom == 'phaseI':
   process.load("Configuration.Geometry.GeometryExtended2017_cff")
+elif options.geom == '2017NewFPix':
+  process.load("Configuration.Geometry.GeometryExtended2017NewFPix_cff")
 elif options.geom == 'run2':
   process.load("Configuration.Geometry.GeometryExtended2016_cff")
 #process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
