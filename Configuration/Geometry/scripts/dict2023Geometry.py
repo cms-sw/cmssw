@@ -5,7 +5,7 @@ commonDict = {
     "name" : "common",
     "O1" : {
         1 : [
-            'Geometry/CMSCommonData/data/PhaseII/materials.xml',
+            'Geometry/CMSCommonData/data/materials.xml',
             'Geometry/CMSCommonData/data/rotations.xml',
             'Geometry/CMSCommonData/data/extend/cmsextent.xml',
             'Geometry/CMSCommonData/data/PostLS2/cms.xml',
