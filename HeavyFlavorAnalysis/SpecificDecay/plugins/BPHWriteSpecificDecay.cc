@@ -271,12 +271,12 @@ void BPHWriteSpecificDecay::fill( edm::Event& ev,
                       BPHRecoBuilder::createCollection( muDaugs, "cfmig" ),
                       BPHRecoBuilder::createCollection( muDaugs, "cfmig" ) );
 
-  map< int, map<int,double> >::const_iterator rIter = parMap.begin();
-  map< int, map<int,double> >::const_iterator rIend = parMap.end();
+  map< recoType, map<parType,double> >::const_iterator rIter = parMap.begin();
+  map< recoType, map<parType,double> >::const_iterator rIend = parMap.end();
   while ( rIter != rIend ) {
-    const map< int, map<int,double> >::value_type& rEntry = *rIter++;
-    int                    rType = rEntry.first;
-    const map<int,double>& pMap  = rEntry.second;
+    const map< recoType, map<parType,double> >::value_type& rEntry = *rIter++;
+    recoType                   rType = rEntry.first;
+    const map<parType,double>& pMap  = rEntry.second;
     BPHOniaToMuMuBuilder::oniaType type;
     switch( rType ) {
     case Pmm : type = BPHOniaToMuMuBuilder::Phi;  break;
@@ -288,12 +288,12 @@ void BPHWriteSpecificDecay::fill( edm::Event& ev,
     case Ups3: type = BPHOniaToMuMuBuilder::Ups3; break;
     default: continue;
     }
-    map<int,double>::const_iterator pIter = pMap.begin();
-    map<int,double>::const_iterator pIend = pMap.end();
+    map<parType,double>::const_iterator pIter = pMap.begin();
+    map<parType,double>::const_iterator pIend = pMap.end();
     while ( pIter != pIend ) {
-      const map<int,double>::value_type& pEntry = *pIter++;
-      int    id = pEntry.first;
-      double pv = pEntry.second;
+      const map<parType,double>::value_type& pEntry = *pIter++;
+      parType id = pEntry.first;
+      double  pv = pEntry.second;
       switch( id ) {
       case ptMin      : onia->setPtMin  ( type, pv ); break;
       case etaMax     : onia->setEtaMax ( type, pv ); break;
@@ -305,6 +305,7 @@ void BPHWriteSpecificDecay::fill( edm::Event& ev,
                                                    ); break;
       case constrSigma: onia->setConstr ( type, onia->getConstrMass ( type ),
                                                 pv ); break;
+      default: break;
       }
     }
   }
@@ -437,13 +438,13 @@ void BPHWriteSpecificDecay::fill( edm::Event& ev,
 
   rIter = parMap.find( Bu );
   if ( rIter != rIend ) {
-    const map<int,double>& pMap = rIter->second;
-    map<int,double>::const_iterator pIter = pMap.begin();
-    map<int,double>::const_iterator pIend = pMap.end();
+    const map<parType,double>& pMap = rIter->second;
+    map<parType,double>::const_iterator pIter = pMap.begin();
+    map<parType,double>::const_iterator pIend = pMap.end();
     while ( pIter != pIend ) {
-      const map<int,double>::value_type& pEntry = *pIter++;
-      int    id = pEntry.first;
-      double pv = pEntry.second;
+      const map<parType,double>::value_type& pEntry = *pIter++;
+      parType id = pEntry.first;
+      double  pv = pEntry.second;
       switch( id ) {
       case ptMin       : bu->setKPtMin     ( pv ); break;
       case etaMax      : bu->setKEtaMax    ( pv ); break;
@@ -455,6 +456,7 @@ void BPHWriteSpecificDecay::fill( edm::Event& ev,
       case mFitMin     : bu->setMassFitMin ( pv ); break;
       case mFitMax     : bu->setMassFitMax ( pv ); break;
       case constrMJPsi : bu->setConstr     ( pv > 0 ); break;
+      default: break;
       }
     }
   }
@@ -479,13 +481,13 @@ void BPHWriteSpecificDecay::fill( edm::Event& ev,
 
   rIter = parMap.find( Kx0 );
   if ( rIter != rIend ) {
-    const map<int,double>& pMap = rIter->second;
-    map<int,double>::const_iterator pIter = pMap.begin();
-    map<int,double>::const_iterator pIend = pMap.end();
+    const map<parType,double>& pMap = rIter->second;
+    map<parType,double>::const_iterator pIter = pMap.begin();
+    map<parType,double>::const_iterator pIend = pMap.end();
     while ( pIter != pIend ) {
-      const map<int,double>::value_type& pEntry = *pIter++;
-      int    id = pEntry.first;
-      double pv = pEntry.second;
+      const map<parType,double>::value_type& pEntry = *pIter++;
+      parType id = pEntry.first;
+      double  pv = pEntry.second;
       switch( id ) {
       case ptMin      : kx0->setPtMin  ( pv ); break;
       case etaMax     : kx0->setEtaMax ( pv ); break;
@@ -494,6 +496,7 @@ void BPHWriteSpecificDecay::fill( edm::Event& ev,
       case probMin    : kx0->setProbMin( pv ); break;
       case constrMass : kx0->setConstr ( pv, kx0->getConstrSigma() ); break;
       case constrSigma: kx0->setConstr ( kx0->getConstrMass() , pv ); break;
+      default: break;
       }
     }
   }
@@ -510,13 +513,13 @@ void BPHWriteSpecificDecay::fill( edm::Event& ev,
   BPHBdToJPsiKxBuilder* bd = new BPHBdToJPsiKxBuilder( es, lJPsi, lKx0 );
   rIter = parMap.find( Bd );
   if ( rIter != rIend ) {
-    const map<int,double>& pMap = rIter->second;
-    map<int,double>::const_iterator pIter = pMap.begin();
-    map<int,double>::const_iterator pIend = pMap.end();
+    const map<parType,double>& pMap = rIter->second;
+    map<parType,double>::const_iterator pIter = pMap.begin();
+    map<parType,double>::const_iterator pIend = pMap.end();
     while ( pIter != pIend ) {
-      const map<int,double>::value_type& pEntry = *pIter++;
-      int    id = pEntry.first;
-      double pv = pEntry.second;
+      const map<parType,double>::value_type& pEntry = *pIter++;
+      parType id = pEntry.first;
+      double  pv = pEntry.second;
       switch( id ) {
       case mPsiMin     : bd->setJPsiMassMin( pv ); break;
       case mPsiMax     : bd->setJPsiMassMax( pv ); break;
@@ -528,6 +531,7 @@ void BPHWriteSpecificDecay::fill( edm::Event& ev,
       case mFitMin     : bd->setMassFitMin ( pv ); break;
       case mFitMax     : bd->setMassFitMax ( pv ); break;
       case constrMJPsi : bd->setConstr     ( pv > 0 ); break;
+      default: break;
       }
     }
   }
@@ -562,13 +566,13 @@ void BPHWriteSpecificDecay::fill( edm::Event& ev,
 
   rIter = parMap.find( Pkk );
   if ( rIter != rIend ) {
-    const map<int,double>& pMap = rIter->second;
-    map<int,double>::const_iterator pIter = pMap.begin();
-    map<int,double>::const_iterator pIend = pMap.end();
+    const map<parType,double>& pMap = rIter->second;
+    map<parType,double>::const_iterator pIter = pMap.begin();
+    map<parType,double>::const_iterator pIend = pMap.end();
     while ( pIter != pIend ) {
-      const map<int,double>::value_type& pEntry = *pIter++;
-      int    id = pEntry.first;
-      double pv = pEntry.second;
+      const map<parType,double>::value_type& pEntry = *pIter++;
+      parType id = pEntry.first;
+      double  pv = pEntry.second;
       switch( id ) {
       case ptMin      : phi->setPtMin  ( pv ); break;
       case etaMax     : phi->setEtaMax ( pv ); break;
@@ -577,6 +581,7 @@ void BPHWriteSpecificDecay::fill( edm::Event& ev,
       case probMin    : phi->setProbMin( pv ); break;
       case constrMass : phi->setConstr ( pv, phi->getConstrSigma() ); break;
       case constrSigma: phi->setConstr ( phi->getConstrMass() , pv ); break;
+      default: break;
       }
     }
   }
@@ -594,13 +599,13 @@ void BPHWriteSpecificDecay::fill( edm::Event& ev,
   BPHBsToJPsiPhiBuilder* bs = new BPHBsToJPsiPhiBuilder( es, lJPsi, lPhi );
   rIter = parMap.find( Bs );
   if ( rIter != rIend ) {
-    const map<int,double>& pMap = rIter->second;
-    map<int,double>::const_iterator pIter = pMap.begin();
-    map<int,double>::const_iterator pIend = pMap.end();
+    const map<parType,double>& pMap = rIter->second;
+    map<parType,double>::const_iterator pIter = pMap.begin();
+    map<parType,double>::const_iterator pIend = pMap.end();
     while ( pIter != pIend ) {
-      const map<int,double>::value_type& pEntry = *pIter++;
-      int    id = pEntry.first;
-      double pv = pEntry.second;
+      const map<parType,double>::value_type& pEntry = *pIter++;
+      parType id = pEntry.first;
+      double  pv = pEntry.second;
       switch( id ) {
       case mPsiMin     : bs->setJPsiMassMin( pv ); break;
       case mPsiMax     : bs->setJPsiMassMax( pv ); break;
@@ -612,6 +617,7 @@ void BPHWriteSpecificDecay::fill( edm::Event& ev,
       case mFitMin     : bs->setMassFitMin ( pv ); break;
       case mFitMax     : bs->setMassFitMax ( pv ); break;
       case constrMJPsi : bs->setConstr     ( pv > 0 ); break;
+      default: break;
       }
     }
   }
@@ -650,24 +656,24 @@ void BPHWriteSpecificDecay::setRecoParameters( const edm::ParameterSet& ps ) {
 
   const string& name = ps.getParameter<string>( "name" );
 
-  map<string,int>::const_iterator pIter = pMap.begin();
-  map<string,int>::const_iterator pIend = pMap.end();
+  map<string,parType>::const_iterator pIter = pMap.begin();
+  map<string,parType>::const_iterator pIend = pMap.end();
   while ( pIter != pIend ) {
-    const map<string,int>::value_type& entry = *pIter++;
+    const map<string,parType>::value_type& entry = *pIter++;
     const string& pn = entry.first;
-    int           id = entry.second;
+    parType       id = entry.second;
     if ( ps.exists( pn ) ) edm::LogVerbatim( "Configuration" )
          << "BPHWriteSpecificDecay::setRecoParameters: set " << pn
          << " for " << name << " : "
          << ( parMap[rMap[name]][id] = ps.getParameter<double>( pn ) );
   }
 
-  map<string,int>::const_iterator fIter = fMap.begin();
-  map<string,int>::const_iterator fIend = fMap.end();
+  map<string,parType>::const_iterator fIter = fMap.begin();
+  map<string,parType>::const_iterator fIend = fMap.end();
   while ( fIter != fIend ) {
-    const map<string,int>::value_type& entry = *fIter++;
+    const map<string,parType>::value_type& entry = *fIter++;
     const string& fn = entry.first;
-    int           id = entry.second;
+    parType       id = entry.second;
     if ( ps.exists( fn ) ) edm::LogVerbatim( "Configuration" )
          << "BPHWriteSpecificDecay::setRecoParameters: set " << fn
          << " for " << name << " : "

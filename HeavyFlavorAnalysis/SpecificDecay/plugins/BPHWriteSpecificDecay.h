@@ -80,10 +80,10 @@ class BPHWriteSpecificDecay:
                   mPsiMin, mPsiMax, mKx0Min, mKx0Max, mPhiMin, mPhiMax, 
                   massMin, massMax, probMin, mFitMin, mFitMax,
                   constrMass, constrSigma, constrMJPsi, writeCandidate };
-  std::map<std::string,int> rMap;
-  std::map<std::string,int> pMap;
-  std::map<std::string,int> fMap;
-  std::map< int, std::map<int,double> >  parMap;
+  std::map<std::string,recoType> rMap;
+  std::map<std::string, parType> pMap;
+  std::map<std::string, parType> fMap;
+  std::map< recoType, std::map<parType,double> > parMap;
   bool writeVertex;
   bool writeMomentum;
 
