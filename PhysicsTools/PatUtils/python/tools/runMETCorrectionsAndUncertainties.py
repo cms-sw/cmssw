@@ -370,7 +370,10 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
         patMetUncertaintySequence = cms.Sequence()
         tmpUncSequence =cms.Sequence()
         if not hasattr(process, "patMetUncertaintySequence"+postfix):
-            patMetUncertaintySequence=cms.Sequence(getattr(process, "ak4PFCHSL1FastL2L3CorrectorChain")+getattr(process, "ak4PFCHSL1FastL2L3ResidualCorrectorChain"))
+            if self._parameters["Puppi"].value:
+                patMetUncertaintySequence=cms.Sequence(getattr(process, "ak4PFPuppiL1FastL2L3CorrectorChain")+getattr(process, "ak4PFPuppiL1FastL2L3ResidualCorrectorChain"))
+            else:
+                patMetUncertaintySequence=cms.Sequence(getattr(process, "ak4PFCHSL1FastL2L3CorrectorChain")+getattr(process, "ak4PFCHSL1FastL2L3ResidualCorrectorChain"))
         patShiftedModuleSequence = cms.Sequence()
         if computeUncertainties:
             tmpUncSequence,patShiftedModuleSequence =  self.getMETUncertainties(process, metType, metModName,
@@ -589,7 +592,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
             getattr(process, "corrPfMetType1"+postfix).jetCorrLabel = cms.InputTag("ak4PFPuppiL1FastL2L3Corrector")
             getattr(process, "corrPfMetType1"+postfix).jetCorrLabelRes = cms.InputTag("ak4PFPuppiL1FastL2L3ResidualCorrector")
             getattr(process, "corrPfMetType1"+postfix).offsetCorrLabel = cms.InputTag("ak4PFPuppiL1FastjetCorrector")
-            getattr(process, "basicJetsForMet"+postfix).offsetCorrLabel = cms.InputTag("ak4PFPuppiL1FastjetCorrector")
+            getattr(process, "basicJetsForMet"+postfix).offsetCorrLabel = cms.InputTag("L1FastJet")
 
         if "T1" in correctionLevel and self._parameters["CHS"].value and self._parameters["reclusterJets"].value:
             getattr(process, "corrPfMetType1"+postfix).src =  cms.InputTag("ak4PFJetsCHS"+postfix)
