@@ -27,7 +27,7 @@ process.maxEvents = cms.untracked.PSet(
 
 #configurable options =======================================================================
 runOnData=False #data/MC switch
-usePrivateSQlite=False #use external JECs (sqlite file)
+usePrivateSQlite=True #use external JECs (sqlite file)
 useHFCandidates=True #create an additionnal NoHF slimmed MET collection if the option is set to false
 redoPuppi=True # rebuild puppiMET
 #===================================================================
@@ -45,16 +45,22 @@ if runOnData:
 else:
   process.GlobalTag.globaltag = autoCond['run2_mc']
 
+
+#Summer16_25nsV1_MC.db
+
 if usePrivateSQlite:
     from CondCore.DBCommon.CondDBSetup_cfi import *
     import os
     if runOnData:
       era="Summer15_25nsV6_DATA"
     else:
-      era="Summer15_25nsV6_MC"
+      era="Summer16_25nsV1_MC"
+
+    #process.jec.connect = cms.string('sqlite:'+era+'.db')
+    #connect = cms.string( "frontier://FrontierPrep/CMS_COND_PHYSICSTOOLS"),
       
     process.jec = cms.ESSource("PoolDBESSource",CondDBSetup,
-                               connect = cms.string( "frontier://FrontierPrep/CMS_COND_PHYSICSTOOLS"),
+                               connect = cms.string('sqlite:'+era+'.db'),
                                toGet =  cms.VPSet(
             cms.PSet(
                 record = cms.string("JetCorrectionsRecord"),
@@ -71,13 +77,12 @@ if usePrivateSQlite:
     process.es_prefer_jec = cms.ESPrefer("PoolDBESSource",'jec')
 
 
-
 ### =====================================================================================================
 # Define the input source
 if runOnData:
   fname = 'root://eoscms.cern.ch//store/relval/CMSSW_8_1_0_pre11/DoubleEG/MINIAOD/81X_dataRun2_relval_v6_resub_RelVal_doubEG2015D-v1/00000/1CF62687-8374-E611-A98B-0025905A6090.root'
 else:
-  fname = 'root://eoscms.cern.ch//store/relval/CMSSW_8_1_0_pre11/RelValTTbar_13/MINIAODSIM/81X_mcRun2_asymptotic_Candidate_2016_08_30_11_31_55-v1/00000/7836FEC5-6C74-E611-97C0-0CC47A745250.root'
+  fname = '/store/relval/CMSSW_8_0_20/RelValZMM_13/MINIAODSIM/80X_mcRun2_asymptotic_2016_TrancheIV_v4_Tr4GT_v4-v1/00000/64F9C946-C57A-E611-AA05-0CC47A74527A.root'
 
 # Define the input source
 process.source = cms.Source("PoolSource", 
@@ -133,7 +138,7 @@ process.MINIAODSIMoutput = cms.OutputModule("PoolOutputModule",
     compressionLevel = cms.untracked.int32(4),
     compressionAlgorithm = cms.untracked.string('LZMA'),
     eventAutoFlushCompressedSize = cms.untracked.int32(15728640),
-    outputCommands = cms.untracked.vstring( "keep *_slimmedMETs_*_RERUN",
+    outputCommands = cms.untracked.vstring( "keep *_slimmedMETs_*_*",
                                             "keep *_slimmedMETsNoHF_*_*",
                                             "keep *_patPFMet_*_*",
                                             "keep *_patPFMetT1_*_*",
