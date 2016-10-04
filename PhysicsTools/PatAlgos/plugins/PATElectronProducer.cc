@@ -108,9 +108,14 @@ PATElectronProducer::PATElectronProducer(const edm::ParameterSet & iConfig) :
     resolutionLoader_ = pat::helper::KinResolutionsLoader(iConfig.getParameter<edm::ParameterSet>("resolutions"));
   }
   if(addPuppiIsolation_){
+    //puppi
     PUPPIIsolation_charged_hadrons_ = consumes<edm::ValueMap<float> >(iConfig.getParameter<edm::InputTag>("puppiIsolationChargedHadrons"));
     PUPPIIsolation_neutral_hadrons_ = consumes<edm::ValueMap<float> >(iConfig.getParameter<edm::InputTag>("puppiIsolationNeutralHadrons"));
     PUPPIIsolation_photons_ = consumes<edm::ValueMap<float> >(iConfig.getParameter<edm::InputTag>("puppiIsolationPhotons"));
+    //puppiNoLeptons
+    PUPPINoLeptonsIsolation_charged_hadrons_ = consumes<edm::ValueMap<float> >(iConfig.getParameter<edm::InputTag>("puppiNoLeptonsIsolationChargedHadrons"));
+    PUPPINoLeptonsIsolation_neutral_hadrons_ = consumes<edm::ValueMap<float> >(iConfig.getParameter<edm::InputTag>("puppiNoLeptonsIsolationNeutralHadrons"));
+    PUPPINoLeptonsIsolation_photons_ = consumes<edm::ValueMap<float> >(iConfig.getParameter<edm::InputTag>("puppiNoLeptonsIsolationPhotons"));
   }
   // electron ID configurables
   if (addElecID_) {
@@ -291,10 +296,19 @@ void PATElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
   edm::Handle<edm::ValueMap<float>> PUPPIIsolation_charged_hadrons;
   edm::Handle<edm::ValueMap<float>> PUPPIIsolation_neutral_hadrons;
   edm::Handle<edm::ValueMap<float>> PUPPIIsolation_photons;
+  //value maps for puppiNoLeptons isolation
+  edm::Handle<edm::ValueMap<float>> PUPPINoLeptonsIsolation_charged_hadrons;
+  edm::Handle<edm::ValueMap<float>> PUPPINoLeptonsIsolation_neutral_hadrons;
+  edm::Handle<edm::ValueMap<float>> PUPPINoLeptonsIsolation_photons;
   if(addPuppiIsolation_){
+    //puppi
     iEvent.getByToken(PUPPIIsolation_charged_hadrons_, PUPPIIsolation_charged_hadrons);
     iEvent.getByToken(PUPPIIsolation_neutral_hadrons_, PUPPIIsolation_neutral_hadrons);
     iEvent.getByToken(PUPPIIsolation_photons_, PUPPIIsolation_photons);  
+    //puppiNoLeptons
+    iEvent.getByToken(PUPPINoLeptonsIsolation_charged_hadrons_, PUPPINoLeptonsIsolation_charged_hadrons);
+    iEvent.getByToken(PUPPINoLeptonsIsolation_neutral_hadrons_, PUPPINoLeptonsIsolation_neutral_hadrons);
+    iEvent.getByToken(PUPPINoLeptonsIsolation_photons_, PUPPINoLeptonsIsolation_photons);  
   }
   
 
@@ -342,8 +356,14 @@ void PATElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
 	  const edm::RefToBase<reco::GsfElectron>& elecsRef = electrons->refAt(idx);
 	  Electron anElectron(elecsRef);
 	  anElectron.setPFCandidateRef( pfRef  );
-    if (addPuppiIsolation_) anElectron.setIsolationPUPPI((*PUPPIIsolation_charged_hadrons)[elePtr], (*PUPPIIsolation_neutral_hadrons)[elePtr], (*PUPPIIsolation_photons)[elePtr]);
-    else anElectron.setIsolationPUPPI(-999., -999.,-999.);
+    if (addPuppiIsolation_) {
+      anElectron.setIsolationPUPPI((*PUPPIIsolation_charged_hadrons)[elePtr], (*PUPPIIsolation_neutral_hadrons)[elePtr], (*PUPPIIsolation_photons)[elePtr]);
+      anElectron.setIsolationPUPPINoLeptons((*PUPPINoLeptonsIsolation_charged_hadrons)[elePtr], (*PUPPINoLeptonsIsolation_neutral_hadrons)[elePtr], (*PUPPINoLeptonsIsolation_photons)[elePtr]);
+    }
+    else {
+      anElectron.setIsolationPUPPI(-999., -999.,-999.);
+      anElectron.setIsolationPUPPINoLeptons(-999., -999.,-999.);
+    }
 
           //it should be always true when particleFlow electrons are used.
           anElectron.setIsPF( true );
@@ -917,7 +937,10 @@ void PATElectronProducer::fillDescriptions(edm::ConfigurationDescriptions & desc
   iDesc.ifValue(edm::ParameterDescription<bool>("addPuppiIsolation", false, true),
     true >> (edm::ParameterDescription<edm::InputTag>("puppiIsolationChargedHadrons", edm::InputTag("egmElectronPUPPIIsolation","h+-DR030-BarVeto000-EndVeto001"), true) and
        edm::ParameterDescription<edm::InputTag>("puppiIsolationNeutralHadrons", edm::InputTag("egmElectronPUPPIIsolation","h0-DR030-BarVeto000-EndVeto000"), true) and 
-       edm::ParameterDescription<edm::InputTag>("puppiIsolationPhotons", edm::InputTag("egmElectronPUPPIIsolation","gamma-DR030-BarVeto000-EndVeto008"), true)) or
+       edm::ParameterDescription<edm::InputTag>("puppiIsolationPhotons", edm::InputTag("egmElectronPUPPIIsolation","gamma-DR030-BarVeto000-EndVeto008"), true) and
+       edm::ParameterDescription<edm::InputTag>("puppiNoLeptonsIsolationChargedHadrons", edm::InputTag("egmElectronPUPPINoLeptonsIsolation","gamma-DR030-BarVeto000-EndVeto008"), true) and 
+       edm::ParameterDescription<edm::InputTag>("puppiNoLeptonsIsolationNeutralHadrons", edm::InputTag("egmElectronPUPPINoLeptonsIsolation","gamma-DR030-BarVeto000-EndVeto008"), true) and 
+       edm::ParameterDescription<edm::InputTag>("puppiNoLeptonsIsolationPhotons", edm::InputTag("egmElectronPUPPINoLeptonsIsolation","gamma-DR030-BarVeto000-EndVeto008"), true))  or
     false >> edm::EmptyGroupDescription());
     
 
