@@ -65,11 +65,7 @@ std::ostream& operator << (std::ostream& os, const CTPPSDiamondDetId& id)
 
 //----------------------------------------------------------------------------------------------------
 
-<<<<<<< HEAD
 string CTPPSDiamondDetId::planeName( NameFlag flag) const
-=======
-string CTPPSDiamondDetId::planeName(NameFlag flag)
->>>>>>> 03287b3ac17ded485a5ce7e881f79867f77661ea
 {
   string name;
 
