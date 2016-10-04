@@ -1293,7 +1293,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
 
     def extractMET(self, process, correctionLevel, patMetModuleSequence, postfix):
         pfMet = cms.EDProducer("RecoMETExtractor",
-                               metSource= cms.InputTag("slimmedMETs" if not self_.parameters["Puppi"].value else "slimmedMETsPuppi",processName=cms.InputTag.skipCurrentProcess()),
+                               metSource= cms.InputTag("slimmedMETs" if not self._parameters["Puppi"].value else "slimmedMETsPuppi",processName=cms.InputTag.skipCurrentProcess()),
                                correctionLevel = cms.string(correctionLevel)
                                )
         if(correctionLevel=="raw"):
@@ -1315,7 +1315,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
         from PhysicsTools.PatAlgos.producersLayer1.jetUpdater_cff import updatedPatJetCorrFactors
         
         patJetCorrFactorsReapplyJEC = updatedPatJetCorrFactors.clone(
-            src = cms.InputTag("slimmedJets"),
+            src = cms.InputTag("slimmedJets" if not self._parameters["Puppi"].value else "slimmedJetsPuppi"),
             levels = ['L1FastJet', 
                       'L2Relative', 
                       'L3Absolute'],
@@ -1326,10 +1326,10 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
 
         from PhysicsTools.PatAlgos.producersLayer1.jetUpdater_cff import updatedPatJets
         patJetsReapplyJEC = updatedPatJets.clone(
-            jetSource = cms.InputTag("slimmedJets"),
+            jetSource = cms.InputTag("slimmedJets" if not self._parameters["Puppi"].value else "slimmedJetsPuppi"),
             jetCorrFactorsSource = cms.VInputTag(cms.InputTag("patJetCorrFactorsReapplyJEC"+postfix))
             )
-        
+
         setattr(process,"patJetCorrFactorsReapplyJEC"+postfix,patJetCorrFactorsReapplyJEC)
         setattr(process,"patJetsReapplyJEC"+postfix,patJetsReapplyJEC.clone())
         patMetModuleSequence += getattr(process,"patJetCorrFactorsReapplyJEC"+postfix)
@@ -1504,7 +1504,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
             getattr(process,"slimmedMETs"+postfix).tXYUncForT01Smear = cms.InputTag("patPFMetT0pcT1SmearTxy"+postfix)
 
             getattr(process,"slimmedMETs"+postfix).runningOnMiniAOD = True
-            getattr(process,"slimmedMETs"+postfix).t01Variation = cms.InputTag("slimmedMETs",processName=cms.InputTag.skipCurrentProcess())
+            getattr(process,"slimmedMETs"+postfix).t01Variation = cms.InputTag("slimmedMETs" if not self._parameters["Puppi"].value else "slimmedMETsPuppi",processName=cms.InputTag.skipCurrentProcess())
          
 
             #smearing and type0 variations not yet supported in reprocessing
