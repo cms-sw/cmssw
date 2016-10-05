@@ -332,7 +332,7 @@ void PATElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
       bool MatchedToAmbiguousGsfTrack=false;
       for (edm::View<reco::GsfElectron>::const_iterator itElectron = electrons->begin(); itElectron != electrons->end(); ++itElectron) {
 	unsigned int idx = itElectron - electrons->begin();
-  auto elePtr = electrons -> ptrAt(idx);
+  	auto elePtr = electrons -> ptrAt(idx);
 	if (Matched || MatchedToAmbiguousGsfTrack) continue;
 
 	reco::GsfTrackRef EgTk= itElectron->gsfTrack();
@@ -356,14 +356,14 @@ void PATElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
 	  const edm::RefToBase<reco::GsfElectron>& elecsRef = electrons->refAt(idx);
 	  Electron anElectron(elecsRef);
 	  anElectron.setPFCandidateRef( pfRef  );
-    if (addPuppiIsolation_) {
-      anElectron.setIsolationPUPPI((*PUPPIIsolation_charged_hadrons)[elePtr], (*PUPPIIsolation_neutral_hadrons)[elePtr], (*PUPPIIsolation_photons)[elePtr]);
-      anElectron.setIsolationPUPPINoLeptons((*PUPPINoLeptonsIsolation_charged_hadrons)[elePtr], (*PUPPINoLeptonsIsolation_neutral_hadrons)[elePtr], (*PUPPINoLeptonsIsolation_photons)[elePtr]);
-    }
-    else {
-      anElectron.setIsolationPUPPI(-999., -999.,-999.);
-      anElectron.setIsolationPUPPINoLeptons(-999., -999.,-999.);
-    }
+    	  if (addPuppiIsolation_) {		 
+	    anElectron.setIsolationPUPPI((*PUPPIIsolation_charged_hadrons)[elePtr], (*PUPPIIsolation_neutral_hadrons)[elePtr], (*PUPPIIsolation_photons)[elePtr]);
+      	    anElectron.setIsolationPUPPINoLeptons((*PUPPINoLeptonsIsolation_charged_hadrons)[elePtr], (*PUPPINoLeptonsIsolation_neutral_hadrons)[elePtr], (*PUPPINoLeptonsIsolation_photons)[elePtr]);
+    	  }
+	  else {
+      	    anElectron.setIsolationPUPPI(-999., -999.,-999.);
+	    anElectron.setIsolationPUPPINoLeptons(-999., -999.,-999.);
+          }
 
           //it should be always true when particleFlow electrons are used.
           anElectron.setIsPF( true );
@@ -648,12 +648,12 @@ void PATElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
 	anElectron.setHcalPFClusterIso(-999.);
       }
       if (addPuppiIsolation_) {
-      anElectron.setIsolationPUPPI((*PUPPIIsolation_charged_hadrons)[elePtr], (*PUPPIIsolation_neutral_hadrons)[elePtr], (*PUPPIIsolation_photons)[elePtr]);
-      anElectron.setIsolationPUPPINoLeptons((*PUPPINoLeptonsIsolation_charged_hadrons)[elePtr], (*PUPPINoLeptonsIsolation_neutral_hadrons)[elePtr], (*PUPPINoLeptonsIsolation_photons)[elePtr]);
+        anElectron.setIsolationPUPPI((*PUPPIIsolation_charged_hadrons)[elePtr], (*PUPPIIsolation_neutral_hadrons)[elePtr], (*PUPPIIsolation_photons)[elePtr]);
+        anElectron.setIsolationPUPPINoLeptons((*PUPPINoLeptonsIsolation_charged_hadrons)[elePtr], (*PUPPINoLeptonsIsolation_neutral_hadrons)[elePtr], (*PUPPINoLeptonsIsolation_photons)[elePtr]);
       }
       else {
-      anElectron.setIsolationPUPPI(-999., -999.,-999.);
-      anElectron.setIsolationPUPPINoLeptons(-999., -999.,-999.);
+        anElectron.setIsolationPUPPI(-999., -999.,-999.);
+        anElectron.setIsolationPUPPINoLeptons(-999., -999.,-999.);
       }
         
       std::vector<DetId> selectedCells;
