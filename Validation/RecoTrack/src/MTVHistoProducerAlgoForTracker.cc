@@ -848,7 +848,7 @@ void MTVHistoProducerAlgoForTracker::fill_generic_recoTrack_histos(int count,
     fillPlotNoFlow(h_recovertpos[count], vertxy);
     fillPlotNoFlow(h_recozpos[count], vertz);
     h_recodr[count]->Fill(deltar);
-  if(fillSeedingLayerSets) h_reco_seedingLayerSet[count]->Fill(seedingLayerSetBin);
+    if(fillSeedingLayerSets) h_reco_seedingLayerSet[count]->Fill(seedingLayerSetBin);
     if(pvPosition) {
       fillPlotNoFlow(h_recodxypv[count], dxypv);
       fillPlotNoFlow(h_recodzpv[count], dzpv);
@@ -880,7 +880,7 @@ void MTVHistoProducerAlgoForTracker::fill_generic_recoTrack_histos(int count,
       fillPlotNoFlow(h_assoc2vertpos[count], vertxy);
       fillPlotNoFlow(h_assoc2zpos[count], vertz);
       h_assoc2dr[count]->Fill(deltar);
-    if(fillSeedingLayerSets) h_assoc2_seedingLayerSet[count]->Fill(seedingLayerSetBin);
+      if(fillSeedingLayerSets) h_assoc2_seedingLayerSet[count]->Fill(seedingLayerSetBin);
       if(pvPosition) {
         fillPlotNoFlow(h_assoc2dxypv[count], dxypv);
         fillPlotNoFlow(h_assoc2dzpv[count], dzpv);
@@ -932,7 +932,7 @@ void MTVHistoProducerAlgoForTracker::fill_generic_recoTrack_histos(int count,
         fillPlotNoFlow(h_loopervertpos[count], vertxy);
         fillPlotNoFlow(h_looperzpos[count], vertz);
         h_looperdr[count]->Fill(deltar);
-      if(fillSeedingLayerSets) h_looper_seedingLayerSet[count]->Fill(seedingLayerSetBin);
+        if(fillSeedingLayerSets) h_looper_seedingLayerSet[count]->Fill(seedingLayerSetBin);
         if(pvPosition) {
           fillPlotNoFlow(h_looperdxypv[count], dxypv);
           fillPlotNoFlow(h_looperdzpv[count], dzpv);
@@ -955,7 +955,7 @@ void MTVHistoProducerAlgoForTracker::fill_generic_recoTrack_histos(int count,
         fillPlotNoFlow(h_pileupvertpos[count], vertxy);
         fillPlotNoFlow(h_pileupzpos[count], vertz);
         h_pileupdr[count]->Fill(deltar);
-      if(fillSeedingLayerSets) h_pileup_seedingLayerSet[count]->Fill(seedingLayerSetBin);
+        if(fillSeedingLayerSets) h_pileup_seedingLayerSet[count]->Fill(seedingLayerSetBin);
         if(pvPosition) {
           fillPlotNoFlow(h_pileupdxypv[count], dxypv);
           fillPlotNoFlow(h_pileupdzpv[count], dzpv);
