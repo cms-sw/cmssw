@@ -210,10 +210,12 @@ streamPhysicsEGamma_datasetSingleElectron_selector.l1tResults = cms.InputTag('')
 streamPhysicsEGamma_datasetSingleElectron_selector.throw      = cms.bool(False)
 streamPhysicsEGamma_datasetSingleElectron_selector.triggerConditions = cms.vstring('HLT_Ele105_CaloIdVT_GsfTrkIdT_v8', 
     'HLT_Ele115_CaloIdVT_GsfTrkIdT_v7', 
+    'HLT_Ele145_CaloIdVT_GsfTrkIdT_v1', 
     'HLT_Ele15_IsoVVVL_BTagCSV_p067_PFHT400_v7', 
     'HLT_Ele15_IsoVVVL_PFHT400_PFMET50_v6', 
     'HLT_Ele15_IsoVVVL_PFHT400_v6', 
     'HLT_Ele15_IsoVVVL_PFHT600_v9', 
+    'HLT_Ele200_CaloIdVT_GsfTrkIdT_v1', 
     'HLT_Ele20_eta2p1_WPLoose_Gsf_LooseIsoPFTau28_v3', 
     'HLT_Ele22_eta2p1_WPLoose_Gsf_LooseIsoPFTau29_v3', 
     'HLT_Ele22_eta2p1_WPLoose_Gsf_v9', 
