@@ -286,10 +286,14 @@ def setupBTagging(process, jetSource, pfCandidates, explicitJTA, pvSource, svSou
                 setattr(process, btagPrefix+btagInfo+labelName+postfix, btag.pfInclusiveSecondaryVertexFinderAK8TagInfos.clone(trackIPTagInfos = cms.InputTag(btagPrefix+'pfImpactParameterAK8TagInfos'+labelName+postfix), extSVCollection=svSource))
                 if svClustering or fatJets != cms.InputTag(''):
                     setupSVClustering(getattr(process, btagPrefix+btagInfo+labelName+postfix), svClustering, algo, rParam, fatJets, groomedFatJets)
+            if btagInfo == 'pfBoostedDoubleSVAK8TagInfos':
+                setattr(process, btagPrefix+btagInfo+labelName+postfix, btag.pfBoostedDoubleSVAK8TagInfos.clone(svTagInfos = cms.InputTag(btagPrefix+'pfInclusiveSecondaryVertexFinderAK8TagInfos'+labelName+postfix)))
             if btagInfo == 'pfInclusiveSecondaryVertexFinderCA15TagInfos':
                 setattr(process, btagPrefix+btagInfo+labelName+postfix, btag.pfInclusiveSecondaryVertexFinderCA15TagInfos.clone(trackIPTagInfos = cms.InputTag(btagPrefix+'pfImpactParameterCA15TagInfos'+labelName+postfix), extSVCollection=svSource))
                 if svClustering or fatJets != cms.InputTag(''):
                     setupSVClustering(getattr(process, btagPrefix+btagInfo+labelName+postfix), svClustering, algo, rParam, fatJets, groomedFatJets)
+            if btagInfo == 'pfBoostedDoubleSVCA15TagInfos':
+                setattr(process, btagPrefix+btagInfo+labelName+postfix, btag.pfBoostedDoubleSVCA15TagInfos.clone(svTagInfos = cms.InputTag(btagPrefix+'pfInclusiveSecondaryVertexFinderCA15TagInfos'+labelName+postfix)))
             if btagInfo == 'pfInclusiveSecondaryVertexFinderCvsLTagInfos':
                 setattr(process, btagPrefix+btagInfo+labelName+postfix, btag.pfInclusiveSecondaryVertexFinderCvsLTagInfos.clone(trackIPTagInfos = cms.InputTag(btagPrefix+'pfImpactParameterTagInfos'+labelName+postfix), extSVCollection=svSourceCvsL))
                 if svClustering or fatJets != cms.InputTag(''):
