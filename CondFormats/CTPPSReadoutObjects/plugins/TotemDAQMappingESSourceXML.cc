@@ -225,12 +225,12 @@ TotemDAQMappingESSourceXML::TotemDAQMappingESSourceXML(const edm::ParameterSet& 
   currentBlock(0),
   currentBlockValid(false)
 {
-  for (const auto it : conf.getUntrackedParameter<vector<ParameterSet>>("configuration"))
+  for (const auto it : conf.getParameter<vector<ParameterSet>>("configuration"))
   {
     ConfigBlock b;
-    b.validityRange = it.getUntrackedParameter<EventRange>("validityRange");
-    b.mappingFileNames = it.getUntrackedParameter< vector<string> >("mappingFileNames");
-    b.maskFileNames = it.getUntrackedParameter< vector<string> >("maskFileNames");
+    b.validityRange = it.getParameter<EventRange>("validityRange");
+    b.mappingFileNames = it.getParameter< vector<string> >("mappingFileNames");
+    b.maskFileNames = it.getParameter< vector<string> >("maskFileNames");
     configuration.push_back(b);
   }
 

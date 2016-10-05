@@ -1,16 +1,16 @@
 import FWCore.ParameterSet.Config as cms
 
 from CondFormats.CTPPSReadoutObjects.TotemDAQMappingESSourceXML_cfi import *
-totemDAQMappingESSourceXML.configuration = cms.untracked.VPSet(
+totemDAQMappingESSourceXML.configuration = cms.VPSet(
   cms.PSet(
-    validityRange = cms.untracked.EventRange("1:min - 280385:max"),
-    mappingFileNames = cms.untracked.vstring("CondFormats/CTPPSReadoutObjects/xml/ctpps_mapping_to_fill_5288.xml"),
-    maskFileNames = cms.untracked.vstring()
+    validityRange = cms.EventRange("1:min - 280385:max"),
+    mappingFileNames = cms.vstring("CondFormats/CTPPSReadoutObjects/xml/ctpps_mapping_to_fill_5288.xml"),
+    maskFileNames = cms.vstring()
   ),
   cms.PSet(
-    validityRange = cms.untracked.EventRange("281601:min - 999999999:max"),
-    mappingFileNames = cms.untracked.vstring("CondFormats/CTPPSReadoutObjects/xml/ctpps_mapping_from_fill_5330.xml"),
-    maskFileNames = cms.untracked.vstring()
+    validityRange = cms.EventRange("281601:min - 999999999:max"),
+    mappingFileNames = cms.vstring("CondFormats/CTPPSReadoutObjects/xml/ctpps_mapping_from_fill_5330.xml"),
+    maskFileNames = cms.vstring()
   )
 )
 
