@@ -16,6 +16,9 @@
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/EDConsumerBase.h"
 
+//
+#include "DataFormats/Math/interface/LorentzVector.h"
+
 // Print out something before crashing or throwing exceptions
 #include <iostream>
 
@@ -40,6 +43,33 @@ namespace HGCalTriggerBackend{
             edm::EDGetTokenT< std::vector<SimCluster> > sim_token;
             // handle
             edm::Handle< std::vector<SimCluster> > sim_handle;
+            // add to cluster
+            void addToCluster(std::unordered_map<uint64_t,std::pair<int,l1t::HGCalCluster> >& cluster_container, uint64_t pid,int pdgid,float  energy,float  eta, float phi)
+            {
+            auto iterator = cluster_container.find (pid);
+            if (iterator == cluster_container.end())
+                {
+                    //create an empty cluster
+                    cluster_container[pid] = std::pair<int,l1t::HGCalCluster>(0,l1t::HGCalCluster());
+                    iterator = cluster_container.find (pid);
+                    iterator -> second . second . setPdgId(pdgid);
+                }
+            // p4 += p4' 
+            math::PtEtaPhiMLorentzVectorD p4;
+            p4.SetPt ( iterator -> second . second . pt()   ) ;
+            p4.SetEta( iterator -> second . second . eta()  ) ;
+            p4.SetPhi( iterator -> second . second . phi()  ) ;
+            p4.SetM  ( iterator -> second . second . mass() ) ;
+            math::PtEtaPhiMLorentzVectorD pp4; 
+            float t = std::exp (- eta);
+            pp4.SetPt ( energy * (1-t*t)/(1+t*t)  ) ;
+            pp4.SetEta( eta ) ;
+            pp4.SetPhi( phi ) ;
+            pp4.SetM  (  0  ) ;
+            p4 += pp4;
+            iterator -> second . second . setP4(p4);
+            return ;
+            }
 
         protected:
             using Algorithm<FECODEC>::codec_;
@@ -141,22 +171,33 @@ namespace HGCalTriggerBackend{
                             {
                                 HGCalDetId cellId(cell);
                                 //2.C get the particleId and energy fractions
-                                //2.D add to the corresponding cluster
+                                const auto& particles =  simclusters[cellId]; // vector pid fractions
+                                for ( const auto& p: particles ) 
+                                {
+                                    const auto & pid= p.first;
+                                    const auto & fraction=p.second;
+                                    auto energy = fraction*digiEnergy;
+                                    //2.D add to the corresponding cluster
+                                    //void addToCluster(std::unordered_map<uint64_t,std::pair<int,l1t::HGCalCluster> >& cluster_container, uint64_t pid,int pdgid,float & energy,float & eta, float &phi)
+                                    //addToCluster(cluster_container, pid, 0 energy,ETA/PHI?  ) ;
+                                    addToCluster(cluster_container, pid, 0,energy,0.,0.  ) ; // how do I get eta, phi w/o the hgcal geometry?
+                                }
                             }
                         }// end of for loop
                     } //end of for-scope
                 }
 
                 //3. Push the clusters in the cluster_product
-                uint32_t clusterEnergyHw=0;
-                uint32_t clusterEtaHw = 0 ;//tcellId();
+                //uint32_t clusterEnergyHw=0;
+                //uint32_t clusterEtaHw = 0 ;//tcellId();
                 //const GlobalPoint& tcellPosition = geom->getTriggerCellPosition( tcellId());
 
                 // construct it from *both* physical and integer values
-                l1t::HGCalCluster cluster( reco::LeafCandidate::LorentzVector(), 
-                        clusterEnergyHw, clusterEtaHw, 0);
-
-                cluster_product->push_back(0,cluster); // bx,cluster
+                //l1t::HGCalCluster cluster( reco::LeafCandidate::LorentzVector(), 
+                //        clusterEnergyHw, clusterEtaHw, 0);
+                //
+                for (auto&  p : cluster_container) 
+                    cluster_product->push_back(p.second.first,p.second.second); // bx,cluster
 
             }
 
