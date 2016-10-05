@@ -20,6 +20,8 @@ supportedBtagInfos = [
   , 'pfInclusiveSecondaryVertexFinderAK8TagInfos'
   , 'pfInclusiveSecondaryVertexFinderCA15TagInfos'
   , 'pfInclusiveSecondaryVertexFinderNegativeTagInfos'
+  , 'pfBoostedDoubleSVAK8TagInfos'
+  , 'pfBoostedDoubleSVCA15TagInfos'
   , 'softPFMuonsTagInfos'
   , 'softPFElectronsTagInfos'
     # C-Tagging tag infos
@@ -115,8 +117,8 @@ supportedBtagDiscr = {
   , 'pfCombinedMVAV2BJetTags'                               : ['pfImpactParameterTagInfos', 'pfSecondaryVertexTagInfos', 'pfInclusiveSecondaryVertexFinderTagInfos', 'softPFMuonsTagInfos', 'softPFElectronsTagInfos']
   , 'pfNegativeCombinedMVAV2BJetTags'                       : ['pfImpactParameterTagInfos', 'pfSecondaryVertexNegativeTagInfos', 'pfInclusiveSecondaryVertexFinderNegativeTagInfos', 'softPFMuonsTagInfos', 'softPFElectronsTagInfos']
   , 'pfPositiveCombinedMVAV2BJetTags'                       : ['pfImpactParameterTagInfos', 'pfSecondaryVertexTagInfos', 'pfInclusiveSecondaryVertexFinderTagInfos', 'softPFMuonsTagInfos', 'softPFElectronsTagInfos']
-  , 'pfBoostedDoubleSecondaryVertexAK8BJetTags'             : ['pfImpactParameterAK8TagInfos', 'pfInclusiveSecondaryVertexFinderAK8TagInfos']
-  , 'pfBoostedDoubleSecondaryVertexCA15BJetTags'            : ['pfImpactParameterCA15TagInfos', 'pfInclusiveSecondaryVertexFinderCA15TagInfos']
+  , 'pfBoostedDoubleSecondaryVertexAK8BJetTags'             : ['pfBoostedDoubleSVAK8TagInfos']
+  , 'pfBoostedDoubleSecondaryVertexCA15BJetTags'            : ['pfBoostedDoubleSVCA15TagInfos']
     # C-Tagging
   , 'pfCombinedCvsLJetTags'                                 : ["pfImpactParameterTagInfos", "pfInclusiveSecondaryVertexFinderCvsLTagInfos", "softPFMuonsTagInfos", "softPFElectronsTagInfos"]
   , 'pfNegativeCombinedCvsLJetTags'                         : ["pfImpactParameterTagInfos", "pfInclusiveSecondaryVertexFinderNegativeCvsLTagInfos", "softPFMuonsTagInfos", "softPFElectronsTagInfos"]
