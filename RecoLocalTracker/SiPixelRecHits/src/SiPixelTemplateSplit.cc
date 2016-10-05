@@ -103,7 +103,7 @@ int SiPixelTemplateSplit::PixelTempSplit(int id, float cotalpha, float cotbeta, 
 {
     // Local variables 
 	int i, j, k, binq, midpix, fypix, nypix, lypix, logypx, lparm;
-	int fxpix, nxpix, lxpix, logxpx, shifty, shiftx, nyzero[TYSIZE];
+	int fxpix, nxpix, lxpix, logxpx, shifty, shiftx, nyzero[TYSIZE]{};
 	int nclusx, nclusy;
 	int nybin, ycbin, nxbin, xcbin, minbinj, minbink;
 	int deltaj, jmin, jmax, kmin, kmax, km, fxbin, lxbin, fybin, lybin, djy, djx;
