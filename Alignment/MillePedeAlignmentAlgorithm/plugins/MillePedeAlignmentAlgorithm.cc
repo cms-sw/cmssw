@@ -41,6 +41,10 @@
 #include "Alignment/MuonAlignment/interface/AlignableMuon.h"
 #include "Alignment/CommonAlignment/interface/AlignableExtras.h"
 
+#include "CondFormats/AlignmentRecord/interface/TrackerAlignmentRcd.h"
+#include "CondFormats/AlignmentRecord/interface/TrackerAlignmentErrorExtendedRcd.h"
+#include "CondFormats/AlignmentRecord/interface/TrackerSurfaceDeformationRcd.h"
+
 #include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/SiStripDetId/interface/SiStripDetId.h"
@@ -123,6 +127,51 @@ void MillePedeAlignmentAlgorithm::initialize(const edm::EventSetup &setup,
     edm::LogWarning("Alignment") << "@SUB=MillePedeAlignmentAlgorithm::initialize"
 				 << "Running with AlignabeMuon not yet tested.";
   }
+
+  // temporary fix to avoid corrupted database output
+  if (!runAtPCL_) {
+    const auto MIN_VAL{cond::timeTypeSpecs[cond::runnumber].beginValue};
+    const auto MAX_VAL{cond::timeTypeSpecs[cond::runnumber].endValue};
+    const auto& iov_alignments =
+      setup.get<TrackerAlignmentRcd>().validityInterval();
+    const auto& iov_surfaces =
+      setup.get<TrackerSurfaceDeformationRcd>().validityInterval();
+    const auto& iov_errors =
+      setup.get<TrackerAlignmentErrorExtendedRcd>().validityInterval();
+    if (iov_alignments.first().eventID().run() != MIN_VAL ||
+	iov_alignments.last().eventID().run() != MAX_VAL) {
+    throw cms::Exception("DatabaseError")
+      << "@SUB=MillePedeAlignmentAlgorithm::initialize"
+      << "\nTrying to apply " << setup.get<TrackerAlignmentRcd>().key().name()
+      << " with multiple IOVs in tag.\n"
+      << "Validity range is "
+      << iov_alignments.first().eventID().run() << " - "
+      << iov_alignments.last().eventID().run();
+    }
+    if (iov_surfaces.first().eventID().run() != MIN_VAL ||
+	iov_surfaces.last().eventID().run() != MAX_VAL) {
+    throw cms::Exception("DatabaseError")
+      << "@SUB=MillePedeAlignmentAlgorithm::initialize"
+      << "\nTrying to apply "
+      << setup.get<TrackerSurfaceDeformationRcd>().key().name()
+      << " with multiple IOVs in tag.\n"
+      << "Validity range is "
+      << iov_surfaces.first().eventID().run() << " - "
+      << iov_surfaces.last().eventID().run();
+    }
+    if (iov_errors.first().eventID().run() != MIN_VAL ||
+	iov_errors.last().eventID().run() != MAX_VAL) {
+    throw cms::Exception("DatabaseError")
+      << "@SUB=MillePedeAlignmentAlgorithm::initialize"
+      << "\nTrying to apply "
+      << setup.get<TrackerAlignmentErrorExtendedRcd>().key().name()
+      << " with multiple IOVs in tag.\n"
+      << "Validity range is "
+      << iov_errors.first().eventID().run() << " - "
+      << iov_errors.last().eventID().run();
+    }
+  }
+
 
   //Retrieve tracker topology from geometry
   edm::ESHandle<TrackerTopology> tTopoHandle;
