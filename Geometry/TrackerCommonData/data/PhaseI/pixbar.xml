@@ -543,15 +543,15 @@
  </LogicalPart>
  <LogicalPart name="PixelBarrelConn4" category="unspecified">
   <rSolid name="PixelBarrelConn4"/>
-  <rMaterial name="pixbarmaterial:SectorC_3Disks"/>
+  <rMaterial name="pixbarmaterial:SectorBC"/>
  </LogicalPart>
  <LogicalPart name="PixelBarrelService" category="unspecified">
   <rSolid name="PixelBarrelService"/>
-  <rMaterial name="pixbarmaterial:SectorA_3Disks"/>
+  <rMaterial name="pixbarmaterial:SectorA"/>
  </LogicalPart>
  <LogicalPart name="PixelBarrelSupTubCables" category="unspecified">
   <rSolid name="PixelBarrelSupTubCables"/>
-  <rMaterial name="pixbarmaterial:PixelBarrelSupTubCables2_3Disks"/>
+  <rMaterial name="pixbarmaterial:PixelBarrelSupTubCables"/>
  </LogicalPart>
 </LogicalPartSection>
 

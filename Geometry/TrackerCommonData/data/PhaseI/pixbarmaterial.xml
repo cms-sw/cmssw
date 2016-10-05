@@ -681,8 +681,26 @@
       <rMaterial name="trackermaterial:T_Nomex"/>
     </MaterialFraction>
   </CompositeMaterial>
+
+  <CompositeMaterial name="SectorBC" density="0.9875*g/cm3" symbol=" " method="mixture by weight">
+    <MaterialFraction fraction="0.265">
+      <rMaterial name="trackermaterial:T_FR4"/>
+    </MaterialFraction>
+    <MaterialFraction fraction="0.115">
+      <rMaterial name="trackermaterial:T_Aluminium"/>
+    </MaterialFraction>
+    <MaterialFraction fraction="0.052">
+      <rMaterial name="trackermaterial:T_Copper"/>
+    </MaterialFraction>
+    <MaterialFraction fraction="0.006">
+      <rMaterial name="materials:Steel-008"/>
+    </MaterialFraction>
+    <MaterialFraction fraction="0.562">
+      <rMaterial name="materials:Silicon"/>
+    </MaterialFraction>
+  </CompositeMaterial>
   
- <CompositeMaterial name="SectorC_3Disks" density="0.8068*1.22394*g/cm3" symbol=" " method="mixture by weight"> <!-- fpix 3 disks service material added -->
+ <CompositeMaterial name="SectorC_3Disks" density="1.22394*g/cm3" symbol=" " method="mixture by weight"> <!-- fpix 3 disks service material added -->
     <MaterialFraction fraction="1.000000">
       <rMaterial name="pixbarmaterial:SectorC"/>
     </MaterialFraction>
@@ -699,7 +717,7 @@
     </MaterialFraction>
   </CompositeMaterial>
 
-  <CompositeMaterial name="PixelBarrelSupTubCables" density="2.25064*g/cm3" symbol=" " method="mixture by weight">
+  <CompositeMaterial name="PixelBarrelSupTubCables" density="0.6510*g/cm3" symbol=" " method="mixture by weight">
     <MaterialFraction fraction="0.09162">
       <rMaterial name="materials:Bpix_CO2_-20C"/>
     </MaterialFraction>
@@ -730,7 +748,7 @@
     </MaterialFraction>
   </CompositeMaterial>
   
-  <CompositeMaterial name="PixelBarrelSupTubCables2_3Disks" density="0.6780*0.96016*g/cm3" symbol=" " method="mixture by weight"> <!-- fpix 3 disks service material added -->
+  <CompositeMaterial name="PixelBarrelSupTubCables2_3Disks" density="0.96016*g/cm3" symbol=" " method="mixture by weight"> <!-- fpix 3 disks service material added -->
     <MaterialFraction fraction="1.00000000">
       <rMaterial name="PixelBarrelSupTubCables2"/>
     </MaterialFraction>
