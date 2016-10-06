@@ -92,18 +92,6 @@ process.generator = cms.EDProducer("FlatRandomPtGunProducer",
 process.mix.digitizers = cms.PSet(process.theDigitizersValid)
 
 
-process.geometryProducer = cms.ESProducer(
-    'HGCalTriggerGeometryESProducer',
-    TriggerGeometry = cms.PSet(
-        TriggerGeometryName = cms.string('HGCalTriggerGeometryHexImp2'),
-        L1TCellsMapping = cms.FileInPath("L1Trigger/L1THGCal/data/triggercell_mapping.txt"),
-        L1TModulesMapping = cms.FileInPath("L1Trigger/L1THGCal/data/module_mapping.txt"),
-        eeSDName = cms.string('HGCalEESensitive'),
-        fhSDName = cms.string('HGCalHESiliconSensitive'),
-        bhSDName = cms.string('HGCalHEScintillatorSensitive'),
-        )
-)
-
 
 # Path and EndPath definitions
 process.generation_step = cms.Path(process.pgen)
