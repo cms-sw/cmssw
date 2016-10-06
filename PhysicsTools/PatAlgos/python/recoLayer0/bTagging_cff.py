@@ -21,7 +21,6 @@ supportedBtagInfos = [
   , 'pfInclusiveSecondaryVertexFinderCA15TagInfos'
   , 'pfInclusiveSecondaryVertexFinderNegativeTagInfos'
   , 'pfGhostTrackVertexTagInfos'
-  , 'pfGhostTrackVertexTagInfosAK8'
   , 'pfBoostedDoubleSVAK8TagInfos'
   , 'pfBoostedDoubleSVCA15TagInfos'
   , 'softPFMuonsTagInfos'

@@ -305,8 +305,6 @@ def setupBTagging(process, jetSource, pfCandidates, explicitJTA, pvSource, svSou
                     setupSVClustering(getattr(process, btagPrefix+btagInfo+labelName+postfix), svClustering, algo, rParam, fatJets, groomedFatJets)
             if btagInfo == 'pfGhostTrackVertexTagInfos':
                 setattr(process, btagPrefix+btagInfo+labelName+postfix, btag.pfGhostTrackVertexTagInfos.clone(trackIPTagInfos = cms.InputTag(btagPrefix+'pfImpactParameterTagInfos'+labelName+postfix)))
-            if btagInfo == 'pfGhostTrackTagVertexInfosAK8':
-                setattr(process, btagPrefix+btagInfo+labelName+postfix, btag.pfGhostTrackVertexTagInfosAK8.clone(trackIPTagInfos = cms.InputTag(btagPrefix+'pfImpactParameterTagInfosAK8'+labelName+postfix)))
             if btagInfo == 'pfSecondaryVertexNegativeTagInfos':
                 setattr(process, btagPrefix+btagInfo+labelName+postfix, btag.pfSecondaryVertexNegativeTagInfos.clone(trackIPTagInfos = cms.InputTag(btagPrefix+'pfImpactParameterTagInfos'+labelName+postfix)))
                 if tightBTagNTkHits:
