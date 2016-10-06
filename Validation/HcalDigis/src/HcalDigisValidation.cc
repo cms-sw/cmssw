@@ -43,8 +43,12 @@ HcalDigisValidation::HcalDigisValidation(const edm::ParameterSet& iConfig) {
     tok_ho_ = consumes< HODigiCollection >(inputTag_);
     tok_hf_ = consumes< HFDigiCollection >(inputTag_);
     tok_emulTPs_ = consumes<HcalTrigPrimDigiCollection>(emulTPsTag_);
-    tok_dataTPs_ = consumes<HcalTrigPrimDigiCollection>(dataTPsTag_);
-    
+    if(dataTPsTag_==edm::InputTag("")) skipDataTPs = true;
+    else {
+        skipDataTPs = false;
+        tok_dataTPs_ = consumes<HcalTrigPrimDigiCollection>(dataTPsTag_);
+    }
+
     tok_qie10_hf_ = consumes< QIE10DigiCollection >(edm::InputTag(inputLabel_, "HFQIE10DigiCollection"));
     tok_qie11_hbhe_ = consumes< QIE11DigiCollection >(edm::InputTag(inputLabel_, "HBHEQIE11DigiCollection"));
 
@@ -121,6 +125,7 @@ void HcalDigisValidation::bookHistograms(DQMStore::IBooker &ib, edm::Run const &
         booking(ib,subdet_, 0, bmc);
     }
 
+    if(skipDataTPs) return;
     
     HistLim tp_hl_et(260, -10, 250);
     HistLim tp_hl_ntp(640, -20, 3180);
@@ -392,7 +397,7 @@ void HcalDigisValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
     iEvent.getByToken(tok_emulTPs_, emulTPs);
 
     edm::Handle<HcalTrigPrimDigiCollection> dataTPs;
-    iEvent.getByToken(tok_dataTPs_, dataTPs);
+    if(!skipDataTPs) iEvent.getByToken(tok_dataTPs_, dataTPs);
     //iEvent.getByLabel("hcalDigis", dataTPs);
 
     //~TP Code
@@ -447,6 +452,8 @@ void HcalDigisValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
    //TP Code
    //Counters
    int c = 0, cv0 = 0, cv1 = 0, chb = 0, che = 0, chf = 0, chfv0 = 0, chfv1 = 0;
+
+   if(skipDataTPs) return;
 
    for (HcalTrigPrimDigiCollection::const_iterator itr = dataTPs->begin(); itr != dataTPs->end(); ++itr) {
      int ieta  = itr->id().ieta();
