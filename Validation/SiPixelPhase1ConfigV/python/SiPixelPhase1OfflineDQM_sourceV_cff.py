@@ -5,11 +5,11 @@ from Validation.SiPixelPhase1DigisV.SiPixelPhase1DigisV_cfi import *
 # RecHit (clusters)
 from Validation.SiPixelPhase1RecHitsV.SiPixelPhase1RecHitsV_cfi import *
 # Clusters ontrack/offtrack (also general tracks)
-#from Validation.SiPixelPhase1TrackClustersV.SiPixelPhase1TrackClustersV_cfi import *
+from Validation.SiPixelPhase1TrackClustersV.SiPixelPhase1TrackClustersV_cfi import *
 
 PerModule.enabled = False
 
 siPixelPhase1OfflineDQM_sourceV = cms.Sequence(SiPixelPhase1DigisAnalyzerV
                                             + SiPixelPhase1RecHitsAnalyzerV
-#                                            + SiPixelPhase1TrackClustersAnalyzerV
+                                            + SiPixelPhase1TrackClustersAnalyzerV
                                             )

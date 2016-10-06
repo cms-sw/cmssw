@@ -95,8 +95,6 @@ void SiPixelPhase1TrackClustersV::analyze(const edm::Event& iEvent, const edm::E
       corr_charge[clust.key()] = (float) corrCharge;
     }
 
-  }
-
   edmNew::DetSetVector<SiPixelCluster>::const_iterator it;
   for (it = clusterColl->begin(); it != clusterColl->end(); ++it) {
     auto id = DetId(it->detId());
@@ -110,8 +108,10 @@ void SiPixelPhase1TrackClustersV::analyze(const edm::Event& iEvent, const edm::E
       histo[CHARGE].fill(double(corrected_charge), id, &iEvent);
       histo[SIZE_X].fill(double(cluster.sizeX() ), id, &iEvent);
       histo[SIZE_Y].fill(double(cluster.sizeY() ), id, &iEvent);
+      }
     }
   }
+
 }
 
 DEFINE_FWK_MODULE(SiPixelPhase1TrackClustersV);
