@@ -38,7 +38,6 @@ class CTPPSDiamondDetId : public CTPPSDetId
   static const uint32_t startPlaneBit, maskPlane, maxPlane, lowMaskPlane;
   static const uint32_t startDetBit, maskDet, maxDet, lowMaskDet;
 
-
   /// returns true if the raw ID is a PPS-timing one
   static bool check(unsigned int raw)
   {

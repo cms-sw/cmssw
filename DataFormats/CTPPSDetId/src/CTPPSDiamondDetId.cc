@@ -16,7 +16,7 @@ const uint32_t CTPPSDiamondDetId::startPlaneBit = 17, CTPPSDiamondDetId::maskPla
 const uint32_t CTPPSDiamondDetId::startDetBit = 12, CTPPSDiamondDetId::maskDet = 0x1F, CTPPSDiamondDetId::maxDet = 12, CTPPSDiamondDetId::lowMaskDet = 0xFFF;
 
 const string CTPPSDiamondDetId::planeNames[] = { "0", "1", "2", "3" };
-const string CTPPSDiamondDetId::channelNames[] = { "0", "1", "2", "3", "4", "05", "06", "07", "08", "09", "10", "11", "12" };
+const string CTPPSDiamondDetId::channelNames[] = { "0", "1", "2", "3", "4", "05", "06", "07", "08", "09", "10", "11" };
 
 //----------------------------------------------------------------------------------------------------
 
