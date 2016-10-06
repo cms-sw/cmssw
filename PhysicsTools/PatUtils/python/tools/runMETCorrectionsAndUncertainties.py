@@ -216,6 +216,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
         self.setParameter('jetSelection',jetSelection),
         self.setParameter('recoMetFromPFCs',recoMetFromPFCs),
         self.setParameter('reclusterJets',reclusterJets),
+        self.setParameter('reapplyJEC',reapplyJEC),
         self.setParameter('runOnData',runOnData),
         self.setParameter('onMiniAOD',onMiniAOD),
         self.setParameter('postfix',postfix),
@@ -310,7 +311,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
         if reclusterJets:
             jetCollectionUnskimmed = self.ak4JetReclustering(process, pfCandCollection, 
                                                              patMetModuleSequence, postfix)
-
+        
         # or reapplication of jecs
         if onMiniAOD:
             if not reclusterJets and reapplyJEC:
@@ -559,7 +560,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
         #Enable MET significance if the type1 MET is computed
         if "T1" in correctionLevel:
             getattr(process, "pat"+metType+"Met"+postfix).computeMETSignificance = cms.bool(True)
-            getattr(process, "pat"+metType+"Met"+postfix).srcPFCands =  cms.InputTag("packedPFCandidates")
+            getattr(process, "pat"+metType+"Met"+postfix).srcPFCands = self._parameters["pfCandCollection"].value
             if postfix=="NoHF":
                 getattr(process, "pat"+metType+"Met"+postfix).computeMETSignificance = cms.bool(False)
             if self._parameters["runOnData"].value:
@@ -1724,6 +1725,7 @@ def runMetCorAndUncFromMiniAOD(process, metType="PF",
                                jetCorLabelRes="ak4PFCHSL1FastL2L3ResidualCorrector",
 ##                               jecUncFile="CondFormats/JetMETObjects/data/Summer15_50nsV5_DATA_UncertaintySources_AK4PFchs.txt",
                                CHS=False,
+                               reapplyJEC=True,
                                jecUncFile="",
                                postfix=""):
 
@@ -1743,6 +1745,7 @@ def runMetCorAndUncFromMiniAOD(process, metType="PF",
                                       pfCandCollection =pfCandColl,
                                       runOnData=isData,
                                       onMiniAOD=True,
+                                      reapplyJEC=reapplyJEC,
                                       reclusterJets=reclusterJets,
                                       jetSelection=jetSelection,
                                       recoMetFromPFCs=recoMetFromPFCs,
@@ -1770,6 +1773,7 @@ def runMetCorAndUncFromMiniAOD(process, metType="PF",
                                       pfCandCollection =pfCandColl,
                                       runOnData=isData,
                                       onMiniAOD=True,
+                                      reapplyJEC=reapplyJEC,
                                       reclusterJets=reclusterJets,
                                       jetSelection=jetSelection,
                                       recoMetFromPFCs=recoMetFromPFCs,
@@ -1796,6 +1800,7 @@ def runMetCorAndUncFromMiniAOD(process, metType="PF",
                                       pfCandCollection =pfCandColl,
                                       runOnData=isData,
                                       onMiniAOD=True,
+                                      reapplyJEC=reapplyJEC,
                                       reclusterJets=reclusterJets,
                                       jetSelection=jetSelection,
                                       recoMetFromPFCs=recoMetFromPFCs,

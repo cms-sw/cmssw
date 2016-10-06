@@ -58,9 +58,10 @@ metsig::METSignificance::getCovariance(const edm::View<reco::Jet>& jets,
          lep_i != leptons.end(); ++lep_i ) {
       for( reco::CandidateView::const_iterator lep = (*lep_i)->begin(); lep != (*lep_i)->end(); lep++ ){
          if( lep->pt() > 10 ){
-            for( unsigned int n=0; n < lep->numberOfSourceCandidatePtrs(); n++ ){
-               if( lep->sourceCandidatePtr(n).isNonnull() and lep->sourceCandidatePtr(n).isAvailable() ){
-                  footprint.push_back(lep->sourceCandidatePtr(n));
+	   for( unsigned int n=0; n < lep->numberOfSourceCandidatePtrs(); n++ ){
+	     if( lep->sourceCandidatePtr(n).isNonnull() and lep->sourceCandidatePtr(n).isAvailable() ){
+	       footprint.push_back(lep->sourceCandidatePtr(n));
+	       
                } 
             }
          }
@@ -73,7 +74,7 @@ metsig::METSignificance::getCovariance(const edm::View<reco::Jet>& jets,
       if(!cleanJet(*jet, leptons) ) continue;
 
       for( unsigned int n=0; n < jet->numberOfSourceCandidatePtrs(); n++){
-         if( jet->sourceCandidatePtr(n).isNonnull() and jet->sourceCandidatePtr(n).isAvailable() ){
+	if( jet->sourceCandidatePtr(n).isNonnull() and jet->sourceCandidatePtr(n).isAvailable() ){
             footprint.push_back(jet->sourceCandidatePtr(n));
          }
       }
@@ -88,13 +89,15 @@ metsig::METSignificance::getCovariance(const edm::View<reco::Jet>& jets,
       // check if candidate exists in a lepton or jet
       bool cleancand = true;
       for(unsigned int i=0; i < footprint.size(); i++){
-         if( footprint[i]->p4() == cand->p4() ){
+
+	if( (footprint[i]->p4()-cand->p4()).Rho()<0.001 ){
             cleancand = false;
+	    break;
          }
       }
       // if not, add to sumPt
       if( cleancand ){
-         sumPt += cand->pt();
+	sumPt += cand->pt();
       }
 
    }
@@ -147,7 +150,6 @@ metsig::METSignificance::getCovariance(const edm::View<reco::Jet>& jets,
       }
 
    }
-
 
    //protection against unphysical events
    if(sumPt<0) sumPt=0;
