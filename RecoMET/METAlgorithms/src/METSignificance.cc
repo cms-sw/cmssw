@@ -60,15 +60,16 @@ metsig::METSignificance::getCovariance(const edm::View<reco::Jet>& jets,
    // subtract leptons out of sumPt
    for ( std::vector< edm::Handle<reco::CandidateView> >::const_iterator lep_i = leptons.begin();
          lep_i != leptons.end(); ++lep_i ) {
-     for( reco::CandidateView::const_iterator lep = (*lep_i)->begin(); lep != (*lep_i)->end(); lep++ ){
-       if( lep->pt() > 10 ){
-	 for( unsigned int n=0; n < lep->numberOfSourceCandidatePtrs(); n++ ){
-	   if( lep->sourceCandidatePtr(n).isNonnull() and lep->sourceCandidatePtr(n).isAvailable() ){
-	     footprint.insert(lep->sourceCandidatePtr(n));
-	   } 
-	 }
-       }
-     }
+      for( reco::CandidateView::const_iterator lep = (*lep_i)->begin(); lep != (*lep_i)->end(); lep++ ){
+         if( lep->pt() > 10 ){
+	   for( unsigned int n=0; n < lep->numberOfSourceCandidatePtrs(); n++ ){
+	     if( lep->sourceCandidatePtr(n).isNonnull() and lep->sourceCandidatePtr(n).isAvailable() ){
+	       footprint.push_back(lep->sourceCandidatePtr(n));
+	       
+               } 
+            }
+         }
+      }
    }
    // subtract jets out of sumPt
    for(edm::View<reco::Jet>::const_iterator jet = jets.begin(); jet != jets.end(); ++jet) {
@@ -86,24 +87,23 @@ metsig::METSignificance::getCovariance(const edm::View<reco::Jet>& jets,
 
    // calculate sumPt
    double sumPt = 0;
-   for(size_t i = 0; i< pfCandidates->size();  ++i) {
-     
-     // check if candidate exists in a lepton or jet
-     bool cleancand = true;
-     if(footprint.find( pfCandidates->ptrAt(i) )==footprint.end()) {
+   for( edm::View<reco::Candidate>::const_iterator cand = pfCandidates.begin();
+         cand != pfCandidates.end(); ++cand){
 
-       //dP4 recovery
-       for( std::set<reco::CandidatePtr>::const_iterator it=footprint.begin();it!=footprint.end();it++) {
-	 if( ((*it)->p4()-(*pfCandidates)[i].p4()).Et2()<0.000025 ){
-	   cleancand = false;
-	   break;
-	 }
-       }
-       // if not, add to sumPt
-       if( cleancand ){
-	 sumPt += (*pfCandidates)[i].pt();
-       }
-     }
+      // check if candidate exists in a lepton or jet
+      bool cleancand = true;
+      for(unsigned int i=0; i < footprint.size(); i++){
+
+	if( (footprint[i]->p4()-cand->p4()).Rho()<0.001 ){
+            cleancand = false;
+	    break;
+         }
+      }
+      // if not, add to sumPt
+      if( cleancand ){
+	sumPt += cand->pt();
+      }
+
    }
    
    // add jets to metsig covariance matrix and subtract them from sumPt
