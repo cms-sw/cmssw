@@ -1,12 +1,13 @@
 // -*- C++ -*-
 //
-// Package:     SiPixelPhase1TrackClusters
-// Class:       SiPixelPhase1TrackClusters
+// Package:     SiPixelPhase1TrackClustersV
+// Class:       SiPixelPhase1TrackClustersV
 //
 
 // Original Author: Marcel Schneider
+// Additional Authors: Alexander Morton - modifying code for validation use
 
-#include "DQM/SiPixelPhase1TrackClusters/interface/SiPixelPhase1TrackClusters.h"
+#include "Validation/SiPixelPhase1TrackClustersV/interface/SiPixelPhase1TrackClustersV.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -22,14 +23,14 @@
 #include "TrackingTools/TrackFitters/interface/TrajectoryStateCombiner.h"
 
 
-SiPixelPhase1TrackClusters::SiPixelPhase1TrackClusters(const edm::ParameterSet& iConfig) :
-  SiPixelPhase1Base(iConfig) 
+SiPixelPhase1TrackClustersV::SiPixelPhase1TrackClustersV(const edm::ParameterSet& iConfig) :
+  SiPixelPhase1BaseV(iConfig) 
 {
   clustersToken_ = consumes<edmNew::DetSetVector<SiPixelCluster>>(iConfig.getParameter<edm::InputTag>("clusters"));
   trackAssociationToken_ = consumes<TrajTrackAssociationCollection>(iConfig.getParameter<edm::InputTag>("trajectories"));
 }
 
-void SiPixelPhase1TrackClusters::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
+void SiPixelPhase1TrackClustersV::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
   // get geometry
   edm::ESHandle<TrackerGeometry> tracker;
@@ -57,11 +58,8 @@ void SiPixelPhase1TrackClusters::analyze(const edm::Event& iEvent, const edm::Ev
     auto trajectory_ref = item.key;
     reco::TrackRef track_ref = item.val;
 
-    bool isBpixtrack = false, isFpixtrack = false, crossesPixVol=false;
-
     // find out whether track crosses pixel fiducial volume (for cosmic tracks)
     double d0 = track_ref->d0(), dz = track_ref->dz(); 
-    if(std::abs(d0)<15 && std::abs(dz)<50) crossesPixVol = true;
 
     for (auto& measurement : trajectory_ref->measurements()) {
       // check if things are all valid
@@ -72,8 +70,6 @@ void SiPixelPhase1TrackClusters::analyze(const edm::Event& iEvent, const edm::Ev
 
       // check that we are in the pixel
       uint32_t subdetid = (id.subdetId());
-      if (subdetid == PixelSubdetector::PixelBarrel) isBpixtrack = true;
-      if (subdetid == PixelSubdetector::PixelEndcap) isFpixtrack = true;
       if (subdetid != PixelSubdetector::PixelBarrel && subdetid != PixelSubdetector::PixelEndcap) continue;
       auto pixhit = dynamic_cast<const SiPixelRecHit*>(hit->hit());
       if (!pixhit) continue;
@@ -100,21 +96,6 @@ void SiPixelPhase1TrackClusters::analyze(const edm::Event& iEvent, const edm::Ev
       corr_charge[clust.key()] = (float) corrCharge;
     }
 
-    // statistics on tracks
-    histo[NTRACKS].fill(1, DetId(0), &iEvent);
-    if (isBpixtrack || isFpixtrack) 
-      histo[NTRACKS].fill(2, DetId(0), &iEvent);
-    if (isBpixtrack) 
-      histo[NTRACKS].fill(3, DetId(0), &iEvent);
-    if (isFpixtrack) 
-      histo[NTRACKS].fill(4, DetId(0), &iEvent);
-
-    if (crossesPixVol) {
-      if (isBpixtrack || isFpixtrack)
-        histo[NTRACKS_VOLUME].fill(0, DetId(0), &iEvent);
-      else 
-        histo[NTRACKS_VOLUME].fill(1, DetId(0), &iEvent);
-    }
   }
 
   edmNew::DetSetVector<SiPixelCluster>::const_iterator it;
@@ -131,28 +112,15 @@ void SiPixelPhase1TrackClusters::analyze(const edm::Event& iEvent, const edm::Ev
       float corrected_charge = corr_charge[key];
       SiPixelCluster const& cluster = *subit;
 
-      LocalPoint clustlp = topol.localPosition(MeasurementPoint(cluster.x(), cluster.y()));
-      GlobalPoint clustgp = geomdetunit->surface().toGlobal(clustlp);
+//      LocalPoint clustlp = topol.localPosition(MeasurementPoint(cluster.x(), cluster.y()));
+//      GlobalPoint clustgp = geomdetunit->surface().toGlobal(clustlp);
 
-      if (is_ontrack) {
-        histo[ONTRACK_NCLUSTERS ].fill(id, &iEvent);
-        histo[ONTRACK_CHARGE    ].fill(double(corrected_charge), id, &iEvent);
-        histo[ONTRACK_SIZE      ].fill(double(cluster.size()  ), id, &iEvent);
-        histo[ONTRACK_POSITION_B].fill(clustgp.z(),   clustgp.phi(),   id, &iEvent);
-        histo[ONTRACK_POSITION_F].fill(clustgp.x(),   clustgp.y(),     id, &iEvent);
-      } else {
-        histo[OFFTRACK_NCLUSTERS ].fill(id, &iEvent);
-        histo[OFFTRACK_CHARGE    ].fill(double(cluster.charge()/1000.), id, &iEvent);
-        histo[OFFTRACK_SIZE      ].fill(double(cluster.size()  ), id, &iEvent);
-        histo[OFFTRACK_POSITION_B].fill(clustgp.z(),   clustgp.phi(),   id, &iEvent);
-        histo[OFFTRACK_POSITION_F].fill(clustgp.x(),   clustgp.y(),     id, &iEvent);
-      }
+      histo[CHARGE].fill(double(corrected_charge), id, &iEvent);
+      histo[SIZE_X].fill(double(cluster.sizeX() ), id, &iEvent);
+      histo[SIZE_Y].fill(double(cluster.sizeY() ), id, &iEvent);
     }
   }
-
-  histo[ONTRACK_NCLUSTERS].executePerEventHarvesting();
-  histo[OFFTRACK_NCLUSTERS].executePerEventHarvesting();
 }
 
-DEFINE_FWK_MODULE(SiPixelPhase1TrackClusters);
+DEFINE_FWK_MODULE(SiPixelPhase1TrackClustersV);
 

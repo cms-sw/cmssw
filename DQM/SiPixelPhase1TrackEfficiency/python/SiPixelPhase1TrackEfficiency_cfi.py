@@ -5,7 +5,7 @@ from DQM.SiPixelPhase1Common.HistogramManager_cfi import *
 SiPixelPhase1TrackEfficiencyClusterProb = DefaultHisto.clone(
   name = "clusterprob",
   title = "Cluster Probability",
-  xlabel = "log_10(Pr)",
+  xlabel = "log_10(ClusterProbability)",
   range_min = -10, range_max = 0, range_nbins = 200,
   dimensions = 1,
   specs = cms.VPSet(

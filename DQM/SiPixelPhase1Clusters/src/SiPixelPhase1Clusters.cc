@@ -44,7 +44,7 @@ void SiPixelPhase1Clusters::analyze(const edm::Event& iEvent, const edm::EventSe
     const PixelTopology& topol = theGeomDet->specificTopology();
 
     for(SiPixelCluster const& cluster : *it) {
-      histo[CHARGE].fill(double(cluster.charge()), id, &iEvent);
+      histo[CHARGE].fill(double(cluster.charge() / 1000.), id, &iEvent);
       histo[SIZE  ].fill(double(cluster.size()  ), id, &iEvent);
       histo[NCLUSTERS].fill(id, &iEvent);
 

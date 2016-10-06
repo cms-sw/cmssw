@@ -5,7 +5,7 @@ SiPixelPhase1RecHitsNRecHits = DefaultHisto.clone(
   name = "rechits",
   title = "RecHits",
   range_min = 0, range_max = 10, range_nbins = 10,
-  xlabel = "rechits",
+  xlabel = "number of rechits",
   dimensions = 0,
   specs = cms.VPSet(
     StandardSpecificationTrend_Num,
@@ -17,7 +17,7 @@ SiPixelPhase1RecHitsClustX = DefaultHisto.clone(
   name = "rechitsize_x",
   title = "X size of RecHit clusters",
   range_min = 0, range_max = 10, range_nbins = 10,
-  xlabel = "RecHit X-Size",
+  xlabel = "RecHit size X dimension",
   dimensions = 1,
   specs = cms.VPSet(
     StandardSpecification2DProfile
@@ -27,7 +27,7 @@ SiPixelPhase1RecHitsClustX = DefaultHisto.clone(
 SiPixelPhase1RecHitsClustY = SiPixelPhase1RecHitsClustX.clone(
   name = "rechitsize_y",
   title = "Y size of RecHit clusters",
-  xlabel = "RecHit Y-Size"
+  xlabel = "RecHit size Y dimension"
 )
 
 SiPixelPhase1RecHitsErrorX = DefaultHisto.clone(
