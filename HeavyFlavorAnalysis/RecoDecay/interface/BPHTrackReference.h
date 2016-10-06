@@ -92,10 +92,10 @@ class BPHTrackReference {
   static const reco::Track* getFromRC( const reco::Candidate& rc ) {
 //    std::cout << "getFromRC" << std::endl;
     try {
-      const reco::TrackRef& tkr = rc.get<reco::TrackRef>();
-      if ( !tkr.isNull() ) return tkr.get();
+      if ( tkr.isNonnull() && tkr.isAvailable() ) return tkr.get();
     }
     catch ( edm::Exception e ) {
+      std::cout << "unavailable" << std::endl;
     }
     return 0;
   }
@@ -106,7 +106,7 @@ class BPHTrackReference {
     if ( pf == 0 ) return 0;
     try {
       const reco::TrackRef& tkr = pf->trackRef();
-      if ( !tkr.isNull() ) return tkr.get();
+      if ( tkr.isNonnull() && tkr.isAvailable() ) return tkr.get();
     }
     catch ( edm::Exception e ) {
     }
@@ -119,7 +119,7 @@ class BPHTrackReference {
     if ( gp == 0 ) return 0;
     try {
       const reco::TrackRef& tkr = gp->track();
-      if ( !tkr.isNull() ) return tkr.get();
+      if ( tkr.isNonnull() && tkr.isAvailable() ) return tkr.get();
     }
     catch ( edm::Exception e ) {
     }
@@ -157,9 +157,9 @@ class BPHTrackReference {
   static const reco::Track* getMuonPF( const pat::Muon* mu ) {
     try {
       const reco::PFCandidateRef& pcr = mu->pfCandidateRef();
-      if ( !pcr.isNull() ) {
+      if ( pcr.isNonnull() && pcr.isAvailable() ) {
         const reco::TrackRef& tkr = pcr->trackRef();
-        if ( !tkr.isNull() ) return tkr.get();
+        if ( tkr.isNonnull() && tkr.isAvailable() ) return tkr.get();
       }
     }
     catch ( edm::Exception e ) {
@@ -175,7 +175,7 @@ class BPHTrackReference {
   static const reco::Track* getMuonBT( const reco::Muon* mu ) {
     try {
       const reco::TrackRef& tkr = mu->muonBestTrack();
-      if ( !tkr.isNull() ) return tkr.get();
+      if ( tkr.isNonnull() && tkr.isAvailable() ) return tkr.get();
     }
     catch ( edm::Exception e ) {
     }
@@ -191,7 +191,7 @@ class BPHTrackReference {
     if ( !mu->isTrackerMuon() ) return 0;
     try {
       const reco::TrackRef& mit = mu->innerTrack();
-      if ( !mit.isNull() ) return mit.get();
+      if ( mit.isNonnull() && mit.isAvailable() ) return mit.get();
     }
     catch ( edm::Exception e ) {
     }
@@ -207,7 +207,7 @@ class BPHTrackReference {
     if ( !mu->isGlobalMuon() ) return 0;
     try {
       const reco::TrackRef& mgt = mu->globalTrack();
-      if ( !mgt.isNull() ) return mgt.get();
+      if ( mgt.isNonnull() && mgt.isAvailable() ) return mgt.get();
     }
     catch ( edm::Exception e ) {
     }
@@ -222,8 +222,8 @@ class BPHTrackReference {
   static const reco::Track* getMuonSA( const pat::Muon* mu ) {
     if ( !mu->isStandAloneMuon() ) return 0;
     try {
-      const reco::TrackRef& mgt = mu->standAloneMuon();
-      if ( !mgt.isNull() ) return mgt.get();
+      const reco::TrackRef& msa = mu->standAloneMuon();
+      if ( msa.isNonnull() && msa.isAvailable() ) return msa.get();
     }
     catch ( edm::Exception e ) {
     }
@@ -238,9 +238,9 @@ class BPHTrackReference {
   static const reco::Track* getElecPF( const pat::Electron* el ) {
     try {
       const reco::PFCandidateRef& pcr = el->pfCandidateRef();
-      if ( !pcr.isNull() ) {
+      if ( pcr.isNonnull() && pcr.isAvailable() ) {
         const reco::TrackRef& tkr = pcr->trackRef();
-        if ( !tkr.isNull() ) return tkr.get();
+        if ( tkr.isNonnull() && tkr.isAvailable() ) return tkr.get();
       }
     }
     catch ( edm::Exception e ) {
