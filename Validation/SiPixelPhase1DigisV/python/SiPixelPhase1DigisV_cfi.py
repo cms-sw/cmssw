@@ -104,8 +104,7 @@ SiPixelPhase1DigisAnalyzerV = cms.EDAnalyzer("SiPixelPhase1DigisV",
         geometry = SiPixelPhase1Geometry
 )
 
-SiPixelPhase1DigisHarvesterV = cms.EDAnalyzer("SiPixelPhase1HarvesterV",
+SiPixelPhase1DigisHarvesterV = cms.EDAnalyzer("SiPixelPhase1DigisHarvesterV",
         histograms = SiPixelPhase1DigisConf,
         geometry = SiPixelPhase1Geometry
 )
-

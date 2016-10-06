@@ -5,9 +5,9 @@
 //
 
 // Original Author: Marcel Schneider
-// Additional Authors: Alexander Morton - modifying code for validation use
 
 #include "Validation/SiPixelPhase1DigisV/interface/SiPixelPhase1DigisV.h"
+// Additional Authors: Alexander Morton - modifying code for validation use
 
 // C++ stuff
 #include <iostream>

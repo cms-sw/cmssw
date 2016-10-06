@@ -37,4 +37,19 @@ class SiPixelPhase1DigisV : public SiPixelPhase1BaseV {
 
 };
 
+class SiPixelPhase1DigisHarvesterV : public SiPixelPhase1HarvesterV {
+  enum {
+    ADC, // digi ADC readouts
+    NDIGIS, // number of digis per event and module
+    ROW, // number of digis per row
+    COLUMN, // number of digis per column
+    DEBUG, // geometry debugging
+
+    MAX_HIST
+  };
+  public:
+  explicit SiPixelPhase1DigisHarvesterV(const edm::ParameterSet& conf);
+
+};
+
 #endif
