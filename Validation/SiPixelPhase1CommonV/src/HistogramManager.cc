@@ -1,9 +1,9 @@
 // -*- C++ -*-
 //
-// Package:     SiPixelPhase1Common
+// Package:     SiPixelPhase1CommonV
 // Class  :     HistogramManager
 //
-#include "DQM/SiPixelPhase1Common/interface/HistogramManager.h"
+#include "Validation/SiPixelPhase1CommonV/interface/HistogramManager.h"
 
 #include <sstream>
 

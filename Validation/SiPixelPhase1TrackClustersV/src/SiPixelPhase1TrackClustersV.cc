@@ -59,7 +59,6 @@ void SiPixelPhase1TrackClustersV::analyze(const edm::Event& iEvent, const edm::E
     reco::TrackRef track_ref = item.val;
 
     // find out whether track crosses pixel fiducial volume (for cosmic tracks)
-    double d0 = track_ref->d0(), dz = track_ref->dz(); 
 
     for (auto& measurement : trajectory_ref->measurements()) {
       // check if things are all valid
@@ -102,18 +101,11 @@ void SiPixelPhase1TrackClustersV::analyze(const edm::Event& iEvent, const edm::E
   for (it = clusterColl->begin(); it != clusterColl->end(); ++it) {
     auto id = DetId(it->detId());
 
-    const PixelGeomDetUnit* geomdetunit = dynamic_cast<const PixelGeomDetUnit*> ( tracker->idToDet(id) );
-    const PixelTopology& topol = geomdetunit->specificTopology();
-
     for(auto subit = it->begin(); subit != it->end(); ++subit) {
       // we could do subit-...->data().front() as well, but this seems cleaner.
       auto key = edmNew::makeRefTo(clusterColl, subit).key(); 
-      bool is_ontrack = ontrack[key];
       float corrected_charge = corr_charge[key];
       SiPixelCluster const& cluster = *subit;
-
-//      LocalPoint clustlp = topol.localPosition(MeasurementPoint(cluster.x(), cluster.y()));
-//      GlobalPoint clustgp = geomdetunit->surface().toGlobal(clustlp);
 
       histo[CHARGE].fill(double(corrected_charge), id, &iEvent);
       histo[SIZE_X].fill(double(cluster.sizeX() ), id, &iEvent);
