@@ -547,8 +547,10 @@ steps['QCD_Pt_170_230']=genS('QCD_Pt_170_230_8TeV_TuneCUETP8M1_cfi',Kby(25,100))
 ## pPb tests
 step1PPbDefaults={'--beamspot':'Realistic8TeVCollision'}
 steps['AMPT_PPb_5020GeV_MinimumBias']=merge([{'-n':10},step1PPbDefaults,genS('AMPT_PPb_5020GeV_MinimumBias_cfi',Kby(9,100))])
-# GF to be uncommented when GEN-SIM becomes available
-# steps['AMPT_PPb_5020GeV_MinimumBiasINPUT']={'INPUT':InputInfo(dataSet='/RelValAMPT_PPb_5020GeV_MinimumBias/%s/GEN-SIM'%(baseDataSetRelease[4],),location='STD')}
+
+## pPb Run2
+step1PPbDefaultsUp15={'--beamspot':'Run2PPbBoost','--conditions':'auto:run2_mc_pa','--eventcontent':'RAWSIM'}
+steps['EPOS_PPb_8160GeV_MinimumBias']=merge([{'-n':10},step1PPbDefaultsUp15,gen2015('ReggeGribovPartonMC_EposLHC_4080_4080GeV_pPb_cfi',Kby(9,100))])
 
 ## heavy ions tests
 U2000by1={'--relval': '2000,1'}
@@ -906,6 +908,9 @@ steps['DIGIUP15PROD1']=merge([{'-s':'DIGI,L1,DIGI2RAW,HLT:@relval2016','--eventc
 steps['DIGIUP15_PU25']=merge([PU25,step2Upg2015Defaults])
 steps['DIGIUP15_PU50']=merge([PU50,step2Upg2015Defaults50ns])
 
+# for Run2 PPb workflows (NOTE: using HLT:@fake for the moment)
+steps['DIGIUP15_PPb']=merge([{'-s':'DIGI:pdigi_valid,L1,DIGI2RAW,HLT:@fake','--conditions':'auto:run2_mc_pa'}, steps['DIGIUP15']])
+
 # PU25 for high stats workflows
 steps['DIGIUP15_PU25HS']=merge([PU25HS,step2Upg2015Defaults])
 
@@ -1130,6 +1135,9 @@ step3Up2015Hal = {'-s'            :'RAW2DIGI,L1Reco,RECO,EI,VALIDATION,DQM',
 
 steps['RECOUP15']=merge([step3Up2015Defaults]) # todo: remove UP from label
 steps['RECOUP15AlCaCalo']=merge([step3Up2015DefaultsAlCaCalo]) # todo: remove UP from label
+
+# for Run2 PPb workflows
+steps['RECOUP15_PPb']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,EI,VALIDATION,DQM','--conditions':'auto:run2_mc_pa','--customise':'RecoHI/Configuration/customise_PPwithHI.customisePPrecoforPPb','--datatier':'AODSIM,DQMIO','--eventcontent':'AODSIM,DQM'}, steps['RECOUP15']])
 
 #steps['RECOUP15PROD1']=merge([{ '-s' : 'RAW2DIGI,L1Reco,RECO,EI,DQM:DQMOfflinePOGMC', '--datatier' : 'AODSIM,DQMIO', '--eventcontent' : 'AODSIM,DQM'},step3Up2015Defaults])
 
@@ -1430,6 +1438,9 @@ steps['HARVESTMINUP15']=merge([{'-s':'HARVESTING:validationHarvesting+dqmHarvest
 steps['HARVESTUP15_PU25']=steps['HARVESTUP15']
 
 steps['HARVESTUP15_PU50']=merge([{'-s':'HARVESTING:@standardValidation+@standardDQMFakeHLT+@miniAODValidation+@miniAODDQM','--era' : 'Run2_50ns'},steps['HARVESTUP15']])
+
+# for Run2 PPb workflows
+steps['HARVESTUP15_PPb']=merge([{'--conditions':'auto:run2_mc_pa',}, steps['HARVESTMINUP15']])
 
 # unSchHarvestOverrides={'-s':'HARVESTING:@standardValidation+@standardDQM+@miniAODValidation+@miniAODDQM'}
 # steps['HARVESTmAODUP15']=merge([unSchHarvestOverrides,steps['HARVESTUP15']])
