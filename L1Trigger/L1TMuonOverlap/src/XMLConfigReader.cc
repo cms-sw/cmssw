@@ -49,6 +49,12 @@ XMLConfigReader::XMLConfigReader(){
 
   doc = 0;  
 }
+
+XMLConfigReader::~XMLConfigReader()
+{
+  delete parser;
+  XMLPlatformUtils::Terminate();
+}
 //////////////////////////////////////////////////
 //////////////////////////////////////////////////
 void XMLConfigReader::readLUT(l1t::LUT *lut,const L1TMuonOverlapParams & aConfig, const std::string & type){
@@ -175,7 +181,9 @@ std::vector<GoldenPattern*> XMLConfigReader::readPatterns(const L1TMuonOverlapPa
       }
     }
   }
-  delete doc;
+
+  // Reset the documents vector pool and release all the associated memory back to the system.
+  parser->resetDocumentPool();
 
   return aGPs;
 }
@@ -539,8 +547,8 @@ void XMLConfigReader::readConfig(L1TMuonOverlapParams *aConfig) const{
   aConfig->setLayerInputMap(aLayerInputMapVec);
   aConfig->setRefHitMap(aRefHitMapVec);
 
-  delete doc;
+  // Reset the documents vector pool and release all the associated memory back to the system.
+  parser->resetDocumentPool();
 }
 //////////////////////////////////////////////////
 //////////////////////////////////////////////////
-
