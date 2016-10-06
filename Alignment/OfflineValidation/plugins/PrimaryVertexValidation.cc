@@ -62,6 +62,8 @@
 const int kBPIX = PixelSubdetector::PixelBarrel;
 const int kFPIX = PixelSubdetector::PixelEndcap;
 
+const int PrimaryVertexValidation::nMaxtracks_;
+
 // Constructor
 PrimaryVertexValidation::PrimaryVertexValidation(const edm::ParameterSet& iConfig):
   storeNtuple_(iConfig.getParameter<bool>("storeNtuple")),
