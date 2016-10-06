@@ -9,6 +9,7 @@ import FWCore.ParameterSet.Config as cms
 ###############################################################
 # AlCaReco for track based alignment using ZMuMu events
 from Alignment.CommonAlignmentProducer.ALCARECOTkAlZMuMu_cff import *
+# AlCaReco for track based alignment using ZMuMu events for PA data-taking
 from Alignment.CommonAlignmentProducer.ALCARECOTkAlZMuMuPA_cff import *
 # AlCaReco for track based alignment using Cosmic muon events
 from Alignment.CommonAlignmentProducer.ALCARECOTkAlCosmicsInCollisions_cff import *
@@ -18,11 +19,13 @@ from Alignment.CommonAlignmentProducer.ALCARECOTkAlCosmics0T_cff import *
 from Alignment.CommonAlignmentProducer.ALCARECOTkAlCosmics0THLT_cff import *
 # AlCaReco for track based alignment using isoMu events
 from Alignment.CommonAlignmentProducer.ALCARECOTkAlMuonIsolated_cff import *
+# AlCaReco for track based alignment using isoMu events for PA data-taking
 from Alignment.CommonAlignmentProducer.ALCARECOTkAlMuonIsolatedPA_cff import *
 # AlCaReco for track based alignment using J/Psi events
 from Alignment.CommonAlignmentProducer.ALCARECOTkAlJpsiMuMu_cff import *
 # AlCaReco for track based alignment using Upsilon events
 from Alignment.CommonAlignmentProducer.ALCARECOTkAlUpsilonMuMu_cff import *
+# AlCaReco for track based alignment using Upsilon events for PA data-taking
 from Alignment.CommonAlignmentProducer.ALCARECOTkAlUpsilonMuMuPA_cff import *
 # AlCaReco for track based alignment using MinBias events
 from Alignment.CommonAlignmentProducer.ALCARECOTkAlMinBias_cff import *
@@ -255,7 +258,7 @@ ALCARECOStreamTkAlMuonIsolated = cms.FilteredStream(
 	)
 
 ALCARECOStreamTkAlMuonIsolatedPA = cms.FilteredStream(
-	responsible = 'Gero Flucke',
+	responsible = 'James Castle',
 	name = 'TkAlMuonIsolatedPA',
 	paths  = (pathALCARECOTkAlMuonIsolatedPA),
 	content = OutALCARECOTkAlMuonIsolatedPA.outputCommands,
