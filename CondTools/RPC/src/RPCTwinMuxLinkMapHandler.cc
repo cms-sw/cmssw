@@ -4,6 +4,7 @@
 #include <sstream>
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/FileInPath.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
@@ -13,7 +14,7 @@ RPCTwinMuxLinkMapHandler::RPCTwinMuxLinkMapHandler(edm::ParameterSet const & _co
     : id_(_config.getParameter<std::string>("identifier"))
     , data_tag_(_config.getParameter<std::string>("dataTag"))
     , since_run_(_config.getParameter<unsigned long long>("sinceRun"))
-    , input_file_(_config.getParameter<std::string>("inputFile"))
+    , input_file_(_config.getParameter<edm::FileInPath>("inputFile").fullPath())
     , wheel_fed_(_config.getParameter<std::vector<int> >("wheelFED"))
     , wheel_sector_amc_(std::vector<std::vector<int> >(5, std::vector<int>(12, 0)))
     , txt_file_(_config.getUntrackedParameter<std::string>("txtFile", ""))
