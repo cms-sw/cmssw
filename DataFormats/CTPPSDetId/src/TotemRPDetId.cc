@@ -16,6 +16,9 @@ using namespace std;
 
 //----------------------------------------------------------------------------------------------------
 
+const uint32_t TotemRPDetId::startPlaneBit = 15, TotemRPDetId::maskPlane = 0xF, TotemRPDetId::maxPlane = 9, TotemRPDetId::lowMaskPlane = 0x7FFF;
+const uint32_t TotemRPDetId::startChipBit = 13, TotemRPDetId::maskChip = 0x3, TotemRPDetId::maxChip = 3, TotemRPDetId::lowMaskChip = 0x1FFF;
+
 const string TotemRPDetId::planeNames[] = { "01", "02", "03", "04", "05", "06", "07", "08", "09", "10" };
 const string TotemRPDetId::chipNames[] = { "1", "2", "3", "4" };
 

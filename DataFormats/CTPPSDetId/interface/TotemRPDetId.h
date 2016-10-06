@@ -41,8 +41,8 @@ class TotemRPDetId : public CTPPSDetId
     /// Construct from hierarchy indeces.
     TotemRPDetId(uint32_t Arm, uint32_t Station, uint32_t RomanPot=0, uint32_t Plane=0, uint32_t Chip=0);
 
-    static const uint32_t startPlaneBit = 15, maskPlane = 0xF, maxPlane = 9, lowMaskPlane = 0x7FFF;
-    static const uint32_t startChipBit = 13, maskChip = 0x3, maxChip = 3, lowMaskChip = 0x1FFF;
+    static const uint32_t startPlaneBit, maskPlane, maxPlane, lowMaskPlane;
+    static const uint32_t startChipBit, maskChip, maxChip, lowMaskChip;
     
     //-------------------- component getters and setters --------------------
      
