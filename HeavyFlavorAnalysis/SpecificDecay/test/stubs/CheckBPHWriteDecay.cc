@@ -29,16 +29,17 @@
 
 using namespace std;
 
+#define SET_PAR(TYPE,NAME,PSET) ( NAME = PSET.getParameter< TYPE >( #NAME ) )
+// SET_PAR(string,xyz,ps);
+// is equivalent to
+// ( xyz = ps.getParameter< string >( "xyx" ) )
 
 CheckBPHWriteDecay::CheckBPHWriteDecay( const edm::ParameterSet& ps ) {
 
-  if ( ps.exists( "runNumber" ) )
-                   runNumber = ps.getParameter<unsigned int>( "runNumber" );
-  else             runNumber = 0;
-  if ( ps.exists( "evtNumber" ) )
-                   evtNumber = ps.getParameter<unsigned int>( "evtNumber" );
-  else             evtNumber = 0;
-  candsLabel = ps.getParameter< std::vector<std::string> >( "candsLabel" );
+  SET_PAR(   unsigned int,  runNumber, ps );
+  SET_PAR(   unsigned int,  evtNumber, ps );
+  SET_PAR( vector<string>, candsLabel, ps );
+
   int i;
   int n =
   candsLabel.  size();
@@ -47,15 +48,27 @@ CheckBPHWriteDecay::CheckBPHWriteDecay( const edm::ParameterSet& ps ) {
         consume< vector<pat::CompositeCandidate> >( candsToken[i],
                                                     candsLabel[i] );
 
-  if ( ps.exists( "fileName" ) )
-       osPtr = new ofstream( ps.getParameter<string>( "fileName" ) );
-  else osPtr = &cout;
-
+  string fileName = ps.getParameter<string>( "fileName" );
+  if ( fileName != "" ) osPtr = new ofstream( fileName.c_str() );
+  else                  osPtr = &cout;
 
 }
 
 
 CheckBPHWriteDecay::~CheckBPHWriteDecay() {
+}
+
+
+void CheckBPHWriteDecay::fillDescriptions(
+                          edm::ConfigurationDescriptions& descriptions ) {
+   edm::ParameterSetDescription desc;
+   vector<string> v;
+   desc.add< vector<string> >( "candsLabel", v );
+   desc.add<unsigned int>( "runNumber", 0 );
+   desc.add<unsigned int>( "evtNumber", 0 );
+   desc.add<string>( "fileName", "" );
+   descriptions.add( "checkBPHWriteDecay", desc );
+   return;
 }
 
 

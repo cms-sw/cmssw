@@ -29,6 +29,8 @@ class TestBPHSpecificDecay:
   explicit TestBPHSpecificDecay( const edm::ParameterSet& ps );
   virtual ~TestBPHSpecificDecay();
 
+  static void fillDescriptions( edm::ConfigurationDescriptions& descriptions );
+
   virtual void beginJob();
   virtual void analyze( const edm::Event& ev, const edm::EventSetup& es );
   virtual void endJob();
@@ -60,9 +62,6 @@ class TestBPHSpecificDecay:
   std::ostream* fPtr;
 
   std::map<std::string,TH1F*> histoMap;
-
-  static std::string getParameter( const edm::ParameterSet& ps,
-                                   const std::string& name );
 
   void dumpRecoCand( const std::string& name,
                      const BPHRecoCandidate* cand );

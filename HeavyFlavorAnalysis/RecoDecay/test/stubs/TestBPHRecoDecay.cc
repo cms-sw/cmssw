@@ -1,6 +1,8 @@
 #include "HeavyFlavorAnalysis/RecoDecay/test/stubs/TestBPHRecoDecay.h"
 
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 #include "HeavyFlavorAnalysis/RecoDecay/interface/BPHRecoBuilder.h"
 #include "HeavyFlavorAnalysis/RecoDecay/interface/BPHRecoSelect.h"
@@ -17,7 +19,6 @@
 #include "DataFormats/PatCandidates/interface/CompositeCandidate.h"
 
 #include "RecoVertex/KinematicFit/interface/TwoTrackMassKinematicConstraint.h"
-
 #include <TH1.h>
 #include <TFile.h>
 
@@ -28,10 +29,10 @@
 
 using namespace std;
 
-#define SET_LABEL(NAME,PSET) ( NAME = getParameter( PSET, #NAME ) )
+#define SET_LABEL(NAME,PSET) ( NAME = PSET.getParameter<string>( #NAME ) )
 // SET_LABEL(xyz,ps);
 // is equivalent to
-// xyz = getParameter( ps, "xyx" )
+// xyz = ps.getParameter<string>( "xyx" )
 
 TestBPHRecoDecay::TestBPHRecoDecay( const edm::ParameterSet& ps ) {
 
@@ -51,9 +52,8 @@ TestBPHRecoDecay::TestBPHRecoDecay( const edm::ParameterSet& ps ) {
                                                                 pcCandsLabel );
   if ( useGP ) consume< vector<pat::GenericParticle>         >( gpCandsToken,
                                                                 gpCandsLabel );
-
-  outDump = getParameter( ps, "outDump" );
-  outHist = getParameter( ps, "outHist" );
+  SET_LABEL( outDump, ps );
+  SET_LABEL( outHist, ps );
   if ( outDump == "" ) fPtr = &cout;
   else                 fPtr = new ofstream( outDump.c_str() );
 
@@ -61,6 +61,21 @@ TestBPHRecoDecay::TestBPHRecoDecay( const edm::ParameterSet& ps ) {
 
 
 TestBPHRecoDecay::~TestBPHRecoDecay() {
+}
+
+
+void TestBPHRecoDecay::fillDescriptions(
+                       edm::ConfigurationDescriptions& descriptions ) {
+   edm::ParameterSetDescription desc;
+   desc.add<string>( "patMuonLabel", "" );
+   desc.add<string>( "ccCandsLabel", "" );
+   desc.add<string>( "pfCandsLabel", "" );
+   desc.add<string>( "pcCandsLabel", "" );
+   desc.add<string>( "gpCandsLabel", "" );
+   desc.add<string>( "outDump", "dump.txt" );
+   desc.add<string>( "outHist", "hist.root" );
+   descriptions.add( "testBPHRecoDecay", desc );
+   return;
 }
 
 
@@ -460,13 +475,6 @@ void TestBPHRecoDecay::endJob() {
   while ( iter != iend ) iter++->second->Write();
   currentDir->cd();
   return;
-}
-
-
-string TestBPHRecoDecay::getParameter( const edm::ParameterSet& ps,
-                                       const string& name ) {
-  if ( ps.exists( name ) ) return ps.getParameter<string>( name );
-  return "";
 }
 
 

@@ -30,6 +30,8 @@ class CheckBPHWriteDecay:
   explicit CheckBPHWriteDecay( const edm::ParameterSet& ps );
   virtual ~CheckBPHWriteDecay();
 
+  static void fillDescriptions( edm::ConfigurationDescriptions& descriptions );
+
   virtual void beginJob();
   virtual void analyze( const edm::Event& ev, const edm::EventSetup& es );
   virtual void endJob();

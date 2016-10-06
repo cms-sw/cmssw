@@ -44,34 +44,28 @@
 
 using namespace std;
 
-#define SET_LABEL(NAME,PSET) ( NAME = getParameter( PSET, #NAME ) )
-// SET_LABEL(xyz,ps);
+#define SET_PAR(TYPE,NAME,PSET) ( NAME = PSET.getParameter< TYPE >( #NAME ) )
+// SET_PAR(string,xyz,ps);
 // is equivalent to
-// xyz = getParameter( ps, "xyx" )
+// ( xyz = ps.getParameter< string >( "xyx" ) )
 
 BPHWriteSpecificDecay::BPHWriteSpecificDecay( const edm::ParameterSet& ps ) {
 
-  usePV = ( SET_LABEL( pVertexLabel, ps ) != "" );
-  usePM = ( SET_LABEL( patMuonLabel, ps ) != "" );
-  useCC = ( SET_LABEL( ccCandsLabel, ps ) != "" );
-  usePF = ( SET_LABEL( pfCandsLabel, ps ) != "" );
-  usePC = ( SET_LABEL( pcCandsLabel, ps ) != "" );
-  useGP = ( SET_LABEL( gpCandsLabel, ps ) != "" );
-  SET_LABEL( oniaName, ps );
-  SET_LABEL(   sdName, ps );
-  SET_LABEL(   ssName, ps );
-  SET_LABEL(   buName, ps );
-  SET_LABEL(   bdName, ps );
-  SET_LABEL(   bsName, ps );
-  writeMomentum = true;
-  writeVertex   = true;
+  usePV = ( SET_PAR( string, pVertexLabel, ps ) != "" );
+  usePM = ( SET_PAR( string, patMuonLabel, ps ) != "" );
+  useCC = ( SET_PAR( string, ccCandsLabel, ps ) != "" );
+  usePF = ( SET_PAR( string, pfCandsLabel, ps ) != "" );
+  usePC = ( SET_PAR( string, pcCandsLabel, ps ) != "" );
+  useGP = ( SET_PAR( string, gpCandsLabel, ps ) != "" );
+  SET_PAR( string, oniaName, ps );
+  SET_PAR( string,   sdName, ps );
+  SET_PAR( string,   ssName, ps );
+  SET_PAR( string,   buName, ps );
+  SET_PAR( string,   bdName, ps );
+  SET_PAR( string,   bsName, ps );
 
-  if ( ps.exists(             "writeMomentum" ) )
-                               writeMomentum =
-       ps.getParameter<bool>( "writeMomentum" );
-  if ( ps.exists(             "writeVertex"   ) )
-                               writeVertex   =
-       ps.getParameter<bool>( "writeVertex"   );
+  SET_PAR( bool, writeMomentum, ps );
+  SET_PAR( bool, writeVertex  , ps );
 
   rMap["Onia"   ] = Onia;
   rMap["PHiMuMu"] = Pmm;
@@ -114,15 +108,11 @@ BPHWriteSpecificDecay::BPHWriteSpecificDecay( const edm::ParameterSet& ps ) {
   recoBs   = writeBs   = false;
 
   writeOnia = true;
-  if ( ps.exists( "recoSelect" ) ) {
-    const vector<edm::ParameterSet> recoSelect =
-          ps.getParameter< vector<edm::ParameterSet> >( "recoSelect" );
-    int iSel;
-    int nSel = recoSelect.size();
-    for ( iSel = 0; iSel < nSel; ++iSel ) {
-      setRecoParameters( recoSelect[iSel] );
-    }
-  }
+  const vector<edm::ParameterSet> recoSelect =
+        ps.getParameter< vector<edm::ParameterSet> >( "recoSelect" );
+  int iSel;
+  int nSel = recoSelect.size();
+  for ( iSel = 0; iSel < nSel; ++iSel ) setRecoParameters( recoSelect[iSel] );
   if ( !recoOnia ) writeOnia = false;
 
   if (  recoBu )  recoOnia = true;
@@ -156,6 +146,49 @@ BPHWriteSpecificDecay::BPHWriteSpecificDecay( const edm::ParameterSet& ps ) {
 
 
 BPHWriteSpecificDecay::~BPHWriteSpecificDecay() {
+}
+
+
+void BPHWriteSpecificDecay::fillDescriptions(
+                            edm::ConfigurationDescriptions& descriptions ) {
+   edm::ParameterSetDescription desc;
+   desc.add<string>( "pVertexLabel", "" );
+   desc.add<string>( "patMuonLabel", "" );
+   desc.add<string>( "ccCandsLabel", "" );
+   desc.add<string>( "pfCandsLabel", "" );
+   desc.add<string>( "pcCandsLabel", "" );
+   desc.add<string>( "gpCandsLabel", "" );
+   desc.add<string>( "oniaName", "oniaCand" );
+   desc.add<string>(   "sdName",  "kx0Cand" );
+   desc.add<string>(   "ssName",  "phiCand" );
+   desc.add<string>(   "buName", "buFitted" );
+   desc.add<string>(   "bdName", "bdFitted" );
+   desc.add<string>(   "bsName", "bsFitted" );
+   desc.add<bool>( "writeVertex"  , true );
+   desc.add<bool>( "writeMomentum", true );
+   edm::ParameterSetDescription dpar;
+   dpar.add<string>(       "name" );
+   dpar.add<double>(       "ptMin", -2.0e35 );
+   dpar.add<double>(      "etaMax", -2.0e35 );
+   dpar.add<double>(    "mJPsiMin", -2.0e35 );
+   dpar.add<double>(    "mJPsiMax", -2.0e35 );
+   dpar.add<double>(     "mKx0Min", -2.0e35 );
+   dpar.add<double>(     "mKx0Max", -2.0e35 );
+   dpar.add<double>(     "mPhiMin", -2.0e35 );
+   dpar.add<double>(     "mPhiMax", -2.0e35 );
+   dpar.add<double>(     "massMin", -2.0e35 );
+   dpar.add<double>(     "massMax", -2.0e35 );
+   dpar.add<double>(     "probMin", -2.0e35 );
+   dpar.add<double>(  "massFitMin", -2.0e35 );
+   dpar.add<double>(  "massFitMax", -2.0e35 );
+   dpar.add<double>(  "constrMass", -2.0e35 );
+   dpar.add<double>( "constrSigma", -2.0e35 );
+   dpar.add<bool>(    "constrMJPsi", true );
+   dpar.add<bool>( "writeCandidate", true );
+   vector<edm::ParameterSet> rpar;
+   desc.addVPSet( "recoSelect", dpar, rpar );
+   descriptions.add( "bphWriteSpecificDecay", desc );
+   return;
 }
 
 
@@ -680,13 +713,6 @@ void BPHWriteSpecificDecay::endJob() {
 }
 
 
-string BPHWriteSpecificDecay::getParameter( const edm::ParameterSet& ps,
-                                            const string& name ) {
-  if ( ps.exists( name ) ) return ps.getParameter<string>( name );
-  return "";
-}
-
-
 void BPHWriteSpecificDecay::setRecoParameters( const edm::ParameterSet& ps ) {
 
   const string& name = ps.getParameter<string>( "name" );
@@ -713,10 +739,11 @@ void BPHWriteSpecificDecay::setRecoParameters( const edm::ParameterSet& ps ) {
     const map<string,parType>::value_type& entry = *pIter++;
     const string& pn = entry.first;
     parType       id = entry.second;
-    if ( ps.exists( pn ) ) edm::LogVerbatim( "Configuration" )
+    double pv = ps.getParameter<double>( pn );
+    if ( pv > -1.0e35 ) edm::LogVerbatim( "Configuration" )
          << "BPHWriteSpecificDecay::setRecoParameters: set " << pn
          << " for " << name << " : "
-         << ( parMap[rMap[name]][id] = ps.getParameter<double>( pn ) );
+         << ( parMap[rMap[name]][id] = pv );
   }
 
   map<string,parType>::const_iterator fIter = fMap.begin();
@@ -725,7 +752,7 @@ void BPHWriteSpecificDecay::setRecoParameters( const edm::ParameterSet& ps ) {
     const map<string,parType>::value_type& entry = *fIter++;
     const string& fn = entry.first;
     parType       id = entry.second;
-    if ( ps.exists( fn ) ) edm::LogVerbatim( "Configuration" )
+    edm::LogVerbatim( "Configuration" )
          << "BPHWriteSpecificDecay::setRecoParameters: set " << fn
          << " for " << name << " : "
          << ( parMap[rMap[name]][id] =

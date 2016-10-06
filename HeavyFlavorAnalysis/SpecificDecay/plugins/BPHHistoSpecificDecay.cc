@@ -30,11 +30,10 @@
 
 using namespace std;
 
-#define SET_LABEL(NAME,PSET) ( NAME = getParameter( PSET, #NAME ) )
+#define SET_LABEL(NAME,PSET) ( NAME = PSET.getParameter<string>( #NAME ) )
 // SET_LABEL(xyz,ps);
 // is equivalent to
-// xyz = getParameter( ps, "xyx" )
-
+// xyz = ps.getParameter<string>( "xyx" )
 
 class BPHUserData {
  public:
@@ -381,7 +380,7 @@ BPHHistoSpecificDecay::BPHHistoSpecificDecay( const edm::ParameterSet& ps ) {
   if ( useBs   ) consume< vector<pat::CompositeCandidate> >(   bsCandsToken,
                                                                bsCandsLabel );
 
-  outHist = getParameter( ps, "outHist" );
+  SET_LABEL( outHist, ps );
 
   static const BPHSoftMuonSelect sms;
 
@@ -542,6 +541,21 @@ BPHHistoSpecificDecay::~BPHHistoSpecificDecay() {
   delete bsVertexSelect;
   delete bsJPsiDaughterSelect;
 
+}
+
+
+void BPHHistoSpecificDecay::fillDescriptions(
+                            edm::ConfigurationDescriptions& descriptions ) {
+   edm::ParameterSetDescription desc;
+   desc.add<string>( "oniaCandsLabel", "" );
+   desc.add<string>(   "sdCandsLabel", "" );
+   desc.add<string>(   "ssCandsLabel", "" );
+   desc.add<string>(   "buCandsLabel", "" );
+   desc.add<string>(   "bdCandsLabel", "" );
+   desc.add<string>(   "bsCandsLabel", "" );
+   desc.add<string>( "outHist", "his.root" );
+   descriptions.add( "process.bphHistoSpecificDecay", desc );
+   return;
 }
 
 
@@ -718,13 +732,6 @@ void BPHHistoSpecificDecay::endJob() {
   while ( iter != iend ) iter++->second->Write();
   currentDir->cd();
   return;
-}
-
-
-string BPHHistoSpecificDecay::getParameter( const edm::ParameterSet& ps,
-                                            const string& name ) {
-  if ( ps.exists( name ) ) return ps.getParameter<string>( name );
-  return "";
 }
 
 

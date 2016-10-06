@@ -27,6 +27,8 @@ class BPHHistoSpecificDecay:
   explicit BPHHistoSpecificDecay( const edm::ParameterSet& ps );
   virtual ~BPHHistoSpecificDecay();
 
+  static void fillDescriptions( edm::ConfigurationDescriptions& descriptions );
+
   virtual void beginJob();
   virtual void analyze( const edm::Event& ev, const edm::EventSetup& es );
   virtual void endJob();
@@ -84,9 +86,6 @@ class BPHHistoSpecificDecay:
   CandidateSelect* bsJPsiDaughterSelect;
 
   double buKPtMin;
-
-  static std::string getParameter( const edm::ParameterSet& ps,
-                                   const std::string& name );
 
   void fillHisto   ( const std::string& name,
                      const pat::CompositeCandidate& cand );

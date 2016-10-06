@@ -24,6 +24,7 @@
 #include "HeavyFlavorAnalysis/SpecificDecay/interface/BPHBuToJPsiKBuilder.h"
 #include "HeavyFlavorAnalysis/SpecificDecay/interface/BPHBsToJPsiPhiBuilder.h"
 #include "HeavyFlavorAnalysis/SpecificDecay/interface/BPHBdToJPsiKxBuilder.h"
+#include "HeavyFlavorAnalysis/SpecificDecay/interface/BPHParticleMasses.h"
 
 #include "DataFormats/PatCandidates/interface/Muon.h"
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -41,10 +42,10 @@
 
 using namespace std;
 
-#define SET_LABEL(NAME,PSET) ( NAME = getParameter( PSET, #NAME ) )
+#define SET_LABEL(NAME,PSET) ( NAME = PSET.getParameter<string>( #NAME ) )
 // SET_LABEL(xyz,ps);
 // is equivalent to
-// xyz = getParameter( ps, "xyx" )
+// xyz = ps.getParameter<string>( "xyx" )
 
 TestBPHSpecificDecay::TestBPHSpecificDecay( const edm::ParameterSet& ps ) {
 
@@ -65,8 +66,8 @@ TestBPHSpecificDecay::TestBPHSpecificDecay( const edm::ParameterSet& ps ) {
   if ( useGP ) consume< vector<pat::GenericParticle>         >( gpCandsToken,
                                                                 gpCandsLabel );
 
-  outDump = getParameter( ps, "outDump" );
-  outHist = getParameter( ps, "outHist" );
+  SET_LABEL( outDump, ps );
+  SET_LABEL( outHist, ps );
   if ( outDump == "" ) fPtr = &cout;
   else                 fPtr = new ofstream( outDump.c_str() );
 
@@ -74,6 +75,21 @@ TestBPHSpecificDecay::TestBPHSpecificDecay( const edm::ParameterSet& ps ) {
 
 
 TestBPHSpecificDecay::~TestBPHSpecificDecay() {
+}
+
+
+void TestBPHSpecificDecay::fillDescriptions(
+                           edm::ConfigurationDescriptions& descriptions ) {
+   edm::ParameterSetDescription desc;
+   desc.add<string>( "patMuonLabel", "" );
+   desc.add<string>( "ccCandsLabel", "" );
+   desc.add<string>( "pfCandsLabel", "" );
+   desc.add<string>( "pcCandsLabel", "" );
+   desc.add<string>( "gpCandsLabel", "" );
+   desc.add<string>( "outDump", "dump.txt" );
+   desc.add<string>( "outHist", "hist.root" );
+   descriptions.add( "testBPHSpecificDecay", desc );
+   return;
 }
 
 
@@ -318,6 +334,35 @@ void TestBPHSpecificDecay::analyze( const edm::Event& ev,
   outF << nBu << " Bu cand found" << endl;
   for ( iBu = 0; iBu < nBu; ++iBu ) dumpRecoCand( "Bu",
                                                   lBu[iBu].get() );
+  // the following is an example of decay reconstruction starting from
+  // specific reco::Candidates
+  // here the final decay products are taken from already reconstructed B+,
+  // so there's no physical sense in the operation
+  for ( iBu = 0; iBu < nBu; ++iBu ) {
+    const BPHRecoCandidate* bu = lBu[iBu].get();
+    const reco::Candidate* mPos = bu->originalReco(
+                                  bu->getDaug( "JPsi/MuPos" ) );
+    const reco::Candidate* mNeg = bu->originalReco(
+                                  bu->getDaug( "JPsi/MuNeg" ) );
+    const reco::Candidate* kaon = bu->originalReco(
+                                  bu->getDaug( "kaon"       ) );
+    BPHRecoCandidatePtr njp( new BPHPlusMinusCandidate( &es ) );
+    njp->add( "MuPos", mPos,
+              BPHParticleMasses::muonMass,
+              BPHParticleMasses::muonMSigma );
+    njp->add( "MuNeg", mNeg,
+              BPHParticleMasses::muonMass,
+              BPHParticleMasses::muonMSigma );
+    BPHRecoCandidate nbu( &es );
+    nbu.add( "JPsi", njp );
+    nbu.add( "Kaon", kaon,
+             BPHParticleMasses::kaonMass,
+             BPHParticleMasses::kaonMSigma );
+    nbu.kinematicTree( "JPsi",
+                       BPHParticleMasses::jPsiMass,
+                       BPHParticleMasses::jPsiMWidth );
+    dumpRecoCand( "nBu", &nbu );
+  }
 
   // build and dump Kx0
 
@@ -409,13 +454,6 @@ void TestBPHSpecificDecay::endJob() {
   while ( iter != iend ) iter++->second->Write();
   currentDir->cd();
   return;
-}
-
-
-string TestBPHSpecificDecay::getParameter( const edm::ParameterSet& ps,
-                                           const string& name ) {
-  if ( ps.exists( name ) ) return ps.getParameter<string>( name );
-  return "";
 }
 
 
