@@ -81,7 +81,6 @@ void SiPixelPhase1RecHitsV::analyze(const edm::Event& iEvent, const edm::EventSe
       float pull_y = ( rechit_y - sim_ypos ) / lerr_y;
 
       // Now Plotting stuff
-
       if ( bunch == 0 ) histo[IN_TIME_BUNCH].fill(bunch, id, &iEvent);
       if ( bunch != 0 ) histo[OUT_TIME_BUNCH].fill(bunch, id, &iEvent);
  
@@ -100,6 +99,7 @@ void SiPixelPhase1RecHitsV::analyze(const edm::Event& iEvent, const edm::EventSe
       histo[PULL_Y].fill(pull_y, id, &iEvent); 
     }
   }
+
 }
 
 DEFINE_FWK_MODULE(SiPixelPhase1RecHitsV);

@@ -153,7 +153,6 @@ SiPixelPhase1RecHitsPullY = SiPixelPhase1RecHitsPullX.clone(
   xlabel = "Y Pull"
 )
 
-
 SiPixelPhase1RecHitsConf = cms.VPSet(
   SiPixelPhase1RecHitsInTimeEvents,
   SiPixelPhase1RecHitsOutTimeEvents,
@@ -188,4 +187,3 @@ SiPixelPhase1RecHitsHarvesterV = cms.EDAnalyzer("SiPixelPhase1HarvesterV",
         histograms = SiPixelPhase1RecHitsConf,
         geometry = SiPixelPhase1Geometry
 )
-

@@ -10,7 +10,6 @@
 // Additional Authors: Alexander Morton - modifying code for validation use
 
 #include "Validation/SiPixelPhase1CommonV/interface/SiPixelPhase1BaseV.h"
-
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
 #include "SimTracker/TrackerHitAssociation/interface/TrackerHitAssociator.h"
 
@@ -27,7 +26,6 @@ class SiPixelPhase1RecHitsV : public SiPixelPhase1BaseV {
     ERROR_Y,
     PULL_X,
     PULL_Y,
-
   };
 
   public:
