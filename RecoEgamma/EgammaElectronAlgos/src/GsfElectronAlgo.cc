@@ -1463,18 +1463,20 @@ void GsfElectronAlgo::createElectron(const gsfAlgoHelpers::HeavyObjectCache* hoc
     }
   else  // original implementation
     {
-      if (ele->core()->ecalDrivenSeed())
-	{
-	  if (generalData_->strategyCfg.ecalDrivenEcalEnergyFromClassBasedParameterization)
-	    { theEnCorrector.classBasedParameterizationEnergy(*ele,*eventData_->beamspot) ; }
-	  if (generalData_->strategyCfg.ecalDrivenEcalErrorFromClassBasedParameterization)
-	    { theEnCorrector.classBasedParameterizationUncertainty(*ele) ; }
-	}
-      else
-	{
-	  if (generalData_->strategyCfg.pureTrackerDrivenEcalErrorFromSimpleParameterization)
-	    { theEnCorrector.simpleParameterizationUncertainty(*ele) ; }
-	}
+      if( region!=DetId::Forward && region != DetId::Hcal ) {
+	if (ele->core()->ecalDrivenSeed())
+	  {
+	    if (generalData_->strategyCfg.ecalDrivenEcalEnergyFromClassBasedParameterization)
+	      { theEnCorrector.classBasedParameterizationEnergy(*ele,*eventData_->beamspot) ; }
+	    if (generalData_->strategyCfg.ecalDrivenEcalErrorFromClassBasedParameterization)
+	      { theEnCorrector.classBasedParameterizationUncertainty(*ele) ; }
+	  }
+	else
+	  {
+	    if (generalData_->strategyCfg.pureTrackerDrivenEcalErrorFromSimpleParameterization)
+	      { theEnCorrector.simpleParameterizationUncertainty(*ele) ; }
+	  }
+      }
     }
   
   // momentum
