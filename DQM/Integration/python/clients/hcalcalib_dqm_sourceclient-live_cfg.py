@@ -105,6 +105,7 @@ process.load("DQM.HcalTasks.LaserTask")
 process.load("DQM.HcalTasks.UMNioTask")
 process.load('DQM.HcalTasks.HcalOnlineHarvesting')
 process.load("DQM.HcalTasks.HFRaddamTask")
+process.load('DQM.HcalTasks.QIE11Task')
 
 #-------------------------------------
 #	To force using uTCA
@@ -157,6 +158,11 @@ process.hbmmegaTask = process.laserTask.clone()
 process.hbmmegaTask.name = cms.untracked.string("HBMMegaTask")
 process.hbmmegaTask.laserType = cms.untracked.uint32(10)
 
+process.qie11Task.runkeyVal = runType
+process.qie11Task.runkeyName = runTypeName
+process.qie11Task.tagQIE11 = cms.untracked.InputTag("hcalDigis")
+process.qie11Task.subsystem = cms.untracked.string("HcalCalib")
+
 #-------------------------------------
 #	Hcal DQM Tasks Sequence Definition
 #-------------------------------------
@@ -172,6 +178,7 @@ process.tasksSequence = cms.Sequence(
 		*process.hbpmegaTask
 		*process.hbmmegaTask
 		*process.umnioTask
+		*process.qie11Task
 )
 
 process.harvestingSequence = cms.Sequence(
