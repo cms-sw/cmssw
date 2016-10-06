@@ -15,13 +15,20 @@
 		<Constant name="CalorMuonR2" value="2.810*m"/>
 		<Constant name="TrackBeamZ1" value="1.948*m"/>
 		<Constant name="TrackBeamZ2" value="2.932*m"/>
-		<Constant name="TrackBeamR1" value="3.15*cm"/>
+		<Constant name="TrackBeamR1" value="2.50*cm"/>
+		<Constant name="TrackBeamR11" value="3.10*cm"/>
+		<Constant name="TrackBeamR12" value="3.15*cm"/>
 		<Constant name="TrackBeamR2" value="7.40*cm"/>
 		<Constant name="TrackBeamR3" value="7.7633*cm"/>
 		<Constant name="TrackLumiR1" value="7.70*cm"/>
                 <Constant name="TrackLumiR2Min"  value="3.3*cm"/>
 		<Constant name="TrackLumiZ1" value="1.722*m"/>
 		<Constant name="TrackLumiZ2" value="1.800*m"/>
+		<Constant name="TrackFwdZ1"  value="1.431*m"/>
+		<Constant name="TrackFwdZ2"  value="1.509*m"/>
+		<Constant name="TrackFwdZ3"  value="1.948*m"/>
+		<Constant name="TrackFwdZ4"  value="2.14239*m"/>
+		<Constant name="TrackFwdZOffset" value="106.91950*cm"/>
 		<!--Pixel patch pannel sandwiched layers: total thickness-->
 		<Constant name="PIXSandwichLayerThick" value="[PIXSandwichLayer1Thick]+[PIXSandwichLayer2Thick]+[PIXSandwichLayer3Thick]+[PIXSandwichLayer4Thick]"/>
 		<Constant name="PIXSandwichLayer1Thick" value="0.2*mm"/>
