@@ -578,6 +578,9 @@ HLT_DiCentralPFJet170_CFMax0p1_v*				# JIRA: CMSHLT-837
 HLT_DiCentralPFJet330_CFMax0p5_v*				# JIRA: CMSHLT-837
 HLT_DiCentralPFJet430_v*					# JIRA: CMSHLT-837
 
+HLT_DiJetVBF_PassThrough_v*					# JIRA: CMSHLT-1058
+HLT_DiJetVBFMu_PassThrough_v1*					# JIRA: CMSHLT-1058
+
 #HLT_PixelTracks_Multiplicity60ForEndOfFill_v*			# JIRA: CMSHLT-486, removed by CMSHLT-974
 #HLT_PixelTracks_Multiplicity85ForEndOfFill_v*			# JIRA: CMSHLT-486, removed by CMSHLT-974
 #HLT_PixelTracks_Multiplicity110ForEndOfFill_v*			# JIRA: CMSHLT-486, removed by CMSHLT-974
