@@ -16,6 +16,7 @@
 #include "CondTools/Hcal/interface/instantiateEosTemplates.h"
 
 using namespace std;
+using namespace cmdline;
 
 static void print_usage(const char* progname)
 {

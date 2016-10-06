@@ -20,7 +20,7 @@ struct VisualizationOptions
     unsigned plotPoints{1000};
     bool verbose{false};
 
-    void load(CmdLine& cmdline)
+    void load(cmdline::CmdLine& cmdline)
     {
         cmdline.option(0, "--minAsymm") >> minAsymm;
         cmdline.option(0, "--maxAsymm") >> maxAsymm;

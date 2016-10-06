@@ -21,6 +21,8 @@
 #include "CondTools/Hcal/interface/visualizeHFPhase1PMTParams.h"
 #include "CondTools/Hcal/interface/parseHcalDetId.h"
 
+using namespace cmdline;
+
 static void print_usage(const char* progname,
                         const char* options,
                         const char* description)
@@ -67,7 +69,6 @@ static std::vector<HcalDetId> exctractHFPmtIDs(std::vector<HcalDetId>& input)
             s.insert(input[i].baseDetId());
     return std::vector<HcalDetId>(s.begin(), s.end());
 }
-
 
 int main(int argc, char *argv[])
 {

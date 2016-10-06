@@ -14,7 +14,6 @@
 #include "TAxis.h"
 #include "TH1F.h"
 
-
 typedef std::vector<std::shared_ptr<TGraph> > Garbage;
 
 //

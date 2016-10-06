@@ -1,5 +1,8 @@
+#ifndef CONDTOOLS_HCAL_CMDLINE_H_
+#define CONDTOOLS_HCAL_CMDLINE_H_
+
 //=========================================================================
-// CmdLine.hh
+// CmdLine.h
 //
 // Simple command line parser for the C++ "main" program. It provides
 // functionality of "getopt" and "getopt_long" with a convenient interface.
@@ -7,7 +10,9 @@
 //
 // #include <necessary standard headers>
 //
-// #include "CmdLine.hh"
+// #include "CmdLine.h"
+//
+// using namespace cmdline;
 //
 // int main(int argc, char *argv[])
 // {
@@ -91,9 +96,6 @@
 // January 2016
 //=========================================================================
 
-#ifndef CMDLINE_HH_
-#define CMDLINE_HH_
-
 #include <list>
 #include <sstream>
 #include <cstring>
@@ -113,6 +115,8 @@
 #include <tr1/memory>
 #define CmdLine_shared_ptr std::tr1::shared_ptr
 #endif
+
+namespace cmdline {
 
 // Subsequent classes will throw exceptions of the following class
 class CmdLineError
@@ -393,4 +397,6 @@ private:
     unsigned nprogargs_;
 };
 
-#endif // CMDLINE_HH_
+} // namespace cmdline
+
+#endif // CONDTOOLS_HCAL_CMDLINE_H_
