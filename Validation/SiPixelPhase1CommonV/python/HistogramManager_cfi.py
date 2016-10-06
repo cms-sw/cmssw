@@ -38,7 +38,7 @@ DefaultHisto = cms.PSet(
   # If False, no histograms are booked for DetIds where any column is undefined.
   bookUndefined = cms.bool(True),
   # where the plots should go.
-  topFolderName = cms.string("PixelPhase1V"),
+  topFolderName = cms.string("PixelPhase1"),
 
   # Histogram parameters
   name = cms.string("unnamed"),
@@ -57,8 +57,8 @@ DefaultHisto = cms.PSet(
   # The column names are either defined in the GeometryInterface.cc or read from TrackerTopology.
   # The "|" means "try the first, if not present try the second", it should be used to have Barrel- and 
   # Endcap names side by side. The "/" separates columns and also defines how the output folders are nested.
-#  defaultGrouping  = cms.string("PXBarrel|PXForward/Shell|HalfCylinder/PXLayer|PXDisk/PXRing|/PXLadder|PXBlade"),
-#  defaultPerModule = cms.string("PXBarrel|PXForward/PXLayer|PXDisk/DetId"),
+  #defaultGrouping  = cms.string("PXBarrel|PXForward/Shell|HalfCylinder/PXLayer|PXDisk/PXRing|/PXLadder|PXBlade"),
+  #defaultPerModule = cms.string("PXBarrel|PXForward/PXLayer|PXDisk/DetId"),
 
   # This structure is output by the SpecficationBuilder.
   specs = cms.VPSet()
@@ -90,7 +90,7 @@ StandardSpecifications1D = [
                             .saveAll(),
     Specification(PerLayer1D).groupBy(parent("PXBarrel|PXForward/Shell|HalfCylinder/PXLayer|PXDisk/PXRing|/PXLadder|PXBlade")) # per-layer
                              .save(),
-    Specification(PerModule).groupBy("PXBarrel|PXForward/PXLayer|PXDisk/DetId").save()
+    Specification(PerLayer1D).groupBy(parent("PXBarrel|PXForward/Shell|HalfCylinder/PXLayer|PXDisk/PXRing|/PXLadder|PXBlade")) # per-layer
 ]
 
 StandardSpecificationTrend = ( # the () are only for syntax reasons

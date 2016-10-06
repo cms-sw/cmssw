@@ -1,5 +1,5 @@
-#ifndef SiPixelV_DefaultTemplates_h
-#define SiPixelV_DefaultTemplates_h
+#ifndef SiPixel_DefaultTemplatesV_h
+#define SiPixel_DefaultTemplatesV_h
 // 
 // This defines two classes, one that has to be extended to make a new plugin,
 // and one that can be used as-is for the Harvesting.
@@ -70,4 +70,3 @@ class SiPixelPhase1HarvesterV : public DQMEDHarvester, public HistogramManagerHo
   void dqmEndJob(DQMStore::IBooker& iBooker, DQMStore::IGetter& iGetter);
 };
 #endif
-

@@ -56,6 +56,16 @@ struct AbstractHistogram {
   MonitorElement* me = nullptr;
   TH1* th1 = nullptr;
 
+  // full set of metadata. _Only_ used during the booking method.
+  double range_x_min = 1e12;
+  double range_x_max = -1e12;
+  double range_y_min = 1e12;
+  double range_y_max = -1e12;
+  int range_x_nbins = 0;
+  int range_y_nbins = 0;
+  std::string name, title, xlabel, ylabel;
+  MonitorElement::Kind kind = MonitorElement::DQM_KIND_INVALID;
+
   ~AbstractHistogram() {
     // if both are set the ME should own the TH1
     if (th1 && !me) {
