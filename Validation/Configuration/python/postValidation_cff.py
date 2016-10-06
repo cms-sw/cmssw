@@ -82,6 +82,12 @@ postValidation_muons = cms.Sequence(
 postValidation_JetMET = cms.Sequence(
     METPostProcessor
 )
+
+postValidation_HCAL = cms.Sequence(
+      hcalSimHitsPostProcessor
+    + hcaldigisPostProcessor
+    + hcalrechitsPostProcessor
+)
  
 postValidation_gen = cms.Sequence(
     EventGeneratorPostProcessor

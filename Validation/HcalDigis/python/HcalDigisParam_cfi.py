@@ -16,3 +16,5 @@ from Configuration.Eras.Modifier_fastSim_cff import fastSim
 if fastSim.isChosen():
     hcaldigisAnalyzer.simHits = cms.untracked.InputTag("famosSimHits","HcalHits")
     
+from Configuration.Eras.Modifier_phase2_hcal_cff import phase2_hcal
+phase2_hcal.toModify(hcaldigisAnalyzer, dataTPs = cms.InputTag(""))
