@@ -380,8 +380,6 @@ BPHHistoSpecificDecay::BPHHistoSpecificDecay( const edm::ParameterSet& ps ) {
   if ( useBs   ) consume< vector<pat::CompositeCandidate> >(   bsCandsToken,
                                                                bsCandsLabel );
 
-  SET_LABEL( outHist, ps );
-
   static const BPHSoftMuonSelect sms;
 
   double  phiMassMin =  0.85;
@@ -553,7 +551,6 @@ void BPHHistoSpecificDecay::fillDescriptions(
    desc.add<string>(   "buCandsLabel", "" );
    desc.add<string>(   "bdCandsLabel", "" );
    desc.add<string>(   "bsCandsLabel", "" );
-   desc.add<string>( "outHist", "his.root" );
    descriptions.add( "process.bphHistoSpecificDecay", desc );
    return;
 }
@@ -725,12 +722,6 @@ void BPHHistoSpecificDecay::analyze( const edm::Event& ev,
 
 
 void BPHHistoSpecificDecay::endJob() {
-  TDirectory* currentDir = gDirectory;
-  TFile file( outHist.c_str(), "RECREATE" );
-  map<string,TH1F*>::iterator iter = histoMap.begin();
-  map<string,TH1F*>::iterator iend = histoMap.end();
-  while ( iter != iend ) iter++->second->Write();
-  currentDir->cd();
   return;
 }
 
@@ -756,7 +747,8 @@ void BPHHistoSpecificDecay::fillHisto( const string& name, float x ) {
 
 void BPHHistoSpecificDecay::createHisto( const string& name,
                                          int nbin, float hmin, float hmax ) {
-  histoMap[name] = new TH1F( name.c_str(), name.c_str(), nbin, hmin, hmax );
+  histoMap[name] = fs->make<TH1F>( name.c_str(), name.c_str(),
+                                   nbin, hmin, hmax );
   return;
 }
 

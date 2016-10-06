@@ -7,6 +7,8 @@
 <use   name="FWCore/Framework"/>
 <use   name="FWCore/ParameterSet"/>
 <use   name="FWCore/MessageLogger"/>
+<use   name="FWCore/ServiceRegistry"/>
+<use   name="PhysicsTools/UtilAlgos"/>
 <library   file="*.cc" name="HeavyFlavorSpecificDecaysPlugins">
   <flags   EDM_PLUGIN="1"/>
 </library>

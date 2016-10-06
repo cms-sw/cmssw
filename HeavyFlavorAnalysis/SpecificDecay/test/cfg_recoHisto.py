@@ -25,14 +25,18 @@ process.source = cms.Source("PoolSource",fileNames = cms.untracked.vstring(
 from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_data', '')
 
+process.TFileService = cms.Service('TFileService',
+  fileName = cms.string('his.root'),
+  closeFileFast = cms.untracked.bool(True)
+)
+
 process.bphHistoSpecificDecay = cms.EDAnalyzer('BPHHistoSpecificDecay',
     oniaCandsLabel = cms.string('bphWriteSpecificDecay:oniaFitted:bphAnalysis'),
     sdCandsLabel = cms.string('bphWriteSpecificDecay:kx0Cand:bphAnalysis'),
     ssCandsLabel = cms.string('bphWriteSpecificDecay:phiCand:bphAnalysis'),
     buCandsLabel = cms.string('bphWriteSpecificDecay:buFitted:bphAnalysis'),
     bdCandsLabel = cms.string('bphWriteSpecificDecay:bdFitted:bphAnalysis'),
-    bsCandsLabel = cms.string('bphWriteSpecificDecay:bsFitted:bphAnalysis'),
-    outHist = cms.string('his.root')
+    bsCandsLabel = cms.string('bphWriteSpecificDecay:bsFitted:bphAnalysis')
 )
 
 process.p = cms.Path(

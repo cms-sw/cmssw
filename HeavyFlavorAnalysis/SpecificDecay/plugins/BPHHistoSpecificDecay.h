@@ -9,6 +9,9 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/Common/interface/Ref.h"
 
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "CommonTools/UtilAlgos/interface/TFileService.h"
+
 #include <string>
 
 class TH1F;
@@ -61,7 +64,7 @@ class BPHHistoSpecificDecay:
   bool useBd;
   bool useBs;
 
-  std::string outHist;
+  edm::Service<TFileService> fs;
   std::map<std::string,TH1F*> histoMap;
 
   CandidateSelect*  phiBasicSelect;
