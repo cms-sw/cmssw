@@ -1,5 +1,6 @@
 *.root
 *.log
 *.txt
+*.png
 Images/*
 SingleMuPt10*py
