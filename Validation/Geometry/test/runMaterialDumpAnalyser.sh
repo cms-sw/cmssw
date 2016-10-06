@@ -70,7 +70,7 @@ if checkFile SingleMuPt10_step2_DIGI_L1_DIGI2RAW_HLT.root ; then
 fi
 
 # Reco and special customization
-if SingleMuPt10_step3_RECO_DQM.root ; then
+if checkFile SingleMuPt10_step3_RECO_DQM.root ; then
   cmsDriver.py step3  \
 -s RAW2DIGI,L1Reco,RECO:reconstruction_trackingOnly,VALIDATION:@trackingOnlyValidation,DQM:@trackingOnlyDQM \
 --conditions auto:run2_mc \
@@ -90,7 +90,7 @@ if SingleMuPt10_step3_RECO_DQM.root ; then
 fi
 
 # HARVESTING
-if DQM_V0001_R000000001__Global__CMSSW_X_Y_Z__RECO.root ; then
+if checkFile DQM_V0001_R000000001__Global__CMSSW_X_Y_Z__RECO.root ; then
   cmsDriver.py step4  \
 -s HARVESTING:@trackingOnlyValidation+@trackingOnlyDQM  \
 --conditions auto:run2_mc \
