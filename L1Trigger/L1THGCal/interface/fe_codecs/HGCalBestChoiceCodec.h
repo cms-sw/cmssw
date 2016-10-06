@@ -21,7 +21,7 @@ class HGCalBestChoiceCodec : public HGCalTriggerFE::Codec<HGCalBestChoiceCodec,H
     public:
         typedef HGCalBestChoiceDataPayload data_type;
 
-        HGCalBestChoiceCodec(const edm::ParameterSet& conf, const HGCalTriggerGeometryBase* const geom);
+        HGCalBestChoiceCodec(const edm::ParameterSet& conf);
 
         void setDataPayloadImpl(const HGCEEDigiCollection& ee,
                 const HGCHEDigiCollection& fh,

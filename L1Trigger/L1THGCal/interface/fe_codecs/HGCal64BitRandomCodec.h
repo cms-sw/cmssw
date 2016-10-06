@@ -16,8 +16,8 @@ class HGCal64BitRandomCodec : public HGCalTriggerFE::Codec<HGCal64BitRandomCodec
 public:
   typedef HGCal64BitRandomDataPayload data_type;
   
-  HGCal64BitRandomCodec(const edm::ParameterSet& conf, const HGCalTriggerGeometryBase* const geom) :
-    Codec(conf,geom),
+  HGCal64BitRandomCodec(const edm::ParameterSet& conf) :
+    Codec(conf),
     codecImpl_(conf) {
     data_.payload = std::numeric_limits<uint64_t>::max();
   }

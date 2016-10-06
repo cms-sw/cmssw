@@ -10,8 +10,8 @@ class SingleCellClusterAlgo : public Algorithm<HGCalBestChoiceCodec>
 {
     public:
 
-        SingleCellClusterAlgo(const edm::ParameterSet& conf, const HGCalTriggerGeometryBase* const geom):
-            Algorithm<HGCalBestChoiceCodec>(conf,geom),
+        SingleCellClusterAlgo(const edm::ParameterSet& conf):
+            Algorithm<HGCalBestChoiceCodec>(conf),
             cluster_product_( new l1t::HGCalClusterBxCollection ){}
 
         virtual void setProduces(edm::EDProducer& prod) const override final 

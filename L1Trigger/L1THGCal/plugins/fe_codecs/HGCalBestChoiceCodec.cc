@@ -8,7 +8,7 @@ DEFINE_EDM_PLUGIN(HGCalTriggerFECodecFactory,
         "HGCalBestChoiceCodec");
 
 /*****************************************************************/
-HGCalBestChoiceCodec::HGCalBestChoiceCodec(const edm::ParameterSet& conf, const HGCalTriggerGeometryBase* const geom) : Codec(conf,geom),
+HGCalBestChoiceCodec::HGCalBestChoiceCodec(const edm::ParameterSet& conf) : Codec(conf),
     codecImpl_(conf)
 /*****************************************************************/
 {
@@ -79,7 +79,8 @@ void HGCalBestChoiceCodec::setDataPayloadImpl(const l1t::HGCFETriggerDigi& digi)
     conf.addParameter<uint32_t>   ("tdcnBits",      codecImpl_.tdcnBits());
     conf.addParameter<double>     ("tdcOnsetfC",    codecImpl_.tdcOnsetfC());
     conf.addParameter<uint32_t>   ("triggerCellTruncationBits", codecImpl_.triggerCellTruncationBits());
-    HGCalBestChoiceCodec codecInput(conf, geometry_);
+    HGCalBestChoiceCodec codecInput(conf);
+    codecInput.setGeometry(geometry_);
     digi.decode(codecInput,data_);
     // choose best trigger cells in the module
     codecImpl_.bestChoiceSelect(data_);
