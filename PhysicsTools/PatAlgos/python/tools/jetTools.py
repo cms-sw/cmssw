@@ -172,18 +172,19 @@ def setupSVClustering(btagInfo, svClustering, algo, rParam, fatJets=cms.InputTag
 
 def setupBTagging(process, jetSource, pfCandidates, explicitJTA, pvSource, svSource, elSource, muSource, runIVF, tightBTagNTkHits, loadStdRecoBTag, svClustering, fatJets, groomedFatJets,
                   algo, rParam, btagDiscriminators, btagInfos, patJets, labelName, btagPrefix, postfix):
-    ## expand tagInfos to what is explicitely required by user + implicit
+    ## expand tagInfos to what is explicitly required by user + implicit
     ## requirements that come in from one or the other discriminator
     requiredTagInfos = list(btagInfos)
     for btagDiscr in btagDiscriminators :
-        for requiredTagInfo in supportedBtagDiscr[btagDiscr] :
-            tagInfoCovered = False
-            for tagInfo in requiredTagInfos :
-                if requiredTagInfo == tagInfo :
-                    tagInfoCovered = True
-                    break
-            if not tagInfoCovered :
-                requiredTagInfos.append(requiredTagInfo)
+        for tagInfoList in supportedBtagDiscr[btagDiscr] :
+            for requiredTagInfo in tagInfoList :
+                tagInfoCovered = False
+                for tagInfo in requiredTagInfos :
+                    if requiredTagInfo == tagInfo :
+                        tagInfoCovered = True
+                        break
+                if not tagInfoCovered :
+                    requiredTagInfos.append(requiredTagInfo)
     ## load sequences and setups needed for btagging
     if hasattr( process, 'candidateJetProbabilityComputer' ) == False :
         if loadStdRecoBTag: # also loading modules already run in the standard reconstruction
@@ -349,7 +350,7 @@ def setupBTagging(process, jetSource, pfCandidates, explicitJTA, pvSource, svSou
     acceptedBtagDiscriminators = list()
     for btagDiscr in btagDiscriminators :
         if hasattr(btag,btagDiscr):
-            setattr(process, btagPrefix+btagDiscr+labelName+postfix, getattr(btag, btagDiscr).clone(tagInfos = cms.VInputTag( *[ cms.InputTag(btagPrefix+x+labelName+postfix) for x in supportedBtagDiscr[btagDiscr] ] )))
+            setattr(process, btagPrefix+btagDiscr+labelName+postfix, getattr(btag, btagDiscr).clone(tagInfos = cms.VInputTag( *[ cms.InputTag(btagPrefix+x+labelName+postfix) for x in supportedBtagDiscr[btagDiscr][0] ] )))
             acceptedBtagDiscriminators.append(btagDiscr)
         else:
             print '  --> %s ignored, since not available via RecoBTag.Configuration.RecoBTag_cff!'%(btagDiscr)
