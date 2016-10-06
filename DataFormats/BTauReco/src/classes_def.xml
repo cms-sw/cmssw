@@ -61,8 +61,8 @@
   <class name="reco::CandSecondaryVertexTagInfoRefVector"/>
   <class name="edm::Wrapper<reco::CandSecondaryVertexTagInfoCollection>"/>
 
-  <class name="reco::BoostedDoubleSVTagInfo" ClassVersion="10">
-   <version ClassVersion="10" checksum="1146731392"/>
+  <class name="reco::BoostedDoubleSVTagInfo" ClassVersion="3">
+   <version ClassVersion="3" checksum="1146731392"/>
   </class>
   <class name="reco::BoostedDoubleSVTagInfoCollection"/>
   <class name="reco::BoostedDoubleSVTagInfoRef"/>
