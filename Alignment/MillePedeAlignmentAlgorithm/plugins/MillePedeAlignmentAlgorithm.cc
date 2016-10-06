@@ -71,7 +71,6 @@ typedef TransientTrackingRecHit::ConstRecHitPointer   ConstRecHitPointer;
 typedef TrajectoryFactoryBase::ReferenceTrajectoryCollection RefTrajColl;
 
 // Includes for PXB survey
-#include <iostream>
 #include "Alignment/SurveyAnalysis/interface/SurveyPxbImage.h"
 #include "Alignment/SurveyAnalysis/interface/SurveyPxbImageLocalFit.h"
 #include "Alignment/SurveyAnalysis/interface/SurveyPxbImageReader.h"
@@ -674,7 +673,9 @@ int MillePedeAlignmentAlgorithm::addGlobalData(const edm::EventSetup &setup, con
         theDoubleBufferX.push_back(iValuesInd->first.first);
         theDoubleBufferY.push_back(iValuesInd->first.second);
       } else {
-        std::cerr << "MillePedeAlignmentAlgorithm::addGlobalData: Invalid label " << globalLabel << " <= 0 or > 2147483647" << std::endl;
+	edm::LogError("Alignment")
+	  << "@SUB=MillePedeAlignmentAlgorithm::addGlobalData"
+	  << "Invalid label " << globalLabel << " <= 0 or > 2147483647";
       }
     }
   }
@@ -794,7 +795,9 @@ bool MillePedeAlignmentAlgorithm
           globalDerivativesX.push_back(derivs[iSel][kLocalX] / thePedeSteer->cmsToPedeFactor(iSel));
           globalDerivativesY.push_back(derivs[iSel][kLocalY] / thePedeSteer->cmsToPedeFactor(iSel));
         } else {
-          std::cerr << "MillePedeAlignmentAlgorithm::globalDerivativesHierarchy: Invalid label " << globalLabel << " <= 0 or > 2147483647" << std::endl;
+	  edm::LogError("Alignment")
+	    << "@SUB=MillePedeAlignmentAlgorithm::globalDerivativesHierarchy"
+	    << "Invalid label " << globalLabel << " <= 0 or > 2147483647";
         }
       }
     }
@@ -1440,7 +1443,12 @@ void MillePedeAlignmentAlgorithm::addPxbSurvey(const edm::ParameterSet &pxbSurve
 {
 	// do some printing, if requested
 	const bool doOutputOnStdout(pxbSurveyCfg.getParameter<bool>("doOutputOnStdout"));
-	if (doOutputOnStdout) std::cout << "# Output from addPxbSurvey follows below because doOutputOnStdout is set to True" << std::endl;
+	if (doOutputOnStdout) {
+	  edm::LogInfo("Alignment")
+	    << "@SUB=MillePedeAlignmentAlgorithm::addPxbSurvey"
+	    << "# Output from addPxbSurvey follows below because "
+	    << "doOutputOnStdout is set to True";
+	}
 
 	// instantiate a dicer object
 	SurveyPxbDicer dicer(pxbSurveyCfg.getParameter<std::vector<edm::ParameterSet> >("toySurveyParameters"), pxbSurveyCfg.getParameter<unsigned int>("toySurveySeed"));
@@ -1454,7 +1462,11 @@ void MillePedeAlignmentAlgorithm::addPxbSurvey(const edm::ParameterSet &pxbSurve
 	// loop over photographs (=measurements) and perform the fit
 	for(std::vector<SurveyPxbImageLocalFit>::size_type i=0; i!=measurements.size(); i++)
 	{
-		if (doOutputOnStdout) std::cout << "Module " << i << ": ";
+                if (doOutputOnStdout) {
+                  edm::LogInfo("Alignment")
+                    << "@SUB=MillePedeAlignmentAlgorithm::addPxbSurvey"
+                    << "Module " << i << ": ";
+                }
 
 		// get the Alignables and their surfaces
 		AlignableDetOrUnitPtr mod1(theAlignableNavigator->alignableFromDetId(measurements[i].getIdFirst()));
@@ -1498,10 +1510,12 @@ void MillePedeAlignmentAlgorithm::addPxbSurvey(const edm::ParameterSet &pxbSurve
 		// do some reporting, if requested
 		if (doOutputOnStdout)
 		{
-		  std::cout << "a: " << a[0] << ", " << a[1]  << ", " << a[2] << ", " << a[3]
-			<< " S= " << sqrt(a[2]*a[2]+a[3]*a[3])
-			<< " phi= " << atan(a[3]/a[2])
-			<< " chi2= " << chi2 << std::endl;
+                  edm::LogInfo("Alignment")
+                    << "@SUB=MillePedeAlignmentAlgorithm::addPxbSurvey"
+                    << "a: " << a[0] << ", " << a[1]  << ", " << a[2] << ", " << a[3]
+                    << " S= " << sqrt(a[2]*a[2]+a[3]*a[3])
+                    << " phi= " << atan(a[3]/a[2])
+                    << " chi2= " << chi2 << std::endl;
 		}
 		if (theMonitor) 
 		{
