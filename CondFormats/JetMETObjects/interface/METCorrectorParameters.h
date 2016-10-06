@@ -28,6 +28,7 @@ class METCorrectorParameters
         //-------- Member functions ----------
         unsigned nBinVar()                  const {return mBinVar.size(); }
         unsigned nParVar()                  const {return mParVar.size(); }
+        int ptclType()                      const {return ptclType; }
         std::vector<std::string> parVar()   const {return mParVar;        }
         std::vector<std::string> binVar()   const {return mBinVar;        } 
         std::string parVar(unsigned fIndex) const {return mParVar[fIndex];}
@@ -65,6 +66,7 @@ class METCorrectorParameters
         std::vector<float> mMin;
         std::vector<float> mMax;
         std::vector<float> mParameters;
+	std::string        mMetAxis;
 
       COND_SERIALIZABLE;
     };
@@ -84,7 +86,9 @@ class METCorrectorParameters
     int neighbourBin(unsigned fIndex, unsigned fVar, bool fNext) const;
     std::vector<float> binCenters(unsigned fVar)                 const;
     void printScreen()                                           const;
+    void printScreen(const std::string& Section)                 const;
     void printFile(const std::string& fFileName)                 const;
+    void printFile(const std::string& fFileName, const std::string& Section)const;
     bool isValid() const { return valid_; }
 
   private:
@@ -99,8 +103,12 @@ class METCorrectorParameters
 
 class METCorrectorParametersCollection {
  public:
-  enum Level_t { MiniAod=0,
-		 N_LEVELS=1
+  enum Level_t { XYshiftMC=0,
+    		 XYshiftDY=1,
+    		 XYshiftTTJets=2,
+    		 XYshiftWJets=3,
+    		 XYshiftData=4,
+		 N_LEVELS=5
   };
 
   typedef int                            key_type;
@@ -136,17 +144,35 @@ class METCorrectorParametersCollection {
   static void getSections( std::string inputFile,
 			   std::vector<std::string> & outputs );
   // Find the MiniAod bin for hashing
-  static key_type getMiniAodBin( std::string const & source );
+  static key_type getMiniAodBin( std::string const & source );// Not used
+  static key_type getXYshiftMcFlavBin( std::string const & Flav );
+  static key_type getXYshiftDyFlavBin( std::string const & Flav );
+  static key_type getXYshiftTTJetsFlavBin( std::string const & Flav );
+  static key_type getXYshiftWJetsFlavBin( std::string const & Flav );
+  static key_type getXYshiftDataFlavBin( std::string const & Flav );
 
-  static bool isMiniAod( key_type k);
+  static bool isMiniAod( key_type k);// Not used
+  static bool isXYshiftMC( key_type k);
+  static bool isXYshiftDY( key_type k);
+  static bool isXYshiftTTJets( key_type k);
+  static bool isXYshiftWJets( key_type k);
+  static bool isXYshiftData( key_type k);
 
   static std::string findLabel( key_type k );
-  static std::string findMiniAodSource( key_type k );
+  static std::string levelName( key_type k );
+
+  static std::string findMiniAodSource( key_type k );// Not used
+
+  static std::string findXYshiftMCflavor( key_type k );
+  static std::string findXYshiftDYflavor( key_type k );
+  static std::string findXYshiftTTJetsFlavor( key_type k );
+  static std::string findXYshiftWJetsFlavor( key_type k );
+  static std::string findXYshiftDataFlavor( key_type k );
 
  protected:
 
   // Find the key corresponding to each label
-  key_type findKey( std::string const & label ) const;
+  key_type findKey( std::string const & label ) const; // Not used
 
   collection_type                        correctionsMiniAod_;
 
