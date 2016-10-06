@@ -52,6 +52,12 @@ class BPHHistoSpecificDecay:
   BPHTokenWrapper< std::vector<pat::CompositeCandidate> >   buCandsToken;
   BPHTokenWrapper< std::vector<pat::CompositeCandidate> >   bdCandsToken;
   BPHTokenWrapper< std::vector<pat::CompositeCandidate> >   bsCandsToken;
+  bool useOnia;
+  bool useSd;
+  bool useSs;
+  bool useBu;
+  bool useBd;
+  bool useBs;
 
   std::string outHist;
   std::map<std::string,TH1F*> histoMap;

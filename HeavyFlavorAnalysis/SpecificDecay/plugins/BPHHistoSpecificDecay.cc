@@ -362,18 +362,24 @@ class BPHFittedVertexSelect: public BPHHistoSpecificDecay::CandidateSelect {
 
 BPHHistoSpecificDecay::BPHHistoSpecificDecay( const edm::ParameterSet& ps ) {
 
-  SET_LABEL( oniaCandsLabel, ps );
-  SET_LABEL(   sdCandsLabel, ps );
-  SET_LABEL(   ssCandsLabel, ps );
-  SET_LABEL(   buCandsLabel, ps );
-  SET_LABEL(   bdCandsLabel, ps );
-  SET_LABEL(   bsCandsLabel, ps );
-  consume< vector<pat::CompositeCandidate> >( oniaCandsToken, oniaCandsLabel );
-  consume< vector<pat::CompositeCandidate> >(   sdCandsToken,   sdCandsLabel );
-  consume< vector<pat::CompositeCandidate> >(   ssCandsToken,   ssCandsLabel );
-  consume< vector<pat::CompositeCandidate> >(   buCandsToken,   buCandsLabel );
-  consume< vector<pat::CompositeCandidate> >(   bdCandsToken,   bdCandsLabel );
-  consume< vector<pat::CompositeCandidate> >(   bsCandsToken,   bsCandsLabel );
+  useOnia = ( SET_LABEL( oniaCandsLabel, ps ) != "" );
+  useSd   = ( SET_LABEL(   sdCandsLabel, ps ) != "" );
+  useSs   = ( SET_LABEL(   ssCandsLabel, ps ) != "" );
+  useBu   = ( SET_LABEL(   buCandsLabel, ps ) != "" );
+  useBd   = ( SET_LABEL(   bdCandsLabel, ps ) != "" );
+  useBs   = ( SET_LABEL(   bsCandsLabel, ps ) != "" );
+  if ( useOnia ) consume< vector<pat::CompositeCandidate> >( oniaCandsToken,
+                                                             oniaCandsLabel );
+  if ( useSd   ) consume< vector<pat::CompositeCandidate> >(   sdCandsToken,
+                                                               sdCandsLabel );
+  if ( useSs   ) consume< vector<pat::CompositeCandidate> >(   ssCandsToken,
+                                                               ssCandsLabel );
+  if ( useBu   ) consume< vector<pat::CompositeCandidate> >(   buCandsToken,
+                                                               buCandsLabel );
+  if ( useBd   ) consume< vector<pat::CompositeCandidate> >(   bdCandsToken,
+                                                               bdCandsLabel );
+  if ( useBs   ) consume< vector<pat::CompositeCandidate> >(   bsCandsToken,
+                                                               bsCandsLabel );
 
   outHist = getParameter( ps, "outHist" );
 
@@ -575,10 +581,13 @@ void BPHHistoSpecificDecay::analyze( const edm::Event& ev,
   //////////// quarkonia ////////////
 
   edm::Handle< vector<pat::CompositeCandidate> > oniaCands;
-  oniaCandsToken.get( ev, oniaCands );
-
   int iqo;
-  int nqo = oniaCands->size();
+  int nqo = 0;
+  if ( useOnia ) {
+    oniaCandsToken.get( ev, oniaCands );
+    nqo = oniaCands->size();
+  }
+
   for ( iqo = 0; iqo < nqo; ++ iqo ) {
     LogTrace( "DataDump" )
            << "*********** quarkonium " << iqo << "/" << nqo << " ***********";
@@ -597,10 +606,13 @@ void BPHHistoSpecificDecay::analyze( const edm::Event& ev,
   //////////// Bu ////////////
 
   edm::Handle< vector<pat::CompositeCandidate> > buCands;
-  buCandsToken.get( ev, buCands );
-
   int ibu;
-  int nbu = buCands->size();
+  int nbu = 0;
+  if ( useBu ) {
+    buCandsToken.get( ev, buCands );
+    nbu = buCands->size();
+  }
+
   for ( ibu = 0; ibu < nbu; ++ ibu ) {
     LogTrace( "DataDump" )
            << "*********** Bu " << ibu << "/" << nbu << " ***********";
@@ -625,10 +637,13 @@ void BPHHistoSpecificDecay::analyze( const edm::Event& ev,
   //////////// Bd ////////////
 
   edm::Handle< vector<pat::CompositeCandidate> > bdCands;
-  bdCandsToken.get( ev, bdCands );
-
   int ibd;
-  int nbd = bdCands->size();
+  int nbd = 0;
+  if ( useBd ) {
+    bdCandsToken.get( ev, bdCands );
+    nbd = bdCands->size();
+  }
+
   for ( ibd = 0; ibd < nbd; ++ ibd ) {
     LogTrace( "DataDump" )
            << "*********** Bd " << ibd << "/" << nbd << " ***********";
@@ -657,10 +672,13 @@ void BPHHistoSpecificDecay::analyze( const edm::Event& ev,
   //////////// Bs ////////////
 
   edm::Handle< vector<pat::CompositeCandidate> > bsCands;
-  bsCandsToken.get( ev, bsCands );
-
   int ibs;
-  int nbs = bsCands->size();
+  int nbs = 0;
+  if ( useBs ) {
+    bsCandsToken.get( ev, bsCands );
+    nbs = bsCands->size();
+  }
+
   for ( ibs = 0; ibs < nbs; ++ ibs ) {
     LogTrace( "DataDump" )
            << "*********** Bs " << ibs << "/" << nbs << " ***********";
