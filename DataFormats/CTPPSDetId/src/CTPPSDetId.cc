@@ -16,6 +16,10 @@ using namespace std;
 
 //----------------------------------------------------------------------------------------------------
 
+const uint32_t CTPPSDetId::startArmBit = 24, CTPPSDetId::maskArm = 0x1, CTPPSDetId::maxArm = 1, CTPPSDetId::lowMaskArm = 0xFFFFFF;
+const uint32_t CTPPSDetId::startStationBit = 22, CTPPSDetId::maskStation = 0x3, CTPPSDetId::maxStation = 2, CTPPSDetId::lowMaskStation = 0x3FFFFF;
+const uint32_t CTPPSDetId::startRPBit = 19, CTPPSDetId::maskRP = 0x7, CTPPSDetId::maxRP = 6, CTPPSDetId::lowMaskRP = 0x7FFFF;
+
 const string CTPPSDetId::subDetectorNames[] = { "", "", "", "ctpps_tr_strip", "ctpps_tr_pixel", "ctpps_ti_diamond", "ctpps_ti_fastsilicon" };
 const string CTPPSDetId::subDetectorPaths[] = { "", "", "", "CTPPS/TrackingStrip", "CTPPS/TrackingPixel", "CTPPS/TimingDiamond", "CTPPS/TimingFastSilicon" };
 const string CTPPSDetId::armNames[] = { "45", "56" };
