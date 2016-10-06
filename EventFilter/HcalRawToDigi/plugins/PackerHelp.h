@@ -396,7 +396,7 @@ public:
      return header;
   }
 
-  uhtrData* newUHTR( int uhtrIndex , int ps = 0, bool specialSimPremixBit = false, int orn = 0 , int bcn = 0 , uint64_t evt = 0 ){
+  uhtrData* newUHTR( int uhtrIndex , int ps, bool specialSimPremixBit = false, int orn = 0 , int bcn = 0 , uint64_t evt = 0 ){
     
     // initialize vector of 16-bit words
     uhtrs[uhtrIndex] = uhtrData(8);
