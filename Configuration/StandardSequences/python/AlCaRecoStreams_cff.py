@@ -177,8 +177,11 @@ pathALCARECOHcalCalIsolatedBunchFilter = cms.Path(seqALCARECOHcalCalIsolatedBunc
 pathALCARECOHcalCalIsolatedBunchSelector = cms.Path(seqALCARECOHcalCalIsolatedBunchSelector)
 pathALCARECOHcalCalHBHEMuonFilter = cms.Path(seqALCARECOHcalCalHBHEMuonFilter)
 pathALCARECOMuAlCalIsolatedMu = cms.Path(seqALCARECOMuAlCalIsolatedMu*ALCARECOMuAlCalIsolatedMuDQM*ALCARECODTCalibrationDQM)
+pathALCARECOMuAlCalIsolatedMuGeneralTracks = cms.Path(seqALCARECOMuAlCalIsolatedMuGeneralTracks*ALCARECOMuAlCalIsolatedMuGeneralTracksDQM)
 pathALCARECOMuAlZMuMu = cms.Path(seqALCARECOMuAlZMuMu*ALCARECOMuAlZMuMuDQM)
+pathALCARECOMuAlZMuMuGeneralTracks = cms.Path(seqALCARECOMuAlZMuMuGeneralTracks*ALCARECOMuAlZMuMuGeneralTracksDQM)
 pathALCARECOMuAlOverlaps = cms.Path(seqALCARECOMuAlOverlaps*ALCARECOMuAlOverlapsDQM)
+pathALCARECOMuAlOverlapsGeneralTracks = cms.Path(seqALCARECOMuAlOverlapsGeneralTracks*ALCARECOMuAlOverlapsGeneralTracksDQM)
 pathALCARECORpcCalHLT = cms.Path(seqALCARECORpcCalHLT)
 pathALCARECODtCalib = cms.Path(seqALCARECODtCalib*ALCARECODTCalibSynchDQM)
 pathALCARECODtCalibCosmics = cms.Path(seqALCARECODtCalibCosmics*ALCARECODTCalibSynchCosmicsDQM)
@@ -504,27 +507,27 @@ ALCARECOStreamHcalCalHBHEMuonFilter = cms.FilteredStream(
 	)
 
 ALCARECOStreamMuAlCalIsolatedMu = cms.FilteredStream(
-	responsible = 'Javier Fernandez',
+	responsible = 'Luca Pernie',
 	name = 'MuAlCalIsolatedMu',
-	paths  = (pathALCARECOMuAlCalIsolatedMu),
+	paths  = (pathALCARECOMuAlCalIsolatedMu,pathALCARECOMuAlCalIsolatedMuGeneralTracks),
 	content = OutALCARECOMuAlCalIsolatedMu.outputCommands,
 	selectEvents = OutALCARECOMuAlCalIsolatedMu.SelectEvents,
 	dataTier = cms.untracked.string('ALCARECO')
 	)
 
 ALCARECOStreamMuAlZMuMu = cms.FilteredStream(
-	responsible = 'Javier Fernandez',
+	responsible = 'Luca Pernie',
 	name = 'MuAlZMuMu',
-	paths  = (pathALCARECOMuAlZMuMu),
+	paths  = (pathALCARECOMuAlZMuMu,pathALCARECOMuAlZMuMuGeneralTracks),
 	content = OutALCARECOMuAlZMuMu.outputCommands,
 	selectEvents = OutALCARECOMuAlZMuMu.SelectEvents,
 	dataTier = cms.untracked.string('ALCARECO')
 	)
 
 ALCARECOStreamMuAlOverlaps = cms.FilteredStream(
-	responsible = 'Jim Pivarski',
+	responsible = 'Luca Pernie',
 	name = 'MuAlOverlaps',
-	paths  = (pathALCARECOMuAlOverlaps),
+	paths  = (pathALCARECOMuAlOverlaps,pathALCARECOMuAlOverlapsGeneralTracks),
 	content = OutALCARECOMuAlOverlaps.outputCommands,
 	selectEvents = OutALCARECOMuAlOverlaps.SelectEvents,
 	dataTier = cms.untracked.string('ALCARECO')
@@ -603,7 +606,7 @@ ALCARECOStreamTkAlCosmics0THLT = cms.FilteredStream(
 	)
 
 ALCARECOStreamMuAlGlobalCosmics = cms.FilteredStream(
-	responsible = 'Jim Pivarski',
+	responsible = 'Luca Pernie',
 	name = 'MuAlGlobalCosmics',
 	paths  = (pathALCARECOMuAlGlobalCosmics),
 	content = OutALCARECOMuAlGlobalCosmics.outputCommands,
@@ -612,7 +615,7 @@ ALCARECOStreamMuAlGlobalCosmics = cms.FilteredStream(
 	)
 
 ALCARECOStreamMuAlGlobalCosmicsInCollisions = cms.FilteredStream(
-	responsible = 'Jim Pivarski',
+	responsible = 'Luca Pernie',
 	name = 'MuAlGlobalCosmicsInCollisions',
 	paths  = (pathALCARECOMuAlGlobalCosmicsInCollisions),
 	content = OutALCARECOMuAlGlobalCosmicsInCollisions.outputCommands,
@@ -630,7 +633,7 @@ ALCARECOStreamTkAlBeamHalo = cms.FilteredStream(
 	)
 
 ALCARECOStreamMuAlBeamHalo = cms.FilteredStream(
-	responsible = 'Jim Pivarski',
+	responsible = 'Luca Pernie',
 	name = 'MuAlBeamHalo',
 	paths  = (pathALCARECOMuAlBeamHalo),
 	content = OutALCARECOMuAlBeamHalo.outputCommands,
@@ -639,7 +642,7 @@ ALCARECOStreamMuAlBeamHalo = cms.FilteredStream(
 	)
 
 ALCARECOStreamMuAlBeamHaloOverlaps = cms.FilteredStream(
-	responsible = 'Jim Pivarski',
+	responsible = 'Luca Pernie',
 	name = 'MuAlBeamHaloOverlaps',
 	paths  = (pathALCARECOMuAlBeamHaloOverlaps),
 	content = OutALCARECOMuAlBeamHaloOverlaps.outputCommands,
