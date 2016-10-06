@@ -28,14 +28,7 @@ while getopts ":n:" opt; do
   esac
 done
 
-function checkFile {
-  [[ ! -e $1 ]] | [[ ! -s $1 ]]
-}
-
-# Wait for possible bg jobs launched in the previous loop
-function waitPendingJobs {
-  for job in $(jobs -p); do wait $job; done
-}
+. runMaterialDumpFunctions
 
 # GEN-SIM goes first
 if checkFile SingleMuPt10_pythia8_cfi_GEN_SIM_PhaseI.root ; then
