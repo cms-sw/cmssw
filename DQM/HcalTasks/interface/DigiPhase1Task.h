@@ -1,8 +1,8 @@
-#ifndef DigiTask_h
-#define DigiTask_h
+#ifndef DigiPhase1Task_h
+#define DigiPhase1Task_h
 
 /**
- *	file:			DigiTask.h
+ *	file:			DigiPhase1Task.h
  *	Author:			VK
  *	Description:
  *		HCAL DIGI Data Tier Processing.
@@ -26,11 +26,11 @@
 #include "DQM/HcalCommon/interface/ContainerSingleProf2D.h"
 #include "DQM/HcalCommon/interface/ContainerXXX.h"
 
-class DigiTask : public hcaldqm::DQTask
+class DigiPhase1Task : public hcaldqm::DQTask
 {
 	public:
-		DigiTask(edm::ParameterSet const&);
-		virtual ~DigiTask() {}
+		DigiPhase1Task(edm::ParameterSet const&);
+		virtual ~DigiPhase1Task() {}
 
 		virtual void bookHistograms(DQMStore::IBooker&,
 			edm::Run const&, edm::EventSetup const&);
@@ -46,23 +46,12 @@ class DigiTask : public hcaldqm::DQTask
 		edm::InputTag		_tagHBHE;
 		edm::InputTag		_tagHO;
 		edm::InputTag		_tagHF;
-		edm::EDGetTokenT<HBHEDigiCollection> _tokHBHE;
+		edm::EDGetTokenT<QIE11DigiCollection> _tokHBHE;
 		edm::EDGetTokenT<HODigiCollection>	 _tokHO;
-		edm::EDGetTokenT<HFDigiCollection>	_tokHF;
+		edm::EDGetTokenT<QIE10DigiCollection>	_tokHF;
 
 		double _cutSumQ_HBHE, _cutSumQ_HO, _cutSumQ_HF;
 		double _thresh_unihf;
-
-		//	flag vector
-		std::vector<hcaldqm::flag::Flag> _vflags;
-		enum DigiFlag
-		{
-			fDigiSize=0,
-			fUni = 1,
-			fNChsHF = 2,
-			fUnknownIds = 3,
-			nDigiFlag = 4
-		};
 
 		//	hashes/FED vectors
 		std::vector<uint32_t> _vhashFEDs;
@@ -70,7 +59,6 @@ class DigiTask : public hcaldqm::DQTask
 		//	emap
 		HcalElectronicsMap const* _emap;
 		hcaldqm::electronicsmap::ElectronicsMap _ehashmap; // online only
-		hcaldqm::electronicsmap::ElectronicsMap _dhashmap;
 
 		//	Filters
 		hcaldqm::filter::HashFilter _filter_VME;
@@ -105,8 +93,8 @@ class DigiTask : public hcaldqm::DQTask
 		//	Only for Online mode! just filling - no summary!
 		hcaldqm::ContainerProf1D _cQ2Q12CutvsLS_FEDHF;	//	online only!
 
-		//	Occupancy w/o a Cut - whatever is sitting in the Digi Collection
-		//	used to determine Missing Digis => used for Summary!
+		//	Occupancy w/o a Cut - whatever is sitting in the DigiPhase1 Collection
+		//	used to determine Missing DigiPhase1s => used for Summary!
 		hcaldqm::Container2D _cOccupancy_FEDVME;
 		hcaldqm::Container2D _cOccupancy_FEDuTCA;
 		hcaldqm::Container2D _cOccupancy_ElectronicsVME;
@@ -143,8 +131,6 @@ class DigiTask : public hcaldqm::DQTask
 
 		//	#events counters
 		MonitorElement *meNumEvents1LS; // to transfer the #events to harvesting
-		MonitorElement *meUnknownIds1LS;
-		bool _unknownIdsPresent;
 
 		hcaldqm::Container2D _cSummaryvsLS_FED; // online only
 		hcaldqm::ContainerSingle2D _cSummaryvsLS; // online only
