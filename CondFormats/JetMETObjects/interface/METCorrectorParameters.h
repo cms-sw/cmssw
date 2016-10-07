@@ -28,7 +28,7 @@ class METCorrectorParameters
         //-------- Member functions ----------
         unsigned nBinVar()                  const {return mBinVar.size(); }
         unsigned nParVar()                  const {return mParVar.size(); }
-        int ptclType()                      const {return ptclType; }
+        int PtclType()                      const {return ptclType; }
         std::vector<std::string> parVar()   const {return mParVar;        }
         std::vector<std::string> binVar()   const {return mBinVar;        } 
         std::string parVar(unsigned fIndex) const {return mParVar[fIndex];}
@@ -59,6 +59,7 @@ class METCorrectorParameters
         float parameter(unsigned fIndex)    const {return mParameters[fIndex];        }
         std::vector<float> parameters()     const {return mParameters;                }
         unsigned nParameters()              const {return mParameters.size();         }
+	std::string MetAxis()  const {return mMetAxis;       }
         int operator< (const Record& other) const {return xMin(0) < other.xMin(0);    }
       private:
         //-------- Member variables ----------
@@ -118,10 +119,13 @@ class METCorrectorParametersCollection {
   typedef std::vector<pair_type>         collection_type;
 
   // Constructor... initialize all three vectors to zero
-  METCorrectorParametersCollection() { correctionsMiniAod_.clear();}
+  METCorrectorParametersCollection() {
+    correctionsXYshift_.clear();
+    correctionsMiniAod_.clear(); // Obsolete
+  }
 
   // Add a METCorrectorParameter object, for each source 
-  void push_back( key_type i, value_type const & j, label_type const & source = "" );
+  void push_back( key_type i, value_type const & j, label_type const & flav = "" );
 
   // Access the METCorrectorParameter via the key k.
   // key_type is hashed to deal with the three collections
@@ -174,7 +178,8 @@ class METCorrectorParametersCollection {
   // Find the key corresponding to each label
   key_type findKey( std::string const & label ) const; // Not used
 
-  collection_type                        correctionsMiniAod_;
+  collection_type                        correctionsMiniAod_;// Not used
+  collection_type                        correctionsXYshift_;
 
  COND_SERIALIZABLE;
 };

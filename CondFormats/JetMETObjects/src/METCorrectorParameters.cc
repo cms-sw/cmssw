@@ -58,7 +58,7 @@ METCorrectorParameters::Definitions::Definitions(const std::string& fLine)
     if (tokens.size() != nParVar+nBinVar+4 ) 
     {
       std::stringstream sserr;
-      sserr<<"(line "<<fLine<<"): token size should be:"<<nParVar+nBinVar+3<<" but it is "<<tokens.size();
+      sserr<<"(line "<<fLine<<"): token size should be:"<<nParVar+nBinVar+4<<" but it is "<<tokens.size();
       handleError("METCorrectorParameters::Definitions",sserr.str());
     }
 
@@ -101,7 +101,7 @@ METCorrectorParameters::Record::Record(const std::string& fLine,unsigned fNvar) 
   }
 }
 //------------------------------------------------------------------------
-//--- JetCorrectorParameters constructor ---------------------------------
+//--- METCorrectorParameters constructor ---------------------------------
 //--- reads the member variables from a string ---------------------------
 //------------------------------------------------------------------------
 METCorrectorParameters::METCorrectorParameters(const std::string& fFile, const std::string& fSection) 
@@ -251,7 +251,7 @@ void METCorrectorParameters::printFile(const std::string& fFileName,const std::s
   txtFile.open(fFileName.c_str(),std::ofstream::app);
   txtFile.setf(std::ios::right);
   txtFile<<"["<<Section<<"]"<<"\n";
-  txtFile<<"{"<<" "<<definitions().ptclType()<<"  "<<definitions().nBinVar();
+  txtFile<<"{"<<" "<<definitions().PtclType()<<"  "<<definitions().nBinVar();
   for(unsigned i=0;i<definitions().nBinVar();i++)
     txtFile<<"  "<<definitions().binVar(i);
   txtFile<<"  "<<definitions().nParVar();
@@ -370,12 +370,14 @@ METCorrectorParametersCollection::findXYshiftDataFlavor( key_type k)
     return XYshiftFlavors_[k - (XYshiftData+1)*100 -1];
 }
 
+// Obsolete
 std::string
 METCorrectorParametersCollection::findMiniAodSource( key_type k)
 {
-  if( k == MiniAod) return labels_[MiniAod];
-  else
-    return MiniAodSource_[k - MiniAod*100 -1];
+  //if( k == MiniAod) return labels_[MiniAod];
+  //else
+  //  return MiniAodSource_[k - MiniAod*100 -1];
+  return MiniAodSource_[0];
 }
 void METCorrectorParametersCollection::getSections( std::string inputFile,
 						    std::vector<std::string> & outputs )
@@ -442,21 +444,22 @@ METCorrectorParameters const & METCorrectorParametersCollection::operator[]( key
 // that are aware of all three collections.
 void METCorrectorParametersCollection::validKeys(std::vector<key_type> & keys ) const {
   keys.clear();
-  for ( collection_type::const_iterator ibegin = correctionsMiniAod_.begin(),
-	  iend = correctionsMiniAod_.end(), i = ibegin; i != iend; ++i ) {
+  for ( collection_type::const_iterator ibegin = correctionsXYshift_.begin(),
+	  iend = correctionsXYshift_.end(), i = ibegin; i != iend; ++i ) {
     keys.push_back( i->first );
   }
 }
 
-
+// Obsolete
 METCorrectorParametersCollection::key_type
 METCorrectorParametersCollection::getMiniAodBin( std::string const & source ){
-  std::vector<std::string>::const_iterator found =
-    find( MiniAodSource_.begin(), MiniAodSource_.end(), source );
-  if ( found != MiniAodSource_.end() ) {
-    return (found - MiniAodSource_.begin() + 1)+ MiniAod * 100;
-  }
-  else return MiniAod;
+  //std::vector<std::string>::const_iterator found =
+  //  find( MiniAodSource_.begin(), MiniAodSource_.end(), source );
+  //if ( found != MiniAodSource_.end() ) {
+  //  return (found - MiniAodSource_.begin() + 1)+ MiniAod * 100;
+  //}
+  //else return MiniAod;
+  return 0;
 }
 
 
@@ -529,8 +532,9 @@ METCorrectorParametersCollection::getXYshiftDataFlavBin( std::string const & fla
 
 // Not used
 bool METCorrectorParametersCollection::isMiniAod( key_type k ) {
-  return k == MiniAod ||
-    (k > MiniAod*100 && k < MiniAod*100 + 100);
+  //return k == MiniAod ||
+  //  (k > MiniAod*100 && k < MiniAod*100 + 100);
+  return 0;
 }
 
 bool METCorrectorParametersCollection::isXYshiftMC( key_type k ) {
