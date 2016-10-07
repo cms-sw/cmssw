@@ -24,7 +24,7 @@
 
 
 SiPixelPhase1TrackClustersV::SiPixelPhase1TrackClustersV(const edm::ParameterSet& iConfig) :
-  SiPixelPhase1BaseV(iConfig) 
+  SiPixelPhase1Base(iConfig) 
 {
   clustersToken_ = consumes<edmNew::DetSetVector<SiPixelCluster>>(iConfig.getParameter<edm::InputTag>("clusters"));
   trackAssociationToken_ = consumes<TrajTrackAssociationCollection>(iConfig.getParameter<edm::InputTag>("trajectories"));

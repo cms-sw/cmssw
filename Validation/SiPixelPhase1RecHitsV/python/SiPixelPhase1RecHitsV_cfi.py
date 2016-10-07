@@ -1,5 +1,5 @@
 import FWCore.ParameterSet.Config as cms
-from Validation.SiPixelPhase1CommonV.HistogramManager_cfi import *
+from DQM.SiPixelPhase1Common.HistogramManager_cfi import *
 
 SiPixelPhase1RecHitsInTimeEvents = DefaultHisto.clone(
   name = "in_time_bunch",
@@ -183,7 +183,7 @@ SiPixelPhase1RecHitsAnalyzerV = cms.EDAnalyzer("SiPixelPhase1RecHitsV",
         geometry = SiPixelPhase1Geometry
 )
 
-SiPixelPhase1RecHitsHarvesterV = cms.EDAnalyzer("SiPixelPhase1HarvesterV",
+SiPixelPhase1RecHitsHarvesterV = cms.EDAnalyzer("SiPixelPhase1Harvester",
         histograms = SiPixelPhase1RecHitsConf,
         geometry = SiPixelPhase1Geometry
 )

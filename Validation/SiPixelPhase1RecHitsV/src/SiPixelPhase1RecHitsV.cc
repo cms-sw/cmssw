@@ -17,7 +17,7 @@
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 
 SiPixelPhase1RecHitsV::SiPixelPhase1RecHitsV(const edm::ParameterSet& iConfig) :
-  SiPixelPhase1BaseV(iConfig),
+  SiPixelPhase1Base(iConfig),
   trackerHitAssociatorConfig_( iConfig, consumesCollector() ),
   srcToken_ ( consumes<SiPixelRecHitCollection>(iConfig.getParameter<edm::InputTag>("src")) )
 {}

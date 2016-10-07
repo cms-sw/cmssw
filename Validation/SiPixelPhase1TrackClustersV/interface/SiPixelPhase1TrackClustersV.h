@@ -9,11 +9,11 @@
 // Original Author: Marcel Schneider
 // Additional Authors: Alexander Morton - modifying code for validation use
 
-#include "Validation/SiPixelPhase1CommonV/interface/SiPixelPhase1BaseV.h"
+#include "DQM/SiPixelPhase1Common/interface/SiPixelPhase1Base.h"
 #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
 #include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
 
-class SiPixelPhase1TrackClustersV : public SiPixelPhase1BaseV {
+class SiPixelPhase1TrackClustersV : public SiPixelPhase1Base {
   enum {
     CHARGE,
     SIZE_X,

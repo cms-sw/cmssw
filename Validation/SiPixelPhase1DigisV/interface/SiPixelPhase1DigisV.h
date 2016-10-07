@@ -14,9 +14,9 @@
 #include "DataFormats/SiPixelDigi/interface/PixelDigi.h"
 
 // PixelDQM Framework
-#include "Validation/SiPixelPhase1CommonV/interface/SiPixelPhase1BaseV.h"
+#include "DQM/SiPixelPhase1Common/interface/SiPixelPhase1Base.h"
 
-class SiPixelPhase1DigisV : public SiPixelPhase1BaseV {
+class SiPixelPhase1DigisV : public SiPixelPhase1Base {
   // List of quantities to be plotted. 
   enum {
     ADC, // digi ADC readouts
@@ -37,7 +37,7 @@ class SiPixelPhase1DigisV : public SiPixelPhase1BaseV {
 
 };
 
-class SiPixelPhase1DigisHarvesterV : public SiPixelPhase1HarvesterV {
+class SiPixelPhase1DigisHarvesterV : public SiPixelPhase1Harvester {
   enum {
     ADC, // digi ADC readouts
     NDIGIS, // number of digis per event and module

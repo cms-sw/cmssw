@@ -11,7 +11,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 SiPixelPhase1DigisHarvesterV::SiPixelPhase1DigisHarvesterV(const edm::ParameterSet& iConfig) :
-  SiPixelPhase1HarvesterV(iConfig) 
+  SiPixelPhase1Harvester(iConfig) 
 {}
 
 DEFINE_FWK_MODULE(SiPixelPhase1DigisHarvesterV);

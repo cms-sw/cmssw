@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 # this might also go into te Common config,as we do not reference it
-from Validation.SiPixelPhase1CommonV.HistogramManager_cfi import *
+from DQM.SiPixelPhase1Common.HistogramManager_cfi import *
 
 SiPixelPhase1DigisADC = DefaultHisto.clone(
   name = "adc",

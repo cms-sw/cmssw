@@ -9,11 +9,11 @@
 // Original Author: Marcel Schneider
 // Additional Authors: Alexander Morton - modifying code for validation use
 
-#include "Validation/SiPixelPhase1CommonV/interface/SiPixelPhase1BaseV.h"
+#include "DQM/SiPixelPhase1Common/interface/SiPixelPhase1Base.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
 #include "SimTracker/TrackerHitAssociation/interface/TrackerHitAssociator.h"
 
-class SiPixelPhase1RecHitsV : public SiPixelPhase1BaseV {
+class SiPixelPhase1RecHitsV : public SiPixelPhase1Base {
   enum {
     IN_TIME_BUNCH,
     OUT_TIME_BUNCH,

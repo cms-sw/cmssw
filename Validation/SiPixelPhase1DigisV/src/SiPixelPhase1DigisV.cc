@@ -21,7 +21,7 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 
 SiPixelPhase1DigisV::SiPixelPhase1DigisV(const edm::ParameterSet& iConfig) :
-  SiPixelPhase1BaseV(iConfig)
+  SiPixelPhase1Base(iConfig)
 {
   srcToken_ = consumes<edm::DetSetVector<PixelDigi>>(iConfig.getParameter<edm::InputTag>("src"));
 } 

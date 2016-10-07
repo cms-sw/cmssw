@@ -1,5 +1,5 @@
 import FWCore.ParameterSet.Config as cms
-from Validation.SiPixelPhase1CommonV.HistogramManager_cfi import *
+from DQM.SiPixelPhase1Common.HistogramManager_cfi import *
 
 SiPixelPhase1TrackClustersCharge = DefaultHisto.clone(
   name = "charge",
@@ -66,7 +66,7 @@ SiPixelPhase1TrackClustersAnalyzerV = cms.EDAnalyzer("SiPixelPhase1TrackClusters
         geometry = SiPixelPhase1Geometry
 )
 
-SiPixelPhase1TrackClustersHarvesterV = cms.EDAnalyzer("SiPixelPhase1HarvesterV",
+SiPixelPhase1TrackClustersHarvesterV = cms.EDAnalyzer("SiPixelPhase1Harvester",
         histograms = SiPixelPhase1TrackClustersConf,
         geometry = SiPixelPhase1Geometry
 )
