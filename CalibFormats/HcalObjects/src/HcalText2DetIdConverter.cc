@@ -118,6 +118,7 @@ bool HcalText2DetIdConverter::init (DetId fId) {
     case HcalZDCDetId::EM: flavorName = "ZDC_EM"; break;
     case HcalZDCDetId::HAD: flavorName = "ZDC_HAD"; break;
     case HcalZDCDetId::LUM: flavorName = "ZDC_LUM"; break;
+    case HcalZDCDetId::RPD: flavorName = "ZDC_RPD"; break;
     default: result = false;
     }
     setField (1, zdcId.zside());
@@ -206,7 +207,8 @@ bool HcalText2DetIdConverter::init (const std::string& fFlavor, const std::strin
   else if (flavorName.find ("ZDC_") == 0) {
     HcalZDCDetId::Section section = flavorName == "ZDC_EM" ? HcalZDCDetId::EM :
       flavorName == "ZDC_HAD" ? HcalZDCDetId::HAD : 
-      flavorName == "ZDC_LUM" ? HcalZDCDetId::LUM : HcalZDCDetId::Unknown;
+      flavorName == "ZDC_LUM" ? HcalZDCDetId::LUM : 
+      flavorName == "ZDC_RPD" ? HcalZDCDetId::RPD : HcalZDCDetId::Unknown;
     mId = HcalZDCDetId (section, getField (1)>0, getField (2));
   }
   else if (flavorName.find ("CALIB_") == 0) {
