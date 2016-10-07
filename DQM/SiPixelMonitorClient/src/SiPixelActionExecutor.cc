@@ -392,7 +392,7 @@ void SiPixelActionExecutor::fillSummary(DQMStore::IBooker& iBooker, DQMStore::IG
 		(*iv)=="size"||(*iv)=="sizeX"||(*iv)=="sizeY"||(*iv)=="minrow"||
 		(*iv)=="maxrow"||(*iv)=="mincol"||(*iv)=="maxcol")
 	  prefix="SUMCLU";
-          if(currDir.find("Track")!=string::npos) prefix="SUMTRK";
+	if(currDir.find("Track")!=string::npos) prefix="SUMTRK";
 	else if((*iv)=="residualX"||(*iv)=="residualY")
 	  prefix="SUMTRK";
 	else if((*iv)=="ClustX"||(*iv)=="ClustY"||(*iv)=="nRecHits"||(*iv)=="ErrorX"||(*iv)=="ErrorY")
@@ -967,7 +967,7 @@ void SiPixelActionExecutor::fillGrandBarrelSummaryHistos(DQMStore::IBooker & iBo
 		    (*iv)=="size"||(*iv)=="sizeX"||(*iv)=="sizeY"||(*iv)=="minrow"||
 		    (*iv)=="maxrow"||(*iv)=="mincol"||(*iv)=="maxcol")
 	      prefix="SUMCLU";
-	      if(currDir.find("Track")!=string::npos) prefix="SUMTRK";
+	    if(currDir.find("Track")!=string::npos) prefix="SUMTRK";
 	    else if((*iv)=="residualX_mean"||(*iv)=="residualY_mean"||
 		    (*iv)=="residualX_RMS"||(*iv)=="residualY_RMS")
 	      prefix="SUMTRK";
@@ -1215,7 +1215,7 @@ void SiPixelActionExecutor::fillGrandEndcapSummaryHistos(DQMStore::IBooker& iBoo
 		    (*iv)=="size"||(*iv)=="sizeX"||(*iv)=="sizeY"||(*iv)=="minrow"||
 		    (*iv)=="maxrow"||(*iv)=="mincol"||(*iv)=="maxcol")
 	      prefix="SUMCLU";
-	      if(currDir.find("Track")!=string::npos) prefix="SUMTRK";
+	    if(currDir.find("Track")!=string::npos) prefix="SUMTRK";
 	    else if((*iv)=="residualX_mean"||(*iv)=="residualY_mean"||
 		    (*iv)=="residualX_RMS"||(*iv)=="residualY_RMS")
 	      prefix="SUMTRK";
@@ -1689,6 +1689,15 @@ void SiPixelActionExecutor::bookEfficiency(DQMStore::IBooker & iBooker, bool isU
       HitEfficiency_Dm3 = iBooker.book2D("HitEfficiency_Dm3","Hit Efficiency in Endcap_Disk_m3;Blades;Modules",28,-17.,11.,2,1.,3.);
     }
   }//endif(isUpgrade)
+  iBooker.cd();
+  iBooker.cd("Pixel/");
+  string bins[] = {"Layer1","Layer2","Layer3","Disk1+","Disk2+","Disk1-","Disk2-"};
+  HitEfficiencySummary = iBooker.book1D("HitEfficiencySummary","Hit efficiency per sub detector",7,0,7);
+  HitEfficiencySummary->setAxisTitle("Sub Detector", 1);
+  HitEfficiencySummary->setAxisTitle("Efficiency (%)",2);
+  for (int i = 1; i < 8; i++){
+    HitEfficiencySummary->setBinLabel(i,bins[i-1]);
+  }
 }
 
 //=============================================================================================================
@@ -2072,4 +2081,37 @@ void SiPixelActionExecutor::fillEfficiency(DQMStore::IBooker & iBooker, DQMStore
     }
   } // end online/offline
   //cout<<"leaving SiPixelActionExecutor::fillEfficiency..."<<std::endl;
+}
+
+//=============================================================================================================
+
+void SiPixelActionExecutor::fillEfficiencySummary(DQMStore::IBooker & iBooker, DQMStore::IGetter & iGetter){
+  //cout<<"entering SiPixelActionExecutor::fillEfficiencySummary..."<<std::endl;
+  //First we get the summary plot"
+  if (!Tier0Flag_) return;
+  HitEfficiencySummary = iGetter.get("Pixel/HitEfficiencySummary");
+  //Now we will loop over the hit efficiency plots and fill it"
+  string hitEfficiencyPostfix[] = {"L1","L2","L3","Dp1","Dp2","Dm1","Dm2"};
+  for (int i = 0; i < 7; i++){
+    string subdetName = "Endcap/";
+    if (i < 3) subdetName = "Barrel/";
+    char meName [50];
+    sprintf(meName,"Pixel/%sHitEfficiency_%s",subdetName.c_str(),hitEfficiencyPostfix[i].c_str());
+    MonitorElement * tempHitEffMap = iGetter.get(meName);
+    float totalEff = 0.;
+    int totalBins = 0;
+    for (int xBin = 1; xBin < tempHitEffMap->getNbinsX() + 1; xBin++){
+      for (int yBin = 1; yBin < tempHitEffMap->getNbinsY() + 1; yBin++){
+	if (tempHitEffMap->getBinContent(xBin,yBin) > 0.){
+	  totalEff += tempHitEffMap->getBinContent(xBin,yBin);
+	  totalBins++;
+	}
+      }
+    }
+    float overalEff = 0.;
+    std::cout << i << " " << totalEff << " " << totalBins << std::endl;
+    if (totalBins > 0) overalEff = totalEff/float(totalBins);
+    HitEfficiencySummary->setBinContent(i+1,overalEff);
+  }
+  
 }
