@@ -32,9 +32,8 @@ from Configuration.Eras.Modifier_phase2_hcal_cff import phase2_hcal
 phase2_hcal.toReplaceWith(DigiToRaw, DigiToRaw.copyAndExclude([hcalRawData]))
 
 # Remove siPixelRawData until we have phase1 pixel digis
-eras.phase1Pixel.toReplaceWith(DigiToRaw, DigiToRaw.copyAndExclude([siPixelRawData])) # FIXME
-# same for phase2 tracker
-eras.phase2_tracker.toReplaceWith(DigiToRaw, DigiToRaw.copyAndExclude([siPixelRawData,rpcpacker])) # FIXME
+from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
+phase2_tracker.toReplaceWith(DigiToRaw, DigiToRaw.copyAndExclude([siPixelRawData,rpcpacker])) # FIXME
 
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
 if fastSim.isChosen() :
