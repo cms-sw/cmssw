@@ -889,8 +889,6 @@ int SiPixelTemplateSplit::PixelTempSplit(int id, float cotalpha, float cotbeta, 
 // uncertainty and final correction depend upon charge bin 	   
 	   
 	   bias = templ.xavgc2m(binq);
-	   k = std::min(minbink, minbinj);
-	   j = std::max(minbink, minbinj);
        xrec1 = (0.125f*(minbink-xcbin)+BHX-(float)shiftx+originx)*xsize - bias;
        xrec2 = (0.125f*(minbinj-xcbin)+BHX-(float)shiftx+originx)*xsize - bias;
 	   sigmax = sqrt2x*templ.xrmsc2m(binq);
