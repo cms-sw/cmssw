@@ -36,6 +36,7 @@ eras.phase1Pixel.toReplaceWith(DigiToRaw, DigiToRaw.copyAndExclude([siPixelRawDa
 # same for phase2 tracker
 eras.phase2_tracker.toReplaceWith(DigiToRaw, DigiToRaw.copyAndExclude([siPixelRawData,rpcpacker])) # FIXME
 
-if eras.fastSim.isChosen() :
+from Configuration.Eras.Modifier_fastSim_cff import fastSim
+if fastSim.isChosen() :
     for _entry in [siPixelRawData,SiStripDigiToRaw,castorRawData]:
         DigiToRaw.remove(_entry)

@@ -1,4 +1,5 @@
 import FWCore.ParameterSet.Config as cms
+#import SLHCUpgradeSimulations.Configuration.customise_PFlow as customise_PFlow
 from Configuration.StandardSequences.Eras import eras
 
 #GEN-SIM so far...

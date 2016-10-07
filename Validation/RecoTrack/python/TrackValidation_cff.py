@@ -393,7 +393,7 @@ tracksValidationTruth = cms.Sequence(
     VertexAssociatorByPositionAndTracks +
     trackingParticleNumberOfLayersProducer
 )
-eras.fastSim.toModify(tracksValidationTruth, lambda x: x.remove(tpClusterProducer))
+fastSim.toModify(tracksValidationTruth, lambda x: x.remove(tpClusterProducer))
 
 tracksPreValidation = cms.Sequence(
     tracksValidationSelectors +
