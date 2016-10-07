@@ -28,6 +28,7 @@ class XMLConfigReader{
  public:
 
   XMLConfigReader();
+  ~XMLConfigReader();
 
   void readConfig(const std::string fName);
 
@@ -67,4 +68,5 @@ class XMLConfigReader{
   std::vector<GoldenPattern*> aGPs;
 
 };
+
 #endif
