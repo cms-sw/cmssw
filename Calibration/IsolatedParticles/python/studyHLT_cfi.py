@@ -3,6 +3,7 @@ import FWCore.ParameterSet.Config as cms
 StudyHLT = cms.EDAnalyzer("StudyHLT",
                           Verbosity       = cms.untracked.int32( 0 ),
                           Triggers        = cms.untracked.vstring([]),
+                          ParticleSource  = cms.InputTag("genParticles"),
                           TrackQuality    = cms.untracked.string("highPurity"),
                           MinTrackPt      = cms.untracked.double(10.0),
                           MaxDxyPV        = cms.untracked.double(0.02),
