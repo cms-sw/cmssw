@@ -118,7 +118,7 @@ MuonGEMRecHitsHarvestor::dqmEndJob(DQMStore::IBooker& ibooker, DQMStore::IGetter
   ig.setCurrentFolder(dbe_path_.c_str());
  
   const char* l_suffix[4] = {"_l1","_l2","_l1or2","_l1and2"};
-  const char* s_suffix[3] = {"_st1","_st2_short","_st2_long"};   
+  const char* s_suffix[3] = {"_st1","_st2","_st2"};   
   const char* c_suffix[3] = {"_even","_odd","_all"};   
 
   TH1F* gem_trk_eta[3];

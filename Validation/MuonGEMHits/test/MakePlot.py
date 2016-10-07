@@ -14,7 +14,8 @@ ROOT.gROOT.SetBatch(1)
 
 import optparse
 def getEtaRange( station ) :
-  etaRange = [1.55,2.15,1.65,2.05,1.65,2.45]
+  etaRange = [1.55,2.15,1.65,2.45,1.65,2.45]
+  #etaRange = [1.55,2.15,1.65,2.05,1.65,2.45]
   if ( station ==1 or station==2 or station ==3 ) :
     return etaRange[ (station-1)*2], etaRange[ (station-1)*2+1 ]
   else :

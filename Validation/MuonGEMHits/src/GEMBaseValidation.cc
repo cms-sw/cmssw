@@ -77,7 +77,8 @@ string GEMBaseValidation::getStationLabel(int i) {
     return stationLabel[i-1];
   }
   else if ( nstationForLabel ==3 ) {
-    string stationLabel[] = {"1","2s","2l"};
+    string stationLabel[] = {"1","2","2"};
+    //string stationLabel[] = {"1","2s","2l"};
     return stationLabel[i-1];
   }
   else {
