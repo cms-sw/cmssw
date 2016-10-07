@@ -73,6 +73,8 @@ class SiPixelActionExecutor {
                                     bool                           hiRes);
  void createOccupancy(    	    DQMStore::IBooker            & iBooker,
 				    DQMStore::IGetter  		 & iGetter);
+ void normaliseAvDigiOcc(	    DQMStore::IBooker		 & iBooker,
+				    DQMStore::IGetter		 & iGetter);
  bool readConfiguration(	    int 			 & tkmap_freq, 
                         	    int 			 & sum_barrel_freq, 
 				    int 			 & sum_endcap_freq, 
