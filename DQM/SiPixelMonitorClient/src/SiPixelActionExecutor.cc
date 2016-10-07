@@ -1630,8 +1630,8 @@ void SiPixelActionExecutor::fillOccupancy(DQMStore::IBooker & iBooker, DQMStore:
 
 //=============================================================================================================
 
-void SiPixelActionExecutor::normaliseROCcupancy(DQMStore::IBooker & iBooker, DQMStore::IGetter & iGetter){
-  //occupancyprinting cout<<"entering SiPixelActionExecutor::normaliseROCcupancy..."<<std::endl;
+void SiPixelActionExecutor::normaliseAvDigiOcc(DQMStore::IBooker & iBooker, DQMStore::IGetter & iGetter){
+  //occupancyprinting cout<<"entering SiPixelActionExecutor::normaliseAvDigiOcc..."<<std::endl;
   
   iGetter.cd();
 

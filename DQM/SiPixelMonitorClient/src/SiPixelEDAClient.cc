@@ -244,7 +244,7 @@ void SiPixelEDAClient::dqmEndJob(DQMStore::IBooker & iBooker, DQMStore::IGetter 
 
     sipixelActionExecutor_->createOccupancy(iBooker,iGetter);
 
-    if(Tier0Flag_) sipixelActionExecutor_->normaliseROCcupancy(iBooker,iGetter);
+    if(Tier0Flag_) sipixelActionExecutor_->normaliseAvDigiOcc(iBooker,iGetter);
 
     iBooker.cd();
     iGetter.cd();
