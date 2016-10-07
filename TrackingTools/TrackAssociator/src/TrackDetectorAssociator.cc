@@ -28,6 +28,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Utilities/interface/isFinite.h"
 #include "DataFormats/Common/interface/OrphanHandle.h"
 
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -234,7 +235,7 @@ TrackDetMatchInfo TrackDetectorAssociator::associate( const edm::Event& iEvent,
    }
 
    if ( trackOrigin.momentum().mag() == 0 ) return info;
-   if ( std::isnan(trackOrigin.momentum().x()) or std::isnan(trackOrigin.momentum().y()) or std::isnan(trackOrigin.momentum().z()) ) return info;
+   if ( edm::isNotFinite(trackOrigin.momentum().x()) or edm::isNotFinite(trackOrigin.momentum().y()) or edm::isNotFinite(trackOrigin.momentum().z()) ) return info;
    if ( ! cachedTrajectory_.propagateAll(trackOrigin) ) return info;
    
    // get trajectory in calorimeters
