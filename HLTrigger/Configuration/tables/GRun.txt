@@ -621,6 +621,10 @@ HLT_L1MinimumBiasHF_AND_v*					# JIRA: CMSHLT-720
 #HLT_L1MinimumBiasHF_OR_v*					# JIRA: CMSHLT-720 # removed CMSHLT-1027
 HLT_L1MinimumBiasHF_OR_part*					# JIRA: CMSHLT-1027
 
+HLT_L1BptxMinus_v*                                    # JIRA: CMSHLT-1060
+HLT_L1BptxPlus_v*                                     # JIRA: CMSHLT-1060
+HLT_L1NotBptxOR_v*                                    # JIRA: CMSHLT-1060
+
 HLT_L1SingleMu18_v*						# JIRA: CMSHLT-500, CMSHLT-857
 HLT_L2Mu10_v*							# JIRA: CMSHLT-500
 
@@ -728,7 +732,7 @@ PhysicsMuonsOutput
 PhysicsMinimumBias0Output				# JIRA: CMSHLT-1027
 PhysicsMinimumBias1Output				# JIRA: CMSHLT-1027
 PhysicsMinimumBias2Output				# JIRA: CMSHLT-1027
-PhysicsCirculating						# JIRA: CMSHLT-1006
+#PhysicsCirculating						# JIRA: CMSHLT-1006
 ParkingOutput							# JIRA: CMSHLT-487, CMSHLT-603
 ParkingHLTPhysicsOutput
 ParkingZeroBiasOutput
