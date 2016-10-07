@@ -1,5 +1,5 @@
 import FWCore.ParameterSet.Config as cms
-#import SLHCUpgradeSimulations.Configuration.customise_PFlow as customise_PFlow
+from Configuration.StandardSequences.Eras import eras
 
 #GEN-SIM so far...
 def customise(process):
@@ -28,42 +28,16 @@ def customise(process):
     return process
 
 def customise_Digi(process):
-    process.digitisation_step.remove(process.mix.digitizers.pixel)
-    process.load('SimTracker.SiPhase2Digitizer.phase2TrackerDigitizer_cfi')
-    process.mix.digitizers.pixel=process.phase2TrackerDigitizer
-    process.mix.digitizers.strip.ROUList = cms.vstring("g4SimHitsTrackerHitsPixelBarrelLowTof",
-                         'g4SimHitsTrackerHitsPixelEndcapLowTof')
-    #Check if mergedtruth is in the sequence first, could be taken out depending on cmsDriver options
-    if hasattr(process.mix.digitizers,"mergedtruth") :
-        process.mix.digitizers.mergedtruth.simHitCollections.tracker.remove( cms.InputTag("g4SimHits","TrackerHitsTIBLowTof"))
-        process.mix.digitizers.mergedtruth.simHitCollections.tracker.remove( cms.InputTag("g4SimHits","TrackerHitsTIBHighTof"))
-        process.mix.digitizers.mergedtruth.simHitCollections.tracker.remove( cms.InputTag("g4SimHits","TrackerHitsTOBLowTof"))
-        process.mix.digitizers.mergedtruth.simHitCollections.tracker.remove( cms.InputTag("g4SimHits","TrackerHitsTOBHighTof"))
-        process.mix.digitizers.mergedtruth.simHitCollections.tracker.remove( cms.InputTag("g4SimHits","TrackerHitsTECLowTof"))
-        process.mix.digitizers.mergedtruth.simHitCollections.tracker.remove( cms.InputTag("g4SimHits","TrackerHitsTECHighTof"))
-        process.mix.digitizers.mergedtruth.simHitCollections.tracker.remove( cms.InputTag("g4SimHits","TrackerHitsTIDLowTof"))
-        process.mix.digitizers.mergedtruth.simHitCollections.tracker.remove( cms.InputTag("g4SimHits","TrackerHitsTIDHighTof"))
-
-    # keep new digis
-    alist=['FEVTDEBUG','FEVTDEBUGHLT','FEVT']
-    for a in alist:
-        b=a+'output'
-        if hasattr(process,b):
-            getattr(process,b).outputCommands.append('keep Phase2TrackerDigiedmDetSetVector_*_*_*')
     return process
 
 
 def customise_DigiToRaw(process):
-    process.digi2raw_step.remove(process.siPixelRawData)
-    process.digi2raw_step.remove(process.rpcpacker)
     return process
 
 def customise_RawToDigi(process):
-    process.raw2digi_step.remove(process.siPixelDigis)
     return process
 
 def customise_Reco(process,pileup):
-
     return process
 
 def customise_condOverRides(process):
@@ -72,14 +46,4 @@ def customise_condOverRides(process):
 
 
 def customise_Validation(process,pileup):
-
-    process.pixelDigisValid.src = cms.InputTag('simSiPixelDigis', "Pixel")
-    if hasattr(process,'simHitTPAssocProducer'):
-        process.simHitTPAssocProducer.simHitSrc=cms.VInputTag(cms.InputTag("g4SimHits","TrackerHitsPixelBarrelLowTof"),
-                                                              cms.InputTag("g4SimHits","TrackerHitsPixelEndcapLowTof"))
-
-    if hasattr(process,'trackingParticleNumberOfLayersProducer'):
-        process.trackingParticleNumberOfLayersProducer.simHits=cms.VInputTag(cms.InputTag("g4SimHits","TrackerHitsPixelBarrelLowTof"),
-                                                               cms.InputTag("g4SimHits","TrackerHitsPixelEndcapLowTof"))
-
     return process
