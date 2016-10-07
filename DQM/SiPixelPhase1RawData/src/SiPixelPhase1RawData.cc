@@ -31,11 +31,14 @@ void SiPixelPhase1RawData::analyze(const edm::Event& iEvent, const edm::EventSet
       int type = siPixelRawDataError.getType();
       DetId id = it->detId();
       
+      // encoding of the channel number within the FED error word
       const uint32_t LINK_bits = 6;
       const uint32_t LINK_shift = 26;
       const uint64_t LINK_mask = (1 << LINK_bits) - 1;
 
       uint64_t errorWord = 0;
+      // use 64bit word for some error types
+      // invalid header, invalid trailer, size mismatch
       if (type == 32 || type == 33 || type == 34) {
         errorWord = siPixelRawDataError.getWord64();
       } else {
@@ -43,6 +46,7 @@ void SiPixelPhase1RawData::analyze(const edm::Event& iEvent, const edm::EventSet
       }
 
       int32_t chanNmbr = (errorWord >> LINK_shift) & LINK_mask;
+      // timeout
       if (type == 29) chanNmbr = -1; // TODO: different formula needed.
 
       uint32_t error_data = errorWord & 0xFF;
