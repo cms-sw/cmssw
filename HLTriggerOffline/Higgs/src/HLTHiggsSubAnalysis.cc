@@ -23,6 +23,7 @@
 #include "HLTriggerOffline/Higgs/src/MatchStruct.cc"
 
 #include "TPRegexp.h"
+#include "TRegexp.h"
 #include "TString.h"
 
 #include<set>
@@ -130,6 +131,30 @@ HLTHiggsSubAnalysis::HLTHiggsSubAnalysis(const edm::ParameterSet & pset,
                         << _analysisname << "' has a vector NminOneCuts with size "
                         << _NminOneCuts.size() << ", while it needs to be at least of size " 
                         <<  (9 + _minCandidates) << ".";
+            exit(-1);
+        }
+        if( (_NminOneCuts[0] || _NminOneCuts[1]) &&  _minCandidates  < 4 )
+        {
+            edm::LogError("HiggsValidation") << "In HLTHiggsSubAnalysis::HLTHiggsSubAnalysis, " 
+                        << "Incoherence found in the python configuration file!!\nThe SubAnalysis '" 
+                        << _analysisname << "' has a vector NminOneCuts with a dEtaqq of mqq cut on the least b-tagged jets of the first 4 jets while only requiring " 
+                        <<  _minCandidates << " jets.";
+            exit(-1);
+        }
+        if( _NminOneCuts[5] && _minCandidates < 3 )
+        {
+            edm::LogError("HiggsValidation") << "In HLTHiggsSubAnalysis::HLTHiggsSubAnalysis, " 
+                        << "Incoherence found in the python configuration file!!\nThe SubAnalysis '" 
+                        << _analysisname << "' has a vector NminOneCuts with a CSV3 cut while only requiring " 
+                        <<  _minCandidates << " jets.";
+            exit(-1);
+        }
+        if( (_NminOneCuts[2] || _NminOneCuts[4]) &&  _minCandidates < 2 )
+        {
+            edm::LogError("HiggsValidation") << "In HLTHiggsSubAnalysis::HLTHiggsSubAnalysis, " 
+                        << "Incoherence found in the python configuration file!!\nThe SubAnalysis '" 
+                        << _analysisname << "' has a vector NminOneCuts with a dPhibb or CSV2 cut using the second most b-tagged jet while only requiring " 
+                        <<  _minCandidates << " jet.";
             exit(-1);
         }
         for(std::vector<double>::const_iterator it = _NminOneCuts.begin(); it != _NminOneCuts.end(); ++it)
@@ -754,7 +779,8 @@ const std::vector<unsigned int> HLTHiggsSubAnalysis::getObjectsType(const std::s
            continue;
         }
         if( ( objtriggernames[i] == EVTColContainer::CALOMET && (TString(hltPath).Contains("PFMET") || TString(hltPath).Contains("MHT") ) ) || // fix for PFMET
-        (objtriggernames[i] == EVTColContainer::PFJET && TString(hltPath).Contains("JetIdCleaned")) ) // fix for Htaunu
+        (objtriggernames[i] == EVTColContainer::PFJET && TString(hltPath).Contains("JetIdCleaned") && ! TString(hltPath).Contains(TRegexp("Jet[^I]"))) || // fix for Htaunu
+        (objtriggernames[i] == EVTColContainer::MUON && TString(hltPath).Contains("METNoMu")) ) // fix for VBFHToInv
         {
             continue;
         }
