@@ -113,7 +113,7 @@ class JetAnalyzer : public DQMEDAnalyzer {
   edm::InputTag theTriggerResultsLabel_;
 
 
-
+  //  bool isAOD;
   std::string  jetType_;
 
   edm::EDGetTokenT<edm::TriggerResults>           triggerResultsToken_;
@@ -173,7 +173,7 @@ class JetAnalyzer : public DQMEDAnalyzer {
   // Book MonitorElements
   void bookMESetSelection(std::string,DQMStore::IBooker &);
   //void bookMonitorElement(std::string, bool);
-
+  
   int    verbose_;
   //histo binning parameters -> these are PART of ALL analyzers - move it up
   int    etaBin_;

@@ -44,10 +44,10 @@ using namespace math;
 
 // ***********************************************************
 METAnalyzer::METAnalyzer(const edm::ParameterSet& pSet) {
-  isAOD = false;
+  //isAOD = false;
 
   parameters = pSet;
-
+  isAOD = pSet.getParameter<bool>("isAOD");
   m_l1algoname_ = pSet.getParameter<std::string>("l1algoname");
   m_bitAlgTechTrig_=-1;
 
@@ -1285,9 +1285,7 @@ void METAnalyzer::makeRatePlot(std::string DirName, double totltime)
 // ***********************************************************
 void METAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
-  //remove
-  std::cout<<" debug 1"<<std::endl;
-
+  
   // *** Fill lumisection ME
   int myLuminosityBlock;
   myLuminosityBlock = iEvent.luminosityBlock();
@@ -1341,8 +1339,7 @@ void METAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     }
   }
   
-  //remove
-  std::cout<<" debug 2"<<std::endl;
+  
   
   // ==========================================================
   // MET information
@@ -1390,10 +1387,7 @@ void METAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     patmet=&(patmetcoll->front());
   }
   
-  //remove
-  std::cout<<" debug 3"<<std::endl;
   
-
   LogTrace("METAnalyzer")<<"[METAnalyzer] Call to the MET analyzer";
 
   // ==========================================================
@@ -1508,6 +1502,7 @@ void METAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     }
 
     
+    // This will not run on AOD and deletion of RECO will need this switch. 
     if(isAOD){
       
     if(isCaloMet_){
@@ -1522,7 +1517,7 @@ void METAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	  iscleaned=true;
 	}
       }
-    }
+    }// end of if(isAOD){ 
     }
     
     ///*
@@ -2295,6 +2290,8 @@ void METAnalyzer::fillMonitorElement(const edm::Event& iEvent, std::string DirNa
 	
 	  //fill quantities for isolated charged hadron quantities
 	  //only for charged hadrons
+	  // switch added so that code can run on AOD
+	  // this information is not available in the AOD. 
 	  if(isAOD){
 	    if ( c.particleId() == 1 &&  c.pt() > ptMinCand_ ){
 	      // At least 1 GeV in HCAL

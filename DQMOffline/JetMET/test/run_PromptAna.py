@@ -39,7 +39,7 @@ secFiles.extend( [
 
 #
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32( -1 )
+    input = cms.untracked.int32( 100)
 )
 
 process.load("DQMOffline.JetMET.dataCertificationJetMET_cff")

@@ -4,6 +4,7 @@ from DQMOffline.JetMET.jetDQMConfig_cff import *      # parameters for all jet a
 from DQMOffline.JetMET.jetMETDQMCleanup_cff import *  # parameters for event cleanup
 
 jetDQMAnalyzerAk4CaloUncleaned = cms.EDAnalyzer("JetAnalyzer",
+    isAOD    = cms.bool (False),
     JetType = cms.string('calo'),#pf, calo or jpt
     JetCorrections = cms.InputTag("dqmAk4CaloL2L3ResidualCorrector"),
     jetsrc = cms.InputTag("ak4CaloJets"),

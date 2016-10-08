@@ -7,12 +7,15 @@ from DQMOffline.JetMET.jetMETDQMCleanup_cff import *  # parameters for event cle
 
 jetMETAnalyzer = cms.EDAnalyzer("JetMETAnalyzer",
 
+                                
     #
     # Output files
     #
     OutputMEsInRootFile = cms.bool(False),
     OutputFileName = cms.string('jetMETMonitoring.root'),
-
+    
+    isAOD   = cms.bool(False),                               
+                                
     #
     #
     #

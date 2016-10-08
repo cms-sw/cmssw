@@ -10,6 +10,9 @@
  *          M. Artur Weber
  *          R. Schoefbeck
  *          V. Sordini
+ *
+ *          July '16: modified by
+ *          R. Khurana
  */
 
 #include "DQMOffline/JetMET/interface/JetAnalyzer.h"
@@ -65,10 +68,11 @@ JetAnalyzer::JetAnalyzer(const edm::ParameterSet& pSet)
 //: trackPropagator_(new jetAnalysis::TrackPropagatorToCalo)//,
     //sOverNCalculator_(new jetAnalysis::StripSignalOverNoiseCalculator)
 {
-  isAOD = false;
+  //isAOD = false;
   
 
   parameters_ = pSet.getParameter<edm::ParameterSet>("jetAnalysis");
+  isAOD = pSet.getParameter<bool>("isAOD");
   mInputCollection_           =    pSet.getParameter<edm::InputTag>       ("jetsrc");
   m_l1algoname_ = pSet.getParameter<std::string>("l1algoname");
   m_bitAlgTechTrig_=-1;
@@ -2064,6 +2068,8 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 
       
 
+      // this information is not present in the AOD. 
+      // This runs only on RECO
       if(isAOD){
       if(!runcosmics_){
 	reco::JetID jetID = (*jetID_ValueMap_Handle)[calojetref];
