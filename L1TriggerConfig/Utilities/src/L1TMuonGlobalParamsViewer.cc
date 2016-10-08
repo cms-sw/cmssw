@@ -22,6 +22,8 @@ using namespace std;
 class L1TMuonGlobalParamsViewer: public edm::EDAnalyzer {
 private:
 //    bool printLayerMap;
+    std::string hash(void *buf, size_t len) const ;
+    void printLUT(l1t::LUT* lut, const char *name) const ;
 public:
     virtual void analyze(const edm::Event&, const edm::EventSetup&);
 //    string hash(void *buf, size_t len) const ;
@@ -32,7 +34,6 @@ public:
     virtual ~L1TMuonGlobalParamsViewer(void){}
 };
 
-/*
 #include <openssl/sha.h>
 #include <math.h>
 #include <iostream>
@@ -43,14 +44,14 @@ string L1TMuonGlobalParamsViewer::hash(void *buf, size_t len) const {
     bzero(tmp,sizeof(tmp));
     SHA_CTX ctx;
     if( !SHA1_Init( &ctx ) )
-        throw cms::Exception("L1TCaloParamsReader::hash")<<"SHA1 initialization error";
+        throw cms::Exception("L1TMuonGlobalParamsViewer::hash")<<"SHA1 initialization error";
 
     if( !SHA1_Update( &ctx, buf, len ) )
-        throw cms::Exception("L1TCaloParamsReader::hash")<<"SHA1 processing error";
+        throw cms::Exception("L1TMuonGlobalParamsViewer::hash")<<"SHA1 processing error";
 
     unsigned char hash[SHA_DIGEST_LENGTH];
     if( !SHA1_Final(hash, &ctx) )
-        throw cms::Exception("L1TCaloParamsReader::hash")<<"SHA1 finalization error";
+        throw cms::Exception("L1TMuonGlobalParamsViewer::hash")<<"SHA1 finalization error";
 
     // re-write bytes in hex
     for(unsigned int i=0; i<20; i++)
@@ -59,7 +60,20 @@ string L1TMuonGlobalParamsViewer::hash(void *buf, size_t len) const {
     tmp[20*2] = 0;
     return string(tmp);
 }
-*/
+
+void L1TMuonGlobalParamsViewer::printLUT(l1t::LUT* lut, const char *name) const {
+
+    if( !lut->empty() ){
+        cout<<"  "<<std::setw(24)<<name<<"["<<lut->maxSize()<<"] "<<flush;
+        int pod[lut->maxSize()];
+        for(unsigned int i=0; i<lut->maxSize(); i++) pod[i] = lut->data(i);
+        cout << hash( pod, sizeof(int)*lut->maxSize() )<<endl;
+    } else {
+        cout<<"  "<<std::setw(24)<<name<<"[0]"<<endl;
+    }
+
+}
+
 void L1TMuonGlobalParamsViewer::analyze(const edm::Event& iEvent, const edm::EventSetup& evSetup){
 
     // Pull the config from the ES
@@ -67,10 +81,68 @@ void L1TMuonGlobalParamsViewer::analyze(const edm::Event& iEvent, const edm::Eve
     evSetup.get<L1TMuonGlobalParamsRcd>().get( handle1 ) ;
     boost::shared_ptr<L1TMuonGlobalParams> ptr1(new L1TMuonGlobalParams(*(handle1.product ())));
 
-    cout<<"Some fields in L1TMuonGlobalParams: "<<endl;
+//    cout<<"Some fields in L1TMuonGlobalParams: "<<endl;
 
-    ((L1TMuonGlobalParamsHelper*)ptr1.get())->print(cout);
+//    ((L1TMuonGlobalParamsHelper*)ptr1.get())->print(cout);
 
+    printLUT( ptr1.get()->absIsoCheckMemLUT(), "absIsoCheckMemLUT" );
+    printLUT( ptr1.get()->absIsoCheckMemLUT(), "absIsoCheckMemLUT" );
+    printLUT( ptr1.get()->relIsoCheckMemLUT(), "relIsoCheckMemLUT" );
+    printLUT( ptr1.get()->idxSelMemPhiLUT(),   "idxSelMemPhiLUT" );
+    printLUT( ptr1.get()->idxSelMemEtaLUT(),   "idxSelMemEtaLUT" );
+  //l1t::LUT* brlSingleMatchQualLUT();
+    printLUT( ptr1.get()->fwdPosSingleMatchQualLUT(),"fwdPosSingleMatchQualLUT" );
+    printLUT( ptr1.get()->fwdNegSingleMatchQualLUT(),"fwdNegSingleMatchQualLUT" );
+    printLUT( ptr1.get()->ovlPosSingleMatchQualLUT(),"ovlPosSingleMatchQualLUT" );
+    printLUT( ptr1.get()->ovlNegSingleMatchQualLUT(),"ovlNegSingleMatchQualLUT" );
+    printLUT( ptr1.get()->bOPosMatchQualLUT(),"bOPosMatchQualLUT" );
+    printLUT( ptr1.get()->bONegMatchQualLUT(),"bONegMatchQualLUT" );
+    printLUT( ptr1.get()->fOPosMatchQualLUT(),"fOPosMatchQualLUT" );
+    printLUT( ptr1.get()->fONegMatchQualLUT(),"fONegMatchQualLUT" );
+    printLUT( ptr1.get()->bPhiExtrapolationLUT(),"bPhiExtrapolationLUT" );
+    printLUT( ptr1.get()->oPhiExtrapolationLUT(),"oPhiExtrapolationLUT" );
+    printLUT( ptr1.get()->fPhiExtrapolationLUT(),"fPhiExtrapolationLUT" );
+    printLUT( ptr1.get()->bEtaExtrapolationLUT(),"bEtaExtrapolationLUT" );
+    printLUT( ptr1.get()->oEtaExtrapolationLUT(),"oEtaExtrapolationLUT" );
+    printLUT( ptr1.get()->fEtaExtrapolationLUT(),"fEtaExtrapolationLUT" );
+    printLUT( ptr1.get()->sortRankLUT(),"sortRankLUT" );
+
+    std::cout<<"absIsoCheckMemLUTPath: "<<ptr1.get()->absIsoCheckMemLUTPath()<<std::endl;
+    std::cout<<"relIsoCheckMemLUTPath: "<<ptr1.get()->relIsoCheckMemLUTPath()<<std::endl;
+    std::cout<<"idxSelMemPhiLUTPath: "<<ptr1.get()->idxSelMemPhiLUTPath()<<std::endl;
+    std::cout<<"idxSelMemEtaLUTPath: "<<ptr1.get()->idxSelMemEtaLUTPath()<<std::endl;
+  //std::string brlSingleMatchQualLUTPath() const    { return pnodes_[brlSingleMatchQual].sparams_.size() > spIdx::fname ? pnodes_[brlSingleMatchQual].sparams_[spIdx::fname] : ""; }
+    std::cout<<"fwdPosSingleMatchQualLUTPath: "<<ptr1.get()->fwdPosSingleMatchQualLUTPath()<<std::endl;
+    std::cout<<"fwdNegSingleMatchQualLUTPath: "<<ptr1.get()->fwdNegSingleMatchQualLUTPath()<<std::endl;
+    std::cout<<"ovlPosSingleMatchQualLUTPath: "<<ptr1.get()->ovlPosSingleMatchQualLUTPath()<<std::endl;
+    std::cout<<"ovlNegSingleMatchQualLUTPath: "<<ptr1.get()->ovlNegSingleMatchQualLUTPath()<<std::endl;
+    std::cout<<"bOPosMatchQualLUTPath: "<<ptr1.get()->bOPosMatchQualLUTPath()<<std::endl;
+    std::cout<<"bONegMatchQualLUTPath: "<<ptr1.get()->bONegMatchQualLUTPath()<<std::endl;
+    std::cout<<"fOPosMatchQualLUTPath: "<<ptr1.get()->fOPosMatchQualLUTPath()<<std::endl;
+    std::cout<<"fONegMatchQualLUTPath: "<<ptr1.get()->fONegMatchQualLUTPath()<<std::endl;
+    std::cout<<"bPhiExtrapolationLUTPath: "<<ptr1.get()->bPhiExtrapolationLUTPath()<<std::endl;
+    std::cout<<"oPhiExtrapolationLUTPath: "<<ptr1.get()->oPhiExtrapolationLUTPath()<<std::endl;
+    std::cout<<"fPhiExtrapolationLUTPath: "<<ptr1.get()->fPhiExtrapolationLUTPath()<<std::endl;
+    std::cout<<"bEtaExtrapolationLUTPath: "<<ptr1.get()->bEtaExtrapolationLUTPath()<<std::endl;
+    std::cout<<"oEtaExtrapolationLUTPath: "<<ptr1.get()->oEtaExtrapolationLUTPath()<<std::endl;
+    std::cout<<"fEtaExtrapolationLUTPath: "<<ptr1.get()->fEtaExtrapolationLUTPath()<<std::endl;
+    std::cout<<"sortRankLUTPath: "<<ptr1.get()->sortRankLUTPath()<<std::endl;
+
+
+    std::cout<<"fwdPosSingleMatchQualLUTMaxDR: "<<ptr1.get()->fwdPosSingleMatchQualLUTMaxDR()<<std::endl;
+    std::cout<<"fwdNegSingleMatchQualLUTMaxDR: "<<ptr1.get()->fwdNegSingleMatchQualLUTMaxDR()<<std::endl;
+    std::cout<<"ovlPosSingleMatchQualLUTMaxDR: "<<ptr1.get()->ovlPosSingleMatchQualLUTMaxDR()<<std::endl;
+    std::cout<<"ovlNegSingleMatchQualLUTMaxDR: "<<ptr1.get()->ovlNegSingleMatchQualLUTMaxDR()<<std::endl;
+    std::cout<<"bOPosMatchQualLUTMaxDR: "<<ptr1.get()->bOPosMatchQualLUTMaxDR()<<std::endl;
+    std::cout<<"bONegMatchQualLUTMaxDR: "<<ptr1.get()->bONegMatchQualLUTMaxDR()<<std::endl;
+    std::cout<<"bOPosMatchQualLUTMaxDREtaFine: "<<ptr1.get()->bOPosMatchQualLUTMaxDREtaFine()<<std::endl;
+    std::cout<<"bONegMatchQualLUTMaxDREtaFine: "<<ptr1.get()->bONegMatchQualLUTMaxDREtaFine()<<std::endl;
+    std::cout<<"fOPosMatchQualLUTMaxDR: "<<ptr1.get()->fOPosMatchQualLUTMaxDR()<<std::endl;
+    std::cout<<"fONegMatchQualLUTMaxDR: "<<ptr1.get()->fONegMatchQualLUTMaxDR()<<std::endl;
+
+    // Sort rank LUT factors for pT and quality
+    std::cout<<"sortRankLUTPtFactor: "<<ptr1.get()->sortRankLUTPtFactor()<<std::endl;
+    std::cout<<"sortRankLUTQualFactor: "<<ptr1.get()->sortRankLUTQualFactor()<<std::endl;
 }
 
 #include "FWCore/PluginManager/interface/ModuleDef.h"
