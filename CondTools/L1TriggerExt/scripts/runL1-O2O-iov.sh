@@ -62,10 +62,8 @@ else
     fi
 fi
 
-cmsRun $CMSSW_BASE/src/CondTools/L1TriggerExt/test/L1ConfigWriteIOVOnlineExt_cfg.py ${CMS_OPTIONS} tscKey=${tsckey} rsKey=${rskey} runNumber=${runnum} ${OUTDB_OPTIONS} logTransactions=0 print
-o2ocode=$?
-
-# | grep -Ev "CORAL.*Info|CORAL.*Debug"
+cmsRun $CMSSW_BASE/src/CondTools/L1TriggerExt/test/L1ConfigWriteIOVOnlineExt_cfg.py ${CMS_OPTIONS} tscKey=${tsckey} rsKey=${rskey} runNumber=${runnum} ${OUTDB_OPTIONS} logTransactions=0 print | grep -Ev "CORAL.*Info|CORAL.*Debug"
+o2ocode=${PIPESTATUS[0]}
 
 if [ ${o2ocode} -eq 0 ]
 then
