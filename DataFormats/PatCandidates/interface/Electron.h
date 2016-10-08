@@ -160,27 +160,27 @@ namespace pat {
       void setEcalPFClusterIso(float ecalPFClus) { ecalPFClusIso_ = ecalPFClus; };
       void setHcalPFClusterIso(float hcalPFClus) { hcalPFClusIso_ = hcalPFClus; };
 
-      float puppiChargedHardonsIso() const {return puppiChargedHardonsIso_; };
-      float puppiNeutralHardonsIso() const {return puppiNeutralHardonsIso_; };
-      float puppiPhotonsIso() const {return puppiPhotonsIso_; };
+      float puppiChargedHadronIso() const {return puppiChargedHadronIso_; };
+      float puppiNeutralHadronIso() const {return puppiNeutralHadronIso_; };
+      float puppiPhotonIso() const {return puppiPhotonIso_; };
 
-      float puppiNoLeptonsChargedHardonsIso() const {return puppiNoLeptonsChargedHardonsIso_; };
-      float puppiNoLeptonsNeutralHardonsIso() const {return puppiNoLeptonsNeutralHardonsIso_; };
-      float puppiNoLeptonsPhotonsIso() const {return puppiNoLeptonsPhotonsIso_; };
+      float puppiNoLeptonsChargedHadronIso() const {return puppiNoLeptonsChargedHadronIso_; };
+      float puppiNoLeptonsNeutralHadronIso() const {return puppiNoLeptonsNeutralHadronIso_; };
+      float puppiNoLeptonsPhotonIso() const {return puppiNoLeptonsPhotonIso_; };
 
       void setIsolationPUPPI(float chargedhadrons_, float neutralhadrons_, float photons_)
       {  
-         puppiChargedHardonsIso_ = chargedhadrons_;
-         puppiNeutralHardonsIso_ = neutralhadrons_;
-         puppiPhotonsIso_ = photons_;
+         puppiChargedHadronIso_ = chargedhadrons_;
+         puppiNeutralHadronIso_ = neutralhadrons_;
+         puppiPhotonIso_ = photons_;
 
       }
 
       void setIsolationPUPPINoLeptons(float chargedhadrons_, float neutralhadrons_, float photons_)
       {  
-         puppiNoLeptonsChargedHardonsIso_ = chargedhadrons_;
-         puppiNoLeptonsNeutralHardonsIso_ = neutralhadrons_;
-         puppiNoLeptonsPhotonsIso_ = photons_;
+         puppiNoLeptonsChargedHadronIso_ = chargedhadrons_;
+         puppiNoLeptonsNeutralHadronIso_ = neutralhadrons_;
+         puppiNoLeptonsPhotonIso_ = photons_;
 
       }
       // ---- PF specific methods ----
@@ -368,14 +368,14 @@ namespace pat {
       float hcalPFClusIso_;
 
       //PUPPI isolations
-      float puppiChargedHardonsIso_;
-      float puppiNeutralHardonsIso_;
-      float puppiPhotonsIso_;
+      float puppiChargedHadronIso_;
+      float puppiNeutralHadronIso_;
+      float puppiPhotonIso_;
 
       //PUPPI isolations
-      float puppiNoLeptonsChargedHardonsIso_;
-      float puppiNoLeptonsNeutralHardonsIso_;
-      float puppiNoLeptonsPhotonsIso_;
+      float puppiNoLeptonsChargedHadronIso_;
+      float puppiNoLeptonsNeutralHadronIso_;
+      float puppiNoLeptonsPhotonIso_;
 
       /// conversion veto
       bool passConversionVeto_;

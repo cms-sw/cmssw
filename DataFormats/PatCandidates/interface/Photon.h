@@ -43,6 +43,7 @@ namespace reco {
 // Class definition
 namespace pat {
   class PATPhotonSlimmer;
+  class AssociatedCandProducer;
 
   class Photon : public PATObject<reco::Photon> {
 
@@ -170,9 +171,9 @@ namespace pat {
           }
       }
 
-      float puppiChargedHardonsIso() const {return puppiChargedHardonsIso_; };
-      float puppiNeutralHardonsIso() const {return puppiNeutralHardonsIso_; };
-      float puppiPhotonsIso() const {return puppiPhotonsIso_; };
+      float puppiChargedHadronIso() const {return puppiChargedHadronIso_; };
+      float puppiNeutralHadronIso() const {return puppiNeutralHadronIso_; };
+      float puppiPhotonIso() const {return puppiPhotonIso_; };
 
       /// Sets the isolation variable for a specifc key.
       /// Note that you can't set isolation for a pseudo-key like CaloIso
@@ -199,9 +200,9 @@ namespace pat {
       /// Sets PUPPI isolation
       void setIsolationPUPPI(float chargedhadrons_, float neutralhadrons_, float photons_)
       {  
-         puppiChargedHardonsIso_ = chargedhadrons_;
-         puppiNeutralHardonsIso_ = neutralhadrons_;
-         puppiPhotonsIso_ = photons_;
+         puppiChargedHadronIso_ = chargedhadrons_;
+         puppiNeutralHadronIso_ = neutralhadrons_;
+         puppiPhotonIso_ = photons_;
 
       }
 
@@ -335,6 +336,7 @@ namespace pat {
       reco::CandidatePtr sourceCandidatePtr( size_type i ) const;
 
       friend class PATPhotonSlimmer;
+      friend class AssociatedCandProducer;
 
     protected:
 
@@ -406,9 +408,9 @@ namespace pat {
       float hcalPFClusIso_;
 
       //PUPPI isolations
-      float puppiChargedHardonsIso_;
-      float puppiNeutralHardonsIso_;
-      float puppiPhotonsIso_;
+      float puppiChargedHadronIso_;
+      float puppiNeutralHadronIso_;
+      float puppiPhotonIso_;
 
       // ---- link to PackedPFCandidates
       edm::RefProd<pat::PackedCandidateCollection> packedPFCandidates_;
