@@ -10,8 +10,8 @@ stripDigitizer = cms.PSet(
     makeDigiSimLinks = cms.untracked.bool(True)
     )
 
-from Configuration.StandardSequences.Eras import eras
-eras.phase2_tracker.toModify( stripDigitizer, ROUList = ["g4SimHitsTrackerHitsPixelBarrelLowTof",
+from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
+phase2_tracker.toModify( stripDigitizer, ROUList = ["g4SimHitsTrackerHitsPixelBarrelLowTof",
                                                          "g4SimHitsTrackerHitsPixelEndcapLowTof"]
 )
 
