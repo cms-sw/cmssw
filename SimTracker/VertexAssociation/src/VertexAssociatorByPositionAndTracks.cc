@@ -7,6 +7,9 @@ VertexAssociatorByPositionAndTracks::VertexAssociatorByPositionAndTracks(const e
                                                                          double absZ,
                                                                          double sigmaZ,
                                                                          double maxRecoZ,
+									 double absT,
+                                                                         double sigmaT,
+                                                                         double maxRecoT,
                                                                          double sharedTrackFraction,
                                                                          const reco::RecoToSimCollection *trackRecoToSimAssociation,
                                                                          const reco::SimToRecoCollection *trackSimToRecoAssociation):
@@ -14,6 +17,28 @@ VertexAssociatorByPositionAndTracks::VertexAssociatorByPositionAndTracks(const e
   absZ_(absZ),
   sigmaZ_(sigmaZ),
   maxRecoZ_(maxRecoZ),
+  absT_(absT),
+  sigmaT_(sigmaT),
+  maxRecoT_(maxRecoT),
+  sharedTrackFraction_(sharedTrackFraction),
+  trackRecoToSimAssociation_(trackRecoToSimAssociation),
+  trackSimToRecoAssociation_(trackSimToRecoAssociation)
+{}
+
+VertexAssociatorByPositionAndTracks::VertexAssociatorByPositionAndTracks(const edm::EDProductGetter *productGetter,
+                                                                         double absZ,
+                                                                         double sigmaZ,
+                                                                         double maxRecoZ,
+                                                                         double sharedTrackFraction,
+                                                                         const reco::RecoToSimCollection *trackRecoToSimAssociation,
+                                                                         const reco::SimToRecoCollection *trackSimToRecoAssociation):
+  productGetter_(productGetter),
+  absZ_(absZ),
+  sigmaZ_(sigmaZ),
+  maxRecoZ_(maxRecoZ),
+  absT_(std::numeric_limits<double>::max()),
+  sigmaT_(std::numeric_limits<double>::max()),
+  maxRecoT_(std::numeric_limits<double>::max()),
   sharedTrackFraction_(sharedTrackFraction),
   trackRecoToSimAssociation_(trackRecoToSimAssociation),
   trackSimToRecoAssociation_(trackSimToRecoAssociation)
