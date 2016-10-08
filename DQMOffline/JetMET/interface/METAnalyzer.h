@@ -257,6 +257,7 @@ class METAnalyzer : public DQMEDAnalyzer{
   bool bypassAllPVChecks_;
   bool bypassAllDCSChecks_;
   bool runcosmics_;
+  bool isAOD;
   bool onlyCleaned_;
 
 

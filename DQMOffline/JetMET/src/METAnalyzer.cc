@@ -10,6 +10,10 @@
  *          M. Artur Weber
  *          R. Schoefbeck
  *          V. Sordini
+ *           
+ *          July '16: modified by
+ *           
+ *          R. Khurana
  */
 
 #include "DQMOffline/JetMET/interface/METAnalyzer.h"
@@ -40,6 +44,8 @@ using namespace math;
 
 // ***********************************************************
 METAnalyzer::METAnalyzer(const edm::ParameterSet& pSet) {
+  isAOD = false;
+
   parameters = pSet;
 
   m_l1algoname_ = pSet.getParameter<std::string>("l1algoname");
@@ -1279,6 +1285,8 @@ void METAnalyzer::makeRatePlot(std::string DirName, double totltime)
 // ***********************************************************
 void METAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
+  //remove
+  std::cout<<" debug 1"<<std::endl;
 
   // *** Fill lumisection ME
   int myLuminosityBlock;
@@ -1332,7 +1340,10 @@ void METAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
       //std::cout<<"TR "<<(*triggerResults).size()<<" "<<(*triggerResults).accept(i)<<" "<<allTriggerNames_[i]<<std::endl;
     }
   }
-
+  
+  //remove
+  std::cout<<" debug 2"<<std::endl;
+  
   // ==========================================================
   // MET information
 
@@ -1379,6 +1390,10 @@ void METAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     patmet=&(patmetcoll->front());
   }
   
+  //remove
+  std::cout<<" debug 3"<<std::endl;
+  
+
   LogTrace("METAnalyzer")<<"[METAnalyzer] Call to the MET analyzer";
 
   // ==========================================================
@@ -1421,6 +1436,7 @@ void METAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     }
     collsize=caloJets->size();
   }
+
   ///*
   //if (isTCMet_){
   //iEvent.getByToken(jptJetsToken_, jptJets);
@@ -1471,15 +1487,18 @@ void METAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   }else{
     pass_correction_flag=true;
   }
+
   //do loose jet ID-> check threshold on corrected jets
   for (int ijet=0; ijet<collsize; ijet++) {
     double pt_jet=-10;
     double scale=1.;
     bool iscleaned=false;
+
     if (pass_correction_flag) {
       if(isCaloMet_){
 	scale = jetCorr->correction((*caloJets)[ijet]);
       }
+
       //if(isTCMet_){
       //scale = jetCorr->correction((*jptJets)[ijet]);
       //}
@@ -1487,6 +1506,10 @@ void METAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	scale = jetCorr->correction((*pfJets)[ijet]);
       }
     }
+
+    
+    if(isAOD){
+      
     if(isCaloMet_){
       pt_jet=scale*(*caloJets)[ijet].pt();
       if(pt_jet> ptThreshold_){
@@ -1494,11 +1517,14 @@ void METAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	if(!runcosmics_){
 	  reco::JetID jetID = (*jetID_ValueMap_Handle)[calojetref];
 	  iscleaned = jetIDFunctorLoose((*caloJets)[ijet], jetID);
+
 	}else{
 	  iscleaned=true;
 	}
       }
     }
+    }
+    
     ///*
     //if(isTCMet_){
     //pt_jet=scale*(*jptJets)[ijet].pt();
@@ -1514,6 +1540,7 @@ void METAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     //	}
     //}
     //}*/
+
     if(isPFMet_){
       pt_jet=scale*(*pfJets)[ijet].pt();
       if(pt_jet> ptThreshold_){
@@ -1562,6 +1589,7 @@ void METAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     }
     if(dphi>2.7){
       bDiJetID=true;
+
     }
   }
   // ==========================================================
@@ -1587,6 +1615,7 @@ void METAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   iEvent.getByToken(MuonsToken_, Muons);
 
   reco::Candidate::PolarLorentzVector zCand;
+
 
   double pt_muon0=-1;
   double pt_muon1=-1;
@@ -1627,6 +1656,7 @@ void METAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	}
       }
     }
+
     if(mu_index0>=0 && mu_index1>=0){
       if((*Muons)[mu_index0].charge()*(*Muons)[mu_index1].charge()<0){
 	zCand=(*Muons)[mu_index0].polarP4()+(*Muons)[mu_index1].polarP4();
@@ -1664,6 +1694,7 @@ void METAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
       }	
     }
   }
+
 
   std::vector<bool>trigger_flag(4,false);
   if(techTriggerResultBx0 && techTriggerResultBxM2 && techTriggerResultBxM1){//current and previous two bunches filled
@@ -1706,6 +1737,7 @@ void METAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
       LogDebug("") << "METAnalyzer: Could not find HBHENoiseIsoFilterResult" << std::endl;
       if (verbose_) std::cout << "METAnalyzer: Could not find HBHENoiseIsoFilterResult" << std::endl;
     }
+
    filter_decisions[3]= *HBHENoiseIsoFilterResultHandle;
    edm::Handle<bool> CSCTightHalo2015FilterResultHandle;
     iEvent.getByToken(CSCHalo2015ResultToken_, CSCTightHalo2015FilterResultHandle);
@@ -1793,6 +1825,7 @@ void METAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
       }
     }
   }
+
   bool HBHENoiseFilterResultFlag=filter_decisions[0];//setup for RECO and MINIAOD
   // ==========================================================
   // HCAL Noise filter
@@ -1805,29 +1838,36 @@ void METAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   std::string DirName_old=DirName;
   for (std::vector<std::string>::const_iterator ic = folderNames_.begin();
        ic != folderNames_.end(); ic++){
+
+
     bool pass_selection = false;
     if ((*ic=="Uncleaned")  &&(isCaloMet_ || bPrimaryVertex)){
       fillMESet(iEvent, DirName_old+"/"+*ic, *met,*patmet, *pfmet,*calomet,zCand, map_dijet_MEs,trigger_flag,filter_decisions);
       pass_selection =true;
     }
+
     //take two lines out for first check
     if ((*ic=="Cleaned")    && bDCSFilter && bHBHENoiseFilter && bPrimaryVertex && bJetID){
       fillMESet(iEvent, DirName_old+"/"+*ic, *met,*patmet,*pfmet,*calomet,zCand,map_dijet_MEs,trigger_flag,filter_decisions);
       pass_selection=true;
     }
+
     if ((*ic=="DiJet" )     &&bDCSFilter&&bHBHENoiseFilter&& bPrimaryVertex&& bDiJetID){
       fillMESet(iEvent, DirName_old+"/"+*ic, *met,*patmet,*pfmet,*calomet,zCand,map_dijet_MEs,trigger_flag,filter_decisions);
       pass_selection=true;
     }
+
     if ((*ic=="ZJets" )     &&bDCSFilter&&bHBHENoiseFilter&& bPrimaryVertex&& bZJets){
       fillMESet(iEvent, DirName_old+"/"+*ic, *met,*patmet,*pfmet,*calomet,zCand,map_dijet_MEs,trigger_flag,filter_decisions);
       pass_selection=true;
     }
+
     if(pass_selection && isPFMet_){
       DirName=DirName_old+"/"+*ic;
     }
 
   }
+
 }
 
 
@@ -1839,22 +1879,29 @@ void METAnalyzer::fillMESet(const edm::Event& iEvent, std::string DirName,
   bool fillPFCandidatePlots=false;
   if (DirName.find("Cleaned")!=std::string::npos) {
     fillPFCandidatePlots=true;
+
     fillMonitorElement(iEvent, DirName, std::string(""), met, patmet, pfmet, calomet, zCand, map_of_MEs,bLumiSecPlot,fillPFCandidatePlots,techTriggerCase,METFilterDecision);
     for (unsigned int i = 0; i<triggerFolderLabels_.size(); i++) {
       fillPFCandidatePlots=false;
+
       if (triggerFolderDecisions_[i]){  
 	fillMonitorElement(iEvent, DirName, triggerFolderLabels_[i], met, patmet, pfmet, calomet, zCand, map_of_MEs,bLumiSecPlot,fillPFCandidatePlots,techTriggerCase,METFilterDecision);
+
       }
     }
   }else if (DirName.find("DiJet")!=std::string::npos) {
+
     fillMonitorElement(iEvent, DirName, std::string(""), met, patmet, pfmet, calomet, zCand, map_of_MEs,bLumiSecPlot,fillPFCandidatePlots,techTriggerCase,METFilterDecision);
     for (unsigned int i = 0; i<triggerFolderLabels_.size(); i++) {
       if (triggerFolderDecisions_[i])  fillMonitorElement(iEvent, DirName, triggerFolderLabels_[i], met, patmet, pfmet, calomet, zCand, map_of_MEs,bLumiSecPlot,fillPFCandidatePlots,techTriggerCase,METFilterDecision);
+
     }
   }else if (DirName.find("ZJets")!=std::string::npos) {
     fillMonitorElement(iEvent, DirName, std::string(""), met, patmet, pfmet, calomet, zCand, map_of_MEs,bLumiSecPlot,fillPFCandidatePlots,techTriggerCase,METFilterDecision);
+
   }else{
     fillMonitorElement(iEvent, DirName, std::string(""), met, patmet, pfmet, calomet, zCand, map_of_MEs,bLumiSecPlot,fillPFCandidatePlots,techTriggerCase,METFilterDecision);
+
   }
   
 
@@ -1865,6 +1912,7 @@ void METAnalyzer::fillMonitorElement(const edm::Event& iEvent, std::string DirNa
 					 std::string subFolderName,
 				     const reco::MET& met,const pat::MET & patmet, const reco::PFMET & pfmet, const reco::CaloMET &calomet, const reco::Candidate::PolarLorentzVector& zCand,std::map<std::string,MonitorElement*>&  map_of_MEs,bool bLumiSecPlot, bool fillPFCandidatePlots,std::vector<bool> techTriggerCase,std::vector<bool> METFilterDecision)
 {
+
   bool do_only_Z_histograms=false;
   if(DirName.find("ZJets")!=std::string::npos) {//do Z plots only
     do_only_Z_histograms=true;
@@ -2243,83 +2291,87 @@ void METAnalyzer::fillMonitorElement(const edm::Event& iEvent, std::string DirNa
 	      }
 	    }
 	  }
+	  
+	
 	  //fill quantities for isolated charged hadron quantities
 	  //only for charged hadrons
-	  if ( c.particleId() == 1 &&  c.pt() > ptMinCand_ ){
-	    // At least 1 GeV in HCAL
-	    double ecalRaw = c.rawEcalEnergy();
-	    double hcalRaw = c.rawHcalEnergy();
-	    if ( (ecalRaw + hcalRaw) > hcalMin_ ){
-	      const PFCandidate::ElementsInBlocks& theElements = c.elementsInBlocks();
-	      if( theElements.empty() ) continue;
-	      unsigned int iTrack=-999;
-	      std::vector<unsigned int> iECAL;// =999;
-	      std::vector<unsigned int> iHCAL;// =999;
-	      const reco::PFBlockRef blockRef = theElements[0].first;
-	      const edm::OwnVector<reco::PFBlockElement>& elements = blockRef->elements();
-	      // Check that there is only one track in the block.
-	      unsigned int nTracks = 0;
-	      for(unsigned int iEle=0; iEle<elements.size(); iEle++) {	         
-		// Find the tracks in the block
-		PFBlockElement::Type type = elements[iEle].type();
-		switch( type ) {
-		case PFBlockElement::TRACK:
-		  iTrack = iEle;
-		  nTracks++;
-		  break;
-		case PFBlockElement::ECAL:
-		  iECAL.push_back( iEle );
-		  break;
-		case PFBlockElement::HCAL:
-		  iHCAL.push_back( iEle );
-		  break;
-		default:
-		  continue;
-		} 
-	      }
-	      if ( nTracks == 1 ){
-		// Characteristics of the track
-		const reco::PFBlockElementTrack& et = dynamic_cast<const reco::PFBlockElementTrack &>( elements[iTrack] );
-		mProfileIsoPFChHad_TrackOccupancy=map_of_MEs[DirName+"/"+"IsoPfChHad_Track_profile"];
-		if (mProfileIsoPFChHad_TrackOccupancy  && mProfileIsoPFChHad_TrackOccupancy->getRootObject()) mProfileIsoPFChHad_TrackOccupancy->Fill(et.trackRef()->eta(),et.trackRef()->phi());
-		mProfileIsoPFChHad_TrackPt=map_of_MEs[DirName+"/"+"IsoPfChHad_TrackPt"];
-		if (mProfileIsoPFChHad_TrackPt  && mProfileIsoPFChHad_TrackPt->getRootObject()) mProfileIsoPFChHad_TrackPt->Fill(et.trackRef()->eta(),et.trackRef()->phi(),et.trackRef()->pt());
-		//ECAL element
-		for(unsigned int ii=0;ii<iECAL.size();ii++) {
-		  const reco::PFBlockElementCluster& eecal = dynamic_cast<const reco::PFBlockElementCluster &>( elements[ iECAL[ii] ] );
-		  if(fabs(eecal.clusterRef()->eta())<1.479){
-		    mProfileIsoPFChHad_EcalOccupancyCentral=map_of_MEs[DirName+"/"+"IsoPfChHad_ECAL_profile_central"];
-		    if (mProfileIsoPFChHad_EcalOccupancyCentral  && mProfileIsoPFChHad_EcalOccupancyCentral->getRootObject()) mProfileIsoPFChHad_EcalOccupancyCentral->Fill(eecal.clusterRef()->eta(),eecal.clusterRef()->phi());
-		    mProfileIsoPFChHad_EMPtCentral=map_of_MEs[DirName+"/"+"IsoPfChHad_EMPt_central"];
-		    if (mProfileIsoPFChHad_EMPtCentral  && mProfileIsoPFChHad_EMPtCentral->getRootObject()) mProfileIsoPFChHad_EMPtCentral->Fill(eecal.clusterRef()->eta(),eecal.clusterRef()->phi(),eecal.clusterRef()->pt());
-		  }else{
-		    mProfileIsoPFChHad_EcalOccupancyEndcap=map_of_MEs[DirName+"/"+"IsoPfChHad_ECAL_profile_endcap"];
-		    if (mProfileIsoPFChHad_EcalOccupancyEndcap  && mProfileIsoPFChHad_EcalOccupancyEndcap->getRootObject()) mProfileIsoPFChHad_EcalOccupancyEndcap->Fill(eecal.clusterRef()->eta(),eecal.clusterRef()->phi());
-		    mProfileIsoPFChHad_EMPtEndcap=map_of_MEs[DirName+"/"+"IsoPfChHad_EMPt_endcap"];
-		    if (mProfileIsoPFChHad_EMPtEndcap  && mProfileIsoPFChHad_EMPtEndcap->getRootObject()) mProfileIsoPFChHad_EMPtEndcap->Fill(eecal.clusterRef()->eta(),eecal.clusterRef()->phi(),eecal.clusterRef()->pt());
-		  }
+	  if(isAOD){
+	    if ( c.particleId() == 1 &&  c.pt() > ptMinCand_ ){
+	      // At least 1 GeV in HCAL
+	      double ecalRaw = c.rawEcalEnergy();
+	      double hcalRaw = c.rawHcalEnergy();
+	      if ( (ecalRaw + hcalRaw) > hcalMin_ ){
+		const PFCandidate::ElementsInBlocks& theElements = c.elementsInBlocks();
+		if( theElements.empty() ) continue;
+		unsigned int iTrack=-999;
+		std::vector<unsigned int> iECAL;// =999;
+		std::vector<unsigned int> iHCAL;// =999;
+		const reco::PFBlockRef blockRef = theElements[0].first;
+		const edm::OwnVector<reco::PFBlockElement>& elements = blockRef->elements();
+		// Check that there is only one track in the block.
+		unsigned int nTracks = 0;
+		for(unsigned int iEle=0; iEle<elements.size(); iEle++) {	         
+		  // Find the tracks in the block
+		  PFBlockElement::Type type = elements[iEle].type();
+		  switch( type ) {
+		  case PFBlockElement::TRACK:
+		    iTrack = iEle;
+		    nTracks++;
+		    break;
+		  case PFBlockElement::ECAL:
+		    iECAL.push_back( iEle );
+		    break;
+		  case PFBlockElement::HCAL:
+		    iHCAL.push_back( iEle );
+		    break;
+		  default:
+		    continue;
+		  } 
 		}
-		
-		//HCAL element
-		for(unsigned int ii=0;ii<iHCAL.size();ii++) {
-		  const reco::PFBlockElementCluster& ehcal = dynamic_cast<const reco::PFBlockElementCluster &>( elements[ iHCAL[ii] ] );
-		  if(fabs(ehcal.clusterRef()->eta())<1.740){
-		    mProfileIsoPFChHad_HcalOccupancyCentral=map_of_MEs[DirName+"/"+"IsoPfChHad_HCAL_profile_central"];
-		    if (mProfileIsoPFChHad_HcalOccupancyCentral  && mProfileIsoPFChHad_HcalOccupancyCentral->getRootObject()) mProfileIsoPFChHad_HcalOccupancyCentral->Fill(ehcal.clusterRef()->eta(),ehcal.clusterRef()->phi());
-		    mProfileIsoPFChHad_HadPtCentral=map_of_MEs[DirName+"/"+"IsoPfChHad_HadPt_central"];
-		    if (mProfileIsoPFChHad_HadPtCentral  && mProfileIsoPFChHad_HadPtCentral->getRootObject()) mProfileIsoPFChHad_HadPtCentral->Fill(ehcal.clusterRef()->eta(),ehcal.clusterRef()->phi(),ehcal.clusterRef()->pt());
-		  }else{
-		    mProfileIsoPFChHad_HcalOccupancyEndcap=map_of_MEs[DirName+"/"+"IsoPfChHad_HCAL_profile_endcap"];
-		    if (mProfileIsoPFChHad_HcalOccupancyEndcap  && mProfileIsoPFChHad_HcalOccupancyEndcap->getRootObject()) mProfileIsoPFChHad_HcalOccupancyEndcap->Fill(ehcal.clusterRef()->eta(),ehcal.clusterRef()->phi());
-		    mProfileIsoPFChHad_HadPtEndcap=map_of_MEs[DirName+"/"+"IsoPfChHad_HadPt_endcap"];
-		    if (mProfileIsoPFChHad_HadPtEndcap  && mProfileIsoPFChHad_HadPtEndcap->getRootObject()) mProfileIsoPFChHad_HadPtEndcap->Fill(ehcal.clusterRef()->eta(),ehcal.clusterRef()->phi(),ehcal.clusterRef()->pt());
-		  }	
+		if ( nTracks == 1 ){
+		  // Characteristics of the track
+		  const reco::PFBlockElementTrack& et = dynamic_cast<const reco::PFBlockElementTrack &>( elements[iTrack] );
+		  mProfileIsoPFChHad_TrackOccupancy=map_of_MEs[DirName+"/"+"IsoPfChHad_Track_profile"];
+		  if (mProfileIsoPFChHad_TrackOccupancy  && mProfileIsoPFChHad_TrackOccupancy->getRootObject()) mProfileIsoPFChHad_TrackOccupancy->Fill(et.trackRef()->eta(),et.trackRef()->phi());
+		  mProfileIsoPFChHad_TrackPt=map_of_MEs[DirName+"/"+"IsoPfChHad_TrackPt"];
+		  if (mProfileIsoPFChHad_TrackPt  && mProfileIsoPFChHad_TrackPt->getRootObject()) mProfileIsoPFChHad_TrackPt->Fill(et.trackRef()->eta(),et.trackRef()->phi(),et.trackRef()->pt());
+		  //ECAL element
+		  for(unsigned int ii=0;ii<iECAL.size();ii++) {
+		    const reco::PFBlockElementCluster& eecal = dynamic_cast<const reco::PFBlockElementCluster &>( elements[ iECAL[ii] ] );
+		    if(fabs(eecal.clusterRef()->eta())<1.479){
+		      mProfileIsoPFChHad_EcalOccupancyCentral=map_of_MEs[DirName+"/"+"IsoPfChHad_ECAL_profile_central"];
+		      if (mProfileIsoPFChHad_EcalOccupancyCentral  && mProfileIsoPFChHad_EcalOccupancyCentral->getRootObject()) mProfileIsoPFChHad_EcalOccupancyCentral->Fill(eecal.clusterRef()->eta(),eecal.clusterRef()->phi());
+		      mProfileIsoPFChHad_EMPtCentral=map_of_MEs[DirName+"/"+"IsoPfChHad_EMPt_central"];
+		      if (mProfileIsoPFChHad_EMPtCentral  && mProfileIsoPFChHad_EMPtCentral->getRootObject()) mProfileIsoPFChHad_EMPtCentral->Fill(eecal.clusterRef()->eta(),eecal.clusterRef()->phi(),eecal.clusterRef()->pt());
+		    }else{
+		      mProfileIsoPFChHad_EcalOccupancyEndcap=map_of_MEs[DirName+"/"+"IsoPfChHad_ECAL_profile_endcap"];
+		      if (mProfileIsoPFChHad_EcalOccupancyEndcap  && mProfileIsoPFChHad_EcalOccupancyEndcap->getRootObject()) mProfileIsoPFChHad_EcalOccupancyEndcap->Fill(eecal.clusterRef()->eta(),eecal.clusterRef()->phi());
+		      mProfileIsoPFChHad_EMPtEndcap=map_of_MEs[DirName+"/"+"IsoPfChHad_EMPt_endcap"];
+		      if (mProfileIsoPFChHad_EMPtEndcap  && mProfileIsoPFChHad_EMPtEndcap->getRootObject()) mProfileIsoPFChHad_EMPtEndcap->Fill(eecal.clusterRef()->eta(),eecal.clusterRef()->phi(),eecal.clusterRef()->pt());
+		    }
+		  }
+		  
+		  //HCAL element
+		  for(unsigned int ii=0;ii<iHCAL.size();ii++) {
+		    const reco::PFBlockElementCluster& ehcal = dynamic_cast<const reco::PFBlockElementCluster &>( elements[ iHCAL[ii] ] );
+		    if(fabs(ehcal.clusterRef()->eta())<1.740){
+		      mProfileIsoPFChHad_HcalOccupancyCentral=map_of_MEs[DirName+"/"+"IsoPfChHad_HCAL_profile_central"];
+		      if (mProfileIsoPFChHad_HcalOccupancyCentral  && mProfileIsoPFChHad_HcalOccupancyCentral->getRootObject()) mProfileIsoPFChHad_HcalOccupancyCentral->Fill(ehcal.clusterRef()->eta(),ehcal.clusterRef()->phi());
+		      mProfileIsoPFChHad_HadPtCentral=map_of_MEs[DirName+"/"+"IsoPfChHad_HadPt_central"];
+		      if (mProfileIsoPFChHad_HadPtCentral  && mProfileIsoPFChHad_HadPtCentral->getRootObject()) mProfileIsoPFChHad_HadPtCentral->Fill(ehcal.clusterRef()->eta(),ehcal.clusterRef()->phi(),ehcal.clusterRef()->pt());
+		    }else{
+		      mProfileIsoPFChHad_HcalOccupancyEndcap=map_of_MEs[DirName+"/"+"IsoPfChHad_HCAL_profile_endcap"];
+		      if (mProfileIsoPFChHad_HcalOccupancyEndcap  && mProfileIsoPFChHad_HcalOccupancyEndcap->getRootObject()) mProfileIsoPFChHad_HcalOccupancyEndcap->Fill(ehcal.clusterRef()->eta(),ehcal.clusterRef()->phi());
+		      mProfileIsoPFChHad_HadPtEndcap=map_of_MEs[DirName+"/"+"IsoPfChHad_HadPt_endcap"];
+		      if (mProfileIsoPFChHad_HadPtEndcap  && mProfileIsoPFChHad_HadPtEndcap->getRootObject()) mProfileIsoPFChHad_HadPtEndcap->Fill(ehcal.clusterRef()->eta(),ehcal.clusterRef()->phi(),ehcal.clusterRef()->pt());
+		    }	
+		  }
 		}
 	      }
 	    }
-	  }
+	  }// switched for AOD
 	}
-
+	
 	for (unsigned int j=0; j<countsPFCand_.size(); j++) {
 	  profilePFCand_x_[j]   = map_of_MEs[DirName + "/"+profilePFCand_x_name_[j]];
 	  if(profilePFCand_x_[j] && profilePFCand_x_[j]->getRootObject())	profilePFCand_x_[j]->Fill(countsPFCand_[j], MExPFCand_[j]);

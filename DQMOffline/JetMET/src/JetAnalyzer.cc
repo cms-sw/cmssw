@@ -65,6 +65,8 @@ JetAnalyzer::JetAnalyzer(const edm::ParameterSet& pSet)
 //: trackPropagator_(new jetAnalysis::TrackPropagatorToCalo)//,
     //sOverNCalculator_(new jetAnalysis::StripSignalOverNoiseCalculator)
 {
+  isAOD = false;
+  
 
   parameters_ = pSet.getParameter<edm::ParameterSet>("jetAnalysis");
   mInputCollection_           =    pSet.getParameter<edm::InputTag>       ("jetsrc");
@@ -242,6 +244,8 @@ JetAnalyzer::JetAnalyzer(const edm::ParameterSet& pSet)
   ptThresholdUnc_=parameters_.getParameter<double>("ptThresholdUnc");
   asymmetryThirdJetCut_ = parameters_.getParameter<double>("asymmetryThirdJetCut");
   balanceThirdJetCut_   = parameters_.getParameter<double>("balanceThirdJetCut");
+  
+
 }  
   
 
@@ -261,6 +265,7 @@ void JetAnalyzer::bookHistograms(DQMStore::IBooker & ibooker,
 				     edm::Run const & iRun,
 				     edm::EventSetup const & ) {
   
+
   //  dbe_ = edm::Service<DQMStore>().operator->();
   if(jetCleaningFlag_){
     ibooker.setCurrentFolder("JetMET/Jet/Cleaned"+mInputCollection_.label());
@@ -1323,6 +1328,7 @@ void JetAnalyzer::bookHistograms(DQMStore::IBooker & ibooker,
 
 void JetAnalyzer::bookMESetSelection(std::string DirName, DQMStore::IBooker & ibooker)
 {
+
   ibooker.setCurrentFolder(DirName);
   // Generic jet parameters
   mPt           = ibooker.book1D("Pt",           "pt",                 ptBin_,  ptMin_,  ptMax_);
@@ -1660,13 +1666,14 @@ void JetAnalyzer::bookMESetSelection(std::string DirName, DQMStore::IBooker & ib
     map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"PhFrac_profile"  ,mPhFrac_profile));
     map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"HFEMFrac_profile",mHFEMFrac_profile));
     map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"HFHFrac_profile" ,mHFHFrac_profile));
-    
+
   }
 }
 
 // ***********************************************************
 void JetAnalyzer::dqmBeginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
 {
+
   //LogDebug("JetAnalyzer") << "beginRun, run " << run.id();
   //
 
@@ -1703,7 +1710,7 @@ void JetAnalyzer::dqmBeginRun(const edm::Run& iRun, const edm::EventSetup& iSetu
       break;
     }
   }
- 
+
 }
 
 // ***********************************************************
@@ -1713,6 +1720,7 @@ void JetAnalyzer::endRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
 
 // ***********************************************************
 void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
+
 
 
   //set general folders first --> change later on for different folders
@@ -1735,6 +1743,8 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   Handle<ValueMap<float> > qgptD;
   Handle<ValueMap<float> > qgaxis2;
 
+
+  
   //should insure we have a PFJet in with CHS
   if(fill_CHS_histos){
     iEvent.getByToken(qgMultiplicityToken_,qgMultiplicity);
@@ -1749,6 +1759,7 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     iEvent.getByToken(cutBasedPUIDToken_,puJetIdFlag);
     iEvent.getByToken(mvaFullPUDiscriminantToken_ ,puJetIdMva);
   }
+
 
   // **** Get the TriggerResults container
   edm::Handle<edm::TriggerResults> triggerResults;
@@ -1780,6 +1791,8 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	      << std::endl;
   }
 
+
+
   // ==========================================================
   //Vertex information
   Handle<VertexCollection> vertexHandle;
@@ -1806,6 +1819,8 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     LogInfo("JetAnalyzer") << "JetAnalyzer: Could not find GT readout record" << std::endl;
     if (verbose_) std::cout << "JetAnalyzer: Could not find GT readout record product" << std::endl;
   }
+
+
 
   //bool techTriggerResultBxE = false;
   bool techTriggerResultBxF = false;
@@ -1845,6 +1860,9 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
       if ( DCSFilterForDCSMonitoring_->passMuon     ) cleanupME->Fill(8.5);
     }
   }
+  
+
+
   edm::Handle<CaloJetCollection> caloJets;
   edm::Handle<JPTJetCollection> jptJets;
   edm::Handle<PFJetCollection> pfJets;
@@ -1909,6 +1927,9 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
       }
     }
   }
+  
+
+
   if(isMiniAODJet_) iEvent.getByToken(patJetsToken_,patJets);
 
   edm::Handle< edm::ValueMap<reco::JetID> >jetID_ValueMap_Handle;
@@ -1972,6 +1993,8 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 
   int numofjets=0;
 
+
+
   edm::Handle<reco::JetCorrector> jetCorr;
   bool pass_correction_flag=false;
   if(!isMiniAODJet_ && !jetCorrectorTag_.label().empty()){
@@ -2007,6 +2030,7 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     if(isMiniAODJet_ && (correctedJet.pt()*(*patJets)[ijet].jecFactor("Uncorrected"))>ptThresholdUnc_){
       pass_uncorrected=true;
     }
+
     if (pass_correction_flag && !isMiniAODJet_) {
       if (isCaloJet_){
         scale = jetCorr->correction((*caloJets)[ijet]);
@@ -2019,18 +2043,28 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     if(correctedJet.pt()> ptThreshold_){
       pass_corrected=true;
     }
+    
+
+    
     //if (!pass_corrected && !pass_uncorrected) continue;
     //remove the continue line, for physics selections we might losen the pt-thresholds as we care only about leading jets
     //fill only corrected jets -> check ID for uncorrected jets
     if(pass_corrected){
       recoJets.push_back(correctedJet);
     }
+    
+
+    
     bool jetpassid=true;
     bool Thiscleaned=true;
     bool JetIDWPU=true;
     //jet ID for calojets
     if (isCaloJet_) {
       reco::CaloJetRef calojetref(caloJets, ijet);
+
+      
+
+      if(isAOD){
       if(!runcosmics_){
 	reco::JetID jetID = (*jetID_ValueMap_Handle)[calojetref];
 	jetpassid = jetIDFunctor((*caloJets)[ijet], jetID);
@@ -2038,13 +2072,18 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	if(jetCleaningFlag_){
 	  Thiscleaned=jetpassid;
 	}
+      
+
 	if(Thiscleaned && pass_corrected){//if cleaning requested->jet passes a loose ID
 	  mN90Hits = map_of_MEs[DirName+"/"+"N90Hits"]; if (mN90Hits && mN90Hits->getRootObject()) mN90Hits->Fill (jetID.n90Hits);
 	  mfHPD = map_of_MEs[DirName+"/"+"fHPD"]; if (mfHPD && mfHPD->getRootObject())             mfHPD->Fill (jetID.fHPD);
 	  mresEMF = map_of_MEs[DirName+"/"+"resEMF"]; if (mresEMF && mresEMF->getRootObject())     mresEMF->Fill (jetID.restrictedEMF);
 	  mfRBX = map_of_MEs[DirName+"/"+"fRBX"]; if (mfRBX && mfRBX->getRootObject())             mfRBX->Fill (jetID.fRBX);
+
 	}
       }
+      }// isAOD
+
       if(jetCleaningFlag_){
 	Thiscleaned=jetpassid;
       }
@@ -2080,6 +2119,7 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	
       }
     }
+
     if(isMiniAODJet_ && (*patJets)[ijet].isPFJet()){
       pat::strbitset stringbitset=pfjetIDFunctor.getBitTemplate();
       jetpassid = pfjetIDFunctor((*patJets)[ijet],stringbitset);
@@ -2131,6 +2171,7 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	  if (correctedJet.pt()>50. && correctedJet.pt()<=140.) {
 	    mMVAPUJIDDiscriminant_mediumPt_Forward=map_of_MEs[DirName+"/"+"MVAPUJIDDiscriminant_mediumPt_Forward"]; if(mMVAPUJIDDiscriminant_mediumPt_Forward && mMVAPUJIDDiscriminant_mediumPt_Forward->getRootObject()){if((*patJets)[ijet].hasUserFloat("pileupJetId:fullDiscriminant"))  mMVAPUJIDDiscriminant_mediumPt_Forward->Fill( (*patJets)[ijet].userFloat("pileupJetId:fullDiscriminant"));} 
 	  }
+
 	  if(correctedJet.pt()>140.){
 	    mMVAPUJIDDiscriminant_highPt_Forward=map_of_MEs[DirName+"/"+"MVAPUJIDDiscriminant_highPt_Forward"]; if(mMVAPUJIDDiscriminant_highPt_Forward && mMVAPUJIDDiscriminant_highPt_Forward->getRootObject()){if((*patJets)[ijet].hasUserFloat("pileupJetId:fullDiscriminant"))  mMVAPUJIDDiscriminant_highPt_Forward->Fill( (*patJets)[ijet].userFloat("pileupJetId:fullDiscriminant"));} 
 	  }
@@ -2140,6 +2181,7 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	}
       }
     }
+
     if(isPFJet_){
       reco::PFJetRef pfjetref(pfJets, ijet);
       float puidmva=-1;
@@ -2241,6 +2283,8 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	    mNeutMultiplicity_lowPt_Barrel = map_of_MEs[DirName+"/"+"NeutMultiplicity_lowPt_Barrel"]; if(mNeutMultiplicity_lowPt_Barrel && mNeutMultiplicity_lowPt_Barrel->getRootObject())  mNeutMultiplicity_lowPt_Barrel->Fill((*pfJets)[ijet].neutralMultiplicity());
 	    mMuMultiplicity_lowPt_Barrel = map_of_MEs[DirName+"/"+"MuMultiplicity_lowPt_Barrel"]; if(mMuMultiplicity_lowPt_Barrel && mMuMultiplicity_lowPt_Barrel->getRootObject())  mMuMultiplicity_lowPt_Barrel->Fill((*pfJets)[ijet].muonMultiplicity());
 	  }
+	  
+
 	  if (correctedJet.pt()>50. && correctedJet.pt()<=140.) {
 	    //mAxis2_mediumPt_Barrel = map_of_MEs[DirName+"/"+"qg_Axis2_mediumPt_Barrel"];if(mAxis2_mediumPt_Barrel && mAxis2_mediumPt_Barrel->getRootObject()) mAxis2_mediumPt_Barrel->Fill(QGaxis2);
 	    //mpTD_mediumPt_Barrel = map_of_MEs[DirName+"/"+"qg_pTD_mediumPt_Barrel"]; if(mpTD_mediumPt_Barrel && mpTD_mediumPt_Barrel->getRootObject()) mpTD_mediumPt_Barrel->Fill(QGptD);
@@ -2261,6 +2305,7 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	    mNeutMultiplicity_mediumPt_Barrel = map_of_MEs[DirName+"/"+"NeutMultiplicity_mediumPt_Barrel"]; if(mNeutMultiplicity_mediumPt_Barrel && mNeutMultiplicity_mediumPt_Barrel->getRootObject())  mNeutMultiplicity_mediumPt_Barrel->Fill((*pfJets)[ijet].neutralMultiplicity());
 	    mMuMultiplicity_mediumPt_Barrel = map_of_MEs[DirName+"/"+"MuMultiplicity_mediumPt_Barrel"]; if(mMuMultiplicity_mediumPt_Barrel && mMuMultiplicity_mediumPt_Barrel->getRootObject())  mMuMultiplicity_mediumPt_Barrel->Fill((*pfJets)[ijet].muonMultiplicity());
 	  }
+
 	  if (correctedJet.pt()>140.) {
 	    //mAxis2_highPt_Barrel = map_of_MEs[DirName+"/"+"qg_Axis2_highPt_Barrel"];if(mAxis2_highPt_Barrel && mAxis2_highPt_Barrel->getRootObject()) mAxis2_highPt_Barrel->Fill(QGaxis2);
 	    //mpTD_highPt_Barrel = map_of_MEs[DirName+"/"+"qg_pTD_highPt_Barrel"]; if(mpTD_highPt_Barrel && mpTD_highPt_Barrel->getRootObject()) mpTD_highPt_Barrel->Fill(QGptD);
@@ -2281,6 +2326,7 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	    mNeutMultiplicity_highPt_Barrel = map_of_MEs[DirName+"/"+"NeutMultiplicity_highPt_Barrel"]; if(mNeutMultiplicity_highPt_Barrel && mNeutMultiplicity_highPt_Barrel->getRootObject())  mNeutMultiplicity_highPt_Barrel->Fill((*pfJets)[ijet].neutralMultiplicity());
 	    mMuMultiplicity_highPt_Barrel = map_of_MEs[DirName+"/"+"MuMultiplicity_highPt_Barrel"]; if(mMuMultiplicity_highPt_Barrel && mMuMultiplicity_highPt_Barrel->getRootObject())  mMuMultiplicity_highPt_Barrel->Fill((*pfJets)[ijet].muonMultiplicity());
 	  }
+
 	  mCHFracVSpT_Barrel = map_of_MEs[DirName+"/"+"CHFracVSpT_Barrel"]; if(mCHFracVSpT_Barrel && mCHFracVSpT_Barrel->getRootObject()) mCHFracVSpT_Barrel->Fill(correctedJet.pt(),(*pfJets)[ijet].chargedHadronEnergyFraction());
 	  mNHFracVSpT_Barrel = map_of_MEs[DirName+"/"+"NHFracVSpT_Barrel"];if (mNHFracVSpT_Barrel && mNHFracVSpT_Barrel->getRootObject()) mNHFracVSpT_Barrel->Fill(correctedJet.pt(),(*pfJets)[ijet].neutralHadronEnergyFraction());
 	  mPhFracVSpT_Barrel = map_of_MEs[DirName+"/"+"PhFracVSpT_Barrel"];if (mPhFracVSpT_Barrel && mPhFracVSpT_Barrel->getRootObject()) mPhFracVSpT_Barrel->Fill(correctedJet.pt(),(*pfJets)[ijet].neutralEmEnergyFraction());
@@ -2306,6 +2352,7 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	    mNeutMultiplicity_lowPt_EndCap = map_of_MEs[DirName+"/"+"NeutMultiplicity_lowPt_EndCap"]; if(mNeutMultiplicity_lowPt_EndCap && mNeutMultiplicity_lowPt_EndCap->getRootObject())  mNeutMultiplicity_lowPt_EndCap->Fill((*pfJets)[ijet].neutralMultiplicity());
 	    mMuMultiplicity_lowPt_EndCap = map_of_MEs[DirName+"/"+"MuMultiplicity_lowPt_EndCap"]; if(mMuMultiplicity_lowPt_EndCap && mMuMultiplicity_lowPt_EndCap->getRootObject())  mMuMultiplicity_lowPt_EndCap->Fill((*pfJets)[ijet].muonMultiplicity());
 	  }
+
 	  if (correctedJet.pt()>50. && correctedJet.pt()<=140.) {
 	    //mAxis2_mediumPt_EndCap = map_of_MEs[DirName+"/"+"qg_Axis2_mediumPt_EndCap"];if(mAxis2_mediumPt_EndCap && mAxis2_mediumPt_EndCap->getRootObject()) mAxis2_mediumPt_EndCap->Fill(QGaxis2);
 	    //mpTD_mediumPt_EndCap = map_of_MEs[DirName+"/"+"qg_pTD_mediumPt_EndCap"]; if(mpTD_mediumPt_EndCap && mpTD_mediumPt_EndCap->getRootObject()) mpTD_mediumPt_EndCap->Fill(QGptD);
@@ -2326,6 +2373,7 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	    mNeutMultiplicity_mediumPt_EndCap = map_of_MEs[DirName+"/"+"NeutMultiplicity_mediumPt_EndCap"]; if(mNeutMultiplicity_mediumPt_EndCap && mNeutMultiplicity_mediumPt_EndCap->getRootObject())  mNeutMultiplicity_mediumPt_EndCap->Fill((*pfJets)[ijet].neutralMultiplicity());
 	    mMuMultiplicity_mediumPt_EndCap = map_of_MEs[DirName+"/"+"MuMultiplicity_mediumPt_EndCap"]; if(mMuMultiplicity_mediumPt_EndCap && mMuMultiplicity_mediumPt_EndCap->getRootObject())  mMuMultiplicity_mediumPt_EndCap->Fill((*pfJets)[ijet].muonMultiplicity());
 	  }
+
 	  if (correctedJet.pt()>140.) {
 	    //mAxis2_highPt_EndCap = map_of_MEs[DirName+"/"+"qg_Axis2_highPt_EndCap"];if(mAxis2_highPt_EndCap && mAxis2_highPt_EndCap->getRootObject()) mAxis2_highPt_EndCap->Fill(QGaxis2);
 	    //mpTD_highPt_EndCap = map_of_MEs[DirName+"/"+"qg_pTD_highPt_EndCap"]; if(mpTD_highPt_EndCap && mpTD_highPt_EndCap->getRootObject()) mpTD_highPt_EndCap->Fill(QGptD);
@@ -2352,6 +2400,8 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	}else{
 	  mHFHFracVSpT_Forward = map_of_MEs[DirName+"/"+"HFHFracVSpT_Forward"]; if (mHFHFracVSpT_Forward && mHFHFracVSpT_Forward->getRootObject())    mHFHFracVSpT_Forward->Fill(correctedJet.pt(),(*pfJets)[ijet].HFHadronEnergyFraction ());	
 	  mHFEFracVSpT_Forward = map_of_MEs[DirName+"/"+"HFEFracVSpT_Forward"]; if (mHFEFracVSpT_Forward && mHFEFracVSpT_Forward->getRootObject())    mHFEFracVSpT_Forward->Fill (correctedJet.pt(),(*pfJets)[ijet].HFEMEnergyFraction ());
+	  
+
 	  //fractions
 	  if (correctedJet.pt()<=50.) {
 	    //mAxis2_lowPt_Forward = map_of_MEs[DirName+"/"+"qg_Axis2_lowPt_Forward"];if(mAxis2_lowPt_Forward && mAxis2_lowPt_Forward->getRootObject()) mAxis2_lowPt_Forward->Fill(QGaxis2);
@@ -2381,6 +2431,7 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	    mHFHEn_mediumPt_Forward = map_of_MEs[DirName+"/"+"HFHEn_mediumPt_Forward"];    if(mHFHEn_mediumPt_Forward && mHFHEn_mediumPt_Forward->getRootObject())     mHFHEn_mediumPt_Forward->Fill((*pfJets)[ijet].HFHadronEnergy());
 	    mNeutMultiplicity_mediumPt_Forward = map_of_MEs[DirName+"/"+"NeutMultiplicity_mediumPt_Forward"]; if(mNeutMultiplicity_mediumPt_Forward && mNeutMultiplicity_mediumPt_Forward->getRootObject())  mNeutMultiplicity_mediumPt_Forward->Fill((*pfJets)[ijet].neutralMultiplicity());
 	  }
+
 	  if (correctedJet.pt()>140.) {
 	    //mAxis2_highPt_Forward = map_of_MEs[DirName+"/"+"qg_Axis2_highPt_Forward"];if(mAxis2_highPt_Forward && mAxis2_highPt_Forward->getRootObject()) mAxis2_highPt_Forward->Fill(QGaxis2);
 	    //mpTD_highPt_Forward = map_of_MEs[DirName+"/"+"qg_pTD_highPt_Forward"]; if(mpTD_highPt_Forward && mpTD_highPt_Forward->getRootObject()) mpTD_highPt_Forward->Fill(QGptD);
@@ -2396,6 +2447,7 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	    mNeutMultiplicity_highPt_Forward = map_of_MEs[DirName+"/"+"NeutMultiplicity_highPt_Forward"]; if(mNeutMultiplicity_highPt_Forward && mNeutMultiplicity_highPt_Forward->getRootObject())  mNeutMultiplicity_highPt_Forward->Fill((*pfJets)[ijet].neutralMultiplicity());
 	  }
 	}
+
 	//OOT plots
 	/*
 	if(techTriggerResultBx0 && techTriggerResultBxE && techTriggerResultBxF){
@@ -2451,7 +2503,10 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	    meHFHFracPlus_BXm1Filled    = map_of_MEs[DirName+"/"+"HFHFracPlus_BXm1Filled"];     if (  meHFHFracPlus_BXm1Filled  && meHFHFracPlus_BXm1Filled ->getRootObject())  meHFHFracPlus_BXm1Filled  ->Fill((*pfJets)[ijet].HFHadronEnergyFraction());
 	    meHFEMFracPlus_BXm1Filled    = map_of_MEs[DirName+"/"+"HFEMFracPlus_BXm1Filled"];     if (  meHFEMFracPlus_BXm1Filled  && meHFEMFracPlus_BXm1Filled ->getRootObject())  meHFEMFracPlus_BXm1Filled  ->Fill((*pfJets)[ijet].HFEMEnergyFraction());
 	  }
-	}/*
+	}
+	
+
+	/*
 	if(techTriggerResultBx0 && !techTriggerResultBxE && !techTriggerResultBxF){
 	  meEta_BXm2BXm1Empty    = map_of_MEs[DirName+"/"+"Eta_BXm2BXm1Empty"];     if (  meEta_BXm2BXm1Empty  && meEta_BXm2BXm1Empty ->getRootObject())  meEta_BXm2BXm1Empty  ->Fill((*pfJets)[ijet].eta());
 	  if(fabs(correctedJet.eta()) <= 1.3) {
@@ -2506,6 +2561,8 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	    meHFEMFracPlus_BXm1Empty    = map_of_MEs[DirName+"/"+"HFEMFracPlus_BXm1Empty"];     if (  meHFEMFracPlus_BXm1Empty  && meHFEMFracPlus_BXm1Empty ->getRootObject())  meHFEMFracPlus_BXm1Empty  ->Fill((*pfJets)[ijet].HFEMEnergyFraction());
 	  }
 	}
+	
+
 	mChargedHadronEnergy = map_of_MEs[DirName+"/"+"ChargedHadronEnergy"]; if (mChargedHadronEnergy && mChargedHadronEnergy->getRootObject())  mChargedHadronEnergy->Fill ((*pfJets)[ijet].chargedHadronEnergy());
 	mNeutralHadronEnergy = map_of_MEs[DirName+"/"+"NeutralHadronEnergy"]; if (mNeutralHadronEnergy && mNeutralHadronEnergy->getRootObject())  mNeutralHadronEnergy->Fill ((*pfJets)[ijet].neutralHadronEnergy());
 	mChargedEmEnergy = map_of_MEs[DirName+"/"+"ChargedEmEnergy"]; if (mChargedEmEnergy && mChargedEmEnergy->getRootObject()) mChargedEmEnergy->Fill((*pfJets)[ijet].chargedEmEnergy());
@@ -2529,6 +2586,9 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     //IDs have been defined by now
     //check here already for ordering of jets -> if we choose later to soften pt-thresholds for physics selections
     //compared to the default jet histograms
+    
+
+
     if(pass_Z_selection){//if Z selection not passed, don't need to find out of muons and Jets are overlapping
       if(deltaR((*Muons)[mu_index0].eta(),(*Muons)[mu_index0].phi(),correctedJet.eta(),correctedJet.phi())>0.2 && deltaR((*Muons)[mu_index1].eta(),(*Muons)[mu_index1].phi(),correctedJet.eta(),correctedJet.phi())>0.2 ){
 	if(correctedJet.pt()>pt1_mu_vetoed){
@@ -2727,6 +2787,9 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	  }//substructure filling for boosted
 	}//substructure filling	  
       }
+      
+
+
       // --- Event passed the low pt jet trigger
       if (jetLoPass_ == 1) {	  
 	mPhi_Lo = map_of_MEs[DirName+"/"+"Phi_Lo"]; if (mPhi_Lo && mPhi_Lo->getRootObject()) mPhi_Lo->Fill (correctedJet.phi());
@@ -3065,6 +3128,8 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	  }//deal with second jet
 	}//fill quark gluon tagged variables
       }//pfjet 	  
+
+
       if(isMiniAODJet_){
 	mCHFrac = map_of_MEs[DirName+"/"+"CHFrac"]; if (mCHFrac && mCHFrac->getRootObject())         mCHFrac ->Fill((*patJets)[ind1].chargedHadronEnergyFraction());
 	mNHFrac = map_of_MEs[DirName+"/"+"NHFrac"]; if (mNHFrac && mNHFrac->getRootObject())         mNHFrac ->Fill((*patJets)[ind1].neutralHadronEnergyFraction());
@@ -3386,6 +3451,9 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	    }
 	  }
 	}
+	
+
+
 	int QGmulti=-1;
 	float QGLikelihood=-10;
 	float QGptD=-10;
@@ -3459,4 +3527,5 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
       }//jet back to back to Z      
     }//2nd jet veto
   }//Z selection + hard leading jet
+
 }

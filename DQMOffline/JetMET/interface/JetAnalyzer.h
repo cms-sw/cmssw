@@ -361,6 +361,7 @@ class JetAnalyzer : public DQMEDAnalyzer {
   double pt_min_boosted_;
 
   bool runcosmics_;
+  bool isAOD;
 
 //  bool energycorrected;
  
