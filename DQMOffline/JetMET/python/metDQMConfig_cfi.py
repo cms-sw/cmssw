@@ -7,7 +7,7 @@ from DQMOffline.JetMET.metDiagnosticParameterSetMiniAOD_cfi import *
 #jet corrector defined in jetMETDQMOfflineSource python file
 
 caloMetDQMAnalyzer = cms.EDAnalyzer("METAnalyzer",  
-    isAOD   = cms.bool(False),
+    isAOD   = cms.bool(True),
     METType=cms.untracked.string('calo'),
     srcPFlow = cms.InputTag('particleFlow', ''),
     l1algoname = cms.string("L1Tech_BPTX_plus_AND_minus.v0"),

@@ -23,9 +23,11 @@ readFiles = cms.untracked.vstring()
 secFiles = cms.untracked.vstring() 
 process.source = cms.Source ("PoolSource",fileNames = readFiles, secondaryFileNames = secFiles)
 readFiles.extend( [
+        #'/store/data/Run2016C/JetHT/AOD/PromptReco-v2/000/275/657/00000/20E6B245-603B-E611-99E6-02163E0144CC.root'
+        
+        '/store/data/Run2016C/SingleMuon/AOD/PromptReco-v2/000/275/963/00000/482AB017-5740-E611-AEF9-02163E0124F5.root'
         #'/store/relval/CMSSW_8_0_11/RelValZpTT_1500_13/AODSIM/80X_mcRun2_asymptotic_v14_reHLT_HS-v1/10000/04DC8F0F-D333-E611-A821-0025905B85FE.root'
         #'/store/relval/CMSSW_8_0_14/JetHT/RECO/80X_dataRun2_relval_v15_RelVal_jetHT2016B-v1/10000//AADD3583-3349-E611-A75C-0CC47A4C8E70.root'
-        '/store/data/Run2016C/SingleMuon/AOD/PromptReco-v2/000/275/963/00000/482AB017-5740-E611-AEF9-02163E0124F5.root'
         #'/store/relval/CMSSW_7_5_2/JetHT/MINIAOD/75X_dataRun1_HLT_frozen_v2_RelVal_jet2012D-v1/00000/7CEB618B-8151-E511-8D05-002618943857.root',
         #'/store/relval/CMSSW_7_5_2/JetHT/MINIAOD/75X_dataRun1_HLT_frozen_v2_RelVal_jet2012D-v1/00000/8A6ED13D-8351-E511-A6E1-0025905964C2.root',
         #'/store/relval/CMSSW_7_5_2/JetHT/MINIAOD/75X_dataRun1_HLT_frozen_v2_RelVal_jet2012D-v1/00000/9A6F45A5-8251-E511-8BB5-0025905964A6.root',
