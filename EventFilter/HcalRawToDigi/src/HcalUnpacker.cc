@@ -595,6 +595,8 @@ void HcalUnpacker::unpackUTCA(const FEDRawData& raw, const HcalElectronicsMap& e
         printf("%04d %04x\n",iw,uhtr.getRawData16()[iw]);
 #endif
 
+    //use uhtr presamples since amc header not properly packed in simulation
+    nps = uhtr.presamples();
     HcalUHTRData::const_iterator i=uhtr.begin(), iend=uhtr.end();
     while (i!=iend) {
 #ifdef DebugLog
@@ -620,6 +622,8 @@ void HcalUnpacker::unpackUTCA(const FEDRawData& raw, const HcalElectronicsMap& e
           for (++i; i != iend && !i.isHeader(); ++i) {
               ns++;
           }
+          //account for packed flag word from simulation
+          if(uhtr.wasSimulatedHTR()) ns--;
           // Check QEI11 container exists
           if (colls.qie11 == 0) {
               colls.qie11 = new QIE11DigiCollection(ns);

@@ -6,7 +6,7 @@
  *
  * This algorithm is very basic no attemp to deal with ambiguities , noise etc.
  * The GEM track segments (actually more correct would be: GEM correlated hits)
- * is built out of the rechits in two GEM layers (GE1/1) or three GEM layers (GE2/1)
+ * is built out of the rechits in two GEM layers in GE1/1 or GE2/1
  * as the GEM Ensabmle .<BR>
  *
  *  \authors Piet Verwilligen 
@@ -68,7 +68,6 @@ private:
   double  dEtaChainBoxMax;
   int     maxRecHitsInCluster;
   bool    clusterOnlySameBXRecHits;
-  // bool    useGE21Short;
   
   EnsembleHitContainer proto_segment;
   GEMDetId    theChamberId;
