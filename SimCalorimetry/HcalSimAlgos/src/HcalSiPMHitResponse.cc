@@ -19,9 +19,9 @@
 #include <list>
 
 HcalSiPMHitResponse::HcalSiPMHitResponse(const CaloVSimParameterMap * parameterMap,
-					 const CaloShapes * shapes) :
+					 const CaloShapes * shapes, bool PreMix1) :
   CaloHitResponse(parameterMap, shapes), theSiPM(), theRecoveryTime(250.), 
-  TIMEMULT(1), Y11RANGE(80.), Y11MAX(0.04), Y11TIMETORISE(16.65) {
+  TIMEMULT(1), Y11RANGE(80.), Y11MAX(0.04), Y11TIMETORISE(16.65), PreMixDigis(PreMix1) {
   theSiPM = new HcalSiPM(2500);
 }
 
@@ -35,7 +35,8 @@ void HcalSiPMHitResponse::initializeHits() {
 }
 
 void HcalSiPMHitResponse::finalizeHits(CLHEP::HepRandomEngine* engine) {
-  addPEnoise(engine);
+  //do not add PE noise for initial premix
+  if(!PreMixDigis) addPEnoise(engine);
 
   photonTimeMap::iterator channelPhotons;
   for (channelPhotons = precisionTimedPhotons.begin();
