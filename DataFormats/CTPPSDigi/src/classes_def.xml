@@ -33,4 +33,21 @@
   </class>
   <class name="std::vector<TotemFEDInfo>"/>
   <class name="edm::Wrapper<std::vector<TotemFEDInfo>>"/>
+
+  <class name="CTPPSDiamondDigi" ClassVersion="8">
+  <version ClassVersion="8" checksum="3971463461"/>
+  </class>
+  
+  <class name="edm::DetSet<CTPPSDiamondDigi>"/>
+  <class name="std::vector<edm::DetSet<CTPPSDiamondDigi> >"/>
+  <class name="std::vector<CTPPSDiamondDigi>"/>
+  <class name="edm::DetSetVector<CTPPSDiamondDigi>"/>
+  <class name="edm::Wrapper<edm::DetSet<CTPPSDiamondDigi> >"/>
+  <class name="edm::Wrapper<edm::DetSetVector<CTPPSDiamondDigi> >"/>
+
+  <class name="HPTDCErrorFlags"/>
+
+
+
+
 </lcgdict>

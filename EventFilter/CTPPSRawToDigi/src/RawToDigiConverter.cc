@@ -265,6 +265,11 @@ void RawToDigiConverter::Run(const VFATFrameCollection &coll, const TotemDAQMapp
       edm::DetSetVector<CTPPSDiamondDigi> &digi, edm::DetSetVector<TotemVFATStatus> &status)
 {
   // TODO
+
+
+
+
+
 }
 
 //----------------------------------------------------------------------------------------------------

@@ -49,6 +49,7 @@ void PrintTotemDAQMapping::beginRun(edm::Run const&, edm::EventSetup const& es)
   ESHandle<TotemAnalysisMask> analysisMask;
   es.get<TotemReadoutRcd>().get(analysisMask);
 
+
   for (const auto &p : mapping->VFATMapping)
   {
     cout << p.first << " -> " << p.second << endl;
