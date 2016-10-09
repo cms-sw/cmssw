@@ -121,6 +121,7 @@ void HcalDigiToRawuHTR::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
       int crateId = eid.crateId();
       int slotId = eid.slot();
       int uhtrIndex = ((slotId&0xF)<<8) | (crateId&0xFF);
+      int presamples = qiedf.presamples();
 
       /* Defining a custom index that will encode only
 	 the information about the crate and slot of a 
@@ -128,7 +129,7 @@ void HcalDigiToRawuHTR::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
 	 slot:  bits 8-12 */
 
       if( ! uhtrs.exist( uhtrIndex ) ){
-	uhtrs.newUHTR( uhtrIndex );
+	uhtrs.newUHTR( uhtrIndex , presamples );
       }
       uhtrs.addChannel(uhtrIndex,qiedf,readoutMap,_verbosity);
     }
@@ -147,9 +148,11 @@ void HcalDigiToRawuHTR::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
       int crateId = eid.crateId();
       int slotId = eid.slot();
       int uhtrIndex = ((slotId&0xF)<<8) | (crateId&0xFF);
+      int presamples = qiedf.presamples();
 
       if( ! uhtrs.exist(uhtrIndex) ){
-	uhtrs.newUHTR( uhtrIndex );
+        //special setting to keep flag word for QIE11 premixing
+        uhtrs.newUHTR( uhtrIndex , presamples , true );
       }
       uhtrs.addChannel(uhtrIndex,qiedf,readoutMap,_verbosity);
     }
@@ -167,9 +170,10 @@ void HcalDigiToRawuHTR::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
       int crateId = eid.crateId();
       int slotId = eid.slot();
       int uhtrIndex = (crateId&0xFF) | ((slotId&0xF)<<8) ; 
+      int presamples = qiedf->presamples();
 
       if( ! uhtrs.exist(uhtrIndex) ){
-	uhtrs.newUHTR( uhtrIndex );
+	uhtrs.newUHTR( uhtrIndex , presamples );
       }
       uhtrs.addChannel(uhtrIndex,qiedf,readoutMap,_verbosity);
     }
@@ -187,9 +191,10 @@ void HcalDigiToRawuHTR::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
       int crateId = eid.crateId();
       int slotId = eid.slot();
       int uhtrIndex = (crateId&0xFF) | ((slotId&0xF)<<8) ; 
+      int presamples = qiedf->presamples();
 
       if( ! uhtrs.exist(uhtrIndex) ){
-	uhtrs.newUHTR( uhtrIndex );
+	uhtrs.newUHTR( uhtrIndex , presamples );
       }
       uhtrs.addChannel(uhtrIndex,qiedf,readoutMap,_verbosity);
     }
@@ -210,9 +215,10 @@ void HcalDigiToRawuHTR::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
       int ilink = eid.fiberIndex();
       int itower = eid.fiberChanId();
       int channelid = (itower&0xF) | ((ilink&0xF)<<4);
+      int presamples = qiedf->presamples();
 
       if( ! uhtrs.exist(uhtrIndex) ){
-	uhtrs.newUHTR( uhtrIndex );
+	uhtrs.newUHTR( uhtrIndex , presamples );
       }
       uhtrs.addChannel(uhtrIndex,qiedf,channelid,_verbosity);
     }
