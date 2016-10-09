@@ -53,7 +53,6 @@ XMLConfigReader::XMLConfigReader(){
 XMLConfigReader::~XMLConfigReader()
 {
   delete parser;
-  XMLPlatformUtils::Terminate();
 }
 //////////////////////////////////////////////////
 //////////////////////////////////////////////////
