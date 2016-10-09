@@ -137,6 +137,8 @@ void CastorDigiMonitor::processEvent(const CastorDigiCollection& castorDigis,
   if(fVerbosity>0) std::cout << "CastorDigiMonitor::processEvent (begin)"<< std::endl;
 
  if(castorDigis.size() <= 0) {
+  for(int mod=0; mod<14; mod++) for(int sec=0; sec<16; sec++) 
+	h2digierr->Fill(mod,sec,0.);
   if(fVerbosity>0) std::cout<<"CastorPSMonitor::processEvent NO Castor Digis"<<std::endl;
   return;
  }
@@ -149,16 +151,17 @@ void CastorDigiMonitor::processEvent(const CastorDigiCollection& castorDigis,
    int capid1 = digi.sample(0).capid();
    hdigisize->Fill(digi.size());
    double sum = 0.;
+   int err=0;
+   int module = digi.id().module()-1;
+   int sector = digi.id().sector()-1;
    for (int i=0; i<digi.size(); i++) {
-     int module = digi.id().module()-1;
-     int sector = digi.id().sector()-1;
      int capid = digi.sample(i).capid();
      int dv = digi.sample(i).dv();
      int er = digi.sample(i).er();
      int rawd = digi.sample(i).adc();
      rawd = rawd&0x7F;
-     int err = (capid != capid1) | er<<1 | (!dv)<<2; // =0
-     h2digierr->Fill(module,sector,err);
+//     int err = (capid != capid1) | er<<1 | (!dv)<<2; // =0
+     err += (capid != capid1) | er | (!dv); // =0
 //     if(err !=0) continue;
      int ind = ModSecToIndex(module,sector);
      h2QtsvsCh->Fill(ind,i,LedMonAdc2fc[rawd]);
@@ -172,6 +175,7 @@ void CastorDigiMonitor::processEvent(const CastorDigiCollection& castorDigis,
      if(capid1 < 3) capid1 = capid+1;
      else capid1 = 0;
    }
+   h2digierr->Fill(module,sector,1.-err/digi.size());
 //   hBunchOcc->Fill(iBunch,sum);
  } //end for(CastorDigiCollection::const_iterator ...
 
@@ -241,7 +245,7 @@ void CastorDigiMonitor::processEvent(const CastorDigiCollection& castorDigis,
     else if(r > 0.99) statusTS = repChanBAD;
     float gChanStatus = statusTS;
     if(ChanStatus > 0.) gChanStatus = repChanBAD; // RMS
- if(h2digierr->getTProfile2D()->GetBinContent(mod+1,sec+1)>QIEerrThreshold)
+ if((1.-h2digierr->getTProfile2D()->GetBinContent(mod+1,sec+1))>QIEerrThreshold)
 	gChanStatus = repChanBAD;
     h2reportMap->getTH2F()->SetBinContent(mod+1,sec+1,gChanStatus);
     if(gChanStatus > repChanBAD) ++nGoodCh;
