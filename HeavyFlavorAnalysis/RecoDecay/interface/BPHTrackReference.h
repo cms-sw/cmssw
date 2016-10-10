@@ -92,10 +92,10 @@ class BPHTrackReference {
   static const reco::Track* getFromRC( const reco::Candidate& rc ) {
 //    std::cout << "getFromRC" << std::endl;
     try {
+      const reco::TrackRef& tkr = rc.get<reco::TrackRef>();
       if ( tkr.isNonnull() && tkr.isAvailable() ) return tkr.get();
     }
     catch ( edm::Exception e ) {
-      std::cout << "unavailable" << std::endl;
     }
     return 0;
   }

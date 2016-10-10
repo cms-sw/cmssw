@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 recoSelect = cms.VPSet(
-    cms.PSet( name = cms.string( 'Phi' ),
+    cms.PSet( name = cms.string( 'PhiMuMu' ),
           ptMin = cms.double( 3.0 ),
          etaMax = cms.double( 10.0 ),
         massMin = cms.double( 0.50 ),
@@ -28,7 +28,7 @@ recoSelect = cms.VPSet(
         constrMass  = cms.double( 3.686109 ),
         constrSigma = cms.double( 0.000129 )
     ),
-    cms.PSet( name = cms.string( 'Ups'  ),
+    cms.PSet( name = cms.string( 'Ups' ),
           ptMin = cms.double( 3.0 ),
          etaMax = cms.double( 10.0 ),
         massMin = cms.double(  6.00 ),
@@ -64,20 +64,20 @@ recoSelect = cms.VPSet(
         constrMass  = cms.double( 10.3552 ),
         constrSigma = cms.double(  0.0005 )
     ),
-    cms.PSet( name = cms.string( 'Kx0'  ),
+    cms.PSet( name = cms.string( 'Kx0' ),
           ptMin = cms.double( 0.7 ),
          etaMax = cms.double( 10.0 ),
-        massMin = cms.double( 0.61 ),
-        massMax = cms.double( 1.18 ),
+        massMin = cms.double( 0.75 ),
+        massMax = cms.double( 1.05 ),
         probMin = cms.double( 0.0 ),
         constrMass  = cms.double( -1.0 ),
         constrSigma = cms.double( -1.0 )
     ),
-    cms.PSet( name = cms.string( 'Phi'  ),
+    cms.PSet( name = cms.string( 'PhiKK' ),
           ptMin = cms.double( 0.7 ),
          etaMax = cms.double( 10.0 ),
-        massMin = cms.double( 0.9995 ),
-        massMax = cms.double( 1.0395 ),
+        massMin = cms.double( 1.00 ),
+        massMax = cms.double( 1.04 ),
         probMin = cms.double( 0.0 ),
         constrMass  = cms.double( -1.0 ),
         constrSigma = cms.double( -1.0 )
@@ -85,8 +85,8 @@ recoSelect = cms.VPSet(
     cms.PSet( name = cms.string( 'Bu' ),
           ptMin = cms.double( 0.7 ),
          etaMax = cms.double( 10.0 ),
-        mPsiMin = cms.double( 2.80 ),
-        mPsiMax = cms.double( 3.40 ),
+        mJPsiMin = cms.double( 2.80 ),
+        mJPsiMax = cms.double( 3.40 ),
         massMin = cms.double( 3.50 ),
         massMax = cms.double( 8.00 ),
         probMin = cms.double( 0.02 ),
@@ -95,8 +95,8 @@ recoSelect = cms.VPSet(
         constrMJPsi = cms.bool( True )
     ),
     cms.PSet( name = cms.string( 'Bd' ),
-        mPsiMin = cms.double( 2.80 ),
-        mPsiMax = cms.double( 3.40 ),
+        mJPsiMin = cms.double( 2.80 ),
+        mJPsiMax = cms.double( 3.40 ),
         mKx0Min = cms.double( 0.80 ),
         mKx0Max = cms.double( 1.00 ),
         massMin = cms.double( 3.50 ),
@@ -107,8 +107,8 @@ recoSelect = cms.VPSet(
         constrMJPsi = cms.bool( True )
     ),
     cms.PSet( name = cms.string( 'Bs' ),
-        mPsiMin = cms.double( 2.80 ),
-        mPsiMax = cms.double( 3.40 ),
+        mJPsiMin = cms.double( 2.80 ),
+        mJPsiMax = cms.double( 3.40 ),
         mPhiMin = cms.double( 1.005 ),
         mPhiMax = cms.double( 1.035 ),
         massMin = cms.double( 3.50 ),
