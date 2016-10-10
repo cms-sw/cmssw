@@ -183,11 +183,20 @@ class PlottingOptionsOffline(BasePlottingOptions):
         mandatories += addMandatories
         BasePlottingOptions.__init__(self, config, "offline", defaults, mandatories, addneedpackages)
 
+class PlottingOptionsPrimaryVertex(BasePlottingOptions):
+    def __init__(self, config, addDefaults = {}, addMandatories=[], addneedpackages=[]):
+        defaults = {}
+        defaults.update(addDefaults)
+        mandatories = []
+        mandatories += addMandatories
+        BasePlottingOptions.__init__(self, config, "primaryvertex", defaults, mandatories, addneedpackages)
+
 def PlottingOptions(config, valType):
     plottingOptionsClasses = {
                               "offline": PlottingOptionsOffline,
                               "split": PlottingOptionsTrackSplitting,
                               "zmumu": PlottingOptionsZMuMu,
+                              "primaryvertex": PlottingOptionsPrimaryVertex
                              }
 
     if valType not in globalDictionaries.plottingOptions:

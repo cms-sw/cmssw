@@ -384,6 +384,36 @@ hltObjectMonitor = cms.EDAnalyzer('HLTObjectMonitor',
         Xmin = cms.double(60),
         Xmax = cms.double(160)
         ),
+    pAL1DoubleMuZMass = cms.PSet(
+        pathName = cms.string("HLT_PAL1DoubleMu10"),
+        moduleName = cms.string("hltL1fL1sDoubleMu10BptxANDL1Filtered0"),
+        plotLabel = cms.string("PAL1DoubleMu10_ZMass"),
+        axisLabel = cms.string("dimuon mass [GeV]"),
+        mainWorkspace = cms.bool(True),
+        NbinsX = cms.int32(50),
+        Xmin = cms.double(60.0),
+        Xmax = cms.double(160.0)
+        ),
+    pAL2DoubleMuZMass = cms.PSet(
+        pathName = cms.string("HLT_PAL2DoubleMu10"),
+        moduleName = cms.string("hltL2fL1sDoubleMu10BptxANDL1f0L2Filtered10"),
+        plotLabel = cms.string("PAL2DoubleMu10_ZMass"),
+        axisLabel = cms.string("dimuon mass [GeV]"),
+        mainWorkspace = cms.bool(True),
+        NbinsX = cms.int32(50),
+        Xmin = cms.double(60.0),
+        Xmax = cms.double(160.0)
+        ),
+    pAL3DoubleMuZMass = cms.PSet(
+        pathName = cms.string("HLT_PAL3DoubleMu10"),
+        moduleName = cms.string("hltL3fL1sDoubleMu10BptxANDL1f0L2f10L3Filtered10"),
+        plotLabel = cms.string("PAL3DoubleMu10_ZMass"),
+        axisLabel = cms.string("dimuon mass [GeV]"),
+        mainWorkspace = cms.bool(True),
+        NbinsX = cms.int32(50),
+        Xmin = cms.double(60.0),
+        Xmax = cms.double(160.0)
+        ),
     diElecMass = cms.PSet(
         pathName = cms.string("HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ"),
         moduleName = cms.string("hltEle23Ele12CaloIdLTrackIdLIsoVLDZFilter"),

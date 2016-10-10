@@ -106,6 +106,8 @@ private:
 
   const bool fileListMode_;
   unsigned int fileListIndex_ = 0;
+  const bool fileListLoopMode_;
+  unsigned int loopModeIterationInc_ = 0;
 
   edm::RunNumber_t runNumber_;
   std::string fuOutputDir_;
