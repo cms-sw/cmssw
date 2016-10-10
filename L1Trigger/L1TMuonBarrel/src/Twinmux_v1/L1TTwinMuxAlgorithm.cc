@@ -51,8 +51,8 @@ inline std::auto_ptr<L1MuDTChambPhContainer> L1TTwinMuxAlgortithm::produce(
 
   TriggerPrimitiveCollection *l1tmtpp =  L1TMuonTPPproducer(phiDigis,thetaDigis,rpcDigis,c);
 
-  std::auto_ptr<MBLTContainer> mblt = MBLTProducer(l1tmtpp);
-  L1ITMuonBarrelPrimitiveProducer *lmbpp = new L1ITMuonBarrelPrimitiveProducer(mblt);
+  std::shared_ptr<MBLTContainer> mblt = MBLTProducer(l1tmtpp);
+  std::unique_ptr<L1ITMuonBarrelPrimitiveProducer> lmbpp ( new L1ITMuonBarrelPrimitiveProducer(mblt));
   std::auto_ptr<L1MuDTChambPhContainer> l1ttma = lmbpp->produce(c);
   return l1ttma;
 
