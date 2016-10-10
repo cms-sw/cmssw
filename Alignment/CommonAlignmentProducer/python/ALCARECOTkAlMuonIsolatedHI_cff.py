@@ -26,6 +26,5 @@ ALCARECOTkAlMuonIsolatedHI.TwoBodyDecaySelector.applyAcoplanarityFilter = False
 
 seqALCARECOTkAlMuonIsolatedHI = cms.Sequence(ALCARECOTkAlMuonIsolatedHIHLT
                                              +ALCARECOTkAlMuonIsolatedHIDCSFilter
-                                             +ALCARECOTkAlMuonIsolatedHIGoodMuons
                                              +ALCARECOTkAlMuonIsolatedHI
                                              )
