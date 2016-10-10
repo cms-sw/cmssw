@@ -82,7 +82,7 @@ public:
      //! Return all reco::GenParticle in the history.
     RecoGenParticleTrail const & recoGenParticleTrail() const
     {
-        return recoGenParticlesTrail_;
+        return recoGenParticleTrail_;
     }
 
     //! Return the initial tracking particle from the history.
