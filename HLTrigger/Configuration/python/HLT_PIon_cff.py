@@ -1,11 +1,11 @@
-# /dev/CMSSW_8_0_0/PIon/V213 (CMSSW_8_0_19_patch2)
+# /dev/CMSSW_8_0_0/PIon/V214 (CMSSW_8_0_19_patch2)
 
 import FWCore.ParameterSet.Config as cms
 
 fragment = cms.ProcessFragment( "HLT" )
 
 fragment.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_8_0_0/PIon/V213')
+  tableName = cms.string('/dev/CMSSW_8_0_0/PIon/V214')
 )
 
 fragment.HLTPSetJetCoreStepTrajectoryFilter = cms.PSet( 
@@ -11238,59 +11238,6 @@ fragment.hltTrigReport = cms.EDAnalyzer( "HLTrigReport",
     reportBy = cms.untracked.string( "job" ),
     HLTriggerResults = cms.InputTag( 'TriggerResults','','HLT' )
 )
-fragment.hltPrePhysicsPAMesonD = cms.EDFilter( "HLTPrescaler",
-    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
-    offset = cms.uint32( 0 )
-)
-fragment.hltPrePhysicsPAJetsEG = cms.EDFilter( "HLTPrescaler",
-    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
-    offset = cms.uint32( 0 )
-)
-
-fragment.hltOutputPhysicsPAMesonD = cms.OutputModule( "ShmStreamConsumer",
-    SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'HLT_PADmesonPPTrackingGlobal_Dpt15_v1',
-  'HLT_PADmesonPPTrackingGlobal_Dpt30_v1',
-  'HLT_PADmesonPPTrackingGlobal_Dpt50_v1',
-  'HLT_PADmesonPPTrackingGlobal_Dpt5_v1',
-  'HLT_PADmesonPPTrackingGlobal_Dpt8_v1' ) ),
-    outputCommands = cms.untracked.vstring( 'drop *',
-      'keep FEDRawDataCollection_rawDataCollector_*_*',
-      'keep FEDRawDataCollection_source_*_*',
-      'keep GlobalObjectMapRecord_hltGtStage2ObjectMap_*_*',
-      'keep edmTriggerResults_*_*_*',
-      'keep triggerTriggerEvent_*_*_*' )
-)
-fragment.hltOutputPhysicsPAJetsEG = cms.OutputModule( "ShmStreamConsumer",
-    SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'HLT_PAAK4CaloJet40_Eta1p9toEta5p1_v2',
-  'HLT_PAAK4CaloJet40_Eta2p9toEta5p1_v2',
-  'HLT_PAAK4CaloJet40_Eta5p1_v2',
-  'HLT_PAAK4CaloJet60_Eta1p9toEta5p1_v2',
-  'HLT_PAAK4CaloJet60_Eta5p1_v2',
-  'HLT_PAAK4CaloJet80_Eta5p1_v2',
-  'HLT_PAAK4PFJet40_Eta1p9toEta5p1_v2',
-  'HLT_PAAK4PFJet40_Eta2p9toEta5p1_v2',
-  'HLT_PAAK4PFJet40_Eta5p1_v2',
-  'HLT_PAAK4PFJet60_Eta1p9toEta5p1_v2',
-  'HLT_PAAK4PFJet60_Eta5p1_v2',
-  'HLT_PAAK4PFJet80_Eta5p1_v2',
-  'HLT_PADiAK4CaloJetAve40_Eta5p1_v2',
-  'HLT_PADiAK4CaloJetAve60_Eta5p1_v2',
-  'HLT_PADiAK4CaloJetAve80_Eta5p1_v2',
-  'HLT_PADiAK4PFJetAve40_Eta5p1_v2',
-  'HLT_PADiAK4PFJetAve60_Eta5p1_v2',
-  'HLT_PADiAK4PFJetAve80_Eta5p1_v2',
-  'HLT_PADoublePhoton15_Eta3p1_Mass50_1000_v2',
-  'HLT_PASinglePhoton10_Eta3p1_v2',
-  'HLT_PASinglePhoton15_Eta3p1_v2',
-  'HLT_PASinglePhoton20_Eta3p1_v2',
-  'HLT_PASinglePhoton30_Eta3p1_v2' ) ),
-    outputCommands = cms.untracked.vstring( 'drop *',
-      'keep FEDRawDataCollection_rawDataCollector_*_*',
-      'keep FEDRawDataCollection_source_*_*',
-      'keep GlobalObjectMapRecord_hltGtStage2ObjectMap_*_*',
-      'keep edmTriggerResults_*_*_*',
-      'keep triggerTriggerEvent_*_*_*' )
-)
 
 fragment.HLTL1UnpackerSequence = cms.Sequence( fragment.hltGtStage2Digis + fragment.hltCaloStage2Digis + fragment.hltGmtStage2Digis + fragment.hltGtStage2ObjectMap )
 fragment.HLTBeamSpot = cms.Sequence( fragment.hltScalersRawToDigi + fragment.hltOnlineBeamSpot )
@@ -11421,11 +11368,9 @@ fragment.HLT_PAFullTracks_Multiplicity280_v1 = cms.Path( fragment.HLTBeginSequen
 fragment.HLT_Physics_v5 = cms.Path( fragment.HLTBeginSequenceL1Fat + fragment.hltPrePhysics + fragment.HLTEndSequence )
 fragment.HLTriggerFinalPath = cms.Path( fragment.hltGtStage2Digis + fragment.hltScalersRawToDigi + fragment.hltFEDSelector + fragment.hltTriggerSummaryAOD + fragment.hltTriggerSummaryRAW + fragment.hltBoolFalse )
 fragment.HLTAnalyzerEndpath = cms.EndPath( fragment.hltGtStage2Digis + fragment.hltPreHLTAnalyzerEndpath + fragment.hltL1TGlobalSummary + fragment.hltTrigReport )
-fragment.PhysicsPAMesonD = cms.EndPath( fragment.hltGtStage2Digis + fragment.hltPrePhysicsPAMesonD + fragment.hltOutputPhysicsPAMesonD )
-fragment.PhysicsPAJetsEG = cms.EndPath( fragment.hltGtStage2Digis + fragment.hltPrePhysicsPAJetsEG + fragment.hltOutputPhysicsPAJetsEG )
 
 
-fragment.HLTSchedule = cms.Schedule( *(fragment.HLTriggerFirstPath, fragment.HLT_PAAK4CaloJet40_Eta5p1_v2, fragment.HLT_PAAK4CaloJet60_Eta5p1_v2, fragment.HLT_PAAK4CaloJet80_Eta5p1_v2, fragment.HLT_PAAK4CaloJet40_Eta1p9toEta5p1_v2, fragment.HLT_PAAK4CaloJet60_Eta1p9toEta5p1_v2, fragment.HLT_PAAK4CaloJet40_Eta2p9toEta5p1_v2, fragment.HLT_PAAK4CaloJet40_Eta5p1_PAL3Mu3_v2, fragment.HLT_PAAK4CaloJet40_Eta5p1_PAL3Mu5_v2, fragment.HLT_PAAK4CaloJet60_Eta5p1_PAL3Mu3_v2, fragment.HLT_PAAK4CaloJet60_Eta5p1_PAL3Mu5_v2, fragment.HLT_PAAK4PFJet40_Eta5p1_v2, fragment.HLT_PAAK4PFJet60_Eta5p1_v2, fragment.HLT_PAAK4PFJet80_Eta5p1_v2, fragment.HLT_PAAK4PFJet60_Eta1p9toEta5p1_v2, fragment.HLT_PAAK4PFJet40_Eta1p9toEta5p1_v2, fragment.HLT_PAAK4PFJet40_Eta2p9toEta5p1_v2, fragment.HLT_PADiAK4CaloJetAve40_Eta5p1_v2, fragment.HLT_PADiAK4CaloJetAve60_Eta5p1_v2, fragment.HLT_PADiAK4CaloJetAve80_Eta5p1_v2, fragment.HLT_PADiAK4PFJetAve40_Eta5p1_v2, fragment.HLT_PADiAK4PFJetAve60_Eta5p1_v2, fragment.HLT_PADiAK4PFJetAve80_Eta5p1_v2, fragment.HLT_PASinglePhoton10_Eta3p1_v2, fragment.HLT_PASinglePhoton15_Eta3p1_v2, fragment.HLT_PASinglePhoton20_Eta3p1_v2, fragment.HLT_PASinglePhoton30_Eta3p1_v2, fragment.HLT_PADoublePhoton15_Eta3p1_Mass50_1000_v2, fragment.HLT_PASinglePhoton10_Eta3p1_PAL3Mu3_v2, fragment.HLT_PASinglePhoton10_Eta3p1_PAL3Mu5_v2, fragment.HLT_PASinglePhoton15_Eta3p1_PAL3Mu3_v2, fragment.HLT_PASinglePhoton15_Eta3p1_PAL3Mu5_v2, fragment.HLT_PASinglePhoton20_Eta3p1_PAL3Mu3_v2, fragment.HLT_PASinglePhoton20_Eta3p1_PAL3Mu5_v2, fragment.HLT_PAL1DoubleMu0_MGT1_v1, fragment.HLT_PAL1DoubleMu0_HighQ_v1, fragment.HLT_PAL1DoubleMu0_v1, fragment.HLT_PAL1DoubleMu10_v1, fragment.HLT_PAL1DoubleMuOpen_OS_v1, fragment.HLT_PAL1DoubleMuOpen_SS_v1, fragment.HLT_PAL1DoubleMuOpen_v1, fragment.HLT_PAL2DoubleMu10_v1, fragment.HLT_PAL2DoubleMuOpen_v1, fragment.HLT_PAL3DoubleMu10_v1, fragment.HLT_PAL3DoubleMuOpen_HIon_v1, fragment.HLT_PAL3DoubleMuOpen_v1, fragment.HLT_PAL2Mu15_v1, fragment.HLT_PAL2Mu12_v1, fragment.HLT_PAL3Mu12_v1, fragment.HLT_PAL3Mu15_v1, fragment.HLT_PAL3Mu3_v1, fragment.HLT_PAL3Mu5_v1, fragment.HLT_PAL3Mu7_v1, fragment.HLT_PADmesonPPTrackingGlobal_Dpt5_v1, fragment.HLT_PADmesonPPTrackingGlobal_Dpt8_v1, fragment.HLT_PADmesonPPTrackingGlobal_Dpt15_v1, fragment.HLT_PADmesonPPTrackingGlobal_Dpt30_v1, fragment.HLT_PADmesonPPTrackingGlobal_Dpt50_v1, fragment.HLT_PAFullTracks_Multiplicity120_v1, fragment.HLT_PAFullTracks_Multiplicity150_v1, fragment.HLT_PAFullTracks_Multiplicity110_HighPt8_v1, fragment.HLT_PAFullTracks_Multiplicity110_HighPt16_v1, fragment.HLT_PAFullTracks_Multiplicity185_part1_v1, fragment.HLT_PAFullTracks_Multiplicity185_part2_v1, fragment.HLT_PAFullTracks_Multiplicity185_part3_v1, fragment.HLT_PAFullTracks_Multiplicity185_part4_v1, fragment.HLT_PAFullTracks_Multiplicity185_part5_v1, fragment.HLT_PAFullTracks_Multiplicity185_part6_v1, fragment.HLT_PAFullTracks_Multiplicity220_v1, fragment.HLT_PAFullTracks_Multiplicity250_v1, fragment.HLT_PAFullTracks_Multiplicity280_v1, fragment.HLT_Physics_v5, fragment.HLTriggerFinalPath, fragment.HLTAnalyzerEndpath, fragment.PhysicsPAMesonD, fragment.PhysicsPAJetsEG ))
+fragment.HLTSchedule = cms.Schedule( *(fragment.HLTriggerFirstPath, fragment.HLT_PAAK4CaloJet40_Eta5p1_v2, fragment.HLT_PAAK4CaloJet60_Eta5p1_v2, fragment.HLT_PAAK4CaloJet80_Eta5p1_v2, fragment.HLT_PAAK4CaloJet40_Eta1p9toEta5p1_v2, fragment.HLT_PAAK4CaloJet60_Eta1p9toEta5p1_v2, fragment.HLT_PAAK4CaloJet40_Eta2p9toEta5p1_v2, fragment.HLT_PAAK4CaloJet40_Eta5p1_PAL3Mu3_v2, fragment.HLT_PAAK4CaloJet40_Eta5p1_PAL3Mu5_v2, fragment.HLT_PAAK4CaloJet60_Eta5p1_PAL3Mu3_v2, fragment.HLT_PAAK4CaloJet60_Eta5p1_PAL3Mu5_v2, fragment.HLT_PAAK4PFJet40_Eta5p1_v2, fragment.HLT_PAAK4PFJet60_Eta5p1_v2, fragment.HLT_PAAK4PFJet80_Eta5p1_v2, fragment.HLT_PAAK4PFJet60_Eta1p9toEta5p1_v2, fragment.HLT_PAAK4PFJet40_Eta1p9toEta5p1_v2, fragment.HLT_PAAK4PFJet40_Eta2p9toEta5p1_v2, fragment.HLT_PADiAK4CaloJetAve40_Eta5p1_v2, fragment.HLT_PADiAK4CaloJetAve60_Eta5p1_v2, fragment.HLT_PADiAK4CaloJetAve80_Eta5p1_v2, fragment.HLT_PADiAK4PFJetAve40_Eta5p1_v2, fragment.HLT_PADiAK4PFJetAve60_Eta5p1_v2, fragment.HLT_PADiAK4PFJetAve80_Eta5p1_v2, fragment.HLT_PASinglePhoton10_Eta3p1_v2, fragment.HLT_PASinglePhoton15_Eta3p1_v2, fragment.HLT_PASinglePhoton20_Eta3p1_v2, fragment.HLT_PASinglePhoton30_Eta3p1_v2, fragment.HLT_PADoublePhoton15_Eta3p1_Mass50_1000_v2, fragment.HLT_PASinglePhoton10_Eta3p1_PAL3Mu3_v2, fragment.HLT_PASinglePhoton10_Eta3p1_PAL3Mu5_v2, fragment.HLT_PASinglePhoton15_Eta3p1_PAL3Mu3_v2, fragment.HLT_PASinglePhoton15_Eta3p1_PAL3Mu5_v2, fragment.HLT_PASinglePhoton20_Eta3p1_PAL3Mu3_v2, fragment.HLT_PASinglePhoton20_Eta3p1_PAL3Mu5_v2, fragment.HLT_PAL1DoubleMu0_MGT1_v1, fragment.HLT_PAL1DoubleMu0_HighQ_v1, fragment.HLT_PAL1DoubleMu0_v1, fragment.HLT_PAL1DoubleMu10_v1, fragment.HLT_PAL1DoubleMuOpen_OS_v1, fragment.HLT_PAL1DoubleMuOpen_SS_v1, fragment.HLT_PAL1DoubleMuOpen_v1, fragment.HLT_PAL2DoubleMu10_v1, fragment.HLT_PAL2DoubleMuOpen_v1, fragment.HLT_PAL3DoubleMu10_v1, fragment.HLT_PAL3DoubleMuOpen_HIon_v1, fragment.HLT_PAL3DoubleMuOpen_v1, fragment.HLT_PAL2Mu15_v1, fragment.HLT_PAL2Mu12_v1, fragment.HLT_PAL3Mu12_v1, fragment.HLT_PAL3Mu15_v1, fragment.HLT_PAL3Mu3_v1, fragment.HLT_PAL3Mu5_v1, fragment.HLT_PAL3Mu7_v1, fragment.HLT_PADmesonPPTrackingGlobal_Dpt5_v1, fragment.HLT_PADmesonPPTrackingGlobal_Dpt8_v1, fragment.HLT_PADmesonPPTrackingGlobal_Dpt15_v1, fragment.HLT_PADmesonPPTrackingGlobal_Dpt30_v1, fragment.HLT_PADmesonPPTrackingGlobal_Dpt50_v1, fragment.HLT_PAFullTracks_Multiplicity120_v1, fragment.HLT_PAFullTracks_Multiplicity150_v1, fragment.HLT_PAFullTracks_Multiplicity110_HighPt8_v1, fragment.HLT_PAFullTracks_Multiplicity110_HighPt16_v1, fragment.HLT_PAFullTracks_Multiplicity185_part1_v1, fragment.HLT_PAFullTracks_Multiplicity185_part2_v1, fragment.HLT_PAFullTracks_Multiplicity185_part3_v1, fragment.HLT_PAFullTracks_Multiplicity185_part4_v1, fragment.HLT_PAFullTracks_Multiplicity185_part5_v1, fragment.HLT_PAFullTracks_Multiplicity185_part6_v1, fragment.HLT_PAFullTracks_Multiplicity220_v1, fragment.HLT_PAFullTracks_Multiplicity250_v1, fragment.HLT_PAFullTracks_Multiplicity280_v1, fragment.HLT_Physics_v5, fragment.HLTriggerFinalPath, fragment.HLTAnalyzerEndpath ))
 
 
 # dummyfy hltGetConditions in cff's
