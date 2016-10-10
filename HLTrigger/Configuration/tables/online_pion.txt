@@ -86,8 +86,8 @@ PhysicsPAMuonsOutput                # CMSHLT-1013
 PhysicsPAHighMultiplicity0Output    # CMSHLT-1000
 PhysicsPAHighMultiplicity1Output    # CMSHLT-1000
 PhysicsPAHighMultiplicity2Output    # CMSHLT-1000
-PhysicsPAJetsEG                     # CMSHLT-1028
-PhysicsPAMesonD                     # CMSHLT-1030
+PhysicsPAJetsEGOutput               # CMSHLT-1028
+PhysicsPAMesonDOutput               # CMSHLT-1030
 DQMOutput
 
 ######## paths that are different between PIon and online_pion ################################
