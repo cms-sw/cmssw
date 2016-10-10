@@ -1,4 +1,5 @@
 import FWCore.ParameterSet.Config as cms
+import sys
 
 def checkPrefix(mainList, inputGTParams):
     """ Compares two input GTs to see if they have the same prefix. Returns the index in the internal list of GTs of the match
@@ -67,7 +68,8 @@ def GlobalTag(essource = None, globaltag = None, conditions = None):
             globaltag = globaltag[5:]
             if globaltag not in autoCond:
                 raise Exception('no correspondence for '+globaltag+'\navailable keys are\n'+','.join(autoCond.keys()))
-
+            if 'upgradePLS3' == globaltag:
+                sys.stderr.write('Warning: %s now points to %s, instead of POSTLS262_V1'%(globaltag,autoCond[globalTag]))
             autoKey = autoCond[globaltag]
             if isinstance(autoKey, tuple) or isinstance(autoKey, list):
                 globaltag = autoKey[0]
@@ -85,6 +87,7 @@ def GlobalTag(essource = None, globaltag = None, conditions = None):
             else:
                 globaltag = autoKey
 
+        
         # if a GlobalTag globaltag is given or loaded from autoCond.py, check for optional connection string and pfn prefix
         globaltag = globaltag.split(',')
         if len(globaltag) > 0 :
