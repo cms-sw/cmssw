@@ -18,6 +18,10 @@ SiPixelPhase1Geometry = cms.PSet(
   # "time geometry" parameters
   max_lumisection = cms.int32(1000),
   max_bunchcrossing = cms.int32(3600),
+
+  # to select a different cabling map (for pilotBlade)
+  CablingMapLabel = cms.string(""),
+
   # online-secific things
   onlineblock = cms.int32(20),    # #LS after which histograms are reset
   n_onlineblocks = cms.int32(5),  # #blocks to keep for histograms with history

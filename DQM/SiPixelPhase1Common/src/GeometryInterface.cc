@@ -312,8 +312,9 @@ void GeometryInterface::loadModuleLevel(edm::EventSetup const& iSetup, const edm
 }
 
 void GeometryInterface::loadFEDCabling(edm::EventSetup const& iSetup, const edm::ParameterSet& iConfig) {
+  auto cablingMapLabel = iConfig.getParameter<std::string>("CablingMapLabel");
   edm::ESHandle<SiPixelFedCablingMap> theCablingMap;
-  iSetup.get<SiPixelFedCablingMapRcd>().get(theCablingMap);
+  iSetup.get<SiPixelFedCablingMapRcd>().get(cablingMapLabel, theCablingMap);
   std::map<DetId, Value> fedmap;
   uint32_t minFED = UNDEFINED, maxFED = 0;
 
