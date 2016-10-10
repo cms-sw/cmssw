@@ -12,11 +12,7 @@ SiPixelPhase1DigisADC = DefaultHisto.clone(
   range_nbins = 300,
   topFolderName = "PixelPhase1V/Digis",
   specs = cms.VPSet(
-    Specification(PerLadder).groupBy("PXBarrel|PXForward/Shell|HalfCylinder/PXLayer|PXDisk/PXRing|/PXLadder|PXBlade") # per-ladder and profiles
-                            .save(),
-    Specification(PerLayer1D).groupBy(parent("PXBarrel|PXForward/Shell|HalfCylinder/PXLayer|PXDisk/PXRing|/PXLadder|PXBlade")) # per-layer
-                             .save(),
-    Specification(PerModule).groupBy("PXBarrel|PXForward/PXLayer|PXDisk/DetId").save()
+    Specification().groupBy("PXBarrel|PXForward/PXLayer|PXDisk/PXBModule|PXFModule").save()
   )
 )
 
@@ -30,11 +26,7 @@ SiPixelPhase1DigisNdigis = DefaultHisto.clone(
   dimensions = 0, # this is a count
   topFolderName = "PixelPhase1V/Digis",
   specs = cms.VPSet(
-    Specification().groupBy("PXBarrel|PXForward/PXLayer|PXDisk" + "/DetId/Event")
-                   .reduce("COUNT")
-                   .groupBy("PXBarrel|PXForward/PXLayer|PXDisk")
-                   .saveAll(),
-    *StandardSpecifications1D_Num
+    Specification().groupBy("PXBarrel|PXForward/PXLayer|PXDisk/PXBModule|PXFModule").save()
   )
 )
 
@@ -47,11 +39,7 @@ SiPixelPhase1DigisRows = DefaultHisto.clone(
   range_nbins = 200,
   topFolderName = "PixelPhase1V/Digis",
   specs = cms.VPSet(
-    Specification(PerLadder).groupBy("PXBarrel|PXForward/Shell|HalfCylinder/PXLayer|PXDisk/PXRing|/PXLadder|PXBlade") # per-ladder and profiles
-                            .save(),
-    Specification(PerLayer1D).groupBy(parent("PXBarrel|PXForward/Shell|HalfCylinder/PXLayer|PXDisk/PXRing|/PXLadder|PXBlade")) # per-layer
-                             .save(),
-    Specification(PerModule).groupBy("PXBarrel|PXForward/PXLayer|PXDisk/DetId").save()
+    Specification().groupBy("PXBarrel|PXForward/PXLayer|PXDisk/PXBModule|PXFModule").save()
   )
 )
 
@@ -64,11 +52,7 @@ SiPixelPhase1DigisColumns = DefaultHisto.clone(
   range_nbins = 300,
   topFolderName = "PixelPhase1V/Digis",
   specs = cms.VPSet(
-    Specification(PerLadder).groupBy("PXBarrel|PXForward/Shell|HalfCylinder/PXLayer|PXDisk/PXRing|/PXLadder|PXBlade") # per-ladder and profiles
-                            .save(),
-    Specification(PerLayer1D).groupBy(parent("PXBarrel|PXForward/Shell|HalfCylinder/PXLayer|PXDisk/PXRing|/PXLadder|PXBlade")) # per-layer
-                             .save(),
-    Specification(PerModule).groupBy("PXBarrel|PXForward/PXLayer|PXDisk/DetId").save()
+    Specification().groupBy("PXBarrel|PXForward/PXLayer|PXDisk/PXBModule|PXFModule").save()
   )
 )
 
