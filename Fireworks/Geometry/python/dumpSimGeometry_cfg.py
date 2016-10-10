@@ -62,6 +62,12 @@ def simGeoLoad(score):
  
     elif score == "2023D3":
        process.load('Geometry.CMSCommonData.cmsExtendedGeometry2023D3XML_cfi')
+    
+    elif score == "2023D4":
+       process.load('Geometry.CMSCommonData.cmsExtendedGeometry2023D4XML_cfi')
+
+    elif score == "2023D5":
+       process.load('Geometry.CMSCommonData.cmsExtendedGeometry2023D5XML_cfi')
 
     elif score == "MaPSA":
        process.load('Geometry.TrackerCommonData.mapsaGeometryXML_cfi')
