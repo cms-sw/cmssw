@@ -30,6 +30,8 @@
  * optimal clustering algorithm, benchmark the performances of the enconding ...
  */
 
+#define DEBUG
+
 
 
 namespace HGCalTriggerBackend{
@@ -116,6 +118,9 @@ namespace HGCalTriggerBackend{
 		            const edm::Event&evt
                     )
             {
+#ifdef DEBUG
+                cout<<"[HGCalTriggerSimCluster]::[run] Start"<<endl;
+#endif
                 //1. construct a cluster container that hosts the cluster per truth-particle
                 std::unordered_map<uint64_t,std::pair<int,l1t::HGCalCluster> > cluster_container;// PID-> bx,cluster
                 evt.getByToken(sim_token,sim_handle);
@@ -123,6 +128,9 @@ namespace HGCalTriggerBackend{
                 if (not sim_handle.isValid()) { std::cout<<"[HGCalTriggerSimCluster]::[run]::[ERROR] PFCluster collection for HGC sim clustering not available"<<std::endl; throw 39;}
 
                 // 1.5. pre-process the sim cluster to have easy accessible information
+#ifdef DEBUG
+                cout<<"[HGCalTriggerSimCluster]::[run] processing sim clusters"<<endl;
+#endif
                 // I want a map cell-> [ (pid, fraction),  ... 
                 std::unordered_map<uint32_t, std::vector<std::pair< uint64_t, float > > > simclusters;
                 for (auto& cluster : *sim_handle)
@@ -135,6 +143,9 @@ namespace HGCalTriggerBackend{
                     }
                 }
                 
+#ifdef DEBUG
+                cout<<"[HGCalTriggerSimCluster]::[run] Run on digis"<<endl;
+#endif
 
                 //2. run on the digits,
                 for( const auto& digi : coll ) 
@@ -186,6 +197,10 @@ namespace HGCalTriggerBackend{
                         }// end of for loop
                     } //end of for-scope
                 }
+
+#ifdef DEBUG
+                cout<<"[HGCalTriggerSimCluster]::[run] Push clusters in cluster products"<<endl;
+#endif
 
                 //3. Push the clusters in the cluster_product
                 //uint32_t clusterEnergyHw=0;
