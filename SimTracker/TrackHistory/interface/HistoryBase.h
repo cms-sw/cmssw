@@ -20,7 +20,7 @@ public:
     //! reco::GenParticle trail type.
     typedef std::vector<const reco::GenParticle *> RecoGenParticleTrail;
     
-    //! GenVertex trail helper type.
+    //!reco::GenParticle trail helper type.
     typedef std::set<const reco::GenParticle *> RecoGenParticleTrailHelper;
 
     //! GenVertex trail type.
@@ -73,7 +73,7 @@ public:
         return genVertexTrail_;
     }
 
-    //! Return all generated particle in the history.
+    //! Return all generated particle (HepMC::GenParticle) in the history.
     GenParticleTrail const & genParticleTrail() const
     {
         return genParticleTrail_;
@@ -82,7 +82,7 @@ public:
      //! Return all reco::GenParticle in the history.
     RecoGenParticleTrail const & recoGenParticleTrail() const
     {
-        return recoGenParticleTrail_;
+        return recoGenParticlesTrail_;
     }
 
     //! Return the initial tracking particle from the history.
@@ -104,7 +104,7 @@ public:
         return genParticleTrail_[genParticleTrail_.size()-1];
     }
     
-    //! Returns a pointer to most primitive status 1 or 2 particle.
+    //! Returns a pointer to most primitive status 1 or 2 particle in the recoGenParticleTrail_.
     const reco::GenParticle * recoGenParticle() const
     {
         if ( recoGenParticleTrail_.empty() ) return 0;
