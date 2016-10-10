@@ -28,7 +28,9 @@ upgradeKeys[2023] = [
     '2023D3Timing',
     '2023D3TimingPU',
     '2023D4Timing',
-    '2023D4TimingPU'
+    '2023D4TimingPU',
+    '2023D5',
+    '2023D5PU'
 ]
 
 upgradeSteps=[
@@ -114,6 +116,13 @@ upgradeProperties[2023] = {
         'Custom' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2023tilted4021',
         'Era' : 'Phase2C2',
         'ScenToRun' : ['GenSimFull','DigiFull','RecoFullLocal'],
+    },
+    '2023D5' : {
+        'Geom' : 'Extended2023D5',
+        'GT' : 'auto:run2_mc',
+        'Custom' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2023tilted',
+        'Era' : 'Phase2C2_timing',
+        'ScenToRun' : ['GenSimFull','DigiFull','RecoFullGlobal', 'HARVESTFullGlobal'],
     }
 }
 
@@ -138,6 +147,8 @@ upgradeProperties[2023]['2023D3PU'] = deepcopy(upgradeProperties[2023]['2023D3']
 upgradeProperties[2023]['2023D3PU']['ScenToRun'] = ['GenSimFull','DigiFullPU','RecoFullGlobalPU', 'HARVESTFullGlobalPU']
 upgradeProperties[2023]['2023D4PU'] = deepcopy(upgradeProperties[2023]['2023D4'])
 upgradeProperties[2023]['2023D4PU']['ScenToRun'] = ['GenSimFull','DigiFullPU','RecoFullLocalPU']
+upgradeProperties[2023]['2023D5PU'] = deepcopy(upgradeProperties[2023]['2023D5'])
+upgradeProperties[2023]['2023D5PU']['ScenToRun'] = ['GenSimFull','DigiFullPU','RecoFullGlobalPU', 'HARVESTFullGlobalPU']
 
 #Timing PU (for now copy ScenToRun of standard PU)
 upgradeProperties[2023]['2023D1TimingPU'] = deepcopy(upgradeProperties[2023]['2023D1Timing'])
