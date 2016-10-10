@@ -116,14 +116,14 @@ upgradeProperties[2023] = {
         'GT' : 'auto:phase2_realistic',
         'Custom' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2023tilted4021',
         'Era' : 'Phase2C2',
-        'ScenToRun' : ['GenSimFull','DigiFull','RecoFullLocal'],
+        'ScenToRun' : ['GenSimHLBeamSpotFull','DigiFull','RecoFullLocal'],
     },
     '2023D5' : {
         'Geom' : 'Extended2023D5',
         'GT' : 'auto:phase2_realistic',
         'Custom' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2023tilted',
         'Era' : 'Phase2C2_timing',
-        'ScenToRun' : ['GenSimFull','DigiFull','RecoFullGlobal', 'HARVESTFullGlobal'],
+        'ScenToRun' : ['GenSimHLBeamSpotFull','DigiFull','RecoFullGlobal', 'HARVESTFullGlobal'],
     }
 }
 
