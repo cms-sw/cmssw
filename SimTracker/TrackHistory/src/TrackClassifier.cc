@@ -262,7 +262,7 @@ void TrackClassifier::qualityInformation(reco::TrackBaseRef const & track)
 
 void TrackClassifier::hadronFlavor()
 {
-    // Get the initial hadron
+    // Get the initial hadron from the recoGenParticleTrail
     const reco::GenParticle * particle = tracer_.recoGenParticle();
 
     // Check for the initial hadron
@@ -281,10 +281,10 @@ void TrackClassifier::processesAtGenerator()
     // pdgid of the "in" particle to the production vertex
     int pdgid = 0;
 
-    // Get the generated particles from track history
+    // Get the generated particles from track history (reco::GenParticle in the recoGenParticleTrail)
     TrackHistory::RecoGenParticleTrail const & recoGenParticleTrail = tracer_.recoGenParticleTrail();
 
-    // Loop over the generated particles
+    // Loop over the generated particles (reco::GenParticle in the recoGenParticleTrail)
     for (TrackHistory::RecoGenParticleTrail::const_iterator iparticle = recoGenParticleTrail.begin(); iparticle != recoGenParticleTrail.end(); ++iparticle)
     {
                 pdgid = std::abs((*iparticle)->pdgId());
@@ -311,7 +311,6 @@ void TrackClassifier::processesAtGenerator()
                         for( size_t i = 0; i < ndau; ++ i ){
     						daughterIds.insert((*iparticle)->daughter(i)->pdgId());
     					}
-                        //if (ndau != 0){daughterId = abs((*iparticle)->daughter()->pdgId());}
                         update(flags_[FromBWeakDecayMuon], particleID.hasBottom() && (daughterIds.find(13) != daughterIds.end()));
                         update(flags_[FromCWeakDecayMuon], particleID.hasCharm() && (daughterIds.find(13) != daughterIds.end()));
                     }
