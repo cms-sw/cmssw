@@ -82,7 +82,8 @@ pixelLessStepSeedLayers = cms.EDProducer("SeedingLayersEDProducer",
         maxRing = cms.int32(3)
     )
 )
-eras.trackingLowPU.toModify(pixelLessStepSeedLayers,
+from Configuration.Eras.Modifier_trackingLowPU_cff import trackingLowPU
+trackingLowPU.toModify(pixelLessStepSeedLayers,
     layerList = [
         'TIB1+TIB2',
         'TID1_pos+TID2_pos','TID2_pos+TID3_pos',
@@ -116,7 +117,6 @@ pixelLessStepSeeds.RegionFactoryPSet.RegionPSet.originRadius = 1.0
 import RecoPixelVertexing.PixelLowPtUtilities.ClusterShapeHitFilterESProducer_cfi
 pixelLessStepClusterShapeHitFilter  = RecoPixelVertexing.PixelLowPtUtilities.ClusterShapeHitFilterESProducer_cfi.ClusterShapeHitFilterESProducer.clone(
 	ComponentName = cms.string('pixelLessStepClusterShapeHitFilter'),
-        PixelShapeFile= cms.string('RecoPixelVertexing/PixelLowPtUtilities/data/pixelShape.par'),
         doStripShapeCut = cms.bool(False),
 	clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutTight'))
 	)
@@ -137,7 +137,7 @@ pixelLessStepSeeds.SeedComparitorPSet = cms.PSet(
         )
     )
 import RecoTracker.TkSeedGenerator.GlobalMixedSeeds_cff
-eras.trackingLowPU.toReplaceWith(pixelLessStepSeeds, RecoTracker.TkSeedGenerator.GlobalMixedSeeds_cff.globalMixedSeeds.clone(
+trackingLowPU.toReplaceWith(pixelLessStepSeeds, RecoTracker.TkSeedGenerator.GlobalMixedSeeds_cff.globalMixedSeeds.clone(
     OrderedHitsFactoryPSet = dict(SeedingLayers = 'pixelLessStepSeedLayers'),
     RegionFactoryPSet = dict(RegionPSet = dict(
         ptMin = 0.7,
@@ -165,7 +165,7 @@ _pixelLessStepTrajectoryFilterBase = TrackingTools.TrajectoryFiltering.Trajector
 pixelLessStepTrajectoryFilter = _pixelLessStepTrajectoryFilterBase.clone(
     seedPairPenalty = 1,
 )
-eras.trackingLowPU.toReplaceWith(pixelLessStepTrajectoryFilter, _pixelLessStepTrajectoryFilterBase)
+trackingLowPU.toReplaceWith(pixelLessStepTrajectoryFilter, _pixelLessStepTrajectoryFilterBase)
 
 import RecoTracker.MeasurementDet.Chi2ChargeMeasurementEstimator_cfi
 pixelLessStepChi2Est = RecoTracker.MeasurementDet.Chi2ChargeMeasurementEstimator_cfi.Chi2ChargeMeasurementEstimator.clone(
@@ -174,7 +174,7 @@ pixelLessStepChi2Est = RecoTracker.MeasurementDet.Chi2ChargeMeasurementEstimator
     MaxChi2 = cms.double(16.0),
     clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutTight'))
 )
-eras.trackingLowPU.toModify(pixelLessStepChi2Est,
+trackingLowPU.toModify(pixelLessStepChi2Est,
     clusterChargeCut = dict(refToPSet_ = 'SiStripClusterChargeCutTiny')
 )
 
@@ -209,7 +209,7 @@ pixelLessStepTrajectoryCleanerBySharedHits = trajectoryCleanerBySharedHits.clone
     allowSharedFirstHit = cms.bool(True)
     )
 pixelLessStepTrackCandidates.TrajectoryCleaner = 'pixelLessStepTrajectoryCleanerBySharedHits'
-eras.trackingLowPU.toModify(pixelLessStepTrajectoryCleanerBySharedHits, fractionShared = 0.19)
+trackingLowPU.toModify(pixelLessStepTrajectoryCleanerBySharedHits, fractionShared = 0.19)
 
 
 # TRACK FITTING
@@ -297,4 +297,4 @@ PixelLessStep = cms.Sequence(pixelLessStepClusters*
                              pixelLessStep)
 _PixelLessStep_LowPU = PixelLessStep.copyAndExclude([pixelLessStepClassifier1, pixelLessStepClassifier2])
 _PixelLessStep_LowPU.replace(pixelLessStep, pixelLessStepSelector)
-eras.trackingLowPU.toReplaceWith(PixelLessStep, _PixelLessStep_LowPU)
+trackingLowPU.toReplaceWith(PixelLessStep, _PixelLessStep_LowPU)

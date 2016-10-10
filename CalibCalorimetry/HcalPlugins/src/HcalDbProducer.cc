@@ -61,10 +61,10 @@ HcalDbProducer::HcalDbProducer( const edm::ParameterSet& fConfig)
 			  &HcalDbProducer::L1triggerObjectsCallback &
 			  &HcalDbProducer::electronicsMapCallback &
 			  &HcalDbProducer::frontEndMapCallback &
-//			  &HcalDbProducer::SiPMParametersCallback &
-//			  &HcalDbProducer::SiPMCharacteristicsCallback &
-//			  &HcalDbProducer::TPChannelParametersCallback &
-//			  &HcalDbProducer::TPParameterisCallback &
+			  &HcalDbProducer::SiPMParametersCallback &
+			  &HcalDbProducer::SiPMCharacteristicsCallback &
+			  &HcalDbProducer::TPChannelParametersCallback &
+			  &HcalDbProducer::TPParametersCallback &
 			  &HcalDbProducer::lutMetadataCallback 
 			  )
 		   );

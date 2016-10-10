@@ -7,5 +7,5 @@ simHitsValidationHcal = cms.EDAnalyzer("SimHitsValidationHcal",
     TestNumber    = cms.bool(False),
 )
 
-from Configuration.StandardSequences.Eras import eras
-eras.fastSim.toModify( simHitsValidationHcal, ModuleLabel = cms.string("famosSimHits") )
+from Configuration.Eras.Modifier_fastSim_cff import fastSim
+fastSim.toModify( simHitsValidationHcal, ModuleLabel = cms.string("famosSimHits") )

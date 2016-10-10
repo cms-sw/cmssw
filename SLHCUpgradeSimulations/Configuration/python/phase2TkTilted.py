@@ -1,5 +1,4 @@
 import FWCore.ParameterSet.Config as cms
-from Configuration.StandardSequences.Eras import eras
 #import SLHCUpgradeSimulations.Configuration.customise_PFlow as customise_PFlow
 
 #GEN-SIM so far...
@@ -74,10 +73,6 @@ def customise_condOverRides(process):
 def customise_Validation(process,pileup):
 
     process.pixelDigisValid.src = cms.InputTag('simSiPixelDigis', "Pixel")
-    if hasattr(process,'tpClusterProducer'):
-        process.tpClusterProducer.pixelSimLinkSrc = cms.InputTag("simSiPixelDigis", "Pixel")
-        process.tpClusterProducer.phase2OTSimLinkSrc  = cms.InputTag("simSiPixelDigis","Tracker")
-
     if hasattr(process,'simHitTPAssocProducer'):
         process.simHitTPAssocProducer.simHitSrc=cms.VInputTag(cms.InputTag("g4SimHits","TrackerHitsPixelBarrelLowTof"),
                                                               cms.InputTag("g4SimHits","TrackerHitsPixelEndcapLowTof"))

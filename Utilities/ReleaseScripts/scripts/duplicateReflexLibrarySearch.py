@@ -69,6 +69,7 @@ equivDict = \
          {'TFWLiteSelectorTest'   : ['tfwliteselectortest']},
          {'PatCandidates'         : ['reco::RecoCandidate','pat::[A-Za-z]+Ref(Vector|)']},
          {'JetReco'               : ['reco::.*Jet','reco::.*Jet(Collection|Ref)']},
+         {'HGCDigi'               : ['HGCSample']},
      ]
 
 ignoreEdmDP = {

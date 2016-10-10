@@ -35,19 +35,19 @@ def recoGeoLoad(score):
        from Configuration.AlCa.autoCond import autoCond
        process.GlobalTag.globaltag = autoCond['run1_mc']
        process.load("Configuration.StandardSequences.GeometryDB_cff")
-
+       
     elif score == "2015":
        process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
        from Configuration.AlCa.autoCond import autoCond
        process.GlobalTag.globaltag = autoCond['run2_mc']
        process.load("Configuration.StandardSequences.GeometryDB_cff")
-
+       
     elif score == "2017":
        process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
        from Configuration.AlCa.autoCond import autoCond
        process.GlobalTag.globaltag = autoCond['upgrade2017']
        process.load('Configuration.Geometry.GeometryExtended2017Reco_cff')
-
+       
     elif  score == "2019":
        process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
        from Configuration.AlCa.autoCond import autoCond
@@ -58,25 +58,25 @@ def recoGeoLoad(score):
        ## NOTE: There are no Muon alignement records in the GT yet
        process.DTGeometryESModule.applyAlignment = cms.bool(False)
        process.CSCGeometryESModule.applyAlignment = cms.bool(False)
-
+       
     elif  score == "2023D1":
        process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
        from Configuration.AlCa.autoCond import autoCond
        process.GlobalTag.globaltag = autoCond['run2_mc']
        process.load('Configuration.Geometry.GeometryExtended2023D1Reco_cff')
-      
+       
     elif  score == "2023D2":
        process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
        from Configuration.AlCa.autoCond import autoCond
        process.GlobalTag.globaltag = autoCond['run2_mc']
        process.load('Configuration.Geometry.GeometryExtended2023D2Reco_cff')
-
+       
     elif  score == "2023D3":
        process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
        from Configuration.AlCa.autoCond import autoCond
        process.GlobalTag.globaltag = autoCond['run2_mc']
        process.load('Configuration.Geometry.GeometryExtended2023D3Reco_cff')
-
+       
     elif score == "MaPSA":
        process.load('Geometry.TrackerGeometryBuilder.idealForDigiTrackerGeometry_cff')
        process.load('Geometry.TrackerCommonData.mapsaGeometryXML_cfi')
@@ -88,7 +88,23 @@ def recoGeoLoad(score):
        process.load('RecoTracker.GeometryESProducer.TrackerRecoGeometryESProducer_cfi')
 
        process.load('Geometry.CommonDetUnit.bareGlobalTrackingGeometry_cfi')
-
+       
+    elif score == "HGCTB160": ## hgcal testbeam
+       process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff") 
+       from Configuration.AlCa.autoCond import autoCond
+       process.GlobalTag.globaltag = autoCond['mc']
+       process.load('Geometry.HGCalCommonData.hgcalV6ParametersInitialization_cfi')
+       process.load('Geometry.HGCalCommonData.hgcalV6NumberingInitialization_cfi')
+       process.load('Geometry.CaloEventSetup.HGCalV6Topology_cfi')
+       process.load('Geometry.HGCalGeometry.HGCalV6GeometryESProducer_cfi')
+       process.load('Geometry.CaloEventSetup.CaloTopology_cfi')
+       process.load('Geometry.CaloEventSetup.CaloGeometryBuilder_cfi')
+       process.CaloGeometryBuilder = cms.ESProducer(
+          "CaloGeometryBuilder",
+          SelectedCalos = cms.vstring("HGCalEESensitive")
+       )
+       process.load("SimG4CMS.HGCalTestBeam.HGCalTB160XML_cfi")
+       
     else:
       help()
 
@@ -105,7 +121,6 @@ options.register ('tag',
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
                   "tag info about geometry database conditions")
-
 
 options.register ('tgeo',
                   False, # default value
@@ -176,3 +191,5 @@ else:
 
 print "Dumping geometry in " , options.out, "\n"; 
 process.p = cms.Path(process.dump)
+
+

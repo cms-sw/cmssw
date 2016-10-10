@@ -1,5 +1,4 @@
 import FWCore.ParameterSet.Config as cms
-from Configuration.StandardSequences.Eras import eras
 
 from RecoLocalTracker.Configuration.RecoLocalTracker_cff import *
 from SimGeneral.TrackingAnalysis.simHitTPAssociation_cfi import *
@@ -58,10 +57,12 @@ _seedProducers_trackingPhase1 = _filterForNtuple(_TrackValidation_cff._seedProdu
 
 (_seedSelectors, trackingNtupleSeedSelectors) = _TrackValidation_cff._addSeedToTrackProducers(_seedProducers, globals())
 (_seedSelectors_trackingPhase1, _trackingNtupleSeedSelectors_trackingPhase1) = _TrackValidation_cff._addSeedToTrackProducers(_seedProducers_trackingPhase1, globals())
-eras.phase1Pixel.toReplaceWith(trackingNtupleSeedSelectors, _trackingNtupleSeedSelectors_trackingPhase1)
+from Configuration.Eras.Modifier_phase1Pixel_cff import phase1Pixel
+phase1Pixel.toReplaceWith(trackingNtupleSeedSelectors, _trackingNtupleSeedSelectors_trackingPhase1)
 
 trackingNtuple.seedTracks = _seedSelectors
-eras.trackingPhase1.toModify(trackingNtuple, seedTracks = _seedSelectors_trackingPhase1)
+from Configuration.Eras.Modifier_trackingPhase1_cff import trackingPhase1
+trackingPhase1.toModify(trackingNtuple, seedTracks = _seedSelectors_trackingPhase1)
 
 trackingNtupleSequence = cms.Sequence()
 # reproduce hits because they're not stored in RECO

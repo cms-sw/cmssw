@@ -1,0 +1,41 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+
+<ConstantsSection label="fastTimingBarrel.xml" eval="true">
+  <Constant name="zero" value="0.0*fm"/>
+  <Constant name="OuterCylinderRin"   value="1.223*m"/>
+  <Constant name="OuterCylinderRout"  value="[cms:TrackCalorR]"/>
+  <Constant name="OuterCylinderL"     value="2.650*m"/>
+  <Constant name="FastTimeBarrelRin"  value="[OuterCylinderRin]"/>
+  <Constant name="FastTimeBarrelRout" value="[FastTimeBarrelRin]+4*mm"/>
+  <Constant name="FastTimeBarrelL"    value="[OuterCylinderL]"/>
+</ConstantsSection>
+
+<SolidSection label="fastTimingBarrel.xml">
+  <Tubs name="FastTimeBarrelCylinder" rMin="[OuterCylinderRin]" rMax="[OuterCylinderRout]" dz="[OuterCylinderL]" startPhi="0*deg" deltaPhi="360*deg"/>
+  <Tubs name="FastTimeBarrel"         rMin="[FastTimeBarrelRin]" rMax="[FastTimeBarrelRout]" dz="[FastTimeBarrelL]" startPhi="0*deg" deltaPhi="360*deg"/>
+</SolidSection>
+
+<LogicalPartSection label="fastTimingBarrel.xml">
+  <LogicalPart name="FastTimeBarrelCylinder" category="unspecified">
+    <rSolid name="FastTimeBarrelCylinder"/>
+    <rMaterial name="materials:Air"/>
+  </LogicalPart>
+  <LogicalPart name="FastTimeBarrel" category="unspecified">
+    <rSolid name="FastTimeBarrel"/>
+    <rMaterial name="materials:LYSO"/>
+  </LogicalPart>
+</LogicalPartSection>
+
+<PosPartSection label="fastTimingBarrel.xml">
+  <PosPart copyNumber="1">
+    <rParent name="tracker:Tracker"/>
+    <rChild name="fastTimingBarrel:FastTimeBarrelCylinder"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="fastTimingBarrel:FastTimeBarrelCylinder"/>
+    <rChild name="fastTimingBarrel:FastTimeBarrel"/>
+  </PosPart>
+</PosPartSection>
+
+</DDDefinition>

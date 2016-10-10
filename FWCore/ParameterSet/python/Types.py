@@ -1132,6 +1132,11 @@ class EDAlias(_ConfigureComponent,_Labelable):
         self.__dict__[name]=value
         self.__parameterNames.append(name)
 
+    def __delattr__(self,attr):
+        if attr in self.__parameterNames:
+            self.__parameterNames.remove(attr)
+        return super(EDAlias,self).__delattr__(attr)
+
     def __setParameters(self,parameters):
         for name,value in parameters.iteritems():
             self.__addParameter(name, value)
@@ -1376,6 +1381,10 @@ if __name__ == "__main__":
             self.assertRaises(SyntaxError, lambda : VPSet(foo=PSet()))
         def testEDAlias(self):
             aliasfoo2 = EDAlias(foo2 = VPSet(PSet(type = string("Foo2"))))
+            self.assert_(hasattr(aliasfoo2,"foo2"))
+            del aliasfoo2.foo2
+            self.assert_(not hasattr(aliasfoo2,"foo2"))
+            self.assert_("foo2" not in aliasfoo2.parameterNames_())
 
         def testFileInPath(self):
             f = FileInPath("FWCore/ParameterSet/python/Types.py")

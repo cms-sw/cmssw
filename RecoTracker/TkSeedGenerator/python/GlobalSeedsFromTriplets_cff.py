@@ -1,5 +1,4 @@
 import FWCore.ParameterSet.Config as cms
-from Configuration.StandardSequences.Eras import eras
 
 from RecoLocalTracker.SiStripRecHitConverter.StripCPEfromTrackAngle_cfi import *
 from RecoLocalTracker.SiStripRecHitConverter.SiStripRecHitMatcher_cfi import *
@@ -25,6 +24,7 @@ globalSeedsFromTriplets = RecoTracker.TkSeedGenerator.SeedGeneratorFromRegionHit
 #     GeneratorPSet = cms.PSet(PixelTripletLargeTipGenerator)
     )
 )
-eras.trackingPhase1PU70.toModify(globalSeedsFromTriplets,
+from Configuration.Eras.Modifier_trackingPhase1PU70_cff import trackingPhase1PU70
+trackingPhase1PU70.toModify(globalSeedsFromTriplets,
     OrderedHitsFactoryPSet = dict(GeneratorPSet = dict(maxElement = 0)),
 )

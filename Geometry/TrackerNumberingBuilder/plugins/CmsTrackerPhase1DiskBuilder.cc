@@ -66,7 +66,8 @@ CmsTrackerPhase1DiskBuilder::PhiPosNegSplit_innerOuter( std::vector< GeometricDe
   //  std::cout << "num of inner = " << num_inner << " with radius less than " << radius_split << std::endl;
   // now shift outer by one
 
-  std::rotate(theCompsInnerOuter.begin()+num_inner,theCompsInnerOuter.begin()+num_inner+1,theCompsInnerOuter.end());
+  std::rotate(theCompsInnerOuter.begin()+num_inner,theCompsInnerOuter.end()-1,theCompsInnerOuter.end());
+  std::rotate(theCompsInnerOuter.begin(),theCompsInnerOuter.begin()+num_inner-1,theCompsInnerOuter.begin()+num_inner);
   std::copy(theCompsInnerOuter.begin(), theCompsInnerOuter.end(), begin);
 }
 
@@ -133,7 +134,7 @@ CmsTrackerPhase1DiskBuilder::sortNS( DDFilteredView& fv, GeometricDet* det )
   for( uint32_t fn = 0; fn < zminpanels.size(); fn++ )
   {
     uint32_t blade = fn + 1;
-    uint32_t panel = 1;
+    uint32_t panel = 2; // though being zmin, it is actually the one facing away the ip
     uint32_t temp = ( blade << 2 ) | panel;
     zminpanels[fn]->setGeographicalID( temp );
   }
@@ -141,7 +142,7 @@ CmsTrackerPhase1DiskBuilder::sortNS( DDFilteredView& fv, GeometricDet* det )
   for( uint32_t bn = 0; bn < zmaxpanels.size(); bn++)
   {
     uint32_t blade = bn + 1;
-    uint32_t panel = 2;
+    uint32_t panel = 1; // though being zmax, it is the one facing the ip
     uint32_t temp = ( blade << 2) | panel;
     zmaxpanels[bn]->setGeographicalID( temp );
   }

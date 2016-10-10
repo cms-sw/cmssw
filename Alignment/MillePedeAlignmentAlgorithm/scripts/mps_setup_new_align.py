@@ -194,7 +194,7 @@ def copy_default_templates(args, next_campaign):
     - `next_campaign`: destination for the copy operation
     """
 
-    default_conf_dir = os.path.join(args.MPS_dir, "test")
+    default_conf_dir = os.path.join(args.MPS_dir, "templates")
     template_files = ("universalConfigTemplate.py", "alignment_config.ini")
     for f in template_files:
         shutil.copy(os.path.join(default_conf_dir, f), next_campaign)

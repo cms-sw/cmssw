@@ -19,11 +19,13 @@ from Geometry.HGCalGeometry.HGCalV6GeometryESProducer_cfi import *
 from Geometry.CaloEventSetup.CaloTopology_cfi import *
 from Geometry.CaloEventSetup.CaloGeometryBuilder_cfi import *
 CaloGeometryBuilder = cms.ESProducer("CaloGeometryBuilder",
-    SelectedCalos = cms.vstring("HCAL"          ,
-                                "ZDC"           ,
-                                "CASTOR"        ,
-                                "EcalBarrel"    ,
-                                "TOWER"           )
+    SelectedCalos = cms.vstring("HCAL"                   ,
+                                "ZDC"                    ,
+                                "EcalBarrel"             ,
+                                "TOWER"                  ,
+                                "HGCalEESensitive"       ,
+                                "HGCalHESiliconSensitive" 
+    )
 )
 from Geometry.EcalAlgo.EcalBarrelGeometry_cfi import *
 from Geometry.HcalEventSetup.HcalGeometry_cfi import *

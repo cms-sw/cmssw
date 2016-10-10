@@ -8,4 +8,4 @@ TARGET="/online/collisions/2015/ProtonIon/v1.0/HLT"  # where to store the online
 TABLES="online_pion"
 
 source subtables.sh
-createSubtables "hltdev" "$MASTER" "$TARGET" "$TABLES"
+createSubtables "v2/offline" "$MASTER" "$TARGET" "$TABLES"

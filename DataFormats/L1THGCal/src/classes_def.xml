@@ -2,6 +2,7 @@
   <class name="l1t::HGCFETriggerDigi" ClassVersion="10">
     <version ClassVersion="10" checksum="3197268020"/>
   </class>
+  <class name="std::vector<l1t::HGCFETriggerDigi>"/>
   <class name="l1t::HGCFETriggerDigiCollection"/>  
   <class name="edm::Wrapper<l1t::HGCFETriggerDigiCollection>"/> 
   
@@ -14,10 +15,12 @@
   <class name="edm::Wrapper<l1t::HGCFETriggerDigiPtrVector>"/>  
 
   <class name="l1t::HGCalTower" />
+  <class name="std::vector<l1t::HGCalTower>" />
   <class name="l1t::HGCalTowerBxCollection"/>
   <class name="edm::Wrapper<l1t::HGCalTowerBxCollection>"/>
 
   <class name="l1t::HGCalCluster" />
+  <class name="std::vector<l1t::HGCalCluster>" />
   <class name="l1t::HGCalClusterBxCollection"/>
   <class name="edm::Wrapper<l1t::HGCalClusterBxCollection>"/>
 

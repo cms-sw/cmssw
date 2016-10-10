@@ -28,7 +28,7 @@ class HcalSiPMHitResponse : public CaloHitResponse {
 
 public:
   HcalSiPMHitResponse(const CaloVSimParameterMap * parameterMap, 
-		      const CaloShapes * shapes);
+		      const CaloShapes * shapes, bool PreMix1 = false);
 
   virtual ~HcalSiPMHitResponse();
 
@@ -68,7 +68,7 @@ private:
   float const Y11RANGE;
   float const Y11MAX;
   float const Y11TIMETORISE;
-  float theDiffNorm;
+  bool PreMixDigis;
 
   photonTimeMap precisionTimedPhotons;
   HcalTDCParameters theTDCParams;

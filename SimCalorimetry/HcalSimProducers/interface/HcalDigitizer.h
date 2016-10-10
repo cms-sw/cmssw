@@ -23,7 +23,6 @@ class HcalAmplifier;
 class HPDIonFeedbackSim;
 class HcalCoderFactory;
 class HcalElectronicsSim;
-class HcalHitCorrection;
 class HcalTimeSlewSim;
 class HcalBaseSignalGenerator;
 class HcalShapes;
@@ -130,7 +129,6 @@ private:
   HOHitFilter theHOSiPMHitFilter;
   ZDCHitFilter  theZDCHitFilter;
 
-  HcalHitCorrection * theHitCorrection;
   HcalTimeSlewSim * theTimeSlewSim;
 
   HBHEDigitizer * theHBHEDigitizer;

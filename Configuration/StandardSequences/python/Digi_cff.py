@@ -35,8 +35,8 @@ pdigi_valid = cms.Sequence(pdigi)
 pdigi_nogen=cms.Sequence(generatorSmeared*cms.SequencePlaceholder("randomEngineStateProducer")*cms.SequencePlaceholder("mix")*doAllDigi*addPileupInfo)
 pdigi_valid_nogen=cms.Sequence(pdigi_nogen)
 
-from Configuration.StandardSequences.Eras import eras
-if eras.fastSim.isChosen():
+from Configuration.Eras.Modifier_fastSim_cff import fastSim
+if fastSim.isChosen():
     # pretend these digis have been through digi2raw and raw2digi, by using the approprate aliases
     # use an alias to make the mixed track collection available under the usual label
     from FastSimulation.Configuration.DigiAliases_cff import loadDigiAliases
@@ -50,7 +50,7 @@ def _modifyDigitizerPhase2Hcal( theProcess ):
     theProcess.es_hardcode = _es_hardcode
     theProcess.es_prefer_hcalHardcode = _es_prefer_hcalHardcode    
 
-from Configuration.StandardSequences.Eras import eras
-modifyDigitizerPhase2Hcal_ = eras.phase2_hcal.makeProcessModifier( _modifyDigitizerPhase2Hcal )
+from Configuration.Eras.Modifier_phase2_hcal_cff import phase2_hcal
+modifyDigitizerPhase2Hcal_ = phase2_hcal.makeProcessModifier( _modifyDigitizerPhase2Hcal )
 
 

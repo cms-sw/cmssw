@@ -28,6 +28,11 @@
 
 const float HcaluLUTTPGCoder::lsb_=1./16;
 
+const int HcaluLUTTPGCoder::QIE8_LUT_BITMASK;
+const int HcaluLUTTPGCoder::QIE10_LUT_BITMASK;
+const int HcaluLUTTPGCoder::QIE11_LUT_BITMASK;
+
+
 HcaluLUTTPGCoder::HcaluLUTTPGCoder(const HcalTopology* top) : topo_(top), LUTGenerationMode_(true), bitToMask_(0) {
   firstHBEta_ = topo_->firstHBRing();      
   lastHBEta_  = topo_->lastHBRing();

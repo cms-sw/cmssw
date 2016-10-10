@@ -1,4 +1,5 @@
 import FWCore.ParameterSet.Config as cms
+from Configuration.StandardSequences.Eras import eras
 
 import SimTracker.TrackAssociatorProducers.trackAssociatorByChi2_cfi 
 from SimTracker.TrackAssociatorProducers.quickTrackAssociatorByHits_cfi import *
@@ -17,7 +18,6 @@ from CommonTools.RecoAlgos.trackingParticleConversionRefSelector_cfi import trac
 from SimGeneral.TrackingAnalysis.trackingParticleNumberOfLayersProducer_cff import *
 from CommonTools.RecoAlgos.recoChargedRefCandidateToTrackRefProducer_cfi import recoChargedRefCandidateToTrackRefProducer as _recoChargedRefCandidateToTrackRefProducer
 
-from Configuration.StandardSequences.Eras import eras
 import RecoTracker.IterativeTracking.iterativeTkConfig as _cfg
 
 ### First define the stuff for the standard validation sequence
@@ -33,9 +33,6 @@ for era in _cfg.allEras():
     locals()["_algos"+pf] = ["generalTracks"] + _cfg.iterationAlgos(era) + ["duplicateMerge"]
     locals()["_seedProducers"+pf] = _seedProd + _cfg.seedProducers(era)
     locals()["_trackProducers"+pf] = _trackProd + _cfg.trackProducers(era)
-
-#FIXME::ERICA : # for strict "no changes" in phase2 era migration, this line will be removed later
-_algos_trackingPhase2PU140.remove("duplicateMerge") 
 
 _removeForFastSimSeedProducers =["initialStepSeedsPreSplitting",
                                  "jetCoreRegionalStepSeeds",
@@ -292,7 +289,8 @@ trackValidator = Validation.RecoTrack.MultiTrackValidator_cfi.multiTrackValidato
     #,maxpT = cms.double(3)
     #,nintpT = cms.int32(40)
 )
-eras.fastSim.toModify(trackValidator, 
+from Configuration.Eras.Modifier_fastSim_cff import fastSim
+fastSim.toModify(trackValidator, 
                       dodEdxPlots = False)
 
 for era, postfix in _relevantEras:
@@ -394,7 +392,7 @@ tracksValidationTruth = cms.Sequence(
     VertexAssociatorByPositionAndTracks +
     trackingParticleNumberOfLayersProducer
 )
-eras.fastSim.toModify(tracksValidationTruth, lambda x: x.remove(tpClusterProducer))
+fastSim.toModify(tracksValidationTruth, lambda x: x.remove(tpClusterProducer))
 
 tracksPreValidation = cms.Sequence(
     tracksValidationSelectors +
@@ -404,7 +402,7 @@ tracksPreValidation = cms.Sequence(
     cms.ignore(trackingParticlesElectron) +
     trackingParticlesConversion
 )
-eras.fastSim.toReplaceWith(tracksPreValidation, tracksPreValidation.copyAndExclude([
+fastSim.toReplaceWith(tracksPreValidation, tracksPreValidation.copyAndExclude([
     trackingParticlesElectron,
     trackingParticlesConversion
 ]))
@@ -418,7 +416,7 @@ tracksValidation = cms.Sequence(
     trackValidatorConversion +
     trackValidatorGsfTracks
 )
-eras.fastSim.toReplaceWith(tracksValidation, tracksValidation.copyAndExclude([trackValidatorConversion, trackValidatorGsfTracks]))
+fastSim.toReplaceWith(tracksValidation, tracksValidation.copyAndExclude([trackValidatorConversion, trackValidatorGsfTracks]))
 
 ### Then define stuff for standalone mode (i.e. MTV with RECO+DIGI input)
 
@@ -473,7 +471,7 @@ _trackValidatorsBase = cms.Sequence(
     trackValidatorGsfTracks
 )
 trackValidatorsStandalone = _trackValidatorsBase.copy()
-eras.fastSim.toModify(trackValidatorsStandalone, lambda x: x.remove(trackValidatorConversionStandalone) )
+fastSim.toModify(trackValidatorsStandalone, lambda x: x.remove(trackValidatorConversionStandalone) )
 
 tracksValidationStandalone = cms.Sequence(
     ak4PFL1FastL2L3CorrectorChain +
@@ -525,7 +523,7 @@ trackValidatorsTrackingOnly += (
 )
 trackValidatorsTrackingOnly.replace(trackValidatorConversionStandalone, trackValidatorConversionTrackingOnly)
 trackValidatorsTrackingOnly.remove(trackValidatorGsfTracks)
-eras.fastSim.toModify(trackValidatorsTrackingOnly, lambda x: x.remove(trackValidatorConversionTrackingOnly))
+fastSim.toModify(trackValidatorsTrackingOnly, lambda x: x.remove(trackValidatorConversionTrackingOnly))
 
 
 tracksValidationTrackingOnly = cms.Sequence(

@@ -3,6 +3,7 @@
 
 HBHERecHit::HBHERecHit()
     : CaloRecHit(),
+      chiSquared_(-1),
       rawEnergy_(-1.0e21),
       auxEnergy_(-1.0e21),
       auxHBHE_(0),
@@ -13,6 +14,7 @@ HBHERecHit::HBHERecHit()
 HBHERecHit::HBHERecHit(const HcalDetId& id, float energy, float timeRising, float timeFalling)
     : CaloRecHit(id,energy,timeRising),
       timeFalling_(timeFalling),
+      chiSquared_(-1),
       rawEnergy_(-1.0e21),
       auxEnergy_(-1.0e21),
       auxHBHE_(0),

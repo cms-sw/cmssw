@@ -91,7 +91,7 @@ multiTrackValidator = cms.EDAnalyzer(
     doSeedPlots = cms.untracked.bool(False), # input comes from TrackFromSeedProducer
 )
 
-from Configuration.StandardSequences.Eras import eras
-if eras.fastSim.isChosen():
+from Configuration.Eras.Modifier_fastSim_cff import fastSim
+if fastSim.isChosen():
     multiTrackValidator.sim = [cms.InputTag('famosSimHits','TrackerHits')]
     

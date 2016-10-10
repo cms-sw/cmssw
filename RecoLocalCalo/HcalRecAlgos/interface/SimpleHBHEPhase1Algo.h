@@ -22,7 +22,7 @@ public:
     //   firstSampleShift -- first TS w.r.t. SOI to use for "Method 0"
     //                       reconstruction.
     //
-    //   samplesToAdd     -- number of samples to add for "Method 0"
+    //   samplesToAdd     -- default number of samples to add for "Method 0"
     //                       reconstruction. If, let say, SOI = 4,
     //                       firstSampleShift = -1, and samplesToAdd = 3
     //                       then the code will add time slices 3, 4, and 5.
@@ -72,12 +72,13 @@ protected:
     float m0Energy(const HBHEChannelInfo& info,
                    double reconstructedCharge,
                    bool applyContainmentCorrection,
-                   double phaseNS);
+                   double phaseNS, int nSamplesToAdd);
 
     // "Method 0" rechit timing (original low-pileup QIE8 algorithm)
     float m0Time(const HBHEChannelInfo& info,
                  double reconstructedCharge,
-                 const HcalCalibrations& calibs) const;
+                 const HcalCalibrations& calibs,
+                 int nSamplesToExamine) const;
 private:
     HcalPulseContainmentManager pulseCorr_;
 

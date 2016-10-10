@@ -17,7 +17,7 @@ GeneratorSmearedProducer::GeneratorSmearedProducer(edm::ParameterSet const& ps) 
   produces<edm::HepMCProduct>();
 }
 
-void GeneratorSmearedProducer::produce(edm::Event & iEvent, const edm::EventSetup & es) {
+void GeneratorSmearedProducer::produce(edm::StreamID, edm::Event & iEvent, const edm::EventSetup & es) const {
   edm::Handle<edm::HepMCProduct> theHepMCProduct;
   bool found = iEvent.getByToken(newToken_,theHepMCProduct);
   if (!found) { 

@@ -126,6 +126,7 @@ namespace edm {
              std::string const& logicalFileName,
              std::shared_ptr<InputFile> filePtr,
              unsigned int nStreams,
+             unsigned int treeCacheSize,
              int treeMaxVirtualSize,
              RunHelperBase* runHelper,
              ProductSelectorRules const& productSelectorRules,
@@ -137,7 +138,7 @@ namespace edm {
              bool bypassVersionCheck,
              bool enablePrefetching) : RootFile(
                fileName, processConfiguration, logicalFileName, filePtr,
-               nullptr, false, -1, -1, nStreams, 0U, treeMaxVirtualSize,
+               nullptr, false, -1, -1, nStreams, treeCacheSize, treeMaxVirtualSize,
                InputSource::RunsLumisAndEvents, runHelper,
                false, productSelectorRules, inputType, nullptr, nullptr,
                nullptr, nullptr, false, processHistoryRegistry,  

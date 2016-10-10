@@ -30,6 +30,8 @@ from Alignment.OfflineValidation.TkAlAllInOneTool.trackSplittingValidation \
     import TrackSplittingValidation
 from Alignment.OfflineValidation.TkAlAllInOneTool.zMuMuValidation \
     import ZMuMuValidation
+from Alignment.OfflineValidation.TkAlAllInOneTool.primaryVertexValidation \
+    import PrimaryVertexValidation
 from Alignment.OfflineValidation.TkAlAllInOneTool.preexistingValidation \
     import *
 from Alignment.OfflineValidation.TkAlAllInOneTool.plottingOptions \
@@ -140,6 +142,9 @@ class ValidationJob:
             validation = PreexistingTrackSplittingValidation(name, self.__config)
         elif valType == "zmumu":
             validation = ZMuMuValidation( name, 
+                Alignment( alignments.strip(), self.__config ), self.__config )
+        elif valType == "primaryvertex":
+            validation = PrimaryVertexValidation( name, 
                 Alignment( alignments.strip(), self.__config ), self.__config )
         else:
             raise AllInOneError("Unknown validation mode '%s'"%valType)
@@ -267,7 +272,19 @@ def createTrackSplitPlotScript(trackSplittingValidationList, outFilePath):
     theFile = open( outFilePath, "w" )
     theFile.write( replaceByMap( configTemplates.trackSplitPlotTemplate ,repMap ) )
     theFile.close()
-    
+
+def createPrimaryVertexPlotScript(PrimaryVertexValidationList, outFilePath):
+    repMap = PrimaryVertexValidationList[0].getRepMap() # bit ugly since some special features are filled
+    repMap[ "CMSSW_BASE" ] = os.environ['CMSSW_BASE']
+    repMap[ "PrimaryVertexPlotInstantiation" ] = "" #give it a "" at first in order to get the initialisation back
+
+    for validation in PrimaryVertexValidationList:
+        repMap[ "PrimaryVertexPlotInstantiation" ] = validation.appendToExtendedValidation( repMap[ "PrimaryVertexPlotInstantiation" ] )
+
+    theFile = open( outFilePath, "w" )
+    theFile.write( replaceByMap( configTemplates.PrimaryVertexPlotTemplate ,repMap ) )
+    theFile.close()
+
 def createMergeZmumuPlotsScript(zMuMuValidationList, outFilePath):
     config = zMuMuValidationList[0].config
     repMap = PlottingOptions(config, "zmumu")
@@ -292,6 +309,7 @@ def createMergeScript( path, validations ):
             "RunExtendedOfflineValidation":"",
             "RunTrackSplitPlot":"",
             "MergeZmumuPlots":"",
+            "RunPrimaryVertexPlot":"",
             "CMSSW_BASE": os.environ["CMSSW_BASE"],
             "SCRAM_ARCH": os.environ["SCRAM_ARCH"],
             "CMSSW_RELEASE_BASE": os.environ["CMSSW_RELEASE_BASE"],
@@ -307,7 +325,7 @@ def createMergeScript( path, validations ):
                 comparisonLists[ validationName ].append( validation )
             else:
                 comparisonLists[ validationName ] = [ validation ]
-
+   
     # introduced to merge individual validation outputs separately
     #  -> avoids problems with merge script
     repMap["haddLoop"] = "mergeRetCode=0\n"
@@ -317,6 +335,7 @@ def createMergeScript( path, validations ):
     repMap["mergeParallelFilePrefixes"] = ""
 
     anythingToMerge = []
+    
     for validationType in comparisonLists:
         for validation in comparisonLists[validationType]:
             if isinstance(validation, PreexistingValidation) or validation.NJobs == 1:
@@ -346,10 +365,15 @@ def createMergeScript( path, validations ):
 
     if "OfflineValidation" in anythingToMerge:
         repMap["mergeOfflineParJobsScriptPath"] = os.path.join(path, "TkAlOfflineJobsMerge.C")
+        
         createOfflineParJobsMergeScript( comparisonLists["OfflineValidation"],
                                          repMap["mergeOfflineParJobsScriptPath"] )
         repMap["copyMergeScripts"] += ("cp .oO[Alignment/OfflineValidation]Oo./scripts/merge_TrackerOfflineValidation.C .\n"
                                        "rfcp %s .\n" % repMap["mergeOfflineParJobsScriptPath"])
+        repMap_offline = repMap.copy()
+        repMap_offline.update(PlottingOptions(config, "offline"))
+        repMap["copyMergeScripts"] = \
+            replaceByMap(repMap["copyMergeScripts"], repMap_offline)
 
     if anythingToMerge:
         # DownloadData is the section which merges output files from parallel jobs
@@ -357,7 +381,6 @@ def createMergeScript( path, validations ):
         repMap["DownloadData"] += replaceByMap( configTemplates.mergeParallelResults, repMap )
     else:
         repMap["DownloadData"] = ""
-
 
     if "OfflineValidation" in comparisonLists:
         repMap["extendedValScriptPath"] = os.path.join(path, "TkAlExtendedOfflineValidation.C")
@@ -389,6 +412,17 @@ def createMergeScript( path, validations ):
         repMap["MergeZmumuPlots"] = \
             replaceByMap(configTemplates.mergeZmumuPlotsExecution, repMap_zMuMu)
 
+    if "PrimaryVertexValidation" in comparisonLists:
+        repMap["PrimaryVertexPlotScriptPath"] = \
+            os.path.join(path, "TkAlPrimaryVertexValidationPlot.C")
+
+        createPrimaryVertexPlotScript(comparisonLists["PrimaryVertexValidation"],
+                                      repMap["PrimaryVertexPlotScriptPath"] )
+        repMap_PVVal = repMap.copy()
+        repMap_PVVal.update(PlottingOptions(config,"primaryvertex"))
+        repMap["RunPrimaryVertexPlot"] = \
+            replaceByMap(configTemplates.PrimaryVertexPlotExecution, repMap_PVVal)
+
     repMap["CompareAlignments"] = "#run comparisons"
     if "OfflineValidation" in comparisonLists:
         compareStrings = [ val.getCompareStrings("OfflineValidation") for val in comparisonLists["OfflineValidation"] ]
@@ -397,12 +431,12 @@ def createMergeScript( path, validations ):
         repMap_offline = repMap.copy()
         repMap_offline.update(PlottingOptions(config, "offline"))
         repMap_offline.update({"validationId": "OfflineValidation",
-                       "compareStrings": " , ".join(compareStrings),
-                       "compareStringsPlain": " ".join(compareStringsPlain) })
-        
+                               "compareStrings": " , ".join(compareStrings),
+                               "compareStringsPlain": " ".join(compareStringsPlain) })
+                               
         repMap["CompareAlignments"] += \
             replaceByMap(configTemplates.compareAlignmentsExecution, repMap_offline)
-      
+                
     filePath = os.path.join(path, "TkAlMerge.sh")
     theFile = open( filePath, "w" )
     theFile.write( replaceByMap( configTemplates.mergeTemplate, repMap ) )

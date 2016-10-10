@@ -27,10 +27,11 @@ hcalSimBlock = cms.PSet(
     minFCToDelay=cms.double(5.) # old TC model! set to 5 for the new one
 )
 
-from Configuration.StandardSequences.Eras import eras
-eras.fastSim.toModify( hcalSimBlock, hitsProducer=cms.string('famosSimHits') )
+from Configuration.Eras.Modifier_fastSim_cff import fastSim
+fastSim.toModify( hcalSimBlock, hitsProducer=cms.string('famosSimHits') )
 
-eras.phase2_hcal.toModify( hcalSimBlock,
+from Configuration.Eras.Modifier_phase2_hcal_cff import phase2_hcal
+phase2_hcal.toModify( hcalSimBlock,
     HBHEUpgradeQIE = cms.bool(True),
     HFUpgradeQIE = cms.bool(True),
     TestNumbering = cms.bool(True)

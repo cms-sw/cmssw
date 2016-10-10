@@ -68,7 +68,7 @@ hbheprereco = cms.EDProducer(
 
     # Turn rechit status bit setters on/off
     setNegativeFlags = cms.bool(False),
-    setNoiseFlagsQIE8 = cms.bool(False), # Set to "True" when the topology map is fixed
+    setNoiseFlagsQIE8 = cms.bool(True),
     setNoiseFlagsQIE11 = cms.bool(False),
     setPulseShapeFlagsQIE8 = cms.bool(True),
     setPulseShapeFlagsQIE11 = cms.bool(False),

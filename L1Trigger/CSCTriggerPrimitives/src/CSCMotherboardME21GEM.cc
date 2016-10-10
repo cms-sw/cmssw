@@ -205,7 +205,7 @@ CSCMotherboardME21GEM::run(const CSCWireDigiCollection* wiredc,
     //    const bool isEven(csc_id%2==0);
     const int region((theEndcap == 1) ? 1: -1);
     const bool isEven(csc_id.chamber()%2==0);
-    const GEMDetId gem_id_long(region, 1, 3, 1, csc_id.chamber(), 0);
+    const GEMDetId gem_id_long(region, 1, 2, 1, csc_id.chamber(), 0);
     const GEMChamber* gemChamberLong(gem_g->chamber(gem_id_long));
     
     // LUT<roll,<etaMin,etaMax> >    
@@ -971,7 +971,7 @@ void CSCMotherboardME21GEM::buildCoincidencePads(const GEMPadDigiCollection* out
 	id.ring() != csc_id.ring() or id.chamber() != csc_id.chamber()) continue;
 
     // build coincidences only for long superchamber pads
-    if (id.station() != 3) continue;
+    if (id.station() != 2) continue;
     
     // all coincidences detIDs will have layer=1
     if (id.layer() != 1) continue;
@@ -1006,7 +1006,7 @@ CSCMotherboardME21GEM::createGEMRollEtaLUT()
 {
   std::map<int,std::pair<double,double> > result;
 
-  auto chamber(gem_g->chamber(GEMDetId(1,1,3,1,1,0)));
+  auto chamber(gem_g->chamber(GEMDetId(1,1,2,1,1,0)));
   if (chamber==nullptr) return result;
 
   for(int i = 1; i<= chamber->nEtaPartitions(); ++i){

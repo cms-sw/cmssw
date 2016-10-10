@@ -1,7 +1,7 @@
 <lcgdict>
  <selection>
-
-   <class name="std::pair<std::string,std::vector<float> >" />
+   
+  <class name="std::pair<std::string,std::vector<float> >" />
   <class name="edm::Wrapper<std::pair<std::string,std::vector<float> > >" />
   <class name="std::vector<pat::JetCorrFactors::CorrectionFactor>" />
   <class name="edm::Wrapper<std::vector<pat::JetCorrFactors::CorrectionFactor> >" />

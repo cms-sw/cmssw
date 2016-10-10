@@ -1,5 +1,5 @@
-#ifndef __Setting_h__
-#define __Setting_h__
+#ifndef L1Trigger_L1TCommon_Setting_h
+#define L1Trigger_L1TCommon_Setting_h
 
 #include <vector>
 #include <string>

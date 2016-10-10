@@ -1,5 +1,4 @@
 import FWCore.ParameterSet.Config as cms
-from Configuration.StandardSequences.Eras import eras
 
 photonConvTrajSeedFromSingleLeg  = cms.EDProducer("PhotonConversionTrajectorySeedProducerFromSingleLeg",
                                                   TrackRefitter        = cms.InputTag('TrackRefitter',''),
@@ -45,7 +44,8 @@ photonConvTrajSeedFromSingleLeg  = cms.EDProducer("PhotonConversionTrajectorySee
                                                       TTRHBuilder = cms.string('WithTrackAngle')
                                                       )
                                                   )
-eras.trackingLowPU.toModify(photonConvTrajSeedFromSingleLeg,
+from Configuration.Eras.Modifier_trackingLowPU_cff import trackingLowPU
+trackingLowPU.toModify(photonConvTrajSeedFromSingleLeg,
     OrderedHitsFactoryPSet = dict(maxElement = 10000),
     ClusterCheckPSet = dict(
         MaxNumberOfCosmicClusters = 150000,
@@ -53,7 +53,8 @@ eras.trackingLowPU.toModify(photonConvTrajSeedFromSingleLeg,
         cut = "strip < 150000 && pixel < 20000 && (strip < 20000 + 7* pixel)"
     )
 )
-eras.trackingPhase1PU70.toModify(photonConvTrajSeedFromSingleLeg,
+from Configuration.Eras.Modifier_trackingPhase1PU70_cff import trackingPhase1PU70
+trackingPhase1PU70.toModify(photonConvTrajSeedFromSingleLeg,
     ClusterCheckPSet = dict(
         MaxNumberOfCosmicClusters = 1000000,
         MaxNumberOfPixelClusters = 100000,
@@ -62,7 +63,8 @@ eras.trackingPhase1PU70.toModify(photonConvTrajSeedFromSingleLeg,
     OrderedHitsFactoryPSet = dict(maxElement = 100000),
     RegionFactoryPSet = dict(RegionPSet = dict(ptMin = 0.3)),
 )
-eras.trackingPhase2PU140.toModify(photonConvTrajSeedFromSingleLeg,
+from Configuration.Eras.Modifier_trackingPhase2PU140_cff import trackingPhase2PU140
+trackingPhase2PU140.toModify(photonConvTrajSeedFromSingleLeg,
     ClusterCheckPSet = dict(
         MaxNumberOfCosmicClusters = 1000000,
         MaxNumberOfPixelClusters = 100000,

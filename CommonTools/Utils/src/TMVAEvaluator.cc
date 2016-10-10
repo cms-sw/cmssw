@@ -12,7 +12,6 @@ TMVAEvaluator::TMVAEvaluator() :
 {
 }
 
-
 void TMVAEvaluator::initialize(const std::string & options, const std::string & method, const std::string & weightFile,
                                const std::vector<std::string> & variables, const std::vector<std::string> & spectators, bool useGBRForest, bool useAdaBoost)
 {
@@ -36,7 +35,11 @@ void TMVAEvaluator::initialize(const std::string & options, const std::string & 
   }
 
   // load the TMVA weights
+  #if ROOT_VERSION_CODE < ROOT_VERSION(6,7,0)
   mIMethod = std::unique_ptr<TMVA::IMethod>( reco::details::loadTMVAWeights(mReader.get(), mMethod.c_str(), weightFile.c_str()) );
+  #else
+  reco::details::loadTMVAWeights(mReader.get(), mMethod.c_str(), weightFile.c_str());
+  #endif
 
   if (useGBRForest)
   {
@@ -44,7 +47,9 @@ void TMVAEvaluator::initialize(const std::string & options, const std::string & 
 
     // now can free some memory
     mReader.reset(nullptr);
+    #if ROOT_VERSION_CODE < ROOT_VERSION(6,7,0)
     mIMethod.reset(nullptr);
+    #endif
 
     mUsingGBRForest = true;
     mUseAdaBoost = useAdaBoost;

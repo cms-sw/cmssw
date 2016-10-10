@@ -1,5 +1,4 @@
 import FWCore.ParameterSet.Config as cms
-from Configuration.StandardSequences.Eras import eras
 
 siStripCertificationInfo = cms.EDAnalyzer("SiStripCertificationInfo")
 from DQM.SiPixelCommon.SiPixelOfflineDQM_client_cff import *
@@ -25,7 +24,8 @@ crt_dqmoffline = cms.Sequence( siStripCertificationInfo *
                                dataCertificationJetMETSequence *
                                egammaDataCertificationTask *
                                dqmOfflineTriggerCert )
-eras.phase1Pixel.toReplaceWith(crt_dqmoffline, crt_dqmoffline.copyAndExclude([ # FIXME
+from Configuration.Eras.Modifier_phase1Pixel_cff import phase1Pixel
+phase1Pixel.toReplaceWith(crt_dqmoffline, crt_dqmoffline.copyAndExclude([ # FIXME
     dqmOfflineTriggerCert, # No HLT yet for 2017, so no need to run the DQM (avoiding excessive printouts)
     sipixelCertification # segfaults with pixel harvesting plots missing
 ]))
