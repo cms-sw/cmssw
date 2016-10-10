@@ -8,9 +8,11 @@
 
 #include "CondFormats/CTPPSReadoutObjects/interface/TotemSymbId.h"
 
+#include "DataFormats/CTPPSDetId/interface/CTPPSDetId.h"
+
 std::ostream& operator << (std::ostream& s, const TotemSymbID &sid)
 {
-  s << "symb. id=" << sid.symbolicID;
+  s << "DetId=" << sid.symbolicID << " (" << CTPPSDetId(sid.symbolicID) << ")";
 
   return s;
 }
