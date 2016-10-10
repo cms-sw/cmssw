@@ -2092,6 +2092,9 @@ void SiPixelActionExecutor::fillEfficiencySummary(DQMStore::IBooker & iBooker, D
   HitEfficiencySummary = iGetter.get("Pixel/HitEfficiencySummary");
   //Now we will loop over the hit efficiency plots and fill it"
   string hitEfficiencyPostfix[] = {"L1","L2","L3","Dp1","Dp2","Dm1","Dm2"};
+  std::vector<std::vector<float> > ignoreXBins = {{-4,2}, {4,4,-1,-3,3,-4,-3,-2,-1,-4,-3,-2,-1,1,-4},    {1,-4,1},{},{},{},{}};
+  std::vector<std::vector<float> > ignoreYBins = {{-9,-3},{1,16,1,-13,-13,-5,-5,-5,-5,-6,-6,-6,-6,-8,-8},{3,14,6},{},{},{},{}};
+  
   for (int i = 0; i < 7; i++){
     string subdetName = "Endcap/";
     if (i < 3) subdetName = "Barrel/";
@@ -2100,16 +2103,25 @@ void SiPixelActionExecutor::fillEfficiencySummary(DQMStore::IBooker & iBooker, D
     MonitorElement * tempHitEffMap = iGetter.get(meName);
     float totalEff = 0.;
     int totalBins = 0;
+    TH1 * hitEffMap = tempHitEffMap->getTH1();
     for (int xBin = 1; xBin < tempHitEffMap->getNbinsX() + 1; xBin++){
+      if (fabs(hitEffMap->GetXaxis()->GetBinCenter(xBin)) < 1.) continue;
       for (int yBin = 1; yBin < tempHitEffMap->getNbinsY() + 1; yBin++){
-	if (tempHitEffMap->getBinContent(xBin,yBin) > 0.){
-	  totalEff += tempHitEffMap->getBinContent(xBin,yBin);
-	  totalBins++;
+	if (fabs(hitEffMap->GetYaxis()->GetBinCenter(yBin)) < 0.5) continue;
+	bool ignoreBin = false;
+	for (unsigned int j = 0; j < ignoreXBins[i].size(); j++){
+	  if (hitEffMap->GetXaxis()->GetBinCenter(xBin) == ignoreXBins[i][j] && hitEffMap->GetYaxis()->GetBinCenter(yBin) == ignoreYBins[i][j]){
+	    ignoreBin = true;
+	    break;
+	  }
 	}
+	if (ignoreBin) continue;
+	if (!(tempHitEffMap->getBinContent(xBin,yBin) < 0.)) totalEff += tempHitEffMap->getBinContent(xBin,yBin);
+	totalBins++;
       }
     }
     float overalEff = 0.;
-    std::cout << i << " " << totalEff << " " << totalBins << std::endl;
+    //    std::cout << i << " " << totalEff << " " << totalBins << std::endl;
     if (totalBins > 0) overalEff = totalEff/float(totalBins);
     HitEfficiencySummary->setBinContent(i+1,overalEff);
   }
