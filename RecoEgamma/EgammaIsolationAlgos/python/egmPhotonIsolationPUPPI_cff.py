@@ -28,7 +28,7 @@ IsoConeDefinitions = cms.VPSet(cms.PSet( isolationAlgo = cms.string('PhotonPFIso
 egmPhotonIsolationAODPUPPI = cms.EDProducer( "CITKPFIsolationSumProducerForPUPPI",
 			  srcToIsolate = cms.InputTag("gedPhotons"),
 			  srcForIsolationCone = cms.InputTag('particleFlow'),
-              puppiValueMap = cms.InputTag('puppi'),
+                          puppiValueMap = cms.InputTag('puppi'),
 			  isolationConeDefinitions = IsoConeDefinitions
 )
 
