@@ -993,7 +993,7 @@ def _copy_tag(args, copyTime, session1, session2, isSQLite, first, second, fromI
         if destTimeType != tag['time_type']:
             logging.error('Cannot copy iovs from tag %s (time type: %s) to tag %s (time type: %s), since the time types are different.' %(first,tag['time_type'],second,destTimeType))
             raise Exception('Time type mismatch, bailing out.')
-        output(args, 'Confirm the update of the existing tag "%s" [n]?' %second, newline=False)
+        output(args, 'Confirm the update of the existing tag "%s" in %s [n]?' %(second,args.destdb), newline=False)
         if not args.yes and raw_input().lower() not in ['y', 'yes']:
             raise Exception('Aborted by the user.')
         session2.merge(Tag2(name=second,modification_time=copyTime))

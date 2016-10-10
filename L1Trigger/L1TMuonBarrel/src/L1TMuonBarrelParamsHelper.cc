@@ -36,7 +36,7 @@ void L1TMuonBarrelParamsHelper::configFromPy(std::map<std::string, int>& allInts
 	setAssLUTPath(AssLUTpath);
 	///Read Pt assignment Luts
 	std::vector<LUT> pta_lut(0); pta_lut.reserve(19);
-	std::vector<int> pta_threshold(6); pta_threshold.reserve(9);
+	std::vector<int> pta_threshold(10);
 	if ( load_pt(pta_lut,pta_threshold, allInts["PT_Assignment_nbits_Phi"], AssLUTpath) != 0 ) {
 	  cout << "Can not open files to load pt-assignment look-up tables for L1TMuonBarrelTrackProducer!" << endl;
 	}

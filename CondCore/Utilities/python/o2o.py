@@ -11,8 +11,8 @@ import string
 
 import CondCore.Utilities.credentials as auth
 
-prod_db_service = ['cms_orcon_prod','o2o_prod']
-dev_db_service = ['cms_orcoff_prep','o2o_dev']
+prod_db_service = ['cms_orcon_prod','cms_orcon_prod/cms_cond_general_w']
+dev_db_service = ['cms_orcoff_prep','cms_orcoff_prep/cms_test_conditions']
 schema_name = 'CMS_CONDITIONS'
 sqlalchemy_tpl = 'oracle://%s:%s@%s'
 coral_tpl = 'oracle://%s/%s'
