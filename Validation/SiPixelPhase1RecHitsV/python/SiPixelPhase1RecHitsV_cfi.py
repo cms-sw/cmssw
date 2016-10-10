@@ -9,13 +9,7 @@ SiPixelPhase1RecHitsInTimeEvents = DefaultHisto.clone(
   dimensions = 1,
   topFolderName = "PixelPhase1V/RecHits",
   specs = cms.VPSet(
-    Specification().groupBy("").save(),
-    Specification().groupBy("PXBarrel|PXForward/PXLayer|PXDisk").saveAll(),
-    Specification(PerLadder).groupBy("PXBarrel|PXForward/Shell|HalfCylinder/PXLayer|PXDisk/PXRing|/PXLadder|PXBlade") # per-ladder and$
-                            .save(),
-    Specification(PerLayer1D).groupBy(parent("PXBarrel|PXForward/Shell|HalfCylinder/PXLayer|PXDisk/PXRing|/PXLadder|PXBlade")) # per-l$
-                             .save(),
-    Specification(PerModule).groupBy("PXBarrel|PXForward/PXLayer|PXDisk/DetId").save(),
+    Specification().groupBy("PXBarrel|PXForward").save(),
   )
 )
 
@@ -27,13 +21,7 @@ SiPixelPhase1RecHitsOutTimeEvents = DefaultHisto.clone(
   dimensions = 1,
   topFolderName = "PixelPhase1V/RecHits",
   specs = cms.VPSet(
-    Specification().groupBy("").save(),
-    Specification().groupBy("PXBarrel|PXForward/PXLayer|PXDisk").saveAll(),
-    Specification(PerLadder).groupBy("PXBarrel|PXForward/Shell|HalfCylinder/PXLayer|PXDisk/PXRing|/PXLadder|PXBlade") # per-ladder and$
-                            .save(),
-    Specification(PerLayer1D).groupBy(parent("PXBarrel|PXForward/Shell|HalfCylinder/PXLayer|PXDisk/PXRing|/PXLadder|PXBlade")) # per-l$
-                             .save(),
-    Specification(PerModule).groupBy("PXBarrel|PXForward/PXLayer|PXDisk/DetId").save()
+    Specification().groupBy("PXBarrel|PXForward").save(),
   )
 )
 
@@ -46,13 +34,7 @@ SiPixelPhase1RecHitsNSimHits = DefaultHisto.clone(
   dimensions = 1,
   topFolderName = "PixelPhase1V/RecHits",
   specs = cms.VPSet(
-    Specification().groupBy("").save(),
-    Specification().groupBy("PXBarrel|PXForward/PXLayer|PXDisk").saveAll(),
-    Specification(PerLadder).groupBy("PXBarrel|PXForward/Shell|HalfCylinder/PXLayer|PXDisk/PXRing|/PXLadder|PXBlade") # per-ladder and$
-                            .save(),
-    Specification(PerLayer1D).groupBy(parent("PXBarrel|PXForward/Shell|HalfCylinder/PXLayer|PXDisk/PXRing|/PXLadder|PXBlade")) # per-l$
-                             .save(),
-    Specification(PerModule).groupBy("PXBarrel|PXForward/PXLayer|PXDisk/DetId").save()
+    Specification().groupBy("PXBarrel|PXForward/PXLayer|PXDisk").save(),
   )
 )
 
@@ -64,13 +46,8 @@ SiPixelPhase1RecHitsPosX = DefaultHisto.clone(
   dimensions = 1,
   topFolderName = "PixelPhase1V/RecHits",
   specs = cms.VPSet(
-    Specification().groupBy("").save(),
-    Specification().groupBy("PXBarrel|PXForward/PXLayer|PXDisk").saveAll(),
-    Specification(PerLadder).groupBy("PXBarrel|PXForward/Shell|HalfCylinder/PXLayer|PXDisk/PXRing|/PXLadder|PXBlade") # per-ladder and$
-                            .save(),
-    Specification(PerLayer1D).groupBy(parent("PXBarrel|PXForward/Shell|HalfCylinder/PXLayer|PXDisk/PXRing|/PXLadder|PXBlade")) # per-l$
-                             .save(),
-    Specification(PerModule).groupBy("PXBarrel|PXForward/PXLayer|PXDisk/DetId").save()
+    Specification().groupBy("PXBarrel|PXForward").save(),
+    Specification().groupBy("PXBarrel|PXForward/PXLayer|PXDisk/PXBModule|PXFModule").save(),
   )
 )
 
@@ -89,13 +66,8 @@ SiPixelPhase1RecHitsResX = DefaultHisto.clone(
   dimensions = 1,
   topFolderName = "PixelPhase1V/RecHits",
   specs = cms.VPSet(
-    Specification().groupBy("").save(),
-    Specification().groupBy("PXBarrel|PXForward/PXLayer|PXDisk").saveAll(),
-    Specification(PerLadder).groupBy("PXBarrel|PXForward/Shell|HalfCylinder/PXLayer|PXDisk/PXRing|/PXLadder|PXBlade") # per-ladder and$
-                            .save(),
-    Specification(PerLayer1D).groupBy(parent("PXBarrel|PXForward/Shell|HalfCylinder/PXLayer|PXDisk/PXRing|/PXLadder|PXBlade")) # per-l$
-                             .save(),
-    Specification(PerModule).groupBy("PXBarrel|PXForward/PXLayer|PXDisk/DetId").save()
+    Specification().groupBy("PXBarrel|PXForward").save(),
+    Specification().groupBy("PXBarrel|PXForward/PXLayer|PXDisk/PXBModule|PXFModule").save(),
   )
 )
 
@@ -114,12 +86,7 @@ SiPixelPhase1RecHitsErrorX = DefaultHisto.clone(
   topFolderName = "PixelPhase1V/RecHits",
   specs = cms.VPSet(
     Specification().groupBy("").save(),
-    Specification().groupBy("PXBarrel|PXForward/PXLayer|PXDisk").saveAll(),
-    Specification(PerLadder).groupBy("PXBarrel|PXForward/Shell|HalfCylinder/PXLayer|PXDisk/PXRing|/PXLadder|PXBlade") # per-ladder and$
-                            .save(),
-    Specification(PerLayer1D).groupBy(parent("PXBarrel|PXForward/Shell|HalfCylinder/PXLayer|PXDisk/PXRing|/PXLadder|PXBlade")) # per-l$
-                             .save(),
-    Specification(PerModule).groupBy("PXBarrel|PXForward/PXLayer|PXDisk/DetId").save()
+    Specification().groupBy("PXBarrel|PXForward/PXLayer|PXDisk").save(),
   )
 )
 
@@ -137,13 +104,8 @@ SiPixelPhase1RecHitsPullX = DefaultHisto.clone(
   dimensions = 1,
   topFolderName = "PixelPhase1V/RecHits",
   specs = cms.VPSet(
-    Specification().groupBy("").save(),
-    Specification().groupBy("PXBarrel|PXForward/PXLayer|PXDisk").saveAll(),
-    Specification(PerLadder).groupBy("PXBarrel|PXForward/Shell|HalfCylinder/PXLayer|PXDisk/PXRing|/PXLadder|PXBlade") # per-ladder and$
-                            .save(),
-    Specification(PerLayer1D).groupBy(parent("PXBarrel|PXForward/Shell|HalfCylinder/PXLayer|PXDisk/PXRing|/PXLadder|PXBlade")) # per-l$
-                             .save(),
-    Specification(PerModule).groupBy("PXBarrel|PXForward/PXLayer|PXDisk/DetId").save()
+    Specification().groupBy("PXBarrel|PXForward/PXLayer|PXDisk").save(),
+    Specification().groupBy("PXBarrel|PXForward/PXLayer|PXDisk/PXBModule|PXFModule").save(),
   )
 )
 
