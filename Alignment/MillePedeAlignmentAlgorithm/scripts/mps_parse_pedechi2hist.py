@@ -100,10 +100,10 @@ def get_used_binaries(cfg, no_binary_check):
 
     cache_stdout = sys.stdout
     sys.stdout = open(os.devnull, "w") # suppress unwanted output
-    from alignment_merge import process.AlignmentProducer.algoConfig
+    __cfg = importlib.import_module(os.path.splitext(os.path.basename(cfg))[0])
     sys.stdout = cache_stdout
 
-    binaries = algoConfig.mergeBinaryFiles
+    binaries = __cfg.process.AlignmentProducer.algoConfig.mergeBinaryFiles
     if no_binary_check:
         used_binaries = binaries
     else:
