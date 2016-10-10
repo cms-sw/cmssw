@@ -83,7 +83,7 @@ private:
   std::vector<std::string> maskFileNames;
 
   /// enumeration of XML node types
-  enum NodeType { nUnknown, nTop, nArm, nRPStation, nRPPot, nRPPlane, nChip, nChannel };
+  enum NodeType { nUnknown, nSkip, nTop, nArm, nRPStation, nRPPot, nRPPlane, nChip, nChannel };
 
   /// whether to parse a mapping of a mask XML
   enum ParseType { pMapping, pMask };
@@ -270,7 +270,9 @@ void TotemDAQMappingESSourceXML::ParseXML(ParseType pType, const string &file,
       file << "' is empty." << endl;
 
   ParseTreeRP(pType, elementRoot, nTop, 0, mapping, mask);
-  ParseTreeDiamond(pType, elementRoot, nTop, 0, mapping, mask);
+
+  // TODO: uncomment once fixed
+  //ParseTreeDiamond(pType, elementRoot, nTop, 0, mapping, mask);
 }
 
 //-----------------------------------------------------------------------------------------------------------
@@ -567,7 +569,8 @@ TotemDAQMappingESSourceXML::NodeType TotemDAQMappingESSourceXML::GetNodeType(xer
   if (Test(n, tagRPPlane)) return nRPPlane;
   if (Test(n, tagRPPlane1)) return nRPPlane;
 
-
+  // for backward compatibility
+  if (Test(n, "trigger_vfat")) return nSkip;
 
   throw cms::Exception("TotemDAQMappingESSourceXML::GetNodeType") << "Unknown tag `"
     << XMLString::transcode(n->getNodeName()) << "'.\n";
