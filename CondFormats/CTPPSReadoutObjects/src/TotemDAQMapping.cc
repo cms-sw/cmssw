@@ -28,7 +28,7 @@ void TotemDAQMapping::insert(const TotemFramePosition &fp, const TotemVFATInfo &
   auto it = VFATMapping.find(fp);  
   if (it != VFATMapping.end())
   {
-    cerr << "WARNING in DAQMapping::Insert > Overwriting entry at " << fp << ". Previous: " << endl 
+    cerr << "WARNING in DAQMapping::insert > Overwriting entry at " << fp << ". Previous: " << endl 
       << "    " << VFATMapping[fp] << "," << endl << "  new: " << endl << "    " << vi << ". " << endl;
   }
 
