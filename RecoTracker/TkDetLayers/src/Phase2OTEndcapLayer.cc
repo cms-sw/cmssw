@@ -55,8 +55,17 @@ Phase2OTEndcapLayer::Phase2OTEndcapLayer(vector<const Phase2OTEndcapRing*>& ring
   //They should be already R-ordered. TO BE CHECKED!!
   //sort( theRings.begin(), theRings.end(), DetLessR());
 
+<<<<<<< HEAD
   theRingSize = rings.size();
   LogDebug("TkDetLayers") << "Number of rings in Phase2 OT EC layer is " << theRingSize << std::endl;
+=======
+//  if ( rings.size() != NOTECRINGS) throw DetLayerException("Number of rings in Phase2 OT EC layer is not equal to NOTECRINGS !!");
+  theRingSize = rings.size();
+  std::cout << "theRingSize " << theRingSize << std::endl;
+  if ( theRingSize != NOTECRINGS){
+    std::cout << "Number of rings in Phase2 OT EC layer is not equal to NOTECRINGS !!";
+  }
+>>>>>>> try but crash
   setSurface( computeDisk( rings ) );
 
   for(unsigned int i=0; i!=rings.size(); ++i) {
@@ -68,6 +77,7 @@ Phase2OTEndcapLayer::Phase2OTEndcapLayer(vector<const Phase2OTEndcapRing*>& ring
   }
 
  
+  std::cout << "==== DEBUG Phase2OTEndcapLayer =====" <<std::endl; 
   LogDebug("TkDetLayers") << "==== DEBUG Phase2OTEndcapLayer =====" ; 
   LogDebug("TkDetLayers") << "r,zed pos  , thickness, innerR, outerR: " 
 			  << this->position().perp() << " , "
@@ -130,6 +140,12 @@ Phase2OTEndcapLayer::groupedCompatibleDetsV( const TrajectoryStateOnSurface& sta
   }
 
   //order is odd rings in front of even rings
+//#ifdef __INTEL_COMPILER
+//  const int ringOrder[NOTECRINGS]{0,1,0,1,0,1,0,1,0,1,0,1,0,1,0};
+//#else
+//  constexpr int ringOrder[NOTECRINGS]{0,1,0,1,0,1,0,1,0,1,0,1,0,1,0};
+//#endif
+    
   std::vector<int> ringOrder(theRingSize);
   std::fill(ringOrder.begin(), ringOrder.end(), 1);
   for (int i=0; i<theRingSize; i++) {
@@ -251,7 +267,10 @@ Phase2OTEndcapLayer::ringIndicesByCrossingProximity(const TrajectoryStateOnSurfa
   Crossing myXing(  startPos, startDir, rho, propDir );
 
   std::vector<GlobalPoint> ringCrossings;
+<<<<<<< HEAD
   ringCrossings.reserve(theRingSize);
+=======
+>>>>>>> try but crash
   // vector<GlobalVector>  ringXDirections;
 
   for (int i = 0; i < theRingSize ; i++ ) {
