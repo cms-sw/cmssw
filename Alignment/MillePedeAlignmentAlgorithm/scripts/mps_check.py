@@ -72,46 +72,52 @@ for i in xrange(len(lib.JOBID)):
         if os.access(stdOut+'.gz', os.R_OK):
             os.system('gunzip '+stdOut+'.gz')
 
-        STDFILE = open(stdOut,'r')
-        # scan records in input file.
-        # use regular expression to search. re.compile needed for options re.M and re.I
-        # re.M=re.MULTILINE enables matching of newline char
-        # re.I=re.IGNORECASE makes matching case-insensitive.
-        for line in STDFILE:
-            if re.search(re.compile('Unable to access quota space',re.M|re.I), line):
-                quotaspace = 1
-            if re.search(re.compile('Unable to get quota space',re.M|re.I), line):
-                quotaspace = 1
-            if re.search(re.compile('Disk quota exceeded',re.M|re.I), line):
-                quotaspace = 1
-            if re.search(re.compile('CERN report: Job Killed',re.M), line):
-                killed = 1
-            if re.search(re.compile('Job finished',re.M), line):
-                finished = 1
-            if re.search(re.compile('connection timed out',re.M), line):
-                timeout = 1
-            if re.search(re.compile('ConfigFileReadError',re.M), line):
-                cfgerr = 1
-            if re.search(re.compile('0 bytes transferred',re.M), line):
-                emptyDatOnFarm = 1
-            if re.search(re.compile('command not found',re.M), line):
-                cmdNotFound = 1
-            # AP 26.11.2009 Insufficient privileges to rfcp files
-            if re.search(re.compile('stage_put: Insufficient user privileges',re.M), line):
-                insuffPriv = 1
-            # AP 05.11.2015 Extract cpu-time.
-            # STDOUT doesn't contain NCU anymore. Now KSI2K and HS06 seconds are displayed.
-            # The ncuFactor is calculated from few samples by comparing KSI2K seconds with
-            # CPU time from email.
-            match = re.search(re.compile('This process used .+?(\d+) KSI2K seconds',re.M|re.I), line)
-            if match:
-                cpuFactor = 2.125
-                cputime = int(round(int(match.group(1))/cpuFactor)) # match.group(1) is the matched digit
-        STDFILE.close()
+	try:
+            STDFILE = open(stdOut,'r')
+            # scan records in input file.
+            # use regular expression to search. re.compile needed for options re.M and re.I
+            # re.M=re.MULTILINE enables matching of newline char
+            # re.I=re.IGNORECASE makes matching case-insensitive.
+            for line in STDFILE:
+                if re.search(re.compile('Unable to access quota space',re.M|re.I), line):
+                    quotaspace = 1
+                if re.search(re.compile('Unable to get quota space',re.M|re.I), line):
+                    quotaspace = 1
+                if re.search(re.compile('Disk quota exceeded',re.M|re.I), line):
+                    quotaspace = 1
+                if re.search(re.compile('CERN report: Job Killed',re.M), line):
+                    killed = 1
+                if re.search(re.compile('Job finished',re.M), line):
+                    finished = 1
+                if re.search(re.compile('connection timed out',re.M), line):
+                    timeout = 1
+                if re.search(re.compile('ConfigFileReadError',re.M), line):
+                    cfgerr = 1
+                if re.search(re.compile('0 bytes transferred',re.M), line):
+                    emptyDatOnFarm = 1
+                if re.search(re.compile('command not found',re.M), line):
+                    cmdNotFound = 1
+                # AP 26.11.2009 Insufficient privileges to rfcp files
+                if re.search(re.compile('stage_put: Insufficient user privileges',re.M), line):
+                    insuffPriv = 1
+                # AP 05.11.2015 Extract cpu-time.
+                # STDOUT doesn't contain NCU anymore. Now KSI2K and HS06 seconds are displayed.
+                # The ncuFactor is calculated from few samples by comparing KSI2K seconds with
+                # CPU time from email.
+                match = re.search(re.compile('This process used .+?(\d+) KSI2K seconds',re.M|re.I), line)
+                if match:
+                    cpuFactor = 2.125
+                    cputime = int(round(int(match.group(1))/cpuFactor)) # match.group(1) is the matched digit
+            STDFILE.close()
 
-        # gzip it afterwards:
-        print 'gzip -f '+stdOut
-        os.system('gzip -f '+stdOut)
+            # gzip it afterwards:
+            print 'gzip -f '+stdOut
+            os.system('gzip -f '+stdOut)
+        except IOError as e:
+            if e.args == (2, "No such file or directory"):
+                print "mps_check.py cannot find", stdOut, "to test"
+            else:
+                raise
 
         # GF: This file is not produced (anymore...) -> check for existence and read-access added
         eazeLog = 'jobData/'+lib.JOBDIR[i]+'/cmsRun.out'
