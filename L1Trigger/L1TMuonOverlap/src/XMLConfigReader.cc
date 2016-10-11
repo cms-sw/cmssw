@@ -38,12 +38,11 @@ inline XMLCh*  _toDOMS(std::string temp) {
 }
 ////////////////////////////////////
 ////////////////////////////////////
-XMLConfigReader::XMLConfigReader(){
+XMLConfigReader::XMLConfigReader():parser(new xercesc::XercesDOMParser()) {
 
   XMLPlatformUtils::Initialize();
   
   ///Initialise XML parser  
-  parser = new XercesDOMParser(); 
   parser->setValidationScheme(XercesDOMParser::Val_Auto);
   parser->setDoNamespaces(false);
 
@@ -52,8 +51,6 @@ XMLConfigReader::XMLConfigReader(){
 
 XMLConfigReader::~XMLConfigReader()
 {
-  delete parser;
-  XMLPlatformUtils::Terminate();
 }
 //////////////////////////////////////////////////
 //////////////////////////////////////////////////

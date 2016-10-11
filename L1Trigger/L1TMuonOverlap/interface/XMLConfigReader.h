@@ -61,7 +61,7 @@ class XMLConfigReader{
 			  unsigned int index=0,
 			  unsigned int aGPNumber=999);
   
-  xercesc::XercesDOMParser *parser;
+  std::unique_ptr<xercesc::XercesDOMParser> parser;
   xercesc::DOMDocument* doc;
 
   ///Cache with GPs read.
