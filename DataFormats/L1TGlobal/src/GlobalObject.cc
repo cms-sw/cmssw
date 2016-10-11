@@ -38,6 +38,7 @@ l1t::GlobalObject l1TGtObjectStringToEnum(const std::string& label) {
             {"HTT", gtHTT},
             {"HTM", gtHTM},
 	    {"ETMHF", gtETMHF},
+	    {"TowerCount",gtTowerCount},
 	    {"MinBiasHFP0", gtMinBiasHFP0},
 	    {"MinBiasHFM0", gtMinBiasHFM0},
 	    {"MinBiasHFP1", gtMinBiasHFP1},
@@ -122,6 +123,11 @@ std::string l1t::l1TGtObjectEnumToString(const GlobalObject& gtObject) {
 
         case gtETMHF: {
             gtObjectString = "ETMHF";
+        }
+            break;
+
+        case gtTowerCount: {
+            gtObjectString = "TowerCount";
         }
             break;
 
