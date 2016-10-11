@@ -12,7 +12,8 @@ class AlgoMuon{
   AlgoMuon(int disc=-999, int phi=9999, int eta=99, int refLayer=-1, 
               int hits=0, int q=-1, int bx=0, int pt=-1, int charge=99):
               m_disc(disc), m_phi(phi), m_eta(eta), m_refLayer(refLayer), 
-              m_hits(hits), m_q(q), m_bx(bx), m_pt(pt), m_charge(charge) {}
+              m_hits(hits), m_q(q), m_bx(bx), m_pt(pt), m_charge(charge), 
+              m_patNumb(999), m_rhitNumb(999) {}
 
   int getDisc() const { return m_disc; }
   int getPhi()  const { return m_phi; }
@@ -24,6 +25,8 @@ class AlgoMuon{
   int getPt() const { return m_pt; }
   int getCharge()   const { return m_charge; }
   int getPhiRHit()  const { return m_phiRHit; }
+  unsigned int getPatternNumber() const { return m_patNumb; }
+  unsigned int getRefHitNumber() const { return m_rhitNumb; }
 
   void setDisc(int disc) { m_disc = disc; }
   void setPhi(int phi)   { m_phi = phi; }
@@ -35,6 +38,8 @@ class AlgoMuon{
   void setPt(int pt)  { m_pt = pt; }
   void setCharge(int charge)   { m_charge = charge; }
   void setPhiRHit(int phiRHit) { m_phiRHit = phiRHit; }
+  void setPatternNumber(unsigned int aPatNum) { m_patNumb = aPatNum;}
+  void setRefHitNumber(unsigned int aRefHitNum) { m_rhitNumb = aRefHitNum; }
 
   bool isValid() const;  
 
@@ -56,6 +61,8 @@ class AlgoMuon{
   int m_phiRHit;
   // to add 
   // int m_pdf; 
+  unsigned int m_patNumb;
+  unsigned int m_rhitNumb;
 
 };
 #endif

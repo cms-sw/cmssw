@@ -83,7 +83,7 @@ bool OMTFProcessor::configure(const OMTFConfiguration * omtfConfig,
       }
       pdf3D[iLayer] = pdf2D;
     }
-    Key aKey(iEta,iPt,iCharge);
+    Key aKey(iEta,iPt,iCharge,iGP);
 
     GoldenPattern *aGP = new GoldenPattern(aKey, myOmtfConfig);
     aGP->setMeanDistPhi(meanDistPhi2D);
@@ -254,7 +254,8 @@ const std::vector<OMTFProcessor::resultsMap> & OMTFProcessor::processInput(unsig
   myStr<<"Input: ------------"<<std::endl;
   myStr<<aInput<<std::endl; 
   edm::LogInfo("OMTF processor")<<myStr.str();
-  
+
+
   return myResults;
 }   
 ////////////////////////////////////////////
@@ -280,7 +281,7 @@ void OMTFProcessor::fillCounts(unsigned int iProcessor,
 			       const OMTFinput & aInput,
 			       const SimTrack* aSimMuon){
 
-  int theCharge = abs(aSimMuon->type()) == 13 ? -1 : 1; 
+  int theCharge = (abs(aSimMuon->type()) == 13) ? aSimMuon->type()/-13 : 0; 
   unsigned int  iPt =  RPCConst::iptFromPt(aSimMuon->momentum().pt());
   ///Stupid conersion. Have to go through PAC pt scale, as we later
   ///shift resulting pt code by +1
