@@ -171,9 +171,9 @@ namespace pat {
           }
       }
 
-      float puppiChargedHadronIso() const {return puppiChargedHadronIso_; };
-      float puppiNeutralHadronIso() const {return puppiNeutralHadronIso_; };
-      float puppiPhotonIso() const {return puppiPhotonIso_; };
+      float puppiChargedHadronIso() const {return puppiChargedHadronIso_; }
+      float puppiNeutralHadronIso() const {return puppiNeutralHadronIso_; }
+      float puppiPhotonIso() const {return puppiPhotonIso_; }
 
       /// Sets the isolation variable for a specifc key.
       /// Note that you can't set isolation for a pseudo-key like CaloIso
@@ -336,7 +336,6 @@ namespace pat {
       reco::CandidatePtr sourceCandidatePtr( size_type i ) const;
 
       friend class PATPhotonSlimmer;
-      friend class AssociatedCandProducer;
 
     protected:
 
