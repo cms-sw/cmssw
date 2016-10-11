@@ -160,13 +160,13 @@ namespace pat {
       void setEcalPFClusterIso(float ecalPFClus) { ecalPFClusIso_ = ecalPFClus; };
       void setHcalPFClusterIso(float hcalPFClus) { hcalPFClusIso_ = hcalPFClus; };
 
-      float puppiChargedHadronIso() const {return puppiChargedHadronIso_; };
-      float puppiNeutralHadronIso() const {return puppiNeutralHadronIso_; };
-      float puppiPhotonIso() const {return puppiPhotonIso_; };
+      float puppiChargedHadronIso() const {return puppiChargedHadronIso_; }
+      float puppiNeutralHadronIso() const {return puppiNeutralHadronIso_; }
+      float puppiPhotonIso() const {return puppiPhotonIso_; }
 
-      float puppiNoLeptonsChargedHadronIso() const {return puppiNoLeptonsChargedHadronIso_; };
-      float puppiNoLeptonsNeutralHadronIso() const {return puppiNoLeptonsNeutralHadronIso_; };
-      float puppiNoLeptonsPhotonIso() const {return puppiNoLeptonsPhotonIso_; };
+      float puppiNoLeptonsChargedHadronIso() const {return puppiNoLeptonsChargedHadronIso_; }
+      float puppiNoLeptonsNeutralHadronIso() const {return puppiNoLeptonsNeutralHadronIso_; }
+      float puppiNoLeptonsPhotonIso() const {return puppiNoLeptonsPhotonIso_; }
 
       void setIsolationPUPPI(float chargedhadrons_, float neutralhadrons_, float photons_)
       {  
