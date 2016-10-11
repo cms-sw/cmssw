@@ -73,42 +73,41 @@ for i in xrange(len(lib.JOBID)):
             os.system('gunzip '+stdOut+'.gz')
 
 	try:
-            STDFILE = open(stdOut,'r')
-            # scan records in input file.
-            # use regular expression to search. re.compile needed for options re.M and re.I
-            # re.M=re.MULTILINE enables matching of newline char
-            # re.I=re.IGNORECASE makes matching case-insensitive.
-            for line in STDFILE:
-                if re.search(re.compile('Unable to access quota space',re.M|re.I), line):
-                    quotaspace = 1
-                if re.search(re.compile('Unable to get quota space',re.M|re.I), line):
-                    quotaspace = 1
-                if re.search(re.compile('Disk quota exceeded',re.M|re.I), line):
-                    quotaspace = 1
-                if re.search(re.compile('CERN report: Job Killed',re.M), line):
-                    killed = 1
-                if re.search(re.compile('Job finished',re.M), line):
-                    finished = 1
-                if re.search(re.compile('connection timed out',re.M), line):
-                    timeout = 1
-                if re.search(re.compile('ConfigFileReadError',re.M), line):
-                    cfgerr = 1
-                if re.search(re.compile('0 bytes transferred',re.M), line):
-                    emptyDatOnFarm = 1
-                if re.search(re.compile('command not found',re.M), line):
-                    cmdNotFound = 1
-                # AP 26.11.2009 Insufficient privileges to rfcp files
-                if re.search(re.compile('stage_put: Insufficient user privileges',re.M), line):
-                    insuffPriv = 1
-                # AP 05.11.2015 Extract cpu-time.
-                # STDOUT doesn't contain NCU anymore. Now KSI2K and HS06 seconds are displayed.
-                # The ncuFactor is calculated from few samples by comparing KSI2K seconds with
-                # CPU time from email.
-                match = re.search(re.compile('This process used .+?(\d+) KSI2K seconds',re.M|re.I), line)
-                if match:
-                    cpuFactor = 2.125
-                    cputime = int(round(int(match.group(1))/cpuFactor)) # match.group(1) is the matched digit
-            STDFILE.close()
+            with open(stdOut, "r") as STDFILE:
+                # scan records in input file.
+                # use regular expression to search. re.compile needed for options re.M and re.I
+                # re.M=re.MULTILINE enables matching of newline char
+                # re.I=re.IGNORECASE makes matching case-insensitive.
+                for line in STDFILE:
+                    if re.search(re.compile('Unable to access quota space',re.M|re.I), line):
+                        quotaspace = 1
+                    if re.search(re.compile('Unable to get quota space',re.M|re.I), line):
+                        quotaspace = 1
+                    if re.search(re.compile('Disk quota exceeded',re.M|re.I), line):
+                        quotaspace = 1
+                    if re.search(re.compile('CERN report: Job Killed',re.M), line):
+                        killed = 1
+                    if re.search(re.compile('Job finished',re.M), line):
+                        finished = 1
+                    if re.search(re.compile('connection timed out',re.M), line):
+                        timeout = 1
+                    if re.search(re.compile('ConfigFileReadError',re.M), line):
+                        cfgerr = 1
+                    if re.search(re.compile('0 bytes transferred',re.M), line):
+                        emptyDatOnFarm = 1
+                    if re.search(re.compile('command not found',re.M), line):
+                        cmdNotFound = 1
+                    # AP 26.11.2009 Insufficient privileges to rfcp files
+                    if re.search(re.compile('stage_put: Insufficient user privileges',re.M), line):
+                        insuffPriv = 1
+                    # AP 05.11.2015 Extract cpu-time.
+                    # STDOUT doesn't contain NCU anymore. Now KSI2K and HS06 seconds are displayed.
+                    # The ncuFactor is calculated from few samples by comparing KSI2K seconds with
+                    # CPU time from email.
+                    match = re.search(re.compile('This process used .+?(\d+) KSI2K seconds',re.M|re.I), line)
+                    if match:
+                        cpuFactor = 2.125
+                        cputime = int(round(int(match.group(1))/cpuFactor)) # match.group(1) is the matched digit
 
             # gzip it afterwards:
             print 'gzip -f '+stdOut
@@ -123,27 +122,26 @@ for i in xrange(len(lib.JOBID)):
         eazeLog = 'jobData/'+lib.JOBDIR[i]+'/cmsRun.out'
         if os.access(eazeLog, os.R_OK):
             # open the input file
-            INFILE = open(eazeLog,'r')
-            # scan records in input file
-            for line in INFILE:
-                # check if end of file has been reached
-                if re.search(re.compile('\<StorageStatistics\>',re.M), line):
-                    eofile = 1
-                if re.search(re.compile('Time limit reached\.',re.M), line):
-                    timel = 1
-                if re.search(re.compile('gives I\/O problem',re.M), line):
-                    ioprob = 1
-                if re.search(re.compile('FrameworkError ExitStatus=[\'\"]8001[\'\"]',re.M), line):
-                    fw8001 = 1
-                if re.search(re.compile('too many tracks',re.M), line):
-                    tooManyTracks = 1
-                if re.search(re.compile('segmentation violation',re.M), line):
-                    segviol = 1
-                if re.search(re.compile('failed RFIO error',re.M), line):
-                    rfioerr = 1
-                if re.search(re.compile('Request exceeds quota',re.M), line):
-                    quota = 1
-            INFILE.close()
+            with open(eazeLog, "r") as INFILE:
+                # scan records in input file
+                for line in INFILE:
+                    # check if end of file has been reached
+                    if re.search(re.compile('\<StorageStatistics\>',re.M), line):
+                        eofile = 1
+                    if re.search(re.compile('Time limit reached\.',re.M), line):
+                        timel = 1
+                    if re.search(re.compile('gives I\/O problem',re.M), line):
+                        ioprob = 1
+                    if re.search(re.compile('FrameworkError ExitStatus=[\'\"]8001[\'\"]',re.M), line):
+                        fw8001 = 1
+                    if re.search(re.compile('too many tracks',re.M), line):
+                        tooManyTracks = 1
+                    if re.search(re.compile('segmentation violation',re.M), line):
+                        segviol = 1
+                    if re.search(re.compile('failed RFIO error',re.M), line):
+                        rfioerr = 1
+                    if re.search(re.compile('Request exceeds quota',re.M), line):
+                        quota = 1
 
         # if there is an alignment.log[.gz] file, check it as well
         eazeLog = 'jobData/'+lib.JOBDIR[i]+'/alignment.log'
@@ -155,45 +153,44 @@ for i in xrange(len(lib.JOBID)):
 
         if os.access(eazeLog, os.R_OK):   # access to alignment.log
             # open the input file
-            INFILE = open(eazeLog,'r')
-            # scan records in input file
-            for line in INFILE:
-                # check if end of file has been reached
-                if re.search(re.compile('\<StorageStatistics\>',re.M), line):
-                    eofile = 1
-                if re.search(re.compile('EAZE\. Time limit reached\.',re.M), line):
-                    timel = 1
-                if re.search(re.compile('GAF gives I\/O problem',re.M), line):
-                    ioprob = 1
-                if re.search(re.compile('FrameworkError ExitStatus=[\'\"]8001[\'\"]',re.M), line):
-                    fw8001 = 1
-                if re.search(re.compile('too many tracks',re.M), line):
-                    tooManyTracks = 1
-                if re.search(re.compile('segmentation violation',re.M), line):
-                    segviol = 1
-                if re.search(re.compile('failed RFIO error',re.M), line):
-                    rfioerr = 1
-                if re.search(re.compile('Request exceeds quota',re.M), line):
-                    quota = 1
-                # check for newer (e.g. CMSSW_5_1_X) and older CMSSW:
-                if re.search(re.compile('Fatal Exception',re.M), line):
-                    exceptionCaught = 1
-                if re.search(re.compile('Exception caught in cmsRun',re.M), line):
-                    exceptionCaught = 1
-                # AP 07.09.2009 - Check that the job got to a normal end
-                if re.search(re.compile('AlignmentProducer::endOfJob\(\)',re.M), line):
-                    endofjob = 1
-                if re.search(re.compile('FwkReport            -i main_input:sourc',re.M), line):
-                    array = line.split()
-                    nEvent = int(array[5])
-                if nEvent==0 and re.search(re.compile('FwkReport            -i PostSource',re.M), line):
-                    array = line.split()
-                    nEvent = int(array[5])
-                # AP 31.07.2009 - To read number of events in CMSSW_3_2_2_patch2
-                if nEvent==0 and re.search(re.compile('FwkReport            -i AfterSource',re.M), line):
-                    array = line.split()
-                    nEvent = int(array[5])
-            INFILE.close()
+            with open(eazeLog,'r') as INFILE:
+                # scan records in input file
+                for line in INFILE:
+                    # check if end of file has been reached
+                    if re.search(re.compile('\<StorageStatistics\>',re.M), line):
+                        eofile = 1
+                    if re.search(re.compile('EAZE\. Time limit reached\.',re.M), line):
+                        timel = 1
+                    if re.search(re.compile('GAF gives I\/O problem',re.M), line):
+                        ioprob = 1
+                    if re.search(re.compile('FrameworkError ExitStatus=[\'\"]8001[\'\"]',re.M), line):
+                        fw8001 = 1
+                    if re.search(re.compile('too many tracks',re.M), line):
+                        tooManyTracks = 1
+                    if re.search(re.compile('segmentation violation',re.M), line):
+                        segviol = 1
+                    if re.search(re.compile('failed RFIO error',re.M), line):
+                        rfioerr = 1
+                    if re.search(re.compile('Request exceeds quota',re.M), line):
+                        quota = 1
+                    # check for newer (e.g. CMSSW_5_1_X) and older CMSSW:
+                    if re.search(re.compile('Fatal Exception',re.M), line):
+                        exceptionCaught = 1
+                    if re.search(re.compile('Exception caught in cmsRun',re.M), line):
+                        exceptionCaught = 1
+                    # AP 07.09.2009 - Check that the job got to a normal end
+                    if re.search(re.compile('AlignmentProducer::endOfJob\(\)',re.M), line):
+                        endofjob = 1
+                    if re.search(re.compile('FwkReport            -i main_input:sourc',re.M), line):
+                        array = line.split()
+                        nEvent = int(array[5])
+                    if nEvent==0 and re.search(re.compile('FwkReport            -i PostSource',re.M), line):
+                        array = line.split()
+                        nEvent = int(array[5])
+                    # AP 31.07.2009 - To read number of events in CMSSW_3_2_2_patch2
+                    if nEvent==0 and re.search(re.compile('FwkReport            -i AfterSource',re.M), line):
+                        array = line.split()
+                        nEvent = int(array[5])
 
             if logZipped == 'true':
                 os.system('gzip '+eazeLog)
@@ -228,25 +225,24 @@ for i in xrange(len(lib.JOBID)):
                 os.system('gunzip -c '+eazeLog+'.gz > /tmp/pede.dump')
                 eazeLog = '/tmp/pede.dump'
             if os.access(eazeLog, os.R_OK):
-                INFILE = open(eazeLog,'r') # open pede.dump
-
-                # scan records in INFILE
-                pedeAbend = 1
-                usedPedeMem = 0.
-                for line in INFILE:
-                    # check if pede has reached its normal end
-                    if re.search(re.compile('Millepede II.* ending',re.M), line):
-                        pedeAbend = 0
-                    # extract memory usage
-                    match = re.search(re.compile('Peak dynamic memory allocation: (.+) GB',re.I), line)
-                    if match:
-                        mem = match.group(1)
-                        mem = re.sub('\s', '', mem)
-                        # if mem is a float
-                        if re.search(re.compile('^\d+\.\d+$',re.M), mem):
-                            usedPedeMem = float(mem)
-                        else:
-                            print 'mps_check.py: Found Pede peak memory allocation but extracted number is not a float:',mem
+                with open(eazeLog, "r") as INFILE: # open pede.dump
+                    # scan records in INFILE
+                    pedeAbend = 1
+                    usedPedeMem = 0.
+                    for line in INFILE:
+                        # check if pede has reached its normal end
+                        if re.search(re.compile('Millepede II.* ending',re.M), line):
+                            pedeAbend = 0
+                        # extract memory usage
+                        match = re.search(re.compile('Peak dynamic memory allocation: (.+) GB',re.I), line)
+                        if match:
+                            mem = match.group(1)
+                            mem = re.sub('\s', '', mem)
+                            # if mem is a float
+                            if re.search(re.compile('^\d+\.\d+$',re.M), mem):
+                                usedPedeMem = float(mem)
+                            else:
+                                print 'mps_check.py: Found Pede peak memory allocation but extracted number is not a float:',mem
 
                 # check memory usage
                 # no point in asking if lib.pedeMem is defined. Initialized as lib.pedeMem=-1
@@ -274,21 +270,20 @@ for i in xrange(len(lib.JOBID)):
 
             if os.access(eazeLog, os.R_OK):
                 # open log file
-                INFILE = open(eazeLog,'r')
-                # scan records in input file
-                for line in INFILE:
-                    # Checks for Pede Errors
-                    if re.search(re.compile('step no descending',re.M), line):
-                        pedeLogErr = 1
-                        pedeLogErrStr += line
-                    if re.search(re.compile('Constraint equation discrepancies:',re.M), line):
-                        pedeLogErr = 1
-                        pedeLogErrStr += line
-                    # AP 07.09.2009 - Checks for Pede Warnings:
-                    if re.search(re.compile('insufficient constraint equations',re.M), line):
-                        pedeLogWrn = 1
-                        pedeLogWrnStr += line
-                INFILE.close()
+                with open(eazeLog, "r") as INFILE:
+                    # scan records in input file
+                    for line in INFILE:
+                        # Checks for Pede Errors
+                        if re.search(re.compile('step no descending',re.M), line):
+                            pedeLogErr = 1
+                            pedeLogErrStr += line
+                        if re.search(re.compile('Constraint equation discrepancies:',re.M), line):
+                            pedeLogErr = 1
+                            pedeLogErrStr += line
+                        # AP 07.09.2009 - Checks for Pede Warnings:
+                        if re.search(re.compile('insufficient constraint equations',re.M), line):
+                            pedeLogWrn = 1
+                            pedeLogWrnStr += line
 
                 if logZipped == 'true':
                     os.system('gzip '+eazeLog)
@@ -305,20 +300,19 @@ for i in xrange(len(lib.JOBID)):
 
             if os.access(eazeLog, os.R_OK):
                 # open log file
-                INFILE = open(eazeLog,'r')
-                # scan records in input file
-                for line in INFILE:
-                    # Checks for the output code. 0 is OK, 1 is WARN, anything else is FAIL
-                    # searches the line for a number with or without a sign
-                    match = re.search(re.compile('([-+]?\d+)',re.M), line)
-                    if match:
-                        if int(match.group(1)) == 1:
-                            pedeLogWrn = 1
-                            pedeLogWrnStr += line
-                        elif int(match.group(1)) != 0:
-                            pedeLogErr = 1
-                            pedeLogErrStr += line
-                INFILE.close()
+                with open(eazeLog, "r") as INFILE:
+                    # scan records in input file
+                    for line in INFILE:
+                        # Checks for the output code. 0 is OK, 1 is WARN, anything else is FAIL
+                        # searches the line for a number with or without a sign
+                        match = re.search(re.compile('([-+]?\d+)',re.M), line)
+                        if match:
+                            if int(match.group(1)) == 1:
+                                pedeLogWrn = 1
+                                pedeLogWrnStr += line
+                            elif int(match.group(1)) != 0:
+                                pedeLogErr = 1
+                                pedeLogErrStr += line
                 if logZipped == 'true':
                     os.system('gzip '+eazeLog)
             else:
