@@ -55,6 +55,33 @@ XMLConfigReader::~XMLConfigReader()
   delete parser;
   XMLPlatformUtils::Terminate();
 }
+
+XMLConfigReader::XMLConfigReader(const XMLConfigReader &obj) :
+  parser         ( new XercesDOMParser()),
+  doc            (obj.doc)
+{
+
+  XMLPlatformUtils::Initialize();
+  parser->setValidationScheme(XercesDOMParser::Val_Auto);
+  parser->setDoNamespaces(false);
+
+}
+
+void XMLConfigReader::swap(XMLConfigReader & obj){
+ 
+  std::swap(parser         , obj.parser);
+  std::swap(doc            , obj.doc);
+
+}
+
+XMLConfigReader &  XMLConfigReader::operator= (XMLConfigReader obj) {
+
+  swap(obj); 
+
+  return *this;
+
+}
+
 //////////////////////////////////////////////////
 //////////////////////////////////////////////////
 void XMLConfigReader::readLUT(l1t::LUT *lut,const L1TMuonOverlapParams & aConfig, const std::string & type){
