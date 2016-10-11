@@ -769,7 +769,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
             #photon projection ==
             pfCandsForUnclusteredUnc = cms.EDProducer("CandPtrProjector", 
                                               src = cms.InputTag("pfCandsNoJetsNoEleNoMuNoTau"+postfix),
-                                              veto = tauCollection
+                                              veto = photonCollection
                                               )
             setattr(process, "pfCandsForUnclusteredUnc"+postfix, pfCandsForUnclusteredUnc)
             metUncSequence += getattr(process, "pfCandsForUnclusteredUnc"+postfix)
