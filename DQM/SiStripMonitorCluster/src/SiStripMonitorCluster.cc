@@ -1097,6 +1097,7 @@ void SiStripMonitorCluster::createLayerMEs(std::string label, int ndets , DQMSto
   layerMEs.LayerNumberOfClusterProfile = 0;
   layerMEs.LayerClusterWidthProfile = 0;
   layerMEs.LayerClusWidthVsAmpTH2 = 0;
+  layerMEs.LayerClusterPosition = 0;
 
   //Cluster Width
   if(layerswitchcluswidthon) {
@@ -1149,6 +1150,11 @@ void SiStripMonitorCluster::createLayerMEs(std::string label, int ndets , DQMSto
     layerMEs.LayerClusWidthVsAmpTH2=bookME2D("ClusWidthVsAmpTH2", hidmanager.createHistoLayer("ClusterWidths_vs_Amplitudes","layer",label,"").c_str() , ibooker );
   }
 
+  // Cluster Position
+  if (layerswitchclusposon)  {
+    std::string hid = hidmanager.createHistoLayer("ClusterPosition","layer",label,"");
+    layerMEs.LayerClusterPosition=ibooker.book1D(hid, hid, 128*6, 0.5, 128*6+0.5);
+  }
 
   LayerMEsMap[label]=layerMEs;
 }
@@ -1366,6 +1372,10 @@ void SiStripMonitorCluster::fillLayerMEs(LayerMEs& layerMEs, ClusterProperties& 
 
   if( layer_clusterWidth_vs_amplitude_on ) {
 	fillME(layerMEs.LayerClusWidthVsAmpTH2, cluster.charge, cluster.width);
+  }
+
+  if (layerswitchclusposon)  {
+    fillME(layerMEs.LayerClusterPosition,cluster.position);
   }
 }
 //------------------------------------------------------------------------------------------
