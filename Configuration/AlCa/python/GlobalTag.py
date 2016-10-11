@@ -71,7 +71,7 @@ def GlobalTag(essource = None, globaltag = None, conditions = None):
             if 'upgradePLS3' == globaltag:
                 sys.stderr.write('Warning: %s now points to %s, instead of POSTLS262_V1'%(globaltag,autoCond[globaltag]))
             if 'phase1_2017_design' == globaltag:
-                sys.stderr.write('Warning: %s now points to %s. This has reco- Beamspot centered to (0,0,0)'%(globaltag,autoCond[globalTag]))
+                sys.stderr.write('Warning: %s now points to %s. This has reco- Beamspot centered to (0,0,0)'%(globaltag,autoCond[globaltag]))
             autoKey = autoCond[globaltag]
             if isinstance(autoKey, tuple) or isinstance(autoKey, list):
                 globaltag = autoKey[0]
