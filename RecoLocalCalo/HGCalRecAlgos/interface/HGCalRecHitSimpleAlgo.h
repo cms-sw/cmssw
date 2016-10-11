@@ -48,9 +48,9 @@ class HGCalRecHitSimpleAlgo : public HGCalRecHitAbsAlgo {
     unsigned layer = 0;
     if( DetId::Hcal == baseid.det() && HcalEndcap == baseid.subdetId() ) {
       layer =  HcalDetId(baseid).depth() + 40;
-    } else if ( DetId::Forward == baseid.det() &&  HGCEE) {
+    } else if ( DetId::Forward == baseid.det() && HGCEE == baseid.subdetId() ) {
       layer = HGCalDetId(baseid).layer();
-    }else if ( DetId::Forward == baseid.det() &&  HGCHEF) {
+    }else if ( DetId::Forward == baseid.det() && HGCHEF == baseid.subdetId() ) {
       layer = HGCalDetId(baseid).layer() + 28;
     } else {
       throw cms::Exception("InvalidRecHit")
