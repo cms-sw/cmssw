@@ -175,7 +175,7 @@ else:
                     os.system('cp -pf '+backupScriptPath+' '+scriptPath)
 
                 # get the name of merge cfg file
-                command  = 'cat '+scriptPath+' | grep cmsRun | grep "\.py" | head -1 | awk \'{gsub("^.*cmsRun ","");print $1}\''
+                command  = "cat "+scriptPath+" | grep '^\s*CONFIG_FILE' | awk -F'=' '{print $2}'"
                 mergeCfg = subprocess.check_output(command, stderr=subprocess.STDOUT, shell=True)
                 command  = 'basename '+mergeCfg
                 mergeCfg = subprocess.check_output(command, stderr=subprocess.STDOUT, shell=True)

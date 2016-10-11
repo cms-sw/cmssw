@@ -18,6 +18,7 @@ cd -
 RUNDIR=$HOME/scratch0/some/path
 MSSDIR=/castor/cern.ch/user/u/username/another/path
 MSSDIRPOOL=
+CONFIG_FILE=
 
 #get list of treefiles
 TREEFILELIST=
@@ -123,7 +124,7 @@ echo Running directory changed to $(pwd).
 echo "\nDirectory content before running cmsRun:"
 ls -lh
 # Execute. The cfg file name will be overwritten by MPS
-time cmsRun the.cfg
+time cmsRun $CONFIG_FILE
 
 # clean up what has been staged in (to avoid copy mistakes...)
 rm treeFileISN.root
@@ -158,7 +159,7 @@ else
     # If nothing checked out, take from release:
     cp $CMSSW_RELEASE_BASE/src/Alignment/MillePedeAlignmentAlgorithm/macros/createChi2ndfplot.C .
 fi
-mps_parse_pedechi2hist.py -d $RUNDIR/../../mps.db --his millepede.his -c the.cfg
+mps_parse_pedechi2hist.py -d $RUNDIR/../../mps.db --his millepede.his -c $CONFIG_FILE
 if [ -f chi2pedehis.txt ]; then
     root -l -x -b -q 'createChi2ndfplot.C+("chi2pedehis.txt")'
 fi
@@ -201,7 +202,7 @@ cp -p *.db $RUNDIR
 cp -p *.end $RUNDIR
 
 # copy aligment_merge.py for mps_validate.py
-cp -p the.cfg alignment_merge.py
+cp -p $CONFIG_FILE alignment_merge.py
 # run mps_validate.py
 campaign=`basename $MSSDIR`
 mps_validate.py -m $campaign -p ./
