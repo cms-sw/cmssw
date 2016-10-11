@@ -32,6 +32,8 @@ caloStage2Params.egCompressShapesLUTFile    = cms.FileInPath("L1Trigger/L1TCalor
 caloStage2Params.egShapeIdType              = cms.string("compressed")
 caloStage2Params.egShapeIdVersion           = cms.uint32(0)
 caloStage2Params.egShapeIdLUTFile           = cms.FileInPath("L1Trigger/L1TCalorimeter/data/shapeIdentification_adapt0.99_compressedieta_compressedE_compressedshape_v15.12.08.txt")
+caloStage2Params.egBypassEGVetos              = cms.bool(True)
+
 caloStage2Params.egPUSType                  = cms.string("None")
 caloStage2Params.egIsolationType            = cms.string("compressed")
 #caloStage2Params.egIsoLUTFile               = cms.FileInPath("L1Trigger/L1TCalorimeter/data/IsoIdentification_adapt_extrap_v16.07.29.txt")
@@ -47,6 +49,7 @@ caloStage2Params.egCalibrationType          = cms.string("compressed")
 caloStage2Params.egCalibrationVersion       = cms.uint32(0)
 caloStage2Params.egCalibrationLUTFile       = cms.FileInPath("L1Trigger/L1TCalorimeter/data/corrections_Trimming10_compressedieta_compressedE_compressedshape_v16.03.14.txt")
 
+
 # Tau
 caloStage2Params.tauLsb                        = cms.double(0.5)
 caloStage2Params.tauSeedThreshold              = cms.double(0.)
@@ -55,8 +58,8 @@ caloStage2Params.tauIsoAreaNrTowersEta         = cms.uint32(2)
 caloStage2Params.tauIsoAreaNrTowersPhi         = cms.uint32(4)
 caloStage2Params.tauIsoVetoNrTowersPhi         = cms.uint32(2)
 caloStage2Params.tauPUSType                    = cms.string("None")
-caloStage2Params.tauIsoLUTFile                 = cms.FileInPath("L1Trigger/L1TCalorimeter/data/Tau_Iso_LUT_Option_5_NewLayer1Calibration_noCompressionBlock_SK1616_EmuOldFormat_v6.1.0.txt")
-caloStage2Params.tauIsoLUTFile2                = cms.FileInPath("L1Trigger/L1TCalorimeter/data/Tau_Iso_LUT_Option_5_NewLayer1Calibration_noCompressionBlock_SK1616_EmuOldFormat_v6.1.0.txt")
+caloStage2Params.tauIsoLUTFile                 = cms.FileInPath("L1Trigger/L1TCalorimeter/data/Tau_Iso_LUT_Option_22_NewLayer1Calibration_noCompressionBlock_SK1616_EmuOldFormat_v6.2.0.txt")
+caloStage2Params.tauIsoLUTFile2                = cms.FileInPath("L1Trigger/L1TCalorimeter/data/Tau_Iso_LUT_Option_22_NewLayer1Calibration_noCompressionBlock_SK1616_EmuOldFormat_v6.2.0.txt")
 caloStage2Params.tauCalibrationLUTFile         = cms.FileInPath("L1Trigger/L1TCalorimeter/data/Tau_Calibration_LUT_NewLayer1Calibration_SK1616_EmuOldFormat_v11.0.0.txt")
 caloStage2Params.tauCompressLUTFile            = cms.FileInPath("L1Trigger/L1TCalorimeter/data/tauCompressAllLUT_12bit_v3.txt")
 caloStage2Params.tauPUSParams                  = cms.vdouble(1,4,32)
@@ -114,9 +117,9 @@ caloStage2Params.jetCalibrationLUTFile    = cms.FileInPath("L1Trigger/L1TCalorim
 
 # sums: 0=ET, 1=HT, 2=MET, 3=MHT
 caloStage2Params.etSumLsb                = cms.double(0.5)
-caloStage2Params.etSumEtaMin             = cms.vint32(1, 1, 1, 1)
-caloStage2Params.etSumEtaMax             = cms.vint32(28,  28,  28,  28)
-caloStage2Params.etSumEtThreshold        = cms.vdouble(0.,  30.,  0.,  30.)
+caloStage2Params.etSumEtaMin             = cms.vint32(1, 1, 1, 1, 1)
+caloStage2Params.etSumEtaMax             = cms.vint32(28,  28,  28,  28, 28)
+caloStage2Params.etSumEtThreshold        = cms.vdouble(0.,  30.,  0.,  30., 0.)
 
 caloStage2Params.etSumXPUSLUTFile         = cms.FileInPath("L1Trigger/L1TCalorimeter/data/lut_etSumPUS_dummy.txt")
 caloStage2Params.etSumYPUSLUTFile         = cms.FileInPath("L1Trigger/L1TCalorimeter/data/lut_etSumPUS_dummy.txt")

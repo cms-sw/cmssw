@@ -170,7 +170,7 @@ void l1t::Stage2Layer2JetAlgorithmFirmwareImp1::create(const std::vector<l1t::Ca
 	    if (iEt<=0) continue;
 
 	    // if tower Et is saturated, saturate jet Et
-	    if (seedEt >= 511) iEt = 65535;
+	    if (seedEt >= 509) iEt = 65535;
 
 	    jet.setHwPt(iEt);
 	    jet.setRawEt( (short int) rawEt);

@@ -119,6 +119,7 @@ namespace l1t {
     int egMaxPtJetIsolation() const { return egp_.maxPtJetIsolation_; }
     int egMinPtHOverEIsolation() const { return egp_.minPtHOverEIsolation_; }
     int egMaxPtHOverEIsolation() const { return egp_.maxPtHOverEIsolation_; }
+    bool egBypassEGVetos() const { return egp_.egBypassEGVetos_; }
 
     unsigned egIsoAreaNrTowersEta()const{return egp_.isoAreaNrTowersEta_;}
     unsigned egIsoAreaNrTowersPhi()const{return egp_.isoAreaNrTowersPhi_;}
@@ -151,6 +152,7 @@ namespace l1t {
     void setEgMaxPtJetIsolation(int cutValue) { egp_.maxPtJetIsolation_ = cutValue; }
     void setEgMinPtHOverEIsolation(int cutValue) { egp_.minPtHOverEIsolation_ = cutValue; }
     void setEgMaxPtHOverEIsolation(int cutValue) { egp_.maxPtHOverEIsolation_ = cutValue; }
+    void setEgBypassEGVetos(bool flag) { egp_.egBypassEGVetos_ = flag;}
 
     void setEgIsoAreaNrTowersEta(unsigned iEgIsoAreaNrTowersEta){egp_.isoAreaNrTowersEta_=iEgIsoAreaNrTowersEta;}
     void setEgIsoAreaNrTowersPhi(unsigned iEgIsoAreaNrTowersPhi){egp_.isoAreaNrTowersPhi_=iEgIsoAreaNrTowersPhi;}

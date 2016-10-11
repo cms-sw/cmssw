@@ -38,6 +38,9 @@ void l1t::Stage2Layer2EtSumAlgorithmFirmwareImp1::processEvent(const std::vector
                                                                std::vector<l1t::EtSum> & etsums) {
 
   
+  uint32_t ntowers(0);
+  math::XYZTLorentzVector p4;
+
   // etaSide=1 is positive eta, etaSide=-1 is negative eta
   for (int etaSide=1; etaSide>=-1; etaSide-=2) {
 
@@ -45,7 +48,6 @@ void l1t::Stage2Layer2EtSumAlgorithmFirmwareImp1::processEvent(const std::vector
     int32_t exHF(0), eyHF(0), etHF(0);
     int32_t etem(0);
     uint32_t mb0(0), mb1(0);
-    uint32_t ntowers(0);
 
     for (unsigned absieta=1; absieta<=(uint)CaloTools::mpEta(CaloTools::kHFEnd); absieta++) {
 
@@ -123,7 +125,6 @@ void l1t::Stage2Layer2EtSumAlgorithmFirmwareImp1::processEvent(const std::vector
     if (mb0>0xf) mb0 = 0xf;
     if (mb1>0xf) mb1 = 0xf;
 
-    math::XYZTLorentzVector p4;
 
     l1t::EtSum etSumTotalEt(p4,l1t::EtSum::EtSumType::kTotalEt,et,0,0,0);
     l1t::EtSum etSumEx(p4,l1t::EtSum::EtSumType::kTotalEtx,ex,0,0,0);
@@ -144,8 +145,6 @@ void l1t::Stage2Layer2EtSumAlgorithmFirmwareImp1::processEvent(const std::vector
     l1t::EtSum etSumMinBias0(p4,type0,mb0,0,0,0);
     l1t::EtSum etSumMinBias1(p4,type1,mb1,0,0,0);
 
-    l1t::EtSum etSumNtowers(p4,l1t::EtSum::EtSumType::kTowerCount,ntowers,0,0,0);
-
     etsums.push_back(etSumTotalEt);
     etsums.push_back(etSumEx);
     etsums.push_back(etSumEy);
@@ -159,7 +158,10 @@ void l1t::Stage2Layer2EtSumAlgorithmFirmwareImp1::processEvent(const std::vector
     etsums.push_back(etSumMinBias0);
     etsums.push_back(etSumMinBias1);
 
-    etsums.push_back(etSumNtowers);
   }
+
+  //tower count is in aux: only on eta- side!!
+  l1t::EtSum etSumNtowers(p4,l1t::EtSum::EtSumType::kTowerCount,ntowers,0,0,0);
+  etsums.push_back(etSumNtowers);
 
 }
