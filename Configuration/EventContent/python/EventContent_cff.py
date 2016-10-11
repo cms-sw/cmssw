@@ -821,6 +821,5 @@ if fastSim.isChosen():
         fastSimEC.dropSimDigis(_entry.outputCommands)
 
 from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
-if phase2_tracker.isChosen():
-    for _entry in [FEVTDEBUGEventContent,FEVTDEBUGHLTEventContent,FEVTEventContent]:
-        phase2_tracker.toModify(_entry, outputCommands = _entry.outputCommands + ['keep Phase2TrackerDigiedmDetSetVector_*_*_*'])
+for _entry in [FEVTDEBUGEventContent,FEVTDEBUGHLTEventContent,FEVTEventContent]:
+  phase2_tracker.toModify(_entry, outputCommands = _entry.outputCommands + ['keep Phase2TrackerDigiedmDetSetVector_*_*_*'])
