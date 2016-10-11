@@ -132,8 +132,8 @@ namespace HGCalTriggerFE {
       return static_cast<const Impl&>(*this).encodeImpl(data);
     }
 
-    DATA decode(const std::vector<bool>& data) const {
-      return static_cast<const Impl&>(*this).decodeImpl(data);
+    DATA decode(const std::vector<bool>& data, const uint32_t module=0) const {
+      return static_cast<const Impl&>(*this).decodeImpl(data, module);
     }    
 
   protected:    

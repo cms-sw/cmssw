@@ -26,7 +26,7 @@ encodeImpl(const HGCal64BitRandomCodec::data_type& data) const {
 
 HGCal64BitRandomCodec::data_type
 HGCal64BitRandomCodec::
-decodeImpl(const std::vector<bool>& data) const {
+decodeImpl(const std::vector<bool>& data, const uint32_t) const {
   return codecImpl_.decode(data);
 }
 

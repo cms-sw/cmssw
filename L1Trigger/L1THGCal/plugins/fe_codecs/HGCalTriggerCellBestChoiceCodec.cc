@@ -1,25 +1,24 @@
-#include "L1Trigger/L1THGCal/interface/fe_codecs/HGCalBestChoiceCodec.h"
+#include "L1Trigger/L1THGCal/interface/fe_codecs/HGCalTriggerCellBestChoiceCodec.h"
 #include <limits>
 
 using namespace HGCalTriggerFE;
 
 DEFINE_EDM_PLUGIN(HGCalTriggerFECodecFactory, 
-        HGCalBestChoiceCodec,
-        "HGCalBestChoiceCodec");
+        HGCalTriggerCellBestChoiceCodec,
+        "HGCalTriggerCellBestChoiceCodec");
 
-/*****************************************************************/
-HGCalBestChoiceCodec::HGCalBestChoiceCodec(const edm::ParameterSet& conf) : Codec(conf),
+HGCalTriggerCellBestChoiceCodec::
+HGCalTriggerCellBestChoiceCodec(const edm::ParameterSet& conf) : Codec(conf),
     codecImpl_(conf)
-/*****************************************************************/
 {
 }
 
 
-/*****************************************************************/
-void HGCalBestChoiceCodec::setDataPayloadImpl(const HGCEEDigiCollection& ee,
+void
+HGCalTriggerCellBestChoiceCodec::
+setDataPayloadImpl(const HGCEEDigiCollection& ee,
         const HGCHEDigiCollection& fh,
         const HGCHEDigiCollection& ) 
-/*****************************************************************/
 {
     data_.reset();
     std::vector<HGCDataFrame<HGCalDetId,HGCSample>> dataframes;
@@ -55,9 +54,9 @@ void HGCalBestChoiceCodec::setDataPayloadImpl(const HGCEEDigiCollection& ee,
     codecImpl_.bestChoiceSelect(data_);
 }
 
-/*****************************************************************/
-void HGCalBestChoiceCodec::setDataPayloadImpl(const l1t::HGCFETriggerDigi& digi)
-/*****************************************************************/
+void
+HGCalTriggerCellBestChoiceCodec::
+setDataPayloadImpl(const l1t::HGCFETriggerDigi& digi)
 {
     data_.reset();
     // decode input data with different parameters
@@ -69,7 +68,7 @@ void HGCalBestChoiceCodec::setDataPayloadImpl(const l1t::HGCFETriggerDigi& digi)
     edm::ParameterSet conf;
     conf.addParameter<std::string>("CodecName",     name());
     conf.addParameter<uint32_t>   ("CodecIndex",    getCodecType());
-    conf.addParameter<uint32_t>   ("NData",         HGCalBestChoiceCodec::data_type::size);
+    conf.addParameter<uint32_t>   ("NData",         codecImpl_.nCellsInModule());
     // The data length should be the same for input and output, which is limiting
     conf.addParameter<uint32_t>   ("DataLength",    codecImpl_.dataLength());
     conf.addParameter<double>     ("linLSB",        codecImpl_.linLSB());
@@ -79,7 +78,7 @@ void HGCalBestChoiceCodec::setDataPayloadImpl(const l1t::HGCFETriggerDigi& digi)
     conf.addParameter<uint32_t>   ("tdcnBits",      codecImpl_.tdcnBits());
     conf.addParameter<double>     ("tdcOnsetfC",    codecImpl_.tdcOnsetfC());
     conf.addParameter<uint32_t>   ("triggerCellTruncationBits", codecImpl_.triggerCellTruncationBits());
-    HGCalBestChoiceCodec codecInput(conf);
+    HGCalTriggerCellBestChoiceCodec codecInput(conf);
     codecInput.setGeometry(geometry_);
     digi.decode(codecInput,data_);
     // choose best trigger cells in the module
@@ -87,18 +86,18 @@ void HGCalBestChoiceCodec::setDataPayloadImpl(const l1t::HGCFETriggerDigi& digi)
 }
 
 
-/*****************************************************************/
-std::vector<bool> HGCalBestChoiceCodec::encodeImpl(const HGCalBestChoiceCodec::data_type& data) const 
-/*****************************************************************/
+std::vector<bool>
+HGCalTriggerCellBestChoiceCodec::
+encodeImpl(const HGCalTriggerCellBestChoiceCodec::data_type& data) const 
 {
-    return codecImpl_.encode(data);
+    return codecImpl_.encode(data, *geometry_);
 }
 
-/*****************************************************************/
-HGCalBestChoiceCodec::data_type HGCalBestChoiceCodec::decodeImpl(const std::vector<bool>& data, const uint32_t) const 
-/*****************************************************************/
+HGCalTriggerCellBestChoiceCodec::data_type 
+HGCalTriggerCellBestChoiceCodec::
+decodeImpl(const std::vector<bool>& data, const uint32_t module) const 
 {
-    return codecImpl_.decode(data);
+    return codecImpl_.decode(data, module, *geometry_);
 }
 
 

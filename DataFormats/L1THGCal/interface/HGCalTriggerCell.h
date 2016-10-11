@@ -22,9 +22,17 @@ namespace l1t
                     int pt=0,
                     int eta=0,
                     int phi=0,
-                    int qual=0);
+                    int qual=0, 
+                    uint32_t detid=0);
 
             ~HGCalTriggerCell();
+
+            void setDetId(uint32_t detid) {detid_ = detid;}
+
+            uint32_t detId() const {return detid_;}
+
+        private:
+            uint32_t detid_;
 
     };
 
