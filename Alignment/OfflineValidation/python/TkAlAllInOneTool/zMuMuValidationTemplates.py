@@ -41,8 +41,8 @@ process.TrackRefitter.NavigationSchool = ""
 ###### MuSclFit SETTINGS  ##############################################
 
 
-### MuScleFit specific configuration 
- 
+### MuScleFit specific configuration
+
 process.looper = cms.Looper(
     "MuScleFit",
     # Only used when reading events from a root tree
@@ -50,14 +50,14 @@ process.looper = cms.Looper(
 
     # Specify a file if you want to read events from a root tree in a local file.
     # In this case the input source should be an empty source with 0 events.
-    
+
     InputRootTreeFileName = cms.string(""),
-    
+
     # Specify the file name where you want to save a root tree with the muon pairs.
     # Leave empty if no file should be written.
-    
+
     OutputRootTreeFileName = cms.string(""),
-    
+
 
     # Choose the kind of muons you want to run on
     # -------------------------------------------
@@ -77,7 +77,14 @@ process.looper = cms.Looper(
     # The resonances are to be specified in this order:
     # Z0, Y(3S), Y(2S), Y(1S), Psi(2S), J/Psi
     # -------------------------------------------------
-    resfind = cms.vint32(1, 0, 0, 0, 0, 0),
+    resfind = cms.vint32(
+      int(".oO[resonance]Oo." == "Z"),
+      int(".oO[resonance]Oo." == "Y3S"),
+      int(".oO[resonance]Oo." == "Y2S"),
+      int(".oO[resonance]Oo." == "Y1S"),
+      int(".oO[resonance]Oo." == "Psi2S"),
+      int(".oO[resonance]Oo." == "JPsi)"
+    )
 
     # Likelihood settings
     # -------------------
@@ -113,11 +120,11 @@ process.looper = cms.Looper(
     parSmear = cms.vdouble(),
 
     ### taken from J/Psi #########################
-#    ResolFitType = cms.int32(14), 
+#    ResolFitType = cms.int32(14),
 #    parResol = cms.vdouble(0.007,0.015, -0.00077, 0.0063, 0.0018, 0.0164),
 #    parResolFix = cms.vint32(0, 0, 0,0, 0,0),
 #    parResolOrder = cms.vint32(0, 0, 0, 0, 0, 0),
-    ResolFitType = cms.int32(0), 
+    ResolFitType = cms.int32(0),
     parResol = cms.vdouble(0),
     parResolFix = cms.vint32(0),
     parResolOrder = cms.vint32(0),
@@ -138,7 +145,7 @@ process.looper = cms.Looper(
     parScale = cms.vdouble(0),
 
 
-    
+
     # ---------------------------- #
     # Cross section fit parameters #
     # ---------------------------- #
@@ -193,8 +200,8 @@ process.looper = cms.Looper(
     MinMuonEtaSecondRange = cms.untracked.double(.oO[etaminpos]Oo.),
     MaxMuonEtaSecondRange = cms.untracked.double(.oO[etamaxpos]Oo.),
     PileUpSummaryInfo = cms.untracked.InputTag("addPileupInfo"),
-    PrimaryVertexCollection = cms.untracked.InputTag("offlinePrimaryVertices"),    
-    
+    PrimaryVertexCollection = cms.untracked.InputTag("offlinePrimaryVertices"),
+
     # The following parameters can be used to filter events
     TriggerResultsLabel = cms.untracked.string("TriggerResults"),
     TriggerResultsProcess = cms.untracked.string("HLT"),
@@ -209,14 +216,14 @@ process.looper = cms.Looper(
 process.p = cms.Path(
     process.offlineBeamSpot*process.TrackRefitter
     )
-    
+
 """
 
 
 ####################################################################
 ####################################################################
 zMuMuScriptTemplate="""
-#!/bin/bash 
+#!/bin/bash
 source /afs/cern.ch/cms/caf/setup.sh
 eos='/afs/cern.ch/project/eos/installation/cms/bin/eos.select'
 
@@ -249,9 +256,9 @@ fi
 
 .oO[CommandLine]Oo.
 
-ls -lh . 
+ls -lh .
 
-cp .oO[MuonAnalysis/MomentumScaleCalibration]Oo./test/Macros/RooFit/CompareBiasZValidation.cc .
+cp .oO[MuonAnalysis/MomentumScaleCalibration]Oo./test/Macros/RooFit/CompareBias.oO[resonance]Oo.Validation.cc .
 cp .oO[MuonAnalysis/MomentumScaleCalibration]Oo./test/Macros/RooFit/Legend.h .
 cp .oO[MuonAnalysis/MomentumScaleCalibration]Oo./test/Macros/RooFit/FitMassSlices.cc .
 cp .oO[MuonAnalysis/MomentumScaleCalibration]Oo./test/Macros/RooFit/FitSlices.cc .
@@ -259,7 +266,7 @@ cp .oO[MuonAnalysis/MomentumScaleCalibration]Oo./test/Macros/RooFit/FitXslices.c
 cp .oO[MuonAnalysis/MomentumScaleCalibration]Oo./test/Macros/RooFit/FitWithRooFit.cc .
 cp .oO[MuonAnalysis/MomentumScaleCalibration]Oo./test/Macros/RooFit/FitMass1D.cc .
 
-root -q -b -l "CompareBiasZValidation.cc+(.oO[rebinphi]Oo., .oO[rebinetadiff]Oo., .oO[rebineta]Oo., .oO[rebinpt]Oo.)"
+root -q -b -l "CompareBias.oO[resonance]Oo.Validation.cc+(.oO[rebinphi]Oo., .oO[rebinetadiff]Oo., .oO[rebineta]Oo., .oO[rebinpt]Oo.)"
 
 cp  .oO[MuonAnalysis/MomentumScaleCalibration]Oo./test/Macros/RooFit/tdrstyle.C .
 cp  .oO[MuonAnalysis/MomentumScaleCalibration]Oo./test/Macros/RooFit/MultiHistoOverlap_.oO[resonance]Oo..C .
@@ -283,7 +290,7 @@ done
 
 echo  -----------------------
 echo  Job ended at `date`
-echo  -----------------------    
+echo  -----------------------
 
 """
 

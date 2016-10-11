@@ -10,13 +10,12 @@
 #include "FitMass1D.cc"
 #include "Legend.h"
 
-class CompareBiasZValidation
+
+class CompareBiasY1SValidation
 {
 public:
-  CompareBiasZValidation(const int rebinXphi = 4, const int rebinXetadiff = 2, const int rebinXeta = 2, const int rebinXpt = 8)
+  CompareBiasY1SValidation(const int rebinXphi = 4, const int rebinXetadiff = 2, const int rebinXeta = 2, const int rebinXpt = 8)
   {
-    
-
     gROOT->SetStyle("Plain");
 
     doFit_ = false;
@@ -35,24 +34,24 @@ public:
     fitter.useChi2 = false;
     fitter.sigma2 = 1.;
 
-    double Mmin(75), Mmax(105);
+    double Mmin(9.1), Mmax(9.7);
     fitter.fit(
-      inputFileName, outputFileName, "breitWignerTimesCB", "exponential", 91, Mmin, Mmax, 2, 0.1, 10,
+      inputFileName, outputFileName, "breitWignerTimesCB", "exponential", 9.46, Mmin, Mmax, 0.3, 0.001, 2.,
       rebinXphi, rebinXetadiff, rebinXeta, rebinXpt
       );
 
     FitMass1D fitMass1D;
-    fitMass1D.fitter()->initMean(91.1876, Mmin, Mmax);
-    fitMass1D.fitter()->initGamma( 2.4952, 0., 10.);
+    fitMass1D.fitter()->initMean(9.46, Mmin, Mmax);
+    fitMass1D.fitter()->initGamma(5.4e-5, 0., 10.);
     fitMass1D.fitter()->gamma()->setConstant(kTRUE);
     fitMass1D.fitter()->initMean2(0., -20., 20.);
     fitMass1D.fitter()->mean2()->setConstant(kTRUE);
-    fitMass1D.fitter()->initSigma(1.2, 0., 5.);
+    fitMass1D.fitter()->initSigma(0.07, 0., 5.);
     fitMass1D.fitter()->initAlpha(1.5, 0.05, 10.);
     fitMass1D.fitter()->initN(1, 0.01, 100.);
-    fitMass1D.fitter()->initExpCoeffA0(-1.,-10.,10.);
-    fitMass1D.fitter()->initExpCoeffA1( 0.,-10.,10.);
-    fitMass1D.fitter()->initExpCoeffA2( 0., -2., 2.);
+    fitMass1D.fitter()->initExpCoeffA0(-1., -10., 10.);
+    fitMass1D.fitter()->initExpCoeffA1(0., -10., 10.);
+    fitMass1D.fitter()->initExpCoeffA2(0., -2., 2.);
     fitMass1D.fitter()->initFsig(0.9, 0., 1.);
     fitMass1D.fitter()->initA0(0., -10., 10.);
     fitMass1D.fitter()->initA1(0., -10., 10.);
@@ -67,8 +66,9 @@ public:
 
   }
 protected:
+
   void compare(const TString & histoName, const TString & fitType, const double & xMin, const double & xMax,
-	       const TString & xAxisTitle, const TString & yAxisTitle, const TString& leg)
+    const TString & xAxisTitle, const TString & yAxisTitle, const TString& leg)
   {
     gDirectory->mkdir(histoName);
     gDirectory->cd(histoName);
@@ -82,7 +82,7 @@ protected:
     // The polynomial in RooFit is a pdf, so it is normalized to unity. This seems to give problems.
     // fitWithRooFit(histo, histoName, fitType, xMin, xMax);
     // Fit with standard root, but then we also need to build the legends.
-    if( doFit_ ) {
+    if (doFit_) {
       fitWithRoot(histo, xMin, xMax, fitType);
     }
     else {
@@ -127,10 +127,10 @@ protected:
   void fitWithRoot(TH1 * histo, const double & xMin, const double & xMax, const TString & fitType)
   {
     TF1 * f1 = 0;
-    if( fitType == "uniform" ) {
+    if (fitType == "uniform") {
       f1 = new TF1("uniform1", "pol0", xMin, xMax);
     }
-    else if( fitType == "sinusoidal" ) {
+    else if (fitType == "sinusoidal") {
       f1 = new TF1("sinusoidal1", "[0] + [1]*sin([2]*x + [3])", xMin, xMax);
       f1->SetParameter(1, 2.);
       f1->SetParameter(2, 1.);
