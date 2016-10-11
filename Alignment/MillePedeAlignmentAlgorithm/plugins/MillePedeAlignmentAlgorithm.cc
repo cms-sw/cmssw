@@ -12,6 +12,7 @@
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/Run.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
@@ -95,6 +96,8 @@ MillePedeAlignmentAlgorithm::MillePedeAlignmentAlgorithm(const edm::ParameterSet
   theAlignables(),
   theMinNumHits(cfg.getParameter<unsigned int>("minNumHits")),
   theMaximalCor2D(cfg.getParameter<double>("max2Dcorrelation")),
+  firstIOV_(cfg.getUntrackedParameter<AlignmentAlgorithmBase::RunNumber>("firstIOV")),
+  ignoreFirstIOVCheck_(cfg.getUntrackedParameter<bool>("ignoreFirstIOVCheck")),
   theLastWrittenIov(0),
   theGblDoubleBinary(cfg.getParameter<bool>("doubleBinary")),
   runAtPCL_(cfg.getParameter<bool>("runAtPCL")),
@@ -580,6 +583,17 @@ MillePedeAlignmentAlgorithm::addHitCount(const std::vector<AlignmentParameters*>
   }
   
   return nHitY;
+}
+
+
+void MillePedeAlignmentAlgorithm::beginRun(const edm::Run& run,
+                                           const edm::EventSetup& setup) {
+  if (run.run() < firstIOV_ && !ignoreFirstIOVCheck_) {
+    throw cms::Exception("Alignment")
+      << "@SUB=MillePedeAlignmentAlgorithm::beginRun\n"
+      << "Using data (run = " << run.run()
+      << ") prior to the first defined IOV (" << firstIOV_ << ").";
+  }
 }
 
 //____________________________________________________
