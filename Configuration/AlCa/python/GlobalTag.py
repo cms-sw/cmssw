@@ -69,7 +69,7 @@ def GlobalTag(essource = None, globaltag = None, conditions = None):
             if globaltag not in autoCond:
                 raise Exception('no correspondence for '+globaltag+'\navailable keys are\n'+','.join(autoCond.keys()))
             if 'upgradePLS3' == globaltag:
-                sys.stderr.write('Warning: %s now points to %s, instead of POSTLS262_V1'%(globaltag,autoCond[globalTag]))
+                sys.stderr.write('Warning: %s now points to %s, instead of POSTLS262_V1'%(globaltag,autoCond[globaltag]))
             autoKey = autoCond[globaltag]
             if isinstance(autoKey, tuple) or isinstance(autoKey, list):
                 globaltag = autoKey[0]
