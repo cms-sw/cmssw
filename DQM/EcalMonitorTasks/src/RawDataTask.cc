@@ -37,8 +37,10 @@ namespace ecaldqm {
   void
   RawDataTask::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
   {
+    // Reset by LS plots at beginning of every LS
     MEs_.at("DesyncByLumi").reset();
     MEs_.at("FEByLumi").reset();
+    MEs_.at("FEStatusErrMapByLumi").reset();
   }
 
   void
@@ -90,6 +92,7 @@ namespace ecaldqm {
     MESet& meBXFEInvalid(MEs_.at("BXFEInvalid"));
     MESet& meL1AFE(MEs_.at("L1AFE"));
     MESet& meFEStatus(MEs_.at("FEStatus"));
+    MESet& meFEStatusErrMapByLumi(MEs_.at("FEStatusErrMapByLumi"));
     MESet& meDesyncByLumi(MEs_.at("DesyncByLumi"));
     MESet& meDesyncTotal(MEs_.at("DesyncTotal"));
     MESet& meFEByLumi(MEs_.at("FEByLumi"));
@@ -169,6 +172,10 @@ namespace ecaldqm {
 
         DetId id(getElectronicsMap()->dccTowerConstituents(dccId, iFE + 1).at(0));
         meFEStatus.fill(id, status);
+        // Fill FE Status Error Map with error states only
+        if(status != Enabled && status != Suppressed && 
+           status != FIFOFull && status != FIFOFullL1ADesync && status != ForcedZS)
+          meFEStatusErrMapByLumi.fill(id, status);
 
         switch(status){
         case Timeout:
