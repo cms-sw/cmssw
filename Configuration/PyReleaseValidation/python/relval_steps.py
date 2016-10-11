@@ -1703,6 +1703,7 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
     gt=upgradeProperties[year][k]['GT']
     cust=upgradeProperties[year][k].get('Custom', None)
     era=upgradeProperties[year][k].get('Era', None)
+    beamspot=upgradeProperties[year][k].get('BeamSpot', None)
     upgradeStepDict['GenSimFull'][k]= {'-s' : 'GEN,SIM',
                                        '-n' : 10,
                                        '--conditions' : gt,
@@ -1713,6 +1714,7 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
                                        }
     if cust!=None : upgradeStepDict['GenSimFull'][k]['--customise']=cust
     if era is not None: upgradeStepDict['GenSimFull'][k]['--era']=era
+    if beamspot is not None: upgradeStepDict['GenSimFull'][k]['--beamspot']=beamspot
 
     upgradeStepDict['GenSimHLBeamSpotFull'][k]= {'-s' : 'GEN,SIM',
                                        '-n' : 10,
