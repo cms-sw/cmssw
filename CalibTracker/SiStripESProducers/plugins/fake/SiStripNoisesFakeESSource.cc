@@ -82,28 +82,6 @@ namespace { // helper methods
     fillSubDetParameter(mapToFill, pset.getParameter<std::vector<double>>(parameterName+"TOB"), int(StripSubdetector::TOB), 6); // TOB layers
     fillSubDetParameter(mapToFill, pset.getParameter<std::vector<double>>(parameterName+"TEC"), int(StripSubdetector::TEC), 7); // TEC rings
   }
-
-
-  /// Given the map and the detid it returns the corresponding layer/ring
-  std::pair<int, int> subDetAndLayer(const uint32_t detId, const TrackerTopology* tTopo)
-  {
-    int layerId = 0;
-
-    const DetId detectorId=DetId(detId);
-    const int subDet = detectorId.subdetId();
-
-    if ( subDet == int(StripSubdetector::TIB) ) {
-      layerId = tTopo->tibLayer(detectorId) - 1;
-    } else if ( subDet == int(StripSubdetector::TOB) ) {
-      layerId = tTopo->tobLayer(detectorId) - 1;
-    } else if ( subDet == int(StripSubdetector::TID) ) {
-      layerId = tTopo->tidRing(detectorId) - 1;
-    }
-    if (subDet == int(StripSubdetector::TEC)) {
-      layerId = tTopo->tecRing(detectorId) - - 1;
-    }
-    return std::make_pair(subDet, layerId);
-  }
 }
 
 SiStripNoisesFakeESSource::SiStripNoisesFakeESSource(const edm::ParameterSet& iConfig)
@@ -153,7 +131,7 @@ SiStripNoisesFakeESSource::produce(const SiStripNoisesRcd& iRecord)
   for ( const auto& elm : reader.getAllData() ) {
     //Generate Noises for det detid
     SiStripNoises::InputVector theSiStripVector;
-    std::pair<int, int> sl = subDetAndLayer(elm.first, tTopo.product());
+    std::pair<int, int> sl = tTopo->stripSubDetAndLayer(elm.first);
 
     if ( m_stripLengthMode ) {
       // Use strip length

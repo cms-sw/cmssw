@@ -69,7 +69,7 @@ void SiStripNoiseNormalizedWithApvGainBuilder::analyze(const edm::Event& evt, co
     SiStripNoises::InputVector theSiStripVector;
     float noise = 0.;
     uint32_t detId = it->first;
-    std::pair<int, int> sl = subDetAndLayer(detId, tTopo);
+    std::pair<int, int> sl = tTopo->stripSubDetAndLayer(detId);
     unsigned short nApvs = it->second.nApvs;
 
     if(stripLengthMode_) {
@@ -125,28 +125,6 @@ void SiStripNoiseNormalizedWithApvGainBuilder::analyze(const edm::Event& evt, co
   else {
     edm::LogError("SiStripNoiseNormalizedWithApvGainBuilder")<<"Service is unavailable"<<std::endl;
   }
-}
-
-std::pair<int, int> SiStripNoiseNormalizedWithApvGainBuilder::subDetAndLayer(const uint32_t detId, const TrackerTopology* tTopo) const
-{
-  int layerId = 0;
-
-  StripSubdetector subid(detId);
-  int subId = subid.subdetId();
-
-  if( subId == int(StripSubdetector::TIB)) {
-    layerId = tTopo->tibLayer(detId) - 1;
-  }
-  else if(subId == int(StripSubdetector::TOB)) {
-    layerId = tTopo->tobLayer(detId) - 1;
-  }
-  else if(subId == int(StripSubdetector::TID)) {
-    layerId = tTopo->tidRing(detId) - 1;
-  }
-  if(subId == int(StripSubdetector::TEC)) {
-    layerId = tTopo->tecRing(detId) - 1;
-  }
-  return std::make_pair(subId, layerId);
 }
 
 void SiStripNoiseNormalizedWithApvGainBuilder::fillParameters(std::map<int, std::vector<double> > & mapToFill, const std::string & parameterName) const

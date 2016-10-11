@@ -85,6 +85,29 @@ unsigned int TrackerTopology::module(const DetId &id) const {
   return 0;
 }
 
+std::pair<int,int> TrackerTopology::stripSubDetAndLayer(const DetId& id) const
+{
+  int layerId{0};
+  const int subId =  StripSubdetector(id).subdetId();
+  switch(subId) {
+    case int(StripSubdetector::TIB):
+      layerId = tibLayer(id) - 1;
+      break;
+    case int(StripSubdetector::TOB):
+      layerId = tobLayer(id) - 1;
+      break;
+    case int(StripSubdetector::TID):
+      layerId = tidRing(id) - 1;
+      break;
+    case int(StripSubdetector::TEC):
+      layerId = tecRing(id) - 1;
+      break;
+    default:
+      break;
+  }
+  return std::make_pair(subId, layerId);
+}
+
 uint32_t TrackerTopology::glued(const DetId &id) const {
 
     uint32_t subdet=id.subdetId();
