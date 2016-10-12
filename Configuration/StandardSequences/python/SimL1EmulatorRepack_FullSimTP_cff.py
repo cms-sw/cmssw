@@ -18,6 +18,11 @@ else:
     import EventFilter.DTTFRawToDigi.dttfunpacker_cfi
     unpackDttf = EventFilter.DTTFRawToDigi.dttfunpacker_cfi.dttfunpacker.clone(
         DTTF_FED_Source = cms.InputTag( 'rawDataCollector', processName=cms.InputTag.skipCurrentProcess()))    
+        
+    import EventFilter.L1TRawToDigi.emtfStage2Digis_cfi
+    unpackEmtf = EventFilter.L1TRawToDigi.emtfStage2Digis_cfi.emtfStage2Digis.clone(
+        InputLabel = cms.InputTag( 'rawDataCollector', processName=cms.InputTag.skipCurrentProcess()))    
+        
 
     import EventFilter.CSCTFRawToDigi.csctfunpacker_cfi
     unpackCsctf = EventFilter.CSCTFRawToDigi.csctfunpacker_cfi.csctfunpacker.clone(
@@ -78,8 +83,9 @@ else:
     # simOmtfDigis.srcCSC              = cms.InputTag("simCscTriggerPrimitiveDigis")   # DEFAULT
 
     # EMTF
-    simEmtfDigis.CSCInput            = cms.InputTag("unpackCsctf")
+    simEmtfDigis.CSCInput            = cms.InputTag("unpackEmtf") 
     # simEmtfDigis.CSCInput            = cms.InputTag("simCscTriggerPrimitiveDigis")     # DEFAULT
+    simEmtfDigis.RPCInput            = cms.InputTag('unpackRPC')
 
     # simCaloStage2Layer1Digis.ecalToken = cms.InputTag('simEcalTriggerPrimitiveDigis')  # DEFAULT
     # simCaloStage2Layer1Digis.hcalToken = cms.InputTag('simHcalTriggerPrimitiveDigis')  # DEFAULT
@@ -104,7 +110,7 @@ else:
 
 
     
-    SimL1Emulator = cms.Sequence(unpackEcal+unpackHcal+unpackCSC+unpackDT+unpackRPC+unpackCsctf+unpackBmtf
+    SimL1Emulator = cms.Sequence(unpackEcal+unpackHcal+unpackCSC+unpackDT+unpackRPC+unpackEmtf+unpackCsctf+unpackBmtf
                                  +simEcalTriggerPrimitiveDigis
                                  +simHcalTriggerPrimitiveDigis
                                  +SimL1EmulatorCore+packCaloStage2
