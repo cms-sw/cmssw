@@ -32,8 +32,8 @@ public:
 
 Phase2OTEndcapRing::Phase2OTEndcapRing(vector<const GeomDet*>& innerDets,
 			       vector<const GeomDet*>& outerDets,
-			       vector<const GeomDet*>& innerDetBrothers,
-			       vector<const GeomDet*>& outerDetBrothers):
+			       const vector<const GeomDet*>& innerDetBrothers,
+			       const vector<const GeomDet*>& outerDetBrothers):
   GeometricSearchDet(true),
   theFrontDets(innerDets.begin(),innerDets.end()), 
   theBackDets(outerDets.begin(),outerDets.end()),
@@ -71,12 +71,32 @@ Phase2OTEndcapRing::Phase2OTEndcapRing(vector<const GeomDet*>& innerDets,
 			    << (*it)->surface().position().perp() ;
   }
 
+  if(!theFrontDetBrothers.empty()){
+    for(vector<const GeomDet*>::const_iterator it=theFrontDetBrothers.begin(); 
+        it!=theFrontDetBrothers.end(); it++){
+      LogDebug("TkDetLayers") << "frontDet brothers phi,z,r: " 
+  			    << (*it)->surface().position().phi()  << " , "
+  			    << (*it)->surface().position().z()    << " , "
+  			    << (*it)->surface().position().perp() ;
+    }
+  }
+
   for(vector<const GeomDet*>::const_iterator it=theBackDets.begin(); 
       it!=theBackDets.end(); it++){
     LogDebug("TkDetLayers") << "backDet phi,z,r: " 
 			    << (*it)->surface().position().phi() << " , "
 			    << (*it)->surface().position().z()   << " , "
 			    << (*it)->surface().position().perp() ;
+  }
+
+  if(!theBackDetBrothers.empty()){
+    for(vector<const GeomDet*>::const_iterator it=theBackDetBrothers.begin(); 
+        it!=theBackDetBrothers.end(); it++){
+      LogDebug("TkDetLayers") << "backDet brothers phi,z,r: " 
+  			    << (*it)->surface().position().phi() << " , "
+  			    << (*it)->surface().position().z()   << " , "
+  			    << (*it)->surface().position().perp() ;
+    }
   }
 #endif
 
@@ -208,6 +228,7 @@ bool Phase2OTEndcapRing::addClosest( const TrajectoryStateOnSurface& tsos,
   const vector<const GeomDet*>& sub( subLayer( crossing.subLayerIndex()));
   const GeomDet* det(sub[crossing.closestDetIndex()]);
   bool firstgroup = CompatibleDetToGroupAdder::add( *det, tsos, prop, est, result); 
+  if(theFrontDetBrothers.empty() && theBackDetBrothers.empty())   return firstgroup;
   // it assumes that the closestDetIndex is ok also for the brother detectors: the crossing is NOT recomputed
   const vector<const GeomDet*>& subBrothers( subLayerBrothers( crossing.subLayerIndex()));
   const GeomDet* detBrother(subBrothers[crossing.closestDetIndex()]);
@@ -253,6 +274,7 @@ void Phase2OTEndcapRing::searchNeighbors( const TrajectoryStateOnSurface& tsos,
     const GeomDet & neighborDet = *sLayer[binFinder.binIndex(idet)];
     if (!tkDetUtil::overlapInPhi( gCrossingPos, neighborDet, window)) break;
     if (!Adder::add( neighborDet, tsos, prop, est, result)) break;
+    if(theFrontDetBrothers.empty() && theBackDetBrothers.empty()) break;
     // If the two above checks are passed also the brother module will be added with no further checks
     const GeomDet & neighborBrotherDet = *sBrotherLayer[binFinder.binIndex(idet)];
     Adder::add( neighborBrotherDet, tsos, prop, est, brotherresult);
@@ -262,6 +284,7 @@ void Phase2OTEndcapRing::searchNeighbors( const TrajectoryStateOnSurface& tsos,
     const GeomDet & neighborDet = *sLayer[binFinder.binIndex(idet)];
     if (!tkDetUtil::overlapInPhi( gCrossingPos, neighborDet, window)) break;
     if (!Adder::add( neighborDet, tsos, prop, est, result)) break;
+    if(theFrontDetBrothers.empty() && theBackDetBrothers.empty()) break;
     // If the two above checks are passed also the brother module will be added with no further checks
     const GeomDet & neighborBrotherDet = *sBrotherLayer[binFinder.binIndex(idet)];
     Adder::add( neighborBrotherDet, tsos, prop, est, brotherresult);
