@@ -40,20 +40,20 @@ inline XMLCh*  _toDOMS(std::string temp) {
 ////////////////////////////////////
 XMLConfigReader::XMLConfigReader(){
 
-  XMLPlatformUtils::Initialize();
+  //XMLPlatformUtils::Initialize();
   
   ///Initialise XML parser  
-  parser = new XercesDOMParser(); 
-  parser->setValidationScheme(XercesDOMParser::Val_Auto);
-  parser->setDoNamespaces(false);
+  //parser = new XercesDOMParser(); 
+  //parser->setValidationScheme(XercesDOMParser::Val_Auto);
+  //parser->setDoNamespaces(false);
 
-  doc = 0;  
+  //doc = 0;  
 }
 
 XMLConfigReader::~XMLConfigReader()
 {
-  delete parser;
-  XMLPlatformUtils::Terminate();
+  //  delete parser;
+  //XMLPlatformUtils::Terminate();
 }
 //////////////////////////////////////////////////
 //////////////////////////////////////////////////
@@ -122,14 +122,22 @@ unsigned int XMLConfigReader::getPatternsVersion() const{
 
   if(!patternsFile.size()) return 0;
 
-  parser->parse(patternsFile.c_str()); 
-  xercesc::DOMDocument* doc = parser->getDocument();
+  XMLPlatformUtils::Initialize();
+
+  XercesDOMParser parser;
+  parser.setValidationScheme(XercesDOMParser::Val_Auto);
+  parser.setDoNamespaces(false);
+
+  parser.parse(patternsFile.c_str()); 
+  xercesc::DOMDocument* doc = parser.getDocument();
   assert(doc);
 
   DOMNode *aNode = doc->getElementsByTagName(_toDOMS("OMTF"))->item(0);
   DOMElement* aOMTFElement = static_cast<DOMElement *>(aNode);
 
   unsigned int version = std::stoul(_toString(aOMTFElement->getAttribute(_toDOMS("version"))), nullptr, 16);
+
+  XMLPlatformUtils::Terminate();
   
   return version;
 }
@@ -139,8 +147,15 @@ std::vector<GoldenPattern*> XMLConfigReader::readPatterns(const L1TMuonOverlapPa
 
   aGPs.clear();
   
-  parser->parse(patternsFile.c_str()); 
-  xercesc::DOMDocument* doc = parser->getDocument();
+  XMLPlatformUtils::Initialize();
+
+  XercesDOMParser parser;
+  parser.setValidationScheme(XercesDOMParser::Val_Auto);
+  parser.setDoNamespaces(false);
+
+
+  parser.parse(patternsFile.c_str()); 
+  xercesc::DOMDocument* doc = parser.getDocument();
   assert(doc);
 
   unsigned int nElem = doc->getElementsByTagName(_toDOMS("GP"))->getLength();
@@ -183,7 +198,9 @@ std::vector<GoldenPattern*> XMLConfigReader::readPatterns(const L1TMuonOverlapPa
   }
 
   // Reset the documents vector pool and release all the associated memory back to the system.
-  parser->resetDocumentPool();
+  //parser->resetDocumentPool();
+  parser.resetDocumentPool();
+  XMLPlatformUtils::Terminate();
 
   return aGPs;
 }
@@ -355,8 +372,15 @@ std::vector<std::vector<int> > XMLConfigReader::readEvent(unsigned int iEvent,
 //////////////////////////////////////////////////
 void XMLConfigReader::readConfig(L1TMuonOverlapParams *aConfig) const{
 
- parser->parse(configFile.c_str()); 
-  xercesc::DOMDocument* doc = parser->getDocument();
+  XMLPlatformUtils::Initialize();
+
+  XercesDOMParser parser;
+  parser.setValidationScheme(XercesDOMParser::Val_Auto);
+  parser.setDoNamespaces(false);
+
+
+ parser.parse(configFile.c_str()); 
+  xercesc::DOMDocument* doc = parser.getDocument();
   assert(doc);
   unsigned int nElem = doc->getElementsByTagName(_toDOMS("OMTF"))->getLength();
   if(nElem!=1){
@@ -548,7 +572,11 @@ void XMLConfigReader::readConfig(L1TMuonOverlapParams *aConfig) const{
   aConfig->setRefHitMap(aRefHitMapVec);
 
   // Reset the documents vector pool and release all the associated memory back to the system.
-  parser->resetDocumentPool();
+  parser.resetDocumentPool();
+  XMLPlatformUtils::Terminate();
 }
 //////////////////////////////////////////////////
 //////////////////////////////////////////////////
+
+  //  xercesc::XercesDOMParser *parser;
+  //  xercesc::DOMDocument* doc;
