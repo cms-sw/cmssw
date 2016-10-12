@@ -42,6 +42,7 @@ void SingleCellClusterAlgo::run(const l1t::HGCFETriggerDigiCollection& coll)
 {
     for( const auto& digi : coll ) 
     {
+        HGCalDetId module_id(digi.id());
         HGCalTriggerCellBestChoiceCodec::data_type data;
         data.reset();
         //const HGCalDetId& moduleId = digi.getDetId<HGCalDetId>();
@@ -59,7 +60,7 @@ void SingleCellClusterAlgo::run(const l1t::HGCFETriggerDigiCollection& coll)
                         triggercell.p4(),
                         triggercell.hwPt(), i, 0);
                 //cluster.setP4(triggercell.p4);
-                cluster.setModule(detid.wafer());
+                cluster.setModule(module_id.wafer());
                 cluster.setLayer(detid.layer());
                 cluster.setSubDet(detid.subdetId());
                 cluster_product_->push_back(0,cluster);

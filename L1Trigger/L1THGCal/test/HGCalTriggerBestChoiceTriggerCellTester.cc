@@ -223,8 +223,9 @@ void HGCalTriggerBestChoiceTriggerCellTester::checkSelectedCells(const edm::Even
             std::cout<<" Trigger cells contained in module:\n";
             for(const auto& id_value : module_cells.second)
             {
-                std::cout<<"  "<<id_value.first<<" "<<id_value.second<<"\n";
+                std::cout<<id_value.second<<" ";
             }
+            std::cout<<"\n";
             continue;
         }
         size_t ncells_all = module_cells.second.size();
