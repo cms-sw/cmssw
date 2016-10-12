@@ -1,3 +1,4 @@
+
 <?xml version="1.0"?>
 <DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
  <ConstantsSection label="muonconstants">
@@ -35,6 +36,7 @@
   <Constant name="m0_sector" value="3*[level]"/>
   <Constant name="m0_layer" value="4*[level]"/>
   <Constant name="m0_roll" value="5*[level]"/>
+  <Constant name="m0_nroll" value="1"/>            <!-- m0_nroll = 1 for 1 etapart geometry, = 10 for 10 etapart geometry -->
  </ConstantsSection>
  <SpecParSection label="muonregionnumbering" eval="true">
   <SpecPar name="MuonCommonNumbering">
@@ -74,6 +76,7 @@
    <Parameter name="m0_layer"      value="[m0_layer]"/>
    <Parameter name="m0_sector"     value="[m0_sector]"/>
    <Parameter name="m0_roll"       value="[m0_roll]"/>
+   <Parameter name="m0_nroll"      value="[m0_nroll]"/>
   </SpecPar>
   <SpecPar name="MuonBarrel">
    <PartSelector path="//MB"/>
