@@ -1750,7 +1750,8 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
                                     '--mc':'',
                                     '--geometry' : geom,
                                     '--scenario' : 'pp',
-                                    '--filetype':'DQM'
+                                    '--filetype':'DQM',
+				    '--filein':'file:step3_inDQM.root'
                                     }
     if cust!=None : upgradeStepDict['HARVESTFull'][k]['--customise']=cust
     if era is not None: upgradeStepDict['HARVESTFull'][k]['--era']=era
@@ -1764,6 +1765,20 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
     if k2 in PUDataSets:
         upgradeStepDict['HARVESTFull_trackingOnlyPU'][k]=merge([PUDataSets[k2],upgradeStepDict['HARVESTFull_trackingOnly'][k]])
         upgradeStepDict['HARVESTFullGlobalPU'][k]=merge([PUDataSets[k2],upgradeStepDict['HARVESTFullGlobal'][k]])
+
+
+
+    upgradeStepDict['ALCAFull'][k] = {'-s':'ALCA:TkAlMuonIsolated+TkAlMinBias+MuAlOverlaps+EcalESAlign',
+                                      '--conditions':gt,
+                                      '--datatier':'ALCARECO',
+                                      '-n':'10',
+                                      '--eventcontent':'ALCARECO',
+                                      '--geometry' : geom
+                                      }
+    if cust!=None : upgradeStepDict['RecoFull'][k]['--customise']=cust
+    if era is not None: upgradeStepDict['RecoFull'][k]['--era']=era
+
+
 
     upgradeStepDict['FastSim'][k]={'-s':'GEN,SIM,RECO,VALIDATION',
                                    '--eventcontent':'FEVTDEBUGHLT,DQM',
