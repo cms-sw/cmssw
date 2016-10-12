@@ -6,7 +6,7 @@ HGCalTriggerCellBestChoiceCodecImpl::
 HGCalTriggerCellBestChoiceCodecImpl(const edm::ParameterSet& conf) :
     nData_(conf.getParameter<uint32_t>("NData")),
     dataLength_(conf.getParameter<uint32_t>("DataLength")),
-    nCellsInModule_(116), // FIXME: put this in parameters
+    nCellsInModule_(conf.getParameter<uint32_t>("MaxCellsInModule")), 
     linLSB_(conf.getParameter<double>("linLSB")),
     adcsaturation_(conf.getParameter<double>("adcsaturation")),
     adcnBits_(conf.getParameter<uint32_t>("adcnBits")),

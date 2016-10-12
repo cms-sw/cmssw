@@ -2,9 +2,10 @@ import FWCore.ParameterSet.Config as cms
 
 import SimCalorimetry.HGCalSimProducers.hgcalDigitizer_cfi as digiparam
 
-fe_codec = cms.PSet( CodecName  = cms.string('HGCalBestChoiceCodec'),
-                     CodecIndex = cms.uint32(1),
+fe_codec = cms.PSet( CodecName  = cms.string('HGCalTriggerCellBestChoiceCodec'),
+                     CodecIndex = cms.uint32(2),
                      NData = cms.uint32(12),
+                     MaxCellsInModule = cms.uint32(116),
                      DataLength = cms.uint32(8),
                      linLSB = cms.double(100./1024.),
                      triggerCellTruncationBits = cms.uint32(7),

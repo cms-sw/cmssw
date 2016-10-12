@@ -45,27 +45,20 @@ void SingleCellClusterAlgo::run(const l1t::HGCFETriggerDigiCollection& coll)
         HGCalDetId module_id(digi.id());
         HGCalTriggerCellBestChoiceCodec::data_type data;
         data.reset();
-        //const HGCalDetId& moduleId = digi.getDetId<HGCalDetId>();
         digi.decode(codec_, data);
-        int i = 0;
         for(const auto& triggercell : data.payload)
         {
             if(triggercell.hwPt()>0)
             {
                 HGCalDetId detid(triggercell.detId());
-                //GlobalPoint point = geometry_->getModulePosition(moduleId);
-                //math::PtEtaPhiMLorentzVector p4((double)value/cosh(.eta()), point.eta(), point.phi(), 0.);
-                // index in module stored as hwEta
                 l1t::HGCalCluster cluster( 
                         triggercell.p4(),
-                        triggercell.hwPt(), i, 0);
-                //cluster.setP4(triggercell.p4);
+                        triggercell.hwPt(), 0, 0);
                 cluster.setModule(module_id.wafer());
                 cluster.setLayer(detid.layer());
                 cluster.setSubDet(detid.subdetId());
                 cluster_product_->push_back(0,cluster);
             }
-            i++;
         }
 
     }

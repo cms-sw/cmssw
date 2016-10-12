@@ -192,25 +192,23 @@ void HGCalTriggerBestChoiceTriggerCellTester::checkSelectedCells(const edm::Even
 
     const l1t::HGCalClusterBxCollection& be_clusters_all = *be_clusters_all_h;
     const l1t::HGCalClusterBxCollection& be_clusters_select = *be_clusters_select_h;
-    std::cout<<"Size all TC = "<<be_clusters_all.size(0)<<"\n";
-    std::cout<<"Size selected TC = "<<be_clusters_select.size(0)<<"\n";
 
     // store trigger cells module by module. tuple = zside,subdet,layer,module
-    std::map<std::tuple<uint32_t, uint32_t,uint32_t,uint32_t>, std::vector<std::pair<uint32_t,uint32_t>>> module_triggercells_all;
+    std::map<std::tuple<uint32_t, uint32_t,uint32_t,uint32_t>, std::vector<uint32_t>> module_triggercells_all;
     for(auto cl_itr=be_clusters_all.begin(0); cl_itr!=be_clusters_all.end(0); cl_itr++)   
     {
         const l1t::HGCalCluster& cluster = *cl_itr;
         uint32_t zside = cluster.eta()<0. ? 0 : 1;
-        auto itr_insert = module_triggercells_all.emplace( std::make_tuple(zside, cluster.subDet(), cluster.layer(), cluster.module()),  std::vector<std::pair<uint32_t,uint32_t>>());
-        itr_insert.first->second.emplace_back(cluster.hwEta(), cluster.hwPt()); // FIXME: the index within the module has been stored in hwEta
+        auto itr_insert = module_triggercells_all.emplace( std::make_tuple(zside, cluster.subDet(), cluster.layer(), cluster.module()),  std::vector<uint32_t>());
+        itr_insert.first->second.emplace_back(cluster.hwPt());
     }
-    std::map<std::tuple<uint32_t, uint32_t,uint32_t,uint32_t>, std::vector<std::pair<uint32_t,uint32_t>>> module_triggercells_select;
+    std::map<std::tuple<uint32_t, uint32_t,uint32_t,uint32_t>, std::vector<uint32_t>> module_triggercells_select;
     for(auto cl_itr=be_clusters_select.begin(0); cl_itr!=be_clusters_select.end(0); cl_itr++)   
     {
         const l1t::HGCalCluster& cluster = *cl_itr;
         uint32_t zside = cluster.eta()<0. ? 0 : 1;
-        auto itr_insert = module_triggercells_select.emplace( std::make_tuple(zside, cluster.subDet(), cluster.layer(), cluster.module()),  std::vector<std::pair<uint32_t,uint32_t>>());
-        itr_insert.first->second.emplace_back(cluster.hwEta(), cluster.hwPt()); // FIXME: the index within the module has been stored in hwEta
+        auto itr_insert = module_triggercells_select.emplace( std::make_tuple(zside, cluster.subDet(), cluster.layer(), cluster.module()),  std::vector<uint32_t>());
+        itr_insert.first->second.emplace_back(cluster.hwPt());
     }
 
     // Compare 'all' and 'selected' trigger cells, module by module
@@ -219,39 +217,44 @@ void HGCalTriggerBestChoiceTriggerCellTester::checkSelectedCells(const edm::Even
         const auto& module_cells_select_itr = module_triggercells_select.find(module_cells.first);
         if(module_cells_select_itr==module_triggercells_select.end())
         {
-            std::cout<<"ERROR: Cannot find module for selected cells\n"; 
-            std::cout<<" Trigger cells contained in module:\n";
-            for(const auto& id_value : module_cells.second)
+            stringstream error;
+            error << "ERROR: Cannot find module for selected cells\n";
+            error <<" Trigger cell values contained in module:\n";
+            for(const auto& value : module_cells.second)
             {
-                std::cout<<id_value.second<<" ";
+                error<<value<<" ";
             }
-            std::cout<<"\n";
+            error<<"\n";
+            edm::LogError("HGCalTriggerBestChoiceTriggerCellTester") << error.str();
             continue;
         }
         size_t ncells_all = module_cells.second.size();
         size_t ncells_select = module_cells_select_itr->second.size();
         uint32_t energy_all = 0;
         uint32_t energy_select = 0;
-        for(const auto& id_energy : module_cells.second) energy_all += id_energy.second;
-        for(const auto& id_energy : module_cells_select_itr->second) energy_select += id_energy.second;
+        for(const auto& energy : module_cells.second) energy_all += energy;
+        for(const auto& energy : module_cells_select_itr->second) energy_select += energy;
         if(std::get<1>(module_cells.first)==ForwardSubdetector::HGCEE)
         {
             selectedCellsVsAllCells_ee_->Fill(ncells_all, ncells_select);
             if(energy_all>0) energyLossVsNCells_ee_->Fill(ncells_all, (double)energy_select/(double)energy_all);
-            if(energy_all>0 && ncells_all<12 && energy_select<energy_all)
+            if(energy_all>0 && ncells_all<codec_->nData() && energy_select<energy_all)
             {
-                std::cout<<" All trigger cells contained in module:\n";
-                for(const auto& id_value : module_cells.second)
+                stringstream error;
+                error<<"ERROR: N(cells)<NData but E(selected cells) < E(total)\n";
+                error<<" All trigger cells values contained in module:\n ";
+                for(const auto& value : module_cells.second)
                 {
-                    std::cout<<id_value.second<<" ";
+                    error<<value<<" ";
                 }
-                std::cout<<"\n";
-                std::cout<<" Selected trigger cells contained in module:\n";
-                for(const auto& id_value : module_cells_select_itr->second)
+                error<<"\n";
+                error<<" Selected trigger cells values contained in module:\n ";
+                for(const auto& value : module_cells_select_itr->second)
                 {
-                    std::cout<<id_value.second<<" ";
+                    error<<value<<" ";
                 }
-                std::cout<<"\n";
+                error<<"\n";
+                edm::LogError("HGCalTriggerBestChoiceTriggerCellTester") << error.str();
             }
         }
         else if(std::get<1>(module_cells.first)==ForwardSubdetector::HGCHEF) 
@@ -261,8 +264,6 @@ void HGCalTriggerBestChoiceTriggerCellTester::checkSelectedCells(const edm::Even
         }
     }
 
-    //std::cout<<"All trigger cells = "<<be_clusters_all.size(0)<<"\n";
-    //std::cout<<"Selected trigger cells = "<<be_clusters_select.size(0)<<"\n";
 }
 
 void HGCalTriggerBestChoiceTriggerCellTester::rerunBestChoiceFragments(const edm::Event& e, 

@@ -68,6 +68,7 @@ setDataPayloadImpl(const l1t::HGCFETriggerDigi& digi)
     edm::ParameterSet conf;
     conf.addParameter<std::string>("CodecName",     name());
     conf.addParameter<uint32_t>   ("CodecIndex",    getCodecType());
+    conf.addParameter<uint32_t>   ("MaxCellsInModule", codecImpl_.nCellsInModule());
     conf.addParameter<uint32_t>   ("NData",         codecImpl_.nCellsInModule());
     // The data length should be the same for input and output, which is limiting
     conf.addParameter<uint32_t>   ("DataLength",    codecImpl_.dataLength());
