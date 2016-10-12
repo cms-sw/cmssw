@@ -8,8 +8,8 @@ using namespace HGCalTriggerBackend;
 class RandomClusterAlgo : public Algorithm<HGCal64BitRandomCodec> {
 public:
   
-  RandomClusterAlgo(const edm::ParameterSet& conf, const HGCalTriggerGeometryBase* const geom):
-    Algorithm<HGCal64BitRandomCodec>(conf,geom),
+  RandomClusterAlgo(const edm::ParameterSet& conf):
+    Algorithm<HGCal64BitRandomCodec>(conf),
     cluster_product_( new l1t::HGCalClusterBxCollection ){
   }
 

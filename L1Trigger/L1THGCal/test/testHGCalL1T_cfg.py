@@ -92,6 +92,7 @@ process.generator = cms.EDProducer("FlatRandomPtGunProducer",
 process.mix.digitizers = cms.PSet(process.theDigitizersValid)
 
 
+
 # Path and EndPath definitions
 process.generation_step = cms.Path(process.pgen)
 process.simulation_step = cms.Path(process.psim)

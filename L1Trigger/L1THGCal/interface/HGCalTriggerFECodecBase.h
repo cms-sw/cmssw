@@ -25,8 +25,8 @@
 
 class HGCalTriggerFECodecBase { 
  public:  
-  HGCalTriggerFECodecBase(const edm::ParameterSet& conf, const HGCalTriggerGeometryBase* const geom) : 
-    geometry_(geom),
+  HGCalTriggerFECodecBase(const edm::ParameterSet& conf) : 
+    geometry_(nullptr),
     name_(conf.getParameter<std::string>("CodecName")),
     codec_idx_(static_cast<unsigned char>(conf.getParameter<uint32_t>("CodecIndex")))
     {}
@@ -35,8 +35,9 @@ class HGCalTriggerFECodecBase {
   const std::string& name() const { return name_; } 
   
   const unsigned char getCodecType() const { return codec_idx_; }
+  void setGeometry(const HGCalTriggerGeometryBase* const geom) { geometry_ = geom;}
   
-  // give the FECodec the trigger geometry + input digis and it sets itself
+  // give the FECodec the input digis and it sets itself
   // with the approprate data
   virtual void setDataPayload(const HGCEEDigiCollection&,
                               const HGCHEDigiCollection&,
@@ -54,7 +55,7 @@ class HGCalTriggerFECodecBase {
                      std::ostream& out = std::cout) const = 0;
 
  protected:
-  const HGCalTriggerGeometryBase* const geometry_;
+  const HGCalTriggerGeometryBase* geometry_;
 
  private:
   const std::string name_;
@@ -67,8 +68,8 @@ namespace HGCalTriggerFE {
   template<typename Impl,typename DATA>
   class Codec : public HGCalTriggerFECodecBase { 
   public:
-    Codec(const edm::ParameterSet& conf, const HGCalTriggerGeometryBase* const geom) :  
-    HGCalTriggerFECodecBase(conf, geom),
+    Codec(const edm::ParameterSet& conf) :  
+    HGCalTriggerFECodecBase(conf),
     dataIsSet_(false) {
     }
     
@@ -143,6 +144,6 @@ namespace HGCalTriggerFE {
 }
 
 #include "FWCore/PluginManager/interface/PluginFactory.h"
-typedef edmplugin::PluginFactory< HGCalTriggerFECodecBase* (const edm::ParameterSet&, const HGCalTriggerGeometryBase* const) > HGCalTriggerFECodecFactory;
+typedef edmplugin::PluginFactory< HGCalTriggerFECodecBase* (const edm::ParameterSet&) > HGCalTriggerFECodecFactory;
 
 #endif
