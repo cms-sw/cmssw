@@ -20,6 +20,7 @@ HistogramManager::HistogramManager(const edm::ParameterSet& iconfig,
     : iConfig(iconfig),
       geometryInterface(geo),
       enabled(iconfig.getParameter<bool>("enabled")),
+      perLumiHarvesting(iconfig.getParameter<bool>("perLumiHarvesting")),
       bookUndefined(iconfig.getParameter<bool>("bookUndefined")),
       top_folder_name(iconfig.getParameter<std::string>("topFolderName")),
       name(iconfig.getParameter<std::string>("name")),
@@ -494,9 +495,10 @@ void HistogramManager::book(DQMStore::IBooker& iBooker,
         h.me = iBooker.bookProfile(h.name, (h.title + ";" + h.xlabel + ";" + h.ylabel).c_str(),
                        h.range_x_nbins, h.range_x_min, h.range_x_max, -(1./0.), 1./0.);
       } else if (h.kind == MonitorElement::DQM_KIND_TPROFILE2D) {
-        h.me = iBooker.book2D(h.name, (h.title + ";" + h.xlabel + ";" + h.ylabel).c_str(),
+        h.me = iBooker.bookProfile2D(h.name, (h.title + ";" + h.xlabel + ";" + h.ylabel).c_str(),
                        h.range_x_nbins, h.range_x_min, h.range_x_max,
-                       h.range_y_nbins, h.range_y_min, h.range_y_max);
+                       h.range_y_nbins, h.range_y_min, h.range_y_max,
+                       0.0, 0.0); // Z range is ignored if min==max
       } else if (h.kind == MonitorElement::DQM_KIND_INT) {
         // counter, nothing to do
         continue; // avoid the getTH1 below
@@ -509,14 +511,17 @@ void HistogramManager::book(DQMStore::IBooker& iBooker,
   }
 }
 
-void HistogramManager::executeHarvestingOnline(DQMStore::IBooker& iBooker,
-                                               DQMStore::IGetter& iGetter,
-                                               edm::EventSetup const& iSetup) {
+void HistogramManager::executePerLumiHarvesting(DQMStore::IBooker& iBooker,
+                                                DQMStore::IGetter& iGetter,
+                                                edm::EventSetup const& iSetup) {
   if (!enabled) return;
   // this should also give us the GeometryInterface for offline, though it is a
   // bit dirty and might explode.
   if (!geometryInterface.loaded()) {
     geometryInterface.load(iSetup);
+  }
+  if (perLumiHarvesting) {
+    executeHarvesting(iBooker, iGetter);
   }
 }
 
@@ -524,6 +529,7 @@ void HistogramManager::loadFromDQMStore(SummationSpecification& s, Table& t,
                                         DQMStore::IGetter& iGetter) {
   // This is essentially the booking code of step1, to reconstruct the ME names.
   // Once we have a name we load the ME and put it into the table.
+  t.clear();
   for (auto iq : geometryInterface.allModules()) {
     std::string name = this->name;
     GeometryInterface::Values significantvalues;
@@ -570,7 +576,7 @@ void HistogramManager::loadFromDQMStore(SummationSpecification& s, Table& t,
         edm::LogError("HistogramManager") << "ME " << path << " not found\n";
       // else this will happen quite often
     } else {
-      // only touch the able if a me is added. Empty items are illegal.
+      // only touch the table if a me is added. Empty items are illegal.
       AbstractHistogram& histo = t[significantvalues];
       histo.me = me;
       histo.th1 = histo.me->getTH1();
@@ -747,7 +753,7 @@ void HistogramManager::executeExtend(SummationStep& step, Table& t, bool isX) {
     if (new_histo.th1->GetDimension() == 1) {	
         for (int i = 1; i <= th1->GetXaxis()->GetNbins(); i++) {
         new_histo.th1->SetBinContent(new_histo.count, th1->GetBinContent(i));
-	new_histo.th1->SetBinError(new_histo.count, th1->GetBinError(i));
+        new_histo.th1->SetBinError(new_histo.count, th1->GetBinError(i));
         new_histo.count += 1;
       }
     } else {
@@ -758,7 +764,7 @@ void HistogramManager::executeExtend(SummationStep& step, Table& t, bool isX) {
             // TODO Error etc.?
             new_histo.th1->SetBinContent(new_histo.count, j,
                                          th1->GetBinContent(i, j));
-	    new_histo.th1->SetBinError   (new_histo.count, j, th1->GetBinError(i, j));
+            new_histo.th1->SetBinError   (new_histo.count, j, th1->GetBinError(i, j));
           }
           new_histo.count += 1;
         }
@@ -768,7 +774,7 @@ void HistogramManager::executeExtend(SummationStep& step, Table& t, bool isX) {
             // TODO Error etc.?
             new_histo.th1->SetBinContent(i, new_histo.count,
                                          th1->GetBinContent(i, j));
-	    new_histo.th1->SetBinError   (i, new_histo.count, th1->GetBinError(i, j));
+            new_histo.th1->SetBinError   (i, new_histo.count, th1->GetBinError(i, j));
           }
           new_histo.count += 1;
         }
@@ -778,8 +784,8 @@ void HistogramManager::executeExtend(SummationStep& step, Table& t, bool isX) {
   t.swap(out);
 }
 
-void HistogramManager::executeHarvestingOffline(DQMStore::IBooker& iBooker,
-                                                DQMStore::IGetter& iGetter) {
+void HistogramManager::executeHarvesting(DQMStore::IBooker& iBooker,
+                                         DQMStore::IGetter& iGetter) {
   if (!enabled) return;
   // edm::LogTrace("HistogramManager") << "HistogramManager: Step2 offline\n";
   // Debug output
