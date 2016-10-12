@@ -413,13 +413,13 @@ muonDict = {
             'Geometry/MuonCommonData/data/PhaseII/TDR_BaseLine/gem21.xml',
             'Geometry/MuonCommonData/data/v2/csc.xml',
             'Geometry/MuonCommonData/data/PhaseII/mfshield.xml',
-            'Geometry/MuonCommonData/data/PhaseII/TDR_Dev/me0.xml'
+            'Geometry/MuonCommonData/data/PhaseII/TDR_Dev/me0.xml',
         ],
         2 : [
-            'Geometry/MuonCommonData/data/PhaseII/TDR_Dev/muonNumbering.xml'
+            'Geometry/MuonCommonData/data/PhaseII/TDR_Dev/muonNumbering.xml',
         ],
         3 : [
-            'Geometry/MuonSimData/data/PhaseII/ME0EtaPart/muonSens.xml'
+            'Geometry/MuonSimData/data/PhaseII/ME0EtaPart/muonSens.xml',
             'Geometry/DTGeometryBuilder/data/dtSpecsFilter.xml',
             'Geometry/CSCGeometryBuilder/data/cscSpecsFilter.xml',
             'Geometry/CSCGeometryBuilder/data/cscSpecs.xml',
