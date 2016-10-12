@@ -261,7 +261,7 @@ def getPAHighMultHighPtVPSet():
     ret=cms.VPSet()
     thresholds = [8, 16]
     for t in thresholds:
-        partialPathName = "HLT_PAFullTracks_Multiplicity100_HighPt"+str(t)+"_v"
+        partialPathName = "HLT_PAFullTracks_Multiplicity110_HighPt"+str(t)+"_v"
 
         hltPAFullTracks =  cms.PSet(
             triggerSelection = cms.string(partialPathName+"*"),
