@@ -2,9 +2,6 @@
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "SimDataFormats/CaloTest/interface/HcalTestNumbering.h"
 
-#include "Validation/HcalHits/interface/HcalSimHitsConstants.h"
-
-
 HcalSimHitsValidation::HcalSimHitsValidation(edm::ParameterSet const& conf) {
   // DQM ROOT output
   outputFile_ = conf.getUntrackedParameter<std::string>("outputFile", "myfile.root");
@@ -40,6 +37,53 @@ void HcalSimHitsValidation::bookHistograms(DQMStore::IBooker &ib, edm::Run const
   maxDepthHF_ = hcons->getMaxDepth(2);
   maxDepthHO_ = hcons->getMaxDepth(3);
 
+  //Get Phi segmentation from geometry, use the max phi number so that all iphi values are included.
+
+  int NphiMax = hcons->getNPhi(0);
+
+  NphiMax = (hcons->getNPhi(1) > NphiMax ? hcons->getNPhi(1) : NphiMax);
+  NphiMax = (hcons->getNPhi(2) > NphiMax ? hcons->getNPhi(2) : NphiMax);
+  NphiMax = (hcons->getNPhi(3) > NphiMax ? hcons->getNPhi(3) : NphiMax);
+
+  //Center the iphi bins on the integers
+  float iphi_min = 0.5;
+  float iphi_max = NphiMax + 0.5;
+  int iphi_bins = (int) (iphi_max - iphi_min);
+
+  int iEtaHBMax = hcons->getEtaRange(0).second;
+  int iEtaHEMax = hcons->getEtaRange(1).second;
+  int iEtaHFMax = hcons->getEtaRange(2).second;
+  int iEtaHOMax = hcons->getEtaRange(3).second;
+
+  //Retain classic behavior, all plots have same ieta range.
+  //Comment out	code to	allow each subdetector to have its on range
+
+  int iEtaMax =	(iEtaHBMax > iEtaHEMax ? iEtaHBMax : iEtaHEMax);
+  iEtaMax = (iEtaMax > iEtaHFMax ? iEtaMax : iEtaHFMax);
+  iEtaMax = (iEtaMax > iEtaHOMax ? iEtaMax : iEtaHOMax);
+
+  iEtaHBMax = iEtaMax;
+  iEtaHEMax = iEtaMax;
+  iEtaHFMax = iEtaMax;
+  iEtaHOMax = iEtaMax;
+
+  //Give an empty bin around the subdet ieta range to make it clear that all ieta rings have been included
+  float ieta_min_HB = -iEtaHBMax - 1.5;
+  float ieta_max_HB = iEtaHBMax + 1.5;
+  int ieta_bins_HB = (int) (ieta_max_HB - ieta_min_HB);
+
+  float ieta_min_HE = -iEtaHEMax - 1.5;
+  float ieta_max_HE = iEtaHEMax + 1.5;
+  int ieta_bins_HE = (int) (ieta_max_HE - ieta_min_HE);
+
+  float ieta_min_HF = -iEtaHFMax - 1.5;
+  float ieta_max_HF = iEtaHFMax + 1.5;
+  int ieta_bins_HF = (int) (ieta_max_HF - ieta_min_HF);
+
+  float ieta_min_HO = -iEtaHOMax - 1.5;
+  float ieta_max_HO = iEtaHOMax + 1.5;
+  int ieta_bins_HO = (int) (ieta_max_HO - ieta_min_HO);
+
   Char_t histo[200];
 
     ib.setCurrentFolder("HcalSimHitsV/HcalSimHitTask");
@@ -73,23 +117,23 @@ void HcalSimHitsValidation::bookHistograms(DQMStore::IBooker &ib, edm::Run const
        if(depth == 0){ sprintf  (histo, "emean_vs_ieta_HB" ); }
        else {          sprintf  (histo, "emean_vs_ieta_HB%d", depth ); }
 
-       emean_vs_ieta_HB.push_back( ib.bookProfile(histo, histo, IETA_BINS_, IETA_MIN_, IETA_MAX_, 2010, -10., 2000., "s") );
+       emean_vs_ieta_HB.push_back( ib.bookProfile(histo, histo, ieta_bins_HB, ieta_min_HB, ieta_max_HB, 2010, -10., 2000., "s") );
     }
     for(int depth = 0; depth <= maxDepthHE_; depth++){
        if(depth == 0){ sprintf  (histo, "emean_vs_ieta_HE" ); }
        else {          sprintf  (histo, "emean_vs_ieta_HE%d", depth ); }
 
-       emean_vs_ieta_HE.push_back( ib.bookProfile(histo, histo, IETA_BINS_, IETA_MIN_, IETA_MAX_, 2010, -10., 2000., "s") );
+       emean_vs_ieta_HE.push_back( ib.bookProfile(histo, histo, ieta_bins_HE, ieta_min_HE, ieta_max_HE, 2010, -10., 2000., "s") );
     }
 
        sprintf  (histo, "emean_vs_ieta_HO" ); 
-       emean_vs_ieta_HO =  ib.bookProfile(histo, histo, IETA_BINS_, IETA_MIN_, IETA_MAX_, 2010, -10., 2000., "s");
+       emean_vs_ieta_HO =  ib.bookProfile(histo, histo, ieta_bins_HO, ieta_min_HO, ieta_max_HO, 2010, -10., 2000., "s");
 
     for(int depth = 0; depth <= maxDepthHF_; depth++){
        if(depth == 0){ sprintf  (histo, "emean_vs_ieta_HF" ); }
        else {          sprintf  (histo, "emean_vs_ieta_HF%d", depth ); }
 
-       emean_vs_ieta_HF.push_back( ib.bookProfile(histo, histo, IETA_BINS_, IETA_MIN_, IETA_MAX_, 2010, -10., 2000., "s") );
+       emean_vs_ieta_HF.push_back( ib.bookProfile(histo, histo, ieta_bins_HF, ieta_min_HF, ieta_max_HF, 2010, -10., 2000., "s") );
     }
 
     //Occupancy vs. iEta TH1Fs
@@ -97,23 +141,23 @@ void HcalSimHitsValidation::bookHistograms(DQMStore::IBooker &ib, edm::Run const
        if(depth == 0){ sprintf  (histo, "occupancy_vs_ieta_HB" ); }
        else {          sprintf  (histo, "occupancy_vs_ieta_HB%d", depth ); }
 
-       occupancy_vs_ieta_HB.push_back( ib.book1D(histo, histo, IETA_BINS_, IETA_MIN_, IETA_MAX_) );
+       occupancy_vs_ieta_HB.push_back( ib.book1D(histo, histo, ieta_bins_HB, ieta_min_HB, ieta_max_HB) );
     }
     for(int depth = 0; depth <= maxDepthHE_; depth++){
        if(depth == 0){ sprintf  (histo, "occupancy_vs_ieta_HE" ); }
        else {          sprintf  (histo, "occupancy_vs_ieta_HE%d", depth ); }
 
-       occupancy_vs_ieta_HE.push_back( ib.book1D(histo, histo, IETA_BINS_, IETA_MIN_, IETA_MAX_) );
+       occupancy_vs_ieta_HE.push_back( ib.book1D(histo, histo, ieta_bins_HE, ieta_min_HE, ieta_max_HE) );
     }
 
        sprintf  (histo, "occupancy_vs_ieta_HO" ); 
-       occupancy_vs_ieta_HO = ib.book1D(histo, histo, IETA_BINS_, IETA_MIN_, IETA_MAX_);
+       occupancy_vs_ieta_HO = ib.book1D(histo, histo, ieta_bins_HO, ieta_min_HO, ieta_max_HO);
 
     for(int depth = 0; depth <= maxDepthHF_; depth++){
        if(depth == 0){ sprintf  (histo, "occupancy_vs_ieta_HF" ); }
        else {          sprintf  (histo, "occupancy_vs_ieta_HF%d", depth ); }
 
-       occupancy_vs_ieta_HF.push_back( ib.book1D(histo, histo, IETA_BINS_, IETA_MIN_, IETA_MAX_) );
+       occupancy_vs_ieta_HF.push_back( ib.book1D(histo, histo, ieta_bins_HF, ieta_min_HF, ieta_max_HF) );
     }
 
     //Energy spectra
@@ -142,13 +186,13 @@ void HcalSimHitsValidation::bookHistograms(DQMStore::IBooker &ib, edm::Run const
 
     //Energy in Cone
     sprintf (histo, "HcalSimHitTask_En_simhits_cone_profile_vs_ieta_all_depths");
-    meEnConeEtaProfile = ib.bookProfile(histo, histo, IETA_BINS_, IETA_MIN_, IETA_MAX_, 210, -10., 200.);  
+    meEnConeEtaProfile = ib.bookProfile(histo, histo, ieta_bins_HF, ieta_min_HF, ieta_max_HF, 210, -10., 200.);  
     
     sprintf (histo, "HcalSimHitTask_En_simhits_cone_profile_vs_ieta_all_depths_E");
-    meEnConeEtaProfile_E = ib.bookProfile(histo, histo, IETA_BINS_, IETA_MIN_, IETA_MAX_, 210, -10., 200.);  
+    meEnConeEtaProfile_E = ib.bookProfile(histo, histo, ieta_bins_HF, ieta_min_HF, ieta_max_HF, 210, -10., 200.);  
       
     sprintf (histo, "HcalSimHitTask_En_simhits_cone_profile_vs_ieta_all_depths_EH");
-    meEnConeEtaProfile_EH = ib.bookProfile(histo, histo, IETA_BINS_, IETA_MIN_, IETA_MAX_, 210, -10., 200.);  
+    meEnConeEtaProfile_EH = ib.bookProfile(histo, histo, ieta_bins_HF, ieta_min_HF, ieta_max_HF, 210, -10., 200.);  
     
 
 }

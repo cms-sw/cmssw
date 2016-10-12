@@ -16,6 +16,9 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
+#include "Geometry/HcalCommonData/interface/HcalDDDRecConstants.h"
+#include "Geometry/Records/interface/HcalRecNumberingRecord.h"
+
 #include "SimDataFormats/CaloHit/interface/PCaloHit.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
 
@@ -41,6 +44,21 @@ protected:
   void analyzeHits  (std::vector<PCaloHit> &);
 
 private:
+
+  const HcalDDDRecConstants               *hcons;
+  int                                      maxDepthHB_, maxDepthHE_;
+  int                                      maxDepthHO_, maxDepthHF_;
+
+  int iphi_bins;
+  float iphi_min, iphi_max;
+  int ieta_bins_HB;
+  float ieta_min_HB, ieta_max_HB;
+  int ieta_bins_HE;
+  float ieta_min_HE, ieta_max_HE;
+  int ieta_bins_HO;
+  float ieta_min_HO, ieta_max_HO;
+  int ieta_bins_HF;
+  float ieta_min_HF, ieta_max_HF;
 
   std::string    g4Label, hcalHits, outFile_;
   bool           verbose_, checkHit_, testNumber_;
