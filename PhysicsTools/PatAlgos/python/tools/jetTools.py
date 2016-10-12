@@ -225,7 +225,7 @@ def setupBTagging(process, jetSource, pfCandidates, explicitJTA, pvSource, svSou
     runIVFforCTagOnly = False
     ivfcTagInfos = ['pfInclusiveSecondaryVertexFinderCvsLTagInfos', 'pfInclusiveSecondaryVertexFinderNegativeCvsLTagInfos']
     ## if MiniAOD and running c tagging
-    if pfCandidates.getModuleLabel() == 'packedPFCandidates' and any(i in requiredTagInfos for i in ivfcTagInfos) and not runIVF:
+    if pvSource.getModuleLabel() == 'offlineSlimmedPrimaryVertices' and any(i in requiredTagInfos for i in ivfcTagInfos) and not runIVF:
         runIVFforCTagOnly = True
         runIVF = True
         print "-------------------------------------------------------------------"
@@ -362,7 +362,7 @@ def setupBTagging(process, jetSource, pfCandidates, explicitJTA, pvSource, svSou
     ## if re-running IVF
     if runIVF:
         if not tightBTagNTkHits:
-            if pfCandidates.getModuleLabel() == 'packedPFCandidates': ## MiniAOD case
+            if pvSource.getModuleLabel() == 'offlineSlimmedPrimaryVertices': ## MiniAOD case
                 if not runIVFforCTagOnly: rerunningIVFMiniAOD()
             else:
                 rerunningIVF()
@@ -376,7 +376,7 @@ def setupBTagging(process, jetSource, pfCandidates, explicitJTA, pvSource, svSou
                     _temp = getattr(process, btagPrefix+'inclusiveCandidateVertexFinder')
                     _temp.minHits = cms.uint32(8)
             ## MiniAOD case
-            if pfCandidates.getModuleLabel() == 'packedPFCandidates':
+            if pvSource.getModuleLabel() == 'offlineSlimmedPrimaryVertices':
                 if hasattr( process, btagPrefix+'inclusiveCandidateVertexFinder' ):
                     _temp = getattr(process, btagPrefix+'inclusiveCandidateVertexFinder')
                     _temp.primaryVertices = pvSource
@@ -396,7 +396,7 @@ def setupBTagging(process, jetSource, pfCandidates, explicitJTA, pvSource, svSou
                     _temp = getattr(process, btagPrefix+'inclusiveCandidateVertexFinderCvsL')
                     _temp.minHits = cms.uint32(8)
             ## MiniAOD case
-            if pfCandidates.getModuleLabel() == 'packedPFCandidates':
+            if pvSource.getModuleLabel() == 'offlineSlimmedPrimaryVertices':
                 if hasattr( process, btagPrefix+'inclusiveCandidateVertexFinderCvsL' ):
                     _temp = getattr(process, btagPrefix+'inclusiveCandidateVertexFinderCvsL')
                     _temp.primaryVertices = pvSource
