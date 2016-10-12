@@ -1,17 +1,17 @@
 #include "L1Trigger/L1THGCal/interface/HGCalTriggerBackendAlgorithmBase.h"
-#include "L1Trigger/L1THGCal/interface/fe_codecs/HGCalBestChoiceCodec.h"
+#include "L1Trigger/L1THGCal/interface/fe_codecs/HGCalTriggerCellBestChoiceCodec.h"
 #include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
 
 #include "DataFormats/L1THGCal/interface/HGCalCluster.h"
 
 using namespace HGCalTriggerBackend;
 
-class SingleCellClusterAlgo : public Algorithm<HGCalBestChoiceCodec> 
+class SingleCellClusterAlgo : public Algorithm<HGCalTriggerCellBestChoiceCodec> 
 {
     public:
 
         SingleCellClusterAlgo(const edm::ParameterSet& conf):
-            Algorithm<HGCalBestChoiceCodec>(conf),
+            Algorithm<HGCalTriggerCellBestChoiceCodec>(conf),
             cluster_product_( new l1t::HGCalClusterBxCollection ){}
 
         virtual void setProduces(edm::EDProducer& prod) const override final 
@@ -42,25 +42,26 @@ void SingleCellClusterAlgo::run(const l1t::HGCFETriggerDigiCollection& coll)
 {
     for( const auto& digi : coll ) 
     {
-        HGCalBestChoiceCodec::data_type data;
+        HGCalTriggerCellBestChoiceCodec::data_type data;
         data.reset();
-        const HGCalDetId& moduleId = digi.getDetId<HGCalDetId>();
+        //const HGCalDetId& moduleId = digi.getDetId<HGCalDetId>();
         digi.decode(codec_, data);
         int i = 0;
-        for(const auto& value : data.payload)
+        for(const auto& triggercell : data.payload)
         {
-            if(value>0)
+            if(triggercell.hwPt()>0)
             {
-                GlobalPoint point = geometry_->getModulePosition(moduleId);
-                math::PtEtaPhiMLorentzVector p4((double)value/cosh(point.eta()), point.eta(), point.phi(), 0.);
+                HGCalDetId detid(triggercell.detId());
+                //GlobalPoint point = geometry_->getModulePosition(moduleId);
+                //math::PtEtaPhiMLorentzVector p4((double)value/cosh(.eta()), point.eta(), point.phi(), 0.);
                 // index in module stored as hwEta
                 l1t::HGCalCluster cluster( 
-                        reco::LeafCandidate::LorentzVector(),
-                        value, i, 0);
-                cluster.setP4(p4);
-                cluster.setModule(moduleId.wafer());
-                cluster.setLayer(moduleId.layer());
-                cluster.setSubDet(moduleId.subdetId());
+                        triggercell.p4(),
+                        triggercell.hwPt(), i, 0);
+                //cluster.setP4(triggercell.p4);
+                cluster.setModule(detid.wafer());
+                cluster.setLayer(detid.layer());
+                cluster.setSubDet(detid.subdetId());
                 cluster_product_->push_back(0,cluster);
             }
             i++;

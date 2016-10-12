@@ -1,17 +1,17 @@
 #include "L1Trigger/L1THGCal/interface/HGCalTriggerBackendAlgorithmBase.h"
-#include "L1Trigger/L1THGCal/interface/fe_codecs/HGCalBestChoiceCodec.h"
+#include "L1Trigger/L1THGCal/interface/fe_codecs/HGCalTriggerCellBestChoiceCodec.h"
 #include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
 
 #include "DataFormats/L1THGCal/interface/HGCalCluster.h"
 
 using namespace HGCalTriggerBackend;
 
-class FullModuleSumAlgo : public Algorithm<HGCalBestChoiceCodec> 
+class FullModuleSumAlgo : public Algorithm<HGCalTriggerCellBestChoiceCodec> 
 {
     public:
 
         FullModuleSumAlgo(const edm::ParameterSet& conf):
-            Algorithm<HGCalBestChoiceCodec>(conf),
+            Algorithm<HGCalTriggerCellBestChoiceCodec>(conf),
             cluster_product_( new l1t::HGCalClusterBxCollection ){}
 
         virtual void setProduces(edm::EDProducer& prod) const override final 
@@ -42,16 +42,16 @@ void FullModuleSumAlgo::run(const l1t::HGCFETriggerDigiCollection& coll)
 {
     for( const auto& digi : coll ) 
     {
-        HGCalBestChoiceCodec::data_type data;
+        HGCalTriggerCellBestChoiceCodec::data_type data;
         data.reset();
         const HGCalDetId& moduleId = digi.getDetId<HGCalDetId>();
         digi.decode(codec_, data);
 
         // Sum of trigger cells inside the module
         uint32_t moduleSum = 0;
-        for(const auto& value : data.payload)
+        for(const auto& triggercell : data.payload)
         {
-            moduleSum += value;
+            moduleSum += triggercell.hwPt();
         }
         // dummy cluster without position
         // moduleId filled in place of hardware eta
