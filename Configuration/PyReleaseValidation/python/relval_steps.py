@@ -203,6 +203,49 @@ steps['RunMuOnia2016B']={'INPUT':InputInfo(dataSet='/MuOnia/Run2016B-v2/RAW',lab
 steps['RunNoBPTX2016B']={'INPUT':InputInfo(dataSet='/NoBPTX/Run2016B-v2/RAW',label='noBptx2016B',events=100000,location='STD', ls=Run2016B)}
 steps['RunZeroBias2016BnewL1repack']={'INPUT':InputInfo(dataSet='/ZeroBias/Run2016B-v2/RAW',label='zb2016BnewL1rep',events=100000,location='STD', ls=Run2016B)}
 
+#### run2 2016C ####
+Run2016C={276092: [[115, 149]]}
+steps['RunHLTPhy2016C']={'INPUT':InputInfo(dataSet='/HLTPhysics/Run2016C-v2/RAW',label='hltPhy2016C',events=100000,location='STD', ls=Run2016C)}
+steps['RunDoubleEG2016C']={'INPUT':InputInfo(dataSet='/DoubleEG/Run2016C-v2/RAW',label='doubEG2016C',events=100000,location='STD', ls=Run2016C)}
+steps['RunDoubleMuon2016C']={'INPUT':InputInfo(dataSet='/DoubleMuon/Run2016C-v2/RAW',label='doubMu2016C',events=100000,location='STD', ls=Run2016C)}
+steps['RunJetHT2016C']={'INPUT':InputInfo(dataSet='/JetHT/Run2016C-v2/RAW',label='jetHT2016C',events=100000,location='STD', ls=Run2016C)}
+steps['RunMET2016C']={'INPUT':InputInfo(dataSet='/MET/Run2016C-v2/RAW',label='met2016C',events=100000,location='STD', ls=Run2016C)}
+steps['RunMuonEG2016C']={'INPUT':InputInfo(dataSet='/MuonEG/Run2016C-v2/RAW',label='muEG2016C',events=100000,location='STD', ls=Run2016C)}
+steps['RunSingleEl2016C']={'INPUT':InputInfo(dataSet='/SingleElectron/Run2016C-v2/RAW',label='sigEl2016C',events=100000,location='STD', ls=Run2016C)}
+steps['RunSingleMu2016C']={'INPUT':InputInfo(dataSet='/SingleMuon/Run2016C-v2/RAW',label='sigMu2016C',events=100000,location='STD', ls=Run2016C)}
+steps['RunSinglePh2016C']={'INPUT':InputInfo(dataSet='/SinglePhoton/Run2016C-v2/RAW',label='sigPh2016C',events=100000,location='STD', ls=Run2016C)}
+steps['RunZeroBias2016C']={'INPUT':InputInfo(dataSet='/ZeroBias/Run2016C-v2/RAW',label='zb2016C',events=100000,location='STD', ls=Run2016C)}
+steps['RunMuOnia2016C']={'INPUT':InputInfo(dataSet='/MuOnia/Run2016C-v2/RAW',label='muOnia2016C',events=100000,location='STD', ls=Run2016C)}
+
+#### run2 2016D ####
+Run2016D={276807: [[66, 100]]}
+steps['RunHLTPhy2016D']={'INPUT':InputInfo(dataSet='/HLTPhysics/Run2016D-v2/RAW',label='hltPhy2016D',events=100000,location='STD', ls=Run2016D)}
+steps['RunDoubleEG2016D']={'INPUT':InputInfo(dataSet='/DoubleEG/Run2016D-v2/RAW',label='doubEG2016D',events=100000,location='STD', ls=Run2016D)}
+steps['RunDoubleMuon2016D']={'INPUT':InputInfo(dataSet='/DoubleMuon/Run2016D-v2/RAW',label='doubMu2016D',events=100000,location='STD', ls=Run2016D)}
+steps['RunJetHT2016D']={'INPUT':InputInfo(dataSet='/JetHT/Run2016D-v2/RAW',label='jetHT2016D',events=100000,location='STD', ls=Run2016D)}
+steps['RunMET2016D']={'INPUT':InputInfo(dataSet='/MET/Run2016D-v2/RAW',label='met2016D',events=100000,location='STD', ls=Run2016D)}
+steps['RunMuonEG2016D']={'INPUT':InputInfo(dataSet='/MuonEG/Run2016D-v2/RAW',label='muEG2016D',events=100000,location='STD', ls=Run2016D)}
+steps['RunSingleEl2016D']={'INPUT':InputInfo(dataSet='/SingleElectron/Run2016D-v2/RAW',label='sigEl2016D',events=100000,location='STD', ls=Run2016D)}
+steps['RunSingleMu2016D']={'INPUT':InputInfo(dataSet='/SingleMuon/Run2016D-v2/RAW',label='sigMu2016D',events=100000,location='STD', ls=Run2016D)}
+steps['RunSinglePh2016D']={'INPUT':InputInfo(dataSet='/SinglePhoton/Run2016D-v2/RAW',label='sigPh2016D',events=100000,location='STD', ls=Run2016D)}
+steps['RunZeroBias2016D']={'INPUT':InputInfo(dataSet='/ZeroBias/Run2016D-v2/RAW',label='zb2016D',events=100000,location='STD', ls=Run2016D)}
+steps['RunMuOnia2016D']={'INPUT':InputInfo(dataSet='/MuOnia/Run2016D-v2/RAW',label='muOnia2016D',events=100000,location='STD', ls=Run2016D)}
+
+#### run2 2016E ####
+Run2016E={277069: [[81, 120]]}
+steps['RunHLTPhy2016E']={'INPUT':InputInfo(dataSet='/HLTPhysics/Run2016E-v2/RAW',label='hltPhy2016E',events=100000,location='STD', ls=Run2016E)}
+steps['RunDoubleEG2016E']={'INPUT':InputInfo(dataSet='/DoubleEG/Run2016E-v2/RAW',label='doubEG2016E',events=100000,location='STD', ls=Run2016E)}
+steps['RunDoubleMuon2016E']={'INPUT':InputInfo(dataSet='/DoubleMuon/Run2016E-v2/RAW',label='doubMu2016E',events=100000,location='STD', ls=Run2016E)}
+steps['RunJetHT2016E']={'INPUT':InputInfo(dataSet='/JetHT/Run2016E-v2/RAW',label='jetHT2016E',events=100000,location='STD', ls=Run2016E)}
+steps['RunMET2016E']={'INPUT':InputInfo(dataSet='/MET/Run2016E-v2/RAW',label='met2016E',events=100000,location='STD', ls=Run2016E)}
+steps['RunMuonEG2016E']={'INPUT':InputInfo(dataSet='/MuonEG/Run2016E-v2/RAW',label='muEG2016E',events=100000,location='STD', ls=Run2016E)}
+steps['RunSingleEl2016E']={'INPUT':InputInfo(dataSet='/SingleElectron/Run2016E-v2/RAW',label='sigEl2016E',events=100000,location='STD', ls=Run2016E)}
+steps['RunSingleMu2016E']={'INPUT':InputInfo(dataSet='/SingleMuon/Run2016E-v2/RAW',label='sigMu2016E',events=100000,location='STD', ls=Run2016E)}
+steps['RunSinglePh2016E']={'INPUT':InputInfo(dataSet='/SinglePhoton/Run2016E-v2/RAW',label='sigPh2016E',events=100000,location='STD', ls=Run2016E)}
+steps['RunZeroBias2016E']={'INPUT':InputInfo(dataSet='/ZeroBias/Run2016E-v2/RAW',label='zb2016E',events=100000,location='STD', ls=Run2016E)}
+steps['RunMuOnia2016E']={'INPUT':InputInfo(dataSet='/MuOnia/Run2016E-v2/RAW',label='muOnia2016E',events=100000,location='STD', ls=Run2016E)}
+
+
 # Highstat HLTPhysics 
 Run2015DHS=selectedLS([258712,258713,258714,258741,258742,258745,258749,258750,259626,259637,259683,259685,259686,259721,259809,259810,259818,259820,259821,259822,259862,259890,259891])
 steps['RunHLTPhy2015DHS']={'INPUT':InputInfo(dataSet='/HLTPhysics/Run2015D-v1/RAW',label='hltPhy2015DHS',events=100000,location='STD', ls=Run2015DHS)}
