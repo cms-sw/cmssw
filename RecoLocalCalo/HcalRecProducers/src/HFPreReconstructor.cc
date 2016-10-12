@@ -85,7 +85,8 @@ private:
 HFPreReconstructor::HFPreReconstructor(const edm::ParameterSet& conf)
     : inputLabel_(conf.getParameter<edm::InputTag>("digiLabel")),
       dropZSmarkedPassed_(conf.getParameter<bool>("dropZSmarkedPassed")),
-      tsFromDB_(conf.getParameter<bool>("tsFromDB"))
+      tsFromDB_(conf.getParameter<bool>("tsFromDB")),
+      reco_(conf.getParameter<bool>("sumAllTimeSlices"))
 {
     // Describe consumed data
     tok_hfQIE10_ = consumes<QIE10DigiCollection>(inputLabel_);
@@ -290,6 +291,7 @@ HFPreReconstructor::fillDescriptions(edm::ConfigurationDescriptions& description
     desc.add<edm::InputTag>("digiLabel");
     desc.add<bool>("dropZSmarkedPassed");
     desc.add<bool>("tsFromDB");
+    desc.add<bool>("sumAllTimeSlices");
 
     descriptions.addDefault(desc);
 }
