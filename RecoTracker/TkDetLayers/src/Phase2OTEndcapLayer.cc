@@ -63,7 +63,7 @@ Phase2OTEndcapLayer::Phase2OTEndcapLayer(vector<const Phase2OTEndcapRing*>& ring
   theRingSize = rings.size();
   std::cout << "theRingSize " << theRingSize << std::endl;
   if ( theRingSize != NOTECRINGS){
-    std::cout << "Number of rings in Phase2 OT EC layer is not equal to NOTECRINGS !!";
+    std::cout << "Number of rings in Phase2 OT EC layer is not equal to NOTECRINGS !!" << std::endl;
   }
 >>>>>>> try but crash
   setSurface( computeDisk( rings ) );
@@ -77,7 +77,7 @@ Phase2OTEndcapLayer::Phase2OTEndcapLayer(vector<const Phase2OTEndcapRing*>& ring
   }
 
  
-  std::cout << "==== DEBUG Phase2OTEndcapLayer =====" <<std::endl; 
+  LogDebug("TkDetLayers") << "==== DEBUG Phase2OTEndcapLayer =====" ;
   LogDebug("TkDetLayers") << "==== DEBUG Phase2OTEndcapLayer =====" ; 
   LogDebug("TkDetLayers") << "r,zed pos  , thickness, innerR, outerR: " 
 			  << this->position().perp() << " , "

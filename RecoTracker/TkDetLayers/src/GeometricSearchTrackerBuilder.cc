@@ -176,9 +176,9 @@ GeometricSearchTrackerBuilder::build(const GeometricDet* theGeometricTracker,
       for(vector<const GeometricDet*>::const_iterator it2=thePxlFwdGeometricDetLayers.begin();
 	  it2!=thePxlFwdGeometricDetLayers.end(); it2++){
 	if((*it2)->positionBounds().z() < 0)
-	  theNegPxlFwdLayers.push_back( aPhase1PixelForwardLayerBuilder.build(*it2,theGeomDetGeometry) );
+	  theNegPxlFwdLayers.push_back( aPhase2OTEndcapLayerBuilder.build(*it2,theGeomDetGeometry) );
 	if((*it2)->positionBounds().z() > 0)
-	  thePosPxlFwdLayers.push_back( aPhase1PixelForwardLayerBuilder.build(*it2,theGeomDetGeometry) );
+	  thePosPxlFwdLayers.push_back( aPhase2OTEndcapLayerBuilder.build(*it2,theGeomDetGeometry) );
       }
     }
 
@@ -217,7 +217,6 @@ GeometricSearchTrackerBuilder::build(const GeometricDet* theGeometricTracker,
 
 
   }
-
 
   return new GeometricSearchTracker(thePxlBarLayers,theTIBLayers,theTOBLayers,
 				    theNegPxlFwdLayers,theNegTIDLayers,theNegTECLayers,

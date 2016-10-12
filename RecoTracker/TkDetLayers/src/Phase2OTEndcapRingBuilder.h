@@ -16,7 +16,8 @@ class Phase2OTEndcapRingBuilder {
  public:
   Phase2OTEndcapRingBuilder(){};
   Phase2OTEndcapRing* build(const GeometricDet* aPhase2OTEndcapRing,
-			const TrackerGeometry* theGeomDetGeometry) __attribute__ ((cold));
+			    const TrackerGeometry* theGeomDetGeometry,
+			    const bool useBrothers = false) __attribute__ ((cold));
 
   
 };
