@@ -283,17 +283,21 @@ void PseudoTopProducer::produce(edm::Event& event, const edm::EventSetup& eventS
       const auto t1LVec = w1LVec + bJet1.p4();
       const auto t2LVec = w2LVec + bJet2.p4();
 
+      // Recalculate lepton charges (needed due to initialization of leptons wrt sign of a charge)
+      const int lepQ1 = lepton1.charge();
+      const int lepQ2 = lepton2.charge();
+
       // Put all of them into candidate collection
-      reco::GenParticle t1(q1*2/3., t1LVec, genVertex_, q1*6, 3, false);
-      reco::GenParticle w1(q1, w1LVec, genVertex_, q1*24, 3, true);
-      reco::GenParticle b1(-q1/3., bJet1.p4(), genVertex_, q1*5, 1, true);
-      reco::GenParticle l1(q1, lepton1.p4(), genVertex_, lepton1.pdgId(), 1, true);
+      reco::GenParticle t1(lepQ1*2/3., t1LVec, genVertex_, lepQ1*6, 3, false);
+      reco::GenParticle w1(lepQ1, w1LVec, genVertex_, lepQ1*24, 3, true);
+      reco::GenParticle b1(-lepQ1/3., bJet1.p4(), genVertex_, lepQ1*5, 1, true);
+      reco::GenParticle l1(lepQ1, lepton1.p4(), genVertex_, lepton1.pdgId(), 1, true);
       reco::GenParticle n1(0, nu1.p4(), genVertex_, nu1.pdgId(), 1, true);
 
-      reco::GenParticle t2(q2*2/3., t2LVec, genVertex_, q2*6, 3, false);
-      reco::GenParticle w2(q2, w2LVec, genVertex_, q2*24, 3, true);
-      reco::GenParticle b2(-q2/3., bJet2.p4(), genVertex_, q2*5, 1, true);
-      reco::GenParticle l2(q2, lepton2.p4(), genVertex_, lepton2.pdgId(), 1, true);
+      reco::GenParticle t2(lepQ2*2/3., t2LVec, genVertex_, lepQ2*6, 3, false);
+      reco::GenParticle w2(lepQ2, w2LVec, genVertex_, lepQ2*24, 3, true);
+      reco::GenParticle b2(-lepQ2/3., bJet2.p4(), genVertex_, lepQ2*5, 1, true);
+      reco::GenParticle l2(lepQ2, lepton2.p4(), genVertex_, lepton2.pdgId(), 1, true);
       reco::GenParticle n2(0, nu2.p4(), genVertex_, nu2.pdgId(), 1, true);
 
       pseudoTop->push_back(t1);
