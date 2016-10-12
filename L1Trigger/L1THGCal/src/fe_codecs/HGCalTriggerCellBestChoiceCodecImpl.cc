@@ -6,7 +6,7 @@ HGCalTriggerCellBestChoiceCodecImpl::
 HGCalTriggerCellBestChoiceCodecImpl(const edm::ParameterSet& conf) :
     nData_(conf.getParameter<uint32_t>("NData")),
     dataLength_(conf.getParameter<uint32_t>("DataLength")),
-    nCellsInModule_(116),
+    nCellsInModule_(116), // FIXME: put this in parameters
     linLSB_(conf.getParameter<double>("linLSB")),
     adcsaturation_(conf.getParameter<double>("adcsaturation")),
     adcnBits_(conf.getParameter<uint32_t>("adcnBits")),
@@ -34,25 +34,37 @@ encode(const HGCalTriggerCellBestChoiceCodecImpl::data_type& data, const HGCalTr
     std::vector<bool> result(nCellsInModule_ + dataLength_*nData_, 0);
     // No data: return vector of 0
     if(data.payload.size()==0) return result;
-    size_t idata = 0; // counter for the number of non-zero energy values
     // All trigger cells are in the same module
     // Retrieve once the ordered list of trigger cells in this module
     uint32_t module = geometry.getModuleFromTriggerCell(data.payload.begin()->detId());
     HGCalTriggerGeometryBase::geom_ordered_set trigger_cells_in_module = geometry.getOrderedTriggerCellsFromModule(module);
-    for(const auto& cell : data.payload)
+    // Convert payload into a map for later search
+    std::unordered_map<uint32_t, uint32_t> data_map; // (detid,energy)
+    for(const auto& triggercell : data.payload)
     {
-        // First need to find the index of this trigger cell in the module
-        // FIXME: std::distance is linear with size for sets (no random access). In order to have constant
-        // access would require to convert the set into a vector. 
-        uint32_t index = std::distance(trigger_cells_in_module.begin(),trigger_cells_in_module.find(cell.detId()));
+        data_map.emplace(triggercell.detId(), triggercell.hwPt());
+    }
+    // Loop on trigger cell ids in module and check if energy in the cell
+    size_t index = 0; // index in module
+    size_t idata = 0; // counter for the number of non-zero energy values
+    for(const auto& triggercell_id : trigger_cells_in_module)
+    {
+        // Find if this trigger cell has data
+        const auto& data_itr = data_map.find(triggercell_id);
+        // if not data, increase index and skip
+        if(data_itr==data_map.end())
+        {
+            index++;
+            continue;
+        }
+        // else fill result vector with data
+        // (set the corresponding adress bit and fill energy if >0)
         if(index>=nCellsInModule_) 
         {
             throw cms::Exception("BadGeometry")
                 << "Number of trigger cells in module too large for available data payload\n";
         }
-        // Then set the corresponding adress bit and fill energy if >0
-        uint32_t value = cell.hwPt(); // This is actually energy, not Et (and certainly not Pt)
-        result[index] = (value>0 ? 1 : 0);
+        uint32_t value = data_itr->second; 
         if(value>0)
         {
             if(idata>=nData_)
@@ -61,6 +73,8 @@ encode(const HGCalTriggerCellBestChoiceCodecImpl::data_type& data, const HGCalTr
                     << "encode: Number of non-zero trigger cells larger than codec parameter\n"\
                     << "      : Number of energy values = "<<nData_<<"\n";
             }
+            // Set map bit to 1
+            result[index] =  1;
             // Saturate and truncate energy values
             if(value+1>(0x1u<<triggerCellSaturationBits_)) value = (0x1<<triggerCellSaturationBits_)-1;
             for(size_t i=0; i<dataLength_; i++)
@@ -70,6 +84,7 @@ encode(const HGCalTriggerCellBestChoiceCodecImpl::data_type& data, const HGCalTr
             }
             idata++;
         }
+        index++;
     }
     return result;
 }
@@ -80,7 +95,7 @@ decode(const std::vector<bool>& data, const uint32_t module, const HGCalTriggerG
 {
     data_type result;
     result.reset();
-    // TODO: could eventually reserve memory to the max size of trigger cells
+    // TODO: could eventually reserve result memory to the max size of trigger cells
     if(data.size()!=nCellsInModule_+dataLength_*nData_)
     {
         throw cms::Exception("BadData") 

@@ -31,6 +31,7 @@
 #include "L1Trigger/L1THGCal/interface/HGCalTriggerGeometryBase.h"
 #include "L1Trigger/L1THGCal/interface/HGCalTriggerFECodecBase.h"
 #include "L1Trigger/L1THGCal/interface/fe_codecs/HGCalTriggerCellBestChoiceCodecImpl.h"
+#include "L1Trigger/L1THGCal/interface/fe_codecs/HGCalTriggerCellBestChoiceCodec.h"
 
 #include <stdlib.h> 
 #include <map> 
@@ -191,6 +192,8 @@ void HGCalTriggerBestChoiceTriggerCellTester::checkSelectedCells(const edm::Even
 
     const l1t::HGCalClusterBxCollection& be_clusters_all = *be_clusters_all_h;
     const l1t::HGCalClusterBxCollection& be_clusters_select = *be_clusters_select_h;
+    std::cout<<"Size all TC = "<<be_clusters_all.size(0)<<"\n";
+    std::cout<<"Size selected TC = "<<be_clusters_select.size(0)<<"\n";
 
     // store trigger cells module by module. tuple = zside,subdet,layer,module
     std::map<std::tuple<uint32_t, uint32_t,uint32_t,uint32_t>, std::vector<std::pair<uint32_t,uint32_t>>> module_triggercells_all;
@@ -217,6 +220,12 @@ void HGCalTriggerBestChoiceTriggerCellTester::checkSelectedCells(const edm::Even
         if(module_cells_select_itr==module_triggercells_select.end())
         {
             std::cout<<"ERROR: Cannot find module for selected cells\n"; 
+            std::cout<<" Trigger cells contained in module:\n";
+            for(const auto& id_value : module_cells.second)
+            {
+                std::cout<<"  "<<id_value.first<<" "<<id_value.second<<"\n";
+            }
+            continue;
         }
         size_t ncells_all = module_cells.second.size();
         size_t ncells_select = module_cells_select_itr->second.size();
@@ -228,6 +237,21 @@ void HGCalTriggerBestChoiceTriggerCellTester::checkSelectedCells(const edm::Even
         {
             selectedCellsVsAllCells_ee_->Fill(ncells_all, ncells_select);
             if(energy_all>0) energyLossVsNCells_ee_->Fill(ncells_all, (double)energy_select/(double)energy_all);
+            if(energy_all>0 && ncells_all<12 && energy_select<energy_all)
+            {
+                std::cout<<" All trigger cells contained in module:\n";
+                for(const auto& id_value : module_cells.second)
+                {
+                    std::cout<<id_value.second<<" ";
+                }
+                std::cout<<"\n";
+                std::cout<<" Selected trigger cells contained in module:\n";
+                for(const auto& id_value : module_cells_select_itr->second)
+                {
+                    std::cout<<id_value.second<<" ";
+                }
+                std::cout<<"\n";
+            }
         }
         else if(std::get<1>(module_cells.first)==ForwardSubdetector::HGCHEF) 
         {
@@ -371,17 +395,15 @@ void HGCalTriggerBestChoiceTriggerCellTester::rerunBestChoiceFragments(const edm
         std::unordered_map<uint32_t, double> TC_simhit_energies;
         if (is_Simhit_comp_) 
         {
-            uint32_t index = 0; // index in module (different from .cell())
             // need an ordered set to loop on it in the correct order
             for(const auto& tc : triggerGeometry_->getOrderedTriggerCellsFromModule(module_hits.first))
             {
-                TC_simhit_energies.emplace(index, 0);
+                TC_simhit_energies.emplace(tc, 0);
                 for(const auto& cell : triggerGeometry_->getCellsFromTriggerCell(tc))
                 {
                     double simenergy = simhit_energies[cell];
-                    TC_simhit_energies.at(index)+=simenergy;
+                    TC_simhit_energies.at(tc)+=simenergy;
                 }
-                index++;
             }
         }
         //  Best choice encoding
@@ -414,17 +436,15 @@ void HGCalTriggerBestChoiceTriggerCellTester::rerunBestChoiceFragments(const edm
         std::unordered_map<uint32_t, double> TC_simhit_energies;
         if (is_Simhit_comp_) 
         {
-            uint32_t index = 0; // index in module (different from .cell())
             // need an ordered set to loop on it in the correct order
             for(const auto& tc : triggerGeometry_->getOrderedTriggerCellsFromModule(module_hits.first))
             {
-                TC_simhit_energies.emplace(index, 0);
+                TC_simhit_energies.emplace(tc, 0);
                 for(const auto& cell : triggerGeometry_->getCellsFromTriggerCell(tc))
                 {
                     double simenergy = simhit_energies[cell];
-                    TC_simhit_energies.at(index)+=simenergy;
+                    TC_simhit_energies.at(tc)+=simenergy;
                 }
-                index++;
             }
         }
         //  Best choice encoding
@@ -482,38 +502,33 @@ void HGCalTriggerBestChoiceTriggerCellTester::fillModule( const std::vector<HGCD
 
     // trigger cells part
     // after sum, no best choice, no encode/decode
-    int icell_noBestChoice = 0;
     for(const auto& tc : fe_payload_TCsums_woBestChoice.payload)
     {
         if(tc.hwPt()>0)
         {
             triggerCellData_noBestChoice_->Fill(tc.hwPt());
             if (is_Simhit_comp_){
-                if (TC_simhit_energies.at(icell_noBestChoice) >0){
-                    triggerCellSimHits_noBestChoice_->Fill(TC_simhit_energies.at(icell_noBestChoice));
-                    triggerCellData_noBestChoice_vsSimHits_->Fill(TC_simhit_energies.at(icell_noBestChoice),tc.hwPt());
+                if (TC_simhit_energies.at(tc.detId()) >0){
+                    triggerCellSimHits_noBestChoice_->Fill(TC_simhit_energies.at(tc.detId()));
+                    triggerCellData_noBestChoice_vsSimHits_->Fill(TC_simhit_energies.at(tc.detId()),tc.hwPt());
                 }
             }
         }
-        icell_noBestChoice++;
     }
 
     // after sum, best choice, no encode/decode
-    int icell_BestChoice = 0;
     for(const auto& tc : fe_payload_TCsums_BestChoice.payload)
     {
         if(tc.hwPt()>0)
         {
             triggerCellData_BestChoice_->Fill(tc.hwPt());
             if (is_Simhit_comp_){
-                if (TC_simhit_energies.at(icell_BestChoice)>0)  triggerCellData_BestChoice_vsSimHits_->Fill(TC_simhit_energies.at(icell_BestChoice),tc.hwPt());
+                if (TC_simhit_energies.at(tc.detId())>0)  triggerCellData_BestChoice_vsSimHits_->Fill(TC_simhit_energies.at(tc.detId()),tc.hwPt());
             }
         }
-        icell_BestChoice++;
     }
 
     // after sum, best choice, encode/decode
-    int icell = 0;
     size_t nFEDigi = 0;
     unsigned triggerCellModuleSum = 0;
     for(const auto& tc : fe_payload.payload)
@@ -525,10 +540,9 @@ void HGCalTriggerBestChoiceTriggerCellTester::fillModule( const std::vector<HGCD
             triggerCellModuleSum += tcShifted;
             triggerCellData_->Fill(tc.hwPt());
             if (is_Simhit_comp_){
-                if (TC_simhit_energies.at(icell)>0)  triggerCellData_vsSimHits_->Fill(TC_simhit_energies.at(icell),tc.hwPt());
+                if (TC_simhit_energies.at(tc.detId())>0)  triggerCellData_vsSimHits_->Fill(TC_simhit_energies.at(tc.detId()),tc.hwPt());
             }
         }
-        icell++;
     }
     triggerCellsPerModule_->Fill(nFEDigi);
     triggerCellModuleSum_->Fill(triggerCellModuleSum);

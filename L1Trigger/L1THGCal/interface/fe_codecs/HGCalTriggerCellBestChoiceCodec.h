@@ -9,7 +9,8 @@ inline std::ostream& operator<<(std::ostream& o, const HGCalTriggerCellBestChoic
 { 
     for(const auto& dat : data.payload)
     {
-        o <<  dat.hwPt() << " ";
+        o << "(" << std::hex << dat.detId() 
+            << std::dec << " " << dat.hwPt() << ") ";
     }
     o << "\n";
     return o;
