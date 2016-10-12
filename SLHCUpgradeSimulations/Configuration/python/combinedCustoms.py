@@ -9,6 +9,8 @@ from SLHCUpgradeSimulations.Configuration.phase2TkTilted import customise as cus
 from SLHCUpgradeSimulations.Configuration.phase2TkFlat import customise as customiseFlatTK
 from SLHCUpgradeSimulations.Configuration.phase2TkTilted4021 import customise as customiseTiltedTK4021
 
+from SLHCUpgradeSimulations.Configuration.gemCustoms import customiseME010EtaPart
+
 import SLHCUpgradeSimulations.Configuration.aging as aging
 
 def cust_2023tilted(process):
@@ -25,6 +27,13 @@ def cust_2023tilted4021(process):
     # To allow simulatenous use of customisation and era while the era migration is in progress
     process=customiseTiltedTK4021(process)
     return process
+
+def cust_2023D6(process):
+    # To allow simulatenous use of customisation and era while the era migration is in progress
+    process=customiseTiltedTK(process)
+    process=customiseME010EtaPart(process)
+    return process
+
 
 def cust_2019(process):
     process=customisePostLS1(process,displayDeprecationWarning=False)
