@@ -25,9 +25,9 @@ from RecoTracker.ConversionSeedGenerators.ConversionStep_cff import *
 
 import RecoTracker.IterativeTracking.iterativeTkConfig as _cfg
 
-iterTrackingEarly = _cfg.createEarlySequence("", globals())
-for _era in _cfg.nonDefaultEras():
-    getattr(eras, _era).toReplaceWith(iterTrackingEarly, _cfg.createEarlySequence(_era, globals()))
+iterTrackingEarly = _cfg.createEarlySequence("", "", globals())
+for _eraName, _postfix, _era in _cfg.nonDefaultEras():
+    _era.toReplaceWith(iterTrackingEarly, _cfg.createEarlySequence(_eraName, _postfix, globals()))
 
 iterTracking = cms.Sequence(InitialStepPreSplitting*
                             iterTrackingEarly*
