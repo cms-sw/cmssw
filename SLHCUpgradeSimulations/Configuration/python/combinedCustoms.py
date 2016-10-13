@@ -9,8 +9,6 @@ from SLHCUpgradeSimulations.Configuration.phase2TkTilted import customise as cus
 from SLHCUpgradeSimulations.Configuration.phase2TkFlat import customise as customiseFlatTK
 from SLHCUpgradeSimulations.Configuration.phase2TkTilted4021 import customise as customiseTiltedTK4021
 
-from SLHCUpgradeSimulations.Configuration.gemCustoms import customiseME010EtaPart
-
 import SLHCUpgradeSimulations.Configuration.aging as aging
 
 def cust_2023tilted(process):
