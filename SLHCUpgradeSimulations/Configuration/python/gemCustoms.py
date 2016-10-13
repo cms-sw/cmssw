@@ -50,3 +50,5 @@ def customise_gem_hlt(process):
     process.hltL2Muons.L2TrajBuilderParameters.EnableGEMMeasurement = cms.bool( True )
     process.hltL2Muons.BWFilterParameters.EnableGEMMeasurement = cms.bool( True )
     return process
+
+
