@@ -5,6 +5,7 @@
 #include "Phase2OTBarrelLayerBuilder.h"
 #include "PixelForwardLayerBuilder.h"
 #include "Phase2OTEndcapLayerBuilder.h"
+#include "Phase2PixelEndcapLayerBuilder.h"
 #include "TIBLayerBuilder.h"
 #include "TOBLayerBuilder.h"
 #include "TIDLayerBuilder.h"
@@ -32,6 +33,7 @@ GeometricSearchTrackerBuilder::build(const GeometricDet* theGeometricTracker,
   PixelForwardLayerBuilder<PixelBlade,PixelForwardLayer> aPixelForwardLayerBuilder;
   PixelForwardLayerBuilder<Phase1PixelBlade,PixelForwardLayerPhase1> aPhase1PixelForwardLayerBuilder;
   Phase2OTEndcapLayerBuilder aPhase2OTEndcapLayerBuilder;
+  Phase2PixelEndcapLayerBuilder aPhase2PxEndcapLayerBuilder;
   TIBLayerBuilder aTIBLayerBuilder;
   TOBLayerBuilder aTOBLayerBuilder;
   TIDLayerBuilder aTIDLayerBuilder;
@@ -176,9 +178,9 @@ GeometricSearchTrackerBuilder::build(const GeometricDet* theGeometricTracker,
       for(vector<const GeometricDet*>::const_iterator it2=thePxlFwdGeometricDetLayers.begin();
 	  it2!=thePxlFwdGeometricDetLayers.end(); it2++){
 	if((*it2)->positionBounds().z() < 0)
-	  theNegPxlFwdLayers.push_back( aPhase2OTEndcapLayerBuilder.build(*it2,theGeomDetGeometry) );
+	  theNegPxlFwdLayers.push_back( aPhase2PxEndcapLayerBuilder.build(*it2,theGeomDetGeometry) );
 	if((*it2)->positionBounds().z() > 0)
-	  thePosPxlFwdLayers.push_back( aPhase2OTEndcapLayerBuilder.build(*it2,theGeomDetGeometry) );
+	  thePosPxlFwdLayers.push_back( aPhase2PxEndcapLayerBuilder.build(*it2,theGeomDetGeometry) );
       }
     }
 
