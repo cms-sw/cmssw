@@ -32,6 +32,9 @@ public:
     //
     //   timeShift        -- time shift for QIE11 TDC times
     //
+    //   correctForPhaseContainment -- default switch for applying pulse
+    //                                 containment correction for "Method 0"
+    //
     //   m2               -- "Method 2" object
     //
     //   detFit           -- "Method 3" (a.k.a. "deterministic fit") object
@@ -40,6 +43,7 @@ public:
                          int samplesToAdd,
                          float phaseNS,
                          float timeShift,
+                         bool correctForPhaseContainment,
                          std::unique_ptr<PulseShapeFitOOTPileupCorrection> m2,
                          std::unique_ptr<HcalDeterministicFit> detFit);
 
@@ -59,6 +63,8 @@ public:
     inline int getFirstSampleShift() const {return firstSampleShift_;}
     inline int getSamplesToAdd() const {return samplesToAdd_;}
     inline float getPhaseNS() const {return phaseNS_;}
+    inline float getTimeShift() const {return timeShift_;}
+    inline bool isCorrectingForPhaseContainment() const {return corrFPC_;}
     inline int getRunNumber() const {return runnum_;}
 
 protected:
@@ -87,6 +93,7 @@ private:
     float phaseNS_;
     float timeShift_;
     int runnum_;
+    bool corrFPC_;
 
     // "Metod 2" algorithm
     std::unique_ptr<PulseShapeFitOOTPileupCorrection> psFitOOTpuCorr_;
@@ -95,7 +102,6 @@ private:
     std::unique_ptr<HcalDeterministicFit> hltOOTpuCorr_;
 
     HcalPulseShapes theHcalPulseShapes_;
-
 };
 
 #endif // RecoLocalCalo_HcalRecAlgos_SimpleHBHEPhase1Algo_h_

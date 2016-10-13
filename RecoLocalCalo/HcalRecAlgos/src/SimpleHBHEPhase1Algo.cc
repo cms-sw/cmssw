@@ -20,6 +20,7 @@ SimpleHBHEPhase1Algo::SimpleHBHEPhase1Algo(
     const int samplesToAdd,
     const float phaseNS,
     const float timeShift,
+    const bool correctForPhaseContainment,
     std::unique_ptr<PulseShapeFitOOTPileupCorrection> m2,
     std::unique_ptr<HcalDeterministicFit> detFit)
     : pulseCorr_(PulseContainmentFractionalError),
@@ -28,6 +29,7 @@ SimpleHBHEPhase1Algo::SimpleHBHEPhase1Algo(
       phaseNS_(phaseNS),
       timeShift_(timeShift),
       runnum_(0),
+      corrFPC_(correctForPhaseContainment),
       psFitOOTpuCorr_(std::move(m2)),
       hltOOTpuCorr_(std::move(detFit))
 {
@@ -63,7 +65,7 @@ HBHERecHit SimpleHBHEPhase1Algo::reconstruct(const HBHEChannelInfo& info,
             ibeg = 0;
         const int nSamplesToAdd = params ? params->samplesToAdd() : samplesToAdd_;
         const double fc_ampl = info.chargeInWindow(ibeg, ibeg + nSamplesToAdd);
-        const bool applyContainment = params ? params->correctForPhaseContainment() : true;
+        const bool applyContainment = params ? params->correctForPhaseContainment() : corrFPC_;
         const float phasens = params ? params->correctionPhaseNS() : phaseNS_;
         m0E = m0Energy(info, fc_ampl, applyContainment, phasens, nSamplesToAdd);
         m0E *= hbminusCorrectionFactor(channelId, m0E, isData);
