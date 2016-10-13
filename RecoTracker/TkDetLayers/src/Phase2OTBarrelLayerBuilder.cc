@@ -12,6 +12,7 @@ Phase2OTBarrelLayer* Phase2OTBarrelLayerBuilder::build(const GeometricDet* aPhas
   // This builder is very similar to TOBLayer one. Most of the code should be put in a 
   // common place.
 
+  LogTrace("TkDetLayers") << "Phase2OTBarrelLayerBuilder::build";
   vector<const GeometricDet*>  theGeometricDets = aPhase2OTBarrelLayer->components();
   LogDebug("TkDetLayers") << "Phase2OTBarrelLayerBuilder with #Components: " << theGeometricDets.size() << std::endl;
   vector<const GeometricDet*>  theGeometricDetRods;
@@ -69,9 +70,9 @@ Phase2OTBarrelLayer* Phase2OTBarrelLayerBuilder::build(const GeometricDet* aPhas
   for(vector<const GeometricDet*>::const_iterator it=theGeometricDetRings.begin();
       it!=theGeometricDetRings.end();it++){
     if((*it)->positionBounds().z() < centralZ)
-      theNegativeRings.push_back(myPhase2OTEndcapRingBuilder.build( *it,theGeomDetGeometry));
+      theNegativeRings.push_back(myPhase2OTEndcapRingBuilder.build( *it,theGeomDetGeometry,true ));
     if((*it)->positionBounds().z() > centralZ)
-      thePositiveRings.push_back(myPhase2OTEndcapRingBuilder.build( *it,theGeomDetGeometry));
+      thePositiveRings.push_back(myPhase2OTEndcapRingBuilder.build( *it,theGeomDetGeometry,true ));
   }
 
   return new Phase2OTtiltedBarrelLayer(theInnerRods,theOuterRods,theNegativeRings,thePositiveRings);
