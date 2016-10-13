@@ -57,7 +57,7 @@ class TrigSystem
 
 		std::string* logText_;
 
-		XmlConfigReader _xmlRdr;
+		//XmlConfigReader _xmlRdr;
 
 		bool checkIdExistsAndSetSetting_(std::vector<Setting>& vec, const std::string& id, const std::string& value, const std::string& procRole);
 		bool checkIdExistsAndSetSetting_(std::vector<Setting>& vec, const std::string& id, const std::string& columns, const std::string& types,  const std::vector<std::string>& rows, const std::string& procRole, const std::string& delim);
