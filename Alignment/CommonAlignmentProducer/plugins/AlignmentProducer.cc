@@ -393,6 +393,12 @@ AlignmentProducer::duringLoop( const edm::Event& event,
 // ----------------------------------------------------------------------------
 void AlignmentProducer::beginRun(const edm::Run &run, const edm::EventSetup &setup)
 {
+  if (setupChanged(setup)) {
+    edm::LogInfo("Alignment") << "@SUB=AlignmentProducer::beginRun"
+                              << "EventSetup-Record changed.";
+    initAlignmentAlgorithm(setup);
+  }
+
   theAlignmentAlgo->beginRun(run, setup);
 }
 
@@ -449,6 +455,61 @@ AlignmentProducer::createAlignmentAlgorithm(const edm::ParameterSet& config)
     throw cms::Exception("BadConfig")
       << "Couldn't find the called alignment algorithm: " << algoName;
   }
+}
+
+
+//------------------------------------------------------------------------------
+bool
+AlignmentProducer::setupChanged(const edm::EventSetup& setup)
+{
+  bool changed{false};
+
+  if (watchIdealGeometryRcd.check(setup)) {
+    changed = true;
+  }
+
+  if (watchGlobalPositionRcd.check(setup)) {
+    changed = true;
+  }
+
+  if (doTracker_) {
+    if (watchTrackerAlRcd.check(setup)) {
+        changed = true;
+    }
+
+    if (watchTrackerAlErrorExtRcd.check(setup)) {
+      changed = true;
+    }
+
+    if (watchTrackerSurDeRcd.check(setup)) {
+      changed = true;
+    }
+  }
+
+  if (doMuon_) {
+    if (watchDTAlRcd.check(setup)) {
+      changed = true;
+    }
+
+    if (watchDTAlErrExtRcd.check(setup)) {
+      changed = true;
+    }
+
+    if (watchCSCAlRcd.check(setup)) {
+      changed = true;
+    }
+
+    if (watchCSCAlErrExtRcd.check(setup)) {
+      changed = true;
+    }
+  }
+
+  /* TODO: ExtraAlignables: Which record(s) to check?
+   *
+  if (useExtras_) {}
+  */
+
+  return changed;
 }
 
 

@@ -111,6 +111,9 @@ class AlignmentProducer : public edm::ESProducerLooper
   /// Creates the choosen alignment algorithm (specified in config-file)
   void createAlignmentAlgorithm(const edm::ParameterSet&);
 
+  /// Checks if one of the EventSetup-Records has changed
+  bool setupChanged(const edm::EventSetup&);
+
   /// Creates Geometry and Alignables of the Tracker and initializes the
   /// AlignmentAlgorithm @theAlignmentAlgo
   void initAlignmentAlgorithm(const edm::EventSetup&);
@@ -219,6 +222,19 @@ class AlignmentProducer : public edm::ESProducerLooper
   const edm::InputTag clusterValueMapTag_;              // ValueMap containing associtaion cluster - flag
 
   // ESWatcher
+
+  edm::ESWatcher<IdealGeometryRecord> watchIdealGeometryRcd;
+  edm::ESWatcher<GlobalPositionRcd> watchGlobalPositionRcd;
+
+  edm::ESWatcher<TrackerAlignmentRcd> watchTrackerAlRcd;
+  edm::ESWatcher<TrackerAlignmentErrorExtendedRcd> watchTrackerAlErrorExtRcd;
+  edm::ESWatcher<TrackerSurfaceDeformationRcd> watchTrackerSurDeRcd;
+
+  edm::ESWatcher<DTAlignmentRcd> watchDTAlRcd;
+  edm::ESWatcher<DTAlignmentErrorExtendedRcd> watchDTAlErrExtRcd;
+  edm::ESWatcher<CSCAlignmentRcd> watchCSCAlRcd;
+  edm::ESWatcher<CSCAlignmentErrorExtendedRcd> watchCSCAlErrExtRcd;
+
   edm::ESWatcher<TrackerSurveyRcd> watchTkSurveyRcd_;
   edm::ESWatcher<TrackerSurveyErrorExtendedRcd> watchTkSurveyErrRcd_;
   edm::ESWatcher<DTSurveyRcd> watchDTSurveyRcd_;
