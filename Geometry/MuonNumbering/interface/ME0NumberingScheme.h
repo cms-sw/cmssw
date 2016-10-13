@@ -1,6 +1,7 @@
 #ifndef Geometry_MuonNumbering_ME0NumberingScheme_h
 #define Geometry_MuonNumbering_ME0NumberingScheme_h
 
+#include "FWCore/Utilities/interface/Exception.h"
 #include "Geometry/MuonNumbering/interface/MuonNumberingScheme.h"
 
 class MuonBaseNumber;
