@@ -1,7 +1,7 @@
 #ifndef TkDetLayers_Phase2OTEndcapLayer_h
 #define TkDetLayers_Phase2OTEndcapLayer_h
 
-#define NOTECRINGS 15   // FIXME: for sure to be fixed. Hopefully a better algorithm would not require looking for compatible hits in all the layers !!
+#define NOTECRINGS 15   // This number is just an upper bound
 
 #include "TrackingTools/DetLayers/interface/RingedForwardLayer.h"
 #include "Phase2OTEndcapRing.h"
@@ -47,7 +47,7 @@ class Phase2OTEndcapLayer final : public RingedForwardLayer {
   //  bool isCompatible( const TrajectoryStateOnSurface& ms,
   //	     const MeasurementEstimator& est) const;
 
-  std::array<int,3> findThreeClosest( const GlobalPoint[NOTECRINGS] ) const __attribute__ ((hot));
+  std::array<int,3> findThreeClosest( std::vector<GlobalPoint> ) const __attribute__ ((hot));
   
   bool overlapInR( const TrajectoryStateOnSurface& tsos, int i, double ymax) const __attribute__ ((hot));
   
@@ -61,10 +61,10 @@ class Phase2OTEndcapLayer final : public RingedForwardLayer {
  private:
   std::vector<GeomDet const*> theBasicComps;
   mutable std::atomic<std::vector<const GeometricSearchDet*>*> theComponents;
-  const Phase2OTEndcapRing* theComps[NOTECRINGS];
+  std::vector<const Phase2OTEndcapRing*> theComps;
   struct RingPar { float theRingR, thetaRingMin, thetaRingMax;};
-  RingPar ringPars[NOTECRINGS];
-
+  std::vector<RingPar> ringPars;
+  int theRingSize;
 };
 
 
