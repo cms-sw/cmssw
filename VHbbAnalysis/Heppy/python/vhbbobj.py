@@ -99,12 +99,13 @@ jetTypeVHbb = NTupleObjectType("jet",  baseObjectTypes = [ jetType ], variables 
     NTupleVariable("btagBProb", lambda x : x.btag('pfJetBProbabilityBJetTags') , help="jet b-probability b-tag"),
     NTupleVariable("btagSoftEl", lambda x : getattr(x, "btagSoftEl", -1000) , help="soft electron b-tag"),
     NTupleVariable("btagSoftMu", lambda x : getattr(x, "btagSoftMu", -1000) , help="soft muon b-tag"),
-    NTupleVariable("btagHip",   lambda x : x.bDiscriminator("newpfCombinedInclusiveSecondaryVertexV2BJetTags"), help="pfCombinedInclusiveSVV2 with btv HIP mitigation"),
-    NTupleVariable("btagHip2",   lambda x : getattr(x,"btagHip",-2), help="pfCombinedInclusiveSVV2 with btv HIP mitigation"),
-    NTupleVariable("btagHipCMVA",   lambda x : x.btag('newpfCombinedMVAV2BJetTags'), help="CMVAV2 with btv HIP mitigation"),
-    NTupleVariable("btagHipCMVA2",   lambda x : getattr(x,"btagHip",-2), help="CMVAV2 with btv HIP mitigation"),
+#see below
+#   NTupleVariable("btagHip",   lambda x : x.bDiscriminator("newpfCombinedInclusiveSecondaryVertexV2BJetTags"), help="pfCombinedInclusiveSVV2 with btv HIP mitigation"),
+#    NTupleVariable("btagHip2",   lambda x : getattr(x,"btagHip",-2), help="pfCombinedInclusiveSVV2 with btv HIP mitigation"),
+    NTupleVariable("btagCMVAV2",   lambda x : x.btag('newpfCombinedMVAV2BJetTags'), help="CMVAV2 with btv HIP mitigation"),
+#    NTupleVariable("btagHipCMVA2",   lambda x : getattr(x,"btagHip",-2), help="CMVAV2 with btv HIP mitigation"),
     NTupleVariable("btagCSVV0",   lambda x : x.bDiscriminator('pfCombinedSecondaryVertexV2BJetTags'), help="should be the old CSV discriminator with AVR vertices"),
-    NTupleVariable("btagCMVAV2",  lambda x : x.btag('pfCombinedMVAV2BJetTags'), help="CMVA V2 discriminator"),
+    NTupleVariable("btagCMVAV2NoHipMitigation",  lambda x : x.btag('pfCombinedMVAV2BJetTags'), help="CMVA V2 discriminator"),
    # NTupleVariable("mcMatchId",    lambda x : x.mcMatchId,   int, mcOnly=True, help="Match to source from hard scatter (25 for H, 6 for t, 23/24 for W/Z)"),
    # NTupleVariable("puId", lambda x : x.puJetIdPassed, int,     mcOnly=False, help="puId (full MVA, loose WP, 5.3.X training on AK5PFchs: the only thing that is available now)"),
    # NTupleVariable("id",    lambda x : x.jetID("POG_PFID") , int, mcOnly=False,help="POG Loose jet ID"),
@@ -156,6 +157,11 @@ jetTypeVHbb = NTupleObjectType("jet",  baseObjectTypes = [ jetType ], variables 
     NTupleVariable("blike_VBF",lambda x : getattr(x,"blike_VBF",-2), help="VBF blikelihood for SingleBtag dataset"),
     NTupleVariable("pt_puppi",lambda x : puppiWeightedPt(x).pt(), help="pt of jet obtained reweighting the constituents with puppi weights"),
  ])
+
+jetType.removeVariable("btagCSV")
+jetTypeVHbb.addVariables([NTupleVariable("btagCSV", lambda x : x.bDiscriminator("newpfCombinedInclusiveSecondaryVertexV2BJetTags"), help="pfCombinedInclusiveSVV2 with btv HIP mitigation"),
+                          NTupleVariable("btagNoHipMitigation",lambda x : x.bDiscriminator("pfCombinedInclusiveSecondaryVertexV2BJetTags"), help="pfCombinedInclusiveSVV2 without btv HIP mitigation")])
+
 
 # "" is the nominal rgression, the other refer to JEC/JER up/down
 for analysis in ["","corrJECUp", "corrJECDown", "corrJERUp", "corrJERDown"]:

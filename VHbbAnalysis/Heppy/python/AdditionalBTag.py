@@ -44,7 +44,7 @@ class AdditionalBTag( Analyzer ):
                      setattr(j, name, -3)
 
     def addNewBTag(self,event):
-        self.readTag(event, "btagHip")
+#        self.readTag(event, "btagHip")
         #self.readTag(event, "btagcsv")
         self.readTag(event, "btagSoftEl")
         self.readTag(event, "btagSoftMu")
