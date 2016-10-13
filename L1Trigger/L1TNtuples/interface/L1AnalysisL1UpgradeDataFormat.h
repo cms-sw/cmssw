@@ -43,6 +43,13 @@ namespace L1Analysis
       egIPhi.clear();
       egIso.clear();
       egBx.clear();
+      egTowerIPhi.clear();
+      egTowerIEta.clear();
+      egRawEt.clear();
+      egIsoEt.clear();
+      egFootprintEt.clear();
+      egNTT.clear();
+      egShape.clear();
 
       nTaus = 0;
       tauEt.clear();
@@ -53,6 +60,14 @@ namespace L1Analysis
       tauIPhi.clear(); 
       tauIso.clear();
       tauBx.clear();
+      tauTowerIPhi.clear();
+      tauTowerIEta.clear();
+      tauRawEt.clear();
+      tauIsoEt.clear();
+      tauNTT.clear();
+      tauHasEM.clear();
+      tauIsMerged.clear();
+      tauHwQual.clear();
 
       nJets = 0;
       jetEt.clear();
@@ -62,6 +77,15 @@ namespace L1Analysis
       jetIEta.clear();
       jetIPhi.clear();
       jetBx.clear();
+      jetTowerIPhi.clear();
+      jetTowerIEta.clear();
+      jetRawEt.clear();
+      jetSeedEt.clear();
+      jetPUEt.clear();
+      jetPUDonutEt0.clear();
+      jetPUDonutEt1.clear();
+      jetPUDonutEt2.clear();
+      jetPUDonutEt3.clear();
 
       nMuons = 0;
       muonEt.clear();
@@ -93,8 +117,15 @@ namespace L1Analysis
     std::vector<short int> egIEt;
     std::vector<short int> egIEta;
     std::vector<short int> egIPhi;
-    std::vector<short int>    egIso;
-    std::vector<short int>    egBx;
+    std::vector<short int> egIso;
+    std::vector<short int> egBx;
+    std::vector<short int> egTowerIPhi;
+    std::vector<short int> egTowerIEta;
+    std::vector<short int> egRawEt;
+    std::vector<short int> egIsoEt;
+    std::vector<short int> egFootprintEt;
+    std::vector<short int> egNTT;
+    std::vector<short int> egShape;
  
     unsigned short int nTaus;
     std::vector<float> tauEt;
@@ -103,8 +134,16 @@ namespace L1Analysis
     std::vector<short int> tauIEt;
     std::vector<short int> tauIEta;
     std::vector<short int> tauIPhi;
-    std::vector<short int>    tauIso;
-    std::vector<short int>    tauBx;
+    std::vector<short int> tauIso;
+    std::vector<short int> tauBx;
+    std::vector<short int> tauTowerIPhi;
+    std::vector<short int> tauTowerIEta;
+    std::vector<short int> tauRawEt;    
+    std::vector<short int> tauIsoEt;
+    std::vector<short int> tauNTT;
+    std::vector<short int> tauHasEM;
+    std::vector<short int> tauIsMerged;
+    std::vector<short int> tauHwQual;
 
     unsigned short int nJets;
     std::vector<float> jetEt;
@@ -113,7 +152,16 @@ namespace L1Analysis
     std::vector<short int> jetIEt;
     std::vector<short int> jetIEta;
     std::vector<short int> jetIPhi;
-    std::vector<short int>    jetBx;
+    std::vector<short int> jetBx;
+    std::vector<short int> jetTowerIPhi;
+    std::vector<short int> jetTowerIEta;
+    std::vector<short int> jetRawEt;    
+    std::vector<short int> jetSeedEt;
+    std::vector<short int> jetPUEt;
+    std::vector<short int> jetPUDonutEt0;
+    std::vector<short int> jetPUDonutEt1;
+    std::vector<short int> jetPUDonutEt2;
+    std::vector<short int> jetPUDonutEt3;
 
     unsigned short int nMuons;
     std::vector<float>   muonEt;

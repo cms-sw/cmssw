@@ -24,12 +24,12 @@ TriggerPrimitiveCollection DTBunchCrossingCleaner::
 clean( const TriggerPrimitiveCollection& inlist ) const {
   TriggerPrimitiveCollection leftovers = inlist;
   TriggerPrimitiveCollection outlist;
-    
+  
   auto tpin  = inlist.cbegin();
   auto inend = inlist.cend();
   for( ; tpin != inend; ++tpin ) {
     const TriggerPrimitive::DTData data = tpin->getDTData();
-
+    
     // automatically add well matched tracks
     if( data.qualityCode != -1 && data.theta_quality != -1) {      
       outlist.push_back(*tpin);
@@ -38,7 +38,7 @@ clean( const TriggerPrimitiveCollection& inlist ) const {
 	leftovers.erase(toerase);      
       }
     }
-
+    
     // clean up phi/theta digis split across a BX
     // key off of the phi digis since they are of higher quality    
     if( data.qualityCode != -1 && data.theta_quality == -1) {      
