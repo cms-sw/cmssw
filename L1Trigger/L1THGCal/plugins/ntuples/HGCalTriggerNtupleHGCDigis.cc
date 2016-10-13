@@ -17,9 +17,9 @@ class HGCalTriggerNtupleHGCDigis : public HGCalTriggerNtupleBase
         ~HGCalTriggerNtupleHGCDigis(){};
         virtual void initialize(TTree&, const edm::ParameterSet&, edm::ConsumesCollector&&) override final;
         virtual void fill(const edm::Event& e, const edm::EventSetup& es) override final;
-        virtual void simhits(const edm::Event& e);
 
     private:
+  void simhits(const edm::Event& e, std::unordered_map<uint32_t, double>& simhits_ee, std::unordered_map<uint32_t, double>& simhits_fh);
         virtual void clear() override final;
 
         edm::EDGetToken ee_token_, fh_token_;
@@ -43,8 +43,7 @@ class HGCalTriggerNtupleHGCDigis : public HGCalTriggerNtupleBase
 
         edm::ESHandle<HGCalGeometry> geom_ee, geom_fh;
         edm::ESHandle<HGCalTopology> topo_ee, topo_fh;
-        std::unordered_map<uint32_t, double> simhits_ee_;
-        std::unordered_map<uint32_t, double> simhits_fh_;
+     
 };
 
 DEFINE_EDM_PLUGIN(HGCalTriggerNtupleFactory,
@@ -103,7 +102,9 @@ fill(const edm::Event& e, const edm::EventSetup& es)
     const HGCHEDigiCollection& fh_digis = *fh_digis_h;
 
     // sim hit association
-    if (is_Simhit_comp_) simhits(e);
+    std::unordered_map<uint32_t, double> simhits_ee;
+    std::unordered_map<uint32_t, double> simhits_fh;  
+    if (is_Simhit_comp_) simhits(e, simhits_ee, simhits_fh);
     
     clear();
     hgcdigi_n_ = ee_digis.size() + fh_digis.size();
@@ -141,8 +142,8 @@ fill(const edm::Event& e, const edm::EventSetup& es)
         hgcdigi_isadc_.emplace_back(is_adc);
         if (is_Simhit_comp_) {
           double hit_energy=0;
-          auto itr = simhits_ee_.find(id);
-          if(itr!=simhits_ee_.end())hit_energy = itr->second;
+          auto itr = simhits_ee.find(id);
+          if(itr!=simhits_ee.end())hit_energy = itr->second;
           hgcdigi_simenergy_.emplace_back(hit_energy); 
         }
       }
@@ -167,8 +168,8 @@ fill(const edm::Event& e, const edm::EventSetup& es)
         hgcdigi_isadc_.emplace_back(is_adc);
         if (is_Simhit_comp_) {
           double hit_energy=0;
-          auto itr = simhits_fh_.find(id);
-          if(itr!=simhits_fh_.end())hit_energy = itr->second;
+          auto itr = simhits_fh.find(id);
+          if(itr!=simhits_fh.end())hit_energy = itr->second;
           hgcdigi_simenergy_.emplace_back(hit_energy); 
         }
       }
@@ -176,7 +177,7 @@ fill(const edm::Event& e, const edm::EventSetup& es)
 
 void
 HGCalTriggerNtupleHGCDigis::
-simhits(const edm::Event& e)
+simhits(const edm::Event& e, std::unordered_map<uint32_t, double>& simhits_ee, std::unordered_map<uint32_t, double>& simhits_fh)
 {
 
       edm::Handle<edm::PCaloHitContainer> ee_simhits_h;
@@ -189,10 +190,9 @@ simhits(const edm::Event& e)
       //EE
       int layer=0,cell=0, sec=0, subsec=0, zp=0,subdet=0;
       ForwardSubdetector mysubdet;
-      HGCalDetId recoDetId ;
       
       for( const auto& simhit : ee_simhits ) { 
-        HGCalTestNumbering::unpackHexagonIndex((HGCalDetId)simhit.id(), subdet, zp, layer, sec, subsec, cell); 
+        HGCalTestNumbering::unpackHexagonIndex(simhit.id(), subdet, zp, layer, sec, subsec, cell); 
         mysubdet = (ForwardSubdetector)(subdet);
         std::pair<int,int> recoLayerCell = topo_ee->dddConstants().simToReco(cell,layer,sec,topo_ee->detectorType());
         cell  = recoLayerCell.first;
@@ -200,7 +200,7 @@ simhits(const edm::Event& e)
         if (layer<0 || cell<0) {
           continue;
         }
-        auto itr_insert = simhits_ee_.emplace(HGCalDetId(mysubdet,zp,layer,subsec,sec,cell), 0.);
+        auto itr_insert = simhits_ee.emplace(HGCalDetId(mysubdet,zp,layer,subsec,sec,cell), 0.);
         itr_insert.first->second += simhit.energy();
       }
 
@@ -208,7 +208,7 @@ simhits(const edm::Event& e)
       layer=0; cell=0; sec=0; subsec=0; zp=0; subdet=0;
       
       for( const auto& simhit : fh_simhits ) { 
-        HGCalTestNumbering::unpackHexagonIndex((HGCalDetId) simhit.id(), subdet, zp, layer, sec, subsec, cell); 
+        HGCalTestNumbering::unpackHexagonIndex(simhit.id(), subdet, zp, layer, sec, subsec, cell); 
         mysubdet = (ForwardSubdetector)(subdet);
         std::pair<int,int> recoLayerCell = topo_fh->dddConstants().simToReco(cell,layer,sec,topo_fh->detectorType());
         cell  = recoLayerCell.first;
@@ -216,7 +216,7 @@ simhits(const edm::Event& e)
         if (layer<0 || cell<0) {
           continue;
         }
-        auto itr_insert = simhits_fh_.emplace(HGCalDetId(mysubdet,zp,layer,subsec,sec,cell), 0.);
+        auto itr_insert = simhits_fh.emplace(HGCalDetId(mysubdet,zp,layer,subsec,sec,cell), 0.);
         itr_insert.first->second += simhit.energy();
       }      
 }
