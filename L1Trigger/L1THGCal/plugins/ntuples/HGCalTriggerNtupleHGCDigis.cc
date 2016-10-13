@@ -17,6 +17,7 @@ class HGCalTriggerNtupleHGCDigis : public HGCalTriggerNtupleBase
         ~HGCalTriggerNtupleHGCDigis(){};
         virtual void initialize(TTree&, const edm::ParameterSet&, edm::ConsumesCollector&&) override final;
         virtual void fill(const edm::Event& e, const edm::EventSetup& es) override final;
+        virtual void simhits(const edm::Event& e);
 
     private:
         virtual void clear() override final;
@@ -33,16 +34,17 @@ class HGCalTriggerNtupleHGCDigis : public HGCalTriggerNtupleBase
         std::vector<int> hgcdigi_wafer_;
         std::vector<int> hgcdigi_wafertype_ ;
         std::vector<int> hgcdigi_cell_;
-        std::vector<float> hgcdigi_cell_eta_;
-        std::vector<float> hgcdigi_cell_phi_;
-        std::vector<float> hgcdigi_cell_z_;
+        std::vector<float> hgcdigi_eta_;
+        std::vector<float> hgcdigi_phi_;
+        std::vector<float> hgcdigi_z_;
         std::vector<uint32_t> hgcdigi_data_;
         std::vector<int> hgcdigi_isadc_;
-        std::vector<int> hgcdigi_istot_;
-        std::vector<float> hgcdigi_cell_simhit_energy_;
+        std::vector<float> hgcdigi_simenergy_;
 
         edm::ESHandle<HGCalGeometry> geom_ee, geom_fh;
         edm::ESHandle<HGCalTopology> topo_ee, topo_fh;
+        std::unordered_map<uint32_t, double> simhits_ee_;
+        std::unordered_map<uint32_t, double> simhits_fh_;
 };
 
 DEFINE_EDM_PLUGIN(HGCalTriggerNtupleFactory,
@@ -53,6 +55,7 @@ DEFINE_EDM_PLUGIN(HGCalTriggerNtupleFactory,
 HGCalTriggerNtupleHGCDigis::
 HGCalTriggerNtupleHGCDigis(const edm::ParameterSet& conf):HGCalTriggerNtupleBase(conf)
 {
+    is_Simhit_comp_ = conf.getParameter<bool>("isSimhitComp");
 
 }
 
@@ -63,10 +66,10 @@ initialize(TTree& tree, const edm::ParameterSet& conf, edm::ConsumesCollector&& 
 
     ee_token_ = collector.consumes<HGCEEDigiCollection>(conf.getParameter<edm::InputTag>("HGCDigisEE")); 
     fh_token_ = collector.consumes<HGCHEDigiCollection>(conf.getParameter<edm::InputTag>("HGCDigisFH"));
-    SimHits_inputee_ = collector.consumes<edm::PCaloHitContainer>(conf.getParameter<edm::InputTag>("eeSimHits"));
-    SimHits_inputfh_ = collector.consumes<edm::PCaloHitContainer>(conf.getParameter<edm::InputTag>("fhSimHits"));
-    is_Simhit_comp_ = conf.getParameter<bool>("isSimhitComp");
-
+    if (is_Simhit_comp_) {
+      SimHits_inputee_ = collector.consumes<edm::PCaloHitContainer>(conf.getParameter<edm::InputTag>("eeSimHits"));
+      SimHits_inputfh_ = collector.consumes<edm::PCaloHitContainer>(conf.getParameter<edm::InputTag>("fhSimHits"));
+    }
     tree.Branch("hgcdigi_n", &hgcdigi_n_, "hgcdigi_n/I");
     tree.Branch("hgcdigi_id", &hgcdigi_id_);
     tree.Branch("hgcdigi_subdet", &hgcdigi_subdet_);
@@ -75,13 +78,12 @@ initialize(TTree& tree, const edm::ParameterSet& conf, edm::ConsumesCollector&& 
     tree.Branch("hgcdigi_wafer", &hgcdigi_wafer_);
     tree.Branch("hgcdigi_wafertype", &hgcdigi_wafertype_);
     tree.Branch("hgcdigi_cell", &hgcdigi_cell_);    
-    tree.Branch("hgcdigi_cell_eta", &hgcdigi_cell_eta_);    
-    tree.Branch("hgcdigi_cell_phi", &hgcdigi_cell_phi_);    
-    tree.Branch("hgcdigi_cell_z", &hgcdigi_cell_z_);    
+    tree.Branch("hgcdigi_eta", &hgcdigi_eta_);    
+    tree.Branch("hgcdigi_phi", &hgcdigi_phi_);    
+    tree.Branch("hgcdigi_z", &hgcdigi_z_);    
     tree.Branch("hgcdigi_data", &hgcdigi_data_);
     tree.Branch("hgcdigi_isadc", &hgcdigi_isadc_);
-    tree.Branch("hgcdigi_istot", &hgcdigi_istot_);
-    if (is_Simhit_comp_) tree.Branch("hgcdigi_cell_simhit_energy", &hgcdigi_cell_simhit_energy_);
+    if (is_Simhit_comp_) tree.Branch("hgcdigi_simenergy", &hgcdigi_simenergy_);
 }
 
 void
@@ -100,64 +102,8 @@ fill(const edm::Event& e, const edm::EventSetup& es)
     e.getByToken(fh_token_, fh_digis_h);
     const HGCHEDigiCollection& fh_digis = *fh_digis_h;
 
-    // retrieve simhit collections
-    std::unordered_map<uint32_t, double> simhits_ee;
-    std::unordered_map<uint32_t, double> simhits_fh;
-    
     // sim hit association
-    if (is_Simhit_comp_) {
-      edm::Handle<edm::PCaloHitContainer> ee_simhits_h;
-      e.getByToken(SimHits_inputee_,ee_simhits_h);
-      const edm::PCaloHitContainer& ee_simhits = *ee_simhits_h;
-      edm::Handle<edm::PCaloHitContainer> fh_simhits_h;
-      e.getByToken(SimHits_inputfh_,fh_simhits_h);
-      const edm::PCaloHitContainer& fh_simhits = *fh_simhits_h;
-      
-      //EE
-      HGCalDetId digiid, simid;
-      int layer=0,cell=0, sec=0, subsec=0, zp=0,subdet=0;
-      ForwardSubdetector mysubdet;
-      HGCalDetId recoDetId ;
-      
-      for( const auto& simhit : ee_simhits ) { 
-        simid = (HGCalDetId)simhit.id();
-        HGCalTestNumbering::unpackHexagonIndex(simid, subdet, zp, layer, sec, subsec, cell); 
-        mysubdet = (ForwardSubdetector)(subdet);
-        std::pair<int,int> recoLayerCell = topo_ee->dddConstants().simToReco(cell,layer,sec,topo_ee->detectorType());
-        cell  = recoLayerCell.first;
-        layer = recoLayerCell.second;
-        if (layer<0 || cell<0) {
-          continue;
-        }
-        recoDetId = HGCalDetId(mysubdet,zp,layer,subsec,sec,cell);
-        auto itr_insert = simhits_ee.emplace(recoDetId, 0.);
-        itr_insert.first->second += simhit.energy();
-      }
-
-      //  FH
-      layer=0;
-      cell=0;
-      sec=0;
-      subsec=0;
-      zp=0;
-      subdet=0;
-      
-      for( const auto& simhit : fh_simhits ) { 
-        simid = (HGCalDetId) simhit.id();
-        HGCalTestNumbering::unpackHexagonIndex(simid, subdet, zp, layer, sec, subsec, cell); 
-        mysubdet = (ForwardSubdetector)(subdet);
-        std::pair<int,int> recoLayerCell = topo_fh->dddConstants().simToReco(cell,layer,sec,topo_fh->detectorType());
-        cell  = recoLayerCell.first;
-        layer = recoLayerCell.second;
-        if (layer<0 || cell<0) {
-          continue;
-        }
-        recoDetId = HGCalDetId(mysubdet,zp,layer,subsec,sec,cell);
-        auto itr_insert = simhits_fh.emplace(recoDetId, 0.);
-        itr_insert.first->second += simhit.energy();
-      }      
-    }
-    //
+    if (is_Simhit_comp_) simhits(e);
     
     clear();
     hgcdigi_n_ = ee_digis.size() + fh_digis.size();
@@ -168,13 +114,13 @@ fill(const edm::Event& e, const edm::EventSetup& es)
     hgcdigi_wafer_.reserve(hgcdigi_n_);
     hgcdigi_wafertype_.reserve(hgcdigi_n_);
     hgcdigi_cell_.reserve(hgcdigi_n_);
-    hgcdigi_cell_eta_.reserve(hgcdigi_n_);
-    hgcdigi_cell_phi_.reserve(hgcdigi_n_);
-    hgcdigi_cell_z_.reserve(hgcdigi_n_);
+    hgcdigi_eta_.reserve(hgcdigi_n_);
+    hgcdigi_phi_.reserve(hgcdigi_n_);
+    hgcdigi_z_.reserve(hgcdigi_n_);
     hgcdigi_data_.reserve(hgcdigi_n_);
     hgcdigi_isadc_.reserve(hgcdigi_n_);
-    hgcdigi_istot_.reserve(hgcdigi_n_);
-    hgcdigi_cell_simhit_energy_.reserve(hgcdigi_n_);
+    if (is_Simhit_comp_) hgcdigi_simenergy_.reserve(hgcdigi_n_);
+    
     for(const auto& digi : ee_digis)
       {
         const HGCalDetId id(digi.id());
@@ -185,20 +131,19 @@ fill(const edm::Event& e, const edm::EventSetup& es)
         hgcdigi_wafer_.emplace_back(id.wafer());
         hgcdigi_wafertype_.emplace_back(id.waferType());
         hgcdigi_cell_.emplace_back(id.cell());
-        hgcdigi_cell_eta_.emplace_back(geom_ee->getPosition(id.rawId()).eta());
-        hgcdigi_cell_phi_.emplace_back(geom_ee->getPosition(id.rawId()).phi());
-        hgcdigi_cell_z_.emplace_back(geom_ee->getPosition(id.rawId()).z());
+        GlobalPoint cellpos = geom_ee->getPosition(id.rawId());
+        hgcdigi_eta_.emplace_back(cellpos.eta());
+        hgcdigi_phi_.emplace_back(cellpos.phi());
+        hgcdigi_z_.emplace_back(cellpos.z());
         hgcdigi_data_.emplace_back(digi[2].data()); 
-        int is_tot=0,is_adc=0;
-        if (digi[2].mode()) is_tot=1;
-        else is_adc =1;
+        int is_adc=0;
+        if (!(digi[2].mode())) is_adc =1;
         hgcdigi_isadc_.emplace_back(is_adc);
-        hgcdigi_istot_.emplace_back(is_tot);
         if (is_Simhit_comp_) {
           double hit_energy=0;
-          auto itr = simhits_ee.find(id);
-          if(itr!=simhits_ee.end())hit_energy = itr->second;
-          hgcdigi_cell_simhit_energy_.emplace_back(hit_energy); 
+          auto itr = simhits_ee_.find(id);
+          if(itr!=simhits_ee_.end())hit_energy = itr->second;
+          hgcdigi_simenergy_.emplace_back(hit_energy); 
         }
       }
     
@@ -212,22 +157,68 @@ fill(const edm::Event& e, const edm::EventSetup& es)
         hgcdigi_wafer_.emplace_back(id.wafer());
         hgcdigi_wafertype_.emplace_back(id.waferType());
         hgcdigi_cell_.emplace_back(id.cell());
-        hgcdigi_cell_eta_.emplace_back(geom_fh->getPosition(id.rawId()).eta());
-        hgcdigi_cell_phi_.emplace_back(geom_fh->getPosition(id.rawId()).phi());
-        hgcdigi_cell_z_.emplace_back(geom_fh->getPosition(id.rawId()).z());
+        GlobalPoint cellpos = geom_fh->getPosition(id.rawId());
+        hgcdigi_eta_.emplace_back(cellpos.eta());
+        hgcdigi_phi_.emplace_back(cellpos.phi());
+        hgcdigi_z_.emplace_back(cellpos.z());
         hgcdigi_data_.emplace_back(digi[2].data()); 
-        int is_tot=0,is_adc=0;
-        if (digi[2].mode()) is_tot=1;
-        else is_adc =1;
-        hgcdigi_istot_.emplace_back(is_tot);
+        int is_adc=0;
+        if (!(digi[2].mode())) is_adc =1;
         hgcdigi_isadc_.emplace_back(is_adc);
         if (is_Simhit_comp_) {
           double hit_energy=0;
-          auto itr = simhits_fh.find(id);
-          if(itr!=simhits_fh.end())hit_energy = itr->second;
-          hgcdigi_cell_simhit_energy_.emplace_back(hit_energy); 
+          auto itr = simhits_fh_.find(id);
+          if(itr!=simhits_fh_.end())hit_energy = itr->second;
+          hgcdigi_simenergy_.emplace_back(hit_energy); 
         }
       }
+}
+
+void
+HGCalTriggerNtupleHGCDigis::
+simhits(const edm::Event& e)
+{
+
+      edm::Handle<edm::PCaloHitContainer> ee_simhits_h;
+      e.getByToken(SimHits_inputee_,ee_simhits_h);
+      const edm::PCaloHitContainer& ee_simhits = *ee_simhits_h;
+      edm::Handle<edm::PCaloHitContainer> fh_simhits_h;
+      e.getByToken(SimHits_inputfh_,fh_simhits_h);
+      const edm::PCaloHitContainer& fh_simhits = *fh_simhits_h;
+      
+      //EE
+      int layer=0,cell=0, sec=0, subsec=0, zp=0,subdet=0;
+      ForwardSubdetector mysubdet;
+      HGCalDetId recoDetId ;
+      
+      for( const auto& simhit : ee_simhits ) { 
+        HGCalTestNumbering::unpackHexagonIndex((HGCalDetId)simhit.id(), subdet, zp, layer, sec, subsec, cell); 
+        mysubdet = (ForwardSubdetector)(subdet);
+        std::pair<int,int> recoLayerCell = topo_ee->dddConstants().simToReco(cell,layer,sec,topo_ee->detectorType());
+        cell  = recoLayerCell.first;
+        layer = recoLayerCell.second;
+        if (layer<0 || cell<0) {
+          continue;
+        }
+        auto itr_insert = simhits_ee_.emplace(HGCalDetId(mysubdet,zp,layer,subsec,sec,cell), 0.);
+        itr_insert.first->second += simhit.energy();
+      }
+
+      //  FH
+      layer=0; cell=0; sec=0; subsec=0; zp=0; subdet=0;
+      
+      for( const auto& simhit : fh_simhits ) { 
+        HGCalTestNumbering::unpackHexagonIndex((HGCalDetId) simhit.id(), subdet, zp, layer, sec, subsec, cell); 
+        mysubdet = (ForwardSubdetector)(subdet);
+        std::pair<int,int> recoLayerCell = topo_fh->dddConstants().simToReco(cell,layer,sec,topo_fh->detectorType());
+        cell  = recoLayerCell.first;
+        layer = recoLayerCell.second;
+        if (layer<0 || cell<0) {
+          continue;
+        }
+        auto itr_insert = simhits_fh_.emplace(HGCalDetId(mysubdet,zp,layer,subsec,sec,cell), 0.);
+        itr_insert.first->second += simhit.energy();
+      }      
 }
 
 
@@ -243,13 +234,12 @@ clear()
     hgcdigi_wafer_.clear();
     hgcdigi_wafertype_.clear();
     hgcdigi_cell_.clear();
-    hgcdigi_cell_eta_.clear();
-    hgcdigi_cell_phi_.clear();
-    hgcdigi_cell_z_.clear();
+    hgcdigi_eta_.clear();
+    hgcdigi_phi_.clear();
+    hgcdigi_z_.clear();
     hgcdigi_data_.clear();
-    hgcdigi_istot_.clear();
     hgcdigi_isadc_.clear();
-    if  (is_Simhit_comp_) hgcdigi_cell_simhit_energy_.clear();
+    if  (is_Simhit_comp_) hgcdigi_simenergy_.clear();
 }
 
 
