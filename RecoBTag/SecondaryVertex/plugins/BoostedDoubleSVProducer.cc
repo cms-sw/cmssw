@@ -460,7 +460,7 @@ BoostedDoubleSVProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
      if ( tau1_nSecondaryVertices > 0. )
      {
        math::XYZTLorentzVector tau1_vertexSum = tau1Kinematics.weightedVectorSum();
-       tau1_vertexEnergyRatio = tau1_vertexSum.E() / allSum.E();
+       if ( allSum.E() > 0. ) tau1_vertexEnergyRatio = tau1_vertexSum.E() / allSum.E();
        if ( tau1_vertexEnergyRatio > 50. ) tau1_vertexEnergyRatio = 50.;
 
        tau1_vertexMass = tau1_vertexSum.M();
@@ -469,7 +469,7 @@ BoostedDoubleSVProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
      if ( tau2_nSecondaryVertices > 0. )
      {
        math::XYZTLorentzVector tau2_vertexSum = tau2Kinematics.weightedVectorSum();
-       tau2_vertexEnergyRatio = tau2_vertexSum.E() / allSum.E();
+       if ( allSum.E() > 0. ) tau2_vertexEnergyRatio = tau2_vertexSum.E() / allSum.E();
        if ( tau2_vertexEnergyRatio > 50. ) tau2_vertexEnergyRatio = 50.;
 
        tau2_vertexMass= tau2_vertexSum.M();
