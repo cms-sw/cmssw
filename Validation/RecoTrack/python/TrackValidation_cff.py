@@ -234,6 +234,15 @@ trackingParticlesSignal = _trackingParticleRefSelector.clone(
     ptMin = 0,
 )
 
+# select tracks with pT > 0.9 GeV (for upgrade fake rates)
+generalTracksPt09 = cutsRecoTracks_cfi.cutsRecoTracks.clone(ptMin=0.9)
+# and then the selectors
+_sequenceForEachEra(_addSelectorsBySrc, modDict=globals(),
+                    args=[["_generalTracksHp"]],
+                    plainArgs=["Pt09", "generalTracksPt09"],
+                    names="_selectorsPt09", sequence="_tracksValidationSelectorsPt09",
+                    modifySequence=lambda seq:seq.insert(0, generalTracksPt09))
+
 # select tracks from the PV
 from CommonTools.RecoAlgos.TrackWithVertexRefSelector_cfi import trackWithVertexRefSelector as _trackWithVertexRefSelector
 generalTracksFromPV = _trackWithVertexRefSelector.clone(
@@ -254,6 +263,15 @@ _sequenceForEachEra(_addSelectorsBySrc, modDict=globals(),
                     plainArgs=["FromPV", "generalTracksFromPV"],
                     names="_selectorsFromPV", sequence="_tracksValidationSelectorsFromPV",
                     modifySequence=lambda seq: seq.insert(0, generalTracksFromPV))
+
+# select tracks with pT > 0.9 GeV from the PV
+generalTracksFromPVPt09 = generalTracksPt09.clone(src="generalTracksFromPV")
+# and then the selectors
+_sequenceForEachEra(_addSelectorsBySrc, modDict=globals(),
+                    args=[["_generalTracksHp"]],
+                    plainArgs=["FromPVPt09", "generalTracksFromPVPt09"],
+                    names="_selectorsFromPVPt09", sequence="_tracksValidationSelectorsFromPVPt09",
+                    modifySequence=lambda seq: seq.insert(0, generalTracksFromPVPt09))
 
 ## Select conversion TrackingParticles, and define the corresponding associator
 trackingParticlesConversion = _trackingParticleConversionRefSelector.clone()
@@ -283,10 +301,14 @@ fastSim.toModify(trackValidator,
 
 for _eraName, _postfix, _era in _relevantEras:
     _setForEra(trackValidator, _eraName, _era,
-               label = ["generalTracks", locals()["_generalTracksHp"+_postfix]] + locals()["_selectorsByAlgo"+_postfix] + locals()["_selectorsByAlgoHp"+_postfix] + [
+               label = ["generalTracks", locals()["_generalTracksHp"+_postfix]] +
+                       locals()["_selectorsByAlgo"+_postfix] + locals()["_selectorsByAlgoHp"+_postfix] +
+                       ["generalTracksPt09"] + locals()["_selectorsPt09"+_postfix] +
+               [
                    "cutsRecoTracksBtvLike",
                    "cutsRecoTracksAK4PFJets"
-    ])
+               ]
+    )
     _setForEra(trackValidator.histoProducerAlgoBlock, _eraName, _era, seedingLayerSets=locals()["_seedingLayerSets"+_postfix])
 
 # For efficiency of signal TPs vs. signal tracks, and fake rate of
@@ -302,7 +324,7 @@ trackValidatorFromPV = trackValidator.clone(
     doPVAssociationPlots = False,
 )
 for _eraName, _postfix, _era in _relevantEras:
-    _setForEra(trackValidatorFromPV, _eraName, _era, label = ["generalTracksFromPV"] + locals()["_selectorsFromPV"+_postfix])
+    _setForEra(trackValidatorFromPV, _eraName, _era, label = ["generalTracksFromPV"] + locals()["_selectorsFromPV"+_postfix] + ["generalTracksFromPVPt09"] + locals()["_selectorsFromPVPt09"+_postfix])
 
 # For fake rate of signal tracks vs. all TPs, and pileup rate of
 # signal tracks vs. non-signal TPs
@@ -320,6 +342,7 @@ trackValidatorFromPVAllTP = trackValidatorFromPV.clone(
 # For efficiency of all TPs vs. all tracks
 trackValidatorAllTPEffic = trackValidator.clone(
     dirName = "Tracking/TrackAllTPEffic/",
+    label = [x for x in trackValidator.label.value() if "Pt09" not in x],
     doSimPlots = False,
     doRecoTrackPlots = False, # Fake rate of all tracks vs. all TPs is already included in trackValidator
     doPVAssociationPlots = False,
@@ -384,7 +407,9 @@ fastSim.toModify(tracksValidationTruth, lambda x: x.remove(tpClusterProducer))
 
 tracksPreValidation = cms.Sequence(
     tracksValidationSelectors +
+    tracksValidationSelectorsPt09 +
     tracksValidationSelectorsFromPV +
+    tracksValidationSelectorsFromPVPt09 +
     tracksValidationTruth +
     cms.ignore(trackingParticlesSignal) +
     cms.ignore(trackingParticlesElectron) +
@@ -418,25 +443,35 @@ _sequenceForEachEra(_addSelectorsByOriginalAlgoMask, modDict = globals(),
                     args = ["_selectorsByAlgoAndHp"], plainArgs = ["ByAlgoMask", "algorithmMaskContains"],
                     names = "_selectorsByAlgoMask", sequence = "_tracksValidationSelectorsByAlgoMaskStandalone")
 
+# Select pT>0.9 by iteration
+_sequenceForEachEra(_addSelectorsBySrc, modDict = globals(),
+                    args = ["_selectorsByAlgoAndHp"], plainArgs = ["Pt09", "generalTracksPt09"],
+                    names = "_selectorsPt09Standalone", sequence = "_tracksValidationSelectorsPt09Standalone")
+
 # Select fromPV by iteration
 _sequenceForEachEra(_addSelectorsBySrc, modDict = globals(),
                     args = ["_selectorsByAlgoAndHp"], plainArgs = ["FromPV", "generalTracksFromPV"],
                     names = "_selectorsFromPVStandalone", sequence = "_tracksValidationSelectorsFromPVStandalone")
 
+# Select pt>0.9 and fromPV by iteration
+_sequenceForEachEra(_addSelectorsBySrc, modDict = globals(),
+                    args = ["_selectorsByAlgoAndHp"], plainArgs = ["FromPVPt09", "generalTracksFromPVPt09"],
+                    names = "_selectorsFromPVPt09Standalone", sequence = "_tracksValidationSelectorsFromPVPt09Standalone")
+
 # MTV instances
 trackValidatorStandalone = trackValidator.clone()
 for _eraName, _postfix, _era in _relevantEras:
-    _setForEra(trackValidatorStandalone, _eraName, _era, label = trackValidator.label + locals()["_selectorsByOriginalAlgo"+_postfix] + locals()["_selectorsByAlgoMask"+_postfix])
+    _setForEra(trackValidatorStandalone, _eraName, _era, label = trackValidator.label + locals()["_selectorsByOriginalAlgo"+_postfix] + locals()["_selectorsByAlgoMask"+_postfix] + locals()["_selectorsPt09Standalone"+_postfix])
 
 trackValidatorFromPVStandalone = trackValidatorFromPV.clone()
 for _eraName, _postfix, _era in _relevantEras:
-    _setForEra(trackValidatorFromPVStandalone, _eraName, _era, label = trackValidatorFromPV.label + locals()["_selectorsFromPVStandalone"+_postfix])
+    _setForEra(trackValidatorFromPVStandalone, _eraName, _era, label = trackValidatorFromPV.label + locals()["_selectorsFromPVStandalone"+_postfix] + locals()["_selectorsFromPVPt09Standalone"+_postfix])
 
 trackValidatorFromPVAllTPStandalone = trackValidatorFromPVAllTP.clone(
     label = trackValidatorFromPVStandalone.label.value()
 )
 trackValidatorAllTPEfficStandalone = trackValidatorAllTPEffic.clone(
-    label = [ x for x in trackValidator.label.value() if x not in ["cutsRecoTracksBtvLike", "cutsRecoTracksAK4PFJets"]]
+    label = [ x for x in trackValidator.label.value() if x not in ["cutsRecoTracksBtvLike", "cutsRecoTracksAK4PFJets"] and "Pt09" not in x]
 )
 
 trackValidatorConversionStandalone = trackValidatorConversion.clone( label = [x for x in trackValidatorConversion.label if x != "convStepTracks"])
@@ -445,7 +480,9 @@ trackValidatorConversionStandalone = trackValidatorConversion.clone( label = [x 
 tracksValidationSelectorsStandalone = cms.Sequence(
     tracksValidationSelectorsByOriginalAlgoStandalone +
     tracksValidationSelectorsByAlgoMaskStandalone +
-    tracksValidationSelectorsFromPVStandalone
+    tracksValidationSelectorsPt09Standalone +
+    tracksValidationSelectorsFromPVStandalone +
+    tracksValidationSelectorsFromPVPt09Standalone
 )
 
 # we copy this for both Standalone and TrackingOnly
