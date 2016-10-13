@@ -28,13 +28,6 @@ def cust_2023tilted4021(process):
     process=customiseTiltedTK4021(process)
     return process
 
-def cust_2023D6(process):
-    # To allow simulatenous use of customisation and era while the era migration is in progress
-    process=customiseTiltedTK(process)
-    process=customiseME010EtaPart(process)
-    return process
-
-
 def cust_2019(process):
     process=customisePostLS1(process,displayDeprecationWarning=False)
     process=customisePhase1Tk(process)
