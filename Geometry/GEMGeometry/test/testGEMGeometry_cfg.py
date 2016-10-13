@@ -2,8 +2,8 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("Demo")
 
-process.load('Configuration.Geometry.GeometryExtended2023D3_cff')
-process.load('Configuration.Geometry.GeometryExtended2023D3Reco_cff')
+process.load('Configuration.Geometry.GeometryExtended2023D1_cff')
+process.load('Configuration.Geometry.GeometryExtended2023D1Reco_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc', '')
