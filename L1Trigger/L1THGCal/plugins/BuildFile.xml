@@ -25,5 +25,6 @@
 <library   name="L1TriggerL1THGCalPlugins_ntuples" file="ntuples/*.cc">
   <use   name="L1Trigger/L1THGCal"/>  
   <use   name="CommonTools/UtilAlgos"/>
+  <use   name="SimDataFormats/CaloTest"/>
   <flags   EDM_PLUGIN="1"/>
 </library>
