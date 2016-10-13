@@ -16,19 +16,7 @@ Phase2PixelEndcapLayer* Phase2PixelEndcapLayerBuilder::build(const GeometricDet*
 
   for(vector<const GeometricDet*>::const_iterator it=theGeometricRings.begin();
       it!=theGeometricRings.end();it++){
-
-    if( (*it)->type() == GeometricDet::OTPhase2Wheel){
-      LogTrace("TkDetLayers") << "GeometricDet::OTPhase2Wheel";
-      thePhase2OTEndcapRings.push_back(myBuilder.build( *it,theGeomDetGeometry,true ));
-    } else if( (*it)->type() == GeometricDet::PixelPhase2FullDisk || (*it)->type() == GeometricDet::PixelPhase2ReducedDisk || (*it)->type() == GeometricDet::PixelPhase2TDRDisk){
-      LogTrace("TkDetLayers") << "GeometricDet::PixelPhase2Disk";
-    } else if( (*it)->type() == GeometricDet::panel){
-      LogTrace("TkDetLayers") << "GeometricDet::panel";
-      thePhase2OTEndcapRings.push_back(myBuilder.build( *it,theGeomDetGeometry,false ));
-    } else {
-      LogTrace("TkDetLayers") << "Not GeometricDet::OTPhase2Wheel or panel or some PixelPhase2Disks!!";
-    }
-
+    thePhase2OTEndcapRings.push_back(myBuilder.build( *it,theGeomDetGeometry,false ));
   }
 
   return new Phase2PixelEndcapLayer(thePhase2OTEndcapRings);
