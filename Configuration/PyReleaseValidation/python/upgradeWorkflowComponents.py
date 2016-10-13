@@ -212,6 +212,8 @@ upgradeFragments=['FourMuPt_1_200_pythia8_cfi',
 		          'DYToLL_M_50_TuneZ2star_14TeV_pythia6_tauola_cff',
 		          'DYtoTauTau_M_50_TuneD6T_14TeV_pythia6_tauola_cff',
                   'ZEE_14TeV_TuneCUETP8M1_cfi',
+                  'QCD_Pt_80_120_13TeV_TuneCUETP8M1_cfi',
+                  'H125GGgluonfusion_13TeV_TuneCUETP8M1_cfi',
 ]
 
 howMuches={'FourMuPt_1_200_pythia8_cfi':Kby(10,100),
@@ -261,6 +263,8 @@ howMuches={'FourMuPt_1_200_pythia8_cfi':Kby(10,100),
            'TTbar_13TeV_TuneCUETP8M1_cfi':Kby(9,50),
 	       'MinBias_13TeV_pythia8_TuneCUETP8M1_cfi':Kby(90,100),
            'ZEE_14TeV_TuneCUETP8M1_cfi':Kby(9,100),
+           'QCD_Pt_80_120_13TeV_TuneCUETP8M1_cfi':Kby(9,100),
+           'H125GGgluonfusion_13TeV_TuneCUETP8M1_cfi':Kby(9,50),
 }
 
 upgradeDatasetFromFragment={'FourMuPt_1_200_pythia8_cfi': 'FourMuPt1_200',
@@ -310,4 +314,6 @@ upgradeDatasetFromFragment={'FourMuPt_1_200_pythia8_cfi': 'FourMuPt1_200',
 			                'TTbar_13TeV_TuneCUETP8M1_cfi' : 'TTbar_13',
 			                'MinBias_13TeV_pythia8_TuneCUETP8M1_cfi' : 'MinBias_13',
                             'ZEE_14TeV_TuneCUETP8M1_cfi' : 'ZEE_14',
+                            'QCD_Pt_80_120_13TeV_TuneCUETP8M1_cfi' : 'QCD_Pt_80_120_13',
+                            'H125GGgluonfusion_13TeV_TuneCUETP8M1_cfi' : 'H125GGgluonfusion_13',
 }
