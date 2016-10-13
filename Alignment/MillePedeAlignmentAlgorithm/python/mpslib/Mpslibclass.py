@@ -99,18 +99,18 @@ class jobdatabase:
             line = line.rstrip('\n')                #removes the pesky \n from line
             parts = line.split(":")                 #read each line and split into parts list
             self.JOBNUMBER.append(int(parts[0]))
-            self.JOBDIR.append(parts[1])
+            self.JOBDIR.append(parts[1].strip())
             self.JOBID.append(int(parts[2]))
-            self.JOBSTATUS.append(parts[3])
+            self.JOBSTATUS.append(parts[3].strip())
             self.JOBNTRY.append(int(parts[4]))
             self.JOBRUNTIME.append(int(parts[5]))   #int float?
             self.JOBNEVT.append(int(parts[6]))
-            self.JOBHOST.append(parts[7])
+            self.JOBHOST.append(parts[7].strip())
             self.JOBINCR.append(int(parts[8]))
-            self.JOBREMARK.append(parts[9])
-            self.JOBSP1.append(parts[10])
-            self.JOBSP2.append(parts[11])
-            self.JOBSP3.append(parts[12])
+            self.JOBREMARK.append(parts[9].strip())
+            self.JOBSP1.append(parts[10].strip())
+            self.JOBSP2.append(parts[11].strip())
+            self.JOBSP3.append(parts[12].strip())
 
             #count number of jobs
             if not self.JOBDIR[self.nJobs].startswith("jobm"):
