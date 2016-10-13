@@ -108,12 +108,37 @@ class AlignmentProducer : public edm::ESProducerLooper
 
   // private member functions
 
+  /// Creates the choosen alignment algorithm (specified in config-file)
+  void createAlignmentAlgorithm(const edm::ParameterSet&);
+
+  /// Creates Geometry and Alignables of the Tracker and initializes the
+  /// AlignmentAlgorithm @theAlignmentAlgo
+  void initAlignmentAlgorithm(const edm::EventSetup&);
+
+  /// Applies Alignments from Database (GlobalPositionRcd) to Geometry
+  /// @theTracker
+  void applyAlignmentsToDB(const edm::EventSetup&);
+
+  /// Creates Alignables @theAlignableTracker from the previously loaded
+  /// Geometry @theTracker
+  void createAlignables(const TrackerTopology*);
+
+  /// Creates the @theAlignmentParameterStore, which manages all Alignables
+  void buildParameterStore();
+
+  /// Applies misalignment scenario to @theAlignableTracker
+  void applyMisalignment();
+
   /// Apply random shifts and rotations to selected alignables, according to configuration
-  void simpleMisalignment_(const Alignables &alivec, const std::string &selection,
+  void simpleMisalignment(const Alignables &alivec, const std::string &selection,
                           float shift, float rot, bool local);
 
   /// Create tracker and muon geometries
-  void createGeometries_( const edm::EventSetup& );
+  void createGeometries(const edm::EventSetup&, const TrackerTopology*);
+
+  /// Applies Alignments, AlignmentErrors and SurfaceDeformations to
+  /// @theTracker
+  void applyAlignmentsToGeometry();
 
   /// Apply DB constants belonging to (Err)Rcd to geometry,
   /// taking into account 'globalPosition' correction.

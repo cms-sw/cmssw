@@ -114,16 +114,7 @@ AlignmentProducer::AlignmentProducer(const edm::ParameterSet& iConfig) :
   }
 
   // Create the alignment algorithm
-  edm::ParameterSet algoConfig = iConfig.getParameter<edm::ParameterSet>( "algoConfig" );
-  edm::VParameterSet iovSelection = iConfig.getParameter<edm::VParameterSet>( "RunRangeSelection" );
-  algoConfig.addUntrackedParameter<edm::VParameterSet>( "RunRangeSelection", iovSelection );
-  algoConfig.addUntrackedParameter<RunNumber>("firstIOV", uniqueRunRanges_.front().first);
-  std::string algoName = algoConfig.getParameter<std::string>( "algoName" );
-  theAlignmentAlgo = AlignmentAlgorithmPluginFactory::get( )->create( algoName, algoConfig  );
-
-  // Check if found
-  if ( !theAlignmentAlgo )
-	throw cms::Exception("BadConfig") << "Couldn't find algorithm called " << algoName;
+  createAlignmentAlgorithm(iConfig);
 
   // Now create monitors:
   edm::ParameterSet monitorConfig = iConfig.getParameter<edm::ParameterSet>( "monitorConfig" );
@@ -201,109 +192,8 @@ AlignmentProducer::produceCSC( const MuonGeometryRecord& iRecord )
 void AlignmentProducer::beginOfJob( const edm::EventSetup& iSetup )
 {
   edm::LogInfo("Alignment") << "@SUB=AlignmentProducer::beginOfJob";
+  initAlignmentAlgorithm(iSetup);
 
-  //Retrieve tracker topology from geometry
-  edm::ESHandle<TrackerTopology> tTopoHandle;
-  iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
-  const TrackerTopology* const tTopo = tTopoHandle.product();
-
-  // Create the geometries from the ideal geometries (first time only)
-  this->createGeometries_( iSetup );
-  
-  // Retrieve and apply alignments, if requested (requires DB setup)
-  if ( applyDbAlignment_ ) {
-    // we need GlobalPositionRcd - and have to keep track for later removal
-    // before writing again to DB...
-    edm::ESHandle<Alignments> globalPositionRcd;
-    iSetup.get<GlobalPositionRcd>().get(globalPositionRcd);
-    globalPositions_ = new Alignments(*globalPositionRcd);
-
-    if ( doTracker_ ) {     // apply to tracker
-      this->applyDB<TrackerGeometry,TrackerAlignmentRcd,TrackerAlignmentErrorExtendedRcd>
-	(&(*theTracker), iSetup,  
-	 align::DetectorGlobalPosition(*globalPositions_, DetId(DetId::Tracker)));
-      this->applyDB<TrackerGeometry,TrackerSurfaceDeformationRcd>(&(*theTracker), iSetup);
-    }
-    
-    if ( doMuon_ ) { // apply to tracker
-      this->applyDB<DTGeometry,DTAlignmentRcd,DTAlignmentErrorExtendedRcd>
-	(&(*theMuonDT), iSetup,
-	 align::DetectorGlobalPosition(*globalPositions_, DetId(DetId::Muon)));
-      this->applyDB<CSCGeometry,CSCAlignmentRcd,CSCAlignmentErrorExtendedRcd>
-	(&(*theMuonCSC), iSetup,
-	 align::DetectorGlobalPosition(*globalPositions_, DetId(DetId::Muon)));
-    }
-  }
-
-  // Create alignable tracker and muon 
-  if (doTracker_) {
-    theAlignableTracker = new AlignableTracker( &(*theTracker), tTopo );
-  }
-
-  if (doMuon_) {
-     theAlignableMuon = new AlignableMuon( &(*theMuonDT), &(*theMuonCSC) );
-  }
-
-  if (useExtras_) {
-    theAlignableExtras = new AlignableExtras();
-  }
-
-  // Create alignment parameter builder
-  edm::LogInfo("Alignment") << "@SUB=AlignmentProducer::beginOfJob" 
-                            << "Creating AlignmentParameterBuilder";
-  edm::ParameterSet aliParamBuildCfg = 
-    theParameterSet.getParameter<edm::ParameterSet>("ParameterBuilder");
-  AlignmentParameterBuilder alignmentParameterBuilder(theAlignableTracker,
-                                                      theAlignableMuon,
-                                                      theAlignableExtras,
-						      aliParamBuildCfg );
-  // Fix alignables if requested
-  if (stNFixAlignables_>0) alignmentParameterBuilder.fixAlignables(stNFixAlignables_);
-
-  // Get list of alignables
-  Alignables theAlignables = alignmentParameterBuilder.alignables();
-
-  edm::LogInfo("Alignment") << "Constructed theAlignables calling alignmentParameterBuilder.alignables()";
-  edm::LogInfo("Alignment") << "@SUB=AlignmentProducer::beginOfJob" 
-                            << "got " << theAlignables.size() << " alignables";
-
-  // Create AlignmentParameterStore 
-  edm::ParameterSet aliParamStoreCfg = 
-    theParameterSet.getParameter<edm::ParameterSet>("ParameterStore");
-  theAlignmentParameterStore = new AlignmentParameterStore(theAlignables, aliParamStoreCfg);
-  edm::LogInfo("Alignment") << "@SUB=AlignmentProducer::beginOfJob" 
-                            << "AlignmentParameterStore created!";
-
-  // Apply misalignment scenario to alignable tracker and muon if requested
-  // WARNING: this assumes scenarioConfig can be passed to both muon and tracker
-  if (doMisalignmentScenario_ && (doTracker_ || doMuon_)) {
-    edm::LogInfo("Alignment") << "@SUB=AlignmentProducer::beginOfJob" 
-                              << "Applying misalignment scenario to "
-                              << (doTracker_ ? "tracker" : "")
-                              << (doMuon_    ? (doTracker_ ? " and muon" : "muon") : ".");
-    edm::ParameterSet scenarioConfig 
-      = theParameterSet.getParameter<edm::ParameterSet>( "MisalignmentScenario" );
-    if (doTracker_) {
-      TrackerScenarioBuilder scenarioBuilder( theAlignableTracker );
-      scenarioBuilder.applyScenario( scenarioConfig );
-    }
-    if (doMuon_) {
-      MuonScenarioBuilder muonScenarioBuilder( theAlignableMuon );
-      muonScenarioBuilder.applyScenario( scenarioConfig );
-    }
-  } else {
-    edm::LogInfo("Alignment") << "@SUB=AlignmentProducer::beginOfJob" 
-                              << "NOT applying misalignment scenario!";
-  }
-
-  // Apply simple misalignment
-  const std::string sParSel(theParameterSet.getParameter<std::string>("parameterSelectorSimple"));
-  this->simpleMisalignment_(theAlignables, sParSel, stRandomShift_, stRandomRotation_, true);
-
-  // Initialize alignment algorithm and integrated calibration and pass the latter to algorithm
-  theAlignmentAlgo->initialize( iSetup, 
-				theAlignableTracker, theAlignableMuon, theAlignableExtras,
-				theAlignmentParameterStore );
   for (auto iCal = theCalibrations.begin(); iCal != theCalibrations.end(); ++iCal) {
     (*iCal)->beginOfJob(theAlignableTracker, theAlignableMuon, theAlignableExtras);
   }
@@ -397,30 +287,7 @@ void AlignmentProducer::startingNewLoop(unsigned int iLoop )
   for (std::vector<AlignmentMonitorBase*>::const_iterator monitor = theMonitors.begin();  monitor != theMonitors.end();  ++monitor) {
      (*monitor)->startingNewLoop();
   }
-
-  edm::LogInfo("Alignment") << "@SUB=AlignmentProducer::startingNewLoop" 
-                            << "Now physically apply alignments to  geometry...";
-
-
-  // Propagate changes to reconstruction geometry (from initialisation or iteration)
-  GeometryAligner aligner;
-  if ( doTracker_ ) {
-    std::auto_ptr<Alignments> alignments(theAlignableTracker->alignments());
-    std::auto_ptr<AlignmentErrorsExtended> alignmentErrors(theAlignableTracker->alignmentErrors());
-    aligner.applyAlignments<TrackerGeometry>( &(*theTracker),&(*alignments),&(*alignmentErrors), AlignTransform() ); // don't apply global a second time!
-    std::auto_ptr<AlignmentSurfaceDeformations> aliDeforms(theAlignableTracker->surfaceDeformations());
-    aligner.attachSurfaceDeformations<TrackerGeometry>(&(*theTracker), &(*aliDeforms));
-
-  }
-  if ( doMuon_ ) {
-    std::auto_ptr<Alignments>      dtAlignments(       theAlignableMuon->dtAlignments());
-    std::auto_ptr<AlignmentErrorsExtended> dtAlignmentErrorsExtended(  theAlignableMuon->dtAlignmentErrorsExtended());
-    std::auto_ptr<Alignments>      cscAlignments(      theAlignableMuon->cscAlignments());
-    std::auto_ptr<AlignmentErrorsExtended> cscAlignmentErrorsExtended( theAlignableMuon->cscAlignmentErrorsExtended());
-
-    aligner.applyAlignments<DTGeometry>( &(*theMuonDT), &(*dtAlignments), &(*dtAlignmentErrorsExtended), AlignTransform() ); // don't apply global a second time!
-    aligner.applyAlignments<CSCGeometry>( &(*theMuonCSC), &(*cscAlignments), &(*cscAlignmentErrorsExtended), AlignTransform() ); // nope!
-  }
+  applyAlignmentsToGeometry();
 }
 
 
@@ -562,10 +429,65 @@ void AlignmentProducer::endLuminosityBlock(const edm::LuminosityBlock &lumiBlock
   theAlignmentAlgo->endLuminosityBlock(setup); // do not forward edm::LuminosityBlock
 }
 
-// ----------------------------------------------------------------------------
 
-void AlignmentProducer::simpleMisalignment_(const Alignables &alivec, const std::string &selection, 
-                                            float shift, float rot, bool local)
+//------------------------------------------------------------------------------
+void
+AlignmentProducer::createAlignmentAlgorithm(const edm::ParameterSet& config)
+{
+  auto algoConfig   = config.getParameter<edm::ParameterSet>("algoConfig");
+  auto iovSelection = config.getParameter<edm::VParameterSet>("RunRangeSelection");
+  algoConfig.addUntrackedParameter<edm::VParameterSet>("RunRangeSelection",
+						       iovSelection);
+  algoConfig.addUntrackedParameter<RunNumber>("firstIOV",
+					      uniqueRunRanges_.front().first);
+
+  const auto algoName = algoConfig.getParameter<std::string>("algoName");
+  theAlignmentAlgo =
+    AlignmentAlgorithmPluginFactory::get()->create(algoName, algoConfig);
+
+  if (!theAlignmentAlgo) {
+    throw cms::Exception("BadConfig")
+      << "Couldn't find the called alignment algorithm: " << algoName;
+  }
+}
+
+
+//------------------------------------------------------------------------------
+void
+AlignmentProducer::initAlignmentAlgorithm(const edm::EventSetup& setup)
+{
+  // Retrieve tracker topology from geometry
+  edm::ESHandle<TrackerTopology> tTopoHandle;
+  setup.get<TrackerTopologyRcd>().get(tTopoHandle);
+  const TrackerTopology* const tTopo = tTopoHandle.product();
+
+  // Create the geometries from the ideal geometries (first time only)
+  createGeometries(setup, tTopo);
+
+  applyAlignmentsToDB(setup);
+  createAlignables(tTopo);
+  buildParameterStore();
+  applyMisalignment();
+
+  // Initialize alignment algorithm and integrated calibration and pass the
+  // latter to algorithm
+  edm::LogInfo("Alignment") << "@SUB=AlignmentProducer::initAlignmentAlgorithm"
+                            << "Initializing alignment algorithm.";
+  theAlignmentAlgo->initialize(setup,
+                               theAlignableTracker,
+                               theAlignableMuon,
+                               theAlignableExtras,
+                               theAlignmentParameterStore);
+
+  applyAlignmentsToGeometry();
+}
+
+
+// ----------------------------------------------------------------------------
+void
+AlignmentProducer::simpleMisalignment(const Alignables &alivec,
+                                      const std::string &selection,
+                                      float shift, float rot, bool local)
 {
 
   std::ostringstream output; // collecting output
@@ -632,12 +554,11 @@ void AlignmentProducer::simpleMisalignment_(const Alignables &alivec, const std:
 }
 
 
-//__________________________________________________________________________________________________
-void AlignmentProducer::createGeometries_( const edm::EventSetup& iSetup )
+//------------------------------------------------------------------------------
+void
+AlignmentProducer::createGeometries(const edm::EventSetup& iSetup,
+                                    const TrackerTopology* tTopo)
 {
-   edm::ESTransientHandle<DDCompactView> cpv;
-   iSetup.get<IdealGeometryRecord>().get( cpv );
-
    if (doTracker_) {
      edm::ESHandle<GeometricDet> geometricDet;
      iSetup.get<IdealGeometryRecord>().get( geometricDet );
@@ -645,15 +566,15 @@ void AlignmentProducer::createGeometries_( const edm::EventSetup& iSetup )
      edm::ESHandle<PTrackerParameters> ptp;
      iSetup.get<PTrackerParametersRcd>().get( ptp );
 
-     edm::ESHandle<TrackerTopology> tTopoHandle;
-     iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
-     const TrackerTopology* const tTopo = tTopoHandle.product();
-
      TrackerGeomBuilderFromGeometricDet trackerBuilder;
-     theTracker = std::shared_ptr<TrackerGeometry>( trackerBuilder.build(&(*geometricDet), *ptp, tTopo ));
+
+     theTracker = std::shared_ptr<TrackerGeometry>
+       (trackerBuilder.build(&(*geometricDet), *ptp, tTopo));
    }
 
    if (doMuon_) {
+     edm::ESTransientHandle<DDCompactView> cpv;
+     iSetup.get<IdealGeometryRecord>().get(cpv);
      edm::ESHandle<MuonDDDConstants> mdc;
      iSetup.get<MuonNumberingRecord>().get(mdc);
      DTGeometryBuilderFromDDD DTGeometryBuilder;
@@ -664,6 +585,183 @@ void AlignmentProducer::createGeometries_( const edm::EventSetup& iSetup )
      CSCGeometryBuilder.build( theMuonCSC, &(*cpv), *mdc );
    }
 }
+
+
+//------------------------------------------------------------------------------
+void
+AlignmentProducer::applyAlignmentsToDB(const edm::EventSetup& setup)
+{
+  // Retrieve and apply alignments, if requested (requires z setup)
+  if (applyDbAlignment_) {
+    // we need GlobalPositionRcd - and have to keep track for later removal
+    // before writing again to DB...
+
+    edm::ESHandle<Alignments> globalAlignments;
+    setup.get<GlobalPositionRcd>().get(globalAlignments);
+    globalPositions_ = new Alignments(*globalAlignments);
+
+    if (doTracker_) {
+      applyDB<TrackerGeometry,
+              TrackerAlignmentRcd,
+              TrackerAlignmentErrorExtendedRcd>
+	(&(*theTracker), setup,
+	 align::DetectorGlobalPosition(*globalPositions_, DetId(DetId::Tracker))
+      );
+
+      applyDB<TrackerGeometry,
+              TrackerSurfaceDeformationRcd>(&(*theTracker), setup);
+    }
+
+    if (doMuon_) {
+      applyDB<DTGeometry,
+              DTAlignmentRcd,
+              DTAlignmentErrorExtendedRcd>
+	(&(*theMuonDT), setup,
+	 align::DetectorGlobalPosition(*globalPositions_, DetId(DetId::Muon))
+	 );
+
+      applyDB<CSCGeometry,
+              CSCAlignmentRcd,
+              CSCAlignmentErrorExtendedRcd>
+	(&(*theMuonCSC), setup,
+	 align::DetectorGlobalPosition(*globalPositions_, DetId(DetId::Muon))
+	 );
+    }
+  }
+}
+
+
+
+//------------------------------------------------------------------------------
+void
+AlignmentProducer::createAlignables(const TrackerTopology* tTopo)
+{
+  if (doTracker_) {
+    theAlignableTracker = new AlignableTracker(&(*theTracker), tTopo);
+  }
+
+  if (doMuon_) {
+     theAlignableMuon = new AlignableMuon(&(*theMuonDT), &(*theMuonCSC));
+  }
+
+  if (useExtras_) {
+    theAlignableExtras = new AlignableExtras();
+  }
+}
+
+
+//------------------------------------------------------------------------------
+void
+AlignmentProducer::buildParameterStore()
+{
+  // Create alignment parameter builder
+  edm::LogInfo("Alignment") << "@SUB=AlignmentProducer::buildParameterStore"
+                            << "Creating AlignmentParameterBuilder";
+
+  auto alParamBuildCfg =
+    theParameterSet.getParameter<edm::ParameterSet>("ParameterBuilder");
+  auto alParamStoreCfg =
+    theParameterSet.getParameter<edm::ParameterSet>("ParameterStore");
+
+  AlignmentParameterBuilder alignmentParameterBuilder(theAlignableTracker,
+                                                      theAlignableMuon,
+                                                      theAlignableExtras,
+                                                      alParamBuildCfg);
+
+  // Fix alignables if requested
+  if (stNFixAlignables_ > 0) {
+    alignmentParameterBuilder.fixAlignables(stNFixAlignables_);
+  }
+
+  // Get list of alignables
+  auto theAlignables = alignmentParameterBuilder.alignables();
+  edm::LogInfo("Alignment") << "@SUB=AlignmentProducer::buildParameterStore"
+                            << "got " << theAlignables.size() << " alignables";
+
+  // Create AlignmentParameterStore
+  theAlignmentParameterStore =
+    new AlignmentParameterStore(theAlignables, alParamStoreCfg);
+  edm::LogInfo("Alignment") << "@SUB=AlignmentProducer::buildParameterStore"
+                            << "AlignmentParameterStore created!";
+}
+
+//------------------------------------------------------------------------------
+void
+AlignmentProducer::applyMisalignment()
+{
+  // Apply misalignment scenario to alignable tracker and muon if requested
+  // WARNING: this assumes scenarioConfig can be passed to both muon and tracker
+
+  if (doMisalignmentScenario_ && (doTracker_ || doMuon_)) {
+    edm::LogInfo("Alignment") << "@SUB=PCLTrackerAlProducer::beginOfJob"
+                              << "Applying misalignment scenario to "
+                              << (doTracker_ ? "tracker" : "")
+                              << (doMuon_    ? (doTracker_ ? " and muon" : "muon") : ".");
+    auto scenarioConfig =
+      theParameterSet.getParameter<edm::ParameterSet>("MisalignmentScenario");
+
+    if (doTracker_) {
+      TrackerScenarioBuilder scenarioBuilder(theAlignableTracker);
+      scenarioBuilder.applyScenario(scenarioConfig);
+    }
+    if (doMuon_) {
+      MuonScenarioBuilder muonScenarioBuilder(theAlignableMuon);
+      muonScenarioBuilder.applyScenario(scenarioConfig);
+    }
+
+  } else {
+    edm::LogInfo("Alignment") << "@SUB=AlignmentProducer::applyMisalignment"
+                              << "NOT applying misalignment scenario!";
+  }
+
+  // Apply simple misalignment
+  const auto sParSel =
+    theParameterSet.getParameter<std::string>("parameterSelectorSimple");
+  simpleMisalignment(theAlignmentParameterStore->alignables(), sParSel,
+		     stRandomShift_, stRandomRotation_, true);
+}
+
+
+
+//------------------------------------------------------------------------------
+void
+AlignmentProducer::applyAlignmentsToGeometry()
+{
+  edm::LogInfo("Alignment")
+    << "@SUB=AlignmentProducer::applyAlignmentsToGeometry"
+    << "Now physically apply alignments to  geometry...";
+
+  // Propagate changes to reconstruction geometry (from initialisation or iteration)
+  GeometryAligner aligner;
+
+  if (doTracker_) {
+    std::unique_ptr<Alignments> alignments(theAlignableTracker->alignments());
+    std::unique_ptr<AlignmentErrorsExtended>
+      alignmentErrExt(theAlignableTracker->alignmentErrors());
+    std::unique_ptr<AlignmentSurfaceDeformations>
+      aliDeforms(theAlignableTracker->surfaceDeformations());
+
+    aligner.applyAlignments(&(*theTracker), &(*alignments),
+			    &(*alignmentErrExt), AlignTransform());
+    aligner.attachSurfaceDeformations(&(*theTracker), &(*aliDeforms));
+  }
+
+  if (doMuon_) {
+    std::unique_ptr<Alignments> dtAlignments(theAlignableMuon->dtAlignments());
+    std::unique_ptr<Alignments> cscAlignments(theAlignableMuon->cscAlignments());
+
+    std::unique_ptr<AlignmentErrorsExtended>
+      dtAlignmentErrExt (theAlignableMuon->dtAlignmentErrorsExtended());
+    std::unique_ptr<AlignmentErrorsExtended>
+      cscAlignmentErrExt(theAlignableMuon->cscAlignmentErrorsExtended());
+
+    aligner.applyAlignments(&(*theMuonDT), &(*dtAlignments),
+			    &(*dtAlignmentErrExt), AlignTransform());
+    aligner.applyAlignments(&(*theMuonCSC), &(*cscAlignments),
+			    &(*cscAlignmentErrExt), AlignTransform());
+  }
+}
+
 
 void AlignmentProducer::addSurveyInfo_(Alignable* ali)
 {
