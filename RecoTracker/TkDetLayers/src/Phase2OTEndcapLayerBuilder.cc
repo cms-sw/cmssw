@@ -16,7 +16,7 @@ Phase2OTEndcapLayer* Phase2OTEndcapLayerBuilder::build(const GeometricDet* aPhas
 
   for(vector<const GeometricDet*>::const_iterator it=theGeometricRings.begin();
       it!=theGeometricRings.end();it++){
-      thePhase2OTEndcapRings.push_back(myBuilder.build( *it,theGeomDetGeometry,false ));
+      thePhase2OTEndcapRings.push_back(myBuilder.build( *it,theGeomDetGeometry,true ));
   }
 
   return new Phase2OTEndcapLayer(thePhase2OTEndcapRings);
