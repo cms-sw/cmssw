@@ -21,7 +21,7 @@ ZdcSimpleReconstructor::ZdcSimpleReconstructor(edm::ParameterSet const& conf):
   dropZSmarkedPassed_(conf.getParameter<bool>("dropZSmarkedPassed"))
 {
   tok_input_castor = consumes<ZDCDigiCollection>(conf.getParameter<edm::InputTag>("digiLabelcastor"));
-  tok_input_castor = consumes<ZDCDigiCollection>(conf.getParameter<edm::InputTag>("digiLabelhcal"));
+  tok_input_hcal = consumes<ZDCDigiCollection>(conf.getParameter<edm::InputTag>("digiLabelhcal"));
 
 
   std::string subd=conf.getParameter<std::string>("Subdetector");
