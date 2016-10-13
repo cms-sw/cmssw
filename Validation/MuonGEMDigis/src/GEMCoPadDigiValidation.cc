@@ -18,10 +18,7 @@ void GEMCoPadDigiValidation::bookHistograms(DQMStore::IBooker & ibooker, edm::Ru
   int nPads = 0;
 
   if ( nStation() > 1 ) {
-    //const std::vector<const GEMStation*>&  sts = GEMGeometry_->regions()[0]->stations();
-    std::vector<const GEMStation*>::const_iterator it = GEMGeometry_->regions()[0]->stations().end();
-    --it;
-    npadsGE21  = (*it)->superChambers()[0]->chambers()[0]->etaPartitions()[0]->npads();
+    npadsGE21  = GEMGeometry_->regions()[0]->stations()[1]->superChambers()[0]->chambers()[0]->etaPartitions()[0]->npads();
   }
 
   for( auto& region : GEMGeometry_->regions()  ){
