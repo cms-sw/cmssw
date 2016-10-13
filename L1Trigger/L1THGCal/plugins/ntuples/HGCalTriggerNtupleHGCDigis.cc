@@ -19,7 +19,7 @@ class HGCalTriggerNtupleHGCDigis : public HGCalTriggerNtupleBase
         virtual void fill(const edm::Event& e, const edm::EventSetup& es) override final;
 
     private:
-  void simhits(const edm::Event& e, std::unordered_map<uint32_t, double>& simhits_ee, std::unordered_map<uint32_t, double>& simhits_fh);
+        void simhits(const edm::Event& e, std::unordered_map<uint32_t, double>& simhits_ee, std::unordered_map<uint32_t, double>& simhits_fh);
         virtual void clear() override final;
 
         edm::EDGetToken ee_token_, fh_token_;
