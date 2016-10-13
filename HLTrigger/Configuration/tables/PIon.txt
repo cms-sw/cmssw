@@ -76,6 +76,9 @@ HLT_PADmesonPPTrackingGlobal_Dpt15_v*       #CMSHLT-1030
 HLT_PADmesonPPTrackingGlobal_Dpt30_v*       #CMSHLT-1030
 HLT_PADmesonPPTrackingGlobal_Dpt50_v*       #CMSHLT-1030
 
+HLT_PAFullTracks_HFSumEt005_HighPt8_v*      #CMSHLT-1069
+HLT_PAFullTracks_HFSumEt005_HighPt16_v*     #CMSHLT-1069
+
 HLT_Physics_v*
 
 HLTriggerFirstPath
