@@ -1,6 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
 from CalibCalorimetry.CaloTPG.CaloTPGTranscoder_cfi import hfTPScaleShift
+from Configuration.Eras.Modifier_run2_HE_2017_cff import run2_HE_2017
+from Configuration.Eras.Modifier_run2_HF_2017_cff import run2_HF_2017
 
 LSParameter =cms.untracked.PSet(
 HcalFeatureHFEMBit= cms.bool(False),
@@ -51,3 +53,6 @@ simHcalTriggerPrimitiveDigis = cms.EDProducer("HcalTrigPrimDigiProducer",
 
     HFTPScaleShift = hfTPScaleShift,
 )
+
+run2_HE_2017.toModify(simHcalTriggerPrimitiveDigis, upgradeHE=cms.bool(True))
+run2_HF_2017.toModify(simHcalTriggerPrimitiveDigis, upgradeHF=cms.bool(True))
