@@ -189,6 +189,7 @@ namespace ecaldqm
     MESet& meMedIntMap(MEs_.at("MedIntMap"));
     MESet& meHighIntMap(MEs_.at("HighIntMap"));
     MESet& meTTFlags(MEs_.at("TTFlags"));
+    MESet& meTTFlagsVsEt(MEs_.at("TTFlagsVsEt"));
     MESet& meTTFlags4( MEs_.at("TTFlags4") );
     MESet& meTTFMismatch(MEs_.at("TTFMismatch"));
     MESet& meOccVsBx(MEs_.at("OccVsBx"));
@@ -235,6 +236,7 @@ namespace ecaldqm
       // Fill TT Flag MEs
       float ttF( tpItr->ttFlag() );
       meTTFlags.fill( ttid, ttF );
+      meTTFlagsVsEt.fill(ttid, et, ttF);
       // Monitor occupancy of TTF=4
       // which contains info about TT auto-masking
       if ( ttF == 4. )
