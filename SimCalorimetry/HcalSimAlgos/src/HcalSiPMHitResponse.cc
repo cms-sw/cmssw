@@ -102,24 +102,22 @@ void HcalSiPMHitResponse::add(const PCaloHit& hit, CLHEP::HepRandomEngine* engin
 		<< " tof: " << timeOfFlight(id)
 		<< " binOfMaximum: " << pars.binOfMaximum()
 		<< " phaseShift: " << thePhaseShift_;
-      double tzero(Y11TIMETORISE + pars.timePhase() - 
+      double tzero(0.0*Y11TIMETORISE + pars.timePhase() - 
 		   (hit.time() - timeOfFlight(id)) - 
 		   BUNCHSPACE*( pars.binOfMaximum() - thePhaseShift_));
       LogDebug("HcalSiPMHitResponse") << " tzero: " << tzero;
-      // tzero += BUNCHSPACE*pars.binOfMaximum() + 75.;
-      //move it back 25ns to bin 4
-      tzero += BUNCHSPACE*pars.binOfMaximum() + 50.;
-      LogDebug("HcalSiPMHitResponse") << " corrected tzero: " << tzero << '\n';
+      double tzero_bin(-tzero/(theTDCParams.deltaT()/TIMEMULT));
+      LogDebug("HcalSiPMHitResponse") << " corrected tzero: " << tzero_bin << '\n';
       double t_pe(0.);
       int t_bin(0);
       for (unsigned int pe(0); pe<photons; ++pe) {
-	t_pe = generatePhotonTime(engine);
-	t_bin = int((t_pe + tzero)/(theTDCParams.deltaT()/TIMEMULT) + 0.5);
-	LogDebug("HcalSiPMHitResponse") << "t_pe: " << t_pe << " t_pe + tzero: " << (t_pe+tzero)
-		  << " t_bin: " << t_bin << '\n';
-	if ((t_bin >= 0) && 
-	    (static_cast<unsigned int>(t_bin) < precisionTimedPhotons[id].size()))
-	    precisionTimedPhotons[id][t_bin] += 1;
+        t_pe = generatePhotonTime(engine);
+        t_bin = int(t_pe/(theTDCParams.deltaT()/TIMEMULT) + tzero_bin + 0.5);
+        LogDebug("HcalSiPMHitResponse") << "t_pe: " << t_pe << " t_pe + tzero: " << (t_pe+tzero_bin*(theTDCParams.deltaT()/TIMEMULT))
+                  << " t_bin: " << t_bin << '\n';
+        if ((t_bin >= 0) && 
+            (static_cast<unsigned int>(t_bin) < precisionTimedPhotons[id].size()))
+            precisionTimedPhotons[id][t_bin] += 1;
       }
     }
 }
