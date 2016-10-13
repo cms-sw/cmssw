@@ -5,8 +5,8 @@ import RecoTracker.IterativeTracking.iterativeTkConfig as _cfg
 
 # NEW CLUSTERS (remove previously used clusters)
 pixelPairStepClusters = _cfg.clusterRemoverForIter("PixelPairStep")
-for era in _cfg.nonDefaultEras():
-    getattr(eras, era).toReplaceWith(pixelPairStepClusters, _cfg.clusterRemoverForIter("PixelPairStep", era))
+for _eraName, _postfix, _era in _cfg.nonDefaultEras():
+    _era.toReplaceWith(pixelPairStepClusters, _cfg.clusterRemoverForIter("PixelPairStep", _eraName, _postfix))
 
 
 # SEEDING LAYERS

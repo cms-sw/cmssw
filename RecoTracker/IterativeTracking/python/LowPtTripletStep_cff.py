@@ -1,12 +1,11 @@
 import FWCore.ParameterSet.Config as cms
-from Configuration.StandardSequences.Eras import eras
 from Configuration.Eras.Modifier_tracker_apv_vfp30_2016_cff import tracker_apv_vfp30_2016 as _tracker_apv_vfp30_2016
 import RecoTracker.IterativeTracking.iterativeTkConfig as _cfg
 
 # NEW CLUSTERS (remove previously used clusters)
 lowPtTripletStepClusters = _cfg.clusterRemoverForIter("LowPtTripletStep")
-for era in _cfg.nonDefaultEras():
-    getattr(eras, era).toReplaceWith(lowPtTripletStepClusters, _cfg.clusterRemoverForIter("LowPtTripletStep", era))
+for _eraName, _postfix, _era in _cfg.nonDefaultEras():
+    _era.toReplaceWith(lowPtTripletStepClusters, _cfg.clusterRemoverForIter("LowPtTripletStep", _eraName, _postfix))
 
 # SEEDING LAYERS
 import RecoTracker.TkSeedingLayers.PixelLayerTriplets_cfi
