@@ -80,7 +80,7 @@ int ME0NumberingScheme::baseNumberToUnitNumber(const MuonBaseNumber& num) {
   if(theNEtaPart==1)  maxLevel = theLayerLevel;
   if(theNEtaPart==10) maxLevel = theRollLevel;
   if (num.getLevels()!=maxLevel) {
-    std::cout << "MuonME0NS::BNToUN "
+    throw cms::Exception("MuonNumbering") << "MuonME0NS::BNToUN "
 	      << "BaseNumber has " << num.getLevels() << " levels,"
 	      << "need "<<maxLevel<<std::endl;
     return 0;
