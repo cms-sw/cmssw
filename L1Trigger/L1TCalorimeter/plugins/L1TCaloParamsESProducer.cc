@@ -215,6 +215,7 @@ L1TCaloParamsESProducer::L1TCaloParamsESProducer(const edm::ParameterSet& conf)
   m_params_helper.setJetNeighbourThreshold(conf.getParameter<double>("jetNeighbourThreshold"));
   m_params_helper.setJetRegionMask(conf.getParameter<int>("jetRegionMask"));
   m_params_helper.setJetPUSType(conf.getParameter<std::string>("jetPUSType"));
+  m_params_helper.setJetBypassPUS(conf.getParameter<bool>("jetBypassPUS"));
   m_params_helper.setJetCalibrationType(conf.getParameter<std::string>("jetCalibrationType"));
   m_params_helper.setJetCalibrationParams(conf.getParameter<std::vector<double> >("jetCalibrationParams"));
   edm::FileInPath jetCalibrationLUTFile = conf.getParameter<edm::FileInPath>("jetCalibrationLUTFile");

@@ -196,8 +196,11 @@ namespace l1t {
 
       // Et threshold on neighbouring towers/regions
       double neighbourThreshold_;
-
-      JetParams() : lsb_(0), seedThreshold_(0), neighbourThreshold_(0) { /* no-op */ }
+      
+      // turn on/off Jet PUS
+      bool jetBypassPUS_;
+      
+      JetParams() : lsb_(0), seedThreshold_(0), neighbourThreshold_(0), jetBypassPUS_(0) { /* no-op */ }
 
       COND_SERIALIZABLE;
     };

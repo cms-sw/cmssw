@@ -157,16 +157,18 @@ void l1t::Stage2Layer2JetAlgorithmFirmwareImp1::create(const std::vector<l1t::Ca
 	    int caloEta = CaloTools::caloEta(ieta);
 	    l1t::Jet jet( p4, -999, caloEta, iphi, 0);
 
-	    if (PUSubMethod == "Donut") {
-	      puEt = donutPUEstimate(ieta, iphi, 5, towers);	    
-	      iEt -= puEt;
+	    if(!params_->jetBypassPUS()){
+	      if (PUSubMethod == "Donut") {
+		puEt = donutPUEstimate(ieta, iphi, 5, towers);	    
+		iEt -= puEt;
+	      }
+	      
+	      if (PUSubMethod == "ChunkyDonut"){
+		puEt = chunkyDonutPUEstimate(jet, 5, towers);
+		iEt -= puEt;
+	      }
 	    }
 	    
-	    if (PUSubMethod == "ChunkyDonut"){
-	      puEt = chunkyDonutPUEstimate(jet, 5, towers);
-	      iEt -= puEt;
-	    }
-
 	    if (iEt<=0) continue;
 
 	    // if tower Et is saturated, saturate jet Et
