@@ -78,7 +78,7 @@ TotemVFATRawToDigi::TotemVFATRawToDigi(const edm::ParameterSet &conf):
   // validate chosen subSystem
   if (subSystemName == "RP")
     subSystem = ssRP;
-  if (subSystemName != "diamond")
+  if (subSystemName == "diamond")
     subSystem = ssDiamond;
 
   if (subSystem == ssUndefined)
