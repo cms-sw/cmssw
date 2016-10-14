@@ -250,8 +250,18 @@ for i in xrange(len(lib.JOBID)):
                     memoryratio = usedPedeMem /(lib.pedeMem/1024.)
                     # print a warning if more than approx. 4 GB have been
                     # requested of which less than 75% are used by Pede
-                    if lib.pedeMem > 4000 and memoryratio < 75. :
-                        print 'Warning:',round(lib.pedeMem / 1024.,2),'GB of memory for Pede requested, but only',round(memoryratio,1),'\% of it has been used! Consider to request less memory in order to save resources.'
+                    if lib.pedeMem > 4000 and memoryratio < 0.75 :
+                        msg = ("Warning: {0:.2f} GB of memory for Pede "
+                               "requested, but only {1:.1f}% of it has been "
+                               "used! Consider to request less memory in order "
+                               "to save resources.").format(lib.pedeMem/1024.0,
+                                                            memoryratio*100)
+                        print msg
+                    else:
+                        msg = ("Info: Used {0:.1f}% of {1:.2f} GB of memory "
+                               "which has been requested for Pede.")
+                        print msg.format(memoryratio*100, lib.pedeMem/1024.0)
+
 
                 # clean up /tmp/pede.dump if needed
                 if eazeLog == '/tmp/pede.dump':
