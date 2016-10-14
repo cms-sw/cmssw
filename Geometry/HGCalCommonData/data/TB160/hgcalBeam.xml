@@ -91,7 +91,7 @@
   </LogicalPart>
   <LogicalPart name="HGCGasChamb" category="unspecified">
     <rSolid name="HGCGasChamb"/>
-    <rMaterial name="materials:80% Argon + 20% CO_2"/>
+    <rMaterial name="materials:80pct Argon plus 20pct CO_2"/>
   </LogicalPart>
   <LogicalPart name="HGCScint1" category="unspecified">
     <rSolid name="HGCScint1"/>

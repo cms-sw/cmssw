@@ -56,7 +56,8 @@ class MTVHistoProducerAlgoForTracker {
 					   const reco::Track* track,
 					   int numVertices,
 					   double dR,
-					   const math::XYZPoint *pvPosition);
+					   const math::XYZPoint *pvPosition,
+                                           const TrackingVertex::LorentzVector *simPVPosition);
 
   void fill_recoAssociated_simTrack_histos(int count,
 					   const reco::GenParticle& tp,
@@ -71,6 +72,7 @@ class MTVHistoProducerAlgoForTracker {
                                      const TrackerTopology& ttopo,
 				     const math::XYZPoint& bsPosition,
 				     const math::XYZPoint *pvPosition,
+                                     const TrackingVertex::LorentzVector *simPVPosition,
 				     bool isMatched,
 				     bool isSigMatched,
 				     bool isChargeMatched,
@@ -147,6 +149,7 @@ class MTVHistoProducerAlgoForTracker {
   double minDeDx, maxDeDx;  int nintDeDx;
   double minVertcount, maxVertcount;  int nintVertcount;
   double minTracks, maxTracks; int nintTracks;
+  double minPVz, maxPVz; int nintPVz;
 
   const bool doSeedPlots_;
 
@@ -199,6 +202,7 @@ class MTVHistoProducerAlgoForTracker {
 
   std::vector<MonitorElement*> h_reco_dzpvcut_pt, h_assoc_dzpvcut_pt, h_assoc2_dzpvcut_pt, h_simul_dzpvcut_pt, h_simul2_dzpvcut_pt, h_pileup_dzpvcut_pt;
   std::vector<MonitorElement*> h_reco_dzpvsigcut_pt, h_assoc_dzpvsigcut_pt, h_assoc2_dzpvsigcut_pt, h_simul_dzpvsigcut_pt, h_simul2_dzpvsigcut_pt, h_pileup_dzpvsigcut_pt;
+  std::vector<MonitorElement*> h_reco_simpvz, h_assoc_simpvz, h_assoc2_simpvz, h_simul_simpvz, h_pileup_simpvz;
 
   std::vector<MonitorElement*> h_reco_seedingLayerSet, h_assoc2_seedingLayerSet, h_looper_seedingLayerSet, h_pileup_seedingLayerSet;
 
