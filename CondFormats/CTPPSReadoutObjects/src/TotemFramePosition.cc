@@ -6,7 +6,7 @@
 *
 ****************************************************************************/
 
-#include "CondFormats/TotemReadoutObjects/interface/TotemFramePosition.h"
+#include "CondFormats/CTPPSReadoutObjects/interface/TotemFramePosition.h"
 
 #include <iomanip>
 #include <cstdlib>

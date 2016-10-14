@@ -21,13 +21,13 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 # raw-to-digi conversion
-process.load('CondFormats.TotemReadoutObjects.TotemDAQMappingESSourceXML_cfi')
-process.TotemDAQMappingESSourceXML.mappingFileNames.append("CondFormats/TotemReadoutObjects/xml/ctpps_210_mapping.xml")
+process.load('CondFormats.CTPPSReadoutObjects.TotemDAQMappingESSourceXML_cfi')
+process.TotemDAQMappingESSourceXML.mappingFileNames.append("CondFormats/CTPPSReadoutObjects/xml/ctpps_210_mapping.xml")
 
-process.load("EventFilter.TotemRawToDigi.totemTriggerRawToDigi_cfi")
+process.load("EventFilter.CTPPSRawToDigi.totemTriggerRawToDigi_cfi")
 process.totemTriggerRawToDigi.rawDataTag = cms.InputTag("rawDataCollector")
 
-process.load('EventFilter.TotemRawToDigi.totemRPRawToDigi_cfi')
+process.load('EventFilter.CTPPSRawToDigi.totemRPRawToDigi_cfi')
 process.totemRPRawToDigi.rawDataTag = cms.InputTag("rawDataCollector")
 
 # execution configuration
