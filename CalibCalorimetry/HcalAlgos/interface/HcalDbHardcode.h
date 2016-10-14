@@ -63,6 +63,7 @@ class HcalDbHardcode {
     void useHFUpgrade(bool b) { useHFUpgrade_ = b; }
     void testHFQIE10(bool b) { testHFQIE10_ = b; }
     void setSiPMCharacteristics(std::vector<edm::ParameterSet> vps) { theSiPMCharacteristics_ = vps; }
+    void setKillHE(bool b) { killHE_ = b; } 
     
     //getters
     const bool useHBUpgrade() const { return useHBUpgrade_; }
@@ -71,6 +72,7 @@ class HcalDbHardcode {
     const bool useHFUpgrade() const { return useHFUpgrade_; }
     const HcalHardcodeParameters& getParameters(HcalGenericDetId fId);
     const int getGainIndex(HcalGenericDetId fId);
+    const bool killHE() const { return killHE_; }
     HcalPedestal makePedestal (HcalGenericDetId fId, bool fSmear = false);
     HcalPedestalWidth makePedestalWidth (HcalGenericDetId fId);
     HcalGain makeGain (HcalGenericDetId fId, bool fSmear = false);
@@ -96,7 +98,7 @@ class HcalDbHardcode {
     HcalHardcodeParameters theDefaultParameters_;
     HcalHardcodeParameters theHBParameters_, theHEParameters_, theHFParameters_, theHOParameters_;
     HcalHardcodeParameters theHBUpgradeParameters_, theHEUpgradeParameters_, theHFUpgradeParameters_;
-    bool setHB_, setHE_, setHF_, setHO_, setHBUpgrade_, setHEUpgrade_, setHFUpgrade_;
+    bool setHB_, setHE_, setHF_, setHO_, setHBUpgrade_, setHEUpgrade_, setHFUpgrade_, killHE_;
     bool useHBUpgrade_, useHEUpgrade_, useHOUpgrade_, useHFUpgrade_, testHFQIE10_;
     std::vector<edm::ParameterSet> theSiPMCharacteristics_;
     std::map<std::pair<int,int>,int> theLayersInDepths_;

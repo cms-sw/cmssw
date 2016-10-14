@@ -131,7 +131,7 @@ void HcalSiPMHitResponse::addPEnoise(CLHEP::HepRandomEngine* engine)
       idItr != theDetIds->end(); ++idItr) {
     HcalDetId id(*idItr);
     const HcalSimParameters& pars =
-      dynamic_cast<const HcalSimParameters&>(theParameterMap->simParameters(id));
+      static_cast<const HcalSimParameters&>(theParameterMap->simParameters(id));
 
     // uA * ns / (fC/pe) = pe!
     double dc_pe_avg =
@@ -143,8 +143,7 @@ void HcalSiPMHitResponse::addPEnoise(CLHEP::HepRandomEngine* engine)
     unsigned int sumnoisePE(0);
     double  elapsedTime(0.);
     for (int tprecise(0); tprecise < nPreciseBins; ++tprecise) {
-      CLHEP::RandPoissonQ randPoissonQ(*engine, dc_pe_avg);
-      int noisepe = randPoissonQ.fire(); // add dark current noise
+      int noisepe = CLHEP::RandPoissonQ::shoot(engine, dc_pe_avg); // add dark current noise
 
       if (noisepe > 0) {
 	if (precisionTimedPhotons.find(id)==precisionTimedPhotons.end()) {
@@ -181,7 +180,7 @@ CaloSamples HcalSiPMHitResponse::makeBlankSignal(const DetId& detId) const {
 CaloSamples HcalSiPMHitResponse::makeSiPMSignal(DetId const& id, 
 						photonTimeHist const& photonTimeBins,
                                                 CLHEP::HepRandomEngine* engine) const {
-  const HcalSimParameters& pars = dynamic_cast<const HcalSimParameters&>(theParameterMap->simParameters(id));  
+  const HcalSimParameters& pars = static_cast<const HcalSimParameters&>(theParameterMap->simParameters(id));  
   theSiPM->setNCells(pars.pixels());
   theSiPM->setTau(5.);
 

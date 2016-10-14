@@ -28,7 +28,7 @@ class HGCalUncalibRecHitWorkerBaseClass {
                 virtual bool run2(const edm::Event& evt, const HGCHEDigiCollection::const_iterator & digi, HGChefUncalibratedRecHitCollection & result) = 0;
 
                 // run HGC-BH things
-                virtual bool run3(const edm::Event& evt, const HGCHEDigiCollection::const_iterator & digi, HGChebUncalibratedRecHitCollection & result) = 0;
+                virtual bool run3(const edm::Event& evt, const HGCBHDigiCollection::const_iterator & digi, HGChebUncalibratedRecHitCollection & result) = 0;
 };
 
 #endif
