@@ -34,7 +34,7 @@ public:
 
   static std::string dbString() { return "PHcalRcd" ; }
 
-  virtual unsigned int numberOfShapes() const { return theTopology.getNumberOfShapes() ; }
+  virtual unsigned int numberOfShapes() const { return m_topology.getNumberOfShapes() ; }
   virtual unsigned int numberOfParametersPerShape() const { return k_NumberOfParametersPerShape ; }
 
   explicit HcalGeometry(const HcalTopology& topology);
@@ -97,7 +97,7 @@ public:
 			const DetId&       detId     ) ;
 
   virtual const CaloCellGeometry* getGeometry( const DetId& id ) const {
-      return cellGeomPtr( theTopology.detId2denseId( id ) ) ;
+      return cellGeomPtr( m_topology.detId2denseId( id ) ) ;
   }
 
   virtual void getSummary( CaloSubdetectorGeometry::TrVec&  trVector,
@@ -108,8 +108,8 @@ protected:
 
   virtual const CaloCellGeometry* cellGeomPtr( unsigned int index ) const ;
 
-  virtual unsigned int indexFor(const DetId& id) const { return  theTopology.detId2denseId(id); }
-  virtual unsigned int sizeForDenseIndex(const DetId& id) const { return theTopology.ncells(); }
+  virtual unsigned int indexFor(const DetId& id) const { return  m_topology.detId2denseId(id); }
+  virtual unsigned int sizeForDenseIndex(const DetId& id) const { return m_topology.ncells(); }
 
 private:
 
@@ -121,14 +121,14 @@ private:
   int etaRing(HcalSubdetector bc, double abseta) const;
   int phiBin(HcalSubdetector bc, int etaring, double phi) const;
 
-  const HcalTopology& theTopology;
+  const HcalTopology& m_topology;
   
   mutable edm::AtomicPtrCache<std::vector<DetId>> m_hbIds ;
   mutable edm::AtomicPtrCache<std::vector<DetId>> m_heIds ;
   mutable edm::AtomicPtrCache<std::vector<DetId>> m_hoIds ;
   mutable edm::AtomicPtrCache<std::vector<DetId>> m_hfIds ;
   mutable edm::AtomicPtrCache<std::vector<DetId>> m_emptyIds ;
-  CaloSubdetectorGeometry::IVec m_dins;  
+  CaloSubdetectorGeometry::IVec m_dins;
 
   HBCellVec m_hbCellVec ;
   HECellVec m_heCellVec ;
