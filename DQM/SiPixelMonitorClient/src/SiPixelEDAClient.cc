@@ -240,7 +240,10 @@ void SiPixelEDAClient::dqmEndJob(DQMStore::IBooker & iBooker, DQMStore::IGetter 
 
     //sipixelActionExecutor_->createSummary(iBooker, iGetter, isUpgrade_);
 
-    if(doHitEfficiency_) sipixelActionExecutor_->createEfficiency(iBooker,iGetter, isUpgrade_);
+    if(doHitEfficiency_) {
+      sipixelActionExecutor_->createEfficiency(iBooker,iGetter, isUpgrade_);
+      sipixelActionExecutor_->fillEfficiencySummary(iBooker, iGetter);
+    }
 
     sipixelActionExecutor_->createOccupancy(iBooker,iGetter);
 
