@@ -21,13 +21,13 @@ HGCHEbackDigitizer::HGCHEbackDigitizer(const edm::ParameterSet &ps) : HGCDigitiz
 }
 
 //
-void HGCHEbackDigitizer::runDigitizer(std::unique_ptr<HGCHEDigiCollection> &digiColl,HGCSimHitDataAccumulator &simData,uint32_t digitizationType, CLHEP::HepRandomEngine* engine)
+void HGCHEbackDigitizer::runDigitizer(std::unique_ptr<HGCBHDigiCollection> &digiColl,HGCSimHitDataAccumulator &simData,uint32_t digitizationType, CLHEP::HepRandomEngine* engine)
 {
   runCaliceLikeDigitizer(digiColl,simData,engine);
 }
   
 //
-void HGCHEbackDigitizer::runCaliceLikeDigitizer(std::unique_ptr<HGCHEDigiCollection> &digiColl,HGCSimHitDataAccumulator &simData, CLHEP::HepRandomEngine* engine)
+void HGCHEbackDigitizer::runCaliceLikeDigitizer(std::unique_ptr<HGCBHDigiCollection> &digiColl,HGCSimHitDataAccumulator &simData, CLHEP::HepRandomEngine* engine)
 {
   //switch to true if you want to print some details
   constexpr bool debug(false);
@@ -71,7 +71,7 @@ void HGCHEbackDigitizer::runCaliceLikeDigitizer(std::unique_ptr<HGCHEDigiCollect
 	}	
       
       //init a new data frame and run shaper
-      HGCHEDataFrame newDataFrame( it->first );
+      HGCBHDataFrame newDataFrame( it->first );
       myFEelectronics_->runTrivialShaper( newDataFrame, chargeColl, 1 );
 
       //prepare the output
