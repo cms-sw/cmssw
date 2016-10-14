@@ -1,16 +1,23 @@
 #include "SimCalorimetry/HcalTrigPrimAlgos/interface/HcalTriggerPrimitiveAlgo.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#include "CalibFormats/CaloObjects/interface/IntegerCaloSamples.h"
+#include "CondFormats/HcalObjects/interface/HcalTPParameters.h"
+#include "CondFormats/HcalObjects/interface/HcalTPChannelParameters.h"
 
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
-#include "Geometry/HcalTowerAlgo/interface/HcalTrigTowerGeometry.h"
-#include "DataFormats/HcalDetId/interface/HcalTrigTowerDetId.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 #include "DataFormats/HcalDetId/interface/HcalElectronicsId.h"
+
 #include "EventFilter/HcalRawToDigi/interface/HcalDCCHeader.h"
 #include "EventFilter/HcalRawToDigi/interface/HcalHTRData.h"
-#include "SimCalorimetry/HcalTrigPrimAlgos/interface/HcalFeatureHFEMBit.h"//cuts based on short and long energy deposited.
+
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+
+#include "Geometry/HcalTowerAlgo/interface/HcalTrigTowerGeometry.h"
+
 #include <iostream>
+
 using namespace std;
 
 HcalTriggerPrimitiveAlgo::HcalTriggerPrimitiveAlgo( bool pf, const std::vector<double>& w, int latency,
@@ -29,7 +36,8 @@ HcalTriggerPrimitiveAlgo::HcalTriggerPrimitiveAlgo( bool pf, const std::vector<d
                                                    minSignalThreshold_(minSignalThreshold),
                                                    PMT_NoiseThreshold_(PMT_NoiseThreshold),
                                                    NCTScaleShift(0), RCTScaleShift(0),
-                                                   peak_finder_algorithm_(2)
+                                                   peak_finder_algorithm_(2),
+                                                   override_parameters_()
 {
    //No peak finding setting (for Fastsim)
    if (!peakfind_){
@@ -53,20 +61,6 @@ HcalTriggerPrimitiveAlgo::setUpgradeFlags(bool hb, bool he, bool hf)
    upgrade_hb_ = hb;
    upgrade_he_ = he;
    upgrade_hf_ = hf;
-}
-
-
-void
-HcalTriggerPrimitiveAlgo::overrideParameters(unsigned int hf_tdc_mask,
-                                             unsigned int hf_adc_threshold,
-                                             unsigned int hf_fg_threshold)
-{
-   auto parameters = new TPParameters();
-   parameters->hf_tdc_mask = hf_tdc_mask;
-   parameters->hf_adc_threshold = hf_adc_threshold;
-   parameters->hf_fg_threshold = hf_fg_threshold;
-
-   override_parameters_ = std::unique_ptr<const TPParameters>(parameters);
 }
 
 
@@ -513,6 +507,28 @@ void HcalTriggerPrimitiveAlgo::analyzeHF2016(
     
 }
 
+bool
+HcalTriggerPrimitiveAlgo::validChannel(const QIE10DataFrame& digi, int ts) const
+{
+   auto mask = conditions_->getHcalTPChannelParameter(HcalDetId(digi.id()))->getMask();
+   if (mask)
+      return false;
+
+   auto parameters = conditions_->getHcalTPParameters();
+   auto adc_threshold = parameters->getADCThresholdHF();
+   auto tdc_mask = parameters->getTDCMaskHF();
+
+   if (override_parameters_.exists("ADCThresholdHF"))
+      adc_threshold = override_parameters_.getParameter<uint32_t>("ADCThresholdHF");
+   if (override_parameters_.exists("TDCMaskHF"))
+      tdc_mask = override_parameters_.getParameter<unsigned long long>("TDCMaskHF");
+
+   if (digi[ts].adc() < adc_threshold)
+      return true;
+
+   return (1ul << digi[ts].le_tdc()) & tdc_mask;
+}
+
 void HcalTriggerPrimitiveAlgo::analyzeHF2017(
         const IntegerCaloSamples& samples, HcalTriggerPrimitiveDigi& result,
         const int hf_lumi_shift, const HcalFeatureBit* hcalfem)
@@ -550,8 +566,7 @@ void HcalTriggerPrimitiveAlgo::analyzeHF2017(
 
             for (auto i: {0, 2}) {
                if (idx < details[i].samples.size()) {
-                  if ((unsigned int) details[i].digi[idx].adc() < override_parameters_->hf_adc_threshold
-                        or (1ul << (details[i].digi[idx].le_tdc() - 1)) & override_parameters_->hf_tdc_mask) {
+                  if (validChannel(details[i].digi, idx)) {
                      long_fiber_val += details[i].samples[idx];
                      saturated = saturated || (details[i].samples[idx] == QIE10_LINEARIZATION_ET);
                      ++long_fiber_count;
@@ -560,8 +575,7 @@ void HcalTriggerPrimitiveAlgo::analyzeHF2017(
             }
             for (auto i: {1, 3}) {
                if (idx < details[i].samples.size()) {
-                  if ((unsigned int) details[i].digi[idx].adc() < override_parameters_->hf_adc_threshold
-                        or (1ul << (details[i].digi[idx].le_tdc() - 1)) & override_parameters_->hf_tdc_mask) {
+                  if (validChannel(details[i].digi, idx)) {
                      short_fiber_val += details[i].samples[idx];
                      saturated = saturated || (details[i].samples[idx] == QIE10_LINEARIZATION_ET);
                      ++short_fiber_count;
