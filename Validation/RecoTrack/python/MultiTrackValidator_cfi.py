@@ -81,6 +81,8 @@ multiTrackValidator = cms.EDAnalyzer(
     label_vertex = cms.untracked.InputTag("offlinePrimaryVertices"),
     vertexAssociator = cms.untracked.InputTag("VertexAssociatorByPositionAndTracks"),
 
+    simPVMaxZ = cms.untracked.double(-1),
+
     ### Allow switching off particular histograms
     doSummaryPlots = cms.untracked.bool(True),
     doSimPlots = cms.untracked.bool(True),
