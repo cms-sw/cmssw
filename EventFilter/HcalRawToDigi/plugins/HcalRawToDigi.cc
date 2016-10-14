@@ -65,6 +65,7 @@ HcalRawToDigi::HcalRawToDigi(edm::ParameterSet const& conf):
     produces<HcalUMNioDigi>();
   produces<QIE10DigiCollection>();
   produces<QIE11DigiCollection>();
+  produces<QIE10DigiCollection>("ZDC");
   
   memset(&stats_,0,sizeof(stats_));
 
@@ -246,7 +247,7 @@ void HcalRawToDigi::produce(edm::Event& e, const edm::EventSetup& es)
   e.put(std::move(htp_prod));
   e.put(std::move(hotp_prod));
   e.put(std::move(qie10_prod));
-  e.put(std::move(qie10ZDC_prod));
+  e.put(std::move(qie10ZDC_prod),"ZDC");
   e.put(std::move(qie11_prod));
 
   /// calib

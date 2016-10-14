@@ -123,8 +123,9 @@ bool ZdcTopology::validRaw(const HcalZDCDetId& id) const{
     ok = false;
   else if(!(id.section()== HcalZDCDetId::EM || 
 	    id.section()== HcalZDCDetId::HAD ||
-	    id.section()== HcalZDCDetId::LUM ||
-	    id.section()== HcalZDCDetId::RPD))
+	    id.section()== HcalZDCDetId::LUM))
+//	    id.section()== HcalZDCDetId::LUM ||
+//	    id.section()== HcalZDCDetId::RPD))
     ok = false;
   else if(id.section()== HcalZDCDetId::EM && id.channel() > ICH_EM_MAX)
     ok = false;
@@ -289,6 +290,3 @@ int ZdcTopology::lastCell(HcalZDCDetId::Section section) const {
   }
   return lastCell;
 }
-
-
-
