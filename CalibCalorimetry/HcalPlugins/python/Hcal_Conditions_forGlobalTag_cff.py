@@ -23,6 +23,7 @@ es_hardcode = cms.ESSource("HcalHardcodeCalibrations",
     useHFUpgrade = cms.bool(False),
     useHOUpgrade = cms.bool(True),
     testHFQIE10  = cms.bool(False),
+    killHE = cms.bool(False),
     hb = cms.PSet(
         pedestal      = cms.double(3.0),
         pedestalWidth = cms.double(0.55),
@@ -161,3 +162,34 @@ phase2_hcal.toModify( es_hardcode,
                              useHEUpgrade = cms.bool(True),
                              useHFUpgrade = cms.bool(True)
 )
+
+from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
+phase2_hgcal.toModify( es_hardcode,
+                       toGet = cms.untracked.vstring(
+                                         'GainWidths',
+                                         'MCParams',
+                                         'RecoParams',
+                                         'RespCorrs',
+                                         'QIEData',
+                                         'QIETypes',
+                                         'Gains',
+                                         'Pedestals',
+                                         'PedestalWidths',
+                                         'ChannelQuality',
+                                         'ZSThresholds',
+                                         'TimeCorrs',
+                                         'LUTCorrs',
+                                         'LutMetadata',
+                                         'L1TriggerObjects',
+                                         'PFCorrs',
+                                         'FrontEndMap',
+                                         'CovarianceMatrices',
+                                         'SiPMParameters',
+                                         'SiPMCharacteristics',
+                                         'TPChannelParameters',
+                                         'TPParameters',
+                                         'FlagHFDigiTimeParams'
+                                         ),
+                            killHE = cms.bool(True)
+)
+                            

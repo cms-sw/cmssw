@@ -14,7 +14,7 @@ caloParticles = cms.PSet(
             hgc = cms.VInputTag(
                 cms.InputTag('g4SimHits','HGCHitsEE'),
                 cms.InputTag('g4SimHits','HGCHitsHEfront'),
-#                cms.InputTag('g4SimHits','HGCHitsHEback')
+                cms.InputTag('g4SimHits','HcalHits')
             ),
 #            hcal = cms.VInputTag(cms.InputTag('g4SimHits','HcalHits')),
 #            ecal = cms.VInputTag(

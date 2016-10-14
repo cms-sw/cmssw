@@ -104,6 +104,9 @@ public:
 			   CaloSubdetectorGeometry::IVec&   iVector,
 			   CaloSubdetectorGeometry::DimVec& dimVector,
 			   CaloSubdetectorGeometry::IVec& dinsVector ) const ;
+
+  const HcalTopology& topology() const { return theTopology; }
+
 protected:
 
   virtual const CaloCellGeometry* cellGeomPtr( unsigned int index ) const ;

@@ -15,8 +15,10 @@ HGCDigiProducer::HGCDigiProducer(edm::ParameterSet const& pset, edm::stream::EDP
 {
   if( theDigitizer_->producesEEDigis()     )
     mixMod.produces<HGCEEDigiCollection>(theDigitizer_->digiCollection());
-  if( theDigitizer_->producesHEfrontDigis() || theDigitizer_->producesHEbackDigis() )
+  if( theDigitizer_->producesHEfrontDigis() ) 
     mixMod.produces<HGCHEDigiCollection>(theDigitizer_->digiCollection());
+  if( theDigitizer_->producesHEbackDigis() )
+    mixMod.produces<HGCBHDigiCollection>(theDigitizer_->digiCollection());
 }
 
 HGCDigiProducer::HGCDigiProducer(edm::ParameterSet const& pset, edm::ConsumesCollector& iC) :
