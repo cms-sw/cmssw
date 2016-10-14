@@ -97,7 +97,7 @@ QIE10Task::QIE10Task(edm::ParameterSet const& ps):
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10TDC_64),
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true));
 
-	unsigned int nTS = _ptype==fLocal ? 10 : 4;
+	unsigned int nTS = _ptype==fLocal ? 10 : 6;
 	for (unsigned int j=0; j<nTS; j++)
 	{
 		_cLETDCvsADC_EChannel[j].initialize(_name,

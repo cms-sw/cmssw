@@ -130,7 +130,7 @@ QIE11Task::QIE11Task(edm::ParameterSet const& ps):
 			//	w/o a cut
 			_cTDCvsADC_EChannel[j].fill(eid, frame[j].adc(), 
 				frame[j].tdc());
-			_cTDCvsADC.fill(eid, frame[j].adc(), frame[j].tdc());
+			_cTDCvsADC.fill(frame[j].adc(), frame[j].tdc());
 			_cTDC_EChannel[j].fill(eid, frame[j].tdc());
 			_cTDC.fill(eid, frame[j].tdc());
 			_cADC_EChannel[j].fill(eid, frame[j].adc());
