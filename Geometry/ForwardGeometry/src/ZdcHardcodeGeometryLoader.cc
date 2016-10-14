@@ -28,13 +28,14 @@ void ZdcHardcodeGeometryLoader::init()
 ZdcHardcodeGeometryLoader::ReturnType 
 ZdcHardcodeGeometryLoader::load(DetId::Detector /*det*/, int subdet)
 {
+  std::cout << "Loader called with subdet " << subdet << ":" << HcalZDCDetId::SubdetectorId << std::endl;
    ReturnType hg(new ZdcGeometry( extTopology ) );
    if(subdet == HcalZDCDetId::SubdetectorId)
    {
       fill(HcalZDCDetId::EM  ,hg );
       fill(HcalZDCDetId::LUM ,hg );
       fill(HcalZDCDetId::HAD ,hg );
-      fill(HcalZDCDetId::RPD ,hg );
+//      fill(HcalZDCDetId::RPD ,hg );
    }
    return hg;
 }
@@ -42,11 +43,12 @@ ZdcHardcodeGeometryLoader::load(DetId::Detector /*det*/, int subdet)
 ZdcHardcodeGeometryLoader::ReturnType 
 ZdcHardcodeGeometryLoader::load() 
 {
+  std::cout << "Loader called with no subdet " << HcalZDCDetId::SubdetectorId << std::endl;
    ReturnType hg(new ZdcGeometry( extTopology ) );
    fill(HcalZDCDetId::EM  ,hg );
    fill(HcalZDCDetId::LUM ,hg );
    fill(HcalZDCDetId::HAD ,hg );
-   fill(HcalZDCDetId::RPD ,hg );
+//   fill(HcalZDCDetId::RPD ,hg );
    return hg;
 }
 
@@ -54,6 +56,7 @@ void ZdcHardcodeGeometryLoader::fill( HcalZDCDetId::Section section,
 				      ReturnType            geom     ) 
 {
   // start by making the new HcalDetIds
+  std::cout << "Fill called for " << section << std::endl;
   std::vector<HcalZDCDetId> zdcIds;
   HcalZDCDetId id;
   int firstCell = extTopology->firstCell(section);
