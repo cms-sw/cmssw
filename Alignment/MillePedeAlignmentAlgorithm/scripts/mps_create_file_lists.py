@@ -51,8 +51,8 @@ class FileListCreator(object):
             sys.exit(1)
 
         self._dataset_regex = re.compile(r"^/([^/]+)/([^/]+)/([^/]+)$")
-        parser = self._define_parser()
-        self._args = parser.parse_args(argv)
+        self._parser = self._define_parser()
+        self._args = self._parser.parse_args(argv)
         self._validate_input()
         self._datasets = sorted([dataset
                                  for pattern in self._args.datasets
@@ -163,14 +163,19 @@ class FileListCreator(object):
             if self._args.tracks or self._args.rate:
                 msg = ("-n/--events-for-alignment must not be used with "
                        "--tracks-for-alignment or --track-rate")
-                parser.error(msg)
+                self._parser.error(msg)
             print_msg("Requested {0:d} events for alignment."
                       .format(self._args.events))
         else:
-            if not (self._args.tracks and self._args.rate):
+            if not (self._args.tracks or self._args.rate):
+                msg = ("either -n/--events-for-alignment or both of "
+                       "--tracks-for-alignment and --track-rate are required")
+                self._parser.error(msg)
+            if ((self._args.tracks and not self._args.rate) or
+                (self._args.rate and not self._args.tracks)):
                 msg = ("--tracks-for-alignment and --track-rate must be used "
                        "together")
-                parser.error(msg)
+                self._parser.error(msg)
             self._args.events = int(math.ceil(self._args.tracks /
                                               self._args.rate))
             print_msg("Requested {0:d} tracks with {1:.2f} tracks/event "
