@@ -38,6 +38,8 @@ def _trackingOnly(stepList):
         s = step
         if 'RecoFull' in step or 'HARVESTFull' in step:
             s = s.replace('Full', 'Full_trackingOnly')
+        if 'ALCA' in s:
+            continue
         res.append(s)
     return res
 def _trackingRun2(stepList):
@@ -49,6 +51,8 @@ def _trackingRun2(stepList):
                 s = s.replace('Only', 'OnlyRun2')
             else:
                 s = s.replace('Full', 'Full_trackingRun2')
+        if 'ALCA' in s:
+            continue
         res.append(s)
     return res
 def _trackingPhase1PU70(stepList):
@@ -60,6 +64,8 @@ def _trackingPhase1PU70(stepList):
                 s = s.replace('Only', 'OnlyPhase1PU70')
             else:
                 s = s.replace('Full', 'Full_trackingPhase1PU70')
+        if 'ALCA' in s:
+            continue
         res.append(s)
     return res
 
