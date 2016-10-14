@@ -303,18 +303,23 @@ void TotemDAQMappingESSourceXML::ParseTreeRP(ParseType pType, xercesc::DOMNode *
     // structure control
     if (!RPNode(type))
       continue;
-
-    if ((type != parentType + 1)&&(parentType != nRPPot))
+  
+    NodeType expectedParentType;
+    switch (type)
     {
-      if (parentType == nTop && type == nRPPot)
-      {
-	    LogPrint("TotemDAQMappingESSourceXML") << ">> TotemDAQMappingESSourceXML::ParseTreeRP > Warning: tag `" << tagRPPot
-					<< "' found in global scope, assuming station ID = 12.";
-	    parentID = 12;
-      } else {
-        throw cms::Exception("TotemDAQMappingESSourceXML") << "Node " << XMLString::transcode(n->getNodeName())
-          << " not allowed within " << XMLString::transcode(parent->getNodeName()) << " block.\n";
-      }
+      case nArm: expectedParentType = nTop; break;
+      case nRPStation: expectedParentType = nArm; break;
+      case nRPPot: expectedParentType = nRPStation; break;
+      case nRPPlane: expectedParentType = nRPPot; break;
+      case nChip: expectedParentType = nRPPlane; break;
+      case nChannel: expectedParentType = nChip; break;
+      default: expectedParentType = nUnknown; break;
+    }
+
+    if (expectedParentType != parentType)
+    {
+      throw cms::Exception("TotemDAQMappingESSourceXML") << "Node " << XMLString::transcode(n->getNodeName())
+        << " not allowed within " << XMLString::transcode(parent->getNodeName()) << " block.\n";
     }
 
     // parse tag attributes
