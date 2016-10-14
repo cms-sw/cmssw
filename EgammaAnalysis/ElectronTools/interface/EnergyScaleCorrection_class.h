@@ -1,5 +1,5 @@
-#ifndef EnergyScaleCorrection_class_h
-#define EnergyScaleCorrection_class_h
+#ifndef EgammaAnalysis_ElectronTools_EnergyScaleCorrection_class_h
+#define EgammaAnalysis_ElectronTools_EnergyScaleCorrection_class_h
 /// Read and get energy scale and smearings from .dat files
 /**\class EnergyScaleCorrection_class EnergyScaleCorrection_class.cc Calibration/ZFitter/src/EnergyScaleCorrection_class.cc
  *  \author Shervin Nourbakhsh

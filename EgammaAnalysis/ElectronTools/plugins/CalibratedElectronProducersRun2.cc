@@ -55,7 +55,7 @@ void
 CalibratedElectronProducerRun2T<T>::produce( edm::Event & iEvent, const edm::EventSetup & iSetup ) 
 {
     iSetup.get<GBRWrapperRcd>().get(theGBRForestName, theGBRForestHandle);
-    theEpCombinationTool.init(theGBRForestHandle.product() );
+    theEpCombinationTool.init(theGBRForestHandle.product());
 
     edm::Handle<edm::View<T> > in;
     iEvent.getByToken(theElectronToken, in);
