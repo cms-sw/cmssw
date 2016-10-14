@@ -614,6 +614,7 @@ void TrackingMonitor::bookHistograms(DQMStore::IBooker & ibooker,
 	title = "# of Clusters in (Pixel+Strip) Detectors";
       NumberOfTrkVsClusters[i]->setAxisTitle(title, 1);
       NumberOfTrkVsClusters[i]->setAxisTitle("Number of Tracks", 2);
+      NumberOfTrkVsClusters[i]->getTH1()->SetCanExtend(TH1::kXaxis);
     }
   }
   
