@@ -57,13 +57,11 @@ TrackingMonitor::TrackingMonitor(const edm::ParameterSet& iConfig)
 				// ADD by Mia for PU monitoring
 				// vertex plots to be moved in ad hoc class
     , NumberOfGoodPVtxVsLS(NULL)
-    , NumberOfGoodPVtxWO0VsLS(NULL)
     , NumberEventsOfVsBX (NULL)
     , NumberOfTracksVsBX(NULL)
     , GoodTracksFractionVsBX(NULL)
     , NumberOfRecHitsPerTrackVsBX(NULL)
     , NumberOfGoodPVtxVsBX(NULL)
-    , NumberOfGoodPVtxWO0VsBX(NULL)
     , NumberOfTracksVsBXlumi(NULL)
     , NumberOfTracksVsGoodPVtx(NULL)
     , NumberOfTracksVsPUPVtx(NULL)
@@ -76,7 +74,6 @@ TrackingMonitor::TrackingMonitor(const edm::ParameterSet& iConfig)
     , GoodTracksFractionVsLUMI(NULL)
     , NumberOfRecHitsPerTrackVsLUMI(NULL)
     , NumberOfGoodPVtxVsLUMI(NULL)
-    , NumberOfGoodPVtxWO0VsLUMI(NULL)
     , NumberOfTracks_lumiFlag(NULL)
 				//    , NumberOfGoodTracks_lumiFlag(NULL)
 
@@ -306,12 +303,6 @@ void TrackingMonitor::bookHistograms(DQMStore::IBooker & ibooker,
      NumberOfGoodPVtxVsLS->setAxisTitle("#Lumi section",1);
      NumberOfGoodPVtxVsLS->setAxisTitle("Mean number of good PV",2);
 
-     histname = "NumberOfGoodPVtxWO0VsLS_" + CategoryName;
-     NumberOfGoodPVtxWO0VsLS = ibooker.bookProfile(histname,histname, LSBin,LSMin,LSMax,GoodPVtxMin,GoodPVtxMax,"");
-     NumberOfGoodPVtxWO0VsLS->getTH1()->SetCanExtend(TH1::kAllAxes);
-     NumberOfGoodPVtxWO0VsLS->setAxisTitle("#Lumi section",1);
-     NumberOfGoodPVtxWO0VsLS->setAxisTitle("Mean number of good PV",2);
-
      if (doFractionPlot_) {
        histname = "GoodTracksFractionVsLS_"+ CategoryName;
        GoodTracksFractionVsLS = ibooker.bookProfile(histname,histname, LSBin,LSMin,LSMax,0,1.1,"");
@@ -347,12 +338,6 @@ void TrackingMonitor::bookHistograms(DQMStore::IBooker & ibooker,
        NumberOfGoodPVtxVsBX->getTH1()->SetCanExtend(TH1::kAllAxes);
        NumberOfGoodPVtxVsBX->setAxisTitle("BX",1);
        NumberOfGoodPVtxVsBX->setAxisTitle("Mean number of good PV",2);
-       
-       histname = "NumberOfGoodPVtxWO0VsBX_" + CategoryName;
-       NumberOfGoodPVtxWO0VsBX = ibooker.bookProfile(histname,histname, BXBin,BXMin,BXMax,GoodPVtxMin,GoodPVtxMax,"");
-       NumberOfGoodPVtxWO0VsBX->getTH1()->SetCanExtend(TH1::kAllAxes);
-       NumberOfGoodPVtxWO0VsBX->setAxisTitle("BX",1);
-       NumberOfGoodPVtxWO0VsBX->setAxisTitle("Mean number of good PV",2);
        
        if (doFractionPlot_) {
 	 histname = "GoodTracksFractionVsBX_"+ CategoryName;
@@ -461,12 +446,6 @@ void TrackingMonitor::bookHistograms(DQMStore::IBooker & ibooker,
        NumberOfGoodPVtxVsLUMI->getTH1()->SetCanExtend(TH1::kAllAxes);
        NumberOfGoodPVtxVsLUMI->setAxisTitle("scal lumi [10e30 Hz cm^{-2}]",1);
        NumberOfGoodPVtxVsLUMI->setAxisTitle("Mean number of vertices",2);
-
-       histname = "NumberOfGoodPVtxWO0VsLUMI";
-       NumberOfGoodPVtxWO0VsLUMI = ibooker.bookProfile(histname,histname,LUMIBin,LUMIMin,LUMIMax,GoodPVtxMin,GoodPVtxMax,"");
-       NumberOfGoodPVtxWO0VsLUMI->getTH1()->SetCanExtend(TH1::kAllAxes);
-       NumberOfGoodPVtxWO0VsLUMI->setAxisTitle("scal lumi [10e30 Hz cm^{-2}]",1);
-       NumberOfGoodPVtxWO0VsLUMI->setAxisTitle("Mean number of vertices",2);
      }
      
 
@@ -545,6 +524,7 @@ void TrackingMonitor::bookHistograms(DQMStore::IBooker & ibooker,
 										 TKNoSeedBin, TKNoSeedMin, TKNoSeedMax)));
        SeedsVsClusters[i]->setAxisTitle("Number of Clusters", 1);
        SeedsVsClusters[i]->setAxisTitle("Number of Seeds", 2);
+       SeedsVsClusters[i]->getTH2D()->SetCanExtend(TH1::kAllAxes);
      }
    }
   
@@ -922,10 +902,6 @@ void TrackingMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 	  NumberOfTracksVsBXlumi       -> Fill( bxlumi, numberOfTracks      );
 	}
 	
-	if ( doProfilesVsLS_ || doAllPlots ) if ( totalNumGoodPV != 0 ) NumberOfGoodPVtxWO0VsLS  -> Fill(static_cast<double>(iEvent.id().luminosityBlock()),float(totalNumGoodPV));
-	if ( doPlotsVsBX_    || doAllPlots ) if ( totalNumGoodPV != 0 ) NumberOfGoodPVtxWO0VsBX  -> Fill(bx,  float(totalNumGoodPV));
-	if ( doPlotsVsLUMI_  || doAllPlots ) if ( totalNumGoodPV != 0 ) NumberOfGoodPVtxWO0VsLUMI-> Fill(lumi,float(totalNumGoodPV));
-
       } // PU monitoring
       
     } // trackHandle is valid
