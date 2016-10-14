@@ -105,7 +105,7 @@ pixelLessStepTrackingRegions = _globalTrackingRegionFromBeamSpotFixedZ.clone(Reg
     originHalfLength = 12.0,
     originRadius = 1.0
 ))
-eras.trackingLowPU.toModify(pixelLessStepTrackingRegions, RegionPSet = dict(
+trackingLowPU.toModify(pixelLessStepTrackingRegions, RegionPSet = dict(
     ptMin = 0.7,
     originHalfLength = 10.0,
     originRadius = 2.0,
@@ -151,8 +151,8 @@ pixelLessStepSeeds = _seedCreatorFromRegionConsecutiveHitsTripletOnlyEDProducer.
         )
     )
 )
-eras.trackingLowPU.toModify(pixelLessStepHitDoublets, produceSeedingHitSets=True, produceIntermediateHitDoublets=False)
-eras.trackingLowPU.toModify(pixelLessStepSeeds,
+trackingLowPU.toModify(pixelLessStepHitDoublets, produceSeedingHitSets=True, produceIntermediateHitDoublets=False)
+trackingLowPU.toModify(pixelLessStepSeeds,
     seedingHitSets = "pixelLessStepHitDoublets",
     SeedComparitorPSet = dict(# FIXME: is this defined in any cfi that could be imported instead of copy-paste?
         ComponentName = 'PixelClusterShapeSeedComparitor',
