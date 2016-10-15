@@ -598,10 +598,10 @@ void SiPixelDigiSource::analyze(const edm::Event& iEvent, const edm::EventSetup&
 
   if (lumiSection%10==0 && ROCMapToReset) {
     for (int i =0; i < 2; ++i) NloEffROCs[i] = NloEffROCs[i] - NzeroROCs[i];
-    if(noOccROCsBarrel) noOccROCsBarrel->setBinContent(1+lumiSection/10, NzeroROCs[0]);
-    if(loOccROCsBarrel) loOccROCsBarrel->setBinContent(1+lumiSection/10, NloEffROCs[0]);
-    if(noOccROCsEndcap) noOccROCsEndcap->setBinContent(1+lumiSection/10, NzeroROCs[1]);
-    if(loOccROCsEndcap) loOccROCsEndcap->setBinContent(1+lumiSection/10, NloEffROCs[1]);
+    if(noOccROCsBarrel) noOccROCsBarrel->setBinContent(lumiSection/10, NzeroROCs[0]);
+    if(loOccROCsBarrel) loOccROCsBarrel->setBinContent(lumiSection/10, NloEffROCs[0]);
+    if(noOccROCsEndcap) noOccROCsEndcap->setBinContent(lumiSection/10, NzeroROCs[1]);
+    if(loOccROCsEndcap) loOccROCsEndcap->setBinContent(lumiSection/10, NloEffROCs[1]);
     ROCMapToReset=false; // in this way the ROC maps are reset for one event only (the first event in LS multiple of 10
   }
 
