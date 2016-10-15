@@ -11,22 +11,22 @@ readGeometryFromDB = False
 # material-budget grouping into the DDD of the detector. So we need to read the
 # geometry using the XMLIdealGeometryRecord.
 if not readGeometryFromDB:
-  process.load('Configuration.Geometry.GeometryExtended2017NewFPixReco_cff')
+  process.load('Configuration.Geometry.GeometryExtended2023D1Reco_cff')
 else:
-# GlobalTag and geometry via it
+# Global Tag and geometry via it
   process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff")
   from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
-  process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase1_2017_design', '')
+  process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc', '')
 
 process.load('FWCore.MessageService.MessageLogger_cfi')
 
 # Analyze and plot the tracking material
-process.load("SimTracker.TrackerMaterialAnalysis.trackingMaterialAnalyser_ForPhaseI_cff")
+process.load("SimTracker.TrackerMaterialAnalysis.trackingMaterialAnalyser_ForPhaseII_cff")
 process.trackingMaterialAnalyser.SplitMode         = "NearestLayer"
 process.trackingMaterialAnalyser.SaveParameters    = True
 process.trackingMaterialAnalyser.SaveXML           = True
 process.trackingMaterialAnalyser.SaveDetailedPlots = False
-  
+
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring('file:material.root')
 )
@@ -66,3 +66,10 @@ def customizeMessageLogger(process):
 
 
 #process = customizeMessageLogger(process)
+
+# Automatic addition of the customisation function from SLHCUpgradeSimulations.Configuration.combinedCustoms
+from SLHCUpgradeSimulations.Configuration.combinedCustoms import cust_2023tilted
+
+#call to customisation function cust_2023tilted imported from SLHCUpgradeSimulations.Configuration.combinedCustoms
+process = cust_2023tilted(process)
+
