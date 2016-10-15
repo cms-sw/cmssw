@@ -38,6 +38,12 @@ void testfriendlyName::test()
   classToFriendly.insert( Values("bar::Foo","barFoo") );
   classToFriendly.insert( Values("std::vector<Foo>","Foos") );
   classToFriendly.insert( Values("std::vector<bar::Foo>","barFoos") );
+  classToFriendly.insert( Values("std::shared_ptr<Foo>","FooSharedPtr"));
+  classToFriendly.insert( Values("std::shared_ptr<bar::Foo>","barFooSharedPtr"));
+  classToFriendly.insert( Values("std::vector<std::shared_ptr<bar::Foo>>","barFooSharedPtrs"));
+  classToFriendly.insert( Values("std::unique_ptr<Foo>","FooUniquePtr"));
+  classToFriendly.insert( Values("std::unique_ptr<bar::Foo>","barFooUniquePtr"));
+  classToFriendly.insert( Values("std::vector<std::unique_ptr<bar::Foo>>","barFooUniquePtrs"));
   classToFriendly.insert( Values("V<A,B>","ABV") );
   classToFriendly.insert( Values("edm::ExtCollection<std::vector<reco::SuperCluster>,reco::SuperClusterRefProds>","recoSuperClustersrecoSuperClusterRefProdsedmExtCollection") );
   classToFriendly.insert( Values("edm::SortedCollection<EcalUncalibratedRecHit,edm::StrictWeakOrdering<EcalUncalibratedRecHit> >","EcalUncalibratedRecHitsSorted") );
