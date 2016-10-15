@@ -3,10 +3,9 @@
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("MaterialAnalyser")
-process.load('Configuration.Geometry.GeometryExtended2016Reco_cff')
+process.load('Configuration.Geometry.GeometryExtended2023D1Reco_cff')
 process.load("Configuration.StandardSequences.MagneticField_cff")
-process.load("SimTracker.TrackerMaterialAnalysis.trackingMaterialGroups_cff")
-
+process.load("SimTracker.TrackerMaterialAnalysis.trackingMaterialGroups_ForPhaseII_cff")
 
 process.source = cms.Source("EmptySource")
 process.maxEvents = cms.untracked.PSet(
