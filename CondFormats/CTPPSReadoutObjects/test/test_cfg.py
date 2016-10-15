@@ -22,7 +22,7 @@ process.maxEvents = cms.untracked.PSet(
 # load a mapping
 process.load("CondFormats.CTPPSReadoutObjects.TotemDAQMappingESSourceXML_cfi")
 process.TotemDAQMappingESSourceXML.mappingFileNames.append("CondFormats/CTPPSReadoutObjects/xml/ctpps_210_mapping.xml")
-#process.TotemDAQMappingESSourceXML.mappingFileNames.append("CondFormats/CTPPSReadoutObjects/xml/ctpps_timing_diamond_215_mapping_new.xml")
+process.TotemDAQMappingESSourceXML.mappingFileNames.append("CondFormats/CTPPSReadoutObjects/xml/ctpps_timing_diamond_215_mapping_new.xml")
   
 # print the mapping
 process.printTotemDAQMapping = cms.EDAnalyzer("PrintTotemDAQMapping"
