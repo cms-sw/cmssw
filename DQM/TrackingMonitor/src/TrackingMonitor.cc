@@ -545,7 +545,7 @@ void TrackingMonitor::bookHistograms(DQMStore::IBooker & ibooker,
 										 TKNoSeedBin, TKNoSeedMin, TKNoSeedMax)));
        SeedsVsClusters[i]->setAxisTitle("Number of Clusters", 1);
        SeedsVsClusters[i]->setAxisTitle("Number of Seeds", 2);
-       SeedsVsClusters[i]->getTH2D()->SetCanExtend(TH1::kAllAxes);
+       SeedsVsClusters[i]->getTH2F()->SetCanExtend(TH1::kAllAxes);
      }
    }
   
