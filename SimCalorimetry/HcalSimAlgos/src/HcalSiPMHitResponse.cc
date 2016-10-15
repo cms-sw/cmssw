@@ -138,6 +138,8 @@ void HcalSiPMHitResponse::addPEnoise(CLHEP::HepRandomEngine* engine)
       pars.sipmDarkCurrentuA(id) * dt / 
       pars.photoelectronsToAnalog(id);
 
+    if (dc_pe_avg <= 0.) continue;
+
     int nPreciseBins = theTDCParams.nbins() * TIMEMULT * pars.readoutFrameSize();
 
     unsigned int sumnoisePE(0);
