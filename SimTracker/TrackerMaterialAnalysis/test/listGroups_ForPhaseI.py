@@ -7,10 +7,6 @@ process.load('Configuration.Geometry.GeometryExtended2017Reco_cff')
 process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("SimTracker.TrackerMaterialAnalysis.trackingMaterialGroups_ForPhaseI_cff")
 
-process.MessageLogger = cms.Service("MessageLogger",
-    destinations = cms.untracked.vstring('cout')
-)
-
 process.source = cms.Source("EmptySource")
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)

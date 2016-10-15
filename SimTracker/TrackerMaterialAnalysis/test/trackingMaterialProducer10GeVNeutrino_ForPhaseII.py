@@ -11,13 +11,12 @@ readGeometryFromDB = False
 # only a temporary hack, since the material description has
 # been updated in release via XML and the DB is behind.
 if not readGeometryFromDB:
-  process.load('Configuration.Geometry.GeometryExtended2017NewFPix_cff')
+  process.load('Configuration.Geometry.GeometryExtended2023D1_cff')
 else:
 # GlobalTag and geometry via GT
-  process.load('Configuration.Geometry.GeometrySimDB_cff')
   process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff')
   from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
-  process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase1_2017_design', '')
+  process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc', '')
 
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.EventContent.EventContent_cff')
@@ -86,3 +85,9 @@ def customizeMessageLogger(process):
     return process
 
 #process = customizeMessageLogger(process)
+
+# Automatic addition of the customisation function from SLHCUpgradeSimulations.Configuration.combinedCustoms
+from SLHCUpgradeSimulations.Configuration.combinedCustoms import cust_2023tilted
+
+#call to customisation function cust_2023tilted imported from SLHCUpgradeSimulations.Configuration.combinedCustoms
+process = cust_2023tilted(process)
