@@ -46,8 +46,10 @@ from RecoBTag.SecondaryVertex.pfCombinedInclusiveSecondaryVertexV2BJetTags_cfi i
 from RecoBTag.SecondaryVertex.pfGhostTrackVertexTagInfos_cfi import *
 from RecoBTag.SecondaryVertex.pfGhostTrackBJetTags_cfi import *
 from RecoBTag.SecondaryVertex.pfInclusiveSecondaryVertexFinderAK8TagInfos_cfi import *
+from RecoBTag.SecondaryVertex.pfBoostedDoubleSVAK8TagInfos_cfi import *
 from RecoBTag.SecondaryVertex.pfBoostedDoubleSecondaryVertexAK8BJetTags_cfi import *
 from RecoBTag.SecondaryVertex.pfInclusiveSecondaryVertexFinderCA15TagInfos_cfi import *
+from RecoBTag.SecondaryVertex.pfBoostedDoubleSVCA15TagInfos_cfi import *
 from RecoBTag.SecondaryVertex.pfBoostedDoubleSecondaryVertexCA15BJetTags_cfi import *
 
 # Negative taggers
