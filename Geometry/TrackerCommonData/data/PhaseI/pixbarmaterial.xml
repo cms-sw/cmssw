@@ -584,45 +584,18 @@
     </MaterialFraction>
   </CompositeMaterial>
 
- <CompositeMaterial name="SectorA" density="0.3136*g/cm3" symbol=" " method="mixture by weight">
-    <MaterialFraction fraction="0.10443">
-      <rMaterial name="materials:Bpix_CO2_-20C"/>
-    </MaterialFraction>
-    <MaterialFraction fraction="0.00283">
-      <rMaterial name="pixbarmaterial:Polyoxymethylene"/>
-    </MaterialFraction>
-    <MaterialFraction fraction="0.20588">
+ <CompositeMaterial name="SectorA" density="0.3661*g/cm3" symbol=" " method="mixture by weight">
+    <MaterialFraction fraction="0.329">
       <rMaterial name="trackermaterial:T_FR4"/>
     </MaterialFraction>
-    <MaterialFraction fraction="0.08188">
-      <rMaterial name="materials:Acrylate"/>
-    </MaterialFraction>
-    <MaterialFraction fraction="0.11064">
-      <rMaterial name="materials:Steel-008"/>
-    </MaterialFraction>
-    <MaterialFraction fraction="0.0145">
-      <rMaterial name="materials:Brass"/>
-    </MaterialFraction>
-    <MaterialFraction fraction="0.10724">
-      <rMaterial name="materials:Epoxy"/>
-    </MaterialFraction>
-    <MaterialFraction fraction="0.00283">
-      <rMaterial name="pixfwdMaterials:FPix_TinLeadSolder"/>
-    </MaterialFraction>
-    <MaterialFraction fraction="0.01613">
-      <rMaterial name="trackermaterial:T_Copper"/>
-    </MaterialFraction>
-    <MaterialFraction fraction="0.19232">
+    <MaterialFraction fraction="0.333">
       <rMaterial name="trackermaterial:T_Aluminium"/>
     </MaterialFraction>
-    <MaterialFraction fraction="0.1272">
-      <rMaterial name="pixfwdMaterials:FPix_Cylind_Polyester"/>
+    <MaterialFraction fraction="0.320">
+      <rMaterial name="trackermaterial:T_Copper"/>
     </MaterialFraction>
-    <MaterialFraction fraction="0.009">
-      <rMaterial name="materials:Polyvinylchloride"/>
-    </MaterialFraction>
-    <MaterialFraction fraction="0.02513">
-      <rMaterial name="trackermaterial:T_Nomex"/>
+    <MaterialFraction fraction="0.018">
+      <rMaterial name="materials:Steel-008"/>
     </MaterialFraction>
   </CompositeMaterial>
   
@@ -708,6 +681,24 @@
       <rMaterial name="trackermaterial:T_Nomex"/>
     </MaterialFraction>
   </CompositeMaterial>
+
+  <CompositeMaterial name="SectorBC" density="0.9875*g/cm3" symbol=" " method="mixture by weight">
+    <MaterialFraction fraction="0.265">
+      <rMaterial name="trackermaterial:T_FR4"/>
+    </MaterialFraction>
+    <MaterialFraction fraction="0.115">
+      <rMaterial name="trackermaterial:T_Aluminium"/>
+    </MaterialFraction>
+    <MaterialFraction fraction="0.052">
+      <rMaterial name="trackermaterial:T_Copper"/>
+    </MaterialFraction>
+    <MaterialFraction fraction="0.006">
+      <rMaterial name="materials:Steel-008"/>
+    </MaterialFraction>
+    <MaterialFraction fraction="0.562">
+      <rMaterial name="materials:Silicon"/>
+    </MaterialFraction>
+  </CompositeMaterial>
   
  <CompositeMaterial name="SectorC_3Disks" density="1.22394*g/cm3" symbol=" " method="mixture by weight"> <!-- fpix 3 disks service material added -->
     <MaterialFraction fraction="1.000000">
@@ -726,7 +717,7 @@
     </MaterialFraction>
   </CompositeMaterial>
 
-  <CompositeMaterial name="PixelBarrelSupTubCables" density="2.25064*g/cm3" symbol=" " method="mixture by weight">
+  <CompositeMaterial name="PixelBarrelSupTubCables" density="0.6510*g/cm3" symbol=" " method="mixture by weight">
     <MaterialFraction fraction="0.09162">
       <rMaterial name="materials:Bpix_CO2_-20C"/>
     </MaterialFraction>
