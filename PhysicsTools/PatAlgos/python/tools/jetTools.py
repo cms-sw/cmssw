@@ -172,18 +172,19 @@ def setupSVClustering(btagInfo, svClustering, algo, rParam, fatJets=cms.InputTag
 
 def setupBTagging(process, jetSource, pfCandidates, explicitJTA, pvSource, svSource, elSource, muSource, runIVF, tightBTagNTkHits, loadStdRecoBTag, svClustering, fatJets, groomedFatJets,
                   algo, rParam, btagDiscriminators, btagInfos, patJets, labelName, btagPrefix, postfix):
-    ## expand tagInfos to what is explicitely required by user + implicit
+    ## expand tagInfos to what is explicitly required by user + implicit
     ## requirements that come in from one or the other discriminator
     requiredTagInfos = list(btagInfos)
     for btagDiscr in btagDiscriminators :
-        for requiredTagInfo in supportedBtagDiscr[btagDiscr] :
-            tagInfoCovered = False
-            for tagInfo in requiredTagInfos :
-                if requiredTagInfo == tagInfo :
-                    tagInfoCovered = True
-                    break
-            if not tagInfoCovered :
-                requiredTagInfos.append(requiredTagInfo)
+        for tagInfoList in supportedBtagDiscr[btagDiscr] :
+            for requiredTagInfo in tagInfoList :
+                tagInfoCovered = False
+                for tagInfo in requiredTagInfos :
+                    if requiredTagInfo == tagInfo :
+                        tagInfoCovered = True
+                        break
+                if not tagInfoCovered :
+                    requiredTagInfos.append(requiredTagInfo)
     ## load sequences and setups needed for btagging
     if hasattr( process, 'candidateJetProbabilityComputer' ) == False :
         if loadStdRecoBTag: # also loading modules already run in the standard reconstruction
@@ -224,7 +225,7 @@ def setupBTagging(process, jetSource, pfCandidates, explicitJTA, pvSource, svSou
     runIVFforCTagOnly = False
     ivfcTagInfos = ['pfInclusiveSecondaryVertexFinderCvsLTagInfos', 'pfInclusiveSecondaryVertexFinderNegativeCvsLTagInfos']
     ## if MiniAOD and running c tagging
-    if pfCandidates.getModuleLabel() == 'packedPFCandidates' and any(i in requiredTagInfos for i in ivfcTagInfos) and not runIVF:
+    if pvSource.getModuleLabel() == 'offlineSlimmedPrimaryVertices' and any(i in requiredTagInfos for i in ivfcTagInfos) and not runIVF:
         runIVFforCTagOnly = True
         runIVF = True
         print "-------------------------------------------------------------------"
@@ -286,10 +287,14 @@ def setupBTagging(process, jetSource, pfCandidates, explicitJTA, pvSource, svSou
                 setattr(process, btagPrefix+btagInfo+labelName+postfix, btag.pfInclusiveSecondaryVertexFinderAK8TagInfos.clone(trackIPTagInfos = cms.InputTag(btagPrefix+'pfImpactParameterAK8TagInfos'+labelName+postfix), extSVCollection=svSource))
                 if svClustering or fatJets != cms.InputTag(''):
                     setupSVClustering(getattr(process, btagPrefix+btagInfo+labelName+postfix), svClustering, algo, rParam, fatJets, groomedFatJets)
+            if btagInfo == 'pfBoostedDoubleSVAK8TagInfos':
+                setattr(process, btagPrefix+btagInfo+labelName+postfix, btag.pfBoostedDoubleSVAK8TagInfos.clone(svTagInfos = cms.InputTag(btagPrefix+'pfInclusiveSecondaryVertexFinderAK8TagInfos'+labelName+postfix)))
             if btagInfo == 'pfInclusiveSecondaryVertexFinderCA15TagInfos':
                 setattr(process, btagPrefix+btagInfo+labelName+postfix, btag.pfInclusiveSecondaryVertexFinderCA15TagInfos.clone(trackIPTagInfos = cms.InputTag(btagPrefix+'pfImpactParameterCA15TagInfos'+labelName+postfix), extSVCollection=svSource))
                 if svClustering or fatJets != cms.InputTag(''):
                     setupSVClustering(getattr(process, btagPrefix+btagInfo+labelName+postfix), svClustering, algo, rParam, fatJets, groomedFatJets)
+            if btagInfo == 'pfBoostedDoubleSVCA15TagInfos':
+                setattr(process, btagPrefix+btagInfo+labelName+postfix, btag.pfBoostedDoubleSVCA15TagInfos.clone(svTagInfos = cms.InputTag(btagPrefix+'pfInclusiveSecondaryVertexFinderCA15TagInfos'+labelName+postfix)))
             if btagInfo == 'pfInclusiveSecondaryVertexFinderCvsLTagInfos':
                 setattr(process, btagPrefix+btagInfo+labelName+postfix, btag.pfInclusiveSecondaryVertexFinderCvsLTagInfos.clone(trackIPTagInfos = cms.InputTag(btagPrefix+'pfImpactParameterTagInfos'+labelName+postfix), extSVCollection=svSourceCvsL))
                 if svClustering or fatJets != cms.InputTag(''):
@@ -300,8 +305,6 @@ def setupBTagging(process, jetSource, pfCandidates, explicitJTA, pvSource, svSou
                     setupSVClustering(getattr(process, btagPrefix+btagInfo+labelName+postfix), svClustering, algo, rParam, fatJets, groomedFatJets)
             if btagInfo == 'pfGhostTrackVertexTagInfos':
                 setattr(process, btagPrefix+btagInfo+labelName+postfix, btag.pfGhostTrackVertexTagInfos.clone(trackIPTagInfos = cms.InputTag(btagPrefix+'pfImpactParameterTagInfos'+labelName+postfix)))
-            if btagInfo == 'pfGhostTrackTagVertexInfosAK8':
-                setattr(process, btagPrefix+btagInfo+labelName+postfix, btag.pfGhostTrackVertexTagInfosAK8.clone(trackIPTagInfos = cms.InputTag(btagPrefix+'pfImpactParameterTagInfosAK8'+labelName+postfix)))
             if btagInfo == 'pfSecondaryVertexNegativeTagInfos':
                 setattr(process, btagPrefix+btagInfo+labelName+postfix, btag.pfSecondaryVertexNegativeTagInfos.clone(trackIPTagInfos = cms.InputTag(btagPrefix+'pfImpactParameterTagInfos'+labelName+postfix)))
                 if tightBTagNTkHits:
@@ -349,7 +352,7 @@ def setupBTagging(process, jetSource, pfCandidates, explicitJTA, pvSource, svSou
     acceptedBtagDiscriminators = list()
     for btagDiscr in btagDiscriminators :
         if hasattr(btag,btagDiscr):
-            setattr(process, btagPrefix+btagDiscr+labelName+postfix, getattr(btag, btagDiscr).clone(tagInfos = cms.VInputTag( *[ cms.InputTag(btagPrefix+x+labelName+postfix) for x in supportedBtagDiscr[btagDiscr] ] )))
+            setattr(process, btagPrefix+btagDiscr+labelName+postfix, getattr(btag, btagDiscr).clone(tagInfos = cms.VInputTag( *[ cms.InputTag(btagPrefix+x+labelName+postfix) for x in supportedBtagDiscr[btagDiscr][0] ] )))
             acceptedBtagDiscriminators.append(btagDiscr)
         else:
             print '  --> %s ignored, since not available via RecoBTag.Configuration.RecoBTag_cff!'%(btagDiscr)
@@ -361,7 +364,7 @@ def setupBTagging(process, jetSource, pfCandidates, explicitJTA, pvSource, svSou
     ## if re-running IVF
     if runIVF:
         if not tightBTagNTkHits:
-            if pfCandidates.getModuleLabel() == 'packedPFCandidates': ## MiniAOD case
+            if pvSource.getModuleLabel() == 'offlineSlimmedPrimaryVertices': ## MiniAOD case
                 if not runIVFforCTagOnly: rerunningIVFMiniAOD()
             else:
                 rerunningIVF()
@@ -375,7 +378,7 @@ def setupBTagging(process, jetSource, pfCandidates, explicitJTA, pvSource, svSou
                     _temp = getattr(process, btagPrefix+'inclusiveCandidateVertexFinder')
                     _temp.minHits = cms.uint32(8)
             ## MiniAOD case
-            if pfCandidates.getModuleLabel() == 'packedPFCandidates':
+            if pvSource.getModuleLabel() == 'offlineSlimmedPrimaryVertices':
                 if hasattr( process, btagPrefix+'inclusiveCandidateVertexFinder' ):
                     _temp = getattr(process, btagPrefix+'inclusiveCandidateVertexFinder')
                     _temp.primaryVertices = pvSource
@@ -394,7 +397,7 @@ def setupBTagging(process, jetSource, pfCandidates, explicitJTA, pvSource, svSou
                     _temp = getattr(process, btagPrefix+'inclusiveCandidateVertexFinderCvsL')
                     _temp.minHits = cms.uint32(8)
             ## MiniAOD case
-            if pfCandidates.getModuleLabel() == 'packedPFCandidates':
+            if pvSource.getModuleLabel() == 'offlineSlimmedPrimaryVertices':
                 if hasattr( process, btagPrefix+'inclusiveCandidateVertexFinderCvsL' ):
                     _temp = getattr(process, btagPrefix+'inclusiveCandidateVertexFinderCvsL')
                     _temp.primaryVertices = pvSource
