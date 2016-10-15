@@ -59,13 +59,14 @@ public:
   static const std::string tagRPStation;
   static const std::string tagRPPot;
   static const std::string tagRPPlane;
-  static const std::string tagRPPlane1;
 
   /// COMMON Chip XML tags
   static const std::string tagChip1;
   static const std::string tagChip2;
-  static const std::string tagChip3;
  
+  /// diamond specific tags
+  static const std::string tagDiamondPlane;
+  static const std::string tagDiamondCh; 
 
   TotemDAQMappingESSourceXML(const edm::ParameterSet &);
   ~TotemDAQMappingESSourceXML();
@@ -83,7 +84,7 @@ private:
   std::vector<std::string> maskFileNames;
 
   /// enumeration of XML node types
-  enum NodeType { nUnknown, nSkip, nTop, nArm, nRPStation, nRPPot, nRPPlane, nChip, nChannel };
+  enum NodeType { nUnknown, nSkip, nTop, nArm, nRPStation, nRPPot, nRPPlane, nDiamondPlane, nChip, nDiamondCh, nChannel };
 
   /// whether to parse a mapping of a mask XML
   enum ParseType { pMapping, pMask };
@@ -137,6 +138,10 @@ private:
     return ((type == nArm)||(type == nRPStation)||(type == nRPPot)||(type == nRPPlane)||(type == nChip));
   }
 
+  bool DiamondNode(NodeType type)
+  {
+    return ((type == nArm)||(type == nRPStation)||(type == nRPPot)||(type == nDiamondPlane)||(type == nDiamondCh));
+  }
   bool CommonNode(NodeType type)
   {
     return ((type==nChip)||(type==nArm));
@@ -163,13 +168,15 @@ const string TotemDAQMappingESSourceXML::tagArm = "arm";
 // common XML Chip tags
 const string TotemDAQMappingESSourceXML::tagChip1 = "vfat";
 const string TotemDAQMappingESSourceXML::tagChip2 = "test_vfat";
-const string TotemDAQMappingESSourceXML::tagChip3 = "diamond_channel";
 
 // specific RP XML tags
 const string TotemDAQMappingESSourceXML::tagRPStation = "station";
 const string TotemDAQMappingESSourceXML::tagRPPot = "rp_detector_set";
 const string TotemDAQMappingESSourceXML::tagRPPlane = "rp_plane";
-const string TotemDAQMappingESSourceXML::tagRPPlane1 = "rp_plane_diamond";
+
+// specific tags for diamond
+const string TotemDAQMappingESSourceXML::tagDiamondPlane = "rp_plane_diamond";
+const string TotemDAQMappingESSourceXML::tagDiamondCh = "diamond_channel";
 
 
 //----------------------------------------------------------------------------------------------------
@@ -271,8 +278,7 @@ void TotemDAQMappingESSourceXML::ParseXML(ParseType pType, const string &file,
 
   ParseTreeRP(pType, elementRoot, nTop, 0, mapping, mask);
 
-  // TODO: uncomment once fixed
-  //ParseTreeDiamond(pType, elementRoot, nTop, 0, mapping, mask);
+  ParseTreeDiamond(pType, elementRoot, nTop, 0, mapping, mask);
 }
 
 //-----------------------------------------------------------------------------------------------------------
@@ -415,6 +421,7 @@ void TotemDAQMappingESSourceXML::ParseTreeDiamond(ParseType pType, xercesc::DOMN
   unsigned int parentID, const boost::shared_ptr<TotemDAQMapping>& mapping,
   const boost::shared_ptr<TotemAnalysisMask>& mask)
 {
+
 #ifdef DEBUG
   printf(">> TotemDAQMappingESSourceXML::ParseTreeDiamond(%s, %u, %u)\n", XMLString::transcode(parent->getNodeName()),
 	 parentType, parentID);
@@ -423,109 +430,112 @@ void TotemDAQMappingESSourceXML::ParseTreeDiamond(ParseType pType, xercesc::DOMN
   DOMNodeList *children = parent->getChildNodes();
 
   for (unsigned int i = 0; i < children->getLength(); i++)
-    {
-      DOMNode *n = children->item(i);
-      if (n->getNodeType() != DOMNode::ELEMENT_NODE)
-	continue;
+  {  
+    DOMNode *n = children->item(i);
+    if (n->getNodeType() != DOMNode::ELEMENT_NODE)
+      continue;
   
-      NodeType type = GetNodeType(n);
+    NodeType type = GetNodeType(n);
 #ifdef DEBUG
       printf("\tname = %s, type = %u\n", XMLString::transcode(n->getNodeName()), type);
 #endif
 
       // structure control
-      if (!RPNode(type))
-	continue;
+    if (!DiamondNode(type))
+      continue;
 
-      if ((type != parentType + 1)&&parentType != nRPPot)
-	{
-	  if (parentType == nTop && type == nRPPot)
-	    {
-	      LogPrint("TotemDAQMappingESSourceXML") << ">> TotemDAQMappingESSourceXML::ParseTreeDiamond > Warning: tag `" << tagRPPot
-						       << "' found in global scope, assuming station ID = 12.";
-	      parentID = 12;
-	    } else {
-	    throw cms::Exception("TotemDAQMappingESSourceXML") << "Node " << XMLString::transcode(n->getNodeName())
-								 << " not allowed within " << XMLString::transcode(parent->getNodeName()) << " block.\n";
-	  }
-	}
+    NodeType expectedParentType;
+    switch (type)
+    {
+      case nArm: expectedParentType = nTop; break;
+      case nRPStation: expectedParentType = nArm; break;
+      case nRPPot: expectedParentType = nRPStation; break;
+      case nDiamondPlane: expectedParentType = nRPPot; break;
+      case nDiamondCh: expectedParentType = nDiamondPlane; break;
+      default: expectedParentType = nUnknown; break;
+    }
 
-      // parse tag attributes
-      unsigned int id =0,hw_id = 0; 
-      bool id_set = false,hw_id_set = false; 
-      DOMNamedNodeMap* attr = n->getAttributes();
+    if (expectedParentType != parentType)
+    {
+      throw cms::Exception("TotemDAQMappingESSourceXML") << "Node " << XMLString::transcode(n->getNodeName())
+        << " not allowed within " << XMLString::transcode(parent->getNodeName()) << " block.\n";
+    }
 
-      for (unsigned int j = 0; j < attr->getLength(); j++)
-	{
-	  DOMNode *a = attr->item(j);
+    // parse tag attributes
+    unsigned int id =0,hw_id = 0; 
+    bool id_set = false,hw_id_set = false; 
+    DOMNamedNodeMap* attr = n->getAttributes();
 
+    for (unsigned int j = 0; j < attr->getLength(); j++)
+    {
+      DOMNode *a = attr->item(j);
 
+      if (!strcmp(XMLString::transcode(a->getNodeName()), "id"))
+      {
+        sscanf(XMLString::transcode(a->getNodeValue()), "%u", &id);
+	id_set = true;
+      }
 
-	  if (!strcmp(XMLString::transcode(a->getNodeName()), "id"))
-	    {
-	      sscanf(XMLString::transcode(a->getNodeValue()), "%u", &id);
-	      id_set = true;
-	    }
+      if (!strcmp(XMLString::transcode(a->getNodeName()), "hw_id"))
+      {
+        sscanf(XMLString::transcode(a->getNodeValue()), "%x", &hw_id);
+	hw_id_set = true;
+      }
 
-	  if (!strcmp(XMLString::transcode(a->getNodeName()), "hw_id"))
-	    {
-	      sscanf(XMLString::transcode(a->getNodeValue()), "%x", &hw_id);
-	      hw_id_set = true;
-	    }
-
-	}
+    }
 
       // content control
-      if (!id_set) 
-	throw cms::Exception("TotemDAQMappingESSourceXML::ParseTreeDiamond") << "id not given for element `"
+    if (!id_set) 
+      throw cms::Exception("TotemDAQMappingESSourceXML::ParseTreeDiamond") << "id not given for element `"
 									       << XMLString::transcode(n->getNodeName()) << "'" << endl;
 
 
-      if (!hw_id_set && type == nChip && pType == pMapping)
-	throw cms::Exception("TotemDAQMappingESSourceXML::ParseTreeDiamond") << "hw_id not given for element `"
+    if (!hw_id_set && type == nDiamondCh && pType == pMapping)
+      throw cms::Exception("TotemDAQMappingESSourceXML::ParseTreeDiamond") << "hw_id not given for element `"
 									     << XMLString::transcode(n->getNodeName()) << "'" << endl;
  
-      if (type == nRPPlane && id > 3)
-	throw cms::Exception("TotemDAQMappingESSourceXML::ParseTreeDiamond") <<
+    if (type == nDiamondPlane && id > 3)
+      throw cms::Exception("TotemDAQMappingESSourceXML::ParseTreeDiamond") <<
 	  "Plane IDs range from 0 to 3. id = " << id << " is invalid." << endl;
 
 #ifdef DEBUG
       printf("\tID found: 0x%x\n", id);
 #endif
 
-      if(pType == pMapping &&type == nRPPlane)
-	{
-         plane_id=id;
-        }
+    if(pType == pMapping &&type == nDiamondPlane)
+    {
+      plane_id=id;
+    }
       // store mapping data
-      if (pType == pMapping &&type == nChip)
-	{
+    if (pType == pMapping &&type == nDiamondCh)
+    {
 
-	  const TotemFramePosition &framepos = ChipFramePosition(n);
+      const TotemFramePosition &framepos = ChipFramePosition(n);
+      
+      TotemVFATInfo vfatInfo;
+      vfatInfo.hwID = hw_id;     
 
-	  TotemVFATInfo vfatInfo;
-	  vfatInfo.hwID = hw_id;     
-
-	  if (type == nChip)
-	    {
-              unsigned int ArmNum = (parentID/ 1000) % 10; 
-              unsigned int StationNum = (parentID / 100) % 10; 
-              unsigned int RpNum = (parentID/ 10) % 10; 
+      if (type == nDiamondCh)
+      {
+        unsigned int ArmNum = (parentID/ 1000) % 10; 
+        unsigned int StationNum = (parentID / 100) % 10; 
+        unsigned int RpNum = (parentID/ 10) % 10; 
        
-              vfatInfo.symbolicID.symbolicID = CTPPSDiamondDetId(ArmNum, StationNum, RpNum,plane_id,id);
+        vfatInfo.symbolicID.symbolicID = CTPPSDiamondDetId(ArmNum, StationNum, RpNum,plane_id,id);
 
 
-	    }
+      }
 
 
-	  mapping->insert(framepos, vfatInfo);
+      mapping->insert(framepos, vfatInfo);
 
-	  continue;
-	}
+      continue;
+    }
 
-      ParseTreeDiamond(pType, n, type,  parentID * 10 +id , mapping, mask);
+    ParseTreeDiamond(pType, n, type,  parentID * 10 +id , mapping, mask);
    
- }
+  }
+
 }
 
 
@@ -566,13 +576,15 @@ TotemDAQMappingESSourceXML::NodeType TotemDAQMappingESSourceXML::GetNodeType(xer
   if (Test(n, tagArm)) return nArm;
   if (Test(n, tagChip1)) return nChip;
   if (Test(n, tagChip2)) return nChip;
-  if (Test(n, tagChip3)) return nChip;
 
   // RP node types
   if (Test(n, tagRPStation)) return nRPStation;
   if (Test(n, tagRPPot)) return nRPPot;
   if (Test(n, tagRPPlane)) return nRPPlane;
-  if (Test(n, tagRPPlane1)) return nRPPlane;
+
+  //diamond specifics
+  if (Test(n, tagDiamondCh)) return nDiamondCh;
+  if (Test(n, tagDiamondPlane)) return nDiamondPlane;
 
   // for backward compatibility
   if (Test(n, "trigger_vfat")) return nSkip;
