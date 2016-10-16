@@ -290,7 +290,7 @@ class PFRecHitQTestHCALThresholdVsDepth : public PFRecHitQTestBase {
 	if (detid.depth() == depths_[i]) {
 	  if (  energy<thresholds_[i])
 	    {
-	      clean=true;
+	      clean=false;
 	      return false;
 	    }
 	  break;
