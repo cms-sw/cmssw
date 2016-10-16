@@ -30,6 +30,54 @@ void SimHitsValidationHcal::bookHistograms(DQMStore::IBooker &ib, edm::Run const
   maxDepthHE_ = hcons->getMaxDepth(1);
   maxDepthHF_ = hcons->getMaxDepth(2);
   maxDepthHO_ = hcons->getMaxDepth(3);
+
+  //Get Phi segmentation from geometry, use the max phi number so that all iphi values are included.
+
+  int NphiMax = hcons->getNPhi(0);
+
+  NphiMax = (hcons->getNPhi(1) > NphiMax ? hcons->getNPhi(1) : NphiMax);
+  NphiMax = (hcons->getNPhi(2) > NphiMax ? hcons->getNPhi(2) : NphiMax);
+  NphiMax = (hcons->getNPhi(3) > NphiMax ? hcons->getNPhi(3) : NphiMax);
+
+  //Center the iphi bins on the integers
+  float iphi_min = 0.5;
+  float iphi_max = NphiMax + 0.5;
+  int iphi_bins = (int) (iphi_max - iphi_min);
+
+  int iEtaHBMax = hcons->getEtaRange(0).second;
+  int iEtaHEMax = hcons->getEtaRange(1).second;
+  int iEtaHFMax = hcons->getEtaRange(2).second;
+  int iEtaHOMax = hcons->getEtaRange(3).second;
+
+  //Retain classic behavior, all plots have same ieta range.
+  //Comment out	code to	allow each subdetector to have its on range
+
+  int iEtaMax =	(iEtaHBMax > iEtaHEMax ? iEtaHBMax : iEtaHEMax);
+  iEtaMax = (iEtaMax > iEtaHFMax ? iEtaMax : iEtaHFMax);
+  iEtaMax = (iEtaMax > iEtaHOMax ? iEtaMax : iEtaHOMax);
+
+  iEtaHBMax = iEtaMax;
+  iEtaHEMax = iEtaMax;
+  iEtaHFMax = iEtaMax;
+  iEtaHOMax = iEtaMax;
+
+  //Give an empty bin around the subdet ieta range to make it clear that all ieta rings have been included
+  float ieta_min_HB = -iEtaHBMax - 1.5;
+  float ieta_max_HB = iEtaHBMax + 1.5;
+  int ieta_bins_HB = (int) (ieta_max_HB - ieta_min_HB);
+
+  float ieta_min_HE = -iEtaHEMax - 1.5;
+  float ieta_max_HE = iEtaHEMax + 1.5;
+  int ieta_bins_HE = (int) (ieta_max_HE - ieta_min_HE);
+
+  float ieta_min_HF = -iEtaHFMax - 1.5;
+  float ieta_max_HF = iEtaHFMax + 1.5;
+  int ieta_bins_HF = (int) (ieta_max_HF - ieta_min_HF);
+
+  float ieta_min_HO = -iEtaHOMax - 1.5;
+  float ieta_max_HO = iEtaHOMax + 1.5;
+  int ieta_bins_HO = (int) (ieta_max_HO - ieta_min_HO);
+
 #ifdef DebugLog
   edm::LogInfo("HitsValidationHcal") << " Maximum Depths HB:"<< maxDepthHB_ 
 				     << " HE:" << maxDepthHE_  << " HO:" 
@@ -55,19 +103,19 @@ void SimHitsValidationHcal::bookHistograms(DQMStore::IBooker &ib, edm::Run const
       
     sprintf (name, "HcalHitE25%s", divisions[i].first.c_str());
     sprintf (title, "Energy in time window 0 to 25 for a tower in %s", divisions[i].second.c_str());
-    meHcalEnergyl25_.push_back(ib.book2D(name, title, limit.bins, limit.low, limit.high, 72, 0., 72.));
+    meHcalEnergyl25_.push_back(ib.book2D(name, title, limit.bins, limit.low, limit.high, iphi_bins, iphi_min, iphi_max));
       
     sprintf (name, "HcalHitE50%s", divisions[i].first.c_str());
     sprintf (title, "Energy in time window 0 to 50 for a tower in %s", divisions[i].second.c_str());
-    meHcalEnergyl50_.push_back(ib.book2D(name, title, limit.bins, limit.low, limit.high, 72, 0., 72.));
+    meHcalEnergyl50_.push_back(ib.book2D(name, title, limit.bins, limit.low, limit.high, iphi_bins, iphi_min, iphi_max));
       
     sprintf (name, "HcalHitE100%s", divisions[i].first.c_str());
     sprintf (title, "Energy in time window 0 to 100 for a tower in %s", divisions[i].second.c_str());
-    meHcalEnergyl100_.push_back(ib.book2D(name, title, limit.bins, limit.low, limit.high, 72, 0., 72.));
+    meHcalEnergyl100_.push_back(ib.book2D(name, title, limit.bins, limit.low, limit.high, iphi_bins, iphi_min, iphi_max));
       
     sprintf (name, "HcalHitE250%s", divisions[i].first.c_str());
     sprintf (title, "Energy in time window 0 to 250 for a tower in %s", divisions[i].second.c_str());
-    meHcalEnergyl250_.push_back(ib.book2D(name, title, limit.bins, limit.low, limit.high, 72, 0., 72.));
+    meHcalEnergyl250_.push_back(ib.book2D(name, title, limit.bins, limit.low, limit.high, iphi_bins, iphi_min, iphi_max));
   }
 
   sprintf (name, "Energy_HB");
