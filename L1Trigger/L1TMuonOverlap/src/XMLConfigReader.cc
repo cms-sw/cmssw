@@ -2,6 +2,7 @@
 #include <cmath>
 #include <algorithm>
 #include <utility>
+#include <array>
 
 #include "L1Trigger/L1TMuonOverlap/interface/XMLConfigReader.h"
 #include "L1Trigger/L1TMuonOverlap/interface/GoldenPattern.h"
@@ -132,12 +133,16 @@ unsigned int XMLConfigReader::getPatternsVersion() const{
     parser.parse(patternsFile.c_str()); 
     xercesc::DOMDocument* doc = parser.getDocument();
     assert(doc);
-    
-    DOMNode *aNode = doc->getElementsByTagName(_toDOMS("OMTF"))->item(0);
+
+    XMLCh *xmlOmtf=_toDOMS("OMTF");
+    XMLCh *xmlVersion= _toDOMS("version");
+    DOMNode *aNode = doc->getElementsByTagName(xmlOmtf)->item(0);
     DOMElement* aOMTFElement = static_cast<DOMElement *>(aNode);
     
-    version = std::stoul(_toString(aOMTFElement->getAttribute(_toDOMS("version"))), nullptr, 16);
-    
+    version = std::stoul(_toString(aOMTFElement->getAttribute(xmlVersion)), nullptr, 16);
+    XMLString::release(&xmlOmtf);
+    XMLString::release(&xmlVersion);
+    parser.resetDocumentPool();
   }
   XMLPlatformUtils::Terminate();
   
@@ -150,6 +155,10 @@ std::vector<GoldenPattern*> XMLConfigReader::readPatterns(const L1TMuonOverlapPa
   aGPs.clear();
   
   XMLPlatformUtils::Initialize();
+
+  XMLCh *xmlGP= _toDOMS("GP");
+  std::array<XMLCh *,4> xmliPt= {{_toDOMS("iPt1"),_toDOMS("iPt2"),_toDOMS("iPt3"),_toDOMS("iPt4") }};
+
   {
     XercesDOMParser parser;
     parser.setValidationScheme(XercesDOMParser::Val_Auto);
@@ -160,7 +169,7 @@ std::vector<GoldenPattern*> XMLConfigReader::readPatterns(const L1TMuonOverlapPa
     xercesc::DOMDocument* doc = parser.getDocument();
     assert(doc);
     
-    unsigned int nElem = doc->getElementsByTagName(_toDOMS("GP"))->getLength();
+    unsigned int nElem = doc->getElementsByTagName(xmlGP)->getLength();
     if(nElem<1){
       edm::LogError("critical")<<"Problem parsing XML file "<<patternsFile<<std::endl;
       edm::LogError("critical")<<"No GoldenPattern items: GP found"<<std::endl;
@@ -172,16 +181,13 @@ std::vector<GoldenPattern*> XMLConfigReader::readPatterns(const L1TMuonOverlapPa
     unsigned int iGPNumber=0;
     
     for(unsigned int iItem=0;iItem<nElem;++iItem){
-      aNode = doc->getElementsByTagName(_toDOMS("GP"))->item(iItem);
+      aNode = doc->getElementsByTagName(xmlGP)->item(iItem);
       aGPElement = static_cast<DOMElement *>(aNode);
       
-      std::ostringstream stringStr;
       GoldenPattern *aGP;
       for(unsigned int index = 1;index<5;++index){
-	stringStr.str("");
-	stringStr<<"iPt"<<index;
 	///Patterns XML format backward compatibility. Can use both packed by 4, or by 1 XML files.      
-	if(aGPElement->getAttributeNode(_toDOMS(stringStr.str().c_str()))){
+	if(aGPElement->getAttributeNode(xmliPt[index-1])) {
 	  aGP = buildGP(aGPElement, aConfig, index, iGPNumber);
 	  if(aGP){	  
 	    aGPs.push_back(aGP);
@@ -203,6 +209,13 @@ std::vector<GoldenPattern*> XMLConfigReader::readPatterns(const L1TMuonOverlapPa
   //parser->resetDocumentPool();
     parser.resetDocumentPool();
   }
+  XMLString::release(&xmlGP);
+  XMLString::release(&xmliPt[0]);
+  XMLString::release(&xmliPt[1]);
+  XMLString::release(&xmliPt[2]);
+  XMLString::release(&xmliPt[3]);
+
+
   XMLPlatformUtils::Terminate();
 
   return aGPs;
@@ -214,15 +227,22 @@ GoldenPattern * XMLConfigReader::buildGP(DOMElement* aGPElement,
 					 unsigned int index,
 					 unsigned int aGPNumber){
 
-  std::ostringstream stringStr; 
-  if(index>0) stringStr<<"iPt"<<index;
-  else stringStr.str("iPt");
+
+  XMLCh *xmliEta= _toDOMS("iEta");
+  //index 0 means no number at the end
+  std::array<XMLCh *,5> xmliPt= {{_toDOMS("iPt"),_toDOMS("iPt1"),_toDOMS("iPt2"),_toDOMS("iPt3"),_toDOMS("iPt4") }};
+  XMLCh *xmliCharge= _toDOMS("iCharge");
+  XMLCh *xmlLayer= _toDOMS("Layer");
+  XMLCh *xmlRefLayer= _toDOMS("RefLayer");
+  XMLCh *xmlmeanDistPhi= _toDOMS("meanDistPhi");
+  XMLCh *xmlPDF= _toDOMS("PDF");
+  std::array<XMLCh *,5> xmlValue= {{_toDOMS("Value"),_toDOMS("Value1"),_toDOMS("Value2"),_toDOMS("Value3"),_toDOMS("Value4")}};
   
-  unsigned int iPt = std::atoi(_toString(aGPElement->getAttribute(_toDOMS(stringStr.str().c_str()))).c_str());  
-  int iEta = std::atoi(_toString(aGPElement->getAttribute(_toDOMS("iEta"))).c_str());
-  int iCharge = std::atoi(_toString(aGPElement->getAttribute(_toDOMS("iCharge"))).c_str());
+  unsigned int iPt = std::atoi(_toString(aGPElement->getAttribute(xmliPt[index])).c_str());  
+  int iEta = std::atoi(_toString(aGPElement->getAttribute(xmliEta)).c_str());
+  int iCharge = std::atoi(_toString(aGPElement->getAttribute(xmliCharge)).c_str());
   int val = 0;
-  unsigned int nLayers = aGPElement->getElementsByTagName(_toDOMS("Layer"))->getLength();
+  unsigned int nLayers = aGPElement->getElementsByTagName(xmlLayer)->getLength();
   assert(nLayers==(unsigned) aConfig.nLayers());
 
   DOMNode *aNode = 0;
@@ -249,32 +269,29 @@ GoldenPattern * XMLConfigReader::buildGP(DOMElement* aGPElement,
   
   ///Loop over layers
   for(unsigned int iLayer=0;iLayer<nLayers;++iLayer){
-    aNode = aGPElement->getElementsByTagName(_toDOMS("Layer"))->item(iLayer);
+    aNode = aGPElement->getElementsByTagName(xmlLayer)->item(iLayer);
     aLayerElement = static_cast<DOMElement *>(aNode); 
     ///MeanDistPhi vector
-    unsigned int nItems = aLayerElement->getElementsByTagName(_toDOMS("RefLayer"))->getLength();
+    unsigned int nItems = aLayerElement->getElementsByTagName(xmlRefLayer)->getLength();
     assert(nItems==(unsigned) aConfig.nRefLayers());
     GoldenPattern::vector1D meanDistPhi1D(nItems);
     for(unsigned int iItem=0;iItem<nItems;++iItem){
-      aNode = aLayerElement->getElementsByTagName(_toDOMS("RefLayer"))->item(iItem);
+      aNode = aLayerElement->getElementsByTagName(xmlRefLayer)->item(iItem);
       aItemElement = static_cast<DOMElement *>(aNode); 
-      val = std::atoi(_toString(aItemElement->getAttribute(_toDOMS("meanDistPhi"))).c_str());
+      val = std::atoi(_toString(aItemElement->getAttribute(xmlmeanDistPhi)).c_str());
       meanDistPhi1D[iItem] = val;
     }
     meanDistPhi2D[iLayer] = meanDistPhi1D;
 
     ///PDF vector
-    stringStr.str("");
-    if(index>0) stringStr<<"value"<<index;
-    else stringStr.str("value");    
-    nItems = aLayerElement->getElementsByTagName(_toDOMS("PDF"))->getLength();
+    nItems = aLayerElement->getElementsByTagName(xmlPDF)->getLength();
     assert(nItems==aConfig.nRefLayers()*exp2(aConfig.nPdfAddrBits()));
     for(unsigned int iRefLayer=0;iRefLayer<(unsigned) aConfig.nRefLayers();++iRefLayer){
       pdf1D.assign(exp2(aConfig.nPdfAddrBits()),0);
       for(unsigned int iPdf=0;iPdf<exp2(aConfig.nPdfAddrBits());++iPdf){
-	aNode = aLayerElement->getElementsByTagName(_toDOMS("PDF"))->item(iRefLayer*exp2(aConfig.nPdfAddrBits())+iPdf);
+	aNode = aLayerElement->getElementsByTagName(xmlPDF)->item(iRefLayer*exp2(aConfig.nPdfAddrBits())+iPdf);
 	aItemElement = static_cast<DOMElement *>(aNode);
-	val = std::atoi(_toString(aItemElement->getAttribute(_toDOMS(stringStr.str().c_str()))).c_str());
+	val = std::atoi(_toString(aItemElement->getAttribute(xmlValue[index])).c_str());
 	pdf1D[iPdf] = val;
       }
       pdf2D[iRefLayer] = pdf1D;
@@ -287,6 +304,23 @@ GoldenPattern * XMLConfigReader::buildGP(DOMElement* aGPElement,
   aGP->setMeanDistPhi(meanDistPhi2D);
   aGP->setPdf(pdf3D);
 
+  XMLString::release(&xmliEta);
+  XMLString::release(&xmliPt[0]);
+  XMLString::release(&xmliPt[1]);
+  XMLString::release(&xmliPt[2]);
+  XMLString::release(&xmliPt[3]);
+  XMLString::release(&xmliPt[4]);
+  XMLString::release(&xmliCharge);
+  XMLString::release(&xmlLayer);
+  XMLString::release(&xmlRefLayer);
+  XMLString::release(&xmlmeanDistPhi);
+  XMLString::release(&xmlPDF);
+  XMLString::release(&xmlValue[0]);
+  XMLString::release(&xmlValue[1]);
+  XMLString::release(&xmlValue[2]);
+  XMLString::release(&xmlValue[3]);
+  XMLString::release(&xmlValue[4]);
+
   return aGP;
 }
 //////////////////////////////////////////////////
@@ -296,80 +330,7 @@ std::vector<std::vector<int> > XMLConfigReader::readEvent(unsigned int iEvent,
 							  bool readEta){
 
   return OMTFinput::vector2D();
-  
-  /*
-  if(!doc){
-    parser->parse(eventsFile.c_str()); 
-    doc = parser->getDocument();
-  }
-  assert(doc);
-
-  OMTFinput::vector1D input1D(14,m_omtf_config->nPhiBins);
-  OMTFinput::vector2D input2D(m_omtf_config->nLayers);
-  unsigned int nElem = doc->getElementsByTagName(_toDOMS("OMTF_Events"))->getLength();
-  assert(nElem==1);
  
-  DOMNode *aNode = doc->getElementsByTagName(_toDOMS("OMTF_Events"))->item(0);
-  DOMElement* aOMTFElement = static_cast<DOMElement *>(aNode); 
-  DOMElement* aEventElement = 0;
-  DOMElement* aBxElement = 0;
-  DOMElement* aProcElement = 0;
-  DOMElement* aLayerElement = 0;
-  DOMElement* aHitElement = 0;
-  unsigned int aLogicLayer = m_omtf_config->nLayers+1;
-  int val = 0, input=0;
-
-  nElem = aOMTFElement->getElementsByTagName(_toDOMS("Event"))->getLength();
-   if(nElem<iEvent){
-    edm::LogError("critical")<<"Problem parsing XML file "<<eventsFile<<std::endl;
-    edm::LogError("critical")<<"not enough events found: "<<nElem<<std::endl;
-    assert(nElem>=iEvent);
-  }
- 
-  aNode = aOMTFElement->getElementsByTagName(_toDOMS("Event"))->item(iEvent);
-  aEventElement = static_cast<DOMElement *>(aNode); 
-  
-  unsigned int nBX = aEventElement->getElementsByTagName(_toDOMS("bx"))->getLength();
-  assert(nBX>0);
-  aNode = aEventElement->getElementsByTagName(_toDOMS("bx"))->item(0);
-  aBxElement = static_cast<DOMElement *>(aNode); 
-
-  unsigned int nProc = aEventElement->getElementsByTagName(_toDOMS("Processor"))->getLength();
-  unsigned int aProcID = 99;
-  assert(nProc>=iProcessor);
-  for(unsigned int aProc=0;aProc<nProc;++aProc){
-    aNode = aBxElement->getElementsByTagName(_toDOMS("Processor"))->item(aProc);
-    aProcElement = static_cast<DOMElement *>(aNode); 
-    aProcID = std::atoi(_toString(aProcElement->getAttribute(_toDOMS("iProcessor"))).c_str());
-    if(aProcID==iProcessor) break;
-  }
-  if(aProcID!=iProcessor) return input2D;
-     
-  unsigned int nLayersHit = aProcElement->getElementsByTagName(_toDOMS("Layer"))->getLength();    
-  assert(nLayersHit<=m_omtf_config->nLayers);
-  
-  input2D.assign(m_omtf_config->nLayers,input1D);  
-  for(unsigned int iLayer=0;iLayer<nLayersHit;++iLayer){
-    aNode = aProcElement->getElementsByTagName(_toDOMS("Layer"))->item(iLayer);
-    aLayerElement = static_cast<DOMElement *>(aNode); 
-    aLogicLayer = std::atoi(_toString(aLayerElement->getAttribute(_toDOMS("iLayer"))).c_str());
-    nElem = aLayerElement->getElementsByTagName(_toDOMS("Hit"))->getLength();     
-    input1D.assign(14,m_omtf_config->nPhiBins);
-
-    for(unsigned int iHit=0;iHit<nElem;++iHit){
-      aNode = aLayerElement->getElementsByTagName(_toDOMS("Hit"))->item(iHit);
-      aHitElement = static_cast<DOMElement *>(aNode); 
-      val = std::atoi(_toString(aHitElement->getAttribute(_toDOMS("iPhi"))).c_str());
-      if(readEta) val = std::atoi(_toString(aHitElement->getAttribute(_toDOMS("iEta"))).c_str());
-      input = std::atoi(_toString(aHitElement->getAttribute(_toDOMS("iInput"))).c_str());
-      input1D[input] = val;
-    }
-    input2D[aLogicLayer] = input1D;
-  }
-
-  //delete doc;
-  return input2D;
-  */
 }
 //////////////////////////////////////////////////
 //////////////////////////////////////////////////
@@ -380,41 +341,86 @@ void XMLConfigReader::readConfig(L1TMuonOverlapParams *aConfig) const{
     XercesDOMParser parser;
     parser.setValidationScheme(XercesDOMParser::Val_Auto);
     parser.setDoNamespaces(false);
-    
-    
+
+    XMLCh *xmlOMTF= _toDOMS("OMTF");
+    XMLCh *xmlversion= _toDOMS("version");
+    XMLCh *xmlGlobalData= _toDOMS("GlobalData");
+    XMLCh *xmlnPdfAddrBits= _toDOMS("nPdfAddrBits");
+    XMLCh *xmlnPdfValBits= _toDOMS("nPdfValBits");
+    XMLCh *xmlnPhiBits= _toDOMS("nPhiBits");
+    XMLCh *xmlnPhiBins= _toDOMS("nPhiBins");
+    XMLCh *xmlnProcessors = _toDOMS("nProcessors");
+    XMLCh *xmlnLogicRegions = _toDOMS("nLogicRegions");
+    XMLCh *xmlnInputs= _toDOMS("nInputs");
+    XMLCh *xmlnLayers= _toDOMS("nLayers");
+    XMLCh *xmlnRefLayers= _toDOMS("nRefLayers");
+    XMLCh *xmliProcessor= _toDOMS("iProcessor");
+    XMLCh *xmlbarrelMin= _toDOMS("barrelMin");
+    XMLCh *xmlbarrelMax= _toDOMS("barrelMax");
+    XMLCh *xmlendcap10DegMin= _toDOMS("endcap10DegMin");
+    XMLCh *xmlendcap10DegMax= _toDOMS("endcap10DegMax");
+    XMLCh *xmlendcap20DegMin= _toDOMS("endcap20DegMin");
+    XMLCh *xmlendcap20DegMax= _toDOMS("endcap20DegMax");
+    XMLCh *xmlLayerMap = _toDOMS("LayerMap");
+    XMLCh *xmlhwNumber = _toDOMS("hwNumber");
+    XMLCh *xmllogicNumber = _toDOMS("logicNumber");
+    XMLCh *xmlbendingLayer = _toDOMS("bendingLayer");
+    XMLCh *xmlconnectedToLayer = _toDOMS("connectedToLayer");
+    XMLCh *xmlRefLayerMap = _toDOMS("RefLayerMap");
+    XMLCh *xmlrefLayer = _toDOMS("refLayer");
+    XMLCh *xmlProcessor = _toDOMS("Processor");
+    XMLCh *xmlRefLayer = _toDOMS("RefLayer");
+    XMLCh *xmliRefLayer = _toDOMS("iRefLayer");
+    XMLCh *xmliGlobalPhiStart = _toDOMS("iGlobalPhiStart");
+    XMLCh *xmlRefHit = _toDOMS("RefHit");
+    XMLCh *xmliRefHit = _toDOMS("iRefHit");
+    XMLCh *xmliPhiMin = _toDOMS("iPhiMin");
+    XMLCh *xmliPhiMax = _toDOMS("iPhiMax");
+    XMLCh *xmliInput = _toDOMS("iInput");
+    XMLCh *xmliRegion = _toDOMS("iRegion");
+    XMLCh *xmlLogicRegion = _toDOMS("LogicRegion");
+    XMLCh *xmlLayer = _toDOMS("Layer");
+    XMLCh *xmliLayer = _toDOMS("iLayer");
+    XMLCh *xmliFirstInput = _toDOMS("iFirstInput");
+    XMLCh *xmlnHitsPerLayer = _toDOMS("nHitsPerLayer");
+    XMLCh *xmlnRefHits = _toDOMS("nRefHits");
+    XMLCh *xmlnTestRefHits = _toDOMS("nTestRefHits");
+    XMLCh *xmlnGoldenPatterns = _toDOMS("nGoldenPatterns");
+    XMLCh *xmlConnectionMap = _toDOMS("ConnectionMap");
     parser.parse(configFile.c_str()); 
     xercesc::DOMDocument* doc = parser.getDocument();
     assert(doc);
-    unsigned int nElem = doc->getElementsByTagName(_toDOMS("OMTF"))->getLength();
+    unsigned int nElem = doc->getElementsByTagName(xmlOMTF)->getLength();
     if(nElem!=1){
       edm::LogError("critical")<<"Problem parsing XML file "<<configFile<<std::endl;
       assert(nElem==1);
     }
-    DOMNode *aNode = doc->getElementsByTagName(_toDOMS("OMTF"))->item(0);
+    DOMNode *aNode = doc->getElementsByTagName(xmlOMTF)->item(0);
     DOMElement* aOMTFElement = static_cast<DOMElement *>(aNode);
     
-    unsigned int version = std::stoul(_toString(aOMTFElement->getAttribute(_toDOMS("version"))), nullptr, 16);
+    unsigned int version = std::stoul(_toString(aOMTFElement->getAttribute(xmlversion)), nullptr, 16);
     aConfig->setFwVersion(version);
     
     ///Addresing bits numbers
-    nElem = aOMTFElement->getElementsByTagName(_toDOMS("GlobalData"))->getLength();
+    nElem = aOMTFElement->getElementsByTagName(xmlGlobalData)->getLength();
     assert(nElem==1);
-    aNode = aOMTFElement->getElementsByTagName(_toDOMS("GlobalData"))->item(0);
+    aNode = aOMTFElement->getElementsByTagName(xmlGlobalData)->item(0);
     DOMElement* aElement = static_cast<DOMElement *>(aNode); 
     
-    unsigned int nPdfAddrBits = std::atoi(_toString(aElement->getAttribute(_toDOMS("nPdfAddrBits"))).c_str()); 
-    unsigned int nPdfValBits =  std::atoi(_toString(aElement->getAttribute(_toDOMS("nPdfValBits"))).c_str()); 
-    unsigned int nHitsPerLayer =  std::atoi(_toString(aElement->getAttribute(_toDOMS("nHitsPerLayer"))).c_str()); 
-    unsigned int nPhiBits =  std::atoi(_toString(aElement->getAttribute(_toDOMS("nPhiBits"))).c_str()); 
-    unsigned int nPhiBins =  std::atoi(_toString(aElement->getAttribute(_toDOMS("nPhiBins"))).c_str()); 
-    unsigned int nRefHits =  std::atoi(_toString(aElement->getAttribute(_toDOMS("nRefHits"))).c_str()); 
-    unsigned int nTestRefHits =  std::atoi(_toString(aElement->getAttribute(_toDOMS("nTestRefHits"))).c_str());
-    unsigned int nProcessors =  std::atoi(_toString(aElement->getAttribute(_toDOMS("nProcessors"))).c_str());
-    unsigned int nLogicRegions =  std::atoi(_toString(aElement->getAttribute(_toDOMS("nLogicRegions"))).c_str());
-    unsigned int nInputs =  std::atoi(_toString(aElement->getAttribute(_toDOMS("nInputs"))).c_str());
-    unsigned int nLayers =  std::atoi(_toString(aElement->getAttribute(_toDOMS("nLayers"))).c_str());
-    unsigned int nRefLayers =  std::atoi(_toString(aElement->getAttribute(_toDOMS("nRefLayers"))).c_str());
-    unsigned int nGoldenPatterns =  std::atoi(_toString(aElement->getAttribute(_toDOMS("nGoldenPatterns"))).c_str());
+    unsigned int nPdfAddrBits = std::atoi(_toString(aElement->getAttribute(xmlnPdfAddrBits)).c_str()); 
+    unsigned int nPdfValBits =  std::atoi(_toString(aElement->getAttribute(xmlnPdfValBits)).c_str()); 
+    unsigned int nHitsPerLayer =  std::atoi(_toString(aElement->getAttribute(xmlnHitsPerLayer)).c_str()); 
+    unsigned int nPhiBits =  std::atoi(_toString(aElement->getAttribute(xmlnPhiBits)).c_str()); 
+    unsigned int nPhiBins =  std::atoi(_toString(aElement->getAttribute(xmlnPhiBins)).c_str()); 
+
+    unsigned int nRefHits =  std::atoi(_toString(aElement->getAttribute(xmlnRefHits)).c_str()); 
+    unsigned int nTestRefHits =  std::atoi(_toString(aElement->getAttribute(xmlnTestRefHits)).c_str());
+    unsigned int nProcessors =  std::atoi(_toString(aElement->getAttribute(xmlnProcessors)).c_str());
+    unsigned int nLogicRegions =  std::atoi(_toString(aElement->getAttribute(xmlnLogicRegions)).c_str());
+    unsigned int nInputs =  std::atoi(_toString(aElement->getAttribute(xmlnInputs)).c_str());
+    unsigned int nLayers =  std::atoi(_toString(aElement->getAttribute(xmlnLayers)).c_str());
+    unsigned int nRefLayers =  std::atoi(_toString(aElement->getAttribute(xmlnRefLayers)).c_str());
+    unsigned int nGoldenPatterns =  std::atoi(_toString(aElement->getAttribute(xmlnGoldenPatterns)).c_str());
     
     std::vector<int> paramsVec(L1TMuonOverlapParams::GENERAL_NCONFIG);
     paramsVec[L1TMuonOverlapParams::GENERAL_ADDRBITS] = nPdfAddrBits;
@@ -435,18 +441,18 @@ void XMLConfigReader::readConfig(L1TMuonOverlapParams *aConfig) const{
     ///Chamber sectors connections to logic processros.
     ///Start/End values for all processors, and chamber types are put into a single vector
     std::vector<int> sectorsStart(3*nProcessors), sectorsEnd(3*nProcessors);
-    nElem = aOMTFElement->getElementsByTagName(_toDOMS("ConnectionMap"))->getLength();
+    nElem = aOMTFElement->getElementsByTagName(xmlConnectionMap)->getLength();
     DOMElement* aConnectionElement = 0;
     for(unsigned int i=0;i<nElem;++i){
-      aNode = aOMTFElement->getElementsByTagName(_toDOMS("ConnectionMap"))->item(i);
+      aNode = aOMTFElement->getElementsByTagName(xmlConnectionMap)->item(i);
       aConnectionElement = static_cast<DOMElement *>(aNode);
-      unsigned int iProcessor = std::atoi(_toString(aConnectionElement->getAttribute(_toDOMS("iProcessor"))).c_str());
-      unsigned int barrelMin = std::atoi(_toString(aConnectionElement->getAttribute(_toDOMS("barrelMin"))).c_str());
-      unsigned int barrelMax = std::atoi(_toString(aConnectionElement->getAttribute(_toDOMS("barrelMax"))).c_str());
-      unsigned int endcap10DegMin = std::atoi(_toString(aConnectionElement->getAttribute(_toDOMS("endcap10DegMin"))).c_str());
-      unsigned int endcap10DegMax = std::atoi(_toString(aConnectionElement->getAttribute(_toDOMS("endcap10DegMax"))).c_str());
-      unsigned int endcap20DegMin = std::atoi(_toString(aConnectionElement->getAttribute(_toDOMS("endcap20DegMin"))).c_str());
-      unsigned int endcap20DegMax = std::atoi(_toString(aConnectionElement->getAttribute(_toDOMS("endcap20DegMax"))).c_str());
+      unsigned int iProcessor = std::atoi(_toString(aConnectionElement->getAttribute(xmliProcessor)).c_str());
+      unsigned int barrelMin = std::atoi(_toString(aConnectionElement->getAttribute(xmlbarrelMin)).c_str());
+      unsigned int barrelMax = std::atoi(_toString(aConnectionElement->getAttribute(xmlbarrelMax)).c_str());
+      unsigned int endcap10DegMin = std::atoi(_toString(aConnectionElement->getAttribute(xmlendcap10DegMin)).c_str());
+      unsigned int endcap10DegMax = std::atoi(_toString(aConnectionElement->getAttribute(xmlendcap10DegMax)).c_str());
+      unsigned int endcap20DegMin = std::atoi(_toString(aConnectionElement->getAttribute(xmlendcap20DegMin)).c_str());
+      unsigned int endcap20DegMax = std::atoi(_toString(aConnectionElement->getAttribute(xmlendcap20DegMax)).c_str());
       
       sectorsStart[iProcessor] = barrelMin;
       sectorsStart[iProcessor + nProcessors] = endcap10DegMin;
@@ -464,15 +470,15 @@ void XMLConfigReader::readConfig(L1TMuonOverlapParams *aConfig) const{
     std::vector<L1TMuonOverlapParams::LayerMapNode> aLayerMapVec;
     L1TMuonOverlapParams::LayerMapNode aLayerMapNode;
     
-    nElem = aOMTFElement->getElementsByTagName(_toDOMS("LayerMap"))->getLength();
+    nElem = aOMTFElement->getElementsByTagName(xmlLayerMap)->getLength();
     DOMElement* aLayerElement = 0;
     for(unsigned int i=0;i<nElem;++i){
-      aNode = aOMTFElement->getElementsByTagName(_toDOMS("LayerMap"))->item(i);
+      aNode = aOMTFElement->getElementsByTagName(xmlLayerMap)->item(i);
       aLayerElement = static_cast<DOMElement *>(aNode); 
-      unsigned int hwNumber = std::atoi(_toString(aLayerElement->getAttribute(_toDOMS("hwNumber"))).c_str());
-      unsigned int logicNumber = std::atoi(_toString(aLayerElement->getAttribute(_toDOMS("logicNumber"))).c_str());
-      unsigned int isBendingLayer = std::atoi(_toString(aLayerElement->getAttribute(_toDOMS("bendingLayer"))).c_str());
-      unsigned int iConnectedLayer = std::atoi(_toString(aLayerElement->getAttribute(_toDOMS("connectedToLayer"))).c_str());
+      unsigned int hwNumber = std::atoi(_toString(aLayerElement->getAttribute(xmlhwNumber)).c_str());
+      unsigned int logicNumber = std::atoi(_toString(aLayerElement->getAttribute(xmllogicNumber)).c_str());
+      unsigned int isBendingLayer = std::atoi(_toString(aLayerElement->getAttribute(xmlbendingLayer)).c_str());
+      unsigned int iConnectedLayer = std::atoi(_toString(aLayerElement->getAttribute(xmlconnectedToLayer)).c_str());
       aLayerMapNode.logicNumber = logicNumber;
       aLayerMapNode.hwNumber = hwNumber;
       aLayerMapNode.connectedToLayer = iConnectedLayer;
@@ -485,13 +491,13 @@ void XMLConfigReader::readConfig(L1TMuonOverlapParams *aConfig) const{
     std::vector<L1TMuonOverlapParams::RefLayerMapNode> aRefLayerMapVec;
     L1TMuonOverlapParams::RefLayerMapNode aRefLayerNode;
     
-    nElem = aOMTFElement->getElementsByTagName(_toDOMS("RefLayerMap"))->getLength();
+    nElem = aOMTFElement->getElementsByTagName(xmlRefLayerMap)->getLength();
     DOMElement* aRefLayerElement = 0;
     for(unsigned int i=0;i<nElem;++i){
-      aNode = aOMTFElement->getElementsByTagName(_toDOMS("RefLayerMap"))->item(i);
+      aNode = aOMTFElement->getElementsByTagName(xmlRefLayerMap)->item(i);
       aRefLayerElement = static_cast<DOMElement *>(aNode); 
-      unsigned int refLayer = std::atoi(_toString(aRefLayerElement->getAttribute(_toDOMS("refLayer"))).c_str());
-      unsigned int logicNumber = std::atoi(_toString(aRefLayerElement->getAttribute(_toDOMS("logicNumber"))).c_str());
+      unsigned int refLayer = std::atoi(_toString(aRefLayerElement->getAttribute(xmlrefLayer)).c_str());
+      unsigned int logicNumber = std::atoi(_toString(aRefLayerElement->getAttribute(xmllogicNumber)).c_str());
       aRefLayerNode.refLayer = refLayer;
       aRefLayerNode.logicNumber = logicNumber;
       aRefLayerMapVec.push_back(aRefLayerNode);
@@ -506,36 +512,36 @@ void XMLConfigReader::readConfig(L1TMuonOverlapParams *aConfig) const{
     std::vector<L1TMuonOverlapParams::LayerInputNode> aLayerInputMapVec(nProcessors*nLogicRegions*nLayers);  
     L1TMuonOverlapParams::LayerInputNode aLayerInputNode;
     
-    nElem = aOMTFElement->getElementsByTagName(_toDOMS("Processor"))->getLength();
+    nElem = aOMTFElement->getElementsByTagName(xmlProcessor)->getLength();
     assert(nElem==nProcessors);
     DOMElement* aProcessorElement = 0;
     for(unsigned int i=0;i<nElem;++i){
-      aNode = aOMTFElement->getElementsByTagName(_toDOMS("Processor"))->item(i);
+      aNode = aOMTFElement->getElementsByTagName(xmlProcessor)->item(i);
       aProcessorElement = static_cast<DOMElement *>(aNode); 
-      unsigned int iProcessor = std::atoi(_toString(aProcessorElement->getAttribute(_toDOMS("iProcessor"))).c_str());
-      unsigned int nElem1 = aProcessorElement->getElementsByTagName(_toDOMS("RefLayer"))->getLength();
+      unsigned int iProcessor = std::atoi(_toString(aProcessorElement->getAttribute(xmliProcessor)).c_str());
+      unsigned int nElem1 = aProcessorElement->getElementsByTagName(xmlRefLayer)->getLength();
       assert(nElem1==nRefLayers);
       DOMElement* aRefLayerElement = 0;
       for(unsigned int ii=0;ii<nElem1;++ii){
-	aNode = aProcessorElement->getElementsByTagName(_toDOMS("RefLayer"))->item(ii);
+	aNode = aProcessorElement->getElementsByTagName(xmlRefLayer)->item(ii);
 	aRefLayerElement = static_cast<DOMElement *>(aNode); 
-	unsigned int iRefLayer = std::atoi(_toString(aRefLayerElement->getAttribute(_toDOMS("iRefLayer"))).c_str());
-	int iPhi = std::atoi(_toString(aRefLayerElement->getAttribute(_toDOMS("iGlobalPhiStart"))).c_str());
+	unsigned int iRefLayer = std::atoi(_toString(aRefLayerElement->getAttribute(xmliRefLayer)).c_str());
+	int iPhi = std::atoi(_toString(aRefLayerElement->getAttribute(xmliGlobalPhiStart)).c_str());
 	aGlobalPhiStartVec[iRefLayer + iProcessor*nRefLayers] = iPhi;
       }
       ///////////
-      nElem1 = aProcessorElement->getElementsByTagName(_toDOMS("RefHit"))->getLength();
+      nElem1 = aProcessorElement->getElementsByTagName(xmlRefHit)->getLength();
       assert( (iProcessor==0 && nElem1==nRefHits) || (iProcessor!=0 && nElem1==0) );
       DOMElement* aRefHitElement = 0;
       for(unsigned int ii=0;ii<nElem1;++ii){
-	aNode = aProcessorElement->getElementsByTagName(_toDOMS("RefHit"))->item(ii);
+	aNode = aProcessorElement->getElementsByTagName(xmlRefHit)->item(ii);
 	aRefHitElement = static_cast<DOMElement *>(aNode); 
-	unsigned int iRefHit = std::atoi(_toString(aRefHitElement->getAttribute(_toDOMS("iRefHit"))).c_str());
-	int iPhiMin = std::atoi(_toString(aRefHitElement->getAttribute(_toDOMS("iPhiMin"))).c_str());
-	int iPhiMax = std::atoi(_toString(aRefHitElement->getAttribute(_toDOMS("iPhiMax"))).c_str());
-	unsigned int iInput = std::atoi(_toString(aRefHitElement->getAttribute(_toDOMS("iInput"))).c_str());
-	unsigned int iRegion = std::atoi(_toString(aRefHitElement->getAttribute(_toDOMS("iRegion"))).c_str());
-	unsigned int iRefLayer = std::atoi(_toString(aRefHitElement->getAttribute(_toDOMS("iRefLayer"))).c_str());
+	unsigned int iRefHit = std::atoi(_toString(aRefHitElement->getAttribute(xmliRefHit)).c_str());
+	int iPhiMin = std::atoi(_toString(aRefHitElement->getAttribute(xmliPhiMin)).c_str());
+	int iPhiMax = std::atoi(_toString(aRefHitElement->getAttribute(xmliPhiMax)).c_str());
+	unsigned int iInput = std::atoi(_toString(aRefHitElement->getAttribute(xmliInput)).c_str());
+	unsigned int iRegion = std::atoi(_toString(aRefHitElement->getAttribute(xmliRegion)).c_str());
+	unsigned int iRefLayer = std::atoi(_toString(aRefHitElement->getAttribute(xmliRefLayer)).c_str());
 	
 	aRefHitNode.iRefHit = iRefHit;
 	aRefHitNode.iPhiMin = iPhiMin;
@@ -546,22 +552,22 @@ void XMLConfigReader::readConfig(L1TMuonOverlapParams *aConfig) const{
 	for (unsigned int iProcessor=0; iProcessor<nProcessors; iProcessor++) aRefHitMapVec[iRefHit + iProcessor*nRefHits] = aRefHitNode;
       }
       ///////////
-      unsigned int nElem2 = aProcessorElement->getElementsByTagName(_toDOMS("LogicRegion"))->getLength();
+      unsigned int nElem2 = aProcessorElement->getElementsByTagName(xmlLogicRegion)->getLength();
       assert( (iProcessor==0 && nElem2==nLogicRegions) || (iProcessor!=0 && nElem2==0) );
       DOMElement* aRegionElement = 0;
       for(unsigned int ii=0;ii<nElem2;++ii){
-	aNode = aProcessorElement->getElementsByTagName(_toDOMS("LogicRegion"))->item(ii);
+	aNode = aProcessorElement->getElementsByTagName(xmlLogicRegion)->item(ii);
 	aRegionElement = static_cast<DOMElement *>(aNode); 
-	unsigned int iRegion = std::atoi(_toString(aRegionElement->getAttribute(_toDOMS("iRegion"))).c_str());
-	unsigned int nElem3 = aRegionElement->getElementsByTagName(_toDOMS("Layer"))->getLength();
+	unsigned int iRegion = std::atoi(_toString(aRegionElement->getAttribute(xmliRegion)).c_str());
+	unsigned int nElem3 = aRegionElement->getElementsByTagName(xmlLayer)->getLength();
 	assert(nElem3==nLayers);
 	DOMElement* aLayerElement = 0;
 	for(unsigned int iii=0;iii<nElem3;++iii){
-  	  aNode = aRegionElement->getElementsByTagName(_toDOMS("Layer"))->item(iii);
+  	  aNode = aRegionElement->getElementsByTagName(xmlLayer)->item(iii);
 	  aLayerElement = static_cast<DOMElement *>(aNode); 
-	  unsigned int iLayer = std::atoi(_toString(aLayerElement->getAttribute(_toDOMS("iLayer"))).c_str());
-	  unsigned int iFirstInput = std::atoi(_toString(aLayerElement->getAttribute(_toDOMS("iFirstInput"))).c_str());
-	  unsigned int nInputs = std::atoi(_toString(aLayerElement->getAttribute(_toDOMS("nInputs"))).c_str());
+	  unsigned int iLayer = std::atoi(_toString(aLayerElement->getAttribute(xmliLayer)).c_str());
+	  unsigned int iFirstInput = std::atoi(_toString(aLayerElement->getAttribute(xmliFirstInput)).c_str());
+	  unsigned int nInputs = std::atoi(_toString(aLayerElement->getAttribute(xmlnInputs)).c_str());
 	  aLayerInputNode.iLayer = iLayer;
 	  aLayerInputNode.iFirstInput = iFirstInput;
 	  aLayerInputNode.nInputs = nInputs;
@@ -576,6 +582,53 @@ void XMLConfigReader::readConfig(L1TMuonOverlapParams *aConfig) const{
     
     // Reset the documents vector pool and release all the associated memory back to the system.
     parser.resetDocumentPool();
+  
+
+  XMLString::release(&xmlOMTF);
+  XMLString::release(&xmlversion);
+  XMLString::release(&xmlGlobalData);
+  XMLString::release(&xmlnPdfAddrBits);
+  XMLString::release(&xmlnPdfValBits);
+  XMLString::release(&xmlnPhiBits);
+  XMLString::release(&xmlnPhiBins);
+  XMLString::release(&xmlnProcessors);
+  XMLString::release(&xmlnLogicRegions);
+  XMLString::release(&xmlnInputs);
+  XMLString::release(&xmlnLayers);
+  XMLString::release(&xmlnRefLayers);
+  XMLString::release(&xmliProcessor);
+  XMLString::release(&xmlbarrelMin);
+  XMLString::release(&xmlbarrelMax);
+  XMLString::release(&xmlendcap10DegMin);
+  XMLString::release(&xmlendcap10DegMax);
+  XMLString::release(&xmlendcap20DegMin);
+  XMLString::release(&xmlendcap20DegMax);
+  XMLString::release(&xmlLayerMap);
+  XMLString::release(&xmlhwNumber);
+  XMLString::release(&xmllogicNumber);
+  XMLString::release(&xmlbendingLayer);
+  XMLString::release(&xmlconnectedToLayer);
+  XMLString::release(&xmlRefLayerMap);
+  XMLString::release(&xmlrefLayer);
+  XMLString::release(&xmlProcessor);
+  XMLString::release(&xmlRefLayer);
+  XMLString::release(&xmliRefLayer);
+  XMLString::release(&xmliGlobalPhiStart);
+  XMLString::release(&xmlRefHit);
+  XMLString::release(&xmliRefHit);
+  XMLString::release(&xmliPhiMin);
+  XMLString::release(&xmliPhiMax);
+  XMLString::release(&xmliInput);
+  XMLString::release(&xmliRegion);
+  XMLString::release(&xmlLogicRegion);
+  XMLString::release(&xmlLayer);
+  XMLString::release(&xmliLayer);
+  XMLString::release(&xmliFirstInput);
+  XMLString::release(&xmlnHitsPerLayer);
+  XMLString::release(&xmlnRefHits);
+  XMLString::release(&xmlnTestRefHits);
+  XMLString::release(&xmlnGoldenPatterns);
+  XMLString::release(&xmlConnectionMap);
   }
   XMLPlatformUtils::Terminate();
 }
