@@ -42,11 +42,10 @@ BasicTrajectoryState::
 BasicTrajectoryState(const SurfaceType& aSurface) :
   theLocalError(InvalidError()),
   theLocalParameters(),
-  theLocalParametersValid(false),
-  theValid(false),
   theSurfaceSide(SurfaceSideDefinition::atCenterOfSurface), 
   theSurfaceP( &aSurface), 
-  theWeight(1.)
+  theWeight(1.),
+  theValid(false)
 {}
 
 
@@ -81,12 +80,16 @@ BasicTrajectoryState( const FreeTrajectoryState& fts,
   theFreeState(fts),
   theLocalError(InvalidError()),
   theLocalParameters(),
-  theLocalParametersValid(false),
-  theValid(true),
   theSurfaceSide(side), 
   theSurfaceP( &aSurface), 
-  theWeight(1.)
-{}    
+  theWeight(1.),
+  theValid(true)
+{
+  createLocalParameters();
+  if(fts.hasError()) {
+    createLocalError();
+  }
+}    
 
 
 BasicTrajectoryState::
@@ -97,12 +100,14 @@ BasicTrajectoryState( const GlobalTrajectoryParameters& par,
   theFreeState(par, err),
   theLocalError(InvalidError()),
   theLocalParameters(),
-  theLocalParametersValid(false),
-  theValid(true),
   theSurfaceSide(side), 
   theSurfaceP( &aSurface), 
-  theWeight(1.)
-{}
+  theWeight(1.),
+  theValid(true)
+{
+    createLocalParameters();
+    createLocalError();
+}
 
 
 
@@ -115,11 +120,10 @@ BasicTrajectoryState( const LocalTrajectoryParameters& par,
   theFreeState(makeFTS(par,aSurface,field)),
   theLocalError(err),
   theLocalParameters(par),
-  theLocalParametersValid(true),
-  theValid(true),
   theSurfaceSide(side), 
   theSurfaceP( &aSurface),
-  theWeight(1.)
+  theWeight(1.),
+  theValid(true)
 {}
 
 
@@ -132,18 +136,22 @@ void BasicTrajectoryState::notValid() {
 
 namespace {
   void verifyLocalErr(LocalTrajectoryError const & err, const FreeTrajectoryState & state ) {
-     if unlikely(!err.posDef())
+    if unlikely(!err.posDef()) {
                  edm::LogWarning("BasicTrajectoryState") << "local error not pos-def\n"
                                                         <<  err.matrix()
                                                          << "\npos/mom/mf " << state.position() << ' ' << state.momentum()
                                                           <<  ' ' << state.parameters().magneticFieldInTesla();
+                 //throw cms::Exception("NotPosDef");
+      }
   }
   void verifyCurvErr(CurvilinearTrajectoryError const & err, const FreeTrajectoryState & state ) {
-     if unlikely(!err.posDef())
+    if unlikely(!err.posDef()) {
                  edm::LogWarning("BasicTrajectoryState") << "curv error not pos-def\n" 
                                                         <<  err.matrix()
                                                          << "\npos/mom/mf " << state.position() << ' ' << state.momentum()
                                                          <<  ' ' << state.parameters().magneticFieldInTesla();
+                 //throw cms::Exception("NotPosDef");
+      }
   }
 }
 
@@ -165,8 +173,6 @@ void BasicTrajectoryState::missingError(char const * where) const{
 void BasicTrajectoryState::checkCurvilinError() const {
   if likely(theFreeState.hasCurvilinearError()) return;
 
-  if unlikely(!theLocalParametersValid) createLocalParameters();
-  
   JacobianLocalToCurvilinear loc2Curv(surface(), localParameters(), globalParameters(), *magneticField());
   const AlgebraicMatrix55& jac = loc2Curv.jacobian();
   const AlgebraicSymMatrix55 &cov = ROOT::Math::Similarity(jac, theLocalError.matrix());
@@ -180,7 +186,7 @@ void BasicTrajectoryState::checkCurvilinError() const {
 
  
 // create local parameters from global
-void BasicTrajectoryState::createLocalParameters() const {
+void BasicTrajectoryState::createLocalParameters() {
   LocalPoint  x = surface().toLocal(theFreeState.position());
   LocalVector p = surface().toLocal(theFreeState.momentum());
 // believe p.z() never exactly equals 0.
@@ -188,17 +194,16 @@ void BasicTrajectoryState::createLocalParameters() const {
   theLocalParameters =
     LocalTrajectoryParameters(isCharged?theFreeState.signedInverseMomentum():1./p.mag(),
       p.x()/p.z(), p.y()/p.z(), x.x(), x.y(), p.z()>0. ? 1.:-1., isCharged);
-  theLocalParametersValid = true;
 }
 
-void BasicTrajectoryState::createLocalError() const {
+void BasicTrajectoryState::createLocalError() {
   if likely(theFreeState.hasCurvilinearError())
     createLocalErrorFromCurvilinearError();
   else theLocalError = InvalidError();
 }
 
 void 
-BasicTrajectoryState::createLocalErrorFromCurvilinearError() const {
+BasicTrajectoryState::createLocalErrorFromCurvilinearError() {
   
   JacobianCurvilinearToLocal curv2Loc(surface(), localParameters(), globalParameters(), *magneticField());
   const AlgebraicMatrix55 & jac = curv2Loc.jacobian();
@@ -221,7 +226,6 @@ BasicTrajectoryState::update( const LocalTrajectoryParameters& p, const SurfaceS
    theFreeState=makeFTS(p,surface(),magneticField(), theFreeState.parameters().magneticFieldInTesla());
   
    theValid   = true;
-   theLocalParametersValid  = true;
 
 }
 
@@ -240,7 +244,6 @@ BasicTrajectoryState::update( const LocalTrajectoryParameters& p,
     theFreeState=makeFTS(p,aSurface,field);
 
     theValid   = true;
-    theLocalParametersValid  = true;
 }
 
 void
@@ -259,7 +262,6 @@ BasicTrajectoryState::update(double weight,
     theFreeState=makeFTS(p,aSurface,field);
 
     theValid   = true;
-    theLocalParametersValid  = true;
 }
 
 
@@ -274,7 +276,6 @@ BasicTrajectoryState::update( const LocalTrajectoryParameters& p,
     theFreeState=   theFreeState=makeFTS(p,surface(),magneticField(), theFreeState.parameters().magneticFieldInTesla());
 
     theValid   = true;
-    theLocalParametersValid  = true;
 }
 
 
