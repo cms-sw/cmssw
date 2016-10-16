@@ -230,15 +230,22 @@ GoldenPattern * XMLConfigReader::buildGP(DOMElement* aGPElement,
 
   XMLCh *xmliEta= _toDOMS("iEta");
   //index 0 means no number at the end
-  std::array<XMLCh *,5> xmliPt= {{_toDOMS("iPt"),_toDOMS("iPt1"),_toDOMS("iPt2"),_toDOMS("iPt3"),_toDOMS("iPt4") }};
+  std::ostringstream stringStr;
+  if (index>0) stringStr<<"iPt"<<index;
+  else stringStr.str("iPt");
+  XMLCh *xmliPt=_toDOMS(stringStr.str().c_str());
+  stringStr.str("");
+  if (index>0) stringStr<<"value"<<index;
+  else stringStr.str("value");
+  XMLCh *xmlValue=_toDOMS(stringStr.str().c_str());
+  
   XMLCh *xmliCharge= _toDOMS("iCharge");
   XMLCh *xmlLayer= _toDOMS("Layer");
   XMLCh *xmlRefLayer= _toDOMS("RefLayer");
   XMLCh *xmlmeanDistPhi= _toDOMS("meanDistPhi");
   XMLCh *xmlPDF= _toDOMS("PDF");
-  std::array<XMLCh *,5> xmlValue= {{_toDOMS("Value"),_toDOMS("Value1"),_toDOMS("Value2"),_toDOMS("Value3"),_toDOMS("Value4")}};
   
-  unsigned int iPt = std::atoi(_toString(aGPElement->getAttribute(xmliPt[index])).c_str());  
+  unsigned int iPt = std::atoi(_toString(aGPElement->getAttribute(xmliPt)).c_str());  
   int iEta = std::atoi(_toString(aGPElement->getAttribute(xmliEta)).c_str());
   int iCharge = std::atoi(_toString(aGPElement->getAttribute(xmliCharge)).c_str());
   int val = 0;
@@ -291,7 +298,7 @@ GoldenPattern * XMLConfigReader::buildGP(DOMElement* aGPElement,
       for(unsigned int iPdf=0;iPdf<exp2(aConfig.nPdfAddrBits());++iPdf){
 	aNode = aLayerElement->getElementsByTagName(xmlPDF)->item(iRefLayer*exp2(aConfig.nPdfAddrBits())+iPdf);
 	aItemElement = static_cast<DOMElement *>(aNode);
-	val = std::atoi(_toString(aItemElement->getAttribute(xmlValue[index])).c_str());
+	val = std::atoi(_toString(aItemElement->getAttribute(xmlValue)).c_str());
 	pdf1D[iPdf] = val;
       }
       pdf2D[iRefLayer] = pdf1D;
@@ -305,21 +312,13 @@ GoldenPattern * XMLConfigReader::buildGP(DOMElement* aGPElement,
   aGP->setPdf(pdf3D);
 
   XMLString::release(&xmliEta);
-  XMLString::release(&xmliPt[0]);
-  XMLString::release(&xmliPt[1]);
-  XMLString::release(&xmliPt[2]);
-  XMLString::release(&xmliPt[3]);
-  XMLString::release(&xmliPt[4]);
+  XMLString::release(&xmliPt);
   XMLString::release(&xmliCharge);
   XMLString::release(&xmlLayer);
   XMLString::release(&xmlRefLayer);
   XMLString::release(&xmlmeanDistPhi);
   XMLString::release(&xmlPDF);
-  XMLString::release(&xmlValue[0]);
-  XMLString::release(&xmlValue[1]);
-  XMLString::release(&xmlValue[2]);
-  XMLString::release(&xmlValue[3]);
-  XMLString::release(&xmlValue[4]);
+  XMLString::release(&xmlValue);
 
   return aGP;
 }
