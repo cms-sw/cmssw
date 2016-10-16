@@ -33,8 +33,9 @@ process.source = cms.Source("PoolSource",
 
 process.load("Configuration.StandardSequences.MagneticField_AutoFromDBCurrent_cff")
 #process.load("Configuration.StandardSequences.GeometryDB_cff")
-process.load("Configuration.Geometry.GeometryExtendedPhaseIPixelReco_cff")
-process.load("Configuration.Geometry.GeometryExtendedPhaseIPixel_cff")
+process.load("Configuration.Geometry.GeometryExtended2017Reco_cff")
+#process.load("Configuration.Geometry.GeometryExtendedPhaseIPixelReco_cff")
+#process.load("Configuration.Geometry.GeometryExtendedPhaseIPixel_cff")
 process.load("SimTracker.TrackAssociatorProducers.trackAssociatorByHits_cfi")
 
 
