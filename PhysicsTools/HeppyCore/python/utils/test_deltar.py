@@ -3,8 +3,8 @@ import math
 from ROOT import TLorentzVector
 import numpy as np
 
-from heppy.particles.tlv.particle import Particle
-from heppy.configuration import Collider
+from PhysicsTools.HeppyCore.particles.tlv.particle import Particle
+from PhysicsTools.HeppyCore.configuration import Collider
 
 from deltar import *
 
