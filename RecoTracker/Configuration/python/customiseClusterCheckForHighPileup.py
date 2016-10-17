@@ -4,7 +4,7 @@ def customiseClusterCheckForHighPileup(process):
             module.ClusterCheckPSet.MaxNumberOfPixelClusters = 400000
             # PhotonConversionTrajectorySeedProducerFromQuadruplets does not have "cut"...
             if hasattr(module.ClusterCheckPSet, "cut"):
-                module.ClusterCheckPSet.cut = "strip < 4000000 && pixel < 400000 && (strip < 500000 + 10*pixel) && (pixel < 50000 + 0.1*strip)"
+                module.ClusterCheckPSet.cut = "strip < 800000 && pixel < 80000 && (strip < 50000 + 10*pixel) && (pixel < 5000 + strip/7.)"
         if hasattr(module, "OrderedHitsFactoryPSet") and hasattr(module.OrderedHitsFactoryPSet, "GeneratorPSet"):
             if module.OrderedHitsFactoryPSet.GeneratorPSet.ComponentName.value() in ["PixelTripletLargeTipGenerator", "MultiHitGeneratorFromChi2"]:
                 module.OrderedHitsFactoryPSet.GeneratorPSet.maxElement = 500000
