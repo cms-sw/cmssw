@@ -1,11 +1,11 @@
-from PhysicsTools.HeppyCore.framework.analyzer import Analyzer
+from heppy.framework.analyzer import Analyzer
 from ROOT import TH1F
 
 class Histogrammer(Analyzer):
 
     def beginLoop(self, setup):
         super(Histogrammer, self).beginLoop(setup)
-        servname = '_'.join(['PhysicsTools.HeppyCore.framework.services.tfile.TFileService',
+        servname = '_'.join(['heppy.framework.services.tfile.TFileService',
                              self.cfg_ana.file_label
                          ]) 
         tfileservice = setup.services[servname]
