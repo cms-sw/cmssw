@@ -55,6 +55,7 @@ valCaloStage2Layer2Digis.towerToken = cms.InputTag("caloStage2Digis", "CaloTower
 from L1Trigger.L1TMuonEndCap.simEmtfDigis_cfi import *
 valEmtfStage2Digis = simEmtfDigis.clone()
 valEmtfStage2Digis.CSCInput = "csctfDigis"
+valEmtfStage2Digis.RPCInput = "muonRPCDigis"
 
 # uGMT
 from L1Trigger.L1TMuon.simGmtStage2Digis_cfi import *
