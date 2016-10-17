@@ -189,9 +189,13 @@ public:
 
   edm::ParameterSet override_parameters_;
 
+  // HE constants
   static const int HBHE_OVERLAP_TOWER = 16;
   static const int LAST_FINEGRAIN_DEPTH = 6;
   static const int LAST_FINEGRAIN_TOWER = 28;
+
+  // Fine-grain in HF ignores tower 29, and starts with 30
+  static const int FIRST_FINEGRAIN_TOWER = 30;
 
   static const int QIE8_LINEARIZATION_ET = HcaluLUTTPGCoder::QIE8_LUT_BITMASK;
   static const int QIE10_LINEARIZATION_ET = HcaluLUTTPGCoder::QIE10_LUT_BITMASK;
