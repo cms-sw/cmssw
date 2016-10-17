@@ -91,14 +91,16 @@ void HcalDeterministicFit::phase1Apply(const HBHEChannelInfo& channelData,
   else if (fTimeSlew==2)respCorr=rCorr[1];
   else if (fTimeSlew==3)respCorr=frespCorr;
 
-  float tsShift3=HcalTimeSlew::delay(inputCharge[3], fTimeSlew, fTimeSlewBias, fpar0, fpar1 ,fpar2);
-  float tsShift4=HcalTimeSlew::delay(inputCharge[4], fTimeSlew, fTimeSlewBias, fpar0, fpar1 ,fpar2);
-  float tsShift5=HcalTimeSlew::delay(inputCharge[5], fTimeSlew, fTimeSlewBias, fpar0, fpar1 ,fpar2);
+  float tsShift3=0;
+  float tsShift4=0;
+  float tsShift5=0;
 
-  if(!applyTimeSlew_) {
-    tsShift3=0;
-    tsShift4=0;
-    tsShift5=0;
+  if(applyTimeSlew_) {
+
+    tsShift3=HcalTimeSlew::delay(inputCharge[3], fTimeSlew, fTimeSlewBias, fpar0, fpar1 ,fpar2,!channelData.hasTimeInfo());
+    tsShift4=HcalTimeSlew::delay(inputCharge[4], fTimeSlew, fTimeSlewBias, fpar0, fpar1 ,fpar2,!channelData.hasTimeInfo());
+    tsShift5=HcalTimeSlew::delay(inputCharge[5], fTimeSlew, fTimeSlewBias, fpar0, fpar1 ,fpar2,!channelData.hasTimeInfo());
+
   }
 
   float i3=0;
