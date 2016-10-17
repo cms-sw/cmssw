@@ -1,5 +1,5 @@
-from PhysicsTools.HeppyCore.framework.analyzer import Analyzer
-from PhysicsTools.HeppyCore.statistics.tree import Tree
+from heppy.framework.analyzer import Analyzer
+from heppy.statistics.tree import Tree
 from ROOT import TFile
 
 class SimpleTreeProducer(Analyzer):
@@ -12,9 +12,11 @@ class SimpleTreeProducer(Analyzer):
         self.tree = Tree( self.cfg_ana.tree_name,
                           self.cfg_ana.tree_title )
         self.tree.var('test_variable')
+        self.tree.var('test_variable_random')
 
     def process(self, event):
         self.tree.fill('test_variable', event.input.var1)
+        self.tree.fill('test_variable_random', event.var_random)
         self.tree.tree.Fill()
 
     def write(self, setup):
