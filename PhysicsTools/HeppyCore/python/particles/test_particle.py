@@ -46,10 +46,11 @@ class TestParticle(unittest.TestCase):
     #----------------------------------------------------------------------
     def test_fcc_particle(self):
         """Test that FCC particles can be copied and compared"""
+        if not 'FCCEDM' in os.environ: 
+            return 
         retcode = gSystem.Load("libdatamodelDict")
         # testing only if the FCC EDM is available
-        if retcode == -1:
-            return
+        self.assertEqual(retcode, 0)
         try:
             from EventStore import EventStore as Events
         except ImportError:
