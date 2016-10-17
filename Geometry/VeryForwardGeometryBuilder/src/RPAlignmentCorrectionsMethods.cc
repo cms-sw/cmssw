@@ -166,18 +166,18 @@ RPAlignmentCorrectionsData RPAlignmentCorrectionsMethods::GetCorrectionsData(DOM
     // add the alignment to the right list
     if (nodeType == 1)
     {
-      unsigned int arm = decId / 1000;
-      unsigned int st = (decId / 100) % 10;
-      unsigned int rp = (decId / 10) % 10;
-      unsigned int det = decId % 10;
+      const unsigned int arm = decId / 1000;
+      const unsigned int st = (decId / 100) % 10;
+      const unsigned int rp = (decId / 10) % 10;
+      const unsigned int det = decId % 10;
       result.AddSensorCorrection(TotemRPDetId(arm, st, rp, det), a, true);
     }
 
     if (nodeType == 2)
     {
-      unsigned int arm = (decId / 100) % 10;
-      unsigned int st = (decId / 10) % 10;
-      unsigned int rp = decId % 10;
+      const unsigned int arm = (decId / 100) % 10;
+      const unsigned int st = (decId / 10) % 10;
+      const unsigned int rp = decId % 10;
       result.AddRPCorrection(TotemRPDetId(arm, st, rp), a, true);
     }
   }
