@@ -8,8 +8,8 @@ using namespace HGCalTriggerBackend;
 class RandomClusterAlgo : public Algorithm<HGCal64BitRandomCodec> {
 public:
   
-  RandomClusterAlgo(const edm::ParameterSet& conf):
-    Algorithm<HGCal64BitRandomCodec>(conf),
+  RandomClusterAlgo(const edm::ParameterSet& conf,edm::ConsumesCollector &cc):
+    Algorithm<HGCal64BitRandomCodec>(conf,cc),
     cluster_product_( new l1t::HGCalClusterBxCollection ){
   }
 
@@ -18,7 +18,9 @@ public:
   }
 
   virtual void run(const l1t::HGCFETriggerDigiCollection& coll,
-                   const std::unique_ptr<HGCalTriggerGeometryBase>& geom) override final;
+                   const std::unique_ptr<HGCalTriggerGeometryBase>& geom,
+		   const edm::Event&evt
+		   ) override final;
 
   virtual void putInEvent(edm::Event& evt) override final {
     evt.put(std::move(cluster_product_),name());
@@ -34,7 +36,9 @@ private:
 };
 
 void RandomClusterAlgo::run(const l1t::HGCFETriggerDigiCollection& coll,
-                            const std::unique_ptr<HGCalTriggerGeometryBase>& geom) {
+                            const std::unique_ptr<HGCalTriggerGeometryBase>& geom,
+			    const edm::Event&evt
+			    ) {
   for( const auto& digi : coll ) {
     HGCal64BitRandomCodec::data_type my_data;
     digi.decode(codec_,my_data);

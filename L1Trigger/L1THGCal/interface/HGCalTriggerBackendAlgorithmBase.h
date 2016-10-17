@@ -29,9 +29,17 @@
 
 class HGCalTriggerBackendAlgorithmBase { 
  public:    
+  /*
   HGCalTriggerBackendAlgorithmBase(const edm::ParameterSet& conf) : 
     name_(conf.getParameter<std::string>("AlgorithmName"))
     {}
+   */
+
+  // Allow HGCalTriggerBackend to be passed a consume collector
+  HGCalTriggerBackendAlgorithmBase(const edm::ParameterSet& conf, edm::ConsumesCollector &cc) : 
+    name_(conf.getParameter<std::string>("AlgorithmName"))
+    {}
+
   virtual ~HGCalTriggerBackendAlgorithmBase() {}
 
   const std::string& name() const { return name_; } 
@@ -40,7 +48,9 @@ class HGCalTriggerBackendAlgorithmBase {
   virtual void setProduces(edm::EDProducer& prod) const = 0;
 
   virtual void run(const l1t::HGCFETriggerDigiCollection& coll,
-                   const std::unique_ptr<HGCalTriggerGeometryBase>& geom) = 0;
+                   const std::unique_ptr<HGCalTriggerGeometryBase>& geom,
+		   const edm::Event &e
+		   ) = 0;
 
   virtual void putInEvent(edm::Event& evt) = 0;
 
@@ -57,9 +67,15 @@ namespace HGCalTriggerBackend {
   template<typename FECODEC>
   class Algorithm : public HGCalTriggerBackendAlgorithmBase { 
   public:
+    /*
     Algorithm(const edm::ParameterSet& conf) :  
-    HGCalTriggerBackendAlgorithmBase(conf),
-    codec_(conf.getParameterSet("FECodec")){ }
+    	HGCalTriggerBackendAlgorithmBase(conf),
+    	codec_(conf.getParameterSet("FECodec")){ }
+	*/
+
+    Algorithm(const edm::ParameterSet& conf, edm::ConsumesCollector &cc ) :
+    	HGCalTriggerBackendAlgorithmBase(conf, cc), 
+    	codec_(conf.getParameterSet("FECodec")){ }
     
   protected:    
     FECODEC codec_;  
@@ -67,6 +83,6 @@ namespace HGCalTriggerBackend {
 }
 
 #include "FWCore/PluginManager/interface/PluginFactory.h"
-typedef edmplugin::PluginFactory< HGCalTriggerBackendAlgorithmBase* (const edm::ParameterSet&) > HGCalTriggerBackendAlgorithmFactory;
+typedef edmplugin::PluginFactory< HGCalTriggerBackendAlgorithmBase* (const edm::ParameterSet&,edm::ConsumesCollector & ) > HGCalTriggerBackendAlgorithmFactory;
 
 #endif

@@ -20,6 +20,7 @@ struct HGCalBestChoiceDataPayload
     { 
         payload.fill(0);
     }
+
 };
 
 
