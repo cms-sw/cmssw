@@ -152,8 +152,22 @@ void MuonTrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
         else continue;
       }
       else if (trackType == "innerTrackPlusSegments") {
-	if (muon->innerTrack().isNonnull()) trackref = muon->innerTrack();
-	else continue;
+        if (muon->innerTrack().isNonnull()) trackref = muon->innerTrack();
+        else continue;
+      }
+      else if (trackType == "gemMuonTrack") {
+        if (muon->innerTrack().isNonnull() && muon->isGEMMuon()){
+            trackref = muon->innerTrack();
+            //std::cout<<"gemmuon: "<<muon->isGEMMuon()<<" "<<trackref->pt()<<std::endl;
+        }
+        else continue;
+      }
+      else if (trackType == "me0MuonTrack") {
+        if (muon->innerTrack().isNonnull() && muon->isME0Muon()){
+            trackref = muon->innerTrack();
+            //std::cout<<"me0muon: "<<muon->isME0Muon()<<" "<<trackref->pt()<<std::endl;
+        }
+        else continue;
       }
 
       const reco::Track* trk = &(*trackref);

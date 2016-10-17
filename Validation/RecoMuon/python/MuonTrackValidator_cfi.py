@@ -42,6 +42,7 @@ muonTrackValidator = cms.EDAnalyzer("MuonTrackValidator",
     # if *not* uses associators, the TP-RecoTrack maps has to be specified 
     UseAssociators = cms.bool(False),
     useGEMs = cms.bool(False),
+    useME0 = cms.bool(False),
     associators = cms.vstring('a_MuonAssociator'),
     associatormap = cms.InputTag("tpToMuonTrackAssociation"),
     #
@@ -116,3 +117,5 @@ muonTrackValidator = cms.EDAnalyzer("MuonTrackValidator",
 
 from Configuration.StandardSequences.Eras import eras
 eras.run3_GEM.toModify( muonTrackValidator, useGEMs = cms.bool(True) )
+eras.phase2_muon.toModify( muonTrackValidator, useME0 = cms.bool(True) )
+
