@@ -27,10 +27,10 @@ class HGCalTriggerDigiFEReproducer : public edm::EDProducer
     private:
         // inputs
         edm::EDGetToken inputdigi_;
+        edm::ESHandle<HGCalTriggerGeometryBase> triggerGeometry_;
         // algorithm containers
-        std::unique_ptr<HGCalTriggerGeometryBase> triggerGeometry_;
         std::unique_ptr<HGCalTriggerFECodecBase> codec_;
-        HGCalTriggerBackendProcessor backEndProcessor_;
+        std::unique_ptr<HGCalTriggerBackendProcessor> backEndProcessor_;
 };
 
 DEFINE_FWK_MODULE(HGCalTriggerDigiFEReproducer);
@@ -42,12 +42,6 @@ HGCalTriggerDigiFEReproducer::HGCalTriggerDigiFEReproducer(const edm::ParameterS
     backEndProcessor_(conf.getParameterSet("BEConfiguration"), consumesCollector()) 
 /*****************************************************************/
 {
-    //setup geometry configuration
-    const edm::ParameterSet& geometryConfig = conf.getParameterSet("TriggerGeometry");
-    const std::string& trigGeomName = geometryConfig.getParameter<std::string>("TriggerGeometryName");
-    HGCalTriggerGeometryBase* geometry = HGCalTriggerGeometryFactory::get()->create(trigGeomName,geometryConfig);
-    triggerGeometry_.reset(geometry);
-
     //setup FE codec
     const edm::ParameterSet& feCodecConfig =  conf.getParameterSet("FECodec");
     const std::string& feCodecName = feCodecConfig.getParameter<std::string>("CodecName");
@@ -56,26 +50,19 @@ HGCalTriggerDigiFEReproducer::HGCalTriggerDigiFEReproducer(const edm::ParameterS
     codec_->unSetDataPayload();
 
     produces<l1t::HGCFETriggerDigiCollection>();
+    //setup BE processor
+    backEndProcessor_ = std::make_unique<HGCalTriggerBackendProcessor>(conf.getParameterSet("BEConfiguration"));
     // register backend processor products
-    backEndProcessor_.setProduces(*this);
+    backEndProcessor_->setProduces(*this);
 }
 
 /*****************************************************************/
 void HGCalTriggerDigiFEReproducer::beginRun(const edm::Run& /*run*/, const edm::EventSetup& es) 
 /*****************************************************************/
 {
-    triggerGeometry_->reset();
-    HGCalTriggerGeometryBase::es_info info;
-    const std::string& ee_sd_name = triggerGeometry_->eeSDName();
-    const std::string& fh_sd_name = triggerGeometry_->fhSDName();
-    const std::string& bh_sd_name = triggerGeometry_->bhSDName();
-    es.get<IdealGeometryRecord>().get(ee_sd_name,info.geom_ee);
-    es.get<IdealGeometryRecord>().get(fh_sd_name,info.geom_fh);
-    es.get<IdealGeometryRecord>().get(bh_sd_name,info.geom_bh);
-    es.get<IdealGeometryRecord>().get(ee_sd_name,info.topo_ee);
-    es.get<IdealGeometryRecord>().get(fh_sd_name,info.topo_fh);
-    es.get<IdealGeometryRecord>().get(bh_sd_name,info.topo_bh);
-    triggerGeometry_->initialize(info);
+    es.get<IdealGeometryRecord>().get(triggerGeometry_);
+    codec_->setGeometry(triggerGeometry_.product());
+    backEndProcessor_->setGeometry(triggerGeometry_.product());
 }
 
 /*****************************************************************/
@@ -96,7 +83,7 @@ void HGCalTriggerDigiFEReproducer::produce(edm::Event& e, const edm::EventSetup&
     {    
         fe_output->push_back(l1t::HGCFETriggerDigi());
         l1t::HGCFETriggerDigi& digi_out = fe_output->back();
-        codec_->setDataPayload(*triggerGeometry_, digi_in);
+        codec_->setDataPayload(digi_in);
         codec_->encode(digi_out);
         digi_out.setDetId( digi_in.getDetId<HGCalDetId>() );
         codec_->print(digi_out,output);

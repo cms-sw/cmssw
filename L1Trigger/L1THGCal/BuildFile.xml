@@ -1,5 +1,6 @@
 <use   name="Geometry/HGCalGeometry"/>
 <use   name="Geometry/CaloTopology"/>
+<use   name="DataFormats/L1THGCal"/>
 
 <export>
   <lib   name="1"/>

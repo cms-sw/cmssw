@@ -1,6 +1,7 @@
 // HGCal Trigger 
 #include "L1Trigger/L1THGCal/interface/HGCalTriggerBackendAlgorithmBase.h"
-#include "L1Trigger/L1THGCal/interface/fe_codecs/HGCalBestChoiceCodec.h"
+//#include "L1Trigger/L1THGCal/interface/fe_codecs/HGCalBestChoiceCodec.h"
+#include "L1Trigger/L1THGCal/interface/fe_codecs/HGCalTriggerBestChoiceCodec.h"
 #include "DataFormats/ForwardDetId/interface/HGCTriggerDetId.h"
 
 // HGCalClusters and detId
@@ -155,26 +156,16 @@ namespace HGCalTriggerBackend{
                     //2.A get the trigger-cell information energy/id
                     const HGCTriggerDetId& moduleId = digi.getDetId<HGCTriggerDetId>(); // this is a module Det Id
 
-                    const auto& trcells=geom->getOrderedTriggerCellsFromModule( moduleId() );
-
-                    // check
-                    if ( trcells.size() != data.payload.size() )
-                    { 
-                        std::cout<<"[HGCalTriggerSimCluster]::[run]::[ERROR] Mapping outside of assumptions."<<std::endl;
-                        throw 42; // yes, I like integer number, they are so many ...
-                    }
-
                     // there is a loss of generality here, due to the restriction imposed by the data formats
                     // it will work if inside a module there is a data.payload with an ordered list of all the energies
                     // one may think to add on top of it a wrapper if this stop to be the case for some of the data classes
-                    { //scope
-                    auto valIt=data.payload.begin();
-                    auto tcIt = trcells.begin();
-                    for( ;  valIt != data.payload.end() and tcIt != trcells.end(); valIt++, tcIt++)
-                        {
-                            const HGCTriggerDetId tcellId(*tcIt);
+                    for(const auto& triggercell : data.payload)
+                    { 
+                            if(triggercell.hwPt()<=0) continue;
+
+                            const HGCalDetId tcellId(triggercell.detId());
                             //uint32_t digiEnergy = data.payload; i
-                            auto digiEnergy=*valIt;  // if it is implemented an energy() method, etherwise it will not compile
+                            auto digiEnergy=triggercell.p4().E();  
                             //2.B get the HGCAL-base-cell associated to it / geometry
                             //const auto& tc=geom->triggerCells()[ tcellId() ] ;//HGCalTriggerGeometry::TriggerCell&
                             //for(const auto& cell : tc.components() )  // HGcell -- unsigned
@@ -194,8 +185,7 @@ namespace HGCalTriggerBackend{
                                     addToCluster(cluster_container, pid, 0,energy,0.,0.  ) ; // how do I get eta, phi w/o the hgcal geometry?
                                 }
                             }
-                        }// end of for loop
-                    } //end of for-scope
+                    } //end of for-loop
                 }
 
 #ifdef DEBUG
@@ -223,7 +213,9 @@ namespace HGCalTriggerBackend{
 
 
 // define plugins, template needs to be spelled out here, in order to allow the compiler to compile, and the factory to be populated
-typedef HGCalTriggerBackend::HGCalTriggerSimCluster<HGCalBestChoiceCodec,HGCalBestChoiceDataPayload> HGCalTriggerSimClusterBestChoice;
+//typedef HGCalTriggerBackend::HGCalTriggerSimCluster<HGCalBestChoiceCodec,HGCalBestChoiceDataPayload> HGCalTriggerSimClusterBestChoice;
+//DEFINE_EDM_PLUGIN(HGCalTriggerBackendAlgorithmFactory, HGCalTriggerSimClusterBestChoice,"HGCalTriggerSimClusterBestChoice");
+typedef HGCalTriggerBackend::HGCalTriggerSimCluster<HGCalTriggerCellBestChoiceCodecCodec,HGCalTriggerCellBestChoiceCodecDataPayload> HGCalTriggerSimClusterBestChoice;
 DEFINE_EDM_PLUGIN(HGCalTriggerBackendAlgorithmFactory, HGCalTriggerSimClusterBestChoice,"HGCalTriggerSimClusterBestChoice");
 //DEFINE_EDM_PLUGIN(HGCalTriggerBackendAlgorithmFactory, HGCalTriggerSimCluster,"HGCalTriggerSimCluster");
 

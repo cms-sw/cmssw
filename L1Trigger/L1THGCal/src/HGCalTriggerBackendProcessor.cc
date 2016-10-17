@@ -13,6 +13,13 @@ HGCalTriggerBackendProcessor(const edm::ParameterSet& conf, edm::ConsumesCollect
   }
 }
 
+void HGCalTriggerBackendProcessor::setGeometry(const HGCalTriggerGeometryBase* const geom) {
+  for( const auto& algo : algorithms_ ) {
+    algo->setGeometry(geom);
+  }
+}
+
+
 void HGCalTriggerBackendProcessor::setProduces(edm::EDProducer& prod) const {
   for( const auto& algo : algorithms_ ) {
     algo->setProduces(prod);

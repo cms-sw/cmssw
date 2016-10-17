@@ -33,6 +33,8 @@ class HGCalTriggerBackendProcessor {
 
   HGCalTriggerBackendProcessor(const edm::ParameterSet& conf, edm::ConsumesCollector&&cc);
 
+  void setGeometry(const HGCalTriggerGeometryBase* const geom);
+
   void setProduces(edm::EDProducer& prod) const;
 
   void run(const l1t::HGCFETriggerDigiCollection& coll,

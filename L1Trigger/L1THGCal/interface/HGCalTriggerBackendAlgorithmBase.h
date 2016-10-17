@@ -31,6 +31,7 @@ class HGCalTriggerBackendAlgorithmBase {
  public:    
   /*
   HGCalTriggerBackendAlgorithmBase(const edm::ParameterSet& conf) : 
+    geometry_(nullptr),
     name_(conf.getParameter<std::string>("AlgorithmName"))
     {}
    */
@@ -43,6 +44,8 @@ class HGCalTriggerBackendAlgorithmBase {
   virtual ~HGCalTriggerBackendAlgorithmBase() {}
 
   const std::string& name() const { return name_; } 
+
+  virtual void setGeometry(const HGCalTriggerGeometryBase* const geom) {geometry_ = geom;}
     
   //runs the trigger algorithm, storing internally the results
   virtual void setProduces(edm::EDProducer& prod) const = 0;
@@ -56,6 +59,8 @@ class HGCalTriggerBackendAlgorithmBase {
 
   virtual void reset() = 0;
 
+ protected:
+  const HGCalTriggerGeometryBase* geometry_;
 
  private:
   const std::string name_;
@@ -76,6 +81,11 @@ namespace HGCalTriggerBackend {
     Algorithm(const edm::ParameterSet& conf, edm::ConsumesCollector &cc ) :
     	HGCalTriggerBackendAlgorithmBase(conf, cc), 
     	codec_(conf.getParameterSet("FECodec")){ }
+
+    virtual void setGeometry(const HGCalTriggerGeometryBase* const geom) override final {
+      HGCalTriggerBackendAlgorithmBase::setGeometry(geom);
+      codec_.setGeometry(geom);
+    }
     
   protected:    
     FECODEC codec_;  
