@@ -75,7 +75,7 @@ process.L1TMuonPath = cms.Path(process.L1TMuonSeq)
 process.load("DQMServices.Core.DQM_cfg")
 process.load("DQMServices.Components.DQMEnvironment_cfi")
 process.dqmSaver.convention = 'Offline'
-process.dqmSaver.workflow = '/RelVal/HLTriggerOffline/Egamma'
+process.dqmSaver.workflow = '/RelVal/DQMOffline/L1Trigger'
 process.dqmSaver.saveByRun = cms.untracked.int32(-1)
 process.dqmSaver.saveAtJobEnd = cms.untracked.bool(True)
 process.options = cms.untracked.PSet(wantSummary = cms.untracked.bool(True))
