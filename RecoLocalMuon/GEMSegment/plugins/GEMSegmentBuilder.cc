@@ -86,12 +86,19 @@ void GEMSegmentBuilder::build(const GEMRecHitCollection* recHits, GEMSegmentColl
 
     GEMSegmentAlgorithmBase::GEMEnsemble ensemble(std::pair<const GEMSuperChamber*,      std::map<uint32_t,const GEMEtaPartition*> >(chamber,ens));
     
-    // given the superchamber select the appropriate algo... and run it
-    std::vector<GEMSegment> segv = algo->run(ensemble, gemRecHits);
-    GEMDetId mid(enIt->first);
-    
     #ifdef EDM_ML_DEBUG // have lines below only compiled when in debug mode
     edm::LogVerbatim("GEMSegmentBuilder") << "[GEMSegmentBuilder::build] run the segment reconstruction algorithm now";
+    #endif
+
+    // given the superchamber select the appropriate algo... and run it
+    std::vector<GEMSegment> segv = algo->run(ensemble, gemRecHits);
+    #ifdef EDM_ML_DEBUG // have lines below only compiled when in debug mode
+    edm::LogVerbatim("GEMSegmentBuilder") << "[GEMSegmentBuilder::build] found " << segv.size() ;
+    #endif
+
+    GEMDetId mid(enIt->first);    
+
+    #ifdef EDM_ML_DEBUG // have lines below only compiled when in debug mode
     edm::LogVerbatim("GEMSegmentBuilder") << "[GEMSegmentBuilder::build] found " << segv.size() << " segments in GEM Super Chamber " << mid;
     edm::LogVerbatim("GEMSegmentBuilder") << "[GEMSegmentBuilder::build] -----------------------------------------------------------------------------"; 
     #endif

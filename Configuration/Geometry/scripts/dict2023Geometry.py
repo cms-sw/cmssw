@@ -397,7 +397,51 @@ muonDict = {
             'from Geometry.DTGeometryBuilder.idealForDigiDtGeometry_cff import *',
         ],
         "era" : "self.phase2_muon, self.run3_GEM",
+    },
+    "M2" : {
+        1 : [
+            'Geometry/MuonCommonData/data/v1/mbCommon.xml',
+            'Geometry/MuonCommonData/data/v1/mb1.xml',
+            'Geometry/MuonCommonData/data/v1/mb2.xml',
+            'Geometry/MuonCommonData/data/v1/mb3.xml',
+            'Geometry/MuonCommonData/data/v1/mb4.xml',
+            'Geometry/MuonCommonData/data/design/muonYoke.xml',
+            'Geometry/MuonCommonData/data/PhaseII/mf.xml',
+            'Geometry/MuonCommonData/data/PhaseII/rpcf.xml',
+            'Geometry/MuonCommonData/data/PhaseII/gemf.xml',
+            'Geometry/MuonCommonData/data/PhaseII/TDR_BaseLine/gem11.xml',
+            'Geometry/MuonCommonData/data/PhaseII/TDR_BaseLine/gem21.xml',
+            'Geometry/MuonCommonData/data/v2/csc.xml',
+            'Geometry/MuonCommonData/data/PhaseII/mfshield.xml',
+            'Geometry/MuonCommonData/data/PhaseII/TDR_Dev/me0.xml',
+        ],
+        2 : [
+            'Geometry/MuonCommonData/data/PhaseII/TDR_Dev/muonNumbering.xml',
+        ],
+        3 : [
+            'Geometry/MuonSimData/data/PhaseII/ME0EtaPart/muonSens.xml',
+            'Geometry/DTGeometryBuilder/data/dtSpecsFilter.xml',
+            'Geometry/CSCGeometryBuilder/data/cscSpecsFilter.xml',
+            'Geometry/CSCGeometryBuilder/data/cscSpecs.xml',
+            'Geometry/RPCGeometryBuilder/data/PhaseII/RPCSpecs.xml',
+            'Geometry/GEMGeometryBuilder/data/v7/GEMSpecsFilter.xml',
+            'Geometry/GEMGeometryBuilder/data/v7/GEMSpecs.xml',
+        ],
+        4 : [
+            'Geometry/MuonSimData/data/PhaseII/muonProdCuts.xml',
+        ],
+        "reco" : [
+            'from Geometry.MuonNumbering.muonNumberingInitialization_cfi import *',
+            'from RecoMuon.DetLayers.muonDetLayerGeometry_cfi import *',
+            'from Geometry.GEMGeometryBuilder.gemGeometry_cfi import *',
+            'from Geometry.GEMGeometryBuilder.me0Geometry_cfi import *',
+            'ME0GeometryESModule.use10EtaPart = cms.bool(True)',
+            'from Geometry.CSCGeometryBuilder.idealForDigiCscGeometry_cff import *',
+            'from Geometry.DTGeometryBuilder.idealForDigiDtGeometry_cff import *',
+        ],
+        "era" : "self.phase2_muon, self.run3_GEM",
     }
+
 }
 
 forwardDict = {
@@ -459,5 +503,6 @@ detectorVersionDict = {
     ("O1","T1","C2","M1","F1","I1") : "D3",
     ("O1","T3","C2","M1","F1","I1") : "D4",
     ("O1","T1","C2","M1","F1","I2") : "D5",
+    ("O1","T1","C1","M2","F1","I1") : "D6",
 }
 
