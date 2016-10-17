@@ -9,7 +9,7 @@ SiPixelPhase1TrackEfficiencyClusterProb = DefaultHisto.clone(
   range_min = -10, range_max = 0, range_nbins = 200,
   dimensions = 1,
   specs = cms.VPSet(
-    Specification().groupBy(DefaultHisto.defaultGrouping).saveAll()
+    *StandardSpecifications1D
   )
 )
 
