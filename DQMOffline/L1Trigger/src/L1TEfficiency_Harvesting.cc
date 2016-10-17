@@ -167,39 +167,39 @@ void L1TEfficiencyPlotHandler::computeEfficiency(DQMStore::IBooker &ibooker, DQM
 
     if (m_plotName == ptS20.c_str()) {
 	    effH->GetXaxis()->SetTitle("p_{T}\\,(\\text{Reco} \\, \\mu)  ~\\text{[GeV]}");
-        effH->SetTitle("\\text{RunNo} \\, : \\, \\text{276315} \\, \\text{(2016D)} ~/~ \\text{Single}  \\, \\, \\text{Muon} \\, \\, \\text{Quality} ~[\\geq 12] ~/~ p_{T}(\\text{L1} \\, \\mu) \\geq 20 \\, \\text{GeV}");
+        effH->SetTitle("\\text{Single}  \\, \\, \\text{Muon} \\, \\, \\text{Quality} ~[\\geq 12] ~/~ p_{T}(\\text{L1} \\, \\mu) \\geq 20 \\, \\text{GeV}");
     }
     else if (m_plotName == etaS20.c_str()) {
 	    effH->GetXaxis()->SetTitle("\\eta \\,(\\text{Reco} \\, \\mu)  ");
-        effH->SetTitle("\\text{RunNo} \\, : \\, \\text{276315} \\, \\text{(2016D)} ~/~ \\text{Single}  \\, \\, \\text{Muon} \\, \\, \\text{Quality} ~[\\geq 12] ~/~ p_{T}(\\text{L1} \\, \\mu) \\geq 20 \\, \\text{GeV}");
+        effH->SetTitle("\\text{Single}  \\, \\, \\text{Muon} \\, \\, \\text{Quality} ~[\\geq 12] ~/~ p_{T}(\\text{L1} \\, \\mu) \\geq 20 \\, \\text{GeV}");
     }
     else if (m_plotName == phiS20.c_str()) {
 	    effH->GetXaxis()->SetTitle("\\phi \\,(\\text{Reco} \\, \\mu)  ~\\text{[rad]}");
-        effH->SetTitle("\\text{RunNo} \\, : \\, \\text{276315} \\, \\text{(2016D)} ~/~ \\text{Single}  \\, \\, \\text{Muon} \\, \\, \\text{Quality} ~[\\geq 12] ~/~ p_{T}(\\text{L1} \\, \\mu) \\geq 20 \\, \\text{GeV}");
+        effH->SetTitle("\\text{Single}  \\, \\, \\text{Muon} \\, \\, \\text{Quality} ~[\\geq 12] ~/~ p_{T}(\\text{L1} \\, \\mu) \\geq 20 \\, \\text{GeV}");
     }
     else if (m_plotName == ptS16.c_str()) {
 	    effH->GetXaxis()->SetTitle("p_{T}\\,(\\text{Reco} \\, \\mu)  ~\\text{[GeV]}");
-        effH->SetTitle("\\text{RunNo} \\, : \\, \\text{276315} \\, \\text{(2016D)} ~/~ \\text{Single}  \\, \\, \\text{Muon} \\, \\, \\text{Quality} ~[\\geq 12] ~/~ p_{T}(\\text{L1} \\, \\mu) \\geq 16 \\, \\text{GeV}");
+        effH->SetTitle("\\text{Single}  \\, \\, \\text{Muon} \\, \\, \\text{Quality} ~[\\geq 12] ~/~ p_{T}(\\text{L1} \\, \\mu) \\geq 16 \\, \\text{GeV}");
     }
     else if (m_plotName == etaS16.c_str()) {
 	    effH->GetXaxis()->SetTitle("\\eta \\,(\\text{Reco} \\, \\mu)  ");
-        effH->SetTitle("\\text{RunNo} \\, : \\, \\text{276315} \\, \\text{(2016D)} ~/~ \\text{Single}  \\, \\, \\text{Muon} \\, \\, \\text{Quality} ~[\\geq 12] ~/~ p_{T}(\\text{L1} \\, \\mu) \\geq 16 \\, \\text{GeV}");
+        effH->SetTitle("\\text{Single}  \\, \\, \\text{Muon} \\, \\, \\text{Quality} ~[\\geq 12] ~/~ p_{T}(\\text{L1} \\, \\mu) \\geq 16 \\, \\text{GeV}");
     }
     else if (m_plotName == phiS16.c_str()) {
         effH->GetXaxis()->SetTitle("\\phi \\,(\\text{Reco} \\, \\mu)  ~\\text{[rad]}");
-        effH->SetTitle("\\text{RunNo} \\, : \\, \\text{276315} \\, \\text{(2016D)} ~/~ \\text{Single}  \\, \\, \\text{Muon} \\, \\, \\text{Quality} ~[\\geq 12] ~/~ p_{T}(\\text{L1} \\, \\mu) \\geq 16 \\, \\text{GeV}");
+        effH->SetTitle("\\text{Single}  \\, \\, \\text{Muon} \\, \\, \\text{Quality} ~[\\geq 12] ~/~ p_{T}(\\text{L1} \\, \\mu) \\geq 16 \\, \\text{GeV}");
     }
     else if (m_plotName == ptS25.c_str()) {
 	    effH->GetXaxis()->SetTitle("p_{T}\\,(\\text{Reco} \\, \\mu)  ~\\text{[GeV]}");
-        effH->SetTitle("\\text{RunNo} \\, : \\, \\text{276315} \\, \\text{(2016D)} ~/~ \\text{Single}  \\, \\, \\text{Muon} \\, \\, \\text{Quality} ~[\\geq 12] ~/~ p_{T}(\\text{L1} \\, \\mu) \\geq 25 \\, \\text{GeV}");
+        effH->SetTitle("\\text{Single}  \\, \\, \\text{Muon} \\, \\, \\text{Quality} ~[\\geq 12] ~/~ p_{T}(\\text{L1} \\, \\mu) \\geq 25 \\, \\text{GeV}");
     }
     else if (m_plotName == etaS25.c_str()) {
 	    effH->GetXaxis()->SetTitle("\\eta \\,(\\text{Reco} \\, \\mu)  ");
-        effH->SetTitle("\\text{RunNo} \\, : \\, \\text{276315} \\, \\text{(2016D)} ~/~ \\text{Single}  \\, \\, \\text{Muon} \\, \\, \\text{Quality} ~[\\geq 12] ~/~ p_{T}(\\text{L1} \\, \\mu) \\geq 25 \\, \\text{GeV}");
+        effH->SetTitle("\\text{Single}  \\, \\, \\text{Muon} \\, \\, \\text{Quality} ~[\\geq 12] ~/~ p_{T}(\\text{L1} \\, \\mu) \\geq 25 \\, \\text{GeV}");
     }
     else if (m_plotName == phiS25.c_str()) {
         effH->GetXaxis()->SetTitle("\\phi \\,(\\text{Reco} \\, \\mu)  ~\\text{[rad]}");
-        effH->SetTitle("\\text{RunNo} \\, : \\, \\text{276315} \\, \\text{(2016D)} ~/~ \\text{Single}  \\, \\, \\text{Muon} \\, \\, \\text{Quality} ~[\\geq 12] ~/~ p_{T}(\\text{L1} \\, \\mu) \\geq 25 \\, \\text{GeV}");
+        effH->SetTitle("\\text{Single}  \\, \\, \\text{Muon} \\, \\, \\text{Quality} ~[\\geq 12] ~/~ p_{T}(\\text{L1} \\, \\mu) \\geq 25 \\, \\text{GeV}");
     }
     else  {
         effH->GetXaxis()->SetTitle("not");
