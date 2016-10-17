@@ -10,6 +10,7 @@ class AverageTestCase(unittest.TestCase):
         c.add( 2, 1 )
         ave, unc = c.average()
         self.assertEqual(ave, 1.5)
+        self.assertAlmostEqual(unc, 0.35, 1)
 
     def test_ave_wei(self):
         c = Average('TestAve')
@@ -17,6 +18,7 @@ class AverageTestCase(unittest.TestCase):
         c.add( 1, 3 )
         ave, unc = c.average()
         self.assertEqual(ave, 0.75)
+        self.assertAlmostEqual(unc, 0.22, 1)
 
     def test_ave_add(self):
         c1 = Average('c1')
@@ -26,6 +28,7 @@ class AverageTestCase(unittest.TestCase):
         c3 = c1 + c2
         ave, unc = c3.average()
         self.assertEqual(ave, 0.75)
+        self.assertAlmostEqual(unc, 0.22, 1)
 
 if __name__ == '__main__':
     unittest.main()
