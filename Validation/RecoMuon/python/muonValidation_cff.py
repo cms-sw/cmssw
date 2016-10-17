@@ -447,6 +447,7 @@ _run3_muonValidation += gemMuonValidation
 _phase2_muonValidation = _run3_muonValidation.copy()
 _phase2_muonValidation += me0MuonValidation
 
-from Configuration.StandardSequences.Eras import eras
-eras.run3_GEM.toReplaceWith( muonValidation_seq, _run3_muonValidation )
-eras.phase2_muon.toReplaceWith( muonValidation_seq, _phase2_muonValidation )
+from Configuration.Eras.Modifier_run3_GEM_cff import run3_GEM
+run3_GEM.toReplaceWith( muonValidation_seq, _run3_muonValidation )
+from Configuration.Eras.Modifier_phase2_muon_cff import phase2_muon
+phase2_muon.toReplaceWith( muonValidation_seq, _phase2_muonValidation )
