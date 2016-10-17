@@ -64,6 +64,22 @@ HcalTriggerPrimitiveAlgo::setUpgradeFlags(bool hb, bool he, bool hf)
 }
 
 
+void
+HcalTriggerPrimitiveAlgo::overrideParameters(const edm::ParameterSet& ps)
+{
+   override_parameters_ = ps;
+
+   if (override_parameters_.exists("ADCThresholdHF")) {
+      override_adc_hf_ = true;
+      override_adc_hf_value_ = override_parameters_.getParameter<uint32_t>("ADCThresholdHF");
+   }
+   if (override_parameters_.exists("TDCMaskHF")) {
+      override_tdc_hf_ = true;
+      override_tdc_hf_value_ = override_parameters_.getParameter<unsigned long long>("TDCMaskHF");
+   }
+}
+
+
 void HcalTriggerPrimitiveAlgo::addSignal(const HBHEDataFrame & frame) {
    // TODO: Need to add support for seperate 28, 29 in HE
    //Hack for 300_pre10, should be removed.
@@ -515,10 +531,10 @@ HcalTriggerPrimitiveAlgo::validChannel(const QIE10DataFrame& digi, int ts) const
    auto adc_threshold = parameters->getADCThresholdHF();
    auto tdc_mask = parameters->getTDCMaskHF();
 
-   if (override_parameters_.exists("ADCThresholdHF"))
-      adc_threshold = override_parameters_.getParameter<uint32_t>("ADCThresholdHF");
-   if (override_parameters_.exists("TDCMaskHF"))
-      tdc_mask = override_parameters_.getParameter<unsigned long long>("TDCMaskHF");
+   if (override_adc_hf_)
+      adc_threshold = override_adc_hf_value_;
+   if (override_tdc_hf_)
+      tdc_mask = override_tdc_hf_value_;
 
    if (digi[ts].adc() < adc_threshold)
       return true;

@@ -70,7 +70,7 @@ public:
   void setRCTScaleShift(int);
 
   void setUpgradeFlags(bool hb, bool he, bool hf);
-  void overrideParameters(const edm::ParameterSet& ps) { override_parameters_ = ps; };
+  void overrideParameters(const edm::ParameterSet& ps);
 
  private:
 
@@ -188,6 +188,11 @@ public:
   bool upgrade_hf_ = false;
 
   edm::ParameterSet override_parameters_;
+
+  bool override_adc_hf_ = false;
+  uint32_t override_adc_hf_value_;
+  bool override_tdc_hf_ = false;
+  unsigned long long override_tdc_hf_value_;
 
   // HE constants
   static const int HBHE_OVERLAP_TOWER = 16;
