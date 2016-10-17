@@ -105,7 +105,7 @@ public:
 			   CaloSubdetectorGeometry::DimVec& dimVector,
 			   CaloSubdetectorGeometry::IVec& dinsVector ) const ;
 
-  const HcalTopology& topology() const { return theTopology; }
+  const HcalTopology& topology() const { return m_topology; }
 
 protected:
 
