@@ -29,12 +29,16 @@ class TestDataset(unittest.TestCase):
         # shutil.rmtree('datasets')
 
     def test_eos(self):
+        if not 'CMSSW_BASE' in os.environ:
+            return
         ds1 = EOSDataset('/EOSTests/ds1', 
                          '/eos/cms/store/cmst3/user/cbern',
                          '.*root') 
         self.assertEqual(len(ds1.listOfGoodFiles()), 10)
 
     def test_eos_fail(self):
+        if not 'CMSSW_BASE' in os.environ:
+            return
         self.assertRaises( ValueError, 
                            EOSDataset, 
                            'not_existing_basedir',
@@ -45,8 +49,4 @@ class TestDataset(unittest.TestCase):
 
 
 if __name__ == '__main__':
-    import os
-    import sys 
-    if not os.environ.get('CMSSW_BASE', False):
-        sys.exit(1)
     unittest.main()
