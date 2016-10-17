@@ -45,7 +45,8 @@ BasicTrajectoryState(const SurfaceType& aSurface) :
   theSurfaceSide(SurfaceSideDefinition::atCenterOfSurface), 
   theSurfaceP( &aSurface), 
   theWeight(1.),
-  theValid(false)
+  theValid(false),
+  theUpdatingFreeStateError(false)
 {}
 
 
@@ -83,7 +84,8 @@ BasicTrajectoryState( const FreeTrajectoryState& fts,
   theSurfaceSide(side), 
   theSurfaceP( &aSurface), 
   theWeight(1.),
-  theValid(true)
+  theValid(true),
+  theUpdatingFreeStateError(false)
 {
   createLocalParameters();
   if(fts.hasError()) {
@@ -103,7 +105,8 @@ BasicTrajectoryState( const GlobalTrajectoryParameters& par,
   theSurfaceSide(side), 
   theSurfaceP( &aSurface), 
   theWeight(1.),
-  theValid(true)
+  theValid(true),
+  theUpdatingFreeStateError(false)
 {
     createLocalParameters();
     createLocalError();
@@ -123,7 +126,8 @@ BasicTrajectoryState( const LocalTrajectoryParameters& par,
   theSurfaceSide(side), 
   theSurfaceP( &aSurface),
   theWeight(1.),
-  theValid(true)
+  theValid(true),
+  theUpdatingFreeStateError(false)
 {}
 
 
@@ -171,6 +175,12 @@ void BasicTrajectoryState::missingError(char const * where) const{
 
 
 void BasicTrajectoryState::checkCurvilinError() const {
+  bool expected = false;
+  auto const release = [](BasicTrajectoryState const* iThis) {
+    iThis->theUpdatingFreeStateError=false;
+  };
+  std::unique_ptr<const BasicTrajectoryState, decltype(release)> sentry(this,release);
+  while( not theUpdatingFreeStateError.compare_exchange_strong(expected,true) ) {}
   if likely(theFreeState.hasCurvilinearError()) return;
 
   JacobianLocalToCurvilinear loc2Curv(surface(), localParameters(), globalParameters(), *magneticField());

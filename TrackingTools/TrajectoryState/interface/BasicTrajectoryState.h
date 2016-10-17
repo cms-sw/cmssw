@@ -72,10 +72,68 @@ class BasicTrajectoryState {
 public:
 
   // default constructor : to make root happy
- BasicTrajectoryState() : theWeight(0), theValid(false){}
+ BasicTrajectoryState() : theWeight(0), theValid(false),theUpdatingFreeStateError(false){}
 
  /// construct invalid trajectory state (without parameters)
   explicit BasicTrajectoryState(const SurfaceType& aSurface);
+
+  BasicTrajectoryState(BasicTrajectoryState const& aOther):
+    theLocalError(aOther.theLocalError),
+    theLocalParameters(aOther.theLocalParameters),
+    theSurfaceSide(aOther.theSurfaceSide),
+    theSurfaceP(aOther.theSurfaceP),
+    theWeight(aOther.theWeight),
+    theValid(aOther.theValid),
+    theUpdatingFreeStateError(false)
+  {
+    bool expected=false;
+    while(not aOther.theUpdatingFreeStateError.compare_exchange_strong(expected,true));
+    theFreeState = aOther.theFreeState;
+    aOther.theUpdatingFreeStateError = false;
+  }
+
+  BasicTrajectoryState(BasicTrajectoryState&& aOther):
+    theFreeState(std::move(aOther.theFreeState)),
+    theLocalError(std::move(aOther.theLocalError)),
+    theLocalParameters(std::move(aOther.theLocalParameters)),
+    theSurfaceSide(std::move(aOther.theSurfaceSide)),
+    theSurfaceP(std::move(aOther.theSurfaceP)),
+    theWeight(aOther.theWeight),
+    theValid(aOther.theValid),
+    theUpdatingFreeStateError(false)
+  {
+  }
+
+  BasicTrajectoryState& operator=(BasicTrajectoryState const& aOther) {
+    theLocalError=aOther.theLocalError;
+    theLocalParameters=aOther.theLocalParameters;
+    theSurfaceSide=aOther.theSurfaceSide;
+    theSurfaceP=aOther.theSurfaceP;
+    theWeight=aOther.theWeight;
+    theValid=aOther.theValid;
+    theUpdatingFreeStateError=false;
+    bool expected = false;
+    while(not aOther.theUpdatingFreeStateError.compare_exchange_strong(expected,true));
+    theFreeState = aOther.theFreeState;
+    aOther.theUpdatingFreeStateError = false;
+
+    return *this;
+  }
+
+  BasicTrajectoryState& operator=(BasicTrajectoryState&& aOther) {
+    theFreeState = std::move(aOther.theFreeState);
+    theLocalError=std::move(aOther.theLocalError);
+    theLocalParameters=std::move(aOther.theLocalParameters);
+    theSurfaceSide=std::move(aOther.theSurfaceSide);
+    theSurfaceP=std::move(aOther.theSurfaceP);
+    theWeight=aOther.theWeight;
+    theValid=aOther.theValid;
+    theUpdatingFreeStateError=false;
+
+    return *this;
+  }
+
+
 
   virtual ~BasicTrajectoryState();
 
@@ -143,7 +201,8 @@ public:
   theSurfaceSide(side), 
   theSurfaceP( &aSurface), 
   theWeight(1.),
-  theValid(true)
+  theValid(true),
+  theUpdatingFreeStateError(false)
   {
     createLocalParameters();
     createLocalError();
@@ -324,6 +383,7 @@ private:
 
   double theWeight=0.;
   bool theValid;
+  mutable std::atomic<bool> theUpdatingFreeStateError;
 };
 
 #endif
