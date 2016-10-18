@@ -68,7 +68,9 @@ namespace l1t {
 	       if (fw >= 0x10010010) {
 		 mp_unp = UnpackerFactory::get()->make("stage2::MPUnpacker_0x10010010");
 	       }
-	       
+	       if (fw >= 0x10010033) {
+		 mp_unp = UnpackerFactory::get()->make("stage2::MPUnpacker_0x10010033");
+	       }
 
                UnpackerMap res;
                if (fed == 1366 || (fed == 1360 && board == 0x221B)) {
