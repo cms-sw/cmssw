@@ -19,22 +19,7 @@
 
 #include "DataFormats/CTPPSDigi/interface/TotemRPDigi.h"
 #include "DataFormats/CTPPSDigi/interface/TotemVFATStatus.h"
-
-//----------------------------------------------------------------------------------------------------
-
-// TODO: fake class, to be removed
-class CTPPSDiamondDigi
-{
-  public:
-    unsigned int channel;
-
-  bool operator< (const CTPPSDiamondDigi &other) const
-  {
-    return (channel < other.channel);
-  }
-};
-
-//----------------------------------------------------------------------------------------------------
+#include "DataFormats/CTPPSDigi/interface/CTPPSDiamondDigi.h"
 
 /// \brief Collection of code to convert TOTEM raw data into digi.
 class RawToDigiConverter
