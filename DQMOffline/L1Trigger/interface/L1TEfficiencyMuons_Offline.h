@@ -68,24 +68,24 @@
 
 class MuonGmtPair {
     public :
-	    MuonGmtPair(const reco::Muon *muon, const l1t::Muon *regMu) :
+        MuonGmtPair(const reco::Muon *muon, const l1t::Muon *regMu) :
         m_muon(muon), m_regMu(regMu), m_eta(999.), m_phi_bar(999.), m_phi_end(999.) { };
         MuonGmtPair(const MuonGmtPair& muonGmtPair);
 
         ~MuonGmtPair() { };
 
         double dR();
-	    double eta() const { return m_muon->eta(); };
-	    double phi() const { return m_muon->phi(); };
-  	    double pt()  const { return m_muon->pt(); };
-	    double gmtPt() const { return m_regMu ? m_regMu->pt() : -1.; };
+        double eta() const { return m_muon->eta(); };
+        double phi() const { return m_muon->phi(); };
+        double pt()  const { return m_muon->pt(); };
+        double gmtPt() const { return m_regMu ? m_regMu->pt() : -1.; };
         int gmtQual() const { return m_regMu ? m_regMu->hwQual() : -1; };
-	    double gmtPhi() const { return m_regMu ? m_regMu->phi() : -5.; };
-	    double gmtEta() const { return m_regMu ? m_regMu->eta() : -5.; };
+        double gmtPhi() const { return m_regMu ? m_regMu->phi() : -5.; };
+        double gmtEta() const { return m_regMu ? m_regMu->eta() : -5.; };
 
         void propagate(edm::ESHandle<MagneticField> bField,
-		 edm::ESHandle<Propagator> propagatorAlong,
-		 edm::ESHandle<Propagator> propagatorOpposite);
+         edm::ESHandle<Propagator> propagatorAlong,
+         edm::ESHandle<Propagator> propagatorOpposite);
 
     private :
     // propagation private members
@@ -95,7 +95,7 @@ class MuonGmtPair {
 
     private :
         const reco::Muon *m_muon;
-	    const l1t::Muon *m_regMu;
+        const l1t::Muon *m_regMu;
 
         edm::ESHandle<MagneticField> m_BField;
         edm::ESHandle<Propagator> m_propagatorAlong;
@@ -154,15 +154,15 @@ class L1TEfficiencyMuons_Offline : public DQMEDAnalyzer {
         std::vector<const reco::Muon*>  m_ProbeMuons;
         std::vector<MuonGmtPair>  m_MuonGmtPairs;
 
-	    std::vector<reco::MuonCollection>  m_RecoMuons;
-	    std::vector<l1t::MuonBxCollection>  m_L1tMuons;
-	    std::vector<reco::Muon>  m_RecoRecoMuons;
-	    BXVector<l1t::Muon>  m_L1tL1tMuons;
+        std::vector<reco::MuonCollection>  m_RecoMuons;
+        std::vector<l1t::MuonBxCollection>  m_L1tMuons;
+        std::vector<reco::Muon>  m_RecoRecoMuons;
+        BXVector<l1t::Muon>  m_L1tL1tMuons;
 
         // config params
         std::vector<int> m_GmtPtCuts;
         edm::EDGetTokenT<reco::MuonCollection> m_MuonInputTag;
-	    edm::EDGetTokenT<l1t::MuonBxCollection> m_GmtInputTag;
+        edm::EDGetTokenT<l1t::MuonBxCollection> m_GmtInputTag;
         edm::EDGetTokenT<reco::VertexCollection> m_VtxInputTag;
         edm::EDGetTokenT<reco::BeamSpot> m_BsInputTag;
         edm::EDGetTokenT<trigger::TriggerEvent> m_trigInputTag;
