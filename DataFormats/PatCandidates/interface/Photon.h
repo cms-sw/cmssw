@@ -43,7 +43,6 @@ namespace reco {
 // Class definition
 namespace pat {
   class PATPhotonSlimmer;
-  class AssociatedCandProducer;
 
   class Photon : public PATObject<reco::Photon> {
 
