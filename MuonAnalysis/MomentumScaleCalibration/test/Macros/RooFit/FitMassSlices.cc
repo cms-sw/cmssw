@@ -12,108 +12,91 @@
  */
 class FitMassSlices : public FitSlices
 {
- public:
-  void fit(const TString & inputFileName = "0_MuScleFit.root", const TString & outputFileName = "BiasCheck_0.root",
-	   const TString & signalType = "gaussian", const TString & backgroundType = "exponential",
-	   const double & xMean = 3.1,  const double & xMin = 3.,     const double & xMax = 3.2,
-	   const double & sigma = 0.03, const double & sigmaMin = 0., const double & sigmaMax = 0.1,
-	   // change 0 if you want to rebin phi distributions
-	   const int rebinXphi = 4, const int rebinXetadiff = 2, const int rebinXeta = 2, const int rebinXpt = 8,//(ORIGINAL 64 bin in eta, 64 bin in phi, 32 bin in deltaEta, 200 bin in pt)
-	   TDirectory * externalDir = 0,
-	   const TString & histoBaseName = "hRecBestResVSMu", const TString & histoBaseTitle = "MassVs")
-  {
+public:
+
+  FitMassSlices(
+    double xMean_ = 3.1,
+    double xMin_ = 3.,
+    double xMax_ = 3.2,
+    double sigma_ = 0.03,
+    double sigmaMin_ = 0.,
+    double sigmaMax_ = 0.1,
+    TString signalType_ = "gaussian",
+    TString backgroundType_ = "exponential"
+    ) :
+    FitSlices(xMean_, xMin_, xMax_, sigma_, sigmaMin_, sigmaMax_, signalType_, backgroundType_)
+  {}
+
+  void fit(
+    const TString & inputFileName = "0_MuScleFit.root", const TString & outputFileName = "BiasCheck_0.root",
+    
+    // change 0 if you want to rebin phi distributions
+    const int rebinXphi = 4, const int rebinXetadiff = 2, const int rebinXeta = 2, const int rebinXpt = 8,//(ORIGINAL 64 bin in eta, 64 bin in phi, 32 bin in deltaEta, 200 bin in pt)
+
+    TDirectory * externalDir = 0,
+    const TString & histoBaseName = "hRecBestResVSMu", const TString & histoBaseTitle = "MassVs"
+    ){
     gROOT->SetBatch(kTRUE);
 
-//    TFile * inputFile = new TFile(inputFileName, "READ");
-    TFile* inputFile = TFile::Open(inputFileName, "READ" );
-    TFile * outputFile = 0;
+    TFile* inputFile = TFile::Open(inputFileName, "READ");
+    TFile* outputFile = 0;
     TDirectory * dir = externalDir;
-    if( dir == 0 ) {
+    if (dir == 0) {
       outputFile = new TFile(outputFileName, "RECREATE");
       dir = outputFile->GetDirectory("");
     }
 
     fitSlice(histoBaseName+"_MassVSPt", histoBaseTitle+"Pt",
-    	     xMean, xMin, xMax, sigma, sigmaMin, sigmaMax,
-    	     signalType, backgroundType,
-    	     inputFile, dir);
+      inputFile, dir);
 
-//     fitSlice(histoBaseName+"_MassVSEta", histoBaseTitle+"Eta",
-// 	     xMean, xMin, xMax, sigma, sigmaMin, sigmaMax,
-// 	     signalType, backgroundType,
-// 	     inputFile, dir);
+    //     fitSlice(histoBaseName+"_MassVSEta", histoBaseTitle+"Eta",
+    // 	     inputFile, dir);
 
-    if( rebinXeta != 0 ) rebinX = rebinXeta;
+    if (rebinXeta != 0) rebinX = rebinXeta;
     fitSlice(histoBaseName+"_MassVSEtaPlus", histoBaseTitle+"EtaPlus",
-             xMean, xMin, xMax, sigma, sigmaMin, sigmaMax,
-             signalType, backgroundType,
-             inputFile, dir);
+      inputFile, dir);
 
     fitSlice(histoBaseName+"_MassVSEtaMinus", histoBaseTitle+"EtaMinus",
-             xMean, xMin, xMax, sigma, sigmaMin, sigmaMax,
-             signalType, backgroundType,
-             inputFile, dir);
-    
-    
+      inputFile, dir);
+
+
     fitSlice(histoBaseName+"_MassVSEtaPhiPlus", histoBaseTitle+"EtaPhiPlus",
-             xMean, xMin, xMax, sigma, sigmaMin, sigmaMax,
-             signalType, backgroundType,
-             inputFile, dir);
+      inputFile, dir);
 
     fitSlice(histoBaseName+"_MassVSEtaPhiMinus", histoBaseTitle+"EtaPhiMinus",
-             xMean, xMin, xMax, sigma, sigmaMin, sigmaMax,
-             signalType, backgroundType,
-             inputFile, dir);
+      inputFile, dir);
 
     //    //    New entries...        
     fitSlice(histoBaseName+"_MassVSCosThetaCS", histoBaseTitle+"CosThetaCS",
-	     xMean, xMin, xMax, sigma, sigmaMin, sigmaMax,
- 	     signalType, backgroundType,
- 	     inputFile, dir);
-    
+      inputFile, dir);
+
     fitSlice(histoBaseName+"_MassVSPhiCS", histoBaseTitle+"PhiCS",
-	     xMean, xMin, xMax, sigma, sigmaMin, sigmaMax,
- 	     signalType, backgroundType,
- 	     inputFile, dir);
+      inputFile, dir);
 
-    if( rebinXphi != 0 ) rebinX = rebinXphi;
+    if (rebinXphi != 0) rebinX = rebinXphi;
     fitSlice(histoBaseName+"_MassVSPhiPlus", histoBaseTitle+"PhiPlus",
-    	     xMean, xMin, xMax, sigma, sigmaMin, sigmaMax,
-    	     signalType, backgroundType,
-    	     inputFile, dir);
+      inputFile, dir);
 
-     fitSlice(histoBaseName+"_MassVSPhiMinus", histoBaseTitle+"PhiMinus",
-     	     xMean, xMin, xMax, sigma, sigmaMin, sigmaMax,
-     	     signalType, backgroundType,
-     	     inputFile, dir);
+    fitSlice(histoBaseName+"_MassVSPhiMinus", histoBaseTitle+"PhiMinus",
+      inputFile, dir);
 
 
-//     fitSlice(histoBaseName+"_MassVSPhiPlusMinusDiff", histoBaseTitle+"PhiPlusMinusDiff",
-// 	     xMean, xMin, xMax, sigma, sigmaMin, sigmaMax,
-//              signalType, backgroundType,
-//              inputFile, dir);
+    //     fitSlice(histoBaseName+"_MassVSPhiPlusMinusDiff", histoBaseTitle+"PhiPlusMinusDiff",
+    //              inputFile, dir);
 
 
-//     fitSlice(histoBaseName+"_MassVSPhiPlusPhiMinus", histoBaseTitle+"PhiPlusPhiMinus",
-//              xMean, xMin, xMax, sigma, sigmaMin, sigmaMax,
-//              signalType, backgroundType,
-//              inputFile, dir);
+    //     fitSlice(histoBaseName+"_MassVSPhiPlusPhiMinus", histoBaseTitle+"PhiPlusPhiMinus",
+    //              inputFile, dir);
 
-//     fitSlice(histoBaseName+"_MassVSEtaPlusEtaMinus", histoBaseTitle+"EtaPlusEtaMinus",
-//              xMean, xMin, xMax, sigma, sigmaMin, sigmaMax,
-//              signalType, backgroundType,
-//              inputFile, dir);
+    //     fitSlice(histoBaseName+"_MassVSEtaPlusEtaMinus", histoBaseTitle+"EtaPlusEtaMinus",
+    //              inputFile, dir);
 
-    if( rebinXetadiff != 0 ) rebinX = rebinXetadiff;
+    if (rebinXetadiff != 0) rebinX = rebinXetadiff;
     fitSlice(histoBaseName+"_MassVSEtaPlusMinusDiff", histoBaseTitle+"EtaPlusMinusDiff",
-	     xMean, xMin, xMax, sigma, sigmaMin, sigmaMax,
-             signalType, backgroundType,
-             inputFile, dir);
-   
+      inputFile, dir);
 
-
-
-    if( outputFile != 0 ) {
+    // Close the output file
+    if (outputFile != 0) {
       outputFile->Write();
       outputFile->Close();
     }

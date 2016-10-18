@@ -33,7 +33,14 @@ process.load("Configuration.Geometry.GeometryRecoDB_cff")
 
 ########### TRACK REFITTER #################################
 process.load("RecoTracker.TrackProducer.TrackRefitters_cff")
-process.TrackRefitter.src = 'ALCARECOTkAlZMuMu'
+if ".oO[resonance]Oo." == "Z":
+   process.TrackRefitter.src = 'ALCARECOTkAlZMuMu'
+elif ".oO[resonance]Oo." == "JPsi":
+   process.TrackRefitter.src = 'ALCARECOTkAlJpsiMuMu'
+elif ".oO[resonance]Oo." == "Y1S" or ".oO[resonance]Oo." == "Y2S" or ".oO[resonance]Oo." == "Y3S":
+   process.TrackRefitter.src = 'ALCARECOTkAlUpsilonMuMu'
+else:
+   process.TrackRefitter.src = 'ALCARECOTkAlZMuMu'
 process.TrackRefitter.TrajectoryInEvent = True
 process.TrackRefitter.TTRHBuilder = "WithAngleAndTemplate"
 process.TrackRefitter.NavigationSchool = ""
@@ -83,8 +90,8 @@ process.looper = cms.Looper(
       int(".oO[resonance]Oo." == "Y2S"),
       int(".oO[resonance]Oo." == "Y1S"),
       int(".oO[resonance]Oo." == "Psi2S"),
-      int(".oO[resonance]Oo." == "JPsi)"
-    )
+      int(".oO[resonance]Oo." == "JPsi")
+    ),
 
     # Likelihood settings
     # -------------------
