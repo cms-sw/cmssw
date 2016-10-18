@@ -181,11 +181,13 @@ void AlcaBeamMonitorClient::endRun(const Run& iRun, const EventSetup& context) {
             dbe_->setCurrentFolder(monitorName_ + "Debug");
             itMMM->second = dbe_->book1D(name, title, lastLumi - firstLumi + 1,
                                          firstLumi - 0.5, lastLumi + 0.5);
+            itMMM->second->setEfficiencyFlag();
           } else if (itMM->first == "validation" &&
                      itMMM->first == "Lumibased Scalers-DataBase fit") {
             dbe_->setCurrentFolder(monitorName_ + "Validation");
             itMMM->second = dbe_->book1D(name, title, lastLumi - firstLumi + 1,
                                          firstLumi - 0.5, lastLumi + 0.5);
+            itMMM->second->setEfficiencyFlag();
           } else if (itMM->first == "validation" &&
                      itMMM->first != "Lumibased Scalers-DataBase fit" &&
                      (itM->first == "x" || itM->first == "y" ||
@@ -196,6 +198,7 @@ void AlcaBeamMonitorClient::endRun(const Run& iRun, const EventSetup& context) {
             dbe_->setCurrentFolder(monitorName_ + "Validation");
             itMMM->second = dbe_->book1D(name, title, lastLumi - firstLumi + 1,
                                          firstLumi - 0.5, lastLumi + 0.5);
+            itMMM->second->setEfficiencyFlag();
             // LORE	    itMMM->second =
             // dbe_->bookProfile(name,title,lastLumi-firstLumi+1,firstLumi-0.5,lastLumi+0.5,-0.1,0.1,"");
           }
