@@ -102,7 +102,9 @@ public:
   std::vector<int>         layerGroupM_;
   std::vector<int>         layerGroupO_;
   std::vector<double>      boundR_;
+  std::vector<double>      rLimit_;
   double                   waferR_;
+  int                      levelT_;
   int                      mode_;
   double                   slopeMin_;
   layer_map                copiesInLayers_;
