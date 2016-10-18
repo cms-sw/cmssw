@@ -1,6 +1,5 @@
-# A script to produce Z events using pythia8 and with no FSR
-# This script is to be used to compare with DYphotospp_Tune4C_13TeV_pythia8.py to demonstrate/test
-# the additions of FSR by Photos++
+# A script to produce Z (Z -> tau tau) events using pythia8 and with no FSR
+# To decay tau tauola++ is called. tauola++ in turn calls photos++ internally for QED corrections
 
 import FWCore.ParameterSet.Config as cms
 
@@ -66,6 +65,17 @@ from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:startup', '')
 
 process.generator = cms.EDFilter("Pythia8GeneratorFilter",
+    ExternalDecays = cms.PSet(
+        Tauola = cms.untracked.PSet(
+            UseTauolaPolarization = cms.bool(True),
+            InputCards = cms.PSet(
+                mdtau = cms.int32(0),
+                pjak2 = cms.int32(3),
+                pjak1 = cms.int32(3)
+            )
+        ),
+        parameterSets = cms.vstring('Tauola')
+    ),
     UseExternalGenerators = cms.untracked.bool(True),
     pythiaPylistVerbosity = cms.untracked.int32(1),
     filterEfficiency = cms.untracked.double(1),
@@ -82,7 +92,7 @@ process.generator = cms.EDFilter("Pythia8GeneratorFilter",
 					'PartonLevel:FSR = off',
 					'WeakSingleBoson:ffbar2gmZ = on', 
 					'23:onMode = off', 
-					'23:onIfAny = 13', 
+					'23:onIfAny = 15', 
 					'23:mMin = 50.', 
 					'23:mMax = 120.'
 					),
