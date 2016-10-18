@@ -59,12 +59,12 @@ void ElectronMcSignalPostValidator::finalize( DQMStore::IBooker & iBooker, DQMSt
     h1_ele_xOverX0VsEta->setBinContent(ibin,xOverX0) ;
   }/**/
   
-/*  MonitorElement * h1_ele_provenance = get(iGetter, "provenance") ;
+  MonitorElement * h1_ele_provenance = get(iGetter, "provenance") ;
   h1_ele_provenance->getTH1F()->Scale(1./h1_ele_provenance->getBinContent(3));
   MonitorElement * h1_ele_provenance_barrel = get(iGetter, "provenance_barrel") ;
   h1_ele_provenance_barrel->getTH1F()->Scale(1./h1_ele_provenance_barrel->getBinContent(3));
   MonitorElement * h1_ele_provenance_endcaps = get(iGetter, "provenance_endcaps") ;
-  h1_ele_provenance_endcaps->getTH1F()->Scale(1./h1_ele_provenance_endcaps->getBinContent(3));*/
+  h1_ele_provenance_endcaps->getTH1F()->Scale(1./h1_ele_provenance_endcaps->getBinContent(3));/**/
 
   // profiles from 2D histos
   profileX(iBooker, iGetter, "scl_EoEtrueVsrecOfflineVertices","E/Etrue vs number of primary vertices","N_{primary vertices}","E/E_{true}", 0.8);
