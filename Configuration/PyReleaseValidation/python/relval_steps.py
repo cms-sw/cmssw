@@ -1650,6 +1650,7 @@ from  Configuration.PyReleaseValidation.upgradeWorkflowComponents import *
 
 defaultDataSets={}
 defaultDataSets['2017']='CMSSW_8_1_0_pre9-81X_upgrade2017_realistic_v6_UPG17newGT-v'
+defaultDataSets['2017Design']=''
 defaultDataSets['2023D1']=''
 defaultDataSets['2023D2']=''
 defaultDataSets['2023D3']=''
@@ -1703,6 +1704,7 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
     gt=upgradeProperties[year][k]['GT']
     cust=upgradeProperties[year][k].get('Custom', None)
     era=upgradeProperties[year][k].get('Era', None)
+    beamspot=upgradeProperties[year][k].get('BeamSpot', None)
     upgradeStepDict['GenSimFull'][k]= {'-s' : 'GEN,SIM',
                                        '-n' : 10,
                                        '--conditions' : gt,
@@ -1713,6 +1715,7 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
                                        }
     if cust!=None : upgradeStepDict['GenSimFull'][k]['--customise']=cust
     if era is not None: upgradeStepDict['GenSimFull'][k]['--era']=era
+    if beamspot is not None: upgradeStepDict['GenSimFull'][k]['--beamspot']=beamspot
 
     upgradeStepDict['GenSimHLBeamSpotFull'][k]= {'-s' : 'GEN,SIM',
                                        '-n' : 10,
