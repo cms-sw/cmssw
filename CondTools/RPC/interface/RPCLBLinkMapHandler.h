@@ -1,10 +1,9 @@
 #ifndef CondTools_RPC_RPCLBLinkMapHandler_h
 #define CondTools_RPC_RPCLBLinkMapHandler_h
 
-#include <memory>
 #include <string>
 
-#include "CondCore/CondDB/interface/Session.h"
+#include "CondCore/CondDB/interface/ConnectionPool.h"
 #include "CondCore/PopCon/interface/PopConSourceHandler.h"
 #include "CondFormats/Common/interface/Time.h"
 
@@ -36,8 +35,8 @@ protected:
 
     std::string txt_file_;
 
-    cond::persistency::Session input_session_;
-    std::auto_ptr<cond::persistency::TransactionScope> input_transaction_;
+    std::string connect_;
+    cond::persistency::ConnectionPool connection_;
 };
 
 #endif // CondTools_RPC_RPCLBLinkMapHandler_h

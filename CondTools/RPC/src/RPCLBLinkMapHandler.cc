@@ -1,13 +1,13 @@
 #include "CondTools/RPC/interface/RPCLBLinkMapHandler.h"
 
 #include <fstream>
+#include <memory>
 #include <sstream>
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
-#include "CondCore/CondDB/interface/ConnectionPool.h"
 #include "CondCore/CondDB/interface/Types.h"
 
 #include "RelationalAccess/ICursor.h"
@@ -15,6 +15,7 @@
 #include "RelationalAccess/IQueryDefinition.h"
 #include "RelationalAccess/ISchema.h"
 #include "RelationalAccess/ISessionProxy.h"
+#include "RelationalAccess/ITransaction.h"
 
 #include "CoralBase/Attribute.h"
 #include "CoralBase/AttributeList.h"
@@ -83,22 +84,15 @@ RPCLBLinkMapHandler::RPCLBLinkMapHandler(edm::ParameterSet const & _config)
     , data_tag_(_config.getParameter<std::string>("dataTag"))
     , since_run_(_config.getParameter<unsigned long long>("sinceRun"))
     , txt_file_(_config.getUntrackedParameter<std::string>("txtFile", ""))
+    , connect_(_config.getParameter<std::string>("connect"))
 {
-    cond::persistency::ConnectionPool _connection;
-    _connection.setParameters(_config.getParameter<edm::ParameterSet>("DBParameters"));
-    _connection.configure();
-    edm::LogInfo("RPCLBLinkMapHandler") << "Opening Input Session";
-    input_session_ = _connection.createSession(_config.getParameter<std::string>("connect"));
-
-    input_transaction_.reset(new cond::persistency::TransactionScope(input_session_.transaction()));
-    input_transaction_->start(true); // read-only
-    edm::LogInfo("RPCLBLinkMapHandler") << "Started Input Transaction";
+    edm::LogInfo("RPCDCCLinkMapHandler") << "Configuring Input Connection";
+    connection_.setParameters(_config.getParameter<edm::ParameterSet>("DBParameters"));
+    connection_.configure();
 }
 
 RPCLBLinkMapHandler::~RPCLBLinkMapHandler()
-{
-    input_session_.close();
-}
+{}
 
 void RPCLBLinkMapHandler::getNewObjects()
 {
@@ -108,7 +102,12 @@ void RPCLBLinkMapHandler::getNewObjects()
         throw cms::Exception("RPCLBLinkMapHandler") << "Refuse to create RPCLBLinkMap for run " << since_run_
                                                     << ", older than most recent tag" << _tag_info.lastInterval.first;
 
-    std::auto_ptr<coral::IQuery> _query(input_session_.coralSession().schema("CMS_RPC_CONF").newQuery());
+    edm::LogInfo("RPCDCCLinkMapHandler") << "Opening read-only Input Session";
+    auto _input_session = connection_.createCoralSession(connect_, false); // writeCapable
+    edm::LogInfo("RPCDCCLinkMapHandler") << "Started Input Transaction";
+    _input_session->transaction().start(true); // readOnly
+
+    std::auto_ptr<coral::IQuery> _query(_input_session->schema("CMS_RPC_CONF").newQuery());
     _query->addToTableList("BOARD");
     _query->addToTableList("CHAMBERSTRIP");
     _query->addToTableList("CHAMBERLOCATION");
@@ -214,6 +213,8 @@ void RPCLBLinkMapHandler::getNewObjects()
                                                                                             , _channels)));
     }
     _cursor.close();
+
+    _input_session->transaction().commit();
 
     if (!txt_file_.empty()) {
         edm::LogInfo("RPCLBLinkMapHandler") << "Fill txtFile";
