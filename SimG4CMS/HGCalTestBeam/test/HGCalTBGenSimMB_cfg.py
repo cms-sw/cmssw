@@ -91,7 +91,7 @@ process.generator = cms.EDProducer("FlatRandomEThetaGunProducer",
     firstRun = cms.untracked.uint32(1),
     psethack = cms.string('single neutrino E 100')
 )
-process.VtxSmeared.MeanZ = -3100.0
+process.VtxSmeared.MeanZ = -3600.0
 process.VtxSmeared.SigmaZ = 0
 process.HGCalTBAnalyzer.DoDigis = False
 process.HGCalTBAnalyzer.DoRecHits = False
