@@ -1,7 +1,7 @@
 #ifndef DQM_CASTORMONITOR_CASTORDIGIMONITOR_H
 #define DQM_CASTORMONITOR_CASTORDIGIMONITOR_H
 
-#include "DQM/CastorMonitor/interface/CastorBaseMonitor.h"
+#include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 
 #include "CondFormats/CastorObjects/interface/CastorPedestal.h"
 #include "CondFormats/CastorObjects/interface/CastorPedestalWidth.h"
@@ -13,13 +13,12 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 
 
-class CastorDigiMonitor: public CastorBaseMonitor {
+class CastorDigiMonitor {
 
 public:
   CastorDigiMonitor(const edm::ParameterSet& ps); 
   ~CastorDigiMonitor(); 
 
- void setup(const edm::ParameterSet& ps);
  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &);
  void processEvent(const CastorDigiCollection& cast,const CastorDbService& cond);
  int ModSecToIndex(int module, int sector);
