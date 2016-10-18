@@ -83,10 +83,14 @@ void DTLocalTriggerTest::Bookings(DQMStore::IBooker & ibooker, DQMStore::IGetter
 	    bookWheelHistos(ibooker,wh,"2ndFractionPhi");
 	    bookWheelHistos(ibooker,wh,"TriggerInclusivePhi");
 	    bookWheelHistos(ibooker,wh,"CorrectBXTheta");
+          // Changed after TM implementation, now we have always Theta information
+          // Changed 11/10/2916 M.C Fouz
+          /*
 	    if (hwSource=="DDU") {
-
 	      bookWheelHistos(ibooker,wh,"HFractionTheta");
 	    }
+          */
+	    bookWheelHistos(ibooker,wh,"HFractionTheta");
 	  }
 	}
       }
@@ -144,6 +148,7 @@ void DTLocalTriggerTest::runClientDiagnostic(DQMStore::IBooker & ibooker, DQMSto
   // Loop over Trig & Hw sources
   for (vector<string>::const_iterator iTr = trigSources.begin(); iTr != trigSources.end(); ++iTr){
     trigSource = (*iTr);
+
     for (vector<string>::const_iterator iHw = hwSources.begin(); iHw != hwSources.end(); ++iHw){
       hwSource = (*iHw);
       // Loop over the TriggerUnits
@@ -192,10 +197,18 @@ void DTLocalTriggerTest::runClientDiagnostic(DQMStore::IBooker & ibooker, DQMSto
 	      }
 	    }
 	    else {
+            // Changed by M.C.Fouz (11/10/2016) 
 	      // Perform TM/DDU common plot analysis (Phi ones)
+            // This was changed for DQM after TM IN but, in the Modules Source part, they are not defined as *_In
+            // and the histograms are not being filled, renamed with the same names as the modules 
+            /*
 	      TH2F * BXvsQual      = getHisto<TH2F>(igetter.get(getMEName("BXvsQual_In","LocalTriggerPhiIn", chId)));
 	      TH1F * BestQual      = getHisto<TH1F>(igetter.get(getMEName("BestQual_In","LocalTriggerPhiIn", chId)));
 	      TH2F * Flag1stvsQual = getHisto<TH2F>(igetter.get(getMEName("Flag1stvsQual_In","LocalTriggerPhiIn", chId))); 
+            */
+	      TH2F * BXvsQual      = getHisto<TH2F>(igetter.get(getMEName("BXvsQual","LocalTriggerPhiIn", chId)));
+	      TH1F * BestQual      = getHisto<TH1F>(igetter.get(getMEName("BestQual","LocalTriggerPhiIn", chId)));
+	      TH2F * Flag1stvsQual = getHisto<TH2F>(igetter.get(getMEName("Flag1stvsQual","LocalTriggerPhiIn", chId))); 
 	      if (BXvsQual && Flag1stvsQual && BestQual) {
 
 		int corrSummary   = 1;
@@ -321,16 +334,30 @@ void DTLocalTriggerTest::runClientDiagnostic(DQMStore::IBooker & ibooker, DQMSto
 		  }
 		  std::map<std::string,MonitorElement*> *innerME = &(whME.find(wh)->second);
 		  innerME->find(fullName("CorrectBXTheta"))->second->setBinContent(sect,stat,BX_OK+0.00001);
-		
 		}
+            // After TM the DDU is not used and the TM has information on the Theta Quality
+            // Adding trigger info to compute H fraction (11/10/2016) M.C.Fouz
+		TH2F * ThetaBXvsQual = getHisto<TH2F>(igetter.get(getMEName("ThetaBXvsQual","LocalTriggerTheta", chId)));
+		TH1F * ThetaBestQual = getHisto<TH1F>(igetter.get(getMEName("ThetaBestQual","LocalTriggerTheta", chId)));
+		if (ThetaBXvsQual && ThetaBestQual && stat<4 && ThetaBestQual->GetEntries()>1) {
+		  double trigs    = ThetaBestQual->GetEntries(); 
+		  double trigsH   = ThetaBestQual->GetBinContent(2); // Note that for the new plots H is at bin=2 and not 4 as in DDU!!!!
+		  if( whME[wh].find(fullName("HFractionTheta")) == whME[wh].end() ){
+		      bookWheelHistos(ibooker,wh,"HFractionTheta");
+		  }
+		  std::map<std::string,MonitorElement*> *innerME = &(whME.find(wh)->second);
+		  innerME->find(fullName("HFractionTheta"))->second->setBinContent(sect,stat,trigsH/trigs);
 	      }
-	    }
+            // END ADDING H Fraction info
+            }
+          }
 
-	  }
-	}
+        }
+      }
       }
     }
-  }	
+  }
+
 
   for (vector<string>::const_iterator iTr = trigSources.begin(); iTr != trigSources.end(); ++iTr){
     trigSource = (*iTr);
