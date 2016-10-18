@@ -180,3 +180,10 @@ def customiseRun2CommonHI(process):
 
     return process
 
+# for DQMOffline_HLTPPB_MuonEff_Histo
+def customiseRun2PPB_MuonDQM(process):
+    process.globalAnalyzer.probeParams.ptCut_Jpsi = cms.untracked.double(6.0)
+    process.trackerAnalyzer.probeParams.ptCut_Jpsi = cms.untracked.double(6.0)
+    process.tightAnalyzer.probeParams.ptCut_Jpsi = cms.untracked.double(6.0)
+    process.looseAnalyzer.probeParams.ptCut_Jpsi = cms.untracked.double(6.0)
+    return process
