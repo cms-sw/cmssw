@@ -403,7 +403,7 @@ def output_table(args, table, headers, filters=None, output_file=None, no_first_
         filters = [None] * len(headers)
 
     def max_length_filter(s):
-        s = str(s).replace('\n', '\\n')
+        s = ' + '.join(str(s).splitlines())
         return '%s...' % s[:conddb.name_length] if ( len(s) > conddb.name_length and not no_max_length ) else s
 
     new_table = [[] for i in range(len(table))]
