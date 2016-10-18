@@ -34,7 +34,7 @@ def setConfiguration(process, collection, mode, monitorFile, binaryFile,
     ## Tracktype specific ##
     ########################
 
-    if collection == "ALCARECOTkAlZMuMu":
+    if collection == "ALCARECOTkAlZMuMu" or collection == "ALCARECOTkAlZMuMuHI" or collection == "ALCARECOTkAlZMuMuPA":
         process.AlignmentProducer.algoConfig.TrajectoryFactory = cms.PSet(
              process.TwoBodyDecayTrajectoryFactory
         )
