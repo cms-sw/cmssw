@@ -27,7 +27,7 @@ def makePuppies( process ):
     process.puppiForMET.puppiCandName    = 'puppiMerged'
 
 
-def makePuppiesFromMiniAOD( process ):
+def makePuppiesFromMiniAOD( process, createScheduledSequence=False ):
     process.load('CommonTools.PileupAlgos.Puppi_cff')
     process.puppi.candName = cms.InputTag('packedPFCandidates')
     process.puppi.clonePackedCands = cms.bool(True)
@@ -46,5 +46,6 @@ def makePuppiesFromMiniAOD( process ):
     process.puppiForMET.useRefs          = False
 
     #making a sequence for people running the MET tool in scheduled mode
-    puppiMETSequence = cms.Sequence(process.puppi*process.pfLeptonsPUPPET*process.pfNoLepPUPPI*process.puppiNoLep*process.puppiMerged*process.puppiForMET)
-    setattr(process, "puppiMETSequence", puppiMETSequence)
+    if createScheduledSequence:
+        puppiMETSequence = cms.Sequence(process.puppi*process.pfLeptonsPUPPET*process.pfNoLepPUPPI*process.puppiNoLep*process.puppiMerged*process.puppiForMET)
+        setattr(process, "puppiMETSequence", puppiMETSequence)

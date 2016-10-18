@@ -1,3 +1,4 @@
+
 // -*- C++ -*-
 //
 // Package:    METAlgorithms
@@ -91,7 +92,7 @@ metsig::METSignificance::getCovariance(const edm::View<reco::Jet>& jets,
 
        //dP4 recovery
        for( std::set<reco::CandidatePtr>::const_iterator it=footprint.begin();it!=footprint.end();it++) {
-	 if( ((*it)->p4()-(*pfCandidates)[i].p4()).Rho()<0.005 ){
+	 if( ((*it)->p4()-(*pfCandidates)[i].p4()).Et2()<0.000025 ){
 	   cleancand = false;
 	   nFootPrint++;
 	   break;
