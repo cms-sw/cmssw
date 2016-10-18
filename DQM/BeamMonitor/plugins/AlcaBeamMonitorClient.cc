@@ -37,21 +37,6 @@ AlcaBeamMonitorClient::AlcaBeamMonitorClient(const ParameterSet& ps)
   varNamesV_.push_back("sigmaY");
   varNamesV_.push_back("sigmaZ");
 
-  /*
-    histoByCategoryNames_.insert( pair<string,string>("run", "Coordinate"));
-    histoByCategoryNames_.insert( pair<string,string>("run",
-    "PrimaryVertex fit-DataBase"));
-    histoByCategoryNames_.insert( pair<string,string>("run",
-    "PrimaryVertex fit-BeamFit"));
-    histoByCategoryNames_.insert( pair<string,string>("run",
-    "PrimaryVertex fit-Scalers"));
-    histoByCategoryNames_.insert( pair<string,string>("run",
-    "PrimaryVertex-DataBase"));
-    histoByCategoryNames_.insert( pair<string,string>("run",
-    "PrimaryVertex-BeamFit"));
-    histoByCategoryNames_.insert( pair<string,string>("run",
-    "PrimaryVertex-Scalers"));
-  */
   histoByCategoryNames_.insert(
       pair<string, string>("lumi", "Lumibased BeamSpotFit"));
   histoByCategoryNames_.insert(
@@ -192,40 +177,11 @@ void AlcaBeamMonitorClient::endRun(const Run& iRun, const EventSetup& context) {
                      itMMM->first != "Lumibased Scalers-DataBase fit" &&
                      (itM->first == "x" || itM->first == "y" ||
                       itM->first == "z")) {
-            // LORE	  else if(itMM->first == "validation" && itMMM->first !=
-            // "Lumibased Scalers-DataBase fit" && (itM->first == "x" ||
-            // itM->first == "y") ){
             dbe_->setCurrentFolder(monitorName_ + "Validation");
             itMMM->second = dbe_->book1D(name, title, lastLumi - firstLumi + 1,
                                          firstLumi - 0.5, lastLumi + 0.5);
             itMMM->second->setEfficiencyFlag();
-            // LORE	    itMMM->second =
-            // dbe_->bookProfile(name,title,lastLumi-firstLumi+1,firstLumi-0.5,lastLumi+0.5,-0.1,0.1,"");
           }
-          // LORE	  else if(itMM->first == "validation" && itMMM->first !=
-          // "Lumibased Scalers-DataBase fit" && itM->first == "z" ){
-          // LORE	    dbe_->setCurrentFolder(monitorName_+"Validation");
-          // LORE	    itMMM->second =
-          // dbe_->book1D(name,title,lastLumi-firstLumi+1,firstLumi-0.5,lastLumi+0.5);
-          // LORE	    itMMM->second =
-          // dbe_->bookProfile(name,title,lastLumi-firstLumi+1,firstLumi-0.5,lastLumi+0.5,-1,1,"");
-          //	  }
-          //	  else if(itMM->first == "validation" && itMMM->first ==
-          //"Lumibased Scalers-DataBase" && (itM->first == "sigmaX" ||
-          //itM->first == "sigmaY") ){
-          //	    dbe_->setCurrentFolder(monitorName_+"Validation");
-          //	    itMMM->second =
-          //dbe_->bookProfile(name,title,lastLumi-firstLumi+1,firstLumi-0.5,lastLumi+0.5,-0.1,0.1,"");
-          //	  }
-          //	  else if(itMM->first == "validation" && itMMM->first ==
-          //"Lumibased Scalers-DataBase" && (itM->first == "sigmaZ") ){
-          //	    dbe_->setCurrentFolder(monitorName_+"Validation");
-          //	    itMMM->second =
-          //dbe_->bookProfile(name,title,lastLumi-firstLumi+1,firstLumi-0.5,lastLumi+0.5,-10,10,"");
-          //	  }
-          //	  else if(itMM->first == "validation" && itMMM->first !=
-          //"Lumibased Scalers-DataBase" && (itM->first == "sigmaX" ||
-          //itM->first == "sigmaY" || itM->first == "sigmaZ") ){
           else if (itMM->first == "validation" &&
                    (itM->first == "sigmaX" || itM->first == "sigmaY" ||
                     itM->first == "sigmaZ")) {
@@ -328,23 +284,6 @@ void AlcaBeamMonitorClient::endRun(const Run& iRun, const EventSetup& context) {
                     maxDelta = itHHH->second->getTH1()->GetBinContent(bin);
                   }
                 }
-                //	    	else if(itHHH->first == "Lumibased
-                //PrimaryVertex-DataBase"
-                //	    	|| itHHH->first == "Lumibased
-                //PrimaryVertex-Scalers"
-                ////	    	|| itHHH->first == "Lumibased Scalers-DataBase"
-                //		){
-                //	    	  if(minDelta >
-                //itHHH->second->getTProfile()->GetBinContent(bin)){
-                //	    	    minDelta =
-                //itHHH->second->getTProfile()->GetBinContent(bin);
-                //	    	  }
-                //	    	  if(maxDelta <
-                //itHHH->second->getTProfile()->GetBinContent(bin)){
-                //	    	    maxDelta =
-                //itHHH->second->getTProfile()->GetBinContent(bin);
-                //	    	  }
-                //	    	}
                 else {
                   LogInfo("AlcaBeamMonitorClient")
                       << "The histosMap_ have a histogram named "
@@ -359,9 +298,6 @@ void AlcaBeamMonitorClient::endRun(const Run& iRun, const EventSetup& context) {
         for (map<string, MonitorElement*>::iterator itHHH =
                  itHH->second.begin();
              itHHH != itHH->second.end(); itHHH++) {
-          //	  LogInfo("AlcaBeamMonitorClient")
-          //	    << itH->first << itHHH->first << " max-min=" << max-min << "
-          //delta=" << maxDelta-minDelta;
           if (itHHH->second != 0) {
             if (itHHH->first == "Lumibased BeamSpotFit" ||
                 itHHH->first == "Lumibased PrimaryVertex" ||
@@ -394,25 +330,10 @@ void AlcaBeamMonitorClient::endRun(const Run& iRun, const EventSetup& context) {
                                                     2 * (maxDelta - minDelta));
               }
             }
-            //	    else if(itHHH->first == "Lumibased PrimaryVertex-DataBase"
-            //	    || itHHH->first == "Lumibased PrimaryVertex-Scalers"
-            ////	    || itHHH->first == "Lumibased Scalers-DataBase"
-            //	    ){
-            //	      if((maxDelta == -bigNumber && minDelta == bigNumber) ||
-            //maxDelta-minDelta == 0){
-            //	        itHHH->second->getTProfile()->SetMinimum(itHHH->second->getTProfile()->GetMinimum()-0.01);
-            //	        itHHH->second->getTProfile()->SetMaximum(itHHH->second->getTProfile()->GetMaximum()+0.01);
-            //	      }
-            //	      else{
-            //	        itHHH->second->getTProfile()->SetMinimum(minDelta-5*(maxDelta-minDelta));
-            //	        itHHH->second->getTProfile()->SetMaximum(maxDelta+5*(maxDelta-minDelta));
-            //             }
-            //	    }
             else {
               LogInfo("AlcaBeamMonitorClient")
                   << "The histosMap_ have a histogram named " << itHHH->first
                   << " that I can't recognize in this loop!";
-              // assert(0);
             }
           }
         }
