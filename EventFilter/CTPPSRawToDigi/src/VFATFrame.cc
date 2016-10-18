@@ -17,6 +17,7 @@
 
 VFATFrame::VFATFrame(const VFATFrame::word *_data) :
   presenceFlags(15),    // by default BC, EC, ID and CRC are present
+  timepresenceFlags(15),    // by default LEDT, TEDT, TheVoltage Multihit are present
   daqErrorFlags(0),     // by default, no DAQ error
   numberOfClusters(0)   // no clusters by default
 {
@@ -57,6 +58,27 @@ std::vector<unsigned char> VFATFrame::getActiveChannels() const
 
   return channels;
 }
+
+//----------------------------------------------------------------------------------------------------
+
+bool VFATFrame::checkTimeinfo() const
+{ 
+  if (isLEDTimePresent() && (data[7] & 0xF800) != 0x6000)
+    return false;
+
+  if (isTEDTimePresent() && (data[5] & 0xF800) != 0x6800)
+    return false;
+
+  if (isThVolPresent() && (data[3] & 0xF800) != 0x7000)
+    return false;
+
+  if (isMuHitPresent() && (data[2] & 0xF800) != 0x7800)
+    return false;
+
+  return true;
+}
+
+
 
 //----------------------------------------------------------------------------------------------------
 

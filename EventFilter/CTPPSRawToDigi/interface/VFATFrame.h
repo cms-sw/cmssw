@@ -20,7 +20,7 @@ class VFATFrame
 {
   public:
     typedef uint16_t word;
-
+    typedef uint32_t timeinfo;
   public:
     VFATFrame(const word* _data = NULL);
 
@@ -28,8 +28,10 @@ class VFATFrame
     {
       setData(copy.data);
       presenceFlags = copy.presenceFlags;
+      timepresenceFlags = copy.timepresenceFlags;
       daqErrorFlags = copy.daqErrorFlags;
       numberOfClusters = copy.numberOfClusters;
+
     }
 
     virtual ~VFATFrame() {}
@@ -71,6 +73,36 @@ class VFATFrame
     {
       return data[0];
     }
+   
+    /// get timing infromation
+    VFATFrame::timeinfo getLeadingEtime() const
+    {
+      VFATFrame::timeinfo time = ((data[7]&0x1f)<<16)+data[8];
+      time = (time & 0xFFE7FFFF) << 2 | (time & 0x00180000) >> 19;    //HPTDC inperpolation bits are MSB but should be LSB.... ask HPTDC designers...
+      return time;     
+    }
+
+    VFATFrame::timeinfo getTrailingEtime() const
+    {
+      VFATFrame::timeinfo time = ((data[5]&0x1f)<<16)+data[6];
+      time = (time & 0xFFE7FFFF) << 2 | (time & 0x00180000) >> 19;   //HPTDC inperpolation bits are MSB but should be LSB.... ask HPTDC designers...
+      return time;
+    }
+
+    VFATFrame::timeinfo getThresholdVolt() const
+    {
+      return ((data[3]&0x7ff)<<16)+data[4];
+    }
+
+    VFATFrame::word getMultihit() const
+    {
+      return data[2] & 0x01;
+    }
+
+    VFATFrame::word getHptdcerrorflag() const
+    {
+      return data[1] & 0xFFFF;
+    }
 
     /// Sets presence flags.
     void setPresenceFlags(uint8_t v)
@@ -108,6 +140,37 @@ class VFATFrame
       return presenceFlags & 0x10;
     }
 
+    /// Sets timing information presence flags.
+
+    void setTimingPresenceFlags(uint8_t v)
+    {
+      timepresenceFlags = v;
+    }
+    /// Returns true if the leading edge time  word is present in the frame.
+    bool isLEDTimePresent() const
+    {
+      return timepresenceFlags & 0x1;
+    }
+
+    /// Returns true if the trainling edge time  word is present in the frame.
+    bool isTEDTimePresent() const
+    {
+      return timepresenceFlags & 0x2;
+    } 
+  
+    /// Returns true if the threshold voltage  word is present in the frame.
+    bool isThVolPresent() const
+    {
+      return timepresenceFlags & 0x4;
+    }
+ 
+    /// Returns true if the multi hit  word is present in the frame.
+    bool isMuHitPresent() const
+    {
+      return timepresenceFlags & 0x8;
+    }
+
+
     /// Sets DAQ error flags.
     void setDAQErrorFlags(uint8_t v)
     {
@@ -129,6 +192,9 @@ class VFATFrame
     /// Checks the fixed bits in the frame.
     /// Returns false if any of the groups (in BC, EC and ID words) is present but wrong.
     bool checkFootprint() const;
+
+    /// Returns false if any of the groups (in LEDTime, TEDTime, Threshold Voltage and Multi hit  words) is present but wrong. 
+    bool checkTimeinfo() const;
 
     /// Checks the validity of frame (CRC and daqErrorFlags).
     /// Returns false if daqErrorFlags is non-zero.
@@ -172,6 +238,15 @@ class VFATFrame
     ///   bit 4: "CRC word" (buffer index 0)
     ///   bit 5: "number of clusters word" (prefix 0xD0)
     uint8_t presenceFlags;
+
+
+    /// Flag indicating the presence of timing components.
+    ///   bit 1: "Leading edge time  word" (buffer index 7)
+    ///   bit 2: "Trailing edge time word" (buffer index 5)
+    ///   bit 3: "threshould voltage word" (buffer index 3)
+    ///   bit 4: "multihit           word" (buffer index 2)
+    uint8_t timepresenceFlags;
+
 
     /// Error flag as given by certain versions of DAQ.
     uint8_t daqErrorFlags;
