@@ -105,9 +105,9 @@ TotemVFATRawToDigi::TotemVFATRawToDigi(const edm::ParameterSet &conf):
 
     if (subSystem == ssDiamond)
     {
-      // TODO
-      //for (int id = FEDNumbering::MINTotemRPFEDID; id <= FEDNumbering::MAXTotemRPFEDID; ++id)
-      //  fedIds.push_back(id);
+      
+      for (int id = FEDNumbering::MINCTPPSDiamondFEDID; id <= FEDNumbering::MAXCTPPSDiamondFEDID; ++id)
+        fedIds.push_back(id);
     }
   }
 

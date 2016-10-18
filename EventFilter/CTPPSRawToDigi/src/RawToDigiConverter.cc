@@ -3,7 +3,7 @@
 * This is a part of TOTEM offline software.
 * Authors: 
 *   Jan Kašpar (jan.kaspar@gmail.com)
-*
+*   Seyed Mohsen Etesami (setesami@cern.ch)
 ****************************************************************************/
 
 #include "EventFilter/CTPPSRawToDigi/interface/RawToDigiConverter.h"
@@ -13,6 +13,9 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DataFormats/CTPPSDetId/interface/TotemRPDetId.h"
+#include "DataFormats/CTPPSDetId/interface/CTPPSDiamondDetId.h"
+
+#include "EventFilter/CTPPSRawToDigi/interface/DiamondVFATFrame.h"
 
 //----------------------------------------------------------------------------------------------------
 
@@ -49,6 +52,7 @@ void RawToDigiConverter::RunCommon(const VFATFrameCollection &input, const Totem
   CounterChecker ECChecker(CounterChecker::ECChecker, "EC", EC_min, EC_fraction, verbosity);
   CounterChecker BCChecker(CounterChecker::BCChecker, "BC", BC_min, BC_fraction, verbosity);
 
+
   // initialise structure merging vfat frame data with the mapping
   for (auto &p : mapping.VFATMapping)
   {
@@ -81,7 +85,6 @@ void RawToDigiConverter::RunCommon(const VFATFrameCollection &input, const Totem
     Record &record = records_it->second;
     record.frame = fr.Data();
     record.status.setMissing(false);
-    
     record.status.setNumberOfClustersSpecified(record.frame->isNumberOfClustersPresent());
     record.status.setNumberOfClusters(record.frame->getNumberOfClusters());
 
@@ -106,7 +109,6 @@ void RawToDigiConverter::RunCommon(const VFATFrameCollection &input, const Totem
       problemsPresent = true;
 
       if (verbosity > 0)
-        fes << "    CRC failure\n";
 
       if (testCRC == tfErr)
       {
@@ -114,12 +116,9 @@ void RawToDigiConverter::RunCommon(const VFATFrameCollection &input, const Totem
         stopProcessing = true;
       }
     }
-
     // check the id mismatch
     if (testID != tfNoTest && record.frame->isIDPresent() && (record.frame->getChipID() & 0xFFF) != (record.info->hwID & 0xFFF))
     {
-      problemsPresent = true;
-
       if (verbosity > 0)
         fes << "    ID mismatch (data: 0x" << hex << record.frame->getChipID()
           << ", mapping: 0x" << record.info->hwID  << dec << ", symbId: " << record.info->symbolicID.symbolicID << ")\n";
@@ -264,7 +263,41 @@ void RawToDigiConverter::Run(const VFATFrameCollection &input,
 void RawToDigiConverter::Run(const VFATFrameCollection &coll, const TotemDAQMapping &mapping, const TotemAnalysisMask &mask,
       edm::DetSetVector<CTPPSDiamondDigi> &digi, edm::DetSetVector<TotemVFATStatus> &status)
 {
-  // TODO
+  
+  // structure merging vfat frame data with the mapping
+  map<TotemFramePosition, Record> records;
+
+
+  // common processing - frame validation
+  RunCommon(coll, mapping, records);
+
+  // second loop over data
+  for (auto &p : records)
+  {
+    Record &record = p.second;
+
+    // calculate ids
+    CTPPSDiamondDetId detId(record.info->symbolicID.symbolicID);  
+    //cout<<"Arm, station, Rp, plane, det: "<<detId.arm()<<" "<<detId.station()<<" "<<detId.rp()<<" "<<detId.plane()<<" "<<detId.det()<<endl;
+    //cout<<record.status.isMissing()<<": "<<record.status.isIDMismatch()<<": "<<record.status.isFootprintError()<<": "<<record.status.isCRCError()<<": "<<record.status.isECProgressError()<<": "<<record.status.isBCProgressError()<<endl;        
+    
+    // produce digi only for good frames
+    if (record.status.isOK())
+    {
+      const VFATFrame *fr = record.frame;
+      DiamondVFATFrame *diamondframe = (DiamondVFATFrame*) fr;
+	
+      // create the digi
+      DetSet<CTPPSDiamondDigi> &digiDetSet = digi.find_or_insert(detId);
+      digiDetSet.push_back(CTPPSDiamondDigi(diamondframe->getLeadingEtime(),diamondframe->getTrailingEtime(),diamondframe->getThresholdVolt(),diamondframe->getMultihit(),diamondframe->getHptdcerrorflag()));
+    }
+
+    // save status
+    DetSet<TotemVFATStatus> &statusDetSet = status.find_or_insert(detId);
+
+    statusDetSet.push_back(record.status);
+   
+  }
 
 
 
