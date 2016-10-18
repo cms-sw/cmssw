@@ -54,49 +54,41 @@ HPTDCErrorFlags(unsigned short flags=0): error_flags(flags) {;}
     bool getHitErrorGroup0()                    { return (error_flags>>12)&0x1; }
     bool getHitLostL1OverflowGroup0()           { return (error_flags>>13)&0x1; }
     bool getHitLostROFifoOverflowGroup0()       { return (error_flags>>14)&0x1; }
-
+   
+    inline unsigned short getErrorFlag() const
+    {
+      return error_flags;
+    }
    
     static std::string getHPTDCErrorName(const unsigned short id)
     {
       switch (id) {
       case 0: return "InternalFatalChipError";
-        break;
       case 1: return "EventLost";
-        break;
       case 2: return "HitRejectedByEventSizeLimit";
-        break;
       case 3: return "HitErrorGroup3";
-        break;
       case 4: return "HitLostL1OverflowGroup3";
-        break;
       case 5: return "HitLostROFifoOverflowGroup3";
-        break;
       case 6: return "HitErrorGroup2";
-        break;
       case 7: return "HitLostL1OverflowGroup2";
-        break;
       case 8: return "HitLostROFifoOverflowGroup2";
-        break;
       case 9: return "HitErrorGroup1";
-        break;
       case 10: return "HitLostL1OverflowGroup1";
-        break;
       case 11: return "HitLostROFifoOverflowGroup1";
-        break;
       case 12: return "HitErrorGroup0";
-        break;
       case 13: return "HitLostL1OverflowGroup0";
-        break;
       case 14: return "HitLostROFifoOverflowGroup0";
-        break;
       default: return "NONE";
       }
     }
-      
+  
+  private:
     unsigned short error_flags;
 
 
 };
+
+
 
 #endif
 

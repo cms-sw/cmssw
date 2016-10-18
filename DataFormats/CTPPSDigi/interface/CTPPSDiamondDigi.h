@@ -75,17 +75,23 @@ class CTPPSDiamondDigi{
 
 
   private:
+    // variable represents leading edge time
     unsigned int ledgt;
+    // variable	represents trailing edge time
     unsigned int tedgt;
+    // variable represents threshold voltage
     unsigned int threvolt;
+    // variable represents multi-hit 
     bool mhit;
     HPTDCErrorFlags hptdcerror;
 };
 
 inline bool operator< (const CTPPSDiamondDigi& one, const CTPPSDiamondDigi& other)
 {
-  return one.getLeadingEdge() < other.getLeadingEdge();
-}
+  return ( (one.getLeadingEdge() < other.getLeadingEdge() ) && (one.getTrailingEdge() < other.getTrailingEdge() ) && 
+  (one.getThresholdVoltage() < other.getThresholdVoltage() ) && (one.getMultipleHit() < other.getMultipleHit() ) && 
+  (one.getHPTDCErrorFlags().getErrorFlag() < other.getHPTDCErrorFlags().getErrorFlag() ) );
+} 
 
 #include <iostream>
 
@@ -95,7 +101,7 @@ inline std::ostream & operator<<(std::ostream & o, const CTPPSDiamondDigi& digi)
 	   << " " << digi.getTrailingEdge()
            << " " << digi.getThresholdVoltage()
            << " " << digi.getMultipleHit()
-           << " " << digi.getHPTDCErrorFlags().error_flags;
+           << " " << digi.getHPTDCErrorFlags().getErrorFlag();
 }
 
 #endif

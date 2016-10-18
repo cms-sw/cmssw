@@ -24,7 +24,7 @@ CTPPSDiamondDigi::operator==(const CTPPSDiamondDigi& digi) const
    || tedgt     != digi.getTrailingEdge()
    || threvolt  != digi.getThresholdVoltage()
    || mhit      != digi.getMultipleHit()
-   || hptdcerror.error_flags != digi.getHPTDCErrorFlags().error_flags) return false;
+   || hptdcerror.getErrorFlag() != digi.getHPTDCErrorFlags().getErrorFlag()) return false;
   else  
     return true; 
 }
