@@ -199,13 +199,6 @@ float PileupJPTJetIdAlgo::fillJPTBlock(const reco::JPTJet* jet
       double x2 = (detavar+dphivar-det)/2.;
       
       
-  // Energy fraction in cone
- 
-      ffrac01 = ffrac01/(*jet).energy();
-      ffrac02 = ffrac02/(*jet).energy();
-      ffrac03 = ffrac03/(*jet).energy();
-      ffrac04 = ffrac04/(*jet).energy();
-      ffrac05 = ffrac05/(*jet).energy();
   
 if (verbosity > 0)  
 std::cout<<" ncalo "<<ncalotowers<<" deta2 "<<deta2<<" dphi2 "<<dphi2<<" deta1 "<<deta1<<" dphi1 "<<dphi1<<" detavar "<<detavar<<" dphivar "<<dphivar<<" dphidetacov "<<dphidetacov<<" sqrt(det) "<<sqrt(det)<<" x1 "<<x1<<" x2 "<<x2<<std::endl;
