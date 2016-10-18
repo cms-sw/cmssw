@@ -60,7 +60,7 @@ void ElectronMcFakePostValidator::finalize( DQMStore::IBooker & iBooker, DQMStor
   }
 /**/
 
-/*  MonitorElement * h1_ele_provenance = get(iGetter, "provenance") ;
+  MonitorElement * h1_ele_provenance = get(iGetter, "provenance") ;
   h1_ele_provenance->getTH1F()->Scale(1./h1_ele_provenance->getBinContent(3));
   MonitorElement * h1_ele_provenance_barrel = get(iGetter, "provenance_barrel") ;
   h1_ele_provenance_barrel->getTH1F()->Scale(1./h1_ele_provenance_barrel->getBinContent(3));
