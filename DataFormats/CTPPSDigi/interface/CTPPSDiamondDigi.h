@@ -86,14 +86,34 @@ class CTPPSDiamondDigi{
     HPTDCErrorFlags hptdcerror;
 };
 
+#include <iostream>
+
+
 inline bool operator< (const CTPPSDiamondDigi& one, const CTPPSDiamondDigi& other)
 {
-  return ( (one.getLeadingEdge() < other.getLeadingEdge() ) && (one.getTrailingEdge() < other.getTrailingEdge() ) && 
-  (one.getThresholdVoltage() < other.getThresholdVoltage() ) && (one.getMultipleHit() < other.getMultipleHit() ) && 
-  (one.getHPTDCErrorFlags().getErrorFlag() < other.getHPTDCErrorFlags().getErrorFlag() ) );
-} 
+  if( one.getLeadingEdge() < other.getLeadingEdge() )                                     
+    return true; 
+  if( one.getLeadingEdge() > other.getLeadingEdge() )                                      
+    return false;
+  if( one.getTrailingEdge() < other.getTrailingEdge() )                                    
+    return true;
+  if( one.getTrailingEdge() > other.getTrailingEdge() )                                     
+    return false;
+  if( one.getMultipleHit() < other.getMultipleHit() )                                 
+    return true;
+  if( one.getMultipleHit() > other.getMultipleHit() )                                    
+    return false;
+  if( one.getHPTDCErrorFlags().getErrorFlag() < other.getHPTDCErrorFlags().getErrorFlag() ) 
+    return true;
+  if( one.getHPTDCErrorFlags().getErrorFlag() > other.getHPTDCErrorFlags().getErrorFlag() ) 
+    return false;
+  if( one.getThresholdVoltage() < other.getThresholdVoltage() )                             
+    return true;
+  if( one.getThresholdVoltage() > other.getThresholdVoltage() )  
+    return false;
+  return false;
+}  
 
-#include <iostream>
 
 inline std::ostream & operator<<(std::ostream & o, const CTPPSDiamondDigi& digi)
 {
