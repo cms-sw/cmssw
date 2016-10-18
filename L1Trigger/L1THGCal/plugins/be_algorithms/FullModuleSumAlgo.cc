@@ -11,7 +11,7 @@ class FullModuleSumAlgo : public Algorithm<HGCalTriggerCellBestChoiceCodec>
     public:
 
         FullModuleSumAlgo(const edm::ParameterSet& conf, edm::ConsumesCollector& cc):
-            Algorithm<HGCalBestChoiceCodec>(conf,cc),
+            Algorithm<HGCalTriggerCellBestChoiceCodec>(conf,cc),
             cluster_product_( new l1t::HGCalClusterBxCollection ){}
 
         virtual void setProduces(edm::EDProducer& prod) const override final 
@@ -20,7 +20,7 @@ class FullModuleSumAlgo : public Algorithm<HGCalTriggerCellBestChoiceCodec>
         }
 
         virtual void run(const l1t::HGCFETriggerDigiCollection& coll,
-                const std::unique_ptr<HGCalTriggerGeometryBase>& geom,
+                const edm::ESHandle<HGCalTriggerGeometryBase>& geom,
 		const edm::Event&evt
 		) override final;
 
@@ -41,7 +41,7 @@ class FullModuleSumAlgo : public Algorithm<HGCalTriggerCellBestChoiceCodec>
 
 /*****************************************************************/
 void FullModuleSumAlgo::run(const l1t::HGCFETriggerDigiCollection& coll,
-        const std::unique_ptr<HGCalTriggerGeometryBase>& geom,
+        const edm::ESHandle<HGCalTriggerGeometryBase>& geom,
 	const edm::Event&evt
 	) 
 /*****************************************************************/

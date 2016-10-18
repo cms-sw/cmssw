@@ -51,7 +51,7 @@ class HGCalTriggerBackendAlgorithmBase {
   virtual void setProduces(edm::EDProducer& prod) const = 0;
 
   virtual void run(const l1t::HGCFETriggerDigiCollection& coll,
-                   const std::unique_ptr<HGCalTriggerGeometryBase>& geom,
+                   const edm::ESHandle<HGCalTriggerGeometryBase>& geom,
 		   const edm::Event &e
 		   ) = 0;
 

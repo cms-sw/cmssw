@@ -1,7 +1,7 @@
 // HGCal Trigger 
 #include "L1Trigger/L1THGCal/interface/HGCalTriggerBackendAlgorithmBase.h"
 //#include "L1Trigger/L1THGCal/interface/fe_codecs/HGCalBestChoiceCodec.h"
-#include "L1Trigger/L1THGCal/interface/fe_codecs/HGCalTriggerBestChoiceCodec.h"
+#include "L1Trigger/L1THGCal/interface/fe_codecs/HGCalTriggerCellBestChoiceCodec.h"
 #include "DataFormats/ForwardDetId/interface/HGCTriggerDetId.h"
 
 // HGCalClusters and detId
@@ -90,9 +90,9 @@ namespace HGCalTriggerBackend{
             //Consumes tokens
             HGCalTriggerSimCluster(const edm::ParameterSet& conf,edm::ConsumesCollector&cc) : Algorithm<FECODEC>(conf,cc) { 
                 // I need to consumes the PF Cluster Collection with the sim clustering, TODO: make it configurable (?)
-                // vector<SimCluster>                    "mix"                       "MergedCaloTruth"   "HLT"
+                // vector<SimCluster>                    "mix"                       "MergedCaloTruth"   "HLT/DIGI"
                 // pf clusters cannot be safely cast to SimCluster
-                sim_token = cc.consumes< std::vector< SimCluster > >(edm::InputTag("MergedCaloTruth")); 
+                sim_token = cc.consumes< std::vector< SimCluster > >(edm::InputTag("mix","MergedCaloTruth","DIGI")); 
             }
 
             // setProduces
@@ -104,18 +104,31 @@ namespace HGCalTriggerBackend{
             // putInEvent
             virtual void putInEvent(edm::Event& evt) override final
             {
+#ifdef DEBUG
+                cout<<"[HGCalTriggerSimCluster]::["<<__FUNCTION__<<"] start"<<endl;
+                cout<<"[HGCalTriggerSimCluster]::["<<__FUNCTION__<<"] cluster product (!=NULL) "<<cluster_product.get()<<endl;
+#endif
                 evt.put(std::move(cluster_product),name());
+#ifdef DEBUG
+                cout<<"[HGCalTriggerSimCluster]::["<<__FUNCTION__<<"] DONE"<<endl;
+#endif
             }
 
             //reset
             virtual void reset() override final 
             {
+#ifdef DEBUG
+                cout<<"[HGCalTriggerSimCluster]::["<<__FUNCTION__<<"] start"<<endl;
+#endif
                 cluster_product.reset( new l1t::HGCalClusterBxCollection );
+#ifdef DEBUG
+                cout<<"[HGCalTriggerSimCluster]::["<<__FUNCTION__<<"] DONE"<<endl;
+#endif
             }
 
             // run, actual algorithm
             virtual void run( const l1t::HGCFETriggerDigiCollection & coll,
-                    const std::unique_ptr<HGCalTriggerGeometryBase>&geom,
+                    const edm::ESHandle<HGCalTriggerGeometryBase>&geom,
 		            const edm::Event&evt
                     )
             {
@@ -166,6 +179,8 @@ namespace HGCalTriggerBackend{
                             const HGCalDetId tcellId(triggercell.detId());
                             //uint32_t digiEnergy = data.payload; i
                             auto digiEnergy=triggercell.p4().E();  
+                            double eta=triggercell.p4().Eta();
+                            double phi=triggercell.p4().Phi();
                             //2.B get the HGCAL-base-cell associated to it / geometry
                             //const auto& tc=geom->triggerCells()[ tcellId() ] ;//HGCalTriggerGeometry::TriggerCell&
                             //for(const auto& cell : tc.components() )  // HGcell -- unsigned
@@ -182,7 +197,7 @@ namespace HGCalTriggerBackend{
                                     //2.D add to the corresponding cluster
                                     //void addToCluster(std::unordered_map<uint64_t,std::pair<int,l1t::HGCalCluster> >& cluster_container, uint64_t pid,int pdgid,float & energy,float & eta, float &phi)
                                     //addToCluster(cluster_container, pid, 0 energy,ETA/PHI?  ) ;
-                                    addToCluster(cluster_container, pid, 0,energy,0.,0.  ) ; // how do I get eta, phi w/o the hgcal geometry?
+                                    addToCluster(cluster_container, pid, 0,energy,eta,phi  ) ; // how do I get eta, phi w/o the hgcal geometry?
                                 }
                             }
                     } //end of for-loop
@@ -202,12 +217,25 @@ namespace HGCalTriggerBackend{
                 //        clusterEnergyHw, clusterEtaHw, 0);
                 //
                 for (auto&  p : cluster_container) 
+                {
+                    //std::unordered_map<uint64_t,std::pair<int,l1t::HGCalCluster> >
+                    #ifdef DEBUG
+                    cout<<"[HGCalTriggerSimCluster]::[run] Cluster: pid="<< p.first<<endl;
+                    cout<<"[HGCalTriggerSimCluster]::[run] Cluster: ----------- l1t pt"<< p.second.second.pt() <<endl;
+                    cout<<"[HGCalTriggerSimCluster]::[run] Cluster: ----------- l1t eta"<< p.second.second.eta() <<endl;
+                    cout<<"[HGCalTriggerSimCluster]::[run] Cluster: ----------- l1t phi"<< p.second.second.phi() <<endl;
+                    #endif
                     cluster_product->push_back(p.second.first,p.second.second); // bx,cluster
+                }
 
-            }
+#ifdef DEBUG
+                cout<<"[HGCalTriggerSimCluster]::["<<__FUNCTION__<<"] cluster product (!=NULL) "<<cluster_product.get()<<endl;
+                cout<<"[HGCalTriggerSimCluster]::[run] END"<<endl;
+#endif
+            } // end run
 
 
-    };
+    }; // end class
 
 }// namespace
 
@@ -215,7 +243,7 @@ namespace HGCalTriggerBackend{
 // define plugins, template needs to be spelled out here, in order to allow the compiler to compile, and the factory to be populated
 //typedef HGCalTriggerBackend::HGCalTriggerSimCluster<HGCalBestChoiceCodec,HGCalBestChoiceDataPayload> HGCalTriggerSimClusterBestChoice;
 //DEFINE_EDM_PLUGIN(HGCalTriggerBackendAlgorithmFactory, HGCalTriggerSimClusterBestChoice,"HGCalTriggerSimClusterBestChoice");
-typedef HGCalTriggerBackend::HGCalTriggerSimCluster<HGCalTriggerCellBestChoiceCodecCodec,HGCalTriggerCellBestChoiceCodecDataPayload> HGCalTriggerSimClusterBestChoice;
+typedef HGCalTriggerBackend::HGCalTriggerSimCluster<HGCalTriggerCellBestChoiceCodec,HGCalTriggerCellBestChoiceDataPayload> HGCalTriggerSimClusterBestChoice;
 DEFINE_EDM_PLUGIN(HGCalTriggerBackendAlgorithmFactory, HGCalTriggerSimClusterBestChoice,"HGCalTriggerSimClusterBestChoice");
 //DEFINE_EDM_PLUGIN(HGCalTriggerBackendAlgorithmFactory, HGCalTriggerSimCluster,"HGCalTriggerSimCluster");
 

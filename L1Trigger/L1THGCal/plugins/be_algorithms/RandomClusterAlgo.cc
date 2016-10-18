@@ -18,7 +18,7 @@ public:
   }
 
   virtual void run(const l1t::HGCFETriggerDigiCollection& coll,
-                   const std::unique_ptr<HGCalTriggerGeometryBase>& geom,
+                   const edm::ESHandle<HGCalTriggerGeometryBase>& geom,
 		   const edm::Event&evt
 		   ) override final;
 
@@ -36,7 +36,7 @@ private:
 };
 
 void RandomClusterAlgo::run(const l1t::HGCFETriggerDigiCollection& coll,
-                            const std::unique_ptr<HGCalTriggerGeometryBase>& geom,
+                            const edm::ESHandle<HGCalTriggerGeometryBase>& geom,
 			    const edm::Event&evt
 			    ) {
   for( const auto& digi : coll ) {
