@@ -34,7 +34,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
         self.addParameter(self._defaultParameters, 'electronCollection', cms.InputTag('selectedPatElectrons'),
 	                  "Input electron collection", Type=cms.InputTag, acceptNoneValue=True)
 #  empty default InputTag for photons to avoid double-counting wrt. cleanPatElectrons collection
-	self.addParameter(self._defaultParameters, 'photonCollection', None,
+	self.addParameter(self._defaultParameters, 'photonCollection', cms.InputTag('selectedPatPhotons'),
 	                  "Input photon collection", Type=cms.InputTag, acceptNoneValue=True)
 	self.addParameter(self._defaultParameters, 'muonCollection', cms.InputTag('selectedPatMuons'),
                           "Input muon collection", Type=cms.InputTag, acceptNoneValue=True)
