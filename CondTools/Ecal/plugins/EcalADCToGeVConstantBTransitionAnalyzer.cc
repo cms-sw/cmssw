@@ -1,6 +1,6 @@
-#include "CondCore/DBOutputService/interface/BTransitionAnalyzer.h"
 #include "CondFormats/EcalObjects/interface/EcalADCToGeVConstant.h"
 #include "CondFormats/DataRecord/interface/EcalADCToGeVConstantRcd.h"
+#include "CondTools/RunInfo/interface/BTransitionAnalyzer.h"
 #include <sstream>
 
 class EcalADCToGeVConstantBTransitionAnalyzer: public cond::BTransitionAnalyzer<EcalADCToGeVConstant, EcalADCToGeVConstantRcd> {
