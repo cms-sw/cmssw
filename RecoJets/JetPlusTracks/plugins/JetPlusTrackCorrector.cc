@@ -1385,8 +1385,6 @@ if( trBgOutOfVertex.size() == 0 ) return mScale;
 
     EnergyOfBackgroundCharged       = M_PI*mConeSize*mConeSize*EnergyOfBackgroundCharged;
     ResponseOfBackgroundCharged     = M_PI*mConeSize*mConeSize*ResponseOfBackgroundCharged;
-    NumberOfBackgroundChargedVertex = M_PI*mConeSize*mConeSize*NumberOfBackgroundChargedVertex;
-    NumberOfBackgroundChargedCalo   = M_PI*mConeSize*mConeSize*NumberOfBackgroundChargedCalo;
 //    NumberOfBackgroundCharged   = M_PI*mConeSize*mConeSize*NumberOfBackgroundCharged;
 
 
