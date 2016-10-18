@@ -163,7 +163,7 @@ upgradeProperties[2023]['2023D5PU'] = deepcopy(upgradeProperties[2023]['2023D5']
 upgradeProperties[2023]['2023D5PU']['ScenToRun'] = ['GenSimHLBeamSpotFull','DigiFullPU','RecoFullGlobalPU', 'HARVESTFullGlobalPU']
 upgradeProperties[2023]['2023D6PU'] = deepcopy(upgradeProperties[2023]['2023D6'])
 upgradeProperties[2023]['2023D6PU']['ScenToRun'] = ['GenSimHLBeamSpotFull','DigiFullPU','RecoFullGlobalPU', 'HARVESTFullGlobalPU']
->>>>>>> add 2023D6 workflows
+
 
 #Timing PU (for now copy ScenToRun of standard PU)
 upgradeProperties[2023]['2023D1TimingPU'] = deepcopy(upgradeProperties[2023]['2023D1Timing'])
