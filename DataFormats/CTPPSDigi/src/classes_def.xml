@@ -34,9 +34,8 @@
   <class name="std::vector<TotemFEDInfo>"/>
   <class name="edm::Wrapper<std::vector<TotemFEDInfo>>"/>
 
-  <class name="CTPPSDiamondDigi" ClassVersion="9">
-   <version ClassVersion="9" checksum="2494057280"/>
-  <version ClassVersion="8" checksum="3971463461"/>
+  <class name="CTPPSDiamondDigi" ClassVersion="3">
+  <version ClassVersion="3" checksum="2494057280"/>
   </class>
   
   <class name="edm::DetSet<CTPPSDiamondDigi>"/>
