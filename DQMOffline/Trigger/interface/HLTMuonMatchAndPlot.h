@@ -107,6 +107,7 @@ class HLTMuonMatchAndPlot
   std::map<std::string, double> plotCuts_;
   edm::ParameterSet targetParams_;
   edm::ParameterSet probeParams_;
+  edm::ParameterSet tagParams_;
 
   // Member Variables
   std::string triggerLevel_;
@@ -123,11 +124,11 @@ class HLTMuonMatchAndPlot
   StringCutObjectSelector<reco::Muon> targetMuonSelector_;
   double targetZ0Cut_; 
   double targetD0Cut_;
+  double targetptCutZ_;
+  double targetptCutJpsi_;
   StringCutObjectSelector<reco::Muon> probeMuonSelector_;
   double probeZ0Cut_; 
   double probeD0Cut_;
-  double probeptCutZ_;
-  double probeptCutJpsi_;
 
   StringCutObjectSelector<trigger::TriggerObject> triggerSelector_;
   bool hasTriggerCuts_;
