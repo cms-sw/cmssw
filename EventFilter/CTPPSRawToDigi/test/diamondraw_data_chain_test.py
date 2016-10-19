@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("DiamondRawToDigiTest")
 process.maxEvents = cms.untracked.PSet(
-input = cms.untracked.int32(500)
+input = cms.untracked.int32(1)
 )
 # minimum of logs
 process.MessageLogger = cms.Service("MessageLogger",
