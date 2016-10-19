@@ -69,8 +69,8 @@ void GEMSegmentBuilder::build(const GEMRecHitCollection* recHits, GEMSegmentColl
     }    
 
     #ifdef EDM_ML_DEBUG // have lines below only compiled when in debug mode
-    edm::LogVerbatim("GEMSegmentBuilder") << "[GEMSegmentBuilder::build] -----------------------------------------------------------------------------"; 
-    edm::LogVerbatim("GEMSegmentBuilder") << "[GEMSegmentBuilder::build] found " << gemRecHits.size() << " rechits in GEM Super Chamber " << chamber->id()<<" ::"; 
+    edm::LogTrace("GEMSegmentBuilder") << "[GEMSegmentBuilder::build] -----------------------------------------------------------------------------"; 
+    edm::LogTrace("GEMSegmentBuilder") << "[GEMSegmentBuilder::build] found " << gemRecHits.size() << " rechits in GEM Super Chamber " << chamber->id()<<" ::"; 
     for (auto rh=gemRecHits.begin(); rh!=gemRecHits.end(); ++rh){
       auto gemid = (*rh)->gemId();
       // auto rhr = gemGeom->etaPartition(gemid);
@@ -78,7 +78,7 @@ void GEMSegmentBuilder::build(const GEMRecHitCollection* recHits, GEMSegmentColl
       // auto rhGP = rhr->toGlobal(rhLP);
       // no sense to print local y because local y here is in the roll reference frame
       // in the roll reference frame the local y of a rechit is always the middle of the roll, and hence equal to 0.0
-      edm::LogVerbatim("GEMSegmentBuilder") << "[RecHit :: Loc x = "<<std::showpos<<std::setw(9)<<rhLP.x() /*<<" Loc y = "<<std::showpos<<std::setw(9)<<rhLP.y()*/
+      edm::LogTrace("GEMSegmentBuilder") << "[RecHit :: Loc x = "<<std::showpos<<std::setw(9)<<rhLP.x() /*<<" Loc y = "<<std::showpos<<std::setw(9)<<rhLP.y()*/
 					    <<" BX = "<<(*rh)->BunchX()<<" -- "<<gemid.rawId()<<" = "<<gemid<<" ]";
     }
     #endif
@@ -87,20 +87,20 @@ void GEMSegmentBuilder::build(const GEMRecHitCollection* recHits, GEMSegmentColl
     GEMSegmentAlgorithmBase::GEMEnsemble ensemble(std::pair<const GEMSuperChamber*,      std::map<uint32_t,const GEMEtaPartition*> >(chamber,ens));
     
     #ifdef EDM_ML_DEBUG // have lines below only compiled when in debug mode
-    edm::LogVerbatim("GEMSegmentBuilder") << "[GEMSegmentBuilder::build] run the segment reconstruction algorithm now";
+    edm::LogTrace("GEMSegmentBuilder") << "[GEMSegmentBuilder::build] run the segment reconstruction algorithm now";
     #endif
 
     // given the superchamber select the appropriate algo... and run it
     std::vector<GEMSegment> segv = algo->run(ensemble, gemRecHits);
     #ifdef EDM_ML_DEBUG // have lines below only compiled when in debug mode
-    edm::LogVerbatim("GEMSegmentBuilder") << "[GEMSegmentBuilder::build] found " << segv.size() ;
+    edm::LogTrace("GEMSegmentBuilder") << "[GEMSegmentBuilder::build] found " << segv.size() ;
     #endif
 
     GEMDetId mid(enIt->first);    
 
     #ifdef EDM_ML_DEBUG // have lines below only compiled when in debug mode
-    edm::LogVerbatim("GEMSegmentBuilder") << "[GEMSegmentBuilder::build] found " << segv.size() << " segments in GEM Super Chamber " << mid;
-    edm::LogVerbatim("GEMSegmentBuilder") << "[GEMSegmentBuilder::build] -----------------------------------------------------------------------------"; 
+    edm::LogTrace("GEMSegmentBuilder") << "[GEMSegmentBuilder::build] found " << segv.size() << " segments in GEM Super Chamber " << mid;
+    edm::LogTrace("GEMSegmentBuilder") << "[GEMSegmentBuilder::build] -----------------------------------------------------------------------------"; 
     #endif
     
     // Add the segments to master collection
