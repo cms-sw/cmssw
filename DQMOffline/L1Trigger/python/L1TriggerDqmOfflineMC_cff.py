@@ -22,7 +22,7 @@ l1TriggerDqmOffline.remove(l1TriggerEmulatorOnline)
 
 
 # do not run the emulator client in MC
-l1TriggerDqmOfflineClient.remove(l1EmulatorMonitorClient) 
+l1TriggerDqmOfflineClient.remove(l1tStage2EmulatorMonitorClient)
 
 
 # correct input tags for MC for the private unpacking
