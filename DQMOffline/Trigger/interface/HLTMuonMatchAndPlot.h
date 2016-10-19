@@ -107,7 +107,6 @@ class HLTMuonMatchAndPlot
   std::map<std::string, double> plotCuts_;
   edm::ParameterSet targetParams_;
   edm::ParameterSet probeParams_;
-  edm::ParameterSet tagParams_;
 
   // Member Variables
   std::string triggerLevel_;
