@@ -1397,17 +1397,29 @@ TrackingNtuple::SimHitData TrackingNtuple::matchCluster(const OmniClusterRef& cl
       auto range = std::equal_range(simHitsTPAssoc.begin(), simHitsTPAssoc.end(),
                                     simHitTPpairWithDummyTP, SimHitTPAssociationProducer::simHitTPAssociationListGreater);
       int simHitKey = -1;
+      bool foundElectron = false;
       edm::ProductID simHitID;
       for(auto ip = range.first; ip != range.second; ++ip) {
         TrackPSimHitRef TPhit = ip->second;
         DetId dId = DetId(TPhit->detUnitId());
         if (dId.rawId()==hitId.rawId()) {
+          // skip electron SimHits for non-electron TPs also here
+          if(std::abs(TPhit->particleType()) == 11 && std::abs(trackingParticle->pdgId()) != 11) {
+            foundElectron = true;
+            continue;
+          }
+
           simHitKey = TPhit.key();
           simHitID = TPhit.id();
           break;
         }
       }
       if(simHitKey < 0) {
+        // In case we didn't find a simhit because of filtered-out
+        // electron SimHit, just ignore the missing SimHit.
+        if(foundElectron)
+          continue;
+
         auto ex = cms::Exception("LogicError") << "Did not find SimHit for reco hit DetId " << hitId.rawId()
                                                << " for TP " << trackingParticle.key() << " bx:event " << trackingParticle->eventId().bunchCrossing() << ":" << trackingParticle->eventId().event()
                                                << ".\nFound SimHits from detectors ";
@@ -1451,8 +1463,6 @@ void TrackingNtuple::fillSimHits(const TrackerGeometry& tracker,
                                  const TrackerTopology& tTopo,
                                  SimHitRefKeyToIndex& simHitRefKeyToIndex,
                                  std::vector<TPHitIndex>& tpHitList) {
-  // TODO: filter out hits from delta rays as they jut confuse
-  // If we need them in the end, add them as a separate "collection" of hits of a TP
 
   for(const auto& assoc: simHitsTPAssoc) {
     auto tpKey = assoc.first.key();
@@ -1468,6 +1478,13 @@ void TrackingNtuple::fillSimHits(const TrackerGeometry& tracker,
     const auto& simhit = *(assoc.second);
     auto detId = DetId(simhit.detUnitId());
     if(detId.det() != DetId::Tracker) continue;
+
+    // Skip electron SimHits for non-electron TrackingParticles to
+    // filter out delta rays. The delta ray hits just confuse. If we
+    // need them later, let's add them as a separate "collection" of
+    // hits of a TP
+    const TrackingParticle& tp = *(assoc.first);
+    if(std::abs(simhit.particleType()) == 11 && std::abs(tp.pdgId()) != 11) continue;
 
     auto simHitKey = std::make_pair(assoc.second.key(), assoc.second.id());
 

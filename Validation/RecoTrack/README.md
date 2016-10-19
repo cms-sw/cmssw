@@ -78,3 +78,24 @@ because of delta rays. Currently the "first" SimHit on a detector of a
 RecHit linked to the TrackingParticle is linked to the RecHit. The
 assignment is a bit random, but there is very little further one can
 do without further reco<->sim information.
+
+#### Delta ray SimHits are filtered out
+
+The SimHits with `particleType` of an electron for non-electron
+TrackingParticles are filtered out. This case happens e.g. for delta
+rays, when the delta ray electron is simulated with the same
+SimTrackId as the main particle. As the SimHit -> TrackingParticle
+association is based on SimTrackId, the delta ray SimHits get
+associated to the TrackingParticle. Further, the SimHits of a
+TrackingParticle are sorted by their time of flight for the ntuple, so
+the delta ray hits may get interleaved with the main particle hits,
+leading to possible confusion (especially when one does not print the
+SimHit `particleType` information). Since we are mainly interested of
+the main particle SimHits, the delta ray SimHits are removed from the
+ntuple.
+
+This SimHit filtering does have the consequence that there can be
+cases where a track is matched to TrackingParticle (by
+`QuickTrackAssociatorByHits`), but redoing the association by hits in
+the ntuple fails, because delta ray SimHit induced a RecHit that was
+included in the track.
