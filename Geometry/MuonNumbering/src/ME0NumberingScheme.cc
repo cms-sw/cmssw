@@ -3,6 +3,7 @@
 #include "Geometry/MuonNumbering/interface/MuonDDDConstants.h"
 #include "DataFormats/MuonDetId/interface/ME0DetId.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 #include <iostream>
 
@@ -78,7 +79,7 @@ int ME0NumberingScheme::baseNumberToUnitNumber(const MuonBaseNumber& num) {
 
   int maxLevel = 0;
   if(theNEtaPart==1)  maxLevel = theLayerLevel;
-  if(theNEtaPart==10) maxLevel = theRollLevel;
+  else                maxLevel = theRollLevel;
   if (num.getLevels()!=maxLevel) {
     throw cms::Exception("MuonNumbering") << "MuonME0NS::BNToUN "
 	      << "BaseNumber has " << num.getLevels() << " levels,"
