@@ -103,10 +103,11 @@ void L1TStage2CaloLayer2::bookHistograms(DQMStore::IBooker &ibooker, edm::Run co
   // stage2CaloLayer2HTTHFRank_ = ibooker.book1D("HTTHFRank", "HTTHF E_{T}", 4096, -0.5, 4095.5);
   stage2CaloLayer2ETTEMRank_ = ibooker.book1D("ETTEMRank", "ETTEM E_{T}; ETTEM iE_{T}; Counts", 4096, -0.5, 4095.5);
 
-  stage2CaloLayer2MinBiasHFP0_ = ibooker.book1D("MinBiasHFP0", "", 16, -0.5, 15.5);
-  stage2CaloLayer2MinBiasHFM0_ = ibooker.book1D("MinBiasHFM0", "", 16, -0.5, 15.5);
-  stage2CaloLayer2MinBiasHFP1_ = ibooker.book1D("MinBiasHFP1", "", 16, -0.5, 15.5);
-  stage2CaloLayer2MinBiasHFM1_ = ibooker.book1D("MinBiasHFM1", "", 16, -0.5, 15.5);
+  stage2CaloLayer2MinBiasHFP0_ = ibooker.book1D("MinBiasHFP0", "HF Min Bias Sum Threshold 0, Positive #eta; N_{towers}; Events", 16, -0.5, 15.5);
+  stage2CaloLayer2MinBiasHFM0_ = ibooker.book1D("MinBiasHFM0", "HF Min Bias Sum Threshold 1, Nevagive #eta; N_{towers}; Events", 16, -0.5, 15.5);
+  stage2CaloLayer2MinBiasHFP1_ = ibooker.book1D("MinBiasHFP1", "HF Min Bias Sum Threshold 1, Positive #eta; N_{towers}; Events", 16, -0.5, 15.5);
+  stage2CaloLayer2MinBiasHFM1_ = ibooker.book1D("MinBiasHFM1", "HF Min Bias Sum Threshold 1, Negative #eta; N_{towers}; Events", 16, -0.5, 15.5);
+
   stage2CaloLayer2TowCount_ = ibooker.book1D("TowCount", "Count of Trigger towers above threshold", 5904, -0.5, 5903.5);
 
   ibooker.setCurrentFolder(monitorDir_+"/Timing");
