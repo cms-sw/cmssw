@@ -72,7 +72,8 @@ public:
     citk::IsolationConeDefinitionBase(c),
     _isolateAgainst(c.getParameter<std::string>("isolateAgainst")), //isolate against either h+, h0 or gamma
     _miniAODVertexCodes(c.getParameter<std::vector<unsigned> >("miniAODVertexCodes")), //quality flags to be used for association with the vertex configurable, the vertex can be chosen
-    _vertexIndex(c.getParameter<int> ("vertexIndex")){} //vertex of interest
+    _vertexIndex(c.getParameter<int> ("vertexIndex")),//vertex of interest
+    _particleBasedIsolation(c.getParameter<edm::InputTag>("particleBasedIsolation")){} 
         
   PhotonPFIsolationWithMapBasedVeto(const PhotonPFIsolationWithMapBasedVeto&) = delete;
   PhotonPFIsolationWithMapBasedVeto& operator=(const PhotonPFIsolationWithMapBasedVeto&) =delete;
@@ -94,7 +95,7 @@ public:
   //As far as I understand now, the object particleBasedIsolationMap should be fixed, so we don't configure the name
   void setConsumes(edm::ConsumesCollector iC)
   {
-      particleBasedIsolationToken_ = iC.mayConsume<edm::ValueMap<std::vector<reco::PFCandidateRef > > >(edm::InputTag("particleBasedIsolation", "gedPhotons"));
+      particleBasedIsolationToken_ = iC.mayConsume<edm::ValueMap<std::vector<reco::PFCandidateRef > > >(_particleBasedIsolation);
   }
 
   //! Destructor
@@ -105,6 +106,7 @@ private:
   const std::string _isolateAgainst, _vertexCollection;
   const std::vector<unsigned> _miniAODVertexCodes;
   const unsigned _vertexIndex;
+  const edm::InputTag _particleBasedIsolation;
 
   
 };
