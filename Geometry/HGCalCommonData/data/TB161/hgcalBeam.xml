@@ -93,7 +93,7 @@
   </LogicalPart>
   <LogicalPart name="HGCalBeamWChambGas" category="unspecified">
     <rSolid name="HGCalBeamWChambGas"/>
-    <rMaterial name="materials:Ar(50%)+CO_2(50%)"/>
+    <rMaterial name="materials:Ar 50pct plus CO_2 50pct"/>
   </LogicalPart>
   <LogicalPart name="HGCalBeamWChambVet" category="unspecified">
     <rSolid name="HGCalBeamWChambVet"/>

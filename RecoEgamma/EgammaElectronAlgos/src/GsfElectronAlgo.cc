@@ -1355,7 +1355,7 @@ void GsfElectronAlgo::createElectron(const gsfAlgoHelpers::HeavyObjectCache* hoc
     if (EEDetId::isNextToDBoundary(eedetid))
      { fiducialFlags.isEEDeeGap = true ; }
    }
-  else if (region==DetId::Forward )
+  else if ( region==DetId::Forward || region == DetId::Hcal )
    {
     fiducialFlags.isEE = true ;
     //HGCalDetId eeDetid(seedXtalId);    
@@ -1371,7 +1371,7 @@ void GsfElectronAlgo::createElectron(const gsfAlgoHelpers::HeavyObjectCache* hoc
 
   reco::GsfElectron::ShowerShape showerShape;
   reco::GsfElectron::ShowerShape full5x5_showerShape;
-  if( !(region==DetId::Forward) ) {    
+  if( !(region==DetId::Forward || region == DetId::Hcal) ) {    
     calculateShowerShape(electronData_->superClusterRef,!(electronData_->coreRef->ecalDrivenSeed()),showerShape) ;    
     calculateShowerShape_full5x5(electronData_->superClusterRef,!(electronData_->coreRef->ecalDrivenSeed()),full5x5_showerShape) ;
   }
@@ -1463,18 +1463,20 @@ void GsfElectronAlgo::createElectron(const gsfAlgoHelpers::HeavyObjectCache* hoc
     }
   else  // original implementation
     {
-      if (ele->core()->ecalDrivenSeed())
-	{
-	  if (generalData_->strategyCfg.ecalDrivenEcalEnergyFromClassBasedParameterization)
-	    { theEnCorrector.classBasedParameterizationEnergy(*ele,*eventData_->beamspot) ; }
-	  if (generalData_->strategyCfg.ecalDrivenEcalErrorFromClassBasedParameterization)
-	    { theEnCorrector.classBasedParameterizationUncertainty(*ele) ; }
-	}
-      else
-	{
-	  if (generalData_->strategyCfg.pureTrackerDrivenEcalErrorFromSimpleParameterization)
-	    { theEnCorrector.simpleParameterizationUncertainty(*ele) ; }
-	}
+      if( region!=DetId::Forward && region != DetId::Hcal ) {
+	if (ele->core()->ecalDrivenSeed())
+	  {
+	    if (generalData_->strategyCfg.ecalDrivenEcalEnergyFromClassBasedParameterization)
+	      { theEnCorrector.classBasedParameterizationEnergy(*ele,*eventData_->beamspot) ; }
+	    if (generalData_->strategyCfg.ecalDrivenEcalErrorFromClassBasedParameterization)
+	      { theEnCorrector.classBasedParameterizationUncertainty(*ele) ; }
+	  }
+	else
+	  {
+	    if (generalData_->strategyCfg.pureTrackerDrivenEcalErrorFromSimpleParameterization)
+	      { theEnCorrector.simpleParameterizationUncertainty(*ele) ; }
+	  }
+      }
     }
   
   // momentum
@@ -1496,7 +1498,7 @@ void GsfElectronAlgo::createElectron(const gsfAlgoHelpers::HeavyObjectCache* hoc
   reco::GsfElectron::IsolationVariables dr03, dr04 ;
   dr03.tkSumPt = eventData_->tkIsolation03->getPtTracks(ele);
   dr04.tkSumPt = eventData_->tkIsolation04->getPtTracks(ele);
-  if( !(region==DetId::Forward) ) {  
+  if( !(region==DetId::Forward || region == DetId::Hcal) ) {  
     dr03.hcalDepth1TowerSumEt = eventData_->hadDepth1Isolation03->getTowerEtSum(ele) ;
     dr03.hcalDepth2TowerSumEt = eventData_->hadDepth2Isolation03->getTowerEtSum(ele) ;
     dr03.hcalDepth1TowerSumEtBc = eventData_->hadDepth1Isolation03Bc->getTowerEtSum(ele,&(showerShape.hcalTowersBehindClusters)) ;

@@ -35,16 +35,12 @@ autoCond = {
     'run2_hlt_relval'   :   '81X_dataRun2_HLT_relval_v4',
     # GlobalTag for Run2 HLT for HI: it points to the online GT
     'run2_hlt_hi'       :   '81X_dataRun2_HLTHI_frozen_v2',
-    # GlobalTag for MC production with perfectly aligned and calibrated detector for Phase1 2017
-    'phase1_2017_design' :  '81X_upgrade2017_design_Candidate_2016_10_05_11_42_10',
-    # GlobalTag for MC production with realistic conditions for for Phase1 2017 detector
-    'phase1_2017_realistic': '81X_upgrade2017_realistic_Candidate_2016_10_05_11_41_20',
-    # Global Tag for MC production with development HCAL conditions for Phase1 2017 detector
-    'phase1_2017_hcaldev'  : '81X_upgrade2017_HCALdev_Candidate_2016_10_05_11_20_17',
+    # GlobalTag for MC production with perfectly aligned and calibrated detector for Phase1 2017 (and 0,0,0-centred beamspot)
+    'phase1_2017_design' :  '81X_upgrade2017_design_IdealBS_v0',
+    # GlobalTag for MC production with realistic conditions for Phase1 2017 detector
+    'phase1_2017_realistic': '81X_upgrade2017_realistic_v16',
     # GlobalTag for MC production with perfectly aligned and calibrated detector for Phase1 2019
     'phase1_2019_design'   : 'DES19_70_V2', # placeholder (GT not meant for standard RelVal) 
-    # GlobalTag for MC production with perfectly aligned and calibrated detector for Phase2
-    'phase2_design'        : 'POSTLS262_V1', # placeholder (GT not meant for standard RelVal)
     # GlobalTag for MC production with realistic conditions for Phase2 2023
     'phase2_realistic'     : '81X_upgrade2023_realistic_v1'
 }
@@ -76,4 +72,4 @@ autoCond['upgradePLS1']      = ( autoCond['run2_mc'] )
 autoCond['upgradePLS150ns']  = ( autoCond['run2_mc_50ns'] )
 autoCond['upgrade2017']      = ( autoCond['phase1_2017_design'] )
 autoCond['upgrade2019']      = ( autoCond['phase1_2019_design'] )
-autoCond['upgradePLS3']      = ( autoCond['phase2_design'] )
+autoCond['upgradePLS3']      = ( autoCond['phase2_realistic'] )

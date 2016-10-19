@@ -1,13 +1,12 @@
 import FWCore.ParameterSet.Config as cms
-from Configuration.StandardSequences.Eras import eras
 import RecoTracker.IterativeTracking.iterativeTkConfig as _cfg
 
 ### high-pT triplets ###
 
 # NEW CLUSTERS (remove previously used clusters)
 highPtTripletStepClusters = _cfg.clusterRemoverForIter("HighPtTripletStep")
-for era in _cfg.nonDefaultEras():
-    getattr(eras, era).toReplaceWith(highPtTripletStepClusters, _cfg.clusterRemoverForIter("HighPtTripletStep", era))
+for _eraName, _postfix, _era in _cfg.nonDefaultEras():
+    _era.toReplaceWith(highPtTripletStepClusters, _cfg.clusterRemoverForIter("HighPtTripletStep", _eraName, _postfix))
 
 
 # SEEDING LAYERS

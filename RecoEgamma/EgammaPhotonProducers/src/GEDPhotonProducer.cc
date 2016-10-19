@@ -555,7 +555,7 @@ void GEDPhotonProducer::fillPhotonCollection(edm::Event& evt,
     // Calculate fiducial flags and isolation variable. Blocked are filled from the isolationCalculator
     reco::Photon::FiducialFlags fiducialFlags;
     reco::Photon::IsolationVariables isolVarR03, isolVarR04;
-    if( thedet != DetId::Forward ) {
+    if( thedet != DetId::Forward && thedet != DetId::Hcal) {
       thePhotonIsolationCalculator_->calculate( &newCandidate,evt,es,fiducialFlags,isolVarR04, isolVarR03);
     }
     newCandidate.setFiducialVolumeFlags( fiducialFlags );
@@ -635,7 +635,7 @@ void GEDPhotonProducer::fillPhotonCollection(edm::Event& evt,
     /// plus values from regressions     and store them in the Photon
     // Photon candidate takes by default (set in photons_cfi.py) 
     // a 4-momentum derived from the ecal photon-specific corrections. 
-    if( thedet != DetId::Forward ) {
+    if( thedet != DetId::Forward && thedet != DetId::Hcal) {
       thePhotonEnergyCorrector_->calculate(evt, newCandidate, subdet, vertexCollection, es);
       if ( candidateP4type_ == "fromEcalEnergy") {
 	newCandidate.setP4( newCandidate.p4(reco::Photon::ecal_photons) );
@@ -719,7 +719,7 @@ void GEDPhotonProducer::fillPhotonCollection(edm::Event& evt,
       preselCutValues = preselCutValuesBarrel_;
     } else if (subdet==EcalEndcap)  { 
       preselCutValues = preselCutValuesEndcap_;
-    } else if ( thedet == DetId::Forward ) {
+    } else if ( thedet == DetId::Forward || thedet == DetId::Hcal) {
       preselCutValues = preselCutValuesEndcap_;
     } else {
       edm::LogWarning("")<<"GEDPhotonProducer: do not know if it is a barrel or endcap SuperCluster" << thedet << ' ' << subdet; 

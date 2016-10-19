@@ -5,6 +5,29 @@
 #include "SimTracker/TrackHistory/interface/HistoryBase.h"
 
 
+void HistoryBase::traceRecoGenHistory(reco::GenParticle const * genParticle)
+{
+    // fill the trace of reco::GenParticle for correct reading of the History flags etc.
+    // This is called from the TrackingParticle->genParticle_begin() which is a reco::GenParticle
+    
+    // Take onlt genParticles with a status() smaller than "depth_". Typically depth is 2 and so you trace back untill you reach the hard partons
+    // see for status(): https://twiki.cern.ch/twiki/bin/view/CMSPublic/WorkBookGenParticleCandidate#GenPCand
+    if ( genParticle->status() <= abs(depth_) && (genParticle->pdgId() < 88 || genParticle->pdgId() > 99) )
+    {
+        //If the particle is already in the history, it is looping and you should stop
+        if ( recoGenParticleTrailHelper_.find(genParticle) != recoGenParticleTrailHelper_.end() ){
+           return;
+        }
+        recoGenParticleTrail_.push_back(genParticle);
+        recoGenParticleTrailHelper_.insert(genParticle);
+        // Get the genParticle's mother and trace its history
+        if (genParticle->mother() != 0){
+        	traceRecoGenHistory( (const reco::GenParticle *)genParticle->mother() );
+        }
+    }
+}
+
+
 void HistoryBase::traceGenHistory(HepMC::GenParticle const * genParticle)
 {
     // Third stop criteria: status abs(depth_) particles after the hadronization.
@@ -46,17 +69,15 @@ bool HistoryBase::traceSimHistory(TrackingParticleRef const & trackingParticle, 
     {
         LogDebug("TrackHistory") << "Particle " << trackingParticle->pdgId() << " has a GenParicle image." 
 				 << std::endl;
-	//#warning "This file has been modified just to get it to compile without any regard as to whether it still functions as intended"
-	// this code does not compile likely due to the wrong type of iterator
-	#ifdef REMOVED_JUST_TO_GET_IT_TO_COMPILE__THIS_CODE_NEEDS_TO_BE_CHECKED
-	traceGenHistory(&(**(trackingParticle->genParticle_begin()))); 
-	#endif
+
+	traceRecoGenHistory(&(**(trackingParticle->genParticle_begin()))); 
+
 
     }
 
     LogDebug("TrackHistory") << "No GenParticle image for " << trackingParticle->pdgId() << std::endl;
 
-    // get a reference to the TP's parent vertex and trace it history
+    // if no association between TP and genParticles is found: get a reference to the TP's parent vertex and trace its history
     return traceSimHistory( trackingParticle->parentVertex(), depth );
 }
 

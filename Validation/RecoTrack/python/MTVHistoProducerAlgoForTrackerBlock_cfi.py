@@ -90,6 +90,12 @@ MTVHistoProducerAlgoForTrackerBlock = cms.PSet(
     minTracks = cms.double(0),
     maxTracks = cms.double(2000),
     nintTracks = cms.int32(100),
+
+    # PV z coordinate (to be kept in synch with PrimaryVertexAnalyzer4PUSlimmed)
+    minPVz = cms.double(-60),
+    maxPVz = cms.double(60),
+    nintPVz = cms.int32(120),
+
     #
     #parameters for resolution plots
     ptRes_rangeMin = cms.double(-0.1),

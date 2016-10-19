@@ -332,9 +332,20 @@ void GeometryInterface::loadFEDCabling(edm::EventSetup const& iSetup, const edm:
 
   addExtractor(intern("FED"),
     [fedmap] (InterestingQuantities const& iq) {
+      if (iq.sourceModule == 0xFFFFFFFF)
+        return iq.col; // hijacked for the raw data plugin
       auto it = fedmap.find(iq.sourceModule);
       if (it == fedmap.end()) return GeometryInterface::UNDEFINED;
       return it->second;
     }
+  );
+  addExtractor(intern("FEDChannel"),
+    [] (InterestingQuantities const& iq) {
+      // TODO: we also should be able to compute the channel from the ROC.
+      // But for raw data, we only need this hack.
+      //if (iq.sourceModule == 0xFFFFFFFF)
+      return iq.row; // hijacked for the raw data plugin
+    },
+    0, 39 // TODO: real range
   );
 }

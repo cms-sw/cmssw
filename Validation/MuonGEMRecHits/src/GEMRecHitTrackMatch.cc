@@ -30,7 +30,7 @@ void GEMRecHitTrackMatch::bookHistograms(DQMStore::IBooker& ibooker, edm::Run co
 
   const float PI=TMath::Pi();
   const char* l_suffix[4] = {"_l1","_l2","_l1or2","_l1and2"};
-  const char* s_suffix[3] = {"_st1","_st2_short","_st2_long"};
+  const char* s_suffix[2] = {"_st1","_st2"};
   const char* c_suffix[3] = {"_even","_odd","_all"};
 
   nstation = geom.regions()[0]->stations().size(); 
