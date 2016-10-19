@@ -99,7 +99,7 @@ int ME0NumberingScheme::baseNumberToUnitNumber(const MuonBaseNumber& num) {
   chamber = num.getBaseNo(theSectorLevel) + 1;
 
   if(theNEtaPart==1)  roll = 0;
-  if(theNEtaPart==10) roll = num.getBaseNo(theRollLevel)+1;
+  else                roll = num.getBaseNo(theRollLevel)+1;
 
   // collect all info
   
