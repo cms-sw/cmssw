@@ -1629,6 +1629,32 @@ void SiPixelActionExecutor::fillOccupancy(DQMStore::IBooker & iBooker, DQMStore:
 
 //=============================================================================================================
 
+void SiPixelActionExecutor::normaliseAvDigiOcc(DQMStore::IBooker & iBooker, DQMStore::IGetter & iGetter){
+  //occupancyprinting cout<<"entering SiPixelActionExecutor::normaliseAvDigiOcc..."<<std::endl;
+  
+  iGetter.cd();
+
+  MonitorElement * roccupancyPlot = iGetter.get("Pixel/averageDigiOccupancy");
+  
+  float totalDigisBPIX = 0.;
+  float totalDigisFPIX = 0.;
+  for (int i = 1; i !=41; i++){
+    if (i < 33) totalDigisBPIX += roccupancyPlot->getBinContent(i);
+    else totalDigisFPIX += roccupancyPlot->getBinContent(i);
+  } 
+  float averageBPIXOcc = totalDigisBPIX/32.;
+  float averageFPIXOcc = totalDigisFPIX/8.;
+  for (int i = 1; i !=41; i++){
+    if (i < 33) roccupancyPlot->setBinContent(i,roccupancyPlot->getBinContent(i)/averageBPIXOcc);
+    else roccupancyPlot->setBinContent(i,roccupancyPlot->getBinContent(i)/averageFPIXOcc);
+  }
+  
+  iGetter.setCurrentFolder(iBooker.pwd());
+  
+}
+
+//=============================================================================================================
+
 void SiPixelActionExecutor::bookEfficiency(DQMStore::IBooker & iBooker, bool isUpgrade){
   // Barrel
   iBooker.cd();
