@@ -186,4 +186,13 @@ def customiseRun2PPB_MuonDQM(process):
     process.trackerAnalyzer.targetParams.ptCut_Jpsi = cms.untracked.double(6.0)
     process.tightAnalyzer.targetParams.ptCut_Jpsi = cms.untracked.double(6.0)
     process.looseAnalyzer.targetParams.ptCut_Jpsi = cms.untracked.double(6.0)
+    process.globalAnalyzer.binParams.ptCoarse = cms.untracked.vdouble(0.,1.,2.,3.,4.,5.,6.,7.,8.,9.,10.,11.,12.,13.,14.,15.,16.,17.,18.,19.,20.,21.,22.,23.,24.,25.,26.,27.,28.,29.,30.)
+    process.globalAnalyzer.binParams.pt = cms.untracked.vdouble(0.,1.,2.,3.,4.,5.,6.,7.,8.,9.,10.,11.,12.,13.,14.,15.,16.,17.,18.,19.,20.,21.,22.,23.,24.,25.,26.,27.,28.,29.,30.)
+    process.trackerAnalyzer.binParams.ptCoarse = cms.untracked.vdouble(0.,1.,2.,3.,4.,5.,6.,7.,8.,9.,10.,11.,12.,13.,14.,15.,16.,17.,18.,19.,20.,21.,22.,23.,24.,25.,26.,27.,28.,29.,30.)
+    process.trackerAnalyzer.binParams.pt = cms.untracked.vdouble(0.,1.,2.,3.,4.,5.,6.,7.,8.,9.,10.,11.,12.,13.,14.,15.,16.,17.,18.,19.,20.,21.,22.,23.,24.,25.,26.,27.,28.,29.,30.)
+    process.tightAnalyzer.binParams.ptCoarse = cms.untracked.vdouble(0.,1.,2.,3.,4.,5.,6.,7.,8.,9.,10.,11.,12.,13.,14.,15.,16.,17.,18.,19.,20.,21.,22.,23.,24.,25.,26.,27.,28.,29.,30.)
+    process.tightAnalyzer.binParams.pt = cms.untracked.vdouble(0.,1.,2.,3.,4.,5.,6.,7.,8.,9.,10.,11.,12.,13.,14.,15.,16.,17.,18.,19.,20.,21.,22.,23.,24.,25.,26.,27.,28.,29.,30.)
+    process.looseAnalyzer.binParams.ptCoarse = cms.untracked.vdouble(0.,1.,2.,3.,4.,5.,6.,7.,8.,9.,10.,11.,12.,13.,14.,15.,16.,17.,18.,19.,20.,21.,22.,23.,24.,25.,26.,27.,28.,29.,30.)
+    process.looseAnalyzer.binParams.pt = cms.untracked.vdouble(0.,1.,2.,3.,4.,5.,6.,7.,8.,9.,10.,11.,12.,13.,14.,15.,16.,17.,18.,19.,20.,21.,22.,23.,24.,25.,26.,27.,28.,29.,30.)
+
     return process
