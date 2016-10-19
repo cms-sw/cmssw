@@ -97,6 +97,7 @@ private:
   edm::EDGetTokenT<l1t::CaloTowerBxCollection> l1TowerToken_;
   edm::EDGetTokenT<l1t::CaloClusterBxCollection> l1ClusterToken_;
 
+  bool storeCaloClusters_;
 };
 
 
@@ -109,6 +110,9 @@ L1CaloTowerTreeProducer::L1CaloTowerTreeProducer(const edm::ParameterSet& iConfi
   l1TowerToken_ = consumes<l1t::CaloTowerBxCollection>(iConfig.getUntrackedParameter<edm::InputTag>("l1TowerToken"));
 
   edm::InputTag clusterTag = iConfig.getUntrackedParameter<edm::InputTag>("l1ClusterToken");
+  storeCaloClusters_=true;
+  if ( clusterTag.label() == std::string("") or clusterTag.label() == std::string("none")) storeCaloClusters_=false;
+  
   if (clusterTag.instance() != std::string(""))
     l1ClusterToken_ = consumes<l1t::CaloClusterBxCollection>(clusterTag);
  
@@ -121,7 +125,9 @@ L1CaloTowerTreeProducer::L1CaloTowerTreeProducer(const edm::ParameterSet& iConfi
   tree_=fs_->make<TTree>("L1CaloTowerTree", "L1CaloTowerTree");
   tree_->Branch("CaloTP", "L1Analysis::L1AnalysisCaloTPDataFormat", &caloTPData_, 32000, 3);
   tree_->Branch("L1CaloTower", "L1Analysis::L1AnalysisL1CaloTowerDataFormat", &l1CaloTowerData_, 32000, 3);
-  tree_->Branch("L1CaloCluster", "L1Analysis::L1AnalysisL1CaloClusterDataFormat", &l1CaloClusterData_, 32000, 3);
+
+  if (storeCaloClusters_)
+    tree_->Branch("L1CaloCluster", "L1Analysis::L1AnalysisL1CaloClusterDataFormat", &l1CaloClusterData_, 32000, 3);
 
   caloTPData_ = new L1Analysis::L1AnalysisCaloTPDataFormat();
   l1CaloTowerData_ = new L1Analysis::L1AnalysisL1CaloTowerDataFormat();
@@ -264,41 +270,42 @@ L1CaloTowerTreeProducer::analyze(const edm::Event& iEvent, const edm::EventSetup
 
 
   // do L1 clusters
-  l1CaloClusterData_->Reset();
+  if (storeCaloClusters_){
+    l1CaloClusterData_->Reset();
 
-  edm::Handle<l1t::CaloClusterBxCollection> l1Clusters;
+    edm::Handle<l1t::CaloClusterBxCollection> l1Clusters;
 
-  if (!l1ClusterToken_.isUninitialized())
-    iEvent.getByToken(l1ClusterToken_, l1Clusters);
+    if (!l1ClusterToken_.isUninitialized())
+      iEvent.getByToken(l1ClusterToken_, l1Clusters);
 
-  if (l1Clusters.isValid()){
+    if (l1Clusters.isValid()){
 
-    for ( int ibx=l1Clusters->getFirstBX(); ibx<=l1Clusters->getLastBX(); ++ibx) {
+      for ( int ibx=l1Clusters->getFirstBX(); ibx<=l1Clusters->getLastBX(); ++ibx) {
 
-      for ( auto itr = l1Clusters->begin(ibx); itr !=l1Clusters->end(ibx); ++itr ) {
+	for ( auto itr = l1Clusters->begin(ibx); itr !=l1Clusters->end(ibx); ++itr ) {
 
-        if (itr->hwPt()<=0) continue;
+	  if (itr->hwPt()<=0) continue;
 
-	//	l1CaloClusterData_->bx.push_back( ibx );
-	l1CaloClusterData_->et.push_back( itr->pt() );
-	l1CaloClusterData_->eta.push_back( itr->eta() );
-	l1CaloClusterData_->phi.push_back( itr->phi() );
-	l1CaloClusterData_->iet.push_back( itr->hwPt() );
-	l1CaloClusterData_->ieta.push_back( itr->hwEta() );
-	l1CaloClusterData_->iphi.push_back( itr->hwPhi() );
-	l1CaloClusterData_->iqual.push_back( itr->hwQual() );
+	  //	l1CaloClusterData_->bx.push_back( ibx );
+	  l1CaloClusterData_->et.push_back( itr->pt() );
+	  l1CaloClusterData_->eta.push_back( itr->eta() );
+	  l1CaloClusterData_->phi.push_back( itr->phi() );
+	  l1CaloClusterData_->iet.push_back( itr->hwPt() );
+	  l1CaloClusterData_->ieta.push_back( itr->hwEta() );
+	  l1CaloClusterData_->iphi.push_back( itr->hwPhi() );
+	  l1CaloClusterData_->iqual.push_back( itr->hwQual() );
 
-	l1CaloClusterData_->nCluster++;
+	  l1CaloClusterData_->nCluster++;
+
+	}
 
       }
 
     }
-
+    else {
+      edm::LogWarning("L1TNtuple") << "L1 Calo Clusters not found, branch will not be filled";
+    }
   }
-  else {
-    edm::LogWarning("L1TNtuple") << "L1 Calo Clusters not found, branch will not be filled";
-  }
-
 
 
   tree_->Fill();
