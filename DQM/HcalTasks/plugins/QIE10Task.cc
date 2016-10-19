@@ -76,7 +76,7 @@ QIE10Task::QIE10Task(edm::ParameterSet const& ps):
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true));
 
 	//	QIE8 vs 10 and 10 vs 10
-	_cADCCorrelation10vs8.initialize(_name, "ADCCorrelation10vs8",
+	_cADCCorrelation10vs8.initialize(_name, "ADCCorrelation10vs8TS2",
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fADC_128),
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10ADC_256),
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true));
@@ -84,7 +84,7 @@ QIE10Task::QIE10Task(edm::ParameterSet const& ps):
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10ADC_256),
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10ADC_256),
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true));
-	_cfCCorrelation10vs8.initialize(_name, "fCorrelation10vs8",
+	_cfCCorrelation10vs8.initialize(_name, "fCorrelation10vs8TS2",
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE8fC_1000_50),
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10fC_2000),
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true));
@@ -97,7 +97,7 @@ QIE10Task::QIE10Task(edm::ParameterSet const& ps):
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10TDC_64),
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true));
 
-	unsigned int nTS = _ptype==fLocal ? 10 : 4;
+	unsigned int nTS = _ptype==fLocal ? 10 : 6;
 	for (unsigned int j=0; j<nTS; j++)
 	{
 		_cLETDCvsADC_EChannel[j].initialize(_name,
@@ -119,12 +119,12 @@ QIE10Task::QIE10Task(edm::ParameterSet const& ps):
 			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10TDC_64),
 			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true));
 
-		_cADCCorrelation10vs8_DChannel[j].initialize(_name, "ADCCorrelation10vs8",
+		_cADCCorrelation10vs8_DChannel[j].initialize(_name, "ADCCorrelation10vs8TS2",
 			hcaldqm::hashfunctions::fDChannel,
 			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fADC_128),
 			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10ADC_256),
 			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true));
-		_cfCCorrelation10vs8_DChannel[j].initialize(_name, "fCCorrelation10vs8",
+		_cfCCorrelation10vs8_DChannel[j].initialize(_name, "fCCorrelation10vs8TS2",
 			hcaldqm::hashfunctions::fDChannel,
 			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE8fC_1000_50),
 			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10fC_2000),
@@ -323,17 +323,20 @@ QIE10Task::QIE10Task(edm::ParameterSet const& ps):
 			HFDataFrame frame2_8 = mqie8[did2.rawId()];
 
 			//	fill
-			for (int j=0; j<frame1_10.samples(); j++)
+			for (int f10_itr=0; f10_itr<frame1_10.samples(); f10_itr++)
 			{
-				_cADCCorrelation10vs8.fill(frame2_8[j].adc(),
-					frame1_10[j].adc());
-				_cADCCorrelation10vs8_DChannel[j].fill(did2,
-					frame2_8[j].adc(), frame1_10[j].adc());
-				_cfCCorrelation10vs8.fill(constants::adc2fC[frame2_8[j].adc()],
-					constants::adc2fC[frame1_10[j].adc()]);
-				_cfCCorrelation10vs8_DChannel[j].fill(did2,
-					constants::adc2fC[frame2_8[j].adc()], 
-					constants::adc2fC[frame1_10[j].adc()]);
+			  // compare QIE8 second TS VS each time slice for QIE10
+  			        int qie8_frame = 2;
+			        
+				_cADCCorrelation10vs8.fill(frame2_8[qie8_frame].adc(),
+					frame1_10[f10_itr].adc());
+				_cADCCorrelation10vs8_DChannel[f10_itr].fill(did2,
+					frame2_8[qie8_frame].adc(), frame1_10[f10_itr].adc());
+				_cfCCorrelation10vs8.fill(constants::adc2fC[frame2_8[qie8_frame].adc()],
+					constants::adc2fC[frame1_10[f10_itr].adc()]);
+				_cfCCorrelation10vs8_DChannel[f10_itr].fill(did2,
+					constants::adc2fC[frame2_8[qie8_frame].adc()], 
+					constants::adc2fC[frame1_10[f10_itr].adc()]);
 			}
 		}	
 

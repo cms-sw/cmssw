@@ -1137,7 +1137,7 @@ steps['RECOUP15']=merge([step3Up2015Defaults]) # todo: remove UP from label
 steps['RECOUP15AlCaCalo']=merge([step3Up2015DefaultsAlCaCalo]) # todo: remove UP from label
 
 # for Run2 PPb workflows
-steps['RECOUP15_PPb']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,EI,VALIDATION,DQM','--conditions':'auto:run2_mc_pa','--customise':'RecoHI/Configuration/customise_PPwithHI.customisePPrecoforPPb','--datatier':'AODSIM,DQMIO','--eventcontent':'AODSIM,DQM'}, steps['RECOUP15']])
+steps['RECOUP15_PPb']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,ALCA:TkAlMinBias+TkAlMuonIsolatedPA+TkAlUpsilonMuMuPA+TkAlZMuMuPA,EI,VALIDATION,DQM','--conditions':'auto:run2_mc_pa','--customise':'RecoHI/Configuration/customise_PPwithHI.customisePPrecoforPPb','--datatier':'AODSIM,DQMIO','--eventcontent':'AODSIM,DQM'}, steps['RECOUP15']])
 
 #steps['RECOUP15PROD1']=merge([{ '-s' : 'RAW2DIGI,L1Reco,RECO,EI,DQM:DQMOfflinePOGMC', '--datatier' : 'AODSIM,DQMIO', '--eventcontent' : 'AODSIM,DQM'},step3Up2015Defaults])
 

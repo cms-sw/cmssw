@@ -124,6 +124,13 @@ ecalOccupancyTask = cms.untracked.PSet(
             btype = cms.untracked.string('SuperCrystal'),
             description = cms.untracked.string('Digi occupancy.')
         ),
+        DigiAllByLumi = cms.untracked.PSet(
+            path = cms.untracked.string('%(subdet)s/%(prefix)sOccupancyTask/%(prefix)sOT digi occupancy%(suffix)s by lumi'),
+            kind = cms.untracked.string('TH2F'),
+            otype = cms.untracked.string('Ecal3P'),
+            btype = cms.untracked.string('SuperCrystal'),
+            description = cms.untracked.string('Digi occupancy for this lumisection.')
+        ),
         RecHitThrProjEta = cms.untracked.PSet(
             path = cms.untracked.string('%(subdet)s/%(prefix)sOccupancyTask/%(prefix)sOT rec hit thr occupancy%(suffix)s projection eta'),
             kind = cms.untracked.string('TH1F'),
@@ -145,6 +152,13 @@ ecalOccupancyTask = cms.untracked.PSet(
             btype = cms.untracked.string('TriggerTower'),
             description = cms.untracked.string('Occupancy for TP digis with Et > ' + str(tpThreshold) + ' GeV.')
         ),
+        TPDigiThrAllByLumi = cms.untracked.PSet(
+            path = cms.untracked.string('%(subdet)s/%(prefix)sOccupancyTask/%(prefix)sOT TP digi thr occupancy%(suffix)s by lumi'),
+            kind = cms.untracked.string('TH2F'),
+            otype = cms.untracked.string('Ecal3P'),
+            btype = cms.untracked.string('TriggerTower'),
+            description = cms.untracked.string('TP digi occupancy for this lumisection. Only includes TP digis with Et > ' + str(tpThreshold) + ' GeV.')
+        ),
         TPDigiRCT = cms.untracked.PSet(
             path = cms.untracked.string('EcalBarrel/EBOccupancyTask/TP digi thr occupancy in RCT coordinates'),
             kind = cms.untracked.string('TH2F'),
@@ -158,6 +172,13 @@ ecalOccupancyTask = cms.untracked.PSet(
             otype = cms.untracked.string('Ecal3P'),
             btype = cms.untracked.string('SuperCrystal'),
             description = cms.untracked.string('Occupancy for rec hits with GOOD reconstruction flag and E > ' + str(recHitThreshold) + ' GeV.')
+        ),
+        RecHitThrAllByLumi = cms.untracked.PSet(
+            path = cms.untracked.string('%(subdet)s/%(prefix)sOccupancyTask/%(prefix)sOT rec hit thr occupancy%(suffix)s by lumi'),
+            kind = cms.untracked.string('TH2F'),
+            otype = cms.untracked.string('Ecal3P'),
+            btype = cms.untracked.string('SuperCrystal'),
+            description = cms.untracked.string('Filtered rechit cccupancy for this lumisection. Only includes rechits with GOOD reconstruction flag and E > ' + str(recHitThreshold) + ' GeV.')
         ),
         RecHitAll = cms.untracked.PSet(
             path = cms.untracked.string('%(subdet)s/%(prefix)sOccupancyTask/%(prefix)sOT rec hit occupancy%(suffix)s'),
