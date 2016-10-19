@@ -143,6 +143,7 @@
        MonitorElement* noOccROCsEndcap;
        MonitorElement* loOccROCsEndcap;
        MonitorElement* averageDigiOccupancy;
+       MonitorElement* averageDigiOccupancyvsLumi;
        MonitorElement* avgfedDigiOccvsLumi;
        MonitorElement* meNDigisCOMBBarrel_;
        MonitorElement* meNDigisCOMBEndcap_;
