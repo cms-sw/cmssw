@@ -29,9 +29,9 @@ class ME0GeometryBuilderFromDDD10EtaPart
   ME0Geometry* buildGeometry(DDFilteredView& fview, const MuonDDDConstants& muonConstants);
   std::map<ME0DetId,std::vector<ME0DetId>> chids;
 
-  typedef ReferenceCountingPointer<BoundPlane> RCPBoundPlane;
+  typedef ReferenceCountingPointer<BoundPlane> ME0BoundPlane;
 
-  RCPBoundPlane boundPlane(const DDFilteredView& fv,
+  ME0BoundPlane boundPlane(const DDFilteredView& fv,
                            Bounds* bounds, bool isOddChamber) const ;
   
   ME0Chamber* buildChamber(DDFilteredView& fv, ME0DetId detId) const;
