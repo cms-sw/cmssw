@@ -34,6 +34,8 @@ namespace citk {
 			      const edm::EventSetup&) override final;
 
     virtual void produce(edm::Event&, const edm::EventSetup&) override final;
+
+    static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
     
   private:  
     // datamembers
@@ -49,6 +51,7 @@ namespace citk {
     std::array<IsoTypes,kNPFTypes> _isolation_types; 
     std::array<std::vector<std::string>,kNPFTypes> _product_names;
     bool useValueMapForPUPPI = true;
+    bool usePUPPINoLepton = false;// in case puppi weights are taken from packedCandidate can take weights for puppiNoLeptons
   };
 }
 
@@ -153,8 +156,9 @@ namespace citk {
     	   for( unsigned i = 0; i < isolations.size(); ++ i  ) {
     	  if( isolations[i]->isInIsolationCone(cand_to_isolate,isocand) ) {
           double puppiWeight = 0.;
-    	    if (!useValueMapForPUPPI) puppiWeight = aspackedCandidate -> puppiWeight(); // if miniAOD, take puppiWeight directly from the object
-          else  puppiWeight = (*puppiValueMap)[isocand]; // if AOD, take puppiWeight from the valueMap
+    	    if (!useValueMapForPUPPI && !usePUPPINoLepton) puppiWeight = aspackedCandidate -> puppiWeight(); // if miniAOD, take puppiWeight directly from the object
+            else if (!useValueMapForPUPPI && usePUPPINoLepton) puppiWeight = aspackedCandidate -> puppiWeightNoLep(); // if miniAOD, take puppiWeightNoLep directly from the object
+            else  puppiWeight = (*puppiValueMap)[isocand]; // if AOD, take puppiWeight from the valueMap
           if (puppiWeight > 0.)cand_values[isotype][i] += (isocand->pt())*puppiWeight; // this is basically the main change to Lindsey's code: scale pt with puppiWeight for candidates with puppiWeight > 0.
     	  }
     	}
@@ -179,4 +183,38 @@ namespace citk {
       }
     }
   }
+
+
+// ParameterSet description for module
+void PFIsolationSumProducerForPUPPI::fillDescriptions(edm::ConfigurationDescriptions & descriptions)
+{ 
+    edm::ParameterSetDescription iDesc;
+    iDesc.setComment("PUPPI isolation sum producer");
+
+    iDesc.add<edm::InputTag>("srcToIsolate", edm::InputTag("no default"))->setComment("calculate isolation for this collection");
+    iDesc.add<edm::InputTag>("srcForIsolationCone", edm::InputTag("no default"))->setComment("collection for the isolation calculation: like particleFlow ");
+    iDesc.add<edm::InputTag>("puppiValueMap", edm::InputTag("puppi"))->setComment("source for puppi, if left empty weight from packedCandidate is taken");
+
+    edm::ParameterSetDescription descIsoConeDefinitions;
+    descIsoConeDefinitions.add<std::string>("isolationAlgo", "no default");
+    descIsoConeDefinitions.add<double>("coneSize", 0.3);
+    descIsoConeDefinitions.add<std::string>("isolateAgainst", "no default");
+    descIsoConeDefinitions.add<std::vector<unsigned>>("miniAODVertexCodes", {2,3});
+    descIsoConeDefinitions.addOptional<double>("VetoConeSizeBarrel", 0.0);
+    descIsoConeDefinitions.addOptional<double>("VetoConeSizeEndcaps", 0.0);
+    descIsoConeDefinitions.addOptional<int>("vertexIndex",0);
+    descIsoConeDefinitions.addOptional<edm::InputTag>("particleBasedIsolation",edm::InputTag("no default"))->setComment("map for footprint removal that is used for photons");
+
+
+    std::vector<edm::ParameterSet> isolationConeDefinitions;
+    edm::ParameterSet chargedHadrons, neutralHadrons,photons;
+    isolationConeDefinitions.push_back(chargedHadrons);
+    isolationConeDefinitions.push_back(neutralHadrons);
+    isolationConeDefinitions.push_back(photons);
+    iDesc.addVPSet("isolationConeDefinitions", descIsoConeDefinitions, isolationConeDefinitions);
+    iDesc.addOptional<bool>("usePUPPINoLepton",false);
+
+    descriptions.add("CITKPFIsolationSumProducerForPUPPI", iDesc);
+}
+
 }
