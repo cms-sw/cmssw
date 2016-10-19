@@ -54,7 +54,7 @@ for (const auto & hit: simHits)
   if (std::abs(hit.particleType()) != 13 && digitizeOnlyMuons_) continue;
   // Digitize only in [minBunch,maxBunch] window
   // window is: [(2n-1)*bxw/2, (2n+1)*bxw/2], n = [minBunch, maxBunch]
-  if(hit.timeOfFlight() < (2*minBunch_-1)*bxwidth*1.0/2 || hit.timeOfFlight() > (2*maxBunch_+1)*bxwidth*1.0/2) continue;
+  if(hit.timeOfFlight() < (2*minBunch_+1)*bxwidth*1.0/2 || hit.timeOfFlight() > (2*maxBunch_+3)*bxwidth*1.0/2) continue;
   // is GEM efficient?
   if (CLHEP::RandFlat::shoot(engine) > averageEfficiency_) continue;
   // create digi
