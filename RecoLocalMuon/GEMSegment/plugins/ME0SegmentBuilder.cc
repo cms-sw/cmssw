@@ -75,10 +75,6 @@ void ME0SegmentBuilder::build(const ME0RecHitCollection* recHits, ME0SegmentColl
     
     // Add the segments to master collection
     oc.put(mid, segv.begin(), segv.end());
-
-    // HACK to make it a chamberID (taken from midchamber, not mid
-    // ME0DetId midchamber(mid.chamberId());
-    // oc.put(midchamber, segv.begin(), segv.end());
   }
 }
 
