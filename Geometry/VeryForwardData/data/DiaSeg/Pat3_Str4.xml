@@ -1,0 +1,32 @@
+<DDDefinition xmlns="http://www.cern.ch/mms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+          xsi:schemaLocation="http://www.cern.ch/mms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+<SolidSection label="Pat3_Str4.xml">
+      <Box name="Diamond" dx="[CTPPS_Diamond_Parameters:Pat3_Str4_dx]+[CTPPS_Diamond_Parameters:UnMet_Edge]+0.5*[CTPPS_Diamond_Parameters:UnMet_gap]" dy="[CTPPS_Diamond_Parameters:Diamond_dy]" dz="[CTPPS_Diamond_Parameters:Diamond_dz]"/>
+      <Box name="Metalized_Layer" dx="[CTPPS_Diamond_Parameters:Pat3_Str4_dx]" dy="[CTPPS_Diamond_Parameters:Str_dy]" dz="[CTPPS_Diamond_Parameters:Metalized_thick]"/>
+      <Box name="Gold_up" dx="[CTPPS_Diamond_Parameters:Pat3_Str4_dx]" dy="[CTPPS_Diamond_Parameters:Str_dy]" dz="[CTPPS_Diamond_Parameters:Gold_thick]"/>
+      <Box name="Gold_down" dx="[CTPPS_Diamond_Parameters:Pat3_Str4_dx]" dy="[CTPPS_Diamond_Parameters:Str_dy]" dz="[CTPPS_Diamond_Parameters:Gold_thick]"/>
+      <Box name="Chromium" dx="[CTPPS_Diamond_Parameters:Pat3_Str4_dx]" dy="[CTPPS_Diamond_Parameters:Str_dy]" dz="[CTPPS_Diamond_Parameters:Chromium_thick]"/>
+</SolidSection>
+<LogicalPartSection label="Pat3_Str4.xml">
+      <LogicalPart name="Diamond" category="unspecified">
+              <rSolid name="Diamond"/>
+              <rMaterial name="CTPPS_Diamond_Materials:Diamond"/>
+      </LogicalPart>
+      <LogicalPart name="Metalized_Layer" category="unspecified">
+              <rSolid name="Metalized_Layer"/>
+              <rMaterial name="CTPPS_Diamond_Materials:Gold"/>
+      </LogicalPart>
+      <LogicalPart name="Gold_up" category="unspecified">
+              <rSolid name="Gold_up"/>
+              <rMaterial name="CTPPS_Diamond_Materials:Gold"/>
+      </LogicalPart>
+      <LogicalPart name="Gold_down" category="unspecified">
+              <rSolid name="Gold_down"/>
+              <rMaterial name="CTPPS_Diamond_Materials:Gold"/>
+      </LogicalPart>
+      <LogicalPart name="Chromium" category="unspecified">
+              <rSolid name="Chromium"/>
+              <rMaterial name="CTPPS_Diamond_Materials:Chromium"/>
+      </LogicalPart>
+</LogicalPartSection>
+</DDDefinition>
