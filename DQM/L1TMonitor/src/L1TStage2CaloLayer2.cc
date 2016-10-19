@@ -95,7 +95,18 @@ void L1TStage2CaloLayer2::bookHistograms(DQMStore::IBooker &ibooker, edm::Run co
   stage2CaloLayer2MHTRank_ = ibooker.book1D("MHTRank", "MHT E_{T}", 4096, -0.5, 4095.5);
   stage2CaloLayer2MHTPhi_ = ibooker.book1D("MHTPhi", "MHT Phi", 144, -0.5, 143.5);
   stage2CaloLayer2HTTRank_ = ibooker.book1D("HTTRank", "HTT E_{T}", 4096, -0.5, 4095.5);
+  stage2CaloLayer2METHFRank_ = ibooker.book1D("METHFRank", "METHF E_{T}", 4096, -0.5, 4095.5);
+  stage2CaloLayer2METHFPhi_ = ibooker.book1D("METHFPhi", "METHF Phi", 144, -0.5, 143.5);
+  // stage2CaloLayer2ETTHFRank_ = ibooker.book1D("ETTHFRank", "ETTHF E_{T}", 4096, -0.5, 4095.5);
+  stage2CaloLayer2MHTHFRank_ = ibooker.book1D("MHTHFRank", "MHTHF E_{T}", 4096, -0.5, 4095.5);
+  stage2CaloLayer2MHTHFPhi_ = ibooker.book1D("MHTHFPhi", "MHTHF Phi", 144, -0.5, 143.5);
+  // stage2CaloLayer2HTTHFRank_ = ibooker.book1D("HTTHFRank", "HTTHF E_{T}", 4096, -0.5, 4095.5);
+  stage2CaloLayer2ETTEMRank_ = ibooker.book1D("ETTEMRank", "ETTEM E_{T}", 4096, -0.5, 4095.5);
 
+  stage2CaloLayer2MinBiasHFP0_ = ibooker.book1D("MinBiasHFP0", "E_{T}", 16, -0.5, 15.5);
+  stage2CaloLayer2MinBiasHFM0_ = ibooker.book1D("MinBiasHFM0", "E_{T}", 16, -0.5, 15.5);
+  stage2CaloLayer2MinBiasHFP1_ = ibooker.book1D("MinBiasHFP1", "E_{T}", 16, -0.5, 15.5);
+  stage2CaloLayer2MinBiasHFM1_ = ibooker.book1D("MinBiasHFM1", "E_{T}", 16, -0.5, 15.5);
 
   ibooker.setCurrentFolder(monitorDir_+"/Timing");
   timingStage2CaloLayer2CenJetBxOcc_ = stage2CaloLayer2CenJetBxOcc_;
@@ -232,15 +243,35 @@ void L1TStage2CaloLayer2::analyze(const edm::Event & e, const edm::EventSetup & 
       stage2CaloLayer2EtSumBxOcc_->Fill(itBX, itEtSum->hwPt());
 
       if (itBX==0){
-	if(l1t::EtSum::EtSumType::kMissingEt == itEtSum->getType()){;
+	if(l1t::EtSum::EtSumType::kMissingEt == itEtSum->getType()){;          // MET
 	  stage2CaloLayer2METRank_->Fill(itEtSum->hwPt());
 	  stage2CaloLayer2METPhi_->Fill(itEtSum->hwPhi());
-	} else if(l1t::EtSum::EtSumType::kTotalEt == itEtSum->getType()){
+	} else if(l1t::EtSum::EtSumType::kMissingEtHF == itEtSum->getType()){  // METHF
+	  stage2CaloLayer2METHFRank_->Fill(itEtSum->hwPt());
+	  stage2CaloLayer2METHFPhi_->Fill(itEtSum->hwPhi());
+	} else if(l1t::EtSum::EtSumType::kTotalEt == itEtSum->getType()){      // ETT
 	  stage2CaloLayer2ETTRank_->Fill(itEtSum->hwPt());
-	} else if(l1t::EtSum::EtSumType::kMissingHt == itEtSum->getType()){
+	  //} else if(l1t::EtSum::EtSumType::kTotalEtHF == itEtSum->getType()){    // ETTHF
+	  // stage2CaloLayer2ETTHFRank_->Fill(itEtSum->hwPt());
+	} else if(l1t::EtSum::EtSumType::kMissingHt == itEtSum->getType()){    // MHT
 	  stage2CaloLayer2MHTRank_->Fill(itEtSum->hwPt());
 	  stage2CaloLayer2MHTPhi_->Fill(itEtSum->hwPhi());
-	} else{
+	} else if(l1t::EtSum::EtSumType::kMissingHtHF == itEtSum->getType()){  // MHTHF
+	  stage2CaloLayer2MHTHFRank_->Fill(itEtSum->hwPt());
+	  stage2CaloLayer2MHTHFPhi_->Fill(itEtSum->hwPhi());
+	} else if(l1t::EtSum::EtSumType::kMinBiasHFP0 == itEtSum->getType()){  // MBHFP0
+	  stage2CaloLayer2MinBiasHFP0_->Fill(itEtSum->hwPt());
+	} else if(l1t::EtSum::EtSumType::kMinBiasHFM0 == itEtSum->getType()){  // MBHFM0
+	  stage2CaloLayer2MinBiasHFM0_->Fill(itEtSum->hwPt());
+	} else if(l1t::EtSum::EtSumType::kMinBiasHFP1 == itEtSum->getType()){  // MBHFP1
+	  stage2CaloLayer2MinBiasHFP1_->Fill(itEtSum->hwPt());
+	} else if(l1t::EtSum::EtSumType::kMinBiasHFM1 == itEtSum->getType()){  // MBHFM1
+	  stage2CaloLayer2MinBiasHFM1_->Fill(itEtSum->hwPt());
+	  //} else if(l1t::EtSum::EtSumType::kTotalHtHF == itEtSum->getType()){    // HTTHF
+	  //stage2CaloLayer2HTTHFRank_->Fill(itEtSum->hwPt());
+	} else if(l1t::EtSum::EtSumType::kTotalEtEm == itEtSum->getType()){    // ETTEM
+	  stage2CaloLayer2ETTEMRank_->Fill(itEtSum->hwPt());
+	} else{                                                                // HTT
 	  stage2CaloLayer2HTTRank_->Fill(itEtSum->hwPt());
 	}
       }
