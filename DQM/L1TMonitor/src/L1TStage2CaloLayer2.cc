@@ -95,7 +95,7 @@ void L1TStage2CaloLayer2::bookHistograms(DQMStore::IBooker &ibooker, edm::Run co
   stage2CaloLayer2MHTRank_ = ibooker.book1D("MHTRank", "MHT E_{T}", 4096, -0.5, 4095.5);
   stage2CaloLayer2MHTPhi_ = ibooker.book1D("MHTPhi", "MHT Phi", 144, -0.5, 143.5);
   stage2CaloLayer2HTTRank_ = ibooker.book1D("HTTRank", "HTT E_{T}", 4096, -0.5, 4095.5);
-
+  stage2CaloLayer2TowCount_ = ibooker.book1D("TowCount", "Count of Trigger towers above threshold", 5904, -0.5, 5903.5);
 
   ibooker.setCurrentFolder(monitorDir_+"/Timing");
   timingStage2CaloLayer2CenJetBxOcc_ = stage2CaloLayer2CenJetBxOcc_;
@@ -240,6 +240,8 @@ void L1TStage2CaloLayer2::analyze(const edm::Event & e, const edm::EventSetup & 
 	} else if(l1t::EtSum::EtSumType::kMissingHt == itEtSum->getType()){
 	  stage2CaloLayer2MHTRank_->Fill(itEtSum->hwPt());
 	  stage2CaloLayer2MHTPhi_->Fill(itEtSum->hwPhi());
+	} else if (l1t::EtSum::EtSumType::kTowerCount == itEtSum->getType()) {
+	  stage2CaloLayer2TowCount_->Fill(itEtSum->hwPt());
 	} else{
 	  stage2CaloLayer2HTTRank_->Fill(itEtSum->hwPt());
 	}
