@@ -24,6 +24,8 @@
 #include "CondFormats/DataRecord/interface/SiStripCondDataRecords.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include "SiStripFakeAPVParameters.h"
+
 class SiStripNoisesFakeESSource : public edm::ESProducer, public edm::EventSetupRecordIntervalFinder {
 public:
   SiStripNoisesFakeESSource(const edm::ParameterSet&);
@@ -37,8 +39,8 @@ public:
 private:
   bool m_stripLengthMode;
   double m_noisePar0;
-  std::map<int, std::vector<double>> m_noisePar1;
-  std::map<int, std::vector<double>> m_noisePar2;
+  SiStripFakeAPVParameters m_noisePar1;
+  SiStripFakeAPVParameters m_noisePar2;
   edm::FileInPath m_file;
   uint32_t m_printDebug;
 };
@@ -55,33 +57,6 @@ namespace { // helper methods
   {
     edm::LogInfo("SiStripNoisesDummyCalculator") << "detid: " << detId << " strip: " << strip <<  " noise: " << noise;
   }
-
-  /**
-   * Fills the map with the paramters for the given subdetector. <br>
-   * Each vector "v" holds the parameters for the layers/rings, if the vector has only one parameter
-   * all the layers/rings get that parameter. <br>
-   * The only other possibility is that the number of parameters equals the number of layers, otherwise
-   * an exception of type "Configuration" will be thrown.
-   */
-  void fillSubDetParameter( std::map<int,std::vector<double>>& mapToFill, const std::vector<double>& v, const int subDet, const unsigned short layers )
-  {
-    if ( v.size() == layers ) {
-      mapToFill.insert(std::make_pair(subDet, v));
-    } else if ( v.size() == 1 ) {
-      std::vector<double> parV(layers, v[0]);
-      mapToFill.insert(std::make_pair(subDet, parV));
-    } else {
-      throw cms::Exception("Configuration") << "ERROR: number of parameters for subDet " << subDet << " are " << v.size() << ". They must be either 1 or " << layers << std::endl;
-    }
-  }
-  /// Fills the parameters read from cfg and matching the name in the given map
-  void fillParameters( std::map<int,std::vector<double>>& mapToFill, const edm::ParameterSet& pset, const std::string& parameterName )
-  {
-    fillSubDetParameter(mapToFill, pset.getParameter<std::vector<double>>(parameterName+"TIB"), int(StripSubdetector::TIB), 4); // 4 TIB layers
-    fillSubDetParameter(mapToFill, pset.getParameter<std::vector<double>>(parameterName+"TID"), int(StripSubdetector::TID), 3); // TID rings
-    fillSubDetParameter(mapToFill, pset.getParameter<std::vector<double>>(parameterName+"TOB"), int(StripSubdetector::TOB), 6); // TOB layers
-    fillSubDetParameter(mapToFill, pset.getParameter<std::vector<double>>(parameterName+"TEC"), int(StripSubdetector::TEC), 7); // TEC rings
-  }
 }
 
 SiStripNoisesFakeESSource::SiStripNoisesFakeESSource(const edm::ParameterSet& iConfig)
@@ -94,13 +69,13 @@ SiStripNoisesFakeESSource::SiStripNoisesFakeESSource(const edm::ParameterSet& iC
   if ( ! m_stripLengthMode ) {
     //parameters for random noise generation. not used if Strip length mode is chosen
     m_noisePar0 = iConfig.getParameter<double>("MinPositiveNoise");
-    fillParameters(m_noisePar1, iConfig, "MeanNoise");
-    fillParameters(m_noisePar2, iConfig, "SigmaNoise");
+    m_noisePar1 = SiStripFakeAPVParameters(iConfig, "MeanNoise");
+    m_noisePar2 = SiStripFakeAPVParameters(iConfig, "SigmaNoise");
   } else {
     //parameters for strip length proportional noise generation. not used if random mode is chosen
     m_noisePar0 = iConfig.getParameter<double>("electronPerAdc");
-    fillParameters(m_noisePar1, iConfig, "NoiseStripLengthSlope");
-    fillParameters(m_noisePar2, iConfig, "NoiseStripLengthQuote");
+    m_noisePar1 = SiStripFakeAPVParameters(iConfig, "NoiseStripLengthSlope");
+    m_noisePar2 = SiStripFakeAPVParameters(iConfig, "NoiseStripLengthQuote");
   }
 
   m_file = iConfig.getParameter<edm::FileInPath>("file");
@@ -131,12 +106,12 @@ SiStripNoisesFakeESSource::produce(const SiStripNoisesRcd& iRecord)
   for ( const auto& elm : reader.getAllData() ) {
     //Generate Noises for det detid
     SiStripNoises::InputVector theSiStripVector;
-    std::pair<int, int> sl = tTopo->stripSubDetAndLayer(elm.first);
+    SiStripFakeAPVParameters::index sl = SiStripFakeAPVParameters::getIndex(tTopo.product(), elm.first);
 
     if ( m_stripLengthMode ) {
       // Use strip length
-      const double linearSlope{m_noisePar1[sl.first][sl.second]};
-      const double linearQuote{m_noisePar2[sl.first][sl.second]};
+      const double linearSlope{m_noisePar1.get(sl)};
+      const double linearQuote{m_noisePar2.get(sl)};
       const double stripLength{elm.second.stripLength};
       for ( unsigned short j{0}; j < 128*elm.second.nApvs; ++j ) {
         const float noise = (linearSlope*stripLength + linearQuote) / m_noisePar0;
@@ -145,8 +120,8 @@ SiStripNoisesFakeESSource::produce(const SiStripNoisesRcd& iRecord)
       }
     } else {
       // Use random generator
-      const double meanN {m_noisePar1[sl.first][sl.second]};
-      const double sigmaN{m_noisePar2[sl.first][sl.second]};
+      const double meanN {m_noisePar1.get(sl)};
+      const double sigmaN{m_noisePar2.get(sl)};
       for ( unsigned short j{0}; j < 128*elm.second.nApvs; ++j ) {
         const float noise = std::max(CLHEP::RandGauss::shoot(meanN, sigmaN), m_noisePar0);
         if ( count < m_printDebug ) printLog(elm.first, j, noise);

@@ -236,8 +236,6 @@ class TrackerTopology {
   { return ((id.rawId()>>tecVals_.petalStartBit_) & tecVals_.petalMask_);}
 
 
-  // get subdetector, layer/ring (-1) pair (as used in noise and APV gain sources)
-  std::pair<int,int> stripSubDetAndLayer(const DetId& id) const;
   
 
   //misc tob
