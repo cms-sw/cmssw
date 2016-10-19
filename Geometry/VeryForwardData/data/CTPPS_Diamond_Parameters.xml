@@ -1,0 +1,99 @@
+<DDDefinition xmlns="http://www.cern.ch/mms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+          xsi:schemaLocation="http://www.cern.ch/mms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+
+<!--  _________________    ___________________    __________________________    _____________________________
+    *|    PATTERN 1    |**|    Pattern 2      |**|          Pattern 3       |**|            Pattern 4        |*   ^
+    *| _______________ |**| ________   ______ |**| ______   ____   ___   __ |**| _____   ____   ___   __   _ |*   |
+    *||               ||**||        |*|      ||**||      |*|    |*|   |*|  ||**||     |*|    |*|   |*|  |*| ||*   |
+    *||               ||**||        |*|      ||**||      |*|    |*|   |*|  ||**||     |*|    |*|   |*|  |*| ||*   |
+    *||       s       ||**||    s   |*|   s  ||**||   s  |*|  s |*| s |*|s ||**||  s  |*| s  |*| s |*|s |*|s||*   |
+    *||       t       ||**||    t   |*|   t  ||**||   t  |*|  t |*| t |*|t ||**||  t  |*| t  |*| t |*|t |*|t||*   |
+    *||       r       ||**||    r   |*|   r  ||**||   r  |*|  r |*| r |*|r ||**||  r  |*| r  |*| r |*|r |*|r||*   | Y
+    *||       i       ||**||    i   |*|   i  ||**||   i  |*|  i |*| i |*|i ||**||  i  |*| i  |*| i |*|i |*|i||*   |
+    *||       p       ||**||    p   |*|   p  ||**||   p  |*|  p |*| p |*|p ||**||  p  |*| p  |*| p |*|p |*|p||*   |
+    *||       1       ||**||    1   |*|   2  ||**||   1  |*|  2 |*| 3 |*|4 ||**||  1  |*| 2  |*| 3 |*|4 |*|5||*   |
+    *||               ||**||        |*|      ||**||      |*|    |*|   |*|  ||**||     |*|    |*|   |*|  |*| ||*   |
+    *||       4       ||**||    2   |*|   1  ||**||   1  |*|  1 |*| 0 |*|0 ||**||  1  |*| 0  |*| 0 |*|0 |*|0||*   |
+    *||       .       ||**||    .   |*|   .  ||**||   .  |*|  . |*| . |*|. ||**||  .  |*| .  |*| . |*|. |*|.||*   |
+    *||       2       ||**||    3   |*|   7  ||**||   1  |*|  0 |*| 9 |*|8 ||**||  0  |*| 8  |*| 7 |*|6 |*|5||*   |
+    *||       0       ||**||    5   |*|   5  ||**||   6  |*|  2 |*| 1 |*|1 ||**||  0  |*| 5  |*| 5 |*|5 |*|5||*   |
+    *||_______________||**||________|*|______||**||______|*|____|*|___|*|__||**||_____|*|____|*|___|*|__|*|_||*   |
+    *|                 |**|                   |**|                          |**|                             |*   |
+                                                                                                                  |
+    /_____________________________________________________________________________________________________________|
+    \                                                      X
+-->
+<ConstantsSection label="CTPPS_Diamond_Parameters.xml">   
+	<Constant name="Scale" value="10*mm"/>
+<!--          Diamonds            -->
+	<Constant name="Diamond_dx" value="[Scale]*4.50"/>
+        <Constant name="Diamond_dy" value="[Scale]*4.50"/>
+	<Constant name="Diamond_dz" value="[Scale]*0.50"/>
+<!--          Metalized Layers            -->
+	<Constant name="Gold_thick" value="[Scale]*150e-6"/>
+	<Constant name="Chromium_thick" value="[Scale]*50e-6"/>
+	<Constant name="Metalized_thick" value="[Gold_thick]*2+[Chromium_thick]"/>
+	<Constant name="PCB_thick" value="[Scale]*1.20"/>
+	<Constant name="UnMet_Edge" value="[Scale]*0.15"/>
+	<Constant name="UnMet_gap" value="[Scale]*0.10"/>
+	<Constant name="Plane_gap" value="[Scale]*12.00"/>
+<!--          Detector Pixels            -->
+	<Constant name="Str_dz" value="[Chromium_thick]+2*[Gold_thick]"/>
+	<Constant name="Str_dy" value="[Scale]*4.20"/>
+	<Constant name="Pat1_Str1_dx" value="[Scale]*4.20"/>
+	<Constant name="Pat1_Str1" value="[Pat1_Str1_dx]+2*[UnMet_Edge]"/>
+	<Constant name="Pat2_Str1_dx" value="[Scale]*2.35"/>
+	<Constant name="Pat2_Str1" value="[Pat2_Str1_dx]+[UnMet_Edge]+[UnMet_gap]/2"/>
+	<Constant name="Pat2_Str2_dx" value="[Scale]*1.75"/>
+	<Constant name="Pat2_Str2" value="[Pat2_Str2_dx]+[UnMet_Edge]+0.5*[UnMet_gap]"/>
+	<Constant name="Pat3_Str1_dx" value="[Scale]*1.16"/>
+	<Constant name="Pat3_Str1" value="[Pat3_Str1_dx]+[UnMet_Edge]+0.5*[UnMet_gap]"/>
+	<Constant name="Pat3_Str2_dx" value="[Scale]*1.02"/>
+	<Constant name="Pat3_Str2" value="[Pat3_Str2_dx]+[UnMet_gap]"/>
+	<Constant name="Pat3_Str3_dx" value="[Scale]*0.91"/>
+	<Constant name="Pat3_Str3" value="[Pat3_Str3_dx]+[UnMet_gap]"/>
+	<Constant name="Pat3_Str4_dx" value="[Scale]*0.81"/>
+	<Constant name="Pat3_Str4" value="[Pat3_Str4_dx]+[UnMet_Edge]+0.5*[UnMet_gap]"/>
+	<Constant name="Pat4_Str1_dx" value="[Scale]*1.00"/>
+	<Constant name="Pat4_Str1" value="[Pat4_Str1_dx]+[UnMet_Edge]+0.5*[UnMet_gap]"/>
+	<Constant name="Pat4_Str2_dx" value="[Scale]*0.85"/>
+	<Constant name="Pat4_Str2" value="[Pat4_Str2_dx]+[UnMet_gap]"/>
+	<Constant name="Pat4_Str3_dx" value="[Scale]*0.75"/>
+	<Constant name="Pat4_Str3" value="[Pat4_Str3_dx]+[UnMet_gap]"/>
+	<Constant name="Pat4_Str4_dx" value="[Scale]*0.65"/>
+	<Constant name="Pat4_Str4" value="[Pat4_Str4_dx]+[UnMet_gap]"/>
+	<Constant name="Pat4_Str5_dx" value="[Scale]*0.55"/>
+	<Constant name="Pat4_Str5" value="[Pat4_Str5_dx]+[UnMet_Edge]+0.5*[UnMet_gap]"/>
+<!--          Detector Planes            -->
+	<Constant name="Plane_dx" value="4*[Diamond_dx]"/>
+	<Constant name="Plane_dy" value="[Diamond_dy]"/>
+	<Constant name="Plane_dz" value="[Str_dz]+[Diamond_dz]+[PCB_thick]"/>
+<!--          Diamond Detector Box            -->
+	<Constant name="Main_Box_dx" value="4*[Diamond_dx]"/>
+	<Constant name="Main_Box_dy" value="[Diamond_dy]"/>
+	<Constant name="Main_Box_dz" value="[Plane_dz]*4+[Plane_gap]*3"/>
+
+</ConstantsSection>
+
+
+<SolidSection label="CTPPS_Diamond_Parameters.xml">
+
+<!--           Detector Main Box and Planes           -->   
+      <Box name="CTPPS_Diamond_Main_Box" dx="[Main_Box_dx]" dy="[Main_Box_dy]" dz="[Chromium_thick]*4+[Gold_thick]*8+[Diamond_dz]*4+[PCB_thick]*4+[Plane_gap]*3"/>
+</SolidSection>
+<LogicalPartSection label="CTPPS_Diamond_Parameters.xml">
+<!-- ****** Detector Box and Downstream Plane ****** -->
+     <LogicalPart name="CTPPS_Diamond_Main_Box" category="unspecified">
+             <rSolid name="CTPPS_Diamond_Main_Box"/>
+             <rMaterial name="CTPPS_Diamond_Materials:Vacuum"/>
+     </LogicalPart>
+     <LogicalPart name="Downstream_Plane" category="unspecified">
+             <rSolid name="Downstream_Plane"/>
+             <rMaterial name="CTPPS_Diamond_Materials:Copper"/>
+     </LogicalPart>
+
+
+
+</LogicalPartSection>
+
+</DDDefinition>
