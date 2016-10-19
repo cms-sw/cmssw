@@ -21,7 +21,9 @@ import DQMServices.Components.DQMEnvironment_cfi
 dqmEnvL1T = DQMServices.Components.DQMEnvironment_cfi.dqmEnv.clone()
 dqmEnvL1T.subSystemFolder = 'L1T2016'
 
-
+from L1Trigger.L1TGlobal.hackConditions_cff import *
+from L1Trigger.L1TMuon.hackConditions_cff import *
+from L1Trigger.L1TCalorimeter.hackConditions_cff import *
 
 # DQM online L1 Trigger modules, with offline configuration 
 from DQMOffline.L1Trigger.L1TMonitorOffline_cff import *
