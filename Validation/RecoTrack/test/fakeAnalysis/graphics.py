@@ -428,9 +428,9 @@ class EventPlotter(object):
 		reco_inds = []
 		recos = []
 		for hit in fake.hits():
-		    if hit.isValidHit() and hit.nMatchedTrackingParticles() >= 0:	
-			for info in hit.matchedTrackingParticleInfos():
-			    particle = info.trackingParticle()
+		    if hit.isValidHit() and hit.nSimHits() >= 0:
+			for simHit in hit.simHits():
+			    particle = simHit.trackingParticle()
 			    if particle.index() not in particle_inds:
 				particle_inds.append(particle.index())
 				particles.append(particle)
@@ -490,10 +490,10 @@ class EventPlotter(object):
 	    print "\nPARTICLE " + str(particle.index())
 	    for hit in particle.hits():
 		tof = -1
-		for info in hit.matchedTrackingParticleInfos():
-		    if info.trackingParticle().index() == particle.index():
+		for simHit in hit.simHits():
+		    if simHit.trackingParticle().index() == particle.index():
 			#if len(info.tof()): 
-			tof = info.tof()
+			tof = simHit.tof()
 		print "Index: " + str(hit.index()) + ", Layer: " + str(hit.layerStr()) + ", TOF: " + str(tof) +\
 	        "     XY distance: " + str(sqrt(hit.x()**2 + hit.y()**2)) + ", Z: " + str(hit.z())
 	    self.DrawTrackTest(particle)

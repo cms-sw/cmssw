@@ -258,9 +258,9 @@ def FindAssociatedParticles(track):
     particle_inds = []
     particles = []
     for hit in track.hits():
-	if hit.isValidHit() and hit.nMatchedTrackingParticles() >= 0:	
-	    for info in hit.matchedTrackingParticleInfos():
-		particle = info.trackingParticle()
+	if hit.isValidHit() and hit.nSimHits() >= 0:
+	    for simHit in hit.simHits():
+		particle = simHit.trackingParticle()
 		if particle.index() not in particle_inds:
 		    particle_inds.append(particle.index())
 		    particles.append(particle)

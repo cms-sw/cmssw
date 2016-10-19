@@ -75,14 +75,17 @@ def main():
                 #for hit in tp.hits():
                 #    print " %s %d x %f y %f tof %f" % (hit.layerStr(), hit.detId(), hit.x(), hit.y(), hit.tof())
 
-            nhits = 0
-            nhits_noreco = 0
-            for hit in tp.hits():
-                nhits += 1
-                if isinstance(hit, SimHit):
-                    nhits_noreco += 1
-            if nhits > 0:
-                tot_tp_nonrecohits += float(nhits_noreco)/nhits
+            if ntuple.hasHits():
+                nhits = 0
+                nhits_noreco = 0
+                # links from TrackingParticles to SimHits
+                for hit in tp.simHits():
+                    nhits += 1
+                    # links from SimHits to RecHits
+                    if hit.nRecHits() == 0:
+                        nhits_noreco += 1
+                if nhits > 0:
+                    tot_tp_nonrecohits += float(nhits_noreco)/nhits
 
         tot_recoed += neff
         tot_tp_dups += ndups
@@ -123,17 +126,17 @@ def main():
 
                     for hit in track.pixelHits():
                         nfakes_pixhits += 1
-                        if hit.nMatchedTrackingParticles() >= 1:
-                            # links from hits to TrackingParticles
+                        if hit.nSimHits() >= 1:
+                            # links from hits to SimHits
                             nfakes_pixhits_true += 1
-                            for tpInfo in hit.matchedTrackingParticleInfos():
-                                pix_simTrkIds.add(tpInfo.trackingParticle().index())
-                                #tot_pix_eloss += tpInfo.eloss() # this works only with MixingModule playback mode, see README.md
+                            for simHit in hit.simHits():
+                                pix_simTrkIds.add(simHit.trackingParticle().index())
+                                tot_pix_eloss += simHit.eloss()
                     nfakes_pixhits_tps += len(pix_simTrkIds)
 
                     for hit in track.stripHits():
                         nfakes_strhits += 1
-                        if hit.nMatchedTrackingParticles() >= 1:
+                        if hit.nSimHits() >= 1:
                             nfakes_strhits_true += 1
 
                     for hit in track.invalidHits():

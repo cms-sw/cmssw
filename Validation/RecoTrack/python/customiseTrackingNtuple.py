@@ -19,7 +19,7 @@ def customiseTrackingNtuple(process):
 #    process.eda = cms.EDAnalyzer("EventContentAnalyzer")
 
     ntuplePath = cms.EndPath(process.trackingNtupleSequence)
-    if usePileupSimHits:
+    if process.trackingNtuple.includeAllHits and usePileupSimHits:
         ntuplePath.insert(0, cms.SequencePlaceholder("mix"))
 
         process.load("Validation.RecoTrack.crossingFramePSimHitToPSimHits_cfi")
@@ -27,8 +27,6 @@ def customiseTrackingNtuple(process):
         process.crossingFramePSimHitToPSimHits.src = ["mix:"+l for l in instanceLabels]
         process.simHitTPAssocProducer.simHitSrc = ["crossingFramePSimHitToPSimHits:"+l for l in instanceLabels]
         process.trackingNtupleSequence.insert(0, process.crossingFramePSimHitToPSimHits)
-        if process.trackingNtuple.includeAllHits.value():
-            process.trackingNtuple.throwIfMissingSimHits = True
 
     # Bit of a hack but works
     modifier = cms.Modifier()

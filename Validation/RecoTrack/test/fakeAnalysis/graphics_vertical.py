@@ -370,9 +370,9 @@ class EventPlotter(object):
 		reco_inds = []
 		recos = []
 		for hit in fake.hits():
-		    if hit.isValid() and hit.nMatchedTrackingParticles() >= 0:	
-			for info in hit.matchedTrackingParticleInfos():
-			    particle = info.trackingParticle()
+		    if hit.isValid() and hit.nSimHits() >= 0:
+			for simHit in hit.simHits():
+			    particle = simHit.trackingParticle()
 			    if particle.index() not in particle_inds:
 				particle_inds.append(particle.index())
 				particles.append(particle)
