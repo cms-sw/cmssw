@@ -2,9 +2,9 @@
 
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "CondFormats/JetMETObjects/interface/METCorrectorParameters.h"
+#include "CondFormats/JetMETObjects/interface/MEtXYcorrectParameters.h"
 #include "CondFormats/JetMETObjects/interface/Utilities.h"
-#include "JetMETCorrections/Objects/interface/METCorrectionsRecord.h"
+#include "JetMETCorrections/Objects/interface/MEtXYcorrectRecord.h"
 
 #include "DataFormats/METReco/interface/CorrMETData.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
@@ -54,13 +54,13 @@ MultShiftMETcorrDBInputProducer::~MultShiftMETcorrDBInputProducer()
 void MultShiftMETcorrDBInputProducer::produce(edm::Event& evt, const edm::EventSetup& es)
 {
   // Get para.s from DB
-  edm::ESHandle<METCorrectorParametersCollection> METCorParamsColl;
-  es.get<METCorrectionsRecord>().get(mPayloadName,METCorParamsColl);
+  edm::ESHandle<MEtXYcorrectParametersCollection> MEtXYcorParaColl;
+  es.get<MEtXYcorrectRecord>().get(mPayloadName,MEtXYcorParaColl);
 
   // get the sections from Collection (pair of section and METCorr.Par class)
-  std::vector<METCorrectorParametersCollection::key_type> keys;
+  std::vector<MEtXYcorrectParametersCollection::key_type> keys;
   // save level to keys for each METParameter in METParameter collection
-  METCorParamsColl->validKeys( keys );
+  MEtXYcorParaColl->validKeys( keys );
 
 
   //get primary vertices
@@ -91,47 +91,47 @@ void MultShiftMETcorrDBInputProducer::produce(edm::Event& evt, const edm::EventS
 
 
   // check DB
-  for ( std::vector<METCorrectorParametersCollection::key_type>::const_iterator ikey = keys.begin();
+  for ( std::vector<MEtXYcorrectParametersCollection::key_type>::const_iterator ikey = keys.begin();
 	   ikey != keys.end(); ++ikey ) {
     if(mIsData)
     {
-      if(!METCorParamsColl->isXYshiftData(*ikey) )
+      if(!MEtXYcorParaColl->isShiftData(*ikey) )
 	throw cms::Exception("MultShiftMETcorrDBInputProducer::produce")
 	  << "DB is not for Data. Set proper option: \"corrPfMetXYMultDB.isData\" !!\n";
     }else{
-      if( METCorParamsColl->isXYshiftData(*ikey) )
+      if( MEtXYcorParaColl->isShiftData(*ikey) )
 	throw cms::Exception("MultShiftMETcorrDBInputProducer::produce")
 	  << "DB is for Data. Set proper option: \"corrPfMetXYMultDB.isData\" !!\n";
     }
   }
 
-  for ( std::vector<METCorrectorParametersCollection::key_type>::const_iterator ikey = keys.begin();
+  for ( std::vector<MEtXYcorrectParametersCollection::key_type>::const_iterator ikey = keys.begin();
 	   ikey != keys.end(); ++ikey ) {
 
     if( !mIsData){
 
       if(mSampleType == "MC"){
-        if(!METCorParamsColl->isXYshiftMC(*ikey)) continue;
+        if(!MEtXYcorParaColl->isShiftMC(*ikey)) continue;
       }else if(mSampleType == "DY"){
-        if(!METCorParamsColl->isXYshiftDY(*ikey)) continue;
+        if(!MEtXYcorParaColl->isShiftDY(*ikey)) continue;
       }else if(mSampleType == "TTJets"){
-        if(!METCorParamsColl->isXYshiftTTJets(*ikey)) continue;
+        if(!MEtXYcorParaColl->isShiftTTJets(*ikey)) continue;
       }else if(mSampleType == "WJets"){
-        if(!METCorParamsColl->isXYshiftWJets(*ikey)) continue;
+        if(!MEtXYcorParaColl->isShiftWJets(*ikey)) continue;
       }else throw cms::Exception("MultShiftMETcorrDBInputProducer::produce")
 	<< "SampleType: "<<mSampleType<<" is not reserved !!!\n";
     }
 
-    std::string sectionName= METCorParamsColl->findLabel(*ikey);
-    METCorrectorParameters const & METCorParams = (*METCorParamsColl)[*ikey];
+    std::string sectionName= MEtXYcorParaColl->findLabel(*ikey);
+    MEtXYcorrectParameters const & MEtXYcorParams = (*MEtXYcorParaColl)[*ikey];
 
     counts_ = 0;
     sumPt_  = 0;
 
     for (unsigned i = 0; i < particleFlow->size(); ++i) {
       const reco::Candidate& c = particleFlow->at(i);
-      if (abs(c.pdgId())== translateTypeToAbsPdgId(reco::PFCandidate::ParticleType( METCorParams.definitions().PtclType() ))) {
-        if ((c.eta()>METCorParams.record(0).xMin(0)) and (c.eta()<METCorParams.record(0).xMax(0))) {
+      if (abs(c.pdgId())== translateTypeToAbsPdgId(reco::PFCandidate::ParticleType( MEtXYcorParams.definitions().PtclType() ))) {
+        if ((c.eta()>MEtXYcorParams.record(0).xMin(0)) and (c.eta()<MEtXYcorParams.record(0).xMax(0))) {
           counts_ +=1;
           sumPt_  +=c.pt();
           continue;
@@ -139,7 +139,7 @@ void MultShiftMETcorrDBInputProducer::produce(edm::Event& evt, const edm::EventS
       }
     }
     double val(0.);
-    unsigned parVar = getUnsigned(METCorParams.definitions().parVar(0));
+    unsigned parVar = getUnsigned(MEtXYcorParams.definitions().parVar(0));
 
     if ( parVar ==0) {
       val = counts_;
@@ -155,16 +155,16 @@ void MultShiftMETcorrDBInputProducer::produce(edm::Event& evt, const edm::EventS
 	  << "parVar: "<<parVar<<" is not reserved !!!\n";
     }
 
-    formula_x_.reset( new TF1("corrPx", METCorParams.definitions().formula().c_str()));
-    formula_y_.reset( new TF1("corrPy", METCorParams.definitions().formula().c_str()));
+    formula_x_.reset( new TF1("corrPx", MEtXYcorParams.definitions().formula().c_str()));
+    formula_y_.reset( new TF1("corrPy", MEtXYcorParams.definitions().formula().c_str()));
 
-    for( unsigned i(0); i<METCorParams.record(0).nParameters(); i++)
+    for( unsigned i(0); i<MEtXYcorParams.record(0).nParameters(); i++)
     {
-      formula_x_->SetParameter(i,METCorParams.record(0).parameter(i));
+      formula_x_->SetParameter(i,MEtXYcorParams.record(0).parameter(i));
     }
-    for( unsigned i(0); i<METCorParams.record(1).nParameters(); i++)
+    for( unsigned i(0); i<MEtXYcorParams.record(1).nParameters(); i++)
     {
-      formula_y_->SetParameter(i,METCorParams.record(1).parameter(i));
+      formula_y_->SetParameter(i,MEtXYcorParams.record(1).parameter(i));
     }
 
     corx -= formula_x_->Eval(val);

@@ -25,8 +25,8 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "CondFormats/JetMETObjects/interface/METCorrectorParameters.h"
-#include "JetMETCorrections/Objects/interface/METCorrectionsRecord.h"
+#include "CondFormats/JetMETObjects/interface/MEtXYcorrectParameters.h"
+#include "JetMETCorrections/Objects/interface/MEtXYcorrectRecord.h"
 #include "JetMETCorrections/Objects/interface/JetCorrectionsRecord.h"
 
 
@@ -69,41 +69,41 @@ METCorrectorDBReader::~METCorrectorDBReader()
 
 void METCorrectorDBReader::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-  edm::ESHandle<METCorrectorParametersCollection> METCorParamsColl;
+  edm::ESHandle<MEtXYcorrectParametersCollection> MEtXYcorParaColl;
   edm::LogInfo("METCorrectorDBReader") <<"Inspecting MET payload with label: "<< mPayloadName;
-  iSetup.get<METCorrectionsRecord>().get(mPayloadName,METCorParamsColl);
+  iSetup.get<MEtXYcorrectRecord>().get(mPayloadName,MEtXYcorParaColl);
 
   // get the sections from Collection (pair of section and METCorr.Par class)
-  std::vector<METCorrectorParametersCollection::key_type> keys;
+  std::vector<MEtXYcorrectParametersCollection::key_type> keys;
   // save level to keys for each METParameter in METParameter collection
-  METCorParamsColl->validKeys( keys );
-  //METCorParamsColl->validSections( sections );
-  for ( std::vector<METCorrectorParametersCollection::key_type>::const_iterator 
+  MEtXYcorParaColl->validKeys( keys );
+  //MEtXYcorParaColl->validSections( sections );
+  for ( std::vector<MEtXYcorrectParametersCollection::key_type>::const_iterator 
 	  ikey = keys.begin(); ikey != keys.end(); ++ikey ) {
-    std::string sectionName= METCorParamsColl->findLabel(*ikey);
+    std::string sectionName= MEtXYcorParaColl->findLabel(*ikey);
     edm::LogInfo("METCorrectorDBReader")
     	<<"Processing key = " << *ikey
     	<<"object label: "<<sectionName;
-    METCorrectorParameters const & METCorParams = (*METCorParamsColl)[*ikey];
+    MEtXYcorrectParameters const & MEtXYcorParams = (*MEtXYcorParaColl)[*ikey];
 
     if (mCreateTextFile)
     {
-	std::string outFileName(mGlobalTag+"_XYshift");
+	std::string outFileName(mGlobalTag+"_Shift");
 	std::string shiftType("MC");
 
-        if(METCorParamsColl->isXYshiftMC(*ikey) )
+        if(MEtXYcorParaColl->isShiftMC(*ikey) )
         {
 	  shiftType = "MC";
-        }else if(METCorParamsColl->isXYshiftDY(*ikey) )
+        }else if(MEtXYcorParaColl->isShiftDY(*ikey) )
         {
 	  shiftType = "DY";
-        }else if(METCorParamsColl->isXYshiftTTJets(*ikey) )
+        }else if(MEtXYcorParaColl->isShiftTTJets(*ikey) )
         {
 	  shiftType = "TTJets";
-        }else if(METCorParamsColl->isXYshiftWJets(*ikey) )
+        }else if(MEtXYcorParaColl->isShiftWJets(*ikey) )
         {
 	  shiftType = "WTJets";
-        }else if(METCorParamsColl->isXYshiftData(*ikey) )
+        }else if(MEtXYcorParaColl->isShiftData(*ikey) )
         {
 	  shiftType = "Data";
 	}else{
@@ -112,13 +112,13 @@ void METCorrectorDBReader::analyze(const edm::Event& iEvent, const edm::EventSet
 	}
 	outFileName += shiftType + "_" + mPayloadName + ".txt";
 	edm::LogInfo("METCorrectorDBReader")<<"outFileName: "<<outFileName;
-        METCorParams.printFile(outFileName, sectionName);
+        MEtXYcorParams.printFile(outFileName, sectionName);
     }
     
     if (mPrintScreen)
     {
-      edm::LogInfo("METCorrectorDBReader")<<"Level: "<<METCorParamsColl->levelName(*ikey);
-      METCorParams.printScreen(sectionName);
+      edm::LogInfo("METCorrectorDBReader")<<"Level: "<<MEtXYcorParaColl->levelName(*ikey);
+      MEtXYcorParams.printScreen(sectionName);
     }
   }
 

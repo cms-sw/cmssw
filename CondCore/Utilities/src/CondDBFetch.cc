@@ -170,6 +170,7 @@ namespace cond {
       FETCH_PAYLOAD_CASE( JetCorrectorParametersCollection )
       FETCH_PAYLOAD_CASE( JME::JetResolutionObject )
       FETCH_PAYLOAD_CASE( METCorrectorParametersCollection )
+      FETCH_PAYLOAD_CASE( MEtXYcorrectParametersCollection )
       FETCH_PAYLOAD_CASE( L1CaloEcalScale )
       FETCH_PAYLOAD_CASE( L1CaloEtScale )
       FETCH_PAYLOAD_CASE( L1CaloGeometry )

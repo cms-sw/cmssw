@@ -12,7 +12,7 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
-#include "CondFormats/JetMETObjects/interface/METCorrectorParameters.h"
+#include "CondFormats/JetMETObjects/interface/MEtXYcorrectParameters.h"
 
 namespace{
 class  METCorrectorDBWriter : public edm::one::EDAnalyzer<>
@@ -45,12 +45,12 @@ void METCorrectorDBWriter::beginJob()
 {
   LogDebug ("default")<<"beginJob===========";
 
-  METCorrectorParametersCollection *payload = new METCorrectorParametersCollection();
+  MEtXYcorrectParametersCollection *payload = new MEtXYcorrectParametersCollection();
   std::cout << "Starting to import payload " << payloadTag << " from text files." << std::endl;
-  for( int ilev(0); ilev< METCorrectorParametersCollection::N_LEVELS;++ilev)
+  for( int ilev(0); ilev< MEtXYcorrectParametersCollection::N_LEVELS;++ilev)
   {
     std::string append("_");
-    std::string levelName = METCorrectorParametersCollection::findLabel( static_cast<METCorrectorParametersCollection::Level_t>(ilev) );
+    std::string levelName = MEtXYcorrectParametersCollection::findLabel( static_cast<MEtXYcorrectParametersCollection::Level_t>(ilev) );
     append += levelName;
     append += "_";
     append += algo;
@@ -61,13 +61,13 @@ void METCorrectorDBWriter::beginJob()
       std::cout << "Opened file " << inputTxtFile << std::endl;
       // Create the parameter object from file
       std::vector<std::string> sections;
-      METCorrectorParametersCollection::getSections(fip.fullPath(), sections );
+      MEtXYcorrectParametersCollection::getSections(fip.fullPath(), sections );
       if(sections.size() == 0){
-        payload->push_back(ilev, METCorrectorParameters(fip.fullPath(),"") );
+        payload->push_back(ilev, MEtXYcorrectParameters(fip.fullPath(),"") );
       }else{
 	for ( std::vector<std::string>::const_iterator isectbegin = sections.begin(), isectend = sections.end(), isect = isectbegin;
 	      isect != isectend; ++isect ) {
-	  payload->push_back( ilev, METCorrectorParameters(fip.fullPath(),*isect), *isect );	  
+	  payload->push_back( ilev, MEtXYcorrectParameters(fip.fullPath(),*isect), *isect );	  
 	  std::cout << "Added level " << levelName  + "_" + *isect <<  " to record "<<ilev<< std::endl;
 	}
       }
@@ -87,9 +87,9 @@ void METCorrectorDBWriter::beginJob()
     if (s->isNewTagRequest(payloadTag))
     {
       std::cout<<"NewTagRequested"<<std::endl;
-      s->createNewIOV<METCorrectorParametersCollection>(payload, s->beginOfTime(), s->endOfTime(), payloadTag);
+      s->createNewIOV<MEtXYcorrectParametersCollection>(payload, s->beginOfTime(), s->endOfTime(), payloadTag);
     }else{
-      s->appendSinceTime<METCorrectorParametersCollection>(payload, 111, payloadTag);
+      s->appendSinceTime<MEtXYcorrectParametersCollection>(payload, 111, payloadTag);
     }
   }
   std::cout << "Wrote in CondDB payload label: " << payloadTag << std::endl;

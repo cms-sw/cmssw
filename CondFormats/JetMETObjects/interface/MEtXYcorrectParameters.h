@@ -1,6 +1,6 @@
 //
-#ifndef METCorrectorParameters_h
-#define METCorrectorParameters_h
+#ifndef MEtXYcorrectParameters_h
+#define MEtXYcorrectParameters_h
 
 #include "CondFormats/Serialization/interface/Serializable.h"
 
@@ -11,9 +11,9 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-class METCorrectorParameters 
+class MEtXYcorrectParameters 
 {
-  //---------------- METCorrectorParameters class ----------------
+  //---------------- MEtParameters class ----------------
   //-- Encapsulates all the information of the parametrization ---
   public:
     //---------------- Definitions class ---------------------------
@@ -28,6 +28,7 @@ class METCorrectorParameters
         //-------- Member functions ----------
         unsigned nBinVar()                  const {return mBinVar.size(); }
         unsigned nParVar()                  const {return mParVar.size(); }
+        int PtclType()                      const {return ptclType; }
         std::vector<std::string> parVar()   const {return mParVar;        }
         std::vector<std::string> binVar()   const {return mBinVar;        } 
         std::string parVar(unsigned fIndex) const {return mParVar[fIndex];}
@@ -58,6 +59,7 @@ class METCorrectorParameters
         float parameter(unsigned fIndex)    const {return mParameters[fIndex];        }
         std::vector<float> parameters()     const {return mParameters;                }
         unsigned nParameters()              const {return mParameters.size();         }
+	std::string MetAxis()  const {return mMetAxis;       }
         int operator< (const Record& other) const {return xMin(0) < other.xMin(0);    }
       private:
         //-------- Member variables ----------
@@ -65,15 +67,16 @@ class METCorrectorParameters
         std::vector<float> mMin;
         std::vector<float> mMax;
         std::vector<float> mParameters;
+	std::string        mMetAxis;
 
       COND_SERIALIZABLE;
     };
 
     //-------- Constructors --------------
-    METCorrectorParameters() { valid_ = false;}
-    METCorrectorParameters(const std::string& fFile, const std::string& fSection = "");
-    METCorrectorParameters(const METCorrectorParameters::Definitions& fDefinitions,
-			 const std::vector<METCorrectorParameters::Record>& fRecords) 
+    MEtXYcorrectParameters() { valid_ = false;}
+    MEtXYcorrectParameters(const std::string& fFile, const std::string& fSection = "");
+    MEtXYcorrectParameters(const MEtXYcorrectParameters::Definitions& fDefinitions,
+			 const std::vector<MEtXYcorrectParameters::Record>& fRecords) 
       : mDefinitions(fDefinitions),mRecords(fRecords) { valid_ = true;}
     //-------- Member functions ----------
     const Record& record(unsigned fBin)                          const {return mRecords[fBin]; }
@@ -84,45 +87,53 @@ class METCorrectorParameters
     int neighbourBin(unsigned fIndex, unsigned fVar, bool fNext) const;
     std::vector<float> binCenters(unsigned fVar)                 const;
     void printScreen()                                           const;
+    void printScreen(const std::string& Section)                 const;
     void printFile(const std::string& fFileName)                 const;
+    void printFile(const std::string& fFileName, const std::string& Section)const;
     bool isValid() const { return valid_; }
 
   private:
     //-------- Member variables ----------
-    METCorrectorParameters::Definitions         mDefinitions;
-    std::vector<METCorrectorParameters::Record> mRecords;
+    MEtXYcorrectParameters::Definitions         mDefinitions;
+    std::vector<MEtXYcorrectParameters::Record> mRecords;
     bool                                        valid_; /// is this a valid set?
 
   COND_SERIALIZABLE;
 };
 
 
-class METCorrectorParametersCollection {
+class MEtXYcorrectParametersCollection {
  public:
-  enum Level_t { MiniAod=0,
-		 N_LEVELS=1
+  enum Level_t { shiftMC=0,
+    		 shiftDY=1,
+    		 shiftTTJets=2,
+    		 shiftWJets=3,
+    		 shiftData=4,
+		 N_LEVELS=5
   };
 
   typedef int                            key_type;
   typedef std::string                    label_type;
-  typedef METCorrectorParameters         value_type;
+  typedef MEtXYcorrectParameters         value_type;
   typedef std::pair<key_type,value_type> pair_type;
   typedef std::vector<pair_type>         collection_type;
 
   // Constructor... initialize all three vectors to zero
-  METCorrectorParametersCollection() { correctionsMiniAod_.clear();}
+  MEtXYcorrectParametersCollection() {
+    correctionsShift_.clear();
+  }
 
-  // Add a METCorrectorParameter object, for each source 
-  void push_back( key_type i, value_type const & j, label_type const & source = "" );
+  // Add a MEtXYshiftParameter object, for each source 
+  void push_back( key_type i, value_type const & j, label_type const & flav = "" );
 
-  // Access the METCorrectorParameter via the key k.
+  // Access the MEtXYshiftParameter via the key k.
   // key_type is hashed to deal with the three collections
-  METCorrectorParameters const & operator[]( key_type k ) const;
+  MEtXYcorrectParameters const & operator[]( key_type k ) const;
 
-  // Access the METCorrectorParameter via a string. 
+  // Access the MEtXYshiftParameter via a string. 
   // Will find the hashed value for the label, and call via that 
   // operator. 
-  METCorrectorParameters const & operator[]( std::string const & label ) const {
+  MEtXYcorrectParameters const & operator[]( std::string const & label ) const {
     return operator[]( findKey(label) );
   }
 
@@ -135,20 +146,35 @@ class METCorrectorParametersCollection {
   // parameters file
   static void getSections( std::string inputFile,
 			   std::vector<std::string> & outputs );
-  // Find the MiniAod bin for hashing
-  static key_type getMiniAodBin( std::string const & source );
 
-  static bool isMiniAod( key_type k);
+  static key_type getShiftMcFlavBin( std::string const & Flav );
+  static key_type getShiftDyFlavBin( std::string const & Flav );
+  static key_type getShiftTTJetsFlavBin( std::string const & Flav );
+  static key_type getShiftWJetsFlavBin( std::string const & Flav );
+  static key_type getShiftDataFlavBin( std::string const & Flav );
+
+  static bool isShiftMC( key_type k);
+  static bool isShiftDY( key_type k);
+  static bool isShiftTTJets( key_type k);
+  static bool isShiftWJets( key_type k);
+  static bool isShiftData( key_type k);
 
   static std::string findLabel( key_type k );
-  static std::string findMiniAodSource( key_type k );
+  static std::string levelName( key_type k );
+
+
+  static std::string findShiftMCflavor( key_type k );
+  static std::string findShiftDYflavor( key_type k );
+  static std::string findShiftTTJetsFlavor( key_type k );
+  static std::string findShiftWJetsFlavor( key_type k );
+  static std::string findShiftDataFlavor( key_type k );
 
  protected:
 
   // Find the key corresponding to each label
-  key_type findKey( std::string const & label ) const;
+  key_type findKey( std::string const & label ) const; // Not used
 
-  collection_type                        correctionsMiniAod_;
+  collection_type                        correctionsShift_;
 
  COND_SERIALIZABLE;
 };
