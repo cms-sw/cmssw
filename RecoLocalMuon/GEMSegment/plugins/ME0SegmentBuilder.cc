@@ -47,7 +47,9 @@ void ME0SegmentBuilder::build(const ME0RecHitCollection* recHits, ME0SegmentColl
     // save current ME0RecHit in vector associated to the reference id
     ensembleRH[id.rawId()].push_back(it2->clone());    
   }
-  
+
+  std::map<uint32_t, std::vector<ME0Segment> > ensembleSeg;  // collect here all segments from the same chamber
+
   for(auto enIt=ensembleRH.begin(); enIt != ensembleRH.end(); ++enIt) {
     
     std::vector<const ME0RecHit*> me0RecHits;
@@ -74,7 +76,17 @@ void ME0SegmentBuilder::build(const ME0RecHitCollection* recHits, ME0SegmentColl
     #endif
     
     // Add the segments to master collection
-    oc.put(mid, segv.begin(), segv.end());
+    // oc.put(mid, segv.begin(), segv.end());
+
+    // Add the segments to the chamber segment collection
+    ME0DetId midch = mid.chamberId();
+    ensembleSeg[midch.rawId()].insert(ensembleSeg[midch.rawId()].end(), segv.begin(), segv.end());
+  }
+
+  for(auto segIt=ensembleSeg.begin(); segIt != ensembleSeg.end(); ++segIt) {
+    // Add the segments to master collection
+    ME0DetId midch(segIt->first);
+    oc.put(midch, segIt->second.begin(), segIt->second.end());
   }
 }
 
