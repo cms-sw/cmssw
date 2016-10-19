@@ -129,9 +129,6 @@ private:
   /// adds the path prefix, if needed
   string CompleteFileName(const string &fn);
 
-  /// returns the top element from an XML file
-  xercesc::DOMDocument* GetDOMDocument(string file);
-
   /// returns true iff the node is of the given name
   bool Test(xercesc::DOMNode *node, const std::string &name)
   {
@@ -336,30 +333,22 @@ edm::ESProducts< boost::shared_ptr<TotemDAQMapping>, boost::shared_ptr<TotemAnal
 
 //----------------------------------------------------------------------------------------------------
 
-DOMDocument* TotemDAQMappingESSourceXML::GetDOMDocument(string file)
-{
-  XercesDOMParser* parser = new XercesDOMParser();
-  parser->parse(file.c_str());
-
-  DOMDocument* xmlDoc = parser->getDocument();
-
-  if (!xmlDoc)
-    throw cms::Exception("TotemDAQMappingESSourceXML::GetDOMDocument") << "Cannot parse file `" << file
-      << "' (xmlDoc = NULL)." << endl;
-
-  return xmlDoc;
-}
-
-//----------------------------------------------------------------------------------------------------
-
 void TotemDAQMappingESSourceXML::ParseXML(ParseType pType, const string &file,
   const boost::shared_ptr<TotemDAQMapping> &mapping, const boost::shared_ptr<TotemAnalysisMask> &mask)
 {
-  DOMDocument* domDoc = GetDOMDocument(file);
+  unique_ptr<XercesDOMParser> parser(new XercesDOMParser());
+  parser->parse(file.c_str());
+
+  DOMDocument* domDoc = parser->getDocument();
+
+  if (!domDoc)
+    throw cms::Exception("TotemDAQMappingESSourceXML::ParseXML") << "Cannot parse file `" << file
+      << "' (domDoc = NULL)." << endl;
+
   DOMElement* elementRoot = domDoc->getDocumentElement();
 
   if (!elementRoot)
-    throw cms::Exception("TotemDAQMappingESSourceXML::ParseMappingXML") << "File `" <<
+    throw cms::Exception("TotemDAQMappingESSourceXML::ParseXML") << "File `" <<
       file << "' is empty." << endl;
 
   ParseTreeRP(pType, elementRoot, nTop, 0, mapping, mask);
@@ -933,9 +922,9 @@ void TotemDAQMappingESSourceXML::ParseTreeT1(ParseType pType, xercesc::DOMNode *
             }
         }
 
-        if (!strcmp(XMLString::transcode(a->getNodeName()), "hw_id"))
+        if (!strcmp(XMLString::transcode(a->getNodeName()), "hw_id")) {
           sscanf(XMLString::transcode(a->getNodeValue()), "%x", &hw_id);
-          hw_id_set = true;
+          hw_id_set = true; }
       }
     }
 
