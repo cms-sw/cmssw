@@ -102,7 +102,19 @@ class L1TStage2CaloLayer2 : public DQMEDAnalyzer {
   MonitorElement* stage2CaloLayer2MHTRank_;
   MonitorElement* stage2CaloLayer2MHTPhi_;
   MonitorElement* stage2CaloLayer2HTTRank_;
+
+  MonitorElement* stage2CaloLayer2METHFRank_;
+  MonitorElement* stage2CaloLayer2METHFPhi_;
+  MonitorElement* stage2CaloLayer2MHTHFRank_;
+  MonitorElement* stage2CaloLayer2MHTHFPhi_;
+  MonitorElement* stage2CaloLayer2MinBiasHFP0_;
+  MonitorElement* stage2CaloLayer2MinBiasHFM0_;
+  MonitorElement* stage2CaloLayer2MinBiasHFP1_;
+  MonitorElement* stage2CaloLayer2MinBiasHFM1_;
+  MonitorElement* stage2CaloLayer2ETTEMRank_;
+
   MonitorElement* stage2CaloLayer2TowCount_;
+
 
   MonitorElement* timingStage2CaloLayer2CenJetBxOcc_;
   MonitorElement* timingStage2CaloLayer2ForJetBxOcc_;
