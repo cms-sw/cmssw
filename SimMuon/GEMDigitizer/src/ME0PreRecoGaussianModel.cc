@@ -33,9 +33,11 @@ ME0PreRecoGaussianModel::ME0PreRecoGaussianModel(const edm::ParameterSet& config
   simulateElectronBkg_(config.getParameter<bool>("simulateElectronBkg")), 
   simulateNeutralBkg_(config.getParameter<bool>("simulateNeutralBkg")), 
   minBunch_(config.getParameter<int>("minBunch")), 
-  maxBunch_(config.getParameter<int>("maxBunch"))
+  maxBunch_(config.getParameter<int>("maxBunch")),
+  instLumi_(config.getParameter<double>("instLumi"))
 {
   // polynomial parametrisation of neutral (n+g) and electron background
+  // This is the background for an Instantaneous Luminosity of L = 5E34 cm^-2 s^-1
   neuBkg.push_back(899644.0);     neuBkg.push_back(-30841.0);     neuBkg.push_back(441.28);
   neuBkg.push_back(-3.3405);      neuBkg.push_back(0.0140588);    neuBkg.push_back(-3.11473e-05); neuBkg.push_back(2.83736e-08);
   eleBkg.push_back(4.68590e+05);  eleBkg.push_back(-1.63834e+04); eleBkg.push_back(2.35700e+02);
@@ -161,7 +163,10 @@ void ME0PreRecoGaussianModel::simulateNoise(const ME0EtaPartition* roll, CLHEP::
       double averageElectronRatePerRoll = 0.0;
       double yy_helper = 1.0;
       for(int j=0; j<7; ++j) { averageElectronRatePerRoll += eleBkg[j]*yy_helper; yy_helper *= yy_glob; }
-      
+
+      // Scale up/down for desired instantaneous lumi (reference is 5E34, double from config is in units of 1E34)      
+      averageElectronRatePerRoll *= instLumi_*1.0/5;
+
       // Rate [Hz/cm^2] * Nbx * 25*10^-9 [s] * Area [cm] = # hits in this roll in this bx
       const double averageElecRate(averageElectronRatePerRoll * (maxBunch_-minBunch_+1)*(bxwidth*1.0e-9) * areaIt); 
       
@@ -209,6 +214,9 @@ void ME0PreRecoGaussianModel::simulateNoise(const ME0EtaPartition* roll, CLHEP::
       double averageNeutralRatePerRoll = 0.0;
       double yy_helper = 1.0;
       for(int j=0; j<7; ++j) { averageNeutralRatePerRoll += neuBkg[j]*yy_helper; yy_helper *= yy_glob; }
+
+      // Scale up/down for desired instantaneous lumi (reference is 5E34, double from config is in units of 1E34)      
+      averageNeutralRatePerRoll *= instLumi_*1.0/5;
       
       // Rate [Hz/cm^2] * Nbx * 25*10^-9 [s] * Area [cm] = # hits in this roll
       const double averageNeutrRate(averageNeutralRatePerRoll * (maxBunch_-minBunch_+1)*(bxwidth*1.0e-9) * areaIt);
