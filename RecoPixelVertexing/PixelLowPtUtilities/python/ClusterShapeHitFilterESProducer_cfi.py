@@ -12,7 +12,8 @@ phase1Pixel.toModify(ClusterShapeHitFilterESProducer,
 )
 from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
 phase2_tracker.toModify(ClusterShapeHitFilterESProducer,
-    PixelShapeFile = 'RecoPixelVertexing/PixelLowPtUtilities/data/pixelShape_Phase1Tk.par'
+    PixelShapeFile = 'RecoPixelVertexing/PixelLowPtUtilities/data/pixelShape_Phase1Tk.par',
+    doPixelShapeCut = cms.bool(False)
 )
 from Configuration.Eras.Modifier_phase1PixelNewFPix_cff import phase1PixelNewFPix
 _phase1PixelNewFPix.toModify(ClusterShapeHitFilterESProducer,
