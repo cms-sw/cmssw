@@ -130,9 +130,9 @@ upgradeProperties[2023] = {
     },
     '2023D6' : {
         'Geom' : 'Extended2023D6',
-        'GT' : 'auto:run2_mc',
+        'GT' : 'auto:phase2_realistic',
         'Custom' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2023tilted',
-        'Era' : 'Phase2C2',
+        'Era' : 'Phase2C1',
         'ScenToRun' : ['GenSimHLBeamSpotFull','DigiFull','RecoFullGlobal', 'HARVESTFullGlobal'],
     }
 
