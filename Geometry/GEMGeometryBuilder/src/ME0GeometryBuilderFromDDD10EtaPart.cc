@@ -30,10 +30,9 @@ ME0GeometryBuilderFromDDD10EtaPart::~ME0GeometryBuilderFromDDD10EtaPart()
 ME0Geometry* ME0GeometryBuilderFromDDD10EtaPart::build(const DDCompactView* cview, const MuonDDDConstants& muonConstants)
 {
 
-  std::string attribute = "MuStructure";   // "ReadOutName";
-  std::string value     = "MuonEndCapME0"; // "MuonME0Hits";
-  // std::string attribute = "ReadOutName";
-  // std::string value     = "MuonME0Hits";
+  std::string attribute = "MuStructure";
+  std::string value     = "MuonEndCapME0";
+
   DDValue val(attribute, value, 0.0);
 
   // Asking only for the MuonME0's
@@ -250,7 +249,7 @@ ME0Chamber* ME0GeometryBuilderFromDDD10EtaPart::buildChamber(DDFilteredView& fv,
   #endif
 
   bool isOdd = false; // detId.chamber()%2;
-  RCPBoundPlane surf(boundPlane(fv, new TrapezoidalPlaneBounds(b,B,L,T), isOdd ));
+  ME0BoundPlane surf(boundPlane(fv, new TrapezoidalPlaneBounds(b,B,L,T), isOdd ));
   ME0Chamber* chamber = new ME0Chamber(detId.chamberId(), surf);
   return chamber;
 }
@@ -279,7 +278,7 @@ ME0Layer* ME0GeometryBuilderFromDDD10EtaPart::buildLayer(DDFilteredView& fv, ME0
   #endif
 
   bool isOdd = false; // detId.chamber()%2;
-  RCPBoundPlane surf(boundPlane(fv, new TrapezoidalPlaneBounds(b,B,L,t), isOdd ));
+  ME0BoundPlane surf(boundPlane(fv, new TrapezoidalPlaneBounds(b,B,L,t), isOdd ));
   ME0Layer* layer = new ME0Layer(detId.layerId(), surf);
   return layer;
 }
@@ -326,7 +325,7 @@ ME0EtaPartition* ME0GeometryBuilderFromDDD10EtaPart::buildEtaPartition(DDFiltere
   pars.push_back(nPads);
   
   bool isOdd = false; // detId.chamber()%2; // this gives the opportunity (in future) to change the face of the chamber (electronics facing IP or electronics away from IP)
-  RCPBoundPlane surf(boundPlane(fv, new TrapezoidalPlaneBounds(b, B, L, t), isOdd ));
+  ME0BoundPlane surf(boundPlane(fv, new TrapezoidalPlaneBounds(b, B, L, t), isOdd ));
   std::string name = fv.logicalPart().name().name();
   ME0EtaPartitionSpecs* e_p_specs = new ME0EtaPartitionSpecs(GeomDetEnumerators::ME0, name, pars);
   
@@ -334,7 +333,7 @@ ME0EtaPartition* ME0GeometryBuilderFromDDD10EtaPart::buildEtaPartition(DDFiltere
   return etaPartition;
 }
 
-ME0GeometryBuilderFromDDD10EtaPart::RCPBoundPlane
+ME0GeometryBuilderFromDDD10EtaPart::ME0BoundPlane
 ME0GeometryBuilderFromDDD10EtaPart::boundPlane(const DDFilteredView& fv,
                                       Bounds* bounds, bool isOddChamber) const {
   // extract the position
@@ -372,6 +371,6 @@ ME0GeometryBuilderFromDDD10EtaPart::boundPlane(const DDFilteredView& fv,
 
   rotResult.rotateAxes(newX, newY, newZ);
 
-  return RCPBoundPlane( new BoundPlane( posResult, rotResult, bounds));
+  return ME0BoundPlane( new BoundPlane( posResult, rotResult, bounds));
 }
 
