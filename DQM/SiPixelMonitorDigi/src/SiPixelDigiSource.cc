@@ -178,12 +178,18 @@ SiPixelDigiSource::endLuminosityBlock(const edm::LuminosityBlock& lb, edm::Event
 	}
 	if (!modOn){
 	  averageDigiOccupancy->Fill(i,nDigisPerFed[i]); //In offline we fill all digis and normalise at the end of the run for thread safe behaviour.
+          avgfedDigiOccvsLumi->setBinContent(thisls+1, i+1, nDigisPerFed[i]); //Same plot vs lumi section
 	}        
 	if ( modOn ){
 	  if (thisls % 10 == 0)
 	    averageDigiOccupancy->Fill(i,averageOcc); // "modOn" basically mean Online DQM, in this case fill histos with actual value of digi fraction per fed for each ten lumisections
 	  if (avgfedDigiOccvsLumi && thisls % 5 == 0)
 	    avgfedDigiOccvsLumi->setBinContent(int(thisls / 5), i+1, averageOcc); //fill with the mean over 5 lumisections, previous code was filling this histo only with last event of each 10th lumisection
+          if(i<32) {
+            averageDigiOccupancyvsLumi->setBinContent(thisls+1, i+1, averageBPIXFed); //<NDigis> vs lumisection for barrel
+          } else {
+            averageDigiOccupancyvsLumi->setBinContent(thisls+1, i+1, averageFPIXFed); //<NDigis> vs lumisection for endcap
+          }
 	}
       }
   }
@@ -794,14 +800,17 @@ void SiPixelDigiSource::bookMEs(DQMStore::IBooker & iBooker, const edm::EventSet
   char title6[80];  sprintf(title6, "Number of Low-Efficiency Endcap ROCs;LumiSection;N_{LO EFF} Endcap ROCs");
   loOccROCsEndcap = iBooker.book1D("loOccROCsEndcap",title6,500,0.,5000.);
   char title7[80];  sprintf(title7, "Average digi occupancy per FED;FED;NDigis/<NDigis>");
+  char title8[80];  sprintf(title8, "FED Digi Occupancy (NDigis/<NDigis>) vs LumiSections;Lumi Section;FED");
+  char title9[80];  sprintf(title9, "Average FED digi occupancy (<NDigis>) vs LumiSections;Lumi Section;FED");
   if (modOn){
     averageDigiOccupancy = iBooker.bookProfile("averageDigiOccupancy",title7,40,-0.5,39.5,0.,3.);
     averageDigiOccupancy->setLumiFlag();
-    char title4[80]; sprintf(title4, "FED Digi Occupancy (NDigis/<NDigis>) vs LumiSections;Lumi Section;FED");
-    avgfedDigiOccvsLumi = iBooker.book2D ("avgfedDigiOccvsLumi", title4, 640,0., 3200., 40, -0.5, 39.5);
+    avgfedDigiOccvsLumi = iBooker.book2D ("avgfedDigiOccvsLumi", title8, 640,0., 3200., 40, -0.5, 39.5);
+    averageDigiOccupancyvsLumi = iBooker.book2D ("averageDigiOccupancyvsLumi", title9, 3200,0., 3200., 40, -0.5, 39.5);
   }
   if (!modOn){
     averageDigiOccupancy = iBooker.book1D("averageDigiOccupancy",title7,40,-0.5,39.5); //Book as TH1 for offline to ensure thread-safe behaviour
+    avgfedDigiOccvsLumi = iBooker.book2D ("avgfedDigiOccvsLumi", title8, 3200, 0., 3200., 40, -0.5, 39.5);
   }
   std::map<uint32_t,SiPixelDigiModule*>::iterator struct_iter;
  
