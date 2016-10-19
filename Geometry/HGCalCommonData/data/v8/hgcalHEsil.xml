@@ -17,7 +17,7 @@
       hgcalwafer:HGCalHEWaferFine, hgcalwafer:HGCalHEWaferCoarse</Vector>
     <Vector name="MaterialNames" type="string" nEntries="11">
       materials:StainlessSteel, materials:Carbon_fibre_str_Upgrade2, 
-      materials:Copper, materials:Copper, materials:Air, 
+      materials:Copper, materials:Copper, materials:Silicon, 
       materials:M_NEMA FR4 plate, materials:Air,  materials:StainlessSteel,
       materials:Foam, materials:Aluminium, materials:Air</Vector>
     <Vector name="VolumeNames" type="string" nEntries="11">
