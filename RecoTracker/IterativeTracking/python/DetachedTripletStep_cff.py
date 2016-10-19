@@ -1,5 +1,4 @@
 import FWCore.ParameterSet.Config as cms
-from Configuration.StandardSequences.Eras import eras
 from Configuration.Eras.Modifier_tracker_apv_vfp30_2016_cff import tracker_apv_vfp30_2016 as _tracker_apv_vfp30_2016
 import RecoTracker.IterativeTracking.iterativeTkConfig as _cfg
 
@@ -9,8 +8,8 @@ import RecoTracker.IterativeTracking.iterativeTkConfig as _cfg
 
 # REMOVE HITS ASSIGNED TO GOOD TRACKS FROM PREVIOUS ITERATIONS
 detachedTripletStepClusters = _cfg.clusterRemoverForIter("DetachedTripletStep")
-for era in _cfg.nonDefaultEras():
-    getattr(eras, era).toReplaceWith(detachedTripletStepClusters, _cfg.clusterRemoverForIter("DetachedTripletStep", era))
+for _eraName, _postfix, _era in _cfg.nonDefaultEras():
+    _era.toReplaceWith(detachedTripletStepClusters, _cfg.clusterRemoverForIter("DetachedTripletStep", _eraName, _postfix))
 
 # SEEDING LAYERS
 import RecoTracker.TkSeedingLayers.PixelLayerTriplets_cfi

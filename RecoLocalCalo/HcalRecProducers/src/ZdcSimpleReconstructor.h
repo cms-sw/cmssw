@@ -32,8 +32,8 @@
       DetId::Detector det_;
       int subdet_;
       HcalOtherSubdetector subdetOther_;
-      edm::EDGetTokenT<ZDCDigiCollection> tok_input_castor;
       edm::EDGetTokenT<ZDCDigiCollection> tok_input_hcal;
+      edm::EDGetTokenT<ZDCDigiCollection> tok_input_castor;
 
       bool dropZSmarkedPassed_; // turn on/off dropping of zero suppression marked and passed digis
       

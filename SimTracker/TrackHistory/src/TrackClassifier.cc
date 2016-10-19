@@ -262,13 +262,13 @@ void TrackClassifier::qualityInformation(reco::TrackBaseRef const & track)
 
 void TrackClassifier::hadronFlavor()
 {
-    // Get the initial hadron
-    const HepMC::GenParticle * particle = tracer_.genParticle();
+    // Get the initial hadron from the recoGenParticleTrail
+    const reco::GenParticle * particle = tracer_.recoGenParticle();
 
     // Check for the initial hadron
     if (particle)
     {
-        HepPDT::ParticleID pid(particle->pdg_id());
+        HepPDT::ParticleID pid(particle->pdgId());
         flags_[Bottom] = pid.hasBottom();
         flags_[Charm] =  pid.hasCharm();
         flags_[Light] = !pid.hasCharm() && !pid.hasBottom();
@@ -281,26 +281,13 @@ void TrackClassifier::processesAtGenerator()
     // pdgid of the "in" particle to the production vertex
     int pdgid = 0;
 
-    // Get the generated particles from track history
-    TrackHistory::GenParticleTrail const & genParticleTrail = tracer_.genParticleTrail();
+    // Get the generated particles from track history (reco::GenParticle in the recoGenParticleTrail)
+    TrackHistory::RecoGenParticleTrail const & recoGenParticleTrail = tracer_.recoGenParticleTrail();
 
-    // Loop over the generated particles
-    for (TrackHistory::GenParticleTrail::const_iterator iparticle = genParticleTrail.begin(); iparticle != genParticleTrail.end(); ++iparticle)
+    // Loop over the generated particles (reco::GenParticle in the recoGenParticleTrail)
+    for (TrackHistory::RecoGenParticleTrail::const_iterator iparticle = recoGenParticleTrail.begin(); iparticle != recoGenParticleTrail.end(); ++iparticle)
     {
-        // Get the source vertex for the particle
-        HepMC::GenVertex * productionVertex = (*iparticle)->production_vertex();
-
-        // Get the pointer to the vertex by removing the const-ness (no const methos in HepMC::GenVertex)
-        // HepMC::GenVertex * vertex = const_cast<HepMC::GenVertex *>(*ivertex);
-
-        // Check for a non-null pointer to the production vertex
-        if (productionVertex)
-        {
-            // Only case track history will navegate (one in or source particle per vertex)
-            if ( productionVertex->particles_in_size() == 1 )
-            {
-                // Look at the pdgid of the first "in" particle to the vertex
-                pdgid = std::abs((*productionVertex->particles_in_const_begin())->pdg_id());
+                pdgid = std::abs((*iparticle)->pdgId());
                 // Get particle type
                 HepPDT::ParticleID particleID(pdgid);
 
@@ -319,9 +306,13 @@ void TrackClassifier::processesAtGenerator()
                         update(flags_[BWeakDecay], particleID.hasBottom());
                         update(flags_[CWeakDecay], particleID.hasCharm());
                         // Check for B and C pure leptonic decay
-                        int daughterId = abs((*iparticle)->pdg_id());
-                        update(flags_[FromBWeakDecayMuon], particleID.hasBottom() && daughterId == 13);
-                        update(flags_[FromCWeakDecayMuon], particleID.hasCharm() && daughterId == 13);
+                        std::set<int> daughterIds;
+                        size_t ndau = (*iparticle)->numberOfDaughters();
+                        for( size_t i = 0; i < ndau; ++ i ){
+    						daughterIds.insert((*iparticle)->daughter(i)->pdgId());
+    					}
+                        update(flags_[FromBWeakDecayMuon], particleID.hasBottom() && (daughterIds.find(13) != daughterIds.end()));
+                        update(flags_[FromCWeakDecayMuon], particleID.hasCharm() && (daughterIds.find(13) != daughterIds.end()));
                     }
                     // Check Tau, Ks and Lambda decay
                     update(flags_[ChargePionDecay], pdgid == 211);
@@ -333,9 +324,7 @@ void TrackClassifier::processesAtGenerator()
                     update(flags_[XiDecay], pdgid == 3312);
                     update(flags_[SigmaPlusDecay], pdgid == 3222);
                     update(flags_[SigmaMinusDecay], pdgid == 3112);
-                }
-            }
-        }
+                }            
     }
     // Decays in flight
     update(flags_[FromChargePionMuon], flags_[Muon] && flags_[ChargePionDecay]);

@@ -76,6 +76,7 @@ globalreco_tracking = cms.Sequence(offlineBeamSpot*
                           siPixelClusterShapeCachePreSplitting* # unclear where to put this
                           standalonemuontracking*
                           trackingGlobalReco*
+                          hcalGlobalRecoSequence*
                           vertexreco)
 _globalreco_tracking_LowPU_Phase1PU70 = globalreco_tracking.copy()
 _globalreco_tracking_LowPU_Phase1PU70.replace(trackingGlobalReco, recopixelvertexing+trackingGlobalReco)
@@ -87,7 +88,6 @@ from Configuration.Eras.Modifier_trackingPhase2PU140_cff import trackingPhase2PU
 trackingPhase2PU140.toReplaceWith(globalreco_tracking, _globalreco_tracking_LowPU_Phase1PU70)
 
 globalreco = cms.Sequence(globalreco_tracking*
-                          hcalGlobalRecoSequence*
                           particleFlowCluster*
                           ecalClusters*
                           caloTowersRec*                          

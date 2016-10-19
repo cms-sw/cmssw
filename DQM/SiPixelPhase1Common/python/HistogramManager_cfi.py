@@ -35,8 +35,14 @@ PerLumisection = cms.PSet(enabled = cms.bool(True)) # trend profiles
 DefaultHisto = cms.PSet(
   # Setting this to False hides all plots of this HistogramManager. It does not even record any data.
   enabled = cms.bool(True),
+
+  # a.k.a. online harvesting. Might be useful in offline for custom harvesting,
+  # but the main purpose is online, where this is on by default.
+  perLumiHarvesting = cms.bool(False),
+
   # If False, no histograms are booked for DetIds where any column is undefined.
   bookUndefined = cms.bool(True),
+
   # where the plots should go.
   topFolderName = cms.string("PixelPhase1"),
 

@@ -59,9 +59,6 @@ if __name__ == '__main__':
                      135.4, #Run 2 Zee ttbar
                      10021.0, #2017 tenmu
                      10024.0, #2017 ttbar
-                     10424.0, #2017 NewPix ttbar
-                     10624.0, #2017 HCALdev ttbar
-                     10824.0, #2017 all new ttbar
                      20024.0, #2023D1 ttbar (Run2 calo)
                      22424.0, #2023D3Timing ttbar (HGCal + timing)
                      ],
