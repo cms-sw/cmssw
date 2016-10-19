@@ -1665,14 +1665,14 @@ void SiPixelActionExecutor::normaliseAvDigiOccVsLumi(DQMStore::IBooker & iBooker
   float totalDigisBPIX = 0.; 
   float totalDigisFPIX = 0.;
   for (int i = 1; i !=41; i++){
-    if (i < 33) totalDigisBPIX += avgfedDigiOccvsLumi->getBinContent(lumisec+1,i);
-    else        totalDigisFPIX += avgfedDigiOccvsLumi->getBinContent(lumisec+1,i);
+    if (i < 33) totalDigisBPIX += avgfedDigiOccvsLumi->getBinContent(lumisec,i);
+    else        totalDigisFPIX += avgfedDigiOccvsLumi->getBinContent(lumisec,i);
   }  
   float averageBPIXOcc = totalDigisBPIX/32.;
   float averageFPIXOcc = totalDigisFPIX/8.;
   for (int i = 1; i !=41; i++){
-    if (i < 33) avgfedDigiOccvsLumi->setBinContent(lumisec+1,i,avgfedDigiOccvsLumi->getBinContent(lumisec+1,i)/averageBPIXOcc);
-    else        avgfedDigiOccvsLumi->setBinContent(lumisec+1,i,avgfedDigiOccvsLumi->getBinContent(lumisec+1,i)/averageFPIXOcc);
+    if (i < 33) avgfedDigiOccvsLumi->setBinContent(lumisec,i,avgfedDigiOccvsLumi->getBinContent(lumisec,i)/averageBPIXOcc);
+    else        avgfedDigiOccvsLumi->setBinContent(lumisec,i,avgfedDigiOccvsLumi->getBinContent(lumisec,i)/averageFPIXOcc);
   }
 
   iGetter.setCurrentFolder(iBooker.pwd());
