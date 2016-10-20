@@ -6,6 +6,8 @@
   <Constant name="rMaxFine"   value="60.0*cm"/>
   <Constant name="rMaxMiddle" value="100.0*cm"/>
   <Constant name="rMaxCoarse" value="2000.0*cm"/>
+  <Constant name="rMin"       value="35.6*cm"/>
+  <Constant name="rMax"       value="179.0*cm"/>
 </ConstantsSection>
 
 <PosPartSection label="hgcalHEsil.xml">
@@ -77,6 +79,9 @@
     <Parameter name="RadiusBound"  value="[rMaxFine]"/>
     <Parameter name="RadiusBound"  value="[rMaxMiddle]"/>
     <Parameter name="RadiusBound"  value="[rMaxCoarse]"/>
+    <Parameter name="RadiusLimits" value="[rMin]"/>
+    <Parameter name="RadiusLimits" value="[rMax]"/>
+    <Parameter name="LevelTop"     value="99"/>
   </SpecPar>
 </SpecParSection>
 

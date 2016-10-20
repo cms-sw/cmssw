@@ -69,6 +69,13 @@ bool HGCalParametersFromDD::build(const DDCompactView* cpv,
       geom->loadSpecParsHexagon(fv, php, cpv, namew, namec);
       //Load the Geometry parameters
       geom->loadGeometryHexagon(fv, php, name, cpv, namew, namec);
+    } else if (php.mode_ == static_cast<int> (HGCalGeometryMode::HexagonFull)){
+      //Load the SpecPars
+      geom->loadSpecParsHexagon(fv, php, cpv, namew, namec);
+      //Load the Geometry parameters
+      geom->loadGeometryHexagon(fv, php, name, cpv, namew, namec);
+      //Modify some constants
+      geom->loadWaferHexagon(php);
     } else {
       edm::LogError("HGCalGeom") << "Unknown Geometry type " << php.mode_
 				 << " for HGCal " << name << ":" << namew

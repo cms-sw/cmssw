@@ -54,6 +54,7 @@ private:
   double                        eminHit;
   ForwardSubdetector            myFwdSubdet_;
   double                        slopeMin_;
+  int                           levelT_;
 };
 
 #endif // HGCSD_h
