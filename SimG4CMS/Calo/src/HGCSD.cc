@@ -37,7 +37,7 @@ HGCSD::HGCSD(G4String name, const DDCompactView & cpv,
   CaloSD(name, cpv, clg, p, manager,
          (float)(p.getParameter<edm::ParameterSet>("HGCSD").getParameter<double>("TimeSliceUnit")),
          p.getParameter<edm::ParameterSet>("HGCSD").getParameter<bool>("IgnoreTrackID")), 
-  numberingScheme(0), slopeMin_(0) {
+  numberingScheme(0), slopeMin_(0), levelT_(99) {
 
   edm::ParameterSet m_HGC = p.getParameter<edm::ParameterSet>("HGCSD");
   eminHit          = m_HGC.getParameter<double>("EminHit")*CLHEP::MeV;
@@ -132,9 +132,21 @@ uint32_t HGCSD::setDetUnitId(G4Step * aStep) {
     layer  = touch->GetReplicaNumber(0);
     module = touch->GetReplicaNumber(1);
   } else {
-    layer  = touch->GetReplicaNumber(2);
-    module = touch->GetReplicaNumber(1);
-    cell   = touch->GetReplicaNumber(0);
+    if (touch->GetHistoryDepth() == levelT_) {
+      layer  = touch->GetReplicaNumber(0);
+      module = -1;
+      cell   = -1;
+#ifdef DebugLog
+      std::cout << "Depths: " << touch->GetHistoryDepth() << " name " 
+		<< touch->GetVolume(0)->GetLogicalVolume()->GetName() 
+		<< " layer:module:cell " << layer << ":" << module << ":" 
+		<< cell << std::endl;
+#endif
+    } else {
+      layer  = touch->GetReplicaNumber(2);
+      module = touch->GetReplicaNumber(1);
+      cell   = touch->GetReplicaNumber(0);
+    }
   }
 
   return setDetUnitId (subdet, layer, module, cell, iz, localpos);
@@ -148,6 +160,7 @@ void HGCSD::update(const BeginOfJob * job) {
   if (hdc.isValid()) {
     m_mode          = hdc->geomMode();
     slopeMin_       = hdc->minSlope();
+    levelT_         = hdc->levelTop();
     numberingScheme = new HGCNumberingScheme(*hdc,nameX);
   } else {
     edm::LogError("HGCSim") << "HCalSD : Cannot find HGCalDDDConstants for "
@@ -156,7 +169,8 @@ void HGCSD::update(const BeginOfJob * job) {
   }
 #ifdef DebugLog
   edm::LogInfo("HGCSim") << "HGCSD::Initialized with mode " << m_mode 
-			 << " Slope cut " << slopeMin_ << std::endl;
+			 << " Slope cut " << slopeMin_ << " top Level "
+			 << levelT_ << std::endl;
 #endif
 }
 
