@@ -5,10 +5,13 @@
 
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "MagneticField/Engine/interface/MagneticField.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
 #include "RecoLocalTracker/Records/interface/TkStripCPERecord.h"
 #include "RecoLocalTracker/ClusterParameterEstimator/interface/ClusterParameterEstimator.h"
 #include "RecoLocalTracker/Phase2TrackerRecHits/interface/Phase2StripCPE.h"
+#include "RecoLocalTracker/Phase2TrackerRecHits/interface/Phase2StripCPETrivial.h"
 #include "RecoLocalTracker/Phase2TrackerRecHits/interface/Phase2StripCPEGeometric.h"
 
 #include "DataFormats/Phase2TrackerCluster/interface/Phase2TrackerCluster1D.h"
@@ -25,7 +28,7 @@ class Phase2StripCPEESProducer: public edm::ESProducer {
 
     private:
 
-        enum CPE_t { TRIVIAL, GEOMETRIC };
+        enum CPE_t { DEFAULT, TRIVIAL, GEOMETRIC };
         std::map<std::string, CPE_t> enumMap_;
 
         CPE_t cpeNum_;
@@ -38,7 +41,8 @@ class Phase2StripCPEESProducer: public edm::ESProducer {
 Phase2StripCPEESProducer::Phase2StripCPEESProducer(const edm::ParameterSet & p) {
   std::string name = p.getParameter<std::string>("ComponentType");
 
-  enumMap_[std::string("Phase2StripCPE")]   = TRIVIAL;
+  enumMap_[std::string("Phase2StripCPE")]          = DEFAULT;
+  enumMap_[std::string("Phase2StripCPETrivial")]   = TRIVIAL;
   enumMap_[std::string("Phase2StripCPEGeometric")] = GEOMETRIC;
   if (enumMap_.find(name) == enumMap_.end())
     throw cms::Exception("Unknown StripCPE type") << name;
@@ -51,9 +55,15 @@ Phase2StripCPEESProducer::Phase2StripCPEESProducer(const edm::ParameterSet & p) 
 
 std::shared_ptr<ClusterParameterEstimator<Phase2TrackerCluster1D> > Phase2StripCPEESProducer::produce(const TkStripCPERecord & iRecord) {
 
+  edm::ESHandle<MagneticField> magfield;
+
   switch(cpeNum_) {
+    case DEFAULT:
+      iRecord.getRecord<IdealMagneticFieldRecord>().get(magfield );
+      cpe_ = std::make_shared<Phase2StripCPE>(pset_, *magfield);
+      break;
     case TRIVIAL:
-      cpe_ = std::make_shared<Phase2StripCPE>();
+      cpe_ = std::make_shared<Phase2StripCPETrivial>();
       break;
     case GEOMETRIC:
       cpe_ = std::make_shared<Phase2StripCPEGeometric>(pset_);
