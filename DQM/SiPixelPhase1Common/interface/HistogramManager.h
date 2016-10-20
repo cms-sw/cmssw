@@ -47,7 +47,8 @@ public:
 
   // These functions perform step2, for online (per lumisection) or offline (endRun) respectively.
   // Note that the EventSetup from PerLumi is used in offline as well, so PerLumi always has to be called first.
-  void executePerLumiHarvesting(DQMStore::IBooker& iBooker, DQMStore::IGetter& iGetter, edm::EventSetup const& iSetup);
+  void executePerLumiHarvesting(DQMStore::IBooker& iBooker, DQMStore::IGetter& iGetter,
+                                edm::LuminosityBlock const& lumiBlock, edm::EventSetup const& iSetup);
   void executeHarvesting(DQMStore::IBooker& iBooker, DQMStore::IGetter& iGetter);
 
   typedef std::map<GeometryInterface::Values, AbstractHistogram> Table;
@@ -99,6 +100,9 @@ public: // these are available in config as is, and may be used in harvesting.
   int range_y_nbins;
   double range_y_min;
   double range_y_max;
+
+  // can be used in "custom" harvesting in online.
+  edm::LuminosityBlock const* lumisection = nullptr; 
 
 private:
   // These are actually more like local variables, and they might be shadowed
