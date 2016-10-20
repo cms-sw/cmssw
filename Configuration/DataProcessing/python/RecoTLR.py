@@ -192,7 +192,7 @@ def customiseRun2PPB_MuonDQMOffline(process):
     process.globalAnalyzer.binParams.ptCoarse = cms.untracked.vdouble(  0.,1.,2.,3.,4.,5.,7.,9.,12.,15.,20.,30.,40.)
     process.trackerAnalyzer.binParams.ptCoarse = cms.untracked.vdouble( 0.,1.,2.,3.,4.,5.,7.,9.,12.,15.,20.,30.,40.)
     process.tightAnalyzer.binParams.ptCoarse = cms.untracked.vdouble(   0.,1.,2.,3.,4.,5.,7.,9.,12.,15.,20.,30.,40.)
-    process.olooseAnalyzer.binParams.ptCoarse = cms.untracked.vdouble(  0.,1.,2.,3.,4.,5.,7.,9.,12.,15.,20.,30.,40.)
+    process.looseAnalyzer.binParams.ptCoarse = cms.untracked.vdouble(   0.,1.,2.,3.,4.,5.,7.,9.,12.,15.,20.,30.,40.)
     # diMuonHistograms binning & bin width
     process.diMuonHistos.etaBin = cms.int32(175)
     process.diMuonHistos.etaBBin = cms.int32(175)
