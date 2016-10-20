@@ -513,6 +513,7 @@ void HistogramManager::book(DQMStore::IBooker& iBooker,
 
 void HistogramManager::executePerLumiHarvesting(DQMStore::IBooker& iBooker,
                                                 DQMStore::IGetter& iGetter,
+                                                edm::LuminosityBlock const& lumiBlock,
                                                 edm::EventSetup const& iSetup) {
   if (!enabled) return;
   // this should also give us the GeometryInterface for offline, though it is a
@@ -521,7 +522,9 @@ void HistogramManager::executePerLumiHarvesting(DQMStore::IBooker& iBooker,
     geometryInterface.load(iSetup);
   }
   if (perLumiHarvesting) {
+    this->lumisection = &lumiBlock; // "custom" steps can use this
     executeHarvesting(iBooker, iGetter);
+    this->lumisection = nullptr;
   }
 }
 
