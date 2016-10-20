@@ -385,7 +385,7 @@ namespace JME {
             return 1;
 
         // Set parameters
-        TFormula* formula = m_definition.getFormula();
+        TFormula* formula = new TFormula( * (m_definition.getFormula() ) );
         if (! formula)
             return 1;
 
@@ -402,7 +402,9 @@ namespace JME {
             variables_[index] = clip(variables[index], record.getVariablesRange()[index].min, record.getVariablesRange()[index].max);
         }
 
-        return formula->EvalPar(variables_);
+        float results = formula->EvalPar(variables_);
+        delete formula;
+        return results;
     }
 }
 
