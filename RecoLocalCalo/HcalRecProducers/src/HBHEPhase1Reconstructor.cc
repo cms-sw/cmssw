@@ -32,6 +32,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/StreamID.h"
 
+#include "DataFormats/HcalDetId/interface/HcalGenericDetId.h"
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 #include "DataFormats/METReco/interface/HcalPhase1FlagLabels.h"
@@ -41,6 +42,8 @@
 #include "CalibFormats/HcalObjects/interface/HcalCoderDb.h"
 
 #include "CalibFormats/CaloObjects/interface/CaloSamples.h"
+
+// #include "CalibCalorimetry/HcalAlgos/interface/HcalSiPMnonlinearity.h"
 
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalSeverityLevelComputer.h"
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalSeverityLevelComputerRcd.h"
@@ -58,23 +61,64 @@
 
 // Some helper functions
 namespace {
-    // The following function should apply the SiPM nonlinearity
-    // correction. It may need extra arguments for that. It should
-    // return the best estimate of the charge before pedestal subtraction.
-    double getRawChargeFromSample(const QIE11DataFrame::Sample& s,
-                                  const double decodedCharge,
-                                  const HcalCalibrations& calib)
+    // A stub for the "HcalSiPMnonlinearity" class. To be removed
+    // after integration of PR #16070.
+    class HcalSiPMnonlinearity
     {
-        // FIX THIS!!!
-        return decodedCharge;
-    }
+    public:
+        inline explicit HcalSiPMnonlinearity(const std::vector<float>&) {}
+        inline double getRecoCorrectionFactor(double) const {return 1.0;}
+    };
 
-    double getRawChargeFromSample(const HcalQIESample& s,
-                                  const double decodedCharge,
-                                  const HcalCalibrations& calib)
+    // Class for making SiPM/QIE11 look like HPD/QIE8. HPD/QIE8
+    // needs only pedestal and gain to convert charge into energy.
+    // Due to nonlinearities, response of SiPM/QIE11 is substantially
+    // more complicated. It is possible to calculate all necessary
+    // quantities from the charge and the info stored in the DB every
+    // time the raw charge is needed. However, it does not make sense
+    // to retrieve DB contents stored by channel for every time slice.
+    // Because of this, we look things up only once, in the constructor.
+    template<class DFrame>
+    class RawChargeFromSample
     {
-        return decodedCharge;
-    }
+    public:
+        inline RawChargeFromSample(const HcalDbService& cond,
+                                   const HcalDetId id) {}
+
+        inline double getRawCharge(const double decodedCharge,
+                                   const double pedestal) const
+            {return decodedCharge;}
+    };
+
+    template<>
+    class RawChargeFromSample<QIE11DataFrame>
+    {
+    public:
+        inline RawChargeFromSample(const HcalDbService& cond,
+                                   const HcalDetId id)
+            : siPMParameter_(*cond.getHcalSiPMParameter(id)),
+              fcByPE_(siPMParameter_.getFCByPE()),
+              corr_(cond.getHcalSiPMCharacteristics()->getNonLinearities(siPMParameter_.getType()))
+        {
+            if (fcByPE_ <= 0.0)
+                throw cms::Exception("HBHEPhase1BadDB")
+                    << "Invalid fC/PE conversion factor for SiPM " << id
+                    << std::endl;
+        }
+
+        inline double getRawCharge(const double decodedCharge,
+                                   const double pedestal) const
+        {
+            const double sipmQ = decodedCharge - pedestal;
+            const double nPixelsFired = sipmQ/fcByPE_;
+            return sipmQ*corr_.getRecoCorrectionFactor(nPixelsFired) + pedestal;
+        }
+
+    private:
+        const HcalSiPMParameter& siPMParameter_;
+        double fcByPE_;
+        HcalSiPMnonlinearity corr_;
+    };
 
     float getTDCTimeFromSample(const QIE11DataFrame::Sample& s)
     {
@@ -129,7 +173,7 @@ namespace {
     }
 
     std::unique_ptr<HBHEStatusBitSetter> parse_HBHEStatusBitSetter(
-        const edm::ParameterSet psdigi)
+        const edm::ParameterSet& psdigi)
     {
         return std::make_unique<HBHEStatusBitSetter>(
             psdigi.getParameter<double>("nominalPedestal"),
@@ -139,7 +183,7 @@ namespace {
     }
 
     std::unique_ptr<HBHEPulseShapeFlagSetter> parse_HBHEPulseShapeFlagSetter(
-        const edm::ParameterSet &psPulseShape)
+        const edm::ParameterSet& psPulseShape, const bool setLegacyFlags)
     {
         return std::make_unique<HBHEPulseShapeFlagSetter>(
             psPulseShape.getParameter<double>("MinimumChargeThreshold"),
@@ -167,7 +211,7 @@ namespace {
             psPulseShape.getParameter<std::vector<double> >("TS4TS5UpperCut"),
             psPulseShape.getParameter<bool>("UseDualFit"),
             psPulseShape.getParameter<bool>("TriangleIgnoreSlow"),
-            false);
+            setLegacyFlags);
     }
 }
 
@@ -283,11 +327,13 @@ HBHEPhase1Reconstructor::HBHEPhase1Reconstructor(const edm::ParameterSet& conf)
 
     if (setPulseShapeFlagsQIE8_)
         hbhePulseShapeFlagSetterQIE8_ = parse_HBHEPulseShapeFlagSetter(
-            conf.getParameter<edm::ParameterSet>("pulseShapeParametersQIE8"));
+            conf.getParameter<edm::ParameterSet>("pulseShapeParametersQIE8"),
+            conf.getParameter<bool>("setLegacyFlagsQIE8"));
 
     if (setPulseShapeFlagsQIE11_)
         hbhePulseShapeFlagSetterQIE11_ = parse_HBHEPulseShapeFlagSetter(
-            conf.getParameter<edm::ParameterSet>("pulseShapeParametersQIE11"));
+            conf.getParameter<edm::ParameterSet>("pulseShapeParametersQIE11"),
+            conf.getParameter<bool>("setLegacyFlagsQIE11"));
 
     // Consumes and produces statements
     if (processQIE8_)
@@ -338,9 +384,7 @@ void HBHEPhase1Reconstructor::processData(const Collection& coll,
     {
         const DFrame& frame(*it);
         const HcalDetId cell(frame.id());
-        const HcalRecoParam* param_ts = nullptr;
-        if (tsFromDB_ || recoParamsFromDB_)
-            param_ts = paramTS_->getValues(cell.rawId());
+        const HcalRecoParam* param_ts = paramTS_->getValues(cell.rawId());
 
         // Check if the database tells us to drop this channel
         const HcalChannelStatus* mydigistatus = qual.getValues(cell.rawId());
@@ -361,9 +405,8 @@ void HBHEPhase1Reconstructor::processData(const Collection& coll,
         const HcalCalibrationWidths& calibWidth = cond.getHcalCalibrationWidths(cell);
         const HcalQIECoder* channelCoder = cond.getHcalCoder(cell);
         const HcalQIEShape* shape = cond.getHcalShape(channelCoder);
-        HcalCoderDb coder(*channelCoder, *shape);
-
-	int pulseShapeID=paramTS_->getValues(cell.rawId())->pulseShapeID();
+        const HcalCoderDb coder(*channelCoder, *shape);
+        const RawChargeFromSample<DFrame> rcfs(cond, cell);
 
         // ADC to fC conversion
         CaloSamples cs;
@@ -383,7 +426,7 @@ void HBHEPhase1Reconstructor::processData(const Collection& coll,
             const double pedestal = calib.pedestal(capid);
 	    const double pedestalWidth = calibWidth.pedestal(capid);
             const double gain = calib.respcorrgain(capid);
-            const double rawCharge = getRawChargeFromSample(s, cs[ts], calib);
+            const double rawCharge = rcfs.getRawCharge(cs[ts], pedestal);
             const float t = getTDCTimeFromSample(s);
             channelInfo->setSample(ts, s.adc(), rawCharge, pedestal, pedestalWidth, gain, t);
             if (ts == soi)
@@ -391,6 +434,7 @@ void HBHEPhase1Reconstructor::processData(const Collection& coll,
         }
 
         // Fill the overall channel info items
+	const int pulseShapeID = param_ts->pulseShapeID();
         const std::pair<bool,bool> hwerr = findHWErrors(frame, maxTS);
         channelInfo->setChannelInfo(cell, pulseShapeID, maxTS, soi, soiCapid,
                                     hwerr.first, hwerr.second,
@@ -468,13 +512,10 @@ HBHEPhase1Reconstructor::produce(edm::Event& e, const edm::EventSetup& eventSetu
 {
     using namespace edm;
 
-    // Get the Hcal topology if needed
+    // Get the Hcal topology
     ESHandle<HcalTopology> htopo;
-    if (tsFromDB_ || recoParamsFromDB_)
-    {
-        eventSetup.get<HcalRecNumberingRecord>().get(htopo);
-        paramTS_->setTopo(htopo.product());
-    }
+    eventSetup.get<HcalRecNumberingRecord>().get(htopo);
+    paramTS_->setTopo(htopo.product());
 
     // Fetch the calibrations
     ESHandle<HcalDbService> conditions;
@@ -562,12 +603,9 @@ HBHEPhase1Reconstructor::produce(edm::Event& e, const edm::EventSetup& eventSetu
 void
 HBHEPhase1Reconstructor::beginRun(edm::Run const& r, edm::EventSetup const& es)
 {
-    if (tsFromDB_ || recoParamsFromDB_)
-    {
-        edm::ESHandle<HcalRecoParams> p;
-        es.get<HcalRecoParamsRcd>().get(p);
-        paramTS_ = std::make_unique<HcalRecoParams>(*p.product());
-    }
+    edm::ESHandle<HcalRecoParams> p;
+    es.get<HcalRecoParamsRcd>().get(p);
+    paramTS_ = std::make_unique<HcalRecoParams>(*p.product());
 
     if (reco_->isConfigurable())
     {
@@ -634,6 +672,8 @@ HBHEPhase1Reconstructor::fillDescriptions(edm::ConfigurationDescriptions& descri
     desc.add<bool>("setNoiseFlagsQIE11");
     desc.add<bool>("setPulseShapeFlagsQIE8");
     desc.add<bool>("setPulseShapeFlagsQIE11");
+    desc.add<bool>("setLegacyFlagsQIE8");
+    desc.add<bool>("setLegacyFlagsQIE11");
 
     add_param_set(algorithm);
     add_param_set(flagParametersQIE8);
