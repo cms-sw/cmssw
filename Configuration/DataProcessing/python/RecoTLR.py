@@ -236,3 +236,28 @@ def customiseRun2DeprecatedPromptHI(process):
     return process
 
 ##############################################################################
+# modifications of muon DQMOffline for pPb run
+def customiseRun2PPB_MuonDQMOffline(process):
+    # taget ptCut for Jpsi
+    process.globalAnalyzer.targetParams.ptCut_Jpsi = cms.untracked.double( 5.0)
+    process.trackerAnalyzer.targetParams.ptCut_Jpsi = cms.untracked.double(5.0)
+    process.tightAnalyzer.targetParams.ptCut_Jpsi = cms.untracked.double(  5.0)
+    process.looseAnalyzer.targetParams.ptCut_Jpsi = cms.untracked.double(  5.0)
+    # probe ptCoarse
+    process.globalAnalyzer.binParams.ptCoarse = cms.untracked.vdouble(  0.,1.,2.,3.,4.,5.,7.,9.,12.,15.,20.,30.,40.)
+    process.trackerAnalyzer.binParams.ptCoarse = cms.untracked.vdouble( 0.,1.,2.,3.,4.,5.,7.,9.,12.,15.,20.,30.,40.)
+    process.tightAnalyzer.binParams.ptCoarse = cms.untracked.vdouble(   0.,1.,2.,3.,4.,5.,7.,9.,12.,15.,20.,30.,40.)
+    process.looseAnalyzer.binParams.ptCoarse = cms.untracked.vdouble(   0.,1.,2.,3.,4.,5.,7.,9.,12.,15.,20.,30.,40.)
+    # diMuonHistograms binning & bin width
+    process.diMuonHistos.etaBin = cms.int32(175)
+    process.diMuonHistos.etaBBin = cms.int32(175)
+    process.diMuonHistos.etaEBin = cms.int32(175)
+    process.diMuonHistos.etaBinLM = cms.int32(30)
+    process.diMuonHistos.etaBBinLM = cms.int32(30)
+    process.diMuonHistos.etaEBinLM = cms.int32(30)
+    process.diMuonHistos.LowMassMin = cms.double(2.0)
+    process.diMuonHistos.LowMassMax = cms.double(14.0)
+    process.diMuonHistos.HighMassMin = cms.double(55.0)
+    process.diMuonHistos.HighMassMax = cms.double(125.0)
+
+    return process
