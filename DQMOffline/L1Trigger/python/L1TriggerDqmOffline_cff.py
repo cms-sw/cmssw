@@ -134,9 +134,10 @@ l1TriggerOffline = cms.Sequence(
                                 )
  
 #
- 
-l1TriggerEmulatorOnline = cms.Sequence(
+from L1Trigger.Configuration.ValL1Emulator_cff import *
 
+l1TriggerEmulatorOnline = cms.Sequence(
+                                 valHcalTriggerPrimitiveDigis +
                                  Stage2L1HardwareValidation +
                                  l1tStage2EmulatorOnlineDQM +
                                  dqmEnvL1TEMU
