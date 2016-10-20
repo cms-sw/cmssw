@@ -1,6 +1,13 @@
 #include "DataFormats/HcalDetId/interface/HcalZDCDetId.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
+static const int kZDCChannelMask   = 0xF;
+static const int kZDCSectionMask   = 0x3;
+static const int kZDCSectionOffset = 4;
+static const int kZDCZsideMask     = 0x40;
+static const int kZDCRPDMask       = 0x80;
+static const int SubdetectorId = 2;
+
 HcalZDCDetId::HcalZDCDetId() : DetId() {
 }
 

@@ -21,6 +21,7 @@ HcalRawToDigi::HcalRawToDigi(edm::ParameterSet const& conf):
   firstFED_(conf.getUntrackedParameter<int>("HcalFirstFED",FEDNumbering::MINHCALFEDID)),
   unpackCalib_(conf.getUntrackedParameter<bool>("UnpackCalib",false)),
   unpackZDC_(conf.getUntrackedParameter<bool>("UnpackZDC",false)),
+  unpackZDCQIE10_(conf.getUntrackedParameter<bool>("UnpackZDCQIE10",false)),
   unpackTTP_(conf.getUntrackedParameter<bool>("UnpackTTP",false)),
   unpackUMNio_(conf.getUntrackedParameter<bool>("UnpackUMNio",false)),
   silent_(conf.getUntrackedParameter<bool>("silent",true)),
@@ -65,7 +66,8 @@ HcalRawToDigi::HcalRawToDigi(edm::ParameterSet const& conf):
     produces<HcalUMNioDigi>();
   produces<QIE10DigiCollection>();
   produces<QIE11DigiCollection>();
-  produces<QIE10DigiCollection>("ZDC");
+  if (unpackZDCQIE10_)
+    produces<QIE10DigiCollection>("ZDC");
   
   memset(&stats_,0,sizeof(stats_));
 
@@ -82,6 +84,7 @@ void HcalRawToDigi::fillDescriptions(edm::ConfigurationDescriptions& description
   desc.add<bool>("FilterDataQuality",true);
   desc.addUntracked<std::vector<int>>("FEDs", std::vector<int>());
   desc.addUntracked<bool>("UnpackZDC",true);
+  desc.addUntracked<bool>("UnpackZDCQIE10",true);
   desc.addUntracked<bool>("UnpackCalib",true);
   desc.addUntracked<bool>("UnpackUMNio",true);
   desc.addUntracked<bool>("UnpackTTP",true);
@@ -129,6 +132,7 @@ void HcalRawToDigi::produce(edm::Event& e, const edm::EventSetup& es)
   if (stats_.max_tpho>0) hotp.reserve(stats_.ave_tpho+(stats_.max_tpho-stats_.ave_tpho)/8);
 
   if (unpackZDC_) zdc.reserve(24);
+  if (unpackZDCQIE10_) zdc.reserve(32);
 
 
   HcalUnpacker::Collections colls;
@@ -247,7 +251,7 @@ void HcalRawToDigi::produce(edm::Event& e, const edm::EventSetup& es)
   e.put(std::move(htp_prod));
   e.put(std::move(hotp_prod));
   e.put(std::move(qie10_prod));
-  e.put(std::move(qie10ZDC_prod),"ZDC");
+  if (unpackZDCQIE10_) e.put(std::move(qie10ZDC_prod),"ZDC");
   e.put(std::move(qie11_prod));
 
   /// calib
