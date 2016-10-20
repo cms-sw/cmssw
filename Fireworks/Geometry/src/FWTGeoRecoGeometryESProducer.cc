@@ -18,11 +18,13 @@
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
+#include "DataFormats/CaloTowers/interface/CaloTowerDetId.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
+#include "Geometry/HcalTowerAlgo/interface/HcalGeometry.h"
 #include "Geometry/CSCGeometry/interface/CSCGeometry.h"
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
 #include "Geometry/CSCGeometry/interface/CSCChamber.h"
@@ -230,6 +232,10 @@ FWTGeoRecoGeometryESProducer::GetMedium(ERecoDet det)
          name = "HCal";    
          color = GMCol::Orange1;
          break;
+      case kCaloTower:
+         name = "CaloTower";    
+         color = GMCol::Green;
+         break;
       case kHGCE:
          name = "HGCEE";
          color = GMCol::Blue2;
@@ -263,11 +269,7 @@ FWTGeoRecoGeometryESProducer::produce( const FWTGeoRecoGeometryRecord& record )
    using namespace edm;
 
    m_fwGeometry = std::make_shared<FWTGeoRecoGeometry>();
-   record.getRecord<GlobalTrackingGeometryRecord>().get( m_geomRecord );
   
-   DetId detId( DetId::Tracker, 0 );
-   m_trackerGeom = (const TrackerGeometry*) m_geomRecord->slaveGeometry( detId );
-
    if( m_calo )
      record.getRecord<CaloGeometryRecord>().get( m_caloGeom );
 
@@ -294,8 +296,16 @@ FWTGeoRecoGeometryESProducer::produce( const FWTGeoRecoGeometryRecord& record )
    top->SetVisibility( kFALSE );
    top->SetLineColor( kBlue );
 
+   if( m_tracker || m_muon )
+   {
+     record.getRecord<GlobalTrackingGeometryRecord>().get( m_geomRecord );
+   }
+   
    if( m_tracker )
    {
+     DetId detId( DetId::Tracker, 0 );
+     m_trackerGeom = (const TrackerGeometry*) m_geomRecord->slaveGeometry( detId );
+
      addPixelBarrelGeometry();
      addPixelForwardGeometry();
 
@@ -308,7 +318,6 @@ FWTGeoRecoGeometryESProducer::produce( const FWTGeoRecoGeometryRecord& record )
    if( m_muon )
    {
      addDTGeometry();
-
      addCSCGeometry();
      addRPCGeometry();
      addME0Geometry();
@@ -320,6 +329,9 @@ FWTGeoRecoGeometryESProducer::produce( const FWTGeoRecoGeometryRecord& record )
      addEcalCaloGeometry();   
      addHcalCaloGeometryBarrel();
      addHcalCaloGeometryEndcap();
+     addHcalCaloGeometryOuter();
+     addHcalCaloGeometryForward();
+     addCaloTowerGeometry();
    }
    
    geom->CloseGeometry();
@@ -451,7 +463,7 @@ FWTGeoRecoGeometryESProducer::addPixelBarrelGeometry()
        unsigned int rawid = detid.rawId();
 
        PXBDetId xx(rawid);
-       std::string name = Form("PXB Ly:%d, Md:%d Ld:%d ", xx.layer(), xx.module(), xx.layer());
+       std::string name = Form("PXB Ly:%d, Md:%d Ld:%d ", xx.layer(), xx.module(), xx.ladder());
        TGeoVolume* child = createVolume( name, *it, kSiPixel );
 
        TGeoVolume* holder  = GetDaughter(assembly, "Layer", kSiPixel, xx.layer());
@@ -895,44 +907,42 @@ FWTGeoRecoGeometryESProducer::addHcalCaloGeometryBarrel( void )
 {
    TGeoVolume* tv =  GetTopHolder("HCal", kHCal); 
    TGeoVolume *assembly = GetDaughter(tv, "HCalBarrel", kHCal);
-
+   
    std::vector<DetId> vid = m_caloGeom->getValidDetIds(DetId::Hcal, HcalSubdetector::HcalBarrel);
 
    CaloVolMap caloShapeMapP;
    CaloVolMap caloShapeMapN;
    for( std::vector<DetId>::const_iterator it = vid.begin(), end = vid.end(); it != end; ++it)
    {
-      HcalDetId detid = HcalDetId(it->rawId());
-
-      const CaloCellGeometry* cellb= m_caloGeom->getGeometry(*it);
-
-      const IdealObliquePrism* cell = dynamic_cast<const IdealObliquePrism*> (cellb);
+     //HcalDetId detid = HcalDetId(it->rawId());
+     HcalDetId detid(*it);
+     const CaloCellGeometry* cellb= m_caloGeom->getGeometry(*it);
+     const IdealObliquePrism* cell = dynamic_cast<const IdealObliquePrism*> (cellb);
    
-      if (!cell) { printf ("HB not olique !!!\n"); continue; }
+     if (!cell) { printf ("HB not oblique !!!\n"); continue; }
   
-      TGeoVolume* volume = 0;
-      CaloVolMap& caloShapeMap = (cell->etaPos() > 0) ? caloShapeMapP : caloShapeMapN;
-      CaloVolMap::iterator volIt =  caloShapeMap.find(cell->param());
-      if  (volIt == caloShapeMap.end()) 
-      {
+     TGeoVolume* volume = 0;
+     CaloVolMap& caloShapeMap = (cell->etaPos() > 0) ? caloShapeMapP : caloShapeMapN;
+     CaloVolMap::iterator volIt =  caloShapeMap.find(cell->param());
+     if  (volIt == caloShapeMap.end()) 
+        {
          // printf("FIREWORKS NEW SHAPE BEGIN eta = %f etaPos = %f, phiPos %f >>>>>> \n", cell->eta(), cell->etaPos(), cell->phiPos());
          IdealObliquePrism::Pt3DVec lc(8);
          IdealObliquePrism::Pt3D ref;
-         IdealObliquePrism::localCorners( lc, cell->param(), ref);
+         IdealObliquePrism::localCorners( lc, cell->param(), ref );
          HepGeom::Vector3D<float> lCenter;
          for( int c = 0; c < 8; ++c)
-            lCenter += lc[c];
+     	   lCenter += lc[c];
          lCenter *= 0.125;
 
          static const int arr[] = { 1, 0, 3, 2,  5, 4, 7, 6 };
          double points[16];
          for (int c = 0; c < 8; ++c) {
-            if (cell->etaPos() > 0 )
-               points[ c*2 + 0 ] = -(lc[arr[c]].z() - lCenter.z());
-            else
-               points[ c*2 + 0 ] = (lc[arr[c]].z() - lCenter.z()); 
-
-            points[ c*2 + 1 ] =  (lc[arr[c]].y() - lCenter.y());
+     	   if (cell->etaPos() > 0 )
+     	     points[ c*2 + 0 ] = -(lc[arr[c]].z() - lCenter.z());
+     	   else
+     	     points[ c*2 + 0 ] = (lc[arr[c]].z() - lCenter.z()); 
+     	   points[ c*2 + 1 ] =  (lc[arr[c]].y() - lCenter.y());
             // printf("AMT xy[%d] <=>[%d] = (%.4f, %.4f) \n", arr[c], c, points[c*2],  points[c*2+1]);
          }
 
@@ -940,17 +950,15 @@ FWTGeoRecoGeometryESProducer::addHcalCaloGeometryBarrel( void )
          TGeoShape* solid = new TGeoArb8(dz, &points[0]);
          volume = new TGeoVolume("hcal oblique prism", solid, GetMedium(kHCal));
          caloShapeMap[cell->param()] = volume;
-      }
-      else {
-
-         volume = volIt->second;
-
-      }      
+       }
+     else {
+       volume = volIt->second;
+     }      
 
       HepGeom::Vector3D<float> gCenter;
       CaloCellGeometry::CornersVec const & gc = cell->getCorners();
       for (int c = 0; c < 8; ++c)
-         gCenter += HepGeom::Vector3D<float>(gc[c].x(), gc[c].y(), gc[c].z());
+	gCenter += HepGeom::Vector3D<float>(gc[c].x(), gc[c].y(), gc[c].z());
       gCenter *= 0.125;
 
       TGeoTranslation gtr(gCenter.x(), gCenter.y(), gCenter.z());
@@ -968,9 +976,7 @@ FWTGeoRecoGeometryESProducer::addHcalCaloGeometryBarrel( void )
       AddLeafNode(holder, volume, nname.str().c_str(), new TGeoCombiTrans(gtr, rot));
    }
 
-
    //  printf("HB map size P = %lu , N = %lu", caloShapeMapP.size(),caloShapeMapN.size() );
-
 }
 //______________________________________________________________________________
 
@@ -991,7 +997,7 @@ FWTGeoRecoGeometryESProducer::addHcalCaloGeometryEndcap( void )
       HcalDetId detid = HcalDetId(it->rawId());
       const IdealObliquePrism* cell = dynamic_cast<const IdealObliquePrism*> ( m_caloGeom->getGeometry(*it));
    
-      if (!cell) { printf ("EC not olique \n"); continue; }
+      if (!cell) { printf ("EC not oblique \n"); continue; }
 
       TGeoVolume* volume = 0;
       CaloVolMap& caloShapeMap = (cell->etaPos() > 0) ? caloShapeMapP : caloShapeMapN;
@@ -1053,6 +1059,205 @@ FWTGeoRecoGeometryESProducer::addHcalCaloGeometryEndcap( void )
    //   printf("HE map size P = %lu , N = %lu", caloShapeMapP.size(),caloShapeMapN.size() );
 }
 
+void
+FWTGeoRecoGeometryESProducer::addHcalCaloGeometryOuter()
+{
+  CaloVolMap caloShapeMapP;
+  CaloVolMap caloShapeMapN;
+
+  TGeoVolume* tv =  GetTopHolder("HCal", kHCal); 
+  TGeoVolume *assembly = GetDaughter(tv, "HCalOuter", kHCal);
+
+  std::vector<DetId> vid = m_caloGeom->getValidDetIds(DetId::Hcal, HcalSubdetector::HcalOuter);
+
+  for( std::vector<DetId>::const_iterator it = vid.begin(), end = vid.end(); it != end; ++it)
+  {
+    HcalDetId detid = HcalDetId(it->rawId());
+    const IdealObliquePrism* cell = dynamic_cast<const IdealObliquePrism*> ( m_caloGeom->getGeometry(*it));
+   
+    if (!cell) { printf ("EC not oblique \n"); continue; }
+
+    TGeoVolume* volume = 0;
+    CaloVolMap& caloShapeMap = (cell->etaPos() > 0) ? caloShapeMapP : caloShapeMapN;
+    CaloVolMap::iterator volIt =  caloShapeMap.find(cell->param());
+    if  ( volIt == caloShapeMap.end()) 
+    {
+      IdealObliquePrism::Pt3DVec lc(8);
+      IdealObliquePrism::Pt3D ref;
+      IdealObliquePrism::localCorners( lc, cell->param(), ref);
+      HepGeom::Vector3D<float> lCenter; 
+      for( int c = 0; c < 8; ++c)
+	lCenter += lc[c];
+      lCenter *= 0.125;
+      static const int arrP[] = { 3, 2, 1, 0, 7, 6, 5, 4 };
+      static const int arrN[] = {  7, 6, 5, 4 ,3, 2, 1, 0};
+      const int* arr = (detid.ieta() > 0) ?  &arrP[0] : &arrN[0];
+      
+      double points[16];
+      for (int c = 0; c < 8; ++c) {
+	points[ c*2 + 0 ] = lc[arr[c]].x() - lCenter.x(); 
+	points[ c*2 + 1 ] = lc[arr[c]].y() - lCenter.y();
+      }
+
+      float dz = (lc[4].z() -lc[0].z()) * 0.5;
+      TGeoShape* solid = new TGeoArb8(dz, &points[0]);
+      volume = new TGeoVolume("ecal oblique prism", solid, GetMedium(kHCal));
+      caloShapeMap[cell->param()] = volume;
+    }
+    else {
+      volume = volIt->second;
+    }      
+    HepGeom::Vector3D<float> gCenter;
+    CaloCellGeometry::CornersVec const & gc = cell->getCorners();
+    for (int c = 0; c < 8; ++c) {
+      gCenter += HepGeom::Vector3D<float>(gc[c].x(), gc[c].y(), gc[c].z());
+    }
+    gCenter *= 0.125;
+    
+    TGeoTranslation gtr(gCenter.x(), gCenter.y(), gCenter.z());
+    TGeoRotation rot;
+    rot.SetAngles(cell->phiPos()*TMath::RadToDeg(), 0, 0);
+    
+    TGeoVolume* holder  = GetDaughter(assembly, "side", kHCal, detid.zside());
+    holder = GetDaughter(holder, "ieta", kHCal, detid.ieta());
+    std::stringstream nname;
+    nname << detid;
+    AddLeafNode(holder, volume, nname.str().c_str(), new TGeoCombiTrans(gtr, rot));
+  }
+}
+
+void
+FWTGeoRecoGeometryESProducer::addHcalCaloGeometryForward()
+{
+  CaloVolMap caloShapeMapP;
+  CaloVolMap caloShapeMapN;
+
+  TGeoVolume* tv =  GetTopHolder("HCal", kHCal); 
+  TGeoVolume *assembly = GetDaughter(tv, "HCalForward", kHCal);
+
+  std::vector<DetId> vid = m_caloGeom->getValidDetIds(DetId::Hcal, HcalSubdetector::HcalForward);
+
+  for( std::vector<DetId>::const_iterator it = vid.begin(), end = vid.end(); it != end; ++it)
+  {
+    HcalDetId detid = HcalDetId(it->rawId());
+    const IdealZPrism* cell = dynamic_cast<const IdealZPrism*> ( m_caloGeom->getGeometry(*it));
+    
+    if (!cell) { printf ("EC not Z prism \n"); continue; }
+    
+    TGeoVolume* volume = 0;
+    CaloVolMap& caloShapeMap = (cell->etaPos() > 0) ? caloShapeMapP : caloShapeMapN;
+    CaloVolMap::iterator volIt =  caloShapeMap.find(cell->param());
+    if  ( volIt == caloShapeMap.end()) 
+    {
+      IdealZPrism::Pt3DVec lc(8);
+      IdealZPrism::Pt3D ref;
+      IdealZPrism::localCorners( lc, cell->param(), ref);
+      HepGeom::Vector3D<float> lCenter; 
+      for( int c = 0; c < 8; ++c)
+	lCenter += lc[c];
+      lCenter *= 0.125;
+      static const int arrP[] = { 3, 2, 1, 0, 7, 6, 5, 4 };
+      static const int arrN[] = {  7, 6, 5, 4 ,3, 2, 1, 0};
+      const int* arr = (detid.ieta() > 0) ?  &arrP[0] : &arrN[0];
+
+      double points[16];
+      for (int c = 0; c < 8; ++c) {
+	points[ c*2 + 0 ] = lc[arr[c]].x() - lCenter.x(); 
+	points[ c*2 + 1 ] = lc[arr[c]].y() - lCenter.y();
+      }
+
+      float dz = (lc[4].z() -lc[0].z()) * 0.5;
+      TGeoShape* solid = new TGeoArb8(dz, &points[0]);
+      volume = new TGeoVolume("ecal oblique prism", solid, GetMedium(kHCal));
+      caloShapeMap[cell->param()] = volume;
+    }
+    else {
+      volume = volIt->second;
+    }      
+    HepGeom::Vector3D<float> gCenter;
+    CaloCellGeometry::CornersVec const & gc = cell->getCorners();
+    for (int c = 0; c < 8; ++c) {
+      gCenter += HepGeom::Vector3D<float>(gc[c].x(), gc[c].y(), gc[c].z());
+    }
+    gCenter *= 0.125;
+
+    TGeoTranslation gtr(gCenter.x(), gCenter.y(), gCenter.z());
+    TGeoRotation rot;
+    rot.SetAngles(cell->phiPos()*TMath::RadToDeg(), 0, 0);
+    
+    TGeoVolume* holder  = GetDaughter(assembly, "side", kHCal, detid.zside());
+    holder = GetDaughter(holder, "ieta", kHCal, detid.ieta());
+    std::stringstream nname;
+    nname << detid;
+    AddLeafNode(holder, volume, nname.str().c_str(), new TGeoCombiTrans(gtr, rot));
+  }
+}
+
+void
+FWTGeoRecoGeometryESProducer::addCaloTowerGeometry()
+{
+  CaloVolMap caloShapeMapP;
+  CaloVolMap caloShapeMapN;
+
+  TGeoVolume* tv =  GetTopHolder("CaloTower", kCaloTower); 
+  TGeoVolume *assembly = GetDaughter(tv, "CaloTower", kCaloTower);
+   
+  std::vector<DetId> vid = m_caloGeom->getValidDetIds(DetId::Calo, CaloTowerDetId::SubdetId);
+  for( std::vector<DetId>::const_iterator it = vid.begin(), end = vid.end(); it != end; ++it)
+  {
+    CaloTowerDetId detid = CaloTowerDetId(it->rawId());
+    const IdealObliquePrism* cell = dynamic_cast<const IdealObliquePrism*> ( m_caloGeom->getGeometry(*it));
+    if (!cell) { printf ("EC not oblique \n"); continue; }
+      TGeoVolume* volume = 0;
+      CaloVolMap& caloShapeMap = (cell->etaPos() > 0) ? caloShapeMapP : caloShapeMapN;
+      CaloVolMap::iterator volIt =  caloShapeMap.find(cell->param());
+      if  ( volIt == caloShapeMap.end()) 
+      {
+         IdealObliquePrism::Pt3DVec lc(8);
+         IdealObliquePrism::Pt3D ref;
+         IdealObliquePrism::localCorners( lc, cell->param(), ref);
+         HepGeom::Vector3D<float> lCenter; 
+         for( int c = 0; c < 8; ++c)
+            lCenter += lc[c];
+         lCenter *= 0.125;
+
+         static const int arrP[] = { 3, 2, 1, 0, 7, 6, 5, 4 };
+         static const int arrN[] = {  7, 6, 5, 4 ,3, 2, 1, 0};
+         const int* arr = (detid.ieta() > 0) ?  &arrP[0] : &arrN[0];
+
+         double points[16];
+         for (int c = 0; c < 8; ++c) {
+            points[ c*2 + 0 ] = lc[arr[c]].x() - lCenter.x(); 
+            points[ c*2 + 1 ] = lc[arr[c]].y() - lCenter.y();
+         }
+
+         float dz = (lc[4].z() -lc[0].z()) * 0.5;
+         TGeoShape* solid = new TGeoArb8(dz, &points[0]);
+         volume = new TGeoVolume("ecal oblique prism", solid, GetMedium(kCaloTower));
+         caloShapeMap[cell->param()] = volume;
+      }
+      else {
+         volume = volIt->second;
+      }      
+
+      HepGeom::Vector3D<float> gCenter;
+      CaloCellGeometry::CornersVec const & gc = cell->getCorners();
+      for (int c = 0; c < 8; ++c) {
+         gCenter += HepGeom::Vector3D<float>(gc[c].x(), gc[c].y(), gc[c].z());
+      }
+      gCenter *= 0.125;
+
+      TGeoTranslation gtr(gCenter.x(), gCenter.y(), gCenter.z());
+      TGeoRotation rot;
+      rot.SetAngles(cell->phiPos()*TMath::RadToDeg(), 0, 0);
+
+      TGeoVolume* holder  = GetDaughter(assembly, "side", kCaloTower, detid.zside());
+      holder = GetDaughter(holder, "ieta", kCaloTower, detid.ieta());
+      std::stringstream nname;
+      nname << detid;
+      AddLeafNode(holder, volume, nname.str().c_str(), new TGeoCombiTrans(gtr, rot));
+   }
+}
 
 //______________________________________________________________________________
 
