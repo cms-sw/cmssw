@@ -21,6 +21,14 @@ class SubDet:
     def toString(det):
         return SubDet._toString[det]
 
+# to be kept is synch with enum HitSimType in TrackingNtuple.py
+class HitSimType:
+    Signal = 0
+    ITPileup = 1
+    OOTPileup = 2
+    Noise = 3
+    Unknown = 99
+
 class _Collection(object):
     """Adaptor class representing a collection of objects.
 

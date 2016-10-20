@@ -37,9 +37,17 @@ def main():
     tot_pix_ntracks = 0
     tot_pix_nseeds = 0
     tot_pix_eloss = 0.0
+    tot_pix_signal = 0
+    tot_pix_itpu = 0
+    tot_pix_ootpu = 0
+    tot_pix_noise = 0
     tot_str = 0
     tot_str_ntracks = 0
     tot_str_nseeds = 0
+    tot_str_signal = 0
+    tot_str_itpu = 0
+    tot_str_ootpu = 0
+    tot_str_noise = 0
     tot_glu = 0
     tot_glu_nseeds = 0
 
@@ -131,7 +139,6 @@ def main():
                             nfakes_pixhits_true += 1
                             for simHit in hit.simHits():
                                 pix_simTrkIds.add(simHit.trackingParticle().index())
-                                tot_pix_eloss += simHit.eloss()
                     nfakes_pixhits_tps += len(pix_simTrkIds)
 
                     for hit in track.stripHits():
@@ -174,11 +181,37 @@ def main():
                 for track in hit.tracks():
                     tot_pix_ntracks += 1
 
+                if hit.simType() == HitSimType.Signal:
+                    tot_pix_signal += 1
+                elif hit.simType() == HitSimType.ITPileup:
+                    tot_pix_itpu += 1
+                elif hit.simType() == HitSimType.OOTPileup:
+                    tot_pix_ootpu += 1
+                elif hit.simType() == HitSimType.Noise:
+                    tot_pix_noise += 1
+                else:
+                    raise Exception("Got unknown hit sim type value %d" % hit.simType())
+
+                # hit -> SimHit links
+                for simHit in hit.simHits():
+                    tot_pix_eloss += simHit.eloss()
+
             for hit in event.stripHits():
                 tot_str += 1
                 # hit -> track links
                 for track in hit.tracks():
                     tot_str_ntracks += 1
+
+                if hit.simType() == HitSimType.Signal:
+                    tot_str_signal += 1
+                elif hit.simType() == HitSimType.ITPileup:
+                    tot_str_itpu += 1
+                elif hit.simType() == HitSimType.OOTPileup:
+                    tot_str_ootpu += 1
+                elif hit.simType() == HitSimType.Noise:
+                    tot_str_noise += 1
+                else:
+                    raise Exception("Got unknown hit sim type value %d" % hit.simType())
 
             tot_glu += len(event.gluedHits())
 
@@ -265,9 +298,17 @@ def main():
         print " on average %f tracks per hit" % (float(tot_pix_ntracks)/tot_pix)
         print " on average %f seeds per hit" % (float(tot_pix_nseeds)/tot_pix)
         print " on average %f energy loss per hit" % (tot_pix_eloss/tot_pix)
+        print " on average %f %% from hard scatter" % (float(tot_pix_signal)/tot_pix*100)
+        print " on average %f %% from in-time pileup" % (float(tot_pix_itpu)/tot_pix*100)
+        print " on average %f %% from out-of-time pileup" % (float(tot_pix_ootpu)/tot_pix*100)
+        print " on average %f %% from noise" % (float(tot_pix_noise)/tot_pix*100)
         print "On average %f strip hits" % (float(tot_str)/tot_nevents)
         print " on average %f tracks per hit" % (float(tot_str_ntracks)/tot_str)
         print " on average %f seeds per hit" % (float(tot_str_nseeds)/tot_str)
+        print " on average %f %% from hard scatter" % (float(tot_str_signal)/tot_str*100)
+        print " on average %f %% from in-time pileup" % (float(tot_str_itpu)/tot_str*100)
+        print " on average %f %% from out-of-time pileup" % (float(tot_str_ootpu)/tot_str*100)
+        print " on average %f %% from noise" % (float(tot_str_noise)/tot_str*100)
         print "On average %f glued hits" % (float(tot_glu)/tot_nevents)
         print " on average %f seeds per hit" % (float(tot_glu_nseeds)/tot_glu)
 
