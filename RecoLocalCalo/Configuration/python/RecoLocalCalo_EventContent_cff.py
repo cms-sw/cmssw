@@ -17,6 +17,7 @@ RecoLocalCaloFEVT = cms.PSet(
                                            'keep HFRecHitsSorted_hfrecoMB_*_*',
                                            'keep ZDCDataFramesSorted_*Digis_*_*',
                                            'keep ZDCRecHitsSorted_*_*_*',
+                                           'keep QIE10DataFrameHcalDataFrameContainer_hcalDigis_ZDC_*',
                                            'keep *_reducedHcalRecHits_*_*',
                                            'keep *_castorreco_*_*',
                                            'keep HcalUnpackerReport_*_*_*'
@@ -35,7 +36,7 @@ RecoLocalCaloRECO = cms.PSet(
                                            #'keep ZDCDataFramesSorted_*Digis_*_*',
                                            'keep ZDCDataFramesSorted_hcalDigis_*_*',
                                            'keep ZDCDataFramesSorted_castorDigis_*_*',
-                                           'keep ZDCDataFramesSorted_ZdcQie10Digis_*_*',
+                                           'keep QIE10DataFrameHcalDataFrameContainer_hcalDigis_ZDC_*',
                                            'keep ZDCRecHitsSorted_zdcreco_*_*',
                                            'keep *_reducedHcalRecHits_*_*',
                                            'keep *_castorreco_*_*',

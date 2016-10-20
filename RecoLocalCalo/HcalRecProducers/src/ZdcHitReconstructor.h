@@ -53,7 +53,6 @@ class HcalTopology;
       HcalOtherSubdetector subdetOther_;
       edm::EDGetTokenT<ZDCDigiCollection> tok_input_hcal;
       edm::EDGetTokenT<ZDCDigiCollection> tok_input_castor;
-      edm::EDGetTokenT<QIE10DigiCollection> tok_input_qie10;
       //std::vector<std::string> channelStatusToDrop_;
       bool correctTiming_; // turn on/off Ken Rossato's algorithm to fix timing
       bool setNoiseFlags_; // turn on/off basic noise flags

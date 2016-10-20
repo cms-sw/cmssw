@@ -33,13 +33,14 @@ public:
   virtual ~HcalRawToDigi();
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
   virtual void produce(edm::Event& , const edm::EventSetup&) override;
+  static const bool unpackZDCQIE10_ = true;
 private:
   edm::EDGetTokenT<FEDRawDataCollection> tok_data_;
   HcalUnpacker unpacker_;
   HcalDataFrameFilter filter_;
   std::vector<int> fedUnpackList_;
   const int firstFED_;
-  const bool unpackCalib_, unpackZDC_, unpackZDCQIE10_, unpackTTP_;
+  const bool unpackCalib_, unpackZDC_, unpackTTP_;
   bool unpackUMNio_;
   const bool silent_, complainEmptyData_;
   const int unpackerMode_, expectedOrbitMessageTime_;
