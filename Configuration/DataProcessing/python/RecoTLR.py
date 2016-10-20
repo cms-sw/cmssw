@@ -184,10 +184,10 @@ def customiseRun2CommonHI(process):
 # modifications of muon DQMOffline for pPb run
 def customiseRun2PPB_MuonDQMOffline(process):
     # taget ptCut for Jpsi
-    process.globalAnalyzer.targetParams.ptCut_Jpsi = cms.untracked.double( 4.0)
-    process.trackerAnalyzer.targetParams.ptCut_Jpsi = cms.untracked.double(4.0)
-    process.tightAnalyzer.targetParams.ptCut_Jpsi = cms.untracked.double(  4.0)
-    process.looseAnalyzer.targetParams.ptCut_Jpsi = cms.untracked.double(  4.0)
+    process.globalAnalyzer.targetParams.ptCut_Jpsi = cms.untracked.double( 5.0)
+    process.trackerAnalyzer.targetParams.ptCut_Jpsi = cms.untracked.double(5.0)
+    process.tightAnalyzer.targetParams.ptCut_Jpsi = cms.untracked.double(  5.0)
+    process.looseAnalyzer.targetParams.ptCut_Jpsi = cms.untracked.double(  5.0)
     # probe ptCoarse
     process.globalAnalyzer.binParams.ptCoarse = cms.untracked.vdouble(  0.,1.,2.,3.,4.,5.,7.,9.,12.,15.,20.,30.,40.)
     process.trackerAnalyzer.binParams.ptCoarse = cms.untracked.vdouble( 0.,1.,2.,3.,4.,5.,7.,9.,12.,15.,20.,30.,40.)
