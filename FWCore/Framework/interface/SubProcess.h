@@ -57,9 +57,9 @@ namespace edm {
     SubProcess& operator=(SubProcess const&) = delete; // Disallow copying
     SubProcess(SubProcess&&) = default; // Allow Moving
     SubProcess& operator=(SubProcess&&) = default; // Allow moving
-    
+
     //From OutputModule
-    void selectProducts(ProductRegistry const& preg, 
+    void selectProducts(ProductRegistry const& preg,
                         ThinnedAssociationsHelper const& parentThinnedAssociationsHelper,
                         std::map<BranchID, bool>& keepAssociation);
 
@@ -78,18 +78,18 @@ namespace edm {
 
     void doEndLuminosityBlock(LuminosityBlockPrincipal const& principal, IOVSyncValue const& ts, bool cleaningUpAfterException);
 
-    
+
     void doBeginStream(unsigned int);
     void doEndStream(unsigned int);
     void doStreamBeginRun(unsigned int iID, RunPrincipal const& principal, IOVSyncValue const& ts);
-    
+
     void doStreamEndRun(unsigned int iID, RunPrincipal const& principal, IOVSyncValue const& ts, bool cleaningUpAfterException);
-    
+
     void doStreamBeginLuminosityBlock(unsigned int iID, LuminosityBlockPrincipal const& principal, IOVSyncValue const& ts);
-    
+
     void doStreamEndLuminosityBlock(unsigned int iID, LuminosityBlockPrincipal const& principal, IOVSyncValue const& ts, bool cleaningUpAfterException);
 
-    
+
     // Write the luminosity block
     void writeLumi(ProcessHistoryID const& parentPhID, int runNumber, int lumiNumber);
 
@@ -157,7 +157,7 @@ namespace edm {
       }
       if(hasSubProcesses()) {
         for(auto const& subProcess : *subProcesses_) {
-          if(subProcess.shouldWeCloseOutput()) { 
+          if(subProcess.shouldWeCloseOutput()) {
             return true;
           }
         }
@@ -246,7 +246,7 @@ namespace edm {
       }
       if(hasSubProcesses()) {
         for(auto const& subProcess : *subProcesses_) {
-          if(subProcess.terminate()) { 
+          if(subProcess.terminate()) {
             return true;
           }
         }
@@ -266,13 +266,13 @@ namespace edm {
     }
 
   private:
-     void beginJob();
-     void endJob();
-     void process(EventPrincipal const& e);
-     void beginRun(RunPrincipal const& r, IOVSyncValue const& ts);
-     void endRun(RunPrincipal const& r, IOVSyncValue const& ts, bool cleaningUpAfterException);
-     void beginLuminosityBlock(LuminosityBlockPrincipal const& lb, IOVSyncValue const& ts);
-     void endLuminosityBlock(LuminosityBlockPrincipal const& lb, IOVSyncValue const& ts, bool cleaningUpAfterException);
+    void beginJob();
+    void endJob();
+    void process(EventPrincipal const& e);
+    void beginRun(RunPrincipal const& r, IOVSyncValue const& ts);
+    void endRun(RunPrincipal const& r, IOVSyncValue const& ts, bool cleaningUpAfterException);
+    void beginLuminosityBlock(LuminosityBlockPrincipal const& lb, IOVSyncValue const& ts);
+    void endLuminosityBlock(LuminosityBlockPrincipal const& lb, IOVSyncValue const& ts, bool cleaningUpAfterException);
 
     void propagateProducts(BranchType type, Principal const& parentPrincipal, Principal& principal) const;
     void fixBranchIDListsForEDAliases(std::map<BranchID::value_type, BranchID::value_type> const& droppedBranchIDToKeptBranchID);

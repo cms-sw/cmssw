@@ -1,4 +1,3 @@
-
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ProcessDesc.h"
 #include "FWCore/Utilities/interface/EDMException.h"
@@ -6,12 +5,12 @@
 namespace edm {
 
   ProcessDesc::ProcessDesc(std::shared_ptr<ParameterSet> pset) :
-      pset_(pset), services_(pset_->popVParameterSet(std::string("services")).release()) {
+    pset_(pset), services_(pset_->popVParameterSet(std::string("services")).release()) {
   }
 
   ProcessDesc::ProcessDesc(std::string const&) :
-      pset_(new ParameterSet),
-      services_(new std::vector<ParameterSet>()) {
+    pset_(new ParameterSet),
+    services_(new std::vector<ParameterSet>()) {
     throw Exception(errors::Configuration,"Old config strings no longer accepted");
   }
 
@@ -62,12 +61,12 @@ namespace edm {
                                 std::vector<std::string> const& forcedServices) {
     // Add the default services to services_.
     for(std::vector<std::string>::const_iterator i = defaultServices.begin(), iEnd = defaultServices.end();
-         i != iEnd; ++i) {
+        i != iEnd; ++i) {
       addDefaultService(*i);
     }
     // Add the forced services to services_.
     for(std::vector<std::string>::const_iterator i = forcedServices.begin(), iEnd = forcedServices.end();
-         i != iEnd; ++i) {
+        i != iEnd; ++i) {
       addForcedService(*i);
     }
   }
