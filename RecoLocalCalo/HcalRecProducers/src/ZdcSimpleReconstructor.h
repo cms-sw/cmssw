@@ -34,6 +34,7 @@
       HcalOtherSubdetector subdetOther_;
       edm::EDGetTokenT<ZDCDigiCollection> tok_input_hcal;
       edm::EDGetTokenT<ZDCDigiCollection> tok_input_castor;
+      edm::EDGetTokenT<QIE10DigiCollection> tok_input_qie10;
 
       bool dropZSmarkedPassed_; // turn on/off dropping of zero suppression marked and passed digis
       

@@ -22,6 +22,7 @@ ZdcSimpleReconstructor::ZdcSimpleReconstructor(edm::ParameterSet const& conf):
 {
   tok_input_castor = consumes<ZDCDigiCollection>(conf.getParameter<edm::InputTag>("digiLabelcastor"));
   tok_input_hcal = consumes<ZDCDigiCollection>(conf.getParameter<edm::InputTag>("digiLabelhcal"));
+  tok_input_qie10 = consumes<QIE10DigiCollection>(conf.getParameter<edm::InputTag>("digiLabelZdcQie10"));
 
 
   std::string subd=conf.getParameter<std::string>("Subdetector");

@@ -205,10 +205,11 @@ bool HcalText2DetIdConverter::init (const std::string& fFlavor, const std::strin
 */
   }
   else if (flavorName.find ("ZDC_") == 0) {
-    HcalZDCDetId::Section section = flavorName == "ZDC_EM" ? HcalZDCDetId::EM :
-      flavorName == "ZDC_HAD" ? HcalZDCDetId::HAD : 
-      flavorName == "ZDC_LUM" ? HcalZDCDetId::LUM : 
-      flavorName == "ZDC_RPD" ? HcalZDCDetId::RPD : HcalZDCDetId::Unknown;
+    HcalZDCDetId::Section section = HcalZDCDetId::Unknown;
+      if(flavorName == "ZDC_EM") section = HcalZDCDetId::EM;
+      else if(flavorName == "ZDC_HAD") section = HcalZDCDetId::HAD;
+      else if(flavorName == "ZDC_LUM") section = HcalZDCDetId::LUM;
+      else if(flavorName == "ZDC_RPD") section = HcalZDCDetId::RPD;
     mId = HcalZDCDetId (section, getField (1)>0, getField (2));
   }
   else if (flavorName.find ("CALIB_") == 0) {

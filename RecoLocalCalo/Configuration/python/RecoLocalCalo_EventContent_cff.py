@@ -35,6 +35,7 @@ RecoLocalCaloRECO = cms.PSet(
                                            #'keep ZDCDataFramesSorted_*Digis_*_*',
                                            'keep ZDCDataFramesSorted_hcalDigis_*_*',
                                            'keep ZDCDataFramesSorted_castorDigis_*_*',
+                                           'keep ZDCDataFramesSorted_ZdcQie10Digis_*_*',
                                            'keep ZDCRecHitsSorted_zdcreco_*_*',
                                            'keep *_reducedHcalRecHits_*_*',
                                            'keep *_castorreco_*_*',
