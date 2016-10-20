@@ -388,7 +388,7 @@ namespace JME {
         auto const* pFormula = m_definition.getFormula();
         if (! pFormula)
             return 1;
-	auto formula=TFormula(*pFormula);
+	auto formula = *pFormula;
         // Create vector of variables value. Throw if some values are missing
         std::vector<float> variables = variables_parameters.createVector(m_definition.getVariables());
 
