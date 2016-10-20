@@ -45,33 +45,33 @@ namespace edm {
                          serviceregistry::ServiceLegacy iLegacy,
                          PreallocationConfiguration const& preallocConfig,
                          ProcessContext const* parentProcessContext) :
-      EDConsumerBase(),
-      serviceToken_(),
-      parentPreg_(parentProductRegistry),
-      preg_(),
-      branchIDListHelper_(),
-      act_table_(),
-      processConfiguration_(),
-      historyLumiOffset_(preallocConfig.numberOfStreams()),
-      historyRunOffset_(historyLumiOffset_+preallocConfig.numberOfLuminosityBlocks()),
-      processHistoryRegistries_(historyRunOffset_+ preallocConfig.numberOfRuns()),
-      historyAppenders_(historyRunOffset_+preallocConfig.numberOfRuns()),
-      principalCache_(),
-      esp_(),
-      schedule_(),
-      parentToChildPhID_(),
-      subProcesses_(),
-      processParameterSet_(),
-      productSelectorRules_(parameterSet, "outputCommands", "OutputModule"),
-      productSelector_(),
-      wantAllEvents_(true) {
-  
+    EDConsumerBase(),
+    serviceToken_(),
+    parentPreg_(parentProductRegistry),
+    preg_(),
+    branchIDListHelper_(),
+    act_table_(),
+    processConfiguration_(),
+    historyLumiOffset_(preallocConfig.numberOfStreams()),
+    historyRunOffset_(historyLumiOffset_+preallocConfig.numberOfLuminosityBlocks()),
+    processHistoryRegistries_(historyRunOffset_+ preallocConfig.numberOfRuns()),
+    historyAppenders_(historyRunOffset_+preallocConfig.numberOfRuns()),
+    principalCache_(),
+    esp_(),
+    schedule_(),
+    parentToChildPhID_(),
+    subProcesses_(),
+    processParameterSet_(),
+    productSelectorRules_(parameterSet, "outputCommands", "OutputModule"),
+    productSelector_(),
+    wantAllEvents_(true) {
+
     //Setup the event selection
     Service<service::TriggerNamesService> tns;
-    
+
     ParameterSet selectevents =
-    parameterSet.getUntrackedParameterSet("SelectEvents", ParameterSet());
-    
+      parameterSet.getUntrackedParameterSet("SelectEvents", ParameterSet());
+
     selectevents.registerIt(); // Just in case this PSet is not registered
     wantAllEvents_ = detail::configureEventSelector(selectevents,
                                                     tns->getProcessName(),
@@ -91,7 +91,7 @@ namespace edm {
     std::string const maxLumis("maxLuminosityBlocks");
 
     // propagate_const<T> has no reset() function
-    processParameterSet_ = std::unique_ptr<ParameterSet>(parameterSet.popParameterSet(std::string("process")).release()); 
+    processParameterSet_ = std::unique_ptr<ParameterSet>(parameterSet.popParameterSet(std::string("process")).release());
 
     // if this process has a maxEvents or maxLuminosityBlocks parameter set, remove them.
     if(processParameterSet_->exists(maxEvents)) {
@@ -112,7 +112,7 @@ namespace edm {
     // If there are subprocesses, pop the subprocess parameter sets out of the process parameter set
     std::unique_ptr<std::vector<ParameterSet> > subProcessVParameterSet(popSubProcessVParameterSet(*processParameterSet_));
     bool hasSubProcesses = subProcessVParameterSet.get() != nullptr;
-  
+
     ScheduleItems items(*parentProductRegistry, *this);
     actReg_ = items.actReg_;
 
@@ -123,7 +123,7 @@ namespace edm {
     ServiceToken iToken;
 
     // get any configured services.
-    std::unique_ptr<std::vector<ParameterSet> > serviceSets = processParameterSet_->popVParameterSet(std::string("services")); 
+    std::unique_ptr<std::vector<ParameterSet> > serviceSets = processParameterSet_->popVParameterSet(std::string("services"));
 
     ServiceToken newToken = items.initServices(*serviceSets, *processParameterSet_, token, iLegacy, false);
     parentActReg.connectToSubProcess(*items.actReg_);
@@ -189,7 +189,7 @@ namespace edm {
                                     iLegacy,
                                     preallocConfig,
                                     &processContext_);
-       }
+      }
     }
   }
 
@@ -199,12 +199,12 @@ namespace edm {
   SubProcess::doBeginJob() {
     this->beginJob();
   }
-  
+
   void
   SubProcess::doEndJob() {
     endJob();
   }
-  
+
 
   void
   SubProcess::beginJob() {
@@ -251,15 +251,15 @@ namespace edm {
                              std::map<BranchID, bool>& keepAssociation) {
     if(productSelector_.initialized()) return;
     productSelector_.initialize(productSelectorRules_, preg.allBranchDescriptions());
-    
+
     // TODO: See if we can collapse keptProducts_ and productSelector_ into a
     // single object. See the notes in the header for ProductSelector
     // for more information.
-    
+
     std::map<BranchID, BranchDescription const*> trueBranchIDToKeptBranchDesc;
     std::vector<BranchDescription const*> associationDescriptions;
     std::set<BranchID> keptProductsInEvent;
-    
+
     for(auto const& it : preg.productList()) {
       BranchDescription const& desc = it.second;
       if(desc.transient()) {
@@ -303,9 +303,9 @@ namespace edm {
       }
     }
     EDGetToken token = consumes(TypeToGet{desc.unwrappedTypeID(),PRODUCT_TYPE},
-                     InputTag{desc.moduleLabel(),
-                     desc.productInstanceName(),
-                     desc.processName()});
+                                InputTag{desc.moduleLabel(),
+                                    desc.productInstanceName(),
+                                    desc.processName()});
 
     // Now put it in the list of selected branches.
     keptProducts_[desc.branchType()].push_back(std::make_pair(&desc, token));
@@ -526,7 +526,7 @@ namespace edm {
       }
     }
   }
-  
+
   void
   SubProcess::doBeginStream(unsigned int iID) {
     ServiceRegistry::Operate operate(serviceToken_);
@@ -563,7 +563,7 @@ namespace edm {
       }
     }
   }
-  
+
   void
   SubProcess::doStreamEndRun(unsigned int id, RunPrincipal const& principal, IOVSyncValue const& ts, bool cleaningUpAfterException) {
     ServiceRegistry::Operate operate(serviceToken_);
@@ -578,7 +578,7 @@ namespace edm {
       }
     }
   }
-  
+
   void
   SubProcess::doStreamBeginLuminosityBlock(unsigned int id, LuminosityBlockPrincipal const& principal, IOVSyncValue const& ts) {
     ServiceRegistry::Operate operate(serviceToken_);
@@ -593,7 +593,7 @@ namespace edm {
       }
     }
   }
-  
+
   void
   SubProcess::doStreamEndLuminosityBlock(unsigned int id, LuminosityBlockPrincipal const& principal, IOVSyncValue const& ts, bool cleaningUpAfterException) {
     ServiceRegistry::Operate operate(serviceToken_);
@@ -658,4 +658,3 @@ namespace edm {
     return std::unique_ptr<std::vector<ParameterSet> >(nullptr);
   }
 }
-
