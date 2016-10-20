@@ -186,6 +186,26 @@ tevMuonDytTrackVMuonAssoc.label = ('tevMuons:dyt',)
 tevMuonDytTrackVMuonAssoc.usetracker = True
 tevMuonDytTrackVMuonAssoc.usemuon = True
 
+gemMuonTrackVMuonAssoc = Validation.RecoMuon.MuonTrackValidator_cfi.muonTrackValidator.clone()
+gemMuonTrackVMuonAssoc.associatormap = 'tpToGEMMuonMuonAssociation'
+gemMuonTrackVMuonAssoc.associators = ('MuonAssociationByHits',)
+gemMuonTrackVMuonAssoc.label = ('extractGemMuons',)
+gemMuonTrackVMuonAssoc.minRapidityTP = 1.6
+gemMuonTrackVMuonAssoc.maxRapidityTP = 2.4
+gemMuonTrackVMuonAssoc.usetracker = True
+gemMuonTrackVMuonAssoc.usemuon = False
+
+me0MuonTrackVMuonAssoc = Validation.RecoMuon.MuonTrackValidator_cfi.muonTrackValidator.clone()
+me0MuonTrackVMuonAssoc.associatormap = 'tpToME0MuonMuonAssociation'
+me0MuonTrackVMuonAssoc.associators = ('MuonAssociationByHits',)
+me0MuonTrackVMuonAssoc.label = ('extractMe0Muons',)
+me0MuonTrackVMuonAssoc.minRapidityTP = 2.0
+me0MuonTrackVMuonAssoc.maxRapidityTP = 2.8
+me0MuonTrackVMuonAssoc.usetracker = True
+me0MuonTrackVMuonAssoc.usemuon = False
+me0MuonTrackVMuonAssoc.max = 2.8
+me0MuonTrackVMuonAssoc.nint = 28
+
 # cosmics 2-leg reco
 trkCosmicMuonTrackVSelMuonAssoc = Validation.RecoMuon.MuonTrackValidator_cfi.muonTrackValidator.clone()
 trkCosmicMuonTrackVSelMuonAssoc.associatormap = 'tpToTkCosmicSelMuonAssociation'
@@ -417,3 +437,17 @@ if fastSim.isChosen():
 recoCosmicMuonValidation = cms.Sequence(
     muonValidationCosmic_seq
 )
+
+gemMuonValidation = cms.Sequence(extractGemMuonsTracks_seq + tpToGEMMuonMuonAssociation + gemMuonTrackVMuonAssoc)
+me0MuonValidation = cms.Sequence(extractMe0MuonsTracks_seq + tpToME0MuonMuonAssociation + me0MuonTrackVMuonAssoc)
+
+_run3_muonValidation = muonValidation_seq.copy()
+_run3_muonValidation += gemMuonValidation
+
+_phase2_muonValidation = _run3_muonValidation.copy()
+_phase2_muonValidation += me0MuonValidation
+
+from Configuration.Eras.Modifier_run3_GEM_cff import run3_GEM
+run3_GEM.toReplaceWith( muonValidation_seq, _run3_muonValidation )
+from Configuration.Eras.Modifier_phase2_muon_cff import phase2_muon
+phase2_muon.toReplaceWith( muonValidation_seq, _phase2_muonValidation )
