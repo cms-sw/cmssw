@@ -8,6 +8,7 @@
 #include "DataFormats/HcalDigi/interface/HcalQIESample.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "EventFilter/HcalRawToDigi/interface/HcalTTPUnpacker.h"
+#include "EventFilter/HcalRawToDigi/plugins/HcalRawToDigi.h"
 
 //#define DebugLog
 
@@ -711,9 +712,9 @@ void HcalUnpacker::unpackUTCA(const FEDRawData& raw, const HcalElectronicsMap& e
 	int ichan=(i.channelid()&0x3);
 	HcalElectronicsId eid(crate,slot,ifiber,ichan, false);
 	DetId did=emap.lookup(eid);
-	
+
 	if (!did.null()) { // unpack and store...
-	  if (did.det()==DetId::Calo && did.subdetId()==HcalZDCDetId::SubdetectorId) {
+	  if (HcalRawToDigi::unpackZDCQIE10_ == true && did.det()==DetId::Calo && did.subdetId()==HcalZDCDetId::SubdetectorId) {
 	    colls.zdcCont->push_back(ZDCDataFrame(HcalZDCDetId(did)));
 	    HcalUnpacker_impl::unpack_compact<ZDCDataFrame>(i,iend, colls.zdcCont->back(), nps, eid, startSample_, endSample_); 
 	  } else if (did.det()==DetId::Hcal) {

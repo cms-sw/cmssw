@@ -21,7 +21,6 @@ HcalRawToDigi::HcalRawToDigi(edm::ParameterSet const& conf):
   firstFED_(conf.getUntrackedParameter<int>("HcalFirstFED",FEDNumbering::MINHCALFEDID)),
   unpackCalib_(conf.getUntrackedParameter<bool>("UnpackCalib",false)),
   unpackZDC_(conf.getUntrackedParameter<bool>("UnpackZDC",false)),
-  unpackZDCQIE10_(conf.getUntrackedParameter<bool>("UnpackZDCQIE10",false)),
   unpackTTP_(conf.getUntrackedParameter<bool>("UnpackTTP",false)),
   unpackUMNio_(conf.getUntrackedParameter<bool>("UnpackUMNio",false)),
   silent_(conf.getUntrackedParameter<bool>("silent",true)),
@@ -132,7 +131,6 @@ void HcalRawToDigi::produce(edm::Event& e, const edm::EventSetup& es)
   if (stats_.max_tpho>0) hotp.reserve(stats_.ave_tpho+(stats_.max_tpho-stats_.ave_tpho)/8);
 
   if (unpackZDC_) zdc.reserve(24);
-  if (unpackZDCQIE10_) zdc.reserve(32);
 
 
   HcalUnpacker::Collections colls;
