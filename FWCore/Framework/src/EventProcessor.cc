@@ -409,7 +409,7 @@ namespace edm {
 
     // If there are subprocesses, pop the subprocess parameter sets out of the process parameter set
     auto subProcessVParameterSet = popSubProcessVParameterSet(*parameterSet);
-    bool const hasSubProcesses = subProcessVParameterSet.size() != 0ull;
+    bool const hasSubProcesses = !subProcessVParameterSet.empty();
 
     // Now set some parameters specific to the main process.
     ParameterSet const& optionsPset(parameterSet->getUntrackedParameterSet("options", ParameterSet()));
@@ -471,9 +471,8 @@ namespace edm {
     continueAfterChildFailure_ = forking.getUntrackedParameter<bool>("continueAfterChildFailure",false);
     std::vector<ParameterSet> const& excluded = forking.getUntrackedParameterSetVector("eventSetupDataToExcludeFromPrefetching", std::vector<ParameterSet>());
     for(auto const& ps : excluded) {
-      eventSetupDataToExcludeFromPrefetching_[ps.getUntrackedParameter<std::string>("record")].insert(
-                                                                                                      std::make_pair(ps.getUntrackedParameter<std::string>("type", "*"),
-                                                                                                                     ps.getUntrackedParameter<std::string>("label", "")));
+      eventSetupDataToExcludeFromPrefetching_[ps.getUntrackedParameter<std::string>("record")].emplace(ps.getUntrackedParameter<std::string>("type", "*"),
+                                                                                                       ps.getUntrackedParameter<std::string>("label", ""));
     }
     IllegalParameters::setThrowAnException(optionsPset.getUntrackedParameter<bool>("throwIfIllegalParameter", true));
 
@@ -483,8 +482,8 @@ namespace edm {
     ScheduleItems items;
 
     //initialize the services
-    auto pServiceSets = processDesc->getServicesPSets();
-    ServiceToken token = items.initServices(pServiceSets, *parameterSet, iToken, iLegacy, true);
+    auto& serviceSets = processDesc->getServicesPSets();
+    ServiceToken token = items.initServices(serviceSets, *parameterSet, iToken, iLegacy, true);
     serviceToken_ = items.addCPRandTNS(*parameterSet, token);
 
     //make the services available
