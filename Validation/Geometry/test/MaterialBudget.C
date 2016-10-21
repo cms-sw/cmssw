@@ -3,7 +3,10 @@
 #include <iomanip>
 #include <fstream>
 #include <cmath>
+#include <algorithm>
 #include <stdlib.h>
+#include <sys/types.h>
+#include <sys/stat.h>
 
 // data dirs
 TString theDirName = "Images";
@@ -54,19 +57,21 @@ using namespace std;
 // Main
 void MaterialBudget(TString detector) {
 
+  std::vector<const char * > detectors{"TIB", "TIDF", "TIDB",
+                                       "InnerService", "TOB",
+                                       "TEC", "TkStrct", "PixBar",
+                                       "PixFwdPlus", "PixFwdMinus",
+                                       "Tracker", "TrackerSum",
+                                       "Pixel", "Strip",
+                                       "InnerTracker",
+                                       "Phase1PixelBarrel", "Phase2OTBarrel",
+                                       "Phase2OTForward", "Phase2PixelEndcap"};
   //
   gROOT->SetStyle("Plain");
 
   // detector
   theDetector = detector;
-  if(
-     theDetector!="TIB" && theDetector!="TIDF" && theDetector!="TIDB" && theDetector!="InnerServices"
-     && theDetector!="TOB" && theDetector!="TEC" && theDetector!="TkStrct" 
-     && theDetector!="PixBar" && theDetector!="PixFwdPlus" && theDetector!="PixFwdMinus" 
-     && theDetector!="Tracker" && theDetector!="TrackerSum"
-     && theDetector!="Pixel" && theDetector!="Strip"
-     && theDetector!="InnerTracker"
-     ){
+  if( std::find(detectors.begin(), detectors.end(), theDetector) == detectors.end()) {
     cerr << "MaterialBudget - ERROR detector not found " << theDetector << endl;
     exit(0);
   }
@@ -100,6 +105,11 @@ void MaterialBudget(TString detector) {
   cout << "***" << endl;
   //
   
+  struct stat sb;
+  if (stat(theDetectorFileName, &sb) == -1) {
+    cerr << "Error, missing file: " << theDetectorFileName << endl;
+    return;
+  }
   // open root files
   theDetectorFile = new TFile(theDetectorFileName);
   //
