@@ -139,7 +139,7 @@ def L1TReEmulFromRAW(process):
         process.simOmtfDigis.srcDTPh               = cms.InputTag('bmtfDigis')
         process.simOmtfDigis.srcDTTh               = cms.InputTag('bmtfDigis')
         # EMTF
-        process.simEmtfDigis.CSCInput              = cms.InputTag('csctfDigis')
+        process.simEmtfDigis.CSCInput              = cms.InputTag('emtfStage2Digis')
         process.simEmtfDigis.RPCInput              = cms.InputTag('muonRPCDigis')
         # Calo Layer1
         process.simCaloStage2Layer1Digis.ecalToken = cms.InputTag('ecalDigis:EcalTriggerPrimitives')

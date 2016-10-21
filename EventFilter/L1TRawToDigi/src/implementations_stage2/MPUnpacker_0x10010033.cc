@@ -12,7 +12,7 @@
 
 namespace l1t {
    namespace stage2 {
-      class MPUnpacker_0x10010010 : public Unpacker {
+      class MPUnpacker_0x10010033 : public Unpacker {
          public:
             virtual bool unpack(const Block& block, UnpackerCollections *coll) override;
       };
@@ -24,14 +24,14 @@ namespace l1t {
 namespace l1t {
 namespace stage2 {
    bool
-   MPUnpacker_0x10010010::unpack(const Block& block, UnpackerCollections *coll)
+   MPUnpacker_0x10010033::unpack(const Block& block, UnpackerCollections *coll)
    {
 
      LogDebug("L1T") << "Block ID  = " << block.header().getID() << " size = " << block.header().getSize() << " AMC = " << block.amc().getAMCNumber();
 
      // check this is the correct MP
-     const unsigned int tmt  = block.amc().getBoardID() - l1t::stage2::layer2::mp::offsetBoardId + 1;
-     const unsigned int bxid = block.amc().getBX();
+     unsigned int tmt  = block.amc().getBoardID() - l1t::stage2::layer2::mp::offsetBoardId + 1;
+     unsigned int bxid = block.amc().getBX();
 
      // handle offset between BC0 marker and actual BC0...
      if( (tmt-1) != ((bxid-1+3)%9) ) return true;
@@ -48,12 +48,12 @@ namespace stage2 {
      res4_->setBXRange(0,0);
 
      // Initialise frame indices for each data type
-     const int unsigned fet  = 0;
-     const int unsigned fht  = 2;
-     const int unsigned feg  = 4;
-     const int unsigned ftau = 6;
-     const int unsigned fjet = 8;
-     const int unsigned faux = 10;
+     int unsigned fet  = 0;
+     int unsigned fht  = 2;
+     int unsigned feg  = 4;
+     int unsigned ftau = 6;
+     int unsigned fjet = 8;
+     int unsigned faux = 10;
 
      //      ===== Jets and Sums =====
 
@@ -93,7 +93,6 @@ namespace stage2 {
      }
 
      LogDebug("L1T") << "ET/METx/METy: pT " << ethf.hwPt();
-<<<<<<< HEAD
 
      res2_->push_back(0,ethf);
 
@@ -138,58 +137,11 @@ namespace stage2 {
      res2_->push_back(0,etNoHF);
 
 
-=======
-
-     res2_->push_back(0,ethf);
-
-
-     // ET / MET(x) / MET (y) without HF
-
-     raw_data = block.payload()[fet + 1];
-
-     l1t::EtSum etNoHF = l1t::EtSum();
-
-     switch(block.header().getID()){
-     case 123: // 61
-       etNoHF.setType(l1t::EtSum::kTotalEt);
-       etNoHF.setHwPt( static_cast<int32_t>( uint32_t(raw_data & 0xFFFFFF) << 16 ) >> 16 );
-       break;
-     case 121: // 60
-       etNoHF.setType(l1t::EtSum::kTotalEtx);
-       etNoHF.setHwPt( static_cast<int32_t>( uint32_t(raw_data) ) );
-       break;
-     case 127: // 63
-       etNoHF.setType(l1t::EtSum::kTotalEty);
-       etNoHF.setHwPt( static_cast<int32_t>( uint32_t(raw_data) ) );
-       break;
-     case 125: // 62
-       etNoHF.setType(l1t::EtSum::kTotalEt);
-       etNoHF.setHwPt( static_cast<int32_t>( uint32_t(raw_data & 0xFFFFFF) << 16 ) >> 16 );
-       break;
-     case 131: // 65
-       etNoHF.setType(l1t::EtSum::kTotalEtx);
-       etNoHF.setHwPt( static_cast<int32_t>( uint32_t(raw_data) ) );
-       break;
-     case 129: // 64
-       etNoHF.setType(l1t::EtSum::kTotalEty); 
-       etNoHF.setHwPt( static_cast<int32_t>( uint32_t(raw_data) ) );
-       break;
-     default:
-       break;
-     }
-
-     LogDebug("L1T") << "ET/METx/METy (no HF): pT " << etNoHF.hwPt();
-
-     res2_->push_back(0,etNoHF);
-
-
->>>>>>> l1t-integration-CMSSW_8_0_19
      // HT / MHT(x)/ MHT (y) with HF
 
      raw_data = block.payload()[fht];
 
      l1t::EtSum hthf = l1t::EtSum(); 
-<<<<<<< HEAD
 
      switch(block.header().getID()){
      case 123: // 61
@@ -265,83 +217,6 @@ namespace stage2 {
 
      res2_->push_back(0,htNoHF);
 
-=======
-
-     switch(block.header().getID()){
-     case 123: // 61
-       hthf.setType(l1t::EtSum::kTotalHtHF);
-       hthf.setHwPt( static_cast<int32_t>( uint32_t(raw_data & 0xFFFFFF) << 16 ) >> 16 );
-       break;
-     case 121: // 60
-       hthf.setType(l1t::EtSum::kTotalHtxHF);
-       hthf.setHwPt( static_cast<int32_t>( uint32_t(raw_data) ) );
-       break;
-     case 127: // 63
-       hthf.setType(l1t::EtSum::kTotalHtyHF);
-       hthf.setHwPt( static_cast<int32_t>( uint32_t(raw_data) ) );
-       break;
-     case 125: // 62
-       hthf.setType(l1t::EtSum::kTotalHtHF);
-       hthf.setHwPt( static_cast<int32_t>( uint32_t(raw_data & 0xFFFFFF) << 16 ) >> 16 );
-       break;
-     case 131: // 65
-       hthf.setType(l1t::EtSum::kTotalHtxHF);
-       hthf.setHwPt( static_cast<int32_t>( uint32_t(raw_data) ) );
-       break;
-     case 129: // 64
-       hthf.setType(l1t::EtSum::kTotalHtyHF); 
-       hthf.setHwPt( static_cast<int32_t>( uint32_t(raw_data) ) );
-       break;
-     default: 
-       break;
-     }
-
-     LogDebug("L1T") << "HTHF/MHTHFx/MHTHFy: pT " << hthf.hwPt();
-
-     res2_->push_back(0,hthf);
-
-
-     // HT / MHT(x)/ MHT (y) no HF
-
-     raw_data = block.payload()[fht+1];
-
-     l1t::EtSum htNoHF = l1t::EtSum(); 
-
-     switch(block.header().getID()){
-     case 123: // 61
-       htNoHF.setType(l1t::EtSum::kTotalHt);
-       htNoHF.setHwPt( static_cast<int32_t>( uint32_t(raw_data & 0xFFFFFF) << 16 ) >> 16 );
-       break;
-     case 121: // 60
-       htNoHF.setType(l1t::EtSum::kTotalHtx);
-       htNoHF.setHwPt( static_cast<int32_t>( uint32_t(raw_data) ) );
-       break;
-     case 127: // 63
-       htNoHF.setType(l1t::EtSum::kTotalHty);
-       htNoHF.setHwPt( static_cast<int32_t>( uint32_t(raw_data) ) );
-       break;
-     case 125: // 62
-       htNoHF.setType(l1t::EtSum::kTotalHt);
-       htNoHF.setHwPt( static_cast<int32_t>( uint32_t(raw_data & 0xFFFFFF) << 16 ) >> 16 );
-       break;
-     case 131: // 65
-       htNoHF.setType(l1t::EtSum::kTotalHtx);
-       htNoHF.setHwPt( static_cast<int32_t>( uint32_t(raw_data) ) );
-       break;
-     case 129: // 64
-       htNoHF.setType(l1t::EtSum::kTotalHty); 
-       htNoHF.setHwPt( static_cast<int32_t>( uint32_t(raw_data) ) );
-       break;
-     default:
-       break;
-     }
-
-
-     LogDebug("L1T") << "HTNOHF/MHTNOHFx/MHTNOHFy: pT " << htNoHF.hwPt();
-
-     res2_->push_back(0,htNoHF);
-
->>>>>>> l1t-integration-CMSSW_8_0_19
 
      // Two jets
      for (unsigned nJet=0; nJet < 2; nJet++){
@@ -459,6 +334,7 @@ namespace stage2 {
       l1t::EtSum mbm0 = l1t::EtSum();
       l1t::EtSum mbm1 = l1t::EtSum();
       l1t::EtSum mbp1 = l1t::EtSum();
+      l1t::EtSum towCount = l1t::EtSum();
 
       // readout the sums only if the correct block is  being processed (first frame of AUX)
       switch(block.header().getID()){
@@ -489,6 +365,11 @@ namespace stage2 {
         res2_->push_back(0,mbp1);
         res2_->push_back(0,mbm1);
         break;
+      case 127:
+	towCount.setHwPt( raw_data & 0x1FFF );
+	towCount.setType( l1t::EtSum::kTowerCount );
+	res2_->push_back(0,towCount);
+	break;
       default:
         break;
       }
@@ -498,4 +379,4 @@ namespace stage2 {
 }
 }
 
-DEFINE_L1T_UNPACKER(l1t::stage2::MPUnpacker_0x10010010);
+DEFINE_L1T_UNPACKER(l1t::stage2::MPUnpacker_0x10010033);

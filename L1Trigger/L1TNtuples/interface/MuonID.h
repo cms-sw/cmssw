@@ -16,6 +16,8 @@
 //local  data formats
 #include "L1Trigger/L1TNtuples/interface/L1AnalysisRecoVertexDataFormat.h"
 
+using namespace muon;
+using namespace std;
 
 bool isLooseMuonCustom(const reco::Muon & recoMu)
 {
@@ -32,8 +34,8 @@ bool isMediumMuonCustom(const reco::Muon & recoMu)
                       recoMu.combinedQuality().chi2LocalPosition < 12 && 
                       recoMu.combinedQuality().trkKink < 20; 
       bool isMedium = isLooseMuonCustom(recoMu) && 
-                      recoMu.innerTrack()->validFraction() > 0.8 && 
-                      muon::segmentCompatibility(recoMu) > (goodGlob ? 0.303 : 0.451);
+                      recoMu.innerTrack()->validFraction() > 0.49 &&
+                      segmentCompatibility(recoMu) > (goodGlob ? 0.303 : 0.451);
      
       return isMedium; 
    }
