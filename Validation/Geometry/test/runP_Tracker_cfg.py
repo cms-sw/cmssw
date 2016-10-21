@@ -31,7 +31,11 @@ _LABELS2COMPS = {'BeamPipe': 'BEAM',
                  'TIDF':        'TIDF',
                  'TEC':         'TEC',
                  'InnerServices': ['TIBTIDServicesF', 'TIBTIDServicesB'],
-                 'TkStrct': ['TrackerOuterCylinder', 'TrackerBulkhead']}
+                 'TkStrct': ['TrackerOuterCylinder', 'TrackerBulkhead'],
+                 'Phase1PixelBarrel': 'Phase1PixelBarrel',
+                 'Phase2OTBarrel': 'Phase2OTBarrel',
+                 'Phase2PixelEndcap': 'Phase2PixelEndcap',
+                 'Phase2OTForward': 'Phase2OTForward'}
 
 _ALLOWED_LABELS = _LABELS2COMPS.keys()
 
@@ -75,6 +79,8 @@ elif options.geom == '2017NewFPix':
   process.load("Configuration.Geometry.GeometryExtended2017NewFPix_cff")
 elif options.geom == 'run2':
   process.load("Configuration.Geometry.GeometryExtended2016_cff")
+elif options.geom == 'phaseIID4':
+  process.load("Configuration.Geometry.GeometryExtended2023D4_cff")
 #process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
 #process.load("Geometry.HcalCommonData.hcalParameters_cfi")
 #process.load("Geometry.HcalCommonData.hcalDDDSimConstants_cfi")
