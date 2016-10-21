@@ -65,8 +65,7 @@ HcalRawToDigi::HcalRawToDigi(edm::ParameterSet const& conf):
     produces<HcalUMNioDigi>();
   produces<QIE10DigiCollection>();
   produces<QIE11DigiCollection>();
-  if (unpackZDCQIE10_)
-    produces<QIE10DigiCollection>("ZDC");
+  produces<QIE10DigiCollection>("ZDC");
   
   memset(&stats_,0,sizeof(stats_));
 
@@ -83,7 +82,6 @@ void HcalRawToDigi::fillDescriptions(edm::ConfigurationDescriptions& description
   desc.add<bool>("FilterDataQuality",true);
   desc.addUntracked<std::vector<int>>("FEDs", std::vector<int>());
   desc.addUntracked<bool>("UnpackZDC",true);
-  desc.addUntracked<bool>("UnpackZDCQIE10",true);
   desc.addUntracked<bool>("UnpackCalib",true);
   desc.addUntracked<bool>("UnpackUMNio",true);
   desc.addUntracked<bool>("UnpackTTP",true);
@@ -249,7 +247,7 @@ void HcalRawToDigi::produce(edm::Event& e, const edm::EventSetup& es)
   e.put(std::move(htp_prod));
   e.put(std::move(hotp_prod));
   e.put(std::move(qie10_prod));
-  if (unpackZDCQIE10_) e.put(std::move(qie10ZDC_prod),"ZDC");
+  e.put(std::move(qie10ZDC_prod),"ZDC");
   e.put(std::move(qie11_prod));
 
   /// calib

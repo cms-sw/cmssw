@@ -714,7 +714,7 @@ void HcalUnpacker::unpackUTCA(const FEDRawData& raw, const HcalElectronicsMap& e
 	DetId did=emap.lookup(eid);
 
 	if (!did.null()) { // unpack and store...
-	  if (HcalRawToDigi::unpackZDCQIE10_ == true && did.det()==DetId::Calo && did.subdetId()==HcalZDCDetId::SubdetectorId) {
+	  if (did.det()==DetId::Calo && did.subdetId()==HcalZDCDetId::SubdetectorId) {
 	    colls.zdcCont->push_back(ZDCDataFrame(HcalZDCDetId(did)));
 	    HcalUnpacker_impl::unpack_compact<ZDCDataFrame>(i,iend, colls.zdcCont->back(), nps, eid, startSample_, endSample_); 
 	  } else if (did.det()==DetId::Hcal) {
