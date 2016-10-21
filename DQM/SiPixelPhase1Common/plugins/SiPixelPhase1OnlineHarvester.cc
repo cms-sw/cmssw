@@ -9,13 +9,17 @@ class SiPixelPhase1OnlineHarvester : public SiPixelPhase1Harvester {
   SiPixelPhase1OnlineHarvester(const edm::ParameterSet& iConfig) 
    : SiPixelPhase1Harvester(iConfig)  {
 
+    int onlineblock = iConfig.getParameter<edm::ParameterSet>("geometry").getParameter<int>("onlineblock");
+    int n_onlineblocks = iConfig.getParameter<edm::ParameterSet>("geometry").getParameter<int>("n_onlineblocks");
+
     for (auto& h : histo) {
-      h.setCustomHandler([&h] (SummationStep& s, HistogramManager::Table & t) {
+      h.setCustomHandler([&h, onlineblock, n_onlineblocks] (SummationStep& s, HistogramManager::Table & t) {
         if (!h.lumisection) return; // not online
         uint32_t ls = h.lumisection->id().luminosityBlock();
-        // TODO: keep in sync with Geometry interface
-        uint32_t block = (ls / 10) % 3;
-        uint32_t next_block = ((ls / 10)+1) % 3;
+
+        // TODO: this is hard to get right if we don't see all LS.
+        uint32_t block = (ls / onlineblock) % n_onlineblocks;
+        uint32_t next_block = ((ls / onlineblock)+1) % n_onlineblocks;
         if (block == next_block) return;
 
         for (auto& e : t) {
