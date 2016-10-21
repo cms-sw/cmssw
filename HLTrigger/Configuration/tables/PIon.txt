@@ -38,24 +38,6 @@ HLT_PAL2DoubleMu0*                          #CMSHLT-1075
 HLT_PAL3DoubleMu0*                          #CMSHLT-1075
 HLT_PAL3DoubleMu0_HIon*                     #CMSHLT-1075
 
-HLT_PAAK4CaloJet40_Eta5p1_v*                #CMSHLT-1028
-HLT_PAAK4CaloJet60_Eta5p1_v*                #CMSHLT-1028
-HLT_PAAK4CaloJet80_Eta5p1_v*                #CMSHLT-1028
-HLT_PAAK4CaloJet40_Eta1p9toEta5p1_v*        #CMSHLT-1028
-HLT_PAAK4CaloJet60_Eta1p9toEta5p1_v*        #CMSHLT-1028
-HLT_PAAK4CaloJet40_Eta2p9toEta5p1_v*        #CMSHLT-1028
-HLT_PAAK4PFJet40_Eta5p1_v*                   #CMSHLT-1028
-HLT_PAAK4PFJet60_Eta5p1_v*                  #CMSHLT-1028
-HLT_PAAK4PFJet80_Eta5p1_v*                  #CMSHLT-1028
-HLT_PAAK4PFJet60_Eta1p9toEta5p1_v*          #CMSHLT-1028
-HLT_PAAK4PFJet40_Eta1p9toEta5p1_v*          #CMSHLT-1028
-HLT_PAAK4PFJet40_Eta2p9toEta5p1_v*          #CMSHLT-1028
-HLT_PADiAK4CaloJetAve40_Eta5p1_v*           #CMSHLT-1028
-HLT_PADiAK4CaloJetAve60_Eta5p1_v*           #CMSHLT-1028
-HLT_PADiAK4CaloJetAve80_Eta5p1_v*           #CMSHLT-1028
-HLT_PADiAK4PFJetAve40_Eta5p1_v*             #CMSHLT-1028
-HLT_PADiAK4PFJetAve60_Eta5p1_v*             #CMSHLT-1028
-HLT_PADiAK4PFJetAve80_Eta5p1_v*             #CMSHLT-1028
 
 HLT_PASinglePhoton10_Eta3p1_v*              #CMSHLT-1028
 HLT_PASinglePhoton15_Eta3p1_v*              #CMSHLT-1028
@@ -63,10 +45,6 @@ HLT_PASinglePhoton20_Eta3p1_v*              #CMSHLT-1028
 HLT_PASinglePhoton30_Eta3p1_v*              #CMSHLT-1028
 HLT_PADoublePhoton15_Eta3p1_Mass50_1000_v*  #CMSHLT-1028
 
-HLT_PAAK4CaloJet40_Eta5p1_PAL3Mu3_v*        #CMSHLT-1028
-HLT_PAAK4CaloJet40_Eta5p1_PAL3Mu5_v*        #CMSHLT-1028
-HLT_PAAK4CaloJet60_Eta5p1_PAL3Mu3_v*        #CMSHLT-1028
-HLT_PAAK4CaloJet60_Eta5p1_PAL3Mu5_v*        #CMSHLT-1028
 HLT_PASinglePhoton10_Eta3p1_PAL3Mu3_v*      #CMSHLT-1028
 HLT_PASinglePhoton10_Eta3p1_PAL3Mu5_v*      #CMSHLT-1028
 HLT_PASinglePhoton15_Eta3p1_PAL3Mu3_v*      #CMSHLT-1028
@@ -180,7 +158,7 @@ HLT_PAAK4CaloJet40_Eta5p1_PAL3Mu5_v*                    #CMSHLT-1078
 HLT_PAAK4CaloJet60_Eta5p1_PAL3Mu3_v*                    #CMSHLT-1078
 HLT_PAAK4CaloJet60_Eta5p1_PAL3Mu5_v*                    #CMSHLT-1078
 
-HLT_PAEle20_WPLoose_Gsf_v*                                #CMSHLT-1078
+HLT_PAEle20_WPLoose_Gsf_v*                              #CMSHLT-1078
 
 HLT_Physics_v*
 
