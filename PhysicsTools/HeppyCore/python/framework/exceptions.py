@@ -1,0 +1,2 @@
+class UserStop(Exception):
+    pass
