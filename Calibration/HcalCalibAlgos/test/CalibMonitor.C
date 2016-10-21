@@ -6,6 +6,15 @@
 //  c1.Loop();
 //  c1.SavePlot(histFileName,mode);
 //
+//        This will prepare a set of histograms which can be used for a
+//        quick fit and display using the methods in CalibFitPlots.C
+//
+//  GetEntries g1(fname, dirname, bool ifOld);
+//  g1.Loop();
+//
+//         This looks into the tree *EventInfo* and can provide a set
+//         of histograms with event statistics
+//
 //   where:
 // 
 //   fname   (std::string)     = file name of the input ROOT tree
@@ -81,6 +90,7 @@ public :
   Bool_t                     t_qltyFlag;
   Bool_t                     t_qltyMissFlag;
   Bool_t                     t_qltyPVFlag;
+  Double_t                   t_gentrackP;
   std::vector<unsigned int> *t_DetIds;
   std::vector<double>       *t_HitEnergies;
   std::vector<bool>         *t_trgbits;
@@ -109,6 +119,7 @@ public :
   TBranch                   *b_t_qltyFlag;      //!
   TBranch                   *b_t_qltyMissFlag;  //!
   TBranch                   *b_t_qltyPVFlag;    //!
+  TBranch                   *b_t_gentrackP;     //!
   TBranch                   *b_t_DetIds;        //!
   TBranch                   *b_t_HitEnergies;   //!
   TBranch                   *b_t_trgbits;       //!
@@ -249,6 +260,7 @@ void CalibMonitor::Init(TTree *tree, std::string& dupFileName) {
   fChain->SetBranchAddress("t_qltyFlag", &t_qltyFlag, &b_t_qltyFlag);
   fChain->SetBranchAddress("t_qltyMissFlag", &t_qltyMissFlag, &b_t_qltyMissFlag);
   fChain->SetBranchAddress("t_qltyPVFlag", &t_qltyPVFlag, &b_t_qltyPVFlag);
+  fChain->SetBranchAddress("t_gentrackP", &t_gentrackP, &b_t_gentrackP);
   fChain->SetBranchAddress("t_DetIds", &t_DetIds, &b_t_DetIds);
   fChain->SetBranchAddress("t_HitEnergies", &t_HitEnergies, &b_t_HitEnergies);
   fChain->SetBranchAddress("t_trgbits", &t_trgbits, &b_t_trgbits);
@@ -280,7 +292,7 @@ void CalibMonitor::Init(TTree *tree, std::string& dupFileName) {
       xbina[numb_-k+1] = (neta-k) + 0.5;
     }
     xbina[neta] = 0;
-    for (int i=0; i<43; ++i) etas_.push_back(xbina[i]);
+    for (int i=0; i<numb_+1; ++i) etas_.push_back(xbina[i]);
   }
   int ipbin[npbin] = {20, 30, 40, 60, 100};
   for (unsigned int i=0; i<npbin; ++i) ps_.push_back((double)(ipbin[i]));
@@ -833,7 +845,7 @@ public :
   TBranch                   *b_t_ietaAll;       //!
   TBranch                   *b_t_ietaGood;      //!
 
-  GetEntries(std::string fname, std::string dirname, bool ifOld=true);
+  GetEntries(std::string fname, std::string dirname, bool ifOld=false);
   virtual ~GetEntries();
   virtual Int_t    Cut(Long64_t entry);
   virtual Int_t    GetEntry(Long64_t entry);
