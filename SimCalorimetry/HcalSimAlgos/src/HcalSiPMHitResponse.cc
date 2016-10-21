@@ -76,7 +76,8 @@ void HcalSiPMHitResponse::add(const PCaloHit& hit, CLHEP::HepRandomEngine* engin
 	((theHitFilter == 0) || (theHitFilter->accepts(hit)))) {
       HcalDetId id(hit.id());
       const HcalSimParameters& pars = dynamic_cast<const HcalSimParameters&>(theParameterMap->simParameters(id));
-      double signal(analogSignalAmplitude(id, hit.energy(), pars, engine));
+      //divide out mean of crosstalk distribution 1/(1-lambda) = multiply by (1-lambda)
+      double signal(analogSignalAmplitude(id, hit.energy(), pars, engine)*(1-pars.sipmCrossTalk()));
       unsigned int photons(signal + 0.5);
       double time( hit.time() );
 
