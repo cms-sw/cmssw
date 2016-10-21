@@ -3,15 +3,14 @@ import os
 import shutil
 import copy
 
-from config import *
+import config as cfg
+from analyzer import Analyzer 
 
 class ConfigTestCase(unittest.TestCase):
 
     def test_analyzer(self):
-        class Ana1(object):
-            pass
-        ana1 = Analyzer(
-            Ana1,
+        ana1 = cfg.Analyzer(
+            Analyzer,
             toto = '1',
             tata = 'a'
             )
@@ -20,7 +19,7 @@ class ConfigTestCase(unittest.TestCase):
         self.assertTrue( '/' not in ana1.name )
 
     def test_MCComponent(self):
-        DYJets = MCComponent(
+        DYJets = cfg.MCComponent(
             name = 'DYJets',
             files ='blah_mc.root',
             xSection = 3048.,
@@ -31,37 +30,45 @@ class ConfigTestCase(unittest.TestCase):
         self.assertTrue(True)
 
     def test_config(self):
-        class Ana1(object):
-            pass
-        ana1 = Analyzer(
-            Ana1,
+        ana1 = cfg.Analyzer(
+            Analyzer,
             toto = '1',
             tata = 'a'
             )
-        comp1 = Component( 
+        comp1 = cfg.Component( 
             'comp1',
             files='*.root',
             triggers='HLT_stuff'
             )
-        from PhysicsTools.HeppyCore.framework.chain import Chain as Events
-        config = Config( components = [comp1],
-                         sequence = [ana1], 
-                         services = [],
-                         events_class = Events )
+        from heppy.framework.chain import Chain as Events
+        config = cfg.Config( components = [comp1],
+                            sequence = [ana1], 
+                            services = [],
+                            events_class = Events )
 
     def test_copy(self):
-        class Ana1(object):
-            pass
-        ana1 = Analyzer(
-            Ana1,
+        ana1 = cfg.Analyzer(
+            Analyzer,
             instance_label = 'inst1',
             toto = '1',
             )        
         ana2 = copy.copy(ana1)
         ana2.instance_label = 'inst2'
         ana2.toto2 = '2'
-        self.assertEqual(ana2.name, '__main__.Ana1_inst2')
+        self.assertTrue(ana2.name.endswith('analyzer.Analyzer_inst2'))
         self.assertEqual(ana2.toto2, '2')
 
+    def test_sequence(self):
+        seq = cfg.Sequence( 0, 1, 2 )
+        self.assertEqual(seq, range(3))
+        seq = cfg.Sequence( range(3) )
+        self.assertEqual(seq, range(3))
+        seq = cfg.Sequence( range(3), 3)
+        self.assertEqual(seq, range(4))
+        seq = cfg.Sequence( 'blah' )
+        self.assertEqual(seq, ['blah'])
+        self.assertRaises(ValueError, cfg.Sequence, dict(a=1) )
+        
+        
 if __name__ == '__main__':
     unittest.main()

@@ -203,7 +203,7 @@ class Analyzer( CFG ):
     def clone(self, **kwargs):
         other = super(Analyzer, self).clone(**kwargs)
         if 'class_object' in kwargs and 'name' not in kwargs:
-            other.name = other.build_name()
+            other.name = other._build_name()
         return other
 
     def __repr__(self):
@@ -232,12 +232,12 @@ class Service( CFG ):
         its instance_label. In that case, one must stay consistent.'''
         self.__dict__[name] = value
         if name == 'instance_label':
-            self.name = self.build_name()   
+            self.name = self._build_name()   
 
     def clone(self, **kwargs):
         other = super(Service, self).clone(**kwargs)
         if 'class_object' in kwargs and 'name' not in kwargs:
-            other.name = other.build_name()
+            other.name = other._build_name()
         return other
 
 
