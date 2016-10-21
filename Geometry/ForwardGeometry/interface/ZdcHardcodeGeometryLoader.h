@@ -44,6 +44,9 @@ private:
   float theHADSectiondX;
   float theHADSectiondY;
   float theHADSectiondZ;
+  float theRPDSectiondX;
+  float theRPDSectiondY;
+  float theRPDSectiondZ;
   
 };
 
