@@ -107,7 +107,7 @@ def fillJet( tree, pName, jet, taggers=None):
     
 
 # isolation
-from LeptonAnalyzer import pdgids as iso_pdgids
+from IsolationAnalyzer import pdgids as iso_pdgids
 # iso_pdgids = [211, 22, 130]
 
 def bookIso(tree, pName):
