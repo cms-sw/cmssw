@@ -65,7 +65,7 @@ DQMOfflinePrePOG = cms.Sequence( TrackingDQMSourceTier0 *
 DQMOfflinePOG = cms.Sequence( DQMOfflinePrePOG *
                               DQMMessageLogger )
 
-HLTMonitoring = cms.Sequence( OfflineHLTMonitoring )
+HLTMonitoring = cms.Sequence( OfflineHLTMonitoringPA )
 
 DQMOffline = cms.Sequence( DQMOfflinePreDPG *
                            DQMOfflinePrePOG *
