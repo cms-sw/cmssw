@@ -61,13 +61,13 @@ upgradeProperties = {}
 
 upgradeProperties[2017] = {
     '2017' : {
-        'Geom' : 'Extended2017new',
+        'Geom' : 'DB:Extended',
         'GT' : 'auto:phase1_2017_realistic',
         'Era' : 'Run2_2017',
         'ScenToRun' : ['GenSimFull','DigiFull','RecoFull','ALCAFull','HARVESTFull'],
     },
     '2017Design' : {
-        'Geom' : 'Extended2017new',
+        'Geom' : 'DB:Extended',
         'GT' : 'auto:phase1_2017_design',
         'Era' : 'Run2_2017',
         'BeamSpot': 'GaussSigmaZ4cm',
