@@ -437,9 +437,8 @@ timingDict = {
     "I2" : {
         1 : [
             'Geometry/HGCalCommonData/data/fastTimingBarrel.xml',
-            'Geometry/HGCalCommonData/data/fastTiming.xml',
-            'Geometry/HGCalCommonData/data/v2/fastTimingElement.xml',
-            'Geometry/HGCalCommonData/data/fastTimingConst.xml'
+            'Geometry/HGCalCommonData/data/fastTimingEndcap.xml',
+            'Geometry/HGCalCommonData/data/fastTimingElement.xml',
             ],
         3 : [
             'Geometry/HGCalSimData/data/fasttimesens.xml'
