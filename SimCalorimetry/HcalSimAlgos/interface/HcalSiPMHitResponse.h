@@ -51,6 +51,8 @@ public:
 
   static double Y11TimePDF( double t );
 
+  double generatePhotonTime(CLHEP::HepRandomEngine*) const;
+
 protected:
   typedef std::multiset <PCaloHit, PCaloHitCompareTimes> SortedHitSet;
 
@@ -58,8 +60,6 @@ protected:
 
   virtual void differentiatePreciseSamples(CaloSamples& samples, 
 					   double diffNorm = 1.0) const;
-
-  double generatePhotonTime(CLHEP::HepRandomEngine*) const;
 
 private:
   HcalSiPM * theSiPM;
