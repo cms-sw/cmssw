@@ -43,7 +43,7 @@
 
 #include "CalibFormats/CaloObjects/interface/CaloSamples.h"
 
-// #include "CalibCalorimetry/HcalAlgos/interface/HcalSiPMnonlinearity.h"
+#include "CalibCalorimetry/HcalAlgos/interface/HcalSiPMnonlinearity.h"
 
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalSeverityLevelComputer.h"
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalSeverityLevelComputerRcd.h"
@@ -61,15 +61,6 @@
 
 // Some helper functions
 namespace {
-    // A stub for the "HcalSiPMnonlinearity" class. To be removed
-    // after integration of PR #16070.
-    class HcalSiPMnonlinearity
-    {
-    public:
-        inline explicit HcalSiPMnonlinearity(const std::vector<float>&) {}
-        inline double getRecoCorrectionFactor(double) const {return 1.0;}
-    };
-
     // Class for making SiPM/QIE11 look like HPD/QIE8. HPD/QIE8
     // needs only pedestal and gain to convert charge into energy.
     // Due to nonlinearities, response of SiPM/QIE11 is substantially
