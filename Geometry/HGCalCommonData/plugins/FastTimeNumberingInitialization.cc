@@ -24,14 +24,17 @@
 #include <FWCore/Framework/interface/ModuleFactory.h>
 #include <FWCore/Framework/interface/ESProducer.h>
 #include <FWCore/Framework/interface/ESTransientHandle.h>
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <DetectorDescription/Core/interface/DDFilter.h>
 #include <DetectorDescription/Core/interface/DDFilteredView.h>
 #include <DetectorDescription/Core/interface/DDsvalues.h>
+#include "Geometry/HGCalCommonData/interface/FastTimeParameters.h"
 #include <Geometry/HGCalCommonData/interface/FastTimeDDDConstants.h>
 #include <Geometry/Records/interface/IdealGeometryRecord.h>
 
-//#define DebugLog
+//#define EDM_ML_DEBUG
 
 class FastTimeNumberingInitialization : public edm::ESProducer {
 
@@ -47,13 +50,12 @@ private:
   FastTimeDDDConstants* fastTimeDDDConst_;
 };
 
-FastTimeNumberingInitialization::FastTimeNumberingInitialization(const edm::ParameterSet& iConfig) : fastTimeDDDConst_(0) {
-#ifdef DebugLog
+FastTimeNumberingInitialization::FastTimeNumberingInitialization(const edm::ParameterSet&) : fastTimeDDDConst_(0) {
+#ifdef EDM_ML_DEBUG
   std::cout <<"constructing FastTimeNumberingInitialization" << std::endl;
 #endif
   setWhatProduced(this);
 }
-
 
 FastTimeNumberingInitialization::~FastTimeNumberingInitialization() {}
 
@@ -61,13 +63,13 @@ FastTimeNumberingInitialization::~FastTimeNumberingInitialization() {}
 // ------------ method called to produce the data  ------------
 FastTimeNumberingInitialization::ReturnType
 FastTimeNumberingInitialization::produce(const IdealGeometryRecord& iRecord) {
-#ifdef DebugLog
+#ifdef EDM_ML_DEBUG
   std::cout << "in FastTimeNumberingInitialization::produce" << std::endl;
 #endif
   if (fastTimeDDDConst_ == 0) {
-    edm::ESTransientHandle<DDCompactView> pDD;
-    iRecord.get(pDD);
-    fastTimeDDDConst_ = new FastTimeDDDConstants(*pDD);
+    edm::ESHandle<FastTimeParameters>  pFTpar;
+    iRecord.get(pFTpar);
+    fastTimeDDDConst_ = new FastTimeDDDConstants(&(*pFTpar));
   }
   return std::auto_ptr<FastTimeDDDConstants> (fastTimeDDDConst_) ;
 }

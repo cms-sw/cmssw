@@ -15,37 +15,28 @@
 #include<vector>
 #include<iostream>
 
-#include "DetectorDescription/Core/interface/DDsvalues.h"
-
-class DDCompactView;    
-class DDFilteredView;
+#include "Geometry/HGCalCommonData/interface/FastTimeParameters.h"
+#include "G4ThreeVector.hh"
 
 class FastTimeDDDConstants {
 
 public:
 
-  FastTimeDDDConstants( const DDCompactView& cpv );
+  FastTimeDDDConstants(const FastTimeParameters* ftp);
   ~FastTimeDDDConstants();
 
-  int                 computeCells()            const;
-  int                 getType()                 const {return cellType;}
-  std::pair<int,int>  getXY(int copy)           const;
-  std::pair<int,int>  getXY(double x, double y) const;
-  int                 getCells()                const {return 4*nCells;}
-  bool                isValidXY(int ix, int iy) const;
-  bool                isValidCell(int copy)     const;
-  int                 quadrant(int ix, int iy)  const;
-  int                 quadrant(int copy)        const;
+  std::pair<int,int>  getZPhi(G4ThreeVector local)             const;
+  std::pair<int,int>  getEtaPhi(G4ThreeVector local)           const;
+  int                 getCells(int type)                       const;
+  bool                isValidXY(int type, int izeta, int iphi) const;
        
 private:
-  void                initialize(const DDCompactView& cpv);
-  void                loadSpecPars(const DDFilteredView& fv);
-  std::vector<double> getDDDArray(const std::string &, 
-                                  const DDsvalues_type &) const;
+  void                initialize();
 
-  int                 nCells, nCols, nRows, cellType;
-  double              rIn, rOut, cellSize;
-  std::vector<int>    firstY, lastY, firstCell, lastCell;
+  const FastTimeParameters* ftpar_;
+  double                    etaMin_, etaMax_, dEta_;
+  double                    dZBarrel_, dPhiBarrel_, dPhiEndcap_;
+  std::vector<double>       rLimits_;
 };
 
 #endif
