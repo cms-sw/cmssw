@@ -56,6 +56,8 @@ hltMuonOfflineAnalyzer = cms.EDAnalyzer("HLTMuonOfflineAnalyzer",
       "HLT_HIL3Mu3", #for HI
       "HLT_HIL3Mu3BPTX", #for HI
       "HLT_HIL3DoubleMuOpen" #for HI
+      "HLT_PASingleMuOpen", #for UPC HI
+      "HLT_PADoubleMuOpen", #for UPC HI
     ),
 
 #HLT_Mu15_eta2p1_TriCentral_40_20_20_BTagIP3D1stTrack_v3 matches HLT_Mu15_eta2p1_v
