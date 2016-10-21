@@ -238,11 +238,14 @@ int HcalRecHitsDQMClient::HcalRecHitsEndjob(const std::vector<MonitorElement*> &
       int ny = emap_depths[depthIdx]->getNbinsY();
 
       float cnorm;
+      float enorm;
 
       for (int i = 1; i <= nx; i++) {      
          for (int j = 1; j <= ny; j++) {
 	    cnorm = emap_depths[depthIdx]->getBinContent(i,j) * scaleBynevtot;
+	    enorm = emap_depths[depthIdx]->getBinError(i,j) * scaleBynevtot;
             emap_depths[depthIdx]->setBinContent(i,j,cnorm);
+            emap_depths[depthIdx]->setBinError(i,j,enorm);
 
          }
       }
@@ -258,6 +261,7 @@ int HcalRecHitsDQMClient::HcalRecHitsEndjob(const std::vector<MonitorElement*> &
       int ny = occupancy_maps[occupancyIdx]->getNbinsY();
 
       float cnorm;
+      float enorm;
 
       unsigned int vsIetaIdx = occupancy_vs_ieta.size();
       omatched = false;
@@ -272,7 +276,9 @@ int HcalRecHitsDQMClient::HcalRecHitsEndjob(const std::vector<MonitorElement*> &
       for (int i = 1; i <= nx; i++) {      
          for (int j = 1; j <= ny; j++) {
 	    cnorm = occupancy_maps[occupancyIdx]->getBinContent(i,j) * scaleBynevtot;
+	    enorm = occupancy_maps[occupancyIdx]->getBinError(i,j) * scaleBynevtot;
             occupancy_maps[occupancyIdx]->setBinContent(i,j,cnorm);
+            occupancy_maps[occupancyIdx]->setBinError(i,j,enorm);
 
          }
       }
@@ -318,10 +324,13 @@ int HcalRecHitsDQMClient::HcalRecHitsEndjob(const std::vector<MonitorElement*> &
       int nx = RecHit_StatusWord[StatusWordIdx]->getNbinsX();
 
       float cnorm;
+      float enorm;
 
       for (int i = 1; i <= nx; i++) {      
          cnorm = RecHit_StatusWord[StatusWordIdx]->getBinContent(i) * scaleBynevtot / RecHit_StatusWord_Channels[StatusWordIdx];
+         enorm = RecHit_StatusWord[StatusWordIdx]->getBinError(i) * scaleBynevtot / RecHit_StatusWord_Channels[StatusWordIdx];
          RecHit_StatusWord[StatusWordIdx]->setBinContent(i,cnorm);
+         RecHit_StatusWord[StatusWordIdx]->setBinError(i,enorm);
 
       }
 
@@ -332,10 +341,13 @@ int HcalRecHitsDQMClient::HcalRecHitsEndjob(const std::vector<MonitorElement*> &
       int nx = RecHit_Aux_StatusWord[AuxStatusWordIdx]->getNbinsX();
 
       float cnorm;
+      float enorm;
 
       for (int i = 1; i <= nx; i++) {      
          cnorm = RecHit_Aux_StatusWord[AuxStatusWordIdx]->getBinContent(i) * scaleBynevtot / RecHit_Aux_StatusWord_Channels[AuxStatusWordIdx];
+         enorm = RecHit_Aux_StatusWord[AuxStatusWordIdx]->getBinError(i) * scaleBynevtot / RecHit_Aux_StatusWord_Channels[AuxStatusWordIdx];
          RecHit_Aux_StatusWord[AuxStatusWordIdx]->setBinContent(i,cnorm);
+         RecHit_Aux_StatusWord[AuxStatusWordIdx]->setBinError(i,enorm);
 
       }
 

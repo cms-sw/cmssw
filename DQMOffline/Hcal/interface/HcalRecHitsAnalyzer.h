@@ -84,11 +84,11 @@ class HcalRecHitsAnalyzer : public DQMEDAnalyzer {
 
   int nChannels_[5]; // 0:any, 1:HB, 2:HE
 
-  int iphi_bins;
-  float iphi_min, iphi_max;
+  int iphi_bins_;
+  float iphi_min_, iphi_max_;
 
-  int ieta_bins;
-  float ieta_min, ieta_max;
+  int ieta_bins_;
+  float ieta_min_, ieta_max_;
 
   //RecHit Collection input tags
   edm::EDGetTokenT<HBHERecHitCollection> tok_hbhe_;

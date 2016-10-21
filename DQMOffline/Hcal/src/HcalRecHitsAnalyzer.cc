@@ -90,9 +90,9 @@ HcalRecHitsAnalyzer::HcalRecHitsAnalyzer(edm::ParameterSet const& conf) {
     NphiMax = (hcons->getNPhi(3) > NphiMax ? hcons->getNPhi(3) : NphiMax);
 
     //Center the iphi bins on the integers
-    iphi_min = 0.5;
-    iphi_max = NphiMax + 0.5;
-    iphi_bins = (int) (iphi_max - iphi_min);
+    iphi_min_ = 0.5;
+    iphi_max_ = NphiMax + 0.5;
+    iphi_bins_ = (int) (iphi_max_ - iphi_min_);
 
     //Retain classic behavior, all plots have same ieta range.
 
@@ -101,9 +101,9 @@ HcalRecHitsAnalyzer::HcalRecHitsAnalyzer(edm::ParameterSet const& conf) {
     iEtaMax = (iEtaMax > hcons->getEtaRange(3).second ? iEtaMax : hcons->getEtaRange(3).second);
 
     //Give an empty bin around the subdet ieta range to make it clear that all ieta rings have been included
-    ieta_min = -iEtaMax - 1.5;
-    ieta_max = iEtaMax + 1.5;
-    ieta_bins = (int) (ieta_max - ieta_min);
+    ieta_min_ = -iEtaMax - 1.5;
+    ieta_max_ = iEtaMax + 1.5;
+    ieta_bins_ = (int) (ieta_max_ - ieta_min_);
 
     }
 
@@ -161,58 +161,58 @@ HcalRecHitsAnalyzer::HcalRecHitsAnalyzer(edm::ParameterSet const& conf) {
       
       for (int depth = 1; depth <= maxDepthHB_; depth++) {
 	sprintf  (histo, "emean_vs_ieta_HB%d",depth );
-	emean_vs_ieta_HB.push_back( ibooker.bookProfile(histo, histo, ieta_bins, ieta_min, ieta_max, 2010, -10., 2000., " ") );
+	emean_vs_ieta_HB.push_back( ibooker.bookProfile(histo, histo, ieta_bins_, ieta_min_, ieta_max_, 2010, -10., 2000., " ") );
       }
       for (int depth = 1; depth <= maxDepthHE_; depth++) {
 	sprintf  (histo, "emean_vs_ieta_HE%d",depth );
-	emean_vs_ieta_HE.push_back( ibooker.bookProfile(histo, histo, ieta_bins, ieta_min, ieta_max, 2010, -10., 2000., " ") );
+	emean_vs_ieta_HE.push_back( ibooker.bookProfile(histo, histo, ieta_bins_, ieta_min_, ieta_max_, 2010, -10., 2000., " ") );
       }
       for (int depth = 1; depth <= maxDepthHF_; depth++) {
 	sprintf  (histo, "emean_vs_ieta_HF%d",depth );
-	emean_vs_ieta_HF.push_back( ibooker.bookProfile(histo, histo, ieta_bins, ieta_min, ieta_max, 2010, -10., 2000., " ") );
+	emean_vs_ieta_HF.push_back( ibooker.bookProfile(histo, histo, ieta_bins_, ieta_min_, ieta_max_, 2010, -10., 2000., " ") );
       }
       sprintf  (histo, "emean_vs_ieta_HO" );
-      emean_vs_ieta_HO = ibooker.bookProfile(histo, histo, ieta_bins, ieta_min, ieta_max, 2010, -10., 2000., " " );
+      emean_vs_ieta_HO = ibooker.bookProfile(histo, histo, ieta_bins_, ieta_min_, ieta_max_, 2010, -10., 2000., " " );
 
       //The only occupancy histos drawn are occupancy vs. ieta
       //but the maps are needed because this is where the latter are filled from
 
       for (int depth = 1; depth <= maxDepthHB_; depth++) {
          sprintf  (histo, "occupancy_map_HB%d",depth );
-         occupancy_map_HB.push_back( ibooker.book2D(histo, histo, ieta_bins, ieta_min, ieta_max, iphi_bins, iphi_min, iphi_max) );
+         occupancy_map_HB.push_back( ibooker.book2D(histo, histo, ieta_bins_, ieta_min_, ieta_max_, iphi_bins_, iphi_min_, iphi_max_) );
       }
 
       for (int depth = 1; depth <= maxDepthHE_; depth++) {
          sprintf  (histo, "occupancy_map_HE%d",depth );
-         occupancy_map_HE.push_back( ibooker.book2D(histo, histo, ieta_bins, ieta_min, ieta_max, iphi_bins, iphi_min, iphi_max) );
+         occupancy_map_HE.push_back( ibooker.book2D(histo, histo, ieta_bins_, ieta_min_, ieta_max_, iphi_bins_, iphi_min_, iphi_max_) );
       }
 
       sprintf  (histo, "occupancy_map_HO" );
-      occupancy_map_HO = ibooker.book2D(histo, histo, ieta_bins, ieta_min, ieta_max, iphi_bins, iphi_min, iphi_max);      
+      occupancy_map_HO = ibooker.book2D(histo, histo, ieta_bins_, ieta_min_, ieta_max_, iphi_bins_, iphi_min_, iphi_max_);      
 
       for (int depth = 1; depth <= maxDepthHF_; depth++) {
          sprintf  (histo, "occupancy_map_HF%d",depth );
-         occupancy_map_HF.push_back( ibooker.book2D(histo, histo, ieta_bins, ieta_min, ieta_max, iphi_bins, iphi_min, iphi_max) );
+         occupancy_map_HF.push_back( ibooker.book2D(histo, histo, ieta_bins_, ieta_min_, ieta_max_, iphi_bins_, iphi_min_, iphi_max_) );
       }
 
       //These are drawn
 
       for (int depth = 1; depth <= maxDepthHB_; depth++) {
          sprintf  (histo, "occupancy_vs_ieta_HB%d",depth );
-         occupancy_vs_ieta_HB.push_back( ibooker.book1D(histo, histo, ieta_bins, ieta_min, ieta_max) );
+         occupancy_vs_ieta_HB.push_back( ibooker.book1D(histo, histo, ieta_bins_, ieta_min_, ieta_max_) );
       }
 
       for (int depth = 1; depth <= maxDepthHE_; depth++) {
          sprintf  (histo, "occupancy_vs_ieta_HE%d",depth );
-         occupancy_vs_ieta_HE.push_back( ibooker.book1D(histo, histo, ieta_bins, ieta_min, ieta_max) );
+         occupancy_vs_ieta_HE.push_back( ibooker.book1D(histo, histo, ieta_bins_, ieta_min_, ieta_max_) );
       }
 
       sprintf  (histo, "occupancy_vs_ieta_HO" );
-      occupancy_vs_ieta_HO = ibooker.book1D(histo, histo, ieta_bins, ieta_min, ieta_max);
+      occupancy_vs_ieta_HO = ibooker.book1D(histo, histo, ieta_bins_, ieta_min_, ieta_max_);
 
       for (int depth = 1; depth <= maxDepthHF_; depth++) {
          sprintf  (histo, "occupancy_vs_ieta_HF%d",depth );
-         occupancy_vs_ieta_HF.push_back( ibooker.book1D(histo, histo, ieta_bins, ieta_min, ieta_max) );
+         occupancy_vs_ieta_HF.push_back( ibooker.book1D(histo, histo, ieta_bins_, ieta_min_, ieta_max_) );
       }
 
 
@@ -257,13 +257,13 @@ HcalRecHitsAnalyzer::HcalRecHitsAnalyzer(edm::ParameterSet const& conf) {
     //Histograms drawn for single pion scan
     if(subdet_ != 0 && imc != 0) { // just not for noise  
       sprintf (histo, "HcalRecHitTask_En_rechits_cone_profile_vs_ieta_all_depths");
-      meEnConeEtaProfile = ibooker.bookProfile(histo, histo, ieta_bins, ieta_min, ieta_max,        2100, -100., 2000., " ");  
+      meEnConeEtaProfile = ibooker.bookProfile(histo, histo, ieta_bins_, ieta_min_, ieta_max_,        2100, -100., 2000., " ");  
       
       sprintf (histo, "HcalRecHitTask_En_rechits_cone_profile_vs_ieta_all_depths_E");
-      meEnConeEtaProfile_E = ibooker.bookProfile(histo, histo, ieta_bins, ieta_min, ieta_max,      2100, -100., 2000., " ");  
+      meEnConeEtaProfile_E = ibooker.bookProfile(histo, histo, ieta_bins_, ieta_min_, ieta_max_,      2100, -100., 2000., " ");  
       
       sprintf (histo, "HcalRecHitTask_En_rechits_cone_profile_vs_ieta_all_depths_EH");
-      meEnConeEtaProfile_EH = ibooker.bookProfile(histo, histo, ieta_bins, ieta_min, ieta_max,     2100, -100., 2000., " ");  
+      meEnConeEtaProfile_EH = ibooker.bookProfile(histo, histo, ieta_bins_, ieta_min_, ieta_max_,     2100, -100., 2000., " ");  
     }
 
     // ************** HB **********************************
