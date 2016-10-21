@@ -11,7 +11,7 @@ class SiPixelPhase1OnlineHarvester : public SiPixelPhase1Harvester {
 
     for (auto& h : histo) {
       h.setCustomHandler([&h] (SummationStep& s, HistogramManager::Table & t) {
-        assert(h.lumisection || !"This plugin only works in online");
+        if (!h.lumisection) return; // not online
         uint32_t ls = h.lumisection->id().luminosityBlock();
         // TODO: keep in sync with Geometry interface
         uint32_t block = (ls / 10) % 3;
