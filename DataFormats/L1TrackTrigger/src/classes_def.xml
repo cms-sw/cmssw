@@ -15,5 +15,12 @@
   <class pattern="edm::Wrapper<edmNew::DetSetVector<TTStub<*>>>" />
   <class pattern="edm::Ref<edmNew::DetSetVector<TTStub<*>>,TTStub<*>,edmNew::DetSetVector<TTStub<*>>::FindForDetSetVector>" />
   <class pattern="edm::Wrapper<edm::Ref<edmNew::DetSetVector<TTStub<*>>,TTStub<*>,edmNew::DetSetVector<TTStub<*>>::FindForDetSetVector>>" />
+  <class pattern="TTTrack<*>" />
+  <class pattern="std::vector<TTTrack<*>>" />
+  <class pattern="edm::Wrapper<std::vector<TTTrack<*>>>" />
+  <class pattern="edmNew::DetSetVector<TTTrack<*>>" />
+  <class pattern="edm::Wrapper<edmNew::DetSetVector<TTTrack<*>>>" />
+  <class pattern="edm::Ref<edmNew::DetSetVector<TTTrack<*>>,TTTrack<*>,edmNew::DetSetVector<TTTrack<*>>::FindForDetSetVector>" />
+  <class pattern="edm::Wrapper<edm::Ref<edmNew::DetSetVector<TTTrack<*>>,TTTrack<*>,edmNew::DetSetVector<TTTrack<*>>::FindForDetSetVector>>" />
 </lcgdict>
 
