@@ -108,8 +108,8 @@ double HcalSiPM::hitCells(CLHEP::HepRandomEngine* engine, unsigned int pes, doub
   if ((theCrossTalk > 0.) && (theCrossTalk < 1.)) 
     pes += addCrossTalkCells(engine, pes);
 
-  // Account for saturation
-  pes = nonlin->getPixelsFired(pes);
+  // Account for saturation - disabled in lieu of recovery model below
+  //pes = nonlin->getPixelsFired(pes);
 
   unsigned int pixel;
   double sum(0.), hit(0.);
