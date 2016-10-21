@@ -2,6 +2,7 @@
 # https://github.com/cbernet/heppy/blob/master/LICENSE
 
 import os
+import sys
 import logging
 
 from PhysicsTools.HeppyCore.statistics.counter import Counters
@@ -31,18 +32,29 @@ class Analyzer(object):
         self.cfg_ana = cfg_ana
         self.cfg_comp = cfg_comp
         self.looperName = looperName
-	if hasattr(cfg_ana,"nosubdir") and cfg_ana.nosubdir:
-       	    self.dirName = self.looperName
-	else:
+        if hasattr(cfg_ana,"nosubdir") and cfg_ana.nosubdir:
+            self.dirName = self.looperName
+        else:
             self.dirName = '/'.join( [self.looperName, self.name] )
             os.mkdir( self.dirName )
 
 
         # this is the main logger corresponding to the looper.
-        # each analyzer could also declare its own logger
         self.mainLogger = logging.getLogger( looperName )
-        # print self.mainLogger.handlers
+        
+        # this logger is specific to the analyzer
+        self.logger = logging.getLogger(self.name)
+        self.logger.addHandler(logging.FileHandler('/'.join([self.dirName,
+                                                             'log.txt'])))
+        self.logger.propagate = False
+        self.logger.addHandler( logging.StreamHandler(sys.stdout) )
+        log_level = logging.CRITICAL
+        if hasattr(self.cfg_ana, 'log_level'):
+            log_level = self.cfg_ana.log_level
+        self.logger.setLevel(log_level)
+
         self.beginLoopCalled = False
+
 
     def beginLoop(self, setup):
         """Automatically called by Looper, for all analyzers."""
@@ -50,6 +62,7 @@ class Analyzer(object):
         self.averages = Averages()
         self.mainLogger.info( 'beginLoop ' + self.cfg_ana.name )
         self.beginLoopCalled = True
+
 
     def endLoop(self, setup):
         """Automatically called by Looper, for all analyzers."""
@@ -70,6 +83,11 @@ class Analyzer(object):
         Just overload it if you have histograms to write."""
         self.counters.write( self.dirName )
         self.averages.write( self.dirName )
+        if len(self.counters):
+            self.logger.info(str(self.counters))
+        if len(self.averages):
+            self.logger.info(str(self.averages))
+        
 
     def __str__(self):
         """A multipurpose printout. Should do the job for most analyzers."""
