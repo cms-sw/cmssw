@@ -236,13 +236,15 @@ void GeometryInterface::loadTimebased(edm::EventSetup const& iSetup, const edm::
     },
     1, iConfig.getParameter<int>("max_lumisection")
   );
+  int onlineblock = iConfig.getParameter<int>("onlineblock");
+  int n_onlineblocks = iConfig.getParameter<int>("n_onlineblocks");
   addExtractor(intern("OnlineBlock"),
-    [] (InterestingQuantities const& iq) {
+    [onlineblock, n_onlineblocks] (InterestingQuantities const& iq) {
       if(!iq.sourceEvent) return UNDEFINED;
       // TODO: set good range for real online with all LS present
-      return Value(iq.sourceEvent->luminosityBlock() / 10 % 3);
+      return Value(iq.sourceEvent->luminosityBlock() / onlineblock % n_onlineblocks);
     },
-    0, 2
+    0, n_onlineblocks-1
   );
   addExtractor(intern("BX"),
     [] (InterestingQuantities const& iq) {

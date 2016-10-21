@@ -8,6 +8,12 @@ StandardSpecifications1D.append(
                              .custom()
                              .save()
 )
+StandardSpecifications1D.append(
+    Specification().groupBy("PXBarrel|PXForward/OnlineBlock") # per-layer with history for online
+                   .groupBy("PXBarrel|PXForward", "EXTEND_Y")
+                   .custom()
+                   .save()
+)
 
 StandardSpecifications1D_Num.append(
     Specification(PerLayer1D).groupBy("PXBarrel|PXForward/PXLayer|PXDisk/OnlineBlock/DetId/Event") # per-layer with history for online
@@ -16,6 +22,14 @@ StandardSpecifications1D_Num.append(
                              .groupBy("PXBarrel|PXForward/PXLayer|PXDisk", "EXTEND_Y")
                              .custom()
                              .save()
+)
+StandardSpecifications1D_Num.append(
+    Specification().groupBy("PXBarrel|PXForward/OnlineBlock/DetId/Event") # per-layer with history for online
+                   .reduce("COUNT")
+                   .groupBy("PXBarrel|PXForward/OnlineBlock") 
+                   .groupBy("PXBarrel|PXForward", "EXTEND_Y")
+                   .custom()
+                   .save()
 )
 
 # Configure Phase1 DQM for Phase0 data
