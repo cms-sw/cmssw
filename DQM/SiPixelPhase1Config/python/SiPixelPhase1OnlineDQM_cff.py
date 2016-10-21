@@ -2,6 +2,22 @@ import FWCore.ParameterSet.Config as cms
 
 from DQM.SiPixelPhase1Common.HistogramManager_cfi import *
 
+StandardSpecifications1D.append(
+    Specification(PerLayer1D).groupBy("PXBarrel|PXForward/PXLayer|PXDisk/OnlineBlock") # per-layer with history for online
+                             .groupBy("PXBarrel|PXForward/PXLayer|PXDisk", "EXTEND_Y")
+                             .custom()
+                             .save()
+)
+
+StandardSpecifications1D_Num.append(
+    Specification(PerLayer1D).groupBy("PXBarrel|PXForward/PXLayer|PXDisk/OnlineBlock/DetId/Event") # per-layer with history for online
+                             .reduce("COUNT")
+                             .groupBy("PXBarrel|PXForward/PXLayer|PXDisk/OnlineBlock") 
+                             .groupBy("PXBarrel|PXForward/PXLayer|PXDisk", "EXTEND_Y")
+                             .custom()
+                             .save()
+)
+
 # Configure Phase1 DQM for Phase0 data
 SiPixelPhase1Geometry.n_inner_ring_blades = 24 # no outer ring
 
@@ -14,8 +30,19 @@ DefaultHisto.perLumiHarvesting = True
 from DQM.SiPixelPhase1Digis.SiPixelPhase1Digis_cfi import *
 SiPixelPhase1DigisAnalyzer.src = cms.InputTag("siPixelDigis") # adapt for real data
 
+SiPixelPhase1DigisHarvester = cms.EDAnalyzer("SiPixelPhase1OnlineHarvester",
+    histograms = SiPixelPhase1DigisConf,
+    geometry = SiPixelPhase1Geometry
+)
+
 # Cluster (track-independent) monitoring
 from DQM.SiPixelPhase1Clusters.SiPixelPhase1Clusters_cfi import *
+
+SiPixelPhase1ClustersHarvester = cms.EDAnalyzer("SiPixelPhase1OnlineHarvester",
+    histograms = SiPixelPhase1ClustersConf,
+    geometry = SiPixelPhase1Geometry
+)
+
 
 # Raw data errors
 from DQM.SiPixelPhase1RawData.SiPixelPhase1RawData_cfi import *
