@@ -33,7 +33,6 @@ public:
   virtual ~HcalRawToDigi();
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
   virtual void produce(edm::Event& , const edm::EventSetup&) override;
-  static const bool unpackZDCQIE10_ = true;
 private:
   edm::EDGetTokenT<FEDRawDataCollection> tok_data_;
   HcalUnpacker unpacker_;
