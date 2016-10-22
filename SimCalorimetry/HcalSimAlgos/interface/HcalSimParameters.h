@@ -44,6 +44,7 @@ public:
   double sipmDarkCurrentuA(const DetId & detId) const;
   double sipmCrossTalk(const DetId & detId) const;
   std::vector<float> sipmNonlinearity(const DetId & detId) const;
+  unsigned int signalShape(const DetId & detId) const;
 
   friend class HcalSimParameterMap;
 

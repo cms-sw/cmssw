@@ -183,3 +183,7 @@ std::vector<float> HcalSimParameters::sipmNonlinearity(const DetId & detId) cons
   return theSiPMcharacteristics->getNonLinearities(type); 
 }
 
+unsigned int HcalSimParameters::signalShape(const DetId & detId) const {
+  assert(theDbService);
+  return theDbService->getHcalMCParam(detId)->signalShape();
+}
