@@ -19,11 +19,12 @@ public:
     static const unsigned MAXSAMPLES = 10;
 
     inline HBHEChannelInfo()
-      : rawCharge_{0.}, pedestal_{0.}, pedestalWidth_{0.}, gain_{0.}, riseTime_{0.f}, adc_{0},
+      : rawCharge_{0.}, pedestal_{0.}, pedestalWidth_{0.}, gain_{0.},
+	  darkCurrent_{0.}, fcByPE_{0.}, lambda_{0.}, riseTime_{0.f}, adc_{0},
           hasTimeInfo_(false) {clear();}
 
     inline explicit HBHEChannelInfo(const bool hasTimeFromTDC)
-      : rawCharge_{0.}, pedestal_{0.}, pedestalWidth_{0.}, gain_{0.}, riseTime_{0.f}, adc_{0},
+      : rawCharge_{0.}, pedestal_{0.}, pedestalWidth_{0.}, gain_{0.}, darkCurrent_{0.}, fcByPE_{0.}, lambda_{0.}, riseTime_{0.f}, adc_{0},
           hasTimeInfo_(hasTimeFromTDC) {clear();}
 
     inline void clear()
@@ -59,12 +60,16 @@ public:
     // For speed, the "setSample" function does not perform bounds checking
     inline void setSample(const unsigned ts, const uint8_t rawADC,
                           const double q, const double ped, const double pedWidth,
+			  const double darkCurrent, const double fcByPE, const double lambda,
                           const double g, const float t)
     {
         rawCharge_[ts] = q;
         pedestal_[ts] = ped;
         pedestalWidth_[ts] = pedWidth;
         gain_[ts] = g;
+	darkCurrent_[ts] = darkCurrent;
+	fcByPE_[ts] = fcByPE;
+	lambda_[ts] = lambda,
         riseTime_[ts] = t;
         adc_[ts] = rawADC;
     }
@@ -88,6 +93,9 @@ public:
     inline const double* pedestal() const {return pedestal_;}
     inline const double* pedestalWidth() const {return pedestalWidth_;}
     inline const double* gain() const {return gain_;}
+    inline const double* darkCurrent() const {return darkCurrent_;}
+    inline const double* fcByPE() const {return fcByPE_;}
+    inline const double* lambda() const {return lambda_;}
     inline const uint8_t* adc() const {return adc_;}
     inline const float* riseTime() const
         {if (hasTimeInfo_) return riseTime_; else return nullptr;}
@@ -101,6 +109,9 @@ public:
     inline double tsEnergy(const unsigned ts) const
         {return (rawCharge_[ts] - pedestal_[ts])*gain_[ts];}
     inline double tsGain(const unsigned ts) const {return gain_[ts];}
+    inline double darkCurrent(const unsigned ts) const {return darkCurrent_[ts];}
+    inline double fcByPE(const unsigned ts) const {return fcByPE_[ts];}
+    inline double lambda(const unsigned ts) const {return lambda_[ts];}
     inline uint8_t tsAdc(const unsigned ts) const {return adc_[ts];}
     inline float tsRiseTime(const unsigned ts) const
         {return hasTimeInfo_ ? riseTime_[ts] : HcalSpecialTimes::UNKNOWN_T_NOTDC;}
@@ -194,6 +205,11 @@ private:
 
     // fC to GeV conversion factor (can depend on CAPID)
     double gain_[MAXSAMPLES];
+
+    // needed for the dark current
+    double darkCurrent_[MAXSAMPLES];
+    double fcByPE_[MAXSAMPLES];
+    double lambda_[MAXSAMPLES];
 
     // Signal rise time from TDC in ns (if provided)
     float riseTime_[MAXSAMPLES];

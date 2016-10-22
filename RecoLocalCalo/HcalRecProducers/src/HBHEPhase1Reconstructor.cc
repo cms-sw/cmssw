@@ -365,6 +365,11 @@ void HBHEPhase1Reconstructor::processData(const Collection& coll,
 
 	int pulseShapeID=paramTS_->getValues(cell.rawId())->pulseShapeID();
 
+	// needed for the dark current in the M2
+	double darkCurrent = cond.getHcalSiPMParameter(cell)->getDarkCurrent();
+	double FCByPE = cond.getHcalSiPMParameter(cell)->getFCByPE();
+	double lambda = cond.getHcalSiPMCharacteristics()->getCrossTalk(cond.getHcalSiPMParameter(cell)->getType());
+
         // ADC to fC conversion
         CaloSamples cs;
         coder.adc2fC(frame, cs);
@@ -385,7 +390,7 @@ void HBHEPhase1Reconstructor::processData(const Collection& coll,
             const double gain = calib.respcorrgain(capid);
             const double rawCharge = getRawChargeFromSample(s, cs[ts], calib);
             const float t = getTDCTimeFromSample(s);
-            channelInfo->setSample(ts, s.adc(), rawCharge, pedestal, pedestalWidth, gain, t);
+            channelInfo->setSample(ts, s.adc(), rawCharge, pedestal, pedestalWidth, darkCurrent, FCByPE, lambda, gain, t);
             if (ts == soi)
                 soiCapid = capid;
         }
