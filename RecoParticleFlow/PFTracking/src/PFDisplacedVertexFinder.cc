@@ -271,7 +271,7 @@ PFDisplacedVertexFinder::fitVertexFromSeed(const PFDisplacedVertexSeed& displace
   // Fill vectors of TransientTracks and TrackRefs after applying preselection cuts.
   for(auto const& ie : tracksToFit){
     TransientTrack tmpTk( *(ie.get()), magField_, globTkGeomHandle_);
-    transTracksRaw.push_back( tmpTk );
+    transTracksRaw.emplace_back( tmpTk );
     transTracksRefRaw.push_back( ie );
     bool nonIt = PFTrackAlgoTools::nonIterative((ie)->algo());
     bool step45 = PFTrackAlgoTools::step45((ie)->algo());
@@ -316,7 +316,7 @@ PFDisplacedVertexFinder::fitVertexFromSeed(const PFDisplacedVertexSeed& displace
 
 
 
-  } else {
+  } else {//branch with transTracksRaw.size of at least 3 
 
 
 
@@ -328,11 +328,14 @@ PFDisplacedVertexFinder::fitVertexFromSeed(const PFDisplacedVertexSeed& displace
 					      KalmanVertexTrackCompatibilityEstimator<5>(), 
 					      KalmanVertexSmoother() );
 
-    /// This prefit procedure allow to reduce the Warning rate from Adaptive Vertex fitter
-    /// It reject also many fake tracks
+    if (transTracksRaw.size() == 3){
 
-  
-    if ( transTracksRaw.size() < 1000 && transTracksRaw.size() > 3){
+      theVertexAdaptiveRaw = theAdaptiveFitterRaw.vertex(transTracksRaw, seedPoint);
+
+    }
+    else if ( transTracksRaw.size() < 1000){
+      /// This prefit procedure allow to reduce the Warning rate from Adaptive Vertex fitter
+      /// It reject also many fake tracks
 
       if (debug_) cout << "First test with KFT" << endl;
 
@@ -370,11 +373,8 @@ PFDisplacedVertexFinder::fitVertexFromSeed(const PFDisplacedVertexSeed& displace
 
 
     } else {
-
-
-      theVertexAdaptiveRaw = theAdaptiveFitterRaw.vertex(transTracksRaw, seedPoint);
-
-    }
+      edm::LogWarning("TooManyPFDVCandidates")<<"gave up vertex reco for "<< transTracksRaw.size() <<" tracks";
+    } 
 
     if( !theVertexAdaptiveRaw.isValid() || theVertexAdaptiveRaw.totalChiSquared() < 0. ) {
       if(debug_) cout << "Fit failed : valid? " << theVertexAdaptiveRaw.isValid() 
@@ -481,7 +481,7 @@ PFDisplacedVertexFinder::fitVertexFromSeed(const PFDisplacedVertexSeed& displace
 					 KalmanVertexUpdator<5>(), 
 					 KalmanVertexTrackCompatibilityEstimator<5>(), 
 					 KalmanVertexSmoother() );
-
+    
     theRecoVertex = theAdaptiveFitter.vertex(transTracks, seedPoint);
 
   } else if (vtxFitter == F_DONOTREFIT) {
