@@ -95,11 +95,14 @@ SiPMNonlinearityAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetu
 	HcalSiPMHitResponse response(NULL,NULL,false); //just for Y11 function
 	
 	fs->file().cd();
-	TProfile* prof = fs->make<TProfile>("input_vs_output","",nBins,binMin,binMax);
-	prof->GetXaxis()->SetTitle("input [pe]");
-	prof->GetYaxis()->SetTitle("output [pe]");
+	TProfile* profio = fs->make<TProfile>("input_vs_output","",nBins,binMin,binMax);
+	profio->GetXaxis()->SetTitle("input [pe]");
+	profio->GetYaxis()->SetTitle("output [pe]");
+	TProfile* profoi = fs->make<TProfile>("output_vs_input","",nBins,binMin,binMax);
+	profoi->GetXaxis()->SetTitle("output [pe]");
+	profoi->GetYaxis()->SetTitle("input [pe]");
 	TH1F* corr = fs->make<TH1F>("correction","",nBins,binMin,binMax);
-	corr->GetXaxis()->SetTitle("input [pe]");
+	corr->GetXaxis()->SetTitle("output [pe]");
 	corr->GetYaxis()->SetTitle("correction factor");
 	
 	//shift to TS 4
@@ -132,16 +135,17 @@ SiPMNonlinearityAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetu
 				elapsedTime += dt;
 			}
 			
-			//fill profile
-			prof->Fill(sumPE,sumHits);
+			//fill profiles
+			profio->Fill(sumPE,sumHits);
+			profoi->Fill(sumHits,sumPE);
 		}
 		npe += npeStep;
 	}
 	
 	//calculate correction factor
-	for(int b = 0; b < prof->GetNbinsX(); ++b){
-		if(prof->GetBinContent(b)==0) continue;
-		corr->SetBinContent(b,prof->GetBinCenter(b)/prof->GetBinContent(b));
+	for(int b = 0; b < profoi->GetNbinsX(); ++b){
+		if(profoi->GetBinContent(b)==0) continue;
+		corr->SetBinContent(b,profoi->GetBinContent(b)/profoi->GetBinCenter(b));
 	}
 	//fit with requested function
 	corr->Fit(fitname.c_str(),"Q");
