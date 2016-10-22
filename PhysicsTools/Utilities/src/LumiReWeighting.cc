@@ -38,9 +38,9 @@ using namespace edm;
 
 LumiReWeighting::LumiReWeighting( std::string generatedFile,
 		   std::string dataFile,
-		   std::string GenHistName = "pileup",
-		   std::string DataHistName = "pileup",
-		   const edm::InputTag& PileupSumInfoInputTag = edm::InputTag( "addPileupInfo" ) ) :
+		   std::string GenHistName,
+		   std::string DataHistName,
+		   const edm::InputTag& PileupSumInfoInputTag ) :
       generatedFileName_( generatedFile), 
       dataFileName_     ( dataFile ), 
       GenHistName_      ( GenHistName ), 
@@ -83,7 +83,7 @@ LumiReWeighting::LumiReWeighting( std::string generatedFile,
 	OldLumiSection_ = -1;
 }
 
-LumiReWeighting::LumiReWeighting(const std::vector< float >& MC_distr,const std::vector< float >& Lumi_distr, const edm::InputTag& PileupSumInfoInputTag = edm::InputTag( "addPileupInfo" ) ) :
+LumiReWeighting::LumiReWeighting(const std::vector< float >& MC_distr,const std::vector< float >& Lumi_distr, const edm::InputTag& PileupSumInfoInputTag ) :
       pileupSumInfoTag_ ( PileupSumInfoInputTag )
   {
   // no histograms for input: use vectors
