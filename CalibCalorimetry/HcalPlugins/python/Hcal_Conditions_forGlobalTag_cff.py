@@ -119,10 +119,10 @@ es_hardcode = cms.ESSource("HcalHardcodeCalibrations",
     SiPMCharacteristics = cms.VPSet(
         cms.PSet( pixels = cms.int32(36000), crosstalk = cms.double(0.0), nonlin1 = cms.double(1.0), nonlin2 = cms.double(0.0), nonlin3 = cms.double(0.0) ),
         cms.PSet( pixels = cms.int32(2500), crosstalk = cms.double(0.0), nonlin1 = cms.double(1.0), nonlin2 = cms.double(0.0), nonlin3 = cms.double(0.0) ),
-        cms.PSet( pixels = cms.int32(27370), crosstalk = cms.double(0.32), nonlin1 = cms.double(1.00831), nonlin2 = cms.double(6.75416E-6), nonlin3 = cms.double(6.51914E-12) ),
-        cms.PSet( pixels = cms.int32(38018), crosstalk = cms.double(0.32), nonlin1 = cms.double(1.00832), nonlin2 = cms.double(4.72430E-6), nonlin3 = cms.double(6.56538E-12) ),
-        cms.PSet( pixels = cms.int32(27370), crosstalk = cms.double(0.32), nonlin1 = cms.double(1.00831), nonlin2 = cms.double(6.75416E-6), nonlin3 = cms.double(6.51914E-12) ),
-        cms.PSet( pixels = cms.int32(38018), crosstalk = cms.double(0.32), nonlin1 = cms.double(1.00832), nonlin2 = cms.double(4.72430E-6), nonlin3 = cms.double(6.56538E-12) ),
+        cms.PSet( pixels = cms.int32(27370), crosstalk = cms.double(0.32), nonlin1 = cms.double(1.00373), nonlin2 = cms.double(6.44151E-6), nonlin3 = cms.double(8.97741e-11) ),
+        cms.PSet( pixels = cms.int32(38018), crosstalk = cms.double(0.32), nonlin1 = cms.double(1.00306), nonlin2 = cms.double(4.74306E-6), nonlin3 = cms.double(4.38827e-11) ),
+        cms.PSet( pixels = cms.int32(27370), crosstalk = cms.double(0.32), nonlin1 = cms.double(1.00373), nonlin2 = cms.double(6.44151E-6), nonlin3 = cms.double(8.97741e-11) ),
+        cms.PSet( pixels = cms.int32(38018), crosstalk = cms.double(0.32), nonlin1 = cms.double(1.00306), nonlin2 = cms.double(4.74306E-6), nonlin3 = cms.double(4.38827e-11) ),
     ),
 )
 
