@@ -26,7 +26,7 @@ DQMOffline_SecondStep_PreDPG = cms.Sequence( dqmDcsInfoClient *
                                              rpcTier0Client *
                                              cscOfflineCollisionsClients *
                                              es_dqm_client_offline *
-											 hcalOfflineHarvesting *
+                                             hcalOfflineHarvesting *
                                              HcalDQMOfflinePostProcessor * 
                                              dqmFEDIntegrityClient )
 
@@ -58,8 +58,8 @@ DQMOffline_SecondStepPOG = cms.Sequence( dqmRefHistoRootFileGetter *
                                          DQMOffline_SecondStep_PrePOG *
                                          DQMMessageLoggerClientSeq )
 
-HLTMonitoringClient = cms.Sequence(trackingMonitorClientHLT * PAtrackingMonitorClientHLT)
-
+HLTMonitoringClient = cms.Sequence(trackingMonitorClientHLT)
+HLTMonitoringClientPA = cms.Sequence(trackingMonitorClientHLT * PAtrackingMonitorClientHLT)
 DQMOffline_SecondStep = cms.Sequence( dqmRefHistoRootFileGetter *
                                       DQMOffline_SecondStep_PreDPG *
                                       DQMOffline_SecondStep_PrePOG *
