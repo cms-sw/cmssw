@@ -254,19 +254,7 @@ CaloSamples HcalSiPMHitResponse::makeSiPMSignal(DetId const& id,
     elapsedTime += dt;
   }
 
-  // differentiatePreciseSamples(signal, 1.);
-  
   return signal;
-}
-
-void HcalSiPMHitResponse::differentiatePreciseSamples(CaloSamples& samples,
-						      double diffNorm) const {
-  static double const invdt(1./samples.preciseDeltaT());
-  // double dy(0.);
-  for (int i(0); i < samples.preciseSize(); ++i) {
-    // dy = samples.preciseAt(i+1) - samples.preciseAt(i);
-    samples.preciseAtMod(i) *= invdt*diffNorm;
-  }
 }
 
 double HcalSiPMHitResponse::generatePhotonTime(CLHEP::HepRandomEngine* engine) const {
