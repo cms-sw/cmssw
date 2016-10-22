@@ -3,7 +3,6 @@
 #define HcalSimAlgos_HcalSiPMHitResponse_h
 
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloHitResponse.h"
-#include "SimCalorimetry/HcalSimAlgos/interface/HcalSiPMRecovery.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalTDCParameters.h"
 
 #include <map>
@@ -54,12 +53,7 @@ public:
   double generatePhotonTime(CLHEP::HepRandomEngine*) const;
 
 protected:
-  typedef std::multiset <PCaloHit, PCaloHitCompareTimes> SortedHitSet;
-
   virtual CaloSamples makeSiPMSignal(DetId const& id, photonTimeHist const& photons, CLHEP::HepRandomEngine*) const;
-
-  virtual void differentiatePreciseSamples(CaloSamples& samples, 
-					   double diffNorm = 1.0) const;
 
 private:
   HcalSiPM * theSiPM;
