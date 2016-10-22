@@ -40,7 +40,6 @@ class PFDisplacedVertexFinder {
   /// -------- Useful Types -------- ///
 
   typedef std::set< reco::TrackBaseRef >::iterator IEset;
-  typedef reco::PFDisplacedVertexCandidateCollection::iterator IDVC;
   typedef reco::PFDisplacedVertexSeedCollection::iterator IDVS;
   typedef reco::PFDisplacedVertexCollection::iterator IDV;
 
@@ -123,7 +122,7 @@ class PFDisplacedVertexFinder {
   /// -------- Different steps of the finder algorithm -------- ///
 
   /// Analyse a vertex candidate and select potential vertex point(s)
-  void findSeedsFromCandidate(reco::PFDisplacedVertexCandidate&, reco::PFDisplacedVertexSeedCollection&);
+  void findSeedsFromCandidate(const reco::PFDisplacedVertexCandidate&, reco::PFDisplacedVertexSeedCollection&);
 
   /// Sometimes two vertex candidates can be quite close and coming from the same vertex
   void mergeSeeds(reco::PFDisplacedVertexSeedCollection&, std::vector<bool>& bLocked);
@@ -153,7 +152,7 @@ class PFDisplacedVertexFinder {
 
   /// -------- Members -------- ///
 
-  std::auto_ptr< reco::PFDisplacedVertexCandidateCollection >  displacedVertexCandidates_;
+  reco::PFDisplacedVertexCandidateCollection const*  displacedVertexCandidates_;
   std::auto_ptr< reco::PFDisplacedVertexCollection >    displacedVertices_;
 
   /// -------- Parameters -------- ///
