@@ -10,7 +10,7 @@ options.register ("nReps"       , 5,      VarParsing.multiplicity.singleton, Var
 options.register ("nBins"       , 1200,   VarParsing.multiplicity.singleton, VarParsing.varType.int)
 options.register ("binMin"      , 0,      VarParsing.multiplicity.singleton, VarParsing.varType.int)
 options.register ("binMax"      , 60000,  VarParsing.multiplicity.singleton, VarParsing.varType.int)
-options.register ("tau"         , 5.,     VarParsing.multiplicity.singleton, VarParsing.varType.float)
+options.register ("tau"         , 10.,    VarParsing.multiplicity.singleton, VarParsing.varType.float)
 options.register ("dt"          , 0.5,    VarParsing.multiplicity.singleton, VarParsing.varType.float)
 options.register ("nPreciseBins", 500,    VarParsing.multiplicity.singleton, VarParsing.varType.int)
 options.register ("fitname"     , "pol2", VarParsing.multiplicity.singleton, VarParsing.varType.string)

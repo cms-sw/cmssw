@@ -14,7 +14,8 @@ HcalSimParameters::HcalSimParameters(double simHitToPhotoelectrons,
 				     double samplingFactor, double timePhase,
 				     int readoutFrameSize, int binOfMaximum,
 				     bool doPhotostatistics, bool syncPhase,
-				     int firstRing, const std::vector<double> & samplingFactors
+				     int firstRing, const std::vector<double> & samplingFactors,
+                     double sipmTau
 				     )
 : CaloSimParameters(simHitToPhotoelectrons,  photoelectronsToAnalog[0], samplingFactor, timePhase,
                     readoutFrameSize, binOfMaximum, doPhotostatistics, syncPhase),
@@ -24,7 +25,8 @@ HcalSimParameters::HcalSimParameters(double simHitToPhotoelectrons,
   theSamplingFactors(samplingFactors),
   thePE2fCByRing(photoelectronsToAnalog),
   theSiPMSmearing(false),
-  doTimeSmear_(true)
+  doTimeSmear_(true),
+  theSiPMTau(sipmTau)
 {
   defaultTimeSmearing();
 
@@ -43,6 +45,9 @@ HcalSimParameters::HcalSimParameters(const edm::ParameterSet & p)
   if (p.exists("doSiPMSmearing"))
     theSiPMSmearing = p.getParameter<bool>("doSiPMSmearing");
   defaultTimeSmearing();
+
+  if (p.exists("sipmTau"))
+    theSiPMTau = p.getParameter<double>("sipmTau");
 
   edm::LogInfo("HcalSimParameters:") << " doSiPMsmearing    = " << theSiPMSmearing;
 }

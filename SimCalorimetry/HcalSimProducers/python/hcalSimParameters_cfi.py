@@ -45,8 +45,9 @@ hcalSimParameters = cms.PSet(
         syncPhase = cms.bool(True),
         timePhase = cms.double(5.0),
         timeSmearing = cms.bool(False),
-        # 0 is HPD, 1 is SiPM, 2 fetches HPD/Zecotek/Hamamatsufrom DB
-        siPMCode = cms.int32(2)
+        # 0 is HPD, 1 is SiPM, 2 fetches HPD/Zecotek/Hamamatsu from DB
+        siPMCode = cms.int32(2),
+        sipmTau = cms.double(5.)
     ),
     hb = cms.PSet(
         readoutFrameSize = cms.int32(10),
@@ -114,7 +115,8 @@ run2_HE_2017.toModify( hcalSimParameters,
     he = dict(
         photoelectronsToAnalog = cms.vdouble([57.5]*14),
         doSiPMSmearing = cms.bool(True),
-        )
+        sipmTau = cms.double(10.),
+    )
 )
 
 _newFactors = cms.vdouble(
@@ -141,10 +143,12 @@ phase2_hcal.toModify( hcalSimParameters,
     hb = dict(
         photoelectronsToAnalog = cms.vdouble([57.5]*16),
         doSiPMSmearing = cms.bool(True),
+        sipmTau = cms.double(10.),
     ),
     he = dict(
         samplingFactors = _newFactors,
         photoelectronsToAnalog = cms.vdouble([57.5]*len(_newFactors)),
         doSiPMSmearing = cms.bool(True),
+        sipmTau = cms.double(10.),
     )
 )

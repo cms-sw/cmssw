@@ -15,7 +15,8 @@ public:
                     double samplingFactor, double timePhase,
                     int readoutFrameSize, int binOfMaximum,
                     bool doPhotostatistics, bool syncPhase,
-                    int firstRing, const std::vector<double> & samplingFactors
+                    int firstRing, const std::vector<double> & samplingFactors,
+                    double sipmTau
                     );
   HcalSimParameters(const edm::ParameterSet & p);
 
@@ -39,6 +40,7 @@ public:
   int pixels(const DetId & detId) const;
   bool doSiPMSmearing() const { return theSiPMSmearing; }
 
+  double sipmTau() const { return theSiPMTau; }
   double sipmDarkCurrentuA(const DetId & detId) const;
   double sipmCrossTalk(const DetId & detId) const;
   std::vector<float> sipmNonlinearity(const DetId & detId) const;
@@ -55,6 +57,7 @@ private:
   bool theSiPMSmearing;
   bool doTimeSmear_;
   HcalTimeSmearSettings theSmearSettings;
+  double theSiPMTau;
 };
 
 #endif

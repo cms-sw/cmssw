@@ -185,7 +185,7 @@ CaloSamples HcalSiPMHitResponse::makeSiPMSignal(DetId const& id,
                                                 CLHEP::HepRandomEngine* engine) const {
   const HcalSimParameters& pars = static_cast<const HcalSimParameters&>(theParameterMap->simParameters(id));  
   theSiPM->setNCells(pars.pixels(id));
-  theSiPM->setTau(5.);
+  theSiPM->setTau(pars.sipmTau());
   theSiPM->setCrossTalk(pars.sipmCrossTalk(id));
   theSiPM->setSaturationPars(pars.sipmNonlinearity(id));
 
