@@ -12,7 +12,7 @@
 using std::vector;
 //345678911234567892123456789312345678941234567895123456789612345678971234567898
 HcalSiPM::HcalSiPM(int nCells, double tau) :
-  theCellCount(nCells), theSiPM(nCells,1.), theTauInv(1.0/tau),
+  theCellCount(nCells), theSiPM(nCells,1.), theTau(tau),
   theCrossTalk(0.), theTempDep(0.), theLastHitTime(-1.), nonlin(0) {
 
   assert(theCellCount>0);
@@ -111,6 +111,9 @@ double HcalSiPM::hitCells(CLHEP::HepRandomEngine* engine, unsigned int pes, doub
   // Account for saturation - disabled in lieu of recovery model below
   //pes = nonlin->getPixelsFired(pes);
 
+  //disable saturation/recovery model for bad tau values
+  if(theTau<=0) return pes;
+
   unsigned int pixel;
   double sum(0.), hit(0.);
   for (unsigned int pe(0); pe < pes; ++pe) {
@@ -171,8 +174,8 @@ void HcalSiPM::setTemperatureDependence(double dTemp) {
 
 double HcalSiPM::cellCharge(double deltaTime) const {
   if (deltaTime <= 0.) return 0.;
-  if (deltaTime > 10./theTauInv) return 1.;
-  double result(1. - std::exp(-deltaTime*theTauInv));
+  if (deltaTime > 10.*theTau) return 1.;
+  double result(1. - std::exp(-deltaTime/theTau));
   return (result > 0.99) ? 1.0 : result;
 }
 

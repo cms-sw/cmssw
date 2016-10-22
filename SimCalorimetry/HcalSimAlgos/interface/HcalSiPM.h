@@ -34,12 +34,12 @@ class HcalSiPM {
   virtual double totalCharge(double time) const;
 
   int    getNCells()      const { return theCellCount; }
-  double getTau()         const { return 1.0/theTauInv; }
+  double getTau()         const { return theTau; }
   double getCrossTalk()   const { return theCrossTalk; }
   double getTempDep()     const { return theTempDep; }
 
   void setNCells(int nCells);
-  void setTau(double tau) {theTauInv=1.0/tau;}
+  void setTau(double tau) {theTau=tau;}
   void setCrossTalk(double xtalk); //  Borel-Tanner "lambda"
   void setTemperatureDependence(double tempDep);
   void setSaturationPars(const std::vector<float>& pars);
@@ -60,7 +60,7 @@ class HcalSiPM {
 
   unsigned int theCellCount;
   std::vector< double > theSiPM;
-  double theTauInv;
+  double theTau;
   double theCrossTalk;
   double theTempDep;
   double theLastHitTime;
