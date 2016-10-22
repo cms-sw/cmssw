@@ -154,7 +154,8 @@ void Generator::HepMC2G4(const HepMC::GenEvent * evt_orig, G4Event * g4evt)
       // have the end_vertex with a radius greater than the radius of beampipe 
       // cilinder (no requirement on the Z of the vertex is applyed).
       // Status 104 (metastable R-hadrons in Pythia8) is treated the same way.
-      else if (2 == (*pitr)->status() || 104 == (*pitr)->status()) {
+      // All status codes related to exotic particles are treated in the same way.
+      else if (2 == (*pitr)->status() || 3 < (*pitr)->status()) {
 
         if ( (*pitr)->end_vertex() != 0  ) { 
           double xx = (*pitr)->end_vertex()->position().x();
@@ -212,8 +213,8 @@ void Generator::HepMC2G4(const HepMC::GenEvent * evt_orig, G4Event * g4evt)
       int status = (*pitr)->status();
 
       // treat status 104 (metastable R-hadrons in Pythia8) the same as status 2
-      if (104 == status)
-        status = 2;
+      // now applied for all possible status codes of exotic particles 
+      if (3 < status) { status = 2; }
 
       // check the status, 2 has end point with decay defined by generator
       if (1 == status || 2 == status) {
