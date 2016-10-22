@@ -221,11 +221,11 @@ namespace edm {
   public:
     LumiReWeighting( std::string generatedFile,
 		     std::string dataFile,
-		     std::string GenHistName,
-		     std::string DataHistName,
-		     const edm::InputTag& PileupSumInfoInputTag);
+		     std::string GenHistName = "pileup",
+		     std::string DataHistName = "pileup",
+		     const edm::InputTag& PileupSumInfoInputTag = edm::InputTag( "addPileupInfo" ) );
     
-    LumiReWeighting( const std::vector< float >& MC_distr, const std::vector< float >& Lumi_distr, const edm::InputTag& PileupSumInfoInputTag);
+    LumiReWeighting( const std::vector< float >& MC_distr, const std::vector< float >& Lumi_distr, const edm::InputTag& PileupSumInfoInputTag = edm::InputTag( "addPileupInfo" ) );
 
     LumiReWeighting ( ) { } ;
 
