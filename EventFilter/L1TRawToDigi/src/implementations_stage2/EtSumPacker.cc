@@ -65,6 +65,7 @@ namespace stage2 {
 	  if (j->getType()==l1t::EtSum::kMinBiasHFM1)   mht_word |= (word << 28);
 	  if (j->getType()==l1t::EtSum::kMissingEtHF)   methf_word |= word;
 	  if (j->getType()==l1t::EtSum::kMissingHtHF)   mhthf_word |= word;
+	  if (j->getType()==l1t::EtSum::kTowerCount)    ht_word |= (word << 12);
 	}
 	
 	load.push_back(et_word);

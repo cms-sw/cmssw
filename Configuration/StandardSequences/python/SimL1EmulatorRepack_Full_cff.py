@@ -17,8 +17,12 @@ else:
 
     import EventFilter.DTTFRawToDigi.dttfunpacker_cfi
     unpackDttf = EventFilter.DTTFRawToDigi.dttfunpacker_cfi.dttfunpacker.clone(
-        DTTF_FED_Source = cms.InputTag( 'rawDataCollector', processName=cms.InputTag.skipCurrentProcess()))    
-
+        DTTF_FED_Source = cms.InputTag( 'rawDataCollector', processName=cms.InputTag.skipCurrentProcess())) 
+        
+    import EventFilter.L1TRawToDigi.emtfStage2Digis_cfi
+    unpackEmtf = EventFilter.L1TRawToDigi.emtfStage2Digis_cfi.emtfStage2Digis.clone(
+        InputLabel = cms.InputTag( 'rawDataCollector', processName=cms.InputTag.skipCurrentProcess()))    
+        
     import EventFilter.CSCTFRawToDigi.csctfunpacker_cfi
     unpackCsctf = EventFilter.CSCTFRawToDigi.csctfunpacker_cfi.csctfunpacker.clone(
         producer = cms.InputTag( 'rawDataCollector', processName=cms.InputTag.skipCurrentProcess()))    
@@ -78,10 +82,10 @@ else:
     simOmtfDigis.srcRPC              = cms.InputTag('unpackRPC')
     simOmtfDigis.srcDTPh             = cms.InputTag("unpackBmtf")
     simOmtfDigis.srcDTTh             = cms.InputTag("unpackBmtf")
-    simOmtfDigis.srcCSC              = cms.InputTag("unpackCsctf") # replace when emtfDigis availalbe
+    simOmtfDigis.srcCSC              = cms.InputTag("unpackCsctf") ## Replace when emtfStage2Digis give equal data-emulator agreement
 
     # EMTF
-    simEmtfDigis.CSCInput            = cms.InputTag("unpackCsctf") # replace when emtfDigis availalbe 
+    simEmtfDigis.CSCInput            = cms.InputTag("unpackEmtf") 
     simEmtfDigis.RPCInput            = cms.InputTag('unpackRPC')
 
     simCaloStage2Layer1Digis.ecalToken = cms.InputTag('unpackEcal:EcalTriggerPrimitives')
@@ -107,6 +111,6 @@ else:
 
 
     
-    SimL1Emulator = cms.Sequence(unpackEcal+unpackHcal+unpackCSC+unpackDT+unpackRPC+unpackCsctf+unpackBmtf
+    SimL1Emulator = cms.Sequence(unpackEcal+unpackHcal+unpackCSC+unpackDT+unpackRPC+unpackEmtf+unpackCsctf+unpackBmtf
                                  +SimL1EmulatorCore+packCaloStage2
                                  +packGmtStage2+packGtStage2+rawDataCollector)
