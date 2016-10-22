@@ -39,15 +39,11 @@ HcalSimParameters::HcalSimParameters(const edm::ParameterSet & p)
    theFirstRing( p.getParameter<int>("firstRing") ),
    theSamplingFactors( p.getParameter<std::vector<double> >("samplingFactors") ),
    thePE2fCByRing( p.getParameter<std::vector<double> >("photoelectronsToAnalog") ),
-   theSiPMSmearing(false),
-   doTimeSmear_( p.getParameter<bool>("timeSmearing"))
+   theSiPMSmearing( p.getParameter<bool>("doSiPMSmearing") ),
+   doTimeSmear_( p.getParameter<bool>("timeSmearing") ),
+   theSiPMTau( p.getParameter<double>("sipmTau") )
 {
-  if (p.exists("doSiPMSmearing"))
-    theSiPMSmearing = p.getParameter<bool>("doSiPMSmearing");
   defaultTimeSmearing();
-
-  if (p.exists("sipmTau"))
-    theSiPMTau = p.getParameter<double>("sipmTau");
 
   edm::LogInfo("HcalSimParameters:") << " doSiPMsmearing    = " << theSiPMSmearing;
 }

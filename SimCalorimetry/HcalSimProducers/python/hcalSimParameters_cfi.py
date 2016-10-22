@@ -18,7 +18,9 @@ hcalSimParameters = cms.PSet(
         photoelectronsToAnalog = cms.double(2.79),
         simHitToPhotoelectrons = cms.double(6.0),
         syncPhase = cms.bool(True),
-        timePhase = cms.double(14.0)        
+        timePhase = cms.double(14.0),
+        doSiPMSmearing = cms.bool(False),
+        sipmTau = cms.double(0.),
     ),
     hf2 = cms.PSet(
         readoutFrameSize = cms.int32(4),
@@ -28,7 +30,9 @@ hcalSimParameters = cms.PSet(
         photoelectronsToAnalog = cms.double(1.843),
         simHitToPhotoelectrons = cms.double(6.0),
         syncPhase = cms.bool(True),
-        timePhase = cms.double(13.0)
+        timePhase = cms.double(13.0),
+        doSiPMSmearing = cms.bool(False),
+        sipmTau = cms.double(0.),
     ),
     ho = cms.PSet(
         readoutFrameSize = cms.int32(10),
@@ -47,7 +51,8 @@ hcalSimParameters = cms.PSet(
         timeSmearing = cms.bool(False),
         # 0 is HPD, 1 is SiPM, 2 fetches HPD/Zecotek/Hamamatsu from DB
         siPMCode = cms.int32(2),
-        sipmTau = cms.double(5.)
+        doSiPMSmearing = cms.bool(False),
+        sipmTau = cms.double(5.),
     ),
     hb = cms.PSet(
         readoutFrameSize = cms.int32(10),
@@ -63,7 +68,9 @@ hcalSimParameters = cms.PSet(
             143.52),            
         syncPhase = cms.bool(True),
         timePhase = cms.double(6.0),
-        timeSmearing = cms.bool(True)
+        timeSmearing = cms.bool(True),
+        doSiPMSmearing = cms.bool(False),
+        sipmTau = cms.double(0.),
     ),
     he = cms.PSet(
         readoutFrameSize = cms.int32(10),
@@ -78,7 +85,9 @@ hcalSimParameters = cms.PSet(
             190.90, 193.06, 188.42, 188.42),
         syncPhase = cms.bool(True),
         timePhase = cms.double(6.0),
-        timeSmearing = cms.bool(True)
+        timeSmearing = cms.bool(True),
+        doSiPMSmearing = cms.bool(False),
+        sipmTau = cms.double(0.),
     ),
     zdc = cms.PSet(
         readoutFrameSize = cms.int32(10),
@@ -88,7 +97,9 @@ hcalSimParameters = cms.PSet(
         photoelectronsToAnalog = cms.double(1.843),
         simHitToPhotoelectrons = cms.double(6.0),
         syncPhase = cms.bool(True),
-        timePhase = cms.double(-4.0)
+        timePhase = cms.double(-4.0),
+        doSiPMSmearing = cms.bool(False),
+        sipmTau = cms.double(0.),
     ),
 )
 
@@ -103,8 +114,7 @@ from Configuration.Eras.Modifier_run2_common_cff import run2_common
 run2_common.toModify( hcalSimParameters, 
     ho = dict(
         photoelectronsToAnalog = cms.vdouble([4.0]*16),
-        siPMCode = cms.int32(1),
-        doSiPMSmearing = cms.bool(False)
+        siPMCode = cms.int32(1)
     ),
     hf1 = dict( samplingFactor = cms.double(0.67) ),
     hf2 = dict( samplingFactor = cms.double(0.67) )
