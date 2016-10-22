@@ -93,7 +93,6 @@ namespace stage2 {
      }
 
      LogDebug("L1T") << "ET/METx/METy: pT " << ethf.hwPt();
-<<<<<<< HEAD
 
      res2_->push_back(0,ethf);
 
@@ -138,58 +137,11 @@ namespace stage2 {
      res2_->push_back(0,etNoHF);
 
 
-=======
-
-     res2_->push_back(0,ethf);
-
-
-     // ET / MET(x) / MET (y) without HF
-
-     raw_data = block.payload()[fet + 1];
-
-     l1t::EtSum etNoHF = l1t::EtSum();
-
-     switch(block.header().getID()){
-     case 123: // 61
-       etNoHF.setType(l1t::EtSum::kTotalEt);
-       etNoHF.setHwPt( static_cast<int32_t>( uint32_t(raw_data & 0xFFFFFF) << 16 ) >> 16 );
-       break;
-     case 121: // 60
-       etNoHF.setType(l1t::EtSum::kTotalEtx);
-       etNoHF.setHwPt( static_cast<int32_t>( uint32_t(raw_data) ) );
-       break;
-     case 127: // 63
-       etNoHF.setType(l1t::EtSum::kTotalEty);
-       etNoHF.setHwPt( static_cast<int32_t>( uint32_t(raw_data) ) );
-       break;
-     case 125: // 62
-       etNoHF.setType(l1t::EtSum::kTotalEt);
-       etNoHF.setHwPt( static_cast<int32_t>( uint32_t(raw_data & 0xFFFFFF) << 16 ) >> 16 );
-       break;
-     case 131: // 65
-       etNoHF.setType(l1t::EtSum::kTotalEtx);
-       etNoHF.setHwPt( static_cast<int32_t>( uint32_t(raw_data) ) );
-       break;
-     case 129: // 64
-       etNoHF.setType(l1t::EtSum::kTotalEty); 
-       etNoHF.setHwPt( static_cast<int32_t>( uint32_t(raw_data) ) );
-       break;
-     default:
-       break;
-     }
-
-     LogDebug("L1T") << "ET/METx/METy (no HF): pT " << etNoHF.hwPt();
-
-     res2_->push_back(0,etNoHF);
-
-
->>>>>>> l1t-integration-CMSSW_8_0_19
      // HT / MHT(x)/ MHT (y) with HF
 
      raw_data = block.payload()[fht];
 
      l1t::EtSum hthf = l1t::EtSum(); 
-<<<<<<< HEAD
 
      switch(block.header().getID()){
      case 123: // 61
@@ -265,83 +217,6 @@ namespace stage2 {
 
      res2_->push_back(0,htNoHF);
 
-=======
-
-     switch(block.header().getID()){
-     case 123: // 61
-       hthf.setType(l1t::EtSum::kTotalHtHF);
-       hthf.setHwPt( static_cast<int32_t>( uint32_t(raw_data & 0xFFFFFF) << 16 ) >> 16 );
-       break;
-     case 121: // 60
-       hthf.setType(l1t::EtSum::kTotalHtxHF);
-       hthf.setHwPt( static_cast<int32_t>( uint32_t(raw_data) ) );
-       break;
-     case 127: // 63
-       hthf.setType(l1t::EtSum::kTotalHtyHF);
-       hthf.setHwPt( static_cast<int32_t>( uint32_t(raw_data) ) );
-       break;
-     case 125: // 62
-       hthf.setType(l1t::EtSum::kTotalHtHF);
-       hthf.setHwPt( static_cast<int32_t>( uint32_t(raw_data & 0xFFFFFF) << 16 ) >> 16 );
-       break;
-     case 131: // 65
-       hthf.setType(l1t::EtSum::kTotalHtxHF);
-       hthf.setHwPt( static_cast<int32_t>( uint32_t(raw_data) ) );
-       break;
-     case 129: // 64
-       hthf.setType(l1t::EtSum::kTotalHtyHF); 
-       hthf.setHwPt( static_cast<int32_t>( uint32_t(raw_data) ) );
-       break;
-     default: 
-       break;
-     }
-
-     LogDebug("L1T") << "HTHF/MHTHFx/MHTHFy: pT " << hthf.hwPt();
-
-     res2_->push_back(0,hthf);
-
-
-     // HT / MHT(x)/ MHT (y) no HF
-
-     raw_data = block.payload()[fht+1];
-
-     l1t::EtSum htNoHF = l1t::EtSum(); 
-
-     switch(block.header().getID()){
-     case 123: // 61
-       htNoHF.setType(l1t::EtSum::kTotalHt);
-       htNoHF.setHwPt( static_cast<int32_t>( uint32_t(raw_data & 0xFFFFFF) << 16 ) >> 16 );
-       break;
-     case 121: // 60
-       htNoHF.setType(l1t::EtSum::kTotalHtx);
-       htNoHF.setHwPt( static_cast<int32_t>( uint32_t(raw_data) ) );
-       break;
-     case 127: // 63
-       htNoHF.setType(l1t::EtSum::kTotalHty);
-       htNoHF.setHwPt( static_cast<int32_t>( uint32_t(raw_data) ) );
-       break;
-     case 125: // 62
-       htNoHF.setType(l1t::EtSum::kTotalHt);
-       htNoHF.setHwPt( static_cast<int32_t>( uint32_t(raw_data & 0xFFFFFF) << 16 ) >> 16 );
-       break;
-     case 131: // 65
-       htNoHF.setType(l1t::EtSum::kTotalHtx);
-       htNoHF.setHwPt( static_cast<int32_t>( uint32_t(raw_data) ) );
-       break;
-     case 129: // 64
-       htNoHF.setType(l1t::EtSum::kTotalHty); 
-       htNoHF.setHwPt( static_cast<int32_t>( uint32_t(raw_data) ) );
-       break;
-     default:
-       break;
-     }
-
-
-     LogDebug("L1T") << "HTNOHF/MHTNOHFx/MHTNOHFy: pT " << htNoHF.hwPt();
-
-     res2_->push_back(0,htNoHF);
-
->>>>>>> l1t-integration-CMSSW_8_0_19
 
      // Two jets
      for (unsigned nJet=0; nJet < 2; nJet++){
