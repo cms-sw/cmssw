@@ -199,6 +199,11 @@ namespace FitterFuncs{
      return (15.225  + 0.0268*ifC + 9e-8*ifC*ifC)/3.;
    }
   
+
+  double PulseShapeFunctor::getSiPMDarkCurrent(double darkCurrent, double fcByPE, double lambda) {
+    double mu = darkCurrent * 25 / fcByPE;
+    return sqrt(mu/pow(1-lambda,3)) * fcByPE;
+  }
 }
 
 PulseShapeFitOOTPileupCorrection::PulseShapeFitOOTPileupCorrection() : cntsetPulseShape(0),
@@ -517,6 +522,8 @@ void PulseShapeFitOOTPileupCorrection::phase1Apply(const HBHEChannelInfo& channe
   double chargeArr[HcalConst::maxSamples]={}, pedArr[HcalConst::maxSamples]={}, gainArr[HcalConst::maxSamples]={};
   double energyArr[HcalConst::maxSamples]={}, pedenArr[HcalConst::maxSamples]={};
   double noiseADCArr[HcalConst::maxSamples]={};
+  double noiseDCArr[HcalConst::maxSamples]={};
+  double noiseArr[HcalConst::maxSamples]={};
   double tsTOT = 0, tstrig = 0; // in fC
   double tsTOTen = 0; // in GeV
 
@@ -535,8 +542,15 @@ void PulseShapeFitOOTPileupCorrection::phase1Apply(const HBHEChannelInfo& channe
     chargeArr[ip] = charge; pedArr[ip] = ped; gainArr[ip] = gain;
     energyArr[ip] = energy; pedenArr[ip] = peden;
 
+    // quantization noise from the ADC (QIE8 or QIE10/11)
     if(!channelData.hasTimeInfo()) noiseADCArr[ip] = psfPtr_->sigmaHPDQIE8(chargeArr[ip]);
     if(channelData.hasTimeInfo()) noiseADCArr[ip] = psfPtr_->sigmaSiPMQIE10(chargeArr[ip]);
+
+    // dark current noise relevant for siPM
+    noiseDCArr[ip] = 0;
+    if(channelData.hasTimeInfo() && (charge-ped)>channelData.tsPedestalWidth(ip)) noiseDCArr[ip] = psfPtr_->getSiPMDarkCurrent(channelData.darkCurrent(ip),channelData.fcByPE(ip),channelData.lambda(ip));
+
+    noiseArr[ip]= noiseADCArr[ip] + noiseDCArr[ip];
 
     tsTOT += charge - ped;
     tsTOTen += energy - peden;
@@ -550,7 +564,7 @@ void PulseShapeFitOOTPileupCorrection::phase1Apply(const HBHEChannelInfo& channe
 
   std::vector<float> fitParsVec;
   if(tstrig >= ts4Min_ && tsTOTen > 0.) { //Two sigma from 0
-    pulseShapeFit(energyArr, pedenArr, chargeArr, pedArr, gainArr, tsTOTen, fitParsVec,noiseADCArr);
+    pulseShapeFit(energyArr, pedenArr, chargeArr, pedArr, gainArr, tsTOTen, fitParsVec,noiseArr);
   }
   else if((tstrig < ts4Min_||tsTOTen < 0.)&&(ts4Min_==0)){
     fitParsVec.clear();
