@@ -26,7 +26,7 @@ using namespace reco;
 //#define PFLOW_DEBUG
 
 PFDisplacedVertexFinder::PFDisplacedVertexFinder() : 
-  displacedVertexCandidates_( new PFDisplacedVertexCandidateCollection ),
+  displacedVertexCandidates_( nullptr),
   displacedVertices_( new PFDisplacedVertexCollection ),
   transvSize_(0.0),
   longSize_(0.0),
@@ -43,19 +43,7 @@ void
 PFDisplacedVertexFinder::setInput(
 				  const edm::Handle<reco::PFDisplacedVertexCandidateCollection>& displacedVertexCandidates) {
 
-  if( displacedVertexCandidates_.get() ) {
-    displacedVertexCandidates_->clear();
-  }
-  else 
-    displacedVertexCandidates_.reset( new PFDisplacedVertexCandidateCollection );
-
-
-  if(displacedVertexCandidates.isValid()) {
-    for(unsigned i=0;i<displacedVertexCandidates->size(); i++) {
-      PFDisplacedVertexCandidateRef dvcref( displacedVertexCandidates, i); 
-      displacedVertexCandidates_->push_back( (*dvcref));
-    }
-  }
+  displacedVertexCandidates_ = displacedVertexCandidates.product();
 
 }
 
@@ -88,15 +76,14 @@ PFDisplacedVertexFinder::findDisplacedVertices() {
 
   int i = -1;
 
-  for(IDVC idvc = displacedVertexCandidates_->begin(); 
-      idvc != displacedVertexCandidates_->end(); idvc++) {
+  for(auto const& idvc : *displacedVertexCandidates_) {
 
     i++;
     if (debug_) {
       cout << "Analyse Vertex Candidate " << i << endl;
     }
     
-    findSeedsFromCandidate(*idvc, tempDisplacedVertexSeeds);
+    findSeedsFromCandidate(idvc, tempDisplacedVertexSeeds);
     
   }     
 
@@ -145,7 +132,7 @@ PFDisplacedVertexFinder::findDisplacedVertices() {
 
 
 void 
-PFDisplacedVertexFinder::findSeedsFromCandidate(PFDisplacedVertexCandidate& vertexCandidate, PFDisplacedVertexSeedCollection& tempDisplacedVertexSeeds){
+PFDisplacedVertexFinder::findSeedsFromCandidate(const PFDisplacedVertexCandidate& vertexCandidate, PFDisplacedVertexSeedCollection& tempDisplacedVertexSeeds){
   
   const PFDisplacedVertexCandidate::DistMap r2Map = vertexCandidate.r2Map();
   bool bNeedNewCandidate = false;
