@@ -39,7 +39,6 @@ class PFDisplacedVertexFinder {
 
   /// -------- Useful Types -------- ///
 
-  typedef std::set< reco::TrackBaseRef >::iterator IEset;
   typedef reco::PFDisplacedVertexSeedCollection::iterator IDVS;
   typedef reco::PFDisplacedVertexCollection::iterator IDV;
 
@@ -128,7 +127,7 @@ class PFDisplacedVertexFinder {
   void mergeSeeds(reco::PFDisplacedVertexSeedCollection&, std::vector<bool>& bLocked);
 
   /// Fit one by one the vertex points with associated tracks to get displaced vertices
-  bool fitVertexFromSeed(reco::PFDisplacedVertexSeed&, reco::PFDisplacedVertex&);
+  bool fitVertexFromSeed(const reco::PFDisplacedVertexSeed&, reco::PFDisplacedVertex&);
 
   /// Remove potentially fakes displaced vertices
   void selectAndLabelVertices(reco::PFDisplacedVertexCollection&,  std::vector <bool>&);
