@@ -119,6 +119,7 @@ namespace l1t {
     int egMaxPtJetIsolation() const { return egp_.maxPtJetIsolation_; }
     int egMinPtHOverEIsolation() const { return egp_.minPtHOverEIsolation_; }
     int egMaxPtHOverEIsolation() const { return egp_.maxPtHOverEIsolation_; }
+    bool egBypassEGVetos() const { return egp_.egBypassEGVetos_; }
 
     unsigned egIsoAreaNrTowersEta()const{return egp_.isoAreaNrTowersEta_;}
     unsigned egIsoAreaNrTowersPhi()const{return egp_.isoAreaNrTowersPhi_;}
@@ -151,6 +152,7 @@ namespace l1t {
     void setEgMaxPtJetIsolation(int cutValue) { egp_.maxPtJetIsolation_ = cutValue; }
     void setEgMinPtHOverEIsolation(int cutValue) { egp_.minPtHOverEIsolation_ = cutValue; }
     void setEgMaxPtHOverEIsolation(int cutValue) { egp_.maxPtHOverEIsolation_ = cutValue; }
+    void setEgBypassEGVetos(bool flag) { egp_.egBypassEGVetos_ = flag;}
 
     void setEgIsoAreaNrTowersEta(unsigned iEgIsoAreaNrTowersEta){egp_.isoAreaNrTowersEta_=iEgIsoAreaNrTowersEta;}
     void setEgIsoAreaNrTowersPhi(unsigned iEgIsoAreaNrTowersPhi){egp_.isoAreaNrTowersPhi_=iEgIsoAreaNrTowersPhi;}
@@ -244,6 +246,9 @@ namespace l1t {
       else
 	return 0;
     }
+
+    bool jetBypassPUS() const { return jetp_.jetBypassPUS_; }
+
     std::string jetPUSType() const { return pnode_[jetPUS].type_; }
     std::vector<double> jetPUSParams() { return pnode_[jetPUS].dparams_; }
     std::string jetCalibrationType() const { return pnode_[jetCalibration].type_; }
@@ -267,7 +272,8 @@ namespace l1t {
     void setJetCalibrationLUT(const l1t::LUT & lut) { pnode_[jetCalibration].LUT_ = lut; }
     void setJetCompressEtaLUT(const l1t::LUT & lut) { pnode_[jetCompressEta].LUT_ = lut; }
     void setJetCompressPtLUT(const l1t::LUT & lut) { pnode_[jetCompressPt].LUT_ = lut; }
-
+    void setJetBypassPUS(bool flag) { jetp_.jetBypassPUS_ = flag;}
+    
     // sums
 
     double etSumLsb() const { return etSumLsb_; }
