@@ -163,7 +163,7 @@ L1Muon2RecoTreeProducer::L1Muon2RecoTreeProducer(const edm::ParameterSet& iConfi
     //iConfig.getParameter<edm::InputTag>("triggerSummaryLabel");
   metToken_               = consumes<reco::PFMETCollection>(iConfig.getUntrackedParameter("metToken",edm::InputTag("pfMet")));
 
-  muon           = new L1Analysis::L1AnalysisRecoMuon2();
+  muon           = new L1Analysis::L1AnalysisRecoMuon2(iConfig);
   muon_data           = muon->getData();
 
   tree_=fs_->make<TTree>("Muon2RecoTree", "Muon2RecoTree");
@@ -429,6 +429,8 @@ void L1Muon2RecoTreeProducer::beginRun(const edm::Run &run, const edm::EventSetu
       }
     } // end for isoTriggerNames
   } // end if (triggerMatching_)
+
+  muon->init(eventSetup);
 }
 
 //define this as a plug-in

@@ -77,8 +77,6 @@ void L1TForest::setTrainingEvents(std::vector<Event*>& trainingEvents)
   
   // Reset the events matrix. 
   events = std::vector< std::vector<Event*> >();
-
-  events.reserve(e->data.size());
   
   for(unsigned int i=0; i<e->data.size(); i++) 
     {    
