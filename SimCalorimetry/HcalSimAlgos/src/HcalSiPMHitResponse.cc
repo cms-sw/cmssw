@@ -200,7 +200,7 @@ CaloSamples HcalSiPMHitResponse::makeSiPMSignal(DetId const& id,
   unsigned int sumPE(0);
   double sumHits(0.);
 
-  HcalSiPMShape sipmPulseShape;
+  HcalSiPMShape sipmPulseShape(pars.signalShape(id));
 
   std::list< std::pair<double, double> > pulses;
   std::list< std::pair<double, double> >::iterator pulse;
