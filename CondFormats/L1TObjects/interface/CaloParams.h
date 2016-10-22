@@ -128,9 +128,13 @@ namespace l1t {
       // veto region is seed tower +/- <=egIsoVetoNrTowersPhi
       unsigned isoVetoNrTowersPhi_;
 
+      // turn on/off EG ID cuts
+      bool egBypassEGVetos_;
+
       EgParams() : lsb_(0), seedThreshold_(0), neighbourThreshold_(0), hcalThreshold_(0), maxHcalEt_(0), maxPtHOverE_(0),
 		   minPtJetIsolation_(0), maxPtJetIsolation_(0), minPtHOverEIsolation_(0), maxPtHOverEIsolation_(0),
-		   isoAreaNrTowersEta_(0), isoAreaNrTowersPhi_(0), isoVetoNrTowersPhi_(0)
+	isoAreaNrTowersEta_(0), isoAreaNrTowersPhi_(0), isoVetoNrTowersPhi_(0),
+	egBypassEGVetos_(0)
       { /* no-op */ }
 
       COND_SERIALIZABLE;
@@ -192,8 +196,11 @@ namespace l1t {
 
       // Et threshold on neighbouring towers/regions
       double neighbourThreshold_;
-
-      JetParams() : lsb_(0), seedThreshold_(0), neighbourThreshold_(0) { /* no-op */ }
+      
+      // turn on/off Jet PUS
+      bool jetBypassPUS_;
+      
+      JetParams() : lsb_(0), seedThreshold_(0), neighbourThreshold_(0), jetBypassPUS_(0) { /* no-op */ }
 
       COND_SERIALIZABLE;
     };
