@@ -409,9 +409,10 @@ void HBHEPhase1Reconstructor::processData(const Collection& coll,
         const RawChargeFromSample<DFrame> rcfs(cond, cell);
 
 	// needed for the dark current in the M2
-	double darkCurrent = cond.getHcalSiPMParameter(cell)->getDarkCurrent();
-	double fcByPE = cond.getHcalSiPMParameter(cell)->getFCByPE();
-	double lambda = cond.getHcalSiPMCharacteristics()->getCrossTalk(cond.getHcalSiPMParameter(cell)->getType());
+	const HcalSiPMParameter& siPMParameter(*cond.getHcalSiPMParameter(cell));
+	const double darkCurrent = siPMParameter.getDarkCurrent();
+	const double fcByPE = siPMParameter.getFCByPE();
+	const double lambda = cond.getHcalSiPMCharacteristics()->getCrossTalk(siPMParameter.getType());
 
         // ADC to fC conversion
         CaloSamples cs;
@@ -431,7 +432,7 @@ void HBHEPhase1Reconstructor::processData(const Collection& coll,
             const double pedestal = calib.pedestal(capid);
             const double pedestalWidth = calibWidth.pedestal(capid);
             const double gain = calib.respcorrgain(capid);
-            const double gainWidth = calib.respcorrgain(capid);
+	    const double gainWidth = calibWidth.gain(capid);
             const double rawCharge = rcfs.getRawCharge(cs[ts], pedestal);
             const float t = getTDCTimeFromSample(s);
             channelInfo->setSample(ts, s.adc(), rawCharge, pedestal, pedestalWidth, gain, gainWidth, t);

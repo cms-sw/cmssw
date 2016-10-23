@@ -34,10 +34,6 @@ public:
         nSamples_ = 0;
         soi_ = 0;
         capid_ = 0;
-        pedestal_ = 0;
-        pedestalWidth_ = 0;
-        gain_ = 0;
-        gainWidth_ = 0;
         darkCurrent_ = 0;
         fcByPE_ = 0;
         lambda_ = 0,
@@ -78,10 +74,10 @@ public:
         rawCharge_[ts] = q;
         riseTime_[ts] = t;
         adc_[ts] = rawADC;
-	pedestal_ = ped;
-	gain_ = g;
-	pedestalWidth_ = pedWidth;
-	gainWidth_ = gainWidth;
+	pedestal_[ts] = ped;
+	gain_[ts] = g;
+	pedestalWidth_[ts] = pedWidth;
+	gainWidth_[ts] = gainWidth;
     }
 
     // Inspectors
@@ -94,10 +90,6 @@ public:
     inline unsigned soi() const {return soi_;}
     inline int capid() const {return capid_;}
     inline bool hasTimeInfo() const {return hasTimeInfo_;}
-    inline double pedestal() const {return pedestal_;}
-    inline double pedestalWidth() const {return pedestalWidth_;}
-    inline double gain() const {return gain_;}
-    inline double gainWidth() const {return gainWidth_;}
     inline double darkCurrent() const {return darkCurrent_;}
     inline double fcByPE() const {return fcByPE_;}
     inline double lambda() const {return lambda_;}
@@ -107,16 +99,24 @@ public:
 
     // Direct read-only access to time slice arrays
     inline const double* rawCharge() const {return rawCharge_;}
+    inline const double* pedestal() const {return pedestal_;}
+    inline const double* pedestalWidth() const {return pedestalWidth_;}
+    inline const double* gain() const {return gain_;}
+    inline const double* gainWidth() const {return gainWidth_;}
     inline const uint8_t* adc() const {return adc_;}
     inline const float* riseTime() const
         {if (hasTimeInfo_) return riseTime_; else return nullptr;}
 
     // Indexed access to time slice quantities. No bounds checking.
     inline double tsRawCharge(const unsigned ts) const {return rawCharge_[ts];}
+    inline double tsPedestal(const unsigned ts) const {return pedestal_[ts];}
+    inline double tsPedestalWidth(const unsigned ts) const {return pedestalWidth_[ts];}
+    inline double tsGain(const unsigned ts) const {return gain_[ts];}
+    inline double tsGainWidth(const unsigned ts) const {return gainWidth_[ts];}
     inline double tsCharge(const unsigned ts) const
-        {return rawCharge_[ts] - pedestal_;}
+        {return rawCharge_[ts] - pedestal_[ts];}
     inline double tsEnergy(const unsigned ts) const
-        {return (rawCharge_[ts] - pedestal_)*gain_;}
+        {return (rawCharge_[ts] - pedestal_[ts])*gain_[ts];}
     inline uint8_t tsAdc(const unsigned ts) const {return adc_[ts];}
     inline float tsRiseTime(const unsigned ts) const
         {return hasTimeInfo_ ? riseTime_[ts] : HcalSpecialTimes::UNKNOWN_T_NOTDC;}
@@ -135,7 +135,7 @@ public:
         double sum = 0.0;
         const unsigned imax = end < nSamples_ ? end : nSamples_;
         for (unsigned i=begin; i<imax; ++i)
-            sum += (rawCharge_[i] - pedestal_);
+            sum += (rawCharge_[i] - pedestal_[i]);
         return sum;
     }
 
@@ -144,7 +144,7 @@ public:
         double sum = 0.0;
         const unsigned imax = end < nSamples_ ? end : nSamples_;
         for (unsigned i=begin; i<imax; ++i)
-            sum += (rawCharge_[i] - pedestal_)*gain_;
+            sum += (rawCharge_[i] - pedestal_[i])*gain_[i];
         return sum;
     }
 
@@ -157,7 +157,7 @@ public:
         const unsigned imax = end < nSamples_ ? end : nSamples_;
         for (unsigned i=begin; i<imax; ++i)
         {
-            const double q = rawCharge_[i] - pedestal_;
+            const double q = rawCharge_[i] - pedestal_[i];
             if (q > dmax)
             {
                 dmax = q;
@@ -174,7 +174,7 @@ public:
         const unsigned imax = end < nSamples_ ? end : nSamples_;
         for (unsigned i=begin; i<imax; ++i)
         {
-            const double e = (rawCharge_[i] - pedestal_)*gain_;
+            const double e = (rawCharge_[i] - pedestal_[i])*gain_[i];
             if (e > dmax)
             {
                 dmax = e;
@@ -203,16 +203,16 @@ private:
     double rawCharge_[MAXSAMPLES];
 
     // Pedestal in fC
-    double pedestal_;
+    double pedestal_[MAXSAMPLES];
 
     // Pedestal Width in fC
-    double pedestalWidth_;
+    double pedestalWidth_[MAXSAMPLES];
 
     // fC to GeV conversion factor
-    double gain_;
+    double gain_[MAXSAMPLES];
 
     // fC to GeV conversion factor
-    double gainWidth_;
+    double gainWidth_[MAXSAMPLES];
 
     // needed for the dark current
     double darkCurrent_;

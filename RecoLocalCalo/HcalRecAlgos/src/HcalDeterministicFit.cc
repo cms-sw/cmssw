@@ -56,8 +56,8 @@ void HcalDeterministicFit::phase1Apply(const HBHEChannelInfo& channelData,
   for(unsigned int ip=0; ip<channelData.nSamples(); ip++){
 
     double charge = channelData.tsRawCharge(ip);
-    double ped = channelData.pedestal(); 
-    double gain = channelData.gain();
+    double ped = channelData.tsPedestal(ip); 
+    double gain = channelData.tsGain(ip);
 
     gainCorr = gain;
     inputCharge.push_back(charge);
