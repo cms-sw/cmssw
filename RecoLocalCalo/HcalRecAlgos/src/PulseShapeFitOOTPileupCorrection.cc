@@ -534,8 +534,8 @@ void PulseShapeFitOOTPileupCorrection::phase1Apply(const HBHEChannelInfo& channe
 
     //      const int capid = channelData.capid(); // not needed
     double charge = channelData.tsRawCharge(ip);
-    double ped = channelData.pedestal();
-    double gain = channelData.gain();
+    double ped = channelData.tsPedestal(ip);
+    double gain = channelData.tsGain(ip);
 
     double energy = charge*gain;
     double peden = ped*gain;
@@ -549,7 +549,7 @@ void PulseShapeFitOOTPileupCorrection::phase1Apply(const HBHEChannelInfo& channe
 
     // dark current noise relevant for siPM
     noiseDCArr[ip] = 0;
-    if(channelData.hasTimeInfo() && (charge-ped)>channelData.pedestalWidth()) {
+    if(channelData.hasTimeInfo() && (charge-ped)>channelData.tsPedestalWidth(ip)) {
       noiseDCArr[ip] = psfPtr_->getSiPMDarkCurrent(channelData.darkCurrent(),channelData.fcByPE(),channelData.lambda());
     }
 
