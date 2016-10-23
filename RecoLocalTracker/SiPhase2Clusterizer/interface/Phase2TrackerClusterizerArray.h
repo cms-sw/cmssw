@@ -10,11 +10,11 @@ class Phase2TrackerClusterizerArray {
         Phase2TrackerClusterizerArray();
         Phase2TrackerClusterizerArray(unsigned int, unsigned int);
         void setSize(unsigned int, unsigned int);
-        bool operator()(unsigned int, unsigned int) const;
+        int operator()(unsigned int, unsigned int) const;
         unsigned int rows() const;
         unsigned int columns() const;
         bool inside(unsigned int, unsigned int) const;
-        void set(unsigned int, unsigned int, bool);
+        void set(unsigned int, unsigned int, bool, bool);
         unsigned int size() const;
         unsigned int index(unsigned int, unsigned int) const;
 
@@ -22,6 +22,7 @@ class Phase2TrackerClusterizerArray {
 
         unsigned int nrows_, ncols_;
         std::vector< bool > matrix_;
+        std::vector< bool > hipmatrix_;
 
 };
 
