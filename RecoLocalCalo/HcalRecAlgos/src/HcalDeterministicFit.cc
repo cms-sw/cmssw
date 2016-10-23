@@ -56,8 +56,8 @@ void HcalDeterministicFit::phase1Apply(const HBHEChannelInfo& channelData,
   for(unsigned int ip=0; ip<channelData.nSamples(); ip++){
 
     double charge = channelData.tsRawCharge(ip);
-    double ped = channelData.tsPedestal(ip); // ped and gain are not function of the timeslices but of the det ?
-    double gain = channelData.tsGain(ip);
+    double ped = channelData.pedestal(); 
+    double gain = channelData.gain();
 
     gainCorr = gain;
     inputCharge.push_back(charge);
