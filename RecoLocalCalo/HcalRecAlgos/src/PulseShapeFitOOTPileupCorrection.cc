@@ -225,6 +225,7 @@ PulseShapeFitOOTPileupCorrection::~PulseShapeFitOOTPileupCorrection() {
 
 void PulseShapeFitOOTPileupCorrection::setChi2Term( bool isHPD ) {
 
+  // FIXME: pedSig_ should be the pedestalWidth from database
   if(isHPD) {
     timeSig_            = timeSigHPD_;
     pedSig_             = pedSigHPD_;
@@ -533,8 +534,8 @@ void PulseShapeFitOOTPileupCorrection::phase1Apply(const HBHEChannelInfo& channe
 
     //      const int capid = channelData.capid(); // not needed
     double charge = channelData.tsRawCharge(ip);
-    double ped = channelData.tsPedestal(ip); // ped and gain are not function of the timeslices but of the det ?
-    double gain = channelData.tsGain(ip);
+    double ped = channelData.pedestal();
+    double gain = channelData.gain();
 
     double energy = charge*gain;
     double peden = ped*gain;
@@ -548,7 +549,9 @@ void PulseShapeFitOOTPileupCorrection::phase1Apply(const HBHEChannelInfo& channe
 
     // dark current noise relevant for siPM
     noiseDCArr[ip] = 0;
-    if(channelData.hasTimeInfo() && (charge-ped)>channelData.tsPedestalWidth(ip)) noiseDCArr[ip] = psfPtr_->getSiPMDarkCurrent(channelData.darkCurrent(ip),channelData.fcByPE(ip),channelData.lambda(ip));
+    if(channelData.hasTimeInfo() && (charge-ped)>channelData.pedestalWidth()) {
+      noiseDCArr[ip] = psfPtr_->getSiPMDarkCurrent(channelData.darkCurrent(),channelData.fcByPE(),channelData.lambda());
+    }
 
     noiseArr[ip]= noiseADCArr[ip] + noiseDCArr[ip];
 
