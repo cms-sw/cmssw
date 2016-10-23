@@ -18,16 +18,23 @@ void Phase2TrackerClusterizerArray::setSize(unsigned int nrows, unsigned int nco
     nrows_ = nrows;
     ncols_ = ncols;
     matrix_.resize(nrows * ncols);
+    hipmatrix_.resize(nrows * ncols);
     for (std::vector< bool >::iterator it(matrix_.begin()); it != matrix_.end(); ++it) *it = false;
+    for (std::vector< bool >::iterator it(hipmatrix_.begin()); it != hipmatrix_.end(); ++it) *it = false;
 }
 
 /*
  * Return the value of an element in the Array
  */
 
-bool Phase2TrackerClusterizerArray::operator()(unsigned int row, unsigned int col) const {
-    if (inside(row, col)) return matrix_[index(row, col)];
-    else return false;
+int Phase2TrackerClusterizerArray::operator()(unsigned int row, unsigned int col) const {
+    if (inside(row, col)) {
+    	if (matrix_[index(row, col)]) {
+	   if (hipmatrix_[index(row, col)]) return 2;
+	   else return 1;
+	} else return 0;
+    }
+    else return 0;
 }
 
 /*
@@ -58,8 +65,9 @@ bool Phase2TrackerClusterizerArray::inside(unsigned int row, unsigned int col) c
  * Change the value of an element of the Array
  */
 
-void Phase2TrackerClusterizerArray::set(unsigned int row, unsigned int col, bool state) {
+void Phase2TrackerClusterizerArray::set(unsigned int row, unsigned int col, bool state, bool hip) {
     matrix_[index(row, col)] = state;
+    hipmatrix_[index(row, col)] = hip;
 }
 
 /*
