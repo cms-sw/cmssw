@@ -41,9 +41,6 @@ TProfile* prof_l0_det_total;
 //
 TProfile2D* prof2d_x0_det_total;
 //
-unsigned int iFirst = 1;
-unsigned int iLast  = 9;
-//
 const  std::vector<const char * > DETECTORS{"TIB", "TIDF", "TIDB",
       "InnerService", "TOB",
       "TEC", "TkStrct", "PixBar",
