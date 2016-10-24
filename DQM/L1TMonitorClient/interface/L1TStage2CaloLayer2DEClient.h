@@ -5,8 +5,6 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/DQMEDHarvester.h"
 
-#include "DQM/L1TMonitor/interface/L1TdeStage2CaloLayer2.h"
-
 class L1TStage2CaloLayer2DEClient: public DQMEDHarvester {
 
  public:
@@ -17,8 +15,12 @@ class L1TStage2CaloLayer2DEClient: public DQMEDHarvester {
 
  protected:
 
-  virtual void dqmEndJob(DQMStore::IBooker &ibooker, DQMStore::IGetter &igetter)override;
-  virtual void dqmEndLuminosityBlock(DQMStore::IBooker &ibooker,DQMStore::IGetter &igetter,const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& c) override;
+  virtual void dqmEndJob(DQMStore::IBooker &ibooker,
+			 DQMStore::IGetter &igetter) override;
+  virtual void dqmEndLuminosityBlock(DQMStore::IBooker &ibooker,
+				     DQMStore::IGetter &igetter,
+				     const edm::LuminosityBlock& lumiSeg,
+				     const edm::EventSetup& c) override;
 
  private:
 
@@ -48,9 +50,22 @@ class L1TStage2CaloLayer2DEClient: public DQMEDHarvester {
   MonitorElement* TauEtaComp_;
   MonitorElement* TauPhiComp_;
   MonitorElement* METComp_;
+  MonitorElement* METPhiComp_;
+  MonitorElement* METHFComp_;
+  MonitorElement* METHFPhiComp_;
   MonitorElement* MHTComp_;
+  MonitorElement* MHTPhiComp_;
+  MonitorElement* MHTHFComp_;
+  MonitorElement* MHTHFPhiComp_;
   MonitorElement* ETTComp_;
   MonitorElement* HTTComp_;
+
+  MonitorElement* MinBiasHFP0Comp_;
+  MonitorElement* MinBiasHFM0Comp_;
+  MonitorElement* MinBiasHFP1Comp_;
+  MonitorElement* MinBiasHFM1Comp_;
+  MonitorElement* ETTEMComp_;
+  MonitorElement* TowerCountComp_;
 
   MonitorElement * hlSummary;
   MonitorElement * jetSummary;
