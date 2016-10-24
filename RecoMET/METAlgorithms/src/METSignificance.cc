@@ -86,7 +86,6 @@ metsig::METSignificance::getCovariance(const edm::View<reco::Jet>& jets,
 
    // calculate sumPt
    double sumPt = 0;
-   int nFootPrint=0, nCand=0;
    for(size_t i = 0; i< pfCandidates->size();  ++i) {
      
      // check if candidate exists in a lepton or jet
@@ -97,18 +96,13 @@ metsig::METSignificance::getCovariance(const edm::View<reco::Jet>& jets,
        for( std::set<reco::CandidatePtr>::const_iterator it=footprint.begin();it!=footprint.end();it++) {
 	 if( ((*it)->p4()-(*pfCandidates)[i].p4()).Et2()<0.000025 ){
 	   cleancand = false;
-	   nFootPrint++;
 	   break;
 	 }
        }
        // if not, add to sumPt
        if( cleancand ){
 	 sumPt += (*pfCandidates)[i].pt();
-	 nCand++;
        }
-     }
-     else {
-       nFootPrint++;
      }
    }
 
