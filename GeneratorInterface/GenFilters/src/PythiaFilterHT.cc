@@ -7,8 +7,8 @@ using namespace std;
 
 
 PythiaFilterHT::PythiaFilterHT(const edm::ParameterSet& iConfig) :
-	label_(iConfig.getUntrackedParameter("moduleLabel",std::string("generator"))),
-	/*minpcut(iConfig.getUntrackedParameter("MinP", 0.)),
+	label_(consumes<edm::HepMCProduct>(edm::InputTag(iConfig.getUntrackedParameter("moduleLabel",std::string("generator")),"unsmeared"))),
+        /*minpcut(iConfig.getUntrackedParameter("MinP", 0.)),
 	maxpcut(iConfig.getUntrackedParameter("MaxP", 10000.)),
 	minptcut(iConfig.getUntrackedParameter("MinPt", 0.)),
 	maxptcut(iConfig.getUntrackedParameter("MaxPt", 10000.)),
