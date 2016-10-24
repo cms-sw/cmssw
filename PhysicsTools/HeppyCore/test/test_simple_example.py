@@ -5,7 +5,7 @@ import os
 import copy
 from simple_example_cfg import config, stopper 
 from PhysicsTools.HeppyCore.utils.testtree import create_tree, remove_tree
-from PhysicsTools.HeppyCore.framework.PhysicsTools.HeppyCore.loop import create_parser, main
+from PhysicsTools.HeppyCore.framework.heppy_loop import create_parser, main
 from PhysicsTools.HeppyCore.framework.looper import Looper
 from PhysicsTools.HeppyCore.framework.exceptions import UserStop
 from ROOT import TFile
@@ -72,6 +72,8 @@ class TestSimpleExample(unittest.TestCase):
                        nEvents=None,
                        nPrint=0,
                        timeReport=True)
+        # import pdb; pdb.set_trace()
+        # loop.process(10)
         self.assertRaises(UserStop, loop.process, 10)
   
     def test_rewrite(self):
