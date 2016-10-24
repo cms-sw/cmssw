@@ -53,9 +53,9 @@ void CompoundJetProducer::writeCompoundJets(  edm::Event & iEvent, edm::EventSet
 {
 
   // get a list of output jets
-  std::auto_ptr<reco::BasicJetCollection>  jetCollection( new reco::BasicJetCollection() );
+  auto jetCollection = std::make_unique<reco::BasicJetCollection>();
   // get a list of output subjets
-  std::auto_ptr<std::vector<T> >  subjetCollection( new std::vector<T>() );
+  auto subjetCollection = std::make_unique<std::vector<T>>();
 
   // This will store the handle for the subjets after we write them
   edm::OrphanHandle< std::vector<T> > subjetHandleAfterPut;
@@ -114,7 +114,7 @@ void CompoundJetProducer::writeCompoundJets(  edm::Event & iEvent, edm::EventSet
     }
   }
   // put subjets into event record
-  subjetHandleAfterPut = iEvent.put( subjetCollection, jetCollInstanceName_ );
+  subjetHandleAfterPut = iEvent.put(std::move(subjetCollection), jetCollInstanceName_);
   
   
   // Now create the hard jets with ptr's to the subjets as constituents
@@ -139,6 +139,6 @@ void CompoundJetProducer::writeCompoundJets(  edm::Event & iEvent, edm::EventSet
   }
   
   // put hard jets into event record
-  iEvent.put( jetCollection);
+  iEvent.put(std::move(jetCollection));
 
 }

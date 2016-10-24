@@ -5,6 +5,14 @@ import sys, imp, re
 import operator
 import FWCore.ParameterSet.Config as cms
 
+mode = 'text'
+try:
+  if sys.argv[1] == '--csv':
+    mode = 'csv'
+    del sys.argv[1]
+except:
+  pass
+
 # parse the HLT configuration from standard input or from the given file
 hlt = imp.new_module('hlt')
 try:
@@ -26,9 +34,11 @@ else:
 
 # read global prescale service
 prescale = dict()
+prescaleNames = [ '' ]
 columns  = 1
 if 'PrescaleService' in process.__dict__:
-  columns = len( process.PrescaleService.lvl1Labels.value() )
+  prescaleNames = process.PrescaleService.lvl1Labels.value()
+  columns = len(prescaleNames)
   for entry in process.PrescaleService.prescaleTable:
     prescale[entry.pathName.value()] = entry.prescales.value()
 
@@ -198,11 +208,25 @@ def getPrescales(name, out, end):
 # get the prescale factors for a path in a given endpath
 def getPrescalesDescription(name, out, end):
   pre = getPrescales(name, out, end)
-  return ''.join(['  %6d' % p for p in pre])
+  if mode == 'text':
+    return ''.join('  %6d' % p for p in pre)
+  elif mode == 'csv':
+    return ', '.join('%s' % p for p in pre)
+  else:
+    return 'n/a'
+
+# get the names of the prescale columns
+def getPrescaleNames():
+  if mode == 'text':
+    return ''.join('  %6d' % p for p in prescaleNames)
+  elif mode == 'csv':
+    return ', '.join('%s' % p for p in prescaleNames)
+  else:
+    return 'n/a'
 
 
 # format the information about a path associated to a specific endpath
-def dumpPath(name, out, end):
+def dumpPath(stream, dataset, name, out, end):
   if name not in process.paths:
     return '        %-*s*** missing ***' % (length, name)
 
@@ -217,7 +241,12 @@ def dumpPath(name, out, end):
   # look for L1 seed
   seedDesc = getL1SeedDescription(path)
 
-  return '      %s %-*s%s    %s' % (bptxDesc, length, name, preDesc, seedDesc)
+  if mode == 'text':
+    return '      %s %-*s%s    %s' % (bptxDesc, length, name, preDesc, seedDesc)
+  elif mode == 'csv':
+    return '%s, %s, %s, %s, %s' % (stream, dataset, name, preDesc, seedDesc)
+  else:
+    return 'n/a'
 
 
 def getEndPath(output):
@@ -232,11 +261,17 @@ def getEndPath(output):
   return out
 
 
+def dumpHeader():
+  if mode == 'csv':
+    print 'stream, dataset, path, %s, L1 trigger' % getPrescaleNames()
+
+
 def dumpStream(stream):
   assigned = set()
   allpaths = set()
 
-  print 'stream', stream
+  if mode == 'text':
+    print 'stream', stream
   out = 'hltOutput%s' % stream
   end = getEndPath(out)
   if end:
@@ -245,41 +280,33 @@ def dumpStream(stream):
 
   pds = sorted( process.streams.__dict__[stream] )
   for pd in pds:
-    print '    dataset', pd
+    if mode == 'text':
+      print '    dataset', pd
     if pd in process.datasets.__dict__:
       paths = sorted( path for path in process.datasets.__dict__[pd] )
       assigned.update( paths )
       for path in paths:
-        print dumpPath(path, out, end)
+        print dumpPath(stream, pd, path, out, end)
     else:
-      print '        *** not found ***'
+      if mode == 'text':
+        print '        *** not found ***'
 
   unassigned = allpaths - assigned
   if unassigned:
-    print '    *** unassigned paths ***'
+    if mode == 'text':
+      print '    *** unassigned paths ***'
     for path in sorted(unassigned):
-      print dumpPath(path, out, end)
+      print dumpPath(stream, '(unassigned)', path, out, end)
 
   if not end:
     print '    *** corresponding EndPath not found ***'
   else:
     missing    = assigned - allpaths
     if missing:
-      print '    *** paths missing from the EndPath\'s output module ***'
+      if mode == 'text':
+        print '    *** paths missing from the EndPath\'s output module ***'
       for path in sorted(missing):
-        print dumpPath(path, out, end)
-
-
-def dumpOutput(stream):
-  print 'output', stream
-  out = 'hltOutput%s' % stream
-  end = getEndPath(out)
-
-  output = eval('process.hltOutput%s' % stream)
-  paths = [ path for path in output.SelectEvents.SelectEvents ]
-  paths.sort()
-  for path in paths:
-    print dumpPath(path, out, end)
+        print dumpPath(stream, '(missing)', path, out, end)
 
 
 # read the list of streams
@@ -292,5 +319,6 @@ length_p = max(len(p) for p in process.paths)
 length_d = max(len(p) for d in process.datasets.__dict__ if not d.startswith('_') for p in process.datasets.__dict__[d])
 length = max(length_p, length_d, length) + 4
 
+dumpHeader()
 for stream in streams:
   dumpStream(stream)

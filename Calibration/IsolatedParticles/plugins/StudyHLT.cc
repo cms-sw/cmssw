@@ -1,35 +1,137 @@
-#include "StudyHLT.h"
+// system include files
+#include <memory>
+#include <string>
 
-//Triggers
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
-#include "DataFormats/HLTReco/interface/TriggerObject.h"
-#include "FWCore/Common/interface/TriggerNames.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
+// Root objects
+#include "TH1.h"
+#include "TH2.h"
+#include "TTree.h"
 
-#include "DataFormats/DetId/interface/DetId.h"
-#include "DataFormats/EcalDetId/interface/EBDetId.h"
-#include "DataFormats/EcalDetId/interface/EEDetId.h"
-#include "DataFormats/HcalDetId/interface/HcalDetId.h"
-
+// user include files
 #include "Calibration/IsolatedParticles/interface/FindCaloHit.h"
 #include "Calibration/IsolatedParticles/interface/CaloPropagateTrack.h"
 #include "Calibration/IsolatedParticles/interface/ChargeIsolation.h"
 #include "Calibration/IsolatedParticles/interface/eECALMatrix.h"
 #include "Calibration/IsolatedParticles/interface/eHCALMatrix.h"
+#include "Calibration/IsolatedParticles/interface/TrackSelection.h"
+
+#include "CommonTools/UtilAlgos/interface/TFileService.h"
+#include "CondFormats/DataRecord/interface/EcalChannelStatusRcd.h"
+
+#include "DataFormats/Common/interface/TriggerResults.h"
+#include "DataFormats/DetId/interface/DetId.h"
+#include "DataFormats/EcalDetId/interface/EBDetId.h"
+#include "DataFormats/EcalDetId/interface/EEDetId.h"
+#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
+#include "DataFormats/HcalDetId/interface/HcalDetId.h"
+#include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
+#include "DataFormats/HLTReco/interface/TriggerEvent.h"
+#include "DataFormats/HLTReco/interface/TriggerObject.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
+#include "DataFormats/Luminosity/interface/LumiDetails.h"
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/TrackReco/interface/HitPattern.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
+
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Common/interface/TriggerNames.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
 #include "Geometry/CaloTopology/interface/CaloSubdetectorTopology.h"
+#include "Geometry/CaloTopology/interface/EcalTrigTowerConstituentsMap.h"
 #include "Geometry/CaloTopology/interface/HcalTopology.h"
 #include "Geometry/CaloTopology/interface/CaloTopology.h"
 
+#include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
-#include "CondFormats/DataRecord/interface/EcalChannelStatusRcd.h"
-#include "Geometry/CaloTopology/interface/EcalTrigTowerConstituentsMap.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgoRcd.h"
+#include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
+
+class StudyHLT : public edm::one::EDAnalyzer<edm::one::WatchRuns,edm::one::SharedResources> {
+
+public:
+  explicit StudyHLT(const edm::ParameterSet&);
+  ~StudyHLT();
+
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
+private:
+  virtual void analyze(edm::Event const&, edm::EventSetup const&) override;
+  virtual void beginJob() ;
+  virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
+  virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
+  virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
+  virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
+
+  void clear();
+  void fillTrack(int, double, double, double, double);
+  void fillIsolation(int, double, double, double);
+  void fillEnergy(int, int, double, double, double, double, double);
+  std::string truncate_str(const std::string&);
+  int  trackPID(const reco::Track* ,
+		const edm::Handle<reco::GenParticleCollection>&);
+
+  // ----------member data ---------------------------
+  static const int           nPBin=10, nEtaBin=4, nPVBin=4;
+  HLTConfigProvider          hltConfig_;
+  edm::Service<TFileService> fs_;
+  int                        verbosity_;
+  spr::trackSelectionParameters selectionParameters_;
+  std::vector<std::string>   trigNames_, HLTNames_;
+  std::string                theTrackQuality_;
+  std::vector<double>        puWeights_;
+  double                     minTrackP_, maxTrackEta_;
+  double                     tMinE_, tMaxE_, tMinH_, tMaxH_;
+  bool                       isItAOD_, changed_, firstEvent_, doTree_;
+
+  edm::InputTag              triggerEvent_, theTriggerResultsLabel_;
+  edm::EDGetTokenT<LumiDetails>                       tok_lumi;
+  edm::EDGetTokenT<trigger::TriggerEvent>             tok_trigEvt;
+  edm::EDGetTokenT<edm::TriggerResults>               tok_trigRes;
+  edm::EDGetTokenT<reco::GenParticleCollection>       tok_parts_;
+  edm::EDGetTokenT<reco::TrackCollection>             tok_genTrack_;
+  edm::EDGetTokenT<reco::VertexCollection>            tok_recVtx_;
+  edm::EDGetTokenT<EcalRecHitCollection>              tok_EB_;
+  edm::EDGetTokenT<EcalRecHitCollection>              tok_EE_;
+  edm::EDGetTokenT<HBHERecHitCollection>              tok_hbhe_;
+  edm::EDGetTokenT<GenEventInfoProduct>               tok_ew_; 
+
+  TH1I                      *h_nHLT, *h_HLTAccept, *h_HLTCorr, *h_numberPV;
+  TH1I                      *h_goodPV, *h_goodRun;
+  TH2I                      *h_nHLTvsRN;
+  std::vector<TH1I*>         h_HLTAccepts;
+  TH1D                      *h_p[nPVBin+12], *h_pt[nPVBin+12];
+  TH1D                      *h_eta[nPVBin+12], *h_phi[nPVBin+12];
+  TH1I                      *h_ntrk[2];
+  TH1D                      *h_maxNearP[2], *h_ene1[2], *h_ene2[2], *h_ediff[2];
+  TH1D                      *h_energy[nPVBin+8][nPBin][nEtaBin][6];
+  TTree                     *tree_;
+  int                        nRun, etaBin[nEtaBin+1], pvBin[nPVBin+1];
+  double                     pBin[nPBin+1];
+  int                        tr_goodPV, tr_goodRun;
+  double                     tr_eventWeight;
+  std::vector<std::string>   tr_TrigName;
+  std::vector<double>        tr_TrkPt, tr_TrkP, tr_TrkEta, tr_TrkPhi;
+  std::vector<double>        tr_MaxNearP31X31, tr_MaxNearHcalP7x7;
+  std::vector<double>        tr_H3x3, tr_H5x5, tr_H7x7;
+  std::vector<double>        tr_FE7x7P, tr_FE11x11P, tr_FE15x15P;
+  std::vector<bool>          tr_SE7x7P, tr_SE11x11P, tr_SE15x15P;
+  std::vector<int>           tr_iEta, tr_TrkID;
+};
 
 StudyHLT::StudyHLT(const edm::ParameterSet& iConfig) : nRun(0) {
 
@@ -67,6 +169,8 @@ StudyHLT::StudyHLT(const edm::ParameterSet& iConfig) : nRun(0) {
   tok_trigRes   = consumes<edm::TriggerResults>(theTriggerResultsLabel_);
   tok_genTrack_ = consumes<reco::TrackCollection>(edm::InputTag("generalTracks"));
   tok_recVtx_   = consumes<reco::VertexCollection>(edm::InputTag("offlinePrimaryVertices"));
+  tok_parts_    = consumes<reco::GenParticleCollection>(iConfig.getParameter<edm::InputTag>("ParticleSource"));
+
   if (isItAOD_) {
     tok_EB_     = consumes<EcalRecHitCollection>(edm::InputTag("reducedEcalRecHitsEB"));
     tok_EE_     = consumes<EcalRecHitCollection>(edm::InputTag("reducedEcalRecHitsEE"));
@@ -280,6 +384,11 @@ void StudyHLT::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) 
       else	
 	tr_eventWeight  = 0;
     }
+
+    //=== genParticle information
+    edm::Handle<reco::GenParticleCollection> genParticles;
+    iEvent.getByToken(tok_parts_, genParticles);
+
     edm::Handle<reco::TrackCollection> trkCollection;
     iEvent.getByToken(tok_genTrack_, trkCollection);
     reco::TrackCollection::const_iterator trkItr;
@@ -338,6 +447,7 @@ void StudyHLT::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) 
 				   << e15x15P.first << " okHCAL " 
 				   << trkDetItr->okHCAL;
 
+	int trackID = trackPID(pTrack,genParticles);
 	if (trkDetItr->okHCAL) {
 	  edm::Handle<HBHERecHitCollection> hbhe;
 	  iEvent.getByToken(tok_hbhe_, hbhe);
@@ -349,11 +459,12 @@ void StudyHLT::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) 
 	  fillIsolation(1, maxNearHcalP7x7,h5x5,h7x7);
 	  if ((verbosity_/10)%10 > 0)
 	    edm::LogInfo("IsoTrack") << "Tracks Reaching Hcal maxNearHcalP7x7/h5x5/h7x7 " 
-				     << maxNearHcalP7x7 << "/" << h5x5 << "/" << h7x7; 
+				     << maxNearHcalP7x7 << "/" << h5x5 << "/" << h7x7;
 	  tr_TrkPt.push_back(pt1);
 	  tr_TrkP.push_back(p1);
 	  tr_TrkEta.push_back(eta1);
 	  tr_TrkPhi.push_back(phi1);
+	  tr_TrkID.push_back(trackID);
 	  tr_MaxNearP31X31.push_back(maxNearP31x31);
 	  tr_MaxNearHcalP7x7.push_back(maxNearHcalP7x7);
 	  tr_FE7x7P.push_back(e7x7P.first);
@@ -366,22 +477,28 @@ void StudyHLT::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) 
 	  tr_H3x3.push_back(h3x3);
 	  tr_H5x5.push_back(h5x5);
 	  tr_H7x7.push_back(h7x7);
-	}
-	if (maxNearP31x31 < 0) {
-	  fillTrack(4, pt1,p1,eta1,phi1);
-	  fillEnergy(0,ieta,p1,e7x7P.first,h3x3,e11x11P.first,h5x5);
-	  if (maxNearHcalP7x7 < 0) {
-	    fillTrack(5, pt1,p1,eta1,phi1);
-	    fillEnergy(1,ieta,p1,e7x7P.first,h3x3,e11x11P.first,h5x5);
-	    if (e11x11P.second && e15x15P.second && (e15x15P.first-e11x11P.first)<2.0) {
-	      fillTrack(6, pt1,p1,eta1,phi1);
-	      fillEnergy(2,ieta,p1,e7x7P.first,h3x3,e11x11P.first,h5x5);
-	      if (h7x7-h5x5 < 2.0) {
-		fillTrack(7, pt1,p1,eta1,phi1);
-		fillEnergy(3,ieta,p1,e7x7P.first,h3x3,e11x11P.first,h5x5);
-		if (nPV >= 0) {
-		  fillTrack(nPV+8, pt1,p1,eta1,phi1);
-		  fillEnergy(nPV+4,ieta,p1,e7x7P.first,h3x3,e11x11P.first,h5x5);
+	
+	  if (maxNearP31x31 < 0) {
+	    fillTrack(4, pt1,p1,eta1,phi1);
+	    fillEnergy(0,ieta,p1,e7x7P.first,h3x3,e11x11P.first,h5x5);
+	    if (maxNearHcalP7x7 < 0) {
+	      fillTrack(5, pt1,p1,eta1,phi1);
+	      fillEnergy(1,ieta,p1,e7x7P.first,h3x3,e11x11P.first,h5x5);
+	      if ((e11x11P.second) && (e15x15P.second) &&
+		  (e15x15P.first-e11x11P.first)<2.0) {
+		fillTrack(6, pt1,p1,eta1,phi1);
+		fillEnergy(2,ieta,p1,e7x7P.first,h3x3,e11x11P.first,h5x5);
+		if (h7x7-h5x5 < 2.0) {
+		  fillTrack(7, pt1,p1,eta1,phi1);
+		  fillEnergy(3,ieta,p1,e7x7P.first,h3x3,e11x11P.first,h5x5);
+		  if (nPV >= 0) {
+		    fillTrack(nPV+8, pt1,p1,eta1,phi1);
+		    fillEnergy(nPV+4,ieta,p1,e7x7P.first,h3x3,e11x11P.first,h5x5);
+		  }
+		  if (trackID > 0) {
+		    fillTrack(nPVBin+trackID+7, pt1,p1,eta1,phi1);
+		    fillEnergy(nPVBin+trackID+3,ieta,p1,e7x7P.first,h3x3,e11x11P.first,h5x5);
+		  }
 		}
 	      }
 	    }
@@ -405,7 +522,7 @@ void StudyHLT::beginJob() {
   h_numberPV    = fs_->make<TH1I>("h_numberPV", "Number of Primary Vertex", 100, 0, 100);
   h_goodPV      = fs_->make<TH1I>("h_goodPV", "Number of good Primary Vertex", 100, 0, 100);
   h_goodRun     = fs_->make<TH1I>("h_goodRun","Number of accepted events for Run", 4000, 190000, 1940000);
-  char hname[50], htit[400];
+  char hname[50], htit[200];
   std::string CollectionNames[2] = {"Reco", "Propagated"};
   for (unsigned int i=0; i<2; i++) {
     sprintf(hname, "h_nTrk_%s", CollectionNames[i].c_str());
@@ -413,13 +530,17 @@ void StudyHLT::beginJob() {
     h_ntrk[i] = fs_->make<TH1I>(hname, htit, 500, 0, 500);
   }
   std::string TrkNames[8]       = {"All", "Quality", "NoIso", "okEcal", "EcalCharIso", "HcalCharIso", "EcalNeutIso", "HcalNeutIso"};
-  for (unsigned int i=0; i<8+nPVBin; i++) {
+  std::string particle[4]       = {"Electron", "Pion", "Kaon", "Proton"};
+  for (unsigned int i=0; i<8+nPVBin+4; i++) {
     if (i < 8) {
       sprintf(hname, "h_pt_%s", TrkNames[i].c_str());
       sprintf(htit, "p_{T} of %s tracks", TrkNames[i].c_str());
-    } else {
+    } else if (i < 8+nPVBin) {
       sprintf(hname, "h_pt_%s_%d", TrkNames[7].c_str(), i-8);
       sprintf(htit, "p_{T} of %s tracks (PV=%d:%d)", TrkNames[7].c_str(), pvBin[i-8], pvBin[i-7]-1);
+    } else {
+      sprintf(hname, "h_pt_%s_%s", TrkNames[7].c_str(), particle[i-8-nPVBin].c_str());
+      sprintf(htit, "p_{T} of %s tracks (%s)", TrkNames[7].c_str(), particle[i-8-nPVBin].c_str());
     }
     h_pt[i]   = fs_->make<TH1D>(hname, htit, 400, 0, 200.0);
     h_pt[i]->Sumw2();
@@ -427,9 +548,12 @@ void StudyHLT::beginJob() {
     if (i < 8) {
       sprintf(hname, "h_p_%s", TrkNames[i].c_str());
       sprintf(htit, "Momentum of %s tracks", TrkNames[i].c_str());
-    } else {
+    } else if (i < 8+nPVBin) {
       sprintf(hname, "h_p_%s_%d", TrkNames[7].c_str(), i-8);
       sprintf(htit, "Momentum of %s tracks (PV=%d:%d)", TrkNames[7].c_str(), pvBin[i-8], pvBin[i-7]-1);
+    } else {
+      sprintf(hname, "h_p_%s_%s", TrkNames[7].c_str(), particle[i-8-nPVBin].c_str());
+      sprintf(htit, "Momentum of %s tracks (%s)", TrkNames[7].c_str(), particle[i-8-nPVBin].c_str());
     }
     h_p[i]    = fs_->make<TH1D>(hname, htit, 400, 0, 200.0);
     h_p[i]->Sumw2();
@@ -437,9 +561,12 @@ void StudyHLT::beginJob() {
     if (i < 8) {
       sprintf(hname, "h_eta_%s", TrkNames[i].c_str());
       sprintf(htit, "Eta of %s tracks", TrkNames[i].c_str());
-    } else {
+    } else if (i < 8+nPVBin) {
       sprintf(hname, "h_eta_%s_%d", TrkNames[7].c_str(), i-8);
       sprintf(htit, "Eta of %s tracks (PV=%d:%d)", TrkNames[7].c_str(), pvBin[i-8], pvBin[i-7]-1);
+    } else {
+      sprintf(hname, "h_eta_%s_%s", TrkNames[7].c_str(), particle[i-8-nPVBin].c_str());
+      sprintf(htit, "Eta of %s tracks (%s)", TrkNames[7].c_str(), particle[i-8-nPVBin].c_str());
     }
     h_eta[i]  = fs_->make<TH1D>(hname, htit, 60, -3.0, 3.0);
     h_eta[i]->Sumw2();
@@ -447,9 +574,12 @@ void StudyHLT::beginJob() {
     if (i < 8) {
       sprintf(hname, "h_phi_%s", TrkNames[i].c_str());
       sprintf(htit, "Phi of %s tracks", TrkNames[i].c_str());
-    } else {
+    } else if (i < 8+nPVBin) {
       sprintf(hname, "h_phi_%s_%d", TrkNames[7].c_str(), i-8);
       sprintf(htit, "Phi of %s tracks (PV=%d:%d)", TrkNames[7].c_str(), pvBin[i-8], pvBin[i-7]-1);
+    } else {
+      sprintf(hname, "h_phi_%s_%s", TrkNames[7].c_str(), particle[i-8-nPVBin].c_str());
+      sprintf(htit, "Phi of %s tracks (%s)", TrkNames[7].c_str(), particle[i-8-nPVBin].c_str());
     }
     h_phi[i]  = fs_->make<TH1D>(hname, htit, 100, -3.15, 3.15);
     h_phi[i]->Sumw2();
@@ -478,7 +608,7 @@ void StudyHLT::beginJob() {
   }
   std::string energyNames[6]={"E_{7x7}", "H_{3x3}", "(E_{7x7}+H_{3x3})",
 			      "E_{11x11}", "H_{5x5}", "{E_{11x11}+H_{5x5})"};
-  for (int i=0; i<4+nPVBin; ++i) {
+  for (int i=0; i<4+nPVBin+4; ++i) {
     for (int ip=0; ip<nPBin; ++ip) {
       for (int ie=0; ie<nEtaBin; ++ie) {
 	for (int j=0; j<6; ++j) {
@@ -487,10 +617,15 @@ void StudyHLT::beginJob() {
 	    sprintf(htit,"%s/p (p=%4.1f:%4.1f; i#eta=%d:%d) for tracks with %s",
 		    energyNames[j].c_str(),pBin[ip],pBin[ip+1],etaBin[ie],
 		    (etaBin[ie+1]-1), TrkNames[i+4].c_str());
-	  } else {
-	    sprintf(htit,"%s/p (p=%4.1f:%4.1f; i#eta=%d:%d, PV=%d:%d) for tracks with %s",
+	  } else if (i < 4+nPVBin) {
+	    sprintf(htit,"%s/p (p=%4.1f:%4.1f, i#eta=%d:%d, PV=%d:%d) for tracks with %s",
 		    energyNames[j].c_str(),pBin[ip],pBin[ip+1],etaBin[ie],
 		    (etaBin[ie+1]-1), pvBin[i-4], pvBin[i-3],
+		    TrkNames[7].c_str());
+	  } else {
+	    sprintf(htit,"%s/p (p=%4.1f:%4.1f, i#eta=%d:%d %s) for tracks with %s",
+		    energyNames[j].c_str(),pBin[ip],pBin[ip+1],etaBin[ie],
+		    (etaBin[ie+1]-1), particle[i-4-nPVBin].c_str(),
 		    TrkNames[7].c_str());
 	  }
 	  h_energy[i][ip][ie][j] = fs_->make<TH1D>(hname, htit, 500, -0.1, 4.9);
@@ -511,6 +646,7 @@ void StudyHLT::beginJob() {
     tree_->Branch("tr_TrkP",            &tr_TrkP);
     tree_->Branch("tr_TrkEta",          &tr_TrkEta);
     tree_->Branch("tr_TrkPhi",          &tr_TrkPhi);
+    tree_->Branch("tr_TrkID",           &tr_TrkID);
     tree_->Branch("tr_MaxNearP31X31",   &tr_MaxNearP31X31);   
     tree_->Branch("tr_MaxNearHcalP7x7", &tr_MaxNearHcalP7x7);
     tree_->Branch("tr_FE7x7P",          &tr_FE7x7P);
@@ -555,10 +691,10 @@ void StudyHLT::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup c
 void StudyHLT::clear() {
   tr_TrigName.clear();
   tr_TrkPt.clear();  tr_TrkP.clear();  tr_TrkEta.clear();  tr_TrkPhi.clear();
-  tr_MaxNearP31X31.clear();  tr_MaxNearHcalP7x7.clear(); 
-  tr_FE7x7P.clear();  tr_FE11x11P.clear();  tr_FE15x15P.clear();
-  tr_SE7x7P.clear();  tr_SE11x11P.clear();  tr_SE15x15P.clear();
-  tr_H3x3.clear();    tr_H5x5.clear();      tr_H7x7.clear();
+  tr_TrkID.clear();  tr_MaxNearP31X31.clear();  tr_MaxNearHcalP7x7.clear(); 
+  tr_FE7x7P.clear(); tr_FE11x11P.clear();  tr_FE15x15P.clear();
+  tr_SE7x7P.clear(); tr_SE11x11P.clear();  tr_SE15x15P.clear();
+  tr_H3x3.clear();   tr_H5x5.clear();      tr_H7x7.clear();
   tr_iEta.clear();
 }
 
@@ -595,7 +731,7 @@ void StudyHLT::fillEnergy(int flag, int ieta, double p, double enEcal1,
   }
 }
 
-std::string StudyHLT::truncate_str(const std::string& str){
+std::string StudyHLT::truncate_str(const std::string& str) {
   std::string truncated_str(str);
   int length = str.length();
   for (int i=0; i<length-2; i++){
@@ -605,6 +741,35 @@ std::string StudyHLT::truncate_str(const std::string& str){
     } 
   }
   return(truncated_str);
+}
+
+int StudyHLT::trackPID(const reco::Track* pTrack, const edm::Handle<reco::GenParticleCollection> & genParticles) {
+  int id(0);
+  if (genParticles.isValid()) {
+    unsigned int indx;
+    reco::GenParticleCollection::const_iterator p;
+    double mindR(999.9);
+    for (p=genParticles->begin(),indx=0; p!=genParticles->end(); ++p,++indx) {
+      int pdgId  = std::abs(p->pdgId());
+      int idx    = (pdgId == 11) ? 1 :
+	((pdgId == 211) ? 2 : ((pdgId == 321) ? 3 : ((pdgId == 2212) ? 4 : 0)));
+      if (idx > 0) {
+	double dEta = pTrack->eta() - p->momentum().Eta();
+	double phi1 = pTrack->phi();
+	double phi2 = p->momentum().Phi();
+	if (phi1 < 0) phi1 += 2.0*M_PI;
+	if (phi2 < 0) phi2 += 2.0*M_PI;
+	double dPhi = phi1-phi2;
+	if (dPhi > M_PI)       dPhi -= 2.*M_PI;
+	else if (dPhi < -M_PI) dPhi += 2.*M_PI;
+	double dR   = sqrt(dEta*dEta+dPhi*dPhi);
+	if (dR < mindR) {
+	  mindR = dR; id = idx;
+	}
+      }
+    }
+  }
+  return id;
 }
 
 DEFINE_FWK_MODULE(StudyHLT);

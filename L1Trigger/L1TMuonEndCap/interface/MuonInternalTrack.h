@@ -66,8 +66,8 @@ namespace L1TMuon{
     unsigned long cscMode()  const { return (_mode & 0xf<<4*kCSC)>>4*kCSC; }
     unsigned long rpcbMode() const { return (_mode & 0xf<<4*kRPCb)>>4*kRPCb; }
     unsigned long rpcfMode() const { return (_mode & 0xf<<4*kRPCf)>>4*kRPCf; }
-    
-    void print(std::ostream&) const;
+
+    void print() const;
     
     /// TEMPORARY ADDITION by G. Brown ///
     //struct varStorage

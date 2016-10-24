@@ -19,7 +19,7 @@
 using namespace std;
 
 EcalSelectiveReadoutProducer::EcalSelectiveReadoutProducer(const edm::ParameterSet& params)
-  : params_(params),firstCallEB_(true),firstCallEE_(true),iEvent_(0)
+  : params_(params),firstCallEB_(true),firstCallEE_(true),iEvent_(1)
 {
   //settings:
   //  settings which are only in python config files:

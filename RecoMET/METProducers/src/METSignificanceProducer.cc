@@ -92,16 +92,16 @@ namespace cms
    const reco::METCovMatrix cov = metSigAlgo_->getCovariance( *jets, leptons, *pfCandidates, *rho, resPtObj, resPhiObj, resSFObj, event.isRealData() );
    double sig  = metSigAlgo_->getSignificance(cov, met);
 
-   std::auto_ptr<double> significance (new double);
+   auto significance = std::make_unique<double>();
    (*significance) = sig;
    
-   std::auto_ptr<math::Error<2>::type> covPtr(new math::Error<2>::type());
+   auto covPtr = std::make_unique<math::Error<2>::type>();
    (*covPtr)(0,0) = cov(0,0);
    (*covPtr)(1,0) = cov(1,0);
    (*covPtr)(1,1) = cov(1,1);
 
-   event.put( covPtr, "METCovariance" );
-   event.put( significance, "METSignificance" );
+   event.put(std::move(covPtr), "METCovariance" );
+   event.put(std::move(significance), "METSignificance" );
 
   }
 

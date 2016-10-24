@@ -63,14 +63,14 @@ def _updateOutput( era, outputPSets, commands):
    for o in outputPSets:
       era.toModify( o, outputCommands = o.outputCommands + commands )
 
-from Configuration.StandardSequences.Eras import eras
 # mods for HGCAL
-eras.phase2_hgcal.toModify( RecoLocalCaloFEVT, outputCommands = RecoLocalCaloFEVT.outputCommands + [
+from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
+phase2_hgcal.toModify( RecoLocalCaloFEVT, outputCommands = RecoLocalCaloFEVT.outputCommands + [
         'keep *_HGCalRecHit_*_*',
         'keep *_HGCalUncalibRecHit_*_*'
     ]
 )
-eras.phase2_hgcal.toModify( RecoLocalCaloRECO, outputCommands = RecoLocalCaloRECO.outputCommands + ['keep *_HGCalRecHit_*_*'] )
+phase2_hgcal.toModify( RecoLocalCaloRECO, outputCommands = RecoLocalCaloRECO.outputCommands + ['keep *_HGCalRecHit_*_*'] )
 # don't modify AOD for HGCal yet, need "reduced" rechits collection first (i.e. requires reconstruction)
-#eras.phase2_hgcal.toModify( RecoLocalCaloAOD, outputCommands = RecoLocalCaloAOD.outputCommands + ['keep *_HGCalRecHit_*_*'] )
+#phase2_hgcal.toModify( RecoLocalCaloAOD, outputCommands = RecoLocalCaloAOD.outputCommands + ['keep *_HGCalRecHit_*_*'] )
 

@@ -8,6 +8,12 @@
    <class name="edm::SortedCollection<HGCDataFrame<HGCalDetId,HGCSample>, edm::StrictWeakOrdering<HGCDataFrame<HGCalDetId,HGCSample> > >"/>
    <class name="edm::Wrapper<edm::SortedCollection<HGCDataFrame<HGCalDetId,HGCSample>,edm::StrictWeakOrdering<HGCDataFrame<HGCalDetId,HGCSample> > > >" />
 
+   <!-- BH specific -->
+   <class name="HGCDataFrame<HcalDetId,HGCSample>"/>
+   <class name="std::vector<HGCDataFrame<HcalDetId,HGCSample> >"/>
+   <class name="edm::SortedCollection<HGCDataFrame<HcalDetId,HGCSample>, edm::StrictWeakOrdering<HGCDataFrame<HcalDetId,HGCSample> > >"/>
+   <class name="edm::Wrapper<edm::SortedCollection<HGCDataFrame<HcalDetId,HGCSample>,edm::StrictWeakOrdering<HGCDataFrame<HcalDetId,HGCSample> > > >" />
+
    <!-- EE specific -->
    <class name="HGCDataFrame<HGCEEDetId,HGCSample>"/>
    <class name="std::vector<HGCDataFrame<HGCEEDetId,HGCSample> >"/>

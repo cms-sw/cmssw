@@ -52,6 +52,7 @@ PrimaryVertexMonitor::PrimaryVertexMonitor(const edm::ParameterSet& pSet)
   vertexInputTag_   = pSet.getParameter<InputTag>("vertexLabel");
   beamSpotInputTag_ = pSet.getParameter<InputTag>("beamSpotLabel");
   vertexToken_   = consumes<reco::VertexCollection>(vertexInputTag_);
+  scoreToken_    = consumes<VertexScore>(vertexInputTag_);
   beamspotToken_ = consumes<reco::BeamSpot>        (beamSpotInputTag_);
 
 }
@@ -85,7 +86,8 @@ PrimaryVertexMonitor::bookHistograms(DQMStore::IBooker &iBooker,
   ntracksVsZ[0]  = iBooker.bookProfile("otherVtxTrksVsZ","Reconstructed Tracks in Vertex (other Vtx) vs Z",80,-20.,20.,50,0,100,"");
   ntracksVsZ[0]->setAxisTitle("z-bs",1);
   ntracksVsZ[0]->setAxisTitle("#tracks",2);
- 
+
+  score[0]      = iBooker.book1D("otherVtxScore","sqrt(score) (other Vtx)",100,0.,400.); 
   trksWeight[0] = iBooker.book1D("otherVtxTrksWeight","Total weight of Tracks in Vertex (other Vtx)",40,0,100.); 
   vtxchi2[0]    = iBooker.book1D("otherVtxChi2","#chi^{2} (other Vtx)",100,0.,200.);
   vtxndf[0]     = iBooker.book1D("otherVtxNdf","ndof (other Vtx)",100,0.,200.);
@@ -97,6 +99,7 @@ PrimaryVertexMonitor::bookHistograms(DQMStore::IBooker &iBooker,
   ntracksVsZ[1]->setAxisTitle("z-bs",1);
   ntracksVsZ[1]->setAxisTitle("#tracks",2);
  
+  score[1]     	= iBooker.book1D("tagVtxScore","sqrt(score) (tagged Vtx)",100,0.,400.);
   trksWeight[1] = iBooker.book1D("tagVtxTrksWeight","Total weight of Tracks in Vertex (tagged Vtx)",100,0,100.); 
   vtxchi2[1]    = iBooker.book1D("tagVtxChi2","#chi^{2} (tagged Vtx)",100,0.,200.);
   vtxndf[1]     = iBooker.book1D("tagVtxNdf","ndof (tagged Vtx)",100,0.,200.);
@@ -237,6 +240,10 @@ void PrimaryVertexMonitor::analyze(const edm::Event& iEvent, const edm::EventSet
   Handle<reco::VertexCollection> recVtxs;
   iEvent.getByToken(vertexToken_, recVtxs);
 
+  Handle<VertexScore> scores;
+  iEvent.getByToken(scoreToken_, scores);
+
+
   edm::Handle<reco::BeamSpot> beamSpotHandle;
   iEvent.getByToken(beamspotToken_,beamSpotHandle);
 
@@ -263,6 +270,12 @@ void PrimaryVertexMonitor::analyze(const edm::Event& iEvent, const edm::EventSet
 
   vertexPlots(recVtxs->front(), beamSpot, 1);
 
+  if (scores.isValid() && (*scores).size()>0) {
+    auto pvScore = (*scores).get(0);
+    score[1]->Fill(std::sqrt(pvScore));
+    for (unsigned int i=1; i<(*scores).size(); ++i) score[0]->Fill(std::sqrt((*scores).get(i)));
+  }
+
   // fill PV tracks MEs (as now, for alignment)
   pvTracksPlots(recVtxs->front());
 
@@ -270,6 +283,7 @@ void PrimaryVertexMonitor::analyze(const edm::Event& iEvent, const edm::EventSet
       v!=recVtxs->end(); ++v){
     vertexPlots(*v, beamSpot, 0);
   }
+
   // Beamline plots:
   bsX->Fill(beamSpot.x0());
   bsY->Fill(beamSpot.y0());

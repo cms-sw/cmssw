@@ -141,11 +141,14 @@ void MuonTrackValidator::bookHistograms(DQMStore::IBooker& ibooker, edm::Run con
       nCSChits_vs_eta.push_back( ibooker.book2D("nCSChits_vs_eta","# CSC hits vs eta",nint,min,max,nintHit,minHit,maxHit) );
       nRPChits_vs_eta.push_back( ibooker.book2D("nRPChits_vs_eta","# RPC hits vs eta",nint,min,max,nintHit,minHit,maxHit) );
       if(useGEMs_) nGEMhits_vs_eta.push_back( ibooker.book2D("nGEMhits_vs_eta","# GEM hits vs eta",nint,min,max,nintHit,minHit,maxHit) );
+      if(useME0_) nME0hits_vs_eta.push_back( ibooker.book2D("nME0hits_vs_eta","# ME0 hits vs eta",nint,min,max,nintHit,minHit,maxHit) );
 
       h_DThits_eta.push_back( ibooker.bookProfile("DThits_eta","mean # DT hits vs eta",nint,min,max,nintHit,minHit,maxHit) );
       h_CSChits_eta.push_back( ibooker.bookProfile("CSChits_eta","mean # CSC hits vs eta",nint,min,max,nintHit,minHit,maxHit) );
       h_RPChits_eta.push_back( ibooker.bookProfile("RPChits_eta","mean # RPC hits vs eta",nint,min,max,nintHit,minHit,maxHit) );
       if(useGEMs_) h_GEMhits_eta.push_back( ibooker.bookProfile("GEMhits_eta","mean # GEM hits vs eta",nint,min,max,nintHit,minHit,maxHit) );
+      if(useME0_) h_ME0hits_eta.push_back( ibooker.bookProfile("ME0hits_eta","mean # ME0 hits vs eta",nint,min,max,nintHit,minHit,maxHit) );
+
       h_hits_eta.push_back( ibooker.bookProfile("hits_eta","mean #hits vs eta",nint,min,max,nintHit,minHit,maxHit) );
       nhits_vs_phi.push_back( ibooker.book2D("nhits_vs_phi","#hits vs #phi",nintPhi,minPhi,maxPhi,nintHit,minHit,maxHit) );
       h_hits_phi.push_back( ibooker.bookProfile("hits_phi","mean #hits vs #phi",nintPhi,minPhi,maxPhi, nintHit,minHit,maxHit) );
@@ -827,6 +830,7 @@ void MuonTrackValidator::analyze(const edm::Event& event, const edm::EventSetup&
 	nCSChits_vs_eta[w]->Fill(getEta(track->eta()),track->hitPattern().numberOfValidMuonCSCHits());
 	nRPChits_vs_eta[w]->Fill(getEta(track->eta()),track->hitPattern().numberOfValidMuonRPCHits());
     if(useGEMs_) nGEMhits_vs_eta[w]->Fill(getEta(track->eta()),track->hitPattern().numberOfValidMuonGEMHits());
+    if(useME0_) nME0hits_vs_eta[w]->Fill(getEta(track->eta()),track->hitPattern().numberOfValidMuonME0Hits());
 	nlosthits_vs_eta[w]->Fill(getEta(track->eta()),track->numberOfLostHits());
 	
 	//resolution of track params: fill 2D histos
@@ -902,6 +906,7 @@ void MuonTrackValidator::endRun(Run const&, EventSetup const&) {
       doProfileX(nCSChits_vs_eta[w],h_CSChits_eta[w]);
       doProfileX(nRPChits_vs_eta[w],h_RPChits_eta[w]);
       if (useGEMs_) doProfileX(nGEMhits_vs_eta[w],h_GEMhits_eta[w]);
+      if (useME0_) doProfileX(nME0hits_vs_eta[w],h_ME0hits_eta[w]);
       
       doProfileX(nlosthits_vs_eta[w],h_losthits_eta[w]);
       //vs phi

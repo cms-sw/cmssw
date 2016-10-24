@@ -194,7 +194,6 @@ void GEMRecHitsValidation::analyze(const edm::Event& e,
         int layer_num = rh_layer-1;
         int binX = (rh_chamber-1)*2+layer_num;
         int binY = rh_roll;
-        if ( rh_station ==2 ) continue;
         int station_num = rh_station -1;
 
         // Fill normal plots.

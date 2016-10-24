@@ -78,7 +78,7 @@ void InternalTrack::addStub(const TriggerPrimitive& stub) {
 // this magic file contains a DT TrackClass -> mode LUT
 #include "L1Trigger/DTTrackFinder/src/L1MuDTTrackAssParam.h"
 
-void InternalTrack::print(std::ostream& out) const {
+void InternalTrack::print() const {
   std::cout << "Internal Track -- endcap: " << std::dec << _endcap
 	    << " wheel: " << _wheel 
 	    << " sector: " << _sector << std::endl;

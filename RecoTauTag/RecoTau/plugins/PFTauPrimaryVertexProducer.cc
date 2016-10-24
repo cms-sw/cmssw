@@ -166,8 +166,8 @@ void PFTauPrimaryVertexProducer::produce(edm::Event& iEvent,const edm::EventSetu
   iEvent.getByToken(TrackCollectionToken_,trackCollection);
 
   // Set Association Map
-  auto_ptr<edm::AssociationVector<PFTauRefProd, std::vector<reco::VertexRef> > > AVPFTauPV(new edm::AssociationVector<PFTauRefProd, std::vector<reco::VertexRef> >(PFTauRefProd(Tau)));
-  std::auto_ptr<VertexCollection>  VertexCollection_out= std::auto_ptr<VertexCollection>(new VertexCollection);
+  auto AVPFTauPV = std::make_unique<edm::AssociationVector<PFTauRefProd, std::vector<reco::VertexRef>>>(PFTauRefProd(Tau));
+  auto VertexCollection_out = std::make_unique<VertexCollection>();
   reco::VertexRefProd VertexRefProd_out = iEvent.getRefBeforePut<reco::VertexCollection>("PFTauPrimaryVertices");
 
   // Load each discriminator
@@ -288,8 +288,8 @@ void PFTauPrimaryVertexProducer::produce(edm::Event& iEvent,const edm::EventSetu
       AVPFTauPV->setValue(iPFTau, VRef);
     }
   }
-  iEvent.put(VertexCollection_out,"PFTauPrimaryVertices");
-  iEvent.put(AVPFTauPV);
+  iEvent.put(std::move(VertexCollection_out),"PFTauPrimaryVertices");
+  iEvent.put(std::move(AVPFTauPV));
 }
   
 DEFINE_FWK_MODULE(PFTauPrimaryVertexProducer);

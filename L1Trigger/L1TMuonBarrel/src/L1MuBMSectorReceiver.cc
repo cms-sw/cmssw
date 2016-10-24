@@ -71,26 +71,23 @@ L1MuBMSectorReceiver::~L1MuBMSectorReceiver() {
 //--------------
 
 //
-// receive track segment data from the BBMX and CSC chamber triggers
+// receive track segment data from the BBMX chamber triggers
 //
 void L1MuBMSectorReceiver::run(int bx, const edm::Event& e, const edm::EventSetup& c) {
 
-  c.get< L1MuDTTFParametersRcd >().get( pars );
+  //c.get< L1MuDTTFParametersRcd >().get( pars );
   //c.get< L1MuDTTFMasksRcd >().get( msks );
 
   const L1TMuonBarrelParamsRcd& bmtfParamsRcd = c.get<L1TMuonBarrelParamsRcd>();
   bmtfParamsRcd.get(bmtfParamsHandle);
   const L1TMuonBarrelParams& bmtfParams = *bmtfParamsHandle.product();
   msks =  bmtfParams.l1mudttfmasks;
+  pars =  bmtfParams.l1mudttfparams;
+  //pars.print();
   //msks.print();
 
   // get track segments from BBMX chamber trigger
   receiveBBMXData(bx, e, c);
-
-  // get track segments from CSC chamber trigger
-  //if ( L1MuBMTFConfig::overlap() && m_sp.ovl() ) {
-    //receiveCSCData(bx, e, c);
-  //}
 
 }
 
@@ -142,33 +139,33 @@ void L1MuBMSectorReceiver::receiveBBMXData(int bx, const edm::Event& e, const ed
 
         if ( station == 1 ) {
           if ( msks.get_inrec_chdis_st1(lwheel, sector) ) continue;
-          if ( qual < pars->get_inrec_qual_st1(lwheel, sector) ) continue;
+          if ( qual < pars.get_inrec_qual_st1(lwheel, sector) ) continue;
         }
         else if ( station == 2 ) {
           if ( msks.get_inrec_chdis_st2(lwheel, sector) ) continue;
-          if ( qual < pars->get_inrec_qual_st2(lwheel, sector) ) continue;
+          if ( qual < pars.get_inrec_qual_st2(lwheel, sector) ) continue;
           }
         else if ( station == 3 ) {
           if ( msks.get_inrec_chdis_st3(lwheel, sector) ) continue;
-          if ( qual < pars->get_inrec_qual_st3(lwheel, sector) ) continue;
+          if ( qual < pars.get_inrec_qual_st3(lwheel, sector) ) continue;
         }
         else if ( station == 4 ) {
           if ( msks.get_inrec_chdis_st4(lwheel, sector) ) continue;
-          if ( qual < pars->get_inrec_qual_st4(lwheel, sector) ) continue;
+          if ( qual < pars.get_inrec_qual_st4(lwheel, sector) ) continue;
         }
 
-        if ( reladr/2 == 1 && qual < pars->get_soc_stdis_n(m_sp.id().wheel(), m_sp.id().sector())  ) continue;
-        if ( reladr/2 == 2 && qual < pars->get_soc_stdis_wl(m_sp.id().wheel(), m_sp.id().sector()) ) continue;
-        if ( reladr/2 == 3 && qual < pars->get_soc_stdis_zl(m_sp.id().wheel(), m_sp.id().sector()) ) continue;
-        if ( reladr/2 == 4 && qual < pars->get_soc_stdis_wr(m_sp.id().wheel(), m_sp.id().sector()) ) continue;
-        if ( reladr/2 == 5 && qual < pars->get_soc_stdis_zr(m_sp.id().wheel(), m_sp.id().sector()) ) continue;
+        if ( reladr/2 == 1 && qual < pars.get_soc_stdis_n(m_sp.id().wheel(), m_sp.id().sector())  ) continue;
+        if ( reladr/2 == 2 && qual < pars.get_soc_stdis_wl(m_sp.id().wheel(), m_sp.id().sector()) ) continue;
+        if ( reladr/2 == 3 && qual < pars.get_soc_stdis_zl(m_sp.id().wheel(), m_sp.id().sector()) ) continue;
+        if ( reladr/2 == 4 && qual < pars.get_soc_stdis_wr(m_sp.id().wheel(), m_sp.id().sector()) ) continue;
+        if ( reladr/2 == 5 && qual < pars.get_soc_stdis_zr(m_sp.id().wheel(), m_sp.id().sector()) ) continue;
 
         //
         // out-of-time TS filter (compare TS at +-1 bx)
         //
         bool skipTS = false;
 
-        bool nbx_del = pars->get_soc_nbx_del(m_sp.id().wheel(), m_sp.id().sector());
+        bool nbx_del = pars.get_soc_nbx_del(m_sp.id().wheel(), m_sp.id().sector());
         if ( L1MuBMTFConfig::getTSOutOfTimeFilter() || nbx_del ) {
 
           int sh_phi = 12 - L1MuBMTFConfig::getNbitsExtPhi();
@@ -234,78 +231,6 @@ void L1MuBMSectorReceiver::receiveBBMXData(int bx, const edm::Event& e, const ed
 
 }
 
-
-//
-// receive track segment data from CSC chamber trigger
-//
-/*
-void L1MuBMSectorReceiver::receiveCSCData(int bx, const edm::Event& e, const edm::EventSetup& c) {
-
-  if ( (L1MuBMTFConfig::getCSCTrSInputTag()).label() == "none" ) return;
-
-  if ( bx < -6 || bx > 6 ) return;
-
-  edm::Handle<CSCTriggerContainer<csctf::TrackStub> > csctrig;
-  e.getByLabel(L1MuBMTFConfig::getCSCTrSInputTag(),csctrig);
-
-  const int bxCSC = 6;
-
-  vector<csctf::TrackStub> csc_list;
-  vector<csctf::TrackStub>::const_iterator csc_iter;
-
-  int station = 1; // only ME13
-  int wheel = m_sp.id().wheel();
-  int side = ( wheel == 3 ) ? 1 : 2;
-  int sector = m_sp.id().sector();
-  int csc_sector = ( sector == 0 ) ? 6 : (sector+1)/2;
-  int subsector = ( sector%2 == 0 ) ? 2 : 1;
-
-  csc_list = csctrig->get(side,station,csc_sector,subsector,bxCSC+bx);
-  int ncsc = 0;
-  for ( csc_iter = csc_list.begin(); csc_iter != csc_list.end(); csc_iter++ ) {
-    bool etaFlag = ( csc_iter->etaPacked() > 17 );
-    int qualCSC = csc_iter->getQuality();
-
-    // convert CSC quality code to BBMX quality code
-    unsigned int qual = 7;
-    if ( qualCSC ==  2 ) qual = 0;
-    if ( qualCSC ==  6 ) qual = 1;
-    if ( qualCSC ==  7 ) qual = 2;
-    if ( qualCSC ==  8 ) qual = 2;
-    if ( qualCSC ==  9 ) qual = 3;
-    if ( qualCSC == 10 ) qual = 3;
-    if ( qualCSC == 11 ) qual = 4;
-    if ( qualCSC == 12 ) qual = 5;
-    if ( qualCSC == 13 ) qual = 5;
-    if ( qualCSC == 14 ) qual = 6;
-    if ( qualCSC == 15 ) qual = 6;
-    if ( qual == 7 ) continue;
-
-    // convert CSC phi to BBMX phi
-    int phi = csc_iter->phiPacked();
-    if ( phi > 2047 ) phi -= 4096;
-    if ( phi < -2048 || phi > 2047 ) continue;
-
-    if ( msks.get_inrec_chdis_csc(m_sp.id().wheel(), m_sp.id().sector()) ) continue;
-    if ( qual < pars->get_soc_qual_csc(m_sp.id().wheel(), m_sp.id().sector()) ) continue;
-    if ( pars->get_soc_csc_etacanc(m_sp.id().wheel(), m_sp.id().sector()) && etaFlag ) continue;
-    if ( L1MuBMTFConfig::getEtaCanc() && etaFlag ) continue;
-
-    if ( ncsc < 2 ) {
-      int address = 16 + ncsc;
-      bool tag = (ncsc == 1 ) ? true : false;
-      L1MuBMTrackSegPhi tmpts(wheel,sector,station+2,phi,0,
-                              static_cast<L1MuBMTrackSegPhi::TSQuality>(qual),
-                              tag,bx,etaFlag);
-      m_sp.data()->addTSphi(address,tmpts);
-      ncsc++;
-    }
-    //    else cout << "too many CSC track segments!" << endl;
-  }
-
-}
-
-*/
 
 //
 // find the right sector for a given address

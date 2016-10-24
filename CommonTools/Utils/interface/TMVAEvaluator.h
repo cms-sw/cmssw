@@ -36,7 +36,9 @@ class TMVAEvaluator {
     std::string mMethod;
     mutable std::mutex m_mutex;
     [[cms::thread_guard("m_mutex")]] std::unique_ptr<TMVA::Reader> mReader;
+    #if ROOT_VERSION_CODE < ROOT_VERSION(6,7,0)
     std::unique_ptr<TMVA::IMethod> mIMethod;
+    #endif
     std::shared_ptr<const GBRForest> mGBRForest;
 
     [[cms::thread_guard("m_mutex")]] mutable std::map<std::string,std::pair<size_t,float>> mVariables;

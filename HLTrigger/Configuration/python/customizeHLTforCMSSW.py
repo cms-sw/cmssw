@@ -58,6 +58,17 @@ def customiseFor14833(process):
                 producer.includeME0 = cms.bool(False)
     return process
 
+def customiseFor15499(process):
+    for producer in producers_by_type(process,"HcalHitReconstructor"):
+        producer.ts4Max = cms.vdouble(100.0,70000.0)
+        if (producer.puCorrMethod.value() == 2):
+            producer.timeSigmaHPD = cms.double(5.0)
+            producer.timeSigmaSiPM = cms.double(3.5)
+            producer.pedSigmaHPD = cms.double(0.5)
+            producer.pedSigmaSiPM = cms.double(1.5)
+            producer.noiseHPD = cms.double(1.0)
+            producer.noiseSiPM = cms.double(2.)
+    return process
 #
 # CMSSW version specific customizations
 def customizeHLTforCMSSW(process, menuType="GRun"):
@@ -70,6 +81,7 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
         process = customiseFor13753(process)
         process = customiseFor14833(process)
         process = customiseFor15440(process)
+        process = customiseFor15499(process)
 #       process = customiseFor12718(process)
         pass
 

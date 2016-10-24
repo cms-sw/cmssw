@@ -25,8 +25,6 @@
 
 class HGCalTriggerFECodecBase { 
  public:  
-  typedef HGCalTriggerGeometry::Module Module;
-  
   HGCalTriggerFECodecBase(const edm::ParameterSet& conf) : 
     name_(conf.getParameter<std::string>("CodecName")),
     codec_idx_(static_cast<unsigned char>(conf.getParameter<uint32_t>("CodecIndex")))
@@ -37,13 +35,13 @@ class HGCalTriggerFECodecBase {
   
   const unsigned char getCodecType() const { return codec_idx_; }
   
-  // give the FECodec a module + input digis and it sets itself
+  // give the FECodec the trigger geometry + input digis and it sets itself
   // with the approprate data
-  virtual void setDataPayload(const Module& cell, 
+  virtual void setDataPayload(const HGCalTriggerGeometryBase&, 
                               const HGCEEDigiCollection&,
                               const HGCHEDigiCollection&,
                               const HGCHEDigiCollection& ) = 0;
-  virtual void setDataPayload(const Module& ,
+  virtual void setDataPayload(const HGCalTriggerGeometryBase& ,
                               const l1t::HGCFETriggerDigi&) = 0;
   virtual void unSetDataPayload() = 0;
   // get the set data out for your own enjoyment
@@ -92,7 +90,7 @@ namespace HGCalTriggerFE {
       dataIsSet_ = true;
     }  
     
-    virtual void setDataPayload(const Module& mod, 
+    virtual void setDataPayload(const HGCalTriggerGeometryBase& geom, 
                                 const HGCEEDigiCollection& ee, 
                                 const HGCHEDigiCollection& fh,
                                 const HGCHEDigiCollection& bh ) override final {
@@ -101,18 +99,18 @@ namespace HGCalTriggerFE {
           << "Data payload was already set for HGCTriggerFECodec: "
           << this->name() << " overwriting current data!";
       }
-      static_cast<Impl&>(*this).setDataPayloadImpl(mod,ee,fh,bh);
+      static_cast<Impl&>(*this).setDataPayloadImpl(geom,ee,fh,bh);
       dataIsSet_ = true;
     }
 
-    virtual void setDataPayload(const Module& mod, 
+    virtual void setDataPayload(const HGCalTriggerGeometryBase& geom, 
                               const l1t::HGCFETriggerDigi& digi) override final {
       if( dataIsSet_ ) {
         edm::LogWarning("HGCalTriggerFECodec|OverwritePayload")
           << "Data payload was already set for HGCTriggerFECodec: "
           << this->name() << " overwriting current data!";
       }
-      static_cast<Impl&>(*this).setDataPayloadImpl(mod,digi);
+      static_cast<Impl&>(*this).setDataPayloadImpl(geom,digi);
       dataIsSet_ = true;
     }
 

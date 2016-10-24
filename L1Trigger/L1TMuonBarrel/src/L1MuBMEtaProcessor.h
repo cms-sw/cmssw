@@ -42,6 +42,11 @@
 #include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambThDigi.h"
 #include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambThContainer.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "CondFormats/L1TObjects/interface/L1TMuonBarrelParams.h"
+#include "CondFormats/DataRecord/interface/L1TMuonBarrelParamsRcd.h"
+
+#include "CondFormats/L1TObjects/interface/L1MuDTQualPatternLut.h"
+#include "CondFormats/L1TObjects/interface/L1MuDTEtaPatternLut.h"
 
 class L1MuBMTrackSegEta;
 class L1MuBMTrackFinder;
@@ -123,9 +128,13 @@ class L1MuBMEtaProcessor {
     L1MuBMTrack*                              m_TracKCand[12];
     std::vector<const L1MuBMTrackSegEta*>     m_tseta;
 
-    edm::ESHandle< L1MuDTEtaPatternLut >  theEtaPatternLUT;  // ETF look-up table
-    edm::ESHandle< L1MuDTQualPatternLut > theQualPatternLUT; // EMU look-up tables
-    edm::ESHandle< L1MuDTTFMasks >        msks;
+    //edm::ESHandle< L1MuDTEtaPatternLut >  theEtaPatternLUT;  // ETF look-up table
+    //edm::ESHandle< L1MuDTQualPatternLut > theQualPatternLUT; // EMU look-up tables
+    //edm::ESHandle< L1MuDTTFMasks >        msks;
+    edm::ESHandle< L1TMuonBarrelParams > bmtfParamsHandle;
+    L1MuDTTFMasks       msks;
+    L1MuDTEtaPatternLut   theEtaPatternLUT;  // ETF look-up table
+    L1MuDTQualPatternLut  theQualPatternLUT; // EMU look-up tables
 
     edm::EDGetTokenT<L1MuDTChambThContainer>  m_DTDigiToken;
 

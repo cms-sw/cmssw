@@ -86,12 +86,12 @@ void QjetsAdder::produce(edm::Event & iEvent, const edm::EventSetup & iSetup) {
     QjetsVolatility.push_back(variance/mean);
   }//end loop on jets
 
-  std::auto_ptr<edm::ValueMap<float> > outQJV(new edm::ValueMap<float>());
+  auto outQJV = std::make_unique<edm::ValueMap<float>>();
   edm::ValueMap<float>::Filler fillerQJV(*outQJV);
   fillerQJV.insert(jets, QjetsVolatility.begin(), QjetsVolatility.end());
   fillerQJV.fill();
 
-  iEvent.put(outQJV,"QjetsVolatility");
+  iEvent.put(std::move(outQJV),"QjetsVolatility");
 }
 
 

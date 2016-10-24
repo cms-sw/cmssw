@@ -63,6 +63,8 @@ bool HGCalDetId::isValid(ForwardSubdetector subdet, int zp, int lay, int waferty
   return ok;
 }
 
+
+
 std::ostream& operator<<(std::ostream& s,const HGCalDetId& id) {
   return s << "isHGCal=" << id.isHGCal() << " zpos=" << id.zside() 
 	   << " layer=" << id.layer()  << " wafer type=" << id.waferType()

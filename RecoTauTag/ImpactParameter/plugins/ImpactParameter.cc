@@ -78,13 +78,13 @@ void ImpactParameter::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
         edm::Handle<IsolatedTauTagInfoCollection> isolatedTaus;
         iEvent.getByLabel(jetTrackSrc,isolatedTaus);
 
-        std::auto_ptr<JetTagCollection>                 tagCollection;
-        std::auto_ptr<TauImpactParameterInfoCollection> extCollection( new TauImpactParameterInfoCollection() );
+        std::unique_ptr<JetTagCollection> tagCollection;
+        auto extCollection = std::make_unique<TauImpactParameterInfoCollection>();
         if (not isolatedTaus->empty()) {
           edm::RefToBaseProd<reco::Jet> prod( edm::makeRefToBaseProdFrom(isolatedTaus->begin()->jet(), iEvent) );
-          tagCollection.reset( new JetTagCollection(prod) );
+          tagCollection = std::make_unique<JetTagCollection>(prod);
         } else {
-          tagCollection.reset( new JetTagCollection() );
+          tagCollection = std::make_unique<JetTagCollection>();
         }
 
         edm::ESHandle<TransientTrackBuilder> builder;
@@ -121,8 +121,8 @@ void ImpactParameter::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
             extCollection->push_back(ipInfo.second);
         }
 
-        iEvent.put(extCollection);
-        iEvent.put(tagCollection);
+        iEvent.put(std::move(extCollection));
+        iEvent.put(std::move(tagCollection));
 }
 
 

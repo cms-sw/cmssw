@@ -211,7 +211,7 @@ bool EEBadScFilter::filter(edm::Event & iEvent, const edm::EventSetup & iSetup) 
   if (pass==false && debug_) std::cout << "EEBadScFilter.cc:  REJECT EVENT!!!" << std::endl;
 
 
-  iEvent.put( std::auto_ptr<bool>(new bool(pass)) );
+  iEvent.put(std::make_unique<bool>(pass));
 
   // return the decision
 

@@ -100,6 +100,7 @@ private:
   int                           dataType_;
   double                        maxRestrictionPt_, slopeRestrictionPt_;
   double                        a_mipR_, a_coneR_, a_charIsoR_;
+  double                        a_charIsoR1_, a_charIsoR2_;
   double                        pTrackMin_, eEcalMax_, eIsolation_, hcalScale_;
   edm::InputTag                 triggerEvent_, theTriggerResultsLabel_;
   std::string                   labelGenTrack_, labelRecVtx_, labelEB_,labelEE_;
@@ -135,7 +136,7 @@ HcalIsoTrkAnalyzer::HcalIsoTrkAnalyzer(const edm::ParameterSet& iConfig) :
   usesResource("TFileService");
 
   //now do whatever initialization is needed
-  const double isolationRadius(28.9);
+  const double isolationRadius(28.9), isolationRmin(10.0), isolationRmax(30.0);
   trigNames_                          = iConfig.getParameter<std::vector<std::string> >("Triggers");
   theTrackQuality_                    = iConfig.getParameter<std::string>("TrackQuality");
   processName_                        = iConfig.getParameter<std::string>("ProcessName");
@@ -157,6 +158,8 @@ HcalIsoTrkAnalyzer::HcalIsoTrkAnalyzer(const edm::ParameterSet& iConfig) :
   selectionParameter_.maxOutMiss      = iConfig.getParameter<int>("MaxOutMiss");
   a_coneR_                            = iConfig.getParameter<double>("ConeRadius");
   a_charIsoR_                         = a_coneR_ + isolationRadius;
+  a_charIsoR1_                        = a_coneR_ + isolationRmin;
+  a_charIsoR2_                        = a_coneR_ + isolationRmax;
   a_mipR_                             = iConfig.getParameter<double>("ConeRadiusMIP");
   pTrackMin_                          = iConfig.getParameter<double>("MinimumTrackP");
   eEcalMax_                           = iConfig.getParameter<double>("MaximumEcalEnergy");
@@ -223,6 +226,7 @@ HcalIsoTrkAnalyzer::HcalIsoTrkAnalyzer(const edm::ParameterSet& iConfig) :
 			       <<"\t maxOutMiss "      << selectionParameter_.maxOutMiss
 			       <<"\t a_coneR "         << a_coneR_
 			       <<"\t a_charIsoR "      << a_charIsoR_
+			       << ":" << a_charIsoR1_ << ":" << a_charIsoR2_
 			       <<"\t a_mipR "          << a_mipR_
 			       <<"\t hcalScale_ "      << hcalScale_
 			       <<"\t useRaw_ "         << useRaw_
@@ -631,6 +635,7 @@ int HcalIsoTrkAnalyzer::fillTree(std::vector< math::XYZTLorentzVector>& vecL1,
 				 << "|" << trkDetItr->okHCAL;
 #endif
     t_qltyFlag = (qltyFlag && trkDetItr->okECAL && trkDetItr->okHCAL);
+    t_DetIds->clear(); t_HitEnergies->clear();
     if (t_qltyFlag) {
       nselTracks++;
       int nRH_eMipDR(0), nNearTRKs(0), nRecHits(-999);
@@ -638,25 +643,37 @@ int HcalIsoTrkAnalyzer::fillTree(std::vector< math::XYZTLorentzVector>& vecL1,
 				 endcapRecHitsHandle, trkDetItr->pointHCAL,
 				 trkDetItr->pointECAL, a_mipR_, 
 				 trkDetItr->directionECAL, nRH_eMipDR);
-      std::vector<DetId> ids;
-      t_DetIds->clear(); t_HitEnergies->clear();
-      t_eHcalDelta = spr::eCone_hcal(geo, hbhe, trkDetItr->pointHCAL, 
-				     trkDetItr->pointECAL, a_charIsoR_, 
-				     trkDetItr->directionHCAL,nRecHits, 
-				     ids, *t_HitEnergies, useRaw_);
-      t_DetIds->clear(); t_HitEnergies->clear();
+      std::vector<DetId>  ids;
+      std::vector<double> hitEnergies;
+      t_eHcalDelta  = spr::eCone_hcal(geo, hbhe, trkDetItr->pointHCAL, 
+				      trkDetItr->pointECAL, a_charIsoR2_, 
+				      trkDetItr->directionHCAL,nRecHits, 
+				      ids, hitEnergies, useRaw_);
+      double eHcalR = spr::eCone_hcal(geo, hbhe, trkDetItr->pointHCAL, 
+				      trkDetItr->pointECAL, a_charIsoR1_, 
+				      trkDetItr->directionHCAL,nRecHits, 
+				      ids, hitEnergies, useRaw_);
+      ids.clear(); 
       t_eHcal       = spr::eCone_hcal(geo, hbhe, trkDetItr->pointHCAL, 
 				      trkDetItr->pointECAL, a_coneR_, 
 				      trkDetItr->directionHCAL,nRecHits, 
 				      ids, *t_HitEnergies, useRaw_);
-      t_eHcalDelta -= t_eHcal;
+      t_eHcalDelta -= eHcalR;
       t_eHcalDelta *= hcalScale_;
       t_eHcal      *= hcalScale_;
+      double ehcal(0);
       for (unsigned int k=0; k<ids.size(); ++k) {
 	t_DetIds->push_back(ids[k].rawId());
+	ehcal += ((*t_HitEnergies)[k]);
       }
       t_hmaxNearP = spr::chargeIsolationCone(nTracks, trkCaloDirections,
 					     a_charIsoR_, nNearTRKs, false);
+      ehcal        *= hcalScale_;
+      if (std::abs(ehcal-t_eHcal) > 0.001) 
+	edm::LogWarning("HcalIsoTrack") << "Check inconsistent energies: "
+					<< t_eHcal << ":" << ehcal
+					<< " from " << t_DetIds->size()
+					<< " cells\n";
 #ifdef DebugLog
       edm::LogInfo("HcalIsoTrack") << "This track : " << nTracks 
 				   << " (pt|eta|phi|p) :"  << pTrack->pt() 

@@ -63,8 +63,8 @@ CaloRecoTauProducer::~CaloRecoTauProducer(){
   
 void CaloRecoTauProducer::produce(edm::Event& iEvent,const edm::EventSetup& iSetup){
 
-  auto_ptr<CaloTauCollection> resultCaloTau(new CaloTauCollection);
-  auto_ptr<DetIdCollection> selectedDetIds(new DetIdCollection);
+  auto resultCaloTau = std::make_unique<CaloTauCollection>();
+  auto selectedDetIds = std::make_unique<DetIdCollection>();
  
   edm::ESHandle<TransientTrackBuilder> myTransientTrackBuilder;
   iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder",myTransientTrackBuilder);
@@ -105,7 +105,7 @@ void CaloRecoTauProducer::produce(edm::Event& iEvent,const edm::EventSetup& iSet
     selectedDetIds->push_back(CaloRecoTauAlgo_->mySelectedDetId_[i]);
 
 
-   iEvent.put(resultCaloTau);
-  iEvent.put(selectedDetIds);
+   iEvent.put(std::move(resultCaloTau));
+   iEvent.put(std::move(selectedDetIds));
 }
 DEFINE_FWK_MODULE(CaloRecoTauProducer);

@@ -1,4 +1,3 @@
-from Configuration.StandardSequences.Eras import eras
 
 from Validation.RecoTrack.HLTmultiTrackValidator_cff import *
 from Validation.RecoVertex.HLTmultiPVvalidator_cff import *
@@ -33,7 +32,8 @@ hltassociation = cms.Sequence(
     +egammaSelectors
     +ExoticaValidationProdSeq
     )
-eras.phase1Pixel.toReplaceWith(hltassociation, cms.Sequence()) # FIXME: No HLT yet for 2017, so no need to run the validation
+from Configuration.Eras.Modifier_phase1Pixel_cff import phase1Pixel
+phase1Pixel.toReplaceWith(hltassociation, cms.Sequence()) # FIXME: No HLT yet for 2017, so no need to run the validation
 
 hltvalidation = cms.Sequence(
     HLTMuonVal
@@ -50,12 +50,13 @@ hltvalidation = cms.Sequence(
     +SMPValidationSequence
     +hltbtagValidationSequence
     )
-eras.phase1Pixel.toReplaceWith(hltvalidation, cms.Sequence()) # FIXME: No HLT yet for 2017, so no need to run the validation
+phase1Pixel.toReplaceWith(hltvalidation, cms.Sequence()) # FIXME: No HLT yet for 2017, so no need to run the validation
 
 # some hlt collections have no direct fastsim equivalent
 # remove the dependent modules for now
 # probably it would be rather easy to add or fake these collections
-if eras.fastSim.isChosen():
+from Configuration.Eras.Modifier_fastSim_cff import fastSim
+if fastSim.isChosen():
     hltassociation.remove(hltMultiTrackValidation)
     hltassociation.remove(hltMultiPVValidation)
 

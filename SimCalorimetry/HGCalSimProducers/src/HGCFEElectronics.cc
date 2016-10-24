@@ -355,5 +355,5 @@ void HGCFEElectronics<DFr>::runShaperWithToT(DFr &dataFrame, HGCSimHitData& char
 // cause the compiler to generate the appropriate code
 #include "DataFormats/HGCDigi/interface/HGCDigiCollections.h"
 template class HGCFEElectronics<HGCEEDataFrame>;
-//template class HGCFEElectronics<HGCHEDataFrame>;
+template class HGCFEElectronics<HGCBHDataFrame>;
 

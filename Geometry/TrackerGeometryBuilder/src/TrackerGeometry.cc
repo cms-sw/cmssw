@@ -284,9 +284,12 @@ float TrackerGeometry::getDetectorThickness(DetId detid) const {
 }
 
 TrackerGeometry::ModuleType TrackerGeometry::moduleType(const std::string& name) const {
-  if ( name.find("PixelBarrel") != std::string::npos) return ModuleType::Ph1PXB;
-  else if (name.find("PixelForward") != std::string::npos) return ModuleType::Ph1PXF;
-  else if ( name.find("TIB") != std::string::npos) {
+  if ( name.find("Pixel") != std::string::npos ){
+    if ( name.find("BarrelActive") != std::string::npos) return ModuleType::Ph1PXB;
+    else if ( name.find("ForwardSensor") != std::string::npos) return ModuleType::Ph1PXF;
+    else if ( name.find("BModule") != std::string::npos && name.find("InnerPixelActive") != std::string::npos ) return ModuleType::Ph2PXB;
+    else if ( name.find("EModule") != std::string::npos && name.find("InnerPixelActive") != std::string::npos ) return ModuleType::Ph2PXF;
+  } else if ( name.find("TIB") != std::string::npos) {
     if ( name.find("0") != std::string::npos) return ModuleType::IB1;
     else return ModuleType::IB2;
   } else if ( name.find("TOB") != std::string::npos) {
@@ -304,7 +307,8 @@ TrackerGeometry::ModuleType TrackerGeometry::moduleType(const std::string& name)
     else if ( name.find("4") != std::string::npos) return ModuleType::W5;
     else if ( name.find("5") != std::string::npos) return ModuleType::W6;
     else if ( name.find("6") != std::string::npos) return ModuleType::W7;
-  } else if ( name.find("BModule") != std::string::npos || name.find("EModule") != std::string::npos ) { 
+  } 
+  if ( name.find("BModule") != std::string::npos || name.find("EModule") != std::string::npos ) { 
     if (name.find("PSMacroPixel") != std::string::npos) return ModuleType::Ph2PSP;
     else if (name.find("PSStrip") != std::string::npos) return ModuleType::Ph2PSS;
     else if (name.find("2S") != std::string::npos) return ModuleType::Ph2SS;

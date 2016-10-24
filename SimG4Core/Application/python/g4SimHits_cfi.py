@@ -6,7 +6,6 @@ from SimG4Core.Application.hectorParameter_cfi import *
 from SimG4CMS.Calo.HFDarkeningParams_cff import *
 
 ## This object is used to customise g4SimHits for different running scenarios
-from Configuration.StandardSequences.Eras import eras
 
 common_heavy_suppression = cms.PSet(
     NeutronThreshold = cms.double(30.0),
@@ -461,4 +460,5 @@ g4SimHits = cms.EDProducer("OscarMTProducer",
 ##
 ## Change the HFShowerLibrary file used for Run 2
 ##
-eras.run2_common.toModify( g4SimHits.HFShowerLibrary, FileName = 'SimG4CMS/Calo/data/HFShowerLibrary_npmt_noatt_eta4_16en_v3.root' )
+from Configuration.Eras.Modifier_run2_common_cff import run2_common
+run2_common.toModify( g4SimHits.HFShowerLibrary, FileName = 'SimG4CMS/Calo/data/HFShowerLibrary_npmt_noatt_eta4_16en_v4.root' )

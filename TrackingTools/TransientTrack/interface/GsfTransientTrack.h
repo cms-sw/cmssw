@@ -21,12 +21,18 @@ namespace reco {
 
     // constructor from persistent track
     GsfTransientTrack(); 
-    GsfTransientTrack( const GsfTrack & tk , const MagneticField* field); 
-    GsfTransientTrack( const GsfTrackRef & tk , const MagneticField* field); 
+    GsfTransientTrack( const GsfTrack & tk , const MagneticField* field);
+    GsfTransientTrack( const GsfTrack & tk , const double time, const double dtime, const MagneticField* field);
+ 
+    GsfTransientTrack( const GsfTrackRef & tk , const MagneticField* field);
+    GsfTransientTrack( const GsfTrackRef & tk , const double time, const double dtime, const MagneticField* field);
 
     GsfTransientTrack( const GsfTrackRef & tk , const MagneticField* field, const edm::ESHandle<GlobalTrackingGeometry>& trackingGeometry);
+    GsfTransientTrack( const GsfTrackRef & tk , const double time, const double dtime, const MagneticField* field, const edm::ESHandle<GlobalTrackingGeometry>& trackingGeometry);
 
     GsfTransientTrack( const GsfTrack & tk , const MagneticField* field, const edm::ESHandle<GlobalTrackingGeometry>& trackingGeometry);
+    GsfTransientTrack( const GsfTrack & tk , const double time, const double dtime, const MagneticField* field, const edm::ESHandle<GlobalTrackingGeometry>& trackingGeometry);
+
 
     GsfTransientTrack( const GsfTransientTrack & tt );
     
@@ -87,12 +93,18 @@ namespace reco {
 
     TrajectoryStateClosestToBeamLine stateAtBeamLine() const;
 
+    double timeExt() const { return ( hasTime ? timeExt_ : std::numeric_limits<double>::quiet_NaN() ); }
+
+    double dtErrorExt() const { return ( hasTime ? dtErrorExt_ : std::numeric_limits<double>::quiet_NaN() ); }
+
   private:
 
     void init();
     void calculateTSOSAtVertex() const;
 
     GsfTrackRef tkr_;
+    bool hasTime;
+    double timeExt_, dtErrorExt_;
     const MagneticField* theField;
 
     FreeTrajectoryState initialFTS;

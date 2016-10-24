@@ -30,7 +30,7 @@ class PFRecoTauDiscriminationAgainstElectronMVA6 : public PFTauDiscriminationPro
   explicit PFRecoTauDiscriminationAgainstElectronMVA6(const edm::ParameterSet& cfg)
     : PFTauDiscriminationProducerBase(cfg),
       mva_(0),
-      category_output_(0)
+      category_output_()
   {
     mva_ = new AntiElectronIDMVA6(cfg);
 
@@ -68,7 +68,7 @@ private:
   edm::Handle<reco::GsfElectronCollection> gsfElectrons_;
   edm::Handle<TauCollection> taus_;
 
-  std::auto_ptr<PFTauDiscriminator> category_output_;
+  std::unique_ptr<PFTauDiscriminator> category_output_;
 
   int verbosity_;
 };
@@ -231,7 +231,7 @@ double PFRecoTauDiscriminationAgainstElectronMVA6::discriminate(const PFTauRef& 
 void PFRecoTauDiscriminationAgainstElectronMVA6::endEvent(edm::Event& evt)
 {
   // add all category indices to event
-  evt.put(category_output_, "category");
+  evt.put(std::move(category_output_), "category");
 }
 
 bool

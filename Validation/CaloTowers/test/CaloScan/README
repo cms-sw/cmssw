@@ -23,23 +23,27 @@ In 1-1.5 hour (in the submission directory, /scan in this case)
 the results of 25 batch jobs will be arriving. 
 Once all 25 jobs finished and 25 *.root files appeared locally, 
 
-(9) cmsRun  merging_cfg.py
+(9) ./Merge.sh 760pre3_postLS1
+
+It will do following things:
+
+cmsRun  merging_cfg.py
 (to produce final DQMxxx.root file)
 
-(10) clean up the directory
+clean up the directory
 rm -r pi50_*.py *.log LSFJOB_* pi50_*.root
 
-
-(11) move this DQMxxx.root to Validation/CaloTowers/test/macros
-renaming it into something like here:
-
-/afs/cern.ch/user/a/abdullin/public/pi50_scan/
+Rename DQMxxx.root file to a convenient name
 
 NB: there is naming convention  pi50scan<...>_ECALHCAL_CaloTowers.root
-where <...> can be any meaningful string (to appear in the legend of histos)
+where <...> can be any meaningful string (to appear in the legend of histos). It generally indicates the release or upgrade status.
+
+For example here it is 760pre3_postLS1 which need to be given as the argument for Merge.sh
+
+move this pi50scan<...>_ECALHCAL_CaloTowers.root to Validation/CaloTowers/test/macros
 
 
-(12) to compare two sets of histos, for instance if you have in 
+(10) to compare two sets of histos, for instance if you have in 
 Validation/CaloTowers/test/macros 
 pi50scan760pre3_postLS1_ECALHCAL_CaloTowers.root    and
 pi50scan760pre2_postLS1_ECALHCAL_CaloTowers.root
@@ -49,7 +53,7 @@ pi50scan760pre2_postLS1_ECALHCAL_CaloTowers.root
 ./RunPions.csh 760pre3_postLS1 760pre2_postLS1
 
 
-(13) the result appear as the local directory 
+(11) the result appear as the local directory 
 760pre3_postLS1_vs_760pre2_postLS1_SinglePi
   
 which can be 

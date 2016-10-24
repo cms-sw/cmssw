@@ -96,6 +96,7 @@ parseHBHEPhase1AlgoDescription(const edm::ParameterSet& ps)
                                      ps.getParameter<int>   ("samplesToAdd"),
                                      ps.getParameter<double>("correctionPhaseNS"),
                                      ps.getParameter<double>("tdcTimeShift"),
+                                     ps.getParameter<bool>  ("correctForPhaseContainment"),
                                      std::move(m2), std::move(detFit))
             );
     }

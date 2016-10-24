@@ -151,6 +151,9 @@ class PrimaryVertexAnalyzer4PUSlimmed : public DQMEDAnalyzer {
   //                                      const simPrimaryVertex &v);
   void fillRecoAssociatedGenVertexHistograms(const std::string &,
                                              const simPrimaryVertex &v);
+  void fillRecoAssociatedGenPVHistograms(const std::string& label,
+                                         const PrimaryVertexAnalyzer4PUSlimmed::simPrimaryVertex& v,
+                                         bool genPVMatchedToRecoPV);
   void fillGenAssociatedRecoVertexHistograms(const std::string &,
                                              int,
                                              recoPrimaryVertex &v);

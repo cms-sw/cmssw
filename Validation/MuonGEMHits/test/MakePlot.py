@@ -14,8 +14,8 @@ ROOT.gROOT.SetBatch(1)
 
 import optparse
 def getEtaRange( station ) :
-  etaRange = [1.55,2.15,1.65,2.05,1.65,2.45]
-  if ( station ==1 or station==2 or station ==3 ) :
+  etaRange = [1.55,2.15,1.65,2.45]
+  if ( station ==1 or station==2 ) :
     return etaRange[ (station-1)*2], etaRange[ (station-1)*2+1 ]
   else :
     print "Something is wrong"
@@ -168,10 +168,8 @@ def draw_eff(target_dir, h, ext = ".png", opt = ""):
   if ( h.GetName().find("eta") != -1) :
     if ( h.GetName().find("st1") != -1) :
       xmin,xmax = getEtaRange(1)
-    elif ( h.GetName().find("st2_short") != -1 ) :
-      xmin,xmax = getEtaRange(2)
     elif ( h.GetName().find("st2") != -1 ) :
-      xmin,xmax = getEtaRange(3)
+      xmin,xmax = getEtaRange(2)
     else :
       print "Use default setting."
 

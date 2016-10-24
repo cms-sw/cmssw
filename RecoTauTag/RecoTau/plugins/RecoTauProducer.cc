@@ -159,7 +159,7 @@ void RecoTauProducer::produce(edm::Event& evt, const edm::EventSetup& es)
   }
 
   // Create output collection
-  std::auto_ptr<reco::PFTauCollection> output(new reco::PFTauCollection());
+  auto output = std::make_unique<reco::PFTauCollection>();
   output->reserve(jets.size());
   
   // Loop over the jets and build the taus for each jet
@@ -243,7 +243,7 @@ void RecoTauProducer::produce(edm::Event& evt, const edm::EventSetup& es)
     modifier->endEvent();
   }
   
-  evt.put(output);
+  evt.put(std::move(output));
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"
