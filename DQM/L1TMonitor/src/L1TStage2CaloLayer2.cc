@@ -108,7 +108,7 @@ void L1TStage2CaloLayer2::bookHistograms(DQMStore::IBooker &ibooker, edm::Run co
   stage2CaloLayer2MinBiasHFP1_ = ibooker.book1D("MinBiasHFP1", "HF Min Bias Sum Threshold 1, Positive #eta; N_{towers}; Events", 16, -0.5, 15.5);
   stage2CaloLayer2MinBiasHFM1_ = ibooker.book1D("MinBiasHFM1", "HF Min Bias Sum Threshold 1, Negative #eta; N_{towers}; Events", 16, -0.5, 15.5);
 
-  stage2CaloLayer2TowCount_ = ibooker.book1D("TowCount", "Count of Trigger towers above threshold", 5904, -0.5, 5903.5);
+  stage2CaloLayer2TowCount_ = ibooker.book1D("TowCount", "Count of Trigger towers above threshold; N_{towers}; Events", 5904, -0.5, 5903.5);
 
   ibooker.setCurrentFolder(monitorDir_+"/Timing");
   timingStage2CaloLayer2CenJetBxOcc_ = stage2CaloLayer2CenJetBxOcc_;
