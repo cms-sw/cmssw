@@ -1,5 +1,7 @@
 
 import os
+import shutil
+
 import PhysicsTools.HeppyCore.framework.config as cfg
 from PhysicsTools.HeppyCore.framework.chain import Chain as Events
 import logging
@@ -8,14 +10,19 @@ logging.basicConfig(level=logging.INFO)
 # input component 
 # several input components can be declared,
 # and added to the list of selected components
+
+# os.system('python create_tree.py')
+# shutil.copy('test_tree.root', 'test_tree_2.root')
+
 inputSample = cfg.Component(
     'test_component',
-    # create the test file by running
-    # python create_tree.py
-    files = [os.path.abspath('test_tree.root')],
+    files = [os.path.abspath('test_tree.root'),
+             os.path.abspath('test_tree_2.root')],
+    splitFactor = 2
     )
 
 selectedComponents  = [inputSample]
+
 
 # add a random variable to the event 
 from PhysicsTools.HeppyCore.analyzers.examples.simple.RandomAnalyzer import RandomAnalyzer
@@ -23,25 +30,11 @@ random = cfg.Analyzer(
     RandomAnalyzer
     )
 
-
-# just prints a variable in the input test tree
-from PhysicsTools.HeppyCore.analyzers.examples.simple.Printer import Printer
-printer = cfg.Analyzer(
-    Printer
-    )
-
-# illustrates how to use an exception to stop processing at event 10
-# for debugging purposes.
-from PhysicsTools.HeppyCore.analyzers.examples.simple.Stopper import Stopper
-stopper = cfg.Analyzer(
-    Stopper,
-    iEv = 10
-    )
-
 # creating a simple output tree
 from PhysicsTools.HeppyCore.analyzers.examples.simple.SimpleTreeProducer import SimpleTreeProducer
 tree = cfg.Analyzer(
     SimpleTreeProducer,
+    instance_label = 'tree',
     tree_name = 'tree',
     tree_title = 'A test tree'
     )
@@ -51,8 +44,6 @@ tree = cfg.Analyzer(
 # the analyzers will process each event in this order
 sequence = cfg.Sequence([
         random,
-        # printer,
-        # stopper,
         tree,
 ] )
 
@@ -72,4 +63,4 @@ config = cfg.Config( components = selectedComponents,
                      services = services, 
                      events_class = Events )
 
-# print config 
+
