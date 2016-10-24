@@ -157,20 +157,23 @@ void l1t::Stage2Layer2JetAlgorithmFirmwareImp1::create(const std::vector<l1t::Ca
 	    int caloEta = CaloTools::caloEta(ieta);
 	    l1t::Jet jet( p4, -999, caloEta, iphi, 0);
 
-	    if (PUSubMethod == "Donut") {
-	      puEt = donutPUEstimate(ieta, iphi, 5, towers);	    
-	      iEt -= puEt;
+	    // remove checking if(!params_->jetBypassPUS()). jetBypassPUS_ is currently always set and configured to false
+	    if(true){
+	      if (PUSubMethod == "Donut") {
+		puEt = donutPUEstimate(ieta, iphi, 5, towers);	    
+		iEt -= puEt;
+	      }
+	      
+	      if (PUSubMethod == "ChunkyDonut"){
+		puEt = chunkyDonutPUEstimate(jet, 5, towers);
+		iEt -= puEt;
+	      }
 	    }
 	    
-	    if (PUSubMethod == "ChunkyDonut"){
-	      puEt = chunkyDonutPUEstimate(jet, 5, towers);
-	      iEt -= puEt;
-	    }
-
 	    if (iEt<=0) continue;
 
 	    // if tower Et is saturated, saturate jet Et
-	    if (seedEt >= 511) iEt = 65535;
+	    if (seedEt >= 509) iEt = 65535;
 
 	    jet.setHwPt(iEt);
 	    jet.setRawEt( (short int) rawEt);
@@ -427,7 +430,7 @@ int l1t::Stage2Layer2JetAlgorithmFirmwareImp1::chunkyDonutPUEstimate(l1t::Jet & 
   // use lowest 3 strips as PU estimate
   std::sort( ring.begin(), ring.end() );
   
-  for(unsigned int i=0; i<4; ++i)    jet.setPUDonutEt(i, (short int) ring[i]);
+  for(uint i=0; i<4; ++i)    jet.setPUDonutEt(i, (short int) ring[i]);
     
   return ( ring[0] + ring[1] + ring[2] );
   
