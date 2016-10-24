@@ -1,5 +1,5 @@
-from heppy.framework.analyzer import Analyzer
-from heppy.utils.deltar import matchObjectCollection, deltaR
+from PhysicsTools.HeppyCore.framework.analyzer import Analyzer
+from PhysicsTools.HeppyCore.utils.deltar import matchObjectCollection, deltaR
 
 import collections
 
@@ -10,7 +10,7 @@ class Matcher(Analyzer):
 
     Simple example configuration: 
     
-    from heppy.analyzers.Matcher import Matcher
+    from PhysicsTools.HeppyCore.analyzers.Matcher import Matcher
     papas_jet_match = cfg.Analyzer(
       Matcher,
       instance_label = 'papas', 

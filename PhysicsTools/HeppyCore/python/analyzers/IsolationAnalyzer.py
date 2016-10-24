@@ -1,5 +1,5 @@
-from heppy.framework.analyzer import Analyzer
-from heppy.particles.isolation import IsolationComputer, IsolationInfo
+from PhysicsTools.HeppyCore.framework.analyzer import Analyzer
+from PhysicsTools.HeppyCore.particles.isolation import IsolationComputer, IsolationInfo
 
 import pprint 
 
@@ -10,8 +10,8 @@ class IsolationAnalyzer(Analyzer):
 
     Example:
 
-    from heppy.analyzers.IsolationAnalyzer import IsolationAnalyzer
-    from heppy.particles.isolation import EtaPhiCircle
+    from PhysicsTools.HeppyCore.analyzers.IsolationAnalyzer import IsolationAnalyzer
+    from PhysicsTools.HeppyCore.particles.isolation import EtaPhiCircle
     iso_leptons = cfg.Analyzer(
     IsolationAnalyzer,
       leptons = 'leptons',

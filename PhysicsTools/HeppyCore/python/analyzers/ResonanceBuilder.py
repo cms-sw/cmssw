@@ -1,5 +1,5 @@
-from heppy.framework.analyzer import Analyzer
-from heppy.particles.tlv.resonance import Resonance2 as Resonance
+from PhysicsTools.HeppyCore.framework.analyzer import Analyzer
+from PhysicsTools.HeppyCore.particles.tlv.resonance import Resonance2 as Resonance
 
 import pprint 
 import itertools
@@ -11,7 +11,7 @@ class ResonanceBuilder(Analyzer):
 
     Example: 
 
-    from heppy.analyzers.ResonanceBuilder import ResonanceBuilder
+    from PhysicsTools.HeppyCore.analyzers.ResonanceBuilder import ResonanceBuilder
     zeds = cfg.Analyzer(
       ResonanceBuilder,
       output = 'zeds',
@@ -30,7 +30,7 @@ class ResonanceBuilder(Analyzer):
 
     * pdgid : pythia code for the target resonance. 
 
-    See Resonance2 and heppy.particles.tlv.Resonance for more information 
+    See Resonance2 and PhysicsTools.HeppyCore.particles.tlv.Resonance for more information 
     '''
     
     def process(self, event):

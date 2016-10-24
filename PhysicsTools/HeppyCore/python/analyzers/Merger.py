@@ -1,4 +1,4 @@
-from heppy.framework.analyzer import Analyzer
+from PhysicsTools.HeppyCore.framework.analyzer import Analyzer
 import copy
 import itertools
 
@@ -9,7 +9,7 @@ class Merger(Analyzer):
         
         Example: 
     
-        from heppy.analyzers.Merger import Merger
+        from PhysicsTools.HeppyCore.analyzers.Merger import Merger
         merge_particles = cfg.Analyzer(
             Merger,
             instance_label = 'leptons', 

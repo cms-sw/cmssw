@@ -1,7 +1,7 @@
 import numpy as np
 import scipy as sp
 import scipy.interpolate
-import heppy.statistics.rrandom as random
+import PhysicsTools.HeppyCore.statistics.rrandom as random
 
 
 class ROC(object):

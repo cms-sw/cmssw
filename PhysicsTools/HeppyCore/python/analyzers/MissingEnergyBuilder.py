@@ -1,6 +1,6 @@
-from heppy.framework.analyzer import Analyzer
+from PhysicsTools.HeppyCore.framework.analyzer import Analyzer
 
-from heppy.particles.tlv.particle import Particle
+from PhysicsTools.HeppyCore.particles.tlv.particle import Particle
 from ROOT import TVector3, TLorentzVector
 
 class MissingEnergyBuilder(Analyzer):

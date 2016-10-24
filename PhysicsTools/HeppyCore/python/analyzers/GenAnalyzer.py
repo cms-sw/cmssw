@@ -1,6 +1,6 @@
-from heppy.framework.analyzer import Analyzer
-from heppy.particles.genbrowser import GenBrowser
-from heppy.particles.pdgcodes import hasBottom
+from PhysicsTools.HeppyCore.framework.analyzer import Analyzer
+from PhysicsTools.HeppyCore.particles.genbrowser import GenBrowser
+from PhysicsTools.HeppyCore.particles.pdgcodes import hasBottom
 
 class GenAnalyzer(Analyzer):
     

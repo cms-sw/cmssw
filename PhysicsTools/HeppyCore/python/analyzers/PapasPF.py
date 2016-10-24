@@ -1,14 +1,14 @@
-from heppy.framework.analyzer import Analyzer
-from heppy.particles.fcc.particle import Particle 
+from PhysicsTools.HeppyCore.framework.analyzer import Analyzer
+from PhysicsTools.HeppyCore.particles.fcc.particle import Particle 
 
 import math
-from heppy.papas.simulator import Simulator
-from heppy.papas.vectors import Point
-from heppy.papas.pfobjects import Particle as PFSimParticle
-from heppy.papas.toyevents import particles
-from heppy.display.core import Display
-from heppy.display.geometry import GDetector
-from heppy.display.pfobjects import GTrajectories
+from PhysicsTools.HeppyCore.papas.simulator import Simulator
+from PhysicsTools.HeppyCore.papas.vectors import Point
+from PhysicsTools.HeppyCore.papas.pfobjects import Particle as PFSimParticle
+from PhysicsTools.HeppyCore.papas.toyevents import particles
+from PhysicsTools.HeppyCore.display.core import Display
+from PhysicsTools.HeppyCore.display.geometry import GDetector
+from PhysicsTools.HeppyCore.display.pfobjects import GTrajectories
 
 from ROOT import TLorentzVector, TVector3
 
@@ -18,8 +18,8 @@ class PapasPF(Analyzer):
 
     Example configuration: 
 
-    from heppy.analyzers.PapasPF import PapasPF
-    from heppy.papas.detectors.CMS import CMS
+    from PhysicsTools.HeppyCore.analyzers.PapasPF import PapasPF
+    from PhysicsTools.HeppyCore.papas.detectors.CMS import CMS
     papas = cfg.Analyzer(
         PapasPF,
         instance_label = 'papas',              

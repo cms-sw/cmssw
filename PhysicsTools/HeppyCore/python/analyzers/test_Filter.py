@@ -3,8 +3,8 @@ import os
 import shutil
 import tempfile
 from Filter import Filter 
-from heppy.framework.event import Event
-import heppy.framework.config as cfg
+from PhysicsTools.HeppyCore.framework.event import Event
+import PhysicsTools.HeppyCore.framework.config as cfg
 
 class FilterTestCase(unittest.TestCase):
 

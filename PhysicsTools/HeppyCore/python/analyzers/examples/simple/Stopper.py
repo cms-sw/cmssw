@@ -1,5 +1,5 @@
-from heppy.framework.analyzer import Analyzer
-from heppy.framework.exceptions import UserStop
+from PhysicsTools.HeppyCore.framework.analyzer import Analyzer
+from PhysicsTools.HeppyCore.framework.exceptions import UserStop
 
 class Stopper(Analyzer):
 

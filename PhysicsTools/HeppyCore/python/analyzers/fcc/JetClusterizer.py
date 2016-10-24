@@ -1,7 +1,7 @@
-from heppy.framework.analyzer import Analyzer
-from heppy.framework.event import Event
-from heppy.particles.tlv.jet import Jet
-from heppy.particles.jet import JetConstituents
+from PhysicsTools.HeppyCore.framework.analyzer import Analyzer
+from PhysicsTools.HeppyCore.framework.event import Event
+from PhysicsTools.HeppyCore.particles.tlv.jet import Jet
+from PhysicsTools.HeppyCore.particles.jet import JetConstituents
 
 import os 
 
@@ -13,7 +13,7 @@ if os.environ.get('FCCPHYSICS'):
 elif os.environ.get('CMSSW_BASE'):
     gSystem.Load("libColinPFSim")
     from ROOT import heppy
-    CCJetClusterizer = heppy.JetClusterizer
+    CCJetClusterizer = PhysicsTools.HeppyCore.JetClusterizer
 
 import math
     
@@ -25,7 +25,7 @@ class JetClusterizer(Analyzer):
 
     Example configuration: 
 
-    from heppy.analyzers.fcc.JetClusterizer import JetClusterizer
+    from PhysicsTools.HeppyCore.analyzers.fcc.JetClusterizer import JetClusterizer
     jets = cfg.Analyzer(
       JetClusterizer,
       output = 'jets',

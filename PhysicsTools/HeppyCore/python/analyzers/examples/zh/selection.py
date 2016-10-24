@@ -1,5 +1,5 @@
-from heppy.framework.analyzer import Analyzer
-from heppy.statistics.counter import Counter
+from PhysicsTools.HeppyCore.framework.analyzer import Analyzer
+from PhysicsTools.HeppyCore.statistics.counter import Counter
 
 class Selection(Analyzer):
 

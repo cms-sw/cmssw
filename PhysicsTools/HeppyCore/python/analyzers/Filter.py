@@ -1,4 +1,4 @@
-from heppy.framework.analyzer import Analyzer
+from PhysicsTools.HeppyCore.framework.analyzer import Analyzer
 import collections
 
 class Filter(Analyzer):
@@ -7,7 +7,7 @@ class Filter(Analyzer):
 
     Example:
     
-    from heppy.analyzers.Filter import Filter
+    from PhysicsTools.HeppyCore.analyzers.Filter import Filter
     def is_lepton(ptc):
       """Returns true if the particle energy is larger than 5 GeV
       and if its pdgid is +-11 (electrons) or +-13 (muons)
