@@ -3,7 +3,7 @@
 // .L CalibTree.C+g
 //  Run(inFileName, dirName, treeName, outFileName, corrFileName, dupFileName,
 //     useweight, useMean, nMin, inverse, ratMin, ratMax, ietaMax, applyL1Cut,
-//     l1Cut, truncateFlag, sysmode, fraction, writeDebugHisto, debug);
+//     l1Cut, truncateFlag, sysmode, fraction, maxIter, writeDebugHisto, debug);
 //
 //  where:
 //
@@ -13,7 +13,9 @@
 //                              ("HcalIsoTrkAnalyzer")
 //  treeName    (std::string) = name of the Tree ("CalibTree")
 //  outFileName (std::string) = name of the output ROOT file
-//                              ("Silver_Out.root")
+//                              ("Silver_out.root")
+//  corrFileName(std::string) = name of the output text file with correction
+//                              factors ("Silver_corr.txt")
 //  dupFileName (std::string) = name of the file containing list of sequence
 //                              numbers of duplicate entry ("events_DXS2.txt")
 //  useweight   (bool)        = Flag to use event weight (True)
@@ -35,6 +37,7 @@
 //                              HB as depth 1 (True -- treat together)
 //  sysmode         (int)     = systematic error study (0 if default)
 //  fraction        (double)  = fraction of events to be done (-1)    
+//  maxIter         (int)     = number of iterations
 //  writeDebugHisto (bool)    = Flag to check writing intermediate histograms
 //                              in o/p file (False)
 //  debug           (bool)    = To produce more debug printing on screen
@@ -66,14 +69,14 @@
 void Run(const char *inFileName="Silver",
 	 const char *dirName="HcalIsoTrkAnalyzer",
 	 const char *treeName="CalibTree",
-	 const char *outFileName="Silver_Out.root",
-	 const char *corrFileName="Silver_Input.txt",
+	 const char *outFileName="Silver_out.root",
+	 const char *corrFileName="Silver_corr.txt",
 	 const char *dupFileName="events_DXS2.txt", 
 	 bool useweight=true, bool useMean=true, int nMin=0, bool inverse=false,
 	 double ratMin=0.25, double ratMax=3., int ietaMax=25, 
 	 int applyL1Cut=1, double l1Cut=0.5, bool truncateFlag=true,
-	 int sysmode=0, double fraction=1.0, bool writeDebugHisto=false,
-	 bool debug=false);
+	 int sysmode=0, double fraction=1.0, int maxIter=30,
+	 bool writeDebugHisto=false, bool debug=false);
 
 // Fixed size dimensions of array or collections stored in the TTree if any.
 
@@ -106,6 +109,7 @@ public :
   Bool_t                     t_qltyFlag;
   Bool_t                     t_qltyMissFlag;
   Bool_t                     t_qltyPVFlag;
+  Double_t                   t_gentrackP;
   std::vector<unsigned int> *t_DetIds;
   std::vector<double>       *t_HitEnergies;
   std::vector<bool>         *t_trgbits;
@@ -134,6 +138,7 @@ public :
   TBranch                   *b_t_qltyFlag;      //!
   TBranch                   *b_t_qltyMissFlag;  //!
   TBranch                   *b_t_qltyPVFlag;    //!
+  TBranch                   *b_t_gentrackP;     //!
   TBranch                   *b_t_DetIds;        //!
   TBranch                   *b_t_HitEnergies;   //!
   TBranch                   *b_t_trgbits;       //!
@@ -186,7 +191,7 @@ void doIt(const char* infile, const char* dup) {
     sprintf (outf2, "%s_%d.txt",  infile, k);
     double lumi = (k==0) ? -1 : lumt;
     lumt *= fac;
-    Run(infile,"HcalIsoTrkAnalyzer","CalibTree",outf1,outf2,dup,true,true,0,true,0.25,5.0,25,1,0.5,false,0,lumi,false,false);
+    Run(infile,"HcalIsoTrkAnalyzer","CalibTree",outf1,outf2,dup,true,true,0,true,0.25,5.0,25,1,0.5,false,0,lumi,30,false,false);
   
   }
 }
@@ -196,7 +201,7 @@ void Run(const char *inFileName, const char *dirName, const char *treeName,
 	 const char *dupFileName, bool useweight, bool useMean, int nMin, 
 	 bool inverse, double ratMin, double ratMax, int ietaMax, 
 	 int applyL1Cut, double l1Cut, bool truncateFlag, int sysmode,
-	 double fraction, bool writeHisto, bool debug) {
+	 double fraction, int maxIter, bool writeHisto, bool debug) {
  
   char name[500];
   sprintf(name, "%s.root",inFileName);
@@ -209,7 +214,7 @@ void Run(const char *inFileName, const char *dirName, const char *treeName,
   std::cout << "Tree " << treeName << " " << tree << " in directory " 
 	    << dirName << " from file " << name << " with nentries (tracks): " 
 	    << nentries << std::endl;
-  unsigned int k(0), kmax(30);
+  unsigned int k(0), kmax(maxIter);
   CalibTree t(dupFileName, truncateFlag, useMean, sysmode, tree); 
   t.h_pbyE      = new TH1D("pbyE", "pbyE", 100, -1.0, 9.0);
   t.h_Ebyp_bfr  = new TProfile("Ebyp_bfr","Ebyp_bfr",60,-30,30,0,10);
@@ -330,6 +335,7 @@ void CalibTree::Init(TTree *tree, const char *dupFileName) {
   fChain->SetBranchAddress("t_qltyFlag", &t_qltyFlag, &b_t_qltyFlag);
   fChain->SetBranchAddress("t_qltyMissFlag", &t_qltyMissFlag, &b_t_qltyMissFlag);
   fChain->SetBranchAddress("t_qltyPVFlag", &t_qltyPVFlag, &b_t_qltyPVFlag);
+  fChain->SetBranchAddress("t_gentrackP", &t_gentrackP, &b_t_gentrackP);
   fChain->SetBranchAddress("t_DetIds", &t_DetIds, &b_t_DetIds);
   fChain->SetBranchAddress("t_HitEnergies", &t_HitEnergies, &b_t_HitEnergies);
   fChain->SetBranchAddress("t_trgbits", &t_trgbits, &b_t_trgbits);
