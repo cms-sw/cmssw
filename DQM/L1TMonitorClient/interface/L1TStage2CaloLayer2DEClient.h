@@ -5,9 +5,6 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/DQMEDHarvester.h"
 
-#include "TRandom3.h"
-#include <vector>
-
 class L1TStage2CaloLayer2DEClient: public DQMEDHarvester {
   
  public:
@@ -29,17 +26,6 @@ class L1TStage2CaloLayer2DEClient: public DQMEDHarvester {
   std::string input_dir_data_;
   std::string input_dir_emul_;
 
-  std::vector<std::string> summaryLabels = {"Central Jet iEt", "Central Jet iPhi", "Central Jet iEta",
-					    "Forward Jet iEt", "Forward Jet iPhi", "Forward Jet iEta",
-					    "Isolated EG iEt", "Isolated EG iPhi", "Isolated EG iEta",
-					    "Non-isolated EG iEt", "Non-isolated EG iPhi", "Non-isolated EG iEta",
-					    "Isolated Tau iEt", "Isolated Tau iPhi", "Isolated Tau iEta",
-					    "Non-isolated Tau iEt", "Non-isolated Tau iPhi", "Non-isolated Tau iEta",
-					    "MET Rank", "MET iPhi", "METHF Rank", "METHF iPhi",
-					    "MHT Rank", "MHT iPhi", "MHTHF Rank", "MHTHF iPhi",
-					    "ETT Rank", "ETTHF Rank", "HTT Rank", "HTTHF Rank",
-					    "MinBiasHFP0", "MinBiasHFM0", "MinBiasHFP1", "MinBiasHFM1",
-					    "ETTEM Rank"};
   MonitorElement* CenJetRankComp_;
   MonitorElement* CenJetEtaComp_;
   MonitorElement* CenJetPhiComp_;
@@ -59,14 +45,25 @@ class L1TStage2CaloLayer2DEClient: public DQMEDHarvester {
   MonitorElement* TauEtaComp_;
   MonitorElement* TauPhiComp_;
   MonitorElement* METComp_;
+  MonitorElement* METPhiComp_;
+  MonitorElement* METHFComp_;
+  MonitorElement* METHFPhiComp_;
   MonitorElement* MHTComp_;
+  MonitorElement* MHTPhiComp_;
+  MonitorElement* MHTHFComp_;
+  MonitorElement* MHTHFPhiComp_;
   MonitorElement* ETTComp_;
   MonitorElement* HTTComp_;
+  MonitorElement* MinBiasHFP0Comp_;
+  MonitorElement* MinBiasHFM0Comp_;
+  MonitorElement* MinBiasHFP1Comp_;
+  MonitorElement* MinBiasHFM1Comp_;
+  MonitorElement* ETTEMComp_;
+  MonitorElement* TowerCountComp_;
   
   MonitorElement* SummaryPlot_;
 
-  void addObjToSummary(DQMStore::IGetter & getter, TH1F * hist, std::string objPath, const char * binLabel);// ,
-		       //		     std::string inputDirData, std::string inputDirEmu);
+  void addObjToSummary(DQMStore::IGetter & getter, TH1F * hist, std::string objPath, const char * binLabel);
 };
 
 #endif
