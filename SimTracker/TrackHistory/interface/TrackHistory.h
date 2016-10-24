@@ -65,10 +65,10 @@ public:
     }
     
     // return the TrackingParticle to which the Track was matched
-    const std::pair<TrackingParticleRef, double>  GetMatchedTrackingParticle() const
+    const std::pair<TrackingParticleRef, double>  getMatchedTrackingParticle() const
     {
     	std::pair<TrackingParticleRef, double> result;
-    	result.first = TrackingParticle_;
+    	result.first = trackingParticle_;
     	result.second = quality_;
     	
     	return result;
@@ -97,7 +97,7 @@ private:
 
     reco::TrackBaseRef recotrack_;
     
-    TrackingParticleRef TrackingParticle_;
+    TrackingParticleRef trackingParticle_;
 
     reco::RecoToSimCollection recoToSim_;
 
