@@ -1,7 +1,7 @@
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/Framework/interface/EDFilter.h"
-#include "FWCore/Framework/interface/OutputModule.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDFilter.h"
+#include "FWCore/Framework/interface/one/OutputModule.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "FWCore/Framework/interface/Event.h"
@@ -28,7 +28,7 @@ namespace edm {
 namespace edmtest
 {
 
-  class TestResultAnalyzer : public edm::EDAnalyzer
+  class TestResultAnalyzer : public edm::one::EDAnalyzer<>
   {
   public:
     explicit TestResultAnalyzer(edm::ParameterSet const&);
@@ -43,13 +43,21 @@ namespace edmtest
     bool   dump_;
     std::string name_;
     int    numbits_;
+  };
+
+  class TestContextAnalyzer : public edm::global::EDAnalyzer<>
+  {
+  public:
+    explicit TestContextAnalyzer( edm::ParameterSet const&);
+    
+    virtual void analyze(edm::StreamID, edm::Event const& e, edm::EventSetup const& c) const override;
     std::string expected_pathname_; // if empty, we don't know
     std::string expected_modulelabel_; // if empty, we don't know
   };
 
   // -------
 
-  class TestFilterModule : public edm::EDFilter
+  class TestFilterModule : public edm::one::EDFilter<>
   {
   public:
     explicit TestFilterModule(edm::ParameterSet const&);
@@ -66,12 +74,13 @@ namespace edmtest
 
   // -------
 
-  class SewerModule : public edm::OutputModule
+  class SewerModule : public edm::one::OutputModule<>
   {
   public:
     explicit SewerModule(edm::ParameterSet const&);
     virtual ~SewerModule();
 
+    static void fillDescriptions(ConfigurationDescriptions& descriptions);
   private:
     virtual void write(edm::EventForOutput const& e) override;
     virtual void writeLuminosityBlock(edm::LuminosityBlockForOutput const&) override {}
@@ -90,9 +99,7 @@ namespace edmtest
     failed_(),
     dump_(ps.getUntrackedParameter<bool>("dump",false)),
     name_(ps.getUntrackedParameter<std::string>("name","DEFAULT")),
-    numbits_(ps.getUntrackedParameter<int>("numbits",-1)),
-    expected_pathname_(ps.getUntrackedParameter<std::string>("pathname", "")),
-    expected_modulelabel_(ps.getUntrackedParameter<std::string>("modlabel", ""))
+    numbits_(ps.getUntrackedParameter<int>("numbits",-1))
   {
     consumesMany<edm::TriggerResults>();
   }
@@ -106,16 +113,6 @@ namespace edmtest
     typedef std::vector<edm::Handle<edm::TriggerResults> > Trig;
     Trig prod;
     e.getManyByType(prod);
-
-    assert(e.moduleCallingContext()->moduleDescription()->moduleLabel() == moduleDescription().moduleLabel());
-
-    if( !expected_pathname_.empty() ) {
-      assert( expected_pathname_ == e.moduleCallingContext()->placeInPathContext()->pathContext()->pathName());
-    }
-
-    if( !expected_modulelabel_.empty() ) {
-      assert(expected_modulelabel_ == moduleDescription().moduleLabel());
-    }
 
     if(prod.size() == 0) return;
     if(prod.size() > 1) {
@@ -140,6 +137,28 @@ namespace edmtest
   {
     std::cerr << "TESTRESULTANALYZER " << name_ << ": "
 	 << "passed=" << passed_ << " failed=" << failed_ << "\n";
+  }
+
+  // ---------
+
+  
+  TestContextAnalyzer::TestContextAnalyzer(edm::ParameterSet const& ps):
+  expected_pathname_(ps.getUntrackedParameter<std::string>("pathname", "")),
+  expected_modulelabel_(ps.getUntrackedParameter<std::string>("modlabel", ""))
+  {
+  }
+  
+  void TestContextAnalyzer::analyze(edm::StreamID, edm::Event const& e,edm::EventSetup const&) const
+  {
+    assert(e.moduleCallingContext()->moduleDescription()->moduleLabel() == moduleDescription().moduleLabel());
+    
+    if( !expected_pathname_.empty() ) {
+      assert( expected_pathname_ == e.moduleCallingContext()->placeInPathContext()->pathContext()->pathName());
+    }
+    
+    if( !expected_modulelabel_.empty() ) {
+      assert(expected_modulelabel_ == moduleDescription().moduleLabel());
+    }
   }
 
   // ---------
@@ -173,7 +192,8 @@ namespace edmtest
   // ---------
 
   SewerModule::SewerModule(edm::ParameterSet const& ps):
-    edm::OutputModule(ps),
+    edm::one::OutputModuleBase::OutputModuleBase(ps),
+    edm::one::OutputModule<>(ps),
     name_(ps.getParameter<std::string>("name")),
     num_pass_(ps.getParameter<int>("shouldPass")),
     total_()
@@ -201,13 +221,27 @@ namespace edmtest
 	abort();
       }
   }
+  
+  void
+  SewerModule::fillDescriptions(ConfigurationDescriptions& descriptions) {
+    ParameterSetDescription desc;
+    desc.setComment("Tracks number of times the write method is called.");
+    desc.add<std::string>("name")
+    ->setComment("name used in printout");
+    desc.add<int>("shouldPass")
+    ->setComment("number of times write should be called");
+    edm::OutputModule::fillDescription(desc, std::vector<std::string>(1U, std::string("drop *")));
+    descriptions.add("sewerModule", desc);
+  }
+
 }
 
 using edmtest::TestFilterModule;
 using edmtest::TestResultAnalyzer;
 using edmtest::SewerModule;
-
+using edmtest::TestContextAnalyzer;
 
 DEFINE_FWK_MODULE(TestFilterModule);
 DEFINE_FWK_MODULE(TestResultAnalyzer);
 DEFINE_FWK_MODULE(SewerModule);
+DEFINE_FWK_MODULE(TestContextAnalyzer);

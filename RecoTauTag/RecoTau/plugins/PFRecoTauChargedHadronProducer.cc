@@ -150,15 +150,15 @@ void PFRecoTauChargedHadronProducer::produce(edm::Event& evt, const edm::EventSe
   reco::PFJetRefVector pfJets = reco::tau::castView<reco::PFJetRefVector>(jets);
 
   // make our association
-  std::auto_ptr<reco::PFJetChargedHadronAssociation> pfJetChargedHadronAssociations;
+  std::unique_ptr<reco::PFJetChargedHadronAssociation> pfJetChargedHadronAssociations;
 
 
   if ( pfJets.size() ) {
     edm::Handle<reco::PFJetCollection> pfJetCollectionHandle;
     evt.get(pfJets.id(), pfJetCollectionHandle);
-    pfJetChargedHadronAssociations.reset(new reco::PFJetChargedHadronAssociation(reco::PFJetRefProd(pfJetCollectionHandle)));
+    pfJetChargedHadronAssociations = std::make_unique<reco::PFJetChargedHadronAssociation>(reco::PFJetRefProd(pfJetCollectionHandle));
   } else {
-    pfJetChargedHadronAssociations.reset(new reco::PFJetChargedHadronAssociation);
+    pfJetChargedHadronAssociations = std::make_unique<reco::PFJetChargedHadronAssociation>();
   }
 
   // loop over our jets
@@ -289,7 +289,7 @@ void PFRecoTauChargedHadronProducer::produce(edm::Event& evt, const edm::EventSe
     pfJetChargedHadronAssociations->setValue(pfJet.key(), cleanedChargedHadrons);
   }
 
-  evt.put(pfJetChargedHadronAssociations);
+  evt.put(std::move(pfJetChargedHadronAssociations));
 }
 
 template <typename T>

@@ -27,6 +27,7 @@
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
+#include "Geometry/CaloTopology/interface/HcalTopology.h"
 
 #include <vector>
 #include <utility>
@@ -59,6 +60,8 @@ class HcalRecHitsAnalyzer : public DQMEDAnalyzer {
 
   virtual void analyze(edm::Event const& ev, edm::EventSetup const& c) override;
   virtual void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
+  //virtual void beginRun(edm::Run const& run, edm::EventSetup const& c) override;
+  virtual void dqmBeginRun(const edm::Run& run, const edm::EventSetup& c);
  private:
   
   virtual void fillRecHitsTmp(int subdet_, edm::Event const& ev);
@@ -73,7 +76,12 @@ class HcalRecHitsAnalyzer : public DQMEDAnalyzer {
   std::string sign_;
   std::string mc_;
   bool        famos_;
-  bool        useAllHistos_;
+
+  const HcalDDDRecConstants *hcons;
+  int                        maxDepthHB_, maxDepthHE_, maxDepthHO_, maxDepthHF_, maxDepthAll_;
+
+
+  int nChannels_[5]; // 0:any, 1:HB, 2:HE
 
   //RecHit Collection input tags
   edm::EDGetTokenT<HBHERecHitCollection> tok_hbhe_;
@@ -81,7 +89,6 @@ class HcalRecHitsAnalyzer : public DQMEDAnalyzer {
   edm::EDGetTokenT<HFRecHitCollection> tok_hf_;
   edm::EDGetTokenT<EBRecHitCollection> tok_EB_;
   edm::EDGetTokenT<EERecHitCollection> tok_EE_;
-
 
   // choice of subdetector in config : noise/HB/HE/HO/HF/ALL (0/1/2/3/4/5)
   int subdet_;
@@ -105,44 +112,10 @@ class HcalRecHitsAnalyzer : public DQMEDAnalyzer {
   MonitorElement* sevLvl_HO; 
 
   // RecHits counters
-  MonitorElement* Nhb;
-  MonitorElement* Nhe;
-  MonitorElement* Nho;
-  MonitorElement* Nhf;
-
-  // ZS-specific
-
-  MonitorElement* map_depth1;
-  MonitorElement* map_depth2;
-  MonitorElement* map_depth3;
-  MonitorElement* map_depth4;
-
-  MonitorElement* ZS_HB1;
-  MonitorElement* ZS_HB2;
-  MonitorElement* ZS_HE1;
-  MonitorElement* ZS_HE2;
-  MonitorElement* ZS_HE3;
-  MonitorElement* ZS_HO;
-  MonitorElement* ZS_HF1;
-  MonitorElement* ZS_HF2;
-
-  MonitorElement* ZS_nHB1;
-  MonitorElement* ZS_nHB2;
-  MonitorElement* ZS_nHE1;
-  MonitorElement* ZS_nHE2;
-  MonitorElement* ZS_nHE3;
-  MonitorElement* ZS_nHO;
-  MonitorElement* ZS_nHF1;
-  MonitorElement* ZS_nHF2;
-
-  MonitorElement* ZS_seqHB1;
-  MonitorElement* ZS_seqHB2;
-  MonitorElement* ZS_seqHE1;
-  MonitorElement* ZS_seqHE2;
-  MonitorElement* ZS_seqHE3;
-  MonitorElement* ZS_seqHO;
-  MonitorElement* ZS_seqHF1;
-  MonitorElement* ZS_seqHF2;
+  std::vector<MonitorElement*> Nhb;
+  std::vector<MonitorElement*> Nhe;
+  std::vector<MonitorElement*> Nho;
+  std::vector<MonitorElement*> Nhf;
 
   // In ALL other cases : 2D ieta-iphi maps 
   // without and with cuts (a la "Scheme B") on energy
@@ -151,110 +124,30 @@ class HcalRecHitsAnalyzer : public DQMEDAnalyzer {
 
   MonitorElement* map_ecal;
 
-  MonitorElement* emap_depth1;
-  MonitorElement* emap_depth2;
-  MonitorElement* emap_depth3;
-  MonitorElement* emap_depth4;
+  std::vector<MonitorElement*> emap;
 
-  MonitorElement* emean_vs_ieta_HB1;
-  MonitorElement* emean_vs_ieta_HB2;
-  MonitorElement* emean_vs_ieta_HE1;
-  MonitorElement* emean_vs_ieta_HE2;
-  MonitorElement* emean_vs_ieta_HE3;
-  MonitorElement* emean_vs_ieta_HO;
-  MonitorElement* emean_vs_ieta_HF1;
-  MonitorElement* emean_vs_ieta_HF2;
+  std::vector<MonitorElement*> emean_vs_ieta_HB;
+  std::vector<MonitorElement*> emean_vs_ieta_HE;
+  std::vector<MonitorElement*> emean_vs_ieta_HF;
+  MonitorElement              *emean_vs_ieta_HO;
 
-  MonitorElement* RMS_vs_ieta_HB1;
-  MonitorElement* RMS_vs_ieta_HB2;
-  MonitorElement* RMS_vs_ieta_HE1;
-  MonitorElement* RMS_vs_ieta_HE2;
-  MonitorElement* RMS_vs_ieta_HE3;
-  MonitorElement* RMS_vs_ieta_HO;
-  MonitorElement* RMS_vs_ieta_HF1;
-  MonitorElement* RMS_vs_ieta_HF2;
+  std::vector<MonitorElement*> occupancy_map_HB;
+  std::vector<MonitorElement*> occupancy_map_HE;
+  std::vector<MonitorElement*> occupancy_map_HF;
+  MonitorElement              *occupancy_map_HO;
 
-  MonitorElement* emean_seqHB1;
-  MonitorElement* emean_seqHB2;
-  MonitorElement* emean_seqHE1;
-  MonitorElement* emean_seqHE2;
-  MonitorElement* emean_seqHE3;
-  MonitorElement* emean_seqHO;
-  MonitorElement* emean_seqHF1;
-  MonitorElement* emean_seqHF2;
+  std::vector<MonitorElement*> occupancy_vs_ieta_HB;
+  std::vector<MonitorElement*> occupancy_vs_ieta_HE;
+  std::vector<MonitorElement*> occupancy_vs_ieta_HF;
+  MonitorElement              *occupancy_vs_ieta_HO;
 
-  MonitorElement* RMS_seq_HB1;
-  MonitorElement* RMS_seq_HB2;
-  MonitorElement* RMS_seq_HE1;
-  MonitorElement* RMS_seq_HE2;
-  MonitorElement* RMS_seq_HE3;
-  MonitorElement* RMS_seq_HO;
-  MonitorElement* RMS_seq_HF1;
-  MonitorElement* RMS_seq_HF2;
-
-  MonitorElement* occupancy_map_HB1;
-  MonitorElement* occupancy_map_HB2;
-  MonitorElement* occupancy_map_HE1;
-  MonitorElement* occupancy_map_HE2;
-  MonitorElement* occupancy_map_HE3;
-  MonitorElement* occupancy_map_HO;
-  MonitorElement* occupancy_map_HF1;
-  MonitorElement* occupancy_map_HF2;
-
-  MonitorElement* occupancy_vs_ieta_HB1;
-  MonitorElement* occupancy_vs_ieta_HB2;
-  MonitorElement* occupancy_vs_ieta_HE1;
-  MonitorElement* occupancy_vs_ieta_HE2;
-  MonitorElement* occupancy_vs_ieta_HE3;
-  MonitorElement* occupancy_vs_ieta_HO;
-  MonitorElement* occupancy_vs_ieta_HF1;
-  MonitorElement* occupancy_vs_ieta_HF2;
-
-  MonitorElement* occupancy_seqHB1;
-  MonitorElement* occupancy_seqHB2;
-  MonitorElement* occupancy_seqHE1;
-  MonitorElement* occupancy_seqHE2;
-  MonitorElement* occupancy_seqHE3;
-  MonitorElement* occupancy_seqHO;
-  MonitorElement* occupancy_seqHF1;
-  MonitorElement* occupancy_seqHF2;
-
-
-  // also - energy in the cone around MC particle
-  MonitorElement* map_econe_depth1;
-  MonitorElement* map_econe_depth2;
-  MonitorElement* map_econe_depth3;
-  MonitorElement* map_econe_depth4;
- 
   // for single monoenergetic particles - cone collection profile vs ieta.
-  MonitorElement* meEnConeEtaProfile_depth1;
-  MonitorElement* meEnConeEtaProfile_depth2;
-  MonitorElement* meEnConeEtaProfile_depth3;
-  MonitorElement* meEnConeEtaProfile_depth4;
   MonitorElement* meEnConeEtaProfile;
   MonitorElement* meEnConeEtaProfile_E;
   MonitorElement* meEnConeEtaProfile_EH;
   // Single particles - deviation of cluster from MC truth
   MonitorElement* meDeltaPhi;
   MonitorElement* meDeltaEta;
-
-  //----------- NOISE case
-  MonitorElement* e_hb;
-  MonitorElement* e_he;
-  MonitorElement* e_ho;
-  MonitorElement* e_hfl;
-  MonitorElement* e_hfs;
-
-  // number of rechits above threshold 1GEV
-  MonitorElement* meNumRecHitsThreshHB;
-  MonitorElement* meNumRecHitsThreshHE;
-  MonitorElement* meNumRecHitsThreshHO;
-
-  // number of rechits in the cone
-  MonitorElement* meNumRecHitsConeHB;
-  MonitorElement* meNumRecHitsConeHE;
-  MonitorElement* meNumRecHitsConeHO;
-  MonitorElement* meNumRecHitsConeHF;
 
   // time?
   MonitorElement* meTimeHB;
@@ -271,16 +164,12 @@ class HcalRecHitsAnalyzer : public DQMEDAnalyzer {
   MonitorElement* meTE_Low_HB;
   MonitorElement* meTE_HB;
   MonitorElement* meTE_High_HB;
-  MonitorElement* meTE_HB1;
-  MonitorElement* meTE_HB2;
   MonitorElement* meTEprofileHB_Low;
   MonitorElement* meTEprofileHB;
   MonitorElement* meTEprofileHB_High;
 
   MonitorElement* meTE_Low_HE;
   MonitorElement* meTE_HE;
-  MonitorElement* meTE_HE1;
-  MonitorElement* meTE_HE2;
   MonitorElement* meTEprofileHE_Low;
   MonitorElement* meTEprofileHE;
 
@@ -291,8 +180,6 @@ class HcalRecHitsAnalyzer : public DQMEDAnalyzer {
 
   MonitorElement* meTE_Low_HF;
   MonitorElement* meTE_HF;
-  MonitorElement* meTE_HFL;
-  MonitorElement* meTE_HFS;
   MonitorElement* meTEprofileHF_Low;
   MonitorElement* meTEprofileHF;
 
@@ -358,9 +245,6 @@ class HcalRecHitsAnalyzer : public DQMEDAnalyzer {
   std::vector<double>   cz;
   std::vector<uint32_t> cstwd;
   std::vector<uint32_t> cauxstwd;
-
-  // array or min. e-values  ieta x iphi x depth x subdet
-  double emap_min[82][72][4][4];
 
   // counter
   int nevtot;

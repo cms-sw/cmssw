@@ -118,17 +118,9 @@ namespace edm {
     ///Put a new product.
     template<typename PROD>
     OrphanHandle<PROD>
-    put(std::auto_ptr<PROD> product) {return put<PROD>(product, std::string());}
-
-    template<typename PROD>
-    OrphanHandle<PROD>
     put(std::unique_ptr<PROD> product) {return put<PROD>(std::move(product), std::string());}
 
     ///Put a new product with a 'product instance name'
-    template<typename PROD>
-    OrphanHandle<PROD>
-    put(std::auto_ptr<PROD> product, std::string const& productInstanceName);
-
     template<typename PROD>
     OrphanHandle<PROD>
     put(std::unique_ptr<PROD> product, std::string const& productInstanceName);
@@ -367,11 +359,6 @@ namespace edm {
       return true;
   }
 
-  template<typename PROD>
-  OrphanHandle<PROD>
-  Event::put(std::auto_ptr<PROD> product, std::string const& productInstanceName) {
-    return put(std::unique_ptr<PROD>(product.release()),productInstanceName);
-  }
   template<typename PROD>
   OrphanHandle<PROD>
   Event::put(std::unique_ptr<PROD> product, std::string const& productInstanceName) {

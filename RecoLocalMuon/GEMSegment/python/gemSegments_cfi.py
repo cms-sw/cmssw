@@ -15,5 +15,4 @@ gemSegments = cms.EDProducer("GEMSegmentProducer",
         maxRecHitsInCluster = cms.int32(4),        # Does 4 make sense here?
         clusterOnlySameBXRecHits = cms.bool(True), # only working for (preClustering && preClusteringUseChaining)
     ),
-    useGE21Short = cms.bool(True),
 )

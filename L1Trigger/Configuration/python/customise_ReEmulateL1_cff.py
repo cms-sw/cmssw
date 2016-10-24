@@ -1,12 +1,12 @@
 import FWCore.ParameterSet.Config as cms
-
-from Configuration.StandardSequences.Eras import eras
+from Configuration.Eras.Modifier_stage2L1Trigger_cff import stage2L1Trigger
+from Configuration.Eras.Modifier_stage1L1Trigger_cff import stage1L1Trigger
 
 # this function expects an incomplete list of subsystems to emulate
 # and returns a complete list, to ensure all required subsystems are emulated
 def getSubsystemsToEmulate(subsys):
 
-    if not eras.stage2L1Trigger.isChosen():
+    if not stage2L1Trigger.isChosen():
         if 'ECAL' in subsys:
             subsys.append('RCT')
         if 'HCAL' in subsys:
@@ -33,7 +33,7 @@ def getSubsystemsToEmulate(subsys):
         if 'GMT' in subsys:
             subsys.append('GT')
 
-    if eras.stage1L1Trigger.isChosen():
+    if stage1L1Trigger.isChosen():
         if 'ECAL' in subsys:
             subsys.append('RCT')
         if 'HCAL' in subsys:
@@ -60,7 +60,7 @@ def getSubsystemsToEmulate(subsys):
         if 'GMT' in subsys:
             subsys.append('GT')
 
-    if eras.stage2L1Trigger.isChosen():
+    if stage2L1Trigger.isChosen():
         if 'ECAL' in subsys:
             subsys.append('CALOL1')
         if 'HCAL' in subsys:
@@ -169,7 +169,7 @@ def setInputTags(process, subsys):
 
 def modifySimL1EmulatorForReEmulation(SimL1Emulator_object, subsys=[]):
 
-    if not eras.stage2L1Trigger.isChosen():
+    if not stage2L1Trigger.isChosen():
 #        if 'ECAL' not in subsys:
 #            digiSeq_object.remove(simEcalTriggerPrimitiveDigis)
 #        if 'HCAL' not in subsys:
@@ -195,14 +195,14 @@ def modifySimL1EmulatorForReEmulation(SimL1Emulator_object, subsys=[]):
         if 'GT' not in subsys:
             SimL1Emulator_object.remove(simGtDigis)
 
-    if eras.stage1L1Trigger.isChosen():
+    if stage1L1Trigger.isChosen():
         if 'S1CALOL2' not in subsys:
             SimL1Emulator_object.remove(simRctUpgradeFormatDigis)
             SimL1Emulator_object.remove(simCaloStage1Digis)
             SimL1Emulator_object.remove(simCaloStage1FinalDigis)
             SimL1Emulator_object.remove(simCaloStage1LegacyFormatDigis)
 
-    if eras.stage1L1Trigger.isChosen():
+    if stage1L1Trigger.isChosen():
         if 'CALOL1' not in subsys:
             SimL1Emulator_object.remove(simCaloStage2Layer1Digis)
         if 'CALOL2' not in subsys:

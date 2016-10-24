@@ -1,3 +1,5 @@
+#include <algorithm>
+
 #include "RecoLocalCalo/HcalRecAlgos/interface/HFPreRecAlgo.h"
 
 #include "DataFormats/HcalDigi/interface/QIE10DataFrame.h"
@@ -10,7 +12,7 @@
 HFQIE10Info HFPreRecAlgo::reconstruct(const QIE10DataFrame& digi,
                                       const int tsToUse,
                                       const HcalCoder& coder,
-                                      const HcalCalibrations& calib)
+                                      const HcalCalibrations& calib) const
 {
     // Conversion from TDC to ns for the QIE10 chip
     static const float qie10_tdc_to_ns = 0.5f;
@@ -31,7 +33,37 @@ HFQIE10Info HFPreRecAlgo::reconstruct(const QIE10DataFrame& digi,
     coder.adc2fC(digi, cs);
     const int nRead = cs.size();
 
-    if (0 <= tsToUse && tsToUse < nRead)
+    // Number of raw samples to store in HFQIE10Info
+    const int nStore = std::min(nRead, static_cast<int>(HFQIE10Info::N_RAW_MAX));
+
+    if (sumAllTS_)
+    {
+        // This branch is intended for use with cosmic runs
+        double charge = 0.0, energy = 0.0;
+        HFQIE10Info::raw_type raw[HFQIE10Info::N_RAW_MAX];
+
+        for (int ts=0; ts<nRead; ++ts)
+        {
+            const QIE10DataFrame::Sample s(digi[ts]);
+            const int capid = s.capid();
+            const float q = cs[ts] - calib.pedestal(capid);
+            charge += q;
+            energy += q*calib.respcorrgain(capid);
+            if (ts < nStore)
+                raw[ts] = s.wideRaw();
+        }
+
+        // Timing measurement does not appear to be useful here
+        const float timeRising = HcalSpecialTimes::UNKNOWN_T_NOTDC;
+
+        // The following HFQIE10Info arguments correspond to SOI
+        // not stored in the raw data. Essentially, only charge
+        // and energy are meaningful.
+        result = HFQIE10Info(digi.id(), charge, energy,
+                             timeRising, timeFalling,
+                             raw, nStore, nStore);
+    }
+    else if (0 <= tsToUse && tsToUse < nRead)
     {
         const QIE10DataFrame::Sample s(digi[tsToUse]);
         const int capid = s.capid();
@@ -50,11 +82,8 @@ HFQIE10Info HFPreRecAlgo::reconstruct(const QIE10DataFrame& digi,
         // have the width given by "nStore" and
         // will start at "shift".
         int shift = 0;
-        int nStore = nRead;
         if (nRead > static_cast<int>(HFQIE10Info::N_RAW_MAX))
         {
-            nStore = HFQIE10Info::N_RAW_MAX;
-
             // Try to center the window on "tsToUse"
             const int winCenter = nStore/2;
             if (tsToUse > winCenter)

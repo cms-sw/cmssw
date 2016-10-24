@@ -244,6 +244,9 @@ def printStalledModulesInOrder(stalledModules):
 
 
 def createPDFImage(processingSteps, numStreams, stalledModuleInfo):
+  #need to force display since problems with CMSSW matplotlib
+  import matplotlib
+  matplotlib.use("PDF")
   import matplotlib.pyplot as plt
   
   stalledModuleNames = set([ x for x in stalledModuleInfo.iterkeys()])

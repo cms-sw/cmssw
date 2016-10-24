@@ -129,28 +129,21 @@ process.hgcaltriggerbestchoicetester = cms.EDAnalyzer(
     eeDigis = cms.InputTag('mix:HGCDigisEE'),
     fhDigis = cms.InputTag('mix:HGCDigisHEfront'),
     #bhDigis = cms.InputTag('mix:HGCDigisHEback'),
+    isSimhitComp = cms.bool(True),
+    eeSimHits = cms.InputTag('g4SimHits:HGCHitsEE'),
+    fhSimHits = cms.InputTag('g4SimHits:HGCHitsHEfront'),
+    #bhSimHits = cms.InputTag('g4SimHits:HGCHitsHEback'),
     beClustersAll = cms.InputTag('hgcalTriggerPrimitiveDigiProducer:SingleCellClusterAlgo'),
     beClustersSelect = cms.InputTag('hgcalTriggerPrimitiveDigiFEReproducer:SingleCellClusterAlgo'),
     TriggerGeometry = cms.PSet(
-        TriggerGeometryName = cms.string('HGCalTriggerGeometryHexImp1'),
+        TriggerGeometryName = cms.string('HGCalTriggerGeometryHexImp2'),
         L1TCellsMapping = cms.FileInPath("L1Trigger/L1THGCal/data/triggercell_mapping.txt"),
         L1TModulesMapping = cms.FileInPath("L1Trigger/L1THGCal/data/module_mapping.txt"),
         eeSDName = cms.string('HGCalEESensitive'),
         fhSDName = cms.string('HGCalHESiliconSensitive'),
         bhSDName = cms.string('HGCalHEScintillatorSensitive'),
         ),
-    FECodec = cms.PSet( CodecName  = cms.string('HGCalBestChoiceCodec'),
-                     CodecIndex    = cms.uint32(1),
-                     NData         = cms.uint32(12),
-                     DataLength    = cms.uint32(8),
-                     linLSB        = cms.double(100./1024.),
-                     adcsaturation = cms.double(100),
-                     adcnBits      =  cms.uint32(10),
-                     tdcsaturation = cms.double(10000),
-                     tdcnBits      =  cms.uint32(12),
-                     tdcOnsetfC    = cms.double(60),
-                     triggerCellTruncationBits = cms.uint32(2)
-                   )
+    FECodec = process.hgcalTriggerPrimitiveDigiProducer.FECodec.clone()
     )
 process.test_step = cms.Path(process.hgcaltriggerbestchoicetester)
 

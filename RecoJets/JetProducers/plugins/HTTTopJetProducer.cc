@@ -189,7 +189,7 @@ void HTTTopJetProducer::addHTTTopJetTagInfoCollection( edm::Event& iEvent,
 
 
   // Set up output list
-  auto_ptr<HTTTopJetTagInfoCollection> tagInfos(new HTTTopJetTagInfoCollection() );
+  auto tagInfos = std::make_unique<HTTTopJetTagInfoCollection>();
 
   // Loop over jets
   for (size_t ij=0; ij != fjJets_.size(); ij++){
@@ -235,7 +235,7 @@ void HTTTopJetProducer::addHTTTopJetTagInfoCollection( edm::Event& iEvent,
     tagInfos->push_back( tagInfo );   
   }
 
-  iEvent.put( tagInfos );
+  iEvent.put(std::move(tagInfos));
   
 };
 

@@ -490,7 +490,7 @@ EvtPlaneProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       } //end for
     }
 
-    std::auto_ptr<EvtPlaneCollection> evtplaneOutput(new EvtPlaneCollection);
+    auto evtplaneOutput = std::make_unique<EvtPlaneCollection>();
 
     double ang=-10;
     double sv = 0;
@@ -510,7 +510,7 @@ EvtPlaneProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       evtplaneOutput->back().addLevel(3, 0., svNoWgt, cvNoWgt);
     }
 
-    iEvent.put(evtplaneOutput);
+    iEvent.put(std::move(evtplaneOutput));
 }
 
 //define this as a plug-in

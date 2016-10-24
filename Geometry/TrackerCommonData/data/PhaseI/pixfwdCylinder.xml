@@ -31,7 +31,7 @@ root volume plus an anchor point for positioning.
 -->
 
 <ConstantsSection label="Cylinders" eval="true">
- <Constant name="CylindersOuterRmin" value="166.00*mm"/><!-- 160.00*mm-->
+ <Constant name="CylindersOuterRmin" value="168.00*mm"/><!-- 160.00*mm-->
  <Constant name="CylindersOuterRmax" value="174.50*mm"/><!-- 168.50*mm-->
  <Constant name="CylindersOuterLength" value="2101.09*mm"/> 
 
@@ -248,7 +248,7 @@ root volume plus an anchor point for positioning.
     <rChild name="pixfwdCylinder:PixelForwardCylinderElectronics4"/>
     <Translation x="0." y="0." z="[CylindersServiceZMax]-[CylindersElectronicsLength]/2."/>
   </PosPart>
-<!--
+
    <PosPart copyNumber="1">
      <rParent name="pixfwdCylinder:PixelForwardServiceCylinder"/>
      <rChild name="pixfwdCylinder:PixelForwardCylindersCoilFiber"/>
@@ -276,7 +276,7 @@ root volume plus an anchor point for positioning.
      <Translation x="-[CoilFilberToBeam]*cos([CoilFilberAngle])" y="-[CoilFilberToBeam]*sin([CoilFilberAngle])" z="[CoilFiblerToIP]+[ZOffCylinder]"/>
      <rRotation name="pixfwdCylinder:CoilFiberRot4"/>
    </PosPart>
--->
+
     <PosPart copyNumber="1">
         <rParent name="pixfwdCylinder:PixelForwardServiceCylinder"/>
         <rChild name="pixfwdCylinder:PixelForwardCylinderPipe1"/>

@@ -34,7 +34,7 @@ bool GlobalTightHalo2016Filter::filter(edm::StreamID iID, edm::Event & iEvent, c
 
   const bool pass = !beamHaloSummary->GlobalTightHaloId2016();
 
-  iEvent.put( std::auto_ptr<bool>(new bool(pass)) );
+  iEvent.put(std::make_unique<bool>(pass));
 
   return taggingMode_ || pass;  // return false if it is a beamhalo event
 }

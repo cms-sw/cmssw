@@ -50,8 +50,8 @@ void PFCandConnector::setParameters(bool bCorrect, bool bCalibPrimary, double dp
 
 
 
-std::auto_ptr<reco::PFCandidateCollection>
-PFCandConnector::connect(std::auto_ptr<PFCandidateCollection>& pfCand) {
+std::unique_ptr<reco::PFCandidateCollection>
+PFCandConnector::connect(std::unique_ptr<PFCandidateCollection>& pfCand) {
    
   if(pfC_.get() ) pfC_->clear();
   else 
@@ -148,13 +148,13 @@ PFCandConnector::connect(std::auto_ptr<PFCandidateCollection>& pfCand) {
 
   if(debug_ && bCorrect_) cout << "==================== ------------------------------ ===============" << endl<< endl << endl;
    
-  return pfC_;
+  return std::move(pfC_);
 
 
 }
 
 void 
-PFCandConnector::analyseNuclearWPrim(std::auto_ptr<PFCandidateCollection>& pfCand, unsigned int ce1) {
+PFCandConnector::analyseNuclearWPrim(std::unique_ptr<PFCandidateCollection>& pfCand, unsigned int ce1) {
 
 
   PFDisplacedVertexRef ref1, ref2, ref1_bis;  
@@ -332,7 +332,7 @@ PFCandConnector::analyseNuclearWPrim(std::auto_ptr<PFCandidateCollection>& pfCan
 
 
 void 
-PFCandConnector::analyseNuclearWSec(std::auto_ptr<PFCandidateCollection>& pfCand, unsigned int ce1){
+PFCandConnector::analyseNuclearWSec(std::unique_ptr<PFCandidateCollection>& pfCand, unsigned int ce1){
 
   PFDisplacedVertexRef ref1, ref2;  
 

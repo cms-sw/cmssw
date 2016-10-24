@@ -48,14 +48,13 @@ void PFMultiDepthClusterProducer::produce(edm::Event& e, const edm::EventSetup& 
   
   std::vector<bool> seedable;
 
-  std::auto_ptr<reco::PFClusterCollection> pfClusters;
-  pfClusters.reset(new reco::PFClusterCollection);
+  auto pfClusters = std::make_unique<reco::PFClusterCollection>();
   _pfClusterBuilder->buildClusters(*inputClusters, seedable, *pfClusters);
   LOGVERB("PFMultiDepthClusterProducer::produce()") << *_pfClusterBuilder;
 
   if( _energyCorrector ) {
     _energyCorrector->correctEnergies(*pfClusters);
   }
-  e.put(pfClusters);
+  e.put(std::move(pfClusters));
 
 }

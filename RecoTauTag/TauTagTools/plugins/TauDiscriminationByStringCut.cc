@@ -32,7 +32,7 @@ class TauDiscriminationByStringCut :
       }
 
    private:
-      std::auto_ptr<StringCutObjectSelector<TauType> > cut_;
+      std::unique_ptr<StringCutObjectSelector<TauType> > cut_;
       double cutFailValue_;
       double cutPassValue_;
 };

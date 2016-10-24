@@ -40,12 +40,12 @@ void ECFAdder::produce(edm::Event & iEvent, const edm::EventSetup & iSetup) {
 	ecfN.push_back(t);
       }
 
-      std::auto_ptr<edm::ValueMap<float> > outT(new edm::ValueMap<float>());
+      auto outT = std::make_unique<edm::ValueMap<float>>();
       edm::ValueMap<float>::Filler fillerT(*outT);
       fillerT.insert(jets, ecfN.begin(), ecfN.end());
       fillerT.fill();
 
-      iEvent.put(outT,variables_[i].c_str());
+      iEvent.put(std::move(outT),variables_[i].c_str());
       ++i;
     }
 }

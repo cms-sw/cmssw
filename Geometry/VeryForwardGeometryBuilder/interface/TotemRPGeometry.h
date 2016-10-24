@@ -66,6 +66,17 @@ class TotemRPGeometry
     /// input is raw ID
     DetGeomDesc *GetDetector(unsigned int) const;
 
+    DetGeomDesc const *GetDetector(const TotemRPDetId & id) const
+    {
+      return GetDetector(id.rawId());
+    }
+
+    /// same as GetDetector
+    DetGeomDesc const *operator[] (unsigned int id) const
+    {
+      return GetDetector(id);
+    }
+
     /// returns the position of the edge of a detector
     CLHEP::Hep3Vector GetDetEdgePosition(unsigned int id) const;
 

@@ -38,7 +38,7 @@ class CastedRefProducer : public edm::EDProducer {
     /// process an event
     virtual void produce(edm::Event& evt, const edm::EventSetup& es) {
       // Output collection
-      std::auto_ptr<OutputCollection> coll(new OutputCollection());
+      auto coll = std::make_unique<OutputCollection>();
       // Get input
       edm::Handle<edm::View<BaseType> > input;
       evt.getByLabel(src_, input);
@@ -49,7 +49,7 @@ class CastedRefProducer : public edm::EDProducer {
         derived_ref derived = base.template castTo<derived_ref>();
         coll->push_back(derived);
       }
-      evt.put( coll );
+      evt.put(std::move(coll));
     }
   private:
     /// labels of the collection to be converted

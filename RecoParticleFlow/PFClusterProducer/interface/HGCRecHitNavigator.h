@@ -65,7 +65,7 @@ class HGCRecHitNavigator : public PFRecHitNavigatorBase {
     if( nullptr != hebNav_ ) hebNav_->beginEvent(iSetup);
   }
 
-  void associateNeighbours(reco::PFRecHit& hit,std::auto_ptr<reco::PFRecHitCollection>& hits,edm::RefProd<reco::PFRecHitCollection>& refProd) override {
+  void associateNeighbours(reco::PFRecHit& hit,std::unique_ptr<reco::PFRecHitCollection>& hits,edm::RefProd<reco::PFRecHitCollection>& refProd) override {
     switch( DetId(hit.detId()).subdetId() ) {
     case D1:
       if( nullptr != eeNav_ )  eeNav_->associateNeighbours(hit,hits,refProd);

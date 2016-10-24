@@ -83,28 +83,28 @@ class PFMuonAlgo {
   void postClean(reco::PFCandidateCollection *);
   void addMissingMuons(edm::Handle<reco::MuonCollection>, reco::PFCandidateCollection* cands);
 
-  std::auto_ptr<reco::PFCandidateCollection>& transferCleanedCosmicCandidates() {
-    return pfCosmicsMuonCleanedCandidates_;
+  std::unique_ptr<reco::PFCandidateCollection> transferCleanedCosmicCandidates() {
+    return std::move(pfCosmicsMuonCleanedCandidates_);
   }
 
-  std::auto_ptr<reco::PFCandidateCollection>& transferCleanedTrackerAndGlobalCandidates() {
-    return pfCleanedTrackerAndGlobalMuonCandidates_;
+  std::unique_ptr<reco::PFCandidateCollection> transferCleanedTrackerAndGlobalCandidates() {
+    return std::move(pfCleanedTrackerAndGlobalMuonCandidates_);
   }
 
-  std::auto_ptr<reco::PFCandidateCollection>& transferCleanedFakeCandidates() {
-    return pfFakeMuonCleanedCandidates_;
+  std::unique_ptr<reco::PFCandidateCollection> transferCleanedFakeCandidates() {
+    return std::move(pfFakeMuonCleanedCandidates_);
   }
 
-  std::auto_ptr<reco::PFCandidateCollection>& transferPunchThroughCleanedMuonCandidates() {
-    return pfPunchThroughMuonCleanedCandidates_;
+  std::unique_ptr<reco::PFCandidateCollection> transferPunchThroughCleanedMuonCandidates() {
+    return std::move(pfPunchThroughMuonCleanedCandidates_);
   }
 
-  std::auto_ptr<reco::PFCandidateCollection>& transferPunchThroughCleanedHadronCandidates() {
-    return pfPunchThroughHadronCleanedCandidates_;
+  std::unique_ptr<reco::PFCandidateCollection> transferPunchThroughCleanedHadronCandidates() {
+    return std::move(pfPunchThroughHadronCleanedCandidates_);
   }
 
-  std::auto_ptr<reco::PFCandidateCollection>& transferAddedMuonCandidates() {
-    return pfAddedMuonCandidates_;
+  std::unique_ptr<reco::PFCandidateCollection> transferAddedMuonCandidates() {
+    return std::move(pfAddedMuonCandidates_);
   }
 
  private:
@@ -135,17 +135,17 @@ class PFMuonAlgo {
 
   //Output collections for post cleaning
   /// the collection of  cosmics cleaned muon candidates
-  std::auto_ptr< reco::PFCandidateCollection >    pfCosmicsMuonCleanedCandidates_;
+  std::unique_ptr<reco::PFCandidateCollection> pfCosmicsMuonCleanedCandidates_;
   /// the collection of  tracker/global cleaned muon candidates
-  std::auto_ptr< reco::PFCandidateCollection >    pfCleanedTrackerAndGlobalMuonCandidates_;
+  std::unique_ptr<reco::PFCandidateCollection> pfCleanedTrackerAndGlobalMuonCandidates_;
   /// the collection of  fake cleaned muon candidates
-  std::auto_ptr< reco::PFCandidateCollection >    pfFakeMuonCleanedCandidates_;
+  std::unique_ptr<reco::PFCandidateCollection> pfFakeMuonCleanedCandidates_;
   /// the collection of  punch-through cleaned muon candidates
-  std::auto_ptr< reco::PFCandidateCollection >    pfPunchThroughMuonCleanedCandidates_;
+  std::unique_ptr<reco::PFCandidateCollection> pfPunchThroughMuonCleanedCandidates_;
   /// the collection of  punch-through cleaned neutral hadron candidates
-  std::auto_ptr< reco::PFCandidateCollection >    pfPunchThroughHadronCleanedCandidates_;
+  std::unique_ptr<reco::PFCandidateCollection> pfPunchThroughHadronCleanedCandidates_;
   /// the collection of  added muon candidates
-  std::auto_ptr< reco::PFCandidateCollection >    pfAddedMuonCandidates_;
+  std::unique_ptr<reco::PFCandidateCollection> pfAddedMuonCandidates_;
   
   std::vector<unsigned int > maskedIndices_;
 

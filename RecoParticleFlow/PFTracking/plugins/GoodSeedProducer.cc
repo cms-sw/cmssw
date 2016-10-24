@@ -142,10 +142,10 @@ GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
   LogDebug("GoodSeedProducer")<<"START event: "<<iEvent.id().event()
 			      <<" in run "<<iEvent.id().run();
   //Create empty output collections
-  auto_ptr<ElectronSeedCollection> output_preid(new ElectronSeedCollection);
-  auto_ptr<TrajectorySeedCollection> output_nopre(new TrajectorySeedCollection);
-  auto_ptr<PreIdCollection> output_preidinfo(new PreIdCollection);
-  auto_ptr<edm::ValueMap<reco::PreIdRef> > preIdMap_p(new edm::ValueMap<reco::PreIdRef>);
+  auto output_preid = std::make_unique<ElectronSeedCollection>();
+  auto output_nopre = std::make_unique<TrajectorySeedCollection>();
+  auto output_preidinfo = std::make_unique<PreIdCollection>();
+  auto preIdMap_p = std::make_unique<edm::ValueMap<reco::PreIdRef>>();
   edm::ValueMap<reco::PreIdRef>::Filler mapFiller(*preIdMap_p);
 
   //Tracking Tools
@@ -458,12 +458,12 @@ GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
   } //end loop on the vector of track collections
   
   // no disablePreId_ switch, it is simpler to have an empty collection rather than no collection
-  iEvent.put(output_preid,preidgsf_);
+  iEvent.put(std::move(output_preid),preidgsf_);
   if (produceCkfseed_)
-    iEvent.put(output_nopre,preidckf_);
+    iEvent.put(std::move(output_nopre),preidckf_);
   if(producePreId_)
     {
-      const edm::OrphanHandle<reco::PreIdCollection> preIdRefProd = iEvent.put(output_preidinfo,preidname_);
+      const edm::OrphanHandle<reco::PreIdCollection> preIdRefProd = iEvent.put(std::move(output_preidinfo),preidname_);
       // now make the Value Map, but only if one input collection
       if(tracksContainers_.size()==1)
 	{
@@ -471,7 +471,7 @@ GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
 	  iEvent.getByToken(tracksContainers_[0],tkRefCollection);
 	  fillPreIdRefValueMap(tkRefCollection,preIdRefProd,mapFiller);
 	  mapFiller.fill();
-	  iEvent.put(preIdMap_p,preidname_);
+	  iEvent.put(std::move(preIdMap_p),preidname_);
 	}
     }
   // clear temporary maps

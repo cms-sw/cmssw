@@ -25,14 +25,13 @@ public:
   }
 
   virtual void produce(edm::StreamID, edm::Event& e, const edm::EventSetup& es) const {
-    std::auto_ptr<reco::PFClusterCollection> output;
-    output.reset(new reco::PFClusterCollection);
+    auto output = std::make_unique<reco::PFClusterCollection>();
     for( const auto& input : _inputs ) {
       edm::Handle<reco::PFClusterCollection> handle;
       e.getByToken(input,handle);
       output->insert(output->end(),handle->begin(),handle->end());
     }
-    e.put(output);
+    e.put(std::move(output));
   }
 private:
   std::vector<edm::EDGetTokenT<reco::PFClusterCollection> > _inputs;

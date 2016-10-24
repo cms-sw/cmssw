@@ -16,7 +16,7 @@ hfreco = cms.EDProducer("HFPhase1Reconstructor",
 
     # Configure the reconstruction algorithm
     algorithm = cms.PSet(
-        Class = cms.string("HFSimpleTimeCheck"),
+        Class = cms.string("HFFlexibleTimeCheck"),
 
         # Timing cuts: pass everything for now
         tlimits = cms.vdouble(-1000.0, 1000.0,

@@ -293,7 +293,8 @@ void PulseShapeFitOOTPileupCorrection::apply(const CaloSamples & cs,
 					     const HcalCalibrations & calibs,
 					     double& reconstructedEnergy,
 					     float& reconstructedTime,
-					     bool& useTriple) const
+					     bool& useTriple,
+					     float& chi2) const
 {
    psfPtr_->setDefaultcntNANinfit();
 
@@ -352,6 +353,7 @@ void PulseShapeFitOOTPileupCorrection::apply(const CaloSamples & cs,
 
    reconstructedEnergy=fitParsVec[0];
    reconstructedTime=fitParsVec[1];
+   chi2 = fitParsVec[3];
    useTriple=fitParsVec[4];
 
 }
@@ -502,7 +504,8 @@ void PulseShapeFitOOTPileupCorrection::fit(int iFit,float &timevalfit,float &cha
 void PulseShapeFitOOTPileupCorrection::phase1Apply(const HBHEChannelInfo& channelData,
 						   float& reconstructedEnergy,
 						   float& reconstructedTime,
-						   bool& useTriple) const
+						   bool& useTriple,
+						   float& chi2) const
 {
 
   psfPtr_->setDefaultcntNANinfit();
@@ -566,6 +569,7 @@ void PulseShapeFitOOTPileupCorrection::phase1Apply(const HBHEChannelInfo& channe
 
   reconstructedEnergy = fitParsVec[0];
   reconstructedTime = fitParsVec[1];
+  chi2 = fitParsVec[3];
   useTriple = fitParsVec[4];
 
 }

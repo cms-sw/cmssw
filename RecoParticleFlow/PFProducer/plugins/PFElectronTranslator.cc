@@ -74,26 +74,20 @@ PFElectronTranslator::~PFElectronTranslator() {}
 void PFElectronTranslator::produce(edm::Event& iEvent,  
 				    const edm::EventSetup& iSetup) { 
   
-  std::auto_ptr<reco::GsfElectronCoreCollection>
-    gsfElectronCores_p(new reco::GsfElectronCoreCollection);
+  auto gsfElectronCores_p = std::make_unique<reco::GsfElectronCoreCollection>();
 
-  std::auto_ptr<reco::GsfElectronCollection>
-    gsfElectrons_p(new reco::GsfElectronCollection);
+  auto gsfElectrons_p = std::make_unique<reco::GsfElectronCollection>();
 
-  std::auto_ptr<reco::SuperClusterCollection> 
-    superClusters_p(new reco::SuperClusterCollection);
+  auto superClusters_p = std::make_unique<reco::SuperClusterCollection>();
 
-  std::auto_ptr<reco::BasicClusterCollection> 
-    basicClusters_p(new reco::BasicClusterCollection);
+  auto basicClusters_p = std::make_unique<reco::BasicClusterCollection>();
 
-  std::auto_ptr<reco::PreshowerClusterCollection>
-    psClusters_p(new reco::PreshowerClusterCollection);
+  auto psClusters_p = std::make_unique<reco::PreshowerClusterCollection>();
   
-  std::auto_ptr<edm::ValueMap<float> > mvaMap_p(new edm::ValueMap<float>());
+  auto mvaMap_p = std::make_unique<edm::ValueMap<float>>();
   edm::ValueMap<float>::Filler mvaFiller(*mvaMap_p);
 
-  std::auto_ptr<edm::ValueMap<reco::SuperClusterRef> > 
-    scMap_p(new edm::ValueMap<reco::SuperClusterRef>());
+  auto scMap_p = std::make_unique<edm::ValueMap<reco::SuperClusterRef>>();
   edm::ValueMap<reco::SuperClusterRef>::Filler scRefFiller(*scMap_p);
   
 
@@ -206,11 +200,11 @@ void PFElectronTranslator::produce(edm::Event& iEvent,
    //Save the basic clusters and get an handle as to be able to create valid Refs (thanks to Claude)
   //  std::cout << " Number of basic clusters " << basicClusters_p->size() << std::endl;
   const edm::OrphanHandle<reco::BasicClusterCollection> bcRefProd = 
-    iEvent.put(basicClusters_p,PFBasicClusterCollection_);
+    iEvent.put(std::move(basicClusters_p),PFBasicClusterCollection_);
 
   //preshower clusters
   const edm::OrphanHandle<reco::PreshowerClusterCollection> psRefProd = 
-    iEvent.put(psClusters_p,PFPreshowerClusterCollection_);
+    iEvent.put(std::move(psClusters_p),PFPreshowerClusterCollection_);
 
   // now that the Basic clusters are in the event, the Ref can be created
   createBasicClusterPtrs(bcRefProd);
@@ -221,7 +215,7 @@ void PFElectronTranslator::produce(edm::Event& iEvent,
   if(status) createSuperClusters(*pfCandidates,*superClusters_p);
   
   // Let's put the super clusters in the event
-  const edm::OrphanHandle<reco::SuperClusterCollection> scRefProd = iEvent.put(superClusters_p,PFSuperClusterCollection_); 
+  const edm::OrphanHandle<reco::SuperClusterCollection> scRefProd = iEvent.put(std::move(superClusters_p),PFSuperClusterCollection_); 
   // create the super cluster Ref
   createSuperClusterGsfMapRefs(scRefProd);
 
@@ -229,14 +223,14 @@ void PFElectronTranslator::produce(edm::Event& iEvent,
   createGsfElectronCores(*gsfElectronCores_p);
   // Put them in the as to get to be able to build a Ref
   const edm::OrphanHandle<reco::GsfElectronCoreCollection> gsfElectronCoreRefProd = 
-    iEvent.put(gsfElectronCores_p,GsfElectronCoreCollection_);
+    iEvent.put(std::move(gsfElectronCores_p),GsfElectronCoreCollection_);
 
   // now create the Refs 
   createGsfElectronCoreRefs(gsfElectronCoreRefProd);
 
   // now make the GsfElectron
   createGsfElectrons(*pfCandidates,isolationValues,*gsfElectrons_p);
-  iEvent.put(gsfElectrons_p,GsfElectronCollection_);
+  iEvent.put(std::move(gsfElectrons_p),GsfElectronCollection_);
 
   fillMVAValueMap(iEvent,mvaFiller);
   mvaFiller.fill();
@@ -245,9 +239,9 @@ void PFElectronTranslator::produce(edm::Event& iEvent,
   scRefFiller.fill();
 
   // MVA map
-  iEvent.put(mvaMap_p,PFMVAValueMap_);
+  iEvent.put(std::move(mvaMap_p),PFMVAValueMap_);
   // Gsf-SC map
-  iEvent.put(scMap_p,PFSCValueMap_);
+  iEvent.put(std::move(scMap_p),PFSCValueMap_);
 
 
   

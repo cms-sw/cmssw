@@ -138,13 +138,11 @@ void GlobalHaloDataProducer::produce(Event& iEvent, const EventSetup& iSetup)
 
   if(TheCaloGeometry.isValid() && TheCaloMET.isValid() && TheCaloTowers.isValid() && TheCSCHaloData.isValid() && TheEcalHaloData.isValid() && TheHcalHaloData.isValid() )
     {
-      std::auto_ptr<GlobalHaloData> GlobalData( new GlobalHaloData(GlobalAlgo.Calculate(*TheCaloGeometry, *TheCSCGeometry,  *(&TheCaloMET.product()->front()), TheCaloTowers, TheCSCSegments, TheCSCRecHits, TheMuons, *TheCSCHaloData.product(), *TheEcalHaloData.product(), *TheHcalHaloData.product() ,ishlt)) );
-      iEvent.put(GlobalData);
+      iEvent.put(std::make_unique<GlobalHaloData>(GlobalHaloData(GlobalAlgo.Calculate(*TheCaloGeometry, *TheCSCGeometry,  *(&TheCaloMET.product()->front()), TheCaloTowers, TheCSCSegments, TheCSCRecHits, TheMuons, *TheCSCHaloData.product(), *TheEcalHaloData.product(), *TheHcalHaloData.product() ,ishlt))));
     }
   else 
     {
-      std::auto_ptr<GlobalHaloData> GlobalData( new GlobalHaloData() ) ;
-      iEvent.put(GlobalData);
+      iEvent.put(std::make_unique<GlobalHaloData>());
     }
 
   return;

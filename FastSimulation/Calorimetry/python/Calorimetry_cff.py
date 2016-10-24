@@ -1,7 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
 # This is used to modify parameters for Run 2 (see bottom of file)
-from Configuration.StandardSequences.Eras import eras
 
 #Global fast calorimetry parameters
 from FastSimulation.Calorimetry.HcalResponse_cfi import *
@@ -299,4 +298,5 @@ FamosCalorimetryBlock = cms.PSet(
 FamosCalorimetryBlock.Calorimetry.ECAL.Digitizer = True
 FamosCalorimetryBlock.Calorimetry.HCAL.Digitizer = True
 
-eras.run2_common.toModify(FamosCalorimetryBlock.Calorimetry.HFShowerLibrary, FileName = 'SimG4CMS/Calo/data/HFShowerLibrary_npmt_noatt_eta4_16en_v3.root' )
+from Configuration.Eras.Modifier_run2_common_cff import run2_common
+run2_common.toModify(FamosCalorimetryBlock.Calorimetry.HFShowerLibrary, FileName = 'SimG4CMS/Calo/data/HFShowerLibrary_npmt_noatt_eta4_16en_v4.root' )

@@ -136,15 +136,14 @@ void RecoTauPiZeroProducer::produce(edm::Event& evt, const edm::EventSetup& es)
   reco::PFJetRefVector jetRefs =
       reco::tau::castView<reco::PFJetRefVector>(jetView);
   // Make our association
-  std::auto_ptr<reco::JetPiZeroAssociation> association;
+  std::unique_ptr<reco::JetPiZeroAssociation> association;
 
   if (jetRefs.size()) {
     edm::Handle<reco::PFJetCollection> pfJetCollectionHandle;
     evt.get(jetRefs.id(), pfJetCollectionHandle);
-    association.reset(
-        new reco::JetPiZeroAssociation(reco::PFJetRefProd(pfJetCollectionHandle)));
+    association = std::make_unique<reco::JetPiZeroAssociation>(reco::PFJetRefProd(pfJetCollectionHandle));
   } else {
-    association.reset(new reco::JetPiZeroAssociation);
+    association = std::make_unique<reco::JetPiZeroAssociation>();
   }
 
   // Loop over our jets
@@ -225,7 +224,7 @@ void RecoTauPiZeroProducer::produce(edm::Event& evt, const edm::EventSetup& es)
     }
     association->setValue(jet.key(), cleanPiZeros);
   }
-  evt.put(association);
+  evt.put(std::move(association));
 }
 
 // Print some helpful information

@@ -1,11 +1,13 @@
-from Configuration.StandardSequences.Eras import eras
 from RecoTracker.FinalTrackSelectors.TrackCutClassifier_cfi import *
-eras.trackingLowPU.toModify(TrackCutClassifier,
+from Configuration.Eras.Modifier_trackingLowPU_cff import trackingLowPU
+trackingLowPU.toModify(TrackCutClassifier,
     vertices = "pixelVertices"
 )
-eras.trackingPhase1PU70.toModify(TrackCutClassifier,
+from Configuration.Eras.Modifier_trackingPhase1PU70_cff import trackingPhase1PU70
+trackingPhase1PU70.toModify(TrackCutClassifier,
     vertices = "pixelVertices"
 )
-eras.trackingPhase2PU140.toModify(TrackCutClassifier,
+from Configuration.Eras.Modifier_trackingPhase2PU140_cff import trackingPhase2PU140
+trackingPhase2PU140.toModify(TrackCutClassifier,
     vertices = "pixelVertices"
 )

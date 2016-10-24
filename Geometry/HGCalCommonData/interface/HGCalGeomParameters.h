@@ -38,6 +38,7 @@ public:
   void loadSpecParsHexagon(const DDFilteredView&, HGCalParameters&,
 			   const DDCompactView*, const std::string&, 
 			   const std::string&);
+  void loadWaferHexagon(HGCalParameters& php);
 
 private:
 

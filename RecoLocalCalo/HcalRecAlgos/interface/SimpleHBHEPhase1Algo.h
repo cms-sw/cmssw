@@ -22,7 +22,7 @@ public:
     //   firstSampleShift -- first TS w.r.t. SOI to use for "Method 0"
     //                       reconstruction.
     //
-    //   samplesToAdd     -- number of samples to add for "Method 0"
+    //   samplesToAdd     -- default number of samples to add for "Method 0"
     //                       reconstruction. If, let say, SOI = 4,
     //                       firstSampleShift = -1, and samplesToAdd = 3
     //                       then the code will add time slices 3, 4, and 5.
@@ -32,6 +32,9 @@ public:
     //
     //   timeShift        -- time shift for QIE11 TDC times
     //
+    //   correctForPhaseContainment -- default switch for applying pulse
+    //                                 containment correction for "Method 0"
+    //
     //   m2               -- "Method 2" object
     //
     //   detFit           -- "Method 3" (a.k.a. "deterministic fit") object
@@ -40,6 +43,7 @@ public:
                          int samplesToAdd,
                          float phaseNS,
                          float timeShift,
+                         bool correctForPhaseContainment,
                          std::unique_ptr<PulseShapeFitOOTPileupCorrection> m2,
                          std::unique_ptr<HcalDeterministicFit> detFit);
 
@@ -59,6 +63,8 @@ public:
     inline int getFirstSampleShift() const {return firstSampleShift_;}
     inline int getSamplesToAdd() const {return samplesToAdd_;}
     inline float getPhaseNS() const {return phaseNS_;}
+    inline float getTimeShift() const {return timeShift_;}
+    inline bool isCorrectingForPhaseContainment() const {return corrFPC_;}
     inline int getRunNumber() const {return runnum_;}
 
 protected:
@@ -72,12 +78,13 @@ protected:
     float m0Energy(const HBHEChannelInfo& info,
                    double reconstructedCharge,
                    bool applyContainmentCorrection,
-                   double phaseNS);
+                   double phaseNS, int nSamplesToAdd);
 
     // "Method 0" rechit timing (original low-pileup QIE8 algorithm)
     float m0Time(const HBHEChannelInfo& info,
                  double reconstructedCharge,
-                 const HcalCalibrations& calibs) const;
+                 const HcalCalibrations& calibs,
+                 int nSamplesToExamine) const;
 private:
     HcalPulseContainmentManager pulseCorr_;
 
@@ -86,6 +93,7 @@ private:
     float phaseNS_;
     float timeShift_;
     int runnum_;
+    bool corrFPC_;
 
     // "Metod 2" algorithm
     std::unique_ptr<PulseShapeFitOOTPileupCorrection> psFitOOTpuCorr_;
@@ -94,7 +102,6 @@ private:
     std::unique_ptr<HcalDeterministicFit> hltOOTpuCorr_;
 
     HcalPulseShapes theHcalPulseShapes_;
-
 };
 
 #endif // RecoLocalCalo_HcalRecAlgos_SimpleHBHEPhase1Algo_h_

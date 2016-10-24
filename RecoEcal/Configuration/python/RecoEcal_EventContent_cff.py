@@ -80,7 +80,6 @@ RecoEcalAOD = cms.PSet(
         )
 )
 
-from Configuration.StandardSequences.Eras import eras
 _phase2_hgcal_scCommands = ['keep *_particleFlowSuperClusterHGCal_*_*']
 _phase2_hgcal_scCommandsAOD = ['keep recoSuperClusters_particleFlowSuperClusterHGCal__*',
                                'keep recoCaloClusters_particleFlowSuperClusterHGCal__*']
@@ -90,6 +89,7 @@ _phase2_hgcal_RecoEcalRECO = RecoEcalRECO.clone()
 _phase2_hgcal_RecoEcalRECO.outputCommands += _phase2_hgcal_scCommands
 _phase2_hgcal_RecoEcalAOD  = RecoEcalAOD.clone()
 _phase2_hgcal_RecoEcalAOD.outputCommands += _phase2_hgcal_scCommandsAOD
-eras.phase2_hgcal.toReplaceWith( RecoEcalFEVT, _phase2_hgcal_RecoEcalFEVT )
-eras.phase2_hgcal.toReplaceWith( RecoEcalRECO, _phase2_hgcal_RecoEcalRECO )
-eras.phase2_hgcal.toReplaceWith( RecoEcalAOD , _phase2_hgcal_RecoEcalAOD  )
+from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
+phase2_hgcal.toReplaceWith( RecoEcalFEVT, _phase2_hgcal_RecoEcalFEVT )
+phase2_hgcal.toReplaceWith( RecoEcalRECO, _phase2_hgcal_RecoEcalRECO )
+phase2_hgcal.toReplaceWith( RecoEcalAOD , _phase2_hgcal_RecoEcalAOD  )

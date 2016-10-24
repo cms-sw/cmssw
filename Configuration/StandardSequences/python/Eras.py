@@ -28,19 +28,26 @@ class Eras (object):
                            'run2_50ns_specific', 'run2_HI_specific',
                            'stage1L1Trigger', 'fastSim',
                            'run2_HE_2017', 'stage2L1Trigger',
+                           'run2_HF_2017', 'run2_HCAL_2017',
                            'phase1Pixel', 'run3_GEM',
                            'phase2_common', 'phase2_tracker',
                            'phase2_hgcal', 'phase2_muon', 'phase2_timing',
                            'phase2_hcal',
                            'trackingLowPU', 'trackingPhase1', 'trackingPhase1PU70', 'ctpps_2016', 'trackingPhase2PU140',
                            'tracker_apv_vfp30_2016']
-                           
+        internalUseModChains = ['run2_2017_core']
+
+
         for e in allEras:
             eObj=getattr(__import__('Configuration.Eras.Era_'+e+'_cff',globals(),locals(),[e],0),e)
             self.addEra(e,eObj)
 
         for e in internalUseMods:
             eObj=getattr(__import__('Configuration.Eras.Modifier_'+e+'_cff',globals(),locals(),[e],0),e)
+            self.addEra(e,eObj)
+
+        for e in internalUseModChains:
+            eObj=getattr(__import__('Configuration.Eras.ModifierChain_'+e+'_cff',globals(),locals(),[e],0),e)
             self.addEra(e,eObj)
 
 

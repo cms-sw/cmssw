@@ -19,7 +19,7 @@ namespace GaussianStateConversions {
 	AlgebraicVector3 parameters;
 	parameters(0) = pos.x(); parameters(1) = pos.y(); parameters(2) = pos.z();
 	SingleStatePtr sgs(new SingleGaussianState<3>(parameters,
-							 ic->error().matrix_new(),
+							 ic->error().matrix(),
 							 ic->weightInMixture()));
 	singleStates.push_back(sgs);
       }

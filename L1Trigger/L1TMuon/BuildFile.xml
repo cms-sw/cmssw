@@ -5,6 +5,8 @@
   <use name="xerces-c"/>
 </export>
 
+<use name="L1Trigger/L1TCommon"/>
+
 <use name="DataFormats/L1TMuon"/>
 <use name="Geometry/Records"/>
 

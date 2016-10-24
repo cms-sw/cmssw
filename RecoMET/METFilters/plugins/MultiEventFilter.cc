@@ -79,7 +79,7 @@ bool MultiEventFilter::filter(edm::Event & iEvent, const edm::EventSetup & iSetu
         events_[i].lumi == iEvent.id().luminosityBlock()) pass = false; 
   }
 
-  iEvent.put( std::auto_ptr<bool>(new bool(pass)) );
+  iEvent.put(std::make_unique<bool>(pass));
 
   return taggingMode_ || pass;
 

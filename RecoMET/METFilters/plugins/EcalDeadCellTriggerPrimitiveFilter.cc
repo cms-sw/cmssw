@@ -369,8 +369,7 @@ bool EcalDeadCellTriggerPrimitiveFilter::filter(edm::Event& iEvent, const edm::E
      printf("\nrun : %8u  event : %10llu  lumi : %4u  evtTPstatus  ABS : %d  13 : % 2d\n", run, event, ls, evtstatusABS, evtTagged);
   }
 
-  std::auto_ptr<bool> pOut( new bool(pass) );
-  iEvent.put( pOut );
+  iEvent.put(std::make_unique<bool>(pass));
 
   if (taggingMode_) return true;
   else return pass;

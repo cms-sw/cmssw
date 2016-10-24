@@ -118,16 +118,16 @@ MuonGEMRecHitsHarvestor::dqmEndJob(DQMStore::IBooker& ibooker, DQMStore::IGetter
   ig.setCurrentFolder(dbe_path_.c_str());
  
   const char* l_suffix[4] = {"_l1","_l2","_l1or2","_l1and2"};
-  const char* s_suffix[3] = {"_st1","_st2_short","_st2_long"};   
+  const char* s_suffix[2] = {"_st1","_st2"};   
   const char* c_suffix[3] = {"_even","_odd","_all"};   
 
-  TH1F* gem_trk_eta[3];
-  TH1F* gem_trk_phi[3][2];  
+  TH1F* gem_trk_eta[2];
+  TH1F* gem_trk_phi[2][2];  
 
-  TH1F* sh_eta[3][4];
-  TH1F* sh_phi[3][4][3];
+  TH1F* sh_eta[2][4];
+  TH1F* sh_phi[2][4][3];
   
-  for( int i = 0 ; i < 3 ; i++) {
+  for( int i = 0 ; i < 2 ; i++) {
     TString eta_label = TString(dbe_path_)+"track_eta"+s_suffix[i];
     TString phi_label;
     if ( ig.get(eta_label.Data()) != nullptr ) {

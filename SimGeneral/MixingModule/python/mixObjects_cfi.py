@@ -1,5 +1,4 @@
 import FWCore.ParameterSet.Config as cms
-from Configuration.StandardSequences.Eras import eras
 
 mixSimHits = cms.PSet(
     input = cms.VInputTag(  # note that this list needs to be in the same order as the subdets
@@ -51,7 +50,8 @@ mixSimHits = cms.PSet(
 )
 
 # fastsim customs
-if eras.fastSim.isChosen():
+from Configuration.Eras.Modifier_fastSim_cff import fastSim
+if fastSim.isChosen():
     mixSimHits.input = cms.VInputTag(
         cms.InputTag("MuonSimHits","MuonCSCHits"), 
         cms.InputTag("MuonSimHits","MuonDTHits"), 
@@ -89,7 +89,7 @@ mixCaloHits = cms.PSet(
 )
 
 # fastsim customs
-if eras.fastSim.isChosen():
+if fastSim.isChosen():
     mixCaloHits.input = cms.VInputTag(
         cms.InputTag("famosSimHits","EcalHitsEB"), 
         cms.InputTag("famosSimHits","EcalHitsEE"), 
@@ -114,7 +114,7 @@ mixSimVertices = cms.PSet(
 )
 
 # fastsim customs
-if eras.fastSim.isChosen():
+if fastSim.isChosen():
     mixSimTracks.input = cms.VInputTag(cms.InputTag("famosSimHits"))
     mixSimVertices.input = cms.VInputTag(cms.InputTag("famosSimHits"))
     
@@ -149,7 +149,7 @@ theMixObjects = cms.PSet(
 )
 
 # fastsim customs
-if eras.fastSim.isChosen():
+if fastSim.isChosen():
     theMixObjects = cms.PSet(
         theMixObjects,
         mixRecoTracks = cms.PSet(mixReconstructedTracks)
@@ -221,22 +221,24 @@ mixPCFHepMCProducts = cms.PSet(
 
 from SimCalorimetry.HGCalSimProducers.hgcalDigitizer_cfi import hgceeDigitizer, hgchefrontDigitizer
 
-from Configuration.StandardSequences.Eras import eras
-eras.run3_GEM.toModify( theMixObjects,
+from Configuration.Eras.Modifier_run3_GEM_cff import run3_GEM
+run3_GEM.toModify( theMixObjects,
     mixSH = dict(
         input = theMixObjects.mixSH.input + [ cms.InputTag("g4SimHits","MuonGEMHits") ],
         subdets = theMixObjects.mixSH.subdets + [ 'MuonGEMHits' ],
         crossingFrames = theMixObjects.mixSH.crossingFrames + [ 'MuonGEMHits' ]
     )
 )
-eras.phase2_muon.toModify( theMixObjects,
+from Configuration.Eras.Modifier_phase2_muon_cff import phase2_muon
+phase2_muon.toModify( theMixObjects,
     mixSH = dict(
         input = theMixObjects.mixSH.input + [ cms.InputTag("g4SimHits","MuonME0Hits") ],
         subdets = theMixObjects.mixSH.subdets + [ 'MuonME0Hits' ],
         crossingFrames = theMixObjects.mixSH.crossingFrames + [ 'MuonME0Hits' ]
     )
 )
-eras.phase2_hgcal.toModify( theMixObjects,
+from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
+phase2_hgcal.toModify( theMixObjects,
     mixCH = dict(
         input = theMixObjects.mixCH.input + [ cms.InputTag("g4SimHits",hgceeDigitizer.hitCollection.value()),
                                               cms.InputTag("g4SimHits",hgchefrontDigitizer.hitCollection.value()) ],
