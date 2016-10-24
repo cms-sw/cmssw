@@ -1,8 +1,6 @@
 #ifndef TkDetLayers_Phase2OTEndcapLayer_h
 #define TkDetLayers_Phase2OTEndcapLayer_h
 
-#define NOTECRINGS 15   // This number is just an upper bound
-
 #include "TrackingTools/DetLayers/interface/RingedForwardLayer.h"
 #include "Phase2OTEndcapRing.h"
 #include <array>

@@ -22,7 +22,7 @@ typedef GeometricSearchDet::DetWithState DetWithState;
 const std::vector<const GeometricSearchDet*>& Phase2OTEndcapLayer::components() const{
   if (not theComponents) {
     auto temp = std::make_unique<std::vector<const GeometricSearchDet*>>();
-    temp->reserve(NOTECRINGS);
+    temp->reserve(15);   // This number is just an upper bound
     for ( auto c: theComps) temp->push_back(c);
     std::vector<const GeometricSearchDet*>* expected = nullptr;
     if(theComponents.compare_exchange_strong(expected,temp.get())) {
@@ -251,6 +251,7 @@ Phase2OTEndcapLayer::ringIndicesByCrossingProximity(const TrajectoryStateOnSurfa
   Crossing myXing(  startPos, startDir, rho, propDir );
 
   std::vector<GlobalPoint> ringCrossings;
+  ringCrossings.reserve(theRingSize);
   // vector<GlobalVector>  ringXDirections;
 
   for (int i = 0; i < theRingSize ; i++ ) {
