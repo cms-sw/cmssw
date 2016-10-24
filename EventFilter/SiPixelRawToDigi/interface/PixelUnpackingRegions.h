@@ -129,6 +129,7 @@ private:
   math::XYZPoint beamSpot_;
 
   edm::ESWatcher<SiPixelFedCablingMapRcd> watcherSiPixelFedCablingMap_;
+  bool phase1_;
 };
 
 #endif

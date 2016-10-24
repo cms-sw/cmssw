@@ -21,21 +21,21 @@
 #include <iterator>
 
 // local convenience functions
-namespace 
-{
-bool isBPIXFED(unsigned int fed) {return fed< 32;}
-bool isFPIXFED(unsigned int fed) {return fed>=32;}
-bool isBPIXModule(unsigned int id) {return DetId(id).subdetId() == PixelSubdetector::PixelBarrel;}
-bool isFPIXModule(unsigned int id) {return DetId(id).subdetId() == PixelSubdetector::PixelEndcap;}
-
-inline std::ostream& operator<<(std::ostream& s, const PixelUnpackingRegions::Module& m)
-{
-  s<< (isBPIXModule(m.id) ? "BPIX " : "FPIX ") <<m.id<<" "<<m.fed<<"   "<<m.phi<<"   "<<m.x<<" "<<m.y<<" "<<m.z<<"  "<<sqrt(std::pow(m.x,2)+std::pow(m.y,2));
-  return s;
+namespace {
+  bool isBPIXFED(unsigned int fed) {return fed< 32;}
+  bool isFPIXFED(unsigned int fed) {return fed>=32;}
+  //bool isBPIXFEDPhase1(unsigned int fed) {return fed< 1276;}
+  //bool isFPIXFEDPhase1(unsigned int fed) {return fed>=1276;}
+  bool isBPIXFEDPhase1(unsigned int fed) {return fed< 1280;}
+  bool isFPIXFEDPhase1(unsigned int fed) {return fed>=1280;}
+  bool isBPIXModule(unsigned int id) {return DetId(id).subdetId() == PixelSubdetector::PixelBarrel;}
+  bool isFPIXModule(unsigned int id) {return DetId(id).subdetId() == PixelSubdetector::PixelEndcap;}
+  
+  inline std::ostream& operator<<(std::ostream& s, const PixelUnpackingRegions::Module& m) {
+    s<< (isBPIXModule(m.id) ? "BPIX " : "FPIX ") <<m.id<<" "<<m.fed<<"   "<<m.phi<<"   "<<m.x<<" "<<m.y<<" "<<m.z<<"  "<<sqrt(std::pow(m.x,2)+std::pow(m.y,2));
+    return s;
+  }
 }
-}
-
-
 
 PixelUnpackingRegions::PixelUnpackingRegions(const edm::ParameterSet& conf, edm::ConsumesCollector &&iC)
 {
@@ -53,6 +53,7 @@ PixelUnpackingRegions::PixelUnpackingRegions(const edm::ParameterSet& conf, edm:
     edm::LogError("PixelUnpackingRegions")<<"Not the same size of config parameters vectors!\n"
         <<"   inputs "<<inputs_.size()<<"  deltaPhi "<<dPhi_.size() <<"  maxZ "<< maxZ_.size();
   }
+
 }
 
 
@@ -102,6 +103,13 @@ void PixelUnpackingRegions::initialize(const edm::EventSetup& es)
     // get the TrackerGeom
     es.get<TrackerDigiGeometryRecord>().get( geom );
 
+    // switch on the phase1 
+    if( (geom->isThere(GeomDetEnumerators::P1PXB)) && 
+	(geom->isThere(GeomDetEnumerators::P1PXEC)) ) phase1_ = true;
+    else phase1_ = false;
+    
+    //if(phase1_) std::cout<<"This is for phase1 geometry "<<std::endl;
+
     phiBPIX_.clear();
     phiFPIXp_.clear();
     phiFPIXm_.clear();
@@ -129,7 +137,11 @@ void PixelUnpackingRegions::initialize(const edm::EventSetup& es)
       const std::vector<sipixelobjects::CablingPathToDetUnit> path2det = cabling_->pathToDetUnit(m.id);
 
       m.fed = path2det[0].fed;
-      assert(m.fed<40);
+      if(phase1_) {
+	assert( (m.fed<1308) && (m.fed>=1200));
+      } else {
+	assert(m.fed<40);
+      }
 
       if (subdet == PixelSubdetector::PixelBarrel)
       {
@@ -222,15 +234,23 @@ bool PixelUnpackingRegions::mayUnpackFED(unsigned int fed_n) const
   if (feds_.count(fed_n)) return true;
   return false;
 }
-
+// Only used in a LogDebug printout
 unsigned int PixelUnpackingRegions::nBarrelFEDs() const
 {
-  return std::count_if(feds_.begin(), feds_.end(), isBPIXFED );
+  if(phase1_) { 
+    return std::count_if(feds_.begin(), feds_.end(), isBPIXFEDPhase1 );
+  } else {
+    return std::count_if(feds_.begin(), feds_.end(), isBPIXFED );
+  }
 }
-
+// Only used in a LogDebug printout
 unsigned int PixelUnpackingRegions::nForwardFEDs() const
 {
-  return std::count_if(feds_.begin(), feds_.end(), isFPIXFED );
+  if(phase1_) { 
+    return std::count_if(feds_.begin(), feds_.end(), isFPIXFEDPhase1 );
+  } else {
+    return std::count_if(feds_.begin(), feds_.end(), isFPIXFED );
+  }
 }
 
 
