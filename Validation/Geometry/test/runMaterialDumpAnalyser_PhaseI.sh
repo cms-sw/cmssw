@@ -140,7 +140,7 @@ waitPendingJobs
 
 # Always run the comparison at this stage, since you are guaranteed that all the ingredients are there
 
-for t in BeamPipe Tracker PixBar PixFwdMinus PixFwdPlus TIB TOB TIDB TIDF TEC TkStrct InnerServices; do
+for t in TrackerSum Pixel Strip InnerTracker BeamPipe Tracker PixBar PixFwdMinus PixFwdPlus TIB TOB TIDB TIDF TEC TkStrct InnerServices; do
   root -b -q "MaterialBudget.C(\"${t}\")"
   if [ $? -ne 0 ]; then
     echo "Error while producing simulation material for ${t}, aborting"
