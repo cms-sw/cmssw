@@ -157,7 +157,8 @@ void l1t::Stage2Layer2JetAlgorithmFirmwareImp1::create(const std::vector<l1t::Ca
 	    int caloEta = CaloTools::caloEta(ieta);
 	    l1t::Jet jet( p4, -999, caloEta, iphi, 0);
 
-	    if(!params_->jetBypassPUS()){
+	    // remove checking if(!params_->jetBypassPUS()). jetBypassPUS_ is currently always set and configured to false
+	    if(true){
 	      if (PUSubMethod == "Donut") {
 		puEt = donutPUEstimate(ieta, iphi, 5, towers);	    
 		iEt -= puEt;
