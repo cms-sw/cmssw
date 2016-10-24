@@ -1,5 +1,5 @@
-from heppy.framework.analyzer import Analyzer
-from heppy.statistics.tree import Tree
+from PhysicsTools.HeppyCore.framework.analyzer import Analyzer
+from PhysicsTools.HeppyCore.statistics.tree import Tree
 from ROOT import TFile
 
 class SimpleTreeProducer(Analyzer):

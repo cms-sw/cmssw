@@ -1,8 +1,8 @@
-from heppy.framework.analyzer import Analyzer
-from heppy.papas.pfalgo.pfreconstructor import PFReconstructor as PFReconstructor
-from heppy.papas.data.pfevent import PFEvent
-from heppy.papas.pfalgo.distance  import Distance
-from heppy.papas.data.history import History
+from PhysicsTools.HeppyCore.framework.analyzer import Analyzer
+from PhysicsTools.HeppyCore.papas.pfalgo.pfreconstructor import PFReconstructor as PFReconstructor
+from PhysicsTools.HeppyCore.papas.data.pfevent import PFEvent
+from PhysicsTools.HeppyCore.papas.pfalgo.distance  import Distance
+from PhysicsTools.HeppyCore.papas.data.history import History
 
 class PapasPFReconstructor(Analyzer):
     ''' Module to reconstruct particles from blocks of events

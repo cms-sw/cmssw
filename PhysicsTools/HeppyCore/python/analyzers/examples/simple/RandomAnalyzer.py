@@ -1,6 +1,6 @@
-from heppy.framework.analyzer import Analyzer
+from PhysicsTools.HeppyCore.framework.analyzer import Analyzer
 
-import heppy.statistics.rrandom as random
+import PhysicsTools.HeppyCore.statistics.rrandom as random
 
 class RandomAnalyzer(Analyzer):
 

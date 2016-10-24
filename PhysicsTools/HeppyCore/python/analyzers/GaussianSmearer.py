@@ -1,7 +1,7 @@
-from heppy.framework.analyzer import Analyzer
+from PhysicsTools.HeppyCore.framework.analyzer import Analyzer
 
 import copy
-import heppy.statistics.rrandom as random
+import PhysicsTools.HeppyCore.statistics.rrandom as random
 
 class GaussianSmearer(Analyzer):
     '''Smears the 4-momentum of a collection of particles according to a gaussian model,
@@ -9,7 +9,7 @@ class GaussianSmearer(Analyzer):
     
     Example: 
     
-    from heppy.analyzers.GaussianSmearer import Smearer     
+    from PhysicsTools.HeppyCore.analyzers.GaussianSmearer import Smearer     
     def accept_electron(ele):
       return abs(ele.eta()) < 2.5 and ele.e() > 5.
     electrons = cfg.Analyzer(

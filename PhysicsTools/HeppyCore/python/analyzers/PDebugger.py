@@ -1,7 +1,7 @@
 import logging
 import sys
-from heppy.framework.analyzer import Analyzer
-import heppy.utils.pdebug as pdebug
+from PhysicsTools.HeppyCore.framework.analyzer import Analyzer
+import PhysicsTools.HeppyCore.utils.pdebug as pdebug
 
 
 class PDebugger(Analyzer):
@@ -20,7 +20,7 @@ class PDebugger(Analyzer):
         stdout
 
     Example:
-    from heppy.analyzers.PDebugger import PDebugger
+    from PhysicsTools.HeppyCore.analyzers.PDebugger import PDebugger
     pdebug = cfg.Analyzer(
     PDebugger,
     output_to_stdout = False, #optional

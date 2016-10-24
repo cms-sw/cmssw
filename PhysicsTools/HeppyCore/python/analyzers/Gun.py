@@ -1,9 +1,9 @@
-from heppy.framework.analyzer import Analyzer
-from heppy.papas.pdt import particle_data
-from heppy.particles.tlv.particle import Particle 
+from PhysicsTools.HeppyCore.framework.analyzer import Analyzer
+from PhysicsTools.HeppyCore.papas.pdt import particle_data
+from PhysicsTools.HeppyCore.particles.tlv.particle import Particle 
 
 import math
-import heppy.statistics.rrandom as random
+import PhysicsTools.HeppyCore.statistics.rrandom as random
 
 from ROOT import TLorentzVector
 

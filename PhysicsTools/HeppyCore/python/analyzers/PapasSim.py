@@ -1,13 +1,13 @@
-from heppy.framework.analyzer import Analyzer
-from heppy.papas.simulator import Simulator
-from heppy.papas.papas_exceptions import PropagationError, SimulationError
-from heppy.display.core import Display
-from heppy.display.geometry import GDetector
-from heppy.display.pfobjects import GTrajectories
-from heppy.papas.pfalgo.distance  import Distance
-from heppy.papas.mergedclusterbuilder import MergedClusterBuilder
-from heppy.papas.data.pfevent import PFEvent
-from heppy.papas.graphtools.DAG import Node
+from PhysicsTools.HeppyCore.framework.analyzer import Analyzer
+from PhysicsTools.HeppyCore.papas.simulator import Simulator
+from PhysicsTools.HeppyCore.papas.papas_exceptions import PropagationError, SimulationError
+from PhysicsTools.HeppyCore.display.core import Display
+from PhysicsTools.HeppyCore.display.geometry import GDetector
+from PhysicsTools.HeppyCore.display.pfobjects import GTrajectories
+from PhysicsTools.HeppyCore.papas.pfalgo.distance  import Distance
+from PhysicsTools.HeppyCore.papas.mergedclusterbuilder import MergedClusterBuilder
+from PhysicsTools.HeppyCore.papas.data.pfevent import PFEvent
+from PhysicsTools.HeppyCore.papas.graphtools.DAG import Node
 
 #todo following Alices merge and reconstruction work
 # - add muons and electrons back into the particles, these
@@ -22,8 +22,8 @@ class PapasSim(Analyzer):
 
     Example configuration:
 
-    from heppy.analyzers.PapasSim import PapasSim
-    from heppy.papas.detectors.CMS import CMS
+    from PhysicsTools.HeppyCore.analyzers.PapasSim import PapasSim
+    from PhysicsTools.HeppyCore.papas.detectors.CMS import CMS
     papas = cfg.Analyzer(
         PapasSim,
         instance_label = 'papas',

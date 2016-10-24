@@ -1,4 +1,4 @@
-from heppy.framework.analyzer import Analyzer
+from PhysicsTools.HeppyCore.framework.analyzer import Analyzer
 import collections
 
 class EventFilter  (Analyzer):
@@ -11,7 +11,7 @@ class EventFilter  (Analyzer):
 
     To reject events with 1 lepton or more: 
 
-    from heppy.analyzers.EventFilter   import EventFilter  
+    from PhysicsTools.HeppyCore.analyzers.EventFilter   import EventFilter  
     lepton_filter = cfg.Analyzer(
       EventFilter  ,
       'lepton_filter',

@@ -1,6 +1,6 @@
-from heppy.framework.analyzer import Analyzer
+from PhysicsTools.HeppyCore.framework.analyzer import Analyzer
 
-from heppy.particles.tlv.met import MET
+from PhysicsTools.HeppyCore.particles.tlv.met import MET
 from ROOT import TLorentzVector 
 
 class METBuilder(Analyzer):

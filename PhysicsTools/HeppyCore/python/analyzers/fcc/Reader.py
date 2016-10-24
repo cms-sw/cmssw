@@ -1,9 +1,9 @@
-from heppy.framework.analyzer import Analyzer
-from heppy.particles.fcc.particle import Particle
-from heppy.particles.fcc.jet import Jet
-from heppy.particles.fcc.vertex import Vertex 
-from heppy.particles.fcc.met import Met
-import heppy.configuration
+from PhysicsTools.HeppyCore.framework.analyzer import Analyzer
+from PhysicsTools.HeppyCore.particles.fcc.particle import Particle
+from PhysicsTools.HeppyCore.particles.fcc.jet import Jet
+from PhysicsTools.HeppyCore.particles.fcc.vertex import Vertex 
+from PhysicsTools.HeppyCore.particles.fcc.met import Met
+import PhysicsTools.HeppyCore.configuration
 
 import math
 
@@ -19,7 +19,7 @@ class Reader(Analyzer):
     
     Example: 
     
-    from heppy.analyzers.fcc.Reader import Reader
+    from PhysicsTools.HeppyCore.analyzers.fcc.Reader import Reader
     source = cfg.Analyzer(
       Reader,
       # all the parameters below are optional: 

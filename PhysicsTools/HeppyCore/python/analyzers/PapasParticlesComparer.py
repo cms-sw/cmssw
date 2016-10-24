@@ -1,13 +1,13 @@
-from heppy.framework.analyzer import Analyzer
-from heppy.papas.data.comparer import ParticlesComparer
-from heppy.papas.data.history import History
-from heppy.papas.data.pfevent import  PFEvent
+from PhysicsTools.HeppyCore.framework.analyzer import Analyzer
+from PhysicsTools.HeppyCore.papas.data.comparer import ParticlesComparer
+from PhysicsTools.HeppyCore.papas.data.history import History
+from PhysicsTools.HeppyCore.papas.data.pfevent import  PFEvent
 
 class PapasParticlesComparer(Analyzer):
     ''' Unsophisticated testing Module that checks that two lists of sorted particles match
        
         Usage:
-            from heppy.analyzers.PapasParticlesComparer import PapasParticlesComparer 
+            from PhysicsTools.HeppyCore.analyzers.PapasParticlesComparer import PapasParticlesComparer 
             particlescomparer = cfg.Analyzer(
                  PapasParticlesComparer ,
                  particlesA = 'papas_PFreconstruction_particles_list',

@@ -1,6 +1,6 @@
 from PhysicsTools.Heppy.analyzers.core.Analyzer import Analyzer
 from PhysicsTools.Heppy.analyzers.core.AutoHandle import AutoHandle
-from heppy.particles.cms.particle import Particle 
+from PhysicsTools.HeppyCore.particles.cms.particle import Particle 
 
 import math
 

@@ -1,4 +1,4 @@
-from heppy.framework.analyzer import Analyzer
+from PhysicsTools.HeppyCore.framework.analyzer import Analyzer
 
 class Counter(Analyzer):
     '''Counts the number of objects in the input_objects collection
@@ -6,7 +6,7 @@ class Counter(Analyzer):
 
     Example: 
 
-    from heppy.analyzers.Counter import Counter
+    from PhysicsTools.HeppyCore.analyzers.Counter import Counter
     gen_counter = cfg.Analyzer(
        Counter,
        input_objects = 'gen_particles_stable',

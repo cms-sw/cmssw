@@ -1,9 +1,9 @@
-from heppy.framework.analyzer import Analyzer
+from PhysicsTools.HeppyCore.framework.analyzer import Analyzer
 from ROOT import TFile, TH1F
 from ROOT import TVector3, TLorentzVector
-from heppy.papas.path import Helix
+from PhysicsTools.HeppyCore.papas.path import Helix
 import math
-from heppy.utils.deltar import deltaR
+from PhysicsTools.HeppyCore.utils.deltar import deltaR
 
 class ImpactParameter(Analyzer):
     '''This analyzer puts an impact parameter for every charged particle
@@ -12,7 +12,7 @@ class ImpactParameter(Analyzer):
     thus this may not be correct for large impact parameters (more than 3 mm).
     The Impact parameter significance is stored in the particle's path.
     
-    New attributes for heppy.papas.pfobjects.Particle.path (from compute_IP) :
+    New attributes for PhysicsTools.HeppyCore.papas.pfobjects.Particle.path (from compute_IP) :
     *   closest_t = time of closest approach to the primary vertex.
     *   IP = signed impact parameter
     *   IPcoord = TVector3 of the point of closest approach to the
@@ -49,8 +49,8 @@ class ImpactParameter(Analyzer):
     Example of configuration : the root files contain the distributions of IP or IPs histograms (h_u, h_b ...)
     that can be divided (num/denom) to get the ratio.
 
-    from heppy.papas.detectors.CMS import CMS
-    from heppy.analyzers.ImpactParameter import ImpactParameter
+    from PhysicsTools.HeppyCore.papas.detectors.CMS import CMS
+    from PhysicsTools.HeppyCore.analyzers.ImpactParameter import ImpactParameter
     btag = cfg.Analyzer(
         ImpactParameter,
         jets = 'jets',

@@ -1,7 +1,7 @@
-from heppy.framework.analyzer import Analyzer
-from heppy.particles.tlv.particle import Particle
-from heppy.particles.tlv.jet import Jet
-from heppy.particles.jet import JetConstituents
+from PhysicsTools.HeppyCore.framework.analyzer import Analyzer
+from PhysicsTools.HeppyCore.particles.tlv.particle import Particle
+from PhysicsTools.HeppyCore.particles.tlv.jet import Jet
+from PhysicsTools.HeppyCore.particles.jet import JetConstituents
 
 from ROOT import TLorentzVector
 
@@ -11,7 +11,7 @@ class P4SumBuilder(Analyzer):
     '''Computes the 4 momentum recoiling agains a selection of particles.
     
     Example: 
-    from heppy.analyzers.P4SumBuilder import P4SumBuilder
+    from PhysicsTools.HeppyCore.analyzers.P4SumBuilder import P4SumBuilder
     recoil = cfg.Analyzer(
       P4SumBuilder,
       output = 'sum_ptc',

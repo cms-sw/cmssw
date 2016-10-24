@@ -1,5 +1,5 @@
-from heppy.framework.analyzer import Analyzer
-from heppy.particles.tlv.particle import Particle as Recoil
+from PhysicsTools.HeppyCore.framework.analyzer import Analyzer
+from PhysicsTools.HeppyCore.particles.tlv.particle import Particle as Recoil
 
 from ROOT import TLorentzVector
 
@@ -9,7 +9,7 @@ class RecoilBuilder(Analyzer):
     '''Computes the 4 momentum recoiling agains a selection of particles.
     
     Example: 
-    from heppy.analyzers.RecoilBuilder import RecoilBuilder
+    from PhysicsTools.HeppyCore.analyzers.RecoilBuilder import RecoilBuilder
     recoil = cfg.Analyzer(
       RecoilBuilder,
       output = 'recoil',

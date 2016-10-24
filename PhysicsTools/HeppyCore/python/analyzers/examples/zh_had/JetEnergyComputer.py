@@ -1,11 +1,11 @@
-from heppy.framework.analyzer import Analyzer
+from PhysicsTools.HeppyCore.framework.analyzer import Analyzer
 import copy
 
 class JetEnergyComputer(Analyzer):
     '''Use the initial p4 to constrain the energy of the 4 jets,
     in ee -> 4 jet final states.
     
-    from heppy.analyzers.examples.zh_had.JetEnergyComputer import JetEnergyComputer
+    from PhysicsTools.HeppyCore.analyzers.examples.zh_had.JetEnergyComputer import JetEnergyComputer
     compute_jet_energy = cfg.Analyzer(
       JetEnergyComputer,
       output_jets='rescaled_jets',

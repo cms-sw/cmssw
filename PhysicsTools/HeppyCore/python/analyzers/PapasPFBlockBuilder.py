@@ -1,7 +1,7 @@
-from heppy.framework.analyzer import Analyzer
-from heppy.papas.pfalgo.pfblockbuilder import PFBlockBuilder
-from heppy.papas.data.pfevent import PFEvent
-from heppy.papas.pfalgo.distance  import Distance
+from PhysicsTools.HeppyCore.framework.analyzer import Analyzer
+from PhysicsTools.HeppyCore.papas.pfalgo.pfblockbuilder import PFBlockBuilder
+from PhysicsTools.HeppyCore.papas.data.pfevent import PFEvent
+from PhysicsTools.HeppyCore.papas.pfalgo.distance  import Distance
 
 
 class PapasPFBlockBuilder(Analyzer):
@@ -10,7 +10,7 @@ class PapasPFBlockBuilder(Analyzer):
         
         
         Usage:
-        from heppy.analyzers.PapasPFBlockBuilder import PapasPFBlockBuilder
+        from PhysicsTools.HeppyCore.analyzers.PapasPFBlockBuilder import PapasPFBlockBuilder
         pfblocks = cfg.Analyzer(
             PapasPFBlockBuilder,
             tracks = 'tracks', 
