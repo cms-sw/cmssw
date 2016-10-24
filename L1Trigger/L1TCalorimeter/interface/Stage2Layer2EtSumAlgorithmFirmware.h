@@ -35,7 +35,8 @@ namespace l1t {
     int32_t metEtaMaxHF_;
     int32_t ettEtaMax_;
     int32_t ettEtaMaxHF_;
-	
+    int32_t nTowThresholdHw_;
+    int32_t nTowEtaMax_;	
   };
 }
 
