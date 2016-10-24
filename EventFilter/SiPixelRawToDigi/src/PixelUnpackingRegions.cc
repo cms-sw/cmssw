@@ -24,9 +24,7 @@
 namespace {
   bool isBPIXFED(unsigned int fed) {return fed< 32;}
   bool isFPIXFED(unsigned int fed) {return fed>=32;}
-  //bool isBPIXFEDPhase1(unsigned int fed) {return fed< 1276;}
-  //bool isFPIXFEDPhase1(unsigned int fed) {return fed>=1276;}
-  bool isBPIXFEDPhase1(unsigned int fed) {return fed< 1280;}
+  bool isBPIXFEDPhase1(unsigned int fed) {return fed< 1280;} // for v3 map, 1276 for v2 map, 
   bool isFPIXFEDPhase1(unsigned int fed) {return fed>=1280;}
   bool isBPIXModule(unsigned int id) {return DetId(id).subdetId() == PixelSubdetector::PixelBarrel;}
   bool isFPIXModule(unsigned int id) {return DetId(id).subdetId() == PixelSubdetector::PixelEndcap;}
@@ -108,8 +106,6 @@ void PixelUnpackingRegions::initialize(const edm::EventSetup& es)
 	(geom->isThere(GeomDetEnumerators::P1PXEC)) ) phase1_ = true;
     else phase1_ = false;
     
-    //if(phase1_) std::cout<<"This is for phase1 geometry "<<std::endl;
-
     phiBPIX_.clear();
     phiFPIXp_.clear();
     phiFPIXm_.clear();
