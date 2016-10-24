@@ -6,6 +6,7 @@
 #include <vector>
 #include <memory>
 #include <unordered_map>
+#include <unordered_set>
 
 #include "DataFormats/HGCDigi/interface/HGCDigiCollections.h"
 #include "FWCore/Utilities/interface/EDMException.h"
@@ -15,6 +16,8 @@
 #include "SimCalorimetry/HGCalSimProducers/interface/HGCDigitizerTypes.h"
 
 #include "SimCalorimetry/HGCalSimProducers/interface/HGCFEElectronics.h"
+
+#include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 
 namespace hgc = hgc_digi;
 
@@ -34,7 +37,9 @@ class HGCDigitizerBase {
  /**
     @short steer digitization mode
  */
-  void run(std::unique_ptr<DColl> &digiColl, hgc::HGCSimHitDataAccumulator &simData, uint32_t digitizationType,CLHEP::HepRandomEngine* engine);
+  void run(std::unique_ptr<DColl> &digiColl, hgc::HGCSimHitDataAccumulator &simData, 
+	   const CaloSubdetectorGeometry* theGeom, const std::unordered_set<DetId>& validIds,
+	   uint32_t digitizationType,CLHEP::HepRandomEngine* engine);
   
   /**
      @short getters
@@ -46,7 +51,9 @@ class HGCDigitizerBase {
   /**
      @short a trivial digitization: sum energies and digitize without noise
    */
-  void runSimple(std::unique_ptr<DColl> &coll, hgc::HGCSimHitDataAccumulator &simData, CLHEP::HepRandomEngine* engine);
+  void runSimple(std::unique_ptr<DColl> &coll, hgc::HGCSimHitDataAccumulator &simData, 
+		 const CaloSubdetectorGeometry* theGeom, const std::unordered_set<DetId>& validIds,
+		 CLHEP::HepRandomEngine* engine);
   
   /**
      @short prepares the output according to the number of time samples to produce
@@ -56,7 +63,9 @@ class HGCDigitizerBase {
   /**
      @short to be specialized by top class
   */
-  virtual void runDigitizer(std::unique_ptr<DColl> &coll, hgc::HGCSimHitDataAccumulator &simData,uint32_t digitizerType, CLHEP::HepRandomEngine* engine)
+  virtual void runDigitizer(std::unique_ptr<DColl> &coll, hgc::HGCSimHitDataAccumulator &simData,
+			    const CaloSubdetectorGeometry* theGeom, const std::unordered_set<DetId>& validIds,
+			    uint32_t digitizerType, CLHEP::HepRandomEngine* engine)
   {
     throw cms::Exception("HGCDigitizerBaseException") << " Failed to find specialization of runDigitizer";
   }
