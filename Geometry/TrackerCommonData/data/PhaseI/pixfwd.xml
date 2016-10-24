@@ -22,10 +22,7 @@
 
  <Constant name="FlexCableDiskRmin" value="117.35*mm"/>
  <Constant name="FlexCableDiskRmax" value="167.9*mm"/>
- <Constant name="FlexCableDiskThickness" value="0.3*mm"/>
-
- <Constant name="DistanceBetweenDisksAndFlexCable" value="37*mm"/>
- <Constant name="DistanceBetweenDisksAndFlexCable3" value="36*mm"/>
+ <Constant name="FlexCableDiskThickness" value="0.3*mm"/> <!-- This is actually *half* thickness -->
 
 </ConstantsSection>
 
@@ -49,8 +46,6 @@
  <ZSection z="-[RootStartZ]"  rMin="[cms:TrackBeamR1]"  rMax="[RootRadius]"/>
  </Polycone>
   
- <Tubs name="FlexCableDisk" rMin="[FlexCableDiskRmin]" rMax="[FlexCableDiskRmax]" dz="[FlexCableDiskThickness]" startPhi="0." deltaPhi="360*deg"/>
-
 </SolidSection>
  
 <LogicalPartSection label="pixfwd.xml">
@@ -61,10 +56,6 @@
  <LogicalPart name="PixelForwardZminus" category="envelope">
   <rSolid name="PixelForwardZminus"/>
   <rMaterial name="materials:Air"/>
- </LogicalPart>
- <LogicalPart name="FlexCableDisk" category="support">
-    <rSolid name="FlexCableDisk"/>
-    <rMaterial name="pixfwdMaterials:Pix_Fwd_AluFelxCable2"/>
  </LogicalPart>
 
 </LogicalPartSection>
@@ -104,78 +95,6 @@
     <rParent name="pixfwd:PixelForwardZminus"/>
     <rChild name="pixfwdDisks:PixelForwardDiskZminus"/>
     <Translation x="0." y="0." z="-[AnchorZ]-[Disk3Z]" />
-  </PosPart>
-
-  <PosPart copyNumber="1">
-    <rParent name="pixfwd:PixelForwardZplus"/>
-    <rChild name="pixfwd:FlexCableDisk"/>
-    <Translation x="0." y="0." z="[AnchorZ]+[Disk1Z]+[DistanceBetweenDisksAndFlexCable]"/>
-  </PosPart>
-
-  <PosPart copyNumber="2">
-    <rParent name="pixfwd:PixelForwardZplus"/>
-    <rChild name="pixfwd:FlexCableDisk"/>
-    <Translation x="0." y="0." z="[AnchorZ]+[Disk1Z]-[DistanceBetweenDisksAndFlexCable]"/>
-  </PosPart>
-
-  <PosPart copyNumber="1">
-    <rParent name="pixfwd:PixelForwardZminus"/>
-    <rChild name="pixfwd:FlexCableDisk"/>
-    <Translation x="0." y="0." z="-[AnchorZ]-[Disk1Z]+[DistanceBetweenDisksAndFlexCable]"/>
-  </PosPart>
-
-  <PosPart copyNumber="2">
-    <rParent name="pixfwd:PixelForwardZminus"/>
-    <rChild name="pixfwd:FlexCableDisk"/>
-    <Translation x="0." y="0." z="-[AnchorZ]-[Disk1Z]-[DistanceBetweenDisksAndFlexCable3]"/>
-  </PosPart>
-
-  <PosPart copyNumber="3">
-    <rParent name="pixfwd:PixelForwardZplus"/>
-    <rChild name="pixfwd:FlexCableDisk"/>
-    <Translation x="0." y="0." z="[AnchorZ]+[Disk2Z]+[DistanceBetweenDisksAndFlexCable]"/>
-  </PosPart>
-
-  <PosPart copyNumber="4">
-    <rParent name="pixfwd:PixelForwardZplus"/>
-    <rChild name="pixfwd:FlexCableDisk"/>
-    <Translation x="0." y="0." z="[AnchorZ]+[Disk2Z]-[DistanceBetweenDisksAndFlexCable]"/>
-  </PosPart>
-
-  <PosPart copyNumber="3">
-    <rParent name="pixfwd:PixelForwardZminus"/>
-    <rChild name="pixfwd:FlexCableDisk"/>
-    <Translation x="0." y="0." z="-[AnchorZ]-[Disk2Z]+[DistanceBetweenDisksAndFlexCable3]"/>
-  </PosPart>
-
-  <PosPart copyNumber="4">
-    <rParent name="pixfwd:PixelForwardZminus"/>
-    <rChild name="pixfwd:FlexCableDisk"/>
-    <Translation x="0." y="0." z="-[AnchorZ]-[Disk2Z]-[DistanceBetweenDisksAndFlexCable]"/>
-  </PosPart>
-
-  <PosPart copyNumber="5">
-    <rParent name="pixfwd:PixelForwardZplus"/>
-    <rChild name="pixfwd:FlexCableDisk"/>
-    <Translation x="0." y="0." z="[AnchorZ]+[Disk3Z]+[DistanceBetweenDisksAndFlexCable]"/>
-  </PosPart>
-
-  <PosPart copyNumber="6">
-    <rParent name="pixfwd:PixelForwardZplus"/>
-    <rChild name="pixfwd:FlexCableDisk"/>
-    <Translation x="0." y="0." z="[AnchorZ]+[Disk3Z]-[DistanceBetweenDisksAndFlexCable]"/>
-  </PosPart>
-
-  <PosPart copyNumber="5">
-    <rParent name="pixfwd:PixelForwardZminus"/>
-    <rChild name="pixfwd:FlexCableDisk"/>
-    <Translation x="0." y="0." z="-[AnchorZ]-[Disk3Z]+[DistanceBetweenDisksAndFlexCable]"/>
-  </PosPart>
-
-  <PosPart copyNumber="6">
-    <rParent name="pixfwd:PixelForwardZminus"/>
-    <rChild name="pixfwd:FlexCableDisk"/>
-    <Translation x="0." y="0." z="-[AnchorZ]-[Disk3Z]-[DistanceBetweenDisksAndFlexCable]"/>
   </PosPart>
 
   <PosPart copyNumber="1">
