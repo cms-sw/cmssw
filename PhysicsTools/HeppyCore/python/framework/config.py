@@ -35,7 +35,6 @@ def printComps(comps, details=False):
     print '# components with files = ', nCompsWithFiles
     print '# jobs                  = ', nJobs
 
-
 def split(comps):
     '''takes a list of components, split the ones that need to be splitted, 
     and return a new (bigger) list'''
@@ -46,7 +45,16 @@ def split(comps):
 
     splitComps = []
     for comp in comps:
-        if hasattr( comp, 'splitFactor') and comp.splitFactor>1:
+        if hasattr( comp, 'fineSplitFactor') and comp.fineSplitFactor>1:
+            subchunks = range(comp.fineSplitFactor)
+            for ichunk, chunk in enumerate([(f,i) for f in comp.files for i in subchunks]):
+                newComp = copy.deepcopy(comp)
+                newComp.files = [chunk[0]]
+                newComp.fineSplit = ( chunk[1], comp.fineSplitFactor )
+                newComp.name = '{name}_Chunk{index}'.format(name=newComp.name,
+                                                       index=ichunk)
+                splitComps.append( newComp )
+        elif hasattr( comp, 'splitFactor') and comp.splitFactor>1:
             chunkSize = len(comp.files) / comp.splitFactor
             if len(comp.files) % comp.splitFactor:
                 chunkSize += 1
@@ -283,10 +291,12 @@ class Component( CFG ):
                                           files = files,
                                           tree_name = tree_name,
                                           triggers = triggers, **kwargs)
+        self.name = name 
         self.dataset_entries = 0
         self.isData = False
         self.isMC = False
         self.isEmbed = False
+        
 
 
 class DataComponent( Component ):
