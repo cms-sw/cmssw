@@ -36,10 +36,10 @@ cmsDriver.py SingleMuPt10_pythia8_cfi \
 -s GEN,SIM \
 --conditions auto:phase1_2017_realistic \
 -n ${events} \
---era Run2_2017_NewFPix \
+--era Run2_2017 \
 --eventcontent FEVTDEBUG \
 --datatier GEN-SIM \
---geometry Extended2017NewFPix  \
+--geometry Extended2017new  \
 --beamspot NoSmear \
 --customise Validation/Geometry/customiseForDumpMaterialAnalyser_ForPhaseI.customiseForMaterialAnalyser_ForPhaseI \
 --fileout file:SingleMuPt10_pythia8_cfi_GEN_SIM_PhaseI.root \
@@ -58,10 +58,10 @@ if checkFile SingleMuPt10_step2_DIGI_L1_DIGI2RAW_HLT_PhaseI.root ; then
 -s DIGI:pdigi_valid,L1,DIGI2RAW,HLT:@fake \
 --conditions auto:phase1_2017_realistic \
 -n -1 \
---era Run2_2017_NewFPix \
+--era Run2_2017 \
 --eventcontent FEVTDEBUGHLT \
 --datatier GEN-SIM-DIGI-RAW \
---geometry Extended2017NewFPix \
+--geometry Extended2017new \
 --filein file:SingleMuPt10_pythia8_cfi_GEN_SIM_PhaseI.root  \
 --fileout file:SingleMuPt10_step2_DIGI_L1_DIGI2RAW_HLT_PhaseI.root \
 --python_filename SingleMuPt10_step2_DIGI_L1_DIGI2RAW_HLT_PhaseI.py > SingleMuPt10_step2_DIGI_L1_DIGI2RAW_HLT_PhaseI.log 2>&1
@@ -79,10 +79,10 @@ if checkFile SingleMuPt10_step3_RECO_DQM_PhaseI.root ; then
 -s RAW2DIGI,L1Reco,RECO:reconstruction_trackingOnly,VALIDATION:@trackingOnlyValidation,DQM:@trackingOnlyDQM \
 --conditions auto:phase1_2017_realistic \
 -n -1 \
---era Run2_2017_NewFPix \
+--era Run2_2017 \
 --eventcontent RECOSIM,DQM \
 --datatier GEN-SIM-RECO,DQMIO \
---geometry Extended2017NewFPix \
+--geometry Extended2017new \
 --filein file:SingleMuPt10_step2_DIGI_L1_DIGI2RAW_HLT_PhaseI.root  \
 --fileout file:SingleMuPt10_step3_RECO_DQM_PhaseI.root \
 --python_filename SingleMuPt10_step2_RECO_DQM_PhaseI.py \
@@ -101,10 +101,10 @@ if checkFile DQM_V0001_R000000001__Global__CMSSW_X_Y_Z__RECO.root ; then
 -s HARVESTING:@trackingOnlyValidation+@trackingOnlyDQM  \
 --conditions auto:phase1_2017_realistic \
 -n -1   \
---era Run2_2017_NewFPix  \
+--era Run2_2017  \
 --scenario pp  \
 --filetype DQM  \
---geometry Extended2017NewFPix  \
+--geometry Extended2017new  \
 --mc  \
 --filein file:SingleMuPt10_step3_RECO_DQM_PhaseI_inDQM.root  \
 --python_filename SingleMuPt10_step4_HARVESTING_PhaseI.py > SingleMuPt10_step4_HARVESTING_PhaseI.log 2>&1
