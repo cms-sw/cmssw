@@ -36,9 +36,23 @@ void L1TStage2CaloLayer2DEClient::book(DQMStore::IBooker &ibooker){
   IsoTauEtaComp_=ibooker.book1D("IsoTauEtaDERatio","Data/Emul of iso tau Eta", 229, -114.5, 114.5);
   IsoTauPhiComp_=ibooker.book1D("IsoTauPhiDERatio","Data/Emul of iso tau eg Phi", 144, -0.5, 143.5);
   METComp_=ibooker.book1D("METRatio","Data/Emul of MET", 4096, -0.5, 4095.5);
+  METPhiComp_=ibooker.book1D("METPhiRatio","Data/Emul of MET Phi", 1008, -0.5, 1007.5);
+  METHFComp_=ibooker.book1D("METHFRatio","Data/Emul of METHF", 4096, -0.5, 4095.5);
+  METHFPhiComp_=ibooker.book1D("METHFPhiRatio","Data/Emul of METHF Phi", 1008, -0.5, 1007.5);
   MHTComp_=ibooker.book1D("MHTRatio","Data/Emul of MHT", 4096, -0.5, 4095.5);
+  METPhiComp_=ibooker.book1D("MHTPhiRatio","Data/Emul of MHT Phi", 1008, -0.5, 1007.5);
+  MHTHFComp_=ibooker.book1D("MHTHFRatio","Data/Emul of MHTHF", 4096, -0.5, 4095.5);
+  MHTPhiComp_=ibooker.book1D("MHTHFPhiRatio","Data/Emul of MHTHF Phi", 1008, -0.5, 1007.5);
   ETTComp_=ibooker.book1D("ETTRatio","Data/Emul of ET Total", 4096, -0.5, 4095.5);
+  ETTEMComp_=ibooker.book1D("ETTEMRatio","Data/Emul of ET Total", 4096, -0.5, 4095.5);
   HTTComp_=ibooker.book1D("HTTRatio","Data/Emul of HT Total", 4096, -0.5, 4095.5);
+
+  MinBiasHFP0Comp_ = ibooker.book1D("MinBiasHFP0Ratio", "Data/Emul MinBiasHFP0", 16, -0.5, 15.5);
+  MinBiasHFM0Comp_ = ibooker.book1D("MinBiasHFM0Ratio", "Data/Emul MinBiasHFM0", 16, -0.5, 15.5);
+  MinBiasHFP1Comp_ = ibooker.book1D("MinBiasHFP1Ratio", "Data/Emul MinBiasHFP1", 16, -0.5, 15.5);
+  MinBiasHFM1Comp_ = ibooker.book1D("MinBiasHFM1Ratio", "Data/Emul MinBiasHFM1", 16, -0.5, 15.5);
+
+  TowerCountComp_ = ibooker.book1D("TowCountRatio", "Data/Emul Tower Count", 5904, -0.5, 5903.5);
 
   SummaryPlot_ = ibooker.book1D("CaloLayer2Summary", "CaloLayer2 Data-Emulator agreement summary", 35, 0, 35);
 }
@@ -285,6 +299,49 @@ void L1TStage2CaloLayer2DEClient::processHistograms(DQMStore::IGetter &igetter){
     METRatio->Divide(metNum, metDen);
   }
 
+  /*
+  // MET Phi
+  dataHist_ = igetter.get(input_dir_data_+"/Energy-Sums/"+"METPhi");
+  emulHist_ = igetter.get(input_dir_emul_+"/Energy-Sums/"+"METPhi");
+
+  if (dataHist_ && emulHist_){
+    TH1F *metphiNum = dataHist_->getTH1F();
+    TH1F *metphiDen = emulHist_->getTH1F();
+    
+    TH1F *METPhiRatio = METPhiComp_->getTH1F();
+    
+    METPhiRatio->Divide(metphiNum, metphiDen);
+  } 
+  */ 
+
+  // METHF
+  dataHist_ = igetter.get(input_dir_data_+"/Energy-Sums/"+"METHFRank");
+  emulHist_ = igetter.get(input_dir_emul_+"/Energy-Sums/"+"METHFRank");
+
+  if (dataHist_ && emulHist_){
+    TH1F *methfNum = dataHist_->getTH1F();
+    TH1F *methfDen = emulHist_->getTH1F();
+
+    TH1F *METHFRatio = METHFComp_->getTH1F();
+
+    METHFRatio->Divide(methfNum, methfDen);
+  }
+
+  /*
+  // METHF Phi
+  dataHist_ = igetter.get(input_dir_data_+"/Energy-Sums/"+"METHFPhi");
+  emulHist_ = igetter.get(input_dir_emul_+"/Energy-Sums/"+"METHFPhi");
+
+  if (dataHist_ && emulHist_){
+    TH1F *methfphiNum = dataHist_->getTH1F();
+    TH1F *methfphiDen = emulHist_->getTH1F();
+
+    TH1F *METHFPhiRatio = METHFPhiComp_->getTH1F();
+
+    METHFPhiRatio->Divide(methfphiNum, methfphiDen);
+  }
+  */
+
   // MHT
   dataHist_ = igetter.get(input_dir_data_+"/Energy-Sums/"+"MHTRank");
   emulHist_ = igetter.get(input_dir_emul_+"/Energy-Sums/"+"MHTRank");
@@ -298,6 +355,33 @@ void L1TStage2CaloLayer2DEClient::processHistograms(DQMStore::IGetter &igetter){
     MHTRatio->Divide(mhtNum, mhtDen);
   }
 
+  // MHTHF
+  dataHist_ = igetter.get(input_dir_data_+"/Energy-Sums/"+"MHTHFRank");
+  emulHist_ = igetter.get(input_dir_emul_+"/Energy-Sums/"+"MHTHFRank");
+
+  if (dataHist_ && emulHist_){
+    TH1F *mhthfNum = dataHist_->getTH1F();
+    TH1F *mhthfDen = emulHist_->getTH1F();
+
+    TH1F *MHTHFRatio = MHTHFComp_->getTH1F();
+
+    MHTHFRatio->Divide(mhthfNum, mhthfDen);
+  }
+
+  /*
+  // MHTHF Phi
+  dataHist_ = igetter.get(input_dir_data_+"/Energy-Sums/"+"MHTHFPhi");
+  emulHist_ = igetter.get(input_dir_emul_+"/Energy-Sums/"+"MHTHFPhi");
+
+  if (dataHist_ && emulHist_){
+    TH1F *mhthfphiNum = dataHist_->getTH1F();
+    TH1F *mhthfphiDen = emulHist_->getTH1F();
+
+    TH1F *MHTHFPhiRatio = MHTHFPhiComp_->getTH1F();
+
+    MHTHFPhiRatio->Divide(mhthfphiNum, mhthfphiDen);
+    }*/
+
   // ETT
   dataHist_ = igetter.get(input_dir_data_+"/Energy-Sums/"+"ETTRank");
   emulHist_ = igetter.get(input_dir_emul_+"/Energy-Sums/"+"ETTRank");
@@ -309,6 +393,19 @@ void L1TStage2CaloLayer2DEClient::processHistograms(DQMStore::IGetter &igetter){
     TH1F *ETTRatio = ETTComp_->getTH1F();
     
     ETTRatio->Divide(ettNum, ettDen);
+  }
+
+  // ETTEM
+  dataHist_ = igetter.get(input_dir_data_+"/Energy-Sums/"+"ETTEMRank");
+  emulHist_ = igetter.get(input_dir_emul_+"/Energy-Sums/"+"ETTEMRank");
+
+  if (dataHist_ && emulHist_){
+    TH1F *ettemNum = dataHist_->getTH1F();
+    TH1F *ettemDen = emulHist_->getTH1F();
+
+    TH1F *ETTEMRatio = ETTEMComp_->getTH1F();
+
+    ETTEMRatio->Divide(ettemNum, ettemDen);
   }
 
   // HTT
@@ -324,190 +421,117 @@ void L1TStage2CaloLayer2DEClient::processHistograms(DQMStore::IGetter &igetter){
     HTTRatio->Divide(httNum, httDen);
   }
 
+  // MBHFP0
+  dataHist_ = igetter.get(input_dir_data_+"/Energy-Sums/"+"MinBiasHFP0");
+  emulHist_ = igetter.get(input_dir_emul_+"/Energy-Sums/"+"MinBiasHFP0");
+
+  if (dataHist_ && emulHist_){
+    TH1F *mbhfp0Num = dataHist_->getTH1F();
+    TH1F *mbhfp0Den = emulHist_->getTH1F();
+
+    TH1F *MBHFP0Ratio = MinBiasHFP0Comp_->getTH1F();
+
+    MBHFP0Ratio->Divide(mbhfp0Num, mbhfp0Den);
+  }
+
+  // MBHFM0
+  dataHist_ = igetter.get(input_dir_data_+"/Energy-Sums/"+"MinBiasHFM0");
+  emulHist_ = igetter.get(input_dir_emul_+"/Energy-Sums/"+"MinBiasHFM0");
+
+  if (dataHist_ && emulHist_){
+    TH1F *mbhfm0Num = dataHist_->getTH1F();
+    TH1F *mbhfm0Den = emulHist_->getTH1F();
+
+    TH1F *MBHFM0Ratio = MinBiasHFM0Comp_->getTH1F();
+
+    MBHFM0Ratio->Divide(mbhfm0Num, mbhfm0Den);
+  }
+
+  // MBHFP1
+  dataHist_ = igetter.get(input_dir_data_+"/Energy-Sums/"+"MinBiasHFP1");
+  emulHist_ = igetter.get(input_dir_emul_+"/Energy-Sums/"+"MinBiasHFP1");
+
+  if (dataHist_ && emulHist_){
+    TH1F *mbhfp1Num = dataHist_->getTH1F();
+    TH1F *mbhfp1Den = emulHist_->getTH1F();
+
+    TH1F *MBHFP1Ratio = MinBiasHFP1Comp_->getTH1F();
+
+    MBHFP1Ratio->Divide(mbhfp1Num, mbhfp1Den);
+  }
+
+  // MBHFM1
+  dataHist_ = igetter.get(input_dir_data_+"/Energy-Sums/"+"MinBiasHFM1");
+  emulHist_ = igetter.get(input_dir_emul_+"/Energy-Sums/"+"MinBiasHFM1");
+
+  if (dataHist_ && emulHist_){
+    TH1F *mbhfm1Num = dataHist_->getTH1F();
+    TH1F *mbhfm1Den = emulHist_->getTH1F();
+
+    TH1F *MBHFM1Ratio = MinBiasHFM1Comp_->getTH1F();
+
+    MBHFM1Ratio->Divide(mbhfm1Num, mbhfm1Den);
+  }
+
+  // TowerCount
+  dataHist_ = igetter.get(input_dir_data_+"/Energy-Sums/"+"TowCount");
+  emulHist_ = igetter.get(input_dir_emul_+"/Energy-Sums/"+"TowCount");
+
+  if (dataHist_ && emulHist_){
+    TH1F *towCountNum = dataHist_->getTH1F();
+    TH1F *towCountDen = emulHist_->getTH1F();
+
+    TH1F *TowCountRatio = TowerCountComp_->getTH1F();
+
+    TowCountRatio->Divide(towCountNum, towCountDen);
+  }
 
   // Summary plot
   TH1F * SummaryHist = SummaryPlot_->getTH1F();
-  for (int i = 1; i < SummaryHist->GetXaxis()->GetNbins() + 1; ++i) {
-    SummaryHist->GetXaxis()->SetBinLabel(i, summaryLabels[i-1].c_str());
-  }
 
-  // CenJetEt, CenJetPhi, CenJetEta, ForJetEt, ForJetPhi, ForJetEta
-  // IsoEGEt, IsoEGPhi, IsoEGEta, NIsoEGEt, NIsoEGPhi, NIsoEGEta
-  // IsoTauEt, IsoTauPhi, IsoTauEta, NIsoTauEt, NIsoTauPhi, NIsoTauEta, 
-  // METRank, METPhi, METHFRank, METHFPhi, 
-  // ETTRank, ETTHFRank, HTTRank, HTTHFRank, 
-
-
-  // temporarily create placeholders for histograms that do not yet exist in DQM
-
-  // central jet et
-  addObjToSummary(igetter, SummaryHist, std::string("/Central-Jets/CenJetsRank"), summaryLabels[0].c_str());
-  
-  // central jet eta
-  addObjToSummary(igetter, SummaryHist, std::string("/Central-Jets/CenJetsEta"), summaryLabels[1].c_str());
-  
-  // central jet phi
-  addObjToSummary(igetter, SummaryHist, std::string("/Central-Jets/CenJetsPhi"), summaryLabels[2].c_str());
-
-  // forward jet et
-  addObjToSummary(igetter, SummaryHist, std::string("/Forward-Jets/ForJetsRank"), summaryLabels[3].c_str());
-  // TH1F *fjrNum = igetter.get(input_dir_data_+"/Forward-Jets/"+"ForJetsRank")->getTH1F();
-  // TH1F *fjrDen = igetter.get(input_dir_emul_+"/Forward-Jets/"+"ForJetsRank")->getTH1F();
-
-  // forward jet eta 
-  addObjToSummary(igetter, SummaryHist, std::string("/Forward-Jets/ForJetsEta"), summaryLabels[4].c_str());
-  // TH1F *fjeNum = igetter.get(input_dir_data_+"/Forward-Jets/"+"ForJetsEta")->getTH1F();
-  // TH1F *fjeDen = igetter.get(input_dir_emul_+"/Forward-Jets/"+"ForJetsEta")->getTH1F();
-
-  // foward jet phi
-  addObjToSummary(igetter, SummaryHist, std::string("/Forward-Jets/ForJetsPhi"), summaryLabels[5].c_str());
-  // TH1F *fjpNum = igetter.get(input_dir_data_+"/Forward-Jets/"+"ForJetsPhi")->getTH1F();
-  // TH1F *fjpDen = igetter.get(input_dir_emul_+"/Forward-Jets/"+"ForJetsPhi")->getTH1F();
-
-  // iso eg et
-  addObjToSummary(igetter, SummaryHist, std::string("/Isolated-EG/IsoEGsRank"), summaryLabels[6].c_str());
-  // TH1F *ierNum = igetter.get(input_dir_data_+"/Isolated-EG/"+"IsoEGsRank")->getTH1F();
-  // TH1F *ierDen = igetter.get(input_dir_emul_+"/Isolated-EG/"+"IsoEGsRank")->getTH1F();
-
-  // iso eg eta
-  addObjToSummary(igetter, SummaryHist, std::string("/Isolated-EG/IsoEGsEta"), summaryLabels[7].c_str());
-  // TH1F *ieeNum = igetter.get(input_dir_data_+"/Isolated-EG/"+"IsoEGsEta")->getTH1F();
-  // TH1F *ieeDen = igetter.get(input_dir_emul_+"/Isolated-EG/"+"IsoEGsEta")->getTH1F();
-
-  // iso eg phi
-  addObjToSummary(igetter, SummaryHist, std::string("/Isolated-EG/IsoEGsPhi"), summaryLabels[8].c_str());
-  // TH1F *iepNum = igetter.get(input_dir_data_+"/Isolated-EG/"+"IsoEGsPhi")->getTH1F();
-  // TH1F *iepDen = igetter.get(input_dir_emul_+"/Isolated-EG/"+"IsoEGsPhi")->getTH1F();
-
-  // non iso eg et
-  addObjToSummary(igetter, SummaryHist, std::string("/NonIsolated-EG/NonIsoEGsRank"), summaryLabels[9].c_str());
-  // TH1F *nerNum = igetter.get(input_dir_data_+"/NonIsolated-EG/"+"NonIsoEGsRank")->getTH1F();
-  // TH1F *nerDen = igetter.get(input_dir_emul_+"/NonIsolated-EG/"+"NonIsoEGsRank")->getTH1F();
-
-  // non iso eg eta
-  addObjToSummary(igetter, SummaryHist, std::string("/NonIsolated-EG/NonIsoEGsEta"), summaryLabels[10].c_str());
-  // TH1F *neeNum = igetter.get(input_dir_data_+"/NonIsolated-EG/"+"NonIsoEGsEta")->getTH1F();
-  // TH1F *neeDen = igetter.get(input_dir_emul_+"/NonIsolated-EG/"+"NonIsoEGsEta")->getTH1F();
-  
-  // non iso eg phi
-  addObjToSummary(igetter, SummaryHist, std::string("/NonIsolated-EG/NonIsoEGsPhi"), summaryLabels[11].c_str());
-  // TH1F *nepNum = igetter.get(input_dir_data_+"/NonIsolated-EG/"+"NonIsoEGsPhi")->getTH1F();
-  // TH1F *nepDen = igetter.get(input_dir_emul_+"/NonIsolated-EG/"+"NonIsoEGsPhi")->getTH1F();
-
-  // iso tau et
-  addObjToSummary(igetter, SummaryHist, std::string("/Isolated-Tau/IsoTausRank"), summaryLabels[12].c_str());
-  // TH1F *itrNum = igetter.get(input_dir_data_+"/NonIsolated-Tau/"+"IsoTausRank")->getTH1F();
-  // TH1F *itrDen = igetter.get(input_dir_emul_+"/NonIsolated-Tau/"+"IsoTausRank")->getTH1F();
-
-  // iso tau eta 
-  addObjToSummary(igetter, SummaryHist, std::string("/Isolated-Tau/IsoTausEta"), summaryLabels[13].c_str());
-  // TH1F *iteNum = igetter.get(input_dir_data_+"/Isolated-Tau/"+"IsoTausEta")->getTH1F();
-  // TH1F *iteDen = igetter.get(input_dir_emul_+"/Isolated-Tau/"+"IsoTausEta")->getTH1F();
-
-  // iso tau phi
-  addObjToSummary(igetter, SummaryHist, std::string("/Isolated-Tau/IsoTausPhi"), summaryLabels[14].c_str());
-  // TH1F *itpNum = igetter.get(input_dir_data_+"/Isolated-Tau/"+"IsoTausPhi")->getTH1F();
-  // TH1F *itpDen = igetter.get(input_dir_emul_+"/Isolated-Tau/"+"IsoTausPhi")->getTH1F();
-
-  // non iso tau et
-  addObjToSummary(igetter, SummaryHist, std::string("/NonIsolated-Tau/TausRank"), summaryLabels[15].c_str());
-  // TH1F *trNum = igetter.get(input_dir_data_+"/NonIsolated-Tau/"+"TausRank")->getTH1F();
-  // TH1F *trDen = igetter.get(input_dir_emul_+"/NonIsolated-Tau/"+"TausRank")->getTH1F();
-
-  // non iso tau phi 
-  addObjToSummary(igetter, SummaryHist, std::string("/NonIsolated-Tau/TausPhi"), summaryLabels[16].c_str());
-  // TH1F *tpNum = igetter.get(input_dir_data_+"/NonIsolated-Tau/"+"TausPhi")->getTH1F();
-  // TH1F *tpDen = igetter.get(input_dir_emul_+"/NonIsolated-Tau/"+"TausPhi")->getTH1F();
-
-  // non iso tau eta 
-  addObjToSummary(igetter, SummaryHist, std::string("/NonIsolated-Tau/TausEta"), summaryLabels[17].c_str());
-  // TH1F *teNum = igetter.get(input_dir_data_+"/NonIsolated-Tau/"+"TausEta")->getTH1F();
-  // TH1F *teDen = igetter.get(input_dir_emul_+"/NonIsolated-Tau/"+"TausEta")->getTH1F();
-
-  // met rank
-  addObjToSummary(igetter, SummaryHist, std::string("/Energy-Sums/METRank"), summaryLabels[18].c_str());
-  // TH1F *metNum = igetter.get(input_dir_data_+"/Energy-Sums/"+"METRank")->getTH1F();
-  // TH1F *metDen = igetter.get(input_dir_emul_+"/Energy-Sums/"+"METRank")->getTH1F();
-
-  // met phi (index - 19)
-  // addObjToSummary(igetter, SummaryHist, std::string("/Central-Jets/CenJetsPhi"), summaryLabels[0].c_str());
-  // TH1F * metpNum = new TH1F();
-  // TH1F * metpDen = new TH1F();
-
-  // methf rank (index - 20)
-  // TH1F * methfNum = new TH1F();
-  // TH1F * methfDen = new TH1F();
-
-  // methf phi (index - 21)
-  // TH1F * methfpNum = new TH1F();
-  // TH1F * methfpDen = new TH1F();
-
-  // mht rank (index - 22)
-  addObjToSummary(igetter, SummaryHist, std::string("/Energy-Sums/MHTRank"), summaryLabels[22].c_str());
-  // TH1F *mhtNum = igetter.get(input_dir_data_+"/Energy-Sums/"+"MHTRank")->getTH1F();
-  // TH1F *mhtDen = igetter.get(input_dir_emul_+"/Energy-Sums/"+"MHTRank")->getTH1F();
-
-  // mht phi (index - 23)
-  // TH1F * mhtpNum = new TH1F();
-  // TH1F * mhtpDen = new TH1F();
-
-  // mhthf rank (index - 24)
-  // TH1F * mhthfNum = new TH1F();
-  // TH1F * mhthfDen = new TH1F();
-
-  // mhthf phi (index - 25)
-  // TH1F * mhthfpNum = new TH1F();
-  // TH1F * mhthfpDen = new TH1F();
-
-  // ett (index - 26)
-  addObjToSummary(igetter, SummaryHist, std::string("/Energy-Sums/ETTRank"), summaryLabels[26].c_str());
-  // TH1F *ettNum = igetter.get(input_dir_data_+"/Energy-Sums/"+"ETTRank")->getTH1F();
-  // TH1F *ettDen = igetter.get(input_dir_emul_+"/Energy-Sums/"+"ETTRank")->getTH1F();
-
-  // etthf (index - 27)
-  // TH1F * etthfNum = new TH1F();
-  // TH1F * etthfDen = new TH1F();
-
-  // htt (index - 28)
-  addObjToSummary(igetter, SummaryHist, std::string("/Energy-Sums/HTTRank"), summaryLabels[28].c_str());
-  // TH1F *httNum = igetter.get(input_dir_data_+"/Energy-Sums/"+"HTTRank")->getTH1F();
-  // TH1F *httDen = igetter.get(input_dir_emul_+"/Energy-Sums/"+"HTTRank")->getTH1F();
-
-  // htthf (index - 29)
-  // TH1F * htthfNum = new TH1F();
-  // TH1F * htthfDen = new TH1F();
-
-  // mbhfp0 (index - 30)
-  // TH1F * mbhfp0Num = new TH1F();
-  // TH1F * mbhfp0Den = new TH1F();
-
-  // mbhfm0 (index - 31)
-  // TH1F * mbhfm0Num = new TH1F();
-  // TH1F * mbhfm0Den = new TH1F();
-
-  // mbhfp1 (index - 32)
-  // TH1F * mbhfp1Num = new TH1F();
-  // TH1F * mbhfp1Den = new TH1F();
-
-  // mbhfm1 (index - 33)
-  // TH1F * mbhfm1Num = new TH1F();
-  // TH1F * mbhfm1Den = new TH1F();
-
-  // ettem (index - 34)
-  // TH1F * ettemNum = new TH1F();
-  // TH1F * ettemDen = new TH1F();
-
- // populate summary histogram with data from comparisons
-
-  // SummaryHist->GetPainter()->
+  // add informtion from ratio plots to summary histogram:
+  addObjToSummary(igetter, SummaryHist, std::string("/Central-Jets/CenJetsRank"), "Central Jet iEt");
+  addObjToSummary(igetter, SummaryHist, std::string("/Central-Jets/CenJetsEta"), "Central Jet iEta");
+  addObjToSummary(igetter, SummaryHist, std::string("/Central-Jets/CenJetsPhi"), "Central Jet iPhi");
+  addObjToSummary(igetter, SummaryHist, std::string("/Forward-Jets/ForJetsRank"), "Forward Jet iEt");
+  addObjToSummary(igetter, SummaryHist, std::string("/Forward-Jets/ForJetsEta"), "Forward Jet iEta");
+  addObjToSummary(igetter, SummaryHist, std::string("/Forward-Jets/ForJetsPhi"), "Forward Jet iPhi");
+  addObjToSummary(igetter, SummaryHist, std::string("/Isolated-EG/IsoEGsRank"), "Isolated EG iEt");
+  addObjToSummary(igetter, SummaryHist, std::string("/Isolated-EG/IsoEGsEta"), "Isolated EG iEta");
+  addObjToSummary(igetter, SummaryHist, std::string("/Isolated-EG/IsoEGsPhi"), "Isolated EG iPhi");
+  addObjToSummary(igetter, SummaryHist, std::string("/NonIsolated-EG/NonIsoEGsRank"), "Non-isolated EG iEt");
+  addObjToSummary(igetter, SummaryHist, std::string("/NonIsolated-EG/NonIsoEGsEta"), "Non-isolated EG iEta");
+  addObjToSummary(igetter, SummaryHist, std::string("/NonIsolated-EG/NonIsoEGsPhi"), "Non-isolated EG iPhi");
+  addObjToSummary(igetter, SummaryHist, std::string("/Isolated-Tau/IsoTausRank"), "Isolated Tau iEt");
+  addObjToSummary(igetter, SummaryHist, std::string("/Isolated-Tau/IsoTausEta"), "Isolated Tau iEta");
+  addObjToSummary(igetter, SummaryHist, std::string("/Isolated-Tau/IsoTausPhi"), "Isolated Tau iPhi");
+  addObjToSummary(igetter, SummaryHist, std::string("/NonIsolated-Tau/TausRank"), "Non-isolated Tau iEt");
+  addObjToSummary(igetter, SummaryHist, std::string("/NonIsolated-Tau/TausPhi"), "Non-isolated Tau iPhi");
+  addObjToSummary(igetter, SummaryHist, std::string("/NonIsolated-Tau/TausEta"), "Non-isolated Tau iEta");
+  addObjToSummary(igetter, SummaryHist, std::string("/Energy-Sums/METRank"), "MET Rank");
+  addObjToSummary(igetter, SummaryHist, std::string("/Energy-Sums/METPhi"), "MET iPhi");
+  addObjToSummary(igetter, SummaryHist, std::string("/Energy-Sums/METHFRank"), "METHF Rank");
+  addObjToSummary(igetter, SummaryHist, std::string("/Energy-Sums/METHFPhi"), "METHF iPhi");
+  addObjToSummary(igetter, SummaryHist, std::string("/Energy-Sums/MHTRank"), "MHT Rank");
+  addObjToSummary(igetter, SummaryHist, std::string("/Energy-Sums/MHTPhi"), "MHT iPhi");
+  addObjToSummary(igetter, SummaryHist, std::string("/Energy-Sums/MHTHFRank"), "MHTHF Rank");
+  addObjToSummary(igetter, SummaryHist, std::string("/Energy-Sums/MHTHFPhi"), "MHTHF iPhi");
+  addObjToSummary(igetter, SummaryHist, std::string("/Energy-Sums/ETTRank"), "ETT Rank");
+  addObjToSummary(igetter, SummaryHist, std::string("/Energy-Sums/HTTRank"), "HTT Rank");
+  addObjToSummary(igetter, SummaryHist, std::string("/Energy-Sums/MBHFP0"), "MinBiasHFP0");
+  addObjToSummary(igetter, SummaryHist, std::string("/Energy-Sums/MBHFM0"), "MinBiasHFM0");
+  addObjToSummary(igetter, SummaryHist, std::string("/Energy-Sums/MBHFP1"), "MinBiasHFP1");
+  addObjToSummary(igetter, SummaryHist, std::string("/Energy-Sums/MBHFM1"), "MinBiasHFM1");
+  addObjToSummary(igetter, SummaryHist, std::string("/Energy-Sums/ETTEMRank"), "ETTEM Rank");
+  addObjToSummary(igetter, SummaryHist, std::string("/Energy-Sums/TowCount"), "Tower Count");
 
   SummaryHist->GetXaxis()->SetLabelSize(0.02);
   SummaryHist->SetMarkerStyle(21);
-
+  SummaryHist->LabelsDeflate();
 }
-void L1TStage2CaloLayer2DEClient::addObjToSummary(DQMStore::IGetter & getter, TH1F * hist, std::string objPath, const char * binLabel) {// ,
-  //		     std::string inputDirData, std::string inputDirEmu) {
-  
+
+void L1TStage2CaloLayer2DEClient::addObjToSummary(DQMStore::IGetter & getter, TH1F * hist, std::string objPath, const char * binLabel) {
+
   MonitorElement* dataHist_;
   MonitorElement* emulHist_;
 
@@ -521,8 +545,8 @@ void L1TStage2CaloLayer2DEClient::addObjToSummary(DQMStore::IGetter & getter, TH
     
     hist->Fill(binLabel, dataInt/emuInt);
   }
-
 }  
+
 void L1TStage2CaloLayer2DEClient::dqmEndJob(DQMStore::IBooker &ibooker, DQMStore::IGetter &igetter) {
   book(ibooker);
   processHistograms(igetter);
