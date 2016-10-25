@@ -63,8 +63,8 @@ root volume plus an anchor point for positioning.
  <Constant name="CylindersServiceZMin" value="[CylindersServiceZoff]"/>
  <Constant name="CylindersServiceZMax" value="[CylindersOuterLength]"/>
 
- <Constant name="CarbonFiberSheetNearIPRmin" value="101.0*mm"/>
  <Constant name="CarbonFiberSheetNearIPRmax" value="168.0*mm"/>
+ <Constant name="CarbonFiberSheetNearIPRmin" value="[CarbonFiberSheetNearIPRmax] - 77.0*mm"/>
  <Constant name="CarbonFiberSheetNearIPThickness" value="0.2*mm"/>
 
  <Constant name="FlexCableDepth" value="0.90*mm"/>
