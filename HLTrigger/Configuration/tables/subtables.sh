@@ -3,19 +3,7 @@
 # utility functions used to generate HLT tables from master table in ConfDB
 #
 
-# load common HLT functions
-if [ -f "$CMSSW_BASE/src/HLTrigger/Configuration/common/utils.sh" ]; then
-  source "$CMSSW_BASE/src/HLTrigger/Configuration/common/utils.sh"
-elif [ -f "$CMSSW_RELEASE_BASE/src/HLTrigger/Configuration/common/utils.sh" ]; then
-  source "$CMSSW_RELEASE_BASE/src/HLTrigger/Configuration/common/utils.sh"
-else
-  exit 1
-fi
-
 CONFDB_TAG="HEAD"
-
-# if set, remove the ConfDB working directory
-private=false
 
 function cleanup() {
   local TABLES="$@"
@@ -24,14 +12,10 @@ function cleanup() {
   for TABLE in $TABLES; do
     rm -f "${TABLE}_expanded.txt"
   done
-
-  if $private; then
-    rm -rf $workDir
-  fi
 }
 
 function getPathList() {
-  local DATA=$(hltConfigFromDB --$Vx --$DB --cff --configName $MASTER --noedsources --noes --noservices --nosequences --nomodules)
+  local DATA=$(hltConfigFromDB --cff --configName $MASTER --noedsources --noes --noservices --nosequences --nomodules)
   if echo "$DATA" | grep -q 'Exhausted Resultset\|CONFIG_NOT_FOUND'; then
     echo "Error: $MASTER is not a valid HLT menu"
     exit 1
@@ -39,72 +23,28 @@ function getPathList() {
   echo "$DATA" | sed -ne's/ *= *cms.\(End\)\?Path.*//p'
 }
 
-function checkJars() {
-  local BASE="$1"; shift
-  local JARS="$@"
-  for F in "$BASE/$JARS"; do
-    [ -f "$F" ] || return 1
-  done
-  return 0
-}
-
 function makeCreateConfig() {
-  local baseDir="/afs/cern.ch/user/c/confdb/www/${Vx}/lib"
-  local baseUrl="http://confdb.web.cern.ch/confdb/${Vx}/lib"
-  local JARS="ojdbc6.jar cmssw-evf-confdb-gui.jar"
-  workDir="$baseDir"
-
-  # try to read the .jar files from AFS, or download them
-  if checkJars "$baseDir" $jars; then
-    # read the .jar fles from AFS
-    workDir="$baseDir"
-  else
-    # try to use $CMSSW_BASE/tmp
-    mkdir -p "$CMSSW_BASE/tmp/confdb"
-    if [ -d "$CMSSW_BASE/tmp/confdb" ]; then
-      workDir="$CMSSW_BASE/tmp/confdb"
-    else
-      workDir=$(mktemp -d confdb.XXXXXXXXXX)
-      private=true
-    fi
-    # download the .jar files
-    for JAR in $JARS; do
-      # check if the file is already present
-      if [ -f $workDir/$JAR ]; then
-        continue
-      fi
-      # download to a temporay file and use an atomic move (in case an other istance is downloading the same file
-      local TMPJAR=$(mktemp -p "$workDir" .${JAR}.XXXXXXXXXX)
-      curl -s "$baseUrl/$JAR" -o "$TMPJAR"
-      mv -n "$TMPJAR" "$workDir/$JAR"
-      rm -f "$TMPJAR"
-    done
+  # if not already present, check out and build the ConfDB converter
+  if ! [ -d "$CMSSW_BASE/hlt-confdb/.git" ]; then
+    mkdir -p "$CMSSW_BASE/hlt-confdb"
+    git clone "https://github.com/cms-sw/hlt-confdb.git" "$CMSSW_BASE/hlt-confdb" 1>&2
   fi
-
-  CLASSPATH=
-  for JAR in $JARS; do
-    CLASSPATH="$CLASSPATH${CLASSPATH:+:}$workDir/$JAR"
-  done
+  if ! [ -f "$CMSSW_BASE/hlt-confdb/lib/cmssw-evf-confdb-gui.jar" ]; then
+    ant -f "$CMSSW_BASE/hlt-confdb/build.xml" gui 1>&2
+  fi
 }
 
 function loadConfiguration() {
-  case "$1" in
-    "v1/offline" | "v1/hltdev")
-      # v1 offline aka "hltdev"
+  case "$1" in 
+    hltdev)
+      # hltdev
       DBHOST="cmsr1-v.cern.ch"
       DBNAME="cms_cond.cern.ch"
       DBUSER="cms_hltdev_writer"
       PWHASH="0196d34dd35b04c0f3597dc89fbbe6e2"
       ;;
-    "v2/offline")
-      # v2 offline
-      DBHOST="cmsr1-v.cern.ch"
-      DBNAME="cms_cond.cern.ch"
-      DBUSER="cms_hlt_gdr_w"
-      PWHASH="0196d34dd35b04c0f3597dc89fbbe6e2"
-      ;;
     *)
-      # see https://github.com/fwyzard/hlt-confdb/blob/confdbv2/test/runCreateConfig
+      # see $CMSSW_BASE/hlt-confdb/test/runCreateConfig for other possible settings
       echo "Error, unnown database \"$1\", exiting."
       exit 1
       ;;
@@ -115,10 +55,8 @@ function runCreateConfig() {
   loadConfiguration "$1"
   java \
     -Djava.security.egd=file:///dev/urandom \
-    -Doracle.jdbc.timezoneAsRegion=false \
-    -Xss32M \
     -Xmx1024m \
-    -classpath "$CLASSPATH" \
+    -classpath "$CMSSW_BASE/hlt-confdb/ext/ojdbc6.jar:$CMSSW_BASE/hlt-confdb/lib/cmssw-evf-confdb-gui.jar" \
     confdb.db.ConfDBCreateConfig \
     --dbHost $DBHOST \
     --dbName $DBNAME \
@@ -171,11 +109,6 @@ function createSubtables() {
   local TARGET="$1";   shift
   local TABLES="$@"
 
-  # extract the schema version from the database name
-  local Vx DB
-  read Vx DB <<< $(parse_HLT_schema "$DATABASE")
-  local DATABASE="${Vx}/${DB}"
-
   # dump the requested configuration
   echo "ConfDB master: $DATABASE:$MASTER"
   echo "Subtables:     $TABLES"
@@ -196,7 +129,7 @@ function createSubtables() {
   fi
 
   # ask the user for the database password
-  readPassword
+  readPassword $DATABASE
 
   # make sure the needed sripts are available
   makeCreateConfig
