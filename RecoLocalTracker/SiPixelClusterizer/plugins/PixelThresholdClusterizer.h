@@ -63,11 +63,19 @@ class dso_hidden PixelThresholdClusterizer final : public PixelClusterizerBase {
   void clusterizeDetUnit( const edm::DetSet<PixelDigi> & input,	
 				  const PixelGeomDetUnit * pixDet,
 				  const std::vector<short>& badChannels,
-				  edmNew::DetSetVector<SiPixelCluster>::FastFiller& output
-);
+				  edmNew::DetSetVector<SiPixelCluster>::FastFiller& output) { clusterizeDetUnitT(input, pixDet, badChannels, output); }
+  void clusterizeDetUnit( const edmNew::DetSet<SiPixelCluster> & input,
+                          const PixelGeomDetUnit * pixDet,
+                          const std::vector<short>& badChannels,
+                          edmNew::DetSetVector<SiPixelCluster>::FastFiller& output) { clusterizeDetUnitT(input, pixDet, badChannels, output); }
 
-  
  private:
+
+  template<typename T>
+  void clusterizeDetUnitT( const T & input,
+                           const PixelGeomDetUnit * pixDet,
+                           const std::vector<short>& badChannels,
+                           edmNew::DetSetVector<SiPixelCluster>::FastFiller& output);
 
   //! Data storage
   SiPixelArrayBuffer               theBuffer;         // internal nrow * ncol matrix
@@ -96,7 +104,9 @@ class dso_hidden PixelThresholdClusterizer final : public PixelClusterizerBase {
   //! Private helper methods:
   bool setup(const PixelGeomDetUnit * pixDet);
   void copy_to_buffer( DigiIterator begin, DigiIterator end );   
-  void clear_buffer( DigiIterator begin, DigiIterator end );   
+  void copy_to_buffer( ClusterIterator begin, ClusterIterator end );
+  void clear_buffer( DigiIterator begin, DigiIterator end );
+  void clear_buffer( ClusterIterator begin, ClusterIterator end );
   SiPixelCluster make_cluster( const SiPixelCluster::PixelPos& pix, edmNew::DetSetVector<SiPixelCluster>::FastFiller& output
 );
   // Calibrate the ADC charge to electrons 
