@@ -22,7 +22,7 @@ typedef GeometricSearchDet::DetWithState DetWithState;
 const std::vector<const GeometricSearchDet*>& Phase2OTEndcapLayer::components() const{
   if (not theComponents) {
     auto temp = std::make_unique<std::vector<const GeometricSearchDet*>>();
-    temp->reserve(NOTECRINGS);
+    temp->reserve(15);   // This number is just an upper bound
     for ( auto c: theComps) temp->push_back(c);
     std::vector<const GeometricSearchDet*>* expected = nullptr;
     if(theComponents.compare_exchange_strong(expected,temp.get())) {
@@ -39,11 +39,12 @@ Phase2OTEndcapLayer::fillRingPars(int i) {
   const BoundDisk& ringDisk = static_cast<const BoundDisk&>(theComps[i]->surface());
   float ringMinZ = std::abs( ringDisk.position().z()) - ringDisk.bounds().thickness()/2.;
   float ringMaxZ = std::abs( ringDisk.position().z()) + ringDisk.bounds().thickness()/2.; 
-  ringPars[i].thetaRingMin =  ringDisk.innerRadius()/ ringMaxZ;
-  ringPars[i].thetaRingMax =  ringDisk.outerRadius()/ ringMinZ;
-  ringPars[i].theRingR=( ringDisk.innerRadius() +
+  RingPar tempPar; 
+  tempPar.thetaRingMin =  ringDisk.innerRadius()/ ringMaxZ;
+  tempPar.thetaRingMax =  ringDisk.outerRadius()/ ringMinZ;
+  tempPar.theRingR=( ringDisk.innerRadius() +
 			 ringDisk.outerRadius())/2.;
-
+  ringPars.push_back(tempPar); 
 }
 
 
@@ -54,11 +55,12 @@ Phase2OTEndcapLayer::Phase2OTEndcapLayer(vector<const Phase2OTEndcapRing*>& ring
   //They should be already R-ordered. TO BE CHECKED!!
   //sort( theRings.begin(), theRings.end(), DetLessR());
 
-  if ( rings.size() != NOTECRINGS) throw DetLayerException("Number of rings in Phase2 OT EC layer is not equal to NOTECRINGS !!");
+  theRingSize = rings.size();
+  LogDebug("TkDetLayers") << "Number of rings in Phase2 OT EC layer is " << theRingSize << std::endl;
   setSurface( computeDisk( rings ) );
 
-  for(int i=0; i!=NOTECRINGS; ++i) {
-    theComps[i]=rings[i];
+  for(unsigned int i=0; i!=rings.size(); ++i) {
+    theComps.push_back(rings[i]);
     fillRingPars(i);
     theBasicComps.insert(theBasicComps.end(),	
 			 (*rings[i]).basicComponents().begin(),
@@ -128,11 +130,11 @@ Phase2OTEndcapLayer::groupedCompatibleDetsV( const TrajectoryStateOnSurface& sta
   }
 
   //order is odd rings in front of even rings
-#ifdef __INTEL_COMPILER
-  const int ringOrder[NOTECRINGS]{0,1,0,1,0,1,0,1,0,1,0,1,0,1,0};
-#else
-  constexpr int ringOrder[NOTECRINGS]{0,1,0,1,0,1,0,1,0,1,0,1,0,1,0};
-#endif
+  std::vector<int> ringOrder(theRingSize);
+  std::fill(ringOrder.begin(), ringOrder.end(), 1);
+  for (int i=0; i<theRingSize; i++) {
+    if(i % 2 == 0) ringOrder.at(i) = 0;
+  }
   auto index = [&ringIndices,& ringOrder](int i) { return ringOrder[ringIndices[i]];};
 
   std::vector<DetGroup> closestResult;
@@ -248,19 +250,20 @@ Phase2OTEndcapLayer::ringIndicesByCrossingProximity(const TrajectoryStateOnSurfa
   
   Crossing myXing(  startPos, startDir, rho, propDir );
 
-  GlobalPoint   ringCrossings[NOTECRINGS];
+  std::vector<GlobalPoint> ringCrossings;
+  ringCrossings.reserve(theRingSize);
   // vector<GlobalVector>  ringXDirections;
 
-  for (int i = 0; i < NOTECRINGS ; i++ ) {
+  for (int i = 0; i < theRingSize ; i++ ) {
     const BoundDisk & theRing  = static_cast<const BoundDisk &>(theComps[i]->surface());
     pair<bool,double> pathlen = myXing.pathLength( theRing);
     if ( pathlen.first ) { 
-      ringCrossings[i] = GlobalPoint( myXing.position(pathlen.second ));
+      ringCrossings.push_back(GlobalPoint( myXing.position(pathlen.second )));
       // ringXDirections.push_back( GlobalVector( myXing.direction(pathlen.second )));
     } else {
       // TO FIX.... perhaps there is something smarter to do
       //throw DetLayerException("trajectory doesn't cross TID rings");
-      ringCrossings[i] = GlobalPoint( 0.,0.,0.);
+      ringCrossings.push_back(GlobalPoint( 0.,0.,0.));
       //  ringXDirections.push_back( GlobalVector( 0.,0.,0.));
     }
   }
@@ -287,7 +290,7 @@ Phase2OTEndcapLayer::computeWindowSize( const GeomDet* det,
 }
 
 std::array<int,3>
-Phase2OTEndcapLayer::findThreeClosest(const GlobalPoint ringCrossing[NOTECRINGS] ) const
+Phase2OTEndcapLayer::findThreeClosest(std::vector<GlobalPoint> ringCrossing ) const
 {
   std::array<int,3> theBins={{-1,-1,-1}};
   theBins[0] = 0;
@@ -295,7 +298,7 @@ Phase2OTEndcapLayer::findThreeClosest(const GlobalPoint ringCrossing[NOTECRINGS]
   float rDiff0 = std::abs( ringCrossing[0].perp() - initialR);
   float rDiff1 = -1.;
   float rDiff2 = -1.;
-  for (int i = 1; i < NOTECRINGS ; i++){
+  for (int i = 1; i < theRingSize ; i++){
     float ringR =  ringPars[i].theRingR;
     float testDiff = std::abs( ringCrossing[i].perp() - ringR);
     if ( testDiff<rDiff0 ) {
