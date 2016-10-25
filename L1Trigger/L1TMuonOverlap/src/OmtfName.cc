@@ -12,6 +12,13 @@ OmtfName::OmtfName(unsigned int iProcesor, int endcap)
   theBoard = static_cast<Board>( sgn(position)*(iproc+1) );
 }
 
+OmtfName::OmtfName(unsigned int iProcesor, l1t::tftype endcap)
+{
+  int iproc = (iProcesor <=5 ) ? static_cast<int>(iProcesor) : -1;
+  int position = (endcap == l1t::omtf_pos ) ? 1 : ( (endcap == l1t::omtf_neg ) ? -1 : 0);
+  theBoard = static_cast<Board>( sgn(position)*(iproc+1) );
+}
+
 OmtfName::OmtfName(const std::string & board) 
 {
   if (board=="OMTFn1") theBoard =  OMTFn1;
@@ -51,4 +58,6 @@ std::string OmtfName::name() const
 int OmtfName::position() const { return sgn(theBoard); } 
 
 unsigned int OmtfName::processor() const { return abs(theBoard)-1; }
+
+l1t::tftype OmtfName::tftype() const { return  sgn(theBoard) > 0 ? l1t::omtf_pos : l1t::omtf_neg; }
 
