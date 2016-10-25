@@ -138,7 +138,7 @@ namespace l1t
 					for (int i = 0; i < 3; i++)
 					{
 						if (zeroFlag[i])
-							theData.push_back(L1MuDTChambThDigi( ibx, wheel, sector, i+1, etaHits[i], linkAndQual_[blockId/2 - 1].hits[i]) );
+							theData.push_back(L1MuDTChambThDigi( ibx, wheel, sector, i+1, etaHits[i], linkAndQual_.hits[i]) );
 					}
 
 				}
