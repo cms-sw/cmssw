@@ -26,8 +26,8 @@ namespace edm {
     std::shared_ptr<ParameterSet>& getProcessPSet() {return get_underlying_safe(pset_);}
 
     /// get the descriptions of the services
-    std::shared_ptr<std::vector<ParameterSet> const> getServicesPSets() const {return get_underlying_safe(services_);}
-    std::shared_ptr<std::vector<ParameterSet>>& getServicesPSets() {return get_underlying_safe(services_);}
+    auto const& getServicesPSets() const {return services_;}
+    auto& getServicesPSets() {return services_;}
 
     void addService(ParameterSet& pset);
     /// add a service as an empty pset
@@ -43,7 +43,7 @@ namespace edm {
     std::string dump() const;
   private:
     edm::propagate_const<std::shared_ptr<ParameterSet>> pset_;
-    edm::propagate_const<std::shared_ptr<std::vector<ParameterSet>>> services_;
+    std::vector<ParameterSet> services_;
   };
 }
 
