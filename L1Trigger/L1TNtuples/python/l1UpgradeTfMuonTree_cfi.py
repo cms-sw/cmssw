@@ -10,11 +10,11 @@ l1UpgradeTfMuonTree = cms.EDAnalyzer(
     maxL1UpgradeTfMuon = cms.uint32(60)
 )
 
-from Configuration.StandardSequences.Eras import eras
-
-if eras.stage1L1Trigger.isChosen() or eras.Run2_25ns.isChosen():
-    l1UpgradeTree.bmtfMuonToken = "none"
-    l1UpgradeTree.bmtfInputPhMuonToken = "none"
-    l1UpgradeTree.bmtfInputThMuonToken = "none"
-    l1UpgradeTree.omtfMuonToken = "none"
-    l1UpgradeTree.emtfMuonToken = "none"
+from Configuration.Eras.Modifier_stage1L1Trigger_cff import stage1L1Trigger
+stage1L1Trigger.toModify( l1UpgradeTfMuonTree,
+    bmtfMuonToken = "none",
+    bmtfInputPhMuonToken = "none",
+    bmtfInputThMuonToken = "none",
+    omtfMuonToken = "none",
+    emtfMuonToken = "none",
+)
