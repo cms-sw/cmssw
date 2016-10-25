@@ -56,9 +56,10 @@ root volume plus an anchor point for positioning.
  <Constant name="CylindersPortCardsLength1" value="533.7*mm"/><!--523.0 mm-->
  <Constant name="CylindersPortCardsThickness" value="18.9*mm"/><!--5.40 mm-->
 
- <Constant name="CylindersServiceZoff" value="320.0*mm"/>
+ <Constant name="CylindersServiceZoff" value="[pixfwd:AnchorZ]+[pixfwd:Disk3Z]+[pixfwdDisks:DiskHalfWidth]"/>
  <Constant name="CylindersServiceRmin" value="100*mm"/>
  <Constant name="CylindersServiceZ0"   value="0*mm"/>
+ <Constant name="CylindersServiceZext"   value="-4*mm"/>
  <Constant name="CylindersServiceZMin" value="[CylindersServiceZoff]"/>
  <Constant name="CylindersServiceZMax" value="[CylindersOuterLength]"/>
 
@@ -111,6 +112,8 @@ root volume plus an anchor point for positioning.
 <SolidSection label="Cylinders">
 
  <Polycone name="PixelForwardServiceCylinder" startPhi="0*deg" deltaPhi="360*deg">
+  <ZSection z="[CylindersServiceZext]" rMin="[CarbonFiberSheetNearIPRmin]" rMax="[CylindersOuterRmax]"/>
+  <ZSection z="[CylindersServiceZ0]"   rMin="[CarbonFiberSheetNearIPRmin]" rMax="[CylindersOuterRmax]"/>
   <ZSection z="[CylindersServiceZ0]"   rMin="[CylindersOuterRmin]"   rMax="[CylindersOuterRmax]"/>
   <ZSection z="[CylindersServiceZMin]" rMin="[CylindersOuterRmin]"   rMax="[CylindersOuterRmax]"/>
   <ZSection z="[CylindersServiceZMin]" rMin="[CylindersServiceRmin]" rMax="[CylindersOuterRmax]"/>
