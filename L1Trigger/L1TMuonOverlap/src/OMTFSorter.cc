@@ -187,7 +187,10 @@ std::vector<l1t::RegionalMuonCand> OMTFSorter::candidates(unsigned int iProcesso
              || static_cast<unsigned int>(myCand.getHits()) == std::bitset<18>("100000001010000000").to_ulong()
            )
        ) quality =4;
-    if (abs(myCand.getEta()) == 121) quality = 4;
+
+//  if (abs(myCand.getEta()) == 121) quality = 4;
+    if (abs(myCand.getEta()) == 121) quality = 0; // changed on request from HI
+
     candidate.setHwQual (quality);
 
     std::map<int, int> trackAddr;
