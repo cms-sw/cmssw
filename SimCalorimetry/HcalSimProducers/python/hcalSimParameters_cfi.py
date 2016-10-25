@@ -132,11 +132,9 @@ run2_HE_2017.toModify( hcalSimParameters,
 from Configuration.Eras.Modifier_run3_HB_cff import run3_HB
 run3_HB.toModify( hcalSimParameters,
     hb = dict(
-        photoelectronsToAnalog = cms.vdouble([57.5]*14),
-        pixels = cms.int32(27370), 
-        sipmDarkCurrentuA = cms.double(0.055),
-        sipmCrossTalk = cms.double(0.32),
+        photoelectronsToAnalog = cms.vdouble([57.5]*16),
         doSiPMSmearing = cms.bool(True),
+        sipmTau = cms.double(10.),
     )
 )
 
@@ -161,15 +159,7 @@ _newFactors = cms.vdouble(
 
 from Configuration.Eras.Modifier_phase2_hcal_cff import phase2_hcal
 phase2_hcal.toModify( hcalSimParameters,
-    hb = dict(
-        photoelectronsToAnalog = cms.vdouble([57.5]*16),
-        doSiPMSmearing = cms.bool(True),
-        sipmTau = cms.double(10.),
-    ),
     he = dict(
         samplingFactors = _newFactors,
-        photoelectronsToAnalog = cms.vdouble([57.5]*len(_newFactors)),
-        doSiPMSmearing = cms.bool(True),
-        sipmTau = cms.double(10.),
     )
 )

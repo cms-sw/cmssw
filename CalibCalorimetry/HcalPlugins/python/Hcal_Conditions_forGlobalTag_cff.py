@@ -164,32 +164,5 @@ phase2_hcal.toModify( es_hardcode,
 )
 
 from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
-phase2_hgcal.toModify( es_hardcode,
-                       toGet = cms.untracked.vstring(
-                                         'GainWidths',
-                                         'MCParams',
-                                         'RecoParams',
-                                         'RespCorrs',
-                                         'QIEData',
-                                         'QIETypes',
-                                         'Gains',
-                                         'Pedestals',
-                                         'PedestalWidths',
-                                         'ChannelQuality',
-                                         'ZSThresholds',
-                                         'TimeCorrs',
-                                         'LUTCorrs',
-                                         'LutMetadata',
-                                         'L1TriggerObjects',
-                                         'PFCorrs',
-                                         'FrontEndMap',
-                                         'CovarianceMatrices',
-                                         'SiPMParameters',
-                                         'SiPMCharacteristics',
-                                         'TPChannelParameters',
-                                         'TPParameters',
-                                         'FlagHFDigiTimeParams'
-                                         ),
-                            killHE = cms.bool(True)
-)
+phase2_hgcal.toModify( es_hardcode, killHE = cms.bool(True) )
                             
