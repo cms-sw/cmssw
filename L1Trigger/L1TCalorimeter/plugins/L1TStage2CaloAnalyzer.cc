@@ -106,9 +106,11 @@ namespace l1t {
       MinBiasHFM1=34,
       MinBiasHFP0=35,
       MinBiasHFM0=36,
-      MPSumETEm = 37
+      MPSumETEm = 37,
+      MPSumHITowCount = 38,
+      SumHITowCount = 39
     };
-  
+    
     std::vector< ObjectType > types_;
     std::vector< std::string > typeStr_;
   
@@ -236,6 +238,8 @@ namespace l1t {
     types_.push_back( MinBiasHFM0 );
     types_.push_back( MinBiasHFP1 );
     types_.push_back( MinBiasHFM1 );
+    types_.push_back( MPSumHITowCount );
+    types_.push_back( SumHITowCount );
 
     typeStr_.push_back( "tower" );
     typeStr_.push_back( "cluster" );
@@ -273,6 +277,8 @@ namespace l1t {
     typeStr_.push_back( "minbiashfm0" );
     typeStr_.push_back( "minbiashfp1" );
     typeStr_.push_back( "minbiashfm1" );
+    typeStr_.push_back( "mpsumhitowercount");
+    typeStr_.push_back( "sumhitowercount");
   }
 
 
@@ -493,7 +499,7 @@ namespace l1t {
         if (  !m_allBx && ibx != m_mpBx ) continue;
 
         for ( auto itr = mpsums->begin(ibx); itr != mpsums->end(ibx); ++itr ) {
-
+	  
           switch(itr->getType()){
           case l1t::EtSum::EtSumType::kTotalEt:     het_.at(MPSumET)       ->Fill( itr->hwPt() ); break;
           case l1t::EtSum::EtSumType::kTotalEtHF:    het_.at(MPSumETHF)      ->Fill( itr->hwPt() ); break;
@@ -511,10 +517,11 @@ namespace l1t {
           case l1t::EtSum::EtSumType::kMinBiasHFP0: het_.at(MPMinBiasHFP0) ->Fill( itr->hwPt() ); break;
           case l1t::EtSum::EtSumType::kMinBiasHFM0: het_.at(MPMinBiasHFM0) ->Fill( itr->hwPt() ); break;
           case l1t::EtSum::EtSumType::kMinBiasHFP1: het_.at(MPMinBiasHFP1) ->Fill( itr->hwPt() ); break;
-          case l1t::EtSum::EtSumType::kMinBiasHFM1: het_.at(MPMinBiasHFM1) ->Fill( itr->hwPt() ); break;
+	  case l1t::EtSum::EtSumType::kMinBiasHFM1: het_.at(MPMinBiasHFM1) ->Fill( itr->hwPt() ); break;
+	  case l1t::EtSum::EtSumType::kTowerCount:  het_.at(MPSumHITowCount)  ->Fill( itr->hwPt() ); break;
+	    
           default: std::cout<<"wrong type of MP sum"<<std::endl;
           }
-	  
 	  text << "MP Sum : " << " type=" << itr->getType() << " BX=" << ibx << " ipt=" << itr->hwPt() << " ieta=" << itr->hwEta() << " iphi=" << itr->hwPhi() << std::endl;
         }
 
@@ -635,6 +642,7 @@ namespace l1t {
           case l1t::EtSum::EtSumType::kMinBiasHFM0: het_.at(MinBiasHFM0) ->Fill( itr->hwPt() ); break;
           case l1t::EtSum::EtSumType::kMinBiasHFP1: het_.at(MinBiasHFP1) ->Fill( itr->hwPt() ); break;
           case l1t::EtSum::EtSumType::kMinBiasHFM1: het_.at(MinBiasHFM1) ->Fill( itr->hwPt() ); break;
+	  case l1t::EtSum::EtSumType::kTowerCount:  het_.at(SumHITowCount) ->Fill( itr->hwPt() ); break;
 
           default: std::cout<<"wrong type of demux sum"<<std::endl;
           }
@@ -645,14 +653,6 @@ namespace l1t {
     }
     
     if (doText_) edm::LogVerbatim("L1TCaloEvents") << text.str();
-
-    delete hEvtTow;
-    delete hEvtMPEG;
-    delete hEvtMPTau;
-    delete hEvtMPJet;
-    delete hEvtDemuxEG;
-    delete hEvtDemuxTau;
-    delete hEvtDemuxJet;
 
   }
 
@@ -686,6 +686,9 @@ namespace l1t {
                *itr==MinBiasHFP1 ||
                *itr==MinBiasHFM1)  {
         het_.insert( std::pair< ObjectType, TH1F* >(*itr, dirs_.at(*itr).make<TH1F>("et", "", 16, -0.5, 15.5) )); 
+      }
+      else if (*itr==MPSumHITowCount || *itr==SumHITowCount){
+	het_.insert( std::pair< ObjectType, TH1F* >(*itr, dirs_.at(*itr).make<TH1F>("et", "", 5904, -0.5, 5903.5)));
       }
       else {
         het_.insert( std::pair< ObjectType, TH1F* >(*itr, dirs_.at(*itr).make<TH1F>("et", "", 100000, -0.5, 99999.5) ));
