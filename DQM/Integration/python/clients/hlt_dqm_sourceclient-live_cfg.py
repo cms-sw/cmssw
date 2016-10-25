@@ -28,7 +28,13 @@ process.load("DQM.Integration.config.FrontierCondition_GT_cfi")
 #from Configuration.AlCa.GlobalTag import GlobalTag as gtCustomise
 #process.GlobalTag = gtCustomise(process.GlobalTag, 'auto:run2_data', '')
 
-process.load("DQM.HLTEvF.HLTObjectMonitor_cff")
+#process.load("DQM.HLTEvF.HLTObjectMonitor_cff")
+# for HI run use HLTObjectMonitorHeavyIon else use HLTObjectMonitor
+if (process.runType.getRunType() == process.runType.hi_run):
+  process.load("DQM.HLTEvF.HLTObjectMonitorHeavyIon_cff")
+else:
+  process.load("DQM.HLTEvF.HLTObjectMonitor_cff")
+
 # added for hlt scalars
 process.load("DQM.TrigXMonitor.HLTSeedL1LogicScalers_cfi")
 # added for hlt scalars
