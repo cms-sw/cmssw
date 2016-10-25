@@ -69,8 +69,6 @@ class dso_hidden PixelThresholdClusterizer final : public PixelClusterizerBase {
   
  private:
 
-  edm::ParameterSet conf_;
-
   //! Data storage
   SiPixelArrayBuffer               theBuffer;         // internal nrow * ncol matrix
   bool                             bufferAlreadySet;  // status of the buffer array

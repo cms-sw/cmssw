@@ -55,7 +55,7 @@
     explicit SiPixelClusterProducer(const edm::ParameterSet& conf);
     virtual ~SiPixelClusterProducer();
 
-    void setupClusterizer();
+    void setupClusterizer(const edm::ParameterSet& conf);
 
     //--- The top-level event method.
     virtual void produce(edm::Event& e, const edm::EventSetup& c) override;
@@ -66,7 +66,6 @@
              edmNew::DetSetVector<SiPixelCluster> & output);
 
   private:
-    edm::ParameterSet conf_;
     edm::EDGetTokenT<edm::DetSetVector<PixelDigi>> tPixelDigi;
     // TO DO: maybe allow a map of pointers?
     SiPixelGainCalibrationServiceBase * theSiPixelGainCalibration_;

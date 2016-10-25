@@ -43,23 +43,23 @@ using namespace std;
 //----------------------------------------------------------------------------
 PixelThresholdClusterizer::PixelThresholdClusterizer
   (edm::ParameterSet const& conf) :
-    conf_(conf), bufferAlreadySet(false), theNumOfRows(0), theNumOfCols(0), detid_(0) 
+    bufferAlreadySet(false), theNumOfRows(0), theNumOfCols(0), detid_(0) 
 {
   // Get thresholds in electrons
   thePixelThreshold   = 
-    conf_.getParameter<int>("ChannelThreshold");
+    conf.getParameter<int>("ChannelThreshold");
   theSeedThreshold    = 
-    conf_.getParameter<int>("SeedThreshold");
+    conf.getParameter<int>("SeedThreshold");
   theClusterThreshold = 
-    conf_.getParameter<double>("ClusterThreshold");
+    conf.getParameter<double>("ClusterThreshold");
   theConversionFactor = 
-    conf_.getParameter<int>("VCaltoElectronGain");
+    conf.getParameter<int>("VCaltoElectronGain");
   theOffset = 
-    conf_.getParameter<int>("VCaltoElectronOffset");
-  if ( conf_.exists("AdcFullScaleStack") ) theStackADC_=conf_.getParameter<int>("AdcFullScaleStack");
+    conf.getParameter<int>("VCaltoElectronOffset");
+  if ( conf.exists("AdcFullScaleStack") ) theStackADC_=conf.getParameter<int>("AdcFullScaleStack");
   else 
     theStackADC_=255;
-  if ( conf_.exists("FirstStackLayer") ) theFirstStack_=conf_.getParameter<int>("FirstStackLayer");
+  if ( conf.exists("FirstStackLayer") ) theFirstStack_=conf.getParameter<int>("FirstStackLayer");
   else
     theFirstStack_=5;
   if ( conf_.exists("ElectronPerADCGain") ) theElectronPerADCGain_=conf_.getParameter<double>("ElectronPerADCGain");
@@ -67,7 +67,7 @@ PixelThresholdClusterizer::PixelThresholdClusterizer
     theElectronPerADCGain_=135.;
   
   // Get the constants for the miss-calibration studies
-  doMissCalibrate=conf_.getUntrackedParameter<bool>("MissCalibrate",true); 
+  doMissCalibrate=conf.getUntrackedParameter<bool>("MissCalibrate",true); 
   doSplitClusters = conf.getParameter<bool>("SplitClusters");
   theBuffer.setSize( theNumOfRows, theNumOfCols );
 }
