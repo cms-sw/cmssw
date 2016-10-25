@@ -7,6 +7,11 @@ skimRecoContent = RECOEventContent.clone()
 skimRecoContent.outputCommands.append("drop *_MEtoEDMConverter_*_*")
 skimRecoContent.outputCommands.append("drop *_*_*_SKIM")
 
+from Configuration.EventContent.EventContent_cff import RAWEventContent
+skimRawContent = RAWEventContent.clone()
+skimRawContent.outputCommands.append("drop *_MEtoEDMConverter_*_*")
+skimRawContent.outputCommands.append("drop *_*_*_SKIM")
+
 #####################
 # special skims for high PU run
 
@@ -40,33 +45,33 @@ SKIMStreamhighPUSkimP1 = cms.FilteredStream(
     responsible = 'PDWG',
     name = 'highPUSkimP1',
     paths = (highPU_SkimPath_P1),
-    content = skimContent.outputCommands,
+    content = skimRawContent.outputCommands,
     selectEvents = cms.untracked.PSet(),
-    dataTier = cms.untracked.string('RAW-RECO')
+    dataTier = cms.untracked.string('RAW')
     )
 SKIMStreamhighPUSkimP2 = cms.FilteredStream(
     responsible = 'PDWG',
     name = 'highPUSkimP2',
     paths = (highPU_SkimPath_P2),
-    content = skimContent.outputCommands,
+    content = skimRawContent.outputCommands,
     selectEvents = cms.untracked.PSet(),
-    dataTier = cms.untracked.string('RAW-RECO')
+    dataTier = cms.untracked.string('RAW')
     )
 SKIMStreamhighPUSkimP3 = cms.FilteredStream(
     responsible = 'PDWG',
     name = 'highPUSkimP3',
     paths = (highPU_SkimPath_P3),
-    content = skimContent.outputCommands,
+    content = skimRawContent.outputCommands,
     selectEvents = cms.untracked.PSet(),
-    dataTier = cms.untracked.string('RAW-RECO')
+    dataTier = cms.untracked.string('RAW')
     )
 SKIMStreamhighPUSkimP4 = cms.FilteredStream(
     responsible = 'PDWG',
     name = 'highPUSkimP4',
     paths = (highPU_SkimPath_P4),
-    content = skimContent.outputCommands,
+    content = skimRawContent.outputCommands,
     selectEvents = cms.untracked.PSet(),
-    dataTier = cms.untracked.string('RAW-RECO')
+    dataTier = cms.untracked.string('RAW')
     )
 
 #####################
