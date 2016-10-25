@@ -36,7 +36,7 @@ namespace l1t
 				return (value == 0);
 		}
 
-		bool unpacking(const Block& block, UnpackerCollections *coll, std::map<int, qualityHits>& linkAndQual_, const bool& isNewFw)
+		bool unpacking(const Block& block, UnpackerCollections *coll, qualityHits& linkAndQual_, const bool& isNewFw)
 		{
 
 			unsigned int ownLinks[] = {4,5,12,13,20,21,22,23,28,29};
@@ -142,10 +142,14 @@ namespace l1t
 				}
 				else
 				{
+					/*
 					qualityHits temp;
 					temp.linkNo = blockId/2;
 					std::copy(&etaHits[0][0], &etaHits[0][0]+3*7,&temp.hits[0][0]);
 					linkAndQual_[blockId/2] = temp;	
+					*/
+					linkAndQual_.linkNo = blockId/2;
+                                        std::copy(&etaHits[0][0], &etaHits[0][0]+3*7,&linkAndQual_.hits[0][0]);
 				}
 
 			}//ibx
