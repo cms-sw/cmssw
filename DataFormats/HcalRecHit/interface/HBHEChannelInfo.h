@@ -19,12 +19,11 @@ public:
     static const unsigned MAXSAMPLES = 10;
 
     inline HBHEChannelInfo()
-      : rawCharge_{0.}, pedestal_{0.}, pedestalWidth_{0.}, gain_{0.}, gainWidth_{0.},
-	  darkCurrent_{0.}, fcByPE_{0.}, lambda_{0.}, riseTime_{0.f}, adc_{0},
+      : rawCharge_{0.}, pedestal_{0.}, pedestalWidth_{0.}, gain_{0.}, gainWidth_{0.}, riseTime_{0.f}, adc_{0},
           hasTimeInfo_(false) {clear();}
 
     inline explicit HBHEChannelInfo(const bool hasTimeFromTDC)
-      : rawCharge_{0.}, pedestal_{0.}, pedestalWidth_{0.}, gain_{0.}, darkCurrent_{0.}, fcByPE_{0.}, lambda_{0.}, riseTime_{0.f}, adc_{0},
+      : rawCharge_{0.}, pedestal_{0.}, pedestalWidth_{0.}, gain_{0.}, gainWidth_{0.}, riseTime_{0.f}, adc_{0},
           hasTimeInfo_(hasTimeFromTDC) {clear();}
 
     inline void clear()
