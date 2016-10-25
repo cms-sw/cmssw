@@ -125,7 +125,7 @@ proc.templateAnalyzer = cms.EDAnalyzer(
 proc.RunHPSValidation = proc.templateAnalyzer.clone()
 
 #for fast sim we need to ignore the HLT TriggerResults
-from Configuration.Eras.Modifier_fastsim import fastsim
+from Configuration.Eras.Modifier_fastSim_cff import fastSim
 fastSim.toModify(
    proc.RunHPSValidation, 
    hltInputTag = cms.InputTag(""), 
