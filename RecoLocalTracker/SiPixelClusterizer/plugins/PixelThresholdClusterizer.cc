@@ -112,13 +112,14 @@ bool PixelThresholdClusterizer::setup(const PixelGeomDetUnit * pixDet)
 //!  each seed pixel.
 //!  Input and output data stored in DetSet
 //----------------------------------------------------------------------------
-void PixelThresholdClusterizer::clusterizeDetUnit( const edm::DetSet<PixelDigi> & input,
+template<typename T>
+void PixelThresholdClusterizer::clusterizeDetUnitT( const T & input,
 						   const PixelGeomDetUnit * pixDet,
 						   const std::vector<short>& badChannels,
                                                    edmNew::DetSetVector<SiPixelCluster>::FastFiller& output) {
   
-  DigiIterator begin = input.begin();
-  DigiIterator end   = input.end();
+  typename T::const_iterator begin = input.begin();
+  typename T::const_iterator end   = input.end();
   
   // Do not bother for empty detectors
   //if (begin == end) cout << " PixelThresholdClusterizer::clusterizeDetUnit - No digis to clusterize";
@@ -180,6 +181,19 @@ void PixelThresholdClusterizer::clear_buffer( DigiIterator begin, DigiIterator e
     }
 }
 
+void PixelThresholdClusterizer::clear_buffer( ClusterIterator begin, ClusterIterator end )
+{
+  for(ClusterIterator ci = begin; ci != end; ++ci )
+    {
+      for(int i = 0; i < ci->size(); ++i)
+        {
+          const SiPixelCluster::Pixel pixel = ci->pixel(i);
+
+          theBuffer.set_adc( pixel.x, pixel.y, 0 );   // reset pixel adc to 0
+        }
+    }
+}
+
 //----------------------------------------------------------------------------
 //! \brief Copy adc counts from PixelDigis into the buffer, identify seeds.
 //----------------------------------------------------------------------------
@@ -237,6 +251,25 @@ void PixelThresholdClusterizer::copy_to_buffer( DigiIterator begin, DigiIterator
   }
   assert(i==(end-begin));
 
+}
+
+void PixelThresholdClusterizer::copy_to_buffer( ClusterIterator begin, ClusterIterator end )
+{
+  // loop over clusters
+  for(ClusterIterator ci = begin; ci != end; ++ci) {
+    // loop over pixels
+    for(int i = 0; i < ci->size(); ++i) {
+      const SiPixelCluster::Pixel pixel = ci->pixel(i);
+
+      int row = pixel.x;
+      int col = pixel.y;
+      int adc = pixel.adc;
+      if ( adc >= thePixelThreshold) {
+        theBuffer.set_adc( row, col, adc);
+        if ( adc >= theSeedThreshold) theSeeds.push_back( SiPixelCluster::PixelPos(row,col) );
+      }
+    }
+  }
 }
 
 //----------------------------------------------------------------------------

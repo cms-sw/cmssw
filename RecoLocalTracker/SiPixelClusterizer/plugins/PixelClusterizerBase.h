@@ -16,6 +16,7 @@ class PixelGeomDetUnit;
 class PixelClusterizerBase {
 public:
   typedef edm::DetSet<PixelDigi>::const_iterator    DigiIterator;
+  typedef edmNew::DetSet<SiPixelCluster>::const_iterator    ClusterIterator;
 
   struct AccretionCluster {
     typedef unsigned short UShort;
@@ -53,6 +54,11 @@ public:
 				  const PixelGeomDetUnit * pixDet,
 				  const std::vector<short>& badChannels,
 				  edmNew::DetSetVector<SiPixelCluster>::FastFiller& output) = 0;
+
+  virtual void clusterizeDetUnit( const edmNew::DetSet<SiPixelCluster> & input,
+                                  const PixelGeomDetUnit * pixDet,
+                                  const std::vector<short>& badChannels,
+                                  edmNew::DetSetVector<SiPixelCluster>::FastFiller& output) = 0;
 
   // Configure gain calibration service
   void setSiPixelGainCalibrationService( SiPixelGainCalibrationServiceBase* in){ 

@@ -61,18 +61,19 @@
     virtual void produce(edm::Event& e, const edm::EventSetup& c) override;
 
     //--- Execute the algorithm(s).
-    void run(const edm::DetSetVector<PixelDigi>   & input,
-	     edm::ESHandle<TrackerGeometry>       & geom,
+    template<typename T>
+    void run(const T                              & input,
+             const edm::ESHandle<TrackerGeometry> & geom,
              edmNew::DetSetVector<SiPixelCluster> & output);
 
   private:
+    edm::EDGetTokenT<SiPixelClusterCollectionNew>  tPixelClusters;
     edm::EDGetTokenT<edm::DetSetVector<PixelDigi>> tPixelDigi;
     // TO DO: maybe allow a map of pointers?
     SiPixelGainCalibrationServiceBase * theSiPixelGainCalibration_;
     std::string clusterMode_;               // user's choice of the clusterizer
     PixelClusterizerBase * clusterizer_;    // what we got (for now, one ptr to base class)
     bool readyToCluster_;                   // needed clusterizers valid => good to go!
-    edm::InputTag src_;
 
     //! Optional limit on the total number of clusters
     int32_t maxTotalClusters_;
