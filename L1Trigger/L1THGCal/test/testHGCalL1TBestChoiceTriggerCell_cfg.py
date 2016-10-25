@@ -133,8 +133,8 @@ process.hgcaltriggerbestchoicetester = cms.EDAnalyzer(
     eeSimHits = cms.InputTag('g4SimHits:HGCHitsEE'),
     fhSimHits = cms.InputTag('g4SimHits:HGCHitsHEfront'),
     #bhSimHits = cms.InputTag('g4SimHits:HGCHitsHEback'),
-    beClustersAll = cms.InputTag('hgcalTriggerPrimitiveDigiProducer:SingleCellClusterAlgo'),
-    beClustersSelect = cms.InputTag('hgcalTriggerPrimitiveDigiFEReproducer:SingleCellClusterAlgo'),
+    beTriggerCellsAll = cms.InputTag('hgcalTriggerPrimitiveDigiProducer:SingleCellClusterAlgo'),
+    beTriggerCellsSelect = cms.InputTag('hgcalTriggerPrimitiveDigiFEReproducer:SingleCellClusterAlgo'),
     FECodec = process.hgcalTriggerPrimitiveDigiFEReproducer.FECodec.clone()
     )
 process.test_step = cms.Path(process.hgcaltriggerbestchoicetester)

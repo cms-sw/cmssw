@@ -67,6 +67,10 @@ process.FEVTDEBUGoutput = cms.OutputModule("PoolOutputModule",
 )
 
 # Additional output definition
+process.TFileService = cms.Service(
+    "TFileService",
+    fileName = cms.string("ntuple.root")
+    )
 
 # Other statements
 process.genstepfilter.triggerConditions=cms.vstring("generation_step")
@@ -112,8 +116,12 @@ process.digi2raw_step = cms.Path(process.DigiToRaw)
 process.endjob_step = cms.EndPath(process.endOfProcess)
 process.FEVTDEBUGoutput_step = cms.EndPath(process.FEVTDEBUGoutput)
 
+# load ntuplizer
+process.load('L1Trigger.L1THGCal.hgcalTriggerNtuples_cff')
+process.ntuple_step = cms.Path(process.hgcalTriggerNtuples)
+
 # Schedule definition
-process.schedule = cms.Schedule(process.generation_step,process.genfiltersummary_step,process.simulation_step,process.digitisation_step,process.L1simulation_step,process.hgcl1tpg_step,process.digi2raw_step,process.endjob_step, process.FEVTDEBUGoutput_step)
+process.schedule = cms.Schedule(process.generation_step,process.genfiltersummary_step,process.simulation_step,process.digitisation_step,process.L1simulation_step,process.hgcl1tpg_step,process.digi2raw_step, process.ntuple_step, process.endjob_step, process.FEVTDEBUGoutput_step)
 # filter all path with the production filter sequence
 for path in process.paths:
         getattr(process,path)._seq = process.generator * getattr(process,path)._seq

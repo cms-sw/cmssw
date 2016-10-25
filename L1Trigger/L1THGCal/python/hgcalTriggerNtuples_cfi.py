@@ -19,12 +19,18 @@ ntuple_digis = cms.PSet(
     isSimhitComp = cms.bool(False)
 )
 
+ntuple_triggercells = cms.PSet(
+    NtupleName = cms.string('HGCalTriggerNtupleHGCTriggerCells'),
+    TriggerCells = cms.InputTag('hgcalTriggerPrimitiveDigiProducer:SingleCellClusterAlgo')
+)
+
 
 hgcalTriggerNtuplizer = cms.EDAnalyzer(
     "HGCalTriggerNtupleManager",
     Ntuples = cms.VPSet(
         ntuple_event,
         ntuple_gen,
-        ntuple_digis
+        ntuple_digis,
+        ntuple_triggercells
     )
 )
