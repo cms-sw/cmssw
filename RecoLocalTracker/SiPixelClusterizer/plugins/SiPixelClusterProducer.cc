@@ -48,7 +48,6 @@
   //---------------------------------------------------------------------------
   SiPixelClusterProducer::SiPixelClusterProducer(edm::ParameterSet const& conf) 
     : 
-    conf_(conf),
     theSiPixelGainCalibration_(0), 
     clusterMode_("None"),     // bogus
     clusterizer_(0),          // the default, in case we fail to make one
@@ -56,6 +55,8 @@
     src_( conf.getParameter<edm::InputTag>( "src" ) ),
     maxTotalClusters_( conf.getParameter<int32_t>( "maxNumberOfClusters" ) )
   {
+    clusterMode_ = conf.getUntrackedParameter<std::string>("ClusterMode","PixelThresholdClusterizer");
+
     tPixelDigi = consumes<edm::DetSetVector<PixelDigi>>(src_);
     //--- Declare to the EDM what kind of collections we will be making.
     produces<SiPixelClusterCollectionNew>(); 
@@ -71,7 +72,7 @@
 
     //--- Make the algorithm(s) according to what the user specified
     //--- in the ParameterSet.
-    setupClusterizer();
+    setupClusterizer(conf);
 
   }
 
@@ -119,12 +120,10 @@
   //!  TO DO: in the future, we should allow for a different algorithm for 
   //!  each detector subset (e.g. barrel vs forward, per layer, etc).
   //---------------------------------------------------------------------------
-  void SiPixelClusterProducer::setupClusterizer()  {
-    clusterMode_ = 
-      conf_.getUntrackedParameter<std::string>("ClusterMode","PixelThresholdClusterizer");
+  void SiPixelClusterProducer::setupClusterizer(const edm::ParameterSet& conf)  {
 
     if ( clusterMode_ == "PixelThresholdClusterizer" ) {
-      clusterizer_ = new PixelThresholdClusterizer(conf_);
+      clusterizer_ = new PixelThresholdClusterizer(conf);
       clusterizer_->setSiPixelGainCalibrationService(theSiPixelGainCalibration_);
       readyToCluster_ = true;
     } 
