@@ -25,7 +25,7 @@ void L1TStage2CaloLayer2::bookHistograms(DQMStore::IBooker &ibooker, edm::Run co
   stage2CaloLayer2CenJetRank_ = ibooker.book1D("CenJetsRank", "CENTRAL JET E_{T}; Jet iE_{T}; Counts", 2048, -0.5, 2047.5);
   stage2CaloLayer2CenJetOcc_ = ibooker.book2D("CenJetsOcc", "CENTRAL JET OCCUPANCY; i#eta; i#phi", 229, -114.5, 114.5, 144, -0.5, 143.5);
   stage2CaloLayer2CenJetBxOcc_ = ibooker.book2D("CenJetsBxOcc", "CENTRAL JET BX OCCUPANCY; BX; Counts", 5,-2.5, 2.5, 512, -0.5, 2047.5);
-  stage2CaloLayer2CenJetQual_ = ibooker.book1D("CenJetsQual", "CENTRAL JET QUALITY", 32, -0.5, 31.5);
+  stage2CaloLayer2CenJetQual_ = ibooker.book1D("CenJetsQual", "CENTRAL JET QUALITY; Quality; Counts", 32, -0.5, 31.5);
 
 
   //forward jet
@@ -37,42 +37,42 @@ void L1TStage2CaloLayer2::bookHistograms(DQMStore::IBooker &ibooker, edm::Run co
   stage2CaloLayer2ForJetRank_ = ibooker.book1D("ForJetsRank", "FORWARD JET E_{T}; Jet iE_{T}; Counts", 2048, -0.5, 2047.5);
   stage2CaloLayer2ForJetOcc_ = ibooker.book2D("ForJetsOcc", "FORWARD JET OCCUPANCY; Jet i#eta; Jet i#phi", 229, -114.5, 114.5, 144, -0.5, 143.5);
   stage2CaloLayer2ForJetBxOcc_ = ibooker.book2D("ForJetsBxOcc", "FORWARD JET BX OCCUPANCY; BX; Counts", 5,-2.5, 2.5, 512, -0.5, 2047.5);
-  stage2CaloLayer2ForJetQual_ = ibooker.book1D("ForJetsQual", "FORWARD JET QUALITY", 32, -0.5, 31.5);
+  stage2CaloLayer2ForJetQual_ = ibooker.book1D("ForJetsQual", "FORWARD JET QUALITY; Quality; Counts", 32, -0.5, 31.5);
 
   //IsoEG
   ibooker.setCurrentFolder(monitorDir_+"/Isolated-EG");
 
-  stage2CaloLayer2EGIso_ = ibooker.book1D("EGIso", "EG ISO", 4, -0.5, 3.5);
+  stage2CaloLayer2EGIso_ = ibooker.book1D("EGIso", "EG ISO; Iso Flag; Counts", 4, -0.5, 3.5);
   stage2CaloLayer2IsoEGEtEtaPhi_ = ibooker.book2D("IsoEGsEtEtaPhi", "ISO EG E_{T} ETA PHI; i#eta; i#phi", 229, -114.5, 114.5, 144, -0.5, 143.5);
   stage2CaloLayer2IsoEGEta_ = ibooker.book1D("IsoEGsEta", "ISO EG ETA; EG i#eta; Counts", 229, -114.5, 114.5);
   stage2CaloLayer2IsoEGPhi_ = ibooker.book1D("IsoEGsPhi", "ISO EG PHI; EG i#phi; Counts", 144, -0.5, 143.5);
   stage2CaloLayer2IsoEGRank_ = ibooker.book1D("IsoEGsRank", "ISO EG E_{T}; EG iE_{T}; Counts", 512, -0.5, 511.5);
   stage2CaloLayer2IsoEGOcc_ = ibooker.book2D("IsoEGsOcc", "ISO EG OCCUPANCY; i#eta; i#phi", 229, -114.5, 114.5, 144, -0.5, 143.5);
   stage2CaloLayer2IsoEGBxOcc_ = ibooker.book2D("IsoEGsBxOcc", "ISO EG BX OCCUPANCY; BX; Counts",  5,-2.5, 2.5, 128, -0.5, 511.5);
-  stage2CaloLayer2IsoEGQual_ = ibooker.book1D("IsoEGsQual", "ISO EG QUALITY", 32, -0.5, 31.5);
+  stage2CaloLayer2IsoEGQual_ = ibooker.book1D("IsoEGsQual", "ISO EG QUALITY; Quality; Counts", 32, -0.5, 31.5);
 
   //NonIsoEG
   ibooker.setCurrentFolder(monitorDir_+"/NonIsolated-EG");
 
   stage2CaloLayer2NonIsoEGEtEtaPhi_ = ibooker.book2D("NonIsoEGsEtEtaPhi", "NonISO EG E_{T} ETA PHI; i#eta; i#phi", 229, -114.5, 114.5, 144, -0.5, 143.5);
-  stage2CaloLayer2NonIsoEGEta_ = ibooker.book1D("NonIsoEGsEta", "NonISO EG ETA; EG i#eta; Counts", 229, -114.5, 114.5);
-  stage2CaloLayer2NonIsoEGPhi_ = ibooker.book1D("NonIsoEGsPhi", "NonISO EG PHI; EG i#phi; Counts", 144, -0.5, 143.5);
-  stage2CaloLayer2NonIsoEGRank_ = ibooker.book1D("NonIsoEGsRank", "NonISO EG E_{T}; EG iE_{T}; Counts", 512, -0.5, 511.5);
+  stage2CaloLayer2NonIsoEGEta_ = ibooker.book1D("NonIsoEGsEta", "NonISO EG ETA; NonISO EG i#eta; Counts", 229, -114.5, 114.5);
+  stage2CaloLayer2NonIsoEGPhi_ = ibooker.book1D("NonIsoEGsPhi", "NonISO EG PHI; NonISO EG i#phi; Counts", 144, -0.5, 143.5);
+  stage2CaloLayer2NonIsoEGRank_ = ibooker.book1D("NonIsoEGsRank", "NonISO EG E_{T}; NonISO EG iE_{T}; Counts", 512, -0.5, 511.5);
   stage2CaloLayer2NonIsoEGOcc_ = ibooker.book2D("NonIsoEGsOcc", "NonISO EG OCCUPANCY; i#eta; i#phi", 229, -114.5, 114.5, 144, -0.5, 143.5);
   stage2CaloLayer2NonIsoEGBxOcc_ = ibooker.book2D("NonIsoEGsBxOcc", "NonISO EG BX OCCUPANCY; BX; Counts", 5,-2.5, 2.5, 128, -0.5, 511.5);
-  stage2CaloLayer2NonIsoEGQual_ = ibooker.book1D("NonIsoEGsQual", "NonISO EG QUALITY", 32, -0.5, 31.5);
+  stage2CaloLayer2NonIsoEGQual_ = ibooker.book1D("NonIsoEGsQual", "NonISO EG QUALITY; Quality; Counts", 32, -0.5, 31.5);
 
   //IsoTau
   ibooker.setCurrentFolder(monitorDir_+"/Isolated-Tau");
 
-  stage2CaloLayer2TauIso_ = ibooker.book1D("TauIso", "Tau ISO", 4, -0.5, 3.5);
+  stage2CaloLayer2TauIso_ = ibooker.book1D("TauIso", "Tau ISO; Iso Flag; Counts", 4, -0.5, 3.5);
   stage2CaloLayer2IsoTauEtEtaPhi_ = ibooker.book2D("IsoTausEtEtaPhi", "ISO Tau E_{T} ETA PHI; i#eta; i#phi", 229, -114.5, 114.5, 144, -0.5, 143.5);
-  stage2CaloLayer2IsoTauEta_ = ibooker.book1D("IsoTausEta", "ISO Tau ETA; EG i#eta; Counts", 229, -114.5, 114.5);
-  stage2CaloLayer2IsoTauPhi_ = ibooker.book1D("IsoTausPhi", "ISO Tau PHI; EG i#phi; Counts", 144, -0.5, 143.5);
-  stage2CaloLayer2IsoTauRank_ = ibooker.book1D("IsoTausRank", "ISO Tau E_{T}; EG iE_{T}", 512, -0.5, 511.5);
+  stage2CaloLayer2IsoTauEta_ = ibooker.book1D("IsoTausEta", "ISO Tau ETA; ISO Tau i#eta; Counts", 229, -114.5, 114.5);
+  stage2CaloLayer2IsoTauPhi_ = ibooker.book1D("IsoTausPhi", "ISO Tau PHI; ISO Tau i#phi; Counts", 144, -0.5, 143.5);
+  stage2CaloLayer2IsoTauRank_ = ibooker.book1D("IsoTausRank", "ISO Tau E_{T}; ISO Tau iE_{T}; Counts", 512, -0.5, 511.5);
   stage2CaloLayer2IsoTauOcc_ = ibooker.book2D("IsoTausOcc", "ISO Tau OCCUPANCY; i#eta; i#phi", 229, -114.5, 114.5, 144, -0.5, 143.5);
   stage2CaloLayer2IsoTauBxOcc_ = ibooker.book2D("IsoTausBxOcc", "ISO Tau BX OCCUPANCY; BX; Counts", 5,-2.5, 2.5, 128, -0.5, 511.5);
-  stage2CaloLayer2IsoTauQual_ = ibooker.book1D("IsoTausQual", "ISO Tau QUALITY", 32, -0.5, 31.5);
+  stage2CaloLayer2IsoTauQual_ = ibooker.book1D("IsoTausQual", "ISO Tau QUALITY; Quality; Counts", 32, -0.5, 31.5);
 
   //NonIsoTau
   ibooker.setCurrentFolder(monitorDir_+"/NonIsolated-Tau");
@@ -80,10 +80,10 @@ void L1TStage2CaloLayer2::bookHistograms(DQMStore::IBooker &ibooker, edm::Run co
   stage2CaloLayer2TauEtEtaPhi_ = ibooker.book2D("TausEtEtaPhi", "Tau E_{T} ETA PHI; i#eta; i#phi", 229, -114.5, 114.5, 144, -0.5, 143.5);
   stage2CaloLayer2TauEta_ = ibooker.book1D("TausEta", "NonISO Tau ETA; Tau i#eta; Counts", 229, -114.5, 114.5);
   stage2CaloLayer2TauPhi_ = ibooker.book1D("TausPhi", "NonISO Tau PHI; Tau i#phi; Counts", 144, -0.5, 143.5);
-  stage2CaloLayer2TauRank_ = ibooker.book1D("TausRank", "NonISO Tau E_{T}; Tau iE_{T}", 512, -0.5, 511.5);
+  stage2CaloLayer2TauRank_ = ibooker.book1D("TausRank", "NonISO Tau E_{T}; Tau iE_{T}; Counts", 512, -0.5, 511.5);
   stage2CaloLayer2TauOcc_ = ibooker.book2D("TausOcc", "NonISO Tau OCCUPANCY; i#eta; i#phi", 229, -114.5, 114.5, 144, -0.5, 143.5);
   stage2CaloLayer2TauBxOcc_ = ibooker.book2D("TausBxOcc", "NonISO Tau BX OCCUPANCY; BX; Counts", 5,-2.5, 2.5, 128, -0.5, 511.5);
-  stage2CaloLayer2TauQual_ = ibooker.book1D("TausQual", "NonISO Tau QUALITY", 32, -0.5, 31.5);
+  stage2CaloLayer2TauQual_ = ibooker.book1D("TausQual", "NonISO Tau QUALITY; Quality; Counts", 32, -0.5, 31.5);
 
   //EtSums
   ibooker.setCurrentFolder(monitorDir_+"/Energy-Sums");
