@@ -17,42 +17,42 @@ void L1TStage2CaloLayer2DEClient::book(DQMStore::IBooker &ibooker){
   
   ibooker.setCurrentFolder(monitor_dir_);
   
-  CenJetRankComp_=ibooker.book1D("CenJetsRankDERatio","Data/Emul of central jet E_{T}", 2048, -0.5, 2047.5);
-  CenJetEtaComp_=ibooker.book1D("CenJetsEtaDERatio","Data/Emul of central jet Eta", 229, -114.5, 114.5);
-  CenJetPhiComp_=ibooker.book1D("CenJetsPhiDERatio","Data/Emul of central jet Phi", 144, -0.5, 143.5);
-  ForJetRankComp_=ibooker.book1D("ForJetsRankDERatio","Data/Emul of forward jet E_{T}", 2048, -0.5, 2047.5);
-  ForJetEtaComp_=ibooker.book1D("ForJetsEtaDERatio","Data/Emul of forward jet Eta", 229, -114.5, 114.5);
-  ForJetPhiComp_=ibooker.book1D("ForJetsPhiDERatio","Data/Emul of forward jet Phi", 144, -0.5, 143.5);
-  IsoEGRankComp_=ibooker.book1D("IsoEGRankDERatio","Data/Emul of isolated eg E_{T}", 512, -0.5, 511.5);
-  IsoEGEtaComp_=ibooker.book1D("IsoEGEtaDERatio","Data/Emul of isolated eg Eta", 229, -114.5, 114.5);
-  IsoEGPhiComp_=ibooker.book1D("IsoEGPhiDERatio","Data/Emul of isolated eg Phi", 144, -0.5, 143.5);
-  NonIsoEGRankComp_=ibooker.book1D("NonIsoEGRankDERatio","Data/Emul of non-isolated eg E_{T}", 512, -0.5, 511.5);
-  NonIsoEGEtaComp_=ibooker.book1D("NonIsoEGEtaDERatio","Data/Emul of non-isolated eg Eta", 229, -114.5, 114.5);
-  NonIsoEGPhiComp_=ibooker.book1D("NonIsoEGPhiDERatio","Data/Emul of non-isolated eg Phi", 144, -0.5, 143.5);
-  TauRankComp_=ibooker.book1D("TauRankDERatio","Data/Emul of relax tau E_{T}", 512, -0.5, 511.5);
-  TauEtaComp_=ibooker.book1D("TauEtaDERatio","Data/Emul of relax tau Eta", 229, -114.5, 114.5);
-  TauPhiComp_=ibooker.book1D("TauPhiDERatio","Data/Emul of relax tau eg Phi", 144, -0.5, 143.5);
-  IsoTauRankComp_=ibooker.book1D("IsoTauRankDERatio","Data/Emul of iso tau E_{T}", 512, -0.5, 511.5);
-  IsoTauEtaComp_=ibooker.book1D("IsoTauEtaDERatio","Data/Emul of iso tau Eta", 229, -114.5, 114.5);
-  IsoTauPhiComp_=ibooker.book1D("IsoTauPhiDERatio","Data/Emul of iso tau eg Phi", 144, -0.5, 143.5);
-  METComp_=ibooker.book1D("METRatio","Data/Emul of MET", 4096, -0.5, 4095.5);
-  METPhiComp_=ibooker.book1D("METPhiRatio","Data/Emul of MET Phi", 1008, -0.5, 1007.5);
-  METHFComp_=ibooker.book1D("METHFRatio","Data/Emul of METHF", 4096, -0.5, 4095.5);
-  METHFPhiComp_=ibooker.book1D("METHFPhiRatio","Data/Emul of METHF Phi", 1008, -0.5, 1007.5);
-  MHTComp_=ibooker.book1D("MHTRatio","Data/Emul of MHT", 4096, -0.5, 4095.5);
-  METPhiComp_=ibooker.book1D("MHTPhiRatio","Data/Emul of MHT Phi", 1008, -0.5, 1007.5);
-  MHTHFComp_=ibooker.book1D("MHTHFRatio","Data/Emul of MHTHF", 4096, -0.5, 4095.5);
-  MHTPhiComp_=ibooker.book1D("MHTHFPhiRatio","Data/Emul of MHTHF Phi", 1008, -0.5, 1007.5);
-  ETTComp_=ibooker.book1D("ETTRatio","Data/Emul of ET Total", 4096, -0.5, 4095.5);
-  ETTEMComp_=ibooker.book1D("ETTEMRatio","Data/Emul of ET Total", 4096, -0.5, 4095.5);
-  HTTComp_=ibooker.book1D("HTTRatio","Data/Emul of HT Total", 4096, -0.5, 4095.5);
+  CenJetRankComp_=ibooker.book1D("CenJetsRankDERatio","Data/Emul of Central Jet E_{T}; Jet iE_{T}; Counts", 2048, -0.5, 2047.5);
+  CenJetEtaComp_=ibooker.book1D("CenJetsEtaDERatio","Data/Emul of Central Jet #eta; Jet i#eta; Counts", 229, -114.5, 114.5);
+  CenJetPhiComp_=ibooker.book1D("CenJetsPhiDERatio","Data/Emul of Central Jet #phi; Jet i#phi; Counts", 144, -0.5, 143.5);
+  ForJetRankComp_=ibooker.book1D("ForJetsRankDERatio","Data/Emul of Forward Jet E_{T}; Jet iE_{T}; Counts", 2048, -0.5, 2047.5);
+  ForJetEtaComp_=ibooker.book1D("ForJetsEtaDERatio","Data/Emul of Forward Jet #eta; Jet i#eta; Counts", 229, -114.5, 114.5);
+  ForJetPhiComp_=ibooker.book1D("ForJetsPhiDERatio","Data/Emul of Forward Jet #phi; Jet i#phi; Counts", 144, -0.5, 143.5);
+  IsoEGRankComp_=ibooker.book1D("IsoEGRankDERatio","Data/Emul of isolated eg E_{T}; EG iE_{T}; Counts", 512, -0.5, 511.5);
+  IsoEGEtaComp_=ibooker.book1D("IsoEGEtaDERatio","Data/Emul of isolated eg #eta; EG i#eta; Counts", 229, -114.5, 114.5);
+  IsoEGPhiComp_=ibooker.book1D("IsoEGPhiDERatio","Data/Emul of isolated eg #phi; EG i#eta; Counts", 144, -0.5, 143.5);
+  NonIsoEGRankComp_=ibooker.book1D("NonIsoEGRankDERatio","Data/Emul of non-isolated eg E_{T}; EG iE_{T}; Counts", 512, -0.5, 511.5);
+  NonIsoEGEtaComp_=ibooker.book1D("NonIsoEGEtaDERatio","Data/Emul of non-isolated eg #eta; EG i#eta; Counts", 229, -114.5, 114.5);
+  NonIsoEGPhiComp_=ibooker.book1D("NonIsoEGPhiDERatio","Data/Emul of non-isolated eg #phi; EG i#phi; Counts", 144, -0.5, 143.5);
+  TauRankComp_=ibooker.book1D("TauRankDERatio","Data/Emul of relax tau E_{T}; Tau iE_{T}; Counts", 512, -0.5, 511.5);
+  TauEtaComp_=ibooker.book1D("TauEtaDERatio","Data/Emul of relax tau #eta; Tau i#eta; Counts", 229, -114.5, 114.5);
+  TauPhiComp_=ibooker.book1D("TauPhiDERatio","Data/Emul of relax tau eg #phi; Tau i#phi; Counts", 144, -0.5, 143.5);
+  IsoTauRankComp_=ibooker.book1D("IsoTauRankDERatio","Data/Emul of iso tau E_{T}; ISO Tau iE_{T}; Counts", 512, -0.5, 511.5);
+  IsoTauEtaComp_=ibooker.book1D("IsoTauEtaDERatio","Data/Emul of iso tau #eta; ISO Tau i#eta; Counts", 229, -114.5, 114.5);
+  IsoTauPhiComp_=ibooker.book1D("IsoTauPhiDERatio","Data/Emul of iso tau #phi; ISO Tau i#phi; Counts", 144, -0.5, 143.5);
+  METComp_=ibooker.book1D("METRatio","Data/Emul of MET; iE_{T}; Events", 4096, -0.5, 4095.5);
+  METPhiComp_=ibooker.book1D("METPhiRatio","Data/Emul of MET #phi; MET i#Phi; Events", 1008, -0.5, 1007.5);
+  METHFComp_=ibooker.book1D("METHFRatio","Data/Emul of METHF; METHF iE_{T}; Events", 4096, -0.5, 4095.5);
+  METHFPhiComp_=ibooker.book1D("METHFPhiRatio","Data/Emul of METHF #phi; METHF i#phi; Events", 1008, -0.5, 1007.5);
+  MHTComp_=ibooker.book1D("MHTRatio","Data/Emul of MHT; MHT iE_{T}; Events", 4096, -0.5, 4095.5);
+  METPhiComp_=ibooker.book1D("MHTPhiRatio","Data/Emul of MHT #phi; MHTHF i#phi; Events", 1008, -0.5, 1007.5);
+  MHTHFComp_=ibooker.book1D("MHTHFRatio","Data/Emul of MHTHF; MHTHF iE_{T}; Events", 4096, -0.5, 4095.5);
+  MHTPhiComp_=ibooker.book1D("MHTHFPhiRatio","Data/Emul of MHTHF #phi; MHTHF i#phi; Events", 1008, -0.5, 1007.5);
+  ETTComp_=ibooker.book1D("ETTRatio","Data/Emul of ET Total; ETT iE_{T}; Events", 4096, -0.5, 4095.5);
+  ETTEMComp_=ibooker.book1D("ETTEMRatio","Data/Emul of ET Total EM; ETTEM iE_{T}; Events", 4096, -0.5, 4095.5);
+  HTTComp_=ibooker.book1D("HTTRatio","Data/Emul of HT Total; HT iE_{T}; Events", 4096, -0.5, 4095.5);
 
-  MinBiasHFP0Comp_ = ibooker.book1D("MinBiasHFP0Ratio", "Data/Emul MinBiasHFP0", 16, -0.5, 15.5);
-  MinBiasHFM0Comp_ = ibooker.book1D("MinBiasHFM0Ratio", "Data/Emul MinBiasHFM0", 16, -0.5, 15.5);
-  MinBiasHFP1Comp_ = ibooker.book1D("MinBiasHFP1Ratio", "Data/Emul MinBiasHFP1", 16, -0.5, 15.5);
-  MinBiasHFM1Comp_ = ibooker.book1D("MinBiasHFM1Ratio", "Data/Emul MinBiasHFM1", 16, -0.5, 15.5);
+  MinBiasHFP0Comp_ = ibooker.book1D("MinBiasHFP0Ratio", "Data/Emul MinBiasHFP0; N_{towers}; Events", 16, -0.5, 15.5);
+  MinBiasHFM0Comp_ = ibooker.book1D("MinBiasHFM0Ratio", "Data/Emul MinBiasHFM0; N_{towers}; Events", 16, -0.5, 15.5);
+  MinBiasHFP1Comp_ = ibooker.book1D("MinBiasHFP1Ratio", "Data/Emul MinBiasHFP1; N_{towers}; Events", 16, -0.5, 15.5);
+  MinBiasHFM1Comp_ = ibooker.book1D("MinBiasHFM1Ratio", "Data/Emul MinBiasHFM1; N_{towers}; Events", 16, -0.5, 15.5);
 
-  TowerCountComp_ = ibooker.book1D("TowCountRatio", "Data/Emul Tower Count", 5904, -0.5, 5903.5);
+  TowerCountComp_ = ibooker.book1D("TowCountRatio", "Data/Emul Tower Count; N_{towers}; Events", 5904, -0.5, 5903.5);
 
   SummaryPlot_ = ibooker.book1D("CaloLayer2Summary", "CaloLayer2 Data-Emulator agreement summary", 35, 0, 35);
 }
@@ -307,7 +307,7 @@ void L1TStage2CaloLayer2DEClient::processHistograms(DQMStore::IGetter &igetter){
   if (dataHist_ && emulHist_){
     TH1F *metphiNum = dataHist_->getTH1F();
     TH1F *metphiDen = emulHist_->getTH1F();
-    
+
     TH1F *METPhiRatio = METPhiComp_->getTH1F();
     
     METPhiRatio->Divide(metphiNum, metphiDen);
@@ -525,8 +525,7 @@ void L1TStage2CaloLayer2DEClient::processHistograms(DQMStore::IGetter &igetter){
   addObjToSummary(igetter, SummaryHist, std::string("/Energy-Sums/ETTEMRank"), "ETTEM Rank");
   addObjToSummary(igetter, SummaryHist, std::string("/Energy-Sums/TowCount"), "Tower Count");
 
-  SummaryHist->GetXaxis()->SetLabelSize(0.02);
-  SummaryHist->SetMarkerStyle(21);
+  SummaryHist->LabelsOption("v", "x");
   SummaryHist->LabelsDeflate();
 }
 
@@ -551,6 +550,3 @@ void L1TStage2CaloLayer2DEClient::dqmEndJob(DQMStore::IBooker &ibooker, DQMStore
   book(ibooker);
   processHistograms(igetter);
 }
-
-
-  
