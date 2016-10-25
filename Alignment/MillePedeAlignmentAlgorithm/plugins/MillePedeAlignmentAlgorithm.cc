@@ -129,8 +129,8 @@ void MillePedeAlignmentAlgorithm::initialize(const edm::EventSetup &setup,
 
   // temporary fix to avoid corrupted database output
   if (!runAtPCL_) {
-    const auto MIN_VAL{cond::timeTypeSpecs[cond::runnumber].beginValue};
-    const auto MAX_VAL{cond::timeTypeSpecs[cond::runnumber].endValue};
+    const auto MIN_VAL = cond::timeTypeSpecs[cond::runnumber].beginValue;
+    const auto MAX_VAL = cond::timeTypeSpecs[cond::runnumber].endValue;
     const auto& iov_alignments =
       setup.get<TrackerAlignmentRcd>().validityInterval();
     const auto& iov_surfaces =
