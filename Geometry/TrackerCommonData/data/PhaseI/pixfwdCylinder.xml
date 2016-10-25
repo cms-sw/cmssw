@@ -68,7 +68,7 @@ root volume plus an anchor point for positioning.
 
  <Constant name="FlexCableDepth" value="0.90*mm"/>
  <Constant name="FlexCableWidth" value="[CylindersPortCardsWidth]"/>
- <Constant name="FlexCableLength" value="440.00*mm"/>
+ <Constant name="FlexCableLength" value="(642*mm-[pixfwdDisks:DiskHalfWidth])"/>
 </ConstantsSection>
  
 
@@ -209,7 +209,7 @@ root volume plus an anchor point for positioning.
 
  <LogicalPart name="PixelForwardFlexCables" category="support">
     <rSolid name="PixelForwardFlexCables"/>
-    <rMaterial name="pixfwdMaterials:Pix_Fwd_AluFelxCable3"/>
+    <rMaterial name="pixfwdMaterials:Pix_Fwd_AluFlexCable3"/>
  </LogicalPart>
 
 </LogicalPartSection>
@@ -237,10 +237,12 @@ root volume plus an anchor point for positioning.
   <Constant name="PortCardsToIP" value="952.75*mm"/> 
   <Constant name="ZOffCylinder"  value="-325*mm"/>
 
+  <Constant name="FlexCablesToBeam" value="([PortCardsToBeam]-[CylindersPortCardsThickness]/2-[FlexCableDepth])"/>
+
   <Constant name="DiskLocation"  value="[pixfwd:Disk3Z]"/>
 
- <Constant name="SpaceBetweenCableBlocksandDisk3" value="100.00*mm"/>
- <Constant name="Spacing" value="90.0*mm"/>
+ <Constant name="SpaceBetweenCableBlocksandDisk3" value="4*mm"/>
+ <Constant name="Spacing" value="2.0*mm"/>
 
 </ConstantsSection>
 
@@ -460,62 +462,62 @@ root volume plus an anchor point for positioning.
    <PosPart copyNumber="1">
          <rParent name="pixfwdCylinder:PixelForwardServiceCylinder"/>
          <rChild name="pixfwdCylinder:PixelForwardCarbonFiberSheetNearIP"/>
-         <Translation x="0." y="0." z="[pixfwdDisks:DiskHalfWidth]+[pixfwd:Disk3Z]+[Spacing]"/>
+         <Translation x="0." y="0." z="[pixfwd:Disk1Z] - [pixfwdDisks:DiskHalfWidth] - [Spacing]"/>
       </PosPart>
 
    <PosPart copyNumber="1">
          <rParent name="pixfwdCylinder:PixelForwardServiceCylinder"/>
          <rChild name="pixfwdCylinder:PixelForwardFlexCables"/>
-         <Translation x="[PortCardsToBeam]*cos([PortCardsAngle2])" y="[PortCardsToBeam]*sin([PortCardsAngle2])" z="[pixfwdDisks:DiskHalfWidth]+[pixfwd:Disk3Z]+[FlexCableLength]/2+[SpaceBetweenCableBlocksandDisk3]"/>
+         <Translation x="[FlexCablesToBeam]*cos([PortCardsAngle2])" y="[FlexCablesToBeam]*sin([PortCardsAngle2])" z="[pixfwdDisks:DiskHalfWidth]+[pixfwd:Disk3Z]+[FlexCableLength]/2+[SpaceBetweenCableBlocksandDisk3]"/>
          <rRotation name="pixfwdCylinder:PortCardsRot1"/>
       </PosPart>
 
    <PosPart copyNumber="2">
          <rParent name="pixfwdCylinder:PixelForwardServiceCylinder"/>
          <rChild name="pixfwdCylinder:PixelForwardFlexCables"/>
-         <Translation x="[PortCardsToBeam]*cos([PortCardsAngle1])" y="[PortCardsToBeam]*sin([PortCardsAngle1])" z="[pixfwdDisks:DiskHalfWidth]+[pixfwd:Disk3Z]+[FlexCableLength]/2+[SpaceBetweenCableBlocksandDisk3]"/>
+         <Translation x="[FlexCablesToBeam]*cos([PortCardsAngle1])" y="[FlexCablesToBeam]*sin([PortCardsAngle1])" z="[pixfwdDisks:DiskHalfWidth]+[pixfwd:Disk3Z]+[FlexCableLength]/2+[SpaceBetweenCableBlocksandDisk3]"/>
          <rRotation name="pixfwdCylinder:PortCardsRot2"/>
       </PosPart>
 
    <PosPart copyNumber="3">
          <rParent name="pixfwdCylinder:PixelForwardServiceCylinder"/>
          <rChild name="pixfwdCylinder:PixelForwardFlexCables"/>
-         <Translation x="[PortCardsToBeam]*cos([PortCardsAngle1])" y="-[PortCardsToBeam]*sin([PortCardsAngle1])" z="[pixfwdDisks:DiskHalfWidth]+[pixfwd:Disk3Z]+[FlexCableLength]/2+[SpaceBetweenCableBlocksandDisk3]"/>
+         <Translation x="[FlexCablesToBeam]*cos([PortCardsAngle1])" y="-[FlexCablesToBeam]*sin([PortCardsAngle1])" z="[pixfwdDisks:DiskHalfWidth]+[pixfwd:Disk3Z]+[FlexCableLength]/2+[SpaceBetweenCableBlocksandDisk3]"/>
          <rRotation name="pixfwdCylinder:PortCardsRot3"/>
       </PosPart>
 
    <PosPart copyNumber="4">
          <rParent name="pixfwdCylinder:PixelForwardServiceCylinder"/>
          <rChild name="pixfwdCylinder:PixelForwardFlexCables"/>
-         <Translation x="[PortCardsToBeam]*cos([PortCardsAngle2])" y="-[PortCardsToBeam]*sin([PortCardsAngle2])" z="[pixfwdDisks:DiskHalfWidth]+[pixfwd:Disk3Z]+[FlexCableLength]/2+[SpaceBetweenCableBlocksandDisk3]"/>
+         <Translation x="[FlexCablesToBeam]*cos([PortCardsAngle2])" y="-[FlexCablesToBeam]*sin([PortCardsAngle2])" z="[pixfwdDisks:DiskHalfWidth]+[pixfwd:Disk3Z]+[FlexCableLength]/2+[SpaceBetweenCableBlocksandDisk3]"/>
          <rRotation name="pixfwdCylinder:PortCardsRot4"/>
       </PosPart>
 
    <PosPart copyNumber="5">
          <rParent name="pixfwdCylinder:PixelForwardServiceCylinder"/>
          <rChild name="pixfwdCylinder:PixelForwardFlexCables"/>
-         <Translation x="-[PortCardsToBeam]*cos([PortCardsAngle2])" y="[PortCardsToBeam]*sin([PortCardsAngle2])" z="[pixfwdDisks:DiskHalfWidth]+[pixfwd:Disk3Z]+[FlexCableLength]/2+[SpaceBetweenCableBlocksandDisk3]"/>
+         <Translation x="-[FlexCablesToBeam]*cos([PortCardsAngle2])" y="[FlexCablesToBeam]*sin([PortCardsAngle2])" z="[pixfwdDisks:DiskHalfWidth]+[pixfwd:Disk3Z]+[FlexCableLength]/2+[SpaceBetweenCableBlocksandDisk3]"/>
          <rRotation name="pixfwdCylinder:PortCardsRot5"/>
       </PosPart>
 
    <PosPart copyNumber="6">
          <rParent name="pixfwdCylinder:PixelForwardServiceCylinder"/>
          <rChild name="pixfwdCylinder:PixelForwardFlexCables"/>
-         <Translation x="-[PortCardsToBeam]*cos([PortCardsAngle1])" y="[PortCardsToBeam]*sin([PortCardsAngle1])" z="[pixfwdDisks:DiskHalfWidth]+[pixfwd:Disk3Z]+[FlexCableLength]/2+[SpaceBetweenCableBlocksandDisk3]"/>
+         <Translation x="-[FlexCablesToBeam]*cos([PortCardsAngle1])" y="[FlexCablesToBeam]*sin([PortCardsAngle1])" z="[pixfwdDisks:DiskHalfWidth]+[pixfwd:Disk3Z]+[FlexCableLength]/2+[SpaceBetweenCableBlocksandDisk3]"/>
          <rRotation name="pixfwdCylinder:PortCardsRot6"/>
       </PosPart>
 
    <PosPart copyNumber="7">
          <rParent name="pixfwdCylinder:PixelForwardServiceCylinder"/>
          <rChild name="pixfwdCylinder:PixelForwardFlexCables"/>
-         <Translation x="-[PortCardsToBeam]*cos([PortCardsAngle1])" y="-[PortCardsToBeam]*sin([PortCardsAngle1])" z="[pixfwdDisks:DiskHalfWidth]+[pixfwd:Disk3Z]+[FlexCableLength]/2+[SpaceBetweenCableBlocksandDisk3]"/>
+         <Translation x="-[FlexCablesToBeam]*cos([PortCardsAngle1])" y="-[FlexCablesToBeam]*sin([PortCardsAngle1])" z="[pixfwdDisks:DiskHalfWidth]+[pixfwd:Disk3Z]+[FlexCableLength]/2+[SpaceBetweenCableBlocksandDisk3]"/>
          <rRotation name="pixfwdCylinder:PortCardsRot7"/>
       </PosPart>
 
    <PosPart copyNumber="8">
          <rParent name="pixfwdCylinder:PixelForwardServiceCylinder"/>
          <rChild name="pixfwdCylinder:PixelForwardFlexCables"/>
-         <Translation x="-[PortCardsToBeam]*cos([PortCardsAngle2])" y="-[PortCardsToBeam]*sin([PortCardsAngle2])" z="[pixfwdDisks:DiskHalfWidth]+[pixfwd:Disk3Z]+[FlexCableLength]/2+[SpaceBetweenCableBlocksandDisk3]"/>
+         <Translation x="-[FlexCablesToBeam]*cos([PortCardsAngle2])" y="-[FlexCablesToBeam]*sin([PortCardsAngle2])" z="[pixfwdDisks:DiskHalfWidth]+[pixfwd:Disk3Z]+[FlexCableLength]/2+[SpaceBetweenCableBlocksandDisk3]"/>
          <rRotation name="pixfwdCylinder:PortCardsRot8"/>
       </PosPart>
 

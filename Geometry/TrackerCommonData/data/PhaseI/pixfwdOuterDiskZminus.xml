@@ -90,7 +90,7 @@
 
  <LogicalPart name="FlexCableDisk" category="support">
     <rSolid name="FlexCableDisk"/>
-    <rMaterial name="pixfwdMaterials:Pix_Fwd_AluFelxCable2"/>
+    <rMaterial name="pixfwdMaterials:Pix_Fwd_AluFlexCable2"/>
  </LogicalPart>
 </LogicalPartSection>
 

@@ -315,7 +315,7 @@
     </MaterialFraction>
   </CompositeMaterial>
 
-  <CompositeMaterial name="Pix_Fwd_AluFelxCable" density="2.463*g/cm3" symbol=" " method="mixture by weight">
+  <CompositeMaterial name="Pix_Fwd_AluFlexCable" density="2.463*g/cm3" symbol=" " method="mixture by weight">
     <MaterialFraction fraction="0.3985">
       <rMaterial name="materials:Aluminium"/>
     </MaterialFraction>
@@ -324,13 +324,13 @@
     </MaterialFraction>
   </CompositeMaterial>
 
-  <CompositeMaterial name="Pix_Fwd_AluFelxCable2" density="1.311*g/cm3" symbol=" " method="mixture by weight">
+  <CompositeMaterial name="Pix_Fwd_AluFlexCable2" density="1.311*g/cm3" symbol=" " method="mixture by weight">
     <MaterialFraction fraction="1.000">
       <rMaterial name="materials:Aluminium"/>
     </MaterialFraction>
   </CompositeMaterial>
 
-  <CompositeMaterial name="Pix_Fwd_AluFelxCable3" density="6.615*g/cm3" symbol=" " method="mixture by weight">
+  <CompositeMaterial name="Pix_Fwd_AluFlexCable3" density="3.3075*g/cm3" symbol=" " method="mixture by weight">
     <MaterialFraction fraction="1.000">
       <rMaterial name="materials:Aluminium"/>
     </MaterialFraction>
