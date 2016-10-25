@@ -2,7 +2,7 @@
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
 MCMultiParticleFilter::MCMultiParticleFilter(const edm::ParameterSet& iConfig) :
-  src_(iConfig.getParameter<edm::InputTag>("src")),
+  src_(iConfig.getUntrackedParameter<edm::InputTag>("src",edm::InputTag(std::string("generator"),"unsmeared"))),
   numRequired_(iConfig.getParameter<int>("NumRequired")),
   acceptMore_(iConfig.getParameter<bool>("AcceptMore")),
   particleID_(iConfig.getParameter< std::vector<int> >("ParticleID")),

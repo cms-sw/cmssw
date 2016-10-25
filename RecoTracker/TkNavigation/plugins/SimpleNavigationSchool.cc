@@ -316,14 +316,23 @@ SimpleNavigationSchool::splitForwardLayers()
   current.push_back( *begin);
   for ( FDLI i = begin+1; i != end; i++) {
 
+#ifdef EDM_ML_DEBUG
     LogDebug("TkNavigation") << "(**i).specificSurface().innerRadius()      = "
 			     << (**i).specificSurface().innerRadius() << endl
 			     << "(**(i-1)).specificSurface().outerRadius()) = "
 			     << (**(i-1)).specificSurface().outerRadius() ;
+    LogDebug("TkNavigation") << "(**i).specificSurface().position().z()      = "
+                            << (**i).specificSurface().position().z() << endl
+                            << "(**(i-1)).specificSurface().position().z() = "
+                            << (**(i-1)).specificSurface().position().z() ;
+#endif
 
     // if inner radius of i is larger than outer radius of i-1 then split!
-    if ( (**i).specificSurface().innerRadius() > 
-	 (**(i-1)).specificSurface().outerRadius()) {
+    // FIXME: The solution found for phase2 is a bit dirty, we can do better.
+    // For phase2 we compare the EXTENDED pixel with the TID to get the assignment right!
+    if ( (**i).specificSurface().innerRadius() > (**(i-1)).specificSurface().outerRadius() ||
+         (theTracker->posPixelForwardLayers().back()->specificSurface().position().z() > theTracker->posTidLayers().front()->specificSurface().position().z() &&
+          (**i).specificSurface().position().z() < (**(i-1)).specificSurface().position().z()) ){
 
       LogDebug("TkNavigation") << "found break between groups" ;
 
