@@ -100,11 +100,10 @@ fill(const edm::Event& e, const edm::EventSetup& es)
       tc_cell_.emplace_back(id.cell());
       tc_data_.emplace_back(tc_itr->hwPt());
       // physical values 
-      const auto& position = geometry->getTriggerCellPosition(tc_itr->detId());
       tc_energy_.emplace_back(tc_itr->energy());
       tc_eta_.emplace_back(tc_itr->eta());
       tc_phi_.emplace_back(tc_itr->phi());
-      tc_z_.emplace_back(position.z());
+      tc_z_.emplace_back(tc_itr->position().z());
     }
   }
 }

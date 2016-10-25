@@ -133,6 +133,7 @@ decode(const std::vector<bool>& data, const uint32_t module, const HGCalTriggerG
                 // 'value' is hardware, so p4 is meaningless, except for eta and phi
                 math::PtEtaPhiMLorentzVector p4((double)value/cosh(point.eta()), point.eta(), point.phi(), 0.);
                 result.payload.back().setP4(p4);
+                result.payload.back().setPosition(point);
             }
         }
         index++;
