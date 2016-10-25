@@ -20,7 +20,6 @@ ecalRawDataClient = cms.untracked.PSet(
             kind = cms.untracked.string('TH2F'),
             otype = cms.untracked.string('Ecal3P'),
             btype = cms.untracked.string('SuperCrystal'),
-            perLumi = cms.untracked.bool(True),
             description = cms.untracked.string('Summary of the raw data (DCC and front-end) quality. A channel is red if it has nonzero events with FE status that is different from any of ENABLED, DISABLED, SUPPRESSED, FIFOFULL, FIFOFULL_L1ADESYNC, and FORCEDZS. A FED can also go red if its number of L1A desynchronization errors is greater than ' + str(synchErrThresholdFactor) + ' * log10(total entries).')
         ),
         ErrorsSummary = cms.untracked.PSet(
