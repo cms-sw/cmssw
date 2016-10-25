@@ -446,6 +446,9 @@ timingDict = {
         4 : [
             'Geometry/HGCalSimData/data/fasttimeProdCuts.xml'
             ],
+        "sim" : [
+            'from Geometry.HGCalCommonData.fastTimeParametersInitialization_cfi import *'
+        ],
         "era" : "self.phase2_timing",
     }
 }
