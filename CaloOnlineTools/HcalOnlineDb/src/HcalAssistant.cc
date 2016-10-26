@@ -168,6 +168,7 @@ std::string HcalAssistant::getZDCSectionString(HcalZDCDetId::Section _section){
   if           ( _section==HcalZDCDetId::EM)   zdcSection = "ZDC EM";
   else if      ( _section==HcalZDCDetId::HAD)  zdcSection = "ZDC HAD";
   else if      ( _section==HcalZDCDetId::LUM)  zdcSection = "ZDC LUM";
+  else if      ( _section==HcalZDCDetId::RPD)  zdcSection = "ZDC RPD";
   else zdcSection = "UNKNOWN";
   return zdcSection;
 }
@@ -177,6 +178,7 @@ HcalZDCDetId::Section HcalAssistant::getZDCSection(std::string _section){
   if      ( _section.find("ZDC EM") != std::string::npos ) return HcalZDCDetId::EM;
   else if ( _section.find("ZDC HAD") != std::string::npos ) return HcalZDCDetId::HAD;
   else if ( _section.find("ZDC LUM") != std::string::npos ) return HcalZDCDetId::LUM;
+  else if ( _section.find("ZDC RPD") != std::string::npos ) return HcalZDCDetId::RPD;
   else return HcalZDCDetId::Unknown;
 }
 
