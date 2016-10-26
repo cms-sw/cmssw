@@ -158,6 +158,9 @@ class HLTObjectMonitorHeavyIon : public DQMEDAnalyzer {
   edm::ParameterSet l3muon12Pt_pset;
   edm::ParameterSet l3muon12Eta_pset;
   edm::ParameterSet l3muon12Phi_pset;
+  edm::ParameterSet pAL1DoubleMuZMass_pset;
+  edm::ParameterSet pAL2DoubleMuZMass_pset;
+  edm::ParameterSet pAL3DoubleMuZMass_pset;
   edm::ParameterSet wallTime_pset;
 
   string processName_;
@@ -198,6 +201,9 @@ class HLTObjectMonitorHeavyIon : public DQMEDAnalyzer {
   hltPlot l3muon12Pt_;
   hltPlot l3muon12Eta_;
   hltPlot l3muon12Phi_;
+  hltPlot pAL1DoubleMuZMass_;
+  hltPlot pAL2DoubleMuZMass_;
+  hltPlot pAL3DoubleMuZMass_;
   hltPlot wallTime_;
 
 };
@@ -298,7 +304,12 @@ HLTObjectMonitorHeavyIon::HLTObjectMonitorHeavyIon(const edm::ParameterSet& iCon
   plotMap[&l3muon12Eta_] = &l3muon12Eta_pset;
   l3muon12Phi_pset        = iConfig.getParameter<edm::ParameterSet>("l3muon12Phi");
   plotMap[&l3muon12Phi_] = &l3muon12Phi_pset;
-
+  pAL1DoubleMuZMass_pset  = iConfig.getParameter<edm::ParameterSet>("pAL1DoubleMuZMass");
+  plotMap[&pAL1DoubleMuZMass_] = &pAL1DoubleMuZMass_pset;
+  pAL2DoubleMuZMass_pset  = iConfig.getParameter<edm::ParameterSet>("pAL2DoubleMuZMass");
+  plotMap[&pAL2DoubleMuZMass_] = &pAL2DoubleMuZMass_pset;
+  pAL3DoubleMuZMass_pset  = iConfig.getParameter<edm::ParameterSet>("pAL3DoubleMuZMass");
+  plotMap[&pAL3DoubleMuZMass_] = &pAL3DoubleMuZMass_pset;
   wallTime_pset = iConfig.getParameter<edm::ParameterSet>("wallTime");
   plotMap[&wallTime_] = &wallTime_pset;
   
@@ -502,6 +513,66 @@ HLTObjectMonitorHeavyIon::analyze(const edm::Event& iEvent, const edm::EventSetu
 	   // /// double-object plots
 	   // ///
 	   // ////////////////////////////////
+
+	   else if (pathName == pAL1DoubleMuZMass_.pathName){
+	      const double mu_mass(.105658);
+	      unsigned int kCnt0 = 0;
+	      for (const auto & key0: keys){
+		 unsigned int kCnt1 = 0;
+		 for (const auto & key1: keys){
+		    if (key0 != key1 && kCnt1 > kCnt0){ // avoid filling hists with same objs && avoid double counting separate objs
+		       // if (abs(objects[key0].id()) == 13 && (objects[key0].id()+objects[key1].id()==0))  // id is not filled for l1 stage2 muons
+		       TLorentzVector mu1, mu2, dimu;
+		       mu1.SetPtEtaPhiM(objects[key0].pt(), objects[key0].eta(), objects[key0].phi(), mu_mass);
+		       mu2.SetPtEtaPhiM(objects[key1].pt(), objects[key1].eta(), objects[key1].phi(), mu_mass);
+		       dimu = mu1+mu2;
+		       if(dimu.M()>pAL1DoubleMuZMass_.xMin && dimu.M()<pAL1DoubleMuZMass_.xMax) pAL1DoubleMuZMass_.ME->Fill(dimu.M());
+		    }
+		    kCnt1 +=1;
+		 }
+		 kCnt0 +=1;
+	      }
+	   }
+	   else if (pathName == pAL2DoubleMuZMass_.pathName){
+	      const double mu_mass(.105658);
+	      unsigned int kCnt0 = 0;
+	      for (const auto & key0: keys){
+		 unsigned int kCnt1 = 0;
+		 for (const auto & key1: keys){
+		    if (key0 != key1 && kCnt1 > kCnt0){ // avoid filling hists with same objs && avoid double counting separate objs
+		       if (abs(objects[key0].id()) == 13 && (objects[key0].id()+objects[key1].id()==0)){  // check muon id and dimuon charge
+			  TLorentzVector mu1, mu2, dimu;
+			  mu1.SetPtEtaPhiM(objects[key0].pt(), objects[key0].eta(), objects[key0].phi(), mu_mass);
+			  mu2.SetPtEtaPhiM(objects[key1].pt(), objects[key1].eta(), objects[key1].phi(), mu_mass);
+			  dimu = mu1+mu2;
+			  if(dimu.M()>pAL2DoubleMuZMass_.xMin && dimu.M()<pAL2DoubleMuZMass_.xMax) pAL2DoubleMuZMass_.ME->Fill(dimu.M());
+		       }
+		    }
+		    kCnt1 +=1;
+		 }
+		 kCnt0 +=1;
+	      }
+	   }
+	   else if (pathName == pAL3DoubleMuZMass_.pathName){
+	      const double mu_mass(.105658);
+	      unsigned int kCnt0 = 0;
+	      for (const auto & key0: keys){
+		 unsigned int kCnt1 = 0;
+		 for (const auto & key1: keys){
+		    if (key0 != key1 && kCnt1 > kCnt0){ // avoid filling hists with same objs && avoid double counting separate objs
+		       if (abs(objects[key0].id()) == 13 && (objects[key0].id()+objects[key1].id()==0)){  // check muon id and dimuon charge
+			  TLorentzVector mu1, mu2, dimu;
+			  mu1.SetPtEtaPhiM(objects[key0].pt(), objects[key0].eta(), objects[key0].phi(), mu_mass);
+			  mu2.SetPtEtaPhiM(objects[key1].pt(), objects[key1].eta(), objects[key1].phi(), mu_mass);
+			  dimu = mu1+mu2;
+			  if(dimu.M()>pAL3DoubleMuZMass_.xMin && dimu.M()<pAL3DoubleMuZMass_.xMax) pAL3DoubleMuZMass_.ME->Fill(dimu.M());
+		       }
+		    }
+		    kCnt1 +=1;
+		 }
+		 kCnt0 +=1;
+	      }
+	   }
 
 	   firedMap[pathName] = true;
 	 } //end if trigger accept

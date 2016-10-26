@@ -402,15 +402,44 @@ hltObjectMonitorHeavyIon = cms.EDAnalyzer('HLTObjectMonitorHeavyIon',
         Xmin = cms.double(-3.2),
         Xmax = cms.double(3.2)
         ),
+    pAL1DoubleMuZMass = cms.PSet(
+	pathName = cms.string("HLT_PAL1DoubleMu10"),
+	moduleName = cms.string("hltL1fL1sDoubleMu10BptxANDL1Filtered0"),
+	plotLabel = cms.string("PAL1DoubleMu10_ZMass"),
+	axisLabel = cms.string("L1 dimuon mass [GeV]"),
+	mainWorkspace = cms.bool(True),
+	NbinsX = cms.int32(50),
+	Xmin = cms.double(60.0),
+	Xmax = cms.double(160.0)
+	),
+    pAL2DoubleMuZMass = cms.PSet(
+	pathName = cms.string("HLT_PAL2DoubleMu10"),
+	moduleName = cms.string("hltL2fL1sDoubleMu10BptxANDL1f0L2Filtered10"),
+	plotLabel = cms.string("PAL2DoubleMu10_ZMass"),
+	axisLabel = cms.string("L2 dimuon mass [GeV]"),
+	mainWorkspace = cms.bool(True),
+	NbinsX = cms.int32(50),
+	Xmin = cms.double(60.0),
+	Xmax = cms.double(160.0)
+	),
+    pAL3DoubleMuZMass = cms.PSet(
+	pathName = cms.string("HLT_PAL3DoubleMu10"),
+	moduleName = cms.string("hltL3fL1sDoubleMu10BptxANDL1f0L2f10L3Filtered10"),
+	plotLabel = cms.string("PAL3DoubleMu10_ZMass"),
+	axisLabel = cms.string("L3 dimuon mass [GeV]"),
+	mainWorkspace = cms.bool(True),
+	NbinsX = cms.int32(50),
+	Xmin = cms.double(60.0),
+	Xmax = cms.double(160.0)
+	),
     wallTime = cms.PSet(
-        pathName = cms.string("wall time per event"),
-        moduleName = cms.string(""),
-        plotLabel = cms.string("wallTime"),
-        axisLabel = cms.string("wall time per event [seconds]"),
-        mainWorkspace = cms.bool(True),
-        NbinsX = cms.int32(1000),
-        Xmin = cms.double(0),
-        Xmax = cms.double(0.005)
-        )
-
+	pathName = cms.string("wall time per event"),
+	moduleName = cms.string(""),
+	plotLabel = cms.string("wallTime"),
+	axisLabel = cms.string("wall time per event [seconds]"),
+	mainWorkspace = cms.bool(True),
+	NbinsX = cms.int32(1000),
+	Xmin = cms.double(0),
+	Xmax = cms.double(0.005)
+	)
 )
