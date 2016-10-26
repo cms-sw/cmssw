@@ -13,62 +13,62 @@ skimRawContent.outputCommands.append("drop *_MEtoEDMConverter_*_*")
 skimRawContent.outputCommands.append("drop *_*_*_SKIM")
 
 #####################
-# special skims for high PU run
+# event splitting special skims
 
 # select events 1, 5, 9, ...
-highPU_Prescaler_P1 = cms.EDFilter("Prescaler",
+evtSplit_Prescaler_P1 = cms.EDFilter("Prescaler",
     prescaleFactor = cms.int32(4),
     prescaleOffset = cms.int32(1)
 )
 # select events 2, 6, 10, ...
-highPU_Prescaler_P2 = cms.EDFilter("Prescaler",
+evtSplit_Prescaler_P2 = cms.EDFilter("Prescaler",
     prescaleFactor = cms.int32(4),
     prescaleOffset = cms.int32(2)
 )
 # select events 3, 7, 11, ...
-highPU_Prescaler_P3 = cms.EDFilter("Prescaler",
+evtSplit_Prescaler_P3 = cms.EDFilter("Prescaler",
     prescaleFactor = cms.int32(4),
     prescaleOffset = cms.int32(3)
 )
 # select events 4, 8, 12, ...
-highPU_Prescaler_P4 = cms.EDFilter("Prescaler",
+evtSplit_Prescaler_P4 = cms.EDFilter("Prescaler",
     prescaleFactor = cms.int32(4),
     prescaleOffset = cms.int32(0)
 )
 
-highPU_SkimPath_P1 = cms.Path(highPU_Prescaler_P1)
-highPU_SkimPath_P2 = cms.Path(highPU_Prescaler_P2)
-highPU_SkimPath_P3 = cms.Path(highPU_Prescaler_P3)
-highPU_SkimPath_P4 = cms.Path(highPU_Prescaler_P4)
+evtSplit_SkimPath_P1 = cms.Path(evtSplit_Prescaler_P1)
+evtSplit_SkimPath_P2 = cms.Path(evtSplit_Prescaler_P2)
+evtSplit_SkimPath_P3 = cms.Path(evtSplit_Prescaler_P3)
+evtSplit_SkimPath_P4 = cms.Path(evtSplit_Prescaler_P4)
 
-SKIMStreamhighPUSkimP1 = cms.FilteredStream(
+SKIMStreamevtSplitSkimP1 = cms.FilteredStream(
     responsible = 'PDWG',
-    name = 'highPUSkimP1',
-    paths = (highPU_SkimPath_P1),
+    name = 'evtSplitSkimP1',
+    paths = (evtSplit_SkimPath_P1),
     content = skimRawContent.outputCommands,
     selectEvents = cms.untracked.PSet(),
     dataTier = cms.untracked.string('RAW')
     )
-SKIMStreamhighPUSkimP2 = cms.FilteredStream(
+SKIMStreamevtSplitSkimP2 = cms.FilteredStream(
     responsible = 'PDWG',
-    name = 'highPUSkimP2',
-    paths = (highPU_SkimPath_P2),
+    name = 'evtSplitSkimP2',
+    paths = (evtSplit_SkimPath_P2),
     content = skimRawContent.outputCommands,
     selectEvents = cms.untracked.PSet(),
     dataTier = cms.untracked.string('RAW')
     )
-SKIMStreamhighPUSkimP3 = cms.FilteredStream(
+SKIMStreamevtSplitSkimP3 = cms.FilteredStream(
     responsible = 'PDWG',
-    name = 'highPUSkimP3',
-    paths = (highPU_SkimPath_P3),
+    name = 'evtSplitSkimP3',
+    paths = (evtSplit_SkimPath_P3),
     content = skimRawContent.outputCommands,
     selectEvents = cms.untracked.PSet(),
     dataTier = cms.untracked.string('RAW')
     )
-SKIMStreamhighPUSkimP4 = cms.FilteredStream(
+SKIMStreamevtSplitSkimP4 = cms.FilteredStream(
     responsible = 'PDWG',
-    name = 'highPUSkimP4',
-    paths = (highPU_SkimPath_P4),
+    name = 'evtSplitSkimP4',
+    paths = (evtSplit_SkimPath_P4),
     content = skimRawContent.outputCommands,
     selectEvents = cms.untracked.PSet(),
     dataTier = cms.untracked.string('RAW')
