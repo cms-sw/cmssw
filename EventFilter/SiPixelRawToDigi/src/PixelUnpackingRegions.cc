@@ -23,10 +23,6 @@
 
 // local convenience functions
 namespace {
-  //bool isBPIXFED(unsigned int fed) {return fed< 32;}
-  //bool isFPIXFED(unsigned int fed) {return fed>=32;}
-  //bool isBPIXFEDPhase1(unsigned int fed) {return fed< 1280;} // for v3 map, 1276 for v2 map, 
-  //bool isFPIXFEDPhase1(unsigned int fed) {return fed>=1280;}
   bool isBPIXModule(unsigned int id) {return DetId(id).subdetId() == PixelSubdetector::PixelBarrel;}
   bool isFPIXModule(unsigned int id) {return DetId(id).subdetId() == PixelSubdetector::PixelEndcap;}
   
@@ -232,24 +228,6 @@ bool PixelUnpackingRegions::mayUnpackFED(unsigned int fed_n) const
   if (feds_.count(fed_n)) return true;
   return false;
 }
-// Only used in a LogDebug printout
-// unsigned int PixelUnpackingRegions::nBarrelFEDs() const
-// {
-//   if(phase1_) { 
-//     return std::count_if(feds_.begin(), feds_.end(), isBPIXFEDPhase1 );
-//   } else {
-//     return std::count_if(feds_.begin(), feds_.end(), isBPIXFED );
-//   }
-// }
-// // Only used in a LogDebug printout
-// unsigned int PixelUnpackingRegions::nForwardFEDs() const
-// {
-//   if(phase1_) { 
-//     return std::count_if(feds_.begin(), feds_.end(), isFPIXFEDPhase1 );
-//   } else {
-//     return std::count_if(feds_.begin(), feds_.end(), isFPIXFED );
-//   }
-// }
 
 
 bool PixelUnpackingRegions::mayUnpackModule(unsigned int id) const
