@@ -104,7 +104,7 @@ int main(int argc, char *argv[]) {
       histo->SetDirectory(0);
       histo->SetStats(kFALSE);
 
-      histo->Scale(1/EvtNum);
+      if (hn.find("Summary")==std::string::npos) histo->Scale(1/EvtNum);
 
       double numberPerEvent= histo->Integral();
 
