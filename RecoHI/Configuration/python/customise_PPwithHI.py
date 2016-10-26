@@ -198,12 +198,14 @@ def storePPbAdditionalAOD(process):
         process.AODoutput.outputCommands.extend(['keep *_zdcreco_*_*'])
         process.AODoutput.outputCommands.extend(['keep ZDCDataFramesSorted_hcalDigis_*_*'])
         process.AODoutput.outputCommands.extend(['keep ZDCDataFramesSorted_castorDigis_*_*'])
+        process.AODoutput.outputCommands.extend(['keep QIE10DataFrameHcalDataFrameContainer_hcalDigis_ZDC_*'])
         process.AODoutput.outputCommands.extend(['keep recoCentrality*_pACentrality_*_*'])
 
     if hasattr(process,'AODSIMoutput'):
         process.AODSIMoutput.outputCommands.extend(['keep *_zdcreco_*_*'])
         process.AODSIMoutput.outputCommands.extend(['keep ZDCDataFramesSorted_hcalDigis_*_*'])
         process.AODSIMoutput.outputCommands.extend(['keep ZDCDataFramesSorted_castorDigis_*_*'])
+        process.AODSIMoutput.outputCommands.extend(['keep QIE10DataFrameHcalDataFrameContainer_hcalDigis_ZDC_*'])
         process.AODSIMoutput.outputCommands.extend(['keep recoCentrality*_pACentrality_*_*'])
 
     return process
