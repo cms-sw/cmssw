@@ -47,6 +47,7 @@ private:
   bool smearRadial_;
   double oldXResolution_;
   double newXResolution_;
+  double newYResolution_;
   bool discretizeX_;
   bool verbose_;
   bool reDigitizeOnlyMuons_;
