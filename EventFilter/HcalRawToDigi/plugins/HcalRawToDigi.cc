@@ -65,6 +65,7 @@ HcalRawToDigi::HcalRawToDigi(edm::ParameterSet const& conf):
     produces<HcalUMNioDigi>();
   produces<QIE10DigiCollection>();
   produces<QIE11DigiCollection>();
+  produces<QIE10DigiCollection>("ZDC");
   
   memset(&stats_,0,sizeof(stats_));
 
@@ -202,6 +203,10 @@ void HcalRawToDigi::produce(edm::Event& e, const edm::EventSetup& es)
     colls.qie10 = new QIE10DigiCollection(); 
   }
   std::unique_ptr<QIE10DigiCollection> qie10_prod(colls.qie10);
+  if (colls.qie10ZDC == 0) {
+    colls.qie10ZDC = new QIE10DigiCollection(); 
+  }
+  std::unique_ptr<QIE10DigiCollection> qie10ZDC_prod(colls.qie10ZDC);
   if (colls.qie11 == 0) {
     colls.qie11 = new QIE11DigiCollection(); 
   }
@@ -233,6 +238,7 @@ void HcalRawToDigi::produce(edm::Event& e, const edm::EventSetup& es)
   htp_prod->sort();
   hotp_prod->sort();
   qie10_prod->sort();
+  qie10ZDC_prod->sort();
   qie11_prod->sort();
 
   e.put(std::move(hbhe_prod));
@@ -241,6 +247,7 @@ void HcalRawToDigi::produce(edm::Event& e, const edm::EventSetup& es)
   e.put(std::move(htp_prod));
   e.put(std::move(hotp_prod));
   e.put(std::move(qie10_prod));
+  e.put(std::move(qie10ZDC_prod),"ZDC");
   e.put(std::move(qie11_prod));
 
   /// calib
