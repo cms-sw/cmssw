@@ -40,6 +40,7 @@ ME0ReDigiProducer::ME0ReDigiProducer(const edm::ParameterSet& ps)
   smearRadial_ = ps.getParameter<bool>("smearRadial");
   oldXResolution_ = ps.getParameter<double>("oldXResolution");
   newXResolution_ = ps.getParameter<double>("newXResolution");
+  newYResolution_ = ps.getParameter<double>("newYResolution");
   discretizeX_ = ps.getParameter<bool>("discretizeX");
   reDigitizeOnlyMuons_ = ps.getParameter<bool>("reDigitizeOnlyMuons");
   reDigitizeNeutronBkg_ = ps.getParameter<bool>("reDigitizeNeutronBkg");
@@ -211,7 +212,7 @@ void ME0ReDigiProducer::buildDigis(const ME0DigiPreRecoCollection & input_digis,
       }
 
       // make a new ME0DetId
-      ME0DigiPreReco out_digi(newX, newY, me0Digi.ex(), me0Digi.ey(), me0Digi.corr(), newTime, me0Digi.pdgid(), me0Digi.prompt());
+      ME0DigiPreReco out_digi(newX, newY, targetResolution, newYResolution_, me0Digi.corr(), newTime, me0Digi.pdgid(), me0Digi.prompt());
       ME0DetId out_detId(detId.region(), detId.layer(), detId.chamber(), newRoll);
 
       output_digis.insertDigi(out_detId, out_digi);
