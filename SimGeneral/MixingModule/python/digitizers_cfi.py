@@ -58,8 +58,12 @@ phase2_common.toModify( theDigitizers, castor = None )
 from SimGeneral.MixingModule.ecalTimeDigitizer_cfi import ecalTimeDigitizer
 from Configuration.Eras.Modifier_phase2_timing_cff import phase2_timing
 phase2_timing.toModify( theDigitizers,
-                             ecalTime = ecalTimeDigitizer.clone() )
+                        ecalTime = ecalTimeDigitizer.clone() )
     
+from SimFastTiming.Configuration.SimFastTiming_cff import ftlDigitizer
+phase2_timing.toModify( theDigitizers,
+                        fastTimingLayer = ftlDigitizer.clone() )
+
 theDigitizersValid = cms.PSet(
     theDigitizers,
     mergedtruth = cms.PSet(
@@ -69,8 +73,9 @@ theDigitizersValid = cms.PSet(
 
 
 phase2_hgcal.toModify( theDigitizersValid,
-                            calotruth = cms.PSet( caloParticles ) )
+                       calotruth = cms.PSet( caloParticles ) )
+
 
 phase2_timing.toModify( theDigitizersValid.mergedtruth,
-                             createInitialVertexCollection = cms.bool(True) )
+                        createInitialVertexCollection = cms.bool(True) )
 
