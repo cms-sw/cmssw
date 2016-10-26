@@ -16,16 +16,17 @@
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 #include "DataFormats/Candidate/interface/LeafCandidate.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 
 #include <algorithm>
 #include <iterator>
 
 // local convenience functions
 namespace {
-  bool isBPIXFED(unsigned int fed) {return fed< 32;}
-  bool isFPIXFED(unsigned int fed) {return fed>=32;}
-  bool isBPIXFEDPhase1(unsigned int fed) {return fed< 1280;} // for v3 map, 1276 for v2 map, 
-  bool isFPIXFEDPhase1(unsigned int fed) {return fed>=1280;}
+  //bool isBPIXFED(unsigned int fed) {return fed< 32;}
+  //bool isFPIXFED(unsigned int fed) {return fed>=32;}
+  //bool isBPIXFEDPhase1(unsigned int fed) {return fed< 1280;} // for v3 map, 1276 for v2 map, 
+  //bool isFPIXFEDPhase1(unsigned int fed) {return fed>=1280;}
   bool isBPIXModule(unsigned int id) {return DetId(id).subdetId() == PixelSubdetector::PixelBarrel;}
   bool isFPIXModule(unsigned int id) {return DetId(id).subdetId() == PixelSubdetector::PixelEndcap;}
   
@@ -102,10 +103,15 @@ void PixelUnpackingRegions::initialize(const edm::EventSetup& es)
     es.get<TrackerDigiGeometryRecord>().get( geom );
 
     // switch on the phase1 
+    unsigned int fedMin = FEDNumbering::MINSiPixelFEDID; // phase0
+    unsigned int fedMax = FEDNumbering::MAXSiPixelFEDID;
     if( (geom->isThere(GeomDetEnumerators::P1PXB)) && 
-	(geom->isThere(GeomDetEnumerators::P1PXEC)) ) phase1_ = true;
-    else phase1_ = false;
-    
+	(geom->isThere(GeomDetEnumerators::P1PXEC)) ) {
+      fedMin = FEDNumbering::MINSiPixeluTCAFEDID; // phase1
+      fedMax = FEDNumbering::MAXSiPixeluTCAFEDID;
+    }
+
+
     phiBPIX_.clear();
     phiFPIXp_.clear();
     phiFPIXm_.clear();
@@ -133,11 +139,7 @@ void PixelUnpackingRegions::initialize(const edm::EventSetup& es)
       const std::vector<sipixelobjects::CablingPathToDetUnit> path2det = cabling_->pathToDetUnit(m.id);
 
       m.fed = path2det[0].fed;
-      if(phase1_) {
-	assert( (m.fed<1308) && (m.fed>=1200));
-      } else {
-	assert(m.fed<40);
-      }
+      assert( (m.fed<=fedMax) && (m.fed>=fedMin) );
 
       if (subdet == PixelSubdetector::PixelBarrel)
       {
@@ -231,23 +233,23 @@ bool PixelUnpackingRegions::mayUnpackFED(unsigned int fed_n) const
   return false;
 }
 // Only used in a LogDebug printout
-unsigned int PixelUnpackingRegions::nBarrelFEDs() const
-{
-  if(phase1_) { 
-    return std::count_if(feds_.begin(), feds_.end(), isBPIXFEDPhase1 );
-  } else {
-    return std::count_if(feds_.begin(), feds_.end(), isBPIXFED );
-  }
-}
-// Only used in a LogDebug printout
-unsigned int PixelUnpackingRegions::nForwardFEDs() const
-{
-  if(phase1_) { 
-    return std::count_if(feds_.begin(), feds_.end(), isFPIXFEDPhase1 );
-  } else {
-    return std::count_if(feds_.begin(), feds_.end(), isFPIXFED );
-  }
-}
+// unsigned int PixelUnpackingRegions::nBarrelFEDs() const
+// {
+//   if(phase1_) { 
+//     return std::count_if(feds_.begin(), feds_.end(), isBPIXFEDPhase1 );
+//   } else {
+//     return std::count_if(feds_.begin(), feds_.end(), isBPIXFED );
+//   }
+// }
+// // Only used in a LogDebug printout
+// unsigned int PixelUnpackingRegions::nForwardFEDs() const
+// {
+//   if(phase1_) { 
+//     return std::count_if(feds_.begin(), feds_.end(), isFPIXFEDPhase1 );
+//   } else {
+//     return std::count_if(feds_.begin(), feds_.end(), isFPIXFED );
+//   }
+// }
 
 
 bool PixelUnpackingRegions::mayUnpackModule(unsigned int id) const
