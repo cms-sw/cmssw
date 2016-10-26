@@ -610,7 +610,7 @@ void HcalTriggerPrimitiveAlgo::analyzeHF2017(
             }
 
             for (const auto& detail: details) {
-               if (detail.validity[idx] and HcalDetId(detail.digi.id()).ietaAbs() >= FIRST_FINEGRAIN_TOWER) {
+               if (idx < int(detail.digi.size()) and detail.validity[idx] and HcalDetId(detail.digi.id()).ietaAbs() >= FIRST_FINEGRAIN_TOWER) {
                   finegrain[ibin][1] = finegrain[ibin][1] or (detail.digi[idx].adc() > (int) FG_HF_threshold_);
                }
             }
