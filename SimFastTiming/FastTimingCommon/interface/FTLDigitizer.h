@@ -61,7 +61,7 @@ namespace ftl_digitizer {
   FTLDigitizer(const edm::ParameterSet& config, 
 	       edm::ConsumesCollector& iC,
 	       edm::stream::EDProducerBase& parent) :
-    FTLDigitizerBase(config,parent),
+    FTLDigitizerBase(config,iC,parent),
     deviceSim_( config.getParameterSet("DeviceSimulation") ),
     electronicsSim_( config.getParameterSet("ElectronicsSimulation") ),        
     maxSimHitsAccTime_( config.getParameter< uint32_t >("maxSimHitsAccTime") ),
@@ -138,7 +138,7 @@ namespace ftl_digitizer {
     using namespace FTLHelpers;
     //configuration to apply for the computation of time-of-flight
     bool weightToAbyEnergy(false);
-    float tdcOnset(0.f),keV2fC(0.f);
+    float tdcOnset(0.f);
     
     //create list of tuples (pos in container, RECO DetId, time) to be sorted first
     int nchits=(int)hits->size();  
@@ -147,7 +147,7 @@ namespace ftl_digitizer {
     for(int i=0; i<nchits; ++i) {
       const auto& the_hit = hits->at(i);    
       
-      DetId id = ( validIds_.count(the_hit.theDetUnitId()) ? the_hit.theDetUnitId() : 0 );
+      DetId id = ( validIds_.count(the_hit.detUnitId()) ? the_hit.detUnitId() : 0 );
       
       if (verbosity_>0) {	
 	edm::LogInfo("HGCDigitizer") << " i/p " << std::hex << the_hit.detUnitId() << std::dec 
@@ -158,7 +158,7 @@ namespace ftl_digitizer {
 	hitRefs.emplace_back( i, id.rawId(), the_hit.tof() );
       }
     }
-    std::sort(hitRefs.begin(),hitRefs.end(),this->orderByDetIdThenTime);
+    std::sort(hitRefs.begin(),hitRefs.end(),FTLHelpers::orderByDetIdThenTime);
     
     //loop over sorted hits
     nchits = hitRefs.size();
@@ -240,7 +240,7 @@ namespace ftl_digitizer {
 
     electronicsSim_.run(simHitAccumulator_,*digiCollection);
 
-    e.put(digiCollection,digiCollection_);
+    e.put(std::move(digiCollection),digiCollection_);
 
     //release memory for next event
     resetSimHitDataAccumulator();
@@ -262,10 +262,10 @@ namespace ftl_digitizer {
 	    for( unsigned iphi = 0; iphi < 1<<10; ++iphi ) {
 	      
 	      if( dddFTL_->isValidXY(type, izeta, iphi) ) {
-		validIds_.emplace( type, 
-				   izeta, 
-				   iphi, 
-				   zside );
+		validIds_.emplace( FastTimeDetId( type, 
+						  izeta, 
+						  iphi, 
+						  zside ) );
 	      }
 	      
 	    }

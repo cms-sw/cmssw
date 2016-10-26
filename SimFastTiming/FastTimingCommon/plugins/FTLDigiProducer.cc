@@ -88,5 +88,3 @@ CLHEP::HepRandomEngine* FTLDigiProducer::randomEngine(edm::StreamID const& strea
   }
   return ptr;
 }
-
-DEFINE_DIGI_ACCUMULATOR(FTLDigiProducer);

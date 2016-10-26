@@ -23,7 +23,8 @@ namespace CLHEP {
 class FTLDigiProducer : public DigiAccumulatorMixMod {
 public:
   FTLDigiProducer(edm::ParameterSet const& pset, edm::stream::EDProducerBase& mixMod, edm::ConsumesCollector& iC);
-  FTLDigiProducer(edm::ParameterSet const& pset, edm::ConsumesCollector& iC) {
+  FTLDigiProducer(edm::ParameterSet const& pset, edm::ConsumesCollector& iC)
+  {
     throw cms::Exception("DeprecatedConstructor") << "Please make sure you're calling this with the threaded mixing module...";
   }
 
@@ -40,5 +41,9 @@ private:
   std::vector<std::unique_ptr<FTLDigitizerBase> > theDigitizers_;
   std::vector<CLHEP::HepRandomEngine*> randomEngines_;
 };
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "SimGeneral/MixingModule/interface/DigiAccumulatorMixModFactory.h"
+DEFINE_DIGI_ACCUMULATOR(FTLDigiProducer);
 
 #endif

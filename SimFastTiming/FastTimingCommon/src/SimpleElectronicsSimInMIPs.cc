@@ -5,7 +5,7 @@
 using namespace ftl;
 
 SimpleElectronicsSimInMIPs::SimpleElectronicsSimInMIPs(const edm::ParameterSet& pset) :
-  debug_( pset.getUntrackedParameter<bool>("debug") ),
+  debug_( pset.getUntrackedParameter<bool>("debug",false) ),
   adcNbits_( pset.getParameter<uint32_t>("adcNbits") ),
   tdcNbits_( pset.getParameter<uint32_t>("tdcNbits") ),
   adcSaturation_MIP_( pset.getParameter<double>("adcSaturation_MIP") ),
