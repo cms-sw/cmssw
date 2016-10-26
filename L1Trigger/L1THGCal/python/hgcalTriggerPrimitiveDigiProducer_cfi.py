@@ -14,13 +14,14 @@ fe_codec = cms.PSet( CodecName  = cms.string('HGCalTriggerCellBestChoiceCodec'),
                      adcnBits = digiparam.hgceeDigitizer.digiCfg.feCfg.adcNbits,
                      tdcsaturation = digiparam.hgceeDigitizer.digiCfg.feCfg.tdcSaturation_fC,
                      tdcnBits = digiparam.hgceeDigitizer.digiCfg.feCfg.tdcNbits,
-                     tdcOnsetfC = digiparam.hgceeDigitizer.digiCfg.feCfg.tdcOnset_fC
+                     tdcOnsetfC = digiparam.hgceeDigitizer.digiCfg.feCfg.tdcOnset_fC,
+                     TCThreshold = cms.int32(10)
                    )
 
 
 
 
-cluster_algo =  cms.PSet( AlgorithmName = cms.string('FullModuleSumAlgo'),
+cluster_algo =  cms.PSet( AlgorithmName = cms.string('FullModuleSumAlgoBestChoice'),
                                  FECodec = fe_codec )
 
 
