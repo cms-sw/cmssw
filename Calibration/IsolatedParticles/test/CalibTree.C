@@ -3,7 +3,8 @@
 // .L CalibTree.C+g
 //  Run(inFileName, dirName, treeName, outFileName, corrFileName, dupFileName,
 //     useweight, useMean, nMin, inverse, ratMin, ratMax, ietaMax, applyL1Cut,
-//     l1Cut, truncateFlag, sysmode, fraction, maxIter, writeDebugHisto, debug);
+//     l1Cut, truncateFlag, sysmode, fraction, maxIter, useGen, 
+//     writeDebugHisto, debug);
 //
 //  where:
 //
@@ -38,6 +39,7 @@
 //  sysmode         (int)     = systematic error study (0 if default)
 //  fraction        (double)  = fraction of events to be done (-1)    
 //  maxIter         (int)     = number of iterations
+//  useGen          (bool)    = use generator level momentum information (False)
 //  writeDebugHisto (bool)    = Flag to check writing intermediate histograms
 //                              in o/p file (False)
 //  debug           (bool)    = To produce more debug printing on screen
@@ -75,7 +77,7 @@ void Run(const char *inFileName="Silver",
 	 bool useweight=true, bool useMean=true, int nMin=0, bool inverse=false,
 	 double ratMin=0.25, double ratMax=3., int ietaMax=25, 
 	 int applyL1Cut=1, double l1Cut=0.5, bool truncateFlag=true,
-	 int sysmode=0, double fraction=1.0, int maxIter=30,
+	 int sysmode=0, double fraction=1.0, int maxIter=30, bool useGen=false,
 	 bool writeDebugHisto=false, bool debug=false);
 
 // Fixed size dimensions of array or collections stored in the TTree if any.
@@ -147,6 +149,7 @@ public :
   TProfile                                         *h_Ebyp_bfr, *h_Ebyp_aftr;
   bool                                              truncateFlag_, useMean_;
   int                                               sysmode_;
+  bool                                              useGen_;
   double                                            log16by24_;
   std::vector<Long64_t>                             entries;
   std::vector<unsigned int>                         detIds;
@@ -161,7 +164,7 @@ public :
   };
 
   CalibTree(const char *dupFileName, bool flag, bool useMean, int sysmode,
-	    TTree *tree=0);
+	    bool useGen, TTree *tree=0);
   virtual ~CalibTree();
   virtual Int_t    Cut(Long64_t entry);
   virtual Int_t    GetEntry(Long64_t entry);
@@ -191,7 +194,7 @@ void doIt(const char* infile, const char* dup) {
     sprintf (outf2, "%s_%d.txt",  infile, k);
     double lumi = (k==0) ? -1 : lumt;
     lumt *= fac;
-    Run(infile,"HcalIsoTrkAnalyzer","CalibTree",outf1,outf2,dup,true,true,0,true,0.25,5.0,25,1,0.5,false,0,lumi,30,false,false);
+    Run(infile,"HcalIsoTrkAnalyzer","CalibTree",outf1,outf2,dup,true,true,0,true,0.25,5.0,25,1,0.5,false,0,lumi,30,false,false,false);
   
   }
 }
@@ -201,7 +204,8 @@ void Run(const char *inFileName, const char *dirName, const char *treeName,
 	 const char *dupFileName, bool useweight, bool useMean, int nMin, 
 	 bool inverse, double ratMin, double ratMax, int ietaMax, 
 	 int applyL1Cut, double l1Cut, bool truncateFlag, int sysmode,
-	 double fraction, int maxIter, bool writeHisto, bool debug) {
+	 double fraction, int maxIter, bool useGen, bool writeHisto,
+	 bool debug) {
  
   char name[500];
   sprintf(name, "%s.root",inFileName);
@@ -215,7 +219,7 @@ void Run(const char *inFileName, const char *dirName, const char *treeName,
 	    << dirName << " from file " << name << " with nentries (tracks): " 
 	    << nentries << std::endl;
   unsigned int k(0), kmax(maxIter);
-  CalibTree t(dupFileName, truncateFlag, useMean, sysmode, tree); 
+  CalibTree t(dupFileName, truncateFlag, useMean, sysmode, useGen, tree); 
   t.h_pbyE      = new TH1D("pbyE", "pbyE", 100, -1.0, 9.0);
   t.h_Ebyp_bfr  = new TProfile("Ebyp_bfr","Ebyp_bfr",60,-30,30,0,10);
   t.h_Ebyp_aftr = new TProfile("Ebyp_aftr","Ebyp_aftr",60,-30,30,0,10);
@@ -254,8 +258,9 @@ void Run(const char *inFileName, const char *dirName, const char *treeName,
 }
 
 CalibTree::CalibTree(const char *dupFileName, bool flag, bool useMean, int mode,
-		     TTree *tree) : fChain(0), truncateFlag_(flag), 
-				    useMean_(useMean), sysmode_(mode) {
+		     bool gen, TTree *tree) : fChain(0), truncateFlag_(flag), 
+					      useMean_(useMean), sysmode_(mode),
+					      useGen_(gen) {
   // if parameter tree is not specified (or zero), connect the file
   // used to generate this class and read the Tree.
   if (tree == 0) {
@@ -462,6 +467,7 @@ Double_t CalibTree::Loop(int loop, TFile *fout, bool useweight, int nMin,
       std::cout << "p/eHCal/eMipDR/nDets : " << t_p << "/" << t_eHcal << "/"
 		<< t_eMipDR << "/" << (*t_DetIds).size() << std::endl;
     }
+    double pmom = (useGen_ && (t_gentrackP > 0)) ? t_gentrackP : t_p;
     if (goodTrack()) {
       double Etot(0), Etot2(0);
       for (unsigned int idet=0; idet<(*t_DetIds).size(); idet++) { 
@@ -477,19 +483,19 @@ Double_t CalibTree::Loop(int loop, TFile *fout, bool useweight, int nMin,
       }
       double evWt = (useweight) ? t_EventWeight : 1.0; 
       double pufac(1.0);
-      if (sysmode_ < 0 && t_p > 0 && t_eHcalDelta > 0.02*t_p) { 
+      if (sysmode_ < 0 && pmom > 0 && t_eHcalDelta > 0.02*pmom) { 
 	double a1(-0.35), a2(-0.65);
 	if (std::abs(t_ieta) == 25) {
 	  a2 = -0.30;
 	} else if (std::abs(t_ieta) > 25) {
 	  a1 = -0.45; a2 = -0.10;
 	}
-	pufac = (1.0 + a1 * (Etot/t_p) * (t_eHcalDelta/t_p) *
-		 (1 + a2 * (t_eHcalDelta/t_p)));
+	pufac = (1.0 + a1 * (Etot/pmom) * (t_eHcalDelta/pmom) *
+		 (1 + a2 * (t_eHcalDelta/pmom)));
       }
-      double ratio= Etot*pufac/(t_p-t_eMipDR);
+      double ratio= Etot*pufac/(pmom-t_eMipDR);
       if (debug) std::cout << " Weights " << evWt << ":" << pufac << " Energy "
-			   << Etot2 << ":" << Etot << ":" << t_p << ":" 
+			   << Etot2 << ":" << Etot << ":" << pmom << ":" 
 			   << t_eMipDR << ":" << t_eHcal << " ratio " << ratio
 			   << std::endl;
       if (loop==0) {
@@ -515,8 +521,8 @@ Double_t CalibTree::Loop(int loop, TFile *fout, bool useweight, int nMin,
 	  else 
 	    hitEn = (*t_HitEnergies)[idet];
 	  double Wi  = evWt * hitEn/Etot;
-	  double Fac = (inverse) ? (pufac*Etot/(t_p-t_eMipDR)) : 
-	    ((t_p-t_eMipDR)/(pufac*Etot));
+	  double Fac = (inverse) ? (pufac*Etot/(pmom-t_eMipDR)) : 
+	    ((pmom-t_eMipDR)/(pufac*Etot));
 	  double Fac2= Wi*Fac*Fac;
 	  TH1D* hist(0);
 	  std::map<unsigned int,TH1D*>::iterator itr = histos.find(detid);
@@ -707,42 +713,43 @@ Double_t CalibTree::Loop(int loop, TFile *fout, bool useweight, int nMin,
 bool CalibTree::goodTrack() {
   bool ok(true);
   double cut(2.0);
+  double pmom = (useGen_ && (t_gentrackP > 0)) ? t_gentrackP : t_p;
   if        (sysmode_ == 1) {
     ok = ((t_qltyFlag) && (t_hmaxNearP < cut) && 
-	  (t_eMipDR < 1.0) && (t_mindR1 > 1.0) && (t_p > 40.0) &&
-	  (t_p < 60.0));
+	  (t_eMipDR < 1.0) && (t_mindR1 > 1.0) && (pmom > 40.0) &&
+	  (pmom < 60.0));
   } else if (sysmode_ == 2) {
     ok = ((t_qltyFlag) && (t_qltyPVFlag) && (t_hmaxNearP < cut) && 
-	  (t_eMipDR < 1.0) && (t_mindR1 > 1.0) && (t_p > 40.0) &&
-	  (t_p < 60.0));
+	  (t_eMipDR < 1.0) && (t_mindR1 > 1.0) && (pmom > 40.0) &&
+	  (pmom < 60.0));
   } else if (sysmode_ == 3) {
     ok = ((t_selectTk) && (t_hmaxNearP < cut) && 
-	  (t_eMipDR < 1.0) && (t_mindR1 > 1.0) && (t_p > 40.0) &&
-	  (t_p < 60.0));
+	  (t_eMipDR < 1.0) && (t_mindR1 > 1.0) && (pmom > 40.0) &&
+	  (pmom < 60.0));
   } else if (sysmode_ == 4) {
     ok = ((t_selectTk) && (t_qltyMissFlag) && (t_hmaxNearP < 0.0) && 
-	  (t_eMipDR < 1.0) && (t_mindR1 > 1.0) && (t_p > 40.0) &&
-	  (t_p < 60.0));
+	  (t_eMipDR < 1.0) && (t_mindR1 > 1.0) && (pmom > 40.0) &&
+	  (pmom < 60.0));
   } else if (sysmode_ == 5) {
     ok = ((t_selectTk) && (t_qltyMissFlag) && (t_hmaxNearP < cut) && 
-	  (t_eMipDR < 0.5) && (t_mindR1 > 1.0) && (t_p > 40.0) &&
-	  (t_p < 60.0));
+	  (t_eMipDR < 0.5) && (t_mindR1 > 1.0) && (pmom > 40.0) &&
+	  (pmom < 60.0));
   } else if (sysmode_ == 6) {
     ok = ((t_selectTk) && (t_qltyMissFlag) && (t_hmaxNearP < cut) && 
-	  (t_eMipDR < 2.0) && (t_mindR1 > 1.0) && (t_p > 40.0) &&
-	  (t_p < 60.0));
+	  (t_eMipDR < 2.0) && (t_mindR1 > 1.0) && (pmom > 40.0) &&
+	  (pmom < 60.0));
   } else if (sysmode_ == 7) {
     ok = ((t_selectTk) && (t_qltyMissFlag) && (t_hmaxNearP < cut) &&
-	  (t_eMipDR < 1.0) && (t_mindR1 > 0.5) && (t_p > 40.0) &&
-	  (t_p < 60.0));
+	  (t_eMipDR < 1.0) && (t_mindR1 > 0.5) && (pmom > 40.0) &&
+	  (pmom < 60.0));
   } else if (sysmode_ == -1) {
     double eta = (t_ieta > 0) ? t_ieta : -t_ieta;
     cut        = 2.0*exp(eta*log16by24_);
     ok         = ((t_qltyFlag) && (t_hmaxNearP < cut) && (t_eMipDR < 1.0));
   } else                    {
     ok = ((t_selectTk) && (t_qltyMissFlag) && (t_hmaxNearP < cut) && 
-	  (t_eMipDR < 1.0) && (t_mindR1 > 1.0) && (t_p > 40.0) &&
-	  (t_p < 60.0));
+	  (t_eMipDR < 1.0) && (t_mindR1 > 1.0) && (pmom > 40.0) &&
+	  (pmom < 60.0));
   }
   return ok;
 }
@@ -875,8 +882,9 @@ void CalibTree::makeplots(double rmin, double rmax, int ietaMax,
 	Etot += hitEn;
       }
       double evWt   = (useweight) ? t_EventWeight : 1.0; 
-      double ratioi = t_eHcal/(t_p-t_eMipDR);
-      double ratiof = Etot/(t_p-t_eMipDR);
+      double pmom   = (useGen_ && (t_gentrackP > 0)) ? t_gentrackP : t_p;
+      double ratioi = t_eHcal/(pmom-t_eMipDR);
+      double ratiof = Etot/(pmom-t_eMipDR);
       if (t_ieta >= -ietaMax && t_ieta <= ietaMax && t_ieta != 0) {
 	if (ratioi>=rmin && ratioi<=rmax) {
 	  histos[0].first->Fill(ratioi,evWt);
