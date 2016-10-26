@@ -60,9 +60,9 @@ from Configuration.Eras.Modifier_phase2_timing_cff import phase2_timing
 phase2_timing.toModify( theDigitizers,
                         ecalTime = ecalTimeDigitizer.clone() )
     
-from SimFastTiming.Configuration.SimFastTiming_cff import ftlDigitizer
+from SimFastTiming.Configuration.SimFastTiming_cff import fastTimeDigitizer
 phase2_timing.toModify( theDigitizers,
-                        fastTimingLayer = ftlDigitizer.clone() )
+                        fastTimingLayer = fastTimeDigitizer.clone() )
 
 theDigitizersValid = cms.PSet(
     theDigitizers,

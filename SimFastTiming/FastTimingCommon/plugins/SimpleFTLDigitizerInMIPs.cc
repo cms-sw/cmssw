@@ -5,3 +5,8 @@
 typedef ftl_digitizer::FTLDigitizer<SimpleDeviceSimInMIPs,SimpleElectronicsSimInMIPs> SimpleFTLDigitizerInMIPs;
 
 
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_EDM_PLUGIN(FTLDigitizerFactory, 
+		  SimpleFTLDigitizerInMIPs, 
+		  "SimpleFTLDigitizerInMIPs");
+
