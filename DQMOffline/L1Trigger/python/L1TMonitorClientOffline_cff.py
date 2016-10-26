@@ -15,21 +15,25 @@ import FWCore.ParameterSet.Config as cms
 
 
 # DQM online L1 Trigger client modules
-from DQM.L1TMonitorClient.L1TStage2MonitorClient_cff import * 
+from Configuration.Eras.Modifier_stage2L1Trigger_cff import stage2L1Trigger
+if stage2L1Trigger.isChosen():
+    from DQM.L1TMonitorClient.L1TStage2MonitorClient_cff import * 
+else:
+    from DQM.L1TMonitorClient.L1TMonitorClient_cff import *
+    # changes for offline environment
+    
+    # DTTF to offline configuration
+    #l1tDttfClient.online = False
+    
+    # CSCTF client
+    #l1tCsctfClient.runInEndLumi = False
+    
+    # RPC client
+    #l1tRpctfClient.runInEndLumi = False
+    
+    # GMT client
+    #l1tGmtClient.runInEndLumi = False
+    
+    # GCT client
+    #l1tGctClient.runInEndLumi = False
 
-# changes for offline environment
-
-# DTTF to offline configuration
-#l1tDttfClient.online = False
-
-# CSCTF client
-#l1tCsctfClient.runInEndLumi = False
-
-# RPC client
-#l1tRpctfClient.runInEndLumi = False
-
-# GMT client
-#l1tGmtClient.runInEndLumi = False
-
-# GCT client
-#l1tGctClient.runInEndLumi = False
