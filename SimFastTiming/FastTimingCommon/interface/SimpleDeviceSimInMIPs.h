@@ -16,11 +16,11 @@ class SimpleDeviceSimInMIPs {
   void getEventSetup(const edm::EventSetup& evt) { }
 
   float getChargeForHit(const PSimHit& hit) const {
-    return 0.001f*meVPerMIP_*hit.energyLoss();
+    return 1000.f*hit.energyLoss()*MIPPerMeV_;
   }
 
  private:
-  float meVPerMIP_;
+  float MIPPerMeV_;
 };
 
 #endif
