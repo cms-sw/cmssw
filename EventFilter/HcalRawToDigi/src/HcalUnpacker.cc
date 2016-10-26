@@ -8,6 +8,7 @@
 #include "DataFormats/HcalDigi/interface/HcalQIESample.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "EventFilter/HcalRawToDigi/interface/HcalTTPUnpacker.h"
+#include "EventFilter/HcalRawToDigi/plugins/HcalRawToDigi.h"
 
 //#define DebugLog
 
@@ -667,6 +668,15 @@ void HcalUnpacker::unpackUTCA(const FEDRawData& raw, const HcalElectronicsMap& e
 	}
 
 	// Check QEI10 container exists
+	if (colls.qie10ZDC == 0) {
+	  colls.qie10ZDC = new QIE10DigiCollection(ns);
+	}
+	else if (colls.qie10ZDC->samples() != ns) {
+	  // This is horrible
+	  edm::LogError("Invalid Data") << "Collection has " << colls.qie10ZDC->samples() << " samples per digi, raw data has " << ns << "!";
+	  return;
+	}
+	
 	if (colls.qie10 == 0) {
 	  colls.qie10 = new QIE10DigiCollection(ns);
 	}
@@ -678,7 +688,10 @@ void HcalUnpacker::unpackUTCA(const FEDRawData& raw, const HcalElectronicsMap& e
 
 	// Insert data
     /////////////////////////////////////////////CODE FROM OLD STYLE DIGIS///////////////////////////////////////////////////////////////
-	if (!did.null()) { // unpack and store...
+	if (!did.null() && did.det()==DetId::Calo && did.subdetId()==HcalZDCDetId::SubdetectorId) { // unpack and store...
+		colls.qie10ZDC->addDataFrame(did, head_pos);
+	} 
+	else if (!did.null()) { // unpack and store...
 		colls.qie10->addDataFrame(did, head_pos);
 	} else {
 		report.countUnmappedDigi(eid);
@@ -699,7 +712,7 @@ void HcalUnpacker::unpackUTCA(const FEDRawData& raw, const HcalElectronicsMap& e
 	int ichan=(i.channelid()&0x3);
 	HcalElectronicsId eid(crate,slot,ifiber,ichan, false);
 	DetId did=emap.lookup(eid);
-	
+
 	if (!did.null()) { // unpack and store...
 	  if (did.det()==DetId::Calo && did.subdetId()==HcalZDCDetId::SubdetectorId) {
 	    colls.zdcCont->push_back(ZDCDataFrame(HcalZDCDetId(did)));
@@ -797,6 +810,7 @@ HcalUnpacker::Collections::Collections() {
   calibCont=0;
   ttp=0;
   qie10=0;
+  qie10ZDC=0;
   qie11=0;
   umnio=0;
 }
