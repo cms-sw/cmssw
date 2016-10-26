@@ -63,7 +63,9 @@ hltGTs = {
     'run2_data_HIon'         : ('run2_data'           ,l1Menus['HIon']),
     'run2_data_PIon'         : ('run2_data_relval'    ,l1Menus['PIon']),
     'run2_data_PRef'         : ('run2_data_relval'    ,l1Menus['PRef']),
-
+    
+    'phase1_2017_design_GRun'     : ('phase1_2017_design'   ,l1Menus['GRun']),
+    'phase1_2017_realistic_GRun'  : ('phase1_2017_realistic',l1Menus['GRun']),
 }
 
 def autoCondHLT(autoCond):
