@@ -1,5 +1,5 @@
-#ifndef HcalZDCDetId_h_included
-#define HcalZDCDetId_h_included 1
+#ifndef DataFormats_HcalDetId_HcalZDCDetId_h_included
+#define DataFormats_HcalDetId_HcalZDCDetId_h_included 1
 
 #include <ostream>
 #include "DataFormats/DetId/interface/DetId.h"
@@ -7,16 +7,21 @@
 /** \class HcalZDCDetId
   *  
   *  Contents of the HcalZDCDetId :
+  *     [7]   Set for RPD
   *     [6]   Z position (true for positive)
   *     [5:4] Section (EM/HAD/Lumi)
   *     [3:0] Channel
   *
-  * \author J. Mans - Minnesota
   */
 class HcalZDCDetId : public DetId {
 public:
-  enum Section { Unknown=0, EM=1, HAD=2, LUM=3 };
-  // 1 => CaloTower, 3 => Castor
+  static const int kZDCChannelMask   = 0xF;
+  static const int kZDCSectionMask   = 0x3;
+  static const int kZDCSectionOffset = 4;
+  static const int kZDCZsideMask     = 0x40;
+  static const int kZDCRPDMask       = 0x80;
+  enum Section {Unknown=0, EM=1, HAD=2, LUM=3, RPD=4};
+
   static const int SubdetectorId = 2;
 
   /** Create a null cellid*/
@@ -31,13 +36,13 @@ public:
   HcalZDCDetId& operator=(const DetId& id);
 
   /// get the z-side of the cell (1/-1)
-  int zside() const { return (id_&0x40)?(1):(-1); }
+  int zside() const { return ((id_&kZDCZsideMask) ? (1) : (-1)); }
   /// get the section
-  Section section() const { return (Section)((id_>>4)&0x3); }
-  /// get the depth (1 for EM, channel + 1 for HAD, not sure yet for LUM, leave as default)
-  int depth() const { return (((id_>>4)&0x3)==1)?(1):((((id_>>4)&0x3)==2)?((id_&0xF)+1):(id_&0xF)); }
+  Section section() const;
+  /// get the depth (1 for EM, channel + 1 for HAD, 2 for RPD, not sure yet for LUM, leave as default)
+  int depth() const; 
   /// get the channel 
-  int channel() const { return id_&0xF; }
+  int channel() const;
 
   uint32_t denseIndex() const ;
 
@@ -47,20 +52,21 @@ public:
 
   static bool validDetId( Section se, int dp ) ;
 
-   private:
+private:
 
-      enum { kDepEM  = 5,
-	     kDepHAD = 4,
-	     kDepLUM = 2,
-	     kDepTot = kDepEM + kDepHAD + kDepLUM };
+  enum { kDepEM  = 5,
+	 kDepHAD = 4,
+	 kDepLUM = 2,
+	 kDepRPD = 16,
+	 kDepRun1= kDepEM + kDepHAD + kDepLUM,
+	 kDepTot = kDepRun1 + kDepRPD};
 
-   public:
+public:
 
-      enum { kSizeForDenseIndexing = 2*kDepTot } ;
+  enum { kSizeForDenseIndexing = 2*kDepRun1 } ;
 
 };
 
 std::ostream& operator<<(std::ostream&,const HcalZDCDetId& id);
 
-
-#endif // HcalZDCDetId_h_included
+#endif // DataFormats_HcalDetId_HcalZDCDetId_h_included
