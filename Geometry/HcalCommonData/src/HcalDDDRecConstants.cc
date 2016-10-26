@@ -6,7 +6,7 @@
 #include "CLHEP/Units/GlobalPhysicalConstants.h"
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 
-//#define DebugLog
+//#define EDM_ML_DEBUG
 
 enum {kHOSizePreLS1 = 2160, kHFSizePreLS1 = 1728} ;
 
@@ -14,14 +14,14 @@ HcalDDDRecConstants::HcalDDDRecConstants(const HcalParameters* hp,
 					 const HcalDDDSimConstants& hc) : 
   hpar(hp), hcons(hc) {
 
-#ifdef DebugLog
+#ifdef EDM_ML_DEBUG
   std::cout << "HcalDDDRecConstants::HcalDDDRecConstants (const HcalParameters* hp) constructor" << std::endl;
 #endif
   initialize();
 }
 
 HcalDDDRecConstants::~HcalDDDRecConstants() { 
-#ifdef DebugLog
+#ifdef EDM_ML_DEBUG
   std::cout << "HcalDDDRecConstants::destructed!!!" << std::endl;
 #endif
 }
@@ -44,7 +44,7 @@ HcalDDDRecConstants::getEtaBins(const int itype) const {
       int dep = layerGroup(ieta-1, 0);
       if (type == 1 && ieta == iEtaMin[1]) dep = hcons.getDepthEta16(1);
       unsigned lymx0 = (layerGroupSize(ieta-1) > lymax) ? lymax : layerGroupSize(ieta-1);
-#ifdef DebugLog
+#ifdef EDM_ML_DEBUG
       std::cout << "Eta " << ieta << ":" << hpar->noff[1] << " lymax " << lymx0
 		<< ":" << lymax << " Depth " << dep;
       for (unsigned int l=0; l<lymax; ++l)
@@ -88,7 +88,7 @@ HcalDDDRecConstants::getEtaBins(const int itype) const {
     etabin.depthStart = dstart;
     bins.push_back(etabin);
   }
-#ifdef DebugLog
+#ifdef EDM_ML_DEBUG
   std::cout << "Prepares " << bins.size() << " eta bins for type " << type 
 	    << std::endl;
   for (unsigned int i=0; i<bins.size(); ++i) {
@@ -128,7 +128,7 @@ HcalDDDRecConstants::getEtaPhi(int subdet, int ieta, int iphi) const {
   }
   if (ieta < 0)   eta  = -eta;
   if (phi > M_PI) phi -= (2*M_PI);
-#ifdef DebugLog
+#ifdef EDM_ML_DEBUG
   std::cout << "getEtaPhi: subdet|ieta|iphi " << subdet << "|" << ieta << "|"
 	    << iphi << " eta|phi " << eta << "|" << phi << std::endl;
 #endif
@@ -174,7 +174,7 @@ HcalDDDRecConstants::getHCID(int subdet, int ieta, int iphi, int lay,
        eta = hpar->noff[1]-1;
     }
   } 
-#ifdef DebugLog
+#ifdef EDM_ML_DEBUG
   std::cout << "getHCID: input " << subdet << ":" << ieta << ":" << iphi
 	    << ":" << idepth << ":" << lay << " output " << eta << ":" << phi
 	    << ":" << depth << std::endl;
@@ -228,7 +228,7 @@ HcalDDDRecConstants::getHFCellParameters() const {
       }
     }
   }
-#ifdef DebugLog
+#ifdef EDM_ML_DEBUG
   std::cout << "HcalDDDRecConstants returns " << cells.size() 
 	    << " HF cell parameters" << std::endl;
   for (unsigned int k=0; k<cells.size(); ++k)
@@ -274,7 +274,7 @@ double HcalDDDRecConstants::getRZ(int subdet, int ieta, int depth) const {
 
   int ietaAbs = (ieta > 0) ? ieta : -ieta;
   double rz(0);
-#ifdef DebugLog
+#ifdef EDM_ML_DEBUG
   int    lay(0);
 #endif
   if (ietaAbs < hpar->etaMax[1]) {
@@ -283,7 +283,7 @@ double HcalDDDRecConstants::getRZ(int subdet, int ieta, int depth) const {
 	rz = ((subdet == static_cast<int>(HcalBarrel)) ? (gconsHB[k].first) :
 	      (gconsHE[k].first));
 	if (rz > 10.) {
-#ifdef DebugLog
+#ifdef EDM_ML_DEBUG
 	  lay = k;
 #endif
 	  break;
@@ -291,7 +291,7 @@ double HcalDDDRecConstants::getRZ(int subdet, int ieta, int depth) const {
       }
     }
   }
-#ifdef DebugLog
+#ifdef EDM_ML_DEBUG
   std::cout << "getRZ: subdet|ieta|depth " << subdet << "|" << ieta << "|"
 	    << depth << " lay|rz " << lay << "|" << rz << std::endl;
 #endif
@@ -303,7 +303,7 @@ HcalDDDRecConstants::getThickActive(const int type) const {
 
   std::vector<HcalDDDRecConstants::HcalActiveLength> actives;
   std::vector<HcalDDDRecConstants::HcalEtaBin> bins = getEtaBins(type);
-#ifdef DebugLog
+#ifdef EDM_ML_DEBUG
   unsigned int kount(0);
 #endif
   for (unsigned int k=0; k<bins.size(); ++k) {
@@ -324,7 +324,7 @@ HcalDDDRecConstants::getThickActive(const int type) const {
       HcalDDDRecConstants::HcalActiveLength active(ieta,depth,eta,thick);
       actives.push_back(active);
       ++depth;
-#ifdef DebugLog
+#ifdef EDM_ML_DEBUG
       kount++;
       std::cout << "getThickActive: [" << kount << "] eta:" << active.ieta 
 		<< ":" << active.eta << " depth " << active.depth << " thick " 
@@ -384,7 +384,7 @@ HcalDDDRecConstants::HcalCellTypes(HcalSubdetector subdet) const {
 	cells.push_back(temp[il]);
       }
     }
-#ifdef DebugLog
+#ifdef EDM_ML_DEBUG
     std::cout << "HcalDDDRecConstants: found " << cells.size() << " cells for sub-detector type " << isub << std::endl;
     for (unsigned int ic=0; ic<cells.size(); ++ic)
       std::cout << "Cell[" << ic << "] " << cells[ic] << std::endl;
@@ -406,7 +406,7 @@ unsigned int HcalDDDRecConstants::numberOfCells(HcalSubdetector subdet) const {
 	num += (unsigned int)(cellTypes[i].nPhiBins());
       num -= (unsigned int)(cellTypes[i].nPhiMissingBins());
     }
-#ifdef DebugLog
+#ifdef EDM_ML_DEBUG
     edm::LogInfo ("HCalGeom") << "HcalDDDRecConstants:numberOfCells " 
 			      << cellTypes.size()  << " " << num 
 			      << " for subdetector " << subdet;
@@ -506,7 +506,7 @@ void HcalDDDRecConstants::initialize(void) {
     int  nphi = (int)((CLHEP::twopi + 0.001)/hpar->phitable[i]);
     if (nphi > nPhiBins[2]) nPhiBins[2] = nphi;
   }
-#ifdef DebugLog
+#ifdef EDM_ML_DEBUG
   std::cout << "Modified eta/deltaphi table for " << nEta << " bins" << std::endl;
   for (int i=0; i<nEta; ++i)
     std::cout << "Eta[" << i << "] = " << etaTable[i] << ":" << etaTable[i+1]
@@ -539,19 +539,19 @@ void HcalDDDRecConstants::initialize(void) {
     if (i < iEtaMax[0]) {
       int laymax0 = (imx > 16) ? layerGroup(i,16) : laymax;
       if (i+1 == iEtaMax[0]) laymax0 = hcons.getDepthEta16(0);
-#ifdef DebugLog
+#ifdef EDM_ML_DEBUG
       std::cout << "HB " << i << " " << imx << " " << laymax << " " << laymax0 << std::endl;
 #endif
       if (maxDepth[0] < laymax0) maxDepth[0] = laymax0;
     }
     if (i >= iEtaMin[1]-1 && i < iEtaMax[1]) {
-#ifdef DebugLog
+#ifdef EDM_ML_DEBUG
       std::cout << "HE " << i << " " << imx << " " << laymax << std::endl;
 #endif
       if (maxDepth[1] < laymax) maxDepth[1] = laymax;
     }
   }
-#ifdef DebugLog
+#ifdef EDM_ML_DEBUG
   for (int i=0; i<4; ++i) 
     std::cout << "Detector Type[" << i << "] iEta " << iEtaMin[i] << ":"
               << iEtaMax[i] << " MaxDepth " << maxDepth[i] << std::endl; 
@@ -564,7 +564,7 @@ void HcalDDDRecConstants::initialize(void) {
     gconsHB.push_back(std::pair<double,double>(hpar->rHB[i]/CLHEP::cm,
 					       hpar->drHB[i]/CLHEP::cm));
   }
-#ifdef DebugLog
+#ifdef EDM_ML_DEBUG
   std::cout << "HB with " << nModule[0] << " modules and " << nHalves[0]
 	    <<" halves and " << gconsHB.size() << " layers" << std::endl;
   for (unsigned int i=0; i<gconsHB.size(); ++i) 
@@ -577,7 +577,7 @@ void HcalDDDRecConstants::initialize(void) {
     gconsHE.push_back(std::pair<double,double>(hpar->zHE[i]/CLHEP::cm,
 					       hpar->dzHE[i]/CLHEP::cm));
   }
-#ifdef DebugLog
+#ifdef EDM_ML_DEBUG
   std::cout << "HE with " << nModule[1] << " modules and " << nHalves[1] 
 	    <<" halves and " << gconsHE.size() << " layers" << std::endl;
   for (unsigned int i=0; i<gconsHE.size(); ++i) 
