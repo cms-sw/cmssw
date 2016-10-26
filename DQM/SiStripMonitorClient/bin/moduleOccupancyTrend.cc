@@ -6,6 +6,7 @@
 #include <TROOT.h>
 #include <TStyle.h>
 #include "TFile.h"
+#include "THStack.h"
 #include "TH1D.h"
 #include "TDirectoryFile.h"
 #include "TCanvas.h"
@@ -15,6 +16,8 @@
 
 int main(int argc, char *argv[]) {
 
+  gROOT->SetStyle("Plain");
+
   char* filelist;
   char* modulelist;
 
@@ -23,6 +26,9 @@ int main(int argc, char *argv[]) {
 
   std::string detid;
   std::string hn;
+
+  TLegend leg(0.1,0.7,0.2,0.9);
+  leg.SetFillStyle(0);
 
   std::ifstream inmodules(modulelist);
 
@@ -38,9 +44,6 @@ int main(int argc, char *argv[]) {
     c1.SetBatch(kTRUE);
     c1.SetLogy(1);
     c1.SetGridy(1);
-
-    TLegend * leg=new TLegend(0.1,0.7,0.2,0.9);
-    leg->SetFillStyle(0);
 
     //cout << detid << endl;
     std::ifstream fileToCountLines(filelist);
@@ -65,8 +68,14 @@ int main(int argc, char *argv[]) {
     std::string ttitle=hn+"_trend";
     trend->SetTitle(ttitle.c_str());
 
-    double max=0;
+    double max=-1;
     double min=1000000;
+
+    leg.Clear();
+    TFile* fin;
+
+    THStack *hs = new THStack("hs","");
+
 
     while(1){
 
@@ -74,9 +83,13 @@ int main(int argc, char *argv[]) {
       if (!filesin.good()) break;      
 
       std::string runNum= filename.substr(filename.find("28"), 6);
-      std::cout << runNum << std::endl;
+      //std::cout << runNum << std::endl;
      
-      TFile * fin=new TFile(filename.c_str()); 
+      fin=TFile::Open(filename.c_str());
+ 
+      if (!fin) {std::cout << "Cannot open file " << filename.c_str() << std::endl;
+	return 0;
+      }
       
       TH1D* Events=(TH1D*)fin->Get("TotEvents");
 
@@ -84,40 +97,45 @@ int main(int argc, char *argv[]) {
 
       TH1D* histo=(TH1D*) fin->Get(hn.c_str());
       
+      if (!histo) {std::cout << "Cannot open histo " << hn.c_str() << std::endl;
+	return 0;
+      }
+
+      histo->SetDirectory(0);
+      histo->SetStats(kFALSE);
 
       histo->Scale(1/EvtNum);
+
       double numberPerEvent= histo->Integral();
 
-      if (max<histo->GetMaximum()) max=histo->GetMaximum();
-      if (min>histo->GetMinimum()) min=histo->GetMinimum();
       
+      if (max<=histo->GetBinContent(histo->GetMaximumBin())) max=histo->GetBinContent(histo->GetMaximumBin());
+      if (min>histo->GetBinContent(histo->GetMinimumBin())) min=histo->GetBinContent(histo->GetMinimumBin());
 
       histo->SetLineColor(k+1);
       histo->SetMarkerStyle(9);
       histo->SetMarkerColor(k+1);
-
-      gStyle->SetOptStat(0);
-      gROOT->SetStyle("Plain");
+           
       
-      if (min==0) min=1.e-6;
-
-      histo->GetYaxis()->SetRangeUser(min,max*2);
+      
 
       trend->SetBinContent(k+1,numberPerEvent);
       trend->GetXaxis()->SetBinLabel(k+1,runNum.c_str());
 
-
-      if (k==0){
-	histo->Draw("L");
-      }
-
-      else histo->Draw("LSAME");
-      leg->AddEntry(histo, runNum.c_str(), "L");
-
+      leg.AddEntry(histo, runNum.c_str(), "L");
+      hs->Add(histo);
       k++;
 
-     
+      fin->Close();
     }
+
+    if (min==0) min=1.e-6;
+
+    max=max*10;// in a way one can read the legend
+
+    hs->SetMaximum(max);
+    hs->SetMinimum(min);
+    hs->Draw("nostack");
 
     TLine l;
     
@@ -125,25 +143,33 @@ int main(int argc, char *argv[]) {
     l.SetLineStyle(2);
     l.SetLineWidth(3);
 
-    l.DrawLine(128,min,128,max*2);
-    l.DrawLine(256,min,256,max*2);
-    l.DrawLine(384,min,384,max*2);
-    l.DrawLine(384,min,384,max*2);
-    l.DrawLine(512,min,512,max*2);
-    l.DrawLine(640,min,640,max*2);
+    l.DrawLine(128,min,128,max);
+    l.DrawLine(256,min,256,max);
+    l.DrawLine(384,min,384,max);
+    l.DrawLine(384,min,384,max);
+    l.DrawLine(512,min,512,max);
+    l.DrawLine(640,min,640,max);
 
-    leg->Draw();
+    leg.Draw();
     std::string outname= hn+"_Super.png";
     c1.SaveAs(outname.c_str());
-    c1.SetLogy(1);
+    
     c1.SetGridx(1);
-    trend->GetYaxis()->SetRangeUser(trend->GetMinimum()*0.2,trend->GetMaximum()*2);
+    
+    double mintrend=0;
+    if (trend->GetMinimum()==0) mintrend=1.e-4;
+    else mintrend=trend->GetMinimum();
+
+    trend->SetStats(kFALSE);
+
+    trend->GetYaxis()->SetRangeUser(mintrend*0.5,trend->GetMaximum()*2);
     trend->Draw("P");
     outname=hn+"_Trend.png";
     c1.SaveAs(outname.c_str());
-    delete leg;
+    c1.Clear();
+
     delete trend;      
-   
+    
   }  
   return 0;
 }
