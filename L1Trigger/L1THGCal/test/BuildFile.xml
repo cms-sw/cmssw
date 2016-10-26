@@ -11,7 +11,7 @@
 <use   name="DataFormats/L1Trigger"/>
 <use   name="SimDataFormats/CaloTest"/>
 
-<library name="testL1TriggerL1THGCal"  file="HGCalTriggerBestChoiceTester.cc,HGCalTriggerBestChoiceTriggerCellTester.cc,HGCalTriggerGeomTester.cc,HGCalTriggerBestChoiceMonitor.cc">
+<library name="testL1TriggerL1THGCal"  file="HGCalTriggerBestChoiceTester.cc,HGCalTriggerBestChoiceTriggerCellTester.cc,HGCalTriggerGeomTester.cc,HGCalTriggerBestChoiceMonitor.cc,HGCalTriggerThresholdTriggerCellTester.cc,">
 <flags   EDM_PLUGIN="1"/>
 </library>
 
