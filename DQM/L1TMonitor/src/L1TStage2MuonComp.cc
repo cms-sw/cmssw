@@ -7,6 +7,7 @@ L1TStage2MuonComp::L1TStage2MuonComp(const edm::ParameterSet& ps)
       monitorDir(ps.getUntrackedParameter<std::string>("monitorDir", "")),
       muonColl1Title(ps.getUntrackedParameter<std::string>("muonCollection1Title", "Muon collection 1")),
       muonColl2Title(ps.getUntrackedParameter<std::string>("muonCollection2Title", "Muon collection 2")),
+      summaryTitle(ps.getUntrackedParameter<std::string>("summaryTitle", "Summary")),
       verbose(ps.getUntrackedParameter<bool>("verbose", false))
 {
 }
@@ -22,7 +23,7 @@ void L1TStage2MuonComp::bookHistograms(DQMStore::IBooker& ibooker, const edm::Ru
   // Subsystem Monitoring and Muon Output
   ibooker.setCurrentFolder(monitorDir);
 
-  summary = ibooker.book1D("summary", "Summary", 14, 0, 14);
+  summary = ibooker.book1D("summary", summaryTitle.c_str(), 14, 1, 15); // range to match bin numbering
   summary->setBinLabel(BXRANGEGOOD, "BX range match", 1);
   summary->setBinLabel(BXRANGEBAD, "BX range mismatch", 1);
   summary->setBinLabel(NMUONGOOD, "muon collection size match", 1);
@@ -90,14 +91,17 @@ void L1TStage2MuonComp::analyze(const edm::Event& e, const edm::EventSetup& c) {
   e.getByToken(muonToken1, muonBxColl1);
   e.getByToken(muonToken2, muonBxColl2);
 
-  bool muonMismatch = false;
-
-  int bxRange1 = muonBxColl1->getLastBX() - muonBxColl1->getFirstBX();
-  int bxRange2 = muonBxColl2->getLastBX() - muonBxColl2->getFirstBX();
+  int bxRange1 = muonBxColl1->getLastBX() - muonBxColl1->getFirstBX() + 1;
+  int bxRange2 = muonBxColl2->getLastBX() - muonBxColl2->getFirstBX() + 1;
   if (bxRange1 != bxRange2) {
     summary->Fill(BXRANGEBAD);
-    muColl1BxRange->Fill(bxRange1);
-    muColl2BxRange->Fill(bxRange2);
+    int bx;
+    for (bx = muonBxColl1->getFirstBX(); bx <= muonBxColl1->getLastBX(); ++bx) {
+        muColl1BxRange->Fill(bx);
+    }
+    for (bx = muonBxColl2->getFirstBX(); bx <= muonBxColl2->getLastBX(); ++bx) {
+        muColl2BxRange->Fill(bx);
+    }
   } else {
     summary->Fill(BXRANGEGOOD);
   }
@@ -146,8 +150,10 @@ void L1TStage2MuonComp::analyze(const edm::Event& e, const edm::EventSetup& c) {
 
     muonIt1 = muonBxColl1->begin(iBx);
     muonIt2 = muonBxColl2->begin(iBx);
-    while(muonIt1 != muonBxColl1->end(iBx) && muonIt2 != muonBxColl1->end(iBx)) {
+    while(muonIt1 != muonBxColl1->end(iBx) && muonIt2 != muonBxColl2->end(iBx)) {
       summary->Fill(MUONALL);
+
+      bool muonMismatch = false;
       if (muonIt1->hwPt() != muonIt2->hwPt()) {
         muonMismatch = true;
         summary->Fill(PTBAD);
