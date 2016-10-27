@@ -78,6 +78,15 @@
 <!-- Support/Cooling -->
 
 <SolidSection label="pixfwdInnerDiskZplus.xml">
+ <!-- Polycone here to make placement easier (origin stays at r=0) -->
+ <Polycone name="CoolingTubeToInnerDisk" startPhi="0." deltaPhi="360*deg" >
+   <ZSection z="[pixfwdSupportRingParameters:InnerDiskInnerRingRMax]" rMin="0*mm" rMax="1*mm"/>
+   <ZSection z="[pixfwdSupportRingParameters:OuterDiskOuterRingCFRMax]-1*mm" rMin="0*mm" rMax="1*mm"/>
+ </Polycone>
+ <Polycone name="CoolingTubeToOuterDisk" startPhi="0." deltaPhi="360*deg" >
+   <ZSection z="[pixfwdSupportRingParameters:OuterDiskInnerRingRMax]+5*mm" rMin="0*mm" rMax="1*mm"/>
+   <ZSection z="[pixfwdSupportRingParameters:OuterDiskOuterRingRMin]-1*mm" rMin="0*mm" rMax="1*mm"/>
+ </Polycone>
  <Polycone name="SupportArm" startPhi="0." deltaPhi="360*deg" >
    <ZSection z="[pixfwdSupportRingParameters:InnerDiskOuterRingCFRMax]" rMin="0*mm" rMax="5*mm"/>
    <ZSection z="[pixfwdSupportRingParameters:InnerDiskOuterRingCFRMax]+9.5*mm" rMin="0*mm" rMax="5*mm"/>
@@ -87,6 +96,14 @@
 </SolidSection>
 
 <LogicalPartSection label="pixfwdInnerDiskZplus.xml">
+ <LogicalPart name="CoolingTubeToInnerDisk" category="support">
+    <rSolid name="CoolingTubeToInnerDisk"/>
+    <rMaterial name="pixfwdMaterials:DiskCoolingTube"/>
+ </LogicalPart>
+ <LogicalPart name="CoolingTubeToOuterDisk" category="support">
+    <rSolid name="CoolingTubeToOuterDisk"/>
+    <rMaterial name="pixfwdMaterials:DiskCoolingTube"/>
+ </LogicalPart>
  <LogicalPart name="SupportArm" category="support">
     <rSolid name="SupportArm"/>
     <rMaterial name="pixfwdMaterials:CF_SupportArm"/>
@@ -94,6 +111,56 @@
 </LogicalPartSection>
 
 <PosPartSection label="pixfwdInnerDiskZplus.xml">
+  <PosPart copyNumber="1">
+    <rParent name="pixfwdDisks:PixelForwardDiskZplus"/>
+    <rChild name="CoolingTubeToInnerDisk"/>
+    <rRotation name="pixfwdSupportRingParameters:rCooling_a"/>
+    <Translation x="0." y="+4*mm" z="[pixfwdSupportRingParameters:CoolingZ_inner]"/>
+  </PosPart>
+  <PosPart copyNumber="2">
+    <rParent name="pixfwdDisks:PixelForwardDiskZplus"/>
+    <rChild name="CoolingTubeToInnerDisk"/>
+    <rRotation name="pixfwdSupportRingParameters:rCooling_a"/>
+    <Translation x="0." y="-4*mm" z="[pixfwdSupportRingParameters:CoolingZ_inner]"/>
+  </PosPart>
+  <PosPart copyNumber="3">
+    <rParent name="pixfwdDisks:PixelForwardDiskZplus"/>
+    <rChild name="CoolingTubeToInnerDisk"/>
+    <rRotation name="pixfwdSupportRingParameters:rCooling_b"/>
+    <Translation x="0." y="+4*mm" z="[pixfwdSupportRingParameters:CoolingZ_inner]"/>
+  </PosPart>
+  <PosPart copyNumber="4">
+    <rParent name="pixfwdDisks:PixelForwardDiskZplus"/>
+    <rChild name="CoolingTubeToInnerDisk"/>
+    <rRotation name="pixfwdSupportRingParameters:rCooling_b"/>
+    <Translation x="0." y="-4*mm" z="[pixfwdSupportRingParameters:CoolingZ_inner]"/>
+  </PosPart>
+
+  <PosPart copyNumber="1">
+    <rParent name="pixfwdDisks:PixelForwardDiskZplus"/>
+    <rChild name="CoolingTubeToOuterDisk"/>
+    <rRotation name="pixfwdSupportRingParameters:rCooling_a"/>
+    <Translation x="0." y="-5*mm" z="[pixfwdSupportRingParameters:CoolingZ_outer]"/>
+  </PosPart>
+  <PosPart copyNumber="2">
+    <rParent name="pixfwdDisks:PixelForwardDiskZplus"/>
+    <rChild name="CoolingTubeToOuterDisk"/>
+    <rRotation name="pixfwdSupportRingParameters:rCooling_a"/>
+    <Translation x="0." y="-12*mm" z="[pixfwdSupportRingParameters:CoolingZ_outer]"/>
+  </PosPart>
+  <PosPart copyNumber="3">
+    <rParent name="pixfwdDisks:PixelForwardDiskZplus"/>
+    <rChild name="CoolingTubeToOuterDisk"/>
+    <rRotation name="pixfwdSupportRingParameters:rCooling_b"/>
+    <Translation x="0." y="+5*mm" z="[pixfwdSupportRingParameters:CoolingZ_outer]"/>
+  </PosPart>
+  <PosPart copyNumber="4">
+    <rParent name="pixfwdDisks:PixelForwardDiskZplus"/>
+    <rChild name="CoolingTubeToOuterDisk"/>
+    <rRotation name="pixfwdSupportRingParameters:rCooling_b"/>
+    <Translation x="0." y="+12*mm" z="[pixfwdSupportRingParameters:CoolingZ_outer]"/>
+  </PosPart>
+
   <PosPart copyNumber="1">
     <rParent name="pixfwdDisks:PixelForwardDiskZplus"/>
     <rChild name="SupportArm"/>
