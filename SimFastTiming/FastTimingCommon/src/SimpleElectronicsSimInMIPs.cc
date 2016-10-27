@@ -84,7 +84,7 @@ void SimpleElectronicsSimInMIPs::updateOutput(FTLDigiCollection &coll,
   FTLDataFrame dataFrame( rawDataFrame.id() );
   dataFrame.resize(5);
   bool putInEvent(false);
-  for(int it=0;it<5; it++) {    
+  for(int it=0;it<5; ++it) {    
     dataFrame.setSample(it, rawDataFrame[itIdx-2+it]);
     if(it==2) putInEvent = rawDataFrame[itIdx-2+it].threshold(); 
   }
