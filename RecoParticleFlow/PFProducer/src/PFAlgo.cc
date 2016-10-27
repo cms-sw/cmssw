@@ -3283,6 +3283,9 @@ PFAlgo::reconstructCluster(const reco::PFCluster& cluster,
   //Set the cnadidate Vertex
   pfCandidates_->back().setVertex(vertexPos);  
 
+  //Set the time
+  pfCandidates_->back().setTime( cluster.time() );
+
   if(debug_) 
     cout<<"** candidate: "<<pfCandidates_->back()<<endl; 
 
