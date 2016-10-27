@@ -315,6 +315,7 @@
     </MaterialFraction>
   </CompositeMaterial>
 
+  <!-- TODO: check densities. All 3 materials describe the same cable, but density has to vary due to smearing. -->
   <CompositeMaterial name="Pix_Fwd_AluFlexCable" density="2.463*g/cm3" symbol=" " method="mixture by weight">
     <MaterialFraction fraction="0.3985">
       <rMaterial name="materials:Aluminium"/>
@@ -325,14 +326,20 @@
   </CompositeMaterial>
 
   <CompositeMaterial name="Pix_Fwd_AluFlexCable2" density="1.311*g/cm3" symbol=" " method="mixture by weight">
-    <MaterialFraction fraction="1.000">
+    <MaterialFraction fraction="0.3985">
       <rMaterial name="materials:Aluminium"/>
+    </MaterialFraction>
+    <MaterialFraction fraction="0.6015">
+      <rMaterial name="materials:Kapton"/>
     </MaterialFraction>
   </CompositeMaterial>
 
   <CompositeMaterial name="Pix_Fwd_AluFlexCable3" density="3.3075*g/cm3" symbol=" " method="mixture by weight">
-    <MaterialFraction fraction="1.000">
+    <MaterialFraction fraction="0.3985">
       <rMaterial name="materials:Aluminium"/>
+    </MaterialFraction>
+    <MaterialFraction fraction="0.6015">
+      <rMaterial name="materials:Kapton"/>
     </MaterialFraction>
   </CompositeMaterial>
 
@@ -524,6 +531,7 @@
 
 
   <CompositeMaterial name="CF_SupportArm" density="1.495*g/cm3" symbol=" " method="mixture by weight">
+    <!-- TODO: check density, mixture -->
     <MaterialFraction fraction="0.7498836">
       <rMaterial name="materials:Carbon"/>
     </MaterialFraction>
@@ -550,5 +558,68 @@
     <rMaterial name="materials:Iron"/>
    </MaterialFraction>
   </CompositeMaterial> 
+
+
+  <!-- Support ring materials. -->
+  
+  <!-- TODO: density, mixture -->
+  <CompositeMaterial name="FPix_CFSkin" density="3.43511*g/cm3" symbol=" " method="mixture by weight">
+   <MaterialFraction fraction="1.00">
+    <rMaterial name="materials:Carbon"/>
+   </MaterialFraction>
+  </CompositeMaterial>
+  <CompositeMaterial name="FPix_CFSkin_OuterOuterRing" density="2.2677*g/cm3" symbol=" " method="mixture by weight">
+   <MaterialFraction fraction="1.00">
+    <rMaterial name="materials:Carbon"/>
+   </MaterialFraction>
+  </CompositeMaterial>
+  <CompositeMaterial name="FPix_CFSkin_OuterInnerRing" density="1.000035*g/cm3" symbol=" " method="mixture by weight">
+   <MaterialFraction fraction="1.00">
+    <rMaterial name="materials:Carbon"/>
+   </MaterialFraction>
+  </CompositeMaterial>
+  <CompositeMaterial name="FPix_CFSkin_InnerOuterRing" density="1.77*g/cm3" symbol=" " method="mixture by weight">
+   <MaterialFraction fraction="1.00">
+    <rMaterial name="materials:Carbon"/>
+   </MaterialFraction>
+  </CompositeMaterial>
+  <CompositeMaterial name="FPix_CFSkin_InnerInnerRing" density="1.1744*g/cm3" symbol=" " method="mixture by weight">
+   <MaterialFraction fraction="1.00">
+    <rMaterial name="materials:Carbon"/>
+   </MaterialFraction>
+  </CompositeMaterial>
+
+
+  <!-- TODO: density, mixture -->
+  <CompositeMaterial name="C_C_OuterOuterRing" density="1.612*g/cm3" symbol=" " method="mixture by weight">
+   <MaterialFraction fraction="0.9">
+    <rMaterial name="materials:Carbon"/>
+   </MaterialFraction>
+  </CompositeMaterial>
+  <CompositeMaterial name="C_C_OuterInnerRing" density="1.745*g/cm3" symbol=" " method="mixture by weight">
+   <MaterialFraction fraction="0.9">
+    <rMaterial name="materials:Carbon"/>
+   </MaterialFraction>
+   <MaterialFraction fraction="0.1">
+    <rMaterial name="DiskCoolingTube"/>
+   </MaterialFraction>
+  </CompositeMaterial>
+  <CompositeMaterial name="C_C_InnerOuterRing" density="1.944*g/cm3" symbol=" " method="mixture by weight">
+   <MaterialFraction fraction="0.9">
+    <rMaterial name="materials:Carbon"/>
+   </MaterialFraction>
+   <MaterialFraction fraction="0.1">
+    <rMaterial name="DiskCoolingTube"/>
+   </MaterialFraction>
+  </CompositeMaterial>
+  <CompositeMaterial name="C_C_InnerInnerRing" density="1.566*g/cm3" symbol=" " method="mixture by weight">
+   <MaterialFraction fraction="0.9">
+    <rMaterial name="materials:Carbon"/>
+   </MaterialFraction>
+   <MaterialFraction fraction="0.1">
+    <rMaterial name="DiskCoolingTube"/>
+   </MaterialFraction>
+  </CompositeMaterial>
+
 </MaterialSection>
 </DDDefinition>
