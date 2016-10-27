@@ -696,7 +696,7 @@ void SiPixelTrackResidualSource::analyze(const edm::Event& iEvent, const edm::Ev
   //Retrieve tracker topology from geometry
   edm::ESHandle<TrackerTopology> tTopoHandle;
   iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
-  const TrackerTopology* const tTopo = tTopoHandle.product();
+  const TrackerTopology* tTopo = tTopoHandle.product();
   
   // retrieve TrackerGeometry again and MagneticField for use in transforming 
   // a TrackCandidate's P(ersistent)TrajectoryStateoOnDet (PTSoD) to a TrajectoryStateOnSurface (TSoS)
@@ -1430,7 +1430,7 @@ void SiPixelTrackResidualSource::analyze(const edm::Event& iEvent, const edm::Ev
   if(fpixtracks>0)(meNofTracks_)->Fill(3,fpixtracks);
 }
 
-void SiPixelTrackResidualSource::getrococcupancy(DetId detId,const edm::DetSetVector<PixelDigi> diginp,const TrackerTopology* const tTopo,std::vector<MonitorElement*> meinput) {
+void SiPixelTrackResidualSource::getrococcupancy(DetId detId,const edm::DetSetVector<PixelDigi> diginp,const TrackerTopology* tTopo,std::vector<MonitorElement*> meinput) {
 
   edm::DetSetVector<PixelDigi>::const_iterator ipxsearch = diginp.find(detId);
   if( ipxsearch != diginp.end() ) {
@@ -1573,7 +1573,7 @@ void SiPixelTrackResidualSource::triplets(double x1,double y1,double z1,double x
 }
 
 
-void SiPixelTrackResidualSource::getepixrococcupancyontrk(const TrackerTopology* const tTopo, TransientTrackingRecHit::ConstRecHitPointer hit, 
+void SiPixelTrackResidualSource::getepixrococcupancyontrk(const TrackerTopology* tTopo, TransientTrackingRecHit::ConstRecHitPointer hit, 
 							  float xclust, float yclust, float z, MonitorElement* meinput) {
 
   int pxfpanel     = tTopo->pxfPanel((*hit).geographicalId());
@@ -1582,6 +1582,13 @@ void SiPixelTrackResidualSource::getepixrococcupancyontrk(const TrackerTopology*
   int pxfblade_off = tTopo->pxfBlade((*hit).geographicalId());
   
   // translate to online conventions
+  // each EPIX disk is split in 2 half-disk - each one consists of 12 blades
+  // in offline: blades num 0->24; here translate numbering to online convetion
+  // positive blades pointing to beam;  negative pointing away
+  // each blade has two panels: each consisting of an array of ROC plaquettes
+  // front (rear) pannel: 3 (4) plaquettes
+  // number of ROCs in each plaquette depends on the position on the panel
+  // each ROC has 80x52 pixel cells
   if (z<0.) { pxfdisk  = -1.*pxfdisk; }
   int pxfblade = -99;
   if (pxfblade_off<=6 && pxfblade_off>=1)        { pxfblade = 7-pxfblade_off;  }
@@ -1606,7 +1613,7 @@ void SiPixelTrackResidualSource::getepixrococcupancyontrk(const TrackerTopology*
   meinput->setBinContent(clu_roc_binx,clu_roc_biny+1, meinput->getBinContent(clu_roc_binx,clu_roc_biny+1)+1);
 }
 
-void SiPixelTrackResidualSource::getepixrococcupancyofftrk(DetId detId, const TrackerTopology* const tTopo, 
+void SiPixelTrackResidualSource::getepixrococcupancyofftrk(DetId detId, const TrackerTopology* tTopo, 
 							   float xclust, float yclust, float z, MonitorElement* meinput) {
 
   PXFDetId pxfid=PXFDetId(detId);
