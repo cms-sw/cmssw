@@ -43,7 +43,11 @@ void
 PFDisplacedVertexFinder::setInput(
 				  const edm::Handle<reco::PFDisplacedVertexCandidateCollection>& displacedVertexCandidates) {
 
-  displacedVertexCandidates_ = displacedVertexCandidates.product();
+  if (displacedVertexCandidates.isValid()){
+    displacedVertexCandidates_ = displacedVertexCandidates.product();
+  } else {
+    displacedVertexCandidates_ = nullptr;
+  }
 
 }
 
@@ -61,6 +65,10 @@ PFDisplacedVertexFinder::findDisplacedVertices() {
   else 
     displacedVertices_.reset( new PFDisplacedVertexCollection );
 
+  if (displacedVertexCandidates_ == nullptr) {
+    edm::LogInfo("EmptyVertexInput")<<"displacedVertexCandidates are not set or the setInput was called with invalid vertex";
+    return;
+  }
 
   // Prepare the collections
   PFDisplacedVertexSeedCollection tempDisplacedVertexSeeds;
