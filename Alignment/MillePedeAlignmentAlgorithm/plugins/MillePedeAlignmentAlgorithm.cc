@@ -41,6 +41,10 @@
 #include "Alignment/MuonAlignment/interface/AlignableMuon.h"
 #include "Alignment/CommonAlignment/interface/AlignableExtras.h"
 
+#include "CondFormats/AlignmentRecord/interface/TrackerAlignmentRcd.h"
+#include "CondFormats/AlignmentRecord/interface/TrackerAlignmentErrorExtendedRcd.h"
+#include "CondFormats/AlignmentRecord/interface/TrackerSurfaceDeformationRcd.h"
+
 #include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/SiStripDetId/interface/SiStripDetId.h"
@@ -67,7 +71,6 @@ typedef TransientTrackingRecHit::ConstRecHitPointer   ConstRecHitPointer;
 typedef TrajectoryFactoryBase::ReferenceTrajectoryCollection RefTrajColl;
 
 // Includes for PXB survey
-#include <iostream>
 #include "Alignment/SurveyAnalysis/interface/SurveyPxbImage.h"
 #include "Alignment/SurveyAnalysis/interface/SurveyPxbImageLocalFit.h"
 #include "Alignment/SurveyAnalysis/interface/SurveyPxbImageReader.h"
@@ -123,6 +126,51 @@ void MillePedeAlignmentAlgorithm::initialize(const edm::EventSetup &setup,
     edm::LogWarning("Alignment") << "@SUB=MillePedeAlignmentAlgorithm::initialize"
 				 << "Running with AlignabeMuon not yet tested.";
   }
+
+  // temporary fix to avoid corrupted database output
+  if (!runAtPCL_) {
+    const auto MIN_VAL = cond::timeTypeSpecs[cond::runnumber].beginValue;
+    const auto MAX_VAL = cond::timeTypeSpecs[cond::runnumber].endValue;
+    const auto& iov_alignments =
+      setup.get<TrackerAlignmentRcd>().validityInterval();
+    const auto& iov_surfaces =
+      setup.get<TrackerSurfaceDeformationRcd>().validityInterval();
+    const auto& iov_errors =
+      setup.get<TrackerAlignmentErrorExtendedRcd>().validityInterval();
+    if (iov_alignments.first().eventID().run() != MIN_VAL ||
+	iov_alignments.last().eventID().run() != MAX_VAL) {
+    throw cms::Exception("DatabaseError")
+      << "@SUB=MillePedeAlignmentAlgorithm::initialize"
+      << "\nTrying to apply " << setup.get<TrackerAlignmentRcd>().key().name()
+      << " with multiple IOVs in tag.\n"
+      << "Validity range is "
+      << iov_alignments.first().eventID().run() << " - "
+      << iov_alignments.last().eventID().run();
+    }
+    if (iov_surfaces.first().eventID().run() != MIN_VAL ||
+	iov_surfaces.last().eventID().run() != MAX_VAL) {
+    throw cms::Exception("DatabaseError")
+      << "@SUB=MillePedeAlignmentAlgorithm::initialize"
+      << "\nTrying to apply "
+      << setup.get<TrackerSurfaceDeformationRcd>().key().name()
+      << " with multiple IOVs in tag.\n"
+      << "Validity range is "
+      << iov_surfaces.first().eventID().run() << " - "
+      << iov_surfaces.last().eventID().run();
+    }
+    if (iov_errors.first().eventID().run() != MIN_VAL ||
+	iov_errors.last().eventID().run() != MAX_VAL) {
+    throw cms::Exception("DatabaseError")
+      << "@SUB=MillePedeAlignmentAlgorithm::initialize"
+      << "\nTrying to apply "
+      << setup.get<TrackerAlignmentErrorExtendedRcd>().key().name()
+      << " with multiple IOVs in tag.\n"
+      << "Validity range is "
+      << iov_errors.first().eventID().run() << " - "
+      << iov_errors.last().eventID().run();
+    }
+  }
+
 
   //Retrieve tracker topology from geometry
   edm::ESHandle<TrackerTopology> tTopoHandle;
@@ -625,7 +673,9 @@ int MillePedeAlignmentAlgorithm::addGlobalData(const edm::EventSetup &setup, con
         theDoubleBufferX.push_back(iValuesInd->first.first);
         theDoubleBufferY.push_back(iValuesInd->first.second);
       } else {
-        std::cerr << "MillePedeAlignmentAlgorithm::addGlobalData: Invalid label " << globalLabel << " <= 0 or > 2147483647" << std::endl;
+	edm::LogError("Alignment")
+	  << "@SUB=MillePedeAlignmentAlgorithm::addGlobalData"
+	  << "Invalid label " << globalLabel << " <= 0 or > 2147483647";
       }
     }
   }
@@ -745,7 +795,9 @@ bool MillePedeAlignmentAlgorithm
           globalDerivativesX.push_back(derivs[iSel][kLocalX] / thePedeSteer->cmsToPedeFactor(iSel));
           globalDerivativesY.push_back(derivs[iSel][kLocalY] / thePedeSteer->cmsToPedeFactor(iSel));
         } else {
-          std::cerr << "MillePedeAlignmentAlgorithm::globalDerivativesHierarchy: Invalid label " << globalLabel << " <= 0 or > 2147483647" << std::endl;
+	  edm::LogError("Alignment")
+	    << "@SUB=MillePedeAlignmentAlgorithm::globalDerivativesHierarchy"
+	    << "Invalid label " << globalLabel << " <= 0 or > 2147483647";
         }
       }
     }
@@ -1391,7 +1443,12 @@ void MillePedeAlignmentAlgorithm::addPxbSurvey(const edm::ParameterSet &pxbSurve
 {
 	// do some printing, if requested
 	const bool doOutputOnStdout(pxbSurveyCfg.getParameter<bool>("doOutputOnStdout"));
-	if (doOutputOnStdout) std::cout << "# Output from addPxbSurvey follows below because doOutputOnStdout is set to True" << std::endl;
+	if (doOutputOnStdout) {
+	  edm::LogInfo("Alignment")
+	    << "@SUB=MillePedeAlignmentAlgorithm::addPxbSurvey"
+	    << "# Output from addPxbSurvey follows below because "
+	    << "doOutputOnStdout is set to True";
+	}
 
 	// instantiate a dicer object
 	SurveyPxbDicer dicer(pxbSurveyCfg.getParameter<std::vector<edm::ParameterSet> >("toySurveyParameters"), pxbSurveyCfg.getParameter<unsigned int>("toySurveySeed"));
@@ -1405,7 +1462,11 @@ void MillePedeAlignmentAlgorithm::addPxbSurvey(const edm::ParameterSet &pxbSurve
 	// loop over photographs (=measurements) and perform the fit
 	for(std::vector<SurveyPxbImageLocalFit>::size_type i=0; i!=measurements.size(); i++)
 	{
-		if (doOutputOnStdout) std::cout << "Module " << i << ": ";
+                if (doOutputOnStdout) {
+                  edm::LogInfo("Alignment")
+                    << "@SUB=MillePedeAlignmentAlgorithm::addPxbSurvey"
+                    << "Module " << i << ": ";
+                }
 
 		// get the Alignables and their surfaces
 		AlignableDetOrUnitPtr mod1(theAlignableNavigator->alignableFromDetId(measurements[i].getIdFirst()));
@@ -1449,10 +1510,12 @@ void MillePedeAlignmentAlgorithm::addPxbSurvey(const edm::ParameterSet &pxbSurve
 		// do some reporting, if requested
 		if (doOutputOnStdout)
 		{
-		  std::cout << "a: " << a[0] << ", " << a[1]  << ", " << a[2] << ", " << a[3]
-			<< " S= " << sqrt(a[2]*a[2]+a[3]*a[3])
-			<< " phi= " << atan(a[3]/a[2])
-			<< " chi2= " << chi2 << std::endl;
+                  edm::LogInfo("Alignment")
+                    << "@SUB=MillePedeAlignmentAlgorithm::addPxbSurvey"
+                    << "a: " << a[0] << ", " << a[1]  << ", " << a[2] << ", " << a[3]
+                    << " S= " << sqrt(a[2]*a[2]+a[3]*a[3])
+                    << " phi= " << atan(a[3]/a[2])
+                    << " chi2= " << chi2 << std::endl;
 		}
 		if (theMonitor) 
 		{
