@@ -258,7 +258,7 @@ namespace ftl_digitizer {
       // recalculate valid detids
       for( int zside = -1; zside <= 1; zside += 2 ) {	  
 	for( unsigned type = 1; type <= 2; ++type ) {
-	  for( unsigned izeta = 0; izeta < 1<<12; ++izeta ) {
+	  for( unsigned izeta = 0; izeta < 1<<10; ++izeta ) {
 	    for( unsigned iphi = 0; iphi < 1<<10; ++iphi ) {
 	      
 	      if( dddFTL_->isValidXY(type, izeta, iphi) ) {
