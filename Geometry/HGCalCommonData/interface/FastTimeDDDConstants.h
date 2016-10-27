@@ -16,7 +16,6 @@
 #include<iostream>
 
 #include "Geometry/HGCalCommonData/interface/FastTimeParameters.h"
-#include "G4ThreeVector.hh"
 
 class FastTimeDDDConstants {
 
@@ -25,8 +24,8 @@ public:
   FastTimeDDDConstants(const FastTimeParameters* ftp);
   ~FastTimeDDDConstants();
 
-  std::pair<int,int>  getZPhi(G4ThreeVector local)             const;
-  std::pair<int,int>  getEtaPhi(G4ThreeVector local)           const;
+  std::pair<int,int>  getZPhi(double z, double phi)            const;
+  std::pair<int,int>  getEtaPhi(double r, double phi)          const;
   int                 getCells(int type)                       const;
   bool                isValidXY(int type, int izeta, int iphi) const;
        
