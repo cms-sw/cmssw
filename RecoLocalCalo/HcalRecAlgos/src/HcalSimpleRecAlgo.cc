@@ -548,19 +548,6 @@ HcalCalibRecHit HcalSimpleRecAlgo::reconstruct(const HcalCalibDataFrame& digi, i
 }
 
 
-HBHERecHit HcalSimpleRecAlgo::reconstructHBHEUpgrade(const HcalUpgradeDataFrame& digi, int first, int toadd, const HcalCoder& coder, const HcalCalibrations& calibs) const {
-  HBHERecHit result = HcalSimpleRecAlgoImpl::reco<HcalUpgradeDataFrame,HBHERecHit>(digi, coder, calibs,
-                                                                                   first, toadd, correctForTimeslew_, correctForPulse_,
-                                                                                   pulseCorr_->get(digi.id(), toadd, phaseNS_),
-                                                                                   HcalTimeSlew::Medium, 0, false,
-                                                                                   hbhePileupCorr_.get(),
-                                                                                   bunchCrossingInfo_, lenBunchCrossingInfo_, puCorrMethod_, psFitOOTpuCorr_.get(),/*hlt*/hltOOTpuCorr_.get(),pedSubFxn_.get());
-  HcalTDCReco tdcReco;
-  tdcReco.reconstruct(digi, result);
-  return result;
-}
-
-
 HFRecHit HcalSimpleRecAlgo::reconstruct(const HFDataFrame& digi,
                                         const int first,
                                         const int toadd,
@@ -615,38 +602,6 @@ HFRecHit HcalSimpleRecAlgo::reconstructQIE10(const QIE10DataFrame& digi,
              calibs.timecorr();
 
   HFRecHit rh(digi.id(),ampl,time);
-  setRawEnergy(rh, static_cast<float>(uncorr_ampl));
-  return rh;
-}
-
-
-// NB: Upgrade HFRecHit method content is just the same as regular  HFRecHit
-//     with one exclusion: double time (second is dummy) in constructor 
-HFRecHit HcalSimpleRecAlgo::reconstructHFUpgrade(const HcalUpgradeDataFrame& digi,
-                                                 const int first,
-                                                 const int toadd,
-                                                 const HcalCoder& coder,
-                                                 const HcalCalibrations& calibs) const
-{
-  const HcalPulseContainmentCorrection* corr = pulseCorr_->get(digi.id(), toadd, phaseNS_);
-
-  double amp_fC, ampl, uncorr_ampl, maxA;
-  int nRead, maxI;
-  bool leakCorrApplied;
-  float t0, t2;
-
-  HcalSimpleRecAlgoImpl::removePileup(digi, coder, calibs, first, toadd,
-                                      correctForPulse_, corr, hfPileupCorr_.get(),
-                                      bunchCrossingInfo_, lenBunchCrossingInfo_,
-                                      &maxA, &ampl, &uncorr_ampl, &amp_fC, &nRead,
-                                      &maxI, &leakCorrApplied, &t0, &t2);
-
-  float time=-9999.f;
-  if (maxI > 0 && maxI < (nRead - 1))
-      time = HcalSimpleRecAlgoImpl::recoHFTime(digi,maxI,amp_fC,correctForTimeslew_,maxA,t0,t2) -
-             calibs.timecorr();
-
-  HFRecHit rh(digi.id(),ampl,time); // new RecHit gets second time = 0.
   setRawEnergy(rh, static_cast<float>(uncorr_ampl));
   return rh;
 }
