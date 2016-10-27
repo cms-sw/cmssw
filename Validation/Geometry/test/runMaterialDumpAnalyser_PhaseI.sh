@@ -132,7 +132,7 @@ fi
 
 for t in BeamPipe Tracker PixBar PixFwdMinus PixFwdPlus TIB TOB TIDB TIDF TEC TkStrct InnerServices; do
   if [ ! -e matbdg_${t}.root ]; then
-    cmsRun runP_Tracker_cfg.py geom=2017NewFPix label=$t >& /dev/null &
+    cmsRun runP_Tracker_cfg.py geom=phaseI label=$t >& /dev/null &
   fi
 done
 
@@ -148,4 +148,4 @@ for t in TrackerSum Pixel Strip InnerTracker BeamPipe Tracker PixBar PixFwdMinus
   fi
 done
 
-root -b -q 'MaterialBudget_Simul_vs_Reco.C("DQM_V0001_R000000001__Global__CMSSW_X_Y_Z__RECO.root", "PhaseIDetector")'
+root -b -q 'MaterialBudget_Simul_vs_Reco.C("DQM_V0001_R000000001__Global__CMSSW_X_Y_Z__RECO.root", "PhaseIDetector")' > MaterialBudget_Simul_vs_Reco_PhaseIDetector.log 2>&1
