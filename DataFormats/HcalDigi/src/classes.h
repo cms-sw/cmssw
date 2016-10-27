@@ -1,7 +1,6 @@
 #include <vector>
 #include "DataFormats/Common/interface/SortedCollection.h"
 #include "DataFormats/HcalDigi/interface/HcalQIESample.h"
-#include "DataFormats/HcalDigi/interface/HcalUpgradeQIESample.h"
 #include "DataFormats/HcalDigi/interface/HBHEDataFrame.h"
 #include "DataFormats/HcalDigi/interface/HFDataFrame.h"
 #include "DataFormats/HcalDigi/interface/HODataFrame.h"
@@ -16,7 +15,6 @@
 namespace DataFormats_HcalDigi {
   struct dictionary {
     std::vector<HcalQIESample> vQIE_;
-    std::vector<HcalUpgradeQIESample> vUQIE_;
     std::vector<HcalTriggerPrimitiveSample> vTPS_;
     
     edm::SortedCollection<HBHEDataFrame> vHBHE_;
@@ -26,7 +24,6 @@ namespace DataFormats_HcalDigi {
     edm::SortedCollection<HcalTriggerPrimitiveDigi> vHTP_;
     edm::SortedCollection<HcalHistogramDigi> vHH_;
     edm::SortedCollection<HcalTTPDigi> vTTP_;
-    edm::SortedCollection<HcalUpgradeDataFrame> vU_;
 
     HBHEDigiCollection theHBHE_;
     HODigiCollection theHO_;
@@ -35,8 +32,6 @@ namespace DataFormats_HcalDigi {
     HcalTrigPrimDigiCollection theHTP_;
     HcalHistogramDigiCollection theHH_;
     ZDCDigiCollection theZDC_;
-    HBHEUpgradeDigiCollection theUHBHE_;
-    HFUpgradeDigiCollection theUHF_;
     CastorDigiCollection theCastor_;
     CastorTrigPrimDigiCollection theCastorTP_;
     HOTrigPrimDigiCollection theHOTP_;
@@ -55,7 +50,6 @@ namespace DataFormats_HcalDigi {
     edm::Wrapper<edm::SortedCollection<CastorTriggerPrimitiveDigi> > anotherCastorTP_;
     edm::Wrapper<edm::SortedCollection<HOTriggerPrimitiveDigi> > anotherHOTP_;
     edm::Wrapper<edm::SortedCollection<HcalTTPDigi> > anotherTTP_;
-    edm::Wrapper<edm::SortedCollection<HcalUpgradeDataFrame> > anotherUG_;
 
     edm::Wrapper<HBHEDigiCollection> theHBHEw_;
     edm::Wrapper<HODigiCollection> theHOw_;
@@ -68,8 +62,6 @@ namespace DataFormats_HcalDigi {
     edm::Wrapper<HcalLaserDigi> theLaserw_;
     edm::Wrapper<HcalUMNioDigi> theUMNIOw_;
     edm::Wrapper<HcalTTPDigiCollection> theTTPw_;
-    edm::Wrapper<HBHEUpgradeDigiCollection> theUHBHEw_;
-    edm::Wrapper<HFUpgradeDigiCollection> theUHFw_;
     edm::Wrapper<QIE10DigiCollection> theQIE10w_;
     edm::Wrapper<QIE11DigiCollection> theQIE11w_;
   };

@@ -3,7 +3,6 @@
 #define HcalSimAlgos_HcalTDC_h
 
 #include "CalibFormats/CaloObjects/interface/CaloSamples.h"
-#include "DataFormats/HcalDigi/interface/HcalUpgradeDataFrame.h"
 #include "DataFormats/HcalDetId/interface/HcalGenericDetId.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalTDCParameters.h"
 
@@ -20,7 +19,8 @@ public:
   ~HcalTDC();
 
   /// adds timing information to the digi
-  void timing(const CaloSamples & lf, HcalUpgradeDataFrame & digi, CLHEP::HepRandomEngine*) const;
+  template <class Digi>
+  void timing(const CaloSamples & lf, Digi & digi, CLHEP::HepRandomEngine*) const;
 
   /// the Producer will probably update this every event
   void setDbService(const HcalDbService * service);
