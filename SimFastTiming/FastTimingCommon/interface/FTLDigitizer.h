@@ -178,7 +178,7 @@ namespace ftl_digitizer {
       const float charge = deviceSim_.getChargeForHit(hit);
       
       //distance to the center of the detector
-      const float dist2center(0.0);//( getPositionDistance(geom,id) );
+      const float dist2center( 0.1f*hit.entryPoint().mag() );
       
       //hit time: [time()]=ns  [centerDist]=cm [refSpeed_]=cm/ns + delay by 1ns
       //accumulate in 15 buckets of 25ns (9 pre-samples, 1 in-time, 5 post-samples)

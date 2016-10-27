@@ -18,7 +18,7 @@ _barrel_FastTimeDigitizer = cms.PSet(
         # ADC saturation
         adcSaturation_MIP  = cms.double(102),
         # for different thickness
-        adcThreshold_MIP   = cms.double(0.001),
+        adcThreshold_MIP   = cms.double(0.025),
         # LSB for time of arrival estimate from TDC in ns
         toaLSB_ns         = cms.double(0.005),
         )
@@ -32,7 +32,7 @@ _endcap_FastTimeDigitizer = cms.PSet(
     bxTime            = cms.double(25),
     tofDelay          = cms.double(1),
     DeviceSimulation = cms.PSet(
-        meVPerMIP          = cms.double(0.1161), # 300um of Si * 3.87 MeV/cm
+        meVPerMIP          = cms.double(0.085), # from HGCal
         ),
     ElectronicsSimulation = cms.PSet(
         # n bits for the ADC 
@@ -42,7 +42,7 @@ _endcap_FastTimeDigitizer = cms.PSet(
         # ADC saturation
         adcSaturation_MIP  = cms.double(102),
         # for different thickness
-        adcThreshold_MIP   = cms.double(0.001),
+        adcThreshold_MIP   = cms.double(0.025),
         # LSB for time of arrival estimate from TDC in ns
         toaLSB_ns         = cms.double(0.005),
         )
