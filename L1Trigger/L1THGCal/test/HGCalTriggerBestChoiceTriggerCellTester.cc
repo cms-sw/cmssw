@@ -97,8 +97,8 @@ HGCalTriggerBestChoiceTriggerCellTester::HGCalTriggerBestChoiceTriggerCellTester
     inputee_(consumes<HGCEEDigiCollection>(conf.getParameter<edm::InputTag>("eeDigis"))),
     inputfh_(consumes<HGCHEDigiCollection>(conf.getParameter<edm::InputTag>("fhDigis"))), 
     //inputbh_(consumes<HGCHEDigiCollection>(conf.getParameter<edm::InputTag>("bhDigis"))),
-    inputbeall_(consumes<l1t::HGCalClusterBxCollection>(conf.getParameter<edm::InputTag>("beClustersAll"))),
-    inputbeselect_(consumes<l1t::HGCalClusterBxCollection>(conf.getParameter<edm::InputTag>("beClustersSelect"))),
+    inputbeall_(consumes<l1t::HGCalTriggerCellBxCollection>(conf.getParameter<edm::InputTag>("beTriggerCellsAll"))),
+    inputbeselect_(consumes<l1t::HGCalTriggerCellBxCollection>(conf.getParameter<edm::InputTag>("beTriggerCellsSelect"))),
     is_Simhit_comp_(conf.getParameter<bool>("isSimhitComp")),
     SimHits_inputee_(consumes<edm::PCaloHitContainer>(conf.getParameter<edm::InputTag>("eeSimHits"))),
     SimHits_inputfh_(consumes<edm::PCaloHitContainer>(conf.getParameter<edm::InputTag>("fhSimHits")))
@@ -185,30 +185,36 @@ void HGCalTriggerBestChoiceTriggerCellTester::analyze(const edm::Event& e,
 void HGCalTriggerBestChoiceTriggerCellTester::checkSelectedCells(const edm::Event& e, 
         const edm::EventSetup& es) 
 {
-    edm::Handle<l1t::HGCalClusterBxCollection> be_clusters_all_h;
-    edm::Handle<l1t::HGCalClusterBxCollection> be_clusters_select_h;
-    e.getByToken(inputbeall_,be_clusters_all_h);
-    e.getByToken(inputbeselect_,be_clusters_select_h);
+    edm::Handle<l1t::HGCalTriggerCellBxCollection> be_triggercells_all_h;
+    edm::Handle<l1t::HGCalTriggerCellBxCollection> be_triggercells_select_h;
+    e.getByToken(inputbeall_,be_triggercells_all_h);
+    e.getByToken(inputbeselect_,be_triggercells_select_h);
 
-    const l1t::HGCalClusterBxCollection& be_clusters_all = *be_clusters_all_h;
-    const l1t::HGCalClusterBxCollection& be_clusters_select = *be_clusters_select_h;
+    const l1t::HGCalTriggerCellBxCollection& be_triggercells_all = *be_triggercells_all_h;
+    const l1t::HGCalTriggerCellBxCollection& be_triggercells_select = *be_triggercells_select_h;
 
     // store trigger cells module by module. tuple = zside,subdet,layer,module
     std::map<std::tuple<uint32_t, uint32_t,uint32_t,uint32_t>, std::vector<uint32_t>> module_triggercells_all;
-    for(auto cl_itr=be_clusters_all.begin(0); cl_itr!=be_clusters_all.end(0); cl_itr++)   
+    for(auto cl_itr=be_triggercells_all.begin(0); cl_itr!=be_triggercells_all.end(0); cl_itr++)   
     {
-        const l1t::HGCalCluster& cluster = *cl_itr;
-        uint32_t zside = cluster.eta()<0. ? 0 : 1;
-        auto itr_insert = module_triggercells_all.emplace( std::make_tuple(zside, cluster.subDet(), cluster.layer(), cluster.module()),  std::vector<uint32_t>());
-        itr_insert.first->second.emplace_back(cluster.hwPt());
+        const l1t::HGCalTriggerCell& triggercell = *cl_itr;
+        uint32_t zside = triggercell.eta()<0. ? 0 : 1;
+        uint32_t module = HGCalDetId(triggerGeometry_->getModuleFromTriggerCell(triggercell.detId())).wafer();
+        uint32_t subdet = HGCalDetId(triggercell.detId()).subdetId();
+        uint32_t layer = HGCalDetId(triggercell.detId()).layer();
+        auto itr_insert = module_triggercells_all.emplace( std::make_tuple(zside, subdet, layer, module),  std::vector<uint32_t>());
+        itr_insert.first->second.emplace_back(triggercell.hwPt());
     }
     std::map<std::tuple<uint32_t, uint32_t,uint32_t,uint32_t>, std::vector<uint32_t>> module_triggercells_select;
-    for(auto cl_itr=be_clusters_select.begin(0); cl_itr!=be_clusters_select.end(0); cl_itr++)   
+    for(auto cl_itr=be_triggercells_select.begin(0); cl_itr!=be_triggercells_select.end(0); cl_itr++)   
     {
-        const l1t::HGCalCluster& cluster = *cl_itr;
-        uint32_t zside = cluster.eta()<0. ? 0 : 1;
-        auto itr_insert = module_triggercells_select.emplace( std::make_tuple(zside, cluster.subDet(), cluster.layer(), cluster.module()),  std::vector<uint32_t>());
-        itr_insert.first->second.emplace_back(cluster.hwPt());
+        const l1t::HGCalTriggerCell& triggercell = *cl_itr;
+        uint32_t zside = triggercell.eta()<0. ? 0 : 1;
+        uint32_t module = HGCalDetId(triggerGeometry_->getModuleFromTriggerCell(triggercell.detId())).wafer();
+        uint32_t subdet = HGCalDetId(triggercell.detId()).subdetId();
+        uint32_t layer = HGCalDetId(triggercell.detId()).layer();
+        auto itr_insert = module_triggercells_select.emplace( std::make_tuple(zside, subdet, layer, module),  std::vector<uint32_t>());
+        itr_insert.first->second.emplace_back(triggercell.hwPt());
     }
 
     // Compare 'all' and 'selected' trigger cells, module by module

@@ -101,6 +101,10 @@ namespace HGCalTriggerFE {
           << "Data payload was already set for HGCTriggerFECodec: "
           << this->name() << " overwriting current data!";
       }
+      if(geometry_==nullptr) {
+        throw cms::Exception("HGCTriggerBadInitialization")
+          << "The HGC trigger geometry has not been passed to the front-end codec\n";
+      }
       static_cast<Impl&>(*this).setDataPayloadImpl(ee,fh,bh);
       dataIsSet_ = true;
     }
@@ -110,6 +114,10 @@ namespace HGCalTriggerFE {
         edm::LogWarning("HGCalTriggerFECodec|OverwritePayload")
           << "Data payload was already set for HGCTriggerFECodec: "
           << this->name() << " overwriting current data!";
+      }
+      if(geometry_==nullptr) {
+        throw cms::Exception("HGCTriggerBadInitialization")
+          << "The HGC trigger geometry has not been passed to the front-end codec\n";
       }
       static_cast<Impl&>(*this).setDataPayloadImpl(digi);
       dataIsSet_ = true;
@@ -129,10 +137,18 @@ namespace HGCalTriggerFE {
     }
 
     std::vector<bool> encode(const DATA& data) const {
+      if(geometry_==nullptr) {
+        throw cms::Exception("HGCTriggerBadInitialization")
+          << "The HGC trigger geometry has not been passed to the front-end codec\n";
+      }
       return static_cast<const Impl&>(*this).encodeImpl(data);
     }
 
     DATA decode(const std::vector<bool>& data, const uint32_t module=0) const {
+      if(geometry_==nullptr) {
+        throw cms::Exception("HGCTriggerBadInitialization")
+          << "The HGC trigger geometry has not been passed to the front-end codec\n";
+      }
       return static_cast<const Impl&>(*this).decodeImpl(data, module);
     }    
 
