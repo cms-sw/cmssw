@@ -59,6 +59,7 @@ caloParams = cms.ESProducer(
     egIsoPUEstTowerGranularity = cms.uint32(1),
     egIsoMaxEtaAbsForTowerSum  = cms.uint32(4),
     egIsoMaxEtaAbsForIsoSum    = cms.uint32(27),
+    egBypassEGVetos            = cms.uint32(0),
 
     # Tau
     tauRegionMask                 = cms.int32(0),
@@ -93,6 +94,7 @@ caloParams = cms.ESProducer(
     jetCompressPtLUTFile     = cms.FileInPath("L1Trigger/L1TCalorimeter/data/lut_pt_compress.txt"),
     jetCompressEtaLUTFile    = cms.FileInPath("L1Trigger/L1TCalorimeter/data/lut_eta_compress.txt"),
     jetCalibrationLUTFile    = cms.FileInPath("L1Trigger/L1TCalorimeter/data/lut_add_mult.txt"),
+    jetBypassPUS             = cms.uint32(0),
 
     # sums
     etSumLsb                 = cms.double(0.5),
