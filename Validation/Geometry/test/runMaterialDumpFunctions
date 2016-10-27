@@ -1,0 +1,9 @@
+function checkFile {
+    [[ ! -e $1 ]] | [[ ! -s $1 ]]
+}
+
+# Wait for possible bg jobs launched in the previous loop
+function waitPendingJobs {
+    for job in $(jobs -p); do wait $job; done
+}
+

@@ -1,7 +1,5 @@
 import FWCore.ParameterSet.VarParsing as VarParsing
 
-process = cms.Process("ProcessOne")
-
 options = VarParsing.VarParsing()
 options.register('destinationDatabase',
                 '',

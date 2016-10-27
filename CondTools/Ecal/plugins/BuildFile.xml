@@ -1,16 +1,18 @@
+<use   name="boost"/>
 <use   name="xerces-c"/>
+<use   name="CondFormats/Alignment"/>
+<use   name="CondFormats/DataRecord"/>
+<use   name="CondFormats/EcalObjects"/>
+<use   name="CondFormats/RunInfo"/>
+<use   name="CondCore/DBOutputService"/>
 <use   name="CondCore/PopCon"/>
 <use   name="CondTools/Ecal"/>
-<use   name="boost"/>
-<use   name="FWCore/PluginManager"/>
-<use   name="FWCore/Framework"/>
+<use   name="CondTools/RunInfo"/>
 <use   name="DataFormats/Common"/>
 <use   name="DataFormats/EcalDetId"/>
-<use   name="CondCore/DBOutputService"/>
-<use   name="CondFormats/EcalObjects"/>
-<use   name="CondFormats/DataRecord"/>
-  <use   name="CondFormats/Alignment"/>
-  <use name="Utilities/General"/>
+<use   name="FWCore/Framework"/>
+<use   name="FWCore/PluginManager"/>
+<use   name="Utilities/General"/>
 <library   file="*.cc" name="CondToolsEcalPlugin">
   <flags   EDM_PLUGIN="1"/>
 </library>

@@ -1,6 +1,9 @@
 
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "DataFormats/Provenance/interface/ParameterSetID.h"
+#include "FWCore/Utilities/interface/TimingServiceBase.h"
+#include "FWCore/Utilities/interface/CPUServiceBase.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/ServiceRegistry/interface/ServiceMaker.h"
 #include "FWCore/ServiceRegistry/interface/ProcessContext.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
@@ -15,11 +18,14 @@
 #include <sys/wait.h>
 #include <spawn.h>
 #include <iostream>
+#include <fstream>
+#include <sstream>
 #include <cmath>
 #include <chrono>
 #include <sstream>
 #include <atomic>
 #include <string>
+#include <set>
 
 namespace edm {
 
@@ -248,6 +254,14 @@ CondorStatusService::firstUpdate()
     updateChirp("MaxEvents", "-1");
     updateChirp("MaxLumis", "-1");
     updateChirp("Done", "false");
+
+    edm::Service<edm::CPUServiceBase> cpusvc;
+    std::string models;
+    double avgSpeed;
+    if (cpusvc.isAvailable() && cpusvc->cpuInfo(models, avgSpeed)) {
+        updateChirp("CPUModels", models);
+        updateChirp("CPUSpeed", avgSpeed);
+    }
 }
 
 
@@ -257,6 +271,10 @@ CondorStatusService::lastUpdate()
     time_t now = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
     updateImpl(now - m_lastUpdate);
     updateChirp("Done", "true");
+    edm::Service<edm::CPUServiceBase> cpusvc;
+    if (!cpusvc.isAvailable()) {
+        std::cout << "At post, CPU service is NOT available.\n";
+    }
 }
 
 
@@ -290,6 +308,11 @@ CondorStatusService::updateImpl(time_t sinceLastUpdate)
 {
     time_t now = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
     time_t jobTime = now-m_beginJob;
+
+    edm::Service<edm::TimingServiceBase> timingsvc;
+    if (timingsvc.isAvailable()) {
+        updateChirp("TotalCPU", timingsvc->getTotalCPU());
+    }
 
     updateChirp("LastUpdate", now);
 

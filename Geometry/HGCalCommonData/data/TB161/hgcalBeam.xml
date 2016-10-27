@@ -59,7 +59,7 @@
   <Constant name="chamb4Z" value="840.8*cm"/>
   <Constant name="chamb5Z" value="965.5*cm"/>
   <Constant name="mcDxby2" value="40.0*cm"/>
-  <Constant name="mcDzby2" value="5.0*mm"/>
+  <Constant name="mcDzby2" value="20.0*mm"/>
   <Constant name="mc1Z" value="873.5*cm"/>
   <Constant name="mc2Z" value="985.5*cm"/>
 </ConstantsSection>
@@ -93,7 +93,7 @@
   </LogicalPart>
   <LogicalPart name="HGCalBeamWChambGas" category="unspecified">
     <rSolid name="HGCalBeamWChambGas"/>
-    <rMaterial name="materials:Ar(50%)+CO_2(50%)"/>
+    <rMaterial name="materials:Ar 50pct plus CO_2 50pct"/>
   </LogicalPart>
   <LogicalPart name="HGCalBeamWChambVet" category="unspecified">
     <rSolid name="HGCalBeamWChambVet"/>

@@ -19,6 +19,17 @@ public:
                                       double absZ,
                                       double sigmaZ,
                                       double maxRecoZ,
+				      double absT,
+				      double sigmaT,
+				      double maxRecoT,
+                                      double sharedTrackFraction,
+                                      const reco::RecoToSimCollection *trackRecoToSimAssociation,
+                                      const reco::SimToRecoCollection *trackSimToRecoAssociation);
+
+  VertexAssociatorByPositionAndTracks(const edm::EDProductGetter *productGetter,
+                                      double absZ,
+                                      double sigmaZ,
+                                      double maxRecoZ,
                                       double sharedTrackFraction,
                                       const reco::RecoToSimCollection *trackRecoToSimAssociation,
                                       const reco::SimToRecoCollection *trackSimToRecoAssociation);
@@ -39,6 +50,9 @@ private:
   const double absZ_;
   const double sigmaZ_;
   const double maxRecoZ_;
+  const double absT_;
+  const double sigmaT_;
+  const double maxRecoT_;
   const double sharedTrackFraction_;
 
   const reco::RecoToSimCollection *trackRecoToSimAssociation_;

@@ -5,7 +5,7 @@ commonDict = {
     "name" : "common",
     "O1" : {
         1 : [
-            'Geometry/CMSCommonData/data/PhaseII/materials.xml',
+            'Geometry/CMSCommonData/data/materials.xml',
             'Geometry/CMSCommonData/data/rotations.xml',
             'Geometry/CMSCommonData/data/extend/cmsextent.xml',
             'Geometry/CMSCommonData/data/PostLS2/cms.xml',
@@ -296,7 +296,7 @@ caloDict = {
             'Geometry/HcalCommonData/data/hcalouteralgo.xml',
             'Geometry/HcalCommonData/data/hcalforwardalgo.xml',
             'Geometry/HcalCommonData/data/PhaseII/hcalSimNumbering.xml',
-            'Geometry/HcalCommonData/data/PhaseII/HGCal/hcalRecNumberingRebuild.xml',
+            'Geometry/HcalCommonData/data/PhaseII/hcalRecNumberingRebuild.xml',
             'Geometry/HcalCommonData/data/average/hcalforwardmaterial.xml',
             'Geometry/HGCalCommonData/data/v7/hgcal.xml',
             'Geometry/HGCalCommonData/data/v7/hgcalEE.xml',
@@ -430,12 +430,34 @@ forwardDict = {
     }
 }
 
-allDicts = [ commonDict, trackerDict, caloDict, muonDict, forwardDict ]
+timingDict = {
+    "abbrev" : "I",
+    "name" : "timing",
+    "I1" : {},
+    "I2" : {
+        1 : [
+            'Geometry/HGCalCommonData/data/fastTimingBarrel.xml',
+            'Geometry/HGCalCommonData/data/fastTiming.xml',
+            'Geometry/HGCalCommonData/data/v2/fastTimingElement.xml',
+            'Geometry/HGCalCommonData/data/fastTimingConst.xml'
+            ],
+        3 : [
+            'Geometry/HGCalSimData/data/fasttimesens.xml'
+            ],
+        4 : [
+            'Geometry/HGCalSimData/data/fasttimeProdCuts.xml'
+            ],
+        "era" : "self.phase2_timing",
+    }
+}
+
+allDicts = [ commonDict, trackerDict, caloDict, muonDict, forwardDict, timingDict ]
 
 detectorVersionDict = {
-    ("O1","T1","C1","M1","F1") : "D1",
-    ("O1","T2","C1","M1","F1") : "D2",
-    ("O1","T1","C2","M1","F1") : "D3",
-    ("O1","T3","C2","M1","F1") : "D4"
+    ("O1","T1","C1","M1","F1","I1") : "D1",
+    ("O1","T2","C1","M1","F1","I1") : "D2",
+    ("O1","T1","C2","M1","F1","I1") : "D3",
+    ("O1","T3","C2","M1","F1","I1") : "D4",
+    ("O1","T1","C2","M1","F1","I2") : "D5",
 }
 

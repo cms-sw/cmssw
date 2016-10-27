@@ -1,6 +1,7 @@
 #include <string>
 #include <vector>
 #include <iostream>
+#include <algorithm>
 
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -62,7 +63,7 @@ std::string dddGetString(const std::string & s, const DDFilteredView & view) {
     return std::string();
 }
 
-static inline 
+static inline
 std::ostream & operator<<(std::ostream & out, const math::XYZVector & v) {
   return out << "(" << v.rho() << ", " << v.z() << ", " << v.phi() << ")";
 }
@@ -72,14 +73,22 @@ class ListIds : public edm::one::EDAnalyzer<>
 public:
   ListIds(const edm::ParameterSet &);
   virtual ~ListIds();
-  
+
 private:
   void analyze(const edm::Event &, const edm::EventSetup &) override;
   void beginJob() override {}
   void endJob() override;
+  // List of material names used to select specific detectors.
+  // Names are matched literally, w/o any usage of regexp.
+  // Names should also be specified with the correct namespace,
+  // otherwise the matching will fail.
+  bool printMaterial_;
+  std::vector<std::string> materials_;
 };
 
-ListIds::ListIds(const edm::ParameterSet &) {
+ListIds::ListIds(const edm::ParameterSet & pset)
+ : printMaterial_(pset.getUntrackedParameter<bool>("printMaterial")),
+   materials_(pset.getUntrackedParameter<std::vector<std::string> >("materials")) {
 }
 
 ListIds::~ListIds() {
@@ -95,7 +104,7 @@ ListIds::analyze(const edm::Event& evt, const edm::EventSetup& setup){
   CmsTrackerStringToEnum theCmsTrackerStringToEnum;
   DDSpecificsFilter filter;
   filter.setCriteria(DDValue(attribute, "any", 0), DDCompOp::not_equals);
-  DDFilteredView fv(*hDdd); 
+  DDFilteredView fv(*hDdd);
   fv.addFilter(filter);
   if (theCmsTrackerStringToEnum.type(dddGetString(attribute, fv)) != GeometricDet::Tracker) {
     fv.firstChild();
@@ -103,26 +112,36 @@ ListIds::analyze(const edm::Event& evt, const edm::EventSetup& setup){
       throw cms::Exception("Configuration") << "The first child of the DDFilteredView is not what is expected \n"
                                             << dddGetString(attribute, fv);
   }
-   
+
   std::cout << std::fixed << std::setprecision(3);
+  bool printAnyMaterial = (std::find(materials_.begin(), materials_.end(), "ANY") != materials_.end());
   do {
-    // print the full hierarchy of all Silicon items
-    if (fv.logicalPart().material().name() == "materials:Silicon") {
-  
+    // print the full hierarchy of all elements whose material
+    // has been specified by the user. An empty list of
+    // materials will print no elements. The special
+    // keyword ANY (in any location of the vector)
+    // will select all elements.
+    if (printAnyMaterial ||
+        (std::find(materials_.begin(),
+                   materials_.end(),
+                   fv.logicalPart().material().name().fullname()) != materials_.end())) {
+
       // start from 2 to skip the leading /OCMS[0]/CMSE[1] part
       const DDGeoHistory & history = fv.geoHistory();
       std::cout << '/';
       for (unsigned int h = 2; h < history.size(); ++h) {
-        std::cout << '/' << history[h].logicalPart().name().name() << '[' << history[h].copyno() << ']';
+        std::cout << '/' << history[h].logicalPart().name().ns()
+                  << ":" << history[h].logicalPart().name().name() << '[' << history[h].copyno() << ']';
       }
-
+      if (printMaterial_)
+        std::cout << " Material: |" << fv.logicalPart().material().name() << "|";
       // DD3Vector and DDTranslation are the same type as math::XYZVector
       math::XYZVector position = fv.translation() / 10.;  // mm -> cm
       std::cout << "\t" << position << std::endl;
     }
   } while (fv.next());
   std::cout << std::endl;
-  
+
   std::cout << "______________________________ std::vector<GeomDet*> from TrackerGeometry::dets() ______________________________" << std::endl;
   edm::ESHandle<TrackerGeometry> hGeo;
   setup.get<TrackerDigiGeometryRecord>().get( hGeo );
@@ -136,8 +155,8 @@ ListIds::analyze(const edm::Event& evt, const edm::EventSetup& setup){
     const Surface::PositionType & p = det.position();
     math::XYZVector position(p.x(), p.y(), p.z());
 
-    std::cout << det.subDetector() << '\t' 
-              << det.geographicalId().det() << '\t' 
+    std::cout << det.subDetector() << '\t'
+              << det.geographicalId().det() << '\t'
               << det.geographicalId().subdetId() << '\t'
               << det.geographicalId().rawId() << "\t"
               << position;
@@ -150,7 +169,7 @@ ListIds::analyze(const edm::Event& evt, const edm::EventSetup& setup){
     }
     std::cout << std::endl;
   }
-    
+
 }
 
 void

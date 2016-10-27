@@ -430,7 +430,7 @@ SKIMStreamMuTau = cms.FilteredStream(
     paths = ( MuTauPath ),
     content = skimMiniAODContent.outputCommands,
     selectEvents = cms.untracked.PSet(),
-    dataTier = cms.untracked.string('RAW-MINIAOD')
+    dataTier = cms.untracked.string('USER')
     )
 
 ##########################

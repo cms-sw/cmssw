@@ -136,15 +136,19 @@ namespace edm {
     virtual Types moduleType() const =0;
 
     void clearCounters() {
-      timesRun_ = timesVisited_ = timesPassed_ = timesFailed_ = timesExcept_ = 0;
+      timesRun_.store(0,std::memory_order_relaxed);
+      timesVisited_.store(0,std::memory_order_relaxed);
+      timesPassed_.store(0,std::memory_order_relaxed);
+      timesFailed_.store(0,std::memory_order_relaxed);
+      timesExcept_.store(0,std::memory_order_relaxed);
     }
 
     //NOTE: calling state() is done to force synchronization across threads
-    int timesRun() const { state(); return timesRun_; }
-    int timesVisited() const { return timesVisited_; }
-    int timesPassed() const { state(); return timesPassed_; }
-    int timesFailed() const { state(); return timesFailed_; }
-    int timesExcept() const { state(); return timesExcept_; }
+    int timesRun() const { return timesRun_.load(std::memory_order_relaxed); }
+    int timesVisited() const { return timesVisited_.load(std::memory_order_relaxed); }
+    int timesPassed() const { return timesPassed_.load(std::memory_order_relaxed); }
+    int timesFailed() const { return timesFailed_.load(std::memory_order_relaxed); }
+    int timesExcept() const { return timesExcept_.load(std::memory_order_relaxed); }
     State state() const { return state_; }
 
     int timesPass() const { return timesPassed(); } // for backward compatibility only - to be removed soon
@@ -242,7 +246,7 @@ namespace edm {
     template<bool IS_EVENT>
     bool setPassed() {
       if(IS_EVENT) {
-        ++timesPassed_;
+        timesPassed_.fetch_add(1,std::memory_order_relaxed);
       }
       state_ = Pass;
       return true;
@@ -251,7 +255,7 @@ namespace edm {
     template<bool IS_EVENT>
     bool setFailed() {
       if(IS_EVENT) {
-        ++timesFailed_;
+        timesFailed_.fetch_add(1,std::memory_order_relaxed);
       }
       state_ = Fail;
       return false;
@@ -259,7 +263,9 @@ namespace edm {
 
     template<bool IS_EVENT>
     std::exception_ptr setException(std::exception_ptr iException) {
-      if (IS_EVENT) ++timesExcept_;
+      if (IS_EVENT) {
+        timesExcept_.fetch_add(1,std::memory_order_relaxed);
+      }
       cached_exception_ = iException; // propagate_const<T> has no reset() function
       state_ = Exception;
       return cached_exception_;
@@ -361,11 +367,11 @@ namespace edm {
       ServiceToken m_serviceToken;
     };
     
-    CMS_THREAD_GUARD(state_) int timesRun_;
+    std::atomic<int> timesRun_;
     std::atomic<int> timesVisited_;
-    CMS_THREAD_GUARD(state_) int timesPassed_;
-    CMS_THREAD_GUARD(state_) int timesFailed_;
-    CMS_THREAD_GUARD(state_) int timesExcept_;
+    std::atomic<int> timesPassed_;
+    std::atomic<int> timesFailed_;
+    std::atomic<int> timesExcept_;
     std::atomic<State> state_;
 
     ModuleCallingContext moduleCallingContext_;
@@ -587,7 +593,7 @@ namespace edm {
                            typename T::Context const* context) {
     waitingTasks_.add(task);
     if(T::isEvent_) {
-      ++timesVisited_;
+      timesVisited_.fetch_add(1,std::memory_order_relaxed);
     }
     bool expected = false;
     if(workStarted_.compare_exchange_strong(expected,true)) {
@@ -644,7 +650,7 @@ namespace edm {
                       typename T::Context const* context) {
 
     if (T::isEvent_) {
-      ++timesVisited_;
+      timesVisited_.fetch_add(1,std::memory_order_relaxed);
     }
     bool rc = false;
 
@@ -688,10 +694,9 @@ namespace edm {
 
         if (T::isEvent_) {
 
-          ++timesRun_;
-          
           //if have TriggerResults based selection we want to reject the event before doing prefetching
           if( not workerhelper::CallImpl<T>::prePrefetchSelection(this,streamID,ep,&moduleCallingContext_) ) {
+            timesRun_.fetch_add(1,std::memory_order_relaxed);
             rc = setPassed<T::isEvent_>();
             waitingTasks_.doneWaiting(nullptr);
             return;
@@ -759,7 +764,7 @@ namespace edm {
     //}
     ModuleContextSentry moduleContextSentry(&moduleCallingContext_, parentContext);
     if (T::isEvent_) {
-      ++timesRun_;
+      timesRun_.fetch_add(1,std::memory_order_relaxed);
     }
     
     bool rc = workerhelper::CallImpl<T>::call(this,streamID,ep,es, actReg_.get(), &moduleCallingContext_, context);

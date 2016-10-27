@@ -6,11 +6,10 @@
 
 class BTauGenericMVAJetTagComputerRcd;
 class GBRWrapperRcd;
-class TransientTrackRecord;
 
 class JetTagComputerRecord :
   public edm::eventsetup::DependentRecordImplementation<
     JetTagComputerRecord,
-    boost::mpl::vector<BTauGenericMVAJetTagComputerRcd, GBRWrapperRcd, TransientTrackRecord> > {};
+    boost::mpl::vector<BTauGenericMVAJetTagComputerRcd, GBRWrapperRcd> > {};
 
 #endif
