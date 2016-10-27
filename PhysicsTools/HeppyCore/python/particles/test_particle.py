@@ -50,7 +50,8 @@ class TestParticle(unittest.TestCase):
             return 
         retcode = gSystem.Load("libdatamodelDict")
         # testing only if the FCC EDM is available
-        self.assertEqual(retcode, 0)
+        if retcode == -1: 
+            raise RuntimeError('cannot load fcc-edm shared library')
         try:
             from EventStore import EventStore as Events
         except ImportError:
