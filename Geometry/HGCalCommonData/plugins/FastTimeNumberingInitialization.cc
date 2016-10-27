@@ -42,7 +42,7 @@ public:
   FastTimeNumberingInitialization(const edm::ParameterSet&);
   ~FastTimeNumberingInitialization();
 
-  typedef std::unique_ptr<FastTimeDDDConstants> ReturnType;
+  typedef std::shared_ptr<FastTimeDDDConstants> ReturnType;
 
   ReturnType produce(const IdealGeometryRecord&);
 
@@ -71,7 +71,7 @@ FastTimeNumberingInitialization::produce(const IdealGeometryRecord& iRecord) {
     iRecord.get(pFTpar);
     fastTimeDDDConst_ = new FastTimeDDDConstants(&(*pFTpar));
   }
-  return std::auto_ptr<FastTimeDDDConstants> (fastTimeDDDConst_) ;
+  return std::shared_ptr<FastTimeDDDConstants> (fastTimeDDDConst_) ;
 }
 
 //define this as a plug-in
