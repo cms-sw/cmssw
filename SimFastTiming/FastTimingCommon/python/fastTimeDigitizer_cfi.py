@@ -8,7 +8,7 @@ _barrel_FastTimeDigitizer = cms.PSet(
     bxTime            = cms.double(25),
     tofDelay          = cms.double(1),        
     DeviceSimulation = cms.PSet(
-        meVPerMIP          = cms.double(3.82), # 4mm of LYSO * 9.55 MeV/cm
+        meVPerMIP          = cms.double(3.438), # 0.9 * (4mm of LYSO * 9.55 MeV/cm) to adjust to MVP rather than average ionization loss
         ),
     ElectronicsSimulation = cms.PSet(
         # n bits for the ADC 
