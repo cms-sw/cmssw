@@ -18,7 +18,7 @@ class HcalDeterministicFit {
   HcalDeterministicFit();
   ~HcalDeterministicFit();
 
-  void init(HcalTimeSlew::ParaSource tsParam, HcalTimeSlew::BiasSetting bias, PedestalSub pedSubFxn_, std::vector<double> pars, double respCorr);
+  void init(HcalTimeSlew::ParaSource tsParam, HcalTimeSlew::BiasSetting bias, bool iApplyTimeSlew, PedestalSub pedSubFxn_, std::vector<double> pars, double respCorr);
 
   void phase1Apply(const HBHEChannelInfo& channelData,
 		   float& reconstructedEnergy,
@@ -33,6 +33,7 @@ class HcalDeterministicFit {
   HcalTimeSlew::ParaSource fTimeSlew;
   HcalTimeSlew::BiasSetting fTimeSlewBias;
   PedestalSub fPedestalSubFxn_;
+  bool applyTimeSlew_;
 
   double fpars[9];
   double frespCorr;
