@@ -3139,6 +3139,8 @@ unsigned PFAlgo::reconstructTrack( const reco::PFBlockElement& elt, bool allowLo
     pfCandidates_->back().setMuonRef( muonRef );
 
 
+  //Set time
+  if (elt.isTimeValid()) pfCandidates_->back().setTime( elt.time(), elt.timeError() );
 
   //OK Now try to reconstruct the particle as a muon
   bool isMuon=pfmu_->reconstructMuon(pfCandidates_->back(),muonRef,allowLoose);
