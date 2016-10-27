@@ -3,7 +3,7 @@
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("MaterialAnalyser")
-process.load('Configuration.Geometry.GeometryExtended2023D1Reco_cff')
+process.load('Configuration.Geometry.GeometryExtended2023D4Reco_cff')
 process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("SimTracker.TrackerMaterialAnalysis.trackingMaterialGroups_ForPhaseII_cff")
 
