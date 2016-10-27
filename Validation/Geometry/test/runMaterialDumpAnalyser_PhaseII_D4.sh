@@ -34,7 +34,7 @@ done
 if checkFile SingleMuPt10_pythia8_cfi_GEN_SIM_PhaseII_D4.root ; then
   cmsDriver.py SingleMuPt10_pythia8_cfi \
 -s GEN,SIM \
---conditions auto:run2_mc \
+--conditions auto:phase2_realistic \
 -n ${events} \
 --era Phase2C2 \
 --eventcontent FEVTDEBUG \
@@ -117,7 +117,7 @@ if checkFile DQM_V0001_R000000001__Global__CMSSW_X_Y_Z__RECO.root ; then
   fi
 fi
 
-# Neutrino Particle gu_n
+# Neutrino Particle gun
 
 if checkFile single_neutrino_random.root ; then
   cmsRun ../python/single_neutrino_cfg.py
@@ -142,7 +142,7 @@ waitPendingJobs
 
 # Always run the comparison at this stage, since you are guaranteed that all the ingredients are there
 
-for t in BeamPipe Tracker PixBar PixFwdMinus PixFwdPlus TIB TOB TIDB TIDF TEC TkStrct InnerServices; do
+for t in BeamPipe Tracker Phase1PixelBarrel Phase2OTBarrel Phase2PixelEndcap Phase2OTForward; do
   root -b -q "MaterialBudget.C(\"${t}\")"
   if [ $? -ne 0 ]; then
     echo "Error while producing simulation material for ${t}, aborting"
@@ -150,5 +150,5 @@ for t in BeamPipe Tracker PixBar PixFwdMinus PixFwdPlus TIB TOB TIDB TIDF TEC Tk
   fi
 done
 
-root -b -q 'MaterialBudget_Simul_vs_Reco.C("DQM_V0001_R000000001__Global__CMSSW_X_Y_Z__RECO.root", "PhaseIIDetector")'
+root -b -q 'MaterialBudget_Simul_vs_Reco.C("DQM_V0001_R000000001__Global__CMSSW_X_Y_Z__RECO.root", "PhaseIIDetector")' > MaterialBudget_Simul_vs_Reco_PhaseII_D4.log 2>&1
 
