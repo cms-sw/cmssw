@@ -3,9 +3,9 @@
 
 <ConstantsSection label="pixfwdOuterDiskZminus.xml" eval="true">
   <Constant name="OuterRingHalfWidth"   value="[pixfwdSupportRingParameters:OuterDiskOuterRingHalfWidth]"/>
-  <Constant name="OuterRingZ"           value="[pixfwdDisks:DiskHalfWidth]-[OuterRingHalfWidth]-[pixfwd:FlexCableDiskThickness]*2"/>
+  <Constant name="OuterRingZ"           value="[pixfwdDisks:DiskHalfWidth]-[OuterRingHalfWidth]-[pixfwd:FlexCableDiskHalfThickness]*2"/>
   <Constant name="InnerRingHalfWidth"   value="[pixfwdSupportRingParameters:OuterDiskInnerRingHalfWidth]"/>
-  <Constant name="InnerRingZ"           value="[pixfwdDisks:DiskHalfWidth]-[InnerRingHalfWidth]-[pixfwd:FlexCableDiskThickness]*2"/>
+  <Constant name="InnerRingZ"           value="[pixfwdDisks:DiskHalfWidth]-[InnerRingHalfWidth]-[pixfwd:FlexCableDiskHalfThickness]*2"/>
 </ConstantsSection>
  
 <!-- support ring solids -->
@@ -84,7 +84,7 @@
 </Algorithm>
 
 <SolidSection label="pixfwdOuterDiskZminus.xml">
- <Tubs name="FlexCableDisk" rMin="[pixfwd:FlexCableDiskRmin]" rMax="[pixfwd:FlexCableDiskRmax]" dz="[pixfwd:FlexCableDiskThickness]" startPhi="0." deltaPhi="360*deg"/>
+ <Tubs name="FlexCableDisk" rMin="[pixfwd:FlexCableDiskRmin]" rMax="[pixfwd:FlexCableDiskRmax]" dz="[pixfwd:FlexCableDiskHalfThickness]" startPhi="0." deltaPhi="360*deg"/>
 </SolidSection>
 <LogicalPartSection label="pixfwdOuterDiskZminus.xml">
 
@@ -98,12 +98,12 @@
   <PosPart copyNumber="1">
     <rParent name="pixfwdDisks:PixelForwardDiskZminus"/>
     <rChild name="FlexCableDisk"/>
-    <Translation x="0." y="0." z="[pixfwdDisks:DiskHalfWidth]-[pixfwd:FlexCableDiskThickness]"/>
+    <Translation x="0." y="0." z="[pixfwdDisks:DiskHalfWidth]-[pixfwd:FlexCableDiskHalfThickness]"/>
   </PosPart>
   <PosPart copyNumber="2">
     <rParent name="pixfwdDisks:PixelForwardDiskZminus"/>
     <rChild name="FlexCableDisk"/>
-    <Translation x="0." y="0." z="[pixfwdDisks:DiskHalfWidth]+[pixfwd:FlexCableDiskThickness]-[OuterRingHalfWidth]*2"/>
+    <Translation x="0." y="0." z="[pixfwdDisks:DiskHalfWidth]+[pixfwd:FlexCableDiskHalfThickness]-[OuterRingHalfWidth]*2"/>
   </PosPart>
 </PosPartSection>
 </DDDefinition>
