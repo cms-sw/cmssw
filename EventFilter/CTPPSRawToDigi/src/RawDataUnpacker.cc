@@ -225,7 +225,7 @@ int RawDataUnpacker::ProcessVFATDataParallel(const uint16_t *buf, unsigned int O
   unsigned int gohIdx = (buf[0] >> 4) & 0xF;
   unsigned int fiberIdx = (buf[0] >> 0) & 0xF;
   TotemFramePosition fp(0, 0, OptoRxId, gohIdx, fiberIdx);
-
+  
   // prepare temporary VFAT frame
   VFATFrame f;
   VFATFrame::word *fd = f.getData();
