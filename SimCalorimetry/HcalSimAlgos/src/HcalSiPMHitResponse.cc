@@ -136,8 +136,10 @@ void HcalSiPMHitResponse::addPEnoise(CLHEP::HepRandomEngine* engine)
 
     // uA * ns / (fC/pe) = pe!
     double dc_pe_avg =
-      pars.sipmDarkCurrentuA() * dt / 
+      pars.sipmDarkCurrentuA(id) * dt / 
       pars.photoelectronsToAnalog(id);
+
+    if (dc_pe_avg <= 0.) continue;
 
     int nPreciseBins = theTDCParams.nbins() * TIMEMULT * pars.readoutFrameSize();
 
@@ -182,8 +184,10 @@ CaloSamples HcalSiPMHitResponse::makeSiPMSignal(DetId const& id,
 						photonTimeHist const& photonTimeBins,
                                                 CLHEP::HepRandomEngine* engine) const {
   const HcalSimParameters& pars = static_cast<const HcalSimParameters&>(theParameterMap->simParameters(id));  
-  theSiPM->setNCells(pars.pixels());
+  theSiPM->setNCells(pars.pixels(id));
   theSiPM->setTau(5.);
+  theSiPM->setCrossTalk(pars.sipmCrossTalk(id));
+  theSiPM->setSaturationPars(pars.sipmNonlinearity(id));
 
   //use to make signal
   CaloSamples signal( makeBlankSignal(id) );
@@ -279,20 +283,5 @@ double HcalSiPMHitResponse::Y11TimePDF(double t) {
 }
 
 void HcalSiPMHitResponse::setDetIds(const std::vector<DetId> & detIds) {
-
   theDetIds = &detIds;
-
-  if (!theDetIds->size()) return;
-
-  // Now that we know what subdet we're in we can access the xtalk parameter
-  HcalDetId id(*theDetIds->begin());
-  const HcalSimParameters& pars =
-    dynamic_cast<const HcalSimParameters&>(theParameterMap->simParameters(id));
-
-  edm::LogInfo("HcalSiPMHitResponse") << " # SiPM pixels: "      << pars.pixels()
-				      << " readoutFrameSize: "   << pars.readoutFrameSize()
-				      << " theCrossTalk: "       << pars.sipmCrossTalk()
-				      << " sipmDarkCurrentuA: "  << pars.sipmDarkCurrentuA();
-				      
-  theSiPM->setCrossTalk(pars.sipmCrossTalk());
 }
