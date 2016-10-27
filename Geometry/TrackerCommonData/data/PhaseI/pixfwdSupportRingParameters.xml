@@ -125,6 +125,10 @@
   <Constant name="SupportArmAngle_1" value="97*deg" /> 
   <Constant name="SupportArmAngle_2" value="83*deg" /> 
   <Constant name="SupportArmAngle_3" value="0*deg" /> 
+
+  <Constant name="CoolingZ_inner" value="33*mm" />
+  <Constant name="CoolingZ_outer" value="-7.8*mm" />
+  <Constant name="CoolingAngle" value="0*deg" /> 
  </ConstantsSection>
 
  <RotationSection label="pixfwdSupportRingParameters.xml">
@@ -134,6 +138,9 @@
     <Rotation name="rArm1b" thetaX="0*deg" phiX="0*deg" thetaY="90*deg" phiY="[SupportArmAngle_1]+90*deg" thetaZ="90*deg" phiZ="[SupportArmAngle_1]+180*deg"/>
     <Rotation name="rArm2b" thetaX="0*deg" phiX="0*deg" thetaY="90*deg" phiY="[SupportArmAngle_2]+90*deg" thetaZ="90*deg" phiZ="[SupportArmAngle_2]+180*deg"/>
     <Rotation name="rArm3b" thetaX="0*deg" phiX="0*deg" thetaY="90*deg" phiY="[SupportArmAngle_3]+90*deg" thetaZ="90*deg" phiZ="[SupportArmAngle_3]+180*deg"/>
+
+    <Rotation name="rCooling_a" thetaX="0*deg" phiX="0*deg" thetaY="90*deg" phiY="[CoolingAngle]-90*deg" thetaZ="90*deg" phiZ="[CoolingAngle]"/>
+    <Rotation name="rCooling_b" thetaX="0*deg" phiX="0*deg" thetaY="90*deg" phiY="[CoolingAngle]+90*deg" thetaZ="90*deg" phiZ="[CoolingAngle]+180*deg"/>
  </RotationSection>
 
 </DDDefinition>
