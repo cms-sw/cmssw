@@ -19,7 +19,7 @@ import FWCore.ParameterSet.Config as cms
 
 import DQMServices.Components.DQMEnvironment_cfi
 dqmEnvL1T = DQMServices.Components.DQMEnvironment_cfi.dqmEnv.clone()
-dqmEnvL1T.subSystemFolder = 'L1T2016'
+dqmEnvL1T.subSystemFolder = 'L1T'
 
 from L1Trigger.L1TGlobal.hackConditions_cff import *
 from L1Trigger.L1TMuon.hackConditions_cff import *
@@ -34,7 +34,7 @@ from DQMOffline.L1Trigger.L1TMonitorClientOffline_cff import *
 
 import DQMServices.Components.DQMEnvironment_cfi
 dqmEnvL1TriggerReco = DQMServices.Components.DQMEnvironment_cfi.dqmEnv.clone()
-dqmEnvL1TriggerReco.subSystemFolder = 'L1T2016/L1TriggerVsReco'
+dqmEnvL1TriggerReco.subSystemFolder = 'L1T/L1TriggerVsReco'
 
 #
 # DQM L1 Trigger Emulator in offline environment
@@ -43,7 +43,7 @@ dqmEnvL1TriggerReco.subSystemFolder = 'L1T2016/L1TriggerVsReco'
 
 import DQMServices.Components.DQMEnvironment_cfi
 dqmEnvL1TEMU = DQMServices.Components.DQMEnvironment_cfi.dqmEnv.clone()
-dqmEnvL1TEMU.subSystemFolder = 'L1T2016EMU'
+dqmEnvL1TEMU.subSystemFolder = 'L1TEMU'
 
 # DQM Offline Step 1 cfi/cff imports
 #from DQMOffline.L1Trigger.L1TRate_Offline_cfi import *
