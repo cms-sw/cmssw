@@ -128,12 +128,6 @@ run2_HE_2017.toModify( hcalSimParameters,
         sipmTau = cms.double(10.),
     )
 )
-from Configuration.Eras.Modifier_run2_HCAL_2017_cff import run2_HCAL_2017
-run2_HCAL_2017.toModify( hcalSimParameters,
-    ho = dict(
-        doSiPMSmearing = cms.bool(True)
-    )
-)
 
 _newFactors = cms.vdouble(
     210.55, 197.93, 186.12, 189.64, 189.63,
