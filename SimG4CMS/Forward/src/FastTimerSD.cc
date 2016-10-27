@@ -192,8 +192,8 @@ uint32_t FastTimerSD::setDetUnitId(G4Step * aStep) {
   G4ThreeVector local  = touch->GetHistory()->GetTopTransform().TransformPoint(global);
   int        iz = (global.z() > 0) ? 1 : -1;
   std::pair<int,int> izphi = ((ftcons) ? ((type_ == 1) ? 
-					  (ftcons->getZPhi(local)) : 
-					  (ftcons->getEtaPhi(local))) :
+					  (ftcons->getZPhi(std::abs(local.z()),local.phi())) : 
+					  (ftcons->getEtaPhi(local.perp(),local.phi()))) :
 			      (std::pair<int,int>(0,0)));
   uint32_t id = FastTimeDetId(type_,izphi.first,izphi.second,iz).rawId();
 #ifdef EDM_ML_DEBUG

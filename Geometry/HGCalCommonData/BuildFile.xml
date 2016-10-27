@@ -1,6 +1,5 @@
 <use   name="DetectorDescription/Base"/>
 <use   name="DetectorDescription/Core"/>
-<use   name="geant4core"/>
 <export>
   <lib   name="1"/>
 </export>

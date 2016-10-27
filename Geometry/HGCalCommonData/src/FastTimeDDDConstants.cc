@@ -23,10 +23,8 @@ FastTimeDDDConstants::~FastTimeDDDConstants() {
 #endif
 }
 
-std::pair<int,int> FastTimeDDDConstants::getZPhi(G4ThreeVector local) const {
+std::pair<int,int> FastTimeDDDConstants::getZPhi(double z, double phi) const {
 
-  double z   = std::abs(local.z());
-  double phi = local.phi();
   if (phi < 0) phi += CLHEP::twopi;
   int    iz   = (int)(z/dZBarrel_) + 1;
   if (iz   > ftpar_->nZBarrel_) iz    = ftpar_->nZBarrel_;
@@ -39,10 +37,8 @@ std::pair<int,int> FastTimeDDDConstants::getZPhi(G4ThreeVector local) const {
   return std::pair<int,int>(iz,iphi);
 }
 
-std::pair<int,int> FastTimeDDDConstants::getEtaPhi(G4ThreeVector local) const {
+std::pair<int,int> FastTimeDDDConstants::getEtaPhi(double r, double phi) const {
 
-  double r   = local.perp();
-  double phi = local.phi();
   if (phi < 0) phi += CLHEP::twopi;
   int    ir(ftpar_->nEtaEndcap_);
   for (unsigned int k=1; k<rLimits_.size(); ++k) {
