@@ -75,4 +75,61 @@
  <String  name="FlagString"      value="YYYYYYYYYYYYYYYYYYYYYY"/>
 </Algorithm>
 
+<!-- Support/Cooling -->
+
+<SolidSection label="pixfwdInnerDiskZplus.xml">
+ <Polycone name="SupportArm" startPhi="0." deltaPhi="360*deg" >
+   <ZSection z="[pixfwdSupportRingParameters:InnerDiskOuterRingCFRMax]" rMin="0*mm" rMax="5*mm"/>
+   <ZSection z="[pixfwdSupportRingParameters:InnerDiskOuterRingCFRMax]+9.5*mm" rMin="0*mm" rMax="5*mm"/>
+   <ZSection z="[pixfwdSupportRingParameters:InnerDiskOuterRingCFRMax]+9.5*mm" rMin="0*mm" rMax="3.5*mm"/>
+   <ZSection z="[pixfwdSupportRingParameters:OuterDiskOuterRingCFRMax]-1*mm" rMin="0*mm" rMax="3.5*mm"/>
+ </Polycone>
+</SolidSection>
+
+<LogicalPartSection label="pixfwdInnerDiskZplus.xml">
+ <LogicalPart name="SupportArm" category="support">
+    <rSolid name="SupportArm"/>
+    <rMaterial name="pixfwdMaterials:CF_SupportArm"/>
+ </LogicalPart>
+</LogicalPartSection>
+
+<PosPartSection label="pixfwdInnerDiskZplus.xml">
+  <PosPart copyNumber="1">
+    <rParent name="pixfwdDisks:PixelForwardDiskZplus"/>
+    <rChild name="SupportArm"/>
+    <rRotation name="pixfwdSupportRingParameters:rArm1a"/>
+    <Translation x="0." y="0." z="[pixfwdSupportRingParameters:SupportArmZ]"/>
+  </PosPart>
+  <PosPart copyNumber="2">
+    <rParent name="pixfwdDisks:PixelForwardDiskZplus"/>
+    <rChild name="SupportArm"/>
+    <rRotation name="pixfwdSupportRingParameters:rArm2a"/>
+    <Translation x="0." y="0." z="[pixfwdSupportRingParameters:SupportArmZ]"/>
+  </PosPart>
+  <PosPart copyNumber="3">
+    <rParent name="pixfwdDisks:PixelForwardDiskZplus"/>
+    <rChild name="SupportArm"/>
+    <rRotation name="pixfwdSupportRingParameters:rArm3a"/>
+    <Translation x="0." y="0." z="[pixfwdSupportRingParameters:SupportArmZ]"/>
+  </PosPart>
+  <PosPart copyNumber="4">
+    <rParent name="pixfwdDisks:PixelForwardDiskZplus"/>
+    <rChild name="SupportArm"/>
+    <rRotation name="pixfwdSupportRingParameters:rArm1b"/>
+    <Translation x="0." y="0." z="[pixfwdSupportRingParameters:SupportArmZ]"/>
+  </PosPart>
+  <PosPart copyNumber="5">
+    <rParent name="pixfwdDisks:PixelForwardDiskZplus"/>
+    <rChild name="SupportArm"/>
+    <rRotation name="pixfwdSupportRingParameters:rArm2b"/>
+    <Translation x="0." y="0." z="[pixfwdSupportRingParameters:SupportArmZ]"/>
+  </PosPart>
+  <PosPart copyNumber="6">
+    <rParent name="pixfwdDisks:PixelForwardDiskZplus"/>
+    <rChild name="SupportArm"/>
+    <rRotation name="pixfwdSupportRingParameters:rArm3b"/>
+    <Translation x="0." y="0." z="[pixfwdSupportRingParameters:SupportArmZ]"/>
+  </PosPart>
+</PosPartSection>
+
 </DDDefinition>

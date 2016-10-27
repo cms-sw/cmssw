@@ -521,5 +521,18 @@
         <rMaterial name="materials:Silicon" />
       </MaterialFraction>
     </CompositeMaterial>
+
+
+  <CompositeMaterial name="CF_SupportArm" density="1.495*g/cm3" symbol=" " method="mixture by weight">
+    <MaterialFraction fraction="0.7498836">
+      <rMaterial name="materials:Carbon"/>
+    </MaterialFraction>
+    <MaterialFraction fraction="0.05034303">
+      <rMaterial name="materials:Hydrogen"/>
+    </MaterialFraction>
+    <MaterialFraction fraction="0.1997733">
+      <rMaterial name="materials:Oxygen"/>
+    </MaterialFraction>
+  </CompositeMaterial>
 </MaterialSection>
 </DDDefinition>
