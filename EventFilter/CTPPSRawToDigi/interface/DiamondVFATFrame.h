@@ -21,27 +21,26 @@ class DiamondVFATFrame : public VFATFrame
 {
   
   public:
-    typedef uint32_t timeinfo;
     DiamondVFATFrame(const word* _data = NULL): timepresenceFlags(15)// by default LEDT, TEDT, TheVoltage Multihit are present
     {}
     virtual ~DiamondVFATFrame() {}
 
     /// get timing infromation
-    DiamondVFATFrame::timeinfo getLeadingEtime() const
+    uint32_t getLeadingEdgeTime() const
     {
-      DiamondVFATFrame::timeinfo time = ((data[7]&0x1f)<<16)+data[8];
+      uint32_t time = ((data[6]&0x1f)<<16)+data[5];
       time = (time & 0xFFE7FFFF) << 2 | (time & 0x00180000) >> 19;    //HPTDC inperpolation bits are MSB but should be LSB.... ask HPTDC designers...
       return time;     
     }
 
-    DiamondVFATFrame::timeinfo getTrailingEtime() const
+    uint32_t getTrailingEdgeTime() const
     {
-      DiamondVFATFrame::timeinfo time = ((data[5]&0x1f)<<16)+data[6];
+      uint32_t time = ((data[8]&0x1f)<<16)+data[7];
       time = (time & 0xFFE7FFFF) << 2 | (time & 0x00180000) >> 19;   //HPTDC inperpolation bits are MSB but should be LSB.... ask HPTDC designers...
       return time;
     }
-
-    DiamondVFATFrame::timeinfo getThresholdVolt() const
+    
+    uint32_t getThresholdVoltage() const
     {
       return ((data[3]&0x7ff)<<16)+data[4];
     }
@@ -51,7 +50,7 @@ class DiamondVFATFrame : public VFATFrame
       return data[2] & 0x01;
     }
 
-    VFATFrame::word getHptdcerrorflag() const
+    VFATFrame::word getHptdcErrorFlag() const
     {
       return data[1] & 0xFFFF;
     }
@@ -64,25 +63,25 @@ class DiamondVFATFrame : public VFATFrame
       timepresenceFlags = v;
     }
     /// Returns true if the leading edge time  word is present in the frame.
-    bool isLEDTimePresent() const
+    bool isLeadingEdgeTimePresent() const
     {
       return timepresenceFlags & 0x1;
     }
 
     /// Returns true if the trainling edge time  word is present in the frame.
-    bool isTEDTimePresent() const
+    bool isTrailingEdgeTimePresent() const
     {
       return timepresenceFlags & 0x2;
     } 
   
     /// Returns true if the threshold voltage  word is present in the frame.
-    bool isThVolPresent() const
+    bool isThresholdVoltagePresent() const
     {
       return timepresenceFlags & 0x4;
     }
  
     /// Returns true if the multi hit  word is present in the frame.
-    bool isMuHitPresent() const
+    bool isMultiHitPresent() const
     {
       return timepresenceFlags & 0x8;
     }
@@ -92,16 +91,16 @@ class DiamondVFATFrame : public VFATFrame
     /// Returns false if any of the groups (in LEDTime, TEDTime, Threshold Voltage and Multi hit  words) is present but wrong. 
     bool checkTimeinfo() const
     {
-      if (isLEDTimePresent() && (data[7] & 0xF800) != 0x6000)
+      if (isLeadingEdgeTimePresent() && (data[7] & 0xF800) != 0x6000)
         return false;
 
-      if (isTEDTimePresent() && (data[5] & 0xF800) != 0x6800)
+      if (isTrailingEdgeTimePresent() && (data[5] & 0xF800) != 0x6800)
         return false;
 
-      if (isThVolPresent() && (data[3] & 0xF800) != 0x7000)
+      if (isThresholdVoltagePresent() && (data[3] & 0xF800) != 0x7000)
         return false;
 
-      if (isMuHitPresent() && (data[2] & 0xF800) != 0x7800)
+      if (isMultiHitPresent() && (data[2] & 0xF800) != 0x7800)
         return false;
 
       return true;
