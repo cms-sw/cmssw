@@ -279,23 +279,15 @@ void RawToDigiConverter::Run(const VFATFrameCollection &coll, const TotemDAQMapp
     // calculate ids
     CTPPSDiamondDetId detId(record.info->symbolicID.symbolicID);  
 
-    ///cout to find the mismathcing problem, to be removed after findout
-    /*cout<<"Arm, station, Rp, plane, det: "<<detId.arm()<<" "<<detId.station()<<" "<<detId.rp()<<" "<<detId.plane()<<" "<<detId.det()<<endl;
-    cout<<"isMissing(): isIDMismatch: isFootprintError: isCRCError: isECProgressError: isBCProgressError "<<record.status.isMissing()<<": "<<record.status.isIDMismatch()<<": "<<record.status.isFootprintError()<<": "<<record.status.isCRCError()<<": "<<record.status.isECProgressError()<<": "<<record.status.isBCProgressError()<<endl;        
-    if((record.status.isMissing()==0))
-    {   
-      cout<<"(record.frame->getChipID() & 0xFFF)= "<<(record.frame->getChipID() & 0xFFF)<<endl;
-      cout<<"(record.info->hwID & 0xFFF)= "<<(record.info->hwID & 0xFFF)<<endl;
-    } */   
-    // produce digi only for good frames
-    if (record.status.isOK())
+
+    if(!record.status.isMissing() && !record.status.isFootprintError() &&  !record.status.isCRCError() &&  !record.status.isECProgressError() && !record.status.isBCProgressError())
     {
       const VFATFrame *fr = record.frame;
       DiamondVFATFrame *diamondframe = (DiamondVFATFrame*) fr;
 	
       // create the digi
       DetSet<CTPPSDiamondDigi> &digiDetSet = digi.find_or_insert(detId);
-      digiDetSet.push_back(CTPPSDiamondDigi(diamondframe->getLeadingEtime(),diamondframe->getTrailingEtime(),diamondframe->getThresholdVolt(),diamondframe->getMultihit(),diamondframe->getHptdcerrorflag()));
+      digiDetSet.push_back(CTPPSDiamondDigi(diamondframe->getLeadingEdgeTime(),diamondframe->getTrailingEdgeTime(),diamondframe->getThresholdVoltage(),diamondframe->getMultihit(),diamondframe->getHptdcErrorFlag()));
     }
 
     // save status

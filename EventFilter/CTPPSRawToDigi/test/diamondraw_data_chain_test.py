@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("DiamondRawToDigiTest")
 process.maxEvents = cms.untracked.PSet(
-input = cms.untracked.int32(1)
+input = cms.untracked.int32(100)
 )
 # minimum of logs
 process.MessageLogger = cms.Service("MessageLogger",
@@ -18,8 +18,7 @@ process.source = cms.Source("NewEventStreamFileReader",
  
 # raw-to-digi conversion
 process.load('CondFormats.CTPPSReadoutObjects.TotemDAQMappingESSourceXML_cfi')
-#process.DiamondDAQMappingESSourceXML.mappingFileNames.append("CondFormats/CTPPSReadoutObjects/xml/ctpps_timing_diamond_215_mapping.xml")
-process.TotemDAQMappingESSourceXML.mappingFileNames.append("CondFormats/CTPPSReadoutObjects/xml/ctpps_timing_diamond_215_mapping_new.xml")
+process.TotemDAQMappingESSourceXML.mappingFileNames.append("CondFormats/CTPPSReadoutObjects/xml/ctpps_timing_diamond_215_mapping.xml")
 
 #process.load("EventFilter.TotemRawToDigi.totemTriggerRawToDigi_cfi")
 #process.totemTriggerRawToDigi.rawDataTag = cms.InputTag("rawDataCollector")
