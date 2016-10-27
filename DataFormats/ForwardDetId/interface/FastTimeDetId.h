@@ -11,7 +11,7 @@ public:
   static const int kFastTimeCellZOffset     = 10;
   static const int kFastTimeCellZMask       = 0x3FF;
   static const int kFastTimeCellPhiOffset   = 0;
-  static const int kFastTimeCellPhiMask     = 0xFF;
+  static const int kFastTimeCellPhiMask     = 0x3FF;
   static const int kFastTimeZsideMask       = 0x100000;
   static const int kFastTimeTypeOffset      = 21;
   static const int kFastTimeTypeMask        = 0x600000;
