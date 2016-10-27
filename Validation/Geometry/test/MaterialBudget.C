@@ -41,8 +41,9 @@ TProfile* prof_l0_det_total;
 //
 TProfile2D* prof2d_x0_det_total;
 //
-const  std::vector<const char * > DETECTORS{"TIB", "TIDF", "TIDB",
-      "InnerService", "TOB",
+
+const std::vector<std::string> DETECTORS{"BeamPipe", "TIB", "TIDF", "TIDB",
+      "InnerServices", "TOB",
       "TEC", "TkStrct", "PixBar",
       "PixFwdPlus", "PixFwdMinus",
       "Tracker", "TrackerSum",
@@ -51,8 +52,8 @@ const  std::vector<const char * > DETECTORS{"TIB", "TIDF", "TIDB",
       "Phase1PixelBarrel", "Phase2OTBarrel",
       "Phase2OTForward", "Phase2PixelEndcap"};
 
-std::map<std::string, std::vector<const char *> > COMPOUNDS {
-  {"TrackerSum", {"TIB", "TIDF", "TIDB", "InnerServices", "TOB", "TEC", "TkStruct", "PixBar", "PixFwdPlus", "PixFwdMinus"}},
+std::map<std::string, std::vector<std::string> > COMPOUNDS {
+  {"TrackerSum", {"TIB", "TIDF", "TIDB", "BeamPipe", "InnerServices", "TOB", "TEC", "TkStruct", "PixBar", "PixFwdPlus", "PixFwdMinus"}},
   {"Pixel", {"PixBar", "PixFwdMinus", "PixFwdPlus"}},
   {"Strip", {"TIB", "TIDF", "TIDB", "InnerServices", "TOB", "TEC"}},
   {"InnerTracker", {"TIB", "TIDF", "TIDB", "InnerServices"}}
