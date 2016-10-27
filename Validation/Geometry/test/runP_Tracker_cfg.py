@@ -22,7 +22,7 @@ process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 _LABELS2COMPS = {'BeamPipe': 'BEAM',
                  'Tracker': 'Tracker',
                  'PixBar':  'PixelBarrel',
-                 'PixFwd':  ['PixelForwardZplus', 'PixelForwardZminus', 'PixelForward'],
+                 'PixFwd':  ['PixelForwardZplus', 'PixelForwardZminus'],
                  'PixFwdMinus': 'PixelForwardZminus',
                  'PixFwdPlus':  'PixelForwardZplus',
                  'TIB':         'TIB',
@@ -65,26 +65,21 @@ if options.label not in _ALLOWED_LABELS:
     print
     raise RuntimeError("Unknown label")
 
-if options.label not in _LABELS2COMPS.keys():
-  print "Error, '%s' does not have a valid registered component" % options.label
-  raise RuntimeError("Unknown component")
-
 _components = _LABELS2COMPS[options.label]
 #
 #Geometry
 #
 if options.geom == 'phaseI':
-  process.load("Configuration.Geometry.GeometryExtended2017_cff")
-elif options.geom == '2017NewFPix':
-  process.load("Configuration.Geometry.GeometryExtended2017NewFPix_cff")
+  process.load("Configuration.Geometry.GeometryExtended2017new_cff")
 elif options.geom == 'run2':
   process.load("Configuration.Geometry.GeometryExtended2016_cff")
 elif options.geom == 'phaseIID4':
   process.load("Configuration.Geometry.GeometryExtended2023D4_cff")
-#process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
-#process.load("Geometry.HcalCommonData.hcalParameters_cfi")
-#process.load("Geometry.HcalCommonData.hcalDDDSimConstants_cfi")
+else:
+  print("Unknown geometry %s" % options.geom)
+  sys.exit(1)
 
+#
 #Magnetic Field
 #
 process.load("Configuration.StandardSequences.MagneticField_38T_cff")
