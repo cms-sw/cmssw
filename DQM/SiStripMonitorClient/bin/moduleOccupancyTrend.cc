@@ -135,6 +135,8 @@ int main(int argc, char *argv[]) {
 
     hs->SetMaximum(max);
     hs->SetMinimum(min);
+    hs->SetTitle(hn.c_str());
+
     hs->Draw("nostack");
 
     TLine l;
