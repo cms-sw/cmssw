@@ -12,7 +12,7 @@
 <Algorithm name="track:DDCutTubsFromPoints">
   <rParent name="pixfwdDisks:PixelForwardDiskZplus"/>
   <String  name="SolidName"        value="PixelForwardInnerDiskOuterRing"/> 
-  <String  name="Material"         value="materials:C_C_InnerOuterRing"/> 
+  <String  name="Material"         value="pixfwdMaterials:C_C_InnerOuterRing"/> 
   <Numeric name="zPos"             value="[OuterRingZ]"/>
   <Numeric name="rMin"             value="[pixfwdSupportRingParameters:InnerDiskOuterRingRMin]"/>
   <Numeric name="rMax"             value="[pixfwdSupportRingParameters:InnerDiskOuterRingRMax]"/>
@@ -23,7 +23,7 @@
 <Algorithm name="track:DDCutTubsFromPoints">
   <rParent name="pixfwdDisks:PixelForwardDiskZplus"/>
   <String  name="SolidName"        value="PixelForwardInnerDiskCFOuterRing"/> 
-  <String  name="Material"         value="materials:FPix_CFSkin_InnerOuterRing"/> 
+  <String  name="Material"         value="pixfwdMaterials:FPix_CFSkin_InnerOuterRing"/> 
   <Numeric name="zPos"             value="[OuterRingZ]"/>
   <Numeric name="rMin"             value="[pixfwdSupportRingParameters:InnerDiskOuterRingCFRMin]"/>
   <Numeric name="rMax"             value="[pixfwdSupportRingParameters:InnerDiskOuterRingCFRMax]"/>
@@ -34,7 +34,7 @@
 <Algorithm name="track:DDCutTubsFromPoints">
   <rParent name="pixfwdDisks:PixelForwardDiskZplus"/>
   <String  name="SolidName"        value="PixelForwardInnerDiskInnerRing"/> 
-  <String  name="Material"         value="materials:C_C_InnerInnerRing"/> 
+  <String  name="Material"         value="pixfwdMaterials:C_C_InnerInnerRing"/> 
   <Numeric name="zPos"             value="[InnerRingZ]"/>
   <Numeric name="rMin"             value="[pixfwdSupportRingParameters:InnerDiskInnerRingRMin]"/>
   <Numeric name="rMax"             value="[pixfwdSupportRingParameters:InnerDiskInnerRingRMax]"/>
@@ -45,7 +45,7 @@
 <Algorithm name="track:DDCutTubsFromPoints">
   <rParent name="pixfwdDisks:PixelForwardDiskZplus"/>
   <String  name="SolidName"        value="PixelForwardInnerDiskCFInnerRing"/> 
-  <String  name="Material"         value="materials:FPix_CFSkin_InnerInnerRing"/> 
+  <String  name="Material"         value="pixfwdMaterials:FPix_CFSkin_InnerInnerRing"/> 
   <Numeric name="zPos"             value="[InnerRingZ]"/>
   <Numeric name="rMin"             value="[pixfwdSupportRingParameters:InnerDiskInnerRingCFRMin]"/>
   <Numeric name="rMax"             value="[pixfwdSupportRingParameters:InnerDiskInnerRingCFRMax]"/>
