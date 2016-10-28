@@ -38,7 +38,7 @@ if stage2L1Trigger.isChosen():
     
     # from L1Trigger.L1TCalorimeter.simCaloStage2Layer1Digis_cfi import simCaloStage2Layer1Digis    
     
-    from L1Trigger.L1TCalorimeter.caloStage2Params_2016_v3_3_cfi import *    
+    from L1Trigger.L1TCalorimeter.caloStage2Params_2016_v3_4_cfi import *    
     
     # What about CaloConfig?  Related:  How will we switch PP/HH?
     #
