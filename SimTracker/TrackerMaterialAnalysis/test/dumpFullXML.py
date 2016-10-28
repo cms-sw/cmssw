@@ -240,7 +240,7 @@ if __name__ == '__main__':
                         For phaseII use:
                         src/Geometry/TrackerRecoData/data/PhaseII/TiltedTracker/trackerRecoMaterial.xml
                         """,
-                        required=True)
+                        required=False)
     parser.add_argument('-p', '--produce', action='store_true',
                         default=False,
                         help='Produce a trackerRecoMaterial.xml starting from the paramters.xml file produced by the trackingMaterialProducer.')
