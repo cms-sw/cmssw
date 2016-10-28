@@ -30,12 +30,12 @@ DQMOfflineHeavyIonsDPG = cms.Sequence( DQMOfflineHeavyIonsPreDPG *
                                        DQMMessageLogger )
 
 from DQMOffline.Muon.muonMonitors_cff import *
-diMuonHistos.etaBin = cms.int32(70) #dimuonhistograms mass, bin
-diMuonHistos.etaBBin = cms.int32(70)
-diMuonHistos.etaEBin = cms.int32(70)
-diMuonHistos.etaBinLM = cms.int32(12)
-diMuonHistos.etaBBinLM = cms.int32(12)
-diMuonHistos.etaEBinLM = cms.int32(12)
+diMuonHistos.etaBin = cms.int(175) #dimuonhistograms mass, bin
+diMuonHistos.etaBBin = cms.int32(175)
+diMuonHistos.etaEBin = cms.int32(175)
+diMuonHistos.etaBinLM = cms.int32(30)
+diMuonHistos.etaBBinLM = cms.int32(30)
+diMuonHistos.etaEBinLM = cms.int32(30)
 diMuonHistos.LowMassMin = cms.double(2.0)
 diMuonHistos.LowMassMax = cms.double(14.0)
 diMuonHistos.HighMassMin = cms.double(55.0)
@@ -113,5 +113,20 @@ liteDQMOfflineHeavyIons = cms.Sequence ( DQMOfflineHeavyIons )
 liteDQMOfflineHeavyIons.remove( SiStripMonitorCluster )
 liteDQMOfflineHeavyIons.remove( jetMETDQMOfflineSource )
 
-
 #DQMOfflineHeavyIonsPhysics = cms.Sequence( dqmPhysics )
+
+##############################################################################
+# modifications of muon DQMOffline for pPb run
+def customiseRun2PPB_MuonDQMOffline(process):
+    # taget ptCut for Jpsi
+    process.globalAnalyzer.targetParams.ptCut_Jpsi = cms.untracked.double( 5.0)
+    process.trackerAnalyzer.targetParams.ptCut_Jpsi = cms.untracked.double(5.0)
+    process.tightAnalyzer.targetParams.ptCut_Jpsi = cms.untracked.double(  5.0)
+    process.looseAnalyzer.targetParams.ptCut_Jpsi = cms.untracked.double(  5.0)
+    # probe ptCoarse
+    process.globalAnalyzer.binParams.ptCoarse = cms.untracked.vdouble(  0.,1.,2.,3.,4.,5.,7.,9.,12.,15.,20.,30.,40.)
+    process.trackerAnalyzer.binParams.ptCoarse = cms.untracked.vdouble( 0.,1.,2.,3.,4.,5.,7.,9.,12.,15.,20.,30.,40.)
+    process.tightAnalyzer.binParams.ptCoarse = cms.untracked.vdouble(   0.,1.,2.,3.,4.,5.,7.,9.,12.,15.,20.,30.,40.)
+    process.looseAnalyzer.binParams.ptCoarse = cms.untracked.vdouble(   0.,1.,2.,3.,4.,5.,7.,9.,12.,15.,20.,30.,40.)
+
+    return process
