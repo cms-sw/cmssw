@@ -194,6 +194,7 @@ namespace FitterFuncs{
       return (2.75  + 0.0373*ifC + 3e-6*ifC*ifC)/3.; 
    }
 
+  //https://indico.cern.ch/event/563410/contributions/2277004/attachments/1324249/2063825/ADCgranularity.pdf
    double PulseShapeFunctor::sigmaSiPMQIE10(double ifC) {
      if(ifC < 200) return (0.7416 + 0.0358*ifC)/3.;
      return (15.225  + 0.0268*ifC + 9e-8*ifC*ifC)/3.;
