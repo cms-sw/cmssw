@@ -15,7 +15,7 @@ class ScoutingMuon
 	      int nTrackerLayersWithMeasurement, int type, int nValidStripHits, float trk_qoverp, 
 	      float trk_lambda, float trk_pt, 
 	      float trk_phi, float trk_eta, float dxyError, float dzError, float trk_qoverpError, 
-	      float trk_lambdaError, float trk_phiError, float trk_dsz, float trk_dszError, std::vector<int> vtxIndx):
+	      float trk_lambdaError, float trk_phiError, float trk_dsz, float trk_dszError, std::vector<int> const& vtxIndx):
   pt_(pt), eta_(eta), phi_(phi), m_(m),
     ecalIso_(ecalIso), hcalIso_(hcalIso), trackIso_(trackIso),
     chi2_(chi2), ndof_(ndof), charge_(charge), dxy_(dxy), dz_(dz),
