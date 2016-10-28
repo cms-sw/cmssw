@@ -1842,8 +1842,8 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
                                       '--eventcontent':'ALCARECO',
                                       '--geometry' : geom
                                       }
-    if cust!=None : upgradeStepDict['RecoFull'][k]['--customise']=cust
-    if era is not None: upgradeStepDict['RecoFull'][k]['--era']=era
+    if cust!=None : upgradeStepDict['ALCAFull'][k]['--customise']=cust
+    if era is not None: upgradeStepDict['ALCAFull'][k]['--era']=era
 
 
 
