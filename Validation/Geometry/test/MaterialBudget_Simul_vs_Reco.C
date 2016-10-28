@@ -9,7 +9,7 @@
 #include <sys/stat.h>
 
 std::vector<const char * > DETECTORS{"TIB", "TIDF", "TIDB",
-      "InnerService", "TOB",
+      "InnerServices", "TOB",
       "TEC", "TkStrct", "PixBar",
       "PixFwdPlus", "PixFwdMinus",
       "Phase1PixelBarrel", "Phase2OTBarrel",
@@ -407,9 +407,7 @@ void createPlots(TString plot, TH1D ** cumulative_matbdg){
 
     hist_x0_detectors[detector] = (TH1D*)prof_x0_XXX->ProjectionX();
 
-    std::cout << __LINE__ << std::endl;
     if ( *cumulative_matbdg == 0 ) {
-      std::cout << __LINE__ << std::endl;
       *cumulative_matbdg = new TH1D("CumulativeSimulMatBdg",
                                     "CumulativeSimulMatBdg",
                                     hist_x0_IB->GetNbinsX(),
@@ -417,7 +415,6 @@ void createPlots(TString plot, TH1D ** cumulative_matbdg){
                                     hist_x0_IB->GetXaxis()->GetXmax());
       std::cout << "Sim at exit: " << *cumulative_matbdg << std::endl;
     }
-    std::cout << __LINE__ << std::endl;
     // category profiles
     prof_x0_SUP   = (TProfile*)subDetectorFile->Get(Form("%u", 100 + plotNumber));
     prof_x0_SEN   = (TProfile*)subDetectorFile->Get(Form("%u", 200 + plotNumber));
