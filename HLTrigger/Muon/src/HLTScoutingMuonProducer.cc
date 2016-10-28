@@ -99,7 +99,6 @@ void HLTScoutingMuonProducer::produce(edm::StreamID sid, edm::Event & iEvent,
 
     std::pair<reco::RecoChargedCandidate,reco::RecoChargedCandidate> ivtxMuPair;
     std::vector<std::pair<reco::RecoChargedCandidate,reco::RecoChargedCandidate> > vtxMuPair;
-    vtxMuPair.clear();
     
     //get displaced vertices
     Handle<reco::VertexCollection> displacedvertexCollection;
@@ -139,7 +138,6 @@ void HLTScoutingMuonProducer::produce(edm::StreamID sid, edm::Event & iEvent,
     
     // Produce muons
     std::vector<int> vtxInd;
-    vtxInd.clear();
     float minDR2=1e-06;
     int index = 0;
     for (auto &muon : *ChargedCandidateCollection) {
@@ -157,17 +155,15 @@ void HLTScoutingMuonProducer::produce(edm::StreamID sid, edm::Event & iEvent,
       if (fabs(muon.eta()) > muonEtaCut)
 	continue;
       
-      double ecalisopf=-99.0;
-      if  ( !EcalPFClusterIsoMap.isValid() ) ecalisopf = -1.0 ;
-      else ecalisopf = (*EcalPFClusterIsoMap)[muonRef]; 
+      double ecalisopf=-1.0;
+      if ( EcalPFClusterIsoMap.isValid()) { ecalisopf = (*EcalPFClusterIsoMap)[muonRef]; }
       
-      double hcalisopf=-99.0;
-      if  ( !HcalPFClusterIsoMap.isValid() ) hcalisopf = -1.0 ;
-      else hcalisopf = (*HcalPFClusterIsoMap)[muonRef]; 
+      double hcalisopf=-1.0;
+      if ( HcalPFClusterIsoMap.isValid()) { hcalisopf = (*HcalPFClusterIsoMap)[muonRef]; }
       
       for (unsigned int i=0; i<vtxMuPair.size(); i++) {
-	float dr2_1 = reco::deltaR2( ((vtxMuPair.at(i)).first),muon );
-	float dr2_2 = reco::deltaR2( ((vtxMuPair.at(i)).second),muon );
+	float dr2_1 = reco::deltaR2( ((vtxMuPair[i]).first),muon );
+	float dr2_2 = reco::deltaR2( ((vtxMuPair[i]).second),muon );
 	if ( (dr2_1<minDR2) || (dr2_2<minDR2) )  vtxInd.push_back(i) ;
       }
       
