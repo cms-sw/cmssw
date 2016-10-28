@@ -131,7 +131,8 @@ void HistogramManager::executeStep1Spec(
     auto histo = t.find(significantvalues);  // avoid modification
     if (histo == t.end() || (!histo->second.th1 && !histo->second.me)) {
       // No histogram was booked.
-      assert(!bookUndefined || !"All histograms were booked but one is missing. This is a problem in the booking process.");
+      assert(!bookUndefined || !"All histograms were booked but one is missing."
+      "The geometry in the GeometryInterface probably does not match the data.");
       // else, ignore the sample.
       return;
     }
@@ -196,9 +197,9 @@ void HistogramManager::fill(DetId sourceModule, const edm::Event* sourceEvent,
 void HistogramManager::executePerEventHarvesting() {
   // We have a masive problem here regarding semantics: for geometrical structure,
   // we always want to see all the counters, even if they are 0. The counters are
-  // all created during booking ad then ket, all fine.
+  // all created during booking and then kept, all fine.
   // For time-based things however, we do not know the range before we see the
-  // data, so we cannot book the counters beforhand. Also, it does not make sense
+  // data, so we cannot book the counters beforehand. Also, it does not make sense
   // to record 0 counts: a event can only be in one Lumisection, it does not make
   // sense to record it as a 0 count for all others.
   // The hacky solution is to check that the quantity was UNDEFINED in booking,
@@ -252,6 +253,8 @@ void HistogramManager::executePerEventHarvesting() {
 std::string HistogramManager::makePath(
     GeometryInterface::Values const& significantvalues) {
   // non-number output names (_pO etc.) are hardwired here.
+  // PERF: memoize the names in a map, probably ignoring row/col
+  // TODO: more pretty names for DetIds using PixelBarrelName etc.
   std::ostringstream dir("");
   for (auto e : significantvalues.values) {
     std::string name = geometryInterface.pretty(e.first);
