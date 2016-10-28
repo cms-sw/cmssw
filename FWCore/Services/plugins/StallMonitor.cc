@@ -9,6 +9,7 @@
 //
 
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
+#include "FWCore/Concurrency/interface/ThreadSafeOutputFileStream.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
@@ -31,122 +32,109 @@ namespace {
   using clock_t = std::chrono::steady_clock;
   auto now = clock_t::now;
 
-  class FileHandle {
-  public:
-    FileHandle(std::string const& name) : file_{name} {}
-    ~FileHandle(){ file_.close(); }
-
-    template <typename T>
-    decltype(auto) operator<<(T const& msg) { return file_ << msg; }
-  private:
-    std::ofstream file_;
-  };
-}
-
-namespace edm {
-
-  namespace service {
-    class StallMonitor {
-    public:
-      StallMonitor(ParameterSet const&, ActivityRegistry&);
-      ~StallMonitor();
-
-      static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
-    private:
-      void postModuleEventPrefetching(StreamContext const&, ModuleCallingContext const&);
-      void preModuleEvent(StreamContext const&, ModuleCallingContext const&);
-      void postModuleEvent(StreamContext const&, ModuleCallingContext const&);
-
-      void enqueueDuration(unsigned, unsigned, unsigned);
-      std::string assembleMessage(unsigned, unsigned, unsigned);
-      void logDuration(std::string);
-
-      FileHandle file_;
-      std::vector<decltype(now())> start_ {};
-      tbb::concurrent_queue<std::string> loggedDurations_ {};
-      std::atomic<bool> durationBeingLogged_ {false};
-    };
+  std::string assembleMessage(std::string const& mode, unsigned const streamID, unsigned const moduleID, double const time)
+  {
+    std::ostringstream oss;
+    oss << mode << ": Stream " << streamID << " Module " << moduleID << " Time " << time << "s";
+    return oss.str();
   }
 }
 
 namespace edm {
   namespace service {
 
-    StallMonitor::StallMonitor(ParameterSet const& iPS, ActivityRegistry& iRegistry)
-      : file_{iPS.getUntrackedParameter<std::string>("filename")}
-    {
-      iRegistry.watchPostModuleEventPrefetching(this, &StallMonitor::postModuleEventPrefetching);
-      iRegistry.watchPreModuleEvent(this, &StallMonitor::preModuleEvent);
-      iRegistry.watchPostModuleEvent(this, &StallMonitor::postModuleEvent);
+    class StallMonitor {
+    public:
+      StallMonitor(ParameterSet const&, ActivityRegistry&);
+      static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
-      iRegistry.preallocateSignal_.connect([this](service::SystemBounds const& iBounds){
-          start_.resize(iBounds.maxNumberOfStreams());
-        });
-    }
+    private:
+      void preEvent(StreamContext const&);
+      void postModuleEventPrefetching(StreamContext const&, ModuleCallingContext const&);
+      void preModuleEvent(StreamContext const&, ModuleCallingContext const&);
+      void postModuleEvent(StreamContext const&, ModuleCallingContext const&);
 
-    void StallMonitor::fillDescriptions(ConfigurationDescriptions& descriptions) {
-      ParameterSetDescription desc;
-      desc.addUntracked<std::string>("filename", "stallMonitor.txt");
-      descriptions.add("StallMonitor", desc);
-      descriptions.setComment("This service reports keeps track of various times in event-processing to determine which modules are stalling.");
-    }
-
-    void StallMonitor::postModuleEventPrefetching(StreamContext const& sc, ModuleCallingContext const&)
-    {
-      auto const i = sc.streamID().value();
-      start_[i] = now();
-    }
-
-    void StallMonitor::preModuleEvent(StreamContext const& sc, ModuleCallingContext const& mcc)
-    {
-      auto const i = sc.streamID().value();
-      auto const prefetch_to_eventStart = (now()-start_[i]).count();
-      enqueueDuration(1, mcc.moduleDescription()->id(), prefetch_to_eventStart);
-    }
-
-    void StallMonitor::postModuleEvent(StreamContext const& sc, ModuleCallingContext const& mcc)
-    {
-      auto const i = sc.streamID().value();
-      auto const event_start_to_end = (now()-start_[i]).count();
-      enqueueDuration(2, mcc.moduleDescription()->id(), event_start_to_end);
-    }
-
-    std::string StallMonitor::assembleMessage(unsigned const mode, unsigned const moduleID, unsigned const time)
-    {
-      std::ostringstream oss;
-      oss << mode << ' ' << moduleID << ' ' << time;
-      return oss.str();
-    }
-
-    StallMonitor::~StallMonitor()
-    {
-      std::string msg;
-      while (loggedDurations_.try_pop(msg)) {
-        file_ << msg << '\n';
-      }
-    }
-
-    void StallMonitor::logDuration(std::string msg)
-    {
-      bool expected {false};
-      if(durationBeingLogged_.compare_exchange_strong(expected,true)) {
-        do {
-          file_ << msg << '\n';
-        } while (loggedDurations_.try_pop(msg));
-        durationBeingLogged_.store(false);
-      } else {
-        loggedDurations_.push(std::move(msg));
-      }
-    }
-
-    void StallMonitor::enqueueDuration(unsigned const mode, unsigned const moduleID, unsigned const time)
-    {
-      auto const& msg = assembleMessage(mode, moduleID, time);
-      logDuration(msg);
-    }
+      ThreadSafeOutputFileStream file_;
+      std::chrono::milliseconds const stallThreshold_;
+      decltype(now()) beginTime_;
+      std::vector<decltype(now())> stallStart_ {};
+      std::vector<char> shouldLog_ {};
+    };
 
   }
 }
 
 using edm::service::StallMonitor;
+using namespace std::chrono;
+
+StallMonitor::StallMonitor(ParameterSet const& iPS, ActivityRegistry& iRegistry)
+  : file_{iPS.getUntrackedParameter<std::string>("filename")}
+  , stallThreshold_{static_cast<long int>(iPS.getUntrackedParameter<double>("stallThreshold", 0.1)*1000)}
+{
+  iRegistry.watchPostModuleEventPrefetching(this, &StallMonitor::postModuleEventPrefetching);
+  iRegistry.watchPreEvent(this, &StallMonitor::preEvent);
+  iRegistry.watchPreModuleEvent(this, &StallMonitor::preModuleEvent);
+  iRegistry.watchPostModuleEvent(this, &StallMonitor::postModuleEvent);
+
+  auto setPerStreamVectors = [this](service::SystemBounds const& iBounds){
+    auto const nStreams = iBounds.maxNumberOfStreams();
+    stallStart_.resize(nStreams);
+    shouldLog_.resize(nStreams);
+  };
+
+  iRegistry.preallocateSignal_.connect(setPerStreamVectors);
+  iRegistry.postBeginJobSignal_.connect([this]{ beginTime_ = now(); });
+}
+
+void StallMonitor::fillDescriptions(ConfigurationDescriptions& descriptions)
+{
+  ParameterSetDescription desc;
+  desc.addUntracked<std::string>("fileName", "stallMonitor.txt");
+  desc.addUntracked<double>("stallThreshold", 0.1)->setComment("Threshold (in seconds) used to classify modules as stalled.\n"
+                                                               "Millisecond granularity allowed.");
+  descriptions.add("StallMonitor", desc);
+  descriptions.setComment("This service keeps track of various times in event-processing to determine which modules are stalling.");
+}
+
+void StallMonitor::preEvent(StreamContext const& sc)
+{
+  auto const i = sc.streamID().value();
+  std::ostringstream msg;
+  msg << "preEvent: Stream " << i << ' ' << sc.eventID() << '\n';
+  file_ << msg.str();
+}
+
+void StallMonitor::postModuleEventPrefetching(StreamContext const& sc, ModuleCallingContext const&)
+{
+  auto const i = sc.streamID().value();
+  stallStart_[i] = now();
+  shouldLog_[i] = 0;
+}
+
+void StallMonitor::preModuleEvent(StreamContext const& sc, ModuleCallingContext const& mcc)
+{
+  auto const i = sc.streamID().value();
+  auto const preModEvent_tp = now();
+  auto const preFetch_to_preModEvent = duration_cast<milliseconds>(preModEvent_tp-stallStart_[i]);
+  if (preFetch_to_preModEvent < stallThreshold_) return;
+
+  shouldLog_[i] = 1;
+  auto const mid = mcc.moduleDescription()->id();
+
+  // Would be nice to put the postModuleEventPrefetching message in
+  // the corresponding function call.  But since we don't want to log
+  // the message unless we make it this far, we log the message here.
+  file_ << assembleMessage("postModuleEventPrefetching", i, mid, (stallStart_[i]-beginTime_).count());
+  file_ << assembleMessage("preModuleEvent", i, mid, (preModEvent_tp-beginTime_).count());
+}
+
+void StallMonitor::postModuleEvent(StreamContext const& sc, ModuleCallingContext const& mcc)
+{
+  auto const i = sc.streamID().value();
+  if (!shouldLog_[i]) return;
+
+  auto const postModEvent = (now()-beginTime_).count();
+  file_ << assembleMessage("postModuleEvent", i, mcc.moduleDescription()->id(), postModEvent);
+}
+
 DEFINE_FWK_SERVICE(StallMonitor);
