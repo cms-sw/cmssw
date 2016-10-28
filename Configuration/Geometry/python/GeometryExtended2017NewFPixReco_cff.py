@@ -21,7 +21,6 @@ from RecoMuon.DetLayers.muonDetLayerGeometry_cfi import *
 from Geometry.TrackerGeometryBuilder.idealForDigiTrackerGeometry_cff import *
 from Geometry.CSCGeometryBuilder.idealForDigiCscGeometry_cff import *
 from Geometry.DTGeometryBuilder.idealForDigiDtGeometry_cff import *
-trackerGeometry.applyAlignment = False
 
 #  Calorimeters
 from Geometry.CaloEventSetup.CaloTopology_cfi import *
