@@ -9,17 +9,15 @@ from copy import deepcopy
 # include "RecoTracker/TrackProducer/data/CTFFinalFitWithMaterial.cff"
 from RecoParticleFlow.PFProducer.particleFlowBlock_cfi import *
 
-_phase2_hgcal_Importers = deepcopy(particleFlowBlock.elementImporters)
+from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
 # kill tracks in the HGCal
-_phase2_hgcal_Importers[5].importerName = cms.string('GeneralTracksImporterWithVeto')
-_phase2_hgcal_Importers[5].veto = cms.InputTag('hgcalTrackCollection:TracksInHGCal')
-#_phase2_hgcal_Importers[2].source_ee = cms.InputTag('particleFlowSuperClusterHGCal')
-#_phase2_hgcal_Importers.append(
-#    cms.PSet( importerName = cms.string("HGCalClusterImporter"),
-#              source = cms.InputTag("particleFlowClusterHGCal"),
-#              BCtoPFCMap = cms.InputTag('particleFlowSuperClusterHGCal:PFClusterAssociationEBEE') ),
-#)
-_phase2_hgcal_Linkers = deepcopy(particleFlowBlock.linkDefinitions)
+phase2_hgcal.toModify(
+    particleFlowBlock,
+    elementImporters = { 5 : dict(
+        importerName = cms.string('GeneralTracksImporterWithVeto'),
+        veto = cms.InputTag('hgcalTrackCollection:TracksInHGCal')
+    ) }
+)
 ### for later
 #_phase2_hgcal_Linkers.append( 
 #    cms.PSet( linkerName = cms.string("SCAndHGCalLinker"),
@@ -38,9 +36,10 @@ _phase2_hgcal_Linkers = deepcopy(particleFlowBlock.linkDefinitions)
 #                  useKDTree  = cms.bool(False) )
 #)
 
-from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
-phase2_hgcal.toModify(
+
+from Configuration.Eras.Modifier_phase2_timing_cff import phase2_timing
+phase2_timing.toModify(
     particleFlowBlock,
-    linkDefinitions = _phase2_hgcal_Linkers,
-    elementImporters = _phase2_hgcal_Importers
+    elementImporters = { 5  : dict( timeValueMap = cms.InputTag("trackTimeValueMapProducer:generalTracksConfigurableFlatResolutionModel"),
+                                timeErrorMap = cms.InputTag("trackTimeValueMapProducer:generalTracksConfigurableFlatResolutionModelResolution")) }
 )
