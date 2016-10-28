@@ -819,4 +819,7 @@ RAWAODSIMEventContent.outputCommands.extend(HLTriggerRAW.outputCommands)
 if fastSim.isChosen():
     for _entry in [FEVTDEBUGHLTEventContent,FEVTDEBUGEventContent,RECOSIMEventContent,AODSIMEventContent,RAWAODSIMEventContent]:
         fastSimEC.dropSimDigis(_entry.outputCommands)
-    
+
+from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
+for _entry in [FEVTDEBUGEventContent,FEVTDEBUGHLTEventContent,FEVTEventContent]:
+  phase2_tracker.toModify(_entry, outputCommands = _entry.outputCommands + ['keep Phase2TrackerDigiedmDetSetVector_mix_*_*'])
