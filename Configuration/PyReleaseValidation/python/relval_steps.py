@@ -1748,6 +1748,14 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
                                       '--eventcontent':'FEVTDEBUGHLT',
                                       '--geometry' : geom
                                       }
+    if '2017' in k:
+            upgradeStepDict['DigiFull'][k] = {'-s':'DIGI:pdigi_valid,L1,DIGI2RAW,HLT:@relval2016',
+                                      '--conditions':gt,
+                                      '--datatier':'GEN-SIM-DIGI-RAW',
+                                      '-n':'10',
+                                      '--eventcontent':'FEVTDEBUGHLT',
+                                      '--geometry' : geom
+                                      }
     if cust!=None : upgradeStepDict['DigiFull'][k]['--customise']=cust
     if era is not None: upgradeStepDict['DigiFull'][k]['--era']=era
     
