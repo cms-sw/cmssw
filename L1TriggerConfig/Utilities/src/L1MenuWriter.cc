@@ -10,7 +10,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 
 #include "CondFormats/L1TObjects/interface/L1TUtmTriggerMenu.h"
-#include "CondFormats/DataRecord/interface/L1TUtmTriggerMenuO2ORcd.h"
+#include "CondFormats/DataRecord/interface/L1TUtmTriggerMenuRcd.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
@@ -26,13 +26,13 @@ public:
 void L1MenuWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& evSetup){
 
     edm::ESHandle<L1TUtmTriggerMenu> handle1;
-    evSetup.get<L1TUtmTriggerMenuO2ORcd>().get( handle1 ) ;
+    evSetup.get<L1TUtmTriggerMenuRcd>().get( handle1 ) ;
     boost::shared_ptr<L1TUtmTriggerMenu> ptr1(new L1TUtmTriggerMenu(*(handle1.product ())));
 
     edm::Service<cond::service::PoolDBOutputService> poolDb;
     if( poolDb.isAvailable() ){
         cond::Time_t firstSinceTime = poolDb->beginOfTime();
-        poolDb->writeOne(ptr1.get(),firstSinceTime,"L1TUtmTriggerMenuO2ORcd");
+        poolDb->writeOne(ptr1.get(),firstSinceTime,"L1TUtmTriggerMenuRcd");
     }
 
 }
