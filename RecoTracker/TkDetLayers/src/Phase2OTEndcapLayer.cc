@@ -139,18 +139,31 @@ Phase2OTEndcapLayer::groupedCompatibleDetsV( const TrajectoryStateOnSurface& sta
     return;
   }
 
-  //order is odd rings in front of even rings
+  //order is: rings in front = 0; rings in back = 1
+  //rings should be already ordered in r
+  std::vector<int> ringOrder(theRingSize);
+  //if the layer has 1 ring, it does not matter
+  std::fill(ringOrder.begin(), ringOrder.end(), 1);
+  if (theRingSize > 1){
+    if(fabs(theComps.at(0)->position().z()) < fabs(theComps.at(1)->position().z())){
+      for (int i=0; i<theRingSize; i++) {
+        if(i % 2 == 0) ringOrder.at(i) = 0;
+      }
+    } else if(fabs(theComps.at(0)->position().z()) > fabs(theComps.at(1)->position().z())){
+      std::fill(ringOrder.begin(), ringOrder.end(), 0);
+      for (int i=0; i<theRingSize; i++) {
+        if(i % 2 == 0) ringOrder.at(i) = 1;
+      }
+    } else {
+      throw DetLayerException("Rings in Endcap Layer have same z position, no idea how to order them!");
+    }
+  }
 //#ifdef __INTEL_COMPILER
 //  const int ringOrder[NOTECRINGS]{0,1,0,1,0,1,0,1,0,1,0,1,0,1,0};
 //#else
 //  constexpr int ringOrder[NOTECRINGS]{0,1,0,1,0,1,0,1,0,1,0,1,0,1,0};
 //#endif
-    
-  std::vector<int> ringOrder(theRingSize);
-  std::fill(ringOrder.begin(), ringOrder.end(), 1);
-  for (int i=0; i<theRingSize; i++) {
-    if(i % 2 == 0) ringOrder.at(i) = 0;
-  }
+
   auto index = [&ringIndices,& ringOrder](int i) { return ringOrder[ringIndices[i]];};
 
   std::vector<DetGroup> closestResult;
