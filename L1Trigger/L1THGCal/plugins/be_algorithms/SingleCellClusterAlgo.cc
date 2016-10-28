@@ -1,26 +1,25 @@
 #include "L1Trigger/L1THGCal/interface/HGCalTriggerBackendAlgorithmBase.h"
-#include "L1Trigger/L1THGCal/interface/fe_codecs/HGCalBestChoiceCodec.h"
+#include "L1Trigger/L1THGCal/interface/fe_codecs/HGCalTriggerCellBestChoiceCodec.h"
 #include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
 
-#include "DataFormats/L1THGCal/interface/HGCalCluster.h"
+#include "DataFormats/L1THGCal/interface/HGCalTriggerCell.h"
 
 using namespace HGCalTriggerBackend;
 
-class SingleCellClusterAlgo : public Algorithm<HGCalBestChoiceCodec> 
+class SingleCellClusterAlgo : public Algorithm<HGCalTriggerCellBestChoiceCodec> 
 {
     public:
 
         SingleCellClusterAlgo(const edm::ParameterSet& conf):
-            Algorithm<HGCalBestChoiceCodec>(conf),
-            cluster_product_( new l1t::HGCalClusterBxCollection ){}
+            Algorithm<HGCalTriggerCellBestChoiceCodec>(conf),
+            cluster_product_( new l1t::HGCalTriggerCellBxCollection ){}
 
         virtual void setProduces(edm::EDProducer& prod) const override final 
         {
-            prod.produces<l1t::HGCalClusterBxCollection>(name());
+            prod.produces<l1t::HGCalTriggerCellBxCollection>(name());
         }
 
-        virtual void run(const l1t::HGCFETriggerDigiCollection& coll,
-                const std::unique_ptr<HGCalTriggerGeometryBase>& geom) override final;
+        virtual void run(const l1t::HGCFETriggerDigiCollection& coll) override final;
 
         virtual void putInEvent(edm::Event& evt) override final 
         {
@@ -29,43 +28,30 @@ class SingleCellClusterAlgo : public Algorithm<HGCalBestChoiceCodec>
 
         virtual void reset() override final 
         {
-            cluster_product_.reset( new l1t::HGCalClusterBxCollection );
+            cluster_product_.reset( new l1t::HGCalTriggerCellBxCollection );
         }
 
     private:
-        std::unique_ptr<l1t::HGCalClusterBxCollection> cluster_product_;
+        std::unique_ptr<l1t::HGCalTriggerCellBxCollection> cluster_product_;
 
 };
 
 /*****************************************************************/
-void SingleCellClusterAlgo::run(const l1t::HGCFETriggerDigiCollection& coll,
-        const std::unique_ptr<HGCalTriggerGeometryBase>& geom) 
+void SingleCellClusterAlgo::run(const l1t::HGCFETriggerDigiCollection& coll) 
 /*****************************************************************/
 {
     for( const auto& digi : coll ) 
     {
-        HGCalBestChoiceCodec::data_type data;
+        HGCalDetId module_id(digi.id());
+        HGCalTriggerCellBestChoiceCodec::data_type data;
         data.reset();
-        const HGCalDetId& moduleId = digi.getDetId<HGCalDetId>();
         digi.decode(codec_, data);
-        int i = 0;
-        for(const auto& value : data.payload)
+        for(const auto& triggercell : data.payload)
         {
-            if(value>0)
+            if(triggercell.hwPt()>0)
             {
-                GlobalPoint point = geom->getModulePosition(moduleId);
-                math::PtEtaPhiMLorentzVector p4((double)value/cosh(point.eta()), point.eta(), point.phi(), 0.);
-                // index in module stored as hwEta
-                l1t::HGCalCluster cluster( 
-                        reco::LeafCandidate::LorentzVector(),
-                        value, i, 0);
-                cluster.setP4(p4);
-                cluster.setModule(moduleId.wafer());
-                cluster.setLayer(moduleId.layer());
-                cluster.setSubDet(moduleId.subdetId());
-                cluster_product_->push_back(0,cluster);
+                cluster_product_->push_back(0,triggercell);
             }
-            i++;
         }
 
     }

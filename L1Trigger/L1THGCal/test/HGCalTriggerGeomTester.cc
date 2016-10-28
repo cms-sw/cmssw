@@ -51,7 +51,7 @@ class HGCalTriggerGeomTester : public edm::EDAnalyzer
         void setTreeModuleSize(const size_t n);
         void setTreeTriggerCellSize(const size_t n);
 
-        std::unique_ptr<HGCalTriggerGeometryBase> triggerGeometry_; 
+        edm::ESHandle<HGCalTriggerGeometryBase> triggerGeometry_;
         edm::Service<TFileService> fs_;
         TTree* treeModules_;
         TTree* treeTriggerCells_;
@@ -120,11 +120,6 @@ class HGCalTriggerGeomTester : public edm::EDAnalyzer
 HGCalTriggerGeomTester::HGCalTriggerGeomTester(const edm::ParameterSet& conf) 
 /*****************************************************************/
 {
-    //setup geometry 
-    const edm::ParameterSet& geometryConfig = conf.getParameterSet("TriggerGeometry");
-    const std::string& trigGeomName = geometryConfig.getParameter<std::string>("TriggerGeometryName");
-    HGCalTriggerGeometryBase* geometry = HGCalTriggerGeometryFactory::get()->create(trigGeomName,geometryConfig);
-    triggerGeometry_.reset(geometry);
 
     // initialize output trees
     treeModules_ = fs_->make<TTree>("TreeModules","Tree of all HGC modules");
@@ -220,7 +215,9 @@ void HGCalTriggerGeomTester::beginRun(const edm::Run& /*run*/,
                                           const edm::EventSetup& es)
 /*****************************************************************/
 {
-    triggerGeometry_->reset();
+    es.get<IdealGeometryRecord>().get("", triggerGeometry_);
+
+
     HGCalTriggerGeometryBase::es_info info;
     const std::string& ee_sd_name = triggerGeometry_->eeSDName();
     const std::string& fh_sd_name = triggerGeometry_->fhSDName();
@@ -231,7 +228,7 @@ void HGCalTriggerGeomTester::beginRun(const edm::Run& /*run*/,
     es.get<IdealGeometryRecord>().get(ee_sd_name,info.topo_ee);
     es.get<IdealGeometryRecord>().get(fh_sd_name,info.topo_fh);
     es.get<IdealGeometryRecord>().get(bh_sd_name,info.topo_bh);
-    triggerGeometry_->initialize(info);
+
 
     checkConsistency(info);
     fillTriggerGeometry(info);
@@ -240,6 +237,10 @@ void HGCalTriggerGeomTester::beginRun(const edm::Run& /*run*/,
 
 void HGCalTriggerGeomTester::checkConsistency(const HGCalTriggerGeometryBase::es_info& info)
 {
+    
+
+
+
     std::unordered_map<uint32_t, std::unordered_set<uint32_t>> modules_to_triggercells;
     std::unordered_map<uint32_t, std::unordered_set<uint32_t>> modules_to_cells;
     std::unordered_map<uint32_t, std::unordered_set<uint32_t>> triggercells_to_cells;
