@@ -623,9 +623,19 @@ def _modifyParametersFromDict(params, newParams, errorRaiser, keyDepth=""):
                         p =pset.parameters_()
                         _modifyParametersFromDict(p,
                                                   value,errorRaiser,
-                                                  keyDepth+"."+key)
+                                                  ("%s.%s" if type(key)==str else "%s[%s]")%(keyDepth,key))
                         for k,v in p.iteritems():
                             setattr(pset,k,v)
+                    elif isinstance(params[key],_ValidatingParameterListBase):
+                        if any(type(k) != int for k in value.keys()):
+                            raise ValueError("Attempted to change a list using a dict whose keys are not integers")
+                        plist = params[key]
+                        p = dict(enumerate(plist))
+                        _modifyParametersFromDict(p,
+                                                  value,errorRaiser,
+                                                  ("%s.%s" if type(key)==str else "%s[%s]")%(keyDepth,key))
+                        for k,v in p.iteritems():
+                            plist[k] = v
                     else:
                         raise ValueError("Attempted to change non PSet value "+keyDepth+" using a dictionary")
                 elif isinstance(value,_ParameterTypeBase):
