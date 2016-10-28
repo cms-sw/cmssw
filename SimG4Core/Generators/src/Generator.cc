@@ -150,10 +150,12 @@ void Generator::HepMC2G4(const HepMC::GenEvent * evt_orig, G4Event * g4evt)
       // 2:  particles are decayed by generator but need to be propagated by GEANT
       // 3:  particles are decayed by generator but do not need to be propagated by GEANT
       int status = (*pitr)->status();
-      if (status > 3) {
+      if (status > 3 && isExotic(*pitr)) {
         // In Pythia 8, there are many status codes besides 1, 2, 3.
-        // By setting the status to 2, the particle will be checked:
+        // By setting the status to 2 for exotic particles, they will be checked:
         // if its decay vertex is outside the beampipe, it will be propagated by GEANT.
+	// Some Standard Model particles, e.g., K0, cannot be propagated by GEANT, 
+	// so do not change their status code.  
         status = 2;
       }
 
@@ -224,7 +226,7 @@ void Generator::HepMC2G4(const HepMC::GenEvent * evt_orig, G4Event * g4evt)
       double decay_length = 0.0;
       int status = (*pitr)->status();
 
-      if (status > 3) {
+      if (status > 3 && isExotic(*pitr)) {
 	status = 2;
       }
 
@@ -508,6 +510,21 @@ bool Generator::particlePassesPrimaryCuts(const G4ThreeVector& p) const
 
   return flag;
 }
+
+bool Generator::isExotic(HepMC::GenParticle* p) const
+{
+  int pdgid = abs(p->pdg_id());  
+  if ((pdgid >= 1000000 && pdgid <  4000000) || // SUSY, R-hadron, and technicolor particles
+      pdgid == 17 || // 4th generation lepton 
+      pdgid == 34 || // W-prime
+      pdgid == 37)   // charged Higgs
+    {
+    return true;
+  } 
+
+  return false;
+}
+
 
 void Generator::nonBeamEvent2G4(const HepMC::GenEvent * evt, G4Event * g4evt) 
 {
