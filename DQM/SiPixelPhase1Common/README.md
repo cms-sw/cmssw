@@ -88,7 +88,7 @@ Since the framework can see where quantities go during the computation of derive
 How to actually use it
 ----------------------
 
-If you plugin derives from `SiPixelPhase1Base`, you should automatically have access to `HistogramManager`s, in the array `histo[...]`. Every HistogramManager should be used for one quantity. The indices to the array should be enum constants, use something like this
+If your plugin derives from `SiPixelPhase1Base`, you should automatically have access to `HistogramManager`s, in the array `histo[...]`. Every HistogramManager should be used for one quantity. The indices to the array should be enum constants, use something like this
 
     enum {
       ADC, // digi ADC readouts
@@ -100,7 +100,7 @@ in the C++ header to name your quantities and refer to them as `histo[ADC]`.
 
 In the Analyzer code, call the `fill` function on the `histo[...]` whenever you have a datapoint to add. If you are just counting something (in the histograms above, all except the `ADC` are counts), use the `fill` function without any `double` argument. 
 
-The `fill` function takes a number of mandatory and optional parameters the the left-hand side columns are derived from. You always have to pass a module ID (`DetId`), the `Event`is only for time-based things (if you want per lumisection or per bunchcrossing plots), and `row` and `col` are needed for ROC information, or if you want a 2D map of the module.
+The `fill` function takes a number of mandatory and optional parameters that the left-hand side columns are derived from. You always have to pass a module ID (`DetId`), the `Event`is only for time-based things (if you want per lumisection or per bunchcrossing plots), and `row` and `col` are needed for ROC information, or if you want a 2D map of the module.
 
 Now, you need to add some specifications in the config file.
 
@@ -203,6 +203,8 @@ This section explains for every class in the framework what it does. This might 
 
 This is an unspectacular wrapper around histogram-like things. It is used as the right-hand side of all tables that are actually kept in memory. It can contain either a root `TH1`, a `MonitorElement` (then the `th1` points to the MEs TH1) or a simple counter (`int`). The counter can be used independently of the histogram and is used to concatenate histograms in harvesting and count things per event in step1.
 
+There is also a full set of meta information in it (ranges, labels, ...) but these are not used normally; they are only needed once during the booking process. This could be handled more elegantly.
+
 ### SiPixelPhase1Base
 
 This is the base class that all plugins should derive from. It instantiates `HistogramManager`s from config, sets up a `GeometryInterface`, and calls the `book` method of the `HistogramManager`s. If you need anything special, you can also do this yourself ad ignore the base class.
@@ -211,7 +213,7 @@ The same file declares the `SiPixelPhase1Harvester`, which is very similar to th
 
 ### SummationSpecification
 
-A dumb datastructure that represents a specification, as introduced above. The specification is in an internal, slightly different format, which is created by the SpecfiactionBuilder in Python code; the C++ SummationSpecification just takes the `PSet` structure and does no special processing, except for converting columns from the string form to the efficient `GeometryInterface` form.
+A dumb datastructure that represents a specification, as introduced above. The specification is in an internal, slightly different format, which is created by the SpecificationBuilder in Python code; the C++ SummationSpecification just takes the `PSet` structure and does no special processing, except for converting columns from the string form to the efficient `GeometryInterface` form.
 
 ### SpecficationBuilder
 
