@@ -102,11 +102,11 @@
  </LogicalPart>
  <LogicalPart name="CoolingTubeToInnerDisk" category="support">
     <rSolid name="CoolingTubeToInnerDisk"/>
-    <rMaterial name="pixfwdMaterials:DiskCoolingTube"/>
+    <rMaterial name="pixfwdMaterials:DiskCoolingTube_inner"/>
  </LogicalPart>
  <LogicalPart name="CoolingTubeToOuterDisk" category="support">
     <rSolid name="CoolingTubeToOuterDisk"/>
-    <rMaterial name="pixfwdMaterials:DiskCoolingTube"/>
+    <rMaterial name="pixfwdMaterials:DiskCoolingTube_outer"/>
  </LogicalPart>
 </LogicalPartSection>
 
