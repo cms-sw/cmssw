@@ -1,6 +1,4 @@
 import FWCore.ParameterSet.Config as cms
-from Configuration.StandardSequences.Eras import eras
-
 
 from RecoTracker.IterativeTracking.InitialStepPreSplitting_cff import *
 from RecoTracker.IterativeTracking.InitialStep_cff import *

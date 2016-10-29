@@ -8,6 +8,7 @@ note: see OT_Tilted_362_200_Pixel_4021_2016_08_09.cfg for full config files
 =========== END XML GENERATION METADATA HEADER ===========
 -->
 <DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+<!-- WARNING : ARE THE VALUES FOR ProdCutsForElectrons, ProdCutsForPositrons AND ProdCutsForGamma CORRECT IN THIS FILE ? -->
   <SpecParSection label="trackerProdCuts.xml" eval="true">
     <SpecPar name="tracker-dead">
       <PartSelector path="//Tracker"/>
@@ -22,7 +23,15 @@ note: see OT_Tilted_362_200_Pixel_4021_2016_08_09.cfg for full config files
       <Parameter name="ProdCutsForPositrons" value="0.01*mm"/>
       <Parameter name="ProdCutsForGamma" value="0.01*mm"/>
     </SpecPar>
-    <SpecPar name="tracker-sens-pixel">
+    <SpecPar name="tracker-dead-outer">
+      <PartSelector path="//Phase2OTBarrel"/>
+      <PartSelector path="//Phase2OTForward"/>
+      <Parameter name="CMSCutsRegion" value="TrackerOuterDeadRegion" eval="false"/>
+      <Parameter name="ProdCutsForElectrons" value="1*mm"/>
+      <Parameter name="ProdCutsForPositrons" value="1*mm"/>
+      <Parameter name="ProdCutsForGamma" value="1*mm"/>
+    </SpecPar>   
+    <SpecPar name="tracker-sens-outer">
 <PartSelector path="//BModule1Layer1LowerPSMacroPixelactive"/>
 <PartSelector path="//BModule1Layer1UpperPSStripactive"/>
 <PartSelector path="//BModule2Layer1LowerPSMacroPixelactive"/>
@@ -339,7 +348,7 @@ note: see OT_Tilted_362_200_Pixel_4021_2016_08_09.cfg for full config files
 <PartSelector path="//EModule14Disc5Upper2Sactive"/>
 <PartSelector path="//EModule15Disc5Lower2Sactive"/>
 <PartSelector path="//EModule15Disc5Upper2Sactive"/>
-    <Parameter name="CMSCutsRegion" value="TrackerPixelSensRegion" eval="false"/>
+    <Parameter name="CMSCutsRegion" value="TrackerOuterSensRegion" eval="false"/>
     <Parameter name="ProdCutsForElectrons" value="0.01*mm"/>
     <Parameter name="ProdCutsForPositrons" value="0.01*mm"/>
     <Parameter name="ProdCutsForGamma" value="0.01*mm"/>
