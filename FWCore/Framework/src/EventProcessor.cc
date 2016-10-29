@@ -433,6 +433,8 @@ namespace edm {
       if(nStreams==0) {
         nStreams = nThreads;
       }
+    // PG: Log the number of streams
+      edm::LogInfo("StreamSetup") <<"setting # streams "<<nStreams;
     }
     /*
       bool nRunsSet = false;
