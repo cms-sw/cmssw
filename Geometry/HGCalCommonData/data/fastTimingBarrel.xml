@@ -38,4 +38,15 @@
   </PosPart>
 </PosPartSection>
 
+<SpecParSection label="fastTimingBarrel.xml" eval="true">
+  <SpecPar name="fastTiminingBarrelNumbering">
+    <PartSelector path="//FastTimeBarrel"/>
+    <Parameter name="Volume" value="FastTimeBarrel" eval="false"/>
+    <Parameter name="geomParsB"  value="0*fm"/>
+    <Parameter name="geomParsB"  value="[fastTimingBarrel:FastTimeBarrelL]"/>
+    <Parameter name="numberZB"   value="265"/>
+    <Parameter name="numberPhiB" value="720"/>
+  </SpecPar>
+</SpecParSection>
+
 </DDDefinition>
