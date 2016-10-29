@@ -408,6 +408,12 @@ void HBHEPhase1Reconstructor::processData(const Collection& coll,
         const HcalCoderDb coder(*channelCoder, *shape);
         const RawChargeFromSample<DFrame> rcfs(cond, cell);
 
+	// needed for the dark current in the M2
+	const HcalSiPMParameter& siPMParameter(*cond.getHcalSiPMParameter(cell));
+	const double darkCurrent = siPMParameter.getDarkCurrent();
+	const double fcByPE = siPMParameter.getFCByPE();
+	const double lambda = cond.getHcalSiPMCharacteristics()->getCrossTalk(siPMParameter.getType());
+
         // ADC to fC conversion
         CaloSamples cs;
         coder.adc2fC(frame, cs);
@@ -424,19 +430,22 @@ void HBHEPhase1Reconstructor::processData(const Collection& coll,
             auto s(frame[ts]);
             const int capid = s.capid();
             const double pedestal = calib.pedestal(capid);
-	    const double pedestalWidth = calibWidth.pedestal(capid);
+            const double pedestalWidth = calibWidth.pedestal(capid);
             const double gain = calib.respcorrgain(capid);
+	    const double gainWidth = calibWidth.gain(capid);
             const double rawCharge = rcfs.getRawCharge(cs[ts], pedestal);
             const float t = getTDCTimeFromSample(s);
-            channelInfo->setSample(ts, s.adc(), rawCharge, pedestal, pedestalWidth, gain, t);
+            channelInfo->setSample(ts, s.adc(), rawCharge, pedestal, pedestalWidth, gain, gainWidth, t);
             if (ts == soi)
                 soiCapid = capid;
         }
+
 
         // Fill the overall channel info items
 	const int pulseShapeID = param_ts->pulseShapeID();
         const std::pair<bool,bool> hwerr = findHWErrors(frame, maxTS);
         channelInfo->setChannelInfo(cell, pulseShapeID, maxTS, soi, soiCapid,
+				    darkCurrent, fcByPE, lambda,
                                     hwerr.first, hwerr.second,
                                     taggedBadByDb || dropByZS);
 
