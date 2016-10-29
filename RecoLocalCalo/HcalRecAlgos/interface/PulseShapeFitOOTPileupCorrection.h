@@ -50,6 +50,7 @@ namespace FitterFuncs{
      void setpsFitslew (double *slew  ){ for(int i=0; i<HcalConst::maxSamples; ++i) {psFit_slew [i] = slew [i]; } }
      double sigmaHPDQIE8(double ifC);
      double sigmaSiPMQIE10(double ifC);
+     double getSiPMDarkCurrent(double darkCurrent, double fcByPE, double lambda);
 
      double singlePulseShapeFunc( const double *x );
      double doublePulseShapeFunc( const double *x );
