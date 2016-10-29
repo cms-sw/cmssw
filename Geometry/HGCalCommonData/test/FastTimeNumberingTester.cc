@@ -17,7 +17,7 @@
 //
 //
 
-//#define DebugLog
+//#define EDM_ML_DEBUG
 
 // system include files
 #include <memory>
@@ -42,8 +42,7 @@
 #include "Geometry/HGCalCommonData/interface/FastTimeDDDConstants.h"
 #include "DataFormats/ForwardDetId/interface/FastTimeDetId.h"
 
-class FastTimeNumberingTester : public edm::one::EDAnalyzer<>
-{
+class FastTimeNumberingTester : public edm::one::EDAnalyzer<> {
 public:
   explicit FastTimeNumberingTester( const edm::ParameterSet& );
   ~FastTimeNumberingTester();
@@ -64,26 +63,26 @@ void FastTimeNumberingTester::analyze( const edm::Event& iEvent, const edm::Even
 
   iSetup.get<IdealGeometryRecord>().get(pFTNDC);
   const FastTimeDDDConstants fTnDC(*pFTNDC);
-  std::cout << "Fast timing device with " << fTnDC.getCells() << ":"
-	    << fTnDC.computeCells() << " cells" << " for detector type "
-	    << fTnDC.getType() << std::endl;
-  for (unsigned int ix=0; ix<400; ++ix) {
-    for (unsigned int iy=0; iy<400; ++iy) {
-      if (fTnDC.isValidXY(ix,iy)) {
-	FastTimeDetId id1(ix,iy,1), id2(ix,iy,-1);
-	std::cout << "Valid ID " << id1 << " and " << id2 << std::endl;
-      } else {
-#ifdef DebugLog
-	std::cout << "ix = " << ix << ", iy = " << iy << " is not valid for "
-		  << "FastTime" << std::endl;
+  std::cout << "Fast timing device with " << fTnDC.getCells(1) << ":"
+	    << fTnDC.getCells(2) << " cells" << " for barrel and endcap\n";
+  for (int type=1; type<=2; ++type) {
+    for (int ix=0; ix<400; ++ix) {
+      for (int iy=0; iy<400; ++iy) {
+	if (fTnDC.isValidXY(type,ix,iy)) {
+	  FastTimeDetId id1(type,ix,iy,1), id2(type,ix,iy,-1);
+	  std::cout << "Valid ID " << id1 << " and " << id2 << std::endl;
+	} else {
+#ifdef EDM_ML_DEBUG
+	  std::cout << "ix = " << ix << ", iy = " << iy << " is not valid for "
+		    << "FastTime type " << type << std::endl;
 #endif
+	}
+	iy += 9;
       }
-      iy += 9;
+      ix += 9;
     }
-    ix += 9;
   }
 }
-
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(FastTimeNumberingTester);
