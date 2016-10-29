@@ -1,5 +1,4 @@
 import FWCore.ParameterSet.Config as cms
-from Configuration.StandardSequences.Eras import eras
 
 def TkOnlyDigi(process):
     print "!!! Special version of the digitization for tracker only !!!"
