@@ -14,23 +14,21 @@ process.maxEvents = cms.untracked.PSet(
 process.load('Configuration.StandardSequences.Services_cff')
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.EventContent.EventContent_cff')
-#process.load('Configuration.Geometry.GeometryExtended2023tiltedReco_cff')
-process.load('Configuration.Geometry.GeometryExtended2023D3Reco_cff')
+process.load('Configuration.Geometry.GeometryExtended2023D4Reco_cff')
 process.load('Configuration.StandardSequences.MagneticField_38T_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 
 # Other statements
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:upgradePLS3', '')
-
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic', '')
 # list of files
 
 process.source = cms.Source("PoolSource",
     fileNames =  cms.untracked.vstring(
-         'file:step2_DIGI.root'
-       )
-)
+       '/store/relval/CMSSW_8_1_0_pre15/RelValTenMuExtendedE_0_200/GEN-SIM-DIGI-RAW/81X_upgrade2023_realistic_v3_2023D4-v1/10000/2AB8BADF-5199-E611-9C46-0CC47A78A458.root'
+#       )
+#)
 # Production Info
 process.configurationMetadata = cms.untracked.PSet(
     version = cms.untracked.string('$Revision: 1.19 $'),
@@ -64,15 +62,20 @@ process.DQMoutput_step = cms.EndPath(process.DQMoutput)
 #process.digi_step = cms.Sequence(process.siPixelRawData*process.siPixelDigis)
 process.p = cms.Path(process.digiana_seq * process.dqm_comm )
 
-# customisation of the process.                                                                                                                              
+# customisation of the process.
 
-# Automatic addition of the customisation function from SLHCUpgradeSimulations.Configuration.combinedCustoms                                                 
-#from SLHCUpgradeSimulations.Configuration.combinedCustoms import cust_2023tilted
-
-#call to customisation function cust_2023tilted imported from SLHCUpgradeSimulations.Configuration.combinedCustoms                                          
-#process = cust_2023tilted(process)
 # Automatic addition of the customisation function from SLHCUpgradeSimulations.Configuration.combinedCustoms
-from SLHCUpgradeSimulations.Configuration.combinedCustoms import cust_2023LReco 
+from SLHCUpgradeSimulations.Configuration.combinedCustoms import cust_2023tilted4021 
 
-#call to customisation function cust_2023LReco imported from SLHCUpgradeSimulations.Configuration.combinedCustoms
-process = cust_2023LReco(process)
+#call to customisation function cust_2023tilted4021 imported from SLHCUpgradeSimulations.Configuration.combinedCustoms
+process = cust_2023tilted4021(process)
+
+# Automatic addition of the customisation function from HLTrigger.Configuration.customizeHLTforMC
+from HLTrigger.Configuration.customizeHLTforMC import customizeHLTforFullSim 
+
+#call to customisation function customizeHLTforFullSim imported from HLTrigger.Configuration.customizeHLTforMC
+process = customizeHLTforFullSim(process)
+
+# End of customisation functions
+
+# Customisation from command line
