@@ -62,6 +62,9 @@ HLT_PADmesonPPTrackingGlobal_Dpt15_v*                                   #CMSHLT-
 HLT_PADmesonPPTrackingGlobal_Dpt30_v*                                   #CMSHLT-1030
 HLT_PADmesonPPTrackingGlobal_Dpt50_v*                                   #CMSHLT-1030
 
+HLT_PADmesonPPTrackingGlobal_Dpt5_part2_v*                              #CMSHLT-1098
+HLT_PADmesonPPTrackingGlobal_Dpt5_part2_v*                              #CMSHLT-1098
+
 HLT_PAFullTracks_HFSumEt005_HighPt8_v*                                  #CMSHLT-1069
 HLT_PAFullTracks_HFSumEt005_HighPt16_v*                                 #CMSHLT-1069
 
@@ -202,6 +205,8 @@ RPCMONOutput                                #CMSHLT-1083
 
 ALCALUMIPIXELSOutput                        #CMSHLT-1087
 
+HLTMonitorPAOutput                          #CMSHLT-1092
+
 PhysicsCommissioningOutput
 PhysicsPAMuonsOutput                        #CMSHLT-1013
 PhysicsPAHighMultiplicity0Output            #CMSHLT-1000
@@ -209,6 +214,7 @@ PhysicsPAHighMultiplicity1Output            #CMSHLT-1000
 PhysicsPAHighMultiplicity2Output            #CMSHLT-1000
 PhysicsPAJetsEGOutput                       #CMSHLT-1028
 PhysicsPAMesonDOutput                       #CMSHLT-1030
+PhysicsPAMesonD2Output                      #CMSHLT-1098
 PhysicsPACastorOutput                       #CMSHLT-1074
 PhysicsPAMinimumBias0Output                 #CMSHLT-1076
 PhysicsPAMinimumBias1Output                 #CMSHLT-1076

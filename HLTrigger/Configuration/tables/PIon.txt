@@ -205,6 +205,8 @@ RPCMONOutput                                #CMSHLT-1083
 
 ALCALUMIPIXELSOutput                        #CMSHLT-1087
 
+HLTMonitorPAOutput                          #CMSHLT-1092
+
 PhysicsCommissioningOutput
 PhysicsPAMuonsOutput                        #CMSHLT-1013
 PhysicsPAHighMultiplicity0Output            #CMSHLT-1000
