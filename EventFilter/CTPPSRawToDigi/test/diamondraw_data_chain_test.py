@@ -13,7 +13,7 @@ process.MessageLogger = cms.Service("MessageLogger",
 
 # raw data source
 process.source = cms.Source("NewEventStreamFileReader",
-    fileNames = cms.untracked.vstring('/store/t0streamer/Minidaq/A/000/281/709/run281709_ls0016_streamA_StorageManager.dat')
+    fileNames = cms.untracked.vstring('/store/t0streamer/Minidaq/A/000/281/851/run281851_ls0001_streamA_StorageManager.dat')
 )   
  
 # raw-to-digi conversion

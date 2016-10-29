@@ -279,8 +279,7 @@ void RawToDigiConverter::Run(const VFATFrameCollection &coll, const TotemDAQMapp
     // calculate ids
     CTPPSDiamondDetId detId(record.info->symbolicID.symbolicID);  
 
-
-    if(!record.status.isMissing() && !record.status.isFootprintError() &&  !record.status.isCRCError() &&  !record.status.isECProgressError() && !record.status.isBCProgressError())
+    if (record.status.isOK())
     {
       const VFATFrame *fr = record.frame;
       DiamondVFATFrame *diamondframe = (DiamondVFATFrame*) fr;
@@ -288,7 +287,7 @@ void RawToDigiConverter::Run(const VFATFrameCollection &coll, const TotemDAQMapp
       // create the digi
       DetSet<CTPPSDiamondDigi> &digiDetSet = digi.find_or_insert(detId);
       digiDetSet.push_back(CTPPSDiamondDigi(diamondframe->getLeadingEdgeTime(),diamondframe->getTrailingEdgeTime(),diamondframe->getThresholdVoltage(),diamondframe->getMultihit(),diamondframe->getHptdcErrorFlag()));
-    }
+    } 
 
     // save status
     DetSet<TotemVFATStatus> &statusDetSet = status.find_or_insert(detId);
