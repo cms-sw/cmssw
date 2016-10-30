@@ -130,11 +130,6 @@ float PileupJPTJetIdAlgo::fillJPTBlock(const reco::JPTJet* jet
       double dphi1=0.;
       double dphideta=0.;     
       double deta1=0.;
-      double ffrac01=0.;
-      double ffrac02=0.;
-      double ffrac03=0.;
-      double ffrac04=0.;
-      double ffrac05=0.;
       double EE=0.;
       double HE=0.;
       double EELong=0.;
@@ -158,11 +153,6 @@ float PileupJPTJetIdAlgo::fillJPTBlock(const reco::JPTJet* jet
 
         double dr = sqrt(dphi*dphi+deta*deta);
         double enc = (*icalot)->emEnergy()+(*icalot)->hadEnergy();
-        if(dr < 0.1) ffrac01 = ffrac01 + enc;
-        if(dr < 0.2) ffrac02 = ffrac02 + enc;
-        if(dr < 0.3) ffrac03 = ffrac03 + enc;
-        if(dr < 0.4) ffrac04 = ffrac04 + enc;
-        if(dr < 0.5) ffrac05 = ffrac05 + enc;
 	
         if(abs((*icalot)->ieta())<30) EE = EE + (*icalot)->emEnergy();
         if(abs((*icalot)->ieta())<30) HE = HE + (*icalot)->hadEnergy();
