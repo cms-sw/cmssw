@@ -62,6 +62,7 @@ if checkFile SingleMuPt10_step2_DIGI_L1_DIGI2RAW_HLT_PhaseI.root ; then
 --eventcontent FEVTDEBUGHLT \
 --datatier GEN-SIM-DIGI-RAW \
 --geometry Extended2017new \
+--nThreads 6 \
 --filein file:SingleMuPt10_pythia8_cfi_GEN_SIM_PhaseI.root  \
 --fileout file:SingleMuPt10_step2_DIGI_L1_DIGI2RAW_HLT_PhaseI.root \
 --python_filename SingleMuPt10_step2_DIGI_L1_DIGI2RAW_HLT_PhaseI.py > SingleMuPt10_step2_DIGI_L1_DIGI2RAW_HLT_PhaseI.log 2>&1
@@ -83,6 +84,7 @@ if checkFile SingleMuPt10_step3_RECO_DQM_PhaseI.root ; then
 --eventcontent RECOSIM,DQM \
 --datatier GEN-SIM-RECO,DQMIO \
 --geometry Extended2017new \
+--nThreads 6 \
 --filein file:SingleMuPt10_step2_DIGI_L1_DIGI2RAW_HLT_PhaseI.root  \
 --fileout file:SingleMuPt10_step3_RECO_DQM_PhaseI.root \
 --python_filename SingleMuPt10_step2_RECO_DQM_PhaseI.py \
