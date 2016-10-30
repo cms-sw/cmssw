@@ -84,35 +84,30 @@ upgradeProperties[2023] = {
     '2023D1' : {
         'Geom' : 'Extended2023D1',
         'GT' : 'auto:phase2_realistic',
-        'Custom' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2023tilted',
         'Era' : 'Phase2C1',
         'ScenToRun' : ['GenSimHLBeamSpotFull','DigiFull','RecoFullGlobal','HARVESTFullGlobal'],
     },    
     '2023D2' : {
         'Geom' : 'Extended2023D2',
         'GT' : 'auto:phase2_realistic',
-        'Custom' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2023flat',
         'Era' : 'Phase2C1',
         'ScenToRun' : ['GenSimHLBeamSpotFull','DigiFull','RecoFullGlobal','HARVESTFullGlobal'],
     },    
     '2023D3' : {
         'Geom' : 'Extended2023D3',
         'GT' : 'auto:phase2_realistic',
-        'Custom' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2023tilted',
         'Era' : 'Phase2C2',
         'ScenToRun' : ['GenSimHLBeamSpotFull','DigiFull','RecoFullGlobal', 'HARVESTFullGlobal'],
     },    
     '2023D4' : {
         'Geom' : 'Extended2023D4',
         'GT' : 'auto:phase2_realistic',
-        'Custom' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2023tilted4021',
         'Era' : 'Phase2C2',
         'ScenToRun' : ['GenSimHLBeamSpotFull','DigiFull','RecoFullLocal'],
     },
     '2023D5' : {
         'Geom' : 'Extended2023D5',
         'GT' : 'auto:phase2_realistic',
-        'Custom' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2023tilted',
         'Era' : 'Phase2C2_timing',
         'ScenToRun' : ['GenSimHLBeamSpotFull','DigiFull','RecoFullGlobal', 'HARVESTFullGlobal'],
     }
