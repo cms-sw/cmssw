@@ -6,6 +6,14 @@
 Phase2StripCPE::Phase2StripCPE(edm::ParameterSet & conf, const MagneticField & magf)
 {
   magfield_ = &magf;
+  use_LorentzAngle_DB_ = conf.getParameter<bool>("LorentzAngle_DB");
+  if (use_LorentzAngle_DB_) {
+    throw cms::Exception("Lorentz Angle from DB not implemented yet");
+    tanLorentzAnglePerTesla_ = 0;
+    // old code: LorentzAngleMap_.getLorentzAngle(det->geographicalId().rawId());
+  } else {
+    tanLorentzAnglePerTesla_ = conf.getParameter<double>("TanLorentzAnglePerTesla");
+  }
 }
 
 
@@ -40,12 +48,10 @@ LocalVector Phase2StripCPE::driftDirection(
   const Phase2TrackerGeomDetUnit & det) const
 {
   LocalVector lbfield = (det.surface()).toLocal(magfield_->inTesla(det.surface().position()));  
-  
-  float tanLorentzAnglePerTesla = 0.11; // LorentzAngleMap_.getLorentzAngle(det->geographicalId().rawId());
-  
-  float dir_x = -tanLorentzAnglePerTesla * lbfield.y();
-  float dir_y =  tanLorentzAnglePerTesla * lbfield.x();
+
+  float dir_x = -tanLorentzAnglePerTesla_ * lbfield.y();
+  float dir_y =  tanLorentzAnglePerTesla_ * lbfield.x();
   float dir_z =  1.f; // E field always in z direction
-  
+
   return LocalVector(dir_x,dir_y,dir_z);
 }

@@ -11,7 +11,6 @@
 #include "RecoLocalTracker/Records/interface/TkStripCPERecord.h"
 #include "RecoLocalTracker/ClusterParameterEstimator/interface/ClusterParameterEstimator.h"
 #include "RecoLocalTracker/Phase2TrackerRecHits/interface/Phase2StripCPE.h"
-#include "RecoLocalTracker/Phase2TrackerRecHits/interface/Phase2StripCPETrivial.h"
 #include "RecoLocalTracker/Phase2TrackerRecHits/interface/Phase2StripCPEGeometric.h"
 
 #include "DataFormats/Phase2TrackerCluster/interface/Phase2TrackerCluster1D.h"
@@ -28,7 +27,7 @@ class Phase2StripCPEESProducer: public edm::ESProducer {
 
     private:
 
-        enum CPE_t { DEFAULT, TRIVIAL, GEOMETRIC };
+        enum CPE_t { DEFAULT, GEOMETRIC };
         std::map<std::string, CPE_t> enumMap_;
 
         CPE_t cpeNum_;
@@ -42,13 +41,12 @@ Phase2StripCPEESProducer::Phase2StripCPEESProducer(const edm::ParameterSet & p) 
   std::string name = p.getParameter<std::string>("ComponentType");
 
   enumMap_[std::string("Phase2StripCPE")]          = DEFAULT;
-  enumMap_[std::string("Phase2StripCPETrivial")]   = TRIVIAL;
   enumMap_[std::string("Phase2StripCPEGeometric")] = GEOMETRIC;
   if (enumMap_.find(name) == enumMap_.end())
     throw cms::Exception("Unknown StripCPE type") << name;
 
   cpeNum_ = enumMap_[name];
-  pset_ = p;
+  pset_ = p.getParameter<edm::ParameterSet>("parameters");
   setWhatProduced(this, name);
 }
 
@@ -61,9 +59,6 @@ std::shared_ptr<ClusterParameterEstimator<Phase2TrackerCluster1D> > Phase2StripC
     case DEFAULT:
       iRecord.getRecord<IdealMagneticFieldRecord>().get(magfield );
       cpe_ = std::make_shared<Phase2StripCPE>(pset_, *magfield);
-      break;
-    case TRIVIAL:
-      cpe_ = std::make_shared<Phase2StripCPETrivial>();
       break;
     case GEOMETRIC:
       cpe_ = std::make_shared<Phase2StripCPEGeometric>(pset_);

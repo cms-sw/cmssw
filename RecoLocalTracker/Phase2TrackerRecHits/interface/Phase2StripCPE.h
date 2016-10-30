@@ -28,6 +28,8 @@ class Phase2StripCPE : public ClusterParameterEstimator<Phase2TrackerCluster1D> 
   protected:
 
     const MagneticField * magfield_;
+    bool use_LorentzAngle_DB_;
+    double tanLorentzAnglePerTesla_;
 
 };
 
