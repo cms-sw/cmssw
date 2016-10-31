@@ -139,7 +139,7 @@ void MultShiftMETcorrDBInputProducer::produce(edm::Event& evt, const edm::EventS
       }
     }
     double val(0.);
-    unsigned parVar = getUnsigned(MEtXYcorParams.definitions().parVar(0));
+    unsigned parVar = MEtXYcorParams.definitions().parVar(0);
 
     if ( parVar ==0) {
       val = counts_;
