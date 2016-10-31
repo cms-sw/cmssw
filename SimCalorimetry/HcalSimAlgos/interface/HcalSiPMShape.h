@@ -8,7 +8,7 @@
 class HcalSiPMShape : public CaloVShape {
 public:
 
-  HcalSiPMShape();
+  HcalSiPMShape(unsigned int signalShape=203);
   HcalSiPMShape(const HcalSiPMShape & other);
 
   virtual ~HcalSiPMShape() {}
@@ -18,8 +18,8 @@ public:
   virtual double timeToRise() const {return 3.5;}
 
 protected:
-  virtual double analyticPulseShape(double t) const;
-  void computeShape();
+  virtual double analyticPulseShape(double t, unsigned int signalShape) const;
+  void computeShape(unsigned int signalShape);
 
 private:
 

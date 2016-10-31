@@ -27,6 +27,7 @@ HcalDbService::HcalDbService (const edm::ParameterSet& cfg):
   mLutMetadata(0),
   mSiPMParameters(0), mSiPMCharacteristics(0),
   mTPChannelParameters(0), mTPParameters(0),
+  mMCParams(0),
   mCalibSet(nullptr), mCalibWidthSet(nullptr)
  {}
 
@@ -313,6 +314,13 @@ const HcalSiPMCharacteristics* HcalDbService::getHcalSiPMCharacteristics () cons
 const HcalTPChannelParameter* HcalDbService::getHcalTPChannelParameter (const HcalGenericDetId& fId) const {
   if (mTPChannelParameters) {
     return mTPChannelParameters->getValues (fId);
+  }
+  return 0;
+}
+
+const HcalMCParam* HcalDbService::getHcalMCParam (const HcalGenericDetId& fId) const {
+  if (mMCParams) {
+    return mMCParams->getValues (fId);
   }
   return 0;
 }
