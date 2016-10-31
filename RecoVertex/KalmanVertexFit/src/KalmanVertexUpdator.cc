@@ -100,7 +100,7 @@ KalmanVertexUpdator<N>::positionUpdate (const VertexState & oldVertex,
   //    << "Now updating position" << "\n";
 
   //vertex information
-//   AlgebraicSymMatrix33 oldVertexWeight = oldVertex.weight().matrix_new();
+//   AlgebraicSymMatrix33 oldVertexWeight = oldVertex.weight().matrix();
   AlgebraicSymMatrixMM s = ROOT::Math::SimilarityT(b,trackParametersWeight);
   if (!invertPosDefMatrix(s))   {
     edm::LogWarning("KalmanVertexUpdator") << "S matrix inversion failed. An invalid vertex will be returned.";
@@ -112,7 +112,7 @@ KalmanVertexUpdator<N>::positionUpdate (const VertexState & oldVertex,
 
 // Getting the new covariance matrix of the vertex.
 
-  AlgebraicSymMatrix33 newVertexWeight =  oldVertex.weight().matrix_new()
+  AlgebraicSymMatrix33 newVertexWeight =  oldVertex.weight().matrix()
     + (weight * sign) * ROOT::Math::SimilarityT(a,gB);
   //  edm::LogInfo("RecoVertex/KalmanVertexUpdator") 
   //    << "weight matrix" << newVertexWeight << "\n";

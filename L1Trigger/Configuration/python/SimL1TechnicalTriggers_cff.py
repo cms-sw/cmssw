@@ -1,5 +1,4 @@
 import FWCore.ParameterSet.Config as cms
-from Configuration.StandardSequences.Eras import eras
 
 # Stage2 fake Technical Triggers
 import L1Trigger.L1TGlobal.simGtExtFakeProd_cfi
@@ -26,7 +25,8 @@ simHcalTechTrigDigis = SimCalorimetry.HcalTrigPrimProducers.hcalTTPRecord_cfi.si
 import SimCalorimetry.CastorTechTrigProducer.castorTTRecord_cfi
 simCastorTechTrigDigis = SimCalorimetry.CastorTechTrigProducer.castorTTRecord_cfi.simCastorTTRecord.clone()
 
-if not (eras.stage2L1Trigger.isChosen()):
+from Configuration.Eras.Modifier_stage2L1Trigger_cff import stage2L1Trigger
+if not (stage2L1Trigger.isChosen()):
     SimL1TechnicalTriggers = cms.Sequence( 
         simBscDigis + 
         simRpcTechTrigDigis + 

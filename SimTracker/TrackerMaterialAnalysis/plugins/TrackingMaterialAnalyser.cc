@@ -136,7 +136,8 @@ void TrackingMaterialAnalyser::endJob(void)
 //-------------------------------------------------------------------------
 void TrackingMaterialAnalyser::analyze(const edm::Event& event, const edm::EventSetup& setup)
 {
-  edm::ESTransientHandle<DDCompactView> hDDD;
+  using namespace edm;
+  ESTransientHandle<DDCompactView> hDDD;
   setup.get<IdealGeometryRecord>().get( hDDD );
 
   m_groups.reserve( m_groupNames.size() );
@@ -147,13 +148,13 @@ void TrackingMaterialAnalyser::analyze(const edm::Event& event, const edm::Event
     for (unsigned int i = 0; i < m_groupNames.size(); ++i)
       m_groups.push_back( new MaterialAccountingGroup( m_groupNames[i], * hDDD) );
 
-    LogDebug("TrackingMaterialAnalyser")
+    LogInfo("TrackingMaterialAnalyser")
         << "TrackingMaterialAnalyser: List of the tracker groups: " << std::endl;
     for (unsigned int i = 0; i < m_groups.size(); ++i)
-      LogDebug("TrackingMaterialAnalyser")
+      LogInfo("TrackingMaterialAnalyser")
         << i << " TrackingMaterialAnalyser:\t" << m_groups[i]->info() << std::endl;
   }
-  edm::Handle< std::vector<MaterialAccountingTrack> > h_tracks;
+  Handle< std::vector<MaterialAccountingTrack> > h_tracks;
   event.getByToken(m_materialToken, h_tracks);
 
   for (std::vector<MaterialAccountingTrack>::const_iterator t = h_tracks->begin(), end = h_tracks->end(); t != end; ++t) {

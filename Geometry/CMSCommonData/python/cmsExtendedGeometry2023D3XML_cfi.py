@@ -5,7 +5,7 @@ import FWCore.ParameterSet.Config as cms
 
 XMLIdealGeometryESSource = cms.ESSource("XMLIdealGeometryESSource",
     geomXMLFiles = cms.vstring(
-        'Geometry/CMSCommonData/data/PhaseII/materials.xml',
+        'Geometry/CMSCommonData/data/materials.xml',
         'Geometry/CMSCommonData/data/rotations.xml',
         'Geometry/CMSCommonData/data/extend/cmsextent.xml',
         'Geometry/CMSCommonData/data/PostLS2/cms.xml',
@@ -91,7 +91,7 @@ XMLIdealGeometryESSource = cms.ESSource("XMLIdealGeometryESSource",
         'Geometry/HcalCommonData/data/hcalouteralgo.xml',
         'Geometry/HcalCommonData/data/hcalforwardalgo.xml',
         'Geometry/HcalCommonData/data/PhaseII/hcalSimNumbering.xml',
-        'Geometry/HcalCommonData/data/PhaseII/HGCal/hcalRecNumberingRebuild.xml',
+        'Geometry/HcalCommonData/data/PhaseII/hcalRecNumberingRebuild.xml',
         'Geometry/HcalCommonData/data/average/hcalforwardmaterial.xml',
         'Geometry/HGCalCommonData/data/v7/hgcal.xml',
         'Geometry/HGCalCommonData/data/v7/hgcalEE.xml',

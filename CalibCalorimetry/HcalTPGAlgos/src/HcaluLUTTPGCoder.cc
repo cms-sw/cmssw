@@ -28,6 +28,11 @@
 
 const float HcaluLUTTPGCoder::lsb_=1./16;
 
+const int HcaluLUTTPGCoder::QIE8_LUT_BITMASK;
+const int HcaluLUTTPGCoder::QIE10_LUT_BITMASK;
+const int HcaluLUTTPGCoder::QIE11_LUT_BITMASK;
+
+
 HcaluLUTTPGCoder::HcaluLUTTPGCoder(const HcalTopology* top) : topo_(top), LUTGenerationMode_(true), bitToMask_(0) {
   firstHBEta_ = topo_->firstHBRing();      
   lastHBEta_  = topo_->lastHBRing();
@@ -236,8 +241,7 @@ void HcaluLUTTPGCoder::update(const HcalDbService& conditions) {
   HcalSubdetector subdets[] = {HcalBarrel, HcalEndcap, HcalForward};
   for (int isub = 0; isub < 3; ++isub){
     HcalSubdetector subdet = subdets[isub];
-    for (int ieta = -HcalDetId::kHcalEtaMask2; 
-	 ieta <= HcalDetId::kHcalEtaMask2; ++ieta) {
+    for (int ieta = -HcalDetId::kHcalEtaMask2; ieta <= HcalDetId::kHcalEtaMask2; ++ieta) {
       for (int iphi = 0; iphi <= HcalDetId::kHcalPhiMask2; ++iphi) {
 	for (int depth = 1; depth < HcalDetId::kHcalDepthMask2; ++depth) {
 	  HcalDetId cell(subdet, ieta, iphi, depth);
@@ -247,6 +251,15 @@ void HcaluLUTTPGCoder::update(const HcalDbService& conditions) {
 	  const HcalQIEShape* shape = conditions.getHcalShape(cell);
 	  HcalCoderDb coder (*channelCoder, *shape);
 	  const HcalLutMetadatum *meta = metadata->getValues(cell);
+
+          unsigned int mipMax = 0;
+          unsigned int mipMin = 0;
+
+          if (topo_->triggerMode() >= HcalTopologyMode::TriggerMode_2017) {
+             const HcalTPChannelParameter *channelParameters = conditions.getHcalTPChannelParameter(cell);
+             mipMax = channelParameters->getFGBitInfo() >> 16;
+             mipMin = channelParameters->getFGBitInfo() & 0xFFFF;
+          }
 
 	  int lutId = getLUTId(subdet, ieta, iphi, depth);
 	  float ped = 0;
@@ -265,8 +278,7 @@ void HcaluLUTTPGCoder::update(const HcalDbService& conditions) {
 	    //Get Channel Quality
 	    const HcalChannelStatus* channelStatus = conditions.getHcalChannelStatus(cell);
 	    status = channelStatus->getValue();
-	  }
-	  else {
+	  } else {
 	    const HcalL1TriggerObject* myL1TObj = conditions.getHcalL1TriggerObject(cell);
 	    ped = myL1TObj->getPedestal();
 	    gain = myL1TObj->getRespGain();
@@ -303,10 +315,15 @@ void HcaluLUTTPGCoder::update(const HcalDbService& conditions) {
                coder.adc2fC(upgradeFrame, upgradeSamples);
                float adc2fC = upgradeSamples[0];
 
-               if (isMasked)
+               if (isMasked) {
                   upgradeQIE11LUT_[lutId][adc] = 0;
-               else
+               } else {
                   upgradeQIE11LUT_[lutId][adc] = (LutElement) std::min(std::max(0, int((adc2fC -ped) * gain * rcalib / nominalgain_ / granularity)), QIE11_LUT_BITMASK);
+                  if (adc >= mipMin and adc < mipMax)
+                     upgradeQIE11LUT_[lutId][adc] |= QIE11_LUT_MSB0;
+                  else if (adc >= mipMax)
+                     upgradeQIE11LUT_[lutId][adc] |= QIE11_LUT_MSB1;
+               }
             }
 	  }  // endif HBHE
 	  else if (subdet == HcalForward){
@@ -413,7 +430,7 @@ HcaluLUTTPGCoder::lookupMSB(const QIE11DataFrame& df, std::vector<std::bitset<2>
    int lutId = getLUTId(HcalDetId(df.id()));
    const Lut& lut = upgradeQIE11LUT_.at(lutId);
    for (int i = 0; i < df.samples(); ++i) {
-      msb[0] = lut.at(df[i].adc()) & QIE11_LUT_MSB0;
-      msb[1] = lut.at(df[i].adc()) & QIE11_LUT_MSB1;
+      msb[i][0] = lut.at(df[i].adc()) & QIE11_LUT_MSB0;
+      msb[i][1] = lut.at(df[i].adc()) & QIE11_LUT_MSB1;
    }
 }

@@ -34,6 +34,16 @@ extractedGlobalMuons.selectionTags = ('AllGlobalMuons',)
 extractedGlobalMuons.trackType = "globalTrack"
 extractedMuonTracks_seq = cms.Sequence( extractedGlobalMuons )
 
+extractGemMuons = SimMuon.MCTruth.MuonTrackProducer_cfi.muonTrackProducer.clone()
+extractGemMuons.selectionTags = ('All',)
+extractGemMuons.trackType = "gemMuonTrack"
+extractGemMuonsTracks_seq = cms.Sequence( extractGemMuons )
+
+extractMe0Muons = SimMuon.MCTruth.MuonTrackProducer_cfi.muonTrackProducer.clone()
+extractMe0Muons.selectionTags = cms.vstring('All',)
+extractMe0Muons.trackType = "me0MuonTrack"
+extractMe0MuonsTracks_seq = cms.Sequence( extractMe0Muons )
+
 #
 # Configuration for Seed track extractor
 #
@@ -162,6 +172,8 @@ tpToL3TkMuonAssociation = SimMuon.MCTruth.MuonAssociatorByHits_cfi.muonAssociato
 tpToL2MuonAssociation = SimMuon.MCTruth.MuonAssociatorByHits_cfi.muonAssociatorByHits.clone()
 tpToL2UpdMuonAssociation = SimMuon.MCTruth.MuonAssociatorByHits_cfi.muonAssociatorByHits.clone()
 tpToL3MuonAssociation = SimMuon.MCTruth.MuonAssociatorByHits_cfi.muonAssociatorByHits.clone()
+tpToME0MuonMuonAssociation = SimMuon.MCTruth.MuonAssociatorByHits_cfi.muonAssociatorByHits.clone()
+tpToGEMMuonMuonAssociation = SimMuon.MCTruth.MuonAssociatorByHits_cfi.muonAssociatorByHits.clone()
 
 tpToTkMuonAssociation.tpTag = 'mix:MergedTrackTruth'
 #tpToTkMuonAssociation.tracksTag = 'generalTracks'
@@ -266,6 +278,16 @@ tpToL3MuonAssociation.UseMuon = True
 tpToL3MuonAssociation.ignoreMissingTrackCollection = True
 tpToL3MuonAssociation.UseSplitting = False
 tpToL3MuonAssociation.UseGrouped = False
+
+tpToME0MuonMuonAssociation.tpTag = 'mix:MergedTrackTruth'
+tpToME0MuonMuonAssociation.tracksTag = 'extractMe0Muons'
+tpToME0MuonMuonAssociation.UseTracker = True
+tpToME0MuonMuonAssociation.UseMuon = False
+
+tpToGEMMuonMuonAssociation.tpTag = 'mix:MergedTrackTruth'
+tpToGEMMuonMuonAssociation.tracksTag = 'extractGemMuons'
+tpToGEMMuonMuonAssociation.UseTracker = True
+tpToGEMMuonMuonAssociation.UseMuon = False
 
 #
 # Associators for cosmics:
@@ -386,8 +408,8 @@ muonAssociationHLT_seq = cms.Sequence(
 
 
 # fastsim has no hlt specific dt hit collection
-from Configuration.StandardSequences.Eras import eras
-if eras.fastSim.isChosen():
+from Configuration.Eras.Modifier_fastSim_cff import fastSim
+if fastSim.isChosen():
     _DTrechitTag = SimMuon.MCTruth.MuonAssociatorByHits_cfi.muonAssociatorByHits.DTrechitTag
     tpToL3TkMuonAssociation.DTrechitTag = _DTrechitTag
     tpToL2MuonAssociation.DTrechitTag = _DTrechitTag

@@ -120,7 +120,7 @@ void HcalTB06Analysis::analyze(const edm::Event & evt, const edm::EventSetup&)
   edm::Handle<edm::PCaloHitContainer> Ecal;
   edm::Handle<edm::PCaloHitContainer> Hcal;
   edm::Handle<edm::PCaloHitContainer> Beam;
-  std::vector<double> eCalo(6,0), eTrig(5,0);
+  std::vector<double> eCalo(6,0), eTrig(7,0);
 
   const std::vector<PCaloHit>* EcalHits = nullptr;
   if(m_ECAL) { 
@@ -205,6 +205,8 @@ void HcalTB06Analysis::analyze(const edm::Event & evt, const edm::EventSetup&)
       if ((det == 1) && ((*BeamHits)[i].time() < m_timeLimit)) {
 	if (lay > 0 && lay <= 4) {
 	  eTrig[lay-1] += (*BeamHits)[i].energy();
+	} else if (lay == 7 || lay == 8) {
+	  eTrig[lay-2] += (*BeamHits)[i].energy();
 	} else if (lay >= 11 && lay <= 14) {
 	  eTrig[4]     += (*BeamHits)[i].energy();
 	}
@@ -214,6 +216,8 @@ void HcalTB06Analysis::analyze(const edm::Event & evt, const edm::EventSetup&)
 
   edm::LogInfo("HcalTBSim") << "HcalTB06Analysis:: Trigger Info: " 
 			    << eTrig[0] << ":" << eTrig[1] << ":" << eTrig[2]
-			    << ":" << eTrig[3] << ":" << eTrig[4];
+			    << ":" << eTrig[3] << ":" << eTrig[4] << ":" 
+			    << eTrig[5] << ":" << eTrig[6];
+;
   m_histo->fillTree(eCalo,eTrig);
 }

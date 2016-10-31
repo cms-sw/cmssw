@@ -111,55 +111,55 @@ void ph_pattern::operator()
 
         for (mi = 0; mi < red_pat_w_st1; mi = mi + 1) 
         {
-			if (( (mi) == 0)) {  {
+			if ( (mi) == 0 ) {  {
 					lyhits[2] = uor(st1(7,0));
 					lyhits[1] = st2;
 					lyhits[0] = (uor(st3(14,7))) | (uor(st4(14,7)));
 					straightness = const_(3, 0x0UL);
 				} } else 
-			if (( (mi) == 1)) {  {
+			if ( (mi) == 1 ) {  {
 					lyhits[2] = uor(st1(30,23));
 					lyhits[1] = st2;
 					lyhits[0] = (uor(st3(7,0))) | (uor(st4(7,0)));
 					straightness = const_(3, 0x0UL);
 				} } else 
-			if (( (mi) == 2)) {  {
+			if ( (mi) == 2 ) {  {
 					lyhits[2] = uor(st1(11,8));
 					lyhits[1] = st2;
 					lyhits[0] = (uor(st3(14,7))) | (uor(st4(14,7)));
 					straightness = const_(3, 0x1UL);
 				} } else 
-			if (( (mi) == 3)) {  {
+			if ( (mi) == 3 ) {  {
 					lyhits[2] = uor(st1(22,19));
 					lyhits[1] = st2;
 					lyhits[0] = (uor(st3(7,0))) | (uor(st4(7,0)));
 					straightness = const_(3, 0x1UL);
 				} } else 
-			if (( (mi) == 4)) {  {
+			if ( (mi) == 4 ) {  {
 					lyhits[2] = uor(st1(13,12));
 					lyhits[1] = st2;
 					lyhits[0] = (uor(st3(10,7))) | (uor(st4(10,7)));
 					straightness = const_(3, 0x2UL);
 				} } else 
-			if (( (mi) == 5)) {  {
+			if ( (mi) == 5 ) {  {
 					lyhits[2] = uor(st1(18,17));
 					lyhits[1] = st2;
 					lyhits[0] = (uor(st3(7,5))) | (uor(st4(7,5)));
 					straightness = const_(3, 0x2UL);
 				} } else 
-			if (( (mi) == 6)) {  {
+			if ( (mi) == 6 ) {  {
 					lyhits[2] = st1[14];
 					lyhits[1] = st2;
 					lyhits[0] = (uor(st3(8,7))) | (uor(st4(8,7)));
 					straightness = const_(3, 0x3UL);
 				} } else 
-			if (( (mi) == 7)) {  {
+			if ( (mi) == 7 ) {  {
 					lyhits[2] = st1[16];
 					lyhits[1] = st2;
 					lyhits[0] = (uor(st3(7,6))) | (uor(st4(7,6)));
 					straightness = const_(3, 0x3UL);
 				} } else 
-			if (( (mi) == 8)) {  {
+			if ( (mi) == 8 ) {  {
 					lyhits[2] = st1[15];
 					lyhits[1] = st2;
 					lyhits[0] = st3[7] | st4[7];

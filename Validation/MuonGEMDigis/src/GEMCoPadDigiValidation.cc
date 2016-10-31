@@ -10,7 +10,6 @@ GEMCoPadDigiValidation::GEMCoPadDigiValidation(const edm::ParameterSet& cfg): GE
 }
 void GEMCoPadDigiValidation::bookHistograms(DQMStore::IBooker & ibooker, edm::Run const & Run, edm::EventSetup const & iSetup ) {
   const GEMGeometry* GEMGeometry_ = initGeometry(iSetup);
-  //if ( nStationForLabel() ==3 ) setNStationForLabel(2) ;
 
   const double PI = TMath::Pi();
 
@@ -19,10 +18,7 @@ void GEMCoPadDigiValidation::bookHistograms(DQMStore::IBooker & ibooker, edm::Ru
   int nPads = 0;
 
   if ( nStation() > 1 ) {
-    //const std::vector<const GEMStation*>&  sts = GEMGeometry_->regions()[0]->stations();
-    std::vector<const GEMStation*>::const_iterator it = GEMGeometry_->regions()[0]->stations().end();
-    --it;
-    npadsGE21  = (*it)->superChambers()[0]->chambers()[0]->etaPartitions()[0]->npads();
+    npadsGE21  = GEMGeometry_->regions()[0]->stations()[1]->superChambers()[0]->chambers()[0]->etaPartitions()[0]->npads();
   }
 
   for( auto& region : GEMGeometry_->regions()  ){
@@ -38,8 +34,6 @@ void GEMCoPadDigiValidation::bookHistograms(DQMStore::IBooker & ibooker, edm::Ru
     }
     for( auto& station : region->stations()) {
       int st = station->station();
-      //if ( nStation()==3 && st ==2 ) continue;  // skip st2 short
-      //st = (station->station()==1) ? 1 : 2;   // 1 = station 1, 3 = station2l. Should be 2.
       TString title_suffix2 = getSuffixTitle( re , st) ;
       TString histname_suffix2 = getSuffixName( re, st) ;
 
@@ -61,8 +55,6 @@ void GEMCoPadDigiValidation::bookHistograms(DQMStore::IBooker & ibooker, edm::Ru
         for( auto& station : region->stations() ) {
           int st = station->station();
           int station_num = st-1;
-          //if ( nStation()==3 && st ==2 ) continue;  // skip st2 short
-          //st = (station->station()==1) ? 1 : 2;   // 1 = station 1, 3 = station2l. Should be 2.
             
           if ( st == 1 ) nPads = npadsGE11;
           else nPads = npadsGE21;
@@ -112,8 +104,6 @@ void GEMCoPadDigiValidation::analyze(const edm::Event& e,
     return ;
   }
 
-
-  // Alert! copad's station2 means GEMGeometry's station3. 
   for (GEMCoPadDigiCollection::DigiRangeIterator cItr=gem_digis->begin(); cItr!=gem_digis->end(); cItr++) {
     GEMDetId id = (*cItr).first;
     int re = id.region();
@@ -124,8 +114,6 @@ void GEMCoPadDigiValidation::analyze(const edm::Event& e,
     //loop over digis of given roll
     for (digiItr = (*cItr ).second.first; digiItr != (*cItr ).second.second; ++digiItr)
     {
-      if ( st ==2 ) st = 3; // due to gap GEMGeometry and Copad's keep information.
-
       GEMDetId roId = GEMDetId(re, id.ring(), st, la, chamber, digiItr->roll());
       Short_t nroll = roId.roll();  
       LogDebug("GEMCoPadDigiValidation")<<"roId : "<<roId;

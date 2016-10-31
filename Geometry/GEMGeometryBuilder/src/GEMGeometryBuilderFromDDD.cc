@@ -118,13 +118,10 @@ GEMGeometry* GEMGeometryBuilderFromDDD::buildGeometry(DDFilteredView& fv, const 
   // construct the regions, stations and rings. 
   for (int re = -1; re <= 1; re = re+2) {
     GEMRegion* region = new GEMRegion(re);
-    for (int st=1; st< GEMDetId::maxStationId; ++st) {
+    for (int st=1; st<=GEMDetId::maxStationId; ++st) {
       GEMStation* station = new GEMStation(re, st);
       std::string sign( re==-1 ? "-" : "");
       std::string name("GE" + sign + std::to_string(st) + "/1");
-      // Closest (furthest) super chambers in GE2/1 are called GE2/1s (GE2/1l)
-      if (st==2) name = "GE" + sign + std::to_string(st) + "/1s";
-      if (st==3) name = "GE" + sign + std::to_string(st-1) + "/1l";
       station->setName(name);
       for (int ri=1; ri<=1; ++ri) {
 	GEMRing* ring = new GEMRing(re, st, ri);

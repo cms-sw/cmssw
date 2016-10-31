@@ -32,11 +32,12 @@ typedefsDict = \
 #Ordered List to search for matched packages
 equivDict = \
      [
+         {'TrackTriggerAssociation' : ['TTClusterAssociationMap','TTStubAssociationMap', '(TTStub|TTCluster).*edm::refhelper::FindForDetSetVector.*Phase2TrackerDigi.*']},
          {'L1TCalorimeter'        : ['l1t::CaloTower.*']},
          {'GsfTracking'           : ['reco::GsfTrack(Collection|).*(MomentumConstraint|VertexConstraint)', 'Trajectory.*reco::GsfTrack']},
          {'ParallelAnalysis'      : ['examples::TrackAnalysisAlgorithm']},
          {'PatCandidates'         : ['pat::PATObject','pat::Lepton']},
-         {'BTauReco'              : ['reco::.*SoftLeptonTagInfo', 'reco::SoftLeptonProperties','reco::SecondaryVertexTagInfo','reco::IPTagInfo','reco::TemplatedSecondaryVertexTagInfo', 'reco::CATopJetProperties']},
+         {'BTauReco'              : ['reco::.*SoftLeptonTagInfo', 'reco::SoftLeptonProperties','reco::SecondaryVertexTagInfo','reco::IPTagInfo','reco::TemplatedSecondaryVertexTagInfo', 'reco::CATopJetProperties','reco::HTTTopJetProperties']},
          {'CastorReco'            : ['reco::CastorJet']},
          {'JetMatching'           : ['reco::JetFlavourInfo', 'reco::JetFlavour','reco::MatchedPartons']},
          {'TrackingAnalysis'      : ['TrackingParticle']},
@@ -69,6 +70,7 @@ equivDict = \
          {'TFWLiteSelectorTest'   : ['tfwliteselectortest']},
          {'PatCandidates'         : ['reco::RecoCandidate','pat::[A-Za-z]+Ref(Vector|)']},
          {'JetReco'               : ['reco::.*Jet','reco::.*Jet(Collection|Ref)']},
+         {'HGCDigi'               : ['HGCSample']},
      ]
 
 ignoreEdmDP = {

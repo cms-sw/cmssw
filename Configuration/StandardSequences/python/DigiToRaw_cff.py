@@ -2,7 +2,6 @@ import FWCore.ParameterSet.Config as cms
 
 # This object is used to make changes for different running scenarios. In
 # this case for Run 2
-from Configuration.StandardSequences.Eras import eras
 
 from EventFilter.SiPixelRawToDigi.SiPixelDigiToRaw_cfi import *
 from EventFilter.SiStripRawToDigi.SiStripDigiToRaw_cfi import *
@@ -25,11 +24,21 @@ ecalPacker.InstanceEE = 'eeDigis'
 ecalPacker.labelEBSRFlags = "simEcalDigis:ebSrFlags"
 ecalPacker.labelEESRFlags = "simEcalDigis:eeSrFlags"
 
-eras.phase2_common.toReplaceWith(DigiToRaw, DigiToRaw.copyAndExclude([castorRawData]))
+from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
+phase2_common.toReplaceWith(DigiToRaw, DigiToRaw.copyAndExclude([castorRawData]))
 
 #until we have hcal raw data for phase 2....
-eras.phase2_hcal.toReplaceWith(DigiToRaw, DigiToRaw.copyAndExclude([hcalRawData]))
+from Configuration.Eras.Modifier_phase2_hcal_cff import phase2_hcal
+phase2_hcal.toReplaceWith(DigiToRaw, DigiToRaw.copyAndExclude([hcalRawData]))
 
-if eras.fastSim.isChosen() :
+# Remove siPixelRawData until we have phase1 pixel digis
+from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
+phase2_tracker.toReplaceWith(DigiToRaw, DigiToRaw.copyAndExclude([siPixelRawData])) # FIXME
+
+from Configuration.Eras.Modifier_phase2_muon_cff import phase2_muon
+phase2_muon.toReplaceWith(DigiToRaw, DigiToRaw.copyAndExclude([rpcpacker]))
+
+from Configuration.Eras.Modifier_fastSim_cff import fastSim
+if fastSim.isChosen() :
     for _entry in [siPixelRawData,SiStripDigiToRaw,castorRawData]:
         DigiToRaw.remove(_entry)

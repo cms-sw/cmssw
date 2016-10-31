@@ -95,6 +95,7 @@
  <version ClassVersion="10" checksum="1132971359"/>
    <field name="m_filling" transient="true"/>
    <field name="m_getter" transient="true"/>
+   <field name="m_dataSize" transient="true"/>
 </class>
 <class name="edmNew::dstvdetails::DetSetVectorTrans::Item" ClassVersion="10">
  <version ClassVersion="10" checksum="1062438024"/>

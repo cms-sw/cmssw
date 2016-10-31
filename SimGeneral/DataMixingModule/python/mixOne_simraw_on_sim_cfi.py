@@ -256,8 +256,8 @@ mixData.doEB = cms.bool(True)
 mixData.doEE = cms.bool(True)
 mixData.doES = cms.bool(True)
 
-from Configuration.StandardSequences.Eras import eras
-if eras.fastSim.isChosen():
+from Configuration.Eras.Modifier_fastSim_cff import fastSim
+if fastSim.isChosen():
     # from signal: mix tracks not strip or pixel digis
     mixData.TrackerMergeType = "tracks"
     import FastSimulation.Tracking.recoTrackAccumulator_cfi

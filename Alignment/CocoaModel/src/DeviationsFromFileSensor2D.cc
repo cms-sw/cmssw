@@ -10,6 +10,7 @@
 #include "Alignment/CocoaUtilities/interface/ALIUtils.h"
 #include <cstdlib>
 #include <cmath>		// include floating-point std::abs functions
+#include <memory>
 
 enum directions{ xdir = 0, ydir = 1};
 
@@ -155,7 +156,7 @@ std::pair< ALIdouble, ALIdouble > DeviationsFromFileSensor2D::getDevis( ALIdoubl
   //---------- look which point in the deviation matrices correspond to intersX,Y
   //----- Look for each column, between which rows intersY is
   //assume first dir is Y
-  unsigned int* yrows = new unsigned int[ theNPoints ];
+  auto yrows = std::make_unique<unsigned int[]>(theNPoints);
 
   unsigned int ii = 0;
   ALIbool insideMatrix = 0;

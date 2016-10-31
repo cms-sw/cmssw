@@ -199,13 +199,6 @@ EopTreeWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
      trackAssociator_.useDefaultPropagator();
      TrackDetMatchInfo info = trackAssociator_.associate(iEvent, iSetup, trackAssociator_.getFreeTrajectoryState(iSetup, *track), parameters_);
-
-     trackemc1 = 0;
-     trackemc3 = 0;
-     trackemc5 = 0;
-     trackhac1 = 0;
-     trackhac3 = 0;
-     trackhac5 = 0;
      
      trackemc1 = info.nXnEnergy(TrackDetMatchInfo::EcalRecHits, 0);
      trackemc3 = info.nXnEnergy(TrackDetMatchInfo::EcalRecHits, 1);

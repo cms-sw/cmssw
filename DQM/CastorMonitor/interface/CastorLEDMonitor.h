@@ -1,10 +1,13 @@
 #ifndef DQM_CASTORMONITOR_CASTORLEDMONITOR_H
 #define DQM_CASTORMONITOR_CASTORLEDMONITOR_H
 
-#include "DQM/CastorMonitor/interface/CastorBaseMonitor.h"
 #include "DataFormats/HcalDigi/interface/HcalUnpackerReport.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
+#include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
+#include "CalibFormats/CastorObjects/interface/CastorDbService.h"
+#include "CalibFormats/CastorObjects/interface/CastorDbRecord.h"
+
 
 static const float LedMonAdc2fc[128]=
      { -0.5, 0.5, 1.5, 2.5, 3.5, 4.5, 5.5, 6.5, 7.5,
@@ -30,26 +33,25 @@ static const float LedMonAdc2fc[128]=
 	5609.5, 5984.5, 6359.5, 6734.5,
 	7172., 7672., 8172., 8734.5, 9359.5, 9984.5};
 
+//class CastorLEDMonitor: public CastorBaseMonitor {
+//class CastorLEDMonitor: public DQMEDHarvester {
+//class CastorLEDMonitor: public CastorMonitorModule {
 
-class CastorLEDMonitor: public CastorBaseMonitor {
+class CastorLEDMonitor {
 
 public:
   CastorLEDMonitor(const edm::ParameterSet& ps); 
   ~CastorLEDMonitor(); 
 
-  void setup(const edm::ParameterSet& ps);
  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &);
  void processEvent(const CastorDigiCollection& cast, const CastorDbService& cond);
 
 private:
   int ievt_;
   std::string subsystemname;
+  int fVerbosity;
 
-  //MonitorElement *h2qts;
-  MonitorElement *h2qMap;
-  MonitorElement *h2meanMap;
-  //MonitorElement *h2QvsPMT;
-
+  MonitorElement *h2qMap, *h2meanMap;
 };
 
 #endif

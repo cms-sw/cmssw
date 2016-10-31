@@ -103,7 +103,7 @@ process.FEVTDEBUGoutput_step = cms.EndPath(process.FEVTDEBUGoutput)
 process.hgcaltriggergeomtester = cms.EDAnalyzer(
     "HGCalTriggerGeomTester",
     TriggerGeometry = cms.PSet(
-        TriggerGeometryName = cms.string('HGCalTriggerGeometryHexImp1'),
+        TriggerGeometryName = cms.string('HGCalTriggerGeometryHexImp2'),
         L1TCellsMapping = cms.FileInPath("L1Trigger/L1THGCal/data/triggercell_mapping.txt"),
         L1TModulesMapping = cms.FileInPath("L1Trigger/L1THGCal/data/module_mapping.txt"),
         eeSDName = cms.string('HGCalEESensitive'),

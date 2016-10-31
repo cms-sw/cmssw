@@ -334,45 +334,50 @@
     </SpecPar>
  
     <SpecPar name="TrackerRecMaterialPixelEndcapDisk1Fw">
-      <PartSelector path="//Tracker/PixelForward[1]/PixelForwardDisk1/.*:PixelForwardBlade/PixelForwardModule1[1]/PixelForwardWafer1/PixelForwardSensor1" />
-      <PartSelector path="//Tracker/PixelForward[1]/PixelForwardDisk1/.*:PixelForwardBlade/PixelForwardModule1[2]/PixelForwardWafer1/PixelForwardSensor1" />
-      <Parameter name="TrackerRadLength" value="0.0344143" />
-      <Parameter name="TrackerXi" value="8.01401e-05" />
+      <Parameter name="TrackerRadLength" value="0.0377906"/>
+      <Parameter name="TrackerXi" value="0.0000740375"/>
     </SpecPar>
 
-    <SpecPar name="TrackerRecMaterialPixelEndcapDisk2Fw">
-      <PartSelector path="//Tracker/PixelForward[1]/PixelForwardDisk2/.*:PixelForwardBlade/PixelForwardModule2[1]/PixelForwardWafer2/PixelForwardSensor2" />
-      <PartSelector path="//Tracker/PixelForward[1]/PixelForwardDisk2/.*:PixelForwardBlade/PixelForwardModule2[2]/PixelForwardWafer2/PixelForwardSensor2" />
-      <Parameter name="TrackerRadLength" value="0.0358346" />
-      <Parameter name="TrackerXi" value="8.84012e-05" />
+    <SpecPar name="TrackerRecMaterialPixelEndcapDisk1Fw" eval="true">
+      <PartSelector path="//Tracker/PixelForwardZplus/PixelForwardDiskZplus[1]/pixfwdblade.*Zplus:PixelForwardBlade/pixfwdblade.*Zplus:PixelForwardModule[1]/pixfwdblade.*Zplus:PixelForwardWafer/pixfwdblade.*Zplus:PixelForwardSensor" />
+      <PartSelector path="//Tracker/PixelForwardZplus/PixelForwardDiskZplus[1]/pixfwdblade.*Zplus:PixelForwardBlade/pixfwdblade.*Zplus:PixelForwardModule[2]/pixfwdblade.*Zplus:PixelForwardWafer/pixfwdblade.*Zplus:PixelForwardSensor" />
+      <Parameter name="TrackerRadLength" value="0.055"/>
+      <Parameter name="TrackerXi" value="0.0002116"/>
     </SpecPar>
 
-     <SpecPar name="TrackerRecMaterialPixelEndcapDisk3Fw">
-      <PartSelector path="//Tracker/PixelForward[1]/PixelForwardDisk3/.*:PixelForwardBlade/PixelForwardModule3[1]/PixelForwardWafer3/PixelForwardSensor3" />
-      <PartSelector path="//Tracker/PixelForward[1]/PixelForwardDisk3/.*:PixelForwardBlade/PixelForwardModule3[2]/PixelForwardWafer3/PixelForwardSensor3" />
-      <Parameter name="TrackerRadLength" value="0.407045" />
-      <Parameter name="TrackerXi" value="0.00087197" />
+    <SpecPar name="TrackerRecMaterialPixelEndcapDisk2Fw" eval="true">
+      <PartSelector path="//Tracker/PixelForwardZplus/PixelForwardDiskZplus[2]/pixfwdblade.*Zplus:PixelForwardBlade/pixfwdblade.*Zplus:PixelForwardModule[1]/pixfwdblade.*Zplus:PixelForwardWafer/pixfwdblade.*Zplus:PixelForwardSensor" />
+      <PartSelector path="//Tracker/PixelForwardZplus/PixelForwardDiskZplus[2]/pixfwdblade.*Zplus:PixelForwardBlade/pixfwdblade.*Zplus:PixelForwardModule[2]/pixfwdblade.*Zplus:PixelForwardWafer/pixfwdblade.*Zplus:PixelForwardSensor" />
+      <Parameter name="TrackerRadLength" value="0.031"/>
+      <Parameter name="TrackerXi" value="0.0003217"/>
     </SpecPar>
 
-    <SpecPar name="TrackerRecMaterialPixelEndcapDisk1Bw">
-      <PartSelector path="//Tracker/PixelForward[2]/PixelForwardDisk1/.*:PixelForwardBlade/PixelForwardModule1[1]/PixelForwardWafer1/PixelForwardSensor1" />
-      <PartSelector path="//Tracker/PixelForward[2]/PixelForwardDisk1/.*:PixelForwardBlade/PixelForwardModule1[2]/PixelForwardWafer1/PixelForwardSensor1" />
-      <Parameter name="TrackerRadLength" value="0.035317" />
-      <Parameter name="TrackerXi" value="8.21739e-05" />
+     <SpecPar name="TrackerRecMaterialPixelEndcapDisk3Fw" eval="true">
+      <PartSelector path="//Tracker/PixelForwardZplus/PixelForwardDiskZplus[3]/pixfwdblade.*Zplus:PixelForwardBlade/pixfwdblade.*Zplus:PixelForwardModule[1]/pixfwdblade.*Zplus:PixelForwardWafer/pixfwdblade.*Zplus:PixelForwardSensor" />
+      <PartSelector path="//Tracker/PixelForwardZplus/PixelForwardDiskZplus[3]/pixfwdblade.*Zplus:PixelForwardBlade/pixfwdblade.*Zplus:PixelForwardModule[2]/pixfwdblade.*Zplus:PixelForwardWafer/pixfwdblade.*Zplus:PixelForwardSensor" />
+      <Parameter name="TrackerRadLength" value="0.031"/>
+      <Parameter name="TrackerXi" value="0.0003217"/>
     </SpecPar>
 
-    <SpecPar name="TrackerRecMaterialPixelEndcapDisk2Bw">
-      <PartSelector path="//Tracker/PixelForward[2]/PixelForwardDisk2/.*:PixelForwardBlade/PixelForwardModule2[1]/PixelForwardWafer2/PixelForwardSensor2" />
-      <PartSelector path="//Tracker/PixelForward[2]/PixelForwardDisk2/.*:PixelForwardBlade/PixelForwardModule2[2]/PixelForwardWafer2/PixelForwardSensor2" />
-      <Parameter name="TrackerRadLength" value="0.0368921" />
-      <Parameter name="TrackerXi" value="9.23885e-05" />
+    <SpecPar name="TrackerRecMaterialPixelEndcapDisk1Bw" eval="true">
+      <PartSelector path="//Tracker/PixelForwardZminus/PixelForwardDiskZminus[1]/pixfwdblade.*Zminus:PixelForwardBlade/pixfwdblade.*Zminus:PixelForwardModule[1]/pixfwdblade.*Zminus:PixelForwardWafer/pixfwdblade.*Zminus:PixelForwardSensor" />
+      <PartSelector path="//Tracker/PixelForwardZminus/PixelForwardDiskZminus[1]/pixfwdblade.*Zminus:PixelForwardBlade/pixfwdblade.*Zminus:PixelForwardModule[2]/pixfwdblade.*Zminus:PixelForwardWafer/pixfwdblade.*Zminus:PixelForwardSensor" />
+      <Parameter name="TrackerRadLength" value="0.055"/>
+      <Parameter name="TrackerXi" value="0.0002116"/>
     </SpecPar>
 
-     <SpecPar name="TrackerRecMaterialPixelEndcapDisk3Bw">
-      <PartSelector path="//Tracker/PixelForward[2]/PixelForwardDisk3/.*:PixelForwardBlade/PixelForwardModule3[1]/PixelForwardWafer3/PixelForwardSensor3" />
-      <PartSelector path="//Tracker/PixelForward[2]/PixelForwardDisk3/.*:PixelForwardBlade/PixelForwardModule3[2]/PixelForwardWafer3/PixelForwardSensor3" />
-      <Parameter name="TrackerRadLength" value="0.411384" />
-      <Parameter name="TrackerXi" value="0.000878955" />
+    <SpecPar name="TrackerRecMaterialPixelEndcapDisk2Bw" eval="true">
+      <PartSelector path="//Tracker/PixelForwardZminus/PixelForwardDiskZminus[2]/pixfwdblade.*Zminus:PixelForwardBlade/pixfwdblade.*Zminus:PixelForwardModule[1]/pixfwdblade.*Zminus:PixelForwardWafer/pixfwdblade.*Zminus:PixelForwardSensor" />
+      <PartSelector path="//Tracker/PixelForwardZminus/PixelForwardDiskZminus[2]/pixfwdblade.*Zminus:PixelForwardBlade/pixfwdblade.*Zminus:PixelForwardModule[2]/pixfwdblade.*Zminus:PixelForwardWafer/pixfwdblade.*Zminus:PixelForwardSensor" />
+      <Parameter name="TrackerRadLength" value="0.031"/>
+      <Parameter name="TrackerXi" value="0.0003217"/>
+    </SpecPar>
+
+     <SpecPar name="TrackerRecMaterialPixelEndcapDisk3Bw" eval="true">
+      <PartSelector path="//Tracker/PixelForwardZminus/PixelForwardDiskZminus[3]/pixfwdblade.*Zminus:PixelForwardBlade/pixfwdblade.*Zminus:PixelForwardModule[1]/pixfwdblade.*Zminus:PixelForwardWafer/pixfwdblade.*Zminus:PixelForwardSensor" />
+      <PartSelector path="//Tracker/PixelForwardZminus/PixelForwardDiskZminus[3]/pixfwdblade.*Zminus:PixelForwardBlade/pixfwdblade.*Zminus:PixelForwardModule[2]/pixfwdblade.*Zminus:PixelForwardWafer/pixfwdblade.*Zminus:PixelForwardSensor" />
+      <Parameter name="TrackerRadLength" value="0.031"/>
+      <Parameter name="TrackerXi" value="0.0003217"/>
     </SpecPar>
 
     <SpecPar eval="true" name="TrackerRecMaterialTIDDisk1_R0">

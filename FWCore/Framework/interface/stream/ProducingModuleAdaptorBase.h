@@ -83,11 +83,6 @@ namespace edm {
                         ProductResolverIndexHelper const&,
                         bool iPrefetchMayGet);
 
-      void modulesDependentUpon(std::string const& iProcessName,
-                                std::string const& iModuleLabel,
-                                bool iPrint,
-                                std::vector<char const*>& oModuleLabels) const;
-
       void modulesWhoseProductsAreConsumed(std::vector<ModuleDescription const*>& modules,
                                            ProductRegistry const& preg,
                                            std::map<std::string, ModuleDescription const*> const& labelsToDesc,

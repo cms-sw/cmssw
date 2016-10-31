@@ -34,8 +34,8 @@ void SinglePi(const TString ref_vers, const TString val_vers, bool fastsim){
     //Warning!!! This rootlogon hacks the root color pallate
    setColors();
 
-   TString ref_file = "pi50scan"+ref_vers+"_fullGeom_ECALHCAL_CaloTowers.root";
-   TString val_file = "pi50scan"+val_vers+"_fullGeom_ECALHCAL_CaloTowers.root";
+   TString ref_file = "pi50scan"+ref_vers+"_ECALHCAL_CaloTowers.root";
+   TString val_file = "pi50scan"+val_vers+"_ECALHCAL_CaloTowers.root";
       
    TFile f1(ref_file);
    TFile f2(val_file);

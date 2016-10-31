@@ -90,6 +90,12 @@ MTVHistoProducerAlgoForTrackerBlock = cms.PSet(
     minTracks = cms.double(0),
     maxTracks = cms.double(2000),
     nintTracks = cms.int32(100),
+
+    # PV z coordinate (to be kept in synch with PrimaryVertexAnalyzer4PUSlimmed)
+    minPVz = cms.double(-60),
+    maxPVz = cms.double(60),
+    nintPVz = cms.int32(120),
+
     #
     #parameters for resolution plots
     ptRes_rangeMin = cms.double(-0.1),
@@ -122,10 +128,11 @@ MTVHistoProducerAlgoForTrackerBlock = cms.PSet(
     seedingLayerSets = cms.vstring(),
 )
 
-from Configuration.StandardSequences.Eras import eras
 def _modifyForPhase1(pset):
     pset.minEta = -3
     pset.maxEta = 3
     pset.nintEta = 60
-eras.phase1Pixel.toModify(MTVHistoProducerAlgoForTrackerBlock, _modifyForPhase1)
-eras.phase2_tracker.toModify(MTVHistoProducerAlgoForTrackerBlock, minEta=-4.5, maxEta=4.5, nintEta = 90)
+from Configuration.Eras.Modifier_phase1Pixel_cff import phase1Pixel
+phase1Pixel.toModify(MTVHistoProducerAlgoForTrackerBlock, _modifyForPhase1)
+from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
+phase2_tracker.toModify(MTVHistoProducerAlgoForTrackerBlock, minEta=-4.5, maxEta=4.5, nintEta = 90)

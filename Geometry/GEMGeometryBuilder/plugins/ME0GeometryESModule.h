@@ -29,6 +29,6 @@ class ME0GeometryESModule : public edm::ESProducer
   
  private:  
   // use the DDD as Geometry source
-  bool useDDD;
+  bool useDDD, use10EtaPart;
 };
 #endif

@@ -9,10 +9,15 @@ import Validation.RecoVertex.plotting.vertexPlots as vertexPlots
 import Validation.RecoTrack.plotting.plotting as plotting
 
 class LimitTrackAlgo:
-    def __init__(self, algos):
+    def __init__(self, algos, includePtCut):
         self._algos = algos
+        self._includePtCut = includePtCut
     def __call__(self, algo, quality):
-        return algo in self._algos
+        if algo not in self._algos:
+            return False
+        if not self._includePtCut and "Pt09" in quality:
+            return False
+        return True
 
 def limitRelVal(algo, quality):
     return quality in ["", "highPurity"]
@@ -37,7 +42,7 @@ def main(opts):
     kwargs_tracking = {}
     kwargs_tracking.update(kwargs)
     if opts.limit_tracking_algo is not None:
-        limitProcessing = LimitTrackAlgo(opts.limit_tracking_algo)
+        limitProcessing = LimitTrackAlgo(opts.limit_tracking_algo, includePtCut=opts.ptcut)
         kwargs_tracking["limitSubFoldersOnlyTo"] = {
             "": limitProcessing,
             "allTPEffic": limitProcessing,
@@ -89,6 +94,8 @@ if __name__ == "__main__":
                         help="Comma separated list of tracking algos to limit to. (default: all algos; conflicts with --limit-relval)")
     parser.add_argument("--limit-relval", action="store_true",
                         help="Limit set of plots to those in release validation (almost). (default: all plots in the DQM files; conflicts with --limit-tracking-algo)")
+    parser.add_argument("--ptcut", action="store_true",
+                        help="Include plots with pT > 0.9 GeV cut")
     parser.add_argument("--extended", action="store_true",
                         help="Include extended set of plots (e.g. bunch of distributions; default off)")
     parser.add_argument("--no-html", action="store_true",

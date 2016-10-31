@@ -23,7 +23,6 @@ class HcalAmplifier;
 class HPDIonFeedbackSim;
 class HcalCoderFactory;
 class HcalElectronicsSim;
-class HcalHitCorrection;
 class HcalTimeSlewSim;
 class HcalBaseSignalGenerator;
 class HcalShapes;
@@ -130,7 +129,6 @@ private:
   HOHitFilter theHOSiPMHitFilter;
   ZDCHitFilter  theZDCHitFilter;
 
-  HcalHitCorrection * theHitCorrection;
   HcalTimeSlewSim * theTimeSlewSim;
 
   HBHEDigitizer * theHBHEDigitizer;
@@ -155,6 +153,7 @@ private:
   bool isZDC,isHCAL,zdcgeo,hbhegeo,hogeo,hfgeo;
   bool testNumbering_;
   bool doHFWindow_;
+  bool killHE_;
 
   std::string hitsProducer_;
 

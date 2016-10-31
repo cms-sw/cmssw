@@ -136,18 +136,7 @@ clusterLabel     ['jetCoreRegionalStep'] = cms.vstring('Tot')
 clusterBin       ['jetCoreRegionalStep'] = cms.int32(500)
 clusterMax       ['jetCoreRegionalStep'] = cms.double(100000)
 
-for era in _cfg.allEras():
-    pf = _cfg.postfix(era)
-    locals()["selectedIterTrackingStep"+pf] = _cfg.iterationAlgos(era)
+for _eraName, _postfix, _era in _cfg.allEras():
+    locals()["selectedIterTrackingStep"+_postfix] = _cfg.iterationAlgos(_postfix)
 #selectedIterTrackingStep.append('muonSeededStepOutInDisplaced')
 
-# FIXME ::  this part will be removed when phase2 tracking is migrated to eras
-selectedIterTrackingStep_trackingPhase2PU140 = [
-    "initialStep",
-    "highPtTripletStep",
-    "lowPtQuadStep",
-    "lowPtTripletStep",
-    "detachedQuadStep",
-    "pixelPairStep",
-    "muonSeededStepInOut",
-]

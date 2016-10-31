@@ -14,6 +14,7 @@
 //!  \author Petar Maksimovic, JHU
 //---------------------------------------------------------------------------
 
+constexpr unsigned int Phase2ITPixelCluster::MAXSPAN;
 
 Phase2ITPixelCluster::Phase2ITPixelCluster( const Phase2ITPixelCluster::PixelPos& pix, uint32_t adc) :
   thePixelRow(pix.row()),

@@ -52,8 +52,9 @@ hbheprereco = cms.EDProducer(
         tdcTimeShift = cms.double(0.0),
 
         # Parameters for "Method 0"
-        firstSampleShift  = cms.int32(0),
-        samplesToAdd      = cms.int32(2),
+        firstSampleShift = cms.int32(0),
+        samplesToAdd = cms.int32(2),
+        correctForPhaseContainment = cms.bool(True),
         correctionPhaseNS = cms.double(6.0),
 
         # Use "Method 2"?
@@ -68,10 +69,12 @@ hbheprereco = cms.EDProducer(
 
     # Turn rechit status bit setters on/off
     setNegativeFlags = cms.bool(False),
-    setNoiseFlagsQIE8 = cms.bool(False), # Set to "True" when the topology map is fixed
+    setNoiseFlagsQIE8 = cms.bool(True),
     setNoiseFlagsQIE11 = cms.bool(False),
     setPulseShapeFlagsQIE8 = cms.bool(True),
     setPulseShapeFlagsQIE11 = cms.bool(False),
+    setLegacyFlagsQIE8 = cms.bool(True),
+    setLegacyFlagsQIE11 = cms.bool(False),
 
     # Parameter sets configuring rechit status bit setters
     flagParametersQIE8 = cms.PSet(
@@ -84,3 +87,6 @@ hbheprereco = cms.EDProducer(
     ),
     pulseShapeParametersQIE11 = cms.PSet()
 )
+
+# Disable the "triangle peak fit" and the corresponding HBHETriangleNoise flag
+hbheprereco.pulseShapeParametersQIE8.TrianglePeakTS = cms.uint32(10000)
