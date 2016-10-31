@@ -247,6 +247,8 @@ Pythia8Hadronizer::Pythia8Hadronizer(const edm::ParameterSet &params) :
   fMasterGen->settings.addFlag("ResonanceDecayFilter:eMuAsEquivalent",false);
   fMasterGen->settings.addFlag("ResonanceDecayFilter:eMuTauAsEquivalent",false);
   fMasterGen->settings.addFlag("ResonanceDecayFilter:allNuAsEquivalent",false);
+  fMasterGen->settings.addFlag("ResonanceDecayFilter:udscAsEquivalent",false);
+  fMasterGen->settings.addFlag("ResonanceDecayFilter:udscbAsEquivalent",false);
   fMasterGen->settings.addMVec("ResonanceDecayFilter:mothers",std::vector<int>(),false,false,0,0);
   fMasterGen->settings.addMVec("ResonanceDecayFilter:daughters",std::vector<int>(),false,false,0,0);
 
