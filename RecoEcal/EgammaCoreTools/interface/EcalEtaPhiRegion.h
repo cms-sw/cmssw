@@ -1,28 +1,38 @@
 #ifndef RecoEcal_EgammaCoreTools_EcalEtaPhiRegion_h
 #define RecoEcal_EgammaCoreTools_EcalEtaPhiRegion_h
 
-#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
+#include "DataFormats/Math/interface/normalizedPhi.h"
 
 class EcalEtaPhiRegion
 {
  public:
 
-  EcalEtaPhiRegion(double etaLow, double etaHigh, double phiLow, double phiHigh);
-  ~EcalEtaPhiRegion() {};
+  EcalEtaPhiRegion(float etaLow, float etaHigh, float phiLow, float phiHigh) :
+   ceta(0.5f*(etaHigh+etaLow)),deta(0.5f*std::abs(etaHigh-etaLow))
+  {
+   phiHigh = proxim(phiHigh,phiLow);
+   constexpr float c1 = 2.*M_PI;
+   if (phiHigh<phiLow) phiHigh+=c1;
+   dphi = 0.5f*(phiHigh-phiLow);
+   cphi = phiLow+dphi;
+   }
 
-  double etaLow() const { return etaLow_; }
-  double etaHigh() const { return etaHigh_; }
-  double phiLow() const { return phiLow_; }
-  double phiHigh() const { return phiHigh_; }
+  bool inRegion(float eta, float phi) const {
+    return std::abs(eta-ceta)<deta &&
+           std::abs(proxim(phi,cphi)-cphi)<dphi;
+  }
 
-  bool inRegion(const GlobalPoint& position) const;
+  auto etaLow()  const { return ceta-deta; }
+  auto etaHigh() const { return ceta+deta; }
+  auto phiLow()  const { return cphi-dphi; }
+  auto phiHigh() const { return cphi+dphi; }
 
  private:
 
-  double etaLow_;
-  double etaHigh_;
-  double phiLow_;
-  double phiHigh_;
+  float ceta;
+  float deta; 
+  float cphi; 
+  float dphi;
 
 };
 

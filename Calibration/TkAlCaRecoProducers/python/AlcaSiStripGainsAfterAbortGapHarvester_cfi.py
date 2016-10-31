@@ -9,3 +9,4 @@ alcaSiStripGainsAfterAbortGapHarvester.calibrationMode     = cms.untracked.strin
 alcaSiStripGainsAfterAbortGapHarvester.DQMdir              = cms.untracked.string('AlCaReco/SiStripGainsAfterAbortGap')
 alcaSiStripGainsAfterAbortGapHarvester.CalibrationLevel    = cms.untracked.int32(0) # 0==APV, 1==Laser, 2==module
 alcaSiStripGainsAfterAbortGapHarvester.harvestingMode      = cms.untracked.bool(True)
+alcaSiStripGainsAfterAbortGapHarvester.Record              = cms.string('SiStripApvGainRcdAfterAbortGap')

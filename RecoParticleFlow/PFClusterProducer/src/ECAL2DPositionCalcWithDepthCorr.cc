@@ -79,9 +79,9 @@ calculateAndSetPositionActual(reco::PFCluster& cluster) const {
     cl_energy_float += rh_energyf;
     // If time resolution is given, calculate weighted average
     if (_timeResolutionCalc) {
-      const double res2 = _timeResolutionCalc->timeResolution2(rh_rawenergy);
-      cl_time += rh_fraction*refhit->time()/res2;
-      cl_timeweight += rh_fraction/res2;
+      const double res2 = 1./_timeResolutionCalc->timeResolution2(rh_rawenergy);
+      cl_time += rh_fraction*refhit->time()*res2;
+      cl_timeweight += rh_fraction*res2;
     }
     else { // assume resolution ~ 1/E**2
       const double rh_rawenergy2 = rh_rawenergy*rh_rawenergy;
@@ -115,7 +115,7 @@ calculateAndSetPositionActual(reco::PFCluster& cluster) const {
 
   const CaloCellGeometry* center_cell = 
     ecal_geom->getGeometry(refmax->detId());
-  const double ctreta = center_cell->getPosition().eta();
+  const double ctreta = center_cell->etaPos();
   const double actreta = std::abs(ctreta);
   // need to change T0 if in ES
   if( actreta > preshowerStartEta && actreta < preshowerEndEta ) { 

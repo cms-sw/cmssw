@@ -49,6 +49,7 @@ namespace stage2 {
      // Loop over multiple BX and fill EtSums collection
      for (int bx=firstBX; bx<=lastBX; bx++){
 
+
        // ET
        int iFrame = (bx-firstBX)*demux::nOutputFramePerBX;
 
@@ -64,11 +65,28 @@ namespace stage2 {
 
        res_->push_back(bx,et);
 
+
+       // ET EM
+
+       l1t::EtSum etem = l1t::EtSum();
+    
+       etem.setHwPt( (raw_data >> 12) & 0xFFF);
+       etem.setType(l1t::EtSum::kTotalEtEm);       
+       etem.setP4( l1t::CaloTools::p4Demux(&etem) );
+
+       LogDebug("L1T") << "ETEM: pT " << etem.hwPt() << " bx " << bx;
+
+       res_->push_back(bx,etem);
+
+
+       // MBHFPT0
+
        l1t::EtSum mbp0 = l1t::EtSum();
        mbp0.setHwPt( (raw_data>>28) & 0xf );
        mbp0.setType( l1t::EtSum::kMinBiasHFP0 );
 
        res_->push_back(bx, mbp0);
+
 
        // HT
 
@@ -84,13 +102,25 @@ namespace stage2 {
 
        res_->push_back(bx,ht);
 
+
+       //HI-SUM
+
+       l1t::EtSum towCount = l1t::EtSum();
+       towCount.setHwPt( (raw_data>>12) & 0x1FFF );
+       towCount.setType( (l1t::EtSum::kTowerCount) );
+
+       res_->push_back(bx, towCount);
+
+       //MBHFMT0
+
        l1t::EtSum mbm0 = l1t::EtSum();
        mbm0.setHwPt( (raw_data>>28) & 0xf );
        mbm0.setType( l1t::EtSum::kMinBiasHFM0 );
 
        res_->push_back(bx, mbm0);
 
-       //  MET
+
+       //  MET (no HF)
 
        raw_data = block.payload()[iFrame+2];
 
@@ -105,13 +135,15 @@ namespace stage2 {
 
        res_->push_back(bx,met);
 
+       // MBHFPT1
+
        l1t::EtSum mbp1 = l1t::EtSum();
        mbp1.setHwPt( (raw_data>>28) & 0xf );
        mbp1.setType( l1t::EtSum::kMinBiasHFP1 );
 
        res_->push_back(bx, mbp1);
 
-       // MHT
+       // MHT 
 
        raw_data = block.payload()[iFrame+3];
 
@@ -126,12 +158,46 @@ namespace stage2 {
 
        res_->push_back(bx,mht);
 
+       // MBHFMT1
+
        l1t::EtSum mbm1 = l1t::EtSum();
        mbm1.setHwPt( (raw_data>>28) & 0xf );
        mbm1.setType( l1t::EtSum::kMinBiasHFM1 );
 
        res_->push_back(bx, mbm1);
 
+       
+       //  MET (with HF)
+
+       raw_data = block.payload()[iFrame+4];
+
+       l1t::EtSum methf = l1t::EtSum();
+    
+       methf.setHwPt(raw_data & 0xFFF);
+       methf.setHwPhi((raw_data >> 12) & 0xFF);
+       methf.setType(l1t::EtSum::kMissingEtHF);       
+       methf.setP4( l1t::CaloTools::p4Demux(&methf) );
+
+       LogDebug("L1T") << "METHF: phi " << methf.hwPhi() << " pT " << methf.hwPt() << " bx " << bx;
+
+       res_->push_back(bx,methf);
+      
+       // MHT with HF
+
+       raw_data = block.payload()[iFrame+5];
+
+       l1t::EtSum mhthf = l1t::EtSum();
+    
+       mhthf.setHwPt(raw_data & 0xFFF);
+       mhthf.setHwPhi((raw_data >> 12) & 0xFF);
+       mhthf.setType(l1t::EtSum::kMissingHtHF);       
+       mhthf.setP4( l1t::CaloTools::p4Demux(&mhthf) );
+
+       LogDebug("L1T") << "MHThf: phi " << mhthf.hwPhi() << " pT " << mhthf.hwPt() << " bx " << bx;
+
+       res_->push_back(bx,mhthf);
+       
+       
      }
 
      return true;

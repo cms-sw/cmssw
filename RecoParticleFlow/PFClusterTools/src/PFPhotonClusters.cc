@@ -2,7 +2,7 @@
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
 #include "DataFormats/ParticleFlowReco/interface/PFRecHit.h"
 #include "RecoParticleFlow/PFClusterTools/interface/PFPhotonClusters.h"
-
+#include "Geometry/CaloGeometry/interface/TruncatedPyramid.h"
 #include <TMath.h>
 #include <TVector2.h>
 using namespace reco;
@@ -24,17 +24,19 @@ void PFPhotonClusters::SetSeed(){
   math::XYZVector axis;
   math::XYZVector position;
   DetId idseed;
-  const std::vector< reco::PFRecHitFraction >& PFRecHits=
+  const auto & PFRecHits=
     PFClusterRef_->recHitFractions();
   
-  for(std::vector< reco::PFRecHitFraction >::const_iterator it = PFRecHits.begin();
+  for(auto it = PFRecHits.begin();
       it != PFRecHits.end(); ++it){
-    const PFRecHitRef& RefPFRecHit = it->recHitRef();
-    double frac=it->fraction();
+    const auto & RefPFRecHit = it->recHitRef();
+    auto frac=it->fraction();
     float E= RefPFRecHit->energy()* frac;
     if(E>PFSeedE){
-      PFSeedE=E;  
-      axis=RefPFRecHit->getAxisXYZ();
+      PFSeedE=E;
+      // FIXME will optimize later...
+      auto const & pyr = dynamic_cast<TruncatedPyramid const &>(RefPFRecHit->caloCell());
+      axis = pyr.getPosition(1) - pyr.getPosition(0);
       position=RefPFRecHit->position();
       idseed = RefPFRecHit->detId();
     }

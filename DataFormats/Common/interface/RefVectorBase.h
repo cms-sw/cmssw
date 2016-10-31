@@ -12,7 +12,6 @@ RefVectorBase: Base class for a vector of interproduct references.
 #include "DataFormats/Common/interface/EDProductfwd.h"
 #include "DataFormats/Common/interface/RefCore.h"
 #include <vector>
-#include "FWCore/Utilities/interface/GCC11Compatibility.h"
 
 namespace edm {
 
@@ -37,14 +36,27 @@ namespace edm {
     RefVectorBase() : product_(), keys_() {}
     RefVectorBase( RefVectorBase const & rhs) : product_(rhs.product_), keys_(rhs.keys_),
                                                 memberPointersHolder_(rhs.memberPointersHolder_) {}
-#if defined(__GXX_EXPERIMENTAL_CXX0X__)
     RefVectorBase( RefVectorBase && rhs)  noexcept : product_(std::move(rhs.product_)), keys_(std::move(rhs.keys_)),
                                                      memberPointersHolder_(std::move(rhs.memberPointersHolder_)) {}
-#endif
+
+    RefVectorBase& operator=(RefVectorBase const& rhs) {
+      RefVectorBase temp(rhs);
+      this->swap(temp);
+      return *this;
+    }
+    RefVectorBase& operator=(RefVectorBase && rhs)  noexcept {
+      product_ = std::move(rhs.product_);
+      keys_ =std::move(rhs.keys_);
+      memberPointersHolder_ = std::move(rhs.memberPointersHolder_);
+      return *this;
+    }
+
+
 
     explicit RefVectorBase(ProductID const& productID, void const* prodPtr = 0,
                            EDProductGetter const* prodGetter = 0) :
       product_(productID, prodPtr, prodGetter, false), keys_() {}
+
 
     /// Destructor
     ~RefVectorBase() noexcept {}
@@ -108,20 +120,6 @@ namespace edm {
       memberPointersHolder_.memberPointers().swap(other.memberPointersHolder_.memberPointers());
     }
 
-    /// Copy assignment
-    RefVectorBase& operator=(RefVectorBase const& rhs) {
-      RefVectorBase temp(rhs);
-      this->swap(temp);
-      return *this;
-    }
-#if defined(__GXX_EXPERIMENTAL_CXX0X__)
-    RefVectorBase& operator=(RefVectorBase && rhs)  noexcept {
-      product_ = std::move(rhs.product_); 
-      keys_ =std::move(rhs.keys_);
-      memberPointersHolder_ = std::move(rhs.memberPointersHolder_);
-      return *this;
-    }
-#endif
 
     //Needed for ROOT storage
     CMS_CLASS_VERSION(13)

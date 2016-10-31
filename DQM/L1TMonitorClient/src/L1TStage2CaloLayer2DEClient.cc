@@ -47,8 +47,8 @@ void L1TStage2CaloLayer2DEClient::processHistograms(DQMStore::IGetter &igetter){
   MonitorElement* emulHist_;
 
   // central jets
-  dataHist_ = igetter.get(input_dir_data_+"/"+"CenJetsRank");
-  emulHist_ = igetter.get(input_dir_emul_+"/"+"CenJetsRank");
+  dataHist_ = igetter.get(input_dir_data_+"/Central-Jets/"+"CenJetsRank");
+  emulHist_ = igetter.get(input_dir_emul_+"/Central-Jets/"+"CenJetsRank");
 
   if (dataHist_ && emulHist_){
     TH1F *cjrNum = dataHist_->getTH1F();
@@ -60,8 +60,8 @@ void L1TStage2CaloLayer2DEClient::processHistograms(DQMStore::IGetter &igetter){
   }
   
   
-  dataHist_ = igetter.get(input_dir_data_+"/"+"CenJetsEta");
-  emulHist_ = igetter.get(input_dir_emul_+"/"+"CenJetsEta");
+  dataHist_ = igetter.get(input_dir_data_+"/Central-Jets/"+"CenJetsEta");
+  emulHist_ = igetter.get(input_dir_emul_+"/Central-Jets/"+"CenJetsEta");
 
   if (dataHist_ && emulHist_){  
     TH1F *cjeNum = dataHist_->getTH1F();
@@ -72,8 +72,8 @@ void L1TStage2CaloLayer2DEClient::processHistograms(DQMStore::IGetter &igetter){
     CenJetEtaRatio->Divide(cjeNum, cjeDen);
   }
 
-  dataHist_ = igetter.get(input_dir_data_+"/"+"CenJetsPhi");
-  emulHist_ = igetter.get(input_dir_emul_+"/"+"CenJetsPhi");
+  dataHist_ = igetter.get(input_dir_data_+"/Central-Jets/"+"CenJetsPhi");
+  emulHist_ = igetter.get(input_dir_emul_+"/Central-Jets/"+"CenJetsPhi");
 
   if (dataHist_ && emulHist_){  
     TH1F *cjpNum = dataHist_->getTH1F();
@@ -86,8 +86,8 @@ void L1TStage2CaloLayer2DEClient::processHistograms(DQMStore::IGetter &igetter){
   }
 
   // forward jets
-  dataHist_ = igetter.get(input_dir_data_+"/"+"ForJetsRank");
-  emulHist_ = igetter.get(input_dir_emul_+"/"+"ForJetsRank");
+  dataHist_ = igetter.get(input_dir_data_+"/Forward-Jets/"+"ForJetsRank");
+  emulHist_ = igetter.get(input_dir_emul_+"/Forward-Jets/"+"ForJetsRank");
   
   if (dataHist_ && emulHist_){  
     
@@ -99,8 +99,8 @@ void L1TStage2CaloLayer2DEClient::processHistograms(DQMStore::IGetter &igetter){
     ForJetRankRatio->Divide(fjrNum, fjrDen);
   }
   
-  dataHist_ = igetter.get(input_dir_data_+"/"+"ForJetsEta");
-  emulHist_ = igetter.get(input_dir_emul_+"/"+"ForJetsEta");
+  dataHist_ = igetter.get(input_dir_data_+"/Forward-Jets/"+"ForJetsEta");
+  emulHist_ = igetter.get(input_dir_emul_+"/Forward-Jets/"+"ForJetsEta");
 
   if (dataHist_ && emulHist_){
     TH1F *fjeNum = dataHist_->getTH1F();
@@ -111,8 +111,8 @@ void L1TStage2CaloLayer2DEClient::processHistograms(DQMStore::IGetter &igetter){
     ForJetEtaRatio->Divide(fjeNum, fjeDen);
   }
     
-  dataHist_ = igetter.get(input_dir_data_+"/"+"ForJetsPhi");
-  emulHist_ = igetter.get(input_dir_emul_+"/"+"ForJetsPhi");
+  dataHist_ = igetter.get(input_dir_data_+"/Forward-Jets/"+"ForJetsPhi");
+  emulHist_ = igetter.get(input_dir_emul_+"/Forward-Jets/"+"ForJetsPhi");
 
   if (dataHist_ && emulHist_){
     TH1F *fjpNum = dataHist_->getTH1F();
@@ -125,8 +125,8 @@ void L1TStage2CaloLayer2DEClient::processHistograms(DQMStore::IGetter &igetter){
 
   // isolated eg
   
-  dataHist_ = igetter.get(input_dir_data_+"/"+"IsoEGsRank");
-  emulHist_ = igetter.get(input_dir_emul_+"/"+"IsoEGsRank");
+  dataHist_ = igetter.get(input_dir_data_+"/Isolated-EG/"+"IsoEGsRank");
+  emulHist_ = igetter.get(input_dir_emul_+"/Isolated-EG/"+"IsoEGsRank");
 
   if (dataHist_ && emulHist_){  
     TH1F *ierNum = dataHist_->getTH1F();
@@ -137,8 +137,8 @@ void L1TStage2CaloLayer2DEClient::processHistograms(DQMStore::IGetter &igetter){
     IsoEGRankRatio->Divide(ierNum, ierDen);
   }
   
-  dataHist_ = igetter.get(input_dir_data_+"/"+"IsoEGsEta");
-  emulHist_ = igetter.get(input_dir_emul_+"/"+"IsoEGsEta");
+  dataHist_ = igetter.get(input_dir_data_+"/Isolated-EG/"+"IsoEGsEta");
+  emulHist_ = igetter.get(input_dir_emul_+"/Isolated-EG/"+"IsoEGsEta");
 
   if (dataHist_ && emulHist_){
     TH1F *ieeNum = dataHist_->getTH1F();
@@ -149,8 +149,8 @@ void L1TStage2CaloLayer2DEClient::processHistograms(DQMStore::IGetter &igetter){
     IsoEGEtaRatio->Divide(ieeNum, ieeDen);
   }
     
-  dataHist_ = igetter.get(input_dir_data_+"/"+"IsoEGsPhi");
-  emulHist_ = igetter.get(input_dir_emul_+"/"+"IsoEGsPhi");
+  dataHist_ = igetter.get(input_dir_data_+"/Isolated-EG/"+"IsoEGsPhi");
+  emulHist_ = igetter.get(input_dir_emul_+"/Isolated-EG/"+"IsoEGsPhi");
 
   if (dataHist_ && emulHist_){
     TH1F *iepNum = dataHist_->getTH1F();
@@ -162,8 +162,8 @@ void L1TStage2CaloLayer2DEClient::processHistograms(DQMStore::IGetter &igetter){
   }
 
   // non-isolated eg
-  dataHist_ = igetter.get(input_dir_data_+"/"+"NonIsoEGsRank");
-  emulHist_ = igetter.get(input_dir_emul_+"/"+"NonIsoEGsRank");
+  dataHist_ = igetter.get(input_dir_data_+"/NonIsolated-EG/"+"NonIsoEGsRank");
+  emulHist_ = igetter.get(input_dir_emul_+"/NonIsolated-EG/"+"NonIsoEGsRank");
 
   if (dataHist_ && emulHist_){  
     TH1F *nerNum = dataHist_->getTH1F();
@@ -174,8 +174,8 @@ void L1TStage2CaloLayer2DEClient::processHistograms(DQMStore::IGetter &igetter){
     NonIsoEGRankRatio->Divide(nerNum, nerDen);
   }
     
-  dataHist_ = igetter.get(input_dir_data_+"/"+"NonIsoEGsEta");
-  emulHist_ = igetter.get(input_dir_emul_+"/"+"NonIsoEGsEta");
+  dataHist_ = igetter.get(input_dir_data_+"/NonIsolated-EG/"+"NonIsoEGsEta");
+  emulHist_ = igetter.get(input_dir_emul_+"/NonIsolated-EG/"+"NonIsoEGsEta");
 
   if (dataHist_ && emulHist_){
     TH1F *neeNum = dataHist_->getTH1F();
@@ -186,8 +186,8 @@ void L1TStage2CaloLayer2DEClient::processHistograms(DQMStore::IGetter &igetter){
     NonIsoEGEtaRatio->Divide(neeNum, neeDen);
   }
   
-  dataHist_ = igetter.get(input_dir_data_+"/"+"NonIsoEGsPhi");
-  emulHist_ = igetter.get(input_dir_emul_+"/"+"NonIsoEGsPhi");
+  dataHist_ = igetter.get(input_dir_data_+"/NonIsolated-EG/"+"NonIsoEGsPhi");
+  emulHist_ = igetter.get(input_dir_emul_+"/NonIsolated-EG/"+"NonIsoEGsPhi");
 
   if (dataHist_ && emulHist_){
     TH1F *nepNum = dataHist_->getTH1F();
@@ -199,8 +199,8 @@ void L1TStage2CaloLayer2DEClient::processHistograms(DQMStore::IGetter &igetter){
   }
 
   // rlx tau
-  dataHist_ = igetter.get(input_dir_data_+"/"+"TausRank");
-  emulHist_ = igetter.get(input_dir_emul_+"/"+"TausRank");
+  dataHist_ = igetter.get(input_dir_data_+"/NonIsolated-Tau/"+"TausRank");
+  emulHist_ = igetter.get(input_dir_emul_+"/NonIsolated-Tau/"+"TausRank");
   
   if (dataHist_ && emulHist_){  
     TH1F *trNum = dataHist_->getTH1F();
@@ -211,8 +211,8 @@ void L1TStage2CaloLayer2DEClient::processHistograms(DQMStore::IGetter &igetter){
     TauRankRatio->Divide(trNum, trDen);
   }
     
-  dataHist_ = igetter.get(input_dir_data_+"/"+"TausEta");
-  emulHist_ = igetter.get(input_dir_emul_+"/"+"TausEta");
+  dataHist_ = igetter.get(input_dir_data_+"/NonIsolated-Tau/"+"TausEta");
+  emulHist_ = igetter.get(input_dir_emul_+"/NonIsolated-Tau/"+"TausEta");
 
   if (dataHist_ && emulHist_){
     TH1F *teNum = dataHist_->getTH1F();
@@ -223,8 +223,8 @@ void L1TStage2CaloLayer2DEClient::processHistograms(DQMStore::IGetter &igetter){
     TauEtaRatio->Divide(teNum, teDen);
   }
     
-  dataHist_ = igetter.get(input_dir_data_+"/"+"TausPhi");
-  emulHist_ = igetter.get(input_dir_emul_+"/"+"TausPhi");
+  dataHist_ = igetter.get(input_dir_data_+"/NonIsolated-Tau/"+"TausPhi");
+  emulHist_ = igetter.get(input_dir_emul_+"/NonIsolated-Tau/"+"TausPhi");
 
   if (dataHist_ && emulHist_){
     TH1F *tpNum = dataHist_->getTH1F();
@@ -236,8 +236,8 @@ void L1TStage2CaloLayer2DEClient::processHistograms(DQMStore::IGetter &igetter){
   }
   
   // iso tau
-  dataHist_ = igetter.get(input_dir_data_+"/"+"IsoTausRank");
-  emulHist_ = igetter.get(input_dir_emul_+"/"+"IsoTausRank");
+  dataHist_ = igetter.get(input_dir_data_+"/Isolated-Tau/"+"IsoTausRank");
+  emulHist_ = igetter.get(input_dir_emul_+"/Isolated-Tau/"+"IsoTausRank");
 
   if (dataHist_ && emulHist_){ 
     TH1F *itrNum = dataHist_->getTH1F();
@@ -248,8 +248,8 @@ void L1TStage2CaloLayer2DEClient::processHistograms(DQMStore::IGetter &igetter){
     IsoTauRankRatio->Divide(itrNum, itrDen);
   }
   
-  dataHist_ = igetter.get(input_dir_data_+"/"+"IsoTausEta");
-  emulHist_ = igetter.get(input_dir_emul_+"/"+"IsoTausEta");
+  dataHist_ = igetter.get(input_dir_data_+"/Isolated-Tau/"+"IsoTausEta");
+  emulHist_ = igetter.get(input_dir_emul_+"/Isolated-Tau/"+"IsoTausEta");
   
   if (dataHist_ && emulHist_){  
     TH1F *iteNum = dataHist_->getTH1F();
@@ -260,8 +260,8 @@ void L1TStage2CaloLayer2DEClient::processHistograms(DQMStore::IGetter &igetter){
     IsoTauEtaRatio->Divide(iteNum, iteDen);
   }
     
-  dataHist_ = igetter.get(input_dir_data_+"/"+"IsoTausPhi");
-  emulHist_ = igetter.get(input_dir_emul_+"/"+"IsoTausPhi");
+  dataHist_ = igetter.get(input_dir_data_+"/Isolated-Tau/"+"IsoTausPhi");
+  emulHist_ = igetter.get(input_dir_emul_+"/Isolated-Tau/"+"IsoTausPhi");
 
   if (dataHist_ && emulHist_){
     TH1F *itpNum = dataHist_->getTH1F();
@@ -273,8 +273,8 @@ void L1TStage2CaloLayer2DEClient::processHistograms(DQMStore::IGetter &igetter){
   }
   
   // MET
-  dataHist_ = igetter.get(input_dir_data_+"/"+"METRank");
-  emulHist_ = igetter.get(input_dir_emul_+"/"+"METRank");
+  dataHist_ = igetter.get(input_dir_data_+"/Energy-Sums/"+"METRank");
+  emulHist_ = igetter.get(input_dir_emul_+"/Energy-Sums/"+"METRank");
 
   if (dataHist_ && emulHist_){
     TH1F *metNum = dataHist_->getTH1F();
@@ -286,8 +286,8 @@ void L1TStage2CaloLayer2DEClient::processHistograms(DQMStore::IGetter &igetter){
   }
 
   // MHT
-  dataHist_ = igetter.get(input_dir_data_+"/"+"MHTRank");
-  emulHist_ = igetter.get(input_dir_emul_+"/"+"MHTRank");
+  dataHist_ = igetter.get(input_dir_data_+"/Energy-Sums/"+"MHTRank");
+  emulHist_ = igetter.get(input_dir_emul_+"/Energy-Sums/"+"MHTRank");
 
   if (dataHist_ && emulHist_){
     TH1F *mhtNum = dataHist_->getTH1F();
@@ -299,8 +299,8 @@ void L1TStage2CaloLayer2DEClient::processHistograms(DQMStore::IGetter &igetter){
   }
 
   // ETT
-  dataHist_ = igetter.get(input_dir_data_+"/"+"ETTRank");
-  emulHist_ = igetter.get(input_dir_emul_+"/"+"ETTRank");
+  dataHist_ = igetter.get(input_dir_data_+"/Energy-Sums/"+"ETTRank");
+  emulHist_ = igetter.get(input_dir_emul_+"/Energy-Sums/"+"ETTRank");
 
   if (dataHist_ && emulHist_){
     TH1F *ettNum = dataHist_->getTH1F();
@@ -312,8 +312,8 @@ void L1TStage2CaloLayer2DEClient::processHistograms(DQMStore::IGetter &igetter){
   }
 
   // HTT
-  dataHist_ = igetter.get(input_dir_data_+"/"+"HTTRank");
-  emulHist_ = igetter.get(input_dir_emul_+"/"+"HTTRank");
+  dataHist_ = igetter.get(input_dir_data_+"/Energy-Sums/"+"HTTRank");
+  emulHist_ = igetter.get(input_dir_emul_+"/Energy-Sums/"+"HTTRank");
 
   if (dataHist_ && emulHist_){
     TH1F *httNum = dataHist_->getTH1F();

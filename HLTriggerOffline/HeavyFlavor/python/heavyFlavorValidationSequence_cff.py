@@ -105,11 +105,23 @@ hfv9 = hfv6.clone(
     TriggerPathName = cms.untracked.string("HLT_Mu25_TkMu0_dEta18_Onia_v"),
 )
 
+### tau3mu
+hfvTau3mu = hfv1.clone(
+    TriggerPathName = cms.untracked.string("HLT_DoubleMu3_Trk_tau3mu_v")
+)
+
+### DoubleMu0
+hfvDoubleMu0 = hfv1.clone(
+    TriggerPathName = cms.untracked.string("HLT_DoubleMu0")
+)
+
 
 heavyFlavorValidationSequence = cms.Sequence(
   hfv1+hfv2+hfv3+hfv4+hfv5 
   +hfvQuadmu1+hfvQuadmu2+hfvQuadmu3+hfvQuadmu4
   +hfvTnP1+hfvTnP2+hfvTnP3+hfvTnP4+hfvTnP5+hfvTnP6+hfvTnP7+hfvTnP8+hfvTnP9+hfvTnP10+hfvTnP11
   +hfv6+hfv7+hfv8+hfv9
+  +hfvTau3mu
+  +hfvDoubleMu0
   +hfvQ1+hfvQ2+hfvQ3+hfvQ4+hfvQ5+hfvQ6+hfvQ7
 )

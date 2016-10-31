@@ -33,14 +33,20 @@ class RochesterCorrections(object):
         return corp4
 
         
-    def correct( self, particles, run ):
+    def correct( self, particle, run ):
+        '''Correct a particles.  '''
+        corp4 = corrected_p4(particle, run) 
+        ptc.setP4( corp4 )
+
+    def correct_all( self, particles, run ):
         '''Correct a list of particles.
 
-        The p4 of each particle will change
-        '''
+        The p4 of each particle will change '''
         for ptc in particles: 
             corp4 = corrected_p4(ptc, run) 
             ptc.setP4( corp4 )
+
+
 
 
 rochcor = RochesterCorrections() 

@@ -9,9 +9,10 @@
 #include "CondFormats/AlignmentRecord/interface/ESAlignmentRcd.h"
 #include "DataFormats/EcalDetId/interface/ESDetId.h"
 #include "Geometry/Records/interface/PEcalPreshowerRcd.h"
+#include "Geometry/CaloGeometry/interface/CaloGenericDetId.h"
 #include <vector>
 
-class EcalPreshowerGeometry : public CaloSubdetectorGeometry
+class EcalPreshowerGeometry final : public CaloSubdetectorGeometry
 {
    public:
 
@@ -86,9 +87,23 @@ class EcalPreshowerGeometry : public CaloSubdetectorGeometry
 			    const GlobalPoint& f3 ,
 			    const CCGFloat*    parm ,
 			    const DetId&       detId   ) ;
+
+
+  /// is this detid present in the geometry?
+  bool present( const DetId& id ) const override {
+    if(id==DetId(0)) return false;
+    // not needed???
+    auto index = CaloGenericDetId( id ).denseIndex();
+    return index < m_cellVec.size();
+  }
+
+  /// Get the cell geometry of a given detector id.  Should return nulptr if not found.
+  // const CaloCellGeometry* getGeometry( const DetId& id ) const override;
+
+
    protected:
 
-      virtual const CaloCellGeometry* cellGeomPtr( uint32_t index ) const ;
+      const CaloCellGeometry* cellGeomPtr( uint32_t index ) const override;
 
    private:
 

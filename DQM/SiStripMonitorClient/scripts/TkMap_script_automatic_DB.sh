@@ -1,9 +1,22 @@
 #!/bin/bash
 
+curdir="$(pwd)"
+echo ${curdir}
+
 export PATH=/afs/cern.ch/cms/common:${PATH}
 if [[ "$#" == "0" ]]; then
     echo "usage: 'TkMap_script_automatic.sh Cosmics|MinimumBias|StreamExpress|StreamExpressCosmics runNumber1 runNumber2...'";
     exit 1;
+fi
+
+FORCE=0
+echo $2
+if [ "${2}" == "0" ]; then
+    FORCE=0
+else
+    if [ "${2}" == "f" ]; then
+        FORCE=1
+    fi
 fi
 
 export WORKINGDIR=${CMSSW_BASE}/src
@@ -17,6 +30,20 @@ for Run_numb in $@;
 do
 
     if [ "$Run_numb" == "$1" ]; then continue; fi
+
+##2016 data taking period run > 271024
+    if [ $Run_numb -gt 271024 ]; then
+
+        DataLocalDir='Data2016'
+        DataOfflineDir='Run2016'
+    else
+
+#2016 - Commissioning period                                                                                                                               
+    if [ $Run_numb -gt 264200 ]; then
+
+        DataLocalDir='Data2016'
+        DataOfflineDir='Commissioning2016'
+    else
 
     #Run2015A
     if [ $Run_numb -gt 246907 ]; then
@@ -45,6 +72,8 @@ do
 		fi
 	    fi
 	fi
+    fi
+    fi
     fi
     fi
     #loop over datasets
@@ -81,8 +110,25 @@ do
 
     file_path="/tmp/"
 
-    check_runcomplete ${file_path}/$dqmFileName
-    if [ $? -ne 0 ]; then continue; fi
+    echo "FORCE is " ${FORCE}
+    ## check if run is complete - LG
+    echo "get the run status from DQMFile"
+    runStatus=-1
+    runStatus="$(${pathTools}getRunStatusFromDQMFile.py ${file_path}/$dqmFileName $Run_numb runIsComplete | wc -l)"
+    if [[ ${runStatus} == 0 ]] 
+	then 
+	echo ${Run_numb} >> ${curdir}/runsNotComplete_tmp.txt
+        if [ ${FORCE} == 0] 
+	then 
+	    continue; 
+	fi
+    fi
+    ## LG end
+
+    if [ $FORCE == 0 ]; then
+	check_runcomplete ${file_path}/$dqmFileName
+	if [ $? -ne 0 ]; then continue; fi
+    fi
 
     echo Process ${file_path}/$dqmFileName
 
@@ -139,7 +185,8 @@ do
 
     detIdInfoFileName=`echo "file://TkDetIdInfo_Run${Run_numb}_${thisDataset}.root"`
 
-    cmsRun ${CMSSW_BASE}/src/DQM/SiStripMonitorClient/test/SiStripDQM_OfflineTkMap_Template_cfg_DB.py print globalTag=${GLOBALTAG} runNumber=${Run_numb} dqmFile=${file_path}/$dqmFileName detIdInfoFile=${detIdInfoFileName}  # update GlobalTag
+    #cmsRun ${CMSSW_BASE}/src/DQM/SiStripMonitorClient/test/SiStripDQM_OfflineTkMap_Template_cfg_DB.py print globalTag=${GLOBALTAG} runNumber=${Run_numb} dqmFile=${file_path}/$dqmFileName  # update GlobalTag
+    cmsRun ${CMSSW_BASE}/src/DQM/SiStripMonitorClient/test/SiStripDQM_OfflineTkMap_Template_cfg_DB.py print globalTag=${GLOBALTAG} runNumber=${Run_numb} dqmFile=${file_path}/$dqmFileName  detIdInfoFile=${detIdInfoFileName} # update GlobalTag
 
 # rename bad module list file
 
@@ -210,16 +257,20 @@ do
 # overwrite destination for tests
 # dest=FinalTest
 
+## create merged list of BadComponent from (PCL, RunInfo and FED Errors)
+    cmsRun ${CMSSW_BASE}/src/DQM/SiStripMonitorClient/test/mergeBadChannel_Template_cfg.py globalTag=${GLOBALTAG} runNumber=${Run_numb} dqmFile=${file_path}/$dqmFileName
+    mv MergedBadComponents.log MergedBadComponents_run${Run_numb}.txt
+
     rm -f *.xml
     rm -f *svg
 
-#    mkdir -p /data/users/event_display/${DataLocalDir}/${dest}/${nnn}/${Run_numb}/$thisDataset #2> /dev/null
-#    cp -r ${Run_numb}/$thisDataset /data/users/event_display/Data2011/${dest}/${nnn}/${Run_numb}/
-#    cp -r ${Run_numb}/$thisDataset /data/users/event_display/${DataLocalDir}/${dest}/${nnn}/${Run_numb}/$thisDataset 
     ssh cctrack@vocms061 "mkdir -p /data/users/event_display/TkCommissioner_runs/${DataLocalDir}/${dest} 2> /dev/null"
     scp *.root cctrack@vocms061:/data/users/event_display/TkCommissioner_runs/${DataLocalDir}/${dest}
     rm *.root
 
+#    mkdir -p /data/users/event_display/${DataLocalDir}/${dest}/${nnn}/${Run_numb}/$thisDataset #2> /dev/null
+#    cp -r ${Run_numb}/$thisDataset /data/users/event_display/Data2011/${dest}/${nnn}/${Run_numb}/
+#    cp -r ${Run_numb}/$thisDataset /data/users/event_display/${DataLocalDir}/${dest}/${nnn}/${Run_numb}/$thisDataset 
     ssh cctrack@vocms061 "mkdir -p /data/users/event_display/${DataLocalDir}/${dest}/${nnn}/${Run_numb}/$thisDataset 2> /dev/null"
     scp -r * cctrack@vocms061:/data/users/event_display/${DataLocalDir}/${dest}/${nnn}/${Run_numb}/$thisDataset
 

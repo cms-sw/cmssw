@@ -9,21 +9,18 @@
 #include "L1Trigger/L1TCalorimeter/interface/Stage2Layer2JetAlgorithmFirmware.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
 #include "L1Trigger/L1TCalorimeter/interface/CaloTools.h"
+#include "L1Trigger/L1TCalorimeter/interface/AccumulatingSort.h"
 #include "L1Trigger/L1TCalorimeter/interface/BitonicSort.h"
 #include "CondFormats/L1TObjects/interface/CaloParams.h"
+#include "TMath.h"
 
 #include <vector>
 #include <algorithm>
 #include <math.h>
 
 namespace l1t {
-  bool operator > ( l1t::Jet& a, l1t::Jet& b )
-  {
-    if ( a.hwPt() > b.hwPt() ) {
-      return true;
-    } else {
-      return false;
-    }
+  bool operator > ( const l1t::Jet& a, l1t::Jet& b ) {
+    return  a.hwPt() > b.hwPt();
   }
 }
 
@@ -59,10 +56,12 @@ void l1t::Stage2Layer2JetAlgorithmFirmwareImp1::processEvent(const std::vector<l
   // find jets
   create(towers, jets, alljets, params_->jetPUSType());
 
-  // jet energy corrections
-  calibrate(jets, 0); // pass the jet collection and the hw threshold above which to calibrate
+  // calibrate all jets
   calibrate(alljets, 0); // pass all jets and the hw threshold above which to calibrate
-  
+
+  // jets accumulated sort
+  accuSort(jets);
+ 
 }
 
 
@@ -76,7 +75,7 @@ void l1t::Stage2Layer2JetAlgorithmFirmwareImp1::create(const std::vector<l1t::Ca
     
     // the 4 groups of rings
     std::vector<int> ringGroup1, ringGroup2, ringGroup3, ringGroup4;
-    for (int i=1; i<=CaloTools::kHFEnd-5; i++) {
+    for (int i=1; i<=CaloTools::mpEta(CaloTools::kHFEnd); i++) {
       if      ( ! ((i-1)%4) ) ringGroup1.push_back( i * etaSide );
       else if ( ! ((i-2)%4) ) ringGroup2.push_back( i * etaSide );
       else if ( ! ((i-3)%4) ) ringGroup3.push_back( i * etaSide );
@@ -108,7 +107,7 @@ void l1t::Stage2Layer2JetAlgorithmFirmwareImp1::create(const std::vector<l1t::Ca
 	  if (jetsRing.size()==18) break;
 	  
 	  // seed tower
-	  const CaloTower& tow = CaloTools::getTower(towers, ieta, iphi); 
+	  const CaloTower& tow = CaloTools::getTower(towers, CaloTools::caloEta(ieta), iphi); 
 	  
 	  int seedEt = tow.hwPt();
 	  int iEt = seedEt;
@@ -134,7 +133,7 @@ void l1t::Stage2Layer2JetAlgorithmFirmwareImp1::create(const std::vector<l1t::Ca
 	      if (ieta < 0 && ietaTest >=0) ietaTest += 1;
 	   
 	      // check jet mask and sum tower et
-	      const CaloTower& towTest = CaloTools::getTower(towers, ietaTest, iphiTest);
+	      const CaloTower& towTest = CaloTools::getTower(towers, CaloTools::caloEta(ietaTest), iphiTest);
 	      towEt = towTest.hwPt();
 	      
               if      (mask_[8-(dphi+4)][deta+4] == 0) continue;
@@ -150,62 +149,130 @@ void l1t::Stage2Layer2JetAlgorithmFirmwareImp1::create(const std::vector<l1t::Ca
 	  
 	  // add the jet to the list
 	  if (!vetoCandidate) {
+
+	    int rawEt = iEt;
+	    int puEt(0);
 	
-	    if (PUSubMethod == "Donut")       iEt -= donutPUEstimate(ieta, iphi, 5, towers);	    
-	    if (PUSubMethod == "ChunkyDonut") iEt -= chunkyDonutPUEstimate(ieta, iphi, 5, towers);
-	    	   
-            if (iEt<=0) continue;
- 
 	    math::XYZTLorentzVector p4;
 	    int caloEta = CaloTools::caloEta(ieta);
-	    l1t::Jet jet( p4, iEt, caloEta, iphi, 0);
+	    l1t::Jet jet( p4, -999, caloEta, iphi, 0);
+
+	    // remove checking if(!params_->jetBypassPUS()). jetBypassPUS_ is currently always set and configured to false
+	    if(true){
+	      if (PUSubMethod == "Donut") {
+		puEt = donutPUEstimate(ieta, iphi, 5, towers);	    
+		iEt -= puEt;
+	      }
+	      
+	      if (PUSubMethod == "ChunkyDonut"){
+		puEt = chunkyDonutPUEstimate(jet, 5, towers);
+		iEt -= puEt;
+	      }
+	    }
 	    
+	    if (iEt<=0) continue;
+
+	    // if tower Et is saturated, saturate jet Et
+	    if (seedEt >= 509) iEt = 65535;
+
+	    jet.setHwPt(iEt);
+	    jet.setRawEt( (short int) rawEt);
+	    jet.setSeedEt((short int) seedEt);
+	    jet.setTowerIEta((short int) caloEta);
+	    jet.setTowerIPhi((short int) iphi);
+	    jet.setPUEt((short int) puEt);
+	    
+
 	    jetsRing.push_back(jet);
 	    alljets.push_back(jet);
 	    
 	  }
 	  
 	}
-	
+
+	 // jet energy corrections
+	calibrate(jetsRing, 0); // pass the jet collection and the hw threshold above which to calibrate
+
 	// sort these jets and keep top 6
 	start_ = jetsRing.begin();  
 	end_   = jetsRing.end();
 	BitonicSort<l1t::Jet>(down, start_, end_);
 	if (jetsRing.size()>6) jetsRing.resize(6);
+	
+	// update jets
+	jets.insert(jets.end(),jetsRing.begin(),jetsRing.end());
 	  
-	// merge with the accumulated jets
-	std::vector<l1t::Jet> jetsSort;
-	jetsSort.insert(jetsSort.end(), jetsAccu.begin(), jetsAccu.end());
-	jetsSort.insert(jetsSort.end(), jetsRing.begin(), jetsRing.end());
-	
-	// sort and truncate
-	start_ = jetsSort.begin();
-	end_   = jetsSort.end();
-	BitonicSort<l1t::Jet>(down, start_, end_); // or just use BitonicMerge
-	if (jetsSort.size()>6) jetsSort.resize(6);
-	
-	// update accumulated jets
-	jetsAccu = jetsSort;
-	
       }
+    }
+  } 
+}
+
+
+//Accumulating sort
+void l1t::Stage2Layer2JetAlgorithmFirmwareImp1::accuSort(std::vector<l1t::Jet> & jets){
+
+  math::PtEtaPhiMLorentzVector emptyP4;
+  l1t::Jet tempJet (emptyP4, 0, 0, 0, 0);
+  std::vector< std::vector<l1t::Jet> > jetEtaPos( 41 , std::vector<l1t::Jet>(18, tempJet));
+  std::vector< std::vector<l1t::Jet> > jetEtaNeg( 41 , std::vector<l1t::Jet>(18, tempJet));
+  
+  for (unsigned int iJet = 0; iJet < jets.size(); iJet++)
+    {
+      if (jets.at(iJet).hwEta() > 0) jetEtaPos.at(jets.at(iJet).hwEta()-1).at((jets.at(iJet).hwPhi()-1)/4) = jets.at(iJet);
+      else  jetEtaNeg.at(-(jets.at(iJet).hwEta()+1)).at((jets.at(iJet).hwPhi()-1)/4) = jets.at(iJet);
+    }
+  
+  AccumulatingSort <l1t::Jet> etaPosSorter(7);
+  AccumulatingSort <l1t::Jet> etaNegSorter(7);
+  std::vector<l1t::Jet> accumEtaPos;
+  std::vector<l1t::Jet> accumEtaNeg;
+    
+  for( int ieta = 0 ; ieta < 41 ; ++ieta)
+    {
+      // eta +
+      std::vector<l1t::Jet>::iterator start_, end_;
+      start_ = jetEtaPos.at(ieta).begin();  
+      end_   = jetEtaPos.at(ieta).end();
+      BitonicSort<l1t::Jet>(down, start_, end_);
+      etaPosSorter.Merge( jetEtaPos.at(ieta) , accumEtaPos );
       
-      // add to final jets in this eta side
-      jetsHalf.insert(jetsHalf.end(), jetsAccu.begin(), jetsAccu.end());
+      // eta -
+      start_ = jetEtaNeg.at(ieta).begin();  
+      end_   = jetEtaNeg.at(ieta).end();
+      BitonicSort<l1t::Jet>(down, start_, end_);
+      etaNegSorter.Merge( jetEtaNeg.at(ieta) , accumEtaNeg );
       
     }
-    
-    // sort the 24 jets and keep top 6
-    start_ = jetsHalf.begin();  
-    end_   = jetsHalf.end();
-    BitonicSort<l1t::Jet>(down, start_, end_);
-    if (jetsHalf.size()>6) jetsHalf.resize(6);
-
-    // add to final jets
-    jets.insert(jets.end(), jetsHalf.begin(), jetsHalf.end());
-    
+ 
+  //check for 6 & 7th jets with same et and eta. Keep jet with larger phi
+  if(accumEtaPos.at(6).hwPt()==accumEtaPos.at(5).hwPt() && accumEtaPos.at(6).hwEta()==accumEtaPos.at(5).hwEta()
+     && accumEtaPos.at(6).hwPhi() > accumEtaPos.at(5).hwPhi()){
+    accumEtaPos.at(5)=accumEtaPos.at(6);
+  }
+  if(accumEtaNeg.at(6).hwPt()==accumEtaNeg.at(5).hwPt() && accumEtaNeg.at(6).hwEta()==accumEtaNeg.at(5).hwEta()
+     && accumEtaNeg.at(6).hwPhi() > accumEtaNeg.at(5).hwPhi()){
+    accumEtaNeg.at(5)=accumEtaNeg.at(6);
   }
 
+  //truncate
+  accumEtaPos.resize(6);
+  accumEtaNeg.resize(6);
+ 
+  // put all 12 candidates in the original jet vector, removing zero energy ones
+  jets.clear();
+  for (l1t::Jet accjet : accumEtaPos)
+    {
+      if (accjet.hwPt() > 0) jets.push_back(accjet);
+    }
+  for (l1t::Jet accjet : accumEtaNeg)
+    {
+      if (accjet.hwPt() > 0) jets.push_back(accjet);
+    }
+  
+   
 }
+
+
 
 //A function to return the value for donut subtraction around an ieta and iphi position for donut subtraction
 //Also pass it a vector to store the individual values of the strip for later testing
@@ -223,13 +290,13 @@ int l1t::Stage2Layer2JetAlgorithmFirmwareImp1::donutPUEstimate(int jetEta,
   int iphiDown = jetPhi - size;
   while ( iphiDown < 1 ) iphiDown += CaloTools::kHBHENrPhi;
 
-  int ietaUp = (jetEta + size > CaloTools::kHFEnd) ? 999 : jetEta+size;
-  int ietaDown = (abs(jetEta - size) > CaloTools::kHFEnd) ? 999 : jetEta-size;
+  int ietaUp = jetEta+size;   //(jetEta + size > CaloTools::mpEta(CaloTools::kHFEnd)) ? 999 : jetEta+size;
+  int ietaDown = jetEta-size; //(abs(jetEta - size) > CaloTools::mpEta(CaloTools::kHFEnd)) ? 999 : jetEta-size;
 
   for (int ieta = jetEta - size+1; ieta < jetEta + size; ++ieta)   
   {
     
-    if (abs(ieta) > CaloTools::kHFEnd || abs(ieta) < 1) continue;
+    if (abs(ieta) > CaloTools::mpEta(CaloTools::kHFEnd) || abs(ieta) < 1) continue;
     int towerEta;
     
     if (jetEta > 0 && ieta <=0){
@@ -240,11 +307,11 @@ int l1t::Stage2Layer2JetAlgorithmFirmwareImp1::donutPUEstimate(int jetEta,
       towerEta=ieta;
     }
     
-    const CaloTower& tow = CaloTools::getTower(towers, towerEta, iphiUp);
+    const CaloTower& tow = CaloTools::getTower(towers, CaloTools::caloEta(towerEta), iphiUp);
     int towEt = tow.hwPt();
     ring[0]+=towEt;
     
-    const CaloTower& tow2 = CaloTools::getTower(towers, towerEta, iphiDown);
+    const CaloTower& tow2 = CaloTools::getTower(towers, CaloTools::caloEta(towerEta), iphiDown);
     towEt = tow2.hwPt();
     ring[1]+=towEt;
     
@@ -257,11 +324,11 @@ int l1t::Stage2Layer2JetAlgorithmFirmwareImp1::donutPUEstimate(int jetEta,
     while ( towerPhi > CaloTools::kHBHENrPhi ) towerPhi -= CaloTools::kHBHENrPhi;
     while ( towerPhi < 1 ) towerPhi += CaloTools::kHBHENrPhi;
     
-    const CaloTower& tow = CaloTools::getTower(towers, ietaUp, towerPhi);
+    const CaloTower& tow = CaloTools::getTower(towers, CaloTools::caloEta(ietaUp), towerPhi);
     int towEt = tow.hwPt();
     ring[2]+=towEt;
     
-    const CaloTower& tow2 = CaloTools::getTower(towers, ietaDown, towerPhi);
+    const CaloTower& tow2 = CaloTools::getTower(towers, CaloTools::caloEta(ietaDown), towerPhi);
     towEt = tow2.hwPt();
     ring[3]+=towEt;
   } 
@@ -272,15 +339,16 @@ int l1t::Stage2Layer2JetAlgorithmFirmwareImp1::donutPUEstimate(int jetEta,
   return 4*( ring[1]+ring[2] ); // This should really be multiplied by 4.5 not 4.
 }
 
-int l1t::Stage2Layer2JetAlgorithmFirmwareImp1::chunkyDonutPUEstimate(int jetEta, 
-								     int jetPhi, 
-								     int size, 
+int l1t::Stage2Layer2JetAlgorithmFirmwareImp1::chunkyDonutPUEstimate(l1t::Jet & jet, int size, 
 								     const std::vector<l1t::CaloTower> & towers){
  
+  int jetPhi = jet.hwPhi();
+  int jetEta = CaloTools::mpEta(jet.hwEta());
+
    // ring is a vector with 4 ring strips, one for each side of the ring
   // order is PhiUp, PhiDown, EtaUp, EtaDown
   std::vector<int> ring(4,0);
-
+  
   // number of strips in donut - should make this configurable
   int nStrips = 3;
 
@@ -300,17 +368,17 @@ int l1t::Stage2Layer2JetAlgorithmFirmwareImp1::chunkyDonutPUEstimate(int jetEta,
     // do PhiUp and PhiDown
     for (int ieta=jetEta-size+1; ieta<jetEta+size; ++ieta) {
       
-      if (abs(ieta) > CaloTools::kHFEnd) continue;
+      if (abs(ieta) > CaloTools::mpEta(CaloTools::kHFEnd)) continue;
       
       int towEta = ieta;
       if (jetEta>0 && towEta<=0) towEta-=1;
       if (jetEta<0 && towEta>=0) towEta+=1;
             
-      const CaloTower& towPhiUp = CaloTools::getTower(towers, towEta, iphiUp);
+      const CaloTower& towPhiUp = CaloTools::getTower(towers, CaloTools::caloEta(towEta), iphiUp);
       int towEt = towPhiUp.hwPt();
       ring[0] += towEt;
             
-      const CaloTower& towPhiDown = CaloTools::getTower(towers, towEta, iphiDown);
+      const CaloTower& towPhiDown = CaloTools::getTower(towers, CaloTools::caloEta(towEta), iphiDown);
       towEt = towPhiDown.hwPt();
       ring[1] += towEt;
             
@@ -319,12 +387,12 @@ int l1t::Stage2Layer2JetAlgorithmFirmwareImp1::chunkyDonutPUEstimate(int jetEta,
     // do EtaUp
     for (int iphi=jetPhi-size+1; iphi<jetPhi+size; ++iphi) {
       
-      if (abs(ietaUp) <= CaloTools::kHFEnd-1) {    
+      if (abs(ietaUp) <= CaloTools::mpEta(CaloTools::kHFEnd)) {    
         int towPhi = iphi;
         while ( towPhi > CaloTools::kHBHENrPhi ) towPhi -= CaloTools::kHBHENrPhi;
         while ( towPhi < 1 ) towPhi += CaloTools::kHBHENrPhi;
 
-        const CaloTower& towEtaUp = CaloTools::getTower(towers, ietaUp, towPhi);
+        const CaloTower& towEtaUp = CaloTools::getTower(towers, CaloTools::caloEta(ietaUp), towPhi);
         int towEt = towEtaUp.hwPt();
         ring[2] += towEt;
       }else{
@@ -337,12 +405,12 @@ int l1t::Stage2Layer2JetAlgorithmFirmwareImp1::chunkyDonutPUEstimate(int jetEta,
     // do EtaDown
     for (int iphi=jetPhi-size+1; iphi<jetPhi+size; ++iphi) {
       
-      if (abs(ietaDown) <= CaloTools::kHFEnd-1) {
+      if (abs(ietaDown) <= CaloTools::mpEta(CaloTools::kHFEnd)) {
         int towPhi = iphi;
         while ( towPhi > CaloTools::kHBHENrPhi ) towPhi -= CaloTools::kHBHENrPhi;
         while ( towPhi < 1 ) towPhi += CaloTools::kHBHENrPhi;
 	
-        const CaloTower& towEtaDown = CaloTools::getTower(towers, ietaDown, towPhi);
+        const CaloTower& towEtaDown = CaloTools::getTower(towers, CaloTools::caloEta(ietaDown), towPhi);
         int towEt = towEtaDown.hwPt();
         ring[3] += towEt;
       }else{
@@ -361,8 +429,11 @@ int l1t::Stage2Layer2JetAlgorithmFirmwareImp1::chunkyDonutPUEstimate(int jetEta,
 
   // use lowest 3 strips as PU estimate
   std::sort( ring.begin(), ring.end() );
+  
+  for(uint i=0; i<4; ++i)    jet.setPUDonutEt(i, (short int) ring[i]);
+    
   return ( ring[0] + ring[1] + ring[2] );
-
+  
 }
 
 
@@ -377,7 +448,7 @@ void l1t::Stage2Layer2JetAlgorithmFirmwareImp1::calibrate(std::vector<l1t::Jet> 
 
     if( params_->jetCalibrationParams().size() != 6*22){
       edm::LogError("l1t|stage 2") << "Invalid input vector to calo params. Input vector of size: " <<
-	params_->jetCalibrationParams().size() << "  Require size: 132  Not calibrating Stage 2 Jets" << std::endl;
+      params_->jetCalibrationParams().size() << "  Require size: 132  Not calibrating Stage 2 Jets" << std::endl;
       return;
     }
 
@@ -414,7 +485,7 @@ void l1t::Stage2Layer2JetAlgorithmFirmwareImp1::calibrate(std::vector<l1t::Jet> 
 
     if( params_->jetCalibrationParams().size() != 8*22){
       edm::LogError("l1t|stage 2") << "Invalid input vector to calo params. Input vector of size: " <<
-           params_->jetCalibrationParams().size() << "  Require size: 176  Not calibrating Stage 2 Jets" << std::endl;
+      params_->jetCalibrationParams().size() << "  Require size: 176  Not calibrating Stage 2 Jets" << std::endl;
       return;
     }
 
@@ -432,6 +503,39 @@ void l1t::Stage2Layer2JetAlgorithmFirmwareImp1::calibrate(std::vector<l1t::Jet> 
       double ptPhys = jet->hwPt() * params_->jetLsb();
       double correction = params[6];
       if (ptPhys>params[7]) correction = calibFit(ptPhys, params);
+
+      math::XYZTLorentzVector p4;
+      *jet = l1t::Jet( p4, correction*jet->hwPt(), jet->hwEta(), jet->hwPhi(), 0);
+
+    }
+
+  }
+  else if( params_->jetCalibrationType() == "functionErf11PtParams16EtaBins" ){
+    // as above but with cap on max correction at low pT
+
+    if( params_->jetCalibrationParams().size() != 11*16){
+      edm::LogError("l1t|stage 2") << "Invalid input vector to calo params. Input vector of size: " <<
+      params_->jetCalibrationParams().size() << "  Require size: 176  Not calibrating Stage 2 Jets" << std::endl;
+      return;
+    }
+
+    for(std::vector<l1t::Jet>::iterator jet = jets.begin(); jet!=jets.end(); jet++){
+
+      if(jet->hwPt() < calibThreshold) continue;
+
+      int etaBin = CaloTools::bin16Eta( jet->hwEta() );
+
+      double params[11];
+      for(int i=0; i<11; i++){
+        params[i] = params_->jetCalibrationParams()[etaBin*11 + i];
+      }
+
+      double ptPhys = jet->hwPt() * params_->jetLsb();
+      double correction = params[7];
+
+      if (ptPhys<params[8]) correction = params[7];
+      else if (ptPhys>params[10]) correction = params[9];
+      else correction = calibFitErr(ptPhys, params); 
 
       math::XYZTLorentzVector p4;
       *jet = l1t::Jet( p4, correction*jet->hwPt(), jet->hwEta(), jet->hwPhi(), 0);
@@ -459,23 +563,26 @@ void l1t::Stage2Layer2JetAlgorithmFirmwareImp1::calibrate(std::vector<l1t::Jet> 
       // any values larger than 511 are automatically set to 511.
       int jetHwPt = jet->hwPt();
       if (jetHwPt >= 0x200) {
-        jetHwPt = 0x1FF;
+	jetHwPt = 0x1FF;
       }
       unsigned int ptBin = params_->jetCompressPtLUT()->data(jetHwPt>>1);
-      unsigned int etaBin = params_->jetCompressEtaLUT()->data(abs(jet->hwEta()));
+      unsigned int etaBin = params_->jetCompressEtaLUT()->data(abs(CaloTools::mpEta(jet->hwEta())));
       unsigned int compBin =  (etaBin<<4) | ptBin;
-
+      
       unsigned int addPlusMult = params_->jetCalibrationLUT()->data(compBin);
       unsigned int multiplier = addPlusMult & 0x3ff;
       // handles -ve numbers correctly
       int8_t addend = (addPlusMult>>10);
       unsigned int jetPtCorr = ((jet->hwPt()*multiplier)>>9) + addend;
-
-      math::XYZTLorentzVector p4;
-      *jet = l1t::Jet( p4, jetPtCorr, jet->hwEta(), jet->hwPhi(), 0);
+     
+      if(jetPtCorr < 0xFFFF) {
+	jet->setHwPt(jetPtCorr);
+      }
+      else {
+	jet->setHwPt(0xFFFF);
+      }
     }
-
-
+    
   } else {
     if(params_->jetCalibrationType() != "None" && params_->jetCalibrationType() != "none") 
       edm::LogError("l1t|stage 2") << "Invalid calibration type in calo params. Not calibrating Stage 2 Jets" << std::endl;
@@ -496,6 +603,18 @@ double l1t::Stage2Layer2JetAlgorithmFirmwareImp1::calibFit( double pt, double *p
 
   // Final fitting function, with sanity check
   double f = par[0] + term1 + term2;
+  if (f < 0)
+    f = 0;
+  if (f != f) // stop NaN
+    f = 1;
+  return f;
+}
+
+//NEW Function for the calibration, correct as a function of pT in bins of eta
+double l1t::Stage2Layer2JetAlgorithmFirmwareImp1::calibFitErr( double pt, double *par ){
+
+  double f = par[0]+par[1]*TMath::Erf(par[2]*(log10(pt)-par[3])+par[4]*exp(par[5]*(log10(pt)-par[6])*(log10(pt)-par[6])));
+  // sanity check
   if (f < 0)
     f = 0;
   if (f != f) // stop NaN

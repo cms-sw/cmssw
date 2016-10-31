@@ -74,7 +74,10 @@ void DynamicTruncation::updateWithDThits(TrajectoryStateOnSurface& tsos, DTRecSe
   for (ConstRecHitContainer::const_iterator it = tmprecHits.begin(); it != tmprecHits.end(); ++it) {
     DTLayerId layid((*it)->det()->geographicalId());
     TrajectoryStateOnSurface temp = propagator->propagate(tsos, theG->idToDet(layid)->surface());
-    if (temp.isValid()) tsos = updatorHandle->update(temp, **it);
+    if (temp.isValid()) {
+        TrajectoryStateOnSurface tempTsos = updatorHandle->update(temp, **it);
+        if (tempTsos.isValid() ) tsos = tempTsos;
+    }
   }
 }
 
@@ -88,7 +91,10 @@ void DynamicTruncation::updateWithCSChits(TrajectoryStateOnSurface& tsos, CSCSeg
   for (ConstRecHitContainer::const_iterator it = tmprecHits.begin(); it != tmprecHits.end(); ++it) {
     const CSCLayer* cscLayer = cscGeom->layer((*it)->det()->geographicalId());
     TrajectoryStateOnSurface temp = propagator->propagate(tsos, cscLayer->surface());  
-    if (temp.isValid()) tsos = updatorHandle->update(temp, **it);
+    if (temp.isValid()) {
+      TrajectoryStateOnSurface tempTsos = updatorHandle->update(temp, **it);
+      if (tempTsos.isValid() ) tsos = tempTsos;
+    }
   }
 }
 
@@ -378,12 +384,24 @@ void DynamicTruncation::preliminaryFit(map<int, vector<DetId> > compatibleIds, m
       getThresholdFromCFG(initThr, DetId(bestDTSeg.chamberId()));
       if (bestDTEstimator >= initThr) continue;
       prelFitMeas.push_back(theMuonRecHitBuilder->build(&bestDTSeg));
-      prelFitState = updatorHandle->update(tsosDTlayer, *theMuonRecHitBuilder->build(&bestDTSeg));
+      auto aSegRH = prelFitMeas.back();
+      auto uRes = updatorHandle->update(tsosDTlayer, *aSegRH);
+      if (uRes.isValid()){
+	prelFitState = uRes;
+      } else {
+	prelFitMeas.pop_back();
+      }
     } else {
       getThresholdFromCFG(initThr, DetId(bestCSCSeg.cscDetId()));
       if (bestCSCEstimator >= initThr) continue;
       prelFitMeas.push_back(theMuonRecHitBuilder->build(&bestCSCSeg));
-      prelFitState = updatorHandle->update(tsosCSClayer, *theMuonRecHitBuilder->build(&bestCSCSeg));
+      auto aSegRH = prelFitMeas.back();
+      auto uRes = updatorHandle->update(tsosCSClayer, *aSegRH);
+      if (uRes.isValid()){
+	prelFitState = uRes;
+      } else {
+	prelFitMeas.pop_back();
+      }
     }
   }
   if (!prelFitMeas.empty()) prelFitMeas.pop_back();

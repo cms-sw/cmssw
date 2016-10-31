@@ -251,5 +251,8 @@ siStripFEDMonitor = cms.EDAnalyzer("SiStripFEDMonitorPlugin",
   ),                             
   FedIdVsApvIdHistogramConfig = cms.untracked.PSet(
     Enabled = cms.untracked.bool(True)
+  ),
+  FedErrorsVsIdHistogramConfig = cms.untracked.PSet(
+    Enabled = cms.untracked.bool(True)
   )                             
  )

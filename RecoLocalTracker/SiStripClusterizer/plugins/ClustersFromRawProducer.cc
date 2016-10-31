@@ -222,7 +222,7 @@ class SiStripClusterizerFromRaw final : public edm::stream::EDProducer<>  {
     
     if(onDemand) assert(output->onDemand());
 
-    output->reserve(15000,12*10000);
+    output->reserve(15000,24*10000);
 
 
     if (!onDemand) {

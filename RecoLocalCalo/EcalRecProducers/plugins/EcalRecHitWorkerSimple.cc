@@ -25,7 +25,8 @@ EcalRecHitWorkerSimple::EcalRecHitWorkerSimple(const edm::ParameterSet&ps, edm::
 	EBLaserMAX_ = ps.getParameter<double>("EBLaserMAX");
 	EELaserMAX_ = ps.getParameter<double>("EELaserMAX");
 
-	
+	skipTimeCalib_=ps.getParameter<bool>("skipTimeCalib");
+
 	// Traslate string representation of flagsMapDBReco into enum values 
 	const edm::ParameterSet & p=ps.getParameter< edm::ParameterSet >("flagsMapDBReco");
 	std::vector<std::string> recoflagbitsStrings = p.getParameterNames();
@@ -59,8 +60,12 @@ EcalRecHitWorkerSimple::EcalRecHitWorkerSimple(const edm::ParameterSet&ps, edm::
 void EcalRecHitWorkerSimple::set(const edm::EventSetup& es)
 {
         es.get<EcalIntercalibConstantsRcd>().get(ical);
-        es.get<EcalTimeCalibConstantsRcd>().get(itime);
-        es.get<EcalTimeOffsetConstantRcd>().get(offtime);
+
+        if (!skipTimeCalib_){
+            es.get<EcalTimeCalibConstantsRcd>().get(itime);
+            es.get<EcalTimeOffsetConstantRcd>().get(offtime);
+        }
+
         es.get<EcalADCToGeVConstantRcd>().get(agc);
         es.get<EcalChannelStatusRcd>().get(chStatus);
         if ( laserCorrection_ ) es.get<EcalLaserDbRecord>().get(laser);
@@ -92,10 +97,10 @@ EcalRecHitWorkerSimple::run( const edm::Event & evt,
 	const EcalIntercalibConstantMap& icalMap = ical->getMap();  
     if ( detid.subdetId() == EcalEndcap ) {
         rechitMaker_->setADCToGeVConstant( float(agc->getEEValue()) );
-		offsetTime = offtime->getEEValue();
+		if (!skipTimeCalib_) offsetTime = offtime->getEEValue();
     } else {
         rechitMaker_->setADCToGeVConstant( float(agc->getEBValue()) );
-		offsetTime = offtime->getEBValue();
+		if (!skipTimeCalib_) offsetTime = offtime->getEBValue();
     }
 
     // first intercalibration constants
@@ -115,18 +120,22 @@ EcalRecHitWorkerSimple::run( const edm::Event & evt,
 	
 
     // get time calibration coefficient
-    const EcalTimeCalibConstantMap & itimeMap = itime->getMap();  
-    EcalTimeCalibConstantMap::const_iterator itime = itimeMap.find(detid);
     EcalTimeCalibConstant itimeconst = 0;
-    if( itime!=itimeMap.end() ) {
-        itimeconst = (*itime);
-    } else {
-        edm::LogError("EcalRecHitError") << "No time calib const found for xtal "
-                        << detid.rawId()
-                        << "! something wrong with EcalTimeCalibConstants in your DB? ";
+
+    if (!skipTimeCalib_){
+        const EcalTimeCalibConstantMap & itimeMap = itime->getMap();  
+        EcalTimeCalibConstantMap::const_iterator itime = itimeMap.find(detid);
+
+        if( itime!=itimeMap.end() ) {
+            itimeconst = (*itime);
+        } else {
+            edm::LogError("EcalRecHitError") << "No time calib const found for xtal "
+                                             << detid.rawId()
+                                             << "! something wrong with EcalTimeCalibConstants in your DB? ";
         }
           
-	 
+    } 
+
     // make the rechit and put in the output collection, unless recovery has to take care of it
     if (! (flagmask_ & flagBits ) || !killDeadChannels_) {
         EcalRecHit myrechit( rechitMaker_->makeRecHit(uncalibRH, 

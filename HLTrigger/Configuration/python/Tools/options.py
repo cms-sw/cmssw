@@ -4,11 +4,12 @@ globalTag = {
   'Fake1': 'auto:run2_mc_Fake1',
   'FULL' : 'auto:run2_mc_FULL',
   'GRun' : 'auto:run2_mc_GRun',       # used as default
-  '25ns10e33_v2' : 'auto:run2_mc_GRun',
+  '25ns10e33_v2' : 'auto:run2_mc_25ns10e33_v2',
+  '25ns15e33_v4' : 'auto:run2_mc_25ns15e33_v4',
   'HIon' : 'auto:run2_mc_HIon',
   'PIon' : 'auto:run2_mc_PIon',
   'PRef' : 'auto:run2_mc_PRef',
-  'data' : 'auto:run2_hlt',
+  'data' : 'auto:run2_hlt_relval',
 }
 
 
@@ -48,7 +49,7 @@ class ConnectionL1TMenuXml(object):
 class ConnectionHLTMenu(object):
   valid_versions  = 'v1', 'v2'
   valid_databases = 'online', 'offline', 'adg'
-  compatibility   = { 'hltdev': ('v1', 'offline'), 'orcoff': ('v2', 'adg') }
+  compatibility   = { 'hltdev': ('v2', 'offline'), 'orcoff': ('v2', 'adg') }
 
   def __init__(self, value):
     self.version    = None
@@ -60,8 +61,8 @@ class ConnectionHLTMenu(object):
       return
 
     if not ':' in value:
-      # default to 'v1/offline'
-      self.version    = 'v1'
+      # default to 'v2/offline'
+      self.version    = 'v2'
       self.database   = 'offline'
       self.name       = value
       return
@@ -95,14 +96,11 @@ class ConnectionHLTMenu(object):
         self.database = db
         self.name     = name
       else:
-        # use the default version for the given database
+        # use the confdb v2 by default
         if db not in self.valid_databases:
           raise Exception('Invalid HLT database "%s", valid values are "%s"' % (db, '", "'.join(self.valid_databases)))
         self.database = db
-        if db == 'offline' :
-          self.version  = 'v1'
-        else:
-          self.version  = 'v2'
+        self.version  = 'v2'
         self.name     = name
 
 # options marked with a (*) only apply when creating a whole process configuration

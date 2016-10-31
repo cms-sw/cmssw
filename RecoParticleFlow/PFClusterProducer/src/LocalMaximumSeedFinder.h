@@ -5,7 +5,7 @@
 
 #include <unordered_map>
 
-class LocalMaximumSeedFinder : public SeedFinderBase {
+class LocalMaximumSeedFinder final : public SeedFinderBase {
  public:
   LocalMaximumSeedFinder(const edm::ParameterSet& conf);
   LocalMaximumSeedFinder(const LocalMaximumSeedFinder&) = delete;
@@ -18,10 +18,9 @@ class LocalMaximumSeedFinder : public SeedFinderBase {
  private:  
   const int _nNeighbours;
 
-  static const reco::PFRecHitRefVector _noNeighbours;
   const std::unordered_map<std::string,int> _layerMap;
-  std::unordered_map<int,std::pair<double,double> > 
-    _thresholds;
+  std::array<std::pair<double,double>, 35> _thresholds;
+  static constexpr int layerOffset = 15;
 };
 
 DEFINE_EDM_PLUGIN(SeedFinderFactory,

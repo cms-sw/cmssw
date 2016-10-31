@@ -13,7 +13,7 @@
 #include <assert.h>
 
 //max collected updates per lumi
-#define MAXUPDATES 200
+#define MAXUPDATES 0xffffffff
 #define MAXBINS
 
 using namespace jsoncollector;
@@ -248,24 +248,31 @@ void DataPoint::snapStreamAtomic(unsigned int lumi, unsigned int streamID)
   else assert(monType_!=TYPEINT);//not yet implemented
 }
 
-std::string DataPoint::fastOutCSV()
+std::string DataPoint::fastOutCSV(int sid)
 {
   if (tracked_) {
     if (isStream_) {
       std::stringstream ss;
-      if (isAtomic_) { 
-#if ATOMIC_LEVEL>0
-        ss << (unsigned int) (static_cast<std::vector<AtomicMonUInt*>*>(tracked_))->at(fastIndex_)->load(std::memory_order_relaxed); 
-#else
-        ss << (unsigned int) *((static_cast<std::vector<AtomicMonUInt*>*>(tracked_))->at(fastIndex_));
-#endif 
-        fastIndex_ = (fastIndex_+1) % (static_cast<std::vector<AtomicMonUInt*>*>(tracked_))->size();
+      if (sid<0) {
+        if (isAtomic_) { 
+//        if ATOMIC_LEVEL>0
+//        ss << (unsigned int) (static_cast<std::vector<AtomicMonUInt*>*>(tracked_))->at(fastIndex_)->load(std::memory_order_relaxed); 
+
+          ss << (unsigned int) *((static_cast<std::vector<AtomicMonUInt*>*>(tracked_))->at(fastIndex_));
+          fastIndex_ = (fastIndex_+1) % (static_cast<std::vector<AtomicMonUInt*>*>(tracked_))->size();
+        }
+        else {
+          ss << (static_cast<std::vector<unsigned int>*>(tracked_))->at(fastIndex_);
+          fastIndex_ = (fastIndex_+1) % (static_cast<std::vector<unsigned int>*>(tracked_))->size();
+        }
+
       }
       else {
-        ss << (static_cast<std::vector<unsigned int>*>(tracked_))->at(fastIndex_);
-        fastIndex_ = (fastIndex_+1) % (static_cast<std::vector<unsigned int>*>(tracked_))->size();
+        if (isAtomic_)
+          ss << (unsigned int) *((static_cast<std::vector<AtomicMonUInt*>*>(tracked_))->at(unsigned(sid)));
+        else
+          ss << (static_cast<std::vector<unsigned int>*>(tracked_))->at(unsigned(sid));
       }
-
       return ss.str();
     }
     return (static_cast<JsonMonitorable*>(tracked_))->toString();
@@ -288,7 +295,7 @@ JsonMonitorable* DataPoint::mergeAndRetrieveValue(unsigned int lumi)
   return newJ;//assume the caller takes care of deleting the object
 }
 
-void DataPoint::mergeAndSerialize(Json::Value & root,unsigned int lumi,bool initJsonValue)
+void DataPoint::mergeAndSerialize(Json::Value & root,unsigned int lumi,bool initJsonValue, int sid)
 {
   if (initJsonValue) {
     root[SOURCE] = source_;
@@ -323,9 +330,17 @@ void DataPoint::mergeAndSerialize(Json::Value & root,unsigned int lumi,bool init
       std::stringstream ss;
       unsigned int updates=0;
       unsigned int sum=0;
-      for (unsigned int i=0;i<streamDataMaps_.size();i++) {
-        auto itr = streamDataMaps_[i].find(lumi);
-        if (itr!=streamDataMaps_[i].end()) {
+      if (sid<1)
+        for (unsigned int i=0;i<streamDataMaps_.size();i++) {
+          auto itr = streamDataMaps_[i].find(lumi);
+          if (itr!=streamDataMaps_[i].end()) {
+            sum+=static_cast<IntJ*>(itr->second.get())->value();
+            updates++;
+          }
+        }
+      else {
+        auto itr = streamDataMaps_[unsigned(sid)].find(lumi);
+        if (itr!=streamDataMaps_[unsigned(sid)].end()) {
           sum+=static_cast<IntJ*>(itr->second.get())->value();
           updates++;
         }
@@ -347,14 +362,29 @@ void DataPoint::mergeAndSerialize(Json::Value & root,unsigned int lumi,bool init
       }
       memset(buf_,0,bufLen_*sizeof(uint32_t));
       unsigned int updates=0;
+      if (sid<1)
       for (unsigned int i=0;i<streamDataMaps_.size();i++) {
-        auto itr = streamDataMaps_[i].find(lumi);
-        if (itr!=streamDataMaps_[i].end()) {
+          auto itr = streamDataMaps_[i].find(lumi);
+          if (itr!=streamDataMaps_[i].end()) {
+            HistoJ <unsigned int>* monObj = static_cast<HistoJ<unsigned int>*>(itr->second.get());
+            updates+=monObj->getUpdates();
+            auto &hvec = monObj->value();
+            for (unsigned int j=0;j<hvec.size();j++) {
+              unsigned int thisbin=(unsigned int) hvec[j];
+              if (thisbin<*nBinsPtr_) {
+                buf_[thisbin]++;
+              }
+            }
+          }
+        }
+      else {
+        auto itr = streamDataMaps_[unsigned(sid)].find(lumi);
+        if (itr!=streamDataMaps_[unsigned(sid)].end()) {
           HistoJ <unsigned int>* monObj = static_cast<HistoJ<unsigned int>*>(itr->second.get());
           updates+=monObj->getUpdates();
           auto &hvec = monObj->value();
-          for (unsigned int i=0;i<hvec.size();i++) {
-            unsigned int thisbin=(unsigned int) hvec[i];
+          for (unsigned int j=0;j<hvec.size();j++) {
+            unsigned int thisbin=(unsigned int) hvec[j];
             if (thisbin<*nBinsPtr_) {
               buf_[thisbin]++;
             }

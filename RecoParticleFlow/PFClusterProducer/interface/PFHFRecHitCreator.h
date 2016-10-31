@@ -14,10 +14,12 @@
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/CaloTopology/interface/HcalTopology.h"
+#include "Geometry/CaloGeometry/interface/IdealZPrism.h"
+
 
 #include "RecoCaloTools/Navigation/interface/CaloNavigator.h"
 
-class PFHFRecHitCreator :  public  PFRecHitCreatorBase {
+class PFHFRecHitCreator final :  public  PFRecHitCreatorBase {
 
  public:  
   PFHFRecHitCreator(const edm::ParameterSet& iConfig,edm::ConsumesCollector& iC):
@@ -56,17 +58,16 @@ class PFHFRecHitCreator :  public  PFRecHitCreatorBase {
       iEvent.getByToken(recHitToken_,recHitHandle);
       for( const auto& erh : *recHitHandle ) {      
 	const HcalDetId& detid = (HcalDetId)erh.detid();
-	int depth = detid.depth();
+	auto depth = detid.depth();
 
-	double energy = erh.energy();
-	double time = erh.time();
+	auto energy = erh.energy();
+	auto time = erh.time();
 
-	math::XYZVector position;
-	math::XYZVector axis;
+	const CaloCellGeometry * thisCell= hcalGeo->getGeometry(detid);
+	auto zp = dynamic_cast<IdealZPrism const*>(thisCell);
+	assert(zp);
+	thisCell = zp->forPF();
 	
-	const CaloCellGeometry *thisCell;
-	thisCell= hcalGeo->getGeometry(detid);
-
 	// find rechit geometry
 	if(!thisCell) {
 	  edm::LogError("PFHFRecHitCreator")
@@ -75,41 +76,12 @@ class PFHFRecHitCreator :  public  PFRecHitCreatorBase {
 	  continue;
 	}
 
-	auto const point =  thisCell->getPosition();
+	PFLayer::Layer layer  =  depth==1 ? PFLayer::HF_EM : PFLayer::HF_HAD;
+       
 
-
-	PFLayer::Layer layer;
-	double depth_correction;
-	if (depth==1) {
-	  layer = PFLayer::HF_EM;
-          depth_correction = point.z() > 0. ? EM_Depth_ : -EM_Depth_;
-	}
-	else {
-	  layer = PFLayer::HF_HAD;
-	  depth_correction = point.z() > 0. ? HAD_Depth_ : -HAD_Depth_;
-	}
-
-  
-	position.SetCoordinates ( point.x(),
-				  point.y(),
-				  point.z()+depth_correction );
-
-
-	reco::PFRecHit rh( detid.rawId(),layer,
-			   energy, 
-			   position.x(), position.y(), position.z(), 
-			   0,0,0);
+	reco::PFRecHit rh(thisCell, detid.rawId(),layer,energy);
 	rh.setTime(time); 
 	rh.setDepth(depth);
-
-	const CaloCellGeometry::CornersVec& corners = thisCell->getCorners();
-	assert( corners.size() == 8 );
-
-	rh.setNECorner( corners[0].x(), corners[0].y(),  corners[0].z()+depth_correction);
-	rh.setSECorner( corners[1].x(), corners[1].y(),  corners[1].z()+depth_correction);
-	rh.setSWCorner( corners[2].x(), corners[2].y(),  corners[2].z()+depth_correction);
-	rh.setNWCorner( corners[3].x(), corners[3].y(),  corners[3].z()+depth_correction);
-	
 
 	bool rcleaned = false;
 	bool keep=true;
@@ -123,10 +95,10 @@ class PFHFRecHitCreator :  public  PFRecHitCreatorBase {
 	}
 	  
 	if(keep) {
-	  tmpOut.push_back(rh);
+	  tmpOut.push_back(std::move(rh));
 	}
 	else if (rcleaned) 
-	  cleaned->push_back(rh);
+	  cleaned->push_back(std::move(rh));
       }
       //Sort by DetID the collection
       DetIDSorter sorter;
@@ -149,15 +121,14 @@ class PFHFRecHitCreator :  public  PFRecHitCreatorBase {
 	  lONG=hit.energy();
 	  //find the short hit
 	  HcalDetId shortID (HcalForward, detid.ieta(), detid.iphi(), 2);
-	  const reco::PFRecHit temp(shortID,PFLayer::NONE,0.0,math::XYZPoint(0,0,0),math::XYZVector(0,0,0),std::vector<math::XYZPoint>());
 	  auto found_hit = std::lower_bound(tmpOut.begin(),tmpOut.end(),
-					    temp,
+					    shortID,
 					    [](const reco::PFRecHit& a, 
-					       const reco::PFRecHit& b){
-					      return (HcalDetId)(a.detId()) < (HcalDetId)(b.detId());
+					       HcalDetId b){
+					     return  a.detId() < b.rawId();
 					    });
-	  if( found_hit != tmpOut.end() && (HcalDetId)(found_hit->detId()) == (HcalDetId)(shortID.rawId()) ) {
-	    sHORT = found_hit->energy();
+	if( found_hit != tmpOut.end() && found_hit->detId() == shortID.rawId() ) {
+	  sHORT = found_hit->energy();
 	    //Ask for fraction
 	    double energy = lONG-sHORT;
 
@@ -186,15 +157,14 @@ class PFHFRecHitCreator :  public  PFRecHitCreatorBase {
 	else {
 	  sHORT=hit.energy();
 	  HcalDetId longID (HcalForward, detid.ieta(), detid.iphi(), 1);
-	  const reco::PFRecHit temp(longID,PFLayer::NONE,0.0,math::XYZPoint(0,0,0),math::XYZVector(0,0,0),std::vector<math::XYZPoint>());
 	  auto found_hit = std::lower_bound(tmpOut.begin(),tmpOut.end(),
-					    temp,
+					    longID,
 					    [](const reco::PFRecHit& a, 
-					       const reco::PFRecHit& b){
-					      return (HcalDetId)(a.detId()) < (HcalDetId)(b.detId());
+					       HcalDetId b){
+					      return a.detId() < b.rawId();
 					    });
 	  double energy = 2*sHORT;
-	  if( found_hit != tmpOut.end() && (HcalDetId)(found_hit->detId()) == (HcalDetId)(longID.rawId()) ) {
+	  if( found_hit != tmpOut.end() && found_hit->detId() == longID.rawId() ) {
 	    lONG = found_hit->energy();
 	    //Ask for fraction
 

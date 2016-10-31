@@ -112,6 +112,7 @@ namespace evf{
 
       // the names of the states - some of them are never reached in an online app
       static const std::string macroStateNames[FastMonitoringThread::MCOUNT];
+      static const std::string inputStateNames[FastMonitoringThread::inCOUNT]; 
       // Reserved names for microstates
       // moved into base class in EventFilter/Utilities for compatibility with MicroStateServiceClassic
       static const std::string nopath_;
@@ -121,6 +122,7 @@ namespace evf{
      
       std::string makePathLegendaJson();
       std::string makeModuleLegendaJson();
+      std::string makeInputLegendaJson();
 
       void preallocate(edm::service::SystemBounds const&);
       void jobFailure();
@@ -169,6 +171,8 @@ namespace evf{
       }
       std::string getRunDirName() const { return runDirectory_.stem().string(); }
       void setInputSource(FedRawDataInputSource *inputSource) {inputSource_=inputSource;}
+      void setInState(FastMonitoringThread::InputState inputState) {inputState_=inputState;}
+      void setInStateSup(FastMonitoringThread::InputState inputState) {inputSupervisorState_=inputState;}
 
     private:
 
@@ -184,7 +188,10 @@ namespace evf{
 	while (!fmt_.m_stoprequest) {
 	  edm::LogInfo("FastMonitoringService") << "Current states: Ms=" << fmt_.m_data.fastMacrostateJ_.value()
 	            << " ms=" << encPath_[0].encode(ministate_[0])
-	            << " us=" << encModule_.encode(microstate_[0]) << std::endl;
+	            << " us=" << encModule_.encode(microstate_[0])
+	            << " is=" << inputStateNames[inputState_]
+	            << " iss="<< inputStateNames[inputSupervisorState_]
+                    << std::endl;
 
 	  {
             std::lock_guard<std::mutex> lock(fmt_.monlock_);
@@ -192,11 +199,24 @@ namespace evf{
             doSnapshot(lastGlobalLumi_,false);
 
             if (fastMonIntervals_ && (snapCounter_%fastMonIntervals_)==0) {
-              std::string CSV = fmt_.jsonMonitor_->getCSVString();
-              //release mutex before writing out fast path file
-              fmt_.monlock_.unlock();
-              if (CSV.size())
-                fmt_.jsonMonitor_->outputCSV(fastPath_,CSV);
+              if (filePerFwkStream_) {
+                std::vector<std::string> CSVv;
+                for (unsigned int i=0;i<nStreams_;i++) {
+                  CSVv.push_back(fmt_.jsonMonitor_->getCSVString((int)i));
+                }
+                fmt_.monlock_.unlock();
+                for (unsigned int i=0;i<nStreams_;i++) {
+                  if (CSVv[i].size())
+                    fmt_.jsonMonitor_->outputCSV(fastPathList_[i],CSVv[i]);
+                }
+              }
+              else {
+                std::string CSV = fmt_.jsonMonitor_->getCSVString();
+                //release mutex before writing out fast path file
+                fmt_.monlock_.unlock();
+                if (CSV.size())
+                  fmt_.jsonMonitor_->outputCSV(fastPath_,CSV);
+              }
             }
 
             snapCounter_++;
@@ -211,6 +231,8 @@ namespace evf{
       Encoding encModule_;
       std::vector<Encoding> encPath_;
       FedRawDataInputSource * inputSource_ = nullptr;
+      FastMonitoringThread::InputState inputState_;
+      FastMonitoringThread::InputState inputSupervisorState_;
 
       unsigned int nStreams_;
       unsigned int nThreads_;
@@ -219,6 +241,7 @@ namespace evf{
       unsigned int snapCounter_ = 0;
       std::string microstateDefPath_, fastMicrostateDefPath_;
       std::string fastName_, fastPath_, slowName_;
+      bool filePerFwkStream_;
 
       //variables that are used by/monitored by FastMonitoringThread / FastMonitor
 
@@ -228,6 +251,7 @@ namespace evf{
       unsigned int lastGlobalLumi_;
       std::queue<unsigned int> lastGlobalLumisClosed_;
       bool isGlobalLumiTransition_;
+      bool isInitTransition_;
       unsigned int lumiFromSource_;
 
       //global state
@@ -269,6 +293,7 @@ namespace evf{
       std::string moduleLegendFileJson_;
       std::string pathLegendFile_;
       std::string pathLegendFileJson_;
+      std::string inputLegendFileJson_;
       bool pathLegendWritten_ = false;
       unsigned int nOutputModules_ =0;
 
@@ -276,6 +301,8 @@ namespace evf{
       bool exception_detected_ = false;
       std::vector<unsigned int> exceptionInLS_;
       bool emptyLumisectionMode_ = false;
+      std::vector<std::string> fastPathList_;
+
     };
 
 }

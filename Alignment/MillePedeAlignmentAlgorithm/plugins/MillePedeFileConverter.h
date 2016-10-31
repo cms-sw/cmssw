@@ -26,7 +26,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 class MillePedeFileConverter
-    : public edm::one::EDProducer<edm::EndRunProducer> {
+    : public edm::one::EDProducer<edm::EndLuminosityBlockProducer> {
  public:
   explicit MillePedeFileConverter(const edm::ParameterSet&);
   ~MillePedeFileConverter();
@@ -34,12 +34,12 @@ class MillePedeFileConverter
 
  private:
   virtual void produce(edm::Event&, const edm::EventSetup&) override {}
-  virtual void endRunProduce(edm::Run& run,
-                             const edm::EventSetup& iSetup) override final;
+  virtual void endLuminosityBlockProduce(edm::LuminosityBlock&,
+                                         const edm::EventSetup&) override final;
 
-  std::string theInputDir;
-  std::string theInputFileName;
-  std::string theFileBlobLabel;
+  const std::string inputDir_;
+  const std::string inputFileName_;
+  const std::string fileBlobLabel_;
 };
 
 // define this as a plug-in

@@ -15,7 +15,7 @@
 class EtaPhiMeasurementEstimator final : public MeasurementEstimator {
 public:
 
-  explicit EtaPhiMeasurementEstimator(double dEta, double dPhi) : 
+  explicit EtaPhiMeasurementEstimator(float dEta, float dPhi) : 
     thedEta(dEta),
     thedPhi(dPhi)
    {}
@@ -34,8 +34,8 @@ public:
     return new EtaPhiMeasurementEstimator(*this);
   }
  private:
-  double thedEta;
-  double thedPhi;
+  float thedEta;
+  float thedPhi;
 
 };
 

@@ -38,7 +38,7 @@
 #include "L1Trigger/L1TCalorimeter/interface/CaloTools.h"
 
 #include "L1Trigger/L1TCalorimeter/interface/CaloParamsHelper.h"
-#include "CondFormats/DataRecord/interface/L1TCaloParamsRcd.h"
+#include "CondFormats/DataRecord/interface/L1TCaloStage2ParamsRcd.h"
 
 #include "DataFormats/L1TCalorimeter/interface/CaloTower.h"
 #include "DataFormats/L1Trigger/interface/EGamma.h"
@@ -174,12 +174,11 @@ L1TStage2Layer2Producer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
 	tower != towers->end(ibx);
 	++tower) {
 
-      int mpEta = CaloTools::mpEta(tower->hwEta());
       CaloTower tow(tower->p4(),
 		    tower->etEm(),
 		    tower->etHad(),
 		    tower->hwPt(),
-		    mpEta,
+		    tower->hwEta(),
 		    tower->hwPhi(),
 		    tower->hwQual(),
 		    tower->hwEtEm(),
@@ -263,14 +262,14 @@ L1TStage2Layer2Producer::beginRun(edm::Run const& iRun, edm::EventSetup const& i
 
   // parameters
 
-  unsigned long long id = iSetup.get<L1TCaloParamsRcd>().cacheIdentifier();
+  unsigned long long id = iSetup.get<L1TCaloStage2ParamsRcd>().cacheIdentifier();
 
   if (id != m_paramsCacheId) {
 
     m_paramsCacheId = id;
 
     edm::ESHandle<CaloParams> paramsHandle;
-    iSetup.get<L1TCaloParamsRcd>().get(paramsHandle);
+    iSetup.get<L1TCaloStage2ParamsRcd>().get(paramsHandle);
 
     // replace our local copy of the parameters with a new one using placement new
     m_params->~CaloParamsHelper();

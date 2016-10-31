@@ -16,6 +16,7 @@ namespace L1Analysis
       tfMuonHwPt.clear();
       tfMuonHwEta.clear();
       tfMuonHwPhi.clear();
+      tfMuonGlobalPhi.clear();
       tfMuonHwSign.clear();
       tfMuonHwSignValid.clear();
       tfMuonHwQual.clear();
@@ -24,12 +25,15 @@ namespace L1Analysis
       tfMuonTrackFinderType.clear();
       tfMuonHwHF.clear();
       tfMuonBx.clear();
+      tfMuonWh.clear();
+      tfMuonTrAdd.clear();
     }
    
     unsigned short int nTfMuons;
     std::vector<short int> tfMuonHwPt;
     std::vector<short int> tfMuonHwEta;
     std::vector<short int> tfMuonHwPhi;
+    std::vector<short int> tfMuonGlobalPhi;
     std::vector<short int> tfMuonHwSign;
     std::vector<short int> tfMuonHwSignValid;
     std::vector<short int> tfMuonHwQual;
@@ -38,6 +42,8 @@ namespace L1Analysis
     std::vector<short int> tfMuonTrackFinderType;
     std::vector<short int> tfMuonHwHF;
     std::vector<short int> tfMuonBx;
+    std::vector<short int> tfMuonWh;
+    std::vector<short int> tfMuonTrAdd;
   }; 
 }
 #endif

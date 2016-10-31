@@ -41,3 +41,8 @@
   <use name="CommonTools/Utils"/>
 </bin>
 
+
+<bin file="testDynArray.cpp">
+</bin>
+
+

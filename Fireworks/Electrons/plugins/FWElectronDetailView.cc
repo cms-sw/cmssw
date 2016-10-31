@@ -27,7 +27,7 @@
 #include "Fireworks/Core/interface/FWGLEventHandler.h"
 
 // CMSSW includes
-#include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
+
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 
@@ -74,10 +74,11 @@ FWElectronDetailView::build( const FWModelId &id, const reco::GsfElectron* iElec
    // build ECAL objects
    m_builder = new FWECALDetailViewBuilder( id.item()->getEvent(), id.item()->getGeom(),
 					    eta, phi, 25);
- 
+   
    m_builder->showSuperClusters();
    if( iElectron->superCluster().isAvailable() )
-      m_builder->showSuperCluster( *(iElectron->superCluster() ), kYellow);
+      m_builder->showSuperCluster( *(iElectron->superCluster() ), kYellow + 1);
+   
    TEveCaloLego* lego = m_builder->build();
    m_data = lego->GetData();
    m_eveScene->AddElement( lego );
@@ -89,7 +90,7 @@ FWElectronDetailView::build( const FWModelId &id, const reco::GsfElectron* iElec
    m_legend->SetEntrySeparation(0.05);
 
    // add Electron specific details
-   if( iElectron->superCluster().isAvailable() ) {
+   if( 0 &&  iElectron->superCluster().isAvailable() ) {
       addTrackPointsInCaloData( iElectron, lego );
       drawCrossHair( iElectron, lego, m_eveScene );
       addSceneInfo( iElectron, m_eveScene );
@@ -193,11 +194,6 @@ FWElectronDetailView::setTextInfo( const FWModelId& id, const reco::GsfElectron 
 void
 FWElectronDetailView::drawCrossHair (const reco::GsfElectron* i, TEveCaloLego *lego, TEveElementList* tList)
 {
-   unsigned int subdetId( 0 );
-   
-   if( !i->superCluster()->seed()->hitsAndFractions().empty() )
-      subdetId = i->superCluster()->seed()->hitsAndFractions().front().first.subdetId();
-
    double ymax = lego->GetPhiMax();
    double ymin = lego->GetPhiMin();
    double xmax = lego->GetEtaMax();
@@ -209,23 +205,15 @@ FWElectronDetailView::drawCrossHair (const reco::GsfElectron* i, TEveCaloLego *l
       const double eta = i->superCluster()->seed()->position().eta() -
                          i->deltaEtaSeedClusterTrackAtCalo();
       const double phi = i->superCluster()->seed()->position().phi() -
-                         i->deltaPhiSeedClusterTrackAtCalo();
+          i->deltaPhiSeedClusterTrackAtCalo();
 
       TEveStraightLineSet *trackpositionAtCalo = new TEveStraightLineSet("sc trackpositionAtCalo");
       trackpositionAtCalo->SetPickable(kTRUE);
       trackpositionAtCalo->SetTitle("Track position at Calo propagating from the outermost state");
-      if (subdetId == EcalBarrel)
-      {
-         trackpositionAtCalo->AddLine(eta, ymin, 0, eta, ymax, 0);
-         trackpositionAtCalo->AddLine(xmin, phi, 0, xmax, phi, 0);
-      }
-      else if (subdetId == EcalEndcap)
-      {
-         TVector3 pos;
-         pos.SetPtEtaPhi(i->superCluster()->seed()->position().rho(), eta, phi);
-         trackpositionAtCalo->AddLine(pos.X(), ymin, 0, pos.X(), ymax, 0);
-         trackpositionAtCalo->AddLine(xmin, pos.Y(), 0, xmax,pos.Y(),0);
-      }
+
+      trackpositionAtCalo->AddLine(eta, ymin, 0, eta, ymax, 0);
+      trackpositionAtCalo->AddLine(xmin, phi, 0, xmax, phi, 0);
+
       trackpositionAtCalo->SetDepthTest(kFALSE);
       trackpositionAtCalo->SetLineColor(kBlue);
       tList->AddElement(trackpositionAtCalo);
@@ -242,18 +230,10 @@ FWElectronDetailView::drawCrossHair (const reco::GsfElectron* i, TEveCaloLego *l
       Double_t eta = i->caloPosition().eta() - deltaEtaSuperClusterTrackAtVtx(*i);
       Double_t phi = i->caloPosition().phi() - deltaPhiSuperClusterTrackAtVtx(*i);
 
-      if (subdetId == EcalBarrel)
-      {
-         pinposition->AddLine(eta, ymax, 0, eta, ymin, 0);
-         pinposition->AddLine(xmin, phi, 0, xmax, phi, 0);
-      }
-      else if (subdetId == EcalEndcap)
-      {
-         TVector3 pos;
-         pos.SetPtEtaPhi(i->caloPosition().rho(), eta, phi);
-         pinposition->AddLine(pos.X(),ymin, 0, pos.X(), ymax, 0);
-         pinposition->AddLine(xmin, pos.Y(), 0, xmax, pos.Y(), 0);
-      }
+
+      pinposition->AddLine(eta, ymax, 0, eta, ymin, 0);
+      pinposition->AddLine(xmin, phi, 0, xmax, phi, 0);
+
       pinposition->SetDepthTest(kFALSE);
       pinposition->SetLineColor(kRed);
       tList->AddElement(pinposition);
@@ -297,11 +277,7 @@ FWElectronDetailView::checkRange( Double_t &em, Double_t& eM, Double_t &pm, Doub
 void
 FWElectronDetailView::addTrackPointsInCaloData( const reco::GsfElectron *i, TEveCaloLego* lego )
 {
-   unsigned int subdetId(0);
-
-   if ( !i->superCluster()->seed()->hitsAndFractions().empty() )
-      subdetId = i->superCluster()->seed()->hitsAndFractions().front().first.subdetId();
-
+    return;
    TEveCaloDataVec* data = (TEveCaloDataVec*)lego->GetData();
    Double_t em, eM, pm, pM;
    data->GetEtaLimits(em, eM);
@@ -317,34 +293,17 @@ FWElectronDetailView::addTrackPointsInCaloData( const reco::GsfElectron *i, TEve
       double phi = i->superCluster()->seed()->position().phi() -
                    i->deltaPhiSeedClusterTrackAtCalo();
 
-      if (subdetId == EcalBarrel)
-      {
-         if (checkRange(em, eM, pm, pM, eta, phi))
-            changed = kTRUE;
-      }
-      else if (subdetId == EcalEndcap) {
-         TVector3 pos;
-         pos.SetPtEtaPhi(i->superCluster()->seed()->position().rho(),eta, phi);
-         if (checkRange(em, eM, pm, pM, pos.X(), pos.Y()))
-            changed = kTRUE;
 
-      }
+      if (checkRange(em, eM, pm, pM, eta, phi))
+          changed = kTRUE;
    }
    // pinposition
    {
       double eta = i->caloPosition().eta() - deltaEtaSuperClusterTrackAtVtx(*i);
       double phi = i->caloPosition().phi() - deltaPhiSuperClusterTrackAtVtx(*i);
-      if (subdetId == EcalBarrel)
-      {
-         if (checkRange(em, eM, pm, pM, eta, phi))
-            changed = kTRUE;
-      }
-      else if (subdetId == EcalEndcap) {
-         TVector3 pos;
-         pos.SetPtEtaPhi(i->caloPosition().rho(), eta, phi);
-         if (checkRange(em, eM, pm, pM, pos.X(), pos.Y()))
-            changed = kTRUE;
-      }
+
+      if (checkRange(em, eM, pm, pM, eta, phi))
+          changed = kTRUE;
    }
    if (changed)
    {
@@ -363,25 +322,17 @@ FWElectronDetailView::addTrackPointsInCaloData( const reco::GsfElectron *i, TEve
 void
 FWElectronDetailView::addSceneInfo(const reco::GsfElectron *i, TEveElementList* tList)
 {
-   unsigned int subdetId(0);
-
-   if ( !i->superCluster()->seed()->hitsAndFractions().empty() )
-      subdetId = i->superCluster()->seed()->hitsAndFractions().front().first.subdetId();
-
    // centroids
    Double_t x(0), y(0), z(0);
    Double_t delta(0.02);
-   if (subdetId == EcalEndcap) delta = 2.5;
+
    TEveStraightLineSet *scposition = new TEveStraightLineSet("sc position");
    scposition->SetPickable(kTRUE);
    scposition->SetTitle("Super cluster centroid");
-   if (subdetId == EcalBarrel) {
-      x = i->caloPosition().eta();
-      y = i->caloPosition().phi();
-   } else if (subdetId == EcalEndcap) {
-      x = i->caloPosition().x();
-      y = i->caloPosition().y();
-   }
+
+   x = i->caloPosition().eta();
+   y = i->caloPosition().phi();
+
    scposition->AddLine(x-delta,y,z,x+delta,y,z);
    scposition->AddLine(x,y-delta,z,x,y+delta,z);
    scposition->AddLine(x,y,z-delta,x,y,z+delta);
@@ -398,13 +349,10 @@ FWElectronDetailView::addSceneInfo(const reco::GsfElectron *i, TEveElementList* 
    TEveStraightLineSet *seedposition = new TEveStraightLineSet("seed position");
    seedposition->SetTitle("Seed cluster centroid");
    seedposition->SetPickable(kTRUE);
-   if (subdetId == EcalBarrel) {
+
       x  = i->superCluster()->seed()->position().eta();
       y  = i->superCluster()->seed()->position().phi();
-   } else if (subdetId == EcalEndcap) {
-      x  = i->superCluster()->seed()->position().x();
-      y  = i->superCluster()->seed()->position().y();
-   }
+
    seedposition->AddLine(x-delta,y-delta,z,x+delta,y+delta,z);
    seedposition->AddLine(x-delta,y+delta,z,x+delta,y-delta,z);
    seedposition->SetLineColor(kRed);
@@ -424,16 +372,12 @@ FWElectronDetailView::addSceneInfo(const reco::GsfElectron *i, TEveElementList* 
       TEveStraightLineSet *eldirection = new TEveStraightLineSet("seed position");
       eldirection->SetTitle("Electron direction at vertex");
       eldirection->SetPickable(kTRUE);
-      if (subdetId == EcalBarrel) {
-         x = i->eta();
-         y = i->phi();
-      }else{
-         x = 310*fabs(tan(i->theta()))*cos(i->phi());
-         y = 310*fabs(tan(i->theta()))*sin(i->phi());
-      }
+
+      x = i->eta();
+      y = i->phi();
       eldirection->AddLine(x-delta,y-delta,z,x+delta,y+delta,z);
       eldirection->AddLine(x-delta,y+delta,z,x+delta,y-delta,z);
-      eldirection->SetLineColor(kGreen);
+      eldirection->SetLineColor(kGreen + 1);
       eldirection->SetDepthTest(kFALSE);
       tList->AddElement(eldirection);
 

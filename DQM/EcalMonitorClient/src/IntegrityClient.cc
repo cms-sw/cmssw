@@ -8,6 +8,8 @@
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
 #include "CondFormats/DataRecord/interface/EcalChannelStatusRcd.h"
 
+#include "DQM/EcalCommon/interface/EcalDQMCommonUtils.h"
+
 namespace ecaldqm
 {
   IntegrityClient::IntegrityClient() :
@@ -114,6 +116,23 @@ namespace ecaldqm
         qItr->setBinContent(doMask ? kMGood : kGood);
         meQualitySummary.setBinContent(id, doMask ? kMGood : kGood);
       }
+    }
+
+    // Quality check: set an entire FED to BAD if "any" DCC-SRP or DCC-TCC mismatch errors are detected
+    // Fill mismatch statistics
+    MESet const& sBXSRP(sources_.at("BXSRP"));
+    MESet const& sBXTCC(sources_.at("BXTCC"));
+    std::vector<bool> hasMismatchDCC(nDCC,false);
+    for ( unsigned iDCC(0); iDCC < nDCC; ++iDCC ) {
+      if ( sBXSRP.getBinContent(iDCC + 1) > 50. || sBXTCC.getBinContent(iDCC + 1) > 50. ) // "any" => 50
+        hasMismatchDCC[iDCC] = true;
+    }
+    // Analyze mismatch statistics
+    for ( MESet::iterator qsItr(meQualitySummary.beginChannel()); qsItr != meQualitySummary.end(); qsItr.toNextChannel() ) {
+      DetId id( qsItr->getId() );
+      unsigned iDCC( dccId(id)-1 );
+      if ( hasMismatchDCC[iDCC] )
+        meQualitySummary.setBinContent( id, meQualitySummary.maskMatches(id, mask, statusManager_) ? kMBad : kBad );
     }
 
   } // producePlots()

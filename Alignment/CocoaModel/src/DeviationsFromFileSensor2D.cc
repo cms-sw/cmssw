@@ -2,18 +2,19 @@
 //Id: DeviationsFromFileSensor2D.cc
 //CAT: Model
 //
-//   History: v1.0 
+//   History: v1.0
 //   Pedro Arce
 
 #include "Alignment/CocoaModel/interface/DeviationsFromFileSensor2D.h"
 #include "Alignment/CocoaUtilities/interface/ALIFileIn.h"
 #include "Alignment/CocoaUtilities/interface/ALIUtils.h"
 #include <cstdlib>
+#include <cmath>		// include floating-point std::abs functions
 
 enum directions{ xdir = 0, ydir = 1};
 
 ALIbool DeviationsFromFileSensor2D::theApply = true;
- 
+
 
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 void DeviationsFromFileSensor2D::readFile( ALIFileIn& ifdevi )
@@ -33,7 +34,7 @@ void DeviationsFromFileSensor2D::readFile( ALIFileIn& ifdevi )
   /*  //------ first line with dimension factors //now with global option
   ifdevi.getWordsInLine( wl );
   if( wl[0] != "DIMFACTOR:" || wl.size() != 3) {
-    std::cerr << "Error reading sensor2D deviation file " << ifdevi.name() << std::endl 
+    std::cerr << "Error reading sensor2D deviation file " << ifdevi.name() << std::endl
 	 << " first line has to be DIMFACTOR: 'posDimFactor' 'angDimFactor' " << std::endl;
     ALIUtils::dumpVS( wl, " ");
     exit(1);
@@ -45,25 +46,25 @@ void DeviationsFromFileSensor2D::readFile( ALIFileIn& ifdevi )
   for(;;) {
     ifdevi.getWordsInLine( wl );
     if(ifdevi.eof() ) break;
-     
+
     DeviationSensor2D* dev = new DeviationSensor2D();
     dev->fillData( wl );
-    
+
     if(verbose >= 5) {
       ALIUtils::dumpVS( wl, "deviation sensor2D", std::cout );
     }
-    
+
     //--- line 2 of data
     if(nl == 2) {
       //--------- get if scan is first in Y or X
       firstScanDir = ydir;
-      if(verbose >= 3) std::cout << "firstScanDir " << firstScanDir << " " <<  dev->posX() <<  " " << oldposX << " " <<  dev->posY() <<  " " << oldposY << std::endl; 
-      if( fabs( dev->posX() - oldposX ) >  fabs( dev->posY() - oldposY ) ) {
+      if(verbose >= 3) std::cout << "firstScanDir " << firstScanDir << " " <<  dev->posX() <<  " " << oldposX << " " <<  dev->posY() <<  " " << oldposY << std::endl;
+      if( std::abs( dev->posX() - oldposX ) >  std::abs( dev->posY() - oldposY ) ) {
 	std::cerr << "!!!EXITING first scan direction has to be Y for the moment " << ifdevi.name() << std::endl;
 	firstScanDir = xdir;
 	exit(1);
       }
-      //-------- get sense of first scan direction 
+      //-------- get sense of first scan direction
       if(firstScanDir == ydir ){
 	if( dev->posY() > oldposY ) {
 	  theScanSenseY = +1;
@@ -80,17 +81,17 @@ void DeviationsFromFileSensor2D::readFile( ALIFileIn& ifdevi )
 	if( verbose >= 3 ) std::cout << " theScanSenseX " << theScanSenseX << std::endl;
       }
     }
-    
-    //-      std::cout << "firstScanDir " << firstScanDir << " " <<  dev->posX() <<  " " << oldposX << " " <<  dev->posY() <<  " " << oldposY << std::endl; 
+
+    //-      std::cout << "firstScanDir " << firstScanDir << " " <<  dev->posX() <<  " " << oldposX << " " <<  dev->posY() <<  " " << oldposY << std::endl;
 
     //------- check if change of row: clear current std::vector of column values
     if( ( firstScanDir == ydir && ( dev->posY() - oldposY)*theScanSenseY < 0 )
 	|| ( firstScanDir == xdir && ( dev->posX() - oldposX)*theScanSenseX < 0 )) {
       theDeviations.push_back( vcol );
-      vcol.clear(); 
-      
+      vcol.clear();
+
       //-      std::cout << " theDevi size " << theDeviations.size() << " " << ifdevi.name()  << std::endl;
-      //-------- get sense of second scan direction 
+      //-------- get sense of second scan direction
       if( theScanSenseY == 0 ) {
 	if( dev->posY() > oldposY ) {
 	  theScanSenseY = +1;
@@ -107,10 +108,10 @@ void DeviationsFromFileSensor2D::readFile( ALIFileIn& ifdevi )
       }
       if( verbose >= 3 ) std::cout << " theScanSenseX " << theScanSenseX << " theScanSenseY " << theScanSenseY << std::endl;
     }
-    
+
     oldposX = dev->posX();
     oldposY = dev->posY();
-    
+
     //--- fill deviation std::vectors
     vcol.push_back( dev );
     nl++;
@@ -122,27 +123,27 @@ void DeviationsFromFileSensor2D::readFile( ALIFileIn& ifdevi )
   //----- Check that it is a square of points (<=> vsiz is integer)
   ALIuint vsiz = ALIuint(dvsiz);
   if( vsiz != dvsiz ) {
-    if( ALIUtils::debug >= 0) std::cerr << "!!WARNING: error reading deviation file: number of X points <> number of Y points : Number of points in X " << dvsiz << " nl " << nl-1 << " file " << ifdevi.name() << std::endl; 
+    if( ALIUtils::debug >= 0) std::cerr << "!!WARNING: error reading deviation file: number of X points <> number of Y points : Number of points in X " << dvsiz << " nl " << nl-1 << " file " << ifdevi.name() << std::endl;
     //    exit(1);
   }
   theNPoints = vsiz;
-  
+
   if(verbose >= 4 ) {
     std::cout << " Filling deviation from file: " << ifdevi.name() << " theNPoints " <<  theNPoints << std::endl;
   }
-    
+
 }
 
 
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 std::pair< ALIdouble, ALIdouble > DeviationsFromFileSensor2D::getDevis( ALIdouble intersX, ALIdouble intersY )
-{ 
+{
   //intersX += 10000;
   //intersY += 10000;
   if(verbose >= 4) std::cout << " entering getdevis " << intersX << " " <<intersY << " " << this << std::endl;
   vvd::iterator vvdite;
-  vd::iterator vdite; 
-  
+  vd::iterator vdite;
+
   // assume scan is in Y first, else revers intersection coordinates
 /*  if( !firstScanDirY ) {
     ALIdouble tt = intersY;
@@ -165,14 +166,14 @@ std::pair< ALIdouble, ALIdouble > DeviationsFromFileSensor2D::getDevis( ALIdoubl
 
      //-     std::cout << "intersy" << intersY << " " <<  (*(vdite))->posY() << std::endl;
 
-      if( (intersY - (*(vdite))->posY() )*theScanSenseY > 0 
+      if( (intersY - (*(vdite))->posY() )*theScanSenseY > 0
 	  && (intersY - (*(vdite+1))->posY() )*theScanSenseY < 0 ) {
 	//-std::cout << " ii " << ii << std::endl;
-	yrows[ii] = vdite - (*vvdite).begin();  
+	yrows[ii] = vdite - (*vvdite).begin();
 	if( verbose >= 3 ) std::cout << intersY << " DeviationsFromFileSensor2D yrows " << ii << " " << yrows[ii] << " : " << (*(vdite))->posY() << std::endl;
 	insideMatrix = 1;
 	break;
-      } 
+      }
     }
     ii++;
   }
@@ -193,49 +194,49 @@ std::pair< ALIdouble, ALIdouble > DeviationsFromFileSensor2D::getDevis( ALIdoubl
     dev1 = (*(theDeviations.begin()+ii))[ rn ]; // column ii, row yrows[ii]
     rn = yrows[ii+1];
     dev2 = (*(theDeviations.begin()+ii+1))[ rn ]; // column ii+1, row yrows[ii+1]
-    if( (intersX - dev1->posX() )*theScanSenseX > 0 
+    if( (intersX - dev1->posX() )*theScanSenseX > 0
 	&& (intersX - dev2->posX() )*theScanSenseX < 0) {
-      thePoints.push_back( dev1 ); 
-      thePoints.push_back( dev2 ); 
+      thePoints.push_back( dev1 );
+      thePoints.push_back( dev2 );
       insideMatrix = 1;
       if( verbose >= 3 ) std::cout << " column up " << ii << " " << dev1->posX()  << " " << dev2->posX() << " : " << intersX << std::endl;
     }
-    
+
     rn = yrows[ii] + 1;
     if(rn == theNPoints) rn = theNPoints-1;
     dev1 = (*(theDeviations.begin()+ii))[ rn ]; // column ii, row yrows[ii]+1
     rn = yrows[ii+1] + 1;
     if(rn == theNPoints) rn = theNPoints-1;
     dev2 = (*(theDeviations.begin()+ii+1))[ rn ]; // column ii+1, row yrows[ii+1]+1
-    if( (intersX - dev1->posX() )*theScanSenseX > 0 
+    if( (intersX - dev1->posX() )*theScanSenseX > 0
 	&& (intersX - dev2->posX() )*theScanSenseX < 0) {
-      thePoints.push_back( dev1 ); 
-      thePoints.push_back( dev2 ); 
+      thePoints.push_back( dev1 );
+      thePoints.push_back( dev2 );
       if( verbose >= 3 ) std::cout << " column down " << ii << " " <<  dev1->posX()  << " " << dev2->posX() << " : " << intersX << std::endl;
     }
-    
+
     if( thePoints.size() == 4 ) break;
-    
+
   }
- 
+
   if(insideMatrix == 0) {
     std::cerr << "!!EXITING intersection in X outside matrix of deviations from file " << intersX << std::endl;
     exit(1);
   }
- 
+
   //----------- If loop finished and not 4 points, point is outside scan bounds
- 
+
   //----- calculate deviation in x and y interpolating between four points
   ALIdouble dist, disttot=0, deviX=0, deviY=0;
-  
+
    if( verbose >= 4) std::cout << " thepoints size " << thePoints.size() << std::endl;
 
   for( ii = 0; ii < 4; ii++) {
-    dist = sqrt( pow(thePoints[ii]->posX() - intersX, 2 ) +  pow(thePoints[ii]->posY() - intersY, 2 ) ); 
+    dist = sqrt( pow(thePoints[ii]->posX() - intersX, 2 ) +  pow(thePoints[ii]->posY() - intersY, 2 ) );
     disttot += 1./dist;
     deviX += thePoints[ii]->devX()/dist;
     deviY += thePoints[ii]->devY()/dist;
-    if( verbose >= 4 ) { 
+    if( verbose >= 4 ) {
       //t      std::cout << ii << " point " << *thePoints[ii] << std::endl;
       std::cout << ii << " distances: " << dist << " " << deviX << " " << deviY << " devX " << thePoints[ii]->devX() << " devY " << thePoints[ii]->devY() << std::endl;
     }
@@ -244,10 +245,10 @@ std::pair< ALIdouble, ALIdouble > DeviationsFromFileSensor2D::getDevis( ALIdoubl
   deviY /= disttot;
 
   // add offset
-  deviX += theOffsetX; 
-  deviY += theOffsetY; 
-  if( verbose >= 4 ) { 
-    std::cout << " devisX/Y: " << deviX << " " << deviY 
+  deviX += theOffsetX;
+  deviY += theOffsetY;
+  if( verbose >= 4 ) {
+    std::cout << " devisX/Y: " << deviX << " " << deviY
 	 << " intersX/Y " << intersX  << " " << intersY << std::endl;
   }
 

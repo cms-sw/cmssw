@@ -56,10 +56,11 @@ class HLTEcalPFClusterIsolationProducer : public edm::stream::EDProducer<> {
   const double energyEndcap_;
 
   const bool doRhoCorrection_;
-  const float rhoMax_;
-  const float rhoScale_;
-  const float effectiveAreaBarrel_;
-  const float effectiveAreaEndcap_;
+  const double rhoMax_;
+  const double rhoScale_;
+  const std::vector<double> effectiveAreas_;
+  const std::vector<double> absEtaLowEdges_;
+
 };
 
 #endif

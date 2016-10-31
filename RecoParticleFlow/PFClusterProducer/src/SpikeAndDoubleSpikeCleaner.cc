@@ -2,10 +2,6 @@
 #include <cmath>
 
 namespace {
-  bool greaterByEnergy(const std::pair<unsigned,double>& a,
-		       const std::pair<unsigned,double>& b) {
-    return a.second > b.second;
-  }
   std::pair<double,double> dCrack(double phi, double eta) {
     constexpr double oneOverCrystalSize=1.0/0.0175;
     constexpr double pi=M_PI;
@@ -105,18 +101,15 @@ void SpikeAndDoubleSpikeCleaner::
 clean(const edm::Handle<reco::PFRecHitCollection>& input,
       std::vector<bool>& mask ) {
   //need to run over energy sorted rechits
-  std::vector<std::pair<unsigned,double> > ordered_hits;
-  for( unsigned i = 0; i < input->size(); ++i ) {
-    std::pair<unsigned,double> val = std::make_pair(i,input->at(i).energy());
-    auto pos = std::upper_bound(ordered_hits.begin(),ordered_hits.end(),
-				val, greaterByEnergy);
-    ordered_hits.insert(pos,val);
-  }  
-
-  for( const auto& idx_e : ordered_hits ) {
-    const unsigned i = idx_e.first;
+  auto const & hits = *input;
+  std::vector<unsigned > ordered_hits(hits.size());
+  for( unsigned i = 0; i < hits.size(); ++i ) ordered_hits[i]=i;
+  std::sort(ordered_hits.begin(),ordered_hits.end(),[&](unsigned i, unsigned j) { return hits[i].energy()>hits[j].energy();});
+    
+  for( const auto& idx : ordered_hits ) {
+    const unsigned i = idx;
     if( !mask[i] ) continue; // don't need to re-mask things :-)
-    const reco::PFRecHit& rechit = input->at(i);
+    const reco::PFRecHit& rechit = hits[i];
     int hitlayer = (int)rechit.layer();
     if( hitlayer == PFLayer::HCAL_BARREL2 && 
 	std::abs(rechit.positionREP().eta()) > 0.34 ) {
@@ -126,16 +119,17 @@ clean(const edm::Handle<reco::PFRecHitCollection>& input,
     if( rechit.energy() < clean._singleSpikeThresh ) continue;
     const double rhenergy = rechit.energy();
     // single spike cleaning
-    const reco::PFRecHitRefVector& neighbours4 = rechit.neighbours4();
+    auto const & neighbours4 = rechit.neighbours4();
     double surroundingEnergy = rechit.energy();
     double neighbourEnergy = 0.0;
     double layerEnergy = 0.0;
-    for( const reco::PFRecHitRef& neighbour : neighbours4 ) {
-      if( !mask[neighbour.key()] ) continue;
-      const double sum = neighbour->energy(); //energyUp is just rechit energy?
+    for( auto k : neighbours4 ) {
+      if( !mask[k] ) continue;
+      const auto & neighbour = hits[k];
+      const double sum = neighbour.energy(); //energyUp is just rechit energy?
       surroundingEnergy += sum;
       neighbourEnergy   += sum;
-      layerEnergy       += neighbour->energy();
+      layerEnergy       += neighbour.energy();
     }    
     //   wannaBeSeed.energyUp()/wannaBeSeed.energy() : 1.;
     // Fraction 1 is the balance between the hit and its neighbours 
@@ -165,30 +159,31 @@ clean(const edm::Handle<reco::PFRecHitCollection>& input,
       //Determine energy surrounding the seed and the most energetic neighbour
       double surroundingEnergyi = 0.0;      
       double enmax = -999.0;
-      reco::PFRecHitRef mostEnergeticNeighbour;
-      const reco::PFRecHitRefVector& neighbours4i = rechit.neighbours4();
-      for( reco::PFRecHitRef neighbour : neighbours4i ) {
-	if( !mask[neighbour.key()] ) continue;
-	const double nenergy = neighbour->energy();
+      unsigned int  mostEnergeticNeighbour=0;
+      auto const & neighbours4i = rechit.neighbours4();
+      for( auto k : neighbours4i ) {
+	if( !mask[k] ) continue;
+        const auto & neighbour = hits[k];
+	const double nenergy = neighbour.energy();
 	surroundingEnergyi += nenergy;
 	if( nenergy > enmax ) {
 	  enmax = nenergy;
-	  mostEnergeticNeighbour = neighbour;
+	  mostEnergeticNeighbour = k;
 	}
       }
       // is there an energetic neighbour
       if( enmax > 0.0 ) {
 	double surroundingEnergyj = 0.0;
-	const reco::PFRecHitRefVector& neighbours4j = 
-	  mostEnergeticNeighbour->neighbours4();
-	for( const reco::PFRecHitRef& neighbour : neighbours4j ) {
-	  //if( !mask[neighbour] &&  neighbour != i) continue; // leave out?
-	  surroundingEnergyj += neighbour->energy();
+	auto const & neighbours4j = 
+	  hits[mostEnergeticNeighbour].neighbours4();
+	for(auto k : neighbours4j ) {
+	  //if( !mask[k] &&  k != i) continue; // leave out?
+	  surroundingEnergyj += hits[k].energy();
 	}
 	// The energy surrounding the double spike candidate 
 	const double surroundingEnergyFraction = 
 	  (surroundingEnergyi+surroundingEnergyj) / 
-	  (rechit.energy()+mostEnergeticNeighbour->energy()) - 1.;
+	  (rechit.energy()+hits[mostEnergeticNeighbour].energy()) - 1.;
 	if ( surroundingEnergyFraction < clean._doubleSpikeS6S2 ) { 
 	  const double eta = rechit.positionREP().eta();
 	  const double aeta = std::abs(eta);
@@ -203,7 +198,7 @@ clean(const edm::Handle<reco::PFRecHitCollection>& input,
 		 surroundingEnergyFraction < clean._doubleSpikeS6S2/clean._fracThreshMod ) 
 		) ) {	    
 	    mask[i] = false;
-	    mask[mostEnergeticNeighbour.key()] = false;
+	    mask[mostEnergeticNeighbour] = false;
 	  }
 	}
       } // was there an energetic neighbour ? 

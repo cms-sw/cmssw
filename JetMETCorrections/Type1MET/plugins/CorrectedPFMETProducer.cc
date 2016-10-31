@@ -7,13 +7,17 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "DataFormats/Candidate/interface/Candidate.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
+#include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/METReco/interface/PFMET.h"
 #include "DataFormats/METReco/interface/CorrMETData.h"
 
 #include "JetMETCorrections/Type1MET/interface/AddCorrectionsToGenericMET.h"
+
+#include "HLTrigger/HLTcore/interface/defaultModuleLabel.h"
 
 #include <vector>
 
@@ -39,6 +43,15 @@ public:
   }
 
   ~CorrectedPFMETProducer() { }
+
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+    edm::ParameterSetDescription desc;
+    desc.add<edm::InputTag>("src",edm::InputTag("pfMet", ""));
+    std::vector<edm::InputTag> tmpv;
+    tmpv.push_back( edm::InputTag("corrPfMetType1", "type1") );
+    desc.add<std::vector<edm::InputTag> >("srcCorrections",tmpv);
+    descriptions.add(defaultModuleLabel<CorrectedPFMETProducer>(),desc);
+  }
 
 private:
 

@@ -192,7 +192,7 @@ HcalDDDGeometry::newCell( const GlobalPoint& f1 ,
 				   - m_hbCellVec.size() 
 				   - m_heCellVec.size() 
 				   - m_hoCellVec.size() ) ;
-	m_hfCellVec[ index ] = IdealZPrism( f1, cornersMgr(), parm ) ;
+	m_hfCellVec[ index ] = IdealZPrism( f1, cornersMgr(), parm, hId.depth()==1 ? IdealZPrism::EM : IdealZPrism::HADR ) ;
       }
     }
   }

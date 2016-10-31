@@ -14,20 +14,14 @@
 
 #include <iostream>
 
-using namespace edm ;
-using namespace std ;
-using namespace reco ;
-using namespace pat ;
-
-
 RegressionEnergyPatElectronProducer::RegressionEnergyPatElectronProducer( const edm::ParameterSet & cfg )
 {
 
-  inputGsfElectronsToken_ = mayConsume<GsfElectronCollection>(cfg.getParameter<edm::InputTag>("inputElectronsTag"));
-  inputPatElectronsToken_ = mayConsume<ElectronCollection>(cfg.getParameter<edm::InputTag>("inputElectronsTag"));
+  inputGsfElectronsToken_ = mayConsume<reco::GsfElectronCollection>(cfg.getParameter<edm::InputTag>("inputElectronsTag"));
+  inputPatElectronsToken_ = mayConsume<pat::ElectronCollection>(cfg.getParameter<edm::InputTag>("inputElectronsTag"));
   inputCollectionType_ = cfg.getParameter<uint32_t>("inputCollectionType");
   rhoInputToken_ = consumes<double>(cfg.getParameter<edm::InputTag>("rhoCollection"));
-  verticesInputToken_ = consumes<VertexCollection>(cfg.getParameter<edm::InputTag>("vertexCollection"));
+  verticesInputToken_ = consumes<reco::VertexCollection>(cfg.getParameter<edm::InputTag>("vertexCollection"));
   energyRegressionType_ = cfg.getParameter<uint32_t>("energyRegressionType");
   regressionInputFile_ = cfg.getParameter<std::string>("regressionInputFile");
   recHitCollectionEBToken_ = mayConsume<EcalRecHitCollection>(cfg.getParameter<edm::InputTag>("recHitCollectionEB"));
@@ -50,7 +44,7 @@ RegressionEnergyPatElectronProducer::RegressionEnergyPatElectronProducer( const 
   if (inputCollectionType_ == 0) {
     // do nothing
   } else if (inputCollectionType_ == 1) {
-    produces<ElectronCollection>();
+    produces<pat::ElectronCollection>();
   } else {
     throw cms::Exception("InconsistentParameters")  << " inputCollectionType should be either 0 (GsfElectrons) or 1 (pat::Electrons) " << std::endl;
   }
@@ -107,7 +101,7 @@ void RegressionEnergyPatElectronProducer::produce( edm::Event & event, const edm
   //**************************************************************************
   //Get Number of Vertices
   //**************************************************************************
-  Handle<reco::VertexCollection> hVertexProduct;
+  edm::Handle<reco::VertexCollection> hVertexProduct;
   event.getByToken(verticesInputToken_,hVertexProduct);
   const reco::VertexCollection inVertices = *(hVertexProduct.product());
 
@@ -129,7 +123,7 @@ void RegressionEnergyPatElectronProducer::produce( edm::Event & event, const edm
   //Get Rho
   //**************************************************************************
   double rho = 0;
-  Handle<double> hRhoKt6PFJets;
+  edm::Handle<double> hRhoKt6PFJets;
   event.getByToken(rhoInputToken_, hRhoKt6PFJets);
   rho = (*hRhoKt6PFJets);
 
@@ -144,8 +138,8 @@ void RegressionEnergyPatElectronProducer::produce( edm::Event & event, const edm
     event.getByToken( recHitCollectionEEToken_, pEERecHits );
   }
 
-  edm::Handle<GsfElectronCollection> gsfCollectionH ;
-  edm::Handle<ElectronCollection> patCollectionH;
+  edm::Handle<reco::GsfElectronCollection> gsfCollectionH ;
+  edm::Handle<pat::ElectronCollection> patCollectionH;
   if ( inputCollectionType_ == 0 ) {
     event.getByToken ( inputGsfElectronsToken_,gsfCollectionH )  ;
     nElectrons_ = gsfCollectionH->size();
@@ -156,7 +150,7 @@ void RegressionEnergyPatElectronProducer::produce( edm::Event & event, const edm
   }
 
   // prepare the two even if only one is used
-  std::auto_ptr<ElectronCollection> patElectrons( new ElectronCollection ) ;
+  std::auto_ptr<pat::ElectronCollection> patElectrons( new pat::ElectronCollection ) ;
 
   // Fillers for ValueMaps:
   std::auto_ptr<edm::ValueMap<double> > regrEnergyMap(new edm::ValueMap<double>() );
@@ -175,7 +169,7 @@ void RegressionEnergyPatElectronProducer::produce( edm::Event & event, const edm
 
   for(unsigned iele=0; iele < nElectrons_ ; ++iele) {
 
-    const GsfElectron * ele = ( inputCollectionType_ == 0 ) ? &(*gsfCollectionH)[iele] : &(*patCollectionH)[iele] ;
+    const reco::GsfElectron * ele = ( inputCollectionType_ == 0 ) ? &(*gsfCollectionH)[iele] : &(*patCollectionH)[iele] ;
     if (debug_) {
       std::cout << "***********************************************************************\n";
       std::cout << "Run Lumi Event: " << event.id().run() << " " << event.luminosityBlock() << " " << event.id().event() << "\n";
@@ -536,7 +530,7 @@ void RegressionEnergyPatElectronProducer::produce( edm::Event & event, const edm
 	energyValues.push_back(RegressionMomentum);
 	energyErrorValues.push_back(RegressionMomentumError);
       } else {
-	cout << "Error: RegressionType = " << energyRegressionType_ << " is not supported.\n";
+	std::cout << "Error: RegressionType = " << energyRegressionType_ << " is not supported.\n";
       }
 
       if(inputCollectionType_ == 1) {

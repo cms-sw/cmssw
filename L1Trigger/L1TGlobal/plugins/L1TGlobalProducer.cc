@@ -25,9 +25,11 @@
 #include "CondFormats/L1TObjects/interface/L1TUtmTriggerMenu.h"
 #include "CondFormats/DataRecord/interface/L1TUtmTriggerMenuRcd.h"
 #include "CondFormats/L1TObjects/interface/L1TGlobalParameters.h"
-#include "CondFormats/DataRecord/interface/L1TGlobalParametersRcd.h" 
 
+#include "CondFormats/DataRecord/interface/L1TGlobalParametersRcd.h" 
 #include "L1Trigger/L1TGlobal/interface/GlobalParamsHelper.h" 
+#include "CondFormats/L1TObjects/interface/L1TGlobalPrescalesVetos.h"
+#include "CondFormats/DataRecord/interface/L1TGlobalPrescalesVetosRcd.h"
 
 #include "DataFormats/L1TGlobal/interface/GlobalAlgBlk.h"
 #include "DataFormats/L1TGlobal/interface/GlobalExtBlk.h"
@@ -59,7 +61,8 @@ void L1TGlobalProducer::fillDescriptions(edm::ConfigurationDescriptions& descrip
   desc.add<unsigned int> ("AlternativeNrBxBoardDaq",0);
   desc.add<int> ("BstLengthBytes",-1);
   desc.add<unsigned int> ("PrescaleSet",1);    
-  desc.addUntracked<int>("Verbosity",0);            
+  desc.addUntracked<int>("Verbosity",0); 
+  desc.addUntracked<bool> ("PrintL1Menu",false);           
   desc.add<std::string>("TriggerMenuLuminosity","startup");
   desc.add<std::string>("PrescaleCSVFile","prescale_L1TGlobal.csv");
   descriptions.add("L1TGlobalProducer", desc);
@@ -92,6 +95,7 @@ L1TGlobalProducer::L1TGlobalProducer(const edm::ParameterSet& parSet) :
             m_algorithmTriggersUnmasked(parSet.getParameter<bool> ("AlgorithmTriggersUnmasked")),
 
             m_verbosity(parSet.getUntrackedParameter<int>("Verbosity")),
+	    m_printL1Menu(parSet.getUntrackedParameter<bool>("PrintL1Menu")),
             m_isDebugEnabled(edm::isDebugEnabled())
 {
 
@@ -218,175 +222,11 @@ L1TGlobalProducer::L1TGlobalProducer(const edm::ParameterSet& parSet) :
     m_l1GtTmVetoAlgoCacheID = 0ULL;
 
 
-    // directory in /data/Luminosity for the trigger menu
-    std::string menuDir = parSet.getParameter<std::string>("TriggerMenuLuminosity");
-    //std::string menuDir = "startup";
+    // Set default, initial, dummy prescale factor table
+    std::vector<std::vector<int> > temp_prescaleTable;
 
-    // prescale CSV file file
-    std::string prescaleFileName = parSet.getParameter<std::string>("PrescaleCSVFile");
-
-    // def.xml file
-    //std::string prescaleFileName = "prescale_L1TGlobal.csv";
-
-    edm::FileInPath f1("L1Trigger/L1TGlobal/data/Luminosity/" +
-                       menuDir + "/" + prescaleFileName);
-
-    m_prescalesFile = f1.fullPath();
-
-    unsigned int temp_numberPhysTriggers = 512;
- 
-    // Get prescale factors from CSV file for now
-    std::ifstream inputPrescaleFile;
-    inputPrescaleFile.open(m_prescalesFile);
-
-    std::vector<std::vector<int> > vec;
-    std::vector<std::vector<int> > prescale_vec;
-
-    std::vector<unsigned int> temp_triggerMask;
-    std::vector<unsigned int> temp_triggerVetoMask;
-
-    if( inputPrescaleFile ){
-      std::string prefix1("#");
-      std::string prefix2("-1");
-
-      std::string line; 
-
-      bool first = true;
-
-      while( getline(inputPrescaleFile,line) ){
-
-	if( !line.compare(0, prefix1.size(), prefix1) ) continue;
-	//if( !line.compare(0, prefix2.size(), prefix2) ) continue;
-
-	istringstream split(line);
-	int value;
-	int col = 0;
-	char sep;
-
-	while( split >> value ){
-	  if( first ){
-	    // Each new value read on line 1 should create a new inner vector
-	    vec.push_back(std::vector<int>());
-	  }
-
-	  vec[col].push_back(value);
-	  ++col;
-
-	  // read past the separator
-	  split>>sep;
-	}
-
-	// Finished reading line 1 and creating as many inner
-	// vectors as required
-	first = false;
-      }
-
-
-      int NumPrescaleSets = 0;
-
-      int maskColumn = -1;
-      int maskVetoColumn = -1;
-      for( int iCol=0; iCol<int(vec.size()); iCol++ ){
-	if( vec[iCol].size() > 0 ){
-	  int firstRow = vec[iCol][0];
-
-	  if( firstRow > 0 ) NumPrescaleSets++;
-	  else if( firstRow==-2 ) maskColumn = iCol;
-	  else if( firstRow==-3 ) maskVetoColumn = iCol;
-	}
-      }
-
-      // Fill default values for mask and veto mask
-      for( unsigned int iBit = 0; iBit < temp_numberPhysTriggers; ++iBit ){
-	unsigned int inputDefaultMask = 1;
-	unsigned int inputDefaultVetoMask = 0;
-	temp_triggerMask.push_back(inputDefaultMask);
-	temp_triggerVetoMask.push_back(inputDefaultVetoMask);
-      }
-
-      // Fill non-trivial mask and veto mask
-      if( maskColumn>=0 || maskVetoColumn>=0 ){
-	for( int iBit=1; iBit<int(vec[0].size()); iBit++ ){
-	  unsigned int algoBit = vec[0][iBit];
-	  // algoBit must be less than the number of triggers
-	  if( algoBit < temp_numberPhysTriggers ){
-	    if( maskColumn>=0 ){
-	      unsigned int triggerMask = vec[maskColumn][iBit];
-	      temp_triggerMask[algoBit] = triggerMask;
-	    }
-	    if( maskVetoColumn>=0 ){
-	      unsigned int triggerVetoMask = vec[maskVetoColumn][iBit];
-	      temp_triggerVetoMask[algoBit] = triggerVetoMask;
-	    }
-	  }
-	}
-      }
-
-
-      if( NumPrescaleSets > 0 ){
-	// Fill default prescale set
-	for( int iSet=0; iSet<NumPrescaleSets; iSet++ ){
-	  prescale_vec.push_back(std::vector<int>());
-	  for( unsigned int iBit = 0; iBit < temp_numberPhysTriggers; ++iBit ){
-	    int inputDefaultPrescale = 1;
-	    prescale_vec[iSet].push_back(inputDefaultPrescale);
-	  }
-	}
-
-	// Fill non-trivial prescale set
-	for( int iBit=1; iBit<int(vec[0].size()); iBit++ ){
-	  unsigned int algoBit = vec[0][iBit];
-	  // algoBit must be less than the number of triggers
-	  if( algoBit < temp_numberPhysTriggers ){
-	    for( int iSet=0; iSet<int(vec.size()); iSet++ ){
-	      int useSet = -1;
-	      if( vec[iSet].size() > 0 ){
-		useSet = vec[iSet][0];
-	      }
-	      useSet -= 1;
-	      
-	      if( useSet<0 ) continue;
-
-	      int prescale = vec[iSet][iBit];
-	      prescale_vec[useSet][algoBit] = prescale;
-	    }
-	  }
-	  else{
-	    LogTrace("L1TGlobalProducer")
-	      << "\nPrescale file has algo bit: " << algoBit
-	      << "\nThis is larger than the number of triggers: " << m_numberPhysTriggers
-	      << "\nSomething is wrong. Ignoring."
-	      << std::endl;
-	  }
-	}
-      }
-
-    }
-    else {
-      LogTrace("L1TGlobalProducer")
-	<< "\nCould not find file: " << m_prescalesFile
-	<< "\nFilling the prescale vectors with prescale 1"
-	<< "\nSetting prescale set to 1"
-	<< std::endl;
-
-      m_prescaleSet = 1;
-
-      for( int col=0; col < 1; col++ ){
-	prescale_vec.push_back(std::vector<int>());
-	for( unsigned int iBit = 0; iBit < temp_numberPhysTriggers; ++iBit ){
-	  int inputDefaultPrescale = 1;
-	  prescale_vec[col].push_back(inputDefaultPrescale);
-	}
-      }
-    }
-
-    inputPrescaleFile.close();
-
-    m_initialPrescaleFactorsAlgoTrig = prescale_vec;
-
-    m_initialTriggerMaskAlgoTrig = temp_triggerMask;
-    m_initialTriggerMaskVetoAlgoTrig = temp_triggerVetoMask;
-
+    temp_prescaleTable.push_back(std::vector<int>());
+    m_initialPrescaleFactorsAlgoTrig = temp_prescaleTable;
 }
 
 // destructor
@@ -504,8 +344,8 @@ void L1TGlobalProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSet
 
         (const_cast<TriggerMenu*>(m_l1GtMenu))->buildGtConditionMap();
         
-	//int printV = 2;
-        //m_l1GtMenu->print(std::cout, printV);
+	int printV = 2;
+        if(m_printL1Menu) m_l1GtMenu->print(std::cout, printV);
 	
         m_l1GtMenuCacheID = l1GtMenuCacheID;
     }
@@ -541,29 +381,30 @@ void L1TGlobalProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSet
     // get / update the prescale factors from the EventSetup
     // local cache & check on cacheIdentifier
 
+    // Only get event record if not unprescaled and not unmasked
+    if( !( m_algorithmTriggersUnprescaled && m_algorithmTriggersUnmasked ) ){
+      unsigned long long l1GtPfAlgoCacheID = evSetup.get<L1TGlobalPrescalesVetosRcd>().cacheIdentifier();
 
-/*  **** For Now Leave out Prescale Factors ****
-    unsigned long long l1GtPfAlgoCacheID =
-        evSetup.get<L1GtPrescaleFactorsAlgoTrigRcd>().cacheIdentifier();
+      if (m_l1GtPfAlgoCacheID != l1GtPfAlgoCacheID) {
 
-    if (m_l1GtPfAlgoCacheID != l1GtPfAlgoCacheID) {
+	edm::ESHandle< L1TGlobalPrescalesVetos > l1GtPrescalesVetoes;
+	evSetup.get< L1TGlobalPrescalesVetosRcd >().get( l1GtPrescalesVetoes );
+	const L1TGlobalPrescalesVetos * es = l1GtPrescalesVetoes.product();
+	m_l1GtPrescalesVetoes = PrescalesVetosHelper::readFromEventSetup(es);
 
-        edm::ESHandle< L1GtPrescaleFactors > l1GtPfAlgo;
-        evSetup.get< L1GtPrescaleFactorsAlgoTrigRcd >().get( l1GtPfAlgo );
-        m_l1GtPfAlgo = l1GtPfAlgo.product();
+	m_prescaleFactorsAlgoTrig = &(m_l1GtPrescalesVetoes->prescaleTable());
+	m_triggerMaskVetoAlgoTrig = &(m_l1GtPrescalesVetoes->triggerMaskVeto());
 
-        m_prescaleFactorsAlgoTrig = &(m_l1GtPfAlgo->gtPrescaleFactors());
-
-        m_l1GtPfAlgoCacheID = l1GtPfAlgoCacheID;
-
+	m_l1GtPfAlgoCacheID = l1GtPfAlgoCacheID;
+      }
     }
-*/
-    
-
-    // Set Prescale factors to initial 
-    m_prescaleFactorsAlgoTrig = &m_initialPrescaleFactorsAlgoTrig;
-    m_triggerMaskAlgoTrig = &m_initialTriggerMaskAlgoTrig;
-    m_triggerMaskVetoAlgoTrig = &m_initialTriggerMaskVetoAlgoTrig;
+    else{
+      // Set Prescale factors to initial dummy values
+      m_prescaleSet = 1;
+      m_prescaleFactorsAlgoTrig = &m_initialPrescaleFactorsAlgoTrig;
+      m_triggerMaskAlgoTrig = &m_initialTriggerMaskAlgoTrig;
+      m_triggerMaskVetoAlgoTrig = &m_initialTriggerMaskVetoAlgoTrig;
+    }
 
 
     // get / update the trigger mask from the EventSetup
@@ -702,8 +543,17 @@ void L1TGlobalProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSet
 
     const std::vector<int>& prescaleFactorsAlgoTrig = (*m_prescaleFactorsAlgoTrig).at(pfAlgoSetIndex);
 
+    // For now, set masks according to prescale value of 0
+    m_initialTriggerMaskAlgoTrig.clear();
+    for( unsigned int iAlgo=0; iAlgo < prescaleFactorsAlgoTrig.size(); iAlgo++ ){
+      unsigned int value = prescaleFactorsAlgoTrig[iAlgo];
+      value = ( value==0 ) ? 0 : 1;
+      m_initialTriggerMaskAlgoTrig.push_back(value);
+    }
+    m_triggerMaskAlgoTrig = &m_initialTriggerMaskAlgoTrig;
+
     const std::vector<unsigned int>& triggerMaskAlgoTrig = *m_triggerMaskAlgoTrig;
-    const std::vector<unsigned int>& triggerMaskVetoAlgoTrig = *m_triggerMaskVetoAlgoTrig;
+    const std::vector<int>& triggerMaskVetoAlgoTrig = *m_triggerMaskVetoAlgoTrig;
 
     LogDebug("L1TGlobalProducer") << "Size of prescale vector" << prescaleFactorsAlgoTrig.size() << std::endl;
 

@@ -1,4 +1,7 @@
 import FWCore.ParameterSet.Config as cms
+import CondTools.Ecal.conddb_init as conddb_init
+import CondTools.Ecal.db_credentials as auth
+
 
 process = cms.Process("ProcessOne")
 
@@ -11,26 +14,26 @@ process.MessageLogger = cms.Service("MessageLogger",
 )
 
 process.source = cms.Source("EmptyIOVSource",
-    lastValue = cms.uint64(1),
+    lastValue = cms.uint64(100000000),
     timetype = cms.string('runnumber'),
-    firstValue = cms.uint64(1),
+    firstValue = cms.uint64(100000000),
     interval = cms.uint64(1)
 )
 
-process.load("CondCore.DBCommon.CondDBCommon_cfi")
+process.load("CondCore.CondDB.CondDB_cfi")
 
-process.CondDBCommon.connect = 'sqlite_file:DB.db'
-process.CondDBCommon.DBParameters.authenticationPath = '/nfshome0/popcondev/conddb'
+process.CondDB.connect = conddb_init.options.destinationDatabase
+process.CondDB.DBParameters.authenticationPath = ''
 
 process.PoolDBOutputService = cms.Service("PoolDBOutputService",
-    process.CondDBCommon, 
-    logconnect = cms.untracked.string('sqlite_file:log.db'),   
+    process.CondDB, 
     toPut = cms.VPSet(cms.PSet(
         record = cms.string('EcalTPGFineGrainTowerEERcd'),
-        #tag = cms.string('EcalTPGFineGrainTowerEE_craft')
-    	tag = cms.string('EcalTPGFineGrainTowerEE_TPGTrivial_config')
+        tag = cms.string(conddb_init.options.destinationTag)
     ))
 )
+
+db_service,db_user,db_pwd = auth.get_readOnly_db_credentials()
 
 process.Test1 = cms.EDAnalyzer("ExTestEcalTPGFineGrainTowerEEAnalyzer",
     record = cms.string('EcalTPGFineGrainTowerEERcd'),
@@ -38,15 +41,15 @@ process.Test1 = cms.EDAnalyzer("ExTestEcalTPGFineGrainTowerEEAnalyzer",
     IsDestDbCheckedInQueryLog=cms.untracked.bool(True),
     SinceAppendMode=cms.bool(True),
     Source=cms.PSet(
-     firstRun = cms.string('98273'),
+     firstRun = cms.string('200000'),
      lastRun = cms.string('10000000'),
-     OnlineDBSID = cms.string('cms_omds_lb'),
-     OnlineDBUser = cms.string('cms_ecal_conf'),
-     OnlineDBPassword = cms.string('*************'),
+     OnlineDBSID = cms.string(db_service),
+     OnlineDBUser = cms.string(db_user),
+     OnlineDBPassword = cms.string( db_pwd ),
      LocationSource = cms.string('P5'),
      Location = cms.string('P5_Co'),
      GenTag = cms.string('GLOBAL'),
-     RunType = cms.string('COSMICS')
+     RunType = cms.string('PHYSICS')
     )                            
 )
 

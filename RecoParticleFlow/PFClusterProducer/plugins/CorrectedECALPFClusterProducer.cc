@@ -16,37 +16,26 @@
 
 #include "RecoParticleFlow/PFClusterProducer/interface/PFClusterEMEnergyCorrector.h"
 #include "RecoParticleFlow/PFClusterTools/interface/LinkByRecHit.h"
-#include "TVector2.h"
+#include "DataFormats/Math/interface/deltaPhi.h"
 
 namespace {
   typedef reco::PFCluster::EEtoPSAssociation::value_type EEPSPair;
   bool sortByKey(const EEPSPair& a, const EEPSPair& b) {
     return a.first < b.first;
   } 
-  double testPreshowerDistance(const edm::Ptr<reco::PFCluster>& eeclus,
-			       const edm::Ptr<reco::PFCluster>& psclus) {
-    if( psclus.isNull() ) return -1.0;
-    /* 
-    // commented out since PFCluster::layer() uses a lot of CPU
-    // and since 
-    if( PFLayer::ECAL_ENDCAP != eeclus->layer() ) return -1.0;
-    if( PFLayer::PS1 != psclus->layer() &&
-	PFLayer::PS2 != psclus->layer()    ) {
-      throw cms::Exception("testPreshowerDistance")
-	<< "The second argument passed to this function was "
-	<< "not a preshower cluster!" << std::endl;
-    } 
-    */
-    const reco::PFCluster::REPPoint& pspos = psclus->positionREP();
-    const reco::PFCluster::REPPoint& eepos = eeclus->positionREP();
+
+  // why, why -1 and not <double>::max() ????
+  double testPreshowerDistance(reco::PFCluster const & eeclus,
+			       reco::PFCluster const & psclus) {
+    auto const & pspos = psclus.positionREP();
+    auto const & eepos = eeclus.positionREP();
     // lazy continue based on geometry
-    if( eeclus->z()*psclus->z() < 0 ) return -1.0;
-    const double dphi= std::abs(TVector2::Phi_mpi_pi(eepos.phi() - 
-						     pspos.phi()));
+    if( eeclus.z()*psclus.z() < 0 ) return -1.0;
+    auto deta= std::abs(eepos.eta() - pspos.eta());
+    if( deta > 0.3 ) return -1.0;
+    auto dphi= std::abs(deltaPhi(eepos.phi(),  pspos.phi()));
     if( dphi > 0.6 ) return -1.0;    
-    const double deta= std::abs(eepos.eta() - pspos.eta());    
-    if( deta > 0.3 ) return -1.0; 
-    return LinkByRecHit::testECALAndPSByRecHit(*eeclus,*psclus,false);
+    return LinkByRecHit::testECALAndPSByRecHit(eeclus,psclus,false);
   }
 }
 
@@ -83,46 +72,45 @@ DEFINE_FWK_MODULE(CorrectedECALPFClusterProducer);
 
 void CorrectedECALPFClusterProducer::
 produce(edm::Event& e, const edm::EventSetup& es) {
-  std::auto_ptr<reco::PFClusterCollection> clusters_out;
-  clusters_out.reset(new reco::PFClusterCollection);    
-  std::auto_ptr<reco::PFCluster::EEtoPSAssociation> association_out;
-  association_out.reset(new reco::PFCluster::EEtoPSAssociation);
+  std::unique_ptr<reco::PFClusterCollection> clusters_out(new reco::PFClusterCollection);    
+  std::unique_ptr<reco::PFCluster::EEtoPSAssociation> association_out(new reco::PFCluster::EEtoPSAssociation);
   
   edm::Handle<reco::PFClusterCollection> handleECAL;
   e.getByToken(_inputECAL,handleECAL);
   edm::Handle<reco::PFClusterCollection> handlePS;
   e.getByToken(_inputPS,handlePS);
-  
-  clusters_out->reserve(handleECAL->size());
-  association_out->reserve(handleECAL->size());
+
+  auto const & ecals = *handleECAL;
+  auto const & pss = *handlePS;
+
+  clusters_out->reserve(ecals.size());
+  association_out->reserve(ecals.size());
   clusters_out->insert(clusters_out->end(),
-		       handleECAL->begin(),handleECAL->end());
+		       ecals.begin(),ecals.end());
   //build the EE->PS association
-  double dist = -1.0, min_dist = -1.0;
-  for( unsigned i = 0; i < handlePS->size(); ++i ) {      
-    switch( handlePS->at(i).layer() ) { // just in case this isn't the ES...
+  for( unsigned i = 0; i < pss.size(); ++i ) {      
+    switch( pss[i].layer() ) { // just in case this isn't the ES...
     case PFLayer::PS1:
     case PFLayer::PS2:
       break;
     default:
       continue;
     }    
-    edm::Ptr<reco::PFCluster> psclus(handlePS,i);
-    if( psclus->energy() < _minimumPSEnergy ) continue;
-    edm::Ptr<reco::PFCluster> eematch,eeclus;
-    dist = min_dist = -1.0; // reset
-    for( size_t ic = 0; ic < handleECAL->size(); ++ic ) {
-      if( handleECAL->at(ic).layer() != PFLayer::ECAL_ENDCAP ) continue;
-      eeclus = edm::Ptr<reco::PFCluster>(handleECAL,ic);	
-      dist = testPreshowerDistance(eeclus,psclus);      
-      if( dist == -1.0 || (min_dist != -1.0 && dist > min_dist) ) continue;
-      if( dist < min_dist || min_dist == -1.0 ) {
-	eematch = eeclus;
+    if(  pss[i].energy() < _minimumPSEnergy ) continue;
+    int eematch = -1;
+    auto min_dist = std::numeric_limits<double>::max();
+    for( size_t ic = 0; ic < ecals.size(); ++ic ) {
+      if( ecals[ic].layer() != PFLayer::ECAL_ENDCAP ) continue;
+      auto dist = testPreshowerDistance(ecals[ic],pss[i]);      
+      if (dist == -1.0) dist=std::numeric_limits<double>::max(); 
+      if( dist < min_dist ) {
+	eematch = ic;
 	min_dist = dist;
       }
     } // loop on EE clusters      
-    if( eematch.isNonnull() ) {      
-      association_out->push_back(std::make_pair(eematch.key(),psclus));
+    if( eematch>=0 ) {
+      edm::Ptr<reco::PFCluster> psclus(handlePS,i);
+      association_out->push_back(std::make_pair(eematch,psclus));
     }
   }
   std::sort(association_out->begin(),association_out->end(),sortByKey);
@@ -130,9 +118,9 @@ produce(edm::Event& e, const edm::EventSetup& es) {
   _corrector->correctEnergies(e,es,*association_out,*clusters_out);
   
   association_out->shrink_to_fit();
-  
-  e.put(association_out);
-  e.put(clusters_out);
+
+  e.put(std::move(association_out));
+  e.put(std::move(clusters_out));
 }
 
 void CorrectedECALPFClusterProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {

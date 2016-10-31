@@ -21,8 +21,6 @@
 // class declaration
 //
 
-using namespace std;
-using namespace reco;
 class ElectronPATIdMVAProducer : public edm::EDProducer {
 	public:
 		explicit ElectronPATIdMVAProducer(const edm::ParameterSet&);
@@ -36,8 +34,8 @@ class ElectronPATIdMVAProducer : public edm::EDProducer {
   edm::EDGetTokenT<pat::ElectronCollection> electronToken_;
   double _Rho;
   edm::EDGetTokenT<double> eventrhoToken_;
-  string method_;
-  vector<string> mvaWeightFiles_;
+  std::string method_;
+  std::vector<std::string> mvaWeightFiles_;
 
 
   EGammaMvaEleEstimator* mvaID_;
@@ -58,8 +56,8 @@ class ElectronPATIdMVAProducer : public edm::EDProducer {
 ElectronPATIdMVAProducer::ElectronPATIdMVAProducer(const edm::ParameterSet& iConfig) {
         verbose_ = iConfig.getUntrackedParameter<bool>("verbose", false);
 	electronToken_ = consumes<pat::ElectronCollection>(iConfig.getParameter<edm::InputTag>("electronTag"));
-	method_ = iConfig.getParameter<string>("method");
-	std::vector<string> fpMvaWeightFiles = iConfig.getParameter<std::vector<std::string> >("mvaWeightFile");
+	method_ = iConfig.getParameter<std::string>("method");
+	std::vector<std::string> fpMvaWeightFiles = iConfig.getParameter<std::vector<std::string> >("mvaWeightFile");
 	eventrhoToken_ = consumes<double>(iConfig.getParameter<edm::InputTag>("Rho"));
 
         produces<edm::ValueMap<float> >();
@@ -75,7 +73,7 @@ ElectronPATIdMVAProducer::ElectronPATIdMVAProducer(const edm::ParameterSet& iCon
 
         bool manualCat_ = true;
 
-	string path_mvaWeightFileEleID;
+	std::string path_mvaWeightFileEleID;
 	for(unsigned ifile=0 ; ifile < fpMvaWeightFiles.size() ; ++ifile) {
 	  path_mvaWeightFileEleID = edm::FileInPath ( fpMvaWeightFiles[ifile].c_str() ).fullPath();
 	  mvaWeightFiles_.push_back(path_mvaWeightFileEleID);
@@ -101,7 +99,6 @@ ElectronPATIdMVAProducer::~ElectronPATIdMVAProducer()
 
 // ------------ method called on each new Event  ------------
 void ElectronPATIdMVAProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
-	using namespace edm;
 
         std::auto_ptr<edm::ValueMap<float> > out(new edm::ValueMap<float>() );
 
@@ -111,7 +108,7 @@ void ElectronPATIdMVAProducer::produce(edm::Event& iEvent, const edm::EventSetup
 
 
 
-	Handle<pat::ElectronCollection> egCollection;
+	edm::Handle<pat::ElectronCollection> egCollection;
 	iEvent.getByToken(electronToken_,egCollection);
         const pat::ElectronCollection egCandidates = (*egCollection.product());
 

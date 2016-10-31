@@ -181,7 +181,14 @@ SiStripMonitorCluster = cms.EDAnalyzer("SiStripMonitorCluster",
         ymax = cms.double(0.0),
         subdetswitchon = cms.bool(True)
         ),
-                                     
+                           
+   TH1ABx_CSCP = cms.PSet(
+        Nbinsx = cms.int32(3565),
+        xmin = cms.double(0.),
+        xmax = cms.double(3564),
+        subdetswitchon = cms.bool(True)
+        ),
+                                  
     TProf2ApvCycleVsDBx = cms.PSet(
         Nbinsx = cms.int32(70),
         xmin   = cms.double(-0.5),
@@ -204,13 +211,27 @@ SiStripMonitorCluster = cms.EDAnalyzer("SiStripMonitorCluster",
         globalswitchon = cms.bool(True)
         ),
 
+    TH1DBxGlobal = cms.PSet(
+        Nbinsx = cms.int32(800),
+        xmin   = cms.double(0.5),
+        xmax   = cms.double(800.5),
+        globalswitchon = cms.bool(True)
+        ),
+
+    TH1DBxCycleGlobal = cms.PSet(
+        Nbinsx = cms.int32(800),
+        xmin   = cms.double(0.5),
+        xmax   = cms.double(800.5),
+        globalswitchon = cms.bool(True)
+        ),
+
     TH2CStripVsCpixel = cms.PSet(
-        Nbinsx = cms.int32(150),
+        Nbinsx = cms.int32(300),
         xmin   = cms.double(-0.5),
-        xmax   = cms.double(74999.5),
-        Nbinsy = cms.int32(50),
+        xmax   = cms.double(149999.5),
+        Nbinsy = cms.int32(60),
         ymin   = cms.double(-0.5),
-        ymax   = cms.double(14999.5),
+        ymax   = cms.double(17999.5),
         globalswitchon = cms.bool(True)
         ),
                                        
@@ -234,7 +255,28 @@ SiStripMonitorCluster = cms.EDAnalyzer("SiStripMonitorCluster",
         xmin           = cms.double(0.),
         xmax           = cms.double(2.),
         globalswitchon = cms.bool(False)
-        ),                            
+        ),                 
+    
+    TProfMainDiagonalPosition= cms.PSet(
+        Nbinsx = cms.int32(3565),
+        xmin = cms.double(0),
+        xmax = cms.double(3564),
+        Nbinsy = cms.int32(100),
+        ymin = cms.double(0.),
+        ymax = cms.double(2.),
+        globalswitchon = cms.bool(False)
+        ),
+
+    TH2MainDiagonalPosition= cms.PSet(
+        Nbinsx = cms.int32(3565),
+        xmin = cms.double(0),
+        xmax = cms.double(3564),
+        Nbinsy = cms.int32(100),
+        ymin = cms.double(0.),
+        ymax = cms.double(2.),
+        globalswitchon = cms.bool(False)
+        ),
+           
 # Nunmber of Cluster in Pixel
     TH1NClusPx = cms.PSet(
         Nbinsx = cms.int32(200),
@@ -244,9 +286,29 @@ SiStripMonitorCluster = cms.EDAnalyzer("SiStripMonitorCluster",
                                        
 # Number of Cluster in Strip
     TH1NClusStrip = cms.PSet(
-        Nbinsx = cms.int32(500),
-        xmax = cms.double(99999.5),                      
+        Nbinsx = cms.int32(600),
+        xmax = cms.double(119999.5),                      
         xmin = cms.double(-0.5)
+        ),
+
+     TProfNClusStrip = cms.PSet(
+        Nbinsx = cms.int32(3565),
+        xmin = cms.double(0),
+        xmax = cms.double(3564),
+        Nbinsy = cms.int32(200),
+        ymin = cms.double(-0.5),
+        ymax = cms.double(99999.5),
+        globalswitchon = cms.bool(True)
+        ),
+
+     TProfNClusPixel = cms.PSet(
+        Nbinsx = cms.int32(3565),
+        xmin = cms.double(0),
+        xmax = cms.double(3564),
+        Nbinsy = cms.int32(200),
+        ymin = cms.double(-0.5),
+        ymax = cms.double(199999.5),
+        globalswitchon = cms.bool(True)
         ),
 
     TH1StripNoise2ApvCycle = cms.PSet(

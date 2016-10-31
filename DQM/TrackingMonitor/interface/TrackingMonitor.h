@@ -35,6 +35,8 @@ Monitoring source for general quantities related to tracks.
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
 
+#include "DataFormats/Scalers/interface/LumiScalers.h"
+
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 
 class TrackAnalyzer;
@@ -84,6 +86,8 @@ class TrackingMonitor : public DQMEDAnalyzer
 	edm::EDGetTokenT<TrackCandidateCollection> trackCandidateToken_;
 	edm::EDGetTokenT<edm::View<TrajectorySeed> > seedToken_;
 
+	edm::EDGetTokenT<LumiScalersCollection>  lumiscalersToken_;	
+
 	edm::InputTag stripClusterInputTag_;
 	edm::InputTag pixelClusterInputTag_;
 	edm::EDGetTokenT<edmNew::DetSetVector<SiStripCluster> > stripClustersToken_;
@@ -123,13 +127,38 @@ class TrackingMonitor : public DQMEDAnalyzer
         MonitorElement* NumberOfTrkVsPixelClus;
 
 	// Monitoring vs LS
+	MonitorElement* NumberEventsOfVsLS;
 	MonitorElement* NumberOfTracksVsLS;
 	MonitorElement* GoodTracksFractionVsLS;
 	MonitorElement* NumberOfRecHitsPerTrackVsLS;
+	MonitorElement* NumberOfGoodPVtxVsLS;
+	MonitorElement* NumberOfGoodPVtxWO0VsLS;
+
+	// Monitoring vs BX
+	MonitorElement* NumberEventsOfVsBX;
+	MonitorElement* NumberOfTracksVsBX;
+	MonitorElement* GoodTracksFractionVsBX;
+	MonitorElement* NumberOfRecHitsPerTrackVsBX;
+	MonitorElement* NumberOfGoodPVtxVsBX;
+	MonitorElement* NumberOfGoodPVtxWO0VsBX;
+
+	MonitorElement* NumberOfTracksVsBXlumi;
 
 	// Monitoring PU
-	MonitorElement *NumberOfTracksVsGoodPVtx, *NumberOfTracksVsPUPVtx;
-	MonitorElement* NumberOfTracksVsBXlumi;
+	MonitorElement *NumberOfTracksVsGoodPVtx;
+	MonitorElement* NumberOfTracksVsPUPVtx;
+	MonitorElement* NumberEventsOfVsGoodPVtx;
+	MonitorElement* GoodTracksFractionVsGoodPVtx;
+	MonitorElement* NumberOfRecHitsPerTrackVsGoodPVtx;
+	MonitorElement* NumberOfPVtxVsGoodPVtx;
+
+	// Monitoring vs lumi
+	MonitorElement* NumberEventsOfVsLUMI;
+	MonitorElement* NumberOfTracksVsLUMI;
+	MonitorElement* GoodTracksFractionVsLUMI;
+	MonitorElement* NumberOfRecHitsPerTrackVsLUMI;
+	MonitorElement* NumberOfGoodPVtxVsLUMI;
+	MonitorElement* NumberOfGoodPVtxWO0VsLUMI;
 
 	// add in order to deal with LS transitions
         MonitorElement * NumberOfTracks_lumiFlag;
@@ -154,6 +183,8 @@ class TrackingMonitor : public DQMEDAnalyzer
 	bool doPUmonitoring_;
 	bool doPlotsVsBXlumi_;
 	bool doPlotsVsGoodPVtx_;
+	bool doPlotsVsLUMI_;
+	bool doPlotsVsBX_;
 	bool doFractionPlot_;
 
         GenericTriggerEventFlag* genTriggerEventFlag_;

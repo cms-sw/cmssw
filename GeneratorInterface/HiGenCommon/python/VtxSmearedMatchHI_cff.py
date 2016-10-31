@@ -4,5 +4,6 @@ from IOMC.EventVertexGenerators.VtxSmearedParameters_cfi import *
 VtxSmeared = cms.EDProducer("MixEvtVtxGenerator",
                             useCF = cms.untracked.bool(True),
                             signalLabel = cms.InputTag("generator","unsmeared"),
-                            mixLabel = cms.InputTag("mix","generatorSmeared")
+                            mixLabel = cms.InputTag("mix","generatorSmeared"),
+                            vtxLabel = cms.InputTag("offlinePrimaryVertices")
                             )

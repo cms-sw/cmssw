@@ -33,13 +33,10 @@ process.hltPhysicsDeclared.L1GtReadoutRecordTag = 'gtDigis'
 
 # i do not know what is this doing?
 triggerSelection = cms.EDFilter( "TriggerResultsFilter",
-    triggerConditions = cms.vstring(
-    'HLT_ZeroBias / 1' ),
+    triggerConditions = cms.vstring( 'HLT_ZeroBias' ),
     hltResults = cms.InputTag( "TriggerResults", "", "HLT" ),
     l1tResults = cms.InputTag( "gtDigis" ),
-    l1tIgnoreMask = cms.bool( True ),
-    l1techIgnorePrescales = cms.bool( True ),
-    daqPartitions = cms.uint32( 1 ),
+    l1tIgnoreMaskAndPrescale = cms.bool( True ),
     throw = cms.bool( True )
 )
 

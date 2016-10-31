@@ -34,6 +34,12 @@ options.register ('triggerPath',
                   VarParsing.VarParsing.multiplicity.singleton, # singleton or list
                   VarParsing.VarParsing.varType.string,          # string, int, or float
                   "list of HLT paths")
+options.register ('trackCollection',
+                  "generalTracks",
+                  VarParsing.VarParsing.multiplicity.singleton, # singleton or list
+                  VarParsing.VarParsing.varType.string,          # string, int, or float
+                  "Track collection to use")
+
 
 options.parseArguments()
 
@@ -282,9 +288,10 @@ process.primaryvertexanalyzer.vHistogramMakerPSet.runHistoProfile=cms.untracked.
 process.primaryvertexanalyzer.vHistogramMakerPSet.runHistoBXProfile=cms.untracked.bool(False)
 
 process.load("DPGAnalysis.SiStripTools.trackcount_cfi")
-process.trackcount.trackCollection = cms.InputTag("generalTracks")
+process.trackcount.trackCollection = cms.InputTag(options.trackCollection)
 
 process.load("DPGAnalysis.SiStripTools.duplicaterechits_cfi")
+process.duplicaterechits.trackCollection = cms.InputTag(options.trackCollection)
 
 process.seqAnalyzers = cms.Sequence(
     process.seqEventHistory +

@@ -12,6 +12,7 @@
 #include "FWCore/Framework/interface/SourceFactory.h"
 #include "FWCore/Framework/interface/ESProducer.h"
 #include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "Geometry/VeryForwardGeometryBuilder/interface/RPAlignmentCorrectionsDataSequence.h"
 #include "CondFormats/AlignmentRecord/interface/RPMeasuredAlignmentRecord.h"
@@ -53,6 +54,8 @@ class  TotemRPIncludeAlignments : public edm::ESProducer, public edm::EventSetup
     /// builds a sequence of corrections from provided sources and runs a few checks
     void PrepareSequence(const std::string &label, RPAlignmentCorrectionsDataSequence &seq, const std::vector<std::string> &files) const;
 };
+
+//----------------------------------------------------------------------------------------------------
 
 using namespace std;
 using namespace edm;
@@ -189,11 +192,15 @@ void TotemRPIncludeAlignments::setIntervalFor(const edm::eventsetup::EventSetupR
 {
   if (verbosity)
   {
-    printf(">> TotemRPIncludeAlignments::setIntervalFor(%s)\n", key.name());
+    LogVerbatim("TotemRPIncludeAlignments")
+      << ">> TotemRPIncludeAlignments::setIntervalFor(" << key.name() << ")";
+
     time_t unixTime = iosv.time().unixTime();
     char timeStr[50];
     strftime(timeStr, 50, "%F %T", localtime(&unixTime));
-    printf("\trun=%u, event=%llu, UNIX timestamp=%lu (%s)\n", iosv.eventID().run(), iosv.eventID().event(), unixTime, timeStr);
+
+    LogVerbatim("TotemRPIncludeAlignments")
+      << "    run=" << iosv.eventID().run() << ", event=" << iosv.eventID().event() << ", UNIX timestamp=" << unixTime << " (" << timeStr << ")";
   }
 
   // determine what sequence and corrections should be used
@@ -234,10 +241,9 @@ void TotemRPIncludeAlignments::setIntervalFor(const edm::eventsetup::EventSetupR
 
       if (verbosity)
       {
-        printf("\tsetting validity interval [%s, %s]\n",
-          TimeValidityInterval::ValueToUNIXString(valInt.first().time().value()).c_str(),
-          TimeValidityInterval::ValueToUNIXString(valInt.last().time().value()).c_str()
-        );
+        LogVerbatim("TotemRPIncludeAlignments")
+          << "    setting validity interval [" << TimeValidityInterval::ValueToUNIXString(valInt.first().time().value())
+          << ", " << TimeValidityInterval::ValueToUNIXString(valInt.last().time().value()) << "]";
       }
 
       return;
@@ -260,10 +266,9 @@ void TotemRPIncludeAlignments::setIntervalFor(const edm::eventsetup::EventSetupR
   
   if (verbosity)
   {
-    printf("\tsetting validity interval [%s, %s]\n",
-      TimeValidityInterval::ValueToUNIXString(valInt.first().time().value()).c_str(),
-      TimeValidityInterval::ValueToUNIXString(valInt.last().time().value()).c_str()
-    );
+    LogVerbatim("TotemRPIncludeAlignments")
+      << "    setting validity interval [" << TimeValidityInterval::ValueToUNIXString(valInt.first().time().value())
+      << ", " << TimeValidityInterval::ValueToUNIXString(valInt.last().time().value()) << "]";
   }
 }
 

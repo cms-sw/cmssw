@@ -1,10 +1,14 @@
 #include "RecoParticleFlow/PFClusterProducer/plugins/PFRecHitProducer.h"
+#include "FWCore/Utilities/interface/RunningAverage.h"
 
 namespace {
   bool sortByDetId(const reco::PFRecHit& a,
 		   const reco::PFRecHit& b) {
     return a.detId() < b.detId();
   }
+
+ edm::RunningAverage localRA1;
+ edm::RunningAverage localRA2;
 }
 
  PFRecHitProducer:: PFRecHitProducer(const edm::ParameterSet& iConfig)
@@ -48,10 +52,15 @@ void
 
    navigator_->beginEvent(iSetup);
 
+   out->reserve(localRA1.upper());
+   cleaned->reserve(localRA2.upper());
    for( const auto& creator : creators_ ) {
      creator->importRecHits(out,cleaned,iEvent,iSetup);
    }
-
+   if (out->capacity()>2*out->size()) out->shrink_to_fit();
+   if (cleaned->capacity()>2*cleaned->size()) cleaned->shrink_to_fit();
+   localRA1.update(out->size());
+   localRA2.update(cleaned->size());
    std::sort(out->begin(),out->end(),sortByDetId);
 
    //create a refprod here

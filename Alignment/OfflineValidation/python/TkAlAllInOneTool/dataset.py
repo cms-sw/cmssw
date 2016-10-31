@@ -1,7 +1,7 @@
 # idea stolen from:
 # http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW/
 #        PhysicsTools/PatAlgos/python/tools/cmsswVersionTools.py
-import das_client
+import Utilities.General.cmssw_das_client as das_client
 import json
 import os
 import bisect
@@ -112,42 +112,9 @@ class Dataset:
                                "input = cms.untracked.int32(%(nEvents)s) )\n"
                                "%(skipEventsString)s\n")
 
-    def __createSnippet( self, jsonPath = None, begin = None, end = None,
-                         firstRun = None, lastRun = None, repMap = None,
-                         crab = False, parent = False ):
-        if firstRun:
-            firstRun = int( firstRun )
-        if lastRun:
-            lastRun = int( lastRun )
-        if ( begin and firstRun ) or ( end and lastRun ):
-            msg = ( "The Usage of "
-                    + "'begin' & 'firstRun' " * int( bool( begin and
-                                                           firstRun ) )
-                    + "and " * int( bool( ( begin and firstRun ) and
-                                         ( end and lastRun ) ) )
-                    + "'end' & 'lastRun' " * int( bool( end and lastRun ) )
-                    + "is ambigous." )
-            raise AllInOneError( msg )
-        if begin or end:
-            ( firstRun, lastRun ) = self.convertTimeToRun(
-                begin = begin, end = end, firstRun = firstRun,
-                lastRun = lastRun )
-        if ( firstRun and lastRun ) and ( firstRun > lastRun ):
-            msg = ( "The lower time/runrange limit ('begin'/'firstRun') "
-                    "chosen is greater than the upper time/runrange limit "
-                    "('end'/'lastRun').")
-            raise AllInOneError( msg )
-        if self.predefined() and (jsonPath or begin or end or firstRun or lastRun):
-            msg = ( "The parameters 'JSON', 'begin', 'end', 'firstRun', and 'lastRun'"
-                    "only work for official datasets, not predefined _cff.py files" )
-            raise AllInOneError( msg )
-        goodLumiSecStr = ""
-        lumiStr = ""
+    def __lumiSelectionSnippet( self, jsonPath = None, firstRun = None, lastRun = None ):
         lumiSecExtend = ""
         if firstRun or lastRun or jsonPath:
-            goodLumiSecStr = ( "lumiSecs = cms.untracked."
-                               "VLuminosityBlockRange()\n" )
-            lumiStr = "                    lumisToProcess = lumiSecs,\n"
             if not jsonPath:
                 selectedRunList = self.__getRunList()
                 if firstRun:
@@ -224,15 +191,11 @@ class Dataset:
             else:
                 msg = "You are trying to run a validation without any runs!  Check that:"
                 if firstRun or lastRun:
-                    msg += "\n - firstRun and lastRun are correct for this dataset, and there are runs in between containing data"
+                    msg += "\n - firstRun/begin and lastRun/end are correct for this dataset, and there are runs in between containing data"
                 if jsonPath:
                     msg += "\n - your JSON file is correct for this dataset, and the runs contain data"
                 if (firstRun or lastRun) and jsonPath:
-                    msg += "\n - firstRun and lastRun are consistent with your JSON file"
-                if begin:
-                    msg = msg.replace("firstRun", "begin")
-                if end:
-                    msg = msg.replace("lastRun", "end")
+                    msg += "\n - firstRun/begin and lastRun/end are consistent with your JSON file"
                 raise AllInOneError(msg)
 
         else:
@@ -240,23 +203,62 @@ class Dataset:
             self.__firstusedrun = int(self.__findInJson(self.__getRunList()[0],"run_number"))
             self.__lastusedrun = int(self.__findInJson(self.__getRunList()[-1],"run_number"))
 
+        return lumiSecExtend
+
+    def __fileListSnippet(self, crab=False, parent=False, firstRun=None, lastRun=None, forcerunselection=False):
         if crab:
             files = ""
         else:
-            splitFileList = list( self.__chunks( self.fileList(), 255 ) )
+            splitFileList = list( self.__chunks( self.fileList(firstRun=firstRun, lastRun=lastRun, forcerunselection=forcerunselection), 255 ) )
             fileStr = [ "',\n'".join( files ) for files in splitFileList ]
             fileStr = [ "readFiles.extend( [\n'" + files + "'\n] )" \
                         for files in fileStr ]
             files = "\n".join( fileStr )
 
             if parent:
-                splitParentFileList = list( self.__chunks( self.fileList(parent = True), 255 ) )
+                splitParentFileList = list( self.__chunks( self.fileList(parent=True, firstRun=firstRun, lastRun=lastRun, forcerunselection=forcerunselection), 255 ) )
                 parentFileStr = [ "',\n'".join( parentFiles ) for parentFiles in splitParentFileList ]
                 parentFileStr = [ "secFiles.extend( [\n'" + parentFiles + "'\n] )" \
                             for parentFiles in parentFileStr ]
                 parentFiles = "\n".join( parentFileStr )
                 files += "\n\n" + parentFiles
 
+        return files
+
+    def __createSnippet( self, jsonPath = None, begin = None, end = None,
+                         firstRun = None, lastRun = None, repMap = None,
+                         crab = False, parent = False ):
+
+        if firstRun:
+            firstRun = int( firstRun )
+        if lastRun:
+            lastRun = int( lastRun )
+        if ( begin and firstRun ) or ( end and lastRun ):
+            msg = ( "The Usage of "
+                    + "'begin' & 'firstRun' " * int( bool( begin and
+                                                           firstRun ) )
+                    + "and " * int( bool( ( begin and firstRun ) and
+                                         ( end and lastRun ) ) )
+                    + "'end' & 'lastRun' " * int( bool( end and lastRun ) )
+                    + "is ambigous." )
+            raise AllInOneError( msg )
+        if begin or end:
+            ( firstRun, lastRun ) = self.convertTimeToRun(
+                begin = begin, end = end, firstRun = firstRun,
+                lastRun = lastRun )
+        if ( firstRun and lastRun ) and ( firstRun > lastRun ):
+            msg = ( "The lower time/runrange limit ('begin'/'firstRun') "
+                    "chosen is greater than the upper time/runrange limit "
+                    "('end'/'lastRun').")
+            raise AllInOneError( msg )
+
+        lumiSecExtend = self.__lumiSelectionSnippet(jsonPath=jsonPath, firstRun=firstRun, lastRun=lastRun)
+        lumiStr = goodLumiSecStr = ""
+        if lumiSecExtend:
+            goodLumiSecStr = "lumiSecs = cms.untracked.VLuminosityBlockRange()\n"
+            lumiStr = "                    lumisToProcess = lumiSecs,\n"
+
+        files = self.__fileListSnippet(crab=crab, parent=parent, firstRun=firstRun, lastRun=lastRun, forcerunselection=False)
 
         theMap = repMap
         theMap["files"] = files
@@ -337,8 +339,7 @@ class Dataset:
         return forcerunrangefunction
 
     def __getData( self, dasQuery, dasLimit = 0 ):
-        dasData = das_client.get_data( 'https://cmsweb.cern.ch',
-                                       dasQuery, 0, dasLimit, False )
+	dasData = das_client.get_data(dasQuery, dasLimit)
         if isinstance(dasData, str):
             jsondict = json.loads( dasData )
         else:
@@ -349,7 +350,10 @@ class Dataset:
         except KeyError:
             error = None
         if error or self.__findInJson(jsondict,"status") != 'ok' or "data" not in jsondict:
-            jsonstr = str(jsondict)
+            try:
+                jsonstr = self.__findInJson(jsondict,"reason")
+            except KeyError: 
+                jsonstr = str(jsondict)
             if len(jsonstr) > 10000:
                 jsonfile = "das_query_output_%i.txt"
                 i = 0
@@ -704,6 +708,10 @@ class Dataset:
 
     def datasetSnippet( self, jsonPath = None, begin = None, end = None,
                         firstRun = None, lastRun = None, crab = False, parent = False ):
+        if self.__predefined and (jsonPath or begin or end or firstRun or lastRun):
+            msg = ( "The parameters 'JSON', 'begin', 'end', 'firstRun', and 'lastRun' "
+                    "only work for official datasets, not predefined _cff.py files" )
+            raise AllInOneError( msg )
         if self.__predefined and parent:
                 with open(self.__filename) as f:
                     if "secFiles.extend" not in f.read():
@@ -820,15 +828,70 @@ class Dataset:
         theFile.close()
         return
 
-    def fileList( self, parent = False ):
+    def createdatasetfile_hippy(self, filename, filesperjob, firstrun, lastrun):
+        with open(filename, "w") as f:
+            for job in self.__chunks(self.fileList(firstRun=firstrun, lastRun=lastrun, forcerunselection=True), filesperjob):
+                f.write(",".join("'{}'".format(file) for file in job)+"\n")
+
+    @staticmethod
+    def getrunnumberfromfilename(filename):
+        parts = filename.split("/")
+        result = error = None
+        if parts[0] != "" or parts[1] != "store":
+            error = "does not start with /store"
+        elif parts[2] in ["mc", "relval"]:
+            result = 1
+        elif parts[-2] != "00000" or not parts[-1].endswith(".root"):
+            error = "does not end with 00000/something.root"
+        elif len(parts) != 12:
+            error = "should be exactly 11 slashes counting the first one"
+        else:
+            runnumberparts = parts[-5:-2]
+            if not all(len(part)==3 for part in runnumberparts):
+                error = "the 3 directories {} do not have length 3 each".format("/".join(runnumberparts))
+            try:
+                result = int("".join(runnumberparts))
+            except ValueError:
+                error = "the 3 directories {} do not form an integer".format("/".join(runnumberparts))
+
+        if error:
+            error = "could not figure out which run number this file is from:\n{}\n{}".format(filename, error)
+            raise AllInOneError(error)
+
+        return result
+
+    def fileList(self, parent=False, firstRun=None, lastRun=None, forcerunselection=False):
         if self.__fileList and not parent:
             return self.__fileList
         if self.__parentFileList and parent:
             return self.__parentFileList
 
-        fileList = [ self.__findInJson(fileInfo,"name") \
+        fileList = [ self.__findInJson(fileInfo,"name")
                      for fileInfo in self.fileInfoList(parent) ]
 
+        if firstRun is not None or lastRun is not None:
+            if firstRun is None: firstRun = -1
+            if lastRun is None: lastRun = float('infinity')
+            unknownfilenames, reasons = [], set()
+            for filename in fileList[:]:
+                try:
+                    if not firstRun < self.getrunnumberfromfilename(filename) < lastRun:
+                        fileList.remove(filename)
+                except AllInOneError as e:
+                    if forcerunselection: raise
+                    unknownfilenames.append(e.message.split("\n")[1])
+                    reasons         .add   (e.message.split("\n")[2])
+            if reasons:
+                if len(unknownfilenames) == len(fileList):
+                    print "Could not figure out the run numbers of any of the filenames for the following reason(s):"
+                else:
+                    print "Could not figure out the run numbers of the following filenames:"
+                    for filename in unknownfilenames:
+                        print "    "+filename
+                    print "for the following reason(s):"
+                for reason in reasons:
+                    print "    "+reason
+                print "Using the files anyway.  The runs will be filtered at the CMSSW level."
         if not parent:
             self.__fileList = fileList
         else:

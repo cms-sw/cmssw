@@ -34,12 +34,12 @@ def setConfiguration(process, collection, mode, monitorFile, binaryFile,
     ## Tracktype specific ##
     ########################
 
-    if collection == "ALCARECOTkAlZMuMu":
+    if collection == "ALCARECOTkAlZMuMu" or collection == "ALCARECOTkAlZMuMuHI" or collection == "ALCARECOTkAlZMuMuPA":
         process.AlignmentProducer.algoConfig.TrajectoryFactory = cms.PSet(
              process.TwoBodyDecayTrajectoryFactory
         )
-        process.AlignmentProducer.algoConfig.TrajectoryFactory.ParticleProperties.PrimaryMass = 90.8745
-        process.AlignmentProducer.algoConfig.TrajectoryFactory.ParticleProperties.PrimaryWidth = 1.8770
+        process.AlignmentProducer.algoConfig.TrajectoryFactory.ParticleProperties.PrimaryMass = 91.1061
+        process.AlignmentProducer.algoConfig.TrajectoryFactory.ParticleProperties.PrimaryWidth = 1.7678
         process.AlignmentProducer.algoConfig.TrajectoryFactory.MaterialEffects = "LocalGBL"
         # to account for multiple scattering in these layers
         process.AlignmentProducer.algoConfig.TrajectoryFactory.UseInvalidHits = True

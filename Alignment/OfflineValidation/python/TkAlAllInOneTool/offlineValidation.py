@@ -11,16 +11,20 @@ class OfflineValidation(GenericValidationData):
                  configBaseName = "TkAlOfflineValidation", scriptBaseName = "TkAlOfflineValidation", crabCfgBaseName = "TkAlOfflineValidation",
                  resultBaseName = "AlignmentValidation", outputBaseName = "AlignmentValidation"):
         defaults = {
-            "DMRMethod":"median,rmsNorm",
-            "DMRMinimum":"30",
-            "DMROptions":"",
             "offlineModuleLevelHistsTransient":"False",
             "offlineModuleLevelProfiles":"True",
-            "OfflineTreeBaseDir":"TrackHitFilter",
-            "SurfaceShapes":"coarse",
             "stripYResiduals":"False",
             }
+        deprecateddefaults = {
+            "DMRMethod":"",
+            "DMRMinimum":"",
+            "DMROptions":"",
+            "OfflineTreeBaseDir":"",
+            "SurfaceShapes":"",
+            }
+
         mandatories = [ "trackcollection" ]
+        defaults.update(deprecateddefaults)
         defaults.update(addDefaults)
         mandatories += addMandatories
         self.configBaseName = configBaseName
@@ -32,6 +36,11 @@ class OfflineValidation(GenericValidationData):
         GenericValidationData.__init__(self, valName, alignment, config,
                                        "offline", addDefaults=defaults,
                                        addMandatories=mandatories)
+
+        for option in deprecateddefaults:
+            if self.general[option]:
+                raise AllInOneError("The '%s' option has been moved to the [plots:offline] section.  Please specify it there."%option)
+            del self.general[option]
     
     def createConfiguration(self, path):
         cfgName = "%s.%s.%s_cfg.py"%( self.configBaseName, self.name,
@@ -99,7 +108,7 @@ class OfflineValidation(GenericValidationData):
         repMap = self.getRepMap()
         if validationsSoFar == "":
             validationsSoFar = ('PlotAlignmentValidation p("root://eoscms//eos/cms%(finalResultFile)s",'
-                                '"%(title)s", %(color)s, %(style)s);\n')%repMap
+                                '"%(title)s", %(color)s, %(style)s, .oO[bigtext]Oo.);\n')%repMap
         else:
             validationsSoFar += ('  p.loadFileList("root://eoscms//eos/cms%(finalResultFile)s", "%(title)s",'
                                  '%(color)s, %(style)s);\n')%repMap

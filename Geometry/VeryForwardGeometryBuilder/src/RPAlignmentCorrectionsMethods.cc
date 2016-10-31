@@ -85,6 +85,9 @@ RPAlignmentCorrectionsData RPAlignmentCorrectionsMethods::GetCorrectionsDataFrom
 
 RPAlignmentCorrectionsData RPAlignmentCorrectionsMethods::GetCorrectionsData(DOMNode *root)
 {
+
+  RPAlignmentCorrectionsData result;
+
   DOMNodeList *children = root->getChildNodes();
   for (unsigned int i = 0; i < children->getLength(); i++) {
     DOMNode *n = children->item(i);
@@ -101,14 +104,16 @@ RPAlignmentCorrectionsData RPAlignmentCorrectionsMethods::GetCorrectionsData(DOM
 
     // check children
     if (n->getChildNodes()->getLength() > 0)
+    {
         edm::LogProblem("RPAlignmentCorrectionsMethods") << ">> RPAlignmentCorrectionsMethods::LoadXMLFile > Warning: tag `" <<
           XMLString::transcode(n->getNodeName()) << "' has " << n->getChildNodes()->getLength() << 
           " children nodes - they will be all ignored.";
+    }
 
     // default values
     double sh_r = 0., sh_x = 0., sh_y = 0., sh_z = 0., rot_z = 0.;
     double sh_r_e = 0., sh_x_e = 0., sh_y_e = 0., sh_z_e = 0., rot_z_e = 0.;
-//    unsigned int id = 0;
+    unsigned int id = 0;
     bool idSet = false;
 
     // get attributes
@@ -119,7 +124,7 @@ RPAlignmentCorrectionsData RPAlignmentCorrectionsMethods::GetCorrectionsData(DOM
       //printf("\t%s\n", XMLString::transcode(a->getNodeName()));
 
       if (!strcmp(XMLString::transcode(a->getNodeName()), "id")) {
-//        id = atoi(XMLString::transcode(a->getNodeValue()));
+        id = atoi(XMLString::transcode(a->getNodeValue()));
         idSet = true;
       } else if (!strcmp(XMLString::transcode(a->getNodeName()), "sh_r"))
           sh_r = atof(XMLString::transcode(a->getNodeValue()));
@@ -154,17 +159,15 @@ RPAlignmentCorrectionsData RPAlignmentCorrectionsMethods::GetCorrectionsData(DOM
     RPAlignmentCorrectionData a(sh_r*1E-3, sh_r_e*1E-3, sh_x*1E-3, sh_x_e*1E-3, sh_y*1E-3, sh_y_e*1E-3,
       sh_z*1E-3, sh_z_e*1E-3, rot_z*1E-3, rot_z_e*1E-3);
 
-    //printf("id = %u\n", id);
-   
-//    // add the alignment to the right list
-//    if (nodeType == 1)
-//      AddSensorCorrection(id, a, true);
-//    else
-//      AddRPCorrection(id, a, true);
+    // add the alignment to the right list
+    if (nodeType == 1)
+      result.AddSensorCorrection(id, a, true);
+    else
+      result.AddRPCorrection(id, a, true);
 
 
   }
-    return RPAlignmentCorrectionsData();
+  return result;
 
 }
 

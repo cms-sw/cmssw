@@ -9,7 +9,6 @@
 
 
 #include <DQM/DTMonitorClient/src/DTOccupancyTest.h>
-#include <DQM/DTMonitorClient/src/DTOccupancyClusterBuilder.h>
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
@@ -49,6 +48,8 @@ DTOccupancyTest::DTOccupancyTest(const edm::ParameterSet& ps){
   runOnNoiseOccupancies =  ps.getUntrackedParameter<bool>("runOnNoiseOccupancies", false);
   runOnInTimeOccupancies = ps.getUntrackedParameter<bool>("runOnInTimeOccupancies", false);
   nMinEvts  = ps.getUntrackedParameter<int>("nEventsCert", 5000);
+  nMinEvtsPC  = ps.getUntrackedParameter<int>("nEventsMinPC", 2200);
+  nZeroEvtsPC  = ps.getUntrackedParameter<int>("nEventsZeroPC", 30);
 
   bookingdone = 0;
 
@@ -121,6 +122,9 @@ void DTOccupancyTest::beginRun(const edm::Run& run, const EventSetup& context){
   // Reset the global summary
   summaryHisto->Reset();
   glbSummaryHisto->Reset();
+
+  nChannelTotal = 0;
+  nChannelDead = 0;
 
   // Get all the DT chambers
   vector<const DTChamber*> chambers = muonGeom->chambers();
@@ -293,263 +297,87 @@ int DTOccupancyTest::getIntegral(TH2F *histo, int firstBinX, int lastBinX, int f
 int DTOccupancyTest::runOccupancyTest(TH2F *histo, const DTChamberId& chId,
 				      float& chamberPercentage) {
   int nBinsX = histo->GetNbinsX();
-  int nBinsY = histo->GetNbinsY();
-
-  // Reset the error flags
-  bool failSL = false;
-  bool failLayer = false;
-  bool failCells = false;
-
-  // Check that the chamber has digis
-  if (getIntegral(histo,1,nBinsX,1,nBinsY,false) == 0) {
-    chamberPercentage = 0;
-    return 4;
-  }
 
   LogTrace("DTDQM|DTMonitorClient|DTOccupancyTest") << "--- Occupancy test for chamber: " << chId << endl;
-  // set the # of SLs
-  int nSL = 3;
-  if(chId.station() == 4) nSL = 2;
 
-  // 
-  float values[28];
-  if(writeRootFile) {
-    values[0] = lsCounter;
-    values[1] = chId.wheel(); 
-    values[2] = chId.station();
-    values[3] = chId.sector();
-  }
+  int compDeadCell = 0;
+  int totCell = 0;
+  int totOccup = 0;
 
-  // Compute the average occupancy per layer and its RMS
-  // we also look of the layer with the smallest RMS in order to find a reference value
-  // for the cell occupancy 
-  double totalChamberOccupp = 0;
-  double squaredLayerOccupSum = 0;
-
-  map<DTLayerId, pair<double, double> > averageCellOccupAndRMS;
-  map<DTLayerId, double> layerOccupancyMap;
-
-  int index = 3;
   for(int slay = 1; slay <= 3; ++slay) { // loop over SLs
-    // Skip layer 2 on MB4
-    if(chId.station() == 4 && slay == 2) {
-      if(writeRootFile) {
-	values[12] = -1;
-	values[13] = -1; 
-	values[14] = -1;
-	values[15] = -1;
-	values[16] = -1;
-	values[17] = -1; 
-	values[18] = -1;
-	values[19] = -1;
-      }
-      index = 19;
-      continue;
-    }
-    // check the SL occupancy
     int binYlow = ((slay-1)*4)+1;
-    int binYhigh = binYlow+3;
 
-    if(getIntegral(histo,1,nBinsX,binYlow,binYhigh,false) == 0) {
-      chamberPercentage = 1.-1./(float)nSL;
-      return 3;
-    }
-
+    if(chId.station() == 4 && slay == 2) continue;
     for(int lay = 1; lay <= 4; ++lay) { // loop over layers
       DTLayerId layID(chId,slay,lay);
-
-      int binY = binYlow+(lay-1);
-      
-      double layerInteg = getIntegral(histo,1,nBinsX,binY,binY,true);
-      squaredLayerOccupSum += layerInteg*layerInteg;
-      totalChamberOccupp+= layerInteg;
-
-      layerOccupancyMap[layID] = layerInteg;
-
-      // We look for the distribution of hits within the layer
-      int nWires = muonGeom->layer(layID)->specificTopology().channels();
       int firstWire = muonGeom->layer(layID)->specificTopology().firstChannel();
-      double layerSquaredSum = 0;
-      // reset the alert bit in the plot (used by render plugins)
-      histo->SetBinContent(nBinsX+1,binY,0.);
+      int nWires = muonGeom->layer(layID)->specificTopology().channels();
+      int binY = binYlow+(lay-1);      
+      int totalDeadCells = 0;
+      int nDeadCellsInARow = 1;
+      int nDeadCellsInARowMax = 0;
+      int nCellsZeroCount = 0;
+      bool previousIsDead = false;
+
+      int interDeadCells = 0;
+
+      totCell += nWires;
 
       for(int cell = firstWire; cell != (nWires+firstWire); ++cell) { // loop over cells
 	double cellOccup = histo->GetBinContent(cell,binY);
-	layerSquaredSum+=cellOccup*cellOccup;
-      }
-      
+       	LogTrace("DTDQM|DTMonitorClient|DTOccupancyTest") << "       cell occup: " << cellOccup;
+	totOccup += cellOccup;
 
-
-      // compute the average cell occpuancy and RMS
-      double averageCellOccup = layerInteg/nWires;
-      double averageSquaredCellOccup = layerSquaredSum/nWires;
-      double rmsCellOccup = sqrt(averageSquaredCellOccup - averageCellOccup*averageCellOccup);
-      averageCellOccupAndRMS[layID] = make_pair(averageCellOccup, rmsCellOccup);
-      LogTrace("DTDQM|DTMonitorClient|DTOccupancyTest") << "  " << layID
-							<< " average cell occ.: " << averageCellOccup
-							<< " RMS: " << rmsCellOccup << endl;
-      if(writeRootFile) {
-	index++;
-	values[index] = averageCellOccup;
-	index++;
-	values[index] = rmsCellOccup;
-      }
-    }
-  }
-  
-
-  if(writeRootFile) ntuple->Fill(values);
-
-  double minCellRMS = 99999999;
-  double referenceCellOccup = -1;
-
-  DTOccupancyClusterBuilder builder;
-
-  // find the cell reference value
-  for(map<DTLayerId, pair<double, double> >::const_iterator layAndValues = averageCellOccupAndRMS.begin();
-      layAndValues != averageCellOccupAndRMS.end(); layAndValues++) {
-    DTLayerId lid = (*layAndValues).first;
-
-    double rms = (*layAndValues).second.second;
-    double lOcc = layerOccupancyMap[lid]; // FIXME: useless
-    double avCellOcc = (*layAndValues).second.first;
-    LogTrace("DTDQM|DTMonitorClient|DTOccupancyTest") << "   " << lid << " tot. occ: " << lOcc
-						      << " average cell occ: " << avCellOcc
-						      << " RMS: " << rms << endl;
-
-    if(avCellOcc != 0) {
-      DTOccupancyPoint point(avCellOcc, rms, lid);
-      builder.addPoint(point);
-    } else {
-      if(monitoredLayers.find(lid) == monitoredLayers.end()) monitoredLayers.insert(lid);
-    }
-  }
-
-  builder.buildClusters();
-  referenceCellOccup = builder.getBestCluster().averageMean();
-  minCellRMS = builder.getBestCluster().averageRMS();
-
-  double safeFactor = 3.;
-
-  LogTrace("DTDQM|DTMonitorClient|DTOccupancyTest") << " Reference cell occup.: " << referenceCellOccup
-						    << " RMS: " << minCellRMS << endl;
-  
-  int nFailingSLs = 0;
-
-  // Check the layer occupancy
-  for(int slay = 1; slay <= 3; ++slay) { // loop over SLs
-    // Skip layer 2 on MB4
-    if(chId.station() == 4 && slay == 2) continue;
-
-    int binYlow = ((slay-1)*4)+1;
-    int nFailingLayers = 0;
-
-    for(int lay = 1; lay <= 4; ++lay) { // loop over layers
-      DTLayerId layID(chId,slay,lay);
-      int nWires = muonGeom->layer(layID)->specificTopology().channels();
-      int firstWire = muonGeom->layer(layID)->specificTopology().firstChannel();
-      int binY = binYlow+(lay-1);
-
-      // compute the integral of the layer occupancy
-      double layerInteg = getIntegral(histo,1,nBinsX,binY,binY,true);
-
-      LogTrace("DTDQM|DTMonitorClient|DTOccupancyTest") << "     layer: " << layID << " integral: " << layerInteg << endl;
-
-      // Check if in the list of layers which are monitored
-      bool alreadyMonitored = false;
-      if(monitoredLayers.find(layID) != monitoredLayers.end()) alreadyMonitored = true;
-
-
-      if(layerInteg == 0) { // layer is dead (no need to go further
-	LogTrace("DTDQM|DTMonitorClient|DTOccupancyTest") << "     fail layer: no entries" << endl;
-	// Add it to the list of of monitored layers
-	if(!alreadyMonitored) monitoredLayers.insert(layID);
-	nFailingLayers++;
-	failLayer = true;
-	histo->SetBinContent(nBinsX+1,binY,-1.);
-	// go to next layer
-	continue;
-      }
-
-	if(alreadyMonitored || builder.isProblematic(layID)) { // check the layer
-
-	  // Add it to the list of of monitored layers
-	  if(monitoredLayers.find(layID) == monitoredLayers.end()) monitoredLayers.insert(layID);
-
-	  int totalDeadCells = 0;
-	  int nDeadCellsInARow = 1;
-	  int nDeadCellsInARowMax = 0;
-	  int nCellsZeroCount = 0;
-	  bool previousIsDead = false;
-
-	  int interDeadCells = 0;
-	  for(int cell = firstWire; cell != (nWires+firstWire); ++cell) { // loop over cells
-	    double cellOccup = histo->GetBinContent(cell,binY);
-	    LogTrace("DTDQM|DTMonitorClient|DTOccupancyTest") << "       cell occup: " << cellOccup;
-	    if(cellOccup == 0 || cellOccup < (referenceCellOccup-safeFactor*sqrt(referenceCellOccup))) {
-	      if(cellOccup == 0) nCellsZeroCount++;
-	      totalDeadCells++;
-	      if(previousIsDead) nDeadCellsInARow++;
-	      previousIsDead = true;
-	      interDeadCells = 0;
-	      LogTrace("DTDQM|DTMonitorClient|DTOccupancyTest") << "       below reference" << endl;
-	    } else {
-	      previousIsDead = false;
-	      interDeadCells++;
-
-	      // 3 cells not dead between a group of dead cells don't break the count
-	      if(interDeadCells > 3) {
-		if(nDeadCellsInARow > nDeadCellsInARowMax) nDeadCellsInARowMax = nDeadCellsInARow;
-		nDeadCellsInARow = 1; 
-	      }
-	    }
+ 	if(cellOccup == 0) {
+      	  nCellsZeroCount++;
+       	  totalDeadCells++;
+      	  if(previousIsDead) {
+	    nDeadCellsInARow++;
 	  }
-	  if(nDeadCellsInARow > nDeadCellsInARowMax) nDeadCellsInARowMax = nDeadCellsInARow;
-	  LogTrace("DTDQM|DTMonitorClient|DTOccupancyTest") << "       # wires: " << nWires
-							    << " # cells 0 count: " << nCellsZeroCount
-							    << " # dead cells in a row: " << nDeadCellsInARowMax
-							    << " total # of dead cells: " << totalDeadCells;
-	  
-	  if((TMath::Erfc(referenceCellOccup/sqrt(referenceCellOccup)) < 10./(double)nWires &&
-	      nDeadCellsInARowMax>= 10.) ||
-	     (TMath::Erfc(referenceCellOccup/sqrt(referenceCellOccup)) < 0.5 &&
-	      totalDeadCells > nWires/2.)) {
-	    LogTrace("DTDQM|DTMonitorClient|DTOccupancyTest") << " -> fail layer!" << endl;
-	    nFailingLayers++;
-	    failLayer = true;
-	    histo->SetBinContent(nBinsX+1,binY,-1.);
-	  }  else if(referenceCellOccup > 10 &&
-		     nCellsZeroCount > nWires/3. &&
-		     (double)nCellsZeroCount/(double)nWires >
-		     2.*TMath::Erfc(referenceCellOccup/sqrt(referenceCellOccup))) {
-	    LogTrace("DTDQM|DTMonitorClient|DTOccupancyTest") << " -> would fail cells!" << endl;
-	    LogTrace("DTDQM|DTMonitorClient|DTOccupancyTest") << "  # of cells with 0 count: " << nCellsZeroCount
-							      << " # wires: " << nWires
-							      << "  erfc: "
-							      <<   TMath::Erfc(referenceCellOccup/sqrt(referenceCellOccup))
-							      << endl;
+	  else {
+	    //	    if(interDeadCells > 3) {
+	    if(nDeadCellsInARow > nDeadCellsInARowMax) nDeadCellsInARowMax = nDeadCellsInARow;
+	    nDeadCellsInARow = 1; 
+	    //	    }
 	  }
+      	  previousIsDead = true;
+      	  interDeadCells = 0;
+      	  LogTrace("DTDQM|DTMonitorClient|DTOccupancyTest") << "       below reference" << endl;
+      	} else {
+      	  previousIsDead = false;
+      	  interDeadCells++;
+	}
+	//   // 3 cells not dead between a group of dead cells don't break the count
+	if(nDeadCellsInARow > nDeadCellsInARowMax) nDeadCellsInARowMax = nDeadCellsInARow;
+      }
+      compDeadCell += totalDeadCells;
+      if(nDeadCellsInARowMax >= 7.) {
+      	histo->SetBinContent(nBinsX+1,binY,-1.);
       }
     }
-    // Check if the whole layer is off
-    if( nFailingLayers == 4) {
-      nFailingSLs++;
-      failSL = true;
-    }
   }
 
-  // All the chamber is off
-  if(nFailingSLs == nSL) {
-    chamberPercentage = 0;
-    return 4;
-  } else {
-    chamberPercentage = 1.-(float)nFailingSLs/(float)nSL;
-  }
 
-  // FIXME add check on cells
-  if(failSL) return 3;
-  if(failLayer) return 2;
-  if(failCells) return 1;
+  nChannelTotal += totCell;
+  nChannelDead += compDeadCell;
+  chamberPercentage = 1.-(float(compDeadCell)/totCell);
+
+  int min_occup = nZeroEvtsPC*20;
+  if (chId.station() == 3) min_occup = nZeroEvtsPC*3;
+  if (chId.station() == 2) min_occup = nZeroEvtsPC*8;
+  if ((chId.station() == 4) && (chId.sector() == 9)) min_occup = nZeroEvtsPC*3;
+  if ((chId.station() == 4) && (chId.sector() == 10)) min_occup = nZeroEvtsPC*3;
+  if ((chId.station() == 4) && (chId.sector() == 11)) min_occup = nZeroEvtsPC*3;
+  if ((chId.station() == 4) && (chId.sector() == 14)) min_occup = nZeroEvtsPC*3;
+
+
+  if (totOccup < min_occup) return 4;
+  if (totOccup < nMinEvtsPC) chamberPercentage = 1.;
+
+  if (chamberPercentage < 0.2) return 4;
+  if (chamberPercentage < 0.5) return 3;
+  if (chamberPercentage < 0.75) return 2;
+  if (chamberPercentage < 0.9) return 1;
 
   return 0;
 }

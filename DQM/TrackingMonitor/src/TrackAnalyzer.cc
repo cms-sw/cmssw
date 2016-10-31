@@ -19,6 +19,7 @@
 #include "DQM/TrackingMonitor/interface/TrackAnalyzer.h"
 #include <string>
 #include "TMath.h"
+#include "DQM/TrackingMonitor/interface/GetLumi.h"
 
 TrackAnalyzer::TrackAnalyzer(const edm::ParameterSet& iConfig) 
     : conf_( iConfig )
@@ -31,6 +32,7 @@ TrackAnalyzer::TrackAnalyzer(const edm::ParameterSet& iConfig)
     , doMeasurementStatePlots_         ( conf_.getParameter<bool>("doMeasurementStatePlots") )
     , doHitPropertiesPlots_            ( conf_.getParameter<bool>("doHitPropertiesPlots") )
     , doRecHitVsPhiVsEtaPerTrack_      ( conf_.getParameter<bool>("doRecHitVsPhiVsEtaPerTrack") )
+    , doRecHitVsPtVsEtaPerTrack_       ( conf_.getParameter<bool>("doRecHitVsPtVsEtaPerTrack") )
     , doLayersVsPhiVsEtaPerTrack_      ( conf_.getParameter<bool>("doLayersVsPhiVsEtaPerTrack") )
     , doRecHitsPerTrackProfile_        ( conf_.getParameter<bool>("doRecHitsPerTrackProfile") )
     , doThetaPlots_                    ( conf_.getParameter<bool>("doThetaPlots") )
@@ -41,12 +43,18 @@ TrackAnalyzer::TrackAnalyzer(const edm::ParameterSet& iConfig)
     , doTestPlots_                     ( conf_.getParameter<bool>("doTestPlots") )
     , doHIPlots_                       ( conf_.getParameter<bool>("doHIPlots")  )
     , doSIPPlots_                      ( conf_.getParameter<bool>("doSIPPlots") )
-    , doEffFromHitPatternVsPU_         ( conf_.getParameter<bool>("doEffFromHitPatternVsPU") )
-    , doEffFromHitPatternVsBX_         ( conf_.getParameter<bool>("doEffFromHitPatternVsBX") )
+    , doEffFromHitPatternVsPU_         ( conf_.getParameter<bool>("doEffFromHitPatternVsPU")   )
+    , doEffFromHitPatternVsBX_         ( conf_.getParameter<bool>("doEffFromHitPatternVsBX")   )
+    , doEffFromHitPatternVsLUMI_       ( conf_.getParameter<bool>("doEffFromHitPatternVsLUMI") )
     , pvNDOF_                          ( conf_.getParameter<int> ("pvNDOF") )
+    , useBPixLayer1_                   ( conf_.getParameter<bool>("useBPixLayer1") )
+    , minNumberOfPixelsPerCluster_     ( conf_.getParameter<int>("minNumberOfPixelsPerCluster") )
+    , minPixelClusterCharge_           ( conf_.getParameter<double>("minPixelClusterCharge") )
     , qualityString_                   ( conf_.getParameter<std::string>("qualityString"))
     , good_vertices_(0)
     , bx_(0)
+    , pixel_lumi_(0.)
+    , scal_lumi_(0.)
 {
   initHistos();
   TopFolder_ = conf_.getParameter<std::string>("FolderName"); 
@@ -57,8 +65,19 @@ TrackAnalyzer::TrackAnalyzer(const edm::ParameterSet& iConfig, edm::ConsumesColl
 {
   edm::InputTag bsSrc                 = conf_.getParameter<edm::InputTag>("beamSpot");
   edm::InputTag primaryVertexInputTag = conf_.getParameter<edm::InputTag>("primaryVertex");
-  beamSpotToken_ = iC.consumes<reco::BeamSpot>(bsSrc);
-  pvToken_       = iC.consumes<reco::VertexCollection>(primaryVertexInputTag);
+  edm::InputTag pixelClusterInputTag  = conf_.getParameter<edm::InputTag>("pixelCluster4lumi");
+  edm::InputTag scalInputTag          = conf_.getParameter<edm::InputTag>("scal");
+  beamSpotToken_      = iC.consumes<reco::BeamSpot>(bsSrc);
+  pvToken_            = iC.consumes<reco::VertexCollection>(primaryVertexInputTag);
+  pixelClustersToken_ = iC.mayConsume<edmNew::DetSetVector<SiPixelCluster> >(pixelClusterInputTag);
+  lumiscalersToken_   = iC.mayConsume<LumiScalersCollection>(scalInputTag);
+  
+  if(useBPixLayer1_) 
+    lumi_factor_per_bx_ = GetLumi::FREQ_ORBIT * GetLumi::SECONDS_PER_LS / GetLumi::XSEC_PIXEL_CLUSTER  ;
+  else
+    lumi_factor_per_bx_ = GetLumi::FREQ_ORBIT * GetLumi::SECONDS_PER_LS / GetLumi::rXSEC_PIXEL_CLUSTER  ;
+
+
 }
 
 void TrackAnalyzer::initHistos()
@@ -88,9 +107,9 @@ void TrackAnalyzer::initHistos()
   NumberOfValidRecHitsPerTrackVsPhi = nullptr;
   NumberOfValidRecHitsPerTrackVsEta = nullptr;
 
-
   DistanceOfClosestApproach = nullptr;
   DistanceOfClosestApproachToBS = nullptr;
+  AbsDistanceOfClosestApproachToBS = nullptr;
   DistanceOfClosestApproachVsTheta = nullptr;
   DistanceOfClosestApproachVsPhi = nullptr;
   DistanceOfClosestApproachToBSVsPhi = nullptr;
@@ -147,8 +166,10 @@ void TrackAnalyzer::initHisto(DQMStore::IBooker & ibooker, const edm::EventSetup
   bookHistosForHitProperties(ibooker);
   bookHistosForBeamSpot(ibooker);
   bookHistosForLScertification( ibooker);
-  if (doEffFromHitPatternVsPU_ || doAllPlots_) bookHistosForEfficiencyFromHitPatter(ibooker, iSetup, "");
-  if (doEffFromHitPatternVsBX_ || doAllPlots_) bookHistosForEfficiencyFromHitPatter(ibooker, iSetup, "VsBX");
+  if (doEffFromHitPatternVsPU_   || doAllPlots_) bookHistosForEfficiencyFromHitPatter(ibooker, iSetup, "");
+  if (doEffFromHitPatternVsBX_   || doAllPlots_) bookHistosForEfficiencyFromHitPatter(ibooker, iSetup, "VsBX");
+  if (doEffFromHitPatternVsLUMI_ || doAllPlots_) bookHistosForEfficiencyFromHitPatter(ibooker, iSetup, "VsSCALLUMI");
+  //  if (doEffFromHitPatternVsLUMI_ || doAllPlots_) bookHistosForEfficiencyFromHitPatter(ibooker, iSetup, "VsPIXELLUMI");
 
   // book tracker specific related histograms
   // ---------------------------------------------------------------------------------//
@@ -183,21 +204,31 @@ void TrackAnalyzer::bookHistosForEfficiencyFromHitPatter(DQMStore::IBooker &iboo
                                                          const edm::EventSetup & iSetup,
 							 const std::string suffix)
 {
-  if (doEffFromHitPatternVsPU_ || doEffFromHitPatternVsBX_ || doAllPlots_) {
 
     ibooker.setCurrentFolder(TopFolder_ + "/HitEffFromHitPattern" + suffix);
     
-    int NBINS[] = { 50, 3564 };
-    float MAX[] = { 50.5, 3564.5 };
+    int LUMIBin   = conf_.getParameter<int>("LUMIBin");
+    float LUMIMin = conf_.getParameter<double>("LUMIMin");
+    float LUMIMax = conf_.getParameter<double>("LUMIMax");
+    
+
+    int NBINS[]        = { 50,   int(GetLumi::lastBunchCrossing),  300  , LUMIBin};
+    float MIN[]        = { 0.5,     0.5,  0., LUMIMin };
+    float MAX[]        = { 50.5, float(GetLumi::lastBunchCrossing)+0.5,  3., LUMIMax };
+    std::string NAME[] = { "", "VsBX", "VsLUMI", "VsLUMI" };
     
     int mon = -1;
     int nbins = -1;
+    float min = -1.;
     float max = -1.;
+    std::string name = "";
     for (int i=0; i<monQuantity::END; i++) {
       if (monName[i] == suffix) {
 	mon = i;
 	nbins = NBINS[i];
+	min = MIN[i];
 	max = MAX[i];
+	name = NAME[i];
       }
     }
   
@@ -222,32 +253,32 @@ void TrackAnalyzer::bookHistosForEfficiencyFromHitPatter(DQMStore::IBooker &iboo
         for (unsigned int cat = 0;
              cat < sizeof(hit_category)/sizeof(char *); ++cat) {
           memset(title, 0, sizeof(title));
-          snprintf(title, sizeof(title), "Hits%s_%s_%s_Subdet%d", suffix.c_str(), hit_category[cat], dets[det], sub_det);
+          snprintf(title, sizeof(title), "Hits%s_%s_%s_Subdet%d", name.c_str(), hit_category[cat], dets[det], sub_det);
           switch(cat) {
             case 0:
               hits_valid_.insert(std::make_pair(
 		  Key(det, sub_det, mon),
-		  ibooker.book1D(title, title, nbins, 0.5, max)));
+		  ibooker.book1D(title, title, nbins, min, max)));
               break;
             case 1:
               hits_missing_.insert(std::make_pair(
 		  Key(det, sub_det, mon),
-                  ibooker.book1D(title, title, nbins, 0.5, max)));
+                  ibooker.book1D(title, title, nbins, min, max)));
               break;
             case 2:
               hits_inactive_.insert(std::make_pair(
 		  Key(det, sub_det, mon),
-                  ibooker.book1D(title, title, nbins, 0.5, max)));
+                  ibooker.book1D(title, title, nbins, min, max)));
               break;
             case 3:
               hits_bad_.insert(std::make_pair(
 		  Key(det, sub_det, mon),
-                  ibooker.book1D(title, title, nbins, 0.5, max)));
+                  ibooker.book1D(title, title, nbins, min, max)));
               break;
             case 4:
               hits_total_.insert(std::make_pair(
 		  Key(det, sub_det, mon),
-                  ibooker.book1D(title, title, nbins, 0.5, max)));
+                  ibooker.book1D(title, title, nbins, min, max)));
               break;
             default:
               LogDebug("TrackAnalyzer") << "Invalid hit category used " << cat << " ignored\n";
@@ -255,7 +286,6 @@ void TrackAnalyzer::bookHistosForEfficiencyFromHitPatter(DQMStore::IBooker &iboo
         }
       }
     }
-  }
 }
 
 #include "DataFormats/TrackReco/interface/TrajectoryStopReasons.h"
@@ -289,6 +319,10 @@ void TrackAnalyzer::bookHistosForHitProperties(DQMStore::IBooker & ibooker) {
     int    EtaBin       = conf_.getParameter<int>(   "EtaBin");
     double EtaMin       = conf_.getParameter<double>("EtaMin");
     double EtaMax       = conf_.getParameter<double>("EtaMax");
+
+    int    PtBin = conf_.getParameter<int>(   "TrackPtBin");
+    double PtMin = conf_.getParameter<double>("TrackPtMin");
+    double PtMax = conf_.getParameter<double>("TrackPtMax");
 
     int    VXBin        = conf_.getParameter<int>(   "VXBin");
     double VXMin        = conf_.getParameter<double>("VXMin");
@@ -377,8 +411,57 @@ void TrackAnalyzer::bookHistosForHitProperties(DQMStore::IBooker & ibooker) {
         ValidFractionVsPhiVsEtaPerTrack->setAxisTitle("Track #eta ", 1);
         ValidFractionVsPhiVsEtaPerTrack->setAxisTitle("Track #phi ", 2);
 
+      }
+
+      if ( doRecHitVsPtVsEtaPerTrack_ || doAllPlots_ ){
+	
+	histname = "NumberOfValidRecHitVsPtVsEtaPerTrack_";
+	NumberOfValidRecHitVsPtVsEtaPerTrack = ibooker.bookProfile2D(histname+CategoryName, histname+CategoryName, 
+								    EtaBin, EtaMin, EtaMax, PtBin, PtMin, PtMax, 0, 40., "");
+	NumberOfValidRecHitVsPtVsEtaPerTrack->setAxisTitle("Track #eta ", 1);
+	NumberOfValidRecHitVsPtVsEtaPerTrack->setAxisTitle("Track p_{T} [GeV] ", 2);
+
+        histname = "NumberOfLostRecHitVsPtVsEtaPerTrack_";
+        NumberOfLostRecHitVsPtVsEtaPerTrack = ibooker.bookProfile2D(histname+CategoryName, histname+CategoryName,
+                                                                    EtaBin, EtaMin, EtaMax, PtBin, PtMin, PtMax, 0, 5., "");
+        NumberOfLostRecHitVsPtVsEtaPerTrack->setAxisTitle("Track #eta ", 1);
+        NumberOfLostRecHitVsPtVsEtaPerTrack->setAxisTitle("Track p_{T} [GeV] ", 2);
+
+
+        histname = "NumberMIRecHitVsPtVsEtaPerTrack_";
+        NumberOfMIRecHitVsPtVsEtaPerTrack = ibooker.bookProfile2D(histname+CategoryName, histname+CategoryName,
+                                                                    EtaBin, EtaMin, EtaMax, PtBin, PtMin, PtMax, 0, 15., "");
+        NumberOfMIRecHitVsPtVsEtaPerTrack->setAxisTitle("Track #eta ", 1);
+        NumberOfMIRecHitVsPtVsEtaPerTrack->setAxisTitle("Track p_{T} [GeV] ", 2);
+
+        histname = "NumberMORecHitVsPtVsEtaPerTrack_";
+        NumberOfMORecHitVsPtVsEtaPerTrack = ibooker.bookProfile2D(histname+CategoryName, histname+CategoryName,
+                                                                    EtaBin, EtaMin, EtaMax, PtBin, PtMin, PtMax, 0, 15., "");
+        NumberOfMORecHitVsPtVsEtaPerTrack->setAxisTitle("Track #eta ", 1);
+        NumberOfMORecHitVsPtVsEtaPerTrack->setAxisTitle("Track p_{T} [GeV] ", 2);
 
       }
+
+      histname = "NumberOfValidRecHitsPerTrackVsPt_";
+      NumberOfValidRecHitsPerTrackVsPt = ibooker.bookProfile(histname+CategoryName, histname+CategoryName, PtBin, PtMin, PtMax, TKHitMin, TKHitMax,"");
+      NumberOfValidRecHitsPerTrackVsPt->setAxisTitle("Track p_{T} [GeV]",1);
+      NumberOfValidRecHitsPerTrackVsPt->setAxisTitle("Number of valid RecHits in each Track",2);
+    
+      histname = "NumberOfLostRecHitsPerTrackVsPt_";
+      NumberOfLostRecHitsPerTrackVsPt = ibooker.bookProfile(histname+CategoryName, histname+CategoryName, PtBin, PtMin, PtMax,TKHitMin, TKHitMax,"");
+      NumberOfLostRecHitsPerTrackVsPt->setAxisTitle("Track p_{T} [GeV]", 1);
+      NumberOfLostRecHitsPerTrackVsPt->setAxisTitle("Average Number of Lost RecHits per Track", 2);
+      
+      
+      histname = "NumberMIRecHitsPerTrackVsPt_";
+      NumberOfMIRecHitsPerTrackVsPt = ibooker.bookProfile(histname+CategoryName, histname+CategoryName, PtBin, PtMin, PtMax,TKHitMin, TKHitMax,"");
+      NumberOfMIRecHitsPerTrackVsPt->setAxisTitle("Track p_{T} [GeV]", 1);
+      NumberOfMIRecHitsPerTrackVsPt->setAxisTitle("Average Number of Lost RecHits per Track", 2);
+      
+      histname = "NumberMORecHitsPerTrackVsPt_";
+      NumberOfMORecHitsPerTrackVsPt = ibooker.bookProfile(histname+CategoryName, histname+CategoryName, PtBin, PtMin, PtMax,TKHitMin, TKHitMax,"");
+      NumberOfMORecHitsPerTrackVsPt->setAxisTitle("Track p_{T} [GeV]", 1);
+      NumberOfMORecHitsPerTrackVsPt->setAxisTitle("Average Number of Lost RecHits per Track", 2);
 
       std::string layerTypeName[4] = {"","Off","3D","Missing"};
       for (int i=0; i<4; ++i) {
@@ -542,28 +625,33 @@ void TrackAnalyzer::bookHistosForHitProperties(DQMStore::IBooker & ibooker) {
         oriAlgo->setBinLabel(ibin+1,reco::TrackBase::algoNames[ibin]);
       }
 
-      // DataFormats/TrackReco/interface/TrajectoryStopReasons.h
-      std::vector<std::string> StopReasonName = { "UNINITIALIZED", "MAX_HITS", "MAX_LOST_HITS", "MAX_CONSECUTIVE_LOST_HITS", "LOST_HIT_FRACTION", "MIN_PT", "CHARGE_SIGNIFICANCE", "LOOPER", "MAX_CCC_LOST_HITS", "NO_SEGMENTS_FOR_VALID_LAYERS", "NOT_STOPPED" };
+      size_t StopReasonNameSize = sizeof(StopReasonName::StopReasonName)/sizeof(std::string);
+      if(StopReasonNameSize != static_cast<unsigned int>(StopReason::SIZE)) {
+        throw cms::Exception("Assert") << "StopReason::SIZE is " << static_cast<unsigned int>(StopReason::SIZE)
+                                       << " but StopReasonName's only for "
+                                       << StopReasonNameSize
+                                       << ". Please update DataFormats/TrackReco/interface/TrajectoryStopReasons.h.";
+      }
 
       histname = "stoppingSource_";
-      stoppingSource = ibooker.book1D(histname+CategoryName, histname+CategoryName, StopReasonName.size(), 0., double(StopReasonName.size()));
+      stoppingSource = ibooker.book1D(histname+CategoryName, histname+CategoryName, StopReasonNameSize, 0., double(StopReasonNameSize));
       stoppingSource->setAxisTitle("stopping reason",1);
       stoppingSource->setAxisTitle("Number of Tracks",2);
       
       histname = "stoppingSourceVSeta_";
-      stoppingSourceVSeta = ibooker.book2D(histname+CategoryName, histname+CategoryName, EtaBin, EtaMin, EtaMax, StopReasonName.size(), 0., double(StopReasonName.size()));
+      stoppingSourceVSeta = ibooker.book2D(histname+CategoryName, histname+CategoryName, EtaBin, EtaMin, EtaMax, StopReasonNameSize, 0., double(StopReasonNameSize));
       stoppingSourceVSeta->setAxisTitle("track #eta",1);
       stoppingSourceVSeta->setAxisTitle("stopping reason",2);
       
       histname = "stoppingSourceVSphi_";
-      stoppingSourceVSphi = ibooker.book2D(histname+CategoryName, histname+CategoryName, PhiBin, PhiMin, PhiMax, StopReasonName.size(), 0., double(StopReasonName.size()));
+      stoppingSourceVSphi = ibooker.book2D(histname+CategoryName, histname+CategoryName, PhiBin, PhiMin, PhiMax, StopReasonNameSize, 0., double(StopReasonNameSize));
       stoppingSourceVSphi->setAxisTitle("track #phi",1);
       stoppingSourceVSphi->setAxisTitle("stopping reason",2);
 
-      for (size_t ibin=0; ibin<StopReasonName.size(); ibin++) {
-	stoppingSource->setBinLabel(ibin+1,StopReasonName[ibin],1);
-	stoppingSourceVSeta->setBinLabel(ibin+1,StopReasonName[ibin],2);
-	stoppingSourceVSphi->setBinLabel(ibin+1,StopReasonName[ibin],2);
+      for (size_t ibin=0; ibin<StopReasonNameSize; ibin++) {
+	stoppingSource->setBinLabel(ibin+1,StopReasonName::StopReasonName[ibin],1);
+	stoppingSourceVSeta->setBinLabel(ibin+1,StopReasonName::StopReasonName[ibin],2);
+	stoppingSourceVSphi->setBinLabel(ibin+1,StopReasonName::StopReasonName[ibin],2);
       }
 
     }
@@ -627,6 +715,10 @@ void TrackAnalyzer::bookHistosForBeamSpot(DQMStore::IBooker & ibooker) {
       double DxyMin       = conf_.getParameter<double>("DxyMin");
       double DxyMax       = conf_.getParameter<double>("DxyMax");
       
+      int    AbsDxyBin    = conf_.getParameter<int>(   "AbsDxyBin");
+      double AbsDxyMin    = conf_.getParameter<double>("AbsDxyMin");
+      double AbsDxyMax    = conf_.getParameter<double>("AbsDxyMax");
+      
       int    PhiBin     = conf_.getParameter<int>(   "PhiBin");
       double PhiMin     = conf_.getParameter<double>("PhiMin");
       double PhiMax     = conf_.getParameter<double>("PhiMax");
@@ -654,6 +746,11 @@ void TrackAnalyzer::bookHistosForBeamSpot(DQMStore::IBooker & ibooker) {
       DistanceOfClosestApproachToBS = ibooker.book1D(histname+CategoryName,histname+CategoryName,DxyBin,DxyMin,DxyMax);
       DistanceOfClosestApproachToBS->setAxisTitle("Track d_{xy} wrt beam spot (cm)",1);
       DistanceOfClosestApproachToBS->setAxisTitle("Number of Tracks",2);
+      
+      histname = "AbsDistanceOfClosestApproachToBS_";
+      AbsDistanceOfClosestApproachToBS = ibooker.book1D(histname+CategoryName,histname+CategoryName,AbsDxyBin,AbsDxyMin,AbsDxyMax);
+      AbsDistanceOfClosestApproachToBS->setAxisTitle("Track |d_{xy}| wrt beam spot (cm)",1);
+      AbsDistanceOfClosestApproachToBS->setAxisTitle("Number of Tracks",2);
       
       histname = "DistanceOfClosestApproachToBSVsPhi_";
       DistanceOfClosestApproachToBSVsPhi = ibooker.bookProfile(histname+CategoryName,histname+CategoryName, PhiBin, PhiMin, PhiMax, DxyBin, DxyMin, DxyMax,"");
@@ -870,9 +967,60 @@ void TrackAnalyzer::setBX(const edm::Event & iEvent) {
   bx_ = iEvent.bunchCrossing();
 }
 
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+void TrackAnalyzer::setLumi(const edm::Event & iEvent, const edm::EventSetup& iSetup) {
+  // as done by pixelLumi http://cmslxr.fnal.gov/source/DQM/PixelLumi/plugins/PixelLumiDQM.cc
+
+  edm::Handle<LumiScalersCollection> lumiScalers;
+  iEvent.getByToken(lumiscalersToken_, lumiScalers);
+  if ( lumiScalers.isValid() && lumiScalers->size() ) {
+    LumiScalersCollection::const_iterator scalit = lumiScalers->begin();
+    scal_lumi_ = scalit->instantLumi();
+  } else 
+    scal_lumi_ = -1;
+
+  edm::Handle< edmNew::DetSetVector<SiPixelCluster> > pixelClusters;
+  iEvent.getByToken(pixelClustersToken_, pixelClusters);
+  if ( pixelClusters.isValid() ) {
+
+    edm::ESHandle<TrackerTopology> tTopoHandle;
+    iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
+    const TrackerTopology* const tTopo = tTopoHandle.product();
+
+    // Count the number of clusters with at least a minimum
+    // number of pixels per cluster and at least a minimum charge.
+    size_t numClusters = 0;
+    size_t tot = 0;
+
+    edmNew::DetSetVector<SiPixelCluster>::const_iterator  pixCluDet = pixelClusters->begin();
+    for ( ; pixCluDet!=pixelClusters->end(); ++pixCluDet) {
+    
+      DetId detid = pixCluDet->detId();
+      size_t subdetid = detid.subdetId();
+      //      std::cout << tTopo->print(detid) << std::endl;
+      if ( subdetid == (int) PixelSubdetector::PixelBarrel ) 
+	if ( tTopo->layer(detid)==1 ) 
+	  continue;
+      
+      edmNew::DetSet<SiPixelCluster>::const_iterator  pixClu = pixCluDet->begin();    
+      for ( ; pixClu != pixCluDet->end(); ++pixClu ) {
+	++tot;
+	if ( (pixClu->size()   >= minNumberOfPixelsPerCluster_) &&
+	     (pixClu->charge() >= minPixelClusterCharge_      ) ) {
+	  ++numClusters;
+	}
+      }
+    }
+    pixel_lumi_ = lumi_factor_per_bx_ * numClusters / GetLumi::CM2_TO_NANOBARN ; // ?!?!
+  } else
+    pixel_lumi_ = -1.;
+
+}
+
 void TrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup, const reco::Track& track)
 {
-  double phi   = track.phi();
+  auto pt    = track.pt();
+  auto phi   = track.phi();
   // double eta   = track.eta();
   auto phiIn =  track.innerPosition().phi();
   auto etaIn =  track.innerPosition().eta();
@@ -885,9 +1033,9 @@ void TrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   int nLostIn =      track.hitPattern().numberOfLostTrackerHits(reco::HitPattern::MISSING_INNER_HITS);
   int nLostOut =     track.hitPattern().numberOfLostTrackerHits(reco::HitPattern::MISSING_OUTER_HITS);
 
-  double chi2     = track.chi2();
-  double chi2prob = TMath::Prob(track.chi2(),(int)track.ndof());
-  double chi2oNDF = track.normalizedChi2();
+  auto chi2     = track.chi2();
+  auto chi2prob = TMath::Prob(track.chi2(),(int)track.ndof());
+  auto chi2oNDF = track.normalizedChi2();
   
   if ( doHitPropertiesPlots_ || doAllPlots_ ){
     // rec hits
@@ -907,6 +1055,16 @@ void TrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
       NumberOfMORecHitVsPhiVsEtaPerTrack->Fill(etaOut,phiOut,nLostOut);
       ValidFractionVsPhiVsEtaPerTrack -> Fill(etaIn,phiIn,track.validFraction());
     }
+    if ( doRecHitVsPtVsEtaPerTrack_ || doAllPlots_ ) {
+      NumberOfValidRecHitVsPtVsEtaPerTrack->Fill(etaIn,pt,nValidRecHits);
+      NumberOfLostRecHitVsPtVsEtaPerTrack->Fill(etaIn,pt,nLostRecHits);
+      NumberOfMIRecHitVsPtVsEtaPerTrack->Fill(etaIn,pt,nLostIn);
+      NumberOfMORecHitVsPtVsEtaPerTrack->Fill(etaOut,pt,nLostOut);
+    }
+    NumberOfValidRecHitsPerTrackVsPt->Fill(pt,nValidRecHits);
+    NumberOfLostRecHitsPerTrackVsPt->Fill(pt,nLostRecHits);
+    NumberOfMIRecHitsPerTrackVsPt->Fill(pt,nLostIn);
+    NumberOfMORecHitsPerTrackVsPt->Fill(pt,nLostOut);
 
     int nLayers[4]   = { track.hitPattern().trackerLayersWithMeasurement(),
                          track.hitPattern().trackerLayersTotallyOffOrBad(),
@@ -923,8 +1081,10 @@ void TrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 
   }
 
-  if (doEffFromHitPatternVsPU_ || doAllPlots_) fillHistosForEfficiencyFromHitPatter(track,"",     good_vertices_);
-  if (doEffFromHitPatternVsBX_ || doAllPlots_) fillHistosForEfficiencyFromHitPatter(track,"VsBX", bx_);
+  if (doEffFromHitPatternVsPU_   || doAllPlots_) fillHistosForEfficiencyFromHitPatter(track,"",           float(good_vertices_) );
+  if (doEffFromHitPatternVsBX_   || doAllPlots_) fillHistosForEfficiencyFromHitPatter(track,"VsBX",       float(bx_)            );
+  if (doEffFromHitPatternVsLUMI_ || doAllPlots_) fillHistosForEfficiencyFromHitPatter(track,"VsSCALLUMI", scal_lumi_            );
+  //  if (doEffFromHitPatternVsLUMI_ || doAllPlots_) fillHistosForEfficiencyFromHitPatter(track,"VsPIXELLUMI", pixel_lumi_           );
 
 
   if (doGeneralPropertiesPlots_ || doAllPlots_){
@@ -971,6 +1131,7 @@ void TrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
     const reco::BeamSpot& bs = *recoBeamSpotHandle;
 
     DistanceOfClosestApproachToBS      -> Fill(track.dxy(bs.position()));
+    AbsDistanceOfClosestApproachToBS   -> Fill(std::abs(track.dxy(bs.position())));
     DistanceOfClosestApproachToBSVsPhi -> Fill(track.phi(), track.dxy(bs.position()));
     zPointOfClosestApproachVsPhi       -> Fill(track.phi(), track.vz());
     xPointOfClosestApproachVsZ0wrt000  -> Fill(track.dz(),  track.vx());
@@ -1089,16 +1250,15 @@ void TrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 
 }
 
-void TrackAnalyzer::fillHistosForEfficiencyFromHitPatter(const reco::Track & track, const std::string suffix, const unsigned int monitoring) {
+void TrackAnalyzer::fillHistosForEfficiencyFromHitPatter(const reco::Track & track, const std::string suffix, const float monitoring) {
 
-  if (doEffFromHitPatternVsPU_ || doEffFromHitPatternVsBX_ || doAllPlots_) {
-    
     int mon = -1;
     for (int i=0; i<monQuantity::END; i++) {
       if (monName[i] == suffix) mon = i;
     }
 
-    if (track.pt() > 1.0 && track.dxy() < 0.1 and monitoring > 0) {
+    //    if (track.pt() > 1.0 && track.dxy() < 0.1 and monitoring > 0) {
+    if (track.pt() > 1.0 && track.dxy() < 0.1 and monitoring > -9.) {
       auto hp = track.hitPattern();
       // Here hit_category is meant to iterate over
       // reco::HitPattern::HitCategory, defined here:
@@ -1117,10 +1277,11 @@ void TrackAnalyzer::fillHistosForEfficiencyFromHitPatter(const reco::Track & tra
           if (hits_valid_.find(Key(hp.getSubStructure(pattern), hp.getSubSubStructure(pattern), mon)) == hits_valid_.end()) {
             LogDebug("TrackAnalyzer") << "Invalid combination of detector and subdetector: ("
                                       << hp.getSubStructure(pattern) << ", "
-                                      << hp.getSubSubStructure(pattern)
-                                      << "): ignoring it.\n";
+                                      << hp.getSubSubStructure(pattern) << ", "
+                                      << mon
+				      << "): ignoring it.\n";
             continue;
-          }
+	  }
           switch (hit_type) {
             case 0:
               hits_valid_[Key(hp.getSubStructure(pattern), hp.getSubSubStructure(pattern), mon)]->Fill(monitoring);
@@ -1142,7 +1303,6 @@ void TrackAnalyzer::fillHistosForEfficiencyFromHitPatter(const reco::Track & tra
         }
       }
     }
-  }
   
 }
 
@@ -1409,11 +1569,15 @@ void TrackAnalyzer::bookHistosForState(std::string sname, DQMStore::IBooker & ib
     tkmes.NumberOfValidRecHitsPerTrackVsPhi->setAxisTitle("Track #phi",1);
     tkmes.NumberOfValidRecHitsPerTrackVsPhi->setAxisTitle("Number of valid RecHits in each Track",2);
     
-    //    std::cout << "[TrackAnalyzer::bookHistosForState] histTag: " << histTag << std::endl;
     histname = "NumberOfValidRecHitsPerTrackVsEta_" + histTag;
     tkmes.NumberOfValidRecHitsPerTrackVsEta = ibooker.bookProfile(histname, histname, EtaBin, EtaMin, EtaMax, RecHitMin, RecHitMax,"");
     tkmes.NumberOfValidRecHitsPerTrackVsEta->setAxisTitle("Track #eta",1);
     tkmes.NumberOfValidRecHitsPerTrackVsEta->setAxisTitle("Number of valid RecHits in each Track",2);
+    
+    histname = "NumberOfValidRecHitsPerTrackVsPt_" + histTag;
+    tkmes.NumberOfValidRecHitsPerTrackVsPt = ibooker.bookProfile(histname, histname, TrackPtBin, TrackPtMin, TrackPtMax, RecHitMin, RecHitMax,"");
+    tkmes.NumberOfValidRecHitsPerTrackVsPt->setAxisTitle("Track p_{T} [GeV]",1);
+    tkmes.NumberOfValidRecHitsPerTrackVsPt->setAxisTitle("Number of valid RecHits in each Track",2);
     
     //////////////////////////////////////////
     histname = "NumberOfLayersPerTrackVsPhi_" + histTag;
@@ -1584,6 +1748,7 @@ void TrackAnalyzer::fillHistosForState(const edm::EventSetup& iSetup, const reco
       
       tkmes.NumberOfValidRecHitsPerTrackVsPhi->Fill(phi,    nValidRecHits);
       tkmes.NumberOfValidRecHitsPerTrackVsEta->Fill(eta,    nValidRecHits);
+      tkmes.NumberOfValidRecHitsPerTrackVsPt ->Fill(pt,     nValidRecHits);
 
       int nLayers = track.hitPattern().trackerLayersWithMeasurement();
       // rec layers 

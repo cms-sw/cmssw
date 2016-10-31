@@ -29,6 +29,17 @@ muons.TimingFillerParameters.CSCTimingParameters.PruneCut = 9999
 muons.TrackExtractorPSet.inputTrackCollection = 'ctfWithMaterialTracksP5LHCNavigation'
 muons.CaloExtractorPSet.CenterConeOnCalIntersection = True
 
+#similar to what's in pp configuration
+muonsFromCosmics = muons1stStep.clone()
+muonsFromCosmics.inputCollectionLabels = ['cosmicMuons']
+muonsFromCosmics.inputCollectionTypes = ['outer tracks']
+muonsFromCosmics.TrackExtractorPSet.inputTrackCollection = 'cosmicMuons'
+muonsFromCosmics.TimingFillerParameters.DTTimingParameters.PruneCut = 9999
+muonsFromCosmics.TimingFillerParameters.CSCTimingParameters.PruneCut = 9999
+muonsFromCosmics.fillIsolation = False
+muonsFromCosmics.fillGlobalTrackQuality = False
+muonsFromCosmics.fillGlobalTrackRefits = False
+
 from RecoMuon.MuonIdentification.calomuons_cfi import *
 calomuons.inputTracks = 'ctfWithMaterialTracksP5LHCNavigation'
 calomuons.inputCollection = 'muons'
@@ -67,7 +78,7 @@ glbTrackQual.InputCollection = "globalCosmicMuons"
 allmuons = cms.Sequence(glbTrackQual*tevMuons*muons*muIsolation*calomuons)
 
 # Final sequence
-muonrecoforcosmics = cms.Sequence(muontrackingforcosmics*allmuons)
+muonrecoforcosmics = cms.Sequence(muontrackingforcosmics*allmuons*muonsFromCosmics)
 muonRecoAllGR = cms.Sequence(muonrecoforcosmics)
 
 # 1 leg mode

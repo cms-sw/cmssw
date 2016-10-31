@@ -101,6 +101,9 @@ class SiPixelTrackResidualSource : public DQMEDAnalyzer {
     MonitorElement* meNofTracks_;
     MonitorElement* meNofTracksInPixVol_;
     MonitorElement* meNofClustersOnTrack_;
+    std::vector<MonitorElement*> meNofClustersvsPhiOnTrack_layers;
+    std::vector<MonitorElement*> meNofClustersvsPhiOnTrack_diskps;
+    std::vector<MonitorElement*> meNofClustersvsPhiOnTrack_diskms;
     MonitorElement* meNofClustersNotOnTrack_;
     MonitorElement* meClChargeOnTrack_all; 
     MonitorElement* meClChargeOnTrack_bpix; 
@@ -178,6 +181,7 @@ class SiPixelTrackResidualSource : public DQMEDAnalyzer {
     std::vector<MonitorElement*> meZeroRocLadvsModOffTrackBarrel;
     
     MonitorElement* meHitProbability;
+    MonitorElement* meRocBladevsDiskEndcap;
     
     int noOfLayers;
     int noOfDisks;

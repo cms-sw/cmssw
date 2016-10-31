@@ -106,6 +106,8 @@ private:
 
   const bool fileListMode_;
   unsigned int fileListIndex_ = 0;
+  const bool fileListLoopMode_;
+  unsigned int loopModeIterationInc_ = 0;
 
   edm::RunNumber_t runNumber_;
   std::string fuOutputDir_;
@@ -151,9 +153,10 @@ private:
 
   std::mutex mReader_;
   std::vector<std::condition_variable*> cvReader_;
+  std::vector<unsigned int> tid_active_;
 
   std::atomic<bool> quit_threads_;
-  std::vector<bool> thread_quit_signal;
+  std::vector<unsigned int> thread_quit_signal;
   bool setExceptionState_ = false;
   std::mutex startupLock_;
   std::condition_variable startupCv_;

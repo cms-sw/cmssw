@@ -53,7 +53,7 @@ namespace reco {
   namespace helper {
     struct GreaterByPtPseudoJet {
       bool operator()( const fastjet::PseudoJet & t1, const fastjet::PseudoJet & t2 ) const {
-        return t1.perp() > t2.perp();
+        return t1.perp2() > t2.perp2();
       }
     };
 
@@ -444,35 +444,35 @@ void VirtualJetProducer::produce(edm::Event& iEvent,const edm::EventSetup& iSetu
   
 void VirtualJetProducer::inputTowers( )
 {
-  std::vector<edm::Ptr<reco::Candidate> >::const_iterator inBegin = inputs_.begin(),
+  auto inBegin = inputs_.begin(),
     inEnd = inputs_.end(), i = inBegin;
   for (; i != inEnd; ++i ) {
-    reco::CandidatePtr input = *i;
+    auto const & input = **i;
     // std::cout << "CaloTowerVI jets " << input->pt() << " " << input->et() << ' '<< input->energy() << ' ' << (isAnomalousTower(input) ? " bad" : " ok") << std::endl; 
-    if (edm::isNotFinite(input->pt()))           continue;
-    if (input->et()    <inputEtMin_)  continue;
-    if (input->energy()<inputEMin_)   continue;
-    if (isAnomalousTower(input))      continue;
+    if (edm::isNotFinite(input.pt()))           continue;
+    if (input.et()    <inputEtMin_)  continue;
+    if (input.energy()<inputEMin_)   continue;
+    if (isAnomalousTower(*i))      continue;
     // Change by SRR : this is no longer an error nor warning, this can happen with PU mitigation algos.
-    // Also switch to something more numerically safe. 
-    if (input->pt() < 100 * std::numeric_limits<double>::epsilon() ) { 
+    // Also switch to something more numerically safe. (VI: 10^-42GeV????)
+    if (input.pt() < 100 * std::numeric_limits<double>::epsilon() ) { 
       continue;
     }
     if (makeCaloJet(jetTypeE)&&doPVCorrection_) {
-      const CaloTower* tower=dynamic_cast<const CaloTower*>(input.get());
-      math::PtEtaPhiMLorentzVector ct(tower->p4(vertex_));
-      fjInputs_.push_back(fastjet::PseudoJet(ct.px(),ct.py(),ct.pz(),ct.energy()));
+      const CaloTower & tower = dynamic_cast<const CaloTower &>(input);
+      auto const &  ct = tower.p4(vertex_);  // very expensive as computed in eta/phi
+      fjInputs_.emplace_back(ct.px(),ct.py(),ct.pz(),ct.energy());
       //std::cout << "tower:" << *tower << '\n';
     }
     else {
       /*
       if(makePFJet(jetTypeE)) {
-	reco::PFCandidate* pfc = (reco::PFCandidate*)input.get();
-	std::cout << "PF cand:" << *pfc << '\n';
+	reco::PFCandidate& pfc = (reco::PFCandidate&)input;
+	std::cout << "PF cand:" << pfc << '\n';
       }
       */
-      fjInputs_.push_back(fastjet::PseudoJet(input->px(),input->py(),input->pz(),
-					     input->energy()));
+      fjInputs_.emplace_back(input.px(),input.py(),input.pz(),
+					     input.energy());
     }
     fjInputs_.back().set_user_index(i - inBegin);
   }
@@ -516,12 +516,11 @@ void VirtualJetProducer::copyConstituents(const vector<fastjet::PseudoJet>& fjCo
 vector<reco::CandidatePtr>
 VirtualJetProducer::getConstituents(const vector<fastjet::PseudoJet>&fjConstituents)
 {
-  vector<reco::CandidatePtr> result;
+  vector<reco::CandidatePtr> result; result.reserve(fjConstituents.size()/2);
   for (unsigned int i=0;i<fjConstituents.size();i++) {
-    int index = fjConstituents[i].user_index();
+    auto index = fjConstituents[i].user_index();
     if ( index >= 0 && static_cast<unsigned int>(index) < inputs_.size() ) {
-      reco::CandidatePtr candidate = inputs_[index];
-      result.push_back(candidate);
+      result.emplace_back(inputs_[index]);
     }
   }
   return result;
@@ -669,36 +668,52 @@ void VirtualJetProducer::writeJets( edm::Event & iEvent, edm::EventSetup const& 
   // produce output jet collection
   
   using namespace reco;
-  
-  std::auto_ptr<std::vector<T> > jets(new std::vector<T>() );
-  jets->reserve(fjJets_.size());
+
+  // allocate fjJets_.size() Ts in vector  
+  auto jets = std::make_unique<std::vector<T>>(fjJets_.size());
   
   // Distance between jet centers and overlap area -- for disk-based area calculation
   using RIJ = std::pair<double,double>; 
-  std::vector<std::vector<RIJ> >   rij(fjJets_.size());
+  std::vector<RIJ>   rijStorage(fjJets_.size()*(fjJets_.size()/2));
+  RIJ * rij[fjJets_.size()];
+  unsigned int k=0;
+  for (unsigned int ijet=0;ijet<fjJets_.size();++ijet) {
+     rij[ijet] = &rijStorage[k]; k+=ijet;
+  }
 
   float etaJ[fjJets_.size()],  phiJ[fjJets_.size()];
-  auto etaFromXYZ = [](float x, float y, float z)->float { float t(z/std::sqrt(x*x+y*y)); return vdt::fast_logf(t + std::sqrt(t*t+1.f));};
-  for (auto ijet=0U;ijet<fjJets_.size();++ijet) {
-     float x = fjJets_[ijet].px();
-     float y = fjJets_[ijet].py();
-     float z = fjJets_[ijet].pz();
-     phiJ[ijet] = vdt::fast_atan2(y,x);
-     etaJ[ijet] =etaFromXYZ(x,y,z);
-   } 
+
+  auto orParam_ = 1./rParam_;
+  // fill jets 
   for (unsigned int ijet=0;ijet<fjJets_.size();++ijet) {
-    // allocate this jet
-    T jet;
+    auto & jet = (*jets)[ijet];
     // get the fastjet jet
     const fastjet::PseudoJet& fjJet = fjJets_[ijet];
     // get the constituents from fastjet
-    std::vector<fastjet::PseudoJet> fjConstituents = fastjet::sorted_by_pt(fjJet.constituents());
+    std::vector<fastjet::PseudoJet> const & fjConstituents = fastjet::sorted_by_pt(fjJet.constituents());
     // convert them to CandidatePtr vector
-    std::vector<CandidatePtr> constituents =
-      getConstituents(fjConstituents);
+    std::vector<CandidatePtr> const & constituents = getConstituents(fjConstituents);
 
+    // write the specifics to the jet (simultaneously sets 4-vector, vertex).
+    // These are overridden functions that will call the appropriate
+    // specific allocator.
+    writeSpecific(jet,
+                  Particle::LorentzVector(fjJet.px(),
+                                          fjJet.py(),
+                                          fjJet.pz(),
+                                          fjJet.E()),
+                  vertex_,
+                  constituents, iSetup);
+    phiJ[ijet] = jet.phi();
+    etaJ[ijet] = jet.eta();
+  }
+
+   // calcuate the jet area
+  for (unsigned int ijet=0;ijet<fjJets_.size();++ijet) {
     // calcuate the jet area
     double jetArea=0.0;
+    // get the fastjet jet
+    const auto & fjJet = fjJets_[ijet];
     if ( doAreaFastjet_ && fjJet.has_area() ) {
       jetArea = fjJet.area();
     }
@@ -706,11 +721,9 @@ void VirtualJetProducer::writeJets( edm::Event & iEvent, edm::EventSetup const& 
       // Here it is assumed that fjJets_ is in decreasing order of pT, 
       // which should happen in FastjetJetProducer::runAlgorithm() 
       jetArea   = M_PI;
-      if (0!=ijet) {
-        std::vector<RIJ>&  distance  = rij[ijet];
-        distance.resize(ijet);
+        RIJ *  distance  = rij[ijet];
         for (unsigned jJet = 0; jJet < ijet; ++jJet) {
-          distance[jJet].first      = std::sqrt(reco::deltaR2(etaJ[ijet],phiJ[ijet], etaJ[jJet],phiJ[jJet])) / rParam_;
+          distance[jJet].first      = std::sqrt(reco::deltaR2(etaJ[ijet],phiJ[ijet], etaJ[jJet],phiJ[jJet]))*orParam_;
           distance[jJet].second = reco::helper::VirtualJetProducerHelper::intersection(distance[jJet].first);
           jetArea            -=distance[jJet].second;
           for (unsigned kJet = 0; kJet < jJet; ++kJet) {
@@ -718,21 +731,9 @@ void VirtualJetProducer::writeJets( edm::Event & iEvent, edm::EventSetup const& 
                                                                                      distance[jJet].second, distance[kJet].second, rij[jJet][kJet].second);
           } // end loop over harder jets
         } // end loop over harder jets
-      }
-      jetArea  *= rParam_;
-      jetArea  *= rParam_;
-    }  
-    // write the specifics to the jet (simultaneously sets 4-vector, vertex).
-    // These are overridden functions that will call the appropriate
-    // specific allocator. 
-    writeSpecific(jet,
-                  Particle::LorentzVector(fjJet.px(),
-                                          fjJet.py(),
-                                          fjJet.pz(),
-                                          fjJet.E()),
-                  vertex_, 
-                  constituents, iSetup);
-
+      jetArea  *= (rParam_*rParam_);
+    } 
+    auto & jet = (*jets)[ijet]; 
     jet.setJetArea (jetArea);
     
     if(doPUOffsetCorr_){
@@ -740,16 +741,13 @@ void VirtualJetProducer::writeJets( edm::Event & iEvent, edm::EventSetup const& 
     }else{
       jet.setPileup (0.0);
     }
-    
-    
-    // std::cout << "area " << ijet << " " << jetArea << " " << Area<T>::get(jet) << std::endl;
-    // std::cout << "JetVI " << ijet << jet.pt() << " " << jet.et() << ' '<< jet.energy() << ' '<< jet.mass() << std::endl;
+        
+   // std::cout << "area " << ijet << " " << jetArea << " " << Area<T>::get(jet) << std::endl;
+   // std::cout << "JetVI " << ijet << ' '<< jet.pt() << " " << jet.et() << ' '<< jet.energy() << ' '<< jet.mass() << std::endl;
 
-    // add to the list
-    jets->push_back(jet);        
   }
   // put the jets in the collection
-  iEvent.put(jets,jetCollInstanceName_);
+  iEvent.put(std::move(jets),jetCollInstanceName_);
 }
 
 /// function template to write out the outputs

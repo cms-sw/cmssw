@@ -15,6 +15,7 @@ from HLTriggerOffline.SUSYBSM.SUSYBSM_MET_MUON_ER_cff import *
 from HLTriggerOffline.SUSYBSM.SUSYBSM_MET_HT_MUON_cff import *
 from HLTriggerOffline.SUSYBSM.SUSYBSM_MET_HT_MUON_ER_cff import *
 from HLTriggerOffline.SUSYBSM.SUSYBSM_MET_HT_MUON_BTAG_cff import *
+from HLTriggerOffline.SUSYBSM.razorHemispheres_cff import *
 from HLTriggerOffline.SUSYBSM.SUSYBSM_Razor_cff import *
 from HLTriggerOffline.SUSYBSM.SUSYBSM_caloHT_cff import *
 from HLTriggerOffline.SUSYBSM.SUSYBSM_PhotonHT_cff import *
@@ -46,8 +47,14 @@ HLTSusyExoValSeq = cms.Sequence(SUSY_HLT_HT_MET +
                                 SUSY_HLT_MET_HT_MUON +
                                 SUSY_HLT_MET_HT_MUON_ER +
                                 SUSY_HLT_MET_HT_MUON_BTAG +
+                                cms.ignore(hemispheres)+ #for razor triggers
+                                cms.ignore(caloHemispheres)+ #for razor triggers
                                 SUSY_HLT_RazorHbb_Rsq0p02_MR300_2CSV0p7_0p4 +
                                 SUSY_HLT_RazorHbb_Rsq0p02_MR300_2CSV0p7 +
+                                SUSY_HLT_RazorHbb_Rsq0p02_MR400_2CSV0p7 +
+                                SUSY_HLT_RazorHbb_Rsq0p02_MR450_2CSV0p7 +
+                                SUSY_HLT_RazorHbb_Rsq0p02_MR500_2CSV0p7 +
+                                SUSY_HLT_RazorHbb_Rsq0p02_MR550_2CSV0p7 +
                                 SUSY_HLT_Razor_Main_RsqMR300 + 
                                 SUSY_HLT_Razor_QuadJet_RsqMR300 +
                                 SUSY_HLT_Razor_DM_Rsq0p36 + 

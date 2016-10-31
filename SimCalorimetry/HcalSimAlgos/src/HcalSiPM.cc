@@ -5,6 +5,7 @@
 #include "CLHEP/Random/RandFlat.h"
 
 #include <cmath>
+#include <cassert>
 
 using std::vector;
 //345678911234567892123456789312345678941234567895123456789612345678971234567898

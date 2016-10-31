@@ -34,7 +34,7 @@
 #include "Fireworks/Core/interface/FWMagField.h"
 #include "Fireworks/Core/interface/FWBeamSpot.h"
 #include "Fireworks/Core/interface/fwLog.h"
-#include "Fireworks/Calo/interface/FWECALDetailViewBuilder.h"
+#include "Fireworks/Calo/interface/FWECALCaloDataDetailViewBuilder.h"
 
 #include "Fireworks/Electrons/plugins/FWConvTrackHitsDetailView.h"
 #include "DataFormats/EgammaCandidates/interface/Conversion.h"
@@ -233,7 +233,7 @@ FWConvTrackHitsDetailView::build (const FWModelId &id, const reco::Conversion* c
       float phi = conv->pairMomentum().phi();
       float eta = conv->pairMomentum().eta();
       
-      FWECALDetailViewBuilder caloBld( id.item()->getEvent(), id.item()->getGeom(), eta, phi, 30);
+      FWECALCaloDataDetailViewBuilder caloBld( id.item()->getEvent(), id.item()->getGeom(), eta, phi, 30);
       TEveCaloData* data = caloBld.buildCaloData(false);
        // AMT!!! this is memory leak, check why it needs to be added
       TEveCalo3D* calo3d = new TEveCalo3D(data);
@@ -660,6 +660,9 @@ void FWConvTrackHitsDetailView::camera3Callback()
 
 }
 
-
+REGISTER_FWDETAILVIEW(FWConvTrackHitsDetailView, Conversion);
+/*
 REGISTER_FWDETAILVIEW(FWConvTrackHitsDetailView, Conversion, ecalRecHit);
 REGISTER_FWDETAILVIEW(FWConvTrackHitsDetailView, Conversion, reducedEcalRecHitsEB);
+REGISTER_FWDETAILVIEW(FWConvTrackHitsDetailView, Conversion, reducedEGamma);
+*/

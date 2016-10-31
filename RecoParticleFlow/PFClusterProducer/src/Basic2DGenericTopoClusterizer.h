@@ -23,7 +23,7 @@ class Basic2DGenericTopoClusterizer : public InitialClusteringStepBase {
   const bool _useCornerCells;
   void buildTopoCluster(const edm::Handle<reco::PFRecHitCollection>&,
 			const std::vector<bool>&, // masked rechits
-			const reco::PFRecHitRef&, //present rechit
+			unsigned int, //present rechit
 			std::vector<bool>&, // hit usage state
 			reco::PFCluster&); // the topocluster
   

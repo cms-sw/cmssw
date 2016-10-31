@@ -47,6 +47,9 @@ def getTime(line):
 kStarted=0
 kFinished=1
 
+#Special names
+kSourceFindEvent = "sourceFindEvent"
+
 #----------------------------------------------
 def readLogFile(fileName):
   f = open(fileName,"r")
@@ -62,6 +65,22 @@ def readLogFile(fileName):
               foundEventToStartFrom = True
               stream = int( l[l.find("stream = ")+9])
               processingSteps.append(("FINISH INIT",kFinished,stream,getTime(l)-startTime,False))
+      if l.find("processing event :") != -1:
+          time = getTime(l)
+          if startTime == 0:
+              startTime = time
+          time = time - startTime
+          delayed = False
+          streamIndex = l.find("stream = ")
+          stream = int( l[streamIndex+9:l.find(" ",streamIndex+10)])
+          name = kSourceFindEvent
+          trans = kStarted
+          #the start of an event is the end of the framework part
+          if l.find("starting:") != -1:
+              trans = kFinished
+          processingSteps.append((name,trans,stream,time,delayed))
+          if stream > numStreams:
+              numStreams = stream
       if l.find("processing event for module") != -1:
           time = getTime(l)
           if startTime == 0:
@@ -72,7 +91,8 @@ def readLogFile(fileName):
           delayed = False
           if l.find("finished:") != -1:
               trans = kFinished
-          stream = int( l[l.find("stream = ")+9])
+          streamIndex = l.find("stream = ")
+          stream = int( l[streamIndex+9:l.find(" ",streamIndex+10)])
           name = l.split("'")[1]
           if l.find("delayed") != -1:
               delayed = True
@@ -86,16 +106,34 @@ def readLogFile(fileName):
 
 
 #----------------------------------------------
+# Patterns:
+#
+# source: The source is identified by having a 'starting: delayed' followed immediately by a 'finished: delayed'
+#   the total time is actually the wait time plus the time the source was doing work
+# scheduled module: This is identified by no delays before call to 'starting' and then immediate call to 'finished'
+# unscheduled module: Has a 'starting: delayed' followed by a 'starting' followed by a 'finished' the a 'finished: delayed'
+#
+#
 def findStalledModules(processingSteps, numStreams):
   streamTime = [0]*(numStreams+1)
   stalledModules = {}
+  previousStartWasADelayed = [False]*(numStreams+1)
   for n,trans,s,time,delayed in processingSteps:
     waitTime = None
-    if delayed:
-      n = "source"
     if trans == kStarted:
-      waitTime = time - streamTime[s]
+      if delayed or (n == kSourceFindEvent):
+        previousStartWasADelayed[s] = True
+        streamTime[s] = time
+      else:
+        previousStartWasADelayed[s] = False
+        waitTime = time - streamTime[s]
     else:
+      if (delayed or (n == kSourceFindEvent)) and previousStartWasADelayed[s]:
+        #for a source we only know the combined time for waiting and running
+        if n != kSourceFindEvent:
+          n = "source"
+        waitTime = time - streamTime[s]
+        previousStartWasADelayed[s] = False
       streamTime[s] = time
     if waitTime is not None:
       if waitTime > 0.1:
@@ -112,6 +150,7 @@ def createAsciiImage(processingSteps, numStreams, maxNameSize):
   streamTime = [0]*(numStreams+1)
   #lastTime = 0
   seenInit = False
+  previousStartWasADelayed = [False]*(numStreams+1)
   for n,trans,s,time,delayed in processingSteps:
       if n == "FINISH INIT":
           seenInit = True
@@ -119,12 +158,26 @@ def createAsciiImage(processingSteps, numStreams, maxNameSize):
       oldState = streamState[s]
       streamState[s]=trans
       waitTime = None
-      if delayed:
-          n = "source"
       if trans == kStarted:
-          waitTime = time - streamTime[s]
-          streamState[s]=2
+          if delayed or (n == kSourceFindEvent):
+              previousStartWasADelayed[s] = True
+              streamTime[s] = time
+              continue
+          else:
+              previousStartWasADelayed[s] = False
+              waitTime = time - streamTime[s]
+              streamState[s]=2
       else:
+          if delayed or (n == kSourceFindEvent):
+              if previousStartWasADelayed[s]:
+                  if n != kSourceFindEvent:
+                      n="source"
+                  waitTime = time - streamTime[s]
+                  streamState[s]=2
+                  previousStartWasADelayed[s] = False
+              else:
+                  streamTime[s] = time
+                  continue
           if oldState != trans:
               streamState[s]=3
           streamTime[s] = time
@@ -141,7 +194,7 @@ def createAsciiImage(processingSteps, numStreams, maxNameSize):
       if waitTime is not None:
           states += " %.2f"% waitTime
           if waitTime > 0.1 and seenInit:
-              states += " STALLED"
+              states += " STALLED "+str(time)+" "+str(s)
 
       print states
       streamState[s]=trans
@@ -178,7 +231,7 @@ def printStalledModulesInOrder(stalledModules):
 def createPDFImage(processingSteps, numStreams, stalledModuleInfo):
   import matplotlib.pyplot as plt
   
-  streamStartDepth = [0]*(numStreams+1)
+  previousStartWasADelayed=[False]*(numStreams+1)
   streamTime = [0]*(numStreams+1)
   streamStartTimes = [ [] for x in xrange(numStreams+1)]
   streamColors = [[] for x in xrange(numStreams+1)]
@@ -192,20 +245,25 @@ def createPDFImage(processingSteps, numStreams, stalledModuleInfo):
     if n == "FINISH INIT":
       continue
     if trans == kStarted:
-      streamStartDepth[s] +=1
+      previousStartWasADelayed[s] = delayed
       streamTime[s] = time
     else:
-      streamStartDepth[s] -=1
-      if 0 == streamStartDepth[s]:
-        streamStartTimes[s].append((streamTime[s],time-streamTime[s]))
-        c="green"
-        if delayed:
+      c="green"
+      if delayed:
+        if previousStartWasADelayed[s]:
+          #this was time for a source
           c="orange"
-        elif n in stalledModuleNames:
-          c="red"
+          previousStartWasADelayed[s] = False
+        else:
+            continue
+      if n == kSourceFindEvent:
+          c = "orange"
+      streamStartTimes[s].append((streamTime[s],time-streamTime[s]))
+      if c == "green" and n in stalledModuleNames:
+        c="red"
         #elif len(streamColors[s]) %2:
         #  c="blue"
-        streamColors[s].append(c)
+      streamColors[s].append(c)
   
   #consolodate contiguous blocks with the same color
   # this drastically reduces the size of the pdf file

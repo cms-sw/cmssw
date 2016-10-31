@@ -132,6 +132,26 @@ void SiPixelClusterSource::bookHistograms(DQMStore::IBooker & iBooker, edm::Run 
     ss2.str(std::string()); ss2 << "Clusters -Z Disk" << i << ";Global X (cm);Global Y (cm)";
     meClPosDiskmz.push_back(iBooker.book2D(ss1.str(),ss2.str(),80,-20.,20.,80,-20.,20.));
   }
+
+  //Book trend cluster plots for barrel and endcap. Lumisections for offline and second for online - taken from strips
+  iBooker.setCurrentFolder(topFolderName_+"/Barrel");                                           
+  ss1.str(std::string()); ss1 << "totalNumberOfClustersProfile_siPixelClusters_Barrel";
+  ss2.str(std::string()); ss2 << "Total number of barrel clusters profile;Lumisection;";
+  meClusBarrelProf = iBooker.bookProfile(ss1.str(),ss2.str(),2400,0.,150,0,0,"");
+  meClusBarrelProf->getTH1()->SetCanExtend(TH1::kAllAxes);
+
+  iBooker.setCurrentFolder(topFolderName_+"/Endcap");                                     
+
+  ss1.str(std::string()); ss1 << "totalNumberOfClustersProfile_siPixelClusters_FPIX+";
+  ss2.str(std::string()); ss2 << "Total number of FPIX+ clusters profile;Lumisection;";
+  meClusFpixPProf = iBooker.bookProfile(ss1.str(),ss2.str(),2400,0.,150,0,0,"");
+  meClusFpixPProf->getTH1()->SetCanExtend(TH1::kAllAxes);
+
+  ss1.str(std::string()); ss1 << "totalNumberOfClustersProfile_siPixelClusters_FPIX-";
+  ss2.str(std::string()); ss2 << "Total number of FPIX- clusters profile;Lumisection;";
+  meClusFpixMProf = iBooker.bookProfile(ss1.str(),ss2.str(),2400,0.,150,0,0,"");
+  meClusFpixMProf->getTH1()->SetCanExtend(TH1::kAllAxes);
+
 }
 
 //------------------------------------------------------------------
@@ -164,11 +184,16 @@ void SiPixelClusterSource::analyze(const edm::Event& iEvent, const edm::EventSet
   int lumiSection = (int)iEvent.luminosityBlock();
   int nEventFpixClusters = 0;
 
+  int nEventsBarrel = 0;
+  int nEventsFPIXm = 0;
+  int nEventsFPIXp = 0;
+  
 
   std::map<uint32_t,SiPixelClusterModule*>::iterator struct_iter;
   for (struct_iter = thePixelStructure.begin() ; struct_iter != thePixelStructure.end() ; struct_iter++) {
     
-    int numberOfFpixClusters = (*struct_iter).second->fill(*input, tracker,  
+    int numberOfFpixClusters = (*struct_iter).second->fill(*input, tracker,
+							   &nEventsBarrel, &nEventsFPIXp, &nEventsFPIXm,
 							   meClPosLayer,
 							   meClPosDiskpz,
 							   meClPosDiskmz,
@@ -184,8 +209,17 @@ void SiPixelClusterSource::analyze(const edm::Event& iEvent, const edm::EventSet
       bigFpixClusterEventRate->Fill(lumiSection,1./23.);
     }
   }
+
+  float trendVar = iEvent.orbitNumber()/262144.0; //lumisection : seconds - matches strip trend plot
+
+  meClusBarrelProf->Fill(trendVar,nEventsBarrel);
+  meClusFpixPProf->Fill(trendVar,nEventsFPIXp);
+  meClusFpixMProf->Fill(trendVar,nEventsFPIXm);
+  
   //std::cout<<"nEventFpixClusters: "<<nEventFpixClusters<<" , nLumiSecs: "<<nLumiSecs<<" , nBigEvents: "<<nBigEvents<<std::endl;
   
+  
+
   // slow down...
   if(slowDown) usleep(10000);
   
@@ -270,7 +304,7 @@ void SiPixelClusterSource::bookMEs(DQMStore::IBooker & iBooker, const edm::Event
 
 
   std::map<uint32_t,SiPixelClusterModule*>::iterator struct_iter;
-    
+  
   SiPixelFolderOrganizer theSiPixelFolder(false);
   
   for(struct_iter = thePixelStructure.begin(); struct_iter != thePixelStructure.end(); struct_iter++){

@@ -108,6 +108,27 @@ TriggerPrimitive::TriggerPrimitive(const CSCDetId& detid,
   _csc.cscID   = digi.getCSCID();
 }
 
+// Create copy of TP1 with wire from TP2
+TriggerPrimitive::TriggerPrimitive(const TriggerPrimitive& tp1, const TriggerPrimitive& tp2) {
+
+  _subsystem 	= TriggerPrimitive::kCSC;
+  _id 		= tp1.detId<CSCDetId>();
+  _csc.trknmb 	= tp1._csc.trknmb; 
+  _csc.valid 	= tp1._csc.valid; 
+  _csc.quality 	= tp1._csc.quality; 
+  _csc.keywire 	= tp2._csc.keywire; 
+  _csc.strip 	= tp1._csc.strip; 
+  _csc.pattern 	= tp1._csc.pattern; 
+  _csc.bend 	= tp1._csc.bend; 
+  _csc.bx 	= tp1._csc.bx; 
+  _csc.mpclink 	= tp1._csc.mpclink; 
+  _csc.bx0 	= tp1._csc.bx0; 
+  _csc.syncErr 	= tp1._csc.syncErr;
+  _csc.cscID 	= tp1._csc.cscID;
+
+}
+
+
 // constructor from RPC data
 TriggerPrimitive::TriggerPrimitive(const RPCDetId& detid,
 				   const unsigned strip,

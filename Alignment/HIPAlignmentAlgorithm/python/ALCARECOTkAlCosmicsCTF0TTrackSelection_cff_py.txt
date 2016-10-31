@@ -4,59 +4,71 @@ process.maxEvents = cms.untracked.PSet(
 
 import RecoTracker.TrackProducer.TrackRefitters_cff
 process.TrackRefitter1 = RecoTracker.TrackProducer.TrackRefitterP5_cfi.TrackRefitterP5.clone()
-process.TrackRefitter1.src = '<SKIM>'
+process.TrackRefitter1.src = 'ALCARECOTkAlCosmicsCTF0T'
 process.TrackRefitter1.TrajectoryInEvent = True
-process.TrackRefitter1.TTRHBuilder = "WithAngleAndTemplate"
 process.TrackRefitter1.NavigationSchool = ''
+process.TrackRefitter1.TTRHBuilder = "WithAngleAndTemplate"
+
+#-- initialize beam spot
+process.load("RecoVertex.BeamSpotProducer.BeamSpot_cfi")
+
 
 # parameters for alignmentHitFilter
 process.TrackerTrackHitFilter.src = 'TrackRefitter1'
+process.TrackerTrackHitFilter.useTrajectories= True
+process.TrackerTrackHitFilter.minimumHits = 8
 process.TrackerTrackHitFilter.commands = cms.vstring("keep PXB","keep PXE","keep TIB","keep TID","keep TOB","keep TEC")
-process.TrackerTrackHitFilter.minimumHits = 6
-#process.TrackerTrackHitFilter.detsToIgnore = cms.vuint32()
 process.TrackerTrackHitFilter.replaceWithInactiveHits = True
 process.TrackerTrackHitFilter.stripAllInvalidHits = False
 process.TrackerTrackHitFilter.rejectBadStoNHits = True
-process.TrackerTrackHitFilter.StoNcommands = cms.vstring("ALL 12.0")
-process.TrackerTrackHitFilter.useTrajectories= True
+#process.TrackerTrackHitFilter.StoNcommands = cms.vstring("ALL 12.0")  #deco mode
+process.TrackerTrackHitFilter.StoNcommands = cms.vstring("ALL 18.0")   #peak mode
 process.TrackerTrackHitFilter.rejectLowAngleHits= True
-process.TrackerTrackHitFilter.TrackAngleCut= 0.17 #~10 degrees
+process.TrackerTrackHitFilter.TrackAngleCut= 0.1 # use 0.1 for 0T 
+#process.TrackerTrackHitFilter.TrackAngleCut= 0.35 # use 0.35 for 3.8T 
 process.TrackerTrackHitFilter.usePixelQualityFlag= True
-process.TrackerTrackHitFilter.PxlCorrClusterChargeCut=10000.0 
+
 
 # track producer to be run after the alignment hit filter
 import RecoTracker.TrackProducer.CTFFinalFitWithMaterialP5_cff
 process.ctfProducerCustomised = RecoTracker.TrackProducer.CTFFinalFitWithMaterialP5_cff.ctfWithMaterialTracksCosmics.clone()
 process.ctfProducerCustomised.src = 'TrackerTrackHitFilter'
 process.ctfProducerCustomised.TTRHBuilder = 'WithAngleAndTemplate'
-process.ctfProducerCustomised.TrajectoryInEvent = False
+#process.ctfProducerCustomised.TrajectoryInEvent = False
 process.ctfProducerCustomised.NavigationSchool = ''
 
-# parameters for TrackSelector
-###process.AlignmentTrackSelector.src = '<SKIM>'
-process.AlignmentTrackSelector.src = 'ctfProducerCustomised'
-# "including" selection for this track sample
 
-process.TrackRefitter2 = RecoTracker.TrackProducer.TrackRefitterP5_cfi.TrackRefitterP5.clone()
+#process.TrackRefitter2 = RecoTracker.TrackProducer.TrackRefitterP5_cfi.TrackRefitterP5.clone()
+#process.TrackRefitter2.src = 'AlignmentTrackSelector'
+#process.TrackRefitter2.TrajectoryInEvent = True
+#process.TrackRefitter2.TTRHBuilder = "WithAngleAndTemplate"
+#process.TrackRefitter2.NavigationSchool = ''
+
+process.TrackRefitter2 = process.TrackRefitter1.clone()
 process.TrackRefitter2.src = 'AlignmentTrackSelector'
-process.TrackRefitter2.TrajectoryInEvent = True
-process.TrackRefitter2.TTRHBuilder = "WithAngleAndTemplate"
-process.TrackRefitter2.NavigationSchool = ''
+
 
 # track selection for sample in filename...
-process.AlignmentTrackSelector.ptMin = 0.0
-process.AlignmentTrackSelector.ptMax = 9999.0
-process.AlignmentTrackSelector.pMin = 5.0
-process.AlignmentTrackSelector.pMax = 9999.0
-#process.AlignmentTrackSelector.d0Min = -14.0
-#process.AlignmentTrackSelector.d0Max = 14.0				    
-process.AlignmentTrackSelector.etaMin = -2.4
-process.AlignmentTrackSelector.etaMax = 2.4
-process.AlignmentTrackSelector.nHitMin = 12
-process.AlignmentTrackSelector.nHitMin2D = 0 
-process.AlignmentTrackSelector.chi2nMax  = 6.0
-process.AlignmentTrackSelector.applyNHighestPt = True
+process.AlignmentTrackSelector.src = 'ctfProducerCustomised'
+process.AlignmentTrackSelector.applyBasicCuts = True
+process.AlignmentTrackSelector.pMin = 4
+process.AlignmentTrackSelector.ptMin = 0
+process.AlignmentTrackSelector.etaMin = -999.
+process.AlignmentTrackSelector.etaMax = 999.
+process.AlignmentTrackSelector.d0Min = -50.
+process.AlignmentTrackSelector.d0Max = 50.
+process.AlignmentTrackSelector.nHitMin = 8
+process.AlignmentTrackSelector.nHitMin2D = 2 
+process.AlignmentTrackSelector.chi2nMax = 9999.
+process.AlignmentTrackSelector.applyMultiplicityFilter = True# False
+process.AlignmentTrackSelector.maxMultiplicity = 1
+process.AlignmentTrackSelector.applyNHighestPt = False
 process.AlignmentTrackSelector.nHighestPt = 1
+process.AlignmentTrackSelector.seedOnlyFrom = 0
+process.AlignmentTrackSelector.applyIsolationCut = False
+process.AlignmentTrackSelector.minHitIsolation = 0.8
+process.AlignmentTrackSelector.applyChargeCheck = False # since no S/N cut is applied
+process.AlignmentTrackSelector.minHitChargeStrip = 50.
 
 # Reject outliers
 ## include  "TrackingTools/TrackFitters/data/RungeKuttaKFFittingSmootherESProducer.cfi"

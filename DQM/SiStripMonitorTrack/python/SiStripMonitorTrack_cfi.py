@@ -15,6 +15,8 @@ SiStripMonitorTrack = cms.EDAnalyzer(
     RawDigiLabel    = cms.string('VirginRaw'),
     
     Cluster_src = cms.InputTag('siStripClusters'),
+
+    genericTriggerEventPSet = cms.PSet(),
     
     ModulesToBeExcluded = cms.vuint32(),
     
@@ -32,14 +34,14 @@ SiStripMonitorTrack = cms.EDAnalyzer(
                                   maxWidth = cms.double(200.0)
                                   ),
     
-    TH1nClustersOn = cms.PSet( Nbinx = cms.int32(100),
+    TH1nClustersOn = cms.PSet( Nbinx = cms.int32(150),
                              xmin  = cms.double(-0.5),
-                             xmax  = cms.double(1999.5)
+                             xmax  = cms.double(2999.5)
                              ),   
 
-    TH1nClustersOff = cms.PSet( Nbinx = cms.int32(100),
+    TH1nClustersOff = cms.PSet( Nbinx = cms.int32(150),
                              xmin  = cms.double(-0.5),
-                             xmax  = cms.double(14999.5)
+                             xmax  = cms.double(19999.5)
                              ),
     
     TH1ClusterCharge = cms.PSet(
@@ -94,6 +96,11 @@ SiStripMonitorTrack = cms.EDAnalyzer(
         Nbinx = cms.int32(20),
         xmin  = cms.double(-0.5),
         xmax  = cms.double(19.5)
+    ),
+    
+    TH1ClusterPos = cms.PSet(
+        layerView = cms.bool(True),
+        ringView  = cms.bool(False)
     ),
     
     TH1ClusterSymmEtaCC = cms.PSet( Nbinx = cms.int32(120),

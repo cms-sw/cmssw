@@ -26,6 +26,8 @@
 #include "CondFormats/L1TObjects/interface/L1CaloHcalScale.h"
 #include "CondFormats/L1TObjects/interface/L1TriggerKey.h"
 #include "CondFormats/L1TObjects/interface/L1TriggerKeyList.h"
+#include "CondFormats/L1TObjects/interface/L1TriggerKeyExt.h"
+#include "CondFormats/L1TObjects/interface/L1TriggerKeyListExt.h"
 
 #include "CondFormats/L1TObjects/interface/L1GtStableParameters.h"
 #include "CondFormats/L1TObjects/interface/L1GtParameters.h"
@@ -51,6 +53,8 @@
 #include "CondFormats/L1TObjects/interface/L1TMuonOverlapParams.h"
 #include "CondFormats/L1TObjects/interface/L1TMuonGlobalParams.h"
 #include "CondFormats/L1TObjects/interface/L1TMuonBarrelParams.h"
+#include "CondFormats/L1TObjects/interface/L1TMuonEndCapParams.h"
+#include "CondFormats/L1TObjects/interface/L1TMuonEndCapForest.h"
 
 #include "CondFormats/L1TObjects/interface/L1TGlobalParameters.h"
 #include "CondFormats/L1TObjects/interface/L1TUtmAlgorithm.h"
@@ -101,18 +105,26 @@ namespace CondFormats_L1TObjects {
     L1TMuonBarrelParams dummy18;
     std::vector<L1TMuonBarrelParams::Node> dummy18a;
 
-    L1TUtmAlgorithm dummy19a;
-    L1TUtmBin dummy19b;
-    L1TUtmCondition dummy19c;
-    L1TUtmCut dummy19d;
-    L1TUtmCutValue dummy19e;
-    L1TUtmObject dummy19f;
-    L1TUtmScale dummy19g;
-    L1TUtmTriggerMenu dummy19h;
+    L1TMuonEndCapParams dummy19;
 
-    L1TGlobalPrescalesVetos dummy20;
+    L1TMuonEndCapForest dummy20a;
+    L1TMuonEndCapForest::DTree dummy20b;
+    L1TMuonEndCapForest::DForest dummy20c;
+    L1TMuonEndCapForest::DForestColl dummy20d;
+    L1TMuonEndCapForest::DForestMap dummy20e;
 
-    L1TGlobalParameters dummy21;
+    L1TUtmAlgorithm dummy21a;
+    L1TUtmBin dummy21b;
+    L1TUtmCondition dummy21c;
+    L1TUtmCut dummy21d;
+    L1TUtmCutValue dummy21e;
+    L1TUtmObject dummy21f;
+    L1TUtmScale dummy21g;
+    L1TUtmTriggerMenu dummy21h;
+
+    L1TGlobalPrescalesVetos dummy22;
+
+    L1TGlobalParameters dummy23;
 
   };
 }

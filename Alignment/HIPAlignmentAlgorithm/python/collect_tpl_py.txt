@@ -4,7 +4,8 @@ process = cms.Process("Alignment")
 # "including" common configuration
 <COMMON>
 
-process.source = cms.Source("EmptySource")
+#process.source = cms.Source("EmptySource")
+process.source = cms.Source("EmptySource", firstRun = cms.untracked.uint32(<iovrun>)) 
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
@@ -14,15 +15,21 @@ process.AlignmentProducer.algoConfig.collectorActive = True
 process.AlignmentProducer.algoConfig.collectorNJobs  = <JOBS>
 process.AlignmentProducer.algoConfig.collectorPath   = '<PATH>'
 process.AlignmentProducer.algoConfig.minimumNumberOfHits = 30
-# process.AlignmentProducer.algoConfig.minimumNumberOfHits = 0
-process.AlignmentProducer.algoConfig.maxRelParameterError = 100000000.
+process.AlignmentProducer.algoConfig.maxRelParameterError = 1
 process.AlignmentProducer.algoConfig.outpath = '<PATH>/main/'
-##
-process.AlignmentProducer.algoConfig.eventPrescale= 1
-#process.AlignmentProducer.algoConfig.fillTrackMonitoring=True
-process.AlignmentProducer.algoConfig.fillTrackMonitoring=False
+
 process.AlignmentProducer.algoConfig.outfile =  '/HIPAlignmentEvents.root'
 process.AlignmentProducer.algoConfig.outfile2 = '/HIPAlignmentAlignables.root'
+process.AlignmentProducer.checkDbAlignmentValidity= False 
+#process.AlignmentProducer.RunRangeSelection = [
+#    cms.PSet(RunRanges = cms.vstring(
+#            '1',
+#            '246978',
+#            '256715'),
+#    selector = cms.vstring( 'TrackerTPBModule,111111',
+#                            'TrackerTPEModule,111111')
+#        )
+#    ]
 
 # this part only needed for survey constraint
 """
@@ -32,16 +39,19 @@ process.survey = cms.ESSource("PoolDBESSource",
     toGet = cms.VPSet(cms.PSet(
         record = cms.string('TrackerSurveyRcd'),
         tag = cms.string('valueTag')
-    ), 
+    ),
         cms.PSet(
             record = cms.string('TrackerSurveyErrorExtendedRcd'),
             tag = cms.string('errorTag')
         )),
-     connect = cms.string('sqlite_file:/afs/cern.ch/cms/CAF/CMSALCA/ALCA_TRACKERALIGN/HIP/surveyObjects/surveyRcd_ALLTK_PXFoppPXB_tightSSTUltraTightTOB_311.db')
+     #connect = cms.string('sqlite_file:/afs/cern.ch/cms/CAF/CMSALCA/ALCA_TRACKERALIGN/HIP/surveyObjects/surveyRcd_ALLTK_PXFoppPXB_tightSSTUltraTightTOB_311.db')
+     #connect = cms.string('sqlite_file:/afs/cern.ch/cms/CAF/CMSALCA/ALCA_TRACKERALIGN2/HIP/xiaomeng/develop/CMSSW_7_4_12_patch4/src/Alignment/HIPAlignmentAlgorithm/test/PCL_svy.db')
+     connect = cms.string('sqlite_file:/afs/cern.ch/cms/CAF/CMSALCA/ALCA_TRACKERALIGN2/HIP/xiaomeng/develop/CMSSW_7_4_12_patch4/src/Alignment/HIPAlignmentAlgorithm/test/PCL_svy_small.db')
 )
 
 #process.AlignmentProducer.algoConfig.surveyResiduals = ['DetUnit','Det','TOBRod','TECPetal','TECRing','TIDRing','TIDSide']
-process.AlignmentProducer.algoConfig.surveyResiduals = ['Det','TIBString','TOBRod','TECRing','TIDSide','TECPetal']
-process.AlignmentProducer.useSurvey = True
+#process.AlignmentProducer.algoConfig.surveyResiduals = ['Det','TIBString','TOBRod','TECRing','TIDSide','TECPetal']
+#process.AlignmentProducer.algoConfig.surveyResiduals = ['DetUnit','Det']
+#process.AlignmentProducer.useSurvey = True
 """
 # end of survey constraint part

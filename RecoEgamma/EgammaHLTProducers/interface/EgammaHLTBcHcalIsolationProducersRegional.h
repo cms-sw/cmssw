@@ -45,17 +45,18 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  const bool  doRhoCorrection_;
-  const float rhoScale_;
-  const float rhoMax_;
   const bool  doEtSum_;
-  const float etMin_;
-  const float innerCone_;
-  const float outerCone_;
+  const double etMin_;
+  const double innerCone_;
+  const double outerCone_;
   const int   depth_;
-  const float effectiveAreaBarrel_;
-  const float effectiveAreaEndcap_;
   const bool  useSingleTower_;
+
+  const bool  doRhoCorrection_;
+  const double rhoScale_;
+  const double rhoMax_;
+  const std::vector<double> effectiveAreas_;
+  const std::vector<double> absEtaLowEdges_;
 
   const edm::EDGetTokenT<reco::RecoEcalCandidateCollection> recoEcalCandidateProducer_;
   const edm::EDGetTokenT<CaloTowerCollection>               caloTowerProducer_;

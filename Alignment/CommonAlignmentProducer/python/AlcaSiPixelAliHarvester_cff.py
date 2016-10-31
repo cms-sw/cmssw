@@ -21,10 +21,10 @@ SiPixelAliPedeAlignmentProducer.ParameterBuilder.Selector = cms.PSet(
         'TrackerTPBHalfBarrel,111111',
         'TrackerTPEHalfCylinder,111111',
 
-        'TrackerTIBHalfBarrel,ffffff',
-        'TrackerTOBHalfBarrel,ffffff',
-        'TrackerTIDEndcap,ffffff',
-        'TrackerTECEndcap,ffffff'
+        'TrackerTIBHalfBarrel,000000',
+        'TrackerTOBHalfBarrel,000000',
+        'TrackerTIDEndcap,000000',
+        'TrackerTECEndcap,000000'
         )
     )
 
@@ -37,6 +37,7 @@ SiPixelAliPedeAlignmentProducer.tjTkAssociationMapTag = 'TrackRefitter2'
 
 SiPixelAliPedeAlignmentProducer.algoConfig = MillePedeAlignmentAlgorithm
 SiPixelAliPedeAlignmentProducer.algoConfig.mode = 'pede'
+SiPixelAliPedeAlignmentProducer.algoConfig.runAtPCL = True
 SiPixelAliPedeAlignmentProducer.algoConfig.mergeBinaryFiles = [SiPixelAliMilleFileExtractor.outputBinaryFile.value()]
 SiPixelAliPedeAlignmentProducer.algoConfig.binaryFile = ''
 SiPixelAliPedeAlignmentProducer.algoConfig.TrajectoryFactory = cms.PSet(

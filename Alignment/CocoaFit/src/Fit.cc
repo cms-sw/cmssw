@@ -8,7 +8,7 @@
 
 #include <cstdlib>
 #include <iomanip>
-#include <cmath>
+#include <cmath>  // among others include also floating-point std::abs functions
 #include <ctime>
 #include <set>
 
@@ -932,7 +932,7 @@ FitQuality Fit::getFitQuality( const ALIbool canBeGood )
   //  delete yfMatrix; //op
 
   ALIdouble fit_quality_cut = (*DSMat)(0,0);  
-  //-  ALIdouble fit_quality_cut =fabs( (*DSMat)(0,0) );  
+  //-  ALIdouble fit_quality_cut =std::abs( (*DSMat)(0,0) );
   delete DSMat;
   if(ALIUtils::debug >= 0) std::cout << theNoFitIterations << " Fit quality predicted improvement in distance to minimum is = " << fit_quality_cut << std::endl;
   if( ALIUtils::report >= 2 ) {
@@ -961,7 +961,7 @@ FitQuality Fit::getFitQuality( const ALIbool canBeGood )
 
   //----- Chi2 is smaller, check if we make another iteration    
   } else {
-    ALIdouble rel_fit_quality = fabs(thePreviousIterationFitQuality - fit_quality)/fit_quality;
+    ALIdouble rel_fit_quality = std::abs(thePreviousIterationFitQuality - fit_quality)/fit_quality;
    //----- Small chi2 change: end
     if( (fit_quality_cut < theFitQualityCut || rel_fit_quality < theRelativeFitQualityCut ) && canBeGood ) {
       if(ALIUtils::debug >= 2) std::cout << "$$ Fit::getFitQuality good " << fit_quality_cut << " <? " << theFitQualityCut 
@@ -1348,7 +1348,7 @@ void Fit::dumpEntryAfterFit( ALIFileOut& fileout, const Entry* entry, double ent
 
     if( ALIUtils::report >= 2) {
       float dif = ( entry->value() + entry->valueDisplacementByFitting() ) / dimv - entry->value() / dimv;
-      if( fabs(dif) < 1.E-9 ) dif = 0.;
+      if( std::abs(dif) < 1.E-9 ) dif = 0.;
       fileout << " DIFF= " << dif;
       // << " == " << ( entry->value() + entry->valueDisplacementByFitting() )  / dimv - entryvalue << " @@ " << ( entry->value() + entry->valueDisplacementByFitting() ) / dimv << " @@ " <<  entryvalue;
     } else {
@@ -1396,7 +1396,7 @@ void Fit::dumpEntryCorrelations( ALIFileOut& fileout )
       ALIdouble corr = AtWAMatrix->Mat()->me[i1][i2];
       ALIdouble corrf = corr / sqrt(AtWAMatrix->Mat()->me[i1][i1])
 	  / sqrt(AtWAMatrix->Mat()->me[i2][i2]);
-      if (fabs(corrf) >= minCorrel ) {
+      if (std::abs(corrf) >= minCorrel ) {
         if(ALIUtils::debug >= 0) {
 	  std::cout  << "CORR:" << E1 << "" << E2 << " (" << i1 << ")" <<  " (" << i2 << ")" << " " << corrf << std::endl;
 	}
@@ -1559,7 +1559,7 @@ void Fit::CheckIfFitPossible()
       for( ALIint ii = 0; ii < NolinMes; ii++ ) {
         if( ALIUtils::debug >= 5 ) std::cout << " Derivative= (" << ii << "," << nCol << ") = " << (*AMatrix)(ii,nCol)  << std::endl;
 
-        if( fabs((*AMatrix)(ii,nCol)) > ALI_DBL_MIN ) {
+        if( std::abs((*AMatrix)(ii,nCol)) > ALI_DBL_MIN ) {
           if( ALIUtils::debug >= 5 ) std::cout << "Fit::CheckIfFitIsPossible " << nCol << " " << ii << " = " << (*AMatrix)(ii,nCol) << std::endl;
           noDepend = FALSE;
           break;
@@ -1591,8 +1591,8 @@ void Fit::CheckIfFitPossible()
           ALIbool isProp = TRUE;
 	  for( ALIint ii = 0; ii < nLin; ii++ ) {
 	    if( ALIUtils::debug >= 5 ) std::cout << "Fit::CheckIfFitIsPossible " << ii << " : " << (*AMatrix)(ii,fitpos1) << " ?= " << (*AMatrix)(ii,fitpos2) << std::endl;
-            if( fabs((*AMatrix)(ii,fitpos1)) < derivPrec ) {
-	      if( fabs((*AMatrix)(ii,fitpos2)) > derivPrec ) {
+            if( std::abs((*AMatrix)(ii,fitpos1)) < derivPrec ) {
+	      if( std::abs((*AMatrix)(ii,fitpos2)) > derivPrec ) {
 		isProp = FALSE;
 		break;
 	      }
@@ -1626,8 +1626,8 @@ int Fit::CheckIfMeasIsProportionalToAnother( ALIuint measNo )
   ALIuint biggestColumn = 0;
   ALIdouble biggest = 0.;
   for (int ii = 0; ii < AMatrix->NoColumns(); ii++ ){
-    if( fabs((*AMatrix)(measNo,ii)) > biggest ) {
-      biggest = fabs((*AMatrix)(measNo,ii));
+    if( std::abs((*AMatrix)(measNo,ii)) > biggest ) {
+      biggest = std::abs((*AMatrix)(measNo,ii));
       biggestColumn = ii;
     }
     columnsEqualSave.insert(ii); 
@@ -1641,7 +1641,7 @@ int Fit::CheckIfMeasIsProportionalToAnother( ALIuint measNo )
     // check if ratio of each column to 'biggestColumn' is the same as for the N measurement
     for (int ii = 0; ii < AMatrix->NoColumns(); ii++ ){
       div = (*AMatrix)(measNo,ii)/(*AMatrix)(measNo,biggestColumn);
-      if( fabs((*AMatrix)(jj,ii))  > ALI_DBL_MIN && fabs(div - (*AMatrix)(jj,ii)/(*AMatrix)(jj,biggestColumn) ) > ALI_DBL_MIN ) {
+      if( std::abs((*AMatrix)(jj,ii))  > ALI_DBL_MIN && std::abs(div - (*AMatrix)(jj,ii)/(*AMatrix)(jj,biggestColumn) ) > ALI_DBL_MIN ) {
 	if( ALIUtils::debug >= 3 ) std::cout << "CheckIfMeasIsProportionalToAnother 2 columns = " << ii << " in " << measNo << " & " << jj << std::endl;
       } else {
 	if( ALIUtils::debug >= 3 ) std::cout << "CheckIfMeasIsProportionalToAnother 2 columns != " << ii << " in " << measNo << " & " << jj << std::endl;

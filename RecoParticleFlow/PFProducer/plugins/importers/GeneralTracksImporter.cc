@@ -147,6 +147,10 @@ importToBlock( const edm::Event& e,
 
 bool GeneralTracksImporter::
 goodPtResolution( const reco::TrackRef& trackref) const {
+  //recheck that the track is high purity!
+  if (!trackref->quality(reco::TrackBase::highPurity))
+    return false;
+    
 
   const double P = trackref->p();
   const double Pt = trackref->pt();

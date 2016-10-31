@@ -30,6 +30,8 @@ ecalRecHit = cms.EDProducer("EcalRecHitProducer",
     EBLaserMAX = cms.double(3.0),
     EELaserMAX = cms.double(8.0),
 
+    # useful if time is not calculated, as at HLT                        
+    skipTimeCalib = cms.bool(False),                         
 
     # apply laser corrections
     laserCorrection = cms.bool(True),

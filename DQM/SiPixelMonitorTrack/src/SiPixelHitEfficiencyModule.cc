@@ -301,7 +301,7 @@ void SiPixelHitEfficiencyModule::book(const edm::ParameterSet& iConfig, edm::Eve
     
     char sblade[80]; sprintf(sblade, "Blade_%02i",blade);
     hisID = src.label() + "_" + sblade;
-    
+
     if(updateEfficiencies){
       //EFFICIENCY
       meEfficiencyBlade_ = iBooker.book1D("efficiency_"+hisID,"Hit efficiency",1,0,1.);
@@ -321,7 +321,7 @@ void SiPixelHitEfficiencyModule::book(const edm::ParameterSet& iConfig, edm::Eve
     }
     
     //VALID
-    meValidBlade_ = iBooker.book1D("valid_"+hisID,"# Valid hits",1,0,1.);
+    meValidBlade_ = iBooker.book1D("valid_"+hisID,"# Valid hits",2,0.5,2.5);
     meValidBlade_->setAxisTitle("# Valid hits",1);
     
     meValidXBlade_ = iBooker.book1D("validX_"+hisID,"# Valid hits in X",nbinX,-1.5,1.5);
@@ -329,7 +329,7 @@ void SiPixelHitEfficiencyModule::book(const edm::ParameterSet& iConfig, edm::Eve
     
     meValidYBlade_ = iBooker.book1D("validY_"+hisID,"# Valid hits in Y",nbinY,-4.,4.);
     meValidYBlade_->setAxisTitle("# Valid hits in Y",1);
-    
+
     meValidAlphaBlade_ = iBooker.book1D("validAlpha_"+hisID,"# Valid hits in Alpha",nbinangle,-3.5,3.5);
     meValidAlphaBlade_->setAxisTitle("# Valid hits in Alpha",1);
     
@@ -337,7 +337,7 @@ void SiPixelHitEfficiencyModule::book(const edm::ParameterSet& iConfig, edm::Eve
     meValidBetaBlade_->setAxisTitle("# Valid hits in Beta",1);
 
     //MISSING
-    meMissingBlade_ = iBooker.book1D("missing_"+hisID,"# Missing hits",1,0,1.);
+    meMissingBlade_ = iBooker.book1D("missing_"+hisID,"# Missing hits",2,0.5,2.5);
     meMissingBlade_->setAxisTitle("# Missing hits",1);
     
     meMissingXBlade_ = iBooker.book1D("missingX_"+hisID,"# Missing hits in X",nbinX,-1.5,1.5);
@@ -486,7 +486,9 @@ void SiPixelHitEfficiencyModule::fill(const TrackerTopology * pTT,const LocalTra
   float prediction_y = ltp.position().y();
  
   PixelBarrelName PBN= PixelBarrelName(DetId(id_), pTT);
-  int imod=PBN.moduleName(); 
+  int imod=PBN.moduleName();
+  PixelEndcapName PEN= PixelEndcapName(DetId(id_),pTT);
+  int ipan=PEN.pannelName(); 
   
   if(isHitValid){
     if(modon){
@@ -515,7 +517,7 @@ void SiPixelHitEfficiencyModule::fill(const TrackerTopology * pTT,const LocalTra
       meValidBetaPhi_->Fill(prediction_beta);
     }
     if(endcap && bladeon){
-      meValidBlade_->Fill(0.5);
+      meValidBlade_->Fill(ipan);
       meValidXBlade_->Fill(prediction_x);
       meValidYBlade_->Fill(prediction_y);
       meValidAlphaBlade_->Fill(prediction_alpha);
@@ -563,7 +565,7 @@ void SiPixelHitEfficiencyModule::fill(const TrackerTopology * pTT,const LocalTra
       meMissingBetaPhi_->Fill(prediction_beta);
     }
     if(endcap && bladeon){
-      meMissingBlade_->Fill(0.5);
+      meMissingBlade_->Fill(ipan);
       meMissingXBlade_->Fill(prediction_x);
       meMissingYBlade_->Fill(prediction_y);
       meMissingAlphaBlade_->Fill(prediction_alpha);

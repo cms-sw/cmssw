@@ -9,7 +9,7 @@ template <class T> T sqr( T t) {return t*t;}
 #include <iostream>
 
 PixelTrackFilterByKinematics::PixelTrackFilterByKinematics( const edm::ParameterSet& cfg, edm::ConsumesCollector& iC)
-  : thePtMin( cfg.getParameter<double>("ptMin") ),
+  : theoPtMin(1/cfg.getParameter<double>("ptMin") ),
     theNSigmaInvPtTolerance( cfg.getParameter<double>("nSigmaInvPtTolerance")),
     theTIPMax( cfg.getParameter<double>("tipMax") ),
     theNSigmaTipMaxTolerance( cfg.getParameter<double>("nSigmaTipMaxTolerance")),
@@ -17,7 +17,7 @@ PixelTrackFilterByKinematics::PixelTrackFilterByKinematics( const edm::Parameter
 { }
 
 PixelTrackFilterByKinematics::PixelTrackFilterByKinematics( const edm::ParameterSet& cfg)
-  : thePtMin( cfg.getParameter<double>("ptMin") ),
+  : theoPtMin(1/cfg.getParameter<double>("ptMin") ),
     theNSigmaInvPtTolerance( cfg.getParameter<double>("nSigmaInvPtTolerance")),
     theTIPMax( cfg.getParameter<double>("tipMax") ),
     theNSigmaTipMaxTolerance( cfg.getParameter<double>("nSigmaTipMaxTolerance")),
@@ -25,7 +25,7 @@ PixelTrackFilterByKinematics::PixelTrackFilterByKinematics( const edm::Parameter
 { }
 
 PixelTrackFilterByKinematics::PixelTrackFilterByKinematics(double ptmin, double tipmax, double chi2max)
-  : thePtMin(ptmin), theNSigmaInvPtTolerance(0.),
+  : theoPtMin(1/ptmin), theNSigmaInvPtTolerance(0.),
     theTIPMax(tipmax), theNSigmaTipMaxTolerance(0.),
     theChi2Max(chi2max)
 { } 
@@ -38,25 +38,27 @@ void PixelTrackFilterByKinematics::update(const edm::Event&, const edm::EventSet
 bool PixelTrackFilterByKinematics::operator()(const reco::Track* track, const PixelTrackFilter::Hits & hits) const
 { return (*this)(track); }
 
-bool PixelTrackFilterByKinematics::operator()(const reco::Track* track) const
+bool PixelTrackFilterByKinematics::operator()(const reco::Track* ptrack) const
 {
-  if (!track) return false;
-  if (track->chi2() > theChi2Max) return false;
-  if ( (fabs(track->d0())-theTIPMax)/track->d0Error() > theNSigmaTipMaxTolerance) return false;
+  if (!ptrack) return false;
+  auto const & track = *ptrack;
+  if (track.chi2() > theChi2Max) return false;
+  if ( (std::abs(track.d0())-theTIPMax) > theNSigmaTipMaxTolerance*track.d0Error()) return false;
   
-  float theta = track->theta();
-  float cosTheta = cos(theta);
-  float sinTheta = sin(theta);
-  float errLambda2 = sqr( track->lambdaError() );
-
-  float pt_v = track->pt();
-  float errInvP2 = sqr(track->qoverpError());
-  float covIPtTheta = track->covariance(reco::TrackBase::i_qoverp, reco::TrackBase::i_lambda);
+  float pt_v = float(track.pt());
+  float opt_v = 1.f/pt_v;
+  float	pz_v = track.pz();
+  float	p_v = float(track.p());
+  float op_v = 1.f/p_v;
+  float cosTheta = pz_v*op_v;
+  float osinTheta = p_v*opt_v;
+  float errLambda2 =  track.covariance(reco::TrackBase::i_lambda, reco::TrackBase::i_lambda);
+  float errInvP2 =    track.covariance(reco::TrackBase::i_qoverp, reco::TrackBase::i_qoverp);
+  float covIPtTheta = track.covariance(reco::TrackBase::i_qoverp, reco::TrackBase::i_lambda);
   float errInvPt2 = (   errInvP2
-                      + sqr(cosTheta/pt_v)*errLambda2
-                      + 2*(cosTheta/pt_v)*covIPtTheta
-                     ) / sqr(sinTheta);
-  if ( (1/pt_v - 1/thePtMin)/sqrt(errInvPt2) > theNSigmaInvPtTolerance ) return false;
+                      + sqr(cosTheta*opt_v)*errLambda2
+                      + 2.f*(cosTheta*opt_v)*covIPtTheta
+                     )*sqr(osinTheta);
 
-  return true;
+  return (opt_v - theoPtMin) < theNSigmaInvPtTolerance*std::sqrt(errInvPt2);
 }

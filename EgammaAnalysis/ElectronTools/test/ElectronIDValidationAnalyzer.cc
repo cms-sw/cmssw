@@ -167,8 +167,6 @@ ElectronIDValidationAnalyzer::~ElectronIDValidationAnalyzer()
 void
 ElectronIDValidationAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-   // using namespace edm;
-
    edm::Handle<edm::ValueMap<float> > full5x5sieie;
    edm::Handle<edm::View<reco::GsfElectron> > collection;
    edm::Handle<edm::ValueMap<bool> > id_decisions;

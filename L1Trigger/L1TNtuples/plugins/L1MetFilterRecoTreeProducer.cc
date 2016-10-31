@@ -163,16 +163,16 @@ void L1MetFilterRecoTreeProducer::analyze(const edm::Event& iEvent, const edm::E
 void L1MetFilterRecoTreeProducer::doMetFilters(edm::Handle<edm::TriggerResults> trigRes, edm::TriggerNames trigNames, bool hbheNFRes) {
 
   //get array size
-  uint numTrigs = trigNames.triggerNames().size();
+  unsigned int numTrigs = trigNames.triggerNames().size();
 
   //get indices of flags from event parameter set
-  uint hbheNoiseIsoFilterIndex     = trigNames.triggerIndex("Flag_HBHENoiseIsoFilter");
-  uint cscTightHalo2015FilterIndex = trigNames.triggerIndex("Flag_CSCTightHalo2015Filter");
-  uint ecalDeadCellTPFilterIndex   = trigNames.triggerIndex("Flag_EcalDeadCellTriggerPrimitiveFilter");
-  uint goodVerticesFilterIndex     = trigNames.triggerIndex("Flag_goodVertices");
-  uint eeBadScFilterIndex          = trigNames.triggerIndex("Flag_eeBadScFilter");
-  uint chHadTrackResFilterIndex    = trigNames.triggerIndex("Flag_chargedHadronTrackResolutionFilter");
-  uint muonBadTrackFilterIndex     = trigNames.triggerIndex("Flag_muonBadTrackFilter");                 
+  unsigned int hbheNoiseIsoFilterIndex     = trigNames.triggerIndex("Flag_HBHENoiseIsoFilter");
+  unsigned int cscTightHalo2015FilterIndex = trigNames.triggerIndex("Flag_CSCTightHalo2015Filter");
+  unsigned int ecalDeadCellTPFilterIndex   = trigNames.triggerIndex("Flag_EcalDeadCellTriggerPrimitiveFilter");
+  unsigned int goodVerticesFilterIndex     = trigNames.triggerIndex("Flag_goodVertices");
+  unsigned int eeBadScFilterIndex          = trigNames.triggerIndex("Flag_eeBadScFilter");
+  unsigned int chHadTrackResFilterIndex    = trigNames.triggerIndex("Flag_chargedHadronTrackResolutionFilter");
+  unsigned int muonBadTrackFilterIndex     = trigNames.triggerIndex("Flag_muonBadTrackFilter");                 
 
   //set flag
   metFilter_data->hbheNoiseFilter        = hbheNFRes;

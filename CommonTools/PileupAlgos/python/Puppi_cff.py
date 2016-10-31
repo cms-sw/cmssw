@@ -4,7 +4,7 @@ puppiCentral = cms.VPSet(
                  cms.PSet(
                   algoId           = cms.int32(5),  #0 is default Puppi
                   useCharged       = cms.bool(True),
-                  applyLowPUCorr   = cms.bool(True),
+                  applyLowPUCorr   = cms.bool(False),
                   combOpt          = cms.int32(0),
                   cone             = cms.double(0.4),
                   rmsPtMin         = cms.double(0.1),
@@ -16,7 +16,7 @@ puppiForward = cms.VPSet(
                 cms.PSet(
                  algoId         = cms.int32(5),  #0 is default Puppi
                  useCharged     = cms.bool(False),
-                 applyLowPUCorr = cms.bool(True),
+                 applyLowPUCorr = cms.bool(False),
                  combOpt        = cms.int32(0),
                  cone           = cms.double(0.4),
                  rmsPtMin       = cms.double(0.5),
@@ -58,7 +58,7 @@ puppi = cms.EDProducer("PuppiProducer",#cms.PSet(#"PuppiProducer",
                          etaMin              = cms.vdouble( 2.5,  3.0),
                          etaMax              = cms.vdouble( 3.0, 10.0),
                          ptMin               = cms.vdouble( 0.0,  0.0),
-                         MinNeutralPt        = cms.vdouble( 0.2,  0.2),
+                         MinNeutralPt        = cms.vdouble( 1.7,  2.0),
                          MinNeutralPtSlope   = cms.vdouble(0.08, 0.08),
                          RMSEtaSF            = cms.vdouble(1.20, 0.95),
                          MedEtaSF            = cms.vdouble(0.90, 0.75),

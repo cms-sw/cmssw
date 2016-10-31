@@ -33,6 +33,25 @@
 #include "RecoPixelVertexing/PixelTrackFitting/interface/PixelTrackBuilder.h"
 
 using namespace std;
+#include "CommonTools/Utils/interface/DynArray.h"
+
+
+namespace {
+int getCharge
+  (const DynArray<GlobalPoint> & points)
+{
+   GlobalVector v21 = points[1]-points[0];
+   GlobalVector v32 = points[2]-points[1];
+   float dphi = v32.phi() - v21.phi();
+   while (dphi >  M_PI) dphi -= 2*M_PI;
+   while (dphi < -M_PI) dphi += 2*M_PI;
+   return (dphi > 0) ? -1 : 1;
+}
+
+
+
+}
+
 
 /*****************************************************************************/
 TrackFitter::TrackFitter
@@ -50,9 +69,9 @@ reco::Track* TrackFitter::run
   int nhits = hits.size();
   if(nhits <2) return 0;
 
-  vector<GlobalPoint> points;
-  vector<GlobalError> errors;
-  vector<bool> isBarrel;
+  declareDynArray(GlobalPoint,nhits, points);
+  declareDynArray(GlobalError,nhits, errors);
+  declareDynArray(bool,nhits, isBarrel);
   
   if (!theField || !theTracker || !theTTRecHitBuilder)
   {
@@ -70,15 +89,14 @@ reco::Track* TrackFitter::run
     theTTRecHitBuilder = ttrhbESH.product();
   }
 
-  for (vector<const TrackingRecHit*>::const_iterator ih = hits.begin();
-                                                     ih!= hits.end(); ih++)
+  unsigned int i=0;
+  for (auto const & ih  : hits)
   {
-    TransientTrackingRecHit::RecHitPointer recHit =
-      theTTRecHitBuilder->build(*ih);
+    auto recHit = theTTRecHitBuilder->build(ih);
 
-    points.push_back(recHit->globalPosition());
-    errors.push_back(recHit->globalPositionError());
-    isBarrel.push_back(recHit->detUnit()->type().isBarrel() );
+    points[i] = recHit->globalPosition();
+    errors[i] = recHit->globalPositionError();
+    isBarrel[++i] = recHit->detUnit()->type().isBarrel();
   }
 
   CircleFromThreePoints circle = (nhits==2) ?
@@ -135,17 +153,6 @@ reco::Track* TrackFitter::run
                        charge, hits, theField);
 }
 
-/*****************************************************************************/
-int TrackFitter::getCharge
-  (const vector<GlobalPoint> & points) const
-{
-   GlobalVector v21 = points[1]-points[0];
-   GlobalVector v32 = points[2]-points[1];
-   float dphi = v32.phi() - v21.phi();
-   while (dphi >  M_PI) dphi -= 2*M_PI;
-   while (dphi < -M_PI) dphi += 2*M_PI;
-   return (dphi > 0) ? -1 : 1;
-}
 
 /*****************************************************************************/
 float TrackFitter::getCotThetaAndUpdateZip

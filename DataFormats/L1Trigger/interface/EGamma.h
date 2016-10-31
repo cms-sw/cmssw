@@ -46,13 +46,13 @@ namespace l1t {
     void setNTT(short int ntt);         // n towers above threshold
     void setShape(short int s);         // cluster shape variable
 
-    short int towerIEta();
-    short int towerIPhi();
-    short int rawEt();
-    short int isoEt();
-    short int footprintEt();
-    short int nTT();
-    short int shape();
+    short int towerIEta() const;
+    short int towerIPhi() const;
+    short int rawEt() const;
+    short int isoEt() const ;
+    short int footprintEt() const;
+    short int nTT() const;
+    short int shape() const;
 
   private:
 

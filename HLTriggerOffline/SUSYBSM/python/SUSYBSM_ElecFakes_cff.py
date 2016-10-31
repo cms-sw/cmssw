@@ -68,7 +68,7 @@ SUSY_HLT_Ele8_Jet30 = cms.EDAnalyzer("SUSY_HLT_ElecFakes",
   TriggerResults = cms.InputTag('TriggerResults','','HLT'),
   HLTProcess = cms.string('HLT'),
   TriggerPath = cms.string('HLT_Ele8_CaloIdM_TrackIdM_PFJet30_v'),
-  TriggerFilter = cms.InputTag('hltEle8CaloIdMTrkIdMDPhiFilter', '', 'HLT'), #the last filter in the path
+  TriggerFilter = cms.InputTag('hltEle8CaloIdMGsfTrackIdMDphiFilter', '', 'HLT'), #the last filter in the path
   TriggerJetFilter = cms.InputTag('hltEle8NoIsoPFJet30EleCleaned', '', 'HLT'), #the last filter in the path                                      
 )
 SUSY_HLT_Ele8_Jet30_POSTPROCESSING = cms.EDAnalyzer("DQMGenericClient",
@@ -83,7 +83,7 @@ SUSY_HLT_Ele12_Jet30 = cms.EDAnalyzer("SUSY_HLT_ElecFakes",
   TriggerResults = cms.InputTag('TriggerResults','','HLT'),
   HLTProcess = cms.string('HLT'),
   TriggerPath = cms.string('HLT_Ele12_CaloIdM_TrackIdM_PFJet30_v'),
-  TriggerFilter = cms.InputTag('hltEle12CaloIdMTrkIdMDPhiFilter', '', 'HLT'), #the last filter in the path
+  TriggerFilter = cms.InputTag('hltEle12CaloIdMGsfTrackIdMDphiFilter', '', 'HLT'), #the last filter in the path
   TriggerJetFilter = cms.InputTag('hltEle12NoIsoPFJet30EleCleaned', '', 'HLT'), #the last filter in the path                                      
 )
 SUSY_HLT_Ele12_Jet30_POSTPROCESSING = cms.EDAnalyzer("DQMGenericClient",
@@ -98,7 +98,7 @@ SUSY_HLT_Ele17_Jet30 = cms.EDAnalyzer("SUSY_HLT_ElecFakes",
   TriggerResults = cms.InputTag('TriggerResults','','HLT'),
   HLTProcess = cms.string('HLT'),
   TriggerPath = cms.string('HLT_Ele17_CaloIdM_TrackIdM_PFJet30_v'),
-  TriggerFilter = cms.InputTag('hltEle17CaloIdMTrkIdMDPhiFilter', '', 'HLT'), #the last filter in the path
+  TriggerFilter = cms.InputTag('hltEle17CaloIdMGsfTrackIdMDphiFilter', '', 'HLT'), #the last filter in the path
   TriggerJetFilter = cms.InputTag('hltEle17NoIsoPFJet30EleCleaned', '', 'HLT'), #the last filter in the path                                      
 )
 SUSY_HLT_Ele17_Jet30_POSTPROCESSING = cms.EDAnalyzer("DQMGenericClient",
@@ -113,7 +113,7 @@ SUSY_HLT_Ele23_Jet30 = cms.EDAnalyzer("SUSY_HLT_ElecFakes",
   TriggerResults = cms.InputTag('TriggerResults','','HLT'),
   HLTProcess = cms.string('HLT'),
   TriggerPath = cms.string('HLT_Ele23_CaloIdM_TrackIdM_PFJet30_v'),
-  TriggerFilter = cms.InputTag('hltEle23CaloIdMTrkIdMDPhiFilter', '', 'HLT'), #the last filter in the path
+  TriggerFilter = cms.InputTag('hltEle23CaloIdMGsfTrackIdMDphiFilter', '', 'HLT'), #the last filter in the path
   TriggerJetFilter = cms.InputTag('hltEle23NoIsoPFJet30EleCleaned', '', 'HLT'), #the last filter in the path                                      
 )
 SUSY_HLT_Ele23_Jet30_POSTPROCESSING = cms.EDAnalyzer("DQMGenericClient",

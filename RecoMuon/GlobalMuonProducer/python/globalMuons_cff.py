@@ -12,11 +12,11 @@ from RecoTracker.TransientTrackingRecHit.TransientTrackingRecHitBuilder_cfi impo
 from RecoTracker.TransientTrackingRecHit.TransientTrackingRecHitBuilderWithoutRefit_cfi import *
 from TrackingTools.TrackRefitter.TracksToTrajectories_cff import *
 from RecoMuon.GlobalMuonProducer.globalMuons_cfi import *
-Chi2EstimatorForMuRefit = cms.ESProducer("Chi2MeasurementEstimatorESProducer",
-    ComponentName = cms.string('Chi2EstimatorForMuRefit'),
-    nSigma = cms.double(3.0),
-    MaxChi2 = cms.double(100000.0)
-)
+import TrackingTools.KalmanUpdators.Chi2MeasurementEstimator_cfi
+Chi2EstimatorForMuRefit = TrackingTools.KalmanUpdators.Chi2MeasurementEstimator_cfi.Chi2MeasurementEstimator.clone()
+Chi2EstimatorForMuRefit.ComponentName = cms.string('Chi2EstimatorForMuRefit')
+Chi2EstimatorForMuRefit.nSigma = 3.0
+Chi2EstimatorForMuRefit.MaxChi2 = 100000.0
 
 
 from TrackingTools.TrackFitters.TrackFitters_cff import *

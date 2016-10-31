@@ -90,7 +90,7 @@ namespace reco {
     void         setDepth(double depth) {depth_ = depth;}
     
     /// cluster position: rho, eta, phi
-    const REPPoint&       positionREP() const {return posrep_;}
+    const REPPoint& positionREP() const {return posrep_;}
     
     /// computes posrep_ once and for all
     void calculatePositionREP() {
@@ -154,16 +154,20 @@ namespace reco {
 
 #if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
     template<typename pruner>
-      void pruneUsing(pruner prune) {
-      hitsAndFractions_.clear();
-      std::vector<reco::PFRecHitFraction>::iterator iter = 
-	std::stable_partition(rechits_.begin(),rechits_.end(),prune);
-      rechits_.erase(iter,rechits_.end());
-      hitsAndFractions_.reserve(rechits_.size());
-      for( const auto& hitfrac : rechits_ ) {
-	hitsAndFractions_.emplace_back(hitfrac.recHitRef()->detId(),
-				       hitfrac.fraction());
+    void pruneUsing(pruner prune) {
+      // remove_if+erase algo applied to both vectors...
+      auto iter = std::find_if_not(rechits_.begin(),rechits_.end(),prune);
+      if (iter==rechits_.end()) return;
+      auto first = iter-rechits_.begin();
+      for (auto i=first; ++i<int(rechits_.size());) {
+          if (prune(rechits_[i])) {
+            rechits_[first] = std::move(rechits_[i]);
+            hitsAndFractions_[first] = std::move(hitsAndFractions_[i]);
+            ++first;
+          }    
       }
+      rechits_.erase(rechits_.begin()+first,rechits_.end());
+      hitsAndFractions_.erase(hitsAndFractions_.begin()+first,hitsAndFractions_.end());
     }
 #endif
     

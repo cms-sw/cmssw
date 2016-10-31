@@ -46,6 +46,12 @@
 <use   name="root"/>
 <use   name="TrackingTools/TrackAssociator"/>
 <use   name="Geometry/CaloGeometry"/>
+<use   name="rootgraphics"/>
+<use   name="rootmath"/>
+<use   name="rootinteractive"/>
+<use   name="rootrflx"/>
+<use   name="rootcore"/>
+<use   name="boost"/>
 <library   file="*.cc" name="AlignmentOfflinevalidationPlugins">
   <use   name="Alignment/OfflineValidation"/>
   <use   name="CondFormats/GeometryObjects"/>

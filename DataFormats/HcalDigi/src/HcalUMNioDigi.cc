@@ -1,16 +1,19 @@
 #include "DataFormats/HcalDigi/interface/HcalUMNioDigi.h"
+#include <iostream>
 
 HcalUMNioDigi::HcalUMNioDigi() { }
 HcalUMNioDigi::HcalUMNioDigi(const uint16_t* ptr, int words) {
   payload_.reserve(words);
-  for (int i=0; i<words; i++) payload_.push_back(ptr[i]);
+  for (int i=0; i<words; i++) {
+    payload_.push_back(ptr[i]);
+  }
 }
 HcalUMNioDigi::HcalUMNioDigi(const std::vector<uint16_t>& words) : payload_(words) {
 }
   
 uint32_t HcalUMNioDigi::runNumber() const {
   if (invalid()) return 0;
-  return payload_[10]+(uint32_t(payload_[11])<<16);
+  return payload_[9]+(uint32_t(payload_[10])<<16);
 }
 
 uint32_t HcalUMNioDigi::orbitNumber() const {
@@ -32,11 +35,11 @@ uint8_t HcalUMNioDigi::eventType() const {
 }
 uint16_t HcalUMNioDigi::spillCounter() const {
   if (invalid()) return 0;
-  return (payload_[9])&0x7FFF;
+  return (payload_[11])&0x7FFF;
 }
 bool HcalUMNioDigi::isSpill() const {
   if (invalid()) return 0;
-  return (payload_[9]&0x8000);
+  return (payload_[11]&0x8000);
 }
 
 int HcalUMNioDigi::numberUserWords() const {
@@ -49,7 +52,7 @@ uint16_t HcalUMNioDigi::idUserWord(int iword) const {
   return payload_[13+3*iword];
 }
 uint32_t HcalUMNioDigi::valueUserWord(int iword) const {
-  if (iword>=numberUserWords() || payload_.size()<size_t(16+iword*3)) return 0;
+  if (iword>=numberUserWords() || payload_.size()<(size_t)(16+iword*3)) return 0;
   return payload_[14+3*iword]+(uint32_t(payload_[15+3*iword])<<16);
 }
 bool HcalUMNioDigi::hasUserWord(int id) const {

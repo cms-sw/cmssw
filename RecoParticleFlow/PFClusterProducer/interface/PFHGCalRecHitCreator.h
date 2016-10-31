@@ -70,23 +70,12 @@ template <typename DET,PFLayer::Layer Layer,ForwardSubdetector subdet>
 	  continue;
 	}
   
-	const GlobalPoint position( std::move( hgcGeo.getPosition( detid ) ) );
-	//std::cout << "geometry cell position: " << position << std::endl;
 
-	reco::PFRecHit rh( detid.rawId(),Layer,
-			   energy, 
-			   position.x(), position.y(), position.z(), 
-			   0, 0, 0 ); 
+	reco::PFRecHit rh(thisCell, detid.rawId(),Layer,
+			   energy); 
 	
-	rh.setOriginalRecHit(edm::Ref<HGCRecHitCollection>(recHitHandle,i));
+	//  rh.setOriginalRecHit(edm::Ref<HGCRecHitCollection>(recHitHandle,i));
 
-	const HGCalGeometry::CornersVec corners( std::move( hgcGeo.getCorners( detid ) ) );
-	assert( corners.size() == 8 );
-
-	rh.setNECorner( corners[0].x(), corners[0].y(),  corners[0].z() );
-	rh.setSECorner( corners[1].x(), corners[1].y(),  corners[1].z() );
-	rh.setSWCorner( corners[2].x(), corners[2].y(),  corners[2].z() );
-	rh.setNWCorner( corners[3].x(), corners[3].y(),  corners[3].z() );
 	
 	bool rcleaned = false;
 	bool keep=true;

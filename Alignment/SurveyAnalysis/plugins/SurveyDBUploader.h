@@ -22,7 +22,7 @@
 class Alignable;
 class Alignments;
 class AlignTransform;
-class SurveyErrors;
+struct SurveyErrors;
 
 class SurveyDBUploader:
   public edm::EDAnalyzer

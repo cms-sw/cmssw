@@ -156,6 +156,8 @@ void TrackerGeometry::addDetUnitId(DetId p){
 }
 
 void TrackerGeometry::addDet(GeomDet const * p) {
+  // set index
+  const_cast<GeomDet *>(p)->setGdetIndex(theDets.size());
   theDets.push_back(p);  // add to vector
   theMap.insert(std::make_pair(p->geographicalId().rawId(),p));
   DetId id(p->geographicalId());
@@ -189,17 +191,6 @@ void TrackerGeometry::addDetId(DetId p){
   theDetIds.push_back(p);
 }
 
-const TrackerGeometry::DetUnitContainer&
-TrackerGeometry::detUnits() const
-{
-  return theDetUnits;
-}
-
-const TrackerGeometry::DetContainer&
-TrackerGeometry::dets() const
-{
-  return theDets;
-}
 
 const TrackerGeometry::DetContainer&
 TrackerGeometry::detsPXB() const
@@ -283,24 +274,6 @@ TrackerGeometry::isThere(GeomDetEnumerators::SubDetector subdet) const {
   return false;
 }
 
-const TrackerGeometry::DetTypeContainer&  
-TrackerGeometry::detTypes()   const 
-{
-  return theDetTypes;
-}
-
-
-const TrackerGeometry::DetIdContainer&  
-TrackerGeometry::detUnitIds()   const 
-{
-  return theDetUnitIds;
-}
-
-const TrackerGeometry::DetIdContainer&  
-TrackerGeometry::detIds()   const 
-{
-  return theDetIds;
-}
 void TrackerGeometry::fillTestMap(const GeometricDet* gd) {
     
   std::string temp = gd->name();

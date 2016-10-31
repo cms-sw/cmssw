@@ -23,19 +23,21 @@ namespace edm {
       }
 
   RefCoreWithIndex::RefCoreWithIndex(RefCore const& iCore, unsigned int iIndex):
-  cachePtr_(iCore.cachePtr_.load()),
   processIndex_(iCore.processIndex_),
   productIndex_(iCore.productIndex_),
-  elementIndex_(iIndex){}
+  elementIndex_(iIndex){
+     cachePtr_.store(iCore.cachePtr_.load(std::memory_order_relaxed), std::memory_order_relaxed);
+  }
   
   RefCoreWithIndex::RefCoreWithIndex( RefCoreWithIndex const& iOther) :
-    cachePtr_(iOther.cachePtr_.load()),
     processIndex_(iOther.processIndex_),
     productIndex_(iOther.productIndex_),
-    elementIndex_(iOther.elementIndex_){}
+    elementIndex_(iOther.elementIndex_){
+    cachePtr_.store(iOther.cachePtr_.load(std::memory_order_relaxed), std::memory_order_relaxed);
+  }
   
   RefCoreWithIndex& RefCoreWithIndex::operator=( RefCoreWithIndex const& iOther) {
-    cachePtr_ = iOther.cachePtr_.load();
+    cachePtr_.store(iOther.cachePtr_.load(std::memory_order_relaxed), std::memory_order_relaxed);
     processIndex_ = iOther.processIndex_;
     productIndex_ = iOther.productIndex_;
     elementIndex_ = iOther.elementIndex_;

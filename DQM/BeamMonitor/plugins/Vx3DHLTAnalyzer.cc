@@ -34,7 +34,7 @@ Vx3DHLTAnalyzer::Vx3DHLTAnalyzer (const ParameterSet& iConfig)
   debugMode          = true;
   nLumiFit           = 2;     // Number of integrated lumis to perform the fit
   maxLumiIntegration = 15;    // If failing fits, this is the maximum number of integrated lumis after which a reset is issued
-  nLumiXaxisRange    = 3000;  // Correspond to about 20h of data taking: 20h * 60min * 60s / 23s per lumi-block = 3130
+  nLumiXaxisRange    = 5000;  // Correspond to about 32h of data taking: 32h * 60min * 60s / 23s per lumi-block = 5009
   dataFromFit        = true;  // The Beam Spot data can be either taken from the histograms or from the fit results
   minNentries        = 20;    // Minimum number of good vertices to perform the fit
   xRange             = 0.8;   // [cm]
@@ -905,7 +905,7 @@ void Vx3DHLTAnalyzer::endLuminosityBlock (const LuminosityBlock& lumiBlock, cons
       vector<double> vals;
 
       hitCounter->getTH1()->SetBinContent(lastLumiOfFit, (double)totalHits);
-      hitCounter->getTH1()->SetBinError(lastLumiOfFit, std::sqrt((double)totalHits));
+      hitCounter->getTH1()->SetBinError(lastLumiOfFit, (totalHits != 0 ? 1. : 0.)); // It's not sqrt(n) because we want to weight all entries in the same way for the fit
 
       if (dataFromFit == true)
 	{
@@ -1128,28 +1128,18 @@ void Vx3DHLTAnalyzer::endLuminosityBlock (const LuminosityBlock& lumiBlock, cons
       myLinFit->SetParameter(0, dydzlumi->getTH1()->GetMean(2));
       myLinFit->SetParameter(1, 0.0);
       dydzlumi->getTH1()->Fit(myLinFit,"QR");
-      
-      delete myLinFit;
 
-      // Exponential fit to the historical plot
-      TF1* myExpFit = new TF1("myExpFit", "[0]*exp(-x/[1])", hitCounter->getTH1()->GetXaxis()->GetXmin(), hitCounter->getTH1()->GetXaxis()->GetXmax());
-      myExpFit->SetLineColor(2);
-      myExpFit->SetLineWidth(2);
-      myExpFit->SetParName(0,"Ampli.");
-      myExpFit->SetParName(1,"#tau");
-
-      myExpFit->SetParameter(0, hitCounter->getTH1()->GetMaximum());
-      myExpFit->SetParameter(1, nLumiXaxisRange/2);
-      hitCounter->getTH1()->Fit(myExpFit,"QR");
+      myLinFit->SetParameter(0, hitCounter->getTH1()->GetMean(2));
+      myLinFit->SetParameter(1, 0.0);
+      hitCounter->getTH1()->Fit(myLinFit,"QR");
 
       goodVxCounter->getTH1()->SetBinContent(lastLumiOfFit, (double)counterVx);
-      goodVxCounter->getTH1()->SetBinError(lastLumiOfFit, std::sqrt((double)counterVx));
-      
-      myExpFit->SetParameter(0, goodVxCounter->getTH1()->GetMaximum());
-      myExpFit->SetParameter(1, nLumiXaxisRange/2);
-      goodVxCounter->getTH1()->Fit(myExpFit,"QR");
+      goodVxCounter->getTH1()->SetBinError(lastLumiOfFit, (counterVx != 0 ? 1. : 0.)); // It's not sqrt(n) because we want to weight all entries in the same way for the fit
+      myLinFit->SetParameter(0, goodVxCounter->getTH1()->GetMean(2));
+      myLinFit->SetParameter(1, 0.0);
+      goodVxCounter->getTH1()->Fit(myLinFit,"QR");
 
-      delete myExpFit;
+      delete myLinFit;
       vals.clear();
     }
   else if ((nLumiFit != 0) && (lumiCounter%nLumiFit != 0) && (beginTimeOfFit != 0) && (runNumber != 0))
@@ -1276,11 +1266,22 @@ void Vx3DHLTAnalyzer::bookHistograms(DQMStore::IBooker & ibooker, Run const & iR
   goodVxCounter->setAxisTitle("Lumisection [#]",1);
   goodVxCounter->setAxisTitle("Good vertices [#]",2);
   goodVxCounter->getTH1()->SetOption("E1");
-      
-  statusCounter = ibooker.book1D("K - app status vs lumi", "Status vs. Lumisection", nLumiXaxisRange, 0.5, ((double)nLumiXaxisRange)+0.5);
+
+  statusCounter = ibooker.book1D("K - status vs lumi", "App. Status vs. Lumisection", nLumiXaxisRange, 0.5, ((double)nLumiXaxisRange)+0.5);
   statusCounter->setAxisTitle("Lumisection [#]",1);
-  statusCounter->setAxisTitle("App. status [0 = OK]",2);
   statusCounter->getTH1()->SetOption("E1");
+  statusCounter->getTH1()->GetYaxis()->Set(11,-5.5,5.5);
+  statusCounter->getTH1()->GetYaxis()->SetBinLabel(1, "Max Lumi.");
+  statusCounter->getTH1()->GetYaxis()->SetBinLabel(2, "Neg. det.");
+  statusCounter->getTH1()->GetYaxis()->SetBinLabel(3, "Infinite err.");
+  statusCounter->getTH1()->GetYaxis()->SetBinLabel(4, "No vtx.");
+  statusCounter->getTH1()->GetYaxis()->SetBinLabel(5, "Infinite EDM");
+  statusCounter->getTH1()->GetYaxis()->SetBinLabel(6, "OK");
+  statusCounter->getTH1()->GetYaxis()->SetBinLabel(7, "MINUIT stat.");
+  statusCounter->getTH1()->GetYaxis()->SetBinLabel(8, "MINUIT stat.");
+  statusCounter->getTH1()->GetYaxis()->SetBinLabel(9, "MINUIT stat.");
+  statusCounter->getTH1()->GetYaxis()->SetBinLabel(10, "MINUIT stat.");
+  statusCounter->getTH1()->GetYaxis()->SetBinLabel(11, "MINUIT stat.");
 
   fitResults = ibooker.book2D("A - fit results","Results of Beam Spot Fit", 2, 0., 2., 9, 0., 9.);
   fitResults->setAxisTitle("Ongoing: bootstrapping", 1);

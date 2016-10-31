@@ -34,7 +34,7 @@
 #include "Geometry/VeryForwardGeometryBuilder/interface/DetGeomDesc.h"
 #include "Geometry/VeryForwardGeometryBuilder/interface/TotemRPGeometry.h"
 #include "DataFormats/CTPPSAlignment/interface/RPAlignmentCorrectionsData.h"
-#include "DataFormats/TotemRPDetId/interface/TotemRPDetId.h"
+#include "DataFormats/CTPPSDetId/interface/TotemRPDetId.h"
 #include "Geometry/VeryForwardGeometryBuilder/interface/DDDTotemRPConstruction.h"
 
 #include <TMatrixD.h>
@@ -416,33 +416,34 @@ void TotemRPGeometryESModule::ApplyAlignments(const edm::ESHandle<DDCompactView>
 
 auto_ptr<DDCompactView> TotemRPGeometryESModule::produceMeasuredDDCV(const VeryForwardMeasuredGeometryRecord &iRecord)
 {
-    // get the ideal DDCompactView from EventSetup
-    edm::ESHandle<DDCompactView> idealCV;
-    iRecord.getRecord<IdealGeometryRecord>().get(idealCV);
+  // get the ideal DDCompactView from EventSetup
+  edm::ESHandle<DDCompactView> idealCV;
+  iRecord.getRecord<IdealGeometryRecord>().get("XMLIdealGeometryESSource_CTPPS", idealCV);
 
-    // load alignments
-    edm::ESHandle<RPAlignmentCorrectionsData> alignments;
-    try {
-        iRecord.getRecord<RPMeasuredAlignmentRecord>().get(alignments);
-    } catch (...) {
-        cout<< "Exception in TotemRPGeometryESModule::produceMeasuredDDCV"
-            << " during iRecord.getRecord<RPMeasuredAlignmentRecord>().get(alignments)"<<endl;
+  // load alignments
+  edm::ESHandle<RPAlignmentCorrectionsData> alignments;
+  try {
+    iRecord.getRecord<RPMeasuredAlignmentRecord>().get(alignments);
+  } catch (...) {}
+
+  if (alignments.isValid())
+  {
+    if (verbosity)
+    {
+      LogVerbatim("TotemRPGeometryESModule::produceMeasuredDDCV")
+        << ">> TotemRPGeometryESModule::produceMeasuredDDCV > Measured geometry: "
+        << alignments->GetRPMap().size() << " RP and "
+        << alignments->GetSensorMap().size() << " sensor alignments applied.";
     }
+  } else {
+    if (verbosity)
+      LogVerbatim("TotemRPGeometryESModule::produceMeasuredDDCV")
+        << ">> TotemRPGeometryESModule::produceMeasuredDDCV > Measured geometry: No alignments applied.";
+  }
 
-    if (alignments.isValid()) {
-        if (verbosity){
-            cout << ">> TotemRPGeometryESModule::produceMeasuredDDCV > Measured geometry: "
-                << alignments->GetRPMap().size() << " RP and "
-                << alignments->GetSensorMap().size() << " sensor alignments applied.\n";
-        }
-    } else {
-        if (verbosity)
-            cout << ">> TotemRPGeometryESModule::produceMeasuredDDCV > Measured geometry: No alignments applied.\n";
-    }
-
-    DDCompactView *measuredCV = NULL;
-    ApplyAlignments(idealCV, alignments, measuredCV);
-    return auto_ptr<DDCompactView>(measuredCV);
+  DDCompactView *measuredCV = NULL;
+  ApplyAlignments(idealCV, alignments, measuredCV);
+  return auto_ptr<DDCompactView>(measuredCV);
 }
 
 //----------------------------------------------------------------------------------------------------
@@ -470,13 +471,18 @@ auto_ptr<DetGeomDesc> TotemRPGeometryESModule::produceRealGD(const VeryForwardRe
   edm::ESHandle<RPAlignmentCorrectionsData> alignments;
   try { iRecord.getRecord<RPRealAlignmentRecord>().get(alignments); }
   catch (...) {}
-  if (alignments.isValid()) {
+
+  if (alignments.isValid())
+  {
     if (verbosity)
-      printf(">> TotemRPGeometryESModule::produceRealGD > Real geometry: %lu RP and %lu sensor alignments applied.\n",
-        alignments->GetRPMap().size(), alignments->GetSensorMap().size());
+      LogVerbatim("TotemRPGeometryESModule::produceRealGD")
+        << ">> TotemRPGeometryESModule::produceRealGD > Measured geometry: "
+        << alignments->GetRPMap().size() << " RP and "
+        << alignments->GetSensorMap().size() << " sensor alignments applied.";
   } else {
     if (verbosity)
-      printf(">> TotemRPGeometryESModule::produceRealGD > Real geometry: No alignments applied.\n");
+      LogVerbatim("TotemRPGeometryESModule::produceRealGD")
+        << ">> TotemRPGeometryESModule::produceRealGD > Real geometry: No alignments applied.";
   }
 
   DetGeomDesc* newGD = NULL;
@@ -496,12 +502,18 @@ auto_ptr<DetGeomDesc> TotemRPGeometryESModule::produceMisalignedGD(const VeryFor
   edm::ESHandle<RPAlignmentCorrectionsData> alignments;
   try { iRecord.getRecord<RPMisalignedAlignmentRecord>().get(alignments); }
   catch (...) {}
-  if (alignments.isValid()) {
-      printf(">> TotemRPGeometryESModule::produceMisalignedGD > Misaligned geometry: %lu RP and %lu sensor alignments applied.\n",
-        alignments->GetRPMap().size(), alignments->GetSensorMap().size());
+
+  if (alignments.isValid())
+  {
+    if (verbosity)
+      LogVerbatim("TotemRPGeometryESModule::produceMisalignedGD")
+        << ">> TotemRPGeometryESModule::produceMisalignedGD > Measured geometry: "
+        << alignments->GetRPMap().size() << " RP and "
+        << alignments->GetSensorMap().size() << " sensor alignments applied.";
   } else {
     if (verbosity)
-      printf(">> TotemRPGeometryESModule::produceMisalignedGD > Misaligned geometry: No alignments applied.\n");
+      LogVerbatim("TotemRPGeometryESModule::produceMisalignedGD")
+        << ">> TotemRPGeometryESModule::produceMisalignedGD > Misaligned geometry: No alignments applied.";
   }
 
   DetGeomDesc* newGD = NULL;

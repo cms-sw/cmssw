@@ -12,32 +12,19 @@
 #include "TH2.h"
 #include "TPad.h"
 #include "TPaveText.h"
-#include "tdrstyle.C"
+#include "Alignment/OfflineValidation/plugins/TkAlStyle.cc"
 
 
 using namespace ROOT::Math;
 
 void MultiHistoOverlap_Z(bool switchONfitEta = false, bool switchONfit = false){
   gROOT->Reset();
-  setTDRStyle();
+  if (TkAlStyle::status() == NO_STATUS)
+    TkAlStyle::set(INTERNAL);
+  gROOT->ForceStyle();
 
   TString strValidation_label = "Run 2015B (251604-251642)";
   TString strReference_label = "DY 2012 Ideal";
-
-  // preamble
-  TPaveText *cmsPlotTitle = new TPaveText(0.15, 0.93, 0.85, 1, "brNDC");
-  cmsPlotTitle->SetBorderSize(0);
-  cmsPlotTitle->SetFillStyle(0);
-  cmsPlotTitle->SetTextAlign(12);
-  cmsPlotTitle->SetTextFont(42);
-  cmsPlotTitle->SetTextSize(0.045);
-  TText* text = cmsPlotTitle->AddText(0.025, 0.45, "#font[61]{CMS}");
-  text->SetTextSize(0.044);
-  text = cmsPlotTitle->AddText(0.165, 0.42, "#font[52]{Preliminary}");
-  text->SetTextSize(0.0315);
-  TString cErgTev = "#font[42]{      TkAl Z#rightarrow#mu#mu (|#eta_{#mu}|<2.4) 13 TeV}";
-  text = cmsPlotTitle->AddText(0.537, 0.40, cErgTev);
-  text->SetTextSize(0.0315);
 
   TFile* file[2];
   file[0] = new TFile("./BiasCheck.root", "read");
@@ -50,35 +37,13 @@ void MultiHistoOverlap_Z(bool switchONfitEta = false, bool switchONfit = false){
   for (int i=0; i<7; i++){
     TString cname = Form("c%i", i);
     c[i] = new TCanvas(cname, cname, 8, 30, 800, 800);
-    gStyle->SetOptStat(0);
-    c[i]->SetFillColor(0);
-    c[i]->SetBorderMode(0);
-    c[i]->SetBorderSize(2);
-    c[i]->SetTickx(1);
-    c[i]->SetTicky(1);
-    c[i]->SetLeftMargin(0.17);
-    c[i]->SetRightMargin(0.05);
-    c[i]->SetTopMargin(0.07);
-    c[i]->SetBottomMargin(0.13);
-    c[i]->SetFrameFillStyle(0);
-    c[i]->SetFrameBorderMode(0);
-    c[i]->SetFrameFillStyle(0);
-    c[i]->SetFrameBorderMode(0);
   }
 
   float lxmin = 0.22, lxwidth = 0.38;
   float lymax = 0.9, lywidth = 0.15;
   float lxmax = lxmin + lxwidth;
   float lymin = lymax - lywidth;
-  TLegend* leg = new TLegend(lxmin, lymin, lxmax, lymax);
-  leg->SetBorderSize(0);
-  leg->SetTextFont(42);
-  leg->SetTextSize(0.04);
-  leg->SetLineColor(1);
-  leg->SetLineStyle(1);
-  leg->SetLineWidth(1);
-  leg->SetFillColor(0);
-  leg->SetFillStyle(0);
+  TLegend* leg = TkAlStyle::legend("topleft", 2);
 
   //----------------- CANVAS C0 --------------//
   pIndex=0;
@@ -101,19 +66,6 @@ void MultiHistoOverlap_Z(bool switchONfitEta = false, bool switchONfit = false){
       histo[f][iP]=(TH1D*)file[f]->Get(histoName[iP]);
 
       histo[f][iP]->SetTitle("");
-      histo[f][iP]->GetXaxis()->SetLabelFont(42);
-      histo[f][iP]->GetXaxis()->SetLabelOffset(0.007);
-      histo[f][iP]->GetXaxis()->SetLabelSize(0.04);
-      histo[f][iP]->GetXaxis()->SetTitleSize(0.06);
-      histo[f][iP]->GetXaxis()->SetTitleOffset(0.9);
-      histo[f][iP]->GetXaxis()->SetTitleFont(42);
-      histo[f][iP]->GetYaxis()->SetNdivisions(505);
-      histo[f][iP]->GetYaxis()->SetLabelFont(42);
-      histo[f][iP]->GetYaxis()->SetLabelOffset(0.007);
-      histo[f][iP]->GetYaxis()->SetLabelSize(0.04);
-      histo[f][iP]->GetYaxis()->SetTitleSize(0.06);
-      histo[f][iP]->GetYaxis()->SetTitleOffset(1.2);
-      histo[f][iP]->GetYaxis()->SetTitleFont(42);
 
       histo[f][iP]->GetYaxis()->SetTitle("M_{#mu#mu} (GeV)");
       histo[f][iP]->SetLineWidth(1);
@@ -172,7 +124,6 @@ void MultiHistoOverlap_Z(bool switchONfitEta = false, bool switchONfit = false){
   }
 
   leg->Draw("same");
-  cmsPlotTitle->Draw("same");
   c[pIndex]->RedrawAxis();
   c[pIndex]->Modified();
   c[pIndex]->Update();
@@ -212,7 +163,6 @@ void MultiHistoOverlap_Z(bool switchONfitEta = false, bool switchONfit = false){
   }
 
   leg->Draw("same");
-  cmsPlotTitle->Draw("same");
   c[pIndex]->RedrawAxis();
   c[pIndex]->Modified();
   c[pIndex]->Update();
@@ -250,7 +200,6 @@ void MultiHistoOverlap_Z(bool switchONfitEta = false, bool switchONfit = false){
   }
 
   leg->Draw("same");
-  cmsPlotTitle->Draw("same");
   c[pIndex]->RedrawAxis();
   c[pIndex]->Modified();
   c[pIndex]->Update();
@@ -288,7 +237,6 @@ void MultiHistoOverlap_Z(bool switchONfitEta = false, bool switchONfit = false){
   }
 
   leg->Draw("same");
-  cmsPlotTitle->Draw("same");
   c[pIndex]->RedrawAxis();
   c[pIndex]->Modified();
   c[pIndex]->Update();
@@ -326,7 +274,6 @@ void MultiHistoOverlap_Z(bool switchONfitEta = false, bool switchONfit = false){
   }
 
   leg->Draw("same");
-  cmsPlotTitle->Draw("same");
   c[pIndex]->RedrawAxis();
   c[pIndex]->Modified();
   c[pIndex]->Update();
@@ -367,7 +314,6 @@ void MultiHistoOverlap_Z(bool switchONfitEta = false, bool switchONfit = false){
   }
 
   leg->Draw("same");
-  cmsPlotTitle->Draw("same");
   c[pIndex]->RedrawAxis();
   c[pIndex]->Modified();
   c[pIndex]->Update();
@@ -407,7 +353,6 @@ void MultiHistoOverlap_Z(bool switchONfitEta = false, bool switchONfit = false){
   }
 
   leg->Draw("same");
-  cmsPlotTitle->Draw("same");
   c[pIndex]->RedrawAxis();
   c[pIndex]->Modified();
   c[pIndex]->Update();

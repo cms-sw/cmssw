@@ -1,24 +1,24 @@
-#!/bin/sh
 
 xflag=0
-oflag=0
-pflag=0
 gflag=0
-while getopts 'xopgh' OPTION
+
+CMS_OPTIONS=""
+
+while getopts 'oxfgh' OPTION
   do
   case $OPTION in
+      o) CMS_OPTIONS=$CMS_OPTIONS" overwriteKeys=1"
+          ;;
       x) xflag=1
           ;;
-      o) oflag=1
-          ;;
-      p) pflag=1
-          ;;
+      f) CMS_OPTIONS=$CMS_OPTIONS" forceUpdate=1"
+	  ;;
       g) gflag=1
 	  ;;
-      h) echo "Usage: [-x] tsckey runnum"
-          echo "  -x: write to ORCON instead of sqlite file"
+      h) echo "Usage: [-x] runnum l1key"
 	  echo "  -o: overwrite keys"
-          echo "  -p: centrally installed release, not on local machine"
+          echo "  -x: write to ORCON instead of sqlite file"
+	  echo "  -f: force IOV update"
 	  echo "  -g: GT RS records only"
           exit
 	  ;;
@@ -29,65 +29,47 @@ shift $(($OPTIND - 1))
 runnum=$1
 l1Key=$2
 
-if [ ${pflag} -eq 0 ]
-    then
-    export SCRAM_ARCH=""
-    export VO_CMS_SW_DIR=""
-    source /opt/cmssw/cmsset_default.sh
-else
-    source /nfshome0/cmssw2/scripts/setup.sh
-fi
-eval `scramv1 run -sh`
-export TNS_ADMIN=/nfshome0/popcondev/conddb
 
-if [ ${oflag} -eq 1 ]
-    then
-    overwrite="overwriteKeys=1"
-fi
+echo "INFO: ADDITIONAL CMS OPTIONS:  " $CMS_OPTIONS
 
-if [ ${gflag} -eq 1 ]
-    then
-    rsflag="-g"
+if [ ${gflag} -eq 1 ] 
+then
+     OBJKEYS=`$CMSSW_BASE/src/CondTools/L1Trigger/scripts/getKeys.sh -g ${l1Key}`
 else
-    rsflag="-r"
+     OBJKEYS=`$CMSSW_BASE/src/CondTools/L1Trigger/scripts/getKeys.sh -r ${l1Key}`
 fi
+echo "INFO:  OBJECT KEYS:  " $OBJKEYS
 
 if [ ${xflag} -eq 0 ]
-    then
+then
     echo "Writing to sqlite_file:l1config.db instead of ORCON."
-    cmsRun $CMSSW_BASE/src/CondTools/L1Trigger/test/L1ConfigWriteRSOnline_cfg.py runNumber=${runnum} outputDBConnect=sqlite_file:l1config.db outputDBAuth=. ${overwrite} logTransactions=0 `$CMSSW_BASE/src/CondTools/L1Trigger/scripts/getKeys.sh ${rsflag} ${l1Key}` keysFromDB=0 print
-    o2ocode=$?
-    if [ ${o2ocode} -ne 0 ]
+    DB_OPTIONS="outputDBConnect=sqlite_file:l1config.db outputDBAuth=." 
+else
+    echo "Cowardly refusing to write to the online database"
+    DB_OPTIONS="outputDBConnect=oracle://cms_orcoff_prep/CMS_CONDITIONS outputDBAuth=." 
+    # WHEN READY FOR PRIME TIME:
+    # DB_OPTIONS= "outputDBConnect=oracle://cms_orcon_prod/CMS_COND_31X_L1T outputDBAuth=."
+fi
+
+
+cmsRun $CMSSW_BASE/src/CondTools/L1Trigger/test/L1ConfigWriteRSOnline_cfg.py runNumber=${runnum} ${DB_OPTIONS} ${CMS_OPTIONS} logTransactions=0 $OBJKEYS keysFromDB=0 print
+o2ocode=$?
+
+if [ ${o2ocode} -ne 0 ] 
+then
+    if [ ${o2ocode} -eq 66 ] 
+    then
+	echo "L1-O2O-ERROR: unable to connect to OMDS or ORCON.  Check that /nfshome0/centraltspro/secure/authentication.xml is up to date (OMDS)."
+	echo "L1-O2O-ERROR: unable to connect to OMDS or ORCON.  Check that /nfshome0/centraltspro/secure/authentication.xml is up to date (OMDS)." 1>&2
+    else
+	if [ ${o2ocode} -eq 65 ] 
 	then
-	if [ ${o2ocode} -eq 66 ]
-	    then
-	    echo "L1-O2O-ERROR: unable to connect to OMDS or ORCON.  Check that /nfshome0/centraltspro/secure/authentication.xml is up to date (OMDS)."
-	    echo "L1-O2O-ERROR: unable to connect to OMDS or ORCON.  Check that /nfshome0/centraltspro/secure/authentication.xml is up to date (OMDS)." 1>&2
-	else
-	    if [ ${o2ocode} -eq 65 ]
-		then
-		echo "L1-O2O-ERROR: problem writing object to ORCON."
-		echo "L1-O2O-ERROR: problem writing object to ORCON." 1>&2
-	    fi
+	    echo "L1-O2O-ERROR: problem writing object to ORCON."
+	    echo "L1-O2O-ERROR: problem writing object to ORCON." 1>&2
 	fi
     fi
 else
-    cmsRun $CMSSW_BASE/src/CondTools/L1Trigger/test/L1ConfigWriteRSOnline_cfg.py runNumber=${runnum} outputDBConnect=oracle://cms_orcon_prod/CMS_COND_31X_L1T outputDBAuth=/nfshome0/popcondev/conddb_taskWriters/L1T ${overwrite} `$CMSSW_BASE/src/CondTools/L1Trigger/scripts/getKeys.sh ${rsflag} ${l1Key}` keysFromDB=0 print
-    o2ocode=$?
-    if [ ${o2ocode} -ne 0 ]
-	then
-	if [ ${o2ocode} -eq 66 ]
-	    then
-	    echo "L1-O2O-ERROR: unable to connect to OMDS or ORCON.  Check that /nfshome0/centraltspro/secure/authentication.xml is up to date (OMDS)."
-	    echo "L1-O2O-ERROR: unable to connect to OMDS or ORCON.  Check that /nfshome0/centraltspro/secure/authentication.xml is up to date (OMDS)." 1>&2
-	else
-	    if [ ${o2ocode} -eq 65 ]
-		then
-		echo "L1-O2O-ERROR: problem writing object to ORCON."
-		echo "L1-O2O-ERROR: problem writing object to ORCON." 1>&2
-	    fi
-	fi
-    fi
+    echo "runL1-o2o-rs-keysFromL1Key.sh ran successfully."
 fi
-
 exit ${o2ocode}
+

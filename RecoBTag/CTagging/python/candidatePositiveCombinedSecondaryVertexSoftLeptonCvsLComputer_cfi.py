@@ -1,7 +1,0 @@
-import FWCore.ParameterSet.Config as cms
-
-from RecoBTag.CTagging.candidateCombinedSecondaryVertexSoftLeptonCvsLComputer_cfi import *
-
-candidatePositiveCombinedSecondaryVertexSoftLeptonCvsLComputer = candidateCombinedSecondaryVertexSoftLeptonCvsLComputer.clone()
-candidatePositiveCombinedSecondaryVertexSoftLeptonCvsLComputer.trackSelection.sip3dSigMin = 0
-candidatePositiveCombinedSecondaryVertexSoftLeptonCvsLComputer.trackPseudoSelection.sip3dSigMin = 0

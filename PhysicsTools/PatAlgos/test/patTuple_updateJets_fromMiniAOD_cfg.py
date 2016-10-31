@@ -27,7 +27,7 @@ updateJetCollection(
 )
 process.updatedPatJets.userData.userFloats.src += ['oldJetMass']
 
-## An example where the jet correction is undone
+## An example where the jet corrections are undone
 updateJetCollection(
    process,
    labelName = 'UndoneJEC',
@@ -36,7 +36,7 @@ updateJetCollection(
 )
 process.updatedPatJetsUndoneJEC.userData.userFloats.src = []
 
-## An example where the jet correction are reapplied
+## An example where the jet corrections are reapplied
 updateJetCollection(
    process,
    labelName = 'ReappliedJEC',
@@ -44,6 +44,22 @@ updateJetCollection(
    jetCorrections = ('AK4PFchs', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'None')
 )
 process.updatedPatJetsReappliedJEC.userData.userFloats.src = []
+
+## An example where the jet energy corrections are updated to the current GlobalTag
+## and specified b-tag discriminators are rerun and added to SoftDrop subjets
+updateJetCollection(
+   process,
+   labelName = 'SoftDropSubjets',
+   jetSource = cms.InputTag('slimmedJetsAK8PFCHSSoftDropPacked:SubJets'),
+   jetCorrections = ('AK4PFchs', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'None'),
+   btagDiscriminators = ['pfCombinedSecondaryVertexV2BJetTags', 'pfCombinedInclusiveSecondaryVertexV2BJetTags'],
+   explicitJTA = True,          # needed for subjet b tagging
+   svClustering = False,        # needed for subjet b tagging (IMPORTANT: Needs to be set to False to disable ghost-association which does not work with slimmed jets)
+   fatJets = cms.InputTag('slimmedJetsAK8'), # needed for subjet b tagging
+   rParam = 0.8,                # needed for subjet b tagging
+   algo = 'ak'                  # has to be defined but is not used with svClustering=False
+)
+process.updatedPatJetsSoftDropSubjets.userData.userFloats.src = []
 
 ## ------------------------------------------------------
 #  In addition you usually want to change the following

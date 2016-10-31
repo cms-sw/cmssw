@@ -4,7 +4,7 @@ import FWCore.ParameterSet.Config as cms
 def reEmulateLayer2(process):
 
     process.load('L1Trigger/L1TCalorimeter/simCaloStage2Digis_cfi')
-    process.load('L1Trigger/L1TCalorimeter/caloStage2Params_HWConfig_cfi')
+    process.load('L1Trigger.L1TCalorimeter.caloStage2Params_2016_v3_3_cfi')
 
     process.simCaloStage2Digis.towerToken = cms.InputTag("caloStage2Digis", "CaloTower")
     
@@ -63,15 +63,15 @@ def hwEmulCompHistos(process):
 
 def reEmulateLayer2ValHistos(process):
 
-    process.load('EventFilter.L1TRawToDigi.validationEventFilter_cfi')
-    
+    process.load('EventFilter.L1TRawToDigi.caloTowersFilter_cfi')
 
     reEmulateLayer2(process)
     hwEmulCompHistos(process)
 
-    process.l1ntupleraw.insert(0,process.validationEventFilter)
-    process.caloLayer2.insert(0,process.validationEventFilter)
-    process.hwEmulHistos.insert(0,process.validationEventFilter)
+    process.l1ntupleraw.insert(0,process.caloTowersFilter)
+    #process.l1ntuplesim.insert(0,process.caloTowersFilter)
+    process.caloLayer2.insert(0,process.caloTowersFilter)
+    process.hwEmulHistos.insert(0,process.caloTowersFilter)
 
     return process
 

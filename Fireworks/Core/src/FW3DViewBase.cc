@@ -113,7 +113,7 @@ FW3DViewBase::FW3DViewBase(TEveWindowSlot* iParent, FWViewType::EType typeId, un
    m_showTrackerBarrel(this, "Show Tracker Barrel", false ),
    m_showTrackerEndcap(this, "Show Tracker Endcap", false),
    m_ecalBarrel(0),
-   m_showEcalBarrel(this, "Show Ecal Barrel", typeId == FWViewType::kISpy ? true : false),
+   m_showEcalBarrel(this, "Show Ecal Barrel", false),
    m_rnrStyle(this, "Render Style", 0l, 0l, 2l),
    m_selectable(this, "Enable Tooltips", false),
    m_cameraType(this, "Camera Type", 0l, 0l, 5l),

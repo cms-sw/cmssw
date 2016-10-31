@@ -1,5 +1,5 @@
-#ifndef Utilities_h
-#define Utilities_h
+#ifndef DQM_HcalCommon_Utilities_h
+#define DQM_HcalCommon_Utilities_h
 
 /*
  *	file:			Utilities.h
@@ -18,7 +18,34 @@ namespace hcaldqm
 	namespace utilities
 	{
 		/*
-		 *	Some useful functions on digis
+		 *	Some useful functions for QIE10/11 Data Frames
+		 */
+		template<typename FRAME>
+		double aveTS_v10(FRAME const& frame, double ped=0, int i=0,int j=3)
+		{
+			double sumQ = 0;
+			double sumQT = 0;
+			for (int ii=i; ii<=j; ii++)
+			{
+				double q = constants::adc2fC[frame[ii].adc()]-ped;
+				sumQ += q;
+				sumQT += (ii+1)*q;
+			}
+
+			return sumQ>0 ? sumQT/sumQ-1 : GARBAGE_VALUE;
+		}
+
+		template<typename FRAME>
+		double sumQ_v10(FRAME const& frame, double ped, int i=0, int j=3)
+		{
+			double sumQ = 0;
+			for (int ii=i; ii<=j; ii++)
+				sumQ += constants::adc2fC[frame[ii].adc()]-ped;
+			return sumQ;
+		}
+
+		/*
+		 *	Some useful functions on QIE8 digis
 		 */
 		template<typename DIGI>
 		int maxTS(DIGI const& digi, double ped=0)
@@ -115,14 +142,12 @@ namespace hcaldqm
 		uint32_t hash(HcalDetId const&);
 		uint32_t hash(HcalElectronicsId const&);
 		uint32_t hash(HcalTrigTowerDetId const&);
+
+		/*
+		 *	Orbit Gap Related
+		 */	
+		std::string ogtype2string(OrbitGapType type);
 	}
 }
 
 #endif
-
-
-
-
-
-
-

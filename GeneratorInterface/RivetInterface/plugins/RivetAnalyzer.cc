@@ -19,7 +19,8 @@ _outFileName(pset.getParameter<std::string>("OutputFile")),
 //decide whether to finlaize tthe plots or not.
 //deciding not to finalize them can be useful for further harvesting of many jobs
 _doFinalize(pset.getParameter<bool>("DoFinalize")),
-_produceDQM(pset.getParameter<bool>("ProduceDQMOutput"))
+_produceDQM(pset.getParameter<bool>("ProduceDQMOutput")),
+_xsection(-1.)
 {
   //retrive the analysis name from paarmeter set
   std::vector<std::string> analysisNames = pset.getParameter<std::vector<std::string> >("AnalysisNames");
@@ -47,11 +48,10 @@ _produceDQM(pset.getParameter<bool>("ProduceDQMOutput"))
   std::set< AnaHandle, CmpAnaHandle >::const_iterator ibeg = analyses.begin();
   std::set< AnaHandle, CmpAnaHandle >::const_iterator iend = analyses.end();
   std::set< AnaHandle, CmpAnaHandle >::const_iterator iana; 
-  double xsection = -1.;
-  xsection = pset.getParameter<double>("CrossSection");
+  _xsection = pset.getParameter<double>("CrossSection");
   for (iana = ibeg; iana != iend; ++iana){
     if ((*iana)->needsCrossSection())
-    (*iana)->setCrossSection(xsection);
+      (*iana)->setCrossSection(_xsection);
   }
   if (_produceDQM){
     // book stuff needed for DQM
@@ -88,29 +88,37 @@ void RivetAnalyzer::analyze(const edm::Event& iEvent,const edm::EventSetup& iSet
 
   // get HepMC GenEvent
   const HepMC::GenEvent *myGenEvent = evt->GetEvent();
-  
-  //if you want to use an external weight we have to clone the GenEvent and change the weight  
-  if ( _useExternalWeight ){
+  std::unique_ptr<HepMC::GenEvent> tmpGenEvtPtr;
+  //if you want to use an external weight or set the cross section we have to clone the GenEvent and change the weight  
+  if ( _useExternalWeight || _xsection > 0 ){
+    tmpGenEvtPtr = std::make_unique<HepMC::GenEvent>(*(evt->GetEvent()));
+
+    if (_xsection > 0){
+      HepMC::GenCrossSection xsec;
+      xsec.set_cross_section(_xsection);
+      tmpGenEvtPtr->set_cross_section(xsec);
+    } 
+
+    if ( _useExternalWeight ){
+      if (tmpGenEvtPtr->weights().size() == 0) {
+	throw cms::Exception("RivetAnalyzer") << "Original weight container has 0 size ";
+      }
+      if (tmpGenEvtPtr->weights().size() > 1) {
+	edm::LogWarning("RivetAnalyzer") << "Original event weight size is " << tmpGenEvtPtr->weights().size() << ". Will change only the first one ";  
+      }
     
-    HepMC::GenEvent * tmpGenEvtPtr = new HepMC::GenEvent( *(evt->GetEvent()) );
-    if (tmpGenEvtPtr->weights().size() == 0) {
-      throw cms::Exception("RivetAnalyzer") << "Original weight container has 0 size ";
+      if(!_useLHEweights){
+	edm::Handle<GenEventInfoProduct> genEventInfoProduct;
+	iEvent.getByToken(_genEventInfoCollection, genEventInfoProduct);
+	tmpGenEvtPtr->weights()[0] = genEventInfoProduct->weight();
+      }else{
+	edm::Handle<LHEEventProduct> lheEventHandle;
+	iEvent.getByToken(_LHECollection,lheEventHandle);
+	const LHEEventProduct::WGT& wgt = lheEventHandle->weights().at(_LHEweightNumber);
+	tmpGenEvtPtr->weights()[0] = wgt.wgt;
+      }
     }
-    if (tmpGenEvtPtr->weights().size() > 1) {
-      edm::LogWarning("RivetAnalyzer") << "Original event weight size is " << tmpGenEvtPtr->weights().size() << ". Will change only the first one ";  
-    }
-    
-    if(!_useLHEweights){
-      edm::Handle<GenEventInfoProduct> genEventInfoProduct;
-      iEvent.getByToken(_genEventInfoCollection, genEventInfoProduct);
-      tmpGenEvtPtr->weights()[0] = genEventInfoProduct->weight();
-    }else{
-      edm::Handle<LHEEventProduct> lheEventHandle;
-      iEvent.getByToken(_LHECollection,lheEventHandle);
-      const LHEEventProduct::WGT& wgt = lheEventHandle->weights().at(_LHEweightNumber);
-      tmpGenEvtPtr->weights()[0] = wgt.wgt;
-    }
-    myGenEvent = tmpGenEvtPtr;
+    myGenEvent = tmpGenEvtPtr.get();
 
   }
   
@@ -124,9 +132,6 @@ void RivetAnalyzer::analyze(const edm::Event& iEvent,const edm::EventSetup& iSet
   //run the analysis
   _analysisHandler.analyze(*myGenEvent);
 
-  //if we have cloned the GenEvent, we delete it
-  if ( _useExternalWeight ) 
-  delete myGenEvent;
 }
 
 

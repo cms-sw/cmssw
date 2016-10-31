@@ -20,4 +20,9 @@
 <use   name="CondFormats/EcalObjects"/>
 <use   name="RecoJets/JetProducers"/>
 <use   name="RecoJets/JetAlgorithms"/>
+<use   name="MagneticField/Records"/>
+<use   name="MagneticField/Engine"/>
+<use   name="TrackingTools/TransientTrack"/>
+<use   name="TrackingTools/Records"/>
+<use   name="TrackingTools/PatternTools"/>
 <flags   EDM_PLUGIN="1"/> 

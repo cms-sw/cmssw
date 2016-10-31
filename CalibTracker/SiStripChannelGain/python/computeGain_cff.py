@@ -32,11 +32,12 @@ SiStripCalib = cms.EDAnalyzer(
     NClustersForTagProd = cms.untracked.double(1E8),
     
 
-    SinceAppendMode     = cms.bool(True),
-    TimeFromEndRun      = cms.untracked.bool(True),
-    IOVMode             = cms.string('Job'),
-    Record              = cms.string('SiStripApvGainRcd'),
-    doStoreOnDB         = cms.bool(True),
+    SinceAppendMode         = cms.bool(True),
+    TimeFromEndRun          = cms.untracked.bool(False),
+    TimeFromStartOfRunRange = cms.untracked.bool(True),
+    IOVMode                 = cms.string('AlgoDriven'),
+    Record                  = cms.string('SiStripApvGainRcd'),
+    doStoreOnDB             = cms.bool(True),
 
     treePath            = cms.untracked.string('gainCalibrationTree/tree'),
     gain                = cms.untracked.PSet(label = cms.untracked.string('shallowGainCalibration'), prefix = cms.untracked.string("GainCalibration"), suffix = cms.untracked.string('')),

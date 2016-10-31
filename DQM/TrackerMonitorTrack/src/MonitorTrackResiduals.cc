@@ -19,7 +19,7 @@
 template<TrackerType pixel_or_strip>
 MonitorTrackResidualsBase<pixel_or_strip>::MonitorTrackResidualsBase(const edm::ParameterSet& iConfig)
    : conf_(iConfig), m_cacheID_(0)
-   , genTriggerEventFlag_(new GenericTriggerEventFlag(iConfig, consumesCollector(), *this))
+   , genTriggerEventFlag_(new GenericTriggerEventFlag(iConfig.getParameter<edm::ParameterSet>("genericTriggerEventPSet"), consumesCollector(), *this))
    , avalidator_(iConfig, consumesCollector()) {
   ModOn = conf_.getParameter<bool>("Mod_On");
   offlinePrimaryVerticesToken_ = consumes<reco::VertexCollection>(std::string("offlinePrimaryVertices"));

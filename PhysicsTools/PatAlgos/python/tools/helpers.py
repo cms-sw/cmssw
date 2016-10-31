@@ -15,13 +15,19 @@ def addESProducers(process,config):
 			if 'ESProducer' in item.type_():
 				setattr(process,name,item)
 
+def loadWithPrefix(process,moduleName,prefix=''):
+        loadWithPrePostfix(process,moduleName,prefix,'')
+
 def loadWithPostfix(process,moduleName,postfix=''):
+        loadWithPrePostfix(process,moduleName,'',postfix)
+
+def loadWithPrePostfix(process,moduleName,prefix='',postfix=''):
 	moduleName = moduleName.replace("/",".")
         module = __import__(moduleName)
 	#print module.PatAlgos.patSequences_cff.patDefaultSequence
-        extendWithPostfix(process,sys.modules[moduleName],postfix)
+        extendWithPrePostfix(process,sys.modules[moduleName],prefix,postfix)
 
-def extendWithPostfix(process,other,postfix,items=()):
+def extendWithPrePostfix(process,other,prefix,postfix,items=()):
         """Look in other and find types which we can use"""
         # enable explicit check to avoid overwriting of existing objects
         #__dict__['_Process__InExtendCall'] = True
@@ -46,7 +52,7 @@ def extendWithPostfix(process,other,postfix,items=()):
             	elif isinstance(item,cms._Labelable):
                 	if not item.hasLabel_():
                    		item.setLabel(name)
-			if postfix != '':
+			if prefix != '' or postfix != '':
 				newModule = item.clone()
 				if isinstance(item,cms.ESProducer):
 					newLabel = item.label()
@@ -54,8 +60,8 @@ def extendWithPostfix(process,other,postfix,items=()):
 				else:
 				        if 'TauDiscrimination' in name:
 				                       process.__setattr__(name,item)
-					newLabel = item.label()+postfix
-					newName = name+postfix
+					newLabel = prefix+item.label()+postfix
+					newName = prefix+name+postfix
 				process.__setattr__(newName,newModule)
 				if isinstance(newModule, cms._Sequenceable) and not newName == name:
 					sequence +=getattr(process,newName)
@@ -63,9 +69,9 @@ def extendWithPostfix(process,other,postfix,items=()):
 			else:
 				process.__setattr__(name,item)
 
-	if postfix != '':
+	if prefix != '' or postfix != '':
 		for label in sequence._moduleLabels:
-			massSearchReplaceAnyInputTag(sequence, label, label+postfix,verbose=False,moduleLabelOnly=True)
+			massSearchReplaceAnyInputTag(sequence, label, prefix+label+postfix,verbose=False,moduleLabelOnly=True)
 
 def applyPostfix(process, label, postfix):
     result = None
@@ -190,10 +196,11 @@ class GatherAllModulesVisitor(object):
 class CloneSequenceVisitor(object):
     """Visitor that travels within a cms.Sequence, and returns a cloned version of the Sequence.
     All modules and sequences are cloned and a postfix is added"""
-    def __init__(self, process, label, postfix, removePostfix=""):
+    def __init__(self, process, label, postfix, removePostfix="", noClones = []):
         self._process = process
         self._postfix = postfix
         self._removePostfix = removePostfix
+        self._noClones = noClones
         self._moduleLabels = []
         self._clonedSequence = cms.Sequence()
         setattr(process, self._newLabel(label), self._clonedSequence)
@@ -202,7 +209,9 @@ class CloneSequenceVisitor(object):
         if isinstance(visitee, cms._Module):
             label = visitee.label()
             newModule = None
-            if label in self._moduleLabels: # has the module already been cloned ?
+            if label in self._noClones: #keep unchanged
+                newModule = getattr(self._process, label)
+            elif label in self._moduleLabels: # has the module already been cloned ?
                 newModule = getattr(self._process, self._newLabel(label))
             else:
                 self._moduleLabels.append(label)
@@ -303,7 +312,7 @@ def contains(sequence, moduleName):
 
 
 
-def cloneProcessingSnippet(process, sequence, postfix, removePostfix=""):
+def cloneProcessingSnippet(process, sequence, postfix, removePostfix="", noClones = []):
    """
    ------------------------------------------------------------------
    copy a sequence plus the modules and sequences therein
@@ -313,7 +322,7 @@ def cloneProcessingSnippet(process, sequence, postfix, removePostfix=""):
    """
    result = sequence
    if not postfix == "":
-       visitor = CloneSequenceVisitor(process, sequence.label(), postfix, removePostfix)
+       visitor = CloneSequenceVisitor(process, sequence.label(), postfix, removePostfix, noClones)
        sequence.visit(visitor)
        result = visitor.clonedSequence()
    return result

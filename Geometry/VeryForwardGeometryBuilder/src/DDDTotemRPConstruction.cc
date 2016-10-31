@@ -9,7 +9,7 @@
 #include "Geometry/VeryForwardGeometryBuilder/interface/DDDTotemRPConstruction.h"
 #include "DetectorDescription/Core/interface/DDFilteredView.h"
 #include "DetectorDescription/Core/interface/DDCompactView.h"
-#include "DataFormats/TotemRPDetId/interface/TotemRPDetId.h"
+#include "DataFormats/CTPPSDetId/interface/TotemRPDetId.h"
 
 // this might be useful one day
 //.#include "Geometry/TrackerNumberingBuilder/interface/ExtractStringFromDDD.h"

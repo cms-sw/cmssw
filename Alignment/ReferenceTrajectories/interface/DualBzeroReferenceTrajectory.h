@@ -54,6 +54,7 @@ public:
   virtual DualBzeroReferenceTrajectory* clone() const { return new DualBzeroReferenceTrajectory(*this); }
 
 protected:
+  using DualReferenceTrajectory::construct;
 
   virtual ReferenceTrajectory* construct(const TrajectoryStateOnSurface &referenceTsos, 
 					 const ConstRecHitContainer &recHits,

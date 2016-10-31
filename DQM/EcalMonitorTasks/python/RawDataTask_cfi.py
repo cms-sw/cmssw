@@ -276,7 +276,15 @@ ecalRawDataTask = cms.untracked.PSet(
             ),
             otype = cms.untracked.string('SM'),
             btype = cms.untracked.string('SuperCrystal'),
+            perLumi = cms.untracked.bool(True),
             description = cms.untracked.string('FE status counter.')
+        ),
+        FEStatusErrMapByLumi = cms.untracked.PSet(
+            path = cms.untracked.string('%(subdet)s/%(prefix)sStatusFlagsTask/FEStatus/%(prefix)sSFT%(suffix)s front-end status error map by lumi'),
+            kind = cms.untracked.string('TH2F'),
+            otype = cms.untracked.string('Ecal3P'),
+            btype = cms.untracked.string('SuperCrystal'),
+            description = cms.untracked.string('FE status error occupancy map for this lumisection. Nominal FE status flags such as ENABLED, SUPPRESSED, FIFOFILL, FIFOFULLL1ADESYNC, and FORCEDZS are NOT included.')
         )
     )
 )

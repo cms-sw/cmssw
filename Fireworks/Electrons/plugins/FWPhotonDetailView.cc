@@ -11,7 +11,7 @@
 #include "TCanvas.h"
 #include "TEveCaloLegoOverlay.h"
 
-#include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
+
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
 
 #include "Fireworks/Electrons/plugins/FWPhotonDetailView.h"
@@ -50,7 +50,7 @@ void FWPhotonDetailView::build (const FWModelId &id, const reco::Photon* iPhoton
    m_builder->showSuperClusters();
 
    if ( iPhoton->superCluster().isAvailable() )
-      m_builder->showSuperCluster(*(iPhoton->superCluster()), kYellow);
+      m_builder->showSuperCluster(*(iPhoton->superCluster()), kYellow + 1);
 
    TEveCaloLego* lego = m_builder->build();
    m_data = lego->GetData();
@@ -109,22 +109,16 @@ FWPhotonDetailView::setTextInfo(const FWModelId& id, const reco::Photon *photon)
 void
 FWPhotonDetailView::addSceneInfo(const reco::Photon *i, TEveElementList* tList)
 {
-   unsigned int subdetId(0);
-   if ( !i->superCluster()->seed()->hitsAndFractions().empty() )
-      subdetId = i->superCluster()->seed()->hitsAndFractions().front().first.subdetId();
 
    // points for centroids
    Double_t x(0), y(0), z(0);
    TEvePointSet *scposition = new TEvePointSet("sc position");
    scposition->SetPickable(kTRUE);
    scposition->SetTitle("Super cluster centroid");
-   if (subdetId == EcalBarrel) {
-      x = i->caloPosition().eta();
-      y = i->caloPosition().phi();
-   } else if (subdetId == EcalEndcap) {
-      x = i->caloPosition().x();
-      y = i->caloPosition().y();
-   }
+
+   x = i->caloPosition().eta();
+   y = i->caloPosition().phi();
+
    scposition->SetNextPoint(x,y,z);
    scposition->SetMarkerSize(1);
    scposition->SetMarkerStyle(4);
@@ -135,20 +129,21 @@ FWPhotonDetailView::addSceneInfo(const reco::Photon *i, TEveElementList* tList)
    TEvePointSet *seedposition = new TEvePointSet("seed position");
    seedposition->SetTitle("Seed cluster centroid");
    seedposition->SetPickable(kTRUE);
-   if (subdetId == EcalBarrel) {
-      x  = i->superCluster()->seed()->position().eta();
-      y  = i->superCluster()->seed()->position().phi();
-      seedposition->SetMarkerSize(0.01);
-   } else if (subdetId == EcalEndcap) {
-      x  = i->superCluster()->seed()->position().x();
-      y  = i->superCluster()->seed()->position().y();
-      seedposition->SetMarkerSize(1);
-   }
+
+   x  = i->superCluster()->seed()->position().eta();
+   y  = i->superCluster()->seed()->position().phi();
+   seedposition->SetMarkerSize(0.01);
+
    seedposition->SetNextPoint(x, y, z);
    seedposition->SetMarkerStyle(2);
    seedposition->SetMarkerColor(kRed);
    tList->AddElement(seedposition);
 }
 
+REGISTER_FWDETAILVIEW(FWPhotonDetailView,Photon);
+
+/*
 REGISTER_FWDETAILVIEW(FWPhotonDetailView,Photon,ecalRecHit);
 REGISTER_FWDETAILVIEW(FWPhotonDetailView,Photon,reducedEcalRecHitsEB);
+REGISTER_FWDETAILVIEW(FWPhotonDetailView,Photon,reducedEGamma);
+*/

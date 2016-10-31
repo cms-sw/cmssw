@@ -165,6 +165,7 @@ bool ClusterShapeTrackFilter::operator()
 
   // Get global directions
   vector<GlobalVector> globalDirs = getGlobalDirs(globalPoss);
+  if ( globalDirs.empty() ) return false;
 
   bool ok = true;
 

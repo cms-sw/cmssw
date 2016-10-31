@@ -26,7 +26,7 @@ using namespace jsoncollector;
 constexpr double throughputFactor() {return (1000000)/double(1024*1024);}
 
 static const int nReservedModules = 64;
-static const int nSpecialModules = 7;
+static const int nSpecialModules = 10;
 static const int nReservedPaths = 1;
 
 namespace evf{
@@ -35,6 +35,25 @@ namespace evf{
     {"Init","JobReady","RunGiven","Running",
      "Stopping","Done","JobEnded","Error","ErrorEnded","End",
      "Invalid"};
+
+  const std::string FastMonitoringService::inputStateNames[FastMonitoringThread::inCOUNT] = 
+    {"Ignore","Init","WaitInput","NewLumi","NewLumiBusyEndingLS","NewLumiIdleEndingLS","RunEnd","ProcessingFile","WaitChunk","ChunkReceived",
+     "ChecksumEvent","CachedEvent","ReadEvent","ReadCleanup","NoRequest","NoRequestWithIdleThreads",
+     "NoRequestWithGlobalEoL","NoRequestWithEoLThreads",
+     "SupFileLimit", "SupWaitFreeChunk","SupWaitFreeChunkCopying", "SupWaitFreeThread","SupWaitFreeThreadCopying",
+     "SupBusy", "SupLockPolling","SupLockPollingCopying",
+     "SupNoFile", "SupNewFile", "SupNewFileWaitThreadCopying", "SupNewFileWaitThread",
+     "SupNewFileWaitChunkCopying", "SupNewFileWaitChunk",
+     "WaitInput_fileLimit","WaitInput_waitFreeChunk","WaitInput_waitFreeChunkCopying","WaitInput_waitFreeThread","WaitInput_waitFreeThreadCopying",
+     "WaitInput_busy","WaitInput_lockPolling","WaitInput_lockPollingCopying","WaitInput_runEnd",
+     "WaitInput_noFile","WaitInput_newFile","WaitInput_newFileWaitThreadCopying","WaitInput_newFileWaitThread",
+     "WaitInput_newFileWaitChunkCopying","WaitInput_newFileWaitChunk",
+     "WaitChunk_fileLimit","WaitChunk_waitFreeChunk","WaitChunk_waitFreeChunkCopying","WaitChunk_waitFreeThread","WaitChunk_waitFreeThreadCopying",
+     "WaitChunk_busy","WaitChunk_lockPolling","WaitChunk_lockPollingCopying","WaitChunk_runEnd",
+     "WaitChunk_noFile","WaitChunk_newFile","WaitChunk_newFileWaitThreadCopying","WaitChunk_newFileWaitThread",
+     "WaitChunk_newFileWaitChunkCopying","WaitChunk_newFileWaitChunk"
+    };
+
 
   const std::string FastMonitoringService::nopath_ = "NoPath";
 
@@ -47,6 +66,7 @@ namespace evf{
     ,fastMonIntervals_(iPS.getUntrackedParameter<unsigned int>("fastMonIntervals", 2))
     ,fastName_("fastmoni")
     ,slowName_("slowmoni")
+    ,filePerFwkStream_(iPS.getUntrackedParameter<bool>("filePerFwkStream", false))
     ,totalEventsProcessed_(0)
   {
     reg.watchPreallocate(this, &FastMonitoringService::preallocate);//receiving information on number of threads
@@ -107,6 +127,7 @@ namespace evf{
     desc.setComment("Service for File-based DAQ monitoring and event accounting");
     desc.addUntracked<int> ("sleepTime",1)->setComment("Sleep time of the monitoring thread");
     desc.addUntracked<unsigned int> ("fastMonIntervals",2)->setComment("Modulo of sleepTime intervals on which fastmon file is written out");
+    desc.addUntracked<bool> ("filePerFwkStream", false)->setComment("Switches on monitoring output per framework stream");
     desc.setAllowAnything();
     descriptions.add("FastMonitoringService", desc);
   }
@@ -136,6 +157,16 @@ namespace evf{
     moduleLegend["reserved"]=valReserved;
     moduleLegend["special"]=valSpecial;
     moduleLegend["output"]=valOutputModules;
+    Json::StyledWriter writer;
+    return writer.write(moduleLegend);
+  }
+
+  std::string FastMonitoringService::makeInputLegendaJson(){
+    Json::Value legendaVector(Json::arrayValue);
+    for(int i = 0; i < FastMonitoringThread::inCOUNT; i++)
+      legendaVector.append(Json::Value(inputStateNames[i]));
+    Json::Value moduleLegend;
+    moduleLegend["names"]=legendaVector;
     Json::StyledWriter writer;
     return writer.write(moduleLegend);
   }
@@ -180,6 +211,14 @@ namespace evf{
     boost::filesystem::path fast = workingDirectory_;
     fast /= fastFileName.str();
     fastPath_ = fast.string();
+    if (filePerFwkStream_)
+      for (unsigned int i=0;i<nStreams_;i++) {
+        std::ostringstream fastFileNameTid;
+        fastFileNameTid << fastName_ << "_pid" << std::setfill('0') << std::setw(5) << getpid() << "_tid" << i << ".fast";
+        boost::filesystem::path fastTid = workingDirectory_;
+        fastTid /= fastFileNameTid.str();
+        fastPathList_.push_back(fastTid.string());
+      }
 
     std::ostringstream moduleLegFile;
     std::ostringstream moduleLegFileJson;
@@ -194,6 +233,10 @@ namespace evf{
     pathLegendFile_  = (workingDirectory_/pathLegFile.str()).string();
     pathLegFileJson << "pathlegend_pid" << std::setfill('0') << std::setw(5) << getpid() << ".jsn";
     pathLegendFileJson_  = (workingDirectory_/pathLegFileJson.str()).string();
+
+    std::ostringstream inputLegFileJson;
+    inputLegFileJson << "inputlegend_pid" << std::setfill('0') << std::setw(5) << getpid() << ".jsn";
+    inputLegendFileJson_  = (workingDirectory_/inputLegFileJson.str()).string();
 
     LogDebug("FastMonitoringService") << "Initializing FastMonitor with microstate def path -: "
 			                  << microstateDefPath_;
@@ -234,9 +277,11 @@ namespace evf{
     fmt_.m_data.macrostateBins_=FastMonitoringThread::MCOUNT;
     fmt_.m_data.ministateBins_=0;
     fmt_.m_data.microstateBins_ = 0; 
+    fmt_.m_data.inputstateBins_ = FastMonitoringThread::inCOUNT;
  
     lastGlobalLumi_=0; 
-    isGlobalLumiTransition_=true;
+    isGlobalLumiTransition_=false;
+    isInitTransition_=true;
     lumiFromSource_=0;
 
     //startup monitoring
@@ -326,6 +371,9 @@ namespace evf{
     std::string && moduleLegStrJson = makeModuleLegendaJson();
     FileIO::writeStringToFile(moduleLegendFileJson_, moduleLegStrJson);
 
+    std::string inputLegendStrJson =  makeInputLegendaJson();
+    FileIO::writeStringToFile(inputLegendFileJson_, inputLegendStrJson);
+
     macrostate_ = FastMonitoringThread::sJobReady;
 
     //update number of entries in module histogram
@@ -342,11 +390,11 @@ namespace evf{
   void FastMonitoringService::postGlobalBeginRun(edm::GlobalContext const& gc)
   {
     macrostate_ = FastMonitoringThread::sRunning;
+    isInitTransition_=false;
   }
 
   void FastMonitoringService::preGlobalBeginLumi(edm::GlobalContext const& gc)
   {
-
 	  timeval lumiStartTime;
 	  gettimeofday(&lumiStartTime, 0);
 	  unsigned int newLumi = gc.luminosityBlockID().luminosityBlock();
@@ -391,14 +439,6 @@ namespace evf{
 	  //update
 	  doSnapshot(lumi,true);
 
-	  // create file name for slow monitoring file
-	  std::stringstream slowFileName;
-	  slowFileName << slowName_ << "_ls" << std::setfill('0') << std::setw(4)
-			<< lumi << "_pid" << std::setfill('0')
-			<< std::setw(5) << getpid() << ".jsn";
-	  boost::filesystem::path slow = workingDirectory_;
-	  slow /= slowFileName.str();
-
 	  //retrieve one result we need (todo: sanity check if it's found)
 	  IntJ *lumiProcessedJptr = dynamic_cast<IntJ*>(fmt_.jsonMonitor_->getMergedIntJForLumi("Processed",lumi));
           if (!lumiProcessedJptr)
@@ -439,7 +479,26 @@ namespace evf{
 	  delete lumiProcessedJptr;
 
 	  //full global and stream merge&output for this lumi
-	  fmt_.jsonMonitor_->outputFullJSON(slow.string(),lumi);//full global and stream merge and JSON write for this lumi
+          
+	  // create file name for slow monitoring file
+          if (filePerFwkStream_) {
+	    std::stringstream slowFileNameStem;
+	    slowFileNameStem << slowName_ << "_ls" << std::setfill('0') << std::setw(4)
+			<< lumi << "_pid" << std::setfill('0')
+			<< std::setw(5) << getpid();
+	    boost::filesystem::path slow = workingDirectory_;
+	    slow /= slowFileNameStem.str();
+	    fmt_.jsonMonitor_->outputFullJSONs(slow.string(),".jsn",lumi);
+          }
+          else {
+	    std::stringstream slowFileName;
+	    slowFileName << slowName_ << "_ls" << std::setfill('0') << std::setw(4)
+			<< lumi << "_pid" << std::setfill('0')
+			<< std::setw(5) << getpid() << ".jsn";
+	    boost::filesystem::path slow = workingDirectory_;
+	    slow /= slowFileName.str();
+	    fmt_.jsonMonitor_->outputFullJSON(slow.string(),lumi);//full global and stream merge and JSON write for this lumi
+          }
 	  fmt_.jsonMonitor_->discardCollected(lumi);//we don't do further updates for this lumi
 
 	  isGlobalLumiTransition_=true;
@@ -461,7 +520,7 @@ namespace evf{
     *(fmt_.m_data.processed_[sid])=0;
 
     ministate_[sid]=&nopath_;
-    microstate_[sid]=&reservedMicroStateNames[mFwkOvh];
+    microstate_[sid]=&reservedMicroStateNames[mBoL];
   }
 
   void FastMonitoringService::postStreamBeginLumi(edm::StreamContext const& sc)
@@ -487,7 +546,7 @@ namespace evf{
   }
   void FastMonitoringService::postStreamEndLumi(edm::StreamContext const& sc)
   {
-    microstate_[sc.streamID().value()]=&reservedMicroStateNames[mFwkOvh];
+    microstate_[sc.streamID().value()]=&reservedMicroStateNames[mFwkEoL];
   }
 
 
@@ -562,7 +621,7 @@ namespace evf{
 
   void FastMonitoringService::postSourceEvent(edm::StreamID sid)
   {
-    microstate_[sid.value()] = &reservedMicroStateNames[mFwkOvh];
+    microstate_[sid.value()] = &reservedMicroStateNames[mFwkOvhSrc];
   }
 
   void FastMonitoringService::preModuleEvent(edm::StreamContext const& sc, edm::ModuleCallingContext const& mcc)
@@ -573,7 +632,7 @@ namespace evf{
   void FastMonitoringService::postModuleEvent(edm::StreamContext const& sc, edm::ModuleCallingContext const& mcc)
   {
     //microstate_[sc.streamID().value()] = (void*)(mcc.moduleDescription());
-    microstate_[sc.streamID().value()] = &reservedMicroStateNames[mFwkOvh];
+    microstate_[sc.streamID().value()] = &reservedMicroStateNames[mFwkOvhMod];
   }
 
   //FUNCTIONS CALLED FROM OUTSIDE
@@ -682,7 +741,7 @@ namespace evf{
     fmt_.m_data.fastMacrostateJ_ = macrostate_;
 
     //update these unless in the midst of a global transition
-    if (!isGlobalLumiTransition_) {
+    if (!isGlobalLumiTransition_ && !isInitTransition_) {
 
       auto itd = avgLeadTime_.find(ls);
       if (itd != avgLeadTime_.end()) 
@@ -703,17 +762,163 @@ namespace evf{
        fmt_.m_data.fastLockWaitJ_=0.;
        fmt_.m_data.fastLockCountJ_=0.;
       }
- 
     }
-    else return;
+    else {
+      if (isGlobalLumiTransition_)
+        for (unsigned int i=0;i<nStreams_;i++) {
+          if (microstate_[i]==&reservedMicroStateNames[mFwkEoL]) {
+            microstate_[i]=&reservedMicroStateNames[mGlobEoL];
+          }
+        }
+    }
 
-    //capture latest mini/microstate of streams
     for (unsigned int i=0;i<nStreams_;i++) {
       fmt_.m_data.ministateEncoded_[i] = encPath_[i].encode(ministate_[i]);
       fmt_.m_data.microstateEncoded_[i] = encModule_.encode(microstate_[i]);
     }
-    //for (unsigned int i=0;i<nThreads_;i++)
-    //  fmt_.m_data.threadMicrostateEncoded_[i] = encModule_.encode(threadMicrostate_[i]);
+
+    bool inputStatePerThread=false;
+
+    if (inputState_==FastMonitoringThread::inWaitInput) {
+      switch (inputSupervisorState_) {
+        case FastMonitoringThread::inSupFileLimit:
+          fmt_.m_data.inputState_[0]=FastMonitoringThread::inWaitInput_fileLimit;
+          break;
+        case FastMonitoringThread::inSupWaitFreeChunk:
+          fmt_.m_data.inputState_[0]=FastMonitoringThread::inWaitInput_waitFreeChunk;
+          break;
+        case FastMonitoringThread::inSupWaitFreeChunkCopying:
+          fmt_.m_data.inputState_[0]=FastMonitoringThread::inWaitInput_waitFreeChunkCopying;
+          break;
+        case FastMonitoringThread::inSupWaitFreeThread:
+          fmt_.m_data.inputState_[0]=FastMonitoringThread::inWaitInput_waitFreeThread;
+          break;
+        case FastMonitoringThread::inSupWaitFreeThreadCopying:
+          fmt_.m_data.inputState_[0]=FastMonitoringThread::inWaitInput_waitFreeThreadCopying;
+          break;
+        case FastMonitoringThread::inSupBusy:
+          fmt_.m_data.inputState_[0]=FastMonitoringThread::inWaitInput_busy;
+          break;
+        case FastMonitoringThread::inSupLockPolling:
+          fmt_.m_data.inputState_[0]=FastMonitoringThread::inWaitInput_lockPolling;
+          break;
+        case FastMonitoringThread::inSupLockPollingCopying:
+          fmt_.m_data.inputState_[0]=FastMonitoringThread::inWaitInput_lockPollingCopying;
+          break;
+        case FastMonitoringThread::inRunEnd:
+          fmt_.m_data.inputState_[0]=FastMonitoringThread::inWaitInput_runEnd;
+          break;
+        case FastMonitoringThread::inSupNoFile:
+          fmt_.m_data.inputState_[0]=FastMonitoringThread::inWaitInput_noFile;
+          break;
+        case FastMonitoringThread::inSupNewFile:
+          fmt_.m_data.inputState_[0]=FastMonitoringThread::inWaitInput_newFile;
+          break;
+        case FastMonitoringThread::inSupNewFileWaitThreadCopying:
+          fmt_.m_data.inputState_[0]=FastMonitoringThread::inWaitInput_newFileWaitThreadCopying;
+          break;
+        case FastMonitoringThread::inSupNewFileWaitThread:
+          fmt_.m_data.inputState_[0]=FastMonitoringThread::inWaitInput_newFileWaitThread;
+          break;
+        case FastMonitoringThread::inSupNewFileWaitChunkCopying:
+          fmt_.m_data.inputState_[0]=FastMonitoringThread::inWaitInput_newFileWaitChunkCopying;
+          break;
+        case FastMonitoringThread::inSupNewFileWaitChunk:
+          fmt_.m_data.inputState_[0]=FastMonitoringThread::inWaitInput_newFileWaitChunk;
+          break;
+        default: 
+          fmt_.m_data.inputState_[0]=FastMonitoringThread::inWaitInput;
+      }
+    }
+    else if (inputState_==FastMonitoringThread::inWaitChunk) {
+
+      switch (inputSupervisorState_) {
+        case FastMonitoringThread::inSupFileLimit:
+          fmt_.m_data.inputState_[0]=FastMonitoringThread::inWaitChunk_fileLimit;
+          break;
+        case FastMonitoringThread::inSupWaitFreeChunk:
+          fmt_.m_data.inputState_[0]=FastMonitoringThread::inWaitChunk_waitFreeChunk;
+          break;
+        case FastMonitoringThread::inSupWaitFreeChunkCopying:
+          fmt_.m_data.inputState_[0]=FastMonitoringThread::inWaitChunk_waitFreeChunkCopying;
+          break;
+        case FastMonitoringThread::inSupWaitFreeThread:
+          fmt_.m_data.inputState_[0]=FastMonitoringThread::inWaitChunk_waitFreeThread;
+          break;
+        case FastMonitoringThread::inSupWaitFreeThreadCopying:
+          fmt_.m_data.inputState_[0]=FastMonitoringThread::inWaitChunk_waitFreeThreadCopying;
+          break;
+        case FastMonitoringThread::inSupBusy:
+          fmt_.m_data.inputState_[0]=FastMonitoringThread::inWaitChunk_busy;
+          break;
+        case FastMonitoringThread::inSupLockPolling:
+          fmt_.m_data.inputState_[0]=FastMonitoringThread::inWaitChunk_lockPolling;
+          break;
+        case FastMonitoringThread::inSupLockPollingCopying:
+          fmt_.m_data.inputState_[0]=FastMonitoringThread::inWaitChunk_lockPollingCopying;
+          break;
+        case FastMonitoringThread::inRunEnd:
+          fmt_.m_data.inputState_[0]=FastMonitoringThread::inWaitChunk_runEnd;
+          break;
+        case FastMonitoringThread::inSupNoFile:
+          fmt_.m_data.inputState_[0]=FastMonitoringThread::inWaitChunk_noFile;
+          break;
+        case FastMonitoringThread::inSupNewFile:
+          fmt_.m_data.inputState_[0]=FastMonitoringThread::inWaitChunk_newFile;
+          break;
+        case FastMonitoringThread::inSupNewFileWaitThreadCopying:
+          fmt_.m_data.inputState_[0]=FastMonitoringThread::inWaitChunk_newFileWaitThreadCopying;
+          break;
+        case FastMonitoringThread::inSupNewFileWaitThread:
+          fmt_.m_data.inputState_[0]=FastMonitoringThread::inWaitChunk_newFileWaitThread;
+          break;
+        case FastMonitoringThread::inSupNewFileWaitChunkCopying:
+          fmt_.m_data.inputState_[0]=FastMonitoringThread::inWaitChunk_newFileWaitChunkCopying;
+          break;
+        case FastMonitoringThread::inSupNewFileWaitChunk:
+          fmt_.m_data.inputState_[0]=FastMonitoringThread::inWaitChunk_newFileWaitChunk;
+          break;
+        default: 
+          fmt_.m_data.inputState_[0]=FastMonitoringThread::inWaitChunk;
+      }
+    }
+    else if (inputState_==FastMonitoringThread::inNoRequest) {
+      if (isGlobalLumiTransition_ && !isInitTransition_)
+        fmt_.m_data.inputState_[0]=FastMonitoringThread::inNoRequestWithGlobalEoL;
+      else {
+        inputStatePerThread=true;
+        for (unsigned int i=0;i<nStreams_;i++) {
+          if (microstate_[i]==&reservedMicroStateNames[mIdle])
+            fmt_.m_data.inputState_[i]=FastMonitoringThread::inNoRequestWithIdleThreads;
+          else if (microstate_[i]==&reservedMicroStateNames[mEoL] || 
+            microstate_[i]==&reservedMicroStateNames[mFwkEoL] || 
+            microstate_[i]==&reservedMicroStateNames[mGlobEoL])
+            fmt_.m_data.inputState_[i]=FastMonitoringThread::inNoRequestWithEoLThreads;
+          else
+            fmt_.m_data.inputState_[i]=FastMonitoringThread::inNoRequest;
+        }
+      }
+    }
+    else if (inputState_ == FastMonitoringThread::inNewLumi) {
+      inputStatePerThread=true;
+      for (unsigned int i=0;i<nStreams_;i++) {
+        if (microstate_[i]==&reservedMicroStateNames[mEoL] || 
+          microstate_[i]==&reservedMicroStateNames[mFwkEoL] || 
+          microstate_[i]==&reservedMicroStateNames[mGlobEoL])
+          fmt_.m_data.inputState_[i]=FastMonitoringThread::inNewLumi;
+        else if (microstate_[i]==&reservedMicroStateNames[mIdle])
+          fmt_.m_data.inputState_[i]=FastMonitoringThread::inNewLumiIdleEndingLS;
+        else
+          fmt_.m_data.inputState_[i]=FastMonitoringThread::inNewLumiBusyEndingLS;
+      }
+    }
+    else
+      fmt_.m_data.inputState_[0]=inputState_;
+
+    //this is same for all streams
+    if (!inputStatePerThread)
+      for (unsigned int i=1;i<nStreams_;i++)
+        fmt_.m_data.inputState_[i]=fmt_.m_data.inputState_[0];
     
     if (isGlobalEOL)
     {//only update global variables

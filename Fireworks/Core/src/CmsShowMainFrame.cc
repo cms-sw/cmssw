@@ -264,46 +264,7 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIMana
 
    menuTopFrame->AddFrame(menuBar, new TGLayoutHints(kLHintsLeft, 0, 0, 0, 0));
 
-   {
-      TGHorizontalFrame* hft = new TGHorizontalFrame(menuTopFrame);
-      menuTopFrame->AddFrame(hft, new TGLayoutHints(kLHintsLeft, 73, 0, 3, 0));
-      hft->SetBackgroundColor(backgroundColor);
-
-
-
-      TGLabel *label = new TGLabel(hft, "New palettes functions:  ");
-      label->SetTextJustify(kTextCenterX);
-      label->SetTextColor(0xaa4488);
-      label->SetBackgroundColor(backgroundColor);
-      fireworks::Context* ctx = fireworks::Context::getInstance();
-      hft->AddFrame(label, new TGLayoutHints(kLHintsTop | kLHintsLeft, 0, 0, 2, 0));
-
-      {
-         TGTextButton* b = new TGTextButton(hft, " Change color palette ");
-         hft->AddFrame(b,new TGLayoutHints(kLHintsLeft, 0, 0, 0, 0) );
-         b->SetBackgroundColor(backgroundColor);
-         b->SetForegroundColor(0xffffff);
-         b->SetToolTipText("Also available through Common preferences dialog");
-         b->Connect("Clicked()", "CmsShowCommon", ctx->commonPrefs(), "loopPalettes()");
-      }
-      {
-         TGTextButton* b = new TGTextButton(hft, " Permute colors ");
-         hft->AddFrame(b,new TGLayoutHints(kLHintsLeft, 5, 0, 0, 0) );
-         b->SetBackgroundColor(backgroundColor);
-         b->SetForegroundColor(0xffffff);
-         b->Connect("Clicked()", "CmsShowCommon", ctx->commonPrefs(), "permuteColors()");
-
-      }
-      {
-         TGTextButton* b = new TGTextButton(hft, " Randomize colors ");
-         hft->AddFrame(b,new TGLayoutHints(kLHintsLeft, 5, 0, 0, 0) );
-         b->SetBackgroundColor(backgroundColor);
-         b->SetForegroundColor(0xffffff);
-         b->Connect("Clicked()", "CmsShowCommon", ctx->commonPrefs(), "randomizeColors()");
-
-      }
-   }
-
+   
    AddFrame(menuTopFrame, new TGLayoutHints(kLHintsExpandX, 0, 0, 0, 0));
 
    // !!!! MT Line separating menu from other window components.

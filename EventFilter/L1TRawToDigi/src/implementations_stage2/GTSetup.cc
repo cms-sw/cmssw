@@ -41,6 +41,7 @@ namespace l1t {
 		    PackerFactory::get()->make("stage2::GlobalAlgBlkPacker"),
 		    //PackerFactory::get()->make("stage2::GlobalExtBlkPacker")
                   };
+		  
                }
 
                return res;
@@ -76,25 +77,27 @@ namespace l1t {
                UnpackerMap res;
 	       
                if (fed == 1404) {
-                  
-		 // From the rx buffers         
-		  res[0]  = muon_unp;
-		  res[2]  = muon_unp;
-		  res[4]  = muon_unp;
-		  res[6]  = muon_unp;
-		  res[8]  = egamma_unp;
-		  res[10] = egamma_unp;
-		  res[12] = jet_unp;
-		  res[14] = jet_unp;
-		  res[16] = tau_unp;
-		  res[18] = tau_unp;
-		  res[20] = etsum_unp;
-		  res[24] = ext_unp;
-		  //res[22] = empty link no data
-		  res[26] = ext_unp;
-		  res[28] = ext_unp;
-		  res[30] = ext_unp;
-		  
+                 
+		 //only unpack first uGT board for the inputs (single copy)
+		 if(amc == 1) { 
+		   // From the rx buffers         
+		    res[0]  = muon_unp;
+		    res[2]  = muon_unp;
+		    res[4]  = muon_unp;
+		    res[6]  = muon_unp;
+		    res[8]  = egamma_unp;
+		    res[10] = egamma_unp;
+		    res[12] = jet_unp;
+		    res[14] = jet_unp;
+		    res[16] = tau_unp;
+		    res[18] = tau_unp;
+		    res[20] = etsum_unp;
+		    res[24] = ext_unp;
+		    //res[22] = empty link no data
+		    res[26] = ext_unp;
+		    res[28] = ext_unp;
+		    res[30] = ext_unp;
+		  }
 
                   //From tx buffers
                   res[33]  = alg_unp;

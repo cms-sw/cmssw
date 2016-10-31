@@ -1,72 +1,104 @@
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(7500)
+    input = cms.untracked.int32(-1)
+    #input = cms.untracked.int32(50000)
 )
 
 import RecoTracker.TrackProducer.TrackRefitters_cff
 process.TrackRefitter1 = RecoTracker.TrackProducer.TrackRefitter_cfi.TrackRefitter.clone()
-#process.TrackRefitter1.src = '<SKIM>'
 process.TrackRefitter1.src = 'initialAlignmentTrackSelector'
+process.TrackRefitter1.NavigationSchool = ''
+process.TrackRefitter1.TTRHBuilder = 'WithAngleAndTemplate'
+process.TrackRefitter1.TrajectoryInEvent = True
 
-
-#initial track selector ( new )
 import Alignment.CommonAlignmentProducer.AlignmentTrackSelector_cfi
-process.initialAlignmentTrackSelector = Alignment.CommonAlignmentProducer.AlignmentTrackSelector_cfi.AlignmentTrackSelector.clone()
-process.initialAlignmentTrackSelector.src = '<SKIM>'
-process.initialAlignmentTrackSelector.filter = True
-process.initialAlignmentTrackSelector.applyBasicCuts = True
-
-process.initialAlignmentTrackSelector.pMin    = 4.0
-process.initialAlignmentTrackSelector.ptMin   = 0.0
-process.initialAlignmentTrackSelector.etaMin  = -999.
-process.initialAlignmentTrackSelector.etaMax  = 999.
-process.initialAlignmentTrackSelector.nHitMin = 0
-process.initialAlignmentTrackSelector.nHitMin2D = 0
-process.initialAlignmentTrackSelector.chi2nMax = 1000.0
-process.initialAlignmentTrackSelector.applyMultiplicityFilter = True
-process.initialAlignmentTrackSelector.maxMultiplicity = 1000
-process.initialAlignmentTrackSelector.applyNHighestPt = False
+process.initialAlignmentTrackSelector = Alignment.CommonAlignmentProducer.AlignmentTrackSelector_cfi.AlignmentTrackSelector.clone(
+    applyBasicCuts = True,
+    #filter = True,
+    src = 'ALCARECOTkAlMinBias',
+    trackQualities = ["highPurity"],
+    pMin = 4.
+    )
 
 # parameters for alignmentHitFilter
+process.load("RecoTracker.FinalTrackSelectors.TrackerTrackHitFilter_cff")
 process.TrackerTrackHitFilter.src = 'TrackRefitter1'
+process.TrackerTrackHitFilter.useTrajectories= True
 process.TrackerTrackHitFilter.commands = cms.vstring("keep PXB","keep PXE","keep TIB","keep TID","keep TOB","keep TEC")
-process.TrackerTrackHitFilter.minimumHits = 5
+#process.TrackerTrackHitFilter.commands = cms.vstring("keep PXB")
+process.TrackerTrackHitFilter.minimumHits = 10
 process.TrackerTrackHitFilter.replaceWithInactiveHits = True
 process.TrackerTrackHitFilter.stripAllInvalidHits = False
 process.TrackerTrackHitFilter.rejectBadStoNHits = True
 process.TrackerTrackHitFilter.StoNcommands = cms.vstring("ALL 12.0")
-process.TrackerTrackHitFilter.useTrajectories= True
 process.TrackerTrackHitFilter.rejectLowAngleHits= True
-process.TrackerTrackHitFilter.TrackAngleCut= 0.17 #~10 degrees
+process.TrackerTrackHitFilter.TrackAngleCut= 0.1 
 process.TrackerTrackHitFilter.usePixelQualityFlag= True
-# process.TrackerTrackHitFilter.PxlCorrClusterChargeCut=10000.0
 
 
 # track producer to be run after the alignment hit filter
 import RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cff
 process.ctfProducerCustomised = RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cff.ctfWithMaterialTracks.clone()
 process.ctfProducerCustomised.src = 'TrackerTrackHitFilter'
-##process.ctfProducerCustomised.beamspot='offlineBeamSpot'
 process.ctfProducerCustomised.TTRHBuilder = 'WithAngleAndTemplate'
-process.ctfProducerCustomised.TrajectoryInEvent = True
+#process.ctfProducerCustomised.TrajectoryInEvent = True
 process.ctfProducerCustomised.NavigationSchool = ''
 
 # parameters for TrackSelector
-###process.AlignmentTrackSelector.src = '<SKIM>'
+process.load("Alignment.CommonAlignmentProducer.AlignmentTrackSelector_cfi")
 process.AlignmentTrackSelector.src = 'ctfProducerCustomised'
-
-# track selection for sample in filename...
 process.AlignmentTrackSelector.filter = True
 process.AlignmentTrackSelector.applyBasicCuts = True
-process.AlignmentTrackSelector.pMin    = 6.0
-process.AlignmentTrackSelector.ptMin   = 0.0
+process.AlignmentTrackSelector.pMin    = 8.0
+process.AlignmentTrackSelector.ptMin   = 1.0
+#process.AlignmentTrackSelector.pMin    = 4.0 #0T collision
+#process.AlignmentTrackSelector.ptMin   = 0.0 #0T collision
+#process.AlignmentTrackSelector.dzMin   = -20.
+#process.AlignmentTrackSelector.dzMax   = 20.
+process.AlignmentTrackSelector.d0Min   = -50.
+process.AlignmentTrackSelector.d0Max   = 50.
 process.AlignmentTrackSelector.etaMin  = -999.
 process.AlignmentTrackSelector.etaMax  = 999.
+#process.AlignmentTrackSelector.etaMin  = -2.5
+#process.AlignmentTrackSelector.etaMax  = 2.5
 process.AlignmentTrackSelector.nHitMin = 8
 process.AlignmentTrackSelector.nHitMin2D = 2
-process.AlignmentTrackSelector.chi2nMax = 9999.
-process.AlignmentTrackSelector.applyMultiplicityFilter = True
+process.AlignmentTrackSelector.chi2nMax = 999.
+process.AlignmentTrackSelector.applyMultiplicityFilter = False 
 process.AlignmentTrackSelector.maxMultiplicity = 30
 process.AlignmentTrackSelector.applyNHighestPt = False
+process.AlignmentTrackSelector.nHighestPt = 1
+process.AlignmentTrackSelector.seedOnlyFrom = 0
+process.AlignmentTrackSelector.applyIsolationCut = False
+process.AlignmentTrackSelector.minHitIsolation = 0.8
+process.AlignmentTrackSelector.applyChargeCheck = False 
+process.AlignmentTrackSelector.minHitChargeStrip = 30.
+
+process.AlignmentTrackSelector.minHitsPerSubDet   = cms.PSet(
+         inTEC = cms.int32(0),
+         inTOB = cms.int32(0),
+         inFPIX = cms.int32(0),
+         inTID = cms.int32(0),
+         inBPIX = cms.int32(0),
+         inTIB = cms.int32(0),
+         inPIXEL = cms.int32(1),
+         inTIDplus = cms.int32(0),
+         inTIDminus = cms.int32(0),
+         inTECplus = cms.int32(0),
+         inTECminus = cms.int32(0),
+         inFPIXplus = cms.int32(0),
+         inFPIXminus = cms.int32(0),
+         inENDCAP = cms.int32(0),
+         inENDCAPplus = cms.int32(0),
+         inENDCAPminus = cms.int32(0),
+     )
+
+process.oneGoodVertexFilter = cms.EDFilter("VertexSelector",
+                                           src = cms.InputTag("offlinePrimaryVertices"),
+                                           cut = cms.string("!isFake && ndof > 4 && abs(z) <= 15 && position.Rho <= 2"), # tracksSize() > 3 for the older cut
+                                           filter = cms.bool(True),   # otherwise it won't filter the events, just produce an empty vertex collection.
+                                           )
+
+
 
 process.TrackRefitter2 = process.TrackRefitter1.clone()
 process.TrackRefitter2.src = 'AlignmentTrackSelector'

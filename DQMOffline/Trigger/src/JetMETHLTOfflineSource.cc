@@ -112,16 +112,24 @@ JetMETHLTOfflineSource::~JetMETHLTOfflineSource()
 void
 JetMETHLTOfflineSource::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 { 
+  if (verbose_) {
+    cout << endl;
+    cout << "============================================================" << endl;
+    cout << " New event" << endl << endl;
+  }
+
   //---------- triggerResults ----------
   iEvent.getByToken(triggerResultsToken, triggerResults_);
   if(!triggerResults_.isValid()) {
     iEvent.getByToken(triggerResultsFUToken,triggerResults_);
     if(!triggerResults_.isValid()) {
+      if (verbose_) cout << " triggerResults not valid" << endl;
       edm::LogInfo("JetMETHLTOfflineSource") << "TriggerResults not found, "
 	"skipping event";
       return;
     }
   }
+  if (verbose_) cout << " done triggerResults" << endl;
   
   //---------- triggerResults ----------
   triggerNames_ = iEvent.triggerNames(*triggerResults_);
@@ -136,17 +144,28 @@ JetMETHLTOfflineSource::analyze(const edm::Event& iEvent, const edm::EventSetup&
       return;
     }
   } 
+  if (verbose_) cout << " done triggerSummary" << endl;
+
+  if (verbose_) {
+    cout << endl;
+    cout << "============================================================" << endl;
+    cout << " Reading in offline objects" << endl << endl;
+  }
   
   //------------ Offline Objects -------
   iEvent.getByToken(caloJetsToken,calojetColl_);
   if(!calojetColl_.isValid()) return;
   calojet = *calojetColl_; 
   //std::stable_sort( calojet.begin(), calojet.end(), PtSorter() ); 
+
+  if (verbose_) cout << " done calo" << endl;
   
   iEvent.getByToken(pfJetsToken,pfjetColl_);
   if(!pfjetColl_.isValid()) return;
   pfjet = *pfjetColl_; 
   //std::stable_sort( pfjet.begin(), pfjet.end(), PtSorter() );
+
+  if (verbose_) cout << " done pf" << endl;
   
   iEvent.getByToken(caloMetToken, calometColl_);
   if(!calometColl_.isValid()) return;
@@ -154,6 +173,12 @@ JetMETHLTOfflineSource::analyze(const edm::Event& iEvent, const edm::EventSetup&
   iEvent.getByToken(pfMetToken, pfmetColl_);
   if(!pfmetColl_.isValid()) return; 
   
+  if (verbose_) {
+    cout << endl;
+    cout << "============================================================" << endl;
+    cout << " Read in offline objects" << endl << endl;
+  }
+
   //---------- Event counting (DEBUG) ----------
   if(verbose_ && iEvent.id().event()%10000==0)
     cout<<"Run = "<<iEvent.id().run()<<", LS = "<<iEvent.luminosityBlock()<<", Event = "<<iEvent.id().event()<<endl;  
@@ -286,6 +311,8 @@ JetMETHLTOfflineSource::analyze(const edm::Event& iEvent, const edm::EventSetup&
 void 
 JetMETHLTOfflineSource::fillMEforMonTriggerSummary(const Event & iEvent, const edm::EventSetup& iSetup)
 {
+  if (verbose_)
+    cout << ">> Inside fillMEforMonTriggerSummary " << endl;
   bool muTrig = false;
   
   for(size_t i=0;i<MuonTrigPaths_.size();++i){
@@ -373,8 +400,12 @@ JetMETHLTOfflineSource::fillMEforMonTriggerSummary(const Event & iEvent, const e
 void 
 JetMETHLTOfflineSource::fillMEforTriggerNTfired()
 {
+  if (verbose_)
+    cout << ">> Inside fillMEforTriggerNTfired" << endl;
   if(!triggerResults_.isValid()) return;
-  
+  if (verbose_)
+    cout << "   ... and triggerResults is valid" << endl;
+   
   //
   for(PathInfoCollection::iterator v = hltPathsAll_.begin(); v!= hltPathsAll_.end(); ++v ){
     unsigned index = triggerNames_.triggerIndex(v->getPath()); 
@@ -433,12 +464,23 @@ JetMETHLTOfflineSource::fillMEforTriggerNTfired()
 void 
 JetMETHLTOfflineSource::fillMEforMonAllTrigger(const Event & iEvent, const edm::EventSetup& iSetup)
 {
+  if (verbose_)
+    cout << ">> Inside fillMEforMonAllTrigger " << endl;
   if(!triggerResults_.isValid()) return;
+  if (verbose_)
+    cout << "   ... and triggerResults is valid" << endl;
   
   const trigger::TriggerObjectCollection & toc(triggerObj_->getObjects());
-  PathInfoCollection::iterator v = hltPathsAll_.begin();
-  for(; v!= hltPathsAll_.end(); ++v ){
-    if(isHLTPathAccepted(v->getPath())==false) continue;
+  for(PathInfoCollection::iterator v = hltPathsAll_.begin(); v!= hltPathsAll_.end(); ++v ){
+    if (verbose_)
+      cout << "   + Checking path " << v->getPath();
+    if(isHLTPathAccepted(v->getPath())==false) {
+      if (verbose_)
+	cout << " - failed" << endl;
+      continue;
+    }
+    if (verbose_)
+      cout << " - PASSED! " << endl;
     
     //New jet collection (after apply JEC)
     std::vector<double>jetPtVec;
@@ -456,10 +498,24 @@ JetMETHLTOfflineSource::fillMEforMonAllTrigger(const Event & iEvent, const edm::
     //bool fillL1HLT = false;
       
     //L1 and HLT indices
-    edm::InputTag l1Tag(v->getl1Path(),"",processname_);
+    if (verbose_) {
+      cout << "     - L1Path = " << v->getl1Path() << endl;
+      cout << "     - Label  = " << v->getLabel() << endl;
+    }
+
+    //edm::InputTag l1Tag(v->getl1Path(),"",processname_);
+    edm::InputTag l1Tag(v->getLabel(),"",processname_);
     const int l1Index = triggerObj_->filterIndex(l1Tag);
+    if (verbose_)
+      cout << "     - l1Index = " << l1Index << " - l1Tag = [" << l1Tag << "]" << endl;
+    
+
     edm::InputTag hltTag(v->getLabel(),"",processname_);
     const int hltIndex = triggerObj_->filterIndex(hltTag);
+    if (verbose_)
+      cout << "     - hltIndex = " << hltIndex << " - hltTag = [" << hltTag << "]" << endl;
+
+
     //bool l1TrigBool = false;
     bool hltTrigBool  = false;
     bool diJetFire    = false;
@@ -467,6 +523,9 @@ JetMETHLTOfflineSource::fillMEforMonAllTrigger(const Event & iEvent, const edm::
     
     if ( l1Index >= triggerObj_->sizeFilters() ) {
       edm::LogInfo("JetMETHLTOfflineSource") << "no index "<< l1Index << " of that name "<<l1Tag;
+      if (verbose_)
+	cout << "[JetMETHLTOfflineSource::fillMEforMonAllTrigger] - No index l1Index=" 
+	     << l1Index << " of that name \"" << l1Tag << "\"" << endl;
     }
     else {
       //l1TrigBool = true;
@@ -503,6 +562,9 @@ JetMETHLTOfflineSource::fillMEforMonAllTrigger(const Event & iEvent, const edm::
 	//-----------------------------------------------  
 	if ( hltIndex >= triggerObj_->sizeFilters() ) {
 	  edm::LogInfo("JetMETHLTOfflineSource") << "no index hlt"<< hltIndex << " of that name ";
+	  if (verbose_)
+	    cout << "[JetMETHLTOfflineSource::fillMEforMonAllTrigger] - No index hltIndex="
+		 << hltIndex << " of that name " << endl;
 	} 
 	else {
 	  const trigger::Keys & khlt = triggerObj_->filterKeys(hltIndex);
@@ -531,6 +593,8 @@ JetMETHLTOfflineSource::fillMEforMonAllTrigger(const Event & iEvent, const edm::
 	    double hltTrigPhi = -100.;
 	    //fillL1HLT = true;
 	    //MET Triggers
+	    if (verbose_)
+	      cout << "+ MET Triggers plots" << endl;
 	    if(v->getObjectType() == trigger::TriggerMET || (v->getObjectType() == trigger::TriggerTET)){
 	      v->getMEhisto_Pt_HLT()->Fill(toc[*kj].pt());
 	      v->getMEhisto_Phi_HLT()->Fill(toc[*kj].phi());
@@ -540,7 +604,11 @@ JetMETHLTOfflineSource::fillMEforMonAllTrigger(const Event & iEvent, const edm::
 	      v->getMEhisto_PhiResolution_L1HLT()->Fill(toc[*ki].phi()-toc[*kj].phi());
 	    }
 	    //Jet Triggers
+	    if (verbose_)
+	      cout << "+ Jet Trigger plots" << endl;
 	    if(v->getObjectType() == trigger::TriggerJet){
+	      if (verbose_)
+		cout << "  - Going for those..." << endl;
 	      hltTrigEta = toc[*kj].eta();
 	      hltTrigPhi = toc[*kj].phi();
 	      if((deltaR(hltTrigEta, hltTrigPhi, l1TrigEta, l1TrigPhi)) < 0.4){
@@ -715,7 +783,10 @@ JetMETHLTOfflineSource::fillMEforMonAllTrigger(const Event & iEvent, const edm::
       v->getMEhisto_DeltaPhi_HLTObj()->Fill(HLTDelPhi);
     }
     
-  }
+  }  
+  if (verbose_)
+    cout << "<< Exiting fillMEforMonAllTrigger " << endl;
+
 }
 
 //------------------------------------------------------------------------//

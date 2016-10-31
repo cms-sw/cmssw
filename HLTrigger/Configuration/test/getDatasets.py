@@ -3,12 +3,13 @@
 import sys
 import subprocess
 import imp
+import re
 import FWCore.ParameterSet.Config as cms
 
-def extractDatasets(database, config):
-  # dump the Streams and Datasets from the HLT configuration
+def extractDatasets(version, database, config):
+  # dump the streams and Datasets from the HLT configuration
   proc = subprocess.Popen(
-    "hltConfigFromDB --%s --configName %s --nopsets --noedsources --noes --noservices --nooutput --nopaths" % (database, config),
+    "hltConfigFromDB --%s --%s --configName %s --nopsets --noedsources --noes --noservices --nooutput --nopaths" % (version, database, config),
     shell  = True,
     stdin  = None,
     stdout = subprocess.PIPE,
@@ -16,7 +17,7 @@ def extractDatasets(database, config):
   )
   (out, err) = proc.communicate()
 
-  # load the Streams and Datasets
+  # load the streams and Datasets
   hlt = imp.new_module('hlt')
   exec out in globals(), hlt.__dict__
 
@@ -40,44 +41,33 @@ def dumpDataset(process, stream, dataset):
   return dump
 
 
-# split a "db:name" configuration into a (db, name) tuple 
+# split a "[version/]db:name" configuration into a (version, db, name) tuple 
 def splitConfigName(configName):
-  # extract the database and configuration name
-  if ':' in configName:
-    (menuConfigDB, menuConfigName) = configName.split(':')
-    if menuConfigDB not in ('hltdev', 'orcoff'):
-      print 'Unknown ConfDB database "%s", valid values are "hltdev" (default) and "orcoff")' % menuConfigDB
-      sys.exit(1)
-  else:
-    (menuConfigDB, menuConfigName) = ('hltdev', configName)
-
-  return (menuConfigDB, menuConfigName)
+  from HLTrigger.Configuration.Tools.options import ConnectionHLTMenu
+  menu = ConnectionHLTMenu(configName)
+  return (menu.version, menu.database, menu.name)
 
 
 # get the configuration to parse and the file where to output the stream definitions from the command line
 config = sys.argv[1]
-target = sys.argv[2]
 
 # dump the expanded event content configurations to a python configuration fragment
-process = extractDatasets( * splitConfigName(config) )
+config  = splitConfigName(config)
+process = extractDatasets(* config)
 
-dump = open(target, 'w')
-dump.write('''# %s
+sys.stdout.write('''# %s
 
 import FWCore.ParameterSet.Config as cms
 
-''' % "getDatasets.py" )
+''' % config[2] )
 
-list_of_streams = ['A','AForPP','AForHI','PhysicsEGammaCommissioning','PhysicsHadronsTaus','PhysicsMuons']
-for stream in list_of_streams:
-  if stream  in process.streams.__dict__:
-    dump.write('''
-# dump of the Stream %s Datasets defined in the HLT table as Stream A Datasets
+for stream in sorted(process.streams.__dict__):
+  if re.match(r'^Physics|Parking', stream):
+    sys.stdout.write('''
+# stream %s
 
 ''' % stream)
     ds = process.streams.__dict__[stream]
     ds.sort()
     for dataset in ds:
-      dump.write( dumpDataset(process, 'A', dataset) )
-
-dump.close()
+      sys.stdout.write(dumpDataset(process, stream, dataset))

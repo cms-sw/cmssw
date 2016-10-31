@@ -105,6 +105,7 @@ class METAnalyzer( Analyzer ):
             self.adduParaPerp(getattr(event,"tkMetPVLoose"+self.cfg_ana.collectionPostFix), event.zll_p4,"_zll")
             self.adduParaPerp(getattr(event,"tkMetPVTight"+self.cfg_ana.collectionPostFix), event.zll_p4,"_zll")
 
+
     def makeGenTkMet(self, event):
         genCharged = [ (x.px(),x.py()) for x in self.mchandles['packedGen'].product() if x.charge() != 0 and abs(x.eta()) < 2.4 ]
         px, py = sum(x[0] for x in genCharged), sum(x[1] for x in genCharged)
@@ -225,7 +226,14 @@ class METAnalyzer( Analyzer ):
             setattr(event,"met_raw.upara_zll"+self.cfg_ana.collectionPostFix, self.met_raw.upara_zll)
             setattr(event,"met_raw.uperp_zll"+self.cfg_ana.collectionPostFix, self.met_raw.uperp_zll)
 
-        if hasattr(event,"met"+self.cfg_ana.collectionPostFix): raise RuntimeError("Event already contains met with the following postfix: "+self.cfg_ana.collectionPostFix)
+        if hasattr(event,'gamma_p4'):
+            self.adduParaPerp(self.met,event.gamma_p4,"_gamma")
+            self.adduParaPerp(self.met_raw, event.gamma_p4,"_gamma")
+            setattr(event,"met_raw"+self.cfg_ana.collectionPostFix, self.met_raw)
+            setattr(event,"met_raw.upara_gamma"+self.cfg_ana.collectionPostFix, self.met_raw.upara_gamma)
+            setattr(event,"met_raw.uperp_gamma"+self.cfg_ana.collectionPostFix, self.met_raw.uperp_gamma)
+
+        if hasattr(event,"met"+self.cfg_ana.collectionPostFix): raise RuntimeError, "Event already contains met with the following postfix: "+self.cfg_ana.collectionPostFix
         setattr(event, "met"+self.cfg_ana.collectionPostFix, self.met)
         if self.cfg_ana.doMetNoPU: setattr(event, "metNoPU"+self.cfg_ana.collectionPostFix, self.metNoPU)
         setattr(event, "met_sig"+self.cfg_ana.collectionPostFix, self.met_sig)

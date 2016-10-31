@@ -41,7 +41,7 @@ enum MenuOptions {
    kSetColorMO,
    //   kPrint,
    kOpenDetailViewMO,
-   kAfterOpenDetailViewMO,
+   kAfterOpenDetailViewMO=10,
    kOpen3DRegion,
    kOpenObjectControllerMO=100,
    kOpenCollectionControllerMO,

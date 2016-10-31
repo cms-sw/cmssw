@@ -22,7 +22,7 @@ namespace evf{
     class MicroStateService
     {
     public:
-      enum Microstate { mInvalid = 0, mFwkOvh, mIdle, mInput, mInputDone, mDqm, mEoL, mCOUNT}; 
+      enum Microstate { mInvalid = 0, mIdle, mFwkOvhSrc, mFwkOvhMod, mFwkEoL ,mInput, mDqm, mBoL, mEoL, mGlobEoL, mCOUNT}; 
       // the names of the states - some of them are never reached in an online app
       static const edm::ModuleDescription reservedMicroStateNames[mCOUNT];
       MicroStateService(const edm::ParameterSet&,edm::ActivityRegistry&);

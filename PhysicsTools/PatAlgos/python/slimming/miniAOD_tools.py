@@ -148,6 +148,30 @@ def miniAOD_customizeCommon(process):
     process.patJets.userData.userFunctionLabels = cms.vstring('vtxMass','vtxNtracks','vtx3DVal','vtx3DSig','vtxPx','vtxPy','vtxPz','vtxPosX','vtxPosY','vtxPosZ')
     process.patJets.tagInfoSources = cms.VInputTag(cms.InputTag("pfSecondaryVertexTagInfos"))
     process.patJets.addTagInfos = cms.bool(True)
+
+    ## Legacy tight b-tag track selection
+    ## (this will run below-specified taggers with the tight b-tag track selection enabled
+    ## and will add an extra set of b-tag discriminators to 'selectedPatJets'
+    ## with the 'tight' prefix added to the usual discriminator names)
+    from PhysicsTools.PatAlgos.tools.jetTools import updateJetCollection
+    updateJetCollection(
+        process,
+        jetSource = cms.InputTag('selectedPatJets'),
+        ## updateJetCollection defaults to MiniAOD inputs. Here, this needs to be changed to RECO/AOD inputs
+        pvSource = cms.InputTag('offlinePrimaryVertices'),
+        pfCandidates = cms.InputTag('particleFlow'),
+        svSource = cms.InputTag('inclusiveCandidateSecondaryVertices'),
+        muSource = cms.InputTag('muons'),
+        elSource = cms.InputTag('gedGsfElectrons'),
+        ##
+        jetCorrections = ('AK4PFchs', ['L1FastJet', 'L2Relative', 'L3Absolute'], ''),
+        btagDiscriminators = ["pfCombinedSecondaryVertexV2BJetTags", "pfCombinedInclusiveSecondaryVertexV2BJetTags",
+                              "pfCombinedCvsLJetTags", "pfCombinedCvsBJetTags"],
+        runIVF = True,
+        tightBTagNTkHits = True,
+        btagPrefix = 'tight',
+        postfix = 'BTAG' # added to avoid problems with unrunnable schedule
+    )
     #
     ## PU JetID
     process.load("RecoJets.JetProducers.PileupJetID_cfi")
@@ -249,7 +273,7 @@ def miniAOD_customizeCommon(process):
     from PhysicsTools.PatAlgos.slimming.puppiForMET_cff import makePuppies
     makePuppies( process );
 
-    runMetCorAndUncForMiniAODProduction(process, metType="PF",
+    runMetCorAndUncForMiniAODProduction(process, metType="Puppi",
                                         pfCandColl=cms.InputTag("puppiForMET"),
                                         jetCollUnskimmed="slimmedJetsPuppi",
                                         recoMetFromPFCs=True,

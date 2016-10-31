@@ -36,6 +36,7 @@ for tracks in selectedTracks :
     locals()[label].doBeamSpotPlots                     = doBeamSpotPlots                     [tracks]
     locals()[label].doSeedParameterHistos               = doSeedParameterHistos               [tracks]
     locals()[label].doRecHitVsPhiVsEtaPerTrack          = doRecHitVsPhiVsEtaPerTrack          [tracks]
+    locals()[label].doRecHitVsPtVsEtaPerTrack           = doRecHitVsPtVsEtaPerTrack           [tracks]
     locals()[label].doGoodTrackRecHitVsPhiVsEtaPerTrack = doGoodTrackRecHitVsPhiVsEtaPerTrack [tracks]
     locals()[label].doLayersVsPhiVsEtaPerTrack          = doLayersVsPhiVsEtaPerTrack          [tracks]
     locals()[label].doGoodTrackLayersVsPhiVsEtaPerTrack = doGoodTrackLayersVsPhiVsEtaPerTrack [tracks]
@@ -43,11 +44,14 @@ for tracks in selectedTracks :
     locals()[label].doPlotsVsBXlumi                     = doPlotsVsBXlumi                     [tracks]
     locals()[label].doPlotsVsGoodPVtx                   = doPlotsVsGoodPVtx                   [tracks]
     locals()[label].doEffFromHitPatternVsPU             = doEffFromHitPatternVsPU             [tracks]
-    locals()[label].doEffFromHitPatternVsBX             = cms.bool(False)
+    if tracks == 'generalTracks':
+        locals()[label].doEffFromHitPatternVsBX = False
+    else:
+        locals()[label].doEffFromHitPatternVsBX = doEffFromHitPatternVsBX[tracks]
 #    locals()[label].doStopSource                        = doStopSource                        [tracks]    
     locals()[label].setLabel(label)
     
-
+    # ZeroBias
     label = 'TrackerCollisionSelectedTrackMonMB' + str(tracks)                       
     locals()[label] = TrackerCollisionTrackMonMB.clone()
     locals()[label].TrackProducer    = cms.InputTag(tracks)
@@ -72,14 +76,139 @@ for tracks in selectedTracks :
     locals()[label].doBeamSpotPlots                     = doBeamSpotPlots                     [tracks]
     locals()[label].doSeedParameterHistos               = doSeedParameterHistos               [tracks]
     locals()[label].doRecHitVsPhiVsEtaPerTrack          = doRecHitVsPhiVsEtaPerTrack          [tracks]
+    locals()[label].doRecHitVsPtVsEtaPerTrack           = doRecHitVsPtVsEtaPerTrack           [tracks]
     locals()[label].doGoodTrackRecHitVsPhiVsEtaPerTrack = doGoodTrackRecHitVsPhiVsEtaPerTrack [tracks]
     locals()[label].doLayersVsPhiVsEtaPerTrack          = doLayersVsPhiVsEtaPerTrack          [tracks]
     locals()[label].doGoodTrackLayersVsPhiVsEtaPerTrack = doGoodTrackLayersVsPhiVsEtaPerTrack [tracks]
     locals()[label].doPUmonitoring                      = doPUmonitoring                      [tracks]
     locals()[label].doPlotsVsBXlumi                     = doPlotsVsBXlumi                     [tracks]
     locals()[label].doPlotsVsGoodPVtx                   = doPlotsVsGoodPVtx                   [tracks]
+    locals()[label].doPlotsVsLUMI                       = cms.bool(True)
+    locals()[label].doPlotsVsBX                         = cms.bool(True)
     locals()[label].doEffFromHitPatternVsPU             = doEffFromHitPatternVsPU             [tracks]
     locals()[label].doEffFromHitPatternVsBX             = doEffFromHitPatternVsBX             [tracks]
+    locals()[label].doEffFromHitPatternVsLUMI           = cms.bool(True)
+    locals()[label].doStopSource                        = doStopSource                        [tracks]    
+    locals()[label].setLabel(label)
+
+    # ZeroBias, no hip, no OOT pu (1st collision after abort gap) ###
+    label = 'TrackerCollisionSelectedTrackMonZBnoHIPnoOOT' + str(tracks)                       
+    locals()[label] = TrackerCollisionTrackMonZBnoHIPnoOOT.clone()
+    locals()[label].TrackProducer    = cms.InputTag(tracks)
+    locals()[label].FolderName       = cms.string(mainfolderName[tracks]+"/noHIP_noOOT_INpu")
+    locals()[label].PVFolderName     = cms.string(vertexfolderName[tracks]+"/noHIP_noOOT_INpu")
+    locals()[label].TrackPtMin       = trackPtMin[tracks]
+    locals()[label].TrackPtBin       = trackPtN[tracks]
+    locals()[label].TrackPtMax       = trackPtMax[tracks]
+    locals()[label].TrackPBin        = trackPtN[tracks]
+    locals()[label].TrackPMin        = trackPtMin[tracks]
+    locals()[label].TrackPMax        = trackPtMax[tracks]
+    locals()[label].doDCAPlots       = doPlotsPCA[tracks]
+    locals()[label].doDCAwrtPVPlots  = doPlotsPCA[tracks]
+    locals()[label].doDCAwrt000Plots = doPlotsPCA[tracks]
+    locals()[label].doSIPPlots       = doPlotsPCA[tracks]
+    locals()[label].numCut           = numCutString[tracks]
+    locals()[label].denCut           = denCutString[tracks]
+    locals()[label].doGoodTracksPlots                   = doGoodTracksPlots                   [tracks]
+    locals()[label].doTrackerSpecific                   = doTrackerSpecific                   [tracks]
+    locals()[label].doHitPropertiesPlots                = doHitPropertiesPlots                [tracks]
+    locals()[label].doGeneralPropertiesPlots            = doGeneralPropertiesPlots            [tracks]
+    locals()[label].doBeamSpotPlots                     = doBeamSpotPlots                     [tracks]
+    locals()[label].doSeedParameterHistos               = doSeedParameterHistos               [tracks]
+    locals()[label].doRecHitVsPhiVsEtaPerTrack          = doRecHitVsPhiVsEtaPerTrack          [tracks]
+    locals()[label].doRecHitVsPtVsEtaPerTrack           = doRecHitVsPtVsEtaPerTrack           [tracks]
+    locals()[label].doGoodTrackRecHitVsPhiVsEtaPerTrack = doGoodTrackRecHitVsPhiVsEtaPerTrack [tracks]
+    locals()[label].doLayersVsPhiVsEtaPerTrack          = doLayersVsPhiVsEtaPerTrack          [tracks]
+    locals()[label].doGoodTrackLayersVsPhiVsEtaPerTrack = doGoodTrackLayersVsPhiVsEtaPerTrack [tracks]
+    locals()[label].doPUmonitoring                      = doPUmonitoring                      [tracks]
+    locals()[label].doPlotsVsBXlumi                     = doPlotsVsBXlumi                     [tracks]
+    locals()[label].doPlotsVsGoodPVtx                   = doPlotsVsGoodPVtx                   [tracks]
+    locals()[label].doPlotsVsLUMI                       = cms.bool(True)
+    locals()[label].doPlotsVsBX                         = cms.bool(True)
+    locals()[label].doEffFromHitPatternVsPU             = doEffFromHitPatternVsPU             [tracks]
+    locals()[label].doEffFromHitPatternVsBX             = doEffFromHitPatternVsBX             [tracks]
+    locals()[label].doEffFromHitPatternVsLUMI           = cms.bool(True)
+    locals()[label].doStopSource                        = doStopSource                        [tracks]    
+    locals()[label].setLabel(label)
+
+    # ZeroBias, hip, no OOT pu (1st collision in train) ###
+    label = 'TrackerCollisionSelectedTrackMonZBHIPnoOOT' + str(tracks)                       
+    locals()[label] = TrackerCollisionTrackMonZBHIPnoOOT.clone()
+    locals()[label].TrackProducer    = cms.InputTag(tracks)
+    locals()[label].FolderName       = cms.string(mainfolderName[tracks]+"/HIP_noOOT_INpu")
+    locals()[label].PVFolderName     = cms.string(vertexfolderName[tracks]+"/HIP_noOOT_INpu")
+    locals()[label].TrackPtMin       = trackPtMin[tracks]
+    locals()[label].TrackPtBin       = trackPtN[tracks]
+    locals()[label].TrackPtMax       = trackPtMax[tracks]
+    locals()[label].TrackPBin        = trackPtN[tracks]
+    locals()[label].TrackPMin        = trackPtMin[tracks]
+    locals()[label].TrackPMax        = trackPtMax[tracks]
+    locals()[label].doDCAPlots       = doPlotsPCA[tracks]
+    locals()[label].doDCAwrtPVPlots  = doPlotsPCA[tracks]
+    locals()[label].doDCAwrt000Plots = doPlotsPCA[tracks]
+    locals()[label].doSIPPlots       = doPlotsPCA[tracks]
+    locals()[label].numCut           = numCutString[tracks]
+    locals()[label].denCut           = denCutString[tracks]
+    locals()[label].doGoodTracksPlots                   = doGoodTracksPlots                   [tracks]
+    locals()[label].doTrackerSpecific                   = doTrackerSpecific                   [tracks]
+    locals()[label].doHitPropertiesPlots                = doHitPropertiesPlots                [tracks]
+    locals()[label].doGeneralPropertiesPlots            = doGeneralPropertiesPlots            [tracks]
+    locals()[label].doBeamSpotPlots                     = doBeamSpotPlots                     [tracks]
+    locals()[label].doSeedParameterHistos               = doSeedParameterHistos               [tracks]
+    locals()[label].doRecHitVsPhiVsEtaPerTrack          = doRecHitVsPhiVsEtaPerTrack          [tracks]
+    locals()[label].doRecHitVsPtVsEtaPerTrack           = doRecHitVsPtVsEtaPerTrack           [tracks]
+    locals()[label].doGoodTrackRecHitVsPhiVsEtaPerTrack = doGoodTrackRecHitVsPhiVsEtaPerTrack [tracks]
+    locals()[label].doLayersVsPhiVsEtaPerTrack          = doLayersVsPhiVsEtaPerTrack          [tracks]
+    locals()[label].doGoodTrackLayersVsPhiVsEtaPerTrack = doGoodTrackLayersVsPhiVsEtaPerTrack [tracks]
+    locals()[label].doPUmonitoring                      = doPUmonitoring                      [tracks]
+    locals()[label].doPlotsVsBXlumi                     = doPlotsVsBXlumi                     [tracks]
+    locals()[label].doPlotsVsGoodPVtx                   = doPlotsVsGoodPVtx                   [tracks]
+    locals()[label].doPlotsVsLUMI                       = cms.bool(True)
+    locals()[label].doPlotsVsBX                         = cms.bool(True)
+    locals()[label].doEffFromHitPatternVsPU             = doEffFromHitPatternVsPU             [tracks]
+    locals()[label].doEffFromHitPatternVsBX             = doEffFromHitPatternVsBX             [tracks]
+    locals()[label].doEffFromHitPatternVsLUMI           = cms.bool(True)
+    locals()[label].doStopSource                        = doStopSource                        [tracks]    
+    locals()[label].setLabel(label)
+
+
+    # ZeroBias, hip, OOT pu (1st collision after train) ###
+    label = 'TrackerCollisionSelectedTrackMonZBHIPOOT' + str(tracks)                       
+    locals()[label] = TrackerCollisionTrackMonZBHIPOOT.clone()
+    locals()[label].TrackProducer    = cms.InputTag(tracks)
+    locals()[label].FolderName       = cms.string(mainfolderName[tracks]+"/HIP_OOT_noINpu")
+    locals()[label].PVFolderName     = cms.string(vertexfolderName[tracks]+"/HIP_OOT_noINpu")
+    locals()[label].TrackPtMin       = trackPtMin[tracks]
+    locals()[label].TrackPtBin       = trackPtN[tracks]
+    locals()[label].TrackPtMax       = trackPtMax[tracks]
+    locals()[label].TrackPBin        = trackPtN[tracks]
+    locals()[label].TrackPMin        = trackPtMin[tracks]
+    locals()[label].TrackPMax        = trackPtMax[tracks]
+    locals()[label].doDCAPlots       = doPlotsPCA[tracks]
+    locals()[label].doDCAwrtPVPlots  = doPlotsPCA[tracks]
+    locals()[label].doDCAwrt000Plots = doPlotsPCA[tracks]
+    locals()[label].doSIPPlots       = doPlotsPCA[tracks]
+    locals()[label].numCut           = numCutString[tracks]
+    locals()[label].denCut           = denCutString[tracks]
+    locals()[label].doGoodTracksPlots                   = doGoodTracksPlots                   [tracks]
+    locals()[label].doTrackerSpecific                   = doTrackerSpecific                   [tracks]
+    locals()[label].doHitPropertiesPlots                = doHitPropertiesPlots                [tracks]
+    locals()[label].doGeneralPropertiesPlots            = doGeneralPropertiesPlots            [tracks]
+    locals()[label].doBeamSpotPlots                     = doBeamSpotPlots                     [tracks]
+    locals()[label].doSeedParameterHistos               = doSeedParameterHistos               [tracks]
+    locals()[label].doRecHitVsPhiVsEtaPerTrack          = doRecHitVsPhiVsEtaPerTrack          [tracks]
+    locals()[label].doRecHitVsPtVsEtaPerTrack           = doRecHitVsPtVsEtaPerTrack           [tracks]
+    locals()[label].doGoodTrackRecHitVsPhiVsEtaPerTrack = doGoodTrackRecHitVsPhiVsEtaPerTrack [tracks]
+    locals()[label].doLayersVsPhiVsEtaPerTrack          = doLayersVsPhiVsEtaPerTrack          [tracks]
+    locals()[label].doGoodTrackLayersVsPhiVsEtaPerTrack = doGoodTrackLayersVsPhiVsEtaPerTrack [tracks]
+    locals()[label].doPUmonitoring                      = doPUmonitoring                      [tracks]
+    locals()[label].doPlotsVsBXlumi                     = doPlotsVsBXlumi                     [tracks]
+    locals()[label].doPlotsVsGoodPVtx                   = doPlotsVsGoodPVtx                   [tracks]
+    locals()[label].doPlotsVsLUMI                       = cms.bool(True)
+    locals()[label].doPlotsVsBX                         = cms.bool(True)
+    locals()[label].doEffFromHitPatternVsPU             = doEffFromHitPatternVsPU             [tracks]
+    locals()[label].doEffFromHitPatternVsBX             = doEffFromHitPatternVsBX             [tracks]
+    locals()[label].doEffFromHitPatternVsLUMI           = cms.bool(True)
     locals()[label].doStopSource                        = doStopSource                        [tracks]    
     locals()[label].setLabel(label)
 
@@ -90,6 +219,7 @@ for tracks in selectedTracks :
 import DQM.TrackingMonitor.TrackingMonitorSeed_cfi
 
 from DQM.TrackingMonitorSource.IterTrackingModules4seedMonitoring_cfi import *
+
 for step in selectedIterTrackingStep :
     label = 'TrackSeedMon'+str(step)
     locals()[label] = DQM.TrackingMonitor.TrackingMonitorSeed_cfi.TrackMonSeed.clone(
@@ -150,6 +280,9 @@ from DQM.TrackingMonitorSource.dEdxAnalyzer_cff import *
 # temporary patch in order to have BXlumi 
 from RecoLuminosity.LumiProducer.lumiProducer_cff import *
 
+# import v0 monitoring
+from DQM.TrackingMonitor.V0Monitor_cff import *
+
 # temporary test in order to temporary produce the "goodPrimaryVertexCollection"
 # define with a new name if changes are necessary, otherwise simply include
 # it from CommonTools/ParticleFlow/python/goodOfflinePrimaryVertices_cfi.py
@@ -160,6 +293,10 @@ trackingDQMgoodOfflinePrimaryVertices = goodOfflinePrimaryVertices.clone()
 trackingDQMgoodOfflinePrimaryVertices.filterParams = pvSelector.clone( minNdof = cms.double(4.0), maxZ = cms.double(24.0) )
 trackingDQMgoodOfflinePrimaryVertices.src=cms.InputTag('offlinePrimaryVertices')
 trackingDQMgoodOfflinePrimaryVertices.filter = cms.bool(False)
+
+
+# import v0 monitoring
+from DQM.TrackingMonitor.V0Monitor_cff import *
 
 # Sequence
 TrackingDQMSourceTier0 = cms.Sequence()
@@ -182,6 +319,7 @@ eras.trackingLowPU.toReplaceWith(TrackingDQMSourceTier0, TrackingDQMSourceTier0.
 for module in selectedModules :
     label = str(module)+'LogMessageMonCommon'
     TrackingDQMSourceTier0 += cms.Sequence(locals()[label])
+TrackingDQMSourceTier0 += voMonitoringSequence
 TrackingDQMSourceTier0 += dqmInfoTracking
 
 
@@ -203,6 +341,7 @@ eras.trackingLowPU.toReplaceWith(TrackingDQMSourceTier0Common, TrackingDQMSource
 for module in selectedModules :
     label = str(module)+'LogMessageMonCommon'
     TrackingDQMSourceTier0Common += cms.Sequence(locals()[label])
+TrackingDQMSourceTier0Common += voMonitoringCommonSequence
 TrackingDQMSourceTier0Common += dqmInfoTracking
 
 TrackingDQMSourceTier0MinBias = cms.Sequence()
@@ -214,8 +353,10 @@ TrackingDQMSourceTier0MinBias += dedxHarmonicSequence * dEdxMonCommon * dEdxHitM
 for tracks in selectedTracks :
     if tracks != 'generalTracks':
         TrackingDQMSourceTier0MinBias += sequenceName[tracks]
-    label = 'TrackerCollisionSelectedTrackMonMB' + str(tracks)
-    TrackingDQMSourceTier0MinBias += cms.Sequence(locals()[label])
+
+    for topology in [ 'MB', 'ZBnoHIPnoOOT', 'ZBHIPnoOOT', 'ZBHIPOOT']:
+        label = 'TrackerCollisionSelectedTrackMon' + str(topology) + str(tracks)
+        TrackingDQMSourceTier0MinBias += locals()[label]
 # seeding monitoring
 for step in selectedIterTrackingStep :
     label = 'TrackSeedMon'+str(step)
@@ -225,5 +366,11 @@ eras.trackingLowPU.toReplaceWith(TrackingDQMSourceTier0MinBias, TrackingDQMSourc
 for module in selectedModules :
     label = str(module)+'LogMessageMonMB'
     TrackingDQMSourceTier0MinBias += cms.Sequence(locals()[label])
+# V0 monitoring
+TrackingDQMSourceTier0MinBias += voMonitoringMBSequence
+TrackingDQMSourceTier0MinBias += voMonitoringZBnoHIPnoOOTSequence
+TrackingDQMSourceTier0MinBias += voMonitoringZBHIPnoOOTSequence
+TrackingDQMSourceTier0MinBias += voMonitoringZBHIPOOTSequence
+
 TrackingDQMSourceTier0MinBias += dqmInfoTracking
 

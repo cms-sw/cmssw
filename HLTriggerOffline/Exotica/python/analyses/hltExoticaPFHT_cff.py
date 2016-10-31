@@ -12,6 +12,10 @@ PFHTPSet = cms.PSet(
         "HLT_PFHT550_4Jet_v", # Run2
         "HLT_PFHT800_v",
         "HLT_PFHT650_v",
+        "HLT_PFHT800_4JetPt50_v",
+        "HLT_PFHT750_4JetPt70_v",
+        "HLT_PFHT850_4JetPt50_v",
+        "HLT_PFHT750_4JetPt80_v",
         #"DST_HT450_PFReco_PFBTagCSVReco_PFScouting_v", # Moved to DSTJets category
         #"DST_L1HTT125ORHTT150ORHTT175_PFReco_PFBTagCSVReco_PFScouting_v", # Moved to DSTJets category
         #"DST_CaloJet40_PFReco_PFBTagCSVReco_PFScouting_v" # Moved to DSTJets category

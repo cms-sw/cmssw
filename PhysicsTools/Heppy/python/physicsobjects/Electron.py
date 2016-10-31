@@ -32,11 +32,12 @@ class Electron( Lepton ):
         elif id == "POG_MVA_ID_Phys14_NonTrig_VLoose":   return self.mvaIDRun2("NonTrigPhys14","VLoose")
         elif id == "POG_MVA_ID_Phys14_NonTrig_Loose":    return self.mvaIDRun2("NonTrigPhys14","Loose")
         elif id == "POG_MVA_ID_Phys14_NonTrig_Tight":    return self.mvaIDRun2("NonTrigPhys14","Tight")
-        elif id == "POG_MVA_ID_Spring15_NonTrig_VLoose":   return self.mvaIDRun2("NonTrigSpring15","VLoose")
-        elif id == "POG_MVA_ID_Spring15_NonTrig_VLooseIdEmu":   return self.mvaIDRun2("NonTrigSpring15","VLooseIdEmu")
-        elif id == "POG_MVA_ID_Spring15_NonTrig_VLooseIdIsoEmu":   return self.mvaIDRun2("NonTrigSpring15","VLooseIdIsoEmu")
-        elif id == "POG_MVA_ID_Spring15_NonTrig_Tight":    return self.mvaIDRun2("NonTrigSpring15","Tight")
+        elif id == "POG_MVA_ID_Spring15_NonTrig_VLoose":   return self.mvaIDRun2("NonTrigSpring15MiniAOD","VLoose")
+        elif id == "POG_MVA_ID_Spring15_NonTrig_VLooseIdEmu":   return self.mvaIDRun2("NonTrigSpring15MiniAOD","VLooseIdEmu")
+        elif id == "POG_MVA_ID_Spring15_NonTrig_VLooseIdIsoEmu":   return self.mvaIDRun2("NonTrigSpring15MiniAOD","VLooseIdIsoEmu")
+        elif id == "POG_MVA_ID_Spring15_NonTrig_Tight":    return self.mvaIDRun2("NonTrigSpring15MiniAOD","Tight")
         elif id == "MVA_ID_NonTrig_Phys14Fix_HZZ":     return self.mvaIDRun2("NonTrigPhys14Fix","HZZ")
+        elif id == "MVA_ID_NonTrig_Spring15_HZZ":     return self.mvaIDRun2("NonTrigSpring15MiniAOD","HZZ")
         elif id.startswith("POG_Cuts_ID_"):
                 return self.cutBasedId(id.replace("POG_Cuts_ID_","POG_"))
         for ID in self.electronIDs():
@@ -199,10 +200,17 @@ class Electron( Lepton ):
 
     def mvaRun2( self, name, debug = False ):
         if name not in self._mvaRun2:
-            if name not in ElectronMVAID_ByName: raise RuntimeError("Unknown electron run2 mva id %s (known ones are: %s)\n" % (name, ElectronMVAID_ByName.keys()))
-            if self.associatedVertex == None: raise RuntimeError("You need to set electron.associatedVertex before calling any MVA")
-            if self.rho              == None: raise RuntimeError("You need to set electron.rho before calling any MVA")
+            if name == "NonTrigSpring15MiniAOD" and self.physObj.hasUserFloat("ElectronMVAEstimatorRun2Spring15NonTrig25nsV1Values"):
+                self._mvaRun2[name] =  self.physObj.userFloat("ElectronMVAEstimatorRun2Spring15NonTrig25nsV1Values")
+                return self._mvaRun2[name]
+            if name not in ElectronMVAID_ByName: raise RuntimeError, "Unknown electron run2 mva id %s (known ones are: %s)\n" % (name, ElectronMVAID_ByName.keys())
+            if self.associatedVertex == None: raise RuntimeError, "You need to set electron.associatedVertex before calling any MVA"
+            if self.rho              == None: raise RuntimeError, "You need to set electron.rho before calling any MVA"
+            # -v---- below is correct in Heppy 74X, but probably not functional anyway
             self._mvaRun2[name] = ElectronMVAID_ByName[name](self.physObj, self.associatedVertex, self.rho, True, debug)
+            # -v---- below would be correct for CMGTools 74X witht the updated Spring15 MVA electron ID
+            #if self.event            == None: raise RuntimeError, "You need to set electron.event before calling any MVA"
+            #self._mvaRun2[name] = ElectronMVAID_ByName[name](self.physObj, self.associatedVertex, self.event, self.rho, True, debug)
         return self._mvaRun2[name]
 
     def mvaIDTight(self, full5x5=False):
@@ -242,8 +250,69 @@ class Electron( Lepton ):
                     if   (eta < 0.8)  : return self.mvaRun2(name) > 0.73;
                     elif (eta < 1.479): return self.mvaRun2(name) > 0.57;
                     else              : return self.mvaRun2(name) > 0.05;
-                else: raise RuntimeError("Ele MVA ID Working point not found")
-            else: raise RuntimeError("Ele MVA ID type not found")
+                else: raise RuntimeError, "Ele MVA ID Working point not found"
+            elif name == "NonTrigPhys14Fix":
+                if wp == "HZZ":
+                    if self.pt() <= 10:
+                        if   eta < 0.8  : return self.mvaRun2(name) > -0.586;
+                        elif eta < 1.479: return self.mvaRun2(name) > -0.712;
+                        else            : return self.mvaRun2(name) > -0.662;
+                    else:
+                        if   eta < 0.8  : return self.mvaRun2(name) > -0.652;
+                        elif eta < 1.479: return self.mvaRun2(name) > -0.701;
+                        else            : return self.mvaRun2(name) > -0.350;
+                else: raise RuntimeError, "Ele MVA ID Working point not found"
+            elif name in ("NonTrigSpring15","NonTrigSpring15MiniAOD"):
+                if wp=="VLoose":
+                    if self.pt() <= 10:
+                        if   (eta < 0.8)  : return self.mvaRun2(name) > -0.11;
+                        elif (eta < 1.479): return self.mvaRun2(name) > -0.55;
+                        else              : return self.mvaRun2(name) > -0.60;
+                    else:
+                        if   (eta < 0.8)  : return self.mvaRun2(name) > -0.16;
+                        elif (eta < 1.479): return self.mvaRun2(name) > -0.65;
+                        else              : return self.mvaRun2(name) > -0.74;                        
+                elif wp=="VLooseIdEmu":
+                    if   (eta < 0.8)  : return self.mvaRun2(name) > -0.70;
+                    elif (eta < 1.479): return self.mvaRun2(name) > -0.83;
+                    else              : return self.mvaRun2(name) > -0.92;
+                elif wp=="VLooseIdIsoEmu":
+                    if   (eta < 0.8)  : return self.mvaRun2(name) > -0.155;
+                    elif (eta < 1.479): return self.mvaRun2(name) > -0.56;
+                    else              : return self.mvaRun2(name) > -0.76;
+                elif wp=="Tight":
+                    if   (eta < 0.8)  : return self.mvaRun2(name) > 0.87;
+                    elif (eta < 1.479): return self.mvaRun2(name) > 0.60;
+                    else              : return self.mvaRun2(name) > 0.17;
+                elif wp == "HZZ":
+                    if self.pt() <= 10:
+                        if   eta < 0.8  : return self.mvaRun2(name) > -0.265;
+                        elif eta < 1.479: return self.mvaRun2(name) > -0.556;
+                        else            : return self.mvaRun2(name) > -0.551;
+                    else:
+                        if   eta < 0.8  : return self.mvaRun2(name) > -0.072;
+                        elif eta < 1.479: return self.mvaRun2(name) > -0.286;
+                        else            : return self.mvaRun2(name) > -0.267;
+                elif wp == "POG80":
+                    if self.pt() > 10.:
+                        if eta < 0.8: return self.mvaRun2(name) > 0.967083
+                        elif eta < 1.479: return self.mvaRun2(name) > 0.929117
+                        else: return self.mvaRun2(name) > 0.726311
+                    else: # pt <= 10
+                        if eta < 0.8: return self.mvaRun2(name) > 0.287435
+                        elif eta < 1.479: return self.mvaRun2(name) > 0.221846
+                        else: return self.mvaRun2(name) > -0.303263
+                elif wp == "POG90":
+                    if self.pt() > 10.:
+                        if eta < 0.8: return self.mvaRun2(name) > 0.913286
+                        elif eta < 1.479: return self.mvaRun2(name) > 0.805013
+                        else: return self.mvaRun2(name) > 0.358969
+                    else: # pt <= 10
+                        if eta < 0.8: return self.mvaRun2(name) > -0.083313
+                        elif eta < 1.479: return self.mvaRun2(name) > -0.235222
+                        else: return self.mvaRun2(name) > -0.67099
+                else: raise RuntimeError, "Ele MVA ID Working point not found"
+            else: raise RuntimeError, "Ele MVA ID type not found"
 
 
 
@@ -335,3 +404,10 @@ class Electron( Lepton ):
 	else :
 		return self.gsfTrack().hitPattern().numberOfHits(ROOT.reco.HitPattern.MISSING_INNER_HITS)
 
+    def validCandidateP4Kind(self):
+        raw = self.physObj.candidateP4Kind()
+        return raw in (0,1,2) 
+
+    def ptErr(self):
+        return self.p4Error(self.candidateP4Kind())*self.pt()/self.p() if self.validCandidateP4Kind() else None
+ 

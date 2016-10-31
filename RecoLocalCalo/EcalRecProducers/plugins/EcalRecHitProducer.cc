@@ -390,6 +390,7 @@ void EcalRecHitProducer::fillDescriptions(edm::ConfigurationDescriptions& descri
   desc.add<double>("EELaserMAX",8.0);
   desc.add<double>("logWarningEtThreshold_EB_FE",50);
   desc.add<bool>("recoverEEIsolatedChannels",false);
+  desc.add<bool>("skipTimeCalib",false);
   descriptions.add("ecalRecHit",desc);
 }
 

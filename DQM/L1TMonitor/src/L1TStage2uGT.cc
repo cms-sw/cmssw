@@ -14,9 +14,10 @@
 // Constructor
 L1TStage2uGT::L1TStage2uGT(const edm::ParameterSet& params):
    l1tStage2uGtSource_(consumes<GlobalAlgBlkBxCollection>(params.getParameter<edm::InputTag>("l1tStage2uGtSource"))),
+   monitorDir_(params.getUntrackedParameter<std::string> ("monitorDir", "")),
    verbose_(params.getUntrackedParameter<bool>("verbose", false))
 {
-   histFolder_ = params.getUntrackedParameter<std::string> ("HistFolder", "L1T2016/L1TStage2uGT");
+   // empty
 }
 
 // Destructor
@@ -42,7 +43,7 @@ void L1TStage2uGT::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const&, e
    const int numBx = 3564; 
    const double numBx_d = static_cast<double>(numBx);
 
-   ibooker.setCurrentFolder(histFolder_);
+   ibooker.setCurrentFolder(monitorDir_);
    
    // Algorithm bits 
    algoBits_after_bxomask_ = ibooker.book1D("algoBits_after_bxomask", "uGT: Algorithm Trigger Bits (after BX mask, before prescale)", numAlgs, -0.5, numAlgs_d-0.5);

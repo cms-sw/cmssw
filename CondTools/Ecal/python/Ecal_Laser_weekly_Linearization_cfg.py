@@ -1,14 +1,14 @@
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("ProcessOne")
-process.load("CondCore.DBCommon.CondDBCommon_cfi")
-process.CondDBCommon.DBParameters.authenticationPath = '/afs/cern.ch/cms/DB/conddb/'
+#process.load("CondCore.DBCommon.CondDBCommon_cfi") : deprecated
+process.load("CondCore.CondDB.CondDB_cfi")
+process.CondDB.DBParameters.authenticationPath = '/afs/cern.ch/cms/DB/conddb/'
 #
 # Choose the output database
 #
-#process.CondDBCommon.connect = 'oracle://cms_orcon_prod/CMS_COND_311X_ECAL_LAS'
-#process.CondDBCommon.connect = 'sqlite_file:EcalLin.db'
-process.CondDBCommon.connect = 'oracle://cms_orcoff_prep/CMS_COND_ECAL'
+process.CondDB.connect = 'sqlite_file:EcalLin.db'
+#process.CondDB.connect = 'oracle://cms_orcoff_prep/CMS_CONDITIONS'
 
 process.MessageLogger = cms.Service("MessageLogger",
   debugModules = cms.untracked.vstring('*'),
@@ -23,7 +23,7 @@ process.source = cms.Source("EmptyIOVSource",
 )
 
 process.PoolDBESSource = cms.ESSource("PoolDBESSource",
-  process.CondDBCommon,
+  process.CondDB,
   timetype = cms.untracked.string('runnumber'),
   toGet = cms.VPSet(
     cms.PSet(
@@ -34,7 +34,7 @@ process.PoolDBESSource = cms.ESSource("PoolDBESSource",
  )
 
 process.PoolDBOutputService = cms.Service("PoolDBOutputService",
-  process.CondDBCommon,
+  process.CondDB,
   logconnect = cms.untracked.string('sqlite_file:DBLog.db'),
   timetype = cms.untracked.string('runnumber'),
   toPut = cms.VPSet(
