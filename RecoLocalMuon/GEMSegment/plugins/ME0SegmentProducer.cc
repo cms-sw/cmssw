@@ -47,7 +47,7 @@ ME0SegmentProducer::ME0SegmentProducer(const edm::ParameterSet& ps) : iev(0) {
 
 void ME0SegmentProducer::produce(edm::Event& ev, const edm::EventSetup& setup) {
 
-  LogDebug("ME0SegmentProducer") << "start producing segments for " << ++iev << "th event with csc data";
+  LogDebug("ME0SegmentProducer") << "start producing segments for " << ++iev << "th event with ME0 data";
 	
   // find the geometry (& conditions?) for this event & cache it in the builder
   edm::ESHandle<ME0Geometry> me0g;

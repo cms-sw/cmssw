@@ -29,7 +29,9 @@ upgradeKeys[2023] = [
     '2023D4Timing',
     '2023D4TimingPU',
     '2023D5',
-    '2023D5PU'
+    '2023D5PU',
+    '2023D6',
+    '2023D6PU'
 ]
 
 upgradeSteps=[
@@ -110,7 +112,15 @@ upgradeProperties[2023] = {
         'GT' : 'auto:phase2_realistic',
         'Era' : 'Phase2C2_timing',
         'ScenToRun' : ['GenSimHLBeamSpotFull','DigiFull','RecoFullGlobal', 'HARVESTFullGlobal'],
+    },
+    '2023D6' : {
+        'Geom' : 'Extended2023D6',
+        'GT' : 'auto:phase2_realistic',
+        'Custom' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2023tilted',
+        'Era' : 'Phase2C1',
+        'ScenToRun' : ['GenSimHLBeamSpotFull','DigiFull','RecoFullGlobal', 'HARVESTFullGlobal'],
     }
+
 }
 
 
@@ -136,6 +146,9 @@ upgradeProperties[2023]['2023D4PU'] = deepcopy(upgradeProperties[2023]['2023D4']
 upgradeProperties[2023]['2023D4PU']['ScenToRun'] = ['GenSimHLBeamSpotFull','DigiFullPU','RecoFullLocalPU']
 upgradeProperties[2023]['2023D5PU'] = deepcopy(upgradeProperties[2023]['2023D5'])
 upgradeProperties[2023]['2023D5PU']['ScenToRun'] = ['GenSimHLBeamSpotFull','DigiFullPU','RecoFullGlobalPU', 'HARVESTFullGlobalPU']
+upgradeProperties[2023]['2023D6PU'] = deepcopy(upgradeProperties[2023]['2023D6'])
+upgradeProperties[2023]['2023D6PU']['ScenToRun'] = ['GenSimHLBeamSpotFull','DigiFullPU','RecoFullGlobalPU', 'HARVESTFullGlobalPU']
+
 
 #Timing PU (for now copy ScenToRun of standard PU)
 upgradeProperties[2023]['2023D1TimingPU'] = deepcopy(upgradeProperties[2023]['2023D1Timing'])
@@ -174,8 +187,8 @@ upgradeFragments=['FourMuPt_1_200_pythia8_cfi',
                   'DoubleMuPt1000Extended_pythia8_cfi',
                   'TenMuE_0_200_pythia8_cfi',
                   'SinglePiE50HCAL_cfi',
-		          'MinBias_13TeV_pythia8_TuneCUETP8M1_cfi', 
-		          'TTbar_13TeV_TuneCUETP8M1_cfi',
+                  'MinBias_13TeV_pythia8_TuneCUETP8M1_cfi', 
+                  'TTbar_13TeV_TuneCUETP8M1_cfi',
                   'ZEE_13TeV_TuneCUETP8M1_cfi',
                   'QCD_Pt_600_800_13TeV_TuneCUETP8M1_cfi',
                   'Wjet_Pt_80_120_14TeV_cfi',
@@ -194,9 +207,9 @@ upgradeFragments=['FourMuPt_1_200_pythia8_cfi',
                   'MinBias_TuneZ2star_14TeV_pythia6_cff',
                   'WM_14TeV_cfi',
                   'ZMM_13TeV_TuneCUETP8M1_cfi',
-		          'QCDForPF_14TeV_cfi',
-		          'DYToLL_M_50_TuneZ2star_14TeV_pythia6_tauola_cff',
-		          'DYtoTauTau_M_50_TuneD6T_14TeV_pythia6_tauola_cff',
+                  'QCDForPF_14TeV_cfi',
+                  'DYToLL_M_50_TuneZ2star_14TeV_pythia6_tauola_cff',
+                  'DYtoTauTau_M_50_TuneD6T_14TeV_pythia6_tauola_cff',
                   'ZEE_14TeV_TuneCUETP8M1_cfi',
                   'QCD_Pt_80_120_13TeV_TuneCUETP8M1_cfi',
                   'H125GGgluonfusion_13TeV_TuneCUETP8M1_cfi',
@@ -294,11 +307,11 @@ upgradeDatasetFromFragment={'FourMuPt_1_200_pythia8_cfi': 'FourMuPt1_200',
                             'MinBias_TuneZ2star_14TeV_pythia6_cff' : 'MinBias_TuneZ2star_14TeV',
                             'WM_14TeV_cfi' : 'WM_14TeV',
                             'ZMM_13TeV_TuneCUETP8M1_cfi' : 'ZMM_13',
-			                'QCDForPF_14TeV_cfi' : 'QCDForPF_14TeV',
-			                'DYToLL_M_50_TuneZ2star_14TeV_pythia6_tauola_cff' : 'DYToLL_M_50_TuneZ2star_14TeV',
-			                'DYtoTauTau_M_50_TuneD6T_14TeV_pythia6_tauola_cff' : 'DYtoTauTau_M_50_TuneD6T_14TeV',
-			                'TTbar_13TeV_TuneCUETP8M1_cfi' : 'TTbar_13',
-			                'MinBias_13TeV_pythia8_TuneCUETP8M1_cfi' : 'MinBias_13',
+                            'QCDForPF_14TeV_cfi' : 'QCDForPF_14TeV',
+                            'DYToLL_M_50_TuneZ2star_14TeV_pythia6_tauola_cff' : 'DYToLL_M_50_TuneZ2star_14TeV',
+                            'DYtoTauTau_M_50_TuneD6T_14TeV_pythia6_tauola_cff' : 'DYtoTauTau_M_50_TuneD6T_14TeV',
+                            'TTbar_13TeV_TuneCUETP8M1_cfi' : 'TTbar_13',
+                            'MinBias_13TeV_pythia8_TuneCUETP8M1_cfi' : 'MinBias_13',
                             'ZEE_14TeV_TuneCUETP8M1_cfi' : 'ZEE_14',
                             'QCD_Pt_80_120_13TeV_TuneCUETP8M1_cfi' : 'QCD_Pt_80_120_13',
                             'H125GGgluonfusion_13TeV_TuneCUETP8M1_cfi' : 'H125GGgluonfusion_13',
