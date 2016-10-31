@@ -3,7 +3,10 @@
 <use   name="Geometry/Records"/>
 <use   name="FWCore/Framework"/>
 <flags   EDM_PLUGIN="1"/>
-<library   file="GEMGeometryAnalyzer.cc" name="testGeometryGEMGeometry">
+<library   file="GEMGeometryAnalyzer.cc" name="GEMGeometryAnalyzer">
 </library>
-<library   file="ME0GeometryAnalyzer.cc" name="testGeometryME0Geometry">
+<library   file="ME0GeometryAnalyzer.cc" name="ME0GeometryAnalyzer1EtaPart">
 </library>
+<library   file="ME0GeometryAnalyzer10EtaPart.cc" name="ME0GeometryAnalyzer10EtaPart">
+</library>
+
