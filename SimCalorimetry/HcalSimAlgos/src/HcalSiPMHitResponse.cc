@@ -77,7 +77,7 @@ void HcalSiPMHitResponse::add(const PCaloHit& hit, CLHEP::HepRandomEngine* engin
       HcalDetId id(hit.id());
       const HcalSimParameters& pars = dynamic_cast<const HcalSimParameters&>(theParameterMap->simParameters(id));
       //divide out mean of crosstalk distribution 1/(1-lambda) = multiply by (1-lambda)
-      double signal(analogSignalAmplitude(id, hit.energy(), pars, engine)*(1-pars.sipmCrossTalk()));
+      double signal(analogSignalAmplitude(id, hit.energy(), pars, engine)*(1-pars.sipmCrossTalk(id)));
       unsigned int photons(signal + 0.5);
       double time( hit.time() );
 
@@ -136,8 +136,10 @@ void HcalSiPMHitResponse::addPEnoise(CLHEP::HepRandomEngine* engine)
 
     // uA * ns / (fC/pe) = pe!
     double dc_pe_avg =
-      pars.sipmDarkCurrentuA() * dt / 
+      pars.sipmDarkCurrentuA(id) * dt / 
       pars.photoelectronsToAnalog(id);
+
+    if (dc_pe_avg <= 0.) continue;
 
     int nPreciseBins = theTDCParams.nbins() * TIMEMULT * pars.readoutFrameSize();
 
@@ -182,8 +184,10 @@ CaloSamples HcalSiPMHitResponse::makeSiPMSignal(DetId const& id,
 						photonTimeHist const& photonTimeBins,
                                                 CLHEP::HepRandomEngine* engine) const {
   const HcalSimParameters& pars = static_cast<const HcalSimParameters&>(theParameterMap->simParameters(id));  
-  theSiPM->setNCells(pars.pixels());
-  theSiPM->setTau(5.);
+  theSiPM->setNCells(pars.pixels(id));
+  theSiPM->setTau(pars.sipmTau());
+  theSiPM->setCrossTalk(pars.sipmCrossTalk(id));
+  theSiPM->setSaturationPars(pars.sipmNonlinearity(id));
 
   //use to make signal
   CaloSamples signal( makeBlankSignal(id) );
@@ -196,7 +200,7 @@ CaloSamples HcalSiPMHitResponse::makeSiPMSignal(DetId const& id,
   unsigned int sumPE(0);
   double sumHits(0.);
 
-  HcalSiPMShape sipmPulseShape;
+  HcalSiPMShape sipmPulseShape(pars.signalShape(id));
 
   std::list< std::pair<double, double> > pulses;
   std::list< std::pair<double, double> >::iterator pulse;
@@ -250,19 +254,7 @@ CaloSamples HcalSiPMHitResponse::makeSiPMSignal(DetId const& id,
     elapsedTime += dt;
   }
 
-  // differentiatePreciseSamples(signal, 1.);
-  
   return signal;
-}
-
-void HcalSiPMHitResponse::differentiatePreciseSamples(CaloSamples& samples,
-						      double diffNorm) const {
-  static double const invdt(1./samples.preciseDeltaT());
-  // double dy(0.);
-  for (int i(0); i < samples.preciseSize(); ++i) {
-    // dy = samples.preciseAt(i+1) - samples.preciseAt(i);
-    samples.preciseAtMod(i) *= invdt*diffNorm;
-  }
 }
 
 double HcalSiPMHitResponse::generatePhotonTime(CLHEP::HepRandomEngine* engine) const {
@@ -279,20 +271,5 @@ double HcalSiPMHitResponse::Y11TimePDF(double t) {
 }
 
 void HcalSiPMHitResponse::setDetIds(const std::vector<DetId> & detIds) {
-
   theDetIds = &detIds;
-
-  if (!theDetIds->size()) return;
-
-  // Now that we know what subdet we're in we can access the xtalk parameter
-  HcalDetId id(*theDetIds->begin());
-  const HcalSimParameters& pars =
-    dynamic_cast<const HcalSimParameters&>(theParameterMap->simParameters(id));
-
-  edm::LogInfo("HcalSiPMHitResponse") << " # SiPM pixels: "      << pars.pixels()
-				      << " readoutFrameSize: "   << pars.readoutFrameSize()
-				      << " theCrossTalk: "       << pars.sipmCrossTalk()
-				      << " sipmDarkCurrentuA: "  << pars.sipmDarkCurrentuA();
-				      
-  theSiPM->setCrossTalk(pars.sipmCrossTalk());
 }
