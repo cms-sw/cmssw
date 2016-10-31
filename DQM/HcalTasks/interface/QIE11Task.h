@@ -33,14 +33,23 @@ class QIE11Task : public hcaldqm::DQTask
 	protected:
 		virtual void _process(edm::Event const&, edm::EventSetup const&);
 		virtual void _resetMonitors(hcaldqm::UpdateFreq);
+		virtual bool _isApplicable(edm::Event const&);
+
 
 		//	tags
 		edm::InputTag	_tagQIE11;
 		edm::EDGetTokenT<QIE11DigiCollection> _tokQIE11;
 
+		edm::InputTag _taguMN;
+		edm::EDGetTokenT<HcalUMNioDigi> _tokuMN;
+
+
+
 		//	cuts/constants from input
 		double _cut;
 		int _ped;
+		int _laserType;
+
 
 		//	filters
 		hcaldqm::filter::HashFilter _filter_C36;

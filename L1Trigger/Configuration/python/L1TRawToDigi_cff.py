@@ -57,12 +57,13 @@ def unpack_stage1():
 
 def unpack_stage2():
     global L1TRawToDigi_Stage2
-    global bmtfDigis, caloStage2Digis, gmtStage2Digis, gtStage2Digis,L1TRawToDigi_Stage2    
+    global bmtfDigis, emtfStage2Digis, caloStage2Digis, gmtStage2Digis, gtStage2Digis,L1TRawToDigi_Stage2    
     from EventFilter.L1TRawToDigi.bmtfDigis_cfi import bmtfDigis 
+    from EventFilter.L1TRawToDigi.emtfStage2Digis_cfi import emtfStage2Digis
     from EventFilter.L1TRawToDigi.caloStage2Digis_cfi import caloStage2Digis
     from EventFilter.L1TRawToDigi.gmtStage2Digis_cfi import gmtStage2Digis
     from EventFilter.L1TRawToDigi.gtStage2Digis_cfi import gtStage2Digis
-    L1TRawToDigi_Stage2 = cms.Sequence(bmtfDigis + caloStage2Digis + gmtStage2Digis + gtStage2Digis)
+    L1TRawToDigi_Stage2 = cms.Sequence(bmtfDigis + emtfStage2Digis + caloStage2Digis + gmtStage2Digis + gtStage2Digis)
     
 #
 # Legacy Trigger:
