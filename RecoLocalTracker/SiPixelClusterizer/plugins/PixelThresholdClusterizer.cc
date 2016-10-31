@@ -265,7 +265,7 @@ void PixelThresholdClusterizer::copy_to_buffer( ClusterIterator begin, ClusterIt
       int col = pixel.y;
       int adc = pixel.adc;
       if ( adc >= thePixelThreshold) {
-        theBuffer.set_adc( row, col, adc);
+        theBuffer.add_adc( row, col, adc);
         if ( adc >= theSeedThreshold) theSeeds.push_back( SiPixelCluster::PixelPos(row,col) );
       }
     }
