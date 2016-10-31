@@ -13,58 +13,17 @@
 //
 
 #include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQM/SiPixelPhase1Common/interface/GeometryInterface.h"
 #include <vector>
 #include <utility>
 #include <cassert>
 
 struct AbstractHistogram {
 
-  void fill(double x, double y, double z) {
-    if (me) {
-      me->Fill(x, y, z);
-      return;
-    } else if (th1) {
-      assert(!"Invalid operation on TH1");
-    } else {
-      assert(!"Invalid histogram. This is a problem in the HistogramManager.");
-    } 
-  }; 
-
-  void fill(double x, double y) {
-    if (me) {
-      me->Fill(x, y);
-      return;
-    } else if (th1) {
-      th1->Fill(x, y);
-    } else {
-      assert(!"Invalid histogram. This is a problem in the HistogramManager.");
-    } 
-  }; 
-  
-  void fill(double x) {
-    if (me) {
-      me->Fill(x);
-      return;
-    } else if (th1) {
-      th1->Fill(x);
-    } else {
-      assert(!"Invalid histogram. This is a problem in the HistogramManager.");
-    }
-  };
-  
   int count = 0; // how many things where inserted already. For concat.
   MonitorElement* me = nullptr;
   TH1* th1 = nullptr;
-
-  // full set of metadata. _Only_ used during the booking method.
-  double range_x_min = 1e12;
-  double range_x_max = -1e12;
-  double range_y_min = 1e12;
-  double range_y_max = -1e12;
-  int range_x_nbins = 0;
-  int range_y_nbins = 0;
-  std::string name, title, xlabel, ylabel;
-  MonitorElement::Kind kind = MonitorElement::DQM_KIND_INVALID;
+  GeometryInterface::InterestingQuantities iq_sample;
 
   ~AbstractHistogram() {
     // if both are set the ME should own the TH1

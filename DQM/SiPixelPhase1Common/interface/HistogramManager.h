@@ -40,7 +40,7 @@ public:
   void fill(double x, double y, DetId sourceModule, const edm::Event *sourceEvent = nullptr, int col = 0, int row = 0); 
 
   // This needs to be called after each event (in the analyzer) for per-event counting, like ndigis.
-  void executePerEventHarvesting();
+  void executePerEventHarvesting(edm::Event const* ev);
   
   // Initiate the geometry extraction and book all required frames. Requires the specs to be set.
   void book(DQMStore::IBooker& iBooker, edm::EventSetup const& iSetup);
@@ -68,17 +68,14 @@ private:
   std::vector<Table> tables;
 
   std::string makePath(GeometryInterface::Values const&);
-  std::pair<GeometryInterface::Values, std::string> makeName(
-      SummationSpecification const& s,
+  std::string makeName(SummationSpecification const& s,
       GeometryInterface::InterestingQuantities const& iq);
 
-
-  void executeStep1Spec(double x, double y,
-                        GeometryInterface::Values& significantvalues, 
-                        SummationSpecification& s, 
-                        Table& t,
-                        SummationStep::Stage stage,
-                        AbstractHistogram*& fastpath);
+  void fillInternal(double x, double y, int n_parameters,
+    GeometryInterface::InterestingQuantities const& iq,
+    std::vector<SummationStep>::iterator first,
+    std::vector<SummationStep>::iterator last,
+    AbstractHistogram& dest);
  
   void loadFromDQMStore(SummationSpecification& s, Table& t, DQMStore::IGetter& iGetter);
   void executeSave(SummationStep& step, Table& t, DQMStore::IBooker& iBooker);
@@ -98,9 +95,9 @@ public: // these are available in config as is, and may be used in harvesting.
   std::string xlabel;
   std::string ylabel;
   int dimensions;
-  int range_nbins;
-  double range_min;
-  double range_max;
+  int range_x_nbins;
+  double range_x_min;
+  double range_x_max;
   int range_y_nbins;
   double range_y_min;
   double range_y_max;
