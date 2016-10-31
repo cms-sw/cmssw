@@ -30,12 +30,11 @@ namespace stage2 {
      LogDebug("L1T") << "Block ID  = " << block.header().getID() << " size = " << block.header().getSize() << " AMC = " << block.amc().getAMCNumber();
 
      // check this is the correct MP
-     const unsigned int tmt  = block.amc().getBoardID() - l1t::stage2::layer2::mp::offsetBoardId + 1;
+     const unsigned int amc  = block.amc().getAMCNumber();
      const unsigned int bxid = block.amc().getBX();
-
-     // handle offset between BC0 marker and actual BC0...
-     if( (tmt-1) != ((bxid-1+3)%9) ) return true;
-     LogDebug("L1T") << "Unpacking TMT # " << tmt << " for BX " << bxid;
+     //     if( (amc-1) != (bxid-1)%9 ) return true;
+     if( (amc-1) != ((bxid-1+3)%9) ) return true;   // temporary measure!
+     LogDebug("L1T") << "Unpacking AMC " << amc << " for BX " << bxid;
 
      auto res1_ = static_cast<CaloCollections*>(coll)->getMPJets();
      auto res2_ = static_cast<CaloCollections*>(coll)->getMPEtSums();

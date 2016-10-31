@@ -24,7 +24,6 @@ enum GlobalObject
     gtHTT,
     gtHTM,
     gtETMHF,
-    gtTowerCount,
     gtMinBiasHFP0,
     gtMinBiasHFM0,
     gtMinBiasHFP1,

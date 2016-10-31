@@ -343,7 +343,7 @@ done
 
 for PngOutputFile in $(ls *png ); do
     xrdcp -f ${PngOutputFile}  root://eoscms//eos/cms/store/caf/user/$USER/.oO[eosdir]Oo./plots/
-    rfcp ${PngOutputFile}  .oO[datadir]Oo.
+    rfcp ${PngOutputFile}  .oO[datadri]Oo.
 done
 
 """

@@ -244,7 +244,6 @@ namespace l1t {
       else
 	return 0;
     }
-
     std::string jetPUSType() const { return pnode_[jetPUS].type_; }
     std::vector<double> jetPUSParams() { return pnode_[jetPUS].dparams_; }
     std::string jetCalibrationType() const { return pnode_[jetCalibration].type_; }
@@ -268,7 +267,7 @@ namespace l1t {
     void setJetCalibrationLUT(const l1t::LUT & lut) { pnode_[jetCalibration].LUT_ = lut; }
     void setJetCompressEtaLUT(const l1t::LUT & lut) { pnode_[jetCompressEta].LUT_ = lut; }
     void setJetCompressPtLUT(const l1t::LUT & lut) { pnode_[jetCompressPt].LUT_ = lut; }
-    
+
     // sums
 
     double etSumLsb() const { return etSumLsb_; }

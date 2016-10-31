@@ -20,19 +20,15 @@ void TrigSystem::configureSystemFromFiles(const std::string& hwCfgFile, const st
 {
         // read hw description xml
         // this will set the sysId
-  {  
-    XmlConfigReader xmlRdr;
-    xmlRdr.readDOMFromFile(hwCfgFile);
-    xmlRdr.readRootElement(*this);
-  }
-  // read configuration xml files
-  {
-    XmlConfigReader xmlRdr;
-    xmlRdr.readDOMFromFile(topCfgFile);
-    xmlRdr.buildGlobalDoc(key, topCfgFile);
-    xmlRdr.readContexts(key, sysId_, *this);
-  }
-  isConfigured_ = true;
+        _xmlRdr.readDOMFromFile(hwCfgFile);
+        _xmlRdr.readRootElement(*this);
+
+        // read configuration xml files
+        _xmlRdr.readDOMFromFile(topCfgFile);
+        _xmlRdr.buildGlobalDoc(key, topCfgFile);
+        _xmlRdr.readContexts(key, sysId_, *this);
+
+        isConfigured_ = true;
 }
 
 

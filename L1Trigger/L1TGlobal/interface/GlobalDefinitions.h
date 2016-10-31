@@ -62,7 +62,6 @@ enum GtConditionType {
     TypeHTT,
     TypeHTM,
     TypeETMHF,
-    TypeTowerCount,
     TypeMinBiasHFP0,
     TypeMinBiasHFM0,
     TypeMinBiasHFP1,
