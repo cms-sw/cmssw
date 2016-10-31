@@ -4,7 +4,7 @@
 LQGenFilter::LQGenFilter(const edm::ParameterSet& iConfig)
 {
    //now do what ever initialization is needed
-  src_ = iConfig.getUntrackedParameter<edm::InputTag>("src",edm::InputTag("source"));
+  src_ = iConfig.getUntrackedParameter<edm::InputTag>("src",edm::InputTag("generator","unsmeared"));
   
   eejj_     = iConfig.getParameter<bool>("eejj");
   enuejj_   = iConfig.getParameter<bool>("enuejj");
