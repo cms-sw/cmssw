@@ -9,23 +9,23 @@ HcalSimParameterMap::HcalSimParameterMap() :
   theHBParameters(2000., std::vector<double>(16, 0.3305),
 		  117, 5, 
 		  10, 5, true, true,
-		  1, std::vector<double>(16, 117.),0.055,0.32),
+		  1, std::vector<double>(16, 117.), 10.),
   theHEParameters(2000., std::vector<double>(16, 0.3305),
 		  178, 5,
 		  10, 5, true, true,
-		  16, std::vector<double>(16, 178.),0.055,0.32),
+		  16, std::vector<double>(16, 178.), 10.),
   theHOParameters( 4000., std::vector<double>(16, 0.3065), 
                    217., 5, 
                    10, 5, true, true,
-                   1, std::vector<double>(16, 217.),0.,0.),
+                   1, std::vector<double>(16, 217.), 5.),
   theHOZecotekSiPMParameters( 4000., std::vector<double>(16, 3.0), // 1 mip = 15 pe = 45 fC
                    217., 5,
                    10, 5, true, true,
-	           1, std::vector<double>(16, 217.),0.055,0.32),
+	           1, std::vector<double>(16, 217.), 5.),
   theHOHamamatsuSiPMParameters( 4000., std::vector<double>(16, 3.0),
                    217., 5,
                    10, 5, true, true,
-		   1, std::vector<double>(16, 217.),0.055,0.32),
+		   1, std::vector<double>(16, 217.), 5.),
   theHFParameters1(6., 2.79,
 		   1/0.278 , -4,
 		   true),
@@ -38,16 +38,7 @@ HcalSimParameterMap::HcalSimParameterMap() :
   theHOZecotekDetIds(),
   theHOHamamatsuDetIds()
 {
-  theHOZecotekSiPMParameters.thePixels = 36000;
-  theHOHamamatsuSiPMParameters.thePixels = 960;
 }
-/*
-  CaloSimParameters(double simHitToPhotoelectrons, double photoelectronsToAnalog,
-                 double samplingFactor, double timePhase,
-                 int readoutFrameSize, int binOfMaximum,
-                 bool doPhotostatistics, bool syncPhase=true);
-
-*/
 
 HcalSimParameterMap::HcalSimParameterMap(const edm::ParameterSet & p)
 : theHBParameters(  p.getParameter<edm::ParameterSet>("hb") ),
