@@ -74,7 +74,7 @@ es_hardcode = cms.ESSource("HcalHardcodeCalibrations",
         mcShape       = cms.int32(201),
         recoShape     = cms.int32(201),
         photoelectronsToAnalog = cms.double(4.0),
-        darkCurrent   = cms.double(0.055),
+        darkCurrent   = cms.double(0.0),
     ),
     hbUpgrade = cms.PSet(
         pedestal      = cms.double(17.3),
@@ -117,12 +117,12 @@ es_hardcode = cms.ESSource("HcalHardcodeCalibrations",
     ),
     # types (in order): HcalHOZecotek, HcalHOHamamatsu, HcalHEHamamatsu1, HcalHEHamamatsu2, HcalHBHamamatsu1, HcalHBHamamatsu2
     SiPMCharacteristics = cms.VPSet(
-        cms.PSet( pixels = cms.int32(36000), crosstalk = cms.double(0.32), nonlin1 = cms.double(1.0), nonlin2 = cms.double(0.0), nonlin3 = cms.double(0.0) ),
-        cms.PSet( pixels = cms.int32(2500), crosstalk = cms.double(0.32), nonlin1 = cms.double(1.0), nonlin2 = cms.double(0.0), nonlin3 = cms.double(0.0) ),
-        cms.PSet( pixels = cms.int32(27370), crosstalk = cms.double(0.32), nonlin1 = cms.double(1.000669), nonlin2 = cms.double(1.34646E-5), nonlin3 = cms.double(1.57918E-10) ),
-        cms.PSet( pixels = cms.int32(38018), crosstalk = cms.double(0.32), nonlin1 = cms.double(1.000669), nonlin2 = cms.double(1.34646E-5), nonlin3 = cms.double(1.57918E-10) ),
-        cms.PSet( pixels = cms.int32(27370), crosstalk = cms.double(0.32), nonlin1 = cms.double(1.000669), nonlin2 = cms.double(1.34646E-5), nonlin3 = cms.double(1.57918E-10) ),
-        cms.PSet( pixels = cms.int32(38018), crosstalk = cms.double(0.32), nonlin1 = cms.double(1.000669), nonlin2 = cms.double(1.34646E-5), nonlin3 = cms.double(1.57918E-10) ),
+        cms.PSet( pixels = cms.int32(36000), crosstalk = cms.double(0.0), nonlin1 = cms.double(1.0), nonlin2 = cms.double(0.0), nonlin3 = cms.double(0.0) ),
+        cms.PSet( pixels = cms.int32(2500), crosstalk = cms.double(0.0), nonlin1 = cms.double(1.0), nonlin2 = cms.double(0.0), nonlin3 = cms.double(0.0) ),
+        cms.PSet( pixels = cms.int32(27370), crosstalk = cms.double(0.32), nonlin1 = cms.double(1.00985), nonlin2 = cms.double(7.84089E-6), nonlin3 = cms.double(2.86282E-10) ),
+        cms.PSet( pixels = cms.int32(38018), crosstalk = cms.double(0.32), nonlin1 = cms.double(1.00546), nonlin2 = cms.double(6.40239E-6), nonlin3 = cms.double(1.27011E-10) ),
+        cms.PSet( pixels = cms.int32(27370), crosstalk = cms.double(0.32), nonlin1 = cms.double(1.00985), nonlin2 = cms.double(7.84089E-6), nonlin3 = cms.double(2.86282E-10) ),
+        cms.PSet( pixels = cms.int32(38018), crosstalk = cms.double(0.32), nonlin1 = cms.double(1.00546), nonlin2 = cms.double(6.40239E-6), nonlin3 = cms.double(1.27011E-10) ),
     ),
 )
 
