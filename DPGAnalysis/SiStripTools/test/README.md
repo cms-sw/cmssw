@@ -1,25 +1,11 @@
 ##Configurations
 
 ###OccupancyPlotsTest_cfg.py
-this configurations produces cluster occupancy plots for different regions of the detector. A set of histograms is produced for each run.
-The input should be a RECO file containing SiStripClusters, SiPixelClusters and a collection of tracks that is configurable. In case no RECO file is available for your purpose, it can be used also on RAW data setting the relevant option (fromRAW=1).
-This configuration can be used on Cosmics or Collisions data.
-To run on cosmics (RAW data) you can use the following command:
+This configuration can be used to measure the cluster and digi on cluster occupancy in different parts of the Tracker detectors: the detector is divided in several subsets of modules which are more or less in the same r and z position. This configuration makes use of the `EDAnalyzer`s `OccupancyPlots`, `MultiplicityInvestigator`, `TrackCount` and `EventTimeDistribution`.
+The command to run it is:
+`cmsRun OccupancyPlotsTest_cfg.py withTracks=0/1 globalTag=<your-GT> inputFiles=<your-RAW-data-file> tag=<suffix-to-the-root-file-name>`
+If the option `withTracks=1` then the cluster and digi occupancy is measured also for the on-track clusters. If the input files are RAW data the options `fromRAW=1` has to be used (and `withTracks=0`). To select a specific HLT path the option `triggerPath` can be used (for example `triggerPath="HLT_ZeroBias_v*"`. In this case the histograms will be produced for all the processed events and only for the events which fulfill the trigger selection. With the option `maxEvents=<number-of-events>` it is possible to run on a limited number of events.
 
-cmsRun OccupancyPlotsTest_cfg.py fromRAW=1 onCosmics=1 globalTag=<your-GT> inputFiles=<your-RAW-data-file>
-
-To run on Collisions data you can use the following command:
-
-cmsRun OccupancyPlotsTest_cfg.py fromRAW=1 onCosmics=0 trackCollection=generalTracks globalTag=<your-GT> inputFiles=<your-RAW-data-file>
-
-there are other options that can be set in the command line:
-
-1) "tag" add a suffix to the output file name
-2) "maxEvents" to choose what is the number of events to be used (default -1)
-3) "triggerPath" to choose the HLT path to filter your data (currently not working)
-4) "HLTprocess" to choose which process to use for HLT selection default is "HLT"
-
-NOTE: if you need to run on data older than 2016, the era is to be changed manually from "Run2_2016" to what reported in Configuration/StandardSequences/Eras.py
 
 ###crabOccupancy.py
 is a sample crab3 configuration to run the above configuration on the grid. 
