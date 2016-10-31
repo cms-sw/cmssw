@@ -57,6 +57,8 @@ class L1TEfficiencyPlotHandler {
 
  private :
 
+  std::string numeratorDir_;
+  std::string denominatorDir_;
   std::string m_dir;
   std::string m_plotName; 
 
