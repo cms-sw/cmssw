@@ -274,6 +274,47 @@ std::string HistogramManager::makePath(
   return top_folder_name + "/" + dir.str();
 }
 
+std::pair<GeometryInterface::Values, std::string> HistogramManager::makeName(
+    SummationSpecification const& s,
+    GeometryInterface::InterestingQuantities const& iq) {
+  std::string name = this->name;
+  GeometryInterface::Values significantvalues;
+  geometryInterface.extractColumns(s.steps[0].columns, iq, significantvalues);
+  for (SummationStep step : s.steps) {
+    if (step.stage == SummationStep::STAGE1 ||
+        step.stage == SummationStep::STAGE1_2) {
+      switch (step.type) {
+        case SummationStep::SAVE:
+          break;  // this happens automatically
+        case SummationStep::COUNT:
+          name = "num_" + name;
+          break;
+        case SummationStep::EXTEND_X:
+        case SummationStep::EXTEND_Y: {
+          GeometryInterface::Column col0 =
+              significantvalues.get(step.columns.at(0)).first;
+          std::string colname = geometryInterface.pretty(col0);
+          name = name + "_per_" + colname;
+          significantvalues.erase(col0);
+          break;
+        }
+        case SummationStep::GROUPBY: {
+          GeometryInterface::Values new_vals;
+          for (auto c : step.columns) new_vals.put(significantvalues.get(c));
+          significantvalues = new_vals;
+          break;
+        }
+        case SummationStep::REDUCE:
+          break; // not visible in name
+        case SummationStep::CUSTOM:
+        case SummationStep::NO_TYPE:
+          assert(!"Illegal step; booking should have caught this.");
+      }
+    }
+  }
+  return std::make_pair(significantvalues, name);
+}
+
 void HistogramManager::book(DQMStore::IBooker& iBooker,
                             edm::EventSetup const& iSetup) {
   if (!geometryInterface.loaded()) {
@@ -290,7 +331,6 @@ void HistogramManager::book(DQMStore::IBooker& iBooker,
                                        significantvalues);
       bool do_profile = false;
       auto dimensions = this->dimensions;
-      std::string name = this->name;
       std::string title = this->title;
       std::string xlabel = this->xlabel;
       std::string ylabel = this->ylabel;
@@ -309,7 +349,6 @@ void HistogramManager::book(DQMStore::IBooker& iBooker,
             case SummationStep::COUNT: {
               dimensions = 0;
               title = "Count of " + title;
-              name = "num_" + name;
               ylabel = "#" + xlabel;
               xlabel = "";
               range_x_nbins = range_y_nbins = 1;
@@ -325,7 +364,6 @@ void HistogramManager::book(DQMStore::IBooker& iBooker,
                   significantvalues.get(step.columns.at(0)).first;
               std::string colname = geometryInterface.pretty(col0);
               title = title + " per " + colname;
-              name = name + "_per_" + colname;
               if (dimensions == 1) {
                 ylabel = xlabel;
                 range_y_min = range_x_min;
@@ -354,7 +392,6 @@ void HistogramManager::book(DQMStore::IBooker& iBooker,
               assert(dimensions != 2 || !"2D to 2D reduce NYI in step1");
               dimensions = 2;
               title = title + " per " + colname;
-              name = name + "_per_" + colname;
               if (do_profile) { // we loose the Z- (former Y-) label here
                 title = title + " (Z: " + ylabel + ")";
               }
@@ -449,7 +486,8 @@ void HistogramManager::book(DQMStore::IBooker& iBooker,
       histo.range_x_nbins = range_x_nbins;
       histo.range_y_nbins = range_y_nbins;
 
-      histo.name = name;
+      // PERF: no need to do this for each module, could be skipped if set 
+      histo.name = makeName(s, iq).second;
       histo.title = title;
       histo.xlabel = xlabel;
       histo.ylabel = ylabel;
@@ -473,8 +511,9 @@ void HistogramManager::book(DQMStore::IBooker& iBooker,
     // needed since we determine the ranges iteratively, but we need to know
     // them precisely for booking; they cannot be changed later.
     for (auto& e : t) {
-      iBooker.setCurrentFolder(makePath(e.first));
       AbstractHistogram& h = e.second;
+
+      iBooker.setCurrentFolder(makePath(e.first));
 
       if (h.range_x_nbins == 0) {
         h.range_x_min -= 0.5;
@@ -531,51 +570,18 @@ void HistogramManager::executePerLumiHarvesting(DQMStore::IBooker& iBooker,
   }
 }
 
+
+
 void HistogramManager::loadFromDQMStore(SummationSpecification& s, Table& t,
                                         DQMStore::IGetter& iGetter) {
   // This is essentially the booking code of step1, to reconstruct the ME names.
   // Once we have a name we load the ME and put it into the table.
   t.clear();
   for (auto iq : geometryInterface.allModules()) {
-    std::string name = this->name;
-    GeometryInterface::Values significantvalues;
-    geometryInterface.extractColumns(s.steps[0].columns, iq, significantvalues);
-    // PERF: if (!bookUndefined) we could skip a lot here.
-    for (SummationStep step : s.steps) {
-      if (step.stage == SummationStep::STAGE1 ||
-          step.stage == SummationStep::STAGE1_2) {
-        switch (step.type) {
-          case SummationStep::SAVE:
-            break;  // this happens automatically
-          case SummationStep::COUNT:
-            name = "num_" + name;
-            break;
-          case SummationStep::EXTEND_X:
-          case SummationStep::EXTEND_Y: {
-            GeometryInterface::Column col0 =
-                significantvalues.get(step.columns.at(0)).first;
-            std::string colname = geometryInterface.pretty(col0);
-            name = name + "_per_" + colname;
-            significantvalues.erase(col0);
-            break;
-          }
-          case SummationStep::GROUPBY: {
-            GeometryInterface::Values new_vals;
-            for (auto c : step.columns) new_vals.put(significantvalues.get(c));
-            significantvalues = new_vals;
-            break;
-          }
-          case SummationStep::REDUCE:
-            break; // not visible in name
-          case SummationStep::CUSTOM:
-          case SummationStep::NO_TYPE:
-            assert(!"Illegal step; booking should have caught this.");
-        }
-      }
-    }
     // note that we call get() here for every single module. But the string
     // ops above are probably more expensive anyways...
-    std::string path = makePath(significantvalues) + name;
+    auto path_name = makeName(s, iq);
+    std::string path = makePath(path_name.first) + path_name.second;
     MonitorElement* me = iGetter.get(path);
     if (!me) {
       if (bookUndefined)
@@ -583,7 +589,7 @@ void HistogramManager::loadFromDQMStore(SummationSpecification& s, Table& t,
       // else this will happen quite often
     } else {
       // only touch the table if a me is added. Empty items are illegal.
-      AbstractHistogram& histo = t[significantvalues];
+      AbstractHistogram& histo = t[path_name.first];
       histo.me = me;
       histo.th1 = histo.me->getTH1();
     }

@@ -68,6 +68,10 @@ private:
   std::vector<Table> tables;
 
   std::string makePath(GeometryInterface::Values const&);
+  std::pair<GeometryInterface::Values, std::string> makeName(
+      SummationSpecification const& s,
+      GeometryInterface::InterestingQuantities const& iq);
+
 
   void executeStep1Spec(double x, double y,
                         GeometryInterface::Values& significantvalues, 
