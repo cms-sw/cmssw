@@ -59,3 +59,10 @@ RecoLocalCaloFEVT.outputCommands.extend(ecalLocalRecoFEVT.outputCommands)
 RecoLocalCaloRECO.outputCommands.extend(ecalLocalRecoRECO.outputCommands)
 RecoLocalCaloAOD.outputCommands.extend(ecalLocalRecoAOD.outputCommands)
 
+from Configuration.StandardSequences.Eras import eras
+eras.pA_2016.toModify( RecoLocalCaloAOD.outputCommands, 
+                       func=lambda outputCommands: outputCommands.extend(['keep *_zdcreco_*_*',
+                                                                          'keep ZDCDataFramesSorted_hcalDigis_*_*',
+                                                                          'keep ZDCDataFramesSorted_castorDigis_*_*'
+                                                                          ]) 
+                       )
