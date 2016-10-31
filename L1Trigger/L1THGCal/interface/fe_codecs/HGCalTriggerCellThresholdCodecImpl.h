@@ -54,7 +54,7 @@ class HGCalTriggerCellThresholdCodecImpl
         double   tdcOnsetfC() const {return tdcOnsetfC_;}
         uint32_t triggerCellTruncationBits() const {return triggerCellTruncationBits_;}
         uint32_t triggerCellSaturationBits() const {return triggerCellSaturationBits_;}
-
+        int      TCThreshold() const {return TCThreshold_;} 
 
     private:
         size_t   nData_;
@@ -70,7 +70,7 @@ class HGCalTriggerCellThresholdCodecImpl
         double   tdcLSB_;
         uint32_t triggerCellTruncationBits_;
         uint32_t triggerCellSaturationBits_;
-        int TCThreshold_;
+        int      TCThreshold_;
 
 };
 

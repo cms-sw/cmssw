@@ -79,7 +79,8 @@ setDataPayloadImpl(const l1t::HGCFETriggerDigi& digi)
     conf.addParameter<uint32_t>   ("tdcnBits",      codecImpl_.tdcnBits());
     conf.addParameter<double>     ("tdcOnsetfC",    codecImpl_.tdcOnsetfC());
     conf.addParameter<uint32_t>   ("triggerCellTruncationBits", codecImpl_.triggerCellTruncationBits());
-    conf.addParameter<int>   ("triggerCellTruncationBits", codecImpl_.triggerCellTruncationBits());    HGCalTriggerCellThresholdCodec codecInput(conf);
+    conf.addParameter<int>        ("TCThreshold", codecImpl_.TCThreshold());
+    HGCalTriggerCellThresholdCodec codecInput(conf);
     codecInput.setGeometry(geometry_);
     digi.decode(codecInput,data_);
     // choose threshold selected cells in the module

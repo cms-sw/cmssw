@@ -215,19 +215,7 @@ void HGCalTriggerThresholdTriggerCellTester::checkSelectedCells(const edm::Event
     for(const auto& module_cells : module_triggercells_all)
     {
         const auto& module_cells_select_itr = module_triggercells_select.find(module_cells.first);
-        if(module_cells_select_itr==module_triggercells_select.end())
-        {
-            stringstream error;
-            error << "ERROR: Cannot find module for selected cells\n";
-            error <<" Trigger cell values contained in module:\n";
-            for(const auto& value : module_cells.second)
-            {
-                error<<value<<" ";
-            }
-            error<<"\n";
-            edm::LogError("HGCalTriggerThresholdTriggerCellTester") << error.str();
-            continue;
-        }
+        if(module_cells_select_itr==module_triggercells_select.end()) continue;
         size_t ncells_all = module_cells.second.size();
         size_t ncells_select = module_cells_select_itr->second.size();
         uint32_t energy_all = 0;
@@ -238,27 +226,10 @@ void HGCalTriggerThresholdTriggerCellTester::checkSelectedCells(const edm::Event
         {
             selectedCellsVsAllCells_ee_->Fill(ncells_all, ncells_select);
             if(energy_all>0) energyLossVsNCells_ee_->Fill(ncells_all, (double)energy_select/(double)energy_all);
-            if(energy_all>0 && ncells_all<codec_->nData() && energy_select<energy_all)
-            {
-                stringstream error;
-                error<<"ERROR: N(cells)<NData but E(selected cells) < E(total)\n";
-                error<<" All trigger cells values contained in module:\n ";
-                for(const auto& value : module_cells.second)
-                {
-                    error<<value<<" ";
-                }
-                error<<"\n";
-                error<<" Selected trigger cells values contained in module:\n ";
-                for(const auto& value : module_cells_select_itr->second)
-                {
-                    error<<value<<" ";
-                }
-                error<<"\n";
-                edm::LogError("HGCalTriggerThresholdTriggerCellTester") << error.str();
-            }
+            
         }
         else if(std::get<1>(module_cells.first)==ForwardSubdetector::HGCHEF) 
-        {
+          {
             selectedCellsVsAllCells_fh_->Fill(ncells_all, ncells_select);
             if(energy_all>0) energyLossVsNCells_fh_->Fill(ncells_all, (double)energy_select/(double)energy_all);
         }

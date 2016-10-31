@@ -30,21 +30,17 @@ HGCalTriggerCellThresholdCodecImpl::
 encode(const HGCalTriggerCellThresholdCodecImpl::data_type& data, const HGCalTriggerGeometryBase& geometry) const 
 {
     // First nCellsInModule_ bits are encoding the map of selected trigger cells
-    // Followed by nData_ words of dataLength_ bits, corresponding to energy/transverse energy of
+    // Followed by size words of dataLength_ bits, corresponding to energy/transverse energy of
     // the selected trigger cells
   
-    // Retrieve once the ordered list of trigger cells in this module
-    uint32_t module = geometry.getModuleFromTriggerCell(data.payload.begin()->detId());
-    HGCalTriggerGeometryBase::geom_ordered_set trigger_cells_in_module = geometry.getOrderedTriggerCellsFromModule(module);
     // Convert payload into a map for later search
     std::unordered_map<uint32_t, uint32_t> data_map; // (detid,energy)
     size_t size=0;
     for(const auto& triggercell : data.payload)
-    {
-      data_map.emplace(triggercell.detId(), triggercell.hwPt());
-      if (triggercell.hwPt()>0) size++;
-    }
-    //std::cout<< "size ="<<size<<std::endl;
+      {
+        data_map.emplace(triggercell.detId(), triggercell.hwPt());
+        if (triggercell.hwPt()>0) size++;
+      }
     std::vector<bool> result(nCellsInModule_ + dataLength_*size, 0);
     // No data: return vector of 0
     if(data.payload.size()==0) return result;
@@ -52,8 +48,11 @@ encode(const HGCalTriggerCellThresholdCodecImpl::data_type& data, const HGCalTri
     // Loop on trigger cell ids in module and check if energy in the cell
     size_t index = 0; // index in module
     size_t idata = 0; // counter for the number of non-zero energy values
+    // Retrieve once the ordered list of trigger cells in this module
+    uint32_t module = geometry.getModuleFromTriggerCell(data.payload.begin()->detId());
+    HGCalTriggerGeometryBase::geom_ordered_set trigger_cells_in_module = geometry.getOrderedTriggerCellsFromModule(module);
     for(const auto& triggercell_id : trigger_cells_in_module)
-    {
+      {
         // Find if this trigger cell has data
         const auto& data_itr = data_map.find(triggercell_id);
         // if not data, increase index and skip
@@ -66,31 +65,31 @@ encode(const HGCalTriggerCellThresholdCodecImpl::data_type& data, const HGCalTri
         // (set the corresponding adress bit and fill energy if >0)
         if(index>=nCellsInModule_) 
         {
-            throw cms::Exception("BadGeometry")
-                << "Number of trigger cells in module too large for available data payload\n";
+          throw cms::Exception("BadGeometry")
+            << "Number of trigger cells in module too large for available data payload\n";
         }
         uint32_t value = data_itr->second; 
         if(value>0)
-        {
+          {
             if(idata>=size)
-            {
+              {
                 throw cms::Exception("BadData") 
-                    << "encode: Number of non-zero trigger cells larger than codec parameter\n"\
-                    << "      : Number of energy values = "<<size<<"\n";
-            }
+                  << "encode: Number of non-zero trigger cells larger than codec parameter\n" \
+                  << "      : Number of energy values = "<<size<<"\n";
+              }
             // Set map bit to 1
             result[index] =  1;
             // Saturate and truncate energy values
             if(value+1>(0x1u<<triggerCellSaturationBits_)) value = (0x1<<triggerCellSaturationBits_)-1;
             for(size_t i=0; i<dataLength_; i++)
-            {
+              {
                 // remove the lowest bits (=triggerCellTruncationBits_)
                 result[nCellsInModule_ + idata*dataLength_ + i] = static_cast<bool>(value & (0x1<<(i+triggerCellTruncationBits_)));
-            }
+              }
             idata++;
-        }
+          }
         index++;
-    }
+      }
     return result;
 }
 
