@@ -46,7 +46,7 @@ namespace metsig {
 					  JME::JetResolutionScaleFactor & resSFObj,
 					  bool isRealData);
 
-     double getSignificance(const reco::METCovMatrix& cov, const reco::MET& met ) const;
+     static double getSignificance(const reco::METCovMatrix& cov, const reco::MET& met );
 
       private:
          bool cleanJet(const reco::Jet& jet, 

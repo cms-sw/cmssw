@@ -20,16 +20,18 @@ Implementation:
 
 metsig::METSignificance::METSignificance(const edm::ParameterSet& iConfig) {
 
-  edm::ParameterSet cfgParams = iConfig.getParameter<edm::ParameterSet>("parameters");
+  // if(iConfig.exists("parameters")) {
+    edm::ParameterSet cfgParams = iConfig.getParameter<edm::ParameterSet>("parameters");
 
-  double dRmatch = cfgParams.getParameter<double>("dRMatch");
-  dR2match_ = dRmatch*dRmatch;
+    double dRmatch = cfgParams.getParameter<double>("dRMatch");
+    dR2match_ = dRmatch*dRmatch;
   
-  jetThreshold_ = cfgParams.getParameter<double>("jetThreshold");
-  jetEtas_ = cfgParams.getParameter<std::vector<double> >("jeta");
-  jetParams_ = cfgParams.getParameter<std::vector<double> >("jpar");
-  pjetParams_ = cfgParams.getParameter<std::vector<double> >("pjpar");
-
+    jetThreshold_ = cfgParams.getParameter<double>("jetThreshold");
+    jetEtas_ = cfgParams.getParameter<std::vector<double> >("jeta");
+    jetParams_ = cfgParams.getParameter<std::vector<double> >("jpar");
+    pjetParams_ = cfgParams.getParameter<std::vector<double> >("pjpar");
+    // }
+  
 }
 
 metsig::METSignificance::~METSignificance() {
@@ -172,7 +174,7 @@ metsig::METSignificance::getCovariance(const edm::View<reco::Jet>& jets,
 }
 
 double
-metsig::METSignificance::getSignificance(const reco::METCovMatrix& cov, const reco::MET& met) const {
+metsig::METSignificance::getSignificance(const reco::METCovMatrix& cov, const reco::MET& met) {
 
    // covariance matrix determinant
    double det = cov(0,0)*cov(1,1) - cov(0,1)*cov(1,0);
