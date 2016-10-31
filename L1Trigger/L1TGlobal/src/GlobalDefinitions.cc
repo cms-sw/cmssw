@@ -65,7 +65,6 @@ constexpr entry<l1t::GtConditionType> l1GtConditionTypeStringToEnumMap[] = {
         {"l1t::TypeHTT", l1t::TypeHTT},
         {"l1t::TypeHTM", l1t::TypeHTM},
 	{"l1t::TypeETMHF", l1t::TypeETMHF},
-	{"l1t::TypeTowerCount", l1t::TypeTowerCount},
 	{"l1t::TypeMinBiasHFP0", l1t::TypeMinBiasHFP0},
 	{"l1t::TypeMinBiasHFM0", l1t::TypeMinBiasHFM0},
 	{"l1t::TypeMinBiasHFP1", l1t::TypeMinBiasHFP1},

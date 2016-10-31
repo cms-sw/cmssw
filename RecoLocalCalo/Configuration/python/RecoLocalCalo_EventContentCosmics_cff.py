@@ -29,7 +29,6 @@ RecoLocalCaloRECO = cms.PSet(
                                            'keep HFRecHitsSorted_hfrecoMB_*_*',
                                            #'keep ZDCDataFramesSorted_*Digis_*_*',
                                            'keep ZDCDataFramesSorted_hcalDigis_*_*',
-                                           'keep ZDCDataFramesSorted_castorDigis_*_*',
                                            'keep ZDCDataFramesSorted_simHcalUnsuppressedDigis_*_*',
                                            'keep ZDCRecHitsSorted_*_*_*',
                                            #'keep HcalUnpackerReport_*_*_*'

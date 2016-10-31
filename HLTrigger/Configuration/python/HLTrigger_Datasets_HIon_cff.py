@@ -1,4 +1,4 @@
-# /dev/CMSSW_8_0_0/HIon
+# getDatasets.py
 
 import FWCore.ParameterSet.Config as cms
 

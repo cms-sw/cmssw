@@ -3,8 +3,7 @@ import FWCore.ParameterSet.Config as cms
 zdcreco = cms.EDProducer(
     "ZdcHitReconstructor",
     correctionPhaseNS = cms.double(0.0),
-    digiLabelhcal = cms.InputTag("hcalDigis"),
-    digiLabelcastor = cms.InputTag("castorDigis"),
+    digiLabel = cms.InputTag("hcalDigis"),
     Subdetector = cms.string('ZDC'),
     correctForPhaseContainment = cms.bool(False),
     correctForTimeslew = cms.bool(False),
