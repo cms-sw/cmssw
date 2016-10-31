@@ -26,7 +26,7 @@ totemVFATRawToDigi = cms.EDProducer("TotemVFATRawToDigi",
     # 2: print an error message and do not process the frame
     testFootprint = cms.uint32(2),
     testCRC = cms.uint32(2),
-    testID = cms.uint32(1),               # compare the ID from data and mapping
+    testID = cms.uint32(2),               # compare the ID from data and mapping
     testECMostFrequent = cms.uint32(2),   # compare frame's EC with the most frequent value in the event
     testBCMostFrequent = cms.uint32(2),   # compare frame's BC with the most frequent value in the event
 
