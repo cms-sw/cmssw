@@ -161,6 +161,119 @@ def L1TReEmulFromRAW(process):
         print process.schedule
         return process
 
+def L1TReEmulFromRAWLegacyMuon(process):
+    process.load('L1Trigger.Configuration.SimL1Emulator_cff')
+    process.load('L1Trigger.Configuration.CaloTriggerPrimitives_cff')
+    process.simEcalTriggerPrimitiveDigis.Label = 'ecalDigis'
+    process.simHcalTriggerPrimitiveDigis.inputLabel = cms.VInputTag(
+        cms.InputTag('hcalDigis'),
+        cms.InputTag('hcalDigis')
+    )
+    process.simCscTriggerPrimitiveDigis.CSCComparatorDigiProducer = cms.InputTag( 'muonCSCDigis', 'MuonCSCComparatorDigi')
+    process.simCscTriggerPrimitiveDigis.CSCWireDigiProducer       = cms.InputTag( 'muonCSCDigis', 'MuonCSCWireDigi' )  
+    
+    #TODO : replace process.SimL1Emulator with the sequence including legacy stuff
+    from L1Trigger.Configuration.SimL1TechnicalTriggers_cff import *
+    from L1Trigger.L1TCalorimeter.simDigis_cff import *
+    from L1Trigger.L1TMuon.simDigis_cff import *
+    from L1Trigger.L1TGlobal.simDigis_cff import *
+    from L1Trigger.L1TCommon.muonLegacyInStage2Format import *
+
+##  - DT TP emulator
+#    from L1Trigger.DTTrigger.dtTriggerPrimitiveDigis_cfi import *
+#    import L1Trigger.DTTrigger.dtTriggerPrimitiveDigis_cfi
+#    processsimDtTriggerPrimitiveDigis = L1Trigger.DTTrigger.dtTriggerPrimitiveDigis_cfi.dtTriggerPrimitiveDigis.clone()
+#
+#    process.simDtTriggerPrimitiveDigis.digiTag = 'simMuonDTDigis'
+#    #simDtTriggerPrimitiveDigis.debug = cms.untracked.bool(True)
+#
+## - CSC TP emulator
+#    from L1Trigger.CSCCommonTrigger.CSCCommonTrigger_cfi import *
+#    import L1Trigger.CSCTriggerPrimitives.cscTriggerPrimitiveDigis_cfi
+#    process.simCscTriggerPrimitiveDigis = L1Trigger.CSCTriggerPrimitives.cscTriggerPrimitiveDigis_cfi.cscTriggerPrimitiveDigis.clone()
+#    process.simCscTriggerPrimitiveDigis.CSCComparatorDigiProducer = cms.InputTag( 'simMuonCSCDigis', 'MuonCSCComparatorDigi' )
+#    process.simCscTriggerPrimitiveDigis.CSCWireDigiProducer       = cms.InputTag( 'simMuonCSCDigis', 'MuonCSCWireDigi' )
+#
+#    SimL1TMuonCommon = cms.Sequence(simDtTriggerPrimitiveDigis + simCscTriggerPrimitiveDigis)
+#
+##
+## - CSC Track Finder emulator
+##
+#    import L1Trigger.CSCTrackFinder.csctfTrackDigis_cfi
+#    process.simCsctfTrackDigis = L1Trigger.CSCTrackFinder.csctfTrackDigis_cfi.csctfTrackDigis.clone()
+#    process.simCsctfTrackDigis.SectorReceiverInput = cms.untracked.InputTag( 'simCscTriggerPrimitiveDigis', 'MPCSORTED' )
+#    process.simCsctfTrackDigis.DTproducer = 'simDtTriggerPrimitiveDigis'
+#    import L1Trigger.CSCTrackFinder.csctfDigis_cfi
+#    process.simCsctfDigis = L1Trigger.CSCTrackFinder.csctfDigis_cfi.csctfDigis.clone()
+#    process.simCsctfDigis.CSCTrackProducer = 'simCsctfTrackDigis'
+##
+## - DT Track Finder emulator
+## 
+#    import L1Trigger.DTTrackFinder.dttfDigis_cfi
+#    process.simDttfDigis = L1Trigger.DTTrackFinder.dttfDigis_cfi.dttfDigis.clone()
+#    process.simDttfDigis.DTDigi_Source  = 'simDtTriggerPrimitiveDigis'
+#    process.simDttfDigis.CSCStub_Source = 'simCsctfTrackDigis'
+##
+## - RPC PAC Trigger emulator
+##
+#    from L1Trigger.RPCTrigger.rpcTriggerDigis_cff import *
+#    process.simRpcTriggerDigis = L1Trigger.RPCTrigger.rpcTriggerDigis_cff.rpcTriggerDigis.clone()
+#    process.simRpcTriggerDigis.label = 'simMuonRPCDigis'
+##   
+## -  Global Muon Trigger emulator
+##
+#    import L1Trigger.GlobalMuonTrigger.gmtDigis_cfi
+#    process.simGmtDigis = L1Trigger.GlobalMuonTrigger.gmtDigis_cfi.gmtDigis.clone()
+#    process.simGmtDigis.DTCandidates   = cms.InputTag( 'simDttfDigis', 'DT' )
+#    process.simGmtDigis.CSCCandidates  = cms.InputTag( 'simCsctfDigis', 'CSC' )
+#    process.simGmtDigis.RPCbCandidates = cms.InputTag( 'simRpcTriggerDigis', 'RPCb' )
+#    process.simGmtDigis.RPCfCandidates = cms.InputTag( 'simRpcTriggerDigis', 'RPCf' )
+##   Note: GMT requires input from calorimeter emulators, namely MipIsoData from GCT
+#    process.simGmtDigis.MipIsoData     = 'simRctDigis'
+
+    #the processes are included when loading the simDigis_cff..
+    #Here adding to the Sequence the calo and common muon stuff 
+    process.L1TReEmul = cms.Sequence(process.simEcalTriggerPrimitiveDigis * process.simHcalTriggerPrimitiveDigis * process.SimL1TCalorimeter + process.SimL1TMuonCommon ) 
+    #here adding the legacy muons
+    process.L1TReEmul = cms.Sequence(process.L1TReEmul + process.simCsctfTrackDigis + process.simCsctfDigis + process.simDttfDigis + process.simRpcTriggerDigis + process.simGmtDigis + process.muonLegacyInStage2FormatDigis)
+    #here adding to the Sequence the upgrade muon
+    process.L1TReEmul = cms.Sequence( process.L1TReEmul + process.simTwinMuxDigis + process.simBmtfDigis + process.simEmtfDigis + process.simOmtfDigis + process.simGmtCaloSumDigis + process.simMuonQualityAdjusterDigis + process.simGmtStage2Digis)
+    #here adding final products 
+    process.L1TReEmu = cms.Sequence( process.L1TReEmul + process.SimL1TechnicalTriggers + process.SimL1TGlobal )
+
+    # This is for the upgrade
+    # TwinMux
+    process.simTwinMuxDigis.RPC_Source         = cms.InputTag('muonRPCDigis')
+    process.simTwinMuxDigis.DTDigi_Source      = cms.InputTag('bmtfDigis')
+    process.simTwinMuxDigis.DTThetaDigi_Source = cms.InputTag('bmtfDigis')
+    # BMTF
+    process.simBmtfDigis.DTDigi_Source         = cms.InputTag('bmtfDigis')
+    process.simBmtfDigis.DTDigi_Theta_Source   = cms.InputTag('bmtfDigis')
+    # OMTF
+    process.simOmtfDigis.srcRPC                = cms.InputTag('muonRPCDigis')
+    process.simOmtfDigis.srcCSC                = cms.InputTag('csctfDigis')
+    process.simOmtfDigis.srcDTPh               = cms.InputTag('bmtfDigis')
+    process.simOmtfDigis.srcDTTh               = cms.InputTag('bmtfDigis')
+    # EMTF
+    process.simEmtfDigis.CSCInput              = cms.InputTag('emtfStage2Digis')
+    process.simEmtfDigis.RPCInput              = cms.InputTag('muonRPCDigis')
+    # Calo Layer1
+    process.simCaloStage2Layer1Digis.ecalToken = cms.InputTag('ecalDigis:EcalTriggerPrimitives')
+    process.simCaloStage2Layer1Digis.hcalToken = cms.InputTag('hcalDigis:')
+   
+    #This is for the legacy muon part 
+    process.simRctDigis.ecalDigis = cms.VInputTag( cms.InputTag( 'ecalDigis:EcalTriggerPrimitives' ) )
+    process.simRctDigis.hcalDigis = cms.VInputTag('hcalDigis:')
+    process.simRpcTriggerDigis.label         = 'muonRPCDigis'
+    process.L1TReEmulPath = cms.Path(process.L1TReEmul)    
+    process.schedule.append(process.L1TReEmulPath)
+    print "L1TReEmul sequence:  "
+    print process.L1TReEmul
+    print process.schedule
+    return process
+
+
+
 def L1TReEmulMCFromRAW(process):
     L1TReEmulFromRAW(process)
     if stage2L1Trigger.isChosen():
