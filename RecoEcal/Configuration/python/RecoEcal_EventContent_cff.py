@@ -93,3 +93,10 @@ from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
 phase2_hgcal.toReplaceWith( RecoEcalFEVT, _phase2_hgcal_RecoEcalFEVT )
 phase2_hgcal.toReplaceWith( RecoEcalRECO, _phase2_hgcal_RecoEcalRECO )
 phase2_hgcal.toReplaceWith( RecoEcalAOD , _phase2_hgcal_RecoEcalAOD  )
+
+from Configuration.StandardSequences.Eras import eras
+#HI-specific products needed in pp scenario special configurations
+for e in [eras.pA_2016, eras.peripheralPbPb]:
+    for ec in [RecoEcalRECO.outputCommands, RecoEcalFEVT.outputCommands]:
+        e.toModify( ec, func=lambda outputCommands: outputCommands.extend(['keep recoCaloClusters_islandBasicClusters_*_*'])
+                    )
