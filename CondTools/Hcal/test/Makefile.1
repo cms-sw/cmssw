@@ -6,7 +6,8 @@ OFILES = HcalPiecewiseLinearFunctor.o parseHcalDetId.o \
          HcalDetId.o HcalPolynomialFunctor.o HcalDetIdTransform.o \
          make_HFPhase1PMTParams_data.o make_HFPhase1PMTParams_dummy.o \
          make_HFPhase1PMTParams_mc.o make_HFPhase1PMTParams_test.o \
-         HcalChebyshevFunctor.o HcalLinearCompositionFunctor.o 
+         HcalChebyshevFunctor.o HcalLinearCompositionFunctor.o \
+         templateInstantiations.o
 
 %.o : %.cc
 	$(CXX) -c $(CXXFLAGS) -MD $< -o $@

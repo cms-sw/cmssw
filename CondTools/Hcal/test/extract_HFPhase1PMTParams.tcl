@@ -24,7 +24,6 @@ set pkg_files {
     }
     CondTools/Hcal {
         CmdLine.h
-        instantiateEosTemplates.h
         make_HFPhase1PMTParams.h
         parseHcalDetId.h
         parseHcalDetId.cc
@@ -128,6 +127,7 @@ exec /bin/mkdir -p $todir
 exec /bin/mkdir -p $todir/CondFormats/Serialization/interface
 file copy -force CondFormats/Serialization/interface/eos \
     $todir/CondFormats/Serialization/interface
+file copy -force CondFormats/Serialization/src/templateInstantiations.cc $todir
 
 foreach f $filelist {
     set outfile [file join "$todir" [file tail $f]]

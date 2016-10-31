@@ -14,7 +14,6 @@
 // Serializaton headers
 #include "CondFormats/Serialization/interface/eos/portable_iarchive.hpp"
 #include "CondFormats/Serialization/interface/eos/portable_oarchive.hpp"
-#include "CondTools/Hcal/interface/instantiateEosTemplates.h"
 
 // Local headers
 #include "CondTools/Hcal/interface/CmdLine.h"

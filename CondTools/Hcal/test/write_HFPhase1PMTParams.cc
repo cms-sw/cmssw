@@ -13,7 +13,6 @@
 #include <boost/archive/text_oarchive.hpp>
 
 #include "CondTools/Hcal/interface/make_HFPhase1PMTParams.h"
-#include "CondTools/Hcal/interface/instantiateEosTemplates.h"
 
 using namespace std;
 using namespace cmdline;
