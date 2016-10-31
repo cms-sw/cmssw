@@ -6,7 +6,6 @@
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloHitResponse.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalAmplifier.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalCoderFactory.h"
-#include "SimCalorimetry/HcalSimAlgos/interface/HcalHitCorrection.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalTimeSlewSim.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalSimParameterMap.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalSiPMHitResponse.h"
@@ -43,7 +42,7 @@ HcalDigitizer::HcalDigitizer(const edm::ParameterSet& ps, edm::ConsumesCollector
   theParameterMap(new HcalSimParameterMap(ps)),
   theShapes(new HcalShapes()),
   theHBHEResponse(new CaloHitResponse(theParameterMap, theShapes)),
-  theHBHESiPMResponse(new HcalSiPMHitResponse(theParameterMap, theShapes)),
+  theHBHESiPMResponse(new HcalSiPMHitResponse(theParameterMap, theShapes, ps.getParameter<bool>("HcalPreMixStage1"))),
   theHOResponse(new CaloHitResponse(theParameterMap, theShapes)),   
   theHOSiPMResponse(new HcalSiPMHitResponse(theParameterMap, theShapes)),
   theHFResponse(new CaloHitResponse(theParameterMap, theShapes)),
@@ -73,7 +72,6 @@ HcalDigitizer::HcalDigitizer(const edm::ParameterSet& ps, edm::ConsumesCollector
   theHOHitFilter(),
   theHOSiPMHitFilter(),
   theZDCHitFilter(),
-  theHitCorrection(0),
   theHBHEDigitizer(0),
   theHODigitizer(0),
   theHOSiPMDigitizer(0),
@@ -91,6 +89,7 @@ HcalDigitizer::HcalDigitizer(const edm::ParameterSet& ps, edm::ConsumesCollector
   hogeo(true),
   hfgeo(true),
   doHFWindow_(ps.getParameter<bool>("doHFWindow")),
+  killHE_(ps.getParameter<bool>("killHE")),
   hitsProducer_(ps.getParameter<std::string>("hitsProducer")),
   theHOSiPMCode(ps.getParameter<edm::ParameterSet>("ho").getParameter<int>("siPMCode")),
   deliveredLumi(0.),
@@ -101,6 +100,7 @@ HcalDigitizer::HcalDigitizer(const edm::ParameterSet& ps, edm::ConsumesCollector
   iC.consumes<std::vector<PCaloHit> >(edm::InputTag(hitsProducer_, "HcalHits"));
 
   bool doNoise = ps.getParameter<bool>("doNoise");
+ 
   bool PreMix1 = ps.getParameter<bool>("HcalPreMixStage1");  // special threshold/pedestal treatment
   bool PreMix2 = ps.getParameter<bool>("HcalPreMixStage2");  // special threshold/pedestal treatment
   bool doEmpty = ps.getParameter<bool>("doEmpty");
@@ -239,7 +239,6 @@ HcalDigitizer::~HcalDigitizer() {
   delete theHFQIE10Amplifier;
   delete theHBHEQIE11Amplifier;
   delete theCoderFactory;
-  delete theHitCorrection;
   if (theRelabeller)           delete theRelabeller;
 }
 
@@ -309,10 +308,6 @@ void HcalDigitizer::initializeEvent(edm::Event const& e, edm::EventSetup const& 
   theCoderFactory->setDbService(conditions.product());
   theParameterMap->setDbService(conditions.product());
 
-  if(theHitCorrection != 0) {
-    theHitCorrection->clear();
-  }
-
   //initialize hits
   if(theHBHEDigitizer) theHBHEDigitizer->initializeHits();
   if(theHBHEQIE11Digitizer) theHBHEQIE11Digitizer->initializeHits();
@@ -356,6 +351,10 @@ void HcalDigitizer::accumulateCaloHits(edm::Handle<std::vector<PCaloHit> > const
         //skip HF window hits unless desired
         continue;
       }
+      else if( killHE_ && hid.subdet()==HcalEndcap ) {
+	// remove HE hits if asked for (phase 2)
+	continue;
+      }
       else {
 #ifdef DebugLog
         std::cout << "HcalDigitizer format " << hid.oldFormat() << " for " << hid << std::endl;
@@ -369,9 +368,6 @@ void HcalDigitizer::accumulateCaloHits(edm::Handle<std::vector<PCaloHit> > const
       }
     }
 
-    if(theHitCorrection != 0) {
-      theHitCorrection->fillChargeSums(hcalHits);
-    }
     if(hbhegeo) {
       if(theHBHEDigitizer) theHBHEDigitizer->add(hcalHits, bunchCrossing, engine);
       if(theHBHEQIE11Digitizer) theHBHEQIE11Digitizer->add(hcalHits, bunchCrossing, engine);
@@ -505,9 +501,6 @@ void HcalDigitizer::finalizeEvent(edm::Event& e, const edm::EventSetup& eventSet
   std::cout << std::endl << "========>  HcalDigitizer e.put " << std::endl <<  std::endl;
 #endif
 
-  if(theHitCorrection) {
-    theHitCorrection->clear();
-  }
 }
 
 
@@ -563,7 +556,9 @@ void  HcalDigitizer::updateGeometry(const edm::EventSetup & eventSetup) {
   // combine HB & HE
 
   hbheCells = hbCells;
-  hbheCells.insert(hbheCells.end(), heCells.begin(), heCells.end());
+  if( !killHE_) {
+    hbheCells.insert(hbheCells.end(), heCells.begin(), heCells.end());
+  }
   //handle mixed QIE8/11 scenario in HBHE
   if(theHBHEUpgradeDigitizer) {
     theHBHEUpgradeDigitizer->setDetIds(hbheCells);

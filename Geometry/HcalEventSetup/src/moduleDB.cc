@@ -50,113 +50,113 @@ CaloGeometryDBEP<HcalGeometry, CaloGeometryDBReader>::produceAligned( const type
   }	 
   //*********************************************************************************************
 
- 
-    edm::ESHandle<HcalTopology> hcalTopology;
-    iRecord.getRecord<HcalRecNumberingRecord>().get( hcalTopology );
+  edm::ESHandle<HcalTopology> hcalTopology;
+  iRecord.getRecord<HcalRecNumberingRecord>().get( hcalTopology );
 
-    // We know that the numer of shapes chanes with changing depth
-    // so, this check is temporary disabled. We need to implement
-    // a way either to store or calculate the number of shapes or be able
-    // to deal with only max numer of shapes.
-    // assert( dvec.size() == hcalTopology->getNumberOfShapes() * HcalGeometry::k_NumberOfParametersPerShape ) ;
-    assert( dvec.size() <= hcalTopology->getNumberOfShapes() * HcalGeometry::k_NumberOfParametersPerShape ) ;
-    HcalGeometry* hcg=new HcalGeometry( *hcalTopology );
+  // We know that the numer of shapes chanes with changing depth
+  // so, this check is temporary disabled. We need to implement
+  // a way either to store or calculate the number of shapes or be able
+  // to deal with only max numer of shapes.
+  // assert( dvec.size() == hcalTopology->getNumberOfShapes() * HcalGeometry::k_NumberOfParametersPerShape ) ;
+  assert( dvec.size() <= hcalTopology->getNumberOfShapes() * HcalGeometry::k_NumberOfParametersPerShape ) ;
+  HcalGeometry* hcg = new HcalGeometry( *hcalTopology );
     
   PtrType ptr ( hcg );
  
-  const unsigned int nTrParm ( tvec.size()/hcalTopology->ncells() ) ;
+  const unsigned int nTrParm( hcg->numberOfTransformParms());
    
-  ptr->fillDefaultNamedParameters() ;
-  
-  ptr->allocateCorners( hcalTopology->ncells()+hcalTopology->getHFSize() );
-
-  ptr->allocatePar(    dvec.size() ,
-		       HcalGeometry::k_NumberOfParametersPerShape ) ;
+  ptr->fillDefaultNamedParameters();
+  ptr->allocateCorners( hcalTopology->ncells()+hcalTopology->getHFSize());
+  ptr->allocatePar( dvec.size() ,
+		    HcalGeometry::k_NumberOfParametersPerShape );
 
   for( unsigned int i ( 0 ) ; i < dins.size() ; ++i ) {
-    const unsigned int nPerShape ( HcalGeometry::k_NumberOfParametersPerShape);
-    DimVec dims ;
-    dims.reserve( nPerShape ) ;
+    const unsigned int nPerShape ( HcalGeometry::k_NumberOfParametersPerShape );
+    DimVec dims;
+    dims.reserve( nPerShape );
 
-    const unsigned int indx ( ivec.size()==1 ? 0 : i ) ;
+    const unsigned int indx( ivec.size() == 1 ? 0 : i );
 
-    DimVec::const_iterator dsrc ( dvec.begin() + ivec[indx]*nPerShape ) ;
+    DimVec::const_iterator dsrc( dvec.begin() + ivec[indx]*nPerShape );
 
     for( unsigned int j ( 0 ) ; j != nPerShape ; ++j ) {
       dims.push_back( *dsrc ) ;
       ++dsrc ;
     }
 
-    const CCGFloat* myParm ( CaloCellGeometry::getParmPtr( dims, 
-							   ptr->parMgr(), 
-							   ptr->parVecVec() ));
+    const CCGFloat* myParm( CaloCellGeometry::getParmPtr( dims, 
+							  ptr->parMgr(), 
+							  ptr->parVecVec()));
 
-
-    const DetId id ( hcalTopology->denseId2detId(dins[i]) );
+    const DetId id( hcalTopology->denseId2detId( dins[i]));
     
-    const unsigned int iGlob ( 0 == globalPtr ? 0 :
-			       HcalGeometry::alignmentTransformIndexGlobal( id ) ) ;
+    const unsigned int iGlob( 0 == globalPtr ? 0 :
+			      HcalGeometry::alignmentTransformIndexGlobal( id ));
 
-    assert( 0 == globalPtr || iGlob < globalPtr->m_align.size() ) ;
+    assert( 0 == globalPtr || iGlob < globalPtr->m_align.size());
 
-    const AlignTransform* gt ( 0 == globalPtr ? 0 : &globalPtr->m_align[ iGlob ] ) ;
+    const AlignTransform* gt ( 0 == globalPtr ? 0 : &globalPtr->m_align[ iGlob ] );
 
-    assert( 0 == gt || iGlob == HcalGeometry::alignmentTransformIndexGlobal( DetId( gt->rawId() ) ) ) ;
+    assert( 0 == gt || iGlob == HcalGeometry::alignmentTransformIndexGlobal( DetId( gt->rawId())));
 
-    const unsigned int iLoc ( 0 == alignPtr ? 0 :
-			      HcalGeometry::alignmentTransformIndexLocal( id ) ) ;
+    const unsigned int iLoc( 0 == alignPtr ? 0 :
+			     HcalGeometry::alignmentTransformIndexLocal( id ));
 
-    assert( 0 == alignPtr || iLoc < alignPtr->m_align.size() ) ;
+    assert( 0 == alignPtr || iLoc < alignPtr->m_align.size());
 
-    const AlignTransform* at ( 0 == alignPtr ? 0 :
-			       &alignPtr->m_align[ iLoc ] ) ;
+    const AlignTransform* at( 0 == alignPtr ? 0 :
+			      &alignPtr->m_align[ iLoc ]);
 
-    assert( 0 == at || ( HcalGeometry::alignmentTransformIndexLocal( DetId( at->rawId() ) ) == iLoc ) ) ;
+    assert( 0 == at || ( HcalGeometry::alignmentTransformIndexLocal( DetId( at->rawId())) == iLoc ));
 
     Pt3D  lRef ;
-    Pt3DVec lc ( 8, Pt3D(0,0,0) ) ;
-    hcg->localCorners( lc, &dims.front(), dins[i], lRef ) ;
+    Pt3DVec lc( 8, Pt3D( 0, 0, 0 ));
+    hcg->localCorners( lc, &dims.front(), dins[i], lRef );
 
-    const Pt3D lBck ( 0.25*(lc[4]+lc[5]+lc[6]+lc[7] ) ) ; // ctr rear  face in local
-    const Pt3D lCor ( lc[0] ) ;
+    const Pt3D lBck( 0.25*(lc[4]+lc[5]+lc[6]+lc[7] )); // ctr rear  face in local
+    const Pt3D lCor( lc[0] );
 
     //----------------------------------- create transform from 6 numbers ---
-    const unsigned int jj ( dins[i]*nTrParm ) ;
-    Tr3D tr ;
-    const ROOT::Math::Translation3D tl ( tvec[jj], tvec[jj+1], tvec[jj+2] ) ;
-    const ROOT::Math::EulerAngles ea (
-				      6==nTrParm ?
+    const unsigned int jj( i * nTrParm ); // Note: Dence indices are not sorted and
+                                          // parameters stored according to order of a cell creation
+    Tr3D tr;
+    const ROOT::Math::Translation3D tl( tvec[jj], tvec[jj+1], tvec[jj+2] );
+    const ROOT::Math::EulerAngles ea( 6 == nTrParm ?
 				      ROOT::Math::EulerAngles( tvec[jj+3], tvec[jj+4], tvec[jj+5] ) :
-				      ROOT::Math::EulerAngles() ) ;
-    const ROOT::Math::Transform3D rt ( ea, tl ) ;
-    double xx,xy,xz,dx,yx,yy,yz,dy,zx,zy,zz,dz;
-    rt.GetComponents(xx,xy,xz,dx,yx,yy,yz,dy,zx,zy,zz,dz) ;
+				      ROOT::Math::EulerAngles());
+    const ROOT::Math::Transform3D rt( ea, tl );
+    double xx, xy, xz, dx;
+    double yx, yy, yz, dy;
+    double zx, zy, zz, dz;
+    rt.GetComponents( xx, xy, xz, dx,
+		      yx, yy, yz, dy,
+		      zx, zy, zz, dz );
     tr = Tr3D( CLHEP::HepRep3x3( xx, xy, xz,
 				 yx, yy, yz,
 				 zx, zy, zz ), 
-	       CLHEP::Hep3Vector(dx,dy,dz)     );
+	       CLHEP::Hep3Vector( dx, dy, dz));
 
     // now prepend alignment(s) for final transform
-    const Tr3D atr ( 0 == at ? tr :
-		     ( 0 == gt ? at->transform()*tr :
-		       at->transform()*gt->transform()*tr ) ) ;
+    const Tr3D atr( 0 == at ? tr :
+		    ( 0 == gt ? at->transform() * tr :
+		      at->transform() * gt->transform() * tr ));
     //--------------------------------- done making transform  ---------------
 
-    const Pt3D        gRef ( atr*lRef ) ;
-    const GlobalPoint fCtr ( gRef.x(), gRef.y(), gRef.z() ) ;
-    const Pt3D        gBck ( atr*lBck ) ;
-    const GlobalPoint fBck ( gBck.x(), gBck.y(), gBck.z() ) ;
-    const Pt3D        gCor ( atr*lCor ) ;
-    const GlobalPoint fCor ( gCor.x(), gCor.y(), gCor.z() ) ;
+    const Pt3D        gRef( atr*lRef ) ;
+    const GlobalPoint fCtr( gRef.x(), gRef.y(), gRef.z() ) ;
+    const Pt3D        gBck( atr*lBck ) ;
+    const GlobalPoint fBck( gBck.x(), gBck.y(), gBck.z() ) ;
+    const Pt3D        gCor( atr*lCor ) ;
+    const GlobalPoint fCor( gCor.x(), gCor.y(), gCor.z() ) ;
 
     assert( hcalTopology->detId2denseId(id) == dins[i] );
 
-    ptr->newCell(  fCtr, fBck, fCor, myParm, id ) ;
+    ptr->newCell( fCtr, fBck, fCor, myParm, id ) ;
   }
 
-  ptr->initializeParms() ; // initializations; must happen after cells filled
+  ptr->initializeParms(); // initializations; must happen after cells filled
 
-  return ptr ; 
+  return ptr; 
 }
 
 template<>

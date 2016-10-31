@@ -1,7 +1,8 @@
 #include "CalibCalorimetry/HcalAlgos/interface/HcalHardcodeParameters.h"
 
 HcalHardcodeParameters::HcalHardcodeParameters(double pedestal, double pedestalWidth, std::vector<double> gain, std::vector<double> gainWidth, 
-											   int qieType, std::vector<double> qieOffset, std::vector<double> qieSlope, int mcShape, int recoShape)
+											   int qieType, std::vector<double> qieOffset, std::vector<double> qieSlope, int mcShape, int recoShape,
+											   double photoelectronsToAnalog, double darkCurrent)
 :	pedestal_(pedestal),
 	pedestalWidth_(pedestalWidth),
 	gain_(gain),
@@ -10,7 +11,9 @@ HcalHardcodeParameters::HcalHardcodeParameters(double pedestal, double pedestalW
 	qieOffset_(qieOffset),
 	qieSlope_(qieSlope),
 	mcShape_(mcShape),
-	recoShape_(recoShape)
+	recoShape_(recoShape),
+	photoelectronsToAnalog_(photoelectronsToAnalog),
+	darkCurrent_(darkCurrent)
 {
 }
 
@@ -23,6 +26,8 @@ HcalHardcodeParameters::HcalHardcodeParameters(const edm::ParameterSet & p)
 	qieOffset_(p.getParameter<std::vector<double>>("qieOffset")),
 	qieSlope_(p.getParameter<std::vector<double>>("qieSlope")),
 	mcShape_(p.getParameter<int>("mcShape")),
-	recoShape_(p.getParameter<int>("recoShape"))
+	recoShape_(p.getParameter<int>("recoShape")),
+	photoelectronsToAnalog_(p.getParameter<double>("photoelectronsToAnalog")),
+	darkCurrent_(p.getParameter<double>("darkCurrent"))
 {
 }

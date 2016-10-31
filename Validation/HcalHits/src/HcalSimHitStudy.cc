@@ -1,5 +1,6 @@
 #include "Validation/HcalHits/interface/HcalSimHitStudy.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
+#include "SimDataFormats/CaloTest/interface/HcalTestNumbering.h"
 
 #include "FWCore/Utilities/interface/Exception.h"
 
@@ -9,6 +10,7 @@ HcalSimHitStudy::HcalSimHitStudy(const edm::ParameterSet& ps) {
   hcalHits = ps.getUntrackedParameter<std::string>("HitCollection","HcalHits");
   outFile_ = ps.getUntrackedParameter<std::string>("outputFile", "hcHit.root");
   verbose_ = ps.getUntrackedParameter<bool>("Verbose", false);
+  testNumber_= ps.getParameter<bool>("TestNumber");
   checkHit_= true;
 
   tok_hits_ = consumes<edm::PCaloHitContainer>(edm::InputTag(g4Label,hcalHits));
@@ -23,6 +25,62 @@ HcalSimHitStudy::~HcalSimHitStudy() {}
 
 void HcalSimHitStudy::bookHistograms(DQMStore::IBooker &ib, edm::Run const & run, edm::EventSetup const & es)
 {
+  edm::ESHandle<HcalDDDRecConstants> pHRNDC;
+  es.get<HcalRecNumberingRecord>().get( pHRNDC );
+  hcons = &(*pHRNDC);
+  maxDepthHB_ = hcons->getMaxDepth(0);
+  maxDepthHE_ = hcons->getMaxDepth(1);
+  maxDepthHF_ = hcons->getMaxDepth(2);
+  maxDepthHO_ = hcons->getMaxDepth(3);
+
+  //Get Phi segmentation from geometry, use the max phi number so that all iphi values are included.
+
+  int NphiMax = hcons->getNPhi(0);
+
+  NphiMax = (hcons->getNPhi(1) > NphiMax ? hcons->getNPhi(1) : NphiMax);
+  NphiMax = (hcons->getNPhi(2) > NphiMax ? hcons->getNPhi(2) : NphiMax);
+  NphiMax = (hcons->getNPhi(3) > NphiMax ? hcons->getNPhi(3) : NphiMax);
+
+  //Center the iphi bins on the integers
+  iphi_min = 0.5;
+  iphi_max = NphiMax + 0.5;
+  iphi_bins = (int) (iphi_max - iphi_min);
+
+  int iEtaHBMax = hcons->getEtaRange(0).second;
+  int iEtaHEMax = hcons->getEtaRange(1).second;
+  int iEtaHFMax = hcons->getEtaRange(2).second;
+  int iEtaHOMax = hcons->getEtaRange(3).second;
+
+  //Retain classic behavior, all plots have same ieta range.
+  //Comment out code to allow each subdetector to have its on range
+
+  int iEtaMax = (iEtaHBMax > iEtaHEMax ? iEtaHBMax : iEtaHEMax);
+  iEtaMax = (iEtaMax > iEtaHFMax ? iEtaMax : iEtaHFMax);
+  iEtaMax = (iEtaMax > iEtaHOMax ? iEtaMax : iEtaHOMax);
+
+  iEtaHBMax = iEtaMax;
+  iEtaHEMax = iEtaMax;
+  iEtaHFMax = iEtaMax;
+  iEtaHOMax = iEtaMax;
+
+  //Give an empty bin around the subdet ieta range to make it clear that all ieta rings have been included
+  ieta_min_HB = -iEtaHBMax - 1.5;
+  ieta_max_HB = iEtaHBMax + 1.5;
+  ieta_bins_HB = (int) (ieta_max_HB - ieta_min_HB);
+
+  ieta_min_HE = -iEtaHEMax - 1.5;
+  ieta_max_HE = iEtaHEMax + 1.5;
+  ieta_bins_HE = (int) (ieta_max_HE - ieta_min_HE);
+
+  ieta_min_HF = -iEtaHFMax - 1.5;
+  ieta_max_HF = iEtaHFMax + 1.5;
+  ieta_bins_HF = (int) (ieta_max_HF - ieta_min_HF);
+
+  ieta_min_HO = -iEtaHOMax - 1.5;
+  ieta_max_HO = iEtaHOMax + 1.5;
+  ieta_bins_HO = (int) (ieta_max_HO - ieta_min_HO);
+
+
     ib.setCurrentFolder("HcalHitsV/HcalSimHitsTask");
 
     //Histograms for Hits
@@ -40,8 +98,8 @@ void HcalSimHitStudy::bookHistograms(DQMStore::IBooker &ib, edm::Run const & run
       meDepthHit_ = ib.book1D("Hit11","Depths in HCal",        20,0.,20.);
       meEtaHit_   = ib.book1D("Hit12","Eta in HCal",          101,-50.5,50.5);
       //KC: There are different phi segmentation schemes, this plot uses wider bins to represent the most sparse segmentation
-      mePhiHit_   = ib.book1D("Hit13","Phi in HCal (HB,HO)",  72,0.5,72.5);
-      mePhiHitb_  = ib.book1D("Hit13b","Phi in HCal (HE,HF)", 72,0.5,72.5);
+      mePhiHit_   = ib.book1D("Hit13","Phi in HCal (HB,HO)",  iphi_bins,iphi_min,iphi_max);
+      mePhiHitb_  = ib.book1D("Hit13b","Phi in HCal (HE,HF)", iphi_bins,iphi_min,iphi_max);
       meEnergyHit_= ib.book1D("Hit14","Energy in HCal",       2000,0.,20.);
       meTimeHit_  = ib.book1D("Hit15","Time in HCal",         528,0.,528.);
       meTimeWHit_ = ib.book1D("Hit16","Time in HCal (E wtd)", 528,0.,528.);
@@ -53,14 +111,32 @@ void HcalSimHitStudy::bookHistograms(DQMStore::IBooker &ib, edm::Run const & run
       meHEEtaHit_ = ib.book1D("Hit22","Eta in HE",            101,-50.5,50.5);
       meHOEtaHit_ = ib.book1D("Hit23","Eta in HO",            101,-50.5,50.5);
       meHFEtaHit_ = ib.book1D("Hit24","Eta in HF",            101,-50.5,50.5);
-      meHBPhiHit_ = ib.book1D("Hit25","Phi in HB",            72,0.5,72.5);
-      meHEPhiHit_ = ib.book1D("Hit26","Phi in HE",            72,0.5,72.5); 
-      meHOPhiHit_ = ib.book1D("Hit27","Phi in HO",            72,0.5,72.5); 
-      meHFPhiHit_ = ib.book1D("Hit28","Phi in HF",            72,0.5,72.5); 
+      meHBPhiHit_ = ib.book1D("Hit25","Phi in HB",            iphi_bins,iphi_min,iphi_max);
+      meHEPhiHit_ = ib.book1D("Hit26","Phi in HE",            iphi_bins,iphi_min,iphi_max); 
+      meHOPhiHit_ = ib.book1D("Hit27","Phi in HO",            iphi_bins,iphi_min,iphi_max); 
+      meHFPhiHit_ = ib.book1D("Hit28","Phi in HF",            iphi_bins,iphi_min,iphi_max); 
       meHBEneHit_ = ib.book1D("Hit29","Energy in HB",         2000,0.,20.);
       meHEEneHit_ = ib.book1D("Hit30","Energy in HE",         500,0.,5.);
       meHOEneHit_ = ib.book1D("Hit31","Energy in HO",         500,0.,5.);
-      meHFEneHit_ = ib.book1D("Hit32","Energy in HF",         1000,0.5,1000.5);
+      meHFEneHit_ = ib.book1D("Hit32","Energy in HF",         1001,-0.5,1000.5);
+
+      //HxEneMap, HxEneSum, HxEneSum_vs_ieta plot the sum of the simhits energy within a single ieta-iphi tower.
+
+      meHBEneMap_ = ib.book2D("HBEneMap","HBEneMap", ieta_bins_HB, ieta_min_HB, ieta_max_HB, iphi_bins, iphi_min, iphi_max);
+      meHEEneMap_ = ib.book2D("HEEneMap","HEEneMap", ieta_bins_HE, ieta_min_HE, ieta_max_HE, iphi_bins, iphi_min, iphi_max);
+      meHOEneMap_ = ib.book2D("HOEneMap","HOEneMap", ieta_bins_HO, ieta_min_HO, ieta_max_HO, iphi_bins, iphi_min, iphi_max);
+      meHFEneMap_ = ib.book2D("HFEneMap","HFEneMap", ieta_bins_HF, ieta_min_HF, ieta_max_HF, iphi_bins, iphi_min, iphi_max);
+
+      meHBEneSum_ = ib.book1D("HBEneSum","HBEneSum", 2000, 0., 20.);
+      meHEEneSum_ = ib.book1D("HEEneSum","HEEneSum", 500, 0., 5.);
+      meHOEneSum_ = ib.book1D("HOEneSum","HOEneSum", 500, 0., 5.);
+      meHFEneSum_ = ib.book1D("HFEneSum","HFEneSum", 1001, -0.5, 1000.5);
+
+      meHBEneSum_vs_ieta_ = ib.bookProfile("HBEneSum_vs_ieta","HBEneSum_vs_ieta", ieta_bins_HB, ieta_min_HB, ieta_max_HB, 2011, -10.5, 2000.5, " ");
+      meHEEneSum_vs_ieta_ = ib.bookProfile("HEEneSum_vs_ieta","HEEneSum_vs_ieta", ieta_bins_HE, ieta_min_HE, ieta_max_HE, 2011, -10.5, 2000.5, " ");
+      meHOEneSum_vs_ieta_ = ib.bookProfile("HOEneSum_vs_ieta","HOEneSum_vs_ieta", ieta_bins_HO, ieta_min_HO, ieta_max_HO, 2011, -10.5, 2000.5, " ");
+      meHFEneSum_vs_ieta_ = ib.bookProfile("HFEneSum_vs_ieta","HFEneSum_vs_ieta", ieta_bins_HF, ieta_min_HF, ieta_max_HF, 2011, -10.5, 2000.5, " ");
+
       meHBTimHit_ = ib.book1D("Hit33","Time in HB",           528,0.,528.);
       meHETimHit_ = ib.book1D("Hit34","Time in HE",           528,0.,528.);
       meHOTimHit_ = ib.book1D("Hit35","Time in HO",           528,0.,528.);
@@ -121,18 +197,63 @@ void HcalSimHitStudy::analyzeHits (std::vector<PCaloHit>& hits) {
   std::vector<double> encontHO(140, 0.);
   double entotHB = 0, entotHE = 0, entotHF = 0, entotHO = 0; 
 
+  double HBEneMap[ieta_bins_HB][iphi_bins];
+  double HEEneMap[ieta_bins_HE][iphi_bins];
+  double HOEneMap[ieta_bins_HO][iphi_bins];
+  double HFEneMap[ieta_bins_HF][iphi_bins];
+ 
+  //Works in ieta_min_Hx is < 0
+  int eta_offset_HB = -(int)ieta_min_HB;
+  int eta_offset_HE = -(int)ieta_min_HE;
+  int eta_offset_HO = -(int)ieta_min_HO;
+  int eta_offset_HF = -(int)ieta_min_HF;
+
+  for(int i = 0; i < ieta_bins_HB; i++){
+     for(int j = 0; j < iphi_bins; j++){
+       HBEneMap[i][j] = 0.;
+     }
+  }
+
+  for(int i = 0; i < ieta_bins_HE; i++){
+     for(int j = 0; j < iphi_bins; j++){
+       HEEneMap[i][j] = 0.;
+     }
+  }
+
+  for(int i = 0; i < ieta_bins_HO; i++){
+     for(int j = 0; j < iphi_bins; j++){
+       HOEneMap[i][j] = 0.;
+     }
+  }
+
+  for(int i = 0; i < ieta_bins_HF; i++){
+     for(int j = 0; j < iphi_bins; j++){
+       HFEneMap[i][j] = 0.;
+     }
+  }
+
   for (int i=0; i<nHit; i++) {
     double energy    = hits[i].energy();
     double log10en   = log10(energy);
     int log10i       = int( (log10en+10.)*10. );
     double time      = hits[i].time();
     unsigned int id_ = hits[i].id();
-    HcalDetId id     = HcalDetId(id_);
-    int det          = id.det();
-    int subdet       = id.subdet();
-    int depth        = id.depth();
-    int eta          = id.ieta();
-    int phi          = id.iphi();
+    int det, subdet, depth, eta, phi;
+    if (testNumber_) {
+      int z, lay;
+      HcalTestNumbering::unpackHcalIndex(id_, subdet, z, depth, eta, phi, lay);
+      int sign = (z==0) ? (-1):(1);
+      eta     *= sign;
+      det      = 4;
+    } else {
+      HcalDetId id = HcalDetId(id_);
+      det          = id.det();
+      subdet       = id.subdet();
+      depth        = id.depth();
+      eta          = id.ieta();
+      phi          = id.iphi();
+    }
+
     LogDebug("HcalSim") << "Hit[" << i << "] ID " << std::hex << id_ 
 			<< std::dec << " Det " << det << " Sub " 
 			<< subdet << " depth " << depth << " Eta " << eta
@@ -151,6 +272,8 @@ void HcalSimHitStudy::analyzeHits (std::vector<PCaloHit>& hits) {
 	meSubdetHit_->Fill(double(subdet));
 	meDepthHit_->Fill(double(depth));
 	meEtaHit_->Fill(double(eta));
+
+        
 
 	//We will group the phi plots by HB,HO and HE,HF since these groups share similar segmentation schemes
 	if      (subdet == static_cast<int>(HcalBarrel))  mePhiHit_->Fill(double(phi));
@@ -178,6 +301,9 @@ void HcalSimHitStudy::analyzeHits (std::vector<PCaloHit>& hits) {
 	  meHBL10Ene_->Fill(log10en);
 	  if( log10i >=0 && log10i < 140 ) encontHB[log10i] += energy;
 	  entotHB += energy;
+    
+          HBEneMap[eta + eta_offset_HB][phi-1] += energy;
+
 	} else if (subdet == static_cast<int>(HcalEndcap)) {
 	  meHEDepHit_->Fill(double(depth));
 	  meHEEtaHit_->Fill(double(eta));
@@ -188,6 +314,9 @@ void HcalSimHitStudy::analyzeHits (std::vector<PCaloHit>& hits) {
 	  meHEL10Ene_->Fill(log10en);
 	  if( log10i >=0 && log10i < 140 ) encontHE[log10i] += energy;
 	  entotHE += energy;
+    
+          HEEneMap[eta + eta_offset_HE][phi-1] += energy;
+
 	} else if (subdet == static_cast<int>(HcalOuter)) {
 	  meHODepHit_->Fill(double(depth));
 	  meHOEtaHit_->Fill(double(eta));
@@ -198,6 +327,9 @@ void HcalSimHitStudy::analyzeHits (std::vector<PCaloHit>& hits) {
 	  meHOL10Ene_->Fill(log10en);
 	  if( log10i >=0 && log10i < 140 ) encontHO[log10i] += energy;
 	  entotHO += energy;
+    
+          HOEneMap[eta + eta_offset_HO][phi-1] += energy;
+
 	} else if (subdet == static_cast<int>(HcalForward)) {
 	  meHFDepHit_->Fill(double(depth));
 	  meHFEtaHit_->Fill(double(eta));
@@ -208,6 +340,9 @@ void HcalSimHitStudy::analyzeHits (std::vector<PCaloHit>& hits) {
 	  meHFL10Ene_->Fill(log10en);
 	  if( log10i >=0 && log10i < 140 ) encontHF[log10i] += energy;
 	  entotHF += energy;
+    
+          HFEneMap[eta + eta_offset_HF][phi-1] += energy;
+
 	}
       }
   }
@@ -224,6 +359,54 @@ void HcalSimHitStudy::analyzeHits (std::vector<PCaloHit>& hits) {
     meHENHit_->Fill(double(nHE));
     meHONHit_->Fill(double(nHO));
     meHFNHit_->Fill(double(nHF));
+
+  for(int i = 0; i < ieta_bins_HB; i++){
+     for(int j = 0; j < iphi_bins; j++){
+
+        if(HBEneMap[i][j] != 0){
+           meHBEneSum_->Fill(HBEneMap[i][j]);
+           meHBEneSum_vs_ieta_->Fill((i - eta_offset_HB), HBEneMap[i][j]);
+           meHBEneMap_->Fill((i - eta_offset_HB), j+1, HBEneMap[i][j]);
+        }
+
+     }
+  }
+  
+  for(int i = 0; i < ieta_bins_HE; i++){
+     for(int j = 0; j < iphi_bins; j++){
+
+        if(HEEneMap[i][j] != 0){
+           meHEEneSum_->Fill(HEEneMap[i][j]);
+           meHEEneSum_vs_ieta_->Fill((i - eta_offset_HE), HEEneMap[i][j]);
+           meHEEneMap_->Fill((i - eta_offset_HE), j+1, HEEneMap[i][j]);
+        }
+
+     }
+  }
+  
+  for(int i = 0; i < ieta_bins_HO; i++){
+     for(int j = 0; j < iphi_bins; j++){
+
+        if(HOEneMap[i][j] != 0){
+           meHOEneSum_->Fill(HOEneMap[i][j]);
+           meHOEneSum_vs_ieta_->Fill((i - eta_offset_HO), HOEneMap[i][j]);
+           meHOEneMap_->Fill((i - eta_offset_HO), j+1, HOEneMap[i][j]);
+        }
+
+     }
+  }
+  
+  for(int i = 0; i < ieta_bins_HF; i++){
+     for(int j = 0; j < iphi_bins; j++){
+
+        if(HFEneMap[i][j] != 0){
+           meHFEneSum_->Fill(HFEneMap[i][j]);
+           meHFEneSum_vs_ieta_->Fill((i - eta_offset_HF), HFEneMap[i][j]);
+           meHFEneMap_->Fill((i - eta_offset_HF), j+1, HFEneMap[i][j]);
+        }
+
+     }
+  }
   
   LogDebug("HcalSim") << "HcalSimHitStudy::analyzeHits: HB " << nHB 
 		      << " HE " << nHE << " HO " << nHO << " HF " << nHF 

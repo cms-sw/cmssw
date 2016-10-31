@@ -22,12 +22,12 @@ public:
     data_.payload = std::numeric_limits<uint64_t>::max();
   }
 
-  void setDataPayloadImpl(const Module& mod, 
+  void setDataPayloadImpl(const HGCalTriggerGeometryBase& geom, 
                           const HGCEEDigiCollection& ee,
                           const HGCHEDigiCollection& fh,
                           const HGCHEDigiCollection& bh );
 
-  void setDataPayloadImpl(const Module& mod, 
+  void setDataPayloadImpl(const HGCalTriggerGeometryBase& geom, 
                           const l1t::HGCFETriggerDigi& digi);
   
   std::vector<bool> encodeImpl(const data_type&) const ;

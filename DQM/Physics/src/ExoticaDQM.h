@@ -66,10 +66,25 @@
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
-
+#include "DataFormats/TrackReco/interface/TrackBase.h"
+#include "DataFormats/TrackReco/interface/HitPattern.h"
+#include "TrackingTools/TransientTrack/interface/TransientTrack.h"
+#include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
+#include "TrackingTools/Records/interface/TransientTrackRecord.h"
+#include "TrackingTools/PatternTools/interface/TSCBLBuilderNoMaterial.h"
+#include "RecoTracker/Record/interface/TrackerRecoGeometryRecord.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "MagneticField/Engine/interface/MagneticField.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+#include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
+#include "DataFormats/GeometryCommonDetAlgo/interface/Measurement1D.h"
+#include "DataFormats/GeometryVector/interface/GlobalVector.h"
 // Other
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/Common/interface/RefToBase.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 
 // ROOT
 #include "TLorentzVector.h"
@@ -108,6 +123,13 @@ protected:
   virtual void analyzeMonoElectrons(edm::Event const& e);
   virtual void analyzeMonoPhotons(edm::Event const& e);
 
+  // Displaced Fermion Searches
+  virtual void analyzeDisplacedLeptons(edm::Event const& e, const edm::EventSetup& s);
+  virtual void analyzeDisplacedJets(edm::Event const& e, const edm::EventSetup& s);
+
+  // Estimate the momentum vector that a GenParticle would have at its trajectory's point of closest approach to the beam-line.
+  virtual GlobalVector getGenParticleTrajectoryAtBeamline( const edm::EventSetup& iSetup, const  reco::GenParticle* gen );
+  
 private:
 
   void bookHistograms(DQMStore::IBooker& bei, edm::Run const&,
@@ -167,6 +189,20 @@ private:
 
   edm::EDGetTokenT<reco::JetCorrector> JetCorrectorToken_;
   edm::Handle<reco::JetCorrector> JetCorrector_;
+
+  // Tracks
+  edm::EDGetTokenT<reco::TrackCollection> TrackToken_;
+  edm::Handle<reco::TrackCollection> TrackCollection_;
+  
+  // Special collections for highly displaced particles
+  edm::EDGetTokenT<reco::TrackCollection> MuonDispToken_;
+  edm::Handle<reco::TrackCollection> MuonDispCollection_;
+  edm::EDGetTokenT<reco::TrackCollection> MuonDispSAToken_;
+  edm::Handle<reco::TrackCollection> MuonDispSACollection_;
+
+  // MC truth
+  edm::EDGetTokenT<reco::GenParticleCollection> GenParticleToken_;
+  edm::Handle<reco::GenParticleCollection> GenCollection_;
 
   ///////////////////////////
   // Parameters
@@ -387,6 +423,20 @@ private:
   double monophoton_Photon_pt_cut_;
   double monophoton_Photon_met_cut_;
   int    monophoton_countPhoton_;
+  
+  ///////////////////////////////////
+  // Histograms - Displaced Leptons or Jets
+  //
+  MonitorElement* dispElec_track_effi_lxy;
+  MonitorElement* dispElec_elec_effi_lxy;
+  MonitorElement* dispMuon_track_effi_lxy;
+  MonitorElement* dispMuon_muon_effi_lxy;
+  MonitorElement* dispMuon_muonDisp_effi_lxy;
+  MonitorElement* dispMuon_muonDispSA_effi_lxy;
+  MonitorElement* dispJet_track_effi_lxy;
+
+  double dispFermion_eta_cut_;
+  double dispFermion_pt_cut_;
   
 };
 

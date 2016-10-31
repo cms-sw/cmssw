@@ -1,5 +1,4 @@
 import FWCore.ParameterSet.Config as cms
-from Configuration.StandardSequences.Eras import eras
 
 
 from RecoLocalTracker.SiStripRecHitConverter.StripCPEfromTrackAngle_cfi import *
@@ -26,7 +25,8 @@ globalSeedsFromPairsWithVertices = RecoTracker.TkSeedGenerator.SeedGeneratorFrom
       ComponentName = cms.string('GlobalTrackingRegionWithVerticesProducer')
     )
 )    
-eras.trackingPhase1PU70.toModify(globalSeedsFromPairsWithVertices,
+from Configuration.Eras.Modifier_trackingPhase1PU70_cff import trackingPhase1PU70
+trackingPhase1PU70.toModify(globalSeedsFromPairsWithVertices,
     OrderedHitsFactoryPSet = dict(maxElement = 0),
 )
 

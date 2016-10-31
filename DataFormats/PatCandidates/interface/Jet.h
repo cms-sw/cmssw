@@ -36,6 +36,7 @@
 
 #include "DataFormats/BTauReco/interface/CandSecondaryVertexTagInfo.h"
 #include "DataFormats/BTauReco/interface/SecondaryVertexTagInfo.h"
+#include "DataFormats/BTauReco/interface/BoostedDoubleSVTagInfo.h"
 #include "DataFormats/PatCandidates/interface/JetCorrFactors.h"
 #include "DataFormats/JetReco/interface/JetID.h"
 
@@ -201,6 +202,7 @@ namespace pat {
       /// you should omit the 'TagInfos' part from the label
       const reco::CandSecondaryVertexTagInfo * tagInfoCandSecondaryVertex(const std::string &label="") const;
       const reco::SecondaryVertexTagInfo     * tagInfoSecondaryVertex(const std::string &label="") const;
+      const reco::BoostedDoubleSVTagInfo     * tagInfoBoostedDoubleSV(const std::string &label="") const;
       /// method to add a algolabel-discriminator pair
       void addBDiscriminatorPair(const std::pair<std::string, float> & thePair);
       /// sets a tagInfo with the given name from an edm::Ptr<T> to it.

@@ -50,6 +50,7 @@ namespace FitterFuncs{
      void setpsFitslew (double *slew  ){ for(int i=0; i<HcalConst::maxSamples; ++i) {psFit_slew [i] = slew [i]; } }
      double sigmaHPDQIE8(double ifC);
      double sigmaSiPMQIE10(double ifC);
+     double getSiPMDarkCurrent(double darkCurrent, double fcByPE, double lambda);
 
      double singlePulseShapeFunc( const double *x );
      double doublePulseShapeFunc( const double *x );
@@ -95,14 +96,16 @@ public:
     void phase1Apply(const HBHEChannelInfo& channelData,
 		     float& reconstructedEnergy,
 		     float& reconstructedTime,
-		     bool & useTriple) const;
+		     bool & useTriple,
+		     float& chi2) const;
 
     void apply(const CaloSamples & cs,
 	       const std::vector<int> & capidvec,
 	       const HcalCalibrations & calibs,
 	       double& reconstructedEnergy,
 	       float& reconstructedTime,
-	       bool & useTriple) const;
+	       bool & useTriple,
+	       float& chi2) const;
 
     void setPUParams(bool   iPedestalConstraint, bool iTimeConstraint,bool iAddPulseJitter,bool iApplyTimeSlew,
 		     double iTS4Min, std::vector<double> iTS4Max,

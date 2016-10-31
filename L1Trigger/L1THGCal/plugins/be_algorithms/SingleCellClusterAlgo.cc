@@ -1,6 +1,6 @@
 #include "L1Trigger/L1THGCal/interface/HGCalTriggerBackendAlgorithmBase.h"
 #include "L1Trigger/L1THGCal/interface/fe_codecs/HGCalBestChoiceCodec.h"
-#include "DataFormats/ForwardDetId/interface/HGCTriggerDetId.h"
+#include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
 
 #include "DataFormats/L1THGCal/interface/HGCalCluster.h"
 
@@ -53,7 +53,7 @@ void SingleCellClusterAlgo::run(const l1t::HGCFETriggerDigiCollection& coll,
         {
             if(value>0)
             {
-                GlobalPoint point = geom->modules().at(moduleId)->position();
+                GlobalPoint point = geom->getModulePosition(moduleId);
                 math::PtEtaPhiMLorentzVector p4((double)value/cosh(point.eta()), point.eta(), point.phi(), 0.);
                 // index in module stored as hwEta
                 l1t::HGCalCluster cluster( 

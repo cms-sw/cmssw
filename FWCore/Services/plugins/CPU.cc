@@ -17,6 +17,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/Utilities/interface/CPUServiceBase.h"
 
 #include <iostream>
 #include <sys/time.h>
@@ -35,18 +36,22 @@
 namespace edm {
   
   namespace service {
-    class CPU {
+    class CPU : public CPUServiceBase {
     public:
       CPU(ParameterSet const&, ActivityRegistry&);
       ~CPU();
       
       static void fillDescriptions(ConfigurationDescriptions& descriptions);
-      
+
+      virtual bool cpuInfo(std::string &models, double &avgSpeed) override;
+
     private:
-      int totalNumberCPUs_;
-      double averageCoreSpeed_;
-      bool reportCPUProperties_;
-      
+      const bool reportCPUProperties_;
+
+      bool cpuInfoImpl(std::string &models, double &avgSpeed, Service<JobReport>* reportSvc);
+      bool parseCPUInfo(std::vector<std::pair<std::string, std::string>> &info);
+      std::string getModels(const std::vector<std::pair<std::string, std::string>> & info);
+      double getAverageSpeed(const std::vector<std::pair<std::string, std::string>> & info);
       void postEndJob();
     };
     
@@ -141,8 +146,6 @@ namespace edm {
 
 
     CPU::CPU(const ParameterSet& iPS, ActivityRegistry&iRegistry):
-	totalNumberCPUs_(0),
-	averageCoreSpeed_(0.0),
 	reportCPUProperties_(iPS.getUntrackedParameter<bool>("reportCPUProperties"))
     {
 	iRegistry.watchPostEndJob(this,&CPU::postEndJob);
@@ -159,121 +162,141 @@ namespace edm {
       descriptions.add("CPU", desc);
     }
 
+    void CPU::postEndJob() {
+        Service<JobReport> reportSvc;
 
-    void CPU::postEndJob()
-    {
-      Service<JobReport> reportSvc;
+        std::vector<std::pair<std::string, std::string>> info;
+        if (!parseCPUInfo(info)) {return;}
 
-      std::map<std::string, std::string> reportCPUProperties; // Summary
-      std::map<std::string, std::string> currentCoreProperties; // Module(s)
+        std::string models = getModels(info);
+        double avgSpeed = getAverageSpeed(info);
+        unsigned totalNumberCPUs = 0;
+        std::map<std::string, std::string> currentCoreProperties;
+        std::string currentCore;
 
-      std::ifstream fcpuinfo ("/proc/cpuinfo");
-
-      if(fcpuinfo.is_open()){
-
-	std::string buf;
-	std::string currentCore;
-	std::string CPUModels;
-
-	std::set<std::string> models;
-
-	while(!fcpuinfo.eof()){
-
-		std::getline(fcpuinfo, buf);
-
-	        std::istringstream iss(buf);
-                std::string token;
-                std::string property;
-                std::string value;
-
-                int time = 1;
-
-                while(std::getline(iss, token, ':')) {
-                        switch(time){
-                        case 1:
-                                property = token;
-                                break;
-                        case 2:
-                                value = token;
-                                break;
-                        default:
-                                value += token;
-                                break;
-                        }
-                        time++;
+        for (const auto &entry : info) {
+            if (entry.first == "processor") {
+                if (reportCPUProperties_) {
+                    if (currentCore.empty()) { // first core
+                        currentCore = entry.second;
+                    } else {
+                        reportSvc->reportPerformanceForModule("SystemCPU", "CPU-"+currentCore, currentCoreProperties);
+                        currentCoreProperties.clear();
+                        currentCore = entry.second;
+                    }
                 }
-                trim(property);
-                trim(value);
+                totalNumberCPUs++;
+            } else if (reportCPUProperties_) {
+                currentCoreProperties.insert(entry);
+            }
+        }
+        if (!currentCore.empty() && reportCPUProperties_) {
+                reportSvc->reportPerformanceForModule("SystemCPU", "CPU-"+currentCore, currentCoreProperties);
+        }
 
-		if(!property.empty()){
-			if(property == "processor") {
-			    if(reportCPUProperties_){
-				if(currentCore.empty()) { // first core
-					currentCore = value;
-				}
-				else{
-					reportSvc->reportPerformanceForModule("SystemCPU", "CPU-"+currentCore, currentCoreProperties);
-					currentCoreProperties.clear();
-					currentCore = value;
-				}
-			    }
-			    totalNumberCPUs_++;
-			}
-			else {
-				if(reportCPUProperties_){
-					currentCoreProperties.insert(std::make_pair(property, value));
-				}
-				if(property == "cpu MHz"){
-					averageCoreSpeed_ += str2d(value);
-				}
-				if(property == "model name"){
-					models.insert(eraseExtraSpaces(value));
-				}
-			}
-		}
-	} //while
 
-	fcpuinfo.close();
-
-	if(!currentCore.empty() && reportCPUProperties_) {
-		reportSvc->reportPerformanceForModule("SystemCPU", "CPU-"+currentCore, currentCoreProperties);
-	}
-
-	reportCPUProperties.insert(std::make_pair("totalCPUs", i2str(totalNumberCPUs_)));
-	
-	if(totalNumberCPUs_ == 0){
-		averageCoreSpeed_ = 0.0;
-	}
-	else{
-		averageCoreSpeed_ = averageCoreSpeed_/totalNumberCPUs_;
-	}
-	
-	reportCPUProperties.insert(std::make_pair("averageCoreSpeed", d2str(averageCoreSpeed_)));
-
-	int model = 0;
-	for(std::set<std::string>::const_iterator iter = models.begin(); iter != models.end(); iter++){
-		if(model == 0)
-			CPUModels += *iter;
-		else
-			CPUModels += ", " + *iter;
-		model++;
-	}
-	reportCPUProperties.insert(std::make_pair("CPUModels", CPUModels));
-
+        std::map<std::string, std::string> reportCPUProperties{
+            {"totalCPUs",        i2str(totalNumberCPUs)},
+            {"averageCoreSpeed", d2str(avgSpeed)},
+            {"CPUModels",        models}
+        };       
         unsigned set_size = -1;
         if (getCpuSetSize(set_size)) {
           reportCPUProperties.insert(std::make_pair("cpusetCount", i2str(set_size)));
         }
+        reportSvc->reportPerformanceSummary("SystemCPU", reportCPUProperties);
+    }
 
-	reportSvc->reportPerformanceSummary("SystemCPU", reportCPUProperties);
+    bool CPU::cpuInfo(std::string &models, double &avgSpeed)
+    {
+        std::vector<std::pair<std::string, std::string>> info;
+        if (!parseCPUInfo(info)) {return false;}
 
-      } //if
-    } //postEndJob
+        models = getModels(info);
+        avgSpeed = getAverageSpeed(info);
+        return true;
+    }
+
+    bool CPU::parseCPUInfo(std::vector<std::pair<std::string, std::string>> &info)
+    {
+        info.clear();
+        std::ifstream fcpuinfo ("/proc/cpuinfo");
+        if (!fcpuinfo.is_open()) {
+            return false;
+        }
+        while (!fcpuinfo.eof()) {
+            std::string buf;
+            std::getline(fcpuinfo, buf);
+
+            std::istringstream iss(buf);
+            std::string token;
+            std::string property;
+            std::string value;
+
+            int time = 1;
+
+            while(std::getline(iss, token, ':')) {
+                switch(time){
+                case 1:
+                    property = token;
+                    break;
+                case 2:
+                    value = token;
+                    break;
+                default:
+                    value += token;
+                    break;
+                }
+                time++;
+            }
+            trim(property);
+            trim(value);
+            if (property.empty()) {continue;}
+
+            if (property == "model name"){
+                    value = eraseExtraSpaces(value);
+            }
+            info.emplace_back(property, value);
+        }
+        return true;
+    }
+
+    std::string CPU::getModels(const std::vector<std::pair<std::string, std::string>> & info)
+    {
+        std::set<std::string> models;
+        for (const auto &entry : info) {
+            if (entry.first == "model name") {
+                models.insert(entry.second);
+            }
+        }
+        std::stringstream ss;
+        int model = 0;
+        for (const auto &modelname : models) {
+          if (model++ != 0) {ss << ", ";}
+          ss << modelname;
+        }
+        return ss.str();
+    }
+
+    double CPU::getAverageSpeed(const std::vector<std::pair<std::string, std::string>> & info)
+    {
+        double averageCoreSpeed = 0.0;
+        unsigned coreCount = 0;
+        for (const auto &entry : info) {
+            if (entry.first == "cpu MHz") {
+                averageCoreSpeed += str2d(entry.second);
+                coreCount ++;
+            }
+        }
+        if (!coreCount) {return 0;}
+        return averageCoreSpeed / static_cast<double>(coreCount);
+    }
   } //service
 }  //edm
 
 
 using edm::service::CPU;
-DEFINE_FWK_SERVICE(CPU);
+typedef edm::serviceregistry::AllArgsMaker<edm::CPUServiceBase,CPU> CPUMaker;
+DEFINE_FWK_SERVICE_MAKER(CPU, CPUMaker);
 
 

@@ -19,8 +19,14 @@ namespace reco {
     TransientTrackFromFTS(); 
 
     TransientTrackFromFTS(const FreeTrajectoryState & fts);
+    TransientTrackFromFTS(const FreeTrajectoryState & fts, const double time, const double dtime);
+    
     TransientTrackFromFTS(const FreeTrajectoryState & fts,
 	const edm::ESHandle<GlobalTrackingGeometry>& trackingGeometry);
+    TransientTrackFromFTS(const FreeTrajectoryState & fts,
+                          const double time,
+                          const double dtime, 
+                          const edm::ESHandle<GlobalTrackingGeometry>& trackingGeometry);
 
     TransientTrackFromFTS( const TransientTrackFromFTS & tt );
     
@@ -62,12 +68,18 @@ namespace reco {
     TrackBaseRef trackBaseRef() const { return TrackBaseRef();}
 
     TrajectoryStateClosestToBeamLine stateAtBeamLine() const;
+    
+    double timeExt() const { return ( hasTime ? timeExt_ : std::numeric_limits<double>::quiet_NaN() ); }
+    double dtErrorExt() const { return ( hasTime ? dtErrorExt_ : std::numeric_limits<double>::quiet_NaN() ); }
 
   private:
 
     void calculateTSOSAtVertex() const;
 
     FreeTrajectoryState initialFTS;
+    bool hasTime;
+    double timeExt_;
+    double dtErrorExt_;
     const MagneticField* theField;
     mutable bool initialTSOSAvailable, initialTSCPAvailable, trackAvailable, blStateAvailable;
     mutable TrajectoryStateOnSurface initialTSOS;

@@ -13,8 +13,8 @@
  *
  */
 
-#ifndef L1_TRACK_TRIGGER_STUB_ALGO_TAB2013_H
-#define L1_TRACK_TRIGGER_STUB_ALGO_TAB2013_H
+#ifndef L1_TRACK_TRIGGER_STUB_ALGO_official_H
+#define L1_TRACK_TRIGGER_STUB_ALGO_official_H
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -41,21 +41,28 @@ class TTStubAlgorithm_official : public TTStubAlgorithm< T >
     /// Data members
     bool        mPerformZMatchingPS;
     bool        mPerformZMatching2S;
+    bool        m_tilted;
     std::string className_;
 
     std::vector< double >                barrelCut;
     std::vector< std::vector< double > > ringCut;
+    std::vector< std::vector< double > > tiltedCut;
+    std::vector< double >                barrelNTilt;
 
   public:
     /// Constructor
     TTStubAlgorithm_official( const TrackerGeometry* const theTrackerGeom, const TrackerTopology* const theTrackerTopo,
                              std::vector< double > setBarrelCut,
                              std::vector< std::vector< double > > setRingCut,
-                             bool aPerformZMatchingPS, bool aPerformZMatching2S )
+                             std::vector< std::vector< double > > setTiltedCut,
+                             std::vector< double > setBarrelNTilt,
+			      bool aPerformZMatchingPS, bool aPerformZMatching2S )
       : TTStubAlgorithm< T >( theTrackerGeom, theTrackerTopo, __func__ )
     {
       barrelCut = setBarrelCut;
       ringCut = setRingCut;
+      tiltedCut = setTiltedCut;
+      barrelNTilt = setBarrelNTilt;
       mPerformZMatchingPS = aPerformZMatchingPS;
       mPerformZMatching2S = aPerformZMatching2S;
     }
@@ -103,6 +110,9 @@ class ES_TTStubAlgorithm_official : public edm::ESProducer
     /// Windows
     std::vector< double >                setBarrelCut;
     std::vector< std::vector< double > > setRingCut;
+    std::vector< std::vector< double > > setTiltedCut;
+
+    std::vector< double >                   setBarrelNTilt;
 
     /// Z-matching
     bool  mPerformZMatchingPS;
@@ -114,15 +124,24 @@ class ES_TTStubAlgorithm_official : public edm::ESProducer
     {
       mPerformZMatchingPS =  p.getParameter< bool >("zMatchingPS");
       mPerformZMatching2S =  p.getParameter< bool >("zMatching2S");
-
       setBarrelCut = p.getParameter< std::vector< double > >("BarrelCut");
+      setBarrelNTilt = p.getParameter< std::vector< double > >("NTiltedRings");
 
-      std::vector< edm::ParameterSet > vPSet = p.getParameter< std::vector< edm::ParameterSet > >("EndcapCutSet");
+      std::vector< edm::ParameterSet > vPSet  = p.getParameter< std::vector< edm::ParameterSet > >("EndcapCutSet");
+      std::vector< edm::ParameterSet > vPSet2 = p.getParameter< std::vector< edm::ParameterSet > >("TiltedBarrelCutSet");
+
       std::vector< edm::ParameterSet >::const_iterator iPSet;
       for ( iPSet = vPSet.begin(); iPSet != vPSet.end(); iPSet++ )
       {
         setRingCut.push_back( iPSet->getParameter< std::vector< double > >("EndcapCut") );
       }
+
+      for ( iPSet = vPSet2.begin(); iPSet != vPSet2.end(); iPSet++ )
+      {
+        setTiltedCut.push_back( iPSet->getParameter< std::vector< double > >("TiltedCut") );
+      }
+
+
       setWhatProduced( this );
     }
 
@@ -136,11 +155,12 @@ class ES_TTStubAlgorithm_official : public edm::ESProducer
       record.getRecord< TrackerDigiGeometryRecord >().get( tGeomHandle );
       const TrackerGeometry* const theTrackerGeom = tGeomHandle.product();
       edm::ESHandle<TrackerTopology> tTopoHandle;
-      record.getRecord<IdealGeometryRecord>().get(tTopoHandle);
+      record.getRecord< TrackerTopologyRcd >().get(tTopoHandle);
       const TrackerTopology* const theTrackerTopo = tTopoHandle.product();
 
       TTStubAlgorithm< T >* TTStubAlgo = new TTStubAlgorithm_official< T >( theTrackerGeom, theTrackerTopo, 
-	                                       setBarrelCut, setRingCut, mPerformZMatchingPS, mPerformZMatching2S );
+									    setBarrelCut, setRingCut, setTiltedCut, setBarrelNTilt,
+									    mPerformZMatchingPS, mPerformZMatching2S);
 
       _theAlgo = std::shared_ptr< TTStubAlgorithm< T > >( TTStubAlgo );
       return _theAlgo;
@@ -149,4 +169,5 @@ class ES_TTStubAlgorithm_official : public edm::ESProducer
 };
 
 #endif
+
 

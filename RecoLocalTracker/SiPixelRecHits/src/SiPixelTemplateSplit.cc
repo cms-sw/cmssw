@@ -103,7 +103,7 @@ int SiPixelTemplateSplit::PixelTempSplit(int id, float cotalpha, float cotbeta, 
 {
     // Local variables 
 	int i, j, k, binq, midpix, fypix, nypix, lypix, logypx, lparm;
-	int fxpix, nxpix, lxpix, logxpx, shifty, shiftx, nyzero[TYSIZE];
+	int fxpix, nxpix, lxpix, logxpx, shifty, shiftx;
 	int nclusx, nclusy;
 	int nybin, ycbin, nxbin, xcbin, minbinj, minbink;
 	int deltaj, jmin, jmax, kmin, kmax, km, fxbin, lxbin, fybin, lybin, djy, djx;
@@ -208,7 +208,7 @@ int SiPixelTemplateSplit::PixelTempSplit(int id, float cotalpha, float cotbeta, 
     if(deadpix) {
 	   fypix = BYM3; lypix = -1;
        for(i=0; i<nclusy; ++i) {
-	      ysum[i] = 0.f; nyzero[i] = 0;
+	      ysum[i] = 0.f;
 // Do preliminary cluster projection in y
 	      for(j=0; j<nclusx; ++j) {
 		     ysum[i] += cluster[j][i];
@@ -223,7 +223,7 @@ int SiPixelTemplateSplit::PixelTempSplit(int id, float cotalpha, float cotbeta, 
 // Now loop over dead pixel list and "fix" everything	
 
 //First see if the cluster ends are redefined and that we have only one dead pixel per column
-
+       int nyzero[TYSIZE]{};
 	   std::vector<std::pair<int, int> >::const_iterator zeroIter = zeropix.begin(), zeroEnd = zeropix.end();
        for ( ; zeroIter != zeroEnd; ++zeroIter ) {
 	      i = zeroIter->second;
@@ -889,8 +889,6 @@ int SiPixelTemplateSplit::PixelTempSplit(int id, float cotalpha, float cotbeta, 
 // uncertainty and final correction depend upon charge bin 	   
 	   
 	   bias = templ.xavgc2m(binq);
-	   k = std::min(minbink, minbinj);
-	   j = std::max(minbink, minbinj);
        xrec1 = (0.125f*(minbink-xcbin)+BHX-(float)shiftx+originx)*xsize - bias;
        xrec2 = (0.125f*(minbinj-xcbin)+BHX-(float)shiftx+originx)*xsize - bias;
 	   sigmax = sqrt2x*templ.xrmsc2m(binq);

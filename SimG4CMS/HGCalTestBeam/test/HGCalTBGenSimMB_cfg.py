@@ -7,7 +7,7 @@ process.load('Configuration.StandardSequences.Services_cff')
 process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
 process.load('Configuration.EventContent.EventContent_cff')
 process.load('SimGeneral.MixingModule.mixNoPU_cfi')
-process.load('SimG4CMS.HGCalTestBeam.HGCalTB160XML_cfi')
+process.load('SimG4CMS.HGCalTestBeam.HGCalTB160Module16XML_cfi')
 process.load('Geometry.HGCalCommonData.hgcalNumberingInitialization_cfi')
 process.load('Geometry.HGCalCommonData.hgcalParametersInitialization_cfi')
 process.load('Configuration.StandardSequences.MagneticField_0T_cff')
@@ -89,9 +89,9 @@ process.generator = cms.EDProducer("FlatRandomEThetaGunProducer",
     ),
     Verbosity = cms.untracked.int32(0),
     firstRun = cms.untracked.uint32(1),
-    psethack = cms.string('single muon E 100')
+    psethack = cms.string('single neutrino E 100')
 )
-process.VtxSmeared.MeanZ = -499.90
+process.VtxSmeared.MeanZ = -3600.0
 process.VtxSmeared.SigmaZ = 0
 process.HGCalTBAnalyzer.DoDigis = False
 process.HGCalTBAnalyzer.DoRecHits = False

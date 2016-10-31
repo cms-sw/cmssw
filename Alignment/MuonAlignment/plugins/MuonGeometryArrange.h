@@ -76,9 +76,10 @@ private:
 	void fillTree(Alignable *refAli, const AlgebraicVector& diff);
 	//void createDBGeometry(const edm::EventSetup& iSetup);
 	void createROOTGeometry(const edm::EventSetup& iSetup);
-	void makeGraph(int sizeI, float smi, float sma, float minV,
-	  float maxV, TH2F* dxh, TGraph* grx, const char* name, const char* title,
-	  const char* titleg, const char* axis, float* xp, float* yp, int numEntries);
+        void makeGraph(int sizeI, float smi, float sma, float minV,
+                       float maxV, TH2F* dxh, TGraph* grx, const char* name,
+                       const char* title, const char* titleg, const char* axis,
+                       const float* xp, const float* yp, int numEntries);
 	
 	bool passIdCut( uint32_t );
 	bool checkChosen( Alignable* ali );	// Is ali one of wanted CSC?

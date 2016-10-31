@@ -476,8 +476,8 @@ if(DeltaPhiManualM1P1>DeltaPhiMaxM1P1+tol_DeltaPhiMaxM1P1 || DeltaPhiManualM1P1<
 		  FastHelix mhelix(mtth2->globalPosition(), mtth1->globalPosition(), vertexPos, nomField,&*bfield, vertexPos);
 		  mkine = mhelix.stateAtVertex();
 
-		  if(theComparitor&&!theComparitor->compatible(phits, pkine, phelix, region)) { return 0; }
-		  if(theComparitor&&!theComparitor->compatible(mhits, mkine, mhelix, region)) { return 0; }
+		  if(theComparitor&&!theComparitor->compatible(phits, pkine, phelix)) { return 0; }
+		  if(theComparitor&&!theComparitor->compatible(mhits, mkine, mhelix)) { return 0; }
     }
 
 

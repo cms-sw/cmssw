@@ -6,6 +6,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "CommonTools/Utils/interface/StringToEnumValue.h"
+#include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 
 HGCalRecHitWorkerSimple::HGCalRecHitWorkerSimple(const edm::ParameterSet&ps) :
   HGCalRecHitWorkerBaseClass(ps) {
@@ -82,9 +83,10 @@ HGCalRecHitWorkerSimple::run( const edm::Event & evt,
     rechitMaker_->setADCToGeVConstant(float(hgchefUncalib2GeV_) );
     //fCPerMIP = &HGCHEF_fCPerMIP_;
     break;
+  case HcalEndcap:
   case HGCHEB:
     rechitMaker_->setADCToGeVConstant(float(hgchebUncalib2GeV_) );
-    break;
+    break;  
   default:
     throw cms::Exception("NonHGCRecHit")
       << "Rechit with detid = " << detid.rawId() << " is not HGC!";
@@ -93,11 +95,14 @@ HGCalRecHitWorkerSimple::run( const edm::Event & evt,
   // make the rechit and put in the output collection
   if (recoFlag == 0) {    
     HGCRecHit myrechit( rechitMaker_->makeRecHit(uncalibRH, 0) );    
-    HGCalDetId hid(detid);
-    const int thk = ddds_[hid.subdetId()-3]->waferTypeL(hid.wafer());
-    // units out of rechit maker are MIP * (GeV/fC)
-    // so multiple
-    const double new_E = myrechit.energy()*rcorr_[thk];
+    int thk = -1;
+    if( detid.subdetId() != HcalEndcap ) {
+      HGCalDetId hid(detid);
+      thk = ddds_[hid.subdetId()-3]->waferTypeL(hid.wafer());
+      // units out of rechit maker are MIP * (GeV/fC)
+      // so multiple
+    }
+    const double new_E = myrechit.energy()*(thk == -1 ? 1.0 : rcorr_[thk]);
     myrechit.setEnergy(new_E);
     result.push_back(myrechit);
   }

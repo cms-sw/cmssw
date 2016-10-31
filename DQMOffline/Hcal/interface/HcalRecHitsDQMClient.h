@@ -47,6 +47,8 @@ class HcalRecHitsDQMClient : public DQMEDHarvester {
   std::string dirNameJet_;
   std::string dirNameMET_;
 
+  int nChannels_[5]; // 0:any, 1:HB, 2:HE, 3:HO, 4: HF
+
  public:
   explicit HcalRecHitsDQMClient(const edm::ParameterSet& );
   virtual ~HcalRecHitsDQMClient();
@@ -55,6 +57,8 @@ class HcalRecHitsDQMClient : public DQMEDHarvester {
   virtual void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override; //performed in the endJob
 
   int HcalRecHitsEndjob(const std::vector<MonitorElement*> &hcalMEs);
+
+  float phifactor(int ieta);
 
 };
  

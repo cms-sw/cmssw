@@ -110,5 +110,7 @@ print "The Era for this detector should contain:"
 print eraLine
 
 # specify GeometryConf
-print "Please add this line in Configuration/StandardSequences/python/GeometryConf.py:"
-print "    'Extended2023"+detectorVersion+"' : 'Extended2023"+detectorVersion+",Extended2023"+detectorVersion+"Reco',"
+from Configuration.StandardSequences.GeometryConf import GeometryConf
+if not 'Extended2023'+detectorVersion in GeometryConf.keys():
+    print "Please add this line in Configuration/StandardSequences/python/GeometryConf.py:"
+    print "    'Extended2023"+detectorVersion+"' : 'Extended2023"+detectorVersion+",Extended2023"+detectorVersion+"Reco',"

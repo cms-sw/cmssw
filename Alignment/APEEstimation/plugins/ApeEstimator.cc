@@ -1441,10 +1441,6 @@ ApeEstimator::radialPositionAndError2(const LocalPoint& lP, const LocalError& lE
   float errY2(-999.F);
   
   x = phi*r_0;
-  // Cartesian y
-  y = lP.y();
-  // Trapezoidal y (symmetric around 0; length along strip)
-  y = measPos.y()*stripLength;
   // Radial y (not symmetric around 0; radial distance with minimum at middle strip at lower edge [0, yMax])
   const float l_0 = r_0 - topol.detHeight()/2;
   const float cosPhi(std::cos(phi));
@@ -1454,10 +1450,6 @@ ApeEstimator::radialPositionAndError2(const LocalPoint& lP, const LocalError& lE
   const float errPhi2(measErr.uu()*angularWidth2);
   
   errX2 = errPhi2*r_0*r_0;
-  // Cartesian y
-  errY2 = lE.yy();
-  // Trapezoidal y (symmetric around 0, length along strip)
-  errY2 = measErr.vv()*stripLength*stripLength;
   // Radial y (not symmetric around 0, real radial distance from intersection point)
   const float cosPhi4(std::pow(cosPhi,4)), sinPhi2(std::sin(phi)*std::sin(phi));
   const float helpSummand = l_0*l_0*(sinPhi2/cosPhi4*errPhi2);

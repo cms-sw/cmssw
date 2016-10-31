@@ -1,5 +1,6 @@
 <lcgdict>
-  <class name="reco::Vertex"  ClassVersion="10">
+  <class name="reco::Vertex"  ClassVersion="11">
+   <version ClassVersion="11" checksum="4120119845"/>
    <version ClassVersion="10" checksum="414871454"/>
   </class>
   <class name="std::vector<reco::Vertex>" />

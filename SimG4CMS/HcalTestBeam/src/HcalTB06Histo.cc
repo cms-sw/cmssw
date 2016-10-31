@@ -63,6 +63,8 @@ HcalTB06Histo::HcalTB06Histo(const edm::ParameterSet& ps) {
     tree_->Branch("edepS3_",    &edepS3_,      "edepS3_/D");
     tree_->Branch("edepS4_",    &edepS4_,      "edepS4_/D");
     tree_->Branch("edepVC_",    &edepVC_,      "edepVC_/D");
+    tree_->Branch("edepS7_",    &edepS7_,      "edepS7_/D");
+    tree_->Branch("edepS8_",    &edepS8_,      "edepS8_/D");
   }
 }
  
@@ -115,6 +117,8 @@ void HcalTB06Histo::fillTree(std::vector<double>& ecalo,
     edepS3_ = etrig[2];
     edepS4_ = etrig[3];
     edepVC_ = etrig[4];
+    edepS7_ = etrig[5];
+    edepS8_ = etrig[6];
     tree_->Fill();
     if (verbose_)
       edm::LogInfo("HcalTBSim") << "HcalTB06Histo:::fillTree: Energies "
@@ -122,6 +126,6 @@ void HcalTB06Histo::fillTree(std::vector<double>& ecalo,
 				<< ":" << noiseHB_ << ":" << edepHO_ << ":"
 				<< noiseHO_ << " Trigger counters " << edepS1_
 				<< ":" << edepS2_ << ":" << edepS3_ << ":" 
-				<< edepS4_ << ":" << edepVC_;
+				<< edepS4_ << ":" << edepVC_ << ":" << edepS7_ << ":" << edepS8_;
   }
 }

@@ -19,11 +19,11 @@ public:
     static const unsigned MAXSAMPLES = 10;
 
     inline HBHEChannelInfo()
-      : rawCharge_{0.}, pedestal_{0.}, pedestalWidth_{0.}, gain_{0.}, riseTime_{0.f}, adc_{0},
+      : rawCharge_{0.}, pedestal_{0.}, pedestalWidth_{0.}, gain_{0.}, gainWidth_{0.}, riseTime_{0.f}, adc_{0},
           hasTimeInfo_(false) {clear();}
 
     inline explicit HBHEChannelInfo(const bool hasTimeFromTDC)
-      : rawCharge_{0.}, pedestal_{0.}, pedestalWidth_{0.}, gain_{0.}, riseTime_{0.f}, adc_{0},
+      : rawCharge_{0.}, pedestal_{0.}, pedestalWidth_{0.}, gain_{0.}, gainWidth_{0.}, riseTime_{0.f}, adc_{0},
           hasTimeInfo_(hasTimeFromTDC) {clear();}
 
     inline void clear()
@@ -33,6 +33,9 @@ public:
         nSamples_ = 0;
         soi_ = 0;
         capid_ = 0;
+        darkCurrent_ = 0;
+        fcByPE_ = 0;
+        lambda_ = 0,
         dropped_ = true;
         hasLinkError_ = false;
         hasCapidError_ = false;
@@ -40,6 +43,7 @@ public:
 
     inline void setChannelInfo(const HcalDetId& detId, const int recoShape, const unsigned nSamp,
                                const unsigned iSoi, const int iCapid,
+			       const double darkCurrent, const double fcByPE, const double lambda,
                                const bool linkError, const bool capidError,
                                const bool dropThisChannel)
     {
@@ -48,6 +52,9 @@ public:
         nSamples_ = nSamp < MAXSAMPLES ? nSamp : MAXSAMPLES;
         soi_ = iSoi;
         capid_ = iCapid;
+        darkCurrent_ = darkCurrent;
+        fcByPE_ = fcByPE;
+        lambda_ = lambda,
         dropped_ = dropThisChannel;
         hasLinkError_ = linkError;
         hasCapidError_ = capidError;
@@ -58,15 +65,18 @@ public:
 
     // For speed, the "setSample" function does not perform bounds checking
     inline void setSample(const unsigned ts, const uint8_t rawADC,
-                          const double q, const double ped, const double pedWidth,
-                          const double g, const float t)
+                          const double q,
+			  const double ped, const double pedWidth,
+			  const double g, const double gainWidth,
+			  const float t)
     {
         rawCharge_[ts] = q;
-        pedestal_[ts] = ped;
-        pedestalWidth_[ts] = pedWidth;
-        gain_[ts] = g;
         riseTime_[ts] = t;
         adc_[ts] = rawADC;
+	pedestal_[ts] = ped;
+	gain_[ts] = g;
+	pedestalWidth_[ts] = pedWidth;
+	gainWidth_[ts] = gainWidth;
     }
 
     // Inspectors
@@ -79,6 +89,9 @@ public:
     inline unsigned soi() const {return soi_;}
     inline int capid() const {return capid_;}
     inline bool hasTimeInfo() const {return hasTimeInfo_;}
+    inline double darkCurrent() const {return darkCurrent_;}
+    inline double fcByPE() const {return fcByPE_;}
+    inline double lambda() const {return lambda_;}
     inline bool isDropped() const {return dropped_;}
     inline bool hasLinkError() const {return hasLinkError_;}
     inline bool hasCapidError() const {return hasCapidError_;}
@@ -88,6 +101,7 @@ public:
     inline const double* pedestal() const {return pedestal_;}
     inline const double* pedestalWidth() const {return pedestalWidth_;}
     inline const double* gain() const {return gain_;}
+    inline const double* gainWidth() const {return gainWidth_;}
     inline const uint8_t* adc() const {return adc_;}
     inline const float* riseTime() const
         {if (hasTimeInfo_) return riseTime_; else return nullptr;}
@@ -96,11 +110,12 @@ public:
     inline double tsRawCharge(const unsigned ts) const {return rawCharge_[ts];}
     inline double tsPedestal(const unsigned ts) const {return pedestal_[ts];}
     inline double tsPedestalWidth(const unsigned ts) const {return pedestalWidth_[ts];}
+    inline double tsGain(const unsigned ts) const {return gain_[ts];}
+    inline double tsGainWidth(const unsigned ts) const {return gainWidth_[ts];}
     inline double tsCharge(const unsigned ts) const
         {return rawCharge_[ts] - pedestal_[ts];}
     inline double tsEnergy(const unsigned ts) const
         {return (rawCharge_[ts] - pedestal_[ts])*gain_[ts];}
-    inline double tsGain(const unsigned ts) const {return gain_[ts];}
     inline uint8_t tsAdc(const unsigned ts) const {return adc_[ts];}
     inline float tsRiseTime(const unsigned ts) const
         {return hasTimeInfo_ ? riseTime_[ts] : HcalSpecialTimes::UNKNOWN_T_NOTDC;}
@@ -192,8 +207,16 @@ private:
     // Pedestal Width in fC
     double pedestalWidth_[MAXSAMPLES];
 
-    // fC to GeV conversion factor (can depend on CAPID)
+    // fC to GeV conversion factor
     double gain_[MAXSAMPLES];
+
+    // fC to GeV conversion factor
+    double gainWidth_[MAXSAMPLES];
+
+    // needed for the dark current
+    double darkCurrent_;
+    double fcByPE_;
+    double lambda_;
 
     // Signal rise time from TDC in ns (if provided)
     float riseTime_[MAXSAMPLES];

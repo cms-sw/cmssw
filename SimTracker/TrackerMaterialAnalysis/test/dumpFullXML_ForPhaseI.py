@@ -30,10 +30,10 @@ def checkEnvironment():
 
 def getTrackerRecoMaterialCopy(filename):
     tracker_reco_material = os.path.join(os.environ['CMSSW_BASE'],
-                                         'src/Geometry/TrackerRecoData/data/PhaseI/trackerRecoMaterial.xml')
+                                         'src/Geometry/TrackerRecoData/data/PhaseI/pixfwd/trackerRecoMaterial.xml')
     if not os.path.exists(tracker_reco_material):
       tracker_reco_material = os.path.join(os.environ['CMSSW_RELEASE_BASE'],
-                                           'src/Geometry/TrackerRecoData/data/PhaseI/trackerRecoMaterial.xml')
+                                           'src/Geometry/TrackerRecoData/data/PhaseI/pixfwd/trackerRecoMaterial.xml')
       if not os.path.exists(tracker_reco_material):
           print 'Something is wrong with the CMSSW installation. The file %s is missing. Quitting.\n' % tracker_reco_material
           sys.exit(TRACKER_MATERIAL_FILE_MISSING)
@@ -48,7 +48,7 @@ def produceXMLFromParameterFile():
 
     The skeleton of the XML is taken directly from the release the
     user is currently using, i.e. from
-    $CMSSW_RELEASE_BASE/src/Geometry/TrackerRecoData/data/{,PhaseI/}trackerRecoMaterial.xml.
+    $CMSSW_RELEASE_BASE/src/Geometry/TrackerRecoData/data/{,PhaseI/pixfwd}trackerRecoMaterial.xml.
 
     A new file, named trackerRecoMaterial.xml, is saved in the
     current directory.
@@ -84,10 +84,10 @@ def compareNewXMLWithOld(format_for_twiki):
     """
     Computes the difference between the old values, stored in the
     central repository for the current release, i.e. from
-    $CMSSW_RELEASE_BASE/src/Geometry/TrackerRecoData/data/{,PhaseI/}trackerRecoMaterial.xml,
+    $CMSSW_RELEASE_BASE/src/Geometry/TrackerRecoData/data/{,PhaseI/pixfwd}trackerRecoMaterial.xml,
     and the new values that we assume are present in the same file
     under the locally installed release, i.e. under
-    $CMSSW_BASE/src/Geometry/TrackerRecoData/data/{,PhaseI/}trackerRecoMaterial.xml. No
+    $CMSSW_BASE/src/Geometry/TrackerRecoData/data/{,PhaseI/pixfwd}trackerRecoMaterial.xml. No
     check is performed to guarantee that the files are already
     there. If the file is not there, it is searched in the current
     folder. A missing file will result in an exception.

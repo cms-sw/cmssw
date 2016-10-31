@@ -40,9 +40,15 @@ public:
  private:
   // Constant
   static const int NOUTLUTS = 4176;
-  static const unsigned int QIE8_OUTPUT_LUT_SIZE = 1024;
-  static const unsigned int QIE10_OUTPUT_LUT_SIZE = 2048;
-  static const unsigned int QIE11_OUTPUT_LUT_SIZE = 2048;
+
+  // Two possible linearization scales
+  static const unsigned int REDUCE10BIT = 1024;
+  static const unsigned int REDUCE11BIT = 2048;
+
+  // Map different QIE to the right linearization
+  static const unsigned int QIE8_OUTPUT_LUT_SIZE = REDUCE10BIT;
+  static const unsigned int QIE10_OUTPUT_LUT_SIZE = REDUCE10BIT;
+  static const unsigned int QIE11_OUTPUT_LUT_SIZE = REDUCE11BIT;
   static const unsigned int OUTPUT_LUT_SIZE = std::max({QIE8_OUTPUT_LUT_SIZE, QIE10_OUTPUT_LUT_SIZE, QIE11_OUTPUT_LUT_SIZE});
   static const unsigned int TPGMAX = 256;
 

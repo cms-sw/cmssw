@@ -1,0 +1,90 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+ <ConstantsSection label="trackerpixelnose.xml" eval="true">
+  <Constant name="zero" value="0.0*fm"/>
+  <!--Pixel patch pannel sandwiched layers-->
+  <Constant name="PIXNoseRin"  value="215*mm"/>
+  <Constant name="PIXNoseRout" value="[PIXNoseRin]+[PIXSandwichLayerThick]"/>
+  <Constant name="PIXSandwichLayerRout2" value="1063*mm"/>
+  <!--Pixel nose length-->
+  <Constant name="PIXNoseLength" value="619.5*mm"/>
+  <!--Pixel patch pannel sandwiched layers: total thickness-->
+  <Constant name="PIXSandwichLayerThick" value="[PIXSandwichLayer1Thick]+[PIXSandwichLayer2Thick]+[PIXSandwichLayer3Thick]+[PIXSandwichLayer4Thick]"/>
+  <Constant name="PIXSandwichLayer1Thick" value="0.2*mm"/>
+  <Constant name="PIXSandwichLayer2Thick" value="11.0*mm"/>
+  <Constant name="PIXSandwichLayer3Thick" value="0.5*mm"/>
+  <Constant name="PIXSandwichLayer4Thick" value="0.3*mm"/>
+  <!--Pixel nose: outside bulkhead & sandwich layers(>z)-->
+  <Constant name="BulkheadAllThick" value="[BHThick]+[BHDiskThick]+[BHCoversThick]"/>
+  <Constant name="BHThick" value="89*mm"/>
+  <Constant name="BHDiskThick" value="5*mm"/>
+  <Constant name="BHCoversThick" value="1.1*mm"/>
+  <!--<Constant name="PIXNoseZ" value="[tob:Zv3]+[BulkheadAllThick]+[PIXSandwichLayerThick]+0.5*[PIXNoseLength]"/>-->
+  <!--<Constant name="PIXNoseZ" value="293.5*cm+0.5*[PIXNoseLength]"/>-->
+  <Constant name="PIXNoseZ" value="293.2*cm+0.5*[PIXNoseLength]"/>
+ </ConstantsSection>
+ <SolidSection label="trackerpixelnose.xml">
+  <Tubs name="TrackerPixelNose" rMin="[PIXNoseRin]" rMax="[PIXNoseRout]" dz="0.5*[PIXNoseLength]" startPhi="0*deg" deltaPhi="360*deg"/>
+ <Tubs name="PIXNoseLayer1" rMin="[PIXNoseRin]" rMax="[PIXNoseRin]+[PIXSandwichLayer1Thick]" dz="0.5*[PIXNoseLength]" startPhi="0*deg" deltaPhi="360*deg"/>
+ <Tubs name="PIXNoseLayer2" rMin="[PIXNoseRin]+[PIXSandwichLayer1Thick]" rMax="[PIXNoseRin]+[PIXSandwichLayer1Thick]+[PIXSandwichLayer2Thick]" dz="0.5*[PIXNoseLength]" startPhi="0*deg" deltaPhi="360*deg"/>
+ <Tubs name="PIXNoseLayer3" rMin="[PIXNoseRin]+[PIXSandwichLayer1Thick]+[PIXSandwichLayer2Thick]" rMax="[PIXNoseRin]+[PIXSandwichLayer1Thick]+[PIXSandwichLayer2Thick]+[PIXSandwichLayer3Thick]" dz="0.5*[PIXNoseLength]" startPhi="0*deg" deltaPhi="360*deg"/>
+ <Tubs name="PIXNoseLayer4" rMin="[PIXNoseRin]+[PIXSandwichLayer1Thick]+[PIXSandwichLayer2Thick]+[PIXSandwichLayer3Thick]" rMax="[PIXNoseRin]+[PIXSandwichLayer1Thick]+[PIXSandwichLayer2Thick]+[PIXSandwichLayer3Thick]+[PIXSandwichLayer4Thick]" dz="0.5*[PIXNoseLength]" startPhi="0*deg" deltaPhi="360*deg"/>
+ </SolidSection>
+ <LogicalPartSection label="trackerpixelnose.xml">
+  <LogicalPart name="TrackerPixelNose" category="unspecified">
+   <rSolid name="trackerpixelnose:TrackerPixelNose"/>
+   <rMaterial name="materials:Air"/>
+  </LogicalPart>
+  <LogicalPart name="PIXNoseLayer1" category="unspecified">
+   <rSolid name="trackerpixelnose:PIXNoseLayer1"/>
+   <rMaterial name="materials:T_G10"/>
+  </LogicalPart>
+  <LogicalPart name="PIXNoseLayer2" category="unspecified">
+   <rSolid name="trackerpixelnose:PIXNoseLayer2"/>
+   <rMaterial name="materials:Rohacell"/>
+  </LogicalPart>
+  <LogicalPart name="PIXNoseLayer3" category="unspecified">
+   <rSolid name="trackerpixelnose:PIXNoseLayer3"/>
+   <rMaterial name="materials:Aluminium"/>
+  </LogicalPart>
+  <LogicalPart name="PIXNoseLayer4" category="unspecified">
+   <rSolid name="trackerpixelnose:PIXNoseLayer4"/>
+   <rMaterial name="materials:Tpatch_PN"/>
+  </LogicalPart>
+ </LogicalPartSection>
+ <PosPartSection label="trackerpixelnose.xml">
+  <PosPart copyNumber="1">
+   <rParent name="cms:CMSE"/>
+   <!-- <rParent name="trackerpixelnose:PixelNose"/> -->
+   <rChild name="trackerpixelnose:TrackerPixelNose"/>
+   <Translation x="[zero]" y="[zero]" z="[PIXNoseZ]"/>
+  </PosPart>
+  <PosPart copyNumber="2">
+   <rParent name="cms:CMSE"/>
+   <!-- <rParent name="trackerpixelnose:PixelNose"/> -->
+   <rChild name="trackerpixelnose:TrackerPixelNose"/>
+   <Translation x="[zero]" y="[zero]" z="-[PIXNoseZ]"/>
+   <rRotation name="tracker:180D"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="trackerpixelnose:TrackerPixelNose"/>
+   <rChild name="trackerpixelnose:PIXNoseLayer1"/>
+   <Translation x="[zero]" y="[zero]" z="[zero]"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="trackerpixelnose:TrackerPixelNose"/>
+   <rChild name="trackerpixelnose:PIXNoseLayer2"/>
+   <Translation x="[zero]" y="[zero]" z="[zero]"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="trackerpixelnose:TrackerPixelNose"/>
+   <rChild name="trackerpixelnose:PIXNoseLayer3"/>
+   <Translation x="[zero]" y="[zero]" z="[zero]"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="trackerpixelnose:TrackerPixelNose"/>
+   <rChild name="trackerpixelnose:PIXNoseLayer4"/>
+   <Translation x="[zero]" y="[zero]" z="[zero]"/>
+  </PosPart>
+ </PosPartSection>
+ </DDDefinition>
