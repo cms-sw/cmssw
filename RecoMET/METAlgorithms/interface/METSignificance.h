@@ -39,7 +39,7 @@ namespace metsig {
 
          reco::METCovMatrix getCovariance(const edm::View<reco::Jet>& jets,
 					  const std::vector< edm::Handle<reco::CandidateView> >& leptons,
-					  const edm::View<reco::Candidate>& pfCandidates,
+					  const edm::Handle<edm::View<reco::Candidate> >& pfCandidates,
 					  double rho,
 					  JME::JetResolution & resPtObj,
 					  JME::JetResolution & resPhiObj,

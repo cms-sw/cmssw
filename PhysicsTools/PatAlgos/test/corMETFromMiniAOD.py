@@ -45,6 +45,9 @@ if runOnData:
 else:
   process.GlobalTag.globaltag = autoCond['run2_mc']
 
+
+#Summer16_25nsV1_MC.db
+
 if usePrivateSQlite:
     from CondCore.DBCommon.CondDBSetup_cfi import *
     import os
@@ -52,9 +55,10 @@ if usePrivateSQlite:
       era="Summer15_25nsV6_DATA"
     else:
       era="Summer15_25nsV6_MC"
-      
+
     process.jec = cms.ESSource("PoolDBESSource",CondDBSetup,
                                connect = cms.string( "frontier://FrontierPrep/CMS_COND_PHYSICSTOOLS"),
+                               #connect = cms.string('sqlite:'+era+'.db'),
                                toGet =  cms.VPSet(
             cms.PSet(
                 record = cms.string("JetCorrectionsRecord"),
@@ -71,13 +75,12 @@ if usePrivateSQlite:
     process.es_prefer_jec = cms.ESPrefer("PoolDBESSource",'jec')
 
 
-
 ### =====================================================================================================
 # Define the input source
 if runOnData:
-  fname = 'root://eoscms.cern.ch//store/relval/CMSSW_8_1_0_pre10/DoubleEG/MINIAOD/81X_dataRun2_relval_v4_RelVal_doubEG2015D-v1/00000/88859857-6168-E611-9E79-0025905A60AA.root'
+  fname = '/store/relval/CMSSW_8_0_20/MET/MINIAOD/80X_dataRun2_relval_Candidate_2016_09_02_10_27_40_RelVal_met2016B-v1/00000/2E6B9138-1C7A-E611-AE72-0025905A60DE.root' 
 else:
-  fname = 'root://eoscms.cern.ch//store/relval/CMSSW_8_1_0_pre10/RelValTTbar_13/MINIAODSIM/81X_mcRun2_asymptotic_v5_recycle-v1/00000/B49E8325-6E67-E611-BFE7-0025905A60D0.root'
+  fname = '/store/relval/CMSSW_8_0_20/RelValZMM_13/MINIAODSIM/80X_mcRun2_asymptotic_2016_TrancheIV_v4_Tr4GT_v4-v1/00000/64F9C946-C57A-E611-AA05-0CC47A74527A.root'
 
 # Define the input source
 process.source = cms.Source("PoolSource", 
@@ -133,7 +136,7 @@ process.MINIAODSIMoutput = cms.OutputModule("PoolOutputModule",
     compressionLevel = cms.untracked.int32(4),
     compressionAlgorithm = cms.untracked.string('LZMA'),
     eventAutoFlushCompressedSize = cms.untracked.int32(15728640),
-    outputCommands = cms.untracked.vstring( "keep *_slimmedMETs_*_RERUN",
+    outputCommands = cms.untracked.vstring( "keep *_slimmedMETs_*_*",
                                             "keep *_slimmedMETsNoHF_*_*",
                                             "keep *_patPFMet_*_*",
                                             "keep *_patPFMetT1_*_*",
