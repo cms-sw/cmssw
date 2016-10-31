@@ -63,7 +63,7 @@ HLT_PADmesonPPTrackingGlobal_Dpt30_v*                                   #CMSHLT-
 HLT_PADmesonPPTrackingGlobal_Dpt50_v*                                   #CMSHLT-1030
 
 HLT_PADmesonPPTrackingGlobal_Dpt5_part2_v*                              #CMSHLT-1098
-HLT_PADmesonPPTrackingGlobal_Dpt5_part2_v*                              #CMSHLT-1098
+HLT_PADmesonPPTrackingGlobal_Dpt5_part3_v*                              #CMSHLT-1098
 
 HLT_PAFullTracks_HFSumEt005_HighPt8_v*                                  #CMSHLT-1069
 HLT_PAFullTracks_HFSumEt005_HighPt16_v*                                 #CMSHLT-1069
