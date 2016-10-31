@@ -50,7 +50,8 @@ void METCorrectorDBWriter::beginJob()
   for( int ilev(0); ilev< MEtXYcorrectParametersCollection::N_LEVELS;++ilev)
   {
     std::string append("_");
-    std::string levelName = MEtXYcorrectParametersCollection::findLabel( static_cast<MEtXYcorrectParametersCollection::Level_t>(ilev) );
+    std::string levelName = payload->findLabel( static_cast<MEtXYcorrectParametersCollection::Level_t>(ilev) );
+    //std::string levelName = MEtXYcorrectParametersCollection::findLabel( static_cast<MEtXYcorrectParametersCollection::Level_t>(ilev) );
     append += levelName;
     append += "_";
     append += algo;
@@ -61,7 +62,8 @@ void METCorrectorDBWriter::beginJob()
       std::cout << "Opened file " << inputTxtFile << std::endl;
       // Create the parameter object from file
       std::vector<std::string> sections;
-      MEtXYcorrectParametersCollection::getSections(fip.fullPath(), sections );
+      payload->getSections(fip.fullPath(), sections );
+      //MEtXYcorrectParametersCollection::getSections(fip.fullPath(), sections );
       if(sections.size() == 0){
         payload->push_back(ilev, MEtXYcorrectParameters(fip.fullPath(),"") );
       }else{

@@ -29,16 +29,16 @@ class MEtXYcorrectParameters
         unsigned nBinVar()                  const {return mBinVar.size(); }
         unsigned nParVar()                  const {return mParVar.size(); }
         int PtclType()                      const {return ptclType; }
-        std::vector<std::string> parVar()   const {return mParVar;        }
+	std::vector<unsigned> parVar()   const {return mParVar;        } // parameterized Variable
         std::vector<std::string> binVar()   const {return mBinVar;        } 
-        std::string parVar(unsigned fIndex) const {return mParVar[fIndex];}
+        unsigned parVar(unsigned fIndex) const {return mParVar[fIndex];}
         std::string binVar(unsigned fIndex) const {return mBinVar[fIndex];} 
         std::string formula()               const {return mFormula;       }
       private:
         //-------- Member variables ----------
 	int 			ptclType;
         std::string              mFormula;
-        std::vector<std::string> mParVar;
+        std::vector<unsigned>	mParVar;
         std::vector<std::string> mBinVar;
 
       COND_SERIALIZABLE;
@@ -144,14 +144,14 @@ class MEtXYcorrectParametersCollection {
 
   // Helper method to find all of the sections in a given 
   // parameters file
-  static void getSections( std::string inputFile,
+  void getSections( std::string inputFile,
 			   std::vector<std::string> & outputs );
 
-  static key_type getShiftMcFlavBin( std::string const & Flav );
-  static key_type getShiftDyFlavBin( std::string const & Flav );
-  static key_type getShiftTTJetsFlavBin( std::string const & Flav );
-  static key_type getShiftWJetsFlavBin( std::string const & Flav );
-  static key_type getShiftDataFlavBin( std::string const & Flav );
+  key_type getShiftMcFlavBin( std::string const & Flav );
+  key_type getShiftDyFlavBin( std::string const & Flav );
+  key_type getShiftTTJetsFlavBin( std::string const & Flav );
+  key_type getShiftWJetsFlavBin( std::string const & Flav );
+  key_type getShiftDataFlavBin( std::string const & Flav );
 
   static bool isShiftMC( key_type k);
   static bool isShiftDY( key_type k);

@@ -19,10 +19,14 @@
 //------------------------------------------------------------------------
 MEtXYcorrectParameters::Definitions::Definitions(const std::vector<std::string>& fBinVar, const std::vector<std::string>& fParVar, const std::string& fFormula )
 {
+  mBinVar.reserve(fBinVar.size());
   for(unsigned i=0;i<fBinVar.size();i++)
     mBinVar.push_back(fBinVar[i]);
+
+  mParVar.reserve(fParVar.size());
   for(unsigned i=0;i<fParVar.size();i++)
-    mParVar.push_back(fParVar[i]);
+    mParVar.push_back(getUnsigned(fParVar[i]));
+
   mFormula    = fFormula;
 }
 //------------------------------------------------------------------------
@@ -38,21 +42,24 @@ MEtXYcorrectParameters::Definitions::Definitions(const std::string& fLine)
     if (tokens.size() < 6) 
     {
       std::stringstream sserr;
-      sserr<<"(line "<<fLine<<"): Great than or equal to 6 expected tokens:"<<tokens.size();
+      sserr<<"(line "<<fLine<<"): Great than or equal to 6 expected but the number of tokens:"<<tokens.size();
       handleError("MEtXYcorrectParameters::Definitions",sserr.str());
     }
     // No. of Bin Variable
-    LogDebug ("default")<<"Definitions===========";
+    //edm::LogInfo ("default")<<"Definitions===========";
     ptclType = getSigned(tokens[0]);
     unsigned nBinVar = getUnsigned(tokens[1]);
     unsigned nParVar = getUnsigned(tokens[nBinVar+2]);
+    mBinVar.reserve(nBinVar);
+    mParVar.reserve(nParVar);
+
     for(unsigned i=0;i<nBinVar;i++)
     {
       mBinVar.push_back(tokens[i+2]);
     }
     for(unsigned i=0;i<nParVar;i++)
     {
-      mParVar.push_back(tokens[nBinVar+3+i]);
+      mParVar.push_back(getUnsigned(tokens[nBinVar+3+i]));
     }
     mFormula = tokens[nParVar+nBinVar+3];
     if (tokens.size() != nParVar+nBinVar+4 ) 
@@ -301,13 +308,13 @@ std::string
 MEtXYcorrectParametersCollection::findLabel( key_type k ){
   if( isShiftMC(k) ){
     return findShiftMCflavor(k);
-  }else if( isShiftDY(k) ){
+  }else if( MEtXYcorrectParametersCollection::isShiftDY(k) ){
     return findShiftDYflavor(k);
-  }else if( isShiftTTJets(k) ){
+  }else if( MEtXYcorrectParametersCollection::isShiftTTJets(k) ){
     return findShiftTTJetsFlavor(k);
-  }else if( isShiftWJets(k) ){
+  }else if( MEtXYcorrectParametersCollection::isShiftWJets(k) ){
     return findShiftWJetsFlavor(k);
-  }else if( isShiftData(k) ){
+  }else if( MEtXYcorrectParametersCollection::isShiftData(k) ){
     return findShiftDataFlavor(k);
   }
   return labels_[k];
@@ -381,7 +388,14 @@ void MEtXYcorrectParametersCollection::getSections( std::string inputFile,
       }
     }
   }
-  copy(outputs.begin(),outputs.end(), std::ostream_iterator<std::string>(std::cout, "\n") );
+  //copy(outputs.begin(),outputs.end(), std::ostream_iterator<std::string>(std::cout, "\n") );
+
+  std::string sectionNames;
+  for(std::vector<std::string>::const_iterator it=outputs.begin(); it!=outputs.end();it++){
+    sectionNames+=*it;
+    sectionNames+="\n";
+  }
+  edm::LogInfo ("getSections")<<"Sections read from file: "<<"\n"<<sectionNames;
 }
 
 // Add a METCorrectorParameter object. 
