@@ -123,7 +123,7 @@ void GeometryInterface::loadFromTopology(edm::EventSetup const& iSetup, const ed
   auto detids = trackerGeometryHandle->detIds();
   for (DetId id : detids) {
     if (id.subdetId() != PixelSubdetector::PixelBarrel && id.subdetId() != PixelSubdetector::PixelEndcap) continue;
-    auto iq = InterestingQuantities{.sourceModule = id };
+    auto iq = InterestingQuantities{nullptr, id, 0, 0};
     auto layer = pxlayer(iq);
     if (layer != UNDEFINED) {
       if (layer >= Value(maxladders.size())) maxladders.resize(layer+1);
@@ -336,7 +336,7 @@ void GeometryInterface::loadFEDCabling(edm::EventSetup const& iSetup, const edm:
   addExtractor(intern("FED"),
     [fedmap] (InterestingQuantities const& iq) {
       if (iq.sourceModule == 0xFFFFFFFF)
-        return iq.col; // hijacked for the raw data plugin
+        return Value(iq.col); // hijacked for the raw data plugin
       auto it = fedmap.find(iq.sourceModule);
       if (it == fedmap.end()) return GeometryInterface::UNDEFINED;
       return it->second;
@@ -347,7 +347,7 @@ void GeometryInterface::loadFEDCabling(edm::EventSetup const& iSetup, const edm:
       // TODO: we also should be able to compute the channel from the ROC.
       // But for raw data, we only need this hack.
       //if (iq.sourceModule == 0xFFFFFFFF)
-      return iq.row; // hijacked for the raw data plugin
+      return Value(iq.row); // hijacked for the raw data plugin
     },
     0, 39 // TODO: real range
   );

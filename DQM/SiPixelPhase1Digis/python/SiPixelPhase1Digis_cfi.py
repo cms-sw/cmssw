@@ -41,15 +41,19 @@ SiPixelPhase1DigisNdigisPerFED = DefaultHisto.clone(
   range_nbins = 200,
   dimensions = 0, 
   specs = cms.VPSet(
-    Specification().groupBy("FED/Event")
+    # the double "FED" here is due to a "bug", caused by how the specs are
+    # translated for step1. Interpret as "count by FED, extend by FED".
+    Specification().groupBy("FED/FED/Event")
                    .reduce("COUNT")
                    .groupBy("FED")
                    .groupBy("", "EXTEND_Y")
                    .save(),
-    Specification().groupBy("PXBarrel|PXForward/PXLayer|PXDisk/Lumisection/FED")
+    Specification().groupBy("PXBarrel|PXForward/PXLayer|PXDisk/Lumisection/FED/FED/Event")
                    .reduce("COUNT")
+                   .groupBy("PXBarrel|PXForward/PXLayer|PXDisk/Lumisection/FED")
                    .groupBy("PXBarrel|PXForward/PXLayer|PXDisk/Lumisection", "EXTEND_Y")
                    .groupBy("PXBarrel|PXForward/PXLayer|PXDisk", "EXTEND_X")
+                   .save()
                    .custom("ratio_to_average")
                    .save()
   )
