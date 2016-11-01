@@ -460,6 +460,11 @@ std::unique_ptr<HcalRespCorrs> HcalHardcodeCalibrations::produceRespCorrs (const
       ((cell.genericSubdet() == HcalGenericDetId::HcalGenEndcap) || (cell.genericSubdet() == HcalGenericDetId::HcalGenBarrel)) &&
       (HcalDetId(cell).depth()==1 && dbHardcode.getLayersInDepth(HcalDetId(cell).ieta(),HcalDetId(cell).depth(),topo)==1) )
     {
+      //layer 0 is thicker than other layers (9mm vs 3.7mm) and brighter (Bicron vs SCSN81)
+      //in Run1/Run2 (pre-2017 for HE), ODU for layer 0 had neutral density filter attached
+      //NDF was simulated as weight of 0.5 applied to Geant energy deposits
+      //for Phase1, NDF is removed - simulated as weight of 1.2 applied to Geant energy deposits
+      //to maintain RECO calibrations, move the layer 0 energy scale back to its previous state using respcorrs
       corr = 0.5/1.2;
     }
 
@@ -467,15 +472,17 @@ std::unique_ptr<HcalRespCorrs> HcalHardcodeCalibrations::produceRespCorrs (const
       int depth_ = HcalDetId(cell).depth();
       int ieta_  = HcalDetId(cell).ieta();
       corr *= he_recalibration->getCorr(ieta_, depth_); 
-      
-      //std::cout << "HE ieta, depth = " << ieta_  << ",  " << depth_ << "   corr = "  << corr << std::endl;
+#ifdef DebugLog      
+      std::cout << "HE ieta, depth = " << ieta_  << ",  " << depth_ << "   corr = "  << corr << std::endl;
+#endif
     }
     else if ((hf_recalibration != 0 ) && (cell.genericSubdet() == HcalGenericDetId::HcalGenForward)) {
       int depth_ = HcalDetId(cell).depth();
       int ieta_  = HcalDetId(cell).ieta();
       corr = hf_recalibration->getCorr(ieta_, depth_, iLumi); 
-
-      //std::cout << "HF ieta, depth = " << ieta_  << ",  " << depth_ << "   corr = "  << corr << std::endl;
+#ifdef DebugLog
+      std::cout << "HF ieta, depth = " << ieta_  << ",  " << depth_ << "   corr = "  << corr << std::endl;
+#endif
     }
 
     HcalRespCorr item(cell.rawId(),corr);
