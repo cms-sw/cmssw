@@ -21,11 +21,14 @@ trackWithVertexSelectorParams = cms.PSet(
     # compatibility with a vertex ?
     useVtx = cms.bool(True),
     vertexTag = cms.InputTag('offlinePrimaryVertices'),
+    timesTag = cms.InputTag(''),
+    timeResosTag = cms.InputTag(''),
     nVertices = cms.uint32(0), ## how many vertices to look at before dropping the track
     vtxFallback = cms.bool(True), ## falback to beam spot if there are no vertices
     # uses vtx=(0,0,0) with deltaZeta=15.9, deltaRho = 0.2
     zetaVtx = cms.double(1.0),
     rhoVtx = cms.double(0.2), ## tags used by b-tagging folks
+    nSigmaDtVertex = cms.double(0),
     # should _not_ be used for the TrackWithVertexRefSelector
     copyExtras = cms.untracked.bool(False), ## copies also extras and rechits on RECO
     copyTrajectories = cms.untracked.bool(False), # don't set this to true on AOD!
