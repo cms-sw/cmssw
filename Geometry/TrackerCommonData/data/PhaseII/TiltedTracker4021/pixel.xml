@@ -157,9 +157,12 @@ note: see OT_Tilted_362_200_Pixel_4021_2016_08_09.cfg for full config files
 <rMaterial name="pixel:Si"/>
 </MaterialFraction>
 </CompositeMaterial>
-<CompositeMaterial name="hybridcompositeBModule1Layer1Chip" density="0.30328*g/cm3" method="mixture by weight">
-<MaterialFraction fraction="1">
+<CompositeMaterial name="hybridcompositeBModule1Layer1Chip" density="4.44852*g/cm3" method="mixture by weight">
+<MaterialFraction fraction="0.0681755">
 <rMaterial name="pixel:Pix_Bumps"/>
+</MaterialFraction>
+<MaterialFraction fraction="0.931824">
+<rMaterial name="pixel:Pix_Caps"/>
 </MaterialFraction>
 </CompositeMaterial>
 <CompositeMaterial name="hybridcompositeBModule2Layer1Hybrid" density="4.38815*g/cm3" method="mixture by weight">
@@ -179,9 +182,12 @@ note: see OT_Tilted_362_200_Pixel_4021_2016_08_09.cfg for full config files
 <rMaterial name="pixel:Si"/>
 </MaterialFraction>
 </CompositeMaterial>
-<CompositeMaterial name="hybridcompositeBModule2Layer1Chip" density="0.30328*g/cm3" method="mixture by weight">
-<MaterialFraction fraction="1">
+<CompositeMaterial name="hybridcompositeBModule2Layer1Chip" density="4.44852*g/cm3" method="mixture by weight">
+<MaterialFraction fraction="0.0681755">
 <rMaterial name="pixel:Pix_Bumps"/>
+</MaterialFraction>
+<MaterialFraction fraction="0.931824">
+<rMaterial name="pixel:Pix_Caps"/>
 </MaterialFraction>
 </CompositeMaterial>
 <CompositeMaterial name="hybridcompositeBModule3Layer1Hybrid" density="4.38815*g/cm3" method="mixture by weight">
@@ -201,9 +207,12 @@ note: see OT_Tilted_362_200_Pixel_4021_2016_08_09.cfg for full config files
 <rMaterial name="pixel:Si"/>
 </MaterialFraction>
 </CompositeMaterial>
-<CompositeMaterial name="hybridcompositeBModule3Layer1Chip" density="0.30328*g/cm3" method="mixture by weight">
-<MaterialFraction fraction="1">
+<CompositeMaterial name="hybridcompositeBModule3Layer1Chip" density="4.44852*g/cm3" method="mixture by weight">
+<MaterialFraction fraction="0.0681755">
 <rMaterial name="pixel:Pix_Bumps"/>
+</MaterialFraction>
+<MaterialFraction fraction="0.931824">
+<rMaterial name="pixel:Pix_Caps"/>
 </MaterialFraction>
 </CompositeMaterial>
 <CompositeMaterial name="hybridcompositeBModule4Layer1Hybrid" density="4.38815*g/cm3" method="mixture by weight">
@@ -223,9 +232,12 @@ note: see OT_Tilted_362_200_Pixel_4021_2016_08_09.cfg for full config files
 <rMaterial name="pixel:Si"/>
 </MaterialFraction>
 </CompositeMaterial>
-<CompositeMaterial name="hybridcompositeBModule4Layer1Chip" density="0.30328*g/cm3" method="mixture by weight">
-<MaterialFraction fraction="1">
+<CompositeMaterial name="hybridcompositeBModule4Layer1Chip" density="4.44852*g/cm3" method="mixture by weight">
+<MaterialFraction fraction="0.0681755">
 <rMaterial name="pixel:Pix_Bumps"/>
+</MaterialFraction>
+<MaterialFraction fraction="0.931824">
+<rMaterial name="pixel:Pix_Caps"/>
 </MaterialFraction>
 </CompositeMaterial>
 <CompositeMaterial name="hybridcompositeBModule5Layer1Hybrid" density="4.38815*g/cm3" method="mixture by weight">
@@ -245,9 +257,12 @@ note: see OT_Tilted_362_200_Pixel_4021_2016_08_09.cfg for full config files
 <rMaterial name="pixel:Si"/>
 </MaterialFraction>
 </CompositeMaterial>
-<CompositeMaterial name="hybridcompositeBModule5Layer1Chip" density="0.30328*g/cm3" method="mixture by weight">
-<MaterialFraction fraction="1">
+<CompositeMaterial name="hybridcompositeBModule5Layer1Chip" density="4.44852*g/cm3" method="mixture by weight">
+<MaterialFraction fraction="0.0681755">
 <rMaterial name="pixel:Pix_Bumps"/>
+</MaterialFraction>
+<MaterialFraction fraction="0.931824">
+<rMaterial name="pixel:Pix_Caps"/>
 </MaterialFraction>
 </CompositeMaterial>
 <CompositeMaterial name="hybridcompositeBModule1Layer2Hybrid" density="3.81498*g/cm3" method="mixture by weight">
@@ -267,9 +282,12 @@ note: see OT_Tilted_362_200_Pixel_4021_2016_08_09.cfg for full config files
 <rMaterial name="pixel:Si"/>
 </MaterialFraction>
 </CompositeMaterial>
-<CompositeMaterial name="hybridcompositeBModule1Layer2Chip" density="0.30328*g/cm3" method="mixture by weight">
-<MaterialFraction fraction="1">
+<CompositeMaterial name="hybridcompositeBModule1Layer2Chip" density="4.44852*g/cm3" method="mixture by weight">
+<MaterialFraction fraction="0.0681755">
 <rMaterial name="pixel:Pix_Bumps"/>
+</MaterialFraction>
+<MaterialFraction fraction="0.931824">
+<rMaterial name="pixel:Pix_Caps"/>
 </MaterialFraction>
 </CompositeMaterial>
 <CompositeMaterial name="hybridcompositeBModule2Layer2Hybrid" density="3.81498*g/cm3" method="mixture by weight">
@@ -289,9 +307,12 @@ note: see OT_Tilted_362_200_Pixel_4021_2016_08_09.cfg for full config files
 <rMaterial name="pixel:Si"/>
 </MaterialFraction>
 </CompositeMaterial>
-<CompositeMaterial name="hybridcompositeBModule2Layer2Chip" density="0.30328*g/cm3" method="mixture by weight">
-<MaterialFraction fraction="1">
+<CompositeMaterial name="hybridcompositeBModule2Layer2Chip" density="4.44852*g/cm3" method="mixture by weight">
+<MaterialFraction fraction="0.0681755">
 <rMaterial name="pixel:Pix_Bumps"/>
+</MaterialFraction>
+<MaterialFraction fraction="0.931824">
+<rMaterial name="pixel:Pix_Caps"/>
 </MaterialFraction>
 </CompositeMaterial>
 <CompositeMaterial name="hybridcompositeBModule3Layer2Hybrid" density="3.81498*g/cm3" method="mixture by weight">
@@ -311,9 +332,12 @@ note: see OT_Tilted_362_200_Pixel_4021_2016_08_09.cfg for full config files
 <rMaterial name="pixel:Si"/>
 </MaterialFraction>
 </CompositeMaterial>
-<CompositeMaterial name="hybridcompositeBModule3Layer2Chip" density="0.30328*g/cm3" method="mixture by weight">
-<MaterialFraction fraction="1">
+<CompositeMaterial name="hybridcompositeBModule3Layer2Chip" density="4.44852*g/cm3" method="mixture by weight">
+<MaterialFraction fraction="0.0681755">
 <rMaterial name="pixel:Pix_Bumps"/>
+</MaterialFraction>
+<MaterialFraction fraction="0.931824">
+<rMaterial name="pixel:Pix_Caps"/>
 </MaterialFraction>
 </CompositeMaterial>
 <CompositeMaterial name="hybridcompositeBModule4Layer2Hybrid" density="3.81498*g/cm3" method="mixture by weight">
@@ -333,9 +357,12 @@ note: see OT_Tilted_362_200_Pixel_4021_2016_08_09.cfg for full config files
 <rMaterial name="pixel:Si"/>
 </MaterialFraction>
 </CompositeMaterial>
-<CompositeMaterial name="hybridcompositeBModule4Layer2Chip" density="0.30328*g/cm3" method="mixture by weight">
-<MaterialFraction fraction="1">
+<CompositeMaterial name="hybridcompositeBModule4Layer2Chip" density="4.44852*g/cm3" method="mixture by weight">
+<MaterialFraction fraction="0.0681755">
 <rMaterial name="pixel:Pix_Bumps"/>
+</MaterialFraction>
+<MaterialFraction fraction="0.931824">
+<rMaterial name="pixel:Pix_Caps"/>
 </MaterialFraction>
 </CompositeMaterial>
 <CompositeMaterial name="hybridcompositeBModule5Layer2Hybrid" density="3.81498*g/cm3" method="mixture by weight">
@@ -355,9 +382,12 @@ note: see OT_Tilted_362_200_Pixel_4021_2016_08_09.cfg for full config files
 <rMaterial name="pixel:Si"/>
 </MaterialFraction>
 </CompositeMaterial>
-<CompositeMaterial name="hybridcompositeBModule5Layer2Chip" density="0.30328*g/cm3" method="mixture by weight">
-<MaterialFraction fraction="1">
+<CompositeMaterial name="hybridcompositeBModule5Layer2Chip" density="4.44852*g/cm3" method="mixture by weight">
+<MaterialFraction fraction="0.0681755">
 <rMaterial name="pixel:Pix_Bumps"/>
+</MaterialFraction>
+<MaterialFraction fraction="0.931824">
+<rMaterial name="pixel:Pix_Caps"/>
 </MaterialFraction>
 </CompositeMaterial>
 <CompositeMaterial name="hybridcompositeBModule1Layer3Hybrid" density="3.10552*g/cm3" method="mixture by weight">
@@ -377,9 +407,12 @@ note: see OT_Tilted_362_200_Pixel_4021_2016_08_09.cfg for full config files
 <rMaterial name="pixel:Si"/>
 </MaterialFraction>
 </CompositeMaterial>
-<CompositeMaterial name="hybridcompositeBModule1Layer3Chip" density="0.30328*g/cm3" method="mixture by weight">
-<MaterialFraction fraction="1">
+<CompositeMaterial name="hybridcompositeBModule1Layer3Chip" density="4.4234*g/cm3" method="mixture by weight">
+<MaterialFraction fraction="0.0685627">
 <rMaterial name="pixel:Pix_Bumps"/>
+</MaterialFraction>
+<MaterialFraction fraction="0.931437">
+<rMaterial name="pixel:Pix_Caps"/>
 </MaterialFraction>
 </CompositeMaterial>
 <CompositeMaterial name="hybridcompositeBModule2Layer3Hybrid" density="3.10552*g/cm3" method="mixture by weight">
@@ -399,9 +432,12 @@ note: see OT_Tilted_362_200_Pixel_4021_2016_08_09.cfg for full config files
 <rMaterial name="pixel:Si"/>
 </MaterialFraction>
 </CompositeMaterial>
-<CompositeMaterial name="hybridcompositeBModule2Layer3Chip" density="0.30328*g/cm3" method="mixture by weight">
-<MaterialFraction fraction="1">
+<CompositeMaterial name="hybridcompositeBModule2Layer3Chip" density="4.4234*g/cm3" method="mixture by weight">
+<MaterialFraction fraction="0.0685627">
 <rMaterial name="pixel:Pix_Bumps"/>
+</MaterialFraction>
+<MaterialFraction fraction="0.931437">
+<rMaterial name="pixel:Pix_Caps"/>
 </MaterialFraction>
 </CompositeMaterial>
 <CompositeMaterial name="hybridcompositeBModule3Layer3Hybrid" density="3.10552*g/cm3" method="mixture by weight">
@@ -421,9 +457,12 @@ note: see OT_Tilted_362_200_Pixel_4021_2016_08_09.cfg for full config files
 <rMaterial name="pixel:Si"/>
 </MaterialFraction>
 </CompositeMaterial>
-<CompositeMaterial name="hybridcompositeBModule3Layer3Chip" density="0.30328*g/cm3" method="mixture by weight">
-<MaterialFraction fraction="1">
+<CompositeMaterial name="hybridcompositeBModule3Layer3Chip" density="4.4234*g/cm3" method="mixture by weight">
+<MaterialFraction fraction="0.0685627">
 <rMaterial name="pixel:Pix_Bumps"/>
+</MaterialFraction>
+<MaterialFraction fraction="0.931437">
+<rMaterial name="pixel:Pix_Caps"/>
 </MaterialFraction>
 </CompositeMaterial>
 <CompositeMaterial name="hybridcompositeBModule4Layer3Hybrid" density="3.10552*g/cm3" method="mixture by weight">
@@ -443,9 +482,12 @@ note: see OT_Tilted_362_200_Pixel_4021_2016_08_09.cfg for full config files
 <rMaterial name="pixel:Si"/>
 </MaterialFraction>
 </CompositeMaterial>
-<CompositeMaterial name="hybridcompositeBModule4Layer3Chip" density="0.30328*g/cm3" method="mixture by weight">
-<MaterialFraction fraction="1">
+<CompositeMaterial name="hybridcompositeBModule4Layer3Chip" density="4.4234*g/cm3" method="mixture by weight">
+<MaterialFraction fraction="0.0685627">
 <rMaterial name="pixel:Pix_Bumps"/>
+</MaterialFraction>
+<MaterialFraction fraction="0.931437">
+<rMaterial name="pixel:Pix_Caps"/>
 </MaterialFraction>
 </CompositeMaterial>
 <CompositeMaterial name="hybridcompositeBModule5Layer3Hybrid" density="3.10552*g/cm3" method="mixture by weight">
@@ -465,9 +507,12 @@ note: see OT_Tilted_362_200_Pixel_4021_2016_08_09.cfg for full config files
 <rMaterial name="pixel:Si"/>
 </MaterialFraction>
 </CompositeMaterial>
-<CompositeMaterial name="hybridcompositeBModule5Layer3Chip" density="0.30328*g/cm3" method="mixture by weight">
-<MaterialFraction fraction="1">
+<CompositeMaterial name="hybridcompositeBModule5Layer3Chip" density="4.4234*g/cm3" method="mixture by weight">
+<MaterialFraction fraction="0.0685627">
 <rMaterial name="pixel:Pix_Bumps"/>
+</MaterialFraction>
+<MaterialFraction fraction="0.931437">
+<rMaterial name="pixel:Pix_Caps"/>
 </MaterialFraction>
 </CompositeMaterial>
 <CompositeMaterial name="hybridcompositeBModule1Layer4Hybrid" density="3.10552*g/cm3" method="mixture by weight">
@@ -487,9 +532,12 @@ note: see OT_Tilted_362_200_Pixel_4021_2016_08_09.cfg for full config files
 <rMaterial name="pixel:Si"/>
 </MaterialFraction>
 </CompositeMaterial>
-<CompositeMaterial name="hybridcompositeBModule1Layer4Chip" density="0.30328*g/cm3" method="mixture by weight">
-<MaterialFraction fraction="1">
+<CompositeMaterial name="hybridcompositeBModule1Layer4Chip" density="4.4234*g/cm3" method="mixture by weight">
+<MaterialFraction fraction="0.0685627">
 <rMaterial name="pixel:Pix_Bumps"/>
+</MaterialFraction>
+<MaterialFraction fraction="0.931437">
+<rMaterial name="pixel:Pix_Caps"/>
 </MaterialFraction>
 </CompositeMaterial>
 <CompositeMaterial name="hybridcompositeBModule2Layer4Hybrid" density="3.10552*g/cm3" method="mixture by weight">
@@ -509,9 +557,12 @@ note: see OT_Tilted_362_200_Pixel_4021_2016_08_09.cfg for full config files
 <rMaterial name="pixel:Si"/>
 </MaterialFraction>
 </CompositeMaterial>
-<CompositeMaterial name="hybridcompositeBModule2Layer4Chip" density="0.30328*g/cm3" method="mixture by weight">
-<MaterialFraction fraction="1">
+<CompositeMaterial name="hybridcompositeBModule2Layer4Chip" density="4.4234*g/cm3" method="mixture by weight">
+<MaterialFraction fraction="0.0685627">
 <rMaterial name="pixel:Pix_Bumps"/>
+</MaterialFraction>
+<MaterialFraction fraction="0.931437">
+<rMaterial name="pixel:Pix_Caps"/>
 </MaterialFraction>
 </CompositeMaterial>
 <CompositeMaterial name="hybridcompositeBModule3Layer4Hybrid" density="3.10552*g/cm3" method="mixture by weight">
@@ -531,9 +582,12 @@ note: see OT_Tilted_362_200_Pixel_4021_2016_08_09.cfg for full config files
 <rMaterial name="pixel:Si"/>
 </MaterialFraction>
 </CompositeMaterial>
-<CompositeMaterial name="hybridcompositeBModule3Layer4Chip" density="0.30328*g/cm3" method="mixture by weight">
-<MaterialFraction fraction="1">
+<CompositeMaterial name="hybridcompositeBModule3Layer4Chip" density="4.4234*g/cm3" method="mixture by weight">
+<MaterialFraction fraction="0.0685627">
 <rMaterial name="pixel:Pix_Bumps"/>
+</MaterialFraction>
+<MaterialFraction fraction="0.931437">
+<rMaterial name="pixel:Pix_Caps"/>
 </MaterialFraction>
 </CompositeMaterial>
 <CompositeMaterial name="hybridcompositeBModule4Layer4Hybrid" density="3.10552*g/cm3" method="mixture by weight">
@@ -553,9 +607,12 @@ note: see OT_Tilted_362_200_Pixel_4021_2016_08_09.cfg for full config files
 <rMaterial name="pixel:Si"/>
 </MaterialFraction>
 </CompositeMaterial>
-<CompositeMaterial name="hybridcompositeBModule4Layer4Chip" density="0.30328*g/cm3" method="mixture by weight">
-<MaterialFraction fraction="1">
+<CompositeMaterial name="hybridcompositeBModule4Layer4Chip" density="4.4234*g/cm3" method="mixture by weight">
+<MaterialFraction fraction="0.0685627">
 <rMaterial name="pixel:Pix_Bumps"/>
+</MaterialFraction>
+<MaterialFraction fraction="0.931437">
+<rMaterial name="pixel:Pix_Caps"/>
 </MaterialFraction>
 </CompositeMaterial>
 <CompositeMaterial name="hybridcompositeBModule5Layer4Hybrid" density="3.10552*g/cm3" method="mixture by weight">
@@ -575,9 +632,12 @@ note: see OT_Tilted_362_200_Pixel_4021_2016_08_09.cfg for full config files
 <rMaterial name="pixel:Si"/>
 </MaterialFraction>
 </CompositeMaterial>
-<CompositeMaterial name="hybridcompositeBModule5Layer4Chip" density="0.30328*g/cm3" method="mixture by weight">
-<MaterialFraction fraction="1">
+<CompositeMaterial name="hybridcompositeBModule5Layer4Chip" density="4.4234*g/cm3" method="mixture by weight">
+<MaterialFraction fraction="0.0685627">
 <rMaterial name="pixel:Pix_Bumps"/>
+</MaterialFraction>
+<MaterialFraction fraction="0.931437">
+<rMaterial name="pixel:Pix_Caps"/>
 </MaterialFraction>
 </CompositeMaterial>
 <CompositeMaterial name="hybridcompositeEModule1Disc1Hybrid" density="2.754*g/cm3" method="mixture by weight">
@@ -594,9 +654,12 @@ note: see OT_Tilted_362_200_Pixel_4021_2016_08_09.cfg for full config files
 <rMaterial name="pixel:Si"/>
 </MaterialFraction>
 </CompositeMaterial>
-<CompositeMaterial name="hybridcompositeEModule1Disc1Chip" density="0.30328*g/cm3" method="mixture by weight">
-<MaterialFraction fraction="1">
+<CompositeMaterial name="hybridcompositeEModule1Disc1Chip" density="3.41221*g/cm3" method="mixture by weight">
+<MaterialFraction fraction="0.0888809">
 <rMaterial name="pixel:Pix_Bumps"/>
+</MaterialFraction>
+<MaterialFraction fraction="0.911119">
+<rMaterial name="pixel:Pix_Caps"/>
 </MaterialFraction>
 </CompositeMaterial>
 <CompositeMaterial name="hybridcompositeEModule2Disc1Hybrid" density="2.754*g/cm3" method="mixture by weight">
@@ -613,9 +676,12 @@ note: see OT_Tilted_362_200_Pixel_4021_2016_08_09.cfg for full config files
 <rMaterial name="pixel:Si"/>
 </MaterialFraction>
 </CompositeMaterial>
-<CompositeMaterial name="hybridcompositeEModule2Disc1Chip" density="0.30328*g/cm3" method="mixture by weight">
-<MaterialFraction fraction="1">
+<CompositeMaterial name="hybridcompositeEModule2Disc1Chip" density="3.41221*g/cm3" method="mixture by weight">
+<MaterialFraction fraction="0.0888809">
 <rMaterial name="pixel:Pix_Bumps"/>
+</MaterialFraction>
+<MaterialFraction fraction="0.911119">
+<rMaterial name="pixel:Pix_Caps"/>
 </MaterialFraction>
 </CompositeMaterial>
 <CompositeMaterial name="hybridcompositeEModule3Disc1Hybrid" density="2.754*g/cm3" method="mixture by weight">
@@ -632,9 +698,12 @@ note: see OT_Tilted_362_200_Pixel_4021_2016_08_09.cfg for full config files
 <rMaterial name="pixel:Si"/>
 </MaterialFraction>
 </CompositeMaterial>
-<CompositeMaterial name="hybridcompositeEModule3Disc1Chip" density="0.30328*g/cm3" method="mixture by weight">
-<MaterialFraction fraction="1">
+<CompositeMaterial name="hybridcompositeEModule3Disc1Chip" density="3.39337*g/cm3" method="mixture by weight">
+<MaterialFraction fraction="0.0893744">
 <rMaterial name="pixel:Pix_Bumps"/>
+</MaterialFraction>
+<MaterialFraction fraction="0.910626">
+<rMaterial name="pixel:Pix_Caps"/>
 </MaterialFraction>
 </CompositeMaterial>
 <CompositeMaterial name="hybridcompositeEModule4Disc1Hybrid" density="2.754*g/cm3" method="mixture by weight">
@@ -651,9 +720,12 @@ note: see OT_Tilted_362_200_Pixel_4021_2016_08_09.cfg for full config files
 <rMaterial name="pixel:Si"/>
 </MaterialFraction>
 </CompositeMaterial>
-<CompositeMaterial name="hybridcompositeEModule4Disc1Chip" density="0.30328*g/cm3" method="mixture by weight">
-<MaterialFraction fraction="1">
+<CompositeMaterial name="hybridcompositeEModule4Disc1Chip" density="3.39337*g/cm3" method="mixture by weight">
+<MaterialFraction fraction="0.0893744">
 <rMaterial name="pixel:Pix_Bumps"/>
+</MaterialFraction>
+<MaterialFraction fraction="0.910626">
+<rMaterial name="pixel:Pix_Caps"/>
 </MaterialFraction>
 </CompositeMaterial>
 <CompositeMaterial name="hybridcompositeEModule1Disc2Hybrid" density="2.754*g/cm3" method="mixture by weight">
@@ -670,9 +742,12 @@ note: see OT_Tilted_362_200_Pixel_4021_2016_08_09.cfg for full config files
 <rMaterial name="pixel:Si"/>
 </MaterialFraction>
 </CompositeMaterial>
-<CompositeMaterial name="hybridcompositeEModule1Disc2Chip" density="0.30328*g/cm3" method="mixture by weight">
-<MaterialFraction fraction="1">
+<CompositeMaterial name="hybridcompositeEModule1Disc2Chip" density="3.41221*g/cm3" method="mixture by weight">
+<MaterialFraction fraction="0.0888809">
 <rMaterial name="pixel:Pix_Bumps"/>
+</MaterialFraction>
+<MaterialFraction fraction="0.911119">
+<rMaterial name="pixel:Pix_Caps"/>
 </MaterialFraction>
 </CompositeMaterial>
 <CompositeMaterial name="hybridcompositeEModule2Disc2Hybrid" density="2.754*g/cm3" method="mixture by weight">
@@ -689,9 +764,12 @@ note: see OT_Tilted_362_200_Pixel_4021_2016_08_09.cfg for full config files
 <rMaterial name="pixel:Si"/>
 </MaterialFraction>
 </CompositeMaterial>
-<CompositeMaterial name="hybridcompositeEModule2Disc2Chip" density="0.30328*g/cm3" method="mixture by weight">
-<MaterialFraction fraction="1">
+<CompositeMaterial name="hybridcompositeEModule2Disc2Chip" density="3.41221*g/cm3" method="mixture by weight">
+<MaterialFraction fraction="0.0888809">
 <rMaterial name="pixel:Pix_Bumps"/>
+</MaterialFraction>
+<MaterialFraction fraction="0.911119">
+<rMaterial name="pixel:Pix_Caps"/>
 </MaterialFraction>
 </CompositeMaterial>
 <CompositeMaterial name="hybridcompositeEModule3Disc2Hybrid" density="2.754*g/cm3" method="mixture by weight">
@@ -708,9 +786,12 @@ note: see OT_Tilted_362_200_Pixel_4021_2016_08_09.cfg for full config files
 <rMaterial name="pixel:Si"/>
 </MaterialFraction>
 </CompositeMaterial>
-<CompositeMaterial name="hybridcompositeEModule3Disc2Chip" density="0.30328*g/cm3" method="mixture by weight">
-<MaterialFraction fraction="1">
+<CompositeMaterial name="hybridcompositeEModule3Disc2Chip" density="3.39337*g/cm3" method="mixture by weight">
+<MaterialFraction fraction="0.0893744">
 <rMaterial name="pixel:Pix_Bumps"/>
+</MaterialFraction>
+<MaterialFraction fraction="0.910626">
+<rMaterial name="pixel:Pix_Caps"/>
 </MaterialFraction>
 </CompositeMaterial>
 <CompositeMaterial name="hybridcompositeEModule4Disc2Hybrid" density="2.754*g/cm3" method="mixture by weight">
@@ -727,9 +808,12 @@ note: see OT_Tilted_362_200_Pixel_4021_2016_08_09.cfg for full config files
 <rMaterial name="pixel:Si"/>
 </MaterialFraction>
 </CompositeMaterial>
-<CompositeMaterial name="hybridcompositeEModule4Disc2Chip" density="0.30328*g/cm3" method="mixture by weight">
-<MaterialFraction fraction="1">
+<CompositeMaterial name="hybridcompositeEModule4Disc2Chip" density="3.39337*g/cm3" method="mixture by weight">
+<MaterialFraction fraction="0.0893744">
 <rMaterial name="pixel:Pix_Bumps"/>
+</MaterialFraction>
+<MaterialFraction fraction="0.910626">
+<rMaterial name="pixel:Pix_Caps"/>
 </MaterialFraction>
 </CompositeMaterial>
 <CompositeMaterial name="hybridcompositeEModule1Disc3Hybrid" density="2.754*g/cm3" method="mixture by weight">
@@ -746,9 +830,12 @@ note: see OT_Tilted_362_200_Pixel_4021_2016_08_09.cfg for full config files
 <rMaterial name="pixel:Si"/>
 </MaterialFraction>
 </CompositeMaterial>
-<CompositeMaterial name="hybridcompositeEModule1Disc3Chip" density="0.30328*g/cm3" method="mixture by weight">
-<MaterialFraction fraction="1">
+<CompositeMaterial name="hybridcompositeEModule1Disc3Chip" density="3.41221*g/cm3" method="mixture by weight">
+<MaterialFraction fraction="0.0888809">
 <rMaterial name="pixel:Pix_Bumps"/>
+</MaterialFraction>
+<MaterialFraction fraction="0.911119">
+<rMaterial name="pixel:Pix_Caps"/>
 </MaterialFraction>
 </CompositeMaterial>
 <CompositeMaterial name="hybridcompositeEModule2Disc3Hybrid" density="2.754*g/cm3" method="mixture by weight">
@@ -765,9 +852,12 @@ note: see OT_Tilted_362_200_Pixel_4021_2016_08_09.cfg for full config files
 <rMaterial name="pixel:Si"/>
 </MaterialFraction>
 </CompositeMaterial>
-<CompositeMaterial name="hybridcompositeEModule2Disc3Chip" density="0.30328*g/cm3" method="mixture by weight">
-<MaterialFraction fraction="1">
+<CompositeMaterial name="hybridcompositeEModule2Disc3Chip" density="3.41221*g/cm3" method="mixture by weight">
+<MaterialFraction fraction="0.0888809">
 <rMaterial name="pixel:Pix_Bumps"/>
+</MaterialFraction>
+<MaterialFraction fraction="0.911119">
+<rMaterial name="pixel:Pix_Caps"/>
 </MaterialFraction>
 </CompositeMaterial>
 <CompositeMaterial name="hybridcompositeEModule3Disc3Hybrid" density="2.754*g/cm3" method="mixture by weight">
@@ -784,9 +874,12 @@ note: see OT_Tilted_362_200_Pixel_4021_2016_08_09.cfg for full config files
 <rMaterial name="pixel:Si"/>
 </MaterialFraction>
 </CompositeMaterial>
-<CompositeMaterial name="hybridcompositeEModule3Disc3Chip" density="0.30328*g/cm3" method="mixture by weight">
-<MaterialFraction fraction="1">
+<CompositeMaterial name="hybridcompositeEModule3Disc3Chip" density="3.39337*g/cm3" method="mixture by weight">
+<MaterialFraction fraction="0.0893744">
 <rMaterial name="pixel:Pix_Bumps"/>
+</MaterialFraction>
+<MaterialFraction fraction="0.910626">
+<rMaterial name="pixel:Pix_Caps"/>
 </MaterialFraction>
 </CompositeMaterial>
 <CompositeMaterial name="hybridcompositeEModule4Disc3Hybrid" density="2.754*g/cm3" method="mixture by weight">
@@ -803,9 +896,12 @@ note: see OT_Tilted_362_200_Pixel_4021_2016_08_09.cfg for full config files
 <rMaterial name="pixel:Si"/>
 </MaterialFraction>
 </CompositeMaterial>
-<CompositeMaterial name="hybridcompositeEModule4Disc3Chip" density="0.30328*g/cm3" method="mixture by weight">
-<MaterialFraction fraction="1">
+<CompositeMaterial name="hybridcompositeEModule4Disc3Chip" density="3.39337*g/cm3" method="mixture by weight">
+<MaterialFraction fraction="0.0893744">
 <rMaterial name="pixel:Pix_Bumps"/>
+</MaterialFraction>
+<MaterialFraction fraction="0.910626">
+<rMaterial name="pixel:Pix_Caps"/>
 </MaterialFraction>
 </CompositeMaterial>
 <CompositeMaterial name="hybridcompositeEModule1Disc4Hybrid" density="2.754*g/cm3" method="mixture by weight">
@@ -822,9 +918,12 @@ note: see OT_Tilted_362_200_Pixel_4021_2016_08_09.cfg for full config files
 <rMaterial name="pixel:Si"/>
 </MaterialFraction>
 </CompositeMaterial>
-<CompositeMaterial name="hybridcompositeEModule1Disc4Chip" density="0.30328*g/cm3" method="mixture by weight">
-<MaterialFraction fraction="1">
+<CompositeMaterial name="hybridcompositeEModule1Disc4Chip" density="3.41221*g/cm3" method="mixture by weight">
+<MaterialFraction fraction="0.0888809">
 <rMaterial name="pixel:Pix_Bumps"/>
+</MaterialFraction>
+<MaterialFraction fraction="0.911119">
+<rMaterial name="pixel:Pix_Caps"/>
 </MaterialFraction>
 </CompositeMaterial>
 <CompositeMaterial name="hybridcompositeEModule2Disc4Hybrid" density="2.754*g/cm3" method="mixture by weight">
@@ -841,9 +940,12 @@ note: see OT_Tilted_362_200_Pixel_4021_2016_08_09.cfg for full config files
 <rMaterial name="pixel:Si"/>
 </MaterialFraction>
 </CompositeMaterial>
-<CompositeMaterial name="hybridcompositeEModule2Disc4Chip" density="0.30328*g/cm3" method="mixture by weight">
-<MaterialFraction fraction="1">
+<CompositeMaterial name="hybridcompositeEModule2Disc4Chip" density="3.41221*g/cm3" method="mixture by weight">
+<MaterialFraction fraction="0.0888809">
 <rMaterial name="pixel:Pix_Bumps"/>
+</MaterialFraction>
+<MaterialFraction fraction="0.911119">
+<rMaterial name="pixel:Pix_Caps"/>
 </MaterialFraction>
 </CompositeMaterial>
 <CompositeMaterial name="hybridcompositeEModule3Disc4Hybrid" density="2.754*g/cm3" method="mixture by weight">
@@ -860,9 +962,12 @@ note: see OT_Tilted_362_200_Pixel_4021_2016_08_09.cfg for full config files
 <rMaterial name="pixel:Si"/>
 </MaterialFraction>
 </CompositeMaterial>
-<CompositeMaterial name="hybridcompositeEModule3Disc4Chip" density="0.30328*g/cm3" method="mixture by weight">
-<MaterialFraction fraction="1">
+<CompositeMaterial name="hybridcompositeEModule3Disc4Chip" density="3.39337*g/cm3" method="mixture by weight">
+<MaterialFraction fraction="0.0893744">
 <rMaterial name="pixel:Pix_Bumps"/>
+</MaterialFraction>
+<MaterialFraction fraction="0.910626">
+<rMaterial name="pixel:Pix_Caps"/>
 </MaterialFraction>
 </CompositeMaterial>
 <CompositeMaterial name="hybridcompositeEModule4Disc4Hybrid" density="2.754*g/cm3" method="mixture by weight">
@@ -879,9 +984,12 @@ note: see OT_Tilted_362_200_Pixel_4021_2016_08_09.cfg for full config files
 <rMaterial name="pixel:Si"/>
 </MaterialFraction>
 </CompositeMaterial>
-<CompositeMaterial name="hybridcompositeEModule4Disc4Chip" density="0.30328*g/cm3" method="mixture by weight">
-<MaterialFraction fraction="1">
+<CompositeMaterial name="hybridcompositeEModule4Disc4Chip" density="3.39337*g/cm3" method="mixture by weight">
+<MaterialFraction fraction="0.0893744">
 <rMaterial name="pixel:Pix_Bumps"/>
+</MaterialFraction>
+<MaterialFraction fraction="0.910626">
+<rMaterial name="pixel:Pix_Caps"/>
 </MaterialFraction>
 </CompositeMaterial>
 <CompositeMaterial name="hybridcompositeEModule1Disc5Hybrid" density="2.754*g/cm3" method="mixture by weight">
@@ -898,9 +1006,12 @@ note: see OT_Tilted_362_200_Pixel_4021_2016_08_09.cfg for full config files
 <rMaterial name="pixel:Si"/>
 </MaterialFraction>
 </CompositeMaterial>
-<CompositeMaterial name="hybridcompositeEModule1Disc5Chip" density="0.30328*g/cm3" method="mixture by weight">
-<MaterialFraction fraction="1">
+<CompositeMaterial name="hybridcompositeEModule1Disc5Chip" density="3.41221*g/cm3" method="mixture by weight">
+<MaterialFraction fraction="0.0888809">
 <rMaterial name="pixel:Pix_Bumps"/>
+</MaterialFraction>
+<MaterialFraction fraction="0.911119">
+<rMaterial name="pixel:Pix_Caps"/>
 </MaterialFraction>
 </CompositeMaterial>
 <CompositeMaterial name="hybridcompositeEModule2Disc5Hybrid" density="2.754*g/cm3" method="mixture by weight">
@@ -917,9 +1028,12 @@ note: see OT_Tilted_362_200_Pixel_4021_2016_08_09.cfg for full config files
 <rMaterial name="pixel:Si"/>
 </MaterialFraction>
 </CompositeMaterial>
-<CompositeMaterial name="hybridcompositeEModule2Disc5Chip" density="0.30328*g/cm3" method="mixture by weight">
-<MaterialFraction fraction="1">
+<CompositeMaterial name="hybridcompositeEModule2Disc5Chip" density="3.41221*g/cm3" method="mixture by weight">
+<MaterialFraction fraction="0.0888809">
 <rMaterial name="pixel:Pix_Bumps"/>
+</MaterialFraction>
+<MaterialFraction fraction="0.911119">
+<rMaterial name="pixel:Pix_Caps"/>
 </MaterialFraction>
 </CompositeMaterial>
 <CompositeMaterial name="hybridcompositeEModule3Disc5Hybrid" density="2.754*g/cm3" method="mixture by weight">
@@ -936,9 +1050,12 @@ note: see OT_Tilted_362_200_Pixel_4021_2016_08_09.cfg for full config files
 <rMaterial name="pixel:Si"/>
 </MaterialFraction>
 </CompositeMaterial>
-<CompositeMaterial name="hybridcompositeEModule3Disc5Chip" density="0.30328*g/cm3" method="mixture by weight">
-<MaterialFraction fraction="1">
+<CompositeMaterial name="hybridcompositeEModule3Disc5Chip" density="3.39337*g/cm3" method="mixture by weight">
+<MaterialFraction fraction="0.0893744">
 <rMaterial name="pixel:Pix_Bumps"/>
+</MaterialFraction>
+<MaterialFraction fraction="0.910626">
+<rMaterial name="pixel:Pix_Caps"/>
 </MaterialFraction>
 </CompositeMaterial>
 <CompositeMaterial name="hybridcompositeEModule4Disc5Hybrid" density="2.754*g/cm3" method="mixture by weight">
@@ -955,9 +1072,12 @@ note: see OT_Tilted_362_200_Pixel_4021_2016_08_09.cfg for full config files
 <rMaterial name="pixel:Si"/>
 </MaterialFraction>
 </CompositeMaterial>
-<CompositeMaterial name="hybridcompositeEModule4Disc5Chip" density="0.30328*g/cm3" method="mixture by weight">
-<MaterialFraction fraction="1">
+<CompositeMaterial name="hybridcompositeEModule4Disc5Chip" density="3.39337*g/cm3" method="mixture by weight">
+<MaterialFraction fraction="0.0893744">
 <rMaterial name="pixel:Pix_Bumps"/>
+</MaterialFraction>
+<MaterialFraction fraction="0.910626">
+<rMaterial name="pixel:Pix_Caps"/>
 </MaterialFraction>
 </CompositeMaterial>
 <CompositeMaterial name="hybridcompositeEModule1Disc6Hybrid" density="2.754*g/cm3" method="mixture by weight">
@@ -974,9 +1094,12 @@ note: see OT_Tilted_362_200_Pixel_4021_2016_08_09.cfg for full config files
 <rMaterial name="pixel:Si"/>
 </MaterialFraction>
 </CompositeMaterial>
-<CompositeMaterial name="hybridcompositeEModule1Disc6Chip" density="0.30328*g/cm3" method="mixture by weight">
-<MaterialFraction fraction="1">
+<CompositeMaterial name="hybridcompositeEModule1Disc6Chip" density="3.41221*g/cm3" method="mixture by weight">
+<MaterialFraction fraction="0.0888809">
 <rMaterial name="pixel:Pix_Bumps"/>
+</MaterialFraction>
+<MaterialFraction fraction="0.911119">
+<rMaterial name="pixel:Pix_Caps"/>
 </MaterialFraction>
 </CompositeMaterial>
 <CompositeMaterial name="hybridcompositeEModule2Disc6Hybrid" density="2.754*g/cm3" method="mixture by weight">
@@ -993,9 +1116,12 @@ note: see OT_Tilted_362_200_Pixel_4021_2016_08_09.cfg for full config files
 <rMaterial name="pixel:Si"/>
 </MaterialFraction>
 </CompositeMaterial>
-<CompositeMaterial name="hybridcompositeEModule2Disc6Chip" density="0.30328*g/cm3" method="mixture by weight">
-<MaterialFraction fraction="1">
+<CompositeMaterial name="hybridcompositeEModule2Disc6Chip" density="3.41221*g/cm3" method="mixture by weight">
+<MaterialFraction fraction="0.0888809">
 <rMaterial name="pixel:Pix_Bumps"/>
+</MaterialFraction>
+<MaterialFraction fraction="0.911119">
+<rMaterial name="pixel:Pix_Caps"/>
 </MaterialFraction>
 </CompositeMaterial>
 <CompositeMaterial name="hybridcompositeEModule3Disc6Hybrid" density="2.754*g/cm3" method="mixture by weight">
@@ -1012,9 +1138,12 @@ note: see OT_Tilted_362_200_Pixel_4021_2016_08_09.cfg for full config files
 <rMaterial name="pixel:Si"/>
 </MaterialFraction>
 </CompositeMaterial>
-<CompositeMaterial name="hybridcompositeEModule3Disc6Chip" density="0.30328*g/cm3" method="mixture by weight">
-<MaterialFraction fraction="1">
+<CompositeMaterial name="hybridcompositeEModule3Disc6Chip" density="3.39337*g/cm3" method="mixture by weight">
+<MaterialFraction fraction="0.0893744">
 <rMaterial name="pixel:Pix_Bumps"/>
+</MaterialFraction>
+<MaterialFraction fraction="0.910626">
+<rMaterial name="pixel:Pix_Caps"/>
 </MaterialFraction>
 </CompositeMaterial>
 <CompositeMaterial name="hybridcompositeEModule4Disc6Hybrid" density="2.754*g/cm3" method="mixture by weight">
@@ -1031,9 +1160,12 @@ note: see OT_Tilted_362_200_Pixel_4021_2016_08_09.cfg for full config files
 <rMaterial name="pixel:Si"/>
 </MaterialFraction>
 </CompositeMaterial>
-<CompositeMaterial name="hybridcompositeEModule4Disc6Chip" density="0.30328*g/cm3" method="mixture by weight">
-<MaterialFraction fraction="1">
+<CompositeMaterial name="hybridcompositeEModule4Disc6Chip" density="3.39337*g/cm3" method="mixture by weight">
+<MaterialFraction fraction="0.0893744">
 <rMaterial name="pixel:Pix_Bumps"/>
+</MaterialFraction>
+<MaterialFraction fraction="0.910626">
+<rMaterial name="pixel:Pix_Caps"/>
 </MaterialFraction>
 </CompositeMaterial>
 <CompositeMaterial name="hybridcompositeEModule1Disc7Hybrid" density="2.754*g/cm3" method="mixture by weight">
@@ -1050,9 +1182,12 @@ note: see OT_Tilted_362_200_Pixel_4021_2016_08_09.cfg for full config files
 <rMaterial name="pixel:Si"/>
 </MaterialFraction>
 </CompositeMaterial>
-<CompositeMaterial name="hybridcompositeEModule1Disc7Chip" density="0.30328*g/cm3" method="mixture by weight">
-<MaterialFraction fraction="1">
+<CompositeMaterial name="hybridcompositeEModule1Disc7Chip" density="3.41221*g/cm3" method="mixture by weight">
+<MaterialFraction fraction="0.0888809">
 <rMaterial name="pixel:Pix_Bumps"/>
+</MaterialFraction>
+<MaterialFraction fraction="0.911119">
+<rMaterial name="pixel:Pix_Caps"/>
 </MaterialFraction>
 </CompositeMaterial>
 <CompositeMaterial name="hybridcompositeEModule2Disc7Hybrid" density="2.754*g/cm3" method="mixture by weight">
@@ -1069,9 +1204,12 @@ note: see OT_Tilted_362_200_Pixel_4021_2016_08_09.cfg for full config files
 <rMaterial name="pixel:Si"/>
 </MaterialFraction>
 </CompositeMaterial>
-<CompositeMaterial name="hybridcompositeEModule2Disc7Chip" density="0.30328*g/cm3" method="mixture by weight">
-<MaterialFraction fraction="1">
+<CompositeMaterial name="hybridcompositeEModule2Disc7Chip" density="3.41221*g/cm3" method="mixture by weight">
+<MaterialFraction fraction="0.0888809">
 <rMaterial name="pixel:Pix_Bumps"/>
+</MaterialFraction>
+<MaterialFraction fraction="0.911119">
+<rMaterial name="pixel:Pix_Caps"/>
 </MaterialFraction>
 </CompositeMaterial>
 <CompositeMaterial name="hybridcompositeEModule3Disc7Hybrid" density="2.754*g/cm3" method="mixture by weight">
@@ -1088,9 +1226,12 @@ note: see OT_Tilted_362_200_Pixel_4021_2016_08_09.cfg for full config files
 <rMaterial name="pixel:Si"/>
 </MaterialFraction>
 </CompositeMaterial>
-<CompositeMaterial name="hybridcompositeEModule3Disc7Chip" density="0.30328*g/cm3" method="mixture by weight">
-<MaterialFraction fraction="1">
+<CompositeMaterial name="hybridcompositeEModule3Disc7Chip" density="3.39337*g/cm3" method="mixture by weight">
+<MaterialFraction fraction="0.0893744">
 <rMaterial name="pixel:Pix_Bumps"/>
+</MaterialFraction>
+<MaterialFraction fraction="0.910626">
+<rMaterial name="pixel:Pix_Caps"/>
 </MaterialFraction>
 </CompositeMaterial>
 <CompositeMaterial name="hybridcompositeEModule4Disc7Hybrid" density="2.754*g/cm3" method="mixture by weight">
@@ -1107,9 +1248,12 @@ note: see OT_Tilted_362_200_Pixel_4021_2016_08_09.cfg for full config files
 <rMaterial name="pixel:Si"/>
 </MaterialFraction>
 </CompositeMaterial>
-<CompositeMaterial name="hybridcompositeEModule4Disc7Chip" density="0.30328*g/cm3" method="mixture by weight">
-<MaterialFraction fraction="1">
+<CompositeMaterial name="hybridcompositeEModule4Disc7Chip" density="3.39337*g/cm3" method="mixture by weight">
+<MaterialFraction fraction="0.0893744">
 <rMaterial name="pixel:Pix_Bumps"/>
+</MaterialFraction>
+<MaterialFraction fraction="0.910626">
+<rMaterial name="pixel:Pix_Caps"/>
 </MaterialFraction>
 </CompositeMaterial>
 <CompositeMaterial name="hybridcompositeEModule1Disc8Hybrid" density="2.754*g/cm3" method="mixture by weight">
@@ -1126,9 +1270,12 @@ note: see OT_Tilted_362_200_Pixel_4021_2016_08_09.cfg for full config files
 <rMaterial name="pixel:Si"/>
 </MaterialFraction>
 </CompositeMaterial>
-<CompositeMaterial name="hybridcompositeEModule1Disc8Chip" density="0.30328*g/cm3" method="mixture by weight">
-<MaterialFraction fraction="1">
+<CompositeMaterial name="hybridcompositeEModule1Disc8Chip" density="3.41221*g/cm3" method="mixture by weight">
+<MaterialFraction fraction="0.0888809">
 <rMaterial name="pixel:Pix_Bumps"/>
+</MaterialFraction>
+<MaterialFraction fraction="0.911119">
+<rMaterial name="pixel:Pix_Caps"/>
 </MaterialFraction>
 </CompositeMaterial>
 <CompositeMaterial name="hybridcompositeEModule2Disc8Hybrid" density="2.754*g/cm3" method="mixture by weight">
@@ -1145,9 +1292,12 @@ note: see OT_Tilted_362_200_Pixel_4021_2016_08_09.cfg for full config files
 <rMaterial name="pixel:Si"/>
 </MaterialFraction>
 </CompositeMaterial>
-<CompositeMaterial name="hybridcompositeEModule2Disc8Chip" density="0.30328*g/cm3" method="mixture by weight">
-<MaterialFraction fraction="1">
+<CompositeMaterial name="hybridcompositeEModule2Disc8Chip" density="3.41221*g/cm3" method="mixture by weight">
+<MaterialFraction fraction="0.0888809">
 <rMaterial name="pixel:Pix_Bumps"/>
+</MaterialFraction>
+<MaterialFraction fraction="0.911119">
+<rMaterial name="pixel:Pix_Caps"/>
 </MaterialFraction>
 </CompositeMaterial>
 <CompositeMaterial name="hybridcompositeEModule3Disc8Hybrid" density="2.754*g/cm3" method="mixture by weight">
@@ -1164,9 +1314,12 @@ note: see OT_Tilted_362_200_Pixel_4021_2016_08_09.cfg for full config files
 <rMaterial name="pixel:Si"/>
 </MaterialFraction>
 </CompositeMaterial>
-<CompositeMaterial name="hybridcompositeEModule3Disc8Chip" density="0.30328*g/cm3" method="mixture by weight">
-<MaterialFraction fraction="1">
+<CompositeMaterial name="hybridcompositeEModule3Disc8Chip" density="3.39337*g/cm3" method="mixture by weight">
+<MaterialFraction fraction="0.0893744">
 <rMaterial name="pixel:Pix_Bumps"/>
+</MaterialFraction>
+<MaterialFraction fraction="0.910626">
+<rMaterial name="pixel:Pix_Caps"/>
 </MaterialFraction>
 </CompositeMaterial>
 <CompositeMaterial name="hybridcompositeEModule4Disc8Hybrid" density="2.754*g/cm3" method="mixture by weight">
@@ -1183,9 +1336,12 @@ note: see OT_Tilted_362_200_Pixel_4021_2016_08_09.cfg for full config files
 <rMaterial name="pixel:Si"/>
 </MaterialFraction>
 </CompositeMaterial>
-<CompositeMaterial name="hybridcompositeEModule4Disc8Chip" density="0.30328*g/cm3" method="mixture by weight">
-<MaterialFraction fraction="1">
+<CompositeMaterial name="hybridcompositeEModule4Disc8Chip" density="3.39337*g/cm3" method="mixture by weight">
+<MaterialFraction fraction="0.0893744">
 <rMaterial name="pixel:Pix_Bumps"/>
+</MaterialFraction>
+<MaterialFraction fraction="0.910626">
+<rMaterial name="pixel:Pix_Caps"/>
 </MaterialFraction>
 </CompositeMaterial>
 <CompositeMaterial name="hybridcompositeEModule5Disc8Hybrid" density="2.754*g/cm3" method="mixture by weight">
@@ -1202,9 +1358,12 @@ note: see OT_Tilted_362_200_Pixel_4021_2016_08_09.cfg for full config files
 <rMaterial name="pixel:Si"/>
 </MaterialFraction>
 </CompositeMaterial>
-<CompositeMaterial name="hybridcompositeEModule5Disc8Chip" density="0.30328*g/cm3" method="mixture by weight">
-<MaterialFraction fraction="1">
+<CompositeMaterial name="hybridcompositeEModule5Disc8Chip" density="3.39337*g/cm3" method="mixture by weight">
+<MaterialFraction fraction="0.0893744">
 <rMaterial name="pixel:Pix_Bumps"/>
+</MaterialFraction>
+<MaterialFraction fraction="0.910626">
+<rMaterial name="pixel:Pix_Caps"/>
 </MaterialFraction>
 </CompositeMaterial>
 <CompositeMaterial name="hybridcompositeEModule1Disc9Hybrid" density="2.754*g/cm3" method="mixture by weight">
@@ -1221,9 +1380,12 @@ note: see OT_Tilted_362_200_Pixel_4021_2016_08_09.cfg for full config files
 <rMaterial name="pixel:Si"/>
 </MaterialFraction>
 </CompositeMaterial>
-<CompositeMaterial name="hybridcompositeEModule1Disc9Chip" density="0.30328*g/cm3" method="mixture by weight">
-<MaterialFraction fraction="1">
+<CompositeMaterial name="hybridcompositeEModule1Disc9Chip" density="3.41221*g/cm3" method="mixture by weight">
+<MaterialFraction fraction="0.0888809">
 <rMaterial name="pixel:Pix_Bumps"/>
+</MaterialFraction>
+<MaterialFraction fraction="0.911119">
+<rMaterial name="pixel:Pix_Caps"/>
 </MaterialFraction>
 </CompositeMaterial>
 <CompositeMaterial name="hybridcompositeEModule2Disc9Hybrid" density="2.754*g/cm3" method="mixture by weight">
@@ -1240,9 +1402,12 @@ note: see OT_Tilted_362_200_Pixel_4021_2016_08_09.cfg for full config files
 <rMaterial name="pixel:Si"/>
 </MaterialFraction>
 </CompositeMaterial>
-<CompositeMaterial name="hybridcompositeEModule2Disc9Chip" density="0.30328*g/cm3" method="mixture by weight">
-<MaterialFraction fraction="1">
+<CompositeMaterial name="hybridcompositeEModule2Disc9Chip" density="3.41221*g/cm3" method="mixture by weight">
+<MaterialFraction fraction="0.0888809">
 <rMaterial name="pixel:Pix_Bumps"/>
+</MaterialFraction>
+<MaterialFraction fraction="0.911119">
+<rMaterial name="pixel:Pix_Caps"/>
 </MaterialFraction>
 </CompositeMaterial>
 <CompositeMaterial name="hybridcompositeEModule3Disc9Hybrid" density="2.754*g/cm3" method="mixture by weight">
@@ -1259,9 +1424,12 @@ note: see OT_Tilted_362_200_Pixel_4021_2016_08_09.cfg for full config files
 <rMaterial name="pixel:Si"/>
 </MaterialFraction>
 </CompositeMaterial>
-<CompositeMaterial name="hybridcompositeEModule3Disc9Chip" density="0.30328*g/cm3" method="mixture by weight">
-<MaterialFraction fraction="1">
+<CompositeMaterial name="hybridcompositeEModule3Disc9Chip" density="3.39337*g/cm3" method="mixture by weight">
+<MaterialFraction fraction="0.0893744">
 <rMaterial name="pixel:Pix_Bumps"/>
+</MaterialFraction>
+<MaterialFraction fraction="0.910626">
+<rMaterial name="pixel:Pix_Caps"/>
 </MaterialFraction>
 </CompositeMaterial>
 <CompositeMaterial name="hybridcompositeEModule4Disc9Hybrid" density="2.754*g/cm3" method="mixture by weight">
@@ -1278,9 +1446,12 @@ note: see OT_Tilted_362_200_Pixel_4021_2016_08_09.cfg for full config files
 <rMaterial name="pixel:Si"/>
 </MaterialFraction>
 </CompositeMaterial>
-<CompositeMaterial name="hybridcompositeEModule4Disc9Chip" density="0.30328*g/cm3" method="mixture by weight">
-<MaterialFraction fraction="1">
+<CompositeMaterial name="hybridcompositeEModule4Disc9Chip" density="3.39337*g/cm3" method="mixture by weight">
+<MaterialFraction fraction="0.0893744">
 <rMaterial name="pixel:Pix_Bumps"/>
+</MaterialFraction>
+<MaterialFraction fraction="0.910626">
+<rMaterial name="pixel:Pix_Caps"/>
 </MaterialFraction>
 </CompositeMaterial>
 <CompositeMaterial name="hybridcompositeEModule5Disc9Hybrid" density="2.754*g/cm3" method="mixture by weight">
@@ -1297,9 +1468,12 @@ note: see OT_Tilted_362_200_Pixel_4021_2016_08_09.cfg for full config files
 <rMaterial name="pixel:Si"/>
 </MaterialFraction>
 </CompositeMaterial>
-<CompositeMaterial name="hybridcompositeEModule5Disc9Chip" density="0.30328*g/cm3" method="mixture by weight">
-<MaterialFraction fraction="1">
+<CompositeMaterial name="hybridcompositeEModule5Disc9Chip" density="3.39337*g/cm3" method="mixture by weight">
+<MaterialFraction fraction="0.0893744">
 <rMaterial name="pixel:Pix_Bumps"/>
+</MaterialFraction>
+<MaterialFraction fraction="0.910626">
+<rMaterial name="pixel:Pix_Caps"/>
 </MaterialFraction>
 </CompositeMaterial>
 <CompositeMaterial name="hybridcompositeEModule1Disc10Hybrid" density="2.754*g/cm3" method="mixture by weight">
@@ -1316,9 +1490,12 @@ note: see OT_Tilted_362_200_Pixel_4021_2016_08_09.cfg for full config files
 <rMaterial name="pixel:Si"/>
 </MaterialFraction>
 </CompositeMaterial>
-<CompositeMaterial name="hybridcompositeEModule1Disc10Chip" density="0.30328*g/cm3" method="mixture by weight">
-<MaterialFraction fraction="1">
+<CompositeMaterial name="hybridcompositeEModule1Disc10Chip" density="3.41221*g/cm3" method="mixture by weight">
+<MaterialFraction fraction="0.0888809">
 <rMaterial name="pixel:Pix_Bumps"/>
+</MaterialFraction>
+<MaterialFraction fraction="0.911119">
+<rMaterial name="pixel:Pix_Caps"/>
 </MaterialFraction>
 </CompositeMaterial>
 <CompositeMaterial name="hybridcompositeEModule2Disc10Hybrid" density="2.754*g/cm3" method="mixture by weight">
@@ -1335,9 +1512,12 @@ note: see OT_Tilted_362_200_Pixel_4021_2016_08_09.cfg for full config files
 <rMaterial name="pixel:Si"/>
 </MaterialFraction>
 </CompositeMaterial>
-<CompositeMaterial name="hybridcompositeEModule2Disc10Chip" density="0.30328*g/cm3" method="mixture by weight">
-<MaterialFraction fraction="1">
+<CompositeMaterial name="hybridcompositeEModule2Disc10Chip" density="3.41221*g/cm3" method="mixture by weight">
+<MaterialFraction fraction="0.0888809">
 <rMaterial name="pixel:Pix_Bumps"/>
+</MaterialFraction>
+<MaterialFraction fraction="0.911119">
+<rMaterial name="pixel:Pix_Caps"/>
 </MaterialFraction>
 </CompositeMaterial>
 <CompositeMaterial name="hybridcompositeEModule3Disc10Hybrid" density="2.754*g/cm3" method="mixture by weight">
@@ -1354,9 +1534,12 @@ note: see OT_Tilted_362_200_Pixel_4021_2016_08_09.cfg for full config files
 <rMaterial name="pixel:Si"/>
 </MaterialFraction>
 </CompositeMaterial>
-<CompositeMaterial name="hybridcompositeEModule3Disc10Chip" density="0.30328*g/cm3" method="mixture by weight">
-<MaterialFraction fraction="1">
+<CompositeMaterial name="hybridcompositeEModule3Disc10Chip" density="3.39337*g/cm3" method="mixture by weight">
+<MaterialFraction fraction="0.0893744">
 <rMaterial name="pixel:Pix_Bumps"/>
+</MaterialFraction>
+<MaterialFraction fraction="0.910626">
+<rMaterial name="pixel:Pix_Caps"/>
 </MaterialFraction>
 </CompositeMaterial>
 <CompositeMaterial name="hybridcompositeEModule4Disc10Hybrid" density="2.754*g/cm3" method="mixture by weight">
@@ -1373,9 +1556,12 @@ note: see OT_Tilted_362_200_Pixel_4021_2016_08_09.cfg for full config files
 <rMaterial name="pixel:Si"/>
 </MaterialFraction>
 </CompositeMaterial>
-<CompositeMaterial name="hybridcompositeEModule4Disc10Chip" density="0.30328*g/cm3" method="mixture by weight">
-<MaterialFraction fraction="1">
+<CompositeMaterial name="hybridcompositeEModule4Disc10Chip" density="3.39337*g/cm3" method="mixture by weight">
+<MaterialFraction fraction="0.0893744">
 <rMaterial name="pixel:Pix_Bumps"/>
+</MaterialFraction>
+<MaterialFraction fraction="0.910626">
+<rMaterial name="pixel:Pix_Caps"/>
 </MaterialFraction>
 </CompositeMaterial>
 <CompositeMaterial name="hybridcompositeEModule5Disc10Hybrid" density="2.754*g/cm3" method="mixture by weight">
@@ -1392,9 +1578,12 @@ note: see OT_Tilted_362_200_Pixel_4021_2016_08_09.cfg for full config files
 <rMaterial name="pixel:Si"/>
 </MaterialFraction>
 </CompositeMaterial>
-<CompositeMaterial name="hybridcompositeEModule5Disc10Chip" density="0.30328*g/cm3" method="mixture by weight">
-<MaterialFraction fraction="1">
+<CompositeMaterial name="hybridcompositeEModule5Disc10Chip" density="3.39337*g/cm3" method="mixture by weight">
+<MaterialFraction fraction="0.0893744">
 <rMaterial name="pixel:Pix_Bumps"/>
+</MaterialFraction>
+<MaterialFraction fraction="0.910626">
+<rMaterial name="pixel:Pix_Caps"/>
 </MaterialFraction>
 </CompositeMaterial>
 <CompositeMaterial name="hybridcompositeEModule1Disc11Hybrid" density="2.754*g/cm3" method="mixture by weight">
@@ -1411,9 +1600,12 @@ note: see OT_Tilted_362_200_Pixel_4021_2016_08_09.cfg for full config files
 <rMaterial name="pixel:Si"/>
 </MaterialFraction>
 </CompositeMaterial>
-<CompositeMaterial name="hybridcompositeEModule1Disc11Chip" density="0.30328*g/cm3" method="mixture by weight">
-<MaterialFraction fraction="1">
+<CompositeMaterial name="hybridcompositeEModule1Disc11Chip" density="3.41221*g/cm3" method="mixture by weight">
+<MaterialFraction fraction="0.0888809">
 <rMaterial name="pixel:Pix_Bumps"/>
+</MaterialFraction>
+<MaterialFraction fraction="0.911119">
+<rMaterial name="pixel:Pix_Caps"/>
 </MaterialFraction>
 </CompositeMaterial>
 <CompositeMaterial name="hybridcompositeEModule2Disc11Hybrid" density="2.754*g/cm3" method="mixture by weight">
@@ -1430,9 +1622,12 @@ note: see OT_Tilted_362_200_Pixel_4021_2016_08_09.cfg for full config files
 <rMaterial name="pixel:Si"/>
 </MaterialFraction>
 </CompositeMaterial>
-<CompositeMaterial name="hybridcompositeEModule2Disc11Chip" density="0.30328*g/cm3" method="mixture by weight">
-<MaterialFraction fraction="1">
+<CompositeMaterial name="hybridcompositeEModule2Disc11Chip" density="3.41221*g/cm3" method="mixture by weight">
+<MaterialFraction fraction="0.0888809">
 <rMaterial name="pixel:Pix_Bumps"/>
+</MaterialFraction>
+<MaterialFraction fraction="0.911119">
+<rMaterial name="pixel:Pix_Caps"/>
 </MaterialFraction>
 </CompositeMaterial>
 <CompositeMaterial name="hybridcompositeEModule3Disc11Hybrid" density="2.754*g/cm3" method="mixture by weight">
@@ -1449,9 +1644,12 @@ note: see OT_Tilted_362_200_Pixel_4021_2016_08_09.cfg for full config files
 <rMaterial name="pixel:Si"/>
 </MaterialFraction>
 </CompositeMaterial>
-<CompositeMaterial name="hybridcompositeEModule3Disc11Chip" density="0.30328*g/cm3" method="mixture by weight">
-<MaterialFraction fraction="1">
+<CompositeMaterial name="hybridcompositeEModule3Disc11Chip" density="3.39337*g/cm3" method="mixture by weight">
+<MaterialFraction fraction="0.0893744">
 <rMaterial name="pixel:Pix_Bumps"/>
+</MaterialFraction>
+<MaterialFraction fraction="0.910626">
+<rMaterial name="pixel:Pix_Caps"/>
 </MaterialFraction>
 </CompositeMaterial>
 <CompositeMaterial name="hybridcompositeEModule4Disc11Hybrid" density="2.754*g/cm3" method="mixture by weight">
@@ -1468,9 +1666,12 @@ note: see OT_Tilted_362_200_Pixel_4021_2016_08_09.cfg for full config files
 <rMaterial name="pixel:Si"/>
 </MaterialFraction>
 </CompositeMaterial>
-<CompositeMaterial name="hybridcompositeEModule4Disc11Chip" density="0.30328*g/cm3" method="mixture by weight">
-<MaterialFraction fraction="1">
+<CompositeMaterial name="hybridcompositeEModule4Disc11Chip" density="3.39337*g/cm3" method="mixture by weight">
+<MaterialFraction fraction="0.0893744">
 <rMaterial name="pixel:Pix_Bumps"/>
+</MaterialFraction>
+<MaterialFraction fraction="0.910626">
+<rMaterial name="pixel:Pix_Caps"/>
 </MaterialFraction>
 </CompositeMaterial>
 <CompositeMaterial name="hybridcompositeEModule5Disc11Hybrid" density="2.754*g/cm3" method="mixture by weight">
@@ -1487,9 +1688,12 @@ note: see OT_Tilted_362_200_Pixel_4021_2016_08_09.cfg for full config files
 <rMaterial name="pixel:Si"/>
 </MaterialFraction>
 </CompositeMaterial>
-<CompositeMaterial name="hybridcompositeEModule5Disc11Chip" density="0.30328*g/cm3" method="mixture by weight">
-<MaterialFraction fraction="1">
+<CompositeMaterial name="hybridcompositeEModule5Disc11Chip" density="3.39337*g/cm3" method="mixture by weight">
+<MaterialFraction fraction="0.0893744">
 <rMaterial name="pixel:Pix_Bumps"/>
+</MaterialFraction>
+<MaterialFraction fraction="0.910626">
+<rMaterial name="pixel:Pix_Caps"/>
 </MaterialFraction>
 </CompositeMaterial>
 <CompositeMaterial name="servicecompositeR270Z2669" density="0.159792*g/cm3" method="mixture by weight">
