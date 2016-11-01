@@ -8,9 +8,9 @@ import FWCore.ParameterSet.Config as cms
 #
 
 #
-# The following MVA is tuned on Spring16 MC samples using non-triggering electrons.
+# The following MVA is tuned on Spring16 MC samples.
 # See more documentation in this presentation (P.Pigard):
-#     https://indico.cern.ch/event/482674/contributions/2206032/attachments/1292177/1931287/20160621_EGM_cms_week_v5.pdf
+#    https://indico.cern.ch/event/491544/contributions/2321565/attachments/1346333/2030225/20160929_EGM_v4.pdf 
 #
 
 # This MVA implementation class name
@@ -20,19 +20,16 @@ mvaSpring16ClassName = "ElectronMVAEstimatorRun2Spring16GeneralPurpose"
 # class is used with different tuning/weights
 mvaTag = "V1"
 
-# There are 6 categories in this MVA. They have to be configured in this strict order
+# There are 3 categories in this MVA. They have to be configured in this strict order
 # (cuts and weight files order):
-#   0   EB1 (eta<0.8)  pt 5-10 GeV
-#   1   EB2 (eta>=0.8) pt 5-10 GeV
-#   2   EE             pt 5-10 GeV
-#   3   EB1 (eta<0.8)  pt 10-inf GeV
-#   4   EB2 (eta>=0.8) pt 10-inf GeV
-#   5   EE             pt 10-inf GeV
+#   0   EB1 (eta<0.8)  pt 10-inf GeV
+#   1   EB2 (eta>=0.8) pt 10-inf GeV
+#   2   EE             pt 10-inf GeV
 
 mvaSpring16WeightFiles_V1 = cms.vstring(
-    "RecoEgamma/ElectronIdentification/Spring16/electronID_mva_Spring16_GeneralPurpose_EB1_10_V1.weights.xml",
-    "RecoEgamma/ElectronIdentification/Spring16/electronID_mva_Spring16_GeneralPurpose_EB2_10_V1.weights.xml",
-    "RecoEgamma/ElectronIdentification/Spring16/electronID_mva_Spring16_GeneralPurpose_EE_10_V1.weights.xml"
+    "RecoEgamma/ElectronIdentification/data/Spring16_GeneralPurpose_V1/electronID_mva_Spring16_GeneralPurpose_V1_EB1_10.weights.xml",
+    "RecoEgamma/ElectronIdentification/data/Spring16_GeneralPurpose_V1/electronID_mva_Spring16_GeneralPurpose_V1_EB2_10.weights.xml",
+    "RecoEgamma/ElectronIdentification/data/Spring16_GeneralPurpose_V1/electronID_mva_Spring16_GeneralPurpose_V1_EE_10.weights.xml"
     )
 
 # Load some common definitions for MVA machinery
@@ -46,7 +43,8 @@ mvaProducerModuleLabel = "electronMVAValueMapProducer"
 mvaValueMapName        = mvaProducerModuleLabel + ":" + mvaSpring16ClassName + mvaTag + "Values"
 mvaCategoriesMapName   = mvaProducerModuleLabel + ":" + mvaSpring16ClassName + mvaTag + "Categories"
 
-### WP tuned for GeneralPurpose analysis with very high efficiency (about 98%)
+### WP to give about 90 and 80% signal efficiecny for electrons from Drell-Yan with pT > 25 GeV
+### For turn-on and details see documentation linked above
 MVA_WP90 = EleMVA_3Categories_WP(
     idName = "mvaEleID-Spring16-GeneralPurpose-V1-wp90",
     mvaValueMapName = mvaValueMapName,           # map with MVA values for all particles
