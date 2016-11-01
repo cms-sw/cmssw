@@ -1,23 +1,26 @@
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process("TotemIntegratedRawDataTest")
+process = cms.Process("CTPPSRawToDigiTestStripsOnly")
 
 # minimum of logs
 process.MessageLogger = cms.Service("MessageLogger",
-    statistics = cms.untracked.vstring(),
-    destinations = cms.untracked.vstring('cerr'),
-    cerr = cms.untracked.PSet(
-        threshold = cms.untracked.string('WARNING')
-    )
+  statistics = cms.untracked.vstring(),
+  destinations = cms.untracked.vstring('cerr'),
+  cerr = cms.untracked.PSet(
+    threshold = cms.untracked.string('WARNING')
+  )
 )
 
 # raw data source
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring('file:/afs/cern.ch/user/j/jkaspar/public/run273062_ls0001-2_stream.root')
+  fileNames = cms.untracked.vstring(
+    #'file:/afs/cern.ch/user/j/jkaspar/public/run273062_ls0001-2_stream.root'
+    '/store/express/Run2016H/ExpressPhysics/FEVT/Express-v2/000/283/877/00000/4EE44B0E-2499-E611-A155-02163E011938.root'
+  )
 )
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(-1)
+  input = cms.untracked.int32(-1)
 )
 
 # raw-to-digi conversion
@@ -32,6 +35,6 @@ process.totemRPRawToDigi.rawDataTag = cms.InputTag("rawDataCollector")
 
 # execution configuration
 process.p = cms.Path(
-    process.totemTriggerRawToDigi *
-    process.totemRPRawToDigi
+  process.totemTriggerRawToDigi *
+  process.totemRPRawToDigi
 )
