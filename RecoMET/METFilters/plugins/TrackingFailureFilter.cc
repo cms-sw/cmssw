@@ -84,7 +84,7 @@ bool TrackingFailureFilter::filter(edm::Event & iEvent, const edm::EventSetup & 
               << " SumPt=" << sumpt
               << std::endl;
 
-  iEvent.put( std::auto_ptr<bool>(new bool(pass)) );
+  iEvent.put(std::make_unique<bool>(pass));
 
   return taggingMode_ || pass; // return false if filtering and not enough tracks in event
 

@@ -218,7 +218,7 @@ void GEMSimpleModel::simulateNoise(const GEMEtaPartition* roll, CLHEP::HepRandom
                                       + GE11ElecBkgParam3 * rollRadius * rollRadius * rollRadius;
     averageNoiseRatePerRoll = averageNeutralNoiseRatePerRoll + averageNoiseElectronRatePerRoll;
   }
-  if (gemId.station() == 2 || gemId.station() == 3)
+  if (gemId.station() == 2)
   {
 //simulate neutral background for GE2/1
     if (simulateLowNeutralRate_)

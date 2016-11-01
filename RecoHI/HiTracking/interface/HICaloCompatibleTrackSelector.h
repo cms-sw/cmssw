@@ -104,12 +104,12 @@ namespace reco { namespace modules {
       std::string funcCaloComp_;
       
       /// storage
-      std::auto_ptr<reco::TrackCollection> selTracks_;
-      std::auto_ptr<reco::TrackExtraCollection> selTrackExtras_;
-      std::auto_ptr< TrackingRecHitCollection>  selHits_;
-      std::auto_ptr< std::vector<Trajectory> > selTrajs_;
-      std::auto_ptr< std::vector<const Trajectory *> > selTrajPtrs_;
-      std::auto_ptr< TrajTrackAssociationCollection >  selTTAss_;
+      std::unique_ptr<reco::TrackCollection> selTracks_;
+      std::unique_ptr<reco::TrackExtraCollection> selTrackExtras_;
+      std::unique_ptr<TrackingRecHitCollection> selHits_;
+      std::unique_ptr<std::vector<Trajectory>> selTrajs_;
+      std::unique_ptr<std::vector<const Trajectory*>> selTrajPtrs_;
+      std::unique_ptr<TrajTrackAssociationCollection> selTTAss_;
       reco::TrackRefProd rTracks_;
       reco::TrackExtraRefProd rTrackExtras_;
       TrackingRecHitRefProd rHits_;

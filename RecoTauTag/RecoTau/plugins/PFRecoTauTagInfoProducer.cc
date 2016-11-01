@@ -96,14 +96,14 @@ else{
     thePV=Vertex(SimPVPoint,SimPVError,1,1,1);    
   }
   
-  auto_ptr<PFTauTagInfoCollection> resultExt(new PFTauTagInfoCollection);  
+  auto resultExt = std::make_unique<PFTauTagInfoCollection>();  
   for(JetTracksAssociationCollection::const_iterator iAssoc=thePFJetTracksAssociatorCollection->begin();iAssoc!=thePFJetTracksAssociatorCollection->end();iAssoc++){
     PFTauTagInfo myPFTauTagInfo=PFRecoTauTagInfoAlgo_->buildPFTauTagInfo((*iAssoc).first.castTo<PFJetRef>(),thePFCandsInTheEvent,(*iAssoc).second,thePV);
     resultExt->push_back(myPFTauTagInfo);
   }
   
 
-  //  OrphanHandle<PFTauTagInfoCollection> myPFTauTagInfoCollection=iEvent.put(resultExt);
-  iEvent.put(resultExt);
+  //  OrphanHandle<PFTauTagInfoCollection> myPFTauTagInfoCollection=iEvent.put(std::move(resultExt));
+  iEvent.put(std::move(resultExt));
 }
 DEFINE_FWK_MODULE(PFRecoTauTagInfoProducer);

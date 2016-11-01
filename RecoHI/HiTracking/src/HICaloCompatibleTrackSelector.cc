@@ -92,11 +92,11 @@ void HICaloCompatibleTrackSelector::produce( edm::Event& evt, const edm::EventSe
 
   evt.getByToken(srcTracks_,hSrcTrack);
   
-  selTracks_ = auto_ptr<TrackCollection>(new TrackCollection());
+  selTracks_ = std::make_unique<TrackCollection>();
   rTracks_ = evt.getRefBeforePut<TrackCollection>();      
   if (copyExtras_) {
-    selTrackExtras_ = auto_ptr<TrackExtraCollection>(new TrackExtraCollection());
-    selHits_ = auto_ptr<TrackingRecHitCollection>(new TrackingRecHitCollection());
+    selTrackExtras_ = std::make_unique<TrackExtraCollection>();
+    selHits_ = std::make_unique<TrackingRecHitCollection>();
     rHits_ = evt.getRefBeforePut<TrackingRecHitCollection>();
     rTrackExtras_ = evt.getRefBeforePut<TrackExtraCollection>();
   }
@@ -162,9 +162,9 @@ void HICaloCompatibleTrackSelector::produce( edm::Event& evt, const edm::EventSe
     Handle< TrajTrackAssociationCollection > hTTAss;
     evt.getByToken(srcTrackTrajs_, hTTAss);
     evt.getByToken(srcTrackTrajAssoc_, hTraj);
-    selTrajs_ = auto_ptr< vector<Trajectory> >(new vector<Trajectory>()); 
+    selTrajs_ = std::make_unique<std::vector<Trajectory>>(); 
     rTrajectories_ = evt.getRefBeforePut< vector<Trajectory> >();
-    selTTAss_ = auto_ptr< TrajTrackAssociationCollection >(new TrajTrackAssociationCollection());
+    selTTAss_ = std::make_unique<TrajTrackAssociationCollection>();
     for (size_t i = 0, n = hTraj->size(); i < n; ++i) {
       Ref< vector<Trajectory> > trajRef(hTraj, i);
       TrajTrackAssociationCollection::const_iterator match = hTTAss->find(trajRef);
@@ -180,14 +180,14 @@ void HICaloCompatibleTrackSelector::produce( edm::Event& evt, const edm::EventSe
   }
   
   static const string emptyString;
-  evt.put(selTracks_);
+  evt.put(std::move(selTracks_));
   if (copyExtras_ ) {
-    evt.put(selTrackExtras_); 
-    evt.put(selHits_);
+    evt.put(std::move(selTrackExtras_)); 
+    evt.put(std::move(selHits_));
   }
   if ( copyTrajectories_ ) {
-    evt.put(selTrajs_);
-    evt.put(selTTAss_);
+    evt.put(std::move(selTrajs_));
+    evt.put(std::move(selTTAss_));
   }
 }
 

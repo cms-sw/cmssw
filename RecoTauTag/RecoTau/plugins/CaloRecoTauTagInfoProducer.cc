@@ -75,7 +75,7 @@ void CaloRecoTauTagInfoProducer::produce(edm::Event& iEvent,const edm::EventSetu
   Vertex thePV;
   thePV=*(vertCollection.begin());
   
-  //  auto_ptr<DetIdCollection> selectedDetIds(new DetIdCollection);
+  //  auto selectedDetIds = std::make_unique<DetIdCollection>();
   CaloTauTagInfoCollection* extCollection=new CaloTauTagInfoCollection();
 
   for(JetTracksAssociationCollection::const_iterator iAssoc=theCaloJetTracksAssociatorCollection->begin();iAssoc!=theCaloJetTracksAssociatorCollection->end();iAssoc++){
@@ -89,8 +89,9 @@ void CaloRecoTauTagInfoProducer::produce(edm::Event& iEvent,const edm::EventSetu
     //      selectedDetIds->push_back(myDets[i]);
   }
   
-  auto_ptr<CaloTauTagInfoCollection> resultExt(extCollection);  
-  iEvent.put(resultExt);  
-  //  iEvent.put(selectedDetIds);
+  std::unique_ptr<CaloTauTagInfoCollection> resultExt(extCollection);  
+  iEvent.put(std::move(resultExt));  
+
+  //  iEvent.put(std::move(selectedDetIds));
 }
 DEFINE_FWK_MODULE(CaloRecoTauTagInfoProducer );

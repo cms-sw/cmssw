@@ -52,3 +52,12 @@ SimL1Emulator = cms.Sequence( SimL1EmulatorCore )
 from L1Trigger.L1TCalorimeter.hackConditions_cff import *
 from L1Trigger.L1TMuon.hackConditions_cff import *
 from L1Trigger.L1TGlobal.hackConditions_cff import *
+
+
+# Customisation for the phase2_hgcal era. Includes the HGCAL L1 trigger
+from  L1Trigger.L1THGCal.hgcalTriggerPrimitives_cff import *
+_phase2_siml1emulator = SimL1Emulator.copy()
+_phase2_siml1emulator += hgcalTriggerPrimitives
+
+from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
+phase2_hgcal.toReplaceWith( SimL1Emulator , _phase2_siml1emulator )

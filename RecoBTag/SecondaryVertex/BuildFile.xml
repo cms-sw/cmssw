@@ -8,10 +8,7 @@
 <use name="DataFormats/PatCandidates"/>
 <use name="RecoVertex/VertexTools"/>
 <use name="RecoBTau/JetTagComputer"/>
-<use name="TrackingTools/IPTools"/>
 <use name="rootmath"/>
-<use name="fastjet"/>
-<use name="fastjet-contrib"/>
 <export>
   <lib name="1"/>
 </export>

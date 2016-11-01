@@ -2,7 +2,7 @@
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
 MCMultiParticleFilter::MCMultiParticleFilter(const edm::ParameterSet& iConfig) :
-  src_(iConfig.getParameter<edm::InputTag>("src")),
+  src_(iConfig.getUntrackedParameter<edm::InputTag>("src",edm::InputTag(std::string("generator"),"unsmeared"))),
   numRequired_(iConfig.getParameter<int>("NumRequired")),
   acceptMore_(iConfig.getParameter<bool>("AcceptMore")),
   particleID_(iConfig.getParameter< std::vector<int> >("ParticleID")),
@@ -17,12 +17,17 @@ MCMultiParticleFilter::MCMultiParticleFilter(const edm::ParameterSet& iConfig) :
   std::vector<double> defptmin(1, 0);
   std::vector<double> defetamax(1, 999.0);
   std::vector<int> defstat(1, 0);
+  std::vector<int> defmother;
+  defmother.push_back(0);
+  motherID_ = iConfig.getUntrackedParameter< std::vector<int> >("MotherID", defstat);
 
   // check for same size
   if ( (ptMin_.size() > 1 &&  particleID_.size() != ptMin_.size()) 
        ||  (etaMax_.size() > 1 && particleID_.size() != etaMax_.size()) 
-       ||  (status_.size() > 1 && particleID_.size() != status_.size()) ) {
-    edm::LogWarning("MCMultiParticleFilter") << "WARNING: MCMultiParticleFilter: size of PtMin, EtaMax, and/or Status does not match ParticleID size!" << std::endl;   
+       ||  (status_.size() > 1 && particleID_.size() != status_.size()) 
+       ||  (motherID_.size() > 1 && particleID_.size() != motherID_.size())
+       ) {
+    edm::LogWarning("MCMultiParticleFilter") << "WARNING: MCMultiParticleFilter: size of PtMin, EtaMax, motherID, and/or Status does not match ParticleID size!" << std::endl;   
   }
   
   // Fill arrays with defaults if necessary
@@ -32,6 +37,8 @@ MCMultiParticleFilter::MCMultiParticleFilter(const edm::ParameterSet& iConfig) :
     etaMax_.push_back(defetamax[0]);
   while (status_.size() < particleID_.size())
     status_.push_back(defstat[0]);
+  while (motherID_.size() < particleID_.size())
+    motherID_.push_back(defmother[0]);
 }
 
 MCMultiParticleFilter::~MCMultiParticleFilter()
@@ -62,8 +69,23 @@ bool MCMultiParticleFilter::filter(edm::Event& iEvent, const edm::EventSetup& iS
 	  (*p)->momentum().perp() > ptMin_[i] &&
 	  fabs((*p)->momentum().eta()) < etaMax_[i] &&
 	  (status_[i] == 0 || (*p)->status() == status_[i])) {
-	nFound++;
-	break; // only match a given particle once!
+	if(motherID_[i] == 0 ){ // do not check for mother ID if not sepcified
+	  nFound++;
+	  break; // only match a given particle once!
+	}
+	else{
+	  bool hascorrectmother=false;
+	  for ( HepMC::GenVertex::particles_in_const_iterator mo = (*p)->production_vertex()->particles_in_const_begin(); mo != (*p)->production_vertex()->particles_in_const_end(); ++mo){
+	    if( (*mo)->pdg_id() == motherID_[i]){
+	      hascorrectmother = true;
+	      break;
+	    }
+	  }
+	  if(hascorrectmother){
+	    nFound++;
+	    break; // only match a given particle once! 
+	  }
+	}
       }
     } // loop over targets
     

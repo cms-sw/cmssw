@@ -61,8 +61,7 @@ PFLinker::~PFLinker() {;}
 
 void PFLinker::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   
-  std::auto_ptr<reco::PFCandidateCollection>
-    pfCandidates_p(new reco::PFCandidateCollection);
+  auto pfCandidates_p = std::make_unique<reco::PFCandidateCollection>();
   
   edm::Handle<reco::GsfElectronCollection> gsfElectrons;
   iEvent.getByToken(inputTagGsfElectrons_,gsfElectrons);
@@ -154,7 +153,7 @@ void PFLinker::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     }      
     // save the PFCandidates and get a valid handle
   }
-  const edm::OrphanHandle<reco::PFCandidateCollection> pfCandidateRefProd = (producePFCandidates_) ? iEvent.put(pfCandidates_p,nameOutputPF_) :
+  const edm::OrphanHandle<reco::PFCandidateCollection> pfCandidateRefProd = (producePFCandidates_) ? iEvent.put(std::move(pfCandidates_p),nameOutputPF_) :
     edm::OrphanHandle<reco::PFCandidateCollection>();
   
   
@@ -186,15 +185,14 @@ void PFLinker::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 						    pfCandidateRefProd);
   }
   
-  std::auto_ptr<edm::ValueMap<reco::PFCandidatePtr> > 
-    pfMapMerged(new edm::ValueMap<reco::PFCandidatePtr>());
+  auto pfMapMerged = std::make_unique<edm::ValueMap<reco::PFCandidatePtr>>();
   edm::ValueMap<reco::PFCandidatePtr>::Filler pfMapMergedFiller(*pfMapMerged);
   
   *pfMapMerged                   += pfMapGsfElectrons;
   *pfMapMerged                   += pfMapPhotons;
   if(fillMuonRefs_) *pfMapMerged += pfMapMuons;
   
-  iEvent.put(pfMapMerged,nameOutputMergedPF_);
+  iEvent.put(std::move(pfMapMerged),nameOutputMergedPF_);
 }
 
 
@@ -206,7 +204,7 @@ edm::ValueMap<reco::PFCandidatePtr>  PFLinker::fillValueMap(edm::Event & event,
 							    const std::map<edm::Ref<TYPE>, reco::PFCandidatePtr> & mapToTheCandidate,
 							    const edm::OrphanHandle<reco::PFCandidateCollection> & newPFCandColl) const {
   
-  std::auto_ptr<edm::ValueMap<reco::PFCandidatePtr> > pfMap_p(new edm::ValueMap<reco::PFCandidatePtr>());
+  auto pfMap_p = std::make_unique<edm::ValueMap<reco::PFCandidatePtr>>();
   edm::ValueMap<reco::PFCandidatePtr>::Filler filler(*pfMap_p);
   
   typedef typename std::map<edm::Ref<TYPE>, reco::PFCandidatePtr>::const_iterator MapTYPE_it; 
@@ -230,6 +228,6 @@ edm::ValueMap<reco::PFCandidatePtr>  PFLinker::fillValueMap(edm::Event & event,
   filler.insert(inputObjCollection,values.begin(),values.end());
   filler.fill();
   edm::ValueMap<reco::PFCandidatePtr> returnValue = *pfMap_p;
-  event.put(pfMap_p,label);
+  event.put(std::move(pfMap_p),label);
   return returnValue;
 }

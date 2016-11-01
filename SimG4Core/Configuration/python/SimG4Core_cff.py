@@ -6,8 +6,9 @@ import FWCore.ParameterSet.Config as cms
 #
 from SimG4Core.Application.g4SimHits_cfi import *
 
-from Configuration.StandardSequences.Eras import eras
-eras.phase2_hcal.toModify( g4SimHits, HCalSD = dict( TestNumberingScheme = True ) )
-eras.phase2_timing.toModify( g4SimHits.ECalSD, 
+from Configuration.Eras.Modifier_phase2_hcal_cff import phase2_hcal
+phase2_hcal.toModify( g4SimHits, HCalSD = dict( TestNumberingScheme = True ) )
+from Configuration.Eras.Modifier_phase2_timing_cff import phase2_timing
+phase2_timing.toModify( g4SimHits.ECalSD, 
                              StoreLayerTimeSim = cms.untracked.bool(True),
                              TimeSliceUnit = cms.double(0.001) )

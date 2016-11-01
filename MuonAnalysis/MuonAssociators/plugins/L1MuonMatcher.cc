@@ -48,13 +48,21 @@ namespace pat {
       /// Tokens for input collections
       edm::EDGetTokenT<edm::View<reco::Candidate> > recoToken_;
       edm::EDGetTokenT<std::vector<l1extra::L1MuonParticle> > l1Token_;
-
+      edm::EDGetTokenT<l1t::MuonBxCollection> l1tToken_;
+    
       /// Labels to set as filter names in the output
       std::string labelL1_, labelProp_;
 
       /// Write out additional info as ValueMaps
       bool writeExtraInfo_;
 
+      /// Allow to run both on legacy or stage2 (2016) L1 Muon trigger output
+      bool useStage2L1_;
+
+      /// Skim stage2 BX vector
+      int firstBX_;
+      int lastBX_;
+    
       /// Store extra information in a ValueMap
       template<typename Hand, typename T>
       void storeExtraInfo(edm::Event &iEvent,
@@ -68,11 +76,18 @@ namespace pat {
 pat::L1MuonMatcher::L1MuonMatcher(const edm::ParameterSet & iConfig) :
     matcher_(iConfig),
     recoToken_(consumes<edm::View<reco::Candidate> >(iConfig.getParameter<edm::InputTag>("src"))),
-    l1Token_(consumes<std::vector<l1extra::L1MuonParticle> >(iConfig.getParameter<edm::InputTag>("matched"))),
-    labelL1_(iConfig.getParameter<std::string>(  "setL1Label")),
+    labelL1_(iConfig.getParameter<std::string>("setL1Label")),
     labelProp_(iConfig.getParameter<std::string>("setPropLabel")),
-    writeExtraInfo_(iConfig.getParameter<bool>("writeExtraInfo"))
+    writeExtraInfo_(iConfig.getParameter<bool>("writeExtraInfo")),
+    useStage2L1_(iConfig.getParameter<bool>("useStage2L1")),
+    firstBX_(iConfig.getParameter<int>("firstBX")),
+    lastBX_(iConfig.getParameter<int>("lastBX"))
 {
+    if (useStage2L1_) {
+      l1tToken_ = consumes<l1t::MuonBxCollection>(iConfig.getParameter<edm::InputTag>("matched"));
+    } else {
+      l1Token_ = consumes<std::vector<l1extra::L1MuonParticle> >(iConfig.getParameter<edm::InputTag>("matched"));
+    }
     produces<PATPrimitiveCollection>("l1muons");        // l1 in PAT format
     produces<PATPrimitiveCollection>("propagatedReco"); // reco to muon station 2
     produces<PATTriggerAssociation>("propagatedReco");  // asso reco to propagated reco
@@ -82,6 +97,10 @@ pat::L1MuonMatcher::L1MuonMatcher(const edm::ParameterSet & iConfig) :
         produces<edm::ValueMap<float> >("deltaPhi");
         produces<edm::ValueMap<int>   >("quality");
         produces<edm::ValueMap<int>   >("bx");
+        if(useStage2L1_) { 
+	  produces<edm::ValueMap<int> >("iPhi");
+	  produces<edm::ValueMap<int> >("tfIndex");
+	}
         produces<edm::ValueMap<int>   >("isolated");
         produces<edm::ValueMap<reco::CandidatePtr> >();
         produces<edm::ValueMap<reco::CandidatePtr> >("l1ToReco");
@@ -95,23 +114,50 @@ pat::L1MuonMatcher::produce(edm::Event & iEvent, const edm::EventSetup & iSetup)
 
     Handle<View<reco::Candidate> > reco;
     Handle<vector<l1extra::L1MuonParticle> > l1s;
+    Handle<l1t::MuonBxCollection> l1tBX;
+  
+    std::vector<l1t::Muon> l1ts;
+    std::vector<size_t> bxIdxs;
 
+    int minBxIdx = 0;
+    size_t l1size = 0;
+    
     iEvent.getByToken(recoToken_, reco);
-    iEvent.getByToken(l1Token_, l1s);
+
+    if (useStage2L1_) {
+      iEvent.getByToken(l1tToken_, l1tBX);
+      l1size = l1tBX->size();
+	
+      int minBX = max(firstBX_,l1tBX->getFirstBX());
+      int maxBX = min(lastBX_,l1tBX->getLastBX());
+
+      minBxIdx = l1tBX->begin(minBX) - l1tBX->begin();
+      std::copy(l1tBX->begin(minBX), l1tBX->end(maxBX), std::back_inserter(l1ts));
+
+      for (int ibx = l1tBX->getFirstBX(); ibx <= l1tBX->getLastBX(); ++ibx) {
+	bxIdxs.push_back(l1tBX->end(ibx) - l1tBX->begin());
+      } 
+    } else {
+      iEvent.getByToken(l1Token_, l1s);
+      l1size = l1s->size();
+    }
 
     unique_ptr<PATPrimitiveCollection> propOut(new PATPrimitiveCollection());
     unique_ptr<PATPrimitiveCollection> l1Out(new PATPrimitiveCollection());
     std::vector<edm::Ptr<reco::Candidate> > l1rawMatches(reco->size());
-    vector<int>   isSelected(l1s->size(), -1);
-    std::vector<edm::Ptr<reco::Candidate> > whichRecoMatch(l1s->size());
+    vector<int>   isSelected(l1size, -1);
+    std::vector<edm::Ptr<reco::Candidate> > whichRecoMatch(l1size);
     vector<int>   propMatches(reco->size(), -1);
     vector<int>   fullMatches(reco->size(), -1);
     vector<float> deltaRs(reco->size(), 999), deltaPhis(reco->size(), 999);
     vector<int>   quality(reco->size(),   0), bx(reco->size(), -999), isolated(reco->size(), -999);
+    vector<int>   iPhi(reco->size(),   0), tfIndex(reco->size(), -999);
     for (int i = 0, n = reco->size(); i < n; ++i) {
         TrajectoryStateOnSurface propagated;
         const reco::Candidate &mu = (*reco)[i];
-        int match = matcher_.match(mu, *l1s, deltaRs[i], deltaPhis[i], propagated);
+        int match = useStage2L1_ ? 
+	  matcher_.match(mu, l1ts, deltaRs[i], deltaPhis[i], propagated) :
+	  matcher_.match(mu, *l1s, deltaRs[i], deltaPhis[i], propagated);
         if (propagated.isValid()) {
             GlobalPoint pos = propagated.globalPosition();
             propMatches[i] = propOut->size();
@@ -120,21 +166,53 @@ pat::L1MuonMatcher::produce(edm::Event & iEvent, const edm::EventSetup & iSetup)
             propOut->back().setCharge(mu.charge());
         }
         if (match != -1) {
-            const l1extra::L1MuonParticle & l1 = (*l1s)[match];
-            whichRecoMatch[match] = reco->ptrAt(i);
+
+	    if(useStage2L1_) {
+	      match += minBxIdx;
+	    }
+
+	    whichRecoMatch[match] = reco->ptrAt(i);
+  	 
+	    int charge = 0;
+	    math::PtEtaPhiMLorentzVector p4;
+	    
+	    if (useStage2L1_) {
+	      const l1t::Muon & l1t = (*l1tBX)[match];
+	      charge = l1t.charge();
+	      p4     = l1t.polarP4();
+	    }
+	    else {
+	      const l1extra::L1MuonParticle & l1 = (*l1s)[match];
+	      charge = l1.charge();
+	      p4     = l1.polarP4();
+	    }
+
             if (isSelected[match] == -1) { // copy to output if needed
                 isSelected[match] = l1Out->size();
-                l1Out->push_back(PATPrimitive(l1.polarP4()));
+                l1Out->push_back(PATPrimitive(p4));
                 l1Out->back().addFilterLabel(labelL1_);
-                l1Out->back().setCharge(l1.charge());
+                l1Out->back().setCharge(charge);
             }
+
             fullMatches[i] = isSelected[match]; // index in the output collection
-            const L1MuGMTCand & gmt = l1.gmtMuonCand();
-            quality[i]  = gmt.quality();
-            bx[i]       = gmt.bx();
-            isolated[i] = gmt.isol();
-            l1rawMatches[i] = edm::Ptr<reco::Candidate>(l1s, size_t(match));
-        }
+	    
+	    if (useStage2L1_) {
+	      const l1t::Muon & l1t = (*l1tBX)[match];
+	      quality[i]  = l1t.hwQual();
+	      bx[i] = l1tBX->getFirstBX() + (std::upper_bound(bxIdxs.begin(),bxIdxs.end(), match) - bxIdxs.begin()); 
+	      isolated[i] = l1t.hwIso();
+	      l1rawMatches[i] = edm::Ptr<reco::Candidate>(l1tBX, size_t(match));
+	      iPhi[i]    = l1t.hwPhi();
+	      tfIndex[i] = l1t.tfMuonIndex();      
+	    }
+	    else {
+	      const L1MuGMTCand & gmt = (*l1s)[match].gmtMuonCand();
+	      quality[i]  = gmt.quality();
+	      bx[i]       = gmt.bx();
+	      isolated[i] = gmt.isol();
+	      l1rawMatches[i] = edm::Ptr<reco::Candidate>(l1s, size_t(match));
+	    }
+	}
     }
 
     OrphanHandle<PATPrimitiveCollection> l1Done = iEvent.put(std::move(l1Out), "l1muons");
@@ -158,9 +236,17 @@ pat::L1MuonMatcher::produce(edm::Event & iEvent, const edm::EventSetup & iSetup)
         storeExtraInfo(iEvent, reco, bx,        "bx");
         storeExtraInfo(iEvent, reco, isolated,  "isolated");
         storeExtraInfo(iEvent, reco, quality,   "quality");
-        storeExtraInfo(iEvent, reco, l1rawMatches,   "");
-        storeExtraInfo(iEvent, l1s,  whichRecoMatch, "l1ToReco");
+	storeExtraInfo(iEvent, reco, l1rawMatches,   "");
+	if (useStage2L1_) {
+	  storeExtraInfo(iEvent, l1tBX,  whichRecoMatch, "l1ToReco");
+	  storeExtraInfo(iEvent, reco, tfIndex, "tfIndex");
+	  storeExtraInfo(iEvent, reco, iPhi, "iPhi");
+	}
+	else {
+	  storeExtraInfo(iEvent, l1s,  whichRecoMatch, "l1ToReco");
+	}
     }
+
 }
 
 template<typename Hand, typename T>

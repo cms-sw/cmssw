@@ -97,12 +97,12 @@ void NjettinessAdder::produce(edm::Event & iEvent, const edm::EventSetup & iSetu
 	tauN.push_back(t);
       }
 
-      std::auto_ptr<edm::ValueMap<float> > outT(new edm::ValueMap<float>());
+      auto outT = std::make_unique<edm::ValueMap<float>>();
       edm::ValueMap<float>::Filler fillerT(*outT);
       fillerT.insert(jets, tauN.begin(), tauN.end());
       fillerT.fill();
 
-      iEvent.put(outT,tauN_str.str().c_str());
+      iEvent.put(std::move(outT),tauN_str.str().c_str());
     }
 }
 

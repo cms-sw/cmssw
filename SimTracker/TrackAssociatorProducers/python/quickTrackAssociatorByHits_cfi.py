@@ -16,8 +16,15 @@ quickTrackAssociatorByHits = cms.EDProducer("QuickTrackAssociatorByHitsProducer"
         cluster2TPSrc = cms.InputTag("tpClusterProducer")
 )
 
-from Configuration.StandardSequences.Eras import eras
-if eras.fastSim.isChosen():
+from Configuration.Eras.Modifier_fastSim_cff import fastSim
+if fastSim.isChosen():
     quickTrackAssociatorByHits.associateStrip = False
     quickTrackAssociatorByHits.associatePixel = False
     quickTrackAssociatorByHits.useClusterTPAssociation = False
+
+from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
+phase2_tracker.toModify( 
+    quickTrackAssociatorByHits,
+    pixelSimLinkSrc = cms.InputTag("simSiPixelDigis","Pixel"),
+    stripSimLinkSrc = cms.InputTag("simSiPixelDigis","Tracker")
+)

@@ -30,6 +30,13 @@ particleFlowRecHitHGC = cms.EDProducer("PFRecHitProducer",
              geometryInstance = cms.string("HGCalHESiliconSensitive"),
              qualityTests = cms.VPSet(
                 )
+           ),
+           cms.PSet(
+             name = cms.string("PFHGCHEBRecHitCreator"),
+             src  = cms.InputTag("HGCalRecHit:HGCHEBRecHits"),
+             geometryInstance = cms.string(""),
+             qualityTests = cms.VPSet(
+                )
            )
     )          
 )

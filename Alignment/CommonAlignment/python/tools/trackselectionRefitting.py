@@ -93,7 +93,7 @@ def getSequence(process, collection,
     #########################################
     isCosmics = False
 
-    if collection == "ALCARECOTkAlMinBias" or collection == "generalTracks":
+    if collection == "ALCARECOTkAlMinBias" or collection == "generalTracks" or collection == "ALCARECOTkAlMinBiasHI" or collection == "hiGeneralTracks":
         options["TrackSelector"]["Alignment"].update({
                 "ptMin": 1.0,
                 "pMin": 8.,
@@ -101,7 +101,8 @@ def getSequence(process, collection,
         options["TrackHitFilter"]["Tracker"].update({
                 "minimumHits": 10,
                 })
-    elif collection == "ALCARECOTkAlCosmicsCTF0T":
+    elif collection in ("ALCARECOTkAlCosmicsCTF0T",
+                        "ALCARECOTkAlCosmicsInCollisions"):
         isCosmics = True
         options["TrackSelector"]["HighPurity"] = {} # drop high purity cut
         if not cosmicsDecoMode:
@@ -123,7 +124,7 @@ def getSequence(process, collection,
                 "applyMultiplicityFilter": True,
                 "maxMultiplicity": 1
                 })
-    elif collection == "ALCARECOTkAlMuonIsolated":
+    elif collection == "ALCARECOTkAlMuonIsolated" or collection == "ALCARECOTkAlMuonIsolatedHI" or collection == "ALCARECOTkAlMuonIsolatedPA":
         options["TrackSelector"]["Alignment"].update({
                 ("minHitsPerSubDet", "inPIXEL"): 1,
                 "ptMin": 5.0,
@@ -131,7 +132,7 @@ def getSequence(process, collection,
                 "applyMultiplicityFilter": True,
                 "maxMultiplicity": 1,
                 })
-    elif collection == "ALCARECOTkAlZMuMu":
+    elif collection == "ALCARECOTkAlZMuMu" or collection == "ALCARECOTkAlZMuMuHI" or collection == "ALCARECOTkAlZMuMuPA":
         options["TrackSelector"]["Alignment"].update({
                 "ptMin": 15.0,
                 "etaMin": -3.0,

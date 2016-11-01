@@ -25,8 +25,10 @@ for year in upgradeKeys:
         for frag in upgradeFragments:
             k=frag[:-4]+'_'+key
             stepList=[]
-            for step in upgradeProperties[year][key]['ScenToRun']:
+            for step in upgradeProperties[year][key]['ScenToRun']:                    
                 if 'Sim' in step:
+                    if 'HLBeamSpotFull' in step and '14TeV' in frag:
+                        step = 'GenSimHLBeamSpotFull14'
                     stepList.append(k+'_'+step)
                 else:
                     stepList.append(step+'_'+key)

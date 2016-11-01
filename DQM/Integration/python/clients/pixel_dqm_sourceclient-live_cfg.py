@@ -99,6 +99,8 @@ if (process.runType.getRunType() == process.runType.hi_run):
 process.load("DQM.SiPixelCommon.SiPixelP5DQM_source_cff")
 process.load("DQM.SiPixelCommon.SiPixelP5DQM_client_cff")
 
+process.load("DQM.SiPixelPhase1Config.SiPixelPhase1OnlineDQM_cff")
+
 process.qTester = cms.EDAnalyzer("QualityTester",
     qtList = cms.untracked.FileInPath(QTestfile),
     prescaleFactor = cms.untracked.int32(1),
@@ -143,7 +145,7 @@ if (process.runType.getRunType() == process.runType.hi_run):
 else:
     process.Reco = cms.Sequence(process.siPixelDigis*process.siPixelClusters)
 
-process.p = cms.Path(process.Reco*process.DQMmodules*process.SiPixelRawDataErrorSource*process.SiPixelDigiSource*process.SiPixelClusterSource*process.PixelP5DQMClientWithDataCertification)
+process.p = cms.Path(process.Reco*process.DQMmodules*process.SiPixelRawDataErrorSource*process.SiPixelDigiSource*process.SiPixelClusterSource*process.PixelP5DQMClientWithDataCertification*process.siPixelPhase1OnlineDQM_source*process.siPixelPhase1OnlineDQM_harvesting)
     
 ### process customizations included here
 from DQM.Integration.config.online_customizations_cfi import *

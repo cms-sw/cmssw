@@ -11,6 +11,7 @@
 #include "RecoLocalCalo/HGCalRecAlgos/interface/HGCalRecHitAbsAlgo.h"
 #include "DataFormats/HGCDigi/interface/HGCDataFrame.h"
 #include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
+#include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include <iostream>
 
 class HGCalRecHitSimpleAlgo : public HGCalRecHitAbsAlgo {
@@ -43,8 +44,21 @@ class HGCalRecHitSimpleAlgo : public HGCalRecHitAbsAlgo {
         << "makeRecHit: adcToGeVConstant_ not set before calling this method!";
     }
     
+    DetId baseid = uncalibRH.id();
+    unsigned layer = 0;
+    if( DetId::Hcal == baseid.det() && HcalEndcap == baseid.subdetId() ) {
+      layer =  HcalDetId(baseid).depth() + 40;
+    } else if ( DetId::Forward == baseid.det() && HGCEE == baseid.subdetId() ) {
+      layer = HGCalDetId(baseid).layer();
+    }else if ( DetId::Forward == baseid.det() && HGCHEF == baseid.subdetId() ) {
+      layer = HGCalDetId(baseid).layer() + 28;
+    } else {
+      throw cms::Exception("InvalidRecHit")
+	<< "HGCalRecHitSimpleAlgo encountered a non-HGCal det id: " << baseid.det() << ' ' << baseid.subdetId() << ' ' << baseid.rawId();
+    }
+
     HGCalDetId hid(uncalibRH.id());
-    const unsigned layer = ( hid.subdetId() == HGCHEF ? hid.layer() + 28 : hid.layer() );
+
 
     //    float clockToNsConstant = 25;    
     float energy = uncalibRH.amplitude() * weights_[layer] * 0.001f;

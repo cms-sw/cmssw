@@ -126,10 +126,10 @@ class PFEGammaProducer : public edm::stream::EDProducer<edm::GlobalCache<pfEGHel
   
   reco::Vertex       primaryVertex_;
   
-  std::auto_ptr< reco::PFCandidateCollection >          egCandidates_;
-  std::auto_ptr<reco::PFCandidateEGammaExtraCollection> egExtra_;
-  std::auto_ptr<reco::ConversionCollection>             singleLegConv_;
-  std::auto_ptr< reco::SuperClusterCollection >         sClusters_;  
+  std::unique_ptr<reco::PFCandidateCollection> egCandidates_;
+  std::unique_ptr<reco::PFCandidateEGammaExtraCollection> egExtra_;
+  std::unique_ptr<reco::ConversionCollection> singleLegConv_;
+  std::unique_ptr<reco::SuperClusterCollection> sClusters_;  
 
   /// the unfiltered electron collection 
     

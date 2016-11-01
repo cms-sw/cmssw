@@ -14,9 +14,11 @@
 #include "DataFormats/HGCDigi/interface/HGCDigiCollections.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "Geometry/HGCalGeometry/interface/HGCalGeometry.h"
+#include "Geometry/HcalTowerAlgo/interface/HcalGeometry.h"
 
 #include <vector>
 #include <map>
+#include <unordered_set>
 #include <memory>
 #include <tuple>
 
@@ -51,7 +53,8 @@ public:
    */
   void accumulate(edm::Event const& e, edm::EventSetup const& c, CLHEP::HepRandomEngine* hre);
   void accumulate(PileUpEventPrincipal const& e, edm::EventSetup const& c, CLHEP::HepRandomEngine* hre);
-  void accumulate(edm::Handle<edm::PCaloHitContainer> const &hits, int bxCrossing,const edm::ESHandle<HGCalGeometry> &geom, CLHEP::HepRandomEngine* hre);
+  template<typename GEOM>
+  void accumulate(edm::Handle<edm::PCaloHitContainer> const &hits, int bxCrossing,const GEOM *geom, CLHEP::HepRandomEngine* hre);
 
   /**
      @short actions at the start/end of event
@@ -73,10 +76,7 @@ public:
   void endRun();
 
 private :
-
-  //used for initialization
-  bool checkValidDetIds_;
-
+  
   //input/output names
   std::string hitCollection_,digiCollection_;
 
@@ -94,11 +94,15 @@ private :
   std::unique_ptr<HGCHEbackDigitizer>  theHGCHEbackDigitizer_;
   std::unique_ptr<HGCHEfrontDigitizer> theHGCHEfrontDigitizer_;
 
+  //geometries
+  std::unordered_set<DetId> validIds_;
+  const HGCalGeometry* gHGCal_;
+  const HcalGeometry* gHcal_;
+
   //subdetector id
   ForwardSubdetector mySubDet_;
 
   //misc switches
-  bool useAllChannels_;
   uint32_t verbosity_;
 
   //reference speed to evaluate time of arrival at the sensititive detector, assuming the center of CMS

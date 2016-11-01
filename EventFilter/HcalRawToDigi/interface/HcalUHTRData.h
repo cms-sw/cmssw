@@ -114,6 +114,8 @@ class HcalUHTRData {
   inline uint32_t crateId() const { return uint32_t(m_raw64[1])&0xFF; }
   /** \brief Get the board slot */
   inline uint32_t slot() const { return uint32_t(m_raw64[1]>>8)&0xF; }
+  /** \brief Get the presamples, clearing last bit */
+  inline uint32_t presamples() const { return uint32_t((m_raw64[1]&~0x8000)>>12)&0xF; }
 
   /** \brief Was this channel passed as part of Mark&Pass ZS?*/
   bool wasMarkAndPassZS(int fiber, int fiberchan) const;
@@ -125,6 +127,8 @@ class HcalUHTRData {
   /** \brief Get the HTR firmware flavor */
   int getFirmwareFlavor() const { return uint32_t(m_raw64[1]>>32)&0xFF; }
 
+  //** \brief Check for simulated HTR with flag word kept */
+  bool wasSimulatedHTR() const { return (((m_raw64[1]&0x8000)>>15)&0x1)==1; }
 
 protected:
   int m_formatVersion;

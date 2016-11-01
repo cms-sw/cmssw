@@ -193,8 +193,7 @@ void FFTJetPFPileupCleaner::produce(
     edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
     // get PFCandidates
-    std::auto_ptr<reco::PFCandidateCollection> 
-        pOutput(new reco::PFCandidateCollection);
+    auto pOutput = std::make_unique<reco::PFCandidateCollection>();
 
     edm::Handle<reco::PFCandidateCollection> pfCandidates;
     iEvent.getByToken(PFCandidatesToken, pfCandidates);
@@ -264,7 +263,7 @@ void FFTJetPFPileupCleaner::produce(
         }
     }
 
-    iEvent.put(pOutput);
+    iEvent.put(std::move(pOutput));
 }
 
 

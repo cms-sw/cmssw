@@ -1,5 +1,4 @@
 import FWCore.ParameterSet.Config as cms
-from Configuration.StandardSequences.Eras import eras
 
 from RecoTracker.TkTrackingRegions.GlobalTrackingRegionFromBeamSpot_cfi import *
 from RecoTracker.TkSeedGenerator.SeedFromConsecutiveHitsCreator_cfi import *
@@ -37,6 +36,7 @@ ClusterCheckPSet = cms.PSet(
                  ),
 )
 # Disable too many clusters check until we have an updated cut string for phase1
-eras.phase1Pixel.toModify(seedGeneratorFromRegionHitsEDProducer, # FIXME
+from Configuration.Eras.Modifier_phase1Pixel_cff import phase1Pixel
+phase1Pixel.toModify(seedGeneratorFromRegionHitsEDProducer, # FIXME
     ClusterCheckPSet = dict(doClusterCheck = False)
 )

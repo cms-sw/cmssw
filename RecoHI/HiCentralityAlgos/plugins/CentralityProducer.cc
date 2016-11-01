@@ -186,7 +186,7 @@ CentralityProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   if(producePixelhits_) iSetup.get<TrackerDigiGeometryRecord>().get(tGeo);
   if(produceEcalhits_) iSetup.get<CaloGeometryRecord>().get(cGeo);
 
-  std::auto_ptr<Centrality> creco(new Centrality());
+  auto creco = std::make_unique<Centrality>();
   Handle<Centrality> inputCentrality;
 
   if(reuseAny_) iEvent.getByToken(reuseTag_,inputCentrality);
@@ -458,7 +458,7 @@ CentralityProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     }
   }
   
-  iEvent.put(creco);
+  iEvent.put(std::move(creco));
 
 }
 

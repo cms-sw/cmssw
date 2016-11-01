@@ -55,15 +55,19 @@ class jobdatabase:
 
     #-------------------------------------------------------------------------------
     # parses the mps.db file into the member variables and arrays
-    def read_db(self):
+    __default_db_file_name = "mps.db"
+    def read_db(self, db_file_name = __default_db_file_name):
         try:
-            DBFILE = open('mps.db','r')
+            DBFILE = open(db_file_name,'r')
         except IOError as e:
             if e.args != (2, 'No such file or directory'):
                 raise
             else:
-                msg = ("No 'mps.db' found. Make sure you are in a campaign "
-                       "directory and that the campaign is set up.")
+                if db_file_name == jobdatabase.__default_db_file_name:
+                    msg = ("No 'mps.db' found. Make sure you are in a campaign "
+                           "directory and that the campaign is set up.")
+                else:
+                    msg = "Database file '"+db_file_name+"' not found. Exiting."
                 print msg
                 sys.exit(1)
 

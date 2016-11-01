@@ -76,10 +76,6 @@ string GEMBaseValidation::getStationLabel(int i) {
     string stationLabel[] = {"1","2"};
     return stationLabel[i-1];
   }
-  else if ( nstationForLabel ==3 ) {
-    string stationLabel[] = {"1","2s","2l"};
-    return stationLabel[i-1];
-  }
   else {
     std::cout<<"Something is wrong"<<std::endl;
     return "";
@@ -96,8 +92,8 @@ MonitorElement* GEMBaseValidation::getSimpleZR(DQMStore::IBooker& ibooker, TStri
     std::vector<double> xbins_vector;
     double station1_xmin = RangeZR_[ 0 ];
     double station1_xmax = RangeZR_[ 1 ];
-    double station2_xmin = RangeZR_[ 4 ];
-    double station2_xmax = RangeZR_[ 5 ];
+    double station2_xmin = RangeZR_[ 2 ];
+    double station2_xmax = RangeZR_[ 3 ];
 
     for( double i= station1_xmin-1 ; i< station2_xmax+1; i=i+0.25  ) {
       if ( i > station1_xmax+1 && i<station2_xmin-1 ) continue; 

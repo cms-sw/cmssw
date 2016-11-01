@@ -60,7 +60,7 @@ BeamHaloSummaryProducer::BeamHaloSummaryProducer(const edm::ParameterSet& iConfi
 void BeamHaloSummaryProducer::produce(Event& iEvent, const EventSetup& iSetup)
 {
   // BeamHaloSummary object 
-  std::auto_ptr<BeamHaloSummary> TheBeamHaloSummary( new BeamHaloSummary() );
+  auto TheBeamHaloSummary = std::make_unique<BeamHaloSummary>();
 
   // CSC Specific Halo Data
   Handle<CSCHaloData> TheCSCHaloData;
@@ -293,7 +293,7 @@ void BeamHaloSummaryProducer::produce(Event& iEvent, const EventSetup& iSetup)
  
 
 
-  iEvent.put(TheBeamHaloSummary);
+  iEvent.put(std::move(TheBeamHaloSummary));
   return;
 }
 

@@ -3,7 +3,10 @@
 #include <iomanip>
 #include <fstream>
 #include <cmath>
+#include <algorithm>
 #include <stdlib.h>
+#include <sys/types.h>
+#include <sys/stat.h>
 
 // data dirs
 TString theDirName = "Images";
@@ -38,9 +41,23 @@ TProfile* prof_l0_det_total;
 //
 TProfile2D* prof2d_x0_det_total;
 //
-unsigned int iFirst = 1;
-unsigned int iLast  = 9;
-//
+
+const std::vector<std::string> DETECTORS{"BeamPipe", "TIB", "TIDF", "TIDB",
+      "InnerServices", "TOB",
+      "TEC", "TkStrct", "PixBar",
+      "PixFwdPlus", "PixFwdMinus",
+      "Tracker", "TrackerSum",
+      "Pixel", "Strip",
+      "InnerTracker",
+      "Phase1PixelBarrel", "Phase2OTBarrel",
+      "Phase2OTForward", "Phase2PixelEndcap"};
+
+std::map<std::string, std::vector<std::string> > COMPOUNDS {
+  {"TrackerSum", {"TIB", "TIDF", "TIDB", "BeamPipe", "InnerServices", "TOB", "TEC", "TkStruct", "PixBar", "PixFwdPlus", "PixFwdMinus"}},
+  {"Pixel", {"PixBar", "PixFwdMinus", "PixFwdPlus"}},
+  {"Strip", {"TIB", "TIDF", "TIDB", "InnerServices", "TOB", "TEC"}},
+  {"InnerTracker", {"TIB", "TIDF", "TIDB", "InnerServices"}}
+};
 
 //forward declaration of functions
 void createPlots(TString plot);
@@ -51,6 +68,15 @@ void makeColorTable();
 
 using namespace std;
 
+bool checkFile(const char * filename) {
+  struct stat sb;
+  if (stat(filename, &sb) == -1) {
+    cerr << "Error, missing file: " << filename << endl;
+    return false;
+  }
+  return true;
+}
+
 // Main
 void MaterialBudget(TString detector) {
 
@@ -59,51 +85,33 @@ void MaterialBudget(TString detector) {
 
   // detector
   theDetector = detector;
-  if(
-     theDetector!="TIB" && theDetector!="TIDF" && theDetector!="TIDB" && theDetector!="InnerServices"
-     && theDetector!="TOB" && theDetector!="TEC" && theDetector!="TkStrct" 
-     && theDetector!="PixBar" && theDetector!="PixFwdPlus" && theDetector!="PixFwdMinus" 
-     && theDetector!="Tracker" && theDetector!="TrackerSum"
-     && theDetector!="Pixel" && theDetector!="Strip"
-     && theDetector!="InnerTracker"
-     ){
-    cerr << "MaterialBudget - ERROR detector not found " << theDetector << endl;
+  if( (std::find(DETECTORS.begin(), DETECTORS.end(), theDetector.Data()) == DETECTORS.end())
+      && (COMPOUNDS.find(detector.Data()) == COMPOUNDS.end())) {
+    cerr << "MaterialBudget - ERROR detector not found: |" << theDetector.Data() << "|" << endl;
     exit(0);
   }
-  //
-  
-  // files
+
   theDetectorFileName = "matbdg_" + theDetector + ".root";
-  
-  if(theDetector == "TrackerSum") {
-    iFirst = 1;
-    iLast  = 9;
-    theDetectorFileName = "matbdg_TIB.root";
+  // If the user supplied a compound name, a special treatment is
+  // needed, and a loop is involved. The initial filename that has to
+  // be opened is the first in the list of associated compounds.
+  if (COMPOUNDS.find(theDetector.Data()) != COMPOUNDS.end()) {
+    theDetectorFileName = "matbdg_" + TString(COMPOUNDS[theDetector.Data()][0]) +".root";
   }
-  if(theDetector == "Pixel") {
-    iFirst = 8;
-    iLast  = 9;
-    theDetectorFileName = "matbdg_PixBar.root";
-  }
-  if(theDetector == "Strip") {
-    iFirst = 1;
-    iLast  = 5;
-    theDetectorFileName = "matbdg_TIB.root";
-  }
-  if(theDetector == "InnerTracker") {
-    iFirst = 1;
-    iLast  = 3;
-    theDetectorFileName = "matbdg_TIB.root";
-  }
+
+  if (! checkFile(theDetectorFileName.Data()))
+    return;
+
+  // open root files
   cout << "*** Open file... " << endl;
   cout << theDetectorFileName << endl;
   cout << "***" << endl;
-  //
-  
-  // open root files
   theDetectorFile = new TFile(theDetectorFileName);
-  //
-  
+
+  //output root file
+  TString outputPlotsFileName = theDirName + "/matbdg_" + theDetector + "_plots.root";
+  TFile* outputPlotsFile = new TFile(outputPlotsFileName, "RECREATE");
+
   // plots
   createPlots("x_vs_eta");
   createPlots("x_vs_phi");
@@ -177,51 +185,17 @@ void createPlots(TString plot) {
   TH1D* hist_x0_OTH   = (TH1D*)prof_x0_det_OTH->ProjectionX();
   TH1D* hist_x0_AIR   = (TH1D*)prof_x0_det_AIR->ProjectionX();  
   //
-  if(theDetector=="TrackerSum" || theDetector=="Pixel" || theDetector=="Strip" || theDetector=="InnerTracker") {
-    TString subDetector = "TIB";
-    for(unsigned int i_detector=iFirst; i_detector<=iLast; i_detector++) {
-      switch(i_detector) {
-      case 1: {
-	subDetector = "TIDF";
-	break;
-      }
-      case 2: {
-	subDetector = "TIDB";
-	break;
-      }
-      case 3: {
-	subDetector = "InnerServices";
-	break;
-      }
-      case 4: {
-	subDetector = "TOB";
-	break;
-      }
-      case 5: {
-	subDetector = "TEC";
-	break;
-      }
-      case 6: {
-	subDetector = "TkStrct";
-	break;
-      }
-      case 7: {
-	subDetector = "PixBar";
-	break;
-      }
-      case 8: {
-	subDetector = "PixFwdPlus";
-	break;
-      }
-      case 9: {
-	subDetector = "PixFwdMinus";
-	break;
-      }
-      default: cout << " something wrong" << endl;
-      }
-      // file name
-      TString subDetectorFileName = "matbdg_" + subDetector + ".root";
+  if (COMPOUNDS.find(theDetector.Data()) != COMPOUNDS.end()) {
+    for (auto subDetector : COMPOUNDS[theDetector.Data()]) {
+      TString subDetectorFileName = "matbdg_" + TString(subDetector) + ".root";
+      // The first file, corresponding to first detector of the
+      // compound, has already been opened and digested. Move to the
+      // others.
+      if (theDetectorFileName == subDetectorFileName)
+        continue;
       // open file
+      if (! checkFile(subDetectorFileName))
+        continue;
       TFile* subDetectorFile = new TFile(subDetectorFileName);
       cout << "*** Open file... " << endl;
       cout << subDetectorFileName << endl;
@@ -275,7 +249,8 @@ void createPlots(TString plot) {
   //
   
   // canvas
-  TCanvas can("can","can",800,800);
+  TString canname("MBCan_1D_" + theDetector + "_" + plot);
+  TCanvas can(canname,canname,800,800);
   can.Range(0,0,25,25);
   can.SetFillColor(kWhite);
   gStyle->SetOptStat(0);
@@ -304,6 +279,7 @@ void createPlots(TString plot) {
   //  can.SaveAs( Form( "%s/%s_%s.gif",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
   //  can.SaveAs( Form( "%s/%s_%s.pdf",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
   can.SaveAs( Form( "%s/%s_%s.png",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
+  //  can.Write();
   //
   
 }
@@ -381,51 +357,18 @@ void create2DPlots(TString plot) {
   TH2D* hist_x0_total = (TH2D*)prof2d_x0_det_total->ProjectionXY();
   //
   
-  if(theDetector=="TrackerSum" || theDetector=="Pixel" || theDetector=="Strip" || theDetector=="InnerTracker") {
-    TString subDetector = "TIB";
-    for(unsigned int i_detector=iFirst; i_detector<=iLast; i_detector++) {
-      switch(i_detector) {
-      case 1: {
-	subDetector = "TIDF";
-	break;
-      }
-      case 2: {
-	subDetector = "TIDB";
-	break;
-      }
-      case 3: {
-	subDetector = "InnerServices";
-	break;
-      }
-      case 4: {
-	subDetector = "TOB";
-	break;
-      }
-      case 5: {
-	subDetector = "TEC";
-	break;
-      }
-      case 6: {
-	subDetector = "TkStrct";
-	break;
-      }
-      case 7: {
-	subDetector = "PixBar";
-	break;
-      }
-      case 8: {
-	subDetector = "PixFwdPlus";
-	break;
-      }
-      case 9: {
-	subDetector = "PixFwdMinus";
-	break;
-      }
-      default: cout << " something wrong" << endl;
-      }
+  if (COMPOUNDS.find(theDetector.Data()) != COMPOUNDS.end()) {
+    for (auto subDetector : COMPOUNDS[theDetector.Data()]) {
       // file name
-      TString subDetectorFileName = "matbdg_" + subDetector + ".root";
+      TString subDetectorFileName = "matbdg_" + TString(subDetector) + ".root";
+      // The first file, corresponding to first detector of the
+      // compound, has already been opened and digested. Move to the
+      // others.
+      if (theDetectorFileName == subDetectorFileName)
+        continue;
       // open file
+      if (! checkFile(subDetectorFileName))
+        continue;
       TFile* subDetectorFile = new TFile(subDetectorFileName);
       cout << "*** Open file... " << endl;
       cout << subDetectorFileName << endl;
@@ -474,12 +417,13 @@ void create2DPlots(TString plot) {
 
 
   //
-  TCanvas can("can","can",2480+248,580+58+58);
-  can.SetTopMargin(0.1);
-  can.SetBottomMargin(0.1);
-  can.SetLeftMargin(0.04);
-  can.SetRightMargin(0.06);
-  can.SetFillColor(kWhite);
+  TString can2name("MBCan_2D_" + theDetector + "_" + plot);
+  TCanvas can2(can2name,can2name,2480+248,580+58+58);
+  can2.SetTopMargin(0.1);
+  can2.SetBottomMargin(0.1);
+  can2.SetLeftMargin(0.04);
+  can2.SetRightMargin(0.06);
+  can2.SetFillColor(kWhite);
   gStyle->SetOptStat(0);
   gStyle->SetTitleFillColor(0);
   gStyle->SetTitleBorderSize(0);
@@ -490,14 +434,14 @@ void create2DPlots(TString plot) {
   gStyle->SetPalette(1);
 
   // Log?
-  can.SetLogz(zLog);
+  can2.SetLogz(zLog);
 
   // Draw in colors
   frame->Draw(); 
   hist2d_x0_total->Draw("COLZsame"); //Dummy draw to create the palette object
 
   // Store
-  can.Update();
+  can2.Update();
 
   //Aesthetic
   TPaletteAxis *palette = 
@@ -523,12 +467,12 @@ void create2DPlots(TString plot) {
   //Add eta labels
   if( iDrawEta ) drawEtaValues();
 
-  can.Modified();
+  can2.Modified();
 
   //Color plots are not supported!
-  //  can.SaveAs( Form( "%s/%s_%s_col.eps",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
-  //  can.SaveAs( Form( "%s/%s_%s_col.gif",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
-  //  can.SaveAs( Form( "%s/%s_%s_col.pdf",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
+  //  can2.SaveAs( Form( "%s/%s_%s_col.eps",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
+  //  can2.SaveAs( Form( "%s/%s_%s_col.gif",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
+  //  can2.SaveAs( Form( "%s/%s_%s_col.pdf",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
   //
   
 //  makeColorTable();  // Grayscale palette
@@ -536,14 +480,15 @@ void create2DPlots(TString plot) {
   hist2d_x0_total->SetContour(255);      
     
   // Store
-  can.Update();
+  can2.Update();
 
-  can.Modified();
+  can2.Modified();
 
-  //  can.SaveAs( Form( "%s/%s_%s_bw.eps",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
-  //  can.SaveAs( Form( "%s/%s_%s_bw.gif",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
-  //  can.SaveAs( Form( "%s/%s_%s_bw.pdf",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
-  can.SaveAs( Form( "%s/%s_%s_bw.png",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
+  //  can2.SaveAs( Form( "%s/%s_%s_bw.eps",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
+  //  can2.SaveAs( Form( "%s/%s_%s_bw.gif",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
+  //  can2.SaveAs( Form( "%s/%s_%s_bw.pdf",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
+  can2.SaveAs( Form( "%s/%s_%s_bw.png",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
+  //  can2.Write();
   //
   
   // restore properties
@@ -575,51 +520,18 @@ void createRatioPlots(TString plot) {
   TH1D* hist_x0_total = (TH1D*)prof_x0_det_total->ProjectionX();
   TH1D* hist_l0_total = (TH1D*)prof_l0_det_total->ProjectionX();
   //
-  if(theDetector=="TrackerSum" || theDetector=="Pixel" || theDetector=="Strip" || theDetector=="InnerTracker") {
-    TString subDetector = "TIB";
-    for(unsigned int i_detector=iFirst; i_detector<=iLast; i_detector++) {
-      switch(i_detector) {
-      case 1: {
-	subDetector = "TIDF";
-	break;
-      }
-      case 2: {
-	subDetector = "TIDB";
-	break;
-      }
-      case 3: {
-	subDetector = "InnerServices";
-	break;
-      }
-      case 4: {
-	subDetector = "TOB";
-	break;
-      }
-      case 5: {
-	subDetector = "TEC";
-	break;
-      }
-      case 6: {
-	subDetector = "TkStrct";
-	break;
-      }
-      case 7: {
-	subDetector = "PixBar";
-	break;
-      }
-      case 8: {
-	subDetector = "PixFwdPlus";
-	break;
-      }
-      case 9: {
-	subDetector = "PixFwdMinus";
-	break;
-      }
-      default: cout << " something wrong" << endl;
-      }
+  if (COMPOUNDS.find(theDetector.Data()) != COMPOUNDS.end()) {
+    for (auto subDetector : COMPOUNDS[theDetector.Data()]) {
       // file name
-      TString subDetectorFileName = "matbdg_" + subDetector + ".root";
+      TString subDetectorFileName = "matbdg_" + TString(subDetector) + ".root";
+      // The first file, corresponding to first detector of the
+      // compound, has already been opened and digested. Move to the
+      // others.
+      if (theDetectorFileName == subDetectorFileName)
+        continue;
       // open file
+      if (! checkFile(subDetectorFileName))
+        continue;
       TFile* subDetectorFile = new TFile(subDetectorFileName);
       cout << "*** Open file... " << endl;
       cout << subDetectorFileName << endl;
@@ -644,9 +556,10 @@ void createRatioPlots(TString plot) {
   //
   
   // canvas
-  TCanvas can("can","can",800,800);
-  can.Range(0,0,25,25);
-  can.SetFillColor(kWhite);
+  TString canRname("MBRatio_" + theDetector + "_" + plot);
+  TCanvas canR(canRname,canRname,800,800);
+  canR.Range(0,0,25,25);
+  canR.SetFillColor(kWhite);
   gStyle->SetOptStat(0);
   //
   
@@ -655,13 +568,12 @@ void createRatioPlots(TString plot) {
   //
   
   // Store
-  can.Update();
-  //  can.SaveAs( Form( "%s/%s_%s.eps",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
-  //  can.SaveAs( Form( "%s/%s_%s.gif",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
-  //  can.SaveAs( Form( "%s/%s_%s.pdf",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
-  can.SaveAs( Form( "%s/%s_%s.png",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
-  //
-  
+  canR.Update();
+  //  canR.SaveAs( Form( "%s/%s_%s.eps",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
+  //  canR.SaveAs( Form( "%s/%s_%s.gif",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
+  //  canR.SaveAs( Form( "%s/%s_%s.pdf",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
+  canR.SaveAs( Form( "%s/%s_%s.png",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
+  //  canR.Write();
 }
 
 

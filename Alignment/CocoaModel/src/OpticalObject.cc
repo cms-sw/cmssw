@@ -40,6 +40,7 @@
 #include "Alignment/CocoaDDLObjects/interface/CocoaSolidShapeBox.h"
 
 #include "CondFormats/OptAlignObjects/interface/OpticalAlignInfo.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 
@@ -277,12 +278,12 @@ void OpticalObject::transformCylindrical2Cartesian()
 {
   ALIuint ii;
   ALIuint siz =  theCoordinateEntryVector.size();
-  ALIdouble newcoor[3];
   ALIdouble R = theCoordinateEntryVector[0]->value();
   ALIdouble phi = theCoordinateEntryVector[1]->value()/ALIUtils::LengthValueDimensionFactor()*ALIUtils::AngleValueDimensionFactor();
-  newcoor[0] = R*cos(phi);
-  newcoor[1] = R*sin(phi);
-  newcoor[2] = theCoordinateEntryVector[2]->value(); // Z
+  ALIdouble newcoor[] = { R*cos(phi),
+                          R*sin(phi),
+                          theCoordinateEntryVector[2]->value() // Z
+  };
   //-  std::cout << " phi " << phi << std::endl;
    //----- Name is filled from here to include 'centre' or 'angles'
 
@@ -1115,7 +1116,9 @@ void OpticalObject::displaceExtraEntry(const ALIuint entryNo, const ALIdouble di
 
   ALIdouble Pentry_orig_value = *(theExtraEntryValueOriginalVector.begin() + entryNo);
   Pentry_value = (Pentry_orig_value) + disp;
-  //  std::cout << " displaceExtraEntry " << Pentry_value << " <> " << Pentry_orig_value << std::endl;
+  LogDebug("OpticalObject::displaceExtraEntry")
+    << " displaceExtraEntry " << Pentry_value << " <> " << Pentry_orig_value
+    << std::endl;
   theExtraEntryValueVector[entryNo] = Pentry_value;
 }
 

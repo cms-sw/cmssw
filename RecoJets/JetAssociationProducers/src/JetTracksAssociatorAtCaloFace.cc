@@ -56,7 +56,7 @@ void JetTracksAssociatorAtCaloFace::produce(edm::Event& fEvent, const edm::Event
     throw cms::Exception("InvalidInput") << " Jet-track association is only defined for CaloJets.";
   }
   
-  std::auto_ptr<reco::JetTracksAssociation::Container> jetTracks (new reco::JetTracksAssociation::Container (reco::JetRefBaseProd(jets_h)));
+  auto jetTracks = std::make_unique<reco::JetTracksAssociation::Container>(reco::JetRefBaseProd(jets_h));
 
 
   // format inputs
@@ -67,7 +67,7 @@ void JetTracksAssociatorAtCaloFace::produce(edm::Event& fEvent, const edm::Event
 
 
   // store output
-  fEvent.put (jetTracks);
+  fEvent.put(std::move(jetTracks));
 }
 
 

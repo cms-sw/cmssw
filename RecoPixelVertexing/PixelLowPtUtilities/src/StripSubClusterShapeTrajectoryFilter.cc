@@ -365,7 +365,7 @@ bool StripSubClusterShapeSeedFilter::compatible
 }
 
 bool StripSubClusterShapeSeedFilter::compatible
-    (const SeedingHitSet &hits, const GlobalTrajectoryParameters &helixStateAtVertex, const FastHelix &helix, const TrackingRegion & region) const 
+    (const SeedingHitSet &hits, const GlobalTrajectoryParameters &helixStateAtVertex, const FastHelix &helix) const
 { 
    if (!filterAtHelixStage_) return true;
 

@@ -40,7 +40,9 @@ namespace edmtest {
     } else {
       expectedRunLumisEvents1_ = pset.getUntrackedParameter<std::vector<unsigned long long> >("expectedRunLumiEvents1", std::vector<unsigned long long>());
     }
-    triggerResultsToken_ = consumes<edm::TriggerResults>(edm::InputTag("TriggerResults"));
+    if(dumpTriggerResults_) {
+      triggerResultsToken_ = consumes<edm::TriggerResults>(edm::InputTag("TriggerResults"));
+    }
   }
 
   void RunLumiEventAnalyzer::analyze(edm::Event const& event, edm::EventSetup const&) {

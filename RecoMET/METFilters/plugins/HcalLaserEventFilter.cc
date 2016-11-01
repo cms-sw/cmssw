@@ -248,7 +248,7 @@ HcalLaserEventFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    if (reverseFilter_)
      filterDecision=!filterDecision;
 
-   iEvent.put( std::auto_ptr<bool>(new bool(filterDecision)) );
+   iEvent.put(std::make_unique<bool>(filterDecision));
 
    return taggingMode_ || filterDecision;
 }

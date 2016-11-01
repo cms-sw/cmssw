@@ -1,9 +1,11 @@
+<use   name="CondCore/CondDB"/>
 <use   name="CondCore/DBOutputService"/>
 <use   name="CondCore/PopCon"/>
 <use   name="CondFormats/RunInfo"/>
 <use   name="CoralBase"/>
 <use   name="DataFormats/Provenance"/>
 <use   name="FWCore/Framework"/>
+<use   name="FWCore/MessageLogger"/>
 <use   name="FWCore/ParameterSet"/>
 <use   name="FWCore/ServiceRegistry"/>
 <use   name="RelationalAccess"/>

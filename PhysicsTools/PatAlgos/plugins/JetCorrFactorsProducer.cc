@@ -232,13 +232,9 @@ JetCorrFactorsProducer::produce(edm::Event& event, const edm::EventSetup& setup)
 					    << "the sequence.";
     }
     for(unsigned int idx=0; idx<corrLevel->second.size(); ++idx){
-      bool flavorDependent=false;
       std::vector<float> factors;
-      if(flavorDependent ||
-	 corrLevel->second[idx].find("L5Flavor")!=std::string::npos ||
+      if(corrLevel->second[idx].find("L5Flavor")!=std::string::npos ||
 	 corrLevel->second[idx].find("L7Parton")!=std::string::npos){
-	flavorDependent=true;
-	// after the first encounter all subsequent correction levels are flavor dependent
 	for(FlavorCorrLevelMap::const_iterator flavor=corrLevel; flavor!=levels_.end(); ++flavor){
 	  if(!primaryVertices_.label().empty()){
 	    // if primaryVerticesToken_ has a value the number of primary vertices needs to be

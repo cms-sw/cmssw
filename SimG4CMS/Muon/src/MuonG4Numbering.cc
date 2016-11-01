@@ -57,8 +57,9 @@ MuonBaseNumber MuonG4Numbering::PhysicalVolumeToBaseNumber(const G4Step* aStep)
     G4VPhysicalVolume* vol = touch->GetVolume(ii);
     int copyno=vol->GetCopyNo();
 #ifdef LOCAL_DEBUG
-    std::cout << "MuonG4Numbering: " << vol->GetName()<<" "<<copyno<<std::endl;
-    std::cout << "Split " << copyNoRelevant(copyno);
+    std::cout << "MuonG4Numbering: " << vol->GetName() << " " << copyno 
+	      << std::endl << "Split " << copyNoRelevant(copyno) << ":" 
+	      << theLevelPart << ":" << theSuperPart << " ";
 #endif
     if (copyNoRelevant(copyno)) {
       num.addBase(getCopyNoLevel(copyno),

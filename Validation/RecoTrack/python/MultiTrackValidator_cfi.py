@@ -81,6 +81,8 @@ multiTrackValidator = cms.EDAnalyzer(
     label_vertex = cms.untracked.InputTag("offlinePrimaryVertices"),
     vertexAssociator = cms.untracked.InputTag("VertexAssociatorByPositionAndTracks"),
 
+    simPVMaxZ = cms.untracked.double(-1),
+
     ### Allow switching off particular histograms
     doSummaryPlots = cms.untracked.bool(True),
     doSimPlots = cms.untracked.bool(True),
@@ -91,7 +93,7 @@ multiTrackValidator = cms.EDAnalyzer(
     doSeedPlots = cms.untracked.bool(False), # input comes from TrackFromSeedProducer
 )
 
-from Configuration.StandardSequences.Eras import eras
-if eras.fastSim.isChosen():
+from Configuration.Eras.Modifier_fastSim_cff import fastSim
+if fastSim.isChosen():
     multiTrackValidator.sim = [cms.InputTag('famosSimHits','TrackerHits')]
     

@@ -158,7 +158,6 @@ void HBHEPulseShapeFlagSetter::SetPulseShapeFlags(
        double LinearChi2 = PerformLinearFit(mCharge);
 
        double RMS8Max = CalculateRMS8Max(mCharge);
-       TriangleFitResult TriangleResult = PerformTriangleFit(mCharge);
 
        // Set the HBHEFlatNoise and HBHESpikeNoise flags
        if(CheckPassFilter(TotalCharge, log(LinearChi2) - log(NominalChi2), mLambdaLinearCut, -1) == false)
@@ -169,6 +168,8 @@ void HBHEPulseShapeFlagSetter::SetPulseShapeFlags(
        // Set the HBHETriangleNoise flag
        if ((int)mCharge.size() >= mTrianglePeakTS)  // can't compute flag if peak TS isn't present; revise this at some point?
        {
+           TriangleFitResult TriangleResult = PerformTriangleFit(mCharge);
+
            // initial values
            double TS4Left = 1000;
            double TS4Right = 1000;

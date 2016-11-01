@@ -9,7 +9,8 @@ namespace evf{
     edm::EventAuxiliary makeEventAuxiliary(TCDSRecord *record, 
 					   unsigned int runNumber,
 					   unsigned int lumiSection,
-					   std::string const &processGUID);
+					   std::string const &processGUID,
+                                           bool verifyLumiSection);
   }
 }
 #endif

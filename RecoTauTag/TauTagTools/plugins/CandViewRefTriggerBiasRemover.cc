@@ -41,8 +41,7 @@ void CandViewRefTriggerBiasRemover::produce(edm::Event& evt,
                                             const edm::EventSetup& es) {
   edm::Handle<edm::View<reco::Candidate> > cands;
   evt.getByLabel(src_, cands);
-  std::auto_ptr<reco::CandidateBaseRefVector> output(
-      new reco::CandidateBaseRefVector(cands));
+  auto output = std::make_unique<reco::CandidateBaseRefVector>(cands);
   // Only copy the output if there is more than one item in the input
   size_t nCands = cands->size();
   if (nCands > 1) {
@@ -51,7 +50,7 @@ void CandViewRefTriggerBiasRemover::produce(edm::Event& evt,
       output->push_back(cands->refAt(iCand));
     }
   }
-  evt.put(output);
+  evt.put(std::move(output));
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"

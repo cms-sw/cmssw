@@ -63,14 +63,14 @@ void PseudoTopProducer::produce(edm::Event& event, const edm::EventSetup& eventS
   auto pseudoTopRefHandle = event.getRefBeforePut<reco::GenParticleCollection>();
 
   // Collect unstable B-hadrons
-  std::set<size_t> bHadronIdxs;
+  std::set<int> bHadronIdxs;
   for ( size_t i=0, n=genParticleHandle->size(); i<n; ++i ) {
     const reco::Candidate& p = genParticleHandle->at(i);
     const int status = p.status();
     if ( status == 1 ) continue;
 
     // Collect B-hadrons, to be used in b tagging
-    if ( isBHadron(&p) ) bHadronIdxs.insert(i);
+    if ( isBHadron(&p) ) bHadronIdxs.insert(-i-1);
   }
 
   // Collect stable leptons and neutrinos
@@ -175,7 +175,7 @@ void PseudoTopProducer::produce(edm::Event& event, const edm::EventSetup& eventS
   }
   //// Also don't forget to put B hadrons
   for ( auto index : bHadronIdxs ) {
-    const reco::Candidate& p = genParticleHandle->at(index);
+    const reco::Candidate& p = genParticleHandle->at(abs(index+1));
     if ( std::isnan(p.pt()) or p.pt() <= 0 ) continue;
 
     const double scale = 1e-20/p.p();
@@ -199,7 +199,7 @@ void PseudoTopProducer::produce(edm::Event& event, const edm::EventSetup& eventS
     std::vector<reco::CandidatePtr> constituents;
     bool hasBHadron = false;
     for ( size_t j=0, m=fjConstituents.size(); j<m; ++j ) {
-      const size_t index = fjConstituents[j].user_index();
+      const int index = fjConstituents[j].user_index();
       if ( bHadronIdxs.find(index) != bHadronIdxs.end() ) {
         hasBHadron = true;
         continue;
@@ -283,17 +283,21 @@ void PseudoTopProducer::produce(edm::Event& event, const edm::EventSetup& eventS
       const auto t1LVec = w1LVec + bJet1.p4();
       const auto t2LVec = w2LVec + bJet2.p4();
 
+      // Recalculate lepton charges (needed due to initialization of leptons wrt sign of a charge)
+      const int lepQ1 = lepton1.charge();
+      const int lepQ2 = lepton2.charge();
+
       // Put all of them into candidate collection
-      reco::GenParticle t1(q1*2/3., t1LVec, genVertex_, q1*6, 3, false);
-      reco::GenParticle w1(q1, w1LVec, genVertex_, q1*24, 3, true);
-      reco::GenParticle b1(-q1/3., bJet1.p4(), genVertex_, q1*5, 1, true);
-      reco::GenParticle l1(q1, lepton1.p4(), genVertex_, lepton1.pdgId(), 1, true);
+      reco::GenParticle t1(lepQ1*2/3., t1LVec, genVertex_, lepQ1*6, 3, false);
+      reco::GenParticle w1(lepQ1, w1LVec, genVertex_, lepQ1*24, 3, true);
+      reco::GenParticle b1(-lepQ1/3., bJet1.p4(), genVertex_, lepQ1*5, 1, true);
+      reco::GenParticle l1(lepQ1, lepton1.p4(), genVertex_, lepton1.pdgId(), 1, true);
       reco::GenParticle n1(0, nu1.p4(), genVertex_, nu1.pdgId(), 1, true);
 
-      reco::GenParticle t2(q2*2/3., t2LVec, genVertex_, q2*6, 3, false);
-      reco::GenParticle w2(q2, w2LVec, genVertex_, q2*24, 3, true);
-      reco::GenParticle b2(-q1/3., bJet2.p4(), genVertex_, q2*5, 1, true);
-      reco::GenParticle l2(q2, lepton2.p4(), genVertex_, lepton2.pdgId(), 1, true);
+      reco::GenParticle t2(lepQ2*2/3., t2LVec, genVertex_, lepQ2*6, 3, false);
+      reco::GenParticle w2(lepQ2, w2LVec, genVertex_, lepQ2*24, 3, true);
+      reco::GenParticle b2(-lepQ2/3., bJet2.p4(), genVertex_, lepQ2*5, 1, true);
+      reco::GenParticle l2(lepQ2, lepton2.p4(), genVertex_, lepton2.pdgId(), 1, true);
       reco::GenParticle n2(0, nu2.p4(), genVertex_, nu2.pdgId(), 1, true);
 
       pseudoTop->push_back(t1);

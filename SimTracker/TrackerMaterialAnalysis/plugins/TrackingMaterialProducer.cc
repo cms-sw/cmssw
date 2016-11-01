@@ -30,11 +30,12 @@
 #include "TrackingMaterialProducer.h"
 
 // Uncomment the following #define directive to have the full list of
-// volumes known to G4 printed to LogDebug("TrackingMaterialProducer")
+// volumes known to G4 printed to LogInfo("TrackingMaterialProducer")
 
 #define DEBUG_G4_VOLUMES
 
 using namespace CLHEP;
+using edm::LogInfo;
 
 // missing from GEANT4 < 9.0 : G4LogicalVolumeStore::GetVolume( name )
 static
@@ -43,7 +44,7 @@ const G4LogicalVolume* GetVolume(const std::string& name) {
 
 #ifdef DEBUG_G4_VOLUMES
   for (G4LogicalVolumeStore::const_iterator volume = lvs->begin(); volume != lvs->end(); ++volume)
-    LogDebug("TrackingMaterialProducer") << "TrackingMaterialProducer: G4 registered volumes "
+    LogInfo("TrackingMaterialProducer") << "TrackingMaterialProducer: G4 registered volumes "
                                          << (*volume)->GetName() << std::endl;
 #endif
 
@@ -108,12 +109,12 @@ void TrackingMaterialProducer::update(const EndOfJob* event)
 void TrackingMaterialProducer::update(const BeginOfJob* event)
 {
   // INFO
-  LogDebug("TrackingMaterialProducer") << "TrackingMaterialProducer: List of the selected volumes: " << std::endl;
+  LogInfo("TrackingMaterialProducer") << "TrackingMaterialProducer: List of the selected volumes: " << std::endl;
   for (std::vector<std::string>::const_iterator volume_name = m_selectedNames.begin();
        volume_name != m_selectedNames.end(); ++volume_name) {
     const G4LogicalVolume* volume = GetVolume(*volume_name);
     if (volume) {
-      LogDebug("TrackingMaterialProducer") << "TrackingMaterialProducer: " << *volume_name << std::endl;
+      LogInfo("TrackingMaterialProducer") << "TrackingMaterialProducer: " << *volume_name << std::endl;
       m_selectedVolumes.push_back( volume );
     } else {
       // FIXME: throw an exception ?
@@ -160,7 +161,7 @@ void TrackingMaterialProducer::update(const G4Step* step)
 {
   const G4TouchableHistory* touchable = (G4TouchableHistory*)(step->GetTrack()->GetTouchable());
   if (not isSelectedFast( touchable )) {
-    LogDebug("TrackingMaterialProducer") << "TrackingMaterialProducer:\t[...] skipping "
+    LogInfo("TrackingMaterialProducer") << "TrackingMaterialProducer:\t[...] skipping "
                                          << touchable->GetVolume()->GetName() << std::endl;
     return;
   }
@@ -224,23 +225,30 @@ void TrackingMaterialProducer::update(const G4Step* step)
     m_track.leaveDetector( sensitive, cosThetaPost );
 
   if (sensitive)
-    LogDebug("TrackingMaterialProducer") << "Track was near sensitive     volume "
+    LogInfo("TrackingMaterialProducer") << "Track was near sensitive     volume "
                                          << sensitive->GetName() << std::endl;
   else
-    LogDebug("TrackingMaterialProducer") << "Track was near non-sensitive volume "
+    LogInfo("TrackingMaterialProducer") << "Track was near non-sensitive volume "
                                          << touchable->GetVolume()->GetName() << std::endl;
-  LogDebug("TrackingMaterialProducer") << "Step length:             "
-                                       << length << " cm" << std::endl;
-  LogDebug("TrackingMaterialProducer") << "Radiation lengths:       "
+  LogInfo("TrackingMaterialProducer")  << "Step length:             "
+                                       << length << " cm\n"
+                                       << "globalPreStep(r,z): (" << globalPositionIn.perp()
+                                       << ", " << globalPositionIn.z() << ") cm\n"
+                                       << "globalPostStep(r,z): (" << globalPositionOut.perp()
+                                       << ", " << globalPositionOut.z() << ") cm\n"
+                                       << "position(r,z): ("
+                                       << position.perp()
+                                       << ", " << position.z() << ") cm\n"
+                                       << "Radiation lengths:       "
                                        << radiationLengths << " \t\t(X0: "
-                                       << X0 << " cm)" << std::endl;
-  LogDebug("TrackingMaterialProducer") << "Energy loss:             "
+                                       << X0 << " cm)\n"
+                                       << "Energy loss:             "
                                        << energyLoss << " MeV  \t(Xi: "
-                                       << Xi << " MeV/cm)" << std::endl;
-  LogDebug("TrackingMaterialProducer") << "Track was " << (enter_sensitive ? "entering " : "in none ")
-                                       << "sensitive volume" << std::endl;
-  LogDebug("TrackingMaterialProducer") << "Track was " << (leave_sensitive ? "leaving  " : "in none ")
-                                       << "sensitive volume" << std::endl;
+                                       << Xi << " MeV/cm)\n"
+                                       << "Track was " << (enter_sensitive ? "entering " : "in none ")
+                                       << "sensitive volume\n"
+                                       << "Track was " << (leave_sensitive ? "leaving  " : "in none ")
+                                       << "sensitive volume\n";
 
 }
 
@@ -255,18 +263,18 @@ void TrackingMaterialProducer::update(const EndOfTrack* event)
   radLen_vs_eta_->Fill(track->GetMomentum().eta(), m_track.summary().radiationLengths());
   m_tracks->push_back(m_track);
 
-  // LogDebug
-  LogDebug("TrackingMaterialProducer") << "TrackingMaterialProducer: this track took "
+  // LogInfo
+  LogInfo("TrackingMaterialProducer") << "TrackingMaterialProducer: this track took "
                                        << m_track.steps().size()
                                        << " steps, and passed through "
                                        << m_track.detectors().size()
                                        << " sensitive detectors" << std::endl;
-  LogDebug("TrackingMaterialProducer") << "TrackingMaterialProducer: track length:       "
+  LogInfo("TrackingMaterialProducer") << "TrackingMaterialProducer: track length:       "
                                        << m_track.summary().length()
                                        << " cm" << std::endl;
-  LogDebug("TrackingMaterialProducer") << "TrackingMaterialProducer: radiation lengths: "
+  LogInfo("TrackingMaterialProducer") << "TrackingMaterialProducer: radiation lengths: "
                                        << m_track.summary().radiationLengths() << std::endl;
-  LogDebug("TrackingMaterialProducer") << "TrackingMaterialProducer: energy loss:        "
+  LogInfo("TrackingMaterialProducer") << "TrackingMaterialProducer: energy loss:        "
                                        << m_track.summary().energyLoss()
                                        << " MeV" << std::endl;
 }

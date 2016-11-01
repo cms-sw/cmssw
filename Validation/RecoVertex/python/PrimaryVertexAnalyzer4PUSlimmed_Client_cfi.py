@@ -38,7 +38,9 @@ postProcessorVertex = cms.EDAnalyzer("DQMGenericClient",
                                          "duplicate_vs_R 'Duplicate vs R' RecoAllAssoc2MultiMatchedGen_R RecoAllAssoc2Gen_R",
                                          "duplicate_vs_Pt2 'Duplicate vs Sum p_{T}^{2}' RecoAllAssoc2MultiMatchedGen_Pt2 RecoAllAssoc2Gen_Pt2",
                                          "duplicate_vs_NumTracks 'Duplicate vs NumTracks' RecoAllAssoc2MultiMatchedGen_NumTracks RecoAllAssoc2Gen_NumTracks",
-                                         "duplicate_vs_ClosestVertexInZ 'Duplicate vs ClosestsVtx In Z' RecoAllAssoc2MultiMatchedGen_ClosestDistanceZ RecoAllAssoc2Gen_ClosestDistanceZ"
+                                         "duplicate_vs_ClosestVertexInZ 'Duplicate vs ClosestsVtx In Z' RecoAllAssoc2MultiMatchedGen_ClosestDistanceZ RecoAllAssoc2Gen_ClosestDistanceZ",
+
+                                         "PV_effic_vs_Z 'PV reco+tag efficiency vs Z' GenPVAssoc2RecoPVMatched_Z GenPVAssoc2RecoPV_Z",
                                      ),
                                      resolution = cms.vstring(
                                          "RecoAllAssoc2GenMatched_ResolX_vs_PU '#sigma(x) vs PU' RecoAllAssoc2GenMatched_ResolX_vs_PU",

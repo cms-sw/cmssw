@@ -101,15 +101,14 @@ void PFClusterProducer::produce(edm::Event& e, const edm::EventSetup& es) {
 
 
 
-  std::auto_ptr<reco::PFClusterCollection> initialClusters;
-  initialClusters.reset(new reco::PFClusterCollection);
+  auto initialClusters = std::make_unique<reco::PFClusterCollection>();
   _initialClustering->buildClusters(rechits, mask, seedable, *initialClusters);
   LOGVERB("PFClusterProducer::produce()") << *_initialClustering;
 
 
 
 
-  std::auto_ptr<reco::PFClusterCollection> pfClusters;
+  auto pfClusters = std::make_unique<reco::PFClusterCollection>();
   pfClusters.reset(new reco::PFClusterCollection);
   if( _pfClusterBuilder ) { // if we've defined a re-clustering step execute it
     _pfClusterBuilder->buildClusters(*initialClusters, seedable, *pfClusters);
@@ -130,6 +129,6 @@ void PFClusterProducer::produce(edm::Event& e, const edm::EventSetup& es) {
     _energyCorrector->correctEnergies(*pfClusters);
   }
 
-  if( _prodInitClusters ) e.put(initialClusters,"initialClusters");
-  e.put(pfClusters);
+  if( _prodInitClusters ) e.put(std::move(initialClusters),"initialClusters");
+  e.put(std::move(pfClusters));
 }

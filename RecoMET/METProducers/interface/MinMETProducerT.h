@@ -47,7 +47,7 @@ class MinMETProducerT : public edm::stream::EDProducer<>
 
   void produce(edm::Event& evt, const edm::EventSetup& es) override
   {
-    std::auto_ptr<METCollection> outputMETs(new METCollection());
+    auto outputMETs = std::make_unique<METCollection>();
 
     // check that all MET collections given as input have the same number of entries
     int numMEtObjects = -1;
@@ -80,7 +80,7 @@ class MinMETProducerT : public edm::stream::EDProducer<>
       outputMETs->push_back(T(*minMET));
     }
 
-    evt.put(outputMETs);
+    evt.put(std::move(outputMETs));
   }
 
   std::string moduleLabel_;

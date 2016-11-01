@@ -59,7 +59,7 @@ function getDatasetsForCVS() {
   local TARGET="$2"
 
   log "  dumping Primary Dataset"
-  $GETDATASETS $CONFIG $TARGET
+  $GETDATASETS $CONFIG > $TARGET
 }
 
 function getConfigForOnline() {

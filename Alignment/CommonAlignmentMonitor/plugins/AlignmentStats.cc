@@ -255,7 +255,6 @@ void AlignmentStats::analyze(const edm::Event &iEvent, const edm::EventSetup &iS
     tmpPresc_=prescale_;
   }
   if(trk_cnt!=ntracks)edm::LogError("AlignmentStats")<<"\nERROR! trk_cnt="<<trk_cnt<<"   ntracks="<<ntracks;
-  trk_cnt=0;
 
   return;
 }

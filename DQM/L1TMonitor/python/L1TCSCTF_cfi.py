@@ -17,5 +17,5 @@ l1tCsctf = cms.EDAnalyzer("L1TCSCTF",
 #
 # Make changes for running in Run 2
 #
-from Configuration.StandardSequences.Eras import eras
-eras.run2_common.toModify( l1tCsctf, gangedME11a = False )
+from Configuration.Eras.Modifier_run2_common_cff import run2_common
+run2_common.toModify( l1tCsctf, gangedME11a = False )

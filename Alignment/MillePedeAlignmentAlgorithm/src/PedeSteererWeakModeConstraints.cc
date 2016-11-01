@@ -248,8 +248,10 @@ PedeSteererWeakModeConstraints::createAlignablesDataStructure()
         edm::LogInfo("Alignment") << "@SUB=PedeSteererWeakModeConstraints"
                                   << "No sub-components for "
                                   << AlignableObjectId::idToString(iHLS.first->alignableObjectId())
-                                  << "at (" << iHLS.first->globalPosition().x() << ","<< iHLS.first->globalPosition().y() << "," << iHLS.first->globalPosition().z() << ") "
-                                  << "selected. Skip constraint";
+                                  << " at (" << iHLS.first->globalPosition().x()
+				  << ","<< iHLS.first->globalPosition().y()
+				  << "," << iHLS.first->globalPosition().z()
+				  << ") selected. Skip constraint";
       }
       if(aliDaughts.size() == 0) {
         edm::LogWarning("Alignment") << "@SUB=PedeSteererWeakModeConstraints::createAlignablesDataStructure"

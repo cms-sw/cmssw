@@ -14,8 +14,7 @@
 
 #include <iostream>
 
-#define DebugLog
-
+//#define DebugLog
 
 HGCalTBMB::HGCalTBMB(const edm::ParameterSet& p) {
   
