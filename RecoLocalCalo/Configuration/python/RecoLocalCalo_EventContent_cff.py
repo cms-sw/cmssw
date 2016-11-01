@@ -76,3 +76,11 @@ phase2_hgcal.toModify( RecoLocalCaloRECO, outputCommands = RecoLocalCaloRECO.out
 # don't modify AOD for HGCal yet, need "reduced" rechits collection first (i.e. requires reconstruction)
 #phase2_hgcal.toModify( RecoLocalCaloAOD, outputCommands = RecoLocalCaloAOD.outputCommands + ['keep *_HGCalRecHit_*_*'] )
 
+from Configuration.Eras.Modifier_pA_2016_cff import pA_2016
+pA_2016.toModify( RecoLocalCaloAOD.outputCommands, 
+                  func=lambda outputCommands: outputCommands.extend(['keep *_zdcreco_*_*',
+                                                                     'keep ZDCDataFramesSorted_hcalDigis_*_*',
+                                                                     'keep ZDCDataFramesSorted_castorDigis_*_*',
+                                                                     'keep QIE10DataFrameHcalDataFrameContainer_hcalDigis_ZDC_*'
+                                                                     ]) 
+                  )
