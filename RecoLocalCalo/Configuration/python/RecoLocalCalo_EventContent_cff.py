@@ -63,6 +63,7 @@ from Configuration.StandardSequences.Eras import eras
 eras.pA_2016.toModify( RecoLocalCaloAOD.outputCommands, 
                        func=lambda outputCommands: outputCommands.extend(['keep *_zdcreco_*_*',
                                                                           'keep ZDCDataFramesSorted_hcalDigis_*_*',
-                                                                          'keep ZDCDataFramesSorted_castorDigis_*_*'
-                                                                          ]) 
+                                                                          'keep ZDCDataFramesSorted_castorDigis_*_*',
+                                                                          'keep QIE10DataFrameHcalDataFrameContainer_hcalDigis_ZDC_*'
+                                                                          ])
                        )
