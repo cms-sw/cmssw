@@ -263,10 +263,8 @@ void RawToDigiConverter::Run(const VFATFrameCollection &input,
 void RawToDigiConverter::Run(const VFATFrameCollection &coll, const TotemDAQMapping &mapping, const TotemAnalysisMask &mask,
       edm::DetSetVector<CTPPSDiamondDigi> &digi, edm::DetSetVector<TotemVFATStatus> &status)
 {
-  
   // structure merging vfat frame data with the mapping
   map<TotemFramePosition, Record> records;
-
 
   // common processing - frame validation
   RunCommon(coll, mapping, records);
@@ -279,15 +277,6 @@ void RawToDigiConverter::Run(const VFATFrameCollection &coll, const TotemDAQMapp
     // calculate ids
     CTPPSDiamondDetId detId(record.info->symbolicID.symbolicID);  
 
-    ///cout to find the mismathcing problem, to be removed after findout
-    /*cout<<"Arm, station, Rp, plane, det: "<<detId.arm()<<" "<<detId.station()<<" "<<detId.rp()<<" "<<detId.plane()<<" "<<detId.det()<<endl;
-    cout<<"isMissing(): isIDMismatch: isFootprintError: isCRCError: isECProgressError: isBCProgressError "<<record.status.isMissing()<<": "<<record.status.isIDMismatch()<<": "<<record.status.isFootprintError()<<": "<<record.status.isCRCError()<<": "<<record.status.isECProgressError()<<": "<<record.status.isBCProgressError()<<endl;        
-    if((record.status.isMissing()==0))
-    {   
-      cout<<"(record.frame->getChipID() & 0xFFF)= "<<(record.frame->getChipID() & 0xFFF)<<endl;
-      cout<<"(record.info->hwID & 0xFFF)= "<<(record.info->hwID & 0xFFF)<<endl;
-    }    
-    */
     if (record.status.isOK())
     {
       const VFATFrame *fr = record.frame;
@@ -300,15 +289,8 @@ void RawToDigiConverter::Run(const VFATFrameCollection &coll, const TotemDAQMapp
 
     // save status
     DetSet<TotemVFATStatus> &statusDetSet = status.find_or_insert(detId);
-
     statusDetSet.push_back(record.status);
-   
   }
-
-
-
-
-
 }
 
 //----------------------------------------------------------------------------------------------------
