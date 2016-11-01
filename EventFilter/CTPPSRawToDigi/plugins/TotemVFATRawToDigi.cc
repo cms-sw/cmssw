@@ -46,7 +46,7 @@ class TotemVFATRawToDigi : public edm::stream::EDProducer<>
   private:
     std::string subSystemName;
 
-    enum { ssUndefined, ssRP, ssDiamond } subSystem;
+    enum { ssUndefined, ssTrackingStrip, ssTimingDiamond } subSystem;
 
     std::vector<unsigned int> fedIds;
 
@@ -76,10 +76,10 @@ TotemVFATRawToDigi::TotemVFATRawToDigi(const edm::ParameterSet &conf):
   fedDataToken = consumes<FEDRawDataCollection>(conf.getParameter<edm::InputTag>("rawDataTag"));
 
   // validate chosen subSystem
-  if (subSystemName == "RP")
-    subSystem = ssRP;
-  if (subSystemName == "diamond")
-    subSystem = ssDiamond;
+  if (subSystemName == "TrackingStrip")
+    subSystem = ssTrackingStrip;
+  if (subSystemName == "TimingDiamond")
+    subSystem = ssTimingDiamond;
 
   if (subSystem == ssUndefined)
     throw cms::Exception("TotemVFATRawToDigi::TotemVFATRawToDigi") << "Unknown sub-system string " << subSystemName << "." << endl;
@@ -88,22 +88,22 @@ TotemVFATRawToDigi::TotemVFATRawToDigi(const edm::ParameterSet &conf):
   produces< vector<TotemFEDInfo> >(subSystemName);
 
   // declare products
-  if (subSystem == ssRP)
+  if (subSystem == ssTrackingStrip)
     produces< DetSetVector<TotemRPDigi> >(subSystemName);
 
-  if (subSystem == ssDiamond)
+  if (subSystem == ssTimingDiamond)
     produces< DetSetVector<CTPPSDiamondDigi> >(subSystemName);
 
   // set default IDs
   if (fedIds.empty())
   {
-    if (subSystem == ssRP)
+    if (subSystem == ssTrackingStrip)
     {
       for (int id = FEDNumbering::MINTotemRPFEDID; id <= FEDNumbering::MAXTotemRPFEDID; ++id)
         fedIds.push_back(id);
     }
 
-    if (subSystem == ssDiamond)
+    if (subSystem == ssTimingDiamond)
     {
       
       for (int id = FEDNumbering::MINCTPPSDiamondFEDID; id <= FEDNumbering::MAXCTPPSDiamondFEDID; ++id)
@@ -125,10 +125,10 @@ TotemVFATRawToDigi::~TotemVFATRawToDigi()
 
 void TotemVFATRawToDigi::produce(edm::Event& event, const edm::EventSetup &es)
 {
-  if (subSystem == ssRP)
+  if (subSystem == ssTrackingStrip)
     run< DetSetVector<TotemRPDigi> >(event, es);
 
-  if (subSystem == ssDiamond)
+  if (subSystem == ssTimingDiamond)
     run< DetSetVector<CTPPSDiamondDigi> >(event, es);
 }
 
@@ -139,11 +139,11 @@ void TotemVFATRawToDigi::run(edm::Event& event, const edm::EventSetup &es)
 {
   // get DAQ mapping
   ESHandle<TotemDAQMapping> mapping;
-  es.get<TotemReadoutRcd>().get(mapping);
+  es.get<TotemReadoutRcd>().get(subSystemName, mapping);
 
   // get analysis mask to mask channels
   ESHandle<TotemAnalysisMask> analysisMask;
-  es.get<TotemReadoutRcd>().get(analysisMask);
+  es.get<TotemReadoutRcd>().get(subSystemName, analysisMask);
 
   // raw data handle
   edm::Handle<FEDRawDataCollection> rawData;

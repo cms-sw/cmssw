@@ -7,9 +7,7 @@ process.MessageLogger = cms.Service("MessageLogger",
   statistics = cms.untracked.vstring(),
   destinations = cms.untracked.vstring('cerr'),
   cerr = cms.untracked.PSet(
-    # TODO: revert
-    #threshold = cms.untracked.string('WARNING')
-    threshold = cms.untracked.string('DEBUG')
+    threshold = cms.untracked.string('WARNING')
   )
 )
 
@@ -31,3 +29,10 @@ process.load("EventFilter.CTPPSRawToDigi.ctppsRawToDigi_cff")
 process.p = cms.Path(
     process.ctppsRawToDigi
 )
+
+# output configuration
+process.output = cms.OutputModule("PoolOutputModule",
+  fileName = cms.untracked.string("file:./reco_digi.root"),
+)
+
+process.outpath = cms.EndPath(process.output)
