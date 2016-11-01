@@ -75,6 +75,10 @@ public:
 
 private:
   unsigned int verbosity;
+
+  // label of the CTPPS sub-system
+  string subSystemName;
+
   int plane_id;
 
   /// the mapping files
@@ -183,10 +187,11 @@ const string TotemDAQMappingESSourceXML::tagDiamondCh = "diamond_channel";
 
 TotemDAQMappingESSourceXML::TotemDAQMappingESSourceXML(const edm::ParameterSet& conf) :
   verbosity(conf.getUntrackedParameter<unsigned int>("verbosity", 0)),
+  subSystemName(conf.getUntrackedParameter<string>("subSystem")),
   mappingFileNames(conf.getUntrackedParameter< vector<string> >("mappingFileNames")),
   maskFileNames(conf.getUntrackedParameter< vector<string> >("maskFileNames"))
 {
-  setWhatProduced(this);
+  setWhatProduced(this, subSystemName);
   findingRecord<TotemReadoutRcd>();
 }
 
