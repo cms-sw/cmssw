@@ -2,6 +2,14 @@ import os.path
 import FWCore.ParameterSet.Config as cms
 from Configuration.StandardSequences.Eras import eras
 
+def L1TSettingsToCaloStage2Params_v3_4(process):
+    print " #######################################################################"
+    print " # Loading configuration for calorimeter parameters for Heavy Ion run, #"
+    print " # bypassing EGVetos & bypassing jetPUS.                               #"
+    print " #######################################################################"
+    process.load("L1Trigger.L1TCalorimeter.caloStage2Params_2016_v3_4_cfi")
+    return process
+
 def L1TSettingsToCaloStage2Params_v3_3(process):
     process.load("L1Trigger.L1TCalorimeter.caloStage2Params_2016_v3_3_cfi")
     return process

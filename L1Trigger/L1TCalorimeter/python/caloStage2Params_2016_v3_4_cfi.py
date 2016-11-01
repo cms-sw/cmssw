@@ -47,6 +47,8 @@ caloStage2Params.egPUSParams                = cms.vdouble(1,4,32) #Isolation win
 caloStage2Params.egCalibrationType          = cms.string("compressed")
 caloStage2Params.egCalibrationVersion       = cms.uint32(0)
 caloStage2Params.egCalibrationLUTFile       = cms.FileInPath("L1Trigger/L1TCalorimeter/data/corrections_Trimming10_compressedieta_compressedE_compressedshape_v16.03.14.txt")
+caloStage2Params.egBypassEGVetos            = cms.uint32(1)
+
 
 
 # Tau
@@ -68,6 +70,7 @@ caloStage2Params.jetLsb                = cms.double(0.5)
 caloStage2Params.jetSeedThreshold      = cms.double(4.0)
 caloStage2Params.jetNeighbourThreshold = cms.double(0.)
 caloStage2Params.jetPUSType            = cms.string("ChunkyDonut")
+caloStage2Params.jetBypassPUS          = cms.uint32(1)
 
 # Calibration options
 # function6PtParams22EtaBins or None
