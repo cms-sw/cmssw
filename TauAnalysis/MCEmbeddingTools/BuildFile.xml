@@ -17,6 +17,8 @@
 <use   name="pythia6"/>
 <use   name="GeneratorInterface/Pythia6Interface"/>
 <use   name="GeneratorInterface/Core"/>
+<use name="DataFormats/Common"/>
+<use name="DataFormats/TrackReco"/>
 <export>
   <lib   name="1"/>
 </export>
