@@ -60,7 +60,19 @@ hltMuonOfflineAnalyzer = cms.EDAnalyzer("HLTMuonOfflineAnalyzer",
       "HLT_PAL3Mu5_v", #for HI 
       "HLT_PAL3Mu7_v", #for HI 
       "HLT_PAL3Mu12_v", #for HI
-      "HLT_PAL3Mu15_v" #for HI
+      "HLT_PAL3Mu15_v", #for HI
+      "HLT_PASingleMuOpen_PixelTrackGt0_FullTrackLt10_v", #for HI Forward
+      "HLT_PASingleMuOpen_PixelTrackGt0_FullTrackLt15_v", #for HI Forward
+      "HLT_PASingleMuOpen_PixelTrackGt0Lt10_v", #for HI Forward
+      "HLT_PASingleMuOpen_PixelTrackGt0Lt15_v", #for HI Forward
+      "HLT_PASingleMuOpen_HFOneTowerVeto_SingleTrack_v", #for HI Forward
+      "HLT_PASingleMuOpen_HFOneTowerVeto_v", #for HI Forward
+      "HLT_PASingleMuOpen_HFTwoTowerVeto_SingleTrack_v", #for HI Forward
+      "HLT_PASingleMuOpen_HFTwoTowerVeto_v", #for HI Forward
+      "HLT_PADoubleMuOpen_HFOneTowerVeto_SingleTrack_v", #for HI Forward
+      "HLT_PADoubleMuOpen_HFOneTowerVeto_v", #for HI Forward
+      "HLT_PADoubleMuOpen_HFTwoTowerVeto_SingleTrack_v", #for HI Forward
+      "HLT_PADoubleMuOpen_HFTwoTowerVeto_v" #for HI Forward
     ),
 
 #HLT_Mu15_eta2p1_TriCentral_40_20_20_BTagIP3D1stTrack_v3 matches HLT_Mu15_eta2p1_v
