@@ -150,8 +150,8 @@ void SiPixelPhase1TrackClusters::analyze(const edm::Event& iEvent, const edm::Ev
     }
   }
 
-  histo[ONTRACK_NCLUSTERS].executePerEventHarvesting();
-  histo[OFFTRACK_NCLUSTERS].executePerEventHarvesting();
+  histo[ONTRACK_NCLUSTERS].executePerEventHarvesting(&iEvent);
+  histo[OFFTRACK_NCLUSTERS].executePerEventHarvesting(&iEvent);
 }
 
 DEFINE_FWK_MODULE(SiPixelPhase1TrackClusters);

@@ -51,6 +51,7 @@ SiPixelPhase1DigisNdigisPerFED = DefaultHisto.clone(
     Specification().groupBy("PXBarrel|PXForward/PXLayer|PXDisk/Lumisection/FED/FED/Event")
                    .reduce("COUNT")
                    .groupBy("PXBarrel|PXForward/PXLayer|PXDisk/Lumisection/FED")
+                   .reduce("MEAN")
                    .groupBy("PXBarrel|PXForward/PXLayer|PXDisk/Lumisection", "EXTEND_Y")
                    .groupBy("PXBarrel|PXForward/PXLayer|PXDisk", "EXTEND_X")
                    .save()
