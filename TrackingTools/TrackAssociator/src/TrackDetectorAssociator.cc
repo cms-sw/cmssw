@@ -28,6 +28,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Utilities/interface/isFinite.h"
 #include "DataFormats/Common/interface/OrphanHandle.h"
 
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -234,7 +235,7 @@ TrackDetMatchInfo TrackDetectorAssociator::associate( const edm::Event& iEvent,
    }
 
    if ( trackOrigin.momentum().mag() == 0 ) return info;
-   if ( std::isnan(trackOrigin.momentum().x()) or std::isnan(trackOrigin.momentum().y()) or std::isnan(trackOrigin.momentum().z()) ) return info;
+   if ( edm::isNotFinite(trackOrigin.momentum().x()) or edm::isNotFinite(trackOrigin.momentum().y()) or edm::isNotFinite(trackOrigin.momentum().z()) ) return info;
    if ( ! cachedTrajectory_.propagateAll(trackOrigin) ) return info;
    
    // get trajectory in calorimeters
@@ -804,33 +805,34 @@ void TrackDetectorAssociator::fillMuon( const edm::Event& iEvent,
                  }
               }
 	}
-	// GEM Chamber   
-	else if (parameters.useGEM){
-	  if(const GEMSuperChamber* chamber = dynamic_cast<const GEMSuperChamber*>(geomDet) ) {	 
-	    // Get the range for the corresponding segments
-	    GEMSegmentCollection::range  range = gemSegments->get(chamber->id());
-	    // Loop over the segments
-	    for (GEMSegmentCollection::const_iterator segment = range.first; segment!=range.second; segment++) {
-	      if (addTAMuonSegmentMatch(*matchedChamber, &(*segment), parameters)) {
-		matchedChamber->segments.back().gemSegmentRef = GEMSegmentRef(gemSegments, segment - gemSegments->begin());
+	else {
+	  // GEM Chamber
+	  if (parameters.useGEM){
+	    if (const GEMSuperChamber* chamber = dynamic_cast<const GEMSuperChamber*>(geomDet) ) {	 
+	      // Get the range for the corresponding segments
+	      GEMSegmentCollection::range  range = gemSegments->get(chamber->id());
+	      // Loop over the segments
+	      for (GEMSegmentCollection::const_iterator segment = range.first; segment!=range.second; segment++) {
+		if (addTAMuonSegmentMatch(*matchedChamber, &(*segment), parameters)) {
+		  matchedChamber->segments.back().gemSegmentRef = GEMSegmentRef(gemSegments, segment - gemSegments->begin());
+		}
 	      }
 	    }
 	  }
-	}
-	// ME0 Chamber   
-	else if (parameters.useME0){
-	  if(const ME0Chamber* chamber = dynamic_cast<const ME0Chamber*>(geomDet) ) {
-	    // Get the range for the corresponding segments
-	    ME0SegmentCollection::range  range = me0Segments->get(chamber->id());
-	    // Loop over the segments
-	    for (ME0SegmentCollection::const_iterator segment = range.first; segment!=range.second; segment++) {
-	      if (addTAMuonSegmentMatch(*matchedChamber, &(*segment), parameters)) {
-		matchedChamber->segments.back().me0SegmentRef = ME0SegmentRef(me0Segments, segment - me0Segments->begin());
+	  // ME0 Chamber
+	  if (parameters.useME0){
+	    if (const ME0Chamber* chamber = dynamic_cast<const ME0Chamber*>(geomDet) ) {
+	      // Get the range for the corresponding segments
+	      ME0SegmentCollection::range  range = me0Segments->get(chamber->id());
+	      // Loop over the segments
+	      for (ME0SegmentCollection::const_iterator segment = range.first; segment!=range.second; segment++) {
+		if (addTAMuonSegmentMatch(*matchedChamber, &(*segment), parameters)) {
+		  matchedChamber->segments.back().me0SegmentRef = ME0SegmentRef(me0Segments, segment - me0Segments->begin());
+		}
 	      }
 	    }
 	  }
-	}
-   	
+   	}
 	info.chambers.push_back(*matchedChamber);
      }
 }

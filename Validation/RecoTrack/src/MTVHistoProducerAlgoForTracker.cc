@@ -122,6 +122,11 @@ MTVHistoProducerAlgoForTracker::MTVHistoProducerAlgoForTracker(const edm::Parame
   maxTracks  = pset.getParameter<double>("maxTracks");
   nintTracks = pset.getParameter<int>("nintTracks");
 
+  //parameters for vs. PV z plots
+  minPVz  = pset.getParameter<double>("minPVz");
+  maxPVz  = pset.getParameter<double>("maxPVz");
+  nintPVz = pset.getParameter<int>("nintPVz");
+
   //parameters for resolution plots
   ptRes_rangeMin = pset.getParameter<double>("ptRes_rangeMin");
   ptRes_rangeMax = pset.getParameter<double>("ptRes_rangeMax");
@@ -296,6 +301,9 @@ void MTVHistoProducerAlgoForTracker::bookSimTrackHistos(DQMStore::IBooker& ibook
   BinLogX(h_assocdr.back()->getTH1F());
   BinLogX(h_simuldr.back()->getTH1F());
 
+  h_simul_simpvz.push_back( ibook.book1D("num_simul_simpvz", "N of simulated tracks vs. sim PV z", nintPVz, minPVz, maxPVz) );
+  h_assoc_simpvz.push_back( ibook.book1D("num_assoc(simToReco)_simpvz", "N of associated tracks (simToReco) vs. sim PV z", nintPVz, minPVz, maxPVz) );
+
   nrecHit_vs_nsimHit_sim2rec.push_back( ibook.book2D("nrecHit_vs_nsimHit_sim2rec","nrecHit vs nsimHit (Sim2RecAssoc)",
 						     nintHit,minHit,maxHit, nintHit,minHit,maxHit ));
 
@@ -432,6 +440,10 @@ void MTVHistoProducerAlgoForTracker::bookRecoHistos(DQMStore::IBooker& ibook) {
   BinLogX(h_assoc2dr.back()->getTH1F());
   BinLogX(h_looperdr.back()->getTH1F());
   BinLogX(h_pileupdr.back()->getTH1F());
+
+  h_reco_simpvz.push_back( ibook.book1D("num_reco_simpvz", "N of reco track vs. sim PV z", nintPVz, minPVz, maxPVz) );
+  h_assoc2_simpvz.push_back( ibook.book1D("num_assoc(recoToSim)_simpvz", "N of associated tracks (recoToSim) vs. sim PV z", nintPVz, minPVz, maxPVz) );
+  h_pileup_simpvz.push_back( ibook.book1D("num_pileup_simpvz", "N of associated (recoToSim) pileup tracks vs. sim PV z", nintPVz, minPVz, maxPVz) );
 
   h_recochi2.push_back( ibook.book1D("num_reco_chi2","N of reco track vs normalized #chi^{2}",nintChi2,minChi2,maxChi2) );
   h_assoc2chi2.push_back( ibook.book1D("num_assoc(recoToSim)_chi2","N of associated (recoToSim) tracks vs normalized #chi^{2}",nintChi2,minChi2,maxChi2) );
@@ -670,7 +682,8 @@ void MTVHistoProducerAlgoForTracker::fill_recoAssociated_simTrack_histos(int cou
 									 const reco::Track* track,
 									 int numVertices,
 									 double dR,
-									 const math::XYZPoint *pvPosition){
+									 const math::XYZPoint *pvPosition,
+                                                                         const TrackingVertex::LorentzVector *simPVPosition) {
   bool isMatched = track;
   const auto eta = getEta(momentumTP.eta());
   const auto phi = momentumTP.phi();
@@ -740,6 +753,7 @@ void MTVHistoProducerAlgoForTracker::fill_recoAssociated_simTrack_histos(int cou
       h_simul_dzpvsigcut[count]->Fill(0);
       h_simul_dzpvcut_pt[count]->Fill(0, pt);
       h_simul_dzpvsigcut_pt[count]->Fill(0, pt);
+
       if(isMatched) {
         fillPlotNoFlow(h_assocdzpv[count], dzPVSim);
 
@@ -753,6 +767,13 @@ void MTVHistoProducerAlgoForTracker::fill_recoAssociated_simTrack_histos(int cou
         h_assoc_dzpvsigcut[count]->Fill(dzpvsigcut);
         h_assoc_dzpvcut_pt[count]->Fill(dzpvcut, pt);
         h_assoc_dzpvsigcut_pt[count]->Fill(dzpvsigcut, pt);
+      }
+    }
+    if(simPVPosition) {
+      const auto simpvz = simPVPosition->z();
+      h_simul_simpvz[count]->Fill(simpvz);
+      if(isMatched) {
+        h_assoc_simpvz[count]->Fill(simpvz);
       }
     }
   }
@@ -780,6 +801,7 @@ void MTVHistoProducerAlgoForTracker::fill_generic_recoTrack_histos(int count,
                                                                    const TrackerTopology& ttopo,
 								   const math::XYZPoint& bsPosition,
 								   const math::XYZPoint *pvPosition,
+                                                                   const TrackingVertex::LorentzVector *simPVPosition,
 								   bool isMatched,
 								   bool isSigMatched,
 								   bool isChargeMatched,
@@ -812,6 +834,7 @@ void MTVHistoProducerAlgoForTracker::fill_generic_recoTrack_histos(int count,
   const auto chi2 = track.normalizedChi2();
   const bool fillSeedingLayerSets = !seedingLayerSetNames.empty();
   const unsigned int seedingLayerSetBin = fillSeedingLayerSets ? getSeedingLayerSetBin(track, ttopo) : 0;
+  const auto simpvz = simPVPosition ? simPVPosition->z() : 0.0;
 
   const bool paramsValid = !trackFromSeedFitFailed(track);
 
@@ -825,7 +848,7 @@ void MTVHistoProducerAlgoForTracker::fill_generic_recoTrack_histos(int count,
     fillPlotNoFlow(h_recovertpos[count], vertxy);
     fillPlotNoFlow(h_recozpos[count], vertz);
     h_recodr[count]->Fill(deltar);
-  if(fillSeedingLayerSets) h_reco_seedingLayerSet[count]->Fill(seedingLayerSetBin);
+    if(fillSeedingLayerSets) h_reco_seedingLayerSet[count]->Fill(seedingLayerSetBin);
     if(pvPosition) {
       fillPlotNoFlow(h_recodxypv[count], dxypv);
       fillPlotNoFlow(h_recodzpv[count], dzpv);
@@ -834,6 +857,9 @@ void MTVHistoProducerAlgoForTracker::fill_generic_recoTrack_histos(int count,
       h_reco_dzpvsigcut[count]->Fill(std::abs(dzpvsig));
       h_reco_dzpvcut_pt[count]->Fill(std::abs(dzpv), pt);
       h_reco_dzpvsigcut_pt[count]->Fill(std::abs(dzpvsig), pt);
+    }
+    if(simPVPosition) {
+      h_reco_simpvz[count]->Fill(simpvz);
     }
   }
   fillPlotNoFlow(h_recohit[count], nhits);
@@ -854,7 +880,7 @@ void MTVHistoProducerAlgoForTracker::fill_generic_recoTrack_histos(int count,
       fillPlotNoFlow(h_assoc2vertpos[count], vertxy);
       fillPlotNoFlow(h_assoc2zpos[count], vertz);
       h_assoc2dr[count]->Fill(deltar);
-    if(fillSeedingLayerSets) h_assoc2_seedingLayerSet[count]->Fill(seedingLayerSetBin);
+      if(fillSeedingLayerSets) h_assoc2_seedingLayerSet[count]->Fill(seedingLayerSetBin);
       if(pvPosition) {
         fillPlotNoFlow(h_assoc2dxypv[count], dxypv);
         fillPlotNoFlow(h_assoc2dzpv[count], dzpv);
@@ -863,6 +889,9 @@ void MTVHistoProducerAlgoForTracker::fill_generic_recoTrack_histos(int count,
         h_assoc2_dzpvsigcut[count]->Fill(std::abs(dzpvsig));
         h_assoc2_dzpvcut_pt[count]->Fill(std::abs(dzpv), pt);
         h_assoc2_dzpvsigcut_pt[count]->Fill(std::abs(dzpvsig), pt);
+      }
+      if(simPVPosition) {
+        h_assoc2_simpvz[count]->Fill(simpvz);
       }
     }
     fillPlotNoFlow(h_assoc2layer[count], nlayers);
@@ -903,7 +932,7 @@ void MTVHistoProducerAlgoForTracker::fill_generic_recoTrack_histos(int count,
         fillPlotNoFlow(h_loopervertpos[count], vertxy);
         fillPlotNoFlow(h_looperzpos[count], vertz);
         h_looperdr[count]->Fill(deltar);
-      if(fillSeedingLayerSets) h_looper_seedingLayerSet[count]->Fill(seedingLayerSetBin);
+        if(fillSeedingLayerSets) h_looper_seedingLayerSet[count]->Fill(seedingLayerSetBin);
         if(pvPosition) {
           fillPlotNoFlow(h_looperdxypv[count], dxypv);
           fillPlotNoFlow(h_looperdzpv[count], dzpv);
@@ -926,7 +955,7 @@ void MTVHistoProducerAlgoForTracker::fill_generic_recoTrack_histos(int count,
         fillPlotNoFlow(h_pileupvertpos[count], vertxy);
         fillPlotNoFlow(h_pileupzpos[count], vertz);
         h_pileupdr[count]->Fill(deltar);
-      if(fillSeedingLayerSets) h_pileup_seedingLayerSet[count]->Fill(seedingLayerSetBin);
+        if(fillSeedingLayerSets) h_pileup_seedingLayerSet[count]->Fill(seedingLayerSetBin);
         if(pvPosition) {
           fillPlotNoFlow(h_pileupdxypv[count], dxypv);
           fillPlotNoFlow(h_pileupdzpv[count], dzpv);
@@ -935,6 +964,9 @@ void MTVHistoProducerAlgoForTracker::fill_generic_recoTrack_histos(int count,
           h_pileup_dzpvsigcut[count]->Fill(std::abs(dzpvsig));
           h_pileup_dzpvcut_pt[count]->Fill(std::abs(dzpv), pt);
           h_pileup_dzpvsigcut_pt[count]->Fill(std::abs(dzpvsig), pt);
+        }
+        if(simPVPosition) {
+          h_pileup_simpvz[count]->Fill(simpvz);
         }
       }
       fillPlotNoFlow(h_pileuphit[count], nhits);

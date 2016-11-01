@@ -68,5 +68,9 @@ namespace edm {
     Schedule const* schedule_;
     std::shared_ptr<ProductRegistry const> preg_;
   };
+  
+  void
+  checkForModuleDependencyCorrectness(edm::PathsAndConsumesOfModulesBase const& iPnC,
+                                      bool iPrintDependencies);
 }
 #endif

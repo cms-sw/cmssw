@@ -1,5 +1,4 @@
 import FWCore.ParameterSet.Config as cms
-from Configuration.StandardSequences.Eras import eras
 
 from RecoPixelVertexing.PixelTrackFitting.PixelTracks_cff import *
 #
@@ -16,6 +15,9 @@ PixelLayerTripletsPreSplitting = PixelLayerTriplets.clone(
 )
 _recopixelvertexing_LowPU_Phase1PU70 = recopixelvertexing.copy()
 _recopixelvertexing_LowPU_Phase1PU70.replace(PixelLayerTriplets, PixelLayerTripletsPreSplitting)
-eras.trackingLowPU.toReplaceWith(recopixelvertexing, _recopixelvertexing_LowPU_Phase1PU70)
-eras.trackingPhase1PU70.toReplaceWith(recopixelvertexing, _recopixelvertexing_LowPU_Phase1PU70)
-eras.trackingPhase2PU140.toReplaceWith(recopixelvertexing, _recopixelvertexing_LowPU_Phase1PU70)
+from Configuration.Eras.Modifier_trackingLowPU_cff import trackingLowPU
+trackingLowPU.toReplaceWith(recopixelvertexing, _recopixelvertexing_LowPU_Phase1PU70)
+from Configuration.Eras.Modifier_trackingPhase1PU70_cff import trackingPhase1PU70
+trackingPhase1PU70.toReplaceWith(recopixelvertexing, _recopixelvertexing_LowPU_Phase1PU70)
+from Configuration.Eras.Modifier_trackingPhase2PU140_cff import trackingPhase2PU140
+trackingPhase2PU140.toReplaceWith(recopixelvertexing, _recopixelvertexing_LowPU_Phase1PU70)

@@ -41,7 +41,6 @@ cfiFiles="${cfiFiles} Geometry/CMSCommonData/cmsExtendedGeometryHFLibraryNoCasto
 cfiFiles="${cfiFiles} Geometry/CMSCommonData/cmsExtendedGeometryHFLibraryXML_cfi"
 cfiFiles="${cfiFiles} Geometry/CMSCommonData/cmsExtendedGeometryHFParametrizeXML_cfi"
 cfiFiles="${cfiFiles} Geometry/CMSCommonData/cmsExtendedGeometryNoCastorXML_cfi"
-cfiFiles="${cfiFiles} Geometry/CMSCommonData/cmsExtendedGeometryPhaseIPixelXML_cfi"
 cfiFiles="${cfiFiles} Geometry/CMSCommonData/cmsExtendedGeometryTest2014XML_cfi"
 cfiFiles="${cfiFiles} Geometry/CMSCommonData/cmsExtendedGeometryXML_cfi"
 cfiFiles="${cfiFiles} Geometry/CMSCommonData/cmsExtendedGeometryZeroMaterialXML_cfi"

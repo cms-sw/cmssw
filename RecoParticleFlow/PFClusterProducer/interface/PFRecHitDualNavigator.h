@@ -26,7 +26,7 @@ class PFRecHitDualNavigator : public PFRecHitNavigatorBase {
 
   }
 
-  void associateNeighbours(reco::PFRecHit& hit,std::auto_ptr<reco::PFRecHitCollection>& hits,edm::RefProd<reco::PFRecHitCollection>& refProd) {
+  void associateNeighbours(reco::PFRecHit& hit,std::unique_ptr<reco::PFRecHitCollection>& hits,edm::RefProd<reco::PFRecHitCollection>& refProd) {
       if (hit.layer() ==  D1)
 	barrelNav_->associateNeighbours(hit,hits,refProd);
       else if (hit.layer() ==  D2)

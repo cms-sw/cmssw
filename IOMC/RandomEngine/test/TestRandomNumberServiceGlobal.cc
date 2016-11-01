@@ -169,7 +169,8 @@ TestRandomNumberServiceGlobal::TestRandomNumberServiceGlobal(edm::ParameterSet c
     edm::Service<edm::RandomNumberGenerator> rng;
     bool exceptionThrown = true;
     try {
-       std::cout << "*** TestRandomNumberServiceGlobal constructor " << rng->mySeed() << "\n";
+       unsigned int mySeed = rng->mySeed();
+       std::cout << "*** TestRandomNumberServiceGlobal constructor " << mySeed << "\n";
        exceptionThrown = false;
     } catch( cms::Exception const&) {
     }
@@ -296,7 +297,9 @@ void TestRandomNumberServiceGlobal::beginJob() {
     bool exceptionThrown = true;
     try {
        edm::Service<edm::RandomNumberGenerator> rng;
-       std::cout << "*** TestRandomNumberServiceGlobal beginJob " << rng->mySeed() << "\n";
+       unsigned int mySeed = rng->mySeed();
+       std::cout << "*** TestRandomNumberServiceGlobal beginJob " << mySeed << "\n";
+       exceptionThrown = false;
     } catch( cms::Exception const&) {
     }
     if(not exceptionThrown) {
@@ -310,7 +313,9 @@ void TestRandomNumberServiceGlobal::endJob() {
     bool exceptionThrown = true;
     try {
        edm::Service<edm::RandomNumberGenerator> rng;
-       std::cout << "*** TestRandomNumberServiceGlobal endJob " << rng->mySeed() << "\n";
+       unsigned int mySeed = rng->mySeed();
+       std::cout << "*** TestRandomNumberServiceGlobal endJob " << mySeed << "\n";
+       exceptionThrown = false;
     } catch( cms::Exception const&) {
     }
     if(not exceptionThrown) {

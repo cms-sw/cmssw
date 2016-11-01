@@ -32,9 +32,11 @@ namespace {
 
   // Add phase1 constants 
   // For phase1  
-  constexpr int LINK_bits1 = 7;
-  constexpr int ROC_bits1  = 4;
-  // Special for layer 1 bpix rocs 6/9/16 d.k.
+  //GO BACK TO OLD VALUES. THE 48-CHAN FED DOES NOT NEED A NEW FORMAT 
+  // 28/9/16 d.k.
+  constexpr int LINK_bits1 = 6; // 7;
+  constexpr int ROC_bits1  = 5; // 4;
+  // Special for layer 1 bpix rocs 6/9/16 d.k. THIS STAYS.
   constexpr int COL_bits1_l1 = 6;
   constexpr int ROW_bits1_l1 = 7;
 

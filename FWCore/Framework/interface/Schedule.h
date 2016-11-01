@@ -263,9 +263,6 @@ namespace edm {
 
   private:
 
-    /// Check that the schedule is actually runable
-    void checkForCorrectness() const;
-    
     void limitOutput(ParameterSet const& proc_pset, BranchIDLists const& branchIDLists);
 
     std::shared_ptr<TriggerResultInserter const> resultsInserter() const {return get_underlying_safe(resultsInserter_);}
@@ -285,7 +282,6 @@ namespace edm {
     edm::propagate_const<std::unique_ptr<SystemTimeKeeper>> summaryTimeKeeper_;
 
     bool                           wantSummary_;
-    bool                           printDependencies_;
 
     volatile bool           endpathsAreActive_;
   };

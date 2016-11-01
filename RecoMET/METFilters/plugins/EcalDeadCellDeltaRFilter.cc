@@ -325,15 +325,12 @@ bool EcalDeadCellDeltaRFilter::filter(edm::Event& iEvent, const edm::EventSetup&
 //     h1_dummy->Fill(xxx);
   }
 
-  std::auto_ptr<int> deadCellStatusPtr ( new int(deadCellStatus) );
-  std::auto_ptr<int> boundaryStatusPtr ( new int(boundaryStatus) );
-
-  iEvent.put( deadCellStatusPtr, "deadCellStatus");
-  iEvent.put( boundaryStatusPtr, "boundaryStatus");
+  iEvent.put(std::make_unique<int>(deadCellStatus), "deadCellStatus");
+  iEvent.put(std::make_unique<int>(boundaryStatus), "boundaryStatus");
 
   if( deadCellStatus || (doCracks_ && boundaryStatus) ) pass = false;
 
-  iEvent.put( std::auto_ptr<bool>(new bool(pass)) );
+  iEvent.put(std::make_unique<bool>(pass));
 
   return taggingMode_ || pass;
 }

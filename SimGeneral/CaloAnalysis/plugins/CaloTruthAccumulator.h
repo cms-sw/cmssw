@@ -10,6 +10,7 @@
 #include <unordered_map>
 #include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
 #include "Geometry/HGCalGeometry/interface/HGCalGeometry.h"
+#include "Geometry/HcalTowerAlgo/interface/HcalGeometry.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
 typedef unsigned Index_t;
@@ -54,15 +55,15 @@ class CaloTruthAccumulator : public DigiAccumulatorMixMod {
   template<class T> void accumulateEvent( const T& event, const edm::EventSetup& setup, const edm::Handle< edm::HepMCProduct >& hepMCproduct );
   
   /** @brief Fills the supplied vector with pointers to the SimHits, checking for bad modules if required */
-  template<class T> void fillSimHits( std::vector<const PCaloHit*>& returnValue, const T& event, const edm::EventSetup& setup );
+  template<class T> void fillSimHits( std::vector<std::pair<DetId,const PCaloHit*> > & returnValue, const T& event, const edm::EventSetup& setup );
   
   std::vector<Barcode_t> descendantTrackBarcodes( Barcode_t barcode );
-  std::unique_ptr<SimHitInfoPerSimTrack_t> attachedSimHitInfo( Barcode_t st, const std::vector<const PCaloHit*>& hits, 
+  std::unique_ptr<SimHitInfoPerSimTrack_t> attachedSimHitInfo( Barcode_t st, const std::vector<std::pair<DetId,const PCaloHit*> > & hits, 
 							       bool includeOwn = true, bool includeOther = false, bool markUsed = false);
-  std::unique_ptr<SimHitInfoPerSimTrack_t> descendantOnlySimHitInfo( Barcode_t st, const std::vector<const PCaloHit*>& hits, bool markUsed = false);
-  std::unique_ptr<SimHitInfoPerSimTrack_t> allAttachedSimHitInfo( Barcode_t st, const std::vector<const PCaloHit*>& hits, bool markUsed = false);
+  std::unique_ptr<SimHitInfoPerSimTrack_t> descendantOnlySimHitInfo( Barcode_t st, const std::vector<std::pair<DetId,const PCaloHit*> > & hits, bool markUsed = false);
+  std::unique_ptr<SimHitInfoPerSimTrack_t> allAttachedSimHitInfo( Barcode_t st, const std::vector<std::pair<DetId,const PCaloHit*> > & hits, bool markUsed = false);
   
-  SimClusterCollection descendantSimClusters( Barcode_t barcode, const std::vector<const PCaloHit*>& hits );
+  SimClusterCollection descendantSimClusters( Barcode_t barcode, const std::vector<std::pair<DetId,const PCaloHit*> > & hits );
   std::set<Barcode_t> m_simTracksConsideredForSimClusters;
   void setConsideredBarcode( Barcode_t barcode ) { m_simTracksConsideredForSimClusters.insert( barcode ); }
   bool consideredBarcode( Barcode_t barcode ) { 
@@ -165,9 +166,9 @@ class CaloTruthAccumulator : public DigiAccumulatorMixMod {
     //		TrackingVertexRefProd refTrackingVertexes;
   };
  private:
-  edm::ESHandle<HGCalGeometry> hgcGeoHandles_[2]; 
-  const HGCalDDDConstants* ddd_[2];
-  
+  const HGCalTopology*     hgtopo_[2];
+  const HGCalDDDConstants* hgddd_[2];
+  const HcalDDDRecConstants* hcddd_;
   OutputCollections output_;  
 };
 

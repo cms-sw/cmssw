@@ -142,10 +142,10 @@ void PFCTRecHitProducer::produce(edm::Event& iEvent,
   const HcalSeverityLevelComputer* hcalSevLvlComputer = hcalSevLvlComputerHndl.product();
 
 
-  auto_ptr< vector<reco::PFRecHit> > rechits( new vector<reco::PFRecHit> ); 
-  auto_ptr< vector<reco::PFRecHit> > rechitsCleaned( new vector<reco::PFRecHit> ); 
-  auto_ptr< vector<reco::PFRecHit> > HFHADRecHits( new vector<reco::PFRecHit> ); 
-  auto_ptr< vector<reco::PFRecHit> > HFEMRecHits( new vector<reco::PFRecHit> ); 
+  auto rechits = std::make_unique<std::vector<reco::PFRecHit>>(); 
+  auto rechitsCleaned = std::make_unique<std::vector<reco::PFRecHit>>(); 
+  auto HFHADRecHits = std::make_unique<std::vector<reco::PFRecHit>>(); 
+  auto HFEMRecHits = std::make_unique<std::vector<reco::PFRecHit>>(); 
 
   edm::Handle<CaloTowerCollection> caloTowers; 
   iEvent.getByToken(towersToken_,caloTowers);
@@ -812,10 +812,10 @@ void PFCTRecHitProducer::produce(edm::Event& iEvent,
       }
     }
 
-  iEvent.put( rechits,"" );	
-  iEvent.put( rechitsCleaned,"Cleaned" );	
-  iEvent.put( HFEMRecHits,"HFEM" );	
-  iEvent.put( HFHADRecHits,"HFHAD" );	
+  iEvent.put(std::move(rechits),"");
+  iEvent.put(std::move(rechitsCleaned),"Cleaned");
+  iEvent.put(std::move(HFEMRecHits),"HFEM");
+  iEvent.put(std::move(HFHADRecHits),"HFHAD");
 
 }
 

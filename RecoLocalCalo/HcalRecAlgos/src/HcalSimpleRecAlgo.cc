@@ -70,10 +70,11 @@ void HcalSimpleRecAlgo::setpuCorrParams(bool   iPedestalConstraint, bool iTimeCo
 //  psFitOOTpuCorr_->setPulseShapeTemplate(theHcalPulseShapes_.getShape(shapeNum));
 }
 
-void HcalSimpleRecAlgo::setMeth3Params( float iPedSubThreshold, int iTimeSlewParsType, std::vector<double> iTimeSlewPars, double irespCorrM3) {
+void HcalSimpleRecAlgo::setMeth3Params( bool iApplyTimeSlew, float iPedSubThreshold, int iTimeSlewParsType, std::vector<double> iTimeSlewPars, double irespCorrM3) {
 
   pedSubFxn_->init(0, iPedSubThreshold, 0.0);
-  hltOOTpuCorr_->init((HcalTimeSlew::ParaSource)iTimeSlewParsType, HcalTimeSlew::Medium, *pedSubFxn_, iTimeSlewPars,irespCorrM3);
+  hltOOTpuCorr_->init((HcalTimeSlew::ParaSource)iTimeSlewParsType, HcalTimeSlew::Medium, iApplyTimeSlew, *pedSubFxn_, iTimeSlewPars,irespCorrM3);
+
 }
 
 void HcalSimpleRecAlgo::setForData (int runnum) { 
@@ -355,6 +356,7 @@ namespace HcalSimpleRecAlgoImpl {
     if( puCorrMethod == 2 ){
 
       bool useTriple=false;
+      float chi2=-1;
 
       CaloSamples cs;
       coder.adc2fC(digi,cs);
@@ -363,7 +365,7 @@ namespace HcalSimpleRecAlgoImpl {
         const int capid = digi[ip].capid();
         capidvec.push_back(capid);
       }
-      psFitOOTpuCorr->apply(cs, capidvec, calibs, ampl, time, useTriple);
+      psFitOOTpuCorr->apply(cs, capidvec, calibs, ampl, time, useTriple,chi2);
     }
     
     // S. Brandt - Feb 19th : Adding Section for HLT
@@ -422,6 +424,7 @@ namespace HcalSimpleRecAlgoImpl {
     float t0 =0, t2 =0;
     float time = -9999;
     bool useTriple = false;
+    float chi2 = -1;
     
     // Disable method 1 inside the removePileup function this way!
     // Some code in removePileup does NOT do pileup correction & to make sure maximum share of code
@@ -460,7 +463,7 @@ namespace HcalSimpleRecAlgoImpl {
 	const int capid = digi[ip].capid();
 	capidvec.push_back(capid);
       }
-      psFitOOTpuCorr->apply(cs, capidvec, calibs, ampl, time, useTriple);
+      psFitOOTpuCorr->apply(cs, capidvec, calibs, ampl, time, useTriple,chi2);
     }
     
     // S. Brandt - Feb 19th : Adding Section for HLT
@@ -506,6 +509,7 @@ namespace HcalSimpleRecAlgoImpl {
       {
 	rh.setFlagField(1, HcalCaloFlagLabels::HBHEPulseFitBit);
       }
+    rh.setChiSquared(chi2);
     setRawEnergy(rh, static_cast<float>(uncorr_ampl));
     setAuxEnergy(rh, static_cast<float>(m3_ampl));
     return rh;

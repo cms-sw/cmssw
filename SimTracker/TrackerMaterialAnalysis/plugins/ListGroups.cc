@@ -173,16 +173,19 @@ void ListGroups::fillGradient(void)
   m_gradient.push_back(kRed); // Overflow highest bin
 }
 
-void ListGroups::fillColor(void)
-{
+void ListGroups::fillColor(void) {
+  // With the introduction of the support for PhaseI and PhaseII detectors it
+  // became quite difficult to maintain a list of colors that is in sync with
+  // the real number of grouping used in the different scenarios. We therefore
+  // define some reasonable set and loop over it in case the number of grouping
+  // is larger than the number of colors.
+
   m_color.push_back(kBlack);          // unassigned
 
   m_color.push_back(kAzure);          // PixelBarrelLayer0_Z0
   m_color.push_back(kAzure - 1);      // PixelBarrelLayer0_Z20
   m_color.push_back(kAzure + 1) ;     // Layer1_Z0
   m_color.push_back(kAzure + 2) ;     // Layer1_Z20
-//  m_color.push_back(kAzure + 3) ;     // Layer2_Z0
-//  m_color.push_back(kAzure + 10);     // Layer2_Z15
 
   m_color.push_back(kGreen);          // EndCapDisk1_R0
   m_color.push_back(kGreen + 2);      // EndcapDisk1_R11
@@ -357,7 +360,6 @@ void ListGroups::produceAndSaveSummaryPlot(const edm::EventSetup &setup) {
       new TProfile2D( "OverallDifferencesEnergyLoss", "OverallDifferencesEnergyLoss",
                       600., -300., 300, 120., 0., 120.));
 
-//  assert(m_color.size() - 1 == m_groups.size());
   for (auto g : m_groups) {
     m_plots.push_back(
         new TH2F( g->name().c_str(), g->name().c_str(),
@@ -467,7 +469,10 @@ ListGroups::analyze(const edm::Event& evt, const edm::EventSetup& setup) {
 
     // DD3Vector and DDTranslation are the same type as math::XYZVector
     math::XYZVector position = fv.translation() / 10.;  // mm -> cm
-    std::cout << "\t" << position << std::endl;
+    std::cout << "\t(" << position.x()
+              << ", " << position.y()
+              << ", " << position.z() << ") "
+              << "[rho] " << position.Rho() << std::endl;
   };
   std::cout << std::endl;
 

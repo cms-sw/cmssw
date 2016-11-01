@@ -163,7 +163,7 @@ L1GtPsbQuad l1GtPsbQuadStringToEnum(const std::string& label) {
     L1GtPsbQuad value = keyToValue(label.c_str(), l1GtPsbQuadStringToEnumMap);
     // in case of unrecognized L1GtPsbQuad, return PsbQuadNull
     // to be dealt by the corresponding module
-    if (value == -1) {
+    if (value == (L1GtPsbQuad)-1) {
         edm::LogInfo("L1GtDefinitions") << "\n  '" << label
                 << "' is not a recognized L1GtPsbQuad. \n  Return PsbQuadNull.";
         value = PsbQuadNull;

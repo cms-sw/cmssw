@@ -1,5 +1,4 @@
 import FWCore.ParameterSet.Config as cms
-from Configuration.StandardSequences.Eras import eras
 
 from CondTools.DQM.DQMReferenceHistogramRootFileEventSetupAnalyzer_cfi import *
 from DQMServices.Components.DQMMessageLoggerClient_cff import *
@@ -54,7 +53,8 @@ DQMOffline_SecondStep_PrePOG = cms.Sequence( TrackingOfflineDQMClient *
                                              alcaBeamMonitorClient *
                                              SusyPostProcessorSequence *
                                              runTauEff)
-eras.phase1Pixel.toReplaceWith(DQMOffline_SecondStep_PrePOG, DQMOffline_SecondStep_PrePOG.copyAndExclude([
+from Configuration.Eras.Modifier_phase1Pixel_cff import phase1Pixel
+phase1Pixel.toReplaceWith(DQMOffline_SecondStep_PrePOG, DQMOffline_SecondStep_PrePOG.copyAndExclude([
     hltOfflineDQMClient, # No HLT yet for 2017, so no need to run the DQM (avoiding excessive printouts)
     runTauEff,           # Excessive printouts because 2017 doesn't have HLT yet
 ]))
@@ -64,14 +64,14 @@ DQMOffline_SecondStepPOG = cms.Sequence( dqmRefHistoRootFileGetter *
                                          DQMMessageLoggerClientSeq )
 
 HLTMonitoringClient = cms.Sequence(trackingMonitorClientHLT)
-
+HLTMonitoringClientPA= cms.Sequence(trackingMonitorClientHLT * PAtrackingMonitorClientHLT)
 DQMOffline_SecondStep = cms.Sequence( dqmRefHistoRootFileGetter *
                                       DQMOffline_SecondStep_PreDPG *
                                       DQMOffline_SecondStep_PrePOG *
                                       HLTMonitoringClient *
                                       DQMMessageLoggerClientSeq *
                                       dqmFastTimerServiceClient)
-eras.phase1Pixel.toReplaceWith(DQMOffline_SecondStep, DQMOffline_SecondStep.copyAndExclude([
+phase1Pixel.toReplaceWith(DQMOffline_SecondStep, DQMOffline_SecondStep.copyAndExclude([
     HLTMonitoringClient, # No HLT yet for 2017, so no need to run the DQM (avoiding excessive printouts)
 ]))
 

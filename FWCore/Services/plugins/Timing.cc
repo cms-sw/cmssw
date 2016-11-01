@@ -41,6 +41,7 @@ namespace edm {
       static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
       
       virtual void addToCPUTime(StreamID id, double iTime) override;
+      virtual double getTotalCPU() const override;
       
     private:
       
@@ -98,6 +99,12 @@ namespace edm {
         totalCPUTime = (double)usage.ru_utime.tv_sec + (double(usage.ru_utime.tv_usec) * 1E-6);
         // System functions
         totalCPUTime += (double)usage.ru_stime.tv_sec + (double(usage.ru_stime.tv_usec) * 1E-6);
+
+        // Additionally, add in CPU usage from our child processes.
+        getrusage(RUSAGE_CHILDREN, &usage);
+        totalCPUTime += (double)usage.ru_utime.tv_sec + (double(usage.ru_utime.tv_usec) * 1E-6);
+        totalCPUTime += (double)usage.ru_stime.tv_sec + (double(usage.ru_stime.tv_usec) * 1E-6);
+
         return totalCPUTime;
     }
     
@@ -154,6 +161,9 @@ namespace edm {
       curr_job_cpu_ -= iTime;
     }
 
+    double Timing::getTotalCPU() const {
+      return getCPU();
+    }
 
     void Timing::fillDescriptions(ConfigurationDescriptions& descriptions) {
       ParameterSetDescription desc;

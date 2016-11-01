@@ -7,7 +7,7 @@ process.load('Configuration.StandardSequences.Services_cff')
 process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
 process.load('Configuration.EventContent.EventContent_cff')
 process.load('SimGeneral.MixingModule.mixNoPU_cfi')
-process.load('SimG4CMS.HGCalTestBeam.HGCalTB160XML_cfi')
+process.load('SimG4CMS.HGCalTestBeam.HGCalTB160Module16XML_cfi')
 process.load('Geometry.HGCalCommonData.hgcalNumberingInitialization_cfi')
 process.load('Geometry.HGCalCommonData.hgcalParametersInitialization_cfi')
 process.load('Configuration.StandardSequences.MagneticField_0T_cff')
@@ -45,7 +45,7 @@ process.options = cms.untracked.PSet(
 
 # Production Info
 process.configurationMetadata = cms.untracked.PSet(
-    annotation = cms.untracked.string('SingleElectronE1000_cfi nevts:10'),
+    annotation = cms.untracked.string('SingleElectronE4_cfi'),
     name = cms.untracked.string('Applications'),
     version = cms.untracked.string('$Revision: 1.19 $')
 )
@@ -76,22 +76,26 @@ process.genstepfilter.triggerConditions=cms.vstring("generation_step")
 from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc', '')
 
-process.generator = cms.EDProducer("FlatRandomEThetaGunProducer",
+process.generator = cms.EDProducer("GaussRandomPThetaGunProducer",
     AddAntiParticle = cms.bool(False),
     PGunParameters = cms.PSet(
-        MinE = cms.double(99.99),
-        MaxE = cms.double(100.01),
+        MeanP    = cms.double(4.0),
+        SigmaP   = cms.double(0.108),
         MinTheta = cms.double(0.0),
         MaxTheta = cms.double(0.0),
         MinPhi = cms.double(-3.14159265359),
         MaxPhi = cms.double(3.14159265359),
-        PartID = cms.vint32(13)
+        PartID = cms.vint32(11)
     ),
     Verbosity = cms.untracked.int32(0),
     firstRun = cms.untracked.uint32(1),
-    psethack = cms.string('single muon E 100')
+    psethack = cms.string('single electron E 4')
 )
-process.VtxSmeared.MeanZ = -499.90
+process.VtxSmeared.MeanX  = 0.0
+process.VtxSmeared.SigmaX = 0.55
+process.VtxSmeared.MeanY  = 0.0
+process.VtxSmeared.SigmaY = 0.65
+process.VtxSmeared.MeanZ  = -3500.0
 process.VtxSmeared.SigmaZ = 0
 process.HGCalTBAnalyzer.DoDigis = False
 process.HGCalTBAnalyzer.DoRecHits = False

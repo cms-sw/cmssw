@@ -14,7 +14,7 @@ caloParticles = cms.PSet(
             hgc = cms.VInputTag(
                 cms.InputTag('g4SimHits','HGCHitsEE'),
                 cms.InputTag('g4SimHits','HGCHitsHEfront'),
-#                cms.InputTag('g4SimHits','HGCHitsHEback')
+                cms.InputTag('g4SimHits','HcalHits')
             ),
 #            hcal = cms.VInputTag(cms.InputTag('g4SimHits','HcalHits')),
 #            ecal = cms.VInputTag(
@@ -30,6 +30,6 @@ caloParticles = cms.PSet(
 	HepMCProductLabel = cms.InputTag('generatorSmeared')
 )
 
-from Configuration.StandardSequences.Eras import eras
-if eras.fastSim.isChosen():
+from Configuration.Eras.Modifier_fastSim_cff import fastSim
+if fastSim.isChosen():
     caloParticles = cms.PSet() # don't allow this to run in fastsim

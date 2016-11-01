@@ -37,8 +37,8 @@ trackingParticles = cms.PSet(
 	HepMCProductLabel = cms.InputTag('generatorSmeared')
 )
 
-from Configuration.StandardSequences.Eras import eras
-if eras.fastSim.isChosen():
+from Configuration.Eras.Modifier_fastSim_cff import fastSim
+if fastSim.isChosen():
     # for unknown reasons, fastsim needs this flag on
     trackingParticles.allowDifferentSimHitProcesses = True
     # fastsim labels for simhits, simtracks, simvertices
@@ -51,9 +51,13 @@ if eras.fastSim.isChosen():
     trackingParticles.simTrackCollection = cms.InputTag('famosSimHits')
     trackingParticles.simVertexCollection = cms.InputTag('famosSimHits')
 
-from Configuration.StandardSequences.Eras import eras
-eras.run3_GEM.toModify(trackingParticles, simHitCollections = dict(
+from Configuration.Eras.Modifier_run3_GEM_cff import run3_GEM
+run3_GEM.toModify(trackingParticles, simHitCollections = dict(
         muon = trackingParticles.simHitCollections.muon+[cms.InputTag("g4SimHits","MuonGEMHits")]))
 
-eras.phase2_muon.toModify( trackingParticles, simHitCollections = dict(
+from Configuration.Eras.Modifier_phase2_muon_cff import phase2_muon
+phase2_muon.toModify( trackingParticles, simHitCollections = dict(
         muon = trackingParticles.simHitCollections.muon+[cms.InputTag("g4SimHits","MuonME0Hits")]))
+
+from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
+phase2_tracker.toModify( trackingParticles, simHitCollections = dict( tracker = []) )

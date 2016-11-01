@@ -42,7 +42,7 @@ DEFINE_FWK_MODULE(CaloRecoTauDiscriminationByLeadingTrackPtCut);
    iEvent.getByLabel(CaloTauProducer_,theCaloTauCollection);
 
    double theleadTrackPtCutDiscriminator = 0.;
-   auto_ptr<CaloTauDiscriminator> theCaloTauDiscriminatorByLeadingTrackPtCut(new CaloTauDiscriminator(CaloTauRefProd(theCaloTauCollection)));
+   auto theCaloTauDiscriminatorByLeadingTrackPtCut = std::make_unique<CaloTauDiscriminator>(CaloTauRefProd(theCaloTauCollection));
 
    //loop over the CaloTau candidates
    for(size_t iCaloTau=0;iCaloTau<theCaloTauCollection->size();++iCaloTau) {
@@ -57,7 +57,7 @@ DEFINE_FWK_MODULE(CaloRecoTauDiscriminationByLeadingTrackPtCut);
       theCaloTauDiscriminatorByLeadingTrackPtCut->setValue(iCaloTau,theleadTrackPtCutDiscriminator);
    }
 
-   iEvent.put(theCaloTauDiscriminatorByLeadingTrackPtCut);
+   iEvent.put(std::move(theCaloTauDiscriminatorByLeadingTrackPtCut));
 
 }
    

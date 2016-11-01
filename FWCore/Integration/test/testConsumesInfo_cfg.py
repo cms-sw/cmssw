@@ -81,16 +81,23 @@ process.intVectorProducer = cms.EDProducer("IntVectorProducer",
   ivalue = cms.int32(11)
 )
 
-process.test = cms.EDAnalyzer("TestResultAnalyzer")
+process.test = cms.EDAnalyzer("TestContextAnalyzer",
+                              pathname = cms.untracked.string("p"),
+                              modlable = cms.untracked.string("test"))
 
 process.testView1 = cms.EDAnalyzer("TestFindProduct",
   inputTags = cms.untracked.VInputTag(),
   inputTagsView = cms.untracked.VInputTag( cms.InputTag("intVectorProducer", "", "PROD1") )
 )
 
-process.testStreamingProducer = cms.EDProducer("ConsumingIntProducer",
+process.testStreamingProducer = cms.EDProducer("IntProducer",
   ivalue = cms.int32(111)
 )
+
+process.testManyConsumingProducer = cms.EDProducer("ConsumingIntProducer",
+                                               ivalue = cms.int32(111)
+                                               )
+
 
 process.testStreamingAnalyzer = cms.EDAnalyzer("ConsumingStreamAnalyzer",
   valueMustMatch = cms.untracked.int32(111),
@@ -103,7 +110,7 @@ process.p = cms.Path(process.intProducer * process.a1 * process.a2 * process.a3 
 process.p2 = cms.Path(process.intProducer * process.a1 * process.a2 * process.a3)
 process.p11 = cms.Path()
 
-process.e = cms.EndPath(process.out)
+process.e = cms.EndPath(process.testManyConsumingProducer+process.out)
 process.p1ep2 = cms.EndPath()
 
 copyProcess = cms.Process("COPY")
@@ -129,14 +136,21 @@ copyProcess.testView2 = cms.EDAnalyzer("TestFindProduct",
   inputTagsView = cms.untracked.VInputTag( cms.InputTag("intVectorProducer", "", "COPY") )
 )
 
-copyProcess.test = cms.EDAnalyzer("TestResultAnalyzer")
+copyProcess.test = cms.EDAnalyzer("TestContextAnalyzer",
+                                  pathname = cms.untracked.string("p3"),
+                                  modlable = cms.untracked.string("test")
+)
 
 copyProcess.thingWithMergeProducer = cms.EDProducer("ThingWithMergeProducer")
 copyProcess.testMergeResults = cms.EDAnalyzer("TestMergeResults")
 
-copyProcess.testStreamingProducer = cms.EDProducer("ConsumingIntProducer",
+copyProcess.testStreamingProducer = cms.EDProducer("IntProducer",
   ivalue = cms.int32(11)
 )
+copyProcess.testManyConsumingProducer = cms.EDProducer("ConsumingIntProducer",
+                                                   ivalue = cms.int32(11)
+                                                   )
+
 
 copyProcess.testStreamingAnalyzer = cms.EDAnalyzer("ConsumingStreamAnalyzer",
   valueMustMatch = cms.untracked.int32(11),
@@ -147,5 +161,5 @@ copyProcess.p3 = cms.Path(copyProcess.intVectorProducer * copyProcess.test * cop
                           copyProcess.testMergeResults * copyProcess.testView1 * copyProcess.testView2 *
                           copyProcess.testStreamingProducer * copyProcess.testStreamingAnalyzer)
 
-copyProcess.ep1 = cms.EndPath(copyProcess.intVectorProducer)
+copyProcess.ep1 = cms.EndPath(copyProcess.intVectorProducer+copyProcess.testManyConsumingProducer)
 copyProcess.ep2 = cms.EndPath()

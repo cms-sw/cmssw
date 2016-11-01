@@ -131,10 +131,7 @@ void CosmicSeedCreator::makeSeed(TrajectorySeedCollection & seedCollection,
     
     
     PTrajectoryStateOnDet const & PTraj = trajectoryStateTransform::persistentState(tsos, usedHit->hit()->geographicalId().rawId());
-    TrajectorySeed seed(PTraj,seedHits,seedDirection);
-    if (filter == 0 || filter->compatible(seed)) {
-        seedCollection.push_back(seed);
-    }
+    seedCollection.emplace_back(PTraj,seedHits,seedDirection);
     
   }//end charge loop
   

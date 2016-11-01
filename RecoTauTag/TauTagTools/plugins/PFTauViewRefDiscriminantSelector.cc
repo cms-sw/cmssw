@@ -85,18 +85,16 @@ bool RecoTauDiscriminatorRefSelectorImpl<T>::filter(edm::Event& evt,
   edm::Handle<reco::PFTauDiscriminator> disc;
   evt.getByLabel(discriminatorSrc_, disc);
 
-//  std::auto_ptr<reco::PFTauRefVector> output(
-//      new reco::PFTauRefVector(inputRefs.id()));
-  //std::auto_ptr<OutputType> output(
-  //    new OutputType(inputRefs.id()));
-  std::auto_ptr<OutputType> output(new OutputType);
+//  auto output = std::make_unique<reco::PFTauRefVector>(inputRefs.id());
+  //auto output = std::make_unique<OutputType>(inputRefs.id());
+  auto output = std::make_unique<OutputType>();
 
   BOOST_FOREACH(reco::PFTauRef ref, inputRefs) {
     if ( (*disc)[ref] > cut_ )
       output->push_back(T::make(ref));
   }
   size_t selected = output->size();
-  evt.put(output);
+  evt.put(std::move(output));
   return (!filter_ || selected);
 }
 

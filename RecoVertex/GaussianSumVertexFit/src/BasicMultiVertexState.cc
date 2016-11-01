@@ -14,6 +14,12 @@ GlobalPoint BasicMultiVertexState::position() const
   return theCombinedState.position();
 }
 
+double BasicMultiVertexState::time() const
+{
+  checkCombinedState();
+  return theCombinedState.time();
+}
+
 
 GlobalError BasicMultiVertexState::error() const
 {
@@ -21,6 +27,17 @@ GlobalError BasicMultiVertexState::error() const
   return theCombinedState.error();
 }
 
+double BasicMultiVertexState::timeError() const
+{
+  checkCombinedState();
+  return theCombinedState.timeError();
+}
+
+GlobalError BasicMultiVertexState::error4D() const
+{
+  checkCombinedState();
+  return theCombinedState.error4D();
+}
 
 GlobalWeight BasicMultiVertexState::weight() const
 {
@@ -28,11 +45,22 @@ GlobalWeight BasicMultiVertexState::weight() const
   return theCombinedState.weight();
 }
 
+GlobalWeight BasicMultiVertexState::weight4D() const
+{
+  checkCombinedState();
+  return theCombinedState.weight4D();
+}
 
 AlgebraicVector3 BasicMultiVertexState::weightTimesPosition() const
 {
   checkCombinedState();
   return theCombinedState.weightTimesPosition();
+}
+
+AlgebraicVector4 BasicMultiVertexState::weightTimesPosition4D() const
+{
+  checkCombinedState();
+  return theCombinedState.weightTimesPosition4D();
 }
 
 

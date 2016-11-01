@@ -60,7 +60,9 @@ calculateAndSetPositionActual(reco::PFCluster& cluster) {
       << " Found a cluster with no seed: " << cluster;
   }  				
   double cl_energy = 0;  
-  double max_e = 0.0;  
+  double max_e = 0.0;
+  double avg_time = 0.0;
+  double time_norm = 0.0;
   PFLayer::Layer max_e_layer = PFLayer::NONE;
   reco::PFRecHitRef refseed;  
   double pcavars[3];  
@@ -68,7 +70,15 @@ calculateAndSetPositionActual(reco::PFCluster& cluster) {
   for( const reco::PFRecHitFraction& rhf : cluster.recHitFractions() ) {
     const reco::PFRecHitRef& refhit = rhf.recHitRef();
     double rh_energy = refhit->energy();
+    double rh_time = refhit->time();
     cl_energy += rh_energy * rhf.fraction();
+    if( rh_time > 0.0 ) { // time == -1 means no measurement
+      // all times are offset by one nanosecond in digitizer
+      // remove that here so all times of flight
+      // are with respect to (0,0,0)
+      avg_time += (rh_time - 1.0); 
+      time_norm += 1.0;
+    }
     if( rh_energy > max_e ) {
       max_e = rh_energy;
       max_e_layer = rhf.recHitRef()->layer();
@@ -102,10 +112,17 @@ calculateAndSetPositionActual(reco::PFCluster& cluster) {
   math::XYZPoint  barycenter(means[0],means[1],means[2]);
   math::XYZVector axis(eigens(0,0),eigens(1,0),eigens(2,0));
 
+  if( time_norm > 0.0 ) {
+    avg_time = avg_time/time_norm;
+  } else {
+    avg_time = std::numeric_limits<double>::min();
+  }
+
   if( axis.z()*barycenter.z() < 0.0 ) {
     axis = math::XYZVector(-eigens(0,0),-eigens(1,0),-eigens(2,0));
   }
   
+  cluster.setTime(avg_time);
   cluster.setPosition(barycenter);
   cluster.calculatePositionREP();
 

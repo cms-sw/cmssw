@@ -409,8 +409,10 @@ void DQMStore::mergeAndResetMEsRunSummaryCache(uint32_t run,
 	      std::cout << "mergeAndResetMEsRunSummaryCache: Failed to merge DQM element "<<me->getFullname();
 	    }
 	  }
-	  else
-	    me->getTH1()->Add(i->getTH1());
+	  else {
+            if (i->getTH1()->GetEntries())
+	      me->getTH1()->Add(i->getTH1());
+          }
 	}
     } else {
       if (verbose_ > 1)
@@ -475,8 +477,10 @@ void DQMStore::mergeAndResetMEsLuminositySummaryCache(uint32_t run,
 	      std::cout << "mergeAndResetMEsLuminositySummaryCache: Failed to merge DQM element "<<me->getFullname();
 	    }
 	  }
-	  else
-	    me->getTH1()->Add(i->getTH1());
+	  else {
+            if (i->getTH1()->GetEntries())
+	      me->getTH1()->Add(i->getTH1());
+          }
 	}
     } else {
       if (verbose_ > 1)
@@ -2616,7 +2620,7 @@ void DQMStore::savePB(const std::string &filename,
   FileOutputStream file_stream(filedescriptor);
   GzipOutputStream::Options options;
   options.format = GzipOutputStream::GZIP;
-  options.compression_level = 6;
+  options.compression_level = 1;
   GzipOutputStream gzip_stream(&file_stream,
                                options);
   dqmstore_message.SerializeToZeroCopyStream(&gzip_stream);

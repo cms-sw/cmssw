@@ -201,29 +201,29 @@ PileupJetIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 		for(vector<pair<string,PileupJetIdAlgo *> >::iterator ialgo = algos_.begin(); ialgo!=algos_.end(); ++ialgo) {
 			// MVA
 			vector<float> & mva = mvas[ialgo->first];
-			auto_ptr<ValueMap<float> > mvaout(new ValueMap<float>());
+			auto mvaout = std::make_unique<ValueMap<float>>();
 			ValueMap<float>::Filler mvafiller(*mvaout);
 			mvafiller.insert(jetHandle,mva.begin(),mva.end());
 			mvafiller.fill();
-			iEvent.put(mvaout,ialgo->first+"Discriminant");
+			iEvent.put(std::move(mvaout),ialgo->first+"Discriminant");
 			
 			// WP
 			vector<int> & idflag = idflags[ialgo->first];
-			auto_ptr<ValueMap<int> > idflagout(new ValueMap<int>());
+			auto idflagout = std::make_unique<ValueMap<int>>();
 			ValueMap<int>::Filler idflagfiller(*idflagout);
 			idflagfiller.insert(jetHandle,idflag.begin(),idflag.end());
 			idflagfiller.fill();
-			iEvent.put(idflagout,ialgo->first+"Id");
+			iEvent.put(std::move(idflagout),ialgo->first+"Id");
 		}
 	}
 	// input variables
 	if( produceJetIds_ ) {
 		assert( jetHandle->size() == ids.size() );
-		auto_ptr<ValueMap<StoredPileupJetIdentifier> > idsout(new ValueMap<StoredPileupJetIdentifier>());
+		auto idsout = std::make_unique<ValueMap<StoredPileupJetIdentifier>>();
 		ValueMap<StoredPileupJetIdentifier>::Filler idsfiller(*idsout);
 		idsfiller.insert(jetHandle,ids.begin(),ids.end());
 		idsfiller.fill();
-		iEvent.put(idsout);
+		iEvent.put(std::move(idsout));
 	}
 }
 

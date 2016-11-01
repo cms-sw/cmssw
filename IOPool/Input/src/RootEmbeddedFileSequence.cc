@@ -42,6 +42,7 @@ namespace edm {
     // have defined descriptions, the defaults in the getUntrackedParameterSet function calls can
     // and should be deleted from the code.
     initialNumberOfEventsToSkip_(pset.getUntrackedParameter<unsigned int>("skipEvents", 0U)),
+    treeCacheSize_(pset.getUntrackedParameter<unsigned int>("cacheSize", roottree::defaultCacheSize)),
     enablePrefetching_(false) {
 
     if(noFiles()) {
@@ -51,6 +52,9 @@ namespace edm {
     // The SiteLocalConfig controls the TTreeCache size and the prefetching settings.
     Service<SiteLocalConfig> pSLC;
     if(pSLC.isAvailable()) {
+      if(treeCacheSize_ != 0U && pSLC->sourceTTreeCacheSize()) {
+        treeCacheSize_ = *(pSLC->sourceTTreeCacheSize());
+      }
       enablePrefetching_ = pSLC->enablePrefetching();
     }
 
@@ -130,6 +134,7 @@ namespace edm {
           logicalFileName(),
           filePtr,
 	  input_.nStreams(),
+          treeCacheSize_,
           input_.treeMaxVirtualSize(),
           input_.runHelper(),
           input_.productSelectorRules(),
@@ -325,5 +330,7 @@ namespace edm {
                      "False: loopEvents() reads events regardless of lumi.");
     desc.addUntracked<unsigned int>("skipEvents", 0U)
         ->setComment("Skip the first 'skipEvents' events. Used only if 'sequential' is True and 'sameLumiBlock' is False");
+    desc.addUntracked<unsigned int>("cacheSize", roottree::defaultCacheSize)
+        ->setComment("Size of ROOT TTree prefetch cache.  Affects performance.");
   }
 }

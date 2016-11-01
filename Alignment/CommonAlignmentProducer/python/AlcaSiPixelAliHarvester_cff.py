@@ -37,6 +37,7 @@ SiPixelAliPedeAlignmentProducer.tjTkAssociationMapTag = 'TrackRefitter2'
 
 SiPixelAliPedeAlignmentProducer.algoConfig = MillePedeAlignmentAlgorithm
 SiPixelAliPedeAlignmentProducer.algoConfig.mode = 'pede'
+SiPixelAliPedeAlignmentProducer.algoConfig.runAtPCL = True
 SiPixelAliPedeAlignmentProducer.algoConfig.mergeBinaryFiles = [SiPixelAliMilleFileExtractor.outputBinaryFile.value()]
 SiPixelAliPedeAlignmentProducer.algoConfig.binaryFile = ''
 SiPixelAliPedeAlignmentProducer.algoConfig.TrajectoryFactory = cms.PSet(

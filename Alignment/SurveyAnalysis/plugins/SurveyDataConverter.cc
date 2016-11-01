@@ -119,73 +119,73 @@ void SurveyDataConverter::applyAPEs( TrackerAlignment& tr_align ) {
     return;
   }
          
-  AlignableModifier* theModifier = new AlignableModifier();
+  AlignableModifier theModifier{};
   AlignableTracker* theAlignableTracker = tr_align.getAlignableTracker() ; 
   align::Alignables::const_iterator iter;
 
   // TIB
   const align::Alignables& theTIBhb = theAlignableTracker->innerHalfBarrels();
   for (iter = theTIBhb.begin(); iter != theTIBhb.end(); ++iter ) 
-    { theModifier->addAlignmentPositionErrorLocal( *iter, TIBerrors.at(0), 
-                                                   TIBerrors.at(0), TIBerrors.at(0) ); }
+    { theModifier.addAlignmentPositionErrorLocal( *iter, TIBerrors.at(0),
+                                                  TIBerrors.at(0), TIBerrors.at(0) ); }
   const align::Alignables& theTIBlayers = theAlignableTracker->innerBarrelLayers();
   for (iter = theTIBlayers.begin(); iter != theTIBlayers.end(); ++iter)
-    { theModifier->addAlignmentPositionErrorLocal( *iter, TIBerrors.at(1), 
-                                                   TIBerrors.at(1), TIBerrors.at(1) ); }
+    { theModifier.addAlignmentPositionErrorLocal( *iter, TIBerrors.at(1),
+                                                  TIBerrors.at(1), TIBerrors.at(1) ); }
   const align::Alignables& theTIBgd = theAlignableTracker->innerBarrelGeomDets();
   for (iter = theTIBgd.begin(); iter != theTIBgd.end(); ++iter ) 
-    { theModifier->addAlignmentPositionErrorLocal( *iter, TIBerrors.at(2), 
-                                                   TIBerrors.at(2), TIBerrors.at(2) ); }
+    { theModifier.addAlignmentPositionErrorLocal( *iter, TIBerrors.at(2),
+                                                  TIBerrors.at(2), TIBerrors.at(2) ); }
 
   // TOB
   const align::Alignables& theTOBhb = theAlignableTracker->outerHalfBarrels();
   for (iter = theTOBhb.begin(); iter != theTOBhb.end(); ++iter )
-    { theModifier->addAlignmentPositionErrorLocal( *iter, TOBerrors.at(0), 
-                                                   TOBerrors.at(0), TOBerrors.at(1) ); }
+    { theModifier.addAlignmentPositionErrorLocal( *iter, TOBerrors.at(0),
+                                                  TOBerrors.at(0), TOBerrors.at(1) ); }
   const align::Alignables& theTOBrods = theAlignableTracker->outerBarrelRods();
   for (iter = theTOBrods.begin(); iter != theTOBrods.end(); ++iter ) 
-    { theModifier->addAlignmentPositionErrorLocal( *iter, TOBerrors.at(2), 
-                                                   TOBerrors.at(2), TOBerrors.at(2) ); }
+    { theModifier.addAlignmentPositionErrorLocal( *iter, TOBerrors.at(2),
+                                                  TOBerrors.at(2), TOBerrors.at(2) ); }
   const align::Alignables& theTOBgd = theAlignableTracker->outerBarrelGeomDets();
   for (iter = theTOBgd.begin(); iter != theTOBgd.end(); ++iter )
-    { theModifier->addAlignmentPositionErrorLocal( *iter, TOBerrors.at(3), 
-                                                   TOBerrors.at(3), TOBerrors.at(3) ); }
+    { theModifier.addAlignmentPositionErrorLocal( *iter, TOBerrors.at(3),
+                                                  TOBerrors.at(3), TOBerrors.at(3) ); }
 
   // TID
   const align::Alignables& theTIDs = theAlignableTracker->TIDs();
   for (iter = theTIDs.begin(); iter != theTIDs.end(); ++iter ) 
-    { theModifier->addAlignmentPositionErrorLocal( *iter, TIDerrors.at(0), 
-                                                   TIDerrors.at(0), TIDerrors.at(0) ); }
+    { theModifier.addAlignmentPositionErrorLocal( *iter, TIDerrors.at(0),
+                                                  TIDerrors.at(0), TIDerrors.at(0) ); }
   const align::Alignables& theTIDdiscs = theAlignableTracker->TIDLayers();
   for (iter = theTIDdiscs.begin(); iter != theTIDdiscs.end(); ++iter )
-    { theModifier->addAlignmentPositionErrorLocal( *iter, TIDerrors.at(1), 
-                                                   TIDerrors.at(1), TIDerrors.at(1) ); }
+    { theModifier.addAlignmentPositionErrorLocal( *iter, TIDerrors.at(1),
+                                                  TIDerrors.at(1), TIDerrors.at(1) ); }
   const align::Alignables& theTIDrings = theAlignableTracker->TIDRings();
   for (iter = theTIDrings.begin(); iter != theTIDrings.end(); ++iter )
-    { theModifier->addAlignmentPositionErrorLocal( *iter, TIDerrors.at(2), 
-                                                   TIDerrors.at(2), TIDerrors.at(2) ); } 
+    { theModifier.addAlignmentPositionErrorLocal( *iter, TIDerrors.at(2),
+                                                  TIDerrors.at(2), TIDerrors.at(2) ); } 
   const align::Alignables& theTIDgd = theAlignableTracker->TIDGeomDets();
   for (iter = theTIDgd.begin(); iter != theTIDgd.end(); ++iter )
-    { theModifier->addAlignmentPositionErrorLocal( *iter, TIDerrors.at(3), 
-                                                   TIDerrors.at(3), TIDerrors.at(3) ); } 
+    { theModifier.addAlignmentPositionErrorLocal( *iter, TIDerrors.at(3),
+                                                  TIDerrors.at(3), TIDerrors.at(3) ); } 
 
   // TEC
   const align::Alignables& theTECs = theAlignableTracker->endCaps();
   for (iter = theTECs.begin(); iter != theTECs.end(); ++iter ) 
-    { theModifier->addAlignmentPositionErrorLocal( *iter, TECerrors.at(0), 
-                                                   TECerrors.at(0), TECerrors.at(0) ); } 
+    { theModifier.addAlignmentPositionErrorLocal( *iter, TECerrors.at(0),
+                                                  TECerrors.at(0), TECerrors.at(0) ); } 
   const align::Alignables& theTECdiscs = theAlignableTracker->endcapLayers();
   for (iter = theTECdiscs.begin(); iter != theTECdiscs.end(); ++iter )
-    { theModifier->addAlignmentPositionErrorLocal( *iter, TECerrors.at(1), 
-                                                   TECerrors.at(1), TECerrors.at(1) ); } 
+    { theModifier.addAlignmentPositionErrorLocal( *iter, TECerrors.at(1),
+                                                  TECerrors.at(1), TECerrors.at(1) ); } 
   const align::Alignables& theTECpetals = theAlignableTracker->endcapPetals();
   for (iter = theTECpetals.begin(); iter != theTECpetals.end(); ++iter ) 
-    { theModifier->addAlignmentPositionErrorLocal( *iter, TECerrors.at(2), 
-                                                   TECerrors.at(2), TECerrors.at(2) ); }   
+    { theModifier.addAlignmentPositionErrorLocal( *iter, TECerrors.at(2),
+                                                  TECerrors.at(2), TECerrors.at(2) ); }   
   const align::Alignables& theTECgd = theAlignableTracker->endcapGeomDets();
   for (iter = theTECgd.begin(); iter != theTECgd.end(); ++iter )
-    { theModifier->addAlignmentPositionErrorLocal( *iter, TECerrors.at(3), 
-                                                   TECerrors.at(3), TECerrors.at(3) ); }   
+    { theModifier.addAlignmentPositionErrorLocal( *iter, TECerrors.at(3),
+                                                  TECerrors.at(3), TECerrors.at(3) ); }   
 }
 
 DEFINE_FWK_MODULE(SurveyDataConverter);

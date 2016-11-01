@@ -2,9 +2,18 @@
 // Usage:
 // .L CalibMonitor.C+g
 //  CalibMonitor c1(fname, dirname, dupFileName, outFileName, prefix, 
-//                  flag, numb, dataMC);
+//                  flag, numb, dataMC, useGen);
 //  c1.Loop();
 //  c1.SavePlot(histFileName,mode);
+//
+//        This will prepare a set of histograms which can be used for a
+//        quick fit and display using the methods in CalibFitPlots.C
+//
+//  GetEntries g1(fname, dirname, bool ifOld);
+//  g1.Loop();
+//
+//         This looks into the tree *EventInfo* and can provide a set
+//         of histograms with event statistics
 //
 //   where:
 // 
@@ -25,6 +34,8 @@
 //                               for loose/tight selection)
 //   numb   (int)              = number of eta bins (42 for -21:21)
 //   dataMC (bool)             = true/false for data/MC         
+//   useGen (bool)             = false/true to use generator level momentum
+//                               or reconstruction level momentum
 //
 //   histFileName (std::string)= name of the file containing saved histograms
 //   mode (bool)               = true/false if the hitogram file to be opened
@@ -81,6 +92,7 @@ public :
   Bool_t                     t_qltyFlag;
   Bool_t                     t_qltyMissFlag;
   Bool_t                     t_qltyPVFlag;
+  Double_t                   t_gentrackP;
   std::vector<unsigned int> *t_DetIds;
   std::vector<double>       *t_HitEnergies;
   std::vector<bool>         *t_trgbits;
@@ -109,6 +121,7 @@ public :
   TBranch                   *b_t_qltyFlag;      //!
   TBranch                   *b_t_qltyMissFlag;  //!
   TBranch                   *b_t_qltyPVFlag;    //!
+  TBranch                   *b_t_gentrackP;     //!
   TBranch                   *b_t_DetIds;        //!
   TBranch                   *b_t_HitEnergies;   //!
   TBranch                   *b_t_trgbits;       //!
@@ -128,7 +141,7 @@ public :
   CalibMonitor(std::string fname, std::string dirname, 
 	       std::string dupFileName, std::string outTxtFileName, 
 	       std::string prefix="", int flag=0, int numb=42,
-	       bool datMC=true);
+	       bool datMC=true, bool useGen=false);
   virtual ~CalibMonitor();
   virtual Int_t              Cut(Long64_t entry);
   virtual Int_t              GetEntry(Long64_t entry);
@@ -146,7 +159,7 @@ private:
   static const unsigned int npbin=5, kp50=2;
   std::string               fname_, dirnm_, prefix_, outTxtFileName_;
   int                       flag_, numb_;
-  bool                      dataMC_, plotStandard_, flexibleSelect_;
+  bool                      dataMC_, plotStandard_, flexibleSelect_, useGen_;
   double                    log16by24_;
   std::vector<Long64_t>     entries_;
   std::vector<double>       etas_, ps_, dl1_;
@@ -160,12 +173,12 @@ private:
 
 CalibMonitor::CalibMonitor(std::string fname, std::string dirnm, 
 			   std::string dupFileName, std::string outTxtFileName,
-			   std::string prefix, int flag, int numb,
-			   bool datMC) : fname_(fname), dirnm_(dirnm),
-					 prefix_(prefix), 
-					 outTxtFileName_(outTxtFileName), 
-					 flag_(flag), numb_(numb),
-					 dataMC_(datMC) {
+			   std::string prefix, int flag, int numb, bool dataMC,
+			   bool useGen) : fname_(fname), dirnm_(dirnm),
+					  prefix_(prefix), 
+					  outTxtFileName_(outTxtFileName), 
+					  flag_(flag), numb_(numb),
+					  dataMC_(dataMC), useGen_(useGen) {
   // if parameter tree is not specified (or zero), connect the file
   // used to generate this class and read the Tree
 
@@ -249,6 +262,7 @@ void CalibMonitor::Init(TTree *tree, std::string& dupFileName) {
   fChain->SetBranchAddress("t_qltyFlag", &t_qltyFlag, &b_t_qltyFlag);
   fChain->SetBranchAddress("t_qltyMissFlag", &t_qltyMissFlag, &b_t_qltyMissFlag);
   fChain->SetBranchAddress("t_qltyPVFlag", &t_qltyPVFlag, &b_t_qltyPVFlag);
+  fChain->SetBranchAddress("t_gentrackP", &t_gentrackP, &b_t_gentrackP);
   fChain->SetBranchAddress("t_DetIds", &t_DetIds, &b_t_DetIds);
   fChain->SetBranchAddress("t_HitEnergies", &t_HitEnergies, &b_t_HitEnergies);
   fChain->SetBranchAddress("t_trgbits", &t_trgbits, &b_t_trgbits);
@@ -280,7 +294,7 @@ void CalibMonitor::Init(TTree *tree, std::string& dupFileName) {
       xbina[numb_-k+1] = (neta-k) + 0.5;
     }
     xbina[neta] = 0;
-    for (int i=0; i<43; ++i) etas_.push_back(xbina[i]);
+    for (int i=0; i<numb_+1; ++i) etas_.push_back(xbina[i]);
   }
   int ipbin[npbin] = {20, 30, 40, 60, 100};
   for (unsigned int i=0; i<npbin; ++i) ps_.push_back((double)(ipbin[i]));
@@ -520,8 +534,9 @@ void CalibMonitor::Loop() {
 
     // if (Cut(ientry) < 0) continue;
     int kp(-1), jp(-1);
+    double pmom = (useGen_ && (t_gentrackP > 0)) ? t_gentrackP : t_p;
     for (unsigned int k=1; k<ps_.size(); ++k ) {
-      if (t_p >= ps_[k-1] && t_p < ps_[k]) {
+      if (pmom >= ps_[k-1] && pmom < ps_[k]) {
 	kp = k - 1; break;
       }
     }
@@ -548,29 +563,29 @@ void CalibMonitor::Loop() {
 			 << kv1 << ":" << kd << ":" << kd1 << ":" << jp 
 			 << std::endl;
     if (plotStandard_) {
-      h_p[0]->Fill(t_p,t_EventWeight);
+      h_p[0]->Fill(pmom,t_EventWeight);
       h_eta[0]->Fill(t_ieta,t_EventWeight);
       if (kp >= 0) h_eta0[kp]->Fill(t_ieta,t_EventWeight);
     }
-    double cut = (t_p > 20) ? 2.0 : 0.0;
-    double rcut= (t_p > 20) ? 0.25: 0.1;
+    double cut = (pmom > 20) ? 2.0 : 0.0;
+    double rcut= (pmom > 20) ? 0.25: 0.1;
 
     // Some Standard plots for control
     if (plotStandard_) {
       if (t_qltyFlag) {
-	h_p[1]->Fill(t_p,t_EventWeight);
+	h_p[1]->Fill(pmom,t_EventWeight);
 	h_eta[1]->Fill(t_ieta,t_EventWeight);
 	if (kp >= 0) h_eta1[kp]->Fill(t_ieta,t_EventWeight);
 	if (t_selectTk) {
-	  h_p[2]->Fill(t_p,t_EventWeight);
+	  h_p[2]->Fill(pmom,t_EventWeight);
 	  h_eta[2]->Fill(t_ieta,t_EventWeight);
 	  if (kp >= 0) h_eta2[kp]->Fill(t_ieta,t_EventWeight);
 	  if (t_hmaxNearP < cut) {
-	    h_p[3]->Fill(t_p,t_EventWeight);
+	    h_p[3]->Fill(pmom,t_EventWeight);
 	    h_eta[3]->Fill(t_ieta,t_EventWeight);
 	    if (kp >= 0) h_eta3[kp]->Fill(t_ieta,t_EventWeight);
 	    if (t_eMipDR < 1.0) {
-	      h_p[4]->Fill(t_p,t_EventWeight);
+	      h_p[4]->Fill(pmom,t_EventWeight);
 	      h_eta[4]->Fill(t_ieta,t_EventWeight);
 	      if (kp >= 0) {
 		h_eta4[kp]->Fill(t_ieta,t_EventWeight);
@@ -586,9 +601,9 @@ void CalibMonitor::Loop() {
     // Selection of good track and energy measured in Hcal
     double rat(1.0), eHcal(t_eHcal);
     bool goodTk = GoodTrack(eHcal, cut, debug);
-    if (t_p > 0) rat =  (eHcal/(t_p-t_eMipDR));
+    if (pmom > 0) rat =  (eHcal/(pmom-t_eMipDR));
     if (debug) 
-      std::cout << "Entry " << jentry << " p|eHcal|ratio " << t_p << "|" 
+      std::cout << "Entry " << jentry << " p|eHcal|ratio " << pmom << "|" 
 		<< t_eHcal << "|" << eHcal << "|" << rat << "|" << kp << "|" 
 		<< kv << "|" << jp << " Cuts " 	<< t_qltyFlag << "|" 
 		<< t_selectTk << "|" << (t_hmaxNearP < cut) << "|" 
@@ -620,7 +635,7 @@ void CalibMonitor::Loop() {
 	    h_etaF[kp][0]->Fill(rat,t_EventWeight);
 	  }
 	}
-	if (t_p > 20.0) {
+	if (pmom > 20.0) {
 	  if (plotStandard_) {
 	    h_etaX[kp1][kv]->Fill(eta,rat,t_EventWeight);
 	    h_etaX[kp1][kv1]->Fill(eta,rat,t_EventWeight);
@@ -634,12 +649,12 @@ void CalibMonitor::Loop() {
 	}
       }
     }
-    if (t_p > 20.0) {
+    if (pmom > 20.0) {
       kount++;
       if (((flag_/100)%10) != 0) {
 	good++;
 	fileout << good << " " << jentry << " " << t_Run  << " " 
-		<< t_Event << " " << t_ieta << " " << t_p << std::endl;
+		<< t_Event << " " << t_ieta << " " << pmom << std::endl;
       }
     }
   }
@@ -659,14 +674,15 @@ void CalibMonitor::Loop() {
 bool CalibMonitor::GoodTrack(double& eHcal, double &cut, bool debug) {
 
   bool select(true);
+  double pmom = (useGen_ && (t_gentrackP>0)) ? t_gentrackP : t_p;
   if (debug) std::cout << "GoodTrack input " << eHcal << ":" << cut;
   if (flexibleSelect_) {
     double eta = (t_ieta > 0) ? t_ieta : -t_ieta;
     cut        = 2.0*exp(eta*log16by24_);
     select     = ((t_qltyFlag) && (t_hmaxNearP < cut) && (t_eMipDR < 1.0));
-    double fac = (t_p > 0) ? 
-      (1.0 - 0.375 * (eHcal/t_p) * 
-       ((t_eHcalDelta/t_p) - 0.45*(t_eHcalDelta/t_p)*(t_eHcalDelta/t_p))) : 1.;
+    double fac = (pmom > 0) ? 
+      (1.0 - 0.375 * (eHcal/pmom) * 
+       ((t_eHcalDelta/pmom) - 0.45*(t_eHcalDelta/pmom)*(t_eHcalDelta/pmom))) : 1.;
     eHcal *= fac;
   } else {
     select = ((t_qltyFlag) && (t_selectTk) && (t_hmaxNearP < cut) &&
@@ -833,7 +849,7 @@ public :
   TBranch                   *b_t_ietaAll;       //!
   TBranch                   *b_t_ietaGood;      //!
 
-  GetEntries(std::string fname, std::string dirname, bool ifOld=true);
+  GetEntries(std::string fname, std::string dirname, bool ifOld=false);
   virtual ~GetEntries();
   virtual Int_t    Cut(Long64_t entry);
   virtual Int_t    GetEntry(Long64_t entry);

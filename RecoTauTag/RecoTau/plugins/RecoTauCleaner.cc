@@ -277,7 +277,7 @@ void RecoTauCleanerImpl<Prod>::produce(edm::Event& evt, const edm::EventSetup& e
   PFTauRefs cleanTaus = reco::tau::cleanOverlaps<PFTauRefs, RemoveDuplicateJets>(dirty);
 
   // create output collection
-  std::auto_ptr<Prod> output(new Prod());
+  auto output = std::make_unique<Prod>();
   //output->reserve(cleanTaus.size());
 
   // Copy clean refs into output
@@ -292,7 +292,7 @@ void RecoTauCleanerImpl<Prod>::produce(edm::Event& evt, const edm::EventSetup& e
       output->push_back(convert<output_type>(*tau));
     }
   }
-  evt.put(output);
+  evt.put(std::move(output));
 }
 
 typedef RecoTauCleanerImpl<reco::PFTauCollection> RecoTauCleaner;

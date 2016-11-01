@@ -27,7 +27,7 @@
 // Values are not ordered randomly, but the order is taken from
 // http://cmslxr.fnal.gov/dxr/CMSSW/source/Geometry/CommonDetUnit/interface/GeomDetEnumerators.h#15
 static const std::vector<std::string> sDETS{ "", "PXB", "PXF", "TIB", "TID", "TOB", "TEC" };
-static const std::vector<std::string> sLAYS{ "0", "1", "2", "3", "4", "5", "6", "7", "8", "9" };
+static const std::vector<std::string> sLAYS{ "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11" };
 
 class TrackingRecoMaterialAnalyser : public DQMEDAnalyzer {
   public:
@@ -98,29 +98,29 @@ void TrackingRecoMaterialAnalyser::bookHistograms(DQMStore::IBooker & ibook,
                                   600, -300., 300, 120, 0., 120., 0., 1.);
   deltaP_in_out_vs_eta_vs_phi_2d_ = ibook.bookProfile2D("DeltaP_in_out_vs_eta_vs_phi_2d",
                                                         "DeltaP_in_out_vs_eta_vs_phi_2d",
-                                                        100, -2.5, 2.5,
+                                                        100, -3.0, 3.0,
                                                         100, -3.15, 3.15,
                                                         0., 100.);
   deltaP_in_out_vs_eta_2d_ = ibook.book2D("DeltaP_in_out_vs_eta_2d", "DeltaP_in_out_vs_eta_2d",
-                                          100, -2.5, 2.5, 100, 0., 1);
+                                          100, -3.0, 3.0, 100, 0., 1);
   deltaP_in_out_vs_z_2d_   = ibook.book2D("DeltaP_in_out_vs_z_2d", "DeltaP_in_out_vs_z_2d",
                                           600, -300, 300, 200., -1, 1.);
   deltaP_in_out_vs_eta_ = ibook.bookProfile("DeltaP_in_out_vs_eta", "DeltaP_in_out_vs_eta",
-                                      100, -2.5, 2.5, -100., 100.);
+                                      100, -3.0, 3.0, -100., 100.);
   deltaP_in_out_vs_z_   = ibook.bookProfile("DeltaP_in_out_vs_z", "DeltaP_in_out_vs_z",
                                       600, -300, 300, -100., 100.);
   deltaPt_in_out_vs_eta_ = ibook.bookProfile("DeltaPt_in_out_vs_eta", "DeltaPt_in_out_vs_eta",
-                                      100, -2.5, 2.5, -100., 100.);
+                                      100, -3.0, 3.0, -100., 100.);
   deltaPt_in_out_vs_z_   = ibook.bookProfile("DeltaPt_in_out_vs_z", "DeltaPt_in_out_vs_z",
                                       600, -300, 300, -100., 100);
   deltaPl_in_out_vs_eta_ = ibook.bookProfile("DeltaPz_in_out_vs_eta", "DeltaPz_in_out_vs_eta",
-                                      100, -2.5, 2.5, -100., 100.);
+                                      100, -3.0, 3.0, -100., 100.);
   deltaPl_in_out_vs_z_   = ibook.bookProfile("DeltaPz_in_out_vs_z", "DeltaPz_in_out_vs_z",
                                       600, -300, 300, -100., 100.);
   deltaPt_in_out_2d_     = ibook.bookProfile2D("DeltaPt 2D", "DeltaPt 2D",
                                                600, -300., 300, 120, 0., 120., -100., 100.);
   P_vs_eta_2d_   = ibook.book2D("P_vs_eta_2d", "P_vs_eta_2d",
-                                          100, -2.5, 2.5, 100., 0., 5.);
+                                          100, -3.0, 3.0, 100., 0., 5.);
   char title[50];
   char key[20];
   for (unsigned int det = 1; det < sDETS.size(); ++det ) {
@@ -226,6 +226,7 @@ void TrackingRecoMaterialAnalyser::analyze(const edm::Event& event,
             << " are invalid at: "
             << current_tsos.globalPosition() << " "
             << (SiStripDetId)current_det << endl;
+           assert(0);
           continue;
         }
         float p2 = localP.mag2();

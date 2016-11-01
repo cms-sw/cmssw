@@ -44,7 +44,7 @@ class L1TUtmTriggerMenu
     L1TUtmTriggerMenu()
       : algorithm_map_(), condition_map_(), scale_map_(),
         external_map_(), token_to_condition_(), name_(), version_(), comment_(),
-        datetime_(), uuid_firmware_(), scale_set_name_(), n_modules_() { };
+        datetime_(), uuid_firmware_(), scale_set_name_(), n_modules_(0), version(0) { };
 
     // dtor
     virtual ~L1TUtmTriggerMenu() { };

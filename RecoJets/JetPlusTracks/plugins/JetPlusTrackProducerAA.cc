@@ -145,7 +145,7 @@ JetPlusTrackProducerAA::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
 //  std::cout<<"JetPlusTrackProducerAA::produce, extrapolations_h="<<extrapolations_h->size()<<std::endl;  
 //=>
 
-  std::auto_ptr<reco::JPTJetCollection> pOut(new reco::JPTJetCollection());
+  auto pOut = std::make_unique<reco::JPTJetCollection>();
   
   reco::JPTJetCollection tmpColl;
 
@@ -380,7 +380,7 @@ JetPlusTrackProducerAA::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
     
   }
   
-   iEvent.put(pOut);
+   iEvent.put(std::move(pOut));
    
 }
 // -----------------------------------------------

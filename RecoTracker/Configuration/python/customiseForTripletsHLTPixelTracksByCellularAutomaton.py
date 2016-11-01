@@ -33,8 +33,9 @@ def customiseForTripletsHLTPixelTracksByCellularAutomaton(process):
             SeedingLayers = cms.InputTag(seedingLayersName),
             CAThetaCut = cms.double(0.0015),
             CAPhiCut = cms.double(0.01),
+            CAHardPtCut = cms.double(0),
         )
 
         if hasattr(triplets.GeneratorPSet, "SeedComparitorPSet"):
-            pset.SeedComparitorPSet = triplets.GeneratorPSet.SeedComparitorPSet
+            module.OrderedHitsFactoryPSet.SeedComparitorPSet = triplets.GeneratorPSet.SeedComparitorPSet
     return process

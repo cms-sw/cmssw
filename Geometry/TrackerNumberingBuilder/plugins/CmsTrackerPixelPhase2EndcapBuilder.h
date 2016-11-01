@@ -6,7 +6,7 @@
 # include <string>
 
 /**
- * Class which builds the pixel phase 1 endcap
+ * Class which builds the pixel phase 2 endcap
  */
 class CmsTrackerPixelPhase2EndcapBuilder : public CmsTrackerLevelBuilder
 {

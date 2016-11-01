@@ -71,8 +71,7 @@ void HcalHaloDataProducer::produce(Event& iEvent, const EventSetup& iSetup)
 
 
 
-  std::auto_ptr<HcalHaloData> HcalData( new HcalHaloData( HcalAlgo.Calculate(*TheCaloGeometry, TheHBHERecHits, TheCaloTowers, TheEBRecHits, TheEERecHits,iSetup)  ) ) ;
-  iEvent.put ( HcalData ) ;
+  iEvent.put(std::make_unique<HcalHaloData>(HcalAlgo.Calculate(*TheCaloGeometry, TheHBHERecHits, TheCaloTowers, TheEBRecHits, TheEERecHits,iSetup)));
   return;
 }
 

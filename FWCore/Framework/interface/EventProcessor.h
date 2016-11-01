@@ -231,10 +231,6 @@ namespace edm {
 
     void setupSignal();
 
-    bool hasSubProcesses() const {
-      return subProcesses_.get() != nullptr && !subProcesses_->empty();
-    }
-
     void possiblyContinueAfterForkChildFailure();
     
     friend class StreamProcessingTask;
@@ -279,7 +275,7 @@ namespace edm {
     ProcessContext                                processContext_;
     PathsAndConsumesOfModules                     pathsAndConsumesOfModules_;
     edm::propagate_const<std::unique_ptr<Schedule>> schedule_;
-    edm::propagate_const<std::unique_ptr<std::vector<SubProcess>>> subProcesses_;
+    std::vector<SubProcess> subProcesses_;
     edm::propagate_const<std::unique_ptr<HistoryAppender>> historyAppender_;
 
     edm::propagate_const<std::unique_ptr<FileBlock>> fb_;
@@ -318,6 +314,8 @@ namespace edm {
     typedef std::set<std::pair<std::string, std::string> > ExcludedData;
     typedef std::map<std::string, ExcludedData> ExcludedDataMap;
     ExcludedDataMap                               eventSetupDataToExcludeFromPrefetching_;
+    
+    bool printDependencies_ = false;
   }; // class EventProcessor
 
   //--------------------------------------------------------------------

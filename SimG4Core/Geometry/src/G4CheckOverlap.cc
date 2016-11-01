@@ -36,8 +36,10 @@ G4CheckOverlap::G4CheckOverlap(const edm::ParameterSet &p) {
   G4LogicalVolume* lv;
   const G4PhysicalVolumeStore * pvs = G4PhysicalVolumeStore::GetInstance();
   unsigned int numPV = pvs->size();
-
   unsigned int nn = nodeNames.size();
+
+  std::vector<G4String> savedgdml;
+
   G4cout << "G4OverlapCheck is initialised with " 
 	 << nodeNames.size() << " nodes; " << " nPoints= " << nPoints
 	 << "; tolerance= " << tolerance/mm << " mm; verbose: " 
@@ -66,6 +68,7 @@ G4CheckOverlap::G4CheckOverlap(const edm::ParameterSet &p) {
 	std::vector<G4LogicalVolume*>::iterator rootLVItr
 	  = reg->GetRootLogicalVolumeIterator();
 	unsigned int numRootLV = reg->GetNumberOfRootVolumes();
+	G4cout << "      " << numRootLV << " Root Logical Volumes in this region" << G4endl; 
 
 	for(unsigned int iLV=0; iLV < numRootLV; ++iLV, ++rootLVItr ) {
 	  // Cover each root logical volume in this region
@@ -73,15 +76,27 @@ G4CheckOverlap::G4CheckOverlap(const edm::ParameterSet &p) {
 	  G4cout << "### Check overlaps for G4LogicalVolume " << lv->GetName() << G4endl; 
           for(unsigned int i=0; i<numPV; ++i) {
             if(((*pvs)[i])->GetLogicalVolume() == lv) {
-	      G4cout << "### Check overlaps for PhysVolume  " <<  ((*pvs)[i])->GetName()
+              G4String pvname = ((*pvs)[i])->GetName();
+              G4bool isNew = true;
+              for(unsigned int k=0; k<savedgdml.size(); ++k) {
+		if(pvname == savedgdml[k]) {
+		  isNew = false;
+		  break;
+		}
+	      }
+              if(!isNew) { 
+		G4cout << "### Check overlaps for PhysVolume  " << pvname
+		       << " is skipted because was already done" << G4endl;
+		continue; 
+	      }
+              savedgdml.push_back(pvname);
+	      G4cout << "### Check overlaps for PhysVolume  " << pvname
 		     << G4endl;
 	      // gdml dump only for 1 volume
               if(gdmlFlag) {
 		G4GDMLParser gdml;
-		gdml.Write(((*pvs)[i])->GetName()+".gdml", (*pvs)[i], true);
-                //gdmlFlag = false;
+		gdml.Write(pvname+".gdml", (*pvs)[i], true);
 	      }
-
 	      G4GeomTestVolume test(((*pvs)[i]), tolerance, nPoints, verbose);
 	      test.SetErrorsThreshold(nPrints);
 	      test.TestRecursiveOverlap(level, depth);

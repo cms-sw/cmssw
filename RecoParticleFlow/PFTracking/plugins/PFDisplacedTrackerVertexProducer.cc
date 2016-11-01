@@ -31,10 +31,8 @@ PFDisplacedTrackerVertexProducer::produce(Event& iEvent, const EventSetup& iSetu
 {
 
   //create the empty collections 
-  auto_ptr< reco::PFDisplacedTrackerVertexCollection > 
-    pfDisplacedTrackerVertexColl (new reco::PFDisplacedTrackerVertexCollection);
-  auto_ptr< reco::PFRecTrackCollection > 
-    pfRecTrackColl (new reco::PFRecTrackCollection);
+  auto pfDisplacedTrackerVertexColl = std::make_unique<reco::PFDisplacedTrackerVertexCollection>();
+  auto pfRecTrackColl = std::make_unique<reco::PFRecTrackCollection>();
   
   reco::PFRecTrackRefProd pfTrackRefProd = iEvent.getRefBeforePut<reco::PFRecTrackCollection>();
 
@@ -91,8 +89,8 @@ PFDisplacedTrackerVertexProducer::produce(Event& iEvent, const EventSetup& iSetu
     pfDisplacedTrackerVertexColl->push_back( reco::PFDisplacedTrackerVertex( niRef, pfRecTkcoll ));
   }
  
-  iEvent.put(pfRecTrackColl);
-  iEvent.put(pfDisplacedTrackerVertexColl);
+  iEvent.put(std::move(pfRecTrackColl));
+  iEvent.put(std::move(pfDisplacedTrackerVertexColl));
 }
 
 // ------------ method called once each job just before starting event loop  ------------

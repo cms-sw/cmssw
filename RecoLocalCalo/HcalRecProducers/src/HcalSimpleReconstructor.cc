@@ -30,6 +30,7 @@ HcalSimpleReconstructor::HcalSimpleReconstructor(edm::ParameterSet const& conf):
 {
   // Intitialize "method 3"
   reco_.setMeth3Params(
+	    conf.getParameter<bool>    ("applyTimeSlewM3"),
             conf.getParameter<double>  ("pedestalUpperLimit"),
             conf.getParameter<int>     ("timeSlewParsType"),
             conf.getParameter<std::vector<double> >("timeSlewPars"),
@@ -84,6 +85,7 @@ HcalSimpleReconstructor::HcalSimpleReconstructor(edm::ParameterSet const& conf):
 void HcalSimpleReconstructor::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.setAllowAnything();
+  desc.add<bool>("applyTimeSlewM3", true);
   desc.add<double>("pedestalUpperLimit", 2.7); 
   desc.add<int>("timeSlewParsType",3);
   desc.add<std::vector<double>>("timeSlewPars", { 12.2999, -2.19142, 0, 12.2999, -2.19142, 0, 12.2999, -2.19142, 0 });

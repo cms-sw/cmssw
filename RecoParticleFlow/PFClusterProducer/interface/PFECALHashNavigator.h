@@ -66,7 +66,7 @@ class PFECALHashNavigator : public PFRecHitNavigatorBase {
 
   }
 
-  void associateNeighbours(reco::PFRecHit& rh,std::auto_ptr<reco::PFRecHitCollection>& hits,edm::RefProd<reco::PFRecHitCollection>& refprod) {
+  void associateNeighbours(reco::PFRecHit& rh,std::unique_ptr<reco::PFRecHitCollection>& hits,edm::RefProd<reco::PFRecHitCollection>& refprod) {
 
 
 

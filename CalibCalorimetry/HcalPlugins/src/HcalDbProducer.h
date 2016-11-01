@@ -61,6 +61,7 @@ class HcalDbProducer : public edm::ESProducer {
   void SiPMCharacteristicsCallback (const HcalSiPMCharacteristicsRcd& fRecord);
   void TPChannelParametersCallback (const HcalTPChannelParametersRcd& fRecord);
   void TPParametersCallback (const HcalTPParametersRcd& fRecord);
+  void MCParamsCallback (const HcalMCParamsRcd& fRecord);
 
 private:
       // ----------member data ---------------------------
@@ -85,5 +86,6 @@ private:
   std::unique_ptr<HcalSiPMCharacteristics> mSiPMCharacteristics;
   std::unique_ptr<HcalTPChannelParameters> mTPChannelParameters;
   std::unique_ptr<HcalTPParameters> mTPParameters;
+  std::unique_ptr<HcalMCParams> mMCParams;
 
 };

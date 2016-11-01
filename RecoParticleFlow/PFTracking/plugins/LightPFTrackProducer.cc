@@ -39,8 +39,7 @@ LightPFTrackProducer::produce(Event& iEvent, const EventSetup& iSetup)
 {
 
   //create the empty collections 
-  auto_ptr< reco::PFRecTrackCollection > 
-    PfTrColl (new reco::PFRecTrackCollection);
+  auto PfTrColl = std::make_unique<reco::PFRecTrackCollection>();
   
   for (unsigned int istr=0; istr<tracksContainers_.size();istr++){
     
@@ -63,7 +62,7 @@ LightPFTrackProducer::produce(Event& iEvent, const EventSetup& iSetup)
 
     }
   }
-  iEvent.put(PfTrColl);
+  iEvent.put(std::move(PfTrColl));
 }
 
 // ------------ method called once each job just before starting event loop  ------------

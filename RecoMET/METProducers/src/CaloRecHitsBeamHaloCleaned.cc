@@ -144,7 +144,7 @@ CaloRecHitsBeamHaloCleaned::produce(edm::Event& iEvent, const edm::EventSetup& i
    //Cleaning of the various rechits collections:
 
    //  EcalRecHit EB
-   auto_ptr<EcalRecHitCollection> ebrhitscleaned(new EcalRecHitCollection()); 
+   auto ebrhitscleaned = std::make_unique<EcalRecHitCollection>(); 
    for(unsigned int i = 0;  i < ebrhitsuncleaned->size(); i++){
      const EcalRecHit & rhit = (*ebrhitsuncleaned)[i];
      bool isclean(true);
@@ -160,7 +160,7 @@ CaloRecHitsBeamHaloCleaned::produce(edm::Event& iEvent, const edm::EventSetup& i
    }
    
    //  EcalRecHit EE
-   auto_ptr<EcalRecHitCollection> eerhitscleaned(new EcalRecHitCollection()); 
+   auto eerhitscleaned = std::make_unique<EcalRecHitCollection>(); 
    for(unsigned int i = 0;  i < eerhitsuncleaned->size(); i++){
      const EcalRecHit & rhit = (*eerhitsuncleaned)[i];
      bool isclean(true);
@@ -176,7 +176,7 @@ CaloRecHitsBeamHaloCleaned::produce(edm::Event& iEvent, const edm::EventSetup& i
    }
 
    //  HBHERecHit
-   auto_ptr<HBHERecHitCollection> hbherhitscleaned(new HBHERecHitCollection()); 
+   auto hbherhitscleaned = std::make_unique<HBHERecHitCollection>(); 
    for(unsigned int i = 0;  i < hbherhitsuncleaned->size(); i++){
      const HBHERecHit & rhit = (*hbherhitsuncleaned)[i];
      bool isclean(true);
@@ -193,9 +193,9 @@ CaloRecHitsBeamHaloCleaned::produce(edm::Event& iEvent, const edm::EventSetup& i
 
 
 
-   iEvent.put(ebrhitscleaned,"EcalRecHitsEB");
-   iEvent.put(eerhitscleaned,"EcalRecHitsEE");
-   iEvent.put(hbherhitscleaned);
+   iEvent.put(std::move(ebrhitscleaned),"EcalRecHitsEB");
+   iEvent.put(std::move(eerhitscleaned),"EcalRecHitsEE");
+   iEvent.put(std::move(hbherhitscleaned));
 
 }
 

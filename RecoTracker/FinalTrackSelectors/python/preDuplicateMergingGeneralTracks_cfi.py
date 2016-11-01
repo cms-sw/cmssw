@@ -1,5 +1,4 @@
 import FWCore.ParameterSet.Config as cms
-from Configuration.StandardSequences.Eras import eras
 from RecoTracker.FinalTrackSelectors.TrackCollectionMerger_cfi import *
 
 preDuplicateMergingGeneralTracks = TrackCollectionMerger.clone()
@@ -20,7 +19,8 @@ preDuplicateMergingGeneralTracks.lostHitPenalty =   1.0
 
 # For Phase1PU70
 from RecoTracker.FinalTrackSelectors.trackListMerger_cfi import trackListMerger as _trackListMerger
-eras.trackingPhase1PU70.toReplaceWith(preDuplicateMergingGeneralTracks, _trackListMerger.clone(
+from Configuration.Eras.Modifier_trackingPhase1PU70_cff import trackingPhase1PU70
+trackingPhase1PU70.toReplaceWith(preDuplicateMergingGeneralTracks, _trackListMerger.clone(
     TrackProducers = [
         "earlyGeneralTracks",
         "muonSeededTracksInOut",
@@ -45,7 +45,8 @@ eras.trackingPhase1PU70.toReplaceWith(preDuplicateMergingGeneralTracks, _trackLi
 ))
 
 # For Phase2PU140
-eras.trackingPhase2PU140.toReplaceWith(preDuplicateMergingGeneralTracks, _trackListMerger.clone(
+from Configuration.Eras.Modifier_trackingPhase2PU140_cff import trackingPhase2PU140
+trackingPhase2PU140.toReplaceWith(preDuplicateMergingGeneralTracks, _trackListMerger.clone(
     TrackProducers = cms.VInputTag(
         cms.InputTag("earlyGeneralTracks"),
         cms.InputTag("muonSeededTracksInOut"),

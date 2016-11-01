@@ -34,8 +34,13 @@ HGCalDDDConstants::HGCalDDDConstants(const HGCalParameters* hp,
 	      << ":" << maxCells(true) << " cells" << std::endl;
 #endif
   } else {
-    rmax_ = k_ScaleFromDDD * (hgpar_->waferR_) * std::cos(30.0*CLHEP::deg);
-
+    rmax_     = k_ScaleFromDDD * (hgpar_->waferR_) * std::cos(30.0*CLHEP::deg);
+    hexside_  = 2.0 * rmax_ * tan30deg_;
+#ifdef DebugLog
+    std::cout << "rmax_ " << rmax_ << ":" << hexside_ << " CellSize " 
+	      << 0.5*k_ScaleFromDDD*hgpar_->cellSize_[0] << ":" 
+	      << 0.5*k_ScaleFromDDD*hgpar_->cellSize_[1] << std::endl;
+#endif
     // init maps and constants    
     for( int simreco = 0; simreco < 2; ++simreco ) {
       tot_layers_[simreco] = layersInit((bool)simreco);
@@ -162,7 +167,7 @@ std::pair<int,int> HGCalDDDConstants::findCell(int cell, int lay, int subSec,
   std::pair<int,float> index = getIndex(lay, reco);
   int i = index.first;
   if (i < 0) return std::pair<int,int>(-1,-1);
-  if (mode_ == HGCalGeometryMode::Hexagon) {
+  if (mode_ != HGCalGeometryMode::Square) {
     return std::pair<int,int>(-1,-1);
   } else {
     float alpha, h, bl, tl;
@@ -564,6 +569,41 @@ int HGCalDDDConstants::waferFromCopy(int copy) const {
     }
   }
   return wafer;
+}
+
+void HGCalDDDConstants::waferFromPosition(const double x, const double y,
+					  int& wafer, int& icell, 
+					  int& celltyp) const {
+
+  double xx(k_ScaleFromDDD*x), yy(k_ScaleFromDDD*y);
+  int size_ = (int)(hgpar_->waferCopy_.size());
+  wafer     = size_;
+  for (int k=0; k<size_; ++k) {
+    double dx = std::abs(xx-hgpar_->waferPosX_[k]);
+    double dy = std::abs(yy-hgpar_->waferPosY_[k]);
+    if (dx <= rmax_ && dy <= hexside_) {
+      if ((dy <= 0.5*hexside_) || (dx <= (2.*rmax_-dy/tan30deg_))) {
+	wafer   = k;
+	celltyp = hgpar_->waferTypeT_[k];
+	xx     -= hgpar_->waferPosX_[k];
+	yy     -= hgpar_->waferPosY_[k];
+	break;
+      }
+    }
+  }
+  if (wafer < size_) {
+    if (celltyp == 1) 
+      icell  = cellHex(xx, yy, 0.5*k_ScaleFromDDD*hgpar_->cellSize_[0], 
+		       hgpar_->cellFineX_, hgpar_->cellFineY_);
+    else
+      icell  = cellHex(xx, yy, 0.5*k_ScaleFromDDD*hgpar_->cellSize_[1],
+		       hgpar_->cellCoarseX_, hgpar_->cellCoarseY_);
+  }
+#ifdef DebugLog
+  std::cout << "Position " << x << ":" << y << " Wafer " << wafer << ":" 
+	    << size_ << " XX " << xx << ":" << yy << " Cell " << icell 
+	    << " Type " << celltyp << std::endl;
+#endif
 }
 
 bool HGCalDDDConstants::waferInLayer(int wafer, int lay, bool reco) const {

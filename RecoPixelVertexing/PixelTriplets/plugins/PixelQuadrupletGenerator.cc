@@ -201,7 +201,7 @@ void PixelQuadrupletGenerator::hitQuadruplets(const TrackingRegion& region, Orde
         // accept quadruplets.
         if(theComparitor) {
           SeedingHitSet tmpTriplet(triplet.inner(), triplet.outer(), hit);
-          if(!theComparitor->compatible(tmpTriplet, region)) {
+          if(!theComparitor->compatible(tmpTriplet)) {
             continue;
           }
         }

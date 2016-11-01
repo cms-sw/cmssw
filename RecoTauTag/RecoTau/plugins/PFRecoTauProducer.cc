@@ -78,7 +78,7 @@ PFRecoTauProducer::~PFRecoTauProducer(){
 }
 
 void PFRecoTauProducer::produce(edm::Event& iEvent,const edm::EventSetup& iSetup){
-  auto_ptr<PFTauCollection> resultPFTau(new PFTauCollection);
+  auto resultPFTau = std::make_unique<PFTauCollection>();
   
   edm::ESHandle<TransientTrackBuilder> myTransientTrackBuilder;
   iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder",myTransientTrackBuilder);
@@ -122,7 +122,7 @@ void PFRecoTauProducer::produce(edm::Event& iEvent,const edm::EventSetup& iSetup
     }
     ++iinfo;
   }
-  iEvent.put(resultPFTau);
+  iEvent.put(std::move(resultPFTau));
 }
 
 DEFINE_FWK_MODULE(PFRecoTauProducer);

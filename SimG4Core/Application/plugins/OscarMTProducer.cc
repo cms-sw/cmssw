@@ -92,7 +92,8 @@ OscarMTProducer::OscarMTProducer(edm::ParameterSet const & p, const OscarMTMaste
   produces<edm::PSimHitContainer>("PLTHits");
   produces<edm::PSimHitContainer>("BCM1FHits");
   produces<edm::PSimHitContainer>("BHMHits");
-  produces<edm::PSimHitContainer>("FastTimerHits");
+  produces<edm::PSimHitContainer>("FastTimerHitsBarrel");
+  produces<edm::PSimHitContainer>("FastTimerHitsEndcap");
 
   produces<edm::PCaloHitContainer>("EcalHitsEB");
   produces<edm::PCaloHitContainer>("EcalHitsEE");

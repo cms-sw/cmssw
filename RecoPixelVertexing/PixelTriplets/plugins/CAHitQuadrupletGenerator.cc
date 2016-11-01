@@ -154,9 +154,6 @@ void CAHitQuadrupletGenerator::hitQuadruplets(const TrackingRegion& region,
 	ca.findNtuplets(foundQuadruplets, numberOfHitsInNtuplet);
 
 
-	theLayerCache.clear();
-
-
 	const QuantityDependsPtEval maxChi2Eval = maxChi2.evaluator(es);
 
   // re-used thoughout, need to be vectors because of RZLine interface
@@ -201,7 +198,7 @@ void CAHitQuadrupletGenerator::hitQuadruplets(const TrackingRegion& region,
       SeedingHitSet tmpTriplet(foundQuadruplets[quadId][0]->getInnerHit(), foundQuadruplets[quadId][2]->getInnerHit(), foundQuadruplets[quadId][2]->getOuterHit());
 
 
-      if (!theComparitor->compatible(tmpTriplet, region) )
+      if (!theComparitor->compatible(tmpTriplet) )
       {
         continue;
       }
@@ -250,6 +247,7 @@ void CAHitQuadrupletGenerator::hitQuadruplets(const TrackingRegion& region,
     result.emplace_back(foundQuadruplets[quadId][0]->getInnerHit(), foundQuadruplets[quadId][1]->getInnerHit(), foundQuadruplets[quadId][2]->getInnerHit(), foundQuadruplets[quadId][2]->getOuterHit());
   }
 
+  theLayerCache.clear();
 }
 
 

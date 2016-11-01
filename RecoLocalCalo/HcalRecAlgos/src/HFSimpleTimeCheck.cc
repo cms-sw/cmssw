@@ -134,7 +134,7 @@ HFRecHit HFSimpleTimeCheck::reconstruct(const HFPreRecHit& prehit,
         for (unsigned ianode=0; ianode<2; ++ianode)
         {
             const HFQIE10Info* anodeInfo = prehit.getHFQIE10Info(ianode);
-            if (anodeInfo)
+            if (anodeInfo && weights[ianode] > 0.f)
             {
                 const float weightedEnergy = weights[ianode]*anodeInfo->energy();
                 energy += weightedEnergy;

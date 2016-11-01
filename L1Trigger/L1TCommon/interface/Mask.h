@@ -1,6 +1,5 @@
-#ifndef __Mask_h__
-#define __Mask_h__
-
+#ifndef L1Trigger_L1TCommon_Mask_h
+#define L1Trigger_L1TCommon_Mask_h
 #include <string>
 
 //boost libraries
