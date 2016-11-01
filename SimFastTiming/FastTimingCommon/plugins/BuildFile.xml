@@ -13,6 +13,5 @@
 <use name="SimGeneral/MixingModule"/>
 <use name="CommonTools/UtilAlgos"/>
 <use name="SimFastTiming/FastTimingCommon"/>
-<use name="geant4core"/>
 <use name="root"/>
 <flags EDM_PLUGIN="1"/>
