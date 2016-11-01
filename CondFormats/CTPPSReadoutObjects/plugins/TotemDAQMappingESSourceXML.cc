@@ -75,6 +75,10 @@ public:
 
 private:
   unsigned int verbosity;
+
+  // label of the CTPPS sub-system
+  string subSystemName;
+
   int plane_id;
 
   struct ConfigBlock
