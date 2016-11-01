@@ -22,8 +22,21 @@ totemDAQMappingESSourceXML.configuration = cms.VPSet(
   )
 )
 
+# raw trigger data
 from EventFilter.CTPPSRawToDigi.totemTriggerRawToDigi_cfi import *
 totemTriggerRawToDigi.rawDataTag = cms.InputTag("rawDataCollector")
 
+# Si strips
 from EventFilter.CTPPSRawToDigi.totemRPRawToDigi_cfi import *
 totemRPRawToDigi.rawDataTag = cms.InputTag("rawDataCollector")
+
+# diamonds
+from EventFilter.CTPPSRawToDigi.ctppsDiamondRawToDigi_cfi import *
+ctppsDiamondRawToDigi.rawDataTag = cms.InputTag("rawDataCollector")
+
+# raw-to-digi sequence
+ctppsRawToDigi = cms.Sequence(
+  totemTriggerRawToDigi *
+  totemRPRawToDigi *
+  ctppsDiamondRawToDigi
+)
