@@ -12,7 +12,7 @@ if options.geometry == 'run2':
     # Add our custom detector grouping to DDD
     process.XMLIdealGeometryESSource.geomXMLFiles.extend(['SimTracker/TrackerMaterialAnalysis/data/trackingMaterialGroups.xml'])
 elif options.geometry == 'Phase1':
-    process.load('Configuration.Geometry.GeometryExtended2017newReco_cff')
+    process.load('Configuration.Geometry.GeometryExtended2017Reco_cff')
     # Add our custom detector grouping to DDD
     process.XMLIdealGeometryESSource.geomXMLFiles.extend(['SimTracker/TrackerMaterialAnalysis/data/trackingMaterialGroups_ForPhaseI.xml'])
 elif options.geometry == 'Phase2':

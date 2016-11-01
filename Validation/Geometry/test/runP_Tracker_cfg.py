@@ -70,7 +70,7 @@ _components = _LABELS2COMPS[options.label]
 #Geometry
 #
 if options.geom == 'phaseI':
-  process.load("Configuration.Geometry.GeometryExtended2017new_cff")
+  process.load("Configuration.Geometry.GeometryExtended2017_cff")
 elif options.geom == 'run2':
   process.load("Configuration.Geometry.GeometryExtended2016_cff")
 elif options.geom == 'phaseIID4':
