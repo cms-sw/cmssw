@@ -26,5 +26,5 @@ MultiHitGeneratorFromChi2 = cms.PSet(
     detIdsToDebug = cms.vint32(0,0,0)
 )
 
-from Configuration.StandardSequences.Eras import eras
-eras.peripheralPbPb.toModify(MultiHitGeneratorFromChi2, maxElement = 1000000)
+from Configuration.Eras.Modifier_peripheralPbPb_cff import peripheralPbPb
+peripheralPbPb.toModify(MultiHitGeneratorFromChi2, maxElement = 1000000)
