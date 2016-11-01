@@ -1703,7 +1703,7 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
         k2=k[:-2]
     geom=upgradeProperties[year][k]['Geom']
     gt=upgradeProperties[year][k]['GT']
-    hltversion=upgradeProperties[year][k]['HLT']
+    hltversion=upgradeProperties[year][k].get('HLTmenu')
     cust=upgradeProperties[year][k].get('Custom', None)
     era=upgradeProperties[year][k].get('Era', None)
     beamspot=upgradeProperties[year][k].get('BeamSpot', None)
