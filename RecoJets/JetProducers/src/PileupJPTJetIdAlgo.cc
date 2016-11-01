@@ -151,8 +151,6 @@ float PileupJPTJetIdAlgo::fillJPTBlock(const reco::JPTJet* jet
 
        if (verbosity > 0)  std::cout<<" CaloTower jet eta "<<(*jet).eta()<<" tower eta "<<(*icalot)->eta()<<" jet phi "<<(*jet).phi()<<" tower phi "<<(*icalot)->phi()<<" dphi "<<dphi<<" "<<(*icalot)->pt()<<" ieta "<<(*icalot)->ieta()<<" "<<abs((*icalot)->ieta())<<std::endl;
 
-        double dr = sqrt(dphi*dphi+deta*deta);
-        double enc = (*icalot)->emEnergy()+(*icalot)->hadEnergy();
 	
         if(abs((*icalot)->ieta())<30) EE = EE + (*icalot)->emEnergy();
         if(abs((*icalot)->ieta())<30) HE = HE + (*icalot)->hadEnergy();
