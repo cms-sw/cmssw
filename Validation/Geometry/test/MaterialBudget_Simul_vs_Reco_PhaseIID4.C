@@ -9,24 +9,15 @@
 #include <sys/stat.h>
 
 std::vector<const char * > DETECTORS{"TIB", "TIDF", "TIDB",
-      "InnerServices", "TOB",
+      "InnerService", "TOB",
       "TEC", "TkStrct", "PixBar",
       "PixFwdPlus", "PixFwdMinus",
       "Phase1PixelBarrel", "Phase2OTBarrel",
       "Phase2OTForward", "Phase2PixelEndcap",
-      "BeamPipe"};//,
-      // "Tracker", "TrackerSum",
-      // "Pixel", "Strip",
-      // "InnerTracker"};
-
-bool checkFile(const char * filename) {
-  struct stat sb;
-  if (stat(filename, &sb) == -1) {
-    cerr << "Error, missing file: " << filename << endl;
-    return false;
-  }
-  return true;
-}
+      "BeamPipe",
+      "Tracker", "TrackerSum",
+      "Pixel", "Strip",
+      "InnerTracker"};
 
 void setTDRStyle() {
 
@@ -171,19 +162,15 @@ float ymin;
 float ymax;
 //
 
-// Routine to internally create and save plots related to the
-// Simulation geometry. It also returns the overall envelope of the
-// tracker material budget, in order to compare it against the one
-// computed from the Reconstruction geometry.
-
+// Routine to internally create and save plots related to the Simulation
+// geometry. It also returns the overall envelope of the tracker material
+// budget, in order to compare it against the one computed from the
+// Reconstruction geometry.
 void createPlots(TString plot, TH1D** cumulative_matbdg);
-
-
-// Routine to internally create and save plots related to the
-// Reconstruction geometry. It also returns the overall envelope of
-// the tracker material budget, in order to compare it against the one
-// computed from the Simulation geometry.
-
+// Routine to internally create and save plots related to the Reconstruction
+// geometry. It also returns the overall envelope of the tracker material
+// budget, in order to compare it against the one computed from the Simulation
+// geometry.
 void createPlotsReco(const char * reco_file, const char * label, TH1D** cumulative_matbdg);
 
 void assignOrAddIfExists(TH1D** h, TProfile* p) {
@@ -218,8 +205,10 @@ void MaterialBudget_Simul_vs_Reco(const char * reco_file, const char * label="")
   if (cumulative_matbdg_sim != 0 && cumulative_matbdg_rec != 0) {
     cumulative_matbdg_sim->SetMinimum(0.); cumulative_matbdg_sim->SetMaximum(3.5);
     cumulative_matbdg_sim->GetXaxis()->SetRangeUser(-3.0, 3.0);
+//    cumulative_matbdg_sim->SetFillColor(kOrange);
     cumulative_matbdg_sim->SetLineColor(kOrange);
     cumulative_matbdg_rec->SetMinimum(0.); cumulative_matbdg_rec->SetMaximum(3.);
+//    cumulative_matbdg_rec->SetFillColor(kAzure+1);
     cumulative_matbdg_rec->SetLineColor(kAzure+1);
     TLegend * l = new TLegend(0.18, 0.8, 0.95, 0.92);
     l->AddEntry(cumulative_matbdg_sim, "Sim Material", "f");
@@ -236,7 +225,7 @@ void MaterialBudget_Simul_vs_Reco(const char * reco_file, const char * label="")
 
 void createPlotsReco(const char * reco_file, const char * label, TH1D ** cumulative_matbdg) {
   std::vector<std::string> sDETS = {"PXB", "PXF", "TIB", "TID", "TOB", "TEC"};
-  std::vector<unsigned int> sLAYS = {4, 11, 4, 5, 6, 9};
+  std::vector<unsigned int> sLAYS = {3, 2, 4, 3, 6, 9};
   std::vector<std::string> sPREF = {"Original_RadLen_vs_Eta_", "RadLen_vs_Eta_"};
   std::vector<int> sCOLORS = {kRed, kBlue, kGreen, kYellow, kOrange, kPink};
   std::vector<TProfile*> profs;
@@ -389,11 +378,10 @@ void createPlots(TString plot, TH1D ** cumulative_matbdg){
     // open file
 
     struct stat sb;
-    if (!checkFile(subDetectorFileName.Data())) {
+    if (stat(subDetectorFileName, &sb) == -1) {
       std::cerr << "Error opening file: " << subDetectorFileName << std::endl;
       continue;
     }
-
     TFile* subDetectorFile = new TFile(subDetectorFileName);
     cout << "*** Open file... " << endl;
     cout << subDetectorFileName << endl;
@@ -407,7 +395,9 @@ void createPlots(TString plot, TH1D ** cumulative_matbdg){
 
     hist_x0_detectors[detector] = (TH1D*)prof_x0_XXX->ProjectionX();
 
+    std::cout << __LINE__ << std::endl;
     if ( *cumulative_matbdg == 0 ) {
+      std::cout << __LINE__ << std::endl;
       *cumulative_matbdg = new TH1D("CumulativeSimulMatBdg",
                                     "CumulativeSimulMatBdg",
                                     hist_x0_IB->GetNbinsX(),
@@ -415,6 +405,7 @@ void createPlots(TString plot, TH1D ** cumulative_matbdg){
                                     hist_x0_IB->GetXaxis()->GetXmax());
       std::cout << "Sim at exit: " << *cumulative_matbdg << std::endl;
     }
+    std::cout << __LINE__ << std::endl;
     // category profiles
     prof_x0_SUP   = (TProfile*)subDetectorFile->Get(Form("%u", 100 + plotNumber));
     prof_x0_SEN   = (TProfile*)subDetectorFile->Get(Form("%u", 200 + plotNumber));
