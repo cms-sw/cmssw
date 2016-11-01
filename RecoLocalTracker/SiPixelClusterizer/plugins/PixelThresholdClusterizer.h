@@ -88,33 +88,33 @@ class dso_hidden PixelThresholdClusterizer final : public PixelClusterizerBase {
   float theSeedThresholdInNoiseUnits;     // Pixel cluster seed in units of noise
   float theClusterThresholdInNoiseUnits;  // Cluster threshold in units of noise
 
-  int   thePixelThreshold;  // Pixel threshold in electrons
-  int   theSeedThreshold;   // Seed threshold in electrons 
-  float theClusterThreshold;  // Cluster threshold in electrons
-  int   theConversionFactor;  // adc to electron conversion factor
-  int   theOffset;            // adc to electron conversion offset
+  const int   thePixelThreshold;  // Pixel threshold in electrons
+  const int   theSeedThreshold;   // Seed threshold in electrons
+  const float theClusterThreshold;  // Cluster threshold in electrons
+  const int   theConversionFactor;  // adc to electron conversion factor
+  const int   theOffset;            // adc to electron conversion offset
+
+  const int   theStackADC_;          // The maximum ADC count for the stack layers
+  const int   theFirstStack_;        // The index of the first stack layer
+  const double theElectronPerADCGain_;  //  ADC to electrons conversion
 
   //! Geometry-related information
   int  theNumOfRows;
   int  theNumOfCols;
   uint32_t detid_;
   bool dead_flag;
-  bool doMissCalibrate; // Use calibration or not
-  bool doSplitClusters;
+  const bool doMissCalibrate; // Use calibration or not
+  const bool doSplitClusters;
   //! Private helper methods:
   bool setup(const PixelGeomDetUnit * pixDet);
   void copy_to_buffer( DigiIterator begin, DigiIterator end );   
   void copy_to_buffer( ClusterIterator begin, ClusterIterator end );
   void clear_buffer( DigiIterator begin, DigiIterator end );
   void clear_buffer( ClusterIterator begin, ClusterIterator end );
-  SiPixelCluster make_cluster( const SiPixelCluster::PixelPos& pix, edmNew::DetSetVector<SiPixelCluster>::FastFiller& output
-);
+  SiPixelCluster make_cluster( const SiPixelCluster::PixelPos& pix, edmNew::DetSetVector<SiPixelCluster>::FastFiller& output);
   // Calibrate the ADC charge to electrons 
   int calibrate(int adc, int col, int row);
-  int   theStackADC_;          // The maximum ADC count for the stack layers
-  int   theFirstStack_;        // The index of the first stack layer
 
-  double theElectronPerADCGain_;  //  ADC to electrons conversion
 };
 
 #endif
