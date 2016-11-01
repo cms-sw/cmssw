@@ -137,26 +137,26 @@ RecoGenJetsAOD = cms.PSet(
                                            )
     )
 
-from Configuration.StandardSequences.Eras import eras
-
+from Configuration.Eras.Modifier_pA_2016_cff import pA_2016
+from Configuration.Eras.Modifier_peripheralPbPb_cff import peripheralPbPb
 #products from regular pp which does not fit the normal AOD
-for e in [eras.pA_2016, eras.peripheralPbPb]:
+for e in [pA_2016, peripheralPbPb]:
     e.toModify( RecoJetsAOD.outputCommands, 
                 func=lambda outputCommands: outputCommands.extend(['keep *_towerMaker_*_*'])
                 )
 
 #HI-specific products: needed in AOD, propagate to more inclusive tiers as well
 for ec in [RecoJetsAOD.outputCommands, RecoJetsRECO.outputCommands, RecoJetsFEVT.outputCommands]:
-    eras.pA_2016.toModify( ec, 
-                           func=lambda outputCommands: outputCommands.extend(['keep recoCentrality*_pACentrality_*_*',
-                                                                              'keep *_hiFJGridEmptyAreaCalculator_*_*',
-                                                                              'keep *_hiFJRhoProducer_*_*'
-                                                                              ])
-                       )
+    pA_2016.toModify( ec, 
+                      func=lambda outputCommands: outputCommands.extend(['keep recoCentrality*_pACentrality_*_*',
+                                                                         'keep *_hiFJGridEmptyAreaCalculator_*_*',
+                                                                         'keep *_hiFJRhoProducer_*_*'
+                                                                         ])
+                      )
 
 #HI-specific products: needed in AOD, propagate to more inclusive tiers as well
 for ec in [RecoJetsAOD.outputCommands, RecoJetsRECO.outputCommands, RecoJetsFEVT.outputCommands]:
-    eras.peripheralPbPb.toModify( ec, 
-                                  func=lambda outputCommands: outputCommands.extend(['keep recoCentrality*_pACentrality_*_*'])
-                                  )
-
+    peripheralPbPb.toModify( ec, 
+                             func=lambda outputCommands: outputCommands.extend(['keep recoCentrality*_pACentrality_*_*'])
+                             )
+    
