@@ -227,6 +227,29 @@ def getFullTrackVPSet():
         )
 	ret.append(hltFullTrackMult)
 
+    thresholds4 = [20, 30, 40]
+    for t in thresholds4:
+        partialPathName = "HLT_PAFullTracks_HighPt"+str(t)+"_v"
+        hltPAFullTrack =  cms.PSet(
+            triggerSelection = cms.string(partialPathName+"*"),
+            handlerType = cms.string("FromHLT"),
+            partialPathName = cms.string(partialPathName),
+            partialFilterName  = cms.string("hltPAFullTrack"),
+            dqmhistolabel  = cms.string("hltPAFullTrack"),
+            mainDQMDirname = cms.untracked.string(dirname),
+            singleObjectsPreselection = cms.string("1==1"),
+            singleObjectDrawables =  cms.VPSet(
+                cms.PSet (name = cms.string("pt"), expression = cms.string("pt"), bins = cms.int32(100), min = cms.double(0), max = cms.double(100)),
+                cms.PSet (name = cms.string("eta"), expression = cms.string("eta"), bins = cms.int32(100), min = cms.double(-2.5), max = cms.double(2.5)),
+                cms.PSet (name = cms.string("phi"), expression = cms.string("phi"), bins = cms.int32(100), min = cms.double(-3.15), max = cms.double(3.15))
+            ),
+            combinedObjectSelection =  cms.string("1==1"),
+            combinedObjectSortCriteria = cms.string("at(0).pt"),
+            combinedObjectDimension = cms.int32(1),
+            combinedObjectDrawables =  cms.VPSet()
+        )
+        ret.append(hltPAFullTrack)
+
     return ret
 
 def getPAHighMultVPSet():
