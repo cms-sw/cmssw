@@ -27,7 +27,7 @@
 // Values are not ordered randomly, but the order is taken from
 // http://cmslxr.fnal.gov/dxr/CMSSW/source/Geometry/CommonDetUnit/interface/GeomDetEnumerators.h#15
 static const std::vector<std::string> sDETS{ "", "PXB", "PXF", "TIB", "TID", "TOB", "TEC" };
-static const std::vector<std::string> sLAYS{ "0", "1", "2", "3", "4", "5", "6", "7", "8", "9" };
+static const std::vector<std::string> sLAYS{ "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11" };
 
 class TrackingRecoMaterialAnalyser : public DQMEDAnalyzer {
   public:

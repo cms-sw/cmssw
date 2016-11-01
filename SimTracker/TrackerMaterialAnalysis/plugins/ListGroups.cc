@@ -469,7 +469,10 @@ ListGroups::analyze(const edm::Event& evt, const edm::EventSetup& setup) {
 
     // DD3Vector and DDTranslation are the same type as math::XYZVector
     math::XYZVector position = fv.translation() / 10.;  // mm -> cm
-    std::cout << "\t" << position << std::endl;
+    std::cout << "\t(" << position.x()
+              << ", " << position.y()
+              << ", " << position.z() << ") "
+              << "[rho] " << position.Rho() << std::endl;
   };
   std::cout << std::endl;
 
