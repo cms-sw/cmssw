@@ -75,8 +75,8 @@ trackingPhase2PU140.toModify(photonConvTrajSeedFromSingleLeg,
     RegionFactoryPSet = dict(RegionPSet = dict(ptMin = 0.3)),
 )
 
-
-eras.peripheralPbPb.toModify(photonConvTrajSeedFromSingleLeg,
-                             ClusterCheckPSet = dict(cut = "strip < 400000 && pixel < 40000 && (strip < 60000 + 7.0*pixel) && (pixel < 8000 + 0.14*strip)")
-)
+from Configuration.Eras.Modifier_peripheralPbPb_cff import peripheralPbPb
+peripheralPbPb.toModify(photonConvTrajSeedFromSingleLeg,
+                        ClusterCheckPSet = dict(cut = "strip < 400000 && pixel < 40000 && (strip < 60000 + 7.0*pixel) && (pixel < 8000 + 0.14*strip)")
+                        )
 
