@@ -71,12 +71,14 @@
     edm::EDGetTokenT<edm::DetSetVector<PixelDigi>> tPixelDigi;
     // TO DO: maybe allow a map of pointers?
     SiPixelGainCalibrationServiceBase * theSiPixelGainCalibration_;
-    std::string clusterMode_;               // user's choice of the clusterizer
+    const std::string clusterMode_;         // user's choice of the clusterizer
     PixelClusterizerBase * clusterizer_;    // what we got (for now, one ptr to base class)
     bool readyToCluster_;                   // needed clusterizers valid => good to go!
 
     //! Optional limit on the total number of clusters
-    int32_t maxTotalClusters_;
+    const int32_t maxTotalClusters_;
+
+    const std::string payloadType_;
   };
 
 

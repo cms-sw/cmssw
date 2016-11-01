@@ -49,13 +49,12 @@
   SiPixelClusterProducer::SiPixelClusterProducer(edm::ParameterSet const& conf) 
     : 
     theSiPixelGainCalibration_(0), 
-    clusterMode_("None"),     // bogus
+    clusterMode_( conf.getUntrackedParameter<std::string>("ClusterMode","PixelThresholdClusterizer") ),
     clusterizer_(0),          // the default, in case we fail to make one
     readyToCluster_(false),   // since we obviously aren't
-    maxTotalClusters_( conf.getParameter<int32_t>( "maxNumberOfClusters" ) )
+    maxTotalClusters_( conf.getParameter<int32_t>( "maxNumberOfClusters" ) ),
+    payloadType_( conf.getParameter<std::string>( "payloadType" ) )
   {
-    clusterMode_ = conf.getUntrackedParameter<std::string>("ClusterMode","PixelThresholdClusterizer");
-
     if ( clusterMode_ == "PixelThresholdReclusterizer" )
       tPixelClusters = consumes<SiPixelClusterCollectionNew>( conf.getParameter<edm::InputTag>("src") );
     else
@@ -63,13 +62,11 @@
     //--- Declare to the EDM what kind of collections we will be making.
     produces<SiPixelClusterCollectionNew>(); 
 
-    std::string payloadType = conf.getParameter<std::string>( "payloadType" );
-
-    if (strcmp(payloadType.c_str(), "HLT") == 0)
+    if (strcmp(payloadType_.c_str(), "HLT") == 0)
        theSiPixelGainCalibration_ = new SiPixelGainCalibrationForHLTService(conf);
-    else if (strcmp(payloadType.c_str(), "Offline") == 0)
+    else if (strcmp(payloadType_.c_str(), "Offline") == 0)
        theSiPixelGainCalibration_ = new SiPixelGainCalibrationOfflineService(conf);
-    else if (strcmp(payloadType.c_str(), "Full") == 0)
+    else if (strcmp(payloadType_.c_str(), "Full") == 0)
        theSiPixelGainCalibration_ = new SiPixelGainCalibrationService(conf);
 
     //--- Make the algorithm(s) according to what the user specified

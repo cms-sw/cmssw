@@ -43,32 +43,21 @@ using namespace std;
 //----------------------------------------------------------------------------
 PixelThresholdClusterizer::PixelThresholdClusterizer
   (edm::ParameterSet const& conf) :
-    bufferAlreadySet(false), theNumOfRows(0), theNumOfCols(0), detid_(0) 
+    bufferAlreadySet(false),
+    // Get thresholds in electrons
+    thePixelThreshold( conf.getParameter<int>("ChannelThreshold") ),
+    theSeedThreshold( conf.getParameter<int>("SeedThreshold") ),
+    theClusterThreshold( conf.getParameter<double>("ClusterThreshold") ),
+    theConversionFactor( conf.getParameter<int>("VCaltoElectronGain") ),
+    theOffset( conf.getParameter<int>("VCaltoElectronOffset") ),
+    theStackADC_( conf.exists("AdcFullScaleStack") ? conf.getParameter<int>("AdcFullScaleStack") : 255 ),
+    theFirstStack_( conf.exists("FirstStackLayer") ? conf.getParameter<int>("FirstStackLayer") : 5 ),
+    theElectronPerADCGain_( conf.exists("ElectronPerADCGain") ? conf.getParameter<double>("ElectronPerADCGain") : 135. ),
+    theNumOfRows(0), theNumOfCols(0), detid_(0),
+    // Get the constants for the miss-calibration studies
+    doMissCalibrate( conf.getUntrackedParameter<bool>("MissCalibrate",true) ),
+    doSplitClusters( conf.getParameter<bool>("SplitClusters") )
 {
-  // Get thresholds in electrons
-  thePixelThreshold   = 
-    conf.getParameter<int>("ChannelThreshold");
-  theSeedThreshold    = 
-    conf.getParameter<int>("SeedThreshold");
-  theClusterThreshold = 
-    conf.getParameter<double>("ClusterThreshold");
-  theConversionFactor = 
-    conf.getParameter<int>("VCaltoElectronGain");
-  theOffset = 
-    conf.getParameter<int>("VCaltoElectronOffset");
-  if ( conf.exists("AdcFullScaleStack") ) theStackADC_=conf.getParameter<int>("AdcFullScaleStack");
-  else 
-    theStackADC_=255;
-  if ( conf.exists("FirstStackLayer") ) theFirstStack_=conf.getParameter<int>("FirstStackLayer");
-  else
-    theFirstStack_=5;
-  if ( conf_.exists("ElectronPerADCGain") ) theElectronPerADCGain_=conf_.getParameter<double>("ElectronPerADCGain");
-  else
-    theElectronPerADCGain_=135.;
-  
-  // Get the constants for the miss-calibration studies
-  doMissCalibrate=conf.getUntrackedParameter<bool>("MissCalibrate",true); 
-  doSplitClusters = conf.getParameter<bool>("SplitClusters");
   theBuffer.setSize( theNumOfRows, theNumOfCols );
 }
 /////////////////////////////////////////////////////////////////////////////
