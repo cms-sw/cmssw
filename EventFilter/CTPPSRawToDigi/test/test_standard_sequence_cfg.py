@@ -19,7 +19,7 @@ process.source = cms.Source("PoolSource",
 )
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(-1)
+    input = cms.untracked.int32(100)
 )
 
 # raw-to-digi conversion
@@ -33,6 +33,10 @@ process.p = cms.Path(
 # output configuration
 process.output = cms.OutputModule("PoolOutputModule",
   fileName = cms.untracked.string("file:./reco_digi.root"),
+  outputCommands = cms.untracked.vstring(
+    'drop *',
+    'keep *_*RawToDigi_*_*',
+  )
 )
 
 process.outpath = cms.EndPath(process.output)

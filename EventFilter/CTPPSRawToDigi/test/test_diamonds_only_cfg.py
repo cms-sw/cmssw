@@ -20,14 +20,10 @@ process.source = cms.Source("PoolSource",
 process.maxEvents = cms.untracked.PSet(
   input = cms.untracked.int32(100)
 )
- 
+
 # raw-to-digi conversion
-process.load('CondFormats.CTPPSReadoutObjects.TotemDAQMappingESSourceXML_cfi')
-process.TotemDAQMappingESSourceXML.mappingFileNames.append("CondFormats/CTPPSReadoutObjects/xml/ctpps_timing_diamond_215_mapping.xml")
-
-process.load('EventFilter.CTPPSRawToDigi.ctppsDiamondRawToDigi_cfi')
-process.ctppsDiamondRawToDigi.rawDataTag = cms.InputTag("rawDataCollector")
-
+process.load("EventFilter.CTPPSRawToDigi.ctppsRawToDigi_cff")
+ 
 process.p = cms.Path(
   process.ctppsDiamondRawToDigi
 )
@@ -36,9 +32,8 @@ process.p = cms.Path(
 process.output = cms.OutputModule("PoolOutputModule",
   fileName = cms.untracked.string("file:./reco_diamond_digi.root"),
   outputCommands = cms.untracked.vstring(
-    'keep TotemFEDInfos_ctppsDiamondRawToDigi_*_*',
-    'keep CTPPSDiamondDigiedmDetSetVector_ctppsDiamondRawToDigi_*_*',
-    'keep TotemVFATStatusedmDetSetVector_ctppsDiamondRawToDigi_*_*'
+    'drop *',
+    'keep *_ctppsDiamondRawToDigi_*_*',
  )
 )
 

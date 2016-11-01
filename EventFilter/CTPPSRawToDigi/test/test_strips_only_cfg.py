@@ -20,28 +20,24 @@ process.source = cms.Source("PoolSource",
 )
 
 process.maxEvents = cms.untracked.PSet(
-  input = cms.untracked.int32(-1)
+  input = cms.untracked.int32(100)
 )
 
 # raw-to-digi conversion
-process.load('CondFormats.CTPPSReadoutObjects.TotemDAQMappingESSourceXML_cfi')
-process.TotemDAQMappingESSourceXML.mappingFileNames.append("CondFormats/CTPPSReadoutObjects/xml/ctpps_210_mapping.xml")
-
-process.load("EventFilter.CTPPSRawToDigi.totemTriggerRawToDigi_cfi")
-process.totemTriggerRawToDigi.rawDataTag = cms.InputTag("rawDataCollector")
-
-process.load('EventFilter.CTPPSRawToDigi.totemRPRawToDigi_cfi')
-process.totemRPRawToDigi.rawDataTag = cms.InputTag("rawDataCollector")
+process.load("EventFilter.CTPPSRawToDigi.ctppsRawToDigi_cff")
 
 # execution configuration
 process.p = cms.Path(
-  process.totemTriggerRawToDigi *
   process.totemRPRawToDigi
 )
 
 # output configuration
 process.output = cms.OutputModule("PoolOutputModule",
   fileName = cms.untracked.string("file:./reco_strips_digi.root"),
+  outputCommands = cms.untracked.vstring(
+    'drop *',
+    'keep *_*RawToDigi_*_*',
+  )
 )
 
 process.outpath = cms.EndPath(process.output)
