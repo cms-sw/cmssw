@@ -38,3 +38,10 @@ process.p = cms.Path(
   process.totemTriggerRawToDigi *
   process.totemRPRawToDigi
 )
+
+# output configuration
+process.output = cms.OutputModule("PoolOutputModule",
+  fileName = cms.untracked.string("file:./reco_strips_digi.root"),
+)
+
+process.outpath = cms.EndPath(process.output)
