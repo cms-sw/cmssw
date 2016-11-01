@@ -9,13 +9,13 @@ Scenario supporting cosmic data taking
 import os
 import sys
 
-import Configuration.StandardSequences.Eras as eras
+from Configuration.Eras.Era_Run2_2016_cff import Run2_2016
 from Configuration.DataProcessing.Impl.cosmics import cosmics
 
 class cosmicsEra_Run2_2016(cosmics):
     def __init__(self):
         cosmics.__init__(self)
-        self.eras = eras.eras.Run2_2016
+        self.eras = Run2_2016
     """
     _cosmicsEra_Run2_2016_
 
