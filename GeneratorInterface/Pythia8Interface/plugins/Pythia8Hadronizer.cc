@@ -149,8 +149,6 @@ class Pythia8Hadronizer : public Py8InterfaceBase {
     int nISRveto;
     int nFSRveto;
     
-    std::vector<std::string> fSortedWeightKeys;
-
 };
 
 const std::vector<std::string> Pythia8Hadronizer::p8SharedResources = { edm::SharedResourceNames::kPythia8 };
@@ -422,28 +420,6 @@ bool Pythia8Hadronizer::initializeForInternalPartons()
     }
 
   }
-  
-  //keep track of lhe weights
-  //*FIXME* Sort them numerically since pythia does not preserve the original order
-  //This will fail if weight names are not parseable as integers/
-  //To be improved with future pythia release
-  fSortedWeightKeys.clear();
-  if (fMasterGen->info.initrwgt) {
-    fSortedWeightKeys.reserve(fMasterGen->info.initrwgt->weights.size());
-    
-    std::vector<std::pair<int,std::string> > fWeightKeysTmp;
-    fWeightKeysTmp.reserve(fMasterGen->info.initrwgt->weights.size());
-    
-    for (const auto &wgt : fMasterGen->info.initrwgt->weights) {
-      fWeightKeysTmp.emplace_back(std::stoi(wgt.first),wgt.first);
-    }
-    
-    std::sort(fWeightKeysTmp.begin(),fWeightKeysTmp.end());
-    
-    for (const auto &wgt : fWeightKeysTmp) {
-      fSortedWeightKeys.push_back(wgt.second);
-    }
-  }
 
   return (status&&status1);
 }
@@ -663,11 +639,11 @@ bool Pythia8Hadronizer::generatePartonsAndHadronize()
   }
   
   //fill additional weights for systematic uncertainties
-  //this is a hack because pythia does not currently provide ordered access to the weights
-  //*FIXME* to be improved with future pythia version
-  for (const string &key : fSortedWeightKeys) {
-    double wgt = (*fMasterGen->info.weights_detailed)[key];
-    event()->weights().push_back(wgt);
+  if (fMasterGen->info.initrwgt) {
+    for (const string &key : fMasterGen->info.initrwgt->weightsKeys) {
+      double wgt = (*fMasterGen->info.weights_detailed)[key];
+      event()->weights().push_back(wgt);
+    }
   }
 
   return true;
@@ -847,33 +823,26 @@ GenLumiInfoHeader *Pythia8Hadronizer::getGenLumiInfoHeader() const {
   }
   
   //fill weight names
-  //*FIXME* to be improved with future pythia version to avoid need
-  //for re-sorting weights
-  //Note that weight group names are not available in all cases currently
-  //due to an issue in the weightgroup handling in pythia
-  genLumiInfoHeader->weightNames().reserve(fSortedWeightKeys.size() + 1);
-  genLumiInfoHeader->weightNames().push_back("nominal");
-  for (const std::string &key : fSortedWeightKeys) {
-    std::string weightgroupname;
-    for (const auto &wgtgrp : fMasterGen->info.initrwgt->weightgroups) {
-      if (wgtgrp.second.weights.count(key)) {
-        if (!wgtgrp.first.empty()) {
+  if (fMasterGen->info.initrwgt) {
+    genLumiInfoHeader->weightNames().reserve(fMasterGen->info.initrwgt->weightsKeys.size() + 1);
+    genLumiInfoHeader->weightNames().push_back("nominal");
+    for (const std::string &key : fMasterGen->info.initrwgt->weightsKeys) {
+      std::string weightgroupname;
+      for (const auto &wgtgrp : fMasterGen->info.initrwgt->weightgroups) {
+        const auto &wgtgrpwgt = wgtgrp.second.weights.find(key);
+        if (wgtgrpwgt != wgtgrp.second.weights.end()) {
           weightgroupname = wgtgrp.first;
         }
-        else if (wgtgrp.second.attributes.count("type")) {
-          weightgroupname = wgtgrp.second.attributes.find("type")->second;
-        }
-        break;
       }
+      
+      std::ostringstream weightname;
+      weightname << "LHE, id = " << key << ", ";
+      if (!weightgroupname.empty()) {
+        weightname << "group = " << weightgroupname << ", ";
+      }
+      weightname<< fMasterGen->info.initrwgt->weights[key].contents;
+      genLumiInfoHeader->weightNames().push_back(weightname.str());    
     }
-    
-    std::ostringstream weightname;
-    weightname << "LHE, id = " << key << ", ";
-    if (!weightgroupname.empty()) {
-      weightname << weightgroupname << ", ";
-    }
-    weightname<< fMasterGen->info.initrwgt->weights[key].contents;
-    genLumiInfoHeader->weightNames().push_back(weightname.str());
   }
 
   return genLumiInfoHeader;
