@@ -9,6 +9,9 @@ import FWCore.ParameterSet.Config as cms
 
 #
 # The following MVA is tuned on Spring16 MC samples using non-triggering electrons.
+# This is ID only provides a very loose (~98% signal efficiency) working point and 
+# is intended to be used by multi-lepton analyses (HZZ, ZZ, ... ). Please consider 
+# using the general purpose ID.
 # See more documentation in this presentation (P.Pigard):
 #     https://indico.cern.ch/event/482674/contributions/2206032/attachments/1292177/1931287/20160621_EGM_cms_week_v5.pdf
 #
@@ -30,12 +33,12 @@ mvaTag = "V1"
 #   5   EE             pt 10-inf GeV
 
 mvaSpring16WeightFiles_V1 = cms.vstring(
-    "RecoEgamma/ElectronIdentification/Spring16/electronID_mva_Spring16_HZZ_EB1_5_V1.weights.xml",
-    "RecoEgamma/ElectronIdentification/Spring16/electronID_mva_Spring16_HZZ_EB2_5_V1.weights.xml",
-    "RecoEgamma/ElectronIdentification/Spring16/electronID_mva_Spring16_HZZ_EE_5_V1.weights.xml",
-    "RecoEgamma/ElectronIdentification/Spring16/electronID_mva_Spring16_HZZ_EB1_10_V1.weights.xml",
-    "RecoEgamma/ElectronIdentification/Spring16/electronID_mva_Spring16_HZZ_EB2_10_V1.weights.xml",
-    "RecoEgamma/ElectronIdentification/Spring16/electronID_mva_Spring16_HZZ_EE_10_V1.weights.xml"
+    "RecoEgamma/ElectronIdentification/data/Spring16_HZZ_V1/electronID_mva_Spring16_HZZ_V1_EB1_5.weights.xml",
+    "RecoEgamma/ElectronIdentification/data/Spring16_HZZ_V1/electronID_mva_Spring16_HZZ_V1_EB2_5.weights.xml",
+    "RecoEgamma/ElectronIdentification/data/Spring16_HZZ_V1/electronID_mva_Spring16_HZZ_V1_EE_5.weights.xml",
+    "RecoEgamma/ElectronIdentification/data/Spring16_HZZ_V1/electronID_mva_Spring16_HZZ_V1_EB1_10.weights.xml",
+    "RecoEgamma/ElectronIdentification/data/Spring16_HZZ_V1/electronID_mva_Spring16_HZZ_V1_EB2_10.weights.xml",
+    "RecoEgamma/ElectronIdentification/data/Spring16_HZZ_V1/electronID_mva_Spring16_HZZ_V1_EE_10.weights.xml"
     )
 
 # Load some common definitions for MVA machinery

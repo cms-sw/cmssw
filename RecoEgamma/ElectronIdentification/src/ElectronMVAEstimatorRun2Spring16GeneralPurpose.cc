@@ -186,7 +186,6 @@ createSingleReader(const int iCategory, const edm::FileInPath &weightFile){
   // must match what is found in the xml weights file!
   //
 
-
   // Pure ECAL -> shower shapes
   tmpTMVAReader.AddVariable("ele_oldsigmaietaieta", &_allMVAVars.see);
   tmpTMVAReader.AddVariable("ele_oldsigmaiphiiphi", &_allMVAVars.spp);
@@ -217,8 +216,8 @@ createSingleReader(const int iCategory, const edm::FileInPath &weightFile){
   tmpTMVAReader.AddVariable("ele_deltaphiin",      &_allMVAVars.dphi);
   tmpTMVAReader.AddVariable("ele_deltaetaseed",    &_allMVAVars.detacalo);
 
-  tmpTMVAReader.AddSpectator("ele_pt",             &_allMVAVars.pt);
-  tmpTMVAReader.AddSpectator("scl_eta",            &_allMVAVars.SCeta);
+  tmpTMVAReader.AddVariable("ele_pt",             &_allMVAVars.pt);
+  tmpTMVAReader.AddVariable("scl_eta",            &_allMVAVars.SCeta);
 
    // Endcap only variables
   if( isEndcapCategory(iCategory) )
