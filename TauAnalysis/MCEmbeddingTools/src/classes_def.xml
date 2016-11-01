@@ -1,0 +1,11 @@
+<lcgdict>
+  <class name="std::vector<reco::TrackRef>"/>
+  <class name="edm::ValueMap<reco::TrackRef>::const_iterator">
+    <field name="values_" transient="true"/>
+    <field name="i_" transient="true"/>
+    <field name="end_" transient="true"/>
+  </class>
+  <class name="edm::Wrapper<edm::ValueMap<reco::TrackRef> >"/>
+  <class name="edm::ValueMap<edm::Ref<std::vector<reco::Track>,reco::Track,edm::refhelper::FindUsingAdvance<std::vector<reco::Track>,reco::Track> > >"/>
+
+</lcgdict>
