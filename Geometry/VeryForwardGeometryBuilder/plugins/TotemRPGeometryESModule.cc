@@ -279,12 +279,12 @@ class MeasuredGeometryProducer {
         // Extracts RP id from object namespace - object must be RP_Box, or RP_Hybrid (NOT RP_Silicon_Detector)
         static inline TotemRPDetId getRPIdFromNamespace(const DDLogicalPart &part)
         {
-            int nsLength = part.name().ns().length();
-            unsigned int rpDecId = atoi(part.name().ns().substr(nsLength - 3, nsLength).c_str());
+            const int nsLength = part.name().ns().length();
+            const unsigned int rpDecId = atoi(part.name().ns().substr(nsLength - 3, nsLength).c_str());
 
-            unsigned int armIdx = rpDecId / 100;
-            unsigned int stIdx = (rpDecId / 10) % 10;
-            unsigned int rpIdx = rpDecId % 10;
+            const unsigned int armIdx = rpDecId / 100;
+            const unsigned int stIdx = (rpDecId / 10) % 10;
+            const unsigned int rpIdx = rpDecId % 10;
 
             return TotemRPDetId(armIdx, stIdx, rpIdx);
         }

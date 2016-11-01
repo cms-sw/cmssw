@@ -35,9 +35,8 @@ class CTPPSDiamondDetId : public CTPPSDetId
   /// Construct from hierarchy indeces.
   CTPPSDiamondDetId(uint32_t Arm, uint32_t Station, uint32_t RomanPot=0, uint32_t Plane=0, uint32_t Det=0);
 
-  static const uint32_t startPlaneBit = 17, maskPlane = 0x3, maxPlane = 3, lowMaskPlane = 0x1FFFF;
-  static const uint32_t startDetBit = 12, maskDet = 0x1F, maxDet = 12, lowMaskDet = 0xFFF;
-
+  static const uint32_t startPlaneBit, maskPlane, maxPlane, lowMaskPlane;
+  static const uint32_t startDetBit, maskDet, maxDet, lowMaskDet;
 
   /// returns true if the raw ID is a PPS-timing one
   static bool check(unsigned int raw)
