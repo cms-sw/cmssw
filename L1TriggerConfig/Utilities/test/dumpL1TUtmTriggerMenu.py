@@ -56,7 +56,7 @@ if len(options.topKey) :
     process.load("CondTools.L1TriggerExt.L1TriggerKeyOnlineExt_cfi")
     process.L1TriggerKeyOnlineExt.subsystemLabels = cms.vstring('uGT')
     # include the subsystem-specific subkeys ESProducer (generates uGT labeled L1TriggerKey)
-    process.load("L1TriggerConfig.L1TUtmTriggerMenuProducers.L1TUtmTriggerMenuObjectKeysOnline_cfi")
+    process.load("L1TriggerConfig.L1TConfigProducers.L1TUtmTriggerMenuObjectKeysOnline_cfi")
 else :
     # generate the parent L1TriggerKey 
     process.load("CondTools.L1TriggerExt.L1TriggerKeyDummyExt_cff")
@@ -71,7 +71,7 @@ else :
     process.L1TUtmTriggerMenuObjectKeysOnline.onlineAuthentication = cms.string( options.DBAuth )
 
 # Online produced for the payload 
-process.load("L1TriggerConfig.L1TUtmTriggerMenuProducers.L1TUtmTriggerMenuOnline_cfi")
+process.load("L1TriggerConfig.L1TConfigProducers.L1TUtmTriggerMenuOnline_cfi")
 process.L1TUtmTriggerMenuOnlineProd.onlineAuthentication = cms.string( options.DBAuth )
 
 process.l1cr = cms.EDAnalyzer( "L1TriggerKeyExtReader", label = cms.string("uGT") )
