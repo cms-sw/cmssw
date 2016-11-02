@@ -22,7 +22,6 @@ diMuonHistos = cms.EDAnalyzer("DiMuonHistograms",
                               HighMassMax = cms.double(155.0),
                               folder = cms.string("Muons/diMuonHistograms")
                               )
-<<<<<<< HEAD
 diMuonHistos_miniAOD = cms.EDAnalyzer("DiMuonHistograms",
                                       MuonCollection  = cms.InputTag("slimmedMuons"),
                                       VertexLabel     = cms.InputTag("offlineSlimmedPrimaryVertices"),
@@ -43,7 +42,6 @@ diMuonHistos_miniAOD = cms.EDAnalyzer("DiMuonHistograms",
                                       HighMassMax = cms.double(155.0),
                                       folder = cms.string("Muons_miniAOD/diMuonHistograms")
                                       )
-=======
 
 from Configuration.Eras.Modifier_pA_2016_cff import pA_2016
 pA_2016.toModify(diMuonHistos, 
@@ -56,4 +54,3 @@ pA_2016.toModify(diMuonHistos,
     HighMassMin = 55.0, 
     HighMassMax = 125.0
     )
->>>>>>> 2a2b56e... Moved Muon DQM customization to era
