@@ -53,6 +53,8 @@ class Eras (object):
         # Run1 currently does nothing. It's useful to use as a no-operation era commands when scripting,
         # but also retains the flexibility to add Run1 specific commands at a later date.
         self.Run1 = cms.Modifier()
+        self.Run1_peripheralPbPb = cms.ModifierChain(self.Run1, self.peripheralPbPb)
+        self.Run1_pA = cms.ModifierChain(self.Run1, self.pA_2016)
         # The various Run2 scenarios for 2015 startup.
         self.Run2_25ns = cms.ModifierChain( self.run2_common, self.run2_25ns_specific, self.stage1L1Trigger )
         self.Run2_50ns = cms.ModifierChain( self.run2_common, self.run2_50ns_specific )
