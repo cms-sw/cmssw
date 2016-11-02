@@ -11,7 +11,6 @@ options = VarParsing.VarParsing()
 
 options.register('myScenario',
                  "MisalignmentScenario_NonMisalignedBPIX", # default value
-                 #~ "MisalignmentScenarioNoMisalignment", # default value
                  VarParsing.VarParsing.multiplicity.singleton, # singleton or list
                  VarParsing.VarParsing.varType.string, # string, int, or float
                  "scenario to apply")
@@ -21,6 +20,12 @@ options.register('mySigma',
                  VarParsing.VarParsing.multiplicity.singleton, # singleton or list
                  VarParsing.VarParsing.varType.float, # string, int, or float
                  "sigma for random misalignment in um")
+
+options.register('inputDB',
+                 None, # default value
+                 VarParsing.VarParsing.multiplicity.singleton, # singleton or list
+                 VarParsing.VarParsing.varType.string, # string, int, or float
+                 "input database file to override GT (optional)")
 
 options.parseArguments()
 
@@ -45,10 +50,11 @@ process.load('Configuration.Geometry.GeometryRecoDB_cff')
 ###################################################################
 # Just state the Global Tag (and pick some run)
 ###################################################################
-process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff') 
-from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_design', '')
-print "Using global tag: %s" % process.GlobalTag.globaltag._value
+process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
+from Configuration.AlCa.GlobalTag import GlobalTag
+# process.GlobalTag = GlobalTag(process.GlobalTag, "auto:run2_design", "")
+process.GlobalTag = GlobalTag(process.GlobalTag, "auto:phase1_2017_design", "")
+print "Using global tag:", process.GlobalTag.globaltag.value()
 
 ###################################################################
 # This uses the object from the tag and applies the misalignment scenario on top of that object
@@ -69,20 +75,34 @@ for objname,oid in globals().items():
         isMatched = True
         print "Using scenario:",objname
         process.AlignmentProducer.MisalignmentScenario = oid
-   
+
 if isMatched is not True:
     print "----- Begin Fatal Exception -----------------------------------------------"
     print "Unrecognized",options.myScenario,"misalignment scenario !!!!"
     print "Aborting cmsRun now, please check your input"
     print "----- End Fatal Exception -------------------------------------------------"
-    os._exit(1)
+    sys.exit(1)
 
 sigma = options.mySigma
 if sigma > 0:
     process.AlignmentProducer.MisalignmentScenario.scale = cms.double(0.0001*sigma) # shifts are in cm
 
+if options.inputDB is not None:
+    process.GlobalTag.toGet.extend([
+            cms.PSet(
+                connect = cms.string("sqlite_file:"+options.inputDB),
+                record = cms.string("TrackerAlignmentRcd"),
+                tag = cms.string("Alignments")
+                ),
+            cms.PSet(
+                connect = cms.string("sqlite_file:"+options.inputDB),
+                record = cms.string("TrackerAlignmentErrorExtendedRcd"),
+                tag = cms.string("AlignmentErrorsExtended")
+                )
+            ])
+
 process.AlignmentProducer.saveToDB=True
-process.AlignmentProducer.saveApeToDB=False
+process.AlignmentProducer.saveApeToDB=True
 
 ###################################################################
 # Output name
@@ -91,33 +111,36 @@ outputfilename = None
 scenariolabel = str(options.myScenario)
 if sigma > 0:
     scenariolabel = scenariolabel+str(sigma)
-outputfilename = "geometry_"+str(scenariolabel)+"_from"+process.GlobalTag.globaltag._value.replace('::All','')+".db"
+outputfilename = "geometry_"+str(scenariolabel)+"__from_"
+if options.inputDB is None:
+    outputfilename += process.GlobalTag.globaltag.value().replace("::All","")+".db"
+else:
+    outputfilename += options.inputDB
 
 ###################################################################
 # Source
 ###################################################################
 process.source = cms.Source("EmptySource")
-process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(1)
-)
+process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(1))
 
 ###################################################################
 # Database output service
 ###################################################################
-
-import CondCore.DBCommon.CondDBSetup_cfi
-process.PoolDBOutputService = cms.Service("PoolDBOutputService",
-    CondCore.DBCommon.CondDBSetup_cfi.CondDBSetup,
-    # Writing to oracle needs the following shell variable setting (in zsh):
-    # export CORAL_AUTH_PATH=/afs/cern.ch/cms/DB/conddb
-    # connect = cms.string('oracle://cms_orcoff_prep/CMS_COND_ALIGNMENT'),  # preparation/develop. DB
-    timetype = cms.untracked.string('runnumber'),
-    connect = cms.string('sqlite_file:'+outputfilename),                                      
+from CondCore.CondDB.CondDB_cfi import *
+process.PoolDBOutputService = cms.Service(
+    "PoolDBOutputService",
+    CondDB,
+    timetype = cms.untracked.string("runnumber"),
     toPut = cms.VPSet(
         cms.PSet(
-            record = cms.string('TrackerAlignmentRcd'),
-            tag = cms.string('Alignments')
-        ), 
+            record = cms.string("TrackerAlignmentRcd"),
+            tag = cms.string("Alignments")
+            ),
+        cms.PSet(
+            record = cms.string("TrackerAlignmentErrorExtendedRcd"),
+            tag = cms.string("AlignmentErrorsExtended")
+            ),
+        )
     )
-)
+process.PoolDBOutputService.connect = "sqlite_file:"+outputfilename
 process.PoolDBOutputService.DBParameters.messageLevel = 2
