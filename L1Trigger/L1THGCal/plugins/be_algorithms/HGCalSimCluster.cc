@@ -187,6 +187,7 @@ namespace HGCalTriggerBackend{
                             //2.B get the HGCAL-base-cell associated to it / geometry
                             //const auto& tc=geom->triggerCells()[ tcellId() ] ;//HGCalTriggerGeometry::TriggerCell&
                             //for(const auto& cell : tc.components() )  // HGcell -- unsigned
+                            unsigned ncells = geometry_->getCellsFromTriggerCell( tcellId()).size();
                             for(const auto& cell : geometry_->getCellsFromTriggerCell( tcellId()) )  // HGCcell -- unsigned
                             {
                                 HGCalDetId cellId(cell);
@@ -199,7 +200,7 @@ namespace HGCalTriggerBackend{
                                 {
                                     const auto & pid= p.first;
                                     const auto & fraction=p.second;
-                                    auto energy = fraction*digiEnergy;
+                                    auto energy = fraction*digiEnergy/ncells;
                                     //2.D add to the corresponding cluster
                                     //void addToCluster(std::unordered_map<uint64_t,std::pair<int,l1t::HGCalCluster> >& cluster_container, uint64_t pid,int pdgid,float & energy,float & eta, float &phi)
                                     //addToCluster(cluster_container, pid, 0 energy,ETA/PHI?  ) ;
