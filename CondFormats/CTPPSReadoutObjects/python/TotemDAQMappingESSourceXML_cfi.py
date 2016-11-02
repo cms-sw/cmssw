@@ -3,8 +3,6 @@ import FWCore.ParameterSet.Config as cms
 totemDAQMappingESSourceXML = cms.ESSource("TotemDAQMappingESSourceXML",
   verbosity = cms.untracked.uint32(0),
 
-  subSystem = cms.untracked.string(""),
-
   configuration = cms.VPSet(
     # example configuration block:
     #cms.PSet(
