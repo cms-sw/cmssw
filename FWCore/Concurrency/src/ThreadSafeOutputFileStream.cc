@@ -12,7 +12,7 @@ namespace edm {
   {
     std::string msg;
     while (waitingMessages_.try_pop(msg)) {
-      file_ << msg << '\n';
+      file_ << msg;
     }
     file_.close();
   }
