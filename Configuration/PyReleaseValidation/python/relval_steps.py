@@ -1703,6 +1703,7 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
         k2=k[:-2]
     geom=upgradeProperties[year][k]['Geom']
     gt=upgradeProperties[year][k]['GT']
+    hltversion=upgradeProperties[year][k].get('HLTmenu')
     cust=upgradeProperties[year][k].get('Custom', None)
     era=upgradeProperties[year][k].get('Era', None)
     beamspot=upgradeProperties[year][k].get('BeamSpot', None)
@@ -1741,16 +1742,17 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
     if cust!=None : upgradeStepDict['GenSimHLBeamSpotFull14'][k]['--customise']=cust
     if era is not None: upgradeStepDict['GenSimHLBeamSpotFull14'][k]['--era']=era
     
-    upgradeStepDict['DigiFull'][k] = {'-s':'DIGI:pdigi_valid,L1,DIGI2RAW,HLT:@fake',
+    upgradeStepDict['DigiFull'][k] = {'-s':'DIGI:pdigi_valid,L1,DIGI2RAW,HLT:%s'%(hltversion),
                                       '--conditions':gt,
                                       '--datatier':'GEN-SIM-DIGI-RAW',
                                       '-n':'10',
                                       '--eventcontent':'FEVTDEBUGHLT',
                                       '--geometry' : geom
                                       }
+
     if cust!=None : upgradeStepDict['DigiFull'][k]['--customise']=cust
     if era is not None: upgradeStepDict['DigiFull'][k]['--era']=era
-    
+ 
     if k2 in PUDataSets:
         upgradeStepDict['DigiFullPU'][k]=merge([PUDataSets[k2],upgradeStepDict['DigiFull'][k]])
 
@@ -1827,15 +1829,15 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
 
 
 
-    upgradeStepDict['ALCAFull'][k] = {'-s':'ALCA:TkAlMuonIsolated+TkAlMinBias+MuAlOverlaps+EcalESAlign+TkAlZMuMu+HcalCalHBHEMuonFilter',
+    upgradeStepDict['ALCAFull'][k] = {'-s':'ALCA:TkAlMuonIsolated+TkAlMinBias+MuAlOverlaps+EcalESAlign+TkAlZMuMu',
                                       '--conditions':gt,
                                       '--datatier':'ALCARECO',
                                       '-n':'10',
                                       '--eventcontent':'ALCARECO',
                                       '--geometry' : geom
                                       }
-    if cust!=None : upgradeStepDict['RecoFull'][k]['--customise']=cust
-    if era is not None: upgradeStepDict['RecoFull'][k]['--era']=era
+    if cust!=None : upgradeStepDict['ALCAFull'][k]['--customise']=cust
+    if era is not None: upgradeStepDict['ALCAFull'][k]['--era']=era
 
 
 
