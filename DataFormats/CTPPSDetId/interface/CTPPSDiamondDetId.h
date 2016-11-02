@@ -57,12 +57,12 @@ class CTPPSDiamondDetId : public CTPPSDetId
     id_ |= ((det & maskPlane) << startPlaneBit);
   }
 
-  uint32_t det() const
+  uint32_t channel() const
   {
     return ((id_>>startDetBit) & maskDet);
   }
 
-  void setDet(uint32_t det)
+  void setChannel(uint32_t det)
   {
     id_ &= ~(maskDet << startDetBit);
     id_ |= ((det & maskDet) << startDetBit);
