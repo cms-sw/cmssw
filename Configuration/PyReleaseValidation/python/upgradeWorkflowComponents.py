@@ -65,12 +65,14 @@ upgradeProperties[2017] = {
     '2017' : {
         'Geom' : 'DB:Extended',
         'GT' : 'auto:phase1_2017_realistic',
+        'HLTmenu': '@relval2016',
         'Era' : 'Run2_2017',
         'ScenToRun' : ['GenSimFull','DigiFull','RecoFull','ALCAFull','HARVESTFull'],
     },
     '2017Design' : {
         'Geom' : 'DB:Extended',
         'GT' : 'auto:phase1_2017_design',
+        'HLTmenu': '@relval2016',
         'Era' : 'Run2_2017',
         'BeamSpot': 'GaussSigmaZ4cm',
         'ScenToRun' : ['GenSimFull','DigiFull','RecoFull','HARVESTFull'],
@@ -86,29 +88,34 @@ upgradeProperties[2023] = {
     '2023D1' : {
         'Geom' : 'Extended2023D1',
         'GT' : 'auto:phase2_realistic',
+        'HLTmenu': '@fake',
         'Era' : 'Phase2C1',
         'ScenToRun' : ['GenSimHLBeamSpotFull','DigiFull','RecoFullGlobal','HARVESTFullGlobal'],
     },    
     '2023D2' : {
         'Geom' : 'Extended2023D2',
         'GT' : 'auto:phase2_realistic',
+        'HLTmenu': '@fake',
         'Era' : 'Phase2C1',
         'ScenToRun' : ['GenSimHLBeamSpotFull','DigiFull','RecoFullGlobal','HARVESTFullGlobal'],
     },    
     '2023D3' : {
         'Geom' : 'Extended2023D3',
         'GT' : 'auto:phase2_realistic',
+        'HLTmenu': '@fake',
         'Era' : 'Phase2C2',
         'ScenToRun' : ['GenSimHLBeamSpotFull','DigiFull','RecoFullGlobal', 'HARVESTFullGlobal'],
     },    
     '2023D4' : {
         'Geom' : 'Extended2023D4',
+        'HLTmenu': '@fake',
         'GT' : 'auto:phase2_realistic',
         'Era' : 'Phase2C2',
         'ScenToRun' : ['GenSimHLBeamSpotFull','DigiFull','RecoFullLocal'],
     },
     '2023D5' : {
         'Geom' : 'Extended2023D5',
+        'HLTmenu': '@fake',
         'GT' : 'auto:phase2_realistic',
         'Era' : 'Phase2C2_timing',
         'ScenToRun' : ['GenSimHLBeamSpotFull','DigiFull','RecoFullGlobal', 'HARVESTFullGlobal'],
@@ -116,6 +123,7 @@ upgradeProperties[2023] = {
     '2023D6' : {
         'Geom' : 'Extended2023D6',
         'GT' : 'auto:phase2_realistic',
+        'HLTmenu': '@fake',
         'Custom' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2023tilted',
         'Era' : 'Phase2C1',
         'ScenToRun' : ['GenSimHLBeamSpotFull','DigiFull','RecoFullGlobal', 'HARVESTFullGlobal'],
