@@ -29,7 +29,7 @@
 #include "Geometry/HGCalGeometry/interface/HGCalGeometry.h"
 #include "Geometry/HGCalGeometry/interface/HGCalGeometryLoader.h"
 
-//#define DebugLog
+//#define EDM_ML_DEBUG
 
 //
 // class decleration
@@ -54,7 +54,7 @@ private:
 HGCalGeometryESProducer::HGCalGeometryESProducer(const edm::ParameterSet& iConfig) {
 
   name_     = iConfig.getUntrackedParameter<std::string>("Name");
-#ifdef DebugLog
+#ifdef EDM_ML_DEBUG
   std::cout <<"constructing HGCalGeometry for " << name_ << std::endl;
 #endif
   setWhatProduced(this, name_);
@@ -77,7 +77,7 @@ HGCalGeometryESProducer::produce(const IdealGeometryRecord& iRecord ) {
 
   HGCalGeometryLoader builder;
   ReturnType ct(builder.build(*topo));
-#ifdef DebugLog
+#ifdef EDM_ML_DEBUG
   std::cout << "Create HGCalGeometry (*topo)" << std::endl;
 #endif
   return ct ;
