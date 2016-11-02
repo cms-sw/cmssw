@@ -56,7 +56,7 @@ if len(options.topKey) :
     process.load("CondTools.L1TriggerExt.L1TriggerKeyOnlineExt_cfi")
     process.L1TriggerKeyOnlineExt.subsystemLabels = cms.vstring('uGMT')
     # include the system-specific subkeys ESProducer (generates uGMT labeled L1TriggerKey)
-    process.load("L1TriggerConfig.L1TMuonGlobalParamsProducers.L1TMuonGlobalObjectKeysOnline_cfi")
+    process.load("L1TriggerConfig.L1TConfigProducers.L1TMuonGlobalObjectKeysOnline_cfi")
     process.L1TMuonGlobalObjectKeysOnline.onlineAuthentication = cms.string( options.DBAuth )
 else :
     # instantiate manually the system-specific L1TriggerKey using the subsystemKey option
@@ -71,7 +71,7 @@ else :
     )
 
 # Online produced for the payload 
-process.load("L1TriggerConfig.L1TMuonGlobalParamsProducers.L1TMuonGlobalParamsOnline_cfi")
+process.load("L1TriggerConfig.L1TConfigProducers.L1TMuonGlobalParamsOnline_cfi")
 process.L1TMuonGlobalParamsOnlineProd.onlineAuthentication = cms.string( options.DBAuth )
 
 
