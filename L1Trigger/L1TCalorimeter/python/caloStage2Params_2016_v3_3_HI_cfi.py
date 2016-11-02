@@ -4,6 +4,14 @@ from L1Trigger.L1TCalorimeter.caloParams_cfi import caloParamsSource
 import L1Trigger.L1TCalorimeter.caloParams_cfi
 caloStage2Params = L1Trigger.L1TCalorimeter.caloParams_cfi.caloParams.clone()
 
+# HI parameters
+caloStage2Params.jetBypassPUS               = cms.uint32(1)
+caloStage2Params.egHOverEcutBarrel          = cms.int32(1) #H/E < pow(2,-5) in barrel
+caloStage2Params.egHOverEcutEndcap          = cms.int32(1) #H/E < pow(2,-4) in endcaps
+caloStage2Params.egShapeIdLUTFile           = cms.FileInPath("L1Trigger/L1TCalorimeter/data/shapeIdentification_DUMMY_adapt0.75_compressedieta_compressedE_compressedshape_v16.04.01.txt")
+caloStage2Params.egBypassEGVetos            = cms.uint32(1)
+
+
 # towers
 caloStage2Params.towerLsbH        = cms.double(0.5)
 caloStage2Params.towerLsbE        = cms.double(0.5)
@@ -31,7 +39,7 @@ caloStage2Params.egMaxHOverELUTFile         = cms.FileInPath("L1Trigger/L1TCalor
 caloStage2Params.egCompressShapesLUTFile    = cms.FileInPath("L1Trigger/L1TCalorimeter/data/egCompressLUT_v4.txt")
 caloStage2Params.egShapeIdType              = cms.string("compressed")
 caloStage2Params.egShapeIdVersion           = cms.uint32(0)
-caloStage2Params.egShapeIdLUTFile           = cms.FileInPath("L1Trigger/L1TCalorimeter/data/shapeIdentification_adapt0.99_compressedieta_compressedE_compressedshape_v15.12.08.txt")
+#caloStage2Params.egShapeIdLUTFile           = cms.FileInPath("L1Trigger/L1TCalorimeter/data/shapeIdentification_adapt0.99_compressedieta_compressedE_compressedshape_v15.12.08.txt")
 
 caloStage2Params.egPUSType                  = cms.string("None")
 caloStage2Params.egIsolationType            = cms.string("compressed")
@@ -47,6 +55,7 @@ caloStage2Params.egPUSParams                = cms.vdouble(1,4,32) #Isolation win
 caloStage2Params.egCalibrationType          = cms.string("compressed")
 caloStage2Params.egCalibrationVersion       = cms.uint32(0)
 caloStage2Params.egCalibrationLUTFile       = cms.FileInPath("L1Trigger/L1TCalorimeter/data/corrections_Trimming10_compressedieta_compressedE_compressedshape_v16.03.14.txt")
+
 
 
 # Tau
@@ -169,3 +178,4 @@ caloStage2Params.layer1HFScaleFactors = cms.vdouble([
     1.943941, 1.943941, 1.899826, 1.813950, 1.714978, 1.736184, 1.785928, 1.834211, 1.944230, 2.153565, 2.720887, 2.749795, 
     1.679984, 1.679984, 1.669753, 1.601871, 1.547276, 1.577805, 1.611497, 1.670184, 1.775022, 1.937061, 2.488311, 2.618629, 
     ])
+
