@@ -458,7 +458,7 @@ std::unique_ptr<HcalRespCorrs> HcalHardcodeCalibrations::produceRespCorrs (const
     //check for layer 0 reweighting: when depth 1 has only one layer, it is layer 0
     if( useLayer0Weight && 
       ((cell.genericSubdet() == HcalGenericDetId::HcalGenEndcap) || (cell.genericSubdet() == HcalGenericDetId::HcalGenBarrel)) &&
-      (HcalDetId(cell).depth()==1 && dbHardcode.getLayersInDepth(HcalDetId(cell).ieta(),HcalDetId(cell).depth(),topo)==1) )
+      (HcalDetId(cell).depth()==1 && dbHardcode.getLayersInDepth(HcalDetId(cell).ietaAbs(),HcalDetId(cell).depth(),topo)==1) )
     {
       //layer 0 is thicker than other layers (9mm vs 3.7mm) and brighter (Bicron vs SCSN81)
       //in Run1/Run2 (pre-2017 for HE), ODU for layer 0 had neutral density filter attached
