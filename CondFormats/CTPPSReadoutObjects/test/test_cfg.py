@@ -19,11 +19,19 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
 )
 
-# load a mapping
+# load mapping(s)
 process.load("CondFormats.CTPPSReadoutObjects.TotemDAQMappingESSourceXML_cfi")
-process.TotemDAQMappingESSourceXML.mappingFileNames.append("CondFormats/CTPPSReadoutObjects/xml/ctpps_210_mapping.xml")
-process.TotemDAQMappingESSourceXML.mappingFileNames.append("CondFormats/CTPPSReadoutObjects/xml/ctpps_timing_diamond_215_mapping_new.xml")
-  
+process.totemDAQMappingESSourceXML.configuration = cms.VPSet(
+  cms.PSet(
+    validityRange = cms.EventRange("1:min - 999999999:max"),
+    mappingFileNames = cms.vstring(
+      "CondFormats/CTPPSReadoutObjects/xml/mapping_tracking_strip_from_fill_5330.xml",
+      "CondFormats/CTPPSReadoutObjects/xml/mapping_timing_diamond.xml"
+    ),
+    maskFileNames = cms.vstring()
+  )
+)
+
 # print the mapping
 process.printTotemDAQMapping = cms.EDAnalyzer("PrintTotemDAQMapping"
 )
