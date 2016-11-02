@@ -11,7 +11,7 @@ readGeometryFromDB = False
 # material-budget grouping into the DDD of the detector. So we need to read the
 # geometry using the XMLIdealGeometryRecord.
 if not readGeometryFromDB:
-  process.load('Configuration.Geometry.GeometryExtended2017newReco_cff')
+  process.load('Configuration.Geometry.GeometryExtended2017Reco_cff')
 else:
 # GlobalTag and geometry via it
   process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff")
