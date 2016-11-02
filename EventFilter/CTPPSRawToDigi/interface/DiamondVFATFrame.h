@@ -25,7 +25,7 @@ class DiamondVFATFrame : public VFATFrame
     {}
     virtual ~DiamondVFATFrame() {}
 
-    /// get time infromation
+    /// get timing infromation
     uint32_t getLeadingEdgeTime() const
     {
       uint32_t time = ((data[5]&0x1f)<<16)+data[6];
