@@ -48,4 +48,15 @@ muonQualityTests = cms.Sequence(muonSourcesQualityTests*
                                 muonComp2RefKolmoQualityTests*
                                 muonTestSummary)
 
+muonQualityTests_miniAOD = cms.Sequence(muonSourcesQualityTests*
+                                        muTrackResidualsTest*
+                                        effPlotter_Loose_miniAOD*
+                                        effPlotter_Medium_miniAOD*
+                                        effPlotter_Tight_miniAOD*
+                                        muRecoTest*
+                                        muonClientsQualityTests*
+                                        muonComp2RefQualityTests*
+                                        muonComp2RefKolmoQualityTests*
+                                        muonTestSummary)
+
 
