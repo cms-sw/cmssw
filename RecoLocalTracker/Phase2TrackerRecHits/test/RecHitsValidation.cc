@@ -78,7 +78,6 @@ class Phase2TrackerRecHitsValidation : public edm::EDAnalyzer {
     private:
 
         std::map< unsigned int, RecHitHistos >::iterator createLayerHistograms(unsigned int);
-        unsigned int getLayerNumber(const DetId&, const TrackerTopology*);
         unsigned int getSimTrackId(const edm::Handle< edm::DetSetVector< PixelDigiSimLink > >&, const DetId&, unsigned int);
 
         edm::EDGetTokenT< Phase2TrackerRecHit1DCollectionNew > tokenRecHits_;
@@ -211,7 +210,7 @@ void Phase2TrackerRecHitsValidation::analyze(const edm::Event& event, const edm:
         // Get the detector unit's id
         unsigned int rawid(DSViter->detId()); 
         DetId detId(rawid);
-        unsigned int layer(getLayerNumber(detId, tTopo));
+        unsigned int layer = tTopo->side(detId)*100 + tTopo->layer(detId);
 
         // Get the geometry of the tracker
         const GeomDetUnit* geomDetUnit(tkGeom->idToDetUnit(detId));
@@ -485,28 +484,6 @@ std::map< unsigned int, RecHitHistos >::iterator Phase2TrackerRecHitsValidation:
     fs->file().cd("/");
 
     return insertedIt.first;
-}
-
-
-unsigned int Phase2TrackerRecHitsValidation::getLayerNumber(const DetId& detid, const TrackerTopology* topo) {
-    if (detid.det() == DetId::Tracker) {
-        if (detid.subdetId() == PixelSubdetector::PixelBarrel) {
-          return (topo->pxbLayer(detid));
-        } else if (detid.subdetId() == PixelSubdetector::PixelEndcap) {
-          return (100 * topo->side(detid) + topo->pxfDisk(detid));
-        } else if (detid.subdetId() == StripSubdetector::TIB) {
-          return (topo->layer(detid));
-        } else if (detid.subdetId() == StripSubdetector::TOB) {
-          return (topo->layer(detid));
-        } else if (detid.subdetId() == StripSubdetector::TID) {
-          return (100 + topo->tidRing(detid));
-        } else if (detid.subdetId() == StripSubdetector::TEC) {
-          return (100 + topo->tecRing(detid));
-        } else {
-	  return 999;
-	}
-    }
-    return 999;
 }
 
 
