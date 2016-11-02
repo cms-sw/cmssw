@@ -49,14 +49,17 @@ namespace HGCalTriggerBackend{
             // add to cluster
             void addToCluster(std::unordered_map<uint64_t,std::pair<int,l1t::HGCalCluster> >& cluster_container, uint64_t pid,int pdgid,float  energy,float  eta, float phi)
             {
-            auto iterator = cluster_container.find (pid);
-            if (iterator == cluster_container.end())
-                {
-                    //create an empty cluster
-                    cluster_container[pid] = std::pair<int,l1t::HGCalCluster>(0,l1t::HGCalCluster());
-                    iterator = cluster_container.find (pid);
-                    iterator -> second . second . setPdgId(pdgid);
-                }
+
+            auto pair = cluster_container.emplace(pid, std::pair<int,l1t::HGCalCluster>(0,l1t::HGCalCluster() ) ) ;
+            auto iterator = pair.first;
+            //auto iterator = cluster_container.find (pid);
+            //if (iterator == cluster_container.end())
+            //    {
+            //        //create an empty cluster
+            //        cluster_container[pid] = std::pair<int,l1t::HGCalCluster>(0,l1t::HGCalCluster());
+            //        iterator = cluster_container.find (pid);
+            //        iterator -> second . second . setPdgId(pdgid);
+            //    }
             // p4 += p4' 
             math::PtEtaPhiMLorentzVectorD p4;
             p4.SetPt ( iterator -> second . second . pt()   ) ;
@@ -74,6 +77,7 @@ namespace HGCalTriggerBackend{
             return ;
             }
 
+            using Algorithm<FECODEC>::geometry_; 
         protected:
             using Algorithm<FECODEC>::codec_;
 
@@ -128,7 +132,6 @@ namespace HGCalTriggerBackend{
 
             // run, actual algorithm
             virtual void run( const l1t::HGCFETriggerDigiCollection & coll,
-                    const edm::ESHandle<HGCalTriggerGeometryBase>&geom,
 		            const edm::Event&evt
                     )
             {
@@ -167,7 +170,7 @@ namespace HGCalTriggerBackend{
                     DATA data;
                     digi.decode(codec_,data);
                     //2.A get the trigger-cell information energy/id
-                    const HGCTriggerDetId& moduleId = digi.getDetId<HGCTriggerDetId>(); // this is a module Det Id
+                    //const HGCTriggerDetId& moduleId = digi.getDetId<HGCTriggerDetId>(); // this is a module Det Id
 
                     // there is a loss of generality here, due to the restriction imposed by the data formats
                     // it will work if inside a module there is a data.payload with an ordered list of all the energies
@@ -184,11 +187,14 @@ namespace HGCalTriggerBackend{
                             //2.B get the HGCAL-base-cell associated to it / geometry
                             //const auto& tc=geom->triggerCells()[ tcellId() ] ;//HGCalTriggerGeometry::TriggerCell&
                             //for(const auto& cell : tc.components() )  // HGcell -- unsigned
-                            for(const auto& cell : geom->getCellsFromTriggerCell( tcellId()) )  // HGCcell -- unsigned
+                            for(const auto& cell : geometry_->getCellsFromTriggerCell( tcellId()) )  // HGCcell -- unsigned
                             {
                                 HGCalDetId cellId(cell);
                                 //2.C get the particleId and energy fractions
-                                const auto& particles =  simclusters[cellId]; // vector pid fractions
+                                const auto & iterator= simclusters.find(cellId);
+                                if (iterator == simclusters.end() )  continue;
+                                //const auto& particles =  simclusters[cellId]; // vector pid fractions
+                                const auto & particles = iterator->second;
                                 for ( const auto& p: particles ) 
                                 {
                                     const auto & pid= p.first;

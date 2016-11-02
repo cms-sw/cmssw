@@ -20,7 +20,6 @@ class SingleCellClusterAlgo : public Algorithm<HGCalTriggerCellBestChoiceCodec>
         }
 
         virtual void run(const l1t::HGCFETriggerDigiCollection& coll,
-                	 const edm::ESHandle<HGCalTriggerGeometryBase>& geom,
 		         const edm::Event&evt
 			 ) override final;
 
@@ -41,7 +40,6 @@ class SingleCellClusterAlgo : public Algorithm<HGCalTriggerCellBestChoiceCodec>
 
 /*****************************************************************/
 void SingleCellClusterAlgo::run(const l1t::HGCFETriggerDigiCollection& coll,
-        const edm::ESHandle<HGCalTriggerGeometryBase>& geom,
 	const edm::Event&evt
 	) 
 /*****************************************************************/

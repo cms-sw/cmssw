@@ -32,7 +32,7 @@ run(const l1t::HGCFETriggerDigiCollection& coll,
     const edm::ESHandle<HGCalTriggerGeometryBase> & geom,
     const edm::Event &e) {
   for( auto& algo : algorithms_ ) {
-    algo->run(coll,geom,e);
+    algo->run(coll,e);
   }
 }
 
