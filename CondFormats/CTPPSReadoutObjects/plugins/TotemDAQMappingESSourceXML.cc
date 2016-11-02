@@ -79,7 +79,6 @@ private:
   /// label of the CTPPS sub-system
   string subSystemName;
 
-  int plane_id;
 
   /// the mapping files
   std::vector<std::string> mappingFileNames;
@@ -560,10 +559,6 @@ void TotemDAQMappingESSourceXML::ParseTreeDiamond(ParseType pType, xercesc::DOMN
       printf("\tID found: 0x%x\n", id);
 #endif
 
-    if(pType == pMapping &&type == nDiamondPlane)
-    {
-      plane_id=id;
-    }
       // store mapping data
     if (pType == pMapping &&type == nDiamondCh)
     {
@@ -575,11 +570,12 @@ void TotemDAQMappingESSourceXML::ParseTreeDiamond(ParseType pType, xercesc::DOMN
 
       if (type == nDiamondCh)
       {
-        unsigned int ArmNum = (parentID/ 1000) % 10; 
-        unsigned int StationNum = (parentID / 100) % 10; 
-        unsigned int RpNum = (parentID/ 10) % 10; 
-       
-        vfatInfo.symbolicID.symbolicID = CTPPSDiamondDetId(ArmNum, StationNum, RpNum,plane_id,id);
+        unsigned int ArmNum = (parentID/ 10000) % 10;
+        unsigned int StationNum = (parentID / 1000) % 10;
+        unsigned int RpNum = (parentID/ 100) % 10;
+        unsigned int PlaneNum = (parentID % 100) ;       
+
+        vfatInfo.symbolicID.symbolicID = CTPPSDiamondDetId(ArmNum, StationNum, RpNum, PlaneNum, id);
 
 
       }
@@ -590,7 +586,13 @@ void TotemDAQMappingESSourceXML::ParseTreeDiamond(ParseType pType, xercesc::DOMN
       continue;
     }
 
-    ParseTreeDiamond(pType, n, type,  parentID * 10 +id , mapping, mask);
+    unsigned int childId;
+    if (pType == pMapping &&type == nDiamondPlane)
+      childId = parentID * 100 + id;
+    else
+      childId = parentID * 10 + id;
+
+    ParseTreeDiamond(pType,n ,type ,childId ,mapping ,mask);
    
   }
 
