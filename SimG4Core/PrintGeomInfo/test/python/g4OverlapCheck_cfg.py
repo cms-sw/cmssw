@@ -3,8 +3,7 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("G4PrintGeometry")
 
 #process.load('Configuration.Geometry.GeometryExtended2015_cff')
-#process.load('Configuration.Geometry.GeometryExtended2017_cff')
-process.load('Configuration.Geometry.GeometryExtended2017NewFPix_cff')
+process.load('Configuration.Geometry.GeometryExtended2017_cff')
 
 from SimG4Core.PrintGeomInfo.g4TestGeometry_cfi import *
 process = checkOverlap(process)
