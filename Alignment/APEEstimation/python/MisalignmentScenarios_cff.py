@@ -1238,3 +1238,30 @@ MisalignmentAPEScenarioBase = cms.PSet(
         ),
     ),
 )
+
+MisalignmentScenario_PhaseI_PseudoAsymptotic = cms.PSet(
+    MisalignmentScenarioSettings, # --> Gaussian distribution
+    scale = cms.double(0.0001), # shifts in 1um
+
+    P1PXBBarrels = cms.PSet(
+        DetUnits = cms.PSet(
+            dXlocal = cms.double(0.854365),
+            dYlocal = cms.double(1.20877),
+            dZlocal = cms.double(1.52849),
+            phiXlocal = cms.double(0.139737), # 0.139737 * 0.0001 = 0.0000139737 rad -> 0.0008006 degree
+            phiYlocal = cms.double(0.100908),
+            phiZlocal = cms.double(0.980077),
+        ),
+    ),
+
+    P1PXECEndcaps = cms.PSet(
+        DetUnits = cms.PSet(
+            dXlocal = cms.double(3.73954),
+            dYlocal = cms.double(4.79800),
+            dZlocal = cms.double(6.0599),
+            phiXlocal = cms.double(3.52428),
+            phiYlocal = cms.double(3.17239),
+            phiZlocal = cms.double(1.73939),
+        ),
+    ),
+)
