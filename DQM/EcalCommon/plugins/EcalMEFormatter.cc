@@ -74,10 +74,11 @@ EcalMEFormatter::formatDet2D_(ecaldqm::MESet& _meSet)
         int bin(prof->GetBin(iX, iY));
         if(prof->GetBinEntries(bin) == 0.){
           if(verbosity_ > 2) edm::LogInfo("EcalDQM") << "Found empty bin " << bin << " in histogram " << prof->GetName();
-          // TEMPORARY SETUP UNTIL RENDERPLUGIN IS UPDATED TO DO THIS
-          // WHEN IT IS, SWITCH TO ENTRIES -1 CONTENT 0
-          prof->SetBinEntries(bin, 1.);
-          prof->SetBinContent(bin, -std::numeric_limits<double>::max());
+          // To distinguish empty bins from bins filled with value 0 in offline DQM, set empty bins to a suitable default value instead
+          // Since several Timing MEs allow for negative values, choose a sufficiently large magnitude default value
+          // but not too large as to crash DQM GUI.
+          prof->SetBinEntries(bin,   1.);
+          prof->SetBinContent(bin,-999.);
         }
       }
     }
