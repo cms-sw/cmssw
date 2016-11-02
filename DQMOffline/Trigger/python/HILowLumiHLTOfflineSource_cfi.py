@@ -321,7 +321,7 @@ def getPAHighPtVPSet():
     isogammaThresholds = [20]
     eleThresholds = [20]
 
-    jetThresholdsMu = [40, 60]
+    jetThresholdsMu = [30, 40, 60]
     gammaThresholdsMu = [10, 15, 20]
     muThresholds = [3, 5]
 
