@@ -36,7 +36,11 @@ namespace l1t {
 	   jetCompressEta=20, jetCompressPt=21,
 	   etSumXPUS=22, etSumYPUS=23, etSumEttPUS=24, etSumEcalSumPUS=25,
 	   tauIsolation2=26,
-	   NUM_CALOPARAMNODES=27
+           egBypassEGVetosFlag=27,
+           jetBypassPUSFlag=28,
+           egHOverEBarrel=29,
+           egHOverEEndcap=30,
+	   NUM_CALOPARAMNODES=31
     };
 
     CaloParamsHelper() { pnode_.resize(NUM_CALOPARAMNODES); }
@@ -119,6 +123,9 @@ namespace l1t {
     int egMaxPtJetIsolation() const { return egp_.maxPtJetIsolation_; }
     int egMinPtHOverEIsolation() const { return egp_.minPtHOverEIsolation_; }
     int egMaxPtHOverEIsolation() const { return egp_.maxPtHOverEIsolation_; }
+    unsigned egBypassEGVetos() { return pnode_[egBypassEGVetosFlag].uparams_[0]; }
+    int egHOverEcutBarrel() const {return pnode_[egHOverEBarrel].iparams_[0]; }
+    int egHOverEcutEndcap() const {return pnode_[egHOverEEndcap].iparams_[0]; }
 
     unsigned egIsoAreaNrTowersEta()const{return egp_.isoAreaNrTowersEta_;}
     unsigned egIsoAreaNrTowersPhi()const{return egp_.isoAreaNrTowersPhi_;}
@@ -151,6 +158,18 @@ namespace l1t {
     void setEgMaxPtJetIsolation(int cutValue) { egp_.maxPtJetIsolation_ = cutValue; }
     void setEgMinPtHOverEIsolation(int cutValue) { egp_.minPtHOverEIsolation_ = cutValue; }
     void setEgMaxPtHOverEIsolation(int cutValue) { egp_.maxPtHOverEIsolation_ = cutValue; }
+    void setEgBypassEGVetos(unsigned flag) { 
+      pnode_[egBypassEGVetosFlag].uparams_.resize(1);
+      pnode_[egBypassEGVetosFlag].uparams_[0] = flag; 
+    }
+    void setEgHOverEcutBarrel(int cut) { 
+      pnode_[egHOverEBarrel].iparams_.resize(1);
+      pnode_[egHOverEBarrel].iparams_[0] = cut; 
+    }
+    void setEgHOverEcutEndcap(int cut) { 
+      pnode_[egHOverEEndcap].iparams_.resize(1);
+      pnode_[egHOverEEndcap].iparams_[0] = cut; 
+    }
 
     void setEgIsoAreaNrTowersEta(unsigned iEgIsoAreaNrTowersEta){egp_.isoAreaNrTowersEta_=iEgIsoAreaNrTowersEta;}
     void setEgIsoAreaNrTowersPhi(unsigned iEgIsoAreaNrTowersPhi){egp_.isoAreaNrTowersPhi_=iEgIsoAreaNrTowersPhi;}
@@ -245,6 +264,8 @@ namespace l1t {
 	return 0;
     }
 
+    unsigned jetBypassPUS() const { return pnode_[jetBypassPUSFlag].uparams_[0]; }
+
     std::string jetPUSType() const { return pnode_[jetPUS].type_; }
     std::vector<double> jetPUSParams() { return pnode_[jetPUS].dparams_; }
     std::string jetCalibrationType() const { return pnode_[jetCalibration].type_; }
@@ -268,6 +289,10 @@ namespace l1t {
     void setJetCalibrationLUT(const l1t::LUT & lut) { pnode_[jetCalibration].LUT_ = lut; }
     void setJetCompressEtaLUT(const l1t::LUT & lut) { pnode_[jetCompressEta].LUT_ = lut; }
     void setJetCompressPtLUT(const l1t::LUT & lut) { pnode_[jetCompressPt].LUT_ = lut; }
+    void setJetBypassPUS(unsigned flag) { 
+      pnode_[jetBypassPUSFlag].uparams_.resize(1);
+      pnode_[jetBypassPUSFlag].uparams_[0] = flag; 
+    }
     
     // sums
 
