@@ -67,7 +67,7 @@ else :
     process.load("CondTools.L1TriggerExt.L1TriggerKeyOnlineExt_cfi")
     process.L1TriggerKeyOnlineExt.subsystemLabels = cms.vstring('uGT')
     # include the uGT specific key ESProducer (generates uGT labeled L1TriggerKey) and the corresponding payload ESProduced
-    process.load("L1TriggerConfig.L1TUtmTriggerMenuProducers.L1TUtmTriggerMenuObjectKeysOnline_cfi")
+    process.load("L1TriggerConfig.L1TConfigProducers.L1TUtmTriggerMenuObjectKeysOnline_cfi")
     process.L1TUtmTriggerMenuObjectKeysOnline.onlineAuthentication = cms.string( options.DBAuth )
 
 # Online produced for the payload 
