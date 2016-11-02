@@ -138,4 +138,19 @@
    <class name="edm::PtrVector<reco::FFTCaloJet>" />
    <class name="edm::Association<reco::FFTCaloJetCollection>" />
    <class name="edm::Wrapper<edm::Association<reco::FFTCaloJetCollection> >" />
+   <class name="reco::HTTTopJetProperties" ClassVersion="14">
+    <version ClassVersion="14" checksum="427903012"/>
+   </class>
+   <class name="std::pair<edm::RefToBase<reco::Jet>, reco::HTTTopJetProperties>"/>
+  
+   <class name="reco::HTTTopJetTagInfo" ClassVersion="12">
+    <version ClassVersion="12" checksum="3013029993"/>
+   </class>
+   <class name="reco::HTTTopJetTagInfoCollection"/>
+   <class name="reco::HTTTopJetTagInfoRef"/>
+   <class name="reco::HTTTopJetTagInfoRefProd"/>
+   <class name="reco::HTTTopJetTagInfoRefVector"/>
+   <class name="edm::Wrapper<reco::HTTTopJetTagInfoCollection>"/>
+   <class name="edm::reftobase::Holder<reco::BaseTagInfo, reco::HTTTopJetTagInfoRef>" />
+   <class name="edm::reftobase::RefHolder<reco::HTTTopJetTagInfoRef>" />
 </lcgdict>

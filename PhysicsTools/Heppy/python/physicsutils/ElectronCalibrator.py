@@ -13,7 +13,7 @@ class Run2ElectronCalibrator:
  
     def correct(self,electron,run):
         if not electron.validCandidateP4Kind(): return False # these can't be calibrated
-        electron.uncalibratedP4 = electron.p4()
+        electron.uncalibratedP4 = ROOT.reco.Particle.LorentzVector(electron.p4())
         electron.uncalibratedP4Error = electron.p4Error(electron.candidateP4Kind())
         self.electronEnergyCalibratorRun2.calibrate(electron.physObj, int(run))
         return True

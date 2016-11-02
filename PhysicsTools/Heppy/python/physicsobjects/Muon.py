@@ -46,8 +46,24 @@ class Muon( Lepton ):
                 if not self.looseId(): return False
                 goodGlb = self.physObj.isGlobalMuon() and self.physObj.globalTrack().normalizedChi2() < 3 and self.physObj.combinedQuality().chi2LocalPosition < 12 and self.physObj.combinedQuality().trkKink < 20;
                 return self.physObj.innerTrack().validFraction() > 0.8 and self.physObj.segmentCompatibility() >= (0.303 if goodGlb else 0.451)
+            if name == "POG_ID_Medium_ICHEP2016":
+                goodGlb = self.physObj.isGlobalMuon() and self.physObj.globalTrack().normalizedChi2() < 3 and self.physObj.combinedQuality().chi2LocalPosition < 12 and self.physObj.combinedQuality().trkKink < 20
+                goodMed = self.physObj.innerTrack().validFraction() > 0.49 and self.physObj.segmentCompatibility() >= (0.303 if goodGlb else 0.451)
+                return goodMed
             if name == "POG_Global_OR_TMArbitrated":
                 return self.physObj.isGlobalMuon() or (self.physObj.isTrackerMuon() and self.physObj.numberOfMatchedStations() > 0)
+        elif name.startswith("HZZ_"):
+            if name == "HZZ_ID_TkHighPt":
+                primaryVertex = vertex if vertex != None else getattr(self, 'associatedVertex', None) 
+                return ( self.physObj.numberOfMatchedStations() > 1 
+                         and (self.physObj.muonBestTrack().ptError()/self.physObj.muonBestTrack().pt()) < 0.3 
+                         and abs(self.physObj.muonBestTrack().dxy(primaryVertex.position())) < 0.2 
+                         and abs(self.physObj.muonBestTrack().dz(primaryVertex.position())) < 0.5 
+                         and self.physObj.innerTrack().hitPattern().numberOfValidPixelHits() > 0 
+                         and self.physObj.innerTrack().hitPattern().trackerLayersWithMeasurement() > 5 )
+            if name == "HZZ_ID_LooseOrTkHighPt":
+                if self.physObj.isLooseMuon(): return True
+                return self.physObj.pt() > 200 and self.muonID("HZZ_ID_TkHighPt")
         return self.physObj.muonID(name)
             
     def mvaId(self):

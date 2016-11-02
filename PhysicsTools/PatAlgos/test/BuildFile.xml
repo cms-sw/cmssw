@@ -9,6 +9,15 @@
   <use   name="root"/>
   <flags   EDM_PLUGIN="1"/>
 </library>
+<library   name="METReader" file="METReader.cc">
+  <use   name="DataFormats/METReco"/>
+  <use   name="DataFormats/PatCandidates"/>
+  <use   name="FWCore/Framework"/>
+  <use   name="FWCore/MessageLogger"/>
+  <use   name="FWCore/ParameterSet"/>
+  <use   name="FWCore/Utilities"/>
+  <flags   EDM_PLUGIN="1"/>
+</library>
 <environment>
   <bin   file="runtestPhysicsToolsPatAlgos.cpp">
     <flags   TEST_RUNNER_ARGS=" /bin/bash PhysicsTools/PatAlgos/test runtests.sh"/>

@@ -12,7 +12,9 @@ METSignificanceParams = cms.PSet(
       jeta = cms.vdouble(0.8, 1.3, 1.9, 2.5),
 
       # tuning parameters
-      jpar = cms.vdouble(1.20,1.13,1.03,0.96,1.08),
-      pjpar = cms.vdouble(-1.9,0.6383)
+#      jpar = cms.vdouble(1.20,1.13,1.03,0.96,1.08),
+#      pjpar = cms.vdouble(-1.9,0.6383)
+      jpar = cms.vdouble(1.26,1.14,1.13,1.13,1.06),
+      pjpar = cms.vdouble(-2.4,0.6030)
 
       )
