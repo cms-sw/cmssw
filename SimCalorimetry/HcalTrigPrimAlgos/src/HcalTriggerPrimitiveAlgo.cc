@@ -595,16 +595,17 @@ void HcalTriggerPrimitiveAlgo::analyzeHF2017(
             if (saturated) {
                output[ibin] = QIE10_MAX_LINEARIZATION_ET;
             } else {
-               // If both channels are valid, we cut the sum in half.
-               if (long_fiber_count == 2)
-                  long_fiber_val *= 0.5;
-               if (short_fiber_count == 2)
-                  short_fiber_val *= 0.5;
+               // if one of the dual anode read-outs is valid, double the
+               // energy of the remaining one
+               if (long_fiber_count == 1)
+                  long_fiber_val *= 2;
+               if (short_fiber_count == 1)
+                  short_fiber_val *= 2;
 
                auto sum = long_fiber_val + short_fiber_val;
                // If both towers are valid, we cut the sum in half
-               if (long_fiber_count > 0 and short_fiber_count > 0)
-                  sum *= 0.5;
+               if (long_fiber_count == 0 or short_fiber_count == 0)
+                  sum *= 2;
 
                output[ibin] += sum;
             }
@@ -628,7 +629,7 @@ void HcalTriggerPrimitiveAlgo::analyzeHF2017(
     }
 
     for (int bin = 0; bin < numberOfSamples_; ++bin) {
-       output[bin] = min({(unsigned int) QIE10_MAX_LINEARIZATION_ET, output[bin]});
+       output[bin] = min({(unsigned int) QIE10_MAX_LINEARIZATION_ET, output[bin]}) >> hf_lumi_shift;
     }
     std::vector<int> finegrain_converted;
     for (const auto& fg: finegrain)
