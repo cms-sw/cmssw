@@ -8,14 +8,15 @@ from Configuration.AlCa.GlobalTag import GlobalTag
 process.load("Alignment.TrackerAlignment.createIdealTkAlRecords_cfi")
 
 ################################################################################
-# parameters to configure:                                                     #
-process.GlobalTag = GlobalTag(process.GlobalTag, "auto:phase1_2017_design")    #
-                                                                               #
-process.createIdealTkAlRecords.alignToGlobalTag   = True                       #
+# parameters to configure:
+process.GlobalTag = GlobalTag(process.GlobalTag, "auto:phase1_2017_design")
+
+process.createIdealTkAlRecords.alignToGlobalTag = True
+process.createIdealTkAlRecords.skipSubDetectors = cms.untracked.vstring("P1PXB", "P1PXEC")
 ################################################################################
 
 
-usedGlobalTag = process.GlobalTag.globaltag._value
+usedGlobalTag = process.GlobalTag.globaltag.value()
 print "Using Global Tag:", usedGlobalTag
 
 from CondCore.CondDB.CondDB_cfi import *
@@ -38,7 +39,7 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
     )
 )
 process.PoolDBOutputService.connect = \
-    ("sqlite_file:ideal_tracker_alignment_"+
+    ("sqlite_file:tracker_alignment_payloads__pixel_ideal__strips_aligned_to_"+
      usedGlobalTag+("_reference.db"
                     if process.createIdealTkAlRecords.createReferenceRcd
                     else ".db"))
