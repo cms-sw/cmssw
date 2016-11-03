@@ -66,6 +66,8 @@ private:
 
     bool LookAtTrackingTruth_ ;
 
+    bool saveVtxTimes_;
+
     std::string MessageCategory_;
     //std::string simHitLabel_;
     //std::unique_ptr<MixCollection<SimTrack> >   simTracks_;

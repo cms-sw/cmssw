@@ -37,6 +37,7 @@ void PileupSummaryInfoSlimmer::produce(edm::StreamID,
     const float TrueNumInteractions = psu.getTrueNumInteractions();
     
     std::vector<float> zpositions;
+    std::vector<float> times;
     std::vector<float> sumpT_lowpT;
     std::vector<float> sumpT_highpT;
     std::vector<int> ntrks_lowpT;
@@ -50,6 +51,7 @@ void PileupSummaryInfoSlimmer::produce(edm::StreamID,
     
     if( keep_details ) {
       zpositions   = psu.getPU_zpositions();
+      times        = psu.getPU_times();
       sumpT_lowpT  = psu.getPU_sumpT_lowpT();
       sumpT_highpT = psu.getPU_sumpT_highpT();
       ntrks_lowpT  = psu.getPU_ntrks_lowpT();
@@ -60,6 +62,7 @@ void PileupSummaryInfoSlimmer::produce(edm::StreamID,
     // insert the slimmed vertex info
     output->emplace_back(num_PU_vertices,
                          zpositions,
+                         times,
                          sumpT_lowpT, sumpT_highpT,
                          ntrks_lowpT, ntrks_highpT,
                          eventInfo,

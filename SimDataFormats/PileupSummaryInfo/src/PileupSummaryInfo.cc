@@ -13,114 +13,78 @@
 #include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h"
 
 PileupSummaryInfo::PileupSummaryInfo( const int num_PU_vertices,
-                     std::vector<float>& zpositions, 
-                     std::vector<float>& sumpT_lowpT,
-                     std::vector<float>& sumpT_highpT,
-                     std::vector<int>&   ntrks_lowpT,
-                     std::vector<int>&   ntrks_highpT )
+                    const std::vector<float>& zpositions, 
+                    const std::vector<float>& times, 
+                    const std::vector<float>& sumpT_lowpT,
+                    const std::vector<float>& sumpT_highpT,
+                    const std::vector<int>&   ntrks_lowpT,
+                    const std::vector<int>&   ntrks_highpT ) :
+    num_PU_vertices_(num_PU_vertices),
+    zpositions_(zpositions),
+    times_(times),
+    sumpT_lowpT_(sumpT_lowpT),
+    sumpT_highpT_(sumpT_highpT),
+    ntrks_lowpT_(ntrks_lowpT),
+    ntrks_highpT_(ntrks_highpT)
 {
-
-  num_PU_vertices_ =  num_PU_vertices;
-  zpositions_.clear();
-  sumpT_lowpT_.clear();
-  sumpT_highpT_.clear();
-  ntrks_lowpT_.clear();
-  ntrks_highpT_.clear();
-  instLumi_.clear();
-  eventInfo_.clear();
-
-  int NLoop = zpositions.size();
-
-  for( int ivtx = 0; ivtx<NLoop ; ++ivtx) {
-    zpositions_.push_back(zpositions[ivtx]); 
-    sumpT_lowpT_.push_back(sumpT_lowpT[ivtx]);
-    sumpT_highpT_.push_back(sumpT_highpT[ivtx]);
-    ntrks_lowpT_.push_back(ntrks_lowpT[ivtx]);
-    ntrks_highpT_.push_back(ntrks_highpT[ivtx]);
-  }
-
 }
 
 PileupSummaryInfo::PileupSummaryInfo( const int num_PU_vertices,
-                     std::vector<float>& zpositions, 
-                     std::vector<float>& sumpT_lowpT,
-                     std::vector<float>& sumpT_highpT,
-                     std::vector<int>&   ntrks_lowpT,
-		     std::vector<int>&   ntrks_highpT,
-		     int bunchCrossing)
+                     const std::vector<float>& zpositions, 
+                     const std::vector<float>& times, 
+                     const std::vector<float>& sumpT_lowpT,
+                     const std::vector<float>& sumpT_highpT,
+                     const std::vector<int>&   ntrks_lowpT,
+		     const std::vector<int>&   ntrks_highpT,
+		     int bunchCrossing) :
+    num_PU_vertices_(num_PU_vertices),
+    zpositions_(zpositions),
+    times_(times),
+    sumpT_lowpT_(sumpT_lowpT),
+    sumpT_highpT_(sumpT_highpT),
+    ntrks_lowpT_(ntrks_lowpT),
+    ntrks_highpT_(ntrks_highpT),
+    bunchCrossing_(bunchCrossing)
 {
-
-  num_PU_vertices_ =  num_PU_vertices;
-  zpositions_.clear();
-  sumpT_lowpT_.clear();
-  sumpT_highpT_.clear();
-  ntrks_lowpT_.clear();
-  ntrks_highpT_.clear();
-  instLumi_.clear();
-  eventInfo_.clear();
-  bunchCrossing_ = bunchCrossing;
-
-  int NLoop = zpositions.size();
-
-  for( int ivtx = 0; ivtx<NLoop ; ++ivtx) {
-    zpositions_.push_back(zpositions[ivtx]); 
-    sumpT_lowpT_.push_back(sumpT_lowpT[ivtx]);
-    sumpT_highpT_.push_back(sumpT_highpT[ivtx]);
-    ntrks_lowpT_.push_back(ntrks_lowpT[ivtx]);
-    ntrks_highpT_.push_back(ntrks_highpT[ivtx]);
-  }
-
 }
 
 
 PileupSummaryInfo::PileupSummaryInfo( const int num_PU_vertices,
-                     std::vector<float>& zpositions, 
-                     std::vector<float>& sumpT_lowpT,
-                     std::vector<float>& sumpT_highpT,
-                     std::vector<int>&   ntrks_lowpT,
-		     std::vector<int>&   ntrks_highpT,
-		     std::vector<edm::EventID>& eventInfo,
-                     std::vector<float>& pThats, 
+                     const std::vector<float>& zpositions, 
+                     const std::vector<float>& times, 
+                     const std::vector<float>& sumpT_lowpT,
+                     const std::vector<float>& sumpT_highpT,
+                     const std::vector<int>&   ntrks_lowpT,
+		     const std::vector<int>&   ntrks_highpT,
+		     const std::vector<edm::EventID>& eventInfo,
+                     const std::vector<float>& pThats, 
 		     int bunchCrossing,
 		     float TrueNumInteractions,
  	             int bunchSpacing):
+  num_PU_vertices_(num_PU_vertices),
   zpositions_(zpositions),
+  times_(times),
   sumpT_lowpT_(sumpT_lowpT),
   sumpT_highpT_(sumpT_highpT),
   ntrks_lowpT_(ntrks_lowpT),
   ntrks_highpT_(ntrks_highpT),
   eventInfo_(eventInfo),
-  pT_hats_(pThats)
+  pT_hats_(pThats),
+  bunchCrossing_(bunchCrossing),
+  bunchSpacing_(bunchSpacing),
+  TrueNumInteractions_(TrueNumInteractions)
 {
-
-  num_PU_vertices_ =  num_PU_vertices;
-  instLumi_.clear();
-  bunchCrossing_ = bunchCrossing;
-  TrueNumInteractions_ = TrueNumInteractions;
-  bunchSpacing_ = bunchSpacing;
-
 }
 
 
 
 PileupSummaryInfo::PileupSummaryInfo( const int num_PU_vertices,
-				      std::vector<float>& instLumi,
-				      std::vector<edm::EventID>& eventInfo)
+				      const std::vector<float>& instLumi,
+				      const std::vector<edm::EventID>& eventInfo) :
+    num_PU_vertices_(num_PU_vertices),
+    eventInfo_(eventInfo),
+    instLumi_(instLumi)
 {
-  num_PU_vertices_ =  num_PU_vertices;
-  zpositions_.clear();
-  sumpT_lowpT_.clear();
-  sumpT_highpT_.clear();
-  ntrks_lowpT_.clear();
-  ntrks_highpT_.clear();
-  instLumi_.clear();
-  eventInfo_.clear();
-
-
-  for( int ivtx = 0; ivtx<num_PU_vertices ; ++ivtx) {
-    instLumi_.push_back(instLumi[ivtx]);
-    eventInfo_.push_back(eventInfo[ivtx]);
-  }
 }
 
 PileupSummaryInfo::~PileupSummaryInfo(){
