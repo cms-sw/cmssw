@@ -148,8 +148,8 @@ int main(int argc, char* argv[]) {
       // open a data file
       if (!json) std::cout << in[j] << "\n";
       std::string const& lfn = in[j];
-      TFile *tfile = edm::openFileHdl(filesIn[j]);
-      if (tfile == 0) return 1;
+      std::unique_ptr<TFile> tfile{edm::openFileHdl(filesIn[j])};
+      if (tfile == nullptr) return 1;
 
       std::string const& pfn = filesIn[j];
 
@@ -225,9 +225,9 @@ int main(int argc, char* argv[]) {
       }
 
       // Ok. How many events?
-      int nruns = edm::numEntries(tfile, edm::poolNames::runTreeName());
-      int nlumis = edm::numEntries(tfile, edm::poolNames::luminosityBlockTreeName());
-      int nevents = edm::numEntries(tfile, edm::poolNames::eventTreeName());
+      int nruns = edm::numEntries(tfile.get(), edm::poolNames::runTreeName());
+      int nlumis = edm::numEntries(tfile.get(), edm::poolNames::luminosityBlockTreeName());
+      int nevents = edm::numEntries(tfile.get(), edm::poolNames::eventTreeName());
       if (json) {
         if (j > 0) std::cout << ',' << std::endl;
         std::cout << "{\"file\":\"" << datafile << '"'
@@ -254,7 +254,7 @@ int main(int argc, char* argv[]) {
 
       // Look at the collection contents
       if (ls) {
-        if (tfile != 0) tfile->ls();
+        if (tfile != nullptr) tfile->ls();
       }
 
       // Print out each tree
@@ -280,11 +280,11 @@ int main(int argc, char* argv[]) {
 
       // Print out event lists
       if (events) {
-        edm::printEventLists(tfile);
+        edm::printEventLists(tfile.get());
       }
 
       if(eventsInLumis) {
-        edm::printEventsInLumis(tfile);
+        edm::printEventsInLumis(tfile.get());
       }
       
       tfile->Close();
