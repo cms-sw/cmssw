@@ -40,6 +40,7 @@ class MultiTrackValidator : public DQMEDAnalyzer, protected MultiTrackValidatorB
   const bool dodEdxPlots_;
   const bool doPVAssociationPlots_;
   const bool doSeedPlots_;
+  const bool doMVAPlots_;
   std::unique_ptr<MTVHistoProducerAlgoForTracker> histoProducerAlgo_;
 
  private:
@@ -50,6 +51,10 @@ class MultiTrackValidator : public DQMEDAnalyzer, protected MultiTrackValidatorB
   edm::EDGetTokenT<edm::ValueMap<unsigned int> > tpNLayersToken_;
   edm::EDGetTokenT<edm::ValueMap<unsigned int> > tpNPixelLayersToken_;
   edm::EDGetTokenT<edm::ValueMap<unsigned int> > tpNStripStereoLayersToken_;
+
+
+  using MVACollection = std::vector<float>;
+  std::vector<std::vector<edm::EDGetTokenT<MVACollection> > > mvaCollectionTokens_;
 
   std::string dirName_;
 

@@ -40,7 +40,7 @@ class MTVHistoProducerAlgoForTracker {
   void bookRecoPVAssociationHistos(DQMStore::IBooker& ibook);
   void bookRecodEdxHistos(DQMStore::IBooker& ibook);
   void bookSeedHistos(DQMStore::IBooker& ibook);
-
+  void bookMVAHistos(DQMStore::IBooker& ibook, size_t nMVAs);
 
   void fill_generic_simTrack_histos(const TrackingParticle::Vector&,const TrackingParticle::Point& vertex, int bx);
   void fill_simTrackBased_histos(int numSimTracks);
@@ -80,7 +80,8 @@ class MTVHistoProducerAlgoForTracker {
 				     int numVertices,
 				     int nSimHits,
 				     double sharedFraction,
-				     double dR);
+				     double dR,
+                                     const std::vector<float>& mvas);
 
   void fill_dedx_recoTrack_histos(int count, const edm::RefToBase<reco::Track>& trackref, const std::vector< const edm::ValueMap<reco::DeDxData> *>& v_dEdx);
 
@@ -150,6 +151,7 @@ class MTVHistoProducerAlgoForTracker {
   double minVertcount, maxVertcount;  int nintVertcount;
   double minTracks, maxTracks; int nintTracks;
   double minPVz, maxPVz; int nintPVz;
+  double minMVA, maxMVA; int nintMVA;
 
   const bool doSeedPlots_;
 
@@ -205,6 +207,8 @@ class MTVHistoProducerAlgoForTracker {
   std::vector<MonitorElement*> h_reco_simpvz, h_assoc_simpvz, h_assoc2_simpvz, h_simul_simpvz, h_pileup_simpvz;
 
   std::vector<MonitorElement*> h_reco_seedingLayerSet, h_assoc2_seedingLayerSet, h_looper_seedingLayerSet, h_pileup_seedingLayerSet;
+
+  std::vector<std::vector<MonitorElement*> > h_reco_mva, h_assoc2_mva;
 
   // dE/dx
   // in the future these might become an array
