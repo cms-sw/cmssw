@@ -198,7 +198,7 @@ void Phase2TrackerClusterizerValidation::analyze(const edm::Event& event, const 
         // Get the detector unit's id
         unsigned int rawid(DSViter->detId()); 
         DetId detId(rawid);
-        unsigned int layer=tTopo->getOTLayerNumber(rawid);
+        unsigned int layer = tTopo->side(detId)*100 + tTopo->layer(detId);
 
         // Get the geometry of the tracker
         const TrackerGeomDet* geomDetUnit(tkGeom->idToDetUnit(detId));
