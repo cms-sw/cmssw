@@ -84,13 +84,18 @@ HLT_PADoubleMuOpen_HFOneTowerVeto_SingleTrack_v*                        #CMSHLT-
 HLT_PADoubleMuOpen_HFOneTowerVeto_v*                                    #CMSHLT-1073
 HLT_PADoubleMuOpen_HFTwoTowerVeto_SingleTrack_v*                        #CMSHLT-1073
 HLT_PADoubleMuOpen_HFTwoTowerVeto_v*                                    #CMSHLT-1073
+HLT_PASingleMuOpen_PixelTrackGt0_FullTrackLt10_v*                       #CMSHLT-1073
+HLT_PASingleMuOpen_PixelTrackGt0_FullTrackLt15_v*                       #CMSHLT-1073
+HLT_PASingleMuOpen_PixelTrackGt0Lt10_v*                                 #CMSHLT-1073
+HLT_PASingleMuOpen_PixelTrackGt0Lt15_v*                                 #CMSHLT-1073
 
 HLT_PAL1CastorHaloMuon_v*                                               #CMSHLT-1074
 HLT_PAL1CastorMediumJet_BptxAND_v*                                      #CMSHLT-1074
 HLT_PAL1CastorMediumJet_v*                                              #CMSHLT-1074
 
 HLT_PAL1MinimumBiasHF_OR_SinglePixelTrack_FirstCollisionAfterAbortGap_v*#CMSHLT-1084
- 
+HLT_PAZeroBias_IsolatedBunches_v*                                       #CMSHLT-1099
+
 HLT_PAL1MinimumBiasHF_OR_SinglePixelTrack_part1_v*                      #CMSHLT-1076
 HLT_PAL1MinimumBiasHF_OR_SinglePixelTrack_part2_v*                      #CMSHLT-1076
 HLT_PAL1MinimumBiasHF_OR_SinglePixelTrack_part3_v*                      #CMSHLT-1076
@@ -108,14 +113,15 @@ HLT_PAL1MinimumBiasHF_AND_v*                                            #CMSHLT-
 HLT_PAL1MinimumBiasHF_AND_SinglePixelTrack_v*                           #CMSHLT-1076
 HLT_PAZeroBias_SinglePixelTrack_v*                                      #CMSHLT-1076
 HLT_PAZeroBias_DoublePixelTrack_v*                                      #CMSHLT-1076
-HLT_ZeroBias_v*                                                         #CMSHLT-1076
+HLT_PAZeroBias_v*                                                       #CMSHLT-1099
 HLT_PAL1BptxMinus_v*                                                    #CMSHLT-1076
 HLT_PAL1BptxPlus_v*                                                     #CMSHLT-1076
 
 HLT_PAL1BptxMinusNotBptxPlus_v*                                         #CMSHLT-1076
 HLT_PAL1BptxPlusNotBptxMinus_v*                                         #CMSHLT-1076
 HLT_PABptxXOR_v*                                                        #CMSHLT-1076
-HLT_Random_v*                                                           #CMSHLT-1076
+HLT_PARandom_v*                                                         #CMSHLT-1099
+HLT_PAL1FatEvents_v*                                                    #CMSHLT-1099
 
 HLT_PAAK4CaloJet40_Eta5p1_v*                                            #CMSHLT-1078
 HLT_PAAK4CaloJet60_Eta5p1_v*                                            #CMSHLT-1078
@@ -167,6 +173,20 @@ HLT_PAAK4CaloJet40_Eta5p1_PAL3Mu5_v*                                    #CMSHLT-
 HLT_PAAK4CaloJet60_Eta5p1_PAL3Mu3_v*                                    #CMSHLT-1078
 HLT_PAAK4CaloJet60_Eta5p1_PAL3Mu5_v*                                    #CMSHLT-1078
 
+HLT_PADiAK4CaloJetAve40_Eta5p1_EvtTagging_v*                            #CMSHLT-1109
+HLT_PAAK4CaloJet40_Eta5p1_EvtTagging_v*                                 #CMSHLT-1109
+HLT_PAAK4PFJet40_Eta5p1_EvtTagging_v*                                   #CMSHLT-1109
+HLT_PASinglePhoton10_Eta3p1_EvtTagging_v*                               #CMSHLT-1109
+HLT_PAPhoton10_Eta3p1_PPStyle_EvtTagging_v*                             #CMSHLT-1109
+HLT_PAFullTracks_Multiplicity120_EvtTagging_v*                          #CMSHLT-1109
+HLT_PAFullTracks_Multiplicity185_EvtTagging_v*                          #CMSHLT-1109
+HLT_PAFullTracks_Multiplicity110_HighPt8_EvtTagging_v*                  #CMSHLT-1109
+HLT_PAFullTracks_HFSumEt005_HighPt8_EvtTagging_v*                       #CMSHLT-1109
+HLT_PAFullTracks_HighPt20_EvtTagging_v*                                 #CMSHLT-1109
+HLT_PADmesonPPTrackingGlobal_Dpt8_EvtTagging_v*                         #CMSHLT-1109
+HLT_PADmesonPPTrackingGlobal_Dpt15_EvtTagging_v*                        #CMSHLT-1109
+HLT_PAL3Mu3_EvtTagging_v*                                               #CMSHLT-1109
+
 HLT_PAEle20_WPLoose_Gsf_v*                                              #CMSHLT-1078
 
 HLT_PAHcalCalibration_v*                                                #CMSHLT-1086
@@ -174,6 +194,9 @@ HLT_PAEcalCalibration_v*                                                #CMSHLT-
 
 HLT_PAHcalPhiSym_v*                                                     #CMSHLT-1086
 HLT_PAHcalNZS_v*                                                        #CMSHLT-1086
+
+HLT_PAAK4CaloJet40_Eta5p1_v*                                            #CMSHLT-1110
+HLT_PAAK4PFJet40_Eta5p1_v*                                              #CMSHLT-1110
 
 HLT_Physics_v*
 
@@ -212,15 +235,22 @@ PhysicsPAMuonsOutput                        #CMSHLT-1013
 PhysicsPAHighMultiplicity0Output            #CMSHLT-1000
 PhysicsPAHighMultiplicity1Output            #CMSHLT-1000
 PhysicsPAHighMultiplicity2Output            #CMSHLT-1000
-PhysicsPAJetsEGOutput                       #CMSHLT-1028
-PhysicsPAMesonDOutput                       #CMSHLT-1030
-PhysicsPAMesonD2Output                      #CMSHLT-1098
 PhysicsPACastorOutput                       #CMSHLT-1074
 PhysicsPAMinimumBias0Output                 #CMSHLT-1076
 PhysicsPAMinimumBias1Output                 #CMSHLT-1076
 PhysicsPAMinimumBias2Output                 #CMSHLT-1076
 PhysicsPAMinimumBias3Output                 #CMSHLT-1076
-DQMOutput
+
+#PhysicsPAJetsEGOutput                       #CMSHLT-1028, removed by CMSHLT-1106
+#PhysicsPAMesonDOutput                       #CMSHLT-1030, removed by CMSHLT-1106
+#PhysicsPAMesonD2Output                      #CMSHLT-1098, removed by CMSHLT-1106
+
+PhysicsPAHighPt1Output                       #CMSHLT-1106
+PhysicsPAHighPt2Output                       #CMSHLT-1106
+
+DQMOutput                                   #CMSHLT-1099
+DQMCalibrationOutput                        #CMSHLT-1099
+DQMEventDisplayOutput                       #CMSHLT-1099
 
 ######## paths that are different between PIon and online_pion ################################
 
