@@ -58,6 +58,8 @@ HcalRecHitsAnalyzer::HcalRecHitsAnalyzer(edm::ParameterSet const& conf) {
     maxDepthHF_ = hcons->getMaxDepth(2);
     maxDepthHO_ = hcons->getMaxDepth(3);
 
+    edm::ESHandle<CaloGeometry> geometry;
+
     es.get<CaloGeometryRecord > ().get(geometry);
 
     const CaloGeometry* geo = geometry.product();
@@ -416,7 +418,7 @@ void HcalRecHitsAnalyzer::analyze(edm::Event const& ev, edm::EventSetup const& c
   double phiHot  = 99999.; 
 
   //   previously was:  c.get<IdealGeometryRecord>().get (geometry);
-  c.get<CaloGeometryRecord>().get (geometry);
+  //c.get<CaloGeometryRecord>().get (geometry);
 
   // HCAL channel status map ****************************************
   edm::ESHandle<HcalChannelQuality> hcalChStatus;

@@ -40,6 +40,8 @@ void HcalRecHitsDQMClient::beginRun(const edm::Run& run, const edm::EventSetup& 
   maxDepthHF_ = hcons->getMaxDepth(2);
   maxDepthHO_ = hcons->getMaxDepth(3);
  
+  edm::ESHandle<CaloGeometry> geometry;
+
   es.get<CaloGeometryRecord > ().get(geometry);
  
   const std::vector<DetId>& hbCells = geometry->getValidDetIds(DetId::Hcal, HcalBarrel);

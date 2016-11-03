@@ -59,8 +59,6 @@ class HcalRecHitsDQMClient : public DQMEDHarvester {
   std::string dirNameJet_;
   std::string dirNameMET_;
 
-  edm::ESHandle<CaloGeometry> geometry ;
-
   const HcalDDDRecConstants *hcons;
   int maxDepthHB_, maxDepthHE_, maxDepthHO_, maxDepthHF_, maxDepthAll_;
  
