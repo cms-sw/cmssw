@@ -6,10 +6,13 @@ caloStage2Params = L1Trigger.L1TCalorimeter.caloParams_cfi.caloParams.clone()
 
 # HI parameters
 caloStage2Params.jetBypassPUS               = cms.uint32(1)
+caloStage2Params.jetSeedThreshold           = cms.double(2.0)
+caloStage2Params.jetCalibrationType         = cms.string("None")
+
 caloStage2Params.egHOverEcutBarrel          = cms.int32(1) #H/E < pow(2,-5) in barrel
 caloStage2Params.egHOverEcutEndcap          = cms.int32(1) #H/E < pow(2,-4) in endcaps
-caloStage2Params.egShapeIdLUTFile           = cms.FileInPath("L1Trigger/L1TCalorimeter/data/shapeIdentification_DUMMY_adapt0.75_compressedieta_compressedE_compressedshape_v16.04.01.txt")
-caloStage2Params.egBypassEGVetos            = cms.uint32(1)
+caloStage2Params.egShapeIdLUTFile           = cms.FileInPath("L1Trigger/L1TCalorimeter/data/shapeIdentification_dummy.txt")
+caloStage2Params.egBypassEGVetos            = cms.uint32(0)
 
 
 # towers
@@ -74,7 +77,6 @@ caloStage2Params.tauPUSParams                  = cms.vdouble(1,4,32)
 
 # jets
 caloStage2Params.jetLsb                = cms.double(0.5)
-caloStage2Params.jetSeedThreshold      = cms.double(4.0)
 caloStage2Params.jetNeighbourThreshold = cms.double(0.)
 caloStage2Params.jetPUSType            = cms.string("ChunkyDonut")
 
@@ -82,7 +84,7 @@ caloStage2Params.jetPUSType            = cms.string("ChunkyDonut")
 # function6PtParams22EtaBins or None
 #caloStage2Params.jetCalibrationType    = cms.string("None")
 #caloStage2Params.jetCalibrationType = cms.string("function8PtParams22EtaBins")
-caloStage2Params.jetCalibrationType = cms.string("LUT")
+#caloStage2Params.jetCalibrationType = cms.string("LUT")
 
 #Vector with 6 parameters for eta bin, from low eta to high
 # 1,0,1,0,1,1 gives no correction
