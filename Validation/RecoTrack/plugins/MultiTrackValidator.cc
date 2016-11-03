@@ -3,6 +3,7 @@
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/transform.h"
 
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
@@ -53,6 +54,7 @@ MultiTrackValidator::MultiTrackValidator(const edm::ParameterSet& pset):
   dodEdxPlots_(pset.getUntrackedParameter<bool>("dodEdxPlots")),
   doPVAssociationPlots_(pset.getUntrackedParameter<bool>("doPVAssociationPlots")),
   doSeedPlots_(pset.getUntrackedParameter<bool>("doSeedPlots")),
+  doMVAPlots_(pset.getUntrackedParameter<bool>("doMVAPlots")),
   simPVMaxZ_(pset.getUntrackedParameter<double>("simPVMaxZ"))
 {
   ParameterSet psetForHistoProducerAlgo = pset.getParameter<ParameterSet>("histoProducerAlgoBlock");
@@ -74,6 +76,21 @@ MultiTrackValidator::MultiTrackValidator(const edm::ParameterSet& pset):
   if(doPlotsOnlyForTruePV_ || doPVAssociationPlots_) {
     recoVertexToken_ = consumes<edm::View<reco::Vertex> >(pset.getUntrackedParameter<edm::InputTag>("label_vertex"));
     vertexAssociatorToken_ = consumes<reco::VertexToTrackingVertexAssociator>(pset.getUntrackedParameter<edm::InputTag>("vertexAssociator"));
+  }
+
+  if(doMVAPlots_) {
+    mvaCollectionTokens_.resize(labelToken.size());
+    auto mvaPSet = pset.getUntrackedParameter<edm::ParameterSet>("mvaLabels");
+    for(size_t iIter=0; iIter<labelToken.size(); ++iIter) {
+      edm::EDConsumerBase::Labels labels;
+      labelsForToken(labelToken[iIter], labels);
+      if(mvaPSet.exists(labels.module)) {
+        mvaCollectionTokens_[iIter] = edm::vector_transform(mvaPSet.getUntrackedParameter<std::vector<edm::InputTag> >(labels.module),
+                                                            [&](const edm::InputTag& tag) {
+                                                              return consumes<MVACollection>(tag);
+                                                            });
+      }
+    }
   }
 
   tpSelector = TrackingParticleSelector(pset.getParameter<double>("ptMinTP"),
@@ -226,6 +243,7 @@ void MultiTrackValidator::bookHistograms(DQMStore::IBooker& ibook, edm::Run cons
         histoProducerAlgo_->bookRecoHistos(ibook);
         if (dodEdxPlots_) histoProducerAlgo_->bookRecodEdxHistos(ibook);
         if (doPVAssociationPlots_) histoProducerAlgo_->bookRecoPVAssociationHistos(ibook);
+        if (doMVAPlots_) histoProducerAlgo_->bookMVAHistos(ibook, mvaCollectionTokens_[www].size());
       }
 
       if(doSeedPlots_) {
@@ -535,6 +553,9 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
     v_dEdx.push_back(dEdx2Handle.product());
   }
 
+  std::vector<const MVACollection *> mvaCollections;
+  std::vector<float> mvaValues;
+
   int w=0; //counter counting the number of sets of histograms
   for (unsigned int ww=0;ww<associators.size();ww++){
     for (unsigned int www=0;www<label.size();www++, w++){ // need to increment w here, since there are many continues in the loop body
@@ -782,6 +803,19 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 	dR_trk[i] = std::sqrt(dR);
       }
 
+      // read MVA collections
+      mvaCollections.clear();
+      if(doMVAPlots_ && !mvaCollectionTokens_[www].empty()) {
+        edm::Handle<MVACollection> hmva;
+        for(const auto& token: mvaCollectionTokens_[www]) {
+          event.getByToken(token, hmva);
+          mvaCollections.push_back(hmva.product());
+          if(mvaCollections.back()->size() != trackCollection.size()) {
+            throw cms::Exception("Configuration") << "Inconsistency in track collection and MVA sizes. Track collection " << www << " has " << trackCollection.size() << " tracks, whereas the MVA " << (mvaCollections.size()-1) << " for it has " << mvaCollections.back()->size() << " entries. Double-check your configuration.";
+          }
+        }
+      }
+
       for(View<Track>::size_type i=0; i<trackCollection.size(); ++i){
         auto track = trackCollection.refAt(i);
 	rT++;
@@ -818,8 +852,17 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
                                      << " NOT associated to any TrackingParticle" << "\n";
 	}
 
+        // set MVA values for this track
+        mvaValues.clear();
+        if(doMVAPlots_ && !mvaCollections.empty()) {
+          for(const auto& mva: mvaCollections) {
+            mvaValues.push_back((*mva)[i]);
+          }
+        }
+
 	double dR=dR_trk[i];
-	histoProducerAlgo_->fill_generic_recoTrack_histos(w,*track, ttopo, bs.position(), thePVposition, theSimPVPosition, isSimMatched,isSigSimMatched, isChargeMatched, numAssocRecoTracks, puinfo.getPU_NumInteractions(), nSimHits, sharedFraction, dR);
+	histoProducerAlgo_->fill_generic_recoTrack_histos(w,*track, ttopo, bs.position(), thePVposition, theSimPVPosition, isSimMatched,isSigSimMatched, isChargeMatched, numAssocRecoTracks, puinfo.getPU_NumInteractions(), nSimHits, sharedFraction, dR, mvaValues);
+
         if(doSummaryPlots_) {
           h_reco_coll[ww]->Fill(www);
           if(isSimMatched) {

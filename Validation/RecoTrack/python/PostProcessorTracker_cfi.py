@@ -119,6 +119,11 @@ postProcessorTrack = cms.EDAnalyzer("DQMGenericClient",
     "effic_vs_simpvz 'Efficiency vs. sim PV z' num_assoc(simToReco)_simpvz num_simul_simpvz",
     "fakerate_vs_simpvz 'Fake rate vs. sim PV z' num_assoc(recoToSim)_simpvz num_reco_simpvz fake",
     "pileuprate_simpvz 'Pileup rate vs. sim PV z' num_pileup_simpvz num_reco_simpvz",
+
+    "fakerate_vs_mva1 'Fake rate vs. MVA1' num_assoc(recoToSim)_mva1 num_reco_mva1 fake",
+    "fakerate_vs_mva2 'Fake rate vs. MVA2' num_assoc(recoToSim)_mva2 num_reco_mva2 fake",
+    "fakerate_vs_mva3 'Fake rate vs. MVA3' num_assoc(recoToSim)_mva3 num_reco_mva3 fake",
+
     ),
     resolution = cms.vstring(
                              "cotThetares_vs_eta '#sigma(cot(#theta)) vs #eta' cotThetares_vs_eta",

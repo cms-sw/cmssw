@@ -164,6 +164,8 @@ void TrackerSeedValidator::analyze(const edm::Event& event, const edm::EventSetu
   const auto& nPixelLayers_tPCeff = *(std::get<TrackingParticleNumberOfLayers::nPixelLayers>(nlayers_tPCeff_ptrs));
   const auto& nStripMonoAndStereoLayers_tPCeff = *(std::get<TrackingParticleNumberOfLayers::nStripMonoAndStereoLayers>(nlayers_tPCeff_ptrs));
 
+  std::vector<float> mvaDummy;
+
   int w=0;
   for (unsigned int ww=0;ww<associators.size();ww++){
     edm::Handle<reco::TrackToTrackingParticleAssociator> theAssociator;
@@ -361,7 +363,7 @@ void TrackerSeedValidator::analyze(const edm::Event& event, const edm::EventSetu
 	histoProducerAlgo_->fill_generic_recoTrack_histos(w,*trackFromSeed, ttopo, bs.position(), nullptr, nullptr, isSimMatched,isSigSimMatched,
 							  isChargeMatched, numAssocSeeds, 
 							  puinfo.getPU_NumInteractions(),
-							  nSimHits, sharedFraction, dR);
+							  nSimHits, sharedFraction, dR, mvaDummy);
 
 	//Fill other histos
  	try{

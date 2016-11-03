@@ -127,6 +127,11 @@ MTVHistoProducerAlgoForTracker::MTVHistoProducerAlgoForTracker(const edm::Parame
   maxPVz  = pset.getParameter<double>("maxPVz");
   nintPVz = pset.getParameter<int>("nintPVz");
 
+  //parameters for vs. MVA plots
+  minMVA = pset.getParameter<double>("minMVA");
+  maxMVA  = pset.getParameter<double>("maxMVA");
+  nintMVA = pset.getParameter<int>("nintMVA");
+
   //parameters for resolution plots
   ptRes_rangeMin = pset.getParameter<double>("ptRes_rangeMin");
   ptRes_rangeMax = pset.getParameter<double>("ptRes_rangeMax");
@@ -658,6 +663,17 @@ void MTVHistoProducerAlgoForTracker::bookSeedHistos(DQMStore::IBooker& ibook) {
   h_seedsFitFailedFraction.push_back(ibook.book1D("seeds_fitFailedFraction", "Fraction of seeds for which the fit failed", 100, 0, 1));
 }
 
+void MTVHistoProducerAlgoForTracker::bookMVAHistos(DQMStore::IBooker& ibook, size_t nMVAs) {
+  h_reco_mva.emplace_back();
+  h_assoc2_mva.emplace_back();
+
+  for(size_t i=1; i <= nMVAs; ++i) {
+    auto istr = std::to_string(i);
+    h_reco_mva.back().push_back(ibook.book1D("num_reco_mva"+istr, "N of reco track vs MVA"+istr, nintMVA, minMVA, maxMVA) );
+    h_assoc2_mva.back().push_back(ibook.book1D("num_assoc(recoToSim)_mva"+istr, "N of associated tracks (recoToSim) vs MVA"+istr, nintMVA, minMVA, maxMVA) );
+  }
+}
+
 void MTVHistoProducerAlgoForTracker::fill_generic_simTrack_histos(const TrackingParticle::Vector& momentumTP,
 								  const TrackingParticle::Point& vertexTP,
                                                                   int bx){
@@ -809,7 +825,8 @@ void MTVHistoProducerAlgoForTracker::fill_generic_recoTrack_histos(int count,
 								   int numVertices,
 								   int nSimHits,
 								   double sharedFraction,
-								   double dR){
+								   double dR,
+                                                                   const std::vector<float>& mvas) {
 
   //Fill track algo histogram
   fillPlotNoFlow(h_algo[count],track.algo());
@@ -867,6 +884,9 @@ void MTVHistoProducerAlgoForTracker::fill_generic_recoTrack_histos(int count,
   fillPlotNoFlow(h_recopixellayer[count], nPixelLayers);
   fillPlotNoFlow(h_reco3Dlayer[count], n3DLayers);
   fillPlotNoFlow(h_recopu[count],numVertices);
+  for(size_t i=0; i<mvas.size(); ++i) {
+    fillPlotNoFlow(h_reco_mva[count][i], mvas[i]);
+  }
 
   if (isMatched) {
     if(paramsValid) {
@@ -898,6 +918,9 @@ void MTVHistoProducerAlgoForTracker::fill_generic_recoTrack_histos(int count,
     fillPlotNoFlow(h_assoc2pixellayer[count], nPixelLayers);
     fillPlotNoFlow(h_assoc23Dlayer[count], n3DLayers);
     fillPlotNoFlow(h_assoc2pu[count],numVertices);
+    for(size_t i=0; i<mvas.size(); ++i) {
+      fillPlotNoFlow(h_assoc2_mva[count][i], mvas[i]);
+    }
 
     nrecHit_vs_nsimHit_rec2sim[count]->Fill( track.numberOfValidHits(),nSimHits);
     h_assocFraction[count]->Fill( sharedFraction);
