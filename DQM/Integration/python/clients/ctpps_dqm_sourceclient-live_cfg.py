@@ -12,7 +12,12 @@ else:
   # for testing in lxplus
   process.load("DQM.Integration.config.fileinputsource_cfi")
   process.source.fileNames = cms.untracked.vstring(
-    "'file:///afs/cern.ch/user/j/jkaspar/public/run273062_ls0001-2_stream.root"
+    'file:/afs/cern.ch/user/j/jkaspar/public/run273062_ls0001-2_stream.root',
+    '/store/express/Run2016H/ExpressPhysics/FEVT/Express-v2/000/283/877/00000/4EE44B0E-2499-E611-A155-02163E011938.root'
+  )
+  process.source.inputCommands = cms.untracked.vstring(
+    'drop *',
+    'keep FEDRawDataCollection_*_*_*'
   )
 
 
@@ -36,7 +41,7 @@ process.MessageLogger = cms.Service("MessageLogger",
 process.load("DQM.Integration.config.FrontierCondition_GT_cfi")
 
 # raw-to-digi conversion
-process.load("EventFilter.CTPPSRawToDigi.totemRawToDigi_cff")
+process.load("EventFilter.CTPPSRawToDigi.ctppsRawToDigi_cff")
 
 # local RP reconstruction chain with standard settings
 process.load("RecoCTPPS.Configuration.recoCTPPS_cff")
@@ -46,8 +51,7 @@ process.load("DQM.CTPPS.totemDQM_cff")
 
 # processing path
 process.recoStep = cms.Sequence(
-  process.totemTriggerRawToDigi *
-  process.totemRPRawToDigi *
+  process.ctppsRawToDigi *
   process.recoCTPPS
 )
 
