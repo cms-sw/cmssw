@@ -8,7 +8,7 @@
 #include "TrackingTools/DetLayers/interface/DetLayerException.h"
 #include "TrackingTools/DetLayers/interface/MeasurementEstimator.h"
 #include "TrackingTools/DetLayers/interface/CylinderBuilderFromDet.h"
-#include "Phase2OTEndcapLayerBuilder.h"
+#include "Phase2EndcapLayerBuilder.h"
 
 using namespace std;
 
@@ -16,8 +16,8 @@ typedef GeometricSearchDet::DetWithState DetWithState;
 
 Phase2OTtiltedBarrelLayer::Phase2OTtiltedBarrelLayer(std::vector<const Phase2OTBarrelRod*>& innerRods,
 			                             std::vector<const Phase2OTBarrelRod*>& outerRods,
-                                                     vector<const Phase2OTEndcapRing*>& negRings, 
-                                                     vector<const Phase2OTEndcapRing*>& posRings) : 
+                                                     vector<const Phase2EndcapRing*>& negRings,
+                                                     vector<const Phase2EndcapRing*>& posRings) :
   Phase2OTBarrelLayer(innerRods,outerRods),
   theNegativeRingsComps(negRings.begin(),negRings.end()),
   thePositiveRingsComps(posRings.begin(),posRings.end())
