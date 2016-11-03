@@ -195,7 +195,7 @@ void PixelThresholdClusterizer::copy_to_buffer( DigiIterator begin, DigiIterator
     // std::cout << (doMissCalibrate ? "VI from db" : "VI linear") << std::endl;
   }
 #endif
-  int electron[end-begin];
+  int electron[end-begin] = {0};
   if ( doMissCalibrate ) {
     (*theSiPixelGainCalibrationService_).calibrate(detid_,begin,end,theConversionFactor, theOffset,electron);
   } else {
