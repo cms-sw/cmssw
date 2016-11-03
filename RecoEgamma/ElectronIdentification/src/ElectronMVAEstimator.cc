@@ -101,8 +101,7 @@ double ElectronMVAEstimator::mva(const reco::GsfElectron& myElectron, int nverti
   bool validKF= false;
 
   reco::TrackRef myTrackRef = myElectron.closestCtfTrackRef();
-  validKF = (myTrackRef.isAvailable());
-  validKF = (myTrackRef.isNonnull());  
+  validKF = (myTrackRef.isNonnull() && myTrackRef.isAvailable());   
 
   vars[9] = (validKF) ? myTrackRef->normalizedChi2() : 0 ;
   vars[10] = (validKF) ? myTrackRef->hitPattern().trackerLayersWithMeasurement() : -1.; 
