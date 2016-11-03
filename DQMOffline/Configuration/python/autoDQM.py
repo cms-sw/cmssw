@@ -12,7 +12,10 @@ autoDQM = { 'common' : ['DQMOfflineCommon',
                      'DQMHarvestMuon+DQMCertMuon'],
             'hcal':     ['DQMOfflineHcal',
                          'PostDQMOffline',
-                         'DQMHarvestHcal+DQMCertHcal'],
+                         'DQMHarvestHcal'],
+            'hcal2': ['HcalDQMOfflineSequence',
+                      'PostDQMOffline',
+                      'HcalDQMOfflinePostProcessor'],
             'jetmet':  ['DQMOfflineJetMET',
                         'PostDQMOffline',
                         'DQMHarvestJetMET+DQMCertJetMET'],
@@ -50,7 +53,8 @@ autoDQM = { 'common' : ['DQMOfflineCommon',
                           'dqmHarvesting']
             }
 
-_phase2_allowed = ['trackingOnlyDQM','muon','hcal']
+_phase2_allowed = ['trackingOnlyDQM','muon','hcal','hcal2']
 autoDQM['phase2'] = ['','','']
-for i in range(0,3):
+for i in [0,2]:
     autoDQM['phase2'][i] = '+'.join([autoDQM[m][i] for m in _phase2_allowed])
+autoDQM['phase2'][1] = 'PostDQMOffline'
