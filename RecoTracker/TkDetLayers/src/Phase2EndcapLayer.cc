@@ -137,14 +137,14 @@ Phase2EndcapLayer::groupedCompatibleDetsV( const TrajectoryStateOnSurface& start
   std::vector<int> ringOrder(theRingSize);
   std::fill(ringOrder.begin(), ringOrder.end(), 1);
   if (theRingSize > 1){
-    if(fabs(theComps.at(0)->position().z()) < fabs(theComps.at(1)->position().z())){
+    if(fabs(theComps[0]->position().z()) < fabs(theComps[1]->position().z())){
       for (int i=0; i<theRingSize; i++) {
-        if(i % 2 == 0) ringOrder.at(i) = 0;
+        if(i % 2 == 0) ringOrder[i] = 0;
       }
-    } else if(fabs(theComps.at(0)->position().z()) > fabs(theComps.at(1)->position().z())){
+    } else if(fabs(theComps[0]->position().z()) > fabs(theComps[1]->position().z())){
       std::fill(ringOrder.begin(), ringOrder.end(), 0);
       for (int i=0; i<theRingSize; i++) {
-        if(i % 2 == 0) ringOrder.at(i) = 1;
+        if(i % 2 == 0) ringOrder[i] = 1;
       }
     } else {
       throw DetLayerException("Rings in Endcap Layer have same z position, no idea how to order them!");
