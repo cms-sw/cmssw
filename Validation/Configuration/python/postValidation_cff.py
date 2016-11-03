@@ -87,6 +87,7 @@ postValidation_HCAL = cms.Sequence(
       hcalSimHitsPostProcessor
     + hcaldigisPostProcessor
     + hcalrechitsPostProcessor
+    + calotowersPostProcessor
 )
  
 postValidation_gen = cms.Sequence(
