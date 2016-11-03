@@ -22,7 +22,7 @@ class HcalTriggerPrimitiveAlgo {
 public:
   HcalTriggerPrimitiveAlgo(bool pf, const std::vector<double>& w, 
                            int latency,
-                           bool FG_MinimumBias, uint32_t FG_threshold, uint32_t ZS_threshold,
+                           uint32_t FG_threshold, uint32_t FG_HF_threshold, uint32_t ZS_threshold,
                            int numberOfSamples,   int numberOfPresamples,
                            int numberOfSamplesHF, int numberOfPresamplesHF,
                            uint32_t minSignalThreshold=0, uint32_t PMT_NoiseThreshold=0);
@@ -33,7 +33,7 @@ public:
            const HBHEDigiCollection& hbheDigis,
            const HFDigiCollection& hfDigis,
            HcalTrigPrimDigiCollection& result,
-	   const HcalTrigTowerGeometry* trigTowerGeometry,
+           const HcalTrigTowerGeometry* trigTowerGeometry,
            float rctlsb, const HcalFeatureBit* LongvrsShortCut=0);
 
   void runZS(HcalTrigPrimDigiCollection& tp);
@@ -71,8 +71,8 @@ public:
   bool peakfind_;
   std::vector<double> weights_;
   int latency_;
-  bool FG_MinimumBias_;
   uint32_t FG_threshold_;
+  uint32_t FG_HF_threshold_;
   uint32_t ZS_threshold_;
   int ZS_threshold_I_;
   int numberOfSamples_;

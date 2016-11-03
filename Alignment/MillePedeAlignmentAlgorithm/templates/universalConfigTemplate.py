@@ -14,6 +14,8 @@
 #          - ALCARECOTkAlCosmicsCTF0T  -> Cosmics, either at 0T or 3.8T
 #          - ALCARECOTkAlMuonIsolated  -> Isolated Muon
 #          - ALCARECOTkAlZMuMu         -> Z decay to two Muons
+#          - generalTracks             -> general tracks treated like Minimum Bias
+#          - ALCARECOTkAlCosmicsInCollisions -> Cosmics taken during collisions
 #
 #        Globaltag specifies the detector conditions.
 #        Parts of the Globaltag are overwritten in Startgeometry.
