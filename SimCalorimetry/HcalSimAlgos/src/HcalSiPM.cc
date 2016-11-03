@@ -12,9 +12,10 @@
 using std::vector;
 //345678911234567892123456789312345678941234567895123456789612345678971234567898
 HcalSiPM::HcalSiPM(int nCells, double tau) :
-  theCellCount(nCells), theSiPM(nCells,1.), theTau(tau),
-  theCrossTalk(0.), theTempDep(0.), theLastHitTime(-1.), nonlin(0) {
-
+  theCellCount(nCells), theSiPM(nCells,1.),
+  theCrossTalk(0.), theTempDep(0.), theLastHitTime(-1.), nonlin(0)
+{
+  setTau(tau);
   assert(theCellCount>0);
   resetSiPM();
 }
@@ -147,6 +148,12 @@ void HcalSiPM::setNCells(int nCells) {
   resetSiPM();
 }
 
+void HcalSiPM::setTau(double tau) { 
+  theTau = tau;
+  if(theTau > 0) theTauInv = 1./theTau;
+  else theTauInv = 0;
+}
+
 void HcalSiPM::setCrossTalk(double xTalk) {
   // set the cross-talk probability
 
@@ -174,8 +181,8 @@ void HcalSiPM::setTemperatureDependence(double dTemp) {
 
 double HcalSiPM::cellCharge(double deltaTime) const {
   if (deltaTime <= 0.) return 0.;
-  if (deltaTime > 10.*theTau) return 1.;
-  double result(1. - std::exp(-deltaTime/theTau));
+  if (deltaTime*theTauInv > 10.) return 1.;
+  double result(1. - std::exp(-deltaTime*theTauInv));
   return (result > 0.99) ? 1.0 : result;
 }
 
