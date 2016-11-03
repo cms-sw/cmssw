@@ -261,7 +261,7 @@ class MeasuredGeometryProducer {
         static void getGlobalTransform(const DDLogicalPart &part, const DDCompactView &compactView, TMatrixD &transform) {
             DDExpandedView *expandedView = newExpandedView(compactView, part);
             translRotToTransform(expandedView->translation(), expandedView->rotation(), transform);
-            expandedView = delExpandedView(expandedView);
+            delExpandedView(expandedView);
         }
 
         // -- Misc. utils ----------------------
