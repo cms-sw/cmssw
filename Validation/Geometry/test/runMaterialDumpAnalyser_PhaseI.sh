@@ -39,7 +39,7 @@ cmsDriver.py SingleMuPt10_pythia8_cfi \
 --era Run2_2017 \
 --eventcontent FEVTDEBUG \
 --datatier GEN-SIM \
---geometry Extended2017new  \
+--geometry Extended2017  \
 --beamspot NoSmear \
 --customise Validation/Geometry/customiseForDumpMaterialAnalyser_ForPhaseI.customiseForMaterialAnalyser_ForPhaseI \
 --fileout file:SingleMuPt10_pythia8_cfi_GEN_SIM_PhaseI.root \
@@ -61,7 +61,7 @@ if checkFile SingleMuPt10_step2_DIGI_L1_DIGI2RAW_HLT_PhaseI.root ; then
 --era Run2_2017 \
 --eventcontent FEVTDEBUGHLT \
 --datatier GEN-SIM-DIGI-RAW \
---geometry Extended2017new \
+--geometry Extended2017 \
 --nThreads 6 \
 --filein file:SingleMuPt10_pythia8_cfi_GEN_SIM_PhaseI.root  \
 --fileout file:SingleMuPt10_step2_DIGI_L1_DIGI2RAW_HLT_PhaseI.root \
@@ -83,7 +83,7 @@ if checkFile SingleMuPt10_step3_RECO_DQM_PhaseI.root ; then
 --era Run2_2017 \
 --eventcontent RECOSIM,DQM \
 --datatier GEN-SIM-RECO,DQMIO \
---geometry Extended2017new \
+--geometry Extended2017 \
 --nThreads 6 \
 --filein file:SingleMuPt10_step2_DIGI_L1_DIGI2RAW_HLT_PhaseI.root  \
 --fileout file:SingleMuPt10_step3_RECO_DQM_PhaseI.root \
@@ -106,7 +106,7 @@ if checkFile DQM_V0001_R000000001__Global__CMSSW_X_Y_Z__RECO.root ; then
 --era Run2_2017  \
 --scenario pp  \
 --filetype DQM  \
---geometry Extended2017new  \
+--geometry Extended2017  \
 --mc  \
 --filein file:SingleMuPt10_step3_RECO_DQM_PhaseI_inDQM.root  \
 --python_filename SingleMuPt10_step4_HARVESTING_PhaseI.py > SingleMuPt10_step4_HARVESTING_PhaseI.log 2>&1

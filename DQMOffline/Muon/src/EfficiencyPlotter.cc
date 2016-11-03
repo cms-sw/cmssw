@@ -49,12 +49,13 @@ EfficiencyPlotter::EfficiencyPlotter(const edm::ParameterSet& ps){
   vtxMax = parameters.getParameter<double>("vtxMax");
   
   ID_    = parameters.getParameter<string>("MuonID");
+  theFolder = parameters.getParameter<string>("folder");
 }
 EfficiencyPlotter::~EfficiencyPlotter(){}
 
 void EfficiencyPlotter::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter) {
   
-  ibooker.setCurrentFolder("Muons/EfficiencyAnalyzer");
+  ibooker.setCurrentFolder(theFolder);
   
   // efficiency plot
   h_eff_eta_ID          = ibooker.book1D("Eff_eta_"+ID_,          ID_+" Eff. vs #eta",                  etaBin, etaMin, etaMax);

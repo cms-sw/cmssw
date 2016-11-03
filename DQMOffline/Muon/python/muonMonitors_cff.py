@@ -28,6 +28,10 @@ muonMonitors = cms.Sequence(muonTrackAnalyzers*
                             dqmInfoMuons*
                             muIsoDQM_seq)
 
+muonMonitors_miniAOD = cms.Sequence( muonAnalyzer_miniAOD*
+                                     muIsoDQM_seq_miniAOD)
+
+
 muonMonitorsAndQualityTests = cms.Sequence(muonMonitors*muonQualityTests)
 
 
