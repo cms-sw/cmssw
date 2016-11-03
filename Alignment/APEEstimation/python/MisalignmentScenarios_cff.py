@@ -1240,6 +1240,12 @@ MisalignmentAPEScenarioBase = cms.PSet(
 )
 
 MisalignmentScenario_PhaseI_PseudoAsymptotic = cms.PSet(
+    # This scenarios was created to get a phase-1 scenario with similar
+    # performance as the phase-0 asymptotic scenario by applying the RMS values
+    # from the phase-0 pixel as gaussian smearing to the phase-1 pixel.
+    # The values are documented here:
+    # https://twiki.cern.ch/twiki/bin/view/CMS/TkAlPhaseIPreparations#Pseudo_asymptotic_scenario
+
     MisalignmentScenarioSettings, # --> Gaussian distribution
     scale = cms.double(0.0001), # shifts in 1um
 
