@@ -47,6 +47,7 @@ inline double onePulse(double t, double A, double sigma, double theta, double m)
 
 double HcalSiPMShape::analyticPulseShape(double t, unsigned int signalShape) const {
   if(signalShape==HcalShapes::ZECOTEK || signalShape==HcalShapes::HAMAMATSU){
+    // HO SiPM pulse shape fit from Jake Anderson ca. 2013
     double A1(0.08757), c1(-0.5257), t01(2.4013), s1(0.6721);
     double A2(0.007598), c2(-0.1501), t02(6.9412), s2(0.8710);
     return gexp(t,A1,c1,t01,s1) + gexp(t,A2,c2,t02,s2);

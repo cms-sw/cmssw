@@ -7,14 +7,18 @@ class Eras (object):
     can use to selectively configure depending on what scenario is active.
     """
     def __init__(self):
-        allEras=['Run2_50ns',
+        allEras=['Run1_pA',
+                 'Run1_peripheralPbPb',
+                 'Run2_50ns',
                  'Run2_50ns_HIPM',
                  'Run2_25ns',
                  'Run2_25ns_HIPM',
+                 'Run2_25ns_peripheralPbPb',
                  'Run2_HI',
                  'Run2_2016',
                  'Run2_2016_HIPM',
                  'Run2_2016_trackingLowPU',
+                 'Run2_2016_pA',
                  'Run2_2017',
                  'Run2_2017_trackingRun2',
                  'Run2_2017_trackingPhase1PU70',
@@ -27,6 +31,7 @@ class Eras (object):
         internalUseMods = ['run2_common', 'run2_25ns_specific',
                            'run2_50ns_specific', 'run2_HI_specific',
                            'stage1L1Trigger', 'fastSim',
+                           'peripheralPbPb', 'pA_2016',
                            'run2_HE_2017', 'stage2L1Trigger',
                            'run2_HF_2017', 'run2_HCAL_2017',
                            'phase1Pixel', 'run3_GEM',

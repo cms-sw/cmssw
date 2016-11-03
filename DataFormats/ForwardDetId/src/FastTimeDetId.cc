@@ -9,12 +9,12 @@ FastTimeDetId::FastTimeDetId() : DetId() { }
 
 FastTimeDetId::FastTimeDetId(uint32_t rawid) : DetId(rawid) { }
 
-FastTimeDetId::FastTimeDetId(int type, int module_iz, int module_iphi,
-			     int iz) : DetId(Forward,FastTime) {
-  id_ |= (((type&kFastTimeTypeMask)<<kFastTimeTypeOffset) | 
+FastTimeDetId::FastTimeDetId(int module_type, int module_iz, int module_iphi,
+			     int module_zside) : DetId(Forward,FastTime) {
+  id_ |= (((module_type&kFastTimeTypeMask)<<kFastTimeTypeOffset) | 
 	  ((module_iz&kFastTimeCellZMask)<<kFastTimeCellZOffset) | 
 	  ((module_iphi&kFastTimeCellPhiMask)<<kFastTimeCellPhiOffset) | 
-	  ((iz>0)?(kFastTimeZsideMask):(0)));
+	  ((module_zside>0)?(kFastTimeZsideMask):(0)));
 }
 
 FastTimeDetId::FastTimeDetId(const DetId& gen) {

@@ -10,6 +10,12 @@
   <Constant name="CellWF" value="[WaferW]/[CellNF]"/>
   <Constant name="TypeWC" value="2"/>
   <Constant name="TypeWF" value="1"/>
+  <Vector name="waferFine" type="numeric" nEntries="20">
+   3, 6, 9, 12, 15, 16, 15, 16, 15, 16, 15, 16, 15, 16, 15, 14, 11, 8, 5, 2
+  </Vector>
+  <Vector name="waferCoarse" type="numeric" nEntries="15">
+   2, 5, 8, 11, 12, 11, 12, 11, 12, 11, 12, 11, 8, 5, 2
+  </Vector>
 </ConstantsSection>
 
 <SolidSection label="hgcalwafer.xml">
@@ -347,5 +353,13 @@
     <String name="RotNameSpace" value="hgcalwafer"/>
   </Algorithm>
 </PosPartSection> 
+
+<SpecParSection label="hgcalwafer.xml" eval="true">
+  <SpecPar name="hgcal">
+    <PartSelector path="//HGCalEECell.*"/>
+    <PartSelector path="//HGCalHECell.*"/>
+    <Parameter name="OnlyForHGCalNumbering" value="HGCal" eval="false"/>
+  </SpecPar>
+</SpecParSection>
 
 </DDDefinition>

@@ -1,5 +1,34 @@
 import ROOT
 
+class SubDet:
+    BPix = 1
+    FPix = 2
+    TIB = 3
+    TID = 4
+    TOB = 5
+    TEC = 6
+
+    _toString = {
+        BPix: "BPix",
+        FPix: "FPix",
+        TIB:  "TIB",
+        TID:  "TID",
+        TOB:  "TOB",
+        TEC:  "TEC",
+    }
+
+    @staticmethod
+    def toString(det):
+        return SubDet._toString[det]
+
+# to be kept is synch with enum HitSimType in TrackingNtuple.py
+class HitSimType:
+    Signal = 0
+    ITPileup = 1
+    OOTPileup = 2
+    Noise = 3
+    Unknown = 99
+
 class _Collection(object):
     """Adaptor class representing a collection of objects.
 
@@ -121,10 +150,10 @@ class _HitObject(_Object):
             yield Seed(self._tree, iseed)
 
 
-class _HitAdaptor(object):
+class _RecoHitAdaptor(object):
     """Adaptor class for objects containing hits (e.g. tracks)"""
     def __init__(self):
-        super(_HitAdaptor, self).__init__()
+        super(_RecoHitAdaptor, self).__init__()
 
     def _hits(self):
         """Internal method to generate pairs of hit index and type."""
@@ -145,6 +174,8 @@ class _HitAdaptor(object):
                 yield StripHit(self._tree, ihit)
             elif hitType == 2:
                 yield GluedHit(self._tree, ihit)
+            elif hitType == 3:
+                yield InvalidHit(self._tree, ihit)
             else:
                 raise Exception("Unknown hit type %d" % hitType)
 
@@ -171,6 +202,40 @@ class _HitAdaptor(object):
             if hitType != 2:
                 continue
             yield GluedHit(self._tree, ihit)
+
+    def invalidHits(self):
+        """Returns generator for invalid hits."""
+        self._checkIsValid()
+        for ihit, hitType in self._hits():
+            if hitType != 3:
+                continue
+            yield InvalidHit(self._tree, ihit)
+
+class _SimHitAdaptor(object):
+    """Adaptor class for objects containing or matched to SimHits (e.g. TrackingParticles, reco hits)."""
+    def __init__(self):
+        super(_SimHitAdaptor, self).__init__()
+
+    def nSimHits(self):
+        self._checkIsValid()
+        return self.simHitIdx().size()
+
+    def simHits(self):
+        """Returns generator for SimHits."""
+        self._checkIsValid()
+        for ihit in self.simHitIdx():
+            yield SimHit(self._tree, ihit)
+
+class _LayerStrAdaptor(object):
+    """Adaptor class for layerStr() method."""
+    def __init__(self):
+        super(_LayerStrAdaptor, self).__init__()
+
+    def layerStr(self):
+        """Returns a string describing the layer of the hit."""
+        self._checkIsValid()
+        return "%s%d" % (SubDet.toString(getattr(self._tree, self._prefix+"_det")[self._index]),
+                         getattr(self._tree, self._prefix+"_lay")[self._index])
 
 class _TrackingParticleMatchAdaptor(object):
     """Adaptor class for objects matched to TrackingParticles."""
@@ -354,6 +419,10 @@ class TrackingParticleMatchInfo(_Object):
         super(TrackingParticleMatchInfo, self).__init__(tree, index, prefix)
         self._tpindex = tpindex
 
+    def __getattr__(self, attr):
+        """Custom __getattr__ because of the second index needed to access the branch."""
+        return lambda: super(TrackingParticleMatchInfo, self).__getattr__(attr)()[self._tpindex]
+
     def trackingParticle(self):
         """Returns matched TrackingParticle."""
         self._checkIsValid()
@@ -383,7 +452,7 @@ class TrackMatchInfo(_Object):
         return Track(self._tree, getattr(self._tree, self._prefix+"_trkIdx")[self._index][self._trkindex])
 
 ##########
-class Track(_Object, _HitAdaptor, _TrackingParticleMatchAdaptor):
+class Track(_Object, _RecoHitAdaptor, _TrackingParticleMatchAdaptor):
     """Class presenting a track."""
     def __init__(self, tree, index):
         """Constructor.
@@ -399,6 +468,11 @@ class Track(_Object, _HitAdaptor, _TrackingParticleMatchAdaptor):
         self._checkIsValid()
         return Seed(self._tree, self._tree.trk_seedIdx[self._index])
 
+    def vertex(self):
+        """Returns Vertex that used this track in its fit."""
+        self._checkIsValid()
+        return Vertex(self._tree, self._tree.trk_vtxIdx[self._index])
+
 class Tracks(_Collection):
     """Class presenting a collection of tracks."""
     def __init__(self, tree):
@@ -410,7 +484,7 @@ class Tracks(_Collection):
         super(Tracks, self).__init__(tree, "trk_pt", Track)
 
 ##########
-class PixelHit(_HitObject, _TrackingParticleMatchAdaptor):
+class PixelHit(_HitObject, _LayerStrAdaptor, _SimHitAdaptor):
     """Class representing a pixel hit."""
     def __init__(self, tree, index):
         """Constructor.
@@ -421,15 +495,8 @@ class PixelHit(_HitObject, _TrackingParticleMatchAdaptor):
         """
         super(PixelHit, self).__init__(tree, index, "pix")
 
-    def layerStr(self):
-        """Returns a string describing the layer of the hit."""
-        if not self.isValid():
-            return "Invalid"
-        if self._tree.pix_isBarrel[self._index]:
-            subdet = "BPix"
-        else:
-            subdet = "FPix"
-        return "%s%d" % (subdet, self._tree.pix_lay[self._index])
+    def isValidHit(self):
+        return True
 
 class PixelHits(_Collection):
     """Class presenting a collection of pixel hits."""
@@ -442,7 +509,7 @@ class PixelHits(_Collection):
         super(PixelHits, self).__init__(tree, "pix_isBarrel", PixelHit)
 
 ##########
-class StripHit(_HitObject, _TrackingParticleMatchAdaptor):
+class StripHit(_HitObject, _LayerStrAdaptor, _SimHitAdaptor):
     """Class representing a strip hit."""
     def __init__(self, tree, index):
         """Constructor.
@@ -453,12 +520,8 @@ class StripHit(_HitObject, _TrackingParticleMatchAdaptor):
         """
         super(StripHit, self).__init__(tree, index, "str")
 
-    def layerStr(self):
-        """Returns a string describing the layer of the hit."""
-        if not self.isValid():
-            return "Invalid"
-        return "%s%d" % ({3: "TIB", 4: "TID", 5: "TOB", 6: "TEC"}[self._tree.str_det[self._index]],
-                         self._tree.str_lay[self._index])
+    def isValidHit(self):
+        return True
 
 class StripHits(_Collection):
     """Class presenting a collection of strip hits."""
@@ -481,6 +544,9 @@ class GluedHit(_Object):
         index -- Index of the hit
         """
         super(GluedHit, self).__init__(tree, index, "glu")
+
+    def isValidHit(self):
+        return True
 
     def monoHit(self):
         """Returns a StripHit for the mono hit."""
@@ -517,6 +583,43 @@ class GluedHits(_Collection):
         super(GluedHits, self).__init__(tree, "glu_isBarrel", GluedHit)
 
 ##########
+class InvalidHit(_Object):
+    # repeating TrackingRecHit::Type
+    class Type:
+        missing = 1
+        inactive = 2
+        bad = 3
+        missing_inner = 4
+        missing_outer = 5
+
+        _toString = {
+            missing: "missing",
+            inactive: "inactive",
+            bad: "bad",
+            missing_inner: "missing_inner",
+            missing_outer: "missing_outer",
+        }
+
+    """Class representing an invalid hit."""
+    def __init__(self, tree, index):
+        """Constructor.
+
+        Arguments:
+        tree  -- TTree object
+        index -- Index of the hit
+        """
+        super(InvalidHit, self).__init__(tree, index, "inv")
+
+    def isValidHit(self):
+        return False
+
+    def layerStr(self):
+        """Returns a string describing the layer of the hit."""
+        det = self._tree.inv_det[self._index]
+        invalid_type = self._tree.inv_type[self._index]
+        return "%s%d (%s)" % (SubDet.toString(det), self._tree.inv_lay[self._index], InvalidHit.Type._toString[invalid_type])
+
+##########
 def _seedOffsetForAlgo(tree, algo):
     """Internal function for returning a pair of indices for the beginning of seeds of a given 'algo', and the one-beyond-last index of the seeds."""
     for ioffset, offset in enumerate(tree.see_offset):
@@ -525,7 +628,7 @@ def _seedOffsetForAlgo(tree, algo):
             return (offset, next_offset)
     return (-1, -1)
 
-class Seed(_Object, _HitAdaptor, _TrackingParticleMatchAdaptor):
+class Seed(_Object, _RecoHitAdaptor, _TrackingParticleMatchAdaptor):
     """Class presenting a seed."""
     def __init__(self, tree, index):
         """Constructor.
@@ -547,6 +650,11 @@ class Seed(_Object, _HitAdaptor, _TrackingParticleMatchAdaptor):
         if offset == -1: # algo not found
             return -1
         return self._index - offset
+
+    def track(self):
+        """Returns Track that was made from this seed."""
+        self._checkIsValid()
+        return Track(self._tree, self._tree.see_trkIdx[self._index])
 
 class Seeds(_Collection):
     """Class presenting a collection of seeds."""
@@ -573,7 +681,27 @@ class Seeds(_Collection):
             yield Seed(self._tree, isee)
 
 ##########
-class TrackingParticle(_Object, _HitAdaptor):
+class SimHit(_Object, _LayerStrAdaptor, _RecoHitAdaptor):
+    """Class representing a SimHit which has not induced a RecHit."""
+    def __init__(self, tree, index):
+        """Constructor.
+
+        Arguments:
+        tree  -- TTree object
+        index -- Index of the SimHit
+        """
+        super(SimHit, self).__init__(tree, index, "simhit")
+
+    def nRecHits(self):
+        self._checkIsValid()
+        return self._tree.simhit_hitIdx[self._index].size()
+
+    def trackingParticle(self):
+        self._checkIsValid()
+        return TrackingParticle(self._tree, getattr(self._tree, self._prefix+"_simTrkIdx")[self._index])
+
+##########
+class TrackingParticle(_Object, _SimHitAdaptor):
     """Class representing a TrackingParticle."""
     def __init__(self, tree, index):
         """Constructor.
