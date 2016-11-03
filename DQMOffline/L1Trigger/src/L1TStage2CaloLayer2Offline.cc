@@ -218,9 +218,9 @@ void L1TStage2CaloLayer2Offline::fillEnergySums(edm::Event const& e, const unsig
     h_efficiencyHTT_pass_->Fill(recoHTT);
   }
 
-  if (l1ETT > 50){ // TODO: add 30, 50, 90, 140
+  if (l1ETT > 50) { // TODO: add 30, 50, 90, 140
     // TODO: check cut
-    h_efficiencyETT_pass_->fill(recoETT);
+    h_efficiencyETT_pass_->Fill(recoETT);
   }
 
 }
@@ -422,12 +422,15 @@ void L1TStage2CaloLayer2Offline::bookEnergySumHistos(DQMStore::IBooker & ibooker
       "MET #phi resolution; (L1 MHT #phi - reco MHT #phi)/reco MHT #phi; events", 120, -0.3, 0.3);
 
   // energy sum turn ons
+  // TODO: add 0, 40, 70, 100, 160, 260
+  Float_t metBins[] = { 0, 40, 70, 100, 160, 260 };
+  h_efficiencyMET_pass_ = ibooker.book1D("efficiencyMET_Num", "MET efficiency; calo MET; events", 5, metBins);
   h_efficiencyMET_pass_ = ibooker.book1D("efficiencyMET_Num", "MET efficiency; calo MET; events", 50, -0.5, 499.5);
   h_efficiencyMHT_pass_ = ibooker.book1D("efficiencyMHT_Num", "MHT efficiency; reco MHT; events", 50, -0.5, 499.5);
   h_efficiencyETT_pass_ = ibooker.book1D("efficiencyETT_Num", "ETT efficiency; calo ETT; events", 50, -0.5, 499.5);
   h_efficiencyHTT_pass_ = ibooker.book1D("efficiencyHTT_Num", "HTT efficiency; reco HTT; events", 50, -0.5, 499.5);
 
-  h_efficiencyMET_total_ = ibooker.book1D("efficiencyMET_Den", "MET efficiency; calo MET; events", 50, -0.5, 499.5);
+  h_efficiencyMET_total_ = ibooker.book1D("efficiencyMET_Den", "MET efficiency; calo MET; events", 5, metBins);
   h_efficiencyMHT_total_ = ibooker.book1D("efficiencyMHT_Den", "MHT efficiency; reco MHT; events", 50, -0.5, 499.5);
   h_efficiencyETT_total_ = ibooker.book1D("efficiencyETT_Den", "ETT efficiency; calo ETT; events", 50, -0.5, 499.5);
   h_efficiencyHTT_total_ = ibooker.book1D("efficiencyHTT_Den", "HTT efficiency; reco HTT; events", 50, -0.5, 499.5);

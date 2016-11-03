@@ -26,19 +26,37 @@ process.load('DQMServices.Examples.test.DQMExample_qTester_cfi')
 process.load('DQMOffline.L1Trigger.L1TEfficiencyHarvesting_cfi')
 process.l1tEfficiencyHarvesting.plotCfgs = cms.untracked.VPSet(
     cms.untracked.PSet(
-        dqmBaseDir=cms.untracked.string("L1T/L1TStage2CaloLayer2"),
+        numeratorDir=cms.untracked.string("L1T/L1TStage2CaloLayer2"),
+        numeratorSuffix=cms.untracked.string("_Num"),
+        denominatorSuffix=cms.untracked.string("_Den"),
         plots=cms.untracked.vstring(
-            "efficiencyJet_HB_", "efficiencyJet_HE_", "efficiencyJet_HF_",
-            "efficiencyJet_HB_HE_", "efficiencyMET_", "efficiencyMHT_",
-            "efficiencyETT_", "efficiencyHTT_"
+            "efficiencyJetEt_HB", "efficiencyJetEt_HE", "efficiencyJetEt_HF",
+            "efficiencyJetEt_HB_HE", "efficiencyMET", "efficiencyMHT",
+            "efficiencyETT", "efficiencyHTT"
         )
     ),
     cms.untracked.PSet(
-        dqmBaseDir=cms.untracked.string("L1TEMU/L1TStage2CaloLayer2"),
+        numeratorDir=cms.untracked.string("L1TEMU/L1TStage2CaloLayer2"),
+        numeratorSuffix=cms.untracked.string("_Num"),
+        denominatorSuffix=cms.untracked.string("_Den"),
         plots=cms.untracked.vstring(
-            "efficiencyJet_HB_", "efficiencyJet_HE_", "efficiencyJet_HF_",
-            "efficiencyJet_HB_HE_", "efficiencyMET_", "efficiencyMHT_",
-            "efficiencyETT_", "efficiencyHTT_"
+            "efficiencyJetEt_HB", "efficiencyJetEt_HE", "efficiencyJetEt_HF",
+            "efficiencyJetEt_HB_HE", "efficiencyMET", "efficiencyMHT",
+            "efficiencyETT", "efficiencyHTT"
+        )
+    ),
+    cms.untracked.PSet(
+        numeratorDir=cms.untracked.string("L1T/L1TStage2CaloLayer2"),
+        denominatorDir=cms.untracked.string("L1TEMU/L1TStage2CaloLayer2"),
+        outputDir=cms.untracked.string("L1TEMU/L1TStage2CaloLayer2/Comparison"),
+        numeratorSuffix=cms.untracked.string(""),
+        denominatorSuffix=cms.untracked.string(""),
+        plots=cms.untracked.vstring(
+            "resolutionJetET_HB", "resolutionJetET_HE", "resolutionJetET_HF",
+            "resolutionJetET_HB_HE", "resolutionJetPhi_HB", "resolutionJetPhi_HE",
+            "resolutionJetPhi_HF", "resolutionJetPhi_HB_HE", "resolutionJetEta",
+            "resolutionMET", "resolutionMHT", "resolutionETT", "resolutionHTT",
+            "resolutionMETPhi", "resolutionMHTPhi",
         )
     )
 )
