@@ -63,20 +63,14 @@ process.load("Alignment.CommonAlignmentProducer.AlignmentProducer_cff")
 process.AlignmentProducer.doMisalignmentScenario=True
 process.AlignmentProducer.applyDbAlignment=True
 process.AlignmentProducer.checkDbAlignmentValidity=False #otherwise error thrown for IOV dependent GTs
-from Alignment.APEEstimation.MisalignmentScenarios_cff import *
+import Alignment.TrackerAlignment.Scenarios_cff as scenarios
 
-isMatched = False
-print "Using scenario :",options.myScenario
-print "    with sigma :",options.mySigma
-
-for objname,oid in globals().items():
-    #print objname
-    if (str(objname) == str(options.myScenario)):
-        isMatched = True
-        print "Using scenario:",objname
-        process.AlignmentProducer.MisalignmentScenario = oid
-
-if isMatched is not True:
+if hasattr(scenarios, options.myScenario):
+    print "Using scenario:", options.myScenario
+    print "    with sigma:", options.mySigma
+    print
+    process.AlignmentProducer.MisalignmentScenario = getattr(scenarios, options.myScenario)
+else:
     print "----- Begin Fatal Exception -----------------------------------------------"
     print "Unrecognized",options.myScenario,"misalignment scenario !!!!"
     print "Aborting cmsRun now, please check your input"
