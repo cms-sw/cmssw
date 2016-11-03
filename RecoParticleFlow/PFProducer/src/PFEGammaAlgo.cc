@@ -2025,7 +2025,8 @@ fillPFCandidates(const pfEGHelpers::HeavyObjectCache* hoc,
 
     // forward the time from the seed cluster
     if (!RO.ecalclusters.empty()) {
-        cand.setTime( RO.ecalclusters.front().first->clusterRef()->time() );
+        auto const & seedPFClust = *RO.ecalclusters.front().first->clusterRef();
+        cand.setTime( seedPFClust.time(), seedPFClust.timeError() );
     }
     
     const reco::SuperCluster& the_sc = refinedscs_.back();
