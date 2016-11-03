@@ -4,8 +4,7 @@
 #include "PixelBarrelLayerBuilder.h"
 #include "Phase2OTBarrelLayerBuilder.h"
 #include "PixelForwardLayerBuilder.h"
-#include "Phase2OTEndcapLayerBuilder.h"
-#include "Phase2PixelEndcapLayerBuilder.h"
+#include "Phase2EndcapLayerBuilder.h"
 #include "TIBLayerBuilder.h"
 #include "TOBLayerBuilder.h"
 #include "TIDLayerBuilder.h"
@@ -32,8 +31,7 @@ GeometricSearchTrackerBuilder::build(const GeometricDet* theGeometricTracker,
   Phase2OTBarrelLayerBuilder aPhase2OTBarrelLayerBuilder;
   PixelForwardLayerBuilder<PixelBlade,PixelForwardLayer> aPixelForwardLayerBuilder;
   PixelForwardLayerBuilder<Phase1PixelBlade,PixelForwardLayerPhase1> aPhase1PixelForwardLayerBuilder;
-  Phase2OTEndcapLayerBuilder aPhase2OTEndcapLayerBuilder;
-  Phase2PixelEndcapLayerBuilder aPhase2PxEndcapLayerBuilder;
+  Phase2EndcapLayerBuilder aPhase2EndcapLayerBuilder;
   TIBLayerBuilder aTIBLayerBuilder;
   TOBLayerBuilder aTOBLayerBuilder;
   TIDLayerBuilder aTIDLayerBuilder;
@@ -178,9 +176,9 @@ GeometricSearchTrackerBuilder::build(const GeometricDet* theGeometricTracker,
       for(vector<const GeometricDet*>::const_iterator it2=thePxlFwdGeometricDetLayers.begin();
 	  it2!=thePxlFwdGeometricDetLayers.end(); it2++){
 	if((*it2)->positionBounds().z() < 0)
-	  theNegPxlFwdLayers.push_back( aPhase2PxEndcapLayerBuilder.build(*it2,theGeomDetGeometry) );
+	  theNegPxlFwdLayers.push_back( aPhase2EndcapLayerBuilder.build(*it2,theGeomDetGeometry,false) );
 	if((*it2)->positionBounds().z() > 0)
-	  thePosPxlFwdLayers.push_back( aPhase2PxEndcapLayerBuilder.build(*it2,theGeomDetGeometry) );
+	  thePosPxlFwdLayers.push_back( aPhase2EndcapLayerBuilder.build(*it2,theGeomDetGeometry,false) );
       }
     }
 
@@ -200,9 +198,9 @@ GeometricSearchTrackerBuilder::build(const GeometricDet* theGeometricTracker,
       for(vector<const GeometricDet*>::const_iterator it2=theTIDGeometricDetLayers.begin();
 	  it2!=theTIDGeometricDetLayers.end(); it2++){
 	if((*it2)->positionBounds().z() < 0)
-	  theNegTIDLayers.push_back( aPhase2OTEndcapLayerBuilder.build(*it2,theGeomDetGeometry) );
+	  theNegTIDLayers.push_back( aPhase2EndcapLayerBuilder.build(*it2,theGeomDetGeometry,true) );
 	if((*it2)->positionBounds().z() > 0)
-	  thePosTIDLayers.push_back( aPhase2OTEndcapLayerBuilder.build(*it2,theGeomDetGeometry) );
+	  thePosTIDLayers.push_back( aPhase2EndcapLayerBuilder.build(*it2,theGeomDetGeometry,true) );
       }
     }
 

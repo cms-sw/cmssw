@@ -1,4 +1,4 @@
-#include "Phase2OTEndcapLayer.h"
+#include "Phase2EndcapLayer.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -19,7 +19,7 @@ using namespace std;
 typedef GeometricSearchDet::DetWithState DetWithState;
 
 //hopefully is never called!
-const std::vector<const GeometricSearchDet*>& Phase2OTEndcapLayer::components() const{
+const std::vector<const GeometricSearchDet*>& Phase2EndcapLayer::components() const{
   if (not theComponents) {
     auto temp = std::make_unique<std::vector<const GeometricSearchDet*>>();
     temp->reserve(15);   // This number is just an upper bound
@@ -35,7 +35,7 @@ const std::vector<const GeometricSearchDet*>& Phase2OTEndcapLayer::components() 
 
 
 void
-Phase2OTEndcapLayer::fillRingPars(int i) {
+Phase2EndcapLayer::fillRingPars(int i) {
   const BoundDisk& ringDisk = static_cast<const BoundDisk&>(theComps[i]->surface());
   float ringMinZ = std::abs( ringDisk.position().z()) - ringDisk.bounds().thickness()/2.;
   float ringMaxZ = std::abs( ringDisk.position().z()) + ringDisk.bounds().thickness()/2.; 
@@ -48,8 +48,9 @@ Phase2OTEndcapLayer::fillRingPars(int i) {
 }
 
 
-Phase2OTEndcapLayer::Phase2OTEndcapLayer(vector<const Phase2OTEndcapRing*>& rings):
+Phase2EndcapLayer::Phase2EndcapLayer(vector<const Phase2EndcapRing*>& rings, const bool isOT):
   RingedForwardLayer(true),
+  isOuterTracker(isOT),
   theComponents{nullptr}
 {
   //They should be already R-ordered. TO BE CHECKED!!
@@ -68,7 +69,7 @@ Phase2OTEndcapLayer::Phase2OTEndcapLayer(vector<const Phase2OTEndcapRing*>& ring
   }
 
  
-  LogDebug("TkDetLayers") << "==== DEBUG Phase2OTEndcapLayer =====" ; 
+  LogDebug("TkDetLayers") << "==== DEBUG Phase2EndcapLayer =====" ; 
   LogDebug("TkDetLayers") << "r,zed pos  , thickness, innerR, outerR: " 
 			  << this->position().perp() << " , "
 			  << this->position().z() << " , "
@@ -79,7 +80,7 @@ Phase2OTEndcapLayer::Phase2OTEndcapLayer(vector<const Phase2OTEndcapRing*>& ring
 
 
 BoundDisk* 
-Phase2OTEndcapLayer::computeDisk( const vector<const Phase2OTEndcapRing*>& rings) const
+Phase2EndcapLayer::computeDisk( const vector<const Phase2EndcapRing*>& rings) const
 {
   float theRmin = rings.front()->specificSurface().innerRadius();
   float theRmax = rings.front()->specificSurface().outerRadius();
@@ -88,7 +89,7 @@ Phase2OTEndcapLayer::computeDisk( const vector<const Phase2OTEndcapRing*>& rings
   float theZmax = rings.front()->position().z() +
     rings.front()->surface().bounds().thickness()/2;
   
-  for (vector<const Phase2OTEndcapRing*>::const_iterator i = rings.begin(); i != rings.end(); i++) {
+  for (vector<const Phase2EndcapRing*>::const_iterator i = rings.begin(); i != rings.end(); i++) {
     float rmin = (**i).specificSurface().innerRadius();
     float rmax = (**i).specificSurface().outerRadius();
     float zmin = (**i).position().z() - (**i).surface().bounds().thickness()/2.;
@@ -109,7 +110,7 @@ Phase2OTEndcapLayer::computeDisk( const vector<const Phase2OTEndcapRing*>& rings
 }
 
 
-Phase2OTEndcapLayer::~Phase2OTEndcapLayer(){
+Phase2EndcapLayer::~Phase2EndcapLayer(){
   for (auto c : theComps) delete c;
 
   delete theComponents.load();
@@ -118,7 +119,7 @@ Phase2OTEndcapLayer::~Phase2OTEndcapLayer(){
   
 
 void
-Phase2OTEndcapLayer::groupedCompatibleDetsV( const TrajectoryStateOnSurface& startingState,
+Phase2EndcapLayer::groupedCompatibleDetsV( const TrajectoryStateOnSurface& startingState,
 				 const Propagator& prop,
 				 const MeasurementEstimator& est,
 				 std::vector<DetGroup> & result) const
@@ -253,7 +254,7 @@ Phase2OTEndcapLayer::groupedCompatibleDetsV( const TrajectoryStateOnSurface& sta
 
 
 std::array<int,3> 
-Phase2OTEndcapLayer::ringIndicesByCrossingProximity(const TrajectoryStateOnSurface& startingState,
+Phase2EndcapLayer::ringIndicesByCrossingProximity(const TrajectoryStateOnSurface& startingState,
 					 const Propagator& prop ) const
 {
   typedef HelixForwardPlaneCrossing Crossing; 
@@ -298,7 +299,7 @@ Phase2OTEndcapLayer::ringIndicesByCrossingProximity(const TrajectoryStateOnSurfa
 
 
 float 
-Phase2OTEndcapLayer::computeWindowSize( const GeomDet* det, 
+Phase2EndcapLayer::computeWindowSize( const GeomDet* det, 
 			     const TrajectoryStateOnSurface& tsos, 
 			     const MeasurementEstimator& est) const
 {
@@ -309,7 +310,7 @@ Phase2OTEndcapLayer::computeWindowSize( const GeomDet* det,
 }
 
 std::array<int,3>
-Phase2OTEndcapLayer::findThreeClosest(std::vector<GlobalPoint> ringCrossing ) const
+Phase2EndcapLayer::findThreeClosest(std::vector<GlobalPoint> ringCrossing ) const
 {
   std::array<int,3> theBins={{-1,-1,-1}};
   theBins[0] = 0;
@@ -346,7 +347,7 @@ Phase2OTEndcapLayer::findThreeClosest(std::vector<GlobalPoint> ringCrossing ) co
 }
 
 bool
-Phase2OTEndcapLayer::overlapInR( const TrajectoryStateOnSurface& tsos, int index, double ymax ) const 
+Phase2EndcapLayer::overlapInR( const TrajectoryStateOnSurface& tsos, int index, double ymax ) const 
 {
   // assume "fixed theta window", i.e. margin in local y = r is changing linearly with z
   float tsRadius = tsos.globalPosition().perp();

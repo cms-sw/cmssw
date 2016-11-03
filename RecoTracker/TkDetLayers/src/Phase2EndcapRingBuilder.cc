@@ -1,16 +1,15 @@
-#include "Phase2OTEndcapRingBuilder.h"
+#include "Phase2EndcapRingBuilder.h"
 
 using namespace edm;
 using namespace std;
 
-Phase2OTEndcapRing* Phase2OTEndcapRingBuilder::build(const GeometricDet* aPhase2OTEndcapRing,
+Phase2EndcapRing* Phase2EndcapRingBuilder::build(const GeometricDet* aPhase2EndcapRing,
 			 			     const TrackerGeometry* theGeomDetGeometry,
 			 			     const bool useBrothers)
 {
-  vector<const GeometricDet*>  allGeometricDets = aPhase2OTEndcapRing->components();
+  vector<const GeometricDet*>  allGeometricDets = aPhase2EndcapRing->components();
   vector<const GeometricDet*>  compGeometricDets;
-  LogDebug("TkDetLayers") << "Phase2OTEndcapRingBuilder with #Modules: " << allGeometricDets.size() << std::endl;
-  LogDebug("TkDetLayers") << "                            useBrothers: " << useBrothers << std::endl;
+  LogDebug("TkDetLayers") << "Phase2EndcapRingBuilder with #Modules: " << allGeometricDets.size() << std::endl;
 
   vector<const GeomDet*> frontGeomDets;
   vector<const GeomDet*> backGeomDets;
@@ -29,7 +28,6 @@ Phase2OTEndcapRing* Phase2OTEndcapRingBuilder::build(const GeometricDet* aPhase2
     for(vector<const GeometricDet*>::const_iterator compGeometricDets=allGeometricDets.begin();
         compGeometricDets!=allGeometricDets.end();compGeometricDets++){
       const GeomDet* theGeomDet = theGeomDetGeometry->idToDet( (*compGeometricDets)->geographicalID() );
-      LogTrace("TkDetLayers") << " inserisco " << (*compGeometricDets)->geographicalID().rawId() << std::endl;
   
       if( fabs( (*compGeometricDets)->positionBounds().z() ) < fabs(meanZ))
         frontGeomDets.push_back(theGeomDet);
@@ -42,7 +40,7 @@ Phase2OTEndcapRing* Phase2OTEndcapRingBuilder::build(const GeometricDet* aPhase2
     LogDebug("TkDetLayers") << "frontGeomDets.size(): " << frontGeomDets.size() ;
     LogDebug("TkDetLayers") << "backGeomDets.size(): " << backGeomDets.size() ;
   
-    return new Phase2OTEndcapRing(frontGeomDets,backGeomDets);
+    return new Phase2EndcapRing(frontGeomDets,backGeomDets);
 
   } else {
 
@@ -74,7 +72,6 @@ Phase2OTEndcapRing* Phase2OTEndcapRingBuilder::build(const GeometricDet* aPhase2
         it!=allGeometricDets.end();it++){
       compGeometricDets = (*it)->components(); 
       const GeomDet* theGeomDet = theGeomDetGeometry->idToDet( compGeometricDets[0]->geographicalID() );
-      LogTrace("TkDetLayers") << " inserisco " << compGeometricDets[0]->geographicalID().rawId() << std::endl;
   
       if( fabs( compGeometricDets[0]->positionBounds().z() ) < fabs(meanZ))
         frontGeomDets.push_back(theGeomDet);
@@ -83,7 +80,6 @@ Phase2OTEndcapRing* Phase2OTEndcapRingBuilder::build(const GeometricDet* aPhase2
         backGeomDets.push_back(theGeomDet);      
   
       const GeomDet* theGeomDetBrother = theGeomDetGeometry->idToDet( compGeometricDets[1]->geographicalID() );
-      LogTrace("TkDetLayers") << " inserisco " << compGeometricDets[1]->geographicalID().rawId() << std::endl;
   
       if( fabs( compGeometricDets[1]->positionBounds().z() ) < fabs(meanZBrothers))
         frontGeomDetBrothers.push_back(theGeomDetBrother);
@@ -97,8 +93,8 @@ Phase2OTEndcapRing* Phase2OTEndcapRingBuilder::build(const GeometricDet* aPhase2
     LogDebug("TkDetLayers") << "frontGeomDetsBro.size(): " << frontGeomDetBrothers.size() ;
     LogDebug("TkDetLayers") << "backGeomDetsBro.size(): " << backGeomDetBrothers.size() ;
   
-    return new Phase2OTEndcapRing(frontGeomDets,backGeomDets,frontGeomDetBrothers,backGeomDetBrothers);
+    return new Phase2EndcapRing(frontGeomDets,backGeomDets,frontGeomDetBrothers,backGeomDetBrothers);
   }
-  return new Phase2OTEndcapRing(frontGeomDets,backGeomDets);
+  return new Phase2EndcapRing(frontGeomDets,backGeomDets);
 
 }
