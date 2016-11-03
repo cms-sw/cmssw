@@ -147,6 +147,7 @@ globalValidationHCAL = cms.Sequence(
     + hcaldigisValidationSequence
     + hcalSimHitStudy
     + hcalRecHitsValidationSequence
+    + calotowersValidationSequence
 )
 
 globalPrevalidationMuons = cms.Sequence(
