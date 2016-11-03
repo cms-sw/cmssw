@@ -1,7 +1,7 @@
 #ifndef DataFormat_Math_SIMDVec_H
 #define DataFormat_Math_SIMDVec_H
 
-#if ( defined(IN_DICTBUILD) || defined(__MIC__)) || (__BIGGEST_ALIGNMENT__<16)
+#if ( defined(__CLING__) || defined(__MIC__)) || (__BIGGEST_ALIGNMENT__<16)
 #elif defined(__GNUC__) || defined(__clang__) || defined(__INTEL_COMPILER)
 #  if defined(__x86_64__) && defined(__SSE__)
 #    define USE_SSEVECT
