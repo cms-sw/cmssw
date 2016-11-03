@@ -14,7 +14,7 @@ public:
   static const int kFastTimeCellPhiMask     = 0x3FF;
   static const int kFastTimeZsideMask       = 0x100000;
   static const int kFastTimeTypeOffset      = 21;
-  static const int kFastTimeTypeMask        = 0x600000;
+  static const int kFastTimeTypeMask        = 0x3;
   enum {Subdet=FastTime};
   enum {FastTimeUnknown=0, FastTimeBarrel=1, FastTimeEndcap=2};
   /** Create a null cellid*/
