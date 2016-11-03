@@ -1,5 +1,3 @@
-// use old stile (no sse vector buildin) class...
-#define IN_DICTBUILD
 #include "DataFormats/GeometryVector/interface/Basic3DVector.h"
 //
 

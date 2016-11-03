@@ -11,7 +11,7 @@
   \author Lindsey Gray
 */
 
-#if ( !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__) ) || defined(__ROOTCLING__)
+#if ( !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__) && !defined(__CLING__) )
 
 #define REGULAR_CPLUSPLUS 1
 #define CINT_GUARD(CODE) CODE
