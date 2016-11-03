@@ -44,8 +44,8 @@ phase1Pixel.toReplaceWith(dqmPhysics, dqmPhysics.copyAndExclude([ # FIXME
 ]))
 
 from Configuration.Eras.Modifier_pA_2016_cff import pA_2016
-dqmPhysicsPA  =  dqmPhysics.copy()
-dqmPhysicsPA += CentralitypADQM
+dqmPhysicspA  =  dqmPhysics.copy()
+dqmPhysicspA += CentralitypADQM
 pA_2016.toReplaceWith(dqmPhysics, dqmPhysicspA)
 
 bphysicsOniaDQMHI = bphysicsOniaDQM.clone(vertex=cms.InputTag("hiSelectedVertex"))
