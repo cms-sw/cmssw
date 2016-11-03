@@ -103,6 +103,16 @@ def _makeDistSimPlots(postfix, quantity, common={}):
         Plot("num_assoc(simToReco)_"+p, ytitle="Reconstructed TPs", **args),
     ]
 
+def _makeMVAPlots(num):
+    xtitle = "MVA%d output"%num
+    args = dict(xtitle=xtitle, ylog=True, ymin=_minMaxN, ymax=_minMaxN)
+
+    return PlotGroup("mva%d"%num, [
+        Plot("num_assoc(recoToSim)_mva%d"%num, ytitle="true tracks", **args),
+        Plot(Subtract("num_fake_mva%d"%num, "num_reco_mva%d"%num, "num_assoc(recoToSim)_mva%d"%num), ytitle="fake tracks", **args),
+        Plot("fakerate_vs_mva%d"%num, xtitle=xtitle, ytitle="fake rate", ymax=_maxFake)
+    ], ncols=3, legendDy=_legendDy_1row)
+
 _effandfake1 = PlotGroup("effandfake1", [
     Plot("efficPt", title="Efficiency vs p_{T}", xtitle="TP p_{T} (GeV)", ytitle="efficiency vs p_{T}", xlog=True, ymax=_maxEff),
     Plot(FakeDuplicate("fakeduprate_vs_pT", assoc="num_assoc(recoToSim)_pT", dup="num_duplicate_pT", reco="num_reco_pT", title="fake+duplicates vs p_{T}"),
@@ -916,6 +926,9 @@ _seedingBuildingPlots = _simBasedPlots + [
     _dupandfake4,
     _dupandfake5,
     _hitsAndPt,
+    _makeMVAPlots(1),
+    _makeMVAPlots(2),
+    _makeMVAPlots(3), # add more if needed
 ]
 _extendedPlots = [
     _extDist1,
