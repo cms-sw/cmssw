@@ -103,6 +103,8 @@ public:
   std::vector<int>         layerGroupO_;
   std::vector<double>      boundR_;
   std::vector<double>      rLimit_;
+  std::vector<int>         cellFine_;
+  std::vector<int>         cellCoarse_;
   double                   waferR_;
   int                      levelT_;
   int                      mode_;
