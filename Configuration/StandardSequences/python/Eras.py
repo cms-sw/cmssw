@@ -7,7 +7,8 @@ class Eras (object):
     can use to selectively configure depending on what scenario is active.
     """
     def __init__(self):
-        allEras=['Run2_50ns',
+        allEras=['Run1_pA',
+                 'Run2_50ns',
                  'Run2_50ns_HIPM',
                  'Run2_25ns',
                  'Run2_25ns_HIPM',
