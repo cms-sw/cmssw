@@ -11,7 +11,6 @@ siPixelClusters = cms.EDProducer("SiPixelClusterProducer",
     SplitClusters = cms.bool(False),
     VCaltoElectronGain = cms.int32(65),
     VCaltoElectronOffset = cms.int32(-414),  
-    ElectronPerADCGain = cms.double(135.),                        
     # **************************************
     # ****  payLoadType Options         ****
     # ****  HLT - column granularity    ****
@@ -29,5 +28,6 @@ siPixelClusters = cms.EDProducer("SiPixelClusterProducer",
 from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
 phase2_tracker.toModify(siPixelClusters, # FIXME
   src = cms.InputTag('simSiPixelDigis', "Pixel"),
-  MissCalibrate = False
+  MissCalibrate = False,
+  ElectronPerADCGain = cms.double(135.) # it can be changed to something else (e.g. 600e) if needed
 )
