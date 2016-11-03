@@ -281,6 +281,9 @@ void RawToDigiConverter::Run(const VFATFrameCollection &coll, const TotemDAQMapp
     {
       const VFATFrame *fr = record.frame;
       DiamondVFATFrame *diamondframe = (DiamondVFATFrame*) fr;
+      
+      // update Event Counter in status
+      record.status.setEC(record.frame->getEC() & 0xFF);
 	
       // create the digi
       DetSet<CTPPSDiamondDigi> &digiDetSet = digi.find_or_insert(detId);
