@@ -21,9 +21,9 @@ public:
   struct AccretionCluster {
     typedef unsigned short UShort;
     static constexpr UShort MAXSIZE = 256;
-    UShort adc[256];
-    UShort x[256];
-    UShort y[256];
+    UShort adc[MAXSIZE];
+    UShort x[MAXSIZE];
+    UShort y[MAXSIZE];
     UShort xmin=16000;
     UShort ymin=16000;
     unsigned int isize=0;
