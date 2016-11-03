@@ -1,5 +1,5 @@
 #include "Geometry/HGCalCommonData/interface/HGCalParameters.h"
-//#define DebugLog
+//#define EDM_ML_DEBUG
 
 HGCalParameters::HGCalParameters(const std::string& nam): name_(nam) { }
 
@@ -67,7 +67,7 @@ void HGCalParameters::fillTrForm(const HGCalParameters::hgtrform& mytr) {
   indx          |= ((mytr.lay & kMaskLayer) << kShiftLayer);
   indx          |= ((mytr.sec & kMaskSector) << kShiftSector);
   indx          |= ((mytr.subsec & kMaskSubSec) << kShiftSubSec);
-#ifdef DebugLog
+#ifdef EDM_ML_DEBUG
   std::cout << "ZP " << zp << ":" << kMaskZside << ":" << kShiftZside 
 	    << ((zp & kMaskZside) << kShiftZside) << " Lay " << mytr.lay 
 	    << ":" << kMaskLayer << ":" << kShiftLayer << ":" 
@@ -91,7 +91,7 @@ void HGCalParameters::fillTrForm(const HGCalParameters::hgtrform& mytr) {
   trformRotXZ_.push_back(mytr.hr.xz());
   trformRotYZ_.push_back(mytr.hr.yz());
   trformRotZZ_.push_back(mytr.hr.zz());
-#ifdef DebugLog
+#ifdef EDM_ML_DEBUG
   unsigned int k = trformIndex_.size() - 1;
   std::cout << "HGCalParameters[" << k << "] Index " << std::hex
 	    << trformIndex_[k] << std::dec << " (" << mytr.zp << ", "<< mytr.lay
@@ -122,7 +122,7 @@ HGCalParameters::hgtrform HGCalParameters::getTrForm(unsigned int k) const {
   } else {
     mytr.zp = mytr.lay = mytr.sec = mytr.subsec = 0;
   }
-#ifdef DebugLog
+#ifdef EDM_ML_DEBUG
   std::cout << "HGCalParameters[" << k << "] Index " << std::hex
 	    << trformIndex_[k] << std::dec << " (" << mytr.zp << ", "<< mytr.lay
 	    << ", " << mytr.sec << ", " << mytr.subsec << ") Translation ("
