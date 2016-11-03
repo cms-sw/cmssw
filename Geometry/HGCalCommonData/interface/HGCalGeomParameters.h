@@ -39,6 +39,7 @@ public:
 			   const DDCompactView*, const std::string&, 
 			   const std::string&);
   void loadWaferHexagon(HGCalParameters& php);
+  void loadCellParsHexagon(const DDCompactView* cpv, HGCalParameters& php);
 
 private:
 
