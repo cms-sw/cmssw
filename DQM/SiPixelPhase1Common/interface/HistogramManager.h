@@ -78,17 +78,14 @@ private:
     AbstractHistogram& dest);
  
   void loadFromDQMStore(SummationSpecification& s, Table& t, DQMStore::IGetter& iGetter);
-  void executeSave(SummationStep& step, Table& t, DQMStore::IBooker& iBooker);
-  void executeGroupBy(SummationStep& step, Table& t);
-  void executeReduce(SummationStep& step, Table& t);
-  void executeExtend(SummationStep& step, Table& t, bool isX);
+  void executeGroupBy(SummationStep& step, Table& t, DQMStore::IBooker& iBooker);
+  void executeExtend(SummationStep& step, Table& t, std::string const& reduction, DQMStore::IBooker& iBooker);
 
 public: // these are available in config as is, and may be used in harvesting.
   bool enabled;
   bool perLumiHarvesting;
   bool bookUndefined;
   std::string top_folder_name;
-  std::string default_grouping;
 
   std::string name;
   std::string title;
@@ -114,10 +111,6 @@ private:
   GeometryInterface::InterestingQuantities iq;
   // "immutable" cache
   std::vector<GeometryInterface::Values> significantvalues;
-  // copy that executeStep1Spec can freely clobber
-  GeometryInterface::Values significantvalues_scratch;
-  // temporary copy for executeStep1Spec, to avoid the alloc.
-  GeometryInterface::Values new_vals;
   // Direct links to the Histogram if the caching above succeeds.
   std::vector<AbstractHistogram*> fastpath;
 };
