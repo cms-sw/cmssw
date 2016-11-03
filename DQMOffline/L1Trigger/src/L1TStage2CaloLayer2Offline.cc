@@ -218,6 +218,11 @@ void L1TStage2CaloLayer2Offline::fillEnergySums(edm::Event const& e, const unsig
     h_efficiencyHTT_pass_->Fill(recoHTT);
   }
 
+  if (l1ETT > 50){ // TODO: add 30, 50, 90, 140
+    // TODO: check cut
+    h_efficiencyETT_pass_->fill(recoETT);
+  }
+
 }
 
 void L1TStage2CaloLayer2Offline::fillJets(edm::Event const& e, const unsigned int nVertex)
