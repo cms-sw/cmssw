@@ -128,7 +128,7 @@ void HcalSimpleAmplitudeZS::produce(edm::Event& e, const edm::EventSetup& eventS
     e.getByToken(tok_hfQIE10_,digi);
     
     // create empty output
-    std::unique_ptr<QIE10DigiCollection> zs(new QIE10DigiCollection);
+    std::unique_ptr<QIE10DigiCollection> zs(new QIE10DigiCollection(digi->samples()));
     // run the algorithm
     hfQIE10_->suppress(*(digi.product()),*zs);
 
@@ -144,7 +144,7 @@ void HcalSimpleAmplitudeZS::produce(edm::Event& e, const edm::EventSetup& eventS
     e.getByToken(tok_hbheQIE11_,digi);
     
     // create empty output
-    std::unique_ptr<QIE11DigiCollection> zs(new QIE11DigiCollection);
+    std::unique_ptr<QIE11DigiCollection> zs(new QIE11DigiCollection(digi->samples()));
     // run the algorithm
     hbheQIE11_->suppress(*(digi.product()),*zs);
 
