@@ -41,6 +41,7 @@ public:
 				     float alpha, float cellSize) const;
   HGCalGeometryMode   geomMode() const {return mode_;}
   bool                isValid(int lay, int mod, int cell, bool reco) const;
+  bool                isValidCell(int layindex, int wafer, int cell) const;
   unsigned int        layers(bool reco) const;
   unsigned int        layersInit(bool reco) const;
   std::pair<float,float> locateCell(int cell, int lay, int type, 
@@ -64,6 +65,7 @@ public:
   std::vector<int>    numberCellsSquare(float h, float bl, float tl, 
 					float alpha, float cellSize) const;
   int                 numberCellsHexagon(int wafer) const;
+  std::pair<int,int>  rowColumnWafer(const int wafer) const;
   int                 sectors() const {return hgpar_->nSectors_;}
   std::pair<int,int>  simToReco(int cell, int layer, int mod, bool half) const;
   unsigned int        volumes() const {return hgpar_->moduleLayR_.size();}

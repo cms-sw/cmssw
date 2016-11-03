@@ -1,5 +1,5 @@
 <library   name="L1TriggerL1THGCalPlugins" file="*.cc">
-  <use   name="Geometry/FCalGeometry"/>
+  <use   name="Geometry/HGCalGeometry"/>
   <use   name="Geometry/CaloTopology"/>
   <use   name="L1Trigger/L1THGCal"/>
   <use   name="Geometry/Records"/>
@@ -7,14 +7,14 @@
 </library>
 
 <library   name="L1TriggerL1THGCalPlugins_geometries" file="geometries/*.cc">
-  <use   name="Geometry/FCalGeometry"/>
+  <use   name="Geometry/HGCalGeometry"/>
   <use   name="Geometry/CaloTopology"/>
   <use   name="L1Trigger/L1THGCal"/>  
   <flags   EDM_PLUGIN="1"/>
 </library>
 
 <library   name="L1TriggerL1THGCalPlugins_fe_be" file="fe_codecs/*.cc,be_algorithms/*.cc">
-  <use   name="Geometry/FCalGeometry"/>
+  <use   name="Geometry/HGCalGeometry"/>
   <use   name="Geometry/CaloTopology"/>
   <use   name="rootcore"/>
   <use   name="L1Trigger/L1THGCal"/>

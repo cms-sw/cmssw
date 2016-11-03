@@ -30,7 +30,7 @@
 #include "Geometry/HGCalCommonData/interface/HGCalDDDConstants.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 
-//#define DebugLog
+//#define EDM_ML_DEBUG
 
 class HGCalNumberingInitialization : public edm::ESProducer {
 
@@ -51,7 +51,7 @@ HGCalNumberingInitialization::HGCalNumberingInitialization(const edm::ParameterS
 
   name_ = iConfig.getUntrackedParameter<std::string>("Name");
   edm::LogInfo("HGCalGeom") << "HGCalNumberingInitialization for " << name_;
-#ifdef DebugLog
+#ifdef EDM_ML_DEBUG
   std::cout << "HGCalNumberingInitialization for " << name_ << std::endl;
 #endif
   setWhatProduced(this, name_);
