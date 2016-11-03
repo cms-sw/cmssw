@@ -113,7 +113,7 @@ if sigma > 0:
     scenariolabel = scenariolabel+str(sigma)
 outputfilename = "geometry_"+str(scenariolabel)+"__from_"
 if options.inputDB is None:
-    outputfilename += process.GlobalTag.globaltag.value().replace("::All","")+".db"
+    outputfilename += process.GlobalTag.globaltag.value()+".db"
 else:
     outputfilename += options.inputDB
 
