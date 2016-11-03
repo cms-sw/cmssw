@@ -40,14 +40,16 @@
 
 class L1TEfficiencyPlotHandler {
 
- public:
+public:
 
- L1TEfficiencyPlotHandler(std::string dir, std::string plotName)  : 
-  m_dir(dir), m_plotName(plotName), m_effHisto(0) { };
+  L1TEfficiencyPlotHandler(const edm::ParameterSet & ps, std::string plotName);
 
   L1TEfficiencyPlotHandler(const L1TEfficiencyPlotHandler &handler);
 
-  ~L1TEfficiencyPlotHandler() { };
+  ~L1TEfficiencyPlotHandler()
+  {
+  }
+  ;
 
   // book efficiency histo
   void book(DQMStore::IBooker &ibooker, DQMStore::IGetter &igetter);
@@ -55,40 +57,46 @@ class L1TEfficiencyPlotHandler {
   // compute efficiency
   void computeEfficiency(DQMStore::IBooker &ibooker, DQMStore::IGetter &igetter);
 
- private :
+private:
 
   std::string numeratorDir_;
   std::string denominatorDir_;
-  std::string m_dir;
-  std::string m_plotName; 
+  std::string outputDir_;
+  std::string plotName_;
+  std::string numeratorSuffix_;
+  std::string denominatorSuffix_;
 
-  MonitorElement* m_effHisto;
+  MonitorElement* h_efficiency_;
 
 };
+
+typedef std::vector<L1TEfficiencyPlotHandler> L1TEfficiencyPlotHandlerCollection;
 
 //
 // DQM class declaration
 //
 
-class L1TEfficiency_Harvesting : public DQMEDHarvester {
-  
+class L1TEfficiency_Harvesting: public DQMEDHarvester {
+
 public:
-  
+
   L1TEfficiency_Harvesting(const edm::ParameterSet& ps);   // Constructor
   virtual ~L1TEfficiency_Harvesting();                     // Destructor
-  
+
 protected:
 
   virtual void dqmEndJob(DQMStore::IBooker &ibooker, DQMStore::IGetter &igetter) override;
-  virtual void dqmEndLuminosityBlock(DQMStore::IGetter &igetter, edm::LuminosityBlock const& lumiBlock, edm::EventSetup const& c);
-  
+  virtual void dqmEndLuminosityBlock(DQMStore::IGetter &igetter, edm::LuminosityBlock const& lumiBlock,
+      edm::EventSetup const& c);
+
 private:
 
-  // bool
-  bool  m_verbose;
-  
-  std::vector<L1TEfficiencyPlotHandler> m_plotHandlers;
-  
+  bool verbose_;
+
+  std::vector<edm::ParameterSet> plotCfgs_;
+
+  L1TEfficiencyPlotHandlerCollection plotHandlers_;
+
 };
 
 #endif

@@ -30,42 +30,57 @@
 using namespace edm;
 using namespace std;
 
-//__________Efficiency_Plot_Handler_Helper_Class_______________________
-L1TEfficiencyPlotHandler::L1TEfficiencyPlotHandler(const L1TEfficiencyPlotHandler &handler) {
-  
-  m_dir      = handler.m_dir;
-  m_plotName = handler.m_plotName;
-  m_effHisto = handler.m_effHisto;
+L1TEfficiencyPlotHandler::L1TEfficiencyPlotHandler(const ParameterSet & ps, std::string plotName) :
+        numeratorDir_(ps.getUntrackedParameter < std::string > ("numeratorDir")),
+        denominatorDir_(ps.getUntrackedParameter < std::string > ("denominatorDir", numeratorDir_)),
+        outputDir_(ps.getUntrackedParameter < std::string > ("outputDir", numeratorDir_)),
+        plotName_(plotName),
+        numeratorSuffix_(ps.getUntrackedParameter < std::string > ("numeratorSuffix", "Num")),
+        denominatorSuffix_(ps.getUntrackedParameter < std::string > ("denominatorSuffix", "Den")),
+        h_efficiency_()
+{
 
 }
 
+L1TEfficiencyPlotHandler::L1TEfficiencyPlotHandler(const L1TEfficiencyPlotHandler &handler) :
+        numeratorDir_(handler.numeratorDir_),
+        denominatorDir_(handler.denominatorDir_),
+        outputDir_(handler.outputDir_),
+        plotName_(handler.plotName_),
+        numeratorSuffix_(handler.numeratorSuffix_),
+        denominatorSuffix_(handler.denominatorSuffix_),
+        h_efficiency_(handler.h_efficiency_)
+{
 
-void L1TEfficiencyPlotHandler::book(DQMStore::IBooker &ibooker, DQMStore::IGetter &igetter) {
+}
 
-  cout << "[L1TEfficiencyMuons_Harvesting:] Booking efficiency histo for " 
-	 << m_dir << " and " << m_plotName << endl;
-  
-  MonitorElement *num = igetter.get(m_dir+"/"+m_plotName+"Num");
-  MonitorElement *den = igetter.get(m_dir+"/"+m_plotName+"Den");
+void L1TEfficiencyPlotHandler::book(DQMStore::IBooker &ibooker, DQMStore::IGetter &igetter)
+{
+
+  edm::LogInfo("L1TEfficiencyPlotHandler") << "Booking efficiency histogram for " << outputDir_ << " and " << plotName_
+      << endl;
+
+  std::string numeratorName = numeratorDir_ + "/" + plotName_ + numeratorSuffix_;
+  std::string denominatorName = denominatorDir_ + "/" + plotName_ + denominatorSuffix_;
+  MonitorElement *num = igetter.get(numeratorName);
+  MonitorElement *den = igetter.get(denominatorName);
 
   if (!num || !den) {
- 
-    cout << "[L1TEfficiencyMuons_Harvesting:] "
-	   << (!num && !den ? "Num && Den" : !num ? "Num" : "Den") 
-	   << " not gettable. Quitting booking" << endl;
 
+    edm::LogError("L1TEfficiencyPlotHandler")
+        << (!num && !den ? numeratorName + " && " + denominatorName : !num ? numeratorName : denominatorName)
+        << " not gettable. Quitting booking" << endl;
     return;
-
   }
 
   TH1F *numH = num->getTH1F();
   TH1F *denH = den->getTH1F();
 
   if (!numH || !denH) {
- 
-    cout << "[L1TEfficiencyMuons_Harvesting:] "
-	   << (!numH && !denH ? "Num && Den" : !numH ? "Num" : "Den") 
-	   << " is not TH1F. Quitting booking" << endl;
+
+    edm::LogError("L1TEfficiencyPlotHandler")
+        << (!numH && !denH ? numeratorName + " && " + denominatorName : !num ? numeratorName : denominatorName)
+        << " is not TH1F. Quitting booking" << endl;
 
     return;
 
@@ -75,32 +90,28 @@ void L1TEfficiencyPlotHandler::book(DQMStore::IBooker &ibooker, DQMStore::IGette
   int nBinsDen = denH->GetNbinsX();
 
   if (nBinsNum != nBinsDen) {
- 
-    cout << "[L1TEfficiencyMuons_Harvesting:] # bins in num and den is different. Quitting booking" << endl;
-    
+    edm::LogError("L1TEfficiencyPlotHandler") << " # bins in " << numeratorName << " and " << denominatorName
+        << " are different. Quitting booking" << endl;
     return;
-
   }
 
   double min = numH->GetXaxis()->GetXmin();
   double max = numH->GetXaxis()->GetXmax();
 
-  ibooker.setCurrentFolder(m_dir);
-  m_effHisto = ibooker.book1D(m_plotName,m_plotName,nBinsNum,min,max);
+  ibooker.setCurrentFolder(outputDir_);
+  h_efficiency_ = ibooker.book1D(plotName_, plotName_, nBinsNum, min, max);
 
 }
 
-
-void L1TEfficiencyPlotHandler::computeEfficiency(DQMStore::IBooker &ibooker, DQMStore::IGetter &igetter) {
-
-  if (!m_effHisto)
+void L1TEfficiencyPlotHandler::computeEfficiency(DQMStore::IBooker &ibooker, DQMStore::IGetter &igetter)
+{
+  if (!h_efficiency_)
     return;
 
-  cout << "[L1TEfficiencyMuons_Harvesting:] Computing efficiency for " 
-	 << m_plotName << endl;
-  
-  MonitorElement *num = igetter.get(m_dir+"/"+m_plotName+"Num");
-  MonitorElement *den = igetter.get(m_dir+"/"+m_plotName+"Den");
+  edm::LogInfo("L1TEfficiencyPlotHandler") << " Computing efficiency for " << plotName_ << endl;
+
+  MonitorElement *num = igetter.get(numeratorDir_ + "/" + plotName_ + numeratorSuffix_);
+  MonitorElement *den = igetter.get(denominatorDir_ + "/" + plotName_ + denominatorSuffix_);
 
   TH1F *numH = num->getTH1F();
   TH1F *denH = den->getTH1F();
@@ -108,72 +119,56 @@ void L1TEfficiencyPlotHandler::computeEfficiency(DQMStore::IBooker &ibooker, DQM
   numH->Sumw2();
   denH->Sumw2();
 
-  TH1F *effH = m_effHisto->getTH1F();
+  TH1F *effH = h_efficiency_->getTH1F();
 
-  effH->Divide(numH,denH);
-
+  effH->Divide(numH, denH);
 }
 
-  
 //___________DQM_analyzer_class________________________________________
-L1TEfficiency_Harvesting::L1TEfficiency_Harvesting(const ParameterSet & ps){
-  
-  // Initializing Variables
-  if (m_verbose) {
-    cout << "[L1TEfficiency_Harvesting:] ____________ Storage inicialization ____________ " << endl;
-    cout << "[L1TEfficiency_Harvesting:] Setting up dbe folder: L1T/Efficiency" << endl;
+L1TEfficiency_Harvesting::L1TEfficiency_Harvesting(const ParameterSet & ps) :
+        verbose_(ps.getUntrackedParameter<bool>("verbose")),
+        plotCfgs_(ps.getUntrackedParameter < std::vector<edm::ParameterSet> > ("plotCfgs")),
+        plotHandlers_()
+{
+  if (verbose_) {
+    edm::LogInfo("L1TEfficiency_Harvesting") << "____________ Storage initialization ____________ " << endl;
   }
-  
-  vector<ParameterSet> plotCfgs = ps.getUntrackedParameter<vector<ParameterSet>>("plotCfgs");
-  
-  vector<ParameterSet>::const_iterator plotCfgIt  = plotCfgs.begin();
-  vector<ParameterSet>::const_iterator plotCfgEnd = plotCfgs.end();
 
-  for (; plotCfgIt!=plotCfgEnd; ++plotCfgIt) {
-    
-    string dir = plotCfgIt->getUntrackedParameter<string>("dqmBaseDir");
-    vector<string> plots = plotCfgIt->getUntrackedParameter<vector<string>>("plots");
-    
-    vector<string>::const_iterator plotIt  = plots.begin();
-    vector<string>::const_iterator plotEnd = plots.end();
-    
-    for (; plotIt!=plotEnd; ++plotIt)
-      m_plotHandlers.push_back(L1TEfficiencyPlotHandler(dir,(*plotIt)));
-			      
-  }
-  
-}
-
-
-//_____________________________________________________________________
-L1TEfficiency_Harvesting::~L1TEfficiency_Harvesting(){ m_plotHandlers.clear(); }
-
-
-//_____________________________________________________________________
-void L1TEfficiency_Harvesting::dqmEndJob(DQMStore::IBooker &ibooker, DQMStore::IGetter &igetter){
-  
-  if (m_verbose) {cout << "[L1TEfficiency_Harvesting:] Called endRun." << endl;}
-
-  vector<L1TEfficiencyPlotHandler>::iterator plotHandlerIt  = m_plotHandlers.begin();
-  vector<L1TEfficiencyPlotHandler>::iterator plotHandlerEnd = m_plotHandlers.end();
-
-  for(; plotHandlerIt!=plotHandlerEnd; ++plotHandlerIt) {
-    plotHandlerIt->book(ibooker, igetter);
-    plotHandlerIt->computeEfficiency(ibooker, igetter);
-  }
-  
-}
-
-
-//_____________________________________________________________________
-void L1TEfficiency_Harvesting::dqmEndLuminosityBlock(DQMStore::IGetter &igetter, LuminosityBlock const& lumiBlock, EventSetup const& c) {
-  
-  if(m_verbose){
-    cout << "[L1TEfficiency_Harvesting:] Called endLuminosityBlock at LS=" 
-         << lumiBlock.id().luminosityBlock() << endl;
+  for (auto plotConfig : plotCfgs_) {
+    vector < string > plots = plotConfig.getUntrackedParameter < vector < string >> ("plots");
+    for (auto plot : plots) {
+      plotHandlers_.push_back(L1TEfficiencyPlotHandler(plotConfig, plot));
+    }
   }
 }
 
+//_____________________________________________________________________
+L1TEfficiency_Harvesting::~L1TEfficiency_Harvesting()
+{
+}
+
+//_____________________________________________________________________
+void L1TEfficiency_Harvesting::dqmEndJob(DQMStore::IBooker &ibooker, DQMStore::IGetter &igetter)
+{
+  if (verbose_) {
+    edm::LogInfo("L1TEfficiency_Harvesting") << "Called endRun." << endl;
+  }
+
+  for (auto plotHandler : plotHandlers_) {
+    plotHandler.book(ibooker, igetter);
+    plotHandler.computeEfficiency(ibooker, igetter);
+  }
+}
+
+//_____________________________________________________________________
+void L1TEfficiency_Harvesting::dqmEndLuminosityBlock(DQMStore::IGetter &igetter, LuminosityBlock const& lumiBlock,
+    EventSetup const& c)
+{
+  if (verbose_) {
+    edm::LogInfo("L1TEfficiency_Harvesting") << "Called endLuminosityBlock at LS=" << lumiBlock.id().luminosityBlock()
+        << endl;
+  }
+}
 
 //define this as a plug-in
-DEFINE_FWK_MODULE(L1TEfficiency_Harvesting);
+DEFINE_FWK_MODULE (L1TEfficiency_Harvesting);
