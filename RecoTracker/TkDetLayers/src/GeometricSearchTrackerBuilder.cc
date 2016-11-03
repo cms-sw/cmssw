@@ -175,10 +175,23 @@ GeometricSearchTrackerBuilder::build(const GeometricDet* theGeometricTracker,
       vector<const GeometricDet*> thePxlFwdGeometricDetLayers = (*it)->components();
       for(vector<const GeometricDet*>::const_iterator it2=thePxlFwdGeometricDetLayers.begin();
 	  it2!=thePxlFwdGeometricDetLayers.end(); it2++){
-	if((*it2)->positionBounds().z() < 0)
-	  theNegPxlFwdLayers.push_back( aPhase2EndcapLayerBuilder.build(*it2,theGeomDetGeometry,false) );
-	if((*it2)->positionBounds().z() > 0)
-	  thePosPxlFwdLayers.push_back( aPhase2EndcapLayerBuilder.build(*it2,theGeomDetGeometry,false) );
+
+        //FIXME: this is just to keep the compatibility with the PixelPhase1 extension layout
+        //hopefully we can get rid of it soon
+	if((*it2)->positionBounds().z() < 0){
+          if( (*it2)->type() == GeometricDet::PixelPhase2FullDisk || (*it2)->type() == GeometricDet::PixelPhase2ReducedDisk )
+            theNegPxlFwdLayers.push_back( aPhase1PixelForwardLayerBuilder.build(*it2,theGeomDetGeometry) );
+          else if( (*it2)->type() == GeometricDet::PixelPhase2TDRDisk )
+	    theNegPxlFwdLayers.push_back( aPhase2EndcapLayerBuilder.build(*it2,theGeomDetGeometry,false) );
+        } else if((*it2)->positionBounds().z() > 0){
+          if( (*it2)->type() == GeometricDet::PixelPhase2FullDisk || (*it2)->type() == GeometricDet::PixelPhase2ReducedDisk )
+	    thePosPxlFwdLayers.push_back( aPhase1PixelForwardLayerBuilder.build(*it2,theGeomDetGeometry) );
+          else if( (*it2)->type() == GeometricDet::PixelPhase2TDRDisk ) 
+            thePosPxlFwdLayers.push_back( aPhase2EndcapLayerBuilder.build(*it2,theGeomDetGeometry,false) );
+        } else {
+          edm::LogError("TkDetLayers") << "In PixelPhase2EndCap the disks are neither PixelPhase2FullDisk nor PixelPhase2ReducedDisk nor PixelPhase2TDRDisk...";
+        }
+
       }
     }
 
