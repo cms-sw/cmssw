@@ -246,3 +246,12 @@ phase2_hgcal.toModify( theMixObjects,
                                                   hgchefrontDigitizer.hitCollection.value() ]
     )
 )
+
+from Configuration.Eras.Modifier_phase2_timing_cff import phase2_timing
+phase2_timing.toModify( theMixObjects,
+    mixSH = dict(
+        input = theMixObjects.mixSH.input + [ cms.InputTag("g4SimHits","FastTimerHitsBarrel"), cms.InputTag("g4SimHits","FastTimerHitsEndcap") ],
+        subdets = theMixObjects.mixSH.subdets + [ 'FastTimerHitsBarrel','FastTimerHitsEndcap' ],
+        crossingFrames = theMixObjects.mixSH.crossingFrames + [ 'FastTimerHitsBarrel','FastTimerHitsEndcap' ]
+    )
+)
