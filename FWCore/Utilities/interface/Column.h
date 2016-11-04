@@ -61,6 +61,8 @@ namespace edm {
       return ColumnEntry<T>{*this, t};
     }
 
+    std::size_t width() const { return width_; }
+
   private:
     std::string title_;
     std::size_t width_;
