@@ -48,6 +48,7 @@ HistogramManager::HistogramManager(const edm::ParameterSet& iconfig,
 void HistogramManager::addSpec(SummationSpecification spec) {
   specs.push_back(spec);
   tables.push_back(Table());
+  counters.push_back(Table());
   significantvalues.push_back(GeometryInterface::Values());
   fastpath.push_back(nullptr);
 }
@@ -80,7 +81,7 @@ void HistogramManager::fill(double x, double y, DetId sourceModule,
   }
   for (unsigned int i = 0; i < specs.size(); i++) {
     auto& s = specs[i];
-    auto& t = tables[i];
+    auto& t = s.steps[0].type == SummationStep::COUNT ? counters[i] : tables[i];
     if (!cached) {
       significantvalues[i].clear();
       geometryInterface.extractColumns(s.steps[0].columns, iq,
@@ -93,7 +94,7 @@ void HistogramManager::fill(double x, double y, DetId sourceModule,
       if (histo == t.end()) {
         if (!bookUndefined) continue;
         std::cout << "+++ path " << makePath(significantvalues[i]) << "\n";
-        std::cout << "+++ name " << t.begin()->second.th1->GetName() << "\n";
+        std::cout << "+++ name " << tables[i].begin()->second.th1->GetName() << "\n";
         assert(!"Histogram not booked! Probably inconsistent geometry description.");
       }
 
@@ -184,33 +185,31 @@ void HistogramManager::executePerEventHarvesting(const edm::Event* sourceEvent) 
   for (unsigned int i = 0; i < specs.size(); i++) {
     auto& s = specs[i];
     auto& t = tables[i];
+    auto& c = counters[i];
+    if (s.steps[0].type != SummationStep::COUNT) continue; // no counting, done
     assert((s.steps.size() >= 2 && s.steps[1].type == SummationStep::GROUPBY)
           || !"Incomplete spec (but this cannot be caught in Python)");
-    for (auto& e : t) {
-      // TODO: this is terribly risky. It works if there is a differnt number
-      // of columns in COUNT and GROUPBY each or if the columns are identical,
-      // but not in other, possible cases. Solution: separate table for ctrs.
-      if (e.first.values.size() == s.steps[0].columns.size()) {
-        // the iq on the counter can only be a _sample_, since many modules
-        // could be grouped on one counter. Even worse, the sourceEvent ptr
-        // could be dangling if the counter was not touched in this event, so
-        // we replace it. row/col are most likely useless as well.
-        auto iq = e.second.iq_sample;
-        iq.sourceEvent = sourceEvent;
+    for (auto& e : c) {
+      // the iq on the counter can only be a _sample_, since many modules
+      // could be grouped on one counter. Even worse, the sourceEvent ptr
+      // could be dangling if the counter was not touched in this event, so
+      // we replace it. row/col are most likely useless as well.
+      auto iq = e.second.iq_sample;
+      iq.sourceEvent = sourceEvent;
 
-        significantvalues[i].clear();
-        geometryInterface.extractColumns(s.steps[1].columns, iq,
-                                         significantvalues[i]);
-        auto histo = t.find(significantvalues[i]);
-        if (histo == t.end()) {
-          if (!bookUndefined) continue;
-          std::cout << "+++ path " << makePath(significantvalues[i]) << "\n";
-          std::cout << "+++ name " << t.begin()->second.th1->GetName() << "\n";
-          assert(!"Histogram not booked! (per-event) Probably inconsistent geometry description.");
-        }
-        fillInternal(e.second.count, 0, 1, iq, s.steps.begin()+2, s.steps.end(), histo->second);
-        e.second.count = 0;
+      significantvalues[i].clear();
+      geometryInterface.extractColumns(s.steps[1].columns, iq,
+                                       significantvalues[i]);
+      auto histo = t.find(significantvalues[i]);
+      if (histo == t.end()) {
+        if (!bookUndefined) continue;
+        std::cout << "+++ path " << makePath(significantvalues[i]) << "\n";
+        std::cout << "+++ name " << t.begin()->second.th1->GetName() << "\n";
+        std::cout << "+++ ctr " << makePath(e.first) << " detid " << iq.sourceModule << "\n";
+        assert(!"Histogram not booked! (per-event) Probably inconsistent geometry description.");
       }
+      fillInternal(e.second.count, 0, 1, iq, s.steps.begin()+2, s.steps.end(), histo->second);
+      e.second.count = 0;
     }
   }
 }
@@ -292,6 +291,7 @@ void HistogramManager::book(DQMStore::IBooker& iBooker,
   for (unsigned int i = 0; i < specs.size(); i++) {
     auto& s = specs[i];
     auto& t = tables[i];
+    auto& c = counters[i];
     toBeBooked.clear();
     bool bookCounters = false;
 
@@ -308,10 +308,9 @@ void HistogramManager::book(DQMStore::IBooker& iBooker,
 
       if (bookCounters) {
         // add an entry for the counting step if present
-        // TODO: use a independent table here.
         geometryInterface.extractColumns(s.steps[0].columns, iq,
                                          significantvalues);
-        t[significantvalues].iq_sample = iq;
+        c[significantvalues].iq_sample = iq;
       }
 
       geometryInterface.extractColumns(firststep->columns, iq,

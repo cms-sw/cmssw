@@ -66,6 +66,7 @@ private:
 
   std::vector<SummationSpecification> specs;
   std::vector<Table> tables;
+  std::vector<Table> counters;
 
   std::string makePath(GeometryInterface::Values const&);
   std::string makeName(SummationSpecification const& s,
