@@ -24,6 +24,8 @@
 #include "FWCore/Utilities/interface/Column.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
+#include "tbb/concurrent_unordered_map.h"
+
 #include <atomic>
 #include <chrono>
 #include <fstream>
@@ -81,41 +83,37 @@ namespace {
 
   //===============================================================
   // Message-assembly utilities
-  struct Quantity {
-    template <typename T>
-    Quantity(std::string const& field, T const& t)
-    {
-      std::ostringstream msg;
-      msg << field << ": " << t;
-      data = msg.str();
-    }
-    std::string data;
-  };
-
-  std::ostream& operator<<(std::ostream& os, Quantity const& q)
-  {
-    return os << q.data;
-  }
-
   template <typename T>
-  void concatenate(std::ostream& os, T const& t)
+  std::enable_if_t<std::is_integral<T>::value>
+  concatenate(std::ostream& os, T const t)
   {
     os << ' ' << t;
   }
 
   template <typename H, typename... T>
-  void concatenate(std::ostream& os, H const& h, T const&... t)
+  std::enable_if_t<std::is_integral<H>::value>
+  concatenate(std::ostream& os, H const h, T const... t)
   {
     os << ' ' << h;
     concatenate(os, t...);
   }
 
-  template <typename... ARGS>
-  std::string assembleMessage(std::string const& step, ARGS const&... args)
+  enum class step : char { preEventReadFromSource = 'A',
+                           postEventReadFromSource,
+                           preEvent,
+                           postEvent,
+                           postModuleEventPrefetching,
+                           preModuleEvent,
+                           postModuleEvent };
+
+  template <step S, typename... ARGS>
+  std::string assembleMessage(ARGS const... args)
   {
     std::ostringstream oss;
+    oss << static_cast<std::underlying_type_t<step>>(S);
     concatenate(oss, args...);
-    return step + ":" + oss.str() + "\n";
+    oss << '\n';
+    return oss.str();
   }
 
 }
@@ -141,51 +139,78 @@ namespace edm {
       void postEndJob();
 
       ThreadSafeOutputFileStream file_;
+      bool validFile_; // Separate data member from file to improve efficiency
       std::chrono::milliseconds const stallThreshold_;
       decltype(now()) beginTime_ {};
-      std::vector<decltype(beginTime_)> stallStart_ {}; // One stall-start time per stream
+
+      using StreamID_value = decltype(std::declval<StreamID>().value());
+      using ModuleID = decltype(std::declval<ModuleDescription>().id());
+      tbb::concurrent_unordered_map<std::pair<StreamID_value,ModuleID>, decltype(beginTime_)> stallStart_ {};
+
       std::vector<std::string> moduleLabels_ {}; // Temporary, used to seed moduleStats_.
       std::vector<StallStatistics> moduleStats_ {};
     };
 
   }
+
+}
+
+namespace {
+  constexpr char const* filename_default {""};
+  constexpr double threshold_default {0.1};
 }
 
 using edm::service::StallMonitor;
 using namespace std::chrono;
 
 StallMonitor::StallMonitor(ParameterSet const& iPS, ActivityRegistry& iRegistry)
-  : file_{iPS.getUntrackedParameter<std::string>("filename")}
-  , stallThreshold_{static_cast<long int>(iPS.getUntrackedParameter<double>("stallThreshold", 0.1)*1000)}
+  : file_{iPS.getUntrackedParameter<std::string>("filename", filename_default)}
+  , validFile_{file_}
+  , stallThreshold_{static_cast<long int>(iPS.getUntrackedParameter<double>("stallThreshold", threshold_default)*1000)}
 {
   iRegistry.watchPreModuleConstruction(this, &StallMonitor::preModuleConstruction);
+  iRegistry.watchPostBeginJob(this, &StallMonitor::postBeginJob);
   iRegistry.watchPostModuleEventPrefetching(this, &StallMonitor::postModuleEventPrefetching);
   iRegistry.watchPreEvent(this, &StallMonitor::preEvent);
-  iRegistry.watchPostEvent(this, &StallMonitor::postEvent);
   iRegistry.watchPreModuleEvent(this, &StallMonitor::preModuleEvent);
-  iRegistry.watchPostModuleEvent(this, &StallMonitor::postModuleEvent);
   iRegistry.watchPreEventReadFromSource(this, &StallMonitor::preEventReadFromSource);
   iRegistry.watchPostEventReadFromSource(this, &StallMonitor::postEventReadFromSource);
-
-  iRegistry.preallocateSignal_.connect([this](auto const& iBounds){ stallStart_.resize(iBounds.maxNumberOfStreams());});
-  iRegistry.watchPostBeginJob(this, &StallMonitor::postBeginJob);
+  iRegistry.watchPostModuleEvent(this, &StallMonitor::postModuleEvent);
+  iRegistry.watchPostEvent(this, &StallMonitor::postEvent);
   iRegistry.watchPostEndJob(this, &StallMonitor::postEndJob);
+
+  if (validFile_) {
+    // PRINT TABLE AT TOP LISTING ENUMERATIONS
+  }
+
 }
 
 void StallMonitor::fillDescriptions(ConfigurationDescriptions& descriptions)
 {
   ParameterSetDescription desc;
-  desc.addUntracked<std::string>("fileName", "stallMonitor.txt");
-  desc.addUntracked<double>("stallThreshold", 0.1)->setComment("Threshold (in seconds) used to classify modules as stalled.\n"
-                                                               "Millisecond granularity allowed.");
+  desc.addUntracked<std::string>("fileName", filename_default)->setComment("Name of file to which detailed timing information should be written.\n"
+                                                                           "An empty filename argument (the default) indicates that no extra\n"
+                                                                           "information will be written to a dedicated file, but only the summary\n"
+                                                                           "including stalling-modules information will be logged.");
+  desc.addUntracked<double>("stallThreshold", threshold_default)->setComment("Threshold (in seconds) used to classify modules as stalled.\n"
+                                                                             "Millisecond granularity allowed.");
   descriptions.add("StallMonitor", desc);
   descriptions.setComment("This service keeps track of various times in event-processing to determine which modules are stalling.");
 }
 
 void StallMonitor::preModuleConstruction(ModuleDescription const& md)
 {
-  moduleLabels_.push_back(md.moduleLabel());
-  assert(md.id()+1 == moduleStats_.size());
+  // Module labels are dense, so if the module id is greater than the
+  // size of moduleLabels_, grow the vector to the right index, and
+  // assign the last entry to the desired label.
+  auto const mid = md.id();
+  if (mid < moduleLabels_.size()) {
+    moduleLabels_[mid] = md.moduleLabel();
+  }
+  else {
+    moduleLabels_.resize(mid+1);
+    moduleLabels_.back() = md.moduleLabel();
+  }
 }
 
 void StallMonitor::postBeginJob()
@@ -202,74 +227,73 @@ void StallMonitor::postBeginJob()
   beginTime_ = now();
 }
 
-void StallMonitor::preEventReadFromSource(StreamContext const& sc, ModuleCallingContext const& mcc)
-{
-  auto const t = (now()-beginTime_).count();
-  file_ << assembleMessage("preEventReadFromSource",
-                           Quantity{"Stream id", stream_id(sc)},
-                           Quantity{"Module id", module_id(mcc)},
-                           Quantity{"Time", t});
-}
-
-void StallMonitor::postEventReadFromSource(StreamContext const& sc, ModuleCallingContext const& mcc)
-{
-  auto const t = (now()-beginTime_).count();
-  file_ << assembleMessage("postEventReadFromSource",
-                           Quantity{"Stream id", stream_id(sc)},
-                           Quantity{"Module id", module_id(mcc)},
-                           Quantity{"Time", t});
-}
-
 void StallMonitor::preEvent(StreamContext const& sc)
 {
-  auto const t = (now()-beginTime_).count();
-  file_ << assembleMessage("preEvent",
-                           Quantity{"Stream id", stream_id(sc)},
-                           sc.eventID(),
-                           Quantity{"Time", t});
-}
-
-void StallMonitor::postEvent(StreamContext const& sc)
-{
-  auto const t = (now()-beginTime_).count();
-  file_ << assembleMessage("postEvent",
-                           Quantity{"Stream id", stream_id(sc)},
-                           sc.eventID(),
-                           Quantity{"Time", t});
+  if (!validFile_) return;
+  auto const t = duration_cast<milliseconds>(now()-beginTime_).count();
+  auto const& eid = sc.eventID();
+  auto msg = assembleMessage<step::preEvent>(stream_id(sc), eid.run(), eid.luminosityBlock(), eid.event(), t);
+  file_.write(std::move(msg));
 }
 
 void StallMonitor::postModuleEventPrefetching(StreamContext const& sc, ModuleCallingContext const& mcc)
 {
-  auto const i = stream_id(sc);
-  stallStart_[i] = now();
-  file_ << assembleMessage("postModuleEventPrefetching",
-                           Quantity{"Stream id", i},
-                           Quantity{"Module id", module_id(mcc)},
-                           Quantity{"Time", (stallStart_[i]-beginTime_).count()});
+  auto const sid = stream_id(sc);
+  auto const mid = module_id(mcc);
+  auto start = stallStart_[std::make_pair(sid,mid)] = now();
+
+  if (!validFile_) return;
+  auto const t = duration_cast<milliseconds>(start-beginTime_).count();
+  auto msg = assembleMessage<step::postModuleEventPrefetching>(sid, mid, t);
+  file_.write(std::move(msg));
 }
 
 void StallMonitor::preModuleEvent(StreamContext const& sc, ModuleCallingContext const& mcc)
 {
   auto const preModEvent = now();
-  auto const i = stream_id(sc);
+  auto const sid = stream_id(sc);
   auto const mid = module_id(mcc);
-  file_ << assembleMessage("preModuleEvent",
-                           Quantity{"Stream id", i},
-                           Quantity{"Module id", mid},
-                           Quantity{"Time", (preModEvent-beginTime_).count()});
+  if (file_) {
+    auto msg = assembleMessage<step::preModuleEvent>(sid, mid, duration_cast<milliseconds>(preModEvent-beginTime_).count());
+    file_.write(std::move(msg));
+  }
 
-  auto const preFetch_to_preModEvent = duration_cast<milliseconds>(preModEvent-stallStart_[i]);
+  auto const preFetch_to_preModEvent = duration_cast<milliseconds>(preModEvent-stallStart_[std::make_pair(sid,mid)]);
   if (preFetch_to_preModEvent < stallThreshold_) return;
   moduleStats_[mid].update(preFetch_to_preModEvent);
 }
 
+void StallMonitor::preEventReadFromSource(StreamContext const& sc, ModuleCallingContext const& mcc)
+{
+  if (!validFile_) return;
+  auto const t = duration_cast<milliseconds>(now()-beginTime_).count();
+  auto msg = assembleMessage<step::preEventReadFromSource>(stream_id(sc), module_id(mcc), t);
+  file_.write(std::move(msg));
+}
+
+void StallMonitor::postEventReadFromSource(StreamContext const& sc, ModuleCallingContext const& mcc)
+{
+  if (!validFile_) return;
+  auto const t = duration_cast<milliseconds>(now()-beginTime_).count();
+  auto msg = assembleMessage<step::postEventReadFromSource>(stream_id(sc), module_id(mcc), t);
+  file_.write(std::move(msg));
+}
+
 void StallMonitor::postModuleEvent(StreamContext const& sc, ModuleCallingContext const& mcc)
 {
-  auto const postModEvent = (now()-beginTime_).count();
-  file_ << assembleMessage("postModuleEvent",
-                           Quantity{"Stream id", stream_id(sc)},
-                           Quantity{"Module id", module_id(mcc)},
-                           Quantity{"Time", postModEvent});
+  if (!validFile_) return;
+  auto const postModEvent = duration_cast<milliseconds>(now()-beginTime_).count();
+  auto msg = assembleMessage<step::postModuleEvent>(stream_id(sc), module_id(mcc), postModEvent);
+  file_.write(std::move(msg));
+}
+
+void StallMonitor::postEvent(StreamContext const& sc)
+{
+  if (!validFile_) return;
+  auto const t = duration_cast<milliseconds>(now()-beginTime_).count();
+  auto const& eid = sc.eventID();
+  auto msg = assembleMessage<step::postEvent>(stream_id(sc), eid.run(), eid.luminosityBlock(), eid.event(), t);
+  file_.write(std::move(msg));
 }
 
 void StallMonitor::postEndJob()
@@ -278,19 +302,25 @@ void StallMonitor::postEndJob()
   std::size_t width {};
   edm::for_all(moduleStats_, [&width](auto const& stats) { width = std::max(width, stats.label().size()); });
 
+  Column tag {"StallMonitor>"};
   Column col1 {"Module label", width};
   Column col2 {"# of stalls"};
   Column col3 {"Total stalled time"};
   Column col4 {"Max stalled time"};
 
   LogAbsolute out {"StallMonitor"};
-  out << col1 << col2 << col3 << col4 << '\n';
+  out << tag << col1 << col2 << col3 << col4 << '\n';
   //  out << std::string('-',width+col1+col2+col3) << '\n';
   for (auto const& stats : moduleStats_) {
-    out << col1(stats.label())
+    out << tag
+        << col1(stats.label())
         << col2(stats.numberOfStalls())
         << col3(stats.totalStalledTime())
         << col4(stats.maxStalledTime()) << '\n';
+  }
+
+  if (validFile_) {
+    // FIXME: DUMP MODULE NAMES/IDS
   }
 }
 

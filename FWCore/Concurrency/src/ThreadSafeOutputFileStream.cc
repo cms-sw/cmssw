@@ -10,24 +10,24 @@ namespace edm {
 
   ThreadSafeOutputFileStream::~ThreadSafeOutputFileStream()
   {
-    std::string msg;
-    while (waitingMessages_.try_pop(msg)) {
-      file_ << msg;
+    std::string tmp;
+    while (waitingMessages_.try_pop(tmp)) {
+      file_ << tmp;
     }
     file_.close();
   }
 
   void
-  ThreadSafeOutputFileStream::operator<<(std::string msg)
+  ThreadSafeOutputFileStream::write(std::string&& msg)
   {
+    waitingMessages_.push(std::move(msg));
     bool expected {false};
-    if(msgBeingLogged_.compare_exchange_strong(expected, true)) {
-      do {
-        file_ << msg << '\n';
-      } while (waitingMessages_.try_pop(msg));
+    if (msgBeingLogged_.compare_exchange_strong(expected, true)) {
+      std::string tmp;
+      while (waitingMessages_.try_pop(tmp)) {
+        file_ << tmp;
+      }
       msgBeingLogged_.store(false);
-    } else {
-      waitingMessages_.push(std::move(msg));
     }
   }
 }

@@ -13,9 +13,9 @@ namespace edm {
     ThreadSafeOutputFileStream(std::string const& name);
     ~ThreadSafeOutputFileStream();
 
-    // Return type of operator<< is 'void' to discourage chaining,
-    // which is inefficient for this implementation.
-    void operator<<(std::string msg);
+    void write(std::string&& msg);
+    explicit operator bool() const { return static_cast<bool>(file_); }
+
   private:
     std::ofstream file_;
     std::atomic<bool> msgBeingLogged_ {false};

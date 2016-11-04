@@ -12,8 +12,7 @@ namespace {
     oss << "Thread index: " << thread_index << " Entry: ";
     auto const& prefix = oss.str();
     for (int i{}; i < 4; ++i) {
-      std::string const msg {prefix+std::to_string(i)+"\n"};
-      f << msg;
+      f.write(prefix+std::to_string(i)+"\n");
     }
   }
 }
