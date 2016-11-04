@@ -93,8 +93,9 @@ void HistogramManager::fill(double x, double y, DetId sourceModule,
       auto histo = t.find(significantvalues[i]);
       if (histo == t.end()) {
         if (!bookUndefined) continue;
-        std::cout << "+++ path " << makePath(significantvalues[i]) << "\n";
-        std::cout << "+++ name " << tables[i].begin()->second.th1->GetName() << "\n";
+        edm::LogError("HistogramManager") << "Missing Histogram!\n"
+          << "path " << makePath(significantvalues[i]) << "\n"
+          << "name " << tables[i].begin()->second.th1->GetName() << "\n";
         assert(!"Histogram not booked! Probably inconsistent geometry description.");
       }
 
@@ -171,8 +172,8 @@ void HistogramManager::fillInternal(double x, double y, int n_parameters,
       dest.me->Fill(fx, fy, fz);
       break;
     default:
-      std::cout << "+++ got " << tot_parameters << " dimensions\n";
-      std::cout << "+++ name " << dest.th1->GetName() << "\n";
+      edm::LogError("HistogramManager") << "got " << tot_parameters << " dimensions\n"
+        << "name " << dest.th1->GetName() << "\n";
       assert(!"More than 3 dimensions should never occur.");
   }
 }
@@ -203,9 +204,10 @@ void HistogramManager::executePerEventHarvesting(const edm::Event* sourceEvent) 
       auto histo = t.find(significantvalues[i]);
       if (histo == t.end()) {
         if (!bookUndefined) continue;
-        std::cout << "+++ path " << makePath(significantvalues[i]) << "\n";
-        std::cout << "+++ name " << t.begin()->second.th1->GetName() << "\n";
-        std::cout << "+++ ctr " << makePath(e.first) << " detid " << iq.sourceModule << "\n";
+        edm::LogError("HistogramManager") << "Histogram Missing!\n"
+          << "path " << makePath(significantvalues[i]) << "\n"
+          << "name " << t.begin()->second.th1->GetName() << "\n"
+          << "ctr " << makePath(e.first) << " detid " << iq.sourceModule << "\n";
         assert(!"Histogram not booked! (per-event) Probably inconsistent geometry description.");
       }
       fillInternal(e.second.count, 0, 1, iq, s.steps.begin()+2, s.steps.end(), histo->second);
@@ -446,8 +448,9 @@ void HistogramManager::book(DQMStore::IBooker& iBooker,
                        mei.range_y_nbins, mei.range_y_min, mei.range_y_max,
                        0.0, 0.0); // Z range is ignored if min==max
       } else {
-        std::cout << "+++ name " << mei.name << "\n";
-        std::cout << "+++ dim " << mei.dimensions << " profile " << mei.do_profile << "\n";
+        edm::LogError("HistogramManager") << "Illegal Histogram!\n" 
+          << "name " << mei.name << "\n"
+          << "dim " << mei.dimensions << " profile " << mei.do_profile << "\n";
         assert(!"Illegal Histogram kind.");
       }
       h.th1 = h.me->getTH1();
@@ -516,13 +519,11 @@ void HistogramManager::executeGroupBy(SummationStep& step, Table& t, DQMStore::I
     AbstractHistogram& new_histo = out[significantvalues];
     if (!new_histo.me) {
       iBooker.setCurrentFolder(makePath(significantvalues));
-      if (th1->GetDimension() == 1) {
-        new_histo.me = iBooker.book1D(th1->GetName(), (TH1F*) th1);
-      } else if (th1->GetDimension() == 2) {
-        new_histo.me = iBooker.book2D(th1->GetName(), (TH2F*) th1);
-      } else {
-        assert(!"No idea how to book this.");
-      }
+      if      (dynamic_cast<TH1F*>(th1)) new_histo.me = iBooker.book1D(th1->GetName(), (TH1F*) th1);
+      else if (dynamic_cast<TH2F*>(th1)) new_histo.me = iBooker.book2D(th1->GetName(), (TH2F*) th1);
+      else if (dynamic_cast<TProfile*>(th1)) new_histo.me = iBooker.bookProfile(th1->GetName(), (TProfile*) th1);
+      else if (dynamic_cast<TProfile2D*>(th1)) new_histo.me = iBooker.bookProfile2D(th1->GetName(), (TProfile2D*) th1);
+      else assert(!"No idea how to book this.");
       new_histo.th1 = new_histo.me->getTH1();
       new_histo.iq_sample = e.second.iq_sample;
     } else {
@@ -555,10 +556,7 @@ void HistogramManager::executeExtend(SummationStep& step, Table& t, std::string 
     if (bins > 1) separators[significantvalues] += std::to_string(n) + ",";
     n += bins;
   }
-  for (auto& e : separators) {
-    e.second = "(" + e.second + ")/";
-    std::cout << "+++ separator " << e.second << "\n";
-  }
+  for (auto& e : separators) e.second = "(" + e.second + ")/";
 
   Table out;
   for (auto& e : t) {
