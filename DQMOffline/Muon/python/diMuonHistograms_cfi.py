@@ -27,18 +27,17 @@ diMuonHistos = cms.EDAnalyzer("DiMuonHistograms",
                               )
 
 from Configuration.StandardSequences.Eras import eras
-for e in [eras.pA_2016]:
-    e.toModify(diMuonHistos,
-               etaBin = 350,
-               etaBBin = 350,
-               etaEBin = 350,
+eras.pA_2016.toModify(diMuonHistos,
+                      etaBin = 350,
+                      etaBBin = 350,
+                      etaEBin = 350,
 
-               etaBinLM = 60,
-               etaBBinLM = 60,
-               etaEBinLM = 60,
+                      etaBinLM = 60,
+                      etaBBinLM = 60,
+                      etaEBinLM = 60,
 
-               LowMassMin = 2.0,
-               LowMassMax = 14.0,
-               HighMassMin = 55.0,
-               HighMassMax = 125.0
-               )
+                      LowMassMin = 2.0,
+                      LowMassMax = 14.0,
+                      HighMassMin = 55.0,
+                      HighMassMax = 125.0
+                      )
