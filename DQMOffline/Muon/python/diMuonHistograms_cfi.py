@@ -32,12 +32,8 @@ eras.pA_2016.toModify(diMuonHistos,
                       etaBBin = 350,
                       etaEBin = 350,
 
-                      etaBinLM = 60,
-                      etaBBinLM = 60,
-                      etaEBinLM = 60,
-
                       LowMassMin = 2.0,
-                      LowMassMax = 14.0,
+                      LowMassMax = 51.0,
                       HighMassMin = 55.0,
                       HighMassMax = 125.0
                       )
