@@ -28,7 +28,7 @@
 
 #include <atomic>
 #include <chrono>
-#include <fstream>
+#include <iomanip>
 #include <iostream>
 #include <sstream>
 
@@ -58,9 +58,11 @@ namespace {
     std::string const& label() const { return label_; }
     unsigned numberOfStalls() const { return stallCounter_; }
 
-    using rep_t = std::chrono::milliseconds::rep;
-    rep_t totalStalledTime() const { return totalTime_; }
-    rep_t maxStalledTime() const { return maxTime_; }
+    using duration_t = std::chrono::milliseconds;
+    using rep_t = duration_t::rep;
+
+    duration_t totalStalledTime() const { return duration_t{totalTime_.load()}; }
+    duration_t maxStalledTime() const { return duration_t{maxTime_.load()}; }
 
     // Modifiers
     void setLabel(std::string const& label) { label_ = label; }
@@ -98,19 +100,25 @@ namespace {
     concatenate(os, t...);
   }
 
-  enum class step : char { preEventReadFromSource = 'A',
-                           postEventReadFromSource,
-                           preEvent,
-                           postEvent,
-                           postModuleEventPrefetching,
-                           preModuleEvent,
-                           postModuleEvent };
+  enum class step : char { preEvent = 'E',
+                           postModuleEventPrefetching = 'p',
+                           preModuleEvent = 'M',
+                           preEventReadFromSource = 'R',
+                           postEventReadFromSource = 'r',
+                           postModuleEvent = 'm' ,
+                           postEvent = 'e'};
+
+  std::ostream& operator<<(std::ostream& os, step const s)
+  {
+    os << static_cast<std::underlying_type_t<step>>(s);
+    return os;
+  }
 
   template <step S, typename... ARGS>
   std::string assembleMessage(ARGS const... args)
   {
     std::ostringstream oss;
-    oss << static_cast<std::underlying_type_t<step>>(S);
+    oss << S;
     concatenate(oss, args...);
     oss << '\n';
     return oss.str();
@@ -127,27 +135,32 @@ namespace edm {
       static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
     private:
+
       void preModuleConstruction(edm::ModuleDescription const&);
+      void postBeginJob();
       void preEvent(StreamContext const&);
-      void postEvent(StreamContext const&);
+      void preModuleEvent(StreamContext const&, ModuleCallingContext const&);
       void postModuleEventPrefetching(StreamContext const&, ModuleCallingContext const&);
       void preEventReadFromSource(StreamContext const&, ModuleCallingContext const&);
       void postEventReadFromSource(StreamContext const&, ModuleCallingContext const&);
-      void preModuleEvent(StreamContext const&, ModuleCallingContext const&);
       void postModuleEvent(StreamContext const&, ModuleCallingContext const&);
-      void postBeginJob();
+      void postEvent(StreamContext const&);
       void postEndJob();
 
       ThreadSafeOutputFileStream file_;
-      bool validFile_; // Separate data member from file to improve efficiency
+      bool validFile_; // Separate data member from file to improve efficiency.
       std::chrono::milliseconds const stallThreshold_;
       decltype(now()) beginTime_ {};
 
+      // There can be multiple modules per stream.  Therefore, we need
+      // the combination of StreamID and ModuleID to correctly track
+      // stalling information.  We use tbb::concurrent_unordered_map
+      // for this purpose.
       using StreamID_value = decltype(std::declval<StreamID>().value());
       using ModuleID = decltype(std::declval<ModuleDescription>().id());
       tbb::concurrent_unordered_map<std::pair<StreamID_value,ModuleID>, decltype(beginTime_)> stallStart_ {};
 
-      std::vector<std::string> moduleLabels_ {}; // Temporary, used to seed moduleStats_.
+      std::vector<std::string> moduleLabels_ {};
       std::vector<StallStatistics> moduleStats_ {};
     };
 
@@ -164,7 +177,7 @@ using edm::service::StallMonitor;
 using namespace std::chrono;
 
 StallMonitor::StallMonitor(ParameterSet const& iPS, ActivityRegistry& iRegistry)
-  : file_{iPS.getUntrackedParameter<std::string>("filename", filename_default)}
+  : file_{iPS.getUntrackedParameter<std::string>("fileName", filename_default)}
   , validFile_{file_}
   , stallThreshold_{static_cast<long int>(iPS.getUntrackedParameter<double>("stallThreshold", threshold_default)*1000)}
 {
@@ -180,9 +193,18 @@ StallMonitor::StallMonitor(ParameterSet const& iPS, ActivityRegistry& iRegistry)
   iRegistry.watchPostEndJob(this, &StallMonitor::postEndJob);
 
   if (validFile_) {
-    // PRINT TABLE AT TOP LISTING ENUMERATIONS
+    std::ostringstream oss;
+    oss << "# Step                       Symbol Entries\n"
+        << "# -------------------------- ------ ------------------------------------------\n"
+        << "# preEvent                      " << step::preEvent                   << "   <Stream ID> <Run#> <LumiBlock#> <Event#> <Time since beginJob (ms)>\n"
+        << "# postModuleEventPrefetching    " << step::postModuleEventPrefetching << "   <Stream ID> <Module ID> <Time since beginJob (ms)>\n"
+        << "# preModuleEvent                " << step::preModuleEvent             << "   <Stream ID> <Module ID> <Time since beginJob (ms)>\n"
+        << "# preEventReadFromSource        " << step::preEventReadFromSource     << "   <Stream ID> <Module ID> <Time since beginJob (ms)>\n"
+        << "# postEventReadFromSource       " << step::postEventReadFromSource    << "   <Stream ID> <Module ID> <Time since beginJob (ms)>\n"
+        << "# postModuleEvent               " << step::postModuleEvent            << "   <Stream ID> <Module ID> <Time since beginJob (ms)>\n"
+        << "# postEvent                     " << step::postEvent                  << "   <Stream ID> <Run#> <LumiBlock#> <Event#> <Time since beginJob (ms)>\n";
+    file_.write(oss.str());
   }
-
 }
 
 void StallMonitor::fillDescriptions(ConfigurationDescriptions& descriptions)
@@ -201,8 +223,16 @@ void StallMonitor::fillDescriptions(ConfigurationDescriptions& descriptions)
 void StallMonitor::preModuleConstruction(ModuleDescription const& md)
 {
   // Module labels are dense, so if the module id is greater than the
-  // size of moduleLabels_, grow the vector to the right index, and
-  // assign the last entry to the desired label.
+  // size of moduleLabels_, grow the vector to the correct index and
+  // assign the last entry to the desired label.  Note that with the
+  // current implementation, there is no module with ID '0'.  In
+  // principle, the module-information vectors are therefore each one
+  // entry too large.  However, since removing the entry at the front
+  // makes for awkward indexing later on, and since the sizes of these
+  // extra entries are on the order of bytes, we will leave them in
+  // and skip over them later when printing out summaries.  The
+  // extraneous entries can be identified by their module labels being
+  // empty.
   auto const mid = md.id();
   if (mid < moduleLabels_.size()) {
     moduleLabels_[mid] = md.moduleLabel();
@@ -223,7 +253,6 @@ void StallMonitor::postBeginJob()
   for (std::size_t i{}; i < moduleStats_.size(); ++i) {
     moduleStats_[i].setLabel(moduleLabels_[i]);
   }
-  moduleLabels_.clear();
   beginTime_ = now();
 }
 
@@ -298,30 +327,77 @@ void StallMonitor::postEvent(StreamContext const& sc)
 
 void StallMonitor::postEndJob()
 {
-  // Prepare summary
-  std::size_t width {};
-  edm::for_all(moduleStats_, [&width](auto const& stats) { width = std::max(width, stats.label().size()); });
+  std::string const space {"  "};
+  {
+    // Prepare summary
+    std::size_t width {};
+    edm::for_all(moduleStats_, [&width](auto const& stats) {
+        if (stats.numberOfStalls() == 0u) return;
+        width = std::max(width, stats.label().size());
+      });
 
-  Column tag {"StallMonitor>"};
-  Column col1 {"Module label", width};
-  Column col2 {"# of stalls"};
-  Column col3 {"Total stalled time"};
-  Column col4 {"Max stalled time"};
+    Column tag {"StallMonitor>"};
+    Column col1 {"Module label", width};
+    Column col2 {"# of stalls"};
+    Column col3 {"Total stalled time"};
+    Column col4 {"Max stalled time"};
 
-  LogAbsolute out {"StallMonitor"};
-  out << tag << col1 << col2 << col3 << col4 << '\n';
-  //  out << std::string('-',width+col1+col2+col3) << '\n';
-  for (auto const& stats : moduleStats_) {
-    out << tag
-        << col1(stats.label())
-        << col2(stats.numberOfStalls())
-        << col3(stats.totalStalledTime())
-        << col4(stats.maxStalledTime()) << '\n';
+    LogAbsolute out {"StallMonitor"};
+    out << '\n';
+    out << tag << space
+        << col1 << space
+        << col2 << space
+        << col3 << space
+        << col4 << '\n';
+
+    out << tag << space
+        << std::setfill('-')
+        << col1(std::string{}) << space
+        << col2(std::string{}) << space
+        << col3(std::string{}) << space
+        << col4(std::string{}) << '\n';
+
+    using seconds_d = duration<double>;
+
+    auto to_seconds_str = [](auto const& duration){
+      std::ostringstream oss;
+      auto const time = duration_cast<seconds_d>(duration).count();
+      oss << time << " s";
+      return oss.str();
+    };
+
+    out << std::setfill(' ');
+    for (auto const& stats : moduleStats_) {
+      if (stats.label().empty() ||  // See comment in filling of moduleLabels_;
+          stats.numberOfStalls() == 0u) continue;
+      out << std::left
+          << tag << space
+          << col1(stats.label()) << space
+          << std::right
+          << col2(stats.numberOfStalls()) << space
+          << col3(to_seconds_str(stats.totalStalledTime())) << space
+          << col4(to_seconds_str(stats.maxStalledTime())) << '\n';
+    }
   }
 
-  if (validFile_) {
-    // FIXME: DUMP MODULE NAMES/IDS
+  if (!validFile_) return;
+
+  std::size_t const width {std::to_string(moduleLabels_.size()).size()};
+
+  Column col0 {"Module ID", width};
+  std::string const lastCol {"Module label"};
+
+  std::ostringstream oss;
+  oss << '\n' << col0 << space << lastCol << '\n';
+  oss << std::string(col0.width()+space.size()+lastCol.size(),'-') << '\n';
+
+  for (std::size_t i{} ; i < moduleLabels_.size(); ++i) {
+    auto const& label = moduleLabels_[i];
+    if (label.empty()) continue; // See comment in filling of moduleLabels_;
+    oss << std::setw(width) << std::left << col0(i) << space
+        << std::left << moduleLabels_[i] << '\n';
   }
+  file_.write(oss.str());
 }
 
 DEFINE_FWK_SERVICE(StallMonitor);
