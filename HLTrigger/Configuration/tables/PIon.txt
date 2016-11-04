@@ -121,7 +121,7 @@ HLT_PAL1BptxMinusNotBptxPlus_v*                                         #CMSHLT-
 HLT_PAL1BptxPlusNotBptxMinus_v*                                         #CMSHLT-1076
 HLT_PABptxXOR_v*                                                        #CMSHLT-1076
 HLT_PARandom_v*                                                         #CMSHLT-1099
-HLT_PAL1FatEvents_v*                                                    #CMSHLT-1099
+HLT_L1FatEvents_v*                                                      #CMSHLT-1099
 
 HLT_PAAK4CaloJet40_Eta5p1_v*                                            #CMSHLT-1078
 HLT_PAAK4CaloJet60_Eta5p1_v*                                            #CMSHLT-1078
@@ -229,6 +229,8 @@ RPCMONOutput                                #CMSHLT-1083
 ALCALUMIPIXELSOutput                        #CMSHLT-1087
 
 HLTMonitorPAOutput                          #CMSHLT-1092
+
+DQMHistograms                               #CMSHLT-1116
 
 PhysicsCommissioningOutput
 PhysicsPAMuonsOutput                        #CMSHLT-1013
