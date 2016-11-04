@@ -107,5 +107,6 @@ private:
   bool switchGainWidthsForTrigPrims; 
   bool setHEdsegm;
   bool setHBdsegm;
+  bool useLayer0Weight;
 };
 
