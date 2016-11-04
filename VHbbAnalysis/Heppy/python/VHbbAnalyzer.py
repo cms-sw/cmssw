@@ -382,10 +382,10 @@ class VHbbAnalyzer( Analyzer ):
 			      event.vLeptons =[zElectrons[0],zElectrons[i]]
 			      break
 	elif len(wElectrons) + len(wMuons) == 1: 
-		if abs(event.selectedLeptons[0].pdgId())==13 :
+		if len(wMuons)==1 :
 			event.Vtype = 2
 			event.vLeptons =wMuons
-		if abs(event.selectedLeptons[0].pdgId())==11 :
+		if len(wElectrons) == 1 :
 			event.Vtype = 3
 			event.vLeptons =wElectrons
         elif len(zElectrons) + len(zMuons) > 0 :
