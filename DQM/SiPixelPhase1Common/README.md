@@ -85,6 +85,7 @@ The framework also allows a `custom` command that passes the current table state
 
 Since the framework can see where quantities go during the computation of derived histograms, it can also automatically keep track of the axis labels and ranges and set them to useful, consistent values automatically. For technical reasons the framework is not able to execute every conceivable specification, but it is able to handle all relevant cases in an efficient way. Since the specification is very abstract, it gives the framework a lot of freedom to implement it in the most efficient way possible.
 
+
 How to actually use it
 ----------------------
 
@@ -191,7 +192,7 @@ The `_Num` versions perform a NDigis-like counting, while the others expect a si
 
 For more complicated cases, first check whether something similar already exists. In that case, you might be able to steal a working specification there...
 
-For all the specifications, the steps up to the first `save` are executed in DQM step1. The histograms specified after the first `save` are created in DQM step2, Harvesting. Since step1 is very restricted due to multi-threading and performance requirements, not all specifications can be executed in step1. So, sometimes a `save` is necessary to make a specification work (this is e.g. the case with the profiles).
+For all the specifications, the steps up to the first `save` are executed in DQM step1. The histograms specified after the first `save` are created in DQM step2, Harvesting. The types of specifications that can be executed in step1 and step2 are fairly different, and also the semantics change a bit (s explained above, with to different approaches for EXTEND). In general, step2 does not allow any 2D plots at the moment.
 
 
 How it really works
@@ -203,8 +204,6 @@ This section explains for every class in the framework what it does. This might 
 
 This is an unspectacular wrapper around histogram-like things. It is used as the right-hand side of all tables that are actually kept in memory. It can contain either a root `TH1`, a `MonitorElement` (then the `th1` points to the MEs TH1) or a simple counter (`int`). The counter can be used independently of the histogram and is used to concatenate histograms in harvesting and count things per event in step1.
 
-There is also a full set of meta information in it (ranges, labels, ...) but these are not used normally; they are only needed once during the booking process. This could be handled more elegantly.
-
 ### SiPixelPhase1Base
 
 This is the base class that all plugins should derive from. It instantiates `HistogramManager`s from config, sets up a `GeometryInterface`, and calls the `book` method of the `HistogramManager`s. If you need anything special, you can also do this yourself ad ignore the base class.
@@ -215,12 +214,14 @@ The same file declares the `SiPixelPhase1Harvester`, which is very similar to th
 
 A dumb datastructure that represents a specification, as introduced above. The specification is in an internal, slightly different format, which is created by the SpecificationBuilder in Python code; the C++ SummationSpecification just takes the `PSet` structure and does no special processing, except for converting columns from the string form to the efficient `GeometryInterface` form.
 
+Note that the format of the Specification in there is fairly rigid and the `HistogramManager` assumes a lot of things there. The explanation is in comments in the `SpecificationBuilder`.
+
 ### SpecficationBuilder
 
 This is the Python class that provides the specification syntax used above. It creates a nested structure of `PSet`s with all the information, and also transforms the specification from the simple language explained above into something closer to the implementation. This includes 
   - attaching the DQM step (here called `Stage`) where the step is to be executed to every `Step`.
   - creating different internal commands for `groupBy` steps, depending on whether it is a summation or a extension. A detail here is that while a normal `GROUPBY`has a list of columns to keep, the internal `EXTEND_*` lists the columns to be dropped, to simplify step1 processing.
-  - special-casing "/Event" grouping, which has to be done using a special `STAGE1_2` only used for this purpose.
+  - special-casing "/Event" grouping, which has to be done using a second `FIRST` step of type `COUNT`.
   - checking for all sorts of well-formedness, to catch possible problems as soon as possible.
 
 ### GeometryInterface
@@ -262,6 +263,8 @@ This is where most of the implementation hides.
 #### HistogramManager::Table
 
 This is the most important datastructure in the `HistogramManager`. It is a `std::map<Values, AbstractHistogram>`. This represents the conceptual table outlined above and is used in harvesting to perform all operations. In step1, things are a bit more complicated but the `Table` is still the main structure. Typically the `AbstractHistogram`s in a table always have a `th1` assigned (may or may not be a ME), unless it is a step1 counter. However, it can happen that you hit a row that was never touched before and does not have a `th1` (e. g. if a foreign `DetId` was passed in), and these should be ignored. The histogram concatenation code relies on the lexicographical order of the map, which `std::map` does provide. The fast path for `fill` should make no more than one lookup in this table (per spec). 
+
+The `HistogramManager` holds two sets of Tables, one for counters, and another one for histograms, but they are of the same type. Also harvesting uses the same type, even though no code is shared between harvesting and step1.
 
 #### Booking Process
 
