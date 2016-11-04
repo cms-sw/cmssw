@@ -128,7 +128,8 @@ class InputInfo(object):
         if self.ib_blacklist:
             command += " | grep -E -v "
             command += " ".join(["-e '{0}'".format(pattern) for pattern in self.ib_blacklist])
-        command += " | sort -u"
+        from os import getenv
+        if getenv("CMSSDT_DAS_CLIENT_NO_SORT","NOT_SET") == "NOT_SET": command += " | sort -u"
         return command
 
     def lumiRanges(self):
