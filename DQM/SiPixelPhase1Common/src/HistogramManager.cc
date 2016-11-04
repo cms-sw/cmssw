@@ -71,7 +71,7 @@ void HistogramManager::fill(double x, double y, DetId sourceModule,
   if (col != this->iq.col || row != this->iq.row ||
       sourceModule != this->iq.sourceModule ||
       sourceEvent != this->iq.sourceEvent ||
-      // TODO: add the RawData fake DetId here
+      sourceModule == 0xFFFFFFFF ||
       sourceModule == DetId(0)  // Hack for eventrate-like things, since the
                                 // sourceEvent ptr might not change.
       ) {
@@ -330,7 +330,10 @@ void HistogramManager::book(DQMStore::IBooker& iBooker,
         // create new histo
         MEInfo& mei = toBeBooked[significantvalues]; 
         mei.name = makeName(s, iq);
-        mei.title = bookCounters ? "Number of " + this->title : this->title;
+        mei.title = this->title;
+        if (bookCounters) 
+          mei.title = "Number of " + mei.title + " per Event and " 
+            + geometryInterface.pretty(geometryInterface.extract(*(s.steps[0].columns.end()-1), iq).first);
         std::string xlabel = bookCounters ? "#" + this->xlabel : this->xlabel;
 
         // refer to fillInternal() for the actual execution
@@ -360,7 +363,7 @@ void HistogramManager::book(DQMStore::IBooker& iBooker,
               assert(mei.range_x_nbins == 0);
               auto col = geometryInterface.extract(it->columns[0], iq).first;
               mei.xlabel = geometryInterface.pretty(col);
-              mei.title = mei.title + " per " + mei.xlabel;
+              mei.title = mei.title + " by " + mei.xlabel;
               if(geometryInterface.minValue(col[0]) != GeometryInterface::UNDEFINED)
                 mei.range_x_min = geometryInterface.minValue(col[0]);
               if(geometryInterface.maxValue(col[0]) != GeometryInterface::UNDEFINED)
@@ -370,7 +373,7 @@ void HistogramManager::book(DQMStore::IBooker& iBooker,
             case SummationStep::EXTEND_Y: {
               auto col = geometryInterface.extract(it->columns[0], iq).first;
               mei.ylabel = geometryInterface.pretty(col);
-              mei.title = mei.title + " per " + mei.ylabel;
+              mei.title = mei.title + " by " + mei.ylabel;
               if(geometryInterface.minValue(col[0]) != GeometryInterface::UNDEFINED)
                 mei.range_y_min = geometryInterface.minValue(col[0]);
               if(geometryInterface.maxValue(col[0]) != GeometryInterface::UNDEFINED)
