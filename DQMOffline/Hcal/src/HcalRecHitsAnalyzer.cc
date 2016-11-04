@@ -418,7 +418,7 @@ void HcalRecHitsAnalyzer::analyze(edm::Event const& ev, edm::EventSetup const& c
   double phiHot  = 99999.; 
 
   //   previously was:  c.get<IdealGeometryRecord>().get (geometry);
-  //c.get<CaloGeometryRecord>().get (geometry);
+  c.get<CaloGeometryRecord>().get (geometry);
 
   // HCAL channel status map ****************************************
   edm::ESHandle<HcalChannelQuality> hcalChStatus;
