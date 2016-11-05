@@ -2049,7 +2049,7 @@ bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalTPParameters* fObject) 
     //    std::cout << "HcalTPParameters-> processing line: " << buffer << std::endl;
     int      version = atoi (items [0].c_str());
     int      adcCut  = atoi (items [1].c_str());
-    uint64_t tdcMask = atoll(items [2].c_str());
+    uint64_t tdcMask = strtoull(items [2].c_str(),NULL,16);
     uint32_t tbits   = atoi (items [3].c_str());
     int      auxi1   = atoi (items [4].c_str());
     int      auxi2   = atoi (items [5].c_str());
@@ -2063,20 +2063,18 @@ bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalTPParameters* fObject) 
 bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalTPParameters& fObject) {
 
   char buffer [1024];
-  sprintf (buffer, "# %15s %15s %30s %15s %15s %15s\n", "FGAlgo_HBHE", 
+  sprintf (buffer, "# %15s %15s %16s %15s %15s %15s\n", "FGAlgo_HBHE", 
 	   "ADCThrHF", "TDCMaskHF", "STBitsHF", "auxi1", "auxi2");
   fOutput << buffer;
 
   const int      version  = fObject.getFGVersionHBHE();
   const int      adcCut   = fObject.getADCThresholdHF();
   const uint64_t tdcMask  = fObject.getTDCMaskHF();
-  const uint32_t mask1    = (tdcMask>>32)&0xFFFFFFFF;
-  const uint32_t mask2    = tdcMask&0xFFFFFFFF;
   const uint32_t tbits    = fObject.getHFTriggerInfo();
   const int      auxi1    = fObject.getAuxi1();
   const int      auxi2    = fObject.getAuxi2();
-  sprintf (buffer, " %15d %15d %15x %15x %15x %15d %15d\n", version, adcCut,
-	   mask1, mask2, tbits, auxi1, auxi2);
+   
+  sprintf (buffer, " %15d %15d  %16jx %15x %15d %15d\n", version, adcCut, tdcMask, tbits, auxi1, auxi2);
   fOutput << buffer;
 
   return true;
