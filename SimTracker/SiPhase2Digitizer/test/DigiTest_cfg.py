@@ -26,9 +26,9 @@ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic', '')
 
 process.source = cms.Source("PoolSource",
     fileNames =  cms.untracked.vstring(
-       '/store/relval/CMSSW_8_1_0_pre15/RelValTenMuExtendedE_0_200/GEN-SIM-DIGI-RAW/81X_upgrade2023_realistic_v3_2023D4-v1/10000/2AB8BADF-5199-E611-9C46-0CC47A78A458.root'
-#       )
-#)
+        'file:step2_DIGI.root'
+      )
+)
 # Production Info
 process.configurationMetadata = cms.untracked.PSet(
     version = cms.untracked.string('$Revision: 1.19 $'),
