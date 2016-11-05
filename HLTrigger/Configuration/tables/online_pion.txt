@@ -230,8 +230,6 @@ ALCALUMIPIXELSOutput                        #CMSHLT-1087
 
 HLTMonitorPAOutput                          #CMSHLT-1092
 
-DQMHistograms                               #CMSHLT-1116
-
 PhysicsCommissioningOutput
 PhysicsPAMuonsOutput                        #CMSHLT-1013
 PhysicsPAHighMultiplicity0Output            #CMSHLT-1000
@@ -258,3 +256,4 @@ DQMEventDisplayOutput                       #CMSHLT-1099
 
 #HLTAnalyzerEndpath			# only in 'GRun', not in 'online'
 RatesMonitoring						# only in 'online'
+DQMHistograms
