@@ -39,8 +39,10 @@ l3muon12_moduleName = "hltL3fL1sSingleMu7BptxANDL1f0L2f0L3Filtered12"
 
 #To avoid booking histogram, set pathName = cms.string("")
 
-hltObjectMonitorHeavyIon = cms.EDAnalyzer('HLTObjectMonitorHeavyIon',
-    processName = cms.string("HLT"),
+hltObjectMonitorProtonLead = cms.EDAnalyzer('HLTObjectMonitorProtonLead',
+    processName         = cms.string("HLT"),
+    triggerResults      = cms.InputTag("TriggerResults", "", "HLT"),
+    triggerEvent        = cms.InputTag("hltTriggerSummaryAOD", "", "HLT"),
     caloAK4JetPt = cms.PSet(
         pathName = cms.string(caloJet_pathName),
         moduleName = cms.string(caloJet_moduleName),
