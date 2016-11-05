@@ -5,7 +5,7 @@ import ROOT
 ROOT.gROOT.SetBatch(True)
 ROOT.PyConfig.IgnoreCommandLineOptions = True
 
-from plotting import Subtract, FakeDuplicate, AggregateBins, ROC, Plot, PlotGroup, PlotFolder, Plotter
+from plotting import Subtract, FakeDuplicate, CutEfficiency, Transform, AggregateBins, ROC, Plot, PlotGroup, PlotFolder, Plotter
 import plotting
 import validation
 from html import PlotPurpose
@@ -105,12 +105,36 @@ def _makeDistSimPlots(postfix, quantity, common={}):
 
 def _makeMVAPlots(num):
     xtitle = "MVA%d output"%num
+    xtitlecut = "Cut on MVA%d output"%num
     args = dict(xtitle=xtitle, ylog=True, ymin=_minMaxN, ymax=_minMaxN)
+
+    argsroc = dict(
+        xtitle="Efficiency (excl. trk eff)", ytitle="Fake rate",
+        xmax=_maxEff, ymax=_maxFake,
+        drawStyle="EP",
+    )
+    argsroc2 = dict(
+        ztitle="Cut on MVA%d"%num,
+        xtitleoffset=7, ytitleoffset=10, ztitleoffset=6
+    )
+    argsroc2.update(argsroc)
+    argsroc2["drawStyle"] = "pcolz"
+
+    true_cuteff = CutEfficiency("trueeff_vs_mva%dcut"%num, "num_assoc(recoToSim)_mva%dcut"%num)
+    fake_cuteff = CutEfficiency("fakeeff_vs_mva%dcut"%num, Subtract("num_fake_mva%dcut"%num, "num_reco_mva%dcut"%num, "num_assoc(recoToSim)_mva%dcut"%num))
 
     return PlotGroup("mva%d"%num, [
         Plot("num_assoc(recoToSim)_mva%d"%num, ytitle="true tracks", **args),
         Plot(Subtract("num_fake_mva%d"%num, "num_reco_mva%d"%num, "num_assoc(recoToSim)_mva%d"%num), ytitle="fake tracks", **args),
-        Plot("fakerate_vs_mva%d"%num, xtitle=xtitle, ytitle="fake rate", ymax=_maxFake)
+        Plot("effic_vs_mva%dcut"%num, xtitle=xtitlecut, ytitle="Efficiency (excl. trk eff)", ymax=_maxEff),
+        #
+        Plot("fakerate_vs_mva%dcut"%num, xtitle=xtitlecut, ytitle="Fake rate", ymax=_maxFake),
+        Plot(ROC("effic_vs_fake_mva%d"%num, "effic_vs_mva%dcut"%num, "fakerate_vs_mva%dcut"%num), **argsroc),
+        Plot(ROC("effic_vs_fake_mva%d"%num, "effic_vs_mva%dcut"%num, "fakerate_vs_mva%dcut"%num, zaxis=True), **argsroc2),
+        # Same signal efficiency, background efficiency, and ROC definitions as in TMVA
+        Plot(true_cuteff, xtitle=xtitlecut, ytitle="True track cut efficiency", ymax=_maxEff),
+        Plot(fake_cuteff, xtitle=xtitlecut, ytitle="Fake track cut efficiency", ymax=_maxEff),
+        Plot(ROC("true_eff_vs_fake_rej_mva%d"%num, true_cuteff, Transform("fake_rej_mva%d"%num, fake_cuteff, lambda x: 1-x)), xtitle="True track cut efficiency", ytitle="Fake track rejection", xmax=_maxEff, ymax=_maxEff),
     ], ncols=3, legendDy=_legendDy_1row)
 
 _effandfake1 = PlotGroup("effandfake1", [
