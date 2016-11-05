@@ -106,7 +106,7 @@ class dso_hidden PixelThresholdClusterizer final : public PixelClusterizerBase {
   int   theStackADC_;          // The maximum ADC count for the stack layers
   int   theFirstStack_;        // The index of the first stack layer
 
-
+  double theElectronPerADCGain_;  //  ADC to electrons conversion
 };
 
 #endif
