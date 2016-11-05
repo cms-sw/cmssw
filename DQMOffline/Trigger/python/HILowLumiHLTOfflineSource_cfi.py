@@ -338,6 +338,7 @@ def getPAHighPtVPSet():
     jetThresholds = [40, 60, 80, 100]
     jetThresholdsFor1 = [40, 60]
     jetThresholdsFor2 = [40]
+    jetThresholdsForMB = [40]
     bjetThresholds = [40, 60, 80]
     dijetAveThresholds = [40, 60, 80]
     gammaThresholds = [10, 15, 20, 30, 40]
@@ -351,6 +352,28 @@ def getPAHighPtVPSet():
     for jType in jetTypes:
         for t in jetThresholds:
             partialPathName = "HLT_PAAK4" + jType + "Jet" + str(t) + "_Eta5p1_v"
+            hltSingleJet =  cms.PSet(
+                triggerSelection = cms.string(partialPathName+"*"),
+                handlerType = cms.string("FromHLT"),
+                partialPathName = cms.string(partialPathName),
+                partialFilterName  = cms.string("hltSinglePAAK4" + jType + "Jet"),
+                dqmhistolabel  = cms.string("hltSingleAK4" + jType + "Jet" + str(t)),
+                mainDQMDirname = cms.untracked.string(dirname),
+                singleObjectsPreselection = cms.string("1==1"),
+                  singleObjectDrawables =  cms.VPSet(
+                    cms.PSet (name = cms.string("pt"), expression = cms.string("pt"), bins = cms.int32(100), min = cms.double(20), max = cms.double(420)),
+                    cms.PSet (name = cms.string("eta"), expression = cms.string("eta"), bins = cms.int32(100), min = cms.double(-5.0), max = cms.double(5.0)),
+                    cms.PSet (name = cms.string("phi"), expression = cms.string("phi"), bins = cms.int32(100), min = cms.double(-3.15), max = cms.double(3.15))
+                    ),
+                combinedObjectSelection =  cms.string("1==1"),
+                combinedObjectSortCriteria = cms.string("at(0).pt"),
+                combinedObjectDimension = cms.int32(1),
+                combinedObjectDrawables =  cms.VPSet()
+                )
+            ret.append(hltSingleJet)
+
+        for t in jetThresholdsForMB:
+            partialPathName = "HLT_PAAK4" + jType + "Jet" + str(t) + "_Eta5p1_SeededWithMB_v"
             hltSingleJet =  cms.PSet(
                 triggerSelection = cms.string(partialPathName+"*"),
                 handlerType = cms.string("FromHLT"),
