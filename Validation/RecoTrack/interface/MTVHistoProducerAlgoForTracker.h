@@ -57,7 +57,8 @@ class MTVHistoProducerAlgoForTracker {
 					   int numVertices,
 					   double dR,
 					   const math::XYZPoint *pvPosition,
-                                           const TrackingVertex::LorentzVector *simPVPosition);
+                                           const TrackingVertex::LorentzVector *simPVPosition,
+                                           const std::vector<float>& mvas);
 
   void fill_recoAssociated_simTrack_histos(int count,
 					   const reco::GenParticle& tp,
@@ -209,6 +210,7 @@ class MTVHistoProducerAlgoForTracker {
   std::vector<MonitorElement*> h_reco_seedingLayerSet, h_assoc2_seedingLayerSet, h_looper_seedingLayerSet, h_pileup_seedingLayerSet;
 
   std::vector<std::vector<MonitorElement*> > h_reco_mva, h_assoc2_mva;
+  std::vector<std::vector<MonitorElement*> > h_reco_mvacut, h_assoc_mvacut, h_assoc2_mvacut, h_simul2_mvacut;
 
   // dE/dx
   // in the future these might become an array
