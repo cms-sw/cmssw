@@ -624,6 +624,17 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
       reco::RecoToSimCollection const & recSimColl = *recSimCollP;
       reco::SimToRecoCollection const & simRecColl = *simRecCollP;
  
+      // read MVA collections
+      if(doMVAPlots_ && !mvaCollectionTokens_[www].empty()) {
+        edm::Handle<MVACollection> hmva;
+        for(const auto& token: mvaCollectionTokens_[www]) {
+          event.getByToken(token, hmva);
+          mvaCollections.push_back(hmva.product());
+          if(mvaCollections.back()->size() != trackCollection.size()) {
+            throw cms::Exception("Configuration") << "Inconsistency in track collection and MVA sizes. Track collection " << www << " has " << trackCollection.size() << " tracks, whereas the MVA " << (mvaCollections.size()-1) << " for it has " << mvaCollections.back()->size() << " entries. Double-check your configuration.";
+          }
+        }
+      }
 
       // ########################################################
       // fill simulation histograms (LOOP OVER TRACKINGPARTICLES)
@@ -711,6 +722,20 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 	    LogTrace("TrackValidator") << "TrackingParticle #" << st
                                        << " with pt=" << sqrt(momentumTP.perp2())
                                        << " associated with quality:" << rt.begin()->second <<"\n";
+
+            if(doMVAPlots_) {
+              // for each MVA we need to take the value of the track
+              // with largest MVA value (for the cumulative histograms)
+              for(const auto& mva: mvaCollections) {
+                auto iMatch = rt.begin();
+                float maxMva = (*mva)[iMatch->first.key()];
+                ++iMatch;
+                for(; iMatch!=rt.end(); ++iMatch) {
+                  maxMva = std::max(maxMva, (*mva)[iMatch->first.key()]);
+                }
+                mvaValues.push_back(maxMva);
+              }
+            }
 	  }
 	}else{
 	  LogTrace("TrackValidator")
@@ -729,7 +754,8 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
         int nSimLayers = nLayers_tPCeff[tpr];
         int nSimPixelLayers = nPixelLayers_tPCeff[tpr];
         int nSimStripMonoAndStereoLayers = nStripMonoAndStereoLayers_tPCeff[tpr];
-        histoProducerAlgo_->fill_recoAssociated_simTrack_histos(w,tp,momentumTP,vertexTP,dxySim,dzSim,dxyPVSim,dzPVSim,nSimHits,nSimLayers,nSimPixelLayers,nSimStripMonoAndStereoLayers,matchedTrackPointer,puinfo.getPU_NumInteractions(), dR, thePVposition, theSimPVPosition);
+        histoProducerAlgo_->fill_recoAssociated_simTrack_histos(w,tp,momentumTP,vertexTP,dxySim,dzSim,dxyPVSim,dzPVSim,nSimHits,nSimLayers,nSimPixelLayers,nSimStripMonoAndStereoLayers,matchedTrackPointer,puinfo.getPU_NumInteractions(), dR, thePVposition, theSimPVPosition, mvaValues);
+        mvaValues.clear();
           sts++;
           if(matchedTrackPointer)
             asts++;
@@ -803,19 +829,6 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 	dR_trk[i] = std::sqrt(dR);
       }
 
-      // read MVA collections
-      mvaCollections.clear();
-      if(doMVAPlots_ && !mvaCollectionTokens_[www].empty()) {
-        edm::Handle<MVACollection> hmva;
-        for(const auto& token: mvaCollectionTokens_[www]) {
-          event.getByToken(token, hmva);
-          mvaCollections.push_back(hmva.product());
-          if(mvaCollections.back()->size() != trackCollection.size()) {
-            throw cms::Exception("Configuration") << "Inconsistency in track collection and MVA sizes. Track collection " << www << " has " << trackCollection.size() << " tracks, whereas the MVA " << (mvaCollections.size()-1) << " for it has " << mvaCollections.back()->size() << " entries. Double-check your configuration.";
-          }
-        }
-      }
-
       for(View<Track>::size_type i=0; i<trackCollection.size(); ++i){
         auto track = trackCollection.refAt(i);
 	rT++;
@@ -853,8 +866,7 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 	}
 
         // set MVA values for this track
-        mvaValues.clear();
-        if(doMVAPlots_ && !mvaCollections.empty()) {
+        if(doMVAPlots_) {
           for(const auto& mva: mvaCollections) {
             mvaValues.push_back((*mva)[i]);
           }
@@ -862,6 +874,7 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 
 	double dR=dR_trk[i];
 	histoProducerAlgo_->fill_generic_recoTrack_histos(w,*track, ttopo, bs.position(), thePVposition, theSimPVPosition, isSimMatched,isSigSimMatched, isChargeMatched, numAssocRecoTracks, puinfo.getPU_NumInteractions(), nSimHits, sharedFraction, dR, mvaValues);
+        mvaValues.clear();
 
         if(doSummaryPlots_) {
           h_reco_coll[ww]->Fill(www);
@@ -916,6 +929,7 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 	//nrecHit_vs_nsimHit_rec2sim[w]->Fill(track->numberOfValidHits(), (int)(simhits.end()-simhits.begin() ));
 
       } // End of for(View<Track>::size_type i=0; i<trackCollection.size(); ++i){
+      mvaCollections.clear();
 
       histoProducerAlgo_->fill_trackBased_histos(w,at,rT,st);
       // Fill seed-specific histograms

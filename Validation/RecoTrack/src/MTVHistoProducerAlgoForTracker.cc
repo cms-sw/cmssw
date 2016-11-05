@@ -667,10 +667,20 @@ void MTVHistoProducerAlgoForTracker::bookMVAHistos(DQMStore::IBooker& ibook, siz
   h_reco_mva.emplace_back();
   h_assoc2_mva.emplace_back();
 
+  h_reco_mvacut.emplace_back();
+  h_assoc_mvacut.emplace_back();
+  h_assoc2_mvacut.emplace_back();
+  h_simul2_mvacut.emplace_back();
+
   for(size_t i=1; i <= nMVAs; ++i) {
     auto istr = std::to_string(i);
     h_reco_mva.back().push_back(ibook.book1D("num_reco_mva"+istr, "N of reco track vs MVA"+istr, nintMVA, minMVA, maxMVA) );
     h_assoc2_mva.back().push_back(ibook.book1D("num_assoc(recoToSim)_mva"+istr, "N of associated tracks (recoToSim) vs MVA"+istr, nintMVA, minMVA, maxMVA) );
+
+    h_reco_mvacut.back().push_back(ibook.book1D("num_reco_mva"+istr+"cut", "N of reco track vs cut on MVA"+istr, nintMVA, minMVA, maxMVA) );
+    h_assoc_mvacut.back().push_back(ibook.book1D("num_assoc(simToReco)_mva"+istr+"cut", "N of associated tracks (simToReco) vs cut on MVA"+istr, nintMVA, minMVA, maxMVA) );
+    h_assoc2_mvacut.back().push_back(ibook.book1D("num_assoc(recoToSim)_mva"+istr+"cut", "N of associated tracks (recoToSim) vs cut on MVA"+istr, nintMVA, minMVA, maxMVA) );
+    h_simul2_mvacut.back().push_back(ibook.book1D("num_simul2_mva"+istr+"cut", "N of simulated tracks (associated to any track) vs cut on MVA"+istr, nintMVA, minMVA, maxMVA) );
   }
 }
 
@@ -699,7 +709,8 @@ void MTVHistoProducerAlgoForTracker::fill_recoAssociated_simTrack_histos(int cou
 									 int numVertices,
 									 double dR,
 									 const math::XYZPoint *pvPosition,
-                                                                         const TrackingVertex::LorentzVector *simPVPosition) {
+                                                                         const TrackingVertex::LorentzVector *simPVPosition,
+                                                                         const std::vector<float>& mvas) {
   bool isMatched = track;
   const auto eta = getEta(momentumTP.eta());
   const auto phi = momentumTP.phi();
@@ -707,6 +718,14 @@ void MTVHistoProducerAlgoForTracker::fill_recoAssociated_simTrack_histos(int cou
   const auto nSim3DLayers = nSimPixelLayers + nSimStripMonoAndStereoLayers;
   const auto vertxy = sqrt(vertexTP.perp2());
   const auto vertz = vertexTP.z();
+
+  //efficiency vs. cut on MVA
+  if(isMatched) {
+    for(size_t i=0; i<mvas.size(); ++i) {
+      h_simul2_mvacut[count][i]->Fill(maxMVA);
+      h_assoc_mvacut[count][i]->Fill(mvas[i]);
+    }
+  }
 
   if((*TpSelectorForEfficiencyVsEta)(tp)){
     //effic vs eta
@@ -886,6 +905,7 @@ void MTVHistoProducerAlgoForTracker::fill_generic_recoTrack_histos(int count,
   fillPlotNoFlow(h_recopu[count],numVertices);
   for(size_t i=0; i<mvas.size(); ++i) {
     fillPlotNoFlow(h_reco_mva[count][i], mvas[i]);
+    fillPlotNoFlow(h_reco_mvacut[count][i], mvas[i]);
   }
 
   if (isMatched) {
@@ -920,6 +940,7 @@ void MTVHistoProducerAlgoForTracker::fill_generic_recoTrack_histos(int count,
     fillPlotNoFlow(h_assoc2pu[count],numVertices);
     for(size_t i=0; i<mvas.size(); ++i) {
       fillPlotNoFlow(h_assoc2_mva[count][i], mvas[i]);
+      fillPlotNoFlow(h_assoc2_mvacut[count][i], mvas[i]);
     }
 
     nrecHit_vs_nsimHit_rec2sim[count]->Fill( track.numberOfValidHits(),nSimHits);
