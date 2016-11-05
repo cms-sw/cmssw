@@ -1,11 +1,11 @@
-#ifndef QIE11Task_h
-#define QIE11Task_h
+#ifndef ZDCTask_h
+#define ZDCTask_h
 
 /*
- *	file:			QIE11Task.h
+ *	file:			ZDCTask.h
  *	Author:			Viktor KHristenko
  *	Description:
- *		TestTask of QIE11 Read out
+ *		Task for ZDC Read out
  */
 
 #include "DQM/HcalCommon/interface/DQTask.h"
@@ -19,11 +19,11 @@
 #include "DQM/HcalCommon/interface/HashFilter.h"
 #include "DQM/HcalCommon/interface/ElectronicsMap.h"
 
-class QIE11Task : public hcaldqm::DQTask
+class ZDCTask : public hcaldqm::DQTask
 {
 	public:
-		QIE11Task(edm::ParameterSet const&);
-		virtual ~QIE11Task(){}
+		ZDCTask(edm::ParameterSet const&);
+		virtual ~ZDCTask(){}
 
 		virtual void bookHistograms(DQMStore::IBooker&,
 			edm::Run const&, edm::EventSetup const&);
@@ -33,27 +33,18 @@ class QIE11Task : public hcaldqm::DQTask
 	protected:
 		virtual void _process(edm::Event const&, edm::EventSetup const&);
 		virtual void _resetMonitors(hcaldqm::UpdateFreq);
-		virtual bool _isApplicable(edm::Event const&);
-
 
 		//	tags
-		edm::InputTag	_tagQIE11;
-		edm::EDGetTokenT<QIE11DigiCollection> _tokQIE11;
-
-		edm::InputTag _taguMN;
-		edm::EDGetTokenT<HcalUMNioDigi> _tokuMN;
-
-
+		edm::InputTag	_tagQIE10;
+		edm::EDGetTokenT<QIE10DigiCollection> _tokQIE10;
 
 		//	cuts/constants from input
 		double _cut;
 		int _ped;
-		int _laserType;
-		int _eventType;
-
 
 		//	filters
 		hcaldqm::filter::HashFilter _filter_C36;
+		hcaldqm::filter::HashFilter _filter_DA;
 
 		//	Electronics Maps/Hashes
 		HcalElectronicsMap const* _emap;
@@ -61,15 +52,19 @@ class QIE11Task : public hcaldqm::DQTask
 		
 		//	hcaldqm::Containers
 		hcaldqm::ContainerProf1D	_cShapeCut_EChannel;
-		hcaldqm::Container2D	_cTDCvsADC_EChannel[10];
-		hcaldqm::Container1D _cTDC_EChannel[10];
+		hcaldqm::ContainerProf1D	_cShape_EChannel;
+		hcaldqm::Container2D	_cLETDCvsADC_EChannel[10];
+		hcaldqm::Container2D	_cTETDCvsADC_EChannel[10];
+		hcaldqm::Container1D _cLETDC_EChannel[10];
 		hcaldqm::Container1D _cADC_EChannel[10];
-		hcaldqm::Container2D _cOccupancy_depth;
+
 
 		//	hcaldqm::Containers overall
 		hcaldqm::ContainerSingleProf1D	_cShapeCut;
-		hcaldqm::ContainerSingle2D		_cTDCvsADC;
-		hcaldqm::ContainerSingle1D		_cTDC;
+		hcaldqm::ContainerSingleProf1D	_cShape;
+		hcaldqm::ContainerSingle2D		_cLETDCvsADC;
+		hcaldqm::ContainerSingle2D		_cTETDCvsADC;
+		hcaldqm::ContainerSingle1D		_cLETDC;
 		hcaldqm::ContainerSingle1D		_cADC;
 };
 
