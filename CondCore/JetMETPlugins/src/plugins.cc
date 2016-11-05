@@ -12,6 +12,8 @@
 
 #include "JetMETCorrections/Objects/interface/METCorrectionsRecord.h"
 #include "CondFormats/JetMETObjects/interface/METCorrectorParameters.h"
+#include "JetMETCorrections/Objects/interface/MEtXYcorrectRecord.h"
+#include "CondFormats/JetMETObjects/interface/MEtXYcorrectParameters.h"
 
 #include "CondFormats/JetMETObjects/interface/JetResolutionObject.h"
 #include "CondFormats/DataRecord/interface/JetResolutionRcd.h"
@@ -19,6 +21,7 @@
 
 REGISTER_PLUGIN(JetCorrectionsRecord, JetCorrectorParametersCollection);
 REGISTER_PLUGIN(METCorrectionsRecord, METCorrectorParametersCollection);
+REGISTER_PLUGIN(MEtXYcorrectRecord, MEtXYcorrectParametersCollection);
 
 REGISTER_PLUGIN(QGLikelihoodRcd, QGLikelihoodObject);
 REGISTER_PLUGIN(QGLikelihoodSystematicsRcd, QGLikelihoodSystematicsObject);
