@@ -14,7 +14,7 @@ from Configuration.Skimming.PA_MinBiasSkim_cff import *
 minBiasSkimPath = cms.Path( minBiasSkimSequence )
 SKIMStreamMinBias = cms.FilteredStream(
     responsible = 'HI PAG',
-    name = 'MinBias',
+    name = 'PAMinBias',
     paths = (minBiasSkimPath),
     content = skimFEVTContent.outputCommands,
     selectEvents = cms.untracked.PSet(),
@@ -28,7 +28,7 @@ from Configuration.Skimming.PA_ZEESkim_cff import *
 zEESkimPath = cms.Path( zEESkimSequence )
 SKIMStreamZEE = cms.FilteredStream(
     responsible = 'HI PAG',
-    name = 'ZEE',
+    name = 'PAZEE',
     paths = (zEESkimPath),
     content = skimFEVTContent.outputCommands,
     selectEvents = cms.untracked.PSet(),
@@ -42,7 +42,7 @@ from Configuration.Skimming.PA_ZMMSkim_cff import *
 zMMSkimPath = cms.Path( zMMSkimSequence )
 SKIMStreamZMM = cms.FilteredStream(
     responsible = 'HI PAG',
-    name = 'ZMM',
+    name = 'PAZMM',
     paths = (zMMSkimPath),
     content = skimFEVTContent.outputCommands,
     selectEvents = cms.untracked.PSet(),
