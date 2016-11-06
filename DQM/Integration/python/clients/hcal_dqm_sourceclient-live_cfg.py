@@ -47,6 +47,7 @@ process = customise(process)
 process.DQMStore.verbose = 0
 process.source.minEventsPerLumi=100
 
+
 #-------------------------------------
 #	CMSSW/Hcal non-DQM Related Module import
 #-------------------------------------
@@ -97,6 +98,7 @@ process.load('DQM.HcalTasks.TPTask')
 process.load('DQM.HcalTasks.RawTask')
 process.load('DQM.HcalTasks.NoCQTask')
 process.load('DQM.HcalTasks.QIE10Task')
+process.load('DQM.HcalTasks.ZDCTask')
 process.load('DQM.HcalTasks.QIE11Task')
 process.load('DQM.HcalTasks.HcalOnlineHarvesting')
 
@@ -133,6 +135,9 @@ process.tpTask.runkeyName = runTypeName
 process.qie10Task.runkeyVal = runType
 process.qie10Task.runkeyName = runTypeName
 process.qie10Task.tagQIE10 = cms.untracked.InputTag("hcalDigis")
+process.zdcTask.runkeyVal = runType
+process.zdcTask.runkeyName = runTypeName
+process.zdcTask.tagQIE10 = cms.untracked.InputTag("hcalDigis","ZDC")
 process.qie11Task.runkeyVal = runType
 process.qie11Task.runkeyName = runTypeName
 process.qie11Task.tagQIE11 = cms.untracked.InputTag("hcalDigis")
@@ -144,11 +149,12 @@ process.tasksPath = cms.Path(
 		process.rawTask
 		+process.digiTask
 		+process.tpTask
-
 		+process.nocqTask
 		+process.qie10Task
 		+process.qie11Task
 )
+if isHeavyIon:
+	process.tasksPath += process.zdcTask
 
 process.harvestingPath = cms.Path(
 	process.hcalOnlineHarvesting
