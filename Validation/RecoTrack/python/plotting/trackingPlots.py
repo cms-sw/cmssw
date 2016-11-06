@@ -103,7 +103,10 @@ def _makeDistSimPlots(postfix, quantity, common={}):
         Plot("num_assoc(simToReco)_"+p, ytitle="Reconstructed TPs", **args),
     ]
 
-def _makeMVAPlots(num):
+def _makeMVAPlots(num, hp=False):
+    pfix = "_hp" if hp else ""
+    pfix2 = "Hp" if hp else ""
+
     xtitle = "MVA%d output"%num
     xtitlecut = "Cut on MVA%d output"%num
     args = dict(xtitle=xtitle, ylog=True, ymin=_minMaxN, ymax=_minMaxN)
@@ -115,26 +118,27 @@ def _makeMVAPlots(num):
     )
     argsroc2 = dict(
         ztitle="Cut on MVA%d"%num,
-        xtitleoffset=7, ytitleoffset=10, ztitleoffset=6
+        xtitleoffset=5, ytitleoffset=6.5, ztitleoffset=4,
+        adjustMarginRight=0.12
     )
     argsroc2.update(argsroc)
     argsroc2["drawStyle"] = "pcolz"
 
-    true_cuteff = CutEfficiency("trueeff_vs_mva%dcut"%num, "num_assoc(recoToSim)_mva%dcut"%num)
-    fake_cuteff = CutEfficiency("fakeeff_vs_mva%dcut"%num, Subtract("num_fake_mva%dcut"%num, "num_reco_mva%dcut"%num, "num_assoc(recoToSim)_mva%dcut"%num))
+    true_cuteff = CutEfficiency("trueeff_vs_mva%dcut%s"%(num,pfix), "num_assoc(recoToSim)_mva%dcut%s"%(num,pfix))
+    fake_cuteff = CutEfficiency("fakeeff_vs_mva%dcut%s"%(num,pfix), Subtract("num_fake_mva%dcut%s"%(num,pfix), "num_reco_mva%dcut%s"%(num,pfix), "num_assoc(recoToSim)_mva%dcut%s"%(num,pfix)))
 
-    return PlotGroup("mva%d"%num, [
-        Plot("num_assoc(recoToSim)_mva%d"%num, ytitle="true tracks", **args),
-        Plot(Subtract("num_fake_mva%d"%num, "num_reco_mva%d"%num, "num_assoc(recoToSim)_mva%d"%num), ytitle="fake tracks", **args),
-        Plot("effic_vs_mva%dcut"%num, xtitle=xtitlecut, ytitle="Efficiency (excl. trk eff)", ymax=_maxEff),
+    return PlotGroup("mva%d%s"%(num,pfix2), [
+        Plot("num_assoc(recoToSim)_mva%d%s"%(num,pfix), ytitle="true tracks", **args),
+        Plot(Subtract("num_fake_mva%d%s"%(num,pfix), "num_reco_mva%d%s"%(num,pfix), "num_assoc(recoToSim)_mva%d%s"%(num,pfix)), ytitle="fake tracks", **args),
+        Plot("effic_vs_mva%dcut%s"%(num,pfix), xtitle=xtitlecut, ytitle="Efficiency (excl. trk eff)", ymax=_maxEff),
         #
-        Plot("fakerate_vs_mva%dcut"%num, xtitle=xtitlecut, ytitle="Fake rate", ymax=_maxFake),
-        Plot(ROC("effic_vs_fake_mva%d"%num, "effic_vs_mva%dcut"%num, "fakerate_vs_mva%dcut"%num), **argsroc),
-        Plot(ROC("effic_vs_fake_mva%d"%num, "effic_vs_mva%dcut"%num, "fakerate_vs_mva%dcut"%num, zaxis=True), **argsroc2),
+        Plot("fakerate_vs_mva%dcut%s"%(num,pfix), xtitle=xtitlecut, ytitle="Fake rate", ymax=_maxFake),
+        Plot(ROC("effic_vs_fake_mva%d%s"%(num,pfix), "effic_vs_mva%dcut%s"%(num,pfix), "fakerate_vs_mva%dcut%s"%(num,pfix)), **argsroc),
+        Plot(ROC("effic_vs_fake_mva%d%s"%(num,pfix), "effic_vs_mva%dcut%s"%(num,pfix), "fakerate_vs_mva%dcut%s"%(num,pfix), zaxis=True), **argsroc2),
         # Same signal efficiency, background efficiency, and ROC definitions as in TMVA
-        Plot(true_cuteff, xtitle=xtitlecut, ytitle="True track cut efficiency", ymax=_maxEff),
-        Plot(fake_cuteff, xtitle=xtitlecut, ytitle="Fake track cut efficiency", ymax=_maxEff),
-        Plot(ROC("true_eff_vs_fake_rej_mva%d"%num, true_cuteff, Transform("fake_rej_mva%d"%num, fake_cuteff, lambda x: 1-x)), xtitle="True track cut efficiency", ytitle="Fake track rejection", xmax=_maxEff, ymax=_maxEff),
+        Plot(true_cuteff, xtitle=xtitlecut, ytitle="True track selection efficiency", ymax=_maxEff),
+        Plot(fake_cuteff, xtitle=xtitlecut, ytitle="Fake track selection efficiency", ymax=_maxEff),
+        Plot(ROC("true_eff_vs_fake_rej_mva%d%s"%(num,pfix), true_cuteff, Transform("fake_rej_mva%d%s"%(num,pfix), fake_cuteff, lambda x: 1-x)), xtitle="True track selection efficiency", ytitle="Fake track rejection", xmax=_maxEff, ymax=_maxEff),
     ], ncols=3, legendDy=_legendDy_1row)
 
 _effandfake1 = PlotGroup("effandfake1", [
@@ -952,7 +956,9 @@ _seedingBuildingPlots = _simBasedPlots + [
     _hitsAndPt,
     _makeMVAPlots(1),
     _makeMVAPlots(2),
+    _makeMVAPlots(2, hp=True),
     _makeMVAPlots(3), # add more if needed
+    _makeMVAPlots(3, hp=True), # add more if needed
 ]
 _extendedPlots = [
     _extDist1,
