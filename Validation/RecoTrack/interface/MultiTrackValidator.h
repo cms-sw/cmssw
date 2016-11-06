@@ -54,7 +54,8 @@ class MultiTrackValidator : public DQMEDAnalyzer, protected MultiTrackValidatorB
 
 
   using MVACollection = std::vector<float>;
-  std::vector<std::vector<edm::EDGetTokenT<MVACollection> > > mvaCollectionTokens_;
+  using QualityMaskCollection = std::vector<unsigned char>;
+  std::vector<std::vector<std::tuple<edm::EDGetTokenT<MVACollection>, edm::EDGetTokenT<QualityMaskCollection> > > > mvaQualityCollectionTokens_;
 
   std::string dirName_;
 

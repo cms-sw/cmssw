@@ -58,7 +58,8 @@ class MTVHistoProducerAlgoForTracker {
 					   double dR,
 					   const math::XYZPoint *pvPosition,
                                            const TrackingVertex::LorentzVector *simPVPosition,
-                                           const std::vector<float>& mvas);
+                                           const std::vector<float>& mvas,
+                                           unsigned int selectsLoose, unsigned int selectsHP);
 
   void fill_recoAssociated_simTrack_histos(int count,
 					   const reco::GenParticle& tp,
@@ -82,7 +83,8 @@ class MTVHistoProducerAlgoForTracker {
 				     int nSimHits,
 				     double sharedFraction,
 				     double dR,
-                                     const std::vector<float>& mvas);
+                                     const std::vector<float>& mvas,
+                                     unsigned int selectsLoose, unsigned int selectsHP);
 
   void fill_dedx_recoTrack_histos(int count, const edm::RefToBase<reco::Track>& trackref, const std::vector< const edm::ValueMap<reco::DeDxData> *>& v_dEdx);
 
@@ -211,6 +213,8 @@ class MTVHistoProducerAlgoForTracker {
 
   std::vector<std::vector<MonitorElement*> > h_reco_mva, h_assoc2_mva;
   std::vector<std::vector<MonitorElement*> > h_reco_mvacut, h_assoc_mvacut, h_assoc2_mvacut, h_simul2_mvacut;
+  std::vector<std::vector<MonitorElement*> > h_reco_mva_hp, h_assoc2_mva_hp;
+  std::vector<std::vector<MonitorElement*> > h_reco_mvacut_hp, h_assoc_mvacut_hp, h_assoc2_mvacut_hp, h_simul2_mvacut_hp;
 
   // dE/dx
   // in the future these might become an array
