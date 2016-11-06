@@ -12,7 +12,7 @@ skimFEVTContent.outputCommands.append("drop *_*_*_SKIM")
 
 from Configuration.Skimming.PA_MinBiasSkim_cff import *
 minBiasSkimPath = cms.Path( minBiasSkimSequence )
-SKIMStreamMinBias = cms.FilteredStream(
+SKIMStreamPAMinBias = cms.FilteredStream(
     responsible = 'HI PAG',
     name = 'PAMinBias',
     paths = (minBiasSkimPath),
@@ -26,7 +26,7 @@ SKIMStreamMinBias = cms.FilteredStream(
 
 from Configuration.Skimming.PA_ZEESkim_cff import *
 zEESkimPath = cms.Path( zEESkimSequence )
-SKIMStreamZEE = cms.FilteredStream(
+SKIMStreamPAZEE = cms.FilteredStream(
     responsible = 'HI PAG',
     name = 'PAZEE',
     paths = (zEESkimPath),
@@ -40,7 +40,7 @@ SKIMStreamZEE = cms.FilteredStream(
 
 from Configuration.Skimming.PA_ZMMSkim_cff import *
 zMMSkimPath = cms.Path( zMMSkimSequence )
-SKIMStreamZMM = cms.FilteredStream(
+SKIMStreamPAZMM = cms.FilteredStream(
     responsible = 'HI PAG',
     name = 'PAZMM',
     paths = (zMMSkimPath),
