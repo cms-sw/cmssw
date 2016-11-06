@@ -211,7 +211,7 @@ def _getMVASelectors(iterations):
             elif "TrackMVAClassifier" in typeName:
                 classifiers = [iterName]
             if len(classifiers) > 0:
-                setattr(pset, iterName+"Tracks", cms.untracked.VInputTag([x+":MVAValues" for x in classifiers]))
+                setattr(pset, iterName+"Tracks", cms.untracked.vstring(classifiers))
 
     return pset
 for _eraName, _postfix, _era in _relevantEras:
