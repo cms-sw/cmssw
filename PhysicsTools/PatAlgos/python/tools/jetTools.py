@@ -279,6 +279,18 @@ def setupBTagging(process, jetSource, pfCandidates, explicitJTA, pvSource, svSou
                     _btagInfo = getattr(process, btagPrefix+btagInfo+labelName+postfix)
                     _btagInfo.trackSelection.pixelHitsMin = cms.uint32(2)
                     _btagInfo.trackSelection.totalHitsMin = cms.uint32(8)
+            if btagInfo == 'deepNNTagInfos':
+                setattr(process, btagPrefix+btagInfo+labelName+postfix, btag.deepNNTagInfos.clone(svTagInfos = cms.InputTag(btagPrefix+'pfInclusiveSecondaryVertexFinderTagInfos'+labelName+postfix)))
+                if svClustering or fatJets != cms.InputTag(''):
+                    setupSVClustering(getattr(process, btagPrefix+btagInfo+labelName+postfix), svClustering, algo, rParam, fatJets, groomedFatJets)
+            if btagInfo == 'deepNNNegativeTagInfos':
+                setattr(process, btagPrefix+btagInfo+labelName+postfix, btag.deepNNTagInfos.clone(svTagInfos = cms.InputTag(btagPrefix+'pfInclusiveSecondaryVertexFinderNegativeTagInfos'+labelName+postfix)))
+                if svClustering or fatJets != cms.InputTag(''):
+                    setupSVClustering(getattr(process, btagPrefix+btagInfo+labelName+postfix), svClustering, algo, rParam, fatJets, groomedFatJets)
+            if btagInfo == 'deepNNPositiveTagInfos':
+                setattr(process, btagPrefix+btagInfo+labelName+postfix, btag.deepNNTagInfos.clone(svTagInfos = cms.InputTag(btagPrefix+'pfInclusiveSecondaryVertexFinderTagInfos'+labelName+postfix)))
+                if svClustering or fatJets != cms.InputTag(''):
+                    setupSVClustering(getattr(process, btagPrefix+btagInfo+labelName+postfix), svClustering, algo, rParam, fatJets, groomedFatJets)
             if btagInfo == 'pfInclusiveSecondaryVertexFinderTagInfos':
                 setattr(process, btagPrefix+btagInfo+labelName+postfix, btag.pfInclusiveSecondaryVertexFinderTagInfos.clone(trackIPTagInfos = cms.InputTag(btagPrefix+'pfImpactParameterTagInfos'+labelName+postfix), extSVCollection=svSource))
                 if svClustering or fatJets != cms.InputTag(''):
@@ -350,10 +362,34 @@ def setupBTagging(process, jetSource, pfCandidates, explicitJTA, pvSource, svSou
             print '  --> %s ignored, since not available via RecoBTag.Configuration.RecoBTag_cff!'%(btagInfo)
     ## setup all required btagDiscriminators
     acceptedBtagDiscriminators = list()
-    for btagDiscr in btagDiscriminators :
-        if hasattr(btag,btagDiscr):
-            setattr(process, btagPrefix+btagDiscr+labelName+postfix, getattr(btag, btagDiscr).clone(tagInfos = cms.VInputTag( *[ cms.InputTag(btagPrefix+x+labelName+postfix) for x in supportedBtagDiscr[btagDiscr][0] ] )))
-            acceptedBtagDiscriminators.append(btagDiscr)
+    for discriminator_name in btagDiscriminators :			
+        btagDiscr = discriminator_name.split(':')[0] #split input tag to get the producer label
+        #print discriminator_name, '-->', btagDiscr
+        if hasattr(btag,btagDiscr): 
+            newDiscr = btagPrefix+btagDiscr+labelName+postfix #new discriminator name
+            if hasattr(process, newDiscr):
+                print 'skipping %s as it has already been loaded in the process' % newDiscr #check that we did not create this producer before, if so skip
+                pass 
+            elif hasattr(getattr(btag, btagDiscr), 'tagInfos'):
+                setattr(
+									process, newDiscr, 
+									getattr(btag, btagDiscr).clone(
+										tagInfos = cms.VInputTag( 
+											*[ cms.InputTag(btagPrefix+x+labelName+postfix) \
+													 for x in supportedBtagDiscr[discriminator_name][0] ] 
+											 )
+										)
+									)
+            elif hasattr(getattr(btag, btagDiscr), 'src'):
+                setattr(
+									process, newDiscr,
+									getattr(btag, btagDiscr).clone(
+										src = cms.InputTag(btagPrefix+supportedBtagDiscr[discriminator_name][0][0]+labelName+postfix) 
+										)
+									)
+            else:
+                raise ValueError('I do not know how to update %s it does not have neither "tagInfos" nor "src" attributes' % btagDiscr)
+            acceptedBtagDiscriminators.append(discriminator_name)
         else:
             print '  --> %s ignored, since not available via RecoBTag.Configuration.RecoBTag_cff!'%(btagDiscr)
     ## replace corresponding tags for pat jet production

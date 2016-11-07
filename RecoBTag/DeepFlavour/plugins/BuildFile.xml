@@ -1,0 +1,13 @@
+<use name="FWCore/Framework"/>
+<use name="FWCore/MessageLogger"/>
+<use name="FWCore/ParameterSet"/>
+<use name="FWCore/Utilities"/>
+<use name="DataFormats/BTauReco"/>
+<use name="DataFormats/Common"/>
+<use name="RecoBTag/SecondaryVertex"/>
+<use name="RecoBTag/LWTNN"/>
+<use name="boost"/>
+<use name="classlib"/>
+<library file="*.cc" name="DeepFlavourPlugins">
+   <flags EDM_PLUGIN="1"/>
+</library>
