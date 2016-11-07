@@ -198,8 +198,6 @@ namespace edm {
     set_difference(modulesInConfigSet.begin(), modulesInConfigSet.end(),
                    usedWorkerLabels.begin(), usedWorkerLabels.end(),
                    back_inserter(unusedLabels));
-    //does the configuration say we should allow on demand?
-    bool allowUnscheduled = opts.getUntrackedParameter<bool>("allowUnscheduled", false);
     std::set<std::string> unscheduledLabels;
     std::vector<std::string>  shouldBeUsedLabels;
     if (!unusedLabels.empty()) {
@@ -208,16 +206,11 @@ namespace edm {
       // 2) if it is a WorkerT<EDProducer>, add it to our list
       // 3) hand list to our delayed reader
       for (auto const& label : unusedLabels) {
-        if (allowUnscheduled) {
-          bool isTracked;
-          ParameterSet* modulePSet(proc_pset.getPSetForUpdate(label, isTracked));
-          assert(isTracked);
-          assert(modulePSet != nullptr);
-          workerManager_.addToUnscheduledWorkers(*modulePSet, preg, &prealloc, processConfiguration, label, unscheduledLabels, shouldBeUsedLabels);
-        } else {
-          //everthing is marked are unused so no 'on demand' allowed
-          shouldBeUsedLabels.push_back(label);
-        }
+        bool isTracked;
+        ParameterSet* modulePSet(proc_pset.getPSetForUpdate(label, isTracked));
+        assert(isTracked);
+        assert(modulePSet != nullptr);
+        workerManager_.addToUnscheduledWorkers(*modulePSet, preg, &prealloc, processConfiguration, label, unscheduledLabels, shouldBeUsedLabels);
       }
       if (!shouldBeUsedLabels.empty()) {
         std::ostringstream unusedStream;
