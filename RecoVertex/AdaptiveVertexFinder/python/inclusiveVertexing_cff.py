@@ -45,4 +45,17 @@ inclusiveCandidateSecondaryVerticesCvsL = candidateVertexMerger.clone(
 
 inclusiveCandidateVertexingCvsL = cms.Sequence(inclusiveCandidateVertexFinderCvsL*candidateVertexMergerCvsL*candidateVertexArbitratorCvsL*inclusiveCandidateSecondaryVerticesCvsL)
 
-
+inclusiveVertexingTask = cms.Task(
+    inclusiveVertexFinder,
+    vertexMerger,
+    trackVertexArbitrator,
+    inclusiveSecondaryVertices,
+    inclusiveCandidateVertexFinder,
+    candidateVertexMerger,
+    candidateVertexArbitrator,
+    inclusiveCandidateSecondaryVertices,
+    inclusiveCandidateVertexFinderCvsL,
+    candidateVertexMergerCvsL,
+    candidateVertexArbitratorCvsL,
+    inclusiveCandidateSecondaryVerticesCvsL
+)

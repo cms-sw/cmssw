@@ -17,3 +17,12 @@ electronPFIsolationDepositsPATSequence = cms.Sequence(
     elPFIsoDepositNeutralPAT+
     elPFIsoDepositPUPAT
     )
+
+electronPFIsolationDepositsPATTask = cms.Task(
+    electronPFIsolationDepositsPFBRECOTask,
+    elPFIsoDepositChargedPAT,
+    elPFIsoDepositChargedAllPAT,
+    elPFIsoDepositNeutralPAT,
+    elPFIsoDepositPUPAT,
+    elPFIsoDepositGammaPAT
+    )

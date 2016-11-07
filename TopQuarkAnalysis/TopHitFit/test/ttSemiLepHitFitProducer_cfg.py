@@ -20,7 +20,6 @@ process.maxEvents = cms.untracked.PSet(
 )
 ## configure process options
 process.options = cms.untracked.PSet(
-    allowUnscheduled = cms.untracked.bool(True),
     wantSummary      = cms.untracked.bool(True)
 )
 
@@ -31,12 +30,17 @@ from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc')
 process.load("Configuration.StandardSequences.MagneticField_cff")
 
+process.task = cms.Task()
+
 ## std sequence for pat
 process.load("PhysicsTools.PatAlgos.producersLayer1.patCandidates_cff")
+process.task.add(process.patCandidatesTask)
 process.load("PhysicsTools.PatAlgos.selectionLayer1.selectedPatCandidates_cff")
+process.task.add(process.selectedPatCandidatesTask)
 
 ## std sequence to produce the kinematic fit for semi-leptonic events
 process.load("TopQuarkAnalysis.TopHitFit.TtSemiLepHitFitProducer_Muons_cfi")
+process.task.add(process.hitFitTtSemiLepEvent)
 
 ## configure output module
 process.out = cms.OutputModule("PoolOutputModule",
@@ -46,4 +50,4 @@ process.out = cms.OutputModule("PoolOutputModule",
 process.out.outputCommands += ['keep *_hitFitTtSemiLepEvent_*_*']
 
 ## output path
-process.outpath = cms.EndPath(process.out)
+process.outpath = cms.EndPath(process.out, process.task)

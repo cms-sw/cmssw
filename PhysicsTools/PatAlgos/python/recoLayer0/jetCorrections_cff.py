@@ -5,3 +5,7 @@ from JetMETCorrections.Configuration.JetCorrectionServicesAllAlgos_cff import *
 
 ## for scheduled mode
 patJetCorrections = cms.Sequence(patJetCorrFactors)
+
+jetCorrectionsTask = cms.Task(
+    patJetCorrFactors
+)

@@ -107,3 +107,15 @@ PFTau = cms.Sequence(
     recoTauClassicHPSSequence
 )
 
+recoPFTauTagTask = cms.Task(
+    RecoTauJetRegionProducer,
+    recoTauAK4PFJets08Region,
+    ak4PFJetsLegacyHPSPiZeros,
+    ak4PFJetsRecoTauChargedHadrons,
+    combinatoricRecoTaus,
+    HPSPFTausTask,
+    pfRecoTauTagInfoProducer,
+    ak4JetTracksAssociatorAtVertexPF,
+    ak4PFJetTracksAssociatorAtVertex,
+    recoTauPileUpVertices
+)

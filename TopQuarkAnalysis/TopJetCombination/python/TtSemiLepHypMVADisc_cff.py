@@ -15,3 +15,7 @@ from TopQuarkAnalysis.TopJetCombination.TtSemiLepHypMVADisc_cfi import *
 makeHypothesis_mvaDisc = cms.Sequence(findTtSemiLepJetCombMVA *
                                       ttSemiLepHypMVADisc)
 
+ttSemiLepHypMVADiscTask = cms.Task(
+    findTtSemiLepJetCombMVA,
+    ttSemiLepHypMVADisc
+)

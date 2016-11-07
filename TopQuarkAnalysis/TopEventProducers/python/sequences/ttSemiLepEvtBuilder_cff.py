@@ -16,6 +16,10 @@ from TopQuarkAnalysis.TopEventProducers.producers.TtSemiLepEvtBuilder_cfi import
                                   #ttSemiLepEvent
                                   #)
 
+ttSemiLepEvtBuilderTask = cms.Task(
+    ttSemiLepEvtHypothesisTask,
+    ttSemiLepEvent
+)
 
 ################################################################################
 ## helper functions
