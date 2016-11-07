@@ -46,6 +46,12 @@ namespace hcaldqm
 			FIBER_uTCA_MIN1, FIBERCH_MIN, false).rawId());
 		vhashFEDHF.push_back(HcalElectronicsId(32, SLOT_uTCA_MIN,
 			FIBER_uTCA_MIN1, FIBERCH_MIN, false).rawId());
+		vhashFEDHF.push_back(HcalElectronicsId(22, SLOT_uTCA_MIN+6,
+			FIBER_uTCA_MIN1, FIBERCH_MIN, false).rawId());
+		vhashFEDHF.push_back(HcalElectronicsId(29, SLOT_uTCA_MIN+6,
+			FIBER_uTCA_MIN1, FIBERCH_MIN, false).rawId());
+		vhashFEDHF.push_back(HcalElectronicsId(32, SLOT_uTCA_MIN+6,
+			FIBER_uTCA_MIN1, FIBERCH_MIN, false).rawId());
 		filter::HashFilter filter_FEDHF;
 		filter_FEDHF.initialize(filter::fPreserver, hashfunctions::fFED,
 			vhashFEDHF);    // preserve only HF FEDs

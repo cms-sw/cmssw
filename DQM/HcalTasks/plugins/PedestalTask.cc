@@ -76,9 +76,12 @@ PedestalTask::PedestalTask(edm::ParameterSet const& ps):
 			FIBER_VME_MIN, SPIGOT_MIN, (*it)-FED_VME_MIN).rawId());
 	for (std::vector<int>::const_iterator it=vFEDsuTCA.begin();
 		it!=vFEDsuTCA.end(); ++it)
+    {
+        std::pair<uint16_t, uint16_t> cspair = utilities::fed2crate(*it);
 		_vhashFEDs.push_back(HcalElectronicsId(
-			hcaldqm::utilities::fed2crate(*it), SLOT_uTCA_MIN, FIBER_uTCA_MIN1,
+			cspair.first, cspair.second, FIBER_uTCA_MIN1,
 			FIBERCH_MIN, false).rawId());
+    }
 
 	//	Containers XXX
 	_xPedSum1LS.initialize(hcaldqm::hashfunctions::fDChannel);
