@@ -60,8 +60,8 @@ const int HcalDbHardcode::getGainIndex(HcalGenericDetId fId){
     else index = 1;
   } else if (fId.genericSubdet() == HcalGenericDetId::HcalGenForward) {
     HcalDetId hid(fId);
-    if (hid.depth() == 1) index = 0;
-    else if (hid.depth() == 2) index = 1;
+    if (hid.depth() % 2 == 1) index = 0; //depths 1,3
+    else if (hid.depth() % 2 == 0) index = 1; //depths 2,4
   }
   return index;
 }
