@@ -80,28 +80,28 @@ es_hardcode = cms.ESSource("HcalHardcodeCalibrations",
     hbUpgrade = cms.PSet(
         pedestal      = cms.double(17.3),
         pedestalWidth = cms.double(1.5),
-        gain          = cms.vdouble(1/3568.), #62.06 is pe/GeV 57.5 is fC/pe.
+        gain          = cms.vdouble(1/2276.), #51.72 is pe/GeV 44.0 is fC/pe.
         gainWidth     = cms.vdouble(0),
         qieType       = cms.int32(2),
         qieOffset     = cms.vdouble(0.,0.,0.,0.),
         qieSlope      = cms.vdouble(0.05376,0.05376,0.05376,0.05376), #1/(3.1*6) where 6 is shunt factor
         mcShape       = cms.int32(203),
         recoShape     = cms.int32(203),
-        photoelectronsToAnalog = cms.double(57.5),
-        darkCurrent   = cms.double(0.055),
+        photoelectronsToAnalog = cms.double(44.0),
+        darkCurrent   = cms.double(0.01),
     ),
     heUpgrade = cms.PSet(
         pedestal      = cms.double(17.3),
         pedestalWidth = cms.double(1.5),
-        gain          = cms.vdouble(1/3568.), #62.06 is pe/GeV 57.5 is fC/pe.
+        gain          = cms.vdouble(1/2276.), #51.72 is pe/GeV 44.0 is fC/pe.
         gainWidth     = cms.vdouble(0),
         qieType       = cms.int32(2),
         qieOffset     = cms.vdouble(0.,0.,0.,0.),
         qieSlope      = cms.vdouble(0.05376,0.05376,0.05376,0.05376), #1/(3.1*6) where 6 is shunt factor
         mcShape       = cms.int32(203),
         recoShape     = cms.int32(203),
-        photoelectronsToAnalog = cms.double(57.5),
-        darkCurrent   = cms.double(0.055),
+        photoelectronsToAnalog = cms.double(44.0),
+        darkCurrent   = cms.double(0.01),
     ),
     hfUpgrade = cms.PSet(
         pedestal      = cms.double(13.33),
@@ -120,10 +120,10 @@ es_hardcode = cms.ESSource("HcalHardcodeCalibrations",
     SiPMCharacteristics = cms.VPSet(
         cms.PSet( pixels = cms.int32(36000), crosstalk = cms.double(0.0), nonlin1 = cms.double(1.0), nonlin2 = cms.double(0.0), nonlin3 = cms.double(0.0) ),
         cms.PSet( pixels = cms.int32(2500), crosstalk = cms.double(0.0), nonlin1 = cms.double(1.0), nonlin2 = cms.double(0.0), nonlin3 = cms.double(0.0) ),
-        cms.PSet( pixels = cms.int32(27370), crosstalk = cms.double(0.32), nonlin1 = cms.double(1.00985), nonlin2 = cms.double(7.84089E-6), nonlin3 = cms.double(2.86282E-10) ),
-        cms.PSet( pixels = cms.int32(38018), crosstalk = cms.double(0.32), nonlin1 = cms.double(1.00546), nonlin2 = cms.double(6.40239E-6), nonlin3 = cms.double(1.27011E-10) ),
-        cms.PSet( pixels = cms.int32(27370), crosstalk = cms.double(0.32), nonlin1 = cms.double(1.00985), nonlin2 = cms.double(7.84089E-6), nonlin3 = cms.double(2.86282E-10) ),
-        cms.PSet( pixels = cms.int32(38018), crosstalk = cms.double(0.32), nonlin1 = cms.double(1.00546), nonlin2 = cms.double(6.40239E-6), nonlin3 = cms.double(1.27011E-10) ),
+        cms.PSet( pixels = cms.int32(27370), crosstalk = cms.double(0.17), nonlin1 = cms.double(1.00985), nonlin2 = cms.double(7.84089E-6), nonlin3 = cms.double(2.86282E-10) ),
+        cms.PSet( pixels = cms.int32(38018), crosstalk = cms.double(0.17), nonlin1 = cms.double(1.00546), nonlin2 = cms.double(6.40239E-6), nonlin3 = cms.double(1.27011E-10) ),
+        cms.PSet( pixels = cms.int32(27370), crosstalk = cms.double(0.17), nonlin1 = cms.double(1.00985), nonlin2 = cms.double(7.84089E-6), nonlin3 = cms.double(2.86282E-10) ),
+        cms.PSet( pixels = cms.int32(38018), crosstalk = cms.double(0.17), nonlin1 = cms.double(1.00546), nonlin2 = cms.double(6.40239E-6), nonlin3 = cms.double(1.27011E-10) ),
     ),
 )
 
