@@ -468,9 +468,7 @@ void SiPixelClusterSource::getrococcupancy(DetId detId,const edm::DetSetVector<P
       if (modsign<0) { rocx = rocx -0.0001; }
       if (ladsign<0) { rocy = rocy -0.0001; } else { rocy = rocy +0.0001; }
       if (abs(DBladder)==1) { rocy = rocy + ladsign*0.5; } //take care of the half module
-      if (DBlayer==1) { meinput[DBlayer-1]->Fill(rocx,rocy); }
-      if (DBlayer==2) { meinput[DBlayer-1]->Fill(rocx,rocy); }
-      if (DBlayer==3) { meinput[DBlayer-1]->Fill(rocx,rocy); }
+      meinput[DBlayer-1]->Fill(rocx,rocy);
     } // end of looping over pxdi
   }
 }
