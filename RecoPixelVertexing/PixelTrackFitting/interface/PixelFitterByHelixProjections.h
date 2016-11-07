@@ -1,7 +1,7 @@
 #ifndef PixelFitterByHelixProjections_H
 #define PixelFitterByHelixProjections_H
 
-#include "RecoPixelVertexing/PixelTrackFitting/interface/PixelFitter.h"
+#include "RecoPixelVertexing/PixelTrackFitting/interface/PixelFitterBase.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 #include "RecoTracker/TkTrackingRegions/interface/TrackingRegion.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -12,7 +12,7 @@
 
 
 
-class PixelFitterByHelixProjections final : public PixelFitter {
+class PixelFitterByHelixProjections final : public PixelFitterBase {
 public:
   PixelFitterByHelixProjections(  const edm::ParameterSet& cfg);
   virtual ~PixelFitterByHelixProjections() {}

@@ -1,5 +1,5 @@
-#ifndef PixelFitter_H
-#define PixelFitter_H
+#ifndef RecoPixelVertexing_PixelTrackFitting_PixelFitterBase_H
+#define RecoPixelVertexing_PixelTrackFitting_PixelFitterBase_H
 
 #include <vector>
 
@@ -10,9 +10,9 @@ class TrackingRecHit;
 
 
 
-class PixelFitter {
+class PixelFitterBase {
 public:
-  virtual ~PixelFitter(){}
+  virtual ~PixelFitterBase(){}
 
   virtual reco::Track* run(
       const edm::EventSetup& es,

@@ -1,7 +1,7 @@
 #ifndef TrackFitter_H
 #define TrackFitter_H
 
-#include "RecoPixelVertexing/PixelTrackFitting/interface/PixelFitter.h"
+#include "RecoPixelVertexing/PixelTrackFitting/interface/PixelFitterBase.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 #include "RecoTracker/TkTrackingRegions/interface/TrackingRegion.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -14,7 +14,7 @@ class TransientTrackingRecHitBuilder;
 class TrackerGeometry;
 class MagneticField;
 
-class TrackFitter : public PixelFitter
+class TrackFitter : public PixelFitterBase
 {
 public:
   TrackFitter(const edm::ParameterSet& cfg);
