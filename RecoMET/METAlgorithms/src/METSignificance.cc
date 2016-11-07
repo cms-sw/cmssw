@@ -20,11 +20,10 @@ Implementation:
 
 metsig::METSignificance::METSignificance(const edm::ParameterSet& iConfig) {
 
-  // if(iConfig.exists("parameters")) {
-    edm::ParameterSet cfgParams = iConfig.getParameter<edm::ParameterSet>("parameters");
+  edm::ParameterSet cfgParams = iConfig.getParameter<edm::ParameterSet>("parameters");
 
-    double dRmatch = cfgParams.getParameter<double>("dRMatch");
-    dR2match_ = dRmatch*dRmatch;
+  double dRmatch = cfgParams.getParameter<double>("dRMatch");
+  dR2match_ = dRmatch*dRmatch;
   
   jetThreshold_ = cfgParams.getParameter<double>("jetThreshold");
   jetEtas_ = cfgParams.getParameter<std::vector<double> >("jeta");
