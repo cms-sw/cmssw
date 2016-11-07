@@ -33,6 +33,7 @@
 #include "DataFormats/BTauReco/interface/SecondaryVertexTagInfo.h"
 #include "DataFormats/BTauReco/interface/CandSecondaryVertexTagInfo.h"
 #include "DataFormats/BTauReco/interface/BoostedDoubleSVTagInfo.h"
+#include "DataFormats/BTauReco/interface/ShallowTagInfo.h"
 #include "DataFormats/BTauReco/interface/SoftLeptonTagInfo.h"
 #include "DataFormats/BTauReco/interface/CandSoftLeptonTagInfo.h"
 #include "DataFormats/BTauReco/interface/TauImpactParameterInfo.h"
@@ -86,6 +87,14 @@ namespace DataFormats_BTauReco {
     reco::BoostedDoubleSVTagInfoRefProd                                 bdsv_rp;
     reco::BoostedDoubleSVTagInfoRefVector                               bdsv_rv;
     edm::Wrapper<reco::BoostedDoubleSVTagInfoCollection>                bdsv_wc;
+
+    reco::ShallowTagInfo                                                 dnn;
+    reco::ShallowTagInfoCollection                                       dnn_c;
+    reco::ShallowTagInfoRef                                              dnn_r;
+    reco::ShallowTagInfoFwdRef                                           dnn_fr;
+    reco::ShallowTagInfoRefProd                                          dnn_rp;
+    reco::ShallowTagInfoRefVector                                        dnn_rv;
+    edm::Wrapper<reco::ShallowTagInfoCollection>                         dnn_wc;
 
     reco::CombinedTauTagInfo                                            ct;
     reco::CombinedTauTagInfoCollection                                  ct_c;
@@ -283,6 +292,8 @@ namespace DataFormats_BTauReco {
     edm::reftobase::RefHolder<reco::CandSecondaryVertexTagInfoRef>                  rbh_casv;
     edm::reftobase::Holder<reco::BaseTagInfo, reco::BoostedDoubleSVTagInfoRef>  rb_bdsv;
     edm::reftobase::RefHolder<reco::BoostedDoubleSVTagInfoRef>                  rbh_bdsv;
+    edm::reftobase::Holder<reco::BaseTagInfo, reco::ShallowTagInfoRef>           rb_dnn;
+    edm::reftobase::RefHolder<reco::ShallowTagInfoRef>                           rbh_dnn;
     edm::reftobase::Holder<reco::BaseTagInfo, reco::CombinedTauTagInfoRef>      rb_ct;
     edm::reftobase::RefHolder<reco::CombinedTauTagInfoRef>                      rbh_ct;
     edm::reftobase::Holder<reco::BaseTagInfo, reco::IsolatedTauTagInfoRef>      rb_it;
@@ -314,6 +325,8 @@ namespace DataFormats_BTauReco {
     edm::reftobase::RefHolder<reco::CandSecondaryVertexTagInfoFwdRef>                  rbh_casvf;
     edm::reftobase::Holder<reco::BaseTagInfo, reco::BoostedDoubleSVTagInfoFwdRef>  rb_bdsvf;
     edm::reftobase::RefHolder<reco::BoostedDoubleSVTagInfoFwdRef>                  rbh_bdsvf;
+    edm::reftobase::Holder<reco::BaseTagInfo, reco::ShallowTagInfoFwdRef>          rb_dnnf;
+    edm::reftobase::RefHolder<reco::ShallowTagInfoFwdRef>                          rbh_dnnf;
     edm::reftobase::Holder<reco::BaseTagInfo, reco::CombinedTauTagInfoFwdRef>      rb_ctf;
     edm::reftobase::RefHolder<reco::CombinedTauTagInfoFwdRef>                      rbh_ctf;
     edm::reftobase::Holder<reco::BaseTagInfo, reco::IsolatedTauTagInfoFwdRef>      rb_itf;
