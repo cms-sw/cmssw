@@ -36,7 +36,7 @@ class ZDCTask : public hcaldqm::DQTask
 
 		//	tags
 		edm::InputTag	_tagQIE10;
-		edm::EDGetTokenT<QIE10DigiCollection> _tokQIE10;
+		edm::EDGetTokenT<ZDCDigiCollection> _tokQIE10;
 
 		//	cuts/constants from input
 		double _cut;

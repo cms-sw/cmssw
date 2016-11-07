@@ -10,7 +10,7 @@ zdcTask = cms.EDAnalyzer(
 	runkeyName = cms.untracked.string("pp_run"),
 
 	#	tag
-	tagQIE10 = cms.untracked.InputTag("hcalDigis"),
+	tagQIE10 = cms.untracked.InputTag("castorDigis"),
 
 	#	cuts, 
 	cut = cms.untracked.double(20),
