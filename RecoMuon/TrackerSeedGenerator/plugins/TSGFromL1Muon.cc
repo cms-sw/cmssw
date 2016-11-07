@@ -11,8 +11,6 @@
 #include "RecoTracker/TkTrackingRegions/interface/OrderedHitsGeneratorFactory.h"
 #include "RecoTracker/TkTrackingRegions/interface/OrderedHitsGenerator.h"
 
-#include "RecoPixelVertexing/PixelTrackFitting/interface/PixelFitter.h"
-#include "RecoPixelVertexing/PixelTrackFitting/interface/PixelFitterFactory.h"
 #include "RecoMuon/TrackerSeedGenerator/interface/L1MuonPixelTrackFitter.h"
 #include "RecoMuon/TrackerSeedGenerator/interface/L1MuonSeedsMerger.h"
 
@@ -46,7 +44,7 @@ template <class T> T sqr( T t) {return t*t;}
 
 
 TSGFromL1Muon::TSGFromL1Muon(const edm::ParameterSet& cfg)
-  : theConfig(cfg),theRegionProducer(0),theHitGenerator(0),theFitter(0),theMerger(0)
+  : theConfig(cfg),theRegionProducer(0),theHitGenerator(0),theMerger(0)
 {
   produces<L3MuonTrajectorySeedCollection>();
   theSourceTag = cfg.getParameter<edm::InputTag>("L1MuonLabel");
@@ -62,12 +60,13 @@ TSGFromL1Muon::TSGFromL1Muon(const edm::ParameterSet& cfg)
   theHitGenerator = OrderedHitsGeneratorFactory::get()->create( hitsfactoryName, hitsfactoryPSet, iC);
 
   theSourceToken=iC.consumes<L1MuonParticleCollection>(theSourceTag);
+
+  theFitter = std::make_unique<L1MuonPixelTrackFitter>(cfg.getParameter<edm::ParameterSet>("FitterPSet"));
 }
 
 TSGFromL1Muon::~TSGFromL1Muon()
 {
   delete theMerger;
-  delete theFitter;
   delete theHitGenerator;
   delete theRegionProducer;
 }
@@ -79,11 +78,6 @@ void TSGFromL1Muon::beginRun(const edm::Run & run, const edm::EventSetup&es)
   TrackingRegionProducer * p =
     TrackingRegionProducerFactory::get()->create(regfactoryName,regfactoryPSet, consumesCollector());
   theRegionProducer = dynamic_cast<L1MuonRegionProducer* >(p);
-
-  edm::ParameterSet fitterPSet = theConfig.getParameter<edm::ParameterSet>("FitterPSet");
-  std::string fitterName = fitterPSet.getParameter<std::string>("ComponentName");
-  PixelFitter * f = PixelFitterFactory::get()->create( fitterName, fitterPSet);
-  theFitter = dynamic_cast<L1MuonPixelTrackFitter* >(f);
 
   edm::ParameterSet cleanerPSet = theConfig.getParameter<edm::ParameterSet>("CleanerPSet");
   std::string  cleanerName = cleanerPSet.getParameter<std::string>("ComponentName");
