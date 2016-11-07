@@ -143,13 +143,13 @@ void testmakepset::usingBlockAux() {
   "    j = cms.int32(3),\n"
   "    u = cms.uint64(1011),\n"
   "    l = cms.int64(101010)\n"
-  ")\n";
+  ")\n"
+  "process.p = cms.Path(process.m1+process.m2)\n";
 
   std::string config(kTest);
   // Create the ParameterSet object from this configuration string.
   PythonProcessDesc builder(config);
   std::shared_ptr<edm::ParameterSet> ps = builder.parameterSet();
-
   CPPUNIT_ASSERT(nullptr != ps.get());
 
   // Make sure this ParameterSet object has the right contents
