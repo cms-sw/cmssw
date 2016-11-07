@@ -29,3 +29,12 @@ cleanPatCandidates = cms.Sequence(
     cleanPatJets      *
     cleanPatCandidateSummary
 )
+
+cleanPatCandidatesTask = cms.Task(
+    cleanPatElectrons,
+    cleanPatMuons,
+    cleanPatTaus,
+    cleanPatPhotons,
+    cleanPatJets,
+    patHemispheres
+)

@@ -16,3 +16,12 @@ muonPFIsolationDepositsPATSequence = cms.Sequence(
     muPFIsoDepositNeutralPAT+
     muPFIsoDepositPUPAT
     )
+
+muonPFIsolationDepositsPATTask = cms.Task(
+    muonPFIsolationDepositsPFBRECOTask,
+    muPFIsoDepositChargedPAT,
+    muPFIsoDepositChargedAllPAT,
+    muPFIsoDepositNeutralPAT,
+    muPFIsoDepositGammaPAT,
+    muPFIsoDepositPUPAT
+    )

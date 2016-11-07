@@ -17,3 +17,13 @@ photonPFIsolationDepositsPATSequence = cms.Sequence(
     phPFIsoDepositNeutralPAT+
     phPFIsoDepositPUPAT
     )
+
+
+photonPFIsolationDepositsPATTask = cms.Task(
+    photonPFIsolationDepositsPFBRECOTask,
+    phPFIsoDepositChargedPAT,
+    phPFIsoDepositChargedAllPAT,
+    phPFIsoDepositNeutralPAT,
+    phPFIsoDepositPUPAT,
+    phPFIsoDepositGammaPAT
+    )

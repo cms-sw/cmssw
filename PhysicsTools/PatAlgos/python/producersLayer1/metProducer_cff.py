@@ -8,3 +8,8 @@ makePatMETs = cms.Sequence(
     patMETCorrections *
     patMETs
     )
+
+metProducerTask = cms.Task(
+    metCorrectionsTask,
+    patMETs
+    )

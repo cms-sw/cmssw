@@ -50,3 +50,9 @@ correctionTermsCaloMet = cms.Sequence(
     )
 
 ##____________________________________________________________________________||
+correctionTermsCaloMetTask = cms.Task(
+        jetCorrectorsTask,
+        corrCaloMetType1,
+        muCaloMetCorr,
+        corrCaloMetType2
+    )

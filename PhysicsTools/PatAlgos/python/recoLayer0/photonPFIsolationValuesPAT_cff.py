@@ -45,3 +45,17 @@ photonPFIsolationValuesPATSequence = (
     phPFIsoValueNeutral04PFIdPAT+
     phPFIsoValuePU04PFIdPAT
     )
+
+photonPFIsolationValuesPATTask = cms.Task(
+    photonPFIsolationValuesPFBRECOTask,
+    phPFIsoValueCharged03PFIdPAT,
+    phPFIsoValueChargedAll03PFIdPAT,
+    phPFIsoValueGamma03PFIdPAT,
+    phPFIsoValueNeutral03PFIdPAT,
+    phPFIsoValuePU03PFIdPAT,
+    phPFIsoValueCharged04PFIdPAT,
+    phPFIsoValueChargedAll04PFIdPAT,
+    phPFIsoValueGamma04PFIdPAT,
+    phPFIsoValueNeutral04PFIdPAT,
+    phPFIsoValuePU04PFIdPAT
+    )
