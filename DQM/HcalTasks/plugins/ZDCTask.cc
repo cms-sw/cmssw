@@ -115,7 +115,6 @@ ZDCTask::ZDCTask(edm::ParameterSet const& ps)
 	    char histoname[300];
 	    
 	    sprintf(histoname,"%d_%d_%d_%d",itr->first.fiberChanId(),itr->first.fiberIndex(),itr->first.spigot(),itr->first.dccid());
-	    std::cout << "BOOK " << histoname << std::endl;
 
 	    ib.setCurrentFolder("ZDC/Shape_perChannel");
 	    _cShape_EChannel[histoname] = ib.bookProfile(histoname,histoname,xAxisShape.nbins(),xAxisShape.min(),xAxisShape.max(),yAxisShape.nbins(),yAxisShape.min(),yAxisShape.max());
@@ -129,50 +128,6 @@ ZDCTask::ZDCTask(edm::ParameterSet const& ps)
 	ib.setCurrentFolder("ZDC");
 	_cShape = ib.bookProfile("Shape","Shape",xAxisShape.nbins(),xAxisShape.min(),xAxisShape.max(),yAxisShape.nbins(),yAxisShape.min(),yAxisShape.max());
 	_cADC = ib.book1D("ADC","ADC",xAxisADC.nbins(),xAxisADC.min(),xAxisADC.max());
-
-	// //	INITIALIZE what you need
-	// _cShapeCut_EChannel.initialize(_name,
-	// 	"ShapeCut", hcaldqm::hashfunctions::fEChannel,
-	// 	new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fTiming_TS),
-	// 	new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::ffC_10000));
-	// _cShapeCut.initialize(_name,
-	// 	"ShapeCut", 
-	// 	new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fTiming_TS),
-	// 	new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::ffC_10000));
-	// _cShape_EChannel.initialize(_name,
-	// 	"Shape", hcaldqm::hashfunctions::fEChannel,
-	// 	new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fTiming_TS),
-	// 	new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::ffC_10000));
-	// _cShape.initialize(_name,
-	// 	"Shape", 
-	// 	new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fTiming_TS),
-	// 	new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::ffC_10000));
-	// _cADC.initialize(_name, "ADC",
-	// 	new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fADC_128),
-	// 	new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true));
-
-	// unsigned int nTS = 10;
-	// for (unsigned int j=0; j<nTS; j++)
-	// {
-	// 	_cADC_EChannel[j].initialize(_name,
-	// 		"ADC", hcaldqm::hashfunctions::fEChannel,
-	// 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fADC_128),
-	// 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true));
-	// }
-
-	// _cShapeCut_EChannel.book(ib, _emap, _subsystem);
-	// _cShapeCut.book(ib, _subsystem);
-	// _cShape_EChannel.book(ib, _emap, _subsystem);
-	// _cShape.book(ib, _subsystem);
-	// _cADC.book(ib, _subsystem);
-	// for (unsigned int i=0; i<nTS; i++)
-	// {
-	// 	char aux[10];
-	// 	sprintf(aux, "TS%d", i);
-	// 	_cADC_EChannel[i].book(ib, _emap, _subsystem, aux);
-	// }
-
-	// _ehashmap.initialize(_emap, electronicsmap::fD2EHashMap);
 }
 
 
@@ -191,7 +146,6 @@ ZDCTask::ZDCTask(edm::ParameterSet const& ps)
 
 	    char histoname[300];
             sprintf(histoname,"%d_%d_%d_%d",eid.fiberChanId(),eid.fiberIndex(),eid.spigot(),eid.dccid());
-	    std::cout << "FILL " << histoname << std::endl;
 	    
 	    //	compute the signal, ped subracted
 	    //double q = hcaldqm::utilities::sumQ_v10<ZDCDataFrame>(frame, constants::adc2fC[_ped], 0, frame.size()-1);
@@ -205,13 +159,6 @@ ZDCTask::ZDCTask(edm::ParameterSet const& ps)
 		_cADC_EChannel[histoname]->Fill(frame[j].adc());
 		_cADC->Fill(frame[j].adc());
 		
-		// 	//	shapes are after the cut
-		// 	if (q>_cut)
-		// 	{
-		// 	  _cShapeCut_EChannel.fill(eid, j, frame[j].nominal_fC());
-		// 	  _cShapeCut.fill(j, frame[j].nominal_fC());
-		// 	}
-		// 	_cADC_EChannel[j].fill(eid, frame[j].adc());
 	      }
 	  }
 }
