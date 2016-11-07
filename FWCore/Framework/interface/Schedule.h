@@ -131,8 +131,7 @@ namespace edm {
 
     void processOneEvent(unsigned int iStreamID,
                          EventPrincipal& principal,
-                         EventSetup const& eventSetup,
-                         bool cleaningUpAfterException = false);
+                         EventSetup const& eventSetup);
 
     template <typename T>
     void processOneGlobal(typename T::MyPrincipal& principal,

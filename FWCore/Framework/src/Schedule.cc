@@ -946,10 +946,9 @@ namespace edm {
   
   void Schedule::processOneEvent(unsigned int iStreamID,
                                  EventPrincipal& ep,
-                                 EventSetup const& es,
-                                 bool cleaningUpAfterException) {
+                                 EventSetup const& es) {
     assert(iStreamID<streamSchedules_.size());
-    streamSchedules_[iStreamID]->processOneEvent(ep,es,cleaningUpAfterException);
+    streamSchedules_[iStreamID]->processOneEvent(ep,es);
   }
   
   void Schedule::preForkReleaseResources() {
