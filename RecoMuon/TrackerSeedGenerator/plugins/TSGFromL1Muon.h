@@ -34,7 +34,7 @@ private:
   edm::InputTag theSourceTag;
   edm::EDGetTokenT<l1extra::L1MuonParticleCollection> theSourceToken; 
 
-  L1MuonRegionProducer * theRegionProducer;
+  std::unique_ptr<L1MuonRegionProducer> theRegionProducer;
   OrderedHitsGenerator * theHitGenerator;
   std::unique_ptr<L1MuonPixelTrackFitter> theFitter;
   std::unique_ptr<PixelTrackFilter> theFilter;
