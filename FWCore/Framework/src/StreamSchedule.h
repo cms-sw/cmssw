@@ -168,8 +168,7 @@ namespace edm {
     StreamSchedule(StreamSchedule const&) = delete;
 
     void processOneEvent( EventPrincipal& principal,
-                         EventSetup const& eventSetup,
-                         bool cleaningUpAfterException = false);
+                         EventSetup const& eventSetup);
 
     template <typename T>
     void processOneStream(typename T::MyPrincipal& principal,

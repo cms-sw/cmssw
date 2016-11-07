@@ -544,8 +544,7 @@ namespace edm {
   }
   
   void StreamSchedule::processOneEvent(EventPrincipal& ep,
-                                       EventSetup const& es,
-                                       bool cleaningUpAfterException) {
+                                       EventSetup const& es) {
     this->resetAll();
     for (int empty_trig_path : empty_trig_paths_) {
       results_->at(empty_trig_path) = HLTPathStatus(hlt::Pass, 0);
@@ -558,6 +557,7 @@ namespace edm {
     
     SendTerminationSignalIfException terminationSentry(actReg_.get(), &streamContext_);
     // This call takes care of the unscheduled processing.
+    bool const cleaningUpAfterException = false;
     workerManager_.processOneOccurrence<Traits>(ep, es, streamID_, &streamContext_, &streamContext_, cleaningUpAfterException);
     
     ++total_events_;
