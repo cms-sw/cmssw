@@ -18,3 +18,10 @@ from TopQuarkAnalysis.TopEventProducers.sequences.ttSemiLepEvtBuilder_cff import
                                   #makeTtSemiLepMVASelDiscriminant +
                                   #makeTtSemiLepEvent
                                   #)
+
+tqafSequencesTask = cms.Task(
+    ttGenEventTask,
+    ttSemiLepKinematicFitTask,
+    ttSemiLepMVASelectionTask,
+    ttSemiLepEvtBuilderTask
+)

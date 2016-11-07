@@ -45,3 +45,17 @@ photonPFIsolationValuesPFBRECOSequence = (
     phPFIsoValueNeutral04PFIdPFBRECO+
     phPFIsoValuePU04PFIdPFBRECO
     )
+
+photonPFIsolationValuesPFBRECOTask = cms.Task(
+    photonPFIsolationValuesTask,
+    phPFIsoValueCharged03PFIdPFBRECO,
+    phPFIsoValueChargedAll03PFIdPFBRECO,
+    phPFIsoValueGamma03PFIdPFBRECO,
+    phPFIsoValueNeutral03PFIdPFBRECO,
+    phPFIsoValuePU03PFIdPFBRECO,
+    phPFIsoValueCharged04PFIdPFBRECO,
+    phPFIsoValueChargedAll04PFIdPFBRECO,
+    phPFIsoValueGamma04PFIdPFBRECO,
+    phPFIsoValueNeutral04PFIdPFBRECO,
+    phPFIsoValuePU04PFIdPFBRECO
+    )

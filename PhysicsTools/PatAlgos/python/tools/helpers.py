@@ -4,6 +4,34 @@ import sys
 ## Helpers to perform some technically boring tasks like looking for all modules with a given parameter
 ## and replacing that to a given value
 
+def getPatAlgosToolsTask(process):
+    endPathName = "patAlgosToolsEndPath"
+    taskName = "patAlgosToolsTask"
+
+    if hasattr(process, endPathName):
+        endPath = getattr(process, endPathName)
+        if not isinstance(endPath, cms.EndPath):
+            raise Exception("patAlgosToolsEndPath does not have type EndPath")
+    else:
+        setattr(process, endPathName, cms.EndPath())
+        endPath = getattr(process, endPathName)
+
+    if hasattr(process, taskName):
+        task = getattr(process, taskName)
+        if not isinstance(task, cms.Task):
+            raise Exception("patAlgosToolsTask does not have type Task")
+    else:
+        setattr(process, taskName, cms.Task())
+        task = getattr(process, taskName)
+    endPath.associate(task)
+    return task
+
+def schedulePatAlgosEndPath(process):
+    getPatAlgosToolsTask(process)
+    endPathName = "patAlgosToolsEndPath"
+    endPath = getattr(process, endPathName)
+    process.schedule.append(endPath)
+
 def addESProducers(process,config):
 	config = config.replace("/",".")
 	#import RecoBTag.Configuration.RecoBTag_cff as btag
@@ -15,63 +43,76 @@ def addESProducers(process,config):
 			if 'ESProducer' in item.type_():
 				setattr(process,name,item)
 
-def loadWithPrefix(process,moduleName,prefix=''):
-        loadWithPrePostfix(process,moduleName,prefix,'')
+def loadWithPrefix(process,moduleName,prefix='',loadedProducersAndFilters=None):
+        loadWithPrePostfix(process,moduleName,prefix,'',loadedProducersAndFilters)
 
-def loadWithPostfix(process,moduleName,postfix=''):
-        loadWithPrePostfix(process,moduleName,'',postfix)
+def loadWithPostfix(process,moduleName,postfix='',loadedProducersAndFilters=None):
+        loadWithPrePostfix(process,moduleName,'',postfix,loadedProducersAndFilters)
 
-def loadWithPrePostfix(process,moduleName,prefix='',postfix=''):
+def loadWithPrePostfix(process,moduleName,prefix='',postfix='',loadedProducersAndFilters=None):
 	moduleName = moduleName.replace("/",".")
         module = __import__(moduleName)
 	#print module.PatAlgos.patSequences_cff.patDefaultSequence
-        extendWithPrePostfix(process,sys.modules[moduleName],prefix,postfix)
+        extendWithPrePostfix(process,sys.modules[moduleName],prefix,postfix,loadedProducersAndFilters)
 
-def extendWithPrePostfix(process,other,prefix,postfix,items=()):
-        """Look in other and find types which we can use"""
-        # enable explicit check to avoid overwriting of existing objects
-        #__dict__['_Process__InExtendCall'] = True
+def addToTask(loadedProducersAndFilters, module):
+    if loadedProducersAndFilters:
+        if isinstance(module, cms.EDProducer) or isinstance(module, cms.EDFilter):
+            loadedProducersAndFilters.add(module)
 
-        seqs = dict()
-	sequence = cms.Sequence()
-	sequence._moduleLabels = []
-	sequence.setLabel('tempSequence')
-        for name in dir(other):
-            #'from XX import *' ignores these, and so should we.
-            	if name.startswith('_'):
-                	continue
-            	item = getattr(other,name)
-            	if name == "source" or name == "looper" or name == "subProcess":
-			continue
-            	elif isinstance(item,cms._ModuleSequenceType):
-			continue
-            	elif isinstance(item,cms.Schedule):
-			continue
-            	elif isinstance(item,cms.VPSet) or isinstance(item,cms.PSet):
-			continue
-            	elif isinstance(item,cms._Labelable):
-                	if not item.hasLabel_():
-                   		item.setLabel(name)
-			if prefix != '' or postfix != '':
-				newModule = item.clone()
-				if isinstance(item,cms.ESProducer):
-					newLabel = item.label()
-					newName =name
-				else:
-				        if 'TauDiscrimination' in name:
-				                       process.__setattr__(name,item)
-					newLabel = prefix+item.label()+postfix
-					newName = prefix+name+postfix
-				process.__setattr__(newName,newModule)
-				if isinstance(newModule, cms._Sequenceable) and not newName == name:
-					sequence +=getattr(process,newName)
-					sequence._moduleLabels.append(item.label())
-			else:
-				process.__setattr__(name,item)
+def extendWithPrePostfix(process,other,prefix,postfix,loadedProducersAndFilters=None):
+    """Look in other and find types which we can use"""
+    # enable explicit check to avoid overwriting of existing objects
+    #__dict__['_Process__InExtendCall'] = True
 
-	if prefix != '' or postfix != '':
-		for label in sequence._moduleLabels:
-			massSearchReplaceAnyInputTag(sequence, label, prefix+label+postfix,verbose=False,moduleLabelOnly=True)
+    if loadedProducersAndFilters:
+        task = getattr(process, loadedProducersAndFilters)
+        if not isinstance(task, cms.Task):
+            raise Exception("extendWithPrePostfix argument must be name of Task type object attached to the process or None")
+    else:
+        task = None
+
+    sequence = cms.Sequence()
+    sequence._moduleLabels = []
+    for name in dir(other):
+        #'from XX import *' ignores these, and so should we.
+        if name.startswith('_'):
+            continue
+        item = getattr(other,name)
+        if name == "source" or name == "looper" or name == "subProcess":
+            continue
+        elif isinstance(item,cms._ModuleSequenceType):
+            continue
+        elif isinstance(item,cms.Task):
+            continue
+        elif isinstance(item,cms.Schedule):
+            continue
+        elif isinstance(item,cms.VPSet) or isinstance(item,cms.PSet):
+            continue
+        elif isinstance(item,cms._Labelable):
+            if not item.hasLabel_():
+                item.setLabel(name)
+            if prefix != '' or postfix != '':
+                newModule = item.clone()
+                if isinstance(item,cms.ESProducer):
+                    newName =name
+                else:
+                    if 'TauDiscrimination' in name:
+                        process.__setattr__(name,item)
+                        addToTask(task, item)
+                    newName = prefix+name+postfix
+                process.__setattr__(newName,newModule)
+                addToTask(task, newModule)
+                if isinstance(newModule, cms._Sequenceable) and not newName == name:
+                    sequence +=getattr(process,newName)
+                    sequence._moduleLabels.append(item.label())
+            else:
+                process.__setattr__(name,item)
+                addToTask(task, item)
+
+    if prefix != '' or postfix != '':
+        for label in sequence._moduleLabels:
+            massSearchReplaceAnyInputTag(sequence, label, prefix+label+postfix,verbose=False,moduleLabelOnly=True)
 
 def applyPostfix(process, label, postfix):
     result = None
@@ -196,14 +237,17 @@ class GatherAllModulesVisitor(object):
 class CloneSequenceVisitor(object):
     """Visitor that travels within a cms.Sequence, and returns a cloned version of the Sequence.
     All modules and sequences are cloned and a postfix is added"""
-    def __init__(self, process, label, postfix, removePostfix="", noClones = []):
+    def __init__(self, process, label, postfix, removePostfix="", noClones = [], addToTask = False):
         self._process = process
         self._postfix = postfix
         self._removePostfix = removePostfix
         self._noClones = noClones
+        self._addToTask = addToTask
         self._moduleLabels = []
         self._clonedSequence = cms.Sequence()
         setattr(process, self._newLabel(label), self._clonedSequence)
+        if addToTask:
+            self._patAlgosToolsTask = getPatAlgosToolsTask(process)
 
     def enter(self, visitee):
         if isinstance(visitee, cms._Module):
@@ -217,6 +261,8 @@ class CloneSequenceVisitor(object):
                 self._moduleLabels.append(label)
                 newModule = visitee.clone()
                 setattr(self._process, self._newLabel(label), newModule)
+                if self._addToTask:
+                    self._patAlgosToolsTask.add(getattr(self._process, self._newLabel(label)))
             self.__appendToTopSequence(newModule)
 
     def leave(self, visitee):
@@ -312,7 +358,7 @@ def contains(sequence, moduleName):
 
 
 
-def cloneProcessingSnippet(process, sequence, postfix, removePostfix="", noClones = []):
+def cloneProcessingSnippet(process, sequence, postfix, removePostfix="", noClones = [], addToTask = False):
    """
    ------------------------------------------------------------------
    copy a sequence plus the modules and sequences therein
@@ -322,7 +368,7 @@ def cloneProcessingSnippet(process, sequence, postfix, removePostfix="", noClone
    """
    result = sequence
    if not postfix == "":
-       visitor = CloneSequenceVisitor(process, sequence.label(), postfix, removePostfix, noClones)
+       visitor = CloneSequenceVisitor(process, sequence.label(), postfix, removePostfix, noClones, addToTask)
        sequence.visit(visitor)
        result = visitor.clonedSequence()
    return result

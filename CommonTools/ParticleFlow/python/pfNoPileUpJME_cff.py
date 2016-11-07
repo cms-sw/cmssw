@@ -18,3 +18,10 @@ pfNoPileUpJMESequence = cms.Sequence(
     pfNoPileUpJME
     )
 
+pfNoPileUpJMETask = cms.Task(
+    pfPileUp,
+    pfNoPileUp,
+    goodOfflinePrimaryVertices,
+    pfPileUpJME,
+    pfNoPileUpJME
+    )

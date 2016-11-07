@@ -3,13 +3,18 @@
 # Import skeleton process
 from PhysicsTools.PatAlgos.patTemplate_cfg import *
 
-# Switch on "unscheduled" mode
-process.options.allowUnscheduled = cms.untracked.bool( True )
+import PhysicsTools.PatAlgos.tools.helpers as configtools
+patAlgosToolsTask = configtools.getPatAlgosToolsTask(process)
+
 #process.Tracer = cms.Service( "Tracer" )
 
 # Load default PAT
 process.load( "PhysicsTools.PatAlgos.producersLayer1.patCandidates_cff" )
+patAlgosToolsTask.add(process.patCandidatesTask)
+
 process.load( "PhysicsTools.PatAlgos.selectionLayer1.selectedPatCandidates_cff" )
+patAlgosToolsTask.add(process.selectedPatCandidatesTask)
+
 process.p = cms.Path(
     process.selectedPatCandidates
     )

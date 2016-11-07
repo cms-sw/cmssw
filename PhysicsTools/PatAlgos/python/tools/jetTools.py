@@ -22,6 +22,9 @@ def checkJetCorrectionsFormat(jetCorrections):
 
 
 def setupJetCorrections(process, knownModules, jetCorrections, jetSource, pvSource, patJets, labelName, postfix):
+
+    patAlgosToolsTask = getPatAlgosToolsTask(process)
+
     ## determine type of jet constituents from jetSource; supported
     ## jet constituent types are calo, pf, jpt, for pf also particleflow
     ## is aloowed as part of the jetSource label, which might be used
@@ -43,6 +46,7 @@ def setupJetCorrections(process, knownModules, jetCorrections, jetSource, pvSour
     else:
         setattr(process, 'patJetCorrFactors'+labelName+postfix, patJetCorrFactors.clone(src=jetSource, primaryVertices=pvSource))
         _newPatJetCorrFactors=getattr(process, "patJetCorrFactors"+labelName+postfix)
+        patAlgosToolsTask.add(_newPatJetCorrFactors)
     _newPatJetCorrFactors.payload=jetCorrections[0]
     _newPatJetCorrFactors.levels=jetCorrections[1]
     ## check whether L1Offset or L1FastJet is part of levels
@@ -86,17 +90,27 @@ def setupJetCorrections(process, knownModules, jetCorrections, jetSource, pvSour
             marks) and use raw tcMET together with JPTJets.")
         ## set up jet correctors for MET corrections
         process.load( "JetMETCorrections.Configuration.JetCorrectorsAllAlgos_cff") # FIXME: This adds a lot of garbage
-
+        # I second the FIXME comment on the last line. When I counted it, this brought in 344 EDProducers
+        # to be available to run unscheduled. All jet correctors, probably some small fraction of which
+        # are actually used.
+        patAlgosToolsTask.add(process.jetCorrectorsAllAlgosTask)
         _payloadType = jetCorrections[0].split(_type)[0].lower()+_type
         if "PF" in _type :
             setattr(process, jetCorrections[0]+'L1FastJet', getattr(process, _payloadType+'L1FastjetCorrector').clone(srcRho=cms.InputTag('fixedGridRhoFastjetAll')))
+            patAlgosToolsTask.add(getattr(process, jetCorrections[0]+'L1FastJet'))
         else :
             setattr(process, jetCorrections[0]+'L1FastJet', getattr(process, _payloadType+'L1FastjetCorrector').clone(srcRho=cms.InputTag('fixedGridRhoFastjetAllCalo')))
+            patAlgosToolsTask.add(getattr(process, jetCorrections[0]+'L1FastJet'))
         setattr(process, jetCorrections[0]+'L1Offset', getattr(process, _payloadType+'L1OffsetCorrector').clone())
+        patAlgosToolsTask.add(getattr(process, jetCorrections[0]+'L1Offset'))
         setattr(process, jetCorrections[0]+'L2Relative', getattr(process, _payloadType+'L2RelativeCorrector').clone())
+        patAlgosToolsTask.add(getattr(process, jetCorrections[0]+'L2Relative'))
         setattr(process, jetCorrections[0]+'L3Absolute', getattr(process, _payloadType+'L3AbsoluteCorrector').clone())
+        patAlgosToolsTask.add(getattr(process, jetCorrections[0]+'L3Absolute'))
         setattr(process, jetCorrections[0]+'L2L3Residual', getattr(process, _payloadType+'ResidualCorrector').clone())
+        patAlgosToolsTask.add(getattr(process, jetCorrections[0]+'L2L3Residual'))
         setattr(process, jetCorrections[0]+'CombinedCorrector', cms.EDProducer( 'ChainedJetCorrectorProducer', correctors = cms.VInputTag()))
+        patAlgosToolsTask.add(getattr(process, jetCorrections[0]+'CombinedCorrector'))
         for x in jetCorrections[1]:
             if x != 'L1FastJet' and x != 'L1Offset' and x != 'L2Relative' and x != 'L3Absolute' and x != 'L2L3Residual':
                 raise ValueError('In addJetCollection: Unsupported JEC for MET(Type1). Currently supported jet correction levels are L1FastJet, L1Offset, L2Relative, L3Asolute, L2L3Residual. Requested was: %s'%(x))
@@ -121,9 +135,13 @@ def setupJetCorrections(process, knownModules, jetCorrections, jetSource, pvSour
             from JetMETCorrections.Type1MET.correctedMet_cff import caloMetT1
             from JetMETCorrections.Type1MET.correctedMet_cff import caloMetT1T2
             setattr(process,jetCorrections[0]+_labelCorrName+'JetMETcorr'+postfix, corrCaloMetType1.clone(src=jetSource,srcMET = "caloMetM",jetCorrLabel = cms.InputTag(jetCorrections[0]+'CombinedCorrector')))
+            patAlgosToolsTask.add(getattr(process, jetCorrections[0]+_labelCorrName+'JetMETcorr'+postfix))
             setattr(process,jetCorrections[0]+_labelCorrName+'JetMETcorr2'+postfix, corrCaloMetType2.clone(srcUnclEnergySums = cms.VInputTag(cms.InputTag(jetCorrections[0]+_labelCorrName+'JetMETcorr'+postfix, 'type2'),cms.InputTag(jetCorrections[0]+_labelCorrName+'JetMETcorr'+postfix, 'offset'),cms.InputTag('muCaloMetCorr'))))
+            patAlgosToolsTask.add(getattr(process, jetCorrections[0]+_labelCorrName+'JetMETcorr2'+postfix))
             setattr(process,jetCorrections[0]+_labelCorrName+'Type1CorMet'+postfix, caloMetT1.clone(src = "caloMetM", srcCorrections = cms.VInputTag(cms.InputTag(jetCorrections[0]+_labelCorrName+'JetMETcorr'+postfix, 'type1'))))
+            patAlgosToolsTask.add(getattr(process, jetCorrections[0]+_labelCorrName+'Type1CorMet'+postfix))
             setattr(process,jetCorrections[0]+_labelCorrName+'Type1p2CorMet'+postfix, caloMetT1T2.clone(src = "caloMetM", srcCorrections = cms.VInputTag(cms.InputTag(jetCorrections[0]+_labelCorrName+'JetMETcorr'+postfix, 'type1'), cms.InputTag(jetCorrections[0]+_labelCorrName+'JetMETcorr2'+postfix))))
+            patAlgosToolsTask.add(getattr(process, jetCorrections[0]+_labelCorrName+'Type1p2CorMet'+postfix))
 
         elif _type == 'PF':
             from JetMETCorrections.Type1MET.correctionTermsPfMetType1Type2_cff import pfJetsPtrForMetCorr
@@ -135,13 +153,21 @@ def setupJetCorrections(process, knownModules, jetCorrections, jetSource, pvSour
             from JetMETCorrections.Type1MET.correctedMet_cff import pfMetT1
             from JetMETCorrections.Type1MET.correctedMet_cff import pfMetT1T2
             setattr(process,jetCorrections[0]+_labelCorrName+'pfJetsPtrForMetCorr'+postfix,pfJetsPtrForMetCorr.clone(src = jetSource))
+            patAlgosToolsTask.add(getattr(process, jetCorrections[0]+_labelCorrName+'pfJetsPtrForMetCorr'+postfix))
             setattr(process,jetCorrections[0]+_labelCorrName+'pfCandsNotInJetsPtrForMetCorr'+postfix,pfCandsNotInJetsPtrForMetCorr.clone(topCollection = jetCorrections[0]+_labelCorrName+'pfJetsPtrForMetCorr'+postfix))
+            patAlgosToolsTask.add(getattr(process, jetCorrections[0]+_labelCorrName+'pfCandsNotInJetsPtrForMetCorr'+postfix))
             setattr(process,jetCorrections[0]+_labelCorrName+'pfCandsNotInJetsForMetCorr'+postfix,pfCandsNotInJetsForMetCorr.clone(src = jetCorrections[0]+_labelCorrName+'pfCandsNotInJetsPtrForMetCorr'+postfix))
+            patAlgosToolsTask.add(getattr(process, jetCorrections[0]+_labelCorrName+'pfCandsNotInJetsForMetCorr'+postfix))
             setattr(process,jetCorrections[0]+_labelCorrName+'CandMETcorr'+postfix, pfCandMETcorr.clone(src = cms.InputTag(jetCorrections[0]+_labelCorrName+'pfCandsNotInJetsForMetCorr'+postfix)))
+            patAlgosToolsTask.add(getattr(process, jetCorrections[0]+_labelCorrName+'CandMETcorr'+postfix))
             setattr(process,jetCorrections[0]+_labelCorrName+'JetMETcorr'+postfix, corrPfMetType1.clone(src = jetSource, jetCorrLabel = cms.InputTag(jetCorrections[0]+'CombinedCorrector'))) # FIXME: Originally w/o jet corrections?
+            patAlgosToolsTask.add(getattr(process, jetCorrections[0]+_labelCorrName+'JetMETcorr'+postfix))
             setattr(process,jetCorrections[0]+_labelCorrName+'corrPfMetType2'+postfix, corrPfMetType2.clone(srcUnclEnergySums = cms.VInputTag(cms.InputTag(jetCorrections[0]+_labelCorrName+'JetMETcorr'+postfix, 'type2'),cms.InputTag(jetCorrections[0]+_labelCorrName+'JetMETcorr'+postfix, 'offset'),cms.InputTag(jetCorrections[0]+_labelCorrName+'CandMETcorr'+postfix))))
+            patAlgosToolsTask.add(getattr(process, jetCorrections[0]+_labelCorrName+'corrPfMetType2'+postfix))
             setattr(process,jetCorrections[0]+_labelCorrName+'Type1CorMet'+postfix, pfMetT1.clone(srcCorrections = cms.VInputTag(cms.InputTag(jetCorrections[0]+_labelCorrName+'JetMETcorr'+postfix, 'type1'))))
+            patAlgosToolsTask.add(getattr(process, jetCorrections[0]+_labelCorrName+'Type1CorMet'+postfix))
             setattr(process,jetCorrections[0]+_labelCorrName+'Type1p2CorMet'+postfix, pfMetT1T2.clone(srcCorrections = cms.VInputTag(cms.InputTag(jetCorrections[0]+_labelCorrName+'JetMETcorr'+postfix, 'type1'), jetCorrections[0]+_labelCorrName+'corrPfMetType2'+postfix)))
+            patAlgosToolsTask.add(getattr(process, jetCorrections[0]+_labelCorrName+'Type1p2CorMet'+postfix))
 
         ## common configuration for Calo and PF
         if ('L1FastJet' in jetCorrections[1] or 'L1Fastjet' in jetCorrections[1]):
@@ -155,8 +181,10 @@ def setupJetCorrections(process, knownModules, jetCorrections, jetSource, pvSour
         from PhysicsTools.PatAlgos.producersLayer1.metProducer_cfi import patMETs
         if jetCorrections[2].lower() == 'type-1':
             setattr(process, 'patMETs'+labelName+postfix, patMETs.clone(metSource = cms.InputTag(jetCorrections[0]+_labelCorrName+'Type1CorMet'+postfix), addMuonCorrections = False))
+            patAlgosToolsTask.add(getattr(process, 'patMETs'+labelName+postfix))
         elif jetCorrections[2].lower() == 'type-2':
             setattr(process, 'patMETs'+labelName+postfix, patMETs.clone(metSource = cms.InputTag(jetCorrections[0]+_labelCorrName+'Type1p2CorMet'+postfix), addMuonCorrections = False))
+            patAlgosToolsTask.add(getattr(process, 'patMETs'+labelName+postfix))
 
 
 def setupSVClustering(btagInfo, svClustering, algo, rParam, fatJets=cms.InputTag(''), groomedFatJets=cms.InputTag('')):
@@ -172,6 +200,9 @@ def setupSVClustering(btagInfo, svClustering, algo, rParam, fatJets=cms.InputTag
 
 def setupBTagging(process, jetSource, pfCandidates, explicitJTA, pvSource, svSource, elSource, muSource, runIVF, tightBTagNTkHits, loadStdRecoBTag, svClustering, fatJets, groomedFatJets,
                   algo, rParam, btagDiscriminators, btagInfos, patJets, labelName, btagPrefix, postfix):
+
+    patAlgosToolsTask = getPatAlgosToolsTask(process)
+
     ## expand tagInfos to what is explicitly required by user + implicit
     ## requirements that come in from one or the other discriminator
     requiredTagInfos = list(btagInfos)
@@ -189,10 +220,15 @@ def setupBTagging(process, jetSource, pfCandidates, explicitJTA, pvSource, svSou
     if hasattr( process, 'candidateJetProbabilityComputer' ) == False :
         if loadStdRecoBTag: # also loading modules already run in the standard reconstruction
             process.load("RecoBTag.ImpactParameter.impactParameter_cff")
+            patAlgosToolsTask.add(process.impactParameterTask)
             process.load("RecoBTag.SecondaryVertex.secondaryVertex_cff")
+            patAlgosToolsTask.add(process.secondaryVertexTask)
             process.load("RecoBTag.SoftLepton.softLepton_cff")
+            patAlgosToolsTask.add(process.softLeptonTask)
             process.load("RecoBTag.Combined.combinedMVA_cff")
+            patAlgosToolsTask.add(process.combinedMVATask)
             process.load("RecoBTag.CTagging.cTagging_cff")
+            patAlgosToolsTask.add(process.cTaggingTask)
         else: # to prevent loading of modules already run in the standard reconstruction
             process.load("RecoBTag.ImpactParameter.impactParameter_EventSetup_cff")
             process.load("RecoBTag.SecondaryVertex.secondaryVertex_EventSetup_cff")
@@ -248,6 +284,7 @@ def setupBTagging(process, jetSource, pfCandidates, explicitJTA, pvSource, svSou
         if hasattr(btag,btagInfo):
             if btagInfo == 'pfImpactParameterTagInfos':
                 setattr(process, btagPrefix+btagInfo+labelName+postfix, btag.pfImpactParameterTagInfos.clone(jets = jetSource,primaryVertex=pvSource,candidates=pfCandidates))
+                patAlgosToolsTask.add(getattr(process, btagPrefix+btagInfo+labelName+postfix))
                 if explicitJTA:
                     _btagInfo = getattr(process, btagPrefix+btagInfo+labelName+postfix)
                     _btagInfo.explicitJTA = cms.bool(explicitJTA)
@@ -257,6 +294,7 @@ def setupBTagging(process, jetSource, pfCandidates, explicitJTA, pvSource, svSou
                     _btagInfo.minimumNumberOfHits = cms.int32(8)
             if btagInfo == 'pfImpactParameterAK8TagInfos':
                 setattr(process, btagPrefix+btagInfo+labelName+postfix, btag.pfImpactParameterAK8TagInfos.clone(jets = jetSource,primaryVertex=pvSource,candidates=pfCandidates))
+                patAlgosToolsTask.add(getattr(process, btagPrefix+btagInfo+labelName+postfix))
                 if explicitJTA:
                     _btagInfo = getattr(process, btagPrefix+btagInfo+labelName+postfix)
                     _btagInfo.explicitJTA = cms.bool(explicitJTA)
@@ -266,6 +304,7 @@ def setupBTagging(process, jetSource, pfCandidates, explicitJTA, pvSource, svSou
                     _btagInfo.minimumNumberOfHits = cms.int32(8)
             if btagInfo == 'pfImpactParameterCA15TagInfos':
                 setattr(process, btagPrefix+btagInfo+labelName+postfix, btag.pfImpactParameterCA15TagInfos.clone(jets = jetSource,primaryVertex=pvSource,candidates=pfCandidates))
+                patAlgosToolsTask.add(getattr(process, btagPrefix+btagInfo+labelName+postfix))
                 if explicitJTA:
                     _btagInfo = getattr(process, btagPrefix+btagInfo+labelName+postfix)
                     _btagInfo.explicitJTA = cms.bool(explicitJTA)
@@ -275,6 +314,7 @@ def setupBTagging(process, jetSource, pfCandidates, explicitJTA, pvSource, svSou
                     _btagInfo.minimumNumberOfHits = cms.int32(8)
             if btagInfo == 'pfSecondaryVertexTagInfos':
                 setattr(process, btagPrefix+btagInfo+labelName+postfix, btag.pfSecondaryVertexTagInfos.clone(trackIPTagInfos = cms.InputTag(btagPrefix+'pfImpactParameterTagInfos'+labelName+postfix)))
+                patAlgosToolsTask.add(getattr(process, btagPrefix+btagInfo+labelName+postfix))
                 if tightBTagNTkHits:
                     _btagInfo = getattr(process, btagPrefix+btagInfo+labelName+postfix)
                     _btagInfo.trackSelection.pixelHitsMin = cms.uint32(2)
@@ -305,68 +345,88 @@ def setupBTagging(process, jetSource, pfCandidates, explicitJTA, pvSource, svSou
                     setupSVClustering(getattr(process, btagPrefix+btagInfo+labelName+postfix), svClustering, algo, rParam, fatJets, groomedFatJets)     
             if btagInfo == 'pfInclusiveSecondaryVertexFinderTagInfos':
                 setattr(process, btagPrefix+btagInfo+labelName+postfix, btag.pfInclusiveSecondaryVertexFinderTagInfos.clone(trackIPTagInfos = cms.InputTag(btagPrefix+'pfImpactParameterTagInfos'+labelName+postfix), extSVCollection=svSource))
+                patAlgosToolsTask.add(getattr(process, btagPrefix+btagInfo+labelName+postfix))
                 if svClustering or fatJets != cms.InputTag(''):
                     setupSVClustering(getattr(process, btagPrefix+btagInfo+labelName+postfix), svClustering, algo, rParam, fatJets, groomedFatJets)
             if btagInfo == 'pfInclusiveSecondaryVertexFinderAK8TagInfos':
                 setattr(process, btagPrefix+btagInfo+labelName+postfix, btag.pfInclusiveSecondaryVertexFinderAK8TagInfos.clone(trackIPTagInfos = cms.InputTag(btagPrefix+'pfImpactParameterAK8TagInfos'+labelName+postfix), extSVCollection=svSource))
+                patAlgosToolsTask.add(getattr(process, btagPrefix+btagInfo+labelName+postfix))
                 if svClustering or fatJets != cms.InputTag(''):
                     setupSVClustering(getattr(process, btagPrefix+btagInfo+labelName+postfix), svClustering, algo, rParam, fatJets, groomedFatJets)
             if btagInfo == 'pfBoostedDoubleSVAK8TagInfos':
                 setattr(process, btagPrefix+btagInfo+labelName+postfix, btag.pfBoostedDoubleSVAK8TagInfos.clone(svTagInfos = cms.InputTag(btagPrefix+'pfInclusiveSecondaryVertexFinderAK8TagInfos'+labelName+postfix)))
+                patAlgosToolsTask.add(getattr(process, btagPrefix+btagInfo+labelName+postfix))
             if btagInfo == 'pfInclusiveSecondaryVertexFinderCA15TagInfos':
                 setattr(process, btagPrefix+btagInfo+labelName+postfix, btag.pfInclusiveSecondaryVertexFinderCA15TagInfos.clone(trackIPTagInfos = cms.InputTag(btagPrefix+'pfImpactParameterCA15TagInfos'+labelName+postfix), extSVCollection=svSource))
+                patAlgosToolsTask.add(getattr(process, btagPrefix+btagInfo+labelName+postfix))
                 if svClustering or fatJets != cms.InputTag(''):
                     setupSVClustering(getattr(process, btagPrefix+btagInfo+labelName+postfix), svClustering, algo, rParam, fatJets, groomedFatJets)
             if btagInfo == 'pfBoostedDoubleSVCA15TagInfos':
                 setattr(process, btagPrefix+btagInfo+labelName+postfix, btag.pfBoostedDoubleSVCA15TagInfos.clone(svTagInfos = cms.InputTag(btagPrefix+'pfInclusiveSecondaryVertexFinderCA15TagInfos'+labelName+postfix)))
+                patAlgosToolsTask.add(getattr(process, btagPrefix+btagInfo+labelName+postfix))
             if btagInfo == 'pfInclusiveSecondaryVertexFinderCvsLTagInfos':
                 setattr(process, btagPrefix+btagInfo+labelName+postfix, btag.pfInclusiveSecondaryVertexFinderCvsLTagInfos.clone(trackIPTagInfos = cms.InputTag(btagPrefix+'pfImpactParameterTagInfos'+labelName+postfix), extSVCollection=svSourceCvsL))
+                patAlgosToolsTask.add(getattr(process, btagPrefix+btagInfo+labelName+postfix))
                 if svClustering or fatJets != cms.InputTag(''):
                     setupSVClustering(getattr(process, btagPrefix+btagInfo+labelName+postfix), svClustering, algo, rParam, fatJets, groomedFatJets)
             if btagInfo == 'pfInclusiveSecondaryVertexFinderNegativeCvsLTagInfos':
                 setattr(process, btagPrefix+btagInfo+labelName+postfix, btag.pfInclusiveSecondaryVertexFinderNegativeCvsLTagInfos.clone(trackIPTagInfos = cms.InputTag(btagPrefix+'pfImpactParameterTagInfos'+labelName+postfix), extSVCollection=svSourceCvsL))
+                patAlgosToolsTask.add(getattr(process, btagPrefix+btagInfo+labelName+postfix))
                 if svClustering or fatJets != cms.InputTag(''):
                     setupSVClustering(getattr(process, btagPrefix+btagInfo+labelName+postfix), svClustering, algo, rParam, fatJets, groomedFatJets)
             if btagInfo == 'pfGhostTrackVertexTagInfos':
                 setattr(process, btagPrefix+btagInfo+labelName+postfix, btag.pfGhostTrackVertexTagInfos.clone(trackIPTagInfos = cms.InputTag(btagPrefix+'pfImpactParameterTagInfos'+labelName+postfix)))
+                patAlgosToolsTask.add(getattr(process, btagPrefix+btagInfo+labelName+postfix))
             if btagInfo == 'pfSecondaryVertexNegativeTagInfos':
                 setattr(process, btagPrefix+btagInfo+labelName+postfix, btag.pfSecondaryVertexNegativeTagInfos.clone(trackIPTagInfos = cms.InputTag(btagPrefix+'pfImpactParameterTagInfos'+labelName+postfix)))
+                patAlgosToolsTask.add(getattr(process, btagPrefix+btagInfo+labelName+postfix))
                 if tightBTagNTkHits:
                     _btagInfo = getattr(process, btagPrefix+btagInfo+labelName+postfix)
                     _btagInfo.trackSelection.pixelHitsMin = cms.uint32(2)
                     _btagInfo.trackSelection.totalHitsMin = cms.uint32(8)
             if btagInfo == 'pfInclusiveSecondaryVertexFinderNegativeTagInfos':
                 setattr(process, btagPrefix+btagInfo+labelName+postfix, btag.pfInclusiveSecondaryVertexFinderNegativeTagInfos.clone(trackIPTagInfos = cms.InputTag(btagPrefix+'pfImpactParameterTagInfos'+labelName+postfix), extSVCollection=svSource))
+                patAlgosToolsTask.add(getattr(process, btagPrefix+btagInfo+labelName+postfix))
                 if svClustering or fatJets != cms.InputTag(''):
                     setupSVClustering(getattr(process, btagPrefix+btagInfo+labelName+postfix), svClustering, algo, rParam, fatJets, groomedFatJets)
             if btagInfo == 'impactParameterTagInfos':
                 setattr(process, btagPrefix+btagInfo+labelName+postfix, btag.impactParameterTagInfos.clone(jetTracks = cms.InputTag('jetTracksAssociatorAtVertex'+labelName+postfix), primaryVertex=pvSource))
+                patAlgosToolsTask.add(getattr(process, btagPrefix+btagInfo+labelName+postfix))
             if btagInfo == 'secondaryVertexTagInfos':
                 setattr(process, btagPrefix+btagInfo+labelName+postfix, btag.secondaryVertexTagInfos.clone(trackIPTagInfos = cms.InputTag(btagPrefix+'impactParameterTagInfos'+labelName+postfix)))
+                patAlgosToolsTask.add(getattr(process, btagPrefix+btagInfo+labelName+postfix))
             if btagInfo == 'inclusiveSecondaryVertexFinderTagInfos':
                 setattr(process, btagPrefix+btagInfo+labelName+postfix, btag.inclusiveSecondaryVertexFinderTagInfos.clone(trackIPTagInfos = cms.InputTag(btagPrefix+'impactParameterTagInfos'+labelName+postfix)))
+                patAlgosToolsTask.add(getattr(process, btagPrefix+btagInfo+labelName+postfix))
                 if svClustering or fatJets != cms.InputTag(''):
                     setupSVClustering(getattr(process, btagPrefix+btagInfo+labelName+postfix), svClustering, algo, rParam, fatJets, groomedFatJets)
             if btagInfo == 'inclusiveSecondaryVertexFinderFilteredTagInfos':
                 setattr(process, btagPrefix+btagInfo+labelName+postfix, btag.inclusiveSecondaryVertexFinderFilteredTagInfos.clone(trackIPTagInfos = cms.InputTag(btagPrefix+'impactParameterTagInfos'+labelName+postfix)))
+                patAlgosToolsTask.add(getattr(process, btagPrefix+btagInfo+labelName+postfix))
                 if svClustering or fatJets != cms.InputTag(''):
                     setupSVClustering(getattr(process, btagPrefix+btagInfo+labelName+postfix), svClustering, algo, rParam, fatJets, groomedFatJets)
             if btagInfo == 'secondaryVertexNegativeTagInfos':
                 setattr(process, btagPrefix+btagInfo+labelName+postfix, btag.secondaryVertexNegativeTagInfos.clone(trackIPTagInfos = cms.InputTag(btagPrefix+'impactParameterTagInfos'+labelName+postfix)))
+                patAlgosToolsTask.add(getattr(process, btagPrefix+btagInfo+labelName+postfix))
             if btagInfo == 'inclusiveSecondaryVertexFinderNegativeTagInfos':
                 setattr(process, btagPrefix+btagInfo+labelName+postfix, btag.inclusiveSecondaryVertexFinderNegativeTagInfos.clone(trackIPTagInfos = cms.InputTag(btagPrefix+'impactParameterTagInfos'+labelName+postfix)))
+                patAlgosToolsTask.add(getattr(process, btagPrefix+btagInfo+labelName+postfix))
                 if svClustering or fatJets != cms.InputTag(''):
                     setupSVClustering(getattr(process, btagPrefix+btagInfo+labelName+postfix), svClustering, algo, rParam, fatJets, groomedFatJets)
             if btagInfo == 'inclusiveSecondaryVertexFinderFilteredNegativeTagInfos':
                 setattr(process, btagPrefix+btagInfo+labelName+postfix, btag.inclusiveSecondaryVertexFinderFilteredNegativeTagInfos.clone(trackIPTagInfos = cms.InputTag(btagPrefix+'impactParameterTagInfos'+labelName+postfix)))
+                patAlgosToolsTask.add(getattr(process, btagPrefix+btagInfo+labelName+postfix))
                 if svClustering or fatJets != cms.InputTag(''):
                     setupSVClustering(getattr(process, btagPrefix+btagInfo+labelName+postfix), svClustering, algo, rParam, fatJets, groomedFatJets)
             if btagInfo == 'softMuonTagInfos':
                 setattr(process, btagPrefix+btagInfo+labelName+postfix, btag.softMuonTagInfos.clone(jets = jetSource, primaryVertex=pvSource))
+                patAlgosToolsTask.add(getattr(process, btagPrefix+btagInfo+labelName+postfix))
             if btagInfo == 'softPFMuonsTagInfos':
                 setattr(process, btagPrefix+btagInfo+labelName+postfix, btag.softPFMuonsTagInfos.clone(jets = jetSource, primaryVertex=pvSource, muons=muSource))
+                patAlgosToolsTask.add(getattr(process, btagPrefix+btagInfo+labelName+postfix))
             if btagInfo == 'softPFElectronsTagInfos':
                 setattr(process, btagPrefix+btagInfo+labelName+postfix, btag.softPFElectronsTagInfos.clone(jets = jetSource, primaryVertex=pvSource, electrons=elSource))
+                patAlgosToolsTask.add(getattr(process, btagPrefix+btagInfo+labelName+postfix))
             acceptedTagInfos.append(btagInfo)
         elif hasattr(toptag, btagInfo) :
             acceptedTagInfos.append(btagInfo)
@@ -426,6 +486,18 @@ def setupBTagging(process, jetSource, pfCandidates, explicitJTA, pvSource, svSou
         if any(i in acceptedTagInfos for i in ivfbTagInfos) and not runIVFforCTagOnly:
             if not hasattr( process, btagPrefix+'inclusiveCandidateVertexFinder' ):
                 loadWithPrefix(process, 'RecoVertex.AdaptiveVertexFinder.inclusiveVertexing_cff', btagPrefix)
+                patAlgosToolsTask.add(getattr(process, btagPrefix+'inclusiveVertexFinder'))
+                patAlgosToolsTask.add(getattr(process, btagPrefix+'vertexMerger'))
+                patAlgosToolsTask.add(getattr(process, btagPrefix+'trackVertexArbitrator'))
+                patAlgosToolsTask.add(getattr(process, btagPrefix+'inclusiveSecondaryVertices'))
+                patAlgosToolsTask.add(getattr(process, btagPrefix+'inclusiveCandidateVertexFinder'))
+                patAlgosToolsTask.add(getattr(process, btagPrefix+'candidateVertexMerger'))
+                patAlgosToolsTask.add(getattr(process, btagPrefix+'candidateVertexArbitrator'))
+                patAlgosToolsTask.add(getattr(process, btagPrefix+'inclusiveCandidateSecondaryVertices'))
+                patAlgosToolsTask.add(getattr(process, btagPrefix+'inclusiveCandidateVertexFinderCvsL'))
+                patAlgosToolsTask.add(getattr(process, btagPrefix+'candidateVertexMergerCvsL'))
+                patAlgosToolsTask.add(getattr(process, btagPrefix+'candidateVertexArbitratorCvsL'))
+                patAlgosToolsTask.add(getattr(process, btagPrefix+'inclusiveCandidateSecondaryVerticesCvsL'))
             if tightBTagNTkHits:
                 if hasattr( process, btagPrefix+'inclusiveCandidateVertexFinder' ):
                     _temp = getattr(process, btagPrefix+'inclusiveCandidateVertexFinder')
@@ -442,9 +514,22 @@ def setupBTagging(process, jetSource, pfCandidates, explicitJTA, pvSource, svSou
                     _temp.tracks = pfCandidates
                 if hasattr( process, btagPrefix+'inclusiveCandidateSecondaryVertices' ) and not hasattr( process, svSource.getModuleLabel() ):
                     setattr(process, svSource.getModuleLabel(), getattr(process, btagPrefix+'inclusiveCandidateSecondaryVertices').clone() )
+                    patAlgosToolsTask.add(getattr(process, svSource.getModuleLabel()))
         if any(i in acceptedTagInfos for i in ivfcTagInfos):
             if not hasattr( process, btagPrefix+'inclusiveCandidateVertexFinderCvsL' ):
                 loadWithPrefix(process, 'RecoVertex.AdaptiveVertexFinder.inclusiveVertexing_cff', btagPrefix)
+                patAlgosToolsTask.add(getattr(process, btagPrefix+'inclusiveVertexFinder'))
+                patAlgosToolsTask.add(getattr(process, btagPrefix+'vertexMerger'))
+                patAlgosToolsTask.add(getattr(process, btagPrefix+'trackVertexArbitrator'))
+                patAlgosToolsTask.add(getattr(process, btagPrefix+'inclusiveSecondaryVertices'))
+                patAlgosToolsTask.add(getattr(process, btagPrefix+'inclusiveCandidateVertexFinder'))
+                patAlgosToolsTask.add(getattr(process, btagPrefix+'candidateVertexMerger'))
+                patAlgosToolsTask.add(getattr(process, btagPrefix+'candidateVertexArbitrator'))
+                patAlgosToolsTask.add(getattr(process, btagPrefix+'inclusiveCandidateSecondaryVertices'))
+                patAlgosToolsTask.add(getattr(process, btagPrefix+'inclusiveCandidateVertexFinderCvsL'))
+                patAlgosToolsTask.add(getattr(process, btagPrefix+'candidateVertexMergerCvsL'))
+                patAlgosToolsTask.add(getattr(process, btagPrefix+'candidateVertexArbitratorCvsL'))
+                patAlgosToolsTask.add(getattr(process, btagPrefix+'inclusiveCandidateSecondaryVerticesCvsL'))
             if tightBTagNTkHits:
                 if hasattr( process, btagPrefix+'inclusiveCandidateVertexFinderCvsL' ):
                     _temp = getattr(process, btagPrefix+'inclusiveCandidateVertexFinderCvsL')
@@ -461,22 +546,28 @@ def setupBTagging(process, jetSource, pfCandidates, explicitJTA, pvSource, svSou
                     _temp.tracks = pfCandidates
                 if hasattr( process, btagPrefix+'inclusiveCandidateSecondaryVerticesCvsL' ) and not hasattr( process, svSourceCvsL.getModuleLabel() ):
                     setattr(process, svSourceCvsL.getModuleLabel(), getattr(process, btagPrefix+'inclusiveCandidateSecondaryVerticesCvsL').clone() )
+                    patAlgosToolsTask.add(getattr(process, svSourceCvsL.getModuleLabel()))
         if 'inclusiveSecondaryVertexFinderTagInfos' in acceptedTagInfos:
             if not hasattr( process, 'inclusiveVertexing' ):
                 process.load( 'RecoVertex.AdaptiveVertexFinder.inclusiveVertexing_cff' )
+                patAlgosToolsTask.add(process.inclusiveVertexingTask)
         if 'inclusiveSecondaryVertexFinderFilteredTagInfos' in acceptedTagInfos:
             if not hasattr( process, 'inclusiveVertexing' ):
                 process.load( 'RecoVertex.AdaptiveVertexFinder.inclusiveVertexing_cff' )
+                patAlgosToolsTask.add(process.inclusiveVertexingTask)
     if 'inclusiveSecondaryVertexFinderFilteredTagInfos' in acceptedTagInfos:
         if not hasattr( process, 'inclusiveSecondaryVerticesFiltered' ):
             process.load( 'RecoBTag.SecondaryVertex.inclusiveSecondaryVerticesFiltered_cfi' )
+            patAlgosToolsTask.add(process.inclusiveSecondaryVerticesFiltered)
+            patAlgosToolsTask.add(process.bVertexFilter)
         if not hasattr( process, 'bToCharmDecayVertexMerged' ):
             process.load( 'RecoBTag.SecondaryVertex.bToCharmDecayVertexMerger_cfi' )
+            patAlgosToolsTask.add(process.bToCharmDecayVertexMerged)
     if 'caTopTagInfos' in acceptedTagInfos :
         patJets.addTagInfos = True
         if not hasattr( process, 'caTopTagInfos' ) and not hasattr( process, 'caTopTagInfosAK8' ):
             process.load( 'RecoJets.JetProducers.caTopTaggers_cff' )
-
+            patAlgosToolsTask.add(process.caTopTaggersTask)
 
 class AddJetCollection(ConfigToolBase):
     """
@@ -637,6 +728,8 @@ class AddJetCollection(ConfigToolBase):
         """
         Tool code implementation
         """
+        patAlgosToolsTask = getPatAlgosToolsTask(process)
+
         ## initialize parameters
         labelName=self._parameters['labelName'].value
         postfix=self._parameters['postfix'].value
@@ -709,6 +802,7 @@ class AddJetCollection(ConfigToolBase):
             setattr(process, 'patJets'+_labelName+postfix, patJets.clone(jetSource=jetSource))
             _newPatJets=getattr(process, 'patJets'+_labelName+postfix)
             knownModules.append('patJets'+_labelName+postfix)
+            patAlgosToolsTask.add(_newPatJets)
         ## add new selectedPatJets to process
         from PhysicsTools.PatAlgos.selectionLayer1.jetSelector_cfi import selectedPatJets
         if 'selectedPatJets'+_labelName+postfix in knownModules :
@@ -716,7 +810,9 @@ class AddJetCollection(ConfigToolBase):
             _newSelectedPatJets.src='patJets'+_labelName+postfix
         else :
             setattr(process, 'selectedPatJets'+_labelName+postfix, selectedPatJets.clone(src='patJets'+_labelName+postfix))
+            _newSelectedPatJets=getattr(process, 'selectedPatJets'+_labelName+postfix)
             knownModules.append('selectedPatJets'+_labelName+postfix)
+            patAlgosToolsTask.add(_newSelectedPatJets)
 
         ## add new patJetPartonMatch to process
         from PhysicsTools.PatAlgos.mcMatchLayer0.jetMatch_cfi import patJetPartonMatch
@@ -726,7 +822,9 @@ class AddJetCollection(ConfigToolBase):
             _newPatJetPartonMatch.matched=genParticles
         else :
             setattr(process, 'patJetPartonMatch'+_labelName+postfix, patJetPartonMatch.clone(src=jetSource, matched=genParticles))
+            _newPatJetPartonMatch=getattr(process, 'patJetPartonMatch'+_labelName+postfix)
             knownModules.append('patJetPartonMatch'+_labelName+postfix)
+            patAlgosToolsTask.add(_newPatJetPartonMatch)
         ## add new patJetGenJetMatch to process
         from PhysicsTools.PatAlgos.mcMatchLayer0.jetMatch_cfi import patJetGenJetMatch
         if 'patJetGenJetMatch'+_labelName+postfix in knownModules :
@@ -736,7 +834,9 @@ class AddJetCollection(ConfigToolBase):
             _newPatJetGenJetMatch.matched=genJetCollection
         else :
             setattr(process, 'patJetGenJetMatch'+_labelName+postfix, patJetGenJetMatch.clone(src=jetSource, maxDeltaR=rParam, matched=genJetCollection))
+            _newPatJetGenJetMatch=getattr(process, 'patJetGenJetMatch'+_labelName+postfix)
             knownModules.append('patJetGenJetMatch'+_labelName+postfix)
+            patAlgosToolsTask.add(_newPatJetGenJetMatch)
         ## modify new patJets collection accordingly
         _newPatJets.genJetMatch.setModuleLabel('patJetGenJetMatch'+_labelName+postfix)
         _newPatJets.genPartonMatch.setModuleLabel('patJetPartonMatch'+_labelName+postfix)
@@ -747,6 +847,7 @@ class AddJetCollection(ConfigToolBase):
             from PhysicsTools.PatAlgos.mcMatchLayer0.jetFlavourId_cff import patJetPartonsLegacy
             if 'patJetPartonsLegacy'+postfix not in knownModules :
                 setattr(process, 'patJetPartonsLegacy'+postfix, patJetPartonsLegacy.clone(src=genParticles))
+                patAlgosToolsTask.add(getattr(process, 'patJetPartonsLegacy'+postfix))
                 knownModules.append('patJetPartonsLegacy'+postfix)
             else:
                 getattr(process, 'patJetPartonsLegacy'+postfix).src=genParticles
@@ -757,7 +858,9 @@ class AddJetCollection(ConfigToolBase):
                 _newPatJetPartonAssociation.jets=jetSource
             else :
                 setattr(process, 'patJetPartonAssociationLegacy'+_labelName+postfix, patJetPartonAssociationLegacy.clone(jets=jetSource))
+                _newPatJetPartonAssociation=getattr(process, 'patJetPartonAssociationLegacy'+_labelName+postfix)
                 knownModules.append('patJetPartonAssociationLegacy'+_labelName+postfix)
+                patAlgosToolsTask.add(_newPatJetPartonAssociation)
             ## add new patJetPartonAssociationLegacy to process
             from PhysicsTools.PatAlgos.mcMatchLayer0.jetFlavourId_cff import patJetFlavourAssociationLegacy
             if 'patJetFlavourAssociationLegacy'+_labelName+postfix in knownModules :
@@ -765,7 +868,9 @@ class AddJetCollection(ConfigToolBase):
                 _newPatJetFlavourAssociation.srcByReference='patJetPartonAssociationLegacy'+_labelName+postfix
             else:
                 setattr(process, 'patJetFlavourAssociationLegacy'+_labelName+postfix, patJetFlavourAssociationLegacy.clone(srcByReference='patJetPartonAssociationLegacy'+_labelName+postfix))
+                _newPatJetFlavourAssociation=getattr(process, 'patJetFlavourAssociationLegacy'+_labelName+postfix)
                 knownModules.append('patJetFlavourAssociationLegacy'+_labelName+postfix)
+                patAlgosToolsTask.add(_newPatJetFlavourAssociation)
             ## modify new patJets collection accordingly
             _newPatJets.JetPartonMapSource.setModuleLabel('patJetFlavourAssociationLegacy'+_labelName+postfix)
             ## new jet flavour (see https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuideBTagMCTools)
@@ -773,6 +878,7 @@ class AddJetCollection(ConfigToolBase):
             from PhysicsTools.PatAlgos.mcMatchLayer0.jetFlavourId_cff import patJetPartons
             if 'patJetPartons'+postfix not in knownModules :
                 setattr(process, 'patJetPartons'+postfix, patJetPartons.clone(particles=genParticles))
+                patAlgosToolsTask.add(getattr(process, 'patJetPartons'+postfix))
                 knownModules.append('patJetPartons'+postfix)
             else:
                 getattr(process, 'patJetPartons'+postfix).particles=genParticles
@@ -799,7 +905,9 @@ class AddJetCollection(ConfigToolBase):
                             leptons = cms.InputTag("patJetPartons"+postfix,"leptons")
                         )
                 )
+                _newPatJetFlavourAssociation=getattr(process, 'patJetFlavourAssociation'+_labelName+postfix)
                 knownModules.append('patJetFlavourAssociation'+_labelName+postfix)
+                patAlgosToolsTask.add(_newPatJetFlavourAssociation)
             ## modify new patJets collection accordingly
             _newPatJets.JetFlavourInfoSource.setModuleLabel('patJetFlavourAssociation'+_labelName+postfix)
             ## if the jets is actually a subjet
@@ -825,7 +933,9 @@ class AddJetCollection(ConfigToolBase):
                 if explicitJTA:
                     jetTracksAssociator=ak4JetTracksAssociatorExplicit
                 setattr(process, 'jetTracksAssociatorAtVertex'+_labelName+postfix, jetTracksAssociator.clone(jets=jetSource,pvSrc=pvSource))
+                _newJetTracksAssociationAtVertex=getattr(process, 'jetTracksAssociatorAtVertex'+_labelName+postfix)
                 knownModules.append('jetTracksAssociationAtVertex'+_labelName+postfix)
+                patAlgosToolsTask.add(_newJetTracksAssociationAtVertex)
             ## add new patJetCharge to process
             from PhysicsTools.PatAlgos.recoLayer0.jetTracksCharge_cff import patJetCharge
             if 'patJetCharge'+_labelName+postfix in knownModules :
@@ -833,7 +943,9 @@ class AddJetCollection(ConfigToolBase):
                 _newPatJetCharge.src='jetTracksAssociatorAtVertex'+_labelName+postfix
             else:
                 setattr(process, 'patJetCharge'+_labelName+postfix, patJetCharge.clone(src = 'jetTracksAssociatorAtVertex'+_labelName+postfix))
+                _newPatJetCharge=getattr(process, 'patJetCharge'+_labelName+postfix)
                 knownModules.append('patJetCharge'+_labelName+postfix)
+                patAlgosToolsTask.add(_newPatJetCharge)
             ## modify new patJets collection accordingly
             _newPatJets.addAssociatedTracks=True
             _newPatJets.trackAssociationSource=cms.InputTag('jetTracksAssociatorAtVertex'+_labelName+postfix)
@@ -1265,6 +1377,9 @@ class UpdateJetCollection(ConfigToolBase):
                 break
         if _algo=='':
             unsupportedJetAlgorithm(self)
+
+        patAlgosToolsTask = getPatAlgosToolsTask(process)
+
         ## add new updatedPatJets to process (keep instance for later further modifications)
         from PhysicsTools.PatAlgos.producersLayer1.jetUpdater_cfi import updatedPatJets
         if 'updatedPatJets'+_labelName+postfix in knownModules :
@@ -1274,6 +1389,7 @@ class UpdateJetCollection(ConfigToolBase):
             setattr(process, 'updatedPatJets'+_labelName+postfix, updatedPatJets.clone(jetSource=jetSource))
             _newPatJets=getattr(process, 'updatedPatJets'+_labelName+postfix)
             knownModules.append('updatedPatJets'+_labelName+postfix)
+            patAlgosToolsTask.add(_newPatJets)
         ## add new selectedUpdatedPatJets to process
         from PhysicsTools.PatAlgos.selectionLayer1.jetSelector_cfi import selectedPatJets
         if 'selectedUpdatedPatJets'+_labelName+postfix in knownModules :
@@ -1282,6 +1398,7 @@ class UpdateJetCollection(ConfigToolBase):
         else :
             setattr(process, 'selectedUpdatedPatJets'+_labelName+postfix, selectedPatJets.clone(src='updatedPatJets'+_labelName+postfix))
             knownModules.append('selectedUpdatedPatJets'+_labelName+postfix)
+            patAlgosToolsTask.add(getattr(process, 'selectedUpdatedPatJets'+_labelName+postfix))
 
         ## run btagging if required by user
         if (bTagging):

@@ -109,7 +109,6 @@ ak4PFL6SLBCorrector = cms.EDProducer(
     srcBTagInfoMuon     = cms.InputTag('ak4PFJetsSoftMuonTagInfos')
     )
 
-
 #
 # MULTIPLE LEVEL CORRECTORS
 #
@@ -136,6 +135,7 @@ ak4PFCHSL2L3Corrector = cms.EDProducer(
 ak4PFCHSL2L3CorrectorChain = cms.Sequence(
     ak4PFCHSL2RelativeCorrector * ak4PFCHSL3AbsoluteCorrector * ak4PFCHSL2L3Corrector
 )
+
 #--- JPT needs the L1JPTOffset to account for the ZSP changes.
 #--- L1JPTOffset is NOT the same as L1Offset !!!!!
 ak4JPTL2L3Corrector = cms.EDProducer(
@@ -369,4 +369,72 @@ ak4PFL1FastL2L3L6Corrector = ak4PFL1FastL2L3Corrector.clone()
 ak4PFL1FastL2L3L6Corrector.correctors.append('ak4PFL6SLBCorrector')
 ak4PFL1FastL2L3L6CorrectorChain = cms.Sequence(
     ak4PFL1FastjetCorrector * ak4PFL2RelativeCorrector * ak4PFL3AbsoluteCorrector * ak4PFL6SLBCorrector * ak4PFL1FastL2L3L6Corrector
+)
+
+jetCorrectorsTask = cms.Task(
+    ak4CaloL1OffsetCorrector,
+    ak4PFL1OffsetCorrector,
+    ak4PFCHSL1OffsetCorrector,
+    ak4JPTL1OffsetCorrector,
+    ak4PFPuppiL1OffsetCorrector,
+    ak4L1JPTOffsetCorrector,
+    ak4CaloL1FastjetCorrector,
+    ak4PFL1FastjetCorrector,
+    ak4PFCHSL1FastjetCorrector,
+    ak4JPTL1FastjetCorrector,
+    ak4PFPuppiL1FastjetCorrector,
+    ak4CaloL2RelativeCorrector,
+    ak4PFL2RelativeCorrector,
+    ak4PFCHSL2RelativeCorrector,
+    ak4JPTL2RelativeCorrector,
+    ak4TrackL2RelativeCorrector,
+    ak4PFPuppiL2RelativeCorrector,
+    ak4CaloL3AbsoluteCorrector,
+    ak4PFL3AbsoluteCorrector,
+    ak4PFCHSL3AbsoluteCorrector,
+    ak4JPTL3AbsoluteCorrector,
+    ak4TrackL3AbsoluteCorrector,
+    ak4PFPuppiL3AbsoluteCorrector,
+    ak4CaloResidualCorrector,
+    ak4PFResidualCorrector,
+    ak4PFCHSResidualCorrector,
+    ak4JPTResidualCorrector,
+    ak4PFPuppiResidualCorrector,
+    ak4CaloL6SLBCorrector,
+    ak4PFL6SLBCorrector,
+    ak4CaloL2L3Corrector,
+    ak4PFL2L3Corrector,
+    ak4PFCHSL2L3Corrector,
+    ak4JPTL2L3Corrector,
+    ak4TrackL2L3Corrector,
+    ak4PFPuppiL2L3Corrector,
+    ak4CaloL2L3ResidualCorrector,
+    ak4PFL2L3ResidualCorrector,
+    ak4PFCHSL2L3ResidualCorrector,
+    ak4JPTL2L3ResidualCorrector,
+    ak4PFPuppiL2L3ResidualCorrector,
+    ak4CaloL1L2L3Corrector,
+    ak4PFL1L2L3Corrector,
+    ak4PFCHSL1L2L3Corrector,
+    ak4JPTL1L2L3Corrector,
+    ak4PFPuppiL1L2L3Corrector,
+    ak4CaloL1L2L3ResidualCorrector,
+    ak4PFL1L2L3ResidualCorrector,
+    ak4PFCHSL1L2L3ResidualCorrector,
+    ak4JPTL1L2L3ResidualCorrector,
+    ak4PFPuppiL1L2L3ResidualCorrector,
+    ak4CaloL1FastL2L3Corrector,
+    ak4PFL1FastL2L3Corrector,
+    ak4PFCHSL1FastL2L3Corrector,
+    ak4JPTL1FastL2L3Corrector,
+    ak4PFPuppiL1FastL2L3Corrector,
+    ak4CaloL1FastL2L3ResidualCorrector,
+    ak4PFL1FastL2L3ResidualCorrector,
+    ak4PFCHSL1FastL2L3ResidualCorrector,
+    ak4JPTL1FastL2L3ResidualCorrector,
+    ak4PFPuppiL1FastL2L3ResidualCorrector,
+    ak4CaloL2L3L6Corrector,
+    ak4PFL2L3L6Corrector,
+    ak4CaloL1FastL2L3L6Corrector,
+    ak4PFL1FastL2L3L6Corrector
 )

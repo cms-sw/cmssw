@@ -262,3 +262,38 @@ producePatPFMETCorrectionsUnc = cms.Sequence(
    * patPFMetT0Corr
    * pfCandMETcorr
 )
+
+patPFMETCorrectionsTask = cms.Task(
+    correctionTermsPfMetType1Type2Task,
+    patMETs,
+    patPFMet,
+    selectedPatJetsForMetT1T2Corr,
+    selectedPatJetsForMetT2Corr,
+    patPFMetT1T2Corr,
+    patPFMetT2Corr,
+    correctionTermsPfMetType0PFCandidateTask,
+    patPFMetT0Corr,
+    pfMEtMultShiftCorr,
+    patPFMetTxyCorr,
+    patSmearedJets,
+    selectedPatJetsForMetT1T2SmearCorr,
+    selectedPatJetsForMetT2SmearCorr,
+    patPFMetT1T2SmearCorr,
+    patPFMetT2SmearCorr,
+    patPFMetT1,
+    patPFMetT1T2,
+    patPFMetT1Txy,
+    patPFMetT0pcT1,
+    patPFMetT0pcT1Txy,
+    patPFMetT1T2Txy,
+    patPFMetT0pcT1T2,
+    patPFMetT0pcT1T2Txy,
+    patPFMetT1Smear,
+    patPFMetT1T2Smear,
+    patPFMetT1TxySmear,
+    patPFMetT0pcT1Smear,
+    patPFMetT0pcT1TxySmear,
+    patPFMetT1T2TxySmear,
+    patPFMetT0pcT1T2Smear,
+    patPFMetT0pcT1T2TxySmear
+)

@@ -16,3 +16,12 @@ makePatJets = cms.Sequence(
     (patJetFlavourIdLegacy + patJetFlavourId) *
     patJets
     )
+
+jetProducerTask = cms.Task(
+    patJetCharge,
+    jetCorrectionsTask,
+    patJetPartonMatch,
+    patJetGenJetMatch,
+    jetFlavourIdTask,
+    patJets
+    )

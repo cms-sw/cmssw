@@ -15,3 +15,7 @@ from TopQuarkAnalysis.TopJetCombination.TtFullLepHypGenMatch_cfi import *
 makeHypothesis_genMatch = cms.Sequence(ttFullLepJetPartonMatch *
                                        ttFullLepHypGenMatch)
 
+ttFullLepHypGenMatchTask = cms.Task(
+    ttFullLepJetPartonMatch,
+    ttFullLepHypGenMatch
+)
