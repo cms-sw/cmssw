@@ -168,7 +168,14 @@ public:
         float tan_12_13_half_mul_distance_13_squared = fabs(y1 * (x2 - x3) + y2 * (x3 - x1) + y3 * (x1 - x2)) ;
         if(tan_12_13_half_mul_distance_13_squared * ptmin <= 1.0e-4f*distance_13_squared)
         {
-        	return true;
+        	
+            float distance_3_beamspot_squared = (x3-region_origin_x) * (x3-region_origin_x) + (y3-region_origin_y) * (y3-region_origin_y);
+         
+            float dot_13_bs3_squared = (x1 - x3)*(x3 - region_origin_x) + (y1 - y3) * (y3 - region_origin_y);
+            float distance_13_beamspot_squared  = distance_3_beamspot_squared -  dot_13_bs3_squared;
+         
+            if(distance_13_beamspot_squared < (region_origin_radius+phiCut)*(region_origin_radius+phiCut) )        	
+                return true;
 
         }
 
