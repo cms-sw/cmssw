@@ -263,6 +263,7 @@ TauAna.inclusive_tauLooseID = "decayModeFindingNewDMs"
 from PhysicsTools.Heppy.analyzers.objects.JetAnalyzer import JetAnalyzer
 JetAna = JetAnalyzer.defaultConfig
 JetAna.calculateSeparateCorrections = True # CV: needed for ttH prompt lepton MVA
+JetAna.lepSelCut = lambda lep : (abs(lep.pdgId()) == 11 and lep.relIso03 < 0.4) or (abs(lep.pdgId()) == 13 and lep.relIso04 < 0.4)
 
 from PhysicsTools.Heppy.analyzers.gen.LHEAnalyzer import LHEAnalyzer 
 LHEAna = LHEAnalyzer.defaultConfig
