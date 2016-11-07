@@ -4,8 +4,7 @@
 
 using namespace hcaldqm;
 using namespace hcaldqm::constants;
-ZDCTask::ZDCTask(edm::ParameterSet const& ps):
-	DQTask(ps)
+ZDCTask::ZDCTask(edm::ParameterSet const& ps)
 {
 	
 	//	tags
@@ -21,164 +20,201 @@ ZDCTask::ZDCTask(edm::ParameterSet const& ps):
 /* virtual */ void ZDCTask::bookHistograms(DQMStore::IBooker &ib,
 	edm::Run const& r, edm::EventSetup const& es)
 {
-	if (_ptype==fLocal)
-		if (r.runAuxiliary().run()==1)
-			return;
 
-	DQTask::bookHistograms(ib, r, es);
+	//############################## hardcode manually the zdc mapping #############################
+	//############################# this follows from https://github.com/cms-sw/cmssw/blob/CMSSW_8_0_X/EventFilter/CastorRawToDigi/src/ZdcUnpacker.cc#L118
+	//##############################################################################################
+	//////ZDC MAP for NEW data (2015 PbPb are newer)
+	//PZDC
+	std::map<HcalElectronicsId,DetId> myEMap;
+	HcalElectronicsId eid = HcalElectronicsId(0, 1, 0, 3);
+	eid.setHTR(18, 8, 1);
+	myEMap[eid]=DetId(0x54000051);//PZDC EM1
 
-	//	GET WHAT YOU NEED
-	edm::ESHandle<HcalDbService> dbs;
-	es.get<HcalDbRecord>().get(dbs);
-	_emap = dbs->getHcalMapping();
-	std::vector<uint32_t> vhashC36;
+	eid = HcalElectronicsId(1, 1, 0, 3);
+	eid.setHTR(18, 8, 1);
+	myEMap[eid]=DetId(0x54000052);//PZDC EM2
 
-	//  uhtr slot 6 is the uhtr to be used to read out qie10 coming from zdc
-	vhashC36.push_back(HcalElectronicsId(18, 8, FIBER_uTCA_MIN1, FIBERCH_MIN, false).rawId());
-	// vhashC36.push_back(HcalElectronicsId(36, 6, 11, FIBERCH_MIN, false).rawId());
-	// vhashC36.push_back(HcalElectronicsId(36, 6, 4, FIBERCH_MIN, false).rawId());
-	// vhashC36.push_back(HcalElectronicsId(36, 6, 5, FIBERCH_MIN, false).rawId());
+	eid = HcalElectronicsId(2, 1, 0, 3);
+	eid.setHTR(18, 8, 1);
+	myEMap[eid]=DetId(0x54000053);//PZDC EM3
 
-	_filter_C36.initialize(filter::fPreserver, hcaldqm::hashfunctions::fCrateSlot,
-		vhashC36);
+	eid = HcalElectronicsId(0, 2, 0, 3);
+	eid.setHTR(18, 8, 1);
+	myEMap[eid]=DetId(0x54000061);//PZDC HAD1
 
-	//	INITIALIZE what you need
-	_cShapeCut_EChannel.initialize(_name,
-		"ShapeCut", hcaldqm::hashfunctions::fEChannel,
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fTiming_TS),
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::ffC_10000));
-	_cShapeCut.initialize(_name,
-		"ShapeCut", 
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fTiming_TS),
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::ffC_10000));
-	_cShape_EChannel.initialize(_name,
-		"Shape", hcaldqm::hashfunctions::fEChannel,
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fTiming_TS),
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::ffC_10000));
-	_cShape.initialize(_name,
-		"Shape", 
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fTiming_TS),
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::ffC_10000));
+	eid = HcalElectronicsId(1, 2, 0, 3);
+	eid.setHTR(18, 8, 1);
+	myEMap[eid]=DetId(0x54000054);//PZDC EM4
 
-	// _cLETDCvsADC.initialize(_name, "LETDCvsADC",
-	// 	new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10ADC_256),
-	// 	new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10TDC_64),
+	eid = HcalElectronicsId(2, 2, 0, 3);
+	eid.setHTR(18, 8, 1);
+	myEMap[eid]=DetId(0x54000055);//PZDC EM5
+
+	eid = HcalElectronicsId(0, 3, 0, 3);
+	eid.setHTR(18, 8, 1);
+	myEMap[eid]=DetId(0x54000062);//PZDC HAD2
+
+	eid = HcalElectronicsId(1, 3, 0, 3);
+	eid.setHTR(18, 8, 1);
+	myEMap[eid]=DetId(0x54000063);//PZDC HAD3
+
+	eid = HcalElectronicsId(2, 3, 0, 3);
+	eid.setHTR(18, 8, 1);
+	myEMap[eid]=DetId(0x54000064);//PZDC HAD4
+
+	//NZDC
+	eid = HcalElectronicsId(0,1,1,3);
+	eid.setHTR(18, 8, 0);
+	myEMap[eid]=DetId(0x54000011);//NZDC EM1
+
+	eid = HcalElectronicsId(1,1,1,3);
+	eid.setHTR(18, 8, 0);
+	myEMap[eid]=DetId(0x54000012);//NZDC EM2
+
+	eid = HcalElectronicsId(2,1,1,3);
+	eid.setHTR(18, 8, 0);
+	myEMap[eid]=DetId(0x54000013);//NZDC EM3
+
+	eid = HcalElectronicsId(0,2,1,3);
+	eid.setHTR(18, 8, 0);
+	myEMap[eid]=DetId(0x54000015);//NZDC EM5
+
+	eid = HcalElectronicsId(1,2,1,3);
+	eid.setHTR(18, 8, 0);
+	myEMap[eid]=DetId(0x54000021);//NZDC HAD1
+
+	eid = HcalElectronicsId(2,2,1,3);
+	eid.setHTR(18, 8, 0);
+	myEMap[eid]=DetId(0x54000014);//NZDC EM4
+
+	eid = HcalElectronicsId(0,3,1,3);
+	eid.setHTR(18, 8, 0);
+	myEMap[eid]=DetId(0x54000022);//NZDC HAD2
+
+	eid = HcalElectronicsId(1,3,1,3);
+	eid.setHTR(18, 8, 0);
+	myEMap[eid]=DetId(0x54000023);//NZDC HAD3
+
+	eid = HcalElectronicsId(2,3,1,3);
+	eid.setHTR(18, 8, 0);
+	myEMap[eid]=DetId(0x54000024);//NZDC HAD4
+	//##################################### end hardcoding ###################################
+
+	ib.cd();
+
+	//quantities for axis
+	hcaldqm::quantity::ValueQuantity xAxisShape(hcaldqm::quantity::fTiming_TS);
+	hcaldqm::quantity::ValueQuantity yAxisShape(hcaldqm::quantity::ffC_10000);
+
+	hcaldqm::quantity::ValueQuantity xAxisADC(hcaldqm::quantity::fADC_128);
+
+	//book histos per channel
+	for (std::map<HcalElectronicsId,DetId>::const_iterator itr=myEMap.begin(); itr!=myEMap.end(); ++itr)
+	  {
+	    char histoname[300];
+	    
+	    sprintf(histoname,"%d_%d_%d_%d",itr->first.fiberChanId(),itr->first.fiberIndex(),itr->first.spigot(),itr->first.dccid());
+	    std::cout << "BOOK " << histoname << std::endl;
+
+	    ib.setCurrentFolder("ZDC/Shape_perChannel");
+	    _cShape_EChannel[histoname] = ib.bookProfile(histoname,histoname,xAxisShape.nbins(),xAxisShape.min(),xAxisShape.max(),yAxisShape.nbins(),yAxisShape.min(),yAxisShape.max());
+
+	    ib.setCurrentFolder("ZDC/ADC_perChannel");
+	    _cADC_EChannel[histoname] = ib.book1D(histoname,histoname,xAxisADC.nbins(),xAxisADC.min(),xAxisADC.max());
+
+	  }
+
+	//book global histos
+	ib.setCurrentFolder("ZDC");
+	_cShape = ib.bookProfile("Shape","Shape",xAxisShape.nbins(),xAxisShape.min(),xAxisShape.max(),yAxisShape.nbins(),yAxisShape.min(),yAxisShape.max());
+	_cADC = ib.book1D("ADC","ADC",xAxisADC.nbins(),xAxisADC.min(),xAxisADC.max());
+
+	// //	INITIALIZE what you need
+	// _cShapeCut_EChannel.initialize(_name,
+	// 	"ShapeCut", hcaldqm::hashfunctions::fEChannel,
+	// 	new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fTiming_TS),
+	// 	new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::ffC_10000));
+	// _cShapeCut.initialize(_name,
+	// 	"ShapeCut", 
+	// 	new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fTiming_TS),
+	// 	new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::ffC_10000));
+	// _cShape_EChannel.initialize(_name,
+	// 	"Shape", hcaldqm::hashfunctions::fEChannel,
+	// 	new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fTiming_TS),
+	// 	new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::ffC_10000));
+	// _cShape.initialize(_name,
+	// 	"Shape", 
+	// 	new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fTiming_TS),
+	// 	new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::ffC_10000));
+	// _cADC.initialize(_name, "ADC",
+	// 	new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fADC_128),
 	// 	new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true));
-	// _cTETDCvsADC.initialize(_name, "TETDCvsADC",
-	// 	new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10ADC_256),
-	// 	new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10TDC_64),
-	// 	new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true));
-	// _cLETDC.initialize(_name, "LETDC",
-	// 	new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10TDC_64),
-	// 	new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true));
-	_cADC.initialize(_name, "ADC",
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fADC_128),
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true));
 
-	unsigned int nTS = 10;
-	for (unsigned int j=0; j<nTS; j++)
-	{
-		// _cLETDCvsADC_EChannel[j].initialize(_name,
-		// 	"LETDCvsADC", hcaldqm::hashfunctions::fEChannel,
-		// 	new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10ADC_256),
-		// 	new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10TDC_64),
-		// 	new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true));
-		// _cTETDCvsADC_EChannel[j].initialize(_name,
-		// 	"TETDCvsADC", hcaldqm::hashfunctions::fEChannel,
-		// 	new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10ADC_256),
-		// 	new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10TDC_64),
-		// 	new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true));
-		// _cLETDC_EChannel[j].initialize(_name,
-		// 	"LETDC", hcaldqm::hashfunctions::fEChannel,
-		// 	new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10TDC_64),
-		// 	new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true));
-		_cADC_EChannel[j].initialize(_name,
-			"ADC", hcaldqm::hashfunctions::fEChannel,
-			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fADC_128),
-			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true));
-	}
+	// unsigned int nTS = 10;
+	// for (unsigned int j=0; j<nTS; j++)
+	// {
+	// 	_cADC_EChannel[j].initialize(_name,
+	// 		"ADC", hcaldqm::hashfunctions::fEChannel,
+	// 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fADC_128),
+	// 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true));
+	// }
 
-	_cShapeCut_EChannel.book(ib, _emap, _subsystem);
-	_cShapeCut.book(ib, _subsystem);
-	_cShape_EChannel.book(ib, _emap, _subsystem);
-	_cShape.book(ib, _subsystem);
-	// _cLETDCvsADC.book(ib, _subsystem);
-	// _cTETDCvsADC.book(ib, _subsystem);
-	// _cLETDC.book(ib, _subsystem);
-	_cADC.book(ib, _subsystem);
-	for (unsigned int i=0; i<nTS; i++)
-	{
-		char aux[10];
-		sprintf(aux, "TS%d", i);
-		// _cLETDCvsADC_EChannel[i].book(ib, _emap, _filter_C36, _subsystem, aux);
-		// _cTETDCvsADC_EChannel[i].book(ib, _emap, _filter_C36, _subsystem, aux);
-		// _cLETDC_EChannel[i].book(ib, _emap, _filter_C36, _subsystem, aux);
-		_cADC_EChannel[i].book(ib, _emap, _subsystem, aux);
-	}
+	// _cShapeCut_EChannel.book(ib, _emap, _subsystem);
+	// _cShapeCut.book(ib, _subsystem);
+	// _cShape_EChannel.book(ib, _emap, _subsystem);
+	// _cShape.book(ib, _subsystem);
+	// _cADC.book(ib, _subsystem);
+	// for (unsigned int i=0; i<nTS; i++)
+	// {
+	// 	char aux[10];
+	// 	sprintf(aux, "TS%d", i);
+	// 	_cADC_EChannel[i].book(ib, _emap, _subsystem, aux);
+	// }
 
-	_ehashmap.initialize(_emap, electronicsmap::fD2EHashMap);
+	// _ehashmap.initialize(_emap, electronicsmap::fD2EHashMap);
 }
 
-/* virtual */ void ZDCTask::endLuminosityBlock(edm::LuminosityBlock const& lb,
-	edm::EventSetup const& es)
-{
-	
-	//	finish
-	DQTask::endLuminosityBlock(lb, es);
-}
 
-/* virtual */ void ZDCTask::_process(edm::Event const& e, 
-	edm::EventSetup const&)
+/* virtual */ void ZDCTask::analyze(edm::Event const& e, edm::EventSetup const&)
 {
 	edm::Handle<ZDCDigiCollection> cqie10;
 	if (!e.getByToken(_tokQIE10, cqie10))
-		_logger.dqmthrow("Collection ZDCDigiCollection isn't available"
+	  edm::LogError("Collection ZDCDigiCollection isn't available"
 			+ _tagQIE10.label() + " " + _tagQIE10.instance());
 
 
 	for (uint32_t i=0; i<cqie10->size(); i++)
 	  {
 	    ZDCDataFrame frame = static_cast<ZDCDataFrame>((*cqie10)[i]);
-	    HcalElectronicsId eid = HcalElectronicsId(_emap->lookup(frame.id()));
+	    HcalElectronicsId eid = frame.elecId();
 
-
-	    //std::cout << eid.crateId() << " " << eid.slot() << " " << eid.fiberIndex() << " " << eid.fiberChanId() << std::endl;
-	    //if (_filter_C36.filter(eid)) continue;
+	    char histoname[300];
+            sprintf(histoname,"%d_%d_%d_%d",eid.fiberChanId(),eid.fiberIndex(),eid.spigot(),eid.dccid());
+	    std::cout << "FILL " << histoname << std::endl;
 	    
-		//	compute the signal, ped subracted
-		double q = hcaldqm::utilities::sumQ_v10<ZDCDataFrame>(frame,
-			constants::adc2fC[_ped], 0, frame.size()-1);
+	    //	compute the signal, ped subracted
+	    //double q = hcaldqm::utilities::sumQ_v10<ZDCDataFrame>(frame, constants::adc2fC[_ped], 0, frame.size()-1);
 
-		//	iterate thru all TS and fill
-		for (int j=0; j<frame.size(); j++)
-		{
-		  _cShape_EChannel.fill(eid, j, frame[j].nominal_fC());
-		  _cShape.fill(j, frame[j].nominal_fC());
+	    //	iterate thru all TS and fill
+	    for (int j=0; j<frame.size(); j++)
+	      {
+		_cShape_EChannel[histoname]->Fill(j, frame[j].nominal_fC());
+		_cShape->Fill(j, frame[j].nominal_fC());
 
-			//	shapes are after the cut
-			if (q>_cut)
-			{
-			  _cShapeCut_EChannel.fill(eid, j, frame[j].nominal_fC());
-			  _cShapeCut.fill(j, frame[j].nominal_fC());
-			}
-
-			//	w/o a cut
-			// _cLETDCvsADC_EChannel[j].fill(eid, frame[j].adc(), 
-			// 	frame[j].le_tdc());
-			// _cLETDCvsADC.fill(frame[j].adc(), frame[j].le_tdc());
-			// _cTETDCvsADC_EChannel[j].fill(eid, frame[j].adc(), 
-			// 	frame[j].te_tdc());
-			// _cTETDCvsADC.fill(frame[j].adc(), frame[j].te_tdc());
-			// _cLETDC_EChannel[j].fill(eid, frame[j].le_tdc());
-			// _cLETDC.fill(frame[j].le_tdc());
-			_cADC_EChannel[j].fill(eid, frame[j].adc());
-			_cADC.fill(frame[j].adc());
-		}
-	}
+		_cADC_EChannel[histoname]->Fill(frame[j].adc());
+		_cADC->Fill(frame[j].adc());
+		
+		// 	//	shapes are after the cut
+		// 	if (q>_cut)
+		// 	{
+		// 	  _cShapeCut_EChannel.fill(eid, j, frame[j].nominal_fC());
+		// 	  _cShapeCut.fill(j, frame[j].nominal_fC());
+		// 	}
+		// 	_cADC_EChannel[j].fill(eid, frame[j].adc());
+	      }
+	  }
 }
 
-/* virtual */ void ZDCTask::_resetMonitors(hcaldqm::UpdateFreq)
-{
-}
 
 DEFINE_FWK_MODULE(ZDCTask);
