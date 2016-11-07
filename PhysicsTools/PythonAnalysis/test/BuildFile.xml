@@ -1,6 +1,7 @@
-<environment>
-  <bin   file="runtestPythonAnalysis.cpp">
-    <flags   TEST_RUNNER_ARGS=" /bin/bash PhysicsTools/PythonAnalysis/test runtests.sh"/>
-    <use   name="FWCore/Utilities"/>
-  </bin>
-</environment>
+<use name="histogrammar"/>
+<use name="py2-matplotlib"/>
+
+<bin   file="runtestPythonAnalysis.cpp">
+  <flags   TEST_RUNNER_ARGS=" /bin/bash PhysicsTools/PythonAnalysis/test runtests.sh"/>
+  <use   name="FWCore/Utilities"/>
+</bin>
