@@ -19,10 +19,6 @@ DEFINE_EDM_PLUGIN(TrackerSeedGeneratorFactory, DualByEtaTSG, "DualByEtaTSG");
 DEFINE_EDM_PLUGIN(TrackerSeedGeneratorFactory, DualByL2TSG, "DualByL2TSG");
 DEFINE_EDM_PLUGIN(TrackerSeedGeneratorFactory, CombinedTSG, "CombinedTSG");
 
-#include "RecoTracker/TkTrackingRegions/interface/TrackingRegionProducerFactory.h"
-#include "RecoTracker/TkTrackingRegions/interface/TrackingRegionProducer.h"
-#include "RecoMuon/TrackerSeedGenerator/interface/L1MuonRegionProducer.h"
-DEFINE_EDM_PLUGIN(TrackingRegionProducerFactory, L1MuonRegionProducer, "L1MuonRegionProducer");
 
 
 
