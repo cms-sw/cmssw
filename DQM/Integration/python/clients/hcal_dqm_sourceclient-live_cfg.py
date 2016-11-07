@@ -54,6 +54,7 @@ process.source.minEventsPerLumi=100
 process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 process.load('FWCore.MessageLogger.MessageLogger_cfi')
 process.load("EventFilter.HcalRawToDigi.HcalRawToDigi_cfi")
+process.load('EventFilter.CastorRawToDigi.CastorRawToDigi_cff')
 process.load("SimCalorimetry.HcalTrigPrimProducers.hcaltpdigi_cff")
 
 #-------------------------------------
@@ -137,7 +138,7 @@ process.qie10Task.runkeyName = runTypeName
 process.qie10Task.tagQIE10 = cms.untracked.InputTag("hcalDigis")
 process.zdcTask.runkeyVal = runType
 process.zdcTask.runkeyName = runTypeName
-process.zdcTask.tagQIE10 = cms.untracked.InputTag("hcalDigis","ZDC")
+process.zdcTask.tagQIE10 = cms.untracked.InputTag("castorDigis")
 process.qie11Task.runkeyVal = runType
 process.qie11Task.runkeyName = runTypeName
 process.qie11Task.tagQIE11 = cms.untracked.InputTag("hcalDigis")
@@ -155,8 +156,8 @@ process.tasksPath = cms.Path(
 )
 
 #removing since ZDC switched back to QIE8
-#if isHeavyIon:
-#	process.tasksPath += process.zdcTask
+if isHeavyIon:
+	process.tasksPath += process.zdcTask
 
 process.harvestingPath = cms.Path(
 	process.hcalOnlineHarvesting
@@ -167,6 +168,7 @@ process.harvestingPath = cms.Path(
 #-------------------------------------
 process.preRecoPath = cms.Path(
 		process.hcalDigis
+		*process.castorDigis
 		*process.emulTPDigis
 )
 
