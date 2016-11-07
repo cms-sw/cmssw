@@ -28,3 +28,11 @@ selectedPatCandidates = cms.Sequence(
     selectedPatJets      +
     selectedPatCandidateSummary
 )
+
+selectedPatCandidatesTask = cms.Task(
+    selectedPatElectrons,
+    selectedPatMuons,
+    selectedPatTaus,
+    selectedPatPhotons,
+    selectedPatJets
+)

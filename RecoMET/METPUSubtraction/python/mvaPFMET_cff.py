@@ -90,11 +90,17 @@ pfMVAMEt = cms.EDProducer("PFMETProducerMVA",
     verbosity = cms.int32(0)
 )
 
-
-
 pfMVAMEtSequence  = cms.Sequence(
     #(isomuonseq+isotauseq+isoelectronseq)*
     calibratedAK4PFJetsForPFMVAMEt*
     puJetIdForPFMVAMEt*
+    pfMVAMEt
+)
+
+mvaPFMETTask = cms.Task(
+    jetCorrectorsTask,
+    calibratedAK4PFJetsForPFMVAMEt,
+    pileupJetIdEvaluator,
+    puJetIdForPFMVAMEt,
     pfMVAMEt
 )

@@ -13,3 +13,7 @@ from TopQuarkAnalysis.TopJetCombination.TtSemiLepHypGeom_cfi import *
 makeHypothesis_geom = cms.Sequence(findTtSemiLepJetCombGeom *
                                    ttSemiLepHypGeom)
 
+ttSemiLepHypGeomTask =  cms.Task(
+    findTtSemiLepJetCombGeom,
+    ttSemiLepHypGeom
+)

@@ -16,6 +16,10 @@ from TopQuarkAnalysis.TopEventProducers.producers.TtFullHadEvtBuilder_cfi import
                                   #ttFullHadEvent
                                   #)
 
+ttFullHadEvtBuilderTask = cms.Task(
+    ttFullHadEvtHypothesesTask,
+    ttFullHadEvent
+)
 
 ################################################################################
 ## helper functions

@@ -15,3 +15,7 @@ makeTtFullLepHypotheses  = cms.Sequence(makeHypothesis_genMatch *
                                         makeHypothesis_kinSolution
                                        )
 
+ttFullLepEvtHypothesesTask = cms.Task(
+    ttFullLepHypGenMatchTask,
+    ttFullLepHypKinSolutionTask
+)
