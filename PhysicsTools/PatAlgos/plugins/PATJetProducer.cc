@@ -35,7 +35,7 @@
 #include <vector>
 #include <memory>
 #include <algorithm>
-
+#include <sstream>
 
 using namespace pat;
 
@@ -100,6 +100,11 @@ PATJetProducer::PATJetProducer(const edm::ParameterSet& iConfig)  :
         if ((pos !=  std::string::npos) && (pos != label.length() - 7)) {
             label.erase(pos+7); // trim a tail after "JetTags"
         }
+				if(it->instance().size()) {
+					std::stringstream name;
+					name << label << ":" << it->instance();
+					label = name.str();
+				}
         discriminatorLabels_.push_back(label);
     }
   }
