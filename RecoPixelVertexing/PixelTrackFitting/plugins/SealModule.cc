@@ -5,7 +5,7 @@
 #include "PixelTrackProducer.h"
 DEFINE_FWK_MODULE(PixelTrackProducer);
 
-#include "RecoPixelVertexing/PixelTrackFitting/interface/PixelFitter.h"
+#include "RecoPixelVertexing/PixelTrackFitting/interface/PixelFitterBase.h"
 #include "RecoPixelVertexing/PixelTrackFitting/interface/PixelFitterFactory.h"
 #include "RecoPixelVertexing/PixelTrackFitting/interface/PixelFitterByConformalMappingAndLine.h"
 #include "RecoPixelVertexing/PixelTrackFitting/interface/PixelFitterByHelixProjections.h"

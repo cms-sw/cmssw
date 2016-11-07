@@ -1,7 +1,7 @@
 #ifndef KFBasedPixelFitter_H
 #define KFBasedPixelFitter_H
 
-#include "RecoPixelVertexing/PixelTrackFitting/interface/PixelFitter.h"
+#include "RecoPixelVertexing/PixelTrackFitting/interface/PixelFitterBase.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include <vector>
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
@@ -18,7 +18,7 @@ class TrackingRegion;
 class TrackingRecHit;
 
 
-class KFBasedPixelFitter : public PixelFitter {
+class KFBasedPixelFitter : public PixelFitterBase {
 public:
   KFBasedPixelFitter(  const edm::ParameterSet& cfg);
   virtual ~KFBasedPixelFitter() {}

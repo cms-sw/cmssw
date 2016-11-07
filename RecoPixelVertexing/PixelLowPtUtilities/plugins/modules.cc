@@ -25,7 +25,7 @@ DEFINE_FWK_MODULE(TrackListCombiner);
 DEFINE_EDM_PLUGIN(HitTripletGeneratorFromPairAndLayersFactory, PixelTripletLowPtGenerator,"PixelTripletLowPtGenerator");
 
 // Fitter
-#include "RecoPixelVertexing/PixelTrackFitting/interface/PixelFitter.h"
+#include "RecoPixelVertexing/PixelTrackFitting/interface/PixelFitterBase.h"
 #include "RecoPixelVertexing/PixelTrackFitting/interface/PixelFitterFactory.h"
 #include "RecoPixelVertexing/PixelLowPtUtilities/interface/TrackFitter.h"
 DEFINE_EDM_PLUGIN(PixelFitterFactory, TrackFitter, "TrackFitter");

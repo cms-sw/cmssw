@@ -1,7 +1,7 @@
 #ifndef PixelFitterByConformalMappingAndLine_H
 #define PixelFitterByConformalMappingAndLine_H
 
-#include "RecoPixelVertexing/PixelTrackFitting/interface/PixelFitter.h"
+#include "RecoPixelVertexing/PixelTrackFitting/interface/PixelFitterBase.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 #include "RecoTracker/TkTrackingRegions/interface/TrackingRegion.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -9,7 +9,7 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-class PixelFitterByConformalMappingAndLine : public PixelFitter {
+class PixelFitterByConformalMappingAndLine : public PixelFitterBase {
 public:
   PixelFitterByConformalMappingAndLine( const edm::ParameterSet& cfg);
   PixelFitterByConformalMappingAndLine();
