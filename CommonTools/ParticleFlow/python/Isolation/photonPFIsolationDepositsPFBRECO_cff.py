@@ -37,3 +37,11 @@ photonPFIsolationDepositsPFBRECOSequence = cms.Sequence(
     phPFIsoDepositNeutralPFBRECO+
     phPFIsoDepositPUPFBRECO
     )
+photonPFIsolationDepositsPFBRECOTask = cms.Task(
+    isoDeposits,
+    phPFIsoDepositChargedPFBRECO,
+    phPFIsoDepositChargedAllPFBRECO,
+    phPFIsoDepositNeutralPFBRECO,
+    phPFIsoDepositPUPFBRECO,
+    phPFIsoDepositGammaPFBRECO
+    )

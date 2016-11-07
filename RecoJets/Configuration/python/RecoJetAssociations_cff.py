@@ -13,3 +13,12 @@ from RecoJets.JetAssociationProducers.ak4JTA_cff import *
 from RecoJets.JetAssociationProducers.ak7JTA_cff import *
 recoJetAssociations = cms.Sequence(ak4JTA)
 recoJetAssociationsExplicit = cms.Sequence(ak4JTAExplicit)
+
+recoJetAssociationsTask = cms.Task(
+    ic5JetTracksAssociatorAtVertex,
+    iterativeCone5JTATask,
+    sisCone5JTATask,
+    kt4JTATask,
+    ak4JTATask,
+    ak7JTATask
+)

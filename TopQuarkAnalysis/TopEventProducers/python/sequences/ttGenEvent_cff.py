@@ -9,3 +9,4 @@ from TopQuarkAnalysis.TopEventProducers.producers.TtGenEvtProducer_cfi import *
 
 makeGenEvt = cms.Sequence(initSubset*decaySubset*genEvt)
 
+ttGenEventTask = cms.Task(initSubset, decaySubset, genEvt)

@@ -1,5 +1,6 @@
 from FWCore.GuiBrowsers.ConfigToolBase import *
 
+import PhysicsTools.PatAlgos.tools.helpers as configtools
 
 class MakeAODTrackCandidates(ConfigToolBase):
 
@@ -53,12 +54,16 @@ class MakeAODTrackCandidates(ConfigToolBase):
                                                                          particleType = cms.string(particleType)
                                                                          )
                 )
+        patAlgosToolsTask = configtools.getPatAlgosToolsTask(process)
+        patAlgosToolsTask.add(getattr(process, 'patAOD' + label + 'Unfiltered'))
+
         ## add CandViewSelector with preselection string
         setattr(process, 'patAOD' + label, cms.EDFilter("CandViewSelector",
                                                         src = cms.InputTag('patAOD' + label + 'Unfiltered'),
                                                         cut = cms.string(candSelection)
                                                         )
                 )
+        patAlgosToolsTask.add(getattr(process, 'patAOD' + label))
 
 makeAODTrackCandidates=MakeAODTrackCandidates()
 
@@ -123,15 +128,19 @@ class MakePATTrackCandidates(ConfigToolBase):
         ## add patTracks to the process
         from PhysicsTools.PatAlgos.producersLayer1.genericParticleProducer_cfi import patGenericParticles
         setattr(process, 'pat' + label, patGenericParticles.clone(src = input))
+        patAlgosToolsTask = configtools.getPatAlgosToolsTask(process)
+        patAlgosToolsTask.add(getattr(process, 'pat' + label))
         ## add selectedPatTracks to the process
         setattr(process, 'selectedPat' + label, cms.EDFilter("PATGenericParticleSelector",
                                                              src = cms.InputTag("pat"+label),
                                                              cut = cms.string(selection)
                                                              )
                 )
+        patAlgosToolsTask.add(getattr(process, 'selectedPat' + label))
         ## add cleanPatTracks to the process
         from PhysicsTools.PatAlgos.cleaningLayer1.genericTrackCleaner_cfi import cleanPatTracks
         setattr(process, 'cleanPat' + label, cleanPatTracks.clone(src = cms.InputTag('selectedPat' + label)))
+        patAlgosToolsTask.add(getattr(process, 'cleanPat' + label))
 
         ## get them as variables, so we can put them in the sequences and/or configure them
         l1cands         = getattr(process, 'pat' + label)
@@ -194,6 +203,7 @@ class MakePATTrackCandidates(ConfigToolBase):
                                        ExtractorPSet        = cms.PSet( MIsoTrackExtractorCtfBlock )
                                        )
                         )
+                patAlgosToolsTask.add(getattr(process, 'pat'+label+'IsoDepositTracks'))
             elif(dep == 'caloTowers'):
                 from RecoMuon.MuonIsolationProducers.caloExtractorByAssociatorBlocks_cff import MIsoCaloExtractorByAssociatorTowersBlock
                 setattr(process, 'pat'+label+'IsoDepositCaloTowers',
@@ -204,6 +214,7 @@ class MakePATTrackCandidates(ConfigToolBase):
                                        ExtractorPSet        = cms.PSet( MIsoCaloExtractorByAssociatorTowersBlock )
                                        )
                         )
+                patAlgosToolsTask.add(getattr(process, 'pat'+label+'IsoDepositCaloTowers'))
         # ES
         process.load( 'TrackingTools.TrackAssociator.DetIdAssociatorESProducer_cff' )
         # MC
@@ -214,6 +225,7 @@ class MakePATTrackCandidates(ConfigToolBase):
 
             ## clone mc matchiong module of object mcAs and add it to the path
             setattr(process, 'pat'+label+'MCMatch', findMatch[0].clone(src = input))
+            patAlgosToolsTask.add(getattr(process, 'pat'+label+'MCMatch'))
             l1cands.addGenMatch = True
             l1cands.genParticleMatch = cms.InputTag('pat'+label+'MCMatch')
 

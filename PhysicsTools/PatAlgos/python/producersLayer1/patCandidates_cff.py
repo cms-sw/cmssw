@@ -31,3 +31,12 @@ patCandidates = cms.Sequence(
     patCandidateSummary
 )
 
+## for unscheduled mode
+patCandidatesTask = cms.Task(
+    electronProducerTask,
+    muonProducerTask,
+    tauProducerTask,
+    photonProducerTask,
+    jetProducerTask,
+    metProducerTask
+    )

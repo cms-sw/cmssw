@@ -16,3 +16,7 @@ from TopQuarkAnalysis.TopJetCombination.TtFullHadHypKinFit_cfi import *
 makeHypothesis_kinFit = cms.Sequence(kinFitTtFullHadEventHypothesis *
                                      ttFullHadHypKinFit)
 
+ttFullHadHypKinFitTask = cms.Task(
+    kinFitTtFullHadEventHypothesis,
+    ttFullHadHypKinFit
+)

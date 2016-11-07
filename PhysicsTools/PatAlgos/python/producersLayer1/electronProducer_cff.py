@@ -46,3 +46,10 @@ makePatElectrons = cms.Sequence(
     electronMatch *
     patElectrons
     )
+
+electronProducerTask = cms.Task(
+    electronMatch,
+    patElectrons,
+    pfParticleSelectionForIsoTask,
+    pfElectronIsolationPATTask
+    )

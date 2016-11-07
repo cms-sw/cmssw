@@ -25,3 +25,17 @@ from RecoTauTag.Configuration.HPSPFTaus_cff import hpsPFTauDiscriminationByPhoto
 
 updateHPSPFTaus = cms.Sequence()
 
+updateHPSPFTausTask = cms.Task(
+    hpsPFTauChargedIsoPtSum,
+    hpsPFTauNeutralIsoPtSum,
+    hpsPFTauPUcorrPtSum,
+    hpsPFTauNeutralIsoPtSumWeight,
+    hpsPFTauFootprintCorrection,
+    hpsPFTauPhotonPtSumOutsideSignalCone,
+    hpsPFTauDiscriminationByRawCombinedIsolationDBSumPtCorr3Hits,
+    hpsPFTauDiscriminationByLoosePileupWeightedIsolation3Hits,
+    hpsPFTauDiscriminationByMediumPileupWeightedIsolation3Hits,
+    hpsPFTauDiscriminationByTightPileupWeightedIsolation3Hits,
+    hpsPFTauDiscriminationByRawPileupWeightedIsolation3Hits,
+    hpsPFTauDiscriminationByPhotonPtSumOutsideSignalCone
+)

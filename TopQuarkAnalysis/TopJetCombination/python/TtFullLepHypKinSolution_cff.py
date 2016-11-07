@@ -18,3 +18,7 @@ makeHypothesis_kinSolution = cms.Sequence(kinSolutionTtFullLepEventHypothesis *
                                           ttFullLepHypKinSolution
 					 )
 
+ttFullLepHypKinSolutionTask = cms.Task(
+    kinSolutionTtFullLepEventHypothesis,
+    ttFullLepHypKinSolution
+)

@@ -16,3 +16,7 @@ from TopQuarkAnalysis.TopJetCombination.TtSemiLepHypHitFit_cfi import *
 makeHypothesis_hitFit = cms.Sequence(hitFitTtSemiLepEventHypothesis *
                                      ttSemiLepHypHitFit)
 
+ttSemiLepHypHitFitTask = cms.Task(
+    hitFitTtSemiLepEventHypothesis,
+    ttSemiLepHypHitFit
+)

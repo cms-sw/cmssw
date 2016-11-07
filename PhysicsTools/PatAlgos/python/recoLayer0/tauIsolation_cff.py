@@ -55,3 +55,8 @@ patPFTauIsolation = cms.Sequence( tauIsoDepositPFCandidates
                                  * tauIsoDepositPFChargedHadrons
                                  * tauIsoDepositPFNeutralHadrons
                                  * tauIsoDepositPFGammas )
+
+tauIsolationTask = cms.Task( tauIsoDepositPFCandidates,
+                             tauIsoDepositPFChargedHadrons,
+                             tauIsoDepositPFNeutralHadrons,
+                             tauIsoDepositPFGammas )

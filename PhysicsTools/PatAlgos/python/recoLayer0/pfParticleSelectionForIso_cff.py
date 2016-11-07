@@ -10,3 +10,17 @@ pfParticleSelectionForIsoSequence = cms.Sequence(
     particleFlowPtrs +
     pfParticleSelectionPFBRECOSequence
     )
+
+pfParticleSelectionForIsoTask = cms.Task(
+    particleFlowPtrs,
+    pfPileUpIsoPFBRECO,
+    pfNoPileUpIsoPFBRECO,
+    pfPileUpPFBRECO,
+    pfNoPileUpPFBRECO,
+    pfAllNeutralHadronsPFBRECO,
+    pfAllChargedHadronsPFBRECO,
+    pfAllPhotonsPFBRECO,
+    pfAllChargedParticlesPFBRECO,
+    pfPileUpAllChargedParticlesPFBRECO,
+    pfAllNeutralHadronsAndPhotonsPFBRECO
+    )

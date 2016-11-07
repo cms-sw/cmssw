@@ -37,3 +37,10 @@ makePatPhotons = cms.Sequence(
     photonMatch *
     patPhotons
     )
+
+photonProducerTask = cms.Task(
+    photonMatch,
+    patPhotons,
+    pfParticleSelectionForIsoTask,
+    pfPhotonIsolationPATTask
+    )
