@@ -59,7 +59,7 @@ leptonTypeVHbb = NTupleObjectType("leptonTypeVHbb", baseObjectTypes = [ leptonTy
     NTupleVariable("pfRelIso04",      lambda mu : (mu.pfIsolationR04().sumChargedHadronPt + max( mu.pfIsolationR04().sumNeutralHadronEt + mu.pfIsolationR04().sumPhotonEt - 0.5 * mu.pfIsolationR04().sumPUPt,0.0)) / mu.pt() if abs(mu.pdgId()) == 13 else -1, help="0.4 particle based iso"),
     NTupleVariable("etaSc", lambda x : x.superCluster().eta() if abs(x.pdgId())==11 else -100, help="Electron supercluster pseudorapidity"),
     NTupleVariable("eleExpMissingInnerHits", lambda x : x.gsfTrack().hitPattern().numberOfHits(ROOT.reco.HitPattern.MISSING_INNER_HITS) if abs(x.pdgId())==11 else -1, help="Electron expected missing inner hits"),
-    NTupleVariable("eleooEmooP", lambda x : abs(1.0/x.ecalEnergy() - x.eSuperClusterOverP()/x.ecalEnergy()) if abs(x.pdgId())==11 and x.ecalEnergy()>0.0 else 9e9 , help="Electron 1/E - 1/P"),
+    NTupleVariable("eleooEmooP", lambda x : (1.0/x.ecalEnergy() - x.eSuperClusterOverP()/x.ecalEnergy()) if abs(x.pdgId())==11 and x.ecalEnergy()>0.0 else 9e9 , help="Electron 1/E - 1/P"),
     NTupleVariable("dr03TkSumPt", lambda x : x.dr03TkSumPt() if abs(x.pdgId())==11 else 0.0 , help="Electron track sum pt"),
     NTupleVariable("eleEcalClusterIso", lambda x : x.ecalPFClusterIso() if abs(x.pdgId())==11 else 0.0 , help="Electron ecal cluster iso"),
     NTupleVariable("eleHcalClusterIso", lambda x : x.hcalPFClusterIso() if abs(x.pdgId())==11 else 0.0 , help="Electron hcal cluster iso"),
