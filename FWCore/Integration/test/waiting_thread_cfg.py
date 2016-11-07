@@ -7,7 +7,6 @@ process.source = cms.Source("EmptySource")
 process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(100))
 
 process.options = cms.untracked.PSet(
-    allowUnscheduled = cms.untracked.bool(True),
     numberOfThreads = cms.untracked.uint32(4),
     numberOfStreams = cms.untracked.uint32(0)
 )
@@ -25,4 +24,6 @@ process.tester = cms.EDAnalyzer("IntTestAnalyzer",
                                 moduleLabel = cms.untracked.string("waiter"),
                                 valueMustMatch = cms.untracked.int32(5))
 
-process.p = cms.Path(process.tester)
+process.task = cms.Task(process.busy1, process.busy2, process.waiter)
+
+process.p = cms.Path(process.tester, process.task)
