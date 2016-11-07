@@ -37,7 +37,6 @@ private:
   // to keep old results
   std::unique_ptr<SeedComparitor> comparitor_;
   std::unique_ptr<SeedCreator> seedCreator_;
-  TrajectorySeedCollection tmpSeedCollection_; // need to keep these in memory because TrajectorySeed owns its RecHits
 };
 
 PixelQuadrupletMergerEDProducer::PixelQuadrupletMergerEDProducer(const edm::ParameterSet& iConfig):
@@ -60,6 +59,7 @@ PixelQuadrupletMergerEDProducer::PixelQuadrupletMergerEDProducer(const edm::Para
   seedCreator_.reset(SeedCreatorFactory::get()->create( creatorName, creatorPSet));
 
   produces<RegionsSeedingHitSets>();
+  produces<TrajectorySeedCollection>(); // need to keep these in memory because TrajectorySeed owns its RecHits
 }
 
 void PixelQuadrupletMergerEDProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -69,7 +69,6 @@ void PixelQuadrupletMergerEDProducer::fillDescriptions(edm::ConfigurationDescrip
   desc.add<std::string>("ttrhBuilderLabel", "PixelTTRHBuilderWithoutAngle");
   desc.add<bool>("mergeTriplets", true);
   desc.add<bool>("addRemainingTriplets", false);
-
   // This would be really on the responsibility of
   // QuadrupletSeedMerger and SeedingLayerSetsBuilder. The former is
   // almost obsolete by now (so I don't want to put effort there), and
@@ -91,9 +90,6 @@ void PixelQuadrupletMergerEDProducer::fillDescriptions(edm::ConfigurationDescrip
 }
 
 void PixelQuadrupletMergerEDProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  // to keep old results
-  tmpSeedCollection_.clear(); // safe to clear now
-
   edm::Handle<RegionsSeedingHitSets> htriplets;
   iEvent.getByToken(tripletToken_, htriplets);
   const auto& regionTriplets = *htriplets;
@@ -104,6 +100,9 @@ void PixelQuadrupletMergerEDProducer::produce(edm::Event& iEvent, const edm::Eve
     return;
   }
   seedingHitSets->reserve(regionTriplets.regionSize(), localRA_.upper());
+
+  // to keep old results
+  auto tmpSeedCollection = std::make_unique<TrajectorySeedCollection>();
 
   OrderedHitSeeds quadruplets;
   quadruplets.reserve(localRA_.upper());
@@ -127,14 +126,14 @@ void PixelQuadrupletMergerEDProducer::produce(edm::Event& iEvent, const edm::Eve
     seedCreator_->init(region, iSetup, comparitor_.get());
     for(const auto& hits: regionSeedingHitSets) {
       if(!comparitor_ || comparitor_->compatible(hits)) {
-        seedCreator_->makeSeed(tmpSeedCollection_, hits);
+        seedCreator_->makeSeed(*tmpSeedCollection, hits);
       }
 
     }
 
     // then convert seeds back to hits
     // awful, but hopefully only temporary to preserve old results
-    for(const auto& seed: tmpSeedCollection_) {
+    for(const auto& seed: *tmpSeedCollection) {
       auto hitRange = seed.recHits();
       assert(std::distance(hitRange.first, hitRange.second) == 3);
       tripletsPerRegion.emplace_back(static_cast<SeedingHitSet::ConstRecHitPointer>(&*(hitRange.first)),
@@ -158,6 +157,7 @@ void PixelQuadrupletMergerEDProducer::produce(edm::Event& iEvent, const edm::Eve
   localRA_.update(seedingHitSets->size());
 
   iEvent.put(std::move(seedingHitSets));
+  iEvent.put(std::move(tmpSeedCollection));
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"
