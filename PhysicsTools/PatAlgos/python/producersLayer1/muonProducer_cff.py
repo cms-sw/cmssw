@@ -38,3 +38,10 @@ makePatMuons = cms.Sequence(
     muonMatch *
     patMuons
     )
+
+muonProducerTask = cms.Task(
+    muonMatch,
+    patMuons,
+    pfParticleSelectionForIsoTask,
+    pfMuonIsolationPATTask
+    )

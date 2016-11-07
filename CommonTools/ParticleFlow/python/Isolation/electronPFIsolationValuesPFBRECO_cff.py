@@ -79,3 +79,27 @@ electronPFIsolationValuesPFBRECOSequence = (
     elPFIsoValueGamma04NoPFIdPFBRECO+
     elPFIsoValueNeutral04NoPFIdPFBRECO+
     elPFIsoValuePU04NoPFIdPFBRECO)
+
+electronPFIsolationValuesPFBRECOTask = cms.Task(
+    pfProducerElectronPFIsolationValuesTask,
+    elPFIsoValueCharged03PFIdPFBRECO,
+    elPFIsoValueChargedAll03PFIdPFBRECO,
+    elPFIsoValueGamma03PFIdPFBRECO,
+    elPFIsoValueNeutral03PFIdPFBRECO,
+    elPFIsoValuePU03PFIdPFBRECO,
+    elPFIsoValueCharged04PFIdPFBRECO,
+    elPFIsoValueChargedAll04PFIdPFBRECO,
+    elPFIsoValueGamma04PFIdPFBRECO,
+    elPFIsoValueNeutral04PFIdPFBRECO,
+    elPFIsoValuePU04PFIdPFBRECO,
+    elPFIsoValueCharged03NoPFIdPFBRECO,
+    elPFIsoValueChargedAll03NoPFIdPFBRECO,
+    elPFIsoValueGamma03NoPFIdPFBRECO,
+    elPFIsoValueNeutral03NoPFIdPFBRECO,
+    elPFIsoValuePU03NoPFIdPFBRECO,
+    elPFIsoValueCharged04NoPFIdPFBRECO,
+    elPFIsoValueChargedAll04NoPFIdPFBRECO,
+    elPFIsoValueGamma04NoPFIdPFBRECO,
+    elPFIsoValueNeutral04NoPFIdPFBRECO,
+    elPFIsoValuePU04NoPFIdPFBRECO
+    )

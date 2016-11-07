@@ -35,5 +35,14 @@ makeTtSemiLepHypotheses  = cms.Sequence(makeHypothesis_genMatch)  # makeHypothes
                                                                   # makeHypothesis_maxSumPtWMass
                                                                   # makeHypothesis_mvaDisc
                                                                   # makeHypothesis_kinFit
-                                        
 
+ttSemiLepEvtHypothesisTask = cms.Task(
+    ttSemiLepHypGeomTask,
+    ttSemiLepHypWMassDeltaTopMassTask,
+    ttSemiLepHypWMassMaxSumPtTask,
+    ttSemiLepHypMaxSumPtWMassTask,
+    ttSemiLepHypGenMatchTask,
+    ttSemiLepHypMVADiscTask,
+    ttSemiLepHypKinFitTask,
+    ttSemiLepHypHitFitTask
+)

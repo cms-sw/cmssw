@@ -17,3 +17,12 @@ muonPFIsolationDepositsPFBRECOSequence = cms.Sequence(
     muPFIsoDepositNeutralPFBRECO+
     muPFIsoDepositPUPFBRECO
     )
+
+muonPFIsolationDepositsPFBRECOTask = cms.Task(
+    isoDeposits,
+    muPFIsoDepositChargedPFBRECO,
+    muPFIsoDepositChargedAllPFBRECO,
+    muPFIsoDepositNeutralPFBRECO,
+    muPFIsoDepositGammaPFBRECO,
+    muPFIsoDepositPUPFBRECO
+    )

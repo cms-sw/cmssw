@@ -1,12 +1,17 @@
 ## import skeleton process
 from PhysicsTools.PatAlgos.patTemplate_cfg import *
-## switch to uncheduled mode
-process.options.allowUnscheduled = cms.untracked.bool(True)
+
+import PhysicsTools.PatAlgos.tools.helpers as configtools
+patAlgosToolsTask = configtools.getPatAlgosToolsTask(process)
+
 #process.Tracer = cms.Service("Tracer")
 
 ## load tau sequences up to selectedPatElectrons
 process.load("PhysicsTools.PatAlgos.producersLayer1.electronProducer_cff")
+patAlgosToolsTask.add(process.electronProducerTask)
+
 process.load("PhysicsTools.PatAlgos.selectionLayer1.electronSelector_cfi")
+patAlgosToolsTask.add(process.selectedPatElectrons)
 
 ## make sure to keep the created objects
 process.out.outputCommands = ['keep *_selectedPat*_*_*']

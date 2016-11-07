@@ -17,4 +17,14 @@ correctionTermsPfMetType0PFCandidateForValidation = cms.Sequence(
     corrPfMetType0PfCand
     )
 
+correctionTermsPfMetType0PFCandidateTask = cms.Task(
+    selectedVerticesForPFMEtCorrType0,
+    selectedPrimaryVertexHighestPtTrackSumForPFMEtCorrType0,
+    particleFlowDisplacedVertex,
+    PFCandAssoMap,
+    pfCandidateToVertexAssociation,
+    pfMETcorrType0,
+    corrPfMetType0PfCand
+)
+
 ##____________________________________________________________________________||

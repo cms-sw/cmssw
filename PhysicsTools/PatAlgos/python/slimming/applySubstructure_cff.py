@@ -1,6 +1,10 @@
 import FWCore.ParameterSet.Config as cms
 
+from PhysicsTools.PatAlgos.tools.helpers import getPatAlgosToolsTask
+
 def applySubstructure( process ) :
+
+    patAlgosToolsTask = getPatAlgosToolsTask(process)
 
     from PhysicsTools.PatAlgos.tools.jetTools import addJetCollection
 
@@ -21,8 +25,14 @@ def applySubstructure( process ) :
     ## AK8 groomed masses
     from RecoJets.Configuration.RecoPFJets_cff import ak8PFJetsCHSPruned, ak8PFJetsCHSSoftDrop
     process.ak8PFJetsCHSPruned   = ak8PFJetsCHSPruned.clone()
+    patAlgosToolsTask.add(process.ak8PFJetsCHSPruned)
     process.ak8PFJetsCHSSoftDrop = ak8PFJetsCHSSoftDrop.clone()
+    patAlgosToolsTask.add(process.ak8PFJetsCHSSoftDrop)
     process.load("RecoJets.JetProducers.ak8PFJetsCHS_groomingValueMaps_cfi")
+    patAlgosToolsTask.add(process.ak8PFJetsCHSPrunedMass)
+    patAlgosToolsTask.add(process.ak8PFJetsCHSTrimmedMass)
+    patAlgosToolsTask.add(process.ak8PFJetsCHSFilteredMass)
+    patAlgosToolsTask.add(process.ak8PFJetsCHSSoftDropMass)
     process.patJetsAK8.userData.userFloats.src += ['ak8PFJetsCHSPrunedMass','ak8PFJetsCHSSoftDropMass']  
     process.patJetsAK8.addTagInfos = cms.bool(False)
 
@@ -30,7 +40,9 @@ def applySubstructure( process ) :
 
     # add Njetiness
     process.load('RecoJets.JetProducers.nJettinessAdder_cfi')
+    patAlgosToolsTask.add(process.Njettiness)
     process.NjettinessAK8 = process.Njettiness.clone()
+    patAlgosToolsTask.add(process.NjettinessAK8)
     process.NjettinessAK8.src = cms.InputTag("ak8PFJetsCHS")
     process.NjettinessAK8.cone = cms.double(0.8)
     process.patJetsAK8.userData.userFloats.src += ['NjettinessAK8:tau1','NjettinessAK8:tau2','NjettinessAK8:tau3']
@@ -40,8 +52,11 @@ def applySubstructure( process ) :
 
     #add AK8 from PUPPI
     process.load('RecoJets.JetProducers.ak8PFJetsPuppi_cfi')
+    patAlgosToolsTask.add(process.ak4PFJetsPuppi)
+    patAlgosToolsTask.add(process.ak8PFJetsPuppi)
     from RecoJets.Configuration.RecoPFJets_cff import ak8PFJetsPuppiSoftDrop 
     process.ak8PFJetsPuppiSoftDrop = ak8PFJetsPuppiSoftDrop.clone()
+    patAlgosToolsTask.add(process.ak8PFJetsPuppiSoftDrop)
     process.ak8PFJetsPuppi.doAreaFastjet = True # even for standard ak8PFJets this is overwritten in RecoJets/Configuration/python/RecoPFJets_cff
 
         
@@ -61,16 +76,20 @@ def applySubstructure( process ) :
         j2tParametersVX.clone( coneSize = cms.double(0.8) ),
         jets = cms.InputTag("ak8PFJetsPuppi")        
     )
+    patAlgosToolsTask.add(process.ak8PFJetsPuppiTracksAssociatorAtVertex)
     process.patJetAK8PuppiCharge = cms.EDProducer("JetChargeProducer",
         src = cms.InputTag("ak8PFJetsPuppiTracksAssociatorAtVertex"),
         var = cms.string('Pt'),
         exp = cms.double(1.0)
     )
+    patAlgosToolsTask.add(process.patJetAK8PuppiCharge)
 
     ## AK8 groomed masses
     from RecoJets.Configuration.RecoPFJets_cff import ak8PFJetsPuppiSoftDrop
     process.ak8PFJetsPuppiSoftDrop = ak8PFJetsPuppiSoftDrop.clone()
+    patAlgosToolsTask.add(process.ak8PFJetsPuppiSoftDrop)
     process.load("RecoJets.JetProducers.ak8PFJetsPuppi_groomingValueMaps_cfi")
+    patAlgosToolsTask.add(process.ak8PFJetsPuppiSoftDropMass)
     process.patJetsAK8Puppi.userData.userFloats.src += ['ak8PFJetsPuppiSoftDropMass']
     process.patJetsAK8Puppi.addTagInfos = cms.bool(False)
 
@@ -78,6 +97,7 @@ def applySubstructure( process ) :
 
     # add Njetiness
     process.NjettinessAK8Puppi = process.Njettiness.clone()
+    patAlgosToolsTask.add(process.NjettinessAK8Puppi)
     process.NjettinessAK8Puppi.src = cms.InputTag("ak8PFJetsPuppi")
     process.NjettinessAK8Puppi.cone = cms.double(0.8)
     process.patJetsAK8Puppi.userData.userFloats.src += ['NjettinessAK8Puppi:tau1','NjettinessAK8Puppi:tau2','NjettinessAK8Puppi:tau3']
@@ -106,6 +126,7 @@ def applySubstructure( process ) :
                                                 'pt','eta','phi','mass'
                                             ])
                         )
+    patAlgosToolsTask.add(process.ak8PFJetsCHSValueMap)
     process.patJetsAK8Puppi.userData.userFloats.src += [
                                                    cms.InputTag('ak8PFJetsCHSValueMap','ak8PFJetsCHSPrunedMass'),
                                                    cms.InputTag('ak8PFJetsCHSValueMap','ak8PFJetsCHSSoftDropMass'),
@@ -120,7 +141,9 @@ def applySubstructure( process ) :
 
     # add Njetiness
     process.load('RecoJets.JetProducers.nJettinessAdder_cfi')
+    patAlgosToolsTask.add(process.Njettiness)
     process.NjettinessAK8Subjets = process.Njettiness.clone()
+    patAlgosToolsTask.add(process.NjettinessAK8Subjets)
     process.NjettinessAK8Subjets.src = cms.InputTag("ak8PFJetsPuppiSoftDrop", "SubJets")
     process.NjettinessAK8Subjets.cone = cms.double(0.8)
     
@@ -177,6 +200,7 @@ def applySubstructure( process ) :
         modifyJets = cms.bool(True),
         modifierConfig = cms.PSet( modifications = cms.VPSet() )
     )
+    patAlgosToolsTask.add(process.slimmedJetsAK8PFPuppiSoftDropSubjets)
 
     
     ## Establish references between PATified fat jets and subjets using the BoostedJetMerger
@@ -184,6 +208,7 @@ def applySubstructure( process ) :
         jetSrc=cms.InputTag("selectedPatJetsAK8PFPuppiSoftDrop"),
         subjetSrc=cms.InputTag("slimmedJetsAK8PFPuppiSoftDropSubjets")
     )
+    patAlgosToolsTask.add(process.slimmedJetsAK8PFPuppiSoftDropPacked)
 
     
     process.packedPatJetsAK8 = cms.EDProducer("JetSubstructurePacker",
@@ -198,6 +223,7 @@ def applySubstructure( process ) :
             fixDaughters = cms.bool(True),
             packedPFCandidates = cms.InputTag("packedPFCandidates"),
     )
+    patAlgosToolsTask.add(process.packedPatJetsAK8)
 
     # switch off daughter re-keying since it's done in the JetSubstructurePacker (and can't be done afterwards)
     process.slimmedJetsAK8.rekeyDaughters = "0"

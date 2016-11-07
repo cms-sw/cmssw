@@ -1,11 +1,17 @@
 ## import skeleton process
 from PhysicsTools.PatAlgos.patTemplate_cfg import *
-## switch to uncheduled mode
-process.options.allowUnscheduled = cms.untracked.bool(True)
+
+import PhysicsTools.PatAlgos.tools.helpers as configtools
+patAlgosToolsTask = configtools.getPatAlgosToolsTask(process)
 
 process.load("PhysicsTools.PatAlgos.producersLayer1.patCandidates_cff")
+patAlgosToolsTask.add(process.patCandidatesTask)
+
 process.load("PhysicsTools.PatAlgos.selectionLayer1.selectedPatCandidates_cff")
+patAlgosToolsTask.add(process.selectedPatCandidatesTask)
+
 process.load("PhysicsTools.PatUtils.patPFMETCorrections_cff")
+patAlgosToolsTask.add(process.patPFMETCorrectionsTask)
 
 from PhysicsTools.PatAlgos.tools.jetTools import switchJetCollection
 switchJetCollection(process,

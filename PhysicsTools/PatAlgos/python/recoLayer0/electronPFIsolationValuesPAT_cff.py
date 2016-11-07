@@ -79,3 +79,27 @@ electronPFIsolationValuesPATSequence = (
     elPFIsoValueGamma04NoPFIdPAT+
     elPFIsoValueNeutral04NoPFIdPAT+
     elPFIsoValuePU04NoPFIdPAT)
+
+electronPFIsolationValuesPATTask = cms.Task(
+    electronPFIsolationValuesPFBRECOTask,
+    elPFIsoValueCharged03PFIdPAT,
+    elPFIsoValueChargedAll03PFIdPAT,
+    elPFIsoValueGamma03PFIdPAT,
+    elPFIsoValueNeutral03PFIdPAT,
+    elPFIsoValuePU03PFIdPAT,
+    elPFIsoValueCharged04PFIdPAT,
+    elPFIsoValueChargedAll04PFIdPAT,
+    elPFIsoValueGamma04PFIdPAT,
+    elPFIsoValueNeutral04PFIdPAT,
+    elPFIsoValuePU04PFIdPAT,
+    elPFIsoValueCharged03NoPFIdPAT,
+    elPFIsoValueChargedAll03NoPFIdPAT,
+    elPFIsoValueGamma03NoPFIdPAT,
+    elPFIsoValueNeutral03NoPFIdPAT,
+    elPFIsoValuePU03NoPFIdPAT,
+    elPFIsoValueCharged04NoPFIdPAT,
+    elPFIsoValueChargedAll04NoPFIdPAT,
+    elPFIsoValueGamma04NoPFIdPAT,
+    elPFIsoValueNeutral04NoPFIdPAT,
+    elPFIsoValuePU04NoPFIdPAT
+    )
