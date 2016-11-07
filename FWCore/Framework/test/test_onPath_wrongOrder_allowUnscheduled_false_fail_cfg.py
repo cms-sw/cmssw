@@ -4,7 +4,6 @@ process = cms.Process("TEST")
 
 import FWCore.Framework.test.cmsExceptionsFatalOption_cff
 process.options = cms.untracked.PSet(
-    allowUnscheduled = cms.untracked.bool(False),
     Rethrow = FWCore.Framework.test.cmsExceptionsFatalOption_cff.Rethrow
 )
 

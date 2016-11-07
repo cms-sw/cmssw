@@ -26,12 +26,13 @@ process.two = cms.EDProducer("IntLegacyProducer",
 )
            
 process.options = cms.untracked.PSet(
-                    allowUnscheduled = cms.untracked.bool(True),
                     numberOfThreads = cms.untracked.uint32(2),
                     numberOfStreams = cms.untracked.uint32(0)
 )                 
 
-process.p1 = cms.Path(process.a)
+process.t = cms.Task(process.one, process.two)
+
+process.p1 = cms.Path(process.a, process.t)
 process.p2 = cms.Path(process.b)
 
 process.add_(cms.Service("ZombieKillerService", secondsBetweenChecks = cms.untracked.uint32(10)))
