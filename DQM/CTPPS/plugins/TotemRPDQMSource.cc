@@ -512,7 +512,7 @@ void TotemRPDQMSource::analyze(edm::Event const& event, edm::EventSetup const& e
   {
     TotemRPDetId detId(ds.detId());
     unsigned int plNum = detId.plane();
-    TotemRPDetId rpId = detId.getRPId();
+    CTPPSDetId rpId = detId.getRPId();
 
     auto &plots = potPlots[rpId];
 
@@ -637,7 +637,7 @@ void TotemRPDQMSource::analyze(edm::Event const& event, edm::EventSetup const& e
 
     TotemRPDetId detId(ds.detId());
     unsigned int planeNum = detId.plane();
-    TotemRPDetId rpId = detId.getRPId();
+    CTPPSDetId rpId = detId.getRPId();
 
     planes[rpId].insert(planeNum);
     if (detId.isStripsCoordinateUDirection())
@@ -663,7 +663,7 @@ void TotemRPDQMSource::analyze(edm::Event const& event, edm::EventSetup const& e
 
     TotemRPDetId detId(ds.detId());
     unsigned int planeNum = detId.plane();
-    TotemRPDetId rpId = detId.getRPId();
+    CTPPSDetId rpId = detId.getRPId();
 
     planes[rpId].insert(planeNum);
     if (detId.isStripsCoordinateUDirection())
@@ -690,7 +690,7 @@ void TotemRPDQMSource::analyze(edm::Event const& event, edm::EventSetup const& e
   {
     TotemRPDetId detId(it->detId());
     unsigned int planeNum = detId.plane();
-    TotemRPDetId rpId = detId.getRPId();
+    CTPPSDetId rpId = detId.getRPId();
 
     PotPlots &pp = potPlots[rpId];
     for (DetSet<TotemRPCluster>::const_iterator dit = it->begin(); dit != it->end(); ++dit)
