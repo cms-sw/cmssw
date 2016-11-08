@@ -116,18 +116,41 @@ ZDCTask::ZDCTask(edm::ParameterSet const& ps)
 	    
 	    sprintf(histoname,"%d_%d_%d_%d",itr->first.fiberChanId(),itr->first.fiberIndex(),itr->first.spigot(),itr->first.dccid());
 
-	    ib.setCurrentFolder("ZDC/Shape_perChannel");
+	    ib.setCurrentFolder("Hcal/ZDCTask/Shape_perChannel");
 	    _cShape_EChannel[histoname] = ib.bookProfile(histoname,histoname,xAxisShape.nbins(),xAxisShape.min(),xAxisShape.max(),yAxisShape.nbins(),yAxisShape.min(),yAxisShape.max());
+	    _cShape_EChannel[histoname]->setAxisTitle("Timing",1);
+	    _cShape_EChannel[histoname]->setAxisTitle("fC QIE8",2);
 
-	    ib.setCurrentFolder("ZDC/ADC_perChannel");
+	    ib.setCurrentFolder("Hcal/ZDCTask/ADC_perChannel");
 	    _cADC_EChannel[histoname] = ib.book1D(histoname,histoname,xAxisADC.nbins(),xAxisADC.min(),xAxisADC.max());
+	    _cADC_EChannel[histoname]->getRootObject()->SetBit(BIT(hcaldqm::constants::BIT_OFFSET+hcaldqm::quantity::AxisType::fYAxis));
+	    _cADC_EChannel[histoname]->setAxisTitle("ADC QIE8",1);
+
+	    ib.setCurrentFolder("Hcal/ZDCTask/ADC_vs_TS_perChannel");
+	    _cADC_vs_TS_EChannel[histoname] = ib.book2D(histoname,histoname,xAxisShape.nbins(),xAxisShape.min(),xAxisShape.max(),xAxisADC.nbins(),xAxisADC.min(),xAxisADC.max());
+	    _cADC_vs_TS_EChannel[histoname]->getRootObject()->SetBit(BIT(hcaldqm::constants::BIT_OFFSET+hcaldqm::quantity::AxisType::fYAxis));
+	    _cADC_vs_TS_EChannel[histoname]->setAxisTitle("Timing",1);
+	    _cADC_vs_TS_EChannel[histoname]->setAxisTitle("ADC QIE8",2);
+	    
 
 	  }
 
 	//book global histos
-	ib.setCurrentFolder("ZDC");
+	ib.setCurrentFolder("Hcal/ZDCTask");
+
 	_cShape = ib.bookProfile("Shape","Shape",xAxisShape.nbins(),xAxisShape.min(),xAxisShape.max(),yAxisShape.nbins(),yAxisShape.min(),yAxisShape.max());
+	_cShape->setAxisTitle("Timing",1);
+	_cShape->setAxisTitle("fC QIE8",2);
+
 	_cADC = ib.book1D("ADC","ADC",xAxisADC.nbins(),xAxisADC.min(),xAxisADC.max());
+	_cADC->getRootObject()->SetBit(BIT(hcaldqm::constants::BIT_OFFSET+hcaldqm::quantity::AxisType::fYAxis));
+	_cADC->setAxisTitle("ADC QIE8",1);
+
+	_cADC_vs_TS = ib.book2D("ADC_vs_TS","ADC_vs_TS",xAxisShape.nbins(),xAxisShape.min(),xAxisShape.max(),xAxisADC.nbins(),xAxisADC.min(),xAxisADC.max());
+	_cADC_vs_TS->getRootObject()->SetBit(BIT(hcaldqm::constants::BIT_OFFSET+hcaldqm::quantity::AxisType::fYAxis));
+	_cADC_vs_TS->setAxisTitle("Timing",1);
+	_cADC_vs_TS->setAxisTitle("ADC QIE8",2);
+	    
 }
 
 
@@ -158,6 +181,10 @@ ZDCTask::ZDCTask(edm::ParameterSet const& ps)
 
 		_cADC_EChannel[histoname]->Fill(frame[j].adc());
 		_cADC->Fill(frame[j].adc());
+
+		_cADC_vs_TS_EChannel[histoname]->Fill(j,frame[j].adc());
+		_cADC_vs_TS->Fill(j,frame[j].adc());
+
 		
 	      }
 	  }
