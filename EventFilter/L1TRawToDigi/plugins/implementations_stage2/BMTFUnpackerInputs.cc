@@ -1,7 +1,11 @@
 #include "EventFilter/L1TRawToDigi/plugins/UnpackerFactory.h"
+<<<<<<< HEAD:EventFilter/L1TRawToDigi/plugins/implementations_stage2/BMTFUnpackerInputs.cc
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "BMTFCollections.h"
+=======
+
+>>>>>>> cms-sw/refs/pull/15378/head:EventFilter/L1TRawToDigi/plugins/implementations_stage2/BMTFUnpackerInputs.cc
 #include "BMTFUnpackerInputs.h"
 
 #include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambPhContainer.h"
@@ -170,5 +174,9 @@ namespace l1t
 	}//ns2
 }//ns l1t;
 
+<<<<<<< HEAD:EventFilter/L1TRawToDigi/plugins/implementations_stage2/BMTFUnpackerInputs.cc
 DEFINE_L1T_UNPACKER(l1t::stage2::BMTFUnpackerInputsOldQual);
 DEFINE_L1T_UNPACKER(l1t::stage2::BMTFUnpackerInputsNewQual);
+=======
+DEFINE_L1T_UNPACKER(l1t::stage2::BMTFUnpackerInputs);
+>>>>>>> cms-sw/refs/pull/15378/head:EventFilter/L1TRawToDigi/plugins/implementations_stage2/BMTFUnpackerInputs.cc

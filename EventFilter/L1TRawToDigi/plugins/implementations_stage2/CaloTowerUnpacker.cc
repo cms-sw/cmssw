@@ -4,8 +4,11 @@
 #include "L1Trigger/L1TCalorimeter/interface/CaloTools.h"
 
 #include "CaloCollections.h"
+<<<<<<< HEAD:EventFilter/L1TRawToDigi/plugins/implementations_stage2/CaloTowerUnpacker.cc
 #include "L1TStage2Layer2Constants.h"
 
+=======
+>>>>>>> cms-sw/refs/pull/15378/head:EventFilter/L1TRawToDigi/plugins/implementations_stage2/CaloTowerUnpacker.cc
 #include "CaloTowerUnpacker.h"
 
 namespace l1t {

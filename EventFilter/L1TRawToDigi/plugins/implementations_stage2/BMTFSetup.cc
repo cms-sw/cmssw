@@ -51,8 +51,12 @@ namespace l1t {
       BMTFSetup::getUnpackers(int fed, int board, int amc, unsigned int fw)
       {
          auto outputMuon = UnpackerFactory::get()->make("stage2::BMTFUnpackerOutput");
+<<<<<<< HEAD
          auto inputMuonsOld = UnpackerFactory::get()->make("stage2::BMTFUnpackerInputsOldQual");
          auto inputMuonsNew = UnpackerFactory::get()->make("stage2::BMTFUnpackerInputsNewQual");
+=======
+         auto inputMuons = UnpackerFactory::get()->make("stage2::BMTFUnpackerInputs");
+>>>>>>> cms-sw/refs/pull/15378/head
 
          UnpackerMap res;
          if (fed == 1376 || fed == 1377 )
@@ -63,10 +67,14 @@ namespace l1t {
                if ( iL == 12 || iL == 14 || ( iL > 26 && iL < 32) || iL == 60 || iL == 62 )
                   continue;
 
+<<<<<<< HEAD
                if ( fw < 2452619552)
                   res[iL] = inputMuonsOld;
                else
                   res[iL] = inputMuonsNew;
+=======
+               res[iL] = inputMuons;
+>>>>>>> cms-sw/refs/pull/15378/head
             }
 
             res[123] = outputMuon;

@@ -76,9 +76,12 @@ namespace l1t {
          if (fw >= 0x10010010) {
             mp_unp = UnpackerFactory::get()->make("stage2::MPUnpacker_0x10010010");
          }
+<<<<<<< HEAD
          if (fw >= 0x10010033) {
             mp_unp = UnpackerFactory::get()->make("stage2::MPUnpacker_0x10010033");
          }
+=======
+>>>>>>> cms-sw/refs/pull/15378/head
 
 
          UnpackerMap res;

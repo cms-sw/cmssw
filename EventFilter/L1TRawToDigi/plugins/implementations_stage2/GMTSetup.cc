@@ -21,11 +21,14 @@ namespace l1t {
          desc.addOptional<edm::InputTag>("BMTFInputLabel")->setComment("for stage2");
          desc.addOptional<edm::InputTag>("OMTFInputLabel")->setComment("for stage2");
          desc.addOptional<edm::InputTag>("EMTFInputLabel")->setComment("for stage2");
+<<<<<<< HEAD
          desc.addOptional<edm::InputTag>("ImdInputLabelBMTF")->setComment("uGMT intermediate muon from BMTF after first sorting stage");
          desc.addOptional<edm::InputTag>("ImdInputLabelEMTFNeg")->setComment("uGMT intermediate muon from neg. EMTF side after first sorting stage");
          desc.addOptional<edm::InputTag>("ImdInputLabelEMTFPos")->setComment("uGMT intermediate muon from pos. EMTF side after first sorting stage");
          desc.addOptional<edm::InputTag>("ImdInputLabelOMTFNeg")->setComment("uGMT intermediate muon from neg. OMTF side after first sorting stage");
          desc.addOptional<edm::InputTag>("ImdInputLabelOMTFPos")->setComment("uGMT intermediate muon from pos. OMTF side after first sorting stage");
+=======
+>>>>>>> cms-sw/refs/pull/15378/head
       }
 
       PackerMap
@@ -38,7 +41,10 @@ namespace l1t {
             res[{1, 1}] = {
                PackerFactory::get()->make("stage2::RegionalMuonGMTPacker"),
                PackerFactory::get()->make("stage2::GMTMuonPacker"),
+<<<<<<< HEAD
                PackerFactory::get()->make("stage2::IntermediateMuonPacker"),
+=======
+>>>>>>> cms-sw/refs/pull/15378/head
             };
          }
 
@@ -52,11 +58,14 @@ namespace l1t {
          prod.produces<RegionalMuonCandBxCollection>("OMTF");
          prod.produces<RegionalMuonCandBxCollection>("EMTF");
          prod.produces<MuonBxCollection>("Muon");
+<<<<<<< HEAD
          prod.produces<MuonBxCollection>("imdMuonsBMTF");
          prod.produces<MuonBxCollection>("imdMuonsEMTFNeg");
          prod.produces<MuonBxCollection>("imdMuonsEMTFPos");
          prod.produces<MuonBxCollection>("imdMuonsOMTFNeg");
          prod.produces<MuonBxCollection>("imdMuonsOMTFPos");
+=======
+>>>>>>> cms-sw/refs/pull/15378/head
       }
 
       std::unique_ptr<UnpackerCollections>
@@ -72,6 +81,7 @@ namespace l1t {
 
          auto gmt_in_unp = UnpackerFactory::get()->make("stage2::RegionalMuonGMTUnpacker");
          auto gmt_out_unp = UnpackerFactory::get()->make("stage2::MuonUnpacker");
+<<<<<<< HEAD
          auto gmt_imd_unp = UnpackerFactory::get()->make("stage2::IntermediateMuonUnpacker");
 
          // input muons
@@ -83,6 +93,18 @@ namespace l1t {
          // internal muons
          for (int oLink = 49; oLink < 63; oLink += 2)
              res[oLink] = gmt_imd_unp;
+=======
+
+         // input muons
+         for (int iLink = 72; iLink < 144; iLink += 2)
+            res[iLink] = gmt_in_unp;
+         // output muons
+         for (int oLink = 1; oLink < 9; oLink += 2)
+            res[oLink] = gmt_out_unp;
+         // internal muons
+         //for (int oLink = 9; oLink < 24; oLink += 2)
+         //    res[oLink] = gmt_out_unp;
+>>>>>>> cms-sw/refs/pull/15378/head
 
          return res;
       }
