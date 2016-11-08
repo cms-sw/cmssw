@@ -140,6 +140,26 @@ process.SiPixelPhase1ClustersAnalyzer.src = "PBClusters"
 process.SiPixelPhase1DigisAnalyzer.src = "PBDigis"
 process.SiPixelPhase1RawDataAnalyzer.src = "PBDigis"
 
+# online "overlaid curves"
+onlineLiveSpec = (
+  Specification(PerModule).groupBy("PXForward/PXDisk/DetId/OnlineBlock")
+		  .groupBy("PXForward/PXDisk/DetId", "EXTEND_Y")
+		  .save()
+		  .custom()
+		  .groupBy("PXForward/PXDisk")
+		  .save()
+)
+onlineLiveSpec_Num = (
+  Specification(PerModule).groupBy("PXForward/PXDisk/DetId/OnlineBlock/Event")
+                  .reduce("COUNT")
+                  .groupBy("PXForward/PXDisk/DetId/OnlineBlock")
+		  .groupBy("PXForward/PXDisk/DetId", "EXTEND_Y")
+		  .save()
+		  .custom()
+		  .groupBy("PXForward/PXDisk")
+		  .save()
+)
+
 # turn on and configure specific histograms
 
 # digis
@@ -170,14 +190,16 @@ process.SiPixelPhase1ClustersCharge.enabled = True
 process.SiPixelPhase1ClustersCharge.bookUndefined = False
 process.SiPixelPhase1ClustersCharge.specs = cms.VPSet(
   StandardSpecification2DProfile,
-  Specification(PerModule).groupBy("PXForward/PXDisk/DetId").save() 
+  Specification(PerModule).groupBy("PXForward/PXDisk/DetId").save(),
+  onlineLiveSpec,
 )
 
 process.SiPixelPhase1ClustersSize.enabled = True
 process.SiPixelPhase1ClustersSize.bookUndefined = False
 process.SiPixelPhase1ClustersSize.specs = cms.VPSet(
   StandardSpecification2DProfile,
-  Specification(PerModule).groupBy("PXForward/PXDisk/DetId").save() 
+  Specification(PerModule).groupBy("PXForward/PXDisk/DetId").save(),
+  onlineLiveSpec,
 )
 
 process.SiPixelPhase1ClustersNClusters.enabled = True
@@ -186,12 +208,13 @@ process.SiPixelPhase1ClustersNClusters.specs = cms.VPSet(
   StandardSpecification2DProfile_Num,
   Specification(PerModule).groupBy("PXForward/PXDisk/DetId/Event")
                           .reduce("COUNT")
-                          .groupBy("PXForward/PXDisk/DetId").save() 
+                          .groupBy("PXForward/PXDisk/DetId").save(),
+  onlineLiveSpec_Num,
 )
 
 process.SiPixelPhase1ClustersPositionB.enabled = True
 process.SiPixelPhase1ClustersPositionB.range_min = -80
-process.SiPixelPhase1ClustersPositionB.range_max = 80
+process.SiPixelPhase1ClustersPositionB.range_max = -40
 process.SiPixelPhase1ClustersPositionB.specs = cms.VPSet(
   Specification().groupBy("").save()
 )

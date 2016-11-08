@@ -4,6 +4,8 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 class SiPixelPhase1OnlineHarvester : public SiPixelPhase1Harvester {
+  // Note: for the current setup of onlineblocks (for overlaid curves,
+  // e.g. useful for detector commisioning), this plugin is NOT needed.
 
   public:
   SiPixelPhase1OnlineHarvester(const edm::ParameterSet& iConfig) 

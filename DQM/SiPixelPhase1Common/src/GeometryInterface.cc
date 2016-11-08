@@ -239,12 +239,13 @@ void GeometryInterface::loadTimebased(edm::EventSetup const& iSetup, const edm::
   int onlineblock = iConfig.getParameter<int>("onlineblock");
   int n_onlineblocks = iConfig.getParameter<int>("n_onlineblocks");
   addExtractor(intern("OnlineBlock"),
-    [onlineblock, n_onlineblocks] (InterestingQuantities const& iq) {
+    [onlineblock] (InterestingQuantities const& iq) {
       if(!iq.sourceEvent) return UNDEFINED;
-      // TODO: set good range for real online with all LS present
-      return Value(iq.sourceEvent->luminosityBlock() / onlineblock % n_onlineblocks);
+      return Value(onlineblock + iq.sourceEvent->luminosityBlock() / onlineblock);
     },
-    0, n_onlineblocks-1
+    // note: this range is not visible anywhere (if the RenderPlugin does its job),
+    // but the strange range allows the RenderPlugin to know the block size.
+    onlineblock, onlineblock+n_onlineblocks-1
   );
   addExtractor(intern("BX"),
     [] (InterestingQuantities const& iq) {
