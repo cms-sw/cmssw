@@ -2,6 +2,7 @@
 #include <xercesc/dom/DOM.hpp>
 #include <xercesc/parsers/XercesDOMParser.hpp>
 #include "FWCore/Concurrency/interface/Xerces.h"
+#include "Utilities/Xerces/interface/XercesStrUtils.h"
 #include <xercesc/util/XMLString.hpp>
 #include <xercesc/sax/SAXException.hpp>
 #include <xercesc/framework/LocalFileFormatTarget.hpp>
@@ -28,9 +29,6 @@ std::istream& operator>>( std::istream& stream_,
   id_ =EcalXtalGroupId(id); 
   return stream_;
 }  
-
-
-
 
 int EcalTBWeightsXMLTranslator::readXML(const std::string& filename,
 					EcalCondHeader& header,
@@ -79,14 +77,21 @@ int EcalTBWeightsXMLTranslator::readXML(const std::string& filename,
       wnode= wnode->getNextSibling();
   }
 
+  cms::concurrency::xercesTerminate();
+
   return 0;
 }
 
 int EcalTBWeightsXMLTranslator::writeXML(const  std::string& filename,
 					 const  EcalCondHeader& header,
 					 const  EcalTBWeights&  record){
+  cms::concurrency::xercesInitialize();
+
   std::fstream fs(filename.c_str(),ios::out);
   fs<< dumpXML(header,record);
+
+  cms::concurrency::xercesTerminate();
+
   return 0;  
 }
 
@@ -113,13 +118,13 @@ EcalTBWeightsXMLTranslator::readWeightSet(xercesc::DOMNode* parentNode,
 
     rowelement = dynamic_cast< xercesc::DOMElement* >(rownode);
 
-    std::string rowid_s = toNative(rowelement->getAttribute(fromNative(id_tag).c_str()));
+    std::string rowid_s = cms::xerces::toString(rowelement->getAttribute(cms::xerces::uStr(id_tag.c_str()).ptr()));
 
     std::stringstream rowid_ss(rowid_s);
     int rowid = 0;
     rowid_ss >> rowid;
 
-    std::string weightrow = toNative(rownode->getTextContent());
+    std::string weightrow = cms::xerces::toString(rownode->getTextContent());
 
     std::stringstream weightrow_s(weightrow);
     double weight = 0;
@@ -147,13 +152,13 @@ EcalTBWeightsXMLTranslator::readWeightSet(xercesc::DOMNode* parentNode,
 
     rowelement = dynamic_cast< xercesc::DOMElement* >(rownode);
     
-    std::string rowid_s = toNative(rowelement->getAttribute( fromNative(id_tag).c_str()));
+    std::string rowid_s = cms::xerces::toString(rowelement->getAttribute( cms::xerces::uStr(id_tag.c_str()).ptr()));
     
     std::stringstream rowid_ss(rowid_s);
     int rowid = 0;
     rowid_ss >> rowid;
 
-    std::string weightrow = toNative(rownode->getTextContent());
+    std::string weightrow = cms::xerces::toString(rownode->getTextContent());
     
     std::stringstream weightrow_s(weightrow);
     double weight = 0;
@@ -180,13 +185,13 @@ EcalTBWeightsXMLTranslator::readWeightSet(xercesc::DOMNode* parentNode,
   while  (rownode){
 
     rowelement = dynamic_cast< xercesc::DOMElement* >(rownode);
-    std::string rowid_s = toNative(rowelement->getAttribute(fromNative(id_tag).c_str()));
+    std::string rowid_s = cms::xerces::toString(rowelement->getAttribute(cms::xerces::uStr(id_tag.c_str()).ptr()));
 
     std::stringstream rowid_ss(rowid_s);
     int rowid = 0;
     rowid_ss >> rowid;
 
-    std::string weightrow = toNative(rownode->getTextContent());
+    std::string weightrow = cms::xerces::toString(rownode->getTextContent());
 
     std::stringstream weightrow_s(weightrow);
     double weight = 0;
@@ -215,13 +220,13 @@ EcalTBWeightsXMLTranslator::readWeightSet(xercesc::DOMNode* parentNode,
   while  (rownode){
 
     rowelement = dynamic_cast< xercesc::DOMElement* >(rownode);  
-    std::string rowid_s = toNative(rowelement->getAttribute(fromNative(id_tag).c_str()));
+    std::string rowid_s = cms::xerces::toString(rowelement->getAttribute(cms::xerces::uStr(id_tag.c_str()).ptr()));
 
     std::stringstream rowid_ss(rowid_s);
     int rowid = 0;
     rowid_ss >> rowid;
 
-    std::string weightrow = toNative(rownode->getTextContent());
+    std::string weightrow = cms::xerces::toString(rownode->getTextContent());
 
     std::stringstream weightrow_s(weightrow);
     double weight = 0;
@@ -251,19 +256,19 @@ EcalTBWeightsXMLTranslator::writeWeightSet(xercesc::DOMNode* parentNode,
   
   xercesc::DOMDocument* doc = parentNode->getOwnerDocument();
 
-  DOMElement * weightsetel= doc->createElement( fromNative(EcalWeightSet_tag).c_str());
+  DOMElement * weightsetel= doc->createElement( cms::xerces::uStr(EcalWeightSet_tag.c_str()).ptr());
   parentNode-> appendChild(weightsetel);
 
-  DOMElement* wgtBS = doc->createElement( fromNative(wgtBeforeSwitch_tag).c_str());
+  DOMElement* wgtBS = doc->createElement( cms::xerces::uStr(wgtBeforeSwitch_tag.c_str()).ptr());
   weightsetel->appendChild(wgtBS);
   
-  DOMElement* wgtAS = doc->createElement(fromNative(wgtAfterSwitch_tag).c_str());
+  DOMElement* wgtAS = doc->createElement(cms::xerces::uStr(wgtAfterSwitch_tag.c_str()).ptr());
   weightsetel->appendChild(wgtAS);
   
-  DOMElement* wgtChi2BS = doc->createElement( fromNative(wgtChi2BeforeSwitch_tag).c_str());
+  DOMElement* wgtChi2BS = doc->createElement( cms::xerces::uStr(wgtChi2BeforeSwitch_tag.c_str()).ptr());
   weightsetel->appendChild(wgtChi2BS);
   
-  DOMElement* wgtChi2AS = doc->createElement(fromNative(wgtChi2AfterSwitch_tag).c_str());
+  DOMElement* wgtChi2AS = doc->createElement(cms::xerces::uStr(wgtChi2AfterSwitch_tag.c_str()).ptr());
   weightsetel->appendChild(wgtChi2AS);
   
   writeWeightMatrix(wgtBS,ws.getWeightsBeforeGainSwitch());
@@ -289,14 +294,14 @@ EcalTBWeightsXMLTranslator::writeWeightMatrix(xercesc::DOMNode* node,
     {
 
 
-      row= node->getOwnerDocument()->createElement( fromNative(row_tag).c_str());
+      row= node->getOwnerDocument()->createElement( cms::xerces::uStr(row_tag.c_str()).ptr());
       node->appendChild(row);
 
       stringstream value_s;
       value_s << i; 
 
-      rowid = node->getOwnerDocument()->createAttribute(fromNative(id_tag).c_str());
-      rowid ->setValue(fromNative(value_s.str()).c_str());
+      rowid = node->getOwnerDocument()->createAttribute(cms::xerces::uStr(id_tag.c_str()).ptr());
+      rowid ->setValue(cms::xerces::uStr(value_s.str().c_str()).ptr());
       row ->setAttributeNode(rowid);
 
       stringstream row_s;
@@ -304,7 +309,7 @@ EcalTBWeightsXMLTranslator::writeWeightMatrix(xercesc::DOMNode* node,
       for(int k=0;k<ncols;++k) row_s <<" " << matrix(i,k)<<" " ;
 
       rowvalue = 
-	node->getOwnerDocument()->createTextNode(fromNative(row_s.str()).c_str());
+	node->getOwnerDocument()->createTextNode(cms::xerces::uStr(row_s.str().c_str()).ptr());
       row->appendChild(rowvalue);
     }//for loop on col
 
@@ -327,14 +332,14 @@ EcalTBWeightsXMLTranslator::writeChi2WeightMatrix(xercesc::DOMNode* node,
     {
 
 
-      row= node->getOwnerDocument()->createElement( fromNative(row_tag).c_str());
+      row= node->getOwnerDocument()->createElement( cms::xerces::uStr(row_tag.c_str()).ptr());
       node->appendChild(row);
 
       stringstream value_s;
       value_s << i; 
 
-      rowid = node->getOwnerDocument()->createAttribute(fromNative(id_tag).c_str());
-      rowid ->setValue(fromNative(value_s.str()).c_str());
+      rowid = node->getOwnerDocument()->createAttribute(cms::xerces::uStr(id_tag.c_str()).ptr());
+      rowid ->setValue(cms::xerces::uStr(value_s.str().c_str()).ptr());
       row ->setAttributeNode(rowid);
 
       stringstream row_s;
@@ -342,7 +347,7 @@ EcalTBWeightsXMLTranslator::writeChi2WeightMatrix(xercesc::DOMNode* node,
       for(int k=0;k<ncols;++k) row_s << " "<< matrix(i,k)<<" ";
       
       rowvalue = 
-	node->getOwnerDocument()->createTextNode(fromNative(row_s.str()).c_str());
+	node->getOwnerDocument()->createTextNode(cms::xerces::uStr(row_s.str().c_str()).ptr());
       row->appendChild(rowvalue);
     }//for loop on col
 
@@ -356,15 +361,15 @@ std::string EcalTBWeightsXMLTranslator::dumpXML(const EcalCondHeader& header,
 
   cms::concurrency::xercesInitialize();
   
-  unique_ptr<DOMImplementation> impl( DOMImplementationRegistry::getDOMImplementation(fromNative("LS").c_str()));
+  unique_ptr<DOMImplementation> impl( DOMImplementationRegistry::getDOMImplementation(cms::xerces::uStr("LS").ptr()));
   
   DOMLSSerializer* writer = impl->createLSSerializer();
   if( writer->getDomConfig()->canSetParameter( XMLUni::fgDOMWRTFormatPrettyPrint, true ))
     writer->getDomConfig()->setParameter( XMLUni::fgDOMWRTFormatPrettyPrint, true );
   
-  DOMDocumentType* doctype = impl->createDocumentType( fromNative("XML").c_str(), 0, 0 );
+  DOMDocumentType* doctype = impl->createDocumentType( cms::xerces::uStr("XML").ptr(), 0, 0 );
   DOMDocument* doc =
-    impl->createDocument( 0, fromNative(EcalTBWeights_tag).c_str(), doctype );
+    impl->createDocument( 0, cms::xerces::uStr(EcalTBWeights_tag.c_str()).ptr(), doctype );
   DOMElement* root = doc->getDocumentElement();
 
   xuti::writeHeader(root, header);
@@ -374,7 +379,7 @@ std::string EcalTBWeightsXMLTranslator::dumpXML(const EcalCondHeader& header,
   EcalTBWeights::EcalTBWeightMap::const_iterator it ;
   for (it =wmap.begin(); it!=wmap.end(); ++it){
    
-    DOMElement * tbweight= doc->createElement(fromNative(EcalTBWeight_tag).c_str());
+    DOMElement * tbweight= doc->createElement(cms::xerces::uStr(EcalTBWeight_tag.c_str()).ptr());
     root->appendChild(tbweight);
 
     EcalXtalGroupId          gid = it->first.first;
@@ -388,11 +393,10 @@ std::string EcalTBWeightsXMLTranslator::dumpXML(const EcalCondHeader& header,
      
   } //
 
-  std::string dump = toNative( writer->writeToString( root ));
+  std::string dump = cms::xerces::toString( writer->writeToString( root ));
   doc->release();
   doctype->release();
   writer->release();
-  //   cms::concurrency::xercesTerminate();
 
   return dump;
 }

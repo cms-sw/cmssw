@@ -9,13 +9,8 @@
 #define __EcalPedestalsXMLTranslator_h_
 
 #include "CondFormats/EcalObjects/interface/EcalPedestals.h"
-
-#include "CondTools/Ecal/interface/XercesString.h"
 #include "CondTools/Ecal/interface/EcalCondHeader.h"
 #include <string>
-#include <xercesc/dom/DOMNode.hpp>
-
-//class EcalPedestals;
 
 class EcalPedestalsXMLTranslator {
 
@@ -28,10 +23,10 @@ public:
   static  int writeXML(const std::string& filename, 
 		       const EcalCondHeader& header,
 		       const EcalPedestals& record);
-
+ private:
+  
   static std::string dumpXML(const EcalCondHeader& header,
 			     const EcalPedestals& record);
-
 };
 
 #endif // __EcalPedestalsXMLTranslator_h_
