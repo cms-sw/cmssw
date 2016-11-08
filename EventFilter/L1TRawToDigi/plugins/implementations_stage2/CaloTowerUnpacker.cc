@@ -1,14 +1,21 @@
+<<<<<<< HEAD:EventFilter/L1TRawToDigi/plugins/implementations_stage2/CaloTowerUnpacker.cc
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "EventFilter/L1TRawToDigi/plugins/UnpackerFactory.h"
+=======
+#include "FWCore/Framework/interface/MakerMacros.h"
+>>>>>>> cms-sw/refs/pull/15748/head:EventFilter/L1TRawToDigi/src/implementations_stage2/CaloTowerUnpacker.cc
 
 #include "L1Trigger/L1TCalorimeter/interface/CaloTools.h"
 
 #include "CaloCollections.h"
 <<<<<<< HEAD:EventFilter/L1TRawToDigi/plugins/implementations_stage2/CaloTowerUnpacker.cc
+<<<<<<< HEAD:EventFilter/L1TRawToDigi/plugins/implementations_stage2/CaloTowerUnpacker.cc
 #include "L1TStage2Layer2Constants.h"
 
 =======
 >>>>>>> cms-sw/refs/pull/15378/head:EventFilter/L1TRawToDigi/plugins/implementations_stage2/CaloTowerUnpacker.cc
+=======
+>>>>>>> cms-sw/refs/pull/15748/head:EventFilter/L1TRawToDigi/src/implementations_stage2/CaloTowerUnpacker.cc
 #include "CaloTowerUnpacker.h"
 
 namespace l1t {
@@ -114,4 +121,5 @@ namespace stage2 {
 }
 }
 
-DEFINE_L1T_UNPACKER(l1t::stage2::CaloTowerUnpacker);
+// moved to plugins/SealModule.cc
+// DEFINE_L1T_UNPACKER(l1t::stage2::CaloTowerUnpacker);

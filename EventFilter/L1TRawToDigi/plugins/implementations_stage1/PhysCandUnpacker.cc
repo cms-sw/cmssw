@@ -1,5 +1,8 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
+<<<<<<< HEAD:EventFilter/L1TRawToDigi/plugins/implementations_stage1/PhysCandUnpacker.cc
 #include "EventFilter/L1TRawToDigi/plugins/UnpackerFactory.h"
+=======
+>>>>>>> cms-sw/refs/pull/15748/head:EventFilter/L1TRawToDigi/src/implementations_stage1/PhysCandUnpacker.cc
 
 #include "CaloCollections.h"
 #include "PhysCandUnpacker.h"
@@ -161,15 +164,16 @@ namespace l1t {
   }
 }
 
-DEFINE_L1T_UNPACKER(l1t::stage1::IsoEGammaUnpackerLeft);
-DEFINE_L1T_UNPACKER(l1t::stage1::NonIsoEGammaUnpackerLeft);
-DEFINE_L1T_UNPACKER(l1t::stage1::CentralJetUnpackerLeft);
-DEFINE_L1T_UNPACKER(l1t::stage1::ForwardJetUnpackerLeft);
-DEFINE_L1T_UNPACKER(l1t::stage1::TauUnpackerLeft);
-DEFINE_L1T_UNPACKER(l1t::stage1::IsoTauUnpackerLeft);
-DEFINE_L1T_UNPACKER(l1t::stage1::IsoEGammaUnpackerRight);
-DEFINE_L1T_UNPACKER(l1t::stage1::NonIsoEGammaUnpackerRight);
-DEFINE_L1T_UNPACKER(l1t::stage1::CentralJetUnpackerRight);
-DEFINE_L1T_UNPACKER(l1t::stage1::ForwardJetUnpackerRight);
-DEFINE_L1T_UNPACKER(l1t::stage1::TauUnpackerRight);
-DEFINE_L1T_UNPACKER(l1t::stage1::IsoTauUnpackerRight);
+// moved to plugins/SealModule.cc
+// DEFINE_L1T_UNPACKER(l1t::stage1::IsoEGammaUnpackerLeft);
+// DEFINE_L1T_UNPACKER(l1t::stage1::NonIsoEGammaUnpackerLeft);
+// DEFINE_L1T_UNPACKER(l1t::stage1::CentralJetUnpackerLeft);
+// DEFINE_L1T_UNPACKER(l1t::stage1::ForwardJetUnpackerLeft);
+// DEFINE_L1T_UNPACKER(l1t::stage1::TauUnpackerLeft);
+// DEFINE_L1T_UNPACKER(l1t::stage1::IsoTauUnpackerLeft);
+// DEFINE_L1T_UNPACKER(l1t::stage1::IsoEGammaUnpackerRight);
+// DEFINE_L1T_UNPACKER(l1t::stage1::NonIsoEGammaUnpackerRight);
+// DEFINE_L1T_UNPACKER(l1t::stage1::CentralJetUnpackerRight);
+// DEFINE_L1T_UNPACKER(l1t::stage1::ForwardJetUnpackerRight);
+// DEFINE_L1T_UNPACKER(l1t::stage1::TauUnpackerRight);
+// DEFINE_L1T_UNPACKER(l1t::stage1::IsoTauUnpackerRight);

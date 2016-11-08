@@ -1,0 +1,40 @@
+#ifndef L1T_PACKER_STAGE1_PHYSCANDPACKER_H
+#define L1T_PACKER_STAGE1_PHYSCANDPACKER_H
+
+#include "EventFilter/L1TRawToDigi/interface/Packer.h"
+
+namespace l1t {
+  namespace stage1 {
+    class IsoEGammaPacker : public Packer {
+      public:
+        virtual Blocks pack(const edm::Event&, const PackerTokens*) override;
+    };
+
+    class NonIsoEGammaPacker : public Packer {
+      public:
+        virtual Blocks pack(const edm::Event&, const PackerTokens*) override;
+    };
+
+    class CentralJetPacker : public Packer {
+      public:
+        virtual Blocks pack(const edm::Event&, const PackerTokens*) override;
+    };
+
+    class ForwardJetPacker : public Packer {
+      public:
+        virtual Blocks pack(const edm::Event&, const PackerTokens*) override;
+    };
+
+    class TauPacker : public Packer {
+      public:
+        virtual Blocks pack(const edm::Event&, const PackerTokens*) override;
+    };
+
+    class IsoTauPacker : public Packer {
+      public:
+        virtual Blocks pack(const edm::Event&, const PackerTokens*) override;
+    };
+  }
+}
+
+#endif

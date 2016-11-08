@@ -12,3 +12,9 @@ namespace l1t{
 		};
 	}
 }
+<<<<<<< HEAD:EventFilter/L1TRawToDigi/plugins/implementations_stage2/BMTFUnpackerOutput.h
+=======
+
+// moved to plugins/SealModule.cc
+// DEFINE_L1T_UNPACKER(l1t::stage2::BMTFUnpackerOutput);
+>>>>>>> cms-sw/refs/pull/15748/head:EventFilter/L1TRawToDigi/src/implementations_stage2/BMTFUnpackerOutput.h

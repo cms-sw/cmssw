@@ -1,5 +1,8 @@
 #include <memory>
+<<<<<<< HEAD:EventFilter/L1TRawToDigi/plugins/implementations_stage2/EMTFBlockME.cc
 #include "EventFilter/L1TRawToDigi/plugins/UnpackerFactory.h"
+=======
+>>>>>>> cms-sw/refs/pull/15748/head:EventFilter/L1TRawToDigi/src/implementations_stage2/EMTFBlockME.cc
 
 #include "EMTFCollections.h"
 #include "EMTFUnpackerTools.h"
@@ -191,5 +194,6 @@ namespace l1t {
   } // End namespace stage2
 } // End namespace l1t
 
-DEFINE_L1T_UNPACKER(l1t::stage2::emtf::MEBlockUnpacker);
+// moved to plugins/SealModule.cc
+// DEFINE_L1T_UNPACKER(l1t::stage2::emtf::MEBlockUnpacker);
 // DEFINE_L1T_PACKER(l1t::stage2::MEBlockPacker);

@@ -1,5 +1,8 @@
 #include "FWCore/Framework/interface/Event.h"
+<<<<<<< HEAD:EventFilter/L1TRawToDigi/plugins/implementations_stage2/JetPacker.cc
 #include "EventFilter/L1TRawToDigi/plugins/PackerFactory.h"
+=======
+>>>>>>> cms-sw/refs/pull/15748/head:EventFilter/L1TRawToDigi/src/implementations_stage2/JetPacker.cc
 
 #include "CaloTokens.h"
 
@@ -56,5 +59,6 @@ namespace stage2 {
 }
 }
 
-DEFINE_L1T_PACKER(l1t::stage2::GTJetPacker);
-DEFINE_L1T_PACKER(l1t::stage2::CaloJetPacker);
+// moved to plugins/SealModule.cc
+// DEFINE_L1T_PACKER(l1t::stage2::GTJetPacker);
+// DEFINE_L1T_PACKER(l1t::stage2::CaloJetPacker);

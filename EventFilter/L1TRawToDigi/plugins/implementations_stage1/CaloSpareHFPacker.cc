@@ -53,4 +53,5 @@ namespace l1t {
   }
 }
 
-DEFINE_L1T_PACKER(l1t::stage1::CaloSpareHFPacker);
+// moved to plugins/SealModule.cc
+// DEFINE_L1T_PACKER(l1t::stage1::CaloSpareHFPacker);

@@ -1,7 +1,10 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+<<<<<<< HEAD:EventFilter/L1TRawToDigi/plugins/implementations_stage1/LegacyPhysCandUnpacker.cc
 #include "EventFilter/L1TRawToDigi/plugins/UnpackerFactory.h"
 
+=======
+>>>>>>> cms-sw/refs/pull/15748/head:EventFilter/L1TRawToDigi/src/implementations_stage1/LegacyPhysCandUnpacker.cc
 #include "CaloCollections.h"
 #include "LegacyPhysCandUnpacker.h"
 
@@ -112,9 +115,10 @@ namespace l1t {
    }
 }
 
-DEFINE_L1T_UNPACKER(l1t::stage1::legacy::IsoEGammaUnpacker);
-DEFINE_L1T_UNPACKER(l1t::stage1::legacy::NonIsoEGammaUnpacker);
-DEFINE_L1T_UNPACKER(l1t::stage1::legacy::CentralJetUnpacker);
-DEFINE_L1T_UNPACKER(l1t::stage1::legacy::ForwardJetUnpacker);
-DEFINE_L1T_UNPACKER(l1t::stage1::legacy::TauUnpacker);
-DEFINE_L1T_UNPACKER(l1t::stage1::legacy::IsoTauUnpacker);
+// moved to plugins/SealModule.cc
+// DEFINE_L1T_UNPACKER(l1t::stage1::legacy::IsoEGammaUnpacker);
+// DEFINE_L1T_UNPACKER(l1t::stage1::legacy::NonIsoEGammaUnpacker);
+// DEFINE_L1T_UNPACKER(l1t::stage1::legacy::CentralJetUnpacker);
+// DEFINE_L1T_UNPACKER(l1t::stage1::legacy::ForwardJetUnpacker);
+// DEFINE_L1T_UNPACKER(l1t::stage1::legacy::TauUnpacker);
+// DEFINE_L1T_UNPACKER(l1t::stage1::legacy::IsoTauUnpacker);

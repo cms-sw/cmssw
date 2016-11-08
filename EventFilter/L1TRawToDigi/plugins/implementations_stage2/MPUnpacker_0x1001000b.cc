@@ -1,5 +1,9 @@
+<<<<<<< HEAD:EventFilter/L1TRawToDigi/plugins/implementations_stage2/MPUnpacker_0x1001000b.cc
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "EventFilter/L1TRawToDigi/plugins/UnpackerFactory.h"
+=======
+#include "FWCore/Framework/interface/MakerMacros.h"
+>>>>>>> cms-sw/refs/pull/15748/head:EventFilter/L1TRawToDigi/src/implementations_stage2/MPUnpacker_0x1001000b.cc
 
 #include "L1Trigger/L1TCalorimeter/interface/CaloTools.h"
 
@@ -209,4 +213,5 @@ namespace stage2 {
 }
 }
 
-DEFINE_L1T_UNPACKER(l1t::stage2::MPUnpacker_0x1001000b);
+// moved to plugins/SealModule.cc
+// DEFINE_L1T_UNPACKER(l1t::stage2::MPUnpacker_0x1001000b);

@@ -1,3 +1,7 @@
+<<<<<<< HEAD:EventFilter/L1TRawToDigi/plugins/implementations_stage1/RCTEmRegionUnpacker.cc
+=======
+#include "FWCore/Framework/interface/MakerMacros.h"
+>>>>>>> cms-sw/refs/pull/15748/head:EventFilter/L1TRawToDigi/src/implementations_stage1/RCTEmRegionUnpacker.cc
 #include "PhysicsToBitConverter.h"
 #include "rctDataBase.h"
 
@@ -175,4 +179,5 @@ namespace l1t {
   }
 }
 
-DEFINE_L1T_UNPACKER(l1t::stage1::RCTEmRegionUnpacker);
+// moved to plugins/SealModule.cc
+// DEFINE_L1T_UNPACKER(l1t::stage1::RCTEmRegionUnpacker);

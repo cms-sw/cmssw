@@ -123,6 +123,8 @@ from DQM.L1TMonitor.L1TdeStage2OMTF_cfi import *
 
 # EMTF
 from DQM.L1TMonitor.L1TdeStage2EMTF_cfi import *
+from DQM.L1TMonitor.L1TStage2EMTFData_cfi import *
+from DQM.L1TMonitor.L1TStage2EMTFEmul_cfi import *
 
 # uGMT
 from DQM.L1TMonitor.L1TdeStage2uGMT_cfi import *
@@ -141,6 +143,11 @@ l1tStage2EmulatorOnlineDQM = cms.Sequence(
     l1tdeStage2Bmtf +
     l1tdeStage2Omtf +
     l1tdeStage2Emtf +
+<<<<<<< HEAD
+=======
+    l1tStage2EmtfData + 
+    l1tStage2EmtfEmul + 
+>>>>>>> cms-sw/refs/pull/15748/head
     l1tdeStage2EmtfComp +
     l1tStage2uGMTEmul +
     l1tdeStage2uGMT +

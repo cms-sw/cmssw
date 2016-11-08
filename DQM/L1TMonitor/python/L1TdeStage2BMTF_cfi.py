@@ -9,7 +9,10 @@ l1tdeStage2Bmtf = cms.EDAnalyzer(
     monitorDir = cms.untracked.string("L1T2016EMU/L1TdeStage2BMTF"),
     regionalMuonCollection1Title = cms.untracked.string("BMTF data"),
     regionalMuonCollection2Title = cms.untracked.string("BMTF emulator"),
+<<<<<<< HEAD
     summaryTitle = cms.untracked.string("Summary of comparison between BMTF muons and BMTF emulator muons"),
+=======
+>>>>>>> cms-sw/refs/pull/15748/head
     verbose = cms.untracked.bool(False),
 )
 

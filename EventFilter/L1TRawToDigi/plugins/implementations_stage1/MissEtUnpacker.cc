@@ -1,5 +1,8 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
+<<<<<<< HEAD:EventFilter/L1TRawToDigi/plugins/implementations_stage1/MissEtUnpacker.cc
 #include "EventFilter/L1TRawToDigi/plugins/UnpackerFactory.h"
+=======
+>>>>>>> cms-sw/refs/pull/15748/head:EventFilter/L1TRawToDigi/src/implementations_stage1/MissEtUnpacker.cc
 
 #include "CaloCollections.h"
 #include "MissEtUnpacker.h"
@@ -60,4 +63,5 @@ namespace l1t {
   }
 }
 
-DEFINE_L1T_UNPACKER(l1t::stage1::MissEtUnpacker);
+// moved to plugins/SealModule.cc
+// DEFINE_L1T_UNPACKER(l1t::stage1::MissEtUnpacker);
