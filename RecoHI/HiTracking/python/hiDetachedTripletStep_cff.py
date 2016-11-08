@@ -32,6 +32,7 @@ hiDetachedTripletStepSeedLayers.FPix.skipClusters = cms.InputTag('hiDetachedTrip
 # SEEDS
 from RecoPixelVertexing.PixelTriplets.PixelTripletHLTGenerator_cfi import *
 from RecoPixelVertexing.PixelLowPtUtilities.ClusterShapeHitFilterESProducer_cfi import *
+from RecoPixelVertexing.PixelTrackFitting.pixelFitterByHelixProjections_cfi import *
 from RecoHI.HiTracking.HIPixelTrackFilter_cff import *
 from RecoHI.HiTracking.HITrackingRegionProducer_cfi import *
 hiDetachedTripletStepPixelTracksFilter = hiFilter.clone(
@@ -72,10 +73,7 @@ hiDetachedTripletStepPixelTracks = cms.EDProducer("PixelTrackProducer",
     ),
 	
     # Fitter
-    FitterPSet = cms.PSet( 
-	  ComponentName = cms.string('PixelFitterByHelixProjections'),
-	  TTRHBuilder = cms.string('TTRHBuilderWithoutAngle4PixelTriplets')
-    ),
+    Fitter = cms.InputTag("pixelFitterByHelixProjections"),
 	
     # Filter
     Filter = cms.InputTag("hiDetachedTripletStepPixelTracksFilter"),
@@ -194,6 +192,7 @@ hiDetachedTripletStepQual = RecoTracker.FinalTrackSelectors.trackListMerger_cfi.
 
 hiDetachedTripletStep = cms.Sequence(hiDetachedTripletStepClusters*
                                      hiDetachedTripletStepSeedLayers*
+                                     pixelFitterByHelixProjections*
                                      hiDetachedTripletStepPixelTracksFilter*
                                      hiDetachedTripletStepPixelTracks*
                                      hiDetachedTripletStepSeeds*

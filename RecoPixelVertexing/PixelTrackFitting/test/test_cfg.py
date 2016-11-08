@@ -31,7 +31,6 @@ from RecoTracker.Configuration.RecoTracker_cff import *
 process.load('RecoLocalTracker/Configuration/RecoLocalTracker_cff')
 process.load("RecoPixelVertexing.PixelTrackFitting.PixelTracks_cff")
 from RecoPixelVertexing.PixelTrackFitting.PixelTracks_cff import *
-from RecoPixelVertexing.PixelTrackFitting.PixelFitterByConformalMappingAndLine_cfi import *
 
 
 BBlock = cms.PSet(

@@ -371,6 +371,7 @@ if (process.runType.getRunType() == process.runType.hi_run):
                                         *process.siPixelClusterShapeCachePreSplitting
                                         *process.hiPixelVerticesPreSplitting
                                         *process.PixelLayerTriplets 
+                                        *process.pixelFitterByHelixProjections
                                         *process.hiPixel3PrimTracksFilter
                                         *process.hiPixel3PrimTracks
                                        )

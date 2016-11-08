@@ -9,4 +9,4 @@ hiPixelTrackSeeds = RecoPixelVertexing.PixelLowPtUtilities.TrackSeeds_cfi.pixelT
 	InputCollection = 'hiPixel3PrimTracks'
   )
 
-hiPrimSeeds = cms.Sequence( PixelLayerTriplets * hiFilter * hiPixel3PrimTracks * hiPixelTrackSeeds )
+hiPrimSeeds = cms.Sequence( PixelLayerTriplets * hiPixel3PrimTracksSequence * hiPixelTrackSeeds )

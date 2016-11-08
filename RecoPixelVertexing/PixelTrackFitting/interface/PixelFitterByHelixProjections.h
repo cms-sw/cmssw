@@ -14,12 +14,11 @@
 
 class PixelFitterByHelixProjections final : public PixelFitterBase {
 public:
-  PixelFitterByHelixProjections(  const edm::ParameterSet& cfg);
+  explicit PixelFitterByHelixProjections(const edm::EventSetup *es, const MagneticField *field);
   virtual ~PixelFitterByHelixProjections() {}
-    virtual reco::Track* run(
-      const edm::EventSetup& es,
-      const std::vector<const TrackingRecHit *>& hits,
-      const TrackingRegion& region) const;
+  virtual std::unique_ptr<reco::Track> run(const std::vector<const TrackingRecHit *>& hits,
+                                           const TrackingRegion& region) const override;
+
 private:
   /* these are just static and local moved to local namespace in cc .... 
    *
@@ -33,8 +32,7 @@ private:
   double errTip2(float apt, float eta) const;
   */
 private:
-  edm::ParameterSet theConfig;
-  mutable const MagneticField * theField;
- 
+  const edm::EventSetup *theES;
+  const MagneticField *theField;
 };
 #endif

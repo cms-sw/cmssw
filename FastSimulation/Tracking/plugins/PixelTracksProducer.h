@@ -8,7 +8,7 @@
 
 #include <string>
 
-class PixelFitterBase;
+class PixelFitter;
 class PixelTrackFilter;
 class TrackingRegionProducer;
 
@@ -30,7 +30,7 @@ public:
 
 private:
 
-  const PixelFitterBase       * theFitter;
+  edm::EDGetTokenT<PixelFitter> fitterToken;
   TrackingRegionProducer* theRegionProducer;
 
   edm::EDGetTokenT<TrajectorySeedCollection> seedProducerToken;

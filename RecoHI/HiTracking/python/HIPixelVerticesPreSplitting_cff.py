@@ -36,6 +36,7 @@ PixelLayerTripletsPreSplitting.BPix.HitProducer = 'siPixelRecHitsPreSplitting'
 hiPixelVerticesPreSplitting = cms.Sequence(hiPixelClusterVertexPreSplitting
                                 * PixelLayerTripletsPreSplitting
                                 * hiProtoTrackFilterPreSplitting
+                                * pixelFitterByHelixProjections
                                 * hiPixel3ProtoTracksPreSplitting
                                 * hiPixelMedianVertexPreSplitting
                                 * hiSelectedProtoTracksPreSplitting
