@@ -155,7 +155,7 @@ process.SiPixelPhase1DigisNdigis.specs = cms.VPSet(
 
 process.SiPixelPhase1DigisNdigisPerFED.enabled = True
 process.SiPixelPhase1DigisNdigisPerFED.specs = cms.VPSet(
-	Specification().groupBy("FED/Event")
+	Specification().groupBy("FED/FED/Event")
 		   .reduce("COUNT")
 		   .groupBy("FED")
 		   .groupBy("", "EXTEND_Y")
