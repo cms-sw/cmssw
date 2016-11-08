@@ -557,8 +557,7 @@ namespace edm {
     
     SendTerminationSignalIfException terminationSentry(actReg_.get(), &streamContext_);
     // This call takes care of the unscheduled processing.
-    bool const cleaningUpAfterException = false;
-    workerManager_.processOneOccurrence<Traits>(ep, es, streamID_, &streamContext_, &streamContext_, cleaningUpAfterException);
+    workerManager_.setupOnDemandSystem(ep,es);
     
     ++total_events_;
     try {
@@ -627,6 +626,7 @@ namespace edm {
       });
     }
     catch(cms::Exception& ex) {
+      bool const cleaningUpAfterException = false;
       if (ex.context().empty()) {
         addContextAndPrintException("Calling function StreamSchedule::processOneEvent", ex, cleaningUpAfterException);
       } else {
