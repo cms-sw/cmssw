@@ -40,7 +40,8 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 
 #include "EventFilter/L1TRawToDigi/interface/AMC13Spec.h"
-#include "EventFilter/L1TRawToDigi/interface/PackingSetup.h"
+
+#include "PackingSetupFactory.h"
 
 namespace l1t {
    class L1TDigiToRaw : public edm::stream::EDProducer<> {
