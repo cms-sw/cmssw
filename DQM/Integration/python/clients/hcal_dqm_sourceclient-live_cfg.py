@@ -153,11 +153,9 @@ process.tasksPath = cms.Path(
 		+process.nocqTask
 		+process.qie10Task
 		+process.qie11Task
+		#ZDC to be removed for 2017 pp running
+		+process.zdcTask
 )
-
-#removing since ZDC switched back to QIE8
-if isHeavyIon:
-	process.tasksPath += process.zdcTask
 
 process.harvestingPath = cms.Path(
 	process.hcalOnlineHarvesting
