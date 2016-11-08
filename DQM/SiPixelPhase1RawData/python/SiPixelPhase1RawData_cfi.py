@@ -14,7 +14,9 @@ SiPixelPhase1RawDataNErrors = DefaultHisto.clone(
                    .groupBy("FED").save(),
     Specification().groupBy("FED/FEDChannel")
                    .groupBy("FED", "EXTEND_X")
-                   .save()
+                   .save(),
+    Specification().groupBy("FED/FEDChannel")
+                   .groupBy("FED", "EXTEND_X")
                    .groupBy("", "EXTEND_Y")
                    .save()
   )
@@ -60,7 +62,8 @@ SiPixelPhase1RawDataTypeNErrors = DefaultHisto.clone(
   range_min = 0, range_max = 50, range_nbins = 51,#TODO: proper range here
   dimensions = 1,
   specs = cms.VPSet(
-    Specification().groupBy("FED").save()
+    Specification().groupBy("FED").save(),
+    Specification().groupBy("FED")
                    .groupBy("", "EXTEND_Y").save(),
   )
 )
