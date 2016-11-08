@@ -117,7 +117,7 @@ upgradeProperties[2023] = {
         'Geom' : 'Extended2023D5',
         'HLTmenu': '@fake',
         'GT' : 'auto:phase2_realistic',
-        'Era' : 'Phase2C2_timing',
+        'Era' : 'Phase2C2_timing_layer',
         'ScenToRun' : ['GenSimHLBeamSpotFull','DigiFull','RecoFullGlobal', 'HARVESTFullGlobal'],
     },
     '2023D6' : {
