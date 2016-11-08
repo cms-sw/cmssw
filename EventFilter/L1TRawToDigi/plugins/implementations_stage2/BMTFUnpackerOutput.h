@@ -1,0 +1,20 @@
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "EventFilter/L1TRawToDigi/interface/Unpacker.h"
+
+#include "BMTFCollections.h"
+
+namespace l1t{
+	namespace stage2{
+		class BMTFUnpackerOutput : public Unpacker
+		{
+			public:
+				virtual bool unpack(const Block& block, UnpackerCollections *coll) override;
+		};
+	}
+}
+<<<<<<< HEAD:EventFilter/L1TRawToDigi/plugins/implementations_stage2/BMTFUnpackerOutput.h
+=======
+
+// moved to plugins/SealModule.cc
+// DEFINE_L1T_UNPACKER(l1t::stage2::BMTFUnpackerOutput);
+>>>>>>> cms-sw/refs/pull/15748/head:EventFilter/L1TRawToDigi/src/implementations_stage2/BMTFUnpackerOutput.h

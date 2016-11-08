@@ -474,6 +474,7 @@ void L1TMuonEndCapTrackProducer::produce(edm::Event& ev,
 	  l1t::EMTFHitExtra thisHit;
 	  // thisHit.ImportCSCDetId( A->TP().detId<CSCDetId>() );
 
+<<<<<<< HEAD
 	  for (uint iHit = 0; iHit < OutputHits->size(); iHit++) {
 	    if ( (A->TP().detId<CSCDetId>().endcap() == 1) == (OutputHits->at(iHit).Endcap() == 1) &&
 		 A->TP().detId<CSCDetId>().station()       == OutputHits->at(iHit).Station() &&
@@ -575,8 +576,215 @@ void L1TMuonEndCapTrackProducer::produce(edm::Event& ev,
 	    
 	  }
 	  
+=======
+  	if(AllTracks[fbest].phi){
+
+		InternalTrack tempTrack;
+  		tempTrack.setType(2);
+		tempTrack.phi = AllTracks[fbest].phi;
+		tempTrack.theta = AllTracks[fbest].theta;
+		tempTrack.rank = AllTracks[fbest].winner.Rank();
+		tempTrack.deltas = AllTracks[fbest].deltas;
+		std::vector<int> ps, ts;
+
+		l1t::EMTFTrackExtra thisTrack;
+		thisTrack.set_phi_loc_int ( AllTracks[fbest].phi           );
+		thisTrack.set_theta_int   ( AllTracks[fbest].theta         );
+		thisTrack.set_rank        ( AllTracks[fbest].winner.Rank() );
+		// thisTrack.set_deltas        ( AllTracks[fbest].deltas        );
+		int tempStraightness = 0;
+		int tempRank = thisTrack.Rank();
+		if (tempRank & 64)
+		  tempStraightness |= 4;
+		if (tempRank & 16)
+		  tempStraightness |= 2;
+		if (tempRank & 4)
+		  tempStraightness |= 1;
+		thisTrack.set_straightness ( tempStraightness );
+
+
+		int sector = -1;
+    //bool ME13 = false;
+		int me1address = 0, me2address = 0, CombAddress = 0, mode_uncorr = 0;
+		int ebx = 20, sebx = 20;
+		int phis[4] = {-99,-99,-99,-99};
+
+		for(std::vector<ConvertedHit>::iterator A = AllTracks[fbest].AHits.begin();A != AllTracks[fbest].AHits.end();A++){
+
+			if(A->Phi() != -999){
+			  
+			        l1t::EMTFHitExtra thisHit;
+			        // thisHit.ImportCSCDetId( A->TP().detId<CSCDetId>() );
+
+				for (uint iHit = 0; iHit < OutputHits->size(); iHit++) {
+          if ( A->TP().detId<CSCDetId>().station() == OutputHits->at(iHit).Station() &&
+          A->TP().getCSCData().cscID          == OutputHits->at(iHit).CSC_ID()  &&
+          A->Wire()                           == OutputHits->at(iHit).Wire()    &&
+          A->Strip()                          == OutputHits->at(iHit).Strip()   &&
+          A->TP().getCSCData().bx - 6         == OutputHits->at(iHit).BX()      &&
+          A->IsNeighbor()                     == OutputHits->at(iHit).Neighbor() ) {			
+				    thisHit = OutputHits->at(iHit);
+				    thisTrack.push_HitExtraIndex(iHit);
+				    thisTrack.push_HitExtra(thisHit); // Done before theta windows are applied ... how can we do it after? - AWB 29.04.16
+				    break;
+				  }
+				}
+				thisTrack.set_endcap       ( thisHit.Endcap() );
+				thisTrack.set_sector_index ( thisHit.Sector_index() );
+				thisTrack.set_sector       ( l1t::calc_sector_from_index( thisHit.Sector_index() ) );
+				thisTrack.set_sector_GMT   ( l1t::calc_sector_GMT( thisHit.Sector() ) );
+
+				int station = A->TP().detId<CSCDetId>().station();
+				int id = A->TP().getCSCData().cscID;
+				int trknm = A->TP().getCSCData().trknmb;
+				
+				phis[station-1] = A->Phi();
+				
+				
+				if(A->TP().getCSCData().bx < ebx){
+					sebx = ebx;
+					ebx = A->TP().getCSCData().bx;
+				}
+				else if(A->TP().getCSCData().bx < sebx){
+					sebx = A->TP().getCSCData().bx;
+				}
+
+				tempTrack.addStub(A->TP());
+				ps.push_back(A->Phi());
+				ts.push_back(A->Theta());
+				
+				sector = A->SectorIndex();//(A->TP().detId<CSCDetId>().endcap() -1)*6 + A->TP().detId<CSCDetId>().triggerSector() - 1;
+				//std::cout<<"Q: "<<A->Quality()<<", keywire: "<<A->Wire()<<", strip: "<<A->Strip()<<std::endl;
+
+				switch(station){
+					case 1: mode_uncorr |= 8;break;
+					case 2: mode_uncorr |= 4;break;
+					case 3: mode_uncorr |= 2;break;
+					case 4: mode_uncorr |= 1;break;
+					default: mode_uncorr |= 0;
+				}
+
+
+				if(A->TP().detId<CSCDetId>().station() == 1 && A->TP().detId<CSCDetId>().ring() == 3)
+					//ME13 = true;
+
+				if(station == 1 && id > 3 && id < 7){
+
+					int sub = 2;
+					if(A->TP().detId<CSCDetId>().chamber()%6 > 2)
+						sub = 1;
+
+					me1address = id;
+					me1address -= 3;
+					me1address += 3*(sub - 1);
+					me1address = id<<1;//
+					me1address |= trknm-1;
+
+				}
+
+				if(station == 2 && id > 3){
+
+					me2address = id;
+					me2address -= 3;
+					me2address = me2address<<1;
+					me2address |= trknm-1;
+
+				}
+
+
+			}
+
+		}
+		
+		int mode = 0;
+		if(tempTrack.rank & 32)
+			mode |= 8;
+		if(tempTrack.rank & 8)
+			mode |= 4;
+		if(tempTrack.rank & 2)
+			mode |= 2;
+		if(tempTrack.rank & 1)
+			mode |= 1;
+
+		tempTrack.phis = ps;
+		tempTrack.thetas = ts;
+
+		// // Before Mulhearn cleanup, May 11
+		// unsigned long xmlpt_address = 0;
+		// float xmlpt = CalculatePt(tempTrack, es, mode, &xmlpt_address);
+		
+		// After Mulhearn cleanup, May 11
+		unsigned long xmlpt_address = ptAssignment_.calculateAddress(tempTrack, es, mode);
+		float xmlpt = ptAssignment_.calculatePt(xmlpt_address);
+
+		tempTrack.pt = xmlpt*1.4;
+		//FoundTracks->push_back(tempTrack);
+
+		CombAddress = (me2address<<4) | me1address;
+
+		int charge = getCharge(phis[0],phis[1],phis[2],phis[3],mode);
+
+		l1t::RegionalMuonCand outCand = MakeRegionalCand(xmlpt*1.4,AllTracks[fbest].phi,AllTracks[fbest].theta,
+								 charge,mode,CombAddress,sector);
+
+		float theta_angle = l1t::calc_theta_rad_from_int( AllTracks[fbest].theta ); 
+		float eta = l1t::calc_eta_from_theta_rad( theta_angle );
+
+		thisTrack.set_phi_loc_deg  ( l1t::calc_phi_loc_deg( thisTrack.Phi_loc_int() ) );
+		thisTrack.set_phi_loc_rad  ( l1t::calc_phi_loc_rad( thisTrack.Phi_loc_int() ) );
+		thisTrack.set_phi_glob_deg ( l1t::calc_phi_glob_deg( thisTrack.Phi_loc_deg(), thisTrack.Sector() ) );
+		thisTrack.set_phi_glob_rad ( l1t::calc_phi_glob_rad( thisTrack.Phi_loc_rad(), thisTrack.Sector() ) );
+		thisTrack.set_quality    ( outCand.hwQual());
+		thisTrack.set_mode       ( mode            ); 
+		thisTrack.set_first_bx   ( ebx - 6         ); 
+		thisTrack.set_second_bx  ( sebx - 6        ); 
+		thisTrack.set_bx         ( thisTrack.First_BX() );
+		thisTrack.set_phis       ( ps              );
+		thisTrack.set_thetas     ( ts              );
+		thisTrack.set_pt         ( xmlpt*1.4       );
+		thisTrack.set_pt_XML     ( xmlpt           );
+		thisTrack.set_pt_LUT_addr( xmlpt_address   );
+		thisTrack.set_charge     ( (charge == 1) ? -1 : 1 ); // uGMT uses opposite of physical charge (to match pdgID)
+		thisTrack.set_charge_GMT ( charge          );
+		thisTrack.set_theta_rad  ( theta_angle     );
+		thisTrack.set_theta_deg  ( theta_angle * 180/Geom::pi() );
+		thisTrack.set_eta        ( eta  * thisTrack.Endcap() );
+		thisTrack.set_pt_GMT     ( outCand.hwPt()  ); 
+		thisTrack.set_phi_GMT    ( outCand.hwPhi() );
+		thisTrack.set_eta_GMT    ( outCand.hwEta() );
+
+		thisTrack.ImportPtLUT    ( thisTrack.Mode(), thisTrack.Pt_LUT_addr() );
+
+		// thisTrack.phi_loc_rad(); // Need to implement - AWB 04.04.16
+		// thisTrack.phi_glob_rad(); // Need to implement - AWB 04.04.16
+
+ 		// // Optimal emulator configuration - AWB 29.03.16
+		// std::pair<int,l1t::RegionalMuonCand> outPair(sebx,outCand);
+
+		// Actual setting in firmware - AWB 12.04.16
+		std::pair<int,l1t::RegionalMuonCand> outPair(ebx,outCand);
+
+	//	if(!ME13 && fabs(eta) > 1.1) {
+		  // // Extra debugging output - AWB 29.03.16
+		  // std::cout << "Input: eBX = " << ebx << ", seBX = " << sebx << ", pt = " << xmlpt*1.4 
+		  // 	    << ", phi = " << AllTracks[fbest].phi << ", eta = " << eta 
+		  // 	    << ", theta = " << AllTracks[fbest].theta << ", sign = " << 1 
+		  // 	    << ", quality = " << mode << ", trackaddress = " << 1 
+		  // 	    << ", sector = " << sector << std::endl;
+		  // std::cout << "Output: BX = " << ebx << ", hwPt = " << outCand.hwPt() << ", hwPhi = " << outCand.hwPhi() 
+		  // 	    << ", hwEta = " << outCand.hwEta() << ", hwSign = " << outCand.hwSign() 
+		  // 	    << ", hwQual = " << outCand.hwQual() << ", link = " << outCand.link()
+		  // 	    << ", processor = " << outCand.processor() 
+		  // 	    << ", trackFinderType = " << outCand.trackFinderType() << std::endl;
+			holder.push_back(outPair);
+			thisTrack.set_isGMT( 1 );
+	//	}
+		OutputTracks->push_back( thisTrack );
+		OutTracks->push_back( thisTrack.CreateEMTFTrack() );
+>>>>>>> cms-sw/refs/pull/15748/head
 	}
 	
+<<<<<<< HEAD
       }
       
       // if ( ( mode == 15 && (cHits_in_station[0] != 1 || cHits_in_station[1] != 1 || cHits_in_station[2] != 1 || cHits_in_station[3] != 1) ) ||
@@ -669,6 +877,24 @@ void L1TMuonEndCapTrackProducer::produce(edm::Event& ev,
       OutTracks->push_back( thisTrack.CreateEMTFTrack() );
     }
   }
+=======
+		if(sector == sect){
+			OutputCands->push_back(bx,holder[h].second);
+		}
+		
+	}
+}
+
+
+//ev.put( FoundTracks, "DataITC");
+ ev.put( OutputCands, "EMTF");
+ ev.put( OutputHits, "EMTF"); 
+ ev.put( OutputTracks, "EMTF");
+ ev.put( OutHits, "EMTF");
+ ev.put( OutTracks, "EMTF");
+
+  //std::cout<<"End Upgraded Track Finder Prducer:::::::::::::::::::::::::::\n:::::::::::::::::::::::::::::::::::::::::::::::::\n\n";
+>>>>>>> cms-sw/refs/pull/15748/head
 
   OutputCands->setBXRange(-2,2);
   
