@@ -60,11 +60,15 @@ void ElectronMcSignalPostValidator::finalize( DQMStore::IBooker & iBooker, DQMSt
   }/**/
   
   MonitorElement * h1_ele_provenance = get(iGetter, "provenance") ;
-  h1_ele_provenance->getTH1F()->Scale(1./h1_ele_provenance->getBinContent(3));
+  if (h1_ele_provenance->getBinContent(3)>0)
+    {h1_ele_provenance->getTH1F()->Scale(1./h1_ele_provenance->getBinContent(3));}
   MonitorElement * h1_ele_provenance_barrel = get(iGetter, "provenance_barrel") ;
-  h1_ele_provenance_barrel->getTH1F()->Scale(1./h1_ele_provenance_barrel->getBinContent(3));
+  if (h1_ele_provenance_barrel->getBinContent(3)>0)
+    {h1_ele_provenance_barrel->getTH1F()->Scale(1./h1_ele_provenance_barrel->getBinContent(3));}
   MonitorElement * h1_ele_provenance_endcaps = get(iGetter, "provenance_endcaps") ;
-  h1_ele_provenance_endcaps->getTH1F()->Scale(1./h1_ele_provenance_endcaps->getBinContent(3));/**/
+  if (h1_ele_provenance_endcaps->getBinContent(3)>0)
+    {h1_ele_provenance_endcaps->getTH1F()->Scale(1./h1_ele_provenance_endcaps->getBinContent(3));}
+
   // profiles from 2D histos
   profileX(iBooker, iGetter, "scl_EoEtrueVsrecOfflineVertices","E/Etrue vs number of primary vertices","N_{primary vertices}","E/E_{true}", 0.8);
   profileX(iBooker, iGetter, "scl_EoEtrueVsrecOfflineVertices_barrel","E/Etrue vs number of primary vertices , barrel","N_{primary vertices}","E/E_{true}", 0.8);
@@ -73,8 +77,8 @@ void ElectronMcSignalPostValidator::finalize( DQMStore::IBooker & iBooker, DQMSt
   profileX(iBooker, iGetter, "PoPtrueVsEta","mean ele momentum / gen momentum vs eta","#eta","<P/P_{gen}>");
   profileX(iBooker, iGetter, "PoPtrueVsPhi","mean ele momentum / gen momentum vs phi","#phi (rad)","<P/P_{gen}>");
   profileX(iBooker, iGetter, "sigmaIetaIetaVsPt","SigmaIetaIeta vs pt","p_{T} (GeV/c)","SigmaIetaIeta");
-  profileX(iBooker, iGetter, "EoEtruePfVsEg","mean pflow sc energy / true energy vs e/g sc energy","E/E_{gen} (e/g)","<E/E_{gen}> (pflow)") ;
-  profileY(iBooker, iGetter, "EoEtruePfVsEg","mean e/g sc energy / true energy vs pflow sc energy","E/E_{gen} (pflow)","<E/E_{gen}> (eg)") ;
+  profileX(iBooker, iGetter, "EoEtruePfVsEg","mean mustache SC/true energy vs final SC/true energy","E_{final SC}/E_{gen}","E_{mustache}/E_{gen}") ;
+  profileY(iBooker, iGetter, "EoEtruePfVsEg","mean mustache SC/true energy vs final SC/true energy","E_{final SC}/E_{gen}","E_{mustache}/E_{gen}") ;
   profileX(iBooker, iGetter, "EtaMnEtaTrueVsEta","mean ele eta - gen eta vs eta","#eta","<#eta_{rec} - #eta_{gen}>");
   profileX(iBooker, iGetter, "EtaMnEtaTrueVsPhi","mean ele eta - gen eta vs phi","#phi (rad)","<#eta_{rec} - #eta_{gen}>");
   profileX(iBooker, iGetter, "PhiMnPhiTrueVsEta","mean ele phi - gen phi vs eta","#eta","<#phi_{rec} - #phi_{gen}> (rad)");

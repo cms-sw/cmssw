@@ -61,11 +61,14 @@ void ElectronMcFakePostValidator::finalize( DQMStore::IBooker & iBooker, DQMStor
 /**/
 
   MonitorElement * h1_ele_provenance = get(iGetter, "provenance") ;
-  h1_ele_provenance->getTH1F()->Scale(1./h1_ele_provenance->getBinContent(3));
+  if (h1_ele_provenance->getBinContent(3)>0)
+    {h1_ele_provenance->getTH1F()->Scale(1./h1_ele_provenance->getBinContent(3));}
   MonitorElement * h1_ele_provenance_barrel = get(iGetter, "provenance_barrel") ;
-  h1_ele_provenance_barrel->getTH1F()->Scale(1./h1_ele_provenance_barrel->getBinContent(3));
+  if (h1_ele_provenance_barrel->getBinContent(3)>0)
+    {h1_ele_provenance_barrel->getTH1F()->Scale(1./h1_ele_provenance_barrel->getBinContent(3));}
   MonitorElement * h1_ele_provenance_endcaps = get(iGetter, "provenance_endcaps") ;
-  h1_ele_provenance_endcaps->getTH1F()->Scale(1./h1_ele_provenance_endcaps->getBinContent(3));*/
+  if (h1_ele_provenance_endcaps->getBinContent(3)>0)
+    {h1_ele_provenance_endcaps->getTH1F()->Scale(1./h1_ele_provenance_endcaps->getBinContent(3));}
 
   // profiles from 2D histos
   profileX(iBooker, iGetter, "PoPmatchingObjectVsEta","","#eta","<P/P_{gen}>");
