@@ -11,8 +11,7 @@
 #include "RecoTracker/TkTrackingRegions/interface/TrackingRegionProducer.h"
 #include "RecoTracker/TkTrackingRegions/interface/TrackingRegionProducerFactory.h"
 
-#include "RecoPixelVertexing/PixelTrackFitting/interface/PixelFitterBase.h"
-#include "RecoPixelVertexing/PixelTrackFitting/interface/PixelFitterFactory.h"
+#include "RecoPixelVertexing/PixelTrackFitting/interface/PixelFitter.h"
 
 #include "RecoPixelVertexing/PixelTrackFitting/interface/PixelTrackFilter.h"
 
@@ -35,7 +34,9 @@ using edm::ParameterSet;
 
 PixelTrackReconstruction::PixelTrackReconstruction(const ParameterSet& cfg,
 	   edm::ConsumesCollector && iC)
-  : theConfig(cfg), theFitter(0), theCleaner(0)
+  : theConfig(cfg),
+    theFitterToken(iC.consumes<PixelFitter>(cfg.getParameter<edm::InputTag>("Fitter"))),
+    theCleaner(0)
 {
   if ( cfg.exists("SeedMergerPSet") ) {
     edm::ParameterSet mergerPSet = theConfig.getParameter<edm::ParameterSet>( "SeedMergerPSet" );
@@ -71,17 +72,11 @@ PixelTrackReconstruction::~PixelTrackReconstruction()
 
 void PixelTrackReconstruction::halt()
 {
-  delete theFitter; theFitter=0;
   delete theCleaner; theCleaner=0;
 }
 
 void PixelTrackReconstruction::init(const edm::EventSetup& es)
 {
-
-  ParameterSet fitterPSet = theConfig.getParameter<ParameterSet>("FitterPSet");
-  std::string fitterName = fitterPSet.getParameter<std::string>("ComponentName");
-  theFitter = PixelFitterFactory::get()->create( fitterName, fitterPSet);
-
   ParameterSet cleanerPSet = theConfig.getParameter<ParameterSet>("CleanerPSet");
   std::string  cleanerName = cleanerPSet.getParameter<std::string>("ComponentName");
   if (cleanerName != "none") theCleaner = PixelTrackCleanerFactory::get()->create( cleanerName, cleanerPSet);
@@ -101,6 +96,10 @@ void PixelTrackReconstruction::run(TracksWithTTRHs& tracks, edm::Event& ev, cons
   edm::ESHandle<TrackerTopology> tTopoHand;
   es.get<TrackerTopologyRcd>().get(tTopoHand);
   const TrackerTopology *tTopo=tTopoHand.product();
+
+  edm::Handle<PixelFitter> hfitter;
+  ev.getByToken(theFitterToken, hfitter);
+  const auto& fitter = *hfitter;
 
   const PixelTrackFilter *filter = nullptr;
   if(!theFilterToken.isUninitialized()) {
@@ -127,18 +126,17 @@ void PixelTrackReconstruction::run(TracksWithTTRHs& tracks, edm::Event& ev, cons
       for (unsigned int iHit = 0; iHit < nHits; ++iHit) hits[iHit] = tuplet[iHit];
    
       // fitting
-      reco::Track* track = theFitter->run( ev, es, hits, region);
+      std::unique_ptr<reco::Track> track = fitter.run(hits, region);
       if (!track) continue;
 
       if (filter) {
-	if (!(*filter)(track, hits)) {
-	  delete track;
+	if (!(*filter)(track.get(), hits)) {
 	  continue;
 	}
       }
 
       // add tracks
-      tracks.emplace_back(track, tuplet);
+      tracks.emplace_back(track.release(), tuplet);
     }
     theGenerator->clear();
   }

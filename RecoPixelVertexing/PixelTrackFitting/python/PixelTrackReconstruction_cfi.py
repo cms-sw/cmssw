@@ -1,14 +1,11 @@
 import FWCore.ParameterSet.Config as cms
 
-from RecoPixelVertexing.PixelTrackFitting.PixelFitterByHelixProjections_cfi import *
 from RecoTracker.TkTrackingRegions.GlobalTrackingRegionFromBeamSpot_cfi import *
 from RecoPixelVertexing.PixelTriplets.PixelTripletHLTGenerator_cfi import *
 
 
 PixelTrackReconstructionBlock = cms.PSet (
-    FitterPSet = cms.PSet(
-        PixelFitterByHelixProjections
-    ),
+    Fitter = cms.InputTag("pixelFitterByHelixProjections"),
     Filter = cms.InputTag("pixelTrackFilterByKinematics"),
     RegionFactoryPSet = cms.PSet(
         RegionPsetFomBeamSpotBlock,

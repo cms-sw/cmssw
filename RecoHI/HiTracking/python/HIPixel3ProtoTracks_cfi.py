@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 from RecoPixelVertexing.PixelTriplets.PixelTripletHLTGenerator_cfi import *
+from RecoPixelVertexing.PixelTrackFitting.pixelFitterByHelixProjections_cfi import *
 from RecoHI.HiTracking.HIPixelTrackFilter_cff import *
 from RecoHI.HiTracking.HITrackingRegionProducer_cfi import *
 from RecoTracker.TkSeedingLayers.PixelLayerTriplets_cfi import *
@@ -28,10 +29,7 @@ hiPixel3ProtoTracks = cms.EDProducer( "PixelTrackProducer",
     ),
 	
     # Fitter
-    FitterPSet = cms.PSet( 
-      ComponentName = cms.string('PixelFitterByHelixProjections'),
-      TTRHBuilder = cms.string('TTRHBuilderWithoutAngle4PixelTriplets')
-    ),
+    Fitter = cms.InputTag("pixelFitterByHelixProjections"),
 	
     # Filter
     Filter = cms.InputTag("hiProtoTrackFilter"),
@@ -41,4 +39,10 @@ hiPixel3ProtoTracks = cms.EDProducer( "PixelTrackProducer",
       ComponentName = cms.string( "PixelTrackCleanerBySharedHits" ),
       useQuadrupletAlgo = cms.bool(False),
     )
+)
+
+hiPixel3ProtoTracksSequence = cms.Sequence(
+    pixelFitterByHelixProjections +
+    hiProtoTrackFilter +
+    hiPixel3ProtoTracks
 )

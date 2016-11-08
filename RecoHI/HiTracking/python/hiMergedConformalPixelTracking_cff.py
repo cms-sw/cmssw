@@ -88,8 +88,7 @@ hiGeneralAndPixelTracks = trackListMerger.clone(
     )
 
 hiMergedConformalPixelTracking = cms.Sequence(
-    hiConformalPixelFilter
-    *hiConformalPixelTracks
+    hiConformalPixelTracksSequence
     *hiPixelOnlyStepSelector
     *hiHighPtStepSelector
     *hiGeneralAndPixelTracks

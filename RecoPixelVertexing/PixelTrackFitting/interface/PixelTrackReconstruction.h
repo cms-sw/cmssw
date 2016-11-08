@@ -9,7 +9,7 @@
 
 #include <memory>
 
-class PixelFitterBase;
+class PixelFitter;
 class PixelTrackCleaner;
 class PixelTrackFilter;
 class OrderedHitsGenerator;
@@ -32,7 +32,7 @@ public:
 
 private:
   edm::ParameterSet theConfig;
-  const PixelFitterBase       * theFitter;
+  edm::EDGetTokenT<PixelFitter> theFitterToken;
   edm::EDGetTokenT<PixelTrackFilter> theFilterToken;
   PixelTrackCleaner * theCleaner;
   std::unique_ptr<OrderedHitsGenerator> theGenerator;
