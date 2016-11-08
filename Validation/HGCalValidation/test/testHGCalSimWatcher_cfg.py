@@ -10,8 +10,8 @@ process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.EventContent.EventContent_cff')
 process.load('SimGeneral.MixingModule.mixNoPU_cfi')
 
-process.load('Configuration.Geometry.GeometryExtended2023D3Reco_cff')
-process.load('Configuration.Geometry.GeometryExtended2023D3_cff')
+process.load('Configuration.Geometry.GeometryExtended2023D5Reco_cff')
+process.load('Configuration.Geometry.GeometryExtended2023D5_cff')
 #process.load("Geometry.HGCalCommonData.testHGCV8_cff")
 
 process.load('Configuration.StandardSequences.MagneticField_cff')
