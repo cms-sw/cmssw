@@ -37,6 +37,7 @@
 #include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 
+
 // GEDPhotonProducer inherits from EDProducer, so it can be a module:
 class GEDPhotonProducer : public edm::stream::EDProducer<> {
 
@@ -72,7 +73,7 @@ class GEDPhotonProducer : public edm::stream::EDProducer<> {
 			   edm::ValueMap<reco::PhotonRef>  pfEGCandToPhotonMap,
 			   edm::Handle< reco::VertexCollection >&  pvVertices,
 			   reco::PhotonCollection & outputCollection,
-			   int& iSC, edm::Handle< edm::ValueMap<std::vector<reco::PFCandidateRef > > >& particleBasedIsolationMap_);
+			   int& iSC, const edm::Handle<edm::ValueMap<float>>& chargedHadrons_, const edm::Handle<edm::ValueMap<float>>& neutralHadrons_, const edm::Handle<edm::ValueMap<float>>& photons_);
 
 
  // std::string PhotonCoreCollection_;
@@ -90,6 +91,10 @@ class GEDPhotonProducer : public edm::stream::EDProducer<> {
  edm::EDGetTokenT<reco::VertexCollection> vertexProducer_;
  //for isolation with map-based veto
  edm::EDGetTokenT<edm::ValueMap<std::vector<reco::PFCandidateRef > > > particleBasedIsolationToken;
+  //photon isolation sums
+  edm::EDGetTokenT<edm::ValueMap<float> > phoChargedIsolationToken_CITK; 
+  edm::EDGetTokenT<edm::ValueMap<float> > phoNeutralHadronIsolationToken_CITK; 
+  edm::EDGetTokenT<edm::ValueMap<float> > phoPhotonIsolationToken_CITK; 
  
   std::string conversionProducer_;
   std::string conversionCollection_;

@@ -47,8 +47,8 @@ isolationConeDefinitionsTmp = cms.VPSet(cms.PSet( isolationAlgo = cms.string('Ph
                                     )
     )
 egmPhotonIsolationCITK.srcToIsolate = cms.InputTag("gedPhotonsTmp")
-egmPhotonIsolationCITK.srcForIsolationCone = cms.InputTag("particleFlowTmp")
+egmPhotonIsolationCITK.srcForIsolationCone = cms.InputTag("pfNoPileUpCandidates")
 egmPhotonIsolationCITK.isolationConeDefinitions = isolationConeDefinitionsTmp
 
 particleFlowEGammaFull = cms.Sequence(particleFlowEGamma*gedGsfElectronSequenceTmp*gedPhotonSequenceTmp)
-particleFlowEGammaFinal = cms.Sequence(particleBasedIsolationTmp*egmPhotonIsolationCITK*pfParticleSelectionSequence*pfNoPileUpCandidates*gedPhotonSequence*gedElectronPFIsoSequence)
+particleFlowEGammaFinal = cms.Sequence(particleBasedIsolationTmp*pfParticleSelectionSequence*pfNoPileUpCandidates*egmPhotonIsolationCITK*gedPhotonSequence*gedElectronPFIsoSequence)
