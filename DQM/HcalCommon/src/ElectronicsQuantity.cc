@@ -10,14 +10,14 @@ namespace hcaldqm
 			if (eid.isVMEid())
 				v = eid.dccid();
 			else
-				v = utilities::crate2fed(eid.crateId())-FED_uTCA_MIN + 
+			  v = utilities::crate2fed(eid.crateId(),eid.slot())-FED_uTCA_MIN + 
 					constants::FED_VME_NUM;
 			return v;
 		}
 
 		int getValue_FEDuTCA(HcalElectronicsId const& eid)
 		{
-			return utilities::crate2fed(eid.crateId())-FED_uTCA_MIN;
+		  return utilities::crate2fed(eid.crateId(),eid.slot())-FED_uTCA_MIN;
 		}
 
 		int getValue_FEDVME(HcalElectronicsId const& eid)
@@ -261,8 +261,8 @@ namespace hcaldqm
 		{
 			return v<FED_VME_NUM ? HcalElectronicsId(FIBERCH_MIN,
 				FIBER_VME_MIN, SPIGOT_MIN, v) :
-				HcalElectronicsId(utilities::fed2crate(v-FED_VME_NUM+1100),
-				SLOT_uTCA_MIN, FIBER_uTCA_MIN1,
+				HcalElectronicsId(utilities::fed2crate(v-FED_VME_NUM+1100).first,
+				utilities::fed2crate(v-FED_VME_NUM+1100).second, FIBER_uTCA_MIN1,
 				FIBERCH_MIN, false);
 		}
 
@@ -274,8 +274,9 @@ namespace hcaldqm
 
 		HcalElectronicsId getEid_FEDuTCA(int v)
 		{
-			return HcalElectronicsId(utilities::fed2crate(v+1100),
-				SLOT_uTCA_MIN, FIBER_uTCA_MIN1, FIBERCH_MIN, false);
+			return HcalElectronicsId(utilities::fed2crate(v+1100).first,
+				utilities::fed2crate(v-FED_VME_NUM+1100).second, 
+                FIBER_uTCA_MIN1, FIBERCH_MIN, false);
 		}
 
 		HcalElectronicsId getEid_Crate(int v)
@@ -423,8 +424,7 @@ namespace hcaldqm
 			{
 				HcalElectronicsId eid = getEid_FED(i);
 				sprintf(name, "%d", 
-					eid.isVMEid()?eid.dccid()+700:utilities::crate2fed(
-					eid.crateId()));
+					eid.isVMEid()?eid.dccid()+700:utilities::crate2fed(eid.crateId(),eid.slot()));
 				labels.push_back(std::string(name));
 			}
 			return labels;
@@ -438,7 +438,7 @@ namespace hcaldqm
 			{
 				HcalElectronicsId eid = getEid_FEDuTCA(i);
 				sprintf(name, "%d",
-					utilities::crate2fed(eid.crateId()));
+					utilities::crate2fed(eid.crateId(),eid.slot()));
 				labels.push_back(std::string(name));
 			}
 			return labels;
@@ -591,7 +591,7 @@ namespace hcaldqm
 					HcalElectronicsId eid = getEid_FEDuTCASlot(
 						i*SLOT_uTCA_NUM+j);
 					sprintf(name, "%d-%d", 
-						utilities::crate2fed(eid.crateId()),
+						utilities::crate2fed(eid.crateId(),eid.slot()),
 						eid.slot());
 					labels.push_back(std::string(name));
 				}
@@ -761,7 +761,7 @@ namespace hcaldqm
 		int FEDQuantity::getValue(HcalElectronicsId const& eid)
 		{
 			int fed = eid.isVMEid()?eid.dccid()+FED_VME_MIN:
-				utilities::crate2fed(eid.crateId());
+			  utilities::crate2fed(eid.crateId(),eid.slot());
 			return _feds[fed];
 		}
 

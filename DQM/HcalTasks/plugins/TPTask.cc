@@ -77,8 +77,9 @@ TPTask::TPTask(edm::ParameterSet const& ps):
 	for (std::vector<int>::const_iterator it=vFEDsuTCA.begin();
 		it!=vFEDsuTCA.end(); ++it)
 	{
-		_vhashFEDs.push_back(HcalElectronicsId(hcaldqm::utilities::fed2crate(*it), 
-			SLOT_uTCA_MIN, FIBER_uTCA_MIN1, FIBERCH_MIN, false).rawId());
+        std::pair<uint16_t, uint16_t> cspair = hcaldqm::utilities::fed2crate(*it);
+		_vhashFEDs.push_back(HcalElectronicsId(cspair.first, 
+			cspair.second, FIBER_uTCA_MIN1, FIBERCH_MIN, false).rawId());
 	}
 
 	//	INITIALIZE FIRST
