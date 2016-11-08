@@ -1,9 +1,9 @@
 // -*- C++ -*-
 //
-// Package:    QM/HLTObjectMonitorHeavyIon
-// Class:      HLTObjectMonitorHeavyIon
+// Package:    QM/HLTObjectMonitorProtonLead
+// Class:      HLTObjectMonitorProtonLead
 //
-/**\class HLTObjectMonitorHeavyIon HLTObjectMonitorHeavyIon.cc DQM/HLTEvF/plugins/HLTObjectMonitorHeavyIon.cc 
+/**\class HLTObjectMonitorProtonLead HLTObjectMonitorProtonLead.cc DQM/HLTEvF/plugins/HLTObjectMonitorProtonLead.cc 
 
  Description: [one line class summary]
 
@@ -27,7 +27,6 @@
 #include "DataFormats/HLTReco/interface/TriggerObject.h"
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
 #include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
-#include "DataFormats/Scalers/interface/LumiScalers.h"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
@@ -69,7 +68,7 @@ using std::vector;
 using std::string;
 using std::unordered_map;
 
-class HLTObjectMonitorHeavyIon : public DQMEDAnalyzer {
+class HLTObjectMonitorProtonLead : public DQMEDAnalyzer {
   struct hltPlot
   {
     
@@ -90,8 +89,8 @@ class HLTObjectMonitorHeavyIon : public DQMEDAnalyzer {
   };
 
    public:
-      explicit HLTObjectMonitorHeavyIon(const edm::ParameterSet&);
-      ~HLTObjectMonitorHeavyIon();
+      explicit HLTObjectMonitorProtonLead(const edm::ParameterSet&);
+      ~HLTObjectMonitorProtonLead();
 
   //      static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
@@ -116,9 +115,8 @@ class HLTObjectMonitorHeavyIon : public DQMEDAnalyzer {
   unordered_map<hltPlot*, edm::ParameterSet*> plotMap;
 
   //set Token(-s)
-  edm::EDGetTokenT<edm::TriggerResults> triggerResultsToken_;
+  edm::EDGetTokenT<edm::TriggerResults>   triggerResultsToken_;
   edm::EDGetTokenT<trigger::TriggerEvent> aodTriggerToken_;
-  edm::EDGetTokenT<LumiScalersCollection> lumiScalersToken_;
 
   //declare params
   //pPb run
@@ -219,7 +217,7 @@ class HLTObjectMonitorHeavyIon : public DQMEDAnalyzer {
 //
 // constructors and destructor
 //
-HLTObjectMonitorHeavyIon::HLTObjectMonitorHeavyIon(const edm::ParameterSet& iConfig)
+HLTObjectMonitorProtonLead::HLTObjectMonitorProtonLead(const edm::ParameterSet& iConfig)
 
 {
    //now do what ever initialization is needed
@@ -339,14 +337,13 @@ HLTObjectMonitorHeavyIon::HLTObjectMonitorHeavyIon(const edm::ParameterSet& iCon
   plotMap.clear();
   
   //set Token(s)
-  triggerResultsToken_ = consumes<edm::TriggerResults>(edm::InputTag("TriggerResults","", processName_));
-  aodTriggerToken_ = consumes<trigger::TriggerEvent>(edm::InputTag("hltTriggerSummaryAOD", "", processName_));
-  lumiScalersToken_ = consumes<LumiScalersCollection>(edm::InputTag("hltScalersRawToDigi","",""));
+  triggerResultsToken_ = consumes<edm::TriggerResults>   (iConfig.getParameter<edm::InputTag>("triggerResults"));
+  aodTriggerToken_     = consumes<trigger::TriggerEvent> (iConfig.getParameter<edm::InputTag>("triggerEvent"));
 
 }
 
 
-HLTObjectMonitorHeavyIon::~HLTObjectMonitorHeavyIon()
+HLTObjectMonitorProtonLead::~HLTObjectMonitorProtonLead()
 {
 
    // do anything here that needs to be done at desctruction time
@@ -361,7 +358,7 @@ HLTObjectMonitorHeavyIon::~HLTObjectMonitorHeavyIon()
 
 // ------------ method called for each event  ------------
 void
-HLTObjectMonitorHeavyIon::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
+HLTObjectMonitorProtonLead::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   double start = get_wall_time();
 
@@ -586,7 +583,7 @@ HLTObjectMonitorHeavyIon::analyze(const edm::Event& iEvent, const edm::EventSetu
 
 // ------------ method called when starting to processes a run  ------------
 void
-HLTObjectMonitorHeavyIon::dqmBeginRun(edm::Run const& iRun, edm::EventSetup const& iSetup)
+HLTObjectMonitorProtonLead::dqmBeginRun(edm::Run const& iRun, edm::EventSetup const& iSetup)
 {
   if (debugPrint) std::cout << "Calling beginRun. " << std::endl;
   bool changed = true;
@@ -633,12 +630,12 @@ HLTObjectMonitorHeavyIon::dqmBeginRun(edm::Run const& iRun, edm::EventSetup cons
 // ------------ method called when ending the processing of a run  ------------
 
 void
-HLTObjectMonitorHeavyIon::endRun(edm::Run const&, edm::EventSetup const&)
+HLTObjectMonitorProtonLead::endRun(edm::Run const&, edm::EventSetup const&)
 {
   if (debugPrint) std::cout << "Calling endRun. " << std::endl;
 }
 
-void HLTObjectMonitorHeavyIon::bookHistograms(DQMStore::IBooker & ibooker, edm::Run const& iRun, edm::EventSetup const& iSetup)
+void HLTObjectMonitorProtonLead::bookHistograms(DQMStore::IBooker & ibooker, edm::Run const& iRun, edm::EventSetup const& iSetup)
 {
 
   ////////////////////////////////
@@ -674,7 +671,7 @@ void HLTObjectMonitorHeavyIon::bookHistograms(DQMStore::IBooker & ibooker, edm::
 
 }
 
-double HLTObjectMonitorHeavyIon::get_wall_time()
+double HLTObjectMonitorProtonLead::get_wall_time()
 {
   struct timeval time;
   if (gettimeofday(&time,NULL)) return 0;
@@ -684,7 +681,7 @@ double HLTObjectMonitorHeavyIon::get_wall_time()
 // ------------ method called when starting to processes a luminosity block  ------------
 /*
 void
-HLTObjectMonitorHeavyIon::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
+HLTObjectMonitorProtonLead::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
 {
 }
 */
@@ -692,14 +689,14 @@ HLTObjectMonitorHeavyIon::beginLuminosityBlock(edm::LuminosityBlock const&, edm:
 // ------------ method called when ending the processing of a luminosity block  ------------
 /*
 void
-HLTObjectMonitorHeavyIon::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
+HLTObjectMonitorProtonLead::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
 {
 }
 */
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 // void
-// HLTObjectMonitorHeavyIon::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+// HLTObjectMonitorProtonLead::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
 //   //The following says we do not know what parameters are allowed so do no validation
 //   // Please change this to state exactly what you do use, even if it is no parameters
 //   edm::ParameterSetDescription desc;
@@ -708,4 +705,4 @@ HLTObjectMonitorHeavyIon::endLuminosityBlock(edm::LuminosityBlock const&, edm::E
 // }
 
 //define this as a plug-in
-DEFINE_FWK_MODULE(HLTObjectMonitorHeavyIon);
+DEFINE_FWK_MODULE(HLTObjectMonitorProtonLead);
