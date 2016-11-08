@@ -1,7 +1,6 @@
 #include "CalibTracker/SiStripESProducers/plugins/fake/SiStripApvGainBuilderFromTag.h"
 #include "CalibTracker/SiStripCommon/interface/SiStripDetInfoFileReader.h"
 #include "CondFormats/DataRecord/interface/SiStripCondDataRecords.h"
-#include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -9,6 +8,8 @@
 #include <fstream>
 #include <vector>
 #include <algorithm>
+
+#include "SiStripFakeAPVParameters.h"
 
 SiStripApvGainBuilderFromTag::SiStripApvGainBuilderFromTag( const edm::ParameterSet& iConfig ):
   fp_(iConfig.getUntrackedParameter<edm::FileInPath>("file",edm::FileInPath("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat"))),
@@ -35,8 +36,7 @@ void SiStripApvGainBuilderFromTag::analyze(const edm::Event& evt, const edm::Eve
   uint32_t  printdebug_ = pset_.getUntrackedParameter<uint32_t>("printDebug", 5);
 
   //parameters for layer/disk level correction; not used if applyTuning=false
-  std::map<int, std::vector<double> > correct;
-  fillParameters(correct, "correct");
+  SiStripFakeAPVParameters correct{pset_, "correct"};
 
   // Read the gain from the given tag
   edm::ESHandle<SiStripApvGain> inputApvGain;
@@ -77,10 +77,10 @@ void SiStripApvGainBuilderFromTag::analyze(const edm::Event& evt, const edm::Eve
 
       // corrections at layer/disk level:
       uint32_t detId = it->first;
-      std::pair<int, int> sl = subDetAndLayer(detId, tTopo);
+      SiStripFakeAPVParameters::index sl = SiStripFakeAPVParameters::getIndex(tTopo, detId);
       //unsigned short nApvs = it->second.nApvs;
       if (applyTuning) {
-	double correction = correct[sl.first][sl.second];
+	double correction = correct.get(sl);
 	gainValue *= correction;
       }
 
@@ -118,54 +118,5 @@ void SiStripApvGainBuilderFromTag::analyze(const edm::Event& evt, const edm::Eve
   }
   else {
     edm::LogError("SiStripApvGainBuilderFromTag")<<"Service is unavailable"<<std::endl;
-  }
-}
-     
-std::pair<int, int> SiStripApvGainBuilderFromTag::subDetAndLayer(const uint32_t detId, const TrackerTopology* tTopo) const
-{
-  int layerId = 0;
-
-  StripSubdetector subid(detId);
-  int subId = subid.subdetId();
-
-  if( subId == int(StripSubdetector::TIB)) {
-    layerId = tTopo->tibLayer(detId) - 1;
-  }
-  else if(subId == int(StripSubdetector::TOB)) {
-    layerId = tTopo->tobLayer(detId) - 1;
-  }
-  else if(subId == int(StripSubdetector::TID)) {
-    layerId = tTopo->tidRing(detId) - 1;
-  }
-  if(subId == int(StripSubdetector::TEC)) {
-    layerId = tTopo->tecRing(detId) - 1;
-  }
-  return std::make_pair(subId, layerId);
-}
-
-void SiStripApvGainBuilderFromTag::fillParameters(std::map<int, std::vector<double> > & mapToFill, const std::string & parameterName) const
-{
-  int layersTIB = 4;
-  int ringsTID = 3;
-  int layersTOB = 6;
-  int ringsTEC = 7;
-
-  fillSubDetParameter( mapToFill, pset_.getParameter<std::vector<double> >(parameterName+"TIB"), int(StripSubdetector::TIB), layersTIB );
-  fillSubDetParameter( mapToFill, pset_.getParameter<std::vector<double> >(parameterName+"TID"), int(StripSubdetector::TID), ringsTID );
-  fillSubDetParameter( mapToFill, pset_.getParameter<std::vector<double> >(parameterName+"TOB"), int(StripSubdetector::TOB), layersTOB );
-  fillSubDetParameter( mapToFill, pset_.getParameter<std::vector<double> >(parameterName+"TEC"), int(StripSubdetector::TEC), ringsTEC );
-}
-
-void SiStripApvGainBuilderFromTag::fillSubDetParameter(std::map<int, std::vector<double> > & mapToFill, const std::vector<double> & v, const int subDet, const unsigned short layers) const
-{
-  if( v.size() == layers ) {
-    mapToFill.insert(std::make_pair( subDet, v ));
-  }
-  else if( v.size() == 1 ) {
-    std::vector<double> parV(layers, v[0]);
-    mapToFill.insert(std::make_pair( subDet, parV ));
-  }
-  else {
-    throw cms::Exception("Configuration") << "ERROR: number of parameters for subDet " << subDet << " are " << v.size() << ". They must be either 1 or " << layers << std::endl;
   }
 }

@@ -18,7 +18,3 @@
   <use   name="CondCore/DBOutputService"/>
   <flags   EDM_PLUGIN="1"/>
 </library>
-<library   file="services/*.cc" name="CalibTrackerSiStripESProducersServicesPlugins">
-  <use   name="CalibTracker/SiStripESProducers"/>
-  <flags   EDM_PLUGIN="1"/>
-</library>

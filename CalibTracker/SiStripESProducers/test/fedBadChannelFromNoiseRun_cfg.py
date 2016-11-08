@@ -25,9 +25,10 @@ process.source = cms.Source("EmptyIOVSource",
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(-1)
 )
-process.load("CalibTracker.SiStripESProducers.fake.SiStripBadModuleFedErrFakeESSource_cfi")
-process.siStripBadModuleFedErrFakeESSource.appendToDataLabel = cms.string('BadModules_from_FEDBadChannel')
-process.SiStripBadModuleFedErrService.ReadFromFile = cms.bool(False)
+process.load("CalibTracker.SiStripESProducers.SiStripBadModuleFedErrESSource_cfi")
+from CalibTracker.SiStripESProducers.SiStripBadModuleFedErrESSource_cfi import siStripBadModuleFedErrESSource
+siStripBadModuleFedErrESSource.appendToDataLabel = cms.string('BadModules_from_FEDBadChannel')
+siStripBadModuleFedErrESSource.ReadFromFile = cms.bool(False)
 
 process.siStripQualityESProducer.ListOfRecordToMerge = cms.VPSet(
         cms.PSet(record = cms.string('SiStripBadModuleFedErrRcd'), tag = cms.string('BadModules_from_FEDBadChannel'))
