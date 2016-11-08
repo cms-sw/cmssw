@@ -48,12 +48,13 @@ process.poolDBESSource = cms.ESSource("PoolDBESSource",
 
 #Latency producer
 process.load("CalibTracker.SiStripESProducers.fake.SiStripLatencyFakeESSource_cfi")
-#process.SiStripLatencyGenerator.latency = 255
-#process.SiStripLatencyGenerator.mode = 0
-process.SiStripLatencyGenerator.latency = 143
-process.SiStripLatencyGenerator.mode = 47
-# process.SiStripLatencyGenerator.latency = 146
-# process.SiStripLatencyGenerator.mode = 37
+from CalibTracker.SiStripESProducers.fake.SiStripLatencyFakeESSource_cfi import siStripLatencyFakeESSource
+#siStripLatencyFakeESSource.latency = 255
+#siStripLatencyFakeESSource.mode = 0
+siStripLatencyFakeESSource.latency = 143
+siStripLatencyFakeESSource.mode = 47
+# siStripLatencyFakeESSource.latency = 146
+# siStripLatencyFakeESSource.mode = 37
 
 #Dependent ESSource
 process.siStripBackPlaneCorrectionDepESProducer = cms.ESProducer("SiStripBackPlaneCorrectionDepESProducer",
