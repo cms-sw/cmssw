@@ -497,7 +497,7 @@ timingDict = {
             'from Geometry.HGCalCommonData.fastTimeParametersInitialization_cfi import *',
             'from Geometry.HGCalCommonData.fastTimeNumberingInitialization_cfi import *',
         ],
-        "era" : "phase2_timing",
+        "era" : "phase2_timing, phase2_timing_layer",
     }
 }
 
