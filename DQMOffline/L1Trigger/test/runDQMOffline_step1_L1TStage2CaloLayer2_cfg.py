@@ -70,7 +70,7 @@ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc', '')
 # Path and EndPath definitions
 process.raw2digi_step = cms.Path(process.RawToDigi)
 
-process.load('DQMOffline.L1Trigger.L1TStage2CaloLayer2_Offline_cfi')
+process.load('DQMOffline.L1Trigger.L1TStage2CaloLayer2Offline_cfi')
 process.dqmoffline_step = cms.Path(
     process.l1tStage2CaloLayer2OfflineDQMEmu +
     process.l1tStage2CaloLayer2OfflineDQM

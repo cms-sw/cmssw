@@ -13,6 +13,7 @@
 #include <string>
 #include <sstream>
 #include <math.h>
+#include <algorithm>
 
 //
 // -------------------------------------- Constructor --------------------------------------------
@@ -32,7 +33,17 @@ L1TStage2CaloLayer2Offline::L1TStage2CaloLayer2Offline(const edm::ParameterSet& 
         stage2CaloLayer2JetToken_(
             consumes < l1t::JetBxCollection > (ps.getParameter < edm::InputTag > ("stage2CaloLayer2JetSource"))),
         stage2CaloLayer2EtSumToken_(
-            consumes < l1t::EtSumBxCollection > (ps.getParameter < edm::InputTag > ("stage2CaloLayer2EtSumSource")))
+            consumes < l1t::EtSumBxCollection > (ps.getParameter < edm::InputTag > ("stage2CaloLayer2EtSumSource"))),
+        jetEfficiencyThresholds_(ps.getParameter < std::vector<double> > ("jetEfficiencyThresholds")),
+        metEfficiencyThresholds_(ps.getParameter < std::vector<double> > ("metEfficiencyThresholds")),
+        mhtEfficiencyThresholds_(ps.getParameter < std::vector<double> > ("mhtEfficiencyThresholds")),
+        ettEfficiencyThresholds_(ps.getParameter < std::vector<double> > ("ettEfficiencyThresholds")),
+        httEfficiencyThresholds_(ps.getParameter < std::vector<double> > ("httEfficiencyThresholds")),
+        jetEfficiencyBins_(ps.getParameter < std::vector<double> > ("jetEfficiencyBins")),
+        metEfficiencyBins_(ps.getParameter < std::vector<double> > ("metEfficiencyBins")),
+        mhtEfficiencyBins_(ps.getParameter < std::vector<double> > ("mhtEfficiencyBins")),
+        ettEfficiencyBins_(ps.getParameter < std::vector<double> > ("ettEfficiencyBins")),
+        httEfficiencyBins_(ps.getParameter < std::vector<double> > ("httEfficiencyBins"))
 {
   edm::LogInfo("L1TStage2CaloLayer2Offline") << "Constructor "
       << "L1TStage2CaloLayer2Offline::L1TStage2CaloLayer2Offline " << std::endl;
@@ -111,7 +122,7 @@ void L1TStage2CaloLayer2Offline::fillEnergySums(edm::Event const& e, const unsig
     return;
   }
   if (!caloMETs.isValid()) {
-    edm::LogError("L1TStage2CaloLayer2Offline") << "invalid collection: calo MET " << std::endl;
+    edm::LogError("L1TStage2CaloLayer2Offline") << "invalid collection: Offline E_{T}^{miss} " << std::endl;
     return;
   }
   if (!l1EtSums.isValid()) {
@@ -201,26 +212,29 @@ void L1TStage2CaloLayer2Offline::fillEnergySums(edm::Event const& e, const unsig
   h_resolutionMETPhi_->Fill(resolutionMETPhi);
   h_resolutionMHTPhi_->Fill(resolutionMHTPhi);
 
-  h_efficiencyMET_total_->Fill(recoMET);
-  h_efficiencyMHT_total_->Fill(recoMHT);
-  h_efficiencyETT_total_->Fill(recoETT);
-  h_efficiencyHTT_total_->Fill(recoHTT);
-
-  if (l1MET > 40) { // TODO: add 60, 80, 100, 120
-    h_efficiencyMET_pass_->Fill(recoMET);
+  // efficiencies
+  for (auto threshold : metEfficiencyThresholds_) {
+    h_efficiencyMET_total_[threshold]->Fill(recoMET);
+    if (recoMET > threshold)
+      h_efficiencyMET_pass_[threshold]->Fill(recoMET);
   }
 
-  if (l1MHT > 40) { // TODO: add 60, 80, 100, 120
-    h_efficiencyMHT_pass_->Fill(recoMHT);
+  for (auto threshold : mhtEfficiencyThresholds_) {
+    h_efficiencyMHT_total_[threshold]->Fill(recoMHT);
+    if (recoMHT > threshold)
+      h_efficiencyMHT_pass_[threshold]->Fill(recoMHT);
   }
 
-  if (l1HTT > 120) { // TODO: add 160, 200, 240, 280
-    h_efficiencyHTT_pass_->Fill(recoHTT);
+  for (auto threshold : ettEfficiencyThresholds_) {
+    h_efficiencyETT_total_[threshold]->Fill(recoETT);
+    if (recoETT > threshold)
+      h_efficiencyETT_pass_[threshold]->Fill(recoETT);
   }
 
-  if (l1ETT > 50) { // TODO: add 30, 50, 90, 140
-    // TODO: check cut
-    h_efficiencyETT_pass_->Fill(recoETT);
+  for (auto threshold : httEfficiencyThresholds_) {
+    h_efficiencyHTT_total_[threshold]->Fill(recoHTT);
+    if (recoHTT > threshold)
+      h_efficiencyHTT_pass_[threshold]->Fill(recoHTT);
   }
 
 }
@@ -275,7 +289,7 @@ void L1TStage2CaloLayer2Offline::fillJets(edm::Event const& e, const unsigned in
 //	}
 
   if (!foundMatch) {
-    edm::LogError("L1TStage2CaloLayer2Offline") << "Could not find a matching L1 jet " << std::endl;
+    edm::LogError("L1TStage2CaloLayer2Offline") << "Could not find a matching L1 Jet " << std::endl;
     return;
   }
 
@@ -292,8 +306,6 @@ void L1TStage2CaloLayer2Offline::fillJets(edm::Event const& e, const unsigned in
   double resolutionEt = recoEt > 0 ? (l1Et - recoEt) / recoEt : outOfBounds;
   double resolutionEta = abs(recoEta) > 0 ? (l1Eta - recoEta) / recoEta : outOfBounds;
   double resolutionPhi = abs(recoPhi) > 0 ? (l1Phi - recoPhi) / recoPhi : outOfBounds;
-
-  double minEtForTurnOns = 36.;
 
   // eta
   h_L1JetEtavsCaloJetEta_->Fill(recoEta, l1Eta);
@@ -314,11 +326,14 @@ void L1TStage2CaloLayer2Offline::fillJets(edm::Event const& e, const unsigned in
     h_resolutionJetPhi_HB_HE_->Fill(resolutionPhi);
 
     // turn-ons
-    h_efficiencyJetEt_HB_total_->Fill(recoEt);
-    h_efficiencyJetEt_HB_HE_total_->Fill(recoEt);
-    if (l1Et > minEtForTurnOns) {
-      h_efficiencyJetEt_HB_pass_->Fill(recoEt);
-      h_efficiencyJetEt_HB_HE_pass_->Fill(recoEt);
+
+    for (auto threshold : jetEfficiencyThresholds_) {
+      h_efficiencyJetEt_HB_total_[threshold]->Fill(recoEt);
+      h_efficiencyJetEt_HB_HE_total_[threshold]->Fill(recoEt);
+      if (l1Et > threshold) {
+        h_efficiencyJetEt_HB_pass_[threshold]->Fill(recoEt);
+        h_efficiencyJetEt_HB_HE_pass_[threshold]->Fill(recoEt);
+      }
     }
 
   } else if (abs(recoEta) <= 3.0) { // end-cap
@@ -336,11 +351,13 @@ void L1TStage2CaloLayer2Offline::fillJets(edm::Event const& e, const unsigned in
     h_resolutionJetPhi_HB_HE_->Fill(resolutionPhi);
 
     // turn-ons
-    h_efficiencyJetEt_HE_total_->Fill(recoEt);
-    h_efficiencyJetEt_HB_HE_total_->Fill(recoEt);
-    if (l1Et > minEtForTurnOns) {
-      h_efficiencyJetEt_HE_pass_->Fill(recoEt);
-      h_efficiencyJetEt_HB_HE_pass_->Fill(recoEt);
+    for (auto threshold : jetEfficiencyThresholds_) {
+      h_efficiencyJetEt_HE_total_[threshold]->Fill(recoEt);
+      h_efficiencyJetEt_HB_HE_total_[threshold]->Fill(recoEt);
+      if (l1Et > threshold) {
+        h_efficiencyJetEt_HE_pass_[threshold]->Fill(recoEt);
+        h_efficiencyJetEt_HB_HE_pass_[threshold]->Fill(recoEt);
+      }
     }
   } else { // forward jets
     // et
@@ -352,9 +369,11 @@ void L1TStage2CaloLayer2Offline::fillJets(edm::Event const& e, const unsigned in
     // resolution
     h_resolutionJetPhi_HF_->Fill(resolutionPhi);
     // turn-ons
-    h_efficiencyJetEt_HF_total_->Fill(recoEt);
-    if (l1Et > minEtForTurnOns) {
-      h_efficiencyJetEt_HF_pass_->Fill(recoEt);
+    for (auto threshold : jetEfficiencyThresholds_) {
+      h_efficiencyJetEt_HF_total_[threshold]->Fill(recoEt);
+      if (l1Et > threshold) {
+        h_efficiencyJetEt_HF_pass_[threshold]->Fill(recoEt);
+      }
     }
   }
 }
@@ -392,48 +411,74 @@ void L1TStage2CaloLayer2Offline::bookEnergySumHistos(DQMStore::IBooker & ibooker
   h_nVertex_ = ibooker.book1D("nVertex", "Number of event vertices in collection", 40, -0.5, 39.5);
 
   // energy sums reco vs L1
-  h_L1METvsCaloMET_ = ibooker.book2D("L1METvsCaloMET", "L1 MET vs calo MET;calo MET;L1 MET", 500, -0.5, 499.5, 500,
+  h_L1METvsCaloMET_ = ibooker.book2D("L1METvsCaloMET",
+      "L1 E_{T}^{miss} vs Offline E_{T}^{miss};Offline E_{T}^{miss} (GeV);L1 E_{T}^{miss} (GeV)", 500, -0.5, 499.5, 500,
       -0.5, 499.5);
-  h_L1MHTvsRecoMHT_ = ibooker.book2D("L1MHTvsRecoMHT", "L1 MHT vs reco MHT;reco MHT;L1 MHT", 500, -0.5, 499.5, 500,
-      -0.5, 499.5);
-  h_L1METTvsCaloETT_ = ibooker.book2D("L1ETTvsCaloETT", "L1 ETT vs calo ETT;calo ETT;L1 ETT", 500, -0.5, 499.5, 500,
-      -0.5, 499.5);
-  h_L1HTTvsRecoHTT_ = ibooker.book2D("L1HTTvsRecoHTT", "L1 HTT vs reco HTT;reco HTT;L1 HTT", 500, -0.5, 499.5, 500,
+  h_L1MHTvsRecoMHT_ = ibooker.book2D("L1MHTvsRecoMHT", "L1 MHT vs reco MHT;reco MHT (GeV);L1 MHT (GeV)", 500, -0.5,
+      499.5, 500, -0.5, 499.5);
+  h_L1METTvsCaloETT_ = ibooker.book2D("L1ETTvsCaloETT", "L1 ETT vs calo ETT;calo ETT (GeV);L1 ETT (GeV)", 500, -0.5,
+      499.5, 500, -0.5, 499.5);
+  h_L1HTTvsRecoHTT_ = ibooker.book2D("L1HTTvsRecoHTT",
+      "L1 Total H_{T} vs Offline Total H_{T};Offline Total H_{T} (GeV);L1 Total H_{T} (GeV)", 500, -0.5, 499.5, 500,
       -0.5, 499.5);
 
   h_L1METPhivsCaloMETPhi_ = ibooker.book2D("L1METPhivsCaloMETPhi",
-      "L1 MET #phi vs calo MET #phi;calo MET #phi;L1 MET #phi", 100, -4, 4, 100, -4, 4);
+      "L1 E_{T}^{miss} #phi vs Offline E_{T}^{miss} #phi;Offline E_{T}^{miss} #phi;L1 E_{T}^{miss} #phi", 100, -4, 4,
+      100, -4, 4);
   h_L1MHTPhivsRecoMHTPhi_ = ibooker.book2D("L1MHTPhivsRecoMHTPhi",
       "L1 MHT #phi vs reco MHT #phi;reco MHT #phi;L1 MHT #phi", 100, -4, 4, 100, -4, 4);
 
   // energy sum resolutions
-  h_resolutionMET_ = ibooker.book1D("resolutionMET", "MET resolution; (L1 MET - calo MET)/calo MET; events", 50, -1,
-      1.5);
+  h_resolutionMET_ = ibooker.book1D("resolutionMET",
+      "MET resolution; (L1 E_{T}^{miss} - Offline E_{T}^{miss})/Offline E_{T}^{miss}; events", 50, -1, 1.5);
   h_resolutionMHT_ = ibooker.book1D("resolutionMHT", "MHT resolution; (L1 MHT - reco MHT)/reco MHT; events", 50, -1,
       1.5);
   h_resolutionETT_ = ibooker.book1D("resolutionETT", "ETT resolution; (L1 ETT - calo ETT)/calo ETT; events", 50, -1,
       1.5);
-  h_resolutionHTT_ = ibooker.book1D("resolutionHTT", "HTT resolution; (L1 HTT - reco HTT)/reco HTT; events", 50, -1,
-      1.5);
+  h_resolutionHTT_ = ibooker.book1D("resolutionHTT",
+      "HTT resolution; (L1 Total H_{T} - Offline Total H_{T})/Offline Total H_{T}; events", 50, -1, 1.5);
 
   h_resolutionMETPhi_ = ibooker.book1D("resolutionMETPhi",
-      "MET #phi resolution; (L1 MET #phi - reco MET #phi)/reco MET #phi; events", 120, -0.3, 0.3);
+      "MET #phi resolution; (L1 E_{T}^{miss} #phi - reco MET #phi)/reco MET #phi; events", 120, -0.3, 0.3);
   h_resolutionMHTPhi_ = ibooker.book1D("resolutionMHTPhi",
       "MET #phi resolution; (L1 MHT #phi - reco MHT #phi)/reco MHT #phi; events", 120, -0.3, 0.3);
 
   // energy sum turn ons
-  // TODO: add 0, 40, 70, 100, 160, 260
-  Float_t metBins[] = { 0, 40, 70, 100, 160, 260 };
-  h_efficiencyMET_pass_ = ibooker.book1D("efficiencyMET_Num", "MET efficiency; calo MET; events", 5, metBins);
-  h_efficiencyMET_pass_ = ibooker.book1D("efficiencyMET_Num", "MET efficiency; calo MET; events", 50, -0.5, 499.5);
-  h_efficiencyMHT_pass_ = ibooker.book1D("efficiencyMHT_Num", "MHT efficiency; reco MHT; events", 50, -0.5, 499.5);
-  h_efficiencyETT_pass_ = ibooker.book1D("efficiencyETT_Num", "ETT efficiency; calo ETT; events", 50, -0.5, 499.5);
-  h_efficiencyHTT_pass_ = ibooker.book1D("efficiencyHTT_Num", "HTT efficiency; reco HTT; events", 50, -0.5, 499.5);
+  std::vector<float> metBins(metEfficiencyBins_.begin(), metEfficiencyBins_.end());
+  std::vector<float> mhtBins(mhtEfficiencyBins_.begin(), mhtEfficiencyBins_.end());
+  std::vector<float> ettBins(ettEfficiencyBins_.begin(), ettEfficiencyBins_.end());
+  std::vector<float> httBins(httEfficiencyBins_.begin(), httEfficiencyBins_.end());
 
-  h_efficiencyMET_total_ = ibooker.book1D("efficiencyMET_Den", "MET efficiency; calo MET; events", 5, metBins);
-  h_efficiencyMHT_total_ = ibooker.book1D("efficiencyMHT_Den", "MHT efficiency; reco MHT; events", 50, -0.5, 499.5);
-  h_efficiencyETT_total_ = ibooker.book1D("efficiencyETT_Den", "ETT efficiency; calo ETT; events", 50, -0.5, 499.5);
-  h_efficiencyHTT_total_ = ibooker.book1D("efficiencyHTT_Den", "HTT efficiency; reco HTT; events", 50, -0.5, 499.5);
+  for (auto threshold : metEfficiencyThresholds_) {
+    std::string str_threshold = std::to_string(int(threshold));
+    h_efficiencyMET_pass_[threshold] = ibooker.book1D("efficiencyMET_threshold_" + str_threshold + "_Num",
+        "MET efficiency; Offline E_{T}^{miss} (GeV); events", metBins.size() - 1, &(metBins[0]));
+    h_efficiencyMET_total_[threshold] = ibooker.book1D("efficiencyMET_" + str_threshold + "_Den",
+        "MET efficiency; Offline E_{T}^{miss} (GeV); events", metBins.size() - 1, &(metBins[0]));
+  }
+
+  for (auto threshold : mhtEfficiencyThresholds_) {
+    std::string str_threshold = std::to_string(int(threshold));
+    h_efficiencyMHT_pass_[threshold] = ibooker.book1D("efficiencyMHT_" + str_threshold + "_Num",
+        "MHT efficiency; Offline MHT (GeV); events", mhtBins.size() - 1, &(mhtBins[0]));
+    h_efficiencyMHT_total_[threshold] = ibooker.book1D("efficiencyMHT_" + str_threshold + "_Den",
+        "MHT efficiency; Offline MHT (GeV); events", mhtBins.size() - 1, &(mhtBins[0]));
+  }
+
+  for (auto threshold : ettEfficiencyThresholds_) {
+    std::string str_threshold = std::to_string(int(threshold));
+    h_efficiencyETT_pass_[threshold] = ibooker.book1D("efficiencyETT_" + str_threshold + "_Num",
+        "ETT efficiency; Offline ETT (GeV); events", ettBins.size() - 1, &(ettBins[0]));
+    h_efficiencyETT_total_[threshold] = ibooker.book1D("efficiencyETT_" + str_threshold + "_Den",
+        "ETT efficiency; Offline ETT (GeV); events", ettBins.size() - 1, &(ettBins[0]));
+  }
+  for (auto threshold : httEfficiencyThresholds_) {
+    std::string str_threshold = std::to_string(int(threshold));
+    h_efficiencyHTT_pass_[threshold] = ibooker.book1D("efficiencyHTT_" + str_threshold + "_Num",
+        "HTT efficiency; Offline Total H_{T} (GeV); events", httBins.size() - 1, &(httBins[0]));
+    h_efficiencyHTT_total_[threshold] = ibooker.book1D("efficiencyHTT_" + str_threshold + "_Den",
+        "HTT efficiency; Offline Total H_{T} (GeV); events", httBins.size() - 1, &(httBins[0]));
+  }
 
   ibooker.cd();
 }
@@ -444,66 +489,80 @@ void L1TStage2CaloLayer2Offline::bookJetHistos(DQMStore::IBooker & ibooker)
   ibooker.setCurrentFolder(histFolder_.c_str());
   // jet reco vs L1
   h_L1JetETvsCaloJetET_HB_ = ibooker.book2D("L1JetETvsCaloJetET_HB",
-      "L1 jet ET vs calo jet ET (HB); calo jet ET; L1 jet ET", 300, 0, 300, 300, 0, 300);
+      "L1 Jet E_{T} vs Offline Jet E_{T} (HB); Offline Jet E_{T} (GeV); L1 Jet E_{T} (GeV)", 300, 0, 300, 300, 0, 300);
   h_L1JetETvsCaloJetET_HE_ = ibooker.book2D("L1JetETvsCaloJetET_HE",
-      "L1 jet ET vs calo jet ET (HE); calo jet ET; L1 jet ET", 300, 0, 300, 300, 0, 300);
+      "L1 Jet E_{T} vs Offline Jet E_{T} (HE); Offline Jet E_{T} (GeV); L1 Jet E_{T} (GeV)", 300, 0, 300, 300, 0, 300);
   h_L1JetETvsCaloJetET_HF_ = ibooker.book2D("L1JetETvsCaloJetET_HF",
-      "L1 jet ET vs calo jet ET (HF); calo jet ET; L1 jet ET", 300, 0, 300, 300, 0, 300);
+      "L1 Jet E_{T} vs Offline Jet E_{T} (HF); Offline Jet E_{T} (GeV); L1 Jet E_{T} (GeV)", 300, 0, 300, 300, 0, 300);
   h_L1JetETvsCaloJetET_HB_HE_ = ibooker.book2D("L1JetETvsCaloJetET_HB_HE",
-      "L1 jet ET vs calo jet ET (HB+HE); calo jet ET; L1 jet ET", 300, 0, 300, 300, 0, 300);
+      "L1 Jet E_{T} vs Offline Jet E_{T} (HB+HE); Offline Jet E_{T} (GeV); L1 Jet E_{T} (GeV)", 300, 0, 300, 300, 0,
+      300);
 
   h_L1JetPhivsCaloJetPhi_HB_ = ibooker.book2D("L1JetETvsCaloJetET_HB",
-      "L1 jet #phi vs calo jet #phi (HB); calo jet #phi; L1 jet #phi", 100, -4, 4, 100, -4, 4);
+      "#phi_{jet}^{L1} vs #phi_{jet}^{offline} (HB); #phi_{jet}^{offline}; #phi_{jet}^{L1}", 100, -4, 4, 100, -4, 4);
   h_L1JetPhivsCaloJetPhi_HE_ = ibooker.book2D("L1JetETvsCaloJetET_HE",
-      "L1 jet #phi vs calo jet #phi (HE); calo jet #phi; L1 jet #phi", 100, -4, 4, 100, -4, 4);
+      "#phi_{jet}^{L1} vs #phi_{jet}^{offline} (HE); #phi_{jet}^{offline}; #phi_{jet}^{L1}", 100, -4, 4, 100, -4, 4);
   h_L1JetPhivsCaloJetPhi_HF_ = ibooker.book2D("L1JetETvsCaloJetET_HF",
-      "L1 jet #phi vs calo jet #phi (Hf); calo jet #phi; L1 jet #phi", 100, -4, 4, 100, -4, 4);
+      "#phi_{jet}^{L1} vs #phi_{jet}^{offline} (HF); #phi_{jet}^{offline}; #phi_{jet}^{L1}", 100, -4, 4, 100, -4, 4);
   h_L1JetPhivsCaloJetPhi_HB_HE_ = ibooker.book2D("L1JetETvsCaloJetET_HB_HE",
-      "L1 jet #phi vs calo jet #phi (HB+HE); calo jet #phi; L1 jet #phi", 100, -4, 4, 100, -4, 4);
+      "#phi_{jet}^{L1} vs #phi_{jet}^{offline} (HB+HE); #phi_{jet}^{offline}; #phi_{jet}^{L1}", 100, -4, 4, 100, -4, 4);
 
   h_L1JetEtavsCaloJetEta_ = ibooker.book2D("L1JetEtavsCaloJetEta_HB",
-      "L1 jet #eta vs calo jet #eta; calo jet #eta; L1 jet #eta", 100, -10, 10, 100, -10, 10);
+      "L1 Jet #eta vs Offline Jet #eta; Offline Jet #eta; L1 Jet #eta", 100, -10, 10, 100, -10, 10);
 
   // jet resolutions
   h_resolutionJetET_HB_ = ibooker.book1D("resolutionJetET_HB",
-      "jet ET resolution (HB); (L1 jet ET - calo jet ET)/calo jet ET; events", 50, -1, 1.5);
+      "jet ET resolution (HB); (L1 Jet E_{T} - Offline Jet E_{T})/Offline Jet E_{T}; events", 50, -1, 1.5);
   h_resolutionJetET_HE_ = ibooker.book1D("resolutionJetET_HE",
-      "jet ET resolution (HE); (L1 jet ET - calo jet ET)/calo jet ET; events", 50, -1, 1.5);
+      "jet ET resolution (HE); (L1 Jet E_{T} - Offline Jet E_{T})/Offline Jet E_{T}; events", 50, -1, 1.5);
   h_resolutionJetET_HF_ = ibooker.book1D("resolutionJetET_HF",
-      "jet ET resolution (HF); (L1 jet ET - calo jet ET)/calo jet ET; events", 50, -1, 1.5);
+      "jet ET resolution (HF); (L1 Jet E_{T} - Offline Jet E_{T})/Offline Jet E_{T}; events", 50, -1, 1.5);
   h_resolutionJetET_HB_HE_ = ibooker.book1D("resolutionJetET_HB_HE",
-      "jet ET resolution (HB+HE); (L1 jet ET - calo jet ET)/calo jet ET; events", 50, -1, 1.5);
+      "jet ET resolution (HB+HE); (L1 Jet E_{T} - Offline Jet E_{T})/Offline Jet E_{T}; events", 50, -1, 1.5);
 
   h_resolutionJetPhi_HB_ = ibooker.book1D("resolutionJetPhi_HB",
-      "jet #phi resolution (HB); (L1 jet #phi - reco jet #phi)/reco jet #phi; events", 120, -0.3, 0.3);
+      "#phi_{jet} resolution (HB); (#phi_{jet}^{L1} - #phi_{jet}^{offline})/#phi_{jet}^{offline}; events", 120, -0.3,
+      0.3);
   h_resolutionJetPhi_HE_ = ibooker.book1D("resolutionJetPhi_HE",
-      "jet #phi resolution (HE); (L1 jet #phi - reco jet #phi)/reco jet #phi; events", 120, -0.3, 0.3);
+      "jet #phi resolution (HE); (#phi_{jet}^{L1} - #phi_{jet}^{offline})/#phi_{jet}^{offline}; events", 120, -0.3,
+      0.3);
   h_resolutionJetPhi_HF_ = ibooker.book1D("resolutionJetPhi_HF",
-      "jet #phi resolution (HF); (L1 jet #phi - reco jet #phi)/reco jet #phi; events", 120, -0.3, 0.3);
+      "jet #phi resolution (HF); (#phi_{jet}^{L1} - #phi_{jet}^{offline})/#phi_{jet}^{offline}; events", 120, -0.3,
+      0.3);
   h_resolutionJetPhi_HB_HE_ = ibooker.book1D("resolutionJetPhi_HB_HE",
-      "jet #phi resolution (HB+HE); (L1 jet #phi - reco jet #phi)/reco jet #phi; events", 120, -0.3, 0.3);
+      "jet #phi resolution (HB+HE); (#phi_{jet}^{L1} - #phi_{jet}^{offline})/#phi_{jet}^{offline}; events", 120, -0.3,
+      0.3);
 
   h_resolutionJetEta_ = ibooker.book1D("resolutionJetEta",
-      "jet #eta resolution  (HB); (L1 jet #eta - reco jet #eta)/reco jet #eta; events", 120, -0.3, 0.3);
+      "jet #eta resolution  (HB); (L1 Jet #eta - Offline Jet #eta)/Offline Jet #eta; events", 120, -0.3, 0.3);
 
   // jet turn-ons
-  h_efficiencyJetEt_HB_pass_ = ibooker.book1D("efficiencyJetEt_HB_Num", "jet turn-on (HB); reco jet ET; events", 300, 0,
-      300);
-  h_efficiencyJetEt_HE_pass_ = ibooker.book1D("efficiencyJetEt_HE_Num", "jet turn-on (HE); reco jet ET; events", 300, 0,
-      300);
-  h_efficiencyJetEt_HF_pass_ = ibooker.book1D("efficiencyJetEt_HF_Num", "jet turn-on (HF); reco jet ET; events", 300, 0,
-      300);
-  h_efficiencyJetEt_HB_HE_pass_ = ibooker.book1D("efficiencyJetEt_HB_HE_Num",
-      "jet turn-on (HB+HE); reco jet ET; events", 300, 0, 300);
+  std::vector<float> jetBins(jetEfficiencyBins_.begin(), jetEfficiencyBins_.end());
+  int nBins = jetBins.size() - 1;
+  float* jetBinArray = &(jetBins[0]);
 
-  h_efficiencyJetEt_HB_total_ = ibooker.book1D("efficiencyJetEt_HB_Den", "jet turn-on (HB); reco jet ET; events", 300,
-      0, 300);
-  h_efficiencyJetEt_HE_total_ = ibooker.book1D("efficiencyJetEt_HE_Den", "jet turn-on (HE); reco jet ET; events", 300,
-      0, 300);
-  h_efficiencyJetEt_HF_total_ = ibooker.book1D("efficiencyJetEt_HF_Den", "jet turn-on (HF); reco jet ET; events", 300,
-      0, 300);
-  h_efficiencyJetEt_HB_HE_total_ = ibooker.book1D("efficiencyJetEt_HB_HE_Den",
-      "jet turn-on (HB+HE); reco jet ET; events", 300, 0, 300);
+  for (auto threshold : jetEfficiencyThresholds_) {
+    std::string str_threshold = std::to_string(int(threshold));
+    h_efficiencyJetEt_HB_pass_[threshold] = ibooker.book1D("efficiencyJetEt_HB_threshold_" + str_threshold + "_Num",
+        "jet efficiency (HB); Offline Jet E_{T} (GeV); events", nBins, jetBinArray);
+    h_efficiencyJetEt_HE_pass_[threshold] = ibooker.book1D("efficiencyJetEt_HE_threshold_" + str_threshold + "_Num",
+        "jet efficiency (HE); Offline Jet E_{T} (GeV); events", nBins, jetBinArray);
+    h_efficiencyJetEt_HF_pass_[threshold] = ibooker.book1D("efficiencyJetEt_HF_threshold_" + str_threshold + "_Num",
+        "jet efficiency (HF); Offline Jet E_{T} (GeV); events", nBins, jetBinArray);
+    h_efficiencyJetEt_HB_HE_pass_[threshold] = ibooker.book1D(
+        "efficiencyJetEt_HB_HE_threshold_" + str_threshold + "_Num",
+        "jet efficiency (HB+HE); Offline Jet E_{T} (GeV); events", nBins, jetBinArray);
+
+    h_efficiencyJetEt_HB_total_[threshold] = ibooker.book1D("efficiencyJetEt_HB_threshold_" + str_threshold + "_Den",
+        "jet efficiency (HB); Offline Jet E_{T} (GeV); events", nBins, jetBinArray);
+    h_efficiencyJetEt_HE_total_[threshold] = ibooker.book1D("efficiencyJetEt_HE_threshold_" + str_threshold + "_Den",
+        "jet efficiency (HE); Offline Jet E_{T} (GeV); events", nBins, jetBinArray);
+    h_efficiencyJetEt_HF_total_[threshold] = ibooker.book1D("efficiencyJetEt_HF_threshold_" + str_threshold + "_Den",
+        "jet efficiency (HF); Offline Jet E_{T} (GeV); events", nBins, jetBinArray);
+    h_efficiencyJetEt_HB_HE_total_[threshold] = ibooker.book1D(
+        "efficiencyJetEt_HB_HE_threshold_" + str_threshold + "_Den",
+        "jet efficiency (HB+HE); Offline Jet E_{T} (GeV); events", nBins, jetBinArray);
+  }
 
   ibooker.cd();
 }

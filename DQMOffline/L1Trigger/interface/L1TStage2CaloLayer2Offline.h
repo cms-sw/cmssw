@@ -99,6 +99,18 @@ private:
   edm::EDGetTokenT<l1t::JetBxCollection> stage2CaloLayer2JetToken_;
   edm::EDGetTokenT<l1t::EtSumBxCollection> stage2CaloLayer2EtSumToken_;
 
+  std::vector<double> jetEfficiencyThresholds_;
+  std::vector<double> metEfficiencyThresholds_;
+  std::vector<double> mhtEfficiencyThresholds_;
+  std::vector<double> ettEfficiencyThresholds_;
+  std::vector<double> httEfficiencyThresholds_;
+
+  std::vector<double> jetEfficiencyBins_;
+  std::vector<double> metEfficiencyBins_;
+  std::vector<double> mhtEfficiencyBins_;
+  std::vector<double> ettEfficiencyBins_;
+  std::vector<double> httEfficiencyBins_;
+
   // TODO: add turn-on cuts (vectors of doubles)
   // Histograms
   MonitorElement* h_nVertex_;
@@ -121,15 +133,15 @@ private:
   MonitorElement* h_resolutionMHTPhi_;
 
   // energy sum turn ons
-  MonitorElement* h_efficiencyMET_pass_;
-  MonitorElement* h_efficiencyMHT_pass_;
-  MonitorElement* h_efficiencyETT_pass_;
-  MonitorElement* h_efficiencyHTT_pass_;
+  std::map<double, MonitorElement*> h_efficiencyMET_pass_;
+  std::map<double, MonitorElement*> h_efficiencyMHT_pass_;
+  std::map<double, MonitorElement*> h_efficiencyETT_pass_;
+  std::map<double, MonitorElement*> h_efficiencyHTT_pass_;
 
-  MonitorElement* h_efficiencyMET_total_;
-  MonitorElement* h_efficiencyMHT_total_;
-  MonitorElement* h_efficiencyETT_total_;
-  MonitorElement* h_efficiencyHTT_total_;
+  std::map<double, MonitorElement*> h_efficiencyMET_total_;
+  std::map<double, MonitorElement*> h_efficiencyMHT_total_;
+  std::map<double, MonitorElement*> h_efficiencyETT_total_;
+  std::map<double, MonitorElement*> h_efficiencyHTT_total_;
 
   // jet reco vs L1
   MonitorElement* h_L1JetETvsCaloJetET_HB_;
@@ -158,15 +170,17 @@ private:
   MonitorElement* h_resolutionJetEta_;
 
   // jet turn-ons
-  MonitorElement* h_efficiencyJetEt_HB_pass_;
-  MonitorElement* h_efficiencyJetEt_HE_pass_;
-  MonitorElement* h_efficiencyJetEt_HF_pass_;
-  MonitorElement* h_efficiencyJetEt_HB_HE_pass_;
+  std::map<double, MonitorElement*> h_efficiencyJetEt_HB_pass_;
+  std::map<double, MonitorElement*> h_efficiencyJetEt_HE_pass_;
+  std::map<double, MonitorElement*> h_efficiencyJetEt_HF_pass_;
+  std::map<double, MonitorElement*> h_efficiencyJetEt_HB_HE_pass_;
 
-  MonitorElement* h_efficiencyJetEt_HB_total_;
-  MonitorElement* h_efficiencyJetEt_HE_total_;
-  MonitorElement* h_efficiencyJetEt_HF_total_;
-  MonitorElement* h_efficiencyJetEt_HB_HE_total_;
+  // we could drop the map here, but L1TEfficiency_Harvesting expects
+  // identical names except for the suffix
+  std::map<double, MonitorElement*> h_efficiencyJetEt_HB_total_;
+  std::map<double, MonitorElement*> h_efficiencyJetEt_HE_total_;
+  std::map<double, MonitorElement*> h_efficiencyJetEt_HF_total_;
+  std::map<double, MonitorElement*> h_efficiencyJetEt_HB_HE_total_;
 
 };
 

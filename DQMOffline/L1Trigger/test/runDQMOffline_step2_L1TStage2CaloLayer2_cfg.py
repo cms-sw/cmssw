@@ -23,43 +23,7 @@ process.load('DQMServices.Examples.test.DQMExample_GenericClient_cfi')
 process.load('DQMServices.Examples.test.DQMExample_qTester_cfi')
 
 # L1T
-process.load('DQMOffline.L1Trigger.L1TEfficiencyHarvesting_cfi')
-process.l1tEfficiencyHarvesting.plotCfgs = cms.untracked.VPSet(
-    cms.untracked.PSet(
-        numeratorDir=cms.untracked.string("L1T/L1TStage2CaloLayer2"),
-        numeratorSuffix=cms.untracked.string("_Num"),
-        denominatorSuffix=cms.untracked.string("_Den"),
-        plots=cms.untracked.vstring(
-            "efficiencyJetEt_HB", "efficiencyJetEt_HE", "efficiencyJetEt_HF",
-            "efficiencyJetEt_HB_HE", "efficiencyMET", "efficiencyMHT",
-            "efficiencyETT", "efficiencyHTT"
-        )
-    ),
-    cms.untracked.PSet(
-        numeratorDir=cms.untracked.string("L1TEMU/L1TStage2CaloLayer2"),
-        numeratorSuffix=cms.untracked.string("_Num"),
-        denominatorSuffix=cms.untracked.string("_Den"),
-        plots=cms.untracked.vstring(
-            "efficiencyJetEt_HB", "efficiencyJetEt_HE", "efficiencyJetEt_HF",
-            "efficiencyJetEt_HB_HE", "efficiencyMET", "efficiencyMHT",
-            "efficiencyETT", "efficiencyHTT"
-        )
-    ),
-    cms.untracked.PSet(
-        numeratorDir=cms.untracked.string("L1T/L1TStage2CaloLayer2"),
-        denominatorDir=cms.untracked.string("L1TEMU/L1TStage2CaloLayer2"),
-        outputDir=cms.untracked.string("L1TEMU/L1TStage2CaloLayer2/Comparison"),
-        numeratorSuffix=cms.untracked.string(""),
-        denominatorSuffix=cms.untracked.string(""),
-        plots=cms.untracked.vstring(
-            "resolutionJetET_HB", "resolutionJetET_HE", "resolutionJetET_HF",
-            "resolutionJetET_HB_HE", "resolutionJetPhi_HB", "resolutionJetPhi_HE",
-            "resolutionJetPhi_HF", "resolutionJetPhi_HB_HE", "resolutionJetEta",
-            "resolutionMET", "resolutionMHT", "resolutionETT", "resolutionHTT",
-            "resolutionMETPhi", "resolutionMHTPhi",
-        )
-    )
-)
+process.load('DQMOffline.L1Trigger.L1TStage2CaloLayer2Efficiency_cfi')
 
 
 process.maxEvents = cms.untracked.PSet(
@@ -81,7 +45,7 @@ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:mc', '')  # for MC
 
 # Path and EndPath definitions
 process.myHarvesting = cms.Path(process.DQMExample_Step2)
-process.myEff = cms.Path(process.l1tEfficiencyHarvesting)
+process.myEff = cms.Path(process.l1tStage2CaloLayer2Efficiency)
 process.myTest = cms.Path(process.DQMExample_qTester)
 process.dqmsave_step = cms.Path(process.dqmSaver)
 
