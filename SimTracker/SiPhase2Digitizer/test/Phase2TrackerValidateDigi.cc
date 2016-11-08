@@ -266,7 +266,6 @@ void Phase2TrackerValidateDigi::bookHistograms(DQMStore::IBooker & ibooker,
 
   std::string top_folder = config_.getParameter<std::string>("TopFolderName");
   std::stringstream folder_name;
-  TH1::SetDefaultSumw2();
 
   ibooker.cd();
   folder_name << top_folder << "/" << "SimTrackInfo" ;
