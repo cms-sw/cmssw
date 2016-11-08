@@ -1,7 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-from Configuration.Eras.Modifier_pA_2016_cff import pA_2016
-
 from DQM.Physics.bphysicsOniaDQM_cfi import *
 from DQM.Physics.ewkMuDQM_cfi import *
 from DQM.Physics.ewkElecDQM_cfi import *
@@ -37,9 +35,10 @@ dqmPhysics = cms.Sequence( bphysicsOniaDQM
                            *ExoticaDQM
                            *B2GDQM
                            )
+from Configuration.StandardSequences.Eras import eras
 dqmPhysicspA  =  dqmPhysics.copy()
 dqmPhysicspA += CentralitypADQM
-pA_2016.toReplaceWith(dqmPhysics, dqmPhysicspA)
+eras.pA_2016.toReplaceWith(dqmPhysics, dqmPhysicspA)
 
 bphysicsOniaDQMHI = bphysicsOniaDQM.clone(vertex=cms.InputTag("hiSelectedVertex"))
 dqmPhysicsHI = cms.Sequence(bphysicsOniaDQMHI+CentralityDQM)
