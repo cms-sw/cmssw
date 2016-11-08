@@ -5,11 +5,10 @@
 #include <xercesc/dom/DOM.hpp>
 #include <xercesc/parsers/XercesDOMParser.hpp>
 #include "FWCore/Concurrency/interface/Xerces.h"
+#include "Utilities/Xerces/interface/XercesStrUtils.h"
 #include <xercesc/util/XMLString.hpp>
 #include <xercesc/sax/SAXException.hpp>
 #include <xercesc/framework/LocalFileFormatTarget.hpp>
-
-
 
 #include "CondTools/Ecal/interface/EcalWeightGroupXMLTranslator.h"
 #include "CondFormats/EcalObjects/interface/EcalXtalGroupId.h"
@@ -18,8 +17,6 @@
 using namespace XERCES_CPP_NAMESPACE;
 using namespace xuti;
 using namespace std;
-
-
 
 int  EcalWeightGroupXMLTranslator::readXML(const std::string& filename, 
 					   EcalCondHeader& header,
@@ -58,20 +55,16 @@ int  EcalWeightGroupXMLTranslator::readXML(const std::string& filename,
     DOMNode * c_node = getChildNode(cellnode,WeightGroup_tag);
     GetNodeData(c_node,group);
 
-
     // fill record
     record[detid]=EcalXtalGroupId(group);
    
-
     // get next cell
     cellnode= cellnode->getNextSibling();
     
     while (cellnode&& cellnode->getNodeType( ) != DOMNode::ELEMENT_NODE)      
       cellnode= cellnode->getNextSibling();
     
-    
   }
-
 
   delete parser;
   cms::concurrency::xercesTerminate();
@@ -79,35 +72,31 @@ int  EcalWeightGroupXMLTranslator::readXML(const std::string& filename,
     
 }
 
-
-
-
-
 int EcalWeightGroupXMLTranslator::writeXML(const std::string& filename, 
 					   const EcalCondHeader& header,
 					   const EcalWeightXtalGroups& record){
+  cms::concurrency::xercesInitialize();
+
   std::fstream fs(filename.c_str(),ios::out);
   fs<< dumpXML(header,record);
-  return 0; 
-  
+
+  cms::concurrency::xercesTerminate();
+
+  return 0;
 }
-
-
 
 std::string 
 EcalWeightGroupXMLTranslator::dumpXML(const EcalCondHeader& header,
 				      const EcalWeightXtalGroups& record){
 
-  cms::concurrency::xercesInitialize();
-  
-  unique_ptr<DOMImplementation> impl( DOMImplementationRegistry::getDOMImplementation(fromNative("LS").c_str()));
+  unique_ptr<DOMImplementation> impl( DOMImplementationRegistry::getDOMImplementation(cms::xerces::uStr("LS").ptr()));
   
   DOMLSSerializer* writer = impl->createLSSerializer();
   if( writer->getDomConfig()->canSetParameter( XMLUni::fgDOMWRTFormatPrettyPrint, true ))
     writer->getDomConfig()->setParameter( XMLUni::fgDOMWRTFormatPrettyPrint, true );
   
-  DOMDocumentType* doctype = impl->createDocumentType( fromNative("XML").c_str(), 0, 0 );
-  DOMDocument* doc = impl->createDocument( 0, fromNative(WeightGroups_tag).c_str(), doctype );
+  DOMDocumentType* doctype = impl->createDocumentType( cms::xerces::uStr("XML").ptr(), 0, 0 );
+  DOMDocument* doc = impl->createDocument( 0, cms::xerces::uStr(WeightGroups_tag.c_str()).ptr(), doctype );
   DOMElement* root = doc->getDocumentElement();
  
   xuti::writeHeader(root,header);
@@ -144,13 +133,10 @@ EcalWeightGroupXMLTranslator::dumpXML(const EcalCondHeader& header,
     
   } // loop on EE cells
   
-  
-  std::string dump = toNative( writer->writeToString( root ));
+  std::string dump = cms::xerces::toString( writer->writeToString( root ));
   doc->release();
   doctype->release();
   writer->release();
-  //   cms::concurrency::xercesTerminate();
   
   return dump;
-
 }
