@@ -1,6 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
 import SimCalorimetry.HGCalSimProducers.hgcalDigitizer_cfi as digiparam
+import RecoLocalCalo.HGCalRecProducers.HGCalUncalibRecHit_cfi as recoparam
+import RecoLocalCalo.HGCalRecProducers.HGCalRecHit_cfi as recocalibparam 
 
 fe_codec = cms.PSet( CodecName  = cms.string('HGCalTriggerCellBestChoiceCodec'),
                      CodecIndex = cms.uint32(2),
@@ -14,14 +16,17 @@ fe_codec = cms.PSet( CodecName  = cms.string('HGCalTriggerCellBestChoiceCodec'),
                      adcnBits = digiparam.hgceeDigitizer.digiCfg.feCfg.adcNbits,
                      tdcsaturation = digiparam.hgceeDigitizer.digiCfg.feCfg.tdcSaturation_fC,
                      tdcnBits = digiparam.hgceeDigitizer.digiCfg.feCfg.tdcNbits,
-                     tdcOnsetfC = digiparam.hgceeDigitizer.digiCfg.feCfg.tdcOnset_fC
-                   )
+                     tdcOnsetfC = digiparam.hgceeDigitizer.digiCfg.feCfg.tdcOnset_fC,
+                     fCxMIPee = recoparam.HGCalUncalibRecHit.HGCEEConfig.fCPerMIP,
+                     fCxMIPfh = recoparam.HGCalUncalibRecHit.HGCHEFConfig.fCPerMIP,
+                     dEdXweights = recocalibparam.HGCalRecHit.layerWeights,
+                     thickCorr = recocalibparam.HGCalRecHit.thicknessCorrection
+                     )
 
-
-
-
+    
 cluster_algo =  cms.PSet( AlgorithmName = cms.string('FullModuleSumAlgo'),
-                                 FECodec = fe_codec )
+                          FECodec = fe_codec
+                          )
 
 
 hgcalTriggerPrimitiveDigiProducer = cms.EDProducer(
@@ -31,7 +36,8 @@ hgcalTriggerPrimitiveDigiProducer = cms.EDProducer(
     #bhDigis = cms.InputTag('mix:HGCDigisHEback'),
     FECodec = fe_codec.clone(),
     BEConfiguration = cms.PSet( 
-        algorithms = cms.VPSet( cluster_algo )
+        algorithms = cms.VPSet( cluster_algo ),
+        FECodec = fe_codec.clone()
         )
     )
 

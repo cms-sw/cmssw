@@ -37,7 +37,7 @@ class HGCalTriggerBackendProcessor {
 
   void setProduces(edm::EDProducer& prod) const;
 
-  void run(const l1t::HGCFETriggerDigiCollection& coll);
+  void run(const l1t::HGCFETriggerDigiCollection& coll, const edm::EventSetup& es);
 
   void putInEvent(edm::Event& evt);
 

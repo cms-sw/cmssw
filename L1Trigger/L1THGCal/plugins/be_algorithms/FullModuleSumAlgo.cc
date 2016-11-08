@@ -19,7 +19,7 @@ class FullModuleSumAlgo : public Algorithm<HGCalTriggerCellBestChoiceCodec>
             prod.produces<l1t::HGCalClusterBxCollection>(name());
         }
 
-        virtual void run(const l1t::HGCFETriggerDigiCollection& coll) override final;
+    virtual void run(const l1t::HGCFETriggerDigiCollection& coll, const edm::EventSetup& es) override final;
 
         virtual void putInEvent(edm::Event& evt) override final 
         {
@@ -37,7 +37,7 @@ class FullModuleSumAlgo : public Algorithm<HGCalTriggerCellBestChoiceCodec>
 };
 
 /*****************************************************************/
-void FullModuleSumAlgo::run(const l1t::HGCFETriggerDigiCollection& coll) 
+void FullModuleSumAlgo::run(const l1t::HGCFETriggerDigiCollection& coll, const edm::EventSetup& es) 
 /*****************************************************************/
 {
     for( const auto& digi : coll ) 
