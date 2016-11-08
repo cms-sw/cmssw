@@ -42,11 +42,10 @@ phase1Pixel.toReplaceWith(dqmPhysics, dqmPhysics.copyAndExclude([ # FIXME
     ewkElecDQM,          # Excessive printouts because 2017 doesn't have HLT yet
     ewkMuLumiMonitorDQM, # Excessive printouts because 2017 doesn't have HLT yet
 ]))
-
-from Configuration.Eras.Modifier_pA_2016_cff import pA_2016
+from Configuration.StandardSequences.Eras import eras
 dqmPhysicspA  =  dqmPhysics.copy()
 dqmPhysicspA += CentralitypADQM
-pA_2016.toReplaceWith(dqmPhysics, dqmPhysicspA)
+eras.pA_2016.toReplaceWith(dqmPhysics, dqmPhysicspA)
 
 bphysicsOniaDQMHI = bphysicsOniaDQM.clone(vertex=cms.InputTag("hiSelectedVertex"))
 dqmPhysicsHI = cms.Sequence(bphysicsOniaDQMHI+CentralityDQM)
