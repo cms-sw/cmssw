@@ -43,11 +43,13 @@ class ZDCTask : public DQMEDAnalyzer
 		//	hcaldqm::Containers
 		std::map<std::string,MonitorElement*>   _cShape_EChannel;
 		std::map<std::string,MonitorElement*>   _cADC_EChannel;
+		std::map<std::string,MonitorElement*>   _cADC_vs_TS_EChannel;
 
 
 		//	hcaldqm::Containers overall
 		MonitorElement*   _cShape;
 		MonitorElement*   _cADC;
+		MonitorElement*   _cADC_vs_TS;
 };
 
 #endif
