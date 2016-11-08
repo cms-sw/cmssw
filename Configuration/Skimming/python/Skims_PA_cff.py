@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-from Configuration.EventContent.EventContentHeavyIons_cff import FEVTEventContent
+from Configuration.EventContent.EventContent_cff import FEVTEventContent
 
 skimFEVTContent = FEVTEventContent.clone()
 skimFEVTContent.outputCommands.append("drop *_MEtoEDMConverter_*_*")
