@@ -221,6 +221,7 @@ upgradeFragments=['FourMuPt_1_200_pythia8_cfi',
                   'ZEE_14TeV_TuneCUETP8M1_cfi',
                   'QCD_Pt_80_120_13TeV_TuneCUETP8M1_cfi',
                   'H125GGgluonfusion_13TeV_TuneCUETP8M1_cfi',
+                  'ZMM_14TeV_TuneCUETP8M1_cfi',
 ]
 
 howMuches={'FourMuPt_1_200_pythia8_cfi':Kby(10,100),
@@ -272,6 +273,8 @@ howMuches={'FourMuPt_1_200_pythia8_cfi':Kby(10,100),
            'ZEE_14TeV_TuneCUETP8M1_cfi':Kby(9,100),
            'QCD_Pt_80_120_13TeV_TuneCUETP8M1_cfi':Kby(9,100),
            'H125GGgluonfusion_13TeV_TuneCUETP8M1_cfi':Kby(9,50),
+           'ZMM_14TeV_TuneCUETP8M1_cfi':Kby(18,100),
+
 }
 
 upgradeDatasetFromFragment={'FourMuPt_1_200_pythia8_cfi': 'FourMuPt1_200',
@@ -323,4 +326,6 @@ upgradeDatasetFromFragment={'FourMuPt_1_200_pythia8_cfi': 'FourMuPt1_200',
                             'ZEE_14TeV_TuneCUETP8M1_cfi' : 'ZEE_14',
                             'QCD_Pt_80_120_13TeV_TuneCUETP8M1_cfi' : 'QCD_Pt_80_120_13',
                             'H125GGgluonfusion_13TeV_TuneCUETP8M1_cfi' : 'H125GGgluonfusion_13',
+                            'ZMM_14TeV_TuneCUETP8M1_cfi' : 'ZMM_14',
+
 }
