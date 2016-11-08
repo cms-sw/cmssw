@@ -17,7 +17,7 @@ public:
     prod.produces<l1t::HGCalClusterBxCollection>(name());
   }
 
-  virtual void run(const l1t::HGCFETriggerDigiCollection& coll) override final;
+    virtual void run(const l1t::HGCFETriggerDigiCollection& coll, const edm::EventSetup& es) override final;
 
   virtual void putInEvent(edm::Event& evt) override final {
     evt.put(std::move(cluster_product_),name());
@@ -32,7 +32,7 @@ private:
 
 };
 
-void RandomClusterAlgo::run(const l1t::HGCFETriggerDigiCollection& coll) {
+void RandomClusterAlgo::run(const l1t::HGCFETriggerDigiCollection& coll, const edm::EventSetup& es) {
   for( const auto& digi : coll ) {
     HGCal64BitRandomCodec::data_type my_data;
     digi.decode(codec_,my_data);

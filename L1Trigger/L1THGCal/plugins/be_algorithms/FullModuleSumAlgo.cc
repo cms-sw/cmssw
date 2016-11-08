@@ -26,31 +26,7 @@ class FullModuleSumAlgo : public Algorithm<FECODEC>
             prod.produces<l1t::HGCalClusterBxCollection>(name());
         }
 
-        virtual void run(const l1t::HGCFETriggerDigiCollection& coll) override final
-        {
-            for( const auto& digi : coll ) 
-            {
-                DATA data;
-                data.reset();
-                const HGCalDetId& moduleId = digi.getDetId<HGCalDetId>();
-                digi.decode(codec_, data);
-
-                // Sum of trigger cells inside the module
-                uint32_t moduleSum = 0;
-                for(const auto& triggercell : data.payload)
-                {
-                    moduleSum += triggercell.hwPt();
-                }
-                // dummy cluster without position
-                // moduleId filled in place of hardware eta
-                l1t::HGCalCluster cluster( reco::LeafCandidate::LorentzVector(), 
-                    moduleSum, 0, 0);
-                cluster.setModule(moduleId.wafer());
-                cluster.setLayer(moduleId.layer());
-                cluster.setSubDet(moduleId.subdetId());
-                cluster_product_->push_back(0,cluster);
-            }
-        }
+        virtual void run(const l1t::HGCFETriggerDigiCollection& coll, const edm::EventSetup& es) override final;
 
         virtual void putInEvent(edm::Event& evt) override final 
         {
@@ -67,8 +43,16 @@ class FullModuleSumAlgo : public Algorithm<FECODEC>
 
 };
 
-typedef FullModuleSumAlgo<HGCalTriggerCellBestChoiceCodec, HGCalTriggerCellBestChoiceCodec::data_type> FullModuleSumAlgoBestChoice;
-typedef FullModuleSumAlgo<HGCalTriggerCellThresholdCodec, HGCalTriggerCellThresholdCodec::data_type> FullModuleSumAlgoThreshold;
+/*****************************************************************/
+void FullModuleSumAlgo::run(const l1t::HGCFETriggerDigiCollection& coll, const edm::EventSetup& es) 
+/*****************************************************************/
+{
+    for( const auto& digi : coll ) 
+    {
+        HGCalTriggerCellBestChoiceCodec::data_type data;
+        data.reset();
+        const HGCalDetId& moduleId = digi.getDetId<HGCalDetId>();
+        digi.decode(codec_, data);
 
 DEFINE_EDM_PLUGIN(HGCalTriggerBackendAlgorithmFactory, 
         FullModuleSumAlgoBestChoice,

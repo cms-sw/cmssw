@@ -133,7 +133,7 @@ void HGCalTriggerDigiProducer::produce(edm::Event& e, const edm::EventSetup& es)
   auto fe_digis_coll = *fe_digis_handle;
   
   //now we run the emulation of the back-end processor
-  backEndProcessor_->run(fe_digis_coll);
+  backEndProcessor_->run(fe_digis_coll, es);
   backEndProcessor_->putInEvent(e);
   backEndProcessor_->reset();  
 }
