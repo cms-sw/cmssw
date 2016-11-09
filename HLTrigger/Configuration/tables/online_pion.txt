@@ -195,8 +195,8 @@ HLT_PAEcalCalibration_v*                                                #CMSHLT-
 HLT_PAHcalPhiSym_v*                                                     #CMSHLT-1086
 HLT_PAHcalNZS_v*                                                        #CMSHLT-1086
 
-HLT_PAAK4CaloJet40_Eta5p1_v*                                            #CMSHLT-1110
-HLT_PAAK4PFJet40_Eta5p1_v*                                              #CMSHLT-1110
+HLT_PAAK4CaloJet40_Eta5p1_SeededWithMB_v*                               #CMSHLT-1110
+HLT_PAAK4PFJet40_Eta5p1_SeededWithMB_v*                                 #CMSHLT-1110
 
 HLT_Physics_v*
 
