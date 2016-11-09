@@ -587,9 +587,7 @@ template<class Digi> void HcalDigisValidation::reco(const edm::Event& iEvent, co
 
     int indigis = 0;
     //  amplitude for signal cell at diff. depths
-    std::vector<double> v_ampl_c;
-    v_ampl_c.push_back(0.);
-    for (int depth = 1; depth <= maxDepth_[isubdet]; depth++) v_ampl_c.push_back(0.);
+    std::vector<double> v_ampl_c(maxDepth_[isubdet]+1,0);
 
     // is set to 1 if "seed" SimHit is found
     int seedSimHit = 0;
@@ -660,9 +658,7 @@ template<class Digi> void HcalDigisValidation::reco(const edm::Event& iEvent, co
 
 
         //  amplitude for signal cell at diff. depths
-	std::vector<double> v_ampl;
-	v_ampl.push_back(0.);
-	for (int depth = 1; depth <= maxDepth_[isubdet]; depth++) v_ampl.push_back(0.);
+	std::vector<double> v_ampl(maxDepth_[isubdet]+1,0);
 
         // Gains, pedestals (once !) and only for "noise" case
         if (((nevent1 == 1 && isubdet == 1) ||
@@ -813,9 +809,7 @@ template<class Digi> void HcalDigisValidation::reco(const edm::Event& iEvent, co
 
         // SimHits once again !!!
         double eps = 1.e-3;
-	std::vector<double> v_ehits;
-	v_ehits.push_back(0.);
-	for (int depth = 1; depth <= maxDepth_[isubdet]; depth++) v_ehits.push_back(0.);
+	std::vector<double> v_ehits(maxDepth_[isubdet]+1,0);
 
         if (mc_ == "yes") {
             edm::Handle<edm::PCaloHitContainer> hcalHits;
@@ -912,9 +906,7 @@ template<class dataFrameType> void HcalDigisValidation::reco(const edm::Event& i
 
     int indigis = 0;
     //  amplitude for signal cell at diff. depths
-    std::vector<double> v_ampl_c;
-    v_ampl_c.push_back(0.);
-    for (int depth = 1; depth <= maxDepth_[isubdet]; depth++) v_ampl_c.push_back(0.);
+    std::vector<double> v_ampl_c(maxDepth_[isubdet]+1,0);
 
     // is set to 1 if "seed" SimHit is found
     int seedSimHit = 0;
@@ -987,9 +979,7 @@ template<class dataFrameType> void HcalDigisValidation::reco(const edm::Event& i
 
 
         //  amplitude for signal cell at diff. depths
-	std::vector<double> v_ampl;
-	v_ampl.push_back(0.);
-	for (int depth = 1; depth <= maxDepth_[isubdet]; depth++) v_ampl.push_back(0.);
+	std::vector<double> v_ampl(maxDepth_[isubdet]+1,0);
 
         // Gains, pedestals (once !) and only for "noise" case
         if (((nevent1 == 1 && isubdet == 1) ||
@@ -1140,9 +1130,7 @@ template<class dataFrameType> void HcalDigisValidation::reco(const edm::Event& i
 
         // SimHits once again !!!
         double eps = 1.e-3;
-	std::vector<double> v_ehits;
-	v_ehits.push_back(0.);
-	for (int depth = 1; depth <= maxDepth_[isubdet]; depth++) v_ehits.push_back(0.);
+	std::vector<double> v_ehits(maxDepth_[isubdet]+1,0);
 
         if (mc_ == "yes") {
             edm::Handle<edm::PCaloHitContainer> hcalHits;
