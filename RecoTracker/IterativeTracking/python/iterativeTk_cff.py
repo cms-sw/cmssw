@@ -1,5 +1,5 @@
 import FWCore.ParameterSet.Config as cms
-from RecoTracker.TkSeedGenerator.trackerClusterCheck_cff import *
+from RecoTracker.TkSeedGenerator.trackerClusterCheck_cfi import *
 
 from RecoTracker.IterativeTracking.InitialStepPreSplitting_cff import *
 from RecoTracker.IterativeTracking.InitialStep_cff import *

@@ -47,14 +47,14 @@ trackingPhase2PU140.toReplaceWith(detachedQuadStepTrackingRegions, _globalTracki
 )))
 
 # seeding
-from RecoTracker.TkHitPairs.hitPairEDProducer_cff import hitPairEDProducer as _hitPairEDProducer
+from RecoTracker.TkHitPairs.hitPairEDProducer_cfi import hitPairEDProducer as _hitPairEDProducer
 detachedQuadStepHitDoublets = _hitPairEDProducer.clone(
     seedingLayers = "detachedQuadStepSeedLayers",
     trackingRegions = "detachedQuadStepTrackingRegions",
     maxElement = 0,
     produceIntermediateHitDoublets = True,
 )
-from RecoPixelVertexing.PixelTriplets.pixelTripletLargeTipEDProducer_cff import pixelTripletLargeTipEDProducer as _pixelTripletLargeTipEDProducer
+from RecoPixelVertexing.PixelTriplets.pixelTripletLargeTipEDProducer_cfi import pixelTripletLargeTipEDProducer as _pixelTripletLargeTipEDProducer
 from RecoPixelVertexing.PixelLowPtUtilities.ClusterShapeHitFilterESProducer_cfi import *
 detachedQuadStepHitTriplets = _pixelTripletLargeTipEDProducer.clone(
     doublets = "detachedQuadStepHitDoublets",

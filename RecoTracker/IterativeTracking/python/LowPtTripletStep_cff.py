@@ -58,14 +58,14 @@ trackingPhase1PU70.toModify(lowPtTripletStepTrackingRegions, RegionPSet = dict(p
 trackingPhase2PU140.toModify(lowPtTripletStepTrackingRegions, RegionPSet = dict(ptMin = 0.45))
 
 # seeding
-from RecoTracker.TkHitPairs.hitPairEDProducer_cff import hitPairEDProducer as _hitPairEDProducer
+from RecoTracker.TkHitPairs.hitPairEDProducer_cfi import hitPairEDProducer as _hitPairEDProducer
 lowPtTripletStepHitDoublets = _hitPairEDProducer.clone(
     seedingLayers = "lowPtTripletStepSeedLayers",
     trackingRegions = "lowPtTripletStepTrackingRegions",
     maxElement = 0,
     produceIntermediateHitDoublets = True,
 )
-from RecoPixelVertexing.PixelTriplets.pixelTripletHLTEDProducer_cff import pixelTripletHLTEDProducer as _pixelTripletHLTEDProducer
+from RecoPixelVertexing.PixelTriplets.pixelTripletHLTEDProducer_cfi import pixelTripletHLTEDProducer as _pixelTripletHLTEDProducer
 from RecoPixelVertexing.PixelLowPtUtilities.ClusterShapeHitFilterESProducer_cfi import *
 import RecoPixelVertexing.PixelLowPtUtilities.LowPtClusterShapeSeedComparitor_cfi
 lowPtTripletStepHitTriplets = _pixelTripletHLTEDProducer.clone(
