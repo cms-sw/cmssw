@@ -170,7 +170,6 @@ def switchOnVIDPhotonIdProducer(process, dataFormat, task=None):
         # No reconfiguration is required, default settings are for AOD
         dataFormatString = "AOD"
         # Choose the VID sequence to be of the AOD type
-        #process.egmPhotonIDSequence = process.egmPhotonIDSequenceAOD.copy()
         process.egmPhotonIDSequence = cms.Sequence(egmPhotonIDSequenceAOD)
     elif dataFormat == DataFormat.MiniAOD:
         # If we are dealing with MiniAOD, we overwrite the electron collection
@@ -178,7 +177,7 @@ def switchOnVIDPhotonIdProducer(process, dataFormat, task=None):
         process.egmPhotonIDs.physicsObjectSrc = cms.InputTag('slimmedPhotons')
         dataFormatString = "MiniAOD"
         # Choose the VID sequence to be of the miniAOD type
-        process.egmPhotonIDSequence = process.egmPhotonIDSequenceMiniAOD.copy()
+        process.egmPhotonIDSequence = cms.Sequence(egmPhotonIDSequenceMiniAOD)
         
     else:
         raise Exception('InvalidVIDDataFormat', 'The requested data format is different from AOD or MiniAOD')
