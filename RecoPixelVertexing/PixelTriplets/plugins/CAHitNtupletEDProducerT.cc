@@ -74,7 +74,7 @@ void CAHitNtupletEDProducerT<T_Generator>::produce(edm::Event& iEvent, const edm
 
   const SeedingLayerSetsHits& seedingLayerHits = regionDoublets.seedingLayerHits();
   if(seedingLayerHits.numberOfLayersInSet() < T_Generator::minLayers) {
-    throw cms::Exception("Configuration") << "CAHitNtupletEDProducer expects SeedingLayerSetsHits::numberOfLayersInSet() to be >= " << T_Generator::minLayers << ", got " << seedingLayerHits.numberOfLayersInSet();
+    throw cms::Exception("LogicError") << "CAHitNtupletEDProducer expects SeedingLayerSetsHits::numberOfLayersInSet() to be >= " << T_Generator::minLayers << ", got " << seedingLayerHits.numberOfLayersInSet() << ". This is likely caused by a configuration error of this module, HitPairEDProducer, or SeedingLayersEDProducer.";
   }
 
   auto seedingHitSets = std::make_unique<RegionsSeedingHitSets>();
