@@ -32,7 +32,7 @@ private:
   float score (const T & t) const
   {
    auto bb = (t.dPhiCacheForLoopersReconstruction()==0 && t.foundHits()>8) ? 2*bonus : bonus; //extra bonus for long tracks not loopers
-    if (t.dPhiCacheForLoopersReconstruction()>0 || t.foundHits()<7) bb*=0.5f; 
+    if ( t.lastMeasurement().updatedState().globalMomentum().perp2() < 0.81f ) bb*=0.5f; 
     return t.chiSquared()-t.foundHits()*bb+t.lostHits()*penalty 
       + looperPenalty(t);
   }
