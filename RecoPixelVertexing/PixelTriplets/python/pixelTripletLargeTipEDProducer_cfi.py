@@ -1,4 +1,6 @@
-from RecoPixelVertexing.PixelTriplets.pixelTripletLargeTipEDProducer_cfi import *
+from RecoPixelVertexing.PixelTriplets.pixelTripletLargeTipEDProducerDefault_cfi import pixelTripletLargeTipEDProducerDefault as _pixelTripletLargeTipEDProducerDefault
+
+pixelTripletLargeTipEDProducer = _pixelTripletLargeTipEDProducerDefault.clone()
 from Configuration.Eras.Modifier_trackingLowPU_cff import trackingLowPU
 from Configuration.Eras.Modifier_trackingPhase1PU70_cff import trackingPhase1PU70
 from Configuration.Eras.Modifier_trackingPhase2PU140_cff import trackingPhase2PU140

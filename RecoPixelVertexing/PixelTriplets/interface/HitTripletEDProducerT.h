@@ -63,7 +63,7 @@ void HitTripletEDProducerT<T_HitTripletGenerator>::fillDescriptions(edm::Configu
 
   T_HitTripletGenerator::fillDescriptions(desc);
 
-  auto label = T_HitTripletGenerator::fillDescriptionsLabel() + std::string("EDProducer");
+  auto label = T_HitTripletGenerator::fillDescriptionsLabel() + std::string("EDProducerDefault");
   descriptions.add(label, desc);
 }
 

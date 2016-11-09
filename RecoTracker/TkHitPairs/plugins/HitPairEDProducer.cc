@@ -74,7 +74,7 @@ void HitPairEDProducer::fillDescriptions(edm::ConfigurationDescriptions& descrip
   desc.add<unsigned int>("maxElement", 1000000);
   desc.add<std::vector<unsigned> >("layerPairs", std::vector<unsigned>{{0}})->setComment("Indices to the pairs of consecutive layers, i.e. 0 means (0,1), 1 (1,2) etc.");
 
-  descriptions.add("hitPairEDProducer", desc);
+  descriptions.add("hitPairEDProducerDefault", desc);
 }
 
 void HitPairEDProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
