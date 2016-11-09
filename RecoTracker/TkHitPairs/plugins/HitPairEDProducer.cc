@@ -86,7 +86,7 @@ void HitPairEDProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
   iEvent.getByToken(seedingLayerToken_, hlayers);
   const auto& layers = *hlayers;
   if(layers.numberOfLayersInSet() < 2)
-    throw cms::Exception("Configuration") << "HitPairEDProducer expects SeedingLayerSetsHits::numberOfLayersInSet() to be >= 2, got " << layers.numberOfLayersInSet();
+    throw cms::Exception("LogicError") << "HitPairEDProducer expects SeedingLayerSetsHits::numberOfLayersInSet() to be >= 2, got " << layers.numberOfLayersInSet() << ". This is likely caused by a configuration error of this module, or SeedingLayersEDProducer.";
 
   edm::Handle<edm::OwnVector<TrackingRegion> > hregions;
   iEvent.getByToken(regionToken_, hregions);
@@ -120,7 +120,7 @@ void HitPairEDProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
     for(const auto& layerSet: layers) {
       for(const auto pairBeginIndex: layerPairBegins_) {
         if(pairBeginIndex+1 >= layers.numberOfLayersInSet()) {
-          throw cms::Exception("Configuration") << "Layer pair index " << pairBeginIndex << " is out of bounds, input SeedingLayerSetsHits has only " << layers.numberOfLayersInSet() << " layers per set, and the index+1 must be < than the number of layers in set";
+          throw cms::Exception("LogicError") << "Layer pair index " << pairBeginIndex << " is out of bounds, input SeedingLayerSetsHits has only " << layers.numberOfLayersInSet() << " layers per set, and the index+1 must be < than the number of layers in set";
         }
 
         // Take only the requested pair of the set
@@ -141,10 +141,10 @@ void HitPairEDProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
   }
   else {
     if(layerPairBegins_.size() != 1) {
-      throw cms::Exception("Configuration") << "With pairs of input layers, it doesn't make sense to specify more than one input layer pair, got " << layerPairBegins_.size();
+      throw cms::Exception("LogicError") << "With pairs of input layers, it doesn't make sense to specify more than one input layer pair, got " << layerPairBegins_.size();
     }
     if(layerPairBegins_[0] != 0) {
-      throw cms::Exception("Configuration") << "With pairs of input layers, it doesn't make sense to specify other input layer pair than 0; got " << layerPairBegins_[0];
+      throw cms::Exception("LogicError") << "With pairs of input layers, it doesn't make sense to specify other input layer pair than 0; got " << layerPairBegins_[0];
     }
 
     layerPairs.reserve(layers.size());
