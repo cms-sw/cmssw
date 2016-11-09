@@ -176,7 +176,10 @@ void CAHitQuadrupletGenerator::hitQuadruplets(const TrackingRegion& region,
 
 
 	HitPairGeneratorFromLayerPair thePairGenerator(0, 1, &theLayerCache);
-        fillGraph(layers, g, hitDoublets, [&](const SeedingLayerSetsHits::SeedingLayer& inner, const SeedingLayerSetsHits::SeedingLayer& outer, std::vector<HitDoublets>& hitDoublets) {
+        fillGraph(layers, g, hitDoublets,
+                  [&](const SeedingLayerSetsHits::SeedingLayer& inner,
+                      const SeedingLayerSetsHits::SeedingLayer& outer,
+                      std::vector<HitDoublets>& hitDoublets) {
             hitDoublets.emplace_back(thePairGenerator.doublets(region, ev, es, inner, outer));
             return true;
           });
@@ -206,9 +209,13 @@ void CAHitQuadrupletGenerator::hitNtuplets(const IntermediateHitDoublets::Region
                            SeedingLayerSetsHits::LayerIndex outer) {
     return pair.innerLayerIndex() == inner && pair.outerLayerIndex() == outer;
   };
-  fillGraph(layers, g, hitDoublets, [&](const SeedingLayerSetsHits::SeedingLayer& inner, const SeedingLayerSetsHits::SeedingLayer& outer, std::vector<const HitDoublets *>& hitDoublets) {
+  fillGraph(layers, g, hitDoublets,
+            [&](const SeedingLayerSetsHits::SeedingLayer& inner,
+                const SeedingLayerSetsHits::SeedingLayer& outer,
+                std::vector<const HitDoublets *>& hitDoublets) {
       using namespace std::placeholders;
-      auto found = std::find_if(regionLayerPairs.begin(), regionLayerPairs.end(), std::bind(layerPairEqual, _1, inner.index(), outer.index()));
+      auto found = std::find_if(regionLayerPairs.begin(), regionLayerPairs.end(),
+                                std::bind(layerPairEqual, _1, inner.index(), outer.index()));
       if(found != regionLayerPairs.end()) {
         hitDoublets.emplace_back(&(found->doublets()));
         return true;
