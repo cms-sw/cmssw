@@ -49,8 +49,8 @@ HcalDigisValidation::HcalDigisValidation(const edm::ParameterSet& iConfig) {
         tok_dataTPs_ = consumes<HcalTrigPrimDigiCollection>(dataTPsTag_);
     }
 
-    tok_qie10_hf_ = consumes< QIE10DigiCollection >(edm::InputTag(inputLabel_, "HFQIE10DigiCollection"));
-    tok_qie11_hbhe_ = consumes< QIE11DigiCollection >(edm::InputTag(inputLabel_, "HBHEQIE11DigiCollection"));
+    tok_qie10_hf_ = consumes< QIE10DigiCollection >(inputTag_);
+    tok_qie11_hbhe_ = consumes< QIE11DigiCollection >(inputTag_);
 
     nevent1 = 0;
     nevent2 = 0;
