@@ -57,7 +57,7 @@ void MultiHitFromChi2EDProducer::produce(edm::Event& iEvent, const edm::EventSet
 
   const SeedingLayerSetsHits& seedingLayerHits = regionDoublets.seedingLayerHits();
   if(seedingLayerHits.numberOfLayersInSet() < 3) {
-    throw cms::Exception("Configuration") << "MultiHitFromChi2EDProducer expects SeedingLayerSetsHits::numberOfLayersInSet() to be >= 3, got " << seedingLayerHits.numberOfLayersInSet();
+    throw cms::Exception("LogicError") << "MultiHitFromChi2EDProducer expects SeedingLayerSetsHits::numberOfLayersInSet() to be >= 3, got " << seedingLayerHits.numberOfLayersInSet() << ". This is likely caused by a configuration error of this module, HitPairEDProducer, or SeedingLayersEDProducer.";
   }
 
   auto seedingHitSets = std::make_unique<RegionsSeedingHitSets>();

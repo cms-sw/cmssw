@@ -75,7 +75,7 @@ void HitTripletEDProducerT<T_HitTripletGenerator>::produce(edm::Event& iEvent, c
 
   const SeedingLayerSetsHits& seedingLayerHits = regionDoublets.seedingLayerHits();
   if(seedingLayerHits.numberOfLayersInSet() < 3) {
-    throw cms::Exception("Configuration") << "HitTripletEDProducerT expects SeedingLayerSetsHits::numberOfLayersInSet() to be >= 3, got " << seedingLayerHits.numberOfLayersInSet();
+    throw cms::Exception("LogicError") << "HitTripletEDProducerT expects SeedingLayerSetsHits::numberOfLayersInSet() to be >= 3, got " << seedingLayerHits.numberOfLayersInSet() << ". This is likely caused by a configuration error of this module, HitPairEDProducer, or SeedingLayersEDProducer.";
   }
 
   std::unique_ptr<RegionsSeedingHitSets> seedingHitSets;

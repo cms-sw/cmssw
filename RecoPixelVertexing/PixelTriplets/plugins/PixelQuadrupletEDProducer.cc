@@ -55,7 +55,7 @@ void PixelQuadrupletEDProducer::produce(edm::Event& iEvent, const edm::EventSetu
 
   const SeedingLayerSetsHits& seedingLayerHits = regionTriplets.seedingLayerHits();
   if(seedingLayerHits.numberOfLayersInSet() < 4) {
-    throw cms::Exception("Configuration") << "PixelQuadrupletEDProducer expects SeedingLayerSetsHits::numberOfLayersInSet() to be >= 4, got " << seedingLayerHits.numberOfLayersInSet();
+    throw cms::Exception("LogicError") << "PixelQuadrupletEDProducer expects SeedingLayerSetsHits::numberOfLayersInSet() to be >= 4, got " << seedingLayerHits.numberOfLayersInSet() << ". This is likely caused by a configuration error of this module, HitPairEDProducer, or SeedingLayersEDProducer.";
   }
 
   auto seedingHitSets = std::make_unique<RegionsSeedingHitSets>();
