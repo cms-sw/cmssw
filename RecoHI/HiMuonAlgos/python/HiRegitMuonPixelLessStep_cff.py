@@ -11,6 +11,7 @@ hiRegitMuPixelLessStepTrackingRegions = HiTrackingRegionFactoryFromSTAMuonsEDPro
     MuonSrc = "standAloneMuons:UpdatedAtVtx", # this is the same as default, why repeat?
     MuonTrackingRegionBuilder = dict(
         vertexCollection = "hiSelectedVertex",
+        UseVertex     = True,
         Phi_fixed     = True,
         Eta_fixed     = True,
         # Ok, the following ones are specific to PixelLessStep
