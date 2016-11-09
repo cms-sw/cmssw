@@ -130,9 +130,26 @@ process.PBRecHits = cms.EDProducer("SiPixelRecHitConverter",
 )
 
 # Phase1 DQM
+
+# first, we load the global  defaults and overwrite what needs to be changed
 from DQM.SiPixelPhase1Common.HistogramManager_cfi import *
 DefaultHisto.enabled = False
+# Caution: this disables a lot of safety checks.
+# But it is reasonable here, bc we don't want to see Barrel etc.
+DefaultHisto.bookUndefined = False 
+
+# maximum Lumisection number for trends. This is a hard limit, higher ends up in overflow.
+SiPixelPhase1Geometry.max_lumisection = 500 
+# #LS per line in the "overlaid curves"
+SiPixelPhase1Geometry.onlineblock = 10 
+# number of lines
+SiPixelPhase1Geometry.n_onlineblocks = SiPixelPhase1Geometry.max_lumisection.value()/SiPixelPhase1Geometry.onlineblock.value()
+
+# then, we load the online config. This will overwrite more defaults, and e.g. configure for phase0 real data.
 process.load("DQM.SiPixelPhase1Config.SiPixelPhase1OnlineDQM_cff")
+# this also loads the plugins. After that, some values cannot be changed any more, since they were copied around.
+
+# finally, we reconfigure the plugins. Above, we disabled all by default, so only what is turned on below appears.
 
 process.SiPixelPhase1Geometry.CablingMapLabel = "pilotBlade"
 process.siPixelDigis.InputLabel   = cms.InputTag("rawDataCollector")
@@ -140,8 +157,9 @@ process.SiPixelPhase1ClustersAnalyzer.src = "PBClusters"
 process.SiPixelPhase1DigisAnalyzer.src = "PBDigis"
 process.SiPixelPhase1RawDataAnalyzer.src = "PBDigis"
 
-# online "overlaid curves"
-onlineLiveSpec = (
+# some Histogram Specifications we want to use later
+
+onlineLiveSpec = ( # online "overlaid curves"
   Specification(PerModule).groupBy("PXForward/PXDisk/DetId/OnlineBlock")
 		  .groupBy("PXForward/PXDisk/DetId", "EXTEND_Y")
 		  .save()
@@ -160,17 +178,51 @@ onlineLiveSpec_Num = (
 		  .save()
 )
 
+onlineTrendSpec = (
+  Specification(PerModule).groupBy("PXForward/PXDisk/DetId/Lumisection")
+                  .reduce("MEAN")
+		  .groupBy("PXForward/PXDisk/DetId", "EXTEND_X")
+		  .save()
+		  .groupBy("PXForward/PXDisk")
+		  .save()
+)
+
+onlineTrendSpec_Num = (
+  Specification(PerModule).groupBy("PXForward/PXDisk/DetId/Lumisection/Event")
+                  .reduce("COUNT")
+                  .groupBy("PXForward/PXDisk/DetId/Lumisection")
+                  .reduce("MEAN")
+		  .groupBy("PXForward/PXDisk/DetId", "EXTEND_X")
+		  .save()
+		  .groupBy("PXForward/PXDisk")
+		  .save()
+)
+ 
+normalPerModule = (
+  Specification(PerModule).groupBy("PXForward/PXDisk/DetId").save()
+                          .groupBy("PXForward/PXDisk").save()
+)
+
+normalPerModule_Num = (
+  Specification(PerModule).groupBy("PXForward/PXDisk/DetId/Event")
+                          .reduce("COUNT")
+                          .groupBy("PXForward/PXDisk/DetId").save()
+                          .groupBy("PXForward/PXDisk").save()
+)
+
 # turn on and configure specific histograms
 
 # digis
 process.SiPixelPhase1DigisADC.enabled = True
 process.SiPixelPhase1DigisADC.specs = cms.VPSet(
-  StandardSpecification2DProfile
+  StandardSpecification2DProfile,
+  normalPerModule,
 )
 
 process.SiPixelPhase1DigisNdigis.enabled = True
 process.SiPixelPhase1DigisNdigis.specs = cms.VPSet(
-  StandardSpecification2DProfile_Num
+  StandardSpecification2DProfile_Num,
+  normalPerModule_Num,
 )
 
 process.SiPixelPhase1DigisNdigisPerFED.enabled = True
@@ -184,32 +236,45 @@ process.SiPixelPhase1DigisNdigisPerFED.specs = cms.VPSet(
 
 process.SiPixelPhase1DigisEvents.enabled = True
 process.SiPixelPhase1DigisHitmap.enabled = True
+process.SiPixelPhase1DigisHitmap.specs = cms.VPSet(
+    Specification(PerModule).groupBy("PXForward/PXDisk/DetId/row/col")
+                   .groupBy("PXForward/PXDisk/DetId/row", "EXTEND_Y")
+                   .groupBy("PXForward/PXDisk/DetId", "EXTEND_X")
+                   .save(),
+    Specification(PerModule).groupBy("PXForward/PXDisk/DetId/col")
+                   .groupBy("PXForward/PXDisk/DetId", "EXTEND_X")
+                   .save(),
+    Specification(PerModule).groupBy("PXForward/PXDisk/DetId/row")
+                   .groupBy("PXForward/PXDisk/DetId", "EXTEND_X")
+                   .save()
+)
 
 # clusters
 process.SiPixelPhase1ClustersCharge.enabled = True
 process.SiPixelPhase1ClustersCharge.bookUndefined = False
 process.SiPixelPhase1ClustersCharge.specs = cms.VPSet(
   StandardSpecification2DProfile,
-  Specification(PerModule).groupBy("PXForward/PXDisk/DetId").save(),
+  normalPerModule,
   onlineLiveSpec,
+  onlineTrendSpec,
 )
 
 process.SiPixelPhase1ClustersSize.enabled = True
 process.SiPixelPhase1ClustersSize.bookUndefined = False
 process.SiPixelPhase1ClustersSize.specs = cms.VPSet(
   StandardSpecification2DProfile,
-  Specification(PerModule).groupBy("PXForward/PXDisk/DetId").save(),
+  normalPerModule,
   onlineLiveSpec,
+  onlineTrendSpec,
 )
 
 process.SiPixelPhase1ClustersNClusters.enabled = True
 process.SiPixelPhase1ClustersNClusters.bookUndefined = False
 process.SiPixelPhase1ClustersNClusters.specs = cms.VPSet(
   StandardSpecification2DProfile_Num,
-  Specification(PerModule).groupBy("PXForward/PXDisk/DetId/Event")
-                          .reduce("COUNT")
-                          .groupBy("PXForward/PXDisk/DetId").save(),
+  normalPerModule_Num,
   onlineLiveSpec_Num,
+  onlineTrendSpec_Num,
 )
 
 process.SiPixelPhase1ClustersPositionB.enabled = True
