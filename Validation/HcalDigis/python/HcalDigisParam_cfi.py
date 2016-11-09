@@ -9,7 +9,8 @@ hcaldigisAnalyzer = cms.EDAnalyzer("HcalDigisValidation",
     mc		= cms.untracked.string('yes'),
     simHits     = cms.untracked.InputTag("g4SimHits","HcalHits"),
     emulTPs     = cms.InputTag("emulDigis"),
-    dataTPs     = cms.InputTag("simHcalTriggerPrimitiveDigis")
+    dataTPs     = cms.InputTag("simHcalTriggerPrimitiveDigis"),
+    TestNumber    = cms.bool(False)
 )
 
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
@@ -19,5 +20,6 @@ if fastSim.isChosen():
 from Configuration.Eras.Modifier_phase2_hcal_cff import phase2_hcal
 phase2_hcal.toModify(hcaldigisAnalyzer,
     dataTPs = cms.InputTag(""),
-    digiLabel = cms.string("simHcalDigis")
+    digiLabel = cms.string("simHcalDigis"),
+    TestNumber    = cms.bool(True)
 )

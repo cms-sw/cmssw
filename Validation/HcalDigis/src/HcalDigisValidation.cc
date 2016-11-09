@@ -609,11 +609,22 @@ template<class Digi> void HcalDigisValidation::reco(const edm::Event& iEvent, co
 
             for (std::vector<PCaloHit>::const_iterator simhits = simhitResult->begin(); simhits != simhitResult->end(); ++simhits) {
 
-                HcalDetId cell(simhits->id());
+                unsigned int id_ = simhits->id();
+                int sub, depth, ieta, iphi;
+                if (testNumber_) {
+                  int z, lay;
+                  HcalTestNumbering::unpackHcalIndex(id_, sub, z, depth, ieta, iphi, lay);
+                  int sign = (z==0) ? (-1):(1);
+                  ieta     *= sign;
+                } else {
+                  HcalDetId id = HcalDetId(id_);
+                  sub       = id.subdet(); 
+                  depth        = id.depth();
+                  ieta          = id.ieta();
+                  iphi          = id.iphi();
+                }
+
                 double en = simhits->energy();
-                int sub = cell.subdet();
-                int ieta = cell.ieta();
-                int iphi = cell.iphi();
 
                 if (en > emax_Sim && sub == isubdet) {
                     emax_Sim = en;
@@ -812,14 +823,23 @@ template<class Digi> void HcalDigisValidation::reco(const edm::Event& iEvent, co
             const edm::PCaloHitContainer * simhitResult = hcalHits.product();
             for (std::vector<PCaloHit>::const_iterator simhits = simhitResult->begin(); simhits != simhitResult->end(); ++simhits) {
 
-                HcalDetId cell(simhits->id());
-                int ieta = cell.ieta();
-                int iphi = cell.iphi();
-                int sub = cell.subdet();
+                unsigned int id_ = simhits->id();
+                int sub, depth, ieta, iphi;
+                if (testNumber_) {
+                  int z, lay;
+                  HcalTestNumbering::unpackHcalIndex(id_, sub, z, depth, ieta, iphi, lay);
+                  int sign = (z==0) ? (-1):(1);
+                  ieta     *= sign;
+                } else {
+                  HcalDetId id = HcalDetId(id_);
+                  sub       = id.subdet(); 
+                  depth        = id.depth();
+                  ieta          = id.ieta();
+                  iphi          = id.iphi();
+                }
 
                 // take cell already found to be max energy in a particular subdet
                 if (sub == isubdet && ieta == ieta_Sim && iphi == iphi_Sim) {
-                    int depth = cell.depth();
                     double en = simhits->energy();
 
                     v_ehits[0] += en;
@@ -914,11 +934,22 @@ template<class dataFrameType> void HcalDigisValidation::reco(const edm::Event& i
 
             for (std::vector<PCaloHit>::const_iterator simhits = simhitResult->begin(); simhits != simhitResult->end(); ++simhits) {
 
-                HcalDetId cell(simhits->id());
+                unsigned int id_ = simhits->id();
+                int sub, depth, ieta, iphi;
+                if (testNumber_) {
+                  int z, lay;
+                  HcalTestNumbering::unpackHcalIndex(id_, sub, z, depth, ieta, iphi, lay);
+                  int sign = (z==0) ? (-1):(1);
+                  ieta     *= sign;
+                } else {
+                  HcalDetId id = HcalDetId(id_);
+                  sub          = id.subdet();
+                  depth        = id.depth();
+                  ieta         = id.ieta();
+                  iphi         = id.iphi();
+                }
+              
                 double en = simhits->energy();
-                int sub = cell.subdet();
-                int ieta = cell.ieta();
-                int iphi = cell.iphi();
 
                 if (en > emax_Sim && sub == isubdet) {
                     emax_Sim = en;
@@ -1119,14 +1150,23 @@ template<class dataFrameType> void HcalDigisValidation::reco(const edm::Event& i
             const edm::PCaloHitContainer * simhitResult = hcalHits.product();
             for (std::vector<PCaloHit>::const_iterator simhits = simhitResult->begin(); simhits != simhitResult->end(); ++simhits) {
 
-                HcalDetId cell(simhits->id());
-                int ieta = cell.ieta();
-                int iphi = cell.iphi();
-                int sub = cell.subdet();
+                unsigned int id_ = simhits->id();
+                int sub, depth, ieta, iphi;
+                if (testNumber_) {
+                  int z, lay;
+                  HcalTestNumbering::unpackHcalIndex(id_, sub, z, depth, ieta, iphi, lay);
+                  int sign = (z==0) ? (-1):(1);
+                  ieta     *= sign;
+                } else {
+                  HcalDetId id = HcalDetId(id_);
+                  sub       = id.subdet();
+                  depth        = id.depth();
+                  ieta          = id.ieta();
+                  iphi          = id.iphi();
+                }
 
                 // take cell already found to be max energy in a particular subdet
                 if (sub == isubdet && ieta == ieta_Sim && iphi == iphi_Sim) {
-                    int depth = cell.depth();
                     double en = simhits->energy();
 
                     v_ehits[0] += en;
