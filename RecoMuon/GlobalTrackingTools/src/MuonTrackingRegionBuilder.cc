@@ -255,7 +255,7 @@ std::unique_ptr<RectangularEtaPhiTrackingRegion> MuonTrackingRegionBuilder::regi
 void MuonTrackingRegionBuilder::fillDescriptions(edm::ParameterSetDescription& descriptions) {
   {
     edm::ParameterSetDescription desc;
-    fillDescriptions2(desc);
+    fillDescriptionsOffline(desc);
     descriptions.add("MuonTrackingRegionBuilder",desc);
   }
   {
@@ -291,7 +291,7 @@ void MuonTrackingRegionBuilder::fillDescriptions(edm::ParameterSetDescription& d
   descriptions.setComment("Build a TrackingRegion around a standalone muon. Options to define region around beamspot or primary vertex and dynamic regions are included.");
 }
 
-void MuonTrackingRegionBuilder::fillDescriptions2(edm::ParameterSetDescription& desc) {
+void MuonTrackingRegionBuilder::fillDescriptionsOffline(edm::ParameterSetDescription& desc) {
   desc.add<double>("EtaR_UpperLimit_Par1",0.25);
   desc.add<double>("DeltaR",0.2);
   desc.add<edm::InputTag>("beamSpot",edm::InputTag(""));
