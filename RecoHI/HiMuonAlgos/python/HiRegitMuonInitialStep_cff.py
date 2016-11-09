@@ -10,6 +10,7 @@ hiRegitMuInitialStepTrackingRegions = HiTrackingRegionFactoryFromSTAMuonsEDProdu
     MuonSrc = "standAloneMuons:UpdatedAtVtx", # this is the same as default, why repeat?
     MuonTrackingRegionBuilder = dict(
         vertexCollection = "hiSelectedVertex",
+        UseVertex     = True,
         Phi_fixed     = True,
         Eta_fixed     = True,
         DeltaPhi      = 0.3,
