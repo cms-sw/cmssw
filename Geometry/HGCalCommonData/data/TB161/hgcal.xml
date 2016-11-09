@@ -6,7 +6,7 @@
   <Constant name="rmaxEE"      value="10.0*cm"/>
   <Constant name="zCalor"      value="100.0*cm"/>
   <Constant name="zminEE"      value="0.0*fm"/>
-  <Constant name="zmaxEE"      value="40.0*cm"/>
+  <Constant name="zmaxEE"      value="45.0*cm"/>
   <Constant name="zposCalo"    value="1210.0*cm"/>
   <Constant name="zposEE"      value="-100.0*cm"/>
   <Constant name="WaferW"      value="123.7*mm"/>
