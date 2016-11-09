@@ -29,6 +29,13 @@ DataOflineDir=''
 for Run_numb in $@;
 do
 
+    if [ $Run_numb -gt 284500 ]; then
+
+        DataLocalDir='Data2016'
+        DataOfflineDir='PARun2016'
+    else
+
+
     if [ "$Run_numb" == "$1" ]; then continue; fi
 
 ##2016 data taking period run > 271024
@@ -72,6 +79,7 @@ do
 		fi
 	    fi
 	fi
+    fi
     fi
     fi
     fi
@@ -159,6 +167,9 @@ do
     rm -f *.txt
     rm -f *.html
     rm -f *.root
+
+
+    cp ${WORKINGDIR}/DQM/SiStripMonitorClient/scripts/DeadROCCounter.py .
 
 # Determine the GlobalTag name used to process the data and the DQM
 
@@ -267,6 +278,9 @@ do
     ssh cctrack@vocms061 "mkdir -p /data/users/event_display/TkCommissioner_runs/${DataLocalDir}/${dest} 2> /dev/null"
     scp *.root cctrack@vocms061:/data/users/event_display/TkCommissioner_runs/${DataLocalDir}/${dest}
     rm *.root
+
+    echo "countig dead pixel ROCs" 
+    ./DeadROCCounter.py ${file_path}/$dqmFileName
 
 #    mkdir -p /data/users/event_display/${DataLocalDir}/${dest}/${nnn}/${Run_numb}/$thisDataset #2> /dev/null
 #    cp -r ${Run_numb}/$thisDataset /data/users/event_display/Data2011/${dest}/${nnn}/${Run_numb}/
