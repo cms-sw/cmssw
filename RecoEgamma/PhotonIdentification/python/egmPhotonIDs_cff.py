@@ -10,13 +10,19 @@ from RecoEgamma.PhotonIdentification.PhotonIDValueMapProducer_cfi import *
 from RecoEgamma.PhotonIdentification.PhotonMVAValueMapProducer_cfi import *
 from RecoEgamma.PhotonIdentification.PhotonRegressionValueMapProducer_cfi import *
 
-# The sequence below is important. The MVA ValueMapProducer
+# Load sequences for isolations computed with CITK for both AOD and miniAOD cases
+from RecoEgamma.EgammaIsolationAlgos.egmPhotonIsolationAOD_cff     import egmPhotonIsolationAODSequence
+from RecoEgamma.EgammaIsolationAlgos.egmPhotonIsolationMiniAOD_cff import egmPhotonIsolationMiniAOD
+
+# The exact sequence below is important. The MVA ValueMapProducer
 # needs to be downstream from the ID ValueMapProducer because it relies 
-# on some of its products
-egmPhotonIDTask = cms.Task(
-    photonIDValueMapProducer,
-    photonMVAValueMapProducer,
-    egmPhotonIDs,
-    photonRegressionValueMapProducer
-)
-egmPhotonIDSequence = cms.Sequence(egmPhotonIDTask)
+# on some of its products, for example.
+
+# The sequences for AOD and miniAOD are defined separately.
+egmPhotonIDSequenceAOD = cms.Sequence(egmPhotonIsolationAODSequence * photonIDValueMapProducer * photonMVAValueMapProducer * egmPhotonIDs * photonRegressionValueMapProducer )
+egmPhotonIDSequenceMiniAOD = cms.Sequence(egmPhotonIsolationMiniAOD * photonIDValueMapProducer * photonMVAValueMapProducer * egmPhotonIDs * photonRegressionValueMapProducer )
+
+# The default case is miniAOD, however this can be controlled 
+# via the data format argument of the function in vid_tools.py that switches
+# on VID tools: switchOnVIDPhotonIdProducer(process, dataFormat)
+egmPhotonIDSequence = egmPhotonIDSequenceMiniAOD.copy()
