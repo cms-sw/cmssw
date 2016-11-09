@@ -79,7 +79,7 @@ trackingPhase1PU70.toModify(pixelPairStepTrackingRegions, RegionPSet=dict(ptMin 
 trackingPhase2PU140.toModify(pixelPairStepTrackingRegions, RegionPSet=dict(ptMin = 1.3, useMultipleScattering=False))
 
 # SEEDS
-from RecoTracker.TkHitPairs.hitPairEDProducer_cff import hitPairEDProducer as _hitPairEDProducer
+from RecoTracker.TkHitPairs.hitPairEDProducer_cfi import hitPairEDProducer as _hitPairEDProducer
 pixelPairStepHitDoublets = _hitPairEDProducer.clone(
     seedingLayers = "pixelPairStepSeedLayers",
     trackingRegions = "pixelPairStepTrackingRegions",

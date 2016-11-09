@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-from RecoTracker.TkSeedGenerator.trackerClusterCheck_cff import trackerClusterCheck as _trackerClusterCheck
+from RecoTracker.TkSeedGenerator.trackerClusterCheck_cfi import trackerClusterCheck as _trackerClusterCheck
 hiRegitMuClusterCheck = _trackerClusterCheck.clone(
     doClusterCheck = False # do not check for max number of clusters pixel or strips
 )
