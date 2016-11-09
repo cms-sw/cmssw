@@ -656,6 +656,10 @@ template<class Digi> void HcalDigisValidation::reco(const edm::Event& iEvent, co
         int ieta = cell.ieta();
         int sub = cell.subdet();
 
+        if(depth > maxDepth_[isubdet]){
+		edm::LogWarning("HcalDetId") << "HcalDetID presents conflicting information. Depth: " << depth << ", iphi: " << iphi << ", ieta: " << ieta << ". Max depth from geometry is: " << maxDepth_[isubdet] << ". TestNumber = " << testNumber_;
+                continue;
+        }
 
         //  amplitude for signal cell at diff. depths
 	std::vector<double> v_ampl(maxDepth_[isubdet]+1,0);
@@ -832,6 +836,12 @@ template<class Digi> void HcalDigisValidation::reco(const edm::Event& iEvent, co
                   iphi          = id.iphi();
                 }
 
+                if(depth > maxDepth_[isubdet]){
+	        	edm::LogWarning("HcalDetId") << "HcalDetID(SimHit) presents conflicting information. Depth: " << depth << ", iphi: " << iphi << ", ieta: " << ieta << ". Max depth from geometry is: " << maxDepth_[isubdet] << ". TestNumber = " << testNumber_;
+                        continue;
+                }
+
+
                 // take cell already found to be max energy in a particular subdet
                 if (sub == isubdet && ieta == ieta_Sim && iphi == iphi_Sim) {
                     double en = simhits->energy();
@@ -977,6 +987,10 @@ template<class dataFrameType> void HcalDigisValidation::reco(const edm::Event& i
         int ieta = cell.ieta();
         int sub = cell.subdet();
 
+        if(depth > maxDepth_[isubdet]){
+		edm::LogWarning("HcalDetId") << "HcalDetID presents conflicting information. Depth: " << depth << ", iphi: " << iphi << ", ieta: " << ieta << ". Max depth from geometry is: " << maxDepth_[isubdet] << ". TestNumber = " << testNumber_;
+                continue;
+        }
 
         //  amplitude for signal cell at diff. depths
 	std::vector<double> v_ampl(maxDepth_[isubdet]+1,0);
@@ -1152,6 +1166,12 @@ template<class dataFrameType> void HcalDigisValidation::reco(const edm::Event& i
                   ieta          = id.ieta();
                   iphi          = id.iphi();
                 }
+
+                if(depth > maxDepth_[isubdet]){
+	        	edm::LogWarning("HcalDetId") << "HcalDetID(SimHit) presents conflicting information. Depth: " << depth << ", iphi: " << iphi << ", ieta: " << ieta << ". Max depth from geometry is: " << maxDepth_[isubdet] << ". TestNumber = " << testNumber_;
+                        continue;
+                }
+
 
                 // take cell already found to be max energy in a particular subdet
                 if (sub == isubdet && ieta == ieta_Sim && iphi == iphi_Sim) {
