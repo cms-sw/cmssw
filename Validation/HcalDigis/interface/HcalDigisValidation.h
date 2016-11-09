@@ -38,6 +38,8 @@
 
 #include "Geometry/CaloTopology/interface/HcalTopology.h"
 
+#include "SimDataFormats/CaloTest/interface/HcalTestNumbering.h"
+
 /*TP Code*/
 #include "Geometry/CaloTopology/interface/HcalTopology.h"
 #include "CalibFormats/CaloTPG/interface/CaloTPGTranscoder.h"
@@ -116,6 +118,7 @@ private:
     std::string mode_;
     std::string mc_;
     int noise_;
+    bool testNumber_;
 
     edm::EDGetTokenT<edm::PCaloHitContainer> tok_mc_;
     edm::EDGetTokenT< HBHEDigiCollection > tok_hbhe_; 
