@@ -45,7 +45,7 @@ class HIMuonTrackingRegionProducer : public TrackingRegionProducer {
     desc.add<edm::InputTag>("MuonSrc", edm::InputTag(""));
 
     edm::ParameterSetDescription descRegion;
-    MuonTrackingRegionBuilder::fillDescriptions2(descRegion);
+    MuonTrackingRegionBuilder::fillDescriptionsOffline(descRegion);
     desc.add("MuonTrackingRegionBuilder", descRegion);
 
     edm::ParameterSetDescription descService;
