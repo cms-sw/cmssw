@@ -7,3 +7,8 @@ egmPhotonIsolationMiniAOD = cms.EDProducer( "CITKPFIsolationSumProducer",
 			  srcForIsolationCone = cms.InputTag('packedPFCandidates'),
 			  isolationConeDefinitions = IsoConeDefinitions
   )	
+
+# The sequence defined here contains only one module. This is to keep the structure
+# uniform with the AOD case where there are more modules in the analogous sequence.
+egmPhotonIsolationMiniAODSequence = cms.Sequence( egmPhotonIsolationMiniAOD )
+
