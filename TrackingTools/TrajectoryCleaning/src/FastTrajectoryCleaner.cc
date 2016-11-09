@@ -23,7 +23,7 @@ void FastTrajectoryCleaner::clean( TempTrajectoryContainer & tc) const
       dof+=h.dimension();
     }
     float score = validHitBonus_*float(dof) - missingHitPenalty_*it.lostHits() - it.chiSquared();
-    if (it.dPhiCacheForLoopersReconstruction()>0  || it.foundHits()<7) score -= 0.5f*validHitBonus_*float(dof);
+    if ( it.lastMeasurement().updatedState().globalMomentum().perp2() < 0.81f ) score -= 0.5f*validHitBonus_*float(dof);
     else if (it.dPhiCacheForLoopersReconstruction()==0 &&it.foundHits()>8) score+=validHitBonus_*float(dof); // extra bonus for long tracks
     if (score>=maxScore) {
      bestTr = &it;
