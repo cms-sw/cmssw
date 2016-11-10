@@ -1,12 +1,12 @@
-import unittest
-import sys
-import os
 
 if __name__ == '__main__':   
+    import unittest
+    import sys
+    import os
 
-    heppy_path = '/'.join([os.environ['CMSSW_BASE'], 
-                           'src/PhysicsTools/HeppyCore/python']) 
-    os.chdir(heppy_path)
+    from PhysicsTools.HeppyCore.framework.context import heppy_path
+
+    os.chdir(heppy_path())
 
     suites = []
     
