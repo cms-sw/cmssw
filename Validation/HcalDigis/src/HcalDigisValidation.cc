@@ -26,8 +26,10 @@ HcalDigisValidation::HcalDigisValidation(const edm::ParameterSet& iConfig) {
 
     subdet_ = iConfig.getUntrackedParameter<std::string > ("subdetector", "all");
     outputFile_ = iConfig.getUntrackedParameter<std::string > ("outputFile", "");
-    inputLabel_ = iConfig.getParameter<std::string > ("digiLabel");
-    inputTag_   = edm::InputTag(inputLabel_);
+//    inputLabel_ = iConfig.getParameter<std::string > ("digiLabel");
+    inputTag_   = iConfig.getParameter<edm::InputTag > ("digiTag");
+    QIE10inputTag_   = iConfig.getParameter<edm::InputTag > ("QIE10digiTag");
+    QIE11inputTag_   = iConfig.getParameter<edm::InputTag > ("QIE11digiTag");
     emulTPsTag_ = iConfig.getParameter<edm::InputTag > ("emulTPs");
     dataTPsTag_ = iConfig.getParameter<edm::InputTag > ("dataTPs");
     mc_ = iConfig.getUntrackedParameter<std::string > ("mc", "no");
@@ -50,8 +52,8 @@ HcalDigisValidation::HcalDigisValidation(const edm::ParameterSet& iConfig) {
         tok_dataTPs_ = consumes<HcalTrigPrimDigiCollection>(dataTPsTag_);
     }
 
-    tok_qie10_hf_ = consumes< QIE10DigiCollection >(inputTag_);
-    tok_qie11_hbhe_ = consumes< QIE11DigiCollection >(inputTag_);
+    tok_qie10_hf_ = consumes< QIE10DigiCollection >(QIE10inputTag_);
+    tok_qie11_hbhe_ = consumes< QIE11DigiCollection >(QIE11inputTag_);
 
     nevent1 = 0;
     nevent2 = 0;
@@ -200,6 +202,8 @@ void HcalDigisValidation::booking(DQMStore::IBooker &ib, const std::string bsubd
     HistLim ietaLim(85, -42.5, 42.5);
     HistLim iphiLim(74, -0.5, 73.5);
 
+    HistLim depthLim(15,-0.5,14.5);
+
     if (bsubdet == "HB") {
         Ndigis = HistLim( ((int)(nChannels_[1]/100) + 1)*100, 0., (float)((int)(nChannels_[1]/100) + 1)*100);
     } else if (bsubdet == "HE") {
@@ -254,6 +258,10 @@ void HcalDigisValidation::booking(DQMStore::IBooker &ib, const std::string bsubd
 	  sprintf(histo, "HcalDigiTask_ieta_iphi_occupancy_map_depth%d_%s", depth, sub);
 	  book2D(ib, histo, ietaLim, iphiLim);
         }
+
+        //Depths
+        sprintf(histo, "HcalDigiTask_depths_%s",sub);
+        book1D(ib,histo, depthLim);
 
         // occupancies vs ieta
 	for (int depth = 1; depth <= maxDepth_[isubdet]; depth++) {
@@ -712,6 +720,8 @@ template<class Digi> void HcalDigisValidation::reco(const edm::Event& iEvent, co
             // OCCUPANCY maps fill
             fill2D("HcalDigiTask_ieta_iphi_occupancy_map_depth" + str(depth) + "_" + subdet_, double(ieta), double(iphi));
 
+            fill1D("HcalDigiTask_depths_"+subdet_,double(depth));
+
             // Cycle on time slices
             // - for each Digi
             // - for one Digi with max SimHits E in subdet
@@ -1043,6 +1053,8 @@ template<class dataFrameType> void HcalDigisValidation::reco(const edm::Event& i
 
             // OCCUPANCY maps fill
             fill2D("HcalDigiTask_ieta_iphi_occupancy_map_depth" + str(depth) + "_" + subdet_, double(ieta), double(iphi));
+
+            fill1D("HcalDigiTask_depths_"+subdet_,double(depth));
 
             // Cycle on time slices
             // - for each Digi
