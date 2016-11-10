@@ -57,5 +57,12 @@ for k in range(0,4):
     if k==3: out_file.write("\nBPix tot: %i \n" %bpixtot)	
     out_file.write("%s \n" % tmpstr)
 
+#count entries to avoid low stat runs
+clusstr=path+"charge_siPixelClusters"
+nclust=fin.Get(clusstr)
+nent=nclust.GetEntries()
+
+out_file.write("\nNumber of clusters=  %i \n" % nent)
+
 out_file.close()	
 
