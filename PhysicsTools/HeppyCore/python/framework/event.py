@@ -59,7 +59,9 @@ class Event(object):
             if any([fnmatch.fnmatch(name, pattern) for pattern in self.__class__.print_patterns]):
                 stripped_attrs[name] = value
         for name, value in stripped_attrs.iteritems():
-            if hasattr(value, '__len__') and len(value)>self.__class__.print_nstrip+1:
+            if hasattr(value, '__len__') and \
+               hasattr(value.__len__, '__call__') and \
+               len(value)>self.__class__.print_nstrip+1:
                 # taking the first 10 elements and converting to a python list 
                 # note that value could be a wrapped C++ vector
                 if isinstance(value, collections.Mapping):
