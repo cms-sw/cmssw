@@ -33,6 +33,7 @@ HcalDigisValidation::HcalDigisValidation(const edm::ParameterSet& iConfig) {
     mc_ = iConfig.getUntrackedParameter<std::string > ("mc", "no");
     mode_ = iConfig.getUntrackedParameter<std::string > ("mode", "multi");
     dirName_ = iConfig.getUntrackedParameter<std::string > ("dirName", "HcalDigisV/HcalDigiTask");
+    testNumber_= iConfig.getParameter<bool>("TestNumber");
 
     // register for data access
     if (iConfig.exists("simHits"))
@@ -656,7 +657,7 @@ template<class Digi> void HcalDigisValidation::reco(const edm::Event& iEvent, co
         int ieta = cell.ieta();
         int sub = cell.subdet();
 
-        if(depth > maxDepth_[isubdet]){
+        if(depth > maxDepth_[isubdet] && sub == isubdet){
 		edm::LogWarning("HcalDetId") << "HcalDetID presents conflicting information. Depth: " << depth << ", iphi: " << iphi << ", ieta: " << ieta << ". Max depth from geometry is: " << maxDepth_[isubdet] << ". TestNumber = " << testNumber_;
                 continue;
         }
@@ -836,7 +837,7 @@ template<class Digi> void HcalDigisValidation::reco(const edm::Event& iEvent, co
                   iphi          = id.iphi();
                 }
 
-                if(depth > maxDepth_[isubdet]){
+                if(depth > maxDepth_[isubdet] && sub == isubdet){
 	        	edm::LogWarning("HcalDetId") << "HcalDetID(SimHit) presents conflicting information. Depth: " << depth << ", iphi: " << iphi << ", ieta: " << ieta << ". Max depth from geometry is: " << maxDepth_[isubdet] << ". TestNumber = " << testNumber_;
                         continue;
                 }
@@ -987,7 +988,7 @@ template<class dataFrameType> void HcalDigisValidation::reco(const edm::Event& i
         int ieta = cell.ieta();
         int sub = cell.subdet();
 
-        if(depth > maxDepth_[isubdet]){
+        if(depth > maxDepth_[isubdet] && sub == isubdet){
 		edm::LogWarning("HcalDetId") << "HcalDetID presents conflicting information. Depth: " << depth << ", iphi: " << iphi << ", ieta: " << ieta << ". Max depth from geometry is: " << maxDepth_[isubdet] << ". TestNumber = " << testNumber_;
                 continue;
         }
@@ -1167,7 +1168,7 @@ template<class dataFrameType> void HcalDigisValidation::reco(const edm::Event& i
                   iphi          = id.iphi();
                 }
 
-                if(depth > maxDepth_[isubdet]){
+                if(depth > maxDepth_[isubdet] && sub == isubdet){
 	        	edm::LogWarning("HcalDetId") << "HcalDetID(SimHit) presents conflicting information. Depth: " << depth << ", iphi: " << iphi << ", ieta: " << ieta << ". Max depth from geometry is: " << maxDepth_[isubdet] << ". TestNumber = " << testNumber_;
                         continue;
                 }
