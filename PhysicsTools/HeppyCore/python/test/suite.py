@@ -4,9 +4,9 @@ if __name__ == '__main__':
     import sys
     import os
 
-    from PhysicsTools.HeppyCore.framework.context import heppy_path
+    import  PhysicsTools.HeppyCore.framework.context as context
 
-    os.chdir(heppy_path())
+    os.chdir(context.heppy_path)
 
     suites = []
     
