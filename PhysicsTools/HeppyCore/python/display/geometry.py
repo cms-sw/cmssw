@@ -87,8 +87,8 @@ class GDetector(object):
 if __name__ == '__main__':
 
     from ROOT import TCanvas, TH2F
-    from heppy.papas.detectors.CMS import CMS
-    from heppy.display.core import Display
+    from PhysicsTools.HeppyCore.papas.detectors.CMS import CMS
+    from PhysicsTools.HeppyCore.display.core import Display
 
     cms = CMS()
     gcms = GDetector(cms)

@@ -2,7 +2,7 @@ from ROOT import TCanvas, TH1, TH2F
 import operator
 import math
 import os
-from heppy.papas.pfobjects import Cluster
+from PhysicsTools.HeppyCore.papas.pfobjects import Cluster
 
 class Display(object):
     
