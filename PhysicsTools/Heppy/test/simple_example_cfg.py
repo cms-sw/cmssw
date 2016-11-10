@@ -58,6 +58,7 @@ from PhysicsTools.HeppyCore.analyzers.Filter import Filter
 sel_jets = cfg.Analyzer(
     Filter,
     'jets',
+    output = 'jets',
     input_objects = 'all_jets',
     filter_func = lambda x : x.pt()>30 
     )
