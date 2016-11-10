@@ -37,6 +37,7 @@ namespace reco {
       jetEta,                                   // jet pseudorapidity
       jetPhi,                                   // jet polar angle
       jetNTracks,                               // tracks associated to jet
+			jetNTracksEtaRel,                         // number of tracks for which etaRel is computed
 
       trackMomentum,                            // track momentum
       trackEta,                                 // track pseudorapidity

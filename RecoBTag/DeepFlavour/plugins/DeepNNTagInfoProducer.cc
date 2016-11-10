@@ -109,6 +109,9 @@ DeepNNTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
 		const reco::CandIPTagInfo              & ipInfo = *(iterTI->trackIPTagInfoRef().get());
 		const reco::CandSecondaryVertexTagInfo & svTagInfo = *(iterTI);
 		reco::TaggingVariableList vars = computer_(ipInfo, svTagInfo);
+		std::vector<float> tagValList = vars.getList(reco::btau::trackEtaRel,false);
+		vars.insert(reco::btau::jetNTracksEtaRel, tagValList.size());
+		vars.finalize(); //fix the TaggingVariableList, nothing should be added/removed
 		tagInfos->emplace_back(
 			vars, 
 			svTagInfo.jet()
