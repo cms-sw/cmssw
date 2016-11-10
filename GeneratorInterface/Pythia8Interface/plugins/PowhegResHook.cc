@@ -9,11 +9,13 @@ using namespace Pythia8;
 #include "GeneratorInterface/Pythia8Interface/plugins/PowhegResHook.h"
 
 double PowhegResHook::scaleResonance( const int iRes, const Event& event) {
+  calcScales_ = settingsPtr->flag("POWHEGres:calcScales");
+  
   double scale = 0.;
   
   int nDau = event[iRes].daughterList().size();
   
-  if (nDau == 0) {
+  if (!calcScales_ or nDau == 0) {
     // No resonance found, set scale to high value
     // Pythia will shower any MC generated resonance unrestricted
     scale = 1e30;

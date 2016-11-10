@@ -11,34 +11,27 @@ process.source = cms.Source("LHESource",
 #    fileNames = cms.untracked.vstring('file:powheg-Zee.lhe')
 
 process.generator = cms.EDFilter("Pythia8HadronizerFilter",
-    maxEventsToPrint = cms.untracked.int32(1),
+    maxEventsToPrint = cms.untracked.int32(0),
     pythiaPylistVerbosity = cms.untracked.int32(1),
     filterEfficiency = cms.untracked.double(1.0),
     pythiaHepMCVerbosity = cms.untracked.bool(False),
     comEnergy = cms.double(13000.),
 
-   #Turning on pythia8 emission veto:
-#    PythiaParameters = cms.PSet(
-#        pythia8_example07 = cms.vstring('POWHEG:nFinal = 2',
-#                                        'POWHEG:veto = 1',
-#                                        'POWHEG:vetoCount = 10000',
-#                                        'POWHEG:pThard = 1',
-#                                        'POWHEG:pTemt = 0',
-#                                        'POWHEG:emitted = 0',
-#                                        'POWHEG:pTdef = 1',
-#                                        'POWHEG:MPIveto = 0',
-#                                        'SpaceShower:pTmaxMatch = 2',
-#                                        'TimeShower:pTmaxMatch  = 2'),
-#        parameterSets = cms.vstring('pythia8_example07')
-#    )
-
-   #Turning on CMSSW Pythia8Interface emission veto:
-    PowhegRes = cms.untracked.PSet(),
+   #Turning on CMSSW Pythia8Interface resonance scale setting and pythia8 emission veto:
 
     PythiaParameters = cms.PSet(
-        pythia8_example12 = cms.vstring('SpaceShower:pTmaxMatch = 2',
-                                        'TimeShower:pTmaxMatch  = 2'),
-        parameterSets = cms.vstring('pythia8_example12')
+        pythia8PowhegEmissionVetoSettings = cms.vstring(
+              'POWHEG:veto = 1',
+              'POWHEG:pTdef = 1',
+              'POWHEG:emitted = 0',
+              'POWHEG:pTemt = 0',
+              'POWHEG:pThard = 0',
+              'POWHEG:vetoCount = 100',
+              'SpaceShower:pTmaxMatch = 2',
+              'TimeShower:pTmaxMatch = 2',
+        ),
+        pythia8_example12 = cms.vstring('POWHEGres:calcScales = on'),
+        parameterSets = cms.vstring('pythia8PowhegEmissionVetoSettings', 'pythia8_example12')
     )
 
 )
