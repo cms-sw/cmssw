@@ -9,6 +9,7 @@ from simple_example_cfg import config, stopper
 from PhysicsTools.HeppyCore.utils.testtree import create_tree, remove_tree
 from PhysicsTools.HeppyCore.framework.looper import Looper
 from PhysicsTools.HeppyCore.framework.exceptions import UserStop
+from PhysicsTools.HeppyCore.framework.context import heppy_path
 from ROOT import TFile
 
 import logging
@@ -39,7 +40,7 @@ class TestMultiProcessing(unittest.TestCase):
         options, args = parser.parse_args()
         options.iEvent = None
         options.nprint = 0
-        cfg = '/'.join( [ os.environ['HEPPY'], 
+        cfg = '/'.join( [ heppy_path(), 
                           'test/simple_multi_example_cfg.py' ] )
         main(options, [self.outdir, cfg], parser)
         wcard = '/'.join([self.outdir, 

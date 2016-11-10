@@ -24,3 +24,12 @@ def get_name(env=None):
         return None
     else: 
         return defined.pop()
+
+def heppy_path(): 
+    context = get_name()
+    if context == 'cms':
+        return '/'.join([os.environ['CMSSW_BASE'], 
+                         'src/PhysicsTools/HeppyCore/python']) 
+    elif context == 'fcc': 
+        return os.environ['HEPPY']
+    
