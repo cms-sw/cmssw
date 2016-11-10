@@ -111,8 +111,10 @@ private:
     std::string subdet_;
     std::string zside_;
     std::string dirName_;
-    std::string inputLabel_;
+//    std::string inputLabel_;
     edm::InputTag inputTag_;
+    edm::InputTag QIE10inputTag_;
+    edm::InputTag QIE11inputTag_;
     edm::InputTag emulTPsTag_;
     edm::InputTag dataTPsTag_;
     std::string mode_;
