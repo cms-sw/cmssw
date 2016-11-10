@@ -2,7 +2,16 @@
 <selection>
   <class name="FactorizedJetCorrector"/>
   <class name="JetCorrectionUncertainty"/>
-  <class name="JetCorrectorParameters"/>
+  <class name="JetCorrectorParameters">
+     <field name="mBinBoundaries" transient="true"/>
+     <field name="mBinMap" transient="true"/>
+     <field name="mPtMap" transient="true"/>
+  </class>
+  <ioread sourceClass="JetCorrectorParameters" targetClass="JetCorrectorParameters" version="[0-]" source="std::vector<JetCorrectorParameters::Record> mRecords" target="mBinBoundaries; mBinMap; mPtMap">
+  <![CDATA[
+         newObj->init(onfile.mRecords,mBinBoundaries,mBinMap,mPtMap); 
+  ]]>
+  </ioread>
   <class name="JetCorrectorParametersCollection"/>
   <class name="JetCorrectorParametersCollection::collection_type"/>
   <class name="JetCorrectorParametersCollection::pair_type"/>
