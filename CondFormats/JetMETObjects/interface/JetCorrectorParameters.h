@@ -11,10 +11,44 @@
 
 #include <string>
 #include <vector>
+#include <tuple>
 #include <algorithm>
+#include <functional>
 #include <iostream>
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+namespace std
+{
+  template<> struct hash<std::tuple<float,float,float> >
+  {
+    typedef std::tuple<float,float,float> argument_type;
+    typedef std::size_t result_type;
+    result_type operator()(argument_type const& t) const
+    {
+      const uint64_t first = reinterpret_cast<const uint32_t&>(std::get<0>(t));
+      const uint64_t second = reinterpret_cast<const uint32_t&>(std::get<1>(t));
+      const uint64_t third = reinterpret_cast<const uint32_t&>(std::get<2>(t));
+      const uint64_t thing1 = (first ^ second)%16;
+      const uint64_t thing2 = (second ^ third)%32;
+      result_type const result ( (first << thing1) ^ (second << thing2) ^ third );
+      return result;
+    }
+  };
+  template<> struct hash<std::tuple<float,float> >
+  {
+    typedef std::tuple<float,float> argument_type;
+    typedef std::size_t result_type;
+    result_type operator()(argument_type const& t) const
+    {
+      const uint64_t first = reinterpret_cast<const uint32_t&>(std::get<0>(t));
+      const uint64_t second = reinterpret_cast<const uint32_t&>(std::get<1>(t));
+      const uint64_t thing1 = (first ^ second)%16;
+      result_type const result ( (first << thing1) ^ second );
+      return result;
+    }
+  };
+}
 
 class JetCorrectorParameters 
 {
@@ -60,13 +94,26 @@ class JetCorrectorParameters
         Record(unsigned fNvar, const std::vector<float>& fXMin, const std::vector<float>& fXMax, const std::vector<float>& fParameters) : mNvar(fNvar),mMin(fXMin),mMax(fXMax),mParameters(fParameters) {}
         Record(const std::string& fLine, unsigned fNvar);
         //-------- Member functions ----------
+        unsigned nVar()                     const {return mNvar;                      }
         float xMin(unsigned fVar)           const {return mMin[fVar];                 }
         float xMax(unsigned fVar)           const {return mMax[fVar];                 }
         float xMiddle(unsigned fVar)        const {return 0.5*(xMin(fVar)+xMax(fVar));}
         float parameter(unsigned fIndex)    const {return mParameters[fIndex];        }
         std::vector<float> parameters()     const {return mParameters;                }
         unsigned nParameters()              const {return mParameters.size();         }
-        int operator< (const Record& other) const {return xMin(0) < other.xMin(0);    }
+        //int operator< (const Record& other) const {return xMin(0) < other.xMin(0);    }
+        bool operator< (const Record& other) const
+        {
+          //for (unsigned i=0; i<mNvar; i++) {
+          //  if (xMin(i) < other.xMin(i)) return true;
+          //}
+          //return false;
+          if (xMin(0) < other.xMin(0)) return true;
+          if (xMin(0) > other.xMin(0)) return false;
+          if (xMin(1) < other.xMin(1)) return true;
+          if (xMin(1) > other.xMin(1)) return false;
+          return (xMin(2) < other.xMin(2));
+        }
       private:
         //-------- Member variables ----------
         unsigned           mNvar;
@@ -89,17 +136,29 @@ class JetCorrectorParameters
     unsigned size()                                              const {return mRecords.size();}
     unsigned size(unsigned fVar)                                 const;
     int binIndex(const std::vector<float>& fX)                   const;
+    int binIndex3(const std::vector<float>& fX)                  const;
     int neighbourBin(unsigned fIndex, unsigned fVar, bool fNext) const;
     std::vector<float> binCenters(unsigned fVar)                 const;
     void printScreen()                                           const;
     void printFile(const std::string& fFileName)                 const;
     bool isValid() const { return valid_; }
+    void init(const std::vector<JetCorrectorParameters::Record>& mRecords,
+              std::vector<std::vector<float> >& mBinBoundaries,
+              std::unordered_map<std::tuple<float,float,float>, size_t>& mBinMap,
+              std::unordered_map<std::tuple<float,float>, std::pair<size_t,size_t> >& mPtMap);
+    void init();
 
   private:
     //-------- Member variables ----------
-    JetCorrectorParameters::Definitions         mDefinitions;
-    std::vector<JetCorrectorParameters::Record> mRecords;
-    bool                                        valid_; /// is this a valid set?
+    JetCorrectorParameters::Definitions                                    mDefinitions;
+    std::vector<JetCorrectorParameters::Record>                            mRecords;
+    // Stores the lower bounds of the bins for each binned dimension
+    std::vector<std::vector<float> >                                       mBinBoundaries COND_TRANSIENT;
+    // Maps a set of lower bounds for three binned dimensions to the index in mRecords
+    std::unordered_map<std::tuple<float,float,float>, size_t>              mBinMap        COND_TRANSIENT;
+    // Maps a set of lower bounds for the first two dimension to the range of lower bound indices mBinBoundaries for a third dimension
+    std::unordered_map<std::tuple<float,float>, std::pair<size_t,size_t> > mPtMap         COND_TRANSIENT;
+    bool                                                                   valid_; /// is this a valid set?
 
   COND_SERIALIZABLE;
 };
