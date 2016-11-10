@@ -33,3 +33,8 @@ def heppy_path():
     elif context == 'fcc': 
         return os.environ['HEPPY']
     
+
+
+name = get_name()
+
+heppy_path = heppy_path()

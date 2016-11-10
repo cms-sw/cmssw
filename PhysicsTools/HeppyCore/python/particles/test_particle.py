@@ -6,7 +6,7 @@ from PhysicsTools.HeppyCore.particles.fcc.particle import Particle as FccParticl
 from PhysicsTools.HeppyCore.configuration import Collider
 from ROOT import TLorentzVector, gSystem
 
-from PhysicsTools.HeppyCore.framework.context import get_name
+import PhysicsTools.HeppyCore.framework.context as context
 
 class TestParticle(unittest.TestCase):
 
@@ -47,7 +47,7 @@ class TestParticle(unittest.TestCase):
     #----------------------------------------------------------------------
     def test_fcc_particle(self):
         """Test that FCC particles can be copied and compared"""
-        if get_name() != 'fcc': 
+        if context.name != 'fcc': 
             return
         from EventStore import EventStore as Events
         test_fcc_file = '/'.join([os.environ['HEPPY'],

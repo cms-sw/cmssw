@@ -4,10 +4,9 @@ import copy
 import os
 import shutil
 
-from PhysicsTools.HeppyCore.framework.context import get_name
+import PhysicsTools.HeppyCore.framework.context as context
 
-
-if get_name() == 'fcc':
+if context.name == 'fcc':
 
     from analysis_ee_Z_cfg import config
     from PhysicsTools.HeppyCore.test.plot_ee_Z import plot
