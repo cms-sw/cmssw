@@ -1,5 +1,5 @@
 from ROOT import TFile
-from heppy.statistics.tree import Tree
+from PhysicsTools.HeppyCore.statistics.tree import Tree
 import os
 
 FNAME="test_tree.root"

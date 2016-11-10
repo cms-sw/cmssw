@@ -1,9 +1,9 @@
-from heppy.particles.particle import Particle as BaseParticle
+from PhysicsTools.HeppyCore.particles.particle import Particle as BaseParticle
 from vertex import Vertex
 from pod import POD
 from ROOT import TLorentzVector
-from heppy.papas.data.identifier import Identifier
-from heppy.utils.pdebug import pdebugger
+from PhysicsTools.HeppyCore.papas.data.identifier import Identifier
+from PhysicsTools.HeppyCore.utils.pdebug import pdebugger
 import copy
 
 class Particle(BaseParticle, POD):

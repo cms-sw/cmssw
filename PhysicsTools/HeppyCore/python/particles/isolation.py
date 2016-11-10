@@ -1,4 +1,4 @@
-from heppy.utils.deltar import deltaR2
+from PhysicsTools.HeppyCore.utils.deltar import deltaR2
 
 class Area(object):
     '''Base Area interface.'''

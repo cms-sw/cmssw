@@ -139,7 +139,8 @@ class Analyzer( CFG ):
         )
 
         The first argument is your analyzer class. 
-        It should inherit from heppy.framework.analyzer.Analyser 
+        It should inherit from heppy.framework.analyzer.Analyser (standalone)
+        or from PhysicsTools.HeppyCore.framework.analyzer (in CMS)
 
         The second argument is optional.
         If you have several analyzers of the same class, 

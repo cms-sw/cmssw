@@ -1,8 +1,8 @@
 import unittest
 import math
 import copy
-from heppy.particles.isolation import *
-from heppy.particles.tlv.particle import Particle
+from PhysicsTools.HeppyCore.particles.isolation import *
+from PhysicsTools.HeppyCore.particles.tlv.particle import Particle
 from ROOT import TLorentzVector
 
 class TestIsolation(unittest.TestCase):

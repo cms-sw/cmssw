@@ -1,9 +1,9 @@
 import unittest
 import os
 import copy
-from heppy.particles.tlv.particle import Particle as TlvParticle
-from heppy.particles.fcc.particle import Particle as FccParticle
-from heppy.configuration import Collider
+from PhysicsTools.HeppyCore.particles.tlv.particle import Particle as TlvParticle
+from PhysicsTools.HeppyCore.particles.fcc.particle import Particle as FccParticle
+from PhysicsTools.HeppyCore.configuration import Collider
 from ROOT import TLorentzVector, gSystem
 
 

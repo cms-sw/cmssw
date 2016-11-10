@@ -11,7 +11,7 @@ import pprint
 from math import ceil
 from event import Event
 import timeit
-from heppy.framework.exceptions import UserStop
+from PhysicsTools.HeppyCore.framework.exceptions import UserStop
 import resource
 import json
 
