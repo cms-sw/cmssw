@@ -27,6 +27,8 @@
 #include "RecoLocalTracker/ClusterParameterEstimator/interface/StripClusterParameterEstimator.h"
 #include "DataFormats/DetId/interface/DetIdCollection.h"
 
+#include "DataFormats/Scalers/interface/LumiScalers.h"
+#include "DataFormats/SiStripDigi/interface/SiStripRawDigi.h"
 
 #include "TROOT.h"
 #include "TFile.h"
@@ -57,6 +59,12 @@ class HitEff : public edm::EDAnalyzer {
   virtual void analyze(const edm::Event& e, const edm::EventSetup& c);
 
         // ----------member data ---------------------------
+
+  const edm::EDGetTokenT<LumiScalersCollection> scalerToken_;
+  const edm::EDGetTokenT<edm::DetSetVector<SiStripRawDigi> > commonModeToken_;
+  
+  bool addLumi_;
+  bool addCommonMode_;
 
   const edm::EDGetTokenT< reco::TrackCollection > combinatorialTracks_token_;
   const edm::EDGetTokenT< std::vector<Trajectory> > trajectories_token_;
@@ -89,6 +97,8 @@ class HitEff : public edm::EDAnalyzer {
   int dedxNOM;
   int tquality;
   int istep;
+  float instLumi, PU;
+  float commonMode;
 };
 
 
