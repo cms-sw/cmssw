@@ -15,7 +15,7 @@ fe_codec = cms.PSet( CodecName  = cms.string('HGCalTriggerCellBestChoiceCodec'),
                      tdcsaturation = digiparam.hgceeDigitizer.digiCfg.feCfg.tdcSaturation_fC,
                      tdcnBits = digiparam.hgceeDigitizer.digiCfg.feCfg.tdcNbits,
                      tdcOnsetfC = digiparam.hgceeDigitizer.digiCfg.feCfg.tdcOnset_fC,
-                     TCThreshold = cms.int32(10)
+                     TCThreshold_fC = cms.double(1) 
                    )
 
 

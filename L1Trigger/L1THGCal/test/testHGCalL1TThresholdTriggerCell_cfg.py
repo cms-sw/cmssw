@@ -4,7 +4,7 @@ from Configuration.StandardSequences.Eras import eras
 
 process = cms.Process('DIGI',eras.Phase2C2)
 
-# import of standard configurations
+# import of standard configurations 
 process.load('Configuration.StandardSequences.Services_cff')
 process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
 process.load('FWCore.MessageService.MessageLogger_cfi')
@@ -69,7 +69,7 @@ process.FEVTDEBUGoutput = cms.OutputModule("PoolOutputModule",
 # Additional output definition
 process.TFileService = cms.Service(
     "TFileService",
-    fileName = cms.string("test_bestchoice.root")
+    fileName = cms.string("test_threshold.root")
     )
 
 
@@ -110,22 +110,24 @@ process.FEVTDEBUGoutput_step = cms.EndPath(process.FEVTDEBUGoutput)
 
 process.load('L1Trigger.L1THGCal.hgcalTriggerPrimitives_cff')
 ## define trigger emulator without trigger cell selection
+process.hgcalTriggerPrimitiveDigiProducer.FECodec.CodecName = cms.string('HGCalTriggerCellThresholdCodec')
 process.hgcalTriggerPrimitiveDigiProducer.FECodec.NData = cms.uint32(999) # put number larger than max number of trigger cells in module
-cluster_algo_all =  cms.PSet( AlgorithmName = cms.string('SingleCellClusterAlgoBestChoice'),
+cluster_algo_all =  cms.PSet( AlgorithmName = cms.string('SingleCellClusterAlgoThreshold'),
                                  FECodec = process.hgcalTriggerPrimitiveDigiProducer.FECodec )
 process.hgcalTriggerPrimitiveDigiProducer.BEConfiguration.algorithms = cms.VPSet( cluster_algo_all )
 process.hgcl1tpg_step1 = cms.Path(process.hgcalTriggerPrimitives)
 
 ## define trigger emulator with trigger cell selection
+process.hgcalTriggerPrimitiveDigiFEReproducer.FECodec.CodecName = cms.string('HGCalTriggerCellThresholdCodec')
 process.hgcalTriggerPrimitiveDigiFEReproducer.FECodec.triggerCellTruncationBits = cms.uint32(0)
-cluster_algo_select =  cms.PSet( AlgorithmName = cms.string('SingleCellClusterAlgoBestChoice'),
+cluster_algo_select =  cms.PSet( AlgorithmName = cms.string('SingleCellClusterAlgoThreshold'),
                                  FECodec = process.hgcalTriggerPrimitiveDigiFEReproducer.FECodec )
 process.hgcalTriggerPrimitiveDigiFEReproducer.BEConfiguration.algorithms = cms.VPSet( cluster_algo_select )
 process.hgcl1tpg_step2 = cms.Path(process.hgcalTriggerPrimitives_reproduce)
 
-# define best choice tester
-process.hgcaltriggerbestchoicetester = cms.EDAnalyzer(
-    "HGCalTriggerBestChoiceTriggerCellTester",
+# define threshold tester
+process.hgcaltriggerthresholdtester = cms.EDAnalyzer(
+    "HGCalTriggerThresholdTriggerCellTester",
     eeDigis = cms.InputTag('mix:HGCDigisEE'),
     fhDigis = cms.InputTag('mix:HGCDigisHEfront'),
     #bhDigis = cms.InputTag('mix:HGCDigisHEback'),
@@ -133,12 +135,14 @@ process.hgcaltriggerbestchoicetester = cms.EDAnalyzer(
     eeSimHits = cms.InputTag('g4SimHits:HGCHitsEE'),
     fhSimHits = cms.InputTag('g4SimHits:HGCHitsHEfront'),
     #bhSimHits = cms.InputTag('g4SimHits:HGCHitsHEback'),
-    beTriggerCellsAll = cms.InputTag('hgcalTriggerPrimitiveDigiProducer:SingleCellClusterAlgoBestChoice'),
-    beTriggerCellsSelect = cms.InputTag('hgcalTriggerPrimitiveDigiFEReproducer:SingleCellClusterAlgoBestChoice'),
+    beTriggerCellsAll = cms.InputTag('hgcalTriggerPrimitiveDigiProducer:SingleCellClusterAlgoThreshold'),
+    beTriggerCellsSelect = cms.InputTag('hgcalTriggerPrimitiveDigiFEReproducer:SingleCellClusterAlgoThreshold'),
     FECodec = process.hgcalTriggerPrimitiveDigiFEReproducer.FECodec.clone()
     )
-process.hgcaltriggerbestchoicetester.FECodec.triggerCellTruncationBits = cms.uint32(7)
-process.test_step = cms.Path(process.hgcaltriggerbestchoicetester)
+process.hgcaltriggerthresholdtester.FECodec.CodecName = cms.string('HGCalTriggerCellThresholdCodec')
+process.hgcaltriggerthresholdtester.FECodec.triggerCellTruncationBits = cms.uint32(7)
+
+process.test_step = cms.Path(process.hgcaltriggerthresholdtester)
 
 # Schedule definition
 process.schedule = cms.Schedule(process.generation_step,process.genfiltersummary_step,process.simulation_step,process.digitisation_step,process.L1simulation_step,process.hgcl1tpg_step1,process.hgcl1tpg_step2,process.digi2raw_step,process.test_step,process.endjob_step,process.FEVTDEBUGoutput_step)

@@ -44,7 +44,6 @@ class HGCalTriggerCellThresholdCodecImpl
 
         // Retrieve parameters
         size_t   nCellsInModule() const {return nCellsInModule_;}
-        size_t   nData() const {return nData_;}
         size_t   dataLength() const {return dataLength_;}
         double   linLSB() const {return linLSB_;}
         double   adcsaturation() const {return adcsaturation_;}
@@ -54,10 +53,10 @@ class HGCalTriggerCellThresholdCodecImpl
         double   tdcOnsetfC() const {return tdcOnsetfC_;}
         uint32_t triggerCellTruncationBits() const {return triggerCellTruncationBits_;}
         uint32_t triggerCellSaturationBits() const {return triggerCellSaturationBits_;}
-        int      TCThreshold() const {return TCThreshold_;} 
+        int      TCThreshold_ADC() const {return TCThreshold_ADC_;} 
+        float    TCThreshold_fC() const {return TCThreshold_fC_;} 
 
     private:
-        size_t   nData_;
         size_t   dataLength_;
         size_t   nCellsInModule_;
         double   linLSB_;
@@ -70,7 +69,8 @@ class HGCalTriggerCellThresholdCodecImpl
         double   tdcLSB_;
         uint32_t triggerCellTruncationBits_;
         uint32_t triggerCellSaturationBits_;
-        int      TCThreshold_;
+        int      TCThreshold_ADC_;
+        float    TCThreshold_fC_;
 
 };
 

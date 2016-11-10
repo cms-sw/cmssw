@@ -4,7 +4,6 @@
 
 HGCalTriggerCellThresholdCodecImpl::
 HGCalTriggerCellThresholdCodecImpl(const edm::ParameterSet& conf) :
-    nData_(conf.getParameter<uint32_t>("NData")),
     dataLength_(conf.getParameter<uint32_t>("DataLength")),
     nCellsInModule_(conf.getParameter<uint32_t>("MaxCellsInModule")), 
     linLSB_(conf.getParameter<double>("linLSB")),
@@ -14,13 +13,13 @@ HGCalTriggerCellThresholdCodecImpl(const edm::ParameterSet& conf) :
     tdcnBits_(conf.getParameter<uint32_t>("tdcnBits")), 
     tdcOnsetfC_(conf.getParameter<double>("tdcOnsetfC")),
     triggerCellTruncationBits_(conf.getParameter<uint32_t>("triggerCellTruncationBits")),
-    TCThreshold_(conf.getParameter<int>("TCThreshold"))
+    TCThreshold_fC_(conf.getParameter<double>("TCThreshold_fC"))
 {
   // Cannot have more selected cells than the max number of cells
-  if(nData_>nCellsInModule_) nData_ = nCellsInModule_;
   adcLSB_ =  adcsaturation_/pow(2.,adcnBits_);
   tdcLSB_ =  tdcsaturation_/pow(2.,tdcnBits_);
   triggerCellSaturationBits_ = triggerCellTruncationBits_ + dataLength_;
+  TCThreshold_ADC_ = (int) (TCThreshold_fC_ / linLSB_);
 }
 
 
@@ -71,12 +70,6 @@ encode(const HGCalTriggerCellThresholdCodecImpl::data_type& data, const HGCalTri
         uint32_t value = data_itr->second; 
         if(value>0)
           {
-            if(idata>=size)
-              {
-                throw cms::Exception("BadData") 
-                  << "encode: Number of non-zero trigger cells larger than codec parameter\n" \
-                  << "      : Number of energy values = "<<size<<"\n";
-              }
             // Set map bit to 1
             result[index] =  1;
             // Saturate and truncate energy values
@@ -130,7 +123,8 @@ decode(const std::vector<bool>& data, const uint32_t module, const HGCalTriggerG
                 // 'value' is hardware, so p4 is meaningless, except for eta and phi
                 math::PtEtaPhiMLorentzVector p4((double)value/cosh(point.eta()), point.eta(), point.phi(), 0.);
                 result.payload.back().setP4(p4);
-            }
+                result.payload.back().setPosition(point);
+      }
         }
         index++;
     }
@@ -197,7 +191,7 @@ HGCalTriggerCellThresholdCodecImpl::
 thresholdSelect(data_type& data)
 {
   for (size_t i = 0; i<data.payload.size();i++){
-    if (data.payload[i].hwPt() < TCThreshold_)  data.payload[i].setHwPt(0);
+    if (data.payload[i].hwPt() < TCThreshold_ADC_)  data.payload[i].setHwPt(0);
   }
   
 }
