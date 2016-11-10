@@ -63,6 +63,7 @@ public:
 		std::string name;
 		reco::btau::TaggingVariableName id;
 		int index;
+		double default_value;
 	};
 
 private:
@@ -124,7 +125,14 @@ DeepFlavourJetTagsProducer::DeepFlavourJetTagsProducer(const edm::ParameterSet& 
 			throw cms::Exception("RuntimeError") << "I could not parse properly " << input.name << " as input feature" << std::endl;
 		}
 		var.id = reco::getTaggingVariableName(tokens.at(0));
+		//die grafully if the tagging variable is not found!
+		if(var.id == reco::btau::lastTaggingVariable) {
+			throw cms::Exception("ValueError") << "I could not find the TaggingVariable named " << tokens.at(0) 
+																				 << " from the NN input variable: " << input.name 
+																				 << ". Please check the spelling" <<  std::endl;
+		}
 		var.index = (tokens.size() == 2) ? stoi(tokens.at(1)) : -1;
+		var.default_value = -1*input.offset; //set default to -offset so that when scaling (val+offset)*scale the outcome is 0
 		variables_.push_back(var);
 	}
 }
@@ -171,15 +179,21 @@ DeepFlavourJetTagsProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
 	for(auto& info : *(taginfos)) {
 		//convert the taginfo into the value map in the appropriate way
 		TaggingVariableList vars = info.taggingVariables();
+		bool anyinfo = false; //used for setting to -1 in case a jet does not contain any tagInfo (track selection!)
 		for(auto& var : variables_) {
+			bool present = false;
 			if(var.index >= 0){
 				std::vector<float> vals = vars.getList(var.id, false);
-				inputs_[var.name] = (((int) vals.size()) > var.index) ? vals.at(var.index) : 0.;
+				inputs_[var.name] = (((int) vals.size()) > var.index) ? vals.at(var.index) : var.default_value;
+				present = (((int) vals.size()) > var.index);
 			}
 			//single value tagging var
 			else {
-				inputs_[var.name] = vars.get(var.id, 0.);
+				inputs_[var.name] = vars.get(var.id, var.default_value);
+				present = vars.checkTag(var.id);
 			}
+			anyinfo |= present;
+			//std::cout << var.name << " = " << inputs_[var.name] << " ("<< present << ") -->" << std::endl;
 		}
 
 		//compute NN output(s)
@@ -190,7 +204,8 @@ DeepFlavourJetTagsProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
 		
 		//dump the NN output(s)
 		for(size_t i=0; i<outputs_.size(); ++i) {
-			(*output_tags[i])[key] = nnout[outputs_[i]];
+			(*output_tags[i])[key] = (anyinfo) ? nnout[outputs_[i]] : -1;
+			//std::cout << "--> " << outputs_[i] << " = " << nnout[outputs_[i]] << std::endl;
 		}
 	}
 
