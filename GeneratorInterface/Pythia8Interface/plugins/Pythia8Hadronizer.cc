@@ -30,6 +30,9 @@ using namespace Pythia8;
 #include "Pythia8Plugins/PowhegHooks.h"
 #include "GeneratorInterface/Pythia8Interface/plugins/EmissionVetoHook1.h"
 
+// Resonance scale hook
+#include "GeneratorInterface/Pythia8Interface/plugins/PowhegResHook.h"
+
 //decay filter hook
 #include "GeneratorInterface/Pythia8Interface/interface/ResonanceDecayFilterHook.h"
 
@@ -124,6 +127,9 @@ class Pythia8Hadronizer : public Py8InterfaceBase {
     //
     std::auto_ptr<PowhegHooks> fEmissionVetoHook;
     std::auto_ptr<EmissionVetoHook1> fEmissionVetoHook1;
+    
+    // Resonance scale hook
+    std::auto_ptr<PowhegResHook> fPowhegResHook;
     
     //resonance decay filter hook
     std::auto_ptr<ResonanceDecayFilterHook> fResonanceDecayFilterHook;
@@ -280,6 +286,13 @@ Pythia8Hadronizer::Pythia8Hadronizer(const edm::ParameterSet &params) :
                                EV1_emittedMode, EV1_pTdefMode, EV1_MPIvetoOn, 0));
   }
   
+  // Resonance scale hook
+  //
+  if ( params.exists("PowhegRes") )
+  {
+    fPowhegResHook.reset(new PowhegResHook());
+  }
+  
 }
 
 
@@ -331,6 +344,10 @@ bool Pythia8Hadronizer::initializeForInternalPartons()
   if(fEmissionVetoHook1.get()) { 
     edm::LogInfo("Pythia8Interface") << "Turning on Emission Veto Hook 1 from CMSSW Pythia8Interface";
     fMultiUserHook->addHook(fEmissionVetoHook1.get());
+  }
+  if(fPowhegResHook.get()) {
+    edm::LogInfo("Pythia8Interface") << "Turning on resonance scale setting from CMSSW Pythia8Interface";
+    fMultiUserHook->addHook(fPowhegResHook.get());
   }
   
   if (fMasterGen->settings.mode("POWHEG:veto") > 0 || fMasterGen->settings.mode("POWHEG:MPIveto") > 0) {
@@ -465,6 +482,10 @@ bool Pythia8Hadronizer::initializeForExternalPartons()
   if(fEmissionVetoHook1.get()) { 
     edm::LogInfo("Pythia8Interface") << "Turning on Emission Veto Hook 1 from CMSSW Pythia8Interface";
     fMultiUserHook->addHook(fEmissionVetoHook1.get());
+  }
+  if(fPowhegResHook.get()) {
+    edm::LogInfo("Pythia8Interface") << "Turning on resonance scale setting from CMSSW Pythia8Interface";
+    fMultiUserHook->addHook(fPowhegResHook.get());
   }
   
   if (fMasterGen->settings.mode("POWHEG:veto") > 0 || fMasterGen->settings.mode("POWHEG:MPIveto") > 0) {
