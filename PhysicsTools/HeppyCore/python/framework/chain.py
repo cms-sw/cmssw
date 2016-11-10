@@ -6,6 +6,7 @@ import os
 import pprint
 from ROOT import TChain, TFile, TTree, gSystem
 
+#TODO should use eostools
 def is_pfn(fn):
     return not (is_lfn(fn) or is_rootfn(fn))
 

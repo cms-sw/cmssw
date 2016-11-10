@@ -625,7 +625,7 @@ class LeptonAnalyzer( Analyzer ):
         leps = event.inclusiveLeptons if self.cfg_ana.match_inclusiveLeptons else event.selectedLeptons
         match = matchObjectCollection3(leps, 
                                        event.genleps + event.gentauleps, 
-                                       deltaRMax = 1.2, filter = plausible)
+                                       deltaRMax = 1.2, filter_func = plausible)
         for lep in leps:
             gen = match[lep]
             lep.mcMatchId  = (gen.sourceId if gen != None else  0)
@@ -645,7 +645,7 @@ class LeptonAnalyzer( Analyzer ):
     def matchAnyLeptons(self, event): 
         event.anyLeptons = [ x for x in event.genParticles if x.status() == 1 and abs(x.pdgId()) in [11,13] ]
         leps = event.inclusiveLeptons if hasattr(event, 'inclusiveLeptons') else event.selectedLeptons
-        match = matchObjectCollection3(leps, event.anyLeptons, deltaRMax = 0.3, filter = lambda x,y : abs(x.pdgId()) == abs(y.pdgId()))
+        match = matchObjectCollection3(leps, event.anyLeptons, deltaRMax = 0.3, filter_func = lambda x,y : abs(x.pdgId()) == abs(y.pdgId()))
         for lep in leps:
             gen = match[lep]
             lep.mcMatchAny_gp = gen
@@ -671,7 +671,7 @@ class LeptonAnalyzer( Analyzer ):
         leps = event.inclusiveLeptons if hasattr(event, 'inclusiveLeptons') else event.selectedLeptons
         leps = [ l for l in leps if abs(l.pdgId()) == 11 ]
         plausible = lambda rec, gen : 0.3*gen.pt() < rec.pt() and rec.pt() < 1.5*gen.pt()
-        match = matchObjectCollection3(leps, event.anyPho, deltaRMax = 0.3, filter = plausible)
+        match = matchObjectCollection3(leps, event.anyPho, deltaRMax = 0.3, filter_func = plausible)
         for lep in leps:
             gen = match[lep]
             lep.mcPho = gen
