@@ -8,6 +8,7 @@ from PhysicsTools.HeppyCore.utils.testtree import create_tree, remove_tree
 from PhysicsTools.HeppyCore.framework.heppy_loop import create_parser, main
 from PhysicsTools.HeppyCore.framework.looper import Looper
 from PhysicsTools.HeppyCore.framework.exceptions import UserStop
+import PhysicsTools.HeppyCore.framework.context as context
 from ROOT import TFile
 
 import logging
@@ -81,7 +82,7 @@ class TestSimpleExample(unittest.TestCase):
         options, args = parser.parse_args()
         options.iEvent = None
         options.nprint = 0
-        cfg = '/'.join( [ os.environ['HEPPY'], 
+        cfg = '/'.join( [ context.heppy_path, 
                           'test/simple_example_cfg.py' ] )
         main(options, [self.outdir, cfg], parser)
         options.force = True
