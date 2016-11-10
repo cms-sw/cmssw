@@ -27,7 +27,7 @@ void HGCalTriggerCellCalibration::print(){
 }
 
 
-l1t::HGCalTriggerCell HGCalTriggerCellCalibration::calibTrgCell(l1t::HGCalTriggerCell& trgCell, const edm::EventSetup& es){
+l1t::HGCalTriggerCell HGCalTriggerCellCalibration::calibrate(l1t::HGCalTriggerCell& trgCell, const edm::EventSetup& es){
         HGCalDetId trgdetid(trgCell.detId());
         int subdet =  (ForwardSubdetector)trgdetid.subdetId() - 3;
         int trgCellLayer = trgdetid.layer();
@@ -88,13 +88,3 @@ l1t::HGCalTriggerCell HGCalTriggerCellCalibration::calibTrgCell(l1t::HGCalTrigge
         //std::cout << "calibrated E = " << trgCell.p4().E() << std::endl; 
         return trgCell;
 } 
-
-//calibrate all the trigger cell in one step
-/*
-void HGCalTriggerCellCalibration::calibTrgCellCollection( l1t::HGCalTriggerCellBxCollection& trgCellColl, const edm::EventSetup& es){    
-    for(unsigned itc = 0; itc < trgCellColl.size(); ++itc){
-        std::cout << "HI THERE I AM CALIBRATING EVERYTHING!!"<< std::endl;
-        this->calibTrgCell(trgCellColl[itc], es);
-    }
-}
-*/

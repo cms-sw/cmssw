@@ -14,7 +14,7 @@
   <flags   EDM_PLUGIN="1"/>
 </library>
 
-<library   name="L1TriggerL1THGCalPlugins_fe_be" file="fe_codecs/*.cc,be_algorithms/*.cc,calib/*.cc">
+<library   name="L1TriggerL1THGCalPlugins_fe_be" file="fe_codecs/*.cc,be_algorithms/*.cc">
   <use   name="Geometry/FCalGeometry"/>
   <use   name="Geometry/CaloTopology"/>
   <use   name="Geometry/Records"/>

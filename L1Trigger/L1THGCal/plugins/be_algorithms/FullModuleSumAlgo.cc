@@ -54,10 +54,24 @@ void FullModuleSumAlgo::run(const l1t::HGCFETriggerDigiCollection& coll, const e
         const HGCalDetId& moduleId = digi.getDetId<HGCalDetId>();
         digi.decode(codec_, data);
 
-DEFINE_EDM_PLUGIN(HGCalTriggerBackendAlgorithmFactory, 
-        FullModuleSumAlgoBestChoice,
-        "FullModuleSumAlgoBestChoice");
+        // Sum of trigger cells inside the module
+        uint32_t moduleSum = 0;
+        for(const auto& triggercell : data.payload)
+        {
+            moduleSum += triggercell.hwPt();
+        }
+        // dummy cluster without position
+        // moduleId filled in place of hardware eta
+        l1t::HGCalCluster cluster( reco::LeafCandidate::LorentzVector(), 
+                moduleSum, 0, 0);
+        cluster.setModule(moduleId.wafer());
+        cluster.setLayer(moduleId.layer());
+        cluster.setSubDet(moduleId.subdetId());
+        cluster_product_->push_back(0,cluster);
+    }
+}
+
 
 DEFINE_EDM_PLUGIN(HGCalTriggerBackendAlgorithmFactory, 
-        FullModuleSumAlgoThreshold,
-        "FullModuleSumAlgoThreshold");
+        FullModuleSumAlgo,
+        "FullModuleSumAlgo");

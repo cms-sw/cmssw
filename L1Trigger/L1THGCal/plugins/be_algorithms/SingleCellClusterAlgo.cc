@@ -22,7 +22,7 @@ class SingleCellClusterAlgo : public Algorithm<FECODEC>
         SingleCellClusterAlgo(const edm::ParameterSet& conf):
             Algorithm<HGCalTriggerCellBestChoiceCodec>(conf),
             cluster_product_( new l1t::HGCalTriggerCellBxCollection ),
-            calibrate_(conf){}
+            calibration_(conf){}
 
         virtual void setProduces(edm::EDProducer& prod) const override final 
         {
@@ -43,7 +43,7 @@ class SingleCellClusterAlgo : public Algorithm<FECODEC>
 
     private:
         std::unique_ptr<l1t::HGCalTriggerCellBxCollection> cluster_product_;
-        HGCalTriggerCellCalibration calibrate_;    
+        HGCalTriggerCellCalibration calibration_;    
 };
 
 /*****************************************************************/
@@ -61,27 +61,10 @@ void SingleCellClusterAlgo::run(const l1t::HGCFETriggerDigiCollection& coll, con
             if(triggercell.hwPt()>0)
             {
                 HGCalDetId detid(triggercell.detId());
-                std::cout << "" << std::endl;
-                std::cout << " ------ Before calibration:" << std::endl;
-                std::cout << "trgCell hwPt,Pt,Eta,Phi,E = (" <<  triggercell.hwPt()
-                          << ", " << triggercell.p4().Pt() 
-                          << ", " << triggercell.p4().Eta()
-                          << ", " << triggercell.p4().Phi() 
-                          << ", " << triggercell.p4().E() 
-                          << " ) layer = " << detid.layer() << std::endl;
-                l1t::HGCalTriggerCell triggercellcopy(triggercell);
-                calibrate_.calibTrgCell(triggercellcopy, es);     
-                //std::cout << " inside the singleCellClusterAlgo: "<< triggercell.p4().Pt() << ", " <<  triggercellcopy.p4().Pt() << std::endl;
-                HGCalDetId detid_copy(triggercellcopy.detId());
-                std::cout << " ------ After calibration:" << std::endl;
-                std::cout << "trgCell hwPt,Pt,Eta,Phi,E = (" <<  triggercellcopy.hwPt()
-                          << ", " << triggercellcopy.p4().Pt() 
-                          << ", " << triggercellcopy.p4().Eta()
-                          << ", " << triggercellcopy.p4().Phi() 
-                          << ", " << triggercellcopy.p4().E() 
-                          << " ) layer = " << detid_copy.layer() << std::endl;
-                std::cout << ""<< std::endl;
-                cluster_product_->push_back(0,triggercellcopy);
+                l1t::HGCalTriggerCell calibratedtriggercell(triggercell);
+                calibration_.calibrate(calibratedtriggercell, es);     
+                HGCalDetId detid_copy(calibratedtriggercell.detId());
+                cluster_product_->push_back(0,calibratedtriggercell);
             }
         }
     }

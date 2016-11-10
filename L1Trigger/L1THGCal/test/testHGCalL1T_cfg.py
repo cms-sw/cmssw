@@ -25,7 +25,7 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(2)
+    input = cms.untracked.int32(20)
 )
 
 # Input source
@@ -57,7 +57,7 @@ process.FEVTDEBUGoutput = cms.OutputModule("PoolOutputModule",
         'keep *_hgcalTriggerPrimitiveDigiProducer_*_*'
     ),
     #fileName = cms.untracked.string('file:SinglePhoton_Pt100_eta2_14tc.root'),
-    fileName = cms.untracked.string('file:GitTest.root'),
+    fileName = cms.untracked.string('file:Test_NoTruncationE16bits.root'),
     dataset = cms.untracked.PSet(
         filterName = cms.untracked.string(''),
         dataTier = cms.untracked.string('GEN-SIM-DIGI-RAW')
@@ -108,6 +108,8 @@ process.L1simulation_step = cms.Path(process.SimL1Emulator)
 process.load('L1Trigger.L1THGCal.hgcalTriggerPrimitives_cff')
 # Remove best choice selection
 process.hgcalTriggerPrimitiveDigiProducer.FECodec.NData = cms.uint32(999)
+process.hgcalTriggerPrimitiveDigiProducer.FECodec.DataLength = cms.uint32(8)
+process.hgcalTriggerPrimitiveDigiProducer.FECodec.triggerCellTruncationBits = cms.uint32(7)
 cluster_algo_all =  cms.PSet( AlgorithmName = cms.string('SingleCellClusterAlgo'),
                                  FECodec = process.hgcalTriggerPrimitiveDigiProducer.FECodec )
 process.hgcalTriggerPrimitiveDigiProducer.BEConfiguration.algorithms = cms.VPSet( cluster_algo_all )

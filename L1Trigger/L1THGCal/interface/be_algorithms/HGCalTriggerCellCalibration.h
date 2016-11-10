@@ -20,8 +20,7 @@ public:
 
     HGCalTriggerCellCalibration(const edm::ParameterSet& conf);    
  
-    l1t::HGCalTriggerCell calibTrgCell(l1t::HGCalTriggerCell&, const edm::EventSetup& es); 
-    //void calibTrgCellCollection( l1t::HGCalTriggerCellBxCollection& trgCellColl, const edm::EventSetup& es);
+    l1t::HGCalTriggerCell calibrate(l1t::HGCalTriggerCell&, const edm::EventSetup& es); 
     void print();
     edm::ESHandle<HGCalGeometry> hgceeGeoHandle_;
     edm::ESHandle<HGCalGeometry> hgchefGeoHandle_;

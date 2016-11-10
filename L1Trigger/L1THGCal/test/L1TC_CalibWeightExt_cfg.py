@@ -36,7 +36,7 @@ process.maxEvents = cms.untracked.PSet(
 #process.source = cms.Source("EmptySource")
 process.source = cms.Source("PoolSource", 
 #                            fileNames = cms.untracked.vstring('file:/afs/cern.ch/work/l/lmastrol/Branch/branchTest/test/HGC_L1Calib_CMSSW/tmp/CMSSW_8_1_0_pre12/src/L1Trigger/L1THGCal/test/SinglePhoton_Pt100_eta2_14tc.root')
-                            fileNames = cms.untracked.vstring('file:/afs/cern.ch/work/l/lmastrol/Branch/branchTest/test/HGC_L1Calib_CMSSW/tmp/CMSSW_8_1_0_pre12/src/L1Trigger/L1THGCal/test/GitTest.root')
+                            fileNames = cms.untracked.vstring('file:/afs/cern.ch/work/l/lmastrol/Branch/branchTest/test/HGC_L1Calib_CMSSW/tmp/CMSSW_8_1_0_pre12/src/L1Trigger/L1THGCal/test/Test_NoTruncationE16bits.root')
 )
 
 process.options = cms.untracked.PSet(
@@ -54,7 +54,7 @@ process.configurationMetadata = cms.untracked.PSet(
 process.TFileService = cms.Service(
     "TFileService",
 #    fileName = cms.string("L1tpg_SinglePhotonPt100_12tcXmodule.root")
-    fileName = cms.string("GitTest_outout.root")
+    fileName = cms.string("Output_NoTruncationE16bits.root")
 
     )
 
@@ -86,7 +86,7 @@ process.geometryProducer = cms.ESProducer(
 
 process.hgcalTriggerPrimitiveDigiProducer.FECodec.NData = cms.uint32(12)
        
-process.TC_CalibWeight = cms.EDAnalyzer("L1TcCalib",
+process.TC_CalibWeight = cms.EDAnalyzer("testCalibration",
                                         DebugCode=cms.bool(False)
 #                                        FECodec = process.hgcalTriggerPrimitiveDigiProducer.FECodec
                                         #FECodec = process.hgcalTriggerPrimitiveDigiFEReproducer.FECodec.clone()
