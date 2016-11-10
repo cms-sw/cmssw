@@ -23,24 +23,19 @@
 #include "DataFormats/Common/interface/RangeMap.h"
 #include "DataFormats/Common/interface/OwnVector.h"
 
+typedef CollectionMerger<edmNew::DetSetVector<SiPixelCluster>, SiPixelCluster> PixelColMerger;
+typedef CollectionMerger<edmNew::DetSetVector<SiStripCluster>, SiStripCluster> StripColMerger;
 
+typedef CollectionMerger<edm::SortedCollection<EcalRecHit>, EcalRecHit> EcalRecHitColMerger;
+typedef CollectionMerger<edm::SortedCollection<HBHERecHit>, HBHERecHit> HBHERecHitColMerger;
+typedef CollectionMerger<edm::SortedCollection<HFRecHit>, HFRecHit> HFRecHitColMerger;
+typedef CollectionMerger<edm::SortedCollection<HORecHit>, HORecHit> HORecHitColMerger;
+typedef CollectionMerger<edm::SortedCollection<CastorRecHit>, CastorRecHit> CastorRecHitColMerger;
+typedef CollectionMerger<edm::SortedCollection<ZDCRecHit>, ZDCRecHit> ZDCRecHitColMerger;
 
-typedef CollectionMerger<edmNew::DetSetVector<SiPixelCluster>, SiPixelCluster> PixelMerger;
-typedef CollectionMerger<edmNew::DetSetVector<SiStripCluster>, SiStripCluster> StripMerger;
-
-typedef CollectionMerger<edm::SortedCollection<EcalRecHit>, EcalRecHit> EcalRecHitMerger;
-typedef CollectionMerger<edm::SortedCollection<HBHERecHit>, HBHERecHit> HBHERecHitMerger;
-typedef CollectionMerger<edm::SortedCollection<HFRecHit>, HFRecHit> HFRecHitMerger;
-typedef CollectionMerger<edm::SortedCollection<HORecHit>, HORecHit> HORecHitMerger;
-typedef CollectionMerger<edm::SortedCollection<CastorRecHit>, CastorRecHit> CastorRecHitMerger;
-typedef CollectionMerger<edm::SortedCollection<ZDCRecHit>, ZDCRecHit> ZDCRecHitMerger;
-
-
-
-
-typedef CollectionMerger<edm::RangeMap<DTLayerId, edm::OwnVector<DTRecHit1DPair> >, DTRecHit1DPair> DTRecHitMerger;
-typedef CollectionMerger<edm::RangeMap<CSCDetId, edm::OwnVector<CSCRecHit2D> >, CSCRecHit2D> CSCRecHitMerger;
-typedef CollectionMerger<edm::RangeMap<RPCDetId, edm::OwnVector<RPCRecHit> >, RPCRecHit> RPCRecHitMerger;
+typedef CollectionMerger<edm::RangeMap<DTLayerId, edm::OwnVector<DTRecHit1DPair> >, DTRecHit1DPair> DTRecHitColMerger;
+typedef CollectionMerger<edm::RangeMap<CSCDetId, edm::OwnVector<CSCRecHit2D> >, CSCRecHit2D> CSCRecHitColMerger;
+typedef CollectionMerger<edm::RangeMap<RPCDetId, edm::OwnVector<RPCRecHit> >, RPCRecHit> RPCRecHitColMerger;
 
 
 
@@ -205,20 +200,16 @@ void  CollectionMerger<edm::RangeMap<RPCDetId, edm::OwnVector<RPCRecHit> >, RPCR
 
 
 
-#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(PixelColMerger);
+DEFINE_FWK_MODULE(StripColMerger);
 
-DEFINE_FWK_MODULE(PixelMerger);
-DEFINE_FWK_MODULE(StripMerger);
+DEFINE_FWK_MODULE(EcalRecHitColMerger);
+DEFINE_FWK_MODULE(HBHERecHitColMerger);
+DEFINE_FWK_MODULE(HFRecHitColMerger);
+DEFINE_FWK_MODULE(HORecHitColMerger);
+DEFINE_FWK_MODULE(CastorRecHitColMerger);
+DEFINE_FWK_MODULE(ZDCRecHitColMerger);
 
-DEFINE_FWK_MODULE(EcalRecHitMerger);
-DEFINE_FWK_MODULE(HBHERecHitMerger);
-DEFINE_FWK_MODULE(HFRecHitMerger);
-DEFINE_FWK_MODULE(HORecHitMerger);
-DEFINE_FWK_MODULE(CastorRecHitMerger);
-DEFINE_FWK_MODULE(ZDCRecHitMerger);
-
-
-
-DEFINE_FWK_MODULE(DTRecHitMerger);
-DEFINE_FWK_MODULE(CSCRecHitMerger);
-DEFINE_FWK_MODULE(RPCRecHitMerger);
+DEFINE_FWK_MODULE(DTRecHitColMerger);
+DEFINE_FWK_MODULE(CSCRecHitColMerger);
+DEFINE_FWK_MODULE(RPCRecHitColMerger);

@@ -19,6 +19,7 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/PatCandidates/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonEnergy.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "TrackingTools/TrackAssociator/interface/TrackAssociatorParameters.h"
 #include "TrackingTools/TrackAssociator/interface/TrackDetectorAssociator.h"
@@ -33,7 +34,7 @@
 
 
 template <typename T>
-class CaloCleaner : public edm::EDProducer 
+class CaloCleaner : public  edm::stream::EDProducer<>
 {
  public:
   explicit CaloCleaner(const edm::ParameterSet&);

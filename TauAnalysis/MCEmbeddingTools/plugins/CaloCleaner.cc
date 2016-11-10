@@ -7,12 +7,12 @@
 #include "DataFormats/HcalRecHit/interface/ZDCRecHit.h"
 #include "DataFormats/HcalRecHit/interface/CastorRecHit.h"
 
-typedef CaloCleaner<EcalRecHit> EcalRecHitCleaner;
-typedef CaloCleaner<HBHERecHit> HBHERecHitCleaner;
-typedef CaloCleaner<HFRecHit> HFRecHitCleaner;
-typedef CaloCleaner<HORecHit> HORecHitCleaner;
-typedef CaloCleaner<CastorRecHit> CastorRecHitCleaner;
-typedef CaloCleaner<ZDCRecHit> ZDCRecHitCleaner;
+typedef CaloCleaner<EcalRecHit> EcalRecHitColCleaner;
+typedef CaloCleaner<HBHERecHit> HBHERecHitColCleaner;
+typedef CaloCleaner<HFRecHit> HFRecHitColCleaner;
+typedef CaloCleaner<HORecHit> HORecHitColCleaner;
+typedef CaloCleaner<CastorRecHit> CastorRecHitColCleaner;
+typedef CaloCleaner<ZDCRecHit> ZDCRecHitColCleaner;
 
 
 //-------------------------------------------------------------------------------
@@ -84,16 +84,13 @@ void  CaloCleaner<ZDCRecHit>::fill_correction_map(TrackDetMatchInfo * info,  std
 
 
 
-
-#include "FWCore/Framework/interface/MakerMacros.h"
-
-DEFINE_FWK_MODULE(EcalRecHitCleaner);
-DEFINE_FWK_MODULE(HBHERecHitCleaner);
-DEFINE_FWK_MODULE(HORecHitCleaner);
+DEFINE_FWK_MODULE(EcalRecHitColCleaner);
+DEFINE_FWK_MODULE(HBHERecHitColCleaner);
+DEFINE_FWK_MODULE(HORecHitColCleaner);
 // no  need for cleaning outside of tracker, so just a copy of the old collection
-DEFINE_FWK_MODULE(HFRecHitCleaner);
-DEFINE_FWK_MODULE(CastorRecHitCleaner);
-DEFINE_FWK_MODULE(ZDCRecHitCleaner);
+DEFINE_FWK_MODULE(HFRecHitColCleaner);
+DEFINE_FWK_MODULE(CastorRecHitColCleaner);
+DEFINE_FWK_MODULE(ZDCRecHitColCleaner);
 
 
 

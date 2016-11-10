@@ -4,27 +4,40 @@
 #include "DataFormats/Candidate/interface/LeafCandidate.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDFilter.h"
+
+#include "FWCore/Framework/interface/stream/EDFilter.h"
+#include "FWCore/Utilities/interface/StreamID.h"
+
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-class DYToMuMuGenFilter: public edm::EDFilter {
-public:
-  explicit DYToMuMuGenFilter(const edm::ParameterSet&);
-  ~DYToMuMuGenFilter();
-
-  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 
-private:
-  virtual void beginJob() override;
-  virtual bool filter(edm::Event&, const edm::EventSetup&)override;
-  virtual void endJob() override;
-  edm::InputTag inputTag_;
-  edm::EDGetTokenT<reco::GenParticleCollection> genParticleCollection_;
+class DYToMuMuGenFilter: public edm::stream::EDFilter<> {
+   public:
+      explicit DYToMuMuGenFilter(const edm::ParameterSet&);
+      ~DYToMuMuGenFilter();
 
+      static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
+   private:
+      virtual void beginStream(edm::StreamID) override;
+      virtual bool filter(edm::Event&, const edm::EventSetup&) override;
+      virtual void endStream() override;
+      
+      edm::InputTag inputTag_;
+      edm::EDGetTokenT<reco::GenParticleCollection> genParticleCollection_;
+
+      //virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
+      //virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
+      //virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
+      //virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
+
+      // ----------member data ---------------------------
 };
+
+
 
 
 DYToMuMuGenFilter::DYToMuMuGenFilter(const edm::ParameterSet& iConfig)
@@ -84,22 +97,27 @@ bool DYToMuMuGenFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
     }
     return false;
 }
-
-// ------------ method called once each job just before starting event loop  ------------
-void DYToMuMuGenFilter::beginJob() {
+// ------------ method called once each stream before processing any runs, lumis or events  ------------
+void
+DYToMuMuGenFilter::beginStream(edm::StreamID)
+{
 }
 
-// ------------ method called once each job just after ending the event loop  ------------
-void DYToMuMuGenFilter::endJob() {
+// ------------ method called once each stream after processing all runs, lumis and events  ------------
+void
+DYToMuMuGenFilter::endStream() {
 }
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
-void DYToMuMuGenFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+void
+DYToMuMuGenFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   //The following says we do not know what parameters are allowed so do no validation
   // Please change this to state exactly what you do use, even if it is no parameters
   edm::ParameterSetDescription desc;
   desc.setUnknown();
   descriptions.addDefault(desc);
 }
-//define this as a plug-in
+
+
+
 DEFINE_FWK_MODULE(DYToMuMuGenFilter);

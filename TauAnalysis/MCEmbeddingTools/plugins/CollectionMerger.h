@@ -16,6 +16,8 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/PatCandidates/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonEnergy.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+
 
 #include "TrackingTools/TrackAssociator/interface/TrackAssociatorParameters.h"
 #include "TrackingTools/TrackAssociator/interface/TrackDetectorAssociator.h"
@@ -36,7 +38,7 @@
 
 
 template <typename T1, typename T2>
-class CollectionMerger : public edm::EDProducer 
+class CollectionMerger : public  edm::stream::EDProducer<>
 {
  public:
   explicit CollectionMerger(const edm::ParameterSet&);

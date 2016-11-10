@@ -14,6 +14,8 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/Common/interface/Handle.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+
 
 #include "DataFormats/MuonReco/interface/MuonQuality.h"
 #include "DataFormats/Common/interface/ValueMap.h"
@@ -30,7 +32,7 @@
 
 
 template <typename T1>
-class TrackMergeremb : public edm::EDProducer 
+class TrackMergeremb : public edm::stream::EDProducer<>
 {
  public:
   explicit TrackMergeremb(const edm::ParameterSet&);
@@ -47,14 +49,16 @@ class TrackMergeremb : public edm::EDProducer
   void merg_and_put(edm::Event&, std::string ,  std::vector<edm::EDGetTokenT<TrackCollectionemb> > & );
   
   std::map<std::string,  std::vector<edm::EDGetTokenT<TrackCollectionemb > > > inputs_;
-
   std::map<std::string,  std::vector<edm::EDGetTokenT<edm::ValueMap<reco::MuonQuality> > > > inputs_qual_;
   
-  typedef edm::ValueMap<reco::TrackRef> TrackToTrackMapnew;
+  //typedef edm::ValueMap<reco::TrackRef> TrackToTrackMapnew;
+  typedef edm::ValueMap<reco::TrackRefVector> TrackToTrackMapnew;
+  
+  
   edm::EDGetTokenT<TrackToTrackMapnew > inputs_fixtrackrefs_;
   edm::EDGetTokenT<reco::TrackCollection > inputs_fixtrackcol_;
   
-    edm::EDGetTokenT<reco::MuonToMuonMap > inputs_fixmurefs_;
+  edm::EDGetTokenT<reco::MuonToMuonMap > inputs_fixmurefs_;
   edm::EDGetTokenT<reco::MuonCollection > inputs_fixmucol_;
   
 

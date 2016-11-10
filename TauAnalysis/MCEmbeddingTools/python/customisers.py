@@ -26,8 +26,8 @@ class module_manipulate():
     self.manipulator_name = manipulator_name
     self.steps = steps
     self.instance = instance
-    self.merger_name = manipulator_name+"Merger"
-    self.cleaner_name = manipulator_name+"Cleaner"
+    self.merger_name = manipulator_name+"ColMerger"
+    self.cleaner_name = manipulator_name+"ColCleaner"
     self.merge_prefix = merge_prefix
 
 

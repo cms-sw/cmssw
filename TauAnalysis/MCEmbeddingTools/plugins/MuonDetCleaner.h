@@ -17,6 +17,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/Common/interface/Handle.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "DataFormats/Common/interface/RangeMap.h"
 #include "DataFormats/Common/interface/OwnVector.h"
@@ -28,7 +29,7 @@
 #include <map>
 
 template <typename T1, typename T2>
-class MuonDetCleaner : public edm::EDProducer 
+class MuonDetCleaner : public edm::stream::EDProducer<>
 {
  public:
   explicit MuonDetCleaner(const edm::ParameterSet&);
