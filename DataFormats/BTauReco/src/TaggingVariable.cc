@@ -15,6 +15,7 @@ const char* const TaggingVariableDescription[] = {
   /* [jetEta]                                   = */ "jet pseudorapidity",
   /* [jetPhi]                                   = */ "jet polar angle",
   /* [jetNTracks]                               = */ "tracks associated to jet",
+	/* [jetNTracksEtaRel]                         = */ "number of tracks for which etaRel is computed",
 
   /* [trackMomentum]                            = */ "track momentum",
   /* [trackEta]                                 = */ "track pseudorapidity",
@@ -143,6 +144,7 @@ const char* const TaggingVariableTokens[] = {
   /* [jetEta]                                   = */ "jetEta",
   /* [jetPhi]                                   = */ "jetPhi",
   /* [jetNTracks]                               = */ "jetNTracks",
+	/* [jetNTracksEtaRel]                         = */ "jetNTracksEtaRel",
 
   /* [trackMomentum]                            = */ "trackMomentum",
   /* [trackEta]                                 = */ "trackEta",
