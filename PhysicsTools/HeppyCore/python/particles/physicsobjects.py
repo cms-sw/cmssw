@@ -1,5 +1,5 @@
-from heppy.particles.handle import Handle
-from heppy.particles.p4 import P4
+from PhysicsTools.HeppyCore.particles.handle import Handle
+from PhysicsTools.HeppyCore.particles.p4 import P4
 
 class Jet(Handle, P4):
     pass

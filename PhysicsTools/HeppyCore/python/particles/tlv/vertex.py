@@ -1,4 +1,4 @@
-from heppy.particles.vertex import Vertex as BaseVertex
+from PhysicsTools.HeppyCore.particles.vertex import Vertex as BaseVertex
 from rootobj import RootObj
 
 import math

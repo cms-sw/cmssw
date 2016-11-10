@@ -1,4 +1,4 @@
-from heppy.particles.jet import Jet as BaseJet
+from PhysicsTools.HeppyCore.particles.jet import Jet as BaseJet
 from pod import POD
 
 from ROOT import TLorentzVector

@@ -11,7 +11,7 @@ DEFAULT_DRMIN = 1e-5
 def deltaR2( e1, p1, e2=None, p2=None):
     """Take either 4 arguments (eta,phi, eta,phi) or two particles that have 'eta', 'phi' methods)"""
     if (e2 == None and p2 == None):
-        if heppy.configuration.Collider.BEAMS == 'ee':
+        if PhysicsTools.HeppyCore.configuration.Collider.BEAMS == 'ee':
             return deltaR2(e1.theta(),e1.phi(), p1.theta(), p1.phi())
         else:
             return deltaR2(e1.eta(),e1.phi(), p1.eta(), p1.phi())

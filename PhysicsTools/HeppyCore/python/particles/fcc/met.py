@@ -1,4 +1,4 @@
-from heppy.particles.met import MET as BaseMET
+from PhysicsTools.HeppyCore.particles.met import MET as BaseMET
 from ROOT import TLorentzVector
 
 class Met(BaseMET):

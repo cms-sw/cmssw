@@ -1,4 +1,4 @@
-from heppy.particles.tlv.particle import Particle
+from PhysicsTools.HeppyCore.particles.tlv.particle import Particle
 from ROOT import TLorentzVector
 from rootobj import RootObj
 

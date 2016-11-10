@@ -1,4 +1,4 @@
-from heppy.particles.particle import Particle as BaseParticle
+from PhysicsTools.HeppyCore.particles.particle import Particle as BaseParticle
 from rootobj import RootObj
 from ROOT import TVector3
 from vertex import Vertex 

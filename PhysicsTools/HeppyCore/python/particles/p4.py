@@ -1,5 +1,5 @@
 import math
-from heppy.configuration import Collider
+from PhysicsTools.HeppyCore.configuration import Collider
 
 from functools import total_ordering
 

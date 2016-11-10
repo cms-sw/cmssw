@@ -1,6 +1,6 @@
-from heppy.particles.jet import Jet as BaseJet
-from heppy.particles.jet import JetConstituents
-from heppy.particles.cms.particle import Particle
+from PhysicsTools.HeppyCore.particles.jet import Jet as BaseJet
+from PhysicsTools.HeppyCore.particles.jet import JetConstituents
+from PhysicsTools.HeppyCore.particles.cms.particle import Particle
 from ROOT import TLorentzVector 
 
 class Jet(BaseJet):

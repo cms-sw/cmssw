@@ -1,4 +1,4 @@
-from heppy.particles.particle import Particle as BaseParticle
+from PhysicsTools.HeppyCore.particles.particle import Particle as BaseParticle
 from ROOT import TLorentzVector
 
 class Particle(BaseParticle):

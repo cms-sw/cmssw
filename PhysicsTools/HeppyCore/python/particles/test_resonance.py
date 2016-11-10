@@ -1,6 +1,6 @@
 import unittest
-from heppy.particles.tlv.resonance import Resonance2 as Resonance
-from heppy.particles.tlv.particle import Particle
+from PhysicsTools.HeppyCore.particles.tlv.resonance import Resonance2 as Resonance
+from PhysicsTools.HeppyCore.particles.tlv.particle import Particle
 from ROOT import TLorentzVector
 
 class TestResonance(unittest.TestCase):
