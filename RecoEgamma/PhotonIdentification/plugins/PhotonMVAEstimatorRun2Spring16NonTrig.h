@@ -111,13 +111,6 @@ class PhotonMVAEstimatorRun2Spring16NonTrig : public AnyMVAEstimatorRun2Base{
   // Declare all tokens that will be needed to retrieve misc
   // data from the event content required by this MVA
   //
-  const bool _useValueMaps;
-  const edm::InputTag _full5x5SigmaIEtaIEtaMapLabel; 
-  const edm::InputTag _full5x5SigmaIEtaIPhiMapLabel; 
-  const edm::InputTag _full5x5E2x2MapLabel; 
-  const edm::InputTag _full5x5E5x5MapLabel; 
-  const edm::InputTag _esEffSigmaRRMapLabel; 
-  //
   const edm::InputTag _phoChargedIsolationLabel; 
   const edm::InputTag _phoPhotonIsolationLabel; 
   const edm::InputTag _phoWorstChargedIsolationLabel; 
