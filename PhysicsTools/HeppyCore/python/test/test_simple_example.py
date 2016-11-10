@@ -73,8 +73,6 @@ class TestSimpleExample(unittest.TestCase):
                        nEvents=None,
                        nPrint=0,
                        timeReport=True)
-        # import pdb; pdb.set_trace()
-        # loop.process(10)
         self.assertRaises(UserStop, loop.process, 10)
   
     def test_rewrite(self):

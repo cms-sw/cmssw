@@ -1,4 +1,4 @@
-'''Example configuration file for an ee->ZH->mumubb analysis in PhysicsTools.HeppyCore. with the FCC-ee
+'''Example configuration file for an ee->ZH->mumubb analysis in heppy, with the FCC-ee
 
 While studying this file, open it in ipython as well as in your editor to 
 get more information: 
@@ -179,7 +179,7 @@ higgses = cfg.Analyzer(
 # Just a basic analysis-specific event Selection module.
 # this module implements a cut-flow counter
 # After running the example as
-#    PhysicsTools.HeppyCore.loop.py Trash/ analysis_ee_ZH_cfg.py -f -N 100 
+#    heppy_loop.py Trash/ analysis_ee_ZH_cfg.py -f -N 100 
 # this counter can be found in:
 #    Trash/example/PhysicsTools.HeppyCore.analyzers.examples.zh.selection.Selection_cuts/cut_flow.txt
 # Counter cut_flow :
@@ -261,7 +261,7 @@ if __name__ == '__main__':
     Provide ievent as an integer, or loop on the first events.
     You can also use this configuration file in this way: 
     
-    PhysicsTools.HeppyCore.loop.py OutDir/ analysis_ee_ZH_cfg.py -f -N 100 
+    heppy_loop.py OutDir/ analysis_ee_ZH_cfg.py -f -N 100 
     '''
     if len(sys.argv)==2:
         papas.display = True

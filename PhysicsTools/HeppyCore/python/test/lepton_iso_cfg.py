@@ -1,4 +1,4 @@
-'''Example configuration file for an ee->ZH->mumubb analysis in PhysicsTools.HeppyCore. with the FCC-ee
+'''Example configuration file for an ee->ZH->mumubb analysis in heppy, with the FCC-ee
 
 While studying this file, open it in ipython as well as in your editor to 
 get more information: 

@@ -50,8 +50,8 @@ class TestMultiProcessing(unittest.TestCase):
         output_root_files = glob.glob(wcard)
         self.assertEqual(len(output_root_files),2)
                 
-    # def test_PhysicsTools.HeppyCore.batch(self):
-    #     cmd = ['PhysicsTools.HeppyCore.batch.py',
+    # def test_heppy_batch(self):
+    #     cmd = ['heppy_batch.py',
     #            '-o',
     #            '{}'.format(self.outdir), 
     #            '-b',
