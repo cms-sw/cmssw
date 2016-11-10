@@ -1,5 +1,4 @@
 import FWCore.ParameterSet.Config as cms
-from Configuration.StandardSequences.Eras import eras
 
 from DQMServices.Components.DQMMessageLogger_cfi import *
 from DQMServices.Components.DQMDcsInfo_cfi import *
@@ -49,7 +48,7 @@ from Validation.RecoTau.DQMSequences_cfi import *
 from DQM.TrackingMonitorSource.TrackingSourceConfig_Tier0_cff import *
 # miniAOD DQM validation
 from Validation.RecoParticleFlow.miniAODDQM_cff import *
-from DQM.TrackingMonitor.tracksDQMMiniAOD_cff import *
+from DQM.TrackingMonitor.tracksDQMMiniAOD_cff import * 
 
 DQMOfflinePrePOG = cms.Sequence( TrackingDQMSourceTier0 *
                                  muonMonitors *
@@ -62,7 +61,8 @@ DQMOfflinePrePOG = cms.Sequence( TrackingDQMSourceTier0 *
                                  dqmPhysics *
                                  produceDenoms *
                                  pfTauRunDQMValidation)
-eras.phase1Pixel.toReplaceWith(DQMOfflinePrePOG, DQMOfflinePrePOG.copyAndExclude([ # FIXME
+from Configuration.Eras.Modifier_phase1Pixel_cff import phase1Pixel
+phase1Pixel.toReplaceWith(DQMOfflinePrePOG, DQMOfflinePrePOG.copyAndExclude([ # FIXME
     triggerOfflineDQMSource, # No HLT yet for 2017, so no need to run the DQM (avoiding excessive printouts)
     pfTauRunDQMValidation,   # Excessive printouts because 2017 doesn't have HLT yet
 ]))
@@ -71,23 +71,24 @@ DQMOfflinePOG = cms.Sequence( DQMOfflinePrePOG *
                               DQMMessageLogger )
 
 HLTMonitoring = cms.Sequence( OfflineHLTMonitoring )
-
+HLTMonitoringPA = cms.Sequence( OfflineHLTMonitoringPA )
 DQMOffline = cms.Sequence( DQMOfflinePreDPG *
                            DQMOfflinePrePOG *
                            HLTMonitoring *
                            dqmFastTimerServiceLuminosity *
                            DQMMessageLogger )
-eras.phase1Pixel.toReplaceWith(DQMOffline, DQMOffline.copyAndExclude([
+phase1Pixel.toReplaceWith(DQMOffline, DQMOffline.copyAndExclude([
     HLTMonitoring # No HLT yet for 2017, so no need to run the DQM (avoiding excessive printouts)
 ]))
 
 _ctpps_2016_DQMOffline = DQMOffline.copy()
 _ctpps_2016_DQMOffline *= totemDQM
-eras.ctpps_2016.toReplaceWith(DQMOffline, _ctpps_2016_DQMOffline)
+from Configuration.Eras.Modifier_ctpps_2016_cff import ctpps_2016
+ctpps_2016.toReplaceWith(DQMOffline, _ctpps_2016_DQMOffline)
 
 _ctpps_2016_DQMOffline = DQMOffline.copy()
 #_ctpps_2016_DQMOffline *= totemDQM
-eras.ctpps_2016.toReplaceWith(DQMOffline, _ctpps_2016_DQMOffline)
+ctpps_2016.toReplaceWith(DQMOffline, _ctpps_2016_DQMOffline)
 
 DQMOfflineFakeHLT = cms.Sequence( DQMOffline )
 DQMOfflineFakeHLT.remove( HLTMonitoring )
@@ -138,6 +139,7 @@ DQMOfflineMuon = cms.Sequence( dtSources *
                                cscSources *
                                muonMonitors
                               )
+
 DQMOfflineHcal = cms.Sequence( hcalOfflineSourceSequence )
 
 DQMOfflineEcal = cms.Sequence( ecal_dqm_source_offline *
@@ -148,15 +150,20 @@ DQMOfflineJetMET = cms.Sequence( jetMETDQMOfflineSource )
 DQMOfflineEGamma = cms.Sequence( egammaDQMOffline )
 
 DQMOfflineBTag = cms.Sequence( bTagPlotsDATA )
+
+from DQMOffline.Muon.miniAOD_cff import * 
                                                                  
-DQMOfflineMiniAOD = cms.Sequence(jetMETDQMOfflineRedoProductsMiniAOD)
+DQMOfflineMiniAOD = cms.Sequence(jetMETDQMOfflineRedoProductsMiniAOD*muonMonitors_miniAOD*MuonMiniAOD)
 
 #Post sequences are automatically placed in the EndPath by ConfigBuilder if PAT is run.
 #miniAOD DQM sequences need to access the filter results.
+
+
 PostDQMOfflineMiniAOD = cms.Sequence(miniAODDQMSequence*jetMETDQMOfflineSourceMiniAOD*tracksDQMMiniAOD*topPhysicsminiAOD)
 PostDQMOffline = cms.Sequence()
 
-eras.phase2_hcal.toReplaceWith( PostDQMOfflineMiniAOD, PostDQMOfflineMiniAOD.copyAndExclude([
+from Configuration.Eras.Modifier_phase2_hcal_cff import phase2_hcal
+phase2_hcal.toReplaceWith( PostDQMOfflineMiniAOD, PostDQMOfflineMiniAOD.copyAndExclude([
     pfMetDQMAnalyzerMiniAOD, pfPuppiMetDQMAnalyzerMiniAOD # No hcalnoise yet
 ]))
 

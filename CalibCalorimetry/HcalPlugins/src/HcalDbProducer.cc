@@ -54,18 +54,19 @@ HcalDbProducer::HcalDbProducer( const edm::ParameterSet& fConfig)
 			  &HcalDbProducer::PFCorrsCallback &
 			  &HcalDbProducer::timeCorrsCallback &
 			  &HcalDbProducer::QIEDataCallback &
-                          &HcalDbProducer::QIETypesCallback &
+			  &HcalDbProducer::QIETypesCallback &
 			  &HcalDbProducer::gainWidthsCallback &
 			  &HcalDbProducer::channelQualityCallback &
 			  &HcalDbProducer::zsThresholdsCallback &
 			  &HcalDbProducer::L1triggerObjectsCallback &
 			  &HcalDbProducer::electronicsMapCallback &
 			  &HcalDbProducer::frontEndMapCallback &
-//			  &HcalDbProducer::SiPMParametersCallback &
-//			  &HcalDbProducer::SiPMCharacteristicsCallback &
-//			  &HcalDbProducer::TPChannelParametersCallback &
-//			  &HcalDbProducer::TPParameterisCallback &
-			  &HcalDbProducer::lutMetadataCallback 
+			  &HcalDbProducer::SiPMParametersCallback &
+			  &HcalDbProducer::SiPMCharacteristicsCallback &
+			  &HcalDbProducer::TPChannelParametersCallback &
+			  &HcalDbProducer::TPParametersCallback &
+			  &HcalDbProducer::lutMetadataCallback &
+			  &HcalDbProducer::MCParamsCallback
 			  )
 		   );
 
@@ -438,3 +439,23 @@ void HcalDbProducer::TPParametersCallback (const HcalTPParametersRcd& fRecord){
     HcalDbASCIIIO::dumpObject (*mDumpStream, *(item.product ()));
   }
 }
+
+
+void HcalDbProducer::MCParamsCallback (const HcalMCParamsRcd& fRecord) {
+  edm::ESTransientHandle <HcalMCParams> item;
+  fRecord.get (item);
+
+  mMCParams.reset( new HcalMCParams(*item) );
+
+  edm::ESHandle<HcalTopology> htopo;
+  fRecord.getRecord<HcalRecNumberingRecord>().get(htopo);
+  const HcalTopology* topo=&(*htopo);
+  mMCParams->setTopo(topo);
+
+  mService->setData (mMCParams.get());
+  if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("MCParams")) != mDumpRequest.end()) {
+    *mDumpStream << "New HCAL MCParams set" << std::endl;
+    HcalDbASCIIIO::dumpObject (*mDumpStream, *(mMCParams));
+  }
+}
+

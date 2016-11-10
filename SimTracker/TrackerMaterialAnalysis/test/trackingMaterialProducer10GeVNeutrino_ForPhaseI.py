@@ -1,38 +1,42 @@
-#!/usr/bin/env python
+#!/usr/bin/env cmsRun
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("Geometry")
-# import of standard configurations
-process.load('Configuration.StandardSequences.Services_cff')
-process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
-process.load('Configuration.Geometry.GeometrySimDB_cff')
-process.load('Configuration.StandardSequences.MagneticField_38T_cff')
-process.load('Configuration.StandardSequences.Generator_cff')
-process.load('Configuration.StandardSequences.SimIdeal_cff')
-process.load('Configuration.StandardSequences.EndOfProcess_cff')
-process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff')
+
+readGeometryFromDB = False
+
+# N.B. for the time being we load the geometry from local
+# XML, whle in future we will have to use the DB. This is
+# only a temporary hack, since the material description has
+# been updated in release via XML and the DB is behind.
+if not readGeometryFromDB:
+  process.load('Configuration.Geometry.GeometryExtended2017_cff')
+else:
+# GlobalTag and geometry via GT
+  process.load('Configuration.Geometry.GeometrySimDB_cff')
+  process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff')
+  from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
+  process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase1_2017_design', '')
+
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.EventContent.EventContent_cff')
+
+## MC Related stuff
+process.load('Configuration.StandardSequences.Generator_cff')
 process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
-process.load('SimGeneral.MixingModule.mixNoPU_cfi')
-process.load('GeneratorInterface.Core.genFilterSummary_cff')
-process.load('IOMC.EventVertexGenerators.VtxSmearedRealistic8TeVCollision_cfi')
+
+### Loading 10GeV neutrino gun generator
 process.load("SimTracker.TrackerMaterialAnalysis.single10GeVNeutrino_cfi")
 
-# gaussian Vertex Smearing
-#process.load('IOMC.EventVertexGenerators.VtxSmearedGauss_cfi')
+### Load vertex generator w/o smearing
 from Configuration.StandardSequences.VtxSmeared import VtxSmeared
-#process.load(VtxSmeared['Gauss'])
 process.load(VtxSmeared['NoSmear'])
 
 # detector simulation (Geant4-based) with tracking material accounting 
 process.load("SimTracker.TrackerMaterialAnalysis.trackingMaterialProducer_cff")
-
-
-#Global Tag
-from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase1_2017_design', '')
+#For some reason now neutrino are no longer tracked, so we need to force it.
+process.trackingMaterialProducer.StackingAction.TrackNeutrino = True
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(200000)
@@ -48,7 +52,10 @@ process.out = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string('file:material.root')
 )
 
-process.path = cms.Path(process.generator*process.VtxSmeared*process.generatorSmeared*process.trackingMaterialProducer)
+process.path = cms.Path(process.generator
+                        * process.VtxSmeared
+                        * process.generatorSmeared
+                        * process.trackingMaterialProducer)
 process.outpath = cms.EndPath(process.out)
 
 def customizeMessageLogger(process):

@@ -53,7 +53,6 @@ MuonDDDConstants::MuonDDDConstants( const DDCompactView& cpv ) {
       std::cout << "adding DDConstant of " << bit->second.name() << " = " << int(bit->second.doubles()[0]) << std::endl;
 #endif
     }
-    //    std::cout << "DDConstant of " << bit->second.name() << " = " << bit->second.strings()[0] << std::endl;
   }
   
 }
@@ -77,7 +76,9 @@ int MuonDDDConstants::getValue( const std::string& name ) const {
     std::cout << "MuonDDDConstants::getValue was asked for " << name << " and had NO clue!" << std::endl;
     throw cms::Exception("GeometryBuildFailure", "MuonDDDConstants does not have requested value for " + name);
   }
-
+#ifdef LOCAL_DEBUG
+  std::cout << "Value for " << name << " is " << findIt->second << std::endl;
+#endif
   return findIt->second;
 }
 

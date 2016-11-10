@@ -48,10 +48,10 @@ DTLocalTriggerTask::DTLocalTriggerTask(const edm::ParameterSet& ps) :
   doTMTheta       = ps.getUntrackedParameter<bool>("enableTMTheta", false);
   tm_Token_       = consumes<L1MuDTChambPhContainer>(
       edm::InputTag(ps.getUntrackedParameter<string>("tm_label", "dttpgprod")));
-// NEW (M.C Fouz July14) Needed, since at least version 710 
-  tmTh_Token_       = consumes<L1MuDTChambThContainer>(
-      edm::InputTag(ps.getUntrackedParameter<string>("tm_label", "dttpgprod")));
-// end NEW
+  tmTh_label_     = ps.getUntrackedParameter<edm::InputTag>("tmTh_label");
+  tmTh_Token_       = consumes<L1MuDTChambThContainer>(edm::InputTag(tmTh_label_));
+
+  //cout << "[DTLocalTriggerTask] ThetaTriggerLabel=" << tmTh_label_ << endl;
 
   ros_Token_       = consumes<DTLocalTriggerCollection>(
       edm::InputTag(ps.getUntrackedParameter<string>("ros_label", "dtunpacker")));
@@ -149,8 +149,12 @@ void DTLocalTriggerTask::bookHistograms(DQMStore::IBooker & ibooker, edm::Run co
 		bookHistos(ibooker, dtChId,"LocalTriggerPhiIn","TM_BestQual"+(*trigSrcIt));
 		if (stat!=4 && doTMTheta){
 		  bookHistos(ibooker, dtChId,"LocalTriggerTheta","TM_PositionvsBX"+(*trigSrcIt));
-                  bookHistos(ibooker, dtChId,"LocalTriggerTheta","TM_QualityvsBX"+(*trigSrcIt));
-                  bookHistos(ibooker, dtChId,"LocalTriggerTheta","TM_QualityvsPosition"+(*trigSrcIt));
+              bookHistos(ibooker, dtChId,"LocalTriggerTheta","TM_QualityvsBX"+(*trigSrcIt));
+
+              bookHistos(ibooker, dtChId,"LocalTriggerTheta","TM_PositionvsQual"+(*trigSrcIt));
+                
+		  bookHistos(ibooker, dtChId,"LocalTriggerTheta","TM_ThetaBXvsQual"+(*trigSrcIt));
+		  bookHistos(ibooker, dtChId,"LocalTriggerTheta","TM_ThetaBestQual"+(*trigSrcIt));
 		}
 
 		if (parameters.getUntrackedParameter<bool>("process_seg", true)){ // TM + Segemnt
@@ -248,8 +252,7 @@ void DTLocalTriggerTask::analyze(const edm::Event& e, const edm::EventSetup& c){
     edm::Handle<L1MuDTChambPhContainer> l1DTTPGPh;
     e.getByToken(tm_Token_, l1DTTPGPh);
     edm::Handle<L1MuDTChambThContainer> l1DTTPGTh;
-    // e.getByToken(tm_Token_, l1DTTPGTh);// CHANGED (M.C Fouz July14) Needed, since at least version 710
-    e.getByToken(tmTh_Token_, l1DTTPGTh); // CHANGED (F.R.Cavallo Nov14)
+    e.getByToken(tmTh_Token_, l1DTTPGTh); 
 
     useTM = (l1DTTPGPh.isValid() || l1DTTPGTh.isValid()) && parameters.getUntrackedParameter<bool>("process_tm", true) ;
 
@@ -263,6 +266,7 @@ void DTLocalTriggerTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   }
 
+
   nevents++;
 
   triggerSource(e);
@@ -273,8 +277,7 @@ void DTLocalTriggerTask::analyze(const edm::Event& e, const edm::EventSetup& c){
     vector<L1MuDTChambPhDigi> const*  l1PhTrig = l1DTTPGPh->getContainer();
 
     edm::Handle<L1MuDTChambThContainer> l1DTTPGTh;
-    //e.getByToken(tm_Token_, l1DTTPGTh);// CHANGED (M.C Fouz July14) Needed, since at least version 710
-    e.getByToken(tmTh_Token_, l1DTTPGTh);// CHANGED (F.R. Cavallo Nov14)
+    e.getByToken(tmTh_Token_, l1DTTPGTh);
 
     vector<L1MuDTChambThDigi> const*  l1ThTrig = l1DTTPGTh->getContainer();
 
@@ -295,6 +298,7 @@ void DTLocalTriggerTask::analyze(const edm::Event& e, const edm::EventSetup& c){
   if ( !tpMode && useTM && useDDU ) {
     runDDUvsTMAnalysis(trigsrc);
   }
+
 
 }
 
@@ -503,8 +507,11 @@ void DTLocalTriggerTask::bookWheelHistos(DQMStore::IBooker & ibooker, int wh, st
 void DTLocalTriggerTask::runTMAnalysis(std::vector<L1MuDTChambPhDigi> const* phTrigs,
 					 std::vector<L1MuDTChambThDigi> const* thTrigs ) {
 
+                               //exit(0);
+
   string histoType ;
   string histoTag ;
+
 
   // define best quality trigger segment (phi and theta)
   // in any station start from 1 and zero is kept empty
@@ -620,7 +627,6 @@ void DTLocalTriggerTask::runTMAnalysis(std::vector<L1MuDTChambPhDigi> const* phT
       }
     }
   }
-
 }
 
 void DTLocalTriggerTask::runDDUAnalysis(Handle<DTLocalTriggerCollection>& trigsDDU){

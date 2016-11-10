@@ -45,7 +45,6 @@ private:
   // inputs
   edm::EDGetTokenT<EcalRecHitCollection> ebTimeHitsToken_;
   edm::EDGetTokenT<std::vector<reco::PFCluster> > ebClustersToken_;
-  edm::EDGetTokenT<reco::VertexCollection> timedVertexToken_;
   // options
   std::vector<std::unique_ptr<const ResolutionModel> > _resolutions;
   const float minFraction_, minEnergy_;
@@ -79,7 +78,6 @@ namespace {
 EcalBarrelClusterFastTimer::EcalBarrelClusterFastTimer(const edm::ParameterSet& conf) :
   ebTimeHitsToken_(consumes<EcalRecHitCollection>( conf.getParameter<edm::InputTag>("ebTimeHits") ) ),
   ebClustersToken_(consumes<std::vector<reco::PFCluster> >( conf.getParameter<edm::InputTag>("ebClusters") ) ),
-  timedVertexToken_(consumes<reco::VertexCollection>( conf.getParameter<edm::InputTag>("timedVertices") ) ),
   minFraction_( conf.getParameter<double>("minFractionToConsider") ),
   minEnergy_(conf.getParameter<double>("minEnergyToConsider") ),
   ecalDepth_(conf.getParameter<double>("ecalDepth") )
@@ -92,7 +90,7 @@ EcalBarrelClusterFastTimer::EcalBarrelClusterFastTimer(const edm::ParameterSet& 
     _resolutions.emplace_back( resomod );  
 
     // times and time resolutions for general tracks
-    produces<std::vector<std::vector<float> > >(name); // indexed by primary vertex then PF cluster
+    produces<edm::ValueMap<float> >(name); 
     produces<edm::ValueMap<float> >(name+resolution);    
   }
   // get RNG engine
@@ -111,21 +109,13 @@ void EcalBarrelClusterFastTimer::produce(edm::StreamID sid, edm::Event& evt, con
 
   edm::Handle<std::vector<reco::PFCluster> > clustersH;
   edm::Handle<EcalRecHitCollection> timehitsH;
-  edm::Handle<reco::VertexCollection> verticesH;
 
   evt.getByToken(ebClustersToken_,clustersH);
   evt.getByToken(ebTimeHitsToken_,timehitsH);
-  evt.getByToken(timedVertexToken_,verticesH);
   
-   edm::ESHandle<CaloGeometry> geoHandle;
-   es.get<CaloGeometryRecord>().get(geoHandle);
-   const auto* barrelGeom = 
-     geoHandle->getSubdetectorGeometry(DetId::Ecal,EcalBarrel);
-
   const auto& clusters = *clustersH;
   const auto& timehits = *timehitsH;
-  const auto& vertices = *verticesH;
-
+  
   std::vector<std::pair<float,DetId> > times; // perfect times keyed to cluster index
   times.reserve(clusters.size());
   
@@ -136,33 +126,19 @@ void EcalBarrelClusterFastTimer::produce(edm::StreamID sid, edm::Event& evt, con
   for( const auto& reso : _resolutions ) {
     const std::string& name = reso->name();
     std::vector<float> resolutions;
-    std::vector<std::pair<float,DetId> > smeared_times;
+    std::vector<float> smeared_times;
     resolutions.reserve(clusters.size());
     smeared_times.reserve(clusters.size());
-    auto outP = std::make_unique<std::vector< std::vector<float>>>();
-    auto& out = *outP;
     
     // smear once then correct to multiple vertices
     for( unsigned i = 0 ; i < clusters.size(); ++i ) {      
       const float theresolution = reso->getTimeResolution(clusters[i]);
       
-      smeared_times.emplace_back( CLHEP::RandGauss::shoot(rng_engine, times[i].first, theresolution), times[i].second );
+      smeared_times.emplace_back( CLHEP::RandGauss::shoot(rng_engine, times[i].first, theresolution) );
       resolutions.push_back( theresolution );
-    }
+    }    
 
-    // now loop over vertices and back-out the correction to (0,0,0)
-    out.resize(vertices.size());
-    for( unsigned i = 0; i < vertices.size(); ++i ) {
-      const reco::Vertex& vtx = vertices[i];
-      out[i].reserve(clusters.size());
-      for( unsigned j = 0; j < clusters.size(); ++j ) {
-        const auto& basetime = smeared_times[j];
-        const float corrtime = correctTimeToVertex(basetime.first,basetime.second,vtx,barrelGeom);
-        out[i].push_back(corrtime);
-      }
-    }
-
-    evt.put(std::move(outP),name);
+    writeValueMap(evt,clustersH,smeared_times,name);
     writeValueMap(evt,clustersH,resolutions,name+resolution);
   }
 
@@ -187,7 +163,7 @@ std::pair<float,DetId> EcalBarrelClusterFastTimer::getTimeForECALPFCluster(const
     }
   }
   
-  float best_time_guess = -1.0;
+  float best_time_guess = std::numeric_limits<float>::max();
   if( best_energy > 0. ) {
     best_time_guess = timehits.find(best_hit)->time();
   }

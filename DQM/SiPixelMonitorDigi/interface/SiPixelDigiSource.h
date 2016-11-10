@@ -62,6 +62,8 @@
        virtual void buildStructure(edm::EventSetup const&);
        virtual void bookMEs(DQMStore::IBooker &, const edm::EventSetup& iSetup);
 
+       virtual void CountZeroROCsInSubstructure (bool , bool&, SiPixelDigiModule *);
+
        std::string topFolderName_;
 
     private:
@@ -141,6 +143,8 @@
        MonitorElement* noOccROCsEndcap;
        MonitorElement* loOccROCsEndcap;
        MonitorElement* averageDigiOccupancy;
+       MonitorElement* avgBarrelFedOccvsLumi;
+       MonitorElement* avgEndcapFedOccvsLumi;
        MonitorElement* avgfedDigiOccvsLumi;
        MonitorElement* meNDigisCOMBBarrel_;
        MonitorElement* meNDigisCOMBEndcap_;
@@ -186,10 +190,44 @@
        std::vector<MonitorElement*> meNDigisCHANEndcapDps_;
        std::vector<MonitorElement*> meNDigisCHANEndcapDms_;
        
+       int NzeroROCs[2];
+       int NloEffROCs[2];
+
+       bool ROCMapToReset;
+       //the following long list of bools is to patch the ZeroOccupancy ROC filling in a way that a substructure (like BPix/BmO/Layer1) is counted only once as it should be (in the past for each module in the substructure the same number of ZeroOccupancy rocs was added)
+
+       bool DoZeroRocsBMO1;
+       bool DoZeroRocsBMO2;
+       bool DoZeroRocsBMO3;
+
+       bool DoZeroRocsBMI1;
+       bool DoZeroRocsBMI2;
+       bool DoZeroRocsBMI3;
+
+       bool DoZeroRocsBPO1;
+       bool DoZeroRocsBPO2;
+       bool DoZeroRocsBPO3;
+
+       bool DoZeroRocsBPI1;
+       bool DoZeroRocsBPI2;
+       bool DoZeroRocsBPI3;
+
+       bool DoZeroRocsFPO1;
+       bool DoZeroRocsFPO2;
+
+       bool DoZeroRocsFMO1;
+       bool DoZeroRocsFMO2;
+
+       bool DoZeroRocsFPI1;
+       bool DoZeroRocsFPI2;
+
+       bool DoZeroRocsFMI1;
+       bool DoZeroRocsFMI2;
+
        int bigEventSize;
        bool isUpgrade;
        bool firstRun;
-       
+
        std::string I_name[1856];
        unsigned int I_detId[1856];
        int I_fedId[1856];

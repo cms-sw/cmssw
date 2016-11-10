@@ -19,7 +19,6 @@ from Geometry.CaloEventSetup.CaloGeometryBuilder_cfi import *
 CaloGeometryBuilder = cms.ESProducer("CaloGeometryBuilder",
     SelectedCalos = cms.vstring("HCAL"          ,
                                 "ZDC"           ,
-                                "CASTOR"        ,
                                 "EcalBarrel"    ,
                                 "EcalEndcap"    ,
                                 "TOWER"           )

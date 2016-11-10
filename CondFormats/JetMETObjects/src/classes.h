@@ -20,6 +20,7 @@ QGLikelihoodSystematicsObject qgsystobj;
 QGLikelihoodSystematicsObject::Entry qgsystentry;
 std::vector< QGLikelihoodSystematicsObject::Entry > qgsystentryv;
 METCorrectorParameters METcorr;
+MEtXYcorrectParameters MEtXYcorr;
 JME::JetResolutionObject jerobj;
 JME::JetResolutionObject::Definition jerdef;
 JME::JetResolutionObject::Record jerrecord;

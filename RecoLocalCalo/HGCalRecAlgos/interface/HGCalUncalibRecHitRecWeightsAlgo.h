@@ -83,7 +83,7 @@ template<class C> class HGCalUncalibRecHitRecWeightsAlgo
     } else {
       amplitude_ = double(sample.data()) * adcLSB_;
       LogDebug("HGCUncalibratedRecHit") << "ADC+: set the charge to: " << amplitude_ << ' ' << sample.data() 
-                                        << ' ' << adcLSB_ << ' ' << std::endl;
+						 << ' ' << adcLSB_ << ' ' << std::endl;
     }
     
     int thickness = 1;
@@ -94,6 +94,7 @@ template<class C> class HGCalUncalibRecHitRecWeightsAlgo
     amplitude_ = amplitude_/fCPerMIP_[thickness-1];
 
     LogDebug("HGCUncalibratedRecHit") << "Final uncalibrated amplitude : " << amplitude_ << std::endl;
+    
     return HGCUncalibratedRecHit( dataFrame.id(), amplitude_, pedestal_, jitter_, chi2_, flag);
    }
   

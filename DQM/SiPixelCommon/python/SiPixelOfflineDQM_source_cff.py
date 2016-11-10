@@ -130,10 +130,10 @@ siPixelOfflineDQM_heavyions_source = cms.Sequence(SiPixelHLTSource + SiPixelRawD
 siPixelOfflineDQM_source_woTrack = cms.Sequence(SiPixelHLTSource + SiPixelRawDataErrorSource + SiPixelDigiSource + SiPixelRecHitSource + SiPixelClusterSource + dqmInfo)
 
 # Phase1 config
-from Configuration.StandardSequences.Eras import eras
 # _all_ of the stuff above becomes obsolete. We just hijack the names and 
 # replace them with the phase1 config of the new DQM.
 from DQM.SiPixelPhase1Config.SiPixelPhase1OfflineDQM_source_cff import *
-eras.phase1Pixel.toReplaceWith(siPixelOfflineDQM_source, siPixelPhase1OfflineDQM_source)
+from Configuration.Eras.Modifier_phase1Pixel_cff import phase1Pixel
+phase1Pixel.toReplaceWith(siPixelOfflineDQM_source, siPixelPhase1OfflineDQM_source)
 # don't forget the Harvesters, they are plugged in at PixelOfflineDQMClient
 # TODO: the same game for the other three.

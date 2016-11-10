@@ -16,9 +16,9 @@ m2Parameters = cms.PSet(
     timeSigmaSiPM         = cms.double(2.5),  #ns
     meanPed               = cms.double(0.),   #GeV
     pedSigmaHPD           = cms.double(0.5),  #GeV
-    pedSigmaSiPM          = cms.double(1.5),  #GeV # placeholder for siPM
+    pedSigmaSiPM          = cms.double(0.00043),  #GeV # this correspond roughtly to 1.5 fC for a gain of 3500
     noiseHPD              = cms.double(1),    #fC
-    noiseSiPM             = cms.double(2),    #fC
+    noiseSiPM             = cms.double(1),    #fC
     ###
     timeMin               = cms.double(-12.5),#ns
     timeMax               = cms.double(12.5), #ns

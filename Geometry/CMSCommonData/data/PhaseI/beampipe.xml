@@ -146,9 +146,17 @@
 </ConstantsSection>
 <SolidSection label="beampipe.xml">
  <Polycone name="BEAM" startPhi="0*deg" deltaPhi="360*deg" >
-  <ZSection z="[cms:Zmin]"        rMin="[cms:Rmin]" rMax="[cms:TrackBeamR1]"/>
-  <ZSection z="[cms:TrackBeamZ1]" rMin="[cms:Rmin]" rMax="[cms:TrackBeamR1]"/>
-  <ZSection z="[cms:TrackBeamZ2]" rMin="[cms:Rmin]" rMax="[cms:TrackBeamR2]"/>
+  <ZSection z="[cms:Zmin]"   rMin="[cms:Rmin]" rMax="[BeampipeRout1]"/>
+  <ZSection z="[BeampipeZ2]" rMin="[cms:Rmin]" rMax="[BeampipeRout2]"/>
+  <ZSection z="[BeampipeZ2]" rMin="[cms:Rmin]" rMax="[BeampipeRout3]"/>
+  <ZSection z="[BeampipeZ3]" rMin="[cms:Rmin]" rMax="[BeampipeRout4]"/>
+  <ZSection z="[BeampipeZ3]" rMin="[cms:Rmin]" rMax="[BeampipeRout5]"/>
+  <ZSection z="[BeampipeZ4]" rMin="[cms:Rmin]" rMax="[BeampipeRout6]"/>
+  <ZSection z="[BeampipeZ4]" rMin="[cms:Rmin]" rMax="[BeampipeRout7]"/>
+  <ZSection z="[BeampipeZ5]" rMin="[cms:Rmin]" rMax="[BeampipeRout7]"/>
+  <ZSection z="[BeampipeZ19]" rMin="[cms:Rmin]" rMax="[BeampipeRout7]"/>
+  <ZSection z="[BeampipeZ19]" rMin="[cms:Rmin]" rMax="[BeampipeRout17]"/>
+  <ZSection z="[BeampipeZ24]" rMin="[cms:Rmin]" rMax="[BeampipeRout17]"/>
   <ZSection z="[cms:CalorBeamZ2]" rMin="[cms:Rmin]" rMax="[cms:CalorBeamR2]"/>
   <ZSection z="[cms:MuonBeamZ0]"  rMin="[cms:Rmin]" rMax="[cms:MuonBeamR0]" />
  </Polycone> 

@@ -75,12 +75,12 @@ void ClusterTPAssociationProducer::fillDescriptions(edm::ConfigurationDescriptio
   desc.add<edm::InputTag>("simTrackSrc",     edm::InputTag("g4SimHits"));
   desc.add<edm::InputTag>("pixelSimLinkSrc", edm::InputTag("simSiPixelDigis"));
   desc.add<edm::InputTag>("stripSimLinkSrc", edm::InputTag("simSiStripDigis"));
-  desc.add<edm::InputTag>("phase2OTSimLinkSrc", edm::InputTag("simPh2OTDigis"));
+  desc.add<edm::InputTag>("phase2OTSimLinkSrc", edm::InputTag("simSiPixelDigis","Tracker"));
   desc.add<edm::InputTag>("pixelClusterSrc", edm::InputTag("siPixelClusters"));
   desc.add<edm::InputTag>("stripClusterSrc", edm::InputTag("siStripClusters"));
   desc.add<edm::InputTag>("phase2OTClusterSrc", edm::InputTag("siPhase2Clusters"));
   desc.add<edm::InputTag>("trackingParticleSrc", edm::InputTag("mix", "MergedTrackTruth"));
-  descriptions.add("tpClusterProducer", desc);
+  descriptions.add("tpClusterProducerDefault", desc);
 }
 		
 void ClusterTPAssociationProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& es) const {

@@ -64,6 +64,8 @@ class SiPixelActionExecutor {
 				    DQMStore::IGetter  		 & iGetter,
                                     bool                           isbarrel,
 				    bool			   isUpgrade);
+ void fillEfficiencySummary(	    DQMStore::IBooker		 & iBooker,
+				    DQMStore::IGetter  		 & iGetter);
  void bookOccupancyPlots(    	    DQMStore::IBooker            & iBooker,
 				    DQMStore::IGetter            & iGetter,
                                     bool                           hiRes,
@@ -73,6 +75,11 @@ class SiPixelActionExecutor {
                                     bool                           hiRes);
  void createOccupancy(    	    DQMStore::IBooker            & iBooker,
 				    DQMStore::IGetter  		 & iGetter);
+ void normaliseAvDigiOcc(	    DQMStore::IBooker		 & iBooker,
+				    DQMStore::IGetter		 & iGetter);
+ void normaliseAvDigiOccVsLumi(	    DQMStore::IBooker		 & iBooker,
+				    DQMStore::IGetter		 & iGetter,
+                                    int                            lumisec);
  bool readConfiguration(	    int 			 & tkmap_freq, 
                         	    int 			 & sum_barrel_freq, 
 				    int 			 & sum_endcap_freq, 
@@ -155,6 +162,7 @@ private:
   MonitorElement * HitEfficiency_Dm1;
   MonitorElement * HitEfficiency_Dm2;
   MonitorElement * HitEfficiency_Dm3;
+  MonitorElement * HitEfficiencySummary;
   MonitorElement * DEV_adc_Barrel;
   MonitorElement * DEV_ndigis_Barrel;
   MonitorElement * DEV_charge_Barrel;

@@ -463,16 +463,11 @@ def _mapCollectionToAlgoQuality(collName):
         quality = "highPurity"
     else:
         quality = ""
-    hasPtCut = False
-    if "Pt" in collName:
-        if "Step" in collName:
-            hasPtCut = collName.rindex("Pt") > collName.index("Step")
-        else:
-            hasPtCut = True
+    hasPtCut = "Pt09" in collName
     collNameNoQuality = collName.replace("Hp", "")
     if hasPtCut:
-        quality += "Pt"
-        collNameNoQuality = "".join(collNameNoQuality.rsplit("Pt", 1)) # rreplace
+        quality += "Pt09"
+        collNameNoQuality = collNameNoQuality.replace("Pt09", "")
     if "ByOriginalAlgo" in collName:
         quality += "ByOriginalAlgo"
         collNameNoQuality = collNameNoQuality.replace("ByOriginalAlgo", "")
@@ -536,7 +531,7 @@ def _collhelper(name):
     return (name, [name])
 _collLabelMap = collections.OrderedDict(map(_collhelper, ["generalTracks"]+_possibleTrackingColls))
 _collLabelMapHp = collections.OrderedDict(map(_collhelper, ["generalTracks"]+filter(lambda n: "Step" in n, _possibleTrackingColls)))
-def _summaryBinRename(binLabel, highPurity, byOriginalAlgo, byAlgoMask, seeds):
+def _summaryBinRename(binLabel, highPurity, byOriginalAlgo, byAlgoMask, ptCut, seeds):
     (algo, quality) = _mapCollectionToAlgoQuality(binLabel)
     if algo == "ootb":
         algo = "generalTracks"
@@ -550,6 +545,10 @@ def _summaryBinRename(binLabel, highPurity, byOriginalAlgo, byAlgoMask, seeds):
         if algo != "generalTracks" and "ByAlgoMask" not in quality:
             return None
         quality = quality.replace("ByAlgoMask", "")
+    if ptCut:
+        if algo != "generalTracks" and "Pt09" not in quality:
+            return None
+        quality = quality.replace("Pt09", "")
 
     if highPurity:
         if quality == "highPurity":
@@ -567,14 +566,14 @@ def _summaryBinRename(binLabel, highPurity, byOriginalAlgo, byAlgoMask, seeds):
 
     return ret
 
-def _constructSummary(mapping=None, highPurity=False, byOriginalAlgo=False, byAlgoMask=False, seeds=False, midfix=""):
+def _constructSummary(mapping=None, highPurity=False, byOriginalAlgo=False, byAlgoMask=False, ptCut=False, seeds=False, midfix=""):
     _common = {"drawStyle": "EP", "xbinlabelsize": 10, "xbinlabeloption": "d"}
     _commonN = dict(ylog=True, ymin=_minMaxN, ymax=_minMaxN,
                     normalizeToNumberOfEvents=True,
     )
     _commonN.update(_common)
     _commonAB = dict(mapping=mapping,
-                     renameBin=lambda bl: _summaryBinRename(bl, highPurity, byOriginalAlgo, byAlgoMask, seeds),
+                     renameBin=lambda bl: _summaryBinRename(bl, highPurity, byOriginalAlgo, byAlgoMask, ptCut, seeds),
                      ignoreMissingBins=True,
                      originalOrder=True,
     )
@@ -631,6 +630,8 @@ def _constructSummary(mapping=None, highPurity=False, byOriginalAlgo=False, byAl
 (_summaryByOriginalAlgoHp, _summaryByOriginalAlgoNHp) = _constructSummary(_collLabelMapHp, byOriginalAlgo=True, midfix="ByOriginalAlgo", highPurity=True)
 (_summaryByAlgoMask,       _summaryByAlgoMaskN)       = _constructSummary(_collLabelMapHp, byAlgoMask=True, midfix="ByAlgoMask")
 (_summaryByAlgoMaskHp,     _summaryByAlgoMaskNHp)     = _constructSummary(_collLabelMapHp, byAlgoMask=True, midfix="ByAlgoMask", highPurity=True)
+(_summaryPt09,             _summaryPt09N)             = _constructSummary(_collLabelMap, ptCut=True, midfix="Pt09")
+(_summaryPt09Hp,           _summaryPt09NHp)           = _constructSummary(_collLabelMap, ptCut=True, midfix="Pt09", highPurity=True)
 (_summarySeeds,            _summarySeedsN)            = _constructSummary(_collLabelMapHp, seeds=True)
 
 ########################################
@@ -934,6 +935,8 @@ _summaryPlots = [
     _summaryByOriginalAlgoN,
     _summaryByAlgoMask,
     _summaryByAlgoMaskN,
+    _summaryPt09,
+    _summaryPt09N,
 ]
 _summaryPlotsHp = [
     _summaryHp,
@@ -942,6 +945,8 @@ _summaryPlotsHp = [
     _summaryByOriginalAlgoNHp,
     _summaryByAlgoMaskHp,
     _summaryByAlgoMaskNHp,
+    _summaryPt09Hp,
+    _summaryPt09NHp,
 ]
 _summaryPlotsSeeds = [
     _summarySeeds,
@@ -1266,9 +1271,9 @@ class TimePerTrackPlot:
         del iterMap["generalTracks"] 
         del iterMap["jetCoreRegionalStep"] # this is expensive per track on purpose
         if self._selectedTracks:
-            renameBin = lambda bl: _summaryBinRename(bl, highPurity=True, byOriginalAlgo=False, byAlgoMask=True, seeds=False)
+            renameBin = lambda bl: _summaryBinRename(bl, highPurity=True, byOriginalAlgo=False, byAlgoMask=True, ptCut=False, seeds=False)
         else:
-            renameBin = lambda bl: _summaryBinRename(bl, highPurity=False, byOriginalAlgo=False, byAlgoMask=False, seeds=False)
+            renameBin = lambda bl: _summaryBinRename(bl, highPurity=False, byOriginalAlgo=False, byAlgoMask=False, ptCut=False, seeds=False)
         recoAB = AggregateBins("tmp", "num_reco_coll", mapping=iterMap,ignoreMissingBins=True, renameBin=renameBin)
         h_reco_per_iter = recoAB.create(trkDir)
         if h_reco_per_iter is None:

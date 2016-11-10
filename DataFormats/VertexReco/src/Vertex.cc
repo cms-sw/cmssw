@@ -9,7 +9,7 @@ Vertex::Vertex( const Point & p , const Error & err, double chi2, double ndof, s
   chi2_( chi2 ), ndof_( ndof ), position_( p ), time_(0.) {
   tracks_.reserve( size );
   index idx = 0;
-  for( index i = 0; i < dimension + 1; ++ i ) {
+  for( index i = 0; i < dimension4D; ++ i ) {
     for( index j = 0; j <= i; ++ j ) {
       if( i == dimension || j == dimension ) {
         covariance_[ idx ++ ] = 0.0;
@@ -25,7 +25,7 @@ Vertex::Vertex( const Point & p , const Error4D & err, double time, double chi2,
   chi2_( chi2 ), ndof_( ndof ), position_( p ), time_(time) {
   tracks_.reserve( size4D );
   index idx = 0;
-  for( index i = 0; i < dimension + 1; ++ i ) 
+  for( index i = 0; i < dimension4D; ++ i ) 
     for( index j = 0; j <= i; ++ j )
       covariance_[ idx ++ ] = err( i, j );
   validity_ = true;
@@ -34,7 +34,7 @@ Vertex::Vertex( const Point & p , const Error4D & err, double time, double chi2,
 Vertex::Vertex( const Point & p , const Error & err) :
   chi2_( 0.0 ), ndof_( 0 ), position_( p ), time_(0.) {
   index idx = 0;
-  for( index i = 0; i < dimension + 1; ++ i ) {
+  for( index i = 0; i < dimension4D; ++ i ) {
     for( index j = 0; j <= i; ++ j ) {
       if( i == dimension || j == dimension ) {
         covariance_[ idx ++ ] = 0.0;
@@ -63,7 +63,7 @@ void Vertex::fill( Error & err ) const {
 
 void Vertex::fill( Error4D & err ) const {
   index idx = 0;
-  for( index i = 0; i < dimension + 1; ++ i ) 
+  for( index i = 0; i < dimension4D; ++ i ) 
     for( index j = 0; j <= i; ++ j )
       err( i, j ) = covariance_[ idx ++ ];
 }

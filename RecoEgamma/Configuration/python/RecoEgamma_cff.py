@@ -40,5 +40,16 @@ egammareco_withElectronID = cms.Sequence(egammareco*eIdSequence)
 
 egammarecoFull_woHFElectrons = cms.Sequence(egammareco*interestingEgammaIsoDetIds*photonIDSequence*eIdSequence)
 
+from Configuration.Eras.Modifier_pA_2016_cff import pA_2016
+from Configuration.Eras.Modifier_peripheralPbPb_cff import peripheralPbPb
+#HI-specific algorithms needed in pp scenario special configurations 
+from RecoEcal.EgammaClusterProducers.islandBasicClusters_cfi import islandBasicClusters
+from RecoHI.HiEgammaAlgos.photonIsolationHIProducer_cfi import photonIsolationHIProducerpp
+from RecoHI.HiEgammaAlgos.photonIsolationHIProducer_cfi import photonIsolationHIProducerppGED
 
-
+_egammaHighLevelRecoPostPF_HI = egammaHighLevelRecoPostPF.copy()
+_egammaHighLevelRecoPostPF_HI += islandBasicClusters
+_egammaHighLevelRecoPostPF_HI += photonIsolationHIProducerpp
+_egammaHighLevelRecoPostPF_HI += photonIsolationHIProducerppGED
+for e in [pA_2016, peripheralPbPb]:
+    e.toReplaceWith(egammaHighLevelRecoPostPF, _egammaHighLevelRecoPostPF_HI)

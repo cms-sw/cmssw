@@ -4,19 +4,24 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("MaterialAnalyser")
 
+readGeometryFromDB = False
 
 # Configuration and Conditions
 # We cannot read the geometry from the DB, since we have to inject out custom-made
 # material-budget grouping into the DDD of the detector. So we need to read the
 # geometry using the XMLIdealGeometryRecord.
-process.load('Configuration.Geometry.GeometryExtended2016Reco_cff')
-process.load("Configuration.StandardSequences.MagneticField_38T_cff")
-process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff")
-process.load('FWCore.MessageService.MessageLogger_cfi')
-#Global Tag
-from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase1_2017_design', '')
+if not readGeometryFromDB:
+  process.load('Configuration.Geometry.GeometryExtended2017Reco_cff')
+else:
+# GlobalTag and geometry via it
+  process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff")
+  from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
+  process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase1_2017_design', '')
 
+process.load('FWCore.MessageService.MessageLogger_cfi')
+
+# Add our custom detector grouping to DDD
+process.XMLIdealGeometryESSource.geomXMLFiles.extend(['SimTracker/TrackerMaterialAnalysis/data/trackingMaterialGroups_ForPhaseI.xml'])
 
 # Analyze and plot the tracking material
 process.load("SimTracker.TrackerMaterialAnalysis.trackingMaterialAnalyser_ForPhaseI_cff")
@@ -29,7 +34,7 @@ process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring('file:material.root')
 )
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(-1)
+    input = cms.untracked.int32(200000)
 )
 
 process.path = cms.Path(process.trackingMaterialAnalyser)
@@ -50,7 +55,7 @@ def customizeMessageLogger(process):
     process.MessageLogger.destinations.extend([destination])
     process.MessageLogger._Parameterizable__addParameter(destination, how_to_debug)
     # 4. Define and extend the categories we would like to monitor
-    log_debug_categories = ['TrackingMaterialAnalyser']
+    log_debug_categories = ['TrackingMaterialAnalyser', 'MaterialAccountingGroup']
     process.MessageLogger.categories.extend(log_debug_categories)
 
     # 5. Extend the configuration of the configured destination so that it
@@ -63,4 +68,4 @@ def customizeMessageLogger(process):
     return process
 
 
-process = customizeMessageLogger(process)
+#process = customizeMessageLogger(process)

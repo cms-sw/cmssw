@@ -16,7 +16,8 @@
   <class name="pat::Lepton<reco::BaseTau>" />
 
   <!-- PAT Objects, and embedded data  -->
-  <class name="pat::Electron"  ClassVersion="33">
+  <class name="pat::Electron"  ClassVersion="34">
+   <version ClassVersion="34" checksum="3720919820"/>
    <version ClassVersion="33" checksum="459924678"/>
    <version ClassVersion="32" checksum="3508125821"/>
    <version ClassVersion="31" checksum="1881133053"/>
@@ -149,7 +150,8 @@
    <version ClassVersion="10" checksum="2692173055"/>
   </class>
   <class name="std::vector<pat::tau::TauCaloSpecific>" />
-  <class name="pat::tau::TauPFEssential" ClassVersion="13">
+  <class name="pat::tau::TauPFEssential" ClassVersion="14">
+    <version ClassVersion="14" checksum="524735083" /> 
     <version ClassVersion="13" checksum="1052833547" />
     <version ClassVersion="12" checksum="3865233356" /> 
     <version ClassVersion="11" checksum="1193752112" />
@@ -191,7 +193,8 @@
   </ioread>
 
   <class name="std::vector<pat::tau::TauPFEssential>" />
-  <class name="pat::Photon"  ClassVersion="18">
+  <class name="pat::Photon"  ClassVersion="19">
+   <version ClassVersion="19" checksum="4285818507"/>
    <version ClassVersion="18" checksum="1413598928"/>
    <version ClassVersion="17" checksum="2394457997"/>
    <field name="superClusterRelinked_" transient="true"/>
@@ -513,6 +516,20 @@
   <class name="std::vector< std::vector<edm::Ptr<pat::Jet> > >" />
   <class name="edm::Wrapper< std::vector<edm::Ptr<pat::Jet> > >" />
   <class name="edm::Wrapper< std::vector< std::vector<edm::Ptr<pat::Jet> > > >" />
+
+  <class name="pat::PATTauDiscriminatorBase">
+    <field name="transientVector_" transient="true"/>
+  </class>  
+  <class name="pat::PATTauDiscriminator"  ClassVersion="3">
+   <version ClassVersion="3" checksum="2916098408"/>  
+  </class>  
+  <class name="pat::PATTauDiscriminatorRef"/>
+  <class name="pat::PATTauDiscriminatorRefProd"/>
+  <class name="pat::PATTauDiscriminatorRefVector"/>
+  <class name="edm::Wrapper<pat::PATTauDiscriminator>"/>
+
+  <class name="std::pair<pat::TauRef, float>"/>
+  <class name="std::vector<std::pair<pat::TauRef, float> >" />
 
   </selection>
  <exclusion>

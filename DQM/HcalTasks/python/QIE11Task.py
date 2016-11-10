@@ -14,5 +14,9 @@ qie11Task = cms.EDAnalyzer(
 
 	#	cuts, 
 	cut = cms.untracked.double(20),
-	ped = cms.untracked.int32(4)
+	ped = cms.untracked.int32(4),
+
+        #       to be used exclusively
+        laserType = cms.untracked.int32(-1),
+        eventType = cms.untracked.int32(-1)
 )

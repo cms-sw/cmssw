@@ -28,13 +28,14 @@ SimGeneralAOD = cms.PSet(
 # mods for HGCAL
 _phase2_hgc_extraCommands = [ 'keep *_mix_HGCDigisEE_*', 'keep *_mix_HGCDigisHEfront_*', 'keep *_mix_HGCDigisHEback_*', 
                               'keep *_mix_MergedCaloTruth_*' ]
-from Configuration.StandardSequences.Eras import eras
-eras.phase2_hgcal.toModify( SimGeneralRAW, outputCommands = SimGeneralRAW.outputCommands + _phase2_hgc_extraCommands )
-eras.phase2_hgcal.toModify( SimGeneralFEVTDEBUG, outputCommands = SimGeneralFEVTDEBUG.outputCommands + _phase2_hgc_extraCommands )
-eras.phase2_hgcal.toModify( SimGeneralRECO, outputCommands = SimGeneralRECO.outputCommands + _phase2_hgc_extraCommands )
+from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
+phase2_hgcal.toModify( SimGeneralRAW, outputCommands = SimGeneralRAW.outputCommands + _phase2_hgc_extraCommands )
+phase2_hgcal.toModify( SimGeneralFEVTDEBUG, outputCommands = SimGeneralFEVTDEBUG.outputCommands + _phase2_hgc_extraCommands )
+phase2_hgcal.toModify( SimGeneralRECO, outputCommands = SimGeneralRECO.outputCommands + _phase2_hgc_extraCommands )
 
-_phase2_timing_extraCommands = [ 'keep *_mix_InitialVertices_*' ]
-eras.phase2_timing.toModify( SimGeneralRAW, outputCommands = SimGeneralRAW.outputCommands + _phase2_timing_extraCommands )
-eras.phase2_timing.toModify( SimGeneralFEVTDEBUG, outputCommands = SimGeneralFEVTDEBUG.outputCommands + _phase2_timing_extraCommands )
-eras.phase2_timing.toModify( SimGeneralRECO, outputCommands = SimGeneralRECO.outputCommands + _phase2_timing_extraCommands )
+_phase2_timing_extraCommands = [ 'keep *_mix_FTLBarrel_*','keep *_mix_FTLEndcap_*','keep *_mix_InitialVertices_*' ]
+from Configuration.Eras.Modifier_phase2_timing_cff import phase2_timing
+phase2_timing.toModify( SimGeneralRAW, outputCommands = SimGeneralRAW.outputCommands + _phase2_timing_extraCommands )
+phase2_timing.toModify( SimGeneralFEVTDEBUG, outputCommands = SimGeneralFEVTDEBUG.outputCommands + _phase2_timing_extraCommands )
+phase2_timing.toModify( SimGeneralRECO, outputCommands = SimGeneralRECO.outputCommands + _phase2_timing_extraCommands )
 

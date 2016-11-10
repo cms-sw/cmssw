@@ -1,15 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-DA2DParameters = cms.PSet(
-    algorithm   = cms.string("DA2D"),
-    TkDAClusParameters = cms.PSet(
-        coolingFactor = cms.double(0.6),  #  moderate annealing speed
-        Tmin = cms.double(4.),            #  end of annealing
-        vertexSize = cms.double(0.01),    #  ~ resolution / sqrt(Tmin)
-        d0CutOff = cms.double(3.),        # downweight high IP tracks 
-        dzCutOff = cms.double(4.)         # outlier rejection after freeze-out (T<Tmin)
-        )
-    )
+from RecoVertex.PrimaryVertexProducer.TkClusParameters_cff import DA_vectParameters
 
 offlinePrimaryVertices = cms.EDProducer(
     "PrimaryVertexProducer",
@@ -28,16 +19,7 @@ offlinePrimaryVertices = cms.EDProducer(
         trackQuality = cms.string("any")
     ),
 
-    TkClusParameters = cms.PSet(
-        algorithm   = cms.string("DA_vect"),
-        TkDAClusParameters = cms.PSet(
-            coolingFactor = cms.double(0.6),  #  moderate annealing speed
-            Tmin = cms.double(4.),            #  end of annealing
-            vertexSize = cms.double(0.01),    #  ~ resolution / sqrt(Tmin)
-            d0CutOff = cms.double(3.),        # downweight high IP tracks 
-            dzCutOff = cms.double(4.)         # outlier rejection after freeze-out (T<Tmin)
-        )
-    ),
+    TkClusParameters = DA_vectParameters,
 
     vertexCollections = cms.VPSet(
      [cms.PSet(label=cms.string(""),
@@ -64,6 +46,6 @@ offlinePrimaryVertices = cms.EDProducer(
 # not included in data-taking, like it was the case for "Quiet Beam"
 # collisions on 2016 with run 269207.
 
-from Configuration.StandardSequences.Eras import eras
-eras.trackingLowPU.toModify(offlinePrimaryVertices,
+from Configuration.Eras.Modifier_trackingLowPU_cff import trackingLowPU
+trackingLowPU.toModify(offlinePrimaryVertices,
                             TkFilterParameters = dict(minPixelLayersWithHits = 0))

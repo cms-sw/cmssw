@@ -21,7 +21,10 @@ es_hardcode = cms.ESSource("HcalHardcodeCalibrations",
     useHBUpgrade = cms.bool(False),
     useHEUpgrade = cms.bool(False),
     useHFUpgrade = cms.bool(False),
+    useHOUpgrade = cms.bool(True),
     testHFQIE10  = cms.bool(False),
+    killHE = cms.bool(False),
+    useLayer0Weight = cms.bool(False),
     hb = cms.PSet(
         pedestal      = cms.double(3.0),
         pedestalWidth = cms.double(0.55),
@@ -32,6 +35,8 @@ es_hardcode = cms.ESSource("HcalHardcodeCalibrations",
         qieSlope      = cms.vdouble(0.912,0.917,0.922,0.923),
         mcShape       = cms.int32(125),
         recoShape     = cms.int32(105),
+        photoelectronsToAnalog = cms.double(0.0),
+        darkCurrent   = cms.double(0.0),
     ),
     he = cms.PSet(
         pedestal      = cms.double(3.0),
@@ -43,6 +48,8 @@ es_hardcode = cms.ESSource("HcalHardcodeCalibrations",
         qieSlope      = cms.vdouble(0.912,0.916,0.920,0.922),
         mcShape       = cms.int32(125),
         recoShape     = cms.int32(105),
+        photoelectronsToAnalog = cms.double(0.0),
+        darkCurrent   = cms.double(0.0),
     ),
     hf = cms.PSet(
         pedestal      = cms.double(3.0),
@@ -54,6 +61,8 @@ es_hardcode = cms.ESSource("HcalHardcodeCalibrations",
         qieSlope      = cms.vdouble(0.359,0.358,0.360,0.367),
         mcShape       = cms.int32(301),
         recoShape     = cms.int32(301),
+        photoelectronsToAnalog = cms.double(0.0),
+        darkCurrent   = cms.double(0.0),
     ),
     ho = cms.PSet(
         pedestal      = cms.double(11.0),
@@ -65,6 +74,8 @@ es_hardcode = cms.ESSource("HcalHardcodeCalibrations",
         qieSlope      = cms.vdouble(0.907,0.915,0.920,0.921),
         mcShape       = cms.int32(201),
         recoShape     = cms.int32(201),
+        photoelectronsToAnalog = cms.double(4.0),
+        darkCurrent   = cms.double(0.0),
     ),
     hbUpgrade = cms.PSet(
         pedestal      = cms.double(17.3),
@@ -73,9 +84,11 @@ es_hardcode = cms.ESSource("HcalHardcodeCalibrations",
         gainWidth     = cms.vdouble(0),
         qieType       = cms.int32(2),
         qieOffset     = cms.vdouble(0.,0.,0.,0.),
-        qieSlope      = cms.vdouble(0.333,0.333,0.333,0.333),
+        qieSlope      = cms.vdouble(0.05376,0.05376,0.05376,0.05376), #1/(3.1*6) where 6 is shunt factor
         mcShape       = cms.int32(203),
         recoShape     = cms.int32(203),
+        photoelectronsToAnalog = cms.double(57.5),
+        darkCurrent   = cms.double(0.055),
     ),
     heUpgrade = cms.PSet(
         pedestal      = cms.double(17.3),
@@ -84,9 +97,11 @@ es_hardcode = cms.ESSource("HcalHardcodeCalibrations",
         gainWidth     = cms.vdouble(0),
         qieType       = cms.int32(2),
         qieOffset     = cms.vdouble(0.,0.,0.,0.),
-        qieSlope      = cms.vdouble(0.333,0.333,0.333,0.333),
+        qieSlope      = cms.vdouble(0.05376,0.05376,0.05376,0.05376), #1/(3.1*6) where 6 is shunt factor
         mcShape       = cms.int32(203),
         recoShape     = cms.int32(203),
+        photoelectronsToAnalog = cms.double(57.5),
+        darkCurrent   = cms.double(0.055),
     ),
     hfUpgrade = cms.PSet(
         pedestal      = cms.double(13.33),
@@ -98,13 +113,24 @@ es_hardcode = cms.ESSource("HcalHardcodeCalibrations",
         qieSlope      = cms.vdouble(0.297,0.298,0.298,0.313),
         mcShape       = cms.int32(301),
         recoShape     = cms.int32(301),
+        photoelectronsToAnalog = cms.double(0.0),
+        darkCurrent   = cms.double(0.0),
+    ),
+    # types (in order): HcalHOZecotek, HcalHOHamamatsu, HcalHEHamamatsu1, HcalHEHamamatsu2, HcalHBHamamatsu1, HcalHBHamamatsu2
+    SiPMCharacteristics = cms.VPSet(
+        cms.PSet( pixels = cms.int32(36000), crosstalk = cms.double(0.0), nonlin1 = cms.double(1.0), nonlin2 = cms.double(0.0), nonlin3 = cms.double(0.0) ),
+        cms.PSet( pixels = cms.int32(2500), crosstalk = cms.double(0.0), nonlin1 = cms.double(1.0), nonlin2 = cms.double(0.0), nonlin3 = cms.double(0.0) ),
+        cms.PSet( pixels = cms.int32(27370), crosstalk = cms.double(0.32), nonlin1 = cms.double(1.00985), nonlin2 = cms.double(7.84089E-6), nonlin3 = cms.double(2.86282E-10) ),
+        cms.PSet( pixels = cms.int32(38018), crosstalk = cms.double(0.32), nonlin1 = cms.double(1.00546), nonlin2 = cms.double(6.40239E-6), nonlin3 = cms.double(1.27011E-10) ),
+        cms.PSet( pixels = cms.int32(27370), crosstalk = cms.double(0.32), nonlin1 = cms.double(1.00985), nonlin2 = cms.double(7.84089E-6), nonlin3 = cms.double(2.86282E-10) ),
+        cms.PSet( pixels = cms.int32(38018), crosstalk = cms.double(0.32), nonlin1 = cms.double(1.00546), nonlin2 = cms.double(6.40239E-6), nonlin3 = cms.double(1.27011E-10) ),
     ),
 )
 
 es_prefer_hcalHardcode = cms.ESPrefer("HcalHardcodeCalibrations", "es_hardcode")
 
-from Configuration.StandardSequences.Eras import eras
-eras.phase2_hcal.toModify( es_hardcode,
+from Configuration.Eras.Modifier_phase2_hcal_cff import phase2_hcal
+phase2_hcal.toModify( es_hardcode,
                              toGet = cms.untracked.vstring(
                                          'GainWidths',
                                          'MCParams',
@@ -135,5 +161,10 @@ eras.phase2_hcal.toModify( es_hardcode,
                              HEreCalibCutoff = cms.double(100.),
                              useHBUpgrade = cms.bool(True),
                              useHEUpgrade = cms.bool(True),
-                             useHFUpgrade = cms.bool(True)
+                             useHFUpgrade = cms.bool(True),
+                             useLayer0Weight = cms.bool(True),
 )
+
+from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
+phase2_hgcal.toModify( es_hardcode, killHE = cms.bool(True) )
+                            

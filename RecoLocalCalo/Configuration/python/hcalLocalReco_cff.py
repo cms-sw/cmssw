@@ -11,16 +11,6 @@ hcalLocalRecoSequence = cms.Sequence(hbheprereco+hfreco+horeco+zdcreco)
 
 from RecoLocalCalo.HcalRecProducers.HFUpgradeReconstructor_cfi import hfUpgradeReco as _hfUpgradeReco
 
-_phase2_hcalLocalRecoSequence = hcalLocalRecoSequence.copy()
-_phase2_hcalLocalRecoSequence.remove(hbheprereco)
-
-from Configuration.StandardSequences.Eras import eras
-eras.phase2_hcal.toModify( horeco, digiLabel = cms.InputTag('simHcalDigis') )
-eras.phase2_hcal.toReplaceWith( hfreco, _hfUpgradeReco )
-eras.phase2_hcal.toModify( hfreco, digiLabel = cms.InputTag('simHcalDigis','HFUpgradeDigiCollection') )
-eras.phase2_hcal.toModify( zdcreco, digiLabel = cms.InputTag('simHcalUnsuppressedDigis'), digiLabelhcal = cms.InputTag('simHcalUnsuppressedDigis') )
-eras.phase2_hcal.toReplaceWith( hcalLocalRecoSequence, _phase2_hcalLocalRecoSequence )
-
 from RecoLocalCalo.HcalRecProducers.hfprereco_cfi import hfprereco
 from RecoLocalCalo.HcalRecProducers.HFPhase1Reconstructor_cfi import hfreco as _phase1_hfreco
 from RecoLocalCalo.HcalRecProducers.HBHEPhase1Reconstructor_cfi import hbheprereco as _phase1_hbheprereco
@@ -28,6 +18,18 @@ from RecoLocalCalo.HcalRecProducers.HBHEPhase1Reconstructor_cfi import hbheprere
 _phase1_hcalLocalRecoSequence = hcalLocalRecoSequence.copy()
 _phase1_hcalLocalRecoSequence.insert(0,hfprereco)
 
-eras.run2_HF_2017.toReplaceWith( hcalLocalRecoSequence, _phase1_hcalLocalRecoSequence )
-eras.run2_HF_2017.toReplaceWith( hfreco, _phase1_hfreco )
-eras.run2_HE_2017.toReplaceWith( hbheprereco, _phase1_hbheprereco )
+from Configuration.Eras.Modifier_run2_HF_2017_cff import run2_HF_2017
+run2_HF_2017.toReplaceWith( hcalLocalRecoSequence, _phase1_hcalLocalRecoSequence )
+run2_HF_2017.toReplaceWith( hfreco, _phase1_hfreco )
+from Configuration.Eras.Modifier_run2_HE_2017_cff import run2_HE_2017
+run2_HE_2017.toReplaceWith( hbheprereco, _phase1_hbheprereco )
+
+_phase2_hcalLocalRecoSequence = hcalLocalRecoSequence.copy()
+_phase2_hcalLocalRecoSequence.remove(hbheprereco)
+
+from Configuration.Eras.Modifier_phase2_hcal_cff import phase2_hcal
+phase2_hcal.toModify( horeco, digiLabel = cms.InputTag('simHcalDigis') )
+phase2_hcal.toModify( hfprereco, digiLabel = cms.InputTag('simHcalDigis','HFQIE10DigiCollection') )
+phase2_hcal.toModify( zdcreco, digiLabel = cms.InputTag('simHcalUnsuppressedDigis'), digiLabelhcal = cms.InputTag('simHcalUnsuppressedDigis') )
+phase2_hcal.toReplaceWith( hcalLocalRecoSequence, _phase2_hcalLocalRecoSequence )
+

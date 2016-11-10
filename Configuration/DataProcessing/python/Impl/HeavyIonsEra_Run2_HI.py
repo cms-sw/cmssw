@@ -11,14 +11,14 @@ import sys
 
 from Configuration.DataProcessing.Reco import Reco
 import FWCore.ParameterSet.Config as cms
-import Configuration.StandardSequences.Eras as eras
+from Configuration.Eras.Era_Run2_HI_cff import Run2_HI
 
 from Configuration.DataProcessing.Impl.HeavyIons import HeavyIons
 
 class HeavyIonsEra_Run2_HI(HeavyIons):
     def __init__(self):
         HeavyIons.__init__(self)
-        self.eras = eras.eras.Run2_HI
+        self.eras = Run2_HI
     """
     _HeavyIonsEra_Run2_HI_
 

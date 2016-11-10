@@ -74,87 +74,19 @@ double DAClusterizerInZT::e_ik(const track_t & t, const vertex_t &k ) const {
 
 
 
-double DAClusterizerInZT::update( double beta,
-                                  vector<track_t> & tks,
-                                  vector<vertex_t> & y ) const {
-  //update weights and vertex positions
-  // mass constrained annealing without noise
-  // returns the squared sum of changes of vertex positions
 
-  unsigned int nt=tks.size();
-
-  //initialize sums
-  double sumpi=0;
-  for(vector<vertex_t>::iterator k=y.begin(); k!=y.end(); ++k){
-    k->sw=0.; k->swz=0.; k->swt = 0.; k->se=0.;
-    k->swE=0.;  k->tC=0.;
-  }
-
-
-  // loop over tracks
-  for(unsigned int i=0; i<nt; i++){
-
-    // update pik and Zi
-    double Zi = 0.;
-    for(vector<vertex_t>::iterator k=y.begin(); k!=y.end(); ++k){
-      k->ei = std::exp(-beta*e_ik(tks[i],*k));// cache exponential for one track at a time
-      Zi   += k->pk * k->ei;      
-    }
-    tks[i].zi=Zi;
-
-    // normalization for pk
-    if (tks[i].zi>0){
-      sumpi += tks[i].pi;
-      // accumulate weighted z and weights for vertex update
-      for(vector<vertex_t>::iterator k=y.begin(); k!=y.end(); ++k){
-	k->se  += tks[i].pi* k->ei / Zi;
-	const double w = k->pk * tks[i].pi* k->ei / ( Zi * ( tks[i].dz2 * tks[i].dt2 ) );
-	k->sw  += w;
-	k->swz += w * tks[i].z;
-        k->swt += w * tks[i].t;
-	k->swE += w * e_ik(tks[i],*k);
-      }
-    }else{
-      sumpi += tks[i].pi;
-    }
-    
-
-  } // end of track loop
-
-
-  // now update z and pk
-  double delta=0;
-  for(vector<vertex_t>::iterator k=y.begin(); k!=y.end(); k++){
-    if ( k->sw > 0){
-      const double znew = k->swz/k->sw; 
-      const double tnew = k->swt/k->sw;
-      delta += sqr(k->z-znew) + sqr(k->t-tnew);
-      k->z  = znew;
-      k->t  = tnew;
-      k->tC = 2.*k->swE/k->sw;
-    }else{
-      LogDebug("sumw") <<  "invalid sum of weights in fit: " << k->sw << endl;
-      if(verbose_){cout << " a cluster melted away ?  pk=" << k->pk <<  " sumw=" << k->sw <<  endl;}
-      k->tC=-1;
-    }
-
-    k->pk = k->pk * k->se / sumpi;
-  }
-
-  // return how much the prototypes moved
-  return delta;
-}
 
 double DAClusterizerInZT::update( double beta,
                                   vector<track_t> & tks,
                                   vector<vertex_t> & y,
-                                  double & rho0 ) const {
+                                  const double rho0 ) const {
   // MVF style, no more vertex weights, update tracks weights and vertex positions, with noise 
   // returns the squared sum of changes of vertex positions
 
   unsigned int nt=tks.size();
 
   //initialize sums
+  double sumpi = 0.;
   for(vector<vertex_t>::iterator k=y.begin(); k!=y.end(); k++){
     k->sw = 0.;   k->swz = 0.; k->swt = 0.; k->se = 0.;    
     k->swE = 0.;  k->tC=0.;
@@ -172,10 +104,11 @@ double DAClusterizerInZT::update( double beta,
       Zi   += k->pk * k->ei;
     }
     tks[i].zi=Zi;
+    sumpi += tks[i].pi;
     
     // normalization
     if (tks[i].zi>0){
-       // accumulate weighted z and weights for vertex update
+      // accumulate weighted z and weights for vertex update
       for(vector<vertex_t>::iterator k=y.begin(); k!=y.end(); k++){
 	k->se += tks[i].pi* k->ei / Zi;
 	double w = k->pk * tks[i].pi * k->ei /( Zi * ( tks[i].dz2 * tks[i].dt2 ) );
@@ -185,8 +118,6 @@ double DAClusterizerInZT::update( double beta,
 	k->swE += w * e_ik(tks[i],*k);
       }
     }
-
-
   } // end of track loop
 
 
@@ -203,9 +134,9 @@ double DAClusterizerInZT::update( double beta,
     }else{
       edm::LogInfo("sumw") <<  "invalid sum of weights in fit: " << k->sw << endl;
       if(verbose_){cout << " a cluster melted away ?  pk=" << k->pk <<  " sumw=" << k->sw <<  endl;}
-      k->tC = 0;
+      k->tC = (rho0 == 0. ? -1 : 0);
     }
-
+    if(rho0 == 0.) k->pk = k->pk * k->se / sumpi;
   }
 
   // return how much the prototypes moved
@@ -345,7 +276,7 @@ double DAClusterizerInZT::beta0( double betamax,
   }// vertex loop (normally there should be only one vertex at beta=0)
   
   if (T0>1./betamax){
-    return betamax/pow(coolingFactor_, int(std::log(T0*betamax)/std::log(coolingFactor_))-1 );
+    return betamax/pow(coolingFactor_, int(std::log(T0*betamax)*logCoolingFactor_)-1 );
   }else{
     // ensure at least one annealing step
     return betamax/coolingFactor_;
@@ -463,7 +394,7 @@ DAClusterizerInZT::DAClusterizerInZT(const edm::ParameterSet& conf) :
   useTc_(true),
   vertexSize_(conf.getParameter<double>("vertexSize")),
   maxIterations_(100),
-  coolingFactor_(std::sqrt(conf.getParameter<double>("coolingFactor"))),
+  coolingFactor_(std::sqrt(conf.getParameter<double>("coolingFactor"))),  
   betamax_(0.1),
   betastop_(1.0),
   dzCutOff_(conf.getParameter<double>("dzCutOff")),
@@ -482,7 +413,8 @@ DAClusterizerInZT::DAClusterizerInZT(const edm::ParameterSet& conf) :
   if(coolingFactor_<0){
     coolingFactor_=-coolingFactor_; useTc_=false;
   }
-
+  
+  logCoolingFactor_ = 1.0/std::log(coolingFactor_);
 }
 
 

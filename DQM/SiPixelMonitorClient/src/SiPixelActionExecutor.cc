@@ -1573,6 +1573,7 @@ void SiPixelActionExecutor::createOccupancy(DQMStore::IBooker & iBooker, DQMStor
   fillOccupancy(iBooker,iGetter, false);
   iBooker.cd();
   iGetter.cd();
+
   //std::cout<<"leaving SiPixelActionExecutor::createOccupancy..."<<std::endl;
 }
 
@@ -1625,6 +1626,57 @@ void SiPixelActionExecutor::fillOccupancy(DQMStore::IBooker & iBooker, DQMStore:
 	
   //occupancyprinting cout<<"leaving SiPixelActionExecutor::fillOccupancy..."<<std::endl;
 	
+}
+
+//=============================================================================================================
+
+void SiPixelActionExecutor::normaliseAvDigiOcc(DQMStore::IBooker & iBooker, DQMStore::IGetter & iGetter){
+  //occupancyprinting cout<<"entering SiPixelActionExecutor::normaliseAvDigiOcc..."<<std::endl;
+  
+  iGetter.cd();
+
+  MonitorElement * roccupancyPlot = iGetter.get("Pixel/averageDigiOccupancy");
+  
+  float totalDigisBPIX = 0.;
+  float totalDigisFPIX = 0.;
+  for (int i = 1; i !=41; i++){
+    if (i < 33) totalDigisBPIX += roccupancyPlot->getBinContent(i);
+    else totalDigisFPIX += roccupancyPlot->getBinContent(i);
+  } 
+  float averageBPIXOcc = totalDigisBPIX/32.;
+  float averageFPIXOcc = totalDigisFPIX/8.;
+  for (int i = 1; i !=41; i++){
+    if (i < 33) roccupancyPlot->setBinContent(i,roccupancyPlot->getBinContent(i)/averageBPIXOcc);
+    else roccupancyPlot->setBinContent(i,roccupancyPlot->getBinContent(i)/averageFPIXOcc);
+  }
+  
+  iGetter.setCurrentFolder(iBooker.pwd());
+  
+}
+
+//=============================================================================================================
+
+void SiPixelActionExecutor::normaliseAvDigiOccVsLumi(DQMStore::IBooker & iBooker, DQMStore::IGetter & iGetter, int lumisec){
+
+  iGetter.cd();
+
+  MonitorElement* avgfedDigiOccvsLumi = iGetter.get("Pixel/avgfedDigiOccvsLumi");
+
+  float totalDigisBPIX = 0.; 
+  float totalDigisFPIX = 0.;
+  for (int i = 1; i !=41; i++){
+    if (i < 33) totalDigisBPIX += avgfedDigiOccvsLumi->getBinContent(lumisec,i);
+    else        totalDigisFPIX += avgfedDigiOccvsLumi->getBinContent(lumisec,i);
+  }  
+  float averageBPIXOcc = totalDigisBPIX/32.;
+  float averageFPIXOcc = totalDigisFPIX/8.;
+  for (int i = 1; i !=41; i++){
+    if (i < 33) avgfedDigiOccvsLumi->setBinContent(lumisec,i,avgfedDigiOccvsLumi->getBinContent(lumisec,i)/averageBPIXOcc);
+    else        avgfedDigiOccvsLumi->setBinContent(lumisec,i,avgfedDigiOccvsLumi->getBinContent(lumisec,i)/averageFPIXOcc);
+  }
+
+  iGetter.setCurrentFolder(iBooker.pwd());
+
 }
 
 //=============================================================================================================
@@ -1689,6 +1741,15 @@ void SiPixelActionExecutor::bookEfficiency(DQMStore::IBooker & iBooker, bool isU
       HitEfficiency_Dm3 = iBooker.book2D("HitEfficiency_Dm3","Hit Efficiency in Endcap_Disk_m3;Blades;Modules",28,-17.,11.,2,1.,3.);
     }
   }//endif(isUpgrade)
+  iBooker.cd();
+  iBooker.cd("Pixel/");
+  string bins[] = {"Layer1","Layer2","Layer3","Disk1+","Disk2+","Disk1-","Disk2-"};
+  HitEfficiencySummary = iBooker.book1D("HitEfficiencySummary","Hit efficiency per sub detector",7,0,7);
+  HitEfficiencySummary->setAxisTitle("Sub Detector", 1);
+  HitEfficiencySummary->setAxisTitle("Efficiency (%)",2);
+  for (int i = 1; i < 8; i++){
+    HitEfficiencySummary->setBinLabel(i,bins[i-1]);
+  }
 }
 
 //=============================================================================================================
@@ -2072,4 +2133,49 @@ void SiPixelActionExecutor::fillEfficiency(DQMStore::IBooker & iBooker, DQMStore
     }
   } // end online/offline
   //cout<<"leaving SiPixelActionExecutor::fillEfficiency..."<<std::endl;
+}
+
+//=============================================================================================================
+
+void SiPixelActionExecutor::fillEfficiencySummary(DQMStore::IBooker & iBooker, DQMStore::IGetter & iGetter){
+  //cout<<"entering SiPixelActionExecutor::fillEfficiencySummary..."<<std::endl;
+  //First we get the summary plot"
+  if (!Tier0Flag_) return;
+  HitEfficiencySummary = iGetter.get("Pixel/HitEfficiencySummary");
+  //Now we will loop over the hit efficiency plots and fill it"
+  string hitEfficiencyPostfix[] = {"L1","L2","L3","Dp1","Dp2","Dm1","Dm2"};
+  std::vector<std::vector<float> > ignoreXBins = {{-4,2}, {4,4,-1,-3,3,-4,-3,-2,-1,-4,-3,-2,-1,1,-4},    {1,-4,1},{},{},{},{}};
+  std::vector<std::vector<float> > ignoreYBins = {{-9,-3},{1,16,1,-13,-13,-5,-5,-5,-5,-6,-6,-6,-6,-8,-8},{3,14,6},{},{},{},{}};
+  
+  for (int i = 0; i < 7; i++){
+    string subdetName = "Endcap/";
+    if (i < 3) subdetName = "Barrel/";
+    char meName [50];
+    sprintf(meName,"Pixel/%sHitEfficiency_%s",subdetName.c_str(),hitEfficiencyPostfix[i].c_str());
+    MonitorElement * tempHitEffMap = iGetter.get(meName);
+    float totalEff = 0.;
+    int totalBins = 0;
+    TH1 * hitEffMap = tempHitEffMap->getTH1();
+    for (int xBin = 1; xBin < tempHitEffMap->getNbinsX() + 1; xBin++){
+      if (fabs(hitEffMap->GetXaxis()->GetBinCenter(xBin)) < 1.) continue;
+      for (int yBin = 1; yBin < tempHitEffMap->getNbinsY() + 1; yBin++){
+	if (fabs(hitEffMap->GetYaxis()->GetBinCenter(yBin)) < 0.5) continue;
+	bool ignoreBin = false;
+	for (unsigned int j = 0; j < ignoreXBins[i].size(); j++){
+	  if (hitEffMap->GetXaxis()->GetBinCenter(xBin) == ignoreXBins[i][j] && hitEffMap->GetYaxis()->GetBinCenter(yBin) == ignoreYBins[i][j]){
+	    ignoreBin = true;
+	    break;
+	  }
+	}
+	if (ignoreBin) continue;
+	if (!(tempHitEffMap->getBinContent(xBin,yBin) < 0.)) totalEff += tempHitEffMap->getBinContent(xBin,yBin);
+	totalBins++;
+      }
+    }
+    float overalEff = 0.;
+    //    std::cout << i << " " << totalEff << " " << totalBins << std::endl;
+    if (totalBins > 0) overalEff = totalEff/float(totalBins);
+    HitEfficiencySummary->setBinContent(i+1,overalEff);
+  }
+  
 }

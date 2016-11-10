@@ -12,7 +12,7 @@
 #include <iostream>
 #include <iomanip>
 
-//#define DebugLog
+//#define EDM_ML_DEBUG
 
 namespace {
   int getGeometryMode(const char* s, const DDsvalues_type & sv) {
@@ -40,7 +40,7 @@ bool HGCalParametersFromDD::build(const DDCompactView* cpv,
 				  const std::string& namew, 
 				  const std::string& namec) {
 
-#ifdef DebugLog
+#ifdef EDM_ML_DEBUG
   std::cout << "HGCalParametersFromDD::build called with names " << name << ":"
 	    << namew << ":" << namec << std::endl;
 #endif
@@ -69,6 +69,17 @@ bool HGCalParametersFromDD::build(const DDCompactView* cpv,
       geom->loadSpecParsHexagon(fv, php, cpv, namew, namec);
       //Load the Geometry parameters
       geom->loadGeometryHexagon(fv, php, name, cpv, namew, namec);
+      //Load cell parameters
+      geom->loadCellParsHexagon(cpv, php);
+    } else if (php.mode_ == static_cast<int> (HGCalGeometryMode::HexagonFull)){
+      //Load the SpecPars
+      geom->loadSpecParsHexagon(fv, php, cpv, namew, namec);
+      //Load the Geometry parameters
+      geom->loadGeometryHexagon(fv, php, name, cpv, namew, namec);
+      //Modify some constants
+      geom->loadWaferHexagon(php);
+      //Load cell parameters
+      geom->loadCellParsHexagon(cpv, php);
     } else {
       edm::LogError("HGCalGeom") << "Unknown Geometry type " << php.mode_
 				 << " for HGCal " << name << ":" << namew

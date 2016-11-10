@@ -23,7 +23,8 @@ process.maxEvents = cms.untracked.PSet(
 
 #Populate ES
 process.load("CalibTracker.SiStripESProducers.fake.SiStripBadModuleConfigurableFakeESSource_cfi")
-process.SiStripBadModuleGenerator.BadComponentList = cms.untracked.VPSet(   cms.PSet(
+from CalibTracker.SiStripESProducers.fake.SiStripBadModuleConfigurableFakeESSource_cfi import siStripBadModuleConfigurableFakeESSource
+siStripBadModuleConfigurableFakeESSource.BadComponentList = cms.untracked.VPSet(   cms.PSet(
     SubDet = cms.string('TID'), 
     wheel = cms.uint32(1),      ## SELECTION: side = 1(back, Z-), 2(front, Z+), 0(ALL)	 
     detid = cms.uint32(0),      ## wheel = 1..3, 0(ALL)					 

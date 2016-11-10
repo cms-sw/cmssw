@@ -98,8 +98,8 @@ from DQMOffline.Configuration.DQMOffline_EventContent_cff import *
 #
 from FastSimulation.Configuration.EventContent_cff import FASTPUEventContent
 import FastSimulation.Configuration.EventContent_cff as fastSimEC
-from Configuration.StandardSequences.Eras import eras
-if eras.fastSim.isChosen():
+from Configuration.Eras.Modifier_fastSim_cff import fastSim
+if fastSim.isChosen():
     RecoLocalTrackerRECO.outputCommands = fastSimEC.RecoLocalTracker.outputCommands
     RecoLocalTrackerFEVT.outputCommands = fastSimEC.RecoLocalTracker.outputCommands
     SimG4CoreRAW = fastSimEC.SimRAW
@@ -448,7 +448,8 @@ RECOEventContent.outputCommands.extend(EvtScalersRECO.outputCommands)
 RECOEventContent.outputCommands.extend(TcdsEventContent.outputCommands)
 RECOEventContent.outputCommands.extend(CommonEventContent.outputCommands)
 RECOEventContent.outputCommands.extend(EITopPAGEventContent.outputCommands)
-eras.ctpps_2016.toModify(RECOEventContent, outputCommands = RECOEventContent.outputCommands + RecoCTPPSRECO.outputCommands)
+from Configuration.Eras.Modifier_ctpps_2016_cff import ctpps_2016
+ctpps_2016.toModify(RECOEventContent, outputCommands = RECOEventContent.outputCommands + RecoCTPPSRECO.outputCommands)
 
 RAWRECOEventContent.outputCommands.extend(RECOEventContent.outputCommands)
 RAWRECOEventContent.outputCommands.extend(cms.untracked.vstring(
@@ -479,7 +480,7 @@ AODEventContent.outputCommands.extend(EvtScalersAOD.outputCommands)
 AODEventContent.outputCommands.extend(TcdsEventContent.outputCommands)
 AODEventContent.outputCommands.extend(CommonEventContent.outputCommands)
 AODEventContent.outputCommands.extend(EITopPAGEventContent.outputCommands)
-eras.ctpps_2016.toModify(AODEventContent, outputCommands = AODEventContent.outputCommands + RecoCTPPSAOD.outputCommands)
+ctpps_2016.toModify(AODEventContent, outputCommands = AODEventContent.outputCommands + RecoCTPPSAOD.outputCommands)
 
 RAWSIMEventContent.outputCommands.extend(RAWEventContent.outputCommands)
 RAWSIMEventContent.outputCommands.extend(SimG4CoreRAW.outputCommands)
@@ -530,7 +531,7 @@ PREMIXEventContent.outputCommands.append('keep PixelDigiSimLinkedmDetSetVector_s
 PREMIXEventContent.outputCommands.append('keep StripDigiSimLinkedmDetSetVector_simMuonCSCDigis_*_*')
 PREMIXEventContent.outputCommands.append('keep RPCDigiSimLinkedmDetSetVector_*_*_*')
 PREMIXEventContent.outputCommands.append('keep DTLayerIdDTDigiSimLinkMuonDigiCollection_*_*_*')
-if eras.fastSim.isChosen():
+if fastSim.isChosen():
     PREMIXEventContent.outputCommands.extend(fastSimEC.extraPremixContent)
 
 PREMIXRAWEventContent.outputCommands.extend(RAWSIMEventContent.outputCommands)
@@ -543,7 +544,7 @@ PREMIXRAWEventContent.outputCommands.append('keep *_*_MuonCSCStripDigiSimLinks_*
 PREMIXRAWEventContent.outputCommands.append('keep *_*_MuonCSCWireDigiSimLinks_*')
 PREMIXRAWEventContent.outputCommands.append('keep *_*_RPCDigiSimLink_*')
 PREMIXRAWEventContent.outputCommands.append('keep DTLayerIdDTDigiSimLinkMuonDigiCollection_*_*_*')
-if eras.fastSim.isChosen():
+if fastSim.isChosen():
     PREMIXEventContent.outputCommands.extend(fastSimEC.extraPremixContent)
 
 REPACKRAWSIMEventContent.outputCommands.extend(REPACKRAWEventContent.outputCommands)
@@ -623,7 +624,7 @@ FEVTEventContent.outputCommands.extend(EvtScalersRECO.outputCommands)
 FEVTEventContent.outputCommands.extend(TcdsEventContent.outputCommands)
 FEVTEventContent.outputCommands.extend(CommonEventContent.outputCommands)
 FEVTEventContent.outputCommands.extend(EITopPAGEventContent.outputCommands)
-eras.ctpps_2016.toModify(FEVTEventContent, outputCommands = FEVTEventContent.outputCommands + RecoCTPPSFEVT.outputCommands)
+ctpps_2016.toModify(FEVTEventContent, outputCommands = FEVTEventContent.outputCommands + RecoCTPPSFEVT.outputCommands)
 
 FEVTHLTALLEventContent.outputCommands.extend(FEVTEventContent.outputCommands)
 FEVTHLTALLEventContent.outputCommands.append('keep *_*_*_HLT')
@@ -815,7 +816,10 @@ RAWAODSIMEventContent.outputCommands.extend(HLTriggerRAW.outputCommands)
 
 # in fastsim, normal digis are edaliases of simdigis
 # drop the simdigis to avoid complaints from the outputmodule related to duplicated branches
-if eras.fastSim.isChosen():
+if fastSim.isChosen():
     for _entry in [FEVTDEBUGHLTEventContent,FEVTDEBUGEventContent,RECOSIMEventContent,AODSIMEventContent,RAWAODSIMEventContent]:
         fastSimEC.dropSimDigis(_entry.outputCommands)
-    
+
+from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
+for _entry in [FEVTDEBUGEventContent,FEVTDEBUGHLTEventContent,FEVTEventContent]:
+  phase2_tracker.toModify(_entry, outputCommands = _entry.outputCommands + ['keep Phase2TrackerDigiedmDetSetVector_mix_*_*'])

@@ -1,5 +1,4 @@
 import FWCore.ParameterSet.Config as cms
-from Configuration.StandardSequences.Eras import eras
 import RecoTracker.IterativeTracking.iterativeTkConfig as _cfg
 
 ###############################################################
@@ -17,10 +16,11 @@ chargeCut2069Clusters =  cms.EDProducer("ClusterChargeMasker",
 mixedTripletStepClusters = _cfg.clusterRemoverForIter("MixedTripletStep")
 chargeCut2069Clusters.oldClusterRemovalInfo = mixedTripletStepClusters.oldClusterRemovalInfo.value()
 mixedTripletStepClusters.oldClusterRemovalInfo = "chargeCut2069Clusters"
-for era in _cfg.nonDefaultEras():
-    getattr(eras, era).toReplaceWith(mixedTripletStepClusters, _cfg.clusterRemoverForIter("MixedTripletStep", era))
-eras.trackingPhase1.toModify(chargeCut2069Clusters, oldClusterRemovalInfo = mixedTripletStepClusters.oldClusterRemovalInfo.value())
-eras.trackingPhase1.toModify(mixedTripletStepClusters, oldClusterRemovalInfo="chargeCut2069Clusters")
+for _eraName, _postfix, _era in _cfg.nonDefaultEras():
+    _era.toReplaceWith(mixedTripletStepClusters, _cfg.clusterRemoverForIter("MixedTripletStep", _eraName, _postfix))
+from Configuration.Eras.Modifier_trackingPhase1_cff import trackingPhase1
+trackingPhase1.toModify(chargeCut2069Clusters, oldClusterRemovalInfo = mixedTripletStepClusters.oldClusterRemovalInfo.value())
+trackingPhase1.toModify(mixedTripletStepClusters, oldClusterRemovalInfo="chargeCut2069Clusters")
 
 # SEEDING LAYERS
 from RecoLocalTracker.SiStripClusterizer.SiStripClusterChargeCut_cfi import *
@@ -50,7 +50,8 @@ mixedTripletStepSeedLayersA = cms.EDProducer("SeedingLayersEDProducer",
         skipClusters = cms.InputTag('mixedTripletStepClusters')
     )
 )
-eras.trackingLowPU.toModify(mixedTripletStepSeedLayersA,
+from Configuration.Eras.Modifier_trackingLowPU_cff import trackingLowPU
+trackingLowPU.toModify(mixedTripletStepSeedLayersA,
     layerList = [
         'BPix1+BPix2+BPix3',
         'BPix1+BPix2+FPix1_pos', 'BPix1+BPix2+FPix1_neg',
@@ -61,7 +62,8 @@ eras.trackingLowPU.toModify(mixedTripletStepSeedLayersA,
     ],
     TEC = dict(clusterChargeCut = dict(refToPSet_ = 'SiStripClusterChargeCutTiny')),
 )
-eras.trackingPhase1PU70.toModify(mixedTripletStepSeedLayersA,
+from Configuration.Eras.Modifier_trackingPhase1PU70_cff import trackingPhase1PU70
+trackingPhase1PU70.toModify(mixedTripletStepSeedLayersA,
     layerList = [
         'BPix1+BPix2+FPix1_pos', 'BPix1+BPix2+FPix1_neg',
         'BPix1+FPix1_pos+FPix2_pos', 'BPix1+FPix1_neg+FPix2_neg',
@@ -104,11 +106,11 @@ mixedTripletStepSeedsA.SeedComparitorPSet = cms.PSet(
         ClusterShapeHitFilterName = cms.string('mixedTripletStepClusterShapeHitFilter'),
         ClusterShapeCacheSrc = cms.InputTag('siPixelClusterShapeCache')
     )
-eras.trackingLowPU.toModify(mixedTripletStepSeedsA,
+trackingLowPU.toModify(mixedTripletStepSeedsA,
     RegionFactoryPSet = dict(RegionPSet = dict(originHalfLength = 10.0)),
     SeedComparitorPSet = dict(ClusterShapeHitFilterName = 'ClusterShapeHitFilter')
 )
-eras.trackingPhase1PU70.toModify(
+trackingPhase1PU70.toModify(
     mixedTripletStepSeedsA,
     RegionFactoryPSet = dict(RegionPSet = dict(ptMin = 0.7)),
     SeedComparitorPSet = dict(ClusterShapeHitFilterName = 'ClusterShapeHitFilter'),
@@ -128,12 +130,12 @@ mixedTripletStepSeedLayersB = cms.EDProducer("SeedingLayersEDProducer",
         skipClusters = cms.InputTag('mixedTripletStepClusters')
     )
 )
-eras.trackingLowPU.toModify(mixedTripletStepSeedLayersB,
+trackingLowPU.toModify(mixedTripletStepSeedLayersB,
     layerList = ['BPix2+BPix3+TIB1', 'BPix2+BPix3+TIB2'],
     TIB = dict(clusterChargeCut = dict(refToPSet_ = 'SiStripClusterChargeCutTiny')),
 )
-eras.trackingPhase1.toModify(mixedTripletStepSeedLayersB, layerList = ['BPix3+BPix4+TIB1'])
-eras.trackingPhase1PU70.toModify(mixedTripletStepSeedLayersB,
+trackingPhase1.toModify(mixedTripletStepSeedLayersB, layerList = ['BPix3+BPix4+TIB1'])
+trackingPhase1PU70.toModify(mixedTripletStepSeedLayersB,
     layerList = [
         'BPix1+BPix2+BPix3', 'BPix2+BPix3+BPix4','BPix1+BPix2+BPix4', 'BPix1+BPix3+BPix4'
     ],
@@ -161,8 +163,8 @@ mixedTripletStepSeedsB.SeedComparitorPSet = cms.PSet(
         ClusterShapeHitFilterName = cms.string('mixedTripletStepClusterShapeHitFilter'),
         ClusterShapeCacheSrc = cms.InputTag('siPixelClusterShapeCache')
     )
-eras.trackingLowPU.toModify(mixedTripletStepSeedsB, SeedComparitorPSet = dict(ClusterShapeHitFilterName = 'ClusterShapeHitFilter'))
-eras.trackingPhase1PU70.toModify(
+trackingLowPU.toModify(mixedTripletStepSeedsB, SeedComparitorPSet = dict(ClusterShapeHitFilterName = 'ClusterShapeHitFilter'))
+trackingPhase1PU70.toModify(
     mixedTripletStepSeedsB,
     RegionFactoryPSet = dict(
         RegionPSet = dict(
@@ -192,10 +194,10 @@ _mixedTripletStepTrajectoryFilterBase = TrackingTools.TrajectoryFiltering.Trajec
 mixedTripletStepTrajectoryFilter = _mixedTripletStepTrajectoryFilterBase.clone(
     constantValueForLostHitsFractionFilter = 1.4,
 )
-eras.trackingLowPU.toReplaceWith(mixedTripletStepTrajectoryFilter, _mixedTripletStepTrajectoryFilterBase.clone(
+trackingLowPU.toReplaceWith(mixedTripletStepTrajectoryFilter, _mixedTripletStepTrajectoryFilterBase.clone(
     maxLostHits = 0,
 ))
-eras.trackingPhase1PU70.toReplaceWith(mixedTripletStepTrajectoryFilter, _mixedTripletStepTrajectoryFilterBase.clone(
+trackingPhase1PU70.toReplaceWith(mixedTripletStepTrajectoryFilter, _mixedTripletStepTrajectoryFilterBase.clone(
     maxLostHits = 0,
 ))
 
@@ -222,10 +224,10 @@ mixedTripletStepChi2Est = RecoTracker.MeasurementDet.Chi2ChargeMeasurementEstima
     MaxChi2 = cms.double(16.0),
     clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutTight'))
 )
-eras.trackingLowPU.toModify(mixedTripletStepChi2Est,
+trackingLowPU.toModify(mixedTripletStepChi2Est,
     clusterChargeCut = dict(refToPSet_ = 'SiStripClusterChargeCutTiny')
 )
-eras.trackingPhase1PU70.toModify(mixedTripletStepChi2Est,
+trackingPhase1PU70.toModify(mixedTripletStepChi2Est,
     clusterChargeCut = dict(refToPSet_ = 'SiStripClusterChargeCutNone'),
 )
 
@@ -264,8 +266,8 @@ mixedTripletStepTrajectoryCleanerBySharedHits = trajectoryCleanerBySharedHits.cl
             allowSharedFirstHit = cms.bool(True)
             )
 mixedTripletStepTrackCandidates.TrajectoryCleaner = 'mixedTripletStepTrajectoryCleanerBySharedHits'
-eras.trackingLowPU.toModify(mixedTripletStepTrajectoryCleanerBySharedHits, fractionShared = 0.19)
-eras.trackingPhase1PU70.toModify(mixedTripletStepTrajectoryCleanerBySharedHits, fractionShared = 0.095)
+trackingLowPU.toModify(mixedTripletStepTrajectoryCleanerBySharedHits, fractionShared = 0.19)
+trackingPhase1PU70.toModify(mixedTripletStepTrajectoryCleanerBySharedHits, fractionShared = 0.095)
 
 
 # TRACK FITTING
@@ -378,7 +380,7 @@ mixedTripletStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cf
         )
     ] #end of vpset
 ) #end of clone
-eras.trackingPhase1PU70.toModify(mixedTripletStepSelector,
+trackingPhase1PU70.toModify(mixedTripletStepSelector,
     useAnyMVA = None,
     GBRForestLabel = None,
     trackSelectors = [
@@ -474,8 +476,8 @@ _trackListMergerBase = RecoTracker.FinalTrackSelectors.trackListMerger_cfi.track
     setsToMerge = [cms.PSet( tLists=cms.vint32(0,1), pQual=cms.bool(True) )],
     writeOnlyTrkQuals = True
 )
-eras.trackingLowPU.toReplaceWith(mixedTripletStep, _trackListMergerBase)
-eras.trackingPhase1PU70.toReplaceWith(mixedTripletStep, _trackListMergerBase.clone(
+trackingLowPU.toReplaceWith(mixedTripletStep, _trackListMergerBase)
+trackingPhase1PU70.toReplaceWith(mixedTripletStep, _trackListMergerBase.clone(
     shareFrac = cms.double(0.095),
     indivShareFrac = [0.095,0.095],
 ))
@@ -494,5 +496,5 @@ MixedTripletStep = cms.Sequence(chargeCut2069Clusters*mixedTripletStepClusters*
                                 mixedTripletStep)
 _MixedTripletStep_LowPU_Phase1PU70 = MixedTripletStep.copyAndExclude([chargeCut2069Clusters, mixedTripletStepClassifier1])
 _MixedTripletStep_LowPU_Phase1PU70.replace(mixedTripletStepClassifier2, mixedTripletStepSelector)
-eras.trackingLowPU.toReplaceWith(MixedTripletStep, _MixedTripletStep_LowPU_Phase1PU70)
-eras.trackingPhase1PU70.toReplaceWith(MixedTripletStep, _MixedTripletStep_LowPU_Phase1PU70)
+trackingLowPU.toReplaceWith(MixedTripletStep, _MixedTripletStep_LowPU_Phase1PU70)
+trackingPhase1PU70.toReplaceWith(MixedTripletStep, _MixedTripletStep_LowPU_Phase1PU70)

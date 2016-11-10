@@ -49,11 +49,15 @@ inline std::unique_ptr<L1MuDTChambPhContainer> L1TTwinMuxAlgortithm::produce(
                                                             const edm::EventSetup& c) {
 
 
-  TriggerPrimitiveCollection *l1tmtpp =  L1TMuonTPPproducer(phiDigis,thetaDigis,rpcDigis,c);
+  TriggerPrimitiveCollection *l1tmtpp = new TriggerPrimitiveCollection();
+  L1TMuonTPPproducer(phiDigis,thetaDigis,rpcDigis,l1tmtpp,c);
 
   std::unique_ptr<MBLTContainer> mblt = MBLTProducer(l1tmtpp);
-  L1ITMuonBarrelPrimitiveProducer *lmbpp = new L1ITMuonBarrelPrimitiveProducer(std::move(mblt));
+  std::unique_ptr<L1ITMuonBarrelPrimitiveProducer> lmbpp ( new L1ITMuonBarrelPrimitiveProducer(std::move(mblt)));
   std::unique_ptr<L1MuDTChambPhContainer> l1ttma = lmbpp->produce(c);
+
+  delete l1tmtpp;
+
   return l1ttma;
 
 }

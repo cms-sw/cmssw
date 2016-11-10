@@ -5,7 +5,7 @@ commonDict = {
     "name" : "common",
     "O1" : {
         1 : [
-            'Geometry/CMSCommonData/data/PhaseII/materials.xml',
+            'Geometry/CMSCommonData/data/materials.xml',
             'Geometry/CMSCommonData/data/rotations.xml',
             'Geometry/CMSCommonData/data/extend/cmsextent.xml',
             'Geometry/CMSCommonData/data/PostLS2/cms.xml',
@@ -26,7 +26,7 @@ commonDict = {
         5 : [
             'Geometry/CMSCommonData/data/FieldParameters.xml',
         ],
-        "era" : "self.run2_common, self.phase2_common",
+        "era" : "run2_common, phase2_common",
     }
 }
 
@@ -92,6 +92,7 @@ trackerDict = {
         ],
         "sim" : [
             'from Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi import *',
+            'from SLHCUpgradeSimulations.Geometry.fakeConditions_phase2TkTilted_cff import *',
         ],
         "reco" : [
             'from Geometry.CommonDetUnit.globalTrackingGeometry_cfi import *',
@@ -101,7 +102,7 @@ trackerDict = {
             'from Geometry.TrackerGeometryBuilder.idealForDigiTrackerGeometry_cff import *',
             'trackerGeometry.applyAlignment = cms.bool(False)',
         ],
-        "era" : "self.phase2_tracker, self.trackingPhase2PU140",
+        "era" : "phase2_tracker, trackingPhase2PU140",
     },
     "T2" : {
         1 : [
@@ -162,6 +163,7 @@ trackerDict = {
         ],
         "sim" : [
             'from Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi import *',
+            'from SLHCUpgradeSimulations.Geometry.fakeConditions_phase2TkFlat_cff import *',
         ],
         "reco" : [
             'from Geometry.CommonDetUnit.globalTrackingGeometry_cfi import *',
@@ -171,7 +173,7 @@ trackerDict = {
             'from Geometry.TrackerGeometryBuilder.idealForDigiTrackerGeometry_cff import *',
             'trackerGeometry.applyAlignment = cms.bool(False)',
         ],
-        "era" : "self.phase2_tracker, self.trackingPhase2PU140",
+        "era" : "phase2_tracker, trackingPhase2PU140",
     },
     "T3" : {
         1 : [
@@ -198,6 +200,7 @@ trackerDict = {
         ],
         "sim" : [
             'from Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi import *',
+            'from SLHCUpgradeSimulations.Geometry.fakeConditions_phase2TkTilted4021_cff import *',
         ],
         "reco" : [
             'from Geometry.CommonDetUnit.globalTrackingGeometry_cfi import *',
@@ -207,7 +210,7 @@ trackerDict = {
             'from Geometry.TrackerGeometryBuilder.idealForDigiTrackerGeometry_cff import *',
             'trackerGeometry.applyAlignment = cms.bool(False)',
         ],
-        "era" : "self.phase2_tracker, self.trackingPhase2PU140",
+        "era" : "phase2_tracker, trackingPhase2PU140",
     }   
 }
 
@@ -263,7 +266,6 @@ caloDict = {
             'CaloGeometryBuilder = cms.ESProducer("CaloGeometryBuilder",',
             '    SelectedCalos = cms.vstring("HCAL"          ,',
             '                                "ZDC"           ,',
-            '                                "CASTOR"        ,',
             '                                "EcalBarrel"    ,',
             '                                "EcalEndcap"    ,',
             '                                "TOWER"           )',
@@ -297,7 +299,7 @@ caloDict = {
             'Geometry/HcalCommonData/data/hcalouteralgo.xml',
             'Geometry/HcalCommonData/data/hcalforwardalgo.xml',
             'Geometry/HcalCommonData/data/PhaseII/hcalSimNumbering.xml',
-            'Geometry/HcalCommonData/data/PhaseII/HGCal/hcalRecNumberingRebuild.xml',
+            'Geometry/HcalCommonData/data/PhaseII/hcalRecNumberingRebuild.xml',
             'Geometry/HcalCommonData/data/average/hcalforwardmaterial.xml',
             'Geometry/HGCalCommonData/data/v7/hgcal.xml',
             'Geometry/HGCalCommonData/data/v7/hgcalEE.xml',
@@ -334,7 +336,6 @@ caloDict = {
             'CaloGeometryBuilder = cms.ESProducer("CaloGeometryBuilder",',
             '    SelectedCalos = cms.vstring("HCAL"                   ,',
             '                                "ZDC"                    ,',
-            '                                "CASTOR"                 ,',
             '                                "EcalBarrel"             ,',
             '                                "TOWER"                  ,',
             '                                "HGCalEESensitive"       ,',
@@ -351,7 +352,7 @@ caloDict = {
             'from Geometry.EcalMapping.EcalMapping_cfi import *',
             'from Geometry.EcalMapping.EcalMappingRecord_cfi import *',
         ],
-        "era" : "self.phase2_hcal, self.phase2_hgcal",
+        "era" : "run2_HE_2017, run2_HF_2017, run2_HCAL_2017, run3_HB, phase2_hcal, phase2_hgcal",
     }
 }
 
@@ -398,8 +399,52 @@ muonDict = {
             'from Geometry.CSCGeometryBuilder.idealForDigiCscGeometry_cff import *',
             'from Geometry.DTGeometryBuilder.idealForDigiDtGeometry_cff import *',
         ],
-        "era" : "self.phase2_muon, self.run3_GEM",
+        "era" : "phase2_muon, run3_GEM",
+    },
+    "M2" : {
+        1 : [
+            'Geometry/MuonCommonData/data/v1/mbCommon.xml',
+            'Geometry/MuonCommonData/data/v1/mb1.xml',
+            'Geometry/MuonCommonData/data/v1/mb2.xml',
+            'Geometry/MuonCommonData/data/v1/mb3.xml',
+            'Geometry/MuonCommonData/data/v1/mb4.xml',
+            'Geometry/MuonCommonData/data/design/muonYoke.xml',
+            'Geometry/MuonCommonData/data/PhaseII/mf.xml',
+            'Geometry/MuonCommonData/data/PhaseII/rpcf.xml',
+            'Geometry/MuonCommonData/data/PhaseII/gemf.xml',
+            'Geometry/MuonCommonData/data/PhaseII/TDR_BaseLine/gem11.xml',
+            'Geometry/MuonCommonData/data/PhaseII/TDR_BaseLine/gem21.xml',
+            'Geometry/MuonCommonData/data/v2/csc.xml',
+            'Geometry/MuonCommonData/data/PhaseII/mfshield.xml',
+            'Geometry/MuonCommonData/data/PhaseII/TDR_Dev/me0.xml',
+        ],
+        2 : [
+            'Geometry/MuonCommonData/data/PhaseII/TDR_Dev/muonNumbering.xml',
+        ],
+        3 : [
+            'Geometry/MuonSimData/data/PhaseII/ME0EtaPart/muonSens.xml',
+            'Geometry/DTGeometryBuilder/data/dtSpecsFilter.xml',
+            'Geometry/CSCGeometryBuilder/data/cscSpecsFilter.xml',
+            'Geometry/CSCGeometryBuilder/data/cscSpecs.xml',
+            'Geometry/RPCGeometryBuilder/data/PhaseII/RPCSpecs.xml',
+            'Geometry/GEMGeometryBuilder/data/v7/GEMSpecsFilter.xml',
+            'Geometry/GEMGeometryBuilder/data/v7/GEMSpecs.xml',
+        ],
+        4 : [
+            'Geometry/MuonSimData/data/PhaseII/muonProdCuts.xml',
+        ],
+        "reco" : [
+            'from Geometry.MuonNumbering.muonNumberingInitialization_cfi import *',
+            'from RecoMuon.DetLayers.muonDetLayerGeometry_cfi import *',
+            'from Geometry.GEMGeometryBuilder.gemGeometry_cfi import *',
+            'from Geometry.GEMGeometryBuilder.me0Geometry_cfi import *',
+            'ME0GeometryESModule.use10EtaPart = cms.bool(True)',
+            'from Geometry.CSCGeometryBuilder.idealForDigiCscGeometry_cff import *',
+            'from Geometry.DTGeometryBuilder.idealForDigiDtGeometry_cff import *',
+        ],
+        "era" : "phase2_muon, run3_GEM",
     }
+
 }
 
 forwardDict = {
@@ -432,12 +477,38 @@ forwardDict = {
     }
 }
 
-allDicts = [ commonDict, trackerDict, caloDict, muonDict, forwardDict ]
+timingDict = {
+    "abbrev" : "I",
+    "name" : "timing",
+    "I1" : {},
+    "I2" : {
+        1 : [
+            'Geometry/HGCalCommonData/data/fastTimingBarrel.xml',
+            'Geometry/HGCalCommonData/data/fastTimingEndcap.xml',
+            'Geometry/HGCalCommonData/data/fastTimingElement.xml',
+            ],
+        3 : [
+            'Geometry/HGCalSimData/data/fasttimesens.xml'
+            ],
+        4 : [
+            'Geometry/HGCalSimData/data/fasttimeProdCuts.xml'
+            ],
+        "sim" : [
+            'from Geometry.HGCalCommonData.fastTimeParametersInitialization_cfi import *',
+            'from Geometry.HGCalCommonData.fastTimeNumberingInitialization_cfi import *',
+        ],
+        "era" : "phase2_timing",
+    }
+}
+
+allDicts = [ commonDict, trackerDict, caloDict, muonDict, forwardDict, timingDict ]
 
 detectorVersionDict = {
-    ("O1","T1","C1","M1","F1") : "D1",
-    ("O1","T2","C1","M1","F1") : "D2",
-    ("O1","T1","C2","M1","F1") : "D3",
-    ("O1","T3","C2","M1","F1") : "D4"
+    ("O1","T1","C1","M1","F1","I1") : "D1",
+    ("O1","T2","C1","M1","F1","I1") : "D2",
+    ("O1","T1","C2","M1","F1","I1") : "D3",
+    ("O1","T3","C2","M1","F1","I1") : "D4",
+    ("O1","T1","C2","M1","F1","I2") : "D5",
+    ("O1","T1","C1","M2","F1","I1") : "D6",
 }
 

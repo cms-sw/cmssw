@@ -1,4 +1,5 @@
 <flags   EDM_PLUGIN="1"/>
+<use   name="CalibCalorimetry/HcalAlgos"/>
 <use   name="CalibFormats/HcalObjects"/>
 <use   name="RecoLocalCalo/HcalRecAlgos"/>
 <use   name="FWCore/Framework"/>

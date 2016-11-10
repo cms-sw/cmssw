@@ -28,6 +28,7 @@
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "Geometry/CaloTopology/interface/HcalTopology.h"
+#include "Geometry/HcalTowerAlgo/interface/HcalGeometry.h"
 
 #include <vector>
 #include <utility>
@@ -82,6 +83,12 @@ class HcalRecHitsAnalyzer : public DQMEDAnalyzer {
 
 
   int nChannels_[5]; // 0:any, 1:HB, 2:HE
+
+  int iphi_bins_;
+  float iphi_min_, iphi_max_;
+
+  int ieta_bins_;
+  float ieta_min_, ieta_max_;
 
   //RecHit Collection input tags
   edm::EDGetTokenT<HBHERecHitCollection> tok_hbhe_;

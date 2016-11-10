@@ -9,7 +9,6 @@ from copy import deepcopy
 # include "RecoTracker/TrackProducer/data/CTFFinalFitWithMaterial.cff"
 from RecoParticleFlow.PFProducer.particleFlowBlock_cfi import *
 
-from Configuration.StandardSequences.Eras import eras
 _phase2_hgcal_Importers = deepcopy(particleFlowBlock.elementImporters)
 # kill tracks in the HGCal
 _phase2_hgcal_Importers[5].importerName = cms.string('GeneralTracksImporterWithVeto')
@@ -39,7 +38,8 @@ _phase2_hgcal_Linkers = deepcopy(particleFlowBlock.linkDefinitions)
 #                  useKDTree  = cms.bool(False) )
 #)
 
-eras.phase2_hgcal.toModify(
+from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
+phase2_hgcal.toModify(
     particleFlowBlock,
     linkDefinitions = _phase2_hgcal_Linkers,
     elementImporters = _phase2_hgcal_Importers

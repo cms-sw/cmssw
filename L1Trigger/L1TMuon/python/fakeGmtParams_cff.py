@@ -19,7 +19,7 @@ gmtParams = cms.ESProducer('L1TMuonGlobalParamsESProducer',
     topCfgXmlFile = cms.string('L1Trigger/L1TMuon/data/o2o/ugmt/ugmt_top_config_p5.xml'),
     xmlCfgKey = cms.string('TestKey1'),
     # get configuration from DB and ignore values below this one
-    configFromXml = cms.bool(True),
+    configFromXml = cms.bool(False),
 
     #fwVersion = cms.uint32(1),
     fwVersion = cms.uint32(0x2020000),

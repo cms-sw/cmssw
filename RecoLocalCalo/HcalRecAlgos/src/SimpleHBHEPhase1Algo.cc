@@ -20,6 +20,7 @@ SimpleHBHEPhase1Algo::SimpleHBHEPhase1Algo(
     const int samplesToAdd,
     const float phaseNS,
     const float timeShift,
+    const bool correctForPhaseContainment,
     std::unique_ptr<PulseShapeFitOOTPileupCorrection> m2,
     std::unique_ptr<HcalDeterministicFit> detFit)
     : pulseCorr_(PulseContainmentFractionalError),
@@ -28,6 +29,7 @@ SimpleHBHEPhase1Algo::SimpleHBHEPhase1Algo(
       phaseNS_(phaseNS),
       timeShift_(timeShift),
       runnum_(0),
+      corrFPC_(correctForPhaseContainment),
       psFitOOTpuCorr_(std::move(m2)),
       hltOOTpuCorr_(std::move(detFit))
 {
@@ -61,25 +63,26 @@ HBHERecHit SimpleHBHEPhase1Algo::reconstruct(const HBHEChannelInfo& info,
         int ibeg = static_cast<int>(info.soi()) + firstSampleShift_;
         if (ibeg < 0)
             ibeg = 0;
-        const double fc_ampl = info.chargeInWindow(ibeg, ibeg + samplesToAdd_);
-        const bool applyContainment = params ? params->correctForPhaseContainment() : true;
+        const int nSamplesToAdd = params ? params->samplesToAdd() : samplesToAdd_;
+        const double fc_ampl = info.chargeInWindow(ibeg, ibeg + nSamplesToAdd);
+        const bool applyContainment = params ? params->correctForPhaseContainment() : corrFPC_;
         const float phasens = params ? params->correctionPhaseNS() : phaseNS_;
-        m0E = m0Energy(info, fc_ampl, applyContainment, phasens);
+        m0E = m0Energy(info, fc_ampl, applyContainment, phasens, nSamplesToAdd);
         m0E *= hbminusCorrectionFactor(channelId, m0E, isData);
-        m0t = m0Time(info, fc_ampl, calibs);
+        m0t = m0Time(info, fc_ampl, calibs, nSamplesToAdd);
     }
 
     // Run "Method 2"
-    float m2t = 0.f, m2E = 0.f;
+    float m2t = 0.f, m2E = 0.f, chi2 = -1.f;
     bool useTriple = false;
     const PulseShapeFitOOTPileupCorrection* method2 = psFitOOTpuCorr_.get();
     if (method2)
     {
         psFitOOTpuCorr_->setPulseShapeTemplate(theHcalPulseShapes_.getShape(info.recoShape()),
                                                !info.hasTimeInfo());
-        // "phase1Apply" call below sets m2E, m2t, and useTriple.
+        // "phase1Apply" call below sets m2E, m2t, useTriple, and chi2.
         // These parameters are pased by non-const reference.
-        method2->phase1Apply(info, m2E, m2t, useTriple);
+        method2->phase1Apply(info, m2E, m2t, useTriple, chi2);
         m2E *= hbminusCorrectionFactor(channelId, m2E, isData);
     }
 
@@ -112,6 +115,7 @@ HBHERecHit SimpleHBHEPhase1Algo::reconstruct(const HBHEChannelInfo& info,
     rh = HBHERecHit(channelId, rhE, rht, tdcTime);
     rh.setRawEnergy(m0E);
     rh.setAuxEnergy(m3E);
+    rh.setChiSquared(chi2);
 
     // Set rechit aux words
     HBHERecHitAuxSetter::setAux(info, &rh);
@@ -141,18 +145,19 @@ float SimpleHBHEPhase1Algo::hbminusCorrectionFactor(const HcalDetId& cell,
 float SimpleHBHEPhase1Algo::m0Energy(const HBHEChannelInfo& info,
                                      const double fc_ampl,
                                      const bool applyContainmentCorrection,
-                                     const double phaseNs)
+                                     const double phaseNs,
+                                     const int nSamplesToAdd)
 {
     int ibeg = static_cast<int>(info.soi()) + firstSampleShift_;
     if (ibeg < 0)
         ibeg = 0;
-    double e = info.energyInWindow(ibeg, ibeg + samplesToAdd_);
+    double e = info.energyInWindow(ibeg, ibeg + nSamplesToAdd);
 
     // Pulse containment correction
     {    
         double corrFactor = 1.0;
         if (applyContainmentCorrection)
-            corrFactor = pulseCorr_.get(info.id(), samplesToAdd_, phaseNs)->getCorrection(fc_ampl);
+            corrFactor = pulseCorr_.get(info.id(), nSamplesToAdd, phaseNs)->getCorrection(fc_ampl);
         e *= corrFactor;
     }
 
@@ -161,7 +166,8 @@ float SimpleHBHEPhase1Algo::m0Energy(const HBHEChannelInfo& info,
 
 float SimpleHBHEPhase1Algo::m0Time(const HBHEChannelInfo& info,
                                    const double fc_ampl,
-                                   const HcalCalibrations& calibs) const
+                                   const HcalCalibrations& calibs,
+                                   const int nSamplesToExamine) const
 {
     float time = -9999.f; // historic value
 
@@ -172,7 +178,7 @@ float SimpleHBHEPhase1Algo::m0Time(const HBHEChannelInfo& info,
         int ibeg = soi + firstSampleShift_;
         if (ibeg < 0)
             ibeg = 0;
-        const int iend = ibeg + samplesToAdd_;
+        const int iend = ibeg + nSamplesToExamine;
         unsigned maxI = info.peakEnergyTS(ibeg, iend);
         if (maxI < HBHEChannelInfo::MAXSAMPLES)
         {

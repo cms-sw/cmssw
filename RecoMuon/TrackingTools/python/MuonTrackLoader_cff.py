@@ -86,6 +86,6 @@ MuonTrackLoaderForCosmic = cms.PSet(
 
 # This customization will be removed once we get the templates for
 # phase2 pixel
-from Configuration.StandardSequences.Eras import eras
-eras.phase2_tracker.toModify(MuonTrackLoaderForGLB, TrackLoaderParameters = dict(TTRHBuilder = 'WithTrackAngle')) # FIXME
+from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
+phase2_tracker.toModify(MuonTrackLoaderForGLB, TrackLoaderParameters = dict(TTRHBuilder = 'WithTrackAngle')) # FIXME
 

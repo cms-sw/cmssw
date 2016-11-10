@@ -3,8 +3,8 @@
 
 <ConstantsSection label="fastTimingBarrel.xml" eval="true">
   <Constant name="zero" value="0.0*fm"/>
-  <Constant name="OuterCylinderRin"   value="1.223*m"/>
-  <Constant name="OuterCylinderRout"  value="[cms:TrackCalorR]"/>
+  <Constant name="OuterCylinderRin"   value="119*cm - 4*mm"/>
+  <Constant name="OuterCylinderRout"  value="119*cm"/>
   <Constant name="OuterCylinderL"     value="2.650*m"/>
   <Constant name="FastTimeBarrelRin"  value="[OuterCylinderRin]"/>
   <Constant name="FastTimeBarrelRout" value="[FastTimeBarrelRin]+4*mm"/>
@@ -29,7 +29,7 @@
 
 <PosPartSection label="fastTimingBarrel.xml">
   <PosPart copyNumber="1">
-    <rParent name="tracker:Tracker"/>
+    <rParent name="pixbar:Phase2OTBarrel"/>
     <rChild name="fastTimingBarrel:FastTimeBarrelCylinder"/>
   </PosPart>
   <PosPart copyNumber="1">
@@ -37,5 +37,16 @@
     <rChild name="fastTimingBarrel:FastTimeBarrel"/>
   </PosPart>
 </PosPartSection>
+
+<SpecParSection label="fastTimingBarrel.xml" eval="true">
+  <SpecPar name="fastTiminingBarrelNumbering">
+    <PartSelector path="//FastTimeBarrel"/>
+    <Parameter name="Volume" value="FastTimeBarrel" eval="false"/>
+    <Parameter name="geomParsB"  value="0*fm"/>
+    <Parameter name="geomParsB"  value="[fastTimingBarrel:FastTimeBarrelL]"/>
+    <Parameter name="numberZB"   value="265"/>
+    <Parameter name="numberPhiB" value="720"/>
+  </SpecPar>
+</SpecParSection>
 
 </DDDefinition>

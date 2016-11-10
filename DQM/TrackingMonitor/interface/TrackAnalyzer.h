@@ -90,9 +90,11 @@ class TrackAnalyzer
 	bool doMeasurementStatePlots_;
 	bool doHitPropertiesPlots_;
 	bool doRecHitVsPhiVsEtaPerTrack_;
+	bool doRecHitVsPtVsEtaPerTrack_;
 	// ADD by Mia
 	bool doLayersVsPhiVsEtaPerTrack_;
 	bool doTrackRecHitVsPhiVsEtaPerTrack_;
+	bool doTrackRecHitVsPtVsEtaPerTrack_;
 	bool doTrackLayersVsPhiVsEtaPerTrack_;
 	bool doTrack2DChi2Plots_;
 	bool doRecHitsPerTrackProfile_;
@@ -161,27 +163,37 @@ class TrackAnalyzer
 	    , NumberOfValidRecHitsPerTrackVsPhi(NULL)
 	    , NumberOfValidRecHitsPerTrackVsTheta(NULL)
 	    , NumberOfValidRecHitsPerTrackVsEta(NULL)
+	    , NumberOfValidRecHitsPerTrackVsPt(NULL)
 	    , NumberOfValidRecHitVsPhiVsEtaPerTrack(NULL)
+	    , NumberOfValidRecHitVsPtVsEtaPerTrack(NULL)
 
             , NumberOfLostRecHitsPerTrackVsPhi(NULL)
             , NumberOfLostRecHitsPerTrackVsTheta(NULL)
             , NumberOfLostRecHitsPerTrackVsEta(NULL)
+            , NumberOfLostRecHitsPerTrackVsPt(NULL)
             , NumberOfLostRecHitVsPhiVsEtaPerTrack(NULL)
+            , NumberOfLostRecHitVsPtVsEtaPerTrack(NULL)
 
             , NumberOfMIRecHitsPerTrackVsPhi(NULL)
             , NumberOfMIRecHitsPerTrackVsTheta(NULL)
             , NumberOfMIRecHitsPerTrackVsEta(NULL)
+            , NumberOfMIRecHitsPerTrackVsPt(NULL)
             , NumberOfMIRecHitVsPhiVsEtaPerTrack(NULL)
+            , NumberOfMIRecHitVsPtVsEtaPerTrack(NULL)
 
             , NumberOfMORecHitsPerTrackVsPhi(NULL)
             , NumberOfMORecHitsPerTrackVsTheta(NULL)
             , NumberOfMORecHitsPerTrackVsEta(NULL)
+            , NumberOfMORecHitsPerTrackVsPt(NULL)
             , NumberOfMORecHitVsPhiVsEtaPerTrack(NULL)
+            , NumberOfMORecHitVsPtVsEtaPerTrack(NULL)
     
 	    , NumberOfLayersPerTrackVsPhi(NULL)
 	    , NumberOfLayersPerTrackVsTheta(NULL)
 	    , NumberOfLayersPerTrackVsEta(NULL)
 
+            , Chi2oNDFVsNHits(NULL)
+            , Chi2oNDFVsPt(NULL)
 	    , Chi2oNDFVsEta(NULL)
 	    , Chi2oNDFVsPhi(NULL)
 	    , Chi2oNDFVsTheta(NULL)
@@ -227,27 +239,37 @@ class TrackAnalyzer
 	  MonitorElement* NumberOfValidRecHitsPerTrackVsPhi;
 	  MonitorElement* NumberOfValidRecHitsPerTrackVsTheta;
 	  MonitorElement* NumberOfValidRecHitsPerTrackVsEta;
+	  MonitorElement* NumberOfValidRecHitsPerTrackVsPt;
 	  MonitorElement* NumberOfValidRecHitVsPhiVsEtaPerTrack;
+	  MonitorElement* NumberOfValidRecHitVsPtVsEtaPerTrack;
 
           MonitorElement* NumberOfLostRecHitsPerTrackVsPhi;
           MonitorElement* NumberOfLostRecHitsPerTrackVsTheta;
           MonitorElement* NumberOfLostRecHitsPerTrackVsEta;
+          MonitorElement* NumberOfLostRecHitsPerTrackVsPt;
           MonitorElement* NumberOfLostRecHitVsPhiVsEtaPerTrack;
+          MonitorElement* NumberOfLostRecHitVsPtVsEtaPerTrack;
 
           MonitorElement* NumberOfMIRecHitsPerTrackVsPhi;
           MonitorElement* NumberOfMIRecHitsPerTrackVsTheta;
           MonitorElement* NumberOfMIRecHitsPerTrackVsEta;
+          MonitorElement* NumberOfMIRecHitsPerTrackVsPt;
           MonitorElement* NumberOfMIRecHitVsPhiVsEtaPerTrack;
+          MonitorElement* NumberOfMIRecHitVsPtVsEtaPerTrack;
 
           MonitorElement* NumberOfMORecHitsPerTrackVsPhi;
           MonitorElement* NumberOfMORecHitsPerTrackVsTheta;
           MonitorElement* NumberOfMORecHitsPerTrackVsEta;
+          MonitorElement* NumberOfMORecHitsPerTrackVsPt;
           MonitorElement* NumberOfMORecHitVsPhiVsEtaPerTrack;
+          MonitorElement* NumberOfMORecHitVsPtVsEtaPerTrack;
 
 	  MonitorElement* NumberOfLayersPerTrackVsPhi;
 	  MonitorElement* NumberOfLayersPerTrackVsTheta;
 	  MonitorElement* NumberOfLayersPerTrackVsEta;
 
+          MonitorElement* Chi2oNDFVsNHits;
+          MonitorElement* Chi2oNDFVsPt;
 	  MonitorElement* Chi2oNDFVsEta;
 	  MonitorElement* Chi2oNDFVsPhi;
 	  MonitorElement* Chi2oNDFVsTheta;
@@ -275,22 +297,30 @@ class TrackAnalyzer
 	MonitorElement* NumberOfValidRecHitsPerTrackVsPhi = nullptr;
 	MonitorElement* NumberOfValidRecHitsPerTrackVsTheta = nullptr;
 	MonitorElement* NumberOfValidRecHitsPerTrackVsEta = nullptr;
+	MonitorElement* NumberOfValidRecHitsPerTrackVsPt = nullptr;
 	MonitorElement* NumberOfValidRecHitVsPhiVsEtaPerTrack = nullptr;
+	MonitorElement* NumberOfValidRecHitVsPtVsEtaPerTrack = nullptr;
 
           MonitorElement* NumberOfLostRecHitsPerTrackVsPhi = nullptr;
           MonitorElement* NumberOfLostRecHitsPerTrackVsTheta = nullptr;
           MonitorElement* NumberOfLostRecHitsPerTrackVsEta = nullptr;
+          MonitorElement* NumberOfLostRecHitsPerTrackVsPt = nullptr;
           MonitorElement* NumberOfLostRecHitVsPhiVsEtaPerTrack = nullptr;
+          MonitorElement* NumberOfLostRecHitVsPtVsEtaPerTrack = nullptr;
 
           MonitorElement* NumberOfMIRecHitsPerTrackVsPhi = nullptr;
           MonitorElement* NumberOfMIRecHitsPerTrackVsTheta = nullptr;
           MonitorElement* NumberOfMIRecHitsPerTrackVsEta = nullptr;
+          MonitorElement* NumberOfMIRecHitsPerTrackVsPt = nullptr;
           MonitorElement* NumberOfMIRecHitVsPhiVsEtaPerTrack = nullptr;
+          MonitorElement* NumberOfMIRecHitVsPtVsEtaPerTrack = nullptr;
 
           MonitorElement* NumberOfMORecHitsPerTrackVsPhi = nullptr;
           MonitorElement* NumberOfMORecHitsPerTrackVsTheta = nullptr;
           MonitorElement* NumberOfMORecHitsPerTrackVsEta = nullptr;
+          MonitorElement* NumberOfMORecHitsPerTrackVsPt = nullptr;
           MonitorElement* NumberOfMORecHitVsPhiVsEtaPerTrack = nullptr;
+          MonitorElement* NumberOfMORecHitVsPtVsEtaPerTrack = nullptr;
 
           MonitorElement* ValidFractionPerTrack = nullptr;
           MonitorElement* ValidFractionVsPhiVsEtaPerTrack = nullptr;
@@ -308,7 +338,9 @@ class TrackAnalyzer
 	MonitorElement* Chi2Prob;
 	MonitorElement* Chi2oNDF;
 
-	MonitorElement* Chi2oNDFVsEta;
+        MonitorElement* Chi2oNDFVsNHits = nullptr;
+        MonitorElement* Chi2oNDFVsPt = nullptr;
+	MonitorElement* Chi2oNDFVsEta = nullptr;
 	MonitorElement* Chi2oNDFVsPhi;
 	MonitorElement* Chi2oNDFVsTheta;
 	

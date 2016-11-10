@@ -57,8 +57,9 @@ parseHBHEMethod2Description(const edm::ParameterSet& conf)
 static std::unique_ptr<HcalDeterministicFit>
 parseHBHEMethod3Description(const edm::ParameterSet& conf)
 {
-    const float iPedSubThreshold = conf.getParameter<double>("pedestalUpperLimit");
-    const int iTimeSlewParsType =  conf.getParameter<int>   ("timeSlewParsType");
+    const bool iApplyTimeSlew  =  conf.getParameter<bool>  ("applyTimeSlewM3");
+    const float iPedSubThreshold =  conf.getParameter<double>("pedestalUpperLimit");
+    const int iTimeSlewParsType  =  conf.getParameter<int>   ("timeSlewParsType");
     const double irespCorrM3 =     conf.getParameter<double>("respCorrM3");
     const std::vector<double>& iTimeSlewPars =
                      conf.getParameter<std::vector<double> >("timeSlewPars");
@@ -68,7 +69,7 @@ parseHBHEMethod3Description(const edm::ParameterSet& conf)
 
     std::unique_ptr<HcalDeterministicFit> fit = std::make_unique<HcalDeterministicFit>();
     fit->init( (HcalTimeSlew::ParaSource)iTimeSlewParsType,
-	       HcalTimeSlew::Medium,
+	       HcalTimeSlew::Medium, iApplyTimeSlew,
 	       pedSubFxn, iTimeSlewPars, irespCorrM3);
     return fit;
 }
@@ -96,6 +97,7 @@ parseHBHEPhase1AlgoDescription(const edm::ParameterSet& ps)
                                      ps.getParameter<int>   ("samplesToAdd"),
                                      ps.getParameter<double>("correctionPhaseNS"),
                                      ps.getParameter<double>("tdcTimeShift"),
+                                     ps.getParameter<bool>  ("correctForPhaseContainment"),
                                      std::move(m2), std::move(detFit))
             );
     }

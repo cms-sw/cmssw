@@ -251,10 +251,6 @@ class Dataset:
                     "chosen is greater than the upper time/runrange limit "
                     "('end'/'lastRun').")
             raise AllInOneError( msg )
-        if self.predefined() and (jsonPath or begin or end or firstRun or lastRun):
-            msg = ( "The parameters 'JSON', 'begin', 'end', 'firstRun', and 'lastRun'"
-                    "only work for official datasets, not predefined _cff.py files" )
-            raise AllInOneError( msg )
 
         lumiSecExtend = self.__lumiSelectionSnippet(jsonPath=jsonPath, firstRun=firstRun, lastRun=lastRun)
         lumiStr = goodLumiSecStr = ""
@@ -712,6 +708,10 @@ class Dataset:
 
     def datasetSnippet( self, jsonPath = None, begin = None, end = None,
                         firstRun = None, lastRun = None, crab = False, parent = False ):
+        if self.__predefined and (jsonPath or begin or end or firstRun or lastRun):
+            msg = ( "The parameters 'JSON', 'begin', 'end', 'firstRun', and 'lastRun' "
+                    "only work for official datasets, not predefined _cff.py files" )
+            raise AllInOneError( msg )
         if self.__predefined and parent:
                 with open(self.__filename) as f:
                     if "secFiles.extend" not in f.read():

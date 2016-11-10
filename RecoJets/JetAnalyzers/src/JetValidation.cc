@@ -175,7 +175,6 @@ void JetValidation::analyze(edm::Event const& evt, edm::EventSetup const& iSetup
           e = MatchedJet.energy();
           pt = MatchedJet.pt();
           eta = MatchedJet.eta();
-          phi = MatchedJet.phi();
           emEB = MatchedJet.emEnergyInEB();
           emEE = MatchedJet.emEnergyInEE();
           emHF = MatchedJet.emEnergyInHF();

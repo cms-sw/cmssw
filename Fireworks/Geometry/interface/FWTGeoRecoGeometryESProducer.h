@@ -15,6 +15,7 @@ namespace edm
 class CaloGeometry;
 class GlobalTrackingGeometry;
 class TrackerGeometry;
+class TrackerTopology;
 class FWTGeoRecoGeometry;
 class FWTGeoRecoGeometryRecord;
 
@@ -30,7 +31,7 @@ class FWTGeoRecoGeometryESProducer : public edm::ESProducer
    enum ERecoDet  {kDummy, 
                    kSiPixel, kSiStrip,
                    kMuonDT, kMuonRPC, kMuonCSC, kMuonGEM, kMuonME0,
-                   kECal, kHCal,
+                   kECal, kHCal, kCaloTower,
                    kHGCE, kHGCH };
 public:
    FWTGeoRecoGeometryESProducer( const edm::ParameterSet& );
@@ -67,6 +68,9 @@ private:
    void addEcalCaloGeometry();
    void addHcalCaloGeometryBarrel();
    void addHcalCaloGeometryEndcap();
+   void addHcalCaloGeometryOuter();
+   void addHcalCaloGeometryForward();
+   void addCaloTowerGeometry();
   
    std::map<std::string, TGeoShape*>    m_nameToShape;
    std::map<TGeoShape*, TGeoVolume*>   m_shapeToVolume;
@@ -75,6 +79,7 @@ private:
    edm::ESHandle<GlobalTrackingGeometry> m_geomRecord;
    edm::ESHandle<CaloGeometry>           m_caloGeom;
    const TrackerGeometry* m_trackerGeom;
+   const TrackerTopology* m_trackerTopology;
   
    std::shared_ptr<FWTGeoRecoGeometry> m_fwGeometry;
 

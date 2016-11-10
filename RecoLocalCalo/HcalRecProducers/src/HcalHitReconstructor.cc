@@ -278,6 +278,7 @@ HcalHitReconstructor::HcalHitReconstructor(edm::ParameterSet const& conf):
 			  );
   }
   reco_.setMeth3Params(
+	    conf.getParameter<bool>    ("applyTimeSlewM3"),
             conf.getParameter<double>  ("pedestalUpperLimit"),
             conf.getParameter<int>     ("timeSlewParsType"),
             conf.getParameter<std::vector<double> >("timeSlewPars"),
@@ -290,6 +291,7 @@ HcalHitReconstructor::HcalHitReconstructor(edm::ParameterSet const& conf):
 void HcalHitReconstructor::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.setAllowAnything();
+  desc.add<bool>("applyTimeSlewM3", true);
   desc.add<double>("pedestalUpperLimit", 2.7); 
   desc.add<int>("timeSlewParsType",3);
   desc.add<std::vector<double>>("timeSlewPars", { 12.2999, -2.19142, 0, 12.2999, -2.19142, 0, 12.2999, -2.19142, 0 });
@@ -554,7 +556,8 @@ void HcalHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSe
 	auxflag+=((i->sample(fTS2).capid())<<28);
 	(rec->back()).setAuxHBHE(auxflag);
 
-	(rec->back()).setFlags(0);  // this sets all flag bits to 0
+	// (rec->back()).setFlags(0);  Don't want to do this because the algorithm
+        //                             can already set some flags
 	// Set presample flag
 	if (fTS>0)
 	  (rec->back()).setFlagField((i->sample(fTS-1).adc()), HcalCaloFlagLabels::PresampleADC,7);
@@ -660,7 +663,8 @@ void HcalHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSe
 	// bits 28 and 29 are reserved for capid of the first time slice saved in aux
 	auxflag+=((i->sample(fTS).capid())<<28);
 	(rec->back()).setAux(auxflag);
-	(rec->back()).setFlags(0);
+	// (rec->back()).setFlags(0);  Don't want to do this because the algorithm
+        //                             can already set some flags
 	// Fill Presample ADC flag
 	if (fTS>0)
 	  (rec->back()).setFlagField((i->sample(fTS-1).adc()), HcalCaloFlagLabels::PresampleADC,7);
@@ -759,8 +763,8 @@ void HcalHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSe
 	auxflag+=((i->sample(fTS).capid())<<28);
 	(rec->back()).setAux(auxflag);
 
-	// Clear flags
-	(rec->back()).setFlags(0);
+	// (rec->back()).setFlags(0);  Don't want to do this because the algorithm
+        //                             can already set some flags
 
 	// Fill Presample ADC flag
 	if (fTS>0)

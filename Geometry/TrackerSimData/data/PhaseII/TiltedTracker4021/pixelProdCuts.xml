@@ -8,6 +8,7 @@ note: see OT_Tilted_362_200_Pixel_4021_2016_08_09.cfg for full config files
 =========== END XML GENERATION METADATA HEADER ===========
 -->
 <DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+  <!-- WARNING : ARE THE VALUES FOR ProdCutsForElectrons, ProdCutsForPositrons AND ProdCutsForGamma CORRECT IN THIS FILE ? -->
   <SpecParSection label="trackerProdCuts.xml" eval="true">
     <SpecPar name="tracker-dead-pixel">
       <PartSelector path="//pixbar:Phase1PixelBarrel"/>

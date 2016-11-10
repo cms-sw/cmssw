@@ -67,5 +67,6 @@ class UMNioTask : public hcaldqm::DQTask
 		//	1D
 		hcaldqm::ContainerSingle2D		_cEventType;
 		hcaldqm::ContainerSingle2D		_cTotalCharge;
+		hcaldqm::ContainerSingleProf2D		_cTotalChargeProfile;
 };
 #endif

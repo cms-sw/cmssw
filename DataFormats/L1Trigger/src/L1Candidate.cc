@@ -41,55 +41,6 @@ l1t::L1Candidate::~L1Candidate()
 
 }
 
-void l1t::L1Candidate::setHwPt(int pt)
-{
-  hwPt_ = pt;
-}
-
-void l1t::L1Candidate::setHwEta(int eta)
-{
-  hwEta_ = eta;
-}
-
-void l1t::L1Candidate::setHwPhi(int phi)
-{
-  hwPhi_ = phi;
-}
-
-void l1t::L1Candidate::setHwIso(int iso)
-{
-  hwIso_ = iso;
-}
-
-void l1t::L1Candidate::setHwQual(int qual)
-{
-  hwQual_ = qual;
-}
-
-int l1t::L1Candidate::hwPt() const
-{
-  return hwPt_;
-}
-
-int l1t::L1Candidate::hwEta() const
-{
-  return hwEta_;
-}
-
-int l1t::L1Candidate::hwPhi() const
-{
-  return hwPhi_;
-}
-
-int l1t::L1Candidate::hwIso() const
-{
-  return hwIso_;
-}
-
-int l1t::L1Candidate::hwQual() const
-{
-  return hwQual_;
-}
 
 
 

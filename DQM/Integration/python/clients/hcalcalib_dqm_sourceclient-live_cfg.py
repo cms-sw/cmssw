@@ -105,6 +105,7 @@ process.load("DQM.HcalTasks.LaserTask")
 process.load("DQM.HcalTasks.UMNioTask")
 process.load('DQM.HcalTasks.HcalOnlineHarvesting')
 process.load("DQM.HcalTasks.HFRaddamTask")
+process.load('DQM.HcalTasks.QIE11Task')
 
 #-------------------------------------
 #	To force using uTCA
@@ -157,6 +158,22 @@ process.hbmmegaTask = process.laserTask.clone()
 process.hbmmegaTask.name = cms.untracked.string("HBMMegaTask")
 process.hbmmegaTask.laserType = cms.untracked.uint32(10)
 
+process.qie11Task_laser = process.qie11Task.clone()
+process.qie11Task_laser.name = cms.untracked.string("QIE11Task_laser")
+process.qie11Task_laser.runkeyVal = runType
+process.qie11Task_laser.runkeyName = runTypeName
+process.qie11Task_laser.tagQIE11 = cms.untracked.InputTag("hcalDigis")
+process.qie11Task_laser.subsystem = cms.untracked.string("HcalCalib")
+process.qie11Task_laser.laserType = cms.untracked.int32(12)
+
+process.qie11Task_pedestal = process.qie11Task.clone()
+process.qie11Task_pedestal.name = cms.untracked.string("QIE11Task_pedestal")
+process.qie11Task_pedestal.runkeyVal = runType
+process.qie11Task_pedestal.runkeyName = runTypeName
+process.qie11Task_pedestal.tagQIE11 = cms.untracked.InputTag("hcalDigis")
+process.qie11Task_pedestal.subsystem = cms.untracked.string("HcalCalib")
+process.qie11Task_pedestal.eventType = cms.untracked.int32(1)
+
 #-------------------------------------
 #	Hcal DQM Tasks Sequence Definition
 #-------------------------------------
@@ -172,6 +189,8 @@ process.tasksSequence = cms.Sequence(
 		*process.hbpmegaTask
 		*process.hbmmegaTask
 		*process.umnioTask
+		*process.qie11Task_laser
+		*process.qie11Task_pedestal
 )
 
 process.harvestingSequence = cms.Sequence(

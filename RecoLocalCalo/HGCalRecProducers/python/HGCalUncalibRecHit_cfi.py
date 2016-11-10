@@ -41,7 +41,8 @@ HGCalUncalibRecHit = cms.EDProducer(
     HGCHEBConfig = cms.PSet(
         isSiFE  = cms.bool(False),
         adcNbits      = hgchebackDigitizer.digiCfg.feCfg.adcNbits,
-        adcSaturation = hgchebackDigitizer.digiCfg.feCfg.adcSaturation_fC
+        adcSaturation = hgchebackDigitizer.digiCfg.feCfg.adcSaturation_fC,
+        fCPerMIP      = cms.vdouble(1.0,1.0,1.0) #dummy values, it's scintillator
         ),
 
     algo = cms.string("HGCalUncalibRecHitWorkerWeights")

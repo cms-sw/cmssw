@@ -5,22 +5,27 @@
 #
 
 import FWCore.ParameterSet.Config as cms
-from Configuration.StandardSequences.Eras import eras
+from Configuration.Eras.Modifier_run2_HI_specific_cff import run2_HI_specific
+#from Configuration.Eras.Era_Run2_2016_pA_cff import Run2_2016_pA
+from Configuration.Eras.Modifier_pA_2016_cff import pA_2016
+
 
 #
 # Legacy Trigger:  No Hacks Needed
 #
-#if not (eras.stage1L1Trigger.isChosen() or eras.stage2L1Trigger.isChosen()):
+from Configuration.Eras.Modifier_stage1L1Trigger_cff import stage1L1Trigger
+from Configuration.Eras.Modifier_stage2L1Trigger_cff import stage2L1Trigger
+#if not (stage1L1Trigger.isChosen() or stage2L1Trigger.isChosen()):
 #    print "L1TCalorimeter conditions configured for Run1 (Legacy) trigger. "
 # 
 
 #
 # Stage-1 Trigger
 #
-if eras.stage1L1Trigger.isChosen() and not eras.stage2L1Trigger.isChosen():
+if stage1L1Trigger.isChosen() and not stage2L1Trigger.isChosen():
     print "L1TCalorimeter Conditions configured for Stage-1 (2015) trigger. "    
     # Switch between HI and PP calo configuration:
-    if (eras.run2_HI_specific.isChosen()):
+    if (run2_HI_specific.isChosen()):
         from L1Trigger.L1TCalorimeter.caloConfigStage1HI_cfi import *
     else:
         from L1Trigger.L1TCalorimeter.caloConfigStage1PP_cfi import *
@@ -31,12 +36,13 @@ if eras.stage1L1Trigger.isChosen() and not eras.stage2L1Trigger.isChosen():
 #
 # Stage-2 Trigger
 #
-if eras.stage2L1Trigger.isChosen():
-    print "L1TCalorimeter Conditions configured for Stage-2 (2016) trigger. "
-    
-    # from L1Trigger.L1TCalorimeter.simCaloStage2Layer1Digis_cfi import simCaloStage2Layer1Digis    
-    
-    from L1Trigger.L1TCalorimeter.caloStage2Params_2016_v3_2_cfi import *    
+if stage2L1Trigger.isChosen():
+    if pA_2016.isChosen():
+        print "L1TCalorimeter Conditions configured for Stage-2 (2016 pA) trigger. "
+        from L1Trigger.L1TCalorimeter.caloStage2Params_2016_v3_3_HI_cfi import *    
+    else:
+        print "L1TCalorimeter Conditions configured for Stage-2 (2016) trigger. "
+        from L1Trigger.L1TCalorimeter.caloStage2Params_2016_v3_3_cfi import *    
     
     # What about CaloConfig?  Related:  How will we switch PP/HH?
     #

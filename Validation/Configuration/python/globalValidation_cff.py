@@ -94,8 +94,8 @@ globalValidation = cms.Sequence(   trackerHitsValidation
 )
 
 
-from Configuration.StandardSequences.Eras import eras
-if eras.fastSim.isChosen():
+from Configuration.Eras.Modifier_fastSim_cff import fastSim
+if fastSim.isChosen():
     # fastsim has no tracker digis and different tracker rechit and simhit structure => skipp
     globalValidation.remove(trackerHitsValidation)
     globalValidation.remove(trackerDigisValidation)
@@ -140,6 +140,16 @@ globalPrevalidationJetMETOnly = cms.Sequence(
 				  +metPreValidSeq
 )
 
+globalPrevalidationHCAL = cms.Sequence()
+
+globalValidationHCAL = cms.Sequence(
+      hcalSimHitsValidationSequence
+    + hcaldigisValidationSequence
+    + hcalSimHitStudy
+    + hcalRecHitsValidationSequence
+    + calotowersValidationSequence
+)
+
 globalPrevalidationMuons = cms.Sequence(
       gemSimValid
     + me0SimValid
@@ -161,6 +171,7 @@ _run3_globalValidation += gemSimValid
 _phase2_globalValidation = _run3_globalValidation.copy()
 _phase2_globalValidation += me0SimValid
 
-from Configuration.StandardSequences.Eras import eras
-eras.run3_GEM.toReplaceWith( globalValidation, _run3_globalValidation )
-eras.phase2_muon.toReplaceWith( globalValidation, _phase2_globalValidation )
+from Configuration.Eras.Modifier_run3_GEM_cff import run3_GEM
+run3_GEM.toReplaceWith( globalValidation, _run3_globalValidation )
+from Configuration.Eras.Modifier_phase2_muon_cff import phase2_muon
+phase2_muon.toReplaceWith( globalValidation, _phase2_globalValidation )

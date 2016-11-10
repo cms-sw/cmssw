@@ -16,10 +16,10 @@ from EventFilter.HcalRawToDigi.hcalDigiToRawuHTR_cfi import hcalDigiToRawuHTR as
 _phase1_hcalRawData = hcalRawData.copy()
 _phase1_hcalRawData += hcalRawDatauHTR
 
-from Configuration.StandardSequences.Eras import eras
-eras.run2_HCAL_2017.toModify( hcalRawDataVME,
+from Configuration.Eras.Modifier_run2_HCAL_2017_cff import run2_HCAL_2017
+run2_HCAL_2017.toModify( hcalRawDataVME,
     HBHE = cms.untracked.InputTag(""),
     HF = cms.untracked.InputTag(""),
     TRIG = cms.untracked.InputTag("")
 )
-eras.run2_HCAL_2017.toReplaceWith(hcalRawData,_phase1_hcalRawData)
+run2_HCAL_2017.toReplaceWith(hcalRawData,_phase1_hcalRawData)

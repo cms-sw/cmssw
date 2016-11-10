@@ -50,8 +50,8 @@ def miniAOD_customizeMETFiltersFastSim(process):
         process.globalReplace(X, cms.EDFilter("HLTBool", result=cms.bool(False)))
     return process
 
-from Configuration.StandardSequences.Eras import eras
-eras.phase2_hgcal.toReplaceWith( Flag_HBHENoiseFilter, cms.Path() )
-eras.phase2_hgcal.toReplaceWith( Flag_HBHENoiseIsoFilter, cms.Path() )
-eras.phase2_hgcal.toReplaceWith( Flag_eeBadScFilter, cms.Path() )
+from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
+phase2_hgcal.toReplaceWith( Flag_HBHENoiseFilter, cms.Path() )
+phase2_hgcal.toReplaceWith( Flag_HBHENoiseIsoFilter, cms.Path() )
+phase2_hgcal.toReplaceWith( Flag_eeBadScFilter, cms.Path() )
 

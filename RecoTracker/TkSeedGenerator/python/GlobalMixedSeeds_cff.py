@@ -1,5 +1,4 @@
 import FWCore.ParameterSet.Config as cms
-from Configuration.StandardSequences.Eras import eras
 
 # initialize magnetic field #########################
 # initialize geometry #####################
@@ -26,6 +25,7 @@ globalMixedSeeds = RecoTracker.TkSeedGenerator.SeedGeneratorFromRegionHitsEDProd
        maxElement = cms.uint32(1000000)
     )
 )
-eras.trackingPhase1PU70.toModify(globalMixedSeeds,
+from Configuration.Eras.Modifier_trackingPhase1PU70_cff import trackingPhase1PU70
+trackingPhase1PU70.toModify(globalMixedSeeds,
     OrderedHitsFactoryPSet = dict(maxElement = 0),
 )

@@ -309,11 +309,19 @@ namespace hcaldqm
 		 */
 		uint32_t hash_FED(HcalElectronicsId const& eid)
 		{
-			return eid.isVMEid() ?
-				utilities::hash(HcalElectronicsId(
-					FIBERCH_MIN, FIBER_VME_MIN, SPIGOT_MIN, eid.dccid())) :
-				utilities::hash(HcalElectronicsId(eid.crateId(),
-					SLOT_uTCA_MIN, FIBER_uTCA_MIN1, FIBERCH_MIN, false));
+            if (eid.isVMEid())
+				return utilities::hash(HcalElectronicsId(
+					FIBERCH_MIN, FIBER_VME_MIN, SPIGOT_MIN, eid.dccid()));
+            else
+            {
+                //  tmp - we need to hash HF's FEDs with slot in mind
+                bool isHF = eid.crateId()==22 || eid.crateId()==29 || eid.crateId()==32;
+                //  for HF, slot number is either
+                int slotToUse = eid.slot()>6 ? SLOT_uTCA_MIN+6 :  SLOT_uTCA_MIN;
+                return utilities::hash(HcalElectronicsId(eid.crateId(),
+					isHF ? slotToUse : SLOT_uTCA_MIN, 
+                    FIBER_uTCA_MIN1, FIBERCH_MIN, false));
+            }
 		}
 
 		uint32_t hash_FEDSpigot(HcalElectronicsId const& eid)
@@ -418,7 +426,7 @@ namespace hcaldqm
 		{
 			char name[10];
 			sprintf(name, "FED%d", eid.isVMEid() ? eid.dccid()+700 :
-				utilities::crate2fed(eid.crateId()));
+				utilities::crate2fed(eid.crateId(),eid.slot()));
 			return std::string(name);
 		}
 
@@ -426,8 +434,11 @@ namespace hcaldqm
 		{
 			int fed = std::stoi(name.substr(3,name.length()-3),nullptr);
 			if (fed>=constants::FED_uTCA_MIN)
-				return HcalElectronicsId(utilities::fed2crate(fed),
-					SLOT_uTCA_MIN, FIBER_uTCA_MIN1, FIBERCH_MIN, false).rawId();
+            {
+                std::pair<uint16_t, uint16_t> cspair = utilities::fed2crate(fed);
+				return HcalElectronicsId(cspair.first,
+					cspair.second, FIBER_uTCA_MIN1, FIBERCH_MIN, false).rawId();
+            }
 			else
 				return HcalElectronicsId(FIBERCH_MIN,
 					FIBER_VME_MIN, SPIGOT_MIN, fed-FED_VME_MIN).rawId();
@@ -440,7 +451,7 @@ namespace hcaldqm
 			char name[20];
 			sprintf(name, "FED%dS%d",
 				eid.isVMEid()?eid.dccid()+700:
-				utilities::crate2fed(eid.crateId()),
+				utilities::crate2fed(eid.crateId(),eid.slot()),
 				eid.isVMEid()?eid.spigot():eid.slot());
 			return std::string(name);
 		}
@@ -451,8 +462,11 @@ namespace hcaldqm
 			int fed = std::stoi(name.substr(3, pos-3), nullptr);
 			int s = std::stoi(name.substr(pos+1, name.length()-pos-1), nullptr);
 			if (fed>=FED_uTCA_MIN)
-				return HcalElectronicsId(utilities::fed2crate(fed),
-					s, FIBER_uTCA_MIN1, FIBERCH_MIN, false).rawId();
+            {
+                std::pair<uint16_t, uint16_t> cspair = utilities::fed2crate(fed);
+				return HcalElectronicsId(cspair.first,
+					cspair.second, FIBER_uTCA_MIN1, FIBERCH_MIN, false).rawId();
+            }
 			else
 				return HcalElectronicsId(FIBERCH_MIN,
 					FIBER_VME_MIN, s, fed-FED_VME_MIN).rawId();
@@ -465,7 +479,7 @@ namespace hcaldqm
 			char name[20];
 			sprintf(name, "FED%dS%d",
 				eid.isVMEid()?eid.dccid()+700:
-				utilities::crate2fed(eid.crateId()),
+				utilities::crate2fed(eid.crateId(),eid.slot()),
 				eid.isVMEid()?eid.spigot():eid.slot());
 			return std::string(name);
 		}
@@ -476,8 +490,11 @@ namespace hcaldqm
 			int fed = std::stoi(name.substr(3, pos-3), nullptr);
 			int s = std::stoi(name.substr(pos+1, name.length()-pos-1), nullptr);
 			if (fed>=FED_uTCA_MIN)
-				return HcalElectronicsId(utilities::fed2crate(fed),
-					s, FIBER_uTCA_MIN1, FIBERCH_MIN, false).rawId();
+            {
+                std::pair<uint16_t, uint16_t> cspair = utilities::fed2crate(fed);
+				return HcalElectronicsId(cspair.first,
+				    cspair.second, FIBER_uTCA_MIN1, FIBERCH_MIN, false).rawId();
+            }
 			else
 				return HcalElectronicsId(FIBERCH_MIN,
 					FIBER_VME_MIN, s, fed-FED_VME_MIN).rawId();

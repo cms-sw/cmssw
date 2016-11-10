@@ -65,15 +65,11 @@ struct vertex_t{
              std::vector<track_t> & tks,
              std::vector<vertex_t> & y,
              double threshold ) const;
-
- double update( double beta,
-                std::vector<track_t> & tks,
-                std::vector<vertex_t> & y ) const;
-
+ 
  double update(double beta,
                std::vector<track_t> & tks,
                std::vector<vertex_t> & y,
-               double &rho0 )const;
+               const double rho0 = 0.0 )const;
 
   void dump(const double beta, const std::vector<vertex_t> & y, const std::vector<track_t> & tks, const int verbosity=0) const;
   bool merge(std::vector<vertex_t> &,int ) const;
@@ -95,6 +91,7 @@ private:
   float vertexSize_;
   int maxIterations_;
   double coolingFactor_;
+  double logCoolingFactor_;
   float betamax_;
   float betastop_;
   double dzCutOff_;

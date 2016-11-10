@@ -52,9 +52,7 @@ HcalTrigPrimDigiProducer::HcalTrigPrimDigiProducer(const edm::ParameterSet& ps)
 
    if (ps.exists("parameters")) {
       auto pset = ps.getUntrackedParameter<edm::ParameterSet>("parameters");
-      theAlgo_.overrideParameters(pset.getParameter<unsigned long long>("TDCMask"),
-                                  pset.getParameter<unsigned int>("ADCThreshold"),
-                                  pset.getParameter<unsigned int>("FGThreshold"));
+      theAlgo_.overrideParameters(pset);
    }
    theAlgo_.setUpgradeFlags(upgrades[0], upgrades[1], upgrades[2]);
 
@@ -196,13 +194,13 @@ void HcalTrigPrimDigiProducer::produce(edm::Event& iEvent, const edm::EventSetup
 
   // Step C: Invoke the algorithm, passing in inputs and getting back outputs.
   if (legacy_ and not upgrade_) {
-     theAlgo_.run(inputCoder.product(), outTranscoder->getHcalCompressor().get(),
+     theAlgo_.run(inputCoder.product(), outTranscoder->getHcalCompressor().get(), pSetup.product(),
            *result, &(*pG), rctlsb, hfembit, *hbheDigis, *hfDigis);
   } else if (legacy_ and upgrade_) {
-     theAlgo_.run(inputCoder.product(), outTranscoder->getHcalCompressor().get(),
+     theAlgo_.run(inputCoder.product(), outTranscoder->getHcalCompressor().get(), pSetup.product(),
            *result, &(*pG), rctlsb, hfembit, *hbheDigis, *hfDigis, *hbheUpDigis, *hfUpDigis);
   } else {
-     theAlgo_.run(inputCoder.product(), outTranscoder->getHcalCompressor().get(),
+     theAlgo_.run(inputCoder.product(), outTranscoder->getHcalCompressor().get(), pSetup.product(),
            *result, &(*pG), rctlsb, hfembit, *hbheUpDigis, *hfUpDigis);
   }
 
