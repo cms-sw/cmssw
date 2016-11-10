@@ -229,5 +229,10 @@ def create_parser():
                       type="int",
                       help="number of parallel tasks to span",
                       default=10)
+    parser.add_option("--memcheck", 
+                      dest="memCheck",
+                      action='store_true',
+                      help="Activate memory checks per event",
+                      default=False)
 
     return parser
