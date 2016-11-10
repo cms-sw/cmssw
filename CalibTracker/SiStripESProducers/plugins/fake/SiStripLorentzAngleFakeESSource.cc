@@ -21,6 +21,7 @@
 
 // system include files
 #include <memory>
+#include <numeric>
 
 // user include files
 #include "FWCore/Framework/interface/ESProducer.h"
