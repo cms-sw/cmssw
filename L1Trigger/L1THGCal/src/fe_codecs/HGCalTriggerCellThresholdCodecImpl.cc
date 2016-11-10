@@ -15,7 +15,6 @@ HGCalTriggerCellThresholdCodecImpl(const edm::ParameterSet& conf) :
     triggerCellTruncationBits_(conf.getParameter<uint32_t>("triggerCellTruncationBits")),
     TCThreshold_fC_(conf.getParameter<double>("TCThreshold_fC"))
 {
-  // Cannot have more selected cells than the max number of cells
   adcLSB_ =  adcsaturation_/pow(2.,adcnBits_);
   tdcLSB_ =  tdcsaturation_/pow(2.,tdcnBits_);
   triggerCellSaturationBits_ = triggerCellTruncationBits_ + dataLength_;
@@ -124,7 +123,7 @@ decode(const std::vector<bool>& data, const uint32_t module, const HGCalTriggerG
                 math::PtEtaPhiMLorentzVector p4((double)value/cosh(point.eta()), point.eta(), point.phi(), 0.);
                 result.payload.back().setP4(p4);
                 result.payload.back().setPosition(point);
-      }
+            }
         }
         index++;
     }
@@ -148,7 +147,7 @@ linearize(const std::vector<HGCDataFrame<HGCalDetId,HGCSample>>& dataframes,
             amplitude = double(frame[2].data()) * adcLSB_;
         }
 
-        amplitude_int = uint32_t (floor(amplitude/linLSB_+0.5));  
+        amplitude_int = uint32_t (floor(amplitude/linLSB_+0.5)); 
         if (amplitude_int>65535) amplitude_int = 65535;
 
         linearized_dataframes.push_back(std::make_pair (frame.id(), amplitude_int));
