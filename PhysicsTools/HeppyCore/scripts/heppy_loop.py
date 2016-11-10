@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 if __name__ == '__main__':
-    from heppy.framework.heppy_loop import * 
+    from PhysicsTools.HeppyCore.framework.heppy_loop import * 
     parser = create_parser()
     (options,args) = parser.parse_args()
 
