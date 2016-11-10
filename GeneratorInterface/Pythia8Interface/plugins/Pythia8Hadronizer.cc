@@ -286,13 +286,6 @@ Pythia8Hadronizer::Pythia8Hadronizer(const edm::ParameterSet &params) :
                                EV1_emittedMode, EV1_pTdefMode, EV1_MPIvetoOn, 0));
   }
   
-  // Resonance scale hook
-  //
-  if ( params.exists("PowhegRes") )
-  {
-    fPowhegResHook.reset(new PowhegResHook());
-  }
-  
 }
 
 
@@ -345,10 +338,6 @@ bool Pythia8Hadronizer::initializeForInternalPartons()
     edm::LogInfo("Pythia8Interface") << "Turning on Emission Veto Hook 1 from CMSSW Pythia8Interface";
     fMultiUserHook->addHook(fEmissionVetoHook1.get());
   }
-  if(fPowhegResHook.get()) {
-    edm::LogInfo("Pythia8Interface") << "Turning on resonance scale setting from CMSSW Pythia8Interface";
-    fMultiUserHook->addHook(fPowhegResHook.get());
-  }
   
   if (fMasterGen->settings.mode("POWHEG:veto") > 0 || fMasterGen->settings.mode("POWHEG:MPIveto") > 0) {
 
@@ -360,6 +349,13 @@ bool Pythia8Hadronizer::initializeForInternalPartons()
 
     edm::LogInfo("Pythia8Interface") << "Turning on Emission Veto Hook from pythia8 code";
     fMultiUserHook->addHook(fEmissionVetoHook.get());
+  }
+  
+  bool PowhegRes = fMasterGen->settings.flag("POWHEGres:calcScales");
+  if (PowhegRes) {
+    edm::LogInfo("Pythia8Interface") << "Turning on resonance scale setting from CMSSW Pythia8Interface";
+    fPowhegResHook.reset(new PowhegResHook());
+    fMultiUserHook->addHook(fPowhegResHook.get());
   }
   
   //adapted from main89.cc in pythia8 examples
@@ -483,10 +479,6 @@ bool Pythia8Hadronizer::initializeForExternalPartons()
     edm::LogInfo("Pythia8Interface") << "Turning on Emission Veto Hook 1 from CMSSW Pythia8Interface";
     fMultiUserHook->addHook(fEmissionVetoHook1.get());
   }
-  if(fPowhegResHook.get()) {
-    edm::LogInfo("Pythia8Interface") << "Turning on resonance scale setting from CMSSW Pythia8Interface";
-    fMultiUserHook->addHook(fPowhegResHook.get());
-  }
   
   if (fMasterGen->settings.mode("POWHEG:veto") > 0 || fMasterGen->settings.mode("POWHEG:MPIveto") > 0) {
 
@@ -498,6 +490,13 @@ bool Pythia8Hadronizer::initializeForExternalPartons()
 
     edm::LogInfo("Pythia8Interface") << "Turning on Emission Veto Hook from pythia8 code";
     fMultiUserHook->addHook(fEmissionVetoHook.get());
+  }
+  
+  bool PowhegRes = fMasterGen->settings.flag("POWHEGres:calcScales");
+  if (PowhegRes) {
+    edm::LogInfo("Pythia8Interface") << "Turning on resonance scale setting from CMSSW Pythia8Interface";
+    fPowhegResHook.reset(new PowhegResHook());
+    fMultiUserHook->addHook(fPowhegResHook.get());
   }
   
   //adapted from main89.cc in pythia8 examples
