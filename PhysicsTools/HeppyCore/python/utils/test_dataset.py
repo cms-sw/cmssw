@@ -1,4 +1,5 @@
 from dataset import * 
+import eostools
 
 import unittest 
 import os 
@@ -29,10 +30,13 @@ class TestDataset(unittest.TestCase):
         # shutil.rmtree('datasets')
 
     def test_eos(self):
+        cbern = '/eos/cms/store/cmst3/user/cbern'
         if not 'CMSSW_BASE' in os.environ:
             return
+        if not eostools.fileExists(cbern): 
+            return 
         ds1 = EOSDataset('/EOSTests/ds1', 
-                         '/eos/cms/store/cmst3/user/cbern',
+                         cbern,
                          '.*root') 
         self.assertEqual(len(ds1.listOfGoodFiles()), 10)
 
