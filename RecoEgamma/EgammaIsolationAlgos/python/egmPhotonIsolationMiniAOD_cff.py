@@ -20,13 +20,13 @@ IsoConeDefinitions = cms.VPSet(cms.PSet( isolationAlgo = cms.string('PhotonPFIso
                                     )
     )
 
-egmPhotonIsolationMiniAOD = cms.EDProducer( "CITKPFIsolationSumProducer",
-			  srcToIsolate = cms.InputTag("slimmedPhotons"),
-			  srcForIsolationCone = cms.InputTag('packedPFCandidates'),
-			  isolationConeDefinitions = IsoConeDefinitions
-  )	
+egmPhotonIsolation = cms.EDProducer( "CITKPFIsolationSumProducer",
+                                     srcToIsolate = cms.InputTag("slimmedPhotons"),
+                                     srcForIsolationCone = cms.InputTag('packedPFCandidates'),
+                                     isolationConeDefinitions = IsoConeDefinitions
+                                     )	
 
 # The sequence defined here contains only one module. This is to keep the structure
 # uniform with the AOD case where there are more modules in the analogous sequence.
-egmPhotonIsolationMiniAODSequence = cms.Sequence( egmPhotonIsolationMiniAOD )
+egmPhotonIsolationMiniAODSequence = cms.Sequence( egmPhotonIsolation )
 

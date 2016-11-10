@@ -9,8 +9,9 @@ import FWCore.ParameterSet.Config as cms
 
 #
 # The following MVA is derived for Spring16 MC samples for non-triggering photons.
-# See more documentation in this presentation:
-#    https://indico.cern.ch/event/369237/contribution/2/attachments/1128009/1611753/egamma-July17-2015.pdf
+# See more documentation in these presentations:
+#    https://indico.cern.ch/event/491509/contributions/2226579/attachments/1303047/1946168/EGamma_PhoID_Update_IKucher.pdf
+#    https://indico.cern.ch/event/578399/contributions/2344916/attachments/1357735/2053119/EGamma_PhoID_Update_19_10_2016.pdf
 #
 
 # This MVA implementation class name
@@ -58,7 +59,7 @@ MVA_WP90 = PhoMVA_2Categories_WP(
 #
 
 # Create the PSet that will be fed to the MVA value map producer
-mvaPhoID_Spring16_25ns_nonTrig_V1_producer_config = cms.PSet( 
+mvaPhoID_Spring16_nonTrig_V1_producer_config = cms.PSet( 
     mvaName            = cms.string(mvaSpring16NonTrigClassName),
     mvaTag             = cms.string(mvaTag),
     weightFileNames    = mvaSpring16NonTrigWeightFiles_V1,
@@ -68,14 +69,8 @@ mvaPhoID_Spring16_25ns_nonTrig_V1_producer_config = cms.PSet(
     # All the value maps: these are expected to be produced by the
     # PhotonIDValueMapProducer running upstream
     #
-    useValueMaps = cms.bool(True),
-    full5x5SigmaIEtaIEtaMap   = cms.InputTag("photonIDValueMapProducer:phoFull5x5SigmaIEtaIEta"),
-    full5x5SigmaIEtaIPhiMap   = cms.InputTag("photonIDValueMapProducer:phoFull5x5SigmaIEtaIPhi"),
-    full5x5E2x2Map      = cms.InputTag("photonIDValueMapProducer:phoFull5x5E2x2"),
-    full5x5E5x5Map      = cms.InputTag("photonIDValueMapProducer:phoFull5x5E5x5"),
-    esEffSigmaRRMap     = cms.InputTag("photonIDValueMapProducer:phoESEffSigmaRR"),
     phoChargedIsolation = cms.InputTag("egmPhotonIsolation:h+-DR030-"),
-    phoPhotonIsolation  = cms.InputTag("egmPhotonIsolationAOD:gamma-DR030-"),
+    phoPhotonIsolation  = cms.InputTag("egmPhotonIsolation:gamma-DR030-"),
     phoWorstChargedIsolation = cms.InputTag("photonIDValueMapProducer:phoWorstChargedIsolation"),
     #
     # Original event content: pileup in this case
@@ -83,7 +78,7 @@ mvaPhoID_Spring16_25ns_nonTrig_V1_producer_config = cms.PSet(
     rho                       = cms.InputTag("fixedGridRhoFastjetAll") 
     )
 # Create the VPset's for VID cuts
-mvaPhoID_Spring16_nonTrig_V1_wp90 = configureVIDMVAPhoID_Spring16_V1( MVA_WP90 )
+mvaPhoID_Spring16_nonTrig_V1_wp90 = configureVIDMVAPhoID_V1( MVA_WP90 )
 
 # The MD5 sum numbers below reflect the exact set of cut variables
 # and values above. If anything changes, one has to 
