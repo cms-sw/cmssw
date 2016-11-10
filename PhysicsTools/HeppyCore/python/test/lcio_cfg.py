@@ -2,7 +2,7 @@
 Use it in Lyon: 
  source /gridsoft/ipnls/ilc/v01-17-09/init_ilcsoft.sh
 
- PhysicsTools.HeppyCore.loop.py Output lcio_cfg.py
+ heppy_loop.py Output lcio_cfg.py
 '''
 
 
