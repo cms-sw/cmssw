@@ -11,16 +11,14 @@
 
 
 
-typedef TrackerCleaner<SiPixelCluster> PixelCleaner;
-typedef TrackerCleaner<SiStripCluster> StripCleaner;
+typedef TrackerCleaner<SiPixelCluster> PixelColCleaner;
+typedef TrackerCleaner<SiStripCluster> StripColCleaner;
 
 
 //-------------------------------------------------------------------------------
 // define 'buildRecHit' functions used for different types of recHits
 //-------------------------------------------------------------------------------
   
-
-
 
 template <typename T>
 bool TrackerCleaner<T>::match_rechit_type(const TrackingRecHit &murechit){
@@ -59,12 +57,8 @@ bool TrackerCleaner<SiPixelCluster>::match_rechit_type(const TrackingRecHit &mur
  }
  
 
-
-
-#include "FWCore/Framework/interface/MakerMacros.h"
-
-DEFINE_FWK_MODULE(PixelCleaner);
-DEFINE_FWK_MODULE(StripCleaner);
+DEFINE_FWK_MODULE(PixelColCleaner);
+DEFINE_FWK_MODULE(StripColCleaner);
 
 
 

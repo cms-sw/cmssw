@@ -58,9 +58,6 @@
 //
 
 
-
-
-
 class EmbeddingLHEProducer : public edm::one::EDProducer<edm::BeginRunProducer,
                                                         edm::EndRunProducer> {
    public:

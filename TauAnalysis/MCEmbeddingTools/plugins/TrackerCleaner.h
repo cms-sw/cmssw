@@ -16,26 +16,25 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/PatCandidates/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonEnergy.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "TrackingTools/TrackAssociator/interface/TrackAssociatorParameters.h"
 #include "TrackingTools/TrackAssociator/interface/TrackDetectorAssociator.h"
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
 
 #include "DataFormats/Common/interface/SortedCollection.h"
-//#include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
 #include "DataFormats/TrackerRecHit2D/interface/BaseTrackerRecHit.h"
 #include "DataFormats/TrackerRecHit2D/interface/OmniClusterRef.h"
 
 
-//#include "TauAnalysis/MCEmbeddingTools/interface/embeddingAuxFunctions.h"
 #include <string>
 #include <iostream>
 #include <map>
 
 
 template <typename T>
-class TrackerCleaner : public edm::EDProducer 
+class TrackerCleaner : public edm::stream::EDProducer<>
 {
  public:
   explicit TrackerCleaner(const edm::ParameterSet&);
