@@ -64,7 +64,7 @@ class Tree(object):
         if title:
             self.tree.GetBranch(varName).SetTitle(title)
 
-    def var(self, varName,the_type=float, default=-99, title=None, storageType="default", filler=None ):
+    def var(self, varName, the_type=float, default=-99, title=None, storageType="default", filler=None ):
         if the_type in [int, float]:
             self.branch_(self.vars, varName, the_type, 1, title=title, storageType=storageType)
             self.defaults[varName] = default
