@@ -5,12 +5,6 @@
 PhotonMVAEstimatorRun2Spring16NonTrig::PhotonMVAEstimatorRun2Spring16NonTrig(const edm::ParameterSet& conf):
   AnyMVAEstimatorRun2Base(conf),
   _MethodName("BDTG method"),
-  _useValueMaps(conf.getParameter<bool>("useValueMaps")),
-  _full5x5SigmaIEtaIEtaMapLabel(conf.getParameter<edm::InputTag>("full5x5SigmaIEtaIEtaMap")), 
-  _full5x5SigmaIEtaIPhiMapLabel(conf.getParameter<edm::InputTag>("full5x5SigmaIEtaIPhiMap")), 
-  _full5x5E2x2MapLabel(conf.getParameter<edm::InputTag>("full5x5E2x2Map")), 
-  _full5x5E5x5MapLabel(conf.getParameter<edm::InputTag>("full5x5E5x5Map")), 
-  _esEffSigmaRRMapLabel(conf.getParameter<edm::InputTag>("esEffSigmaRRMap")), 
   _phoChargedIsolationLabel(conf.getParameter<edm::InputTag>("phoChargedIsolation")), 
   _phoPhotonIsolationLabel(conf.getParameter<edm::InputTag>("phoPhotonIsolation")), 
   _phoWorstChargedIsolationLabel(conf.getParameter<edm::InputTag>("phoWorstChargedIsolation")), 
@@ -234,15 +228,6 @@ std::vector<float> PhotonMVAEstimatorRun2Spring16NonTrig::fillMVAVariables(const
   // Rho will be pulled from the event content
   edm::Handle<double> rho;
 
-  // Get the full5x5 and ES maps
-  if( _useValueMaps ) {
-    iEvent.getByLabel(_full5x5SigmaIEtaIEtaMapLabel, full5x5SigmaIEtaIEtaMap);
-    iEvent.getByLabel(_full5x5SigmaIEtaIPhiMapLabel, full5x5SigmaIEtaIPhiMap);
-    iEvent.getByLabel(_full5x5E2x2MapLabel, full5x5E2x2Map);
-    iEvent.getByLabel(_full5x5E5x5MapLabel, full5x5E5x5Map);
-    iEvent.getByLabel(_esEffSigmaRRMapLabel, esEffSigmaRRMap);
-  }
-
   // Get the isolation maps
   iEvent.getByLabel(_phoChargedIsolationLabel, phoChargedIsolationMap);
   iEvent.getByLabel(_phoPhotonIsolationLabel, phoPhotonIsolationMap);
@@ -252,12 +237,7 @@ std::vector<float> PhotonMVAEstimatorRun2Spring16NonTrig::fillMVAVariables(const
   iEvent.getByLabel(_rhoLabel,rho);
 
   // Make sure everything is retrieved successfully
-  if(! ( ( !_useValueMaps || ( full5x5SigmaIEtaIEtaMap.isValid()
-                               && full5x5SigmaIEtaIPhiMap.isValid()
-                               && full5x5E2x2Map.isValid()
-                               && full5x5E5x5Map.isValid()
-                               && esEffSigmaRRMap.isValid() ) )
-         && phoChargedIsolationMap.isValid()
+  if(! ( phoChargedIsolationMap.isValid()
          && phoPhotonIsolationMap.isValid()
          && phoWorstChargedIsolationMap.isValid()
          && rho.isValid() ) )
@@ -288,23 +268,12 @@ std::vector<float> PhotonMVAEstimatorRun2Spring16NonTrig::fillMVAVariables(const
 
   AllVariables allMVAVars;
 
-  if( _useValueMaps ) { //(before 752)
-    // in principle, in the photon object as well
-    // not in the photon object 
-    e2x2 = (*full5x5E2x2Map   )[ phoRecoPtr ];
-    e5x5 = (*full5x5E5x5Map   )[ phoRecoPtr ];
-    full5x5_sigmaIetaIeta = (*full5x5SigmaIEtaIEtaMap)[ phoRecoPtr ];
-    full5x5_sigmaIetaIphi = (*full5x5SigmaIEtaIPhiMap)[ phoRecoPtr ];
-    effSigmaRR = (*esEffSigmaRRMap)[ phoRecoPtr ];
-  } else {
-    // from 753
-    const auto& full5x5_pss = phoRecoPtr->full5x5_showerShapeVariables();
-    e2x2 = full5x5_pss.e2x2;
-    e5x5 = full5x5_pss.e5x5;
-    full5x5_sigmaIetaIeta = full5x5_pss.sigmaIetaIeta;
-    full5x5_sigmaIetaIphi = full5x5_pss.sigmaIetaIphi;
-    effSigmaRR = full5x5_pss.effSigmaRR;
-  }
+  const auto& full5x5_pss = phoRecoPtr->full5x5_showerShapeVariables();
+  e2x2 = full5x5_pss.e2x2;
+  e5x5 = full5x5_pss.e5x5;
+  full5x5_sigmaIetaIeta = full5x5_pss.sigmaIetaIeta;
+  full5x5_sigmaIetaIphi = full5x5_pss.sigmaIetaIphi;
+  effSigmaRR = full5x5_pss.effSigmaRR;
 
   allMVAVars.scPhi           = superCluster->phi();
   allMVAVars.varR9           = phoRecoPtr->r9() ;
@@ -375,13 +344,6 @@ void PhotonMVAEstimatorRun2Spring16NonTrig::constrainMVAVariables(AllVariables&)
 }
 
 void PhotonMVAEstimatorRun2Spring16NonTrig::setConsumes(edm::ConsumesCollector&& cc) const {
-  if( _useValueMaps ) {
-    cc.consumes<edm::ValueMap<float> >(_full5x5SigmaIEtaIEtaMapLabel);
-    cc.consumes<edm::ValueMap<float> >(_full5x5SigmaIEtaIPhiMapLabel); 
-    cc.consumes<edm::ValueMap<float> >(_full5x5E2x2MapLabel);
-    cc.consumes<edm::ValueMap<float> >(_full5x5E5x5MapLabel);
-    cc.consumes<edm::ValueMap<float> >(_esEffSigmaRRMapLabel);
-  }
   cc.consumes<edm::ValueMap<float> >(_phoChargedIsolationLabel);
   cc.consumes<edm::ValueMap<float> >(_phoPhotonIsolationLabel);
   cc.consumes<edm::ValueMap<float> >( _phoWorstChargedIsolationLabel);
