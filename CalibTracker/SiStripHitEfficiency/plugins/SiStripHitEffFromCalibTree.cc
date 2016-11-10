@@ -135,6 +135,7 @@ class SiStripHitEffFromCalibTree : public ConditionDBWriter<SiStripBadStrip> {
     bool _showEndcapSides;
     bool  _showRings;
     bool  _showTOB6TEC9;
+	bool _showOnlyGoodModules;
     float _tkMapMin;
     float _effPlotMin;
     TString _title;
@@ -185,6 +186,7 @@ SiStripHitEffFromCalibTree::SiStripHitEffFromCalibTree(const edm::ParameterSet& 
   _showEndcapSides = conf.getUntrackedParameter<bool>("ShowEndcapSides",true);
   _showRings = conf.getUntrackedParameter<bool>("ShowRings",false);
   _showTOB6TEC9 = conf.getUntrackedParameter<bool>("ShowTOB6TEC9",false);
+  _showOnlyGoodModules = conf.getUntrackedParameter<bool>("ShowOnlyGoodModules",false);
   _tkMapMin = conf.getUntrackedParameter<double>("TkMapMin",0.9);
   _effPlotMin = conf.getUntrackedParameter<double>("EffPlotMin",0.9);
   _title = conf.getParameter<std::string>("Title"); 
@@ -276,8 +278,8 @@ void SiStripHitEffFromCalibTree::algoAnalyze(const edm::Event& e, const edm::Eve
 
     cout<<"Loading file: "<<CalibTreeFilenames[ifile]<<endl;
 	TFile* CalibTreeFile = TFile::Open(CalibTreeFilenames[ifile].c_str(),"READ");
-	CalibTreeFile->cd("anEff"); 
-	CalibTree = (TTree*)(gDirectory->Get("traj")) ;
+	CalibTreeFile->cd("anEff");
+	CalibTree = (TTree*)(gDirectory->Get("traj"));
 	
 	TLeaf* BadLf = CalibTree->GetLeaf("ModIsBad");
 	TLeaf* sistripLf = CalibTree->GetLeaf("SiStripQualBad");
@@ -1056,10 +1058,12 @@ void SiStripHitEffFromCalibTree::makeSummary() {
   found2->Sumw2();
   all2->Sumw2();
 
-  TGraphAsymmErrors *gr = new TGraphAsymmErrors(nLayers+1);
+  TGraphAsymmErrors *gr = fs->make<TGraphAsymmErrors>(nLayers+1);
+  gr->SetName("eff_good");
   gr->BayesDivide(found,all); 
 
-  TGraphAsymmErrors *gr2 = new TGraphAsymmErrors(nLayers+1);
+  TGraphAsymmErrors *gr2 = fs->make<TGraphAsymmErrors>(nLayers+1);
+  gr2->SetName("eff_all");
   gr2->BayesDivide(found2,all2);
 
   for(int j = 0; j<nLayers+1; j++){
@@ -1132,11 +1136,11 @@ void SiStripHitEffFromCalibTree::makeSummary() {
   overlay->SetFrameFillStyle(4000);
   overlay->Draw("same");
   overlay->cd();
-  gr2->Draw("AP");
+  if(!_showOnlyGoodModules) gr2->Draw("AP");
 
   TLegend *leg = new TLegend(0.70,0.27,0.88,0.40);
   leg->AddEntry(gr,"Good Modules","p");
-  leg->AddEntry(gr2,"All Modules","p");
+  if(!_showOnlyGoodModules) leg->AddEntry(gr2,"All Modules","p");
   leg->SetTextSize(0.020);
   leg->SetFillColor(0);
   leg->Draw("same");
