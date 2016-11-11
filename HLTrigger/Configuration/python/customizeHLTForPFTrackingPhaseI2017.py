@@ -275,21 +275,20 @@ def customizeHLTForPFTrackingPhaseI2017(process):
 	
 	process.HLTIterativeTrackingIteration2 = cms.Sequence( process.hltIter2ClustersRefRemoval + process.hltIter2MaskedMeasurementTrackerEvent + process.hltIter2PixelLayerTriplets + process.hltIter2PFlowPixelSeeds + process.hltIter2PFlowCkfTrackCandidates + process.hltIter2PFlowCtfWithMaterialTracks + process.hltIter2PFlowTrackCutClassifier + process.hltIter2PFlowTrackSelectionHighPurity )
 
-	if hasattr(process,"HLTRecoPixelVertexingForPhotonsSequence"):
-		process.HLTRecoPixelVertexingForPhotonsSequence = cms.Sequence(process.hltPixelLayerQuadruplets+process.hltPixelTracks+process.hltPixelVerticesForPhotons)
-	if hasattr(process,"HLTRecopixelvertexingSequence"):
-		process.HLTRecopixelvertexingSequence = cms.Sequence(process.hltPixelLayerQuadruplets+process.hltPixelTracks+process.hltPixelVertices+process.hltTrimmedPixelVertices)
-	if hasattr(process,"HLTTrackerMuonSequence"):
-		process.HLTTrackerMuonSequence = cms.Sequence(process.HLTDoLocalPixelSequence+process.hltPixelLayerQuadruplets+process.hltPixelTracks+process.HLTDoLocalStripSequence+process.hltMuTrackSeeds+process.hltMuCkfTrackCandidates+process.hltMuCtfTracks+process.HLTL3muonrecoNocandSequence+process.hltDiMuonMerging+process.hltDiMuonLinks+process.hltGlbTrkMuons+process.hltGlbTrkMuonCands)
-	if hasattr(process,"HLTTrackerMuonSequenceNoVtx"):
-		process.HLTTrackerMuonSequenceNoVtx = cms.Sequence(process.HLTDoLocalPixelSequence+process.hltPixelTracks+process.hltPixelLayerQuadruplets+process.HLTDoLocalStripSequence+process.hltMuTrackSeeds+process.hltMuCkfTrackCandidates+process.hltMuCtfTracks+process.HLTL3NoFiltersNoVtxmuonrecoNocandSequence+process.hltDiMuonMergingNoVtx+process.hltDiMuonLinksNoVtx+process.hltGlbTrkMuonsNoVtx+process.hltGlbTrkMuonCandsNoVtx)
-	if hasattr(process,"HLTDiTrackerMuonSequence"):
-		process.HLTDiTrackerMuonSequence = cms.Sequence(process.HLTDoLocalPixelSequence+process.hltPixelLayerQuadruplets+process.hltPixelTracks+process.HLTDoLocalStripSequence+process.hltMuTrackSeeds+process.hltMuCkfTrackCandidates+process.hltMuCtfTracks+process.hltMuCtfTracksMerged+process.HLTL2muonrecoNocandSequence+process.HLTL3muonrecoNocandSequence+process.hltDiTkMuonMerging+process.hltDiTkMuonLinks+process.hltGlbDiTrkMuons+process.hltGlbDiTrkMuonCands)
-	if hasattr(process,"HLT_IsoTrackHE_v3"):
-		process.HLT_IsoTrackHE_v3 = cms.Path(process.HLTBeginSequence+process.hltL1sV0SingleJet60+process.hltPreIsoTrackHE+process.HLTDoLocalPixelSequence+process.hltPixelLayerQuadruplets+process.hltPixelTracks+process.hltPixelVertices+process.hltTrimmedPixelVertices+process.hltIsolPixelTrackProdHE+process.hltIsolPixelTrackL2FilterHE+process.HLTDoFullUnpackingEgammaEcalSequence+process.hltIsolEcalPixelTrackProdHE+process.hltEcalIsolPixelTrackL2FilterHE+process.HLTDoLocalStripSequence+process.hltIter0PFLowPixelSeedsFromPixelTracks+process.hltIter0PFlowCkfTrackCandidates+process.hltIter0PFlowCtfWithMaterialTracks+process.hltHcalITIPTCorrectorHE+process.hltIsolPixelTrackL3FilterHE+process.HLTEndSequence)
-	if hasattr(process,"HLT_IsoTrackHB_v3"):
-		process.HLT_IsoTrackHB_v3 = cms.Path(process.HLTBeginSequence+process.hltL1sV0SingleJet60+process.hltPreIsoTrackHB+process.HLTDoLocalPixelSequence+process.hltPixelLayerQuadruplets+process.hltPixelTracks+process.hltPixelVertices+process.hltTrimmedPixelVertices+process.hltIsolPixelTrackProdHB+process.hltIsolPixelTrackL2FilterHB+process.HLTDoFullUnpackingEgammaEcalSequence+process.hltIsolEcalPixelTrackProdHB+process.hltEcalIsolPixelTrackL2FilterHB+process.HLTDoLocalStripSequence+process.hltIter0PFLowPixelSeedsFromPixelTracks+process.hltIter0PFlowCkfTrackCandidates+process.hltIter0PFlowCtfWithMaterialTracks+process.hltHcalITIPTCorrectorHB+process.hltIsolPixelTrackL3FilterHB+process.HLTEndSequence)
 
+	for seqName in process.sequences:
+		seq = getattr(process,seqName)
+		from FWCore.ParameterSet.SequenceTypes import ModuleNodeVisitor
+		l = list()
+         	v = ModuleNodeVisitor(l)
+          	seq.visit(v)		
+		if process.hltPixelTracks in l and not process.hltPixelLayerQuadruplets in l:
+			print seqName
+			print seq
+			seq.remove(process.hltPixelLayerTriplets)
+			index = seq.index(process.hltPixelTracks)
+			seq.insert(index,process.hltPixelLayerQuadruplets)
+			print seq
 	
 	from RecoTracker.Configuration.customiseForQuadrupletsByCellularAutomaton import customiseForQuadrupletsByCellularAutomaton
 	process = customiseForQuadrupletsByCellularAutomaton(process)
