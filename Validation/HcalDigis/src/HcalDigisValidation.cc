@@ -235,24 +235,6 @@ void HcalDigisValidation::booking(DQMStore::IBooker &ib, const std::string bsubd
         sprintf(histo, "HcalDigiTask_Ndigis_%s", sub);
         book1D(ib, histo, Ndigis);
 
-	//KH
-	std::cout << "subdet_ "
-		  << "outputFile_ "
-		  << "inputTag_ "
-		  << "mc_ "
-		  << "mode_ "
-		  << "dirName_" << std::endl;
-	std::cout << subdet_ << " " 
-		  << outputFile_ << " "
-		  << inputTag_ << " "
-		  << mc_ << " "
-		  << mode_ << " "
-		  << dirName_ << std::endl;
-	std::cout<< maxDepth_[0] << " "
-		 << maxDepth_[1] << " "
-		 << maxDepth_[2] << " "
-		 << maxDepth_[3] << std::endl;
-
         // maps of occupancies
 	for (int depth = 1; depth <= maxDepth_[isubdet]; depth++) {
 	  sprintf(histo, "HcalDigiTask_ieta_iphi_occupancy_map_depth%d_%s", depth, sub);
