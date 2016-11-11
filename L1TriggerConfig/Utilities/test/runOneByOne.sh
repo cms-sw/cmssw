@@ -3,7 +3,7 @@
 if [ $# -ne 2 ] ; then echo 'Please, provide the 2 arguments: tscKey and rsKey'; exit 2; fi
 
 source /opt/offline/cmsset_default.sh
-cd /opt/offline/slc6_amd64_gcc493/cms/cmssw/CMSSW_8_0_23
+cd /opt/offline/slc6_amd64_gcc493/cms/cmssw/CMSSW_8_0_24
 cmsenv
 cd -
 
