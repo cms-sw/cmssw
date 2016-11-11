@@ -6,37 +6,33 @@ from TkAlExceptions import AllInOneError
 
 
 class TrackSplittingValidation(GenericValidationData):
-    def __init__(self, valName, alignment, config,
-                 configBaseName = "TkAlTrackSplitting", scriptBaseName = "TkAlTrackSplitting", crabCfgBaseName = "TkAlTrackSplitting",
-                 resultBaseName = "TrackSplitting", outputBaseName = "TrackSplitting"):
-        mandatories = ["trackcollection"]
-        defaults = {}
-        self.configBaseName = configBaseName
-        self.scriptBaseName = scriptBaseName
-        self.crabCfgBaseName = crabCfgBaseName
-        self.resultBaseName = resultBaseName
-        self.outputBaseName = outputBaseName
-        self.needParentFiles = False
-        GenericValidationData.__init__(self, valName, alignment, config,
-                                       "split", addMandatories = mandatories, addDefaults = defaults)
+    configBaseName = "TkAlTrackSplitting"
+    scriptBaseName = "TkAlTrackSplitting"
+    crabCfgBaseName = "TkAlTrackSplitting"
+    resultBaseName = "TrackSplitting"
+    outputBaseName = "TrackSplitting"
+    mandatories = {"trackcollection"}
+    def __init__(self, valName, alignment, config):
+        super(TrackSplittingValidation, self).__init__(valName, alignment, config,
+                                                       "split")
 
     def createConfiguration(self, path ):
         cfgName = "%s.%s.%s_cfg.py"%(self.configBaseName, self.name,
                                      self.alignmentToValidate.name)
         repMap = self.getRepMap()
         cfgs = {cfgName: configTemplates.TrackSplittingTemplate}
-        self.filesToCompare[GenericValidationData.defaultReferenceName] = \
+        self.filesToCompare[self.defaultReferenceName] = \
             repMap["finalResultFile"]
-        GenericValidationData.createConfiguration(self, cfgs, path, repMap = repMap)
+        super(TrackSplittingValidation, self).createConfiguration(cfgs, path, repMap = repMap)
 
     def createScript(self, path):
-        return GenericValidationData.createScript(self, path)
+        return super(TrackSplittingValidation, self).createScript(path)
 
     def createCrabCfg(self, path):
-        return GenericValidationData.createCrabCfg(self, path, self.crabCfgBaseName)
+        return super(TrackSplittingValidation, self).createCrabCfg(path, self.crabCfgBaseName)
 
     def getRepMap( self, alignment = None ):
-        repMap = GenericValidationData.getRepMap(self)
+        repMap = super(TrackSplittingValidation, self).getRepMap()
         if repMap["subdetector"] == "none":
             subdetselection = ""
         else:
@@ -76,33 +72,3 @@ class TrackSplittingValidation(GenericValidationData):
         mergedoutputfile = os.path.join("root://eoscms//eos/cms", repMap["finalResultFile"].lstrip("/"))
         validationsSoFar += "hadd -f %s %s\n" % (mergedoutputfile, parameters)
         return validationsSoFar
-
-    def validsubdets(self):
-        filename = os.path.join(self.cmssw, "src/Alignment/CommonAlignmentProducer/python/AlignmentTrackSelector_cfi.py")
-        if not os.path.isfile(filename):
-            filename = os.path.join(self.cmsswreleasebase, "src/Alignment/CommonAlignmentProducer/python/AlignmentTrackSelector_cfi.py")
-        with open(filename) as f:
-            trackselector = f.read()
-
-        minhitspersubdet = trackselector.split("minHitsPerSubDet")[1].split("(",1)[1]
-
-        parenthesesdepth = 0
-        i = 0
-        for character in minhitspersubdet:
-            if character == "(":
-                parenthesesdepth += 1
-            if character == ")":
-                parenthesesdepth -= 1
-            if parenthesesdepth < 0:
-                break
-            i += 1
-        minhitspersubdet = minhitspersubdet[0:i]
-
-        results = minhitspersubdet.split(",")
-        empty = []
-        for i in range(len(results)):
-            results[i] = results[i].split("=")[0].strip().replace("in", "", 1)
-
-        results.append("none")
-
-        return [a for a in results if a]

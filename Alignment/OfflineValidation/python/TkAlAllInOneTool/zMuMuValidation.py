@@ -7,38 +7,34 @@ from TkAlExceptions import AllInOneError
 
 
 class ZMuMuValidation(GenericValidationData):
-    def __init__(self, valName, alignment, config,
-                 configBaseName = "TkAlZMuMuValidation", scriptBaseName = "TkAlZMuMuValidation", crabCfgBaseName = "TkAlZMuMuValidation",
-                 resultBaseName = "ZMuMuValidation", outputBaseName = "ZMuMuValidation"):
-        defaults = {
-            "zmumureference": ("/store/caf/user/emiglior/Alignment/TkAlDiMuonValidation/Reference/BiasCheck_DYToMuMu_Summer12_TkAlZMuMu_IDEAL.root"),
-            }
-        deprecateddefaults = {
-            "resonance": "",
-            "switchONfit": "",
-            "rebinphi": "",
-            "rebinetadiff": "",
-            "rebineta": "",
-            "rebinpt": "",
-            }
-        defaults.update(deprecateddefaults)
-        mandatories = ["etamaxneg", "etaminneg", "etamaxpos", "etaminpos"]
-        self.configBaseName = configBaseName
-        self.scriptBaseName = scriptBaseName
-        self.crabCfgBaseName = crabCfgBaseName
-        self.resultBaseName = resultBaseName
-        self.outputBaseName = outputBaseName
-        self.needParentFiles = False
-        GenericValidationData.__init__(self, valName, alignment, config,
-                                       "zmumu", addDefaults=defaults,
-                                       addMandatories=mandatories,
-                                       addneedpackages=['MuonAnalysis/MomentumScaleCalibration'])
+    configBaseName = "TkAlZMuMuValidation"
+    scriptBaseName = "TkAlZMuMuValidation"
+    crabCfgBaseName = "TkAlZMuMuValidation"
+    resultBaseName = "ZMuMuValidation"
+    outputBaseName = "ZMuMuValidation"
+    defaults = {
+        "zmumureference": ("/store/caf/user/emiglior/Alignment/TkAlDiMuonValidation/Reference/BiasCheck_DYToMuMu_Summer12_TkAlZMuMu_IDEAL.root"),
+        }
+    deprecateddefaults = {
+        "resonance": "",
+        "switchONfit": "",
+        "rebinphi": "",
+        "rebinetadiff": "",
+        "rebineta": "",
+        "rebinpt": "",
+        }
+    defaults.update(deprecateddefaults)
+    needpackages = {'MuonAnalysis/MomentumScaleCalibration'}
+    mandatories = {"etamaxneg", "etaminneg", "etamaxpos", "etaminpos"}
+    def __init__(self, valName, alignment, config):
+        super(ZMuMuValidation, self).__init__(valName, alignment, config,
+                                              "zmumu")
         if self.general["zmumureference"].startswith("/store"):
             self.general["zmumureference"] = "root://eoscms//eos/cms" + self.general["zmumureference"]
         if self.NJobs > 1:
             raise AllInOneError("Parallel jobs not implemented for the Z->mumu validation!\n"
                                 "Please set parallelJobs = 1.")
-        for option in deprecateddefaults:
+        for option in self.deprecateddefaults:
             if self.general[option]:
                 raise AllInOneError("The '%s' option has been moved to the [plots:zmumu] section.  Please specify it there."%option)
             del self.general[option]
@@ -47,21 +43,21 @@ class ZMuMuValidation(GenericValidationData):
         cfgName = "%s.%s.%s_cfg.py"%( self.configBaseName, self.name,
                                       self.alignmentToValidate.name )
         repMap = self.getRepMap()
-        self.filesToCompare[GenericValidationData.defaultReferenceName] = \
+        self.filesToCompare[self.defaultReferenceName] = \
             replaceByMap(".oO[eosdir]Oo./0_zmumuHisto.root", repMap)
         cfgs = {cfgName: configTemplates.ZMuMuValidationTemplate}
-        GenericValidationData.createConfiguration(self, cfgs, path, repMap = repMap)
+        super(ZMuMuValidation, self).createConfiguration(cfgs, path, repMap = repMap)
 
     def createScript(self, path):
-        return GenericValidationData.createScript(self, path, template = configTemplates.zMuMuScriptTemplate)
+        return super(ZMuMuValidation, self).createScript(path, template = configTemplates.zMuMuScriptTemplate)
 
     def createCrabCfg(self, path):
-        return GenericValidationData.createCrabCfg(self, path, self.crabCfgBaseName)
+        return super(ZMuMuValidation, self).createCrabCfg(path, self.crabCfgBaseName)
 
     def getRepMap(self, alignment = None):
         if alignment == None:
             alignment = self.alignmentToValidate
-        repMap = GenericValidationData.getRepMap(self, alignment) 
+        repMap = super(ZMuMuValidation, self).getRepMap(alignment)
         repMap.update({
             "nEvents": self.general["maxevents"],
             "outputFile": ("0_zmumuHisto.root"
