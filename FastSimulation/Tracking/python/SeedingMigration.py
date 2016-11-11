@@ -1,15 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-def _regionProducerToFactoryPSet(producer):
-    _map = {
-        "GlobalTrackinRegionFromBeamSpotEDProducer": "GlobalRegionProducerFromBeamSpot",
-        "GlobalTrackingRegionWithVerticesEDProducer": "GlobalTrackingRegionWithVerticesProducer",
-    }
-    return cms.PSet(
-        ComponentName = cms.string(_map[producer._TypedParameterizable__type]),
-        RegionPSet = producer.RegionPSet.clone(),
-    )
-
 def _copy(old, new, skip=[]):
     skipSet = set(skip)
     for key in old.parameterNames_():
