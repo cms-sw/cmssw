@@ -33,6 +33,7 @@ public:
 private:
 
   bool particlePassesPrimaryCuts(const G4ThreeVector& p) const;
+  bool isExotic(HepMC::GenParticle* p) const;
   void particleAssignDaughters(G4PrimaryParticle * p, HepMC::GenParticle * hp, 
 			       double length);
   void setGenId(G4PrimaryParticle* p, int id) const 

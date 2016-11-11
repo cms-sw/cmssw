@@ -137,13 +137,30 @@ void Generator::HepMC2G4(const HepMC::GenEvent * evt_orig, G4Event * g4evt)
       vitr != evt->vertices_end(); ++vitr ) { 
 
     // loop for vertex, is it a real vertex?
+    // Set qvtx to true for any particles that should be propagated by GEANT, i.e.,
+    // status 1 particles or
+    // status 2 particles that decay outside the beampipe.   
     G4bool qvtx=false;
     HepMC::GenVertex::particle_iterator pitr;
     for (pitr= (*vitr)->particles_begin(HepMC::children);
          pitr != (*vitr)->particles_end(HepMC::children); ++pitr) {
 
+      // For purposes of this function, the status is defined as follows:
+      // 1:  particles are not decayed by generator
+      // 2:  particles are decayed by generator but need to be propagated by GEANT
+      // 3:  particles are decayed by generator but do not need to be propagated by GEANT
+      int status = (*pitr)->status();
+      if (status > 3 && isExotic(*pitr)) {
+        // In Pythia 8, there are many status codes besides 1, 2, 3.
+        // By setting the status to 2 for exotic particles, they will be checked:
+        // if its decay vertex is outside the beampipe, it will be propagated by GEANT.
+	// Some Standard Model particles, e.g., K0, cannot be propagated by GEANT, 
+	// so do not change their status code.  
+        status = 2;
+      }
+
       // Particles which are not decayed by generator
-      if (1 == (*pitr)->status()) {
+      if (status == 1) {
         qvtx = true;
         if (verbose > 2) LogDebug("SimG4CoreGenerator") 
 	  << "GenVertex barcode = " << (*vitr)->barcode() 
@@ -152,10 +169,8 @@ void Generator::HepMC2G4(const HepMC::GenEvent * evt_orig, G4Event * g4evt)
       }  
       // The selection is made considering if the partcile with status = 2 
       // have the end_vertex with a radius greater than the radius of beampipe 
-      // cilinder (no requirement on the Z of the vertex is applyed).
-      // Status 104 (metastable R-hadrons in Pythia8) is treated the same way.
-      else if (2 == (*pitr)->status() || 104 == (*pitr)->status()) {
-
+      // cylinder (no requirement on the Z of the vertex is applyed).
+      else if (status == 2) {
         if ( (*pitr)->end_vertex() != 0  ) { 
           double xx = (*pitr)->end_vertex()->position().x();
           double yy = (*pitr)->end_vertex()->position().y();
@@ -211,9 +226,9 @@ void Generator::HepMC2G4(const HepMC::GenEvent * evt_orig, G4Event * g4evt)
       double decay_length = 0.0;
       int status = (*pitr)->status();
 
-      // treat status 104 (metastable R-hadrons in Pythia8) the same as status 2
-      if (104 == status)
-        status = 2;
+      if (status > 3 && isExotic(*pitr)) {
+	status = 2;
+      }
 
       // check the status, 2 has end point with decay defined by generator
       if (1 == status || 2 == status) {
@@ -495,6 +510,21 @@ bool Generator::particlePassesPrimaryCuts(const G4ThreeVector& p) const
 
   return flag;
 }
+
+bool Generator::isExotic(HepMC::GenParticle* p) const
+{
+  int pdgid = abs(p->pdg_id());  
+  if ((pdgid >= 1000000 && pdgid <  4000000) || // SUSY, R-hadron, and technicolor particles
+      pdgid == 17 || // 4th generation lepton 
+      pdgid == 34 || // W-prime
+      pdgid == 37)   // charged Higgs
+    {
+    return true;
+  } 
+
+  return false;
+}
+
 
 void Generator::nonBeamEvent2G4(const HepMC::GenEvent * evt, G4Event * g4evt) 
 {
