@@ -20,7 +20,7 @@
 
  <Constant name="ZCylinder"      value="[AnchorZ]"/>
 
- <Constant name="FlexCableDiskRmin" value="117.35*mm"/>
+ <Constant name="FlexCableDiskRmin" value="[pixfwdSupportRingParameters:InnerDiskOuterRingCFRMax]"/>
  <Constant name="FlexCableDiskRmax" value="167.9*mm"/>
  <Constant name="FlexCableDiskHalfThickness" value="0.15*mm"/>
 
