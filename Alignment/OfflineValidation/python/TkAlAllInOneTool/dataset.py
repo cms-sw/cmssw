@@ -2,16 +2,17 @@
 # http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW/
 #        PhysicsTools/PatAlgos/python/tools/cmsswVersionTools.py
 import Utilities.General.cmssw_das_client as das_client
+import bisect
+import datetime
 import json
 import os
-import bisect
 import re
-import datetime
+import sys
 from FWCore.PythonUtilities.LumiList import LumiList
 from TkAlExceptions import AllInOneError
 
 
-class Dataset:
+class Dataset(object):
     def __init__( self, datasetName, dasLimit = 0, tryPredefinedFirst = True,
                   cmssw = os.environ["CMSSW_BASE"], cmsswrelease = os.environ["CMSSW_RELEASE_BASE"]):
         self.__name = datasetName
@@ -561,6 +562,7 @@ class Dataset:
                            'file.creation_time, '
                            'file.modification_time'%( searchdataset ) )
         print "Requesting file information for '%s' from DAS..."%( searchdataset ),
+        sys.stdout.flush()
         data = self.__getData( dasQuery_files, dasLimit )
         print "Done."
         data = [ self.__findInJson(entry,"file") for entry in data ]
@@ -602,6 +604,7 @@ class Dataset:
         dasQuery_runs = ( 'run dataset=%s | grep run.run_number,'
                           'run.creation_time'%( self.__name ) )
         print "Requesting run information for '%s' from DAS..."%( self.__name ),
+        sys.stdout.flush()
         data = self.__getData( dasQuery_runs )
         print "Done."
         data = [ self.__findInJson(entry,"run") for entry in data ]

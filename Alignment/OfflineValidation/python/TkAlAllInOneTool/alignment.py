@@ -3,7 +3,7 @@ from helperFunctions import replaceByMap, parsecolor, parsestyle
 import os
 from TkAlExceptions import AllInOneError
 
-class Alignment:
+class Alignment(object):
     def __init__(self, name, config, runGeomComp = "1"):
         self.condShorts = {
             "TrackerAlignmentErrorExtendedRcd": {

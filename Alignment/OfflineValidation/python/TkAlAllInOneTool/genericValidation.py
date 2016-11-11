@@ -5,14 +5,40 @@ import globalDictionaries
 import configTemplates
 from dataset import Dataset
 from helperFunctions import replaceByMap, addIndex, getCommandOutput2
-from plottingOptions import PlottingOptions
 from TkAlExceptions import AllInOneError
 
+class ValidationMetaClass(type):
+    sets = ["mandatories", "optionals", "needpackages"]
+    dicts = ["defaults"]
+    def __new__(cls, clsname, bases, dct):
+        for setname in cls.sets:
+            if setname not in dct: dct[setname] = set()
+            dct[setname] = set.union(dct[setname], *(getattr(base, setname) for base in bases if hasattr(base, setname)))
 
-class GenericValidation:
+        for dictname in cls.dicts:
+            if dictname not in dct: dct[dictname] = {}
+            for base in bases:
+                if not hasattr(base, dictname): continue
+                newdict = getattr(base, dictname)
+                for key in set(newdict) & set(dct[dictname]):
+                    if newdict[key] != dct[dictname][key]:
+                        raise ValueError("Inconsistent values of defaults[{}]: {}, {}".format(key, newdict[key], dct[dictname][key]))
+                dct[dictname].update(newdict)
+        return super(ValidationMetaClass, cls).__new__(cls, clsname, bases, dct)
+
+class GenericValidation(object):
+    __metaclass__ = ValidationMetaClass
     defaultReferenceName = "DEFAULT"
-    def __init__(self, valName, alignment, config, valType,
-                 addDefaults = {}, addMandatories=[], addneedpackages=[]):
+    mandatories = set()
+    defaults = {
+                "cmssw":        os.environ['CMSSW_BASE'],
+                "parallelJobs": "1",
+                "jobid":        "",
+               }
+    needpackages = {"Alignment/OfflineValidation"}
+    optionals = {"jobmode"}
+
+    def __init__(self, valName, alignment, config, valType):
         import random
         self.name = valName
         self.valType = valType
@@ -24,20 +50,9 @@ class GenericValidation:
         self.config = config
         self.jobid = ""
 
-        defaults = {
-                    "jobmode":      self.general["jobmode"],
-                    "cmssw":        os.environ['CMSSW_BASE'],
-                    "parallelJobs": "1",
-                    "jobid":        "",
-                   }
-        defaults.update(addDefaults)
-        mandatories = []
-        mandatories += addMandatories
-        needpackages = ["Alignment/OfflineValidation"]
-        needpackages += addneedpackages
         theUpdate = config.getResultingSection(valType+":"+self.name,
-                                               defaultDict = defaults,
-                                               demandPars = mandatories)
+                                               defaultDict = self.defaults,
+                                               demandPars = self.mandatories)
         self.general.update(theUpdate)
         self.jobmode = self.general["jobmode"]
         self.NJobs = int(self.general["parallelJobs"])
@@ -82,7 +97,7 @@ class GenericValidation:
             self.cmsswreleasebase = commandoutput[2]
 
         self.packages = {}
-        for package in needpackages:
+        for package in self.needpackages:
             for placetolook in self.cmssw, self.cmsswreleasebase:
                 pkgpath = os.path.join(placetolook, "src", package)
                 if os.path.exists(pkgpath):
@@ -98,13 +113,14 @@ class GenericValidation:
             except ValueError:
                 raise AllInOneError("AutoAlternates needs to be true or false, not %s" % config.get("alternateTemplates","AutoAlternates"))
 
-        knownOpts = defaults.keys()+mandatories
+        knownOpts = set(self.defaults.keys())|self.mandatories|self.optionals
         ignoreOpts = []
         config.checkInput(valType+":"+self.name,
                           knownSimpleOptions = knownOpts,
                           ignoreOptions = ignoreOpts)
 
     def getRepMap(self, alignment = None):
+        from plottingOptions import PlottingOptions
         if alignment == None:
             alignment = self.alignmentToValidate
         try:
@@ -133,7 +149,7 @@ class GenericValidation:
 
     def getCompareStrings( self, requestId = None, plain = False ):
         result = {}
-        repMap = self.alignmentToValidate.getRepMap()
+        repMap = self.getRepMap().copy()
         for validationId in self.filesToCompare:
             repMap["file"] = self.filesToCompare[ validationId ]
             if repMap["file"].startswith( "/castor/" ):
@@ -148,7 +164,7 @@ class GenericValidation:
             return result
         else:
             if not "." in requestId:
-                requestId += ".%s"%GenericValidation.defaultReferenceName
+                requestId += ".%s"%self.defaultReferenceName
             if not requestId.split(".")[-1] in result:
                 msg = ("could not find %s in reference Objects!"
                        %requestId.split(".")[-1])
@@ -179,8 +195,8 @@ class GenericValidation:
         return result
 
     def createConfiguration(self, fileContents, path, schedule = None, repMap = None, repMaps = None):
-        self.configFiles = GenericValidation.createFiles(self, fileContents,
-                                                         path, repMap = repMap, repMaps = repMaps)
+        self.configFiles = self.createFiles(fileContents,
+                                            path, repMap = repMap, repMaps = repMaps)
         if not schedule == None:
             schedule = [os.path.join( path, cfgName) for cfgName in schedule]
             for cfgName in schedule:
@@ -197,8 +213,8 @@ class GenericValidation:
         return self.configFiles
 
     def createScript(self, fileContents, path, downloadFiles=[], repMap = None, repMaps = None):
-        self.scriptFiles = GenericValidation.createFiles(self, fileContents,
-                                                         path, repMap = repMap, repMaps = repMaps)
+        self.scriptFiles = self.createFiles(fileContents,
+                                            path, repMap = repMap, repMaps = repMaps)
         for script in self.scriptFiles:
             for scriptwithindex in addIndex(script, self.NJobs):
                 os.chmod(scriptwithindex,0o755)
@@ -209,8 +225,7 @@ class GenericValidation:
             msg =  ("jobmode 'crab' not supported for parallel validation."
                     " Please set parallelJobs = 1.")
             raise AllInOneError(msg)
-        self.crabConfigFiles = GenericValidation.createFiles(self, fileContents,
-                                                             path)
+        self.crabConfigFiles = self.createFiles(fileContents, path)
         return self.crabConfigFiles
 
 
@@ -219,9 +234,18 @@ class GenericValidationData(GenericValidation):
     Subclass of `GenericValidation` which is the base for validations using
     datasets.
     """
+    needParentFiles = False
+    mandatories = {"dataset", "maxevents"}
+    defaults = {
+                "runRange": "",
+                "firstRun": "",
+                "lastRun": "",
+                "begin": "",
+                "end": "",
+                "JSON": ""
+               }
     
-    def __init__(self, valName, alignment, config, valType,
-                 addDefaults = {}, addMandatories=[], addneedpackages=[]):
+    def __init__(self, valName, alignment, config, valType):
         """
         This method adds additional items to the `self.general` dictionary
         which are only needed for validations using datasets.
@@ -232,25 +256,9 @@ class GenericValidationData(GenericValidation):
         - `config`: `BetterConfigParser` instance which includes the
                     configuration of the validations
         - `valType`: String which specifies the type of validation
-        - `addDefaults`: Dictionary which contains default values for individual
-                         validations in addition to the general default values
-        - `addMandatories`: List which contains mandatory parameters for
-                            individual validations in addition to the general
-                            mandatory parameters
         """
 
-        defaults = {"runRange": "",
-                    "firstRun": "",
-                    "lastRun": "",
-                    "begin": "",
-                    "end": "",
-                    "JSON": ""
-                    }
-        defaults.update(addDefaults)
-        mandatories = [ "dataset", "maxevents" ]
-        mandatories += addMandatories
-        needpackages = addneedpackages
-        GenericValidation.__init__(self, valName, alignment, config, valType, defaults, mandatories, needpackages)
+        super(GenericValidationData, self).__init__(valName, alignment, config, valType)
 
         # if maxevents is not specified, cannot calculate number of events for
         # each parallel job, and therefore running only a single job
@@ -359,7 +367,7 @@ class GenericValidationData(GenericValidation):
                 raise AllInOneError( msg )
 
     def getRepMap(self, alignment = None):
-        result = GenericValidation.getRepMap(self, alignment)
+        result = super(GenericValidationData, self).getRepMap(alignment)
         outputfile = os.path.expandvars(replaceByMap(
                            "%s_%s_.oO[name]Oo..root" % (self.outputBaseName, self.name)
                                  , result))
@@ -387,8 +395,8 @@ class GenericValidationData(GenericValidation):
                                                       "postProcess":""
                                                      }
         scripts = {scriptName: template}
-        return GenericValidation.createScript(self, scripts, path, downloadFiles = downloadFiles,
-                                              repMap = repMap, repMaps = repMaps)
+        return super(GenericValidationData, self).createScript(scripts, path, downloadFiles = downloadFiles,
+                                                               repMap = repMap, repMaps = repMaps)
 
     def createCrabCfg(self, path, crabCfgBaseName):
         """
@@ -420,4 +428,4 @@ class GenericValidationData(GenericValidation):
             raise AllInOneError("Unknown data type!  Can't run in crab mode")
         crabCfg = {crabCfgName: replaceByMap( configTemplates.crabCfgTemplate,
                                               repMap ) }
-        return GenericValidation.createCrabCfg( self, crabCfg, path )
+        return super(GenericValidationData, self).createCrabCfg( crabCfg, path )

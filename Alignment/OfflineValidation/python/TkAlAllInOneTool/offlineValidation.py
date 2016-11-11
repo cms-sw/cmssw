@@ -7,37 +7,31 @@ from TkAlExceptions import AllInOneError
 
 
 class OfflineValidation(GenericValidationData):
-    def __init__(self, valName, alignment, config, addDefaults = {}, addMandatories = [],
-                 configBaseName = "TkAlOfflineValidation", scriptBaseName = "TkAlOfflineValidation", crabCfgBaseName = "TkAlOfflineValidation",
-                 resultBaseName = "AlignmentValidation", outputBaseName = "AlignmentValidation"):
-        defaults = {
-            "offlineModuleLevelHistsTransient":"False",
-            "offlineModuleLevelProfiles":"True",
-            "stripYResiduals":"False",
-            }
-        deprecateddefaults = {
-            "DMRMethod":"",
-            "DMRMinimum":"",
-            "DMROptions":"",
-            "OfflineTreeBaseDir":"",
-            "SurfaceShapes":"",
-            }
+    configBaseName = "TkAlOfflineValidation"
+    scriptBaseName = "TkAlOfflineValidation"
+    crabCfgBaseName = "TkAlOfflineValidation"
+    resultBaseName = "AlignmentValidation"
+    outputBaseName = "AlignmentValidation"
+    defaults = {
+        "offlineModuleLevelHistsTransient":"False",
+        "offlineModuleLevelProfiles":"True",
+        "stripYResiduals":"False",
+        }
+    deprecateddefaults = {
+        "DMRMethod":"",
+        "DMRMinimum":"",
+        "DMROptions":"",
+        "OfflineTreeBaseDir":"",
+        "SurfaceShapes":"",
+        }
+    defaults.update(deprecateddefaults)
+    mandatories = {"trackcollection"}
 
-        mandatories = [ "trackcollection" ]
-        defaults.update(deprecateddefaults)
-        defaults.update(addDefaults)
-        mandatories += addMandatories
-        self.configBaseName = configBaseName
-        self.scriptBaseName = scriptBaseName
-        self.crabCfgBaseName = crabCfgBaseName
-        self.resultBaseName = resultBaseName
-        self.outputBaseName = outputBaseName
-        self.needParentFiles = False
-        GenericValidationData.__init__(self, valName, alignment, config,
-                                       "offline", addDefaults=defaults,
-                                       addMandatories=mandatories)
+    def __init__(self, valName, alignment, config):
+        super(OfflineValidation, self).__init__(valName, alignment, config,
+                                                "offline")
 
-        for option in deprecateddefaults:
+        for option in self.deprecateddefaults:
             if self.general[option]:
                 raise AllInOneError("The '%s' option has been moved to the [plots:offline] section.  Please specify it there."%option)
             del self.general[option]
@@ -76,19 +70,18 @@ class OfflineValidation(GenericValidationData):
                                         "in the [alternateTemplates] section, and choose the alternate template yourself.")
 
         cfgs = {cfgName: templateToUse}
-        self.filesToCompare[
-            GenericValidationData.defaultReferenceName ] = repMap["finalResultFile"]
-        return GenericValidationData.createConfiguration(self, cfgs, path, repMap = repMap)
+        self.filesToCompare[self.defaultReferenceName ] = repMap["finalResultFile"]
+        return super(OfflineValidation, self).createConfiguration(cfgs, path, repMap = repMap)
 
     def createScript(self, path):
-        return GenericValidationData.createScript(self, path)
+        return super(OfflineValidation, self).createScript(path)
 
 
     def createCrabCfg(self, path):
-        return GenericValidationData.createCrabCfg(self, path, self.crabCfgBaseName)
+        return super(OfflineValidation, self).createCrabCfg(path, self.crabCfgBaseName)
 
     def getRepMap(self, alignment = None):
-        repMap = GenericValidationData.getRepMap(self, alignment)
+        repMap = super(OfflineValidation, self).getRepMap(alignment)
         repMap.update({
             "nEvents": self.general["maxevents"],
             "TrackSelectionTemplate": configTemplates.TrackSelectionTemplate,
@@ -96,6 +89,7 @@ class OfflineValidation(GenericValidationData):
             "offlineValidationMode": "Standalone",
             "offlineValidationFileOutput": configTemplates.offlineFileOutputTemplate,
             "TrackCollection": self.general["trackcollection"],
+            "filetoplot": "root://eoscms//eos/cms.oO[finalResultFile]Oo.",
             })
 
         return repMap
@@ -107,11 +101,12 @@ class OfflineValidation(GenericValidationData):
         """
         repMap = self.getRepMap()
         if validationsSoFar == "":
-            validationsSoFar = ('PlotAlignmentValidation p("root://eoscms//eos/cms%(finalResultFile)s",'
-                                '"%(title)s", %(color)s, %(style)s, .oO[bigtext]Oo.);\n')%repMap
+            validationsSoFar = replaceByMap('PlotAlignmentValidation p(".oO[filetoplot]Oo.",'
+                                            '".oO[title]Oo.", .oO[color]Oo., .oO[style]Oo., bigtext);\n',
+                                            repMap)
         else:
-            validationsSoFar += ('  p.loadFileList("root://eoscms//eos/cms%(finalResultFile)s", "%(title)s",'
-                                 '%(color)s, %(style)s);\n')%repMap
+            validationsSoFar += replaceByMap('  p.loadFileList(".oO[filetoplot]Oo.", ".oO[title]Oo.",'
+                                             '.oO[color]Oo., .oO[style]Oo.);\n', repMap)
         return validationsSoFar
 
     def appendToMerge( self, validationsSoFar = "" ):
@@ -130,9 +125,9 @@ class OfflineValidation(GenericValidationData):
         return validationsSoFar
 
 class OfflineValidationDQM(OfflineValidation):
-    def __init__(self, valName, alignment, config, configBaseName = "TkAlOfflineValidationDQM"):
-        OfflineValidation.__init__(self, valName, alignment, config,
-                                   configBaseName = configBaseName)
+    configBaseName = "TkAlOfflineValidationDQM"
+    def __init__(self, valName, alignment, config):
+        super(OfflineValidationDQM, self).__init__(valName, alignment, config)
         if not config.has_section("DQM"):
             msg = "You need to have a DQM section in your configfile!"
             raise AllInOneError(msg)
@@ -141,14 +136,8 @@ class OfflineValidationDQM(OfflineValidation):
         self.__firstRun = int(config.get("DQM", "firstRun"))
         self.__lastRun = int(config.get("DQM", "lastRun"))
 
-    def createConfiguration(self, path):
-        OfflineValidation.createConfiguration(self, path)
-        
-    def createScript(self, path):
-        return OfflineValidation.createScript(self, path)
-
     def getRepMap(self, alignment = None):
-        repMap = OfflineValidation.getRepMap(self, alignment)
+        repMap = super(OfflineValidationDQM, self).getRepMap(alignment)
         repMap.update({
                 "workdir": os.path.expandvars(repMap["workdir"]),
 		"offlineValidationMode": "Dqm",
