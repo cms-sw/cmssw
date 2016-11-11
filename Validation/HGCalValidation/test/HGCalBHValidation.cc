@@ -57,7 +57,7 @@ private:
   int                                         iSample_;
   double                                      threshold_;
   edm::EDGetTokenT<edm::PCaloHitContainer>    tok_hits_;
-  edm::EDGetTokenT<HBHEUpgradeDigiCollection> tok_hbhe_;
+  edm::EDGetTokenT<QIE11DigiCollection>       tok_hbhe_;
   int                                         etaMax_;
 
   TH1D                                       *hsimE1_, *hsimE2_, *hsimTm_;
@@ -78,7 +78,7 @@ HGCalBHValidation::HGCalBHValidation(const edm::ParameterSet& ps) {
   threshold_= ps.getUntrackedParameter<double>("Threshold",12.0);
 
   tok_hits_ = consumes<edm::PCaloHitContainer>(edm::InputTag(g4Label_,hcalHits_));
-  tok_hbhe_ = consumes<HBHEUpgradeDigiCollection>(hcalDigis_);
+  tok_hbhe_ = consumes<QIE11DigiCollection>(hcalDigis_);
 #ifdef EDM_ML_DEBUG
   std::cout << "HGCalBHValidation::Input for SimHit: " 
 	    << edm::InputTag(g4Label_,hcalHits_) << "  Digits: " 
@@ -184,10 +184,10 @@ void HGCalBHValidation::analyze(const edm::Event& e, const edm::EventSetup& ) {
   }
 
   //Digits
-  edm::Handle<HBHEUpgradeDigiCollection> hbhecoll;
+  edm::Handle<QIE11DigiCollection> hbhecoll;
   e.getByToken(tok_hbhe_, hbhecoll);
 #ifdef EDM_ML_DEBUG  
-  std::cout << "HGCalBHValidation.: HBHEUpgradeDigiCollection obtained with"
+  std::cout << "HGCalBHValidation.: HBHEQIE11DigiCollection obtained with"
 	    << " flag " << hbhecoll.isValid() << std::endl;
 #endif
   if (hbhecoll.isValid()) {
@@ -196,10 +196,11 @@ void HGCalBHValidation::analyze(const edm::Event& e, const edm::EventSetup& ) {
 	      << std::endl;
     unsigned int i(0);
 #endif
-    for (HBHEUpgradeDigiCollection::const_iterator it=hbhecoll->begin(); 
+    for (QIE11DigiCollection::const_iterator it=hbhecoll->begin(); 
 	 it != hbhecoll->end(); ++it) {
-      HcalDetId cell(it->id());
-      double energy = it->adc(iSample_);
+      QIE11DataFrame df(*it);
+      HcalDetId cell(df.id());
+      double energy = df[iSample_].adc();
       if (energy > threshold_) {
 	int    eta    = cell.ieta();
 	int    phi    = cell.iphi();
