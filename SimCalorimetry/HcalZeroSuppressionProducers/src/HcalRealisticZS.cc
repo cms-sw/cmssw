@@ -18,8 +18,6 @@ HcalRealisticZS::HcalRealisticZS(edm::ParameterSet const& conf):
   tok_hbhe_ = consumes<HBHEDigiCollection>(edm::InputTag(inputLabel_));
   tok_ho_ = consumes<HODigiCollection>(edm::InputTag(inputLabel_));
   tok_hf_ = consumes<HFDigiCollection>(edm::InputTag(inputLabel_));
-  tok_hbheUpgrade_ = consumes<HBHEUpgradeDigiCollection>(edm::InputTag(inputLabel_, "HBHEUpgradeDigiCollection"));
-  tok_hfUpgrade_ = consumes<HFUpgradeDigiCollection>(edm::InputTag(inputLabel_, "HFUpgradeDigiCollection"));
   tok_hfQIE10_ = consumes<QIE10DigiCollection>(edm::InputTag(inputLabel_, "HFQIE10DigiCollection"));
   tok_hbheQIE11_ = consumes<QIE11DigiCollection>(edm::InputTag(inputLabel_, "HBHEQIE11DigiCollection"));
 
@@ -89,8 +87,6 @@ HcalRealisticZS::HcalRealisticZS(edm::ParameterSet const& conf):
     produces<HBHEDigiCollection>();
     produces<HODigiCollection>();
     produces<HFDigiCollection>();
-    produces<HBHEUpgradeDigiCollection>("HBHEUpgradeDigiCollection");
-    produces<HFUpgradeDigiCollection>("HFUpgradeDigiCollection");
     produces<QIE10DigiCollection>("HFQIE10DigiCollection");
     produces<QIE11DigiCollection>("HBHEQIE11DigiCollection");
    
@@ -106,8 +102,6 @@ void HcalRealisticZS::produce(edm::Event& e, const edm::EventSetup& eventSetup)
   edm::Handle<HBHEDigiCollection> hbhe;    
   edm::Handle<HODigiCollection> ho;    
   edm::Handle<HFDigiCollection> hf;
-  edm::Handle<HBHEUpgradeDigiCollection> hbheUpgrade;
-  edm::Handle<HFUpgradeDigiCollection> hfUpgrade;
   edm::Handle<QIE10DigiCollection> hfQIE10;
   edm::Handle<QIE11DigiCollection> hbheQIE11;
 
@@ -130,14 +124,10 @@ void HcalRealisticZS::produce(edm::Event& e, const edm::EventSetup& eventSetup)
   // create empty output
   std::unique_ptr<HFDigiCollection> zs_hf(new HFDigiCollection);
   
-  e.getByToken(tok_hbheUpgrade_,hbheUpgrade);
-  e.getByToken(tok_hfUpgrade_,hfUpgrade);
   e.getByToken(tok_hfQIE10_,hfQIE10);
   e.getByToken(tok_hbheQIE11_,hbheQIE11);
   
   // create empty output
-  std::unique_ptr<HBHEUpgradeDigiCollection> zs_hbheUpgrade(new HBHEUpgradeDigiCollection);
-  std::unique_ptr<HFUpgradeDigiCollection> zs_hfUpgrade(new HFUpgradeDigiCollection);
   std::unique_ptr<QIE10DigiCollection> zs_hfQIE10(new QIE10DigiCollection);
   std::unique_ptr<QIE11DigiCollection> zs_hbheQIE11(new QIE11DigiCollection);
   
@@ -146,8 +136,6 @@ void HcalRealisticZS::produce(edm::Event& e, const edm::EventSetup& eventSetup)
   algo_->suppress(*(hbhe.product()),*zs_hbhe);
   algo_->suppress(*(ho.product()),*zs_ho);
   algo_->suppress(*(hf.product()),*zs_hf);
-  algo_->suppress(*(hbheUpgrade.product()),*zs_hbheUpgrade);
-  algo_->suppress(*(hfUpgrade.product()),*zs_hfUpgrade);
   algo_->suppress(*(hfQIE10.product()),*zs_hfQIE10);
   algo_->suppress(*(hbheQIE11.product()),*zs_hbheQIE11);
 
@@ -155,8 +143,6 @@ void HcalRealisticZS::produce(edm::Event& e, const edm::EventSetup& eventSetup)
   edm::LogInfo("HcalZeroSuppression") << "Suppression (HBHE) input " << hbhe->size() << " digis, output " << zs_hbhe->size() << " digis" 
 				      <<  " (HO) input " << ho->size() << " digis, output " << zs_ho->size() << " digis"
 				      <<  " (HF) input " << hf->size() << " digis, output " << zs_hf->size() << " digis"
-				      <<  " (HBHEUpgrade) input " << hbheUpgrade->size() << " digis, output " << zs_hbheUpgrade->size() << " digis"
-				      <<  " (HFUpgrade) input " << hfUpgrade->size() << " digis, output " << zs_hfUpgrade->size() << " digis"
 				      <<  " (HFQIE10) input " << hfQIE10->size() << " digis, output " << zs_hfQIE10->size() << " digis"
 				      <<  " (HBHEQIE11) input " << hbheQIE11->size() << " digis, output " << zs_hbheQIE11->size() << " digis";
   
@@ -165,8 +151,6 @@ void HcalRealisticZS::produce(edm::Event& e, const edm::EventSetup& eventSetup)
     e.put(std::move(zs_hbhe));
     e.put(std::move(zs_ho));
     e.put(std::move(zs_hf));
-    e.put(std::move(zs_hbheUpgrade),"HBHEUpgradeDigiCollection");
-    e.put(std::move(zs_hfUpgrade),"HFUpgradeDigiCollection");
     e.put(std::move(zs_hfQIE10),"HFQIE10DigiCollection");
     e.put(std::move(zs_hbheQIE11),"HBHEQIE11DigiCollection");
 
