@@ -178,13 +178,22 @@ void AlignableDetUnit::addSurfaceDeformation(const SurfaceDeformation *deformati
 //__________________________________________________________________________________________________
 void AlignableDetUnit::dump() const
 {
+  std::ostringstream parameters;
+  if (theSurfaceDeformation) {
+    parameters << "    surface deformation parameters:";
+    for (const auto& param: theSurfaceDeformation->parameters()) {
+      parameters << " " << param;
+    }
+  } else {
+    parameters << "    no surface deformation parameters";
+  }
 
   edm::LogInfo("AlignableDump") 
     << " AlignableDetUnit has position = " << this->globalPosition() 
     << ", orientation:" << std::endl << this->globalRotation() << std::endl
     << " total displacement and rotation: " << this->displacement() << std::endl
-    << this->rotation();
-
+    << this->rotation() << "\n"
+    << parameters.str();
 }
 
 
