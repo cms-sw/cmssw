@@ -7,13 +7,15 @@
 #include <iostream>
 #include <fstream>
 
+#include <time.h>
+
 // To compile run these lines in your CMSSW_X_Y_Z/src/ :
 /*
 cmsenv
-eval "export `scram tool info xerces-c | sed -n -e 's/INCLUDE=/XERC_INC=/gp'`"
-eval "export `scram tool info xerces-c | sed -n -e 's/LIBDIR=/XERC_LIB=/gp'`"
-eval "export `scram tool info boost    | sed -n -e 's/INCLUDE=/BOOST_INC=/gp'`"
-eval "export `scram tool info boost    | sed -n -e 's/LIBDIR=/BOOST_LIB=/gp'`"
+eval "setenv `scram tool info xerces-c | sed -n -e 's/INCLUDE=/XERC_INC /gp'`"
+eval "setenv `scram tool info xerces-c | sed -n -e 's/LIBDIR=/XERC_LIB /gp'`"
+eval "setenv `scram tool info boost    | sed -n -e 's/INCLUDE=/BOOST_INC /gp'`"
+eval "setenv `scram tool info boost    | sed -n -e 's/LIBDIR=/BOOST_LIB /gp'`"
 g++ -g -std=c++11 -o test reademtf.cpp -I./ -I$CMSSW_RELEASE_BASE/src -I$XERC_INC -L$XERC_LIB -lxerces-c -I$BOOST_INC -L$BOOST_LIB -lboost_thread -lboost_signals -lboost_date_time -L$CMSSW_RELEASE_BASE/lib/$SCRAM_ARCH/ -lFWCoreMessageLogger -lCondFormatsL1TObjects
 */
 
@@ -58,9 +60,23 @@ int main(int argc, char *argv[]){
     trgSys.setConfigured();
 
     try {
-        map<string, l1t::Setting> conf = trgSys.getSettings("EMTF+1");
-        string tmp = conf["control_firmware_version"].getValueAsStr();
-        cout << "bmtfInputsToDisable=" << tmp << endl;
+
+        map<string, l1t::Setting> conf1 = trgSys.getSettings("EMTF+1");
+        string tmp1 = conf1["control_firmware_version"].getValueAsStr();
+        cout << "EMTF+1 control_firmware_version =" << tmp1 << endl;
+
+        map<string, l1t::Setting> conf2 = trgSys.getSettings("EMTF-1");
+        string tmp2 = conf2["control_firmware_version"].getValueAsStr();
+        cout << "EMTF-1 control_firmware_version =" << tmp2 << endl;
+
+        string core_fwv = conf2["core_firmware_version"].getValueAsStr();
+        tm brokenTime;
+        strptime(core_fwv.c_str(), "%Y-%m-%d %T", &brokenTime);
+        time_t sinceEpoch = timegm(&brokenTime);
+        cout << sinceEpoch << endl;
+
+        cout << "pT LUT version "<< conf2["pt_lut_version"].getValue<unsigned int>() << endl;
+
     } catch ( std::runtime_error &e ){
         cout << "Exception thrown: "<< e.what() << endl;
     }
