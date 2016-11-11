@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process("digiTest")
+process = cms.Process('digiTest',eras.Phase2C2)
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(-1)
 )
@@ -14,22 +14,20 @@ process.maxEvents = cms.untracked.PSet(
 process.load('Configuration.StandardSequences.Services_cff')
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.EventContent.EventContent_cff')
-#process.load('Configuration.Geometry.GeometryExtended2023tiltedReco_cff')
-process.load('Configuration.Geometry.GeometryExtended2023D3Reco_cff')
-process.load('Configuration.StandardSequences.MagneticField_38T_cff')
+process.load('Configuration.Geometry.GeometryExtended2023D4Reco_cff')
+process.load('Configuration.StandardSequences.MagneticField_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 
 # Other statements
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:upgradePLS3', '')
-
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic', '')
 # list of files
 
 process.source = cms.Source("PoolSource",
     fileNames =  cms.untracked.vstring(
-         'file:step2_DIGI.root'
-       )
+        'file:step2_DIGI.root'
+      )
 )
 # Production Info
 process.configurationMetadata = cms.untracked.PSet(
@@ -63,16 +61,3 @@ process.DQMoutput_step = cms.EndPath(process.DQMoutput)
 
 #process.digi_step = cms.Sequence(process.siPixelRawData*process.siPixelDigis)
 process.p = cms.Path(process.digiana_seq * process.dqm_comm )
-
-# customisation of the process.                                                                                                                              
-
-# Automatic addition of the customisation function from SLHCUpgradeSimulations.Configuration.combinedCustoms                                                 
-#from SLHCUpgradeSimulations.Configuration.combinedCustoms import cust_2023tilted
-
-#call to customisation function cust_2023tilted imported from SLHCUpgradeSimulations.Configuration.combinedCustoms                                          
-#process = cust_2023tilted(process)
-# Automatic addition of the customisation function from SLHCUpgradeSimulations.Configuration.combinedCustoms
-from SLHCUpgradeSimulations.Configuration.combinedCustoms import cust_2023LReco 
-
-#call to customisation function cust_2023LReco imported from SLHCUpgradeSimulations.Configuration.combinedCustoms
-process = cust_2023LReco(process)
