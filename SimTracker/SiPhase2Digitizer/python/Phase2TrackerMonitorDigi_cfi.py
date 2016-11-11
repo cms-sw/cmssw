@@ -12,6 +12,16 @@ digiMon = cms.EDAnalyzer("Phase2TrackerMonitorDigi",
            xmin = cms.double(-0.5),
            xmax = cms.double(200.5)
     ),
+    DigiOccupancySH = cms.PSet(
+           Nbins = cms.int32(51),
+           xmin = cms.double(-0.001),
+           xmax = cms.double(0.05)
+    ),
+    DigiOccupancyPH = cms.PSet(
+           Nbins = cms.int32(51),
+           xmin = cms.double(-0.0001),
+           xmax = cms.double(0.005)
+    ),
     PositionOfDigisH = cms.PSet(
            Nxbins = cms.int32(260),
            xmin   = cms.double(0.5),
@@ -47,18 +57,18 @@ digiMon = cms.EDAnalyzer("Phase2TrackerMonitorDigi",
     ),  
     XYPositionMapH = cms.PSet(
            Nxbins = cms.int32(1200),
-           xmin   = cms.double(-1200.),
-           xmax   = cms.double(1200.),
+           xmin   = cms.double(-120.),
+           xmax   = cms.double(120.),
            Nybins = cms.int32(1200),
-           ymin   = cms.double(-1200.),
-           ymax   = cms.double(1200.)
-    ),
+           ymin   = cms.double(-120.),
+           ymax   = cms.double(120.)
+   ),
     RZPositionMapH = cms.PSet(
            Nxbins = cms.int32(3000),
-           xmin   = cms.double(-3000.),
-           xmax   = cms.double(3000.),
-           Nybins = cms.int32(600),
+           xmin   = cms.double(-300.),
+           xmax   = cms.double(300.),
+           Nybins = cms.int32(3000),
            ymin   = cms.double(0.),
-           ymax   = cms.double(1200.)
+           ymax   = cms.double(120.)
     )
 )
