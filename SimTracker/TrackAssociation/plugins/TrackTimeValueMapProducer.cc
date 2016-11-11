@@ -54,6 +54,8 @@ private:
   const edm::EDGetTokenT<edm::HepMCProduct> hepMCProduct_;
   // tracking particle associators by order of preference
   const std::vector<edm::EDGetTokenT<reco::TrackToTrackingParticleAssociator> > associators_;  
+  // eta bounds
+  const float etaMin_, etaMax_;
   // options
   std::vector<std::unique_ptr<const ResolutionModel> > resolutions_;
   // functions
@@ -87,7 +89,9 @@ TrackTimeValueMapProducer::TrackTimeValueMapProducer(const edm::ParameterSet& co
   tracksName_(conf.getParameter<edm::InputTag>("trackSrc").label()),
   trackingParticles_(consumes<TrackingParticleCollection>( conf.getParameter<edm::InputTag>("trackingParticleSrc") ) ),
   trackingVertices_(consumes<TrackingVertexCollection>( conf.getParameter<edm::InputTag>("trackingVertexSrc") ) ),
-  associators_( edm::vector_transform( conf.getParameter<std::vector<edm::InputTag> >("associators"), [this](const edm::InputTag& tag){ return this->consumes<reco::TrackToTrackingParticleAssociator>(tag); } ) )
+  associators_( edm::vector_transform( conf.getParameter<std::vector<edm::InputTag> >("associators"), [this](const edm::InputTag& tag){ return this->consumes<reco::TrackToTrackingParticleAssociator>(tag); } ) ),
+  etaMin_( conf.getParameter<double>("etaMin") ),
+  etaMax_( conf.getParameter<double>("etaMax") )  
 {
   // setup resolution models
   const std::vector<edm::ParameterSet>& resos = conf.getParameterSetVector("resolutionModels");
@@ -176,10 +180,14 @@ void TrackTimeValueMapProducer::calculateTrackTimes( const edm::View<reco::Track
   for( unsigned itk = 0; itk < tkcoll.size(); ++itk ) {
     const auto tkref = tkcoll.refAt(itk);
     reco::RecoToSimCollection::const_iterator track_tps = assocs.back().end();
-    for( const auto& association : assocs ) {
-      track_tps = association.find(tkref);
-      if( track_tps != association.end() ) break;
-    }
+    const float absEta = std::abs(tkref->eta());
+    if( absEta < etaMax_ && absEta >= etaMin_ ) {
+      for( const auto& association : assocs ) {
+	track_tps = association.find(tkref);
+	if( track_tps != association.end() ) break;
+      }
+    }    
+
     if( track_tps != assocs.back().end() ) {
       if( !track_tps->val.size() ) {
         tvals.push_back(flt_max);
