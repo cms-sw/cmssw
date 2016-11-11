@@ -283,12 +283,9 @@ def customizeHLTForPFTrackingPhaseI2017(process):
          	v = ModuleNodeVisitor(l)
           	seq.visit(v)		
 		if process.hltPixelTracks in l and not process.hltPixelLayerQuadruplets in l:
-			print seqName
-			print seq
 			seq.remove(process.hltPixelLayerTriplets)
 			index = seq.index(process.hltPixelTracks)
 			seq.insert(index,process.hltPixelLayerQuadruplets)
-			print seq
 	
 	from RecoTracker.Configuration.customiseForQuadrupletsByCellularAutomaton import customiseForQuadrupletsByCellularAutomaton
 	process = customiseForQuadrupletsByCellularAutomaton(process)
