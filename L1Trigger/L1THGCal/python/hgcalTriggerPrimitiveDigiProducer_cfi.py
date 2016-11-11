@@ -17,16 +17,23 @@ fe_codec = cms.PSet( CodecName  = cms.string('HGCalTriggerCellBestChoiceCodec'),
                      tdcsaturation = digiparam.hgceeDigitizer.digiCfg.feCfg.tdcSaturation_fC,
                      tdcnBits = digiparam.hgceeDigitizer.digiCfg.feCfg.tdcNbits,
                      tdcOnsetfC = digiparam.hgceeDigitizer.digiCfg.feCfg.tdcOnset_fC,
-                     fCxMIPee = recoparam.HGCalUncalibRecHit.HGCEEConfig.fCPerMIP,
-                     fCxMIPfh = recoparam.HGCalUncalibRecHit.HGCHEFConfig.fCPerMIP,
-                     dEdXweights = recocalibparam.HGCalRecHit.layerWeights,
-                     thickCorr = recocalibparam.HGCalRecHit.thicknessCorrection
-                     )
-
     
+
+                 )
+    
+be_parameters = cms.PSet(
+    linLSB = cms.double(100./1024.),
+    triggerCellTruncationBits = cms.uint32(0),
+    fCperMIPee = recoparam.HGCalUncalibRecHit.HGCEEConfig.fCPerMIP,
+    fCperMIPfh = recoparam.HGCalUncalibRecHit.HGCHEFConfig.fCPerMIP,
+    dEdXweights = recocalibparam.HGCalRecHit.layerWeights,
+    thickCorr = recocalibparam.HGCalRecHit.thicknessCorrection                     
+    )
+
+
 cluster_algo =  cms.PSet( AlgorithmName = cms.string('FullModuleSumAlgo'),
-                          FECodec = fe_codec
-                          )
+                          FECodec = fe_codec                         
+                  )
 
 
 hgcalTriggerPrimitiveDigiProducer = cms.EDProducer(
@@ -35,9 +42,9 @@ hgcalTriggerPrimitiveDigiProducer = cms.EDProducer(
     fhDigis = cms.InputTag('mix:HGCDigisHEfront'),
     #bhDigis = cms.InputTag('mix:HGCDigisHEback'),
     FECodec = fe_codec.clone(),
+    calib_constant = be_parameters,
     BEConfiguration = cms.PSet( 
-        algorithms = cms.VPSet( cluster_algo ),
-        FECodec = fe_codec.clone()
+        algorithms = cms.VPSet( cluster_algo )
         )
     )
 

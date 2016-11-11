@@ -59,7 +59,8 @@ private:
     virtual void analyze(const edm::Event&, const edm::EventSetup&);
   
     // ----------member data ---------------------------
-    edm::InputTag TrgCells_tag_;
+    EDGetTokenT<HGCalTriggerCellBxCollection > tokenTrgCell_;
+   
     bool debug_;
     int _nEvent=0;
 
@@ -80,12 +81,12 @@ private:
 
 // constructors and destructor
 testCalibration::testCalibration(const edm::ParameterSet& iConfig) : 
+    tokenTrgCell_( consumes< HGCalTriggerCellBxCollection >( iConfig.getParameter<InputTag> ( "triggerCellInputTag" ) ) ),
     debug_( iConfig.getParameter<bool>( "DebugCode" ) )
 {
-    TrgCells_tag_ = edm::InputTag("hgcalTriggerPrimitiveDigiProducer:SingleCellClusterAlgo");
     
 //    consumes< BXVector< l1t::HGCalTriggerCell >  > (TrgCells_tag_);    
-    consumes< HGCalTriggerCellBxCollection > (TrgCells_tag_);    
+//    consumes< HGCalTriggerCellBxCollection > (TrgCells_tag_);    
    
     //now do what ever initialization is needed
     //edm::Service<TFileService> fs;
@@ -119,25 +120,28 @@ void testCalibration::analyze(const edm::Event& iEvent, const edm::EventSetup& i
     using namespace reco;
     using namespace HGCalTriggerBackend;
     using namespace l1t;
-    
-    Handle< BXVector<l1t::HGCalTriggerCell>  > trgCell;
-    iEvent.getByLabel(TrgCells_tag_, trgCell);
+
+    Handle<HGCalTriggerCellBxCollection>  trgCell;
+    iEvent.getByToken(tokenTrgCell_,  trgCell);
+        
+//    Handle< >;
+//    iEvent.getByLabel(TrgCells_tag_, trgCell);
    
     double E_allTC_endcap0=0.;
     double E_allTC_endcap1=0.;
    
-    for( size_t i=0; i<trgCell->size(); ++i){
-        HGCalDetId detid( (*trgCell)[i].detId());
+    for(size_t i=0; i<trgCell->size(); ++i){
+        HGCalDetId detid( (*trgCell)[i].detId() );
         int tc_layer = detid.layer();
 
-        if((*trgCell)[i].p4().Eta()<0) 
-            E_allTC_endcap0+=(*trgCell)[i].p4().Pt();
-        else if((*trgCell)[i].p4().Eta()>0) 
-            E_allTC_endcap1+=(*trgCell)[i].p4().Pt();
+        if((*trgCell)[i].eta()<0) 
+            E_allTC_endcap0+=(*trgCell)[i].pt();
+        else if((*trgCell)[i].eta()>0) 
+            E_allTC_endcap1+=(*trgCell)[i].pt();
         
-        h_tc_pt_->Fill((*trgCell)[i].p4().Pt());
-        h_tc_eta_->Fill((*trgCell)[i].p4().Eta());
-        h_tc_phi_->Fill((*trgCell)[i].p4().Phi());
+        h_tc_pt_->Fill((*trgCell)[i].pt());
+        h_tc_eta_->Fill((*trgCell)[i].eta());
+        h_tc_phi_->Fill((*trgCell)[i].phi());
         h_tc_layer_->Fill(tc_layer);
 
     }

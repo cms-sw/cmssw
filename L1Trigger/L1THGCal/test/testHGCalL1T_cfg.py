@@ -25,7 +25,7 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(20)
+    input = cms.untracked.int32(2)
 )
 
 # Input source
@@ -111,7 +111,10 @@ process.hgcalTriggerPrimitiveDigiProducer.FECodec.NData = cms.uint32(999)
 process.hgcalTriggerPrimitiveDigiProducer.FECodec.DataLength = cms.uint32(8)
 process.hgcalTriggerPrimitiveDigiProducer.FECodec.triggerCellTruncationBits = cms.uint32(7)
 cluster_algo_all =  cms.PSet( AlgorithmName = cms.string('SingleCellClusterAlgo'),
-                                 FECodec = process.hgcalTriggerPrimitiveDigiProducer.FECodec )
+                              FECodec = process.hgcalTriggerPrimitiveDigiProducer.FECodec,
+                              calib_constant = process.hgcalTriggerPrimitiveDigiProducer.calib_constant
+                              )
+
 process.hgcalTriggerPrimitiveDigiProducer.BEConfiguration.algorithms = cms.VPSet( cluster_algo_all )
 process.hgcl1tpg_step = cms.Path(process.hgcalTriggerPrimitives)
 

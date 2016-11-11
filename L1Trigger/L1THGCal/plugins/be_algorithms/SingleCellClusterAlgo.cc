@@ -23,7 +23,6 @@ class SingleCellClusterAlgo : public Algorithm<FECODEC>
             Algorithm<HGCalTriggerCellBestChoiceCodec>(conf),
             cluster_product_( new l1t::HGCalTriggerCellBxCollection ),
             calibration_(conf){}
-
         virtual void setProduces(edm::EDProducer& prod) const override final 
         {
             prod.produces<l1t::HGCalTriggerCellBxCollection>(name());

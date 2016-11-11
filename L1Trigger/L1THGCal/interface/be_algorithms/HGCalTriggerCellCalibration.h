@@ -18,21 +18,22 @@ class HGCalTriggerCellCalibration{
 
 public:
 
-    HGCalTriggerCellCalibration(const edm::ParameterSet& conf);    
+//    HGCalTriggerCellCalibration(const edm::ParameterSet& conf);    
+    HGCalTriggerCellCalibration(const edm::ParameterSet &conf);    
  
     l1t::HGCalTriggerCell calibrate(l1t::HGCalTriggerCell&, const edm::EventSetup& es); 
     void print();
-    edm::ESHandle<HGCalGeometry> hgceeGeoHandle_;
-    edm::ESHandle<HGCalGeometry> hgchefGeoHandle_;
+    edm::ESHandle<HGCalGeometry> hgceeGeoHandle;
+    edm::ESHandle<HGCalGeometry> hgchefGeoHandle;
 
 private:
     
-    double LSB_;
-    uint32_t trgCellTruncBit_;
-    std::vector<double> fCxMIP_ee_;
-    std::vector<double> fCxMIP_fh_;
-    std::vector<double> dEdX_weights_;
-    std::vector<double> thickCorr_;
+    double LSB;
+    uint32_t trgCellTruncBit;
+    std::vector<double> fCperMIP_ee;
+    std::vector<double> fCperMIP_fh;
+    std::vector<double> dEdX_weights;
+    std::vector<double> thickCorr;
 
 };
 
