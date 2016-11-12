@@ -5,6 +5,7 @@
 #include "CondFormats/HcalObjects/interface/HcalDetIdRelationship.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalZDCDetId.h"
+#include <vector>
 #include <unordered_map>
 #include <stdint.h>
 
@@ -18,6 +19,7 @@ public:
   const HcalCalibrations& getCalibrations(const DetId id) const;
   void setCalibrations(const DetId id, const HcalCalibrations& ca);
   void clear();
+  std::vector<DetId> getAllChannels() const;
 private:
   struct CalibSetObject {
     CalibSetObject(const DetId& aid) {

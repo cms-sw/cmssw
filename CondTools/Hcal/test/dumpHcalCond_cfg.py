@@ -37,6 +37,13 @@ process.prod = cms.EDAnalyzer("HcalDumpConditions",
 #    ,'LongRecoParams'
 #    ,'MCParams'
 #    ,'FlagHFDigiTimeParams'
+#    ,'SiPMParameters'
+#    ,'SiPMCharacteristics'
+#    ,'TPParameters'
+#    ,'TPChannelParameters'
+#    ,'FrontEndMap'
+#    ,'CalibrationsSet'
+#    ,'CalibrationWidthsSet'
         ),
     outFilePrefix = cms.untracked.string('DumpCond')
 )
