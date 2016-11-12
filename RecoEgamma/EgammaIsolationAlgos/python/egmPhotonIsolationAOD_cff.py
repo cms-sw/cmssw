@@ -15,7 +15,7 @@ egmPhotonIsolation = cms.EDProducer( "CITKPFIsolationSumProducer",
                                      srcToIsolate = cms.InputTag("gedPhotons"),
                                      srcForIsolationCone = cms.InputTag('pfNoPileUpCandidates'),
                                      isolationConeDefinitions = IsoConeDefinitions
-  )	
+                                     )	
 
 egmPhotonIsolationAODSequence = cms.Sequence(particleFlowTmpPtrs + pfParticleSelectionSequence + pfNoPileUpCandidates + egmPhotonIsolation)
 
