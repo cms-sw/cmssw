@@ -1,28 +1,33 @@
-# Misc loads for VID framework
-from RecoEgamma.PhotonIdentification.egmPhotonIDs_cfi import *
-from PhysicsTools.SelectorUtils.centralIDRegistry import central_id_registry
+import FWCore.ParameterSet.Config as cms
 
-# Load the producer module to build full 5x5 cluster shapes and whatever 
-# else is needed for IDs
-from RecoEgamma.PhotonIdentification.PhotonIDValueMapProducer_cfi import *
+from PhysicsTools.SelectorUtils.tools.auxiliary_cff import DataFormat
 
-# Load the producer for MVA IDs. Make sure it is also added to the sequence!
-from RecoEgamma.PhotonIdentification.PhotonMVAValueMapProducer_cfi import *
-from RecoEgamma.PhotonIdentification.PhotonRegressionValueMapProducer_cfi import *
+def LoadEgmIdSequence(process, dataFormat):
+    process.load("RecoEgamma.PhotonIdentification.egmPhotonIDs_cfi")
+    from PhysicsTools.SelectorUtils.centralIDRegistry import central_id_registry
 
-# Load sequences for isolations computed with CITK for both AOD and miniAOD cases
-from RecoEgamma.EgammaIsolationAlgos.egmPhotonIsolationAOD_cff     import egmPhotonIsolationAODSequence
-from RecoEgamma.EgammaIsolationAlgos.egmPhotonIsolationMiniAOD_cff import egmPhotonIsolationMiniAODSequence
+    # Load the producer module to build full 5x5 cluster shapes and whatever 
+    # else is needed for IDs
+    process.load("RecoEgamma.PhotonIdentification.PhotonIDValueMapProducer_cfi")
 
-# The exact sequence below is important. The MVA ValueMapProducer
-# needs to be downstream from the ID ValueMapProducer because it relies 
-# on some of its products, for example.
+    # Load the producer for MVA IDs. Make sure it is also added to the sequence!
+    process.load("RecoEgamma.PhotonIdentification.PhotonMVAValueMapProducer_cfi")
+    process.load("RecoEgamma.PhotonIdentification.PhotonRegressionValueMapProducer_cfi")
 
-# The sequences for AOD and miniAOD are defined separately.
-egmPhotonIDSequenceAOD = cms.Sequence(egmPhotonIsolationAODSequence * photonIDValueMapProducer * photonMVAValueMapProducer * egmPhotonIDs * photonRegressionValueMapProducer )
-egmPhotonIDSequenceMiniAOD = cms.Sequence(egmPhotonIsolationMiniAODSequence * photonIDValueMapProducer * photonMVAValueMapProducer * egmPhotonIDs * photonRegressionValueMapProducer )
-
-# The default case is miniAOD, however this can be controlled 
-# via the data format argument of the function in vid_tools.py that switches
-# on VID tools: switchOnVIDPhotonIdProducer(process, dataFormat)
-egmPhotonIDSequence = cms.Sequence(egmPhotonIDSequenceMiniAOD)
+    # Load sequences for isolations computed with CITK for both AOD and miniAOD cases
+    if dataFormat== DataFormat.AOD:
+        process.load("RecoEgamma.EgammaIsolationAlgos.egmPhotonIsolationAOD_cff")
+        process.egmPhotonIDSequence = cms.Sequence(process.egmPhotonIsolationAODSequence 
+                                                   * process.photonIDValueMapProducer 
+                                                   * process.photonMVAValueMapProducer 
+                                                   * process.egmPhotonIDs 
+                                                   * process.photonRegressionValueMapProducer )
+    elif dataFormat== DataFormat.MiniAOD:
+        process.load("RecoEgamma.EgammaIsolationAlgos.egmPhotonIsolationMiniAOD_cff")
+        process.egmPhotonIDSequence = cms.Sequence(process.egmPhotonIsolationMiniAODSequence 
+                                                   * process.photonIDValueMapProducer 
+                                                   * process.photonMVAValueMapProducer 
+                                                   * process.egmPhotonIDs 
+                                                   * process.photonRegressionValueMapProducer )
+    else:
+        raise Exception('InvalidVIDDataFormat', 'The requested data format is different from AOD or MiniAOD')
