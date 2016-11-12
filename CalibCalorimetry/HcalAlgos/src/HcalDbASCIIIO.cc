@@ -2079,3 +2079,44 @@ bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalTPParameters& f
 
   return true;
 }
+
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalCalibrationsSet& fObject) {
+  char buffer [1024];
+  sprintf (buffer, "# %15s %15s %15s %15s %8s %8s %8s %8s %8s %8s %8s %8s %10s\n", 
+    "eta", "phi", "dep", "det", "pedcap0", "pedcap1", "pedcap2", "pedcap3", "gaincap0", "gaincap1", "gaincap2", "gaincap3", "DetId");
+  fOutput << buffer;
+
+  std::vector<DetId> channels = fObject.getAllChannels ();
+  std::sort (channels.begin(), channels.end(), DetIdLess ());
+  for (std::vector<DetId>::iterator channel = channels.begin (); channel != channels.end (); ++channel) {
+    dumpId (fOutput, *channel);
+    const HcalCalibrations& values = fObject.getCalibrations(*channel);
+    sprintf (buffer, " %8.5f %8.5f %8.5f %8.5f %8.5f %8.5f %8.5f %8.5f %10X\n",
+      values.pedestal(0), values.pedestal(1), values.pedestal(2), values.pedestal(3),
+      values.respcorrgain(0), values.respcorrgain(1), values.respcorrgain(2), values.respcorrgain(3), channel->rawId ());
+    fOutput << buffer;
+  }
+  return true;
+}
+
+bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalCalibrationWidthsSet& fObject) {
+  char buffer [1024];
+  sprintf (buffer, "# %15s %15s %15s %15s %8s %8s %8s %8s %9s %9s %9s %9s %10s\n", 
+    "eta", "phi", "dep", "det", "pedwcap0", "pedwcap1", "pedwcap2", "pedwcap3", "gainwcap0", "gainwcap1", "gainwcap2", "gainwcap3", "DetId");
+  fOutput << buffer;
+
+  std::vector<DetId> channels = fObject.getAllChannels ();
+  std::sort (channels.begin(), channels.end(), DetIdLess ());
+  for (std::vector<DetId>::iterator channel = channels.begin (); channel != channels.end (); ++channel) {
+    dumpId (fOutput, *channel);
+    const HcalCalibrationWidths& values = fObject.getCalibrationWidths(*channel);
+    sprintf (buffer, " %8.5f %8.5f %8.5f %8.5f %8.5f %8.5f %8.5f %8.5f %10X\n",
+      values.pedestal(0), values.pedestal(1), values.pedestal(2), values.pedestal(3),
+      values.gain(0), values.gain(1), values.gain(2), values.gain(3), channel->rawId ());
+    fOutput << buffer;
+  }
+  return true;
+}
+
