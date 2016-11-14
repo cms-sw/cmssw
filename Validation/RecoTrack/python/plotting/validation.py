@@ -204,7 +204,8 @@ _globalTags = {
     "CMSSW_8_1_0_pre12_phase1_newHCAL": {"default": "81X_upgrade2017_HCALdev_v2_HcalGeom"},
     "CMSSW_8_1_0_pre12_phase1_newBPixHCAL": {"default": "81X_upgrade2017_HCALdev_v2_NewBPix_BpixHcalGeom"},
     "CMSSW_8_1_0_pre15": {"default": "81X_mcRun2_asymptotic_v11"},
-    "CMSSW_8_1_0_pre15_phase1": {"default": "81X_upgrade2017_realistic_v17_BpixFpixHcalGeom", "Design": "81X_upgrade2017_design_IdealBS_v1_2017design"},
+    "CMSSW_8_1_0_pre15_phase1": {"default": "81X_upgrade2017_realistic_v17_BpixFpixHcalGeom",
+                                 "Design": "81X_upgrade2017_design_IdealBS_v1_2017design", "Design_fullsim_25ns": "81X_upgrade2017_design_IdealBS_v1_design"},
 }
 
 _releasePostfixes = ["_AlcaCSA14", "_PHYS14", "_TEST", "_v2", "_v3", "_pmx", "_Fall14DR", "_FIXGT", "_PU", "_PXbest", "_PXworst", "_hcal", "_tec", "_71XGENSIM", "_73XGENSIM", "_BS", "_GenSim_7113", "_extended",
@@ -232,23 +233,38 @@ def _getGlobalTag(sample, release):
         ogt = sample.overrideGlobalTag()
         if release in ogt:
             gtmap = _globalTags[ogt[release]]
+    scenario = ""
+    if sample.hasScenario():
+        scenario = sample.scenario()
+    sim = ""
     if sample.fullsim():
-        if sample.hasScenario():
-            selectedGT = gtmap[sample.scenario()]
-        elif sample.pileupEnabled():
-            puType = sample.pileupType()
-            if "50ns" in puType:
-                selectedGT = gtmap.get("fullsim_50ns", gtmap["default"])
-            if "25ns" in puType:
-                selectedGT = gtmap.get("fullsim_25ns", gtmap["default"])
-    if sample.fastsim():
-        selectedGT = gtmap.get("fastsim", gtmap["default"])
         if sample.pileupEnabled():
-            puType = sample.pileupType()
-            if "25ns" in puType:
-                selectedGT = gtmap.get("fastsim_25ns", selectedGT)
+            sim = "fullsim_"+sample.pileupType()
+    elif sample.fastsim():
+        sim = "fastsim"
+        if sample.pileupEnabled():
+            sim += "_"+sample.pileupType()
+
+    selectedGT = None
+    # First try with scenario+simulation
+    if scenario != "":
+        key = scenario
+        if sim != "":
+            key += "_"+sim
+        # Then with scenario (but only if sample specifies a scenario)
+        selectedGT = gtmap.get(key, None)
+        if selectedGT is None:
+            selectedGT = gtmap.get(scenario, None)
+    # Then with simulation
+    if selectedGT is None:
+        key = sim
+        if key == "":
+            key = "default"
+        selectedGT = gtmap.get(key, None)
+    # Finally default
     if selectedGT is None:
         selectedGT = gtmap["default"]
+
     if isinstance(selectedGT, dict):
         return selectedGT.get(sample.name(), selectedGT["default"])
     else:
