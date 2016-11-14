@@ -28,6 +28,9 @@ class AlignableCSCChamber: public AlignableDet {
 
   /// Constructor
   AlignableCSCChamber(const GeomDet *geomDet);
+
+  /// Updater
+  virtual void update(const GeomDet* geomDet);
 };
 
 #endif  // ALIGNABLE_CSC_CHAMBER_H
