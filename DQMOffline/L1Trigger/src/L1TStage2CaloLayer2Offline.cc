@@ -30,6 +30,7 @@ L1TStage2CaloLayer2Offline::L1TStage2CaloLayer2Offline(const edm::ParameterSet& 
         triggerFilter_(ps.getParameter < edm::InputTag > ("TriggerFilter")),
         triggerPath_(ps.getParameter < std::string > ("TriggerPath")),
         histFolder_(ps.getParameter < std::string > ("histFolder")),
+        efficiencyFolder_(histFolder_ + "/efficiency_raw"),
         stage2CaloLayer2JetToken_(
             consumes < l1t::JetBxCollection > (ps.getParameter < edm::InputTag > ("stage2CaloLayer2JetSource"))),
         stage2CaloLayer2EtSumToken_(
@@ -215,25 +216,25 @@ void L1TStage2CaloLayer2Offline::fillEnergySums(edm::Event const& e, const unsig
   // efficiencies
   for (auto threshold : metEfficiencyThresholds_) {
     h_efficiencyMET_total_[threshold]->Fill(recoMET);
-    if (recoMET > threshold)
+    if (l1MET > threshold)
       h_efficiencyMET_pass_[threshold]->Fill(recoMET);
   }
 
   for (auto threshold : mhtEfficiencyThresholds_) {
     h_efficiencyMHT_total_[threshold]->Fill(recoMHT);
-    if (recoMHT > threshold)
+    if (l1MHT > threshold)
       h_efficiencyMHT_pass_[threshold]->Fill(recoMHT);
   }
 
   for (auto threshold : ettEfficiencyThresholds_) {
     h_efficiencyETT_total_[threshold]->Fill(recoETT);
-    if (recoETT > threshold)
+    if (l1ETT > threshold)
       h_efficiencyETT_pass_[threshold]->Fill(recoETT);
   }
 
   for (auto threshold : httEfficiencyThresholds_) {
     h_efficiencyHTT_total_[threshold]->Fill(recoHTT);
-    if (recoHTT > threshold)
+    if (l1HTT > threshold)
       h_efficiencyHTT_pass_[threshold]->Fill(recoHTT);
   }
 
@@ -444,6 +445,8 @@ void L1TStage2CaloLayer2Offline::bookEnergySumHistos(DQMStore::IBooker & ibooker
       "MET #phi resolution; (L1 MHT #phi - reco MHT #phi)/reco MHT #phi; events", 120, -0.3, 0.3);
 
   // energy sum turn ons
+  ibooker.setCurrentFolder(efficiencyFolder_.c_str());
+
   std::vector<float> metBins(metEfficiencyBins_.begin(), metEfficiencyBins_.end());
   std::vector<float> mhtBins(mhtEfficiencyBins_.begin(), mhtEfficiencyBins_.end());
   std::vector<float> ettBins(ettEfficiencyBins_.begin(), ettEfficiencyBins_.end());
@@ -537,6 +540,7 @@ void L1TStage2CaloLayer2Offline::bookJetHistos(DQMStore::IBooker & ibooker)
       "jet #eta resolution  (HB); (L1 Jet #eta - Offline Jet #eta)/Offline Jet #eta; events", 120, -0.3, 0.3);
 
   // jet turn-ons
+  ibooker.setCurrentFolder(efficiencyFolder_.c_str());
   std::vector<float> jetBins(jetEfficiencyBins_.begin(), jetEfficiencyBins_.end());
   int nBins = jetBins.size() - 1;
   float* jetBinArray = &(jetBins[0]);

@@ -95,6 +95,7 @@ private:
   edm::InputTag triggerFilter_;
   std::string triggerPath_;
   std::string histFolder_;
+  std::string efficiencyFolder_;
 
   edm::EDGetTokenT<l1t::JetBxCollection> stage2CaloLayer2JetToken_;
   edm::EDGetTokenT<l1t::EtSumBxCollection> stage2CaloLayer2EtSumToken_;

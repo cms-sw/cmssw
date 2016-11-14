@@ -31,18 +31,20 @@ from DQMOffline.L1Trigger.L1TEfficiencyHarvesting2_cfi import l1tEfficiencyHarve
 l1tStage2CaloLayer2Efficiency = l1tEfficiencyHarvesting.clone(
     plotCfgs=cms.untracked.VPSet(
         cms.untracked.PSet(
-            numeratorDir=cms.untracked.string("L1T/L1TStage2CaloLayer2"),
+            numeratorDir=cms.untracked.string("L1T/L1TStage2CaloLayer2/efficiency_raw"),
+            outputDir=cms.untracked.string("L1T/L1TStage2CaloLayer2"),
             numeratorSuffix=cms.untracked.string("_Num"),
             denominatorSuffix=cms.untracked.string("_Den"),
             plots=cms.untracked.vstring(allEfficiencyPlots)
         ),
         cms.untracked.PSet(
-            numeratorDir=cms.untracked.string("L1TEMU/L1TStage2CaloLayer2"),
+            numeratorDir=cms.untracked.string("L1TEMU/L1TStage2CaloLayer2/efficiency_raw"),
+            outputDir=cms.untracked.string("L1TEMU/L1TStage2CaloLayer2"),
             numeratorSuffix=cms.untracked.string("_Num"),
             denominatorSuffix=cms.untracked.string("_Den"),
             plots=cms.untracked.vstring(allEfficiencyPlots)
         ),
-        cms.untracked.PSet(
+        cms.untracked.PSet(# EMU comparison
             numeratorDir=cms.untracked.string("L1T/L1TStage2CaloLayer2"),
             denominatorDir=cms.untracked.string("L1TEMU/L1TStage2CaloLayer2"),
             outputDir=cms.untracked.string(
