@@ -275,6 +275,8 @@ class MillePedeAlignmentAlgorithm : public AlignmentAlgorithmBase
 
   const bool                runAtPCL_;
   const bool                ignoreHitsWithoutGlobalDerivatives_;
+  const align::RunRanges uniqueRunRanges_;
+  std::vector<align::RunNumber> cachedRuns_;
 };
 
 DEFINE_EDM_PLUGIN(AlignmentAlgorithmPluginFactory,

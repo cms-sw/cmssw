@@ -80,8 +80,14 @@ public:
   /// cache the current position, rotation and other parameters (e.g. surface deformations)
   virtual void cacheTransformation();
 
+  /// cache for the given run the current position, rotation and other parameters (e.g. surface deformations)
+  virtual void cacheTransformation(const align::RunNumber&);
+
   /// restore the previously cached transformation
   virtual void restoreCachedTransformation();
+
+  /// restore for the given run the previously cached transformation
+  virtual void restoreCachedTransformation(const align::RunNumber&);
 
   /// alignment position error - for checking only, otherwise use alignmentErrors() above!  
   const AlignmentPositionError* alignmentPositionError() const { return theAlignmentPositionError;}
@@ -91,6 +97,7 @@ private:
   AlignmentPositionError* theAlignmentPositionError;
   SurfaceDeformation* theSurfaceDeformation;
   SurfaceDeformation* theCachedSurfaceDeformation;
+  Cache<SurfaceDeformation*> surfaceDeformationsCache_;
 };
 
 #endif 

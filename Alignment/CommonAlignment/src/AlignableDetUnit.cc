@@ -38,6 +38,7 @@ AlignableDetUnit::~AlignableDetUnit()
   delete theAlignmentPositionError;
   delete theSurfaceDeformation;
   delete theCachedSurfaceDeformation;
+  for (auto surface: surfaceDeformationsCache_) delete surface.second;
 }
 
 //__________________________________________________________________________________________________
@@ -259,6 +260,24 @@ void AlignableDetUnit::cacheTransformation()
 }
 
 //__________________________________________________________________________________________________
+void AlignableDetUnit::cacheTransformation(const align::RunNumber& run)
+{
+  surfacesCache_[run] = theSurface;
+  displacementsCache_[run] = theDisplacement;
+  rotationsCache_[run] = theRotation;
+
+  auto existingCache = surfaceDeformationsCache_.find(run);
+  if (existingCache != surfaceDeformationsCache_.end()) {
+    delete existingCache->second;
+    existingCache->second = 0;
+  }
+
+  if (theSurfaceDeformation) {
+    surfaceDeformationsCache_[run] = theSurfaceDeformation->clone();
+  }
+}
+
+//__________________________________________________________________________________________________
 void AlignableDetUnit::restoreCachedTransformation()
 {
   theSurface = theCachedSurface;
@@ -272,5 +291,29 @@ void AlignableDetUnit::restoreCachedTransformation()
 
   if (theCachedSurfaceDeformation) {
     this->setSurfaceDeformation(theCachedSurfaceDeformation, false);
+  }
+}
+
+//__________________________________________________________________________________________________
+void AlignableDetUnit::restoreCachedTransformation(const align::RunNumber& run)
+{
+  if (surfacesCache_.find(run) == surfacesCache_.end()) {
+    throw cms::Exception("Alignment")
+      << "@SUB=Alignable::restoreCachedTransformation\n"
+      << "Trying to restore cached transformation for a run (" << run
+      << ") that has not been cached.";
+  } else {
+    theSurface = surfacesCache_[run];
+    theDisplacement = displacementsCache_[run];
+    theRotation = rotationsCache_[run];
+
+    if (theSurfaceDeformation) {
+      delete theSurfaceDeformation;
+      theSurfaceDeformation = 0;
+    }
+
+    if (surfaceDeformationsCache_[run]) {
+      this->setSurfaceDeformation(surfaceDeformationsCache_[run], false);
+    }
   }
 }

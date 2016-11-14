@@ -210,8 +210,16 @@ public:
   /// cache the current position, rotation and other parameters (e.g. surface deformations), also for possible components
   virtual void cacheTransformation();
 
+  /// cache for the given run the current position, rotation and other
+  /// parameters (e.g. surface deformations), also for possible components
+  virtual void cacheTransformation(const align::RunNumber&);
+
   /// restore the previously cached transformation, also for possible components
   virtual void restoreCachedTransformation();
+
+  /// restore for the given run the previously cached transformation, also for
+  /// possible components
+  virtual void restoreCachedTransformation(const align::RunNumber&);
 
   /// Return survey info
   const SurveyDet* survey() const { return theSurvey; }
@@ -220,6 +228,8 @@ public:
   void setSurvey( const SurveyDet* );
 
 protected:
+  template<class T>
+  using Cache = std::map<align::RunNumber, T>;
 
   void addDisplacement( const GlobalVector& displacement );
   void addRotation( const RotationType& rotation );
@@ -243,6 +253,10 @@ protected:
 
   Alignables theDeepComponents; // list of lowest daughters
                                 // contain itself if Alignable is a unit
+
+  Cache<AlignableSurface> surfacesCache_;
+  Cache<GlobalVector> displacementsCache_;
+  Cache<RotationType> rotationsCache_;
 
 private:
 

@@ -352,12 +352,27 @@ void AlignmentParameterStore::cacheTransformations(void)
 
 
 //__________________________________________________________________________________________________
+void AlignmentParameterStore::cacheTransformations(const align::RunNumber& run)
+{
+  for (const auto& iali: theAlignables) iali->cacheTransformation(run);
+}
+
+
+//__________________________________________________________________________________________________
 void AlignmentParameterStore::restoreCachedTransformations(void)
 {
   align::Alignables::const_iterator iali;
   for ( iali = theAlignables.begin(); iali != theAlignables.end(); ++iali) 
     (*iali)->restoreCachedTransformation();
 }
+
+
+//__________________________________________________________________________________________________
+void AlignmentParameterStore::restoreCachedTransformations(const align::RunNumber& run)
+{
+  for (const auto& iali: theAlignables) iali->restoreCachedTransformation(run);
+}
+
 
 //__________________________________________________________________________________________________
 void AlignmentParameterStore::acquireRelativeParameters(void)
@@ -686,6 +701,8 @@ bool AlignmentParameterStore
 
     const ParametersToParametersDerivatives p2pDerivs(**iComp, *ali);
     if (!p2pDerivs.isOK()) {
+      // std::cerr << (*iComp)->alignmentParameters()->type() << " "
+      // 		<< ali->alignmentParameters()->type() << std::endl;
       throw cms::Exception("BadConfig")
 	<< "AlignmentParameterStore::hierarchyConstraints"
 	<< " Bad match of types of AlignmentParameters classes.\n";
