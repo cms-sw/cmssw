@@ -887,7 +887,7 @@ process.HLTPSetPvClusterComparerForIT = cms.PSet(
   track_chi2_max = cms.double( 20.0 ),
   track_prob_min = cms.double( -1.0 )
 )
-process.HLTSiStripClusterChargeCutNone = cms.PSet(  value = cms.double( -1.0 ) )
+process.HLTSiStripClusterChargeCutNone = cms.PSet(  value = cms.double( 0.0 ) )
 process.HLTSiStripClusterChargeCutLoose = cms.PSet(  value = cms.double( 1620.0 ) )
 process.HLTSiStripClusterChargeCutTight = cms.PSet(  value = cms.double( 1945.0 ) )
 process.HLTSeedFromConsecutiveHitsCreatorIT = cms.PSet( 

@@ -10,7 +10,7 @@ inline float clusterChargeCut(const edm::ParameterSet& conf, const char * name="
 
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 inline edm::ParameterSetDescription getFilledConfigurationDescription4CCC() {
-  // HLTSiStripClusterChargeCutNone:    -1.0
+  // HLTSiStripClusterChargeCutNone:     0.0
   // HLTSiStripClusterChargeCutTiny:   800.0
   // HLTSiStripClusterChargeCutLoose: 1620.0
   // HLTSiStripClusterChargeCutTight: 1945.0
