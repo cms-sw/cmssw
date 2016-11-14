@@ -21,6 +21,10 @@ public:
   /// Destructor
   virtual ~AlignableDetUnit();
 
+  /// Updater from GeomDetUnit
+  /// The given GeomDetUnit id has to match the current id.
+  virtual void update(const GeomDetUnit* geomDetUnit);
+
   /// No components here => exception!
   virtual void addComponent( Alignable* );
 
