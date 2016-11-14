@@ -393,13 +393,14 @@ AlignmentProducer::duringLoop( const edm::Event& event,
 // ----------------------------------------------------------------------------
 void AlignmentProducer::beginRun(const edm::Run &run, const edm::EventSetup &setup)
 {
-  if (setupChanged(setup)) {
+  const auto changed = setupChanged(setup);
+  if (changed) {
     edm::LogInfo("Alignment") << "@SUB=AlignmentProducer::beginRun"
                               << "EventSetup-Record changed.";
-    initAlignmentAlgorithm(setup);
+    initAlignmentAlgorithm(setup, true);
   }
 
-  theAlignmentAlgo->beginRun(run, setup);
+  theAlignmentAlgo->beginRun(run, setup, changed);
 }
 
 // ----------------------------------------------------------------------------
@@ -515,25 +516,27 @@ AlignmentProducer::setupChanged(const edm::EventSetup& setup)
 
 //------------------------------------------------------------------------------
 void
-AlignmentProducer::initAlignmentAlgorithm(const edm::EventSetup& setup)
+AlignmentProducer::initAlignmentAlgorithm(const edm::EventSetup& setup,
+                                          bool update)
 {
   // Retrieve tracker topology from geometry
   edm::ESHandle<TrackerTopology> tTopoHandle;
   setup.get<TrackerTopologyRcd>().get(tTopoHandle);
   const TrackerTopology* const tTopo = tTopoHandle.product();
 
-  // Create the geometries from the ideal geometries (first time only)
+  // Create the geometries from the ideal geometries
   createGeometries(setup, tTopo);
 
   applyAlignmentsToDB(setup);
-  createAlignables(tTopo);
+  createAlignables(tTopo, update);
   buildParameterStore();
   applyMisalignment();
 
   // Initialize alignment algorithm and integrated calibration and pass the
   // latter to algorithm
-  edm::LogInfo("Alignment") << "@SUB=AlignmentProducer::initAlignmentAlgorithm"
-                            << "Initializing alignment algorithm.";
+  edm::LogInfo("Alignment")
+    << "@SUB=AlignmentProducer::initAlignmentAlgorithm"
+    << "Initializing alignment algorithm.";
   theAlignmentAlgo->initialize(setup,
                                theAlignableTracker,
                                theAlignableMuon,
@@ -695,18 +698,30 @@ AlignmentProducer::applyAlignmentsToDB(const edm::EventSetup& setup)
 
 //------------------------------------------------------------------------------
 void
-AlignmentProducer::createAlignables(const TrackerTopology* tTopo)
+AlignmentProducer::createAlignables(const TrackerTopology* tTopo, bool update)
 {
   if (doTracker_) {
-    theAlignableTracker = new AlignableTracker(&(*theTracker), tTopo);
+    if (update) {
+      theAlignableTracker->update(&(*theTracker), tTopo);
+    } else {
+      theAlignableTracker = new AlignableTracker(&(*theTracker), tTopo);
+    }
   }
 
   if (doMuon_) {
+    if (update) {
+      theAlignableMuon->update(&(*theMuonDT), &(*theMuonCSC));
+    } else {
      theAlignableMuon = new AlignableMuon(&(*theMuonDT), &(*theMuonCSC));
+    }
   }
 
   if (useExtras_) {
-    theAlignableExtras = new AlignableExtras();
+    if (update) {
+      // FIXME: Requires further code changes to track beam spot condition changes
+    } else {
+      theAlignableExtras = new AlignableExtras();
+    }
   }
 }
 
@@ -754,7 +769,7 @@ AlignmentProducer::applyMisalignment()
   // WARNING: this assumes scenarioConfig can be passed to both muon and tracker
 
   if (doMisalignmentScenario_ && (doTracker_ || doMuon_)) {
-    edm::LogInfo("Alignment") << "@SUB=PCLTrackerAlProducer::beginOfJob"
+    edm::LogInfo("Alignment") << "@SUB=AlignmentProducer::applyMisalignment"
                               << "Applying misalignment scenario to "
                               << (doTracker_ ? "tracker" : "")
                               << (doMuon_    ? (doTracker_ ? " and muon" : "muon") : ".");
@@ -802,9 +817,9 @@ AlignmentProducer::applyAlignmentsToGeometry()
     std::unique_ptr<AlignmentSurfaceDeformations>
       aliDeforms(theAlignableTracker->surfaceDeformations());
 
-    aligner.applyAlignments(&(*theTracker), &(*alignments),
-			    &(*alignmentErrExt), AlignTransform());
-    aligner.attachSurfaceDeformations(&(*theTracker), &(*aliDeforms));
+    aligner.applyAlignments(&(*theTracker), alignments.get(),
+                            alignmentErrExt.get(), AlignTransform());
+    aligner.attachSurfaceDeformations(&(*theTracker), aliDeforms.get());
   }
 
   if (doMuon_) {

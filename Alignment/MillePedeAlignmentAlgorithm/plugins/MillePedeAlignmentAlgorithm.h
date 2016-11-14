@@ -87,7 +87,9 @@ class MillePedeAlignmentAlgorithm : public AlignmentAlgorithmBase
   virtual void run(const edm::EventSetup &setup, const EventInfo &eventInfo) override;
 
   /// called at begin of run
-  virtual void beginRun(const edm::Run& run, const edm::EventSetup& setup) override;
+  virtual void beginRun(const edm::Run& run,
+                        const edm::EventSetup& setup,
+                        bool changed) override;
 
   // TODO: This method does NOT match endRun() in base class! Nobody is
   //       calling this?

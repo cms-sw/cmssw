@@ -175,13 +175,14 @@ void PCLTrackerAlProducer
 void PCLTrackerAlProducer
 ::beginRun(const edm::Run& run, const edm::EventSetup& setup)
 {
-  if (setupChanged(setup)) {
+  const bool changed{setupChanged(setup)};
+  if (changed) {
     edm::LogInfo("Alignment") << "@SUB=PCLTrackerAlProducer::beginRun"
                               << "EventSetup-Record changed.";
     initAlignmentAlgorithm(setup);
   }
 
-  theAlignmentAlgo->beginRun(run, setup);
+  theAlignmentAlgo->beginRun(run, setup, changed);
 
   if (setupChanged(setup)) {
     initAlignmentAlgorithm(setup);
