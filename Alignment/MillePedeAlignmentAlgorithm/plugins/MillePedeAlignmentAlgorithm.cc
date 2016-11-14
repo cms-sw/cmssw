@@ -106,7 +106,8 @@ MillePedeAlignmentAlgorithm::MillePedeAlignmentAlgorithm(const edm::ParameterSet
   skipGlobalPositionRcdCheck_(cfg.getParameter<bool>("skipGlobalPositionRcdCheck")),
   uniqueRunRanges_
   (align::makeUniqueRunRanges(cfg.getUntrackedParameter<edm::VParameterSet>("RunRangeSelection"),
-                              cond::timeTypeSpecs[cond::runnumber].beginValue))
+                              cond::timeTypeSpecs[cond::runnumber].beginValue)),
+  enforceSingleIOVInput_(!areIOVsSpecified())
 {
   if (!theDir.empty() && theDir.find_last_of('/') != theDir.size()-1) theDir += '/';// may need '/'
   edm::LogInfo("Alignment") << "@SUB=MillePedeAlignmentAlgorithm" << "Start in mode '"
@@ -136,47 +137,53 @@ void MillePedeAlignmentAlgorithm::initialize(const edm::EventSetup &setup,
 				 << "Running with AlignabeMuon not yet tested.";
   }
 
-  // temporary fix to avoid corrupted database output
-  if (!runAtPCL_) {
-    const auto MIN_VAL{cond::timeTypeSpecs[cond::runnumber].beginValue};
-    const auto MAX_VAL{cond::timeTypeSpecs[cond::runnumber].endValue};
+  if (!runAtPCL_ && enforceSingleIOVInput_) {
+    const auto MIN_VAL = cond::timeTypeSpecs[cond::runnumber].beginValue;
+    const auto MAX_VAL = cond::timeTypeSpecs[cond::runnumber].endValue;
     const auto& iov_alignments =
       setup.get<TrackerAlignmentRcd>().validityInterval();
     const auto& iov_surfaces =
       setup.get<TrackerSurfaceDeformationRcd>().validityInterval();
     const auto& iov_errors =
       setup.get<TrackerAlignmentErrorExtendedRcd>().validityInterval();
+
+    std::ostringstream message;
+    bool throwException{false};
     if (iov_alignments.first().eventID().run() != MIN_VAL ||
-	iov_alignments.last().eventID().run() != MAX_VAL) {
-    throw cms::Exception("DatabaseError")
-      << "@SUB=MillePedeAlignmentAlgorithm::initialize"
-      << "\nTrying to apply " << setup.get<TrackerAlignmentRcd>().key().name()
-      << " with multiple IOVs in tag.\n"
-      << "Validity range is "
-      << iov_alignments.first().eventID().run() << " - "
-      << iov_alignments.last().eventID().run();
+        iov_alignments.last().eventID().run() != MAX_VAL) {
+      message
+        << "\nTrying to apply " << setup.get<TrackerAlignmentRcd>().key().name()
+        << " with multiple IOVs in tag without specifying 'RunRangeSelection'.\n"
+        << "Validity range is "
+        << iov_alignments.first().eventID().run() << " - "
+        << iov_alignments.last().eventID().run() << "\n";
+      throwException = true;
     }
     if (iov_surfaces.first().eventID().run() != MIN_VAL ||
-	iov_surfaces.last().eventID().run() != MAX_VAL) {
-    throw cms::Exception("DatabaseError")
-      << "@SUB=MillePedeAlignmentAlgorithm::initialize"
-      << "\nTrying to apply "
-      << setup.get<TrackerSurfaceDeformationRcd>().key().name()
-      << " with multiple IOVs in tag.\n"
-      << "Validity range is "
-      << iov_surfaces.first().eventID().run() << " - "
-      << iov_surfaces.last().eventID().run();
+        iov_surfaces.last().eventID().run() != MAX_VAL) {
+      message
+        << "\nTrying to apply "
+        << setup.get<TrackerSurfaceDeformationRcd>().key().name()
+        << " with multiple IOVs in tag without specifying 'RunRangeSelection'.\n"
+        << "Validity range is "
+        << iov_surfaces.first().eventID().run() << " - "
+        << iov_surfaces.last().eventID().run() << "\n";
+      throwException = true;
     }
     if (iov_errors.first().eventID().run() != MIN_VAL ||
-	iov_errors.last().eventID().run() != MAX_VAL) {
-    throw cms::Exception("DatabaseError")
-      << "@SUB=MillePedeAlignmentAlgorithm::initialize"
-      << "\nTrying to apply "
-      << setup.get<TrackerAlignmentErrorExtendedRcd>().key().name()
-      << " with multiple IOVs in tag.\n"
-      << "Validity range is "
-      << iov_errors.first().eventID().run() << " - "
-      << iov_errors.last().eventID().run();
+        iov_errors.last().eventID().run() != MAX_VAL) {
+      message
+        << "\nTrying to apply "
+        << setup.get<TrackerAlignmentErrorExtendedRcd>().key().name()
+        << " with multiple IOVs in tag without specifying 'RunRangeSelection'.\n"
+        << "Validity range is "
+        << iov_errors.first().eventID().run() << " - "
+        << iov_errors.last().eventID().run() << "\n";
+      throwException = true;
+    }
+    if (throwException) {
+      throw cms::Exception("DatabaseError")
+        << "@SUB=MillePedeAlignmentAlgorithm::initialize" << message.str();
     }
   }
 
@@ -1665,4 +1672,18 @@ void MillePedeAlignmentAlgorithm::addPxbSurvey(const edm::ParameterSet &pxbSurve
 		theMille->end();
 	}
 	outfile.close();
+}
+
+
+bool MillePedeAlignmentAlgorithm::areIOVsSpecified() const {
+  const auto runRangeSelection =
+    theConfig.getUntrackedParameter<edm::VParameterSet>("RunRangeSelection");
+
+  if (runRangeSelection.empty()) return false;
+
+  const auto runRanges =
+    align::makeNonOverlappingRunRanges(runRangeSelection,
+                                       cond::timeTypeSpecs[cond::runnumber].beginValue);
+
+  return !(runRanges.empty());
 }
