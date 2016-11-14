@@ -57,7 +57,7 @@ void HcalSimpleRecAlgo::setpuCorrParams(bool   iPedestalConstraint, bool iTimeCo
 					double iPedMean, double iPedSig, double iPedSigSiPM,
 					double iNoise, double iNoiseSiPM,
 					double iTMin,double iTMax,
-					double its4Chi2, int iFitTimes) {
+					std::vector<double> its4Chi2, int iFitTimes) {
   if( iPedestalConstraint ) assert ( iPedSig );
   if( iTimeConstraint ) assert( iTimeSig );
   psFitOOTpuCorr_->setPUParams(iPedestalConstraint,iTimeConstraint,iAddPulseJitter,iApplyTimeSlew,
