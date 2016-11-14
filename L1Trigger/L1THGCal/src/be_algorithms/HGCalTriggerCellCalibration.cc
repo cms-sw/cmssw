@@ -28,16 +28,10 @@ void HGCalTriggerCellCalibration::print(){
 }
 
 
-l1t::HGCalTriggerCell HGCalTriggerCellCalibration::calibrate(l1t::HGCalTriggerCell& trgCell, const edm::EventSetup& es){
+l1t::HGCalTriggerCell HGCalTriggerCellCalibration::calibrate(l1t::HGCalTriggerCell& trgCell, int subdet, int cellThickness){
         HGCalDetId trgdetid(trgCell.detId());
-        int subdet =  (ForwardSubdetector)trgdetid.subdetId() - 3;
         int trgCellLayer = trgdetid.layer();
         int TrgCellTruncBit = (int)trgCellTruncBit;
-
-        es.get<IdealGeometryRecord>().get("HGCalEESensitive",hgceeGeoHandle);  
-        es.get<IdealGeometryRecord>().get("HGCalHESiliconSensitive",hgchefGeoHandle); 
-        const HGCalGeometry* geom = nullptr;
-
 
         //get the hardware pT in fC:
         int hwPt = trgCell.hwPt();
@@ -46,26 +40,15 @@ l1t::HGCalTriggerCell HGCalTriggerCellCalibration::calibrate(l1t::HGCalTriggerCe
         
         //std::cout << "trunc power " << TMath::Power(2,TrgCellTruncBit_) <<  "  Charge " << amplitude << " fC" <<std::endl;
 
-        if( subdet == 0 ){ 
-            geom = hgceeGeoHandle.product();     
-        }else if( subdet == 1 ){
-            geom = hgchefGeoHandle.product();
-            trgCellLayer = trgCellLayer + 28;
-        }else if( subdet == 2 ){
-            //std::cout << "ATTENTION: the BH trgCells are not yet implemented !! "<< std::endl;
-        }
         //std::cout << "subdet = " << subdet << "---- trgcell " << trgdetid << " --> Layer = " << trgCellLayer << std::endl;
         
-        const HGCalTopology& topo = geom->topology();
-        const HGCalDDDConstants& dddConst = topo.dddConstants();
-        int cellThickness = dddConst.waferTypeL((unsigned int)trgdetid.wafer() );        
-
         if( subdet == 0 ){ 
             //convert the charge amplitude in MIP:
             amplitude = amplitude / fCperMIP_ee[cellThickness-1];
         }else if( subdet == 1 ){
             //convert the charge amplitude in MIP:
             amplitude = amplitude / fCperMIP_fh[cellThickness-1];
+            trgCellLayer = trgCellLayer + 28;
         }else if( subdet == 2 ){
             //std::cout << "ATTENTION: the BH trgCells are not yet implemented !! "<< std::endl;
         }

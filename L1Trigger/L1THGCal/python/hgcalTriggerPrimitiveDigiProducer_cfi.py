@@ -1,5 +1,5 @@
 import FWCore.ParameterSet.Config as cms
-
+import math
 import SimCalorimetry.HGCalSimProducers.hgcalDigitizer_cfi as digiparam
 import RecoLocalCalo.HGCalRecProducers.HGCalUncalibRecHit_cfi as recoparam
 import RecoLocalCalo.HGCalRecProducers.HGCalRecHit_cfi as recocalibparam 
@@ -18,18 +18,16 @@ fe_codec = cms.PSet( CodecName  = cms.string('HGCalTriggerCellBestChoiceCodec'),
                      tdcnBits = digiparam.hgceeDigitizer.digiCfg.feCfg.tdcNbits,
                      tdcOnsetfC = digiparam.hgceeDigitizer.digiCfg.feCfg.tdcOnset_fC,
     
-
-                 )
+)
     
 be_parameters = cms.PSet(
-    linLSB = cms.double(100./1024.),
+    linLSB = cms.double( (100.1024)*2**(7) ),# *  2^(fe_codec.triggerCellTruncationBit),
     triggerCellTruncationBits = cms.uint32(0),
     fCperMIPee = recoparam.HGCalUncalibRecHit.HGCEEConfig.fCPerMIP,
     fCperMIPfh = recoparam.HGCalUncalibRecHit.HGCHEFConfig.fCPerMIP,
     dEdXweights = recocalibparam.HGCalRecHit.layerWeights,
     thickCorr = recocalibparam.HGCalRecHit.thicknessCorrection                     
     )
-
 
 cluster_algo =  cms.PSet( AlgorithmName = cms.string('FullModuleSumAlgo'),
                           FECodec = fe_codec                         

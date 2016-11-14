@@ -42,6 +42,8 @@ class SingleCellClusterAlgo : public Algorithm<FECODEC>
 
     private:
         std::unique_ptr<l1t::HGCalTriggerCellBxCollection> cluster_product_;
+        edm::ESHandle<HGCalGeometry> hgceeGeoHandle;
+        edm::ESHandle<HGCalGeometry> hgchefGeoHandle;
         HGCalTriggerCellCalibration calibration_;    
 };
 
@@ -49,6 +51,11 @@ class SingleCellClusterAlgo : public Algorithm<FECODEC>
 void SingleCellClusterAlgo::run(const l1t::HGCFETriggerDigiCollection& coll, const edm::EventSetup& es) 
 /*****************************************************************/
 {
+    es.get<IdealGeometryRecord>().get("HGCalEESensitive",hgceeGeoHandle);  
+    es.get<IdealGeometryRecord>().get("HGCalHESiliconSensitive",hgchefGeoHandle); 
+    const HGCalGeometry* geom = nullptr;
+
+
     for( const auto& digi : coll ) 
     {
         HGCalDetId module_id(digi.id());
@@ -59,9 +66,22 @@ void SingleCellClusterAlgo::run(const l1t::HGCFETriggerDigiCollection& coll, con
         {
             if(triggercell.hwPt()>0)
             {
+
                 HGCalDetId detid(triggercell.detId());
+                int subdet =  (ForwardSubdetector)detid.subdetId() - 3;
+                if( subdet == 0 ){ 
+                    geom = hgceeGeoHandle.product();     
+                }else if( subdet == 1 ){
+                    geom = hgchefGeoHandle.product();
+                }else if( subdet == 2 ){
+                    //std::cout << "ATTENTION: the BH trgCells are not yet implemented !! "<< std::endl;
+                }
+                const HGCalTopology& topo = geom->topology();
+                const HGCalDDDConstants& dddConst = topo.dddConstants();
+                int cellThickness = dddConst.waferTypeL((unsigned int)detid.wafer() );        
+
                 l1t::HGCalTriggerCell calibratedtriggercell(triggercell);
-                calibration_.calibrate(calibratedtriggercell, es);     
+                calibration_.calibrate(calibratedtriggercell, subdet, cellThickness);     
                 HGCalDetId detid_copy(calibratedtriggercell.detId());
                 cluster_product_->push_back(0,calibratedtriggercell);
             }

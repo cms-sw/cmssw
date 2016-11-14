@@ -17,14 +17,10 @@
 class HGCalTriggerCellCalibration{
 
 public:
-
-//    HGCalTriggerCellCalibration(const edm::ParameterSet& conf);    
+  
     HGCalTriggerCellCalibration(const edm::ParameterSet &conf);    
- 
-    l1t::HGCalTriggerCell calibrate(l1t::HGCalTriggerCell&, const edm::EventSetup& es); 
+    l1t::HGCalTriggerCell calibrate(l1t::HGCalTriggerCell&, int subdet, int cellThickness); 
     void print();
-    edm::ESHandle<HGCalGeometry> hgceeGeoHandle;
-    edm::ESHandle<HGCalGeometry> hgchefGeoHandle;
 
 private:
     
