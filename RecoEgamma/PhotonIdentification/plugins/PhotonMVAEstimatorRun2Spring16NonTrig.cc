@@ -292,7 +292,10 @@ std::vector<float> PhotonMVAEstimatorRun2Spring16NonTrig::fillMVAVariables(const
   allMVAVars.varWorstChRaw   = (*phoWorstChargedIsolationMap)[phoRecoPtr];
 
   constrainMVAVariables(allMVAVars);
-
+  //
+  // Important: the order of variables in the "vars" vector has to be EXACTLY
+  // the same as in the .xml file defining the MVA.
+  //
   std::vector<float> vars;
   if( isEndcapCategory( findCategory( particle ) ) ) {
     vars = std::move( packMVAVariables(
@@ -305,11 +308,11 @@ std::vector<float> PhotonMVAEstimatorRun2Spring16NonTrig::fillMVAVariables(const
                                        allMVAVars.varRawE,
                                        allMVAVars.varSCEtaWidth,
                                        allMVAVars.varSCPhiWidth,
-                                       allMVAVars.varESEnOverRawE,
-                                       allMVAVars.varESEffSigmaRR,
-                                       allMVAVars.varRho,
-                                       allMVAVars.varChIsoRaw,
-                                       allMVAVars.varWorstChRaw
+				       allMVAVars.varRho,
+				       allMVAVars.varChIsoRaw,
+				       allMVAVars.varWorstChRaw,
+				       allMVAVars.varESEffSigmaRR,
+				       allMVAVars.varESEnOverRawE
 				       ) 
                       ); 
   } else {
