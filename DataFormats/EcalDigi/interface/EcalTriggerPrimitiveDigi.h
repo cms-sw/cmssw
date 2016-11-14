@@ -3,7 +3,8 @@
 
 #include <ostream>
 #include <vector>
-#include "DataFormats/EcalDetId/interface/EcalTrigTowerDetId.h"
+#include "DataFormats/EcalDetId/interface/EBDetId.h"
+//#include "DataFormats/EcalDetId/interface/EcalTrigTowerDetId.h"
 #include "DataFormats/EcalDigi/interface/EcalTriggerPrimitiveSample.h"
 
 
@@ -16,10 +17,12 @@ see also EcalTrigPrimCompactColl.
 
 class EcalTriggerPrimitiveDigi {
  public:
-  typedef EcalTrigTowerDetId key_type; ///< For the sorted collection
+  //typedef EcalTrigTowerDetId key_type; ///< For the sorted collection
+  typedef EBDetId key_type; ///< For the sorted collection
 
   EcalTriggerPrimitiveDigi(); // for persistence
-  explicit EcalTriggerPrimitiveDigi(const EcalTrigTowerDetId& id);
+  // explicit EcalTriggerPrimitiveDigi(const EcalTrigTowerDetId& id);
+  EcalTriggerPrimitiveDigi(const EBDetId& id);
   
 
   void swap(EcalTriggerPrimitiveDigi& rh) {
@@ -28,14 +31,16 @@ class EcalTriggerPrimitiveDigi {
     std::swap(data_,rh.data_);
   }
   
-  const EcalTrigTowerDetId& id() const { return id_; }
+  const EBDetId& id() const { return id_; }
+  //const EcalTrigTowerDetId& id() const { return id_; }
   int size() const { return size_; }
     
   const EcalTriggerPrimitiveSample& operator[](int i) const { return data_[i]; }
   const EcalTriggerPrimitiveSample& sample(int i) const { return data_[i]; }
     
   void setSize(int size);
-  void setSample(int i, const EcalTriggerPrimitiveSample& sam) { data_[i]=sam; }
+  // void setSample(int i, const EcalTriggerPrimitiveSample& sam) {cout << " Fuck you " << endl; data_[i]=sam; }
+  void setSample(int i, const EcalTriggerPrimitiveSample& sam);
   void setSampleValue(int i, uint16_t value) { data_[i].setValue(value); }
     
   static const int MAXSAMPLES = 20;
@@ -68,8 +73,8 @@ class EcalTriggerPrimitiveDigi {
   int sampleOfInterest() const;
 
 private:
-  
-  EcalTrigTowerDetId id_;
+  EBDetId id_;
+  //EcalTrigTowerDetId id_;
   int size_;
   std::vector<EcalTriggerPrimitiveSample> data_;
 };
