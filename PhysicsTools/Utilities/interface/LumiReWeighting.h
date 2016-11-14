@@ -21,6 +21,7 @@
 #include <string>
 #include <boost/shared_ptr.hpp>
 #include <vector>
+#include "FWCore/Utilities/interface/InputTag.h" 
 
 namespace reweight{
 
@@ -220,10 +221,11 @@ namespace edm {
   public:
     LumiReWeighting( std::string generatedFile,
 		     std::string dataFile,
-		     std::string GenHistName,
-		     std::string DataHistName);
+		     std::string GenHistName = "pileup",
+		     std::string DataHistName = "pileup",
+		     const edm::InputTag& PileupSumInfoInputTag = edm::InputTag( "addPileupInfo" ) );
     
-    LumiReWeighting( const std::vector< float >& MC_distr, const std::vector< float >& Lumi_distr);
+    LumiReWeighting( const std::vector< float >& MC_distr, const std::vector< float >& Lumi_distr, const edm::InputTag& PileupSumInfoInputTag = edm::InputTag( "addPileupInfo" ) );
 
     LumiReWeighting ( ) { } ;
 
@@ -241,6 +243,7 @@ namespace edm {
     std::string dataFileName_;
     std::string GenHistName_;
     std::string DataHistName_;
+    edm::InputTag pileupSumInfoTag_;
     boost::shared_ptr<TFile>     generatedFile_;
     boost::shared_ptr<TFile>     dataFile_;
     boost::shared_ptr<TH1>      weights_;
