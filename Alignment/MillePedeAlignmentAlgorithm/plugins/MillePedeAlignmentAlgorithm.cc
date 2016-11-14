@@ -107,7 +107,8 @@ MillePedeAlignmentAlgorithm::MillePedeAlignmentAlgorithm(const edm::ParameterSet
   uniqueRunRanges_
   (align::makeUniqueRunRanges(cfg.getUntrackedParameter<edm::VParameterSet>("RunRangeSelection"),
                               cond::timeTypeSpecs[cond::runnumber].beginValue)),
-  enforceSingleIOVInput_(!areIOVsSpecified())
+  enforceSingleIOVInput_(!areIOVsSpecified()),
+  lastProcessedRun_(cond::timeTypeSpecs[cond::runnumber].beginValue)
 {
   if (!theDir.empty() && theDir.find_last_of('/') != theDir.size()-1) theDir += '/';// may need '/'
   edm::LogInfo("Alignment") << "@SUB=MillePedeAlignmentAlgorithm" << "Start in mode '"
@@ -394,6 +395,13 @@ void MillePedeAlignmentAlgorithm::terminate()
   // cache all positions, rotations and deformations
   theAlignmentParameterStore->cacheTransformations();
   if (this->isMode(myPedeReadBit)) {
+    if (lastProcessedRun_ < uniqueRunRanges_.back().first) {
+      throw cms::Exception("BadConfig")
+	<< "@SUB=MillePedeAlignmentAlgorithm::terminate\n"
+	<< "Last IOV of 'RunRangeSelection' has not been processed. "
+	<< "Please reconfigure your source to process the runs at least up to "
+	<< uniqueRunRanges_.back().first << ".";
+    }
     auto lastCachedRun = uniqueRunRanges_.front().first;
     for (const auto& runRange: uniqueRunRanges_) {
       const auto run = runRange.first;
@@ -622,6 +630,9 @@ void MillePedeAlignmentAlgorithm::beginRun(const edm::Run& run,
       << "Using data (run = " << run.run()
       << ") prior to the first defined IOV (" << firstIOV_ << ").";
   }
+
+  lastProcessedRun_ = run.run();
+
   if (changed) {
     const auto runNumber = run.run();
     auto firstRun = cond::timeTypeSpecs[cond::runnumber].beginValue;
