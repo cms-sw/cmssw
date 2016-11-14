@@ -42,6 +42,8 @@ def _modifySimMuonForPhase2( theProcess ):
     )
     theProcess.rpcphase2recovery_esprefer = cms.ESPrefer("PoolDBESSource","rpcphase2recovery_essource")
 
+from Configuration.Eras.Modifier_run2_GEMSliceTest_cff import run2_GEMSliceTest
+run2_GEMSliceTest.toReplaceWith( muonDigi, _run3_muonDigi )
 from Configuration.Eras.Modifier_run3_GEM_cff import run3_GEM
 run3_GEM.toReplaceWith( muonDigi, _run3_muonDigi )
 from Configuration.Eras.Modifier_phase2_muon_cff import phase2_muon

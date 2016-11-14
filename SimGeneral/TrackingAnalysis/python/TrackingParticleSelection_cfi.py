@@ -58,6 +58,10 @@ mergedtruth = cms.EDProducer("TrackingTruthProducer",
 
 trackingParticleSelection = cms.Sequence(mergedtruth)
 
+from Configuration.Eras.Modifier_run2_GEMSliceTest_cff import run2_GEMSliceTest
+run2_GEMSliceTest.toModify(trackingParticleSelection, simHitCollections = dict(
+        muon = trackingParticleSelection.simHitCollections.muon+["g4SimHitsMuonGEMHits"]))
+
 from Configuration.Eras.Modifier_run3_GEM_cff import run3_GEM
 run3_GEM.toModify(trackingParticleSelection, simHitCollections = dict(
         muon = trackingParticleSelection.simHitCollections.muon+["g4SimHitsMuonGEMHits"]))

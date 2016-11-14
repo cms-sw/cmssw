@@ -39,6 +39,12 @@ SimMuonAOD = cms.PSet(
     outputCommands = cms.untracked.vstring()
 )
 
+from Configuration.Eras.Modifier_run2_GEMSliceTest_cff import run2_GEMSliceTest
+run2_GEMSliceTest.toModify( SimMuonFEVTDEBUG, outputCommands = SimMuonFEVTDEBUG.outputCommands + ['keep *_simMuonGEMDigis_*_*',
+                                                                                         'keep *_simMuonGEMPadDigis_*_*',
+                                                                                         'keep *_simMuonGEMPadDigiClusters_*_*'] )
+run2_GEMSliceTest.toModify( SimMuonRAW, outputCommands = SimMuonRAW.outputCommands + ['keep StripDigiSimLinkedmDetSetVector_simMuonGEMDigis_*_*'] )
+run2_GEMSliceTest.toModify( SimMuonRECO, outputCommands = SimMuonRECO.outputCommands + ['keep StripDigiSimLinkedmDetSetVector_simMuonGEMDigis_*_*'] )
 from Configuration.Eras.Modifier_run3_GEM_cff import run3_GEM
 run3_GEM.toModify( SimMuonFEVTDEBUG, outputCommands = SimMuonFEVTDEBUG.outputCommands + ['keep *_simMuonGEMDigis_*_*',
                                                                                               'keep *_simMuonGEMPadDigis_*_*',

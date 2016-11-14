@@ -6,6 +6,7 @@ from Configuration.Eras.Modifier_trackingPhase1_cff import trackingPhase1
 from Configuration.Eras.Modifier_run2_HE_2017_cff import run2_HE_2017
 from Configuration.Eras.Modifier_run2_HF_2017_cff import run2_HF_2017
 from Configuration.Eras.Modifier_run2_HCAL_2017_cff import run2_HCAL_2017
+from Configuration.Eras.Modifier_run2_GEMSliceTest_cff import run2_GEMSliceTest
 
-Run2_2017 = cms.ModifierChain(run2_2017_core, trackingPhase1)
+Run2_2017 = cms.ModifierChain(run2_2017_core, trackingPhase1, run2_GEMSliceTest)
 
