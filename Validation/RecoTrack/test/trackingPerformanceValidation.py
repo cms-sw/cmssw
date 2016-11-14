@@ -162,8 +162,11 @@ def ignore(a, q):
 
 kwargs_tracking = {
     "limitSubFoldersOnlyTo": {
-        "": limitRelVal, # filter out the pT>0.9 GeV track selection
-#        "allTPEffic": limitProcessing, "fromPV": limitProcessing, "fromPVAllTP": limitProcessing,
+        # filter out the pT>0.9 GeV track selection
+        "": limitRelVal,
+        "allTPEffic": limitRelVal,
+        "fromPV": limitRelVal,
+        "fromPVAllTP": limitRelVal,
     }
 }
 # Temporary until we have limited the set of histograms for phase2
