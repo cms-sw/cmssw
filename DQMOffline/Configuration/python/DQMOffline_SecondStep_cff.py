@@ -54,10 +54,10 @@ DQMOffline_SecondStep_PrePOG = cms.Sequence( TrackingOfflineDQMClient *
                                              SusyPostProcessorSequence *
                                              runTauEff)
 from Configuration.Eras.Modifier_phase1Pixel_cff import phase1Pixel
-phase1Pixel.toReplaceWith(DQMOffline_SecondStep_PrePOG, DQMOffline_SecondStep_PrePOG.copyAndExclude([
+#phase1Pixel.toReplaceWith(DQMOffline_SecondStep_PrePOG, DQMOffline_SecondStep_PrePOG.copyAndExclude([
 #    hltOfflineDQMClient, # No HLT yet for 2017, so no need to run the DQM (avoiding excessive printouts)
-    runTauEff,           # Excessive printouts because 2017 doesn't have HLT yet
-]))
+#    runTauEff,           # Excessive printouts because 2017 doesn't have HLT yet
+#]))
 
 DQMOffline_SecondStepPOG = cms.Sequence( dqmRefHistoRootFileGetter *
                                          DQMOffline_SecondStep_PrePOG *
