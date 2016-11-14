@@ -40,9 +40,17 @@ class LimitTrackAlgo: # helper class to limit to iterations
     def __init__(self, algos):
         self._algos = algos
     def __call__(self, algo, quality):
-        return algo in self._algos
+        if self._algos is not None:
+            if algo not in self._algos:
+                return False
+        if "Pt09" in quality:
+            return False
+        if "ByAlgoMask" in quality or "ByOriginalAlgo" in quality:
+            return False
+        return True
 limit = LimitTrackAlgo(["ootb", "initialStep"]) # limit to generalTracks (ootb) and initialStep
 ignore = lambda algo, quality: False # ignore everything
+ignore09 = LimitTrackAlgo(None) # ignore Pt09 plots
 
 # This specifies how different sets of plots are treated. If some
 # "plot set" is not in the dictionary, full set of plots will be
