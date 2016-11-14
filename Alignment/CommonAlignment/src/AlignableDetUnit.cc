@@ -41,6 +41,28 @@ AlignableDetUnit::~AlignableDetUnit()
 }
 
 //__________________________________________________________________________________________________
+void AlignableDetUnit::update(const GeomDetUnit *geomDetUnit)
+{
+  if (!geomDetUnit) {
+    throw cms::Exception("Alignment")
+      << "@SUB=AlignableDetUnit::update\n"
+      << "Trying to update with GeomDetUnit* pointing to 'nullptr'.";
+  }
+
+  Alignable::update(geomDetUnit->geographicalId().rawId(), geomDetUnit->surface());
+
+  if (geomDetUnit->alignmentPositionError()) { // take over APE from geometry
+    // 2nd argument w/o effect:
+    this->setAlignmentPositionError(*(geomDetUnit->alignmentPositionError()), false);
+  }
+
+  if (geomDetUnit->surfaceDeformation()) { // take over surface modification
+    // 2nd argument w/o effect:
+    this->setSurfaceDeformation(geomDetUnit->surfaceDeformation(), false);
+  }
+}
+
+//__________________________________________________________________________________________________
 void AlignableDetUnit::addComponent( Alignable* /*unused*/)
 {
   throw cms::Exception("LogicError") 
