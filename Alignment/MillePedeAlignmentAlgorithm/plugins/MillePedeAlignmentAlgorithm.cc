@@ -99,6 +99,7 @@ MillePedeAlignmentAlgorithm::MillePedeAlignmentAlgorithm(const edm::ParameterSet
   theMaximalCor2D(cfg.getParameter<double>("max2Dcorrelation")),
   firstIOV_(cfg.getUntrackedParameter<AlignmentAlgorithmBase::RunNumber>("firstIOV")),
   ignoreFirstIOVCheck_(cfg.getUntrackedParameter<bool>("ignoreFirstIOVCheck")),
+  enableAlignableUpdates_(cfg.getUntrackedParameter<bool>("enableAlignableUpdates")),
   theLastWrittenIov(0),
   theGblDoubleBinary(cfg.getParameter<bool>("doubleBinary")),
   runAtPCL_(cfg.getParameter<bool>("runAtPCL")),
@@ -107,7 +108,7 @@ MillePedeAlignmentAlgorithm::MillePedeAlignmentAlgorithm(const edm::ParameterSet
   uniqueRunRanges_
   (align::makeUniqueRunRanges(cfg.getUntrackedParameter<edm::VParameterSet>("RunRangeSelection"),
                               cond::timeTypeSpecs[cond::runnumber].beginValue)),
-  enforceSingleIOVInput_(!areIOVsSpecified()),
+  enforceSingleIOVInput_(!(enableAlignableUpdates_ && areIOVsSpecified())),
   lastProcessedRun_(cond::timeTypeSpecs[cond::runnumber].beginValue)
 {
   if (!theDir.empty() && theDir.find_last_of('/') != theDir.size()-1) theDir += '/';// may need '/'
@@ -344,8 +345,11 @@ bool MillePedeAlignmentAlgorithm::setParametersForRunRange(const RunRange &runra
 {
   if (this->isMode(myPedeReadBit)) {
     // restore initial positions, rotations and deformations
-    // theAlignmentParameterStore->restoreCachedTransformations();
-    theAlignmentParameterStore->restoreCachedTransformations(runrange.first);
+    if (enableAlignableUpdates_) {
+      theAlignmentParameterStore->restoreCachedTransformations(runrange.first);
+    } else {
+      theAlignmentParameterStore->restoreCachedTransformations();
+    }
 
     // Needed to shut up later warning from checkAliParams:
     theAlignmentParameterStore->resetParameters();
@@ -394,7 +398,7 @@ void MillePedeAlignmentAlgorithm::terminate()
 
   // cache all positions, rotations and deformations
   theAlignmentParameterStore->cacheTransformations();
-  if (this->isMode(myPedeReadBit)) {
+  if (this->isMode(myPedeReadBit) && enableAlignableUpdates_) {
     if (lastProcessedRun_ < uniqueRunRanges_.back().first) {
       throw cms::Exception("BadConfig")
 	<< "@SUB=MillePedeAlignmentAlgorithm::terminate\n"
@@ -633,7 +637,7 @@ void MillePedeAlignmentAlgorithm::beginRun(const edm::Run& run,
 
   lastProcessedRun_ = run.run();
 
-  if (changed) {
+  if (changed && enableAlignableUpdates_) {
     const auto runNumber = run.run();
     auto firstRun = cond::timeTypeSpecs[cond::runnumber].beginValue;
     for (auto runRange = uniqueRunRanges_.crbegin();

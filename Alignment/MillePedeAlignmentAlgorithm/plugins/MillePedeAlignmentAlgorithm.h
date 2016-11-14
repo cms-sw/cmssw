@@ -267,6 +267,7 @@ class MillePedeAlignmentAlgorithm : public AlignmentAlgorithmBase
                                              /// If larger, the 2D measurement gets diagonalized!!!
   const align::RunNumber firstIOV_;
   const bool ignoreFirstIOVCheck_;
+  const bool enableAlignableUpdates_;
   int                       theLastWrittenIov; // keeping track for output trees...
   std::vector<float>        theFloatBufferX;
   std::vector<float>        theFloatBufferY;

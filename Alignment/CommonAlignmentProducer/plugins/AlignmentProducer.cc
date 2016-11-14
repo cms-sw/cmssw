@@ -97,6 +97,7 @@ AlignmentProducer::AlignmentProducer(const edm::ParameterSet& iConfig) :
   doMuon_( iConfig.getUntrackedParameter<bool>("doMuon") ),
   useExtras_( iConfig.getUntrackedParameter<bool>("useExtras") ),
   useSurvey_( iConfig.getParameter<bool>("useSurvey") ),
+  enableAlignableUpdates_(iConfig.getParameter<bool>("enableAlignableUpdates")),
   tjTkAssociationMapTag_(iConfig.getParameter<edm::InputTag>("tjTkAssociationMapTag")),
   beamSpotTag_(iConfig.getParameter<edm::InputTag>("beamSpotTag")),
   tkLasBeamTag_(iConfig.getParameter<edm::InputTag>("tkLasBeamTag")),
@@ -393,14 +394,14 @@ AlignmentProducer::duringLoop( const edm::Event& event,
 // ----------------------------------------------------------------------------
 void AlignmentProducer::beginRun(const edm::Run &run, const edm::EventSetup &setup)
 {
-  const auto changed = setupChanged(setup);
-  if (changed) {
+  const auto update = setupChanged(setup) && enableAlignableUpdates_;
+  if (update) {
     edm::LogInfo("Alignment") << "@SUB=AlignmentProducer::beginRun"
                               << "EventSetup-Record changed.";
     initAlignmentAlgorithm(setup, true);
   }
 
-  theAlignmentAlgo->beginRun(run, setup, changed);
+  theAlignmentAlgo->beginRun(run, setup, update);
 }
 
 // ----------------------------------------------------------------------------
@@ -447,6 +448,8 @@ AlignmentProducer::createAlignmentAlgorithm(const edm::ParameterSet& config)
 						       iovSelection);
   algoConfig.addUntrackedParameter<RunNumber>("firstIOV",
 					      uniqueRunRanges_.front().first);
+  algoConfig.addUntrackedParameter<bool>("enableAlignableUpdates",
+                                         enableAlignableUpdates_);
 
   const auto algoName = algoConfig.getParameter<std::string>("algoName");
   theAlignmentAlgo =
