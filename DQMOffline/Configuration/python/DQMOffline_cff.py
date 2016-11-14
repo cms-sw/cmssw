@@ -63,7 +63,7 @@ DQMOfflinePrePOG = cms.Sequence( TrackingDQMSourceTier0 *
                                  pfTauRunDQMValidation)
 from Configuration.Eras.Modifier_phase1Pixel_cff import phase1Pixel
 phase1Pixel.toReplaceWith(DQMOfflinePrePOG, DQMOfflinePrePOG.copyAndExclude([ # FIXME
-    triggerOfflineDQMSource, # No HLT yet for 2017, so no need to run the DQM (avoiding excessive printouts)
+#    triggerOfflineDQMSource, # No HLT yet for 2017, so no need to run the DQM (avoiding excessive printouts)
     pfTauRunDQMValidation,   # Excessive printouts because 2017 doesn't have HLT yet
 ]))
 
@@ -77,9 +77,10 @@ DQMOffline = cms.Sequence( DQMOfflinePreDPG *
                            HLTMonitoring *
                            dqmFastTimerServiceLuminosity *
                            DQMMessageLogger )
-phase1Pixel.toReplaceWith(DQMOffline, DQMOffline.copyAndExclude([
-    HLTMonitoring # No HLT yet for 2017, so no need to run the DQM (avoiding excessive printouts)
-]))
+
+#phase1Pixel.toReplaceWith(DQMOffline, DQMOffline.copyAndExclude([
+#    HLTMonitoring # No HLT yet for 2017, so no need to run the DQM (avoiding excessive printouts)
+#]))
 
 _ctpps_2016_DQMOffline = DQMOffline.copy()
 _ctpps_2016_DQMOffline *= totemDQM
