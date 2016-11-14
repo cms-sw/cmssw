@@ -108,13 +108,13 @@ public:
 	       float& chi2) const;
 
     void setPUParams(bool   iPedestalConstraint, bool iTimeConstraint,bool iAddPulseJitter,bool iApplyTimeSlew,
-		     double iTS4Min, std::vector<double> iTS4Max,
+		     double iTS4Min, const std::vector<double> & iTS4Max,
 		     double iPulseJitter,
 		     double iTimeMean, double iTimeSigHPD, double iTimeSigSiPM,
 		     double iPedMean, double iPedSigHPD, double iPedSigSiPM,
 		     double iNoiseHPD, double iNoiseSiPM,
 		     double iTMin, double iTMax,
-		     std::vector<double> its4Chi2, HcalTimeSlew::BiasSetting slewFlavor, int iFitTimes);
+		     const std::vector<double> & its4Chi2, HcalTimeSlew::BiasSetting slewFlavor, int iFitTimes);
 
     void setChi2Term( bool isHPD );
 

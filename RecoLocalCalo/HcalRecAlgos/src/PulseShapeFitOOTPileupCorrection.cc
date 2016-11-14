@@ -241,12 +241,12 @@ void PulseShapeFitOOTPileupCorrection::setChi2Term( bool isHPD ) {
 
 
 void PulseShapeFitOOTPileupCorrection::setPUParams(bool   iPedestalConstraint, bool iTimeConstraint,bool iAddPulseJitter,
-						   bool iApplyTimeSlew,double iTS4Min, std::vector<double> iTS4Max,
+						   bool iApplyTimeSlew,double iTS4Min, const std::vector<double> & iTS4Max,
 						   double iPulseJitter,double iTimeMean,double iTimeSigHPD,double iTimeSigSiPM,
 						   double iPedMean, double iPedSigHPD, double iPedSigSiPM,
 						   double iNoiseHPD,double iNoiseSiPM,
 						   double iTMin,double iTMax,
-						   std::vector<double> its4Chi2,
+						   const std::vector<double> & its4Chi2,
 						   HcalTimeSlew::BiasSetting slewFlavor, int iFitTimes) {
 
   TSMin_ = iTMin;
@@ -565,8 +565,11 @@ void PulseShapeFitOOTPileupCorrection::phase1Apply(const HBHEChannelInfo& channe
     }
   }
 
-  if(!channelData.hasTimeInfo()) { ts4Max_=vts4Max_[0]; ts4Chi2_=vts4Chi2_[0]; }
-  if(channelData.hasTimeInfo()) { ts4Max_=vts4Max_[1]; ts4Chi2_=vts4Chi2_[1]; }
+  if(channelData.hasTimeInfo()) { 
+    ts4Max_=vts4Max_[1]; ts4Chi2_=vts4Chi2_[1]; 
+  } else {
+    ts4Max_=vts4Max_[0]; ts4Chi2_=vts4Chi2_[0];
+  }
 
   std::vector<float> fitParsVec;
   if(tstrig >= ts4Min_ && tsTOTen > 0.) { //Two sigma from 0
