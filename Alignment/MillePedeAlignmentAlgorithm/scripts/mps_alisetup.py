@@ -99,6 +99,18 @@ def create_input_db(cfg, run_number):
         print "'FirstRunForStartGeometry' must be positive, but is", run_number
         sys.exit(1)
 
+    # return if IOVs are defined; if not continue to create single IOV input
+    if len(__configuration.process.AlignmentProducer.RunRangeSelection) > 0:
+        iovs_are_defined = False
+        for pset in __configuration.process.AlignmentProducer.RunRangeSelection:
+            if len(pset.RunRanges) > 0:
+                iovs_are_defined = True
+                break
+        if iovs_are_defined:
+            os.remove(cfg+"c")
+            return ""
+
+
     global_tag = __configuration.process.GlobalTag.globaltag.value()
     input_db_name = os.path.abspath("alignment_input.db")
     tags = mps_tools.create_single_iov_db(global_tag, run_number, input_db_name)
@@ -119,6 +131,8 @@ def create_input_db(cfg, run_number):
 
     os.remove(cfg+"c")
     return result
+
+
 
 # ------------------------------------------------------------------------------
 # set up argument parser and config parser
@@ -274,6 +288,9 @@ if args.weight:
     tmpFile = re.sub('setupCollection\s*\=\s*[\"\'](.*?)[\"\']',
                      'setupCollection = \"'+collection+'\"',
                      tmpFile)
+    tmpFile = re.sub(re.compile("setupRunStartGeometry\s*\=\s*.*$", re.M),
+                     "setupRunStartGeometry = "+first_run,
+                     tmpFile)
 
     thisCfgTemplate = "tmp.py"
     with open(thisCfgTemplate, "w") as f: f.write(tmpFile)
@@ -322,6 +339,7 @@ if args.weight:
 
     # remove temporary file
     os.system("rm "+thisCfgTemplate)
+
     if overrideGT.strip() != "":
         print "="*60
         msg = ("Overriding global tag with single-IOV tags extracted from '{}' "
@@ -438,6 +456,9 @@ for section in config.sections():
         tmpFile = re.sub('setupGlobaltag\s*\=\s*[\"\'](.*?)[\"\']',
                          'setupGlobaltag = \"'+datasetOptions['globaltag']+'\"',
                          tmpFile)
+        tmpFile = re.sub(re.compile("setupRunStartGeometry\s*\=\s*.*$", re.M),
+                         "setupRunStartGeometry = "+
+                         generalOptions["FirstRunForStartGeometry"], tmpFile)
         tmpFile = re.sub('setupCollection\s*\=\s*[\"\'](.*?)[\"\']',
                          'setupCollection = \"'+datasetOptions['collection']+'\"',
                          tmpFile)

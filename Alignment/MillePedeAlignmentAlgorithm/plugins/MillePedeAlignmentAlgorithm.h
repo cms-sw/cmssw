@@ -235,6 +235,9 @@ class MillePedeAlignmentAlgorithm : public AlignmentAlgorithmBase
   /// add measurement data from PXB survey
   void addPxbSurvey(const edm::ParameterSet &pxbSurveyCfg);
 
+  //
+  bool areIOVsSpecified() const;
+
   //--------------------------------------------------------
   // Data members
   //--------------------------------------------------------
@@ -278,6 +281,7 @@ class MillePedeAlignmentAlgorithm : public AlignmentAlgorithmBase
   const bool                skipGlobalPositionRcdCheck_;
 
   const align::RunRanges uniqueRunRanges_;
+  const bool enforceSingleIOVInput_;
   std::vector<align::RunNumber> cachedRuns_;
 };
 
