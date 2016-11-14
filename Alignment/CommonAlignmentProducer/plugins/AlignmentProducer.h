@@ -213,6 +213,7 @@ class AlignmentProducer : public edm::ESProducerLooper
   const bool saveToDB_, saveApeToDB_,saveDeformationsToDB_;
   const bool doTracker_,doMuon_,useExtras_;
   const bool useSurvey_; // true to read survey info from DB
+  const bool enableAlignableUpdates_;
 
   // event input tags
   const edm::InputTag tjTkAssociationMapTag_; // map with tracks/trajectories
