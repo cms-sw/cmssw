@@ -260,7 +260,7 @@ class MillePedeAlignmentAlgorithm : public AlignmentAlgorithmBase
   unsigned int              theMinNumHits;
   double                    theMaximalCor2D; /// maximal correlation allowed for 2D hit in TID/TEC.
                                              /// If larger, the 2D measurement gets diagonalized!!!
-  const AlignmentAlgorithmBase::RunNumber firstIOV_;
+  const align::RunNumber firstIOV_;
   const bool ignoreFirstIOVCheck_;
   int                       theLastWrittenIov; // keeping track for output trees...
   std::vector<float>        theFloatBufferX;

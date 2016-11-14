@@ -20,7 +20,6 @@
 #include "FWCore/Framework/interface/Run.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Utilities/interface/Parse.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/EDGetToken.h" 
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
@@ -321,7 +320,7 @@ void PCLTrackerAlProducer
   edm::VParameterSet iovSelection = config.getParameter<edm::VParameterSet>("RunRangeSelection");
   algoConfig.addUntrackedParameter<edm::VParameterSet>("RunRangeSelection", iovSelection);
   // provide required parameter while keeping current functionality for PCL:
-  algoConfig.addUntrackedParameter<RunNumber>("firstIOV", 1);
+  algoConfig.addUntrackedParameter<align::RunNumber>("firstIOV", 1);
 
   std::string algoName = algoConfig.getParameter<std::string>("algoName");
   theAlignmentAlgo = AlignmentAlgorithmPluginFactory::get()->create(algoName, algoConfig);
@@ -1005,15 +1004,10 @@ void PCLTrackerAlProducer
                                << "do not dare to store to DB.";
   } else {
     // Expand run ranges and make them unique
-    edm::VParameterSet runRangeSelectionVPSet(theParameterSet.getParameter<edm::VParameterSet>("RunRangeSelection"));
-    RunRanges uniqueRunRanges(makeNonOverlappingRunRanges(runRangeSelectionVPSet));
-
-    // create dummy IOV
-    if (uniqueRunRanges.empty()) {
-      const RunRange runRange(cond::timeTypeSpecs[cond::runnumber].beginValue,
-                              cond::timeTypeSpecs[cond::runnumber].endValue);
-      uniqueRunRanges.push_back(runRange);
-    }
+    const auto runRangeSelectionVPSet =
+      theParameterSet.getParameter<edm::VParameterSet>("RunRangeSelection");
+    align::RunRanges uniqueRunRanges
+      (align::makeUniqueRunRanges(runRangeSelectionVPSet, theFirstRun));
 
     std::vector<AlgebraicVector> beamSpotParameters;
 
@@ -1055,72 +1049,6 @@ void PCLTrackerAlProducer
                                 << bsOutput.str();
     }
   }
-}
-
-//_____________________________________________________________________________
-RunRanges PCLTrackerAlProducer
-::makeNonOverlappingRunRanges(const edm::VParameterSet& RunRangeSelectionVPSet)
-{
-  static bool oldRunRangeSelectionWarning = false;
-
-  const RunNumber beginValue = cond::timeTypeSpecs[cond::runnumber].beginValue;
-  const RunNumber endValue   = cond::timeTypeSpecs[cond::runnumber].endValue;
-
-  RunRanges uniqueRunRanges;
-  if (!RunRangeSelectionVPSet.empty()) {
-
-    std::map<RunNumber,RunNumber> uniqueFirstRunNumbers;
-
-    for (auto ipset  = RunRangeSelectionVPSet.begin();
-              ipset != RunRangeSelectionVPSet.end();
-            ++ipset) {
-      const std::vector<std::string> RunRangeStrings = (*ipset).getParameter<std::vector<std::string> >("RunRanges");
-
-      for (auto irange  = RunRangeStrings.begin();
-                irange != RunRangeStrings.end();
-              ++irange) {
-
-        if ((*irange).find(':') == std::string::npos) {
-
-          RunNumber first = beginValue;
-          long int temp = strtol((*irange).c_str(), 0, 0);
-          if (temp!=-1) first = temp;
-          uniqueFirstRunNumbers[first] = first;
-
-        } else {
-          if (!oldRunRangeSelectionWarning) {
-            edm::LogWarning("BadConfig") << "@SUB=PCLTrackerAlProducer::makeNonOverlappingRunRanges"
-                         << "Config file contains old format for 'RunRangeSelection'. Only the start run\n"
-                         << "number is used internally. The number of the last run is ignored and can be\n"
-                         << "safely removed from the config file.\n";
-            oldRunRangeSelectionWarning = true;
-          }
-
-          std::vector<std::string> tokens = edm::tokenize(*irange, ":");
-          long int temp;
-          RunNumber first = beginValue;
-          temp = strtol(tokens[0].c_str(), 0, 0);
-          if (temp!=-1) first = temp;
-          uniqueFirstRunNumbers[first] = first;
-        }
-      }
-    }
-
-    for (auto iFirst  = uniqueFirstRunNumbers.begin();
-              iFirst != uniqueFirstRunNumbers.end();
-            ++iFirst) {
-      uniqueRunRanges.push_back(std::pair<RunNumber,RunNumber>((*iFirst).first, endValue));
-    }
-
-    for (size_t i = 0; i < uniqueRunRanges.size()-1; ++i) {
-      uniqueRunRanges[i].second = uniqueRunRanges[i+1].first - 1;
-    }
-
-  } else {
-    uniqueRunRanges.push_back(std::pair<RunNumber,RunNumber>(theFirstRun, endValue));
-  }
-
-  return uniqueRunRanges;
 }
 
 //_____________________________________________________________________________

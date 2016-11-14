@@ -25,6 +25,7 @@
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 
 // Alignment
+#include "Alignment/CommonAlignment/interface/Utilities.h"
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentAlgorithmBase.h"
 #include "Alignment/CommonAlignmentMonitor/interface/AlignmentMonitorBase.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h" 
@@ -57,13 +58,13 @@ class AlignmentProducer : public edm::ESProducerLooper
 {
 
  public:
-  typedef std::vector<Alignable*> Alignables;
+  using Alignables = align::Alignables;
   typedef std::pair<const Trajectory*, const reco::Track*> ConstTrajTrackPair; 
   typedef std::vector<ConstTrajTrackPair>  ConstTrajTrackPairCollection;
 
-  typedef AlignmentAlgorithmBase::RunNumber            RunNumber;
-  typedef AlignmentAlgorithmBase::RunRange             RunRange;
-  typedef std::vector<RunRange>                        RunRanges;
+  using RunNumber = align::RunNumber;
+  using RunRange = align::RunRange;
+  using RunRanges = align::RunRanges;
 
   /// Constructor
   AlignmentProducer( const edm::ParameterSet& iConfig );
@@ -175,8 +176,6 @@ class AlignmentProducer : public edm::ESProducerLooper
   /// read in survey records
   void readInSurveyRcds( const edm::EventSetup& );
 
-  RunRanges makeNonOverlappingRunRanges(const edm::VParameterSet& RunRangeSelectionVPSet);
-  RunRanges makeUniqueRunRanges(const edm::ParameterSet& cfg);
 
   // private data members
 

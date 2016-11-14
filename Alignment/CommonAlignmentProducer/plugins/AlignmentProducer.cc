@@ -24,8 +24,6 @@
 #include "FWCore/Framework/interface/ESTransientHandle.h"
 #include "FWCore/Framework/interface/Run.h"
 
-#include "FWCore/Utilities/interface/Parse.h"
-
 // Conditions database
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
@@ -81,7 +79,9 @@ AlignmentProducer::AlignmentProducer(const edm::ParameterSet& iConfig) :
   theAlignmentAlgo(0), theAlignmentParameterStore(0),
   theAlignableExtras(0), theAlignableTracker(0), theAlignableMuon(0), 
   globalPositions_(0),
-  uniqueRunRanges_(makeUniqueRunRanges(iConfig)),
+  uniqueRunRanges_
+  (align::makeUniqueRunRanges(iConfig.getParameter<edm::VParameterSet>("RunRangeSelection"),
+                              cond::timeTypeSpecs[cond::runnumber].beginValue)),
   nevent_(0), theParameterSet(iConfig),
   theMaxLoops( iConfig.getUntrackedParameter<unsigned int>("maxLoops") ),
   stNFixAlignables_(iConfig.getParameter<int>("nFixAlignables") ),
@@ -1113,86 +1113,6 @@ void AlignmentProducer::writeDB(AlignmentSurfaceDeformations *alignmentSurfaceDe
   } else { // poolDb->writeOne(..) takes over 'surfaceDeformation' ownership,...
     delete alignmentSurfaceDeformations; // ...otherwise we have to delete, as promised!
   }
-}
-
-AlignmentProducer::RunRanges
-AlignmentProducer::makeNonOverlappingRunRanges(const edm::VParameterSet& RunRangeSelectionVPSet)
-{
-  static bool oldRunRangeSelectionWarning = false;
-
-  const RunNumber beginValue = cond::timeTypeSpecs[cond::runnumber].beginValue;
-  const RunNumber endValue = cond::timeTypeSpecs[cond::runnumber].endValue;
-  
-  RunRanges uniqueRunRanges;
-  if (!RunRangeSelectionVPSet.empty()) {
-
-    std::map<RunNumber,RunNumber> uniqueFirstRunNumbers;
-    
-    for (std::vector<edm::ParameterSet>::const_iterator ipset = RunRangeSelectionVPSet.begin();
-	 ipset != RunRangeSelectionVPSet.end();
-	 ++ipset) {
-      const std::vector<std::string> RunRangeStrings = (*ipset).getParameter<std::vector<std::string> >("RunRanges");
-      for (std::vector<std::string>::const_iterator irange = RunRangeStrings.begin();
-	   irange != RunRangeStrings.end();
-	   ++irange) {
-	
-	if ((*irange).find(':')==std::string::npos) {
-	  
-	  RunNumber first = beginValue;
-	  long int temp = strtol((*irange).c_str(), 0, 0);
-	  if (temp!=-1) first = temp;
-	  uniqueFirstRunNumbers[first] = first;
-	  
-	} else {
-	  
-	  if (!oldRunRangeSelectionWarning) {
-	    edm::LogWarning("BadConfig") << "@SUB=AlignmentProducer::makeNonOverlappingRunRanges"
-					 << "Config file contains old format for 'RunRangeSelection'. Only the start run\n"
-					 << "number is used internally. The number of the last run is ignored and can be\n"
-					 << "safely removed from the config file.\n";
-	    oldRunRangeSelectionWarning = true;
-	  }
-	  
-	  std::vector<std::string> tokens = edm::tokenize(*irange, ":");
-	  long int temp;
-	  RunNumber first = beginValue;
-	  temp = strtol(tokens[0].c_str(), 0, 0);
-	  if (temp!=-1) first = temp;
-	  uniqueFirstRunNumbers[first] = first;
-	}
-      }
-    }
-
-    for (std::map<RunNumber,RunNumber>::iterator iFirst = uniqueFirstRunNumbers.begin();
-	 iFirst!=uniqueFirstRunNumbers.end();
-	 ++iFirst) {
-      uniqueRunRanges.push_back(std::pair<RunNumber,RunNumber>((*iFirst).first, endValue));
-    }
-    for (unsigned int i = 0;i<uniqueRunRanges.size()-1;++i) {
-      uniqueRunRanges[i].second = uniqueRunRanges[i+1].first - 1;
-    }
-    
-  } else {
-        
-    uniqueRunRanges.push_back(std::pair<RunNumber,RunNumber>(beginValue, endValue));
-    
-  }
-  
-  return uniqueRunRanges;
-}
-
-
-AlignmentProducer::RunRanges
-AlignmentProducer::makeUniqueRunRanges(const edm::ParameterSet& cfg) {
-  const auto runRangeSelectionVPSet =
-    cfg.getParameter<edm::VParameterSet>("RunRangeSelection");
-  auto uniqueRunRanges = makeNonOverlappingRunRanges(runRangeSelectionVPSet);
-  if (uniqueRunRanges.empty()) { // create dummy IOV
-    const RunRange runRange(cond::timeTypeSpecs[cond::runnumber].beginValue,
-			    cond::timeTypeSpecs[cond::runnumber].endValue);
-    uniqueRunRanges.push_back(runRange);
-  }
-  return uniqueRunRanges;
 }
 
 
