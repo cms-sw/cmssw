@@ -369,6 +369,7 @@ class Connection(object):
     def session(self):
         s = self._session()
         s.get_dbtype = self.get_dbtype
+        s._is_sqlite = self._is_sqlite
         return s
 
     @property
