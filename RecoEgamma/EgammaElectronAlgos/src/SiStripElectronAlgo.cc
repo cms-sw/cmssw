@@ -390,22 +390,18 @@ void SiStripElectronAlgo::coarseHitSelection(std::vector<const SiStripRecHit2D*>
         bool isStereoDet = false ;
         if(tracker_p_->idToDetUnit(hit->geographicalId())->type().subDetector() == GeomDetEnumerators::TIB) { 
           theDet = "TIB" ;
-          theLayer = tTopo->tibLayer(id); 
           if(tTopo->tibStereo(id)==1) { isStereoDet = true ; }
         } else if
           (tracker_p_->idToDetUnit(hit->geographicalId())->type().subDetector() == GeomDetEnumerators::TOB) { 
           theDet = "TOB" ;
-          theLayer = tTopo->tobLayer(id); 
           if(tTopo->tobStereo(id)==1) { isStereoDet = true ; }
         }else if
           (tracker_p_->idToDetUnit(hit->geographicalId())->type().subDetector() == GeomDetEnumerators::TID) { 
           theDet = "TID" ;
-          theLayer = tTopo->tidWheel(id);  // or ring  ?
           if(tTopo->tidStereo(id)==1) { isStereoDet = true ; }
         }else if
           (tracker_p_->idToDetUnit(hit->geographicalId())->type().subDetector() == GeomDetEnumerators::TEC) { 
           theDet = "TEC" ;
-          theLayer = tTopo->tecWheel(id);  // or ring or petal ?
           if(tTopo->tecStereo(id)==1) { isStereoDet = true ; }
         } else {
           LogDebug("") << " UHOH BIG PROBLEM - Unrecognized SI Layer" ;
