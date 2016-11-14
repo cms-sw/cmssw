@@ -305,6 +305,18 @@ void Alignable::cacheTransformation()
 
 }
 
+void Alignable::cacheTransformation(const align::RunNumber& run)
+{
+  // first treat itself
+  surfacesCache_[run] = theSurface;
+  displacementsCache_[run] = theDisplacement;
+  rotationsCache_[run] = theRotation;
+
+  // now treat components (a clean design would move that to AlignableComposite...)
+  const Alignables comps(this->components());
+  for (auto& it: comps) it->cacheTransformation(run);
+}
+
 void Alignable::restoreCachedTransformation()
 {
   // first treat itself
@@ -313,12 +325,31 @@ void Alignable::restoreCachedTransformation()
   theRotation = theCachedRotation;
 
   // now treat components (a clean design would move that to AlignableComposite...)
-  const Alignables comps(this->components());
+  const auto comps = this->components();
 
   for (auto it = comps.begin(); it != comps.end(); ++it) {
     (*it)->restoreCachedTransformation();
   }
  
+}
+
+void Alignable::restoreCachedTransformation(const align::RunNumber& run)
+{
+  if (surfacesCache_.find(run) == surfacesCache_.end()) {
+    throw cms::Exception("Alignment")
+      << "@SUB=Alignable::restoreCachedTransformation\n"
+      << "Trying to restore cached transformation for a run (" << run
+      << ") that has not been cached.";
+  } else {
+    // first treat itself
+    theSurface = surfacesCache_[run];
+    theDisplacement = displacementsCache_[run];
+    theRotation = rotationsCache_[run];
+
+    // now treat components (a clean design would move that to AlignableComposite...)
+    const auto comps = this->components();
+    for (auto it: comps) it->restoreCachedTransformation();
+  }
 }
 
 //__________________________________________________________________________________________________

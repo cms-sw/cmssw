@@ -43,6 +43,7 @@
 #include "Alignment/MuonAlignment/interface/AlignableMuon.h"
 #include "Alignment/CommonAlignment/interface/AlignableExtras.h"
 
+#include "CondFormats/AlignmentRecord/interface/GlobalPositionRcd.h"
 #include "CondFormats/AlignmentRecord/interface/TrackerAlignmentRcd.h"
 #include "CondFormats/AlignmentRecord/interface/TrackerAlignmentErrorExtendedRcd.h"
 #include "CondFormats/AlignmentRecord/interface/TrackerSurfaceDeformationRcd.h"
@@ -101,7 +102,10 @@ MillePedeAlignmentAlgorithm::MillePedeAlignmentAlgorithm(const edm::ParameterSet
   theLastWrittenIov(0),
   theGblDoubleBinary(cfg.getParameter<bool>("doubleBinary")),
   runAtPCL_(cfg.getParameter<bool>("runAtPCL")),
-  ignoreHitsWithoutGlobalDerivatives_(cfg.getParameter<bool>("ignoreHitsWithoutGlobalDerivatives"))
+  ignoreHitsWithoutGlobalDerivatives_(cfg.getParameter<bool>("ignoreHitsWithoutGlobalDerivatives")),
+  uniqueRunRanges_
+  (align::makeUniqueRunRanges(cfg.getUntrackedParameter<edm::VParameterSet>("RunRangeSelection"),
+                              cond::timeTypeSpecs[cond::runnumber].beginValue))
 {
   if (!theDir.empty() && theDir.find_last_of('/') != theDir.size()-1) theDir += '/';// may need '/'
   edm::LogInfo("Alignment") << "@SUB=MillePedeAlignmentAlgorithm" << "Start in mode '"
@@ -331,7 +335,8 @@ bool MillePedeAlignmentAlgorithm::setParametersForRunRange(const RunRange &runra
 {
   if (this->isMode(myPedeReadBit)) {
     // restore initial positions, rotations and deformations
-    theAlignmentParameterStore->restoreCachedTransformations();
+    // theAlignmentParameterStore->restoreCachedTransformations();
+    theAlignmentParameterStore->restoreCachedTransformations(runrange.first);
 
     // Needed to shut up later warning from checkAliParams:
     theAlignmentParameterStore->resetParameters();
@@ -349,6 +354,7 @@ bool MillePedeAlignmentAlgorithm::setParametersForRunRange(const RunRange &runra
   
   return true;
 }
+
 
 // Call at end of job ---------------------------------------------------------
 //____________________________________________________
@@ -379,6 +385,19 @@ void MillePedeAlignmentAlgorithm::terminate()
 
   // cache all positions, rotations and deformations
   theAlignmentParameterStore->cacheTransformations();
+  if (this->isMode(myPedeReadBit)) {
+    auto lastCachedRun = uniqueRunRanges_.front().first;
+    for (const auto& runRange: uniqueRunRanges_) {
+      const auto run = runRange.first;
+      if (std::find(cachedRuns_.begin(), cachedRuns_.end(), run) == cachedRuns_.end()) {
+	theAlignmentParameterStore->restoreCachedTransformations(lastCachedRun);
+	theAlignmentParameterStore->cacheTransformations(run);
+      } else {
+	lastCachedRun = run;
+      }
+    }
+    theAlignmentParameterStore->restoreCachedTransformations();
+  }
 
   const std::string masterSteer(thePedeSteer->buildMasterSteer(files));// do only if myPedeSteerBit?
   if (this->isMode(myPedeRunBit)) {
@@ -594,6 +613,76 @@ void MillePedeAlignmentAlgorithm::beginRun(const edm::Run& run,
       << "@SUB=MillePedeAlignmentAlgorithm::beginRun\n"
       << "Using data (run = " << run.run()
       << ") prior to the first defined IOV (" << firstIOV_ << ").";
+  }
+  if (changed) {
+    const auto runNumber = run.run();
+    auto firstRun = cond::timeTypeSpecs[cond::runnumber].beginValue;
+    for (auto runRange = uniqueRunRanges_.crbegin();
+         runRange != uniqueRunRanges_.crend(); ++runRange) {
+      if (runNumber >= runRange->first) {
+        firstRun = runRange->first;
+        break;
+      }
+    }
+    if (std::find(cachedRuns_.begin(), cachedRuns_.end(), firstRun)
+        != cachedRuns_.end()) {
+      const auto& geometryRcd  = setup.get<IdealGeometryRecord>();
+      const auto& globalPosRcd = setup.get<GlobalPositionRcd>();
+      const auto& alignmentRcd = setup.get<TrackerAlignmentRcd>();
+      const auto& surfaceRcd   = setup.get<TrackerSurfaceDeformationRcd>();
+      const auto& errorRcd     = setup.get<TrackerAlignmentErrorExtendedRcd>();
+
+      std::ostringstream message;
+      bool throwException{false};
+      message
+        << "Trying to cache tracker alignment payloads for a run (" << runNumber
+        << ") in an IOV (" << firstRun << ") that was already cached.\n"
+        << "The following records in your input database tag have an IOV "
+        << "boundary that does not match your IOV definition:\n";
+      if (geometryRcd.validityInterval().first().eventID().run() > firstRun) {
+        message
+          << " - IdealGeometryRecord '" << geometryRcd.key().name()
+          << "' (since "
+          << geometryRcd.validityInterval().first().eventID().run() << ")\n";
+        throwException = true;
+      }
+      if (globalPosRcd.validityInterval().first().eventID().run() > firstRun) {
+        message
+          << " - GlobalPositionRecord '" << globalPosRcd.key().name()
+          << "' (since "
+          << globalPosRcd.validityInterval().first().eventID().run() << ")\n";
+	throwException = true;
+      }
+      if (alignmentRcd.validityInterval().first().eventID().run() > firstRun) {
+        message
+          << " - TrackerAlignmentRcd '" << alignmentRcd.key().name()
+          << "' (since "
+          << alignmentRcd.validityInterval().first().eventID().run() << ")\n";
+        throwException = true;
+      }
+      if (surfaceRcd.validityInterval().first().eventID().run() > firstRun) {
+        message
+          << " - TrackerSurfaceDeformationRcd '" << surfaceRcd.key().name()
+          << "' (since "
+          << surfaceRcd.validityInterval().first().eventID().run() << ")\n";
+        throwException = true;
+      }
+      if (errorRcd.validityInterval().first().eventID().run() > firstRun) {
+        message
+          << " - TrackerAlignmentErrorExtendedRcd '" << errorRcd.key().name()
+          << "' (since "
+          << errorRcd.validityInterval().first().eventID().run() << ")\n";
+        throwException = true;
+      }
+
+      if (throwException) {
+        throw cms::Exception("Alignment")
+          << "@SUB=MillePedeAlignmentAlgorithm::beginRun\n" << message.str();
+      }
+    } else {
+      cachedRuns_.push_back(firstRun);
+      theAlignmentParameterStore->cacheTransformations(firstRun);
+    }
   }
 }
 
@@ -1571,4 +1660,3 @@ void MillePedeAlignmentAlgorithm::addPxbSurvey(const edm::ParameterSet &pxbSurve
 	}
 	outfile.close();
 }
-
