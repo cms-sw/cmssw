@@ -587,7 +587,8 @@ MillePedeAlignmentAlgorithm::addHitCount(const std::vector<AlignmentParameters*>
 
 
 void MillePedeAlignmentAlgorithm::beginRun(const edm::Run& run,
-                                           const edm::EventSetup& setup) {
+                                           const edm::EventSetup& setup,
+                                           bool changed) {
   if (run.run() < firstIOV_ && !ignoreFirstIOVCheck_) {
     throw cms::Exception("Alignment")
       << "@SUB=MillePedeAlignmentAlgorithm::beginRun\n"

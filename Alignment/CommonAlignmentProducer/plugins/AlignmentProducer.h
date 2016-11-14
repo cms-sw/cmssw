@@ -117,7 +117,7 @@ class AlignmentProducer : public edm::ESProducerLooper
 
   /// Creates Geometry and Alignables of the Tracker and initializes the
   /// AlignmentAlgorithm @theAlignmentAlgo
-  void initAlignmentAlgorithm(const edm::EventSetup&);
+  void initAlignmentAlgorithm(const edm::EventSetup&, bool update = false);
 
   /// Applies Alignments from Database (GlobalPositionRcd) to Geometry
   /// @theTracker
@@ -125,7 +125,7 @@ class AlignmentProducer : public edm::ESProducerLooper
 
   /// Creates Alignables @theAlignableTracker from the previously loaded
   /// Geometry @theTracker
-  void createAlignables(const TrackerTopology*);
+  void createAlignables(const TrackerTopology*, bool update = false);
 
   /// Creates the @theAlignmentParameterStore, which manages all Alignables
   void buildParameterStore();
