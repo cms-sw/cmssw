@@ -25,7 +25,7 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(2)
+    input = cms.untracked.int32(25)
 )
 
 # Input source

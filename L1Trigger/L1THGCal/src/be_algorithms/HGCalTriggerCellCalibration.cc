@@ -7,7 +7,6 @@ HGCalTriggerCellCalibration::HGCalTriggerCellCalibration(const edm::ParameterSet
     const edm::ParameterSet beCodecConfig = conf.getParameterSet("calib_constant");
 
     LSB = beCodecConfig.getParameter<double>("linLSB");
-    trgCellTruncBit = beCodecConfig.getParameter<uint32_t>("triggerCellTruncationBits");
     fCperMIP_ee = beCodecConfig.getParameter<std::vector<double>>("fCperMIPee");
     fCperMIP_fh = beCodecConfig.getParameter<std::vector<double>>("fCperMIPfh");
     dEdX_weights = beCodecConfig.getParameter<std::vector<double>>("dEdXweights");
@@ -20,7 +19,6 @@ HGCalTriggerCellCalibration::HGCalTriggerCellCalibration(const edm::ParameterSet
 
 void HGCalTriggerCellCalibration::print(){
     std::cout << LSB                 << std::endl; 
-    std::cout << trgCellTruncBit     << std::endl; 
     std::cout << fCperMIP_ee.size()  << std::endl; 
     std::cout << fCperMIP_fh.size()  << std::endl; 
     std::cout << dEdX_weights.size() << std::endl; 
@@ -36,7 +34,7 @@ l1t::HGCalTriggerCell HGCalTriggerCellCalibration::calibrate(l1t::HGCalTriggerCe
         //get the hardware pT in fC:
         int hwPt = trgCell.hwPt();
         //set the lowest signal bit:
-        double amplitude = hwPt * LSB * TMath::Power(2,TrgCellTruncBit) ;  
+        double amplitude = hwPt * LSB ;  
         
         //std::cout << "trunc power " << TMath::Power(2,TrgCellTruncBit_) <<  "  Charge " << amplitude << " fC" <<std::endl;
 

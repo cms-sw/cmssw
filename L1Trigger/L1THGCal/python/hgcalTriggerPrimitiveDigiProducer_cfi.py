@@ -8,7 +8,7 @@ fe_codec = cms.PSet( CodecName  = cms.string('HGCalTriggerCellBestChoiceCodec'),
                      CodecIndex = cms.uint32(2),
                      NData = cms.uint32(12),
                      MaxCellsInModule = cms.uint32(116),
-                     DataLength = cms.uint32(16),
+                     DataLength = cms.uint32(8),
                      linLSB = cms.double(100./1024.),
                      triggerCellTruncationBits = cms.uint32(0),
                      #take the following parameters from the digitization config file
@@ -21,7 +21,7 @@ fe_codec = cms.PSet( CodecName  = cms.string('HGCalTriggerCellBestChoiceCodec'),
 )
     
 be_parameters = cms.PSet(
-    linLSB = cms.double( (100.1024)*2**(7) ),# *  2^(fe_codec.triggerCellTruncationBit),
+    linLSB = cms.double( (100.1024)*2**(7) ),
     triggerCellTruncationBits = cms.uint32(0),
     fCperMIPee = recoparam.HGCalUncalibRecHit.HGCEEConfig.fCPerMIP,
     fCperMIPfh = recoparam.HGCalUncalibRecHit.HGCHEFConfig.fCPerMIP,
