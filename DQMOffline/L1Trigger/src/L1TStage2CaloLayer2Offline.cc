@@ -453,30 +453,30 @@ void L1TStage2CaloLayer2Offline::bookEnergySumHistos(DQMStore::IBooker & ibooker
     std::string str_threshold = std::to_string(int(threshold));
     h_efficiencyMET_pass_[threshold] = ibooker.book1D("efficiencyMET_threshold_" + str_threshold + "_Num",
         "MET efficiency; Offline E_{T}^{miss} (GeV); events", metBins.size() - 1, &(metBins[0]));
-    h_efficiencyMET_total_[threshold] = ibooker.book1D("efficiencyMET_" + str_threshold + "_Den",
+    h_efficiencyMET_total_[threshold] = ibooker.book1D("efficiencyMET_threshold_" + str_threshold + "_Den",
         "MET efficiency; Offline E_{T}^{miss} (GeV); events", metBins.size() - 1, &(metBins[0]));
   }
 
   for (auto threshold : mhtEfficiencyThresholds_) {
     std::string str_threshold = std::to_string(int(threshold));
-    h_efficiencyMHT_pass_[threshold] = ibooker.book1D("efficiencyMHT_" + str_threshold + "_Num",
+    h_efficiencyMHT_pass_[threshold] = ibooker.book1D("efficiencyMHT_threshold_" + str_threshold + "_Num",
         "MHT efficiency; Offline MHT (GeV); events", mhtBins.size() - 1, &(mhtBins[0]));
-    h_efficiencyMHT_total_[threshold] = ibooker.book1D("efficiencyMHT_" + str_threshold + "_Den",
+    h_efficiencyMHT_total_[threshold] = ibooker.book1D("efficiencyMHT_threshold_" + str_threshold + "_Den",
         "MHT efficiency; Offline MHT (GeV); events", mhtBins.size() - 1, &(mhtBins[0]));
   }
 
   for (auto threshold : ettEfficiencyThresholds_) {
     std::string str_threshold = std::to_string(int(threshold));
-    h_efficiencyETT_pass_[threshold] = ibooker.book1D("efficiencyETT_" + str_threshold + "_Num",
+    h_efficiencyETT_pass_[threshold] = ibooker.book1D("efficiencyETT_threshold_" + str_threshold + "_Num",
         "ETT efficiency; Offline ETT (GeV); events", ettBins.size() - 1, &(ettBins[0]));
-    h_efficiencyETT_total_[threshold] = ibooker.book1D("efficiencyETT_" + str_threshold + "_Den",
+    h_efficiencyETT_total_[threshold] = ibooker.book1D("efficiencyETT_threshold_" + str_threshold + "_Den",
         "ETT efficiency; Offline ETT (GeV); events", ettBins.size() - 1, &(ettBins[0]));
   }
   for (auto threshold : httEfficiencyThresholds_) {
     std::string str_threshold = std::to_string(int(threshold));
-    h_efficiencyHTT_pass_[threshold] = ibooker.book1D("efficiencyHTT_" + str_threshold + "_Num",
+    h_efficiencyHTT_pass_[threshold] = ibooker.book1D("efficiencyHTT_threshold_" + str_threshold + "_Num",
         "HTT efficiency; Offline Total H_{T} (GeV); events", httBins.size() - 1, &(httBins[0]));
-    h_efficiencyHTT_total_[threshold] = ibooker.book1D("efficiencyHTT_" + str_threshold + "_Den",
+    h_efficiencyHTT_total_[threshold] = ibooker.book1D("efficiencyHTT_threshold_" + str_threshold + "_Den",
         "HTT efficiency; Offline Total H_{T} (GeV); events", httBins.size() - 1, &(httBins[0]));
   }
 
