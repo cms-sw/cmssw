@@ -103,6 +103,7 @@ MillePedeAlignmentAlgorithm::MillePedeAlignmentAlgorithm(const edm::ParameterSet
   theGblDoubleBinary(cfg.getParameter<bool>("doubleBinary")),
   runAtPCL_(cfg.getParameter<bool>("runAtPCL")),
   ignoreHitsWithoutGlobalDerivatives_(cfg.getParameter<bool>("ignoreHitsWithoutGlobalDerivatives")),
+  skipGlobalPositionRcdCheck_(cfg.getParameter<bool>("skipGlobalPositionRcdCheck")),
   uniqueRunRanges_
   (align::makeUniqueRunRanges(cfg.getUntrackedParameter<edm::VParameterSet>("RunRangeSelection"),
                               cond::timeTypeSpecs[cond::runnumber].beginValue))
@@ -650,8 +651,13 @@ void MillePedeAlignmentAlgorithm::beginRun(const edm::Run& run,
         message
           << " - GlobalPositionRecord '" << globalPosRcd.key().name()
           << "' (since "
-          << globalPosRcd.validityInterval().first().eventID().run() << ")\n";
-	throwException = true;
+          << globalPosRcd.validityInterval().first().eventID().run() << ")";
+        if (skipGlobalPositionRcdCheck_) {
+          message << " --> ignored\n";
+        } else {
+          message << "\n";
+          throwException = true;
+        }
       }
       if (alignmentRcd.validityInterval().first().eventID().run() > firstRun) {
         message

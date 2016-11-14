@@ -20,6 +20,7 @@ def setConfiguration(process, collection, mode, monitorFile, binaryFile,
         process.MillePedeAlignmentAlgorithm)
     process.AlignmentProducer.algoConfig.mode              = mode
     process.AlignmentProducer.algoConfig.mergeBinaryFiles  = cms.vstring()
+    process.AlignmentProducer.algoConfig.skipGlobalPositionRcdCheck = True
 
     # default pede options:
     process.AlignmentProducer.algoConfig.pedeSteerer.method = "sparseMINRES-QLP 3  0.8"
