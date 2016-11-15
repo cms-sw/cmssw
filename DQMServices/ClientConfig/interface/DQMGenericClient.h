@@ -61,6 +61,7 @@ class DQMGenericClient : public DQMEDHarvester
   struct CDOption
   {
     std::string name;
+    bool ascending;
   };
 
   void computeEfficiency(DQMStore::IBooker& ibooker,
@@ -91,7 +92,8 @@ class DQMGenericClient : public DQMEDHarvester
   void makeCumulativeDist(DQMStore::IBooker& ibooker,
 			  DQMStore::IGetter& igetter,
 			  const std::string& startDir,
-			  const std::string& cdName);
+			  const std::string& cdName,
+                          bool ascending=true);
 
   void limitedFit(MonitorElement * srcME, MonitorElement * meanME, MonitorElement * sigmaME);
 
