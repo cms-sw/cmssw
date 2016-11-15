@@ -1,4 +1,6 @@
 #include "DQMOffline/L1Trigger/interface/L1TStage2CaloLayer2Offline.h"
+#include "DQMOffline/L1Trigger/interface/L1TFillWithinLimits.h"
+
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 // Geometry
@@ -100,7 +102,7 @@ void L1TStage2CaloLayer2Offline::analyze(edm::Event const& e, edm::EventSetup co
   }
 
   unsigned int nVertex = vertexHandle->size();
-  h_nVertex_->Fill(nVertex);
+  dqmoffline::l1t::fillWithinLimits(h_nVertex_, nVertex);
 
   // L1T
   fillEnergySums(e, nVertex);
@@ -197,45 +199,46 @@ void L1TStage2CaloLayer2Offline::fillEnergySums(edm::Event const& e, const unsig
   double resolutionETT = recoETT > 0 ? (l1ETT - recoETT) / recoETT : outOfBounds;
   double resolutionHTT = recoHTT > 0 ? (l1HTT - recoHTT) / recoHTT : outOfBounds;
 
-  h_L1METvsCaloMET_->Fill(recoMET, l1MET);
-  h_L1MHTvsRecoMHT_->Fill(recoMHT, l1MHT);
-  h_L1METTvsCaloETT_->Fill(recoETT, l1ETT);
-  h_L1HTTvsRecoHTT_->Fill(recoHTT, l1HTT);
+  using namespace dqmoffline::l1t;
+  fill2DWithinLimits(h_L1METvsCaloMET_, recoMET, l1MET);
+  fill2DWithinLimits(h_L1MHTvsRecoMHT_, recoMHT, l1MHT);
+  fill2DWithinLimits(h_L1METTvsCaloETT_, recoETT, l1ETT);
+  fill2DWithinLimits(h_L1HTTvsRecoHTT_, recoHTT, l1HTT);
 
-  h_L1METPhivsCaloMETPhi_->Fill(recoMETPhi, l1METPhi);
-  h_L1MHTPhivsRecoMHTPhi_->Fill(recoMHTPhi, l1MHTPhi);
+  fill2DWithinLimits(h_L1METPhivsCaloMETPhi_, recoMETPhi, l1METPhi);
+  fill2DWithinLimits(h_L1MHTPhivsRecoMHTPhi_, recoMHTPhi, l1MHTPhi);
 
-  h_resolutionMET_->Fill(resolutionMET);
-  h_resolutionMHT_->Fill(resolutionMHT);
-  h_resolutionETT_->Fill(resolutionETT);
-  h_resolutionHTT_->Fill(resolutionHTT);
+  fillWithinLimits(h_resolutionMET_, resolutionMET);
+  fillWithinLimits(h_resolutionMHT_, resolutionMHT);
+  fillWithinLimits(h_resolutionETT_, resolutionETT);
+  fillWithinLimits(h_resolutionHTT_, resolutionHTT);
 
-  h_resolutionMETPhi_->Fill(resolutionMETPhi);
-  h_resolutionMHTPhi_->Fill(resolutionMHTPhi);
+  fillWithinLimits(h_resolutionMETPhi_, resolutionMETPhi);
+  fillWithinLimits(h_resolutionMHTPhi_, resolutionMHTPhi);
 
   // efficiencies
   for (auto threshold : metEfficiencyThresholds_) {
-    h_efficiencyMET_total_[threshold]->Fill(recoMET);
+    fillWithinLimits(h_efficiencyMET_total_[threshold], recoMET);
     if (l1MET > threshold)
-      h_efficiencyMET_pass_[threshold]->Fill(recoMET);
+      fillWithinLimits(h_efficiencyMET_pass_[threshold], recoMET);
   }
 
   for (auto threshold : mhtEfficiencyThresholds_) {
-    h_efficiencyMHT_total_[threshold]->Fill(recoMHT);
+    fillWithinLimits(h_efficiencyMHT_total_[threshold], recoMHT);
     if (l1MHT > threshold)
-      h_efficiencyMHT_pass_[threshold]->Fill(recoMHT);
+      fillWithinLimits(h_efficiencyMHT_pass_[threshold], recoMHT);
   }
 
   for (auto threshold : ettEfficiencyThresholds_) {
-    h_efficiencyETT_total_[threshold]->Fill(recoETT);
+    fillWithinLimits(h_efficiencyETT_total_[threshold], recoETT);
     if (l1ETT > threshold)
-      h_efficiencyETT_pass_[threshold]->Fill(recoETT);
+      fillWithinLimits(h_efficiencyETT_pass_[threshold], recoETT);
   }
 
   for (auto threshold : httEfficiencyThresholds_) {
-    h_efficiencyHTT_total_[threshold]->Fill(recoHTT);
+    fillWithinLimits(h_efficiencyHTT_total_[threshold], recoHTT);
     if (l1HTT > threshold)
-      h_efficiencyHTT_pass_[threshold]->Fill(recoHTT);
+      fillWithinLimits(h_efficiencyHTT_pass_[threshold], recoHTT);
   }
 
 }
@@ -308,72 +311,73 @@ void L1TStage2CaloLayer2Offline::fillJets(edm::Event const& e, const unsigned in
   double resolutionEta = abs(recoEta) > 0 ? (l1Eta - recoEta) / recoEta : outOfBounds;
   double resolutionPhi = abs(recoPhi) > 0 ? (l1Phi - recoPhi) / recoPhi : outOfBounds;
 
+  using namespace dqmoffline::l1t;
   // eta
-  h_L1JetEtavsCaloJetEta_->Fill(recoEta, l1Eta);
-  h_resolutionJetEta_->Fill(resolutionEta);
+  fill2DWithinLimits(h_L1JetEtavsCaloJetEta_, recoEta, l1Eta);
+  fillWithinLimits(h_resolutionJetEta_, resolutionEta);
 
   if (abs(recoEta) <= 1.479) { // barrel
     // et
-    h_L1JetETvsCaloJetET_HB_->Fill(recoEt, l1Et);
-    h_L1JetETvsCaloJetET_HB_HE_->Fill(recoEt, l1Et);
+    fill2DWithinLimits(h_L1JetETvsCaloJetET_HB_, recoEt, l1Et);
+    fill2DWithinLimits(h_L1JetETvsCaloJetET_HB_HE_, recoEt, l1Et);
     //resolution
-    h_resolutionJetET_HB_->Fill(resolutionEt);
-    h_resolutionJetET_HB_HE_->Fill(resolutionEt);
+    fillWithinLimits(h_resolutionJetET_HB_, resolutionEt);
+    fillWithinLimits(h_resolutionJetET_HB_HE_, resolutionEt);
     // phi
-    h_L1JetPhivsCaloJetPhi_HB_->Fill(recoPhi, l1Phi);
-    h_L1JetPhivsCaloJetPhi_HB_HE_->Fill(recoPhi, l1Phi);
+    fill2DWithinLimits(h_L1JetPhivsCaloJetPhi_HB_, recoPhi, l1Phi);
+    fill2DWithinLimits(h_L1JetPhivsCaloJetPhi_HB_HE_, recoPhi, l1Phi);
     // resolution
-    h_resolutionJetPhi_HB_->Fill(resolutionPhi);
-    h_resolutionJetPhi_HB_HE_->Fill(resolutionPhi);
+    fillWithinLimits(h_resolutionJetPhi_HB_, resolutionPhi);
+    fillWithinLimits(h_resolutionJetPhi_HB_HE_, resolutionPhi);
 
     // turn-ons
 
     for (auto threshold : jetEfficiencyThresholds_) {
-      h_efficiencyJetEt_HB_total_[threshold]->Fill(recoEt);
-      h_efficiencyJetEt_HB_HE_total_[threshold]->Fill(recoEt);
+      fillWithinLimits(h_efficiencyJetEt_HB_total_[threshold], recoEt);
+      fillWithinLimits(h_efficiencyJetEt_HB_HE_total_[threshold], recoEt);
       if (l1Et > threshold) {
-        h_efficiencyJetEt_HB_pass_[threshold]->Fill(recoEt);
-        h_efficiencyJetEt_HB_HE_pass_[threshold]->Fill(recoEt);
+        fillWithinLimits(h_efficiencyJetEt_HB_pass_[threshold], recoEt);
+        fillWithinLimits(h_efficiencyJetEt_HB_HE_pass_[threshold], recoEt);
       }
     }
 
   } else if (abs(recoEta) <= 3.0) { // end-cap
     // et
-    h_L1JetETvsCaloJetET_HE_->Fill(recoEt, l1Et);
-    h_L1JetETvsCaloJetET_HB_HE_->Fill(recoEt, l1Et);
+    fill2DWithinLimits(h_L1JetETvsCaloJetET_HE_, recoEt, l1Et);
+    fill2DWithinLimits(h_L1JetETvsCaloJetET_HB_HE_, recoEt, l1Et);
     //resolution
-    h_resolutionJetET_HE_->Fill(resolutionEt);
-    h_resolutionJetET_HB_HE_->Fill(resolutionEt);
+    fillWithinLimits(h_resolutionJetET_HE_, resolutionEt);
+    fillWithinLimits(h_resolutionJetET_HB_HE_, resolutionEt);
     // phi
-    h_L1JetPhivsCaloJetPhi_HE_->Fill(recoPhi, l1Phi);
-    h_L1JetPhivsCaloJetPhi_HB_HE_->Fill(recoPhi, l1Phi);
+    fill2DWithinLimits(h_L1JetPhivsCaloJetPhi_HE_, recoPhi, l1Phi);
+    fill2DWithinLimits(h_L1JetPhivsCaloJetPhi_HB_HE_, recoPhi, l1Phi);
     // resolution
-    h_resolutionJetPhi_HE_->Fill(resolutionPhi);
-    h_resolutionJetPhi_HB_HE_->Fill(resolutionPhi);
+    fillWithinLimits(h_resolutionJetPhi_HE_, resolutionPhi);
+    fillWithinLimits(h_resolutionJetPhi_HB_HE_, resolutionPhi);
 
     // turn-ons
     for (auto threshold : jetEfficiencyThresholds_) {
-      h_efficiencyJetEt_HE_total_[threshold]->Fill(recoEt);
-      h_efficiencyJetEt_HB_HE_total_[threshold]->Fill(recoEt);
+      fillWithinLimits(h_efficiencyJetEt_HE_total_[threshold], recoEt);
+      fillWithinLimits(h_efficiencyJetEt_HB_HE_total_[threshold], recoEt);
       if (l1Et > threshold) {
-        h_efficiencyJetEt_HE_pass_[threshold]->Fill(recoEt);
-        h_efficiencyJetEt_HB_HE_pass_[threshold]->Fill(recoEt);
+        fillWithinLimits(h_efficiencyJetEt_HE_pass_[threshold], recoEt);
+        fillWithinLimits(h_efficiencyJetEt_HB_HE_pass_[threshold], recoEt);
       }
     }
   } else { // forward jets
     // et
-    h_L1JetETvsCaloJetET_HF_->Fill(recoEt, l1Et);
+    fill2DWithinLimits(h_L1JetETvsCaloJetET_HF_, recoEt, l1Et);
     // resolution
-    h_resolutionJetET_HF_->Fill(resolutionEt);
+    fillWithinLimits(h_resolutionJetET_HF_, resolutionEt);
     // phi
-    h_L1JetPhivsCaloJetPhi_HF_->Fill(recoPhi, l1Phi);
+    fill2DWithinLimits(h_L1JetPhivsCaloJetPhi_HF_, recoPhi, l1Phi);
     // resolution
-    h_resolutionJetPhi_HF_->Fill(resolutionPhi);
+    fillWithinLimits(h_resolutionJetPhi_HF_, resolutionPhi);
     // turn-ons
     for (auto threshold : jetEfficiencyThresholds_) {
-      h_efficiencyJetEt_HF_total_[threshold]->Fill(recoEt);
+      fillWithinLimits(h_efficiencyJetEt_HF_total_[threshold], recoEt);
       if (l1Et > threshold) {
-        h_efficiencyJetEt_HF_pass_[threshold]->Fill(recoEt);
+        fillWithinLimits(h_efficiencyJetEt_HF_pass_[threshold], recoEt);
       }
     }
   }
