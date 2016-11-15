@@ -164,10 +164,22 @@ HcalRecHitsAnalyzer::HcalRecHitsAnalyzer(edm::ParameterSet const& conf) {
       for (int depth = 1; depth <= maxDepthHB_; depth++) {
 	sprintf  (histo, "emean_vs_ieta_HB%d",depth );
 	emean_vs_ieta_HB.push_back( ibooker.bookProfile(histo, histo, ieta_bins_, ieta_min_, ieta_max_, 2010, -10., 2000., " ") );
+
+	sprintf  (histo, "emean_vs_ieta_M0_HB%d",depth );
+	emean_vs_ieta_HBM0.push_back( ibooker.bookProfile(histo, histo, ieta_bins_, ieta_min_, ieta_max_, 2010, -10., 2000., " ") );
+
+	sprintf  (histo, "emean_vs_ieta_M3_HB%d",depth );
+	emean_vs_ieta_HBM3.push_back( ibooker.bookProfile(histo, histo, ieta_bins_, ieta_min_, ieta_max_, 2010, -10., 2000., " ") );
       }
       for (int depth = 1; depth <= maxDepthHE_; depth++) {
 	sprintf  (histo, "emean_vs_ieta_HE%d",depth );
 	emean_vs_ieta_HE.push_back( ibooker.bookProfile(histo, histo, ieta_bins_, ieta_min_, ieta_max_, 2010, -10., 2000., " ") );
+
+	sprintf  (histo, "emean_vs_ieta_M0_HE%d",depth );
+	emean_vs_ieta_HEM0.push_back( ibooker.bookProfile(histo, histo, ieta_bins_, ieta_min_, ieta_max_, 2010, -10., 2000., " ") );
+
+	sprintf  (histo, "emean_vs_ieta_M3_HE%d",depth );
+	emean_vs_ieta_HEM3.push_back( ibooker.bookProfile(histo, histo, ieta_bins_, ieta_min_, ieta_max_, 2010, -10., 2000., " ") );
       }
       for (int depth = 1; depth <= maxDepthHF_; depth++) {
 	sprintf  (histo, "emean_vs_ieta_HF%d",depth );
@@ -279,6 +291,24 @@ HcalRecHitsAnalyzer::HcalRecHitsAnalyzer(edm::ParameterSet const& conf) {
       sprintf (histo, "HcalRecHitTask_energy_of_rechits_HB" ) ;
       meRecHitsEnergyHB = ibooker.book1D(histo, histo, 2010 , -10. , 2000.); 
       
+      sprintf (histo, "HcalRecHitTask_energy_of_rechits_M0_HB" ) ;
+      meRecHitsEnergyHBM0 = ibooker.book1D(histo, histo, 2010 , -10. , 2000.); 
+      
+      sprintf (histo, "HcalRecHitTask_energy_of_rechits_M3_HB" ) ;
+      meRecHitsEnergyHBM3 = ibooker.book1D(histo, histo, 2010 , -10. , 2000.); 
+      
+      sprintf (histo, "HcalRecHitTask_energy_of_rechits_M2vM0_HB" ) ;
+      meRecHitsEnergyM2vM0HB = ibooker.book2D(histo, histo, 42 , -10. , 200., 42, -10., 200.); 
+      
+      sprintf (histo, "HcalRecHitTask_energy_of_rechits_M3vM0_HB" ) ;
+      meRecHitsEnergyM3vM0HB = ibooker.book2D(histo, histo, 42 , -10. , 200., 42, -10., 200.); 
+      
+      sprintf (histo, "HcalRecHitTask_energy_of_rechits_M3vM2_HB" ) ;
+      meRecHitsEnergyM3vM2HB = ibooker.book2D(histo, histo, 42 , -10. , 200., 42, -10., 200.); 
+      
+      sprintf (histo, "HcalRecHitTask_M2Chi2_of_rechits_HB" ) ;
+      meRecHitsM2Chi2HB = ibooker.book1D(histo, histo, 200 , -10. , 10.); 
+      
       sprintf (histo, "HcalRecHitTask_timing_HB" ) ;
       meTimeHB = ibooker.book1D(histo, histo, 70, -48., 92.); 
 
@@ -313,6 +343,24 @@ HcalRecHitsAnalyzer::HcalRecHitsAnalyzer(edm::ParameterSet const& conf) {
       
       sprintf (histo, "HcalRecHitTask_energy_of_rechits_HE" ) ;
       meRecHitsEnergyHE = ibooker.book1D(histo, histo, 2010, -10., 2000.);
+      
+      sprintf (histo, "HcalRecHitTask_energy_of_rechits_M0_HE" ) ;
+      meRecHitsEnergyHEM0 = ibooker.book1D(histo, histo, 2010, -10., 2000.);
+      
+      sprintf (histo, "HcalRecHitTask_energy_of_rechits_M3_HE" ) ;
+      meRecHitsEnergyHEM3 = ibooker.book1D(histo, histo, 2010, -10., 2000.);
+      
+      sprintf (histo, "HcalRecHitTask_energy_of_rechits_M2vM0_HE" ) ;
+      meRecHitsEnergyM2vM0HE = ibooker.book2D(histo, histo, 42 , -10. , 200., 42, -10., 200.); 
+      
+      sprintf (histo, "HcalRecHitTask_energy_of_rechits_M3vM0_HE" ) ;
+      meRecHitsEnergyM3vM0HE = ibooker.book2D(histo, histo, 42 , -10. , 200., 42, -10., 200.); 
+      
+      sprintf (histo, "HcalRecHitTask_energy_of_rechits_M2vM0_HE" ) ;
+      meRecHitsEnergyM3vM2HE = ibooker.book2D(histo, histo, 42 , -10. , 200., 42, -10., 200.); 
+      
+      sprintf (histo, "HcalRecHitTask_M2Chi2_of_rechits_HE" ) ;
+      meRecHitsM2Chi2HE = ibooker.book1D(histo, histo, 200 , -10. , 10.); 
       
       sprintf (histo, "HcalRecHitTask_timing_HE" ) ;
       meTimeHE = ibooker.book1D(histo, histo, 70, -48., 92.); 
@@ -516,6 +564,8 @@ void HcalRecHitsAnalyzer::analyze(edm::Event const& ev, edm::EventSetup const& c
     int ieta      = cieta[i]; 
     int iphi      = ciphi[i]; 
     double en     = cen[i]; 
+    double enM0   = cenM0[i];
+    double enM3   = cenM3[i];
     //     double eta    = ceta[i]; 
     //     double phi    = cphi[i]; 
     uint32_t stwd = cstwd[i];
@@ -558,10 +608,14 @@ void HcalRecHitsAnalyzer::analyze(edm::Event const& ev, edm::EventSetup const& c
 
       if ( sub == 1){
 	 emean_vs_ieta_HB[depth-1]->Fill(double(ieta), en);
+	 emean_vs_ieta_HBM0[depth-1]->Fill(double(ieta), enM0);
+	 emean_vs_ieta_HBM3[depth-1]->Fill(double(ieta), enM3);
 	 occupancy_map_HB[depth-1]->Fill(double(ieta),double(iphi));
       }
       if ( sub == 2){
 	 emean_vs_ieta_HE[depth-1]->Fill(double(ieta), en);
+	 emean_vs_ieta_HEM0[depth-1]->Fill(double(ieta), enM0);
+	 emean_vs_ieta_HEM3[depth-1]->Fill(double(ieta), enM3);
 	 occupancy_map_HE[depth-1]->Fill(double(ieta),double(iphi));
       }
       if ( sub == 3){
@@ -659,6 +713,9 @@ void HcalRecHitsAnalyzer::analyze(edm::Event const& ev, edm::EventSetup const& c
       double eta = ceta[i]; 
       double phi = cphi[i]; 
       double en  = cen[i]; 
+      double enM0  = cenM0[i]; 
+      double enM3  = cenM3[i]; 
+      double chi2  = cchi2[i];
       double t   = ctime[i];
 //       int   ieta = cieta[i];
 
@@ -671,6 +728,7 @@ void HcalRecHitsAnalyzer::analyze(edm::Event const& ev, edm::EventSetup const& c
 
       nrechits++;	    
       eHcal += en;
+
       if(en > 1. ) nrechitsThresh++;
       
       //The energy and overall timing histos are drawn while
@@ -678,6 +736,14 @@ void HcalRecHitsAnalyzer::analyze(edm::Event const& ev, edm::EventSetup const& c
       if(sub == 1 && (subdet_ == 1 || subdet_ == 5)) {  
 	meTimeHB->Fill(t);
 	meRecHitsEnergyHB->Fill(en);
+	meRecHitsEnergyHBM0->Fill(enM0);
+	meRecHitsEnergyHBM3->Fill(enM3);
+
+        meRecHitsEnergyM2vM0HB->Fill(enM0,en);
+        meRecHitsEnergyM3vM0HB->Fill(enM0,enM3);
+        meRecHitsEnergyM3vM2HB->Fill(en,enM3);
+
+        meRecHitsM2Chi2HB->Fill(log10(chi2));
 	
 	meTE_Low_HB->Fill( en, t);
 	meTE_HB->Fill( en, t);
@@ -689,7 +755,15 @@ void HcalRecHitsAnalyzer::analyze(edm::Event const& ev, edm::EventSetup const& c
       if(sub == 2 && (subdet_ == 2 || subdet_ == 5)) {  
 	meTimeHE->Fill(t);
 	meRecHitsEnergyHE->Fill(en);
+	meRecHitsEnergyHEM0->Fill(enM0);
+	meRecHitsEnergyHEM3->Fill(enM3);
 
+        meRecHitsEnergyM2vM0HE->Fill(enM0,en);
+        meRecHitsEnergyM3vM0HE->Fill(enM0,enM3);
+        meRecHitsEnergyM3vM2HE->Fill(en,enM3);
+
+        meRecHitsM2Chi2HE->Fill(log10(chi2));
+	
 	meTE_Low_HE->Fill( en, t);
 	meTE_HE->Fill( en, t);
 	meTEprofileHE_Low->Fill(en, t);
@@ -741,6 +815,8 @@ void HcalRecHitsAnalyzer::fillRecHitsTmp(int subdet_, edm::Event const& ev){
   // initialize data vectors
   csub.clear();
   cen.clear();
+  cenM0.clear();
+  cenM3.clear();
   ceta.clear();
   cphi.clear();
   ctime.clear();
@@ -773,6 +849,9 @@ void HcalRecHitsAnalyzer::fillRecHitsTmp(int subdet_, edm::Event const& ev){
       int inteta  = cell.ieta();
       int intphi  = cell.iphi();
       double en   = j->energy();
+      double enM0 = j->eraw();
+      double enM3 = j->eaux();
+      double chi2 = j->chi2();
       double t    = j->time();
       int stwd    = j->flags();
       int auxstwd = j->aux();
@@ -788,6 +867,9 @@ void HcalRecHitsAnalyzer::fillRecHitsTmp(int subdet_, edm::Event const& ev){
 	
 	csub.push_back(sub);
 	cen.push_back(en);
+	cenM0.push_back(enM0);
+	cenM3.push_back(enM3);
+        cchi2.push_back(chi2);
 	ceta.push_back(eta);
 	cphi.push_back(phi);
 	ctime.push_back(t);
@@ -820,6 +902,9 @@ void HcalRecHitsAnalyzer::fillRecHitsTmp(int subdet_, edm::Event const& ev){
       int inteta   = cell.ieta();
       int intphi   = cell.iphi();
       double en    = j->energy();
+      double enM0  = 0.;
+      double enM3  = 0.;
+      double chi2  = 0.;
       double t     = j->time();
       int stwd     = j->flags();
       int auxstwd  = j->aux();
@@ -833,6 +918,9 @@ void HcalRecHitsAnalyzer::fillRecHitsTmp(int subdet_, edm::Event const& ev){
 	
 	csub.push_back(sub);
 	cen.push_back(en);
+	cenM0.push_back(enM0);
+	cenM3.push_back(enM3);
+        cchi2.push_back(chi2);
 	ceta.push_back(eta);
 	cphi.push_back(phi);
 	ctime.push_back(t);
@@ -865,6 +953,9 @@ void HcalRecHitsAnalyzer::fillRecHitsTmp(int subdet_, edm::Event const& ev){
       int intphi   = cell.iphi();
       double t     = j->time();
       double en    = j->energy();
+      double enM0  = 0.;
+      double enM3  = 0.;
+      double chi2 = 0.;
       int stwd     = j->flags();
       int auxstwd  = j->aux();
 
@@ -876,6 +967,9 @@ void HcalRecHitsAnalyzer::fillRecHitsTmp(int subdet_, edm::Event const& ev){
       if((iz > 0 && eta > 0.) || (iz < 0 && eta <0.) || iz == 0) { 
 	csub.push_back(sub);
 	cen.push_back(en);
+	cenM0.push_back(enM0);
+	cenM3.push_back(enM3);
+        cchi2.push_back(chi2);
 	ceta.push_back(eta);
 	cphi.push_back(phi);
 	ctime.push_back(t);

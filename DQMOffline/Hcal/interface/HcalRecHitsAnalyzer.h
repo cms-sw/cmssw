@@ -134,7 +134,11 @@ class HcalRecHitsAnalyzer : public DQMEDAnalyzer {
   std::vector<MonitorElement*> emap;
 
   std::vector<MonitorElement*> emean_vs_ieta_HB;
+  std::vector<MonitorElement*> emean_vs_ieta_HBM0;
+  std::vector<MonitorElement*> emean_vs_ieta_HBM3;
   std::vector<MonitorElement*> emean_vs_ieta_HE;
+  std::vector<MonitorElement*> emean_vs_ieta_HEM0;
+  std::vector<MonitorElement*> emean_vs_ieta_HEM3;
   std::vector<MonitorElement*> emean_vs_ieta_HF;
   MonitorElement              *emean_vs_ieta_HO;
 
@@ -164,8 +168,23 @@ class HcalRecHitsAnalyzer : public DQMEDAnalyzer {
 
   // energy of rechits
   MonitorElement* meRecHitsEnergyHB;
+  MonitorElement* meRecHitsEnergyHBM0;
+  MonitorElement* meRecHitsEnergyHBM3;
+  MonitorElement* meRecHitsEnergyM2vM0HB;
+  MonitorElement* meRecHitsEnergyM3vM0HB;
+  MonitorElement* meRecHitsEnergyM3vM2HB;
+  MonitorElement* meRecHitsM2Chi2HB;
+
   MonitorElement* meRecHitsEnergyHE;
+  MonitorElement* meRecHitsEnergyHEM0;
+  MonitorElement* meRecHitsEnergyHEM3;
+  MonitorElement* meRecHitsEnergyM2vM0HE;
+  MonitorElement* meRecHitsEnergyM3vM0HE;
+  MonitorElement* meRecHitsEnergyM3vM2HE;
+  MonitorElement* meRecHitsM2Chi2HE;
+
   MonitorElement* meRecHitsEnergyHO;
+
   MonitorElement* meRecHitsEnergyHF;
 
   MonitorElement* meTE_Low_HB;
@@ -246,6 +265,9 @@ class HcalRecHitsAnalyzer : public DQMEDAnalyzer {
   std::vector<int>      ciphi;
   std::vector<int>      cdepth;
   std::vector<double>   cen;
+  std::vector<double>   cenM0;
+  std::vector<double>   cenM3;
+  std::vector<double>   cchi2;
   std::vector<double>   ceta;
   std::vector<double>   cphi;
   std::vector<double>   ctime;
