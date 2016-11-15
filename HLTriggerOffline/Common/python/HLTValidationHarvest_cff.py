@@ -37,7 +37,6 @@ hltpostvalidation = cms.Sequence(
     +HltBTagPostVal
     )
 from Configuration.Eras.Modifier_phase1Pixel_cff import phase1Pixel
-phase1Pixel.toReplaceWith(hltpostvalidation, cms.Sequence()) # FIXME: No HLT yet for 2017, so no need to run the DQM (avoiding excessive printouts)
 
 # fastsim customs
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
