@@ -21,7 +21,7 @@ generator = cms.EDFilter("Pythia8GeneratorFilter",
                         'PhaseSpace:pTHatMin = 15',
                         'PhaseSpace:pTHatMax = 7000',
                         'PhaseSpace:bias2Selection = on',
-                        'PhaseSpace:bias2SelectionPow = 4.5',
+                        'PhaseSpace:bias2SelectionPow = 6.0',
                         'PhaseSpace:bias2SelectionRef = 15.',
 
                 ),
