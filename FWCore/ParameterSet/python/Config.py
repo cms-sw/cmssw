@@ -1119,8 +1119,6 @@ class _ParameterModifier(object):
     for k in self.__args.iterkeys():
         if hasattr(obj,k):
             params[k] = getattr(obj,k)
-        else:
-            params[k] = self.__args[k]
     _modifyParametersFromDict(params, self.__args, self._raiseUnknownKey)
     for k in self.__args.iterkeys():
         if k in params:
@@ -1128,8 +1126,9 @@ class _ParameterModifier(object):
         else:
             #the parameter must have been removed
             delattr(obj,k)
+  @staticmethod
   def _raiseUnknownKey(key):
-    raise KeyError("Unknown parameter name "+k+" specified while calling Modifier")
+    raise KeyError("Unknown parameter name "+key+" specified while calling Modifier")
 
 class _AndModifier(object):
   """A modifier which only applies if multiple Modifiers are chosen"""
@@ -2080,6 +2079,12 @@ process.addSubProcess(cms.SubProcess(process = childProcess, SelectEvents = cms.
             m1.toModify(p.a, flintstones = dict(fred = int32(2)))
             self.assertEqual(p.a.flintstones.fred.value(),2)
             self.assertEqual(p.a.flintstones.wilma.value(),1)
+            #test proper exception from nonexisting parameter name
+            m1 = Modifier()
+            p = Process("test",m1)
+            p.a = EDAnalyzer("MyAnalyzer", flintstones = PSet(fred = PSet(wilma = int32(1))))
+            self.assertRaises(KeyError, lambda: m1.toModify(p.a, flintstones = dict(imnothere = dict(wilma=2))))
+            self.assertRaises(KeyError, lambda: m1.toModify(p.a, foo = 1))
             #test that load causes process wide methods to run
             def _rem_a(proc):
                 del proc.a
