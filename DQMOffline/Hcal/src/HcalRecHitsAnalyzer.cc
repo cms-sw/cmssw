@@ -817,6 +817,7 @@ void HcalRecHitsAnalyzer::fillRecHitsTmp(int subdet_, edm::Event const& ev){
   cen.clear();
   cenM0.clear();
   cenM3.clear();
+  cchi2.clear();
   ceta.clear();
   cphi.clear();
   ctime.clear();
