@@ -2049,7 +2049,7 @@ bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalTPParameters* fObject) 
     //    std::cout << "HcalTPParameters-> processing line: " << buffer << std::endl;
     int      version = atoi (items [0].c_str());
     int      adcCut  = atoi (items [1].c_str());
-    uint64_t tdcMask = atoll(items [2].c_str());
+    uint64_t tdcMask = strtoull(items [2].c_str(),NULL,16);
     uint32_t tbits   = atoi (items [3].c_str());
     int      auxi1   = atoi (items [4].c_str());
     int      auxi2   = atoi (items [5].c_str());
@@ -2063,21 +2063,60 @@ bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalTPParameters* fObject) 
 bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalTPParameters& fObject) {
 
   char buffer [1024];
-  sprintf (buffer, "# %15s %15s %30s %15s %15s %15s\n", "FGAlgo_HBHE", 
+  sprintf (buffer, "# %15s %15s %16s %15s %15s %15s\n", "FGAlgo_HBHE", 
 	   "ADCThrHF", "TDCMaskHF", "STBitsHF", "auxi1", "auxi2");
   fOutput << buffer;
 
   const int      version  = fObject.getFGVersionHBHE();
   const int      adcCut   = fObject.getADCThresholdHF();
   const uint64_t tdcMask  = fObject.getTDCMaskHF();
-  const uint32_t mask1    = (tdcMask>>32)&0xFFFFFFFF;
-  const uint32_t mask2    = tdcMask&0xFFFFFFFF;
   const uint32_t tbits    = fObject.getHFTriggerInfo();
   const int      auxi1    = fObject.getAuxi1();
   const int      auxi2    = fObject.getAuxi2();
-  sprintf (buffer, " %15d %15d %15x %15x %15x %15d %15d\n", version, adcCut,
-	   mask1, mask2, tbits, auxi1, auxi2);
+   
+  sprintf (buffer, " %15d %15d  %16jx %15x %15d %15d\n", version, adcCut, tdcMask, tbits, auxi1, auxi2);
   fOutput << buffer;
 
   return true;
 }
+
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalCalibrationsSet& fObject) {
+  char buffer [1024];
+  sprintf (buffer, "# %15s %15s %15s %15s %8s %8s %8s %8s %8s %8s %8s %8s %10s\n", 
+    "eta", "phi", "dep", "det", "pedcap0", "pedcap1", "pedcap2", "pedcap3", "gaincap0", "gaincap1", "gaincap2", "gaincap3", "DetId");
+  fOutput << buffer;
+
+  std::vector<DetId> channels = fObject.getAllChannels ();
+  std::sort (channels.begin(), channels.end(), DetIdLess ());
+  for (std::vector<DetId>::iterator channel = channels.begin (); channel != channels.end (); ++channel) {
+    dumpId (fOutput, *channel);
+    const HcalCalibrations& values = fObject.getCalibrations(*channel);
+    sprintf (buffer, " %8.5f %8.5f %8.5f %8.5f %8.5f %8.5f %8.5f %8.5f %10X\n",
+      values.pedestal(0), values.pedestal(1), values.pedestal(2), values.pedestal(3),
+      values.respcorrgain(0), values.respcorrgain(1), values.respcorrgain(2), values.respcorrgain(3), channel->rawId ());
+    fOutput << buffer;
+  }
+  return true;
+}
+
+bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalCalibrationWidthsSet& fObject) {
+  char buffer [1024];
+  sprintf (buffer, "# %15s %15s %15s %15s %8s %8s %8s %8s %9s %9s %9s %9s %10s\n", 
+    "eta", "phi", "dep", "det", "pedwcap0", "pedwcap1", "pedwcap2", "pedwcap3", "gainwcap0", "gainwcap1", "gainwcap2", "gainwcap3", "DetId");
+  fOutput << buffer;
+
+  std::vector<DetId> channels = fObject.getAllChannels ();
+  std::sort (channels.begin(), channels.end(), DetIdLess ());
+  for (std::vector<DetId>::iterator channel = channels.begin (); channel != channels.end (); ++channel) {
+    dumpId (fOutput, *channel);
+    const HcalCalibrationWidths& values = fObject.getCalibrationWidths(*channel);
+    sprintf (buffer, " %8.5f %8.5f %8.5f %8.5f %8.5f %8.5f %8.5f %8.5f %10X\n",
+      values.pedestal(0), values.pedestal(1), values.pedestal(2), values.pedestal(3),
+      values.gain(0), values.gain(1), values.gain(2), values.gain(3), channel->rawId ());
+    fOutput << buffer;
+  }
+  return true;
+}
+

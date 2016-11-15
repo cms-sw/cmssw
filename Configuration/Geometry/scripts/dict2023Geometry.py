@@ -193,7 +193,6 @@ trackerDict = {
             'Geometry/TrackerSimData/data/PhaseII/TiltedTracker4021/trackersens.xml',
             'Geometry/TrackerSimData/data/PhaseII/TiltedTracker4021/pixelsens.xml',
             'Geometry/TrackerRecoData/data/PhaseII/TiltedTracker4021/trackerRecoMaterial.xml',
-            'Geometry/TrackerRecoData/data/PhaseII/TiltedTracker4021/pixelRecoMaterial.xml',
             'Geometry/TrackerSimData/data/PhaseII/TiltedTracker4021/trackerProdCuts.xml',
             'Geometry/TrackerSimData/data/PhaseII/TiltedTracker4021/pixelProdCuts.xml',
             'Geometry/TrackerSimData/data/trackerProdCutsBEAM.xml',
@@ -497,7 +496,7 @@ timingDict = {
             'from Geometry.HGCalCommonData.fastTimeParametersInitialization_cfi import *',
             'from Geometry.HGCalCommonData.fastTimeNumberingInitialization_cfi import *',
         ],
-        "era" : "phase2_timing",
+        "era" : "phase2_timing, phase2_timing_layer",
     }
 }
 

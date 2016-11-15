@@ -3,7 +3,6 @@
 
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalDigitizerTraits.h"
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloTDigitizer.h"
-#include "SimCalorimetry/HcalSimAlgos/interface/HcalUpgradeTraits.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalQIE1011Traits.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalHitFilter.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/ZDCHitFilter.h"
@@ -84,7 +83,6 @@ private:
   typedef CaloTDigitizer<HODigitizerTraits,CaloTDigitizerQIE8Run>   HODigitizer;
   typedef CaloTDigitizer<HFDigitizerTraits,CaloTDigitizerQIE8Run>   HFDigitizer;
   typedef CaloTDigitizer<ZDCDigitizerTraits,CaloTDigitizerQIE8Run>  ZDCDigitizer;
-  typedef CaloTDigitizer<HcalUpgradeDigitizerTraits,CaloTDigitizerQIE8Run> UpgradeDigitizer;
   typedef CaloTDigitizer<HcalQIE10DigitizerTraits,CaloTDigitizerQIE1011Run> QIE10Digitizer;
   typedef CaloTDigitizer<HcalQIE11DigitizerTraits,CaloTDigitizerQIE1011Run> QIE11Digitizer;
 
@@ -102,7 +100,6 @@ private:
   // we need separate amplifiers (and electronicssims)
   // because they might have separate noise generators
   HcalAmplifier * theHBHEAmplifier;
-  HcalAmplifier * theUpgradeHBHEAmplifier;
   HcalAmplifier * theHFAmplifier;
   HcalAmplifier * theHOAmplifier;
   HcalAmplifier * theZDCAmplifier;
@@ -116,8 +113,6 @@ private:
   HcalElectronicsSim * theHFElectronicsSim;
   HcalElectronicsSim * theHOElectronicsSim;
   HcalElectronicsSim * theZDCElectronicsSim;
-  HcalElectronicsSim * theUpgradeHBHEElectronicsSim;
-  HcalElectronicsSim * theUpgradeHFElectronicsSim;
   HcalElectronicsSim * theHFQIE10ElectronicsSim;
   HcalElectronicsSim * theHBHEQIE11ElectronicsSim;
 
@@ -136,8 +131,6 @@ private:
   HODigitizer* theHOSiPMDigitizer;
   HFDigitizer* theHFDigitizer;
   ZDCDigitizer* theZDCDigitizer;
-  UpgradeDigitizer * theHBHEUpgradeDigitizer;
-  UpgradeDigitizer * theHFUpgradeDigitizer;
   QIE10Digitizer * theHFQIE10Digitizer;
   QIE11Digitizer * theHBHEQIE11Digitizer;
   HcalHitRelabeller* theRelabeller;

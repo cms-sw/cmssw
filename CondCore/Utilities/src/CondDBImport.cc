@@ -182,6 +182,7 @@ namespace cond {
       IMPORT_PAYLOAD_CASE( JetCorrectorParametersCollection )
       IMPORT_PAYLOAD_CASE( JME::JetResolutionObject )
       IMPORT_PAYLOAD_CASE( METCorrectorParametersCollection )
+      IMPORT_PAYLOAD_CASE( MEtXYcorrectParametersCollection )
       IMPORT_PAYLOAD_CASE( L1CaloEcalScale )
       IMPORT_PAYLOAD_CASE( L1CaloEtScale )
       IMPORT_PAYLOAD_CASE( L1CaloGeometry )

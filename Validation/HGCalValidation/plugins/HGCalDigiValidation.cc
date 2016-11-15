@@ -60,7 +60,7 @@ HGCalDigiValidation::HGCalDigiValidation(const edm::ParameterSet& iConfig) :
     digiSource_    = consumes<HGCHEDigiCollection>(temp);
   } else if ( nameDetector_ == "HCal" ) {
     digiSource_    = 
-      consumes<edm::SortedCollection<HcalUpgradeDataFrame> >(temp);
+      consumes<QIE11DigiCollection>(temp);
   } else {
     throw cms::Exception("BadHGCDigiSource")
       << "HGCal DetectorName given as " << nameDetector_ << " must be: "
@@ -145,7 +145,7 @@ void HGCalDigiValidation::analyze(const edm::Event& iEvent,
     }
   } else if (nameDetector_ == "HCal") {
     //HE
-    edm::Handle<edm::SortedCollection<HcalUpgradeDataFrame> >  theHEDigiContainers;
+    edm::Handle<QIE11DigiCollection>  theHEDigiContainers;
     iEvent.getByToken(digiSource_, theHEDigiContainers);
     if (theHEDigiContainers.isValid()) {
       if (verbosity_>0) 
@@ -155,9 +155,10 @@ void HGCalDigiValidation::analyze(const edm::Event& iEvent,
       edm::ESHandle<HcalDbService> conditions;
       iSetup.get<HcalDbRecord > ().get(conditions);
 
-      for (edm::SortedCollection<HcalUpgradeDataFrame>::const_iterator it =theHEDigiContainers->begin();
+      for (QIE11DigiCollection::const_iterator it =theHEDigiContainers->begin();
 	   it !=theHEDigiContainers->end(); ++it) {
-	HcalDetId detId  = (it->id());
+	QIE11DataFrame df(*it);
+	HcalDetId detId  = (df.id());
 	ntot++;
 	if (detId.subdet() == HcalEndcap) {
 	  nused++;
@@ -166,10 +167,10 @@ void HGCalDigiValidation::analyze(const edm::Event& iEvent,
 	  const HcalQIEShape* shape = conditions->getHcalShape(channelCoder);
 	  HcalCoderDb coder(*channelCoder, *shape);
 	  CaloSamples tool;
-	  coder.adc2fC(*it, tool);
+	  coder.adc2fC(df, tool);
 	  int       layer  = detId.depth();
-	  uint16_t  adc    = (*it)[SampleIndx_].adc();
-	  int       capid  = (*it)[SampleIndx_].capid();
+	  uint16_t  adc    = (df)[SampleIndx_].adc();
+	  int       capid  = (df)[SampleIndx_].capid();
 	  double    charge = (tool[SampleIndx_] - calibrations.pedestal(capid));
 	  digiValidation(detId, geom1, layer, adc, charge);
 	}

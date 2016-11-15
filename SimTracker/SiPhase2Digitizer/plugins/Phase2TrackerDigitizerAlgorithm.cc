@@ -14,6 +14,7 @@
 
 //#include "PixelIndices.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
+#include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 
@@ -89,7 +90,7 @@ Phase2TrackerDigitizerAlgorithm::Phase2TrackerDigitizerAlgorithm(const edm::Para
   // Be careful, this parameter is also used in SiPixelDet.cc to
   // calculate the noise in adc counts from noise in electrons.
   // Both defaults should be the same.
-  theElectronPerADC(conf_common.getParameter<double>("ElectronPerAdc")),
+  theElectronPerADC(conf_specific.getParameter<double>("ElectronPerAdc")),
 
   // ADC saturation value, 255(8bit adc.
   theAdcFullScale(conf_specific.getParameter<int>("AdcFullScale")),
@@ -110,6 +111,10 @@ Phase2TrackerDigitizerAlgorithm::Phase2TrackerDigitizerAlgorithm(const edm::Para
   // Add threshold gaussian smearing:
   theThresholdSmearing_Endcap(conf_specific.getParameter<double>("ThresholdSmearing_Endcap")),
   theThresholdSmearing_Barrel(conf_specific.getParameter<double>("ThresholdSmearing_Barrel")),
+  
+  // Add HIP Threshold in electron units. 
+  theHIPThresholdInE_Endcap(conf_specific.getParameter<double>("HIPThresholdInElectrons_Endcap")),
+  theHIPThresholdInE_Barrel(conf_specific.getParameter<double>("HIPThresholdInElectrons_Barrel")),
 
   // theTofCut 12.5, cut in particle TOD +/- 12.5ns
   theTofLowerCut(conf_specific.getParameter<double>("TofLowerCut")),
@@ -699,7 +704,7 @@ void Phase2TrackerDigitizerAlgorithm::pixel_inefficiency(const SubdetEfficiencie
 
   // setup the chip indices conversion
   unsigned int Subid=DetId(detID).subdetId();
-  if (Subid == PixelSubdetector::PixelBarrel) { // barrel layers
+  if (Subid == PixelSubdetector::PixelBarrel || Subid == StripSubdetector::TOB) { // barrel layers
     unsigned int layerIndex = tTopo->pxbLayer(detID);
     if (layerIndex-1 < eff.barrel_efficiencies.size()) subdetEfficiency = eff.barrel_efficiencies[layerIndex-1];
   } else {                // forward disks
@@ -754,7 +759,7 @@ LocalVector Phase2TrackerDigitizerAlgorithm::DriftDirection(const Phase2TrackerG
       alpha2_Barrel = 0.0;
     }
     
-    if (Sub_detid == PixelSubdetector::PixelBarrel) { // barrel layers
+    if (Sub_detid == PixelSubdetector::PixelBarrel || Sub_detid == StripSubdetector::TOB) { // barrel layers
       dir_x = -( tanLorentzAnglePerTesla_Barrel * Bfield.y() + alpha2_Barrel* Bfield.z()* Bfield.x() );
       dir_y = +( tanLorentzAnglePerTesla_Barrel * Bfield.x() - alpha2_Barrel* Bfield.z()* Bfield.y() );
       dir_z = -(1 + alpha2_Barrel* Bfield.z()*Bfield.z() );
@@ -910,14 +915,16 @@ void Phase2TrackerDigitizerAlgorithm::digitize(const Phase2TrackerGeomDetUnit* p
   unsigned int Sub_detid = DetId(detID).subdetId();
 
   float theThresholdInE = 0.;
-
+  float theHIPThresholdInE = 0.;
   // Define Threshold
-  if (Sub_detid == PixelSubdetector::PixelBarrel) { // Barrel modules
+  if (Sub_detid == PixelSubdetector::PixelBarrel || Sub_detid == StripSubdetector::TOB) { // Barrel modules
     if (addThresholdSmearing) theThresholdInE = smearedThreshold_Barrel_->fire(); // gaussian smearing
     else theThresholdInE = theThresholdInE_Barrel; // no smearing
+    theHIPThresholdInE = theHIPThresholdInE_Barrel;
   } else { // Forward disks modules
     if (addThresholdSmearing) theThresholdInE = smearedThreshold_Endcap_->fire(); // gaussian smearing
     else theThresholdInE = theThresholdInE_Endcap; // no smearing
+    theHIPThresholdInE = theHIPThresholdInE_Endcap;
   }
 
 
@@ -949,7 +956,7 @@ void Phase2TrackerDigitizerAlgorithm::digitize(const Phase2TrackerGeomDetUnit* p
 
       DigitizerUtility::DigiSimInfo info;
       info.sig_tot     = adc;
-      info.ot_bit      = ( int(signalInElectrons / theElectronPerADC) > theAdcFullScale ? true : false);
+      info.ot_bit      = ( signalInElectrons  > theHIPThresholdInE ? true : false);
       if (makeDigiSimLinks_ && sig_data.hitInfo() != 0) {
 	info.hit_counter = sig_data.hitIndex();
 	info.tof_bin     = sig_data.tofBin();

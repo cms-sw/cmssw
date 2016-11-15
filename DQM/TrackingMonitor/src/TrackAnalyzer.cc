@@ -90,9 +90,6 @@ void TrackAnalyzer::initHistos()
   Chi2oNDFVsEta = nullptr;
   Chi2oNDFVsPhi = nullptr;
   Chi2oNDFVsTheta = nullptr;
-  Chi2oNDFVsTheta = nullptr;
-  Chi2oNDFVsPhi = nullptr;
-  Chi2oNDFVsEta = nullptr;
   	    
   NumberOfRecHitsPerTrack = nullptr;
   NumberOfValidRecHitsPerTrack = nullptr;
@@ -1421,11 +1418,6 @@ void TrackAnalyzer::bookHistosForState(std::string sname, DQMStore::IBooker & ib
       tkmes.Chi2oNDFVsPhi->setAxisTitle("Track #phi",1);
       tkmes.Chi2oNDFVsPhi->setAxisTitle("Track #chi^{2}/ndf",2);
       
-      histname = "Chi2oNDFVsEta_" + histTag;
-      tkmes.Chi2oNDFVsEta   = ibooker.bookProfile(histname, histname, EtaBin, EtaMin, EtaMax, Chi2NDFMin, Chi2NDFMax,"");
-      tkmes.Chi2oNDFVsEta->setAxisTitle("Track #eta",1);
-      tkmes.Chi2oNDFVsEta->setAxisTitle("Track #chi^{2}/ndf",2);
-      
       histname = "Chi2ProbVsPhi_" + histTag;
       tkmes.Chi2ProbVsPhi = ibooker.bookProfile(histname+CategoryName, histname+CategoryName, PhiBin, PhiMin, PhiMax, Chi2ProbMin, Chi2ProbMax);
       tkmes.Chi2ProbVsPhi->setAxisTitle("Tracks #phi"  ,1);
@@ -1440,6 +1432,22 @@ void TrackAnalyzer::bookHistosForState(std::string sname, DQMStore::IBooker & ib
     
     // general properties
     ibooker.setCurrentFolder(TopFolder_+"/GeneralProperties");
+
+
+    histname = "Chi2oNDFVsEta_" + histTag;
+    tkmes.Chi2oNDFVsEta   = ibooker.bookProfile(histname, histname, EtaBin, EtaMin, EtaMax, Chi2NDFMin, Chi2NDFMax,"");
+    tkmes.Chi2oNDFVsEta->setAxisTitle("Track #eta",1);
+    tkmes.Chi2oNDFVsEta->setAxisTitle("Track #chi^{2}/ndf",2);
+
+    histname = "Chi2oNDFVsPt_" + histTag;
+    tkmes.Chi2oNDFVsPt   = ibooker.bookProfile(histname, histname, TrackPtBin, TrackPtMin, TrackPtMax, Chi2NDFMin, Chi2NDFMax,"");
+    tkmes.Chi2oNDFVsPt->setAxisTitle("Track p_{T} (GeV/c)", 1);
+    tkmes.Chi2oNDFVsPt->setAxisTitle("Track #chi^{2}/ndf",2);
+
+    histname = "Chi2oNDFVsNHits_" + histTag;
+    tkmes.Chi2oNDFVsNHits   = ibooker.bookProfile(histname, histname, 50, 0, 50, Chi2NDFMin, Chi2NDFMax,"");
+    tkmes.Chi2oNDFVsNHits->setAxisTitle("Track NHits", 1);
+    tkmes.Chi2oNDFVsNHits->setAxisTitle("Track #chi^{2}/ndf",2);
 
     histname = "TrackP_" + histTag;
     tkmes.TrackP = ibooker.book1D(histname, histname, TrackPBin, TrackPMin, TrackPMax);
@@ -1761,6 +1769,10 @@ void TrackAnalyzer::fillHistosForState(const edm::EventSetup& iSetup, const reco
       double chi2prob = TMath::Prob(track.chi2(),(int)track.ndof());
       double chi2oNDF = track.normalizedChi2();
 
+      tkmes.Chi2oNDFVsEta->Fill(eta, chi2oNDF);
+      tkmes.Chi2oNDFVsPt->Fill(pt, chi2oNDF);
+      tkmes.Chi2oNDFVsNHits->Fill(nRecHits, chi2oNDF);
+
       if(doAllPlots_) {
 	
 	// general properties
@@ -1768,7 +1780,6 @@ void TrackAnalyzer::fillHistosForState(const edm::EventSetup& iSetup, const reco
 	  tkmes.Chi2oNDFVsTheta->Fill(theta, chi2oNDF);
 	}
 	tkmes.Chi2oNDFVsPhi->Fill(phi, chi2oNDF);
-	tkmes.Chi2oNDFVsEta->Fill(eta, chi2oNDF);
 	tkmes.Chi2ProbVsPhi->Fill(phi, chi2prob);
 	tkmes.Chi2ProbVsEta->Fill(eta, chi2prob);
       }

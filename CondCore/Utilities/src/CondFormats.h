@@ -73,6 +73,7 @@
 #include "CondFormats/JetMETObjects/interface/JetCorrectorParameters.h"
 #include "CondFormats/JetMETObjects/interface/JetResolutionObject.h"
 #include "CondFormats/JetMETObjects/interface/METCorrectorParameters.h"
+#include "CondFormats/JetMETObjects/interface/MEtXYcorrectParameters.h"
 #include "CondFormats/JetMETObjects/interface/QGLikelihoodObject.h"
 #include "CondFormats/L1TObjects/interface/L1CaloEcalScale.h"
 #include "CondFormats/L1TObjects/interface/L1CaloEtScale.h"

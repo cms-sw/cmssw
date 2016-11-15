@@ -92,7 +92,7 @@ class MatrixInjector(object):
             "Requestor": self.user,                           #Person responsible
             "Group": self.group,                              #group for the request
             "CMSSWVersion": os.getenv('CMSSW_VERSION'),       #CMSSW Version (used for all tasks in chain)
-            "Campaign": os.getenv('CMSSW_VERSION'),           # only for wmstat purpose
+            "Campaign": os.getenv('CMSSW_VERSION'),           # = AcquisitionEra, will be reset later to the one of first task, will both be the CMSSW_VERSION
             "ScramArch": os.getenv('SCRAM_ARCH'),             #Scram Arch (used for all tasks in chain)
             "ProcessingVersion": self.version,                #Processing Version (used for all tasks in chain)
             "GlobalTag": None,                                #Global Tag (overridden per task)
@@ -195,12 +195,14 @@ class MatrixInjector(object):
             wmsplit['RECODR2_2016reHLT_skimDoubleEG']=5
             wmsplit['RECODR2_2016reHLT_skimMuonEG']=5
             wmsplit['RECODR2_2016reHLT_skimJetHT']=5
+            wmsplit['RECODR2_2016reHLT_skimMET']=5
             wmsplit['RECODR2_2016reHLT_skimSinglePh']=5
             wmsplit['RECODR2_2016reHLT_skimMuOnia']=5
             wmsplit['RECODR2_2016reHLT_skimSingleMu_HIPM']=5
             wmsplit['RECODR2_2016reHLT_skimDoubleEG_HIPM']=5
             wmsplit['RECODR2_2016reHLT_skimMuonEG_HIPM']=5
             wmsplit['RECODR2_2016reHLT_skimJetHT_HIPM']=5
+            wmsplit['RECODR2_2016reHLT_skimMET_HIPM']=5
             wmsplit['RECODR2_2016reHLT_skimSinglePh_HIPM']=5
             wmsplit['RECODR2_2016reHLT_skimMuOnia_HIPM']=5
             wmsplit['HLTDR2_50ns']=1
@@ -398,12 +400,28 @@ class MatrixInjector(object):
                                     #t_input['DQMConfigCacheID']=t_second['ConfigCacheID']
                                 break
 
-            ## there is in fact only one acquisition era
-            #if len(set(chainDict['AcquisitionEra'].values()))==1:
-            #    print "setting only one acq"
+            # agreed changes for wm injection:
+            # - Campaign: *optional* string during creation. It will default to AcqEra value if possible.  
+            #             Otherwise it will be empty.
+            # - AcquisitionEra: *mandatory* string at request level during creation. *optional* string
+            #                   at task level during creation. "optional" during assignment.
+            # - ProcessingString: *mandatory* string at request level during creation. *optional* string
+            #                     at task level during creation. "optional" during assignment.
+            # - ProcessingVersion: *optional* during creation (default 1). *optional* during assignment.
+            # 
+            # Which requires following changes here:
+            #  - reset Global AcuisitionEra, ProcessingString to be the one in the first task
+            #  - and also Campaign to be always the same as the AcquisitionEra
+
             if acqEra:
-                chainDict['AcquisitionEra'] = chainDict['AcquisitionEra'].values()[0]
+                chainDict['AcquisitionEra'] = chainDict['AcquisitionEra'].values()[0] 
+                chainDict['ProcessingString'] = chainDict['ProcessingString'].values()[0]
+            else:
+                chainDict['AcquisitionEra'] = chainDict['nowmTasklist'][0]['AcquisitionEra']
+                chainDict['ProcessingString'] = chainDict['nowmTasklist'][0]['ProcessingString']
                 
+            chainDict['Campaign'] = chainDict['AcquisitionEra']
+               
             ## clean things up now
             itask=0
             if self.keep:

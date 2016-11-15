@@ -2,7 +2,6 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
-#include "DataFormats/HcalDigi/interface/HcalUpgradeDataFrame.h"
 #include "DataFormats/HcalDigi/interface/HcalUMNioDigi.h"
 #include <iostream>
 
@@ -32,7 +31,6 @@ HcalDigiDump::HcalDigiDump(edm::ParameterSet const& conf) {
   consumesMany<HOTrigPrimDigiCollection>();
   consumesMany<HcalHistogramDigiCollection>();
   consumesMany<HcalTTPDigiCollection>();
-  consumesMany<HcalUpgradeDigiCollection>();
   consumesMany<QIE10DigiCollection>();
   consumesMany<QIE11DigiCollection>();
   consumesMany<HcalUMNioDigi>();
@@ -50,7 +48,6 @@ void HcalDigiDump::analyze(edm::Event const& e, edm::EventSetup const& c) {
   std::vector<edm::Handle<HOTrigPrimDigiCollection> > hotp;
   std::vector<edm::Handle<HcalHistogramDigiCollection> > hh;  
   std::vector<edm::Handle<HcalTTPDigiCollection> > ttp;
-  std::vector<edm::Handle<HcalUpgradeDigiCollection> > hup;
   std::vector<edm::Handle<QIE10DigiCollection> > qie10s;
   std::vector<edm::Handle<QIE11DigiCollection> > qie11s;
   std::vector<edm::Handle<HcalUMNioDigi> > umnio;
@@ -215,18 +212,6 @@ void HcalDigiDump::analyze(edm::Event const& e, edm::EventSetup const& c) {
   } catch (...) {
   }
   
-  try {
-    e.getManyByType(hup);
-    std::vector<edm::Handle<HcalUpgradeDigiCollection> >::iterator i;
-    for (i=hup.begin(); i!=hup.end(); i++) {
-      const HcalUpgradeDigiCollection& c=*(*i);
-      
-      for (HcalUpgradeDigiCollection::const_iterator j=c.begin(); j!=c.end(); j++)
-	cout << *j << std::endl;
-    }
-  } catch (...) {
-  }
-
   try {
     e.getManyByType(umnio);
     std::vector<edm::Handle<HcalUMNioDigi> >::iterator i;
