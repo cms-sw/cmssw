@@ -171,6 +171,7 @@ namespace edm {
 namespace {
   constexpr char const* filename_default {""};
   constexpr double threshold_default {0.1};
+  std::string const space {"  "};
 }
 
 using edm::service::StallMonitor;
@@ -253,6 +254,27 @@ void StallMonitor::postBeginJob()
   for (std::size_t i{}; i < moduleStats_.size(); ++i) {
     moduleStats_[i].setLabel(moduleLabels_[i]);
   }
+
+  if (validFile_) {
+    std::size_t const width {std::to_string(moduleLabels_.size()).size()};
+
+    Column col0 {"Module ID", width};
+    std::string const lastCol {"Module label"};
+
+    std::ostringstream oss;
+    oss << "\n#  " << col0 << space << lastCol << '\n';
+    oss << "#  " << std::string(col0.width()+space.size()+lastCol.size(),'-') << '\n';
+
+    for (std::size_t i{} ; i < moduleLabels_.size(); ++i) {
+      auto const& label = moduleLabels_[i];
+      if (label.empty()) continue; // See comment in filling of moduleLabels_;
+      oss << "#M " << std::setw(width) << std::left << col0(i) << space
+          << std::left << moduleLabels_[i] << '\n';
+    }
+    oss << '\n';
+    file_.write(oss.str());
+  }
+
   beginTime_ = now();
 }
 
@@ -327,77 +349,55 @@ void StallMonitor::postEvent(StreamContext const& sc)
 
 void StallMonitor::postEndJob()
 {
-  std::string const space {"  "};
-  {
-    // Prepare summary
-    std::size_t width {};
-    edm::for_all(moduleStats_, [&width](auto const& stats) {
-        if (stats.numberOfStalls() == 0u) return;
-        width = std::max(width, stats.label().size());
-      });
+  // Prepare summary
+  std::size_t width {};
+  edm::for_all(moduleStats_, [&width](auto const& stats) {
+      if (stats.numberOfStalls() == 0u) return;
+      width = std::max(width, stats.label().size());
+    });
 
-    Column tag {"StallMonitor>"};
-    Column col1 {"Module label", width};
-    Column col2 {"# of stalls"};
-    Column col3 {"Total stalled time"};
-    Column col4 {"Max stalled time"};
+  Column tag {"StallMonitor>"};
+  Column col1 {"Module label", width};
+  Column col2 {"# of stalls"};
+  Column col3 {"Total stalled time"};
+  Column col4 {"Max stalled time"};
 
-    LogAbsolute out {"StallMonitor"};
-    out << '\n';
-    out << tag << space
-        << col1 << space
-        << col2 << space
-        << col3 << space
-        << col4 << '\n';
+  LogAbsolute out {"StallMonitor"};
+  out << '\n';
+  out << tag << space
+      << col1 << space
+      << col2 << space
+      << col3 << space
+      << col4 << '\n';
 
-    out << tag << space
-        << std::setfill('-')
-        << col1(std::string{}) << space
-        << col2(std::string{}) << space
-        << col3(std::string{}) << space
-        << col4(std::string{}) << '\n';
+  out << tag << space
+      << std::setfill('-')
+      << col1(std::string{}) << space
+      << col2(std::string{}) << space
+      << col3(std::string{}) << space
+      << col4(std::string{}) << '\n';
 
-    using seconds_d = duration<double>;
+  using seconds_d = duration<double>;
 
-    auto to_seconds_str = [](auto const& duration){
-      std::ostringstream oss;
-      auto const time = duration_cast<seconds_d>(duration).count();
-      oss << time << " s";
-      return oss.str();
-    };
+  auto to_seconds_str = [](auto const& duration){
+    std::ostringstream oss;
+    auto const time = duration_cast<seconds_d>(duration).count();
+    oss << time << " s";
+    return oss.str();
+  };
 
-    out << std::setfill(' ');
-    for (auto const& stats : moduleStats_) {
-      if (stats.label().empty() ||  // See comment in filling of moduleLabels_;
-          stats.numberOfStalls() == 0u) continue;
-      out << std::left
-          << tag << space
-          << col1(stats.label()) << space
-          << std::right
-          << col2(stats.numberOfStalls()) << space
-          << col3(to_seconds_str(stats.totalStalledTime())) << space
-          << col4(to_seconds_str(stats.maxStalledTime())) << '\n';
-    }
+  out << std::setfill(' ');
+  for (auto const& stats : moduleStats_) {
+    if (stats.label().empty() ||  // See comment in filling of moduleLabels_;
+        stats.numberOfStalls() == 0u) continue;
+    out << std::left
+        << tag << space
+        << col1(stats.label()) << space
+        << std::right
+        << col2(stats.numberOfStalls()) << space
+        << col3(to_seconds_str(stats.totalStalledTime())) << space
+        << col4(to_seconds_str(stats.maxStalledTime())) << '\n';
   }
-
-  if (!validFile_) return;
-
-  std::size_t const width {std::to_string(moduleLabels_.size()).size()};
-
-  Column col0 {"Module ID", width};
-  std::string const lastCol {"Module label"};
-
-  std::ostringstream oss;
-  oss << '\n' << col0 << space << lastCol << '\n';
-  oss << std::string(col0.width()+space.size()+lastCol.size(),'-') << '\n';
-
-  for (std::size_t i{} ; i < moduleLabels_.size(); ++i) {
-    auto const& label = moduleLabels_[i];
-    if (label.empty()) continue; // See comment in filling of moduleLabels_;
-    oss << std::setw(width) << std::left << col0(i) << space
-        << std::left << moduleLabels_[i] << '\n';
-  }
-  file_.write(oss.str());
 }
 
 DEFINE_FWK_SERVICE(StallMonitor);
