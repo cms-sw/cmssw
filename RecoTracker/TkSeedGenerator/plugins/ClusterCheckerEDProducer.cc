@@ -43,7 +43,7 @@ void ClusterCheckerEDProducer::produce(edm::Event& iEvent, const edm::EventSetup
   size_t clustsOrZero = theClusterCheck.tooManyClusters(iEvent);
   if (clustsOrZero){
     if (!theSilentOnClusterCheck)
-	edm::LogError("TooManyClusters") << "Found too many clusters (" << clustsOrZero << "), bailing out.\n";
+	edm::LogError("TooManyClusters") << "Found too many clusters (" << clustsOrZero << "), bailing out.";
     *ret = false;
   }
 
