@@ -86,14 +86,6 @@ from RecoTracker.TkSeedGenerator.seedCreatorFromRegionConsecutiveHitsEDProducer_
 jetCoreRegionalStepSeeds = _seedCreatorFromRegionConsecutiveHitsEDProducer.clone(
     seedingHitSets = "jetCoreRegionalStepHitDoublets",
     forceKinematicWithRegionDirection = True
-#    SeedComparitorPSet = dict(# FIXME: is this defined in any cfi that could be imported instead of copy-paste?
-#        ComponentName = 'PixelClusterShapeSeedComparitor',
-#        FilterAtHelixStage = cms.bool(True),
-#        FilterPixelHits = cms.bool(True),
-#        FilterStripHits = cms.bool(False),
-#        ClusterShapeHitFilterName = cms.string('ClusterShapeHitFilter'),
-#        ClusterShapeCacheSrc = cms.InputTag('siPixelClusterShapeCache'),
-#    )
 )
 
 # QUALITY CUTS DURING TRACK BUILDING
