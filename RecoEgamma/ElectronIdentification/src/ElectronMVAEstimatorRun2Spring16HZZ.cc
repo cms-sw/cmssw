@@ -1,4 +1,4 @@
-#include "RecoEgamma/ElectronIdentification/interface/ElectronMVAEstimatorRun2Spring15NonTrig.h"
+#include "RecoEgamma/ElectronIdentification/interface/ElectronMVAEstimatorRun2Spring16HZZ.h"
 
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
@@ -10,7 +10,7 @@
 #include "TMath.h"
 #include "TMVA/MethodBDT.h"
 
-ElectronMVAEstimatorRun2Spring15NonTrig::ElectronMVAEstimatorRun2Spring15NonTrig(const edm::ParameterSet& conf):
+ElectronMVAEstimatorRun2Spring16HZZ::ElectronMVAEstimatorRun2Spring16HZZ(const edm::ParameterSet& conf):
   AnyMVAEstimatorRun2Base(conf),
   _tag(conf.getParameter<std::string>("mvaTag")),
   _MethodName("BDTG method"),
@@ -20,7 +20,10 @@ ElectronMVAEstimatorRun2Spring15NonTrig::ElectronMVAEstimatorRun2Spring15NonTrig
   
   const std::vector <std::string> weightFileNames
     = conf.getParameter<std::vector<std::string> >("weightFileNames");
+  init(weightFileNames);
+}
 
+void ElectronMVAEstimatorRun2Spring16HZZ::init(const std::vector <std::string> weightFileNames) {
   if( (int)(weightFileNames.size()) != nCategories )
     throw cms::Exception("MVA config failure: ")
       << "wrong number of weightfiles" << std::endl;
@@ -39,12 +42,26 @@ ElectronMVAEstimatorRun2Spring15NonTrig::ElectronMVAEstimatorRun2Spring15NonTrig
 
 }
 
-ElectronMVAEstimatorRun2Spring15NonTrig::
-~ElectronMVAEstimatorRun2Spring15NonTrig(){
+ElectronMVAEstimatorRun2Spring16HZZ::ElectronMVAEstimatorRun2Spring16HZZ():
+  AnyMVAEstimatorRun2Base(edm::ParameterSet()) {}
+
+ElectronMVAEstimatorRun2Spring16HZZ::ElectronMVAEstimatorRun2Spring16HZZ(const std::string &mvaTag, const std::string &conversionsTag, const std::string &beamspotTag):
+  AnyMVAEstimatorRun2Base( edm::ParameterSet() ),
+  _tag(mvaTag),
+  _MethodName("BDTG method"),
+  _beamSpotLabel(edm::InputTag(beamspotTag)),
+  _conversionsLabelAOD(edm::InputTag(conversionsTag)),
+  _conversionsLabelMiniAOD(_conversionsLabelAOD) {
+ }
+
+
+
+ElectronMVAEstimatorRun2Spring16HZZ::
+~ElectronMVAEstimatorRun2Spring16HZZ(){
 }
 
 
-void ElectronMVAEstimatorRun2Spring15NonTrig::setConsumes(edm::ConsumesCollector&& cc) const {
+void ElectronMVAEstimatorRun2Spring16HZZ::setConsumes(edm::ConsumesCollector&& cc) const {
 
   // All tokens for event content needed by this MVA
 
@@ -58,11 +75,27 @@ void ElectronMVAEstimatorRun2Spring15NonTrig::setConsumes(edm::ConsumesCollector
 
 }
 
-float ElectronMVAEstimatorRun2Spring15NonTrig::
+float ElectronMVAEstimatorRun2Spring16HZZ::
 mvaValue( const edm::Ptr<reco::Candidate>& particle, const edm::Event& iEvent) const {
   
   const int iCategory = findCategory( particle );
   const std::vector<float> vars = std::move( fillMVAVariables( particle, iEvent ) );  
+  return mvaValue(iCategory, vars);
+}
+
+float ElectronMVAEstimatorRun2Spring16HZZ::
+mvaValue( const reco::GsfElectron * particle, const edm::EventBase & iEvent) const {
+  edm::Handle<reco::ConversionCollection> conversions;
+  edm::Handle<reco::BeamSpot> beamSpot;
+  iEvent.getByLabel(_conversionsLabelAOD, conversions);
+  iEvent.getByLabel(_beamSpotLabel, beamSpot);
+  const int iCategory = findCategory( particle );
+  const std::vector<float> vars = std::move( fillMVAVariables( particle, conversions, beamSpot.product() ) );  
+  return mvaValue(iCategory, vars);
+}
+
+float ElectronMVAEstimatorRun2Spring16HZZ::
+mvaValue( const int iCategory, const std::vector<float> & vars) const  {
   const float result = _gbrForests.at(iCategory)->GetClassifier(vars.data());
 
   const bool debug = false;
@@ -94,7 +127,7 @@ mvaValue( const edm::Ptr<reco::Candidate>& particle, const edm::Event& iEvent) c
   return result;
 }
 
-int ElectronMVAEstimatorRun2Spring15NonTrig::findCategory( const edm::Ptr<reco::Candidate>& particle) const {
+int ElectronMVAEstimatorRun2Spring16HZZ::findCategory( const edm::Ptr<reco::Candidate>& particle) const {
   
   // Try to cast the particle into a reco particle.
   // This should work for both reco and pat.
@@ -103,7 +136,10 @@ int ElectronMVAEstimatorRun2Spring15NonTrig::findCategory( const edm::Ptr<reco::
     throw cms::Exception("MVA failure: ")
       << " given particle is expected to be reco::GsfElectron or pat::Electron," << std::endl
       << " but appears to be neither" << std::endl;
+   return findCategory(eleRecoPtr.get());
+}
 
+int ElectronMVAEstimatorRun2Spring16HZZ::findCategory( const reco::GsfElectron * eleRecoPtr ) const {
   float pt = eleRecoPtr->pt();
   float eta = eleRecoPtr->superCluster()->eta();
 
@@ -136,7 +172,7 @@ int ElectronMVAEstimatorRun2Spring15NonTrig::findCategory( const edm::Ptr<reco::
   return iCategory;
 }
 
-bool ElectronMVAEstimatorRun2Spring15NonTrig::
+bool ElectronMVAEstimatorRun2Spring16HZZ::
 isEndcapCategory(int category ) const {
 
   bool isEndcap = false;
@@ -147,7 +183,7 @@ isEndcapCategory(int category ) const {
 }
 
 
-std::unique_ptr<const GBRForest> ElectronMVAEstimatorRun2Spring15NonTrig::
+std::unique_ptr<const GBRForest> ElectronMVAEstimatorRun2Spring16HZZ::
 createSingleReader(const int iCategory, const edm::FileInPath &weightFile){
 
   //
@@ -159,6 +195,8 @@ createSingleReader(const int iCategory, const edm::FileInPath &weightFile){
   // Configure all variables and spectators. Note: the order and names
   // must match what is found in the xml weights file!
   //
+
+
   // Pure ECAL -> shower shapes
   tmpTMVAReader.AddVariable("ele_oldsigmaietaieta", &_allMVAVars.see);
   tmpTMVAReader.AddVariable("ele_oldsigmaiphiiphi", &_allMVAVars.spp);
@@ -166,11 +204,8 @@ createSingleReader(const int iCategory, const edm::FileInPath &weightFile){
   tmpTMVAReader.AddVariable("ele_oldr9",            &_allMVAVars.R9);
   tmpTMVAReader.AddVariable("ele_scletawidth",      &_allMVAVars.etawidth);
   tmpTMVAReader.AddVariable("ele_sclphiwidth",      &_allMVAVars.phiwidth);
-  tmpTMVAReader.AddVariable("ele_he",               &_allMVAVars.HoE);
-  // Endcap only variables
-  if( isEndcapCategory(iCategory) )
-    tmpTMVAReader.AddVariable("ele_psEoverEraw",    &_allMVAVars.PreShowerOverRaw);
-  
+  tmpTMVAReader.AddVariable("ele_oldhe",               &_allMVAVars.HoE);
+ 
   //Pure tracking variables
   tmpTMVAReader.AddVariable("ele_kfhits",           &_allMVAVars.kfhits);
   tmpTMVAReader.AddVariable("ele_kfchi2",           &_allMVAVars.kfchi2);
@@ -191,19 +226,25 @@ createSingleReader(const int iCategory, const edm::FileInPath &weightFile){
   tmpTMVAReader.AddVariable("ele_deltaetain",      &_allMVAVars.deta);
   tmpTMVAReader.AddVariable("ele_deltaphiin",      &_allMVAVars.dphi);
   tmpTMVAReader.AddVariable("ele_deltaetaseed",    &_allMVAVars.detacalo);
+
+  // Endcap only variables
+  if( isEndcapCategory(iCategory) )
+    tmpTMVAReader.AddVariable("ele_psEoverEraw",    &_allMVAVars.PreShowerOverRaw);
+ 
   
   // Spectator variables  
-  tmpTMVAReader.AddSpectator("ele_pT",             &_allMVAVars.pt);
-  tmpTMVAReader.AddSpectator("ele_isbarrel",       &_allMVAVars.isBarrel);
-  tmpTMVAReader.AddSpectator("ele_isendcap",       &_allMVAVars.isEndcap);
+  tmpTMVAReader.AddSpectator("ele_pt",             &_allMVAVars.pt);
+  tmpTMVAReader.AddSpectator("ele_isEE",       &_allMVAVars.isBarrel);
+  tmpTMVAReader.AddSpectator("ele_isEB",       &_allMVAVars.isEndcap);
+  tmpTMVAReader.AddSpectator("ele_isEBEtaGap",       &_allMVAVars.isEndcap);
+  tmpTMVAReader.AddSpectator("ele_isEBPhiGap",       &_allMVAVars.isEndcap);
+  tmpTMVAReader.AddSpectator("ele_isEBEEGap",       &_allMVAVars.isEndcap);
+  tmpTMVAReader.AddSpectator("ele_isEERingGap",       &_allMVAVars.isEndcap);
+  tmpTMVAReader.AddSpectator("ele_isEEDeeGap",       &_allMVAVars.isEndcap);
+  tmpTMVAReader.AddSpectator("ele_isEE",            &_allMVAVars.SCeta);
   tmpTMVAReader.AddSpectator("scl_eta",            &_allMVAVars.SCeta);
-
   tmpTMVAReader.AddSpectator("ele_eClass",                 &_allMVAVars.eClass);
-  tmpTMVAReader.AddSpectator("ele_pfRelIso",               &_allMVAVars.pfRelIso);
-  tmpTMVAReader.AddSpectator("ele_expected_inner_hits",    &_allMVAVars.expectedInnerHits);
-  tmpTMVAReader.AddSpectator("ele_vtxconv",                &_allMVAVars.vtxconv);
-  tmpTMVAReader.AddSpectator("mc_event_weight",            &_allMVAVars.mcEventWeight);
-  tmpTMVAReader.AddSpectator("mc_ele_CBmatching_category", &_allMVAVars.mcCBmatchingCategory);
+  tmpTMVAReader.AddSpectator("mc_ele_matchedFromCB", &_allMVAVars.mcCBmatchingCategory);
 
   //
   // Book the method and set up the weights file
@@ -214,7 +255,7 @@ createSingleReader(const int iCategory, const edm::FileInPath &weightFile){
 }
 
 // A function that should work on both pat and reco objects
-std::vector<float> ElectronMVAEstimatorRun2Spring15NonTrig::
+std::vector<float> ElectronMVAEstimatorRun2Spring16HZZ::
 fillMVAVariables(const edm::Ptr<reco::Candidate>& particle,
                  const edm::Event& iEvent ) const {
 
@@ -250,6 +291,14 @@ fillMVAVariables(const edm::Ptr<reco::Candidate>& particle,
     throw cms::Exception("MVA failure: ")
       << " given particle is expected to be reco::GsfElectron or pat::Electron," << std::endl
       << " but appears to be neither" << std::endl;
+  return fillMVAVariables(eleRecoPtr.get(), conversions, theBeamSpot.product());
+}
+
+// A function that should work on both pat and reco objects
+std::vector<float> ElectronMVAEstimatorRun2Spring16HZZ::
+fillMVAVariables(const reco::GsfElectron* eleRecoPtr,
+                 const edm::Handle<reco::ConversionCollection> conversions, const reco::BeamSpot *theBeamSpot ) const {
+
 
   // Both pat and reco particles have exactly the same accessors, so we use a reco ptr 
   // throughout the code, with a single exception as of this writing, handled separately below.
@@ -264,7 +313,7 @@ fillMVAVariables(const edm::Ptr<reco::Candidate>& particle,
   allMVAVars.R9             = eleRecoPtr->full5x5_r9();
   allMVAVars.etawidth       = superCluster->etaWidth();
   allMVAVars.phiwidth       = superCluster->phiWidth();
-  allMVAVars.HoE            = eleRecoPtr->hadronicOverEm();
+  allMVAVars.HoE            = eleRecoPtr->full5x5_hcalOverEcal(); //hadronicOverEm();
   // Endcap only variables
   allMVAVars.PreShowerOverRaw  = superCluster->preshowerEnergy() / superCluster->rawEnergy();
 
@@ -273,10 +322,10 @@ fillMVAVariables(const edm::Ptr<reco::Candidate>& particle,
   // This behavior is reported and is expected to change in the future (post-7.4.5 some time).
   bool validKF= false; 
   reco::TrackRef myTrackRef = eleRecoPtr->closestCtfTrackRef();
-  const edm::Ptr<pat::Electron> elePatPtr(eleRecoPtr);
+  const pat::Electron * elePatPtr = dynamic_cast<const pat::Electron *>(eleRecoPtr);
   // Check if this is really a pat::Electron, and if yes, get the track ref from this new
   // pointer instead
-  if( elePatPtr.get() != NULL )
+  if( elePatPtr != NULL )
     myTrackRef = elePatPtr->closestCtfTrackRef();
   validKF = (myTrackRef.isAvailable() && (myTrackRef.isNonnull()) );  
 
@@ -337,7 +386,7 @@ fillMVAVariables(const edm::Ptr<reco::Candidate>& particle,
 
   std::vector<float> vars;
 
-  if( isEndcapCategory( findCategory( particle ) ) ) {
+  if( isEndcapCategory( findCategory( eleRecoPtr ) ) ) {
     vars = std::move( packMVAVariables(allMVAVars.see,
                                        allMVAVars.spp,
                                        allMVAVars.OneMinusE1x5E5x5,
@@ -345,9 +394,7 @@ fillMVAVariables(const edm::Ptr<reco::Candidate>& particle,
                                        allMVAVars.etawidth,
                                        allMVAVars.phiwidth,
                                        allMVAVars.HoE,
-                                       // Endcap only variables
-                                       allMVAVars.PreShowerOverRaw,                                       
-                                       //Pure tracking variables
+                                      //Pure tracking variables
                                        allMVAVars.kfhits,
                                        allMVAVars.kfchi2,
                                        allMVAVars.gsfchi2,                                       
@@ -363,6 +410,9 @@ fillMVAVariables(const edm::Ptr<reco::Candidate>& particle,
                                        allMVAVars.deta,
                                        allMVAVars.dphi,
                                        allMVAVars.detacalo,                                       
+                                       // Endcap only variables
+                                       allMVAVars.PreShowerOverRaw,                                       
+ 
                                        // Spectator variables  
                                        allMVAVars.pt,
                                        allMVAVars.isBarrel,
@@ -415,7 +465,7 @@ fillMVAVariables(const edm::Ptr<reco::Candidate>& particle,
   return vars;
 }
 
-void ElectronMVAEstimatorRun2Spring15NonTrig::constrainMVAVariables(AllVariables& allMVAVars) const {
+void ElectronMVAEstimatorRun2Spring16HZZ::constrainMVAVariables(AllVariables& allMVAVars) const {
 
   // Check that variables do not have crazy values
 
@@ -464,6 +514,3 @@ void ElectronMVAEstimatorRun2Spring15NonTrig::constrainMVAVariables(AllVariables
 
 }
 
-DEFINE_EDM_PLUGIN(AnyMVAEstimatorRun2Factory,
-		  ElectronMVAEstimatorRun2Spring15NonTrig,
-		  "ElectronMVAEstimatorRun2Spring15NonTrig");
