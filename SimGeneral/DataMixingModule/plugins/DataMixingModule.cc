@@ -133,8 +133,6 @@ namespace edm
       produces< HFDigiCollection >();
       produces< ZDCDigiCollection >();
 
-      produces<HBHEUpgradeDigiCollection>("HBHEUpgradeDigiCollection");
-      produces<HFUpgradeDigiCollection>("HFUpgradeDigiCollection");
       produces<QIE10DigiCollection>("HFQIE10DigiCollection");
       produces<QIE11DigiCollection>("HBHEQIE11DigiCollection");
 

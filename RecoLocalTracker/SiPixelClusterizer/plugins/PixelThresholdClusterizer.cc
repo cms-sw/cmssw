@@ -62,6 +62,9 @@ PixelThresholdClusterizer::PixelThresholdClusterizer
   if ( conf_.exists("FirstStackLayer") ) theFirstStack_=conf_.getParameter<int>("FirstStackLayer");
   else
     theFirstStack_=5;
+  if ( conf_.exists("ElectronPerADCGain") ) theElectronPerADCGain_=conf_.getParameter<double>("ElectronPerADCGain");
+  else
+    theElectronPerADCGain_=135.;
   
   // Get the constants for the miss-calibration studies
   doMissCalibrate=conf_.getUntrackedParameter<bool>("MissCalibrate",true); 
@@ -197,7 +200,7 @@ void PixelThresholdClusterizer::copy_to_buffer( DigiIterator begin, DigiIterator
     int i=0;
     for(DigiIterator di = begin; di != end; ++di) {
       auto adc = di->adc();
-      const float gain = 135.; // 1 ADC = 135 electrons
+      const float gain = theElectronPerADCGain_; // default: 1 ADC = 135 electrons
       const float pedestal = 0.; //
       electron[i] = int(adc * gain + pedestal);
       if (layer>=theFirstStack_) {
@@ -205,7 +208,7 @@ void PixelThresholdClusterizer::copy_to_buffer( DigiIterator begin, DigiIterator
 	  electron[i] = int(255*135); // Arbitrarily use overflow value.
 	}
 	if (theStackADC_>1&&theStackADC_!=255&&adc>=1){
-	  const float gain = 135.; // 1 ADC = 135 electrons
+	  const float gain = theElectronPerADCGain_; // default: 1 ADC = 135 electrons
 	  electron[i] = int((adc-1) * gain * 255/float(theStackADC_-1));
 	}
       }
@@ -290,7 +293,7 @@ int PixelThresholdClusterizer::calibrate(int adc, int col, int row)
   else 
     { // No misscalibration in the digitizer
       // Simple (default) linear gain 
-      const float gain = 135.; // 1 ADC = 135 electrons
+      const float gain = theElectronPerADCGain_; // default: 1 ADC = 135 electrons
       const float pedestal = 0.; //
       electrons = int(adc * gain + pedestal);
       if (layer>=theFirstStack_) {
@@ -300,7 +303,7 @@ int PixelThresholdClusterizer::calibrate(int adc, int col, int row)
 	  }
 	if (theStackADC_>1&&theStackADC_!=255&&adc>=1)
 	  {
-	    const float gain = 135.; // 1 ADC = 135 electrons
+	    const float gain = theElectronPerADCGain_; // default: 1 ADC = 135 electrons
 	    electrons = int((adc-1) * gain * 255/float(theStackADC_-1));
 	  }
       }

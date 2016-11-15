@@ -192,7 +192,7 @@ void TotemRPUVPatternFinder::produce(edm::Event& event, const edm::EventSetup& e
     unsigned int plane = detId.plane();
     bool uDir = detId.isStripsCoordinateUDirection();
 
-    TotemRPDetId rpId = detId.getRPId();
+    CTPPSDetId rpId = detId.getRPId();
 
     RPData &data = rpData[rpId];
 

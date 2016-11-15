@@ -485,6 +485,12 @@
     </MaterialFraction>
   </CompositeMaterial>
 
+  <CompositeMaterial name="T_CarbonFibreStrBox" density="1.76355*g/cm3" symbol=" " method="mixture by weight">
+    <MaterialFraction fraction="1.0">
+      <rMaterial name="trackermaterial:T_CarbonFibreStr"/>
+    </MaterialFraction>
+  </CompositeMaterial>
+
   <CompositeMaterial name="FlangeOuter_Layer3_Upgrade" density="0.14381*g/cm3" symbol=" " method="mixture by weight">
     <MaterialFraction fraction="1.00000000">
       <rMaterial name="FlangeOuter_Layer3"/>

@@ -42,3 +42,15 @@ diMuonHistos_miniAOD = cms.EDAnalyzer("DiMuonHistograms",
                                       HighMassMax = cms.double(155.0),
                                       folder = cms.string("Muons_miniAOD/diMuonHistograms")
                                       )
+
+from Configuration.Eras.Modifier_pA_2016_cff import pA_2016
+pA_2016.toModify(diMuonHistos, 
+    etaBin = 350, 
+    etaBBin = 350, 
+    etaEBin = 350, 
+
+    LowMassMin = 2.0, 
+    LowMassMax = 51.0, 
+    HighMassMin = 55.0, 
+    HighMassMax = 125.0
+    )
