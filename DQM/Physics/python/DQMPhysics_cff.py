@@ -35,11 +35,6 @@ dqmPhysics = cms.Sequence( bphysicsOniaDQM
                            *B2GDQM
                            )
 from Configuration.Eras.Modifier_phase1Pixel_cff import phase1Pixel
-phase1Pixel.toReplaceWith(dqmPhysics, dqmPhysics.copyAndExclude([ # FIXME
-    ewkMuDQM,            # Excessive printouts because 2017 doesn't have HLT yet
-    ewkElecDQM,          # Excessive printouts because 2017 doesn't have HLT yet
-    ewkMuLumiMonitorDQM, # Excessive printouts because 2017 doesn't have HLT yet
-]))
 
 bphysicsOniaDQMHI = bphysicsOniaDQM.clone(vertex=cms.InputTag("hiSelectedVertex"))
 dqmPhysicsHI = cms.Sequence(bphysicsOniaDQMHI+CentralityDQM)
