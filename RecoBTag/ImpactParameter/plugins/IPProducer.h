@@ -116,7 +116,7 @@ namespace IPProducerHelpers {
 				      else
 				      {
 					  for(size_t j=0;j<cands->size();++j) {
-						  if( (*cands)[j].bestTrack()!=0 && (*cands)[j].charge() !=0 && Geom::deltaR2((*cands)[j],(*jets)[i]) < maxDeltaR2  ){
+						  if( (*cands)[j].bestTrack()!=0 && (*cands)[j].charge() !=0 && (*cands)[j].pt() > 0 && Geom::deltaR2((*cands)[j],(*jets)[i]) < maxDeltaR2  ){
 							  m_map[i].push_back(cands->ptrAt(j));
 						  }
 					  }
