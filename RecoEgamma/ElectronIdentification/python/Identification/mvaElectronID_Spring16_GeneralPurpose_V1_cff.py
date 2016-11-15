@@ -92,9 +92,9 @@ mvaEleID_Spring16_GeneralPurpose_V1_wp80 = configureVIDMVAEleID_V1( MVA_WP80 )
 #
 
 central_id_registry.register(mvaEleID_Spring16_GeneralPurpose_V1_wp90.idName,
-                             'c43cebb75c255a47784be47c27befc81')
+                             '14c153aaf3c207deb3ad4932586647a7')
 central_id_registry.register(mvaEleID_Spring16_GeneralPurpose_V1_wp80.idName,
-                             'c5cebb75c255a47784be47c27befc81')
+                             'b490bc0b0af2d5f3e9efea562370af2a')
 
 
 mvaEleID_Spring16_GeneralPurpose_V1_wp90.isPOGApproved = cms.untracked.bool(True)
