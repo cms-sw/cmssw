@@ -31,7 +31,7 @@ if __name__ == "__main__":
     os.chdir(_tempdir)
 
     # compile cmsDriver command
-    cmsDriverCommand = "cmsDriver.py harvest --scenario pp --filetype DQM --conditions auto:run2_mc --mc -s HARVESTING:@trackingOnlyValidation -n -1 --filein {0}".format(filelist)
+    cmsDriverCommand = "cmsDriver.py harvest --scenario pp --filetype DQM --conditions auto:run2_mc --mc -s HARVESTING:@trackingOnlyValidation+@trackingOnlyDQM -n -1 --filein {0}".format(filelist)
     print "# running cmsDriver" + "\n" + cmsDriverCommand
     
     # run it
