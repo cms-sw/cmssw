@@ -15,6 +15,8 @@
 
 #include "SimG4Core/CustomPhysics/interface/FullModelHadronicProcess.hh"
 #include "SimG4Core/CustomPhysics/interface/ToyModelHadronicProcess.hh"
+#include "SimG4Core/CustomPhysics/interface/CMSDarkPairProduction.hh"
+#include "SimG4Core/CustomPhysics/interface/CMSDarkPairProductionProcess.hh"
 
 using namespace CLHEP;
 
@@ -25,6 +27,7 @@ CustomPhysicsList::CustomPhysicsList(std::string name, const edm::ParameterSet &
   :  G4VPhysicsConstructor(name) 
 {  
   myConfig = p;
+    dfactor = p.getParameter<double>("dark_factor");
   edm::FileInPath fp = p.getParameter<edm::FileInPath>("particlesDef");
   fHadronicInteraction = p.getParameter<bool>("rhadronPhysics");
 
@@ -82,6 +85,10 @@ void CustomPhysicsList::ConstructProcess() {
           if(!myHelper) { myHelper = new G4ProcessHelper(myConfig); }
 	  pmanager->AddDiscreteProcess(new FullModelHadronicProcess(myHelper));
 	}
+        if(particle->GetParticleType()=="darkpho"){
+          CMSDarkPairProductionProcess * darkGamma = new CMSDarkPairProductionProcess(dfactor);
+          pmanager->AddDiscreteProcess(darkGamma);
+        }
       }
     }
   }

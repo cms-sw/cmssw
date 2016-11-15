@@ -45,6 +45,13 @@ bool CustomPDGParser::s_isRGlueball(int pdg)
 
 }
 
+bool CustomPDGParser::s_isDphoton(int pdg)
+{                      
+ int pdgAbs=abs(pdg);  
+ return  (pdgAbs == 1072000);
+                       
+}
+
 bool CustomPDGParser::s_isRMeson(int pdg)
 {
  int pdgAbs=abs(pdg);
@@ -88,6 +95,10 @@ double CustomPDGParser::s_charge(int pdg)
       	      return -sign;
 	}
 
+      if(s_isDphoton(pdg)){                                                                                                                           
+          charge = 0;
+          return charge;
+      }
       if (s_isChargino(pdg)) {
 	return sign;
       } 
