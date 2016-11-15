@@ -7,3 +7,6 @@ from Configuration.Eras.Modifier_trackingPhase2PU140_cff import trackingPhase2PU
 trackingLowPU.toModify(pixelTripletLargeTipEDProducer, maxElement=100000)
 trackingPhase1PU70.toModify(pixelTripletLargeTipEDProducer, maxElement=0)
 trackingPhase2PU140.toModify(pixelTripletLargeTipEDProducer, maxElement=0)
+
+from Configuration.Eras.Modifier_peripheralPbPb_cff import peripheralPbPb
+peripheralPbPb.toModify(pixelTripletLargeTipEDProducer, maxElement=1000000)

@@ -46,7 +46,7 @@ void MultiHitFromChi2EDProducer::fillDescriptions(edm::ConfigurationDescriptions
 
   MultiHitGeneratorFromChi2::fillDescriptions(desc);
 
-  auto label = MultiHitGeneratorFromChi2::fillDescriptionsLabel() + std::string("EDProducer");
+  auto label = MultiHitGeneratorFromChi2::fillDescriptionsLabel() + std::string("EDProducerDefault");
   descriptions.add(label, desc);
 }
 
