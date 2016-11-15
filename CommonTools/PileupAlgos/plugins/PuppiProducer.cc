@@ -201,9 +201,8 @@ void PuppiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
         throw edm::Exception(edm::errors::LogicError,"PuppiProducer: cannot get weights since inputs are not PackedCandidates");
       }
       else{
-        // if (fUseWeightsNoLep){ curpupweight = itPF->puppiWeightNoLep(); }
-        // else{ curpupweight = itPF->puppiWeight();  }
-        curpupweight = lPack->puppiWeight();
+        if (fUseWeightsNoLep){ curpupweight = lPack->puppiWeightNoLep(); }
+        else{ curpupweight = lPack->puppiWeight();  }
       }
       lWeights.push_back(curpupweight);
       fastjet::PseudoJet curjet( curpupweight*lPack->px(), curpupweight*lPack->py(), curpupweight*lPack->pz(), curpupweight*lPack->energy());
