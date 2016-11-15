@@ -44,20 +44,5 @@ l1tStage2CaloLayer2Efficiency = l1tEfficiencyHarvesting.clone(
             denominatorSuffix=cms.untracked.string("_Den"),
             plots=cms.untracked.vstring(allEfficiencyPlots)
         ),
-        cms.untracked.PSet(# EMU comparison
-            numeratorDir=cms.untracked.string("L1T/L1TStage2CaloLayer2"),
-            denominatorDir=cms.untracked.string("L1TEMU/L1TStage2CaloLayer2"),
-            outputDir=cms.untracked.string(
-                "L1TEMU/L1TStage2CaloLayer2/Comparison"),
-            numeratorSuffix=cms.untracked.string(""),
-            denominatorSuffix=cms.untracked.string(""),
-            plots=cms.untracked.vstring(
-                "resolutionJetET_HB", "resolutionJetET_HE", "resolutionJetET_HF",
-                "resolutionJetET_HB_HE", "resolutionJetPhi_HB", "resolutionJetPhi_HE",
-                "resolutionJetPhi_HF", "resolutionJetPhi_HB_HE", "resolutionJetEta",
-                "resolutionMET", "resolutionMHT", "resolutionETT", "resolutionHTT",
-                "resolutionMETPhi", "resolutionMHTPhi",
-            )
-        )
     )
 )
