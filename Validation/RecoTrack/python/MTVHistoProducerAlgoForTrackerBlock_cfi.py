@@ -96,6 +96,11 @@ MTVHistoProducerAlgoForTrackerBlock = cms.PSet(
     maxPVz = cms.double(60),
     nintPVz = cms.int32(120),
 
+    # MVA distributions
+    minMVA = cms.double(-1),
+    maxMVA = cms.double(1),
+    nintMVA = cms.int32(100),
+
     #
     #parameters for resolution plots
     ptRes_rangeMin = cms.double(-0.1),
