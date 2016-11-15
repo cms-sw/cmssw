@@ -225,9 +225,9 @@ void RawToDigiConverter::Run(const VFATFrameCollection &input,
       continue;
 
     // calculate ids
-    unsigned short chipId = record.info->symbolicID.symbolicID;
-    det_id_type detId = TotemRPDetId::decToRawId(chipId / 10);
-    uint8_t chipPosition = chipId % 10;
+    TotemRPDetId chipId(record.info->symbolicID.symbolicID);
+    uint8_t chipPosition = chipId.chip();
+    TotemRPDetId detId = chipId.getPlaneId();
 
     // update chipPosition in status
     record.status.setChipPosition(chipPosition);
