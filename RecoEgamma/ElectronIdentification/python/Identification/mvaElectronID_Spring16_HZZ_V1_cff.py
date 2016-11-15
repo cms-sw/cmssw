@@ -94,6 +94,6 @@ mvaEleID_Spring16_HZZ_V1_wpLoose = configureVIDMVAEleID_V1( MVA_WPLoose )
 #
 
 central_id_registry.register(mvaEleID_Spring16_HZZ_V1_wpLoose.idName,
-                             'c42cebb75c255a47784be47c27befc81')
+                             '1797cc03eb62387e10266fca72ea10cd')
 
 mvaEleID_Spring16_HZZ_V1_wpLoose.isPOGApproved = cms.untracked.bool(True)
