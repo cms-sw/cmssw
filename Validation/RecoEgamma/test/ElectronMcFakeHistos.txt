@@ -13,10 +13,10 @@ ElectronMcFakeValidator/h_ele_charge                              1 1 1 0
 ElectronMcFakeValidator/h_ele_vertexPt                            1 1 1 0
 ElectronMcFakeValidator/h_ele_vertexEta                           1 1 1 0
 ElectronMcFakeValidator/h_ele_vertexPhi                           1 1 1 0
-ElectronMcFakeValidator/h_ele_vertexP                             1	1 1 0
+ElectronMcFakeValidator/h_ele_vertexP                             1 1 1 0
 ElectronMcFakeValidator/h_ele_vertexX                             1 1 1 0
-ElectronMcFakeValidator/h_ele_vertexY                             1	1 1 0
-ElectronMcFakeValidator/h_ele_vertexZ                             1	1 1 0
+ElectronMcFakeValidator/h_ele_vertexY                             1 1 1 0
+ElectronMcFakeValidator/h_ele_vertexZ                             1 1 1 0
 ElectronMcFakeValidator/h_ele_vertexTIP                           1 1 1 0
 ElectronMcFakeValidator/h_ele_vertexPtVsEta_pfx                   0 1 1 1
 
@@ -64,11 +64,11 @@ ElectronMcFakeValidator/h_ele_HoE_endcaps                         1 1 1 0
 ElectronMcFakeValidator/h_ele_HoE_bc                              1 1 0 0
 ElectronMcFakeValidator/h_ele_HoE_bc_barrel                       1 1 0 0
 ElectronMcFakeValidator/h_ele_HoE_bc_endcaps                      1 1 1 0
-ElectronMcFakeValidator/h_ele_hcalDepth1OverEcalBc		  1 1 0 0 
-ElectronMcFakeValidator/h_ele_hcalDepth1OverEcalBc_barrel	  1 1 0 0	
-ElectronMcFakeValidator/h_ele_hcalDepth1OverEcalBc_endcaps	  1 1 1 0
-ElectronMcFakeValidator/h_ele_hcalDepth2OverEcalBc		  1 1 0 0	
-ElectronMcFakeValidator/h_ele_hcalDepth2OverEcalBc_barrel	  1 1 0 0
+ElectronMcFakeValidator/h_ele_hcalDepth1OverEcalBc                1 1 0 0
+ElectronMcFakeValidator/h_ele_hcalDepth1OverEcalBc_barrel         1 1 0 0
+ElectronMcFakeValidator/h_ele_hcalDepth1OverEcalBc_endcaps        1 1 1 0
+ElectronMcFakeValidator/h_ele_hcalDepth2OverEcalBc                1 1 0 0
+ElectronMcFakeValidator/h_ele_hcalDepth2OverEcalBc_barrel         1 1 0 0
 ElectronMcFakeValidator/h_ele_hcalDepth2OverEcalBc_endcaps        1 1 1 0
 ElectronMcFakeValidator/h_scl_sigietaieta                         1 1 0 0
 ElectronMcFakeValidator/h_scl_sigietaieta_barrel                  1 1 0 0
@@ -85,7 +85,8 @@ ElectronMcFakeValidator/h_scl_E2x5max_endcaps                     1 1 1 0
 ElectronMcFakeValidator/h_scl_E5x5                                1 1 0 0
 ElectronMcFakeValidator/h_scl_E5x5_barrel                         1 1 0 0
 ElectronMcFakeValidator/h_scl_E5x5_endcaps                        1 1 1 0
-ElectronMcFakeValidator/h_ele_HoEVsEta_pfx                        0 1 1 1
+ElectronMcFakeValidator/h_ele_HoEVsEta_pfx                        0 1 1 0
+ElectronMcFakeValidator/h_scl_ESFrac_endcaps                      0 1 1 1
 
 Electron track variables
 
@@ -127,7 +128,6 @@ ElectronMcFakeValidator/h_ele_superclusterfbrem_endcaps                       1 
 ElectronMcFakeValidator/h_ele_classes                             1 1 1 0
 ElectronMcFakeValidator/h_ele_eta_goldenFrac                      0 0 1 0 0 ElectronMcFakeValidator/h_ele_eta_golden  ElectronMcFakeValidator/h_ele_eta
 ElectronMcFakeValidator/h_ele_eta_bbremFrac                       0 0 1 0 0 ElectronMcFakeValidator/h_ele_eta_bbrem   ElectronMcFakeValidator/h_ele_eta
-
 ElectronMcFakeValidator/h_ele_eta_showerFrac                      0 0 1 0 0 ElectronMcFakeValidator/h_ele_eta_show    ElectronMcFakeValidator/h_ele_eta
 ElectronMcFakeValidator/h_ele_fbremvsEtamean                      0 1 1 0
 ElectronMcFakeValidator/h_ele_fbremvsEtamode                      0 1 1 1
@@ -203,9 +203,9 @@ ElectronMcFakeValidator/h_ele_chargedHadronIso_endcaps            1 1 1 0
 ElectronMcFakeValidator/h_ele_neutralHadronIso                    1 1 0 0
 ElectronMcFakeValidator/h_ele_neutralHadronIso_barrel             1 1 0 0
 ElectronMcFakeValidator/h_ele_neutralHadronIso_endcaps            1 1 1 0
-ElectronMcFakeValidator/h_ele_photonIso	                          1 1 0 0
-ElectronMcFakeValidator/h_ele_photonIso_barrel	                  1 1 0 0
-ElectronMcFakeValidator/h_ele_photonIso_endcaps	                  1 1 1 0
+ElectronMcFakeValidator/h_ele_photonIso                           1 1 0 0
+ElectronMcFakeValidator/h_ele_photonIso_barrel                    1 1 0 0
+ElectronMcFakeValidator/h_ele_photonIso_endcaps                   1 1 1 0
 ElectronMcFakeValidator/h_ele_chargedHadronRelativeIso            1 1 0 0
 ElectronMcFakeValidator/h_ele_chargedHadronRelativeIso_barrel     1 1 0 0
 ElectronMcFakeValidator/h_ele_chargedHadronRelativeIso_endcaps    1 1 1 0

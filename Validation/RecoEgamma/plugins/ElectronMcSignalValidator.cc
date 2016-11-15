@@ -289,6 +289,8 @@ ElectronMcSignalValidator::ElectronMcSignalValidator( const edm::ParameterSet & 
   h2_scl_EtaVsPhi = 0 ;
   h1_scl_Eta = 0 ;
   h1_scl_Phi = 0 ;
+//  h1_scl_ESFrac = 0 ;
+  h1_scl_ESFrac_endcaps = 0 ;
 
   h2_scl_EoEtruePfVsEg  = 0 ;
 
@@ -765,10 +767,12 @@ void ElectronMcSignalValidator::bookHistograms( DQMStore::IBooker & iBooker, edm
   h1_scl_E5x5 = bookH1withSumw2(iBooker, "E5x5","ele supercluster energy in 5x5",p_nbin,0.,p_max,"E5x5 (GeV)","Events","ELE_LOGY E1 P");
   h1_scl_E5x5_barrel = bookH1withSumw2(iBooker, "E5x5_barrel","ele supercluster energy in 5x5 barrel",p_nbin,0.,p_max,"E5x5 (GeV)","Events","ELE_LOGY E1 P");
   h1_scl_E5x5_endcaps = bookH1withSumw2(iBooker, "E5x5_endcaps","ele supercluster energy in 5x5 endcaps",p_nbin,0.,p_max,"E5x5 (GeV)","Events","ELE_LOGY E1 P");
-  h2_scl_EoEtruePfVsEg = bookH2(iBooker, "EoEtruePfVsEg","ele supercluster energy / gen energy pflow vs eg",75,-0.1,1.4, 75, -0.1, 1.4,"E/E_{gen} (e/g)","E/E_{gen} (pflow)") ;
+  h2_scl_EoEtruePfVsEg = bookH2(iBooker, "EoEtruePfVsEg","mean mustache SC/true energy vs final SC/true energy",75,-0.1,1.4, 75, -0.1, 1.4,"E_{final SC}/E_{gen}","E_{mustache}/E_{gen}") ;
   h1_scl_bcl_EtotoEtrue = bookH1withSumw2(iBooker, "bcl_EtotoEtrue","Total basicclusters energy",50,0.2,1.2,"E/E_{gen}");
   h1_scl_bcl_EtotoEtrue_barrel = bookH1withSumw2(iBooker, "bcl_EtotoEtrue_barrel","Total basicclusters energy , barrel",50,0.2,1.2,"E/E_{gen}");
   h1_scl_bcl_EtotoEtrue_endcaps = bookH1withSumw2(iBooker, "bcl_EtotoEtrue_endcaps","Total basicclusters energy , endcaps",50,0.2,1.2,"E/E_{gen}");
+//  h1_scl_ESFrac = bookH1withSumw2(iBooker, "ESFrac","Preshower over SC raw energy",100,0.,0.8,"E_{PS} / E^{raw}_{SC}","Events","ELE_LOGY E1 P");
+  h1_scl_ESFrac_endcaps = bookH1withSumw2(iBooker, "ESFrac_endcaps","Preshower over SC raw energy , endcaps",100,0.,0.8,"E_{PS} / E^{raw}_{SC}","Events","ELE_LOGY E1 P");
 
   // matched electron, gsf tracks
   setBookPrefix("h_ele") ;
@@ -1426,9 +1430,9 @@ void ElectronMcSignalValidator::analyze( const edm::Event & iEvent, const edm::E
     h2_ele_PoPtrueVsEta->Fill( bestGsfElectron.eta(), bestGsfElectron.p()/mcIter->p());
     h2_ele_PoPtrueVsPhi->Fill( bestGsfElectron.phi(), bestGsfElectron.p()/mcIter->p());
     h2_ele_PoPtrueVsPt->Fill( bestGsfElectron.py(), bestGsfElectron.p()/mcIter->p());
-    if (passMiniAODSelection) { // Pt > 5.
+//    if (passMiniAODSelection) { // Pt > 5.
         h2_ele_sigmaIetaIetaVsPt->Fill( bestGsfElectron.pt(), bestGsfElectron.scSigmaIEtaIEta());
-    }
+//    }
     if (bestGsfElectron.isEB()) h1_ele_PoPtrue_barrel->Fill( bestGsfElectron.p()/mcIter->p());
     if (bestGsfElectron.isEE()) h1_ele_PoPtrue_endcaps->Fill( bestGsfElectron.p()/mcIter->p());
     if (bestGsfElectron.isEB() && bestGsfElectron.classification() == GsfElectron::GOLDEN) h1_ele_PoPtrue_golden_barrel->Fill( bestGsfElectron.p()/mcIter->p());
@@ -1497,6 +1501,9 @@ void ElectronMcSignalValidator::analyze( const edm::Event & iEvent, const edm::E
     float pfEnergy=0. ;
     if (!bestGsfElectron.parentSuperCluster().isNull()) pfEnergy = bestGsfElectron.parentSuperCluster()->energy();
     h2_scl_EoEtruePfVsEg->Fill(bestGsfElectron.ecalEnergy()/mcIter->p(),pfEnergy/mcIter->p());
+    /*New from 06 05 2016*/
+//    h1_scl_ESFrac->Fill( sclRef->preshowerEnergy() / sclRef->rawEnergy() );
+    if (bestGsfElectron.isEE()) h1_scl_ESFrac_endcaps->Fill( sclRef->preshowerEnergy() / sclRef->rawEnergy() );
 
     float Etot = 0.; 
     CaloCluster_iterator it = bestGsfElectron.superCluster()->clustersBegin();

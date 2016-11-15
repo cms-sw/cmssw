@@ -52,14 +52,15 @@ process.load("Configuration.StandardSequences.EDMtoMEAtJobEnd_cff") # new
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
 from Configuration.AlCa.autoCond import autoCond
-process.GlobalTag.globaltag = os.environ['TEST_GLOBAL_TAG']#+'::All'
-#process.GlobalTag.globaltag = '75X_mcRun2_asymptotic_Queue'
+#process.GlobalTag.globaltag = os.environ['TEST_GLOBAL_TAG']#+'::All'
+process.GlobalTag.globaltag = '80X_mcRun2_asymptotic_Queue'
 #process.GlobalTag.globaltag = '75X_mcRun2_startup_Queue'
 
 # FOR DATA REDONE FROM RAW, ONE MUST HIDE IsoFromDeps
 # CONFIGURATION
 process.load("Validation.RecoEgamma.electronIsoFromDeps_cff")
 process.load("Validation.RecoEgamma.ElectronMcSignalValidatorMiniAOD_cfi")
+process.load("Validation.RecoEgamma.ElectronIsolation_cfi")
 
 # load DQM
 process.load("DQMServices.Core.DQM_cfg")
@@ -73,7 +74,9 @@ fileName = cms.untracked.string(os.environ['TEST_HISTOS_FILE'].replace(".root", 
 process.electronMcSignalValidatorMiniAOD.InputFolderName = cms.string("EgammaV/ElectronMcSignalValidatorMiniAOD")
 process.electronMcSignalValidatorMiniAOD.OutputFolderName = cms.string("EgammaV/ElectronMcSignalValidatorMiniAOD")
 
-process.p = cms.Path(process.electronMcSignalValidatorMiniAOD * process.MEtoEDMConverter * process.dqmStoreStats)
+process.p = cms.Path(process.ElectronIsolation * process.electronMcSignalValidatorMiniAOD * process.MEtoEDMConverter * process.dqmStoreStats)
+#process.p = cms.Path(process.electronMcSignalValidatorMiniAOD * process.MEtoEDMConverter * process.dqmStoreStats)
+#process.p = cms.Path(process.ElectronIsolation)
 
 process.outpath = cms.EndPath(
 process.EDM,
