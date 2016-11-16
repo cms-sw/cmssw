@@ -22,11 +22,11 @@ autoCond = {
     # GlobalTag for MC production (p-Pb collisions) with realistic alignment and calibrations for Run2
     'run2_mc_pa'        :   '81X_mcRun2_pA_v5',
     # GlobalTag for Run1 data reprocessing
-    'run1_data'         :   '81X_dataRun2_v10',
+    'run1_data'         :   '81X_dataRun2_v11',
     # GlobalTag for Run2 data reprocessing
-    'run2_data'         :   '81X_dataRun2_v10',
+    'run2_data'         :   '81X_dataRun2_v11',
     # GlobalTag for Run2 data relvals: allows customization to run with fixed L1 menu
-    'run2_data_relval'  :   '81X_dataRun2_relval_v13',
+    'run2_data_relval'  :   '81X_dataRun2_relval_v14',
     # GlobalTag for Run1 HLT: it points to the online GT
     'run1_hlt'          :   '81X_dataRun2_HLT_frozen_v4',
     # GlobalTag for Run2 HLT: it points to the online GT
