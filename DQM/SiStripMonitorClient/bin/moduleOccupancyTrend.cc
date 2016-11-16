@@ -82,7 +82,7 @@ int main(int argc, char *argv[]) {
       filesin >> filename;
       if (!filesin.good()) break;      
 
-      std::string runNum= filename.substr(filename.find("28"), 6);
+      std::string runNum= filename.substr(filename.find("run_")+4, 6);
       //std::cout << runNum << std::endl;
      
       fin=TFile::Open(filename.c_str());
