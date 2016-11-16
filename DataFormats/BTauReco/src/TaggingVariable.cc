@@ -13,8 +13,10 @@ const char* const TaggingVariableDescription[] = {
   /* [jetPt]                                    = */ "jet transverse momentum",
   /* [trackJetPt]                               = */ "track-based jet transverse momentum",
   /* [jetEta]                                   = */ "jet pseudorapidity",
+	/* [jetAbsEta]                                = */ "jet absolute pseudorapidity",
   /* [jetPhi]                                   = */ "jet polar angle",
   /* [jetNTracks]                               = */ "tracks associated to jet",
+	/* [jetNSelectedTracks]                       = */ "selected tracks in the jet",
 	/* [jetNTracksEtaRel]                         = */ "number of tracks for which etaRel is computed",
 
   /* [trackMomentum]                            = */ "track momentum",
@@ -142,8 +144,10 @@ const char* const TaggingVariableTokens[] = {
   /* [jetPt]                                    = */ "jetPt",
   /* [trackJetPt]                               = */ "trackJetPt",
   /* [jetEta]                                   = */ "jetEta",
+	/* [jetAbsEta]                                = */ "jetAbsEta",
   /* [jetPhi]                                   = */ "jetPhi",
   /* [jetNTracks]                               = */ "jetNTracks",
+	/* [jetNSelectedTracks]                       = */ "jetNSelectedTracks",
 	/* [jetNTracksEtaRel]                         = */ "jetNTracksEtaRel",
 
   /* [trackMomentum]                            = */ "trackMomentum",
