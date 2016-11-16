@@ -90,16 +90,3 @@ if __name__ == '__main__':
     print(s | t)
     print(s & t)
     print(s - t)
-
-    class X:
-      pass
-    u = OrderedSet()
-    u.add(X())
-    u.add(X())
-
-    for i in u:
-      print id(i)
-
-    v = u
-    for i in v:
-      print id(i)
