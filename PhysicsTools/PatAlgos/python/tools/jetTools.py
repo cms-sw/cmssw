@@ -394,7 +394,12 @@ def setupBTagging(process, jetSource, pfCandidates, explicitJTA, pvSource, svSou
             print '  --> %s ignored, since not available via RecoBTag.Configuration.RecoBTag_cff!'%(btagDiscr)
     ## replace corresponding tags for pat jet production
     patJets.tagInfoSources = cms.VInputTag( *[ cms.InputTag(btagPrefix+x+labelName+postfix) for x in acceptedTagInfos ] )
-    patJets.discriminatorSources = cms.VInputTag( *[ cms.InputTag(btagPrefix+x+labelName+postfix) for x in acceptedBtagDiscriminators ] )
+    patJets.discriminatorSources = cms.VInputTag(*[ 
+				cms.InputTag(btagPrefix+x+labelName+postfix) \
+					if ':' not in x else \
+					cms.InputTag(btagPrefix+x.split(':')[0]+labelName+postfix+':'+x.split(':')[1]) \
+					for x in acceptedBtagDiscriminators 
+				])
     if len(acceptedBtagDiscriminators) > 0 :
         patJets.addBTagInfo = True
     ## if re-running IVF
