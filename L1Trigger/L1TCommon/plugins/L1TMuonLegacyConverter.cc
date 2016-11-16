@@ -72,6 +72,8 @@ L1TMuonLegacyConverter::L1TMuonLegacyConverter(const edm::ParameterSet& iConfig)
 
    // moving inputTag here
    muonSource_InputTag = iConfig.getParameter<edm::InputTag>("muonSource");
+   produceMuonParticles_ = iConfig.getUntrackedParameter<bool>("produceMuonParticles");  
+   centralBxOnly_ = iConfig.getUntrackedParameter<bool>("centralBxOnly");
 
    produces<MuonBxCollection>("imdMuonsLegacy");
    muonSource_InputToken = consumes<L1MuGMTReadoutCollection>(muonSource_InputTag);
@@ -106,6 +108,11 @@ L1TMuonLegacyConverter::produce( edm::Event& iEvent,
 
    std::unique_ptr< MuonBxCollection > imdMuonsLegacy( new MuonBxCollection() );
 
+   LogDebug("L1TMuonLegacyConverter")
+	    << "\nWarning: L1MuGMTReadoutCollection with " << muonSource_InputTag
+	    << "\nrequested in configuration, but not found in the event."
+	    << std::endl;
+	
    if( produceMuonParticles_ )
    {
       ESHandle< L1MuTriggerScales > muScales ;
@@ -119,8 +126,10 @@ L1TMuonLegacyConverter::produce( edm::Event& iEvent,
 
       vector< L1MuGMTExtendedCand > hwMuCands ;
 
+
       if( !hwMuCollection.isValid() )
 	{
+
 	  LogDebug("L1TMuonLegacyConverter")
 	    << "\nWarning: L1MuGMTReadoutCollection with " << muonSource_InputTag
 	    << "\nrequested in configuration, but not found in the event."
@@ -166,6 +175,7 @@ L1TMuonLegacyConverter::produce( edm::Event& iEvent,
 // 	      << " bx " << muItr->bx()
 // 	      << endl ;
 
+  
 	      if( !muItr->empty() ){
 		  // keep x and y components non-zero and protect against roundoff.
 		  double pt = muPtScale->getPtScale()->getLowEdge( muItr->ptIndex() ) + 1.e-6 ;
@@ -179,7 +189,6 @@ L1TMuonLegacyConverter::produce( edm::Event& iEvent,
 
 		// from L1TMuonProducer.cc - which is the stage2 muon producer:
 		// Muon outMu{vec, mu->hwPt(), mu->hwEta(), mu->hwGlobalPhi(), outMuQual, mu->hwSign(), mu->hwSignValid(), iso, mu->tfMuonIndex(), 0, true, mu->hwIsoSum(), mu->hwDPhi(), mu->hwDEta(), mu->hwRank()};
-
 		  Muon outMu{p4, (int)muItr->ptIndex(), (int)muItr->etaIndex(), (int)muItr->phiIndex(), (int)muItr->quality(), muItr->charge(), muItr->isol(), (int)muItr->etaRegionIndex(), 0, true, 0, 0, 0 , (int)muItr->rank() };
 		  imdMuonsLegacy->push_back( muItr->bx(), outMu ) ;
 		}

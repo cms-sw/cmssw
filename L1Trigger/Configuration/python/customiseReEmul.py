@@ -169,28 +169,18 @@ def L1TReEmulFromRAWLegacyMuon(process):
         cms.InputTag('hcalDigis'),
         cms.InputTag('hcalDigis')
     )
-    #process.simCscTriggerPrimitiveDigis.CSCComparatorDigiProducer = cms.InputTag( 'muonCSCDigis', 'MuonCSCComparatorDigi')
-    #process.simCscTriggerPrimitiveDigis.CSCWireDigiProducer       = cms.InputTag( 'muonCSCDigis', 'MuonCSCWireDigi' )  
-   
-    #process.simCsctfTrackDigis.SectorReceiverInput = cms.untracked.InputTag( 'cscTriggerPrimitiveDigis', 'MPCSORTED' )
-    #process.simCsctfTrackDigis.DTproducer = 'dtTriggerPrimitiveDigis'
- 
-    #TODO : replace process.SimL1Emulator with the sequence including legacy stuff
-#    from L1Trigger.Configuration.SimL1TechnicalTriggers_cff import *
-#    from L1Trigger.L1TCalorimeter.simDigis_cff import *
-#    from L1Trigger.L1TMuon.simDigis_cff import *
-#    from L1Trigger.L1TGlobal.simDigis_cff import *
+
+#  - muon converter
     process.load('L1Trigger.L1TCommon.muonLegacyInStage2FormatDigis_cfi')
+    process.muonLegacyInStage2FormatDigis.muonSource = cms.InputTag('simGmtDigis') 
 
 ##  - DT TP emulator
     from L1Trigger.DTTrigger.dtTriggerPrimitiveDigis_cfi import dtTriggerPrimitiveDigis
 #    import L1Trigger.DTTrigger.dtTriggerPrimitiveDigis_cfi
     process.simDtTriggerPrimitiveDigis = dtTriggerPrimitiveDigis.clone()
-#
-#    process.simDtTriggerPrimitiveDigis.digiTag = 'muonDTDigis'
-#    #simDtTriggerPrimitiveDigis.debug = cms.untracked.bool(True)
 
-# - CSC TP emulator
+# - CSC TP emulator 
+#pb: why do we need to re-emulate the CSC?? can t we just use the trigger primitives from the emtf of from the csc trigger primitives collection
     #from L1Trigger.CSCCommonTrigger.CSCCommonTrigger_cfi import cscTriggerPrimitiveDigis_cfi
     from L1Trigger.CSCTriggerPrimitives.cscTriggerPrimitiveDigis_cfi import cscTriggerPrimitiveDigis
     process.simCscTriggerPrimitiveDigis = cscTriggerPrimitiveDigis.clone()
@@ -205,6 +195,7 @@ def L1TReEmulFromRAWLegacyMuon(process):
     from L1Trigger.CSCTrackFinder.csctfTrackDigis_cfi import csctfTrackDigis
     process.simCsctfTrackDigis = csctfTrackDigis.clone()
     process.simCsctfTrackDigis.SectorReceiverInput = cms.untracked.InputTag( 'simCscTriggerPrimitiveDigis', 'MPCSORTED' )
+    # pb: taking the dt trigger primitived from the bmtf digis
     process.simCsctfTrackDigis.DTproducer = 'bmtfDigis'
     #'dtTriggerPrimitiveDigis'
     from L1Trigger.CSCTrackFinder.csctfDigis_cfi import csctfDigis
@@ -239,27 +230,6 @@ def L1TReEmulFromRAWLegacyMuon(process):
 ##   Note: GMT requires input from calorimeter emulators, namely MipIsoData from GCT
 #    process.simGmtDigis.MipIsoData     = 'simRctDigis'
 
-    #the processes are included when loading the simDigis_cff..
-    #Here adding to the Sequence the calo and common muon stuff 
-    #process.L1TReEmul = cms.Sequence(process.simEcalTriggerPrimitiveDigis * process.simHcalTriggerPrimitiveDigis * process.SimL1TCalorimeter + process.SimL1TMuonCommon ) 
-    #here adding the legacy muons
-
-    process.L1MuonTriggerPrimitives = cms.Sequence(process.simCscTriggerPrimitiveDigis*process.simDtTriggerPrimitiveDigis)
-   #L1MuonTrackFinders = cms.Sequence(csctfTrackDigis*csctfDigis*dttfDigis)
-
-    process.L1TReEmul = cms.Sequence(process.simCscTriggerPrimitiveDigis + process.simCsctfTrackDigis + process.simCsctfDigis + process.simDttfDigis + process.simRpcTriggerDigis + process.simGmtDigis + process.muonLegacyInStage2FormatDigis)
-    #here adding to the Sequence the upgrade muon
-    
-#    from L1Trigger.L1TMuonBarrel.simTwinMuxDigis_cfi import *
-#    from L1Trigger.L1TMuonBarrel.simBmtfDigis_cfi import *
-#    from L1Trigger.L1TMuonEndCap.simEmtfDigis_cfi import *
-#    from L1Trigger.L1TMuonOverlap.simOmtfDigis_cfi import *
-#    from L1Trigger.L1TMuon.simGmtCaloSumDigis_cfi import *
-    process.load('L1Trigger.L1TMuon.simMuonQualityAdjusterDigis_cfi')
-#    from L1Trigger.L1TMuon.simGmtStage2Digis_cfi import *
-    process.L1TReEmul = cms.Sequence( process.L1TReEmul + process.simTwinMuxDigis + process.simBmtfDigis + process.simEmtfDigis + process.simOmtfDigis + process.simGmtCaloSumDigis + process.simMuonQualityAdjusterDigis + process.simGmtStage2Digis)
-    #here adding final products 
-    process.L1TReEmu = cms.Sequence( process.L1TReEmul + process.SimL1TechnicalTriggers + process.SimL1TGlobal )
 
     # This is for the upgrade
     # TwinMux
@@ -285,12 +255,62 @@ def L1TReEmulFromRAWLegacyMuon(process):
     #process.simRctDigis.ecalDigis = cms.VInputTag( cms.InputTag( 'ecalDigis:EcalTriggerPrimitives' ) )
     #process.simRctDigis.hcalDigis = cms.VInputTag('hcalDigis:')
     process.simRpcTriggerDigis.label         = 'muonRPCDigis'
+
+    process.L1MuonTriggerPrimitives = cms.Sequence(process.simCscTriggerPrimitiveDigis*process.simDtTriggerPrimitiveDigis)
+    #L1MuonTrackFinders = cms.Sequence(csctfTrackDigis*csctfDigis*dttfDigis)
+
+    process.L1TReEmul = cms.Sequence(process.simCscTriggerPrimitiveDigis + process.simCsctfTrackDigis + process.simCsctfDigis + process.simDttfDigis + process.simRpcTriggerDigis + process.simGmtDigis + process.muonLegacyInStage2FormatDigis)
+    #here adding to the Sequence the upgrade muon
+    
+    process.load('L1Trigger.L1TMuon.simMuonQualityAdjusterDigis_cfi')
+#    from L1Trigger.L1TMuon.simGmtStage2Digis_cfi import *
+    process.L1TReEmul = cms.Sequence( process.L1TReEmul + process.simTwinMuxDigis + process.simBmtfDigis + process.simEmtfDigis + process.simOmtfDigis + process.simGmtCaloSumDigis + process.simMuonQualityAdjusterDigis + process.simGmtStage2Digis)
+    #here adding final products 
+    process.L1TReEmu = cms.Sequence( process.L1TReEmul + process.SimL1TechnicalTriggers + process.SimL1TGlobal )
+
     process.L1TReEmulPath = cms.Path(process.L1TReEmul)    
     process.schedule.append(process.L1TReEmulPath)
     print "L1TReEmul sequence:  "
     print process.L1TReEmul
     print process.schedule
     return process
+
+
+## other stuff
+
+#    from L1Trigger.L1TMuonBarrel.simTwinMuxDigis_cfi import *
+#    from L1Trigger.L1TMuonBarrel.simBmtfDigis_cfi import *
+#    from L1Trigger.L1TMuonEndCap.simEmtfDigis_cfi import *
+#    from L1Trigger.L1TMuonOverlap.simOmtfDigis_cfi import *
+#    from L1Trigger.L1TMuon.simGmtCaloSumDigis_cfi import *
+
+
+    #process.simCscTriggerPrimitiveDigis.CSCComparatorDigiProducer = cms.InputTag( 'muonCSCDigis', 'MuonCSCComparatorDigi')
+    #process.simCscTriggerPrimitiveDigis.CSCWireDigiProducer       = cms.InputTag( 'muonCSCDigis', 'MuonCSCWireDigi' )  
+   
+    #process.simCsctfTrackDigis.SectorReceiverInput = cms.untracked.InputTag( 'cscTriggerPrimitiveDigis', 'MPCSORTED' )
+    #process.simCsctfTrackDigis.DTproducer = 'dtTriggerPrimitiveDigis'
+ 
+    #TODO : replace process.SimL1Emulator with the sequence including legacy stuff
+#    from L1Trigger.Configuration.SimL1TechnicalTriggers_cff import *
+#    from L1Trigger.L1TCalorimeter.simDigis_cff import *
+#    from L1Trigger.L1TMuon.simDigis_cff import *
+#    from L1Trigger.L1TGlobal.simDigis_cff import *
+
+#
+#    process.simDtTriggerPrimitiveDigis.digiTag = 'muonDTDigis'
+#    #simDtTriggerPrimitiveDigis.debug = cms.untracked.bool(True)
+
+
+
+    #the processes are included when loading the simDigis_cff..
+    #Here adding to the Sequence the calo and common muon stuff 
+    #process.L1TReEmul = cms.Sequence(process.simEcalTriggerPrimitiveDigis * process.simHcalTriggerPrimitiveDigis * process.SimL1TCalorimeter + process.SimL1TMuonCommon ) 
+    #here adding the legacy muons
+
+    #from L1Trigger.GlobalTrigger.gtDigis_cfi import gtDigis
+    #process.simGtDigis = gtDigis.clone()
+    #process.simGtDigis.GmtInputTag = 'simGmtDigis'
 
 
 

@@ -88,11 +88,11 @@ def L1NtupleEMULegacy(process):
     L1NtupleTFileOut(process)
 
     process.load('L1Trigger.L1TNtuples.L1NtupleEMULegacy_cff')
-    process.l1ntupleemu = cms.Path(
+    process.l1ntupleemulegacy = cms.Path(
         process.L1NtupleEMULegacy
     )
 
-    process.schedule.append(process.l1ntupleemu)
+    process.schedule.append(process.l1ntupleemulegacy)
 
     return process
 

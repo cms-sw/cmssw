@@ -160,7 +160,6 @@ L1UpgradeTreeProducer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 
   if (muon.isValid()){ 
     l1Upgrade->SetMuon(muon, maxL1Upgrade_);
-    std::cout << "Muon upgrade ddone" << std::endl;
   } else {
     edm::LogWarning("MissingProduct") << "L1Upgrade Muons not found. Branch will not be filled" << std::endl;
   }
