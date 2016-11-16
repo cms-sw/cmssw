@@ -6,6 +6,7 @@
 #include <xercesc/dom/DOM.hpp>
 #include <xercesc/parsers/XercesDOMParser.hpp>
 #include "FWCore/Concurrency/interface/Xerces.h"
+#include "Utilities/Xerces/interface/XercesStrUtils.h"
 #include <xercesc/util/XMLString.hpp>
 #include <xercesc/sax/SAXException.hpp>
 #include <xercesc/framework/LocalFileFormatTarget.hpp>
@@ -69,24 +70,26 @@ int  EcalDCSTowerStatusXMLTranslator::readXML(const std::string& filename,
 int EcalDCSTowerStatusXMLTranslator::writeXML(const std::string& filename, 
 					  const EcalCondHeader& header,
 					  const EcalDCSTowerStatus& record){
+  cms::concurrency::xercesInitialize();
+
   std::fstream fs(filename.c_str(),ios::out);
   fs<< dumpXML(header,record);
+
+  cms::concurrency::xercesTerminate();
+
   return 0;  
 }
 
-
 std::string EcalDCSTowerStatusXMLTranslator::dumpXML(const EcalCondHeader& header,const EcalDCSTowerStatus& record){
 
-  cms::concurrency::xercesInitialize();
-
-  unique_ptr<DOMImplementation> impl( DOMImplementationRegistry::getDOMImplementation(fromNative("LS").c_str()));
+  unique_ptr<DOMImplementation> impl( DOMImplementationRegistry::getDOMImplementation(cms::xerces::uStr("LS").ptr()));
   
   DOMLSSerializer* writer = impl->createLSSerializer();
   if( writer->getDomConfig()->canSetParameter( XMLUni::fgDOMWRTFormatPrettyPrint, true ))
     writer->getDomConfig()->setParameter( XMLUni::fgDOMWRTFormatPrettyPrint, true );
   
-  DOMDocumentType* doctype = impl->createDocumentType( fromNative("XML").c_str(), 0, 0 );
-  DOMDocument* doc = impl->createDocument( 0, fromNative(DCSTowerStatus_tag).c_str(), doctype );
+  DOMDocumentType* doctype = impl->createDocumentType( cms::xerces::uStr("XML").ptr(), 0, 0 );
+  DOMDocument* doc = impl->createDocument( 0, cms::xerces::uStr(DCSTowerStatus_tag.c_str()).ptr(), doctype );
   DOMElement* root = doc->getDocumentElement();
 
   xuti::writeHeader(root,header);
@@ -116,7 +119,7 @@ std::string EcalDCSTowerStatusXMLTranslator::dumpXML(const EcalCondHeader& heade
     WriteNodeWithValue(cellnode, DCSStatusCode_tag, record[rawid].getStatusCode());
   }
 
-  std::string dump = toNative( writer->writeToString( root ));
+  std::string dump = cms::xerces::toString( writer->writeToString( root ));
   doc->release();
   doctype->release();
   writer->release();

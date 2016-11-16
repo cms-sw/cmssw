@@ -120,6 +120,7 @@ FastTimerService::FastTimerService(const edm::ParameterSet & config, edm::Activi
   registry.watchPostSourceEvent(    this, & FastTimerService::postSourceEvent );
   registry.watchPreEvent(           this, & FastTimerService::preEvent );
   registry.watchPostEvent(          this, & FastTimerService::postEvent );
+  /* Disable until can handle more than one thread per event
   // watch per-path events
   registry.watchPrePathEvent(       this, & FastTimerService::prePathEvent );
   registry.watchPostPathEvent(      this, & FastTimerService::postPathEvent );
@@ -130,6 +131,7 @@ FastTimerService::FastTimerService(const edm::ParameterSet & config, edm::Activi
     registry.watchPreModuleEventDelayedGet(  this, & FastTimerService::preModuleEventDelayedGet );
     registry.watchPostModuleEventDelayedGet( this, & FastTimerService::postModuleEventDelayedGet );
   }
+  */
 
   // if requested, reserve plots for timing vs. lumisection
   // there is no need to store the id, as it wil always be 0
@@ -1318,7 +1320,7 @@ double FastTimerService::queryModuleTime(edm::StreamID sid, const edm::ModuleDes
   if (module.id() < m_stream[sid].fast_modules.size()) {
     return m_stream[sid].fast_modules[module.id()]->time_active;
   } else {
-    edm::LogError("FastTimerService") << "FastTimerService::queryModuleTime: unexpected module " << module.moduleLabel();
+    //edm::LogError("FastTimerService") << "FastTimerService::queryModuleTime: unexpected module " << module.moduleLabel();
     return 0.;
   }
 }
@@ -1328,7 +1330,7 @@ double FastTimerService::queryModuleTime(edm::StreamID sid, unsigned int id) con
   if (id < m_stream[sid].fast_modules.size()) {
     return m_stream[sid].fast_modules[id]->time_active;
   } else {
-    edm::LogError("FastTimerService") << "FastTimerService::queryModuleTime: unexpected module id " << id;
+    //edm::LogError("FastTimerService") << "FastTimerService::queryModuleTime: unexpected module id " << id;
     return 0.;
   }
 }
@@ -1340,7 +1342,7 @@ double FastTimerService::queryModuleTimeByLabel(edm::StreamID sid, const std::st
     return keyval->second.time_active;
   } else {
     // module not found
-    edm::LogError("FastTimerService") << "FastTimerService::queryModuleTimeByLabel: unexpected module " << label;
+    //edm::LogError("FastTimerService") << "FastTimerService::queryModuleTimeByLabel: unexpected module " << label;
     return 0.;
   }
 }
@@ -1352,7 +1354,7 @@ double FastTimerService::queryModuleTimeByType(edm::StreamID sid, const std::str
     return keyval->second.time_active;
   } else {
     // module not found
-    edm::LogError("FastTimerService") << "FastTimerService::queryModuleTimeByType: unexpected module type " << type;
+    //edm::LogError("FastTimerService") << "FastTimerService::queryModuleTimeByType: unexpected module type " << type;
     return 0.;
   }
 }

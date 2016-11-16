@@ -433,6 +433,8 @@ namespace edm {
       if(nStreams==0) {
         nStreams = nThreads;
       }
+    // PG: Log the number of streams
+      edm::LogInfo("StreamSetup") <<"setting # streams "<<nStreams;
     }
     /*
       bool nRunsSet = false;
@@ -2014,8 +2016,7 @@ namespace edm {
     //espController_->eventSetupForInstance(ts);
     EventSetup const& es = esp_->eventSetup();
     {
-      typedef OccurrenceTraits<EventPrincipal, BranchActionStreamBegin> Traits;
-      schedule_->processOneEvent<Traits>(iStreamIndex,*pep, es);
+      schedule_->processOneEvent(iStreamIndex,*pep, es);
       for_all(subProcesses_, [pep](auto& subProcess) { subProcess.doEvent(*pep); });
     }
 

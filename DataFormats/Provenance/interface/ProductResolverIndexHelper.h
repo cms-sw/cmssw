@@ -61,6 +61,7 @@ ProductRegistry is frozen.
 #include <set>
 #include <string>
 #include <vector>
+#include <unordered_map>
 
 namespace edm {
 
@@ -118,6 +119,9 @@ namespace edm {
                              char const* moduleLabel,
                              char const* instance,
                              char const* process = 0) const;
+    
+    using ModulesToIndiciesMap =std::unordered_multimap<std::string,ProductResolverIndex>;
+    ModulesToIndiciesMap indiciesForModulesInProcess( const std::string& iProcessName ) const;
 
     class Matches {
     public:

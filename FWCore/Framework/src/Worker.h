@@ -55,6 +55,7 @@ the worker is reset().
 #include <string>
 #include <vector>
 #include <exception>
+#include <unordered_map>
 
 namespace edm {
   class EventPrincipal;
@@ -94,6 +95,10 @@ namespace edm {
                      ParentContext const& parentContext,
                      typename T::Context const* context);
 
+    void callWhenDoneAsync(WaitingTask* task) {
+      waitingTasks_.add(task);
+    }
+    void skipOnPath();
     void beginJob() ;
     void endJob();
     void beginStream(StreamID id, StreamContext& streamContext);
@@ -110,9 +115,9 @@ namespace edm {
       state_ = Ready;
       waitingTasks_.reset();
       workStarted_ = false;
+      numberOfPathsLeftToRun_ = numberOfPathsOn_;
     }
 
-    void pathFinished(EventPrincipal const&);
     void postDoEvent(EventPrincipal const&);
 
     ModuleDescription const& description() const {return *(moduleCallingContext_.moduleDescription());}
@@ -126,6 +131,8 @@ namespace edm {
     //Used to make EDGetToken work
     virtual void updateLookup(BranchType iBranchType,
                       ProductResolverIndexHelper const&) = 0;
+    virtual void resolvePutIndicies(BranchType iBranchType,
+                                    std::unordered_multimap<std::string, edm::ProductResolverIndex> const& iIndicies) = 0;
 
     virtual void modulesWhoseProductsAreConsumed(std::vector<ModuleDescription const*>& modules,
                                                  ProductRegistry const& preg,
@@ -143,6 +150,9 @@ namespace edm {
       timesExcept_.store(0,std::memory_order_relaxed);
     }
 
+    void addedToPath() {
+      ++numberOfPathsOn_;
+    }
     //NOTE: calling state() is done to force synchronization across threads
     int timesRun() const { return timesRun_.load(std::memory_order_relaxed); }
     int timesVisited() const { return timesVisited_.load(std::memory_order_relaxed); }
@@ -198,6 +208,8 @@ namespace edm {
     virtual void itemsMayGet(BranchType, std::vector<ProductResolverIndexAndSkipBit>&) const = 0;
 
     virtual std::vector<ProductResolverIndexAndSkipBit> const& itemsToGetFromEvent() const = 0;
+
+    virtual std::vector<ProductResolverIndex> const& itemsShouldPutInEvent() const = 0;
 
     virtual void implRespondToOpenInputFile(FileBlock const& fb) = 0;
     virtual void implRespondToCloseInputFile(FileBlock const& fb) = 0;
@@ -373,7 +385,9 @@ namespace edm {
     std::atomic<int> timesFailed_;
     std::atomic<int> timesExcept_;
     std::atomic<State> state_;
-
+    int numberOfPathsOn_;
+    std::atomic<int> numberOfPathsLeftToRun_;
+        
     ModuleCallingContext moduleCallingContext_;
 
     ExceptionToActionTable const* actions_; // memory assumed to be managed elsewhere
@@ -595,8 +609,18 @@ namespace edm {
     if(T::isEvent_) {
       timesVisited_.fetch_add(1,std::memory_order_relaxed);
     }
+
     bool expected = false;
     if(workStarted_.compare_exchange_strong(expected,true)) {
+      moduleCallingContext_.setContext(ModuleCallingContext::State::kPrefetching,parentContext,nullptr);
+
+      //if have TriggerResults based selection we want to reject the event before doing prefetching
+      if( not workerhelper::CallImpl<T>::prePrefetchSelection(this,streamID,ep,&moduleCallingContext_) ) {
+        setPassed<T::isEvent_>();
+        waitingTasks_.doneWaiting(nullptr);
+        return;
+      }
+      
       auto runTask = new (tbb::task::allocate_root()) RunModuleTask<T>(
         this, ep,es,streamID,parentContext,context);
       prefetchAsync(runTask, parentContext, ep);
@@ -635,6 +659,7 @@ namespace edm {
         iException.addContext(iost.str());
         setException<T::isEvent_>(std::current_exception());
         waitingTasks_.doneWaiting(cached_exception_);
+        return;
       } else {
         setPassed<T::isEvent_>();
       }

@@ -10,17 +10,13 @@
 #ifndef _EcalTBWeightsXMLTranslator_h_
 #define _EcalTBWeightsXMLTranslator_h_
 
-#include <xercesc/dom/DOMNode.hpp>
 #include "CondFormats/EcalObjects/interface/EcalTBWeights.h"
 #include "CondFormats/EcalObjects/interface/EcalWeightSet.h"
 #include "CondTools/Ecal/interface/EcalCondHeader.h"
-#include "CondTools/Ecal/interface/XercesString.h"
+#include <xercesc/dom/DOMNode.hpp>
 #include <string>
 
-
-
 class EcalTBWeightsXMLTranslator {
-
 
  public:
   
@@ -32,9 +28,10 @@ class EcalTBWeightsXMLTranslator {
 	       const  EcalCondHeader& header,
 	       const  EcalTBWeights&  record);
 
+ private:
+
   static std::string dumpXML(const EcalCondHeader& header,
 			     const EcalTBWeights& record);
- private:
   
   static void readWeightSet(xercesc::DOMNode* parentNode, 
 			    EcalWeightSet& ws);
@@ -44,13 +41,7 @@ class EcalTBWeightsXMLTranslator {
 				const EcalWeightSet::EcalWeightMatrix& matrix);
   
   static void writeChi2WeightMatrix(xercesc::DOMNode* node,
-				    const EcalWeightSet::EcalChi2WeightMatrix& matrix);
-  
-
- 
+				    const EcalWeightSet::EcalChi2WeightMatrix& matrix); 
 };
-
-
-
 
 #endif

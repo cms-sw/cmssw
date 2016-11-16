@@ -1,19 +1,18 @@
-#include <iostream>
-#include <sstream>
-#include <fstream>
+#include "CondFormats/EcalObjects/interface/EcalLaserAPDPNRatios.h"
+#include "CondTools/Ecal/interface/EcalLaserAPDPNRatiosXMLTranslator.h"
+#include "CondTools/Ecal/interface/DOMHelperFunctions.h"
+#include "CondTools/Ecal/interface/XMLTags.h"
+#include "FWCore/Concurrency/interface/Xerces.h"
+#include "Utilities/Xerces/interface/XercesStrUtils.h"
 #include <xercesc/dom/DOMNode.hpp>
 #include <xercesc/dom/DOM.hpp>
 #include <xercesc/parsers/XercesDOMParser.hpp>
-#include "FWCore/Concurrency/interface/Xerces.h"
 #include <xercesc/util/XMLString.hpp>
 #include <xercesc/sax/SAXException.hpp>
 #include <xercesc/framework/LocalFileFormatTarget.hpp>
-
-#include "CondFormats/EcalObjects/interface/EcalLaserAPDPNRatios.h"
-#include "CondTools/Ecal/interface/EcalLaserAPDPNRatiosXMLTranslator.h"
-
-#include "CondTools/Ecal/interface/DOMHelperFunctions.h"
-#include "CondTools/Ecal/interface/XMLTags.h"
+#include <iostream>
+#include <sstream>
+#include <fstream>
 
 using namespace XERCES_CPP_NAMESPACE;
 using namespace xuti;
@@ -103,38 +102,34 @@ int  EcalLaserAPDPNRatiosXMLTranslator::readXML(const std::string& filename,
   delete parser;
   cms::concurrency::xercesTerminate();
   return 0;
-  
-  
 }
-  
 
+int EcalLaserAPDPNRatiosXMLTranslator::writeXML(const std::string& filename, 
+						const EcalCondHeader& header,
+						const EcalLaserAPDPNRatios& record){
 
+  cms::concurrency::xercesInitialize();
 
+  std::fstream fs(filename.c_str(),ios::out);
+  fs<< dumpXML(header,record);
 
-  int EcalLaserAPDPNRatiosXMLTranslator::writeXML(const std::string& filename, 
-					       const EcalCondHeader& header,
-					       const EcalLaserAPDPNRatios& record){
-    std::fstream fs(filename.c_str(),ios::out);
-    fs<< dumpXML(header,record);
-    return 0;
-  }
+  cms::concurrency::xercesTerminate();
 
+  return 0;
+}
 
 std::string EcalLaserAPDPNRatiosXMLTranslator::dumpXML(
 					     const EcalCondHeader& header,
 			                     const EcalLaserAPDPNRatios& record){
  
-
-   cms::concurrency::xercesInitialize();
-
-   unique_ptr<DOMImplementation> impl( DOMImplementationRegistry::getDOMImplementation(fromNative("LS").c_str()));
+   unique_ptr<DOMImplementation> impl( DOMImplementationRegistry::getDOMImplementation(cms::xerces::uStr("LS").ptr()));
   
    DOMLSSerializer* writer = impl->createLSSerializer();
    if( writer->getDomConfig()->canSetParameter( XMLUni::fgDOMWRTFormatPrettyPrint, true ))
      writer->getDomConfig()->setParameter( XMLUni::fgDOMWRTFormatPrettyPrint, true );
   
-   DOMDocumentType* doctype = impl->createDocumentType( fromNative("XML").c_str(), 0, 0 );
-   DOMDocument* doc = impl->createDocument( 0, fromNative(WeightGroups_tag).c_str(), doctype );
+   DOMDocumentType* doctype = impl->createDocumentType( cms::xerces::uStr("XML").ptr(), 0, 0 );
+   DOMDocument* doc = impl->createDocument( 0, cms::xerces::uStr(WeightGroups_tag.c_str()).ptr(), doctype );
    DOMElement* root = doc->getDocumentElement();
  
    xuti::writeHeader(root,header);
@@ -142,12 +137,12 @@ std::string EcalLaserAPDPNRatiosXMLTranslator::dumpXML(
    string Lasertag = "Laser", LMtag = "LM";
    for(int cellid = 0; cellid < (int)record.getTimeMap().size(); cellid++) {
 
-      DOMElement* cellnode = doc->createElement( fromNative(Lasertag).c_str());
+     DOMElement* cellnode = doc->createElement( cms::xerces::uStr(Lasertag.c_str()).ptr());
       root->appendChild(cellnode); 
       stringstream value_s;
       value_s << cellid;
-      cellnode->setAttribute(fromNative(LMtag).c_str(),
-			    fromNative(value_s.str()).c_str());
+      cellnode->setAttribute(cms::xerces::uStr(LMtag.c_str()).ptr(),
+			     cms::xerces::uStr(value_s.str().c_str()).ptr());
 
       long int t123[3];
       t123[0]=(record.getTimeMap())[cellid].t1.value();
@@ -162,13 +157,13 @@ std::string EcalLaserAPDPNRatiosXMLTranslator::dumpXML(
       strftime(buf, sizeof(buf), "%F %R:%S", &lt);
       buf[sizeof(buf)-1] = 0;
       DOMDocument* subdoc = cellnode->getOwnerDocument();
-      DOMElement* new_node = subdoc->createElement(fromNative(Laser_t_tag[i]).c_str());
+      DOMElement* new_node = subdoc->createElement(cms::xerces::uStr(Laser_t_tag[i].c_str()).ptr());
       cellnode->appendChild(new_node);
       std::stringstream value_ss;
       value_ss << t123[i];
       string newstr = value_ss.str() + " [" + string(buf) +"]";
       DOMText* tvalue = 
-	subdoc->createTextNode(fromNative(newstr).c_str());
+	subdoc->createTextNode(cms::xerces::uStr(newstr.c_str()).ptr());
       new_node->appendChild(tvalue);
       }
    }
@@ -215,13 +210,11 @@ std::string EcalLaserAPDPNRatiosXMLTranslator::dumpXML(
 	WriteNodeWithValue(cellnode,Laser_p2_tag,p2);
 	WriteNodeWithValue(cellnode,Laser_p3_tag,p3);
       }
-    
 
-    std::string dump = toNative(writer->writeToString( root )); 
+    std::string dump = cms::xerces::toString(writer->writeToString( root )); 
     doc->release();
     doctype->release();
     writer->release();
-    //   cms::concurrency::xercesTerminate();
 
     return dump;
 }

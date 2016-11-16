@@ -425,6 +425,68 @@ namespace edm{
                                 ProductResolverIndexHelper const& iHelper) {
     module_->updateLookup(iBranchType,iHelper,mustPrefetchMayGet<T>());
   }
+  
+  namespace {
+    void resolvePutIndiciesImpl(void*,
+                            BranchType iBranchType,
+                            std::unordered_multimap<std::string, edm::ProductResolverIndex> const& iIndicies,
+                            std::string const& iModuleLabel) {
+      //Do nothing
+    }
+
+    void resolvePutIndiciesImpl(ProducerBase* iProd,
+                            BranchType iBranchType,
+                            std::unordered_multimap<std::string, edm::ProductResolverIndex> const& iIndicies,
+                            std::string const& iModuleLabel) {
+      iProd->resolvePutIndicies(iBranchType, iIndicies, iModuleLabel);
+    }
+
+    void resolvePutIndiciesImpl(edm::stream::EDProducerAdaptorBase* iProd,
+                            BranchType iBranchType,
+                            std::unordered_multimap<std::string, edm::ProductResolverIndex> const& iIndicies,
+                            std::string const& iModuleLabel) {
+      iProd->resolvePutIndicies(iBranchType, iIndicies, iModuleLabel);
+    }
+    void resolvePutIndiciesImpl(edm::stream::EDFilterAdaptorBase* iProd,
+                            BranchType iBranchType,
+                            std::unordered_multimap<std::string, edm::ProductResolverIndex> const& iIndicies,
+                            std::string const& iModuleLabel) {
+      iProd->resolvePutIndicies(iBranchType, iIndicies, iModuleLabel);
+    }
+
+    std::vector<ProductResolverIndex> s_emptyIndexList;
+    
+    std::vector<ProductResolverIndex> const& itemsShouldPutInEventImpl(void const*) {
+      return s_emptyIndexList;
+    }
+    
+    std::vector<ProductResolverIndex> const& itemsShouldPutInEventImpl(ProducerBase const* iProd) {
+      return iProd->indiciesForPutProducts(edm::InEvent);
+    }
+
+    std::vector<ProductResolverIndex> const& itemsShouldPutInEventImpl(edm::stream::EDProducerAdaptorBase const* iProd) {
+      return iProd->indiciesForPutProducts(edm::InEvent);
+    }
+
+    std::vector<ProductResolverIndex> const& itemsShouldPutInEventImpl(edm::stream::EDFilterAdaptorBase const* iProd) {
+      return iProd->indiciesForPutProducts(edm::InEvent);
+    }
+
+  }
+  
+  template<typename T>
+  void WorkerT<T>::resolvePutIndicies(BranchType iBranchType,
+                                      std::unordered_multimap<std::string, edm::ProductResolverIndex> const& iIndicies) {
+    resolvePutIndiciesImpl(&module(), iBranchType,iIndicies, description().moduleLabel());
+  }
+  
+
+  template<typename T>
+  std::vector<ProductResolverIndex> const&
+  WorkerT<T>::itemsShouldPutInEvent() const {
+    return itemsShouldPutInEventImpl(&module());
+  }
+
 
   template<>
   Worker::Types WorkerT<EDAnalyzer>::moduleType() const { return Worker::kAnalyzer;}

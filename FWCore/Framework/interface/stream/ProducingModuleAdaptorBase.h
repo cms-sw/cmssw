@@ -22,6 +22,7 @@
 #include <map>
 #include <string>
 #include <vector>
+#include <unordered_map>
 
 // user include files
 #include "DataFormats/Provenance/interface/BranchType.h"
@@ -90,6 +91,12 @@ namespace edm {
 
       std::vector<ConsumesInfo> consumesInfo() const;
 
+      void resolvePutIndicies(BranchType iBranchType,
+                              std::unordered_multimap<std::string, edm::ProductResolverIndex> const& iIndicies,
+                              std::string const& moduleLabel);
+      
+      std::vector<edm::ProductResolverIndex> const& indiciesForPutProducts(BranchType iBranchType) const;
+
     protected:
       template<typename F> void createStreamModules(F iFunc) {
         for(auto& m: m_streamModules) {
@@ -99,14 +106,14 @@ namespace edm {
       }
       
       void commit(Run& iRun) {
-        iRun.commit_();
+        iRun.commit_(m_streamModules[0]->indiciesForPutProducts(InRun));
       }
       void commit(LuminosityBlock& iLumi) {
-        iLumi.commit_();
+        iLumi.commit_(m_streamModules[0]->indiciesForPutProducts(InLumi));
       }
       template<typename L, typename I>
       void commit(Event& iEvent, L* iList, I* iID) {
-        iEvent.commit_(iList,iID);
+        iEvent.commit_(m_streamModules[0]->indiciesForPutProducts(InEvent), iList,iID);
       }
 
       const EDConsumerBase* consumer() {

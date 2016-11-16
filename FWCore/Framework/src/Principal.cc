@@ -835,4 +835,11 @@ namespace edm {
       prod->retrieveAndMerge(*this);
     }
   }
+  
+  void
+  Principal::resetFailedFromThisProcess() {
+    for( auto & prod : *this) {
+      prod->resetFailedFromThisProcess();
+    }
+  }
 }

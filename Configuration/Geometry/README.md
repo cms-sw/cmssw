@@ -9,7 +9,8 @@ Tracker:
 
 Calorimeters:
 * C1: Run2 calorimeters
-* C2: HGCal (v7) + Phase2 HCAL
+* C2: HGCal (v7) + Phase2 HCAL and EB
+* C3: HGCal (v8) + Phase2 HCAL and EB
 
 Muon system:
 * M1: Phase2 muon system (TP baseline) w/ GE21, ME0, RE3/1, RE4/1
