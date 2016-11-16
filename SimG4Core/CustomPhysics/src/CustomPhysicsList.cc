@@ -15,7 +15,6 @@
 
 #include "SimG4Core/CustomPhysics/interface/FullModelHadronicProcess.hh"
 #include "SimG4Core/CustomPhysics/interface/ToyModelHadronicProcess.hh"
-#include "SimG4Core/CustomPhysics/interface/CMSDarkPairProduction.hh"
 #include "SimG4Core/CustomPhysics/interface/CMSDarkPairProductionProcess.hh"
 
 using namespace CLHEP;
