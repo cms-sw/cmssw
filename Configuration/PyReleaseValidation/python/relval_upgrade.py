@@ -35,7 +35,7 @@ for year in upgradeKeys:
             workflows[numWF] = [ upgradeDatasetFromFragment[frag], stepList]
 
             # special workflows for tracker
-            if upgradeDatasetFromFragment[frag]=="TTbar_13" and not 'PU' in key:
+            if (upgradeDatasetFromFragment[frag]=="TTbar_13" or upgradeDatasetFromFragment[frag]=="TTbar_14TeV") and not 'PU' in key:
                 stepListTk=[]
                 hasHarvest = False
                 for step in upgradeProperties[year][key]['ScenToRun']:
