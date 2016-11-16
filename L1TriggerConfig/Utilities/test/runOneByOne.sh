@@ -3,7 +3,7 @@
 if [ $# -ne 2 ] ; then echo 'Please, provide the 2 arguments: tscKey and rsKey'; exit 2; fi
 
 source /opt/offline/cmsset_default.sh
-cd /opt/offline/slc6_amd64_gcc493/cms/cmssw/CMSSW_8_0_23
+cd /opt/offline/slc6_amd64_gcc493/cms/cmssw/CMSSW_8_0_25
 cmsenv
 cd -
 
@@ -22,13 +22,6 @@ else
     cmsRun ${CMSSW_BASE}/src/CondTools/L1TriggerExt/test/L1ConfigWriteSinglePayloadExt_cfg.py objectKey="OMTF_ALGO_EMPTY" objectType=L1TMuonOverlapParams recordName=L1TMuonOverlapParamsO2ORcd useO2OTags=1 outputDBConnect=sqlite:l1configBlank.db outputDBAuth=${DBAuth}
     initcode=$?
     if [ $initcode -ne 0 ] ; then echo "Failed to write OMTF_ALGO_EMPTY in sqlite file" ; exit 1 ; fi
-
-    for key in "EMTF_ALGO_EMPTY" "EMTF_ALGO_BASE/v1" "EMTF_ALGO_BASE/v2" "EMTF_ALGO_BASE/v3" "EMTF_ALGO_BASE/v4"; do
-        echo "Generating $key payload"
-        cmsRun ${CMSSW_BASE}/src/CondTools/L1TriggerExt/test/L1ConfigWriteSinglePayloadExt_cfg.py objectKey=$key objectType=L1TMuonEndCapParams recordName=L1TMuonEndcapParamsO2ORcd useO2OTags=1 outputDBConnect=sqlite:l1configBlank.db outputDBAuth=${DBAuth}
-        initcode=$?
-        if [ $initcode -ne 0 ] ; then echo "Failed to write $key in sqlite files" ; exit 1 ; fi
-    done
 
     cp l1configBlank.db l1config.db
 fi
