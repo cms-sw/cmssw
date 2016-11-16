@@ -16,7 +16,7 @@ eval "setenv `scram tool info xerces-c | sed -n -e 's/INCLUDE=/XERC_INC /gp'`"
 eval "setenv `scram tool info xerces-c | sed -n -e 's/LIBDIR=/XERC_LIB /gp'`"
 eval "setenv `scram tool info boost    | sed -n -e 's/INCLUDE=/BOOST_INC /gp'`"
 eval "setenv `scram tool info boost    | sed -n -e 's/LIBDIR=/BOOST_LIB /gp'`"
-g++ -g -std=c++11 -o test reademtf.cpp -I./ -I$CMSSW_RELEASE_BASE/src -I$XERC_INC -L$XERC_LIB -lxerces-c -I$BOOST_INC -L$BOOST_LIB -lboost_thread -lboost_signals -lboost_date_time -L$CMSSW_RELEASE_BASE/lib/$SCRAM_ARCH/ -lFWCoreMessageLogger -lCondFormatsL1TObjects
+g++ -g -std=c++11 -o test reademtf.cpp -I./ -I$CMSSW_BASE/src -I$CMSSW_RELEASE_BASE/src -I$XERC_INC -L$XERC_LIB -lxerces-c -I$BOOST_INC -L$BOOST_LIB -lboost_thread -lboost_signals -lboost_date_time -L$CMSSW_RELEASE_BASE/lib/$SCRAM_ARCH/ -lFWCoreMessageLogger -lCondFormatsL1TObjects
 */
 
 using namespace std;
@@ -73,7 +73,7 @@ int main(int argc, char *argv[]){
         tm brokenTime;
         strptime(core_fwv.c_str(), "%Y-%m-%d %T", &brokenTime);
         time_t sinceEpoch = timegm(&brokenTime);
-        cout << sinceEpoch << endl;
+        cout << "core_fwv= " << core_fwv << " timestamp= " << sinceEpoch << endl;
 
         cout << "pT LUT version "<< conf2["pt_lut_version"].getValue<unsigned int>() << endl;
 
