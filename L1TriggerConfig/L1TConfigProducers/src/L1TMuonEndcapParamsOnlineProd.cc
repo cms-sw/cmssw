@@ -69,6 +69,24 @@ std::shared_ptr<L1TMuonEndCapParams> L1TMuonEndcapParamsOnlineProd::newObject(co
         if( !queryResult.fillVariable( "ALGO", algo_key) ) algo_key = "";
         if( !queryResult.fillVariable( "HW",   hw_key  ) ) hw_key   = "";
 
+    // all EMTF ALGO keys before "EMTF_ALGO_BASE/v6" are broken and will crash the code below, let's promote them to v6
+    size_t pos = algo_key.find("EMTF_ALGO_BASE/v");
+    if( pos != std::string::npos ){
+        int v = atoi(algo_key.c_str()+16);
+        if( v>0 && v<6 ){
+            algo_key = "EMTF_ALGO_BASE/v6";
+            edm::LogError( "L1-O2O" ) << "Inconsistent old ALGO key -> changing to " << algo_key ;
+        }
+    }
+    // HW has to be consistent with the ALGO: promote everything to EMTF_HW/v8
+    pos = hw_key.find("EMTF_HW/v");
+    if( pos != std::string::npos ){
+        int v = atoi(hw_key.c_str()+9);
+        if( v>0 && v<8 ){
+            hw_key = "EMTF_HW/v8";
+            edm::LogError( "L1-O2O" ) << "Inconsistent old HW key -> changing to " << hw_key ;
+        } else edm::LogError( "L1-O2O" ) << "all ok, using " << hw_key ;
+    }
 
         queryStrings.clear();
         queryStrings.push_back( "CONF" );
