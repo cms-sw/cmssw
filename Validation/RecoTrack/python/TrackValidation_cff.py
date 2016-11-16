@@ -195,15 +195,23 @@ for _eraName, _postfix, _era in _relevantEras:
     locals()["_seedingLayerSets"+_postfix] = _getSeedingLayers(locals()["_seedProducers"+_postfix])
 
 # MVA selectors
-def _getMVASelectors(iterations):
+def _getMVASelectors(postfix):
     import RecoTracker.IterativeTracking.iterativeTk_cff as _iterativeTk_cff
 
     # assume naming convention that the iteration name (when first
     # letter in lower case) is the selector name
     pset = cms.untracked.PSet()
-    for iterName in iterations:
+    for iterName, seqName in _cfg.iterationAlgos(postfix, includeSequenceName=True):
         if hasattr(_iterativeTk_cff, iterName):
             mod = getattr(_iterativeTk_cff, iterName)
+            seq = getattr(_iterativeTk_cff, seqName)
+
+            # Ignore iteration if the MVA selector module is not in the sequence
+            try:
+                print seq.index(mod)
+            except:
+                continue
+
             typeName = mod._TypedParameterizable__type
             classifiers = []
             if typeName == "ClassifierMerger":
@@ -215,7 +223,7 @@ def _getMVASelectors(iterations):
 
     return pset
 for _eraName, _postfix, _era in _relevantEras:
-    locals()["_mvaSelectors"+_postfix] = _getMVASelectors(_cfg.iterationAlgos(_postfix))
+    locals()["_mvaSelectors"+_postfix] = _getMVASelectors(_postfix)
 
 # Validation iterative steps
 _sequenceForEachEra(_addSelectorsByAlgo, args=["_algos"], names="_selectorsByAlgo", sequence="_tracksValidationSelectorsByAlgo", modDict=globals())
