@@ -868,7 +868,7 @@ class Process(object):
         if self.schedule_() == None:
             return
         old = getattr(self,label)
-        for task in self.schedule_()._orderedTasks:
+        for task in self.schedule_()._tasks:
             task.replace(old, new)
     def globalReplace(self,label,new):
         """ Replace the item with label 'label' by object 'new' in the process and all sequences/paths/tasks"""
@@ -927,7 +927,7 @@ class Process(object):
                     endpaths.append(pathname)
                 else:
                     triggerPaths.append(pathname)
-            for task in self.schedule_()._orderedTasks:
+            for task in self.schedule_()._tasks:
                 scheduleTaskValidator = ScheduleTaskValidator()
                 task.visit(scheduleTaskValidator)
                 task.visit(nodeVisitor)
@@ -1355,10 +1355,8 @@ class Modifier(object):
     if isinstance(fromObj,_ModuleSequenceType):
         toObj._seq = fromObj._seq
         toObj._tasks = fromObj._tasks
-        toObj._orderedTasks = fromObj._orderedTasks
     elif isinstance(fromObj,Task):
         toObj._collection = fromObj._collection
-        toObj._order = fromObj._order
     elif isinstance(fromObj,_Parameterizable):
         #clear old items just incase fromObj is not a complete superset of toObj
         for p in toObj.parameterNames_():
@@ -1952,7 +1950,8 @@ process.s2 = cms.Sequence(process.a+(process.a+process.a))
             p.t1.visit(visitor5)
             self.assertTrue(visitor5.modules == set([new2]))
             visitor6 = NodeVisitor()
-            p.schedule._orderedTasks[0].visit(visitor6)
+            listOfTasks = list(p.schedule._tasks)
+            listOfTasks[0].visit(visitor6)
             self.assertTrue(visitor6.modules == set([new2]))
 
         def testSequence(self):
@@ -2025,15 +2024,6 @@ process.s2 = cms.Sequence(process.a+(process.a+process.a))
             self.assertTrue(testTask2 in coll)
             self.assertTrue(len(coll) == 6)
             self.assertTrue(len(testTask2._collection) == 0)
-            ocoll = testTask1._order
-            self.assertTrue(edproducer in ocoll)
-            self.assertTrue(edfilter in ocoll)
-            self.assertTrue(service in ocoll)
-            self.assertTrue(essource in ocoll)
-            self.assertTrue(esproducer in ocoll)
-            self.assertTrue(testTask2 in ocoll)
-            self.assertTrue(len(ocoll) == 6)
-            self.assertTrue(len(testTask2._order) == 0)
 
             taskContents = []
             for i in testTask1:
@@ -2287,7 +2277,6 @@ process.s2 = cms.Sequence(process.a+(process.a+process.a))
             self.assert_(not hasattr(p, 'path3'))
 
             self.assertTrue(len(p.schedule._tasks) == 0)
-            self.assertTrue(len(p.schedule._orderedTasks) == 0)
 
             p = Process("test")
             p.a = EDAnalyzer("MyAnalyzer")
@@ -2308,9 +2297,10 @@ process.s2 = cms.Sequence(process.a+(process.a+process.a))
             self.assertTrue(len(s._tasks) == 2)
             self.assertTrue(p.task1 in s._tasks)
             self.assertTrue(p.task2 in s._tasks)
-            self.assertTrue(len(s._orderedTasks) == 2)
-            self.assertTrue(p.task1 == s._orderedTasks[0])
-            self.assertTrue(p.task2 == s._orderedTasks[1])
+            listOfTasks = list(s._tasks)
+            self.assertTrue(len(listOfTasks) == 2)
+            self.assertTrue(p.task1 == listOfTasks[0])
+            self.assertTrue(p.task2 == listOfTasks[1])
             p.schedule = s
             self.assert_('b' in p.schedule.moduleNames())
 
@@ -2320,7 +2310,8 @@ process.s2 = cms.Sequence(process.a+(process.a+process.a))
             process2.path1 = Path(process2.a)
             process2.task1 = Task(process2.e)
             process2.schedule = Schedule(process2.path1,tasks=process2.task1)
-            self.assertTrue(process2.schedule._orderedTasks[0] == process2.task1)
+            listOfTasks = list(process2.schedule._tasks)
+            self.assertTrue(listOfTasks[0] == process2.task1)
 
             # test Schedule copy
             s2 = s.copy()
@@ -2329,9 +2320,10 @@ process.s2 = cms.Sequence(process.a+(process.a+process.a))
             self.assertTrue(len(s2._tasks) == 2)
             self.assertTrue(p.task1 in s2._tasks)
             self.assertTrue(p.task2 in s2._tasks)
-            self.assertTrue(len(s2._orderedTasks) == 2)
-            self.assertTrue(p.task1 == s2._orderedTasks[0])
-            self.assertTrue(p.task2 == s2._orderedTasks[1])
+            listOfTasks = list(s2._tasks)
+            self.assertTrue(len(listOfTasks) == 2)
+            self.assertTrue(p.task1 == listOfTasks[0])
+            self.assertTrue(p.task2 == listOfTasks[1])
 
             names = s.moduleNames()
             self.assertTrue(names == set(['a', 'b', 'e', 'Tracer', 'f']))
@@ -2849,8 +2841,7 @@ process.addSubProcess(cms.SubProcess(process = childProcess, SelectEvents = cms.
             self.assertTrue(p.s.dumpPython("") == "cms.Sequence(process.a+process.b, process.td)\n")
             p.e =EDProducer("e")
             m1.toReplaceWith(p.td, Task(p.e))
-            self.assertTrue(p.td._collection == set([p.e]))
-            self.assertTrue(p.td._order == [p.e])
+            self.assertTrue(p.td._collection == OrderedSet([p.e]))
             #check toReplaceWith doesn't activate not chosen
             m1 = Modifier()
             p = Process("test")

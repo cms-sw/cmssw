@@ -3,6 +3,7 @@ from Mixins import _ConfigureComponent, PrintOptions
 from Mixins import _Labelable, _Unlabelable
 from Mixins import _ValidatingParameterListBase
 from ExceptionHandling import *
+from OrderedSet import OrderedSet
 
 class _HardDependency(object):
     """Information relevant for when a hard dependency, 
@@ -207,18 +208,16 @@ class _ModuleSequenceType(_ConfigureComponent, _Labelable):
             arg[0]._appendToCollection(self._seq._collection)
             tasks = arg[1:]
         self._isModified = False
-        self._tasks = set()
-        self._orderedTasks = list()
+
+        self._tasks = OrderedSet()
+
         if len(tasks) > 0:
             self.associate(*tasks)
     def associate(self,*tasks):
         for task in tasks:
-            if task in self._tasks:
-                continue
             if not isinstance(task, Task):
                 raise TypeError("associate only works with objects of type Task")
             self._tasks.add(task)
-            self._orderedTasks.append(task)
     def isFrozen(self):
         return self._isFrozen
     def setIsFrozen(self):
@@ -255,7 +254,7 @@ class _ModuleSequenceType(_ConfigureComponent, _Labelable):
         if self._seq is not None:
             s =self._seq.dumpSequencePython(options)
         associationContents = set()
-        for task in self._orderedTasks:
+        for task in self._tasks:
             if task.hasLabel_():
                 associationContents.add(_Labelable.dumpSequencePython(task, options))
             else:
@@ -272,7 +271,7 @@ class _ModuleSequenceType(_ConfigureComponent, _Labelable):
         # only dump the label, if possible
         if self.hasLabel_():
             return _Labelable.dumpSequencePython(self, options)
-        elif not self._tasks:
+        elif len(self._tasks) == 0:
             if self._seq is None:
                 return ''
             s = self._seq.dumpSequencePython(options)
@@ -307,8 +306,7 @@ class _ModuleSequenceType(_ConfigureComponent, _Labelable):
             returnValue.__init__(self._seq)
         else:
             returnValue.__init__()
-        returnValue._tasks = self._tasks.copy()
-        returnValue._orderedTasks = self._orderedTasks[:]
+        returnValue._tasks = OrderedSet(self._tasks)
         return returnValue
     def copyAndExclude(self,listOfModulesToExclude):
         """Returns a copy of the sequence which excludes those module in 'listOfModulesToExclude'"""
@@ -358,7 +356,6 @@ class _ModuleSequenceType(_ConfigureComponent, _Labelable):
         if v.didReplace():
             self._seq = v.result(self)[0]
             self._tasks.clear()
-            self._orderedTasks = []
             self.associate(*v.result(self)[1])
         return v.didReplace()
     def index(self,item):
@@ -388,7 +385,6 @@ class _ModuleSequenceType(_ConfigureComponent, _Labelable):
         if v.didRemove():
             self._seq = v.result(self)[0]
             self._tasks.clear()
-            self._orderedTasks = []
             self.associate(*v.result(self)[1])
         return v.didRemove()
     def resolve(self, processDict,keepIfCannotResolve=False):
@@ -422,7 +418,7 @@ class _ModuleSequenceType(_ConfigureComponent, _Labelable):
         """
         if self._seq is not None:
             self._seq.visitNode(visitor)
-        for item in self._orderedTasks:
+        for item in self._tasks:
             visitor.enter(item)
             item.visit(visitor)
             visitor.leave(item)
@@ -576,8 +572,7 @@ class Schedule(_ValidatingParameterListBase,_ConfigureComponent,_Unlabelable):
 
     def __init__(self,*arg,**argv):
         super(Schedule,self).__init__(*arg)
-        self._tasks = set()
-        self._orderedTasks = list()
+        self._tasks = OrderedSet()
         theKeys = argv.keys()
         if theKeys:
             if len(theKeys) > 1 or theKeys[0] != "tasks":
@@ -600,20 +595,16 @@ class Schedule(_ValidatingParameterListBase,_ConfigureComponent,_Unlabelable):
 
     def associate(self,*tasks):
         for task in tasks:
-            if task in self._tasks:
-                continue
             if not isinstance(task, Task):
                 raise TypeError("The associate function in the class Schedule only works with arguments of type Task")
             self._tasks.add(task)
-            self._orderedTasks.append(task)
     @staticmethod
     def _itemIsValid(item):
         return isinstance(item,Path) or isinstance(item,EndPath)
     def copy(self):
         import copy
         aCopy = copy.copy(self)
-        aCopy._tasks = copy.copy(self._tasks)
-        aCopy._orderedTasks = copy.copy(self._orderedTasks)
+        aCopy._tasks = OrderedSet(self._tasks)
         return aCopy
     def _place(self,label,process):
         process.setPartialSchedule_(self,label)
@@ -622,7 +613,7 @@ class Schedule(_ValidatingParameterListBase,_ConfigureComponent,_Unlabelable):
         visitor = NodeNameVisitor(result)
         for seq in self:
             seq.visit(visitor)
-        for t in self._orderedTasks:
+        for t in self._tasks:
             t.visit(visitor)
         return result
     def dumpPython(self, options=PrintOptions()):
@@ -632,7 +623,7 @@ class Schedule(_ValidatingParameterListBase,_ConfigureComponent,_Unlabelable):
         else:
             s = ''
         associationContents = set()
-        for task in self._orderedTasks:
+        for task in self._tasks:
             if task.hasLabel_():
                 associationContents.add(_Labelable.dumpSequencePython(task, options))
             else:
@@ -1243,8 +1234,7 @@ class Task(_ConfigureComponent, _Labelable) :
     """
 
     def __init__(self, *items):
-        self._collection = set()
-        self._order = list()
+        self._collection = OrderedSet()
         self.add(*items)
 
     def __setattr__(self,name,value):
@@ -1258,10 +1248,7 @@ class Task(_ConfigureComponent, _Labelable) :
             if not isinstance(item, _ConfigureComponent) or not item._isTaskComponent():
                 raise RuntimeError("Adding an entry of type '" + type(item).__name__ + "'to a Task.\n"
                                    "It is illegal to add this type to a Task.")
-            n = len(self._collection)
             self._collection.add(item)
-            if not n == len(self._collection):
-                self._order.append(item)
 
     def _place(self, name, proc):
         proc._placeTask(name,self)
@@ -1271,7 +1258,7 @@ class Task(_ConfigureComponent, _Labelable) :
         if self.hasLabel_():
             taskContents.add(_Labelable.dumpSequencePython(self, options))
         else:
-            for i in self._order:
+            for i in self._collection:
                 if isinstance(i, Task):
                     i.fillContents(taskContents, options)
                 else:
@@ -1284,7 +1271,7 @@ class Task(_ConfigureComponent, _Labelable) :
     def dumpPythonNoNewline(self, options=PrintOptions()):
         """Returns a string which is the python representation of the object"""
         taskContents = set()
-        for i in self._order:
+        for i in self._collection:
             if isinstance(i, Task):
                 i.fillContents(taskContents, options)
             else:
@@ -1307,7 +1294,7 @@ class Task(_ConfigureComponent, _Labelable) :
         return False
 
     def visit(self,visitor):
-        for i in self._order:
+        for i in self._collection:
             visitor.enter(i)
             if not i.isLeaf():
                 i.visit(visitor)
@@ -1317,7 +1304,7 @@ class Task(_ConfigureComponent, _Labelable) :
         return "Task(...)"
 
     def __iter__(self):
-        for key in self._order:
+        for key in self._collection:
             yield key
 
     def __str__(self):
@@ -1342,7 +1329,7 @@ class Task(_ConfigureComponent, _Labelable) :
         self.visit(visitor)
         return result
     def copy(self):
-        return Task(*self._order)
+        return Task(*self._collection)
     def copyAndExclude(self,listOfModulesToExclude):
         """Returns a copy of the sequence which excludes those module in 'listOfModulesToExclude'"""
         # You can exclude instances of these types EDProducer, EDFilter, ESSource, ESProducer,
@@ -1384,7 +1371,6 @@ class Task(_ConfigureComponent, _Labelable) :
             self.visit(v)
             if v.didReplace():
                 self._collection.clear()
-                self._order = list()
                 self.add(*v.result(self))
             return v.didReplace()
 
@@ -1407,7 +1393,6 @@ class Task(_ConfigureComponent, _Labelable) :
         self.visit(v)
         if v.didRemove():
             self._collection.clear()
-            self._order = list()
             self.add(*v.result(self))
         return v.didRemove()
 
@@ -2138,9 +2123,11 @@ if __name__=="__main__":
             t1 = Task(a, b)
             t2 = t1.copy()
             self.assertTrue(t1.dumpPython(None) == t2.dumpPython(None))
-            self.assertTrue(id(t1._order[0]) == id(t2._order[0]))
-            self.assertTrue(id(t1._order[1]) == id(t2._order[1]))
-            self.assertTrue(id(t1._order) != id(t2._order))
+            t1Contents = list(t1._collection)
+            t2Contents = list(t2._collection)
+            self.assertTrue(id(t1Contents[0]) == id(t2Contents[0]))
+            self.assertTrue(id(t1Contents[1]) == id(t2Contents[1]))
+            self.assertTrue(id(t1._collection) != id(t2._collection))
         def testInsertInto(self):
             from FWCore.ParameterSet.Types import vstring
             class TestPSet(object):
@@ -2168,11 +2155,3 @@ if __name__=="__main__":
             self.assertEqual(ps._dict, {"p":vstring("a","b","c","d")})
                         
     unittest.main()
-                          
-
-
-                           
-    
-
-        
-        
