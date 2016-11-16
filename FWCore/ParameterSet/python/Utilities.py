@@ -39,7 +39,6 @@ def ignoreAllFiltersOnPath(path):
   if mutator._didApply():
     path._seq = mutator.result(path)[0]
     path._tasks.clear()
-    path._orderedTasks = []
     path.associate(*mutator.result(path)[1])
   return path
 
@@ -146,7 +145,7 @@ def cleanUnscheduled(proc):
   # If there is a schedule then it needs to point at
   # the new Path objects
   if proc.schedule:
-      listOfTasks = proc.schedule._orderedTasks
+      listOfTasks = list(proc.schedule._tasks)
       proc.schedule = cms.Schedule([getattr(proc,p) for p in pathNamesInScheduled])
       proc.schedule.associate(*listOfTasks)
   return proc
@@ -303,6 +302,7 @@ if __name__ == "__main__":
             self.assertEqual(process.end2.dumpPython(None),'cms.EndPath()\n')
 
             self.assertEqual([p for p in process.schedule],[process.p1,process.p4,process.p2,process.p3,process.end1,process.end2])
-            self.assertEqual(process.schedule._orderedTasks, [process.t1,t2])
+            listOfTasks = list(process.schedule._tasks)
+            self.assertEqual(listOfTasks, [process.t1,t2])
 
     unittest.main()
