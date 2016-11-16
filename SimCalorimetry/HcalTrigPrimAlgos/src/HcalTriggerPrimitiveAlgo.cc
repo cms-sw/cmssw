@@ -595,16 +595,23 @@ void HcalTriggerPrimitiveAlgo::analyzeHF2017(
             if (saturated) {
                output[ibin] = QIE10_MAX_LINEARIZATION_ET;
             } else {
-               // If both channels are valid, we cut the sum in half.
-               if (long_fiber_count == 2)
-                  long_fiber_val *= 0.5;
-               if (short_fiber_count == 2)
-                  short_fiber_val *= 0.5;
+               // For details of the energy handling, see:
+               // https://cms-docdb.cern.ch/cgi-bin/DocDB/ShowDocument?docid=12306
+               //
+               // If a channel for one fiber is invalid, use the value of the
+               // other channel (by doubling the sum) to calculate the
+               // energy in the fiber
+               if (long_fiber_count == 1)
+                  long_fiber_val *= 2;
+               if (short_fiber_count == 1)
+                  short_fiber_val *= 2;
 
                auto sum = long_fiber_val + short_fiber_val;
-               // If both towers are valid, we cut the sum in half
-               if (long_fiber_count > 0 and short_fiber_count > 0)
-                  sum *= 0.5;
+               // Similar to above, if a fiber is invalid (i.e., both
+               // channels for the fiber invalid), substitute the value of
+               // the other fiber by doubling the sum.
+               if (long_fiber_count == 0 or short_fiber_count == 0)
+                  sum *= 2;
 
                output[ibin] += sum;
             }
@@ -628,7 +635,7 @@ void HcalTriggerPrimitiveAlgo::analyzeHF2017(
     }
 
     for (int bin = 0; bin < numberOfSamples_; ++bin) {
-       output[bin] = min({(unsigned int) QIE10_MAX_LINEARIZATION_ET, output[bin]});
+       output[bin] = min({(unsigned int) QIE10_MAX_LINEARIZATION_ET, output[bin]}) >> hf_lumi_shift;
     }
     std::vector<int> finegrain_converted;
     for (const auto& fg: finegrain)
