@@ -1376,7 +1376,9 @@ class Task(_ConfigureComponent, _Labelable) :
         # for the _MutatingSequenceVisitor.
 
         if not original._isTaskComponent() or (not replacement is None and not replacement._isTaskComponent()):
-           raise TypeError("replace only works with objects that can be placed on a Task")
+           raise TypeError("The Task replace function only works with objects that can be placed on a Task\n" + \
+                           "           replace was called with original type = " + str(type(original)) + "\n" + \
+                           "           and replacement type = " + str(type(replacement)) + "\n")
         else:
             v = _CopyAndReplaceSequenceVisitor(original,replacement)
             self.visit(v)
