@@ -5,31 +5,23 @@
 #include <xercesc/dom/DOM.hpp>
 #include <xercesc/parsers/XercesDOMParser.hpp>
 #include "FWCore/Concurrency/interface/Xerces.h"
+#include "Utilities/Xerces/interface/XercesStrUtils.h"
 #include <xercesc/util/XMLString.hpp>
 #include <xercesc/sax/SAXException.hpp>
 #include <xercesc/framework/LocalFileFormatTarget.hpp>
-
 
 #include "CondFormats/EcalObjects/interface/EcalGainRatios.h"
 #include "CondTools/Ecal/interface/EcalGainRatiosXMLTranslator.h"
 #include "CondTools/Ecal/interface/DOMHelperFunctions.h"
 #include "CondTools/Ecal/interface/XMLTags.h"
 
-
 using namespace XERCES_CPP_NAMESPACE;
 using namespace xuti;
 using namespace std;
 
- 
-
-
-
-
 int  EcalGainRatiosXMLTranslator::readXML(const std::string& filename, 
 					  EcalCondHeader& header,
 					  EcalGainRatios& record){
-
- 
 
   cms::concurrency::xercesInitialize();
 
@@ -76,36 +68,33 @@ int  EcalGainRatiosXMLTranslator::readXML(const std::string& filename,
 
   delete parser;
   cms::concurrency::xercesTerminate();
-  return 0;
-  
-  
+  return 0;  
 }
-  
-
-
-
 
 int EcalGainRatiosXMLTranslator::writeXML(const std::string& filename, 
 					  const EcalCondHeader& header,
 					  const EcalGainRatios& record){
+  cms::concurrency::xercesInitialize();
+
   std::fstream fs(filename.c_str(),ios::out);
   fs<< dumpXML(header,record);
+
+  cms::concurrency::xercesTerminate();
+
   return 0;  
 }
 
 
 std::string EcalGainRatiosXMLTranslator::dumpXML(const EcalCondHeader& header,const EcalGainRatios& record){
 
-  cms::concurrency::xercesInitialize();
-
-  unique_ptr<DOMImplementation> impl( DOMImplementationRegistry::getDOMImplementation(fromNative("LS").c_str()));
+  unique_ptr<DOMImplementation> impl( DOMImplementationRegistry::getDOMImplementation(cms::xerces::uStr("LS").ptr()));
   
   DOMLSSerializer* writer = impl->createLSSerializer();
   if( writer->getDomConfig()->canSetParameter( XMLUni::fgDOMWRTFormatPrettyPrint, true ))
     writer->getDomConfig()->setParameter( XMLUni::fgDOMWRTFormatPrettyPrint, true );
   
-  DOMDocumentType* doctype = impl->createDocumentType( fromNative("XML").c_str(), 0, 0 );
-  DOMDocument* doc = impl->createDocument( 0, fromNative(GainRatios_tag).c_str(), doctype );
+  DOMDocumentType* doctype = impl->createDocumentType( cms::xerces::uStr("XML").ptr(), 0, 0 );
+  DOMDocument* doc = impl->createDocument( 0, cms::xerces::uStr(GainRatios_tag.c_str()).ptr(), doctype );
   DOMElement* root = doc->getDocumentElement();
 
     xuti::writeHeader(root,header);
@@ -147,7 +136,7 @@ std::string EcalGainRatiosXMLTranslator::dumpXML(const EcalCondHeader& header,co
       }
 
  
-  std::string dump = toNative( writer->writeToString( root ));
+  std::string dump = cms::xerces::toString( writer->writeToString( root ));
   doc->release();
   doctype->release();
   writer->release();
