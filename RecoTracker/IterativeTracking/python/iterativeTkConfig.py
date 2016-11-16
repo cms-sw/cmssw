@@ -143,9 +143,14 @@ def createEarlySequence(eraName, postfix, modDict):
         seq += modDict[it]
     return seq
 
-def iterationAlgos(postfix):
+def iterationAlgos(postfix, includeSequenceName=False):
     muonVariable = "_iterations_muonSeeded"+postfix
-    return [_modulePrefix(i) for i in globals()["_iterations"+postfix] + globals().get(muonVariable, _iterations_muonSeeded)]
+    iterations = globals()["_iterations"+postfix] + globals().get(muonVariable, _iterations_muonSeeded)
+
+    if includeSequenceName:
+        return [(_modulePrefix(i), i) for i in iterations]
+    else:
+        return [_modulePrefix(i) for i in iterations]
 
 def _seedOrTrackProducers(postfix, typ):
     ret = []
