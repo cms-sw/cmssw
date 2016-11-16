@@ -15,7 +15,7 @@ void GEMPadDigiValidation::bookHistograms(DQMStore::IBooker & ibooker, edm::Run 
     std::cout<<"kitemmurt1"<<std::endl;
 
 
-  if ( GEMGeometry_->regions()[0]->stations()[0]->superChambers().size() != 0 ) {
+  if ( GEMGeometry_->regions()[0]->stations()[1]->superChambers().size() != 0 ) {
     npadsGE21 = GEMGeometry_->regions()[0]->stations()[1]->superChambers()[0]->chambers()[0]->etaPartitions()[0]->npads();
   }
     std::cout<<"kitemmurt1"<<std::endl;
