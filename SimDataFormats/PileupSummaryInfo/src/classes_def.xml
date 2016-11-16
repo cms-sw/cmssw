@@ -1,5 +1,6 @@
 <lcgdict>
-  <class name="PileupSummaryInfo" ClassVersion="12">
+  <class name="PileupSummaryInfo" ClassVersion="13">
+   <version ClassVersion="13" checksum="1980628569"/>
    <version ClassVersion="12" checksum="231481749"/>
    <version ClassVersion="11" checksum="1526417022"/>
   </class>
@@ -13,7 +14,8 @@
   <class name="std::vector<PileupMixingContent>"/>  
   <class name="edm::Wrapper<PileupMixingContent>"/>
   <class name="edm::Wrapper<std::vector<PileupMixingContent> >"/>
-  <class name="PileupVertexContent" ClassVersion="3">
+  <class name="PileupVertexContent" ClassVersion="4">
+   <version ClassVersion="4" checksum="1959165237"/>
    <version ClassVersion="3" checksum="3263569137"/>
   </class>
   <class name="std::vector<PileupVertexContent>"/>  
