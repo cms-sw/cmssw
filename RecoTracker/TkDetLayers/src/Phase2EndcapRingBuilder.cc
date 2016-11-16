@@ -1,4 +1,5 @@
 #include "Phase2EndcapRingBuilder.h"
+#include "TrackingTools/DetLayers/interface/DetLayerException.h"
 
 using namespace edm;
 using namespace std;
@@ -29,11 +30,14 @@ Phase2EndcapRing* Phase2EndcapRingBuilder::build(const GeometricDet* aPhase2Endc
         compGeometricDets!=allGeometricDets.end();compGeometricDets++){
       const GeomDet* theGeomDet = theGeomDetGeometry->idToDet( (*compGeometricDets)->geographicalID() );
   
-      if( fabs( (*compGeometricDets)->positionBounds().z() ) < fabs(meanZ))
+      if( fabs( (*compGeometricDets)->positionBounds().z() ) < fabs(meanZ) )
         frontGeomDets.push_back(theGeomDet);
   
-      if( fabs( (*compGeometricDets)->positionBounds().z() ) > fabs(meanZ))
+      if( fabs( (*compGeometricDets)->positionBounds().z() ) > fabs(meanZ) )
         backGeomDets.push_back(theGeomDet);      
+
+      if( fabs( (*compGeometricDets)->positionBounds().z() ) == fabs(meanZ) )
+        throw DetLayerException("Not possible to assiciate this GeometricDet in front or back");
   
     }
   
@@ -54,7 +58,7 @@ Phase2EndcapRing* Phase2EndcapRingBuilder::build(const GeometricDet* aPhase2Endc
     for(vector<const GeometricDet*>::const_iterator it=allGeometricDets.begin(); it!=allGeometricDets.end();it++){
       compGeometricDets = (*it)->components();
       if (compGeometricDets.size() != 2){
-        LogDebug("TkDetLayers") << " Stack not with two components but with " << compGeometricDets.size() << std::endl;
+        throw DetLayerException("Phase2OTEndcapRing is considered as a stack but does not have two components");
       } else {
         LogTrace("TkDetLayers") << " compGeometricDets[0]->positionBounds().perp() " << compGeometricDets[0]->positionBounds().z() << std::endl;
         LogTrace("TkDetLayers") << " compGeometricDets[1]->positionBounds().perp() " << compGeometricDets[1]->positionBounds().z() << std::endl;
@@ -73,19 +77,22 @@ Phase2EndcapRing* Phase2EndcapRingBuilder::build(const GeometricDet* aPhase2Endc
       compGeometricDets = (*it)->components(); 
       const GeomDet* theGeomDet = theGeomDetGeometry->idToDet( compGeometricDets[0]->geographicalID() );
   
-      if( fabs( compGeometricDets[0]->positionBounds().z() ) < fabs(meanZ))
+      if( fabs( compGeometricDets[0]->positionBounds().z() ) < fabs(meanZ) )
         frontGeomDets.push_back(theGeomDet);
   
-      if( fabs( compGeometricDets[0]->positionBounds().z() ) > fabs(meanZ))
+      if( fabs( compGeometricDets[0]->positionBounds().z() ) > fabs(meanZ) )
         backGeomDets.push_back(theGeomDet);      
   
       const GeomDet* theGeomDetBrother = theGeomDetGeometry->idToDet( compGeometricDets[1]->geographicalID() );
   
-      if( fabs( compGeometricDets[1]->positionBounds().z() ) < fabs(meanZBrothers))
+      if( fabs( compGeometricDets[1]->positionBounds().z() ) < fabs(meanZBrothers) )
         frontGeomDetBrothers.push_back(theGeomDetBrother);
   
-      if( fabs( compGeometricDets[1]->positionBounds().z() ) > fabs(meanZBrothers))
+      if( fabs( compGeometricDets[1]->positionBounds().z() ) > fabs(meanZBrothers) )
         backGeomDetBrothers.push_back(theGeomDetBrother);
+
+      if( fabs( compGeometricDets[0]->positionBounds().z() ) == fabs(meanZ) || fabs( compGeometricDets[1]->positionBounds().z() ) == fabs(meanZBrothers) )
+        throw DetLayerException("Not possible to assiciate components of this GeometricDet in front or back");
     }
   
     LogDebug("TkDetLayers") << "frontGeomDets.size(): " << frontGeomDets.size() ;
