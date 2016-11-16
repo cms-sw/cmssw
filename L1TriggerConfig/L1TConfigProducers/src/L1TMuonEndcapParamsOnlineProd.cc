@@ -33,7 +33,8 @@ std::shared_ptr<L1TMuonEndCapParams> L1TMuonEndcapParamsOnlineProd::newObject(co
 
     if (objectKey.empty()) {
         edm::LogInfo( "L1-O2O: L1TMuonEndcapParamsOnlineProd" ) << "Key is empty, returning empty L1TMuonEndcapParams";
-        return std::shared_ptr< L1TMuonEndCapParams >( new L1TMuonEndCapParams( *(baseSettings.product()) ) );
+        throw std::runtime_error("Empty objectKey");
+//        return std::shared_ptr< L1TMuonEndCapParams >( new L1TMuonEndCapParams( *(baseSettings.product()) ) );
     }
 
     std::string tscKey = objectKey.substr(0, objectKey.find(":") );
@@ -63,7 +64,8 @@ std::shared_ptr<L1TMuonEndCapParams> L1TMuonEndcapParamsOnlineProd::newObject(co
 
         if( queryResult.queryFailed() || queryResult.numberRows() != 1 ){
             edm::LogError( "L1-O2O" ) << "Cannot get EMTF_KEYS.{ALGO,HW}" ;
-            return std::shared_ptr< L1TMuonEndCapParams >( new L1TMuonEndCapParams( *(baseSettings.product()) ) );
+            throw std::runtime_error("Broken key");
+            //return std::shared_ptr< L1TMuonEndCapParams >( new L1TMuonEndCapParams( *(baseSettings.product()) ) );
         }
 
         if( !queryResult.fillVariable( "ALGO", algo_key) ) algo_key = "";
@@ -104,7 +106,8 @@ std::shared_ptr<L1TMuonEndCapParams> L1TMuonEndcapParamsOnlineProd::newObject(co
 
         if( queryResult.queryFailed() || queryResult.numberRows() != 1 ){
             edm::LogError( "L1-O2O: L1TMuonEndcapParamsOnlineProd" ) << "Cannot get EMTF_HW.CONF for ID="<<hw_key;
-            return std::shared_ptr< L1TMuonEndCapParams >( new L1TMuonEndCapParams( *(baseSettings.product()) ) );
+            throw std::runtime_error("Broken key");
+            //return std::shared_ptr< L1TMuonEndCapParams >( new L1TMuonEndCapParams( *(baseSettings.product()) ) );
         }
 
         if( !queryResult.fillVariable( "CONF", xmlHWpayload ) ) xmlHWpayload = "";
@@ -120,7 +123,8 @@ std::shared_ptr<L1TMuonEndCapParams> L1TMuonEndcapParamsOnlineProd::newObject(co
 
         if( queryResult.queryFailed() || queryResult.numberRows() != 1 ){
             edm::LogError( "L1-O2O: L1TMuonEndcapParamsOnlineProd" ) << "Cannot get EMTF_ALGO.CONF for ID="<<algo_key;
-            return std::shared_ptr< L1TMuonEndCapParams >( new L1TMuonEndCapParams( *(baseSettings.product()) ) );
+            throw std::runtime_error("Broken key");
+            //return std::shared_ptr< L1TMuonEndCapParams >( new L1TMuonEndCapParams( *(baseSettings.product()) ) );
         }
 
         std::string xmlALGOpayload;
