@@ -588,14 +588,14 @@ class Schedule(_ValidatingParameterListBase,_ConfigureComponent,_Unlabelable):
                 self.associate(taskList)
             else:
                 try:
-                    # Call this just to check that taskList is a list or other sequenceable object
-                    self.dummy(*taskList)
+                    # Call this just to check that taskList is a list or other iterable object
+                    self.__dummy(*taskList)
                 except:
                     raise RuntimeError("The Schedule constructor argument with keyword 'tasks' must have a\nlist (or other iterable object) as its value")
                 if taskList:
                     self.associate(*taskList)
 
-    def dummy(self, *args):
+    def __dummy(self, *args):
         pass
 
     def associate(self,*tasks):
