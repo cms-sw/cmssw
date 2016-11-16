@@ -128,8 +128,8 @@ void HcalRealisticZS::produce(edm::Event& e, const edm::EventSetup& eventSetup)
   e.getByToken(tok_hbheQIE11_,hbheQIE11);
   
   // create empty output
-  std::unique_ptr<HBHEUpgradeDigiCollection> zs_hbheUpgrade(new HBHEUpgradeDigiCollection);
-  std::unique_ptr<HFUpgradeDigiCollection> zs_hfUpgrade(new HFUpgradeDigiCollection);
+  std::unique_ptr<HBHEDigiCollection> zs_hbheUpgrade(new HBHEDigiCollection);
+  std::unique_ptr<HFDigiCollection> zs_hfUpgrade(new HFDigiCollection);
   std::unique_ptr<QIE10DigiCollection> zs_hfQIE10(new QIE10DigiCollection(hfQIE10->samples()));
   std::unique_ptr<QIE11DigiCollection> zs_hbheQIE11(new QIE11DigiCollection(hbheQIE11->samples()));
   

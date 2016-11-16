@@ -411,8 +411,6 @@ void HcalDigitizer::finalizeEvent(edm::Event& e, const edm::EventSetup& eventSet
   std::unique_ptr<HODigiCollection> hoResult(new HODigiCollection());
   std::unique_ptr<HFDigiCollection> hfResult(new HFDigiCollection());
   std::unique_ptr<ZDCDigiCollection> zdcResult(new ZDCDigiCollection());
-  std::unique_ptr<HBHEUpgradeDigiCollection> hbheupgradeResult(new HBHEUpgradeDigiCollection());
-  std::unique_ptr<HFUpgradeDigiCollection> hfupgradeResult(new HFUpgradeDigiCollection());
   std::unique_ptr<QIE10DigiCollection> hfQIE10Result(
     new QIE10DigiCollection(
       theHFQIE10DetIds.size()>0 ? 
