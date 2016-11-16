@@ -211,12 +211,10 @@ void Phase2TrackerRecHitsValidation::analyze(const edm::Event& event, const edm:
         unsigned int rawid(DSViter->detId()); 
         DetId detId(rawid);
         unsigned int layer = tTopo->side(detId)*100 + tTopo->layer(detId);
+	TrackerGeometry::ModuleType mType = tkGeom->getDetectorType(detId);
 
-        // Get the geometry of the tracker
+        // Get the geomdet
         const GeomDetUnit* geomDetUnit(tkGeom->idToDetUnit(detId));
-        const PixelGeomDetUnit* theGeomDet = dynamic_cast< const PixelGeomDetUnit* >(geomDetUnit);
-        const PixelTopology& topol = theGeomDet->specificTopology();
-
         if (!geomDetUnit) break;
 
         // Create histograms for the layer if they do not yet exist
@@ -249,7 +247,7 @@ void Phase2TrackerRecHitsValidation::analyze(const edm::Event& event, const edm:
               histogramLayer->second.globalPosXY[0]->Fill(globalPosClu.x(), globalPosClu.y());
 
             // Pixel module
-            if (topol.ncolumns() == 32) {
+            if (mType == TrackerGeometry::ModuleType::Ph2PSP) {
                 histogramLayer->second.localPosXY[1]->Fill(localPosClu.x(), localPosClu.y());
 		if (layer<100)
                   histogramLayer->second.globalPosXY[1]->Fill(globalPosClu.z(), globalPosClu.perp());
@@ -258,7 +256,7 @@ void Phase2TrackerRecHitsValidation::analyze(const edm::Event& event, const edm:
                 ++nRecHitsPixel;
             }
             // Strip module
-            else if (topol.ncolumns() == 2) {
+            else if (mType == TrackerGeometry::ModuleType::Ph2PSS || mType == TrackerGeometry::ModuleType::Ph2SS) {
                 histogramLayer->second.localPosXY[2]->Fill(localPosClu.x(), localPosClu.y());
 		if (layer<100)
                   histogramLayer->second.globalPosXY[2]->Fill(globalPosClu.z(), globalPosClu.perp());
@@ -301,12 +299,12 @@ void Phase2TrackerRecHitsValidation::analyze(const edm::Event& event, const edm:
                     histogramLayer->second.deltaXRecHitsSimHits[0]->Fill(localPosClu.x() - localPosHit.x());
                     histogramLayer->second.deltaYRecHitsSimHits[0]->Fill(localPosClu.y() - localPosHit.y());
                     // Pixel module
-                    if (topol.ncolumns() == 32) {
+                    if (mType == TrackerGeometry::ModuleType::Ph2PSP) {
                         histogramLayer->second.deltaXRecHitsSimHits[1]->Fill(localPosClu.x() - localPosHit.x());
                         histogramLayer->second.deltaYRecHitsSimHits[1]->Fill(localPosClu.y() - localPosHit.y());
                     }
                     // Strip module
-                    else if (topol.ncolumns() == 2) {
+                    else if (mType == TrackerGeometry::ModuleType::Ph2PSS || mType == TrackerGeometry::ModuleType::Ph2SS) {
                         histogramLayer->second.deltaXRecHitsSimHits[2]->Fill(localPosClu.x() - localPosHit.x());
                         histogramLayer->second.deltaYRecHitsSimHits[2]->Fill(localPosClu.y() - localPosHit.y());
                     }
@@ -323,12 +321,12 @@ void Phase2TrackerRecHitsValidation::analyze(const edm::Event& event, const edm:
                         histogramLayer->second.deltaYRecHitsSimHits_P[0]->Fill(localPosClu.y() - localPosHit.y());
 
                         // Pixel module
-                        if (topol.ncolumns() == 32) {
+                        if (mType == TrackerGeometry::ModuleType::Ph2PSP) {
                             histogramLayer->second.deltaXRecHitsSimHits_P[1]->Fill(localPosClu.x() - localPosHit.x());
                             histogramLayer->second.deltaYRecHitsSimHits_P[1]->Fill(localPosClu.y() - localPosHit.y());
                         } 
                         // Strip module
-                        else if (topol.ncolumns() == 2) {
+                        else if (mType == TrackerGeometry::ModuleType::Ph2PSS || mType == TrackerGeometry::ModuleType::Ph2SS) {
                             histogramLayer->second.deltaXRecHitsSimHits_P[2]->Fill(localPosClu.x() - localPosHit.x());
                             histogramLayer->second.deltaYRecHitsSimHits_P[2]->Fill(localPosClu.y() - localPosHit.y());
                         }
