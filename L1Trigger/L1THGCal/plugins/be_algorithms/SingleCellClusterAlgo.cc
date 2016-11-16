@@ -2,7 +2,6 @@
 #include "L1Trigger/L1THGCal/interface/fe_codecs/HGCalTriggerCellBestChoiceCodec.h"
 #include "L1Trigger/L1THGCal/interface/fe_codecs/HGCalTriggerCellThresholdCodec.h"
 #include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
-
 #include "DataFormats/L1THGCal/interface/HGCalTriggerCell.h"
 #include "L1Trigger/L1THGCal/interface/be_algorithms/HGCalTriggerCellCalibration.h"
 
@@ -23,6 +22,9 @@ class SingleCellClusterAlgo : public Algorithm<FECODEC>
             Algorithm<HGCalTriggerCellBestChoiceCodec>(conf),
             cluster_product_( new l1t::HGCalTriggerCellBxCollection ),
             calibration_(conf){}
+
+        typedef std::unique_ptr<HGCalTriggerGeometryBase> ReturnType;
+
         virtual void setProduces(edm::EDProducer& prod) const override final 
         {
             prod.produces<l1t::HGCalTriggerCellBxCollection>(name());
@@ -41,20 +43,23 @@ class SingleCellClusterAlgo : public Algorithm<FECODEC>
         }
 
     private:
+        
+        edm::ParameterSet geometry_config_;
+        std::string geometry_name_;
         std::unique_ptr<l1t::HGCalTriggerCellBxCollection> cluster_product_;
-        edm::ESHandle<HGCalGeometry> hgceeGeoHandle;
-        edm::ESHandle<HGCalGeometry> hgchefGeoHandle;
+        edm::ESHandle<HGCalGeometry> hgceeGeoHandle_;
+        edm::ESHandle<HGCalGeometry> hgchefGeoHandle_;
         HGCalTriggerCellCalibration calibration_;    
+
 };
 
 /*****************************************************************/
 void SingleCellClusterAlgo::run(const l1t::HGCFETriggerDigiCollection& coll, const edm::EventSetup& es) 
 /*****************************************************************/
 {
-    es.get<IdealGeometryRecord>().get("HGCalEESensitive",hgceeGeoHandle);  
-    es.get<IdealGeometryRecord>().get("HGCalHESiliconSensitive",hgchefGeoHandle); 
-    const HGCalGeometry* geom = nullptr;
-
+    HGCalTriggerGeometryBase::es_info info;
+    es.get<IdealGeometryRecord>().get("HGCalEESensitive", info.topo_ee);
+    es.get<IdealGeometryRecord>().get("HGCalHESiliconSensitive", info.topo_fh);
 
     for( const auto& digi : coll ) 
     {
@@ -68,21 +73,18 @@ void SingleCellClusterAlgo::run(const l1t::HGCFETriggerDigiCollection& coll, con
             {
 
                 HGCalDetId detid(triggercell.detId());
-                int subdet =  (ForwardSubdetector)detid.subdetId() - 3;
-                if( subdet == 0 ){ 
-                    geom = hgceeGeoHandle.product();     
-                }else if( subdet == 1 ){
-                    geom = hgchefGeoHandle.product();
-                }else if( subdet == 2 ){
-                    //std::cout << "ATTENTION: the BH trgCells are not yet implemented !! "<< std::endl;
-                }
-                const HGCalTopology& topo = geom->topology();
-                const HGCalDDDConstants& dddConst = topo.dddConstants();
-                int cellThickness = dddConst.waferTypeL((unsigned int)detid.wafer() );        
+                int subdet =  (ForwardSubdetector)detid.subdetId();
+                int cellThickness = 0;
 
+                if( subdet == HGCEE ){ 
+                    cellThickness = (info.topo_ee)->dddConstants().waferTypeL((unsigned int)detid.wafer() );
+                }else if( subdet == HGCHEF ){
+                    cellThickness = (info.topo_fh)->dddConstants().waferTypeL((unsigned int)detid.wafer() );
+                }else if( subdet == HGCHEB ){
+                    edm::LogWarning("DataNotFound") << "ATTENTION: the BH trgCells are not yet implemented !! ";
+                }
                 l1t::HGCalTriggerCell calibratedtriggercell(triggercell);
-                calibration_.calibrate(calibratedtriggercell, subdet, cellThickness);     
-                HGCalDetId detid_copy(calibratedtriggercell.detId());
+                calibration_.calibrate(calibratedtriggercell, cellThickness);     
                 cluster_product_->push_back(0,calibratedtriggercell);
             }
         }

@@ -80,8 +80,8 @@ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc', '')
 
 process.generator = cms.EDProducer("FlatRandomPtGunProducer",
     PGunParameters = cms.PSet(
-        MaxPt = cms.double(100.01),
-        MinPt = cms.double(99.99),
+        MaxPt = cms.double(49.01),
+        MinPt = cms.double(50.99),
         PartID = cms.vint32(22),
         MaxEta = cms.double(2.01),
         MaxPhi = cms.double(3.14159265359),
@@ -89,7 +89,7 @@ process.generator = cms.EDProducer("FlatRandomPtGunProducer",
         MinPhi = cms.double(-3.14159265359)
     ),
     Verbosity = cms.untracked.int32(0),
-    psethack = cms.string('single photon pt 100'),
+    psethack = cms.string('single photon pt 50'),
     AddAntiParticle = cms.bool(True),
     firstRun = cms.untracked.uint32(1)
 )
@@ -110,13 +110,21 @@ process.load('L1Trigger.L1THGCal.hgcalTriggerPrimitives_cff')
 process.hgcalTriggerPrimitiveDigiProducer.FECodec.NData = cms.uint32(999)
 process.hgcalTriggerPrimitiveDigiProducer.FECodec.DataLength = cms.uint32(8)
 process.hgcalTriggerPrimitiveDigiProducer.FECodec.triggerCellTruncationBits = cms.uint32(7)
+
+process.hgcalTriggerPrimitiveDigiProducer.BEConfiguration.algorithms[0].calib_parameters.cellLSB = cms.double(
+        process.hgcalTriggerPrimitiveDigiProducer.FECodec.linLSB.value() * 
+        2 ** process.hgcalTriggerPrimitiveDigiProducer.FECodec.triggerCellTruncationBits.value() 
+)
+
 cluster_algo_all =  cms.PSet( AlgorithmName = cms.string('SingleCellClusterAlgo'),
                               FECodec = process.hgcalTriggerPrimitiveDigiProducer.FECodec,
-                              calib_constant = process.hgcalTriggerPrimitiveDigiProducer.calib_constant
+                              calib_parameters = process.hgcalTriggerPrimitiveDigiProducer.BEConfiguration.algorithms[0].calib_parameters
                               )
 
 process.hgcalTriggerPrimitiveDigiProducer.BEConfiguration.algorithms = cms.VPSet( cluster_algo_all )
+
 process.hgcl1tpg_step = cms.Path(process.hgcalTriggerPrimitives)
+
 
 process.digi2raw_step = cms.Path(process.DigiToRaw)
 process.endjob_step = cms.EndPath(process.endOfProcess)

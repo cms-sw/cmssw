@@ -19,17 +19,16 @@ class HGCalTriggerCellCalibration{
 public:
   
     HGCalTriggerCellCalibration(const edm::ParameterSet &conf);    
-    l1t::HGCalTriggerCell calibrate(l1t::HGCalTriggerCell&, int subdet, int cellThickness); 
+    void calibrate(l1t::HGCalTriggerCell&, int cellThickness); 
     void print();
 
 private:
     
-    double LSB;
-    uint32_t trgCellTruncBit;
-    std::vector<double> fCperMIP_ee;
-    std::vector<double> fCperMIP_fh;
-    std::vector<double> dEdX_weights;
-    std::vector<double> thickCorr;
+    double LSB_;
+    std::vector<double> fCperMIP_ee_;
+    std::vector<double> fCperMIP_fh_;
+    std::vector<double> dEdX_weights_;
+    std::vector<double> thickCorr_;
 
 };
 

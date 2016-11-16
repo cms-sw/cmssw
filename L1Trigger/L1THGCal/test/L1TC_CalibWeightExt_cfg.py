@@ -33,7 +33,7 @@ process.maxEvents = cms.untracked.PSet(
 
 # Input source
 process.source = cms.Source("PoolSource", 
-                            fileNames = cms.untracked.vstring('file:./Test_NoTruncationE16bits.root')
+                            fileNames = cms.untracked.vstring('file://afs/cern.ch/work/l/lmastrol/public/testFile/test.root')
                             )
 
 # Production Info
@@ -48,8 +48,6 @@ process.TFileService = cms.Service(
     "TFileService",
     fileName = cms.string("Output_NoTruncationE16bits.root")
     )
-
-
 
 # Other statements
 from Configuration.AlCa.GlobalTag import GlobalTag
@@ -77,8 +75,7 @@ process.geometryProducer = cms.ESProducer(
 
  
 process.TC_CalibWeight = cms.EDAnalyzer("testCalibration",
-                                        triggerCellInputTag=cms.InputTag("hgcalTriggerPrimitiveDigiProducer:SingleCellClusterAlgo"),
-                                        DebugCode=cms.bool(False)
+                                        triggerCellInputTag=cms.InputTag("hgcalTriggerPrimitiveDigiProducer:SingleCellClusterAlgo")
                                         )
 
 process.test_step = cms.Path(process.TC_CalibWeight)
