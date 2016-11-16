@@ -1085,18 +1085,18 @@ class Process(object):
             pTask.visit(processNodeVisitor)
         esProducersToEnable = {}
         for esProducerName, esProducer in self.es_producers_().iteritems():
-            if esProducer in nodeVisitor.esProducers or not esProducer in processNodeVisitor.esProducers:
+            if esProducer in nodeVisitor.esProducers or not (esProducer in processNodeVisitor.esProducers):
                 esProducersToEnable[esProducerName] = esProducer
         self._insertManyInto(adaptor, "@all_esmodules", esProducersToEnable, True)
         esSourcesToEnable = {}
         for esSourceName, esSource in self.es_sources_().iteritems():
-            if esSource in nodeVisitor.esSources or not esSource in processNodeVisitor.esSources:
+            if esSource in nodeVisitor.esSources or not (esSource in processNodeVisitor.esSources):
                 esSourcesToEnable[esSourceName] = esSource
         self._insertManyInto(adaptor, "@all_essources", esSourcesToEnable, True)
         #handle services differently
         services = []
         for serviceName, serviceObject in self.services_().iteritems():
-             if serviceObject in nodeVisitor.services or not serviceObject in processNodeVisitor.services:
+             if serviceObject in nodeVisitor.services or not (serviceObject in processNodeVisitor.services):
                  serviceObject.insertInto(ServiceInjectorAdaptor(adaptor,services))
         adaptor.addVPSet(False,"services",services)
         return processPSet
