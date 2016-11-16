@@ -65,7 +65,7 @@ void Setting::setValue(const std::string& value)
 
 		if ( type_.find("vector") != std::string::npos )
 		{
-            if (delim_.empty())
+            		if (delim_.empty())
 				delim_ = ",";
 			
 			std::vector<std::string> vals;
@@ -89,6 +89,8 @@ void Setting::setValue(const std::string& value)
 
 		value_ = convString.str();
 	}
+	else
+		value_ = value;
 }
 
 
