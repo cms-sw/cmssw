@@ -32,9 +32,10 @@
 <class name="MuonDigiCollection<GEMDetId,GEMCoPadDigi>"/> 
 <class name="edm::Wrapper<MuonDigiCollection<GEMDetId,GEMCoPadDigi> >" splitLevel="0"/> 
 
-<class name="ME0DigiPreReco" ClassVersion="11">
+<class name="ME0DigiPreReco" ClassVersion="12">
  <version ClassVersion="10" checksum="79088950"/>
  <version ClassVersion="11" checksum="1930707888"/>
+ <version ClassVersion="12" checksum="2284466085"/>
 </class>
 <class name="std::vector<ME0DigiPreReco>"/>
 <class name="std::map<ME0DetId,std::vector<ME0DigiPreReco> >"/>
