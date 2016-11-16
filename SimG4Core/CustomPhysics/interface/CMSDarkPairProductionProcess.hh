@@ -1,4 +1,10 @@
-#ifndef CMSDarkPairProductionProcess_h
+//--------------------------------------------------------   
+// File name:     CMSDarkPairProductionProcess
+// 
+//  Author:        Dustin Stolp (dostolp@ucdavis.edu)
+//                 Sushil S. Chauhan (schauhan@cern.ch)  
+// --------------------------------------------------------
+#ifndef SimG4Core_CustomPhysics_CMSDarkPairProductionProcess_h
 #define CMSDarkPairProductionProcess_h 1
 
 #include "SimG4Core/CustomPhysics/interface/CMSDarkPairProduction.hh"
@@ -6,7 +12,6 @@
 #include "G4VEmProcess.hh"
 #include "G4Gamma.hh"
 
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 class G4ParticleDefinition;
 class G4VEmModel;
@@ -20,8 +25,6 @@ public:  // with description
 
   CMSDarkPairProductionProcess(G4double df = 1E0,
   		      const G4String& processName ="conv",
-                      //const G4ParticleDefinition* p = 0,
-                      //const G4double df = 1E0,
 		      G4ProcessType type = fElectromagnetic);
 
   virtual ~CMSDarkPairProductionProcess();
@@ -38,13 +41,11 @@ public:  // with description
 protected:
 
   virtual void InitialiseProcess(const G4ParticleDefinition*);
-  //double darkFactor;
 
 private:
   G4bool  isInitialised;
 };
 
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
   
 #endif
  
