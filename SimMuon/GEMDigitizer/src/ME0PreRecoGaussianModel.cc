@@ -77,7 +77,7 @@ for (const auto & hit: simHits)
   double corr=0.;
   double tof=CLHEP::RandGaussQ::shoot(engine, hit.timeOfFlight(), sigma_t);
   int pdgid = hit.particleType();
-  ME0DigiPreReco digi(x,y,ex,ey,corr,tof,pdgid);
+  ME0DigiPreReco digi(x,y,ex,ey,corr,tof,pdgid,1);
   digi_.insert(digi);
 
   edm::LogVerbatim("ME0PreRecoGaussianModel") << "[ME0PreRecoDigi :: simulateSignal] :: simhit in "<<roll->id()<<" at loc x = "<<std::setw(8)<<entry.x()<<" [cm]"
@@ -193,7 +193,7 @@ void ME0PreRecoGaussianModel::simulateNoise(const ME0EtaPartition* roll, CLHEP::
 	int pdgid = 0;
 	if (myrandP <= 0.5) pdgid = -11; // electron
 	else             pdgid = 11;  // positron
-	ME0DigiPreReco digi(xx_rand, yy_rand, ex, ey, corr, time, pdgid);
+	ME0DigiPreReco digi(xx_rand, yy_rand, ex, ey, corr, time, pdgid, 0);
 	digi_.insert(digi);
 	edm::LogVerbatim("ME0PreRecoGaussianModelNoise") << "[ME0PreRecoDigi :: elebkg]["<<roll->id().rawId()<<"] =====> electron hit in "<<roll->id()<<" pdgid = "<<pdgid<<" bx = "<<bx
 							 <<" ==> digitized"
@@ -241,7 +241,7 @@ void ME0PreRecoGaussianModel::simulateNoise(const ME0EtaPartition* roll, CLHEP::
 	double myrandP = CLHEP::RandFlat::shoot(engine);
 	if (myrandP <= 0.08) pdgid = 2112; // neutrons: GEM sensitivity for neutrons: 0.08%
 	else                 pdgid = 22;   // photons:  GEM sensitivity for photons:  1.04% ==> neutron fraction = (0.08 / 1.04) = 0.077 = 0.08
-	ME0DigiPreReco digi(xx_rand, yy_rand, ex, ey, corr, time, pdgid);
+	ME0DigiPreReco digi(xx_rand, yy_rand, ex, ey, corr, time, pdgid, 0);
 	digi_.insert(digi);
 	edm::LogVerbatim("ME0PreRecoGaussianModelNoise") << "[ME0PreRecoDigi :: neubkg]["<<roll->id().rawId()<<"] ======> neutral hit in "<<roll->id()<<" pdgid = "<<pdgid<<" bx = "<<bx
 							 <<" ==> digitized"
