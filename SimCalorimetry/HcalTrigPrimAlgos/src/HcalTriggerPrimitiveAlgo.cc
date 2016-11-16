@@ -595,15 +595,21 @@ void HcalTriggerPrimitiveAlgo::analyzeHF2017(
             if (saturated) {
                output[ibin] = QIE10_MAX_LINEARIZATION_ET;
             } else {
-               // if one of the dual anode read-outs is valid, double the
-               // energy of the remaining one
+               // For details of the energy handling, see:
+               // https://cms-docdb.cern.ch/cgi-bin/DocDB/ShowDocument?docid=12306
+               //
+               // If a channel for one fiber is invalid, use the value of the
+               // other channel (by doubling the sum) to calculate the
+               // energy in the fiber
                if (long_fiber_count == 1)
                   long_fiber_val *= 2;
                if (short_fiber_count == 1)
                   short_fiber_val *= 2;
 
                auto sum = long_fiber_val + short_fiber_val;
-               // If both towers are valid, we cut the sum in half
+               // Similar to above, if a fiber is invalid (i.e., both
+               // channels for the fiber invalid), substitute the value of
+               // the other fiber by doubling the sum.
                if (long_fiber_count == 0 or short_fiber_count == 0)
                   sum *= 2;
 
