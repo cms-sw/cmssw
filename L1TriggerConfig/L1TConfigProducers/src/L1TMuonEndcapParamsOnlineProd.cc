@@ -85,7 +85,7 @@ std::shared_ptr<L1TMuonEndCapParams> L1TMuonEndcapParamsOnlineProd::newObject(co
         if( v>0 && v<8 ){
             hw_key = "EMTF_HW/v8";
             edm::LogError( "L1-O2O" ) << "Inconsistent old HW key -> changing to " << hw_key ;
-        } else edm::LogError( "L1-O2O" ) << "all ok, using " << hw_key ;
+        }
     }
 
         queryStrings.clear();
