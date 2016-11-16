@@ -11,14 +11,15 @@
 #include <iostream>
 
 //ME0DigiPreReco::ME0DigiPreReco (float x, float y, float ex, float ey, float corr, float tof) :
-ME0DigiPreReco::ME0DigiPreReco (float x, float y, float ex, float ey, float corr, float tof, int pdgid) :
+ME0DigiPreReco::ME0DigiPreReco (float x, float y, float ex, float ey, float corr, float tof, int pdgid, bool prompt) :
   x_(x),
   y_(y),
   ex_(ex),
   ey_(ey),
   corr_(corr),
   tof_(tof),
-  pdgid_(pdgid)
+  pdgid_(pdgid),
+  prompt_(prompt)
 {}
 
 ME0DigiPreReco::ME0DigiPreReco ():
@@ -28,7 +29,8 @@ ME0DigiPreReco::ME0DigiPreReco ():
   ey_(0.),
   corr_(0.),
   tof_(-1.),
-  pdgid_(0)
+  pdgid_(0),
+  prompt_(0)
 {}
 
 
@@ -63,12 +65,12 @@ bool ME0DigiPreReco::operator<(const ME0DigiPreReco& digi) const
 std::ostream & operator<<(std::ostream & o, const ME0DigiPreReco& digi)
 {
 //  return o << "local x=" << digi.x() << " cm y=" << digi.y()<<" cm ex=" << digi.ex() << " cm ey=" << digi.ey()<< " cm tof="<<digi.tof()<<" ns";
-  return o << "local x=" << digi.x() << " cm y=" << digi.y()<<" cm ex=" << digi.ex() << " cm ey=" << digi.ey()<< " cm tof="<<digi.tof()<<" ns"<<" pdgID "<<digi.pdgid();
+  return o << "local x=" << digi.x() << " cm y=" << digi.y()<<" cm ex=" << digi.ex() << " cm ey=" << digi.ey()<< " cm tof="<<digi.tof()<<" ns"<<" pdgID "<<digi.pdgid()<<" prompt? "<<digi.prompt();
 }
 
 void ME0DigiPreReco::print() const
 {
 //  std::cout << "local x=" << this->x() << " cm y=" << this->y() <<" cm tof="<<this->tof()<<" ns"<<std::endl;
-  std::cout << "local x=" << this->x() << " cm y=" << this->y() <<" cm tof="<<this->tof()<<" ns"<<" pdgID "<<this->pdgid()<<std::endl;
+  std::cout << "local x=" << this->x() << " cm y=" << this->y() <<" cm tof="<<this->tof()<<" ns"<<" pdgID "<<this->pdgid()<<" prompt? "<<this->prompt()<<std::endl;
 }
 
