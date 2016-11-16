@@ -28,7 +28,6 @@ G4double CMSDarkPairProduction::ComputeCrossSectionPerAtom(const G4ParticleDefin
                                                      G4double gammaEnergy, G4double Z,
                                                      G4double, G4double, G4double)
 {
-  count++;
   
   G4double crossSection = 0.0 ;
   if ( gammaEnergy <= 2.0*electron_mass_c2 ) return crossSection;

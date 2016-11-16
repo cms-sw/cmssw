@@ -5,7 +5,7 @@
 //                 Sushil S. Chauhan (schauhan@cern.ch)  
 // --------------------------------------------------------
 #ifndef SimG4Core_CustomPhysics_CMSDarkPairProductionProcess_h
-#define CMSDarkPairProductionProcess_h 1
+#define SimG4Core_CustomPhysics_CMSDarkPairProductionProcess_h
 
 #include "SimG4Core/CustomPhysics/interface/CMSDarkPairProduction.hh"
 #include "globals.hh"

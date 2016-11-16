@@ -7,7 +7,7 @@
 // -------------------------------------------------------------------
 //
 #ifndef SimG4Core_CustomPhysics_CMSDarkPairProduction_h
-#define CMSDarkPairProduction_h 1
+#define SimG4Core_CustomPhysics_CMSDarkPairProduction_h
 
 #include <CLHEP/Units/PhysicalConstants.h>
 
@@ -39,7 +39,5 @@ public:
                       G4double e1,
                       G4double e2); 
 
-private:
-  G4int count=0;
 };
 #endif
