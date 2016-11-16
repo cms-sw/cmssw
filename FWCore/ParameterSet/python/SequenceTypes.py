@@ -264,6 +264,8 @@ class _ModuleSequenceType(_ConfigureComponent, _Labelable):
             if s:
                 s += ", "
             s += iString
+        if len(associationContents) > 254:
+            return 'cms.'+type(self).__name__+'(*['+s+'])'
         return 'cms.'+type(self).__name__+'('+s+')'
     def dumpSequencePython(self, options=PrintOptions()):
         """Returns a string which contains the python representation of just the internal sequence"""
@@ -1294,6 +1296,8 @@ class Task(_ConfigureComponent, _Labelable) :
                 s += ", "
             iFirst = False
             s += item
+        if len(taskContents) > 255:
+            return "cms.Task(*[" + s + "])"
         return "cms.Task(" + s + ")"
 
     def _isTaskComponent(self):
