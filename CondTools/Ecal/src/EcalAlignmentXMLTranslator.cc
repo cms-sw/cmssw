@@ -1,17 +1,18 @@
-#include <iostream>
-#include <sstream>
-#include <fstream>
+#include "CondTools/Ecal/interface/EcalAlignmentXMLTranslator.h"
+#include "CondTools/Ecal/interface/DOMHelperFunctions.h"
+#include "CondFormats/Alignment/interface/Alignments.h"
+#include "FWCore/Concurrency/interface/Xerces.h"
+#include "Utilities/Xerces/interface/XercesStrUtils.h"
 #include <xercesc/dom/DOMNode.hpp>
 #include <xercesc/dom/DOM.hpp>
 #include <xercesc/parsers/XercesDOMParser.hpp>
-#include "FWCore/Concurrency/interface/Xerces.h"
 #include <xercesc/util/XMLString.hpp>
 #include <xercesc/sax/SAXException.hpp>
 #include <xercesc/framework/LocalFileFormatTarget.hpp>
+#include <iostream>
+#include <sstream>
+#include <fstream>
 
-#include "CondFormats/Alignment/interface/Alignments.h"
-#include "CondTools/Ecal/interface/EcalAlignmentXMLTranslator.h"
-#include "CondTools/Ecal/interface/DOMHelperFunctions.h"
 
 using namespace XERCES_CPP_NAMESPACE;
 using namespace xuti;
@@ -19,25 +20,28 @@ using namespace std;
 
 int EcalAlignmentXMLTranslator::writeXML(const string& filename, 
 					 const EcalCondHeader& header,
-					 const Alignments& record){
+					 const Alignments& record) {
+  cms::concurrency::xercesInitialize();
+
   fstream fs(filename.c_str(),ios::out);
   fs<< dumpXML(header,record);
+
+  cms::concurrency::xercesTerminate();
+
   return 0;
 }
 
 string EcalAlignmentXMLTranslator::dumpXML(const EcalCondHeader& header,
-					  const Alignments& record){
+					  const Alignments& record) {
 
-  cms::concurrency::xercesInitialize();
-  
-  unique_ptr<DOMImplementation> impl( DOMImplementationRegistry::getDOMImplementation(fromNative("LS").c_str()));
+  unique_ptr<DOMImplementation> impl( DOMImplementationRegistry::getDOMImplementation( cms::xerces::uStr("LS").ptr()));
   
   DOMLSSerializer* writer = impl->createLSSerializer();
   if( writer->getDomConfig()->canSetParameter( XMLUni::fgDOMWRTFormatPrettyPrint, true ))
     writer->getDomConfig()->setParameter( XMLUni::fgDOMWRTFormatPrettyPrint, true );
   
-  DOMDocumentType* doctype = impl->createDocumentType( fromNative("XML").c_str(), 0, 0 );
-  DOMDocument* doc = impl->createDocument( 0, fromNative(AlignmentConstant_tag).c_str(), doctype );
+  DOMDocumentType* doctype = impl->createDocumentType( cms::xerces::uStr("XML").ptr(), 0, 0 );
+  DOMDocument* doc = impl->createDocument( 0, cms::xerces::uStr(AlignmentConstant_tag.c_str()).ptr(), doctype );
   DOMElement* root = doc->getDocumentElement();
  
   xuti::writeHeader(root,header);
@@ -106,10 +110,10 @@ string EcalAlignmentXMLTranslator::dumpXML(const EcalCondHeader& header,
 	      << endl;
     uint32_t rawid = (*it).rawId();
     DOMElement* cellnode = 
-      root->getOwnerDocument()->createElement( fromNative(Cell_tag).c_str());
+      root->getOwnerDocument()->createElement( cms::xerces::uStr(Cell_tag.c_str()).ptr());
     root->appendChild(cellnode);  
-    cellnode->setAttribute(fromNative(subdet_tag).c_str(),
-    			   fromNative(subdet.str()).c_str());
+    cellnode->setAttribute( cms::xerces::uStr(subdet_tag.c_str()).ptr(),
+			    cms::xerces::uStr(subdet.str().c_str()).ptr());
     xuti::WriteNodeWithValue(cellnode, id_tag, rawid);
     xuti::WriteNodeWithValue(cellnode, x_tag, (*it).translation().x());
     xuti::WriteNodeWithValue(cellnode, y_tag, (*it).translation().y());
@@ -119,7 +123,7 @@ string EcalAlignmentXMLTranslator::dumpXML(const EcalCondHeader& header,
     xuti::WriteNodeWithValue(cellnode, Psi_tag, (*it).rotation().getPsi());
   }
 
-  std::string dump = toNative( writer->writeToString( root ));
+  std::string dump = cms::xerces::toString( writer->writeToString( root ));
   doc->release();
   doctype->release();
   writer->release();
