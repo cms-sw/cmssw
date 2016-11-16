@@ -111,7 +111,19 @@ DeepNNTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
 		reco::TaggingVariableList vars = computer_(ipInfo, svTagInfo);
 		std::vector<float> tagValList = vars.getList(reco::btau::trackEtaRel,false);
 		vars.insert(reco::btau::jetNTracksEtaRel, tagValList.size());
+		tagValList = vars.getList(reco::btau::trackSip2dSig,false);
+		vars.insert(reco::btau::jetNSelectedTracks, tagValList.size()); 
 		vars.finalize(); //fix the TaggingVariableList, nothing should be added/removed
+
+		//Things that are bugs but on the altar of backward 
+		//compatibility are sacrificed and become features
+
+		//If not SV found set it to 0, not to non-existent
+		if(!vars.checkTag(reco::btau::jetNSecondaryVertices))
+			vars.insert(reco::btau::jetNSecondaryVertices, 0);
+		if(!vars.checkTag(reco::btau::vertexNTracks))
+			vars.insert(reco::btau::vertexNTracks, 0);
+
 		tagInfos->emplace_back(
 			vars, 
 			svTagInfo.jet()
