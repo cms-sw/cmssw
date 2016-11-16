@@ -13,15 +13,9 @@ workflows = Matrix()
 
 #just define all of them
 
-numWFStart={
-    2017: 10000,
-    2023: 20000,
-}
-numWFSkip=200
-
 for year in upgradeKeys:
     for i,key in enumerate(upgradeKeys[year]):
-        numWF=numWFStart[year]+i*numWFSkip
+        numWF=numWFAll[year][i]
         for frag in upgradeFragments:
             k=frag[:-4]+'_'+key
             stepList=[]
