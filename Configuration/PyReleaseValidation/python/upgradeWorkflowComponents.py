@@ -34,6 +34,27 @@ upgradeKeys[2023] = [
     '2023D6PU'
 ]
 
+# pre-generation of WF numbers
+numWFStart={
+    2017: 10000,
+    2023: 20000,
+}
+numWFSkip=200
+numWFConflict = [[25000,26000],[50000,51000]]
+numWFAll={
+    2017: [numWFStart[2017]],
+    2023: [numWFStart[2023]]
+}
+
+for year in upgradeKeys:
+    for i in range(1,len(upgradeKeys[year])):
+        numWFtmp = numWFAll[year][i-1] + numWFSkip
+        for conflict in numWFConflict:
+            if numWFtmp>=conflict[0] and numWFtmp<conflict[1]:
+                numWFtmp = conflict[1]
+                break
+        numWFAll[year].append(numWFtmp)
+
 upgradeSteps=[
     'GenSimFull',
     'GenSimHLBeamSpotFull',
