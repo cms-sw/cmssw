@@ -6,7 +6,6 @@ def producers_by_type(process, *types):
     
 def customizeHLTForPFTrackingPhaseI2017(process):
 
-
 	process.hltPixelLayerTriplets.layerList = cms.vstring(
 	    'BPix1+BPix2+BPix3',
 	    'BPix2+BPix3+BPix4',
@@ -275,7 +274,6 @@ def customizeHLTForPFTrackingPhaseI2017(process):
 	
 	process.HLTIterativeTrackingIteration2 = cms.Sequence( process.hltIter2ClustersRefRemoval + process.hltIter2MaskedMeasurementTrackerEvent + process.hltIter2PixelLayerTriplets + process.hltIter2PFlowPixelSeeds + process.hltIter2PFlowCkfTrackCandidates + process.hltIter2PFlowCtfWithMaterialTracks + process.hltIter2PFlowTrackCutClassifier + process.hltIter2PFlowTrackSelectionHighPurity )
 
-
 	for seqName in process.sequences:
 		seq = getattr(process,seqName)
 		from FWCore.ParameterSet.SequenceTypes import ModuleNodeVisitor
@@ -286,9 +284,6 @@ def customizeHLTForPFTrackingPhaseI2017(process):
 			seq.remove(process.hltPixelLayerTriplets)
 			index = seq.index(process.hltPixelTracks)
 			seq.insert(index,process.hltPixelLayerQuadruplets)
-	
-	from RecoTracker.Configuration.customiseForQuadrupletsByCellularAutomaton import customiseForQuadrupletsByCellularAutomaton
-	process = customiseForQuadrupletsByCellularAutomaton(process)
-
-
+	from RecoTracker.Configuration.customiseForQuadrupletsHLTPixelTracksByCellularAutomaton import customiseForQuadrupletsHLTPixelTracksByCellularAutomaton
+	process = customiseForQuadrupletsHLTPixelTracksByCellularAutomaton(process)
 	return process
