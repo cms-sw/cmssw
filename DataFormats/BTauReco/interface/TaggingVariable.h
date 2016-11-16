@@ -35,8 +35,10 @@ namespace reco {
       jetPt,                                    // jet transverse momentum
       trackJetPt,                               // track-based jet transverse momentum
       jetEta,                                   // jet pseudorapidity
+      jetAbsEta,                                // jet pseudorapidity
       jetPhi,                                   // jet polar angle
       jetNTracks,                               // tracks associated to jet
+      jetNSelectedTracks,                       // tracks associated to jet
 			jetNTracksEtaRel,                         // number of tracks for which etaRel is computed
 
       trackMomentum,                            // track momentum
