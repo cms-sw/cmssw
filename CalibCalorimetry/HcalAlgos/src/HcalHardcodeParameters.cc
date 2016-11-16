@@ -2,7 +2,7 @@
 
 HcalHardcodeParameters::HcalHardcodeParameters(double pedestal, double pedestalWidth, std::vector<double> gain, std::vector<double> gainWidth, 
 											   int qieType, std::vector<double> qieOffset, std::vector<double> qieSlope, int mcShape, int recoShape,
-											   double photoelectronsToAnalog, double darkCurrent)
+											   double photoelectronsToAnalog, std::vector<double> darkCurrent)
 :	pedestal_(pedestal),
 	pedestalWidth_(pedestalWidth),
 	gain_(gain),
@@ -28,6 +28,6 @@ HcalHardcodeParameters::HcalHardcodeParameters(const edm::ParameterSet & p)
 	mcShape_(p.getParameter<int>("mcShape")),
 	recoShape_(p.getParameter<int>("recoShape")),
 	photoelectronsToAnalog_(p.getParameter<double>("photoelectronsToAnalog")),
-	darkCurrent_(p.getParameter<double>("darkCurrent"))
+	darkCurrent_(p.getParameter<std::vector<double>>("darkCurrent"))
 {
 }
