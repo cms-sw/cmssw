@@ -179,33 +179,32 @@ DeepFlavourJetTagsProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
 	for(auto& info : *(taginfos)) {
 		//convert the taginfo into the value map in the appropriate way
 		TaggingVariableList vars = info.taggingVariables();
-		bool anyinfo = false; //used for setting to -1 in case a jet does not contain any tagInfo (track selection!)
-		for(auto& var : variables_) {
-			bool present = false;
-			if(var.index >= 0){
-				std::vector<float> vals = vars.getList(var.id, false);
-				inputs_[var.name] = (((int) vals.size()) > var.index) ? vals.at(var.index) : var.default_value;
-				present = (((int) vals.size()) > var.index);
-			}
-			//single value tagging var
-			else {
-				inputs_[var.name] = vars.get(var.id, var.default_value);
-				present = vars.checkTag(var.id);
-			}
-			anyinfo |= present;
-			//std::cout << var.name << " = " << inputs_[var.name] << " ("<< present << ") -->" << std::endl;
-		}
+    //if there are no tracks there's no point in doing it
+		bool notracks = (vars.get(reco::btau::jetNSelectedTracks) == 0); 
+		lwt::ValueMap nnout; //returned value
 
-		//compute NN output(s)
-		auto nnout = neural_network_->compute(inputs_);
+		if(!notracks) {
+			for(auto& var : variables_) {
+				if(var.index >= 0){
+					std::vector<float> vals = vars.getList(var.id, false);
+					inputs_[var.name] = (((int) vals.size()) > var.index) ? vals.at(var.index) : var.default_value;
+				}
+				//single value tagging var
+				else {
+					inputs_[var.name] = vars.get(var.id, var.default_value);
+				}
+			}
+
+			//compute NN output(s)
+			nnout = neural_network_->compute(inputs_);
+		}
 
 		//ket the maps key
 		edm::RefToBase<Jet> key = info.jet();
 		
 		//dump the NN output(s)
 		for(size_t i=0; i<outputs_.size(); ++i) {
-			(*output_tags[i])[key] = (anyinfo) ? nnout[outputs_[i]] : -1;
-			//std::cout << "--> " << outputs_[i] << " = " << nnout[outputs_[i]] << std::endl;
+			(*output_tags[i])[key] = (notracks) ? -1 : nnout[outputs_[i]];
 		}
 	}
 
