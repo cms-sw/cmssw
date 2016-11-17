@@ -112,7 +112,8 @@ void HGCalTrackCollectionProducer::beginLuminosityBlock(const edm::LuminosityBlo
     const HGCalDDDConstants &dddCons=hgcGeometries_[i]->topology().dddConstants();
     std::map<float,float> zrhoCoord;
     std::map<float,float> innerRadiusCoord;
-    const auto& firstLayerIt = dddCons.getTrForms().back();
+    auto theTrForms = dddCons.getTrForms();
+    const auto& firstLayerIt = theTrForms.back();
     float Z(std::abs(firstLayerIt.h3v.z()));
     // use hardcoded radii for now (FIX ME)
     diskInnerRadius_ = 31.5;
