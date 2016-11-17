@@ -21,7 +21,7 @@
 #include "FWCore/ServiceRegistry/interface/ModuleCallingContext.h"
 #include "FWCore/ServiceRegistry/interface/SystemBounds.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
-#include "FWCore/Utilities/interface/Column.h"
+#include "FWCore/Utilities/interface/OStreamColumn.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
 #include "tbb/concurrent_unordered_map.h"
@@ -54,6 +54,7 @@ namespace {
     // c'tor receiving 'std::string const&' type not provided since we
     // must be able to call (e.g.) std::vector<StallStatistics>(20),
     // for which a default label is not sensible in this context.
+    StallStatistics() = default;
 
     std::string const& label() const { return label_; }
     unsigned numberOfStalls() const { return stallCounter_; }
@@ -73,7 +74,7 @@ namespace {
       auto const thisTime = ms.count();
       totalTime_ += thisTime;
       rep_t max {maxTime_};
-      while (thisTime > max && !maxTime_.compare_exchange_weak(max, thisTime)) {}
+      while (thisTime > max && !maxTime_.compare_exchange_strong(max, thisTime));
     }
 
   private:
@@ -148,7 +149,7 @@ namespace edm {
       void postEndJob();
 
       ThreadSafeOutputFileStream file_;
-      bool validFile_; // Separate data member from file to improve efficiency.
+      bool const validFile_; // Separate data member from file to improve efficiency.
       std::chrono::milliseconds const stallThreshold_;
       decltype(now()) beginTime_ {};
 
@@ -185,15 +186,17 @@ StallMonitor::StallMonitor(ParameterSet const& iPS, ActivityRegistry& iRegistry)
   iRegistry.watchPreModuleConstruction(this, &StallMonitor::preModuleConstruction);
   iRegistry.watchPostBeginJob(this, &StallMonitor::postBeginJob);
   iRegistry.watchPostModuleEventPrefetching(this, &StallMonitor::postModuleEventPrefetching);
-  iRegistry.watchPreEvent(this, &StallMonitor::preEvent);
   iRegistry.watchPreModuleEvent(this, &StallMonitor::preModuleEvent);
-  iRegistry.watchPreEventReadFromSource(this, &StallMonitor::preEventReadFromSource);
-  iRegistry.watchPostEventReadFromSource(this, &StallMonitor::postEventReadFromSource);
-  iRegistry.watchPostModuleEvent(this, &StallMonitor::postModuleEvent);
-  iRegistry.watchPostEvent(this, &StallMonitor::postEvent);
   iRegistry.watchPostEndJob(this, &StallMonitor::postEndJob);
 
   if (validFile_) {
+    // Only enable the following callbacks if writing to a file.
+    iRegistry.watchPreEvent(this, &StallMonitor::preEvent);
+    iRegistry.watchPreEventReadFromSource(this, &StallMonitor::preEventReadFromSource);
+    iRegistry.watchPostEventReadFromSource(this, &StallMonitor::postEventReadFromSource);
+    iRegistry.watchPostModuleEvent(this, &StallMonitor::postModuleEvent);
+    iRegistry.watchPostEvent(this, &StallMonitor::postEvent);
+
     std::ostringstream oss;
     oss << "# Step                       Symbol Entries\n"
         << "# -------------------------- ------ ------------------------------------------\n"
@@ -258,7 +261,7 @@ void StallMonitor::postBeginJob()
   if (validFile_) {
     std::size_t const width {std::to_string(moduleLabels_.size()).size()};
 
-    Column col0 {"Module ID", width};
+    OStreamColumn col0 {"Module ID", width};
     std::string const lastCol {"Module label"};
 
     std::ostringstream oss;
@@ -274,13 +277,15 @@ void StallMonitor::postBeginJob()
     oss << '\n';
     file_.write(oss.str());
   }
+  // Don't need the labels anymore--info. is now part of the
+  // module-statistics objects.
+  moduleLabels_.clear();
 
   beginTime_ = now();
 }
 
 void StallMonitor::preEvent(StreamContext const& sc)
 {
-  if (!validFile_) return;
   auto const t = duration_cast<milliseconds>(now()-beginTime_).count();
   auto const& eid = sc.eventID();
   auto msg = assembleMessage<step::preEvent>(stream_id(sc), eid.run(), eid.luminosityBlock(), eid.event(), t);
@@ -293,10 +298,11 @@ void StallMonitor::postModuleEventPrefetching(StreamContext const& sc, ModuleCal
   auto const mid = module_id(mcc);
   auto start = stallStart_[std::make_pair(sid,mid)] = now();
 
-  if (!validFile_) return;
-  auto const t = duration_cast<milliseconds>(start-beginTime_).count();
-  auto msg = assembleMessage<step::postModuleEventPrefetching>(sid, mid, t);
-  file_.write(std::move(msg));
+  if (validFile_) {
+    auto const t = duration_cast<milliseconds>(start-beginTime_).count();
+    auto msg = assembleMessage<step::postModuleEventPrefetching>(sid, mid, t);
+    file_.write(std::move(msg));
+  }
 }
 
 void StallMonitor::preModuleEvent(StreamContext const& sc, ModuleCallingContext const& mcc)
@@ -304,7 +310,7 @@ void StallMonitor::preModuleEvent(StreamContext const& sc, ModuleCallingContext 
   auto const preModEvent = now();
   auto const sid = stream_id(sc);
   auto const mid = module_id(mcc);
-  if (file_) {
+  if (validFile_) {
     auto msg = assembleMessage<step::preModuleEvent>(sid, mid, duration_cast<milliseconds>(preModEvent-beginTime_).count());
     file_.write(std::move(msg));
   }
@@ -316,7 +322,6 @@ void StallMonitor::preModuleEvent(StreamContext const& sc, ModuleCallingContext 
 
 void StallMonitor::preEventReadFromSource(StreamContext const& sc, ModuleCallingContext const& mcc)
 {
-  if (!validFile_) return;
   auto const t = duration_cast<milliseconds>(now()-beginTime_).count();
   auto msg = assembleMessage<step::preEventReadFromSource>(stream_id(sc), module_id(mcc), t);
   file_.write(std::move(msg));
@@ -324,7 +329,6 @@ void StallMonitor::preEventReadFromSource(StreamContext const& sc, ModuleCalling
 
 void StallMonitor::postEventReadFromSource(StreamContext const& sc, ModuleCallingContext const& mcc)
 {
-  if (!validFile_) return;
   auto const t = duration_cast<milliseconds>(now()-beginTime_).count();
   auto msg = assembleMessage<step::postEventReadFromSource>(stream_id(sc), module_id(mcc), t);
   file_.write(std::move(msg));
@@ -332,7 +336,6 @@ void StallMonitor::postEventReadFromSource(StreamContext const& sc, ModuleCallin
 
 void StallMonitor::postModuleEvent(StreamContext const& sc, ModuleCallingContext const& mcc)
 {
-  if (!validFile_) return;
   auto const postModEvent = duration_cast<milliseconds>(now()-beginTime_).count();
   auto msg = assembleMessage<step::postModuleEvent>(stream_id(sc), module_id(mcc), postModEvent);
   file_.write(std::move(msg));
@@ -340,7 +343,6 @@ void StallMonitor::postModuleEvent(StreamContext const& sc, ModuleCallingContext
 
 void StallMonitor::postEvent(StreamContext const& sc)
 {
-  if (!validFile_) return;
   auto const t = duration_cast<milliseconds>(now()-beginTime_).count();
   auto const& eid = sc.eventID();
   auto msg = assembleMessage<step::postEvent>(stream_id(sc), eid.run(), eid.luminosityBlock(), eid.event(), t);
@@ -356,11 +358,11 @@ void StallMonitor::postEndJob()
       width = std::max(width, stats.label().size());
     });
 
-  Column tag {"StallMonitor>"};
-  Column col1 {"Module label", width};
-  Column col2 {"# of stalls"};
-  Column col3 {"Total stalled time"};
-  Column col4 {"Max stalled time"};
+  OStreamColumn tag {"StallMonitor>"};
+  OStreamColumn col1 {"Module label", width};
+  OStreamColumn col2 {"# of stalls"};
+  OStreamColumn col3 {"Total stalled time"};
+  OStreamColumn col4 {"Max stalled time"};
 
   LogAbsolute out {"StallMonitor"};
   out << '\n';

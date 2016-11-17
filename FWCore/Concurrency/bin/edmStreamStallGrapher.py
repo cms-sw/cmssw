@@ -79,12 +79,14 @@ def readLogFile(fileName):
             numStreams = stream
 
         if not foundEventToStartFrom:
-            # Event number is second from the event for the 'E' step
+            # Event number is second from the end for the 'E' step
             if step == 'E' and payload[-2] == '5':
                 foundEventToStartFrom = True
                 processingSteps.append((kFinishInit,kFinished,stream,time))
                 continue
 
+        # 'E' = begin of event processing
+        # 'e' = end of event processing
         if step == 'E' or step == 'e':
             name = kSourceFindEvent
             trans = kStarted
