@@ -13,15 +13,9 @@ workflows = Matrix()
 
 #just define all of them
 
-numWFStart={
-    2017: 10000,
-    2023: 20000,
-}
-numWFSkip=200
-
 for year in upgradeKeys:
     for i,key in enumerate(upgradeKeys[year]):
-        numWF=numWFStart[year]+i*numWFSkip
+        numWF=numWFAll[year][i]
         for frag in upgradeFragments:
             k=frag[:-4]+'_'+key
             stepList=[]
@@ -35,7 +29,7 @@ for year in upgradeKeys:
             workflows[numWF] = [ upgradeDatasetFromFragment[frag], stepList]
 
             # special workflows for tracker
-            if upgradeDatasetFromFragment[frag]=="TTbar_13" and not 'PU' in key:
+            if (upgradeDatasetFromFragment[frag]=="TTbar_13" or upgradeDatasetFromFragment[frag]=="TTbar_14TeV") and not 'PU' in key:
                 stepListTk=[]
                 hasHarvest = False
                 for step in upgradeProperties[year][key]['ScenToRun']:
