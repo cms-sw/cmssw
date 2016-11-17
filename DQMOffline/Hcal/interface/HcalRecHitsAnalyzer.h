@@ -192,12 +192,14 @@ class HcalRecHitsAnalyzer : public DQMEDAnalyzer {
   MonitorElement* meTE_High_HB;
   MonitorElement* meTEprofileHB_Low;
   MonitorElement* meTEprofileHB;
+  MonitorElement* meLog10Chi2profileHB;
   MonitorElement* meTEprofileHB_High;
 
   MonitorElement* meTE_Low_HE;
   MonitorElement* meTE_HE;
   MonitorElement* meTEprofileHE_Low;
   MonitorElement* meTEprofileHE;
+  MonitorElement* meLog10Chi2profileHE;
 
   MonitorElement* meTE_HO;
   MonitorElement* meTE_High_HO;

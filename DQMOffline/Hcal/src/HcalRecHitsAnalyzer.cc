@@ -306,8 +306,8 @@ HcalRecHitsAnalyzer::HcalRecHitsAnalyzer(edm::ParameterSet const& conf) {
       sprintf (histo, "HcalRecHitTask_energy_of_rechits_M3vM2_HB" ) ;
       meRecHitsEnergyM3vM2HB = ibooker.book2D(histo, histo, 42 , -10. , 200., 42, -10., 200.); 
       
-      sprintf (histo, "HcalRecHitTask_M2Chi2_of_rechits_HB" ) ;
-      meRecHitsM2Chi2HB = ibooker.book1D(histo, histo, 200 , -10. , 10.); 
+      sprintf (histo, "HcalRecHitTask_M2Log10Chi2_of_rechits_HB" ) ;
+      meRecHitsM2Chi2HB = ibooker.book1D(histo, histo, 120 , -2. , 10.); 
       
       sprintf (histo, "HcalRecHitTask_timing_HB" ) ;
       meTimeHB = ibooker.book1D(histo, histo, 70, -48., 92.); 
@@ -327,6 +327,9 @@ HcalRecHitsAnalyzer::HcalRecHitsAnalyzer(edm::ParameterSet const& conf) {
 
       sprintf (histo, "HcalRecHitTask_timing_vs_energy_profile_HB" ) ;
       meTEprofileHB = ibooker.bookProfile(histo, histo, 150, -5., 295., 70, -48., 92., " "); 
+
+      sprintf (histo, "HcalRecHitTask_Log10Chi2_vs_energy_profile_HB" ) ;
+      meLog10Chi2profileHB = ibooker.bookProfile(histo, histo, 150, -5., 295., 120, -2., 10., " "); 
 
       sprintf (histo, "HcalRecHitTask_timing_vs_energy_profile_High_HB" ) ;
       meTEprofileHB_High = ibooker.bookProfile(histo, histo, 150, -5., 2995., 70, -48., 92., " "); 
@@ -359,8 +362,8 @@ HcalRecHitsAnalyzer::HcalRecHitsAnalyzer(edm::ParameterSet const& conf) {
       sprintf (histo, "HcalRecHitTask_energy_of_rechits_M2vM0_HE" ) ;
       meRecHitsEnergyM3vM2HE = ibooker.book2D(histo, histo, 42 , -10. , 200., 42, -10., 200.); 
       
-      sprintf (histo, "HcalRecHitTask_M2Chi2_of_rechits_HE" ) ;
-      meRecHitsM2Chi2HE = ibooker.book1D(histo, histo, 200 , -10. , 10.); 
+      sprintf (histo, "HcalRecHitTask_M2Log10Chi2_of_rechits_HE" ) ;
+      meRecHitsM2Chi2HE = ibooker.book1D(histo, histo, 120 , -2. , 10.); 
       
       sprintf (histo, "HcalRecHitTask_timing_HE" ) ;
       meTimeHE = ibooker.book1D(histo, histo, 70, -48., 92.); 
@@ -377,6 +380,10 @@ HcalRecHitsAnalyzer::HcalRecHitsAnalyzer(edm::ParameterSet const& conf) {
       sprintf (histo, "HcalRecHitTask_timing_vs_energy_profile_HE" ) ;
       meTEprofileHE = ibooker.bookProfile(histo, histo, 200, -5., 395., 70, -48., 92., " "); 
       
+      sprintf (histo, "HcalRecHitTask_Log10Chi2_vs_energy_profile_HE" ) ;
+      meLog10Chi2profileHE = ibooker.bookProfile(histo, histo, 200, -5., 395., 120, -2., 10., " "); 
+      
+
     }
 
     // ************** HO ****************************************
@@ -744,6 +751,7 @@ void HcalRecHitsAnalyzer::analyze(edm::Event const& ev, edm::EventSetup const& c
         meRecHitsEnergyM3vM2HB->Fill(en,enM3);
 
         meRecHitsM2Chi2HB->Fill(log10(chi2));
+        meLog10Chi2profileHB->Fill(en,log10(chi2));
 	
 	meTE_Low_HB->Fill( en, t);
 	meTE_HB->Fill( en, t);
@@ -763,7 +771,8 @@ void HcalRecHitsAnalyzer::analyze(edm::Event const& ev, edm::EventSetup const& c
         meRecHitsEnergyM3vM2HE->Fill(en,enM3);
 
         meRecHitsM2Chi2HE->Fill(log10(chi2));
-	
+        meLog10Chi2profileHE->Fill(en,log10(chi2));	
+
 	meTE_Low_HE->Fill( en, t);
 	meTE_HE->Fill( en, t);
 	meTEprofileHE_Low->Fill(en, t);
