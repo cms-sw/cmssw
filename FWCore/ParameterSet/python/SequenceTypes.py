@@ -799,6 +799,7 @@ class ExpandVisitor(object):
         for n in self.taskLeaves:
             if n is not None:
                 returnValue += sep+str(n)
+            sep = ','
         return returnValue
 
     
