@@ -90,7 +90,6 @@ void HLTScoutingMuonProducer::produce(edm::StreamID sid, edm::Event & iEvent,
     Handle<reco::VertexCollection> vertexCollection;
     if(iEvent.getByToken(vertexCollection_, vertexCollection)){
       for(auto &vtx : *vertexCollection){
-	if ( !vtx.isValid() ) continue ;
 	outVertices->emplace_back(
 				  vtx.x(), vtx.y(), vtx.z(), vtx.zError(), vtx.xError(), vtx.yError(), vtx.tracksSize(), vtx.chi2(), vtx.ndof()
 				  );
