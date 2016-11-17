@@ -1,21 +1,21 @@
-#ifndef FWCore_Utilities_interface_Column_h
-#define FWCore_Utilities_interface_Column_h
+#ifndef FWCore_Utilities_interface_OStreamColumn_h
+#define FWCore_Utilities_interface_OStreamColumn_h
 
 // -*- C++ -*-
 //
 // Package:     Utilities
-// Class  :     Column
+// Class  :     OStreamColumn
 //
-/**\class Column Column.h "FWCore/Utilities/interface/Column.h"
+/**\class OStreamColumn OStreamColumn.h "FWCore/Utilities/interface/OStreamColumn.h"
 
  Description: Helper/IO manipulator for forming columns used in tabular output.
 
  Usage:
 
- A Column object can be defined in two ways:
+ An OStreamColumn object can be defined in two ways:
  \code
- edm::Column col1 {"FirstNames"}; // Default width is size of the string "FirstNames"
- edm::Column col2 {"LastNames", 30}; // Width is explicitly specifed as 30.
+ edm::OStreamColumn col1 {"FirstNames"}; // Default width is size of the string "FirstNames"
+ edm::OStreamColumn col2 {"LastNames", 30}; // Width is explicitly specifed as 30.
  \endcode
 
  After created the column objects we, one can use them with anything
@@ -42,23 +42,23 @@
 
 namespace edm {
 
-  class Column;
+  class OStreamColumn;
 
   template <typename T>
-  struct ColumnEntry {
-    Column const& col;
+  struct OStreamColumnEntry {
+    OStreamColumn const& col;
     T t;
   };
 
-  class Column {
+  class OStreamColumn {
   public:
-    explicit Column(std::string const& t);
-    explicit Column(std::string const& t, std::size_t const w);
+    explicit OStreamColumn(std::string const& t);
+    explicit OStreamColumn(std::string const& t, std::size_t const w);
 
     template <typename T>
     auto operator()(T const& t) const
     {
-      return ColumnEntry<T>{*this, t};
+      return OStreamColumnEntry<T>{*this, t};
     }
 
     std::size_t width() const { return width_; }
@@ -67,22 +67,16 @@ namespace edm {
     std::string title_;
     std::size_t width_;
 
-    template <typename T>
-    friend T& operator<<(T&, Column const&);
+    friend std::ostream& operator<<(std::ostream&, OStreamColumn const&);
 
-    template <typename T, typename E>
-    friend T& operator<<(T&, ColumnEntry<E> const&);
+    template <typename E>
+    friend std::ostream& operator<<(std::ostream&, OStreamColumnEntry<E> const&);
   };
 
-  template <typename T>
-  T& operator<<(T& t, Column const& c)
-  {
-    t << std::setw(c.width_) << c.title_;
-    return t;
-  }
+  std::ostream& operator<<(std::ostream& t, OStreamColumn const& c);
 
-  template <typename T, typename E>
-  T& operator<<(T& t, ColumnEntry<E> const& ce)
+  template <typename E>
+  std::ostream& operator<<(std::ostream& t, OStreamColumnEntry<E> const& ce)
   {
     t << std::setw(ce.col.width_) << ce.t;
     return t;
