@@ -12,7 +12,7 @@
   </class>
   <class name="ScoutingVertex" ClassVersion="3">
       <version ClassVersion="2"  checksum="2969738609"/>
-      <version ClassVersion="3" checksum="4204224944"/>
+      <version ClassVersion="3" checksum="4008726838"/>
   </class>
   <class name="ScoutingElectron" ClassVersion="2">
       <version ClassVersion="2" checksum="1190461538"/>

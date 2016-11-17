@@ -91,7 +91,7 @@ void HLTScoutingMuonProducer::produce(edm::StreamID sid, edm::Event & iEvent,
     if(iEvent.getByToken(vertexCollection_, vertexCollection)){
       for(auto &vtx : *vertexCollection){
 	outVertices->emplace_back(
-				  vtx.x(), vtx.y(), vtx.z(), vtx.zError(), vtx.xError(), vtx.yError(), vtx.tracksSize(), vtx.chi2(), vtx.ndof()
+				  vtx.x(), vtx.y(), vtx.z(), vtx.zError(), vtx.xError(), vtx.yError(), vtx.tracksSize(), vtx.chi2(), vtx.ndof(), vtx.isValid()
 				  );
       }
     }
@@ -129,7 +129,7 @@ void HLTScoutingMuonProducer::produce(edm::StreamID sid, edm::Event & iEvent,
 				   dispvtx.x(), dispvtx.y(), dispvtx.z(), 
 				   dispvtx.zError(), dispvtx.xError(), 
 				   dispvtx.yError(), dispvtx.tracksSize(), 
-				   dispvtx.chi2(), dispvtx.ndof()
+				   dispvtx.chi2(), dispvtx.ndof(), dispvtx.isValid()
 				   );
 	
       }
