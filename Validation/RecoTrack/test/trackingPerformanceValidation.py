@@ -9,13 +9,28 @@ import Validation.RecoVertex.plotting.vertexPlots as vertexPlots
 ########### User Defined Variables (BEGIN) ##############
 
 ### Reference release
-RefRelease='CMSSW_8_1_0_pre12'
+RefRelease='CMSSW_9_3_0_pre1_phase1'
 
 ### Relval release (set if different from $CMSSW_VERSION)
-NewRelease='CMSSW_8_1_0_pre15'
+NewRelease='CMSSW_9_3_0_pre2_phase1'
 
 ### This is the list of IDEAL-conditions relvals 
-startupsamples= [
+startupsamples_run1 = [
+    Sample('RelValMinBias'),
+    Sample('RelValTTbar', version="v2"),
+    Sample('RelValQCD_Pt_600_800'),
+    Sample('RelValQCD_Pt_3000_3500'),
+    Sample('RelValQCD_FlatPt_15_3000', append="HS"),
+    Sample('RelValZMM'),
+    Sample('RelValWjet_Pt_3000_3500'),
+    Sample('RelValH130GGgluonfusion'),
+    Sample('RelValSingleElectronPt35'),
+    Sample('RelValSingleElectronPt10'),
+    Sample('RelValSingleMuPt10'),
+    Sample('RelValSingleMuPt100')
+]
+
+common = [
     Sample('RelValMinBias', midfix="13"),
     Sample('RelValTTbar', midfix="13"),
     Sample('RelValQCD_Pt_600_800', midfix="13"),
@@ -24,11 +39,19 @@ startupsamples= [
     Sample('RelValZMM', midfix="13"),
     Sample('RelValWjet_Pt_3000_3500', midfix="13"),
     Sample('RelValH125GGgluonfusion', midfix="13"),
+]
+
+startupsamples = common + [
     Sample('RelValSingleElectronPt35', midfix="UP15"),
     Sample('RelValSingleElectronPt10', midfix="UP15"),
     Sample('RelValSingleMuPt10', midfix="UP15"),
     Sample('RelValSingleMuPt100', midfix="UP15")
 ]
+if "CMSSW_9_1" in NewRelease or "CMSSW_9_2" in NewRelease or "CMSSW_9_3" in NewRelease:
+    startupsamples = [] # no phase0 in 91X
+#startupsamples = []
+#startupsamples = startupsamples_run1
+
 
 def putype(t):
     if "_pmx" in NewRelease:
@@ -43,21 +66,18 @@ pileupstartupsamples = [
     Sample('RelValZMM', putype=putype("25ns"), punum=35, midfix="13"),
 #    Sample('RelValZMM', putype=putype("50ns"), punum=35, midfix="13")
 ]
+#pileupstartupsamples = []
+if "phase1" not in NewRelease and ("CMSSW_9_2" in NewRelease or "CMSSW_9_3" in NewRelease):
+    pileupstartupsamples = []
 
-phase1samples = [
-    Sample('RelValMinBias', midfix="13"),
-    Sample("RelValTTbar", midfix="13"),
-    Sample('RelValQCD_Pt_600_800', midfix="13"),
-    Sample('RelValZMM', midfix="13"),
-    Sample('RelValH125GGgluonfusion', midfix="13"),
-    Sample('RelValTenMuE_0_200'),
+phase1samples = common + [
     Sample('RelValSingleElectronPt35'),
     Sample('RelValSingleElectronPt10'),
     Sample("RelValSingleMuPt1"),
     Sample("RelValSingleMuPt10"),
     Sample("RelValSingleMuPt100"),
-    Sample("RelValTTbar", midfix="13", putype=putype("25ns"), punum=35),
-    Sample("RelValZMM", midfix="13", putype=putype("25ns"), punum=35),
+]
+phase1samples_design = [
     # Design
     Sample('RelValMinBias', midfix="13", scenario="Design"),
     Sample("RelValTTbar", midfix="13", scenario="Design"),
@@ -66,6 +86,12 @@ phase1samples = [
     Sample("RelValSingleMuPt100", scenario="Design"),
     Sample("RelValTTbar", midfix="13", scenario="Design", putype=putype("25ns"), punum=35),
 ]
+phase1samples.extend(pileupstartupsamples)
+phase1samples.extend([
+    Sample('RelValTTbar', putype=putype("25ns"), punum=50, midfix="13"),
+])
+if "_phase1" in RefRelease:
+    phase1samples.extend(phase1samples_design)
 
 phase2samples = [
     Sample("RelValMinBias", midfix="TuneZ2star_14TeV", scenario="2023GReco"),
@@ -108,6 +134,7 @@ doPhase2PU = False
 if "_pmx" in NewRelease:
     startupsamples = []
     fastsimstartupsamples = []
+    phase1samples = pileupstartupsamples
     doFastVsFull = False
     if not NewRelease in validation._globalTags:
         validation._globalTags[NewRelease] = validation._globalTags[NewRelease.replace("_pmx", "")]
@@ -179,7 +206,7 @@ if "_phase2" in NewRelease or "SLHC" in NewRelease:
 
 
 ### Reference and new repository
-RefRepository = '/afs/cern.ch/cms/Physics/tracking/validation/MC'
+RefRepository = '/eos/project/c/cmsweb/www/tracking/validation/MC'
 NewRepository = 'new' # copy output into a local folder
 
 # Tracking validation plots
