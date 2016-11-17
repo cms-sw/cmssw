@@ -753,66 +753,56 @@ class Process(object):
             task.visit(visitor)
         except:
             raise RuntimeError("An entry in task " + label + ' has not been attached to the process')
-    def _sequencesInDependencyOrder(self):
-        #for each sequence, see what other sequences it depends upon
+    def _itemsInDependencyOrder(self, processDictionaryOfItems):
+        # The items can be Sequences or Tasks and the input
+        # argument should either be the dictionary of sequences
+        # or the dictionary of tasks from the process.
+
         returnValue=DictTypes.SortedKeysDict()
+
+        # For each item, see what other items it depends upon
+        # For our purpose here, an item depends on the items it contains.
         dependencies = {}
-        for label,seq in self.sequences.iteritems():
-            d = []
-            v = SequenceVisitor(d)
-            seq.visit(v)
-            dependencies[label]=[dep.label_() for dep in d if dep.hasLabel_()]
-        resolvedDependencies=True
-        #keep looping until we can no longer get rid of all dependencies
-        # if that happens it means we have circular dependencies
-        iterCount = 0
-        while resolvedDependencies:
-            iterCount += 1
-            resolvedDependencies = (0 != len(dependencies))
-            oldDeps = dict(dependencies)
-            for label,deps in oldDeps.iteritems():
-                # don't try too hard
-                if len(deps)==0 or iterCount > 100:
-                    iterCount = 0
-                    resolvedDependencies=True
-                    returnValue[label]=self.sequences[label]
-                    #remove this as a dependency for all other sequences
-                    del dependencies[label]
-                    for lb2,deps2 in dependencies.iteritems():
-                        while deps2.count(label):
-                            deps2.remove(label)
-        if len(dependencies):
-            raise RuntimeError("circular sequence dependency discovered \n"+
-                               ",".join([label for label,junk in dependencies.iteritems()]))
-        return returnValue
-    def _tasksInDependencyOrder(self):
-        returnValue=DictTypes.SortedKeysDict()
-        #for each task, see what other tasks it depends upon
-        dependencies = {}
-        for label,task in self.tasks.iteritems():
-            containedTasks = []
-            v = TaskVisitor(containedTasks)
+        for label,item in processDictionaryOfItems.iteritems():
+            containedItems = []
+            if isinstance(item, Task):
+                v = TaskVisitor(containedItems)
+            else:
+                v = SequenceVisitor(containedItems)
             try:
-              task.visit(v)
+                item.visit(v)
             except RuntimeError:
-              raise RuntimeError("Failed in visit with TaskVisitor. Possibly a circular task dependency discovered in Task " + label)
-            for containedTask in containedTasks:
-              # Check for tasks with labels that are not in the process. This should
-              # not normally occur unless someone explicitly assigns a label without
-              # putting a task in the process. We check here because this problem
-              # could cause the code in the 'while' loop below to go into an infinite loop.
-              if containedTask.hasLabel_():
-                testTask = self.tasks.get(containedTask.label_())
-                if testTask is None or containedTask != testTask:
-                  raise RuntimeError("Task with a label, but using label to get task from process yields nonmatching Task \n"+
-                                      "label = " + containedTask.label_())
-            dependencies[label]=[dep.label_() for dep in containedTasks if dep.hasLabel_()]
+                if isinstance(item, Task):
+                    raise RuntimeError("Failed in a Task visitor. Probably " \
+                                       "a circular dependency discovered in Task with label " + label)
+                else:
+                    raise RuntimeError("Failed in a Sequence visitor. Probably a " \
+                                       "circular dependency discovered in Sequence with label " + label)
+            for containedItem in containedItems:
+                # Check for items that both have labels and are not in the process.
+                # This should not normally occur unless someone explicitly assigns a
+                # label without putting the item in the process (which should not ever
+                # be done). We check here because this problem could cause the code
+                # in the 'while' loop below to go into an infinite loop.
+                if containedItem.hasLabel_():
+                    testItem = processDictionaryOfItems.get(containedItem.label_())
+                    if testItem is None or containedItem != testItem:
+                        if isinstance(item, Task):
+                            raise RuntimeError("Task has a label, but using its label to get an attribute" \
+                                               " from the process yields a different object or None\n"+
+                                               "label = " + containedItem.label_())
+                        else:
+                            raise RuntimeError("Sequence has a label, but using its label to get an attribute" \
+                                               " from the process yields a different object or None\n"+
+                                               "label = " + containedItem.label_())
+            dependencies[label]=[dep.label_() for dep in containedItems if dep.hasLabel_()]
+
         # keep looping until we get rid of all dependencies
         while dependencies:
             oldDeps = dict(dependencies)
             for label,deps in oldDeps.iteritems():
                 if len(deps)==0:
-                    returnValue[label]=self.tasks[label]
+                    returnValue[label]=processDictionaryOfItems[label]
                     #remove this as a dependency for all other tasks
                     del dependencies[label]
                     for lb2,deps2 in dependencies.iteritems():
@@ -843,8 +833,8 @@ class Process(object):
         result+=self._dumpPythonList(self.es_producers_(), options)
         result+=self._dumpPythonList(self.es_sources_(), options)
         result+=self._dumpPython(self.es_prefers_(), options)
-        result+=self._dumpPythonList(self._tasksInDependencyOrder(), options)
-        result+=self._dumpPythonList(self._sequencesInDependencyOrder(), options)
+        result+=self._dumpPythonList(self._itemsInDependencyOrder(self.tasks), options)
+        result+=self._dumpPythonList(self._itemsInDependencyOrder(self.sequences), options)
         result+=self._dumpPythonList(self.paths_(), options)
         result+=self._dumpPythonList(self.endpaths_(), options)
         result+=self._dumpPythonList(self.aliases_(), options)
@@ -1754,11 +1744,12 @@ process.schedule = cms.Schedule(*[ process.p2, process.p ])
             p.e = EDProducer("eProducer")
             p.f = EDProducer("fProducer")
             p.g = EDProducer("gProducer")
-            p.task1 = Task(p.b)
-            p.task2 = Task(p.c, p.d)
-            p.task3 = Task(p.e)
-            p.task4 = Task(p.f, p.g)
             p.task5 = Task()
+            p.task3 = Task()
+            p.task2 = Task(p.c, p.task3)
+            p.task4 = Task(p.f, p.task2)
+            p.task1 = Task(p.task5)
+            p.task3.add(p.task1)
             p.p = Path(p.a)
             s = Sequence(p.a)
             p.r = Sequence(s)
@@ -1791,19 +1782,19 @@ process.g = cms.EDProducer("gProducer")
 process.a = cms.EDAnalyzer("MyAnalyzer")
 
 
-process.task1 = cms.Task(process.b)
-
-
-process.task2 = cms.Task(process.c, process.d)
-
-
-process.task3 = cms.Task(process.e)
-
-
-process.task4 = cms.Task(process.f, process.g)
-
-
 process.task5 = cms.Task()
+
+
+process.task1 = cms.Task(process.task5)
+
+
+process.task3 = cms.Task(process.task1)
+
+
+process.task2 = cms.Task(process.c, process.task3)
+
+
+process.task4 = cms.Task(process.f, process.task2)
 
 
 process.r = cms.Sequence((process.a))
@@ -2103,10 +2094,12 @@ process.s2 = cms.Sequence(process.a+(process.a+process.a))
             process.myTask1.add(process.myTask6)
             process.myTask8.add(process.myTask5)
 
-            testDict = process._tasksInDependencyOrder()
+            testDict = process._itemsInDependencyOrder(process.tasks)
+            expectedLabels = ["myTask5", "myTask8", "myTask7", "myTask6", "myTask1"]
             expectedTasks = [process.myTask5, process.myTask8, process.myTask7, process.myTask6, process.myTask1]
             index = 0
             for testLabel, testTask in testDict.items():
+                self.assertTrue(testLabel == expectedLabels[index])
                 self.assertTrue(testTask == expectedTasks[index])
                 index += 1
 
