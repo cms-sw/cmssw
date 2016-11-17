@@ -116,7 +116,7 @@ if checkFile single_neutrino_random.root ; then
     echo "Error generating single neutrino gun, aborting."
     exit 1
   fi
-  if [! -e Images ]; then
+  if [ ! -e Images ]; then
     mkdir Images
   fi
 fi
