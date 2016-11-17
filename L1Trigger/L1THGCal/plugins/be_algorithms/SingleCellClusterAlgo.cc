@@ -21,6 +21,8 @@ class SingleCellClusterAlgo : public Algorithm<FECODEC>
         SingleCellClusterAlgo(const edm::ParameterSet& conf):
             Algorithm<HGCalTriggerCellBestChoiceCodec>(conf),
             cluster_product_( new l1t::HGCalTriggerCellBxCollection ),
+            HGCalEESensitive(conf.getParameter<string>("HGCalEESensitive_tag")),
+            HGCalHESiliconSensitive(conf.getParameter<string>("HGCalHESiliconSensitive_tag")),
             calibration_(conf){}
 
         typedef std::unique_ptr<HGCalTriggerGeometryBase> ReturnType;
@@ -44,11 +46,12 @@ class SingleCellClusterAlgo : public Algorithm<FECODEC>
 
     private:
         
-        edm::ParameterSet geometry_config_;
-        std::string geometry_name_;
         std::unique_ptr<l1t::HGCalTriggerCellBxCollection> cluster_product_;
-        edm::ESHandle<HGCalGeometry> hgceeGeoHandle_;
-        edm::ESHandle<HGCalGeometry> hgchefGeoHandle_;
+        string HGCalEESensitive;
+        string HGCalHESiliconSensitive;
+
+        edm::ESHandle<HGCalTopology> hgceeTopoHandle_;
+        edm::ESHandle<HGCalTopology> hgchefTopoHandle_;
         HGCalTriggerCellCalibration calibration_;    
 
 };
@@ -56,10 +59,10 @@ class SingleCellClusterAlgo : public Algorithm<FECODEC>
 /*****************************************************************/
 void SingleCellClusterAlgo::run(const l1t::HGCFETriggerDigiCollection& coll, const edm::EventSetup& es) 
 /*****************************************************************/
-{
-    HGCalTriggerGeometryBase::es_info info;
-    es.get<IdealGeometryRecord>().get("HGCalEESensitive", info.topo_ee);
-    es.get<IdealGeometryRecord>().get("HGCalHESiliconSensitive", info.topo_fh);
+{ 
+    es.get<IdealGeometryRecord>().get(HGCalEESensitive, hgceeTopoHandle_);
+    es.get<IdealGeometryRecord>().get(HGCalHESiliconSensitive, hgchefTopoHandle_);
+ 
 
     for( const auto& digi : coll ) 
     {
@@ -73,13 +76,13 @@ void SingleCellClusterAlgo::run(const l1t::HGCFETriggerDigiCollection& coll, con
             {
 
                 HGCalDetId detid(triggercell.detId());
-                int subdet =  (ForwardSubdetector)detid.subdetId();
+                int subdet = detid.subdetId();
                 int cellThickness = 0;
 
                 if( subdet == HGCEE ){ 
-                    cellThickness = (info.topo_ee)->dddConstants().waferTypeL((unsigned int)detid.wafer() );
+                    cellThickness = (hgceeTopoHandle_)->dddConstants().waferTypeL((unsigned int)detid.wafer() );
                 }else if( subdet == HGCHEF ){
-                    cellThickness = (info.topo_fh)->dddConstants().waferTypeL((unsigned int)detid.wafer() );
+                    cellThickness = (hgchefTopoHandle_)->dddConstants().waferTypeL((unsigned int)detid.wafer() );
                 }else if( subdet == HGCHEB ){
                     edm::LogWarning("DataNotFound") << "ATTENTION: the BH trgCells are not yet implemented !! ";
                 }

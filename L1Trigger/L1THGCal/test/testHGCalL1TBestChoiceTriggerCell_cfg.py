@@ -24,7 +24,7 @@ process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(5)
+    input = cms.untracked.int32(1)
 )
 
 # Input source
@@ -89,7 +89,7 @@ process.generator = cms.EDProducer("FlatRandomPtGunProducer",
         MaxPhi = cms.double(3.14159265359)
     ),
     Verbosity = cms.untracked.int32(0),
-    psethack = cms.string('single electron pt 100'),
+    psethack = cms.string('single electron pt 50'),
     AddAntiParticle = cms.bool(True),
     firstRun = cms.untracked.uint32(1)
 )

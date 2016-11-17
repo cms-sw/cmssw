@@ -25,7 +25,7 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(25)
+    input = cms.untracked.int32(1)
 )
 
 # Input source
@@ -56,8 +56,7 @@ process.FEVTDEBUGoutput = cms.OutputModule("PoolOutputModule",
         'keep *_genParticles_*_*',
         'keep *_hgcalTriggerPrimitiveDigiProducer_*_*'
     ),
-    #fileName = cms.untracked.string('file:SinglePhoton_Pt100_eta2_14tc.root'),
-    fileName = cms.untracked.string('file:Test_NoTruncationE16bits.root'),
+    fileName = cms.untracked.string('file:test.root'),
     dataset = cms.untracked.PSet(
         filterName = cms.untracked.string(''),
         dataTier = cms.untracked.string('GEN-SIM-DIGI-RAW')
@@ -80,16 +79,16 @@ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc', '')
 
 process.generator = cms.EDProducer("FlatRandomPtGunProducer",
     PGunParameters = cms.PSet(
-        MaxPt = cms.double(49.01),
-        MinPt = cms.double(50.99),
-        PartID = cms.vint32(22),
-        MaxEta = cms.double(2.01),
+        MaxPt = cms.double(50.01),
+        MinPt = cms.double(49.99),
+        PartID = cms.vint32(11),
+        MaxEta = cms.double(3.0),
         MaxPhi = cms.double(3.14159265359),
-        MinEta = cms.double(1.99),
+        MinEta = cms.double(1.5),
         MinPhi = cms.double(-3.14159265359)
     ),
     Verbosity = cms.untracked.int32(0),
-    psethack = cms.string('single photon pt 50'),
+    psethack = cms.string('single electron pt 50'),
     AddAntiParticle = cms.bool(True),
     firstRun = cms.untracked.uint32(1)
 )
@@ -118,6 +117,9 @@ process.hgcalTriggerPrimitiveDigiProducer.BEConfiguration.algorithms[0].calib_pa
 
 cluster_algo_all =  cms.PSet( AlgorithmName = cms.string('SingleCellClusterAlgo'),
                               FECodec = process.hgcalTriggerPrimitiveDigiProducer.FECodec,
+                              HGCalEESensitive_tag = cms.string('HGCalEESensitive'),
+                              HGCalHESiliconSensitive_tag = cms.string('HGCalHESiliconSensitive'),
+                           
                               calib_parameters = process.hgcalTriggerPrimitiveDigiProducer.BEConfiguration.algorithms[0].calib_parameters
                               )
 
