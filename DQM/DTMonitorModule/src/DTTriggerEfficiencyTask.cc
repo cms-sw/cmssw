@@ -122,7 +122,7 @@ void DTTriggerEfficiencyTask::analyze(const edm::Event& e, const edm::EventSetup
 
   nevents++;
 
-  if (!hasRPCTriggers(e)) { return; }
+//  if (!hasRPCTriggers(e)) { return; }
 
   map<DTChamberId,const L1MuDTChambPhDigi*> phBestTM;
   map<DTChamberId,const DTLocalTrigger*>    phBestDDU;
@@ -394,8 +394,3 @@ void DTTriggerEfficiencyTask::bookWheelHistos(DQMStore::IBooker& ibooker,int whe
   return;
 }
 
-
-// Local Variables:
-// show-trailing-whitespace: t
-// truncate-lines: t
-// End:
