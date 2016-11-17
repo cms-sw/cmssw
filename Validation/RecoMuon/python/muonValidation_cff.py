@@ -194,9 +194,9 @@ gemMuonTrackVMuonAssoc.minRapidityTP = -2.4
 gemMuonTrackVMuonAssoc.maxRapidityTP = +2.4
 gemMuonTrackVMuonAssoc.usetracker = True
 gemMuonTrackVMuonAssoc.usemuon = False
-me0MuonTrackVMuonAssoc.min = -2.4
-me0MuonTrackVMuonAssoc.max = +2.4
-me0MuonTrackVMuonAssoc.nint = 48
+gemMuonTrackVMuonAssoc.min = -2.4
+gemMuonTrackVMuonAssoc.max = +2.4
+gemMuonTrackVMuonAssoc.nint = 48
 
 me0MuonTrackVMuonAssoc = Validation.RecoMuon.MuonTrackValidator_cfi.muonTrackValidator.clone()
 me0MuonTrackVMuonAssoc.associatormap = 'tpToME0MuonMuonAssociation'
