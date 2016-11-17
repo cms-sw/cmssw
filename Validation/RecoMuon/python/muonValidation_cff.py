@@ -458,6 +458,7 @@ recoCosmicMuonValidation = cms.Sequence(
 gemMuonValidation = cms.Sequence(extractGemMuonsTracks_seq + tpToGEMMuonMuonAssociation + gemMuonTrackVMuonAssoc)
 me0MuonValidation = cms.Sequence(extractMe0MuonsTracks_seq + tpToME0MuonMuonAssociation + me0MuonTrackVMuonAssoc)
 
+#_run3_muonValidation = muonValidation_seq.copy() #For full validation
 _run3_muonValidation = muonValidation_reduced_seq.copy()
 _run3_muonValidation += gemMuonValidation
 
