@@ -15,7 +15,7 @@
 #include "DataFormats/TrackerRecHit2D/interface/BaseTrackerRecHit.h"
 #include "DataFormats/TrackingRecHit/interface/mayown_ptr.h"
 
-
+namespace edm { class ParameterSetDescription; }
 class FreeTrajectoryState;
 
 class dso_hidden SeedFromConsecutiveHitsCreator : public SeedCreator {
@@ -33,6 +33,9 @@ public:
 
   //dtor
   virtual ~SeedFromConsecutiveHitsCreator();
+
+  static void fillDescriptions(edm::ParameterSetDescription& desc);
+  static const char *fillDescriptionsLabel() { return "ConsecutiveHits"; }
 
   // initialize the "event dependent state"
   virtual void init(const TrackingRegion & region,

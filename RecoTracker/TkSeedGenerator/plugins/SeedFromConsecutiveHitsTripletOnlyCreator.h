@@ -9,6 +9,11 @@ public:
   SeedFromConsecutiveHitsTripletOnlyCreator( const edm::ParameterSet & cfg):
     SeedFromConsecutiveHitsCreator(cfg) { }
 
+  static void fillDescriptions(edm::ParameterSetDescription& desc) {
+    SeedFromConsecutiveHitsCreator::fillDescriptions(desc);
+  }
+  static const char *fillDescriptionsLabel() { return "ConsecutiveHitsTripletOnly"; }
+
   virtual ~SeedFromConsecutiveHitsTripletOnlyCreator(){}
 
 private:

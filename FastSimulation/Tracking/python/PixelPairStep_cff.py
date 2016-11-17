@@ -2,6 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 # import the full tracking equivalent of this file
 import RecoTracker.IterativeTracking.PixelPairStep_cff as _standard
+from FastSimulation.Tracking.SeedingMigration import _regionProducerToFactoryPSet
 
 # fast tracking mask producer
 import FastSimulation.Tracking.FastTrackerRecHitMaskProducer_cfi
@@ -11,7 +12,7 @@ pixelPairStepMasks = FastSimulation.Tracking.FastTrackerRecHitMaskProducer_cfi.m
 import FastSimulation.Tracking.TrajectorySeedProducer_cfi
 pixelPairStepSeeds = FastSimulation.Tracking.TrajectorySeedProducer_cfi.trajectorySeedProducer.clone(
     layerList = _standard.pixelPairStepSeedLayers.layerList.value(),
-    RegionFactoryPSet = _standard.pixelPairStepSeeds.RegionFactoryPSet,
+    RegionFactoryPSet = _regionProducerToFactoryPSet(_standard.pixelPairStepTrackingRegions),
     hitMasks = cms.InputTag("pixelPairStepMasks"),
 )
 pixelPairStepSeeds.RegionFactoryPSet.RegionPSet.VertexCollection = cms.InputTag("firstStepPrimaryVerticesBeforeMixing")

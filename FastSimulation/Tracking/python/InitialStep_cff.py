@@ -2,14 +2,15 @@ import FWCore.ParameterSet.Config as cms
 
 # import the full tracking equivalent of this file
 import RecoTracker.IterativeTracking.InitialStep_cff as _standard
+from FastSimulation.Tracking.SeedingMigration import _regionProducerToFactoryPSet, _hitSetProducerToFactoryPSet
 
 # trajectory seeds
 import FastSimulation.Tracking.TrajectorySeedProducer_cfi
 initialStepSeeds = FastSimulation.Tracking.TrajectorySeedProducer_cfi.trajectorySeedProducer.clone(
     layerList = _standard.initialStepSeedLayers.layerList.value(),
-    RegionFactoryPSet = _standard.initialStepSeeds.RegionFactoryPSet
+    RegionFactoryPSet = _regionProducerToFactoryPSet(_standard.initialStepTrackingRegions)
 )
-initialStepSeeds.seedFinderSelector.pixelTripletGeneratorFactory = _standard.initialStepSeeds.OrderedHitsFactoryPSet.GeneratorPSet
+initialStepSeeds.seedFinderSelector.pixelTripletGeneratorFactory = _hitSetProducerToFactoryPSet(_standard.initialStepHitTriplets)
 initialStepSeeds.seedFinderSelector.pixelTripletGeneratorFactory.SeedComparitorPSet.ComponentName = "none"
 
 # track candidates
