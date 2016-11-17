@@ -509,7 +509,7 @@ run2_common.toModify( cscTriggerPrimitiveDigis,
                            commonParam = dict(gangedME1a = False)
                            )
 
-# GEM-CSC ILT in ME1/1
+## GEM-CSC ILT in ME1/1
 from Configuration.Eras.Modifier_run2_GEMSliceTest_cff import run2_GEMSliceTest
 run2_GEMSliceTest.toModify( cscTriggerPrimitiveDigis,
                         GEMPadDigiProducer = cms.InputTag("simMuonGEMPadDigis"),
