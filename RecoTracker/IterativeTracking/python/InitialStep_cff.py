@@ -41,7 +41,7 @@ initialStepHitDoublets = _hitPairEDProducer.clone(
     maxElement = 0,
     produceIntermediateHitDoublets = True,
 )
-from RecoPixelVertexing.PixelTriplets.pixelTripletHLTEDProducer_cff import pixelTripletHLTEDProducer as _pixelTripletHLTEDProducer
+from RecoPixelVertexing.PixelTriplets.pixelTripletHLTEDProducer_cfi import pixelTripletHLTEDProducer as _pixelTripletHLTEDProducer
 from RecoPixelVertexing.PixelLowPtUtilities.ClusterShapeHitFilterESProducer_cfi import *
 import RecoPixelVertexing.PixelLowPtUtilities.LowPtClusterShapeSeedComparitor_cfi
 initialStepHitTriplets = _pixelTripletHLTEDProducer.clone(
