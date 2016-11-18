@@ -57,9 +57,9 @@ double PowhegResHook::scaleResonance( const int iRes, const Event& event) {
     
     for (int i = 0; i < nDau; i++) {
       int iDau = event[iRes].daughterList()[i];
-      if      (abs(event[iDau].id()) == 21) idg = iDau;
-      else if (abs(event[iDau].id())  >  0) idq = iDau;
-      else if (abs(event[iDau].id())  <  0) ida = iDau;
+      if      (event[iDau].id() == 21) idg = iDau;
+      else if (event[iDau].id()  >  0) idq = iDau;
+      else if (event[iDau].id()  <  0) ida = iDau;
     }
     
     // Get daughter 4-vectors in resonance frame
