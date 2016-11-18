@@ -1173,8 +1173,11 @@ void MuonAssociatorByHitsHelper::getMatchedIds
 }
 
 int MuonAssociatorByHitsHelper::getShared(MapOfMatchedIds & matchedIds, TrackingParticleCollection::const_iterator trpart) const {
+    
   int nshared = 0;
-
+  TrackingParticle::g4t_iterator simtrack;
+  TrackingParticle::g4t_iterator tbegin = trpart->g4Track_begin();
+  TrackingParticle::g4t_iterator tend = trpart->g4Track_end();
 
   // map is indexed over the rechits of the reco::Track (no double-countings allowed)
   for (MapOfMatchedIds::const_iterator iRecH=matchedIds.begin(); iRecH!=matchedIds.end(); ++iRecH) {
@@ -1185,20 +1188,22 @@ int MuonAssociatorByHitsHelper::getShared(MapOfMatchedIds & matchedIds, Tracking
     bool found = false;
     
     for (std::vector<SimHitIdpr>::const_iterator iSimH=SimTrackIds.begin(); iSimH!=SimTrackIds.end(); ++iSimH) {
+        
       uint32_t simtrackId = iSimH->first;
       EncodedEventId evtId = iSimH->second;
       
       // look for shared hits with the given TrackingParticle (looping over component SimTracks)
-      for (TrackingParticle::g4t_iterator simtrack = trpart->g4Track_begin(); simtrack !=  trpart->g4Track_end(); ++simtrack) {
-	if (simtrack->trackId() == simtrackId  &&  simtrack->eventId() == evtId) {
-	  found = true;
-	  break;
-	}
+      for (simtrack = tbegin; simtrack != tend; ++simtrack) {
+          
+          if (simtrack->trackId() == simtrackId  &&  simtrack->eventId() == evtId) {
+            found = true;
+              break;
+          }
       }
       
       if (found) {
-	nshared++;
-	break;
+          nshared++;
+          break;
       }
     }
   }
