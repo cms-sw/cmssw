@@ -73,7 +73,7 @@
 // class decleration
 //
 
-class SiStripBaselineAnalyzer : public edm::EDAnalyzer {
+class SiStripBaselineAnalyzer : public edm::one::EDAnalyzer<edm::one::SharedResources> {
    public:
       explicit SiStripBaselineAnalyzer(const edm::ParameterSet&);
       ~SiStripBaselineAnalyzer();
@@ -123,6 +123,7 @@ class SiStripBaselineAnalyzer : public edm::EDAnalyzer {
 
 
 SiStripBaselineAnalyzer::SiStripBaselineAnalyzer(const edm::ParameterSet& conf){
+  usesResource("TFileService");
    
   srcBaseline_ =  conf.getParameter<edm::InputTag>( "srcBaseline" );
   srcBaselinePoints_ = conf.getParameter<edm::InputTag>( "srcBaselinePoints" );
