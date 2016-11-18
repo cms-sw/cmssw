@@ -21,8 +21,8 @@ class SingleCellClusterAlgo : public Algorithm<FECODEC>
         SingleCellClusterAlgo(const edm::ParameterSet& conf):
             Algorithm<HGCalTriggerCellBestChoiceCodec>(conf),
             cluster_product_( new l1t::HGCalTriggerCellBxCollection ),
-            HGCalEESensitive(conf.getParameter<string>("HGCalEESensitive_tag")),
-            HGCalHESiliconSensitive(conf.getParameter<string>("HGCalHESiliconSensitive_tag")),
+            HGCalEESensitive_(conf.getParameter<std::string>("HGCalEESensitive_tag")),
+            HGCalHESiliconSensitive_(conf.getParameter<std::string>("HGCalHESiliconSensitive_tag")),
             calibration_(conf){}
 
         typedef std::unique_ptr<HGCalTriggerGeometryBase> ReturnType;
@@ -47,8 +47,8 @@ class SingleCellClusterAlgo : public Algorithm<FECODEC>
     private:
         
         std::unique_ptr<l1t::HGCalTriggerCellBxCollection> cluster_product_;
-        string HGCalEESensitive;
-        string HGCalHESiliconSensitive;
+        string HGCalEESensitive_;
+        string HGCalHESiliconSensitive_;
 
         edm::ESHandle<HGCalTopology> hgceeTopoHandle_;
         edm::ESHandle<HGCalTopology> hgchefTopoHandle_;
@@ -60,8 +60,8 @@ class SingleCellClusterAlgo : public Algorithm<FECODEC>
 void SingleCellClusterAlgo::run(const l1t::HGCFETriggerDigiCollection& coll, const edm::EventSetup& es) 
 /*****************************************************************/
 { 
-    es.get<IdealGeometryRecord>().get(HGCalEESensitive, hgceeTopoHandle_);
-    es.get<IdealGeometryRecord>().get(HGCalHESiliconSensitive, hgchefTopoHandle_);
+    es.get<IdealGeometryRecord>().get(HGCalEESensitive_, hgceeTopoHandle_);
+    es.get<IdealGeometryRecord>().get(HGCalHESiliconSensitive_, hgchefTopoHandle_);
  
 
     for( const auto& digi : coll ) 
