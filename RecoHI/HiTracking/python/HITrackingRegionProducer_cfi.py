@@ -78,6 +78,7 @@ HiTrackingRegionFactoryFromJetsBlock.RegionPSet.vertexSrc = cms.InputTag("hiSele
 
 # limited stand-alone muon-seeded tracking region
 from RecoMuon.TrackingTools.MuonServiceProxy_cff import MuonServiceProxy
+from RecoMuon.GlobalTrackingTools.MuonTrackingRegionCommon_cff import MuonTrackingRegionCommon
 from RecoHI.HiMuonAlgos.HiTrackingRegionEDProducer_cfi import HiTrackingRegionEDProducer as _HiTrackingRegionEDProducer
 HiTrackingRegionFactoryFromSTAMuonsEDProducer = _HiTrackingRegionEDProducer.clone(
     MuonSrc = "standAloneMuons:UpdatedAtVtx",
