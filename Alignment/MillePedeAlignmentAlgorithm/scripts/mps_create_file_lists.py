@@ -159,20 +159,13 @@ class FileListCreator(object):
     def _validate_input(self):
         """Validate command line arguments."""
 
-        if self._args.events:
-            if self._args.tracks or self._args.rate:
-                msg = ("-n/--events-for-alignment must not be used with "
-                       "--tracks-for-alignment or --track-rate")
-                self._parser.error(msg)
-            print_msg("Requested {0:d} events for alignment."
-                      .format(self._args.events))
-        else:
-            if not (self._args.tracks or self._args.rate):
+        if self._args.events is None:
+            if (self._args.tracks is None) and (self._args.rate is None):
                 msg = ("either -n/--events-for-alignment or both of "
                        "--tracks-for-alignment and --track-rate are required")
                 self._parser.error(msg)
-            if ((self._args.tracks and not self._args.rate) or
-                (self._args.rate and not self._args.tracks)):
+            if (((self._args.tracks is not None) and (self._args.rate is None)) or
+                ((self._args.rate is not None)and (self._args.tracks is None))):
                 msg = ("--tracks-for-alignment and --track-rate must be used "
                        "together")
                 self._parser.error(msg)
@@ -182,6 +175,13 @@ class FileListCreator(object):
                       "-> {2:d} events for alignment."
                       .format(self._args.tracks, self._args.rate,
                               self._args.events))
+        else:
+            if (self._args.tracks is not None) or (self._args.rate is not None):
+                msg = ("-n/--events-for-alignment must not be used with "
+                       "--tracks-for-alignment or --track-rate")
+                self._parser.error(msg)
+            print_msg("Requested {0:d} events for alignment."
+                      .format(self._args.events))
 
         for dataset in self._args.datasets:
             if not re.match(self._dataset_regex, dataset):
