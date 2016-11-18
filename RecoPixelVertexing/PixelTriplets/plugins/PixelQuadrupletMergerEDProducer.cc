@@ -156,6 +156,8 @@ void PixelQuadrupletMergerEDProducer::produce(edm::Event& iEvent, const edm::Eve
   }
   localRA_.update(seedingHitSets->size());
 
+  seedingHitSets->shrink_to_fit();
+  tmpSeedCollection->shrink_to_fit();
   iEvent.put(std::move(seedingHitSets));
   iEvent.put(std::move(tmpSeedCollection));
 }

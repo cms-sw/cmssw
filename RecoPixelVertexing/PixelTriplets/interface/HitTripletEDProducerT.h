@@ -188,10 +188,14 @@ void HitTripletEDProducerT<T_HitTripletGenerator>::produce(edm::Event& iEvent, c
   }
   localRA_.update(triplets_total);
 
-  if(produceSeedingHitSets_)
+  if(produceSeedingHitSets_) {
+    seedingHitSets->shrink_to_fit();
     iEvent.put(std::move(seedingHitSets));
-  if(produceIntermediateHitTriplets_)
+  }
+  if(produceIntermediateHitTriplets_) {
+    intermediateHitTriplets->shrink_to_fit();
     iEvent.put(std::move(intermediateHitTriplets));
+  }
 }
 
 
