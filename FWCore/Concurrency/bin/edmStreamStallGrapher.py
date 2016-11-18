@@ -1,14 +1,17 @@
 #!/usr/bin/env python
+import re
 import sys
 
 #----------------------------------------------
 def printHelp():
     s = """Purpose: Convert a cmsRun log with Tracer info into a stream stall graph.
 
-edmStreamStallGrapher [-g] <log file name>
+edmStreamStallGrapher [-g[=arg]] <log file name>
 
-Option: -g instead of ascii art, create a pdf file showing the work
-  being done on each stream
+Options: -g[=arg] instead of ascii art, create a pdf file of name
+         'arg' showing the work being done on each stream.  If '=arg'
+         is not specified, the pdf file name is 'stall.pdf'.  There
+         can be no spaces before and after the '=' sign.
 
 To Use: Add the Tracer Service to the cmsRun job you want to check for
   stream stalls.  Make sure to use the 'printTimstamps' option
@@ -39,7 +42,9 @@ To Read: The script will then print an 'ASCII art' stall graph which
   list of all stall times for the module is given.  """
     print s
 
-kStallThreshold=100 #in msec
+
+kStallThreshold=100 #in milliseconds
+kTracerInput=False
 
 #Stream states
 kStarted=0
@@ -52,9 +57,7 @@ kSourceDelayedRead ="sourceDelayedRead"
 kFinishInit = "FINISH INIT"
 
 #----------------------------------------------
-def readLogFile(fileName):
-    f = open(fileName,"r")
-
+def parseStallMonitorOutput(f):
     processingSteps = []
     numStreams = 0
     maxNameSize = 0
@@ -124,6 +127,113 @@ def readLogFile(fileName):
 
     f.close()
     return (processingSteps,numStreams,maxNameSize)
+
+#----------------------------------------------
+def getTime(line):
+    time = line.split(" ")[1]
+    time = time.split(":")
+    time = int(time[0])*60*60+int(time[1])*60+float(time[2])
+    time = 1000*time # convert to milliseconds
+    return time
+
+#----------------------------------------------
+def parseTracerOutput(f):
+    processingSteps = []
+    numStreams = 0
+    maxNameSize = 0
+    startTime = 0
+    foundEventToStartFrom = False
+    for l in f:
+        if not foundEventToStartFrom:
+            if l.find("event = 5") != -1:
+                foundEventToStartFrom = True
+                stream = int( l[l.find("stream = ")+9])
+                processingSteps.append((kFinishInit,kFinished,stream,getTime(l)-startTime))
+        if l.find("processing event :") != -1:
+            time = getTime(l)
+            if startTime == 0:
+                startTime = time
+            time = time - startTime
+            streamIndex = l.find("stream = ")
+            stream = int( l[streamIndex+9:l.find(" ",streamIndex+10)])
+            name = kSourceFindEvent
+            trans = kFinished
+            #the start of an event is the end of the framework part
+            if l.find("starting:") != -1:
+                trans = kStarted
+            processingSteps.append((name,trans,stream,time))
+            if stream > numStreams:
+                numStreams = stream
+        if l.find("processing event for module") != -1:
+            time = getTime(l)
+            if startTime == 0:
+                startTime = time
+            time = time - startTime
+            trans = kStarted
+            stream = 0
+            delayed = False
+            if l.find("finished:") != -1:
+                if l.find("prefetching") != -1:
+                    trans = kPrefetchEnd
+                else:
+                    trans = kFinished
+            else:
+                if l.find("prefetching") != -1:
+                    #skip this since we don't care about prefetch starts
+                    continue
+            streamIndex = l.find("stream = ")
+            stream = int( l[streamIndex+9:l.find(" ",streamIndex+10)])
+            name = l.split("'")[1]
+            if len(name) > maxNameSize:
+                maxNameSize = len(name)
+            processingSteps.append((name,trans,stream,time))
+            if stream > numStreams:
+                numStreams = stream
+        if l.find("event delayed read from source") != -1:
+            time = getTime(l)
+            if startTime == 0:
+                startTime = time
+            time = time - startTime
+            trans = kStarted
+            stream = 0
+            delayed = False
+            if l.find("finished:") != -1:
+                trans = kFinished
+            streamIndex = l.find("stream = ")
+            stream = int( l[streamIndex+9:l.find(" ",streamIndex+10)])
+            name = kSourceDelayedRead
+            if len(name) > maxNameSize:
+                maxNameSize = len(name)
+            processingSteps.append((name,trans,stream,time))
+            if stream > numStreams:
+                numStreams = stream
+    f.close()
+    return (processingSteps,numStreams,maxNameSize)
+
+
+#----------------------------------------------
+def chooseParser(inputFile):
+    firstLine = inputFile.readline().rstrip()
+    inputFile.seek(0) # Rewind back to beginning
+
+    if firstLine.find("# Step") != -1:
+        print "> ... Parsing StallMonitor output."
+        return parseStallMonitorOutput
+    elif firstLine.find("++") != -1:
+        global kTracerInput
+        kTracerInput = True
+        print "> ... Parsing Tracer output."
+        return parseTracerOutput
+    else:
+        inputFile.close()
+        print "Unknown input format."
+        exit(1)
+
+#----------------------------------------------
+def readLogFile(fileName):
+    f = open(fileName,"r")
+    parseInput = chooseParser(f)
+    return parseInput(f)
 
 #----------------------------------------------
 # Patterns:
@@ -233,10 +343,11 @@ def printStalledModulesInOrder(stalledModules):
     print "%-*s" % (maxNameSize, nameColumn), "%-*s"%(stallColumnLength,stallColumn), " Stall Times"
     for n,s,t in priorities:
         paddedName = "%-*s:" % (maxNameSize,n)
-        print paddedName, "%-*.2f"%(stallColumnLength,s), ", ".join([ "%.2f"%(x/1000.) for x in t])
+        print paddedName, "%-*.2f"%(stallColumnLength,s/1000.), ", ".join([ "%.2f"%(x/1000.) for x in t])
 
-# Consolidate contiguous blocks with the same color:
-# this drastically reduces the size of the pdf file.
+#----------------------------------------------
+# Consolidating contiguous blocks with the same color
+# drastically reduces the size of the pdf file.
 def consolidateContiguousBlocks(numStreams, streamTimes, streamColors):
     oldStreamTimes = streamTimes
     oldStreamColors = streamColors
@@ -263,8 +374,8 @@ def consolidateContiguousBlocks(numStreams, streamTimes, streamColors):
 
     return (streamTimes,streamColors)
 
-
-def createPDFImage(processingSteps, numStreams, stalledModuleInfo):
+#----------------------------------------------
+def createPDFImage(pdfFile, processingSteps, numStreams, stalledModuleInfo):
     # Need to force display since problems with CMSSW matplotlib.
     import matplotlib
     matplotlib.use("PDF")
@@ -278,6 +389,7 @@ def createPDFImage(processingSteps, numStreams, stalledModuleInfo):
     streamLastEventEndTimes = [None]*(numStreams+1)
     streamMultipleModulesRunningTimes = [[] for x in xrange(numStreams+1)]
     maxNumberOfConcurrentModulesOnAStream = 0
+    streamInvertedMessageFromModule = [set() for x in xrange(numStreams+1)]
 
     for n,trans,s,time in processingSteps:
         if n == kFinishInit:
@@ -297,6 +409,11 @@ def createPDFImage(processingSteps, numStreams, stalledModuleInfo):
             else:
                 activeModules = modulesActiveOnStreams[s]
                 moduleNames = set(activeModules.iterkeys())
+                if n in streamInvertedMessageFromModule[s] and kTracerInput:
+                    # This is the rare case where a finished message
+                    # is issued before the corresponding started.
+                    streamInvertedMessageFromModule[s].remove(n)
+                    continue
                 activeModules[n] = time
                 nModulesRunning = len(activeModules)
                 if nModulesRunning > 1:
@@ -313,6 +430,11 @@ def createPDFImage(processingSteps, numStreams, stalledModuleInfo):
                 streamLastEventEndTimes[s]=time
             else:
                 activeModules = modulesActiveOnStreams[s]
+                if n not in activeModules and kTracerInput:
+                    # This is the rare case where a finished message
+                    # is issued before the corresponding started.
+                    streamInvertedMessageFromModule[s].add(n)
+                    continue
                 startTime = activeModules[n]
                 moduleNames = set(activeModules.iterkeys())
                 del activeModules[n]
@@ -362,24 +484,37 @@ def createPDFImage(processingSteps, numStreams, stalledModuleInfo):
     fig.text(0.5, 0.95, "stalled module running", color = "red", horizontalalignment = 'center')
     fig.text(0.9, 0.95, "read from input", color = "orange", horizontalalignment = 'right')
     fig.text(0.5, 0.92, "multiple modules running", color = "blue", horizontalalignment = 'center')
-    plt.savefig("stall.pdf")
+    print "> ... Saving to file: '{}'".format(pdfFile)
+    plt.savefig(pdfFile)
 
 #=======================================
 if __name__=="__main__":
     import sys
 
-    if len(sys.argv) == 1:
+    argc = len(sys.argv)
+    if argc not in [2,3]:
+        sys.stderr.write("\n\033[1mERROR:\033[0m Wrong number of arguments specified ({}).  Should be 2 or 3.\n\n".format(argc))
         printHelp()
         exit(0)
 
     doGraphic = False
-    if len(sys.argv) == 3:
-        if sys.argv[1] == '-g':
+    pdfFile="stall.pdf"
+    if argc == 3:
+        arg = sys.argv[1]
+        if arg == '-g':
             doGraphic = True
+        elif arg.find("-g=") != -1:
+            doGraphic = True
+            pdfFile = arg.split('=')[1]
+            if not re.match(r'^[\w\.]+$', pdfFile):
+                print "Malformed file name '{}' supplied with the '-g' option.".format(pdfFile)
+                print "Only characters 0-9, a-z, A-Z, '_', and '.' are allowed."
+                exit(1)
         else:
-            print "unknown argument ",sys.argv[1]
-            exit(-1)
-    fileName =sys.argv[-1]
+            print "Unknown argument ",sys.argv[1]
+            exit(1)
+
+        fileName =sys.argv[-1]
 
     sys.stderr.write( ">reading file\n" )
     processingSteps,numStreams,maxNameSize = readLogFile(sys.argv[-1])
@@ -390,5 +525,5 @@ if __name__=="__main__":
         createAsciiImage(processingSteps, numStreams, maxNameSize)
     else:
         sys.stderr.write(">creating PDF\n")
-        createPDFImage(processingSteps, numStreams, stalledModules)
+        createPDFImage(pdfFile, processingSteps, numStreams, stalledModules)
     printStalledModulesInOrder(stalledModules)
