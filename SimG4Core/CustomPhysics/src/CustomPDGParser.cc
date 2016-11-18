@@ -96,7 +96,6 @@ double CustomPDGParser::s_charge(int pdg)
 	}
 
       if(s_isDphoton(pdg)){                                                                                                                           
-          charge = 0;
           return charge;
       }
       if (s_isChargino(pdg)) {
