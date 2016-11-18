@@ -132,6 +132,8 @@ void MultiHitFromChi2EDProducer::produce(edm::Event& iEvent, const edm::EventSet
   for(auto& ptr: refittedHitStorage)
     storage->push_back(ptr.release());
 
+  seedingHitSets->shrink_to_fit();
+  storage->shrink_to_fit();
   iEvent.put(std::move(seedingHitSets));
   iEvent.put(std::move(storage));
 }
