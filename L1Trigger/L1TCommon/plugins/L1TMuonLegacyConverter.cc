@@ -164,16 +164,17 @@ L1TMuonLegacyConverter::produce( edm::Event& iEvent,
 	  vector< L1MuGMTExtendedCand >::const_iterator muEnd = hwMuCands.end() ;
 	  for( int i = 0 ; muItr != muEnd ; ++muItr, ++i )
 	    {
-// 	 cout << "#" << i
-// 	      << " name " << muItr->name()
-// 	      << " empty " << muItr->empty()
-// 	      << " pt " << muItr->ptIndex()
-// 	      << " eta " << muItr->etaIndex()
-// 	      << " phi " << muItr->phiIndex()
-// 	      << " iso " << muItr->isol()
-// 	      << " mip " << muItr->mip()
-// 	      << " bx " << muItr->bx()
-// 	      << endl ;
+	 cout << "#" << i << endl 
+	      << " name " << muItr->name() << endl 
+	      << " empty " << muItr->empty() << endl 
+	      << " pt " << muItr->ptIndex() << endl 
+	      << " eta " << muItr->etaIndex() << endl 
+	      << " phi " << muItr->phiIndex() << endl 
+	      << " iso " << muItr->isol() << endl 
+	      << " mip " << muItr->mip() << endl 
+	      << " bx " << muItr->bx() << endl 
+	      << " regional track finder index" << (int)muItr->etaRegionIndex() 
+	      << endl ;
 
   
 	      if( !muItr->empty() ){
@@ -189,7 +190,10 @@ L1TMuonLegacyConverter::produce( edm::Event& iEvent,
 
 		// from L1TMuonProducer.cc - which is the stage2 muon producer:
 		// Muon outMu{vec, mu->hwPt(), mu->hwEta(), mu->hwGlobalPhi(), outMuQual, mu->hwSign(), mu->hwSignValid(), iso, mu->tfMuonIndex(), 0, true, mu->hwIsoSum(), mu->hwDPhi(), mu->hwDEta(), mu->hwRank()};
-		  Muon outMu{p4, (int)muItr->ptIndex(), (int)muItr->etaIndex(), (int)muItr->phiIndex(), (int)muItr->quality(), muItr->charge(), muItr->isol(), (int)muItr->etaRegionIndex(), 0, true, 0, 0, 0 , (int)muItr->rank() };
+		//  Muon outMu{p4, (int)muItr->ptIndex(), (int)muItr->etaIndex(), (int)muItr->phiIndex(), (int)muItr->quality(), muItr->charge(), muItr->isol(), (int)muItr->etaRegionIndex(), 0, true, 0, 0, 0 , (int)muItr->rank() };
+		  // (almost) all hardware values set to 0.
+
+		  Muon outMu{p4, (int)0, (int)0, (int)0, (int)muItr->quality(), (int)muItr->charge(), (int)muItr->charge_valid() , (int)muItr->isol(), (int)muItr->etaRegionIndex(), (int)0, true, (int)0, (int)0, (int)0 , (int)muItr->rank() };
 		  imdMuonsLegacy->push_back( muItr->bx(), outMu ) ;
 		}
 	    }
