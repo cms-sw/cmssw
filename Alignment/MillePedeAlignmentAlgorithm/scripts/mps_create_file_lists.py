@@ -610,19 +610,38 @@ class _DasCache(object):
 
 
 ################################################################################
-def das_client(query):
+def das_client(query, check_key = None):
     """
     Submit `query` to DAS client and handle possible errors.
     Further treatment of the output might be necessary.
 
     Arguments:
     - `query`: DAS query
+    - `check_key`: optional key to be checked for; retriggers query if needed
     """
-    for _ in xrange(3):         # maximum of 3 tries
+
+    error = True
+    for i in xrange(5):         # maximum of 5 tries
         das_data = cmssw_das_client.get_data(query, limit = 0)
-        if das_data["status"] != "error": break
+
+        if das_data["status"] == "ok":
+            if das_data["nresults"] == 0 or check_key is None:
+                error = False
+                break
+
+            result_count = 0
+            for d in find_key(das_data["data"], check_key):
+                result_count += len(d)
+            if result_count == 0:
+                das_data["status"] = "error"
+                das_data["reason"] = ("DAS did not return required data.")
+                continue
+            else:
+                error = False
+                break
+
     if das_data["status"] == "error":
-        print_msg("DAS query '{}' failed 3 times. "
+        print_msg("DAS query '{}' failed 5 times. "
                   "The last time for the the following reason:".format(query))
         print das_data["reason"]
         sys.exit(1)
@@ -683,8 +702,9 @@ def get_files(dataset_name):
     - `dataset_name`: name of the dataset
     """
 
-    data = das_client("file dataset={0:s} | grep file.name, file.nevents > 0"
-                      .format(dataset_name))
+    data = das_client(("file dataset={0:s} system=dbs3 | "+
+                       "grep file.name, file.nevents > 0").format(dataset_name),
+                      "file")
     return [find_key(f["file"], "name") for f in data]
 
 
@@ -695,8 +715,8 @@ def get_datasets(dataset_pattern):
     - `dataset_pattern`: pattern of dataset names
     """
 
-    data = das_client("dataset dataset={0:s} | grep dataset.name"
-                      .format(dataset_pattern))
+    data = das_client("dataset dataset={0:s} system=dbs3 | grep dataset.name"
+                      .format(dataset_pattern), "dataset")
     return [find_key(f["dataset"], "name") for f in data]
 
 
@@ -728,7 +748,8 @@ def _get_events(entity, name):
     - `name`: name of entity
     """
 
-    data = das_client("{0:s}={1:s} | grep {0:s}.nevents".format(entity, name))
+    data = das_client("{0:s}={1:s} system=dbs3 | grep {0:s}.nevents"
+                      .format(entity, name), entity)
     return int(find_key(find_key(data, entity), "nevents"))
 
 
