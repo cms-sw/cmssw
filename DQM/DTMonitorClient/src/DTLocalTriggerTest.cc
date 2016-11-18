@@ -83,7 +83,6 @@ void DTLocalTriggerTest::Bookings(DQMStore::IBooker & ibooker, DQMStore::IGetter
 	    bookWheelHistos(ibooker,wh,"2ndFractionPhi");
 	    bookWheelHistos(ibooker,wh,"TriggerInclusivePhi");
 	    bookWheelHistos(ibooker,wh,"CorrectBXTheta");
-	    bookWheelHistos(ibooker,wh,"HFractionTheta");
 	  }
 	}
       }
