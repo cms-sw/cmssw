@@ -346,7 +346,11 @@ void SiStripMonitorTrack::bookLayerMEs(DQMStore::IBooker & ibooker , const uint3
 
   LayerMEs theLayerMEs;
   theLayerMEs.ClusterStoNCorrOnTrack               = 0;
+  theLayerMEs.ClusterStoNCorrThinOnTrack           = 0;
+  theLayerMEs.ClusterStoNCorrThickOnTrack          = 0;
   theLayerMEs.ClusterChargeCorrOnTrack             = 0;
+  theLayerMEs.ClusterChargeCorrThinOnTrack         = 0;
+  theLayerMEs.ClusterChargeCorrThickOnTrack        = 0;
   theLayerMEs.ClusterChargeOnTrack                 = 0;
   theLayerMEs.ClusterChargeOffTrack                = 0;
   theLayerMEs.ClusterNoiseOnTrack                  = 0;
@@ -364,10 +368,26 @@ void SiStripMonitorTrack::bookLayerMEs(DQMStore::IBooker & ibooker , const uint3
   hpar  = "TH1ClusterStoNCorr";
   theLayerMEs.ClusterStoNCorrOnTrack = handleBookMEs(ibooker,view,layer_id,hpar,hname);
 
+  hname = hidmanager.createHistoLayer("Summary_ClusterStoNCorrThin",name,layer_id,"OnTrack");
+  hpar  = "TH1ClusterStoNCorr";
+  if ( layer_id.find("TEC") != std::string::npos ) theLayerMEs.ClusterStoNCorrThinOnTrack = handleBookMEs(ibooker,view,layer_id,hpar,hname);
+
+  hname = hidmanager.createHistoLayer("Summary_ClusterStoNCorrThick",name,layer_id,"OnTrack");
+  hpar  = "TH1ClusterStoNCorr";
+  if ( layer_id.find("TEC") != std::string::npos ) theLayerMEs.ClusterStoNCorrThickOnTrack = handleBookMEs(ibooker,view,layer_id,hpar,hname);
+
   // Cluster Charge Corrected
   hname = hidmanager.createHistoLayer("Summary_ClusterChargeCorr",name,layer_id,"OnTrack");
   hpar = "TH1ClusterChargeCorr";
   theLayerMEs.ClusterChargeCorrOnTrack = handleBookMEs(ibooker,view,layer_id,hpar,hname);
+
+  hname = hidmanager.createHistoLayer("Summary_ClusterChargeCorrThin",name,layer_id,"OnTrack");
+  hpar = "TH1ClusterChargeCorr";
+  if ( layer_id.find("TEC") != std::string::npos ) theLayerMEs.ClusterChargeCorrThinOnTrack = handleBookMEs(ibooker,view,layer_id,hpar,hname);
+
+  hname = hidmanager.createHistoLayer("Summary_ClusterChargeCorrThick",name,layer_id,"OnTrack");
+  hpar = "TH1ClusterChargeCorr";
+  if ( layer_id.find("TEC") != std::string::npos ) theLayerMEs.ClusterChargeCorrThickOnTrack = handleBookMEs(ibooker,view,layer_id,hpar,hname);
 
   // Cluster Charge (On and Off Track)
   hname = hidmanager.createHistoLayer("Summary_ClusterCharge",name,layer_id,"OnTrack");
@@ -437,7 +457,11 @@ void SiStripMonitorTrack::bookRingMEs(DQMStore::IBooker & ibooker , const uint32
 
   RingMEs theRingMEs;
   theRingMEs.ClusterStoNCorrOnTrack               = 0;
+  theRingMEs.ClusterStoNCorrThinOnTrack           = 0;
+  theRingMEs.ClusterStoNCorrThickOnTrack          = 0;
   theRingMEs.ClusterChargeCorrOnTrack             = 0;
+  theRingMEs.ClusterChargeCorrThinOnTrack         = 0;
+  theRingMEs.ClusterChargeCorrThickOnTrack        = 0;
   theRingMEs.ClusterChargeOnTrack                 = 0;
   theRingMEs.ClusterChargeOffTrack                = 0;
   theRingMEs.ClusterNoiseOnTrack                  = 0;
@@ -454,10 +478,26 @@ void SiStripMonitorTrack::bookRingMEs(DQMStore::IBooker & ibooker , const uint32
   hpar  = "TH1ClusterStoNCorr";
   theRingMEs.ClusterStoNCorrOnTrack = handleBookMEs(ibooker,view,ring_id,hpar,hname);
 
+  hname = hidmanager.createHistoLayer("Summary_ClusterStoNCorrThin",name,ring_id,"OnTrack");
+  hpar  = "TH1ClusterStoNCorr";
+  if ( ring_id.find("TEC") != std::string::npos ) theRingMEs.ClusterStoNCorrThinOnTrack = handleBookMEs(ibooker,view,ring_id,hpar,hname);
+
+  hname = hidmanager.createHistoLayer("Summary_ClusterStoNCorrThick",name,ring_id,"OnTrack");
+  hpar  = "TH1ClusterStoNCorr";
+  if ( ring_id.find("TEC") != std::string::npos ) theRingMEs.ClusterStoNCorrThickOnTrack = handleBookMEs(ibooker,view,ring_id,hpar,hname);
+
   // Cluster Charge Corrected
   hname = hidmanager.createHistoLayer("Summary_ClusterChargeCorr",name,ring_id,"OnTrack");
   hpar = "TH1ClusterChargeCorr";
   theRingMEs.ClusterChargeCorrOnTrack = handleBookMEs(ibooker,view,ring_id,hpar,hname);
+
+  hname = hidmanager.createHistoLayer("Summary_ClusterChargeCorrThin",name,ring_id,"OnTrack");
+  hpar = "TH1ClusterChargeCorr";
+  if ( ring_id.find("TEC") != std::string::npos ) theRingMEs.ClusterChargeCorrThinOnTrack = handleBookMEs(ibooker,view,ring_id,hpar,hname);
+
+  hname = hidmanager.createHistoLayer("Summary_ClusterChargeCorrThick",name,ring_id,"OnTrack");
+  hpar = "TH1ClusterChargeCorr";
+  if ( ring_id.find("TEC") != std::string::npos ) theRingMEs.ClusterChargeCorrThickOnTrack = handleBookMEs(ibooker,view,ring_id,hpar,hname);
 
   // Cluster Charge (On and Off Track)
   hname = hidmanager.createHistoLayer("Summary_ClusterCharge",name,ring_id,"OnTrack");
@@ -995,7 +1035,7 @@ template <class T> void SiStripMonitorTrack::RecHitInfo(const T* tkrecHit, Local
       SiStripClusterInfo SiStripClusterInfo_(*SiStripCluster_,es,detid);
 
       const Det2MEs MEs = findMEs(tTopo, detid);
-      if (clusterInfos(&SiStripClusterInfo_,detid, OnTrack, track_ok, LV, MEs))
+      if (clusterInfos(&SiStripClusterInfo_,detid, OnTrack, track_ok, LV, MEs, tTopo))
       {
         vPSiStripCluster.insert(SiStripCluster_);
       }
@@ -1033,7 +1073,7 @@ void SiStripMonitorTrack::AllClusters(const edm::Event& ev, const edm::EventSetu
 
         if (vPSiStripCluster.find(&*ClusIter) == vPSiStripCluster.end()) {
           SiStripClusterInfo SiStripClusterInfo_(*ClusIter,es,detid);
-          clusterInfos(&SiStripClusterInfo_,detid,OffTrack, /*track_ok*/ false,LV,MEs);
+          clusterInfos(&SiStripClusterInfo_,detid,OffTrack, /*track_ok*/ false,LV,MEs , tTopo);
         }
       }
     }
@@ -1076,7 +1116,7 @@ SiStripMonitorTrack::Det2MEs SiStripMonitorTrack::findMEs(const TrackerTopology*
 
 //------------------------------------------------------------------------
 #include "DataFormats/SiStripCluster/interface/SiStripClusterTools.h"
-bool SiStripMonitorTrack::clusterInfos(SiStripClusterInfo* cluster, const uint32_t detid, enum ClusterFlags flag, bool track_ok, const LocalVector LV, const Det2MEs& MEs)
+bool SiStripMonitorTrack::clusterInfos(SiStripClusterInfo* cluster, const uint32_t detid, enum ClusterFlags flag, bool track_ok, const LocalVector LV, const Det2MEs& MEs , const TrackerTopology* tTopo)
 {
 
   if (cluster==NULL) return false;
@@ -1133,6 +1173,17 @@ bool SiStripMonitorTrack::clusterInfos(SiStripClusterInfo* cluster, const uint32
       fillME(MEs.iLayer->ClusterPosOnTrack, position);
       if(track_ok) fillME(MEs.iLayer->ClusterChargePerCMfromTrack, dQdx_fromTrack);
       if(track_ok) fillME(MEs.iLayer->ClusterChargePerCMfromOriginOnTrack, dQdx_fromOrigin);
+      //---------ATTENTION -- DELETE LATER---------//
+      //-------------------------------------------//
+      if( tTopo->moduleGeometry(detid) == SiStripDetId::ModuleGeometry::W5 || tTopo->moduleGeometry(detid) == SiStripDetId::ModuleGeometry::W6 || tTopo->moduleGeometry(detid) == SiStripDetId::ModuleGeometry::W7 ) {
+        if(noise > 0.0) fillME(MEs.iLayer->ClusterStoNCorrThickOnTrack, StoN*cosRZ);
+        fillME(MEs.iLayer->ClusterChargeCorrThickOnTrack, charge*cosRZ);
+      } else  {
+        if(noise > 0.0) fillME(MEs.iLayer->ClusterStoNCorrThinOnTrack, StoN*cosRZ);
+        fillME(MEs.iLayer->ClusterChargeCorrThinOnTrack, charge*cosRZ);
+      }
+      //---------ATTENTION -- DELETE LATER---------//
+      //-------------------------------------------//
     }
     // ringMEs
     if (MEs.iRing != nullptr) {
@@ -1145,6 +1196,17 @@ bool SiStripMonitorTrack::clusterInfos(SiStripClusterInfo* cluster, const uint32
       fillME(MEs.iRing->ClusterPosOnTrack, position);
       if(track_ok) fillME(MEs.iRing->ClusterChargePerCMfromTrack, dQdx_fromTrack);
       if(track_ok) fillME(MEs.iRing->ClusterChargePerCMfromOriginOnTrack, dQdx_fromOrigin);
+      //---------ATTENTION -- DELETE LATER---------//
+      //-------------------------------------------//
+      if( tTopo->moduleGeometry(detid) == SiStripDetId::ModuleGeometry::W5 || tTopo->moduleGeometry(detid) == SiStripDetId::ModuleGeometry::W6 || tTopo->moduleGeometry(detid) == SiStripDetId::ModuleGeometry::W7) {
+        if(noise > 0.0) fillME(MEs.iRing->ClusterStoNCorrThickOnTrack, StoN*cosRZ);
+        fillME(MEs.iRing->ClusterChargeCorrThickOnTrack, charge*cosRZ);
+      } else  {
+        if(noise > 0.0) fillME(MEs.iRing->ClusterStoNCorrThinOnTrack, StoN*cosRZ);
+        fillME(MEs.iRing->ClusterChargeCorrThinOnTrack, charge*cosRZ);
+      }
+      //---------ATTENTION -- DELETE LATER---------//
+      //-------------------------------------------//
     }
     // subdetMEs
     if(MEs.iSubdet != nullptr){
