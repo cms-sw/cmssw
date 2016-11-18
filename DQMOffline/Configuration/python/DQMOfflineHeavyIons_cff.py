@@ -30,15 +30,15 @@ DQMOfflineHeavyIonsDPG = cms.Sequence( DQMOfflineHeavyIonsPreDPG *
                                        DQMMessageLogger )
 
 from DQMOffline.Muon.muonMonitors_cff import *
-diMuonHistos.etaBin = cms.int32(70) #dimuonhistograms mass, bin
-diMuonHistos.etaBBin = cms.int32(70)
-diMuonHistos.etaEBin = cms.int32(70)
-diMuonHistos.etaBinLM = cms.int32(12)
-diMuonHistos.etaBBinLM = cms.int32(12)
-diMuonHistos.etaEBinLM = cms.int32(12)
-diMuonHistos.LowMassMin = cms.double(2.0)
-diMuonHistos.LowMassMax = cms.double(14.0)
-diMuonHistos.HighMassMin = cms.double(55.0)
+diMuonHistos.etaBin = cms.int32(70) #dimuonhistograms mass, bin   
+diMuonHistos.etaBBin = cms.int32(70)    
+diMuonHistos.etaEBin = cms.int32(70)    
+diMuonHistos.etaBinLM = cms.int32(12)   
+diMuonHistos.etaBBinLM = cms.int32(12)    
+diMuonHistos.etaEBinLM = cms.int32(12)    
+diMuonHistos.LowMassMin = cms.double(2.0)   
+diMuonHistos.LowMassMax = cms.double(14.0)    
+diMuonHistos.HighMassMin = cms.double(55.0)   
 diMuonHistos.HighMassMax = cms.double(125.0)
 from DQMOffline.JetMET.jetMETDQMOfflineSourceHI_cff import *
 from DQMOffline.EGamma.egammaDQMOffline_cff import *
@@ -112,6 +112,5 @@ DQMOfflineHeavyIons = cms.Sequence( DQMOfflineHeavyIonsPreDPG *
 liteDQMOfflineHeavyIons = cms.Sequence ( DQMOfflineHeavyIons )
 liteDQMOfflineHeavyIons.remove( SiStripMonitorCluster )
 liteDQMOfflineHeavyIons.remove( jetMETDQMOfflineSource )
-
 
 #DQMOfflineHeavyIonsPhysics = cms.Sequence( dqmPhysics )

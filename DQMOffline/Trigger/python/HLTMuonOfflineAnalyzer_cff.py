@@ -74,3 +74,9 @@ hltMuonOfflineAnalyzers = cms.Sequence(
     tightAnalyzer *
     looseAnalyzer
 )
+
+from Configuration.StandardSequences.Eras import eras
+for muAna in [globalAnalyzer.targetParams, trackerAnalyzer.targetParams, tightAnalyzer.targetParams, looseAnalyzer.targetParams]:
+    eras.pA_2016.toModify(muAna, ptCut_Jpsi = cms.untracked.double( 5.0))
+for muAna in [globalAnalyzer.binParams, trackerAnalyzer.binParams, tightAnalyzer.binParams, looseAnalyzer.binParams]:
+    eras.pA_2016.toModify(muAna, ptCoarse = cms.untracked.vdouble(0.,1.,2.,3.,4.,5.,7.,9.,12.,15.,20.,30.,40.))

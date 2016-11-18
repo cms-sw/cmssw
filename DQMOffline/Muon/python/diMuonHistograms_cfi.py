@@ -22,6 +22,7 @@ diMuonHistos = cms.EDAnalyzer("DiMuonHistograms",
                               HighMassMax = cms.double(155.0),
                               folder = cms.string("Muons/diMuonHistograms")
                               )
+
 diMuonHistos_miniAOD = cms.EDAnalyzer("DiMuonHistograms",
                                       MuonCollection  = cms.InputTag("slimmedMuons"),
                                       VertexLabel     = cms.InputTag("offlineSlimmedPrimaryVertices"),
@@ -42,3 +43,15 @@ diMuonHistos_miniAOD = cms.EDAnalyzer("DiMuonHistograms",
                                       HighMassMax = cms.double(155.0),
                                       folder = cms.string("Muons_miniAOD/diMuonHistograms")
                                       )
+
+from Configuration.StandardSequences.Eras import eras
+eras.pA_2016.toModify(diMuonHistos,
+                      etaBin = 350,
+                      etaBBin = 350,
+                      etaEBin = 350,
+
+                      LowMassMin = 2.0,
+                      LowMassMax = 51.0,
+                      HighMassMin = 55.0,
+                      HighMassMax = 125.0
+                      )
