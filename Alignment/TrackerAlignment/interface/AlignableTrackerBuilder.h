@@ -70,7 +70,7 @@ class AlignableTrackerBuilder {
     const TrackerTopology* trackerTopology_;
     const AlignableObjectId alignableObjectId_;
 
-    AlignableMap* alignableMap;
+    AlignableMap* alignableMap_;
 
     TrackerAlignmentLevelBuilder trackerAlignmentLevelBuilder_;
 
