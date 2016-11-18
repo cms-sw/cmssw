@@ -194,6 +194,29 @@ def _getSeedingLayers(seedProducers):
 for _eraName, _postfix, _era in _relevantEras:
     locals()["_seedingLayerSets"+_postfix] = _getSeedingLayers(locals()["_seedProducers"+_postfix])
 
+# MVA selectors
+def _getMVASelectors(iterations):
+    import RecoTracker.IterativeTracking.iterativeTk_cff as _iterativeTk_cff
+
+    # assume naming convention that the iteration name (when first
+    # letter in lower case) is the selector name
+    pset = cms.untracked.PSet()
+    for iterName in iterations:
+        if hasattr(_iterativeTk_cff, iterName):
+            mod = getattr(_iterativeTk_cff, iterName)
+            typeName = mod._TypedParameterizable__type
+            classifiers = []
+            if typeName == "ClassifierMerger":
+                classifiers = mod.inputClassifiers.value()
+            elif "TrackMVAClassifier" in typeName:
+                classifiers = [iterName]
+            if len(classifiers) > 0:
+                setattr(pset, iterName+"Tracks", cms.untracked.vstring(classifiers))
+
+    return pset
+for _eraName, _postfix, _era in _relevantEras:
+    locals()["_mvaSelectors"+_postfix] = _getMVASelectors(_cfg.iterationAlgos(_postfix))
+
 # Validation iterative steps
 _sequenceForEachEra(_addSelectorsByAlgo, args=["_algos"], names="_selectorsByAlgo", sequence="_tracksValidationSelectorsByAlgo", modDict=globals())
 
@@ -514,18 +537,24 @@ _sequenceForEachEra(_addSeedToTrackProducers, args=["_seedProducers"], names="_s
 # MTV instances
 trackValidatorTrackingOnly = trackValidatorStandalone.clone(label = [ x for x in trackValidatorStandalone.label if x != "cutsRecoTracksAK4PFJets"] )
 
-trackValidatorBuildingTrackingOnly = trackValidatorTrackingOnly.clone(
-    dirName = "Tracking/TrackBuilding/",
+_trackValidatorSeedingBuildingTrackingOnly = trackValidatorTrackingOnly.clone( # common for seeds and built tracks
     associators = ["quickTrackAssociatorByHits"],
     UseAssociators = True,
     dodEdxPlots = False,
     doPVAssociationPlots = False,
     doSimPlots = False,
 )
+trackValidatorBuildingTrackingOnly = _trackValidatorSeedingBuildingTrackingOnly.clone(
+    dirName = "Tracking/TrackBuilding/",
+    doMVAPlots = True,
+)
 for _eraName, _postfix, _era in _relevantErasAndFastSim:
     _setForEra(trackValidatorBuildingTrackingOnly, _eraName, _era, label = locals()["_trackProducers"+_postfix])
+fastSim.toModify(trackValidatorBuildingTrackingOnly, doMVAPlots=False)
+for _eraName, _postfix, _era in _relevantEras:
+    _setForEra(trackValidatorBuildingTrackingOnly, _eraName, _era, mvaLabels = locals()["_mvaSelectors"+_postfix])
 
-trackValidatorSeedingTrackingOnly = trackValidatorBuildingTrackingOnly.clone(
+trackValidatorSeedingTrackingOnly = _trackValidatorSeedingBuildingTrackingOnly.clone(
     dirName = "Tracking/TrackSeeding/",
     label = _seedSelectors,
     doSeedPlots = True,
