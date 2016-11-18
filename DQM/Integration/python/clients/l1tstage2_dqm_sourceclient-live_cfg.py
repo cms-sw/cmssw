@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 from Configuration.StandardSequences.Eras import eras
-process = cms.Process("L1TStage2DQM", eras.Run2_2016_pA)
+process = cms.Process("L1TStage2DQM", eras.Run2_2016)
 
 #--------------------------------------------------
 # Event Source and Condition
