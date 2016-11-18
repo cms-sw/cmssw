@@ -221,14 +221,14 @@ void ME0SegmentMatcher::produce(edm::Event& ev, const edm::EventSetup& setup) {
 	   ++thisSegment,++SegmentNumber){
 	ME0DetId id = thisSegment->me0DetId();
 
-	auto roll = me0Geom->etaPartition(id); 
+	auto chamber = me0Geom->chamber(id);
 
-	if ( zSign * roll->toGlobal(thisSegment->localPosition()).z() < 0 ) continue;
+	if ( zSign * chamber->toGlobal(thisSegment->localPosition()).z() < 0 ) continue;
 
 	GlobalPoint r3FinalReco_glob(r3FinalReco_globv.x(),r3FinalReco_globv.y(),r3FinalReco_globv.z());
 
-	LocalPoint r3FinalReco = roll->toLocal(r3FinalReco_glob);
-	LocalVector p3FinalReco=roll->toLocal(p3FinalReco_glob);
+	LocalPoint r3FinalReco = chamber->toLocal(r3FinalReco_glob);
+	LocalVector p3FinalReco=chamber->toLocal(p3FinalReco_glob);
 
 	LocalPoint thisPosition(thisSegment->localPosition());
 	LocalVector thisDirection(thisSegment->localDirection().x(),thisSegment->localDirection().y(),thisSegment->localDirection().z());  //FIXME
@@ -245,7 +245,7 @@ void ME0SegmentMatcher::produce(edm::Event& ev, const edm::EventSetup& setup) {
 
 
 	LocalTrajectoryParameters ltp(r3FinalReco,p3FinalReco,chargeReco);
-	JacobianCartesianToLocal jctl(roll->surface(),ltp);
+	JacobianCartesianToLocal jctl(chamber->surface(),ltp);
 	AlgebraicMatrix56 jacobGlbToLoc = jctl.jacobian(); 
 
 	AlgebraicMatrix55 Ctmp =  (jacobGlbToLoc * covFinalReco) * ROOT::Math::Transpose(jacobGlbToLoc); 
@@ -266,20 +266,20 @@ void ME0SegmentMatcher::produce(edm::Event& ev, const edm::EventSetup& setup) {
 	 // if ( (std::abs(thisPosition.x()-r3FinalReco.x()) < (3.0 * sigmax)) || (std::abs(thisPosition.x()-r3FinalReco.x()) < 2.0 ) ) X_MatchFound = true;
 	 // if ( (std::abs(thisPosition.y()-r3FinalReco.y()) < (3.0 * sigmay)) || (std::abs(thisPosition.y()-r3FinalReco.y()) < 2.0 ) ) Y_MatchFound = true;
 
-	 // if ( std::abs(p3FinalReco_glob.phi()-roll->toGlobal(thisSegment->localDirection()).phi()) < 0.15) Dir_MatchFound = true;
+	 // if ( std::abs(p3FinalReco_glob.phi()-chamber->toGlobal(thisSegment->localDirection()).phi()) < 0.15) Dir_MatchFound = true;
 
 
 	 if ( (std::abs(thisPosition.x()-r3FinalReco.x()) < (theX_PULL_CUT * sigmax)) || (std::abs(thisPosition.x()-r3FinalReco.x()) < theX_RESIDUAL_CUT ) ) X_MatchFound = true;
 	 if ( (std::abs(thisPosition.y()-r3FinalReco.y()) < (theY_PULL_CUT * sigmay)) || (std::abs(thisPosition.y()-r3FinalReco.y()) < theY_RESIDUAL_CUT ) ) Y_MatchFound = true;
 
-	 if ( std::abs(reco::deltaPhi(p3FinalReco_glob.barePhi(),roll->toGlobal(thisSegment->localDirection()).barePhi())) < thePHIDIR_RESIDUAL_CUT) Dir_MatchFound = true;
+	 if ( std::abs(reco::deltaPhi(p3FinalReco_glob.barePhi(),chamber->toGlobal(thisSegment->localDirection()).barePhi())) < thePHIDIR_RESIDUAL_CUT) Dir_MatchFound = true;
 
 	 //Check for a Match, and if there is a match, check the delR from the segment, keeping only the closest in MuonCandidate
 	 if (X_MatchFound && Y_MatchFound && Dir_MatchFound) {
 	   
 	   TrackRef thisTrackRef(generalTracks,TrackNumber);
 	   
-	   GlobalPoint SegPos(roll->toGlobal(thisSegment->localPosition()));
+	   GlobalPoint SegPos(chamber->toGlobal(thisSegment->localPosition()));
 	   GlobalPoint TkPos(r3FinalReco_globv.x(),r3FinalReco_globv.y(),r3FinalReco_globv.z());
 	   
 	   double thisDelR2 = reco::deltaR2(SegPos,TkPos);

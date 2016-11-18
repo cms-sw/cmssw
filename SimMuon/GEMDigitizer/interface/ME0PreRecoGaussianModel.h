@@ -32,6 +32,8 @@ private:
   double sigma_t;
   double sigma_u;
   double sigma_v;
+  double error_u;
+  double error_v;
   bool gaussianSmearing_;
   double constPhiSmearing_;
   bool corr;

@@ -40,12 +40,13 @@ class MuonSegFit {
   //typedef std::vector<const TrackingRecHit*> MuonRecHitContainer;
   typedef std::shared_ptr<TrackingRecHit> MuonRecHitPtr;
   typedef std::vector<MuonRecHitPtr> MuonRecHitContainer;
-  
+
+  static const int MaxHits2 = 22; // maxHit2 = 2*max hits 
   // 12 x12 Symmetric
-  typedef ROOT::Math::SMatrix<double,12,12,ROOT::Math::MatRepSym<double,12> > SMatrixSym12;
+  typedef ROOT::Math::SMatrix<double,MaxHits2,MaxHits2,ROOT::Math::MatRepSym<double,MaxHits2> > SMatrixSym12;
 
   // 12 x 4
-  typedef ROOT::Math::SMatrix<double,12,4 > SMatrix12by4;
+  typedef ROOT::Math::SMatrix<double,MaxHits2,4 > SMatrix12by4;
 
   // 4 x 4 General + Symmetric
   typedef ROOT::Math::SMatrix<double, 4 > SMatrix4;

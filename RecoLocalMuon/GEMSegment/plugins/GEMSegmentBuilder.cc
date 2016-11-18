@@ -58,11 +58,8 @@ void GEMSegmentBuilder::build(const GEMRecHitCollection* recHits, GEMSegmentColl
     std::vector<const GEMRecHit*> gemRecHits;
     std::map<uint32_t,const GEMEtaPartition* > ens;
 
-    std::vector<GEMRecHit* > pp = enIt->second;
-    std::vector<GEMRecHit*>::iterator ppit = pp.begin();
-    GEMRecHit * pphit = (*ppit);
-    GEMDetId chamberid = GEMDetId(pphit->gemId().region(), 1, pphit->gemId().station(), 0, pphit->gemId().chamber(), 0); 
-    const GEMSuperChamber* chamber = geom_->superChamber(chamberid);
+    // all detIds have been assigned to the to chamber
+    const GEMSuperChamber* chamber = geom_->superChamber(enIt->first);
     for(auto rechit = enIt->second.begin(); rechit != enIt->second.end(); ++rechit) {
       gemRecHits.push_back(*rechit);
       ens[(*rechit)->gemId()]=geom_->etaPartition((*rechit)->gemId());

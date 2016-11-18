@@ -10,7 +10,7 @@ namespace {
   // create reference GEM Chamber ID for segment
   inline
   DetId buildDetId(GEMDetId id) {
-    return GEMDetId(id.region(),id.ring(),id.station(),0,id.chamber(),id.roll());
+    return GEMDetId(id.superChamberId());
   }
 }
 

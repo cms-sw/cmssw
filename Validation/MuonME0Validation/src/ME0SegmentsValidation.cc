@@ -85,8 +85,8 @@ void ME0SegmentsValidation::analyze(const edm::Event& e,
    // The ME0 Ensamble DetId refers to layer = 1
    ME0DetId id = me0s->me0DetId();
    //std::cout <<" Original ME0DetID "<<id<<std::endl;
-   auto roll = ME0Geometry_->etaPartition(id);
-   //std::cout <<"Global Segment Position "<< roll->toGlobal(me0s->localPosition())<<std::endl;
+   auto chamber = ME0Geometry_->chamber(id);
+   //std::cout <<"Global Segment Position "<< chamber->toGlobal(me0s->localPosition())<<std::endl;
    auto segLP = me0s->localPosition();
    auto segLD = me0s->localDirection();
    //std::cout <<" Global Direction theta = "<<segLD.theta()<<" phi="<<segLD.phi()<<std::endl;
@@ -120,12 +120,12 @@ void ME0SegmentsValidation::analyze(const edm::Event& e,
      auto rhLP = rh->localPosition();
      auto erhLEP = rh->localPositionError();
      auto rhGP = rhr->toGlobal(rhLP);
-     auto rhLPSegm = roll->toLocal(rhGP);
+     auto rhLPSegm = chamber->toLocal(rhGP);
      float xe = segLP.x()+segLD.x()*rhLPSegm.z()/segLD.z();
      float ye = segLP.y()+segLD.y()*rhLPSegm.z()/segLD.z();
      float ze = rhLPSegm.z();
      LocalPoint extrPoint(xe,ye,ze); // in segment rest frame
-     auto extSegm = rhr->toLocal(roll->toGlobal(extrPoint)); // in layer restframe
+     auto extSegm = rhr->toLocal(chamber->toGlobal(extrPoint)); // in layer restframe
 
 //     Int_t detId = me0id;
 
@@ -134,7 +134,7 @@ void ME0SegmentsValidation::analyze(const edm::Event& e,
 //     Short_t ring = 0;
      Short_t layer = me0id.layer();
 //     Short_t chamber = me0id.chamber();
-//     Short_t roll = me0id.roll();
+//     Short_t chamber = me0id.chamber();
 
      Float_t x = rhLP.x();
      Float_t xErr = erhLEP.xx();

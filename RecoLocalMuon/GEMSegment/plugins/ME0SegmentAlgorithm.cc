@@ -300,39 +300,37 @@ void ME0SegmentAlgorithm::buildSegments(const ME0Ensemble& ensemble, const Ensem
   MuonSegFit::MuonRecHitContainer muonRecHits;
   proto_segment.clear();
   
-  uint32_t refid = ensemble.second.begin()->first;
-  const ME0EtaPartition * refPart = (ensemble.second.find(refid))->second;
   // select hits from the ensemble and sort it 
+  const ME0Chamber * chamber   = ensemble.first;
   for (auto rh=rechits.begin(); rh!=rechits.end();rh++){
     proto_segment.push_back(*rh);
-
-    // for segFit - using local point in first partition frame
+    // for segFit - using local point in chamber frame
     const ME0EtaPartition * thePartition   = (ensemble.second.find((*rh)->me0Id()))->second;
     GlobalPoint gp = thePartition->toGlobal((*rh)->localPosition());
-    const LocalPoint lp = refPart->toLocal(gp);    
+    const LocalPoint lp = chamber->toLocal(gp);    
     ME0RecHit *newRH = (*rh)->clone();
     newRH->setPosition(lp);
 
     MuonSegFit::MuonRecHitPtr trkRecHit(newRH);
     muonRecHits.push_back(trkRecHit);
-    //muonRecHits.push_back(newRH);
   }
 
   // The actual fit on all hits of the vector of the selected Tracking RecHits:
   sfit_ = std::make_unique<MuonSegFit>(muonRecHits);
-  //  bool goodfit = sfit_->fit();
-  sfit_->fit();
+  bool goodfit = sfit_->fit();
   edm::LogVerbatim("ME0SegmentAlgorithm") << "[ME0SegmentAlgorithm::buildSegments] ME0Segment fit done";
 
   // quit function if fit was not OK  
-  //if(!goodfit) return;
+  if(!goodfit){
+    for (auto rh:muonRecHits) rh.reset();
+    return;
+  }
   
   // obtain all information necessary to make the segment:
   LocalPoint protoIntercept      = sfit_->intercept();
   LocalVector protoDirection     = sfit_->localdir();
   AlgebraicSymMatrix protoErrors = sfit_->covarianceMatrix(); 
   double protoChi2               = sfit_->chi2();
-
   // Calculate the central value and uncertainty of the segment time
   float averageTime=0.;
   for (auto rh=rechits.begin(); rh!=rechits.end(); ++rh){
@@ -357,5 +355,3 @@ void ME0SegmentAlgorithm::buildSegments(const ME0Ensemble& ensemble, const Ensem
   me0segs.push_back(tmp);
   return;
 }
-
-

@@ -70,12 +70,7 @@ public:
 
     int nRecHits() const { return theGEMRecHits.size(); }        
 
-    GEMDetId gemDetId() const {
-      DetId detid = geographicalId();
-      GEMDetId rollid = GEMDetId(detid);
-      GEMDetId chamid = rollid.superChamberId();
-	return chamid;
-    }
+    GEMDetId gemDetId() const { return  geographicalId(); }
 
     float time()    const { return theTimeValue; }
     float timeErr() const { return theTimeUncrt; }
