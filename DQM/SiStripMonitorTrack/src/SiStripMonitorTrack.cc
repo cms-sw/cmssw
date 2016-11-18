@@ -1173,8 +1173,6 @@ bool SiStripMonitorTrack::clusterInfos(SiStripClusterInfo* cluster, const uint32
       fillME(MEs.iLayer->ClusterPosOnTrack, position);
       if(track_ok) fillME(MEs.iLayer->ClusterChargePerCMfromTrack, dQdx_fromTrack);
       if(track_ok) fillME(MEs.iLayer->ClusterChargePerCMfromOriginOnTrack, dQdx_fromOrigin);
-      //---------ATTENTION -- DELETE LATER---------//
-      //-------------------------------------------//
       if( tTopo->moduleGeometry(detid) == SiStripDetId::ModuleGeometry::W5 || tTopo->moduleGeometry(detid) == SiStripDetId::ModuleGeometry::W6 || tTopo->moduleGeometry(detid) == SiStripDetId::ModuleGeometry::W7 ) {
         if(noise > 0.0) fillME(MEs.iLayer->ClusterStoNCorrThickOnTrack, StoN*cosRZ);
         fillME(MEs.iLayer->ClusterChargeCorrThickOnTrack, charge*cosRZ);
@@ -1182,8 +1180,6 @@ bool SiStripMonitorTrack::clusterInfos(SiStripClusterInfo* cluster, const uint32
         if(noise > 0.0) fillME(MEs.iLayer->ClusterStoNCorrThinOnTrack, StoN*cosRZ);
         fillME(MEs.iLayer->ClusterChargeCorrThinOnTrack, charge*cosRZ);
       }
-      //---------ATTENTION -- DELETE LATER---------//
-      //-------------------------------------------//
     }
     // ringMEs
     if (MEs.iRing != nullptr) {
@@ -1196,8 +1192,6 @@ bool SiStripMonitorTrack::clusterInfos(SiStripClusterInfo* cluster, const uint32
       fillME(MEs.iRing->ClusterPosOnTrack, position);
       if(track_ok) fillME(MEs.iRing->ClusterChargePerCMfromTrack, dQdx_fromTrack);
       if(track_ok) fillME(MEs.iRing->ClusterChargePerCMfromOriginOnTrack, dQdx_fromOrigin);
-      //---------ATTENTION -- DELETE LATER---------//
-      //-------------------------------------------//
       if( tTopo->moduleGeometry(detid) == SiStripDetId::ModuleGeometry::W5 || tTopo->moduleGeometry(detid) == SiStripDetId::ModuleGeometry::W6 || tTopo->moduleGeometry(detid) == SiStripDetId::ModuleGeometry::W7) {
         if(noise > 0.0) fillME(MEs.iRing->ClusterStoNCorrThickOnTrack, StoN*cosRZ);
         fillME(MEs.iRing->ClusterChargeCorrThickOnTrack, charge*cosRZ);
@@ -1205,8 +1199,6 @@ bool SiStripMonitorTrack::clusterInfos(SiStripClusterInfo* cluster, const uint32
         if(noise > 0.0) fillME(MEs.iRing->ClusterStoNCorrThinOnTrack, StoN*cosRZ);
         fillME(MEs.iRing->ClusterChargeCorrThinOnTrack, charge*cosRZ);
       }
-      //---------ATTENTION -- DELETE LATER---------//
-      //-------------------------------------------//
     }
     // subdetMEs
     if(MEs.iSubdet != nullptr){
