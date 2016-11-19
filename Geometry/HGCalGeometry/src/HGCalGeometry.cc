@@ -65,10 +65,6 @@ void HGCalGeometry::newCell( const GlobalPoint& f1 ,
   } else {
     geomId = (DetId)(HGCalDetId(detId).geometryCell());
     cells = topology().dddConstants().numberCellsHexagon(id.iSec);
-#ifdef EDM_ML_DEBUG
-    std::cout << "NewCell " << HGCalDetId(detId) << " GEOM " 
-	      << HGCalDetId(geomId) << std::endl;
-#endif
   }
   const uint32_t cellIndex (topology().detId2denseGeomId(detId));
 
@@ -76,9 +72,6 @@ void HGCalGeometry::newCell( const GlobalPoint& f1 ,
   m_validGeomIds.at( cellIndex ) = geomId ;
 
 #ifdef EDM_ML_DEBUG
-  std::cout << "Store for DetId " << std::hex << detId.rawId() << " GeomId " 
-	    << geomId.rawId() << std::dec << " Index " << cellIndex
-	    << " cells " << cells << std::endl;
   unsigned int nOld = m_validIds.size();
 #endif
   for (int cell = 0; cell < cells; ++cell) {
