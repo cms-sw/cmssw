@@ -1,24 +1,17 @@
 #include "L1Trigger/L1THGCal/interface/HGCalTriggerBackendAlgorithmBase.h"
 #include "L1Trigger/L1THGCal/interface/fe_codecs/HGCalTriggerCellBestChoiceCodec.h"
-#include "L1Trigger/L1THGCal/interface/fe_codecs/HGCalTriggerCellThresholdCodec.h"
 #include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
 
 #include "DataFormats/L1THGCal/interface/HGCalCluster.h"
 
 using namespace HGCalTriggerBackend;
 
-template<typename FECODEC, typename DATA>
-class FullModuleSumAlgo : public Algorithm<FECODEC> 
+class FullModuleSumAlgo : public Algorithm<HGCalTriggerCellBestChoiceCodec> 
 {
     public:
-        using Algorithm<FECODEC>::name;
 
-    protected:
-        using Algorithm<FECODEC>::codec_;
-
-    public:
         FullModuleSumAlgo(const edm::ParameterSet& conf):
-            Algorithm<FECODEC>(conf),
+            Algorithm<HGCalTriggerCellBestChoiceCodec>(conf),
             cluster_product_( new l1t::HGCalClusterBxCollection ){}
 
         virtual void setProduces(edm::EDProducer& prod) const override final 
@@ -70,7 +63,6 @@ void FullModuleSumAlgo::run(const l1t::HGCFETriggerDigiCollection& coll, const e
         cluster_product_->push_back(0,cluster);
     }
 }
-
 
 DEFINE_EDM_PLUGIN(HGCalTriggerBackendAlgorithmFactory, 
         FullModuleSumAlgo,

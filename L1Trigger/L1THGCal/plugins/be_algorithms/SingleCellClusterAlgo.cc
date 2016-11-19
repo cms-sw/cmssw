@@ -1,21 +1,13 @@
 #include "L1Trigger/L1THGCal/interface/HGCalTriggerBackendAlgorithmBase.h"
 #include "L1Trigger/L1THGCal/interface/fe_codecs/HGCalTriggerCellBestChoiceCodec.h"
-#include "L1Trigger/L1THGCal/interface/fe_codecs/HGCalTriggerCellThresholdCodec.h"
 #include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
 #include "DataFormats/L1THGCal/interface/HGCalTriggerCell.h"
 #include "L1Trigger/L1THGCal/interface/be_algorithms/HGCalTriggerCellCalibration.h"
 
 using namespace HGCalTriggerBackend;
 
-template<typename FECODEC, typename DATA>
-class SingleCellClusterAlgo : public Algorithm<FECODEC> 
+class SingleCellClusterAlgo : public Algorithm<HGCalTriggerCellBestChoiceCodec> 
 {
-    public:
-        using Algorithm<FECODEC>::name;
-
-    protected:
-        using Algorithm<FECODEC>::codec_;
-
     public:
 
         SingleCellClusterAlgo(const edm::ParameterSet& conf):
@@ -31,7 +23,7 @@ class SingleCellClusterAlgo : public Algorithm<FECODEC>
         {
             prod.produces<l1t::HGCalTriggerCellBxCollection>(name());
         }
-
+    
         virtual void run(const l1t::HGCFETriggerDigiCollection& coll, const edm::EventSetup& es) override final;
 
         virtual void putInEvent(edm::Event& evt) override final 
@@ -95,5 +87,5 @@ void SingleCellClusterAlgo::run(const l1t::HGCFETriggerDigiCollection& coll, con
 }
 
 DEFINE_EDM_PLUGIN(HGCalTriggerBackendAlgorithmFactory, 
-        SingleCellClusterAlgoThreshold,
-        "SingleCellClusterAlgoThreshold");
+        SingleCellClusterAlgo,
+        "SingleCellClusterAlgo");
