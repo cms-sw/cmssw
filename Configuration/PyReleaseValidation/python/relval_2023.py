@@ -26,6 +26,8 @@ for i,key in enumerate(upgradeKeys[2023]):
         stepList=[]
         for step in upgradeProperties[2023][key]['ScenToRun']:
             if 'Sim' in step:
+                if 'HLBeamSpotFull' in step and '14TeV' in frag:
+                    step = 'GenSimHLBeamSpotFull14'
                 stepList.append(k+'_'+step)
             else:
                 stepList.append(step+'_'+key)
