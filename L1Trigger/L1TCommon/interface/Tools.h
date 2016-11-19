@@ -25,7 +25,7 @@ template <class varType> varType convertVariable(const std::string& aVar)
 	catch (std::exception& e)
 	{
 		std::map<std::string, int> hexnums;
-        	std::string strHexNums("0123456789ABCDEF");
+        	std::string strHexNums("0123456789ABCDEFabcdef");
 	       	for(unsigned int i=0; i<strHexNums.size(); i++)
 	                hexnums[strHexNums.substr(i,1)] = i;
 		if ( aVar.substr(0,2) == "0x" && aVar.substr(2,aVar.size()).find_first_not_of(strHexNums) == std::string::npos)

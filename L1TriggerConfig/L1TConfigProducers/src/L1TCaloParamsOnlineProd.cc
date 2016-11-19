@@ -96,10 +96,10 @@ readCaloLayer2OnlineSettings(l1t::CaloParamsHelper& paramsHelper, std::map<std::
   paramsHelper.setEgNeighbourThreshold((conf["leptonTowerThreshold"].getValue<int>())/2);
   paramsHelper.setTauNeighbourThreshold((conf["leptonTowerThreshold"].getValue<int>())/2);
   paramsHelper.setJetSeedThreshold((conf["jetSeedThreshold"].getValue<int>())/2);
-  paramsHelper.setJetBypassPUS(conf["jetBypassPileUpSub"].getValue<unsigned>); //these are bools in onlineDB
-  paramsHelper.setEgBypassEGVetos(conf["egammaBypassCuts"].getValue<unsigned>); //these are bools in onlineDB
-  paramsHelper.setEgHOverEcutBarrel(conf["egammaHOverECut_iEtaLT15"].getValue<int>);
-  paramsHelper.setEgHOverEcutEndcap(conf["egammaHOverECut_iEtaGTEq15"].getValue<int>);
+  paramsHelper.setJetBypassPUS(conf["jetBypassPileUpSub"].getValue<unsigned>()); //these are bools in onlineDB
+  paramsHelper.setEgBypassEGVetos(conf["egammaBypassCuts"].getValue<unsigned>()); //these are bools in onlineDB
+  paramsHelper.setEgHOverEcutBarrel(conf["egammaHOverECut_iEtaLT15"].getValue<int>());
+  paramsHelper.setEgHOverEcutEndcap(conf["egammaHOverECut_iEtaGTEq15"].getValue<int>());
 
 
   // Currently not used // paramsHelper.setEgPileupTowerThresh((conf["pileUpTowerThreshold"].getValue<int>())); 
@@ -115,9 +115,9 @@ readCaloLayer2OnlineSettings(l1t::CaloParamsHelper& paramsHelper, std::map<std::
   etSumEtaMax.push_back(conf["HTMHT_maxJetEta"].getValue<int>());
   etSumEtaMax.push_back(conf["towerCountMaxEta"].getValue<int>());
   
-  etSumEtThresh.push_back("ET_towerThreshold"); // ETT tower threshold
+  etSumEtThresh.push_back(conf["ET_towerThreshold"].getValue<int>()); // ETT tower threshold
   etSumEtThresh.push_back(conf["HT_jetThreshold"].getValue<int>());
-  etSumEtThresh.push_back("MET_towerThreshold"); // ETM tower threshold
+  etSumEtThresh.push_back(conf["MET_towerThreshold"].getValue<int>()); // ETM tower threshold
   etSumEtThresh.push_back(conf["MHT_jetThreshold"].getValue<int>());
   etSumEtThresh.push_back(conf["ET_towerThreshold"].getValue<int>());
 
