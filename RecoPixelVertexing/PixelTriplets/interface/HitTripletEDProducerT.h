@@ -86,6 +86,7 @@ namespace hitTripletEDProducerT {
       if(regionDoublets.empty()) {
         seedingHitSetsProducer.putEmpty(iEvent);
         intermediateHitTripletsProducer.putEmpty(iEvent);
+        return;
       }
 
       seedingHitSetsProducer.reserve(regionDoublets.regionSize(), this->localRA_.upper());
