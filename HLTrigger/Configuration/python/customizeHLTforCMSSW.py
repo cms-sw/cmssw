@@ -58,6 +58,13 @@ def customiseFor14833(process):
                 producer.includeME0 = cms.bool(False)
     return process
 
+def customiseFor16670(process):
+    for producer in esproducers_by_type(process, "DetIdAssociatorESProducer"):
+        if (producer.ComponentName.value() == 'HcalDetIdAssociator'):
+            if not hasattr(producer,'hcalRegion'):
+                producer.hcalRegion = cms.int32(1)
+    return process
+
 def customiseFor15499(process):
     for producer in producers_by_type(process,"HcalHitReconstructor"):
         producer.ts4Max = cms.vdouble(100.0,70000.0)
@@ -83,6 +90,7 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
         process = customiseFor15440(process)
         process = customiseFor15499(process)
 #       process = customiseFor12718(process)
+        process = customiseFor16670(process)
         pass
 
 #   stage-2 changes only if needed
