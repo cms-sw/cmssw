@@ -970,7 +970,10 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
             smear=False
             if "Smear" in metModName:
                 smear=True
-     
+            else:
+                smear=True
+                varyByNsigmas=101
+
             shiftedCollModules['Up'] = self.createShiftedJetResModule(process, smear, objectCollection, +1.*varyByNsigmas,
                                                                       "Up", postfix)
             shiftedCollModules['Down'] = self.createShiftedJetResModule(process, smear, objectCollection, -1.*varyByNsigmas,
