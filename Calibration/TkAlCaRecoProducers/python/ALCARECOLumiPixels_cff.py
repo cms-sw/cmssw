@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 import HLTrigger.HLTfilters.hltHighLevel_cfi
-ALCARECOLumiPixelsMinBiasHLT = HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLevel.clone(
+ALCARECOLumiPixelsHLT = HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLevel.clone(
     andOr = True, # choose logical OR between Triggerbits
     eventSetupPathsKey='LumiPixels',
     #HLTPaths = ['AlCa_LumiPixels_Random_*', 'AlCa_LumiPixels_ZeroBias_*'],
@@ -17,4 +17,4 @@ siPixelClustersForLumi = siPixelClustersPreSplitting.clone()
 siPixelClustersForLumi.src = cms.InputTag("siPixelDigisForLumi")
 
 # Sequence #
-seqALCARECOLumiPixels = cms.Sequence(ALCARECOLumiPixelsMinBiasHLT + siPixelDigisForLumi + siPixelClustersForLumi)
+seqALCARECOLumiPixels = cms.Sequence(ALCARECOLumiPixelsHLT + siPixelDigisForLumi + siPixelClustersForLumi)
