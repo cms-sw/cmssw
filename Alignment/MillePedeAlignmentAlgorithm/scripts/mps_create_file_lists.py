@@ -278,6 +278,7 @@ class FileListCreator(object):
             (self._events_in_dataset,
              self._files,
              self._file_info) = self._cache.get()
+            if self._args.random: random.shuffle(self._files)
             return
 
         self._events_in_dataset = 0
@@ -287,7 +288,6 @@ class FileListCreator(object):
                       .format(dataset))
             self._events_in_dataset += get_events_per_dataset(dataset)
             self._files.extend(get_files(dataset))
-        if self._args.random: random.shuffle(self._files)
 
         result = print_msg("Counting events in {0:d} dataset files. This may "
                            "take several minutes...".format(len(self._files)))
@@ -307,6 +307,7 @@ class FileListCreator(object):
         # write information to cache
         self._cache.set(self._events_in_dataset, self._files, self._file_info)
         self._cache.dump()
+        if self._args.random: random.shuffle(self._files)
 
 
     def _create_file_lists(self):
