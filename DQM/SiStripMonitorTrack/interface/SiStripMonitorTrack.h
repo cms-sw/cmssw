@@ -147,11 +147,7 @@ private:
 
   struct LayerMEs{
     MonitorElement* ClusterStoNCorrOnTrack;
-    MonitorElement* ClusterStoNCorrThinOnTrack;
-    MonitorElement* ClusterStoNCorrThickOnTrack;
     MonitorElement* ClusterChargeCorrOnTrack;
-    MonitorElement* ClusterChargeCorrThinOnTrack;
-    MonitorElement* ClusterChargeCorrThickOnTrack;
     MonitorElement* ClusterChargeOnTrack;
     MonitorElement* ClusterChargeOffTrack;
     MonitorElement* ClusterNoiseOnTrack;
@@ -166,11 +162,7 @@ private:
   };
   struct RingMEs{
     MonitorElement* ClusterStoNCorrOnTrack;
-    MonitorElement* ClusterStoNCorrThinOnTrack;
-    MonitorElement* ClusterStoNCorrThickOnTrack;
     MonitorElement* ClusterChargeCorrOnTrack;
-    MonitorElement* ClusterChargeCorrThinOnTrack;
-    MonitorElement* ClusterChargeCorrThickOnTrack;
     MonitorElement* ClusterChargeOnTrack;
     MonitorElement* ClusterChargeOffTrack;
     MonitorElement* ClusterNoiseOnTrack;
@@ -191,6 +183,11 @@ private:
     MonitorElement* nClustersOffTrack;
     MonitorElement* nClustersTrendOffTrack;
     MonitorElement* ClusterStoNCorrOnTrack;
+    MonitorElement* ClusterStoNCorrThinOnTrack;
+    MonitorElement* ClusterStoNCorrThickOnTrack;
+    MonitorElement* ClusterChargeCorrOnTrack;
+    MonitorElement* ClusterChargeCorrThinOnTrack;
+    MonitorElement* ClusterChargeCorrThickOnTrack;
     MonitorElement* ClusterChargeOnTrack;
     MonitorElement* ClusterChargeOffTrack;
     MonitorElement* ClusterStoNOffTrack;
