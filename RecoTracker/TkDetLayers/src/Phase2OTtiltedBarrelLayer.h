@@ -5,7 +5,7 @@
 #include "TrackingTools/DetLayers/interface/RodBarrelLayer.h"
 #include "Phase2OTBarrelLayer.h"
 #include "Phase2OTBarrelRod.h"
-#include "Phase2OTEndcapRing.h"
+#include "Phase2EndcapRing.h"
 #include "SubLayerCrossings.h"
 
 
@@ -19,8 +19,8 @@ class Phase2OTtiltedBarrelLayer final : public Phase2OTBarrelLayer {
 
   Phase2OTtiltedBarrelLayer(std::vector<const Phase2OTBarrelRod*>& innerRods,
                             std::vector<const Phase2OTBarrelRod*>& outerRods,
-                            std::vector<const Phase2OTEndcapRing*>& negRings, 
-                            std::vector<const Phase2OTEndcapRing*>& posRings);
+                            std::vector<const Phase2EndcapRing*>& negRings,
+                            std::vector<const Phase2EndcapRing*>& posRings);
   
   ~Phase2OTtiltedBarrelLayer();
   
