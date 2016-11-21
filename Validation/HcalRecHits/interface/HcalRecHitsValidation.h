@@ -74,8 +74,7 @@ class HcalRecHitsValidation : public DQMEDAnalyzer {
   std::string eventype_;
   std::string sign_;
   std::string mc_;
-  bool        famos_;
-  bool        useAllHistos_;
+  bool testNumber_;
 
   //RecHit Collection input tags
   edm::EDGetTokenT<edm::HepMCProduct> tok_evt_;
