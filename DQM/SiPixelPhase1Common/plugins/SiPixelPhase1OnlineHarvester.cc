@@ -13,7 +13,8 @@ class SiPixelPhase1OnlineHarvester : public SiPixelPhase1Harvester {
     int n_onlineblocks = iConfig.getParameter<edm::ParameterSet>("geometry").getParameter<int>("n_onlineblocks");
 
     for (auto& h : histo) {
-      h.setCustomHandler([&h, onlineblock, n_onlineblocks] (SummationStep& s, HistogramManager::Table & t) {
+      h.setCustomHandler([&h, onlineblock, n_onlineblocks] (SummationStep& s, HistogramManager::Table & t,
+                                                            DQMStore::IBooker&, DQMStore::IGetter&) {
         if (!h.lumisection) return; // not online
         uint32_t ls = h.lumisection->id().luminosityBlock();
 

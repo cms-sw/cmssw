@@ -62,7 +62,7 @@ public:
 private:
   const edm::ParameterSet& iConfig;
   GeometryInterface& geometryInterface;
-  std::function<void(SummationStep& step, Table& t)> customHandler;
+  std::function<void(SummationStep& step, Table& t, DQMStore::IBooker& iBooker, DQMStore::IGetter& iGetter)> customHandler;
 
   std::vector<SummationSpecification> specs;
   std::vector<Table> tables;
