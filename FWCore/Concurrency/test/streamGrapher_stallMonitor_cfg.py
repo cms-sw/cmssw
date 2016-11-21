@@ -24,3 +24,4 @@ process.options = cms.untracked.PSet( allowUnscheduled = cms.untracked.bool(True
                                       numberOfThreads = cms.untracked.uint32(5))
 
 process.add_(cms.Service("Tracer", printTimestamps = cms.untracked.bool(True)))
+process.add_(cms.Service("StallMonitor", fileName = cms.untracked.string("stallMonitor.log")))

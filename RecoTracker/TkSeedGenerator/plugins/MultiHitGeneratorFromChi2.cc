@@ -267,7 +267,7 @@ void MultiHitGeneratorFromChi2::hitTriplets(
     GlobalPoint gp1 = hit1->globalPosition();
 
 #ifdef EDM_ML_DEBUG
-    bool debugPair = oriHit0->rawId()==debug_Id0 && oriHit01->rawId()==debug_Id1;
+    bool debugPair = oriHit0->rawId()==debug_Id0 && oriHit1->rawId()==debug_Id1;
 #endif
     IfLogTrace(debugPair, "MultiHitGeneratorFromChi2") << endl << endl
                                                        << "found new pair with ids "<<debug_Id0<<" "<<debug_Id1<<" with pos: " << gp0 << " " << gp1;

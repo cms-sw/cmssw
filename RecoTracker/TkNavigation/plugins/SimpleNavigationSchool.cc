@@ -126,6 +126,13 @@ void SimpleNavigationSchool::linkNextForwardLayer( const BarrelDetLayer* bl,
 	fli != theRightLayers.end(); fli++) {
     if ( length < (**fli).position().z() &&
 	 radius < (**fli).specificSurface().outerRadius()) {
+      //search if there are any sovrapposition between forward layers
+      for ( FDLI fliNext = fli; fliNext != theRightLayers.end(); fliNext++) {
+        if ( (**fliNext).position().z() < (**fli).position().z() && (**fliNext).specificSurface().innerRadius() < (**fli).specificSurface().outerRadius()) {
+          rightFL.push_back( *fliNext);
+          return;
+        }
+      }
       rightFL.push_back( *fli);
       return;
     }

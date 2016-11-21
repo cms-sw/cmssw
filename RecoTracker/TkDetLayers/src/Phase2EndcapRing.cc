@@ -1,8 +1,7 @@
-#include "Phase2OTEndcapRing.h"
+#include "Phase2EndcapRing.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "TrackingTools/DetLayers/interface/DetLayerException.h"
 #include "TrackingTools/DetLayers/interface/DetLayerException.h"
 #include "TrackingTools/DetLayers/interface/MeasurementEstimator.h"
 #include "TrackingTools/GeomPropagators/interface/HelixForwardPlaneCrossing.h"
@@ -30,10 +29,10 @@ public:
   }
 };
 
-Phase2OTEndcapRing::Phase2OTEndcapRing(vector<const GeomDet*>& innerDets,
+Phase2EndcapRing::Phase2EndcapRing(vector<const GeomDet*>& innerDets,
 			       vector<const GeomDet*>& outerDets,
-			       vector<const GeomDet*>& innerDetBrothers,
-			       vector<const GeomDet*>& outerDetBrothers):
+			       const vector<const GeomDet*>& innerDetBrothers,
+			       const vector<const GeomDet*>& outerDetBrothers):
   GeometricSearchDet(true),
   theFrontDets(innerDets.begin(),innerDets.end()), 
   theBackDets(outerDets.begin(),outerDets.end()),
@@ -62,13 +61,23 @@ Phase2OTEndcapRing::Phase2OTEndcapRing(vector<const GeomDet*>& innerDets,
 
 
 #ifdef EDM_ML_DEBUG
-  LogDebug("TkDetLayers") << "DEBUG INFO for Phase2OTEndcapRing" ;
+  LogDebug("TkDetLayers") << "DEBUG INFO for Phase2EndcapRing" ;
   for(vector<const GeomDet*>::const_iterator it=theFrontDets.begin(); 
       it!=theFrontDets.end(); it++){
     LogDebug("TkDetLayers") << "frontDet phi,z,r: " 
 			    << (*it)->surface().position().phi()  << " , "
 			    << (*it)->surface().position().z()    << " , "
 			    << (*it)->surface().position().perp() ;
+  }
+
+  if(!theFrontDetBrothers.empty()){
+    for(vector<const GeomDet*>::const_iterator it=theFrontDetBrothers.begin(); 
+        it!=theFrontDetBrothers.end(); it++){
+      LogDebug("TkDetLayers") << "frontDet brothers phi,z,r: " 
+  			    << (*it)->surface().position().phi()  << " , "
+  			    << (*it)->surface().position().z()    << " , "
+  			    << (*it)->surface().position().perp() ;
+    }
   }
 
   for(vector<const GeomDet*>::const_iterator it=theBackDets.begin(); 
@@ -78,32 +87,42 @@ Phase2OTEndcapRing::Phase2OTEndcapRing(vector<const GeomDet*>& innerDets,
 			    << (*it)->surface().position().z()   << " , "
 			    << (*it)->surface().position().perp() ;
   }
+
+  if(!theBackDetBrothers.empty()){
+    for(vector<const GeomDet*>::const_iterator it=theBackDetBrothers.begin(); 
+        it!=theBackDetBrothers.end(); it++){
+      LogDebug("TkDetLayers") << "backDet brothers phi,z,r: " 
+  			    << (*it)->surface().position().phi() << " , "
+  			    << (*it)->surface().position().z()   << " , "
+  			    << (*it)->surface().position().perp() ;
+    }
+  }
 #endif
 
 }
 
-Phase2OTEndcapRing::~Phase2OTEndcapRing(){
+Phase2EndcapRing::~Phase2EndcapRing(){
 
 } 
 
 const vector<const GeometricSearchDet*>& 
-Phase2OTEndcapRing::components() const 
+Phase2EndcapRing::components() const 
 {
-  throw DetLayerException("Phase2OTEndcapRing doesn't have GeometricSearchDet components");
+  throw DetLayerException("Phase2EndcapRing doesn't have GeometricSearchDet components");
 }
 
   
 pair<bool, TrajectoryStateOnSurface>
-Phase2OTEndcapRing::compatible( const TrajectoryStateOnSurface&, const Propagator&, 
+Phase2EndcapRing::compatible( const TrajectoryStateOnSurface&, const Propagator&, 
 		  const MeasurementEstimator&) const{
-  edm::LogError("TkDetLayers") << "temporary dummy implementation of Phase2OTEndcapRing::compatible()!!" ;
+  edm::LogError("TkDetLayers") << "temporary dummy implementation of Phase2EndcapRing::compatible()!!" ;
   return pair<bool,TrajectoryStateOnSurface>();
 }
 
 
 
 void 
-Phase2OTEndcapRing::groupedCompatibleDetsV( const TrajectoryStateOnSurface& tsos,
+Phase2EndcapRing::groupedCompatibleDetsV( const TrajectoryStateOnSurface& tsos,
 				 const Propagator& prop,
 				 const MeasurementEstimator& est,
 				 std::vector<DetGroup>& result) const
@@ -146,7 +165,7 @@ Phase2OTEndcapRing::groupedCompatibleDetsV( const TrajectoryStateOnSurface& tsos
 #ifdef EDM_ML_DEBUG
   for (auto&  grp : result) {
     if ( grp.empty() )  continue;
-      LogTrace("TkDetLayers") <<"New group in Phase2OTEndcapRing made by : " << std::endl;
+      LogTrace("TkDetLayers") <<"New group in Phase2EndcapRing made by : " << std::endl;
       for (auto const & det : grp) {
           LogTrace("TkDetLayers") <<" geom det at r: " << det.det()->position().perp() <<" id:" << det.det()->geographicalId().rawId()
                     <<" tsos at:" << det.trajectoryState().globalPosition() << std::endl;
@@ -158,7 +177,7 @@ Phase2OTEndcapRing::groupedCompatibleDetsV( const TrajectoryStateOnSurface& tsos
 
 
 SubLayerCrossings 
-Phase2OTEndcapRing::computeCrossings(const TrajectoryStateOnSurface& startingState,
+Phase2EndcapRing::computeCrossings(const TrajectoryStateOnSurface& startingState,
 			  PropagationDirection propDir) const
 {
   auto rho = startingState.transverseCurvature();
@@ -198,7 +217,7 @@ Phase2OTEndcapRing::computeCrossings(const TrajectoryStateOnSurface& startingSta
   } 
 }
 
-bool Phase2OTEndcapRing::addClosest( const TrajectoryStateOnSurface& tsos,
+bool Phase2EndcapRing::addClosest( const TrajectoryStateOnSurface& tsos,
 				 const Propagator& prop,
 				 const MeasurementEstimator& est,
 				 const SubLayerCrossing& crossing,
@@ -208,6 +227,7 @@ bool Phase2OTEndcapRing::addClosest( const TrajectoryStateOnSurface& tsos,
   const vector<const GeomDet*>& sub( subLayer( crossing.subLayerIndex()));
   const GeomDet* det(sub[crossing.closestDetIndex()]);
   bool firstgroup = CompatibleDetToGroupAdder::add( *det, tsos, prop, est, result); 
+  if(theFrontDetBrothers.empty() && theBackDetBrothers.empty())   return firstgroup;
   // it assumes that the closestDetIndex is ok also for the brother detectors: the crossing is NOT recomputed
   const vector<const GeomDet*>& subBrothers( subLayerBrothers( crossing.subLayerIndex()));
   const GeomDet* detBrother(subBrothers[crossing.closestDetIndex()]);
@@ -217,7 +237,7 @@ bool Phase2OTEndcapRing::addClosest( const TrajectoryStateOnSurface& tsos,
 
 
 
-void Phase2OTEndcapRing::searchNeighbors( const TrajectoryStateOnSurface& tsos,
+void Phase2EndcapRing::searchNeighbors( const TrajectoryStateOnSurface& tsos,
 				     const Propagator& prop,
 				     const MeasurementEstimator& est,
 				     const SubLayerCrossing& crossing,
@@ -253,6 +273,7 @@ void Phase2OTEndcapRing::searchNeighbors( const TrajectoryStateOnSurface& tsos,
     const GeomDet & neighborDet = *sLayer[binFinder.binIndex(idet)];
     if (!tkDetUtil::overlapInPhi( gCrossingPos, neighborDet, window)) break;
     if (!Adder::add( neighborDet, tsos, prop, est, result)) break;
+    if(theFrontDetBrothers.empty() && theBackDetBrothers.empty()) break;
     // If the two above checks are passed also the brother module will be added with no further checks
     const GeomDet & neighborBrotherDet = *sBrotherLayer[binFinder.binIndex(idet)];
     Adder::add( neighborBrotherDet, tsos, prop, est, brotherresult);
@@ -262,6 +283,7 @@ void Phase2OTEndcapRing::searchNeighbors( const TrajectoryStateOnSurface& tsos,
     const GeomDet & neighborDet = *sLayer[binFinder.binIndex(idet)];
     if (!tkDetUtil::overlapInPhi( gCrossingPos, neighborDet, window)) break;
     if (!Adder::add( neighborDet, tsos, prop, est, result)) break;
+    if(theFrontDetBrothers.empty() && theBackDetBrothers.empty()) break;
     // If the two above checks are passed also the brother module will be added with no further checks
     const GeomDet & neighborBrotherDet = *sBrotherLayer[binFinder.binIndex(idet)];
     Adder::add( neighborBrotherDet, tsos, prop, est, brotherresult);
