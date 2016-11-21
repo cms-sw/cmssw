@@ -663,8 +663,7 @@ void HistogramManager::executeHarvesting(DQMStore::IBooker& iBooker,
             assert(!"EXTEND_Y currently not supported in harvesting.");
             break;
           case SummationStep::CUSTOM:
-            // TODO: maybe pass iBooker here as well.
-            if (customHandler) customHandler(step, t);
+            if (customHandler) customHandler(step, t, iBooker, iGetter);
             break;
           default:
             assert(!"Operation not supported in harvesting.");

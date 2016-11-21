@@ -12,10 +12,13 @@
 SiPixelPhase1DigisHarvester::SiPixelPhase1DigisHarvester(const edm::ParameterSet& iConfig) :
   SiPixelPhase1Harvester(iConfig) 
 {
-  histo[NDIGIS_FED].setCustomHandler([&] (SummationStep& s, HistogramManager::Table & t) {
+  histo[NDIGIS_FED].setCustomHandler([&] (SummationStep& s, HistogramManager::Table& t,
+                                          DQMStore::IBooker& iBooker, DQMStore::IGetter&) {
     for (auto e : t) {
       TH1* th1 = e.second.th1;
       assert(th1->GetDimension() == 2);
+      iBooker.setCurrentFolder(e.second.me->getPathname());
+      MonitorElement* out = iBooker.book2D(e.second.me->getName() + "_norm", dynamic_cast<TH2F*>(th1));
 
       for (int x = 1; x <= th1->GetNbinsX(); x++) {
         double sum = 0;
@@ -31,7 +34,7 @@ SiPixelPhase1DigisHarvester::SiPixelPhase1DigisHarvester(const edm::ParameterSet
         double avg = sum / nonzero;
 
         for (int y = 1; y <= th1->GetNbinsY(); y++) {
-          th1->SetBinContent(x, y, th1->GetBinContent(x, y) / avg);
+          out->setBinContent(x, y, th1->GetBinContent(x, y) / avg);
         }
       }
     }
