@@ -82,12 +82,12 @@ public:
   }
 
   void setpuCorrParams(bool   iPedestalConstraint, bool iTimeConstraint,bool iAddPulseJitter,bool iApplyTimeSlew,
-		       double iTS4Min, std::vector<double> iTS4Max, double iPulseJitter,
+		       double iTS4Min, const std::vector<double> & iTS4Max, double iPulseJitter,
 		       double iTimeMean,double iTimeSig,double iTimeSigSiPM,
 		       double iPedMean,double iPedSig, double iPedSigSiPM,
 		       double iNoise,double iNoiseSiPM,
 		       double iTMin, double iTMax,
-		       double its4Chi2, int iFitTimes);
+		       const std::vector<double> & its4Chi2, int iFitTimes);
   void setMeth3Params(bool iApplyTimeSlew, float iPedSubThreshold, int iTimeSlewParsType, std::vector<double> iTimeSlewPars, double irespCorrM3);
                
 private:
