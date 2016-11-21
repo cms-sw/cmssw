@@ -273,7 +273,7 @@ HcalHitReconstructor::HcalHitReconstructor(edm::ParameterSet const& conf):
 			  conf.getParameter<double>("noiseSiPM"),
 			  conf.getParameter<double>("timeMin"),
 			  conf.getParameter<double>("timeMax"),
-			  conf.getParameter<double>("ts4chi2"),
+			  conf.getParameter<std::vector<double>>("ts4chi2"),
                           conf.getParameter<int>   ("fitTimes")
 			  );
   }
