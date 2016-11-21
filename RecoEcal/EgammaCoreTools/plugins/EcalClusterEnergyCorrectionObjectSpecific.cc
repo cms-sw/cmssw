@@ -335,6 +335,7 @@ float EcalClusterEnergyCorrectionObjectSpecific::fEt(float ET, int algorithm) co
     par2 = (params_->params())[172];
     par3 = (params_->params())[173];
     par4 = (params_->params())[174];
+    //assignments to 'par5'&'par6' have been deleted from here as they serve no purpose and cause dead assignment errors
 
     if (ET > 200) ET =200;   		  
     if (             ET <    5 ) return         1.;  
@@ -351,7 +352,8 @@ float EcalClusterEnergyCorrectionObjectSpecific::fEt(float ET, int algorithm) co
     par2 = (params_->params())[179];
     par3 = (params_->params())[180];
     par4 = (params_->params())[181];
-    
+    //assignments to variables 'par5'&'par6' have been deleted from here as they serve no purpose and cause dead assignment errors
+
     if (ET > 200) ET =200;   		  
     if (             ET <    5 ) return         1.;  
     if (  5 <= ET && ET <   10 ) return         par0;  
@@ -368,6 +370,7 @@ float EcalClusterEnergyCorrectionObjectSpecific::fEt(float ET, int algorithm) co
     par2 =  (params_->params())[186];	   
     par3 =  (params_->params())[187];	   
     par4 =  (params_->params())[188];  
+    //assignments to 'par5'&'par6' have been deleted from here as they serve no purpose and cause dead assignment errors
 
     if (             ET <   5 ) return         1.;  
     if (  5 <= ET && ET <  10 ) return         par0 ;  
@@ -441,7 +444,8 @@ float EcalClusterEnergyCorrectionObjectSpecific::fEnergy(float E, int algorithm)
     par0 = (params_->params())[203];             
     par1 = (params_->params())[204];
     par2 = (params_->params())[205];
-  				 	  
+    //assignments to 'par3'&'par4' have been deleted from here as they serve no purpose and cause dead assignment errors
+
     if (E  > par0 ) E = par0 ;   		  
     if (            E <   0     ) return      1.;  
     if (  0 <= E && E <=  par0  ) return      par1 + E*par2; 
