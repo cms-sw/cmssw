@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+            xmlns:tmxsd="http://www.cern.ch/tmxsd/1.0.0"
+            targetNamespace="http://www.cern.ch/tmxsd/1.0.0">
+
+  <xsd:include schemaLocation="simple-types.xsd"/>
+
+  <xsd:complexType name="cut">
+    <xsd:annotation>
+      <xsd:documentation>
+        The cut complex type holds information associated to CUT table in the CMS level-1 trigger menu database
+      </xsd:documentation>
+    </xsd:annotation>
+
+    <xsd:sequence>
+      <xsd:element name="name" type="tmxsd:char1k"/>
+      <xsd:element name="object" type="tmxsd:char64"/>
+      <xsd:element name="type" type="tmxsd:char64"/>
+      <xsd:element name="minimum" type="tmxsd:real"/>
+      <xsd:element name="maximum" type="tmxsd:real"/>
+      <xsd:element name="data" type="tmxsd:char4k"/>
+      <xsd:element name="comment" type="tmxsd:char4k" minOccurs="0"/>
+    </xsd:sequence>
+    <xsd:attribute name="cut_id" type="tmxsd:id"/> 
+    <xsd:attribute name="datetime" type="tmxsd:datetime"/>
+  </xsd:complexType>
+
+</xsd:schema>
