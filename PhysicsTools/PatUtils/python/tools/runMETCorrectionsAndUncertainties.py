@@ -448,6 +448,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
             getattr(process, "patPFMet"+postfix).srcPFCands = self._parameters["pfCandCollection"].value
         
         if self._parameters["runOnData"].value:
+            print " ============================== running on data!!!!!!!!! "
             getattr(process, "patPFMet"+postfix).addGenMET  = False
            
             
