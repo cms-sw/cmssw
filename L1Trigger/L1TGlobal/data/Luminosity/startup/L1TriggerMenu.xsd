@@ -1,0 +1,684 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+
+<!--
+
+    XML Schema Definition for the L1 trigge menu.
+
+    ************************************************************************
+      THIS IS ONLY A PRELIMINARY PROPOSAL OF THE L1 MENU INTERFACE.
+    ************************************************************************
+
+-->
+
+<xs:schema targetNamespace="http://www.cern.ch/l1t/0.7.0"
+  xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  xmlns:l1t="http://www.cern.ch/l1t/0.7.0"
+  elementFormDefault="qualified" attributeFormDefault="unqualified">
+
+  <!--
+
+    Simple types used in the entire L1 trigger menu.
+
+  -->
+
+  <xs:simpleType name="UUID">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        Container for holding an UUID (universally unique identifier) 128 bit
+        identifier (00000000-0000-0000-0000-000000000000).
+      </xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:maxLength value="36"/>
+      <xs:pattern value="([a-z0-9]){8}-([a-z0-9]){4}-([a-z0-9]){4}-([a-z0-9]){4}-([a-z0-9]){12}"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="DateTime">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        Time stamp containing date and time information in the following form
+        "YYYY-MM-DDThh:mm:ss".
+      </xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:dateTime">
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="Name">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        String for general purpose labels names, maximum length is limited to
+        1024 characters in compliance to the database.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:maxLength value="1024"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="Comment">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        String for description texts, maximum length is limited to 4000
+        characters in compliance to the database.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:maxLength value="4000"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <!--
+
+    Simple types used inside complex type Meta.
+
+  -->
+
+  <xs:simpleType name="MenuName">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        String for L1T-Menu name, maximum length is limited to 1024 characters
+        in compliance to the database. Allowed characters are a-z, A-Z,
+        underscores and numbers. The string must begin with "L1Menu_".
+      </xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="l1t:Name">
+      <xs:pattern value="L1Menu_([A-Za-z0-9_])*"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="ScaleSet">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        String for database scales set, maximum length is limited to 1024
+        characters in compliance to the database. Allowed characters are a-z,
+        A-Z, underscores and numbers. The string must begin with "L1T_Scales_".
+      </xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="l1t:Name">
+      <xs:pattern value="L1T_Scales_([A-Za-z0-9_])*"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="Version">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        Version number, maximum length is limited to 16 characters. Allowed
+        format is "{majour}.{minor}.{revison}". For example "1.4.0". Not
+        stored in the database.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:maxLength value="16"/>
+      <xs:pattern value="[0-9]+\.[0-9]+\.[0-9]+"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <!--
+
+    Complex types used inside complex type Meta.
+
+  -->
+
+  <xs:complexType name="RevisionList">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        A list of authors that applied changes to the menu. Not stored to the
+        database.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:sequence maxOccurs="unbounded">
+      <xs:element name="revision" type="l1t:Revision"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="Revision">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        Documents a new revision, stores the authors or editors name and a
+        timestamp of the last changes. Optional attributes are the username and
+        hostname of the machine used to apply the changes. Not stored to the
+        database.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="author" type="l1t:Name"/>
+      <xs:element name="datetime" type="l1t:DateTime"/>
+    </xs:sequence>
+    <xs:attribute name="username" type="l1t:Name"/>
+    <xs:attribute name="hostname" type="l1t:Name"/>
+  </xs:complexType>
+
+  <!--
+
+    Simple types used with complex type Condition derivates.
+
+  -->
+
+  <xs:simpleType name="ComparisonOperator">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        Defines the comparison mode for transversal energy/impulse values.
+         * eq (==)
+         * ge (>=)
+      </xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="eq"/>
+      <xs:enumeration value="ge"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="RelativeBx">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        Relative bunch crossing offset for input data. Allowed range is -2 up to
+        +2.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:integer">
+      <xs:minInclusive value="-2"/>
+      <xs:maxInclusive value="2"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <!--
+
+    Simple types used inside complex type *Condition.
+
+  -->
+
+  <xs:simpleType name="ConditionName">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        String for condition name, maximum length is limited to 256 characters
+        in compliance to the database. Allowed characters are a-z, A-Z,
+        underscores and numbers.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:maxLength value="256"/>
+      <xs:pattern value="([A-Za-z0-9_])*"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="ConditionType">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        Enumeration of different condition template types.
+         * single object condition
+         * double objects condition
+         * triple objects condition
+         * quad objects condition
+         * double objects condition with spatial correlation
+      </xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="single"/>
+      <xs:enumeration value="double"/>
+      <xs:enumeration value="triple"/>
+      <xs:enumeration value="quad"/>
+      <xs:enumeration value="double_wsc"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="CalorimeterObjectType">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        Type of calorimeter object types.
+         * eg
+         * jet
+         * tau
+      </xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="eg"/>
+      <xs:enumeration value="jet"/>
+      <xs:enumeration value="tau"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="MuonRequstedCharge">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        Requested charge mode for muons.
+         * pos (positive)
+         * neg (negative)
+         * ign (ignore)
+      </xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="pos"/>
+      <xs:enumeration value="neg"/>
+      <xs:enumeration value="ign"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="MuonRequstedChargeCorr">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        Requested charge correaltion mode for muons.
+         * ls (like sign)
+         * os (opposite sign)
+         * ig (ignore)
+      </xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="ls"/>
+      <xs:enumeration value="os"/>
+      <xs:enumeration value="ig"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="EnergySumsObjectType">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        Type of energy sums object types.
+         * ett
+         * etm
+         * htt
+         * htm
+      </xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="ett"/>
+      <xs:enumeration value="etm"/>
+      <xs:enumeration value="htt"/>
+      <xs:enumeration value="htm"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="EtThreshold">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        Threshold of transversal energy for conditions.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:unsignedInt"/>
+  </xs:simpleType>
+
+  <xs:simpleType name="PtThreshold">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        Threshold of transversal impulse for muon conditions.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:unsignedInt"/>
+  </xs:simpleType>
+
+  <!--
+
+    Simple types used inside complex type Algorithm.
+
+  -->
+
+  <xs:simpleType name="AlgorithmName">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        String for algorithm name, maximum length is limited to 300 characters
+        in compliance to the database. Allowed characters are a-z, A-Z,
+        underscores and numbers.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:maxLength value="300"/>
+      <xs:pattern value="([A-Za-z0-9_])*"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="AlgorithmIndex">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        Unsigned integer of 32 bit for algorithm index. Limited in range from 0
+        up to 511.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:unsignedInt">
+      <xs:minInclusive value="0"/>
+      <xs:maxExclusive value="512"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="LogicalExpression">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        String for algorithm logical expression, maximum length is limited to
+        4000 characters in compliance to the database. Allowed characters are
+        a-z, A-Z, underscores, numbers, white spaces and braces.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:maxLength value="4000"/>
+      <xs:pattern value="([A-Za-z0-9/(/)_/ ])*"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="AlgorithmMappedModule">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        Unsigned integer of 32 bit for mapped hardware module index. Limited
+        in range from 1 up to 7 modules.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:unsignedInt">
+      <xs:minInclusive value="0"/>
+      <xs:maxExclusive value="7"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="AlgorithmMappedIndex">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        Unsigned integer of 32 bit for mapped algorithm hardware index per
+        module. Derives from type AlgorithmIndex.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="l1t:AlgorithmIndex"/>
+  </xs:simpleType>
+
+  <!--
+
+    Complex types of the L1 trigger menu.
+
+  -->
+
+  <xs:complexType name="Meta">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        Meta container containing the menu name and other meta data entries.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="name" type="l1t:MenuName"/>
+      <xs:element name="datetime" type="l1t:DateTime"/>
+      <xs:element name="uuid_menu" type="l1t:UUID"/>
+      <xs:element name="uuid_firmware" type="l1t:UUID" minOccurs="0"/>
+      <xs:element name="comment" type="l1t:Comment"/>
+      <xs:element name="scale_set" type="l1t:ScaleSet"/>
+      <xs:element name="editor_version" type="l1t:Version" minOccurs="0"/>
+      <xs:element name="revisions" type="l1t:RevisionList"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="ConditionList">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        List container holding all condition instances.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:choice minOccurs="0" maxOccurs="unbounded">
+      <xs:element name="condCalorimeter" type="l1t:CalorimeterCondition"/>
+      <xs:element name="condMuon" type="l1t:MuonCondition"/>
+      <xs:element name="condEnergySums" type="l1t:EnergySumsCondition"/>
+    </xs:choice>
+  </xs:complexType>
+
+  <xs:complexType name="Condition" abstract="true">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        Condition type base definition (abstract). It contains all common
+        condition attributes.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:sequence minOccurs="1" maxOccurs="1">
+      <xs:element name="uid" type="l1t:UUID"/>
+      <xs:element name="name" type="l1t:ConditionName"/>
+      <xs:element name="comment" type="l1t:Comment"/>
+      <xs:element name="locked" type="xs:boolean"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="Window">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        Window type for phi and eta angles.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="lower" type="xs:unsignedInt"/>
+      <xs:element name="upper" type="xs:unsignedInt"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="DeltaRequirement">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        Container holding eta and phi delta ranges to be used with spatial
+        correlations.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="deltaPhiRange" type="l1t:Window"/>
+      <xs:element name="deltaEtaRange" type="l1t:Window"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="CalorimeterIsolationLUT">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        Isolation lookup table with 16 flags.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:sequence minOccurs="16" maxOccurs="16">
+      <xs:element name="isolation" type="xs:boolean"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="CalorimeterObjectRequirement">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        Universal object parameter set to be used for eg, jet and tau objects.
+        Phi and eta ranges can occur up to two times (up to two windows) or can
+        be omitted (full range is used).
+      </xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="etThreshold" type="l1t:EtThreshold"/>
+      <xs:element name="phiWindow" type="l1t:Window" minOccurs="0" maxOccurs="2"/>
+      <xs:element name="etaWindow" type="l1t:Window" minOccurs="0" maxOccurs="2"/>
+      <xs:element name="isolationLut" type="l1t:CalorimeterIsolationLUT"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="CalorimeterObjectRequirements">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        Container capable of storing up to 4 object parameter sets.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:sequence maxOccurs="4">
+      <xs:element name="objectRequirement" type="l1t:CalorimeterObjectRequirement"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="CalorimeterCondition">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        Calorimeter condition type.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexContent>
+      <xs:extension base="l1t:Condition">
+        <xs:sequence>
+          <xs:element name="type" type="l1t:ConditionType"/>
+          <xs:element name="comparison_operator" type="l1t:ComparisonOperator"/>
+          <xs:element name="objectType" type="l1t:CalorimeterObjectType"/>
+          <xs:element name="objectRequirements" type="l1t:CalorimeterObjectRequirements"/>
+          <xs:element name="deltaRequirement" type="l1t:DeltaRequirement" minOccurs="0"/>
+          <xs:element name="relativeBx" type="l1t:RelativeBx"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <!-- Muon condition related -->
+
+  <xs:complexType name="MuonObjectRequirement">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        Object parameter set to be used for muon objects. Phi and eta ranges can
+        occur up to two times (up to two windows) or can be omitted (full range
+        is used).
+      </xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="ptThreshold" type="l1t:PtThreshold"/>
+      <xs:element name="phiWindow" type="l1t:Window" minOccurs="0" maxOccurs="2"/>
+      <xs:element name="etaWindow" type="l1t:Window" minOccurs="0" maxOccurs="2"/>
+      <xs:element name="requestedCharge" type="l1t:MuonRequstedCharge"/>
+      <xs:element name="qualityLut" type="l1t:MuonQualityLUT"/>
+      <xs:element name="isolationLut" type="l1t:MuonIsolationLUT"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="MuonObjectRequirements">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        Container capable of storing up to 4 object parameter sets.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:sequence minOccurs="1" maxOccurs="4">
+      <xs:element name="objectRequirement" type="l1t:MuonObjectRequirement"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="MuonQualityLUT">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        Quality lookup table with 16 flags.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:sequence minOccurs="16" maxOccurs="16">
+      <xs:element name="quality" type="xs:boolean"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="MuonIsolationLUT">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        Isolation lookup table with four flags.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:sequence minOccurs="4" maxOccurs="4">
+      <xs:element name="isolation" type="xs:boolean"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="MuonCondition">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        Muon condition type.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexContent>
+      <xs:extension base="l1t:Condition">
+        <xs:sequence>
+          <xs:element name="type" type="l1t:ConditionType"/>
+          <xs:element name="comparison_operator" type="l1t:ComparisonOperator"/>
+          <xs:element name="objectRequirements" type="l1t:MuonObjectRequirements"/>
+          <xs:element name="requestedChargeCorr" type="l1t:MuonRequstedChargeCorr"/>
+          <xs:element name="deltaRequirement" type="l1t:DeltaRequirement" minOccurs="0"/>
+          <xs:element name="relativeBx" type="l1t:RelativeBx"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="EnergySumsObjectRequirement">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        Universal object parameter set to be used for ett, etm, htt and htm objects.
+        Phi and eta ranges can occur up to two times (up to two windows) or can
+        be omitted (full range is used).
+      </xs:documentation>
+    </xs:annotation>
+    <xs:sequence minOccurs="1" maxOccurs="1" >
+      <xs:element name="etThreshold" type="l1t:EtThreshold"/>
+      <xs:element name="phiWindow" type="l1t:Window" minOccurs="0" maxOccurs="2"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="EnergySumsCondition">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        Energy Sums condition type.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexContent>
+      <xs:extension base="l1t:Condition">
+        <xs:sequence>
+          <xs:element name="comparison_operator" type="l1t:ComparisonOperator"/>
+          <xs:element name="objectType" type="l1t:EnergySumsObjectType"/>
+          <xs:element name="objectRequirement" type="l1t:EnergySumsObjectRequirement"/>
+          <xs:element name="relativeBx" type="l1t:RelativeBx"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="Algorithm">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        Algorithm container holding the name, index and logical expression.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="uid" type="l1t:UUID"/>
+      <xs:element name="name" type="l1t:AlgorithmName"/>
+      <xs:element name="index" type="l1t:AlgorithmIndex"/>
+      <xs:element name="logical_expression" type="l1t:LogicalExpression"/>
+      <xs:element name="comment" type="l1t:Comment"/>
+      <xs:element name="locked" type="xs:boolean"/>
+      <xs:element name="mapping" type="l1t:AlgorithmMapping"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="AlgorithmMapping">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        Algorithm mapping holding the hardware module and hardware index.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="module" type="l1t:AlgorithmMappedModule"/>
+      <xs:element name="index" type="l1t:AlgorithmMappedIndex"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="AlgorithmList">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        List container holding all algorithm instances. It is limited to the
+        maximum amount of algorithms in compliance with the hardware limits.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:sequence minOccurs="0" maxOccurs="512">
+      <xs:element name="algorithm" type="l1t:Algorithm"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="L1TriggerMenu">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        The main L1 trigger menu container holding meta data, conditions and
+        algorithms. The version attribute controls the interface version of
+        the L1 trigger menu.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="meta" type="l1t:Meta"/>
+      <xs:element name="conditions" type="l1t:ConditionList"/>
+      <xs:element name="algorithms" type="l1t:AlgorithmList"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <!--
+
+    Root element instance for the L1 trigger menu.
+
+  -->
+
+  <xs:element name="l1TriggerMenu" type="l1t:L1TriggerMenu"/>
+
+</xs:schema>

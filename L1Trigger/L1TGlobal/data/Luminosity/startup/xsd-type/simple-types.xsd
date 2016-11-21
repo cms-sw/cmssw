@@ -1,0 +1,50 @@
+<?xml version="1.0"?>
+
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+            xmlns:tmxsd="http://www.cern.ch/tmxsd/1.0.0"
+            targetNamespace="http://www.cern.ch/tmxsd/1.0.0">
+
+  <xsd:simpleType name="id">
+    <xsd:restriction base="xsd:unsignedInt"/>
+  </xsd:simpleType>
+
+  <xsd:simpleType name="uuid">
+    <xsd:restriction base="xsd:string">
+      <xsd:maxLength value="36"/>
+      <xsd:pattern value="([a-z0-9]){8}-([a-z0-9]){4}-([a-z0-9]){4}-([a-z0-9]){4}-([a-z0-9]){12}"/>
+    </xsd:restriction>
+  </xsd:simpleType>
+
+  <xsd:simpleType name="datetime">
+    <xsd:restriction base="xsd:string">
+      <xsd:maxLength value="64"/>
+      <xsd:pattern value="20([0-9]){2}-[0-1][1-9]-[0-3][0-9]T[0-2][0-9]:[0-5][0-9]:[0-5][0-9]\.[0-9]{6}.?"/>
+    </xsd:restriction>
+  </xsd:simpleType>
+
+  <xsd:simpleType name="real">
+    <xsd:restriction base="xsd:string">
+      <xsd:maxLength value="64"/>
+      <xsd:pattern value="[+-][0-9]\.[0-9]{16}[eE][+-][0-9]{2,3}"/>
+    </xsd:restriction>
+  </xsd:simpleType>
+
+  <xsd:simpleType name="char64">
+    <xsd:restriction base="xsd:string">
+      <xsd:maxLength value="64"/>
+    </xsd:restriction>
+  </xsd:simpleType>
+
+  <xsd:simpleType name="char1k">
+    <xsd:restriction base="xsd:string">
+      <xsd:maxLength value="1024"/>
+    </xsd:restriction>
+  </xsd:simpleType>
+
+  <xsd:simpleType name="char4k">
+    <xsd:restriction base="xsd:string">
+      <xsd:maxLength value="4000"/>
+    </xsd:restriction>
+  </xsd:simpleType>
+
+</xsd:schema>

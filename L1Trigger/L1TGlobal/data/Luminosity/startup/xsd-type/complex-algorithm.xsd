@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+            xmlns:tmxsd="http://www.cern.ch/tmxsd/1.0.0"
+            targetNamespace="http://www.cern.ch/tmxsd/1.0.0">
+
+  <xsd:include schemaLocation="simple-types.xsd"/>
+  <xsd:include schemaLocation="complex-object_requirement.xsd"/>
+  <xsd:include schemaLocation="complex-external_requirement.xsd"/>
+  <xsd:include schemaLocation="complex-cut.xsd"/>
+
+
+  <xsd:complexType name="algorithm">
+    <xsd:annotation>
+      <xsd:documentation>
+        The algorithm complex type holds information associated to ALGORITHM table in the CMS level-1 trigger menu database
+      </xsd:documentation>
+    </xsd:annotation>
+
+    <xsd:sequence>
+      <xsd:element name="name" type="tmxsd:char1k"/>
+      <xsd:element name="expression" type="tmxsd:char4k"/>
+      <xsd:element name="index" type="xsd:unsignedInt"/>
+      <xsd:element name="module_id" type="xsd:unsignedInt"/>
+      <xsd:element name="module_index" type="xsd:unsignedInt"/>
+      <xsd:element name="comment" type="tmxsd:char4k" minOccurs="0"/>
+      <xsd:element name="cut" type="tmxsd:cut" minOccurs="0" maxOccurs="unbounded"/>
+      <xsd:element name="object_requirement" type="tmxsd:object_requirement" minOccurs="0" maxOccurs="unbounded"/>
+      <xsd:element name="external_requirement" type="tmxsd:external_requirement" minOccurs="0" maxOccurs="unbounded"/>
+    </xsd:sequence>
+    <xsd:attribute name="algorithm_id" type="tmxsd:id"/>
+    <xsd:attribute name="datetime" type="tmxsd:datetime"/>
+  </xsd:complexType>
+
+</xsd:schema>
