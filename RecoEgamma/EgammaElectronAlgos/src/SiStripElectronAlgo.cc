@@ -386,7 +386,6 @@ void SiStripElectronAlgo::coarseHitSelection(std::vector<const SiStripRecHit2D*>
 	  continue ;
 	}
         std::string theDet = "null";
-        int theLayer = -999;
         bool isStereoDet = false ;
         if(tracker_p_->idToDetUnit(hit->geographicalId())->type().subDetector() == GeomDetEnumerators::TIB) { 
           theDet = "TIB" ;
@@ -405,7 +404,7 @@ void SiStripElectronAlgo::coarseHitSelection(std::vector<const SiStripRecHit2D*>
           if(tTopo->tecStereo(id)==1) { isStereoDet = true ; }
         } else {
           LogDebug("") << " UHOH BIG PROBLEM - Unrecognized SI Layer" ;
-          LogDebug("") << " Det "<< theDet << " Lay " << theLayer ;
+          LogDebug("") << " Det "<< theDet ;
           assert(1!=1) ;
         }
 
