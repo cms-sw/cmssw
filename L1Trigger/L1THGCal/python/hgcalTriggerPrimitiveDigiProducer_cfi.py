@@ -16,9 +16,9 @@ fe_codec = cms.PSet( CodecName  = cms.string('HGCalTriggerCellBestChoiceCodec'),
                      adcnBits = digiparam.hgceeDigitizer.digiCfg.feCfg.adcNbits,
                      tdcsaturation = digiparam.hgceeDigitizer.digiCfg.feCfg.tdcSaturation_fC,
                      tdcnBits = digiparam.hgceeDigitizer.digiCfg.feCfg.tdcNbits,
-                     tdcOnsetfC = digiparam.hgceeDigitizer.digiCfg.feCfg.tdcOnset_fC
+                     tdcOnsetfC = digiparam.hgceeDigitizer.digiCfg.feCfg.tdcOnset_fC,
+                     TCThreshold = cms.int32(10)
                      )
-
 
 calib_parValues = cms.PSet( cellLSB =  cms.double( fe_codec.linLSB.value() * (2 ** fe_codec.triggerCellTruncationBits.value() ) ),
                              fCperMIPee = recoparam.HGCalUncalibRecHit.HGCEEConfig.fCPerMIP,
@@ -27,9 +27,8 @@ calib_parValues = cms.PSet( cellLSB =  cms.double( fe_codec.linLSB.value() * (2 
                              thickCorr = recocalibparam.HGCalRecHit.thicknessCorrection                     
                              )
 
-
-cluster_algo =  cms.PSet( AlgorithmName = cms.string('FullModuleSumAlgo'),
-                          FECodec = fe_codec.clone(),
+cluster_algo =  cms.PSet( AlgorithmName = cms.string('FullModuleSumAlgoBestChoice'),
+                          FECodec = fe_codec,
                           HGCalEESensitive_tag = cms.string('HGCalEESensitive'),
                           HGCalHESiliconSensitive_tag = cms.string('HGCalHESiliconSensitive'),
                           calib_parameters = calib_parValues.clone()
