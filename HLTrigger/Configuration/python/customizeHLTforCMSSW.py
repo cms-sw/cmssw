@@ -62,7 +62,7 @@ def customiseFor16670(process):
     for producer in esproducers_by_type(process, "DetIdAssociatorESProducer"):
         if (producer.ComponentName.value() == 'HcalDetIdAssociator'):
             if not hasattr(producer,'hcalRegion'):
-                producer.hcalRegion = cms.int32(1)
+                producer.hcalRegion = cms.int32(2)
     return process
 
 def customiseFor15499(process):
