@@ -209,7 +209,7 @@ namespace FitterFuncs{
 
 PulseShapeFitOOTPileupCorrection::PulseShapeFitOOTPileupCorrection() : cntsetPulseShape(0),
 								       psfPtr_(nullptr), spfunctor_(nullptr), dpfunctor_(nullptr), tpfunctor_(nullptr),
-								       TSMin_(0), TSMax_(0), ts4Chi2_(0), pedestalConstraint_(0),
+								       TSMin_(0), TSMax_(0), vts4Chi2_(0), pedestalConstraint_(0),
 								       timeConstraint_(0), addPulseJitter_(0), applyTimeSlew_(0),
 								       ts4Min_(0), vts4Max_(0), pulseJitter_(0), timeMean_(0), timeSig_(0), pedMean_(0), pedSig_(0),
 								       noise_(0) {
@@ -241,17 +241,18 @@ void PulseShapeFitOOTPileupCorrection::setChi2Term( bool isHPD ) {
 
 
 void PulseShapeFitOOTPileupCorrection::setPUParams(bool   iPedestalConstraint, bool iTimeConstraint,bool iAddPulseJitter,
-						   bool iApplyTimeSlew,double iTS4Min, std::vector<double> iTS4Max,
+						   bool iApplyTimeSlew,double iTS4Min, const std::vector<double> & iTS4Max,
 						   double iPulseJitter,double iTimeMean,double iTimeSigHPD,double iTimeSigSiPM,
 						   double iPedMean, double iPedSigHPD, double iPedSigSiPM,
 						   double iNoiseHPD,double iNoiseSiPM,
 						   double iTMin,double iTMax,
-						   double its4Chi2,
+						   const std::vector<double> & its4Chi2,
 						   HcalTimeSlew::BiasSetting slewFlavor, int iFitTimes) {
 
   TSMin_ = iTMin;
   TSMax_ = iTMax;
-  ts4Chi2_   = its4Chi2;
+  //  ts4Chi2_   = its4Chi2;
+  vts4Chi2_   = its4Chi2;
   pedestalConstraint_ = iPedestalConstraint;
   timeConstraint_     = iTimeConstraint;
   addPulseJitter_     = iAddPulseJitter;
@@ -338,6 +339,7 @@ void PulseShapeFitOOTPileupCorrection::apply(const CaloSamples & cs,
    }
 
    ts4Max_=vts4Max_[0]; //  HB and HE are identical for Run2
+   ts4Chi2_=vts4Chi2_[0]; //  HB and HE are identical for Run2
 
    std::vector<float> fitParsVec;
 
@@ -563,8 +565,11 @@ void PulseShapeFitOOTPileupCorrection::phase1Apply(const HBHEChannelInfo& channe
     }
   }
 
-  if(!channelData.hasTimeInfo()) ts4Max_=vts4Max_[0];
-  if(channelData.hasTimeInfo()) ts4Max_=vts4Max_[1];
+  if(channelData.hasTimeInfo()) { 
+    ts4Max_=vts4Max_[1]; ts4Chi2_=vts4Chi2_[1]; 
+  } else {
+    ts4Max_=vts4Max_[0]; ts4Chi2_=vts4Chi2_[0];
+  }
 
   std::vector<float> fitParsVec;
   if(tstrig >= ts4Min_ && tsTOTen > 0.) { //Two sigma from 0
