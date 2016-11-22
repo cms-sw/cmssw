@@ -9,3 +9,8 @@ siPixelPhase1OfflineDQM_harvesting = cms.Sequence(SiPixelPhase1DigisHarvester
                                                 + SiPixelPhase1TrackClustersHarvester
                                                 + SiPixelPhase1TrackEfficiencyHarvester
                                                 )
+
+siPixelPhase1OfflineDQM_harvesting_cosmics = siPixelPhase1OfflineDQM_harvesting.copyAndExclude([
+   SiPixelPhase1TrackClustersHarvester,
+   SiPixelPhase1TrackEfficiencyHarvester,
+])
