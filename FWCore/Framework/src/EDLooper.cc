@@ -1,6 +1,5 @@
 // -*- C++ -*-
 //
-// Package:     <package>
 // Module:      EDLooper
 // 
 // Author:      Valentin Kuznetsov
