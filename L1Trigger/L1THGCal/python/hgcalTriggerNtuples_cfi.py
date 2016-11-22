@@ -21,7 +21,7 @@ ntuple_digis = cms.PSet(
 
 ntuple_triggercells = cms.PSet(
     NtupleName = cms.string('HGCalTriggerNtupleHGCTriggerCells'),
-    TriggerCells = cms.InputTag('hgcalTriggerPrimitiveDigiProducer:SingleCellClusterAlgo')
+    TriggerCells = cms.InputTag('hgcalTriggerPrimitiveDigiProducer:SingleCellClusterAlgoBestChoice')
 )
 
 

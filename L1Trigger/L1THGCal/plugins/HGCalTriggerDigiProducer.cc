@@ -44,12 +44,9 @@ HGCalTriggerDigiProducer(const edm::ParameterSet& conf):
   
   
   //setup FE codec
-  const edm::ParameterSet& feCodecConfig = 
-    conf.getParameterSet("FECodec");
-  const std::string& feCodecName = 
-    feCodecConfig.getParameter<std::string>("CodecName");
-  HGCalTriggerFECodecBase* codec =
-    HGCalTriggerFECodecFactory::get()->create(feCodecName,feCodecConfig);
+  const edm::ParameterSet& feCodecConfig = conf.getParameterSet("FECodec");
+  const std::string& feCodecName = feCodecConfig.getParameter<std::string>("CodecName");
+  HGCalTriggerFECodecBase* codec = HGCalTriggerFECodecFactory::get()->create(feCodecName,feCodecConfig);
   codec_.reset(codec);
   codec_->unSetDataPayload();
   
@@ -133,7 +130,7 @@ void HGCalTriggerDigiProducer::produce(edm::Event& e, const edm::EventSetup& es)
   auto fe_digis_coll = *fe_digis_handle;
   
   //now we run the emulation of the back-end processor
-  backEndProcessor_->run(fe_digis_coll);
+  backEndProcessor_->run(fe_digis_coll, es);
   backEndProcessor_->putInEvent(e);
   backEndProcessor_->reset();  
 }

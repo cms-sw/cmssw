@@ -1,5 +1,7 @@
+<use   name="FWCore/Framework"/>
 <use   name="Geometry/HGCalGeometry"/>
 <use   name="Geometry/CaloTopology"/>
+<use   name="Geometry/Records"/>
 <use   name="DataFormats/L1THGCal"/>
 
 <export>
