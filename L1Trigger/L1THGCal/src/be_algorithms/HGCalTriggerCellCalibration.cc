@@ -1,10 +1,8 @@
 #include "L1Trigger/L1THGCal/interface/be_algorithms/HGCalTriggerCellCalibration.h"
 
 //class constructor
-HGCalTriggerCellCalibration::HGCalTriggerCellCalibration(const edm::ParameterSet& conf){
+HGCalTriggerCellCalibration::HGCalTriggerCellCalibration(const edm::ParameterSet& beCodecConfig){
     
-    const edm::ParameterSet beCodecConfig = conf.getParameterSet("calib_parameters");
-
     LSB_ = beCodecConfig.getParameter<double>("cellLSB"); 
     fCperMIP_ee_ = beCodecConfig.getParameter<std::vector<double>>("fCperMIPee");
     fCperMIP_fh_ = beCodecConfig.getParameter<std::vector<double>>("fCperMIPfh");
