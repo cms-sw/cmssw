@@ -465,7 +465,7 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
 		    phi0Phy = 0.5*(binEdges.second + binEdges.first);					    
 		    binEdges = m_gtScales->getEGScales().etaBins.at(etaBin0);
 		    eta0Phy = 0.5*(binEdges.second + binEdges.first);		
-		    binEdges = m_gtScales->getEGScales().etBins.at(etBin0);
+		    binEdges = m_gtScales->getEGScales().etBins[etBin0];
 		    et0Phy = 0.5*(binEdges.second + binEdges.first);
 		    
 		 }
