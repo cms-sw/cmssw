@@ -316,7 +316,7 @@ root -l -x -b -q TkAlMergeZmumuPlots.C++
 ######################################################################
 
 mergeZmumuPlotsTemplate="""
-#include "MuonAnalysis/MomentumScaleCalibration/test/Macros/RooFit/MultiHistoOverlapAll_Z.C"
+#include "MuonAnalysis/MomentumScaleCalibration/test/Macros/RooFit/MultiHistoOverlapAll_.oO[resonance]Oo..C"
 #include <sstream>
 #include <vector>
 
