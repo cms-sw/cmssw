@@ -208,7 +208,7 @@ def _getMVASelectors(postfix):
 
             # Ignore iteration if the MVA selector module is not in the sequence
             try:
-                print seq.index(mod)
+                seq.index(mod)
             except:
                 continue
 
