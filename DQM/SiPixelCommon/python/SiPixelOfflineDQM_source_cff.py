@@ -135,5 +135,7 @@ siPixelOfflineDQM_source_woTrack = cms.Sequence(SiPixelHLTSource + SiPixelRawDat
 from DQM.SiPixelPhase1Config.SiPixelPhase1OfflineDQM_source_cff import *
 from Configuration.Eras.Modifier_phase1Pixel_cff import phase1Pixel
 phase1Pixel.toReplaceWith(siPixelOfflineDQM_source, siPixelPhase1OfflineDQM_source)
+phase1Pixel.toReplaceWith(siPixelOfflineDQM_cosmics_source, siPixelPhase1OfflineDQM_source_cosmics)
+
 # don't forget the Harvesters, they are plugged in at PixelOfflineDQMClient
 # TODO: the same game for the other three.
