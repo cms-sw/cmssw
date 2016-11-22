@@ -71,7 +71,6 @@ class HcalRecHitsValidation : public DQMEDAnalyzer {
   std::string outputFile_;
   std::string hcalselector_;
   std::string ecalselector_;
-  std::string eventype_;
   std::string sign_;
   std::string mc_;
   bool testNumber_;
@@ -89,7 +88,6 @@ class HcalRecHitsValidation : public DQMEDAnalyzer {
   int subdet_;
 
   // single/multi-particle sample (1/2)
-  int etype_;
   int iz;
   int imc;
 
