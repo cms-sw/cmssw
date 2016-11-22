@@ -4,12 +4,12 @@
 
 
 L1TdeStage2EMTF::L1TdeStage2EMTF(const edm::ParameterSet& ps)
-    : dataToken(consumes<l1t::RegionalMuonCandBxCollection>(ps.getParameter<edm::InputTag>("dataSource"))),
-      emulToken(consumes<l1t::RegionalMuonCandBxCollection>(ps.getParameter<edm::InputTag>("emulSource"))),
-      datahitToken(consumes<l1t::EMTFHitCollection>(ps.getParameter<edm::InputTag>("dataSource"))),
-      emulhitToken(consumes<l1t::EMTFHitCollection>(ps.getParameter<edm::InputTag>("emulSource"))),
-      datatrackToken(consumes<l1t::EMTFTrackCollection>(ps.getParameter<edm::InputTag>("dataSource"))),
-      emultrackToken(consumes<l1t::EMTFTrackCollection>(ps.getParameter<edm::InputTag>("emulSource"))),
+    : dataToken(consumes<l1t::RegionalMuonCandBxCollection>(ps.getParameter<edm::InputTag>("dataSource_data"))),
+      emulToken(consumes<l1t::RegionalMuonCandBxCollection>(ps.getParameter<edm::InputTag>("emulSource_emul"))),
+      datahitToken(consumes<l1t::EMTFHitCollection>(ps.getParameter<edm::InputTag>("dataSource_datahit"))),
+      emulhitToken(consumes<l1t::EMTFHitCollection>(ps.getParameter<edm::InputTag>("emulSource_emulhit"))),
+      datatrackToken(consumes<l1t::EMTFTrackCollection>(ps.getParameter<edm::InputTag>("dataSource_datatrack"))),
+      emultrackToken(consumes<l1t::EMTFTrackCollection>(ps.getParameter<edm::InputTag>("emulSource_emultrack"))),
       monitorDir(ps.getUntrackedParameter<std::string>("monitorDir", "")),
       verbose(ps.getUntrackedParameter<bool>("verbose", false)) {}
 
