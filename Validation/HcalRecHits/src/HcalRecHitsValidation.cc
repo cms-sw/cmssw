@@ -69,13 +69,13 @@ void HcalRecHitsValidation::bookHistograms(DQMStore::IBooker &ib, edm::Run const
     //Histograms drawn for single pion scan
     if(subdet_ != 0 && imc != 0) { // just not for noise  
       sprintf (histo, "HcalRecHitTask_En_rechits_cone_profile_vs_ieta_all_depths");
-      meEnConeEtaProfile = ib.bookProfile(histo, histo, 82, -41., 41.,        2100, -100., 2000.);  
+      meEnConeEtaProfile = ib.bookProfile(histo, histo, 82, -41., 41., -100., 2000., " ");  
       
       sprintf (histo, "HcalRecHitTask_En_rechits_cone_profile_vs_ieta_all_depths_E");
-      meEnConeEtaProfile_E = ib.bookProfile(histo, histo, 82, -41., 41.,      2100, -100., 2000.);  
+      meEnConeEtaProfile_E = ib.bookProfile(histo, histo, 82, -41., 41., -100., 2000., " ");  
       
       sprintf (histo, "HcalRecHitTask_En_rechits_cone_profile_vs_ieta_all_depths_EH");
-      meEnConeEtaProfile_EH = ib.bookProfile(histo, histo, 82, -41., 41.,     2100, -100., 2000.);  
+      meEnConeEtaProfile_EH = ib.bookProfile(histo, histo, 82, -41., 41., -100., 2000., " ");  
     }
 
     // ************** HB **********************************
@@ -85,19 +85,19 @@ void HcalRecHitsValidation::bookHistograms(DQMStore::IBooker &ib, edm::Run const
       meRecHitsEnergyHB = ib.book1D(histo, histo, 2010 , -10. , 2000.); 
       
       sprintf (histo, "HcalRecHitTask_timing_vs_energy_profile_HB" ) ;
-      meTEprofileHB = ib.bookProfile(histo, histo, 150, -5., 295., 70, -48., 92.); 
+      meTEprofileHB = ib.bookProfile(histo, histo, 150, -5., 295., -48., 92., " "); 
 
       sprintf (histo, "HcalRecHitTask_timing_vs_energy_profile_Low_HB" ) ;
-      meTEprofileHB_Low = ib.bookProfile(histo, histo, 150, -5., 295., 70, -48., 92.); 
+      meTEprofileHB_Low = ib.bookProfile(histo, histo, 150, -5., 295., -48., 92., " "); 
 
       sprintf (histo, "HcalRecHitTask_timing_vs_energy_profile_High_HB" ) ;
-      meTEprofileHB_High = ib.bookProfile(histo, histo, 150, -5., 295., 70, -48., 92.); 
+      meTEprofileHB_High = ib.bookProfile(histo, histo, 150, -5., 295., 48., 92., " "); 
 
       if(imc != 0) {
         sprintf (histo, "HcalRecHitTask_energy_rechits_vs_simhits_HB");
         meRecHitSimHitHB = ib.book2D(histo, histo, 120, 0., 1.2,  300, 0., 150.);
         sprintf (histo, "HcalRecHitTask_energy_rechits_vs_simhits_profile_HB");
-        meRecHitSimHitProfileHB = ib.bookProfile(histo, histo, 120, 0., 1.2, 500, 0., 500.);  
+        meRecHitSimHitProfileHB = ib.bookProfile(histo, histo, 120, 0., 1.2, 0., 500., " ");  
       } 
 
     }
@@ -109,16 +109,16 @@ void HcalRecHitsValidation::bookHistograms(DQMStore::IBooker &ib, edm::Run const
       meRecHitsEnergyHE = ib.book1D(histo, histo, 2010, -10., 2000.);
       
       sprintf (histo, "HcalRecHitTask_timing_vs_energy_profile_Low_HE" ) ;
-      meTEprofileHE_Low = ib.bookProfile(histo, histo, 80, -5., 75., 70, -48., 92.); 
+      meTEprofileHE_Low = ib.bookProfile(histo, histo, 80, -5., 75., -48., 92., " "); 
 
       sprintf (histo, "HcalRecHitTask_timing_vs_energy_profile_HE" ) ;
-      meTEprofileHE = ib.bookProfile(histo, histo, 200, -5., 2995., 70, -48., 92.); 
+      meTEprofileHE = ib.bookProfile(histo, histo, 200, -5., 2995., -48., 92., " "); 
       
       if(imc != 0) {
         sprintf (histo, "HcalRecHitTask_energy_rechits_vs_simhits_HE");
         meRecHitSimHitHE = ib.book2D(histo, histo, 120, 0., 0.6,  300, 0., 150.);
         sprintf (histo, "HcalRecHitTask_energy_rechits_vs_simhits_profile_HE");
-        meRecHitSimHitProfileHE = ib.bookProfile(histo, histo, 120, 0., 0.6, 500, 0., 500.);  
+        meRecHitSimHitProfileHE = ib.bookProfile(histo, histo, 120, 0., 0.6, 0., 500., " ");  
       }
 
     }
@@ -130,16 +130,16 @@ void HcalRecHitsValidation::bookHistograms(DQMStore::IBooker &ib, edm::Run const
       meRecHitsEnergyHO = ib.book1D(histo, histo, 2010 , -10. , 2000.);
       
       sprintf (histo, "HcalRecHitTask_timing_vs_energy_profile_HO" ) ;
-      meTEprofileHO = ib.bookProfile(histo, histo, 60, -5., 55.,  70, -48., 92.); 
+      meTEprofileHO = ib.bookProfile(histo, histo, 60, -5., 55., -48., 92., " "); 
 
       sprintf (histo, "HcalRecHitTask_timing_vs_energy_profile_High_HO" ) ;
-      meTEprofileHO_High = ib.bookProfile(histo, histo, 100, -5., 995.,  70, -48., 92.); 
+      meTEprofileHO_High = ib.bookProfile(histo, histo, 100, -5., 995., -48., 92., " "); 
       
       if(imc != 0) {
         sprintf (histo, "HcalRecHitTask_energy_rechits_vs_simhits_HO");
         meRecHitSimHitHO = ib.book2D(histo, histo, 150, 0., 1.5,  350, 0., 350.);
         sprintf (histo, "HcalRecHitTask_energy_rechits_vs_simhits_profile_HO");
-        meRecHitSimHitProfileHO = ib.bookProfile(histo, histo, 150, 0., 1.5, 500, 0., 500.);  
+        meRecHitSimHitProfileHO = ib.bookProfile(histo, histo, 150, 0., 1.5, 0., 500., " ");  
       }
 
     }   
@@ -151,10 +151,10 @@ void HcalRecHitsValidation::bookHistograms(DQMStore::IBooker &ib, edm::Run const
       meRecHitsEnergyHF = ib.book1D(histo, histo, 2010 , -10. , 2000.); 
       
       sprintf (histo, "HcalRecHitTask_timing_vs_energy_profile_Low_HF" ) ;
-      meTEprofileHF_Low = ib.bookProfile(histo, histo, 100, -5., 195., 70, -48., 92.); 
+      meTEprofileHF_Low = ib.bookProfile(histo, histo, 100, -5., 195., -48., 92., " "); 
 
       sprintf (histo, "HcalRecHitTask_timing_vs_energy_profile_HF" ) ;
-      meTEprofileHF = ib.bookProfile(histo, histo, 200, -5., 995., 70, -48., 92.); 
+      meTEprofileHF = ib.bookProfile(histo, histo, 200, -5., 995., -48., 92., " "); 
 
       if(imc != 0) {
         sprintf (histo, "HcalRecHitTask_energy_rechits_vs_simhits_HF");
@@ -164,11 +164,11 @@ void HcalRecHitsValidation::bookHistograms(DQMStore::IBooker &ib, edm::Run const
         sprintf (histo, "HcalRecHitTask_energy_rechits_vs_simhits_HFS");
         meRecHitSimHitHFS = ib.book2D(histo, histo, 50, 0., 50., 150, 0., 150.);
         sprintf (histo, "HcalRecHitTask_energy_rechits_vs_simhits_profile_HF");
-        meRecHitSimHitProfileHF  = ib.bookProfile(histo, histo, 50, 0., 50., 500, 0., 500.);  
+        meRecHitSimHitProfileHF  = ib.bookProfile(histo, histo, 50, 0., 50., 0., 500., " ");  
         sprintf (histo, "HcalRecHitTask_energy_rechits_vs_simhits_profile_HFL");
-        meRecHitSimHitProfileHFL = ib.bookProfile(histo, histo, 50, 0., 50., 500, 0., 500.);  
+        meRecHitSimHitProfileHFL = ib.bookProfile(histo, histo, 50, 0., 50., 0., 500., " ");  
         sprintf (histo, "HcalRecHitTask_energy_rechits_vs_simhits_profile_HFS");
-        meRecHitSimHitProfileHFS = ib.bookProfile(histo, histo, 50, 0., 50., 500, 0., 500.);  
+        meRecHitSimHitProfileHFS = ib.bookProfile(histo, histo, 50, 0., 50., 0., 500., " ");  
       }
 
     }
