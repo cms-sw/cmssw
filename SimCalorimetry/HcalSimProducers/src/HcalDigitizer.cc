@@ -411,8 +411,20 @@ void HcalDigitizer::finalizeEvent(edm::Event& e, const edm::EventSetup& eventSet
   std::unique_ptr<HODigiCollection> hoResult(new HODigiCollection());
   std::unique_ptr<HFDigiCollection> hfResult(new HFDigiCollection());
   std::unique_ptr<ZDCDigiCollection> zdcResult(new ZDCDigiCollection());
-  std::unique_ptr<QIE10DigiCollection> hfQIE10Result(new QIE10DigiCollection());
-  std::unique_ptr<QIE11DigiCollection> hbheQIE11Result(new QIE11DigiCollection());
+  std::unique_ptr<QIE10DigiCollection> hfQIE10Result(
+    new QIE10DigiCollection(
+      theHFQIE10DetIds.size()>0 ? 
+      theParameterMap->simParameters(theHFQIE10DetIds[0]).readoutFrameSize() : 
+      QIE10DigiCollection::MAXSAMPLES
+    )
+  );
+  std::unique_ptr<QIE11DigiCollection> hbheQIE11Result(
+    new QIE11DigiCollection(
+      theHBHEQIE11DetIds.size()>0 ? 
+      theParameterMap->simParameters(theHBHEQIE11DetIds[0]).readoutFrameSize() : 
+      QIE11DigiCollection::MAXSAMPLES
+    )
+  );
 
   // Step C: Invoke the algorithm, getting back outputs.
   if(isHCAL&&hbhegeo){
