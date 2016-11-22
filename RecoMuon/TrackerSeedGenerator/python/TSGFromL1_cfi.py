@@ -23,7 +23,6 @@ hltL3TrajectorySeedFromL1 = cms.EDProducer("TSGFromL1Muon",
     ),
     L1MuonLabel = cms.InputTag("hltL1extraParticles"),
     CleanerPSet = cms.PSet(
-        ComponentName = cms.string('PixelTrackCleanerBySharedHits'),
         diffRelPtCut = cms.double(0.2),
         deltaEtaCut = cms.double(0.01)
     ),
