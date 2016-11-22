@@ -342,7 +342,7 @@ def getPAHighPtVPSet():
     bjetThresholds = [40, 60, 80]
     dijetAveThresholds = [40, 60, 80]
     gammaThresholds = [10, 15, 20, 30, 40]
-    gammaMBThresholds = [10, 15]
+    gammaMBThresholds = [15, 20]
     gammaThresholdsEGJet = [30, 40]
     isogammaThresholds = [20]
     eleThresholds = [20]
