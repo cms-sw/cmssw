@@ -55,6 +55,63 @@ std::pair<int,int> FastTimeDDDConstants::getEtaPhi(double r, double phi) const {
   return std::pair<int,int>(ir,iphi);
 }
 
+GlobalPoint FastTimeDDDConstants::getPosition(int type, int izeta, int iphi,
+					      int zside) const {
+
+  double x(0), y(0), z(0);
+  if (type == 1) {
+    double phi = (iphi-0.5)*dPhiBarrel_;
+    x = ftpar_->geomParBarrel_[2]*cos(phi);
+    y = ftpar_->geomParBarrel_[2]*sin(phi);
+    z = ftpar_->geomParBarrel_[0]+(izeta-0.5)*dZBarrel_;
+  } else if (type == 2) {
+    double phi = (iphi-0.5)*dPhiEndcap_;
+    double r   = (izeta <= 0 || izeta >= (int)(rLimits_.size())) ? 0 :
+      0.5*(rLimits_[izeta-1]+rLimits_[izeta]);
+    x = (zside < 0) ? -r*cos(phi) : r*cos(phi);
+    y = r*sin(phi);
+    z = ftpar_->geomParEndcap_[2];
+  }
+  if (zside < 0) z = -z;
+  GlobalPoint p(x,y,z);
+  return p;
+}
+
+std::vector<GlobalPoint> FastTimeDDDConstants::getCorners(int type, int izeta, 
+							  int iphi,
+							  int zside) const {
+
+  double x(0), y(0), z(0), dx(0), dz(0), r(0), phi(0);
+  if (type == 1) {
+    phi  = (iphi-0.5)*dPhiBarrel_;
+    r    = ftpar_->geomParBarrel_[2];
+    x    = r*cos(phi);
+    y    = r*sin(phi);
+    z    = ftpar_->geomParBarrel_[0]+(izeta-0.5)*dZBarrel_;
+    dx   = 0.5*ftpar_->geomParBarrel_[3];
+    dz   = 0.5*dZBarrel_;
+  } else if (type == 2) {
+    phi  = (iphi-0.5)*dPhiEndcap_;
+    r    = (izeta <= 0 || izeta >= (int)(rLimits_.size())) ? 0 :
+      0.5*(rLimits_[izeta-1]+rLimits_[izeta]);
+    x    = (zside < 0) ? -r*cos(phi) : r*cos(phi);
+    y    = r*sin(phi);
+    z    = ftpar_->geomParEndcap_[2];
+    dx   = 0.5*r*dPhiEndcap_;
+    dz   = 0.5*ftpar_->geomParEndcap_[3];
+  }
+  if (zside < 0) {z = -z; dz = -dz;}
+  static const int signx[8] = {-1,-1, 1, 1,-1,-1, 1, 1};
+  static const int signy[8] = {-1, 1, 1,-1,-1, 1, 1,-1};
+  static const int signz[8] = {-1,-1,-1,-1, 1, 1, 1, 1};
+  std::vector<GlobalPoint> pts;
+  for (unsigned int i=0; i != 8; ++i) {
+    GlobalPoint p(x+signx[i]*dx,y+signy[i]*dx,z+signz[i]*dz);
+    pts.push_back(p);
+  }
+  return pts;
+}
+
 int FastTimeDDDConstants::getCells(int type) const {
   int numb(0);
   if (type == 1) {
@@ -63,6 +120,46 @@ int FastTimeDDDConstants::getCells(int type) const {
     numb = (ftpar_->nEtaEndcap_)*(ftpar_->nPhiEndcap_);
   }
   return numb;
+}
+
+double FastTimeDDDConstants::getRin(int type) const {
+  double value(0);
+  if (type == 1) {
+    value = (ftpar_->geomParBarrel_[2]);
+  } else if (type == 2) {
+    value = (ftpar_->geomParEndcap_[0]);
+  }
+  return value;
+}
+
+double FastTimeDDDConstants::getRout(int type) const {
+  double value(0);
+  if (type == 1) {
+    value = (ftpar_->geomParBarrel_[2]+ftpar_->geomParBarrel_[3]);
+  } else if (type == 2) {
+    value = (ftpar_->geomParEndcap_[1]);
+  }
+  return value;
+}
+
+double FastTimeDDDConstants::getZHalf(int type) const {
+  double value(0);
+  if (type == 1) {
+    value = 0.5*(ftpar_->geomParBarrel_[1]-ftpar_->geomParBarrel_[0]);
+  } else if (type == 2) {
+    value = (ftpar_->geomParEndcap_[3]);
+  }
+  return value;
+}
+
+double FastTimeDDDConstants::getZPos(int type) const {
+  double value(0);
+  if (type == 1) {
+    value = 0.5*(ftpar_->geomParBarrel_[1]+ftpar_->geomParBarrel_[0]);
+  } else if (type == 2) {
+    value = (ftpar_->geomParEndcap_[2]);
+  }
+  return value;
 }
 
 bool FastTimeDDDConstants::isValidXY(int type, int izeta, int iphi) const {
@@ -75,6 +172,26 @@ bool FastTimeDDDConstants::isValidXY(int type, int izeta, int iphi) const {
 	  (iphi > 0) && (iphi <= ftpar_->nPhiEndcap_));
   }
   return ok;
+}
+
+int FastTimeDDDConstants::numberEtaZ(int type) const {
+  int numb(0);
+  if (type == 1) {
+    numb = (ftpar_->nZBarrel_);
+  } else if (type == 2) {
+    numb = (ftpar_->nEtaEndcap_);
+  }
+  return numb;
+}
+
+int FastTimeDDDConstants::numberPhi(int type) const {
+  int numb(0);
+  if (type == 1) {
+    numb = (ftpar_->nPhiBarrel_);
+  } else if (type == 2) {
+    numb = (ftpar_->nPhiEndcap_);
+  }
+  return numb;
 }
 
 void FastTimeDDDConstants::initialize() {
