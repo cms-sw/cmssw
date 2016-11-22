@@ -17,8 +17,10 @@ SiPixelPhase1DigisHarvester::SiPixelPhase1DigisHarvester(const edm::ParameterSet
     for (auto e : t) {
       TH1* th1 = e.second.th1;
       assert(th1->GetDimension() == 2);
+      TH2D* th2 = dynamic_cast<TH2D*>(th1);
+      assert(th2);
       iBooker.setCurrentFolder(e.second.me->getPathname());
-      MonitorElement* out = iBooker.book2D(e.second.me->getName() + "_norm", dynamic_cast<TH2F*>(th1));
+      MonitorElement* out = iBooker.book2DD(e.second.me->getName() + "_norm", th2);
 
       for (int x = 1; x <= th1->GetNbinsX(); x++) {
         double sum = 0;
