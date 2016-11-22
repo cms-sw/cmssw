@@ -27,14 +27,12 @@ public:
 
   void run(pixeltrackfitting::TracksWithTTRHs& tah, edm::Event& ev, const edm::EventSetup& es);
 
-  void halt();
   void init(const edm::EventSetup& es);
 
 private:
-  edm::ParameterSet theConfig;
   edm::EDGetTokenT<PixelFitter> theFitterToken;
   edm::EDGetTokenT<PixelTrackFilter> theFilterToken;
-  PixelTrackCleaner * theCleaner;
+  std::string theCleanerName;
   std::unique_ptr<OrderedHitsGenerator> theGenerator;
   std::unique_ptr<TrackingRegionProducer> theRegionProducer;
   std::unique_ptr<QuadrupletSeedMerger> theMerger_;

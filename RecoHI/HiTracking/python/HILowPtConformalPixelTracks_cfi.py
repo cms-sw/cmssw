@@ -2,6 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 from RecoPixelVertexing.PixelTriplets.PixelTripletHLTGenerator_cfi import *
 from RecoPixelVertexing.PixelLowPtUtilities.ClusterShapeHitFilterESProducer_cfi import *
+from RecoPixelVertexing.PixelLowPtUtilities.trackCleaner_cfi import *
 from RecoPixelVertexing.PixelTrackFitting.pixelFitterByConformalMappingAndLine_cfi import *
 from RecoHI.HiTracking.HIPixelTrackFilter_cff import *
 from RecoHI.HiTracking.HITrackingRegionProducer_cfi import *
@@ -34,9 +35,7 @@ hiConformalPixelTracks = cms.EDProducer("PixelTrackProducer",
                                         Filter = cms.InputTag("hiConformalPixelFilter"),
                                         
                                         # Cleaner
-                                        CleanerPSet = cms.PSet(  
-    ComponentName = cms.string( "TrackCleaner" )
-    )
+                                        Cleaner = cms.string("trackCleaner")
                                         )
 
 # increase threshold for triplets in generation step (default: 10000)

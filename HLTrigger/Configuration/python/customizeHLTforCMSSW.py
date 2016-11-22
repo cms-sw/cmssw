@@ -92,6 +92,9 @@ def customiseFor16792(process):
             if key not in skipSet:
                 setattr(new, key, getattr(old, key))
 
+    from RecoPixelVertexing.PixelTrackFitting.pixelTrackCleanerBySharedHits_cfi import pixelTrackCleanerBySharedHits as _pixelTrackCleanerBySharedHits
+    from RecoPixelVertexing.PixelLowPtUtilities.trackCleaner_cfi import trackCleaner as _trackCleaner
+
     for producer in producers_by_type(process, "PixelTrackProducer"):
         label = producer.label()
         fitterName = producer.FitterPSet.ComponentName.value()
@@ -116,6 +119,33 @@ def customiseFor16792(process):
 
         del producer.FilterPSet
         producer.Filter = cms.InputTag(filterProducerLabel)
+
+
+        cleanerPSet = producer.CleanerPSet
+        del producer.CleanerPSet
+        producer.Cleaner = cms.string("")
+        if cleanerPSet.ComponentName.value() == "PixelTrackCleanerBySharedHits":
+            if cleanerPSet.useQuadrupletAlgo:
+                producer.cleaner = "hltPixelTracksCleanerBySharedHitsQuad"
+                if not hasattr(process, "hltPixelTracksCleanerBySharedHitsQuad"):
+                    process.hltPixelTracksCleanerBySharedHitsQuad = _pixelTrackCleanerBySharedHits.clone(
+                        ComponentName = "hltPixelTracksCleanerBySharedHitsQuad",
+                        useQuadrupletAlgo=True
+                    )
+            else:
+                producer.Cleaner = "hltPixelTracksCleanerBySharedHits"
+                if not hasattr(process, "hltPixelTracksCleanerBySharedHits"):
+                    process.hltPixelTracksCleanerBySharedHits = _pixelTrackCleanerBySharedHits.clone(
+                        ComponentName = "hltPixelTracksCleanerBySharedHits",
+                        useQuadrupletAlgo=False
+                    )
+        elif cleanerPSet.ComponentName.value() == "TrackCleaner":
+            producer.Cleaner = "hltTrackCleaner"
+            if not hasattr(process, "hltTrackCleaner"):
+                proccess.hltTrackCleaner = _trackCleaner.clone(
+                    ComponentName = "hltTrackCleaner"
+                )
+
         # Modify sequences (also paths to be sure, altough in practice
         # the seeding modules should be only in sequences in HLT?)
         for seqs in [process.sequences_(), process.paths_()]:

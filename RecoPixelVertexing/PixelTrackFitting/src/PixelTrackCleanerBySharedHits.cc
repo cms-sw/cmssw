@@ -9,9 +9,10 @@ using namespace std;
 using namespace reco;
 using namespace pixeltrackfitting;
 
-PixelTrackCleanerBySharedHits::PixelTrackCleanerBySharedHits( const edm::ParameterSet& cfg):
-  useQuadrupletAlgo_(cfg.getParameter<bool>("useQuadrupletAlgo"))
-{fast=true;}
+PixelTrackCleanerBySharedHits::PixelTrackCleanerBySharedHits(bool useQuadrupletAlgo):
+  PixelTrackCleaner(true), // to mark this as fast algo
+  useQuadrupletAlgo_(useQuadrupletAlgo)
+{}
 
 PixelTrackCleanerBySharedHits::~PixelTrackCleanerBySharedHits()
 {}

@@ -10,10 +10,10 @@
 
 class PixelTrackCleanerWrapper {
 public: 
-  PixelTrackCleanerWrapper(PixelTrackCleaner * tc) : theCleaner(tc) {}
+  PixelTrackCleanerWrapper(const PixelTrackCleaner * tc) : theCleaner(tc) {}
   pixeltrackfitting::TracksWithTTRHs clean(
 					   const pixeltrackfitting::TracksWithTTRHs & initialT_TTRHs,
-					   const TrackerTopology *tTopo) {
+					   const TrackerTopology *tTopo) const {
     
     pixeltrackfitting::TracksWithRecHits initialT_TRHs;
     std::map<const TrackingRecHit *, SeedingHitSet::ConstRecHitPointer> hitMap;
@@ -45,6 +45,6 @@ public:
     return finalT_TTRHs;
   }
 private:
-  PixelTrackCleaner * theCleaner;
+  const PixelTrackCleaner * theCleaner;
 };
 #endif

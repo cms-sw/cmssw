@@ -17,7 +17,7 @@ class TrackerTopology;
 class PixelTrackCleanerBySharedHits final : public PixelTrackCleaner {
 
 public:
-  PixelTrackCleanerBySharedHits( const edm::ParameterSet& cfg);
+  PixelTrackCleanerBySharedHits(bool useQuadrupletAlgo);
 
  ~PixelTrackCleanerBySharedHits();
 

@@ -2,6 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 from RecoPixelVertexing.PixelLowPtUtilities.clusterShapeTrackFilter_cfi import clusterShapeTrackFilter
 from RecoPixelVertexing.PixelLowPtUtilities.trackFitter_cfi import trackFitter
+from RecoPixelVertexing.PixelLowPtUtilities.trackCleaner_cfi import trackCleaner
 
 ##########################
 # The base for all steps
@@ -47,9 +48,7 @@ allPixelTracks = cms.EDProducer("PixelTrackProducer",
     Filter = cms.InputTag("clusterShapeTrackFilter"),
 
     # Cleaner
-    CleanerPSet = cms.PSet(
-        ComponentName = cms.string('TrackCleaner')
-    ),
+    CleanerPSet = cms.string("trackCleaner"),
 
     # Fitter
     FitterPSet = cms.InputTag("allPixelTracksFitter"),

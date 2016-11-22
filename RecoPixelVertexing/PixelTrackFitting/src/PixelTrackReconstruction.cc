@@ -16,7 +16,6 @@
 #include "RecoPixelVertexing/PixelTrackFitting/interface/PixelTrackFilter.h"
 
 #include "RecoPixelVertexing/PixelTrackFitting/interface/PixelTrackCleaner.h"
-#include "RecoPixelVertexing/PixelTrackFitting/interface/PixelTrackCleanerFactory.h"
 #include "RecoPixelVertexing/PixelTrackFitting/interface/PixelTrackCleanerWrapper.h"
 
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -34,12 +33,11 @@ using edm::ParameterSet;
 
 PixelTrackReconstruction::PixelTrackReconstruction(const ParameterSet& cfg,
 	   edm::ConsumesCollector && iC)
-  : theConfig(cfg),
-    theFitterToken(iC.consumes<PixelFitter>(cfg.getParameter<edm::InputTag>("Fitter"))),
-    theCleaner(0)
+  : theFitterToken(iC.consumes<PixelFitter>(cfg.getParameter<edm::InputTag>("Fitter"))),
+    theCleanerName(cfg.getParameter<std::string>("Cleaner"))
 {
   if ( cfg.exists("SeedMergerPSet") ) {
-    edm::ParameterSet mergerPSet = theConfig.getParameter<edm::ParameterSet>( "SeedMergerPSet" );
+    edm::ParameterSet mergerPSet = cfg.getParameter<edm::ParameterSet>( "SeedMergerPSet" );
     std::string seedmergerTTRHBuilderLabel = mergerPSet.getParameter<std::string>( "ttrhBuilderLabel" );
     edm::ParameterSet seedmergerLayerList = mergerPSet.getParameter<edm::ParameterSet>( "layerList" );
     bool seedmergerAddTriplets = mergerPSet.getParameter<bool>( "addRemainingTriplets" );
@@ -56,31 +54,21 @@ PixelTrackReconstruction::PixelTrackReconstruction(const ParameterSet& cfg,
   }
 
   ParameterSet orderedPSet =
-      theConfig.getParameter<ParameterSet>("OrderedHitsFactoryPSet");
+      cfg.getParameter<ParameterSet>("OrderedHitsFactoryPSet");
   std::string orderedName = orderedPSet.getParameter<std::string>("ComponentName");
   theGenerator.reset(OrderedHitsGeneratorFactory::get()->create( orderedName, orderedPSet, iC));
 
-  ParameterSet regfactoryPSet = theConfig.getParameter<ParameterSet>("RegionFactoryPSet");
+  ParameterSet regfactoryPSet = cfg.getParameter<ParameterSet>("RegionFactoryPSet");
   std::string regfactoryName = regfactoryPSet.getParameter<std::string>("ComponentName");
   theRegionProducer.reset(TrackingRegionProducerFactory::get()->create(regfactoryName,regfactoryPSet, std::move(iC)));
 }
   
 PixelTrackReconstruction::~PixelTrackReconstruction() 
 {
-  halt();
-}
-
-void PixelTrackReconstruction::halt()
-{
-  delete theCleaner; theCleaner=0;
 }
 
 void PixelTrackReconstruction::init(const edm::EventSetup& es)
 {
-  ParameterSet cleanerPSet = theConfig.getParameter<ParameterSet>("CleanerPSet");
-  std::string  cleanerName = cleanerPSet.getParameter<std::string>("ComponentName");
-  if (cleanerName != "none") theCleaner = PixelTrackCleanerFactory::get()->create( cleanerName, cleanerPSet);
-
   if (theMerger_) {
     theMerger_->update( es );
   }
@@ -142,11 +130,13 @@ void PixelTrackReconstruction::run(TracksWithTTRHs& tracks, edm::Event& ev, cons
   }
 
   // skip ovelrapped tracks
-  
-  if (theCleaner) {
-    if (theCleaner->fast)
-       theCleaner->cleanTracks(tracks,tTopo);
+  if(!theCleanerName.empty()) {
+    edm::ESHandle<PixelTrackCleaner> hcleaner;
+    es.get<PixelTrackCleaner::Record>().get(theCleanerName, hcleaner);
+    const auto& cleaner = *hcleaner;
+    if(cleaner.fast())
+      cleaner.cleanTracks(tracks,tTopo);
     else
-      tracks = PixelTrackCleanerWrapper(theCleaner).clean(tracks,tTopo);
+      tracks = PixelTrackCleanerWrapper(&cleaner).clean(tracks,tTopo);
   }
 }

@@ -72,8 +72,7 @@ public:
 };
 
 /*****************************************************************************/
-TrackCleaner::TrackCleaner
-  (const edm::ParameterSet& ps)
+TrackCleaner::TrackCleaner()
 {
 }
 
@@ -84,7 +83,7 @@ TrackCleaner::~TrackCleaner()
 
 /*****************************************************************************/
 bool TrackCleaner::areSame(const TrackingRecHit * a,
-                           const TrackingRecHit * b)
+                           const TrackingRecHit * b) const
 {
   if(a->geographicalId() != b->geographicalId())
     return false;
@@ -99,7 +98,7 @@ bool TrackCleaner::areSame(const TrackingRecHit * a,
 /*****************************************************************************/
 bool TrackCleaner::isCompatible(const DetId & i1,
                                 const DetId & i2,
-				const TrackerTopology *tTopo)
+				const TrackerTopology *tTopo) const
 {
   // different subdet
   if(i1.subdetId() != i2.subdetId()) return true;
@@ -140,7 +139,7 @@ bool TrackCleaner::isCompatible(const DetId & i1,
 bool TrackCleaner::canBeMerged
   (const vector<const TrackingRecHit *>& recHitsA,
    const vector<const TrackingRecHit *>& recHitsB,
-   const TrackerTopology *tTopo)
+   const TrackerTopology *tTopo) const
 {
  bool ok = true;
 
@@ -159,7 +158,7 @@ bool TrackCleaner::canBeMerged
 
 /*****************************************************************************/
 TracksWithRecHits TrackCleaner::cleanTracks
-(const TracksWithRecHits & tracks_, const TrackerTopology *tTopo)
+(const TracksWithRecHits & tracks_, const TrackerTopology *tTopo) const
 {
   // Local copy
   TracksWithRecHits tracks = tracks_;
