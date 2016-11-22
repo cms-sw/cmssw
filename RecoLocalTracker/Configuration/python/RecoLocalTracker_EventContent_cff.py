@@ -24,8 +24,6 @@ RecoLocalTrackerAOD = cms.PSet(
 )
 
 from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
-phase2_tracker.toModify(RecoLocalTrackerFEVT, outputCommands = RecoLocalTrackerFEVT.outputCommands + ['keep *_siPhase2Clusters_*_*',
-                                                                                                           'keep *_phase2ITPixelClusters_*_*'] )
-phase2_tracker.toModify(RecoLocalTrackerRECO, outputCommands = RecoLocalTrackerRECO.outputCommands + ['keep *_siPhase2Clusters_*_*',
-                                                                                                           'keep *_phase2ITPixelClusters_*_*'] )
+phase2_tracker.toModify(RecoLocalTrackerFEVT, outputCommands = RecoLocalTrackerFEVT.outputCommands + ['keep *_siPhase2Clusters_*_*'] )
+phase2_tracker.toModify(RecoLocalTrackerRECO, outputCommands = RecoLocalTrackerRECO.outputCommands + ['keep *_siPhase2Clusters_*_*'] )
 
