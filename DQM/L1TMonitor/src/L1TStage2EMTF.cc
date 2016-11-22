@@ -4,10 +4,10 @@
 
 
 L1TStage2EMTF::L1TStage2EMTF(const edm::ParameterSet& ps)
-    : daqToken(consumes<l1t::EMTFDaqOutCollection>(ps.getParameter<edm::InputTag>("emtfSource"))),
-      hitToken(consumes<l1t::EMTFHitCollection>(ps.getParameter<edm::InputTag>("emtfSource"))),
-      trackToken(consumes<l1t::EMTFTrackCollection>(ps.getParameter<edm::InputTag>("emtfSource"))),
-      muonToken(consumes<l1t::RegionalMuonCandBxCollection>(ps.getParameter<edm::InputTag>("emtfSource"))),
+    : daqToken(consumes<l1t::EMTFDaqOutCollection>(ps.getParameter<edm::InputTag>("emtfSource_daq"))),
+      hitToken(consumes<l1t::EMTFHitCollection>(ps.getParameter<edm::InputTag>("emtfSource_hit"))),
+      trackToken(consumes<l1t::EMTFTrackCollection>(ps.getParameter<edm::InputTag>("emtfSource_track"))),
+      muonToken(consumes<l1t::RegionalMuonCandBxCollection>(ps.getParameter<edm::InputTag>("emtfSource_muon"))),
       monitorDir(ps.getUntrackedParameter<std::string>("monitorDir", "")),
       isData(ps.getUntrackedParameter<bool>("isData", false)),
       filterBX(ps.getUntrackedParameter<bool>("filterBX", false)),
