@@ -17,7 +17,6 @@ HcalRecHitsValidation::HcalRecHitsValidation(edm::ParameterSet const& conf) {
   
   hcalselector_ = conf.getUntrackedParameter<std::string>("hcalselector", "all");
   ecalselector_ = conf.getUntrackedParameter<std::string>("ecalselector", "yes");
-  eventype_     = conf.getUntrackedParameter<std::string>("eventype", "single");
   sign_         = conf.getUntrackedParameter<std::string>("sign", "*");
   mc_           = conf.getUntrackedParameter<std::string>("mc", "yes");
   testNumber_   = conf.getParameter<bool>("TestNumber");
@@ -41,9 +40,6 @@ HcalRecHitsValidation::HcalRecHitsValidation(edm::ParameterSet const& conf) {
   if (hcalselector_ == "HF"   ) subdet_ = 4;
   if (hcalselector_ == "all"  ) subdet_ = 5;
   if (hcalselector_ == "ZS"   ) subdet_ = 6;
-
-  etype_ = 1;
-  if (eventype_ == "multi") etype_ = 2;
 
   iz = 1;
   if(sign_ == "-") iz = -1;

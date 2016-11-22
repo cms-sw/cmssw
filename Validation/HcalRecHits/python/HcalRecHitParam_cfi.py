@@ -7,7 +7,6 @@ hcalRecoAnalyzer = cms.EDAnalyzer("HcalRecHitsValidation",
     HFRecHitCollectionLabel   = cms.untracked.InputTag("hfreco"),
     HORecHitCollectionLabel   = cms.untracked.InputTag("horeco"),
 
-    eventype                  = cms.untracked.string('multi'),
     ecalselector              = cms.untracked.string('yes'),
     hcalselector              = cms.untracked.string('all'),
     mc                        = cms.untracked.string('no'),
