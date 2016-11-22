@@ -990,7 +990,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
 
 
         #and the MET producers
-        if identifier=="Jet" and varType=="Res" and self._parameters["runOnData"]:
+        if identifier=="Jet" and varType=="Res" and self._parameters["runOnData"].value:
             shiftedMetProducers = self.copyCentralMETProducer(process, shiftedCollModules, identifier, metModName, varType, postfix)
         else:
             shiftedMetProducers = self.createShiftedModules(process, shiftedCollModules, identifier, preId, objectCollection, 
@@ -1226,11 +1226,16 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
         modName += postfix
         selJetModName += postfix
 
+        genJetsCollection=cms.InputTag('ak4GenJetsNoNu')
+        if self._parameters["onMiniAOD"].value:
+            genJetsCollection=cms.InputTag("slimmedGenJets")
+
         if "PF" == self._parameters["metType"].value:
             smearedJetModule = getattr(process, "patSmearedJets"+postfix).clone(
                 src = jetCollection,
                 enabled = cms.bool(smear),
                 variation = cms.int32( int(varyByNsigmas) ),
+                genJets = genJetsCollection,
                 )    
 
         if self._parameters["Puppi"].value:
