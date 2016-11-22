@@ -29,7 +29,7 @@ public:
 
     FitMassSlices fitter(
       91, Mmin, Mmax, 2, 0.1, 10,
-      "breitWignerTimesCB", "exponential",
+      "breitWignerTimesCB", "exponential"
       );
 
     fitter.rebinX = 2; // for further rebinning for phi use rebinXphi in FitMassSlices.cc (L20)
