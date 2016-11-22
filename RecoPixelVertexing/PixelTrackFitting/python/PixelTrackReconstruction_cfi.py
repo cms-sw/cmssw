@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 from RecoTracker.TkTrackingRegions.GlobalTrackingRegionFromBeamSpot_cfi import *
 from RecoPixelVertexing.PixelTriplets.PixelTripletHLTGenerator_cfi import *
-
+from RecoPixelVertexing.PixelTrackFitting.pixelTrackCleanerBySharedHits_cfi import *
 
 PixelTrackReconstructionBlock = cms.PSet (
     Fitter = cms.InputTag("pixelFitterByHelixProjections"),
@@ -18,10 +18,7 @@ PixelTrackReconstructionBlock = cms.PSet (
             PixelTripletHLTGeneratorWithFilter
         )
     ),
-    CleanerPSet = cms.PSet(
-        ComponentName = cms.string('PixelTrackCleanerBySharedHits'),
-        useQuadrupletAlgo = cms.bool(False),
-    )
+    Cleaner = cms.string("pixelTrackCleanerBySharedHits")
 )
 
 _OrderedHitsFactoryPSet_LowPU_Phase1PU70 = dict(

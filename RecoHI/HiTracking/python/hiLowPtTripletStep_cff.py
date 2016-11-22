@@ -31,6 +31,7 @@ hiLowPtTripletStepSeedLayers.FPix.skipClusters = cms.InputTag('hiLowPtTripletSte
 # SEEDS
 from RecoPixelVertexing.PixelTriplets.PixelTripletHLTGenerator_cfi import *
 from RecoPixelVertexing.PixelLowPtUtilities.ClusterShapeHitFilterESProducer_cfi import *
+from RecoPixelVertexing.PixelLowPtUtilities.trackCleaner_cfi import *
 from RecoPixelVertexing.PixelTrackFitting.pixelFitterByHelixProjections_cfi import *
 from RecoHI.HiTracking.HIPixelTrackFilter_cff import *
 from RecoHI.HiTracking.HITrackingRegionProducer_cfi import *
@@ -80,9 +81,7 @@ hiLowPtTripletStepPixelTracks = cms.EDProducer("PixelTrackProducer",
     Filter = cms.InputTag("hiLowPtTripletStepPixelTracksFilter"),
 	
     # Cleaner
-    CleanerPSet = cms.PSet(  
-          ComponentName = cms.string( "TrackCleaner" )
-    )
+    Cleaner = cms.string("trackCleaner")
 )
 
 hiLowPtTripletStepPixelTracks.OrderedHitsFactoryPSet.GeneratorPSet.maxElement = cms.uint32(5000000)

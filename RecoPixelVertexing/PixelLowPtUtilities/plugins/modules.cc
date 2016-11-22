@@ -24,12 +24,6 @@ DEFINE_FWK_MODULE(TrackListCombiner);
 #include "RecoPixelVertexing/PixelLowPtUtilities/interface/PixelTripletLowPtGenerator.h"
 DEFINE_EDM_PLUGIN(HitTripletGeneratorFromPairAndLayersFactory, PixelTripletLowPtGenerator,"PixelTripletLowPtGenerator");
 
-// Cleaner
-#include "RecoPixelVertexing/PixelTrackFitting/interface/PixelTrackCleaner.h"
-#include "RecoPixelVertexing/PixelTrackFitting/interface/PixelTrackCleanerFactory.h"
-#include "RecoPixelVertexing/PixelLowPtUtilities/interface/TrackCleaner.h"
-DEFINE_EDM_PLUGIN(PixelTrackCleanerFactory, TrackCleaner, "TrackCleaner");
-
 // Seed
 //#include "RecoPixelVertexing/PixelLowPtUtilities/interface/SeedProducer.h"
 //DEFINE_FWK_MODULE(SeedProducer);
