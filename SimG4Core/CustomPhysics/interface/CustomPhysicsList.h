@@ -35,6 +35,7 @@ private:
 
   std::string particleDefFilePath;
   std::string processDefFilePath;
+  double dfactor;
 };
  
 #endif

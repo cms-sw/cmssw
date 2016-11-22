@@ -116,6 +116,20 @@ void CustomParticleFactory::addCustomParticle(int pdgCode, double mass, const st
   int baryon = 1;  //FIXME: 
   bool stable = true;
   double lifetime = -1;
+
+  if(CustomPDGParser::s_isDphoton(pdgCode)){
+    pType = "darkpho";
+    spin = 2;
+    parity = -1;
+    conjugation = -1;
+    isospin = 0;
+    isospinZ = 0;
+    gParity = 0;
+    lepton = 0;
+    baryon =0;
+    stable = true;
+    lifetime = -1;
+  }
  
   G4DecayTable *decaytable = NULL;
   G4ParticleTable* theParticleTable = G4ParticleTable::GetParticleTable();
