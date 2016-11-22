@@ -48,7 +48,7 @@ class HLTHcalMETNoiseFilter : public edm::EDFilter {
   double maxRBXEMF_;
 
   // imported from the RecoMET/METProducers/python/hcalnoiseinfoproducer_cfi
-  double minRecHitE_, minLowHitE_, minHighHitE_;
+  double minRecHitE_, minLowHitE_, minHighHitE_, minR45HitE_;
 
   double TS4TS5EnergyThreshold_;
   std::vector<std::pair<double, double> > TS4TS5UpperCut_;

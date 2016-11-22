@@ -8,7 +8,7 @@ import FWCore.ParameterSet.Config as cms
 #  it gives back the corresponding severity level, if no, it continues with the next lower level.
 #  If a defined bit vector is empty, the corresponding flag is not checked.
 #  This means that the highest level that has two empty vectors will be always the default level.
-# 
+#
 # RecoveredRecHitBits: this is a mask for the determination of whether a particular RecHit is recovered
 #                      empty mask means that no flag is assigned to the recovered status
 #
@@ -44,8 +44,8 @@ hcalRecAlgos = cms.ESProducer("HcalRecAlgoESProducer",
                   ChannelStatus = cms.vstring('HcalCellExcludeFromHBHENoiseSummary')
                 ),
         cms.PSet( Level = cms.int32(8),
-                  RecHitFlags = cms.vstring('HBHEHpdHitMultiplicity', 
-                                            'HBHEPulseShape', 
+                  RecHitFlags = cms.vstring('HBHEHpdHitMultiplicity',
+                                            'HBHEPulseShape',
                                             'HOBit',
                                             'HFDigiTime',
                                             'HFInTimeWindow',
@@ -54,7 +54,8 @@ hcalRecAlgos = cms.ESProducer("HcalRecAlgoESProducer",
                                             'HBHEFlatNoise',
                                             'HBHESpikeNoise',
                                             'HBHETriangleNoise',
-                                            'HBHETS4TS5Noise'
+                                            'HBHETS4TS5Noise',
+                                            'HBHENegativeNoise'
                                            ),
                   ChannelStatus = cms.vstring('')
                 ),
