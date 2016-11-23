@@ -13,7 +13,7 @@ options.register('runNumber',
                  "Run number.")
 
 options.register('runInputDir',
-                 '/fff/BU0/output/lookarea',
+                 '/tmp',
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.string,
                  "Directory where the DQM files will appear.")
