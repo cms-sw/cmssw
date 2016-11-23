@@ -82,15 +82,6 @@ void DTLocalTriggerTest::Bookings(DQMStore::IBooker & ibooker, DQMStore::IGetter
 	    bookWheelHistos(ibooker,wh,"CorrFractionPhi");
 	    bookWheelHistos(ibooker,wh,"2ndFractionPhi");
 	    bookWheelHistos(ibooker,wh,"TriggerInclusivePhi");
-	    bookWheelHistos(ibooker,wh,"CorrectBXTheta");
-          // Changed after TM implementation, now we have always Theta information
-          // Changed 11/10/2916 M.C Fouz
-          /*
-	    if (hwSource=="DDU") {
-	      bookWheelHistos(ibooker,wh,"HFractionTheta");
-	    }
-          */
-	    bookWheelHistos(ibooker,wh,"HFractionTheta");
 	  }
 	}
       }
@@ -197,25 +188,14 @@ void DTLocalTriggerTest::runClientDiagnostic(DQMStore::IBooker & ibooker, DQMSto
 	      }
 	    }
 	    else {
-            // Changed by M.C.Fouz (11/10/2016) 
-	      // Perform TM/DDU common plot analysis (Phi ones)
-            // This was changed for DQM after TM IN but, in the Modules Source part, they are not defined as *_In
-            // and the histograms are not being filled, renamed with the same names as the modules 
-            /*
 	      TH2F * BXvsQual      = getHisto<TH2F>(igetter.get(getMEName("BXvsQual_In","LocalTriggerPhiIn", chId)));
 	      TH1F * BestQual      = getHisto<TH1F>(igetter.get(getMEName("BestQual_In","LocalTriggerPhiIn", chId)));
 	      TH2F * Flag1stvsQual = getHisto<TH2F>(igetter.get(getMEName("Flag1stvsQual_In","LocalTriggerPhiIn", chId))); 
-            */
-	      TH2F * BXvsQual      = getHisto<TH2F>(igetter.get(getMEName("BXvsQual","LocalTriggerPhiIn", chId)));
-	      TH1F * BestQual      = getHisto<TH1F>(igetter.get(getMEName("BestQual","LocalTriggerPhiIn", chId)));
-	      TH2F * Flag1stvsQual = getHisto<TH2F>(igetter.get(getMEName("Flag1stvsQual","LocalTriggerPhiIn", chId))); 
 	      if (BXvsQual && Flag1stvsQual && BestQual) {
-
 		int corrSummary   = 1;
 		int secondSummary = 1;
 		
 		if (BestQual->GetEntries()>1) {
-		  
 		  TH1D* BXHH    = BXvsQual->ProjectionY("",6,7,"");
 		  TH1D* Flag1st = Flag1stvsQual->ProjectionY();
 		  int BXOK_bin  = BXHH->GetEntries()>=1 ? BXHH->GetMaximumBin() : 51;
@@ -287,7 +267,6 @@ void DTLocalTriggerTest::runClientDiagnostic(DQMStore::IBooker & ibooker, DQMSto
 		  innerME->find(fullName("CorrFractionPhi"))->second->setBinContent(sect,stat,corrFrac);
 		  innerME->find(fullName("TriggerInclusivePhi"))->second->setBinContent(sect,stat,besttrigs);
 		  innerME->find(fullName("2ndFractionPhi"))->second->setBinContent(sect,stat,secondFrac);
-		  
 		}
 
 		whME[wh].find(fullName("CorrFractionSummary"))->second->setBinContent(sect,stat,corrSummary);

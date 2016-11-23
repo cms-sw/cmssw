@@ -119,7 +119,7 @@ void DTLocalTriggerBaseTask::bookHistograms(DQMStore::IBooker & ibooker, edm::Ru
 	bookHistos(ibooker, DTChamberId(wh,stat,sect));
       }
     }
-    bookHistos(ibooker, wh);
+    if (processDDU) bookHistos(ibooker, wh);
   }
 }
 
@@ -401,7 +401,6 @@ void DTLocalTriggerBaseTask::runTMAnalysis( std::vector<L1MuDTChambPhDigi> const
     int qual  = iph->code();
     int is1st = iph->Ts2Tag() ? 1 : 0;
     int bx    = iph->bxNum() - is1st;
-
     if (qual <0 || qual>6) continue; // Check that quality is in a valid range
 
     DTChamberId dtChId(wh,st,sec);
