@@ -87,6 +87,15 @@ DefaultHisto = cms.PSet(
   #)
 )
 
+DefaultHistoDigiCluster=DefaultHisto.clone()
+DefaultHistoDigiCluster.topFolderName= cms.string("PixelPhase1/Phase1_MechanicalView")
+
+DefaultHistoSummary=DefaultHisto.clone()
+DefaultHistoSummary.topFolderName= cms.string("PixelPhase1/Summary")
+
+DefaultHistoTrack=DefaultHisto.clone()
+DefaultHistoTrack.topFolderName= cms.string("PixelPhase1/Tracks")
+
 # Commonly used specifications. 
 StandardSpecifications1D = [
     # The column names are either defined in the GeometryInterface.cc or read from TrackerTopology.

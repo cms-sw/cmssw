@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 from DQM.SiPixelPhase1Common.HistogramManager_cfi import *
 
-SiPixelPhase1ClustersCharge = DefaultHisto.clone(
+SiPixelPhase1ClustersCharge = DefaultHistoDigiCluster.clone(
   name = "charge",
   title = "Cluster Charge",
   range_min = 0, range_max = 200e3, range_nbins = 200,
@@ -14,7 +14,7 @@ SiPixelPhase1ClustersCharge = DefaultHisto.clone(
   )
 )
 
-SiPixelPhase1ClustersSize = DefaultHisto.clone(
+SiPixelPhase1ClustersSize = DefaultHistoDigiCluster.clone(
   name = "size",
   title = "Total Cluster Size",
   range_min = 0, range_max = 30, range_nbins = 30,
@@ -26,7 +26,7 @@ SiPixelPhase1ClustersSize = DefaultHisto.clone(
   )
 )
 
-SiPixelPhase1ClustersNClusters = DefaultHisto.clone(
+SiPixelPhase1ClustersNClusters = DefaultHistoDigiCluster.clone(
   name = "clusters",
   title = "Clusters",
   range_min = 0, range_max = 10, range_nbins = 10,
@@ -38,7 +38,7 @@ SiPixelPhase1ClustersNClusters = DefaultHisto.clone(
   )
 )
 
-SiPixelPhase1ClustersEventrate = DefaultHisto.clone(
+SiPixelPhase1ClustersEventrate = DefaultHistoDigiCluster.clone(
   name = "bigfpixclustereventrate",
   title = "Number of Events with > 180 FPIX clusters",
   xlabel = "Lumisection",
@@ -50,7 +50,7 @@ SiPixelPhase1ClustersEventrate = DefaultHisto.clone(
   )
 )
 
-SiPixelPhase1ClustersPositionB = DefaultHisto.clone(
+SiPixelPhase1ClustersPositionB = DefaultHistoDigiCluster.clone(
   bookUndefined = False,
   name = "clusterposition_zphi",
   title = "Cluster Positions",
@@ -64,7 +64,7 @@ SiPixelPhase1ClustersPositionB = DefaultHisto.clone(
   )
 )
 
-SiPixelPhase1ClustersPositionF = DefaultHisto.clone(
+SiPixelPhase1ClustersPositionF = DefaultHistoDigiCluster.clone(
   bookUndefined = False,
   name = "clusterposition_xy",
   title = "Cluster Positions",
@@ -79,7 +79,7 @@ SiPixelPhase1ClustersPositionF = DefaultHisto.clone(
   )
 )
 
-SiPixelPhase1ClustersPositionXZ = DefaultHisto.clone(
+SiPixelPhase1ClustersPositionXZ = DefaultHistoDigiCluster.clone(
   enabled = False, # only for debugging geometry
   name = "clusterposition_xz",
   title = "Cluster Positions",
@@ -91,7 +91,7 @@ SiPixelPhase1ClustersPositionXZ = DefaultHisto.clone(
   )
 )
 
-SiPixelPhase1ClustersPositionYZ = DefaultHisto.clone(
+SiPixelPhase1ClustersPositionYZ = DefaultHistoDigiCluster.clone(
   enabled = False, # only for debugging geometry
   name = "clusterposition_yz",
   title = "Cluster Positions",
@@ -103,7 +103,7 @@ SiPixelPhase1ClustersPositionYZ = DefaultHisto.clone(
   )
 )
 
-SiPixelPhase1ClustersSizeVsEta = DefaultHisto.clone(
+SiPixelPhase1ClustersSizeVsEta = DefaultHistoDigiCluster.clone(
   bookUndefined = False, # Barrel only
   name = "sizeyvseta",
   title = "Cluster Size along Beamline vs. Cluster position #eta",
