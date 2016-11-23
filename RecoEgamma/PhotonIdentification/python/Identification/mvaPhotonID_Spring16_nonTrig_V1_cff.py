@@ -27,9 +27,11 @@ mvaTag = "V1"
 #   1    endcap photons
 
 mvaSpring16NonTrigWeightFiles_V1 = cms.vstring(
-    "RecoEgamma/PhotonIdentification/data/Spring16/photon_general_MVA_Spring16_EB_V1.weights.xml",
-    "RecoEgamma/PhotonIdentification/data/Spring16/photon_general_MVA_Spring16_EE_V1.weights.xml"
+    "RecoEgamma/PhotonIdentification/data/Spring16/photon_general_MVA_Spring16_EB_V2.weights.xml",
+    "RecoEgamma/PhotonIdentification/data/Spring16/photon_general_MVA_Spring16_EE_V2.weights.xml"
     )
+
+effAreasPath_pho = "RecoEgamma/PhotonIdentification/data/Spring16/effAreaPhotons_cone03_pfPhotons_90percentBased.txt"
 
 # Load some common definitions for MVA machinery
 from RecoEgamma.PhotonIdentification.Identification.mvaPhotonID_tools import *
@@ -50,8 +52,20 @@ MVA_WP90 = PhoMVA_2Categories_WP(
     idName = idName,
     mvaValueMapName = mvaValueMapName,           # map with MVA values for all particles
     mvaCategoriesMapName = mvaCategoriesMapName, # map with category index for all particles
-    cutCategory0 = 0.46, # EB new val : sig eff = 90% , bkg eff = 4.6 %
-    cutCategory1 = -0.12  # EE new val : sig eff = 90% , bkg eff = 6%
+    cutCategory0 = 0.46,  # EB new val : sig eff = 90% , bkg eff = ?
+    cutCategory1 = -0.14  # EE new val : sig eff = 90% , bkg eff = ?
+    )
+
+# The working point for this MVA that is expected to have about 90% signal
+# efficiency in each category for photons with pt>30 GeV (somewhat lower
+# for lower pt photons).
+idName = "mvaPhoID-Spring16-nonTrig-V1-wp80"
+MVA_WP80 = PhoMVA_2Categories_WP(
+    idName = idName,
+    mvaValueMapName = mvaValueMapName,           # map with MVA values for all particles
+    mvaCategoriesMapName = mvaCategoriesMapName, # map with category index for all particles
+    cutCategory0 = 0.74,  # EB new val : sig eff = 80% , bkg eff = ?
+    cutCategory1 = 0.36   # EE new val : sig eff = 80% , bkg eff = ?
     )
 
 #
@@ -75,10 +89,23 @@ mvaPhoID_Spring16_nonTrig_V1_producer_config = cms.PSet(
     #
     # Original event content: pileup in this case
     # 
-    rho                       = cms.InputTag("fixedGridRhoFastjetAll") 
+    rho                       = cms.InputTag("fixedGridRhoFastjetAll"),
+    # In this MVA for endcap the corrected photon isolation is defined as
+    # iso = max( photon_isolation_raw - rho*effArea - coeff*pt, cutoff)
+    # as discussed in the indico presentations listed in the beginning of this file.
+    #
+    effAreasConfigFile = cms.FileInPath(effAreasPath_pho),
+    # The coefficients "coeff" for the formula above for linear pt scaling correction
+    # the first value is for EB, the second is for EE
+    # NOTE: even though the EB coefficient is provided, it is not presently used in the MVA.
+    # For EB, the uncorrected raw photon isolation is used instead.
+    phoIsoPtScalingCoeff = cms.vdouble(0.0053,0.0034),
+    # The cutoff for the formula above
+    phoIsoCutoff = cms.double(2.5)
     )
 # Create the VPset's for VID cuts
 mvaPhoID_Spring16_nonTrig_V1_wp90 = configureVIDMVAPhoID_V1( MVA_WP90 )
+mvaPhoID_Spring16_nonTrig_V1_wp80 = configureVIDMVAPhoID_V1( MVA_WP80 )
 
 # The MD5 sum numbers below reflect the exact set of cut variables
 # and values above. If anything changes, one has to 
@@ -88,6 +115,9 @@ mvaPhoID_Spring16_nonTrig_V1_wp90 = configureVIDMVAPhoID_V1( MVA_WP90 )
 #
 
 central_id_registry.register( mvaPhoID_Spring16_nonTrig_V1_wp90.idName,
-                              '04c4fdaf9b47481b4bd530ba49d1801f')
+                              '1765a5666925de4d6a19e9a773f74fdc')
+central_id_registry.register( mvaPhoID_Spring16_nonTrig_V1_wp80.idName,
+                              'd638f825d39a5d78e1cc34da50b3f480')
 
 mvaPhoID_Spring16_nonTrig_V1_wp90.isPOGApproved = cms.untracked.bool(True)
+mvaPhoID_Spring16_nonTrig_V1_wp80.isPOGApproved = cms.untracked.bool(True)
