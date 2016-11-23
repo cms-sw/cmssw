@@ -317,7 +317,7 @@ void GeometryInterface::loadFEDCabling(edm::EventSetup const& iSetup, const edm:
   edm::ESHandle<SiPixelFedCablingMap> theCablingMap;
   iSetup.get<SiPixelFedCablingMapRcd>().get(cablingMapLabel, theCablingMap);
   std::map<DetId, Value> fedmap;
-  uint32_t minFED = UNDEFINED, maxFED = 0;
+  std::map<DetId, Value> chanmap;
 
   if (theCablingMap.isValid()) {
     auto map = theCablingMap.product();
@@ -327,8 +327,8 @@ void GeometryInterface::loadFEDCabling(edm::EventSetup const& iSetup, const edm:
       for (auto p : paths) {
         //std::cout << "+++ cabling " << iq.sourceModule.rawId() << " " << p.fed << " " << p.link << " " << p.roc << "\n";
         fedmap[iq.sourceModule] = Value(p.fed);
-        if (p.fed > maxFED) maxFED = p.fed;
-        if (p.fed < minFED) minFED = p.fed;
+        // TODO: this might not be correct, since channels are assigned per ROC.
+        chanmap[iq.sourceModule] = Value(p.link);
       }
     }
   } else {
@@ -345,12 +345,12 @@ void GeometryInterface::loadFEDCabling(edm::EventSetup const& iSetup, const edm:
     }
   );
   addExtractor(intern("FEDChannel"),
-    [] (InterestingQuantities const& iq) {
-      // TODO: we also should be able to compute the channel from the ROC.
-      // But for raw data, we only need this hack.
-      //if (iq.sourceModule == 0xFFFFFFFF)
-      return Value(iq.row); // hijacked for the raw data plugin
-    },
-    0, 39 // TODO: real range
+    [chanmap] (InterestingQuantities const& iq) {
+      if (iq.sourceModule == 0xFFFFFFFF)
+        return Value(iq.row); // hijacked for the raw data plugin
+      auto it = chanmap.find(iq.sourceModule);
+      if (it == chanmap.end()) return GeometryInterface::UNDEFINED;
+      return it->second;
+    }
   );
 }
