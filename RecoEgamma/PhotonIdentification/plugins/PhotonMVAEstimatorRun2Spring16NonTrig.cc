@@ -1,6 +1,7 @@
 #include "RecoEgamma/PhotonIdentification/plugins/PhotonMVAEstimatorRun2Spring16NonTrig.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 #include "TMVA/MethodBDT.h"
+#include <vector>
 
 PhotonMVAEstimatorRun2Spring16NonTrig::PhotonMVAEstimatorRun2Spring16NonTrig(const edm::ParameterSet& conf):
   AnyMVAEstimatorRun2Base(conf),
@@ -8,7 +9,10 @@ PhotonMVAEstimatorRun2Spring16NonTrig::PhotonMVAEstimatorRun2Spring16NonTrig(con
   _phoChargedIsolationLabel(conf.getParameter<edm::InputTag>("phoChargedIsolation")), 
   _phoPhotonIsolationLabel(conf.getParameter<edm::InputTag>("phoPhotonIsolation")), 
   _phoWorstChargedIsolationLabel(conf.getParameter<edm::InputTag>("phoWorstChargedIsolation")), 
-  _rhoLabel(conf.getParameter<edm::InputTag>("rho"))
+  _rhoLabel(conf.getParameter<edm::InputTag>("rho")),
+  _effectiveAreas( (conf.getParameter<edm::FileInPath>("effAreasConfigFile")).fullPath()),
+  _phoIsoPtScalingCoeff(conf.getParameter<std::vector<double >>("phoIsoPtScalingCoeff")),
+  _phoIsoCutoff(conf.getParameter<double>("phoIsoCutoff"))
 {
 
   //
@@ -55,26 +59,30 @@ mvaValue(const edm::Ptr<reco::Candidate>& particle, const edm::Event& iEvent) co
 
   // DEBUG
   const bool debug = false;
+  // The list of variables here must match EXACTLY the list and order in the
+  // packMVAVariables() call for barrel and endcap in this file.
   if( debug ){
     printf("Printout of the photon variable inputs for MVA:\n");
-    printf("  varSCPhi_            %f\n", vars[1]   );
-    printf("  varR9_            %f\n", vars[2]   ); 
-    printf("  varSieie_         %f\n", vars[3]   );
-    printf("  varSieip_         %f\n", vars[4]   ); 
-    printf("  varE2x2overE5x5_  %f\n", vars[5]   ); 
-    printf("  varSCEta_         %f\n", vars[6]   ); 
-    printf("  varRawE_          %f\n", vars[7]   ); 
-    printf("  varSCEtaWidth_    %f\n", vars[8]   ); 
-    printf("  varSCPhiWidth_    %f\n", vars[9]  ); 
-    printf("  varRho_           %f\n", vars[10]  );
+    printf("  varSCPhi_            %f\n", vars[0]   );
+    printf("  varR9_            %f\n", vars[1]   ); 
+    printf("  varSieie_         %f\n", vars[2]   );
+    printf("  varSieip_         %f\n", vars[3]   ); 
+    printf("  varE2x2overE5x5_  %f\n", vars[4]   ); 
+    printf("  varSCEta_         %f\n", vars[5]   ); 
+    printf("  varRawE_          %f\n", vars[6]   ); 
+    printf("  varSCEtaWidth_    %f\n", vars[7]   ); 
+    printf("  varSCPhiWidth_    %f\n", vars[8]  ); 
+    printf("  varRho_           %f\n", vars[9]  );
     if( !isEndcapCategory( iCategory ) ) {
-      printf("  varPhoIsoRaw_     %f\n", vars[11]  );
+      printf("  varPhoIsoRaw_     %f\n", vars[10]  );
+    } else {
+      printf("  varPhoIsoRawCorr_  %f\n", vars[10]  ); // for endcap MVA only in 2016
     }
-    printf("  varChIsoRaw_      %f\n", vars[12]  ); 
-    printf("  varWorstChRaw_    %f\n", vars[13]  );
+    printf("  varChIsoRaw_      %f\n", vars[11]  ); 
+    printf("  varWorstChRaw_    %f\n", vars[12]  );
     if( isEndcapCategory( iCategory ) ) {
-      printf("  varESEnOverRawE_  %f\n", vars[14]  ); // for endcap MVA only
-      printf("  varESEffSigmaRR_  %f\n", vars[15]  ); // for endcap MVA only
+      printf("  varESEnOverRawE_  %f\n", vars[13]  ); // for endcap MVA only
+      printf("  varESEffSigmaRR_  %f\n", vars[14]  ); // for endcap MVA only
     } 
   }
   
@@ -134,47 +142,6 @@ createSingleReader(const int iCategory, const edm::FileInPath &weightFile){
   // must match what is found in the xml weights file!
   //
 
-  //EB:
-
-  /*
-  <Variables NVar="13">
-    <Variable VarIndex="0" Expression="scPhi" Label="scPhi" Title="scPhi" Unit="" Internal="scPhi" Type="F" Min="-3.14157844e+00" Max="3.14158368e+00"/>
-    <Variable VarIndex="1" Expression="r9" Label="r9" Title="r9" Unit="" Internal="r9" Type="F" Min="1.01813994e-01" Max="1.00000012e+00"/>
-    <Variable VarIndex="2" Expression="sigmaIetaIeta" Label="sigmaIetaIeta" Title="sigmaIetaIeta" Unit="" Internal="sigmaIetaIeta" Type="F" Min="1.01688434e-04" Max="3.03453747e-02"/>
-    <Variable VarIndex="3" Expression="covIEtaIPhi" Label="covIEtaIPhi" Title="covIEtaIPhi" Unit="" Internal="covIEtaIPhi" Type="F" Min="-5.92368655e-04" Max="9.99900024e+02"/>
-    <Variable VarIndex="4" Expression="s4" Label="s4" Title="s4" Unit="" Internal="s4" Type="F" Min="-3.24029237e-01" Max="1.00077236e+00"/>
-    <Variable VarIndex="5" Expression="scEta" Label="scEta" Title="scEta" Unit="" Internal="scEta" Type="F" Min="-1.44419956e+00" Max="1.44419491e+00"/>
-    <Variable VarIndex="6" Expression="SCRawE" Label="SCRawE" Title="SCRawE" Unit="" Internal="SCRawE" Type="F" Min="7.66105461e+00" Max="1.38820911e+03"/>
-    <Variable VarIndex="7" Expression="etaWidth" Label="etaWidth" Title="etaWidth" Unit="" Internal="etaWidth" Type="F" Min="8.18247732e-04" Max="1.63682073e-01"/>
-    <Variable VarIndex="8" Expression="phiWidth" Label="phiWidth" Title="phiWidth" Unit="" Internal="phiWidth" Type="F" Min="3.52814413e-06" Max="5.56705654e-01"/>
-    <Variable VarIndex="9" Expression="rho" Label="rho" Title="rho" Unit="" Internal="rho" Type="F" Min="0.00000000e+00" Max="4.32884483e+01"/>
-    <Variable VarIndex="10" Expression="CITK_isoPhotons" Label="CITK_isoPhotons" Title="CITK_isoPhotons" Unit="" Internal="CITK_isoPhotons" Type="F" Min="0.00000000e+00" Max="2.02342285e+02"/>
-    <Variable VarIndex="11" Expression="CITK_isoChargedHad" Label="CITK_isoChargedHad" Title="CITK_isoChargedHad" Unit="" Internal="CITK_isoChargedHad" Type="F" Min="0.00000000e+00" Max="2.80166992e+02"/>
-    <Variable VarIndex="12" Expression="chgIsoWrtWorstVtx" Label="chgIsoWrtWorstVtx" Title="chgIsoWrtWorstVtx" Unit="" Internal="chgIsoWrtWorstVtx" Type="F" Min="-1.00000000e+00" Max="2.56465820e+02"/>
-  </Variables>
-  */
-
-  //EE:
-
-  /*
-  <Variables NVar="14">
-    <Variable VarIndex="0" Expression="scPhi" Label="scPhi" Title="scPhi" Unit="" Internal="scPhi" Type="F" Min="-3.14157391e+00" Max="3.14155674e+00"/>
-    <Variable VarIndex="1" Expression="r9" Label="r9" Title="r9" Unit="" Internal="r9" Type="F" Min="1.07955128e-01" Max="1.00000024e+00"/>
-    <Variable VarIndex="2" Expression="sigmaIetaIeta" Label="sigmaIetaIeta" Title="sigmaIetaIeta" Unit="" Internal="sigmaIetaIeta" Type="F" Min="1.75891572e-03" Max="8.14865530e-02"/>
-    <Variable VarIndex="3" Expression="covIEtaIPhi" Label="covIEtaIPhi" Title="covIEtaIPhi" Unit="" Internal="covIEtaIPhi" Type="F" Min="-2.39617634e-03" Max="2.66308710e-03"/>
-    <Variable VarIndex="4" Expression="s4" Label="s4" Title="s4" Unit="" Internal="s4" Type="F" Min="2.86898892e-02" Max="9.89912212e-01"/>
-    <Variable VarIndex="5" Expression="scEta" Label="scEta" Title="scEta" Unit="" Internal="scEta" Type="F" Min="-2.49999595e+00" Max="2.49999166e+00"/>
-    <Variable VarIndex="6" Expression="SCRawE" Label="SCRawE" Title="SCRawE" Unit="" Internal="SCRawE" Type="F" Min="6.33558369e+00" Max="2.86951831e+03"/>
-    <Variable VarIndex="7" Expression="etaWidth" Label="etaWidth" Title="etaWidth" Unit="" Internal="etaWidth" Type="F" Min="1.48537615e-03" Max="3.33718777e-01"/>
-    <Variable VarIndex="8" Expression="phiWidth" Label="phiWidth" Title="phiWidth" Unit="" Internal="phiWidth" Type="F" Min="5.76065679e-04" Max="9.32549536e-01"/>
-    <Variable VarIndex="9" Expression="rho" Label="rho" Title="rho" Unit="" Internal="rho" Type="F" Min="0.00000000e+00" Max="4.19737549e+01"/>
-    <Variable VarIndex="10" Expression="CITK_isoChargedHad" Label="CITK_isoChargedHad" Title="CITK_isoChargedHad" Unit="" Internal="CITK_isoChargedHad" Type="F" Min="0.00000000e+00" Max="2.03726562e+02"/>
-    <Variable VarIndex="11" Expression="chgIsoWrtWorstVtx" Label="chgIsoWrtWorstVtx" Title="chgIsoWrtWorstVtx" Unit="" Internal="chgIsoWrtWorstVtx" Type="F" Min="0.00000000e+00" Max="1.91058594e+02"/>
-    <Variable VarIndex="12" Expression="esEffSigmaRR" Label="esEffSigmaRR" Title="esEffSigmaRR" Unit="" Internal="esEffSigmaRR" Type="F" Min="0.00000000e+00" Max="1.41421356e+01"/>
-    <Variable VarIndex="13" Expression="esEnergy/SCRawE" Label="esEnergy/SCRawE" Title="esEnergy/SCRawE" Unit="" Internal="esEnergy_D_SCRawE" Type="F" Min="0.00000000e+00" Max="4.66867542e+00"/>
-  </Variables>
-  */
-
   tmpTMVAReader.AddVariable("scPhi", &_allMVAVars.scPhi);
   tmpTMVAReader.AddVariable("r9"        , &_allMVAVars.varR9);
   tmpTMVAReader.AddVariable("sigmaIetaIeta", &_allMVAVars.varSieie);
@@ -189,6 +156,9 @@ createSingleReader(const int iCategory, const edm::FileInPath &weightFile){
   //EB only, because of loss of transparency in EE
   if(!isEndcapCategory(iCategory)){
     tmpTMVAReader.AddVariable("CITK_isoPhotons" , &_allMVAVars.varPhoIsoRaw);
+  }
+  else{
+    tmpTMVAReader.AddVariable("CITK_isoPhoCorrMax2p5", &_allMVAVars.varPhoIsoCorr);
   }
   //isolations in both EB and EE
   tmpTMVAReader.AddVariable("CITK_isoChargedHad"  , &_allMVAVars.varChIsoRaw);
@@ -291,6 +261,18 @@ std::vector<float> PhotonMVAEstimatorRun2Spring16NonTrig::fillMVAVariables(const
   allMVAVars.varChIsoRaw     = (*phoChargedIsolationMap)[phoRecoPtr];
   allMVAVars.varWorstChRaw   = (*phoWorstChargedIsolationMap)[phoRecoPtr];
 
+  //photon iso corrected:
+
+  double eA = _effectiveAreas.getEffectiveArea( abs(superCluster->eta()) );
+  double phoIsoPtScalingCoeffVal = 0;
+  if( !isEndcapCategory( findCategory ( particle ) ) ) 
+    phoIsoPtScalingCoeffVal = _phoIsoPtScalingCoeff.at(0); // barrel case
+  else
+    phoIsoPtScalingCoeffVal =  _phoIsoPtScalingCoeff.at(1); //endcap case
+  double phoIsoCorr = (*phoPhotonIsolationMap)[phoRecoPtr] - eA*(*rho) - phoIsoPtScalingCoeffVal*phoRecoPtr->pt();
+
+  allMVAVars.varPhoIsoCorr = TMath::Max(phoIsoCorr, _phoIsoCutoff);
+
   constrainMVAVariables(allMVAVars);
   //
   // Important: the order of variables in the "vars" vector has to be EXACTLY
@@ -309,6 +291,7 @@ std::vector<float> PhotonMVAEstimatorRun2Spring16NonTrig::fillMVAVariables(const
                                        allMVAVars.varSCEtaWidth,
                                        allMVAVars.varSCPhiWidth,
 				       allMVAVars.varRho,
+				       allMVAVars.varPhoIsoCorr,
 				       allMVAVars.varChIsoRaw,
 				       allMVAVars.varWorstChRaw,
 				       allMVAVars.varESEffSigmaRR,
