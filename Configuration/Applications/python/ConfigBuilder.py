@@ -2223,8 +2223,8 @@ class ConfigBuilder(object):
         # FIXME: remove when no longer needed
         if "RECO" in self.stepMap or "RAW2RECO" in self.stepMap:
                 self.pythonCfgCode += "\n# Add early deletion of temporary data products to reduce peak memory need\n"
-                self.pythonCfgCode += "from RecoTracker.Configuration.customiseEarlyDeleteForSeeding import customiseEarlyDeleteForSeeding\n"
-                self.pythonCfgCode += "process = customiseEarlyDeleteForSeeding(process)\n"
+                self.pythonCfgCode += "from Configuration.StandardSequences.earlyDeleteSettings_cff import customiseEarlyDeleteForRECO\n"
+                self.pythonCfgCode += "process = customiseEarlyDeleteForRECO(process)\n"
                 self.pythonCfgCode += "# End adding early deletion\n"
 
 
