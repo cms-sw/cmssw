@@ -20,7 +20,7 @@ MillePedeDQMModule
   mpReaderConfig_(
     config.getParameter<edm::ParameterSet>("MillePedeFileReader")
   ),
-  mpReader(mpReaderConfig_),
+  mpReader_(std::make_unique<MillePedeFileReader>(mpReaderConfig_)),
 
   sigCut_     (mpReaderConfig_.getParameter<double>("sigCut")),
   Xcut_       (mpReaderConfig_.getParameter<double>("Xcut")),
@@ -67,7 +67,7 @@ void MillePedeDQMModule
 {
 
   bookHistograms(booker);
-  mpReader.read();
+  mpReader_->read();
   fillExpertHistos();
 }
 
@@ -81,14 +81,14 @@ void MillePedeDQMModule
 ::fillExpertHistos()
 {
 
-  fillExpertHisto(h_xPos,  Xcut_, sigCut_, maxMoveCut_, maxErrorCut_, mpReader.getXobs(),  mpReader.getXobsErr());
-  fillExpertHisto(h_xRot, tXcut_, sigCut_, maxMoveCut_, maxErrorCut_, mpReader.getTXobs(), mpReader.getTXobsErr());
+  fillExpertHisto(h_xPos,  Xcut_, sigCut_, maxMoveCut_, maxErrorCut_, mpReader_->getXobs(),  mpReader_->getXobsErr());
+  fillExpertHisto(h_xRot, tXcut_, sigCut_, maxMoveCut_, maxErrorCut_, mpReader_->getTXobs(), mpReader_->getTXobsErr());
 
-  fillExpertHisto(h_yPos,  Ycut_, sigCut_, maxMoveCut_, maxErrorCut_, mpReader.getYobs(),  mpReader.getYobsErr());
-  fillExpertHisto(h_yRot, tYcut_, sigCut_, maxMoveCut_, maxErrorCut_, mpReader.getTYobs(), mpReader.getTYobsErr());
+  fillExpertHisto(h_yPos,  Ycut_, sigCut_, maxMoveCut_, maxErrorCut_, mpReader_->getYobs(),  mpReader_->getYobsErr());
+  fillExpertHisto(h_yRot, tYcut_, sigCut_, maxMoveCut_, maxErrorCut_, mpReader_->getTYobs(), mpReader_->getTYobsErr());
 
-  fillExpertHisto(h_zPos,  Zcut_, sigCut_, maxMoveCut_, maxErrorCut_, mpReader.getZobs(),  mpReader.getZobsErr());
-  fillExpertHisto(h_zRot, tZcut_, sigCut_, maxMoveCut_, maxErrorCut_, mpReader.getTZobs(), mpReader.getTZobsErr());
+  fillExpertHisto(h_zPos,  Zcut_, sigCut_, maxMoveCut_, maxErrorCut_, mpReader_->getZobs(),  mpReader_->getZobsErr());
+  fillExpertHisto(h_zRot, tZcut_, sigCut_, maxMoveCut_, maxErrorCut_, mpReader_->getTZobs(), mpReader_->getTZobsErr());
 
 }
 
