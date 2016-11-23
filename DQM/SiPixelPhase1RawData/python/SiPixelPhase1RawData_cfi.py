@@ -3,6 +3,7 @@ from DQM.SiPixelPhase1Common.HistogramManager_cfi import *
 
 
 SiPixelPhase1RawDataNErrors = DefaultHisto.clone(
+topFolderName = DefaultHisto.topFolderName.value() +"/FED",
   name = "errors",
   title = "Errors",
   xlabel = "errors",
@@ -23,17 +24,19 @@ SiPixelPhase1RawDataNErrors = DefaultHisto.clone(
 )
 
 SiPixelPhase1RawDataFIFOFull = DefaultHisto.clone(
-  name = "fifofull",
-  title = "Type of FIFO full",
-  xlabel = "FIFO (data bit #)",
-  range_min = -0.5, range_max = 7.5, range_nbins = 8,
-  dimensions = 1,
-  specs = cms.VPSet(
-    Specification().groupBy("FED").save(),
-  )
+    topFolderName = DefaultHisto.topFolderName.value() +"/FED", 
+    name = "fifofull",
+    title = "Type of FIFO full",
+    xlabel = "FIFO (data bit #)",
+    range_min = -0.5, range_max = 7.5, range_nbins = 8,
+    dimensions = 1,
+    specs = cms.VPSet(
+        Specification().groupBy("FED").save(),
+    )
 )
 
 SiPixelPhase1RawDataTBMMessage = DefaultHisto.clone(
+  topFolderName = DefaultHisto.topFolderName.value() +"/FED",
   name = "tbmmessage",
   title = "TBM trailer message",
   xlabel = "TBM message (data bit #)",
@@ -45,6 +48,7 @@ SiPixelPhase1RawDataTBMMessage = DefaultHisto.clone(
 )
 
 SiPixelPhase1RawDataTBMType = DefaultHisto.clone(
+  topFolderName = DefaultHisto.topFolderName.value() +"/FED",
   name = "tbmtype",
   title = "Type of TBM trailer",
   xlabel = "TBM type",
@@ -56,6 +60,7 @@ SiPixelPhase1RawDataTBMType = DefaultHisto.clone(
 )
 
 SiPixelPhase1RawDataTypeNErrors = DefaultHisto.clone(
+  topFolderName = DefaultHisto.topFolderName.value() +"/FED",
   name = "nerrors_per_type",
   title = "Number of Errors per Type",
   xlabel = "Error Type",

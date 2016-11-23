@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 # this might also go into te Common config,as we do not reference it
 from DQM.SiPixelPhase1Common.HistogramManager_cfi import *
 
-SiPixelPhase1DigisADC = DefaultHisto.clone(
+SiPixelPhase1DigisADC = DefaultHistoDigiCluster.clone(
   name = "adc",
   title = "Digi ADC values",
   xlabel = "adc readout",
@@ -17,7 +17,7 @@ SiPixelPhase1DigisADC = DefaultHisto.clone(
   )
 )
 
-SiPixelPhase1DigisNdigis = DefaultHisto.clone(
+SiPixelPhase1DigisNdigis = DefaultHistoDigiCluster.clone(
   name = "digis", # 'Count of' added automatically
   title = "Digis",
   xlabel = "digis",
@@ -32,7 +32,7 @@ SiPixelPhase1DigisNdigis = DefaultHisto.clone(
   )
 )
 
-SiPixelPhase1DigisNdigisPerFED = DefaultHisto.clone(
+SiPixelPhase1DigisNdigisPerFED = DefaultHisto.clone( #to be removed?
   name = "feddigis", # This is the same as above up to the ranges. maybe we 
   title = "Digis",   # should allow setting the range per spec, but OTOH a 
   xlabel = "digis",  # HistogramManager is almost free.
@@ -47,8 +47,20 @@ SiPixelPhase1DigisNdigisPerFED = DefaultHisto.clone(
                    .reduce("COUNT")
                    .groupBy("FED")
                    .groupBy("", "EXTEND_Y")
-                   .save(),
-    Specification().groupBy("Lumisection/FED/FED/Event")
+                   .save()
+  )
+)
+
+SiPixelPhase1DigisNdigisPerFEDtrend = DefaultHisto.clone(                                                                                                                                                   
+  name = "feddigistrend", # This is the same as above up to the ranges. maybe we                                                                                                                                            
+  title = "Digis",   # should allow setting the range per spec, but OTOH a                                                                                                                                             
+  xlabel = "digis",  # HistogramManager is almost free.                                                                                                                                                                
+  range_min = 0,
+  range_max = 1000,
+  range_nbins = 200,
+  dimensions = 0,
+  specs = cms.VPSet(
+  Specification().groupBy("Lumisection/FED/FED/Event")
                    .reduce("COUNT")
                    .groupBy("Lumisection/FED")
                    .reduce("MEAN")
@@ -74,7 +86,7 @@ SiPixelPhase1DigisEvents = DefaultHisto.clone(
   )
 )
 
-SiPixelPhase1DigisHitmap = DefaultHisto.clone(
+SiPixelPhase1DigisHitmap = DefaultHistoDigiCluster.clone(
   name = "hitmap",
   title = "Position of digis on module",
   ylabel = "#digis",
@@ -94,7 +106,7 @@ SiPixelPhase1DigisHitmap = DefaultHisto.clone(
   )
 )
 
-SiPixelPhase1DigisDebug = DefaultHisto.clone(
+SiPixelPhase1DigisDebug = DefaultHistoDigiCluster.clone(
   enabled = False,
   name = "debug",
   xlabel = "ladder #",
@@ -115,6 +127,7 @@ SiPixelPhase1DigisConf = cms.VPSet(
   SiPixelPhase1DigisADC,
   SiPixelPhase1DigisNdigis,
   SiPixelPhase1DigisNdigisPerFED,
+  SiPixelPhase1DigisNdigisPerFEDtrend,
   SiPixelPhase1DigisEvents,
   SiPixelPhase1DigisHitmap,
   SiPixelPhase1DigisDebug

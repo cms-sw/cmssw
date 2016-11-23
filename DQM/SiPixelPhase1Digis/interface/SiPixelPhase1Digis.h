@@ -21,6 +21,7 @@ class SiPixelPhase1Digis : public SiPixelPhase1Base {
     ADC, // digi ADC readouts
     NDIGIS, // number of digis per event and module
     NDIGIS_FED, // number of digis per event and FED
+    NDIGIS_FEDtrend, // number of digis per event and FED 
     EVENT, // event frequency
     MAP, // digi hitmap per module
     DEBUG, // geometry debugging
