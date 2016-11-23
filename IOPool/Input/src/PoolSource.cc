@@ -91,7 +91,7 @@ namespace edm {
     auto resources = SharedResourcesRegistry::instance()->createAcquirerForSourceDelayedReader();
     resourceSharedWithDelayedReaderPtr_ = std::make_unique<SharedResourcesAcquirer>(std::move(resources.first));
     mutexSharedWithDelayedReader_ = resources.second;
-    
+
     if (secondaryCatalog_.empty() && pset.getUntrackedParameter<bool>("needSecondaryFileNames", false)) {
       throw Exception(errors::Configuration, "PoolSource") << "'secondaryFileNames' must be specified\n";
     }
