@@ -15,6 +15,7 @@
 
 /*** system includes ***/
 #include <array>
+#include <memory>
 
 /*** core framework functionality ***/
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -69,7 +70,7 @@ class MillePedeDQMModule : public DQMEDHarvester {
   //============================================================================
 
     const edm::ParameterSet mpReaderConfig_;
-    MillePedeFileReader mpReader;
+    std::unique_ptr<MillePedeFileReader> mpReader_;
 
     // Signifiance of movement must be above
     double sigCut_;
