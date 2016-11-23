@@ -213,10 +213,10 @@ void MillePedeAlignmentAlgorithm::initialize(const edm::EventSetup &setup,
   edm::LogInfo("Alignment") << "@SUB=MillePedeAlignmentAlgorithm::initialize"
 			    << "Using plugin '" << labelerPlugin << "' to generate labels.";
   
-  thePedeLabels = std::unique_ptr<PedeLabelerBase>(PedeLabelerPluginFactory::get()
-						   ->create(labelerPlugin,
-							    PedeLabelerBase::TopLevelAlignables(tracker, muon, extras),
-							    pedeLabelerCfg));
+  thePedeLabels = std::shared_ptr<PedeLabelerBase>(PedeLabelerPluginFactory::get()
+                                                   ->create(labelerPlugin,
+                                                            PedeLabelerBase::TopLevelAlignables(tracker, muon, extras),
+                                                            pedeLabelerCfg));
   
   // 1) Create PedeSteerer: correct alignable positions for coordinate system selection
   edm::ParameterSet pedeSteerCfg(theConfig.getParameter<edm::ParameterSet>("pedeSteerer"));
@@ -311,7 +311,8 @@ bool MillePedeAlignmentAlgorithm::storeAlignments()
 {
   if (isMode(myPedeRunBit)) {
     if (runAtPCL_) {
-      MillePedeFileReader mpReader(theConfig.getParameter<edm::ParameterSet>("MillePedeFileReader"));
+      MillePedeFileReader mpReader(theConfig.getParameter<edm::ParameterSet>("MillePedeFileReader"),
+                                   thePedeLabels);
       mpReader.read();
       return mpReader.storeAlignments();
     } else {
