@@ -16,6 +16,7 @@
 
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 
+#include "Alignment/MillePedeAlignmentAlgorithm/interface/MillePedeFileReader.h"
 #include "Alignment/MillePedeAlignmentAlgorithm/interface/MillePedeMonitor.h"
 #include "Alignment/MillePedeAlignmentAlgorithm/interface/MillePedeVariables.h"
 #include "Alignment/MillePedeAlignmentAlgorithm/interface/MillePedeVariablesIORoot.h"
@@ -300,6 +301,22 @@ bool MillePedeAlignmentAlgorithm::processesEvents()
 {
   if (isMode(myMilleBit)) {
     return true;
+  } else {
+    return false;
+  }
+}
+
+//_____________________________________________________________________________
+bool MillePedeAlignmentAlgorithm::storeAlignments()
+{
+  if (isMode(myPedeRunBit)) {
+    if (runAtPCL_) {
+      MillePedeFileReader mpReader(theConfig.getParameter<edm::ParameterSet>("MillePedeFileReader"));
+      mpReader.read();
+      return mpReader.storeAlignments();
+    } else {
+      return true;
+    }
   } else {
     return false;
   }
