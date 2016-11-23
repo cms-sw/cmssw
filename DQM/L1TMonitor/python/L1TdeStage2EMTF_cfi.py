@@ -6,8 +6,8 @@ l1tdeStage2Emtf = cms.EDAnalyzer(
     dataSource_datahit = cms.InputTag("emtfStage2Digis"),
     dataSource_datatrack = cms.InputTag("emtfStage2Digis"),
     emulSource_emul = cms.InputTag("valEmtfStage2Digis", "EMTF"),
-    emulSource_emulhit = cms.InputTag("valEmtfStage2Digis", "EMTF"),
-    emulSource_emultrack = cms.InputTag("valEmtfStage2Digis", "EMTF"),
+    emulSource_emulhit = cms.InputTag("valEmtfStage2Digis"),
+    emulSource_emultrack = cms.InputTag("valEmtfStage2Digis"),
     monitorDir = cms.untracked.string("L1T2016EMU/L1TdeStage2EMTF"),
     verbose = cms.untracked.bool(False),
 )
