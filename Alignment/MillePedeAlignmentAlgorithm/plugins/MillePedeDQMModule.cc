@@ -13,6 +13,21 @@
 /*** ROOT objects ***/
 #include "TH1F.h"
 
+/*** Core framework functionality ***/
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+/*** Geometry ***/
+#include "CondFormats/GeometryObjects/interface/PTrackerParameters.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeomBuilderFromGeometricDet.h"
+
+/*** Alignment ***/
+#include "Alignment/MillePedeAlignmentAlgorithm/interface/PedeLabelerBase.h"
+#include "Alignment/MillePedeAlignmentAlgorithm/interface/PedeLabelerPluginFactory.h"
+#include "Alignment/TrackerAlignment/interface/AlignableTracker.h"
+
 
 
 MillePedeDQMModule
@@ -20,7 +35,6 @@ MillePedeDQMModule
   mpReaderConfig_(
     config.getParameter<edm::ParameterSet>("MillePedeFileReader")
   ),
-  mpReader_(std::make_unique<MillePedeFileReader>(mpReaderConfig_)),
 
   sigCut_     (mpReaderConfig_.getParameter<double>("sigCut")),
   Xcut_       (mpReaderConfig_.getParameter<double>("Xcut")),
@@ -30,7 +44,7 @@ MillePedeDQMModule
   Zcut_       (mpReaderConfig_.getParameter<double>("Zcut")),
   tZcut_      (mpReaderConfig_.getParameter<double>("tZcut")),
   maxMoveCut_ (mpReaderConfig_.getParameter<double>("maxMoveCut")),
-  maxErrorCut_ (mpReaderConfig_.getParameter<double>("maxErrorCut"))  
+  maxErrorCut_ (mpReaderConfig_.getParameter<double>("maxErrorCut"))
 {
 }
 
@@ -63,11 +77,16 @@ void MillePedeDQMModule
 
 
 void MillePedeDQMModule
-::dqmEndJob(DQMStore::IBooker & booker, DQMStore::IGetter &)  
+::dqmEndJob(DQMStore::IBooker & booker, DQMStore::IGetter &)
 {
-
   bookHistograms(booker);
-  mpReader_->read();
+  if (mpReader_) {
+    mpReader_->read();
+  } else {
+    throw cms::Exception("LogicError")
+      << "@SUB=MillePedeDQMModule::dqmEndJob\n"
+      << "Try to read MillePede results before initializing MillePedeFileReader";
+  }
   fillExpertHistos();
 }
 
@@ -76,6 +95,39 @@ void MillePedeDQMModule
 //=============================================================================
 //===   PRIVATE METHOD IMPLEMENTATION                                       ===
 //=============================================================================
+
+void MillePedeDQMModule
+::beginRun(const edm::Run&, const edm::EventSetup& setup) {
+
+  if (!setupChanged(setup)) return;
+
+  edm::ESHandle<TrackerTopology> tTopo;
+  setup.get<TrackerTopologyRcd>().get(tTopo);
+  edm::ESHandle<GeometricDet> geometricDet;
+  setup.get<IdealGeometryRecord>().get(geometricDet);
+  edm::ESHandle<PTrackerParameters> ptp;
+  setup.get<PTrackerParametersRcd>().get(ptp);
+
+  TrackerGeomBuilderFromGeometricDet builder;
+
+  const auto trackerGeometry = builder.build(&(*geometricDet), *ptp, &(*tTopo));
+  tracker_ = std::make_unique<AlignableTracker>(trackerGeometry, &(*tTopo));
+
+  const std::string labelerPlugin{"PedeLabeler"};
+  edm::ParameterSet labelerConfig{};
+  labelerConfig.addUntrackedParameter("plugin", labelerPlugin);
+  labelerConfig.addUntrackedParameter("RunRangeSelection", edm::VParameterSet{});
+
+  std::shared_ptr<PedeLabelerBase> pedeLabeler{
+    PedeLabelerPluginFactory::get()
+      ->create(labelerPlugin,
+              PedeLabelerBase::TopLevelAlignables(tracker_.get(), nullptr, nullptr),
+              labelerConfig)
+  };
+
+  mpReader_ = std::make_unique<MillePedeFileReader>(mpReaderConfig_, pedeLabeler);
+}
+
 
 void MillePedeDQMModule
 ::fillExpertHistos()
@@ -97,7 +149,7 @@ void MillePedeDQMModule
                   std::array<double, 6> obs, std::array<double, 6> obsErr)
 {
   TH1F* histo_0 = histo->getTH1F();
-  
+
   histo_0->SetMinimum(-(maxMoveCut_));
   histo_0->SetMaximum(  maxMoveCut_);
 
@@ -108,6 +160,18 @@ void MillePedeDQMModule
   histo_0->SetBinContent(8,cut);
   histo_0->SetBinContent(9,sigCut);
   histo_0->SetBinContent(10,maxMoveCut);
-  histo_0->SetBinContent(11,maxErrorCut);  
+  histo_0->SetBinContent(11,maxErrorCut);
 
+}
+
+bool MillePedeDQMModule
+::setupChanged(const edm::EventSetup& setup)
+{
+  bool changed{false};
+
+  if (watchIdealGeometryRcd_.check(setup)) changed = true;
+  if (watchTrackerTopologyRcd_.check(setup)) changed = true;
+  if (watchPTrackerParametersRcd_.check(setup)) changed = true;
+
+  return changed;
 }
