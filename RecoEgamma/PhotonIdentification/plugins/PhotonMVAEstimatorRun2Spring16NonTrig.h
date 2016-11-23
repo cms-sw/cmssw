@@ -11,6 +11,8 @@
 
 #include "CondFormats/EgammaObjects/interface/GBRForest.h"
 
+#include "RecoEgamma/EgammaTools/interface/EffectiveAreas.h"
+
 #include <vector>
 #include <string>
 #include <TROOT.h>
@@ -49,6 +51,7 @@ class PhotonMVAEstimatorRun2Spring16NonTrig : public AnyMVAEstimatorRun2Base{
     float varRho;
     // Isolations
     float varPhoIsoRaw;// for barrel only in 2016
+    float varPhoIsoCorr;//for endcap only in 2016
     float varChIsoRaw;
     float varWorstChRaw;
 
@@ -115,6 +118,11 @@ class PhotonMVAEstimatorRun2Spring16NonTrig : public AnyMVAEstimatorRun2Base{
   const edm::InputTag _phoPhotonIsolationLabel; 
   const edm::InputTag _phoWorstChargedIsolationLabel; 
   const edm::InputTag _rhoLabel;
+
+  // Other objects needed by the MVA
+  EffectiveAreas _effectiveAreas;
+  std::vector<double> _phoIsoPtScalingCoeff;
+  double          _phoIsoCutoff;
 };
 
 #endif
