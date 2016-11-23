@@ -1,4 +1,4 @@
-///
+////
 /// \class l1t::GenToInputProducer
 ///
 /// Description: Create Input Collections for the GT from MC gen particles.  Allows testing of emulation.
@@ -450,7 +450,11 @@ GenToInputProducer::produce(Event& iEvent, const EventSetup& iSetup)
 
 // Scale down ETTem as an estimate
    pt  = convertPtToHW( sumEt*0.6, 2047, PtStep_ );
-   l1t::EtSum etEmTotal(*p4, l1t::EtSum::EtSumType::kTotalEtEm,pt, 0, 0, 0); 
+   l1t::EtSum etEmTotal(*p4, l1t::EtSum::EtSumType::kTotalEtEm,pt, 0, 0, 0);
+
+   //ccla Generate uniform distribution of tower counts
+   int nTowers=4095*gRandom->Rndm();
+   l1t::EtSum towerCounts(*p4, l1t::EtSum::EtSumType::kTowerCount,nTowers, 0, 0, 0);
 
    pt  = convertPtToHW( sumEt*0.9, 2047, PtStep_ );
    l1t::EtSum htTotal(*p4, l1t::EtSum::EtSumType::kTotalHt,pt, 0, 0, 0); 
@@ -513,6 +517,7 @@ GenToInputProducer::produce(Event& iEvent, const EventSetup& iSetup)
    etsumVec.push_back(htmiss);
    etsumVec.push_back(hfM1);
    etsumVec.push_back(etmissHF);
+   etsumVec.push_back(towerCounts);
  
 // Fill in some external conditions for testing
    if((iEvent.id().event())%2 == 0 ) {
