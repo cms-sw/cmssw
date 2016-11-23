@@ -1,3 +1,5 @@
+#include "DataFormats/Common/interface/Ptr.h"
+#include "DataFormats/Common/interface/PtrVector.h"
 #include "DataFormats/Common/interface/Wrapper.h"
 #include "DataFormats/Common/interface/DetSet.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
@@ -8,18 +10,23 @@
 #include "DataFormats/CTPPSReco/interface/TotemRPLocalTrack.h"
 
 #include "DataFormats/CTPPSReco/interface/CTPPSLocalTrackLite.h"
+#include "DataFormats/CTPPSReco/interface/CTPPSDiamondRecHit.h"
+#include "DataFormats/CTPPSReco/interface/CTPPSDiamondLocalTrack.h"
 
 #include <vector>
 
 namespace DataFormats_CTPPSReco {
   struct dictionary {
-	TotemRPRecHit rp_reco_hit;
+
+    //--- strips objects
+
+    TotemRPRecHit rp_reco_hit;
     edm::DetSet<TotemRPRecHit> ds_rp_reco_hit;
     edm::DetSetVector<TotemRPRecHit> dsv_rp_reco_hit;
     std::vector<edm::DetSet<TotemRPRecHit> > sv_dsw_rp_reco_hit;
     edm::Wrapper<edm::DetSetVector<TotemRPRecHit> > w_dsv_rp_reco_hit;
-	std::vector<TotemRPRecHit> sv_rp_reco_hit;
-	std::vector<const TotemRPRecHit*> sv_cp_rp_reco_hit;
+    std::vector<TotemRPRecHit> sv_rp_reco_hit;
+    std::vector<const TotemRPRecHit*> sv_cp_rp_reco_hit;
     
     TotemRPCluster dc;
     edm::DetSet<TotemRPCluster> dsdc;
@@ -45,5 +52,20 @@ namespace DataFormats_CTPPSReco {
     std::vector<CTPPSLocalTrackLite> v_cltl;
     edm::Wrapper<CTPPSLocalTrackLite> w_cltl;
     edm::Wrapper<std::vector<CTPPSLocalTrackLite>> w_v_cltl;
+
+    //--- diamonds objects
+
+    CTPPSDiamondRecHit ctd_rh;
+    edm::Ptr<CTPPSDiamondRecHit> ptr_ctd_rh;
+    edm::Wrapper<CTPPSDiamondRecHit> wrp_ctd_rh;
+    std::vector<CTPPSDiamondRecHit> vec_ctd_rh;
+    edm::Wrapper< std::vector<CTPPSDiamondRecHit> > wrp_vec_ctd_rh;
+
+    CTPPSDiamondLocalTrack ctd_lt;
+    edm::Ptr<CTPPSDiamondLocalTrack> ptr_ctd_lt;
+    edm::Wrapper<CTPPSDiamondLocalTrack> wrp_ctd_lt;
+    std::vector<CTPPSDiamondLocalTrack> vec_ctd_lt;
+    edm::Wrapper< std::vector<CTPPSDiamondLocalTrack> > wrp_vec_ctd_lt;
+
   };
 }
