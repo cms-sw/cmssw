@@ -246,7 +246,7 @@ void TestDetSet::fillSeq() {
 
 void TestDetSet::fillPar() {
   std::cout << std::endl;
-  std::shared_ptr<Getter> pg(new Getter(this));
+  auto pg = std::make_shared<Getter>(this);
   Getter & g = *pg;
   int maxDet=100*nth;
   std::vector<unsigned int> v(maxDet); int k=20;for (auto &i:v) i=k++;
