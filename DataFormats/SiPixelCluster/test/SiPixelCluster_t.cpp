@@ -5,7 +5,7 @@
 
 typedef SiPixelCluster::PixelPos PiPos;
 typedef SiPixelCluster::Pixel Pixel;
-#define MAXSPAN 127
+#define MAXSPAN 255
 
 template<int N>
 inline
@@ -62,10 +62,10 @@ int main() {
   bool ok=true;
 
   PiPos const normal[] = { {3,3}, {3,4}, {3,5}, {5,4} ,{4,7}, {5,5} };
-  PiPos const bigX[] = { {3,3}, {3,60}, {3,5}, {161,4} ,{162,62}, {162,5} };
-  PiPos const bigY[] = { {3,3}, {3,100}, {3,5}, {61,234} ,{62,102}, {45,65} };
+  PiPos const bigX[] = { {3,3}, {3,60}, {3,5}, {161,4} ,{162,62}, {262,5} };
+  PiPos const bigY[] = { {3,3}, {3,100}, {3,5}, {61,264} ,{62,102}, {45,65} };
   PiPos const ylarge[] = { {3,352}, {3,352}, {3,400}, {20,400} ,{40,363}, {62,350} };
-  PiPos const huge[] = { {3,3}, {3,332}, {3,400}, {201,400} ,{212,323}, {122,350} };
+  PiPos const huge[] = { {3,3}, {3,332}, {3,400}, {201,400} ,{262,323}, {122,350} };
 
   ok &=verify(normal,false,false);
   assert(ok);
