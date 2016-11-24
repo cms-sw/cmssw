@@ -57,50 +57,35 @@ def customizeHLTForPFTrackingPhaseI2017(process):
 	    )
 	)
 
-	process.hltPixelTracks.OrderedHitsFactoryPSet = cms.PSet( 
-	      ComponentName = cms.string('CombinedHitQuadrupletGenerator'),
-	      GeneratorPSet = cms.PSet( 
-	         extraHitRPhitolerance = cms.double(0.032),
-	         extraHitRZtolerance = cms.double(0.037),
-	         extraPhiTolerance = cms.PSet(
-	             enabled = cms.bool(True),
-	             pt1 = cms.double(0.6),
-	             pt2 = cms.double(1),
-	             value1 = cms.double(0.15),
-	             value2 = cms.double(0.1)
-	         ),
-		fitFastCircle = cms.bool(True),
-	        fitFastCircleChi2Cut = cms.bool(True),
-	        maxChi2 = cms.PSet(
-	             enabled = cms.bool(True),
-	             pt1 = cms.double(0.8),
-	             pt2 = cms.double(2),
-	             value1 = cms.double(200),
-	             value2 = cms.double(100)
-	         ),
-	         useBendingCorrection = cms.bool(True),
-	        SeedComparitorPSet = cms.PSet( 
+
+   
+
+
+        # Configure seed generator / pixel track producer
+        from RecoPixelVertexing.PixelTriplets.CAHitQuadrupletGenerator_cfi import CAHitQuadrupletGenerator as _CAHitQuadrupletGenerator
+
+        process.hltPixelTracks.OrderedHitsFactoryPSet  = _CAHitQuadrupletGenerator.clone(
+            ComponentName = cms.string("CAHitQuadrupletGenerator"),
+            extraHitRPhitolerance = cms.double(0.032),
+            maxChi2 = dict(
+                pt1    = 0.7, pt2    = 2,
+                value1 = 200, value2 = 50,
+                enabled = True,
+            ),
+            useBendingCorrection = True,
+            fitFastCircle = True,
+            fitFastCircleChi2Cut = True,
+            SeedingLayers = cms.InputTag("hltPixelLayerQuadruplets"),
+            CAThetaCut = cms.double(0.0012),
+            CAPhiCut = cms.double(0.2),
+            CAHardPtCut = cms.double(0),
+ 	    SeedComparitorPSet = cms.PSet( 
 	          ComponentName = cms.string( "LowPtClusterShapeSeedComparitor" ),
 	          clusterShapeCacheSrc = cms.InputTag( "hltSiPixelClustersCache" )
-	        ),
-	        ComponentName = cms.string('PixelQuadrupletGenerator'),
-	      ),
-	      SeedingLayers = cms.InputTag( "hltPixelLayerQuadruplets" ),
-	      TripletGeneratorPSet = cms.PSet(
-	        ComponentName = cms.string('PixelTripletHLTGenerator'),
-	        SeedComparitorPSet = cms.PSet(
-	            ComponentName = cms.string('LowPtClusterShapeSeedComparitor'),
-	            clusterShapeCacheSrc = cms.InputTag("hltSiPixelClustersCache")
-	        ),
-	        extraHitRPhitolerance = cms.double(0.032),
-	        extraHitRZtolerance = cms.double(0.037),
-	        maxElement = cms.uint32(1000000),
-	        phiPreFiltering = cms.double(0.3),
-	        useBending = cms.bool(True),
-	        useFixedPreFiltering = cms.bool(False),
-	        useMultScattering = cms.bool(True)
-	     )
-	)
+	    ),
+           
+        )
+
 	process.hltPixelTracks.RegionFactoryPSet.RegionPSet = cms.PSet(
 	    precise = cms.bool( True ),
 	    beamSpot = cms.InputTag( "hltOnlineBeamSpot" ),
