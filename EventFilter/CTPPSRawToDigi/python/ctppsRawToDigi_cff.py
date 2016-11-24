@@ -1,8 +1,9 @@
 import FWCore.ParameterSet.Config as cms
 
 # trigger data
-from EventFilter.CTPPSRawToDigi.totemTriggerRawToDigi_cfi import *
+from EventFilter.CTPPSRawToDigi.totemTriggerRawToDigi_cfi import totemTriggerRawToDigi
 totemTriggerRawToDigi.rawDataTag = cms.InputTag("rawDataCollector")
+
 
 # Si strips
 totemDAQMappingESSourceXML_TrackingStrip = cms.ESSource("TotemDAQMappingESSourceXML",
@@ -30,7 +31,7 @@ totemDAQMappingESSourceXML_TrackingStrip = cms.ESSource("TotemDAQMappingESSource
   )
 )
 
-from EventFilter.CTPPSRawToDigi.totemRPRawToDigi_cfi import *
+from EventFilter.CTPPSRawToDigi.totemRPRawToDigi_cfi import totemRPRawToDigi
 totemRPRawToDigi.rawDataTag = cms.InputTag("rawDataCollector")
 
 
@@ -54,7 +55,7 @@ totemDAQMappingESSourceXML_TimingDiamond = cms.ESSource("TotemDAQMappingESSource
   )
 )
 
-from EventFilter.CTPPSRawToDigi.ctppsDiamondRawToDigi_cfi import *
+from EventFilter.CTPPSRawToDigi.ctppsDiamondRawToDigi_cfi import ctppsDiamondRawToDigi
 ctppsDiamondRawToDigi.rawDataTag = cms.InputTag("rawDataCollector")
 
 
