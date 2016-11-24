@@ -100,7 +100,6 @@ class GEDPhotonProducer : public edm::stream::EDProducer<> {
   std::string conversionCollection_;
   std::string valueMapPFCandPhoton_;
 
-  PFPhotonIsolationCalculator* thePFBasedIsolationCalculator_;
   PhotonIsolationCalculator* thePhotonIsolationCalculator_;
 
   //AA

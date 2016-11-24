@@ -218,21 +218,13 @@ GEDPhotonProducer::~GEDPhotonProducer()
 
 void  GEDPhotonProducer::beginRun (edm::Run const& r, edm::EventSetup const & theEventSetup) {
 
- if ( reconstructionStep_ == "final" ) { 
-    thePFBasedIsolationCalculator_ = new PFPhotonIsolationCalculator();
-    edm::ParameterSet pfIsolationCalculatorSet = conf_.getParameter<edm::ParameterSet>("PFIsolationCalculatorSet"); 
-    thePFBasedIsolationCalculator_->setup(pfIsolationCalculatorSet);
- }else{ 
+ if ( reconstructionStep_ != "final" ) { 
     thePhotonEnergyCorrector_ -> init(theEventSetup); 
   }
 
 }
 
 void  GEDPhotonProducer::endRun (edm::Run const& r, edm::EventSetup const & theEventSetup) {
-
-  if ( reconstructionStep_ == "final" ) { 
-    delete thePFBasedIsolationCalculator_;
-  }
 }
 
 
@@ -267,7 +259,6 @@ void GEDPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
     } else {
       throw cms::Exception("GEDPhotonProducer") << "Error! Can't get the product " <<   photonProducer_.label() << "\n";
     }
-    //theEvent.getByToken(particleBasedIsolationToken, particleBasedIsolationMap); 
   } else {
     
     theEvent.getByToken(photonCoreProducerT_,photonCoreHandle);
@@ -756,6 +747,7 @@ void GEDPhotonProducer::fillPhotonCollection(edm::Event& evt,
   // Calculate the PF isolation and ID - for the time being there is no calculation. Only the setting
     reco::Photon::PflowIsolationVariables pfIso;
     reco::Photon::PflowIDVariables pfID;
+  
     //get the pointer for the photon object
     edm::Ptr<reco::Photon> photonPtr(photonHandle, lSC);
 
@@ -789,14 +781,6 @@ void GEDPhotonProducer::fillPhotonCollection(edm::Event& evt,
     //std::cout << " type " <<newCandidate.getCandidateP4type() <<  " standard p4 after " << newCandidate.p4() << " energy " << newCandidate.energy() << std::endl;
     //std::cout << " final p4 " << newCandidate.p4() << " energy " << newCandidate.energy() <<  std::endl;
 
-    //edm::Ptr<reco::Photon> photonPtr(photonHandle, lSC);
-    //std::cout << " Start the test by Ivan .... " << std::endl;
-    //std::cout << reconstructionStep_ << std::endl;
-    //for ( auto itr = (*particleBasedIsolationMap_)[photonPtr].begin(); itr != (*particleBasedIsolationMap_)[photonPtr].end(); ++itr ) 
-   // {
-    //     std::cout << itr->key();
-    //}
-    //std::cout << " end the test by Ivan .... " << std::endl;
     outputPhotonCollection.push_back(newCandidate);        
     
   }
