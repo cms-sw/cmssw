@@ -53,8 +53,8 @@ class EcalEBTrigPrimTestAlgo
   virtual ~EcalEBTrigPrimTestAlgo();
 
   
-  void run(const edm::EventSetup &, const EcalRecHitCollection *col, EcalTrigPrimDigiCollection & result, EcalTrigPrimDigiCollection & resultTcp);
-  void run(const edm::EventSetup &, const EBDigiCollection *col, EcalTrigPrimDigiCollection & result, EcalTrigPrimDigiCollection & resultTcp);
+  void run(const edm::EventSetup &, const EcalRecHitCollection *col, EcalEBTrigPrimDigiCollection & result, EcalEBTrigPrimDigiCollection & resultTcp);
+  void run(const edm::EventSetup &, const EBDigiCollection *col, EcalEBTrigPrimDigiCollection & result, EcalEBTrigPrimDigiCollection & resultTcp);
   
   void setPointers(const EcalTPGLinearizationConst *ecaltpLin,
 		   const EcalTPGPedestals *ecaltpPed,

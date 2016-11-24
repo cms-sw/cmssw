@@ -101,8 +101,8 @@ EcalEBTrigPrimTestAlgo::~EcalEBTrigPrimTestAlgo()
 }
 //----------------------------------------------------------------------
 void EcalEBTrigPrimTestAlgo::run(const edm::EventSetup & setup, EcalRecHitCollection const * rh,
-				 EcalTrigPrimDigiCollection & result,
-				 EcalTrigPrimDigiCollection & resultTcp)
+				 EcalEBTrigPrimDigiCollection & result,
+				 EcalEBTrigPrimDigiCollection & resultTcp)
 {
 
 
@@ -116,7 +116,7 @@ void EcalEBTrigPrimTestAlgo::run(const edm::EventSetup & setup, EcalRecHitCollec
   theBarrelGeometry = &(*theBarrelGeometry_handle);
 
   
-  EcalTriggerPrimitiveDigi tp;
+  EcalEBTriggerPrimitiveDigi tp;
   std::vector<EcalTriggerPrimitiveSample> tpSam[10];
 
 
@@ -126,7 +126,7 @@ void EcalEBTrigPrimTestAlgo::run(const edm::EventSetup & setup, EcalRecHitCollec
   for (unsigned int i=0;i<rh->size();i++) {
     const EBDetId & myid1=(*rh)[i].id();
     if ( (*rh)[i].energy() < 0.2 ) continue;
-    tp=  EcalTriggerPrimitiveDigi(  myid1);   
+    tp=  EcalEBTriggerPrimitiveDigi(  myid1);   
     tp.setSize(nSamples_);
     int nSam=0;
 
@@ -177,8 +177,8 @@ void EcalEBTrigPrimTestAlgo::run(const edm::EventSetup & setup, EcalRecHitCollec
 
 void EcalEBTrigPrimTestAlgo::run(const edm::EventSetup & setup, 
 				 EBDigiCollection const * digi,
-				 EcalTrigPrimDigiCollection & result,
-				 EcalTrigPrimDigiCollection & resultTcp)
+				 EcalEBTrigPrimDigiCollection & result,
+				 EcalEBTrigPrimDigiCollection & resultTcp)
 {
 
   //typedef typename Coll::Digi Digi;
@@ -188,7 +188,7 @@ void EcalEBTrigPrimTestAlgo::run(const edm::EventSetup & setup,
   }
 
   uint16_t etInADC;
-  EcalTriggerPrimitiveDigi tp;
+  EcalEBTriggerPrimitiveDigi tp;
   int firstSample = binOfMaximum_-1 -nrSamples_/2;
   int lastSample = binOfMaximum_-1 +nrSamples_/2;
 
@@ -223,7 +223,7 @@ void EcalEBTrigPrimTestAlgo::run(const edm::EventSetup & setup,
 	// loop over the xstals in a strip
 	for (int iXstal=0;iXstal<nxstals;iXstal++) {
 	  const EBDetId & myid = dataFrames[iXstal].id();
-	  tp=  EcalTriggerPrimitiveDigi(  myid );   
+	  tp=  EcalEBTriggerPrimitiveDigi(  myid );   
 	  tp.setSize( nrSamples_);
 
 
