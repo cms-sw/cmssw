@@ -175,14 +175,15 @@ void ME0ReDigiProducer::buildDigis(const ME0DigiPreRecoCollection & input_digis,
 
       // check if the smeared hit remains in its partition, or moves one up or down
       const float deltaY(newGP.y() - centralGP.y());
-      int newRoll;
-      if (deltaY > height)  newRoll = detId.roll() - 1;
-      if (deltaY < -height) newRoll = detId.roll() + 1;
-      else newRoll = detId.roll();
+      int newRoll = detId.roll();
+      if (deltaY > height)  --newRoll;
+      if (deltaY < -height) ++newRoll;
 
-      // sanity-check
-      if (newRoll == nPartitions_+1) newRoll = nPartitions_;
-      if (newRoll == 0) newRoll = 1;
+      ME0DetId out_detId(detId.region(), detId.layer(), detId.chamber(), newRoll);      
+      const ME0EtaPartition* newPart = geometry_->etaPartition(out_detId);
+      // sanity-check, also compatable with old geo with only 1 etaPartition
+      if (!newPart) newPart = roll;
+
 
       edm::LogVerbatim("ME0ReDigiProducer")
         << "\tnew roll " << newRoll << std::endl;
@@ -203,9 +204,9 @@ void ME0ReDigiProducer::buildDigis(const ME0DigiPreRecoCollection & input_digis,
       // discretize the new X
       if (discretizeX_){
         const LocalPoint lp(newX, newY, 0);
-        int strip(roll->strip(lp));
+        int strip(newPart->strip(lp));
         float stripF(float(strip) - 0.5);
-        const LocalPoint newLP(roll->centreOfStrip(stripF));
+        const LocalPoint newLP(newPart->centreOfStrip(stripF));
         newX = newLP.x();
         edm::LogVerbatim("ME0ReDigiProducer")
           << "\t\tdiscretized X " << newX << std::endl;
@@ -213,7 +214,6 @@ void ME0ReDigiProducer::buildDigis(const ME0DigiPreRecoCollection & input_digis,
 
       // make a new ME0DetId
       ME0DigiPreReco out_digi(newX, newY, targetResolution, newYResolution_, me0Digi.corr(), newTime, me0Digi.pdgid(), me0Digi.prompt());
-      ME0DetId out_detId(detId.region(), detId.layer(), detId.chamber(), newRoll);
 
       output_digis.insertDigi(out_detId, out_digi);
     }
