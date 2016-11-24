@@ -43,32 +43,21 @@ using namespace std;
 //----------------------------------------------------------------------------
 PixelThresholdClusterizer::PixelThresholdClusterizer
   (edm::ParameterSet const& conf) :
-    conf_(conf), bufferAlreadySet(false), theNumOfRows(0), theNumOfCols(0), detid_(0) 
+    bufferAlreadySet(false),
+    // Get thresholds in electrons
+    thePixelThreshold( conf.getParameter<int>("ChannelThreshold") ),
+    theSeedThreshold( conf.getParameter<int>("SeedThreshold") ),
+    theClusterThreshold( conf.getParameter<double>("ClusterThreshold") ),
+    theConversionFactor( conf.getParameter<int>("VCaltoElectronGain") ),
+    theOffset( conf.getParameter<int>("VCaltoElectronOffset") ),
+    theStackADC_( conf.exists("AdcFullScaleStack") ? conf.getParameter<int>("AdcFullScaleStack") : 255 ),
+    theFirstStack_( conf.exists("FirstStackLayer") ? conf.getParameter<int>("FirstStackLayer") : 5 ),
+    theElectronPerADCGain_( conf.exists("ElectronPerADCGain") ? conf.getParameter<double>("ElectronPerADCGain") : 135. ),
+    theNumOfRows(0), theNumOfCols(0), detid_(0),
+    // Get the constants for the miss-calibration studies
+    doMissCalibrate( conf.getUntrackedParameter<bool>("MissCalibrate",true) ),
+    doSplitClusters( conf.getParameter<bool>("SplitClusters") )
 {
-  // Get thresholds in electrons
-  thePixelThreshold   = 
-    conf_.getParameter<int>("ChannelThreshold");
-  theSeedThreshold    = 
-    conf_.getParameter<int>("SeedThreshold");
-  theClusterThreshold = 
-    conf_.getParameter<double>("ClusterThreshold");
-  theConversionFactor = 
-    conf_.getParameter<int>("VCaltoElectronGain");
-  theOffset = 
-    conf_.getParameter<int>("VCaltoElectronOffset");
-  if ( conf_.exists("AdcFullScaleStack") ) theStackADC_=conf_.getParameter<int>("AdcFullScaleStack");
-  else 
-    theStackADC_=255;
-  if ( conf_.exists("FirstStackLayer") ) theFirstStack_=conf_.getParameter<int>("FirstStackLayer");
-  else
-    theFirstStack_=5;
-  if ( conf_.exists("ElectronPerADCGain") ) theElectronPerADCGain_=conf_.getParameter<double>("ElectronPerADCGain");
-  else
-    theElectronPerADCGain_=135.;
-  
-  // Get the constants for the miss-calibration studies
-  doMissCalibrate=conf_.getUntrackedParameter<bool>("MissCalibrate",true); 
-  doSplitClusters = conf.getParameter<bool>("SplitClusters");
   theBuffer.setSize( theNumOfRows, theNumOfCols );
 }
 /////////////////////////////////////////////////////////////////////////////
@@ -112,13 +101,14 @@ bool PixelThresholdClusterizer::setup(const PixelGeomDetUnit * pixDet)
 //!  each seed pixel.
 //!  Input and output data stored in DetSet
 //----------------------------------------------------------------------------
-void PixelThresholdClusterizer::clusterizeDetUnit( const edm::DetSet<PixelDigi> & input,
+template<typename T>
+void PixelThresholdClusterizer::clusterizeDetUnitT( const T & input,
 						   const PixelGeomDetUnit * pixDet,
 						   const std::vector<short>& badChannels,
                                                    edmNew::DetSetVector<SiPixelCluster>::FastFiller& output) {
   
-  DigiIterator begin = input.begin();
-  DigiIterator end   = input.end();
+  typename T::const_iterator begin = input.begin();
+  typename T::const_iterator end   = input.end();
   
   // Do not bother for empty detectors
   //if (begin == end) cout << " PixelThresholdClusterizer::clusterizeDetUnit - No digis to clusterize";
@@ -180,6 +170,19 @@ void PixelThresholdClusterizer::clear_buffer( DigiIterator begin, DigiIterator e
     }
 }
 
+void PixelThresholdClusterizer::clear_buffer( ClusterIterator begin, ClusterIterator end )
+{
+  for(ClusterIterator ci = begin; ci != end; ++ci )
+    {
+      for(int i = 0; i < ci->size(); ++i)
+        {
+          const SiPixelCluster::Pixel pixel = ci->pixel(i);
+
+          theBuffer.set_adc( pixel.x, pixel.y, 0 );   // reset pixel adc to 0
+        }
+    }
+}
+
 //----------------------------------------------------------------------------
 //! \brief Copy adc counts from PixelDigis into the buffer, identify seeds.
 //----------------------------------------------------------------------------
@@ -193,6 +196,7 @@ void PixelThresholdClusterizer::copy_to_buffer( DigiIterator begin, DigiIterator
   }
 #endif
   int electron[end-begin];
+  memset(electron, 0, sizeof(electron));
   if ( doMissCalibrate ) {
     (*theSiPixelGainCalibrationService_).calibrate(detid_,begin,end,theConversionFactor, theOffset,electron);
   } else {
@@ -237,6 +241,25 @@ void PixelThresholdClusterizer::copy_to_buffer( DigiIterator begin, DigiIterator
   }
   assert(i==(end-begin));
 
+}
+
+void PixelThresholdClusterizer::copy_to_buffer( ClusterIterator begin, ClusterIterator end )
+{
+  // loop over clusters
+  for(ClusterIterator ci = begin; ci != end; ++ci) {
+    // loop over pixels
+    for(int i = 0; i < ci->size(); ++i) {
+      const SiPixelCluster::Pixel pixel = ci->pixel(i);
+
+      int row = pixel.x;
+      int col = pixel.y;
+      int adc = pixel.adc;
+      if ( adc >= thePixelThreshold) {
+        theBuffer.add_adc( row, col, adc);
+        if ( adc >= theSeedThreshold) theSeeds.push_back( SiPixelCluster::PixelPos(row,col) );
+      }
+    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -310,38 +333,6 @@ int PixelThresholdClusterizer::calibrate(int adc, int col, int row)
     }
   
   return electrons;
-}
-
-
-namespace {
-
-  struct AccretionCluster {
-    typedef unsigned short UShort;
-    static constexpr UShort MAXSIZE = 256;
-    UShort adc[256];
-    UShort x[256];
-    UShort y[256];
-    UShort xmin=16000;
-    UShort ymin=16000;
-    unsigned int isize=0;
-    unsigned int curr=0;
-
-    // stack interface (unsafe ok for use below)
-    UShort top() const { return curr;}
-    void pop() { ++curr;}   
-    bool empty() { return curr==isize;}
-
-    bool add(SiPixelCluster::PixelPos const & p, UShort const iadc) {
-      if (isize==MAXSIZE) return false;
-      xmin=std::min(xmin,(unsigned short)(p.row()));
-      ymin=std::min(ymin,(unsigned short)(p.col()));
-      adc[isize]=iadc;
-      x[isize]=p.row();
-      y[isize++]=p.col();
-      return true;
-    }
-  };
-
 }
 
 //----------------------------------------------------------------------------
