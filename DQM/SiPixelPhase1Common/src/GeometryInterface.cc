@@ -28,8 +28,7 @@
 #include <iostream>
 #include <iomanip>
 
-// WTH is this needed? clang wants it for linking...
-const GeometryInterface::Value GeometryInterface::UNDEFINED;
+const GeometryInterface::Value GeometryInterface::UNDEFINED = 999999999.9f;
 
 void GeometryInterface::load(edm::EventSetup const& iSetup) {
   //loadFromAlignment(iSetup, iConfig);
