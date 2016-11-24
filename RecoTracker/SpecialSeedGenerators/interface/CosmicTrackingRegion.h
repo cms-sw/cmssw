@@ -84,13 +84,11 @@ public:
   
   virtual TrackingRegion::ctfHits 
   hits(
-       const edm::Event& ev,  
        const edm::EventSetup& es, 
        const ctfseeding::SeedingLayer* layer) const;
   
    TrackingRegion::Hits 
    hits(
-	const edm::Event& ev,
 	const edm::EventSetup& es,
 	const SeedingLayerSetsHits::SeedingLayer& layer) const override;
   
@@ -108,7 +106,6 @@ public:
 private:
   template <typename T>
   void hits_(
-      const edm::Event& ev,
       const edm::EventSetup& es,
       const T& layer, TrackingRegion::Hits & result) const;
 
