@@ -46,9 +46,11 @@ private:
   double radialResolution_;
   bool smearRadial_;
   double oldXResolution_;
+  double oldYResolution_;
   double newXResolution_;
   double newYResolution_;
   bool discretizeX_;
+  bool discretizeY_;
   bool verbose_;
   bool reDigitizeOnlyMuons_;
   bool reDigitizeNeutronBkg_;
