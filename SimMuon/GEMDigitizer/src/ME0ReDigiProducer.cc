@@ -39,9 +39,11 @@ ME0ReDigiProducer::ME0ReDigiProducer(const edm::ParameterSet& ps)
   radialResolution_ = ps.getParameter<double>("radialResolution");
   smearRadial_ = ps.getParameter<bool>("smearRadial");
   oldXResolution_ = ps.getParameter<double>("oldXResolution");
+  oldYResolution_ = ps.getParameter<double>("oldYResolution");
   newXResolution_ = ps.getParameter<double>("newXResolution");
   newYResolution_ = ps.getParameter<double>("newYResolution");
   discretizeX_ = ps.getParameter<bool>("discretizeX");
+  discretizeY_ = ps.getParameter<bool>("discretizeY");
   reDigitizeOnlyMuons_ = ps.getParameter<bool>("reDigitizeOnlyMuons");
   reDigitizeNeutronBkg_ = ps.getParameter<bool>("reDigitizeNeutronBkg");
   instLumi_ = ps.getParameter<double>("instLumi");
@@ -168,42 +170,52 @@ void ME0ReDigiProducer::buildDigis(const ME0DigiPreRecoCollection & input_digis,
 
       // smear the new radial with gaussian
       const float oldR(oldGP.perp());
-      const float newR(CLHEP::RandGaussQ::shoot(engine, oldR, radialResolution_));
 
+      float newR = oldR;
+      if (smearRadial_) newR = CLHEP::RandGaussQ::shoot(engine, oldR, radialResolution_);
+      
       // calculate the new position in local coordinates
-      const GlobalPoint newGP(GlobalPoint::Cylindrical(newR, oldGP.phi(), oldGP.z()));
+      const GlobalPoint radialSmearedGP(GlobalPoint::Cylindrical(newR, oldGP.phi(), oldGP.z()));
 
+      // new y position after smearing
+      const float targetYResolution(sqrt(newYResolution_*newYResolution_ - oldYResolution_ * oldYResolution_));
+      float newGPy(CLHEP::RandGaussQ::shoot(engine, radialSmearedGP.y(), targetYResolution));
+
+      // new x position after smearing
+      const float targetXResolution(sqrt(newXResolution_*newXResolution_ - oldXResolution_ * oldXResolution_));
+      float newGPx(CLHEP::RandGaussQ::shoot(engine, radialSmearedGP.x(), targetXResolution));
+      
+      const GlobalPoint newGP(newGPx, newGPy, radialSmearedGP.z());
+      
       // check if the smeared hit remains in its partition, or moves one up or down
       const float deltaY(newGP.y() - centralGP.y());
       int newRoll = detId.roll();
       if (deltaY > height)  --newRoll;
       if (deltaY < -height) ++newRoll;
 
+      // get new detId and ME0EtaPartition
       ME0DetId out_detId(detId.region(), detId.layer(), detId.chamber(), newRoll);      
       const ME0EtaPartition* newPart = geometry_->etaPartition(out_detId);
       // sanity-check, also compatable with old geo with only 1 etaPartition
       if (!newPart) newPart = roll;
-
-
       edm::LogVerbatim("ME0ReDigiProducer")
         << "\tnew roll " << newRoll << std::endl;
 
-      // new hit has y coordinate in the center of the roll
-      const float newY(0.);
+      // new local Point after all smearing
+      const LocalPoint lp = newPart->toLocal(newGP);
 
+
+      float newY(lp.y());
+      // new hit has y coordinate in the center of the roll when using discretizeY
+      if(discretizeY_) newY = 0;
       edm::LogVerbatim("ME0ReDigiProducer")
         << "\tnew Y " << newY << std::endl;
 
-      // new x position
-      const float targetResolution(sqrt(newXResolution_*newXResolution_ - oldXResolution_ * oldXResolution_));
-      float newX(CLHEP::RandGaussQ::shoot(engine, me0Digi.x(), targetResolution));
-
+      float newX(lp.x());
       edm::LogVerbatim("ME0ReDigiProducer")
-        << "\tnew X " << newX << std::endl;
-
+        << "\tnew X " << newX << std::endl;      
       // discretize the new X
       if (discretizeX_){
-        const LocalPoint lp(newX, newY, 0);
         int strip(newPart->strip(lp));
         float stripF(float(strip) - 0.5);
         const LocalPoint newLP(newPart->centreOfStrip(stripF));
@@ -213,7 +225,7 @@ void ME0ReDigiProducer::buildDigis(const ME0DigiPreRecoCollection & input_digis,
       }
 
       // make a new ME0DetId
-      ME0DigiPreReco out_digi(newX, newY, targetResolution, newYResolution_, me0Digi.corr(), newTime, me0Digi.pdgid(), me0Digi.prompt());
+      ME0DigiPreReco out_digi(newX, newY, targetXResolution, targetYResolution, me0Digi.corr(), newTime, me0Digi.pdgid(), me0Digi.prompt());
 
       output_digis.insertDigi(out_detId, out_digi);
     }
