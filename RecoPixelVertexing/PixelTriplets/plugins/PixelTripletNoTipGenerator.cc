@@ -63,7 +63,7 @@ void PixelTripletNoTipGenerator::hitTriplets(
 
   const RecHitsSortedInPhi **thirdHitMap = new const RecHitsSortedInPhi*[size];
   for (int il=0; il <=size-1; il++) {
-     thirdHitMap[il] = &(*theLayerCache)(thirdLayers[il], region, ev, es);
+     thirdHitMap[il] = &(*theLayerCache)(thirdLayers[il], region, es);
   }
 
   const DetLayer * firstLayer = thePairGenerator->innerLayer(pairLayers).detLayer();

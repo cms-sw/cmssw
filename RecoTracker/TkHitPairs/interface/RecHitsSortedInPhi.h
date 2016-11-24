@@ -91,7 +91,7 @@ public:
 
 public:
 
-  mutable GlobalPoint theOrigin;
+  GlobalPoint theOrigin;
 
   std::vector<HitWithPhi> theHits;
 

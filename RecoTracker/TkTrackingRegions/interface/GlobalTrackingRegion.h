@@ -34,7 +34,6 @@ public:
       thePrecise(precise) { }
 
   TrackingRegion::Hits hits(
-      const edm::Event& ev,
       const edm::EventSetup& es,
       const SeedingLayerSetsHits::SeedingLayer& layer) const override;
 
