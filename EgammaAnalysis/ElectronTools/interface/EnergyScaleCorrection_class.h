@@ -130,7 +130,8 @@ typedef std::map < correctionCategory_class, correctionValue_class > correction_
 //============================== Main class
 class EnergyScaleCorrection_class
 {
-  
+	
+public:  
   enum fileFormat_t {
     UNKNOWN=0,
     GLOBE,
@@ -145,7 +146,6 @@ class EnergyScaleCorrection_class
         kNParamSmear
   };
   
-public:
   bool doScale, doSmearings;
   
 public:
