@@ -184,6 +184,7 @@ namespace stage2 {
        l1t::EtSum towCount = l1t::EtSum();
        towCount.setHwPt( (raw_data>>12) & 0x1FFF );
        towCount.setType( (l1t::EtSum::kTowerCount) );
+       towCount.setP4( l1t::CaloTools::p4Demux(&towCount) );
 
        res_->push_back(bx, towCount);
     
