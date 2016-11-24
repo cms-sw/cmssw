@@ -129,7 +129,7 @@ void pat::PATPackedCandidateProducer::produce(edm::StreamID, edm::Event& iEvent,
     iEvent.getByToken( PuppiCandsMap_, puppiCandsMap );
     edm::Handle<std::vector< reco::PFCandidate > > puppiCands;
     iEvent.getByToken( PuppiCands_, puppiCands );
-    std::vector<int> mappingPuppi(puppiCands->size());
+    std::vector<int> mappingPuppi(puppiCands.isValid() ? puppiCands->size() : 0);
 
     edm::Handle< edm::ValueMap<float> > puppiWeightNoLep;
     iEvent.getByToken( PuppiWeightNoLep_, puppiWeightNoLep );
@@ -142,7 +142,7 @@ void pat::PATPackedCandidateProducer::produce(edm::StreamID, edm::Event& iEvent,
         puppiCandsNoLepPtrs.push_back(pup.sourceCandidatePtr(0));
       }
     }
-    auto const& puppiCandsNoLepV = puppiCandsNoLep.product();
+    auto const puppiCandsNoLepV = puppiCandsNoLep.isValid() ? puppiCandsNoLep.product() : nullptr;
 
     edm::Handle<reco::VertexCollection> PVOrigs;
     iEvent.getByToken( PVOrigs_, PVOrigs );
@@ -325,7 +325,7 @@ void pat::PATPackedCandidateProducer::produce(edm::StreamID, edm::Event& iEvent,
     pc2pfFiller.insert(oh   , order.begin(), order.end());
     // include also the mapping track -> packed PFCand
     pf2pcFiller.insert(TKOrigs, mappingTk.begin(), mappingTk.end());
-    pf2pcFiller.insert(puppiCands, mappingPuppi.begin(), mappingPuppi.end());
+    if(puppiCands.isValid()) pf2pcFiller.insert(puppiCands, mappingPuppi.begin(), mappingPuppi.end());
 
     pf2pcFiller.fill();
     pc2pfFiller.fill();
