@@ -74,7 +74,15 @@ readCaloLayer2OnlineSettings(l1t::CaloParamsHelper& paramsHelper, std::map<std::
     "tauMaxEta",
     "tauEnergyCalibLUT",
     "tauIsoLUT1",
-    "tauIsoLUT2"
+    "tauIsoLUT2",
+    "towerCountThreshold",
+    "towerCountMaxEta",
+    "ET_towerThreshold",
+    "MET_towerThreshold",
+    "jetBypassPileUpSub",
+    "egammaBypassCuts",
+    "egammaHOverECut_iEtaLT15",
+    "egammaHOverECut_iEtaGTEq15"
   };
   for (const auto param : expectedParams) {
     if ( conf.find(param) == conf.end() ) {
@@ -88,6 +96,11 @@ readCaloLayer2OnlineSettings(l1t::CaloParamsHelper& paramsHelper, std::map<std::
   paramsHelper.setEgNeighbourThreshold((conf["leptonTowerThreshold"].getValue<int>())/2);
   paramsHelper.setTauNeighbourThreshold((conf["leptonTowerThreshold"].getValue<int>())/2);
   paramsHelper.setJetSeedThreshold((conf["jetSeedThreshold"].getValue<int>())/2);
+  paramsHelper.setJetBypassPUS(conf["jetBypassPileUpSub"].getValue<unsigned>()); //these are bools in onlineDB
+  paramsHelper.setEgBypassEGVetos(conf["egammaBypassCuts"].getValue<unsigned>()); //these are bools in onlineDB
+  paramsHelper.setEgHOverEcutBarrel(conf["egammaHOverECut_iEtaLT15"].getValue<int>());
+  paramsHelper.setEgHOverEcutEndcap(conf["egammaHOverECut_iEtaGTEq15"].getValue<int>());
+
 
   // Currently not used // paramsHelper.setEgPileupTowerThresh((conf["pileUpTowerThreshold"].getValue<int>())); 
   // Currently not used // paramsHelper.setTauPileupTowerThresh((conf["pileUpTowerThreshold"].getValue<int>())); 
@@ -100,13 +113,15 @@ readCaloLayer2OnlineSettings(l1t::CaloParamsHelper& paramsHelper, std::map<std::
   etSumEtaMax.push_back(conf["HTMHT_maxJetEta"].getValue<int>());
   etSumEtaMax.push_back(conf["ETMET_maxTowerEta"].getValue<int>());
   etSumEtaMax.push_back(conf["HTMHT_maxJetEta"].getValue<int>());
+  etSumEtaMax.push_back(conf["towerCountMaxEta"].getValue<int>());
   
-  etSumEtThresh.push_back(0); // ETT tower threshold
+  etSumEtThresh.push_back(conf["ET_towerThreshold"].getValue<int>()); // ETT tower threshold
   etSumEtThresh.push_back(conf["HT_jetThreshold"].getValue<int>());
-  etSumEtThresh.push_back(0); // ETM tower threshold
+  etSumEtThresh.push_back(conf["MET_towerThreshold"].getValue<int>()); // ETM tower threshold
   etSumEtThresh.push_back(conf["MHT_jetThreshold"].getValue<int>());
+  etSumEtThresh.push_back(conf["ET_towerThreshold"].getValue<int>());
 
-  for (uint i=0; i<4; ++i) {
+  for (uint i=0; i<5; ++i) {
     paramsHelper.setEtSumEtaMax(i, etSumEtaMax.at(i));
     paramsHelper.setEtSumEtThreshold(i, etSumEtThresh.at(i));
   }
