@@ -14,7 +14,7 @@
 
 // namespace HPTDCErrors { 
 struct HPTDCErrorFlags {
-HPTDCErrorFlags(unsigned short flags=0): error_flags(flags) {;}
+HPTDCErrorFlags(unsigned short flags=0): error_flags(flags) {}
 
   public:
     bool getErrorId(unsigned short id) 

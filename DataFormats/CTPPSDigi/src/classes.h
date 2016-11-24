@@ -18,7 +18,7 @@
 
 #include <vector>
 
-namespace DataFormats_DataFormats {
+namespace DataFormats_CTPPSDigi {
   struct dictionary {
     TotemRPDigi rp_str_dig;
     edm::DetSet<TotemRPDigi> ds_rp_str_dig;

@@ -10,7 +10,7 @@
  * March 2016
  */
 
-#include <boost/cstdint.hpp>
+#include <cstdint>
 #include "DataFormats/CTPPSDigi/interface/HPTDCErrorFlags.h"
 
 class CTPPSDiamondDigi{
