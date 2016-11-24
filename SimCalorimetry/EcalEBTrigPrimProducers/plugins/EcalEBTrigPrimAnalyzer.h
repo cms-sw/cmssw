@@ -60,7 +60,7 @@ class EcalEBTrigPrimAnalyzer : public edm::one::EDAnalyzer<> {
   float eRec_, tpgGeV_ ;
 
   //edm::InputTag label_;
-  edm::EDGetTokenT<EcalTrigPrimDigiCollection> primToken_;
+  edm::EDGetTokenT<EcalEBTrigPrimDigiCollection> primToken_;
   edm::EDGetTokenT<EcalRecHitCollection> rechits_labelEB_;
   edm::EDGetTokenT<EBDigiCollection> tokenEBdigi_;
   bool recHits_;

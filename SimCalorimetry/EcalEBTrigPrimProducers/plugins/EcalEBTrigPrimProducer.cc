@@ -72,8 +72,8 @@ EcalEBTrigPrimProducer::EcalEBTrigPrimProducer(const edm::ParameterSet&  iConfig
   tokenEBrh_=consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("barrelEcalHits"));
   tokenEBdigi_=consumes<EBDigiCollection>(iConfig.getParameter<edm::InputTag>("barrelEcalDigis"));
   //register your products
-  produces <EcalTrigPrimDigiCollection >();
-  if (tcpFormat_) produces <EcalTrigPrimDigiCollection >("formatTCP");
+  produces <EcalEBTrigPrimDigiCollection >();
+  if (tcpFormat_) produces <EcalEBTrigPrimDigiCollection >("formatTCP");
 }
 
 
@@ -188,8 +188,8 @@ EcalEBTrigPrimProducer::produce(edm::Event& e, const edm::EventSetup&  iSetup)
   }else{
     if (debug_) std::cout << "EcalTPG" <<" =================> Treating event  "<< nEvent_<<", Number of EB digis "<<barrelDigiHandle.product()->size() << std::endl;
   }
-  auto pOut = std::make_unique<EcalTrigPrimDigiCollection>();
-  auto pOutTcp = std::make_unique<EcalTrigPrimDigiCollection>();
+  auto pOut = std::make_unique<EcalEBTrigPrimDigiCollection>();
+  auto pOutTcp = std::make_unique<EcalEBTrigPrimDigiCollection>();
  
   // if ( e.id().event() != 648 ) return;
 

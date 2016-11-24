@@ -61,7 +61,7 @@ EcalEBTrigPrimAnalyzer::EcalEBTrigPrimAnalyzer(const edm::ParameterSet&  iConfig
   recHits_= iConfig.getParameter<bool>("AnalyzeRecHits");
   debug_= iConfig.getParameter<bool>("Debug");
   rechits_labelEB_=consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("inputRecHitsEB"));
-  primToken_=consumes<EcalTrigPrimDigiCollection>(iConfig.getParameter<edm::InputTag>("inputTP"));
+  primToken_=consumes<EcalEBTrigPrimDigiCollection>(iConfig.getParameter<edm::InputTag>("inputTP"));
   tokenEBdigi_=consumes<EBDigiCollection>(iConfig.getParameter<edm::InputTag>("barrelEcalDigis"));
   nEvents_=0;
 
@@ -116,7 +116,7 @@ EcalEBTrigPrimAnalyzer::analyze(const edm::Event& iEvent, const  edm::EventSetup
   if ( nEvents_==1) this->init(iSetup);
 
   // Get input
-  edm::Handle<EcalTrigPrimDigiCollection> tp;
+  edm::Handle<EcalEBTrigPrimDigiCollection> tp;
   iEvent.getByToken(primToken_,tp);
   //
   /*
@@ -129,7 +129,7 @@ EcalEBTrigPrimAnalyzer::analyze(const edm::Event& iEvent, const  edm::EventSetup
   
 
   for (unsigned int i=0;i<tp.product()->size();i++) {
-    EcalTriggerPrimitiveDigi d=(*(tp.product()))[i];
+    EcalEBTriggerPrimitiveDigi d=(*(tp.product()))[i];
     int subdet=0;
     if (subdet==0) {
       ecal_et_[subdet]->Fill(d.compressedEt());
@@ -162,7 +162,7 @@ EcalEBTrigPrimAnalyzer::analyze(const edm::Event& iEvent, const  edm::EventSetup
      
    
     for (unsigned int i=0;i<tp.product()->size();i++) {
-      EcalTriggerPrimitiveDigi d=(*(tp.product()))[i];
+      EcalEBTriggerPrimitiveDigi d=(*(tp.product()))[i];
       const EBDetId TPid= d.id();
       // if ( myId != TPid ) continue;
    
