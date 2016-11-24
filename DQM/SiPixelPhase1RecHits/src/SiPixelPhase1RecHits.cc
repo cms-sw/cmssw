@@ -53,7 +53,7 @@ void SiPixelPhase1RecHits::analyze(const edm::Event& iEvent, const edm::EventSet
     }
   }
 
-  histo[NRECHITS].executePerEventHarvesting();
+  histo[NRECHITS].executePerEventHarvesting(&iEvent);
 }
 
 DEFINE_FWK_MODULE(SiPixelPhase1RecHits);

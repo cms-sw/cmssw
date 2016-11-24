@@ -42,8 +42,8 @@ void SiPixelPhase1Digis::analyze(const edm::Event& iEvent, const edm::EventSetup
     histo[DEBUG].fill(geometryInterface.extract(geometryInterface.intern("PXLadder"), DetId(it->detId())), DetId(it->detId()));
   }
   histo[EVENT].fill(DetId(0), &iEvent);
-  histo[NDIGIS    ].executePerEventHarvesting();
-  histo[NDIGIS_FED].executePerEventHarvesting(); 
+  histo[NDIGIS    ].executePerEventHarvesting(&iEvent);
+  histo[NDIGIS_FED].executePerEventHarvesting(&iEvent); 
 }
 
 DEFINE_FWK_MODULE(SiPixelPhase1Digis);
