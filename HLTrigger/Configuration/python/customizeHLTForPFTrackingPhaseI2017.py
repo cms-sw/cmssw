@@ -269,6 +269,4 @@ def customizeHLTForPFTrackingPhaseI2017(process):
 			seq.remove(process.hltPixelLayerTriplets)
 			index = seq.index(process.hltPixelTracks)
 			seq.insert(index,process.hltPixelLayerQuadruplets)
-	from RecoTracker.Configuration.customiseForQuadrupletsHLTPixelTracksByCellularAutomaton import customiseForQuadrupletsHLTPixelTracksByCellularAutomaton
-	process = customiseForQuadrupletsHLTPixelTracksByCellularAutomaton(process)
 	return process
