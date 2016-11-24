@@ -430,60 +430,66 @@ class FileListCreator(object):
     def _write_file_lists(self):
         """Write file lists to disk."""
 
-        self._create_alignment_file_list(self._formatted_dataset+".txt",
-                                         self._files_alignment)
+        self._create_dataset_txt(self._formatted_dataset, self._files_alignment)
+        self._create_dataset_cff(
+            "_".join(["Alignment", self._formatted_dataset]),
+            self._files_alignment)
 
-        self._create_validation_dataset("_".join(["Dataset",
-                                                  self._formatted_dataset,
-                                                  "cff.py"]),
-                                        self._files_validation)
+        self._create_dataset_cff(
+            "_".join(["Validation", self._formatted_dataset]),
+            self._files_validation)
 
         for iov in sorted(self._iovs):
             iov_str = "since{0:d}".format(iov)
-            self._create_alignment_file_list(
-                "_".join([self._formatted_dataset, iov_str])+".txt",
+            self._create_dataset_txt(
+                "_".join([self._formatted_dataset, iov_str]),
                 self._iov_info_alignment[iov]["files"])
+            self._create_dataset_cff(
+                "_".join(["Alignment", self._formatted_dataset, iov_str]),
+                self._iov_info_validation[iov]["files"])
 
             if (self._iov_info_validation[iov]["events"]
                 < self._args.minimum_events_validation):
                 continue
-            self._create_validation_dataset(
-                "_".join(["Dataset", self._formatted_dataset, iov_str, "cff.py"]),
+            self._create_dataset_cff(
+                "_".join(["Validation", self._formatted_dataset, iov_str]),
                 self._iov_info_validation[iov]["files"])
 
         for run in sorted(self._run_info):
             if (self._run_info[run]["events"]
                 < self._args.minimum_events_validation):
                 continue
-            self._create_validation_dataset(
-                "_".join(["Dataset", self._formatted_dataset, str(run), "cff.py"]),
+            self._create_dataset_cff(
+                "_".join(["Validation", self._formatted_dataset, str(run)]),
                 self._run_info[run]["files"])
 
 
 
-    def _create_alignment_file_list(self, name, file_list):
+    def _create_dataset_txt(self, name, file_list):
         """Write alignment file list to disk.
 
         Arguments:
         - `name`: name of the file list
-        - `file_list`: list of files to written to `name`
+        - `file_list`: list of files to write to `name`
         """
 
-        print_msg("Creating MillePede file list: "+name)
+        name += ".txt"
+        print_msg("Creating datset file list: "+name)
         with open(os.path.join(self._formatted_dataset, name), "w") as f:
             f.write("\n".join(file_list))
 
 
-    def _create_validation_dataset(self, name, file_list):
+    def _create_dataset_cff(self, name, file_list):
         """
-        Create configuration fragment to define a dataset for validation.
+        Create configuration fragment to define a dataset.
 
         Arguments:
         - `name`: name of the configuration fragment
-        - `file_list`: list of files to written to `name`
+        - `file_list`: list of files to write to `name`
         """
 
-        print_msg("Creating validation dataset configuration fragment: "+name)
+        name = "_".join(["Dataset",name, "cff.py"])
+        print_msg("Creating dataset configuration fragment: "+name)
 
         file_list_str = ""
         for sub_list in get_chunks(file_list, 255):
