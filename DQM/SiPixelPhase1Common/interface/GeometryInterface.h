@@ -35,8 +35,8 @@ class GeometryInterface {
   // normalized column when a multicolumn is given and vice versa.
   // Increasing the max number of columns needs fixing some todos.
   typedef std::array<ID, 2> Column;
-  typedef int Value;
-  static const Value UNDEFINED = 0x0FFFFFFF;
+  typedef double Value;
+  static const Value UNDEFINED;
 
   // Essentially a map backed by a vector (for the small counts here
   // this should always be faster), with special handling for multi-colums.
@@ -105,7 +105,7 @@ class GeometryInterface {
       auto val = extract(col, iq);
       out.put(val.first, val.second);
     }
-  };
+  }
 
   std::pair<Column, Value> extract(Column const& col, InterestingQuantities const& iq) {
     assert(col[0] != 0 || !"Extracting invalid column.");
@@ -136,9 +136,11 @@ class GeometryInterface {
 
   std::vector<InterestingQuantities> const& allModules() {
     return all_modules;
-  };
+  }
+
   Value maxValue(ID id) { return max_value[id]; };
   Value minValue(ID id) { return min_value[id]; };
+  Value binWidth(ID id) { return bin_width[id]; };
 
   // turn string into an ID, adding it if needed.
   // needs the lock since this will be called from the spec builder, which will
@@ -193,12 +195,14 @@ class GeometryInterface {
   // map for ease of use.
   std::map<ID, Value> max_value;
   std::map<ID, Value> min_value;
+  std::map<ID, Value> bin_width;
 
   void addExtractor(ID id,
                     std::function<Value(InterestingQuantities const& iq)> func,
-                    Value min = UNDEFINED, Value max = UNDEFINED) {
+                    Value min = UNDEFINED, Value max = UNDEFINED, Value binwidth = 1) {
     max_value[id] = max;
     min_value[id] = min;
+    bin_width[id] = binwidth;
     extractors[id] = func;
   }
 

@@ -224,15 +224,15 @@ std::string HistogramManager::makePath(
   std::ostringstream dir("");
   for (auto e : significantvalues.values) {
     std::string name = geometryInterface.pretty(e.first);
-    std::string value = "_" + std::to_string(e.second);
+    std::string value = "_" + std::to_string(int(e.second));
     if (e.second == 0) value = "";         // hide Barrel_0 etc.
     if (name == "") continue;              // nameless dummy column is dropped
     if (name == "PXDisk" && e.second > 0)  // +/- sign for disk num
-      value = "_+" + std::to_string(e.second);
+      value = "_+" + std::to_string(int(e.second));
     // pretty (legacy?) names for Shells and HalfCylinders
     std::map<int, std::string> shellname{
         {11, "_mI"}, {12, "_mO"}, {21, "_pI"}, {22, "_pO"}};
-    if (name == "HalfCylinder" || name == "Shell") value = shellname[e.second];
+    if (name == "HalfCylinder" || name == "Shell") value = shellname[int(e.second)];
     if (e.second == GeometryInterface::UNDEFINED) value = "_UNDEFINED";
 
     dir << name << value << "/";
@@ -285,6 +285,8 @@ void HistogramManager::book(DQMStore::IBooker& iBooker,
     int range_x_nbins = 0;
     int range_y_nbins = 0;
     int range_z_nbins = 0;
+    GeometryInterface::Value binwidth_x = 0; // override nbins for geom-things
+    GeometryInterface::Value binwidth_y = 0;
     std::string name, title, xlabel, ylabel, zlabel;
     bool do_profile = false;
   };
@@ -368,6 +370,7 @@ void HistogramManager::book(DQMStore::IBooker& iBooker,
                 mei.range_x_min = geometryInterface.minValue(col[0]);
               if(geometryInterface.maxValue(col[0]) != GeometryInterface::UNDEFINED)
                 mei.range_x_max = geometryInterface.maxValue(col[0]);
+              mei.binwidth_x = geometryInterface.binWidth(col[0]);
               tot_parameters++; }
               break;
             case SummationStep::EXTEND_Y: {
@@ -378,6 +381,7 @@ void HistogramManager::book(DQMStore::IBooker& iBooker,
                 mei.range_y_min = geometryInterface.minValue(col[0]);
               if(geometryInterface.maxValue(col[0]) != GeometryInterface::UNDEFINED)
                 mei.range_y_max = geometryInterface.maxValue(col[0]);
+              mei.binwidth_y = geometryInterface.binWidth(col[0]);
               tot_parameters++; }
               break;
             case SummationStep::PROFILE:
@@ -422,17 +426,17 @@ void HistogramManager::book(DQMStore::IBooker& iBooker,
       iBooker.setCurrentFolder(makePath(e.first));
       MEInfo& mei = e.second;
 
-      // we assume integer range on EXTEND-axis, n bins was neveer set so 0.
+      // determine nbins for geometry derived quantities
       // due to how we counted above, we need to include lower and upper bound
-      if (mei.range_x_nbins == 0) {
-        mei.range_x_min -= 0.5;
-        mei.range_x_max += 0.5;
-        mei.range_x_nbins = int(mei.range_x_max - mei.range_x_min);
+      if (mei.binwidth_x != 0) {
+        mei.range_x_min -= mei.binwidth_x/2;
+        mei.range_x_max += mei.binwidth_x/2;
+        mei.range_x_nbins = int((mei.range_x_max - mei.range_x_min)/mei.binwidth_x);
       }
-      if (mei.range_y_nbins == 0) {
-        mei.range_y_min -= 0.5;
-        mei.range_y_max += 0.5;
-        mei.range_y_nbins = int(mei.range_y_max - mei.range_y_min);
+      if (mei.binwidth_y != 0) {
+        mei.range_y_min -= mei.binwidth_y/2;
+        mei.range_y_max += mei.binwidth_y/2;
+        mei.range_y_nbins = int((mei.range_y_max - mei.range_y_min)/mei.binwidth_y);
       }
 
       if (mei.dimensions == 1) {
