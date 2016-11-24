@@ -1,0 +1,15 @@
+#ifndef L1T_PACKER_STAGE1_MISSETPACKER_H
+#define L1T_PACKER_STAGE1_MISSETPACKER_H
+
+#include "EventFilter/L1TRawToDigi/interface/Packer.h"
+
+namespace l1t {
+   namespace stage1 {
+      class MissEtPacker : public Packer {
+         public:
+            virtual Blocks pack(const edm::Event&, const PackerTokens*) override;
+      };
+   }
+}
+
+#endif

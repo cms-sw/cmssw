@@ -1,17 +1,17 @@
 <var name="TEST_COMMENT" value="">
-<var name="TEST_NEW" value="8_0_0_pre4_pmx_DQM_std">
-<var name="TEST_REF" value="8_0_0_pre4">
+<var name="TEST_NEW" value="8_0_20_miniAOD_DQM_std">
+<var name="TEST_REF" value="8_0_20_miniAOD_DQM_std">
 
-<var name="TAG_STARTUP" value="76X_mcRun2_startup_v12">
+<var name="TAG_STARTUP" value="80X_mcRun2_asymptotic_2016_TrancheIV_v4_Tr4GT_v4">
 <var name="DATA_VERSION" value="v1">
 
 TAG for the REFERENCE DATA, USED ONLY FOR INFORMATION ON WEB PAGE
-<var name="DD_COND_REF" value="PU50ns_76X_mcRun2_startup_v12-v1">
+<var name="DD_COND_REF" value="80X_mcRun2_asymptotic_2016_TrancheIV_v4_Tr4GT_v4-v1">
 
 <var name="DD_RELEASE" value="${CMSSW_VERSION}">
 
-<var name="STORE_DIR" value="/afs/cern.ch/work/a/archiron/private/CMSSW_8_0_0_pre4_ValELE/src/Validation/RecoEgamma/test/8_0_0_pre4">
-<var name="STORE_REF" value="/afs/cern.ch/work/a/archiron/private/CMSSW_8_0_0_pre4_ValELE/src/Validation/RecoEgamma/test/8_0_0_pre4">
+<var name="STORE_DIR" value="/afs/cern.ch/work/a/archiron/private/CMSSW_8_0_20_ValELE/src/Validation/RecoEgamma/test/8_0_20">
+<var name="STORE_REF" value="/afs/cern.ch/work/a/archiron/private/CMSSW_8_0_20_ValELE/src/Validation/RecoEgamma/test/8_0_20">
 
 <var name="WEB_DIR" value="/afs/cern.ch/cms/Physics/egamma/www/validation/Electrons/Releases">
 
@@ -47,18 +47,18 @@ FullSim
   This set of targets is currently used for the validation of electrons.
 
   Used if DD_source=/eos/...
-  <var name="DD_TIER" value="GEN-SIM-RECO">
+  <var name="DD_TIER" value="MINIAODSIM">
 
-  <var name="VAL_HISTOS" value="ElectronMcSignalHistos.txt">
-  <var name="VAL_CONFIGURATION" value="ElectronMcSignalValidation_cfg">
-  <var name="VAL_CONFIGURATION_gedGsfE" value="ElectronMcSignalValidation_gedGsfElectrons_cfg">
-  <var name="VAL_POST_CONFIGURATION" value="ElectronMcSignalPostValidation_cfg">
+  <var name="VAL_HISTOS" value="ElectronMcSignalHistosMiniAOD.txt">
+  <var name="VAL_CONFIGURATION" value="ElectronMcSignalValidationMiniAOD_cfg">
+  <var name="VAL_CONFIGURATION_gedGsfE" value="ElectronMcSignalValidationMiniAOD_cfg">
+  <var name="VAL_POST_CONFIGURATION" value="ElectronMcSignalPostValidationMiniAOD_cfg">
 
-  <environment name="ValPileUpStartup">
+  <environment name="ValFullgedvsged">
 
-    <var name="TAG_STARTUP" value="${TAG_STARTUP}">
     <var name="TEST_GLOBAL_TAG" value="${TAG_STARTUP}">
     <var name="TEST_GLOBAL_AUTOCOND" value="startup">
+    <var name="DD_COND" value="${TEST_GLOBAL_TAG}-${DATA_VERSION}">
 
     <environment name="Valdummy">
 
@@ -66,37 +66,37 @@ FullSim
 
         <var name="RED_FILE" value="DQM_DUMMY.root">
  <var name="BLUE_FILE" value="DQM_DUMMY.root">
- <target name="publish" cmd='electronCompare.py -c ${VAL_HISTOS} -r ${RED_FILE} -b ${BLUE_FILE} -t "${TEST_NEW} / gedGsfElectrons / ${DD_SAMPLE} / ${DD_COND} vs ${TEST_REF} / gedGsfElectrons / ${DD_SAMPLE} / ${DD_COND_REF}" ${STORE_DIR}/${RED_FILE} ${STORE_REF}/${BLUE_FILE} ${WEB_DIR}/${TEST_NEW}/GedVsGed_${TEST_REF}/Fullgedvsged_${DD_SAMPLE}_gedGsfE_Startup'>
+ <target name="publish" cmd='electronCompare.py -c ${VAL_HISTOS} -r ${RED_FILE} -b ${BLUE_FILE} -t "${TEST_NEW} / gedGsfElectrons / ${DD_SAMPLE} / ${DD_COND} vs ${TEST_REF} / gedGsfElectrons / ${DD_SAMPLE} / ${DD_COND_REF}" ${STORE_DIR}/${RED_FILE} ${STORE_REF}/${BLUE_FILE} ${WEB_DIR}/${TEST_NEW}/GedvsGed_${TEST_REF}/Fullgedvsged_${DD_SAMPLE}_gedGsfE_Startup'>
 
     </environment>
 
-    <var name="DD_COND" value="PUpmx50ns_${TEST_GLOBAL_TAG}-${DATA_VERSION}">
+      <environment name="ValgedvsgedFullPt10Startup_UP15_gedGsfE">
 
-    <var name="DD_COND_REF" value="PU50ns_76X_mcRun2_startup_v12-v1">
+        <var name="DD_SAMPLE" value="RelValSingleElectronPt10_UP15">
 
-      <environment name="ValPileUpTTbarStartup_gedGsfE">
-
-        <var name="DD_SAMPLE" value="RelValTTbar_13">
-
-      <var name="RED_FILE" value="DQM_V0001_R000000001__RelValTTbar_13__CMSSW_8_0_0_pre4-PUpmx50ns_76X_mcRun2_startup_v12-v1__DQMIO.root">
-      <var name="BLUE_FILE" value="8_0_0_pre4/DQM_V0001_R000000001__RelValTTbar_13__CMSSW_8_0_0_pre4-PU50ns_76X_mcRun2_startup_v12-v1__DQMIO.root">
-
-      <target name="publish" cmd='electronCompare.py -c ${VAL_HISTOS} -r ${RED_FILE} -b ${BLUE_FILE} -t "${TEST_NEW} / gedGsfElectrons / ${DD_SAMPLE} / ${DD_COND} vs ${TEST_REF} / gedGsfElectrons / ${DD_SAMPLE} / ${DD_COND_REF}" ${STORE_DIR}/${RED_FILE} ${STORE_REF}/${BLUE_FILE} ${WEB_DIR}/${TEST_NEW}/GedVsGed_${TEST_REF}/PUpmx50ns_${DD_SAMPLE}_gedGsfE_Startup'>
+        <var name="RED_FILE" value="DQM_V0001_R000000001__RelValSingleElectronPt10_UP15__CMSSW_8_0_20-80X_mcRun2_asymptotic_2016_TrancheIV_v4_Tr4GT_v4-v1__DQMIO.root">
+        <var name="BLUE_FILE" value="8_0_20/DQM_V0001_R000000001__RelValSingleElectronPt10_UP15__CMSSW_8_0_20-80X_mcRun2_asymptotic_2016_TrancheIV_v4_Tr4GT_v4-v1__DQMIO.root">
+        <target name="publish" cmd='electronCompare.py -c ${VAL_HISTOS} -r ${RED_FILE} -b ${BLUE_FILE} -t "gedGsfElectrons ${DD_SAMPLE}<br><b><font color='red'>${TEST_NEW}</font></b> : ${DD_COND}<br><b><font color='blue'>${TEST_REF}</font></b> : ${DD_COND_REF}" ${STORE_DIR}/${RED_FILE} ${STORE_REF}/${BLUE_FILE} ${WEB_DIR}/${TEST_NEW}/GedvsGed_${TEST_REF}/Fullgedvsged_${DD_SAMPLE}_gedGsfE_Startup'>
 
       </environment>
 
-    <var name="DD_COND" value="PUpmx50ns_${TEST_GLOBAL_TAG}-${DATA_VERSION}">
+      <environment name="ValgedvsgedFullTTbarStartup_13_gedGsfE">
 
-    <var name="DD_COND_REF" value="PU50ns_76X_mcRun2_startup_v12-v1">
+        <var name="DD_SAMPLE" value="RelValTTbar_13">
 
-      <environment name="ValPileUpZEEStartup_gedGsfE">
+        <var name="RED_FILE" value="DQM_V0001_R000000001__RelValTTbar_13__CMSSW_8_0_20-80X_mcRun2_asymptotic_2016_TrancheIV_v4_Tr4GT_v4-v1__DQMIO.root">
+        <var name="BLUE_FILE" value="8_0_20/DQM_V0001_R000000001__RelValTTbar_13__CMSSW_8_0_20-80X_mcRun2_asymptotic_2016_TrancheIV_v4_Tr4GT_v4-v1__DQMIO.root">
+        <target name="publish" cmd='electronCompare.py -c ${VAL_HISTOS} -r ${RED_FILE} -b ${BLUE_FILE} -t "gedGsfElectrons ${DD_SAMPLE}<br><b><font color='red'>${TEST_NEW}</font></b> : ${DD_COND}<br><b><font color='blue'>${TEST_REF}</font></b> : ${DD_COND_REF}" ${STORE_DIR}/${RED_FILE} ${STORE_REF}/${BLUE_FILE} ${WEB_DIR}/${TEST_NEW}/GedvsGed_${TEST_REF}/Fullgedvsged_${DD_SAMPLE}_gedGsfE_Startup'>
+
+      </environment>
+
+      <environment name="ValgedvsgedFullZEEStartup_13_gedGsfE">
 
         <var name="DD_SAMPLE" value="RelValZEE_13">
 
-      <var name="RED_FILE" value="DQM_V0001_R000000001__RelValZEE_13__CMSSW_8_0_0_pre4-PUpmx50ns_76X_mcRun2_startup_v12-v1__DQMIO.root">
-      <var name="BLUE_FILE" value="8_0_0_pre4/DQM_V0001_R000000001__RelValZEE_13__CMSSW_8_0_0_pre4-PU50ns_76X_mcRun2_startup_v12-v1__DQMIO.root">
-
-      <target name="publish" cmd='electronCompare.py -c ${VAL_HISTOS} -r ${RED_FILE} -b ${BLUE_FILE} -t "${TEST_NEW} / gedGsfElectrons / ${DD_SAMPLE} / ${DD_COND} vs ${TEST_REF} / gedGsfElectrons / ${DD_SAMPLE} / ${DD_COND_REF}" ${STORE_DIR}/${RED_FILE} ${STORE_REF}/${BLUE_FILE} ${WEB_DIR}/${TEST_NEW}/GedVsGed_${TEST_REF}/PUpmx50ns_${DD_SAMPLE}_gedGsfE_Startup'>
+        <var name="RED_FILE" value="DQM_V0001_R000000001__RelValZEE_13__CMSSW_8_0_20-80X_mcRun2_asymptotic_2016_TrancheIV_v4_Tr4GT_v4-v1__DQMIO.root">
+        <var name="BLUE_FILE" value="8_0_20/DQM_V0001_R000000001__RelValZEE_13__CMSSW_8_0_20-80X_mcRun2_asymptotic_2016_TrancheIV_v4_Tr4GT_v4-v1__DQMIO.root">
+        <target name="publish" cmd='electronCompare.py -c ${VAL_HISTOS} -r ${RED_FILE} -b ${BLUE_FILE} -t "gedGsfElectrons ${DD_SAMPLE}<br><b><font color='red'>${TEST_NEW}</font></b> : ${DD_COND}<br><b><font color='blue'>${TEST_REF}</font></b> : ${DD_COND_REF}" ${STORE_DIR}/${RED_FILE} ${STORE_REF}/${BLUE_FILE} ${WEB_DIR}/${TEST_NEW}/GedvsGed_${TEST_REF}/Fullgedvsged_${DD_SAMPLE}_gedGsfE_Startup'>
 
       </environment>
 

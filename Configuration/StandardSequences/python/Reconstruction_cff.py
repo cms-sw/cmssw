@@ -47,8 +47,8 @@ from RecoLocalCalo.CastorReco.CastorSimpleReconstructor_cfi import *
 # Cosmic During Collisions
 from RecoTracker.SpecialSeedGenerators.cosmicDC_cff import *
 
-localreco = cms.Sequence(trackerlocalreco+muonlocalreco+calolocalreco+castorreco)
-localreco_HcalNZS = cms.Sequence(trackerlocalreco+muonlocalreco+calolocalrecoNZS+castorreco)
+localreco = cms.Sequence(bunchSpacingProducer+trackerlocalreco+muonlocalreco+calolocalreco+castorreco)
+localreco_HcalNZS = cms.Sequence(bunchSpacingProducer+trackerlocalreco+muonlocalreco+calolocalrecoNZS+castorreco)
 
 _ctpps_2016_localreco = localreco.copy()
 _ctpps_2016_localreco += totemRPLocalReconstruction

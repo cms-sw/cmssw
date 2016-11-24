@@ -195,6 +195,8 @@ StatisticsSenderService::filePreCloseEvent(std::string const& lfn, bool usedFall
     if (sock < 0) {
       continue;
     }
+    auto close_del = [](int* iSocket) { close(*iSocket); };
+    std::unique_ptr<int,decltype(close_del)> guard(&sock, close_del);
     if (sendto(sock, results.c_str(), results.size(), 0, address->ai_addr, address->ai_addrlen) >= 0) {
       break; 
     }

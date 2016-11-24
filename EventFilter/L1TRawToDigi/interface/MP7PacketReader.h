@@ -5,8 +5,8 @@
  * Created on August 22, 2014, 6:26 PM
  */
 
-#ifndef MP7PacketReader_h
-#define	MP7PacketReader_h
+#ifndef EventFilter_L1TRawToDigi_MP7PacketReader_h
+#define EventFilter_L1TRawToDigi_MP7PacketReader_h
 
 #include "EventFilter/L1TRawToDigi/interface/MP7FileReader.h"
 

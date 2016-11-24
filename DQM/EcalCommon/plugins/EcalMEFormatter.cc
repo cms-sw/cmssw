@@ -63,25 +63,7 @@ EcalMEFormatter::format_(DQMStore::IGetter& _igetter, bool _checkLumi)
 void
 EcalMEFormatter::formatDet2D_(ecaldqm::MESet& _meSet)
 {
-  if(_meSet.getKind() != MonitorElement::DQM_KIND_TPROFILE2D) return;
-
-  MonitorElement* me(0);
-  unsigned iME(0);
-  while((me = _meSet.getME(iME++))){
-    TProfile2D* prof(me->getTProfile2D());
-    for(int iX(1); iX <= prof->GetNbinsX(); ++iX){
-      for(int iY(1); iY <= prof->GetNbinsY(); ++iY){
-        int bin(prof->GetBin(iX, iY));
-        if(prof->GetBinEntries(bin) == 0.){
-          if(verbosity_ > 2) edm::LogInfo("EcalDQM") << "Found empty bin " << bin << " in histogram " << prof->GetName();
-          // TEMPORARY SETUP UNTIL RENDERPLUGIN IS UPDATED TO DO THIS
-          // WHEN IT IS, SWITCH TO ENTRIES -1 CONTENT 0
-          prof->SetBinEntries(bin, 1.);
-          prof->SetBinContent(bin, -std::numeric_limits<double>::max());
-        }
-      }
-    }
-  }
+  return;
 }
 
 DEFINE_FWK_MODULE(EcalMEFormatter);
