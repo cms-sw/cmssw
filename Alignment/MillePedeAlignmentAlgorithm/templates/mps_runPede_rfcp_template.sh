@@ -20,6 +20,8 @@ MSSDIR=/castor/cern.ch/user/u/username/another/path
 MSSDIRPOOL=
 CONFIG_FILE=
 
+export X509_USER_PROXY=${RUNDIR}/.user_proxy
+
 #get list of treefiles
 TREEFILELIST=
 if [ "$MSSDIRPOOL" != "cmscafuser" ]; then
