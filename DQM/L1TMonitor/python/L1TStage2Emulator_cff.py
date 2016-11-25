@@ -69,6 +69,7 @@ valOmtfDigis.srcRPC = cms.InputTag('muonRPCDigis')
 from L1Trigger.L1TMuonEndCap.simEmtfDigis_cfi import *
 valEmtfStage2Digis = simEmtfDigis.clone()
 valEmtfStage2Digis.CSCInput = "emtfStage2Digis"
+valEmtfStage2Digis.RPCInput = "muonRPCDigis"
 
 # uGMT
 from L1Trigger.L1TMuon.simGmtStage2Digis_cfi import *

@@ -185,7 +185,27 @@ class PlottingOptionsOffline(BasePlottingOptions):
 
 class PlottingOptionsPrimaryVertex(BasePlottingOptions):
     def __init__(self, config, addDefaults = {}, addMandatories=[], addneedpackages=[]):
-        defaults = {}
+        defaults = {
+                    "autoLimits":"false",
+                    "doMaps":"false",
+                    "stdResiduals":"true",
+                    "m_dxyPhiMax":"40",    
+                    "m_dzPhiMax":"40",    
+                    "m_dxyEtaMax":"40",    
+                    "m_dzEtaMax":"40",                            
+                    "m_dxyPhiNormMax":"0.5",   
+                    "m_dzPhiNormMax":"0.5",   
+                    "m_dxyEtaNormMax":"0.5",   
+                    "m_dzEtaNormMax":"0.5",                           
+                    "w_dxyPhiMax":"150",   
+                    "w_dzPhiMax":"150",   
+                    "w_dxyEtaMax":"150",   
+                    "w_dzEtaMax":"1000",                          
+                    "w_dxyPhiNormMax":"1.8",   
+                    "w_dzPhiNormMax":"1.8",   
+                    "w_dxyEtaNormMax":"1.8",   
+                    "w_dzEtaNormMax":"1.8",    
+                    }
         defaults.update(addDefaults)
         mandatories = []
         mandatories += addMandatories

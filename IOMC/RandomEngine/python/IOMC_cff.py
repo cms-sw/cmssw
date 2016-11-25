@@ -175,9 +175,15 @@ run3_GEM.toModify(RandomNumberGeneratorService, simMuonGEMDigis = cms.PSet(
         engineName = cms.untracked.string('HepJamesRandom')) )
 
 from Configuration.Eras.Modifier_phase2_muon_cff import phase2_muon
-phase2_muon.toModify(RandomNumberGeneratorService, simMuonME0Digis = cms.PSet(
+phase2_muon.toModify(
+    RandomNumberGeneratorService,
+    simMuonME0Digis = cms.PSet(
         initialSeed = cms.untracked.uint32(1234567),
-        engineName = cms.untracked.string('HepJamesRandom')) )
+        engineName = cms.untracked.string('HepJamesRandom')),
+    simMuonME0ReDigis = cms.PSet(
+        initialSeed = cms.untracked.uint32(7654321),
+        engineName = cms.untracked.string('HepJamesRandom'))
+)
 
 from Configuration.Eras.Modifier_phase2_timing_cff import phase2_timing
 phase2_timing.toModify(

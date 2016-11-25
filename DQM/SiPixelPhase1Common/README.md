@@ -1,7 +1,7 @@
 The SiPixelPhase1Common Framework
 =================================
 
-This framework is used for DQM on the upgraded Pixel Detector. Since it is designed to be geometry independent, it could also be used for the old detector, given the geometry-specific code paths and configuration are added. This framework goes deeper than what was used before, with the goal to move as much redundant work as possible from the DQM plugins into a central place.
+This framework is used for DQM on the upgraded Pixel Detector. Since it is designed to be geometry independent, it can also be used for the old detector, up to some geometry-specific code paths. This framework goes deeper than what was used before, with the goal to move as much redundant work as possible from the DQM plugins into a central place.
 
 This document decomposes into three sections:
 
@@ -73,22 +73,23 @@ As of now we discarded the information of the columns that we removed. However, 
 
 For now, we combined histograms by merging the data sets that the histogram is computed over (which is equivalent to summing up the bin counts). But there are also other ways to summarise histograms: For example, we can reduce a histogram into in single number (e.g. the mean), and then create a new plot (which may or may not be a histogram) of this derived quantity. One common special case of this are profiles, which show the mean of a set of histograms vs. some other quantity (they can also be considered a special representation of a 2D histogram, which is equivalent but we will ignore that for now). We can also create such histograms using projections. One way is to first reduce the right side histograms into a single number each and then move a column from the left side to the right side, using the value for the x-axis. Drawing the now 2D-values on the right side into a scatter plot might give us what we expect, but we could as well end up with a mess, since the x-axis values are not guaranteed to be unique. They could also be unevenly distributed, which also does not give a nice plot.
 
-Another way is to apply the projection, and concatenate the histograms that get merged along the x- or y-axis. Now it matters that we sorted the rows before, since the ordering of the rows will now dictate where the histograms go. If we reduced the histograms into single-bin histograms that show the extracted quantity (e.g. the mean) as the value of that bin, we will now end up with a nice profile. This is the preferred way to create profiles in the framework. The procedure outlined before is only used when it is necessary for technical reasons (DQM step1).
+Another way is to apply the projection, and concatenate the histograms that get merged along the x- or y-axis. Now it matters that we sorted the rows before, since the ordering of the rows will now dictate where the histograms go. If we reduced the histograms into single-bin histograms that show the extracted quantity (e.g. the mean) as the value of that bin, we will now end up with a nice profile. This is the preferred way to create 1D summary profiles in the framework. The procedure outlined before is also used, e.g. for 2D profiles. It has the advantage that t can be computed in DQM step1, while the second method reqires intermediate historams saved for step2 (harvesting).
 
 The framework provides a few simple commands to describe histograms using this model:
 
 - The `groupBy` command projects onto the columns given as the first parameter, and combines the histograms by summing or concatenating along some axis, specified by the second parameter.
 - The `reduce` command reduces the right-hand side histograms into histograms of a lower dimensionality. Typically, e.g. for the mean, this is a 0D-histogram, which means a single bin with the respective value. The quantity to extract is specified by the parameter.
-- The `save`command tells the framework the we are happy with the histograms that are now in the table and that they should be saved to the output file. Proper names are inferred from the column names and steps specified before.
+- The `save`command tells the framework that we are happy with the histograms that are now in the table and that they should be saved to the output file. Proper names are inferred from the column names and steps specified before.
 
 The framework also allows a `custom` command that passes the current table state to custom code, to compute things that the framework does not allow itself. However, this should be used carefully, since such code has to be heavily dependent on internal data structures.
 
-Since the framework can follow see where quantities go during the computation of derived histograms, it can also automatically keep track of the axis labels and ranges and set them to useful, consistent values automatically. For technical reasons the framework is not able to execute every conceivable specification, but it is able to handle all relevant cases in an efficient way. Since the specification is very abstract, it gives the framework a lot of freedom to implement it in the most efficient way possible.
+Since the framework can see where quantities go during the computation of derived histograms, it can also automatically keep track of the axis labels and ranges and set them to useful, consistent values automatically. For technical reasons the framework is not able to execute every conceivable specification, but it is able to handle all relevant cases in an efficient way. Since the specification is very abstract, it gives the framework a lot of freedom to implement it in the most efficient way possible.
+
 
 How to actually use it
 ----------------------
 
-If you plugin derives from `SiPixelPhase1Base`, you should automatically have access to `HistogramManager`s, in the array `histo[...]`. Every HistogramManager should be used for one quantity. The indices to the array should be enum constants, use something like this
+If your plugin derives from `SiPixelPhase1Base`, you should automatically have access to `HistogramManager`s, in the array `histo[...]`. Every HistogramManager should be used for one quantity. The indices to the array should be enum constants, use something like this
 
     enum {
       ADC, // digi ADC readouts
@@ -100,7 +101,7 @@ in the C++ header to name your quantities and refer to them as `histo[ADC]`.
 
 In the Analyzer code, call the `fill` function on the `histo[...]` whenever you have a datapoint to add. If you are just counting something (in the histograms above, all except the `ADC` are counts), use the `fill` function without any `double` argument. 
 
-The `fill` function takes a number of mandatory and optional parameters the the left-hand side columns are derived from. You always have to pass a module ID (`DetId`), the `Event`is only for time-based things (if you want per lumisection or per bunchcrossing plots), and `row` and `col` are needed for ROC information, or if you want a 2D map of the module.
+The `fill` function takes a number of mandatory and optional parameters that the left-hand side columns are derived from. You always have to pass a module ID (`DetId`), the `Event`is only for time-based things (if you want per lumisection or per bunchcrossing plots), and `row` and `col` are needed for ROC information, or if you want a 2D map of the module.
 
 Now, you need to add some specifications in the config file.
 
@@ -139,46 +140,59 @@ The second part initializes a default harvesting plugin, which is needed to exec
 The most important thing in the configuration are the specifications. Add them by setting `specs` in the `clone`. Since you can have many specifications per quantity, this has to be a `VPSet` as well. To make a specification use the `Specification()` builder:
 
     specs = cms.VPSet(
-      Specification().groupBy(DefaultHisto.defaultGrouping) 
+      Specification().groupBy("PXBarrel|PXForward/PXLayer|PXDisk/PXLadder|PXBlade") 
                      .save()
     )
 
-This will give you a default set of histogram, usually grouped by ladders etc. (but configurable). To add histograms per disk as well, add
+This will give you a set of histograms, grouped by ladders and blades. The `groupBy` line specifies 3 levels, each for FPIX and BPIX independently. In the output, this will lead to nested folders of the given names, where the last level of folders (one per ladder/blade) contains the histograms. The string lists columns separated by `/`, which has the same meaning as in a directory hierarchy. For the histograms that are created, the order of columns does not matter; however, the order defines the directory nesting and where the histograms go. (Also, if you use the shorthand `saveAll`, you get summations defined by the ordering/directory hierarchy). Make sure you always list columns in the same order within one specification, otherwise you might hit unsupported or buggy cases. Within a column, a `|` can separate two names. This is used to handle barrel and endcap structure in one go, where barrel- and endcap-names are separated by the `|`. The HistogramManager will try to extract the left value first, and only try the right when that fails. For structures that have no equivalent in one of the subdetectors, you can use the empty column name (e.g. `/PXRing|/`), which will not appear in the directory structure. There is no central list of available column names, as new extractors could be added anywhere. However, most are defined in the `GeometryInterface`, which will also output a list of known columns at runtime (if sufficient debug  logging is enabled). 
 
-    Specification().groupBy(DefaultHisto.defaultGrouping) 
+To add histograms per disk as well, add
+
+    Specification().groupBy("PXBarrel|PXForward/PXLayer|PXDisk/PXLadder|PXBlade") 
                    .save()
-                   .groupBy(parent(DefaultHisto.defaultGrouping)
+                   .groupBy("PXBarrel|PXForward/PXLayer|PXDisk")
                    .save()
 
-You can also add histograms for all default partitions by adding `saveAll()`. 
+You can also add histograms for all mentioned levels by adding `saveAll()`. 
 
-To get profiles, add instead
+To get a summary profle, add instead
 
-    Specification().groupBy(DefaultHisto.defaultGrouping) # per-ladder and profiles
+    Specification().groupBy("PXBarrel|PXForward/PXLayer|PXDisk/PXLadder|PXBlade") # per-ladder and profiles
                    .save()
                    .reduce("MEAN")
-                   .groupBy(parent(DefaultHisto.defaultGrouping), "EXTEND_X")
+                   .groupBy("PXBarrel|PXForward/PXLayer|PXDisk", "EXTEND_X")
                    .saveAll(),
                    
 For quantities where it makes sense to have per-module plots, you can add a specification like this:
 
-    Specification(PerModule).groupBy(DefaultHisto.defaultPerModule).save()
+    Specification(PerModule).groupBy("PXBarrel|PXForward/PXLayer|PXDisk/DetId").save()
 
 The `PerModule` parameter (defined in `HistogramManager_cfi.py`, allows the per-module histograms to be turned off by default.
 
-One of the more complicated things is counting things per event, as in e. g. the `NDigis` histograms. The specification for this is
+One of the more complicated things is counting things per event, as in e. g. the `NDigis` histograms. The specification for this is something like this:
 
-      Specification().groupBy(DefaultHisto.defaultGrouping.value() + "/Event") 
+      Specification().groupBy("PXBarrel|PXForward/PXLayer|PXDisk/PXLadder|PXBlade/DetId/Event") 
                      .reduce("COUNT") # per-event counting
-                     .groupBy(DefaultHisto.defaultGrouping) 
+                     .groupBy("PXBarrel|PXForward/PXLayer|PXDisk/PXLadder|PXBlade") 
                      .save()
                      
-You can still add e.g. the profile snippet below to get profiles. For the per-event counting, you also need to call the per-event harvesting method at the end of your `analyze` method:
+We group by module and Event first, since this is the range that we want counted, then we reduce and group as usual to get a histogram of the counts. You can still add e.g. the profile snippet below to get profiles. For the per-event counting, you also need to call the per-event harvesting method at the end of your `analyze` method:
     histo[NDIGIS].executePerEventHarvesting(); 
-    
-If you take a look into `HistogramManager_cfi.py`, where `DefaultHisto` is defined, you will, among other options, see the actual table columns used for grouping in `defaultGrouping`. The string lists columns separated by `/`, which has the same meaning as in a directory hierarchy. For the histograms that are created, the order of columns does not matter; however, the order defines the directory nesting and where the histograms go. (Also, if you use the shorthand `saveAll`, you get summations defined by the ordering/directory hierarchy). Make sure you always list columns in the same order within one specification, otherwise you might hit unsupported or buggy cases. Within a column, a `|` can separate two names. This is used to handle barrel and endcap structure in one go, where barrel- and endcap-names are separated by the `|`. The HistogramManager will try to extract the left value first, and only try the right when that fails. For structures that have no equivalent in one of the subdetectors, you can use the empty column name (e.g. `/PXRing|/`), which will not appear in the directory structure. There is no central list of available column names, as new extractors could be added anywhere. However, most are defined in the `GeometryInterface`, which will also output a list of known columns at runtime (if sufficient debug  logging is enabled). 
 
-For all the specifications, the steps up to the first `save` are executed in DQM step1. The histograms specified after the first `save` are created in DQM step2, Harvesting. Since step1 is very restricted due to multi-threading and performance requirements, not all specifications can be executed in step1. So, sometimes a `save` is necessary to make a specification work (this is e.g. the case with the profiles). After the first `save` however, you can or remove others freely to see or not see plots.
+However, usually you don't have to write specifications yourself. There are a set of predefined specifications (defined in `HistogramManager_cfi.py`) that can be used for most standard histograms:
+
+    StandardSpecifications1D,
+    StandardSpecificationsTrend,
+    StandardSpecifications2DProfile,
+    StandardSpecifications1D_Num,
+    StandardSpecificationsTrend_Num,
+    StandardSpecifications2DProfile_Num,
+
+The `_Num` versions perform a NDigis-like counting, while the others expect a simple 1D quantity. They produce, respectively, 1D histograms and summary profiles, a trend plot over time and a profile of the quantity as a 2D map of each layer.
+
+For more complicated cases, first check whether something similar already exists. In that case, you might be able to steal a working specification there...
+
+For all the specifications, the steps up to the first `save` are executed in DQM step1. The histograms specified after the first `save` are created in DQM step2, Harvesting. The types of specifications that can be executed in step1 and step2 are fairly different, and also the semantics change a bit (s explained above, with to different approaches for EXTEND). In general, step2 does not allow any 2D plots at the moment.
 
 
 How it really works
@@ -198,14 +212,16 @@ The same file declares the `SiPixelPhase1Harvester`, which is very similar to th
 
 ### SummationSpecification
 
-A dumb datastructure that represents a specification, as introduced above. The specification is in an internal, slightly different format, which is created by the SpecfiactionBuilder in Python code; the C++ SummationSpecification just takes the `PSet` structure and does no special processing, except for converting columns from the string form to the efficient `GeometryInterface` form.
+A dumb datastructure that represents a specification, as introduced above. The specification is in an internal, slightly different format, which is created by the SpecificationBuilder in Python code; the C++ SummationSpecification just takes the `PSet` structure and does no special processing, except for converting columns from the string form to the efficient `GeometryInterface` form.
+
+Note that the format of the Specification in there is fairly rigid and the `HistogramManager` assumes a lot of things there. The explanation is in comments in the `SpecificationBuilder`.
 
 ### SpecficationBuilder
 
 This is the Python class that provides the specification syntax used above. It creates a nested structure of `PSet`s with all the information, and also transforms the specification from the simple language explained above into something closer to the implementation. This includes 
   - attaching the DQM step (here called `Stage`) where the step is to be executed to every `Step`.
   - creating different internal commands for `groupBy` steps, depending on whether it is a summation or a extension. A detail here is that while a normal `GROUPBY`has a list of columns to keep, the internal `EXTEND_*` lists the columns to be dropped, to simplify step1 processing.
-  - special-casing "/Event" grouping, which has to be done using a special `STAGE1_2` only used for this purpose.
+  - special-casing "/Event" grouping, which has to be done using a second `FIRST` step of type `COUNT`.
   - checking for all sorts of well-formedness, to catch possible problems as soon as possible.
 
 ### GeometryInterface
@@ -248,6 +264,8 @@ This is where most of the implementation hides.
 
 This is the most important datastructure in the `HistogramManager`. It is a `std::map<Values, AbstractHistogram>`. This represents the conceptual table outlined above and is used in harvesting to perform all operations. In step1, things are a bit more complicated but the `Table` is still the main structure. Typically the `AbstractHistogram`s in a table always have a `th1` assigned (may or may not be a ME), unless it is a step1 counter. However, it can happen that you hit a row that was never touched before and does not have a `th1` (e. g. if a foreign `DetId` was passed in), and these should be ignored. The histogram concatenation code relies on the lexicographical order of the map, which `std::map` does provide. The fast path for `fill` should make no more than one lookup in this table (per spec). 
 
+The `HistogramManager` holds two sets of Tables, one for counters, and another one for histograms, but they are of the same type. Also harvesting uses the same type, even though no code is shared between harvesting and step1.
+
 #### Booking Process
 
 From the DQM booking function, `HistogramManager::book` is called. This method takes the list of all known modules from the `GeometryInterface` and executes the step1 commands for each spec. It tracks metadata like ranges and labels during this and sets them in the end, when the MEs are booked for each new table entry.
@@ -262,4 +280,6 @@ For the harvesting, first the internal table structure has to be repopulated (re
 
 Afterwards, a classical interpreter loop runs over the step2 commands and calls methods to actually execute them, by updating the table structure. This is mostly straight-forward code. Booking happens as the execution progresses, and all metadata is tracked in the `TH1` fields (labels, range).
 
-In the `custom` command, a custom handler function (that has to be set beforehand) is called. This is again a lambda (using inheritance would be possible as well, but it tends to be a mess in C++), which gets passed the internal table state and is allowed to change it at will. It is explicitly allowed to just save a copy of that state for later use, which may be necessary to compute quantities that depend on multiple other quantities. Later, `custom` step on a different HistogramManager (possibly one that did not record any data in step1) can take the saved tables, create derived quantities and put them into its own table, where the HistogramManager takes over again to book and save them with consistent names (also doing further summation, if specified).
+In the `custom` command, a custom handler function (that has to be set beforehand) is called. This is again a lambda (using inheritance would be possible as well, but it tends to be a mess in C++), which gets passed the internal table state. It is explicitly allowed to just save a copy of that state for later use, which may be necessary to compute quantities that depend on multiple other quantities (e.g. efficiencies). Later, a `custom` step on a different HistogramManager (possibly one that did not record any data in step1) can take the saved tables, create derived quantities and put them into the histograms in its own table, which the HistogramManager already booked with consistent names (also doing further summation, if specified).
+
+Alternativey, the `custom` handler gets passed the `IBooker` and `IGetter` objects from the `DQMStore`, so things which cannot be booked using the framework can be handled manually. But then you also need to handle folder- and object names your self; best is to use the path names of the MEs you find in the table and derive new ME names from the existing ME names.

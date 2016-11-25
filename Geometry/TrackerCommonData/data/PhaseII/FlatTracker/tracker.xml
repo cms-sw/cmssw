@@ -31196,12 +31196,12 @@ note: see Baseline_flat_2016_04_12.cfg for full config files
 <rMaterial name="tracker:TEDD_Steel"/>
 </MaterialFraction>
 </CompositeMaterial>
-<CompositeMaterial name="supportcomposite5" density="0.338*g/cm3" method="mixture by weight">
+<CompositeMaterial name="supportcomposite5R1190Z1450" density="0.338*g/cm3" method="mixture by weight">
 <MaterialFraction fraction="1">
 <rMaterial name="tracker:CF"/>
 </MaterialFraction>
 </CompositeMaterial>
-<CompositeMaterial name="supportcomposite5" density="0.18853*g/cm3" method="mixture by weight">
+<CompositeMaterial name="supportcomposite5R1150Z2000" density="0.18853*g/cm3" method="mixture by weight">
 <MaterialFraction fraction="0.914337">
 <rMaterial name="tracker:CF"/>
 </MaterialFraction>
@@ -31209,27 +31209,27 @@ note: see Baseline_flat_2016_04_12.cfg for full config files
 <rMaterial name="tracker:PE"/>
 </MaterialFraction>
 </CompositeMaterial>
-<CompositeMaterial name="supportcomposite5" density="0.4563*g/cm3" method="mixture by weight">
+<CompositeMaterial name="supportcomposite5R721Z295" density="0.4563*g/cm3" method="mixture by weight">
 <MaterialFraction fraction="1">
 <rMaterial name="tracker:CF"/>
 </MaterialFraction>
 </CompositeMaterial>
-<CompositeMaterial name="supportcomposite5" density="0.4563*g/cm3" method="mixture by weight">
+<CompositeMaterial name="supportcomposite5R928Z295" density="0.4563*g/cm3" method="mixture by weight">
 <MaterialFraction fraction="1">
 <rMaterial name="tracker:CF"/>
 </MaterialFraction>
 </CompositeMaterial>
-<CompositeMaterial name="supportcomposite5" density="0.4563*g/cm3" method="mixture by weight">
+<CompositeMaterial name="supportcomposite5R721Z1180" density="0.4563*g/cm3" method="mixture by weight">
 <MaterialFraction fraction="1">
 <rMaterial name="tracker:CF"/>
 </MaterialFraction>
 </CompositeMaterial>
-<CompositeMaterial name="supportcomposite5" density="0.4563*g/cm3" method="mixture by weight">
+<CompositeMaterial name="supportcomposite5R928Z1180" density="0.4563*g/cm3" method="mixture by weight">
 <MaterialFraction fraction="1">
 <rMaterial name="tracker:CF"/>
 </MaterialFraction>
 </CompositeMaterial>
-<CompositeMaterial name="supportcomposite5" density="0.18853*g/cm3" method="mixture by weight">
+<CompositeMaterial name="supportcomposite5R1113Z599" density="0.18853*g/cm3" method="mixture by weight">
 <MaterialFraction fraction="0.914337">
 <rMaterial name="tracker:CF"/>
 </MaterialFraction>
@@ -31237,7 +31237,7 @@ note: see Baseline_flat_2016_04_12.cfg for full config files
 <rMaterial name="tracker:PE"/>
 </MaterialFraction>
 </CompositeMaterial>
-<CompositeMaterial name="supportcomposite5" density="0.18853*g/cm3" method="mixture by weight">
+<CompositeMaterial name="supportcomposite5R655Z599" density="0.18853*g/cm3" method="mixture by weight">
 <MaterialFraction fraction="0.914337">
 <rMaterial name="tracker:CF"/>
 </MaterialFraction>
@@ -31245,27 +31245,27 @@ note: see Baseline_flat_2016_04_12.cfg for full config files
 <rMaterial name="tracker:PE"/>
 </MaterialFraction>
 </CompositeMaterial>
-<CompositeMaterial name="supportcomposite5" density="0.4563*g/cm3" method="mixture by weight">
+<CompositeMaterial name="supportcomposite5R267Z295" density="0.4563*g/cm3" method="mixture by weight">
 <MaterialFraction fraction="1">
 <rMaterial name="tracker:CF"/>
 </MaterialFraction>
 </CompositeMaterial>
-<CompositeMaterial name="supportcomposite5" density="0.4563*g/cm3" method="mixture by weight">
+<CompositeMaterial name="supportcomposite5R393Z295" density="0.4563*g/cm3" method="mixture by weight">
 <MaterialFraction fraction="1">
 <rMaterial name="tracker:CF"/>
 </MaterialFraction>
 </CompositeMaterial>
-<CompositeMaterial name="supportcomposite5" density="0.4563*g/cm3" method="mixture by weight">
+<CompositeMaterial name="supportcomposite5R267Z1160" density="0.4563*g/cm3" method="mixture by weight">
 <MaterialFraction fraction="1">
 <rMaterial name="tracker:CF"/>
 </MaterialFraction>
 </CompositeMaterial>
-<CompositeMaterial name="supportcomposite5" density="0.4563*g/cm3" method="mixture by weight">
+<CompositeMaterial name="supportcomposite5R393Z1160" density="0.4563*g/cm3" method="mixture by weight">
 <MaterialFraction fraction="1">
 <rMaterial name="tracker:CF"/>
 </MaterialFraction>
 </CompositeMaterial>
-<CompositeMaterial name="supportcomposite5" density="0.18853*g/cm3" method="mixture by weight">
+<CompositeMaterial name="supportcomposite5R540Z580" density="0.18853*g/cm3" method="mixture by weight">
 <MaterialFraction fraction="0.914337">
 <rMaterial name="tracker:CF"/>
 </MaterialFraction>
@@ -41094,55 +41094,55 @@ note: see Baseline_flat_2016_04_12.cfg for full config files
 </LogicalPart>
 <LogicalPart name="supportR1190Z1450" category="unspecified">
 <rSolid name="tracker:supportR1190Z1450"/>
-<rMaterial name="tracker:supportcomposite5"/>
+<rMaterial name="tracker:supportcomposite5R1190Z1450"/>
 </LogicalPart>
 <LogicalPart name="supportR1150Z2000" category="unspecified">
 <rSolid name="tracker:supportR1150Z2000"/>
-<rMaterial name="tracker:supportcomposite5"/>
+<rMaterial name="tracker:supportcomposite5R1150Z2000"/>
 </LogicalPart>
 <LogicalPart name="supportR721Z295" category="unspecified">
 <rSolid name="tracker:supportR721Z295"/>
-<rMaterial name="tracker:supportcomposite5"/>
+<rMaterial name="tracker:supportcomposite5R721Z295"/>
 </LogicalPart>
 <LogicalPart name="supportR928Z295" category="unspecified">
 <rSolid name="tracker:supportR928Z295"/>
-<rMaterial name="tracker:supportcomposite5"/>
+<rMaterial name="tracker:supportcomposite5R928Z295"/>
 </LogicalPart>
 <LogicalPart name="supportR721Z1180" category="unspecified">
 <rSolid name="tracker:supportR721Z1180"/>
-<rMaterial name="tracker:supportcomposite5"/>
+<rMaterial name="tracker:supportcomposite5R721Z1180"/>
 </LogicalPart>
 <LogicalPart name="supportR928Z1180" category="unspecified">
 <rSolid name="tracker:supportR928Z1180"/>
-<rMaterial name="tracker:supportcomposite5"/>
+<rMaterial name="tracker:supportcomposite5R928Z1180"/>
 </LogicalPart>
 <LogicalPart name="supportR1113Z599" category="unspecified">
 <rSolid name="tracker:supportR1113Z599"/>
-<rMaterial name="tracker:supportcomposite5"/>
+<rMaterial name="tracker:supportcomposite5R1113Z599"/>
 </LogicalPart>
 <LogicalPart name="supportR655Z599" category="unspecified">
 <rSolid name="tracker:supportR655Z599"/>
-<rMaterial name="tracker:supportcomposite5"/>
+<rMaterial name="tracker:supportcomposite5R655Z599"/>
 </LogicalPart>
 <LogicalPart name="supportR267Z295" category="unspecified">
 <rSolid name="tracker:supportR267Z295"/>
-<rMaterial name="tracker:supportcomposite5"/>
+<rMaterial name="tracker:supportcomposite5R267Z295"/>
 </LogicalPart>
 <LogicalPart name="supportR393Z295" category="unspecified">
 <rSolid name="tracker:supportR393Z295"/>
-<rMaterial name="tracker:supportcomposite5"/>
+<rMaterial name="tracker:supportcomposite5R393Z295"/>
 </LogicalPart>
 <LogicalPart name="supportR267Z1160" category="unspecified">
 <rSolid name="tracker:supportR267Z1160"/>
-<rMaterial name="tracker:supportcomposite5"/>
+<rMaterial name="tracker:supportcomposite5R267Z1160"/>
 </LogicalPart>
 <LogicalPart name="supportR393Z1160" category="unspecified">
 <rSolid name="tracker:supportR393Z1160"/>
-<rMaterial name="tracker:supportcomposite5"/>
+<rMaterial name="tracker:supportcomposite5R393Z1160"/>
 </LogicalPart>
 <LogicalPart name="supportR540Z580" category="unspecified">
 <rSolid name="tracker:supportR540Z580"/>
-<rMaterial name="tracker:supportcomposite5"/>
+<rMaterial name="tracker:supportcomposite5R540Z580"/>
 </LogicalPart>
 </LogicalPartSection>
 <SolidSection label="tracker.xml">

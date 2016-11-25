@@ -247,8 +247,8 @@ phase2_hgcal.toModify( theMixObjects,
     )
 )
 
-from Configuration.Eras.Modifier_phase2_timing_cff import phase2_timing
-phase2_timing.toModify( theMixObjects,
+from Configuration.Eras.Modifier_phase2_timing_layer_cff import phase2_timing_layer
+phase2_timing_layer.toModify( theMixObjects,
     mixSH = dict(
         input = theMixObjects.mixSH.input + [ cms.InputTag("g4SimHits","FastTimerHitsBarrel"), cms.InputTag("g4SimHits","FastTimerHitsEndcap") ],
         subdets = theMixObjects.mixSH.subdets + [ 'FastTimerHitsBarrel','FastTimerHitsEndcap' ],

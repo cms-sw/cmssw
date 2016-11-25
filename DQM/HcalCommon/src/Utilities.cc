@@ -1,4 +1,5 @@
 #include "DQM/HcalCommon/interface/Utilities.h"
+#include <utility>
 
 namespace hcaldqm
 {
@@ -9,7 +10,7 @@ namespace hcaldqm
 		/*
 		 *	Useful Detector Functions. For Fast Detector Validity Check
 		 */
-		uint16_t fed2crate(int fed)
+        std::pair<uint16_t, uint16_t> fed2crate(int fed)
 		{
 			fed-=1100;
 			if (fed>=constants::FED_uTCA_MAX_REAL)
@@ -17,18 +18,24 @@ namespace hcaldqm
 					<< "fed2crate::fed index is out of range " 
 					<< fed;
 
-			return constants::FED2CRATE[fed];
+            //  uTCA Crate is split in half
+            uint16_t slot = fed%2==0 ? SLOT_uTCA_MIN : SLOT_uTCA_MIN+6;
+			return std::make_pair<uint16_t const, uint16_t const>((uint16_t const)constants::FED2CRATE[fed],
+                (uint16_t const)slot);
 		}
 
-		uint16_t crate2fed(int crate)
+	  uint16_t crate2fed(int crate, int slot)
 		{
 			//	 for the details see Constants.h
 			if (crate>=constants::FED_uTCA_MAX_REAL)
 				throw cms::Exception("HCALDQM")
 					<< "crate2fed::crate index is out of range "
 					<< crate;
-
-			return constants::CRATE2FED[crate];
+			int fed = constants::CRATE2FED[crate];
+			if (slot > 6 && (crate == 22 || crate == 29 || crate == 32))  //needed to handle dual fed readout
+			  ++fed;
+			
+			return fed;
 		}
 
 		uint32_t hash(HcalDetId const& did)
@@ -53,7 +60,7 @@ namespace hcaldqm
 				it=vids.begin(); it!=vids.end(); ++it)
 			{
 				int fed = it->isVMEid()?it->dccid()+FED_VME_MIN:
-					crate2fed(it->crateId());
+				  crate2fed(it->crateId(),it->slot());
 				uint32_t n=0;
 				for (std::vector<int>::const_iterator jt=vfeds.begin();
 					jt!=vfeds.end(); ++jt)
@@ -79,7 +86,7 @@ namespace hcaldqm
 				if (!it->isVMEid())
 					continue;
 				int fed = it->isVMEid()?it->dccid()+FED_VME_MIN:
-					crate2fed(it->crateId());
+				  crate2fed(it->crateId(),it->slot());
 				uint32_t n=0;
 				for (std::vector<int>::const_iterator jt=vfeds.begin();
 					jt!=vfeds.end(); ++jt)
@@ -105,7 +112,7 @@ namespace hcaldqm
 				if (it->isVMEid())
 					continue;
 				int fed = it->isVMEid()?it->dccid()+FED_VME_MIN:
-					crate2fed(it->crateId());
+				  crate2fed(it->crateId(),it->slot());
 				uint32_t n=0;
 				for (std::vector<int>::const_iterator jt=vfeds.begin();
 					jt!=vfeds.end(); ++jt)
@@ -133,7 +140,7 @@ namespace hcaldqm
 			}
 			else
 			{
-				int fed = crate2fed(eid.crateId());
+			  int fed = crate2fed(eid.crateId(),eid.slot());
 				if (fed>=1100 && fed<1118)
 					return true;
 				else
@@ -158,8 +165,8 @@ namespace hcaldqm
 //			{
 			if (eid.isVMEid())
 				return false;
-			int fed = crate2fed(eid.crateId());
-				if (fed>=1118 && fed<=1122)
+			int fed = crate2fed(eid.crateId(),eid.slot());
+				if (fed>=1118 && fed<=1123)
 					return true;
 				else
 					return false;

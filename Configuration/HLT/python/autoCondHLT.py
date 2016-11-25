@@ -23,7 +23,7 @@ l1Menus= {
     '25ns15e33_v4' : ( ','.join( [ 'L1Menu_Collisions2016_v6r5_ugt_1board_xml'               ,l1tMenuRecord,connectionString,l1tMenuLabel, "2016-08-23 20:00:00.000"] ), ),
     '25ns10e33_v2' : ( ','.join( [ 'L1Menu_Collisions2016_v4_xml'                            ,l1tMenuRecord,connectionString,l1tMenuLabel, "2016-05-24 14:55:00.000"] ), ),
     'HIon'         : ( ','.join( [ 'L1Menu_CollisionsHeavyIons2015_v5_uGT_xml'               ,l1tMenuRecord,connectionString,l1tMenuLabel, "2016-03-04 15:00:00.000"] ), ),
-    'PIon'         : ( ','.join( [ 'L1Menu_HeavyIons2016_v0_xml'                             ,l1tMenuRecord,connectionString,l1tMenuLabel, "2016-08-19 08:40:00.000"] ), ),
+    'PIon'         : ( ','.join( [ 'L1Menu_HeavyIons2016_v3_m2_xml'                          ,l1tMenuRecord,connectionString,l1tMenuLabel, "2016-11-22 11:11:00.000"] ), ),
     'PRef'         : ( ','.join( [ 'L1Menu_Collisions2015_5TeV_pp_reference_v5_uGT_v2_mc_xml',l1tMenuRecord,connectionString,l1tMenuLabel, "2016-03-04 15:00:00.000"] ), ),
 }
 

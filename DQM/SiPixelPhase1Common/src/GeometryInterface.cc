@@ -123,7 +123,7 @@ void GeometryInterface::loadFromTopology(edm::EventSetup const& iSetup, const ed
   auto detids = trackerGeometryHandle->detIds();
   for (DetId id : detids) {
     if (id.subdetId() != PixelSubdetector::PixelBarrel && id.subdetId() != PixelSubdetector::PixelEndcap) continue;
-    auto iq = InterestingQuantities{.sourceModule = id };
+    auto iq = InterestingQuantities{nullptr, id, 0, 0};
     auto layer = pxlayer(iq);
     if (layer != UNDEFINED) {
       if (layer >= Value(maxladders.size())) maxladders.resize(layer+1);
@@ -236,12 +236,16 @@ void GeometryInterface::loadTimebased(edm::EventSetup const& iSetup, const edm::
     },
     1, iConfig.getParameter<int>("max_lumisection")
   );
-  addExtractor(intern("LumiDecade"),
-    [] (InterestingQuantities const& iq) {
+  int onlineblock = iConfig.getParameter<int>("onlineblock");
+  int n_onlineblocks = iConfig.getParameter<int>("n_onlineblocks");
+  addExtractor(intern("OnlineBlock"),
+    [onlineblock] (InterestingQuantities const& iq) {
       if(!iq.sourceEvent) return UNDEFINED;
-      return Value(iq.sourceEvent->luminosityBlock() % 10);
+      return Value(onlineblock + iq.sourceEvent->luminosityBlock() / onlineblock);
     },
-    0, 9
+    // note: this range is not visible anywhere (if the RenderPlugin does its job),
+    // but the strange range allows the RenderPlugin to know the block size.
+    onlineblock, onlineblock+n_onlineblocks-1
   );
   addExtractor(intern("BX"),
     [] (InterestingQuantities const& iq) {
@@ -309,8 +313,9 @@ void GeometryInterface::loadModuleLevel(edm::EventSetup const& iSetup, const edm
 }
 
 void GeometryInterface::loadFEDCabling(edm::EventSetup const& iSetup, const edm::ParameterSet& iConfig) {
+  auto cablingMapLabel = iConfig.getParameter<std::string>("CablingMapLabel");
   edm::ESHandle<SiPixelFedCablingMap> theCablingMap;
-  iSetup.get<SiPixelFedCablingMapRcd>().get(theCablingMap);
+  iSetup.get<SiPixelFedCablingMapRcd>().get(cablingMapLabel, theCablingMap);
   std::map<DetId, Value> fedmap;
   uint32_t minFED = UNDEFINED, maxFED = 0;
 
@@ -333,7 +338,7 @@ void GeometryInterface::loadFEDCabling(edm::EventSetup const& iSetup, const edm:
   addExtractor(intern("FED"),
     [fedmap] (InterestingQuantities const& iq) {
       if (iq.sourceModule == 0xFFFFFFFF)
-        return iq.col; // hijacked for the raw data plugin
+        return Value(iq.col); // hijacked for the raw data plugin
       auto it = fedmap.find(iq.sourceModule);
       if (it == fedmap.end()) return GeometryInterface::UNDEFINED;
       return it->second;
@@ -344,7 +349,7 @@ void GeometryInterface::loadFEDCabling(edm::EventSetup const& iSetup, const edm:
       // TODO: we also should be able to compute the channel from the ROC.
       // But for raw data, we only need this hack.
       //if (iq.sourceModule == 0xFFFFFFFF)
-      return iq.row; // hijacked for the raw data plugin
+      return Value(iq.row); // hijacked for the raw data plugin
     },
     0, 39 // TODO: real range
   );

@@ -34,6 +34,7 @@
   <class name="std::vector<QGLikelihoodSystematicsObject::Entry>"/>     
 
   <class name="METCorrectorParameters"/>
+  <class name="MEtXYcorrectParameters"/>
 
   <class name="JME::JetResolutionObject"/>
   <class name="JME::JetResolutionObject::Definition"/>

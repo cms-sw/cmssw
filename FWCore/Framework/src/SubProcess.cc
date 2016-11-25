@@ -354,8 +354,7 @@ namespace edm {
                           principal.reader());
     ep.setLuminosityBlockPrincipal(principalCache_.lumiPrincipalPtr());
     propagateProducts(InEvent, principal, ep);
-    typedef OccurrenceTraits<EventPrincipal, BranchActionStreamBegin> Traits;
-    schedule_->processOneEvent<Traits>(ep.streamID().value(),ep, esp_->eventSetup());
+    schedule_->processOneEvent(ep.streamID().value(),ep, esp_->eventSetup());
     for_all(subProcesses_, [&ep](auto& subProcess){ subProcess.doEvent(ep); });
     ep.clearEventPrincipal();
   }

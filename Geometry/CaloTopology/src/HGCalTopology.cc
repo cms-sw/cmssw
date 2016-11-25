@@ -109,7 +109,7 @@ DetId HGCalTopology::offsetBy(const DetId startId, int nrStepsX,
 
   if (startId.det() == DetId::Forward && startId.subdetId() == (int)(subdet_)){
     DetId id = changeXY(startId,nrStepsX,nrStepsY);
-    if (valid(id)) return id.rawId();
+    if (valid(id)) return id;
   }
   return DetId(0);
 }
@@ -120,7 +120,7 @@ DetId HGCalTopology::switchZSide(const DetId startId) const {
     HGCalTopology::DecodedDetId id_ = decode(startId);
     id_.zside  =-id_.zside;
     DetId id   = encode(id_);
-    if (valid(id)) return id.rawId();
+    if (valid(id)) return id;
   }
   return DetId(0);
 }

@@ -4,6 +4,7 @@
 
 #include "RecoPixelVertexing/PixelTriplets/interface/HitQuadrupletGenerator.h"
 #include "LayerQuadruplets.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -18,6 +19,8 @@
 #include "CommonTools/Utils/interface/DynArray.h"
 
 #include "FWCore/Utilities/interface/isFinite.h"
+
+#include <functional>
 
 namespace
 {
@@ -34,8 +37,7 @@ namespace
 using namespace std;
 using namespace ctfseeding;
 
-CAHitQuadrupletGenerator::CAHitQuadrupletGenerator(const edm::ParameterSet& cfg, edm::ConsumesCollector& iC) :
-theSeedingLayerToken(iC.consumes<SeedingLayerSetsHits>(cfg.getParameter<edm::InputTag>("SeedingLayers"))),
+CAHitQuadrupletGenerator::CAHitQuadrupletGenerator(const edm::ParameterSet& cfg, edm::ConsumesCollector& iC, bool needSeedingLayerSetsHits) :
 extraHitRPhitolerance(cfg.getParameter<double>("extraHitRPhitolerance")), //extra window in ThirdHitPredictionFromCircle range (divide by R to get phi)
 maxChi2(cfg.getParameter<edm::ParameterSet>("maxChi2")),
 fitFastCircle(cfg.getParameter<bool>("fitFastCircle")),
@@ -45,6 +47,9 @@ caThetaCut(cfg.getParameter<double>("CAThetaCut")),
 caPhiCut(cfg.getParameter<double>("CAPhiCut")),
 caHardPtCut(cfg.getParameter<double>("CAHardPtCut"))
 {
+  if(needSeedingLayerSetsHits)
+    theSeedingLayerToken = iC.consumes<SeedingLayerSetsHits>(cfg.getParameter<edm::InputTag>("SeedingLayers"));
+
   if (cfg.exists("SeedComparitorPSet"))
   {
     edm::ParameterSet comparitorPSet =
@@ -61,25 +66,37 @@ CAHitQuadrupletGenerator::~CAHitQuadrupletGenerator()
 {
 }
 
-void CAHitQuadrupletGenerator::hitQuadruplets(const TrackingRegion& region,
-		OrderedHitSeeds & result, const edm::Event& ev,
-		const edm::EventSetup& es)
-{
-	edm::Handle<SeedingLayerSetsHits> hlayers;
-	ev.getByToken(theSeedingLayerToken, hlayers);
-	const SeedingLayerSetsHits& layers = *hlayers;
-	if (layers.numberOfLayersInSet() != 4)
-		throw cms::Exception("Configuration")
-				<< "CAHitQuadrupletsGenerator expects SeedingLayerSetsHits::numberOfLayersInSet() to be 4, got "
-				<< layers.numberOfLayersInSet();
+void CAHitQuadrupletGenerator::fillDescriptions(edm::ParameterSetDescription& desc) {
+  desc.add<double>("extraHitRPhitolerance", 0.1);
+  desc.add<bool>("fitFastCircle", false);
+  desc.add<bool>("fitFastCircleChi2Cut", false);
+  desc.add<bool>("useBendingCorrection", false);
+  desc.add<double>("CAThetaCut", 0.00125);
+  desc.add<double>("CAPhiCut", 10);
+  desc.add<double>("CAHardPtCut", 0);
 
-	CAGraph g;
+  edm::ParameterSetDescription descMaxChi2;
+  descMaxChi2.add<double>("pt1", 0.2);
+  descMaxChi2.add<double>("pt2", 1.5);
+  descMaxChi2.add<double>("value1", 500);
+  descMaxChi2.add<double>("value2", 50);
+  descMaxChi2.add<bool>("enabled", true);
+  desc.add<edm::ParameterSetDescription>("maxChi2", descMaxChi2);
 
+  edm::ParameterSetDescription descComparitor;
+  descComparitor.add<std::string>("ComponentName", "none");
+  descComparitor.setAllowAnything(); // until we have moved SeedComparitor too to EDProducers
+  desc.add<edm::ParameterSetDescription>("SeedComparitorPSet", descComparitor);
+}
 
-	std::vector<HitDoublets> hitDoublets;
+void CAHitQuadrupletGenerator::initEvent(const edm::Event& ev, const edm::EventSetup& es) {
+  if (theComparitor) theComparitor->init(ev, es);
+}
 
-
-	HitPairGeneratorFromLayerPair thePairGenerator(0, 1, &theLayerCache);
+namespace {
+  template <typename T_HitDoublets, typename T_GeneratorOrPairsFunction>
+  void fillGraph(const SeedingLayerSetsHits& layers, CAGraph& g, T_HitDoublets& hitDoublets,
+                 T_GeneratorOrPairsFunction generatorOrPairsFunction) {
 	for (unsigned int i = 0; i < layers.size(); i++)
 	{
 		for (unsigned int j = 0; j < 4; ++j)
@@ -119,28 +136,100 @@ void CAHitQuadrupletGenerator::hitQuadruplets(const TrackingRegion& region,
 				if (std::find(g.theLayerPairs.begin(), g.theLayerPairs.end(),
 						tmpInnerLayerPair) == g.theLayerPairs.end())
 				{
-					hitDoublets.emplace_back(thePairGenerator.doublets(region, ev, es,
-							layers[i][j-1], layers[i][j]));
-
-					g.theLayerPairs.push_back(tmpInnerLayerPair);
-					g.theLayers[vertexIndex].theInnerLayers.push_back(
+					const bool nonEmpty = generatorOrPairsFunction(layers[i][j-1], layers[i][j], hitDoublets);
+                                        if(nonEmpty) {
+                                          g.theLayerPairs.push_back(tmpInnerLayerPair);
+                                          g.theLayers[vertexIndex].theInnerLayers.push_back(
 							innerVertex - g.theLayers.begin());
-					innerVertex->theOuterLayers.push_back(vertexIndex);
-					g.theLayers[vertexIndex].theInnerLayerPairs.push_back(
+                                          innerVertex->theOuterLayers.push_back(vertexIndex);
+                                          g.theLayers[vertexIndex].theInnerLayerPairs.push_back(
 							g.theLayerPairs.size() - 1);
-					innerVertex->theOuterLayerPairs.push_back(
+                                          innerVertex->theOuterLayerPairs.push_back(
 							g.theLayerPairs.size() - 1);
-
+                                        }
 				}
 
 			}
 
 		}
 	}
+  }
+}
 
+
+void CAHitQuadrupletGenerator::hitQuadruplets(const TrackingRegion& region,
+		OrderedHitSeeds & result, const edm::Event& ev,
+		const edm::EventSetup& es)
+{
+	edm::Handle<SeedingLayerSetsHits> hlayers;
+	ev.getByToken(theSeedingLayerToken, hlayers);
+	const SeedingLayerSetsHits& layers = *hlayers;
+	if (layers.numberOfLayersInSet() != 4)
+		throw cms::Exception("Configuration")
+				<< "CAHitQuadrupletsGenerator expects SeedingLayerSetsHits::numberOfLayersInSet() to be 4, got "
+				<< layers.numberOfLayersInSet();
+
+	CAGraph g;
+
+
+	std::vector<HitDoublets> hitDoublets;
+
+
+	HitPairGeneratorFromLayerPair thePairGenerator(0, 1, &theLayerCache);
+        fillGraph(layers, g, hitDoublets,
+                  [&](const SeedingLayerSetsHits::SeedingLayer& inner,
+                      const SeedingLayerSetsHits::SeedingLayer& outer,
+                      std::vector<HitDoublets>& hitDoublets) {
+            hitDoublets.emplace_back(thePairGenerator.doublets(region, ev, es, inner, outer));
+            return true;
+          });
 
 	if (theComparitor)
 		theComparitor->init(ev, es);
+
+        std::vector<const HitDoublets *> hitDoubletsPtr;
+        hitDoubletsPtr.reserve(hitDoublets.size());
+        for(const auto& e: hitDoublets)
+          hitDoubletsPtr.emplace_back(&e);
+
+        hitQuadruplets(region, result, hitDoubletsPtr, g, es);
+        theLayerCache.clear();
+}
+
+void CAHitQuadrupletGenerator::hitNtuplets(const IntermediateHitDoublets::RegionLayerSets& regionLayerPairs,
+                                              OrderedHitSeeds& result,
+                                              const edm::EventSetup& es,
+                                              const SeedingLayerSetsHits& layers) {
+  CAGraph g;
+
+  std::vector<const HitDoublets *> hitDoublets;
+
+  auto layerPairEqual = [](const IntermediateHitDoublets::LayerPairHitDoublets& pair,
+                           SeedingLayerSetsHits::LayerIndex inner,
+                           SeedingLayerSetsHits::LayerIndex outer) {
+    return pair.innerLayerIndex() == inner && pair.outerLayerIndex() == outer;
+  };
+  fillGraph(layers, g, hitDoublets,
+            [&](const SeedingLayerSetsHits::SeedingLayer& inner,
+                const SeedingLayerSetsHits::SeedingLayer& outer,
+                std::vector<const HitDoublets *>& hitDoublets) {
+      using namespace std::placeholders;
+      auto found = std::find_if(regionLayerPairs.begin(), regionLayerPairs.end(),
+                                std::bind(layerPairEqual, _1, inner.index(), outer.index()));
+      if(found != regionLayerPairs.end()) {
+        hitDoublets.emplace_back(&(found->doublets()));
+        return true;
+      }
+      return false;
+    });
+
+  hitQuadruplets(regionLayerPairs.region(), result, hitDoublets, g, es);
+}
+
+void CAHitQuadrupletGenerator::hitQuadruplets(const TrackingRegion& region,
+                                              OrderedHitSeeds & result,
+                                              std::vector<const HitDoublets *>& hitDoublets, const CAGraph& g,
+                                              const edm::EventSetup& es) {
 	const int numberOfHitsInNtuplet = 4;
 	std::vector<CACell::CAntuplet> foundQuadruplets;
 
@@ -187,6 +276,11 @@ void CAHitQuadrupletGenerator::hitQuadruplets(const TrackingRegion& region,
     ges[3] = ahit->globalPositionError();
     barrels[3] = isBarrel(ahit->geographicalId().subdetId());
 
+    // TODO:
+    // - 'line' is not used for anything
+    // - if we decide to always do the circle fit for 4 hits, we don't
+    //   need ThirdHitPredictionFromCircle for the curvature; then we
+    //   could remove extraHitRPhitolerance configuration parameter
     PixelRecoLineRZ line(gps[0], gps[2]);
     ThirdHitPredictionFromCircle predictionRPhi(gps[0], gps[2], extraHitRPhitolerance);
     const float curvature = predictionRPhi.curvature(ThirdHitPredictionFromCircle::Vector2D(gps[1].x(), gps[1].y()));
@@ -246,8 +340,6 @@ void CAHitQuadrupletGenerator::hitQuadruplets(const TrackingRegion& region,
 
     result.emplace_back(foundQuadruplets[quadId][0]->getInnerHit(), foundQuadruplets[quadId][1]->getInnerHit(), foundQuadruplets[quadId][2]->getInnerHit(), foundQuadruplets[quadId][2]->getOuterHit());
   }
-
-  theLayerCache.clear();
 }
 
 

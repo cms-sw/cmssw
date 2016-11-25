@@ -46,7 +46,8 @@ namespace edm {
 
     virtual void updateLookup(BranchType iBranchType,
                               ProductResolverIndexHelper const&) override;
-
+    virtual void resolvePutIndicies(BranchType iBranchType,
+                                    std::unordered_multimap<std::string, edm::ProductResolverIndex> const& iIndicies) override;
 
     template<typename D>
     void callWorkerBeginStream(D, StreamID);
@@ -128,6 +129,9 @@ namespace edm {
     }
 
     virtual std::vector<ProductResolverIndexAndSkipBit> const& itemsToGetFromEvent() const override { return module_->itemsToGetFromEvent(); }
+    
+    virtual std::vector<ProductResolverIndex> const& itemsShouldPutInEvent() const override;
+
 
     edm::propagate_const<std::shared_ptr<T>> module_;
   };

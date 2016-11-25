@@ -21,10 +21,8 @@
  <Constant name="ZvSupTubCab"       value="248.0*cm"/>
  <Constant name="SupportL"          value="221.0*cm"/>
  <Constant name="SupportRin"        value="21.65*cm"/>
- <Constant name="SupportW"          value="20.00*cm"/>
+ <Constant name="SupportW"          value="19.30*cm"/>
  <Constant name="SupportT"          value="0.350*cm"/>
- <Constant name="SupportL_cut"          value="[FlangeT]"/>
- <Constant name="SupportW_cut"          value="7.00*cm"/>
  <Constant name="SupportY_base"          value="19.00*cm"/>
  <Constant name="SupportY"          value="[SupportY_base]+[SupportT]/2"/>
  <Constant name="ShieldL"           value="54.0*cm"/> <!-- both shields end at the beginning of the flange (for simplicity is not glued on top of it)-->
@@ -226,20 +224,8 @@
  </Polycone> 
  <Tubs name="PixelBarrelSuppTub" rMin="[SupportRin]"     rMax="[Rout1]"
        dz="[SupportL]/2"         startPhi="0*deg"        deltaPhi="360*deg"/>
- <Box name="PixelBarrelSuppBox_full"  dx="[SupportW]/2"       dy="[SupportT]/2"
+ <Box name="PixelBarrelSuppBox"  dx="[SupportW]/2"       dy="[SupportT]/2"
        dz="[SupportL]/2"/>
- <Box name="PixelBarrelSuppBox_cut"  dx="[SupportW_cut]/2"       dy="[SupportT]/2"
-       dz="[SupportL_cut]/2"/>
- <SubtractionSolid name="PixelBarrelSuppBox_1">
-    <rSolid name="PixelBarrelSuppBox_full"/>
-    <rSolid name="PixelBarrelSuppBox_cut"/>
-    <Translation x="0*cm" y="0*cm" z="[FlangeZ]"/>
- </SubtractionSolid>
- <SubtractionSolid name="PixelBarrelSuppBox">
-    <rSolid name="PixelBarrelSuppBox_1"/>
-    <rSolid name="PixelBarrelSuppBox_cut"/>
-    <Translation x="0*cm" y="0*cm" z="-[FlangeZ]"/>
- </SubtractionSolid>
  <Tubs name="PixelBarrelShield1" rMin="[Shield1Rin]"     rMax="[Shield1Rout]"
        dz="[ShieldL]/2"          startPhi="0*deg"        deltaPhi="360*deg"/>
  <Tubs name="PixelBarrelShield2" rMin="[Shield1Rout]"    rMax="[Shield2Rout]"
@@ -375,7 +361,7 @@
  </LogicalPart>
  <LogicalPart name="PixelBarrelSuppBox" category="unspecified">
   <rSolid name="PixelBarrelSuppBox"/>
-  <rMaterial name="trackermaterial:T_CarbonFibreStr"/>
+  <rMaterial name="pixbarmaterial:T_CarbonFibreStrBox"/>
  </LogicalPart>
  <LogicalPart name="PixelBarrelShield1" category="unspecified">
   <rSolid name="PixelBarrelShield1"/>

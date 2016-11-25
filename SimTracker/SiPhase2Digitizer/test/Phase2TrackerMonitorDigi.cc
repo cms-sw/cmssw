@@ -36,6 +36,7 @@
 #include "DataFormats/SiPixelDigi/interface/PixelDigi.h"
 #include "DataFormats/SiPixelDigi/interface/PixelDigiCollection.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "SimTracker/SiPhase2Digitizer/plugins/Phase2TrackerDigitizerFwd.h"
 
 // DQM Histograming
 #include "DQMServices/Core/interface/MonitorElement.h"
@@ -101,12 +102,24 @@ void Phase2TrackerMonitorDigi::fillITPixelDigiHistos(const edm::Handle<edm::DetS
 
   for (typename edm::DetSetVector<PixelDigi>::const_iterator DSViter = digis->begin(); DSViter != digis->end(); DSViter++) {
     unsigned int rawid = DSViter->id; 
-    DetId detId(rawid);
     edm::LogInfo("Phase2TrackerMonitorDigi")<< " Det Id = " << rawid;    
     int layer = tTopo->getITPixelLayerNumber(rawid);
     if (layer < 0) continue;
     std::map<uint32_t, DigiMEs >::iterator pos = layerMEs.find(layer);
     if (pos == layerMEs.end()) continue;
+
+    const DetId detId(rawid);
+
+    if (DetId(detId).det() != DetId::Detector::Tracker) continue;
+  
+    const GeomDetUnit* gDetUnit = gHandle->idToDetUnit(detId);
+    const GeomDet *geomDet = gHandle->idToDet(detId);
+
+    const Phase2TrackerGeomDetUnit* tkDetUnit = dynamic_cast<const Phase2TrackerGeomDetUnit*>(gDetUnit);
+    int nRows     = tkDetUnit->specificTopology().nrows();
+    int nColumns  = tkDetUnit->specificTopology().ncolumns();
+    if (nRows*nColumns == 0) continue;  
+
     DigiMEs local_mes = pos->second;
     int nDigi = 0; 
     int row_last = -1;
@@ -117,14 +130,11 @@ void Phase2TrackerMonitorDigi::fillITPixelDigiHistos(const edm::Handle<edm::DetS
     for (typename edm::DetSet< PixelDigi >::const_iterator di = DSViter->begin(); di != DSViter->end(); di++) {
       int col = di->column(); // column
       int row = di->row();    // row
-      const DetId detId(rawid);
-
-      const GeomDetUnit* gDetUnit = gHandle->idToDetUnit(detId);
-      if (gDetUnit) {  
-	MeasurementPoint mp( row + 0.5, col + 0.5 );
-	GlobalPoint pdPos = gDetUnit->surface().toGlobal( gDetUnit->topology().localPosition( mp ) ) ;
-	XYPositionMap->Fill(pdPos.x()*10.0, pdPos.y()*10.0);
-	RZPositionMap->Fill(pdPos.z()*10.0, std::sqrt(pdPos.x()*pdPos.x() + pdPos.y()*pdPos.y())*10.0);  
+      if (geomDet) {
+        MeasurementPoint mp( row + 0.5, col + 0.5 );
+        GlobalPoint pdPos = geomDet->surface().toGlobal( gDetUnit->topology().localPosition( mp ) ) ;
+	XYPositionMap->Fill(pdPos.x(), pdPos.y());
+	RZPositionMap->Fill(pdPos.z(), std::hypot(pdPos.x(),pdPos.y()));  
       }
       nDigi++;
       edm::LogInfo("Phase2TrackerMonitorDigi")<< "  column " << col << " row " << row  <<
@@ -153,6 +163,15 @@ void Phase2TrackerMonitorDigi::fillITPixelDigiHistos(const edm::Handle<edm::DetS
     }
     local_mes.NumberOfClusters->Fill(nclus);  
     local_mes.NumberOfDigis->Fill(nDigi);
+    float occupancy = 1.0;
+    if (nRows*nColumns > 0) occupancy = nDigi*1.0/(nRows*nColumns);
+    if (geomDet) {
+      GlobalPoint gp = geomDet->surface().toGlobal( gDetUnit->topology().localPosition( MeasurementPoint(0.0,0.0))) ;
+      XYOccupancyMap->Fill(gp.x(), gp.y(), occupancy);
+      RZOccupancyMap->Fill(gp.z(), gp.z(), std::hypot(gp.x(),gp.y()), occupancy);  
+      local_mes.EtaOccupancyProfP->Fill(gp.eta(), occupancy);
+    }
+    local_mes.DigiOccupancyP->Fill(occupancy);
   }
 }
 void Phase2TrackerMonitorDigi::fillOTDigiHistos(const edm::Handle<edm::DetSetVector<Phase2TrackerDigi>>  handle, const edm::ESHandle<TrackerGeometry> gHandle) {
@@ -169,6 +188,17 @@ void Phase2TrackerMonitorDigi::fillOTDigiHistos(const edm::Handle<edm::DetSetVec
     std::map<uint32_t, DigiMEs >::iterator pos = layerMEs.find(layer);
     if (pos == layerMEs.end()) continue;
     DigiMEs local_mes = pos->second;
+
+    if (DetId(detId).det() != DetId::Detector::Tracker) continue;
+  
+    const GeomDetUnit* gDetUnit = gHandle->idToDetUnit(detId);
+    const GeomDet *geomDet = gHandle->idToDet(detId);
+
+    const Phase2TrackerGeomDetUnit* tkDetUnit = dynamic_cast<const Phase2TrackerGeomDetUnit*>(gDetUnit);
+    int nRows     = tkDetUnit->specificTopology().nrows();
+    int nColumns  = tkDetUnit->specificTopology().ncolumns();
+    if (nRows*nColumns == 0) continue;  
+
     int nDigi = 0; 
     int row_last = -1;
     int col_last = -1;
@@ -181,12 +211,11 @@ void Phase2TrackerMonitorDigi::fillOTDigiHistos(const edm::Handle<edm::DetSetVec
       int row = di->row();    // row
       const DetId detId(rawid);
 
-      const GeomDetUnit* gDetUnit = gHandle->idToDetUnit(detId);
-      if (gDetUnit) {  
-	MeasurementPoint mp( row + 0.5, col + 0.5 );
-	GlobalPoint pdPos = gDetUnit->surface().toGlobal( gDetUnit->topology().localPosition( mp ) ) ;
-	XYPositionMap->Fill(pdPos.x()*10.0, pdPos.y()*10.0);
-	RZPositionMap->Fill(pdPos.z()*10.0, std::sqrt(pdPos.x()*pdPos.x() + pdPos.y()*pdPos.y())*10.0);  
+      if (geomDet) {
+        MeasurementPoint mp( row + 0.5, col + 0.5 );
+        GlobalPoint pdPos = geomDet->surface().toGlobal( gDetUnit->topology().localPosition( mp ) ) ;
+	XYPositionMap->Fill(pdPos.x(), pdPos.y());
+	RZPositionMap->Fill(pdPos.z(), std::hypot(pdPos.x(),pdPos.y()));  
       }
       nDigi++;
       if (di->overThreshold()) frac_ot++;
@@ -220,6 +249,20 @@ void Phase2TrackerMonitorDigi::fillOTDigiHistos(const edm::Handle<edm::DetSetVec
      
     if (nDigi) frac_ot /= nDigi;
     if (local_mes.FractionOfOTBits) local_mes.FractionOfOTBits->Fill(frac_ot);
+    float occupancy = 1.0;
+    if (nRows*nColumns > 0) occupancy = nDigi*1.0/(nRows*nColumns);
+    if (geomDet) {
+      GlobalPoint gp = geomDet->surface().toGlobal( gDetUnit->topology().localPosition( MeasurementPoint(0.0,0.0))) ;
+      XYOccupancyMap->Fill(gp.x(), gp.y(), occupancy);
+      RZOccupancyMap->Fill(gp.z(), gp.z(), std::hypot(gp.x(),gp.y()), occupancy);  
+      if (nColumns > 2) {
+	if (local_mes.DigiOccupancyP) local_mes.DigiOccupancyP->Fill(occupancy);
+	if (local_mes.EtaOccupancyProfP) local_mes.EtaOccupancyProfP->Fill(gp.eta(), occupancy);
+      } else {
+	local_mes.DigiOccupancyS->Fill(occupancy);
+	local_mes.EtaOccupancyProfS->Fill(gp.eta(), occupancy);
+      }
+    }
   }
 }
 //
@@ -250,21 +293,41 @@ void Phase2TrackerMonitorDigi::bookHistograms(DQMStore::IBooker & ibooker,
   ibooker.setCurrentFolder(folder_name.str());
 
   edm::ParameterSet Parameters =  config_.getParameter<edm::ParameterSet>("XYPositionMapH");  
-  XYPositionMap = ibooker.book2D("XPosVsYPos","XPosVsYPos",
+  edm::ParameterSet ParametersOcc =  config_.getParameter<edm::ParameterSet>("DigiOccupancyPH");
+  XYPositionMap = ibooker.book2D("DigiXPosVsYPos","DigiXPosVsYPos",
 				 Parameters.getParameter<int32_t>("Nxbins"),
 				 Parameters.getParameter<double>("xmin"),
 				 Parameters.getParameter<double>("xmax"),
 				 Parameters.getParameter<int32_t>("Nybins"),
 				 Parameters.getParameter<double>("ymin"),
 				 Parameters.getParameter<double>("ymax"));
+  XYOccupancyMap = ibooker.bookProfile2D("OccupancyInXY","OccupancyInXY",
+					 Parameters.getParameter<int32_t>("Nxbins"),
+					 Parameters.getParameter<double>("xmin"),
+					 Parameters.getParameter<double>("xmax"),
+					 Parameters.getParameter<int32_t>("Nybins"),
+					 Parameters.getParameter<double>("ymin"),
+					 Parameters.getParameter<double>("ymax"),
+					 ParametersOcc.getParameter<double>("xmin"),
+					 ParametersOcc.getParameter<double>("xmax"));
+
   Parameters =  config_.getParameter<edm::ParameterSet>("RZPositionMapH");  
-  RZPositionMap = ibooker.book2D("RPosVszPos","RPosVsZPos",
+  RZPositionMap = ibooker.book2D("DigiRPosVszPos","DigiRPosVsZPos",
 				 Parameters.getParameter<int32_t>("Nxbins"),
 				 Parameters.getParameter<double>("xmin"),
 				 Parameters.getParameter<double>("xmax"),
 				 Parameters.getParameter<int32_t>("Nybins"),
 				 Parameters.getParameter<double>("ymin"),
 				 Parameters.getParameter<double>("ymax"));
+  RZOccupancyMap = ibooker.bookProfile2D("OccupancyInRZ","OccupancyInRZ",
+					 Parameters.getParameter<int32_t>("Nxbins"),
+					 Parameters.getParameter<double>("xmin"),
+					 Parameters.getParameter<double>("xmax"),
+					 Parameters.getParameter<int32_t>("Nybins"),
+					 Parameters.getParameter<double>("ymin"),
+					 Parameters.getParameter<double>("ymax"),
+					 ParametersOcc.getParameter<double>("xmin"),
+					 ParametersOcc.getParameter<double>("xmax"));
 }
 //
 // -- Book Layer Histograms
@@ -310,6 +373,32 @@ void Phase2TrackerMonitorDigi::bookLayerHistos(DQMStore::IBooker & ibooker, unsi
 					     Parameters.getParameter<double>("xmin"),
 					     Parameters.getParameter<double>("xmax"));
 
+    Parameters =  config_.getParameter<edm::ParameterSet>("DigiOccupancyPH");
+    HistoName.str("");
+    HistoName << "DigiOccupancyP_" << fname2.str();
+    local_mes.DigiOccupancyP = ibooker.book1D(HistoName.str(), HistoName.str(),
+					     Parameters.getParameter<int32_t>("Nbins"),
+					     Parameters.getParameter<double>("xmin"),
+					     Parameters.getParameter<double>("xmax"));
+    HistoName.str("");
+    HistoName << "DigiOcupancyVsEtaP_" << fname2.str();
+    local_mes.EtaOccupancyProfP = ibooker.bookProfile(HistoName.str(), HistoName.str(),
+            35,-3.5,3.5,Parameters.getParameter<double>("xmin"),Parameters.getParameter<double>("xmax"),"");
+
+    if (!flag) {
+      Parameters =  config_.getParameter<edm::ParameterSet>("DigiOccupancySH");
+      HistoName.str("");
+      HistoName << "DigiOccupancyS_" << fname2.str();
+      local_mes.DigiOccupancyS = ibooker.book1D(HistoName.str(), HistoName.str(),
+						Parameters.getParameter<int32_t>("Nbins"),
+						Parameters.getParameter<double>("xmin"),
+						Parameters.getParameter<double>("xmax"));
+      
+      HistoName.str("");
+      HistoName << "DigiOcupancyVsEtaS_" << fname2.str();
+      local_mes.EtaOccupancyProfS = ibooker.bookProfile(HistoName.str(), HistoName.str(),
+		35,-3.5,3.5,Parameters.getParameter<double>("xmin"),Parameters.getParameter<double>("xmax"),"");
+    }
     Parameters =  config_.getParameter<edm::ParameterSet>("PositionOfDigisH");
     HistoName.str("");
     HistoName << "PositionOfDigis_" << fname2.str().c_str();

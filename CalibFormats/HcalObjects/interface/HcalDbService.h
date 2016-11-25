@@ -32,7 +32,9 @@ class HcalDbService {
   const HcalTopology* getTopologyUsed() const;
   
   const HcalCalibrations& getHcalCalibrations(const HcalGenericDetId& fId) const;
-    const HcalCalibrationWidths& getHcalCalibrationWidths(const HcalGenericDetId& fId) const;
+  const HcalCalibrationWidths& getHcalCalibrationWidths(const HcalGenericDetId& fId) const;
+  const HcalCalibrationsSet* getHcalCalibrationsSet() const;
+  const HcalCalibrationWidthsSet* getHcalCalibrationWidthsSet() const;
 
   const HcalPedestal* getPedestal (const HcalGenericDetId& fId) const;
   const HcalPedestalWidth* getPedestalWidth (const HcalGenericDetId& fId) const;

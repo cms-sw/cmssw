@@ -77,6 +77,8 @@ private:
     timesFailed_(),
     timesExcept_(),
     state_(Ready),
+    numberOfPathsOn_(0),
+    numberOfPathsLeftToRun_(0),
     moduleCallingContext_(&iMD),
     actions_(iActions),
     cached_exception_(),
@@ -305,12 +307,13 @@ private:
       throw;
     }
   }
-
-  void Worker::pathFinished(EventPrincipal const& iEvent) {
-    if(earlyDeleteHelper_) {
-      earlyDeleteHelper_->pathFinished(iEvent);
+  
+  void Worker::skipOnPath() {
+    if( 0 == --numberOfPathsLeftToRun_) {
+      waitingTasks_.doneWaiting(cached_exception_);
     }
   }
+
   void Worker::postDoEvent(EventPrincipal const& iEvent) {
     if(earlyDeleteHelper_) {
       earlyDeleteHelper_->moduleRan(iEvent);

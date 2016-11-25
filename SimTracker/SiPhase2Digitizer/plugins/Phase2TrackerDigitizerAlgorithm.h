@@ -129,6 +129,9 @@ class Phase2TrackerDigitizerAlgorithm  {
   const double theThresholdSmearing_Endcap;
   const double theThresholdSmearing_Barrel;
 
+  const double theHIPThresholdInE_Endcap;
+  const double theHIPThresholdInE_Barrel;
+
   const float theTofLowerCut;             // Cut on the particle TOF
   const float theTofUpperCut;             // Cut on the particle TOF
   const float tanLorentzAnglePerTesla_Endcap;   //FPix Lorentz angle tangent per Tesla

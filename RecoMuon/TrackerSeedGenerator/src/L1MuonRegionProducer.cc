@@ -8,8 +8,7 @@
 
 using namespace std;
 
-L1MuonRegionProducer::L1MuonRegionProducer(const edm::ParameterSet& cfg,
-	   edm::ConsumesCollector && iC) { 
+L1MuonRegionProducer::L1MuonRegionProducer(const edm::ParameterSet& cfg) {
 
   edm::ParameterSet regionPSet = cfg.getParameter<edm::ParameterSet>("RegionPSet");
 
@@ -28,8 +27,7 @@ void L1MuonRegionProducer::setL1Constraint(const L1MuGMTCand & muon)
   theChargeL1 = muon.charge();
 }
 
-std::vector<std::unique_ptr<TrackingRegion> > L1MuonRegionProducer::
-      regions(const edm::Event& ev, const edm::EventSetup& es) const
+std::vector<std::unique_ptr<TrackingRegion> > L1MuonRegionProducer::regions() const
 {
   double dx = cos(thePhiL1);
   double dy = sin(thePhiL1);

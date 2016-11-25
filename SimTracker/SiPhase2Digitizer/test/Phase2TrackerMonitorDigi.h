@@ -31,15 +31,21 @@ public:
   
   struct DigiMEs{
     MonitorElement* NumberOfDigis;
+    MonitorElement* DigiOccupancyP;
+    MonitorElement* DigiOccupancyS;
     MonitorElement* PositionOfDigis;
     MonitorElement* NumberOfClusters;
     MonitorElement* ClusterWidth;
     MonitorElement* ClusterPosition;
     MonitorElement* FractionOfOTBits;
+    MonitorElement* EtaOccupancyProfP;
+    MonitorElement* EtaOccupancyProfS;
   };
 
   MonitorElement* XYPositionMap;
   MonitorElement* RZPositionMap;
+  MonitorElement* XYOccupancyMap;
+  MonitorElement* RZOccupancyMap;
 
 private:
   void bookLayerHistos(DQMStore::IBooker & ibooker, unsigned int det_id, const TrackerTopology* tTopo, bool iflag); 

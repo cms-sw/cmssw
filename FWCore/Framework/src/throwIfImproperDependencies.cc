@@ -1,4 +1,4 @@
-// -*- C++ -*-
+// -*- ++ -*-
 //
 // Package:     FWCore/Framework
 // Function:    throwIfImproperDependencies
@@ -98,10 +98,11 @@ namespace {
       
       typedef typename boost::property_map<Graph, boost::vertex_index_t>::type IndexMap;
       IndexMap const& index = get(boost::vertex_index, iGraph);
-      
+      /*
       unsigned int vertex = index[target(iEdge,iGraph)];
       
       //Find last edge which starts with this vertex
+      
       std::list<Edge>::iterator itFirst = m_stack.begin();
       {
         bool seenVertex = false;
@@ -120,12 +121,14 @@ namespace {
           --itFirst;
         }
       }
+      */
       //This edge has not been added to the stack yet
       // making a copy allows us to add it in but not worry
       // about removing it at the end of the routine
       std::vector<Edge> tempStack;
       tempStack.reserve(m_stack.size()+1);
-      tempStack.insert(tempStack.end(),itFirst,m_stack.end());
+      //tempStack.insert(tempStack.end(),itFirst,m_stack.end());
+      tempStack.insert(tempStack.end(),m_stack.begin(),m_stack.end());
       tempStack.emplace_back(iEdge);
       //Remove unnecessary edges
       // The graph library scans the verticies so we have edges in the list which are
@@ -154,7 +157,6 @@ namespace {
         std::reverse(reducedEdges.begin(), reducedEdges.end());
         tempStack.swap(reducedEdges);
       }
-
       
       //For a real problem, we need at least one data dependency and
       // one path
@@ -167,6 +169,13 @@ namespace {
       unsigned int lastOut = index[target(tempStack.back(),iGraph)];
 
       std::unordered_set<unsigned int> lastPathsSeen;
+
+      //If a data dependency appears to make us jump off o path but that module actually
+      // appears on the path that was left, we need to see if we later come back to that
+      // path somewhere before that module. If not than it is a false cycle
+      std::unordered_multimap<unsigned int, unsigned int> pathToModulesWhichMustAppearLater;
+      bool moduleAppearedEarlierInPath = false;
+
       for(auto dependency: m_edgeToPathMap.find(SimpleEdge(lastIn,lastOut))->second) {
         if(dependency !=std::numeric_limits<unsigned int>::max()) {
           lastPathsSeen.insert(dependency);
@@ -175,7 +184,7 @@ namespace {
       for(auto const& edge: tempStack) {
         unsigned int in =index[source(edge,iGraph)];
         unsigned int out =index[target(edge,iGraph)];
-        
+
         auto iFound = m_edgeToPathMap.find(SimpleEdge(in,out));
         std::unordered_set<unsigned int> pathsOnEdge;
         bool edgeHasDataDependency = false;
@@ -187,6 +196,37 @@ namespace {
           } else {
             hasPathDependency = true;
             pathsOnEdge.insert(dependency);
+
+            auto const& pathIndicies = m_pathIndexToModuleIndexOrder[dependency];
+            auto pathToCheckRange = pathToModulesWhichMustAppearLater.equal_range(dependency);
+            for(auto it = pathToCheckRange.first; it != pathToCheckRange.second; ) {
+              auto moduleIDToCheck = it->second;
+              if(moduleIDToCheck == in or moduleIDToCheck==out) {
+                auto toErase = it;
+                ++it;
+                pathToModulesWhichMustAppearLater.erase(toErase);
+                continue;
+              }
+              bool alreadyAdvanced = false;
+              for(auto index : pathIndicies) {
+                if(index == out) {
+                  //we must have skipped over the module so the earlier worry about the
+                  // module being called on the path was wrong
+                  auto toErase = it;
+                  ++it;
+                  alreadyAdvanced =true;
+                  pathToModulesWhichMustAppearLater.erase(toErase);
+                  break;
+                }
+                if(index == moduleIDToCheck) {
+                  //module still earlier on the path
+                  break;
+                }
+              }
+              if(not alreadyAdvanced) {
+                ++it;
+              }
+            }
           }
         }
         if((pathsOnEdge != lastPathsSeen) ) {
@@ -200,6 +240,8 @@ namespace {
           //If the paths we were on had this module we are going to earlier
           // on their paths than we do not have a real cycle
             bool atLeastOnePathFailed = false;
+            std::vector<unsigned int> pathsToWatch;
+            pathsToWatch.reserve(lastPathsSeen.size());
             for(auto seenPath: lastPathsSeen) {
               if(pathsOnEdge.end() == pathsOnEdge.find(seenPath)) {
                 //we left this path so we now need to see if the module 'out'
@@ -208,6 +250,7 @@ namespace {
                 for(auto index: m_pathIndexToModuleIndexOrder[seenPath]) {
                   if(index == out) {
                     foundOut = true;
+                    pathsToWatch.push_back(seenPath);
                   }
                   if(index == lastOut) {
                     if(not foundOut) {
@@ -215,16 +258,21 @@ namespace {
                     }
                     break;
                   }
-                }
-                if(atLeastOnePathFailed) {
-                  break;
+                  if(atLeastOnePathFailed) {
+                    break;
+                  }
                 }
               }
             }
             //If all the paths have the module earlier in their paths
             // then there was no need to jump between paths to get it
             // and this breaks the data cycle
-            if(not atLeastOnePathFailed) return;
+            if(not atLeastOnePathFailed) {
+              moduleAppearedEarlierInPath = true;
+              for(auto p: pathsToWatch) {
+                pathToModulesWhichMustAppearLater.emplace(p,out);
+              }
+            }
           }
           lastPathsSeen = pathsOnEdge;
           lastOut = out;
@@ -235,6 +283,9 @@ namespace {
             pathToCountOfNonDataDependencies[pathIndex] +=1;
           }
         }
+      }
+      if(moduleAppearedEarlierInPath and not pathToModulesWhichMustAppearLater.empty()) {
+        return;
       }
       if(not (hasPathDependency and hasDataDependency)) {
         return;

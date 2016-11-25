@@ -26,8 +26,8 @@ _layerListForPhase1 = [
     'BPix1+FPix1_pos+FPix3_pos', 'BPix1+FPix1_neg+FPix3_neg'
 ]
 from Configuration.Eras.Modifier_trackingPhase1_cff import trackingPhase1
-trackingPhase1.toModify(lowPtTripletStepSeedLayers, layerList = _layerListForPhase1)
 from Configuration.Eras.Modifier_trackingPhase1PU70_cff import trackingPhase1PU70
+trackingPhase1.toModify(lowPtTripletStepSeedLayers, layerList = _layerListForPhase1)
 trackingPhase1PU70.toModify(lowPtTripletStepSeedLayers, layerList = _layerListForPhase1)
 
 _layerListForPhase2 = ['BPix1+BPix2+BPix3', 'BPix2+BPix3+BPix4',
@@ -46,41 +46,37 @@ _layerListForPhase2 = ['BPix1+BPix2+BPix3', 'BPix2+BPix3+BPix4',
 from Configuration.Eras.Modifier_trackingPhase2PU140_cff import trackingPhase2PU140
 trackingPhase2PU140.toModify(lowPtTripletStepSeedLayers, layerList = _layerListForPhase2)
 
-# SEEDS
-import RecoTracker.TkSeedGenerator.GlobalSeedsFromTriplets_cff
-from RecoTracker.TkTrackingRegions.GlobalTrackingRegionFromBeamSpot_cfi import RegionPsetFomBeamSpotBlock
-lowPtTripletStepSeeds = RecoTracker.TkSeedGenerator.GlobalSeedsFromTriplets_cff.globalSeedsFromTriplets.clone(
-    RegionFactoryPSet = RegionPsetFomBeamSpotBlock.clone(
-    ComponentName = cms.string('GlobalRegionProducerFromBeamSpot'),
-    RegionPSet = RegionPsetFomBeamSpotBlock.RegionPSet.clone(
+# TrackingRegion
+from RecoTracker.TkTrackingRegions.globalTrackingRegionFromBeamSpot_cfi import globalTrackingRegionFromBeamSpot as _globalTrackingRegionFromBeamSpot
+lowPtTripletStepTrackingRegions = _globalTrackingRegionFromBeamSpot.clone(RegionPSet = dict(
     ptMin = 0.2,
     originRadius = 0.02,
     nSigmaZ = 4.0
-    )
-    )
-    )
-lowPtTripletStepSeeds.OrderedHitsFactoryPSet.SeedingLayers = 'lowPtTripletStepSeedLayers'
-trackingPhase1.toModify(lowPtTripletStepSeeds, # FIXME: Phase1PU70 value, let's see if we can lower it to Run2 value (0.2)
-    RegionFactoryPSet = dict(RegionPSet = dict(ptMin = 0.35)),
-)
-trackingPhase1PU70.toModify(lowPtTripletStepSeeds,
-    RegionFactoryPSet = dict(
-        RegionPSet = dict(
-            ptMin = 0.35,
-            originRadius = 0.015
-        )
-    ),
-)
-trackingPhase2PU140.toModify(lowPtTripletStepSeeds,
-     ClusterCheckPSet = dict(doClusterCheck = False),
-     RegionFactoryPSet = dict(RegionPSet = dict(ptMin = 0.45)),
-     OrderedHitsFactoryPSet = dict( GeneratorPSet = dict(maxElement = 0 ) ),
-     SeedCreatorPSet = dict( magneticField = '', propagator = 'PropagatorWithMaterial'),
-)
+))
+trackingPhase1.toModify(lowPtTripletStepTrackingRegions, RegionPSet = dict(ptMin = 0.35)) # FIXME: Phase1PU70 value, let's see if we can lower it to Run2 value (0.2)
+trackingPhase1PU70.toModify(lowPtTripletStepTrackingRegions, RegionPSet = dict(ptMin = 0.35, originRadius = 0.015))
+trackingPhase2PU140.toModify(lowPtTripletStepTrackingRegions, RegionPSet = dict(ptMin = 0.45))
 
+# seeding
+from RecoTracker.TkHitPairs.hitPairEDProducer_cfi import hitPairEDProducer as _hitPairEDProducer
+lowPtTripletStepHitDoublets = _hitPairEDProducer.clone(
+    seedingLayers = "lowPtTripletStepSeedLayers",
+    trackingRegions = "lowPtTripletStepTrackingRegions",
+    maxElement = 0,
+    produceIntermediateHitDoublets = True,
+)
+from RecoPixelVertexing.PixelTriplets.pixelTripletHLTEDProducer_cfi import pixelTripletHLTEDProducer as _pixelTripletHLTEDProducer
 from RecoPixelVertexing.PixelLowPtUtilities.ClusterShapeHitFilterESProducer_cfi import *
 import RecoPixelVertexing.PixelLowPtUtilities.LowPtClusterShapeSeedComparitor_cfi
-lowPtTripletStepSeeds.OrderedHitsFactoryPSet.GeneratorPSet.SeedComparitorPSet = RecoPixelVertexing.PixelLowPtUtilities.LowPtClusterShapeSeedComparitor_cfi.LowPtClusterShapeSeedComparitor
+lowPtTripletStepHitTriplets = _pixelTripletHLTEDProducer.clone(
+    doublets = "lowPtTripletStepHitDoublets",
+    produceSeedingHitSets = True,
+    SeedComparitorPSet = RecoPixelVertexing.PixelLowPtUtilities.LowPtClusterShapeSeedComparitor_cfi.LowPtClusterShapeSeedComparitor
+)
+from RecoTracker.TkSeedGenerator.seedCreatorFromRegionConsecutiveHitsEDProducer_cff import seedCreatorFromRegionConsecutiveHitsEDProducer as _seedCreatorFromRegionConsecutiveHitsEDProducer
+lowPtTripletStepSeeds = _seedCreatorFromRegionConsecutiveHitsEDProducer.clone(
+    seedingHitSets = "lowPtTripletStepHitTriplets",
+)
 
 
 # QUALITY CUTS DURING TRACK BUILDING
@@ -333,6 +329,9 @@ trackingPhase2PU140.toModify(lowPtTripletStepSelector,
 # Final sequence
 LowPtTripletStep = cms.Sequence(lowPtTripletStepClusters*
                                 lowPtTripletStepSeedLayers*
+                                lowPtTripletStepTrackingRegions*
+                                lowPtTripletStepHitDoublets*
+                                lowPtTripletStepHitTriplets*
                                 lowPtTripletStepSeeds*
                                 lowPtTripletStepTrackCandidates*
                                 lowPtTripletStepTracks*

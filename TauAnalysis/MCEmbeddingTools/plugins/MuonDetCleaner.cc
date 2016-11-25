@@ -1,116 +1,101 @@
 #include "TauAnalysis/MCEmbeddingTools/plugins/MuonDetCleaner.h"
 
-#include "FWCore/Utilities/interface/Exception.h"
 
-#include "DataFormats/MuonReco/interface/Muon.h"
-#include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
+#include "DataFormats/MuonDetId/interface/DTLayerId.h"
+#include "DataFormats/DTRecHit/interface/DTSLRecCluster.h"
+#include "DataFormats/DTRecHit/interface/DTRecHit1DPair.h"
 
-#include "TauAnalysis/MCEmbeddingTools/interface/embeddingAuxFunctions.h"
+#include "DataFormats/MuonDetId/interface/CSCDetId.h"
+#include "DataFormats/CSCRecHit/interface/CSCRecHit2D.h"
+#include "DataFormats/MuonDetId/interface/RPCDetId.h"
+#include "DataFormats/RPCRecHit/interface/RPCRecHit.h"
 
-#include <string>
-#include <vector>
 
-MuonDetCleaner::MuonDetCleaner(const edm::ParameterSet& cfg)
-  : srcSelectedMuons_(cfg.getParameter<edm::InputTag>("selectedMuons"))
+typedef MuonDetCleaner<CSCDetId, CSCRecHit2D> CSCRecHitCleaner;
+typedef MuonDetCleaner<DTLayerId, DTRecHit1DPair> DTRecHitCleaner;
+typedef MuonDetCleaner<RPCDetId, RPCRecHit> RPCRecHitCleaner;
+
+
+//-------------------------------------------------------------------------------
+// define 'getDetIds' functions used for different types of recHits
+//-------------------------------------------------------------------------------
+
+
+template <typename T1, typename T2>
+uint32_t MuonDetCleaner<T1,T2>::getRawDetId(const T2& recHit)
 {
-  edm::ParameterSet cfgTrackAssociator = cfg.getParameter<edm::ParameterSet>("trackAssociator");
-  edm::ConsumesCollector iC = consumesCollector();
-  trackAssociatorParameters_.loadParameters(cfgTrackAssociator, iC);
-  trackAssociator_.useDefaultPropagator();
-
-  // maps of detId to number of hits attributed to muon
-  produces<detIdToIntMap>("hitsMuPlus");
-  produces<detIdToIntMap>("hitsMuMinus");
-
-  verbosity_ = ( cfg.exists("verbosity") ) ?
-    cfg.getParameter<int>("verbosity") : 0;
+  assert(0); // CV: make sure general function never gets called;
+             //     always use template specializations
 }
 
-MuonDetCleaner::~MuonDetCleaner()
+template <>
+uint32_t MuonDetCleaner<CSCDetId, CSCRecHit2D>::getRawDetId(const CSCRecHit2D& recHit)
 {
-// nothing to be done yet...
+  return recHit.cscDetId().rawId();
 }
 
-void MuonDetCleaner::produce(edm::Event& evt, const edm::EventSetup& es)
+template <>
+uint32_t MuonDetCleaner<DTLayerId, DTRecHit1DPair>::getRawDetId(const DTRecHit1DPair& recHit)
 {
-  std::unique_ptr<detIdToIntMap> hitsMuPlus(new detIdToIntMap());
-  std::unique_ptr<detIdToIntMap> hitsMuMinus(new detIdToIntMap());
-  
-  std::vector<reco::CandidateBaseRef> selMuons = getSelMuons(evt, srcSelectedMuons_);
-  const reco::CandidateBaseRef muPlus  = getTheMuPlus(selMuons);
-  const reco::CandidateBaseRef muMinus = getTheMuMinus(selMuons);
-
-  if ( muPlus.isNonnull()  ) fillHitMap(evt, es, &(*muPlus), *hitsMuPlus);
-  if ( muMinus.isNonnull() ) fillHitMap(evt, es, &(*muMinus), *hitsMuMinus);
-
-  evt.put(std::move(hitsMuPlus), "hitsMuPlus");
-  evt.put(std::move(hitsMuMinus), "hitsMuMinus");
+  return recHit.geographicalId().rawId();
 }
 
-namespace
+template <>
+uint32_t MuonDetCleaner<RPCDetId, RPCRecHit>::getRawDetId(const RPCRecHit& recHit)
 {
-  void fillHitMapRH(const TrackingRecHit& rh, std::map<uint32_t, int>& hitMap, int& numHits)
-  {
-    std::vector<const TrackingRecHit*> rh_components = rh.recHits();
-    if ( rh_components.size() == 0 ) {
-      ++hitMap[rh.rawId()];
-      ++numHits;
-    } else {
-      for ( std::vector<const TrackingRecHit*>::const_iterator rh_component = rh_components.begin();
-	    rh_component != rh_components.end(); ++rh_component ) {
-	fillHitMapRH(**rh_component, hitMap, numHits);
-      }
-    }
-  }
-
-  void printHitMapRH(const edm::EventSetup& es, const std::map<uint32_t, int>& hitMap)
-  {
-    std::cout << "detIds:";
-    for ( std::map<uint32_t, int>::const_iterator rh = hitMap.begin();
-	  rh != hitMap.end(); ++rh ) {
-      printMuonDetId(es, rh->first);
-    }
-  }
+  return recHit.rpcId().rawId();
 }
 
-void MuonDetCleaner::fillHitMap(edm::Event& evt, const edm::EventSetup& es, const reco::Candidate* muon, detIdToIntMap& hitMap)
+
+//-------------------------------------------------------------------------------
+// find out what the kind of RecHit used by imput muons rechit
+//-------------------------------------------------------------------------------
+
+template <typename T1, typename T2>
+bool MuonDetCleaner<T1,T2>::checkrecHit(const TrackingRecHit& recHit)
 {
-  int numHits = 0;
-  
-  const reco::Muon* recoMuon = dynamic_cast<const reco::Muon*>(muon);
-  if ( recoMuon && recoMuon->outerTrack().isNonnull() ) {
-    const reco::TrackRef muonOuterTrack = recoMuon->outerTrack();   
-    TrackDetMatchInfo trackDetMatchInfo = trackAssociator_.associate(evt, es, *muonOuterTrack, trackAssociatorParameters_, TrackDetectorAssociator::Any);
-    for ( std::vector<TAMuonChamberMatch>::const_iterator rh = trackDetMatchInfo.chambers.begin();
-	  rh != trackDetMatchInfo.chambers.end(); ++rh ) {
-      ++hitMap[rh->id.rawId()];
-      ++numHits;
-    }
-    for ( trackingRecHit_iterator rh = muonOuterTrack->recHitsBegin();
-	  rh != muonOuterTrack->recHitsEnd(); ++rh ) {
-      fillHitMapRH(**rh, hitMap, numHits);
-    }
-  } else {
-    GlobalVector muonP3(muon->px(), muon->py(), muon->pz()); 
-    GlobalPoint muonVtx(muon->vertex().x(), muon->vertex().y(), muon->vertex().z());
-    TrackDetMatchInfo trackDetMatchInfo = trackAssociator_.associate(evt, es, muonP3, muonVtx, muon->charge(), trackAssociatorParameters_);
-    for ( std::vector<TAMuonChamberMatch>::const_iterator rh = trackDetMatchInfo.chambers.begin();
-	  rh != trackDetMatchInfo.chambers.end(); ++rh ) {
-      ++hitMap[rh->id.rawId()];
-      ++numHits;
-    }
-  }
-  
-  if ( verbosity_ ) {
-    std::string muonCharge_string = "";
-    if      ( muon->charge() > +0.5 ) muonCharge_string = "+";
-    else if ( muon->charge() < -0.5 ) muonCharge_string = "-";
-    std::cout << "Mu" << muonCharge_string << ": Pt = " << muon->pt() << ", eta = " << muon->eta() << ", phi = " << muon->phi() 
-	      << " --> #Hits = " << numHits << std::endl;
-    if ( verbosity_ >= 2 ) printHitMapRH(es, hitMap);    
-  }
+  std::cout<<"!!!! Please add the checkrecHit for the individual class templates "
+  assert(0);
 }
+
+
+template <>
+bool MuonDetCleaner<CSCDetId, CSCRecHit2D>::checkrecHit(const TrackingRecHit& recHit)
+{	    
+   const std::type_info &hit_type = typeid(recHit);
+   if (hit_type == typeid(CSCSegment))  {return true;}  // This should be the default one (which are included in the global (outer) muon track)
+   else if (hit_type == typeid(CSCRecHit2D)) {return true;}
+   //else {std::cout<<"else "<<hit_type.name()<<std::endl;}    
+   return false;
+}
+
+
+template <>
+bool MuonDetCleaner<DTLayerId, DTRecHit1DPair>::checkrecHit(const TrackingRecHit& recHit)
+{	    
+   const std::type_info &hit_type = typeid(recHit);
+   if (hit_type == typeid(DTRecSegment4D))  {return true;}  // This should be the default one (which are included in the global (outer) muon track)
+   else if (hit_type == typeid(DTRecHit1D)) {return true;}
+   else if (hit_type == typeid(DTSLRecCluster)) {return true; }
+   else if (hit_type == typeid(DTSLRecSegment2D)) {return true; }
+  // else {std::cout<<"else "<<hit_type.name()<<std::endl;}	    
+   return false;
+}
+
+
+template <>
+bool MuonDetCleaner<RPCDetId, RPCRecHit>::checkrecHit(const TrackingRecHit& recHit)
+{	    
+   const std::type_info &hit_type = typeid(recHit);
+   if (hit_type == typeid(RPCRecHit))  {return true;}  // This should be the default one (which are included in the global (outer) muon track)
+   //else {std::cout<<"else "<<hit_type.name()<<std::endl;}	    
+   return false;
+}
+
+
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-DEFINE_FWK_MODULE(MuonDetCleaner);
+DEFINE_FWK_MODULE(CSCRecHitCleaner);
+DEFINE_FWK_MODULE(DTRecHitCleaner);
+DEFINE_FWK_MODULE(RPCRecHitCleaner);

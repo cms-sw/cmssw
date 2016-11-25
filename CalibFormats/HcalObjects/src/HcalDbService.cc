@@ -59,6 +59,18 @@ const HcalCalibrationWidths& HcalDbService::getHcalCalibrationWidths(const HcalG
   return (*mCalibWidthSet.load(std::memory_order_acquire)).getCalibrationWidths(fId);
 }
 
+const HcalCalibrationsSet* HcalDbService::getHcalCalibrationsSet() const 
+{ 
+  buildCalibrations();
+  return mCalibSet.load(std::memory_order_acquire);
+}
+
+const HcalCalibrationWidthsSet* HcalDbService::getHcalCalibrationWidthsSet() const 
+{ 
+  buildCalibWidths();
+  return mCalibWidthSet.load(std::memory_order_acquire);
+}
+
 void HcalDbService::buildCalibrations() const {
   // we use the set of ids for pedestals as the master list
   if ((!mPedestals) || (!mGains) || (!mQIEData) || (!mQIETypes) || (!mRespCorrs) || (!mTimeCorrs) || (!mLUTCorrs) ) return;

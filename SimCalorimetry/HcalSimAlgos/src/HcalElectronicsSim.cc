@@ -3,7 +3,6 @@
 #include "DataFormats/HcalDigi/interface/HODataFrame.h"
 #include "DataFormats/HcalDigi/interface/HFDataFrame.h"
 #include "DataFormats/HcalDigi/interface/ZDCDataFrame.h"
-#include "DataFormats/HcalDigi/interface/HcalUpgradeDataFrame.h"
 #include "DataFormats/HcalDigi/interface/QIE10DataFrame.h"
 #include "DataFormats/HcalDigi/interface/QIE11DataFrame.h"
 #include "CLHEP/Random/RandFlat.h"
@@ -100,12 +99,6 @@ void HcalElectronicsSim::analogToDigitalImpl(CLHEP::HepRandomEngine* engine, Cal
   if(PreMixDigis) premix(lf,result,preMixFactor,preMixBits);
 }
 
-template<>
-void HcalElectronicsSim::analogToDigitalImpl<HcalUpgradeDataFrame>(CLHEP::HepRandomEngine* engine, CaloSamples & lf, HcalUpgradeDataFrame & result, double preMixFactor, unsigned preMixBits) {
-  convert<HcalUpgradeDataFrame>(lf, result, engine);
-  theTDC.timing(lf, result, engine);
-}
-
 //TODO:
 //HcalTDC extension for QIE10? and QIE11?
 
@@ -122,10 +115,6 @@ void HcalElectronicsSim::analogToDigital(CLHEP::HepRandomEngine* engine, CaloSam
 }
 
 void HcalElectronicsSim::analogToDigital(CLHEP::HepRandomEngine* engine, CaloSamples & lf, ZDCDataFrame & result, double preMixFactor, unsigned preMixBits) {
-  analogToDigitalImpl(engine,lf,result,preMixFactor,preMixBits);
-}
-
-void HcalElectronicsSim::analogToDigital(CLHEP::HepRandomEngine* engine, CaloSamples & lf, HcalUpgradeDataFrame & result, double preMixFactor, unsigned preMixBits) {
   analogToDigitalImpl(engine,lf,result,preMixFactor,preMixBits);
 }
 

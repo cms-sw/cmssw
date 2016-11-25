@@ -161,7 +161,7 @@ void testEventGetRefBeforePut::getRefTest() {
 
     refToProd = event.getRefBeforePut<edmtest::IntProduct>(productInstanceName);
     event.put(std::move(pr),productInstanceName);
-    event.commit_();
+    event.commit_(std::vector<edm::ProductResolverIndex>());
   }
   catch (cms::Exception& x) {
     std::cerr << x.explainSelf()<< std::endl;

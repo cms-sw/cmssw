@@ -588,17 +588,17 @@ void SiPixelTrackResidualSource::bookHistograms(DQMStore::IBooker & iBooker, edm
    
   }
 
-  meRocBladevsDiskEndcap = iBooker.book2D("ROC_endcap_occupancy","Pixel Endcap Occupancy, ROC level (On Track)",72, -4.5, 4.5,288,-12.5,12.5);
-  meRocBladevsDiskEndcap->setBinLabel(1, "Disk-2 Pnl2",1);
-  meRocBladevsDiskEndcap->setBinLabel(9, "Disk-2 Pnl1",1);
-  meRocBladevsDiskEndcap->setBinLabel(19, "Disk-1 Pnl2",1);
-  meRocBladevsDiskEndcap->setBinLabel(27, "Disk-1 Pnl1",1);
-  meRocBladevsDiskEndcap->setBinLabel(41, "Disk+1 Pnl1",1);
-  meRocBladevsDiskEndcap->setBinLabel(49, "Disk+1 Pnl2",1);
-  meRocBladevsDiskEndcap->setBinLabel(59, "Disk+2 Pnl1",1);
-  meRocBladevsDiskEndcap->setBinLabel(67, "Disk+2 Pnl2",1);
-  meRocBladevsDiskEndcap->setAxisTitle("Blades in Inner (>0) / Outer(<) Halves",2);
-  meRocBladevsDiskEndcap->setAxisTitle("ROC occupancy",3);
+  meRocBladevsDiskEndcapOnTrk = iBooker.book2D("ROC_endcap_occupancy_ontrk","Pixel Endcap Occupancy, ROC level (On Track)",72, -4.5, 4.5,288,-12.5,12.5);
+  meRocBladevsDiskEndcapOnTrk->setBinLabel(1, "Disk-2 Pnl2",1);
+  meRocBladevsDiskEndcapOnTrk->setBinLabel(9, "Disk-2 Pnl1",1);
+  meRocBladevsDiskEndcapOnTrk->setBinLabel(19, "Disk-1 Pnl2",1);
+  meRocBladevsDiskEndcapOnTrk->setBinLabel(27, "Disk-1 Pnl1",1);
+  meRocBladevsDiskEndcapOnTrk->setBinLabel(41, "Disk+1 Pnl1",1);
+  meRocBladevsDiskEndcapOnTrk->setBinLabel(49, "Disk+1 Pnl2",1);
+  meRocBladevsDiskEndcapOnTrk->setBinLabel(59, "Disk+2 Pnl1",1);
+  meRocBladevsDiskEndcapOnTrk->setBinLabel(67, "Disk+2 Pnl2",1);
+  meRocBladevsDiskEndcapOnTrk->setAxisTitle("Blades in Inner (>0) / Outer(<) Halves",2);
+  meRocBladevsDiskEndcapOnTrk->setAxisTitle("ROC occupancy",3);
 
   //not on track
   iBooker.setCurrentFolder(topFolderName_+"/Clusters/OffTrack");
@@ -656,6 +656,19 @@ void SiPixelTrackResidualSource::bookHistograms(DQMStore::IBooker & iBooker, edm
     meNClustersNotOnTrack_diskms.at(i-1)->setAxisTitle("Number of Clusters",1);
   
   }
+
+  meRocBladevsDiskEndcapOffTrk = iBooker.book2D("ROC_endcap_occupancy_offtrk","Pixel Endcap Occupancy, ROC level (Off Track)",72, -4.5, 4.5,288,-12.5,12.5);
+  meRocBladevsDiskEndcapOffTrk->setBinLabel(1, "Disk-2 Pnl2",1);
+  meRocBladevsDiskEndcapOffTrk->setBinLabel(9, "Disk-2 Pnl1",1);
+  meRocBladevsDiskEndcapOffTrk->setBinLabel(19, "Disk-1 Pnl2",1);
+  meRocBladevsDiskEndcapOffTrk->setBinLabel(27, "Disk-1 Pnl1",1);
+  meRocBladevsDiskEndcapOffTrk->setBinLabel(41, "Disk+1 Pnl1",1);
+  meRocBladevsDiskEndcapOffTrk->setBinLabel(49, "Disk+1 Pnl2",1);
+  meRocBladevsDiskEndcapOffTrk->setBinLabel(59, "Disk+2 Pnl1",1);
+  meRocBladevsDiskEndcapOffTrk->setBinLabel(67, "Disk+2 Pnl2",1);
+  meRocBladevsDiskEndcapOffTrk->setAxisTitle("Blades in Inner (>0) / Outer(<) Halves",2);
+  meRocBladevsDiskEndcapOffTrk->setAxisTitle("ROC occupancy",3);
+
   //HitProbability
   //on track
   iBooker.setCurrentFolder(topFolderName_+"/Clusters/OnTrack");
@@ -682,7 +695,7 @@ void SiPixelTrackResidualSource::analyze(const edm::Event& iEvent, const edm::Ev
   //Retrieve tracker topology from geometry
   edm::ESHandle<TrackerTopology> tTopoHandle;
   iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
-  const TrackerTopology* const tTopo = tTopoHandle.product();
+  const TrackerTopology* tTopo = tTopoHandle.product();
   
   // retrieve TrackerGeometry again and MagneticField for use in transforming 
   // a TrackCandidate's P(ersistent)TrajectoryStateoOnDet (PTSoD) to a TrajectoryStateOnSurface (TSoS)
@@ -1166,35 +1179,7 @@ void SiPixelTrackResidualSource::analyze(const edm::Event& iEvent, const edm::Ev
 		float xclust = clust->x();
                 float yclust = clust->y();
 
-                int pxfpanel     = tTopo->pxfPanel((*hit).geographicalId());
-                int pxfmodule    = tTopo->pxfModule((*hit).geographicalId());
-                int pxfdisk      = tTopo->pxfDisk((*hit).geographicalId());
-                int pxfblade_off = tTopo->pxfBlade((*hit).geographicalId());
-
-                // translate to online conventions
-
-		if (z<0.) { pxfdisk  = -1.*pxfdisk; }
-                int pxfblade = -99;
-                if (pxfblade_off<=6 && pxfblade_off>=1)        { pxfblade = 7-pxfblade_off;  }
-                else if (pxfblade_off<=18 && pxfblade_off>=7)  { pxfblade = 6-pxfblade_off;  }
-                else if (pxfblade_off<=24 && pxfblade_off>=19) { pxfblade = 31-pxfblade_off; }
-
-                int clu_sdpx = ((pxfdisk>0) ? 1 : -1) * (2 * (abs(pxfdisk) - 1) + pxfpanel);
-                int binselx = (pxfpanel==1&&(pxfmodule==1||pxfmodule==4)) ? (pxfmodule==1) : ((pxfpanel==1&& xclust<80.0)||(pxfpanel==2&&xclust>=80.0));
-                int nperpan = 2 * pxfmodule + pxfpanel - 1 + binselx;
-                int clu_roc_binx = ((pxfdisk>0) ? nperpan : 9 - nperpan) + (clu_sdpx + 4) * 8 - 2 * ((abs(pxfdisk)==1) ? pxfdisk : 0);
-
-                int clu_roc_biny = -99.;
-                int nrocly = pxfmodule + pxfpanel;
-                for (int i=0; i<nrocly; i++) {
-                  int j = (pxfdisk<0) ? i : nrocly - 1 - i;
-                  if (yclust>=(j*52.0)&& yclust<((j+1)*52.0))
-                    clu_roc_biny = 6 - nrocly + 2 * i + ((pxfblade>0) ? pxfblade-1 : pxfblade + 12)*12 + 1;
-                }
-                if (pxfblade>0) { clu_roc_biny = clu_roc_biny+144; }
-
-                meRocBladevsDiskEndcap->setBinContent(clu_roc_binx,clu_roc_biny, meRocBladevsDiskEndcap->getBinContent(clu_roc_binx,clu_roc_biny)+1);
-                meRocBladevsDiskEndcap->setBinContent(clu_roc_binx,clu_roc_biny+1, meRocBladevsDiskEndcap->getBinContent(clu_roc_binx,clu_roc_biny+1)+1);
+		getepixrococcupancyontrk(tTopo,hit,xclust,yclust,z,meRocBladevsDiskEndcapOnTrk);
 
 		if(z>0){
         for (int i = 0; i < noOfDisks; i++)
@@ -1332,6 +1317,9 @@ void SiPixelTrackResidualSource::analyze(const edm::Event& iEvent, const edm::Ev
 	      float x = clustgp.x(); 
 	      float y = clustgp.y(); 
 	      z = clustgp.z();
+
+	      getepixrococcupancyofftrk(DetId(detId),tTopo,xcenter,ycenter,z,meRocBladevsDiskEndcapOffTrk);
+
 	      if(z>0){
            for (int i = 0; i < noOfDisks; i++)
            {
@@ -1443,7 +1431,7 @@ void SiPixelTrackResidualSource::analyze(const edm::Event& iEvent, const edm::Ev
   if(fpixtracks>0)(meNofTracks_)->Fill(3,fpixtracks);
 }
 
-void SiPixelTrackResidualSource::getrococcupancy(DetId detId,const edm::DetSetVector<PixelDigi> diginp,const TrackerTopology* const tTopo,std::vector<MonitorElement*> meinput) {
+void SiPixelTrackResidualSource::getrococcupancy(DetId detId,const edm::DetSetVector<PixelDigi> diginp,const TrackerTopology* tTopo,std::vector<MonitorElement*> meinput) {
 
   edm::DetSetVector<PixelDigi>::const_iterator ipxsearch = diginp.find(detId);
   if( ipxsearch != diginp.end() ) {
@@ -1585,5 +1573,82 @@ void SiPixelTrackResidualSource::triplets(double x1,double y1,double z1,double x
   
 }
 
+
+void SiPixelTrackResidualSource::getepixrococcupancyontrk(const TrackerTopology* tTopo, TransientTrackingRecHit::ConstRecHitPointer hit, 
+							  float xclust, float yclust, float z, MonitorElement* meinput) {
+  
+  int pxfpanel     = tTopo->pxfPanel((*hit).geographicalId());
+  int pxfmodule    = tTopo->pxfModule((*hit).geographicalId());
+  int pxfdisk      = tTopo->pxfDisk((*hit).geographicalId());
+  int pxfblade_off = tTopo->pxfBlade((*hit).geographicalId());
+  
+  // translate to online conventions
+  // each EPIX disk is split in 2 half-disk - each one consists of 12 blades
+  // in offline: blades num 0->24; here translate numbering to online convetion
+  // positive blades pointing to beam;  negative pointing away
+  // each blade has two panels: each consisting of an array of ROC plaquettes
+  // front (rear) pannel: 3 (4) plaquettes
+  // number of ROCs in each plaquette depends on the position on the panel
+  // each ROC has 80x52 pixel cells
+  if (z<0.) { pxfdisk  = -1.*pxfdisk; }
+  int pxfblade = -99;
+  if (pxfblade_off<=6 && pxfblade_off>=1)        { pxfblade = 7-pxfblade_off;  }
+  else if (pxfblade_off<=18 && pxfblade_off>=7)  { pxfblade = 6-pxfblade_off;  }
+  else if (pxfblade_off<=24 && pxfblade_off>=19) { pxfblade = 31-pxfblade_off; }
+ 
+  int clu_sdpx = ((pxfdisk>0) ? 1 : -1) * (2 * (abs(pxfdisk) - 1) + pxfpanel);
+  int binselx = (pxfpanel==1&&(pxfmodule==1||pxfmodule==4)) ? (pxfmodule==1) : ((pxfpanel==1&& xclust<80.0)||(pxfpanel==2&&xclust>=80.0));
+  int nperpan = 2 * pxfmodule + pxfpanel - 1 + binselx;
+  int clu_roc_binx = ((pxfdisk>0) ? nperpan : 9 - nperpan) + (clu_sdpx + 4) * 8 - 2 * ((abs(pxfdisk)==1) ? pxfdisk : 0);
+  
+  int clu_roc_biny = -99.;
+  int nrocly = pxfmodule + pxfpanel;
+  for (int i=0; i<nrocly; i++) {
+    int j = (pxfdisk<0) ? i : nrocly - 1 - i;
+    if (yclust>=(j*52.0)&& yclust<((j+1)*52.0))
+      clu_roc_biny = 6 - nrocly + 2 * i + ((pxfblade>0) ? pxfblade-1 : pxfblade + 12)*12 + 1;
+  }
+  if (pxfblade>0) { clu_roc_biny = clu_roc_biny+144; }
+ 
+  meinput->setBinContent(clu_roc_binx,clu_roc_biny, meinput->getBinContent(clu_roc_binx,clu_roc_biny)+1);
+  meinput->setBinContent(clu_roc_binx,clu_roc_biny+1, meinput->getBinContent(clu_roc_binx,clu_roc_biny+1)+1);
+}
+
+
+void SiPixelTrackResidualSource::getepixrococcupancyofftrk(DetId detId, const TrackerTopology* tTopo, 
+							   float xclust, float yclust, float z, MonitorElement* meinput) {
+  
+  PXFDetId pxfid=PXFDetId(detId);
+  
+  //int pxfside   = PixelEndcapName(detId,tTopo,isUpgrade).halfCylinder();
+  int pxfpanel  = pxfid.panel();
+  int pxfmodule = pxfid.module();
+  int pxfdisk   = pxfid.disk();
+  int pxfblade_off = pxfid.blade();
+  
+  if (z<0.) { pxfdisk  = -1.*pxfdisk; }
+  
+  int pxfblade = -99;
+  if (pxfblade_off<=6 && pxfblade_off>=1)        { pxfblade = 7-pxfblade_off;  }
+  else if (pxfblade_off<=18 && pxfblade_off>=7)  { pxfblade = 6-pxfblade_off;  }
+  else if (pxfblade_off<=24 && pxfblade_off>=19) { pxfblade = 31-pxfblade_off; }
+  
+  int clu_sdpx = ((pxfdisk>0) ? 1 : -1) * (2 * (abs(pxfdisk) - 1) + pxfpanel);
+  int binselx = (pxfpanel==1&&(pxfmodule==1||pxfmodule==4)) ? (pxfmodule==1) : ((pxfpanel==1&& xclust<80.0)||(pxfpanel==2&&xclust>=80.0));
+  int nperpan = 2 * pxfmodule + pxfpanel - 1 + binselx;
+  int clu_roc_binx = ((pxfdisk>0) ? nperpan : 9 - nperpan) + (clu_sdpx + 4) * 8 - 2 * ((abs(pxfdisk)==1) ? pxfdisk : 0);
+  
+  int clu_roc_biny = -99.;
+  int nrocly = pxfmodule + pxfpanel;
+  for (int i=0; i<nrocly; i++) {
+    int j = (pxfdisk<0) ? i : nrocly - 1 - i;
+    if (yclust>=(j*52.0)&& yclust<((j+1)*52.0))
+      clu_roc_biny = 6 - nrocly + 2 * i + ((pxfblade>0) ? pxfblade-1 : pxfblade + 12)*12 + 1;
+  }
+  if (pxfblade>0) { clu_roc_biny = clu_roc_biny+144; }
+  
+  meinput->setBinContent(clu_roc_binx,clu_roc_biny, meinput->getBinContent(clu_roc_binx,clu_roc_biny)+1);
+  meinput->setBinContent(clu_roc_binx,clu_roc_biny+1, meinput->getBinContent(clu_roc_binx,clu_roc_biny+1)+1);
+}
 
 DEFINE_FWK_MODULE(SiPixelTrackResidualSource); // define this as a plug-in 

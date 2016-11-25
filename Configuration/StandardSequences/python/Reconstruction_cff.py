@@ -47,7 +47,7 @@ from RecoLocalCalo.CastorReco.CastorSimpleReconstructor_cfi import *
 from RecoTracker.SpecialSeedGenerators.cosmicDC_cff import *
 
 localreco = cms.Sequence(bunchSpacingProducer+trackerlocalreco+muonlocalreco+calolocalreco+castorreco)
-localreco_HcalNZS = cms.Sequence(trackerlocalreco+muonlocalreco+calolocalrecoNZS+castorreco)
+localreco_HcalNZS = cms.Sequence(bunchSpacingProducer+trackerlocalreco+muonlocalreco+calolocalrecoNZS+castorreco)
 
 _phase2_localreco = localreco.copyAndExclude([castorreco])
 _phase2_localreco_HcalNZS = localreco_HcalNZS.copyAndExclude([castorreco])
@@ -135,6 +135,10 @@ noTrackingAndDependent.append(siPixelClustersPreSplitting)
 noTrackingAndDependent.append(siStripZeroSuppression)
 noTrackingAndDependent.append(siStripClusters)
 noTrackingAndDependent.append(initialStepSeedLayersPreSplitting)
+noTrackingAndDependent.append(trackerClusterCheckPreSplitting)
+noTrackingAndDependent.append(initialStepTrackingRegionsPreSplitting)
+noTrackingAndDependent.append(initialStepHitDoubletsPreSplitting)
+noTrackingAndDependent.append(initialStepHitTripletsPreSplitting)
 noTrackingAndDependent.append(initialStepSeedsPreSplitting)
 noTrackingAndDependent.append(initialStepTrackCandidatesPreSplitting)
 noTrackingAndDependent.append(initialStepTracksPreSplitting)

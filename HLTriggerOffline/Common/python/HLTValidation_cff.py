@@ -33,7 +33,6 @@ hltassociation = cms.Sequence(
     +ExoticaValidationProdSeq
     )
 from Configuration.Eras.Modifier_phase1Pixel_cff import phase1Pixel
-phase1Pixel.toReplaceWith(hltassociation, cms.Sequence()) # FIXME: No HLT yet for 2017, so no need to run the validation
 
 hltvalidation = cms.Sequence(
     HLTMuonVal
@@ -50,7 +49,6 @@ hltvalidation = cms.Sequence(
     +SMPValidationSequence
     +hltbtagValidationSequence
     )
-phase1Pixel.toReplaceWith(hltvalidation, cms.Sequence()) # FIXME: No HLT yet for 2017, so no need to run the validation
 
 # some hlt collections have no direct fastsim equivalent
 # remove the dependent modules for now

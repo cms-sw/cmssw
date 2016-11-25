@@ -190,8 +190,8 @@ gemMuonTrackVMuonAssoc = Validation.RecoMuon.MuonTrackValidator_cfi.muonTrackVal
 gemMuonTrackVMuonAssoc.associatormap = 'tpToGEMMuonMuonAssociation'
 gemMuonTrackVMuonAssoc.associators = ('MuonAssociationByHits',)
 gemMuonTrackVMuonAssoc.label = ('extractGemMuons',)
-gemMuonTrackVMuonAssoc.minRapidityTP = 1.6
-gemMuonTrackVMuonAssoc.maxRapidityTP = 2.4
+gemMuonTrackVMuonAssoc.minRapidityTP = -2.4
+gemMuonTrackVMuonAssoc.maxRapidityTP = +2.4
 gemMuonTrackVMuonAssoc.usetracker = True
 gemMuonTrackVMuonAssoc.usemuon = False
 
@@ -199,12 +199,13 @@ me0MuonTrackVMuonAssoc = Validation.RecoMuon.MuonTrackValidator_cfi.muonTrackVal
 me0MuonTrackVMuonAssoc.associatormap = 'tpToME0MuonMuonAssociation'
 me0MuonTrackVMuonAssoc.associators = ('MuonAssociationByHits',)
 me0MuonTrackVMuonAssoc.label = ('extractMe0Muons',)
-me0MuonTrackVMuonAssoc.minRapidityTP = 2.0
-me0MuonTrackVMuonAssoc.maxRapidityTP = 2.8
+me0MuonTrackVMuonAssoc.minRapidityTP = -2.8
+me0MuonTrackVMuonAssoc.maxRapidityTP = +2.8
 me0MuonTrackVMuonAssoc.usetracker = True
 me0MuonTrackVMuonAssoc.usemuon = False
-me0MuonTrackVMuonAssoc.max = 2.8
-me0MuonTrackVMuonAssoc.nint = 28
+me0MuonTrackVMuonAssoc.max = +2.8
+me0MuonTrackVMuonAssoc.min = -2.8
+me0MuonTrackVMuonAssoc.nint = 56
 
 # cosmics 2-leg reco
 trkCosmicMuonTrackVSelMuonAssoc = Validation.RecoMuon.MuonTrackValidator_cfi.muonTrackValidator.clone()
