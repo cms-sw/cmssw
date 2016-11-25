@@ -9,6 +9,7 @@ BadPFMuonFilter = cms.EDFilter(
     algo          = cms.int32(14),
     minDZ         = cms.double(0.1),              # dz threshold on PF muons to consider; this is not used
     minMuPt       = cms.double(100),               # pt threshold on PF muons 
-    minPtError    = cms.double(2.0),               # threshold on inner track pt Error
+    minPtError    = cms.double(2.0),               # threshold on best track RelptError
+    innerTrackRelErr = cms.double(1.0),            # threshold on innerTrack relPtErr
     segmentCompatibility = cms.double(0.3),        # compatibility between the inner track and the segments in the muon spectrometer
 )

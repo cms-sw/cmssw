@@ -42,6 +42,7 @@ private:
   const double          maxDR_;
   const double          minPtDiffRel_;
   const double          minMuonTrackRelErr_;
+  const double          innerTrackRelErr_;
   const double          minMuonPt_;
   const double          segmentCompatibility_;
 
@@ -58,6 +59,7 @@ BadChargedCandidateFilter::BadChargedCandidateFilter(const edm::ParameterSet& iC
   , maxDR_                ( iConfig.getParameter<double>  ("maxDR") )
   , minPtDiffRel_         ( iConfig.getParameter<double>  ("minPtDiffRel") )
   , minMuonTrackRelErr_   ( iConfig.getParameter<double>  ("minMuonTrackRelErr") )
+  , innerTrackRelErr_     ( iConfig.getParameter<double>  ("innerTrackRelErr") )
   , minMuonPt_            ( iConfig.getParameter<double>  ("minMuonPt") )
   , segmentCompatibility_ ( iConfig.getParameter<double>  ("segmentCompatibility") )
 {
@@ -120,8 +122,8 @@ BadChargedCandidateFilter::filter(edm::StreamID iID, edm::Event& iEvent, const e
 	}
 
 	if (debug_) cout << "SegmentCompatibility :"<< muon::segmentCompatibility(muon) << "RelPtErr:" << bestMuonTrack->ptError()/bestMuonTrack->pt() << endl;
-	if (muon::segmentCompatibility(muon) > segmentCompatibility_ && bestMuonTrack->ptError()/bestMuonTrack->pt() < minMuonTrackRelErr_) {
-	  if (debug_) cout <<"Skipping this muon because segment compatiblity > 0.3 and relErr(best track) <2 " << endl;
+	if (muon::segmentCompatibility(muon) > segmentCompatibility_ && bestMuonTrack->ptError()/bestMuonTrack->pt() < minMuonTrackRelErr_ && innerMuonTrack->ptError()/innerMuonTrack->pt() < innerTrackRelErr_ ) {
+	  if (debug_) cout <<"Skipping this muon because segment compatiblity > 0.3 and relErr(best track) <2 and relErr(inner track) < 1 " << endl;
 	  continue;
 	}
 
