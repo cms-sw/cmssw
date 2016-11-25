@@ -42,6 +42,10 @@ HLTL1NumberFilter::HLTL1NumberFilter(const edm::ParameterSet& config) :
   invert_( config.getParameter<bool>("invert") ),
   useTCDS_( config.getParameter<bool>("useTCDSEventNumber") )
 {
+
+  // only try and use TCDS event number if the FED ID 1024 is selected
+  if (fedId_!=1024) useTCDS_ = false;
+
 }
 
 
