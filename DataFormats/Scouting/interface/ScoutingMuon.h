@@ -10,7 +10,7 @@ class ScoutingMuon
  public:
   //constructor with values for all data fields
  ScoutingMuon(float pt, float eta, float phi, float m, float ecalIso, float hcalIso,
-	      float trackIso, float chi2, float ndof, int charge, float dxy, float dz,
+	      float trackIso, float chi2, int ndof, int charge, float dxy, float dz,
 	      int nValidMuonHits, int nValidPixelHits, int nMatchedStations,
 	      int nTrackerLayersWithMeasurement, int type, int nValidStripHits, float trk_qoverp, 
 	      float trk_lambda, float trk_pt, 
@@ -43,7 +43,7 @@ class ScoutingMuon
   float hcalIso() const { return hcalIso_; }
   float trackIso() const { return trackIso_; }
   float chi2() const { return chi2_; }
-  float ndof() const { return ndof_; }
+  int ndof() const { return ndof_; }
   int charge() const { return charge_; }
   float dxy() const { return dxy_; }
   float dz() const { return dz_; }
@@ -78,7 +78,7 @@ class ScoutingMuon
   float hcalIso_;
   float trackIso_;
   float chi2_;
-  float ndof_;
+  int ndof_;
   int charge_;
   float dxy_;
   float dz_;
