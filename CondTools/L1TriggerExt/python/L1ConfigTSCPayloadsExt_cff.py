@@ -24,6 +24,6 @@ def setTSCPayloadsDB(process, DBConnect, DBAuth, protoDBConnect, protoDBAuth):
     process.L1TMuonOverlapParamsOnlineProd.onlineAuthentication    = cms.string( DBAuth )
     process.L1TUtmTriggerMenuOnlineProd.onlineAuthentication       = cms.string( DBAuth )
 
-    process.l1caloparProtodb.connect            = cms.string( protoDBConnect )
-    process.l1caloparProtodb.authenticationPath = cms.string( protoDBAuth    )
+    process.l1caloparProtodb.connect                         = cms.string( protoDBConnect )
+    process.l1caloparProtodb.DBParameters.authenticationPath = cms.untracked.string( protoDBAuth )
 
