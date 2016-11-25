@@ -83,9 +83,11 @@ private:
       TrackRefKey current = 0;
 
       selector_.init(evt,es);
-      for (reco::TrackCollection::const_iterator it = hSrcTrack->begin(), ed = hSrcTrack->end(); it != ed; ++it, ++current) {
-          const reco::Track & trk = * it;
-          if (!selector_(trk)) continue;
+      auto tkBegin = hSrcTrack->begin();
+      for (reco::TrackCollection::const_iterator it = tkBegin, ed = hSrcTrack->end(); it != ed; ++it, ++current) {
+	  const reco::Track & trk = * it;
+	  const reco::TrackRef tkref(hSrcTrack,std::distance(tkBegin,it));
+          if (!selector_(tkref)) continue;
 
           selTracks_->push_back( Track( trk ) ); // clone and store
           if (!copyExtras_) continue;
