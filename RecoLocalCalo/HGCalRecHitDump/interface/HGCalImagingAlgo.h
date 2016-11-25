@@ -14,7 +14,7 @@
 #include "DataFormats/Math/interface/Point3D.h"
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 
-//#include "RecoLocalCalo/HGCalRecHitDump/interface/RecHitTools.h"
+#include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
 
 // C/C++ headers
 #include <string>
@@ -49,37 +49,29 @@ class HGCalImagingAlgo
   enum VerbosityLevel { pDEBUG = 0, pWARNING = 1, pINFO = 2, pERROR = 3 }; 
   
  HGCalImagingAlgo() : delta_c(0.), kappa(1.), ecut(0.), cluster_offset(0),
-		      geometry(0), ddd(0), 
-		      //topology(*thetopology_p), 
 		      algoId(reco::CaloCluster::undefined),
 		      verbosity(pERROR){
  }
   
   HGCalImagingAlgo(float delta_c_in, double kappa_in, double ecut_in,
-		   const HGCalGeometry *thegeometry_p,
 		   //		   const CaloSubdetectorTopology *thetopology_p,
 		   reco::CaloCluster::AlgoId algoId_in,
 		   VerbosityLevel the_verbosity = pERROR) : delta_c(delta_c_in), kappa(kappa_in), 
 							    ecut(ecut_in),    
 							    cluster_offset(0),
 							    sigma2(1.0),
-							    geometry(thegeometry_p), 
-							    //topology(*thetopology_p), 
 							    algoId(algoId_in),
 							    verbosity(the_verbosity){
   }
   
   HGCalImagingAlgo(float delta_c_in, double kappa_in, double ecut_in,
 		   double showerSigma, 
-		   const HGCalGeometry *thegeometry_p,
 		   //		   const CaloSubdetectorTopology *thetopology_p,
 		   reco::CaloCluster::AlgoId algoId_in,
 		   VerbosityLevel the_verbosity = pERROR) : delta_c(delta_c_in), kappa(kappa_in), 
 							    ecut(ecut_in),    
 							    cluster_offset(0),
 							    sigma2(std::pow(showerSigma,2.0)),
-							    geometry(thegeometry_p), 
-							    //topology(*thetopology_p), 
 							    algoId(algoId_in),
 							    verbosity(the_verbosity){
   }
@@ -99,7 +91,7 @@ class HGCalImagingAlgo
   // this is the method to get the cluster collection out 
   std::vector<reco::BasicCluster> getClusters(bool);
   // needed to switch between EE and HE with the same algorithm object (to get a single cluster collection)
-  void setGeometry(const HGCalGeometry *thegeometry_p){geometry = thegeometry_p;}
+  void getEventSetup(const edm::EventSetup& es){ rhtools_.getEventSetup(es); }
   // use this if you want to reuse the same cluster object but don't want to accumulate clusters (hardly useful?)
   void reset(){
     current_v.clear();
@@ -112,7 +104,7 @@ class HGCalImagingAlgo
  private: 
   
   //max number of layers
-  static const unsigned int maxlayer = 39;
+  static const unsigned int maxlayer = 52;
 
   // The two parameters used to identify clusters
   float delta_c;
@@ -130,9 +122,7 @@ class HGCalImagingAlgo
   // The vector of clusters
   std::vector<reco::BasicCluster> clusters_v;
 
-  const HGCalGeometry *geometry;
-  //  const HGCalTopology &topology;
-  const HGCalDDDConstants* ddd;
+  hgcal::RecHitTools rhtools_;
 
   // The algo id
   reco::CaloCluster::AlgoId algoId;
@@ -156,17 +146,16 @@ class HGCalImagingAlgo
     bool isBorder;
     bool isHalo;
     int clusterIndex;
-    const HGCalGeometry *geometry;
+    const hgcal::RecHitTools *tools;
 
-    Hexel(const HGCRecHit &hit, DetId id_in, bool isHalf, const HGCalGeometry *geometry_in) : 
+  Hexel(const HGCRecHit &hit, DetId id_in, bool isHalf, const hgcal::RecHitTools *tools_in) : 
       x(0.),y(0.),z(0.),isHalfCell(isHalf),
       weight(0.), fraction(1.0), detid(id_in), rho(0.), delta(0.),
       nearestHigher(-1), isBorder(false), isHalo(false), 
-      clusterIndex(-1), geometry(geometry_in)
+      clusterIndex(-1), tools(tools_in)
     {
-      const GlobalPoint position( std::move( geometry->getPosition( detid ) ) );
-      const HGCalGeometry::CornersVec corners( std::move( geometry->getCorners( detid ) ) );
-
+      const GlobalPoint position( std::move( tools->getPosition( detid ) ) );
+      
       weight = hit.energy();
       x = position.x();
       y = position.y();
@@ -178,7 +167,7 @@ class HGCalImagingAlgo
       weight(0.), fraction(1.0), detid(), rho(0.), delta(0.),
       nearestHigher(-1), isBorder(false), isHalo(false), 
       clusterIndex(-1),
-      geometry(0)
+      tools(0)
     {}
     bool operator > (const Hexel& rhs) const { 
       return (rho > rhs.rho); 
