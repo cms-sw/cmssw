@@ -96,7 +96,7 @@ void TrackerCleaner<T>::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
 
    for (edm::View<pat::Muon>::const_iterator iMuon = muons.begin(); iMuon != muons.end(); ++iMuon) {   
     if(!iMuon->isGlobalMuon() ) continue;
-    reco::Track *mutrack = new reco::Track(*(iMuon->globalTrack() ));
+    const reco::Track* mutrack = iMuon->globalTrack().get();
   //  reco::Track *mutrack = new reco::Track(*(iMuon->innerTrack() ));
     for (trackingRecHit_iterator hitIt = mutrack->recHitsBegin(); hitIt != mutrack->recHitsEnd(); ++hitIt) {
         const TrackingRecHit &murechit = **hitIt;     
