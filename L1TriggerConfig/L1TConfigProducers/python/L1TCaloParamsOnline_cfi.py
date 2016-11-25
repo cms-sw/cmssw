@@ -3,9 +3,9 @@ import FWCore.ParameterSet.Config as cms
 #from L1Trigger.L1TCalorimeter.caloStage2Params_2016_v3_2_cfi import *
 
 from CondCore.CondDB.CondDB_cfi import CondDB
-CondDB.connect = cms.string('oracle://cms_orcon_prod/CMS_CONDITIONS') # let's hardcode it for now
+CondDB.connect = cms.string('oracle://cms_orcon_prod/CMS_CONDITIONS')
 
-l1conddb = cms.ESSource("PoolDBESSource",
+l1caloparProtodb = cms.ESSource("PoolDBESSource",
        CondDB,
        toGet   = cms.VPSet(
             cms.PSet(

@@ -28,6 +28,11 @@ rskey=$3
 
 echo "INFO: ADDITIONAL CMS OPTIONS:  " $CMS_OPTIONS
 
+#ONLINEDB_OPTIONS="onlineDBConnect=oracle://cms_omds_adg/CMS_TRG_R onlineDBAuth=./"
+#PROTODB_OPTIONS="protoDBConnect=oracle://cms_orcon_adg/CMS_CONDITIONS protoDBAuth=./"
+ONLINEDB_OPTIONS="onlineDBConnect=oracle://cms_omds_lb/CMS_TRG_R onlineDBAuth=./"
+PROTODB_OPTIONS="protoDBConnect=oracle://cms_orcon_prod/CMS_CONDITIONS protoDBAuth=./"
+
 if [ ${xflag} -eq 0 ]
 then
     echo "Writing to sqlite_file:l1config.db instead of ORCON."
@@ -52,7 +57,7 @@ fi
 if cmsRun ${CMSSW_RELEASE_BASE}/src/CondTools/L1TriggerExt/test/l1o2otestanalyzer_cfg.py ${INDB_OPTIONS} printL1TriggerKeyListExt=1 | grep "${tsckey}:${rskey}" ; then echo "TSC payloads present"
 else
     echo "TSC payloads absent; writing $KEY_CONTENT now"
-    cmsRun ${CMSSW_RELEASE_BASE}/src/CondTools/L1TriggerExt/test/L1ConfigWritePayloadOnlineExt_cfg.py tscKey=${tsckey} rsKey=${rskey} ${OUTDB_OPTIONS} ${COPY_OPTIONS} ${KEY_CONTENT} logTransactions=0 print
+    cmsRun ${CMSSW_RELEASE_BASE}/src/CondTools/L1TriggerExt/test/L1ConfigWritePayloadOnlineExt_cfg.py tscKey=${tsckey} rsKey=${rskey} ${ONLINEDB_OPTIONS} ${PROTODB_OPTIONS} ${OUTDB_OPTIONS} ${COPY_OPTIONS} ${KEY_CONTENT} logTransactions=0 print
     o2ocode=$?
     if [ ${o2ocode} -ne 0 ]
     then
