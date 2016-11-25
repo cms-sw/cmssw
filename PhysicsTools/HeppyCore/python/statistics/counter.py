@@ -1,4 +1,4 @@
- # Copyright (C) 2014 Colin Bernet
+# Copyright (C) 2014 Colin Bernet
 # https://github.com/cbernet/heppy/blob/master/LICENSE
 
 import pickle
@@ -14,16 +14,19 @@ class Counter(diclist):
         self.add( level, [level, 0] )
     
     def inc(self, level, nentries=1):
-        '''increment an existing level
+        '''Call this function to create a level for this counter,
+        or to increment an existing level.
         '''
         if level not in self.dico:
             raise ValueError('level', level, 'has not been registered')
+            # self.add( level, [level, nentries])
         else:
             self[level][1] += nentries
 
     def __add__(self, other):
         '''Add two counters (+).'''
         size = max( len(self), len(other))
+        # import pdb; pdb.set_trace()
         for i in range(0, size):
             if i>=len(other):
                 # this line exists only in this counter, leave it as is
@@ -32,6 +35,7 @@ class Counter(diclist):
                 self.register( other[i][0])
                 self.inc( other[i][0], other[i][1] )
             else:
+                # exists in both
                 if self[i][0] != other[i][0]:  
                     err = ['cannot add these counters:', str(self), str(other)]
                     raise ValueError('\n'.join(err))
@@ -98,7 +102,8 @@ class Counters(object):
         return self.counters[ self.ranks[name] ] 
 
     def write(self, dirname):
-        map( lambda x: x.write(dirname), self.counters)
+        for item in self.counters:
+            item.write(dirname)
 
     def __str__(self):
         prints = map( str, self.counters )
@@ -107,3 +112,5 @@ class Counters(object):
     def __getitem__(self, name):
         return self.counter(name)
 
+    def __len__(self):
+        return len(self.counters)
