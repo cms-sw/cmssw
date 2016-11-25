@@ -13,16 +13,9 @@
 // Create a vector of Hexels associated to one cluster from a collection of HGCalRecHits - this can be used 
 // directly to make the final cluster list - this method can be invoked multiple times for the same event 
 // with different input (reset should be called between events)
-void HGCalImagingAlgo::makeClusters(
-                                  const HGCRecHitCollection& hits)
+void HGCalImagingAlgo::makeClusters(const HGCRecHitCollection& hits)
 {
-
-  const HGCalDDDConstants* ddd = &(geometry->topology().dddConstants());
-
-
   //used for speedy search 
-
-
   std::vector<std::vector<KDNode> >points(2*(maxlayer+1));
   std::vector<KDTree> hit_kdtree(2*(maxlayer+1));
 
@@ -35,7 +28,7 @@ void HGCalImagingAlgo::makeClusters(
   if (verbosity < pINFO)
     {
       std::cout << "-------------------------------------------------------------" << std::endl;
-      std::cout << "HGC Imaging algorithm invoked for " << (geometry->topology().subDetector()==ForwardSubdetector::HGCEE ? "EE" : "HEF")<< std::endl;
+      std::cout << "HGC Imaging algorithm invoked for " << std::endl;
       std::cout << "delta_c " << delta_c << " kappa " << kappa;
       //      if( doSharing ) std::cout << " showerSigma " << std::sqrt(sigma2);
       std::cout << std::endl;
@@ -47,20 +40,13 @@ void HGCalImagingAlgo::makeClusters(
     if(hgrh.energy() < ecut) continue; 
     DetId detid = hgrh.detid();
 
-    int layer = HGCalDetId(detid).layer()+int(HGCalDetId(detid).zside()>0)*(maxlayer+1);
+    int layer = rhtools_.getLayerWithOffset(detid)+int(HGCalDetId(detid).zside()>0)*(maxlayer+1);
     
     // determine whether this is a half-hexagon
-    // (copied from Lindsey's code not (yet?) available in release - is this even right ?
-
-    bool isHalf = false;
-    if(ddd!=0){
-      const HGCalDetId hid(detid);
-      const int waferType = ddd->waferTypeT(hid.waferType());  
-      isHalf = ddd->isHalfCell(waferType,hid.cell());
-    }
-    const GlobalPoint position( std::move( geometry->getPosition( detid ) ) );
+    bool isHalf = rhtools_.isHalfCell(detid);    
+    const GlobalPoint position( std::move( rhtools_.getPosition( detid ) ) );
     //here's were the KDNode is passed its dims arguments - note that these are *copied* from the Hexel
-    points[layer].emplace_back(Hexel(hgrh,detid,isHalf,geometry),position.x(),position.y());
+    points[layer].emplace_back(Hexel(hgrh,detid,isHalf,&rhtools_),position.x(),position.y());
     if(points[layer].size()==0){
       minpos[layer][0] = position.x(); minpos[layer][1] = position.y();
       maxpos[layer][0] = position.x(); maxpos[layer][1] = position.y();
@@ -186,8 +172,8 @@ math::XYZPoint HGCalImagingAlgo::calculatePosition(std::vector<KDNode> &v){
 } 
 
 double HGCalImagingAlgo::distance(const Hexel &pt1, const Hexel &pt2){
-  const GlobalPoint position1( std::move( geometry->getPosition( pt1.detid ) ) );
-  const GlobalPoint position2( std::move( geometry->getPosition( pt2.detid ) ) );
+  const GlobalPoint position1( std::move( rhtools_.getPosition( pt1.detid ) ) );
+  const GlobalPoint position2( std::move( rhtools_.getPosition( pt2.detid ) ) );
   return sqrt(pow(pt1.x - pt2.x, 2) + pow(pt1.y - pt2.y, 2));
 }
 

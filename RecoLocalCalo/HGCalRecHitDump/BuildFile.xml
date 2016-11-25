@@ -16,6 +16,7 @@
 <use name="root"/>
 <use name="roofit"/>
 <use name="clhep"/>
+<use name="RecoLocalCalo/HGCalRecAlgos"/>
 
 <export>
   <lib   name="1"/>
