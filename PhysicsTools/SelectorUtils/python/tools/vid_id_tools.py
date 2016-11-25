@@ -96,6 +96,16 @@ def setupVIDElectronSelection(process,cutflow,patProducer=None,addUserData=True)
         idName = cutflow.idName.value()
         addVIDSelectionToPATProducer(patProducer,'egmGsfElectronIDs',idName,addUserData)
 
+    #we know cutflow has a name otherwise an exception would have been thrown in setupVIDSelection
+    if cutflow.idName.value().find("HEEP")!=-1:
+        #not the ideal way but currently the easiest
+        useMiniAOD = process.egmGsfElectronIDs.physicsObjectSrc == cms.InputTag('slimmedElectrons')
+            
+        from RecoEgamma.ElectronIdentification.Identification.heepElectronID_tools import addHEEPProducersToSeq
+        addHEEPProducersToSeq(process=process,seq=process.egmGsfElectronIDSequence,
+                              insertIndex=process.egmGsfElectronIDSequence.index(process.egmGsfElectronIDs),
+                              useMiniAOD=useMiniAOD)
+        
 ####
 # Muons
 ####
