@@ -3,6 +3,7 @@ from math import *
 import ROOT
 #from CMGTools.TTHAnalysis.signedSip import *
 from PhysicsTools.Heppy.analyzers.core.autovars import *
+from PhysicsTools.Heppy.physicsutils.JetReCalibrator import JetReCalibrator
 from PhysicsTools.HeppyCore.utils.deltar import deltaR
 
 objectFloat = NTupleObjectType("builtInType", variables = [
@@ -209,6 +210,7 @@ jetType = NTupleObjectType("jet",  baseObjectTypes = [ fourVectorType ], variabl
     NTupleVariable("corr_JERDown", lambda x : getattr(x, 'corrJERDown', -99), float, mcOnly=True, help=""),
     NTupleVariable("corr_JER", lambda x : getattr(x, 'corrJER', -99), float, mcOnly=True, help=""),
 ])
+
 jetTypeExtra = NTupleObjectType("jetExtra",  baseObjectTypes = [ jetType ], variables = [
     NTupleVariable("area",   lambda x : x.jetArea(), help="Catchment area of jet"),
     # QG variables:

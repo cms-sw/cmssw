@@ -93,6 +93,8 @@ class JetAnalyzer( Analyzer ):
           kwargs = { 'calculateSeparateCorrections':calculateSeparateCorrections,
                      'calculateType1METCorrection' :calculateType1METCorrection, }
           if kwargs['calculateType1METCorrection']: kwargs['type1METParams'] = cfg_ana.type1METParams
+          if hasattr(cfg_ana, "factorizedJetCorrections"):
+              kwargs["factorizedJetCorrections"] = cfg_ana.factorizedJetCorrections
           # instantiate the jet re-calibrator
           self.jetReCalibrator = JetReCalibrator(GT, cfg_ana.recalibrationType, doResidual, cfg_ana.jecPath, **kwargs)
         self.doPuId = getattr(self.cfg_ana, 'doPuId', True)
