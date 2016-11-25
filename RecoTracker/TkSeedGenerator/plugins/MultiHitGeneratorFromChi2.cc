@@ -1,4 +1,5 @@
 #include "RecoTracker/TkSeedGenerator/plugins/MultiHitGeneratorFromChi2.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 #include "RecoPixelVertexing/PixelTriplets/interface/ThirdHitPredictionFromCircle.h"
 #include "RecoPixelVertexing/PixelTriplets/plugins/ThirdHitRZPrediction.h"
@@ -109,6 +110,39 @@ MultiHitGeneratorFromChi2::MultiHitGeneratorFromChi2(const edm::ParameterSet& cf
 }
 
 MultiHitGeneratorFromChi2::~MultiHitGeneratorFromChi2() {}
+
+
+void MultiHitGeneratorFromChi2::fillDescriptions(edm::ParameterSetDescription& desc) {
+  MultiHitGeneratorFromPairAndLayers::fillDescriptions(desc);
+
+  // fixed phi filtering
+  desc.add<bool>("useFixedPreFiltering", false);
+  desc.add<double>("phiPreFiltering", 0.3);
+
+  // box properties
+  desc.add<double>("extraHitRPhitolerance", 0);
+  desc.add<double>("extraHitRZtolerance", 0);
+  desc.add<double>("extraZKDBox", 0.2);
+  desc.add<double>("extraRKDBox", 0.2);
+  desc.add<double>("extraPhiKDBox", 0.005);
+  desc.add<double>("fnSigmaRZ", 2.0);
+
+  // refit&filter hits
+  desc.add<bool>("refitHits", true);
+  desc.add<std::string>("ClusterShapeHitFilterName", "ClusterShapeHitFilter");
+  desc.add<std::string>("TTRHBuilder", "WithTrackAngle");
+
+  // chi2 cuts
+  desc.add<double>("maxChi2", 5.0);
+  desc.add<bool>("chi2VsPtCut", true);
+  desc.add<std::vector<double> >("pt_interv", std::vector<double>{{0.4,0.7,1.0,2.0}});
+  desc.add<std::vector<double> >("chi2_cuts", std::vector<double>{{3.0,4.0,5.0,5.0}});
+
+  // debugging
+  desc.add<std::vector<int> >("detIdsToDebug", std::vector<int>{{0,0,0}});
+}
+
+
 void MultiHitGeneratorFromChi2::initES(const edm::EventSetup& es) 
 {
 
@@ -161,17 +195,29 @@ void MultiHitGeneratorFromChi2::hitSets(const TrackingRegion& region,
     //  LogDebug("MultiHitGeneratorFromChi2") << "empy pairs";                                                      
     return;
   }
+
+  assert(theLayerCache);
+  hitSets(region, result, ev, es, doublets, thirdLayers, *theLayerCache, cache);
+}
+
+void MultiHitGeneratorFromChi2::hitSets(const TrackingRegion& region, OrderedMultiHits& result,
+                                        const edm::Event& ev, const edm::EventSetup& es,
+                                        const HitDoublets& doublets,
+                                        const std::vector<SeedingLayerSetsHits::SeedingLayer>& thirdLayers,
+                                        LayerCacheType& layerCache,
+                                        cacheHits& refittedHitStorage) {
   int size = thirdLayers.size();
   const RecHitsSortedInPhi * thirdHitMap[size];
   vector<const DetLayer *> thirdLayerDetLayer(size,0);
   for (int il=0; il<size; ++il) 
     {
-      thirdHitMap[il] = &(*theLayerCache)(thirdLayers[il], region, ev, es);
+      thirdHitMap[il] = &layerCache(thirdLayers[il], region, es);
 
       thirdLayerDetLayer[il] = thirdLayers[il].detLayer();
     }
-  hitTriplets(region,result,es,doublets,thirdHitMap,thirdLayerDetLayer,size);
+  hitSets(region, result, es, doublets, thirdHitMap, thirdLayerDetLayer, size, refittedHitStorage);
 }
+
 void MultiHitGeneratorFromChi2::hitTriplets(
 					   const TrackingRegion& region, 
 					   OrderedMultiHits & result,
@@ -181,7 +227,16 @@ void MultiHitGeneratorFromChi2::hitTriplets(
 					   const std::vector<const DetLayer *> & thirdLayerDetLayer,
 					   const int nThirdLayers)
 {
+  hitSets(region, result, es, doublets, thirdHitMap, thirdLayerDetLayer, nThirdLayers, cache);
+}
 
+void MultiHitGeneratorFromChi2::hitSets(const TrackingRegion& region, OrderedMultiHits& result,
+                                        const edm::EventSetup& es,
+                                        const HitDoublets& doublets,
+                                        const RecHitsSortedInPhi **thirdHitMap,
+                                        const std::vector<const DetLayer *>& thirdLayerDetLayer,
+                                        const int nThirdLayers,
+                                        cacheHits& refittedHitStorage) {
   unsigned int debug_Id0 = detIdsToDebug[0];
   unsigned int debug_Id1 = detIdsToDebug[1];
   unsigned int debug_Id2 = detIdsToDebug[2];
@@ -267,7 +322,7 @@ void MultiHitGeneratorFromChi2::hitTriplets(
     GlobalPoint gp1 = hit1->globalPosition();
 
 #ifdef EDM_ML_DEBUG
-    bool debugPair = oriHit0->rawId()==debug_Id0 && oriHit01->rawId()==debug_Id1;
+    bool debugPair = oriHit0->rawId()==debug_Id0 && oriHit1->rawId()==debug_Id1;
 #endif
     IfLogTrace(debugPair, "MultiHitGeneratorFromChi2") << endl << endl
                                                        << "found new pair with ids "<<debug_Id0<<" "<<debug_Id1<<" with pos: " << gp0 << " " << gp1;
@@ -637,12 +692,12 @@ void MultiHitGeneratorFromChi2::hitTriplets(
       assert(bestH2);
       result.emplace_back(&*hit0,&*hit1,&*bestH2); 
       assert(hit0.isOwn()); assert(hit1.isOwn());
-      cache.emplace_back(const_cast<BaseTrackerRecHit*>(hit0.release()));
-      cache.emplace_back(const_cast<BaseTrackerRecHit*>(hit1.release()));
-      cache.emplace_back(std::move(bestH2));
+      refittedHitStorage.emplace_back(const_cast<BaseTrackerRecHit*>(hit0.release()));
+      refittedHitStorage.emplace_back(const_cast<BaseTrackerRecHit*>(hit1.release()));
+      refittedHitStorage.emplace_back(std::move(bestH2));
       assert(hit0.empty()); assert(hit1.empty());assert(!bestH2);
     }
-    // LogTrace("MultiHitGeneratorFromChi2") << (usePair ? "pair " : "triplet ") << minChi2 <<' ' << cache.size();
+    // LogTrace("MultiHitGeneratorFromChi2") << (usePair ? "pair " : "triplet ") << minChi2 <<' ' << refittedHitStorage.size();
 
 
   }//loop over pairs

@@ -13,7 +13,8 @@
 //  PlotHistCorrFactor(infile, text, nmin, save);
 //             For plotting correction factors from 2 different runs on the
 //             same canvas
-//  PlotHistCorrFactors(infile1, text1, infile2, text2,  nmin, save)
+//  PlotHistCorrFactors(infile1, text1, infile2, text2, ratio, drawStatBox,
+//                      nmin, save)
 //             For plotting correction factors including systematics
 //  PlotHistCorrSys(infilec, conds, text, save);
 //
@@ -35,6 +36,8 @@
 //  save     (bool)         = if true it saves the canvas as a pdf file
 //  nmin     (int)          = minimum # of #ieta points needed to show the
 //                            fitted line
+//  ratio    (bool)         = set to show the ratio plot (false)
+//  drawStatBox (bool)      = set to show the statistical box (true)
 //  infilc   (string)       = prefix of the file names of correction factors
 //                            (assumes file name would be the prefix followed
 //                            by _condX.txt where X=0 for the default version
@@ -585,6 +588,7 @@ void PlotHistCorrFactor(std::string infile, std::string text, int nmin=20,
 
 void PlotHistCorrFactors(std::string infile1, std::string text1, 
 			 std::string infile2, std::string text2, 
+			 bool ratio=false, bool drawStatBox=true,
 			 int nmin=100, bool save=false) {
 
   std::vector<cfactors> cfacs1, cfacs2;
@@ -633,55 +637,99 @@ void PlotHistCorrFactors(std::string infile1, std::string text1,
   gStyle->SetCanvasBorderMode(0); gStyle->SetCanvasColor(kWhite);
   gStyle->SetPadColor(kWhite);    gStyle->SetFillColor(kWhite);
   gStyle->SetOptTitle(0);
-  gStyle->SetOptStat(10);         gStyle->SetOptFit(10);
+  if ((!ratio) && drawStatBox) {
+    gStyle->SetOptStat(10);       gStyle->SetOptFit(10);
+  } else {
+    gStyle->SetOptStat(0);        gStyle->SetOptFit(0);
+  }
   int colors[6] = {1,6,4,7,2,9};
   int mtype[6]  = {20,24,22,23,21,33};
   int nbin = etamax - etamin + 1;
-  std::vector<TH1D*> hists;
-  std::vector<int>   entries;
-  char               name[100];
-  double             dy(0);
-  int                fits(0);
-  for (int k1=0; k1<2; ++k1) {
+  std::vector<TH1D*>  hists;
+  std::vector<int>    entries;
+  std::vector<double> fitr;
+  char                name[100];
+  double              dy(0);
+  int                 fits(0);
+  if (ratio) {
     for (int j=0; j<maxdepth; ++j) {
-      sprintf (name, "hd%d%d", j+1, k1);
+      sprintf (name, "hd%d", j+1);
       TH1D* h = new TH1D(name, name, nbin, etamin, etamax);
-      int nent(0);
-      unsigned int nsize = (k1 == 0) ? cfacs1.size() : cfacs2.size();
-      for (unsigned int k = 0; k < nsize; ++k) {
-	int dep = (k1 == 0) ? cfacs1[k].depth : cfacs2[k].depth;
+      double sumNum(0), sumDen(0);
+      for (unsigned int k = 0; k < cfacs1.size(); ++k) {
+	int dep = cfacs1[k].depth;
 	if (dep == j+1) {
-	  int ieta = (k1 == 0) ? cfacs1[k].ieta : cfacs2[k].ieta;
+	  int ieta = cfacs1[k].ieta;
 	  int bin  = ieta - etamin + 1;
-	  float val = (k1 == 0) ? cfacs1[k].corrf : cfacs2[k].corrf;
-	  float dvl = (k1 == 0) ? cfacs1[k].dcorr : cfacs2[k].dcorr;
+	  float val = cfacs1[k].corrf/cfacs2[k].corrf;
+	  float dvl = val * sqrt(((cfacs1[k].dcorr*cfacs1[k].dcorr)/
+				  (cfacs1[k].corrf*cfacs1[k].corrf)) +
+				 ((cfacs2[k].dcorr*cfacs2[k].dcorr)/
+				  (cfacs2[k].corrf*cfacs2[k].corrf)));
 	  h->SetBinContent(bin,val);
 	  h->SetBinError(bin,dvl);
-	  nent++;
+	  sumNum += (val/(dvl*dvl));
+	  sumDen += (1.0/(dvl*dvl));
 	}
       }
-      if (nent > nmin) {
-	fits++;
-	dy  += 0.025;
-	sprintf (name, "hdf%d%d", j+1, k1);
-	TF1* func   = new TF1(name, "pol0", etamin, etamax);
-	h->Fit(func,"+QWLR","");
-      }
+      double fit = (sumDen > 0) ? (sumNum/sumDen) : 1.0;
+      std::cout << "Fit to Pol0: " << fit << std::endl;
       h->SetLineColor(colors[j]);
       h->SetMarkerColor(colors[j]);
-      h->SetMarkerStyle(mtype[k1]);
+      h->SetMarkerStyle(mtype[0]);
       h->SetMarkerSize(0.9);
       h->GetXaxis()->SetTitle("i#eta");
-      h->GetYaxis()->SetTitle("Correction Factor");
+      sprintf (name, "Ratio of Correction Factors (%s/%s)", text1.c_str(), text2.c_str());
+      h->GetYaxis()->SetTitle(name);
       h->GetYaxis()->SetLabelOffset(0.005);
       h->GetYaxis()->SetTitleOffset(1.20);
-      h->GetYaxis()->SetRangeUser(0.0,2.0);
+      h->GetYaxis()->SetRangeUser(0.95,1.05);
       hists.push_back(h);
-      entries.push_back(nent);
-      dy  += 0.025;
+      fitr.push_back(fit);
     }
-    nhist[k1] = (hists.size());
-    if (k1 > 0) nhist[k1] -= nhist[k1-1];
+    nhist[1] = nhist[0] = hists.size();
+  } else {
+    for (int k1=0; k1<2; ++k1) {
+      for (int j=0; j<maxdepth; ++j) {
+	sprintf (name, "hd%d%d", j+1, k1);
+	TH1D* h = new TH1D(name, name, nbin, etamin, etamax);
+	int nent(0);
+	unsigned int nsize = (k1 == 0) ? cfacs1.size() : cfacs2.size();
+	for (unsigned int k = 0; k < nsize; ++k) {
+	  int dep = (k1 == 0) ? cfacs1[k].depth : cfacs2[k].depth;
+	  if (dep == j+1) {
+	    int ieta = (k1 == 0) ? cfacs1[k].ieta : cfacs2[k].ieta;
+	    int bin  = ieta - etamin + 1;
+	    float val = (k1 == 0) ? cfacs1[k].corrf : cfacs2[k].corrf;
+	    float dvl = (k1 == 0) ? cfacs1[k].dcorr : cfacs2[k].dcorr;
+	    h->SetBinContent(bin,val);
+	    h->SetBinError(bin,dvl);
+	    nent++;
+	  }
+	}
+	if (nent > nmin) {
+	  fits++;
+	  if (drawStatBox) dy  += 0.025;
+	  sprintf (name, "hdf%d%d", j+1, k1);
+	  TF1* func   = new TF1(name, "pol0", etamin, etamax);
+	  h->Fit(func,"+QWLR","");
+	}
+	h->SetLineColor(colors[j]);
+	h->SetMarkerColor(colors[j]);
+	h->SetMarkerStyle(mtype[k1]);
+	h->SetMarkerSize(0.9);
+	h->GetXaxis()->SetTitle("i#eta");
+	h->GetYaxis()->SetTitle("Correction Factor");
+	h->GetYaxis()->SetLabelOffset(0.005);
+	h->GetYaxis()->SetTitleOffset(1.20);
+	h->GetYaxis()->SetRangeUser(0.0,2.0);
+	hists.push_back(h);
+	entries.push_back(nent);
+	if (drawStatBox) dy  += 0.025;
+      }
+      nhist[k1] = (hists.size());
+      if (k1 > 0) nhist[k1] -= nhist[k1-1];
+    }
   }
   TCanvas *pad = new TCanvas("CorrFactor","CorrFactor", 700, 500);
   pad->SetRightMargin(0.10); pad->SetTopMargin(0.10);
@@ -693,18 +741,22 @@ void PlotHistCorrFactors(std::string infile1, std::string text1,
     if (k == 0) hists[k]->Draw("");
     else        hists[k]->Draw("sames");
     pad->Update();
-    TPaveStats* st1 = (TPaveStats*)hists[k]->GetListOfFunctions()->FindObject("stats");
-    int k1 = (k < nhist[0]) ? k : (k-nhist[0]);
-    if (st1 != NULL) {
-      dy = (entries[k] > nmin) ? 0.05 : 0.025;
-      st1->SetLineColor(colors[k1]);
-      st1->SetTextColor(colors[k1]);
-      st1->SetY1NDC(yh-dy); st1->SetY2NDC(yh);
-      st1->SetX1NDC(0.70); st1->SetX2NDC(0.90);
-      yh -= dy;
+    if (!ratio) {
+      TPaveStats* st1 = (TPaveStats*)hists[k]->GetListOfFunctions()->FindObject("stats");
+      int k1 = (k < nhist[0]) ? k : (k-nhist[0]);
+      if (st1 != NULL) {
+	dy = (entries[k] > nmin) ? 0.05 : 0.025;
+	st1->SetLineColor(colors[k1]);
+	st1->SetTextColor(colors[k1]);
+	st1->SetY1NDC(yh-dy); st1->SetY2NDC(yh);
+	st1->SetX1NDC(0.70); st1->SetX2NDC(0.90);
+	yh -= dy;
+      }
+      std::string text = (k < nhist[0]) ? text1 : text2;
+      sprintf (name, "Depth %d (%s)", k1+1, text.c_str());
+    } else {
+      sprintf (name, "Depth %d (Mean = %5.3f)", k+1, fitr[k]);
     }
-    std::string text = (k < nhist[0]) ? text1 : text2;
-    sprintf (name, "Depth %d (%s)", k1+1, text.c_str());
     legend->AddEntry(hists[k],name,"lp");
   }
   legend->Draw("same");

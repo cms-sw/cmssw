@@ -149,7 +149,7 @@ namespace edm {
     template<typename T> friend class stream::ProducingModuleAdaptorBase;
 
 
-    void commit_();
+    void commit_(std::vector<edm::ProductResolverIndex> const& iShouldPut);
 
     PrincipalGetAdapter provRecorder_;
     ProductPtrVec putProducts_;

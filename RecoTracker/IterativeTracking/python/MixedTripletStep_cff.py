@@ -78,41 +78,51 @@ trackingPhase1PU70.toModify(mixedTripletStepSeedLayersA,
     )
 )
 
+# TrackingRegion
+from RecoTracker.TkTrackingRegions.globalTrackingRegionFromBeamSpotFixedZ_cfi import globalTrackingRegionFromBeamSpotFixedZ as _globalTrackingRegionFromBeamSpotFixedZ
+mixedTripletStepTrackingRegionsA = _globalTrackingRegionFromBeamSpotFixedZ.clone(RegionPSet = dict(
+    ptMin = 0.4,
+    originHalfLength = 15.0,
+    originRadius = 1.5
+))
+trackingLowPU.toModify(mixedTripletStepTrackingRegionsA, RegionPSet = dict(originHalfLength = 10.0))
+trackingPhase1PU70.toModify(mixedTripletStepTrackingRegionsA, RegionPSet = dict(ptMin = 0.7))
 
-# SEEDS
-from RecoPixelVertexing.PixelTriplets.PixelTripletLargeTipGenerator_cfi import *
-PixelTripletLargeTipGenerator.extraHitRZtolerance = 0.0
-PixelTripletLargeTipGenerator.extraHitRPhitolerance = 0.0
-import RecoTracker.TkSeedGenerator.GlobalSeedsFromTriplets_cff
-mixedTripletStepSeedsA = RecoTracker.TkSeedGenerator.GlobalSeedsFromTriplets_cff.globalSeedsFromTriplets.clone()
-mixedTripletStepSeedsA.OrderedHitsFactoryPSet.SeedingLayers = 'mixedTripletStepSeedLayersA'
-mixedTripletStepSeedsA.OrderedHitsFactoryPSet.GeneratorPSet = cms.PSet(PixelTripletLargeTipGenerator)
-mixedTripletStepSeedsA.SeedCreatorPSet.ComponentName = 'SeedFromConsecutiveHitsTripletOnlyCreator'
-mixedTripletStepSeedsA.RegionFactoryPSet.RegionPSet.ptMin = 0.4
-mixedTripletStepSeedsA.RegionFactoryPSet.RegionPSet.originHalfLength = 15.0
-mixedTripletStepSeedsA.RegionFactoryPSet.RegionPSet.originRadius = 1.5
-
-import RecoPixelVertexing.PixelLowPtUtilities.ClusterShapeHitFilterESProducer_cfi
-mixedTripletStepClusterShapeHitFilter  = RecoPixelVertexing.PixelLowPtUtilities.ClusterShapeHitFilterESProducer_cfi.ClusterShapeHitFilterESProducer.clone(
-	ComponentName = cms.string('mixedTripletStepClusterShapeHitFilter'),
-	clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutTight'))
-	)
-	
-mixedTripletStepSeedsA.SeedComparitorPSet = cms.PSet(
-        ComponentName = cms.string('PixelClusterShapeSeedComparitor'),
+# seeding
+from RecoPixelVertexing.PixelLowPtUtilities.ClusterShapeHitFilterESProducer_cfi import ClusterShapeHitFilterESProducer as _ClusterShapeHitFilterESProducer
+mixedTripletStepClusterShapeHitFilter  = _ClusterShapeHitFilterESProducer.clone(
+    ComponentName = 'mixedTripletStepClusterShapeHitFilter',
+    clusterChargeCut = dict(refToPSet_ = 'SiStripClusterChargeCutTight')
+)
+from RecoTracker.TkHitPairs.hitPairEDProducer_cfi import hitPairEDProducer as _hitPairEDProducer
+mixedTripletStepHitDoubletsA = _hitPairEDProducer.clone(
+    seedingLayers = "mixedTripletStepSeedLayersA",
+    trackingRegions = "mixedTripletStepTrackingRegionsA",
+    maxElement = 0,
+    produceIntermediateHitDoublets = True,
+)
+from RecoPixelVertexing.PixelTriplets.pixelTripletLargeTipEDProducer_cfi import pixelTripletLargeTipEDProducer as _pixelTripletLargeTipEDProducer
+from RecoPixelVertexing.PixelLowPtUtilities.ClusterShapeHitFilterESProducer_cfi import *
+mixedTripletStepHitTripletsA = _pixelTripletLargeTipEDProducer.clone(
+    doublets = "mixedTripletStepHitDoubletsA",
+    produceSeedingHitSets = True,
+)
+from RecoTracker.TkSeedGenerator.seedCreatorFromRegionConsecutiveHitsTripletOnlyEDProducer_cff import seedCreatorFromRegionConsecutiveHitsTripletOnlyEDProducer as _seedCreatorFromRegionConsecutiveHitsTripletOnlyEDProducer
+mixedTripletStepSeedsA = _seedCreatorFromRegionConsecutiveHitsTripletOnlyEDProducer.clone(
+    seedingHitSets = "mixedTripletStepHitTripletsA",
+    SeedComparitorPSet = dict(# FIXME: is this defined in any cfi that could be imported instead of copy-paste?
+        ComponentName = 'PixelClusterShapeSeedComparitor',
         FilterAtHelixStage = cms.bool(False),
         FilterPixelHits = cms.bool(True),
         FilterStripHits = cms.bool(True),
         ClusterShapeHitFilterName = cms.string('mixedTripletStepClusterShapeHitFilter'),
         ClusterShapeCacheSrc = cms.InputTag('siPixelClusterShapeCache')
-    )
+    ),
+)
 trackingLowPU.toModify(mixedTripletStepSeedsA,
-    RegionFactoryPSet = dict(RegionPSet = dict(originHalfLength = 10.0)),
     SeedComparitorPSet = dict(ClusterShapeHitFilterName = 'ClusterShapeHitFilter')
 )
-trackingPhase1PU70.toModify(
-    mixedTripletStepSeedsA,
-    RegionFactoryPSet = dict(RegionPSet = dict(ptMin = 0.7)),
+trackingPhase1PU70.toModify(mixedTripletStepSeedsA,
     SeedComparitorPSet = dict(ClusterShapeHitFilterName = 'ClusterShapeHitFilter'),
 )
 
@@ -142,40 +152,21 @@ trackingPhase1PU70.toModify(mixedTripletStepSeedLayersB,
     TIB = None
 )
 
-# SEEDS
-from RecoPixelVertexing.PixelTriplets.PixelTripletLargeTipGenerator_cfi import *
-PixelTripletLargeTipGenerator.extraHitRZtolerance = 0.0
-PixelTripletLargeTipGenerator.extraHitRPhitolerance = 0.0
-import RecoTracker.TkSeedGenerator.GlobalSeedsFromTriplets_cff
-mixedTripletStepSeedsB = RecoTracker.TkSeedGenerator.GlobalSeedsFromTriplets_cff.globalSeedsFromTriplets.clone()
-mixedTripletStepSeedsB.OrderedHitsFactoryPSet.SeedingLayers = 'mixedTripletStepSeedLayersB'
-mixedTripletStepSeedsB.OrderedHitsFactoryPSet.GeneratorPSet = cms.PSet(PixelTripletLargeTipGenerator)
-mixedTripletStepSeedsB.SeedCreatorPSet.ComponentName = 'SeedFromConsecutiveHitsTripletOnlyCreator'
-mixedTripletStepSeedsB.RegionFactoryPSet.RegionPSet.ptMin = 0.6
-mixedTripletStepSeedsB.RegionFactoryPSet.RegionPSet.originHalfLength = 10.0
-mixedTripletStepSeedsB.RegionFactoryPSet.RegionPSet.originRadius = 1.5
+# TrackingRegion
+mixedTripletStepTrackingRegionsB = mixedTripletStepTrackingRegionsA.clone(RegionPSet = dict(ptMin=0.6, originHalfLength=10.0))
+trackingPhase1PU70.toModify(mixedTripletStepTrackingRegionsB, RegionPSet = dict(
+    ptMin = 0.5,
+    originHalfLength = 15.0,
+    originRadius = 1.0
+))
 
-mixedTripletStepSeedsB.SeedComparitorPSet = cms.PSet(
-        ComponentName = cms.string('PixelClusterShapeSeedComparitor'),
-        FilterAtHelixStage = cms.bool(False),
-        FilterPixelHits = cms.bool(True),
-        FilterStripHits = cms.bool(True),
-        ClusterShapeHitFilterName = cms.string('mixedTripletStepClusterShapeHitFilter'),
-        ClusterShapeCacheSrc = cms.InputTag('siPixelClusterShapeCache')
-    )
-trackingLowPU.toModify(mixedTripletStepSeedsB, SeedComparitorPSet = dict(ClusterShapeHitFilterName = 'ClusterShapeHitFilter'))
-trackingPhase1PU70.toModify(
-    mixedTripletStepSeedsB,
-    RegionFactoryPSet = dict(
-        RegionPSet = dict(
-            ptMin = 0.5,
-            originHalfLength = 15.0,
-            originRadius = 1.0
-        )
-    ),
-    SeedComparitorPSet = dict(ClusterShapeHitFilterName = 'ClusterShapeHitFilter'),
+# seeding
+mixedTripletStepHitDoubletsB = mixedTripletStepHitDoubletsA.clone(
+    seedingLayers = "mixedTripletStepSeedLayersB",
+    trackingRegions = "mixedTripletStepTrackingRegionsB",
 )
-
+mixedTripletStepHitTripletsB = mixedTripletStepHitTripletsA.clone(doublets = "mixedTripletStepHitDoubletsB")
+mixedTripletStepSeedsB = mixedTripletStepSeedsA.clone(seedingHitSets = "mixedTripletStepHitTripletsB")
 
 import RecoTracker.TkSeedGenerator.GlobalCombinedSeeds_cfi
 mixedTripletStepSeeds = RecoTracker.TkSeedGenerator.GlobalCombinedSeeds_cfi.globalCombinedSeeds.clone()
@@ -486,8 +477,14 @@ trackingPhase1PU70.toReplaceWith(mixedTripletStep, _trackListMergerBase.clone(
 
 MixedTripletStep = cms.Sequence(chargeCut2069Clusters*mixedTripletStepClusters*
                                 mixedTripletStepSeedLayersA*
+                                mixedTripletStepTrackingRegionsA*
+                                mixedTripletStepHitDoubletsA*
+                                mixedTripletStepHitTripletsA*
                                 mixedTripletStepSeedsA*
                                 mixedTripletStepSeedLayersB*
+                                mixedTripletStepTrackingRegionsB*
+                                mixedTripletStepHitDoubletsB*
+                                mixedTripletStepHitTripletsB*
                                 mixedTripletStepSeedsB*
                                 mixedTripletStepSeeds*
                                 mixedTripletStepTrackCandidates*

@@ -40,14 +40,15 @@ public:
   void fill(double x, double y, DetId sourceModule, const edm::Event *sourceEvent = nullptr, int col = 0, int row = 0); 
 
   // This needs to be called after each event (in the analyzer) for per-event counting, like ndigis.
-  void executePerEventHarvesting();
+  void executePerEventHarvesting(edm::Event const* ev);
   
   // Initiate the geometry extraction and book all required frames. Requires the specs to be set.
   void book(DQMStore::IBooker& iBooker, edm::EventSetup const& iSetup);
 
   // These functions perform step2, for online (per lumisection) or offline (endRun) respectively.
   // Note that the EventSetup from PerLumi is used in offline as well, so PerLumi always has to be called first.
-  void executePerLumiHarvesting(DQMStore::IBooker& iBooker, DQMStore::IGetter& iGetter, edm::EventSetup const& iSetup);
+  void executePerLumiHarvesting(DQMStore::IBooker& iBooker, DQMStore::IGetter& iGetter,
+                                edm::LuminosityBlock const& lumiBlock, edm::EventSetup const& iSetup);
   void executeHarvesting(DQMStore::IBooker& iBooker, DQMStore::IGetter& iGetter);
 
   typedef std::map<GeometryInterface::Values, AbstractHistogram> Table;
@@ -61,44 +62,46 @@ public:
 private:
   const edm::ParameterSet& iConfig;
   GeometryInterface& geometryInterface;
-  std::function<void(SummationStep& step, Table& t)> customHandler;
+  std::function<void(SummationStep& step, Table& t, DQMStore::IBooker& iBooker, DQMStore::IGetter& iGetter)> customHandler;
 
   std::vector<SummationSpecification> specs;
   std::vector<Table> tables;
+  std::vector<Table> counters;
 
   std::string makePath(GeometryInterface::Values const&);
+  std::string makeName(SummationSpecification const& s,
+      GeometryInterface::InterestingQuantities const& iq);
 
-  void executeStep1Spec(double x, double y,
-                        GeometryInterface::Values& significantvalues, 
-                        SummationSpecification& s, 
-                        Table& t,
-                        SummationStep::Stage stage,
-                        AbstractHistogram*& fastpath);
+  void fillInternal(double x, double y, int n_parameters,
+    GeometryInterface::InterestingQuantities const& iq,
+    std::vector<SummationStep>::iterator first,
+    std::vector<SummationStep>::iterator last,
+    AbstractHistogram& dest);
  
   void loadFromDQMStore(SummationSpecification& s, Table& t, DQMStore::IGetter& iGetter);
-  void executeSave(SummationStep& step, Table& t, DQMStore::IBooker& iBooker);
-  void executeGroupBy(SummationStep& step, Table& t);
-  void executeReduce(SummationStep& step, Table& t);
-  void executeExtend(SummationStep& step, Table& t, bool isX);
+  void executeGroupBy(SummationStep& step, Table& t, DQMStore::IBooker& iBooker);
+  void executeExtend(SummationStep& step, Table& t, std::string const& reduction, DQMStore::IBooker& iBooker);
 
 public: // these are available in config as is, and may be used in harvesting.
   bool enabled;
   bool perLumiHarvesting;
   bool bookUndefined;
   std::string top_folder_name;
-  std::string default_grouping;
 
   std::string name;
   std::string title;
   std::string xlabel;
   std::string ylabel;
   int dimensions;
-  int range_nbins;
-  double range_min;
-  double range_max;
+  int range_x_nbins;
+  double range_x_min;
+  double range_x_max;
   int range_y_nbins;
   double range_y_min;
   double range_y_max;
+
+  // can be used in "custom" harvesting in online.
+  edm::LuminosityBlock const* lumisection = nullptr; 
 
 private:
   // These are actually more like local variables, and they might be shadowed
@@ -109,10 +112,6 @@ private:
   GeometryInterface::InterestingQuantities iq;
   // "immutable" cache
   std::vector<GeometryInterface::Values> significantvalues;
-  // copy that executeStep1Spec can freely clobber
-  GeometryInterface::Values significantvalues_scratch;
-  // temporary copy for executeStep1Spec, to avoid the alloc.
-  GeometryInterface::Values new_vals;
   // Direct links to the Histogram if the caching above succeeds.
   std::vector<AbstractHistogram*> fastpath;
 };

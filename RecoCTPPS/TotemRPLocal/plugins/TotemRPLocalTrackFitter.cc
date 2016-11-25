@@ -95,7 +95,7 @@ void TotemRPLocalTrackFitter::produce(edm::Event& e, const edm::EventSetup& setu
   
   for (const auto &rpv : *input)
   {
-    det_id_type rpId =  rpv.detId();
+    unsigned int rpDecId =  rpv.detId();
 
     // is U-V association unique?
     unsigned int n_U=0, n_V=0;
@@ -132,7 +132,7 @@ void TotemRPLocalTrackFitter::produce(edm::Event& e, const edm::EventSetup& setu
     {
       if (verbosity_)
         LogVerbatim("TotemRPLocalTrackFitter")
-          << ">> TotemRPLocalTrackFitter::produce > Impossible to combine U and V patterns in RP " << rpId
+          << ">> TotemRPLocalTrackFitter::produce > Impossible to combine U and V patterns in RP " << rpDecId
           << " (n_U=" << n_U << ", n_V=" << n_V << ").";
 
       continue;
@@ -159,12 +159,17 @@ void TotemRPLocalTrackFitter::produce(edm::Event& e, const edm::EventSetup& setu
     }
 
     // run fit
+    const unsigned int armIdx = rpDecId / 100;
+    const unsigned int stIdx = (rpDecId / 10) % 10;
+    const unsigned int rpIdx = rpDecId % 10;
+    TotemRPDetId rpId(armIdx, stIdx, rpIdx);
+
     double z0 = geometry->GetRPGlobalTranslation(rpId).z();
 
     TotemRPLocalTrack track;
     fitter_.fitTrack(hits, z0, *geometry, track);
     
-    DetSet<TotemRPLocalTrack> &ds = output.find_or_insert(rpId);
+    DetSet<TotemRPLocalTrack> &ds = output.find_or_insert(rpDecId);
     ds.push_back(track);
 
     if (verbosity_ > 5)
@@ -174,7 +179,7 @@ void TotemRPLocalTrackFitter::produce(edm::Event& e, const edm::EventSetup& setu
         n_hits += hds.size();
 
       LogVerbatim("TotemRPLocalTrackFitter")
-        << "    track in RP " << rpId << ": valid = " << track.isValid() << ", hits = " << n_hits;
+        << "    track in RP " << rpDecId << ": valid = " << track.isValid() << ", hits = " << n_hits;
     }
   }
 

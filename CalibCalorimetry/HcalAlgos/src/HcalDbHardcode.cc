@@ -14,7 +14,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
  
 HcalDbHardcode::HcalDbHardcode()
-: theDefaultParameters_(3.0,0.5,{0.2,0.2},{0.0,0.0},0,{0.0,0.0,0.0,0.0},{0.9,0.9,0.9,0.9},125,105,0.0,0.0), //"generic" set of conditions
+: theDefaultParameters_(3.0,0.5,{0.2,0.2},{0.0,0.0},0,{0.0,0.0,0.0,0.0},{0.9,0.9,0.9,0.9},125,105,0.0,{0.0}), //"generic" set of conditions
   setHB_(false), setHE_(false), setHF_(false), setHO_(false), 
   setHBUpgrade_(false), setHEUpgrade_(false), setHFUpgrade_(false), 
   useHBUpgrade_(false), useHEUpgrade_(false), useHOUpgrade_(true),
@@ -60,8 +60,8 @@ const int HcalDbHardcode::getGainIndex(HcalGenericDetId fId){
     else index = 1;
   } else if (fId.genericSubdet() == HcalGenericDetId::HcalGenForward) {
     HcalDetId hid(fId);
-    if (hid.depth() == 1) index = 0;
-    else if (hid.depth() == 2) index = 1;
+    if (hid.depth() % 2 == 1) index = 0; //depths 1,3
+    else if (hid.depth() % 2 == 0) index = 1; //depths 2,4
   }
   return index;
 }
@@ -563,17 +563,29 @@ HcalSiPMParameter HcalDbHardcode::makeHardcodeSiPMParameter (HcalGenericDetId fI
   // rule for type: cells with >4 layers use larger device (3.3mm diameter), otherwise 2.8mm
   HcalSiPMType theType = HcalNoSiPM;
   double thePe2fC = getParameters(fId).photoelectronsToAnalog();
-  double theDC = getParameters(fId).darkCurrent();
+  double theDC = getParameters(fId).darkCurrent(0);
   if (fId.genericSubdet() == HcalGenericDetId::HcalGenBarrel && useHBUpgrade_) {
     HcalDetId hid(fId);
     int nLayersInDepth = getLayersInDepth(hid.ietaAbs(),hid.depth(),topo);
-    if(nLayersInDepth > 4) theType = HcalHBHamamatsu2;
-    else theType = HcalHBHamamatsu1;
+    if(nLayersInDepth > 4) {
+      theType = HcalHBHamamatsu2;
+      theDC = getParameters(fId).darkCurrent(1);
+    }
+    else {
+      theType = HcalHBHamamatsu1;
+      theDC = getParameters(fId).darkCurrent(0);
+    }
   } else if (fId.genericSubdet() == HcalGenericDetId::HcalGenEndcap && useHEUpgrade_) {
     HcalDetId hid(fId);
     int nLayersInDepth = getLayersInDepth(hid.ietaAbs(),hid.depth(),topo);
-    if(nLayersInDepth > 4) theType = HcalHEHamamatsu2;
-    else theType = HcalHEHamamatsu1;
+    if(nLayersInDepth > 4) {
+      theType = HcalHEHamamatsu2;
+      theDC = getParameters(fId).darkCurrent(1);
+    }
+    else {
+      theType = HcalHEHamamatsu1;
+      theDC = getParameters(fId).darkCurrent(0);
+    }
   } else if (fId.genericSubdet() == HcalGenericDetId::HcalGenOuter && useHOUpgrade_) {
     theType = HcalHOHamamatsu;
   }

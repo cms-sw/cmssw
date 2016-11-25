@@ -11,11 +11,7 @@
 
 #include "CondFormats/EcalObjects/interface/EcalChannelStatus.h"
 #include "CondTools/Ecal/interface/EcalCondHeader.h"
-#include "CondTools/Ecal/interface/XMLTags.h"
-#include "CondTools/Ecal/interface/XercesString.h"
 #include <string>
-#include <xercesc/dom/DOMNode.hpp>
-
 
 class EcalChannelStatusXMLTranslator {
 
@@ -28,18 +24,10 @@ public:
   static int writeXML (const std::string& filename,
 		       const EcalCondHeader& header,
 		       const EcalChannelStatus& record);
-
+private:
+  
   static std::string dumpXML(const EcalCondHeader& header,
-			     const EcalChannelStatus& record);  
-
+			     const EcalChannelStatus& record);
 };
 
-
-
 #endif // __EcalChannelStatusXMLTranslator_h_
-
-// Configure (x)emacs for this file ...
-// Local Variables:
-// mode:c++
-// compile-command: "cd ..; scram b"
-// End:

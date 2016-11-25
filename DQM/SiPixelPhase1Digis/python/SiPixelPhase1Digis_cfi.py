@@ -41,15 +41,20 @@ SiPixelPhase1DigisNdigisPerFED = DefaultHisto.clone(
   range_nbins = 200,
   dimensions = 0, 
   specs = cms.VPSet(
-    Specification().groupBy("FED/Event")
+    # the double "FED" here is due to a "bug", caused by how the specs are
+    # translated for step1. Interpret as "count by FED, extend by FED".
+    Specification().groupBy("FED/FED/Event")
                    .reduce("COUNT")
                    .groupBy("FED")
                    .groupBy("", "EXTEND_Y")
                    .save(),
-    Specification().groupBy("PXBarrel|PXForward/PXLayer|PXDisk/Lumisection/FED")
+    Specification().groupBy("Lumisection/FED/FED/Event")
                    .reduce("COUNT")
-                   .groupBy("PXBarrel|PXForward/PXLayer|PXDisk/Lumisection", "EXTEND_Y")
-                   .groupBy("PXBarrel|PXForward/PXLayer|PXDisk", "EXTEND_X")
+                   .groupBy("Lumisection/FED")
+                   .reduce("MEAN")
+                   .groupBy("Lumisection", "EXTEND_Y")
+                   .groupBy("", "EXTEND_X")
+                   .save()
                    .custom("ratio_to_average")
                    .save()
   )
@@ -75,15 +80,15 @@ SiPixelPhase1DigisHitmap = DefaultHisto.clone(
   ylabel = "#digis",
   dimensions = 0,
   specs = cms.VPSet(
-    Specification(PerModule).groupBy(DefaultHisto.defaultPerModule.value() + "/row/col")
-                   .groupBy(DefaultHisto.defaultPerModule.value() + "/row", "EXTEND_X")
-                   .groupBy(DefaultHisto.defaultPerModule.value(), "EXTEND_Y")
+    Specification(PerModule).groupBy("PXBarrel|PXForward/PXLayer|PXDisk/DetId/row/col")
+                   .groupBy("PXBarrel|PXForward/PXLayer|PXDisk/DetId/row", "EXTEND_Y")
+                   .groupBy("PXBarrel|PXForward/PXLayer|PXDisk/DetId", "EXTEND_X")
                    .save(),
-    Specification(PerModule).groupBy(DefaultHisto.defaultPerModule.value() + "/col")
-                   .groupBy(DefaultHisto.defaultPerModule.value(), "EXTEND_X")
+    Specification(PerModule).groupBy("PXBarrel|PXForward/PXLayer|PXDisk/DetId/col")
+                   .groupBy("PXBarrel|PXForward/PXLayer|PXDisk/DetId", "EXTEND_X")
                    .save(),
-    Specification(PerModule).groupBy(DefaultHisto.defaultPerModule.value() + "/row")
-                   .groupBy(DefaultHisto.defaultPerModule.value(), "EXTEND_X")
+    Specification(PerModule).groupBy("PXBarrel|PXForward/PXLayer|PXDisk/DetId/row")
+                   .groupBy("PXBarrel|PXForward/PXLayer|PXDisk/DetId", "EXTEND_X")
                    .save()
 
   )
@@ -97,10 +102,10 @@ SiPixelPhase1DigisDebug = DefaultHisto.clone(
   range_max = 64,
   range_nbins = 64,
   specs = cms.VPSet(
-    Specification().groupBy(DefaultHisto.defaultGrouping) 
+    Specification().groupBy("PXBarrel|PXForward/Shell|HalfCylinder/PXLayer|PXDisk/PXRing|/PXLadder|PXBlade") 
                    .save()
                    .reduce("MEAN")
-                   .groupBy(parent(DefaultHisto.defaultGrouping), "EXTEND_X")
+                   .groupBy("PXBarrel|PXForward/Shell|HalfCylinder/PXLayer|PXDisk/PXRing|", "EXTEND_X")
                    .saveAll(),
   )
 )

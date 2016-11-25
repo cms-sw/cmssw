@@ -164,6 +164,8 @@ void TrackerSeedValidator::analyze(const edm::Event& event, const edm::EventSetu
   const auto& nPixelLayers_tPCeff = *(std::get<TrackingParticleNumberOfLayers::nPixelLayers>(nlayers_tPCeff_ptrs));
   const auto& nStripMonoAndStereoLayers_tPCeff = *(std::get<TrackingParticleNumberOfLayers::nStripMonoAndStereoLayers>(nlayers_tPCeff_ptrs));
 
+  std::vector<float> mvaDummy;
+
   int w=0;
   for (unsigned int ww=0;ww<associators.size();ww++){
     edm::Handle<reco::TrackToTrackingParticleAssociator> theAssociator;
@@ -273,7 +275,7 @@ void TrackerSeedValidator::analyze(const edm::Event& event, const edm::EventSetu
 
 	double dR=0;//fixme: plots vs dR not implemented for now
 	histoProducerAlgo_->fill_recoAssociated_simTrack_histos(w,*tp,tp->momentum(),tp->vertex(),dxySim,dzSim,0,0,nSimHits,nSimLayers,nSimPixelLayers,nSimStripMonoAndStereoLayers,
-								matchedTrackPointer,puinfo.getPU_NumInteractions(),dR, nullptr, nullptr);
+								matchedTrackPointer,puinfo.getPU_NumInteractions(),dR, nullptr, nullptr, mvaDummy, 0, 0);
 
 	sts++;
 	if (matchedTrackPointer) asts++;
@@ -361,7 +363,7 @@ void TrackerSeedValidator::analyze(const edm::Event& event, const edm::EventSetu
 	histoProducerAlgo_->fill_generic_recoTrack_histos(w,*trackFromSeed, ttopo, bs.position(), nullptr, nullptr, isSimMatched,isSigSimMatched,
 							  isChargeMatched, numAssocSeeds, 
 							  puinfo.getPU_NumInteractions(),
-							  nSimHits, sharedFraction, dR);
+							  nSimHits, sharedFraction, dR, mvaDummy, 0, 0);
 
 	//Fill other histos
  	try{

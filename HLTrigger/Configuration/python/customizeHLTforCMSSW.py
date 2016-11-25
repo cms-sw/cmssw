@@ -69,6 +69,13 @@ def customiseFor15499(process):
             producer.noiseHPD = cms.double(1.0)
             producer.noiseSiPM = cms.double(2.)
     return process
+
+def customiseFor16569(process):
+    for mod in ['hltHbhereco','hltHbherecoMethod2L1EGSeeded','hltHbherecoMethod2L1EGUnseeded','hltHfreco','hltHoreco']:
+        if hasattr(process,mod):
+            getattr(process,mod).ts4chi2 = cms.vdouble(15.,5000.)
+    return process
+
 #
 # CMSSW version specific customizations
 def customizeHLTforCMSSW(process, menuType="GRun"):
@@ -82,6 +89,7 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
         process = customiseFor14833(process)
         process = customiseFor15440(process)
         process = customiseFor15499(process)
+        process = customiseFor16569(process)
 #       process = customiseFor12718(process)
         pass
 

@@ -155,7 +155,8 @@ namespace edm {
     number_of_unscheduled_modules_(0),
     streamID_(streamID),
     streamContext_(streamID_, processContext),
-    endpathsAreActive_(true) {
+    endpathsAreActive_(true),
+    skippingEvent_(false){
 
     ParameterSet const& opts = proc_pset.getUntrackedParameterSet("options", ParameterSet());
     bool hasPath = false;
@@ -476,7 +477,7 @@ namespace edm {
 
     // an empty path will cause an extra bit that is not used
     if (!tmpworkers.empty()) {
-      trig_paths_.emplace_back(bitpos, name, tmpworkers, trptr, actionTable(), actReg_, &streamContext_, PathContext::PathType::kPath);
+      trig_paths_.emplace_back(bitpos, name, tmpworkers, trptr, actionTable(), actReg_, &streamContext_, &skippingEvent_, PathContext::PathType::kPath);
     } else {
       empty_trig_paths_.push_back(bitpos);
       empty_trig_path_names_.push_back(name);
@@ -499,7 +500,8 @@ namespace edm {
     }
 
     if (!tmpworkers.empty()) {
-      end_paths_.emplace_back(bitpos, name, tmpworkers, TrigResPtr(), actionTable(), actReg_, &streamContext_, PathContext::PathType::kEndPath);
+      //EndPaths are not supposed to stop if SkipEvent type exception happens
+      end_paths_.emplace_back(bitpos, name, tmpworkers, TrigResPtr(), actionTable(), actReg_, &streamContext_, nullptr, PathContext::PathType::kEndPath);
     }
     for_all(holder, std::bind(&StreamSchedule::addToAllWorkers, this, _1));
   }
@@ -539,6 +541,103 @@ namespace edm {
       result.push_back(p);
     }
     return result;
+  }
+  
+  void StreamSchedule::processOneEvent(EventPrincipal& ep,
+                                       EventSetup const& es,
+                                       bool cleaningUpAfterException) {
+    this->resetAll();
+    for (int empty_trig_path : empty_trig_paths_) {
+      results_->at(empty_trig_path) = HLTPathStatus(hlt::Pass, 0);
+    }
+    
+    using Traits = OccurrenceTraits<EventPrincipal, BranchActionStreamBegin>;
+    
+    Traits::setStreamContext(streamContext_, ep);
+    StreamScheduleSignalSentry<Traits> sentry(actReg_.get(), &streamContext_);
+    
+    SendTerminationSignalIfException terminationSentry(actReg_.get(), &streamContext_);
+    // This call takes care of the unscheduled processing.
+    workerManager_.processOneOccurrence<Traits>(ep, es, streamID_, &streamContext_, &streamContext_, cleaningUpAfterException);
+    
+    ++total_events_;
+    try {
+      convertException::wrap([&]() {
+        
+        try {
+          auto waitTask = edm::make_empty_waiting_task();
+          //set count to 2 since wait_for_all requires value to not go to 0
+          waitTask->set_ref_count(2);
+          //Begin process in reverse order since TBB is last in first out for tasks.
+          for(auto it = trig_paths_.rbegin(), itEnd = trig_paths_.rend();
+              it != itEnd; ++ it) {
+            it->processOneOccurrenceAsync(waitTask.get(),ep, es, streamID_, &streamContext_);
+          }
+          waitTask->decrement_ref_count();
+          waitTask->wait_for_all();
+          
+          if(waitTask->exceptionPtr() != nullptr) {
+            std::rethrow_exception(*(waitTask->exceptionPtr()));
+          }
+          if(results_->accept()) {
+            ++total_passed_;
+          }
+
+        }
+        catch(cms::Exception& e) {
+          exception_actions::ActionCodes action = actionTable().find(e.category());
+          assert (action != exception_actions::IgnoreCompletely);
+          assert (action != exception_actions::FailPath);
+          if (action == exception_actions::SkipEvent) {
+            edm::printCmsExceptionWarning("SkipEvent", e);
+          } else {
+            throw;
+          }
+        }
+        
+        try {
+          ParentContext parentContext(&streamContext_);
+          if (results_inserter_.get()) results_inserter_->doWork<Traits>(ep, es, streamID_, parentContext, &streamContext_);
+        }
+        catch (cms::Exception & ex) {
+          ex.addContext("Calling produce method for module TriggerResultInserter");
+          std::ostringstream ost;
+          ost << "Processing " << ep.id();
+          ex.addContext(ost.str());
+          throw;
+        }
+        
+        if (endpathsAreActive_) {
+          auto waitTask = edm::make_empty_waiting_task();
+          //set count to 2 since wait_for_all requires value to not go to 0
+          waitTask->set_ref_count(2);
+          for(auto it = end_paths_.rbegin(), itEnd = end_paths_.rend();
+              it != itEnd; ++it) {
+            it->processOneOccurrenceAsync(waitTask.get(),ep, es, streamID_, &streamContext_);
+          }
+          waitTask->decrement_ref_count();
+          waitTask->wait_for_all();
+          
+          if(waitTask->exceptionPtr() != nullptr) {
+            std::rethrow_exception(*(waitTask->exceptionPtr()));
+          }
+
+        }
+        resetEarlyDelete();
+      });
+    }
+    catch(cms::Exception& ex) {
+      if (ex.context().empty()) {
+        addContextAndPrintException("Calling function StreamSchedule::processOneEvent", ex, cleaningUpAfterException);
+      } else {
+        addContextAndPrintException("", ex, cleaningUpAfterException);
+      }
+      throw;
+    }
+    terminationSentry.completedSuccessfully();
+    
+    //If we got here no other exception has happened so we can propogate any Service related exceptions
+    sentry.allowThrow();
   }
 
   void
@@ -718,6 +817,7 @@ namespace edm {
 
   void
   StreamSchedule::resetAll() {
+    skippingEvent_ = false;
     results_->reset();
   }
 

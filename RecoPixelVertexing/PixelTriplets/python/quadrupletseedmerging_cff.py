@@ -62,4 +62,4 @@ trackingPhase1.toModify(PixelSeedMergerQuadruplets, **_forPhase1)
 from Configuration.Eras.Modifier_trackingPhase1PU70_cff import trackingPhase1PU70
 trackingPhase1PU70.toModify(PixelSeedMergerQuadruplets, **_forPhase1)
 from Configuration.Eras.Modifier_trackingPhase2PU140_cff import trackingPhase2PU140
-trackingPhase2PU140.toModify(PixelSeedMergerQuadruplets, layerList = _layerListForPhase2)
+trackingPhase2PU140.toModify(PixelSeedMergerQuadruplets, layerList = _layerListForPhase2, **_forPhase1)

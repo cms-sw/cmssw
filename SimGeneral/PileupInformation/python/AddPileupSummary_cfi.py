@@ -11,8 +11,11 @@ addPileupInfo = cms.EDProducer("PileupInformation",
     volumeZ = cms.double(3000.0),
     pTcut_1 = cms.double(0.1),
     pTcut_2 = cms.double(0.5),                               
-    doTrackTruth = cms.untracked.bool(False)                          
-
+    doTrackTruth = cms.untracked.bool(False),
+    saveVtxTimes = cms.bool(False)
 )
+
+from Configuration.Eras.Modifier_phase2_timing_cff import phase2_timing
+phase2_timing.toModify( addPileupInfo, saveVtxTimes = cms.bool(True) )
 
 #addPileupInfo = cms.Sequence(pileupSummary)

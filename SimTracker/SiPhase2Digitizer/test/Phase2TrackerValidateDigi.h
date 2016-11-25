@@ -55,6 +55,8 @@ public:
     MonitorElement* MatchedTrackPtS;
     MonitorElement* MatchedTrackPhiS;
     MonitorElement* MatchedTrackEtaS;
+    MonitorElement* SimHitElossP;  
+    MonitorElement* SimHitElossS;  
   };
 
 private:
@@ -123,5 +125,6 @@ private:
   edm::Handle<edm::SimVertexContainer> simVertices;
   edm::ESHandle<TrackerTopology> tTopoHandle_;
 
+  const float GeVperElectron; // 3.7E-09 
 };
 #endif

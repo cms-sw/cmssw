@@ -15,7 +15,7 @@
 #include <string>
 #include "CondTools/Ecal/interface/EcalCondHeader.h"
 #include "CondTools/Ecal/interface/XMLTags.h"
-#include "CondTools/Ecal/interface/XercesString.h"
+#include "Utilities/Xerces/interface/XercesStrUtils.h"
 #include <xercesc/dom/DOM.hpp>
 #include <sstream>
 
@@ -42,7 +42,7 @@ namespace xuti {
   /// get the node data
   template <class T> void GetNodeData(xercesc::DOMNode* node, T& value)
     {
-      std::string value_s = toNative(node->getTextContent());
+      std::string value_s = cms::xerces::toString(node->getTextContent());
       std::stringstream value_ss(value_s);
       value_ss>> value; 
     }
@@ -55,14 +55,14 @@ namespace xuti {
     {
 
       xercesc::DOMDocument * doc = parentNode->getOwnerDocument();
-      xercesc::DOMElement* new_node = doc->createElement(fromNative(tag).c_str());
+      xercesc::DOMElement* new_node = doc->createElement(cms::xerces::uStr(tag.c_str()).ptr());
       parentNode->appendChild(new_node);
       
       std::stringstream value_ss;
       value_ss <<value;
  
       xercesc::DOMText* tvalue = 
-	doc->createTextNode(fromNative(value_ss.str()).c_str());
+	doc->createTextNode(cms::xerces::uStr(value_ss.str().c_str()).ptr());
       new_node->appendChild(tvalue);
       
     }

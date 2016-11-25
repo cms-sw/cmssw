@@ -40,20 +40,25 @@ digiValid = cms.EDAnalyzer("Phase2TrackerValidateDigi",
         xmin   = cms.double(-3.2),
         xmax   = cms.double(3.2)
     ),  
+    SimHitElossH = cms.PSet(
+        Nbins  = cms.int32(100),
+        xmin   = cms.double(0.0),
+        xmax   = cms.double(100000.0)
+    ),  
     XYPositionMapH = cms.PSet(
            Nxbins = cms.int32(1200),
-           xmin   = cms.double(-1200.),
-           xmax   = cms.double(1200.),
+           xmin   = cms.double(-120.),
+           xmax   = cms.double(120.),
            Nybins = cms.int32(1200),
-           ymin   = cms.double(-1200.),
-           ymax   = cms.double(1200.)
+           ymin   = cms.double(-120.),
+           ymax   = cms.double(120.)
     ),
     RZPositionMapH = cms.PSet(
            Nxbins = cms.int32(3000),
-           xmin   = cms.double(-3000.),
-           xmax   = cms.double(3000.),
-           Nybins = cms.int32(600),
+           xmin   = cms.double(-300.),
+           xmax   = cms.double(300.),
+           Nybins = cms.int32(1200),
            ymin   = cms.double(0.),
-           ymax   = cms.double(1200.)
+           ymax   = cms.double(120.)
     )
 )

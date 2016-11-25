@@ -130,8 +130,8 @@ namespace hcaldqm
 		std::vector<int> getFEDVMEList(HcalElectronicsMap const*);
 		std::vector<int> getFEDuTCAList(HcalElectronicsMap const*);
 
-		uint16_t fed2crate(int fed);
-		uint16_t crate2fed(int crate);
+        std::pair<uint16_t, uint16_t> fed2crate(int fed);
+		uint16_t crate2fed(int crate, int slot);
 		bool isFEDHBHE(HcalElectronicsId const&);
 		bool isFEDHF(HcalElectronicsId const&);
 		bool isFEDHO(HcalElectronicsId const&);

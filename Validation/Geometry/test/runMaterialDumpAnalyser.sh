@@ -116,7 +116,7 @@ if checkFile single_neutrino_random.root ; then
     echo "Error generating single neutrino gun, aborting."
     exit 1
   fi
-  if [! -e Images ]; then
+  if [ ! -e Images ]; then
     mkdir Images
   fi
 fi
@@ -125,7 +125,7 @@ fi
 
 for t in BeamPipe Tracker PixBar PixFwdMinus PixFwdPlus TIB TOB TIDB TIDF TEC TkStrct InnerServices; do
   if [ ! -e matbdg_${t}.root ]; then
-    cmsRun runP_Tracker_cfg.py geom=2017 label=$t >& /dev/null &
+    cmsRun runP_Tracker_cfg.py geom=run2 label=$t >& /dev/null &
   fi
 done
 

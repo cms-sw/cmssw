@@ -40,9 +40,12 @@ namespace hcaldqm
 			}
 
 			if (*it>FED_VME_MAX)
+            {
+                std::pair<uint16_t, uint16_t> cspair = utilities::fed2crate(*it);
 				_vhashFEDs.push_back(HcalElectronicsId(
-					utilities::fed2crate(*it), SLOT_uTCA_MIN, FIBER_uTCA_MIN1,
+					cspair.first, cspair.second, FIBER_uTCA_MIN1,
 					FIBERCH_MIN, false).rawId());
+            }
 			else
 				_vhashFEDs.push_back(HcalElectronicsId(FIBERCH_MIN,
 					FIBER_VME_MIN, SPIGOT_MIN, (*it)-FED_VME_MIN).rawId());
@@ -67,9 +70,12 @@ namespace hcaldqm
 						(*it)-FED_VME_MIN).rawId());
 				else if (*it>=constants::FED_uTCA_MIN &&
 					*it<=FEDNumbering::MAXHCALuTCAFEDID)
+                {
+                    std::pair<uint16_t, uint16_t> cspair = utilities::fed2crate(*it);
 					_vcdaqEids.push_back(HcalElectronicsId(
-						utilities::fed2crate(*it), SLOT_uTCA_MIN,
+						cspair.first, cspair.second,
 						FIBER_uTCA_MIN1, FIBERCH_MIN, false).rawId());
+                }
 			}
 		}
 

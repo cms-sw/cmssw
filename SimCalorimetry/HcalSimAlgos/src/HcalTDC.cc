@@ -13,7 +13,8 @@ HcalTDC::HcalTDC(unsigned int thresholdDAC) : theTDCParameters(),
 HcalTDC::~HcalTDC() {
 }
 
-void HcalTDC::timing(const CaloSamples& lf, HcalUpgradeDataFrame& digi, CLHEP::HepRandomEngine* engine) const {
+template <class Digi>
+void HcalTDC::timing(const CaloSamples& lf, Digi& digi, CLHEP::HepRandomEngine* engine) const {
 
   float const TDC_Threshold(getThreshold(digi.id(), engine));
   float const TDC_Threshold_hyst(TDC_Threshold);

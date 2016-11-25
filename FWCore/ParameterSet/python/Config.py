@@ -1119,8 +1119,6 @@ class _ParameterModifier(object):
     for k in self.__args.iterkeys():
         if hasattr(obj,k):
             params[k] = getattr(obj,k)
-        else:
-            params[k] = self.__args[k]
     _modifyParametersFromDict(params, self.__args, self._raiseUnknownKey)
     for k in self.__args.iterkeys():
         if k in params:
@@ -1128,8 +1126,9 @@ class _ParameterModifier(object):
         else:
             #the parameter must have been removed
             delattr(obj,k)
+  @staticmethod
   def _raiseUnknownKey(key):
-    raise KeyError("Unknown parameter name "+k+" specified while calling Modifier")
+    raise KeyError("Unknown parameter name "+key+" specified while calling Modifier")
 
 class _AndModifier(object):
   """A modifier which only applies if multiple Modifiers are chosen"""
@@ -2080,6 +2079,43 @@ process.addSubProcess(cms.SubProcess(process = childProcess, SelectEvents = cms.
             m1.toModify(p.a, flintstones = dict(fred = int32(2)))
             self.assertEqual(p.a.flintstones.fred.value(),2)
             self.assertEqual(p.a.flintstones.wilma.value(),1)
+            #test proper exception from nonexisting parameter name
+            m1 = Modifier()
+            p = Process("test",m1)
+            p.a = EDAnalyzer("MyAnalyzer", flintstones = PSet(fred = PSet(wilma = int32(1))))
+            self.assertRaises(KeyError, lambda: m1.toModify(p.a, flintstones = dict(imnothere = dict(wilma=2))))
+            self.assertRaises(KeyError, lambda: m1.toModify(p.a, foo = 1))
+            #test setting a value in a VPSet
+            m1 = Modifier()
+            p = Process("test",m1)
+            p.a = EDAnalyzer("MyAnalyzer", flintstones = VPSet(PSet(fred = int32(1)), PSet(wilma = int32(1))))
+            m1.toModify(p.a, flintstones = {1:dict(wilma = int32(2))})
+            self.assertEqual(p.a.flintstones[0].fred.value(),1)
+            self.assertEqual(p.a.flintstones[1].wilma.value(),2)
+            #test setting a value in a list of values
+            m1 = Modifier()
+            p = Process("test",m1)
+            p.a = EDAnalyzer("MyAnalyzer", fred = vuint32(1,2,3))
+            m1.toModify(p.a, fred = {1:7})
+            self.assertEqual(p.a.fred[0],1)
+            self.assertEqual(p.a.fred[1],7)
+            self.assertEqual(p.a.fred[2],3)
+            #test IndexError setting a value in a list to an item key not in the list
+            m1 = Modifier()
+            p = Process("test",m1)
+            p.a = EDAnalyzer("MyAnalyzer", fred = vuint32(1,2,3))
+            raised = False
+            try: m1.toModify(p.a, fred = {5:7})
+            except IndexError, e: raised = True
+            self.assertEqual(raised, True)
+            #test TypeError setting a value in a list using a key that is not an int
+            m1 = Modifier()
+            p = Process("test",m1)
+            p.a = EDAnalyzer("MyAnalyzer", flintstones = VPSet(PSet(fred = int32(1)), PSet(wilma = int32(1))))
+            raised = False
+            try: m1.toModify(p.a, flintstones = dict(bogus = int32(37)))
+            except TypeError, e: raised = True
+            self.assertEqual(raised, True)
             #test that load causes process wide methods to run
             def _rem_a(proc):
                 del proc.a
