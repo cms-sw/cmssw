@@ -85,7 +85,7 @@ process.getter = cms.EDAnalyzer("EventSetupRecordDataGetter",
    verbose = cms.untracked.bool(True)
 )
 
-process.l1mw = cms.EDAnalyzer("L1MenuWriter")
+process.l1mw = cms.EDAnalyzer("L1MenuWriter_")
 
 from CondCore.CondDB.CondDB_cfi import CondDB
 CondDB.connect = cms.string(options.outputDBConnect)
