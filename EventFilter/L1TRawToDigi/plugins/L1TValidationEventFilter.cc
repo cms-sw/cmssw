@@ -39,6 +39,8 @@ Implementation:
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/FEDRawData/interface/FEDTrailer.h"
 
+#include "EventFilter/FEDInterface/interface/FED1024.h"
+
 
 //
 // class declaration
@@ -102,12 +104,13 @@ L1TValidationEventFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSet
     return false;
   }
 
-  const FEDRawData& l1tRcd = feds->FEDData(1024);
+  const FEDRawData& tcdsRcd = feds->FEDData(1024);
+  const unsigned char *data = tcdsRcd.data();
 
-  const unsigned char *data = l1tRcd.data();
   FEDHeader header(data);
+  evf::evtn::TCDSRecord record((unsigned char *) data);
 
-  bool fatEvent = (header.lvl1ID() % period_ == 0 );
+  bool fatEvent = (record.getHeader().getData().header.triggerCount % period_ == 0 );
 
   return fatEvent;
 
