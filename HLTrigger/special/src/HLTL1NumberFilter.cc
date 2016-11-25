@@ -29,6 +29,8 @@ Implementation:
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#include "EventFilter/FEDInterface/interface/FED1024.h"
+
 //
 // constructors and destructor
 //
@@ -37,7 +39,8 @@ HLTL1NumberFilter::HLTL1NumberFilter(const edm::ParameterSet& config) :
   inputToken_( consumes<FEDRawDataCollection>(config.getParameter<edm::InputTag>("rawInput")) ),
   period_( config.getParameter<unsigned int>("period") ),
   fedId_(  config.getParameter<int>("fedId") ),
-  invert_( config.getParameter<bool>("invert") )
+  invert_( config.getParameter<bool>("invert") ),
+  useTCDS_( config.getParameter<bool>("useTCDSEventNumber") )
 {
 }
 
@@ -56,6 +59,7 @@ HLTL1NumberFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions
   desc.add<unsigned int>("period",4096);
   desc.add<bool>("invert",true);
   desc.add<int>("fedId",812);
+  desc.add<bool>("useTCDSEventNumber",false);
   descriptions.add("hltL1NumberFilter",desc);
 }
 //
@@ -76,6 +80,10 @@ HLTL1NumberFilter::filter(edm::StreamID, edm::Event& iEvent, const edm::EventSet
     if (data.data() && data.size() > 0){
       FEDHeader header(data.data()) ;
       if (period_!=0) accept = ( ( (header.lvl1ID())%period_ ) == 0 );
+      if (useTCDS_ && period_!=0) {
+	evf::evtn::TCDSRecord record((unsigned char *)data.data());
+	accept = ( (record.getHeader().getData().header.triggerCount % period_) == 0 );
+      }
       if (invert_) accept = !accept;
       return accept;
     } else{
