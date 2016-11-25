@@ -77,6 +77,10 @@ namespace pat {
             std::vector< edm::EDGetTokenT<edm::View<reco::CompositePtrCandidate> > > SVWhiteLists_;
 
             const double minPtForTrackProperties_;
+            //if PuppiSrc && PuppiNoLepSrc are empty, usePuppi is false
+            //otherwise assumes that if they are set, you wanted to use puppi and will throw an exception
+            //if the puppis are not found
+            const bool usePuppi_;  
             // for debugging
             float calcDxy(float dx, float dy, float phi) const {
                 return - dx * std::sin(phi) + dy * std::cos(phi);
@@ -99,7 +103,9 @@ pat::PATPackedCandidateProducer::PATPackedCandidateProducer(const edm::Parameter
   PuppiCandsMap_(consumes<edm::ValueMap<reco::CandidatePtr> >(iConfig.getParameter<edm::InputTag>("PuppiSrc"))),
   PuppiCands_(consumes<std::vector< reco::PFCandidate > >(iConfig.getParameter<edm::InputTag>("PuppiSrc"))),
   PuppiCandsNoLep_(consumes<std::vector< reco::PFCandidate > >(iConfig.getParameter<edm::InputTag>("PuppiNoLepSrc"))),
-  minPtForTrackProperties_(iConfig.getParameter<double>("minPtForTrackProperties"))
+  minPtForTrackProperties_(iConfig.getParameter<double>("minPtForTrackProperties")),
+  usePuppi_(!iConfig.getParameter<edm::InputTag>("PuppiSrc").encode().empty() || 
+	    !iConfig.getParameter<edm::InputTag>("PuppiNoLepSrc").encode().empty())
 {
   std::vector<edm::InputTag> sv_tags = iConfig.getParameter<std::vector<edm::InputTag> >("secondaryVerticesForWhiteList");
   for(auto itag : sv_tags){
@@ -129,7 +135,7 @@ void pat::PATPackedCandidateProducer::produce(edm::StreamID, edm::Event& iEvent,
     iEvent.getByToken( PuppiCandsMap_, puppiCandsMap );
     edm::Handle<std::vector< reco::PFCandidate > > puppiCands;
     iEvent.getByToken( PuppiCands_, puppiCands );
-    std::vector<int> mappingPuppi(puppiCands.isValid() ? puppiCands->size() : 0);
+    std::vector<int> mappingPuppi(usePuppi_ ? puppiCands->size() : 0);
 
     edm::Handle< edm::ValueMap<float> > puppiWeightNoLep;
     iEvent.getByToken( PuppiWeightNoLep_, puppiWeightNoLep );
@@ -142,7 +148,7 @@ void pat::PATPackedCandidateProducer::produce(edm::StreamID, edm::Event& iEvent,
         puppiCandsNoLepPtrs.push_back(pup.sourceCandidatePtr(0));
       }
     }
-    auto const puppiCandsNoLepV = puppiCandsNoLep.isValid() ? puppiCandsNoLep.product() : nullptr;
+    auto const puppiCandsNoLepV = usePuppi_ ? puppiCandsNoLep.product() : nullptr;
 
     edm::Handle<reco::VertexCollection> PVOrigs;
     iEvent.getByToken( PVOrigs_, PVOrigs );
@@ -325,7 +331,7 @@ void pat::PATPackedCandidateProducer::produce(edm::StreamID, edm::Event& iEvent,
     pc2pfFiller.insert(oh   , order.begin(), order.end());
     // include also the mapping track -> packed PFCand
     pf2pcFiller.insert(TKOrigs, mappingTk.begin(), mappingTk.end());
-    if(puppiCands.isValid()) pf2pcFiller.insert(puppiCands, mappingPuppi.begin(), mappingPuppi.end());
+    if(usePuppi_) pf2pcFiller.insert(puppiCands, mappingPuppi.begin(), mappingPuppi.end());
 
     pf2pcFiller.fill();
     pc2pfFiller.fill();
