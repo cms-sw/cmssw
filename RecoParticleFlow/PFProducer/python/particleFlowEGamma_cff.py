@@ -14,6 +14,7 @@ from RecoEgamma.EgammaIsolationAlgos.egmPhotonIsolationAOD_cff import egmPhotonI
 from CommonTools.ParticleFlow.pfNoPileUpIso_cff import * 
 from CommonTools.ParticleFlow.pfParticleSelection_cff import * 
 from RecoEgamma.EgammaIsolationAlgos.egmIsolationDefinitions_cff import pfNoPileUpCandidates
+from RecoEgamma.EgammaIsolationAlgos.egmIsoConeDefinitions_cfi import IsoConeDefinitions  as IsoConeDefinitionsTmp
 
 particleBasedIsolationTmp = _particleBasedIsolation.clone()
 particleBasedIsolationTmp.photonProducer =  cms.InputTag("gedPhotonsTmp")
@@ -24,31 +25,13 @@ particleBasedIsolationTmp.valueMapElePFblockIso = cms.string("gedGsfElectronsTmp
 
 egmPhotonIsolationCITK = _egmPhotonIsolationAOD.clone()
 
-isolationConeDefinitionsTmp = cms.VPSet(cms.PSet( isolationAlgo = cms.string('PhotonPFIsolationWithMapBasedVeto'),
-                                      coneSize = cms.double(0.3),
-                                      isolateAgainst = cms.string('h+'),
-                                      miniAODVertexCodes = cms.vuint32(2,3),
-                                      vertexIndex = cms.int32(0),
-                                      particleBasedIsolation = cms.InputTag("particleBasedIsolationTmp", "gedPhotonsTmp"),
-                                    ),
-                              		 cms.PSet( isolationAlgo = cms.string('PhotonPFIsolationWithMapBasedVeto'),
-                                      coneSize = cms.double(0.3),
-                                      isolateAgainst = cms.string('h0'),
-                                      miniAODVertexCodes = cms.vuint32(2,3),
-                                      vertexIndex = cms.int32(0),
-                                      particleBasedIsolation = cms.InputTag("particleBasedIsolationTmp", "gedPhotonsTmp"),
-                                    ),
-                              		 cms.PSet( isolationAlgo = cms.string('PhotonPFIsolationWithMapBasedVeto'),
-                                      coneSize = cms.double(0.3),
-                                      isolateAgainst = cms.string('gamma'),
-                                      miniAODVertexCodes = cms.vuint32(2,3),
-                                      vertexIndex = cms.int32(0),
-                                      particleBasedIsolation = cms.InputTag("particleBasedIsolationTmp", "gedPhotonsTmp"),
-                                    )
-    )
+for iPSet in IsoConeDefinitionsTmp:
+  iPSet.particleBasedIsolation = cms.InputTag("particleBasedIsolationTmp", "gedPhotonsTmp")
+
+
 egmPhotonIsolationCITK.srcToIsolate = cms.InputTag("gedPhotonsTmp")
 egmPhotonIsolationCITK.srcForIsolationCone = cms.InputTag("pfNoPileUpCandidates")
-egmPhotonIsolationCITK.isolationConeDefinitions = isolationConeDefinitionsTmp
+egmPhotonIsolationCITK.isolationConeDefinitions = IsoConeDefinitionsTmp
 
 particleFlowEGammaFull = cms.Sequence(particleFlowEGamma*gedGsfElectronSequenceTmp*gedPhotonSequenceTmp)
 particleFlowEGammaFinal = cms.Sequence(particleBasedIsolationTmp*pfParticleSelectionSequence*pfNoPileUpCandidates*egmPhotonIsolationCITK*gedPhotonSequence*gedElectronPFIsoSequence)
