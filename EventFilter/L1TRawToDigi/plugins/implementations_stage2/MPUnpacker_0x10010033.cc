@@ -57,7 +57,7 @@ namespace stage2 {
      switch(block.header().getID()){
      case 123: // 61
        ethf.setType(l1t::EtSum::kTotalEtHF);
-       ethf.setHwPt( static_cast<int32_t>( uint32_t(raw_data & 0xFFFFFF) << 16 ) >> 16 );
+       ethf.setHwPt( static_cast<int32_t>( uint32_t(raw_data & 0xFFFF) << 16 ) >> 16 );
        break;
      case 121: // 60
        ethf.setType(l1t::EtSum::kTotalEtxHF);
@@ -69,7 +69,7 @@ namespace stage2 {
        break;
      case 125: // 62
        ethf.setType(l1t::EtSum::kTotalEtHF);
-       ethf.setHwPt( static_cast<int32_t>( uint32_t(raw_data & 0xFFFFFF) << 16 ) >> 16 );
+       ethf.setHwPt( static_cast<int32_t>( uint32_t(raw_data & 0xFFFF) << 16 ) >> 16 );
        break;
      case 131: // 65
        ethf.setType(l1t::EtSum::kTotalEtxHF);
@@ -93,11 +93,12 @@ namespace stage2 {
      raw_data = block.payload()[fet + 1];
 
      l1t::EtSum etNoHF = l1t::EtSum();
+     l1t::EtSum etEm = l1t::EtSum();
 
      switch(block.header().getID()){
      case 123: // 61
        etNoHF.setType(l1t::EtSum::kTotalEt);
-       etNoHF.setHwPt( static_cast<int32_t>( uint32_t(raw_data & 0xFFFFFF) << 16 ) >> 16 );
+       etNoHF.setHwPt( static_cast<int32_t>( uint32_t(raw_data & 0xFFFF) << 16 ) >> 16 );
        break;
      case 121: // 60
        etNoHF.setType(l1t::EtSum::kTotalEtx);
@@ -109,7 +110,7 @@ namespace stage2 {
        break;
      case 125: // 62
        etNoHF.setType(l1t::EtSum::kTotalEt);
-       etNoHF.setHwPt( static_cast<int32_t>( uint32_t(raw_data & 0xFFFFFF) << 16 ) >> 16 );
+       etNoHF.setHwPt( static_cast<int32_t>( uint32_t(raw_data & 0xFFFF) << 16 ) >> 16 );
        break;
      case 131: // 65
        etNoHF.setType(l1t::EtSum::kTotalEtx);
@@ -126,6 +127,15 @@ namespace stage2 {
      LogDebug("L1T") << "ET/METx/METy (no HF): pT " << etNoHF.hwPt();
 
      res2_->push_back(0,etNoHF);
+   
+     
+     // ET EM
+     if(block.header().getID()==123 || block.header().getID()==125){
+       etEm.setType(l1t::EtSum::kTotalEtEm);
+       etEm.setHwPt( static_cast<int32_t>( uint32_t( ( raw_data >> 16 ) & 0xFFFF) << 16 ) >> 16 );
+       res2_->push_back(0,etEm);
+
+     }
 
 
      // HT / MHT(x)/ MHT (y) with HF
