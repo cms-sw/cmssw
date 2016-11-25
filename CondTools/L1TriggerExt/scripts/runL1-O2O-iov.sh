@@ -30,8 +30,8 @@ echo "INFO: ADDITIONAL CMS OPTIONS:  " $CMS_OPTIONS
 
 #ONLINEDB_OPTIONS="onlineDBConnect=oracle://cms_omds_adg/CMS_TRG_R onlineDBAuth=./"
 #PROTODB_OPTIONS="protoDBConnect=oracle://cms_orcon_adg/CMS_CONDITIONS protoDBAuth=./"
-ONLINEDB_OPTIONS="onlineDBConnect=oracle://cms_omds_lb/CMS_TRG_R onlineDBAuth=./"
-PROTODB_OPTIONS="protoDBConnect=oracle://cms_orcon_prod/CMS_CONDITIONS protoDBAuth=./"
+ONLINEDB_OPTIONS="onlineDBConnect=oracle://cms_omds_lb/CMS_TRG_R onlineDBAuth=/data/O2O/L1T/"
+PROTODB_OPTIONS="protoDBConnect=oracle://cms_orcon_prod/CMS_CONDITIONS protoDBAuth=/data/O2O/L1T/"
 
 if [ ${xflag} -eq 0 ]
 then
