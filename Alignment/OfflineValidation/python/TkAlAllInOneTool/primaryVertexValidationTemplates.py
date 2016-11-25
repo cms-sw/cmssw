@@ -343,7 +343,7 @@ done
 
 for PngOutputFile in $(ls *png ); do
     xrdcp -f ${PngOutputFile}  root://eoscms//eos/cms/store/caf/user/$USER/.oO[eosdir]Oo./plots/
-    rfcp ${PngOutputFile}  .oO[datadri]Oo.
+    rfcp ${PngOutputFile}  .oO[datadir]Oo.
 done
 
 """
@@ -364,6 +364,27 @@ It can be run as is, or adjusted to fit
 
 void TkAlPrimaryVertexValidationPlot()
 {
-  FitPVResiduals(".oO[PrimaryVertexPlotInstantiation]Oo.",true,true,"");
+
+  thePlotLimits->init(.oO[m_dxyPhiMax]Oo.,
+                      .oO[m_dzPhiMax]Oo.,
+                      .oO[m_dxyEtaMax]Oo.,
+                      .oO[m_dzEtaMax]Oo.,
+                      .oO[m_dxyPhiNormMax]Oo.,
+                      .oO[m_dzPhiNormMax]Oo.,
+                      .oO[m_dxyEtaNormMax]Oo.,
+                      .oO[m_dzEtaNormMax]Oo.,
+                      .oO[w_dxyPhiMax]Oo.,
+                      .oO[w_dzPhiMax]Oo.,
+                      .oO[w_dxyEtaMax]Oo.,
+                      .oO[w_dzEtaMax]Oo.,
+                      .oO[w_dxyPhiNormMax]Oo.,
+                      .oO[w_dzPhiNormMax]Oo.,
+                      .oO[w_dxyEtaNormMax]Oo.,
+                      .oO[w_dzEtaNormMax]Oo.
+		      );
+  
+  FitPVResiduals(".oO[PrimaryVertexPlotInstantiation]Oo.",.oO[stdResiduals]Oo.,.oO[doMaps]Oo.,"",.oO[autoLimits]Oo.);
 }
 """
+
+

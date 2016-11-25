@@ -79,3 +79,10 @@ RecoEcalAOD = cms.PSet(
         'keep recoCaloClusters_particleFlowSuperClusterECAL_*_*'
         )
 )
+
+from Configuration.StandardSequences.Eras import eras
+#HI-specific products needed in pp scenario special configurations
+for e in [eras.pA_2016, eras.peripheralPbPb]:
+    for ec in [RecoEcalRECO.outputCommands, RecoEcalFEVT.outputCommands]:
+        e.toModify( ec, func=lambda outputCommands: outputCommands.extend(['keep recoCaloClusters_islandBasicClusters_*_*'])
+                    )

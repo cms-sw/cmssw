@@ -11,20 +11,20 @@ using namespace std;
 
 
 PythiaMomDauFilter::PythiaMomDauFilter(const edm::ParameterSet& iConfig) :
-label_(iConfig.getUntrackedParameter("moduleLabel",std::string("generator"))),
-particleID(iConfig.getUntrackedParameter("ParticleID", 0)),
-daughterID(iConfig.getUntrackedParameter("DaughterID", 0)),
-chargeconju(iConfig.getUntrackedParameter("ChargeConjugation", true)),
-ndaughters(iConfig.getUntrackedParameter("NumberDaughters", 0)),
-ndescendants(iConfig.getUntrackedParameter("NumberDescendants", 0)),
-minptcut(iConfig.getUntrackedParameter("MinPt", 0.)),
-maxptcut(iConfig.getUntrackedParameter("MaxPt", 14000.)),
-minetacut(iConfig.getUntrackedParameter("MinEta", -10.)),
-maxetacut(iConfig.getUntrackedParameter("MaxEta", 10.)),
-mom_minptcut(iConfig.getUntrackedParameter("MomMinPt", 0.)),
-mom_maxptcut(iConfig.getUntrackedParameter("MomMaxPt", 14000.)),
-mom_minetacut(iConfig.getUntrackedParameter("MomMinEta", -10.)),
-mom_maxetacut(iConfig.getUntrackedParameter("MomMaxEta", 10.))
+label_(consumes<edm::HepMCProduct>(edm::InputTag(iConfig.getUntrackedParameter("moduleLabel",std::string("generator")),"unsmeared"))),
+particleID(iConfig.getUntrackedParameter<int>("ParticleID", 0)),
+daughterID(iConfig.getUntrackedParameter<int>("DaughterID", 0)),
+chargeconju(iConfig.getUntrackedParameter<bool>("ChargeConjugation", true)),
+ndaughters(iConfig.getUntrackedParameter<int>("NumberDaughters", 0)),
+ndescendants(iConfig.getUntrackedParameter<int>("NumberDescendants", 0)),
+minptcut(iConfig.getUntrackedParameter<double>("MinPt", 0.)),
+maxptcut(iConfig.getUntrackedParameter<double>("MaxPt", 14000.)),
+minetacut(iConfig.getUntrackedParameter<double>("MinEta", -10.)),
+maxetacut(iConfig.getUntrackedParameter<double>("MaxEta", 10.)),
+mom_minptcut(iConfig.getUntrackedParameter<double>("MomMinPt", 0.)),
+mom_maxptcut(iConfig.getUntrackedParameter<double>("MomMaxPt", 14000.)),
+mom_minetacut(iConfig.getUntrackedParameter<double>("MomMinEta", -10.)),
+mom_maxetacut(iConfig.getUntrackedParameter<double>("MomMaxEta", 10.))
 {
    //now do what ever initialization is needed
    vector<int> defdauID;
@@ -56,7 +56,7 @@ bool PythiaMomDauFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
  bool accepted = false;
  bool mom_accepted = false;
  Handle<HepMCProduct> evt;
- iEvent.getByLabel(label_, evt);
+ iEvent.getByToken(label_, evt);
 
  const HepMC::GenEvent * myGenEvent = evt->GetEvent();
  int ndauac = 0;

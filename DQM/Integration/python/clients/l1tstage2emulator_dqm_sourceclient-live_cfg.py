@@ -75,7 +75,7 @@ process.l1tEmulatorMonitorPath = cms.Path(
 # To get L1 conditions that are not in GlobalTag / O2O yet
 process.load("L1Trigger.L1TCalorimeter.hackConditions_cff")
 process.load("L1Trigger.L1TMuon.hackConditions_cff")
-process.gmtParams.caloInputsMasked = cms.bool(True)
+process.gmtParams.caloInputsMasked = cms.bool(True) # Disable uGMT calo inputs like in the online configuration
 process.load("L1Trigger.L1TGlobal.hackConditions_cff")
 
 # To get CaloTPGTranscoder

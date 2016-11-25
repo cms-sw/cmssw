@@ -224,7 +224,7 @@ void l1t::GlobalBoard::receiveCaloObjectData(edm::Event& iEvent,
 	        if(nObj<nrL1Tau) {
 		   (*m_candL1Tau).push_back(i,&(*tau));
 	        } else {
-		  edm::LogWarning("L1TGlobal") << " Too many Tau ("<<nObj<<") for uGT Configuration maxTau =" <<nrL1Tau << std::endl;
+		  LogTrace("L1TGlobal") << " Too many Tau ("<<nObj<<") for uGT Configuration maxTau =" <<nrL1Tau << std::endl;
 		}
 		   
 	        LogDebug("L1TGlobal") << "tau  Pt " << tau->hwPt() << " Eta  " << tau->hwEta() << " Phi " << tau->hwPhi() << "  Qual " << tau->hwQual() <<"  Iso " << tau->hwIso() << std::endl;

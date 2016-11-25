@@ -151,3 +151,11 @@ RecoEgammaAOD = cms.PSet(
   )                                                                 
 )
 
+from Configuration.StandardSequences.Eras import eras
+#HI-specific products needed in pp scenario special configurations
+for e in [eras.pA_2016, eras.peripheralPbPb]:
+    for ec in [RecoEgammaAOD.outputCommands, RecoEgammaRECO.outputCommands, RecoEgammaFEVT.outputCommands]:
+        e.toModify( ec, func=lambda outputCommands: outputCommands.extend(['keep recoHIPhotonIsolationedmValueMap_photonIsolationHIProducerppGED_*_*',
+                                                                           'keep recoHIPhotonIsolationedmValueMap_photonIsolationHIProducerpp_*_*'
+                                                                           ])
+                    )

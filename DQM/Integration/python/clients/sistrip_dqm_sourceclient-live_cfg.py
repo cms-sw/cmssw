@@ -204,7 +204,7 @@ process.hltLevel1GTSeed.L1SeedsLogicalExpression = cms.string('NOT (36 OR 37 OR 
 # HLT trigger selection (HLT_ZeroBias)
 # modified for 0 Tesla HLT menu (no ZeroBias_*)
 process.load('HLTrigger.HLTfilters.hltHighLevel_cfi')
-process.hltHighLevel.HLTPaths = cms.vstring( 'HLT_ZeroBias_*' , 'HLT_ZeroBias1_*' , 'HLT_PAZeroBias_*' , 'HLT_PAZeroBias1_*' )
+process.hltHighLevel.HLTPaths = cms.vstring( 'HLT_ZeroBias_*' , 'HLT_ZeroBias1_*' , 'HLT_PAZeroBias_*' , 'HLT_PAZeroBias1_*', 'HLT_PAL1MinimumBiasHF_OR_SinglePixelTrack_*')
 process.hltHighLevel.andOr = cms.bool(True)
 process.hltHighLevel.throw =  cms.bool(False)
 
@@ -288,7 +288,10 @@ if (process.runType.getRunType() == process.runType.pp_run or process.runType.ge
             'HLT_L1*',
             'HLT_Jet*',
             'HLT_Physics*',
-            'HLT_ZeroBias*'
+            'HLT_ZeroBias*',
+            'HLT_PAL1*',
+            'HLT_PAZeroBias*',
+            'HLT_PAAK*'
             )
 
     process.DQMStore.referenceFileName = '/dqmdata/dqm/reference/sistrip_reference_pp.root'

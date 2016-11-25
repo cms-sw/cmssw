@@ -381,9 +381,9 @@ TrackMon = cms.EDAnalyzer("TrackingMonitor",
 
     # PU monitoring
     # Nunmber of Good Primary Vertices
-    GoodPVtxBin = cms.int32(100),
+    GoodPVtxBin = cms.int32(200),
     GoodPVtxMin = cms.double( 0.),
-    GoodPVtxMax = cms.double(100.),
+    GoodPVtxMax = cms.double(200.),
 
     LUMIBin  = cms.int32 ( 4000 ),
     LUMIMin  = cms.double(    0.),

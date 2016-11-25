@@ -7,6 +7,73 @@ skimRecoContent = RECOEventContent.clone()
 skimRecoContent.outputCommands.append("drop *_MEtoEDMConverter_*_*")
 skimRecoContent.outputCommands.append("drop *_*_*_SKIM")
 
+from Configuration.EventContent.EventContent_cff import RAWEventContent
+skimRawContent = RAWEventContent.clone()
+skimRawContent.outputCommands.append("drop *_MEtoEDMConverter_*_*")
+skimRawContent.outputCommands.append("drop *_*_*_SKIM")
+
+#####################
+# event splitting special skims
+
+# select events 1, 5, 9, ...
+evtSplit_Prescaler_P1 = cms.EDFilter("Prescaler",
+    prescaleFactor = cms.int32(4),
+    prescaleOffset = cms.int32(1)
+)
+# select events 2, 6, 10, ...
+evtSplit_Prescaler_P2 = cms.EDFilter("Prescaler",
+    prescaleFactor = cms.int32(4),
+    prescaleOffset = cms.int32(2)
+)
+# select events 3, 7, 11, ...
+evtSplit_Prescaler_P3 = cms.EDFilter("Prescaler",
+    prescaleFactor = cms.int32(4),
+    prescaleOffset = cms.int32(3)
+)
+# select events 4, 8, 12, ...
+evtSplit_Prescaler_P4 = cms.EDFilter("Prescaler",
+    prescaleFactor = cms.int32(4),
+    prescaleOffset = cms.int32(0)
+)
+
+evtSplit_SkimPath_P1 = cms.Path(evtSplit_Prescaler_P1)
+evtSplit_SkimPath_P2 = cms.Path(evtSplit_Prescaler_P2)
+evtSplit_SkimPath_P3 = cms.Path(evtSplit_Prescaler_P3)
+evtSplit_SkimPath_P4 = cms.Path(evtSplit_Prescaler_P4)
+
+SKIMStreamevtSplitSkimP1 = cms.FilteredStream(
+    responsible = 'PDWG',
+    name = 'evtSplitSkimP1',
+    paths = (evtSplit_SkimPath_P1),
+    content = skimRawContent.outputCommands,
+    selectEvents = cms.untracked.PSet(),
+    dataTier = cms.untracked.string('RAW')
+    )
+SKIMStreamevtSplitSkimP2 = cms.FilteredStream(
+    responsible = 'PDWG',
+    name = 'evtSplitSkimP2',
+    paths = (evtSplit_SkimPath_P2),
+    content = skimRawContent.outputCommands,
+    selectEvents = cms.untracked.PSet(),
+    dataTier = cms.untracked.string('RAW')
+    )
+SKIMStreamevtSplitSkimP3 = cms.FilteredStream(
+    responsible = 'PDWG',
+    name = 'evtSplitSkimP3',
+    paths = (evtSplit_SkimPath_P3),
+    content = skimRawContent.outputCommands,
+    selectEvents = cms.untracked.PSet(),
+    dataTier = cms.untracked.string('RAW')
+    )
+SKIMStreamevtSplitSkimP4 = cms.FilteredStream(
+    responsible = 'PDWG',
+    name = 'evtSplitSkimP4',
+    paths = (evtSplit_SkimPath_P4),
+    content = skimRawContent.outputCommands,
+    selectEvents = cms.untracked.PSet(),
+    dataTier = cms.untracked.string('RAW')
+    )
+
 #####################
 
 from Configuration.Skimming.PDWG_BPHSkim_cff import *

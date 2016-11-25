@@ -1,10 +1,10 @@
 #ifndef DQM_CASTORMONITOR_CASTORRECHITMONITOR_H
 #define DQM_CASTORMONITOR_CASTORRECHITMONITOR_H
 
-#include "DQM/CastorMonitor/interface/CastorBaseMonitor.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 //#include "DataFormats/HcalRecHit/interface/CastorRecHit.h"
+#include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 
 #include "DataFormats/CastorReco/interface/CastorTower.h"
 #include "DataFormats/CastorReco/interface/CastorCluster.h"
@@ -18,17 +18,17 @@
 
 #include "DataFormats/Common/interface/TriggerResults.h"
 
-class CastorRecHitMonitor: public CastorBaseMonitor {
+class CastorRecHitMonitor {
 public:
   CastorRecHitMonitor(const edm::ParameterSet& ps); 
   ~CastorRecHitMonitor(); 
 
-  void setup(const edm::ParameterSet& ps);
  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &);
   void processEvent(const CastorRecHitCollection& castorHits);
  void processEventTowers(const reco::CastorTowerCollection& castorTowers);
  void processEventJets(const reco::BasicJetCollection& Jets);
 private:  
+ int fVerbosity = 0;
  int ievt_;
  float energyInEachChannel[14][16];
  std::string subsystemname;
@@ -48,8 +48,7 @@ private:
  MonitorElement* h2RHmap;
  MonitorElement* h2RHoccmap;
  MonitorElement* h2RHentriesMap;
- MonitorElement* hRHtime;
- MonitorElement* hallchan;
+ MonitorElement* hRHtime, *hallchan;
 };
 
 #endif

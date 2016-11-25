@@ -53,3 +53,6 @@ eras.trackingLowPU.toModify(photonConvTrajSeedFromSingleLeg,
         cut = "strip < 150000 && pixel < 20000 && (strip < 20000 + 7* pixel)"
     )
 )
+eras.peripheralPbPb.toModify(photonConvTrajSeedFromSingleLeg,
+                             ClusterCheckPSet = dict(cut = "strip < 400000 && pixel < 40000 && (strip < 60000 + 7.0*pixel) && (pixel < 8000 + 0.14*strip)")
+)

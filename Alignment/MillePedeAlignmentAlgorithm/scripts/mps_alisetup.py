@@ -12,12 +12,14 @@
 import argparse
 import os
 import re
+import importlib
 import subprocess
 import ConfigParser
 import sys
 import itertools
 import collections
 import Alignment.MillePedeAlignmentAlgorithm.mpslib.Mpslibclass as mpslib
+import Alignment.MillePedeAlignmentAlgorithm.mpslib.tools as mps_tools
 from Alignment.MillePedeAlignmentAlgorithm.alignmentsetup.helper import checked_out_MPS
 
 
@@ -73,6 +75,49 @@ def get_weight_configs(config):
     return configs
 
 
+def create_input_db(cfg, run_number):
+    """
+    Create sqlite file with single-IOV tags and use it to override the GT. If
+    the GT is already customized by the user, the customization has higher
+    priority. Returns a snippet to be appended to the configuration file
+
+    Arguments:
+    - `cfg`: path to python configuration
+    - `run_number`: run from which to extract the alignment payloads
+    """
+
+    sys.path.append(os.path.dirname(cfg))
+    cache_stdout = sys.stdout
+    sys.stdout = open(os.devnull, "w") # suppress unwanted output
+    __configuration = \
+        importlib.import_module(os.path.splitext(os.path.basename(cfg))[0])
+    sys.stdout = cache_stdout
+
+    run_number = int(run_number)
+    if not run_number > 0:
+        print "'FirstRunForStartGeometry' must be positive, but is", run_number
+        sys.exit(1)
+
+    global_tag = __configuration.process.GlobalTag.globaltag.value()
+    input_db_name = os.path.abspath("alignment_input.db")
+    tags = mps_tools.create_single_iov_db(global_tag, run_number, input_db_name)
+
+    for condition in __configuration.process.GlobalTag.toGet.value():
+        if condition.record.value() in tags: del tags[condition.record.value()]
+
+    result = ""
+    for record,tag in tags.iteritems():
+        if result == "":
+            result += ("\nimport "
+                       "Alignment.MillePedeAlignmentAlgorithm.alignmentsetup."
+                       "SetCondition as tagwriter\n")
+        result += ("\ntagwriter.setCondition(process,\n"
+                   "       connect = \""+tag["connect"]+"\",\n"
+                   "       record = \""+record+"\",\n"
+                   "       tag = \""+tag["tag"]+"\")\n")
+
+    os.remove(cfg+"c")
+    return result
 
 # ------------------------------------------------------------------------------
 # set up argument parser and config parser
@@ -140,7 +185,7 @@ os.system(eos+' mkdir -p '+mssDir)
 generalOptions = {}
 
 # essential variables
-for var in ['classInf','pedeMem','jobname']:
+for var in ["classInf","pedeMem","jobname", "FirstRunForStartGeometry"]:
     try:
         generalOptions[var] = config.get('general',var)
     except ConfigParser.NoOptionError:
@@ -263,6 +308,7 @@ if args.weight:
 #------------------------------------------------------------------------------
 # loop over dataset-sections
 firstDataset = True
+overrideGT = ""
 for section in config.sections():
     if 'general' in section:
         continue
@@ -394,6 +440,11 @@ for section in config.sections():
             append = ''
             firstDataset = False
             configTemplate = tmpFile
+            overrideGT = create_input_db(thisCfgTemplate,
+                                         generalOptions["FirstRunForStartGeometry"])
+
+        with open(thisCfgTemplate, "a") as f: f.write(overrideGT)
+
 
         # create mps_setup command
         command = 'mps_setup.pl -m%s -M %s -N %s %s %s %s %d %s %s %s cmscafuser:%s' % (
@@ -472,7 +523,7 @@ for setting in pedesettings:
 
         thisCfgTemplate = "tmp.py"
         with open(thisCfgTemplate, "w") as f:
-            f.write(configTemplate)
+            f.write(configTemplate+overrideGT)
 
         # create new merge-config
         command = ("mps_merge.py -w "+thisCfgTemplate+" jobData/"+lib.JOBDIR[-1]+
@@ -489,3 +540,12 @@ for setting in pedesettings:
 
     # remove temporary file
     os.system("rm "+thisCfgTemplate)
+
+if overrideGT.strip() != "":
+    print "="*60
+    msg = ("Overriding global tag with single-IOV tags extracted from '{}' for "
+           "run number '{}'.".format(generalOptions["globaltag"],
+                                     generalOptions["FirstRunForStartGeometry"]))
+    print msg
+    print "-"*60
+    print overrideGT

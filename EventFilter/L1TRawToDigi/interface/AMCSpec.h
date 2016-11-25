@@ -1,5 +1,5 @@
-#ifndef AMC_SPEC__h
-#define AMC_SPEC__h
+#ifndef EventFilter_L1TRawToDigi_AMC_SPEC__h
+#define EventFilter_L1TRawToDigi_AMC_SPEC__h
 
 #include <memory>
 #include <vector>

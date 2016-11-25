@@ -16,6 +16,7 @@ RecoLocalCaloFEVT = cms.PSet(
                                            'keep HFRecHitsSorted_hfrecoMB_*_*',
                                            'keep ZDCDataFramesSorted_*Digis_*_*',
                                            'keep ZDCRecHitsSorted_*_*_*',
+                                           'keep QIE10DataFrameHcalDataFrameContainer_hcalDigis_ZDC_*',
                                            'keep *_reducedHcalRecHits_*_*',
                                            'keep *_castorreco_*_*',
                                            'keep HcalUnpackerReport_*_*_*'
@@ -33,6 +34,7 @@ RecoLocalCaloRECO = cms.PSet(
                                            #'keep ZDCDataFramesSorted_*Digis_*_*',
                                            'keep ZDCDataFramesSorted_hcalDigis_*_*',
                                            'keep ZDCDataFramesSorted_castorDigis_*_*',
+                                           'keep QIE10DataFrameHcalDataFrameContainer_hcalDigis_ZDC_*',
                                            'keep ZDCRecHitsSorted_*_*_*',
                                            'keep *_reducedHcalRecHits_*_*',
                                            'keep *_castorreco_*_*',
@@ -57,3 +59,11 @@ RecoLocalCaloFEVT.outputCommands.extend(ecalLocalRecoFEVT.outputCommands)
 RecoLocalCaloRECO.outputCommands.extend(ecalLocalRecoRECO.outputCommands)
 RecoLocalCaloAOD.outputCommands.extend(ecalLocalRecoAOD.outputCommands)
 
+from Configuration.StandardSequences.Eras import eras
+eras.pA_2016.toModify( RecoLocalCaloAOD.outputCommands, 
+                       func=lambda outputCommands: outputCommands.extend(['keep *_zdcreco_*_*',
+                                                                          'keep ZDCDataFramesSorted_hcalDigis_*_*',
+                                                                          'keep ZDCDataFramesSorted_castorDigis_*_*',
+                                                                          'keep QIE10DataFrameHcalDataFrameContainer_hcalDigis_ZDC_*'
+                                                                          ])
+                       )

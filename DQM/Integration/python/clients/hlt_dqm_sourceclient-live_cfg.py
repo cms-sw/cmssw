@@ -24,10 +24,15 @@ process.TkDetMap = cms.Service("TkDetMap")
 
 #---- for P5 (online) DB access
 process.load("DQM.Integration.config.FrontierCondition_GT_cfi")
-# Condition for lxplus
-#process.load("DQM.Integration.config.FrontierCondition_GT_Offline_cfi") 
+# Condition for lxplus: change and possibly customise the GT
+#from Configuration.AlCa.GlobalTag import GlobalTag as gtCustomise
+#process.GlobalTag = gtCustomise(process.GlobalTag, 'auto:run2_data', '')
 
-process.load("DQM.HLTEvF.HLTObjectMonitor_cff")
+### for pp collisions
+#process.load("DQM.HLTEvF.HLTObjectMonitor_cff")
+### for Proton-Lead collisions only (2016 Proton-Lead Era)
+process.load("DQM.HLTEvF.HLTObjectMonitorProtonLead_cff")
+
 # added for hlt scalars
 process.load("DQM.TrigXMonitor.HLTSeedL1LogicScalers_cfi")
 # added for hlt scalars

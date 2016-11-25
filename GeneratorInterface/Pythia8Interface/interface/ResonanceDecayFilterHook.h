@@ -20,6 +20,8 @@ private:
   bool eMuAsEquivalent_;
   bool eMuTauAsEquivalent_;
   bool allNuAsEquivalent_;
+  bool udscAsEquivalent_;
+  bool udscbAsEquivalent_;
   std::vector<int> mothers_;
   std::vector<int> daughters_;
   

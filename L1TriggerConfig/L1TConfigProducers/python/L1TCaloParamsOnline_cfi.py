@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-#from L1Trigger.L1TCalorimeter.caloStage2Params_2016_v3_2_cfi import *
+#from L1Trigger.L1TCalorimeter.caloStage2Params_2016_v3_3_HI_cfi import *
 
 from CondCore.CondDB.CondDB_cfi import CondDB
 CondDB.connect = cms.string('oracle://cms_orcon_prod/CMS_CONDITIONS')

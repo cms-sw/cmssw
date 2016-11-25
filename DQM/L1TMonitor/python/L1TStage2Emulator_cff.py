@@ -51,10 +51,25 @@ from L1Trigger.L1TCalorimeter.simCaloStage2Digis_cfi import simCaloStage2Digis
 valCaloStage2Layer2Digis = simCaloStage2Digis.clone()
 valCaloStage2Layer2Digis.towerToken = cms.InputTag("caloStage2Digis", "CaloTower")
 
+# BMTF
+from L1Trigger.L1TMuonBarrel.simBmtfDigis_cfi import *
+valBmtfDigis = simBmtfDigis.clone()
+valBmtfDigis.DTDigi_Source = cms.InputTag("bmtfDigis")
+valBmtfDigis.DTDigi_Theta_Source = cms.InputTag("bmtfDigis")
+
+# OMTF
+from L1Trigger.L1TMuonOverlap.simOmtfDigis_cfi import *
+valOmtfDigis = simOmtfDigis.clone()
+valOmtfDigis.srcDTPh = cms.InputTag('bmtfDigis')
+valOmtfDigis.srcDTTh = cms.InputTag('bmtfDigis')
+valOmtfDigis.srcCSC = cms.InputTag('emtfStage2Digis')
+valOmtfDigis.srcRPC = cms.InputTag('muonRPCDigis')
+
 # EMTF
 from L1Trigger.L1TMuonEndCap.simEmtfDigis_cfi import *
 valEmtfStage2Digis = simEmtfDigis.clone()
-valEmtfStage2Digis.CSCInput = "csctfDigis"
+valEmtfStage2Digis.CSCInput = "emtfStage2Digis"
+valEmtfStage2Digis.RPCInput = "muonRPCDigis"
 
 # uGMT
 from L1Trigger.L1TMuon.simGmtStage2Digis_cfi import *
@@ -83,7 +98,9 @@ valGtStage2Digis.AlgorithmTriggersUnprescaled = cms.bool(False)
 Stage2L1HardwareValidation = cms.Sequence(
     valCaloStage2Layer1Digis +
     valCaloStage2Layer2Digis +
+    valBmtfDigis +
     valEmtfStage2Digis +
+    valOmtfDigis +
     valGmtCaloSumDigis +
     valGmtStage2Digis +
     valGtStage2Digis
@@ -98,6 +115,12 @@ from DQM.L1TMonitor.L1TdeStage2CaloLayer1_cfi import *
 # CaloLayer2
 from DQM.L1TMonitor.L1TStage2CaloLayer2_cfi import *
 from DQM.L1TMonitor.L1TStage2CaloLayer2Emul_cfi import *
+
+# BMTF
+from DQM.L1TMonitor.L1TdeStage2BMTF_cfi import *
+
+# OMTF
+from DQM.L1TMonitor.L1TdeStage2OMTF_cfi import *
 
 # EMTF
 from DQM.L1TMonitor.L1TdeStage2EMTF_cfi import *
@@ -116,7 +139,10 @@ l1tStage2EmulatorOnlineDQM = cms.Sequence(
     # We process both layer2 and layer2emu in same sourceclient
     # to be able to divide them in the MonitorClient
     l1tStage2CaloLayer2 + l1tStage2CaloLayer2Emul +
-    l1tdeStage2Emtf +      
+    l1tdeStage2Bmtf +
+    l1tdeStage2Omtf +
+    l1tdeStage2Emtf +
+    l1tdeStage2EmtfComp +
     l1tStage2uGMTEmul +
     l1tdeStage2uGMT +
     l1tStage2uGtEmul

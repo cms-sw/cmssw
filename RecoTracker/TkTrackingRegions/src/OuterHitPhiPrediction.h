@@ -20,7 +20,7 @@ public:
       float originRBound) 
     : thePhiAtVertex(phiAtVertex), theCurvature(curvature),
       theOriginRBound (originRBound) {
-       assert(theCurvature.max()>0);
+       // assert(theCurvature.max()>0);
        assert(theCurvature.max() == -theCurvature.min()); 
       } 
 

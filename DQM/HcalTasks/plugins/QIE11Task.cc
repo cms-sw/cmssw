@@ -12,9 +12,15 @@ QIE11Task::QIE11Task(edm::ParameterSet const& ps):
 		edm::InputTag("hcalDigis"));
 	_tokQIE11 = consumes<QIE11DigiCollection>(_tagQIE11);
 
+	_taguMN = ps.getUntrackedParameter<edm::InputTag>("taguMN",
+							  edm::InputTag("hcalDigis"));
+	_tokuMN = consumes<HcalUMNioDigi>(_taguMN);
+
 	//	cuts
 	_cut = ps.getUntrackedParameter<double>("cut", 50.0);
 	_ped = ps.getUntrackedParameter<int>("ped", 4);
+	_laserType = ps.getUntrackedParameter<int32_t>("laserType", -1);
+	_eventType = ps.getUntrackedParameter<int32_t>("eventType", -1);
 }
 /* virtual */ void QIE11Task::bookHistograms(DQMStore::IBooker &ib,
 	edm::Run const& r, edm::EventSetup const& es)
@@ -113,6 +119,7 @@ QIE11Task::QIE11Task(edm::ParameterSet const& ps):
 //		double q = hcaldqm::utilities::aveTS_v10<QIE11DataFrame>(frame,
 //			constants::adc2fC[_ped], 0, frame.samples()-1);
 
+
 		//	iterate thru all TS and fill
 		for (int j=0; j<frame.samples(); j++)
 		{
@@ -133,6 +140,33 @@ QIE11Task::QIE11Task(edm::ParameterSet const& ps):
 		}
 	}
 }
+
+
+/* virtual */ bool QIE11Task::_isApplicable(edm::Event const& e)
+{
+  if (_ptype!=fOnline || (_laserType < 0 && _eventType < 0))
+    return true;
+  else
+    {
+      //      fOnline mode
+      edm::Handle<HcalUMNioDigi> cumn;
+      if (!e.getByToken(_tokuMN, cumn))
+	return false;
+
+      //      event type check first
+      int eventType = cumn->eventType();
+      if (eventType==_eventType)
+	return true;
+
+      //      check if this analysis task is of the right laser type
+      int laserType = cumn->valueUserWord(0);
+      if (laserType==_laserType)
+	return true;
+    }
+
+  return false;
+}
+
 
 /* virtual */ void QIE11Task::_resetMonitors(hcaldqm::UpdateFreq)
 {

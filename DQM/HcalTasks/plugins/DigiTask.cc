@@ -55,9 +55,15 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 		vuTCA);
 	vFEDHF.push_back(HcalElectronicsId(22, SLOT_uTCA_MIN,
 		FIBER_uTCA_MIN1, FIBERCH_MIN, false).rawId());
+	vFEDHF.push_back(HcalElectronicsId(22, SLOT_uTCA_MIN+6,
+		FIBER_uTCA_MIN1, FIBERCH_MIN, false).rawId());
 	vFEDHF.push_back(HcalElectronicsId(29, SLOT_uTCA_MIN,
 		FIBER_uTCA_MIN1, FIBERCH_MIN, false).rawId());
+	vFEDHF.push_back(HcalElectronicsId(29, SLOT_uTCA_MIN+6,
+		FIBER_uTCA_MIN1, FIBERCH_MIN, false).rawId());
 	vFEDHF.push_back(HcalElectronicsId(32, SLOT_uTCA_MIN,
+		FIBER_uTCA_MIN1, FIBERCH_MIN, false).rawId());
+	vFEDHF.push_back(HcalElectronicsId(32, SLOT_uTCA_MIN+6,
 		FIBER_uTCA_MIN1, FIBERCH_MIN, false).rawId());
 
 	//	initialize filters
@@ -72,9 +78,12 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 			(*it)-FED_VME_MIN).rawId());
 	for (std::vector<int>::const_iterator it=vFEDsuTCA.begin();
 		it!=vFEDsuTCA.end(); ++it)
+    {
+        std::pair<uint16_t, uint16_t> cspair = utilities::fed2crate(*it);
 		_vhashFEDs.push_back(HcalElectronicsId(
-			hcaldqm::utilities::fed2crate(*it), SLOT_uTCA_MIN, FIBER_uTCA_MIN1,
+			cspair.first, cspair.second, FIBER_uTCA_MIN1,
 			FIBERCH_MIN, false).rawId());
+    }
 
 	//	INITIALIZE FIRST
 	_cADC_SubdetPM.initialize(_name, "ADC", hcaldqm::hashfunctions::fSubdetPM,

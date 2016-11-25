@@ -35,3 +35,8 @@ ClusterCheckPSet = cms.PSet(
                  cut = cms.string("strip < 400000 && pixel < 40000 && (strip < 50000 + 10*pixel) && (pixel < 5000 + 0.1*strip)")
                  ),
 )
+
+from Configuration.StandardSequences.Eras import eras
+eras.peripheralPbPb.toModify(seedGeneratorFromRegionHitsEDProducer,
+                             ClusterCheckPSet = dict(cut = "strip < 400000 && pixel < 40000 && (strip < 60000 + 7.0*pixel) && (pixel < 8000 + 0.14*strip)")
+                             )

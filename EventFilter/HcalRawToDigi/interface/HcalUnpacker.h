@@ -32,6 +32,7 @@ public:
     std::vector<HOTriggerPrimitiveDigi>* tphoCont;
     std::vector<HcalTTPDigi>* ttp;
     QIE10DigiCollection* qie10;
+    QIE10DigiCollection* qie10ZDC;
     QIE11DigiCollection* qie11;
     HcalUMNioDigi* umnio;
 
