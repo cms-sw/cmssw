@@ -31,6 +31,8 @@ T sqr(T x)
 using namespace std;
 using namespace ctfseeding;
 
+constexpr unsigned int CAHitTripletGenerator::minLayers;
+
 CAHitTripletGenerator::CAHitTripletGenerator(const edm::ParameterSet& cfg,
                                              edm::ConsumesCollector& iC,
                                              bool needSeedingLayerSetsHits) :
