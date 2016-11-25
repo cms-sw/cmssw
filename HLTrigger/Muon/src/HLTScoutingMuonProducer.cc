@@ -36,11 +36,12 @@ HLTScoutingMuonProducer::HLTScoutingMuonProducer(const edm::ParameterSet& iConfi
     displacedvertexCollection_(consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("displacedvertexCollection"))),
     muonPtCut(iConfig.getParameter<double>("muonPtCut")),
     muonEtaCut(iConfig.getParameter<double>("muonEtaCut")),
-    minVtxProbCut(iConfig.getParameter<double>("minVtxProbCut"))
+    minVtxProbCut(iConfig.getParameter<double>("minVtxProbCut")),
+    producePrimaryVtx(iConfig.getParameter<bool>("producePrimaryVtx"))
 {
     //register products
     produces<ScoutingMuonCollection>();
-    produces<ScoutingVertexCollection>("primaryVtx");
+    if (producePrimaryVtx) produces<ScoutingVertexCollection>("primaryVtx");
     produces<ScoutingVertexCollection>("displacedVtx");
 }
 
@@ -86,16 +87,17 @@ void HLTScoutingMuonProducer::produce(edm::StreamID sid, edm::Event & iEvent,
         return;
     }
 
-    //get vertices
-    Handle<reco::VertexCollection> vertexCollection;
-    if(iEvent.getByToken(vertexCollection_, vertexCollection)){
-      for(auto &vtx : *vertexCollection){
-	outVertices->emplace_back(
-				  vtx.x(), vtx.y(), vtx.z(), vtx.zError(), vtx.xError(), vtx.yError(), vtx.tracksSize(), vtx.chi2(), vtx.ndof(), vtx.isValid()
-				  );
+    if (producePrimaryVtx) {
+      //get vertices
+      Handle<reco::VertexCollection> vertexCollection;
+      if(iEvent.getByToken(vertexCollection_, vertexCollection)){
+	for(auto &vtx : *vertexCollection){
+	  outVertices->emplace_back(
+				    vtx.x(), vtx.y(), vtx.z(), vtx.zError(), vtx.xError(), vtx.yError(), vtx.tracksSize(), vtx.chi2(), vtx.ndof(), vtx.isValid()
+				    );
+	}
       }
     }
-
     std::pair<reco::RecoChargedCandidate,reco::RecoChargedCandidate> ivtxMuPair;
     std::vector<std::pair<reco::RecoChargedCandidate,reco::RecoChargedCandidate> > vtxMuPair;
     
@@ -194,7 +196,7 @@ void HLTScoutingMuonProducer::produce(edm::StreamID sid, edm::Event & iEvent,
     
     // Put output
     iEvent.put(std::move(outMuons));
-    iEvent.put(std::move(outVertices), "primaryVtx");
+    if (producePrimaryVtx) iEvent.put(std::move(outVertices), "primaryVtx");
     iEvent.put(std::move(dispVertices), "displacedVtx");
 }
 
@@ -212,5 +214,6 @@ void HLTScoutingMuonProducer::fillDescriptions(edm::ConfigurationDescriptions& d
     desc.add<double>("muonPtCut", 4.0);
     desc.add<double>("muonEtaCut", 2.4);
     desc.add<double>("minVtxProbCut", 0.001);
+    desc.add<bool>("producePrimaryVtx", false);
     descriptions.add("hltScoutingMuonProducer", desc);
 }
