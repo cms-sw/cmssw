@@ -107,6 +107,7 @@ void HcalSimHitStudy::bookHistograms(DQMStore::IBooker &ib, edm::Run const & run
       meHEDepHit_ = ib.book1D("Hit18","Depths in HE",          20,0.,20.);
       meHODepHit_ = ib.book1D("Hit19","Depths in HO",          20,0.,20.);
       meHFDepHit_ = ib.book1D("Hit20","Depths in HF",          20,0.,20.);
+      meHFDepHitw_ = ib.book1D("Hit20b","Depths in HF (p.e. weighted)",          20,0.,20.);
       meHBEtaHit_ = ib.book1D("Hit21","Eta in HB",            101,-50.5,50.5);
       meHEEtaHit_ = ib.book1D("Hit22","Eta in HE",            101,-50.5,50.5);
       meHOEtaHit_ = ib.book1D("Hit23","Eta in HO",            101,-50.5,50.5);
@@ -332,6 +333,7 @@ void HcalSimHitStudy::analyzeHits (std::vector<PCaloHit>& hits) {
 
 	} else if (subdet == static_cast<int>(HcalForward)) {
 	  meHFDepHit_->Fill(double(depth));
+	  meHFDepHitw_->Fill(double(depth),energy);
 	  meHFEtaHit_->Fill(double(eta));
 	  meHFPhiHit_->Fill(double(phi));
 	  meHFEneHit_->Fill(energy);
