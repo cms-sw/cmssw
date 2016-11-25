@@ -23,13 +23,6 @@ else
     initcode=$?
     if [ $initcode -ne 0 ] ; then echo "Failed to write OMTF_ALGO_EMPTY in sqlite file" ; exit 1 ; fi
 
-    for key in "EMTF_ALGO_EMPTY" "EMTF_ALGO_BASE/v1" "EMTF_ALGO_BASE/v2" "EMTF_ALGO_BASE/v3" "EMTF_ALGO_BASE/v4"; do
-        echo "Generating $key payload"
-        cmsRun ${CMSSW_BASE}/src/CondTools/L1TriggerExt/test/L1ConfigWriteSinglePayloadExt_cfg.py objectKey=$key objectType=L1TMuonEndCapParams recordName=L1TMuonEndcapParamsO2ORcd useO2OTags=1 outputDBConnect=sqlite:l1configBlank.db outputDBAuth=${DBAuth}
-        initcode=$?
-        if [ $initcode -ne 0 ] ; then echo "Failed to write $key in sqlite files" ; exit 1 ; fi
-    done
-
     cp l1configBlank.db l1config.db
 fi
 
