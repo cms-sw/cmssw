@@ -37,6 +37,8 @@ namespace
 using namespace std;
 using namespace ctfseeding;
 
+constexpr unsigned int CAHitQuadrupletGenerator::minLayers;
+
 CAHitQuadrupletGenerator::CAHitQuadrupletGenerator(const edm::ParameterSet& cfg, edm::ConsumesCollector& iC, bool needSeedingLayerSetsHits) :
 extraHitRPhitolerance(cfg.getParameter<double>("extraHitRPhitolerance")), //extra window in ThirdHitPredictionFromCircle range (divide by R to get phi)
 maxChi2(cfg.getParameter<edm::ParameterSet>("maxChi2")),
