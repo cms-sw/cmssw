@@ -88,7 +88,7 @@ private:
    FWEnumParameter         m_proximityAlgo;
    
    
-   boost::shared_ptr<FWParameterSetterBase> m_filterTypeSetter;
+   std::shared_ptr<FWParameterSetterBase> m_filterTypeSetter;
 
 #endif  
 

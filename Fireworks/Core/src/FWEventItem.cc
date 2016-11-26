@@ -51,7 +51,7 @@ int FWEventItem::maxLayerValue()
 //
 FWEventItem::FWEventItem(fireworks::Context* iContext,
                          unsigned int iId,
-                         boost::shared_ptr<FWItemAccessorBase> iAccessor,
+                         std::shared_ptr<FWItemAccessorBase> iAccessor,
                          const FWPhysicsObjectDesc& iDesc,  const FWConfiguration* pbc) :
    m_context(iContext),
    m_id(iId),
