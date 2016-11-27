@@ -39,7 +39,7 @@ namespace edm {
   class BranchID;
   class BranchIDListHelper;
   class ProductProvenanceRetriever;
-  class DaqProvenanceHelper;
+  struct DaqProvenanceHelper;
   class DuplicateChecker;
   class EventSkipperByID;
   class ProcessHistoryRegistry;
