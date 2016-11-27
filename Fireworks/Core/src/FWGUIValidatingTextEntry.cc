@@ -165,7 +165,7 @@ FWGUIValidatingTextEntry::showOptions() {
       std::string subText(text,text+GetCursorPosition());
       //std::cout <<subText<<std::endl;
 
-      typedef std::vector<std::pair<boost::shared_ptr<std::string>, std::string> > Options;
+      typedef std::vector<std::pair<std::shared_ptr<std::string>, std::string> > Options;
       m_validator->fillOptions(text, text+GetCursorPosition(), m_options);
       if(m_options.empty()) { return;}
       if(m_options.size()==1) {

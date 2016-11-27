@@ -25,7 +25,7 @@
 //
 // constants, enums and typedefs
 //
-typedef std::vector<boost::shared_ptr<fireworks::OptionNode> > Options;
+typedef std::vector<std::shared_ptr<fireworks::OptionNode> > Options;
 
 namespace fireworks {
    template< class T>
@@ -60,14 +60,14 @@ public:
       unsigned long substitutionEnd() const {
          return m_endOfName;
       }
-      const std::vector<boost::shared_ptr<OptionNode> >& options() const {
+      const std::vector<std::shared_ptr<OptionNode> >& options() const {
          if(m_hasSubOptions && m_subOptions.empty()) {
             fillOptionForType(m_type, m_subOptions);
             std::sort(m_subOptions.begin(),m_subOptions.end(),
-                      fireworks::OptionNodePtrCompare<boost::shared_ptr<OptionNode> >());
-            std::vector<boost::shared_ptr<OptionNode> >::iterator it=
+                      fireworks::OptionNodePtrCompare<std::shared_ptr<OptionNode> >());
+            std::vector<std::shared_ptr<OptionNode> >::iterator it=
                std::unique(m_subOptions.begin(),m_subOptions.end(),
-                           fireworks::OptionNodePtrEqual<boost::shared_ptr<OptionNode> >());
+                           fireworks::OptionNodePtrEqual<std::shared_ptr<OptionNode> >());
             m_subOptions.erase(it,  m_subOptions.end());
 
             m_hasSubOptions = !m_subOptions.empty();
@@ -80,12 +80,12 @@ public:
       }
 
       static void fillOptionForType( const edm::TypeWithDict&,
-                                     std::vector<boost::shared_ptr<OptionNode> >& );
+                                     std::vector<std::shared_ptr<OptionNode> >& );
 private:
       edm::TypeWithDict m_type;
       mutable std::string m_description;
       mutable std::string::size_type m_endOfName;
-      mutable std::vector<boost::shared_ptr<OptionNode> > m_subOptions;
+      mutable std::vector<std::shared_ptr<OptionNode> > m_subOptions;
       mutable bool m_hasSubOptions;
       static bool typeHasOptions(const edm::TypeWithDict& iType);
    };
@@ -124,7 +124,7 @@ private:
 
 
    void OptionNode::fillOptionForType( const edm::TypeWithDict& iType,
-                                       std::vector<boost::shared_ptr<OptionNode> >& oOptions)
+                                       std::vector<std::shared_ptr<OptionNode> >& oOptions)
    {
       edm::TypeWithDict type = iType;
       if(type.isPointer()) {
@@ -141,7 +141,7 @@ private:
             m.isOperator() ||
             !m.isPublic() ||
             m.name().substr(0,2)=="__") {continue;}
-         oOptions.push_back(boost::shared_ptr<OptionNode>(new OptionNode(m)));
+         oOptions.push_back(std::make_shared<OptionNode>(m));
       }
 
       edm::TypeBases bases(type);
@@ -164,10 +164,10 @@ private:
 // constructors and destructor
 //
 #define FUN1(_fun_) \
-   m_builtins.push_back(boost::shared_ptr<OptionNode>( new OptionNode( # _fun_ "(float):float", strlen( # _fun_ )+1,s_float)))
+   m_builtins.push_back(std::make_shared<OptionNode>( # _fun_ "(float):float", strlen( # _fun_ )+1,s_float))
 
 #define FUN2(_fun_) \
-   m_builtins.push_back(boost::shared_ptr<OptionNode>( new OptionNode( # _fun_ "(float,float):float", strlen( # _fun_ )+1,s_float)))
+   m_builtins.push_back(std::make_shared<OptionNode>( # _fun_ "(float,float):float", strlen( # _fun_ )+1,s_float))
 
 FWExpressionValidator::FWExpressionValidator()
 {
@@ -193,7 +193,7 @@ FWExpressionValidator::FWExpressionValidator()
    FUN2(min);
    FUN2(max);
    std::sort(m_builtins.begin(),m_builtins.end(),
-             fireworks::OptionNodePtrCompare<boost::shared_ptr<OptionNode> >());
+             fireworks::OptionNodePtrCompare<std::shared_ptr<OptionNode> >());
 
 }
 
@@ -230,10 +230,10 @@ FWExpressionValidator::setType(const edm::TypeWithDict& iType)
    m_options=m_builtins;
    OptionNode::fillOptionForType(iType, m_options);
    std::sort(m_options.begin(),m_options.end(),
-             fireworks::OptionNodePtrCompare<boost::shared_ptr<OptionNode> >());
-   std::vector<boost::shared_ptr<OptionNode> >::iterator it=
+             fireworks::OptionNodePtrCompare<std::shared_ptr<OptionNode> >());
+   std::vector<std::shared_ptr<OptionNode> >::iterator it=
       std::unique(m_options.begin(),m_options.end(),
-                  fireworks::OptionNodePtrEqual<boost::shared_ptr<OptionNode> >());
+                  fireworks::OptionNodePtrEqual<std::shared_ptr<OptionNode> >());
    m_options.erase(it,  m_options.end());
 }
 
@@ -272,7 +272,7 @@ namespace {
 
 void
 FWExpressionValidator::fillOptions(const char* iBegin, const char* iEnd,
-                                   std::vector<std::pair<boost::shared_ptr<std::string>, std::string> >& oOptions) const
+                                   std::vector<std::pair<std::shared_ptr<std::string>, std::string> >& oOptions) const
 {
    using fireworks::OptionNode;
    oOptions.clear();
@@ -287,11 +287,11 @@ FWExpressionValidator::fillOptions(const char* iBegin, const char* iEnd,
                       *it-begin,
                       edm::TypeWithDict());
 
-      boost::shared_ptr<OptionNode> comp(&temp, dummyDelete);
+      std::shared_ptr<OptionNode> comp(&temp, dummyDelete);
       Options::const_iterator itFind =std::lower_bound(nodes->begin(),
                                                        nodes->end(),
                                                        comp,
-                                                       fireworks::OptionNodePtrCompare<boost::shared_ptr<OptionNode> >());
+                                                       fireworks::OptionNodePtrCompare<std::shared_ptr<OptionNode> >());
 
       if(itFind == nodes->end() ||  *comp < *(*itFind) ) {
          //no match so we have an error
@@ -308,7 +308,7 @@ FWExpressionValidator::fillOptions(const char* iBegin, const char* iEnd,
        it != itEnd;
        ++it) {
       if(part == (*it)->description().substr(0,part_size) ) {
-         oOptions.push_back(std::make_pair(boost::shared_ptr<std::string>(const_cast<std::string*>(&((*it)->description())), dummyDelete),
+         oOptions.push_back(std::make_pair(std::shared_ptr<std::string>(const_cast<std::string*>(&((*it)->description())), dummyDelete),
                                            (*it)->description().substr(part_size,(*it)->substitutionEnd()-part_size)));
       }
    }
