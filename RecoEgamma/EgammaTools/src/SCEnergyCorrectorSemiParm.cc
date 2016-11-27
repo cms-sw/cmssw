@@ -299,8 +299,7 @@ std::pair<double, double> SCEnergyCorrectorSemiParm::getCorrections(const reco::
       ecor = mean*eval[6]+sc.preshowerEnergy();
 
 	p.first  = ecor;
-	p.second = 0.;
-
+	//p.second unchanged 
   }
 
   return p;
@@ -310,9 +309,9 @@ std::pair<double, double> SCEnergyCorrectorSemiParm::getCorrections(const reco::
 void SCEnergyCorrectorSemiParm::modifyObject(reco::SuperCluster &sc) {
   
 	std::pair<double, double> cor = getCorrections(sc);
-	if(cor.first<0 || cor.second < 0) return;
+	if(cor.first<0) return;
 	sc.setEnergy(cor.first);
 	sc.setCorrectedEnergy(cor.first);
-	sc.setCorrectedEnergyUncertainty(cor.second);
+	if(! isHLT_ && cor.second>=0.) sc.setCorrectedEnergyUncertainty(cor.second);
 }
 
