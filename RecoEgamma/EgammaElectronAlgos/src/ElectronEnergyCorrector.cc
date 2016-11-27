@@ -73,7 +73,7 @@ void ElectronEnergyCorrector::classBasedParameterizationEnergy
   float corr = 1.;
   float corr2 = 1.;
   float energy = electron.superCluster()->energy() ;
-  float newEnergy = energy;
+  float newEnergy;
 
   //int subdet = electron.superCluster()->seed()->hitsAndFractions()[0].first.subdetId();
 
