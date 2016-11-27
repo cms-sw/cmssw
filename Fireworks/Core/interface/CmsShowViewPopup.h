@@ -21,7 +21,7 @@
 // system include files
 #include <vector>
 #ifndef __CINT__
-#include <boost/shared_ptr.hpp>
+#include <memory>
 #include <sigc++/sigc++.h>
 #endif
 #include "TGFrame.h"
@@ -66,7 +66,7 @@ private:
    TGTab*      m_tab;
    std::string m_selectedTabName;
 #ifndef __CINT__
-   std::vector<boost::shared_ptr<FWParameterSetterBase> > m_setters;
+   std::vector<std::shared_ptr<FWParameterSetterBase> > m_setters;
 #endif
 }; 
 

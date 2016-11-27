@@ -161,7 +161,7 @@ namespace edm {
                                  ModuleCallingContext const* mcc) const override;
     virtual bool unscheduledWasNotRun_() const override {return false;}
     
-    virtual void putProduct_(std::unique_ptr<WrapperBase> edp) const;
+    virtual void putProduct_(std::unique_ptr<WrapperBase> edp) const override;
     virtual void resetProductData_(bool deleteEarly) override;
 
     mutable WaitingTaskList m_waitingTasks;
@@ -266,7 +266,7 @@ namespace edm {
                                  Principal const& principal,
                                  bool skipCurrentProcess,
                                  SharedResourcesAcquirer* sra,
-                                 ModuleCallingContext const* mcc) const {
+                                 ModuleCallingContext const* mcc) const override {
       realProduct_->prefetchAsync( waitTask, principal, skipCurrentProcess, sra, mcc);
     }
     virtual bool unscheduledWasNotRun_() const override {return realProduct_->unscheduledWasNotRun();}
