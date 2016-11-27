@@ -290,17 +290,11 @@ std::vector<double> PhotonMIPHaloTagger::GetMipTrailFit(const reco::Photon* phot
            
 
         //Lets Initialize them first for each iteration 
-        res    = 0.0;
-        res_sq = 0.0;
-        wt     = 0.0; 
         sx     = 0.0;
         sy     = 0.0; 
         ss     = 0.0;
         sxx    = 0.0;
         sxy    = 0.0;
-        delt   = 0.0; 
-        a1     = 0.0;
-        b1     = 0.0;
         m_chi2 = 0.0;
         etot_cell=0.0;
      
@@ -362,7 +356,6 @@ std::vector<double> PhotonMIPHaloTagger::GetMipTrailFit(const reco::Photon* phot
    if(debug_)std::cout<<" eTot ="<<eT<<"     Rounness = "<<Roundness_<<"    Angle_  "<<Angle_ <<std::endl; 
 
      //get the halo disc variable
-     halo_disc_ = 0.;
      halo_disc_ = eT/(Roundness_* Angle_);
 
 
