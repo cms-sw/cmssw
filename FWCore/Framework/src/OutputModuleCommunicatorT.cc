@@ -101,7 +101,7 @@ namespace edm {
   
   namespace impl {
     std::unique_ptr<edm::OutputModuleCommunicator> createCommunicatorIfNeeded(void *) {
-      return std::move(std::unique_ptr<edm::OutputModuleCommunicator>{});
+      return std::unique_ptr<edm::OutputModuleCommunicator>{};
     }
     std::unique_ptr<edm::OutputModuleCommunicator> createCommunicatorIfNeeded(::edm::OutputModule * iMod){
       return std::make_unique<OutputModuleCommunicatorT<edm::OutputModule>>(iMod);
