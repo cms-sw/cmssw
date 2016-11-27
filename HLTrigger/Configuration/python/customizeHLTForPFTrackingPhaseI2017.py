@@ -6,6 +6,9 @@ def producers_by_type(process, *types):
     
 def customizeHLTForPFTrackingPhaseI2017(process):
 
+
+	process.hltSiPixelDigis.UsePhase1 = cms.bool( True )
+
 	process.hltPixelLayerTriplets.layerList = cms.vstring(
 	    'BPix1+BPix2+BPix3',
 	    'BPix2+BPix3+BPix4',
