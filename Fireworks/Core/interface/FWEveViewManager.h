@@ -22,7 +22,7 @@
 #include <vector>
 #include <map>
 #include <set>
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 // user include files
 #include "Fireworks/Core/interface/FWViewManagerBase.h"
@@ -88,7 +88,7 @@ private:
    const FWEveViewManager& operator=(const FWEveViewManager&); // stop default
 
    FWViewBase* buildView(TEveWindowSlot* iParent, const std::string& type);
-   FWEveView*  finishViewCreate     (boost::shared_ptr<FWEveView>);
+   FWEveView*  finishViewCreate     (std::shared_ptr<FWEveView>);
 
    void beingDestroyed(const FWViewBase*);
    void modelChanges(const FWModelIds& iIds);
@@ -99,9 +99,9 @@ private:
    // ---------- member data --------------------------------
    
    typedef std::map<std::string,  std::vector<BuilderInfo> >  TypeToBuilder;
-   typedef std::vector<boost::shared_ptr<FWProxyBuilderBase> >  BuilderVec;   
+   typedef std::vector<std::shared_ptr<FWProxyBuilderBase> >  BuilderVec;   
    typedef BuilderVec::iterator BuilderVec_it;
-   typedef std::vector<boost::shared_ptr<FWEveView > >::iterator EveViewVec_it;
+   typedef std::vector<std::shared_ptr<FWEveView > >::iterator EveViewVec_it;
    
    TypeToBuilder            m_typeToBuilder;
 
@@ -109,7 +109,7 @@ private:
 
    std::map<int, BuilderVec> m_builders; // key is viewer bit
 
-   std::vector< std::vector<boost::shared_ptr<FWEveView> > >  m_views;
+   std::vector< std::vector<std::shared_ptr<FWEveView> > >  m_views;
 
    std::map<const FWEventItem*,FWInteractionList*>  m_interactionLists;
 };

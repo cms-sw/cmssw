@@ -368,7 +368,7 @@ class FWViewBase*
 FWTableViewManager::buildView(TEveWindowSlot* iParent, const std::string& /*type*/)
 {
    TEveManager::TRedrawDisabler disableRedraw(gEve);
-   boost::shared_ptr<FWTableView> view(new FWTableView(iParent, this));
+   auto view = std::make_shared<FWTableView>(iParent, this);
    view->setBackgroundColor(colorManager().background());
    m_views.push_back(view);
    view->beingDestroyed_.connect(boost::bind(&FWTableViewManager::beingDestroyed,

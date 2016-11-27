@@ -20,7 +20,7 @@
 
 // system include files
 #include <vector>
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 // user include files
 #include "Fireworks/TableWidget/interface/FWTableManagerBase.h"
