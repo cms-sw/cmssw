@@ -45,7 +45,7 @@ ESProxyFactoryProducer::ESProxyFactoryProducer() : record2Factories_()
 //    // do actual copying here;
 // }
 
-ESProxyFactoryProducer::~ESProxyFactoryProducer()
+ESProxyFactoryProducer::~ESProxyFactoryProducer() noexcept(false)
 {
 }
 

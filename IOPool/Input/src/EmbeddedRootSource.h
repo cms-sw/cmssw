@@ -53,8 +53,8 @@ namespace edm {
     virtual void beginJob() override;
     virtual void endJob() override;
     virtual bool readOneEvent(EventPrincipal& cache, size_t& fileNameHash, CLHEP::HepRandomEngine*, EventID const* id) override;
-    virtual void readOneSpecified(EventPrincipal& cache, size_t& fileNameHash, SecondaryEventIDAndFileInfo const& id);
-    virtual void dropUnwantedBranches_(std::vector<std::string> const& wantedBranches);
+    virtual void readOneSpecified(EventPrincipal& cache, size_t& fileNameHash, SecondaryEventIDAndFileInfo const& id) override;
+    virtual void dropUnwantedBranches_(std::vector<std::string> const& wantedBranches) override;
     
     RootServiceChecker rootServiceChecker_;
 
