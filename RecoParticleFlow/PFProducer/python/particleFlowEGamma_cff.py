@@ -11,8 +11,7 @@ from RecoEgamma.EgammaElectronProducers.pfBasedElectronIso_cff import *
 from RecoEgamma.EgammaIsolationAlgos.particleBasedIsoProducer_cfi import particleBasedIsolation as _particleBasedIsolation
 from RecoEgamma.EgammaIsolationAlgos.egmPhotonIsolationAOD_cff import egmPhotonIsolationAOD as _egmPhotonIsolationAOD
 
-from CommonTools.ParticleFlow.pfNoPileUpIso_cff import * 
-from CommonTools.ParticleFlow.pfParticleSelection_cff import * 
+from CommonTools.ParticleFlow.pfNoPileUpIso_cff import pfPileUpIso, pfNoPileUpIso, pfNoPileUpIsoSequence
 from RecoEgamma.EgammaIsolationAlgos.egmIsolationDefinitions_cff import pfNoPileUpCandidates
 from RecoEgamma.EgammaIsolationAlgos.egmIsoConeDefinitions_cfi import IsoConeDefinitions  as IsoConeDefinitionsTmp
 
@@ -34,4 +33,4 @@ egmPhotonIsolationCITK.srcForIsolationCone = cms.InputTag("pfNoPileUpCandidates"
 egmPhotonIsolationCITK.isolationConeDefinitions = IsoConeDefinitionsTmp
 
 particleFlowEGammaFull = cms.Sequence(particleFlowEGamma*gedGsfElectronSequenceTmp*gedPhotonSequenceTmp)
-particleFlowEGammaFinal = cms.Sequence(particleBasedIsolationTmp*pfParticleSelectionSequence*pfNoPileUpCandidates*egmPhotonIsolationCITK*gedPhotonSequence*gedElectronPFIsoSequence)
+particleFlowEGammaFinal = cms.Sequence(particleBasedIsolationTmp*pfNoPileUpIsoSequence*pfNoPileUpCandidates*egmPhotonIsolationCITK*gedPhotonSequence*gedElectronPFIsoSequence)
