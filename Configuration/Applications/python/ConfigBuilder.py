@@ -1236,7 +1236,6 @@ class ConfigBuilder(object):
 
     def prepare_ALCA(self, sequence = None, workflow = 'full'):
         """ Enrich the process with alca streams """
-	print 'DL enriching',workflow,sequence
         alcaConfig=self.loadDefaultOrSpecifiedCFF(sequence,self.ALCADefaultCFF)
         sequence = sequence.split('.')[-1]
 
@@ -1675,6 +1674,13 @@ class ConfigBuilder(object):
             self._options.customisation_file_unsch.append("PhysicsTools/PatAlgos/slimming/miniAOD_tools.miniAOD_customizeAllMC")
             if self._options.fast:
                 self._options.customisation_file_unsch.append("PhysicsTools/PatAlgos/slimming/metFilterPaths_cff.miniAOD_customizeMETFiltersFastSim")
+
+	if self._options.hltProcess:
+	     if len(self._options.customise_commands) > 1:
+		     self._options.customise_commands = self._options.customise_commands + " \n"
+	     self._options.customise_commands = self._options.customise_commands + "process.patTrigger.processName = \""+self._options.hltProcess+"\""
+#            self.renameHLTprocessInSequence(sequence)
+
         return
 
     def prepare_EI(self, sequence = None):
