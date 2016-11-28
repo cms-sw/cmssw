@@ -6,15 +6,15 @@ import FWCore.ParameterSet.Config as cms
 
 from RecoTracker.Configuration.customiseEarlyDeleteForSeeding import customiseEarlyDeleteForSeeding
 
-def _hasInputTagModuleLabel(pset, moduleLabel):
+def _hasInputTagModuleLabel(process, pset, moduleLabel):
     for name in pset.parameterNames_():
         value = getattr(pset,name)
         if isinstance(value, cms.PSet):
-            if _hasInputTagModuleLabel(value, moduleLabel):
+            if _hasInputTagModuleLabel(process, value, moduleLabel):
                 return True
         elif isinstance(value, cms.VPSet):
             for ps in value:
-                if _hasInputTagModuleLabel(ps, moduleLabel):
+                if _hasInputTagModuleLabel(process, ps, moduleLabel):
                     return True
         elif isinstance(value, cms.VInputTag):
             for t in value:
@@ -26,6 +26,8 @@ def _hasInputTagModuleLabel(pset, moduleLabel):
         elif isinstance(value, cms.InputTag):
             if value.getModuleLabel() == moduleLabel:
                 return True
+        if isinstance(value, cms.string) and name == "refToPSet_":
+            return _hasInputTagModuleLabel(process, getattr(process, value.value()), moduleLabel)
     return False
 
 def customiseEarlyDeleteForRECO(process):
@@ -49,10 +51,48 @@ def customiseEarlyDeleteForRECO(process):
     for moduleType in [process.producers_(), process.filters_(), process.analyzers_()]:
         for name, module in moduleType.iteritems():
             for producer, branches in products.iteritems():
-                if _hasInputTagModuleLabel(module, producer):
+                if _hasInputTagModuleLabel(process, module, producer):
                     #print "Module %s mightGet %s" % (name, str(branches))
                     if hasattr(module, "mightGet"):
                         module.mightGet.extend(branches)
                     else:
                         module.mightGet = cms.untracked.vstring(branches)
     return process
+
+
+if __name__=="__main__":
+    import unittest
+
+    class TestHasInputTagModuleLabel(unittest.TestCase):
+        def setUp(self):
+            """Nothing to do """
+            None
+        def testHasInputTagModuleLabel(self):
+            p = cms.Process("A")
+            p.pset = cms.PSet(a=cms.InputTag("a"))
+            p.prod = cms.EDProducer("Producer",
+                foo = cms.InputTag("foo"),
+                foo2 = cms.InputTag("foo2", "instance"),
+                foo3 = cms.InputTag("foo3", "instance", "PROCESS"),
+                nested = cms.PSet(
+                    bar = cms.InputTag("bar"),
+                ),
+                flintstones = cms.VPSet(
+                    cms.PSet(fred=cms.InputTag("fred")),
+                    cms.PSet(wilma=cms.InputTag("wilma"))
+                ),
+                ref = cms.PSet(
+                    refToPSet_ = cms.string("pset")
+                )
+            )
+
+            self.assert_(_hasInputTagModuleLabel(p, p.prod, "foo"))
+            self.assert_(_hasInputTagModuleLabel(p, p.prod, "foo2"))
+            self.assert_(_hasInputTagModuleLabel(p, p.prod, "foo3"))
+            self.assert_(_hasInputTagModuleLabel(p, p.prod, "bar"))
+            self.assert_(_hasInputTagModuleLabel(p, p.prod, "fred"))
+            self.assert_(_hasInputTagModuleLabel(p, p.prod, "wilma"))
+            self.assert_(_hasInputTagModuleLabel(p, p.prod, "a"))
+            self.assert_(not _hasInputTagModuleLabel(p, p.prod, "joe"))
+
+    unittest.main()
