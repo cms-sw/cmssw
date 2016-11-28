@@ -1,8 +1,9 @@
 // user include files
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/Framework/interface/ESProducer.h"
-
 #include "FWCore/Framework/interface/ESHandle.h"
+
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
 #include "RecoPixelVertexing/PixelLowPtUtilities/interface/TrackCleaner.h"
 
@@ -28,7 +29,11 @@ void TrackCleanerESProducer::fillDescriptions(edm::ConfigurationDescriptions& de
 }
 
 std::unique_ptr<PixelTrackCleaner> TrackCleanerESProducer::produce(const PixelTrackCleaner::Record& iRecord) {
-  return std::make_unique<TrackCleaner>();
+  edm::ESHandle<TrackerTopology> tTopoHand;
+  iRecord.getRecord<TrackerTopologyRcd>().get(tTopoHand);
+  const TrackerTopology *tTopo=tTopoHand.product();
+
+  return std::make_unique<TrackCleaner>(tTopo);
 }
 
 #include "FWCore/PluginManager/interface/ModuleDef.h"

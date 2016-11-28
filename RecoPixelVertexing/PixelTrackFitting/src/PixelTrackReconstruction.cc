@@ -21,7 +21,6 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/TrackExtra.h"
-#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
 #include "RecoPixelVertexing/PixelTriplets/interface/QuadrupletSeedMerger.h"
 
@@ -80,11 +79,6 @@ void PixelTrackReconstruction::run(TracksWithTTRHs& tracks, edm::Event& ev, cons
   typedef Regions::const_iterator IR;
   Regions regions = theRegionProducer->regions(ev,es);
 
-  //Retrieve tracker topology from geometry
-  edm::ESHandle<TrackerTopology> tTopoHand;
-  es.get<TrackerTopologyRcd>().get(tTopoHand);
-  const TrackerTopology *tTopo=tTopoHand.product();
-
   edm::Handle<PixelFitter> hfitter;
   ev.getByToken(theFitterToken, hfitter);
   const auto& fitter = *hfitter;
@@ -135,8 +129,8 @@ void PixelTrackReconstruction::run(TracksWithTTRHs& tracks, edm::Event& ev, cons
     es.get<PixelTrackCleaner::Record>().get(theCleanerName, hcleaner);
     const auto& cleaner = *hcleaner;
     if(cleaner.fast())
-      cleaner.cleanTracks(tracks,tTopo);
+      cleaner.cleanTracks(tracks);
     else
-      tracks = PixelTrackCleanerWrapper(&cleaner).clean(tracks,tTopo);
+      tracks = PixelTrackCleanerWrapper(&cleaner).clean(tracks);
   }
 }

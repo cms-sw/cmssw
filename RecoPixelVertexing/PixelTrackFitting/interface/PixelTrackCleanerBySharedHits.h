@@ -23,8 +23,7 @@ public:
 
   using TrackWithTTRHs = pixeltrackfitting::TrackWithTTRHs;
   using TracksWithTTRHs = pixeltrackfitting::TracksWithTTRHs;
-  void cleanTracks(TracksWithTTRHs & tracksWithRecHits,
-                                        const TrackerTopology *tTopo) const override;
+  void cleanTracks(TracksWithTTRHs & tracksWithRecHits) const override;
 
 private:
   const bool useQuadrupletAlgo_;
