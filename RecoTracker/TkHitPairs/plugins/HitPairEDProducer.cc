@@ -257,8 +257,7 @@ namespace {
 
 HitPairEDProducer::HitPairEDProducer(const edm::ParameterSet& iConfig):
   seedingLayerToken_(consumes<SeedingLayerSetsHits>(iConfig.getParameter<edm::InputTag>("seedingLayers"))),
-  regionToken_(consumes<edm::OwnVector<TrackingRegion> >(iConfig.getParameter<edm::InputTag>("trackingRegions"))),
-  clusterCheckToken_(consumes<bool>(iConfig.getParameter<edm::InputTag>("clusterCheck")))
+  regionToken_(consumes<edm::OwnVector<TrackingRegion> >(iConfig.getParameter<edm::InputTag>("trackingRegions")))
 {
   const bool produceSeedingHitSets = iConfig.getParameter<bool>("produceSeedingHitSets");
   const bool produceIntermediateHitDoublets = iConfig.getParameter<bool>("produceIntermediateHitDoublets");
@@ -271,6 +270,10 @@ HitPairEDProducer::HitPairEDProducer(const edm::ParameterSet& iConfig):
     impl_ = std::make_unique<::Impl<::DoNothing, ::ImplIntermediateHitDoublets>>(iConfig);
   else
     throw cms::Exception("Configuration") << "HitPairEDProducer requires either produceIntermediateHitDoublets or produceSeedingHitSets to be True. If neither are needed, just remove this module from your sequence/path as it doesn't do anything useful";
+
+  auto clusterCheckTag = iConfig.getParameter<edm::InputTag>("clusterCheck");
+  if(clusterCheckTag.label() != "")
+    clusterCheckToken_ = consumes<bool>(clusterCheckTag);
 
   impl_->produces(*this);
 }
@@ -290,8 +293,12 @@ void HitPairEDProducer::fillDescriptions(edm::ConfigurationDescriptions& descrip
 }
 
 void HitPairEDProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  edm::Handle<bool> hclusterCheck;
-  iEvent.getByToken(clusterCheckToken_, hclusterCheck);
+  bool clusterCheckOk = true;
+  if(!clusterCheckToken_.isUninitialized()) {
+    edm::Handle<bool> hclusterCheck;
+    iEvent.getByToken(clusterCheckToken_, hclusterCheck);
+    clusterCheckOk = *hclusterCheck;
+  }
 
   edm::Handle<SeedingLayerSetsHits> hlayers;
   iEvent.getByToken(seedingLayerToken_, hlayers);
@@ -302,7 +309,7 @@ void HitPairEDProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
   edm::Handle<edm::OwnVector<TrackingRegion> > hregions;
   iEvent.getByToken(regionToken_, hregions);
 
-  impl_->produce(layers, *hregions, *hclusterCheck, iEvent, iSetup);
+  impl_->produce(layers, *hregions, clusterCheckOk, iEvent, iSetup);
 }
 
 #include "FWCore/PluginManager/interface/ModuleDef.h"
