@@ -104,6 +104,7 @@ namespace edm {
   class ModuleRegistry;
   class TriggerResultInserter;
   class PreallocationConfiguration;
+  class WaitingTaskHolder;
 
   namespace service {
     class TriggerNamesService;
@@ -288,6 +289,13 @@ namespace edm {
 
     void resetAll();
 
+    void processOneEventAsync(WaitingTaskHolder iTask,
+                              EventPrincipal& ep,
+                              EventSetup const& es);
+    void finishedPaths(std::exception_ptr, WaitingTaskHolder,
+                       EventPrincipal& ep, EventSetup const& es);
+    std::exception_ptr finishProcessOneEvent(std::exception_ptr);
+    
     template <typename T>
     bool runTriggerPaths(typename T::MyPrincipal const&, EventSetup const&, typename T::Context const*);
 
