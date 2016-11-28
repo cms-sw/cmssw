@@ -35,6 +35,11 @@ class FTLUncalibratedRecHitAlgoBase {
   /// make the rec hit
   virtual FTLUncalibratedRecHit makeRecHit(const FTLDataFrame& dataFrame ) = 0;
 
+  const std::string& name() const { return name_; }
+
+ private:
+  std::string name_;
+
 };
 
 #include "FWCore/PluginManager/interface/PluginFactory.h"
