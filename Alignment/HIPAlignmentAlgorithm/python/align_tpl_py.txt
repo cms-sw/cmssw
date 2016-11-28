@@ -7,11 +7,15 @@ process.load("RecoTracker.FinalTrackSelectors.TrackerTrackHitFilter_cff")
 process.load("RecoTracker.TrackProducer.TrackRefitters_cff")
 process.load("RecoVertex.BeamSpotProducer.BeamSpot_cff")
 
-
 # "including" common configuration
 <COMMON>
 
-if 'COSMICS' =='<FLAG>' or 'CDCS' =='<FLAG>':
+if 'COSMICS'=='<FLAG>' :
+    process.source = cms.Source("PoolSource",
+#                                useCSA08Kludge = cms.untracked.bool(True),
+                                fileNames = cms.untracked.vstring(<FILE>)
+                                )
+elif 'CDCS'=='<FLAG>' :
     process.source = cms.Source("PoolSource",
 #                                useCSA08Kludge = cms.untracked.bool(True),
                                 fileNames = cms.untracked.vstring(<FILE>)
@@ -40,7 +44,9 @@ elif 'Y1SMuMuMomConstr'=='<FLAG>':
    process.AlignmentProducer.tjTkAssociationMapTag = 'TrackRefitter3'
 elif 'Y1SMuMuFull'=='<FLAG>':
    process.AlignmentProducer.tjTkAssociationMapTag = 'TrackRefitter4'
-elif 'COSMICS' =='<FLAG>' or 'CDCS' =='<FLAG>':
+elif 'COSMICS'=='<FLAG>':
+   process.AlignmentProducer.tjTkAssociationMapTag = 'TrackRefitter2'
+elif 'CDCS'=='<FLAG>':
    process.AlignmentProducer.tjTkAssociationMapTag = 'TrackRefitter2'
 else :
    process.AlignmentProducer.tjTkAssociationMapTag = 'TrackRefitter2'
@@ -56,8 +62,11 @@ process.AlignmentProducer.algoConfig.uvarFile = '<PATH>/IOUserVariables.root'
 # TEC disk 1-9 in -z half : 470049060,470065444,470081828,470098244,470114628,470131012,470147428,470163812,470180228 
 # angle cut : degrees-65,70,75,80 ; rads-1.134,1.222,1.309,1.396 ; sin-0.9,0.95,0.97,0.99  
 # angle cut : rad 1.33 1.35, 1.37
+if 'COSMICS'=='<FLAG>':
+    process.AlignmentProducer.algoConfig.isCollision=False
+#    process.AlignmentProducer.algoConfig.CSAngleCut=0.95
 
-if 'COSMICS' =='<FLAG>' or 'CDCS' =='<FLAG>':
+elif 'CDCS'=='<FLAG>':
     process.AlignmentProducer.algoConfig.isCollision=False
 #    process.AlignmentProducer.algoConfig.CSAngleCut=0.95
 
@@ -112,7 +121,8 @@ process.AlignmentProducer.algoConfig.apeParam = cms.VPSet(
          )	
 
 #### If we are in collisions, apply selections on PhysDeclared bit, L1 trigger bits, LumiSections
-if 'COSMICS' !='<FLAG>' and 'CDCS' !='<FLAG>':
+if 'COSMICS'!='<FLAG>':
+  if 'CDCS'!='<FLAG>':
 # process only some lumi sections: from LS69, run 123596 till LS 999 in event 124119
     #process.source.lumisToProcess = cms.untracked.VLuminosityBlockRange('123596:69-124119:999')
 # do not process some other runs: in this case: skip all events from event#1 in run 124120 till last event of run 124120
@@ -157,7 +167,10 @@ elif 'Y1SMuMuMomConstr'=='<FLAG>':
    process.p =cms.Path(process.offlineBeamSpot*process.initialAlignmentTrackSelector*process.TrackRefitter1*process.TrackerTrackHitFilter*process.ctfProducerCustomised*process.AlignmentTrackSelector*process.TwoBodyDecayMomConstraint*process.TrackRefitter3)
 elif 'Y1SMuMuFull'=='<FLAG>':
    process.p =cms.Path(process.offlineBeamSpot*process.initialAlignmentTrackSelector*process.TrackRefitter1*process.TrackerTrackHitFilter*process.ctfProducerCustomised*process.AlignmentTrackSelector*process.TwoBodyDecayConstraint*process.TrackRefitter4)
-elif 'COSMICS' =='<FLAG>' or 'CDCS' =='<FLAG>':
+elif 'COSMICS'=='<FLAG>':
+#    process.p = cms.Path(process.offlineBeamSpot*process.MeasurementTrackerEvent*process.TrackRefitter1*process.TrackerTrackHitFilter*process.ctfProducerCustomised*process.AlignmentTrackSelector*process.TrackRefitter2)
+    process.p = cms.Path(process.offlineBeamSpot*process.TrackRefitter1*process.TrackerTrackHitFilter*process.ctfProducerCustomised*process.AlignmentTrackSelector*process.TrackRefitter2)
+elif 'CDCS'=='<FLAG>':
 #    process.p = cms.Path(process.offlineBeamSpot*process.MeasurementTrackerEvent*process.TrackRefitter1*process.TrackerTrackHitFilter*process.ctfProducerCustomised*process.AlignmentTrackSelector*process.TrackRefitter2)
     process.p = cms.Path(process.offlineBeamSpot*process.TrackRefitter1*process.TrackerTrackHitFilter*process.ctfProducerCustomised*process.AlignmentTrackSelector*process.TrackRefitter2)
 

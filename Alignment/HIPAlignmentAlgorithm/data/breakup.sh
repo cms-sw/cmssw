@@ -52,6 +52,10 @@ do
 done
 
 str2=${str%,}
-echo -e $str2 >> $newfile
+if [[ $str2 != "" ]];then
+	echo -e $str2 >> $newfile
+else
+	$newfile" is empty. Please skip!"
+fi
 
 done
