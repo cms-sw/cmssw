@@ -193,17 +193,18 @@ void ME0ReDigiProducer::buildDigis(const ME0DigiPreRecoCollection & input_digis,
       if (deltaY > height)  --newRoll;
       if (deltaY < -height) ++newRoll;
 
-      // get new detId and ME0EtaPartition
-      ME0DetId out_detId(detId.region(), detId.layer(), detId.chamber(), newRoll);      
-      const ME0EtaPartition* newPart = geometry_->etaPartition(out_detId);
-      // sanity-check, also compatable with old geo with only 1 etaPartition
+      // check if new roll is possible
+      if (newRoll < ME0DetId::minRollId || newRoll > ME0DetId::maxRollId)
+	newRoll = detId.roll();
+
+      // get new detId and ME0EtaPartition      
+      const ME0EtaPartition* newPart = geometry_->etaPartition(ME0DetId(detId.region(), detId.layer(), detId.chamber(), newRoll));      
+      // check if new roll is in geometry
       if (!newPart) newPart = roll;
-      edm::LogVerbatim("ME0ReDigiProducer")
-        << "\tnew roll " << newRoll << std::endl;
+      edm::LogVerbatim("ME0ReDigiProducer") << "\tnew roll " << newPart << std::endl;
 
       // new local Point after all smearing
       const LocalPoint lp = newPart->toLocal(newGP);
-
 
       float newY(lp.y());
       // new hit has y coordinate in the center of the roll when using discretizeY
@@ -227,7 +228,7 @@ void ME0ReDigiProducer::buildDigis(const ME0DigiPreRecoCollection & input_digis,
       // make a new ME0DetId
       ME0DigiPreReco out_digi(newX, newY, targetXResolution, targetYResolution, me0Digi.corr(), newTime, me0Digi.pdgid(), me0Digi.prompt());
 
-      output_digis.insertDigi(out_detId, out_digi);
+      output_digis.insertDigi(newPart->id(), out_digi);
     }
   }
 }
