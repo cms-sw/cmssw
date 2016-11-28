@@ -2022,34 +2022,37 @@ namespace edm {
 
     //NOTE: If we have a looper we only have one Stream
     if(looper_) {
-      bool randomAccess = input_->randomAccess();
-      ProcessingController::ForwardState forwardState = input_->forwardState();
-      ProcessingController::ReverseState reverseState = input_->reverseState();
-      ProcessingController pc(forwardState, reverseState, randomAccess);
-
-      EDLooperBase::Status status = EDLooperBase::kContinue;
-      do {
-
-        StreamContext streamContext(pep->streamID(), &processContext_);
-        status = looper_->doDuringLoop(*pep, esp_->eventSetup(), pc, &streamContext);
-
-        bool succeeded = true;
-        if(randomAccess) {
-          if(pc.requestedTransition() == ProcessingController::kToPreviousEvent) {
-            input_->skipEvents(-2);
-          }
-          else if(pc.requestedTransition() == ProcessingController::kToSpecifiedEvent) {
-            succeeded = input_->goToEvent(pc.specifiedEventTransition());
-          }
-        }
-        pc.setLastOperationSucceeded(succeeded);
-      } while(!pc.lastOperationSucceeded());
-      if(status != EDLooperBase::kContinue) shouldWeStop_ = true;
-
+      processEventWithLooper(*pep);
     }
 
     FDEBUG(1) << "\tprocessEvent\n";
     pep->clearEventPrincipal();
+  }
+
+  void EventProcessor::processEventWithLooper(EventPrincipal& iPrincipal) {
+    bool randomAccess = input_->randomAccess();
+    ProcessingController::ForwardState forwardState = input_->forwardState();
+    ProcessingController::ReverseState reverseState = input_->reverseState();
+    ProcessingController pc(forwardState, reverseState, randomAccess);
+    
+    EDLooperBase::Status status = EDLooperBase::kContinue;
+    do {
+      
+      StreamContext streamContext(iPrincipal.streamID(), &processContext_);
+      status = looper_->doDuringLoop(iPrincipal, esp_->eventSetup(), pc, &streamContext);
+      
+      bool succeeded = true;
+      if(randomAccess) {
+        if(pc.requestedTransition() == ProcessingController::kToPreviousEvent) {
+          input_->skipEvents(-2);
+        }
+        else if(pc.requestedTransition() == ProcessingController::kToSpecifiedEvent) {
+          succeeded = input_->goToEvent(pc.specifiedEventTransition());
+        }
+      }
+      pc.setLastOperationSucceeded(succeeded);
+    } while(!pc.lastOperationSucceeded());
+    if(status != EDLooperBase::kContinue) shouldWeStop_ = true;
   }
 
   bool EventProcessor::shouldWeStop() const {

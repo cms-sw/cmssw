@@ -246,6 +246,8 @@ namespace edm {
 
     //returns true if an asynchronous stop was requested
     bool checkForAsyncStopRequest(StatusCode&);
+    
+    void processEventWithLooper(EventPrincipal&);
 
     std::shared_ptr<ProductRegistry const> preg() const {return get_underlying_safe(preg_);}
     std::shared_ptr<ProductRegistry>& preg() {return get_underlying_safe(preg_);}
