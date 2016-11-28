@@ -22,9 +22,7 @@ class Events(object):
 
     def to(self, iEv):
         '''navigate to event iEv.'''
-        nbytes = self.tree.GetEntry(iEv)
-        if nbytes < 0:
-            raise IOError("Could not read file")
+        self.tree.GetEntry(iEv)
         return self.tree
 
     def __iter__(self):
