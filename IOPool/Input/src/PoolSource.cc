@@ -160,7 +160,7 @@ namespace edm {
     if(secondaryFileSequence_) {
       fb->setNotFastClonable(FileBlock::HasSecondaryFileSequence);
     }
-    return std::move(fb);
+    return fb;
   }
 
   void PoolSource::closeFile_() {

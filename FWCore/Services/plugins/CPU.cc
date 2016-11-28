@@ -82,10 +82,6 @@ namespace edm {
 	return atof(s.c_str());
       }
 
-      inline int str2i(std::string s){
-	return atoi(s.c_str());
-      }
-
       void trim(std::string& s, const std::string& drop = " \t") {
         std::string::size_type p = s.find_last_not_of(drop);
         if(p != std::string::npos) {
