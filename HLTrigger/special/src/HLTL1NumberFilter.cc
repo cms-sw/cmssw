@@ -40,12 +40,9 @@ HLTL1NumberFilter::HLTL1NumberFilter(const edm::ParameterSet& config) :
   period_( config.getParameter<unsigned int>("period") ),
   fedId_(  config.getParameter<int>("fedId") ),
   invert_( config.getParameter<bool>("invert") ),
-  useTCDS_( config.getParameter<bool>("useTCDSEventNumber") )
-{
-
   // only try and use TCDS event number if the FED ID 1024 is selected
-  if (fedId_!=1024) useTCDS_ = false;
-
+  useTCDS_( config.getParameter<bool>("useTCDSEventNumber") and fedId_ == 1024)
+{
 }
 
 
@@ -81,14 +78,17 @@ HLTL1NumberFilter::filter(edm::StreamID, edm::Event& iEvent, const edm::EventSet
     edm::Handle<FEDRawDataCollection> theRaw ;
     iEvent.getByToken(inputToken_,theRaw) ;
     const FEDRawData& data = theRaw->FEDData(fedId_) ;
-    if (data.data() && data.size() > 0){
-      FEDHeader header(data.data()) ;
-      if (period_!=0) accept = ( ( (header.lvl1ID())%period_ ) == 0 );
-      if (useTCDS_ && period_!=0) {
-	evf::evtn::TCDSRecord record((unsigned char *)data.data());
-	accept = ( (record.getHeader().getData().header.triggerCount % period_) == 0 );
+    if (data.data() and data.size() > 0) {
+      unsigned long counter;
+      if (useTCDS_) {
+        evf::evtn::TCDSRecord record(data.data());
+        counter = record.getHeader().getData().header.triggerCount;
+      } else {
+        FEDHeader header(data.data());
+        counter = header.lvl1ID();
       }
-      if (invert_) accept = !accept;
+      if (period_!=0) accept = (counter % period_ == 0);
+      if (invert_) accept = not accept;
       return accept;
     } else{
       LogWarning("HLTL1NumberFilter")<<"No valid data for FED "<<fedId_<<" used by HLTL1NumberFilter";
