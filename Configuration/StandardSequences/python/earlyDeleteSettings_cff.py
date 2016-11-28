@@ -69,21 +69,33 @@ if __name__=="__main__":
             None
         def testHasInputTagModuleLabel(self):
             p = cms.Process("A")
-            p.pset = cms.PSet(a=cms.InputTag("a"))
+            p.pset = cms.PSet(a=cms.InputTag("a"),a2=cms.untracked.InputTag("a2"))
             p.prod = cms.EDProducer("Producer",
                 foo = cms.InputTag("foo"),
                 foo2 = cms.InputTag("foo2", "instance"),
                 foo3 = cms.InputTag("foo3", "instance", "PROCESS"),
+                foo4 = cms.untracked.InputTag("foo4"),
                 nested = cms.PSet(
                     bar = cms.InputTag("bar"),
+                    bar2 = cms.untracked.InputTag("bar2"),
+                ),
+                nested2 = cms.untracked.PSet(
+                    bar3 = cms.untracked.InputTag("bar3"),
                 ),
                 flintstones = cms.VPSet(
                     cms.PSet(fred=cms.InputTag("fred")),
                     cms.PSet(wilma=cms.InputTag("wilma"))
                 ),
+                flintstones2 = cms.VPSet(
+                    cms.PSet(fred2=cms.untracked.InputTag("fred2")),
+                    cms.PSet(wilma2=cms.InputTag("wilma2"))
+                ),
                 ref = cms.PSet(
                     refToPSet_ = cms.string("pset")
-                )
+                ),
+                ref2 = cms.untracked.PSet(
+                    refToPSet_ = cms.string("pset")
+                ),
             )
 
             self.assert_(_hasInputTagModuleLabel(p, p.prod, "foo"))
@@ -93,6 +105,12 @@ if __name__=="__main__":
             self.assert_(_hasInputTagModuleLabel(p, p.prod, "fred"))
             self.assert_(_hasInputTagModuleLabel(p, p.prod, "wilma"))
             self.assert_(_hasInputTagModuleLabel(p, p.prod, "a"))
+            self.assert_(_hasInputTagModuleLabel(p, p.prod, "foo4"))
+            self.assert_(_hasInputTagModuleLabel(p, p.prod, "bar2"))
+            self.assert_(_hasInputTagModuleLabel(p, p.prod, "bar3"))
+            self.assert_(_hasInputTagModuleLabel(p, p.prod, "fred2"))
+            self.assert_(_hasInputTagModuleLabel(p, p.prod, "wilma2"))
+            self.assert_(_hasInputTagModuleLabel(p, p.prod, "a2"))
             self.assert_(not _hasInputTagModuleLabel(p, p.prod, "joe"))
 
     unittest.main()
