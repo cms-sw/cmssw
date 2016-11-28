@@ -64,7 +64,8 @@ triggerTable = {
         "HLT_Ele27_WPLoose_Gsf_v*",
         "HLT_Ele23_WPLoose_Gsf_WHbbBoost_v*",
         "HLT_Ele25_WPTight_Gsf_v*",
-        "HLT_Ele25_eta2p1_WPLoose_Gsf_v*"
+        "HLT_Ele25_eta2p1_WPLoose_Gsf_v*",
+        "HLT_Ele25_eta2p1_WPTight_Gsf_v*"
     ],
     "WenHbbHighLumi" : [
         "HLT_Ele32_eta2p1_WPTight_Gsf_v*",
