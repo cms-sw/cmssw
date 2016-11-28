@@ -477,7 +477,7 @@ void DQMPFCandidateAnalyzer::analyze(const edm::Event& iEvent, const edm::EventS
       for (unsigned int i = 0; i < packedParticleFlow->size(); i++) {
 	const pat::PackedCandidate& c = packedParticleFlow->at(i);
 	for (unsigned int j=0; j<typePFCand_.size(); j++) {
-	  if (fabs(c.pdgId())==typePFCand_[j]) {
+	  if (abs(c.pdgId())==typePFCand_[j]) {
 	    //second check for endcap, if inside barrel Max and Min symmetric around 0
 	    if ( ((c.eta()>etaMinPFCand_[j]) && (c.eta()<etaMaxPFCand_[j])) || ((c.eta()> (-etaMaxPFCand_[j])) && (c.eta()< (-etaMinPFCand_[j]))) ){
 	      countsPFCand_[j]+=1;
