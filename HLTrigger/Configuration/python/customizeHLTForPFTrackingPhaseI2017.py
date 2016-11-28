@@ -7,7 +7,11 @@ def producers_by_type(process, *types):
 def customizeHLTForPFTrackingPhaseI2017(process):
 
 
+	process.ClusterShapeHitFilterESProducer.PixelShapeFile = 'RecoPixelVertexing/PixelLowPtUtilities/data/pixelShape_Phase1TkNewFPix.par'
 	process.hltSiPixelDigis.UsePhase1 = cms.bool( True )
+	process.hltSiPixelDigisRegForBTag.UsePhase1 = cms.bool( True )
+	process.hltSiPixelDigisReg.UsePhase1 = cms.bool( True )
+
 
 	process.hltPixelLayerTriplets.layerList = cms.vstring(
 	    'BPix1+BPix2+BPix3',
