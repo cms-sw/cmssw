@@ -130,14 +130,7 @@ class JetReCalibrator:
             for unc in self.factorizedJetCorrections:
                 for cdelta, sdir in [(1.0, "Up"), (-1.0, "Down")]:
                     cshift = self.getCorrection(jet, rho, uncertainty = unc, delta = delta + cdelta)
-                    #print "Jet shift", unc, sdir, cshift
                     setattr(jet, "corr{0}{1}".format(unc, sdir), cshift)
-            s = "jet pt={0} corr={1}\n".format(jet.pt(), jet.corr)
-            for unc in  self.factorizedJetCorrections:
-                v1 = getattr(jet, "corr{0}{1}".format(unc, "Up"))
-                v2 = getattr(jet, "corr{0}{1}".format(unc, "Down"))
-                s += "    {0} {1:.4f} {2:.4f} {3:.4f}\n".format(unc, v1, v2, v1-v2)
-            print s
 
             #get also the total correction as corrJEC for backwards compatibility
             for cdelta, sdir in [(1.0, "JECUp"), (-1.0, "JECDown")]:
