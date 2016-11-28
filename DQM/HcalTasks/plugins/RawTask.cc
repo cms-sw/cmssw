@@ -14,7 +14,7 @@ RawTask::RawTask(edm::ParameterSet const& ps):
 	_calibProcessing = ps.getUntrackedParameter<bool>("calibProcessing",
 		false);
 	_thresh_calib_nbadq = ps.getUntrackedParameter<int>("thresh_calib_nbadq",
-		1000);
+		5000);
 
 	_tokFEDs = consumes<FEDRawDataCollection>(_tagFEDs);
 	_tokReport = consumes<HcalUnpackerReport>(_tagReport);
