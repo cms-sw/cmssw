@@ -15,23 +15,23 @@ class TrackerTopology;
 class TrackCleaner : public PixelTrackCleaner
 {
   public:
-    TrackCleaner();
+    explicit TrackCleaner(const TrackerTopology *tTopo);
     virtual ~TrackCleaner();
 
     virtual TracksWithRecHits cleanTracks
-      (const TracksWithRecHits & tracksWithRecHits, const TrackerTopology *tTopo) const;
+      (const TracksWithRecHits & tracksWithRecHits) const;
 
   private:
     bool areSame(const TrackingRecHit * a,
                  const TrackingRecHit * b) const;
     bool isCompatible(const DetId & i1,
-                      const DetId & i2,
-		      const TrackerTopology *tTopo) const;
+                      const DetId & i2) const;
     bool canBeMerged(const std::vector<const TrackingRecHit *>& recHitsA,
-                     const std::vector<const TrackingRecHit *>& recHitsB,
-		     const TrackerTopology *tTopo) const;
+                     const std::vector<const TrackingRecHit *>& recHitsB) const;
 
     std::vector<const TrackingRecHit*> ttrhs(const SeedingHitSet & h) const;
+
+    const TrackerTopology *tTopo_;
 };
 
 #endif

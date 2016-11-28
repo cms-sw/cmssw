@@ -18,8 +18,7 @@ PixelTrackCleanerBySharedHits::~PixelTrackCleanerBySharedHits()
 {}
 
 
-void PixelTrackCleanerBySharedHits::cleanTracks(TracksWithTTRHs & trackHitPairs,
-                                        const TrackerTopology *tTopo) const 
+void PixelTrackCleanerBySharedHits::cleanTracks(TracksWithTTRHs & trackHitPairs) const 
 {
 
   LogDebug("PixelTrackCleanerBySharedHits") << "Cleanering tracks" << "\n";
