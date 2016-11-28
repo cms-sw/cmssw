@@ -20,6 +20,7 @@ class Eras (object):
                  'Run2_2016_trackingLowPU',
                  'Run2_2016_pA',
                  'Run2_2017',
+                 'Run2_2017Muon',
                  'Run2_2017_trackingRun2',
                  'Run2_2017_trackingPhase1PU70',
                  'Run3',
