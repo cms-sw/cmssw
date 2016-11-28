@@ -1,0 +1,57 @@
+#!/bin/bash
+
+infile=$1
+iovfile=$2
+nbreaks=-1
+if [[ $3 != "" ]];then
+	let nbreaks=$3
+fi 
+
+iovlist=()
+while IFS='' read -r line || [[ -n "$line" ]]; do
+    iovlist+=($line)
+done < $iovfile
+
+let niovs=${#iovlist[@]}
+let lastiov=$niovs-1
+for (( i=0; i<${niovs}; i++ ));
+do
+let ni=$i+1
+
+core=${infile%%.dat*}
+newfile=$core".dat_"${iovlist[i]}
+rm -f $newfile
+
+str=""
+let nadded=0
+
+for f in $(cat $infile)
+do
+
+	nobegin=${f#*/000/}
+	noend=${nobegin%%/00000*}
+	let run=${noend/\//}
+	addfile=${f%*,}
+	appendstr=""
+	if [ $nadded -eq $nbreaks ];then
+		appendstr="\n"
+		let nadded=0
+	else
+		appendstr=","
+	fi
+	addfile=$addfile$appendstr
+	if [ $i -eq $lastiov ];then
+		if [ $run -ge ${iovlist[i]} ]; then
+			str=$str$addfile
+			let nadded=nadded+1
+		fi
+	elif [ $run -ge ${iovlist[i]} ] && [ $run -lt ${iovlist[$ni]} ]; then
+		str=$str$addfile
+		let nadded=nadded+1
+	fi
+done
+
+str2=${str%,}
+echo -e $str2 >> $newfile
+
+done
