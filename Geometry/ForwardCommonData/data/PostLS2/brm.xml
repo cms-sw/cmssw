@@ -8,6 +8,7 @@
          When I refer to the trapezoidal paddles, I am speaking of the 4 trapezoidal parts of the detector. 
          ************************************************************************************************************************-->
     <ConstantsSection label="brm.xml" eval="true">
+        <Constant name="ForwdDetsZ2"  value="16.0065*m-1.6165*m"/>
         <!--BSC1_Specifications(below)-->
         <Constant name="rMinBSC" value="22.0*cm"/>
         <Constant name="rMaxBSC" value="45.0*cm"/>
@@ -40,7 +41,7 @@
         <Constant name="dzBSC2" value="0.8*cm"/>
         <Constant name="dzBSC2Total" value="([dzBSC2]+[dzBSCExtra])"/>
         <!--^^^ Thickness of BSC2 ^^^^-->
-        <Constant name="zposBSC2" value="[cms:ForwdDetsZ2]-[dzBSC2Total]"/>
+        <Constant name="zposBSC2" value="[ForwdDetsZ2]-[dzBSC2Total]"/>
         <!--^^^Where BSC2 rests along the beamline-->
     </ConstantsSection>
     <SolidSection label="brm.xml">

@@ -109,10 +109,6 @@ jetMETDQMOfflineSource = cms.Sequence(AnalyzeSUSYDQM*QGTagger*
                                       CSCTightHaloFilterDQM*CSCTightHalo2015FilterDQM*eeBadScFilterDQM*EcalDeadCellTriggerPrimitiveFilterDQM*EcalDeadCellBoundaryEnergyFilterDQM*HcalStripHaloFilterDQM
                                       *METDQMAnalyzerSequence)
 from Configuration.Eras.Modifier_phase1Pixel_cff import phase1Pixel
-phase1Pixel.toReplaceWith(jetMETDQMOfflineSource, jetMETDQMOfflineSource.copyAndExclude([ # FIXME
-    jetDQMAnalyzerSequence, # Excessive printouts because 2017 doesn't have HLT yet
-    METDQMAnalyzerSequence, # Excessive printouts because 2017 doesn't have HLT yet
-]))
 
 jetMETDQMOfflineRedoProductsMiniAOD = cms.Sequence(goodOfflinePrimaryVerticesDQMforMiniAOD)
 
