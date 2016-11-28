@@ -11,7 +11,7 @@ process.load("RecoVertex.BeamSpotProducer.BeamSpot_cff")
 # "including" common configuration
 <COMMON>
 
-if 'COSMICS' =='<FLAG>':
+if 'COSMICS' =='<FLAG>' or 'CDCS' =='<FLAG>':
     process.source = cms.Source("PoolSource",
 #                                useCSA08Kludge = cms.untracked.bool(True),
                                 fileNames = cms.untracked.vstring(<FILE>)
@@ -30,7 +30,20 @@ process.load("TrackingTools.TransientTrack.TransientTrackBuilder_cfi")
 <SELECTION>
 
 # parameters for HIP
-process.AlignmentProducer.tjTkAssociationMapTag = 'TrackRefitter2'
+if 'MBVertex'=='<FLAG>':
+   process.AlignmentProducer.tjTkAssociationMapTag = 'TrackRefitter2'
+elif 'ZMuMuMomConstr'=='<FLAG>':
+   process.AlignmentProducer.tjTkAssociationMapTag = 'TrackRefitter3'
+elif 'ZMuMuFull'=='<FLAG>':
+   process.AlignmentProducer.tjTkAssociationMapTag = 'TrackRefitter4'
+elif 'Y1SMuMuMomConstr'=='<FLAG>':
+   process.AlignmentProducer.tjTkAssociationMapTag = 'TrackRefitter3'
+elif 'Y1SMuMuFull'=='<FLAG>':
+   process.AlignmentProducer.tjTkAssociationMapTag = 'TrackRefitter4'
+elif 'COSMICS' =='<FLAG>' or 'CDCS' =='<FLAG>':
+   process.AlignmentProducer.tjTkAssociationMapTag = 'TrackRefitter2'
+else :
+   process.AlignmentProducer.tjTkAssociationMapTag = 'TrackRefitter2'
 # process.AlignmentProducer.hitPrescaleMapTag= 'TkAlHitAssoMapCTF' #if this is not empty, turn on the usage of prescaled hits
 process.AlignmentProducer.hitPrescaleMapTag=''
 process.AlignmentProducer.algoConfig.outpath = ''
@@ -44,14 +57,14 @@ process.AlignmentProducer.algoConfig.uvarFile = '<PATH>/IOUserVariables.root'
 # angle cut : degrees-65,70,75,80 ; rads-1.134,1.222,1.309,1.396 ; sin-0.9,0.95,0.97,0.99  
 # angle cut : rad 1.33 1.35, 1.37
 
-if 'COSMICS' =='<FLAG>':
+if 'COSMICS' =='<FLAG>' or 'CDCS' =='<FLAG>':
     process.AlignmentProducer.algoConfig.isCollision=False
 #    process.AlignmentProducer.algoConfig.CSAngleCut=0.95
 
 else :
     process.AlignmentProducer.algoConfig.isCollision=True
-#    process.AlignmentProducer.algoConfig.UseReweighting=True
-#    process.AlignmentProducer.algoConfig.Weight=0.001
+    process.AlignmentProducer.algoConfig.UseReweighting=True
+    process.AlignmentProducer.algoConfig.Weight=1
 #    process.AlignmentProducer.algoConfig.UniformEta=True
 #    process.AlignmentProducer.algoConfig.CLAngleCut=1.37
 
@@ -99,8 +112,8 @@ process.AlignmentProducer.algoConfig.apeParam = cms.VPSet(
          )	
 
 #### If we are in collisions, apply selections on PhysDeclared bit, L1 trigger bits, LumiSections
-if 'COSMICS' !='<FLAG>':
-# process only some lumi sections: from LS69, run 123596 till LS 999 in event 124119 
+if 'COSMICS' !='<FLAG>' and 'CDCS' !='<FLAG>':
+# process only some lumi sections: from LS69, run 123596 till LS 999 in event 124119
     #process.source.lumisToProcess = cms.untracked.VLuminosityBlockRange('123596:69-124119:999')
 # do not process some other runs: in this case: skip all events from event#1 in run 124120 till last event of run 124120
     #process.source.eventsToSkip = cms.untracked.VEventRange('124120:1-124120:MAX')
@@ -136,7 +149,15 @@ process.skimming = cms.EDFilter("PhysDecl",
 
 if 'MBVertex'=='<FLAG>':
    process.p =cms.Path(process.offlineBeamSpot*process.initialAlignmentTrackSelector*process.TrackRefitter1*process.TrackerTrackHitFilter*process.ctfProducerCustomised*process.AlignmentTrackSelector*process.TrackRefitter2)
-elif 'COSMICS' =='<FLAG>':
+elif 'ZMuMuMomConstr'=='<FLAG>':
+   process.p =cms.Path(process.offlineBeamSpot*process.initialAlignmentTrackSelector*process.TrackRefitter1*process.TrackerTrackHitFilter*process.ctfProducerCustomised*process.AlignmentTrackSelector*process.TwoBodyDecayMomConstraint*process.TrackRefitter3)
+elif 'ZMuMuFull'=='<FLAG>':
+   process.p =cms.Path(process.offlineBeamSpot*process.initialAlignmentTrackSelector*process.TrackRefitter1*process.TrackerTrackHitFilter*process.ctfProducerCustomised*process.AlignmentTrackSelector*process.TwoBodyDecayConstraint*process.TrackRefitter4)
+elif 'Y1SMuMuMomConstr'=='<FLAG>':
+   process.p =cms.Path(process.offlineBeamSpot*process.initialAlignmentTrackSelector*process.TrackRefitter1*process.TrackerTrackHitFilter*process.ctfProducerCustomised*process.AlignmentTrackSelector*process.TwoBodyDecayMomConstraint*process.TrackRefitter3)
+elif 'Y1SMuMuFull'=='<FLAG>':
+   process.p =cms.Path(process.offlineBeamSpot*process.initialAlignmentTrackSelector*process.TrackRefitter1*process.TrackerTrackHitFilter*process.ctfProducerCustomised*process.AlignmentTrackSelector*process.TwoBodyDecayConstraint*process.TrackRefitter4)
+elif 'COSMICS' =='<FLAG>' or 'CDCS' =='<FLAG>':
 #    process.p = cms.Path(process.offlineBeamSpot*process.MeasurementTrackerEvent*process.TrackRefitter1*process.TrackerTrackHitFilter*process.ctfProducerCustomised*process.AlignmentTrackSelector*process.TrackRefitter2)
     process.p = cms.Path(process.offlineBeamSpot*process.TrackRefitter1*process.TrackerTrackHitFilter*process.ctfProducerCustomised*process.AlignmentTrackSelector*process.TrackRefitter2)
 
