@@ -63,35 +63,30 @@ trackingPhase1.toModify(jetCoreRegionalStepSeedLayers,
     ]
 )
 
-# SEEDS
-import RecoTracker.TkSeedGenerator.GlobalSeedsFromPairsWithVertices_cff
-jetCoreRegionalStepSeeds = RecoTracker.TkSeedGenerator.GlobalSeedsFromPairsWithVertices_cff.globalSeedsFromPairsWithVertices.clone()
-jetCoreRegionalStepSeeds.RegionFactoryPSet = cms.PSet(
-      ComponentName = cms.string( "TauRegionalPixelSeedGenerator" ),#not so nice to depend on RecoTau...
-      RegionPSet = cms.PSet(
-        precise = cms.bool( True ),
-        originRadius = cms.double( 0.2 ),
-        ptMin = cms.double( 10. ),
-        originHalfLength = cms.double( 0.2 ),
-        deltaPhiRegion = cms.double( 0.20 ), 
-        deltaEtaRegion = cms.double( 0.20 ), 
-        JetSrc = cms.InputTag( "jetsForCoreTracking" ),
-#       JetSrc = cms.InputTag( "ak5CaloJets" ),
-        vertexSrc = cms.InputTag( "firstStepGoodPrimaryVertices" ),
-        measurementTrackerName = cms.string( "MeasurementTrackerEvent" ),
-        howToUseMeasurementTracker = cms.string( "Never" )
-      )
+# TrackingRegion
+from RecoTauTag.HLTProducers.tauRegionalPixelSeedTrackingRegions_cfi import tauRegionalPixelSeedTrackingRegions as _tauRegionalPixelSeedTrackingRegions
+jetCoreRegionalStepTrackingRegions = _tauRegionalPixelSeedTrackingRegions.clone(RegionPSet=dict(
+    ptMin = 10,
+    deltaPhiRegion = 0.20,
+    deltaEtaRegion = 0.20,
+    JetSrc = "jetsForCoreTracking",
+#    JetSrc = "ak5CaloJets",
+    vertexSrc = "firstStepGoodPrimaryVertices",
+    howToUseMeasurementTracker = "Never"
+))
+
+# Seeding
+from RecoTracker.TkHitPairs.hitPairEDProducer_cfi import hitPairEDProducer as _hitPairEDProducer
+jetCoreRegionalStepHitDoublets = _hitPairEDProducer.clone(
+    seedingLayers = "jetCoreRegionalStepSeedLayers",
+    trackingRegions = "jetCoreRegionalStepTrackingRegions",
+    produceSeedingHitSets = True,
 )
-jetCoreRegionalStepSeeds.OrderedHitsFactoryPSet.SeedingLayers = 'jetCoreRegionalStepSeedLayers'
-jetCoreRegionalStepSeeds.SeedComparitorPSet = cms.PSet(
-        ComponentName = cms.string('none'),
-#PixelClusterShapeSeedComparitor'),
-#        FilterAtHelixStage = cms.bool(True),
-#        FilterPixelHits = cms.bool(True),
-#        FilterStripHits = cms.bool(False),
-#       ClusterShapeHitFilterName = cms.string('ClusterShapeHitFilter')
-    )
-jetCoreRegionalStepSeeds.SeedCreatorPSet.forceKinematicWithRegionDirection = cms.bool( True )
+from RecoTracker.TkSeedGenerator.seedCreatorFromRegionConsecutiveHitsEDProducer_cff import seedCreatorFromRegionConsecutiveHitsEDProducer as _seedCreatorFromRegionConsecutiveHitsEDProducer
+jetCoreRegionalStepSeeds = _seedCreatorFromRegionConsecutiveHitsEDProducer.clone(
+    seedingHitSets = "jetCoreRegionalStepHitDoublets",
+    forceKinematicWithRegionDirection = True
+)
 
 # QUALITY CUTS DURING TRACK BUILDING
 import TrackingTools.TrajectoryFiltering.TrajectoryFilter_cff
@@ -182,6 +177,8 @@ JetCoreRegionalStep = cms.Sequence(initialStepTrackRefsForJets*caloJetsForTrk*je
                                    firstStepGoodPrimaryVertices*
                                    #jetCoreRegionalStepClusters*
                                    jetCoreRegionalStepSeedLayers*
+                                   jetCoreRegionalStepTrackingRegions*
+                                   jetCoreRegionalStepHitDoublets*
                                    jetCoreRegionalStepSeeds*
                                    jetCoreRegionalStepTrackCandidates*
                                    jetCoreRegionalStepTracks*

@@ -88,7 +88,7 @@ protected:
    virtual void colorsChanged();
    void dataChanged ();
 
-   typedef std::vector<boost::shared_ptr<FWTableView> >    Views;
+   typedef std::vector<std::shared_ptr<FWTableView> >    Views;
 
    Views       m_views;
    Items       m_items;

@@ -176,16 +176,29 @@ def _setForEra(module, eraName, era, **kwargs):
 def _getSeedingLayers(seedProducers):
     import RecoTracker.IterativeTracking.iterativeTk_cff as _iterativeTk_cff
 
+    def _findSeedingLayers(name):
+        prod = getattr(_iterativeTk_cff, name)
+        if hasattr(prod, "triplets"):
+            if hasattr(prod, "layerList"): # merger
+                return prod.layerList.refToPSet_.value()
+            return _findSeedingLayers(prod.triplets.getModuleLabel())
+        elif hasattr(prod, "doublets"):
+            return _findSeedingLayers(prod.doublets.getModuleLabel())
+        return prod.seedingLayers.getModuleLabel()
+
     seedingLayersMerged = []
     for seedName in seedProducers:
         seedProd = getattr(_iterativeTk_cff, seedName)
-        if not hasattr(seedProd, "OrderedHitsFactoryPSet"):
+        if hasattr(seedProd, "OrderedHitsFactoryPSet"):
+            if hasattr(seedProd, "SeedMergerPSet"):
+                seedingLayersName = seedProd.SeedMergerPSet.layerList.refToPSet_.value()
+            else:
+                seedingLayersName = seedProd.OrderedHitsFactoryPSet.SeedingLayers.getModuleLabel()
+        elif hasattr(seedProd, "seedingHitSets"):
+            seedingLayersName = _findSeedingLayers(seedProd.seedingHitSets.getModuleLabel())
+        else:
             continue
 
-        if hasattr(seedProd, "SeedMergerPSet"):
-            seedingLayersName = seedProd.SeedMergerPSet.layerList.refToPSet_.value()
-        else:
-            seedingLayersName = seedProd.OrderedHitsFactoryPSet.SeedingLayers.getModuleLabel()
         seedingLayers = getattr(_iterativeTk_cff, seedingLayersName).layerList.value()
         for layerSet in seedingLayers:
             if layerSet not in seedingLayersMerged:
