@@ -3,16 +3,20 @@ import FWCore.ParameterSet.Config as cms
 
 def producers_by_type(process, *types):
     return (module for module in process._Process__producers.values() if module._TypedParameterizable__type in types)
+def esproducers_by_type(process, *types):
+	return (module for module in process._Process__esproducers.values() if module._TypedParameterizable__type in types)
+
+
+def customizeHLTPhaseIPixelGeom(process):
+
+	for esproducer in esproducers_by_type(process,"ClusterShapeHitFilterESProducer"):
+		 esproducer.PixelShapeFile = 'RecoPixelVertexing/PixelLowPtUtilities/data/pixelShape_Phase1TkNewFPix.par'
+	for producer in producers_by_type(process,"SiPixelRawToDigi"):
+		if "hlt" in producer.label():
+			producer.UsePhase1 = cms.bool( True )
+	return process
     
 def customizeHLTForPFTrackingPhaseI2017(process):
-
-
-	process.ClusterShapeHitFilterESProducer.PixelShapeFile = 'RecoPixelVertexing/PixelLowPtUtilities/data/pixelShape_Phase1TkNewFPix.par'
-	process.hltSiPixelDigis.UsePhase1 = cms.bool( True )
-	process.hltSiPixelDigisRegForBTag.UsePhase1 = cms.bool( True )
-	process.hltSiPixelDigisReg.UsePhase1 = cms.bool( True )
-
-
 	process.hltPixelLayerTriplets.layerList = cms.vstring(
 	    'BPix1+BPix2+BPix3',
 	    'BPix2+BPix3+BPix4',
