@@ -23,7 +23,8 @@ class FTLRecHitAlgoBase {
 
   /// Constructor
   FTLRecHitAlgoBase(const edm::ParameterSet& conf,
-                    edm::ConsumesCollector& sumes) { };
+                    edm::ConsumesCollector& sumes):
+    name_( conf.getParameter<std::string>("algoName") ){ };
 
   /// Destructor
   virtual ~FTLRecHitAlgoBase() { };
@@ -34,6 +35,11 @@ class FTLRecHitAlgoBase {
 
   /// make rechits from dataframes
   virtual FTLRecHit makeRecHit(const FTLUncalibratedRecHit& uncalibRH, const uint32_t &flags) const = 0;
+
+  const std::string& name() const { return name_; }
+
+ private:
+  std::string name_;
 
 };
 
