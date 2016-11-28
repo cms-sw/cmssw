@@ -1236,7 +1236,6 @@ class ConfigBuilder(object):
 
     def prepare_ALCA(self, sequence = None, workflow = 'full'):
         """ Enrich the process with alca streams """
-	print 'DL enriching',workflow,sequence
         alcaConfig=self.loadDefaultOrSpecifiedCFF(sequence,self.ALCADefaultCFF)
         sequence = sequence.split('.')[-1]
 
@@ -1679,7 +1678,7 @@ class ConfigBuilder(object):
 	if self._options.hltProcess:
 	     if len(self._options.customise_commands) > 1:
 		     self._options.customise_commands = self._options.customise_commands + " \n"
-	     self._options.customise_commands = self._otpions.customise_commands + "process.patTrigger.processName = "+self._options.hltProcess
+	     self._options.customise_commands = self._options.customise_commands + "process.patTrigger.processName = \""+self._options.hltProcess+"\""
 #            self.renameHLTprocessInSequence(sequence)
 
         return
