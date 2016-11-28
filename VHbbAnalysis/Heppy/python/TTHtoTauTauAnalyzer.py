@@ -32,11 +32,11 @@ class TTHtoTauTauAnalyzer( Analyzer ):
       if tau.genJet():
          genMatchType = 0
       if genMatchType == 1:
-         match = matchObjectCollection3([ tau ], genParticles, deltaRMax = 0.4, filter = lambda x,y : True if (y.pt() > 0.5*x.pt() and abs(y.pdgId()) == 11) else False)
+         match = matchObjectCollection3([ tau ], genParticles, deltaRMax = 0.4, filter_func = lambda x,y : True if (y.pt() > 0.5*x.pt() and abs(y.pdgId()) == 11) else False)
          if match[tau]:
             genMatchType = 2
       if genMatchType == 1:
-         match = matchObjectCollection3([ tau ], genParticles, deltaRMax = 0.4, filter = lambda x,y : True if (y.pt() > 0.5*x.pt() and abs(y.pdgId()) == 13) else False)
+         match = matchObjectCollection3([ tau ], genParticles, deltaRMax = 0.4, filter_func = lambda x,y : True if (y.pt() > 0.5*x.pt() and abs(y.pdgId()) == 13) else False)
          if match[tau]:
             genMatchType = 3
 

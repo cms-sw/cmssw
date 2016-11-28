@@ -50,8 +50,9 @@ class VHbbAnalyzer( Analyzer ):
 
     def beginLoop(self,setup):
         super(VHbbAnalyzer,self).beginLoop(setup)
-        if "outputfile" in setup.services :
-            setup.services["outputfile"].file.cd()
+        outservice_name = "PhysicsTools.HeppyCore.framework.services.tfile.TFileService_outputfile"
+        if outservice_name in setup.services :
+            setup.services[outservice_name].file.cd()
             self.inputCounter = ROOT.TH1F("Count","Count",1,0,2)
             self.inputCounterFullWeighted = ROOT.TH1F("CountFullWeighted","Count with gen weight and pu weight",1,0,2)
             self.inputCounterWeighted = ROOT.TH1F("CountWeighted","Count with sign(gen weight) and pu weight",1,0,2)
