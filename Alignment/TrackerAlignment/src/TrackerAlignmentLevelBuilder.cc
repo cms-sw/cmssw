@@ -24,7 +24,8 @@ namespace align
 //_____________________________________________________________________________
 TrackerAlignmentLevelBuilder
 ::TrackerAlignmentLevelBuilder(const TrackerTopology* trackerTopology) :
-  trackerTopology_(trackerTopology)
+  trackerTopology_(trackerTopology),
+  trackerNameSpace_(trackerTopology)
 {
 }
 
@@ -198,6 +199,7 @@ align::AlignmentLevels TrackerAlignmentLevelBuilder
   for (size_t layer = 0; layer < pxbLaddersPerLayer_.size(); ++layer) {
     // divide by 4, because we need the ladders per quarter cylinder
     align::tpb::lpqc.push_back(pxbLaddersPerLayer_[layer] / 4);
+    trackerNameSpace_.tpb_.lpqc_.push_back(pxbLaddersPerLayer_[layer] / 4);
     ss << "      ladders in layer-" << layer << ": "
        << pxbLaddersPerLayer_[layer] << "\n";
   }
@@ -234,6 +236,7 @@ align::AlignmentLevels TrackerAlignmentLevelBuilder
      << "   max. number of blades:  " << maxNumBlades                   << "\n";
 
   align::tpe::bpqd = maxNumBlades / 2;
+  trackerNameSpace_.tpe_.bpqd_ = maxNumBlades / 2;
 
   ss << "      blades per quarter disk: " << align::tpe::bpqd << "\n"
      << "   max. number of disks:   " << maxNumDisks                    << "\n"
@@ -271,6 +274,8 @@ align::AlignmentLevels TrackerAlignmentLevelBuilder
     // divide by 2, because we have HalfShells
     align::tib::sphs.push_back(tidStringsInnerLayer_[layer] / 2);
     align::tib::sphs.push_back(tidStringsOuterLayer_[layer] / 2);
+    trackerNameSpace_.tib_.sphs_.push_back(tidStringsInnerLayer_[layer] / 2);
+    trackerNameSpace_.tib_.sphs_.push_back(tidStringsOuterLayer_[layer] / 2);
 
     ss << "      strings in layer-" << layer << " (inside):  "
        << tidStringsInnerLayer_[layer] << "\n"
