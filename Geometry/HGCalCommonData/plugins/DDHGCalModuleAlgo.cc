@@ -224,6 +224,7 @@ void DDHGCalModuleAlgo::positionSensitive(DDLogicalPart& glog, double rin,
   int    ncol = (int)(2.0*rout/waferW) + 1;
   int    nrow = (int)(rout/(waferW*tan(30.0*CLHEP::deg))) + 1;
   int    incm(0), inrm(0), kount(0);
+  double xc[6], yc[6];
 #ifdef EDM_ML_DEBUG
   std::cout << glog.ddname() << " rout " << rout << " Row " << nrow 
 	    << " Column " << ncol << std::endl; 
@@ -235,9 +236,19 @@ void DDHGCalModuleAlgo::positionSensitive(DDLogicalPart& glog, double rin,
       if (inr%2 == inc%2) {
 	double xpos = nc*dx;
 	double ypos = nr*dy;
-	double rpos = std::sqrt(xpos*xpos+ypos*ypos);
-	double r1   = (rpos>rr) ? rpos-rr : 0;
-	if (r1 >= rin && rpos+rr <= rout) {
+        xc[0] = xpos+dx; yc[0] = ypos-0.5*rr;
+        xc[1] = xpos+dx; yc[1] = ypos+0.5*rr;
+        xc[2] = xpos;    yc[2] = ypos+rr;
+        xc[3] = xpos-dx; yc[3] = ypos+0.5*rr;
+        xc[4] = xpos+dx; yc[4] = ypos-0.5*rr;
+        xc[5] = xpos;    yc[5] = ypos-rr;
+        bool cornerAll(true);
+        for (int k=0; k<6; ++k) {
+          double rpos = std::sqrt(xc[k]*xc[k]+yc[k]*yc[k]);
+          if (rpos < rin || rpos > rout) cornerAll = false;
+        }
+	if (cornerAll) {
+          double rpos = std::sqrt(xpos*xpos+ypos*ypos);
 	  DDTranslation tran(xpos, ypos, 0.0);
 	  DDRotation rotation;
 	  int copy = inr*100 + inc;
