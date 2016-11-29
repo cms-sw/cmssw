@@ -71,9 +71,12 @@ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc', '')
 process.raw2digi_step = cms.Path(process.RawToDigi)
 
 process.load('DQMOffline.L1Trigger.L1TStage2CaloLayer2Offline_cfi')
+process.load('DQMOffline.L1Trigger.L1TEGammaOffline_cfi')
 process.dqmoffline_step = cms.Path(
     process.l1tStage2CaloLayer2OfflineDQMEmu +
-    process.l1tStage2CaloLayer2OfflineDQM
+    process.l1tStage2CaloLayer2OfflineDQM + 
+    process.l1tEGammaOfflineDQM + 
+    process.l1tEGammaOfflineDQMEmu
 )
 process.DQMoutput_step = cms.EndPath(process.DQMoutput)
 # Schedule definition
