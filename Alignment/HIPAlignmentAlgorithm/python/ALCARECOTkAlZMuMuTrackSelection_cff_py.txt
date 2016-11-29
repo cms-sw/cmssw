@@ -7,9 +7,9 @@ import Alignment.CommonAlignmentProducer.AlignmentTrackSelector_cfi
 process.initialAlignmentTrackSelector = Alignment.CommonAlignmentProducer.AlignmentTrackSelector_cfi.AlignmentTrackSelector.clone(
     applyBasicCuts = True,
     #filter = True,
-    src = 'ALCARECOTkAlUpsilonMuMu',
+    src = 'ALCARECOTkAlZMuMu',
     trackQualities = ["highPurity"],
-    pMin = 0.
+    pMin = 4.
     )
 
 import RecoTracker.TrackProducer.TrackRefitters_cff
@@ -49,15 +49,14 @@ process.AlignmentTrackSelector.src = 'ctfProducerCustomised'
 process.AlignmentTrackSelector.filter = True
 process.AlignmentTrackSelector.applyBasicCuts = True
 process.AlignmentTrackSelector.pMin    = 0.0
-process.AlignmentTrackSelector.ptMin   = 4.0
+process.AlignmentTrackSelector.ptMin   = 10.0
 #process.AlignmentTrackSelector.dzMin   = -20.
 #process.AlignmentTrackSelector.dzMax   = 20.
 process.AlignmentTrackSelector.d0Min   = -50.
 process.AlignmentTrackSelector.d0Max   = 50.
 process.AlignmentTrackSelector.etaMin  = -2.4
 process.AlignmentTrackSelector.etaMax  = 2.4
-process.AlignmentTrackSelector.nHitMin = 4
-#process.AlignmentTrackSelector.nHitMin = 10
+process.AlignmentTrackSelector.nHitMin = 8
 process.AlignmentTrackSelector.nHitMin2D = 2
 process.AlignmentTrackSelector.chi2nMax = 999.
 process.AlignmentTrackSelector.applyMultiplicityFilter = True
@@ -95,8 +94,8 @@ process.AlignmentTrackSelector.TwoBodyDecaySelector.applyChargeFilter = True
 process.AlignmentTrackSelector.TwoBodyDecaySelector.charge = 0
 process.AlignmentTrackSelector.TwoBodyDecaySelector.applyMassrangeFilter = True
 process.AlignmentTrackSelector.TwoBodyDecaySelector.daughterMass = 0.105658
-process.AlignmentTrackSelector.TwoBodyDecaySelector.minXMass = 9.2
-process.AlignmentTrackSelector.TwoBodyDecaySelector.maxXMass = 9.65
+process.AlignmentTrackSelector.TwoBodyDecaySelector.minXMass = 80.0
+process.AlignmentTrackSelector.TwoBodyDecaySelector.maxXMass = 100.0
 
 #process.oneGoodVertexFilter = cms.EDFilter("VertexSelector",
 #                                           src = cms.InputTag("offlinePrimaryVertices"),
@@ -105,21 +104,24 @@ process.AlignmentTrackSelector.TwoBodyDecaySelector.maxXMass = 9.65
 #                                           )
 
 
+
 process.load("RecoTracker.TrackProducer.TwoBodyDecayMomConstraintProducer_cff")
 process.TwoBodyDecayMomConstraint.src = "AlignmentTrackSelector"
-process.TwoBodyDecayMomConstraint.primaryMass = cms.double(9.46)
-process.TwoBodyDecayMomConstraint.primaryWidth = cms.double(0.05)
+process.TwoBodyDecayMomConstraint.primaryMass = cms.double(91.1876)
+process.TwoBodyDecayMomConstraint.primaryWidth = cms.double(1.4)
+#process.TwoBodyDecayMomConstraint.primaryWidth = cms.double(2.4952)
 #process.TwoBodyDecayMomConstraint.sigmaPositionCut = cms.double(0.07)
 process.TwoBodyDecayMomConstraint.rescaleError = cms.double(1.0)
-#process.TwoBodyDecayMomConstraint.chi2Cut = cms.double(5.)
+process.TwoBodyDecayMomConstraint.chi2Cut = cms.double(5.)
 #process.TwoBodyDecayMomConstraint.EstimatorParameters.RobustificationConstant = cms.double(1.0)
 process.load("RecoTracker.TrackProducer.TwoBodyDecayConstraintProducer_cff")
 process.TwoBodyDecayConstraint.src = "AlignmentTrackSelector"
-process.TwoBodyDecayConstraint.primaryMass = cms.double(9.46)
-process.TwoBodyDecayConstraint.primaryWidth = cms.double(0.05)
+process.TwoBodyDecayConstraint.primaryMass = cms.double(91.1876)
+process.TwoBodyDecayConstraint.primaryWidth = cms.double(1.4)
+#process.TwoBodyDecayConstraint.primaryWidth = cms.double(2.4952)
 #process.TwoBodyDecayConstraint.sigmaPositionCut = cms.double(0.07)
 process.TwoBodyDecayConstraint.rescaleError = cms.double(1.0)
-#process.TwoBodyDecayConstraint.chi2Cut = cms.double(5.)
+process.TwoBodyDecayConstraint.chi2Cut = cms.double(5.)
 #process.TwoBodyDecayConstraint.EstimatorParameters.RobustificationConstant = cms.double(1.0)
 
 from TrackingTools.TrackFitters.KFFittingSmoother_cfi import KFFittingSmoother
