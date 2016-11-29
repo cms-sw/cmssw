@@ -51,7 +51,7 @@
 #include "GeneratorInterface/LHEInterface/interface/LHEEvent.h"
 #include "GeneratorInterface/LHEInterface/interface/LHEReader.h"
 
-
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 //
 // class declaration
@@ -325,7 +325,7 @@ void EmbeddingLHEProducer::transform_mumu_to_tautau(TLorentzVector &positiveLept
     double tau_3momentum_squared = tau_energy_squared - tau_mass_squared;
     if (tau_3momentum_squared < 0)
     {
-        std::cout << "3-Momentum squared is negative" << std::endl;
+        edm::LogWarning("TauEmbedding") << "3-Momentum squared is negative";
         return;
     }
     
@@ -370,12 +370,12 @@ const reco::Candidate* EmbeddingLHEProducer::find_original_muon(const reco::Cand
 void EmbeddingLHEProducer::rotate180(TLorentzVector &positiveLepton, TLorentzVector &negativeLepton)
 {
     if (!rotate180_) return;
-    std::cout << "Applying 180° rotation" << std::endl;
+    edm::LogInfo("TauEmbedding") << "Applying 180° rotation" ;
     // By construction, the 3-momenta of mu-, mu+ and Z are in one plane. 
     // That means, one vector for perpendicular projection can be used for both leptons.
     TLorentzVector Z = positiveLepton + negativeLepton;
 
-    std::cout << "MuMinus before. Pt: " << negativeLepton.Pt() << " Eta: " << negativeLepton.Eta() << " Phi: " << negativeLepton.Phi() << " Mass: " << negativeLepton.M() << std::endl;
+    edm::LogInfo("TauEmbedding") << "MuMinus before. Pt: " << negativeLepton.Pt() << " Eta: " << negativeLepton.Eta() << " Phi: " << negativeLepton.Phi() << " Mass: " << negativeLepton.M();
 
     TVector3 Z3 = Z.Vect();
     TVector3 positiveLepton3 = positiveLepton.Vect();
@@ -390,7 +390,7 @@ void EmbeddingLHEProducer::rotate180(TLorentzVector &positiveLepton, TLorentzVec
     positiveLepton.SetVect(positiveLepton3);
     negativeLepton.SetVect(negativeLepton3);
 
-    std::cout << "MuMinus after. Pt: " << negativeLepton.Pt() << " Eta: " << negativeLepton.Eta() << " Phi: " << negativeLepton.Phi() << " Mass: " << negativeLepton.M() << std::endl;
+    edm::LogInfo("TauEmbedding") << "MuMinus after. Pt: " << negativeLepton.Pt() << " Eta: " << negativeLepton.Eta() << " Phi: " << negativeLepton.Phi() << " Mass: " << negativeLepton.M();
 
     return;
 }
@@ -398,10 +398,10 @@ void EmbeddingLHEProducer::rotate180(TLorentzVector &positiveLepton, TLorentzVec
 void EmbeddingLHEProducer::mirror(TLorentzVector &positiveLepton, TLorentzVector &negativeLepton)
 {
     if(!mirror_) return;
-    std::cout << "Applying mirroring" << std::endl;
+    edm::LogInfo("TauEmbedding")<< "Applying mirroring" ;
     TLorentzVector Z = positiveLepton + negativeLepton;
 
-    std::cout << "MuMinus before. Pt: " << negativeLepton.Pt() << " Eta: " << negativeLepton.Eta() << " Phi: " << negativeLepton.Phi() << " Mass: " << negativeLepton.M() << std::endl;
+    edm::LogInfo("TauEmbedding") << "MuMinus before. Pt: " << negativeLepton.Pt() << " Eta: " << negativeLepton.Eta() << " Phi: " << negativeLepton.Phi() << " Mass: " << negativeLepton.M() ;
 
     TVector3 Z3 = Z.Vect();
     TVector3 positiveLepton3 = positiveLepton.Vect();
@@ -416,7 +416,7 @@ void EmbeddingLHEProducer::mirror(TLorentzVector &positiveLepton, TLorentzVector
     positiveLepton.SetVect(positiveLepton3);
     negativeLepton.SetVect(negativeLepton3);
 
-    std::cout << "MuMinus after. Pt: " << negativeLepton.Pt() << " Eta: " << negativeLepton.Eta() << " Phi: " << negativeLepton.Phi() << " Mass: " << negativeLepton.M() << std::endl;
+    edm::LogInfo("TauEmbedding") << "MuMinus after. Pt: " << negativeLepton.Pt() << " Eta: " << negativeLepton.Eta() << " Phi: " << negativeLepton.Phi() << " Mass: " << negativeLepton.M() ;
 
     return;
 }

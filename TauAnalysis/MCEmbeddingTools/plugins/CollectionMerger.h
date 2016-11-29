@@ -4,11 +4,13 @@
  * \author Stefan Wayand;
  *         Christian Veelken, LLR
  *
- * \version $Revision: 1.9 $
+ * 
  *
- * $Id: CollectionMerger.h,v 1.9 2013/03/23 09:12:51 veelken Exp $
+ * 
  *
  */
+#ifndef CollectionMerger_H
+#define CollectionMerger_H
 
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -45,7 +47,7 @@ class CollectionMerger : public  edm::stream::EDProducer<>
   ~CollectionMerger();
 
  private:
-  virtual void produce(edm::Event&, const edm::EventSetup&);
+  virtual void produce(edm::Event&, const edm::EventSetup&) override;
 
   typedef T1 MergeCollection;
   typedef T2 BaseHit;
@@ -99,3 +101,4 @@ void CollectionMerger<T1,T2>::produce(edm::Event& iEvent, const edm::EventSetup&
   
   }
 }
+#endif
