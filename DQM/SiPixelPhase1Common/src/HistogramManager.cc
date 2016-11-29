@@ -94,7 +94,6 @@ void HistogramManager::fill(double x, double y, DetId sourceModule,
       if (histo == t.end()) {
         if (!bookUndefined) continue;
         edm::LogError("HistogramManager") << "Missing Histogram!\n"
-          << "path " << makePath(significantvalues[i]) << "\n"
           << "name " << tables[i].begin()->second.th1->GetName() << "\n";
         assert(!"Histogram not booked! Probably inconsistent geometry description.");
       }
@@ -103,7 +102,6 @@ void HistogramManager::fill(double x, double y, DetId sourceModule,
     }
     if (s.steps[0].type == SummationStep::COUNT) {
       fastpath[i]->count++;
-      fastpath[i]->iq_sample = iq;
     } else {
       fillInternal(x, y, this->dimensions, iq, s.steps.begin()+1, s.steps.end(), *(fastpath[i]));
     }
@@ -205,9 +203,8 @@ void HistogramManager::executePerEventHarvesting(const edm::Event* sourceEvent) 
       if (histo == t.end()) {
         if (!bookUndefined) continue;
         edm::LogError("HistogramManager") << "Histogram Missing!\n"
-          << "path " << makePath(significantvalues[i]) << "\n"
           << "name " << t.begin()->second.th1->GetName() << "\n"
-          << "ctr " << makePath(e.first) << " detid " << iq.sourceModule << "\n";
+          << "ctr " << " detid " << iq.sourceModule << "\n";
         assert(!"Histogram not booked! (per-event) Probably inconsistent geometry description.");
       }
       fillInternal(e.second.count, 0, 1, iq, s.steps.begin()+2, s.steps.end(), histo->second);
@@ -216,32 +213,43 @@ void HistogramManager::executePerEventHarvesting(const edm::Event* sourceEvent) 
   }
 }
 
-std::string HistogramManager::makePath(
-    GeometryInterface::Values const& significantvalues) {
+std::string HistogramManager::formatValue(
+    GeometryInterface::Column col, GeometryInterface::Value val) {
   // non-number output names (_pO etc.) are hardwired here.
   // PERF: memoize the names in a map, probably ignoring row/col
   // TODO: more pretty names for DetIds using PixelBarrelName etc.
-  std::ostringstream dir("");
-  for (auto e : significantvalues.values) {
-    std::string name = geometryInterface.pretty(e.first);
-    std::string value = "_" + std::to_string(int(e.second));
-    if (e.second == 0) value = "";         // hide Barrel_0 etc.
-    if (name == "") continue;              // nameless dummy column is dropped
-    if (name == "PXDisk" && e.second > 0)  // +/- sign for disk num
-      value = "_+" + std::to_string(int(e.second));
-    // pretty (legacy?) names for Shells and HalfCylinders
-    std::map<int, std::string> shellname{
-        {11, "_mI"}, {12, "_mO"}, {21, "_pI"}, {22, "_pO"}};
-    if (name == "HalfCylinder" || name == "Shell") value = shellname[int(e.second)];
-    if (e.second == GeometryInterface::UNDEFINED) value = "_UNDEFINED";
-
-    dir << name << value << "/";
-  }
-  return top_folder_name + "/" + dir.str();
+  std::string name = geometryInterface.pretty(col);
+  std::string value = "_" + std::to_string(int(val));
+  if (val == 0) value = "";         // hide Barrel_0 etc.
+  if (name == "PXDisk" && val > 0)  // +/- sign for disk num
+    value = "_+" + std::to_string(int(val));
+  // pretty (legacy?) names for Shells and HalfCylinders
+  std::map<int, std::string> shellname{
+      {11, "_mI"}, {12, "_mO"}, {21, "_pI"}, {22, "_pO"}};
+  if (name == "HalfCylinder" || name == "Shell") value = shellname[int(val)];
+  if (val == GeometryInterface::UNDEFINED) value = "_UNDEFINED";
+  return name+value;
 }
 
-std::string HistogramManager::makeName(SummationSpecification const& s,
-    GeometryInterface::InterestingQuantities const& iq) {
+std::pair<std::string, std::string> 
+HistogramManager::makePathName(SummationSpecification const& s,
+    GeometryInterface::InterestingQuantities const& iq,
+    GeometryInterface::Values const& significantvalues) {
+  std::ostringstream dir("");
+  std::string suffix = "";
+
+  // we omit the last value here, to get all disks next to each other etc.
+  if (significantvalues.values.size() > 0) {
+    for (auto it = significantvalues.values.begin();
+              it != (significantvalues.values.end()-1); ++it) {
+      auto name = formatValue(it->first, it->second);
+      if (name == "") continue;
+      dir << name << "/";
+    }
+    auto e = significantvalues.values[significantvalues.values.size()-1];
+    suffix = "_" + formatValue(e.first, e.second);
+  }
+
   std::string name = this->name;
   for (SummationStep step : s.steps) {
     if (step.stage == SummationStep::FIRST || step.stage == SummationStep::STAGE1) {
@@ -263,7 +271,7 @@ std::string HistogramManager::makeName(SummationSpecification const& s,
       }
     }
   }
-  return name;
+  return std::make_pair(top_folder_name + "/" + dir.str(), name + suffix);
 }
 
 
@@ -287,8 +295,9 @@ void HistogramManager::book(DQMStore::IBooker& iBooker,
     int range_z_nbins = 0;
     GeometryInterface::Value binwidth_x = 0; // override nbins for geom-things
     GeometryInterface::Value binwidth_y = 0;
-    std::string name, title, xlabel, ylabel, zlabel;
+    std::string title, xlabel, ylabel, zlabel;
     bool do_profile = false;
+    GeometryInterface::InterestingQuantities iq_sample;
   };
   std::map<GeometryInterface::Values, MEInfo> toBeBooked;
 
@@ -331,8 +340,8 @@ void HistogramManager::book(DQMStore::IBooker& iBooker,
       if (histo == toBeBooked.end()) {
         // create new histo
         MEInfo& mei = toBeBooked[significantvalues]; 
-        mei.name = makeName(s, iq);
         mei.title = this->title;
+        mei.iq_sample = iq;
         if (bookCounters) 
           mei.title = "Number of " + mei.title + " per Event and " 
             + geometryInterface.pretty(geometryInterface.extract(*(s.steps[0].columns.end()-1), iq).first);
@@ -423,8 +432,10 @@ void HistogramManager::book(DQMStore::IBooker& iBooker,
     // Now do the actual booking.
     for (auto& e : toBeBooked) {
       AbstractHistogram& h = t[e.first];
-      iBooker.setCurrentFolder(makePath(e.first));
       MEInfo& mei = e.second;
+      auto name = makePathName(s, mei.iq_sample, e.first);
+      iBooker.setCurrentFolder(name.first);
+      h.iq_sample = mei.iq_sample;
 
       // determine nbins for geometry derived quantities
       // due to how we counted above, we need to include lower and upper bound
@@ -440,23 +451,23 @@ void HistogramManager::book(DQMStore::IBooker& iBooker,
       }
 
       if (mei.dimensions == 1) {
-        h.me = iBooker.book1D(mei.name, (mei.title + ";" + mei.xlabel).c_str(),
+        h.me = iBooker.book1D(name.second, (mei.title + ";" + mei.xlabel).c_str(),
                        mei.range_x_nbins, mei.range_x_min, mei.range_x_max);
       } else if (mei.dimensions == 2 && !mei.do_profile) {
-        h.me = iBooker.book2D(mei.name, (mei.title + ";" + mei.xlabel + ";" + mei.ylabel).c_str(),
+        h.me = iBooker.book2D(name.second, (mei.title + ";" + mei.xlabel + ";" + mei.ylabel).c_str(),
                        mei.range_x_nbins, mei.range_x_min, mei.range_x_max,
                        mei.range_y_nbins, mei.range_y_min, mei.range_y_max);
       } else if (mei.dimensions == 2 && mei.do_profile) {
-        h.me = iBooker.bookProfile(mei.name, (mei.title + ";" + mei.xlabel + ";" + mei.ylabel).c_str(),
+        h.me = iBooker.bookProfile(name.second, (mei.title + ";" + mei.xlabel + ";" + mei.ylabel).c_str(),
                        mei.range_x_nbins, mei.range_x_min, mei.range_x_max, 0.0, 0.0);
       } else if (mei.dimensions == 3 && mei.do_profile) {
-        h.me = iBooker.bookProfile2D(mei.name, (mei.title + ";" + mei.xlabel + ";" + mei.ylabel).c_str(),
+        h.me = iBooker.bookProfile2D(name.second, (mei.title + ";" + mei.xlabel + ";" + mei.ylabel).c_str(),
                        mei.range_x_nbins, mei.range_x_min, mei.range_x_max,
                        mei.range_y_nbins, mei.range_y_min, mei.range_y_max,
                        0.0, 0.0); // Z range is ignored if min==max
       } else {
         edm::LogError("HistogramManager") << "Illegal Histogram!\n" 
-          << "name " << mei.name << "\n"
+          << "name " << name.second << "\n"
           << "dim " << mei.dimensions << " profile " << mei.do_profile << "\n";
         assert(!"Illegal Histogram kind.");
       }
@@ -498,8 +509,8 @@ void HistogramManager::loadFromDQMStore(SummationSpecification& s, Table& t,
 
     auto histo = t.find(significantvalues);
     if (histo == t.end()) {
-      std::string name = makeName(s, iq);
-      std::string path = makePath(significantvalues) + name;
+      auto name = makePathName(s, iq, significantvalues);
+      std::string path = name.first + name.second;
       MonitorElement* me = iGetter.get(path);
       if (!me) {
         if (bookUndefined)
@@ -515,7 +526,8 @@ void HistogramManager::loadFromDQMStore(SummationSpecification& s, Table& t,
   }
 }
 
-void HistogramManager::executeGroupBy(SummationStep& step, Table& t, DQMStore::IBooker& iBooker) {
+void HistogramManager::executeGroupBy(SummationStep& step, Table& t,
+    DQMStore::IBooker& iBooker, SummationSpecification const& s) {
   // Simple regrouping, sum histos if they end up in the same place.
   Table out;
   GeometryInterface::Values significantvalues;
@@ -525,11 +537,12 @@ void HistogramManager::executeGroupBy(SummationStep& step, Table& t, DQMStore::I
                                      significantvalues);
     AbstractHistogram& new_histo = out[significantvalues];
     if (!new_histo.me) {
-      iBooker.setCurrentFolder(makePath(significantvalues));
-      if      (dynamic_cast<TH1F*>(th1)) new_histo.me = iBooker.book1D(th1->GetName(), (TH1F*) th1);
-      else if (dynamic_cast<TH2F*>(th1)) new_histo.me = iBooker.book2D(th1->GetName(), (TH2F*) th1);
-      else if (dynamic_cast<TProfile*>(th1)) new_histo.me = iBooker.bookProfile(th1->GetName(), (TProfile*) th1);
-      else if (dynamic_cast<TProfile2D*>(th1)) new_histo.me = iBooker.bookProfile2D(th1->GetName(), (TProfile2D*) th1);
+      auto name = makePathName(s, e.second.iq_sample, significantvalues);
+      iBooker.setCurrentFolder(name.first);
+      if      (dynamic_cast<TH1F*>(th1)) new_histo.me = iBooker.book1D(name.second, (TH1F*) th1);
+      else if (dynamic_cast<TH2F*>(th1)) new_histo.me = iBooker.book2D(name.second, (TH2F*) th1);
+      else if (dynamic_cast<TProfile*>(th1)) new_histo.me = iBooker.bookProfile(name.second, (TProfile*) th1);
+      else if (dynamic_cast<TProfile2D*>(th1)) new_histo.me = iBooker.bookProfile2D(name.second, (TProfile2D*) th1);
       else assert(!"No idea how to book this.");
       new_histo.th1 = new_histo.me->getTH1();
       new_histo.iq_sample = e.second.iq_sample;
@@ -540,7 +553,8 @@ void HistogramManager::executeGroupBy(SummationStep& step, Table& t, DQMStore::I
   t.swap(out);
 }
 
-void HistogramManager::executeExtend(SummationStep& step, Table& t, std::string const& reduce_type, DQMStore::IBooker& iBooker) {
+void HistogramManager::executeExtend(SummationStep& step, Table& t, 
+    std::string const& reduce_type, DQMStore::IBooker& iBooker, SummationSpecification const& s) {
   // For the moment only X.
   // first pass determines the range.
   std::map<GeometryInterface::Values, int> nbins;
@@ -584,18 +598,18 @@ void HistogramManager::executeExtend(SummationStep& step, Table& t, std::string 
 
       auto separator = separators[significantvalues];
 
-      auto eps = std::string(""); // for conciseness below
       auto red = reduce_type;
       boost::algorithm::to_lower(red);
-      auto name = std::string(red != "" ? red + "_" : eps) + th1->GetName();
-      auto title = eps + th1->GetTitle() + " per " + colname + ";" +
+      auto name = makePathName(s, new_histo.iq_sample, significantvalues);
+      if (red != "") name.second = red + "_" + name.second;
+      auto title = std::string("") + th1->GetTitle() + " per " + colname + ";" +
                  colname + separator + 
                  (red != "" ? th1->GetYaxis()->GetTitle() : th1->GetXaxis()->GetTitle()) + ";" +
                  (red != "" ? red + " of " + th1->GetXaxis()->GetTitle() : th1->GetYaxis()->GetTitle());
-      iBooker.setCurrentFolder(makePath(significantvalues));
+      iBooker.setCurrentFolder(name.first);
 
       if (th1->GetDimension() == 1) {
-        new_histo.me = iBooker.book1D(name, title, 
+        new_histo.me = iBooker.book1D(name.second, title, 
               nbins[significantvalues], 0.5, nbins[significantvalues] + 0.5);
       } else {
         assert(!"2D extend not implemented in harvesting.");
@@ -653,14 +667,14 @@ void HistogramManager::executeHarvesting(DQMStore::IBooker& iBooker,
             // no explicit implementation atm.
             break;
           case SummationStep::GROUPBY:
-            executeGroupBy(step, t, iBooker);
+            executeGroupBy(step, t, iBooker, s);
             break;
           case SummationStep::REDUCE:
             // reduction is done in the following EXTEND
             reduce_type = step.arg;
             break;
           case SummationStep::EXTEND_X:
-            executeExtend(step, t, reduce_type, iBooker);
+            executeExtend(step, t, reduce_type, iBooker, s);
             reduce_type = "";
             break;
           case SummationStep::EXTEND_Y:
