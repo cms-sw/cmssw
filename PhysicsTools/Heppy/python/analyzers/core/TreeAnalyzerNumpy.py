@@ -11,7 +11,7 @@ class TreeAnalyzerNumpy( Analyzer ):
 
     def __init__(self, cfg_ana, cfg_comp, looperName):
         super(TreeAnalyzerNumpy,self).__init__(cfg_ana, cfg_comp, looperName)
-        self.outservicename = getattr(cfg_ana,"outservicename","outputfile")
+        self.outservicename = getattr(cfg_ana,"outservicename","PhysicsTools.HeppyCore.framework.services.tfile.TFileService_outputfile")
         self.treename = getattr(cfg_ana,"treename","tree")
 
 
