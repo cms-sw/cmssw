@@ -335,13 +335,15 @@ def getPAHighMultHighPtVPSet():
 def getPAHighPtVPSet():
     ret=cms.VPSet()
     jetTypes = ["Calo", "PF"]
-    jetThresholds = [40, 60, 80, 100]
+    jetThresholds = [40, 60, 80, 100, 120]
     jetThresholdsFor1 = [40, 60]
     jetThresholdsFor2 = [40]
     jetThresholdsForMB = [40]
     bjetThresholds = [40, 60, 80]
     dijetAveThresholds = [40, 60, 80]
     gammaThresholds = [10, 15, 20, 30, 40]
+    gammaMBThresholds = [15, 20]
+    gammaThresholdsEGJet = [30, 40]
     isogammaThresholds = [20]
     eleThresholds = [20]
 
@@ -351,6 +353,8 @@ def getPAHighPtVPSet():
 
     for jType in jetTypes:
         for t in jetThresholds:
+            if jType == "Calo" and t == 120:
+                continue
             partialPathName = "HLT_PAAK4" + jType + "Jet" + str(t) + "_Eta5p1_v"
             hltSingleJet =  cms.PSet(
                 triggerSelection = cms.string(partialPathName+"*"),
@@ -506,6 +510,50 @@ def getPAHighPtVPSet():
 
     for t in gammaThresholds:
         partialPathName = "HLT_PASinglePhoton" + str(t) + "_Eta3p1_v"
+        hltSingleGamma =  cms.PSet(
+            triggerSelection = cms.string(partialPathName+"*"),
+            handlerType = cms.string("FromHLT"),
+            partialPathName = cms.string(partialPathName),
+            partialFilterName  = cms.string("hltHIPhoton"),
+            dqmhistolabel  = cms.string("hltHIPhoton" + str(t)),
+            mainDQMDirname = cms.untracked.string(dirname),
+            singleObjectsPreselection = cms.string("1==1"),
+            singleObjectDrawables =  cms.VPSet(
+                cms.PSet (name = cms.string("pt"), expression = cms.string("pt"), bins = cms.int32(100), min = cms.double(20), max = cms.double(220)),
+                cms.PSet (name = cms.string("eta"), expression = cms.string("eta"), bins = cms.int32(100), min = cms.double(-3.0), max = cms.double(3.0)),
+                cms.PSet (name = cms.string("phi"), expression = cms.string("phi"), bins = cms.int32(100), min = cms.double(-3.15), max = cms.double(3.15))
+                ),
+            combinedObjectSelection =  cms.string("1==1"),
+            combinedObjectSortCriteria = cms.string("at(0).pt"),
+            combinedObjectDimension = cms.int32(1),
+            combinedObjectDrawables =  cms.VPSet()
+            )
+        ret.append(hltSingleGamma)
+
+    for t in gammaMBThresholds:
+        partialPathName = "HLT_PASinglePhoton" + str(t) + "_Eta3p1_SeededWithMB_v"
+        hltSingleGamma =  cms.PSet(
+            triggerSelection = cms.string(partialPathName+"*"),
+            handlerType = cms.string("FromHLT"),
+            partialPathName = cms.string(partialPathName),
+            partialFilterName  = cms.string("hltHIPhoton"),
+            dqmhistolabel  = cms.string("hltHIPhoton" + str(t)),
+            mainDQMDirname = cms.untracked.string(dirname),
+            singleObjectsPreselection = cms.string("1==1"),
+            singleObjectDrawables =  cms.VPSet(
+                cms.PSet (name = cms.string("pt"), expression = cms.string("pt"), bins = cms.int32(100), min = cms.double(20), max = cms.double(220)),
+                cms.PSet (name = cms.string("eta"), expression = cms.string("eta"), bins = cms.int32(100), min = cms.double(-3.0), max = cms.double(3.0)),
+                cms.PSet (name = cms.string("phi"), expression = cms.string("phi"), bins = cms.int32(100), min = cms.double(-3.15), max = cms.double(3.15))
+                ),
+            combinedObjectSelection =  cms.string("1==1"),
+            combinedObjectSortCriteria = cms.string("at(0).pt"),
+            combinedObjectDimension = cms.int32(1),
+            combinedObjectDrawables =  cms.VPSet()
+            )
+        ret.append(hltSingleGamma)
+
+    for t in gammaThresholdsEGJet:
+        partialPathName = "HLT_PASinglePhoton" + str(t) + "_L1EGJet_Eta3p1_v"
         hltSingleGamma =  cms.PSet(
             triggerSelection = cms.string(partialPathName+"*"),
             handlerType = cms.string("FromHLT"),
