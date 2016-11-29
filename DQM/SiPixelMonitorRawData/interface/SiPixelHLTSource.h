@@ -51,9 +51,9 @@
        explicit SiPixelHLTSource(const edm::ParameterSet& conf);
        ~SiPixelHLTSource();
 
-       virtual void analyze(const edm::Event&, const edm::EventSetup&);
+       virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
        virtual void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
-       virtual void dqmBeginRun(const edm::Run&, edm::EventSetup const&) ;
+       virtual void dqmBeginRun(const edm::Run&, edm::EventSetup const&) override;
        virtual void bookMEs(DQMStore::IBooker &);
 
 
