@@ -46,6 +46,8 @@
 #include "FWCore/ServiceRegistry/interface/StreamContext.h"
 #include "FWCore/ServiceRegistry/interface/SystemBounds.h"
 
+#include "FWCore/Concurrency/interface/WaitingTaskHolder.h"
+
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/Utilities/interface/DebugMacros.h"
 #include "FWCore/Utilities/interface/EDMException.h"
@@ -62,6 +64,7 @@
 #include "MessageForParent.h"
 
 #include "boost/thread/xtime.hpp"
+#include "boost/range/adaptor/reversed.hpp"
 
 #include <exception>
 #include <iomanip>
@@ -1943,7 +1946,17 @@ namespace edm {
 
           break;
         }
-        processEvent(iStreamIndex);
+        
+        {
+          auto empty_task = make_empty_waiting_task();
+          empty_task->set_ref_count(2);
+          processEventAsync(WaitingTaskHolder(empty_task.get()), iStreamIndex);
+          empty_task->decrement_ref_count();
+          empty_task->wait_for_all();
+          if(empty_task->exceptionPtr()) {
+            std::rethrow_exception(*(empty_task->exceptionPtr()));
+          }
+        }
       }while(true);
     } catch (...) {
       bool expected =false;
@@ -1999,6 +2012,7 @@ namespace edm {
 
     FDEBUG(1) << "\treadEvent\n";
   }
+
   void EventProcessor::processEvent(unsigned int iStreamIndex) {
     auto pep = &(principalCache_.eventPrincipal(iStreamIndex));
     pep->setLuminosityBlockPrincipal(principalCache_.lumiPrincipalPtr());
@@ -2027,6 +2041,71 @@ namespace edm {
 
     FDEBUG(1) << "\tprocessEvent\n";
     pep->clearEventPrincipal();
+  }
+
+  void EventProcessor::processEventAsync(WaitingTaskHolder iHolder,
+                                         unsigned int iStreamIndex) {
+    auto pep = &(principalCache_.eventPrincipal(iStreamIndex));
+    pep->setLuminosityBlockPrincipal(principalCache_.lumiPrincipalPtr());
+    Service<RandomNumberGenerator> rng;
+    if(rng.isAvailable()) {
+      Event ev(*pep, ModuleDescription(), nullptr);
+      rng->postEventRead(ev);
+    }
+    assert(pep->luminosityBlockPrincipalPtrValid());
+    assert(principalCache_.lumiPrincipalPtr()->run() == pep->run());
+    assert(principalCache_.lumiPrincipalPtr()->luminosityBlock() == pep->luminosityBlock());
+    
+    WaitingTaskHolder finalizeEventTask( make_waiting_task(
+                    tbb::task::allocate_root(),
+                    [this,pep,iHolder](std::exception_ptr const* iPtr) mutable
+             {
+               ServiceRegistry::Operate operate(serviceToken_);
+
+               //NOTE: If we have a looper we only have one Stream
+               if(looper_) {
+                 processEventWithLooper(*pep);
+               }
+               
+               FDEBUG(1) << "\tprocessEvent\n";
+               pep->clearEventPrincipal();
+               if(iPtr) {
+                 iHolder.doneWaiting(*iPtr);
+               } else {
+                 iHolder.doneWaiting(std::exception_ptr());
+               }
+             }
+                                                           )
+                                        );
+    WaitingTaskHolder afterProcessTask;
+    if(subProcesses_.empty()) {
+      afterProcessTask = std::move(finalizeEventTask);
+    } else {
+      //Need to run SubProcesses after schedule has finished
+      // with the event
+      afterProcessTask = WaitingTaskHolder(
+                   make_waiting_task(tbb::task::allocate_root(),
+                                     [this,pep,finalizeEventTask] (std::exception_ptr const* iPtr) mutable
+      {
+         if(not iPtr) {
+           ServiceRegistry::Operate operate(serviceToken_);
+
+           //when run with 1 thread, we want to the order to be what
+           // it was before. This requires reversing the order since
+           // tasks are run last one in first one out
+           for(auto& subProcess: boost::adaptors::reverse(subProcesses_)) {
+             subProcess.doEventAsync(finalizeEventTask,*pep);
+           }
+         } else {
+           finalizeEventTask.doneWaiting(*iPtr);
+         }
+       })
+                                           );
+    }
+    
+    schedule_->processOneEventAsync(std::move(afterProcessTask),
+                                    iStreamIndex,*pep, esp_->eventSetup());
+
   }
 
   void EventProcessor::processEventWithLooper(EventPrincipal& iPrincipal) {

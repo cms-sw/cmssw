@@ -108,6 +108,8 @@ namespace edm {
   class ModuleRegistry;
   class ThinnedAssociationsHelper;
   class TriggerResultInserter;
+  class WaitingTaskHolder;
+
   
   class Schedule {
   public:
@@ -132,6 +134,11 @@ namespace edm {
     void processOneEvent(unsigned int iStreamID,
                          EventPrincipal& principal,
                          EventSetup const& eventSetup);
+    
+    void processOneEventAsync(WaitingTaskHolder iTask,
+                              unsigned int iStreamID,
+                              EventPrincipal& principal,
+                              EventSetup const& eventSetup);
 
     template <typename T>
     void processOneGlobal(typename T::MyPrincipal& principal,

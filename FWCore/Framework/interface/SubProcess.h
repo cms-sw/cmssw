@@ -34,6 +34,7 @@ namespace edm {
   class ProductRegistry;
   class PreallocationConfiguration;
   class ThinnedAssociationsHelper;
+  class WaitingTaskHolder;
 
   namespace eventsetup {
     class EventSetupsController;
@@ -70,6 +71,8 @@ namespace edm {
     void doEndJob();
 
     void doEvent(EventPrincipal const& principal);
+    void doEventAsync(WaitingTaskHolder iHolder,
+                      EventPrincipal const& principal);
 
     void doBeginRun(RunPrincipal const& principal, IOVSyncValue const& ts);
 
@@ -234,6 +237,7 @@ namespace edm {
     void beginJob();
     void endJob();
     void process(EventPrincipal const& e);
+    void processAsync(WaitingTaskHolder iHolder, EventPrincipal const& e);
     void beginRun(RunPrincipal const& r, IOVSyncValue const& ts);
     void endRun(RunPrincipal const& r, IOVSyncValue const& ts, bool cleaningUpAfterException);
     void beginLuminosityBlock(LuminosityBlockPrincipal const& lb, IOVSyncValue const& ts);
