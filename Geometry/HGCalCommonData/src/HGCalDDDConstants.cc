@@ -16,15 +16,16 @@ HGCalDDDConstants::HGCalDDDConstants(const HGCalParameters* hp,
 				     const std::string name) : hgpar_(hp) {
   mode_ = HGCalGeometryMode( hgpar_->mode_ );
   if (mode_ == HGCalGeometryMode::Square) {
-    rmax_ = 0;
-    
-    for( int simreco = 0; simreco < 2; ++simreco ) {
+    rmax_    = 0;
+    modHalf_ = sectors()*layers(true);
+    for (int simreco = 0; simreco < 2; ++simreco ) {
       tot_layers_[simreco] = layersInit((bool)simreco);
     }
 
     edm::LogInfo("HGCalGeom") << "HGCalDDDConstants initialized for " << name
-			      << " with " << layers(false) << ":" <<layers(true)
-			      << " layers, " << sectors() << " sectors and "
+			      << " with " << layers(false) << ":" 
+			      << layers(true) << " layers, " << sectors() 
+			      << " sectors " << 2*modHalf_ << " modules and "
 			      << "maximum of " << maxCells(false) << ":" 
 			      << maxCells(true) << " cells";
 #ifdef EDM_ML_DEBUG
@@ -41,19 +42,27 @@ HGCalDDDConstants::HGCalDDDConstants(const HGCalParameters* hp,
 	      << 0.5*k_ScaleFromDDD*hgpar_->cellSize_[0] << ":" 
 	      << 0.5*k_ScaleFromDDD*hgpar_->cellSize_[1] << std::endl;
 #endif
-    // init maps and constants    
-    for( int simreco = 0; simreco < 2; ++simreco ) {
+    // init maps and constants
+    modHalf_ = 0;
+    for (int simreco = 0; simreco < 2; ++simreco) {
       tot_layers_[simreco] = layersInit((bool)simreco);
       max_modules_layer_[simreco].resize(tot_layers_[simreco]+1);
-      for( unsigned int layer = 1; layer <= tot_layers_[simreco]; ++layer ) {
-        max_modules_layer_[simreco][layer] = modulesInit(layer,(bool)simreco);        
+      for (unsigned int layer=1; layer <= tot_layers_[simreco]; ++layer) {
+	max_modules_layer_[simreco][layer] = modulesInit(layer,(bool)simreco);
+	if (simreco == 1) {
+	  modHalf_ += max_modules_layer_[simreco][layer];
+#ifdef EDM_ML_DEBUG
+	  std::cout << "Layer " << layer << " with " << max_modules_layer_[simreco][layer] << ":" << modHalf_ << " modules\n";
+#endif
+	}
       }
     }
     tot_wafers_ = wafers();
     
     edm::LogInfo("HGCalGeom") << "HGCalDDDConstants initialized for " << name
-			      << " with " << layers(false) << ":" <<layers(true)
-			      << " layers, " << wafers() << " wafers and "
+			      << " with " << layers(false) << ":" 
+			      << layers(true) << " layers, " << wafers() 
+			      << " wafers, " << 2*modHalf_ << " wafers and "
 			      << "maximum of " << maxCells(false) << ":" 
 			      << maxCells(true) << " cells";
     
@@ -740,12 +749,28 @@ void HGCalDDDConstants::getParameterSquare(int lay, int subSec, bool reco,
 
 bool HGCalDDDConstants::waferInLayer(int wafer, int lay) const {
 
-  const double rr   = 2*rmax_*tan30deg_;
+  const double rr     = 2*rmax_*tan30deg_;
   const double waferX = hgpar_->waferPosX_[wafer];
   const double waferY = hgpar_->waferPosY_[wafer];
-  const double rpos = std::sqrt(waferX*waferX+waferY*waferY);
-  const bool   in   = (rpos-rr >= hgpar_->rMinLayHex_[lay] && 
-                       rpos+rr <= hgpar_->rMaxLayHex_[lay]);
+  double       xc[6], yc[6];
+  xc[0] = waferX+rmax_; yc[0] = waferY-0.5*rr;
+  xc[1] = waferX+rmax_; yc[1] = waferY+0.5*rr;
+  xc[2] = waferX;       yc[2] = waferY+rr;
+  xc[3] = waferX-rmax_; yc[3] = waferY+0.5*rr;
+  xc[4] = waferX+rmax_; yc[4] = waferY-0.5*rr;
+  xc[5] = waferX;       yc[5] = waferY-rr;
+  bool cornerOne(false), cornerAll(true);
+  for (int k=0; k<6; ++k) {
+    double rpos = std::sqrt(xc[k]*xc[k]+yc[k]*yc[k]);
+    if ((rpos >= hgpar_->rMinLayHex_[lay]) && 
+	(rpos <= hgpar_->rMaxLayHex_[lay])) cornerOne = true;
+    else                                    cornerAll = false;
+  }
+  bool   in(false);
+  if (hgpar_->mode_ == static_cast<int> (HGCalGeometryMode::Hexagon)) 
+    in = cornerAll;
+  else if (hgpar_->mode_ == static_cast<int> (HGCalGeometryMode::HexagonFull))
+    in = cornerOne;
   return in;
 }
 
