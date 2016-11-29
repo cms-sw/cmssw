@@ -33,11 +33,11 @@ process.MessageLogger.cerr.FwkReport.reportEvery = 10000
 # configure the database file - use survey one for default
 from CondCore.CondDB.CondDB_cfi import *
 
-process.GlobalTag.toGet = cms.VPSet(
-    cms.PSet(record = cms.string('TrackerAlignmentRcd'),
-             tag = cms.string('Alignments'),
-             connect = cms.string('sqlite_file:/afs/cern.ch/work/u/usarica/scratch-dimuon3/CMSSW_8_0_20/src/Alignment/HIPAlignmentAlgorithm/hp28112016_nodimuon_v4/alignments_iter1.db')
-             ),
+#process.GlobalTag.toGet = cms.VPSet(
+#    cms.PSet(record = cms.string('TrackerAlignmentRcd'),
+#             tag = cms.string('Alignments'),
+#             connect = cms.string('sqlite_file:/afs/cern.ch/work/u/usarica/scratch-dimuon3/CMSSW_8_0_20/src/Alignment/HIPAlignmentAlgorithm/hp28112016_nodimuon_v4/alignments_iter1.db')
+#             ),
 #
 #    cms.PSet(record = cms.string('TrackerSurfaceDeformationRcd'),
 #             tag = cms.string('TrackerSurfaceDeformations_2015-EOY_v1_RunD'),
@@ -53,7 +53,7 @@ process.GlobalTag.toGet = cms.VPSet(
 #             tag = cms.string('TrackerIdealGeometryErrorsExtended210_mc'),
 #             connect = cms.string('frontier://FrontierProd/CMS_CONDITIONS')
 #             ),
-    )
+#    )
 
 process.AlignmentProducer.applyDbAlignment = True
 
