@@ -4,6 +4,30 @@ import FWCore.ParameterSet.Config as cms
 # Define simple containers for MVA cut values and related
 # =======================================================
 
+class EleMVA_3Categories_WP:
+    """
+    This is a container class to hold MVA cut values for a 3-category MVA
+    as well as the names of the value maps that contain the MVA values computed
+    for all particles in a producer upstream.
+    """
+    def __init__(self,
+                 idName,
+                 mvaValueMapName,
+                 mvaCategoriesMapName,
+                 cutCategory0,
+                 cutCategory1,
+                 cutCategory2
+                 ):
+        self.idName       = idName
+        self.mvaValueMapName      = mvaValueMapName
+        self.mvaCategoriesMapName = mvaCategoriesMapName
+        self.cutCategory0 = cutCategory0
+        self.cutCategory1 = cutCategory1
+        self.cutCategory2 = cutCategory2
+
+    def getCutValues(self):
+        return [self.cutCategory0, self.cutCategory1, self.cutCategory2]
+
 class EleMVA_6Categories_WP:
     """
     This is a container class to hold MVA cut values for a 6-category MVA
