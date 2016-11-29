@@ -101,7 +101,7 @@ StandardSpecifications1D = [
                             .saveAll(),
     Specification(PerLayer1D).groupBy("PXBarrel|PXForward/Shell|HalfCylinder/PXLayer|PXDisk/PXRing|") # per-layer
                              .save(),
-    Specification(PerModule).groupBy("PXBarrel|PXForward/PXLayer|PXDisk/DetId").save()
+    Specification(PerModule).groupBy("PXBarrel|PXForward/PXLayer|PXDisk/PXLadder|PXBlade/DetId").save()
 ]
 
 StandardSpecificationTrend = ( # the () are only for syntax reasons
@@ -129,9 +129,9 @@ StandardSpecifications1D_Num = [
                             .reduce("MEAN")
                             .groupBy("PXBarrel|PXForward/Shell|HalfCylinder/PXLayer|PXDisk/PXRing|", "EXTEND_X")
                             .saveAll(),
-    Specification(PerModule).groupBy("PXBarrel|PXForward/PXLayer|PXDisk/DetId/Event")
+    Specification(PerModule).groupBy("PXBarrel|PXForward/PXLayer|PXDisk/PXLadder|PXBlade/DetId/Event")
                             .reduce("COUNT")
-                            .groupBy("PXBarrel|PXForward/PXLayer|PXDisk/DetId")
+                            .groupBy("PXBarrel|PXForward/PXLayer|PXDisk/PXLadder|PXBlade/DetId")
                             .save()
 ]
 

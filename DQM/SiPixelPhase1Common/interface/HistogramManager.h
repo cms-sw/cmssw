@@ -68,9 +68,10 @@ private:
   std::vector<Table> tables;
   std::vector<Table> counters;
 
-  std::string makePath(GeometryInterface::Values const&);
-  std::string makeName(SummationSpecification const& s,
-      GeometryInterface::InterestingQuantities const& iq);
+  std::string formatValue(GeometryInterface::Column, GeometryInterface::Value);
+  std::pair<std::string, std::string> makePathName(SummationSpecification const& s,
+      GeometryInterface::InterestingQuantities const& iq,
+      GeometryInterface::Values const&);
 
   void fillInternal(double x, double y, int n_parameters,
     GeometryInterface::InterestingQuantities const& iq,
@@ -79,8 +80,10 @@ private:
     AbstractHistogram& dest);
  
   void loadFromDQMStore(SummationSpecification& s, Table& t, DQMStore::IGetter& iGetter);
-  void executeGroupBy(SummationStep& step, Table& t, DQMStore::IBooker& iBooker);
-  void executeExtend(SummationStep& step, Table& t, std::string const& reduction, DQMStore::IBooker& iBooker);
+  void executeGroupBy(SummationStep& step, Table& t, DQMStore::IBooker& iBooker,
+      SummationSpecification const& s);
+  void executeExtend(SummationStep& step, Table& t, std::string const& reduction,
+      DQMStore::IBooker& iBooker, SummationSpecification const& s);
 
 public: // these are available in config as is, and may be used in harvesting.
   bool enabled;
