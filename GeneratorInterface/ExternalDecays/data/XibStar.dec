@@ -1,0 +1,38 @@
+# This is the decay file for the Xib*-> Xib- pi+
+#(created by candan dozen and Gul Gokbulut)
+#
+#
+Alias   MyXibstar  Xi_b*0
+
+Alias   MyAntiXibstar  anti-Xi_b*0
+
+ChargeConj Xi_b*0     anti-Xi_b*0
+ChargeConj Xi_b-      anti-Xi_b+
+ChargeConj Xi-        anti-Xi+
+ChargeConj J/psi      J/psi
+ChargeConj Lambda0    anti-Lambda0
+
+Decay Xi_b*0
+    1.000       Xi_b-      pi+        PHSP;
+Enddecay
+CDecay anti-Xi_b*0
+#
+Decay Xi_b-
+    1.000       Xi-       J/psi    PHSP;
+Enddecay
+CDecay  anti-Xi+
+#
+Decay Xi-
+    1.000       Lambda0       pi-     PHSP;
+Enddecay
+CDecay anti-Xi+
+#
+Decay J/psi
+    1.000       mu+     mu-             PHOTOS VLL;
+Enddecay
+#
+Decay Lambda0
+    1.000       p+      pi-             PHSP;
+Enddecay
+CDecay anti-Lambda0
+End
