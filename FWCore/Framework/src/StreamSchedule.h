@@ -170,6 +170,9 @@ namespace edm {
 
     void processOneEvent( EventPrincipal& principal,
                          EventSetup const& eventSetup);
+    void processOneEventAsync(WaitingTaskHolder iTask,
+                              EventPrincipal& ep,
+                              EventSetup const& es);
 
     template <typename T>
     void processOneStream(typename T::MyPrincipal& principal,
@@ -289,9 +292,6 @@ namespace edm {
 
     void resetAll();
 
-    void processOneEventAsync(WaitingTaskHolder iTask,
-                              EventPrincipal& ep,
-                              EventSetup const& es);
     void finishedPaths(std::exception_ptr, WaitingTaskHolder,
                        EventPrincipal& ep, EventSetup const& es);
     std::exception_ptr finishProcessOneEvent(std::exception_ptr);
