@@ -27,6 +27,10 @@ class AlignableTrackerBuilder {
     /// the given TrackerGeometry.
     void buildAlignables(AlignableTracker*);
 
+    /// Return tracker name space derived from the tracker's topology
+    const align::TrackerNameSpace& trackerNameSpace() const {
+      return trackerAlignmentLevelBuilder_.trackerNameSpace(); }
+
   //========================= PRIVATE METHODS =================================
   private: //==================================================================
 
@@ -61,7 +65,7 @@ class AlignableTrackerBuilder {
 
     AlignableMap* alignableMap;
 
-    TrackerAlignmentLevelBuilder trackerAlignmentLevelBuilder;
+    TrackerAlignmentLevelBuilder trackerAlignmentLevelBuilder_;
 
     int numDetUnits = 0;
 

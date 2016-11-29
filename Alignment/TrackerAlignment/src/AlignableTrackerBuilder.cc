@@ -28,7 +28,7 @@ AlignableTrackerBuilder
   trackerGeometry(trackerGeometry),
   trackerTopology(trackerTopology),
   alignableMap(0),
-  trackerAlignmentLevelBuilder(trackerTopology)
+  trackerAlignmentLevelBuilder_(trackerTopology)
 {
   std::ostringstream ss;
 
@@ -155,7 +155,7 @@ void AlignableTrackerBuilder
         << "[AlignableTrackerBuilder] GeomDet of unknown subdetector";
     }
 
-    trackerAlignmentLevelBuilder.addDetUnitInfo(geomDet->geographicalId());
+    trackerAlignmentLevelBuilder_.addDetUnitInfo(geomDet->geographicalId());
   }
 
   // JFI: For PXB and PXE we exclusively build AlignableDetUnit, hence
@@ -237,7 +237,7 @@ void AlignableTrackerBuilder
 
   TrackerAlignableIndexer trackerIndexer;
   AlignableCompositeBuilder compositeBuilder(trackerTopology, trackerIndexer);
-  auto trackerLevels = trackerAlignmentLevelBuilder.build();
+  auto trackerLevels = trackerAlignmentLevelBuilder_.build();
 
   for (auto& trackerSubLevels: trackerLevels) {
     // first add all levels of the current subdetector to the builder
