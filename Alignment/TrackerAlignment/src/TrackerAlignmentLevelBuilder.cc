@@ -6,15 +6,6 @@
 
 #include "Alignment/CommonAlignment/interface/AlignableObjectId.h"
 
-// these extern defined fields (see files TPBNameSpace.h etc.) hold some
-// geometry-dependent values -> they will be set in this class
-namespace align
-{
-  namespace tpb { extern std::vector<unsigned int> lpqc; }
-  namespace tpe { extern unsigned int bpqd; }
-  namespace tib { extern std::vector<unsigned int> sphs; }
-}
-
 
 
 //=============================================================================
@@ -62,7 +53,22 @@ std::vector<align::AlignmentLevels> TrackerAlignmentLevelBuilder
   levels.push_back(buildTIDAlignmentLevels());
   levels.push_back(buildTOBAlignmentLevels());
   levels.push_back(buildTECAlignmentLevels());
+  levelsBuilt_ = true;
   return levels;
+}
+
+
+//______________________________________________________________________________
+const align::TrackerNameSpace& TrackerAlignmentLevelBuilder
+::trackerNameSpace() const {
+  if (levelsBuilt_) {
+    return trackerNameSpace_;
+  } else {
+    throw cms::Exception("LogicError")
+      << "@SUB=TrackerAlignmentLevelBuilder::trackerNameSpace\n"
+      << "trying to get the name space before it has been properly initialized;"
+      << " please call TrackerAlignmentLevelBuilder::build() first";
+  }
 }
 
 
@@ -198,7 +204,6 @@ align::AlignmentLevels TrackerAlignmentLevelBuilder
 
   for (size_t layer = 0; layer < pxbLaddersPerLayer_.size(); ++layer) {
     // divide by 4, because we need the ladders per quarter cylinder
-    align::tpb::lpqc.push_back(pxbLaddersPerLayer_[layer] / 4);
     trackerNameSpace_.tpb_.lpqc_.push_back(pxbLaddersPerLayer_[layer] / 4);
     ss << "      ladders in layer-" << layer << ": "
        << pxbLaddersPerLayer_[layer] << "\n";
@@ -235,10 +240,9 @@ align::AlignmentLevels TrackerAlignmentLevelBuilder
      << "   max. number of panels:  " << maxNumPanels                   << "\n"
      << "   max. number of blades:  " << maxNumBlades                   << "\n";
 
-  align::tpe::bpqd = maxNumBlades / 2;
   trackerNameSpace_.tpe_.bpqd_ = maxNumBlades / 2;
 
-  ss << "      blades per quarter disk: " << align::tpe::bpqd << "\n"
+  ss << "      blades per quarter disk: " << trackerNameSpace_.tpe_.bpqd_ << "\n"
      << "   max. number of disks:   " << maxNumDisks                    << "\n"
      << "   max. number of sides:   " << maxNumSides;
   edm::LogInfo("AlignableBuildProcess")
@@ -272,8 +276,6 @@ align::AlignmentLevels TrackerAlignmentLevelBuilder
 
   for (size_t layer = 0; layer < tidStringsInnerLayer_.size(); ++layer) {
     // divide by 2, because we have HalfShells
-    align::tib::sphs.push_back(tidStringsInnerLayer_[layer] / 2);
-    align::tib::sphs.push_back(tidStringsOuterLayer_[layer] / 2);
     trackerNameSpace_.tib_.sphs_.push_back(tidStringsInnerLayer_[layer] / 2);
     trackerNameSpace_.tib_.sphs_.push_back(tidStringsOuterLayer_[layer] / 2);
 

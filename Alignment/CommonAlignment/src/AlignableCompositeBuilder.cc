@@ -18,7 +18,7 @@
 //_____________________________________________________________________________
 AlignableCompositeBuilder
 ::AlignableCompositeBuilder(const TrackerTopology* trackerTopology,
-                            AlignableIndexer& alignableIndexer) :
+                            const AlignableIndexer& alignableIndexer) :
   trackerTopology_(trackerTopology),
   alignableIndexer_(alignableIndexer)
 {
@@ -145,8 +145,8 @@ unsigned int AlignableCompositeBuilder
   if (alignmentLevels_.size() - 1 > level) {
     return getIndexOfStructure(id, level + 1)
              * alignmentLevels_[level]->maxNumComponents
-             + indexOf(id, trackerTopology_) - 1;
+             + indexOf(id) - 1;
   }
 
-  return indexOf(id, trackerTopology_) - 1;
+  return indexOf(id) - 1;
 }

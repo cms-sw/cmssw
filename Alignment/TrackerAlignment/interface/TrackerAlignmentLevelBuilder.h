@@ -31,7 +31,7 @@ class TrackerAlignmentLevelBuilder {
 
     void addDetUnitInfo(const DetId& detId);
     std::vector<align::AlignmentLevels> build();
-    const align::TrackerNameSpace& trackerNameSpace() const { return trackerNameSpace_; }
+    const align::TrackerNameSpace& trackerNameSpace() const;
 
   //========================= PRIVATE METHODS =================================
   private: //==================================================================
@@ -55,6 +55,7 @@ class TrackerAlignmentLevelBuilder {
 
     const TrackerTopology* trackerTopology_;
     align::TrackerNameSpace trackerNameSpace_;
+    bool levelsBuilt_{false};
 
     // PixelBarrel
     std::set<unsigned int> pxbLayerIDs_;

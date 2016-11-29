@@ -10,8 +10,6 @@
 
 /*** Alignment ***/
 #include "Alignment/TrackerAlignment/interface/AlignableTracker.h"
-#include "Alignment/TrackerAlignment/interface/TPBNameSpace.h"
-#include "Alignment/TrackerAlignment/interface/TPENameSpace.h"
 
 
 //=============================================================================
@@ -181,46 +179,46 @@ MillePedeFileReader::PclHLS MillePedeFileReader
 ::getHLS(const Alignable* alignable) {
   if (!alignable) return PclHLS::NotInPCL;
 
-  auto trackerTopology = pedeLabeler_->alignableTracker()->trackerTopology();
+  const auto& tns = pedeLabeler_->alignableTracker()->trackerNameSpace();
 
   switch (alignable->alignableObjectId()) {
   case align::TPBHalfBarrel:
-    switch (align::tpb::halfBarrelNumber(alignable->id(), trackerTopology)) {
+    switch (tns.tpb().halfBarrelNumber(alignable->id())) {
     case 1: return PclHLS::TPBHalfBarrelXminus;
     case 2: return PclHLS::TPBHalfBarrelXplus;
     default:
       throw cms::Exception("LogicError")
         << "@SUB=MillePedeFileReader::getHLS\n"
         << "Found a pixel half-barrel number that should not exist: "
-        << align::tpb::halfBarrelNumber(alignable->id(), trackerTopology);
+        << tns.tpb().halfBarrelNumber(alignable->id());
     }
   case align::TPEHalfCylinder:
-    switch (align::tpe::endcapNumber(alignable->id(), trackerTopology)) {
+    switch (tns.tpe().endcapNumber(alignable->id())) {
     case 1:
-      switch (align::tpe::halfCylinderNumber(alignable->id(), trackerTopology)) {
+      switch (tns.tpe().halfCylinderNumber(alignable->id())) {
       case 1: return PclHLS::TPEHalfCylinderXminusZminus;
       case 2: return PclHLS::TPEHalfCylinderXplusZminus;
       default:
         throw cms::Exception("LogicError")
           << "@SUB=MillePedeFileReader::getHLS\n"
           << "Found a pixel half-cylinder number that should not exist: "
-          << align::tpe::halfCylinderNumber(alignable->id(), trackerTopology);
+          << tns.tpe().halfCylinderNumber(alignable->id());
       }
     case 2:
-      switch (align::tpe::halfCylinderNumber(alignable->id(), trackerTopology)) {
+      switch (tns.tpe().halfCylinderNumber(alignable->id())) {
       case 1: return PclHLS::TPEHalfCylinderXminusZplus;
       case 2: return PclHLS::TPEHalfCylinderXplusZplus;
       default:
         throw cms::Exception("LogicError")
           << "@SUB=MillePedeFileReader::getHLS\n"
           << "Found a pixel half-cylinder number that should not exist: "
-          << align::tpe::halfCylinderNumber(alignable->id(), trackerTopology);
+          << tns.tpe().halfCylinderNumber(alignable->id());
       }
     default:
       throw cms::Exception("LogicError")
         << "@SUB=MillePedeFileReader::getHLS\n"
         << "Found a pixel endcap number that should not exist: "
-        << align::tpe::endcapNumber(alignable->id(), trackerTopology);
+        << tns.tpe().endcapNumber(alignable->id());
     }
   default: return PclHLS::NotInPCL;
   }
