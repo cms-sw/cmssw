@@ -23,6 +23,7 @@ ecalDrivenElectronSeedsParameters = cms.PSet(
     applyHOverECut = cms.bool(True),
     hOverEConeSize = cms.double(0.15),
     # H/E equivalent for HGCal
+    allowHGCal = cms.bool(False),
     HGCalConfig = cms.PSet(
         HGCEEInput = cms.InputTag('HGCalRecHit:HGCEERecHits'),
         HGCFHInput = cms.InputTag('HGCalRecHit:HGCHEFRecHits'),

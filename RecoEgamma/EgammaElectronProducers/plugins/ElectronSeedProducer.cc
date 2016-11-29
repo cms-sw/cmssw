@@ -87,8 +87,12 @@ ElectronSeedProducer::ElectronSeedProducer( const edm::ParameterSet& iConfig )
 	 hcalCfg.hOverEPtMin = conf_.getParameter<double>("hOverEPtMin") ;
        }
      hcalHelper_ = new ElectronHcalHelper(hcalCfg) ;
-     const edm::ParameterSet& hgcCfg = conf_.getParameterSet("HGCalConfig");
-     hgcClusterTools_.reset( new hgcal::ClusterTools(hgcCfg, theconsumes) );
+     
+     allowHGCal_ = conf_.getParameter<bool>("allowHGCal");
+     if( allowHGCal_ ) {
+       const edm::ParameterSet& hgcCfg = conf_.getParameterSet("HGCalConfig");
+       hgcClusterTools_.reset( new hgcal::ClusterTools(hgcCfg, theconsumes) );
+     }
      
      maxHOverEBarrel_=conf_.getParameter<double>("maxHOverEBarrel") ;
      maxHOverEEndcaps_=conf_.getParameter<double>("maxHOverEEndcaps") ;
@@ -167,9 +171,10 @@ void ElectronSeedProducer::produce(edm::Event& e, const edm::EventSetup& iSetup)
    {
     hcalHelper_->checkSetup(iSetup) ;
     hcalHelper_->readEvent(e) ;
-
-    hgcClusterTools_->getEventSetup(iSetup);
-    hgcClusterTools_->getEvent(e);
+    if( allowHGCal_ ) {
+      hgcClusterTools_->getEventSetup(iSetup);
+      hgcClusterTools_->getEvent(e);
+    }
    }
 
   // get calo geometry
@@ -270,7 +275,7 @@ void ElectronSeedProducer::filterClusters
          int detector = scl.seed()->hitsAndFractions()[0].first.subdetId() ;
          if (detector==EcalBarrel && (had<maxHBarrel_ || had/scle<maxHOverEBarrel_)) HoeVeto=true;
          else if( detector==EcalEndcap && (had<maxHEndcaps_ || had/scle<maxHOverEEndcaps_) ) HoeVeto=true;
-         else if( (detector==HcalEndcap || det_group == DetId::Forward) ) {
+         else if( allowHGCal_ && (detector==HcalEndcap || det_group == DetId::Forward) ) {
            float had_fraction = hgcClusterTools_->getClusterHadronFraction(*(scl.seed()));
            had1 = had_fraction*scl.seed()->energy();
            had2 = 0.;
@@ -385,7 +390,8 @@ ElectronSeedProducer::fillDescriptions(edm::ConfigurationDescriptions& descripti
     psd0.add<double>("hOverEHFMinE",0.8);
     psd0.add<double>("DeltaPhi2B",0.008);
     psd0.add<double>("PhiMin2B",-0.002);
-
+    psd0.add<bool>("allowHGCal",false);
+    
     psd3.add<std::string>("ComponentName",std::string("SeedFromConsecutiveHitsCreator"));
     psd3.add<std::string>("propagator",std::string("PropagatorWithMaterial"));
     psd3.add<double>("SeedMomentumForBOFF",5.0);

@@ -106,6 +106,7 @@ class ElectronSeedProducer : public edm::stream::EDProducer<>
     bool fromTrackerSeeds_;
     bool prefilteredSeeds_;
 
+    bool allowHGCal_;
     std::unique_ptr<hgcal::ClusterTools> hgcClusterTools_;
 
  } ;
