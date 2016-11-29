@@ -249,15 +249,4 @@ private:
   OwnedHits rechits_;
 };
 
-
-#else
-class SeedingLayerSetsHits {
-private:
-  SeedingLayerSetsHits(SeedingLayerSetsHits const&){} 
-  SeedingLayerSetsHits& operator=(SeedingLayerSetsHits const&){return *this;}
-
-  std::vector<BaseTrackerRecHit const*> rechits_;
-
-};
-
 #endif
