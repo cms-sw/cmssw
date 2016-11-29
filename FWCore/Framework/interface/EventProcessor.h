@@ -53,6 +53,8 @@ namespace edm {
   class HistoryAppender;
   class ProcessDesc;
   class SubProcess;
+  class WaitingTaskHolder;
+  
   namespace eventsetup {
     class EventSetupProvider;
     class EventSetupsController;
@@ -243,6 +245,8 @@ namespace edm {
 
     //process the already read event using Stream iStreamIndex
     void processEvent(unsigned int iStreamIndex);
+    void processEventAsync(WaitingTaskHolder iHolder,
+                           unsigned int iStreamIndex);
 
     //returns true if an asynchronous stop was requested
     bool checkForAsyncStopRequest(StatusCode&);

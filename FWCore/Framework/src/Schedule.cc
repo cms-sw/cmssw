@@ -17,6 +17,7 @@
 #include "FWCore/Framework/src/ModuleHolder.h"
 #include "FWCore/Framework/src/ModuleRegistry.h"
 #include "FWCore/Framework/src/TriggerResultInserter.h"
+#include "FWCore/Concurrency/interface/WaitingTaskHolder.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
@@ -949,6 +950,14 @@ namespace edm {
                                  EventSetup const& es) {
     assert(iStreamID<streamSchedules_.size());
     streamSchedules_[iStreamID]->processOneEvent(ep,es);
+  }
+
+  void Schedule::processOneEventAsync(WaitingTaskHolder iTask,
+                                      unsigned int iStreamID,
+                                      EventPrincipal& ep,
+                                      EventSetup const& es) {
+    assert(iStreamID<streamSchedules_.size());
+    streamSchedules_[iStreamID]->processOneEventAsync(std::move(iTask),ep,es);
   }
   
   void Schedule::preForkReleaseResources() {
