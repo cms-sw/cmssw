@@ -37,7 +37,7 @@ class PhysicsObjectsMonitor : public DQMEDAnalyzer {
   // Operations
   void bookHistograms(DQMStore::IBooker &, edm::Run const &,
                       edm::EventSetup const &) override;
-  void analyze(const edm::Event &event, const edm::EventSetup &eventSetup);
+  void analyze(const edm::Event &event, const edm::EventSetup &eventSetup) override;
 
  private:
   std::string theSTAMuonLabel;

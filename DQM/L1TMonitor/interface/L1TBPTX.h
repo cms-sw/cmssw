@@ -114,12 +114,12 @@ class L1TBPTX : public DQMEDAnalyzer {
 
   protected:
 
-    void analyze (const edm::Event& e, const edm::EventSetup& c);  // Analyze                         
+    void analyze (const edm::Event& e, const edm::EventSetup& c) override;  // Analyze
     virtual void bookHistograms(DQMStore::IBooker &ibooker, const edm::Run&, const edm::EventSetup&) override;
-    virtual void dqmBeginRun(const edm::Run&, const edm::EventSetup&);
+    virtual void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
 
-    virtual void beginLuminosityBlock(edm::LuminosityBlock const& lumiBlock, edm::EventSetup const& c);
-    virtual void endLuminosityBlock  (edm::LuminosityBlock const& lumiBlock, edm::EventSetup const& c);
+    virtual void beginLuminosityBlock(edm::LuminosityBlock const& lumiBlock, edm::EventSetup const& c) override;
+    virtual void endLuminosityBlock  (edm::LuminosityBlock const& lumiBlock, edm::EventSetup const& c) override;
 
 
   // Private Methods

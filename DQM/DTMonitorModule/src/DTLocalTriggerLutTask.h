@@ -56,16 +56,16 @@ class DTLocalTriggerLutTask: public DQMEDAnalyzer{
  protected:
 
   ///BeginRun
-  void dqmBeginRun(const edm::Run& , const edm::EventSetup&);
+  void dqmBeginRun(const edm::Run& , const edm::EventSetup&) override;
 
   /// Find best (highest qual) TM trigger segments
   void searchDccBest(std::vector<L1MuDTChambPhDigi> const* trigs);
 
   /// Analyze
-  void analyze(const edm::Event& e, const edm::EventSetup& c);
+  void analyze(const edm::Event& e, const edm::EventSetup& c) override;
 
   /// To reset the MEs
-  void beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& context) ;
+  void beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& context) override ;
 
  private:
 
