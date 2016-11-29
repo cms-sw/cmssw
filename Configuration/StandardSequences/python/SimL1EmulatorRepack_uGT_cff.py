@@ -46,7 +46,7 @@ else:
     packGtStage2.JetInputTag    = cms.InputTag("unpackCaloStage2","Jet")
     packGtStage2.EtSumInputTag  = cms.InputTag("unpackCaloStage2","EtSum")
     packGtStage2.GtInputTag     = cms.InputTag("simGtStage2Digis") # as in default
-    packGtStage2.ExtInputTag    = cms.InputTag("simGtStage2Digis") # as in default
+    packGtStage2.ExtInputTag    = cms.InputTag("simGtExtFakeStage2Digis") # as in default
     
 
     # combine the new L1 RAW with existing RAW for other FEDs
