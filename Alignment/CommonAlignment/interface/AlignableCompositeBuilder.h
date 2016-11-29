@@ -18,7 +18,7 @@ class AlignableCompositeBuilder {
   //========================== PUBLIC METHODS =================================
   public: //===================================================================
 
-    AlignableCompositeBuilder(const TrackerTopology*, AlignableIndexer&);
+    AlignableCompositeBuilder(const TrackerTopology*, const AlignableIndexer&);
     virtual ~AlignableCompositeBuilder() {};
 
     /// Add all desired AlignmentLevels for a sub-detector to the builder before
