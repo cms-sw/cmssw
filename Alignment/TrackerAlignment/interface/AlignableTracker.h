@@ -9,6 +9,7 @@
 #include "Alignment/CommonAlignment/interface/AlignableMap.h"
 #include "Alignment/CommonAlignment/interface/AlignableComposite.h"
 #include "Alignment/CommonAlignment/interface/AlignableObjectId.h"
+#include "Alignment/TrackerAlignment/interface/TrackerNameSpace.h"
 
 class TrackerGeometry;
 class TrackerTopology;
@@ -155,10 +156,14 @@ public:
   /// Return tracker topology used to build AlignableTracker
   const TrackerTopology* trackerTopology() const { return tTopo_;}
 
+  /// Return tracker name space derived from the tracker's topology
+  const align::TrackerNameSpace& trackerNameSpace() const { return trackerNameSpace_; }
+
 private:
   Alignables merge( const Alignables& list1, const Alignables& list2 ) const;
 
   const TrackerTopology* tTopo_;
+  align::TrackerNameSpace trackerNameSpace_;
   AlignableMap alignableMap;
 
 };

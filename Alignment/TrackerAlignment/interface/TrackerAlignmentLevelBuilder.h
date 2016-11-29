@@ -14,9 +14,10 @@
 // topology
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 
-// common alignment
+// alignment
 #include "Alignment/CommonAlignment/interface/AlignmentLevel.h"
 #include "Alignment/CommonAlignment/interface/Utilities.h"
+#include "Alignment/TrackerAlignment/interface/TrackerNameSpace.h"
 
 
 
@@ -30,6 +31,7 @@ class TrackerAlignmentLevelBuilder {
 
     void addDetUnitInfo(const DetId& detId);
     std::vector<align::AlignmentLevels> build();
+    const align::TrackerNameSpace& trackerNameSpace() const { return trackerNameSpace_; }
 
   //========================= PRIVATE METHODS =================================
   private: //==================================================================
@@ -52,6 +54,7 @@ class TrackerAlignmentLevelBuilder {
   //===========================================================================
 
     const TrackerTopology* trackerTopology_;
+    align::TrackerNameSpace trackerNameSpace_;
 
     // PixelBarrel
     std::set<unsigned int> pxbLayerIDs_;
