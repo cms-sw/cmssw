@@ -580,10 +580,12 @@ namespace edm {
     workerManager_.setupOnDemandSystem(ep,es);
     
     ++total_events_;
-
+    auto serviceToken = ServiceRegistry::instance().presentToken();
     auto pathsDone = make_waiting_task(tbb::task::allocate_root(),
-                                          [iTask,&ep, &es, this](std::exception_ptr const* iPtr) mutable
+                                          [iTask,&ep, &es, this,serviceToken](std::exception_ptr const* iPtr) mutable
                                           {
+                                            ServiceRegistry::Operate operate(serviceToken);
+
                                             std::exception_ptr ptr;
                                             if(iPtr) {
                                               ptr = *iPtr;
@@ -653,9 +655,13 @@ namespace edm {
       iExcept = finishProcessOneEvent(iExcept);
       iWait.doneWaiting(iExcept);
     } else {
+      auto serviceToken = ServiceRegistry::instance().presentToken();
+
       auto endPathsDone = make_waiting_task(tbb::task::allocate_root(),
-                                            [iWait,this](std::exception_ptr const* iPtr) mutable
+                                            [iWait,this,serviceToken](std::exception_ptr const* iPtr) mutable
                                             {
+                                              ServiceRegistry::Operate operate(serviceToken);
+
                                               std::exception_ptr ptr;
                                               if(iPtr) {
                                                 ptr = *iPtr;
