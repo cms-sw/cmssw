@@ -3,7 +3,7 @@
 <!--<use   name="FWCore/Utilities"/>-->
 <!--<use   name="DataFormats/ForwardDetId"/>-->
 
-<use   name="Geometry/FCalGeometry"/>
+<use   name="Geometry/HGCalGeometry"/>
 <use   name="Geometry/CaloTopology"/>
 <use   name="L1Trigger/L1THGCal"/>
 <use   name="Geometry/Records"/>
