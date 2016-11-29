@@ -633,9 +633,9 @@ Realistic8TeVPACollision2016VtxSmearingParameters = cms.PSet(
     BetaStar = cms.double(60.0),
     Emittance = cms.double(6.75e-08),
     Alpha = cms.double(0.0),
-    SigmaZ = cms.double(6.4225),
+    SigmaZ = cms.double(4.6914),
     TimeOffset = cms.double(0.0),
-    X0 = cms.double(0.0624),
-    Y0 = cms.double(0.1036),
-    Z0 = cms.double(1.0157)    
+    X0 = cms.double(0.0836),
+    Y0 = cms.double(0.1837),
+    Z0 = cms.double(1.3577)    
 )
