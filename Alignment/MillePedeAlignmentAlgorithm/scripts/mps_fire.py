@@ -175,11 +175,9 @@ else:
                     os.system('cp -p '+scriptPath+' '+backupScriptPath)
 
                 # get the name of merge cfg file -> either the.py or alignment_merge.py
-                command  = 'cat '+backupScriptPath+' | grep cmsRun | grep "\.py" | head -1 | awk \'{gsub("^.*cmsRun ","");print $1}\''
+                command  = 'cat '+backupScriptPath+' | grep CONFIG_FILE | head -1 | awk -F"/" \'{print $NF}\''
                 mergeCfg = subprocess.check_output(command, stderr=subprocess.STDOUT, shell=True)
-                command  = 'basename '+mergeCfg
-                mergeCfg = subprocess.check_output(command, stderr=subprocess.STDOUT, shell=True)
-                mergeCfg = mergeCfg.replace('\n','')
+                mergeCfg = mergeCfg.strip()
 
                 # make a backup copy of the cfg
                 backupCfgPath  = Path+'/%s.bak' % mergeCfg
