@@ -30,7 +30,7 @@ def _hasInputTagModuleLabel(process, pset, moduleLabel):
             return _hasInputTagModuleLabel(process, getattr(process, value.value()), moduleLabel)
     return False
 
-def customiseEarlyDeleteForRECO(process):
+def customiseEarlyDelete(process):
     # Mapping label -> [branches]
     # for the producers whose products are to be deleted early
     products = collections.defaultdict(list)
