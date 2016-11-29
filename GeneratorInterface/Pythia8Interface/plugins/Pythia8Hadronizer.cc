@@ -646,6 +646,15 @@ bool Pythia8Hadronizer::generatePartonsAndHadronize()
     }
   }
 
+  // fill shower weights 
+  // http://home.thep.lu.se/~torbjorn/pythia82html/Variations.html
+  if( fMasterGen->info.nWeights() > 1 ){
+    for(int i = 0; i < fMasterGen->info.nWeights(); ++i) {
+      double wgt = fMasterGen->info.weight(i);
+      event()->weights().push_back(wgt);
+    }
+  }
+
   return true;
   
 }
@@ -821,11 +830,17 @@ GenLumiInfoHeader *Pythia8Hadronizer::getGenLumiInfoHeader() const {
   for (const std::string &key : fMasterGen->info.headerKeys()) {
     genLumiInfoHeader->lheHeaders().emplace_back(key,fMasterGen->info.header(key));
   }
-  
+
+  //check, if it is not only nominal weight
+  int weights_number = fMasterGen->info.nWeights();
+  if (fMasterGen->info.initrwgt) weights_number += fMasterGen->info.initrwgt->weightsKeys.size();
+  if(weights_number > 1){
+    genLumiInfoHeader->weightNames().reserve(weights_number + 1);
+    genLumiInfoHeader->weightNames().push_back("nominal");
+  }
+
   //fill weight names
   if (fMasterGen->info.initrwgt) {
-    genLumiInfoHeader->weightNames().reserve(fMasterGen->info.initrwgt->weightsKeys.size() + 1);
-    genLumiInfoHeader->weightNames().push_back("nominal");
     for (const std::string &key : fMasterGen->info.initrwgt->weightsKeys) {
       std::string weightgroupname;
       for (const auto &wgtgrp : fMasterGen->info.initrwgt->weightgroups) {
@@ -842,6 +857,15 @@ GenLumiInfoHeader *Pythia8Hadronizer::getGenLumiInfoHeader() const {
       }
       weightname<< fMasterGen->info.initrwgt->weights[key].contents;
       genLumiInfoHeader->weightNames().push_back(weightname.str());    
+    }
+  }
+
+  //fill shower labels
+  // http://home.thep.lu.se/~torbjorn/pythia82html/Variations.html
+  // http://home.thep.lu.se/~torbjorn/doxygen/classPythia8_1_1Info.html
+  if( fMasterGen->info.nWeights() > 1 ){
+    for(int i = 0; i < fMasterGen->info.nWeights(); ++i) {
+      genLumiInfoHeader->weightNames().push_back( fMasterGen->info.weightLabel(i) );
     }
   }
 

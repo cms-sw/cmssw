@@ -6,6 +6,7 @@
 <use   name="Geometry/CaloGeometry"/>
 <use   name="CalibFormats/HcalObjects"/>
 <use   name="DQMServices/Core"/>
+<use   name="SimDataFormats/CaloTest"/>
 <use   name="root"/>
 <use   name="clhep"/>
 <use   name="CalibFormats/CaloTPG"/>

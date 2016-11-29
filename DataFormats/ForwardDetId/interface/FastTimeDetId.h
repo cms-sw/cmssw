@@ -12,7 +12,8 @@ public:
   static const int kFastTimeCellZMask       = 0x3FF;
   static const int kFastTimeCellPhiOffset   = 0;
   static const int kFastTimeCellPhiMask     = 0x3FF;
-  static const int kFastTimeZsideMask       = 0x100000;
+  static const int kFastTimeZsideOffset     = 20;
+  static const int kFastTimeZsideMask       = 0x1;
   static const int kFastTimeTypeOffset      = 21;
   static const int kFastTimeTypeMask        = 0x3;
   enum {Subdet=FastTime};
@@ -45,7 +46,7 @@ public:
   int iphi() const { return (id_>>kFastTimeCellPhiOffset)&kFastTimeCellPhiMask; }
 
   /// get the z-side of the cell (1/-1)
-  int zside() const { return (((id_& kFastTimeZsideMask) > 0) ? 1 : -1); }
+  int zside() const { return ((((id_>>kFastTimeZsideOffset)&kFastTimeZsideMask) > 0) ? 1 : -1); }
 
   /// consistency check : no bits left => no overhead
   bool isFastTime() const { return true; }

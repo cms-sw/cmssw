@@ -20,13 +20,13 @@ autoCond = {
     # GlobalTag for MC production (Heavy Ions collisions) with optimistic alignment and calibrations for Run2
     'run2_mc_hi'        :   '81X_mcRun2_HeavyIon_v11',
     # GlobalTag for MC production (p-Pb collisions) with realistic alignment and calibrations for Run2
-    'run2_mc_pa'        :   '81X_mcRun2_pA_v5',
+    'run2_mc_pa'        :   '81X_mcRun2_pA_v7',
     # GlobalTag for Run1 data reprocessing
-    'run1_data'         :   '81X_dataRun2_v10',
+    'run1_data'         :   '81X_dataRun2_v11',
     # GlobalTag for Run2 data reprocessing
-    'run2_data'         :   '81X_dataRun2_v10',
+    'run2_data'         :   '81X_dataRun2_v11',
     # GlobalTag for Run2 data relvals: allows customization to run with fixed L1 menu
-    'run2_data_relval'  :   '81X_dataRun2_relval_v13',
+    'run2_data_relval'  :   '81X_dataRun2_relval_v14',
     # GlobalTag for Run1 HLT: it points to the online GT
     'run1_hlt'          :   '81X_dataRun2_HLT_frozen_v4',
     # GlobalTag for Run2 HLT: it points to the online GT
@@ -36,9 +36,11 @@ autoCond = {
     # GlobalTag for Run2 HLT for HI: it points to the online GT
     'run2_hlt_hi'       :   '81X_dataRun2_HLTHI_frozen_v4',
     # GlobalTag for MC production with perfectly aligned and calibrated detector for Phase1 2017 (and 0,0,0-centred beamspot)
-    'phase1_2017_design' :  '81X_upgrade2017_design_IdealBS_v7',
+    'phase1_2017_design' :  '81X_upgrade2017_design_IdealBS_v8',
     # GlobalTag for MC production with realistic conditions for Phase1 2017 detector
-    'phase1_2017_realistic': '81X_upgrade2017_realistic_v23',
+    'phase1_2017_realistic': '81X_upgrade2017_realistic_v24',
+    # GlobalTag for MC production (cosmics) with realistic alignment and calibrations for Phase1 2017 detector, Strip tracker in peak mode
+    'phase1_2017_cosmics'  : '81X_upgrade2017cosmics_realistic_peak_v8',
     # GlobalTag for MC production with perfectly aligned and calibrated detector for Phase1 2019
     'phase1_2019_design'   : 'DES19_70_V2', # placeholder (GT not meant for standard RelVal) 
     # GlobalTag for MC production with realistic conditions for Phase2 2023

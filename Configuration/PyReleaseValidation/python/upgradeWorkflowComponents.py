@@ -34,6 +34,27 @@ upgradeKeys[2023] = [
     '2023D6PU'
 ]
 
+# pre-generation of WF numbers
+numWFStart={
+    2017: 10000,
+    2023: 20000,
+}
+numWFSkip=200
+numWFConflict = [[25000,26000],[50000,51000]]
+numWFAll={
+    2017: [numWFStart[2017]],
+    2023: [numWFStart[2023]]
+}
+
+for year in upgradeKeys:
+    for i in range(1,len(upgradeKeys[year])):
+        numWFtmp = numWFAll[year][i-1] + numWFSkip
+        for conflict in numWFConflict:
+            if numWFtmp>=conflict[0] and numWFtmp<conflict[1]:
+                numWFtmp = conflict[1]
+                break
+        numWFAll[year].append(numWFtmp)
+
 upgradeSteps=[
     'GenSimFull',
     'GenSimHLBeamSpotFull',
@@ -124,7 +145,6 @@ upgradeProperties[2023] = {
         'Geom' : 'Extended2023D6',
         'GT' : 'auto:phase2_realistic',
         'HLTmenu': '@fake',
-        'Custom' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2023tilted',
         'Era' : 'Phase2C1',
         'ScenToRun' : ['GenSimHLBeamSpotFull','DigiFull','RecoFullGlobal', 'HARVESTFullGlobal'],
     }
@@ -225,6 +245,7 @@ upgradeFragments=['FourMuPt_1_200_pythia8_cfi',
                   'ZMM_14TeV_TuneCUETP8M1_cfi',
                   'QCD_Pt-15To7000_TuneCUETP8M1_Flat_14TeV-pythia8_cff',
                   'H125GGgluonfusion_14TeV_TuneCUETP8M1_cfi',
+                  'QCD_Pt_600_800_14TeV_TuneCUETP8M1_cfi',
 ]
 
 howMuches={'FourMuPt_1_200_pythia8_cfi':Kby(10,100),
@@ -280,6 +301,7 @@ howMuches={'FourMuPt_1_200_pythia8_cfi':Kby(10,100),
            'ZMM_14TeV_TuneCUETP8M1_cfi':Kby(18,100),
            'QCD_Pt-15To7000_TuneCUETP8M1_Flat_14TeV-pythia8_cff':Kby(9,50),
            'H125GGgluonfusion_14TeV_TuneCUETP8M1_cfi':Kby(9,50),
+           'QCD_Pt_600_800_14TeV_TuneCUETP8M1_cfi':Kby(9,50),
 }
 
 upgradeDatasetFromFragment={'FourMuPt_1_200_pythia8_cfi': 'FourMuPt1_200',
@@ -335,4 +357,5 @@ upgradeDatasetFromFragment={'FourMuPt_1_200_pythia8_cfi': 'FourMuPt1_200',
                             'ZMM_14TeV_TuneCUETP8M1_cfi' : 'ZMM_14',
                             'QCD_Pt-15To7000_TuneCUETP8M1_Flat_14TeV-pythia8_cff' : 'QCD_Pt-15To7000_Flat_14TeV',
                             'H125GGgluonfusion_14TeV_TuneCUETP8M1_cfi' : 'H125GGgluonfusion_14',
+                            'QCD_Pt_600_800_14TeV_TuneCUETP8M1_cfi' : 'QCD_Pt_600_800_14',
 }

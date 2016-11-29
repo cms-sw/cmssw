@@ -38,6 +38,26 @@ namespace {
       h->setBinLabel(i+1, labels[i]);
     }
   }
+
+  void fillMVAHistos(std::vector<MonitorElement *>& h_mva,
+                     std::vector<MonitorElement *>& h_mvacut,
+                     std::vector<MonitorElement *>& h_mva_hp,
+                     std::vector<MonitorElement *>& h_mvacut_hp,
+                     const std::vector<float>& mvas,
+                     unsigned int selectsLoose, unsigned int selectsHP) {
+    // Fill MVA1 histos with all tracks, MVA2 histos only with tracks
+    // not selected by MVA1, etc. 
+    for(size_t i=0; i<mvas.size(); ++i) {
+      if(i<=selectsLoose) {
+        fillPlotNoFlow(h_mva[i], mvas[i]);
+        h_mvacut[i]->Fill(mvas[i]);
+      }
+      if(i>=1 && i<=selectsHP) {
+        fillPlotNoFlow(h_mva_hp[i], mvas[i]);
+        h_mvacut_hp[i]->Fill(mvas[i]);
+      }
+    }
+  }
 }
 
 MTVHistoProducerAlgoForTracker::MTVHistoProducerAlgoForTracker(const edm::ParameterSet& pset, const bool doSeedPlots, edm::ConsumesCollector & iC):
@@ -126,6 +146,11 @@ MTVHistoProducerAlgoForTracker::MTVHistoProducerAlgoForTracker(const edm::Parame
   minPVz  = pset.getParameter<double>("minPVz");
   maxPVz  = pset.getParameter<double>("maxPVz");
   nintPVz = pset.getParameter<int>("nintPVz");
+
+  //parameters for vs. MVA plots
+  minMVA = pset.getParameter<double>("minMVA");
+  maxMVA  = pset.getParameter<double>("maxMVA");
+  nintMVA = pset.getParameter<int>("nintMVA");
 
   //parameters for resolution plots
   ptRes_rangeMin = pset.getParameter<double>("ptRes_rangeMin");
@@ -658,6 +683,59 @@ void MTVHistoProducerAlgoForTracker::bookSeedHistos(DQMStore::IBooker& ibook) {
   h_seedsFitFailedFraction.push_back(ibook.book1D("seeds_fitFailedFraction", "Fraction of seeds for which the fit failed", 100, 0, 1));
 }
 
+void MTVHistoProducerAlgoForTracker::bookMVAHistos(DQMStore::IBooker& ibook, size_t nMVAs) {
+  h_reco_mva.emplace_back();
+  h_assoc2_mva.emplace_back();
+
+  h_reco_mvacut.emplace_back();
+  h_assoc_mvacut.emplace_back();
+  h_assoc2_mvacut.emplace_back();
+  h_simul2_mvacut.emplace_back();
+
+  h_reco_mva_hp.emplace_back();
+  h_assoc2_mva_hp.emplace_back();
+
+  h_reco_mvacut_hp.emplace_back();
+  h_assoc_mvacut_hp.emplace_back();
+  h_assoc2_mvacut_hp.emplace_back();
+  h_simul2_mvacut_hp.emplace_back();
+
+  for(size_t i=1; i <= nMVAs; ++i) {
+    auto istr = std::to_string(i);
+    std::string pfix;
+
+    if(i==1) {
+      h_reco_mva_hp.back().push_back(nullptr);
+      h_assoc2_mva_hp.back().push_back(nullptr);
+
+      h_reco_mvacut_hp.back().push_back(nullptr);
+      h_assoc_mvacut_hp.back().push_back(nullptr);
+      h_assoc2_mvacut_hp.back().push_back(nullptr);
+      h_simul2_mvacut_hp.back().push_back(nullptr);
+    }
+    else {
+      pfix = " (not loose-selected)";
+      std::string pfix2 = " (not HP-selected)";
+
+      h_reco_mva_hp.back().push_back(ibook.book1D("num_reco_mva"+istr+"_hp", "N of reco track after vs MVA"+istr+pfix2, nintMVA, minMVA, maxMVA) );
+      h_assoc2_mva_hp.back().push_back(ibook.book1D("num_assoc(recoToSim)_mva"+istr+"_hp", "N of associated tracks (recoToSim) vs MVA"+istr+pfix2, nintMVA, minMVA, maxMVA) );
+
+      h_reco_mvacut_hp.back().push_back(ibook.book1D("num_reco_mva"+istr+"cut"+"_hp", "N of reco track vs cut on MVA"+istr+pfix2, nintMVA, minMVA, maxMVA) );
+      h_assoc_mvacut_hp.back().push_back(ibook.book1D("num_assoc(simToReco)_mva"+istr+"cut_hp", "N of associated tracks (simToReco) vs cut on MVA"+istr+pfix2, nintMVA, minMVA, maxMVA) );
+      h_assoc2_mvacut_hp.back().push_back(ibook.book1D("num_assoc(recoToSim)_mva"+istr+"cut_hp", "N of associated tracks (recoToSim) vs cut on MVA"+istr+pfix2, nintMVA, minMVA, maxMVA) );
+      h_simul2_mvacut_hp.back().push_back(ibook.book1D("num_simul2_mva"+istr+"cut_hp", "N of simulated tracks (associated to any track) vs cut on MVA"+istr+pfix2, nintMVA, minMVA, maxMVA) );
+    }
+
+    h_reco_mva.back().push_back(ibook.book1D("num_reco_mva"+istr, "N of reco track vs MVA"+istr+pfix, nintMVA, minMVA, maxMVA) );
+    h_assoc2_mva.back().push_back(ibook.book1D("num_assoc(recoToSim)_mva"+istr, "N of associated tracks (recoToSim) vs MVA"+istr+pfix, nintMVA, minMVA, maxMVA) );
+
+    h_reco_mvacut.back().push_back(ibook.book1D("num_reco_mva"+istr+"cut", "N of reco track vs cut on MVA"+istr+pfix, nintMVA, minMVA, maxMVA) );
+    h_assoc_mvacut.back().push_back(ibook.book1D("num_assoc(simToReco)_mva"+istr+"cut", "N of associated tracks (simToReco) vs cut on MVA"+istr+pfix, nintMVA, minMVA, maxMVA) );
+    h_assoc2_mvacut.back().push_back(ibook.book1D("num_assoc(recoToSim)_mva"+istr+"cut", "N of associated tracks (recoToSim) vs cut on MVA"+istr+pfix, nintMVA, minMVA, maxMVA) );
+    h_simul2_mvacut.back().push_back(ibook.book1D("num_simul2_mva"+istr+"cut", "N of simulated tracks (associated to any track) vs cut on MVA"+istr+pfix, nintMVA, minMVA, maxMVA) );
+  }
+}
+
 void MTVHistoProducerAlgoForTracker::fill_generic_simTrack_histos(const TrackingParticle::Vector& momentumTP,
 								  const TrackingParticle::Point& vertexTP,
                                                                   int bx){
@@ -683,7 +761,9 @@ void MTVHistoProducerAlgoForTracker::fill_recoAssociated_simTrack_histos(int cou
 									 int numVertices,
 									 double dR,
 									 const math::XYZPoint *pvPosition,
-                                                                         const TrackingVertex::LorentzVector *simPVPosition) {
+                                                                         const TrackingVertex::LorentzVector *simPVPosition,
+                                                                         const std::vector<float>& mvas,
+                                                                         unsigned int selectsLoose, unsigned int selectsHP) {
   bool isMatched = track;
   const auto eta = getEta(momentumTP.eta());
   const auto phi = momentumTP.phi();
@@ -691,6 +771,20 @@ void MTVHistoProducerAlgoForTracker::fill_recoAssociated_simTrack_histos(int cou
   const auto nSim3DLayers = nSimPixelLayers + nSimStripMonoAndStereoLayers;
   const auto vertxy = sqrt(vertexTP.perp2());
   const auto vertz = vertexTP.z();
+
+  //efficiency vs. cut on MVA
+  if(isMatched) {
+    for(size_t i=0; i<mvas.size(); ++i) {
+      if(i<=selectsLoose) {
+        h_simul2_mvacut[count][i]->Fill(maxMVA);
+        h_assoc_mvacut[count][i]->Fill(mvas[i]);
+      }
+      if(i>=1 && i<=selectsHP) {
+        h_simul2_mvacut_hp[count][i]->Fill(maxMVA);
+        h_assoc_mvacut_hp[count][i]->Fill(mvas[i]);
+      }
+    }
+  }
 
   if((*TpSelectorForEfficiencyVsEta)(tp)){
     //effic vs eta
@@ -809,7 +903,9 @@ void MTVHistoProducerAlgoForTracker::fill_generic_recoTrack_histos(int count,
 								   int numVertices,
 								   int nSimHits,
 								   double sharedFraction,
-								   double dR){
+								   double dR,
+                                                                   const std::vector<float>& mvas,
+                                                                   unsigned int selectsLoose, unsigned int selectsHP) {
 
   //Fill track algo histogram
   fillPlotNoFlow(h_algo[count],track.algo());
@@ -868,6 +964,8 @@ void MTVHistoProducerAlgoForTracker::fill_generic_recoTrack_histos(int count,
   fillPlotNoFlow(h_reco3Dlayer[count], n3DLayers);
   fillPlotNoFlow(h_recopu[count],numVertices);
 
+  fillMVAHistos(h_reco_mva[count], h_reco_mvacut[count], h_reco_mva_hp[count], h_reco_mvacut_hp[count], mvas, selectsLoose, selectsHP);
+
   if (isMatched) {
     if(paramsValid) {
       fillPlotNoFlow(h_assoc2eta[count], eta);
@@ -898,6 +996,8 @@ void MTVHistoProducerAlgoForTracker::fill_generic_recoTrack_histos(int count,
     fillPlotNoFlow(h_assoc2pixellayer[count], nPixelLayers);
     fillPlotNoFlow(h_assoc23Dlayer[count], n3DLayers);
     fillPlotNoFlow(h_assoc2pu[count],numVertices);
+
+    fillMVAHistos(h_assoc2_mva[count], h_assoc2_mvacut[count], h_assoc2_mva_hp[count], h_assoc2_mvacut_hp[count], mvas, selectsLoose, selectsHP);
 
     nrecHit_vs_nsimHit_rec2sim[count]->Fill( track.numberOfValidHits(),nSimHits);
     h_assocFraction[count]->Fill( sharedFraction);
