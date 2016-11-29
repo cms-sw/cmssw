@@ -46,7 +46,7 @@
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 
 namespace HepMC {
@@ -105,8 +105,7 @@ EmbeddingVertexCorrector::beginRun(const edm::Run & , const edm::EventSetup& iEv
     iEventSetup.get<BeamSpotObjectsRcd>().get(beamhandle);
     
     
-    std::cout<<"beam handle"<<std::endl;
-    std::cout<<(*beamhandle)<<std::endl;
+    edm::LogInfo("TauEmbedding")<<"beam handle\n"<<(*beamhandle);
 
 
 }

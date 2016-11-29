@@ -4,11 +4,14 @@
  * \author Stefan Wayand;
  *         Christian Veelken, LLR
  *
- * \version $Revision: 1.9 $
+ * 
  *
- * $Id: TrackMergeremb.h,v 1.9 2013/03/23 09:12:51 veelken Exp $
+ * 
  *
  */
+#ifndef TrackMergeremb_H
+#define TrackMergeremb_H
+
 
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -39,7 +42,7 @@ class TrackMergeremb : public edm::stream::EDProducer<>
   ~TrackMergeremb();
 
  private:
-  virtual void produce(edm::Event&, const edm::EventSetup&);
+  virtual void produce(edm::Event&, const edm::EventSetup&) override;
   
   typedef T1 TrackCollectionemb;
   
@@ -97,3 +100,4 @@ void TrackMergeremb<T1>::produce(edm::Event& iEvent, const edm::EventSetup& iSet
   
   
 }
+#endif

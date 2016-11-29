@@ -6,12 +6,12 @@
  * \author Tomasz Maciej Frueboes;
  *         Christian Veelken, LLR
  *
- * \version $Revision: 1.9 $
- *
- * $Id: CaloCleaner.h,v 1.9 2013/03/23 09:12:51 veelken Exp $
+ * 
  *
  *  Clean Up from STefan Wayand, KIT
  */
+#ifndef CaloCleaner_H
+#define CaloCleaner_H
 
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -41,7 +41,7 @@ class CaloCleaner : public  edm::stream::EDProducer<>
   ~CaloCleaner();
 
  private:
-  virtual void produce(edm::Event&, const edm::EventSetup&);
+  virtual void produce(edm::Event&, const edm::EventSetup&) override;
 
   typedef edm::SortedCollection<T> RecHitCollection;
 
@@ -143,3 +143,4 @@ void CaloCleaner<T>::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   }
 
 }
+#endif

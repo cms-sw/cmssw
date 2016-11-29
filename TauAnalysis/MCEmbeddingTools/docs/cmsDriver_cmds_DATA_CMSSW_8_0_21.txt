@@ -1,0 +1,79 @@
+###### cmsDriver.py commands for embedding in CMSSW_8_0_18 ######
+
+#### Embedding on Data
+
+### Step 1: Selection of Z->MuMu
+
+cmsDriver.py RECO -s RAW2DIGI,L1Reco,RECO,PAT --runUnscheduled \
+--data --scenario pp --conditions 80X_dataRun2_2016SeptRepro_v4 \
+--era Run2_2016 --runUnscheduled \
+--eventcontent RAWRECO,MINIAOD --datatier RAWRECO,MINIAOD \
+--customise Configuration/DataProcessing/RecoTLR.customisePostEra_Run2_2016,\
+RecoTracker/Configuration/customizeMinPtForHitRecoveryInGluedDet.customizeHitRecoveryInGluedDetOn,\
+TauAnalysis/MCEmbeddingTools/customisers.customisoptions,\
+TauAnalysis/MCEmbeddingTools/customisers.customiseSelecting \
+--filein /store/data/Run2016B/DoubleMuon/RAW/v2/000/274/198/00000/4A7B3B0C-5326-E611-8E1A-02163E0141C0.root \
+--fileout RAWskimmed.root -n 60 --no_exec --python_filename=selection.py
+
+### Step 2: Cleaning and preparation for Z->TauTau simulation (saving LHE products)
+
+# Tau-Embedding preparation
+
+cmsDriver.py LHEprodandCLEAN --filein file:RAWskimmed.root \
+--fileout file:lhe_and_cleaned.root --runUnscheduled --data --era Run2_2016 \
+--scenario pp --conditions 80X_dataRun2_2016SeptRepro_v4 --eventcontent RAWRECO,MINIAOD \
+--datatier RAWRECO,MINIAOD --step RAW2DIGI,RECO,PAT \
+--customise Configuration/DataProcessing/RecoTLR.customisePostEra_Run2_2016,\
+RecoTracker/Configuration/customizeMinPtForHitRecoveryInGluedDet.customizeHitRecoveryInGluedDetOn,\
+TauAnalysis/MCEmbeddingTools/customisers.customisoptions,\
+TauAnalysis/MCEmbeddingTools/customisers.customiseLHEandCleaning \
+--no_exec -n -1 --python_filename lheprodandcleaning.py
+
+# Muon-Embedding preparation
+
+cmsDriver.py LHEprodandCLEAN --filein file:RAWskimmed.root \
+--fileout file:lhe_and_cleaned.root --runUnscheduled --data \
+--scenario pp --conditions 80X_dataRun2_2016SeptRepro_v4 --eventcontent RAWRECO,MINIAOD \
+--datatier RAWRECO,MINIAOD --step RAW2DIGI,RECO,PAT \
+--customise Configuration/DataProcessing/RecoTLR.customisePostEra_Run2_2016,\
+RecoTracker/Configuration/customizeMinPtForHitRecoveryInGluedDet.customizeHitRecoveryInGluedDetOn,\
+TauAnalysis/MCEmbeddingTools/customisers.customisoptions,\
+TauAnalysis/MCEmbeddingTools/customisers.customiseLHEandCleaning \
+--customise_commands "process.externalLHEProducer.switchToMuonEmbedding = cms.bool(True)" \
+--no_exec -n -1 --python_filename lheprodandcleaning.py
+
+### Step 3: Z->TauTau simulation
+
+cmsDriver.py TauAnalysis/MCEmbeddingTools/python/EmbeddingPythia8Hadronizer_cfi.py \
+--filein file:lhe_and_cleaned.root --fileout simulated_and_cleaned.root \
+--conditions 80X_mcRun2_asymptotic_2016_TrancheIV_v6 --era Run2_2016 \
+--eventcontent RAWRECO,AODSIM --step GEN,SIM,DIGI,L1,DIGI2RAW,HLT:@frozen2016,RAW2DIGI,RECO \
+--datatier RAWRECO,AODSIM --customise \
+TauAnalysis/MCEmbeddingTools/customisers.customiseGenerator,\
+TauAnalysis/MCEmbeddingTools/customisers.customisoptions \
+--beamspot Realistic50ns13TeVCollision --no_exec -n -1 --python_filename generator.py
+
+# For event display only:
+
+cmsDriver.py PATSIM --filein file:simulated_and_cleaned_inAODSIM.root \
+--fileout file:simulated_and_cleaned_inMINIAOD.root --runUnscheduled --era Run2_2016 \
+--customise_commands "process.patTrigger.processName = cms.string('SIMembedding')" \
+--data --conditions 80X_mcRun2_asymptotic_2016_miniAODv2_v1 --era Run2_2016 \
+--eventcontent MINIAODSIM --datatier MINIAODSIM --step PAT \
+--no_exec -n -1 --python_filename pat_for_sim.py
+
+### Step 4: Merging of simulated Z->TauTau process and cleaned data:
+
+cmsDriver.py PAT -s PAT \
+--filein file:simulated_and_cleaned.root  \
+--fileout file:merged.root --era Run2_2016 \
+--runUnscheduled --data --scenario pp --conditions 80X_dataRun2_2016SeptRepro_v4 \
+--eventcontent  MINIAODSIM --datatier USER \
+--customise \
+TauAnalysis/MCEmbeddingTools/customisers.customisoptions,\
+Configuration/DataProcessing/RecoTLR.customisePostEra_Run2_2016,\
+RecoTracker/Configuration/customizeMinPtForHitRecoveryInGluedDet.customizeHitRecoveryInGluedDetOn,\
+TauAnalysis/MCEmbeddingTools/customisers.customiseMerging \
+--customise_commands "process.patTrigger.processName = cms.string('SIMembedding')" \
+-n -1 --no_exec --python_filename=merging.py
+

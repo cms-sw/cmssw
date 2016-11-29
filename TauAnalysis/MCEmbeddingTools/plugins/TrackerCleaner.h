@@ -4,11 +4,14 @@
  * \author Stefan Wayand;
  *         Christian Veelken, LLR
  *
- * \version $Revision: 1.9 $
+ * 
  *
- * $Id: TrackerCleaner.h,v 1.9 2013/03/23 09:12:51 veelken Exp $
+ * 
  *
  */
+
+#ifndef TrackerCleaner_H
+#define TrackerCleaner_H
 
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -41,7 +44,7 @@ class TrackerCleaner : public edm::stream::EDProducer<>
   ~TrackerCleaner();
 
  private:
-  virtual void produce(edm::Event&, const edm::EventSetup&);
+  virtual void produce(edm::Event&, const edm::EventSetup&) override;
 
   const edm::EDGetTokenT<edm::View<pat::Muon> > mu_input_;
   typedef edmNew::DetSetVector<T> TrackClusterCollection;
@@ -128,3 +131,4 @@ void TrackerCleaner<T>::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
   }
   
 }
+#endif

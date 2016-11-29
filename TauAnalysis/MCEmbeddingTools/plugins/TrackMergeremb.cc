@@ -42,6 +42,7 @@
 #include "DataFormats/ParticleFlowReco/interface/PFRecTrack.h"
 
 
+
 typedef TrackMergeremb<reco::TrackCollection> TrackColMerger;
 typedef TrackMergeremb<reco::MuonCollection > MuonColMerger;
 typedef TrackMergeremb<reco::GsfElectronCollection > GsfElectronColMerger;
@@ -310,7 +311,7 @@ void  TrackMergeremb<reco::PFCandidateCollection >::willproduce(std::string inst
 {
 
   produces<reco::PFCandidateCollection>(instance);
-  std::cout<<"Produce PF Collection: "<<instance<<std::endl;  
+ // std::cout<<"Produce PF Collection: "<<instance<<std::endl;  
     
 }
 

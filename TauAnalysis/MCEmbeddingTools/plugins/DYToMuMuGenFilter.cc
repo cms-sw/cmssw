@@ -29,6 +29,8 @@ class DYToMuMuGenFilter: public edm::stream::EDFilter<> {
       edm::InputTag inputTag_;
       edm::EDGetTokenT<reco::GenParticleCollection> genParticleCollection_;
 
+      edm::Handle<reco::GenParticleCollection> gen_handle;
+      
       //virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
       //virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
       //virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
@@ -54,39 +56,39 @@ DYToMuMuGenFilter::~DYToMuMuGenFilter() {
 bool DYToMuMuGenFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
 
-    edm::Handle<reco::GenParticleCollection> gen_handle;
     iEvent.getByToken(genParticleCollection_, gen_handle);
     
     for(unsigned int i = 0; i < gen_handle->size(); i++)
     {
+      const reco::GenParticle gen_particle = (*gen_handle)[i];
 		// Check if Z Boson decayed into two leptons
-		if (gen_handle->at(i).pdgId() == 23 && gen_handle->at(i).numberOfDaughters() == 2)
+		if (gen_particle.pdgId() == 23 && gen_particle.numberOfDaughters() == 2)
 		{
 			//Debug output
-			//std::cout << "pdgId" << gen_handle->at(i).pdgId() << std::endl;
-			//std::cout << "nDau" << gen_handle->at(i).numberOfDaughters() << std::endl;
-			//std::cout << "Dau1" << gen_handle->at(i)->daughters->at(0).pdgId() << std::endl;
-			//std::cout << "Dau2" << gen_handle->at(i).numberOfDaughters() << std::endl;
-			//std::cout << "Dau1 " << gen_handle->at(i).daughter(0)->pdgId() << std::endl;
-			//std::cout << "Dau2 " << gen_handle->at(i).daughter(1)->pdgId() << std::endl;
-			//std::cout << gen_handle->at(i).daughter(1)->pdgId()+gen_handle->at(i).daughter(0)->pdgId() << std::endl;
+			//std::cout << "pdgId" << gen_particle.pdgId() << std::endl;
+			//std::cout << "nDau" << gen_particle.numberOfDaughters() << std::endl;
+			//std::cout << "Dau1" << gen_particle->daughters->at(0).pdgId() << std::endl;
+			//std::cout << "Dau2" << gen_particle.numberOfDaughters() << std::endl;
+			//std::cout << "Dau1 " << gen_particle.daughter(0)->pdgId() << std::endl;
+			//std::cout << "Dau2 " << gen_particle.daughter(1)->pdgId() << std::endl;
+			//std::cout << gen_particle.daughter(1)->pdgId()+gen_particle.daughter(0)->pdgId() << std::endl;
 			
 			// Check if daugther particles are muons
-		  if (abs(gen_handle->at(i).daughter(0)->pdgId()) == 13  
-		      && fabs(gen_handle->at(i).daughter(0)->eta())<2.6  
-		      && fabs(gen_handle->at(i).daughter(1)->eta())<2.6
-		      && gen_handle->at(i).daughter(0)->pt()>7
-		      && gen_handle->at(i).daughter(1)->pt()>7)
+		  if (abs(gen_particle.daughter(0)->pdgId()) == 13  
+		      && fabs(gen_particle.daughter(0)->eta())<2.6  
+		      && fabs(gen_particle.daughter(1)->eta())<2.6
+		      && gen_particle.daughter(0)->pt()>7
+		      && gen_particle.daughter(1)->pt()>7)
 			{
-			  //std::cout << "pdgId" << gen_handle->at(i).pdgId() << std::endl;
-			  //std::cout << "nDau" << gen_handle->at(i).numberOfDaughters() << std::endl;
-			  //std::cout << "Dau1 " << gen_handle->at(i).daughter(0)->pdgId() << std::endl;
-			  //std::cout << "Dau1 pt " << gen_handle->at(i).daughter(0)->pt() << std::endl;
-			  //std::cout << "Dau1 pt " << gen_handle->at(i).daughter(0)->eta() << std::endl;
-			  //std::cout << "Dau2 " << gen_handle->at(i).daughter(1)->pdgId() << std::endl;
-			  //std::cout << "Dau2 pt " << gen_handle->at(i).daughter(1)->pt() << std::endl;
-			  //std::cout << "Dau2 pt " << gen_handle->at(i).daughter(1)->eta() << std::endl;
-			  //std::cout << gen_handle->at(i).daughter(1)->pdgId()+gen_handle->at(i).daughter(0)->pdgId() << std::endl;
+			  //std::cout << "pdgId" << gen_particle.pdgId() << std::endl;
+			  //std::cout << "nDau" << gen_particle.numberOfDaughters() << std::endl;
+			  //std::cout << "Dau1 " << gen_particle.daughter(0)->pdgId() << std::endl;
+			  //std::cout << "Dau1 pt " << gen_particle.daughter(0)->pt() << std::endl;
+			  //std::cout << "Dau1 pt " << gen_particle.daughter(0)->eta() << std::endl;
+			  //std::cout << "Dau2 " << gen_particle.daughter(1)->pdgId() << std::endl;
+			  //std::cout << "Dau2 pt " << gen_particle.daughter(1)->pt() << std::endl;
+			  //std::cout << "Dau2 pt " << gen_particle.daughter(1)->eta() << std::endl;
+			  //std::cout << gen_particle.daughter(1)->pdgId()+gen_particle.daughter(0)->pdgId() << std::endl;
 			  return true;
 			}
 			else
