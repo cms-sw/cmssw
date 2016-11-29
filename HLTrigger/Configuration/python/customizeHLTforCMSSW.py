@@ -142,7 +142,7 @@ def customiseFor16792(process):
         elif cleanerPSet.ComponentName.value() == "TrackCleaner":
             producer.Cleaner = "hltTrackCleaner"
             if not hasattr(process, "hltTrackCleaner"):
-                proccess.hltTrackCleaner = _trackCleaner.clone(
+                process.hltTrackCleaner = _trackCleaner.clone(
                     ComponentName = "hltTrackCleaner"
                 )
 
