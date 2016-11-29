@@ -27,8 +27,8 @@ mvaTag = "V1"
 #   1    endcap photons
 
 mvaSpring16NonTrigWeightFiles_V1 = cms.vstring(
-    "RecoEgamma/PhotonIdentification/data/Spring16/photon_general_MVA_Spring16_EB_V2.weights.xml",
-    "RecoEgamma/PhotonIdentification/data/Spring16/photon_general_MVA_Spring16_EE_V2.weights.xml"
+    "RecoEgamma/PhotonIdentification/data/Spring16/photon_general_MVA_Spring16_EB_V3.weights.xml",
+    "RecoEgamma/PhotonIdentification/data/Spring16/photon_general_MVA_Spring16_EE_V3.weights.xml"
     )
 
 effAreasPath_pho = "RecoEgamma/PhotonIdentification/data/Spring16/effAreaPhotons_cone03_pfPhotons_90percentBased.txt"
@@ -52,8 +52,8 @@ MVA_WP90 = PhoMVA_2Categories_WP(
     idName = idName,
     mvaValueMapName = mvaValueMapName,           # map with MVA values for all particles
     mvaCategoriesMapName = mvaCategoriesMapName, # map with category index for all particles
-    cutCategory0 = 0.46,  # EB new val : sig eff = 90% , bkg eff = ?
-    cutCategory1 = -0.14  # EE new val : sig eff = 90% , bkg eff = ?
+    cutCategory0 =  0.08,  # EB new val : sig eff = 90% , bkg eff = ?
+    cutCategory1 = -0.11   # EE new val : sig eff = 90% , bkg eff = ?
     )
 
 # The working point for this MVA that is expected to have about 90% signal
@@ -64,8 +64,8 @@ MVA_WP80 = PhoMVA_2Categories_WP(
     idName = idName,
     mvaValueMapName = mvaValueMapName,           # map with MVA values for all particles
     mvaCategoriesMapName = mvaCategoriesMapName, # map with category index for all particles
-    cutCategory0 = 0.74,  # EB new val : sig eff = 80% , bkg eff = ?
-    cutCategory1 = 0.36   # EE new val : sig eff = 80% , bkg eff = ?
+    cutCategory0 = 0.65,  # EB new val : sig eff = 80% , bkg eff = ?
+    cutCategory1 = 0.30   # EE new val : sig eff = 80% , bkg eff = ?
     )
 
 #
@@ -115,9 +115,9 @@ mvaPhoID_Spring16_nonTrig_V1_wp80 = configureVIDMVAPhoID_V1( MVA_WP80 )
 #
 
 central_id_registry.register( mvaPhoID_Spring16_nonTrig_V1_wp90.idName,
-                              '1765a5666925de4d6a19e9a773f74fdc')
+                              '1e6ba3d0c760d1d9a69be10e4aa012e2')
 central_id_registry.register( mvaPhoID_Spring16_nonTrig_V1_wp80.idName,
-                              'd638f825d39a5d78e1cc34da50b3f480')
+                              '471f10cc447e8f2d5294693821acc050')
 
 mvaPhoID_Spring16_nonTrig_V1_wp90.isPOGApproved = cms.untracked.bool(True)
 mvaPhoID_Spring16_nonTrig_V1_wp80.isPOGApproved = cms.untracked.bool(True)
