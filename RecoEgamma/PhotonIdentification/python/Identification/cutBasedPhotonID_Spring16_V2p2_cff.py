@@ -19,91 +19,91 @@ from RecoEgamma.PhotonIdentification.Identification.cutBasedPhotonID_tools impor
 #
 
 # Loose working point Barrel and Endcap
-idName = "cutBasedPhotonID-Spring16-V1-loose"
+idName = "cutBasedPhotonID-Spring16-V2p2-loose"
 WP_Loose_EB = WorkingPoint_V2(
     idName    ,  # idName
-    0.05      ,  # hOverECut
-    0.01042   ,  # full5x5_SigmaIEtaIEtaCut
+    0.0597    ,  # hOverECut
+    0.01031   ,  # full5x5_SigmaIEtaIEtaCut
 # Isolation cuts are generally absIso < C1 + pt*C2, except for NeuHad is < C1 + pt*C2 + pt*pt*C3
-    1.325     ,  # absPFChaHadIsoWithEACut_C1
+    1.295     ,  # absPFChaHadIsoWithEACut_C1
     0         ,  # absPFChaHadIsoWithEACut_C2
-    4.50      ,  # absPFNeuHadIsoWithEACut_C1
+    10.910    ,  # absPFNeuHadIsoWithEACut_C1
     0.0148    ,  # absPFNeuHadIsoWithEACut_C2
     0.000017  ,  # absPFNeuHadIsoWithEACut_C3
-    2.554     ,  # absPFPhoIsoWithEACut_C1
+    3.630     ,  # absPFPhoIsoWithEACut_C1
     0.0047       # absPFPhoIsoWithEACut_C2
     )
 WP_Loose_EE = WorkingPoint_V2(
     idName    ,  #idName
-    0.05      ,  # hOverECut
-    0.02683   ,  # full5x5_SigmaIEtaIEtaCut
+    0.0481    ,  # hOverECut
+    0.03013   ,  # full5x5_SigmaIEtaIEtaCut
 # Isolation cuts are generally absIso < C1 + pt*C2, except for NeuHad is < C1 + pt*C2 + pt*pt*C3
-    1.293     ,  # absPFChaHadIsoWithEACut_C1
+    1.011     ,  # absPFChaHadIsoWithEACut_C1
     0.00      ,  # absPFChaHadIsoWithEACut_C2
-    4.187     ,  # absPFNeuHadIsoWithEACut_C1
+    5.931     ,  # absPFNeuHadIsoWithEACut_C1
     0.0163    ,  # absPFNeuHadIsoWithEACut_C2
     0.000014  ,  # absPFNeuHadIsoWithEACut_C3
-    3.86      ,  # absPFPhoIsoWithEACut_C1
+    6.641     ,  # absPFPhoIsoWithEACut_C1
     0.0034       # absPFPhoIsoWithEACut_C2
     )
 
 # Medium working point Barrel and Endcap
-idName = "cutBasedPhotonID-Spring16-V1-medium"
+idName = "cutBasedPhotonID-Spring16-V2p2-medium"
 WP_Medium_EB = WorkingPoint_V2(
     idName    ,  # idName
-    0.05      ,  # hOverECut
-    0.01012   ,  # full5x5_SigmaIEtaIEtaCut
+    0.0396    ,  # hOverECut
+    0.01022   ,  # full5x5_SigmaIEtaIEtaCut
 # Isolation cuts are generally absIso < C1 + pt*C2, except for NeuHad is < C1 + pt*C2 + pt*pt*C3
-    0.789     ,  # absPFChaHadIsoWithEACut_C1
+    0.441     ,  # absPFChaHadIsoWithEACut_C1
     0.00      ,  # absPFChaHadIsoWithEACut_C2
-    2.364     ,  # absPFNeuHadIsoWithEACut_C1
+    2.725     ,  # absPFNeuHadIsoWithEACut_C1
     0.0148    ,  # absPFNeuHadIsoWithEACut_C2
     0.000017  ,  # absPFNeuHadIsowithEACut_C3 
-    0.425     ,  # absPFPhoIsoWithEACut_C1
+    2.571     ,  # absPFPhoIsoWithEACut_C1
     0.0047       # absPFPhoIsoWithEACut_C2
     )
 
 WP_Medium_EE = WorkingPoint_V2(
     idName    ,  #idName
-    0.05      ,  # hOverECut
-    0.02678   ,  # full5x5_SigmaIEtaIEtaCut
+    0.0219    ,  # hOverECut
+    0.03001   ,  # full5x5_SigmaIEtaIEtaCut
 # Isolation cuts are generally absIso < C1 + pt*C2, except for NeuHad is < C1 + pt*C2 + pt*pt*C3
-    0.447     ,  # absPFChaHadIsoWithEACut_C1
+    0.442     ,  # absPFChaHadIsoWithEACut_C1
     0.00      ,  # absPFChaHadIsoWithEACut_C2
-    1.765     ,  # absPFNeuHadIsoWithEACut_C1
+    1.715     ,  # absPFNeuHadIsoWithEACut_C1
     0.0163    ,  # absPFNeuHadIsoWithEACut_C2
     0.000014  ,  # absPFNeuHadIsowithEACut_C3 
-    3.15      ,  # absPFPhoIsoWithEACut_C1
+    3.863     ,  # absPFPhoIsoWithEACut_C1
     0.0034       # absPFPhoIsoWithEACut_C2
     )
 
 # Tight working point Barrel and Endcap
-idName = "cutBasedPhotonID-Spring16-V1-tight"
+idName = "cutBasedPhotonID-Spring16-V2p2-tight"
 WP_Tight_EB = WorkingPoint_V2(
     idName    ,  # idName
-    0.05      ,  # hOverECut
-    0.01012   ,  # full5x5_SigmaIEtaIEtaCut
+    0.0269    ,  # hOverECut
+    0.00994   ,  # full5x5_SigmaIEtaIEtaCut
 # Isolation cuts are generally absIso < C1 + pt*C2, except for NeuHad is < C1 + pt*C2 + pt*pt*C3
-    0.227     ,  # absPFChaHadIsoWithEACut_C1
+    0.202     ,  # absPFChaHadIsoWithEACut_C1
     0.00      ,  # absPFChaHadIsoWithEACut_C2
-    1.691     ,  # absPFNeuHadIsoWithEACut_C1
+    0.264     ,  # absPFNeuHadIsoWithEACut_C1
     0.0148    ,  # absPFNeuHadIsoWithEACut_C2
     0.000017  ,  # absPFNeuHadIsowithEACut_C3
-    0.346     ,  # absPFPhoIsoWithEACut_C1
+    2.362     ,  # absPFPhoIsoWithEACut_C1
     0.0047       # absPFPhoIsoWithEACut_C2
     )
 
 WP_Tight_EE = WorkingPoint_V2(
     idName    ,  #idName
-    0.05      ,  # hOverECut
-    0.02649   ,  # full5x5_SigmaIEtaIEtaCut
+    0.0213    ,  # hOverECut
+    0.03000   ,  # full5x5_SigmaIEtaIEtaCut
 # Isolation cuts are generally absIso < C1 + pt*C2, except for NeuHad is < C1 + pt*C2 + pt*pt*C3
-    0.146     ,  # absPFChaHadIsoWithEACut_C1
+    0.034     ,  # absPFChaHadIsoWithEACut_C1
     0.00      ,  # absPFChaHadIsoWithEACut_C2
-    0.432     ,  # absPFNeuHadIsoWithEACut_C1
+    0.586     ,  # absPFNeuHadIsoWithEACut_C1
     0.0163    ,  # absPFNeuHadIsoWithEACut_C2
     0.000014  ,  # absPFNeuHadIsowithEACut_C3    
-    2.75      ,  # absPFPhoIsoWithEACut_C1
+    2.617     ,  # absPFPhoIsoWithEACut_C1
     0.0034       # absPFPhoIsoWithEACut_C2
     )
 
@@ -128,9 +128,9 @@ isoInputs = IsolationCutInputs(
 #
 # Finally, set up VID configuration for all cuts
 #
-cutBasedPhotonID_Spring16_V1_loose  = configureVIDCutBasedPhoID_V5 ( WP_Loose_EB, WP_Loose_EE, isoInputs)
-cutBasedPhotonID_Spring16_V1_medium = configureVIDCutBasedPhoID_V5 ( WP_Medium_EB, WP_Medium_EE, isoInputs)
-cutBasedPhotonID_Spring16_V1_tight  = configureVIDCutBasedPhoID_V5 ( WP_Tight_EB, WP_Tight_EE, isoInputs)
+cutBasedPhotonID_Spring16_V2p2_loose  = configureVIDCutBasedPhoID_V5 ( WP_Loose_EB, WP_Loose_EE, isoInputs)
+cutBasedPhotonID_Spring16_V2p2_medium = configureVIDCutBasedPhoID_V5 ( WP_Medium_EB, WP_Medium_EE, isoInputs)
+cutBasedPhotonID_Spring16_V2p2_tight  = configureVIDCutBasedPhoID_V5 ( WP_Tight_EB, WP_Tight_EE, isoInputs)
 
 ## The MD5 sum numbers below reflect the exact set of cut variables
 # and values above. If anything changes, one has to 
@@ -139,13 +139,13 @@ cutBasedPhotonID_Spring16_V1_tight  = configureVIDCutBasedPhoID_V5 ( WP_Tight_EB
 # 3) update the MD5 sum strings below and uncomment the lines again.
 #
 
-central_id_registry.register(cutBasedPhotonID_Spring16_V1_loose.idName,
-                             '651f4061bc8c6065d57dba242da2c7c5')
-central_id_registry.register(cutBasedPhotonID_Spring16_V1_medium.idName,
-                             'f7b30d03b54bfcd6d01ab5e32f3ae910')
-central_id_registry.register(cutBasedPhotonID_Spring16_V1_tight.idName,
-                             '597d1e862cf598aa3fb208d75ff2ff86')
+central_id_registry.register(cutBasedPhotonID_Spring16_V2p2_loose.idName,
+                             'd6ce6a4f3476294bf0a3261e00170daf')
+central_id_registry.register(cutBasedPhotonID_Spring16_V2p2_medium.idName,
+                             'c739cfd0b6287b8586da187c06d4053f')
+central_id_registry.register(cutBasedPhotonID_Spring16_V2p2_tight.idName,
+                             'bdb623bdb1a15c13545020a919dd9530')
 
-cutBasedPhotonID_Spring16_V1_loose.isPOGApproved = cms.untracked.bool(True)
-cutBasedPhotonID_Spring16_V1_medium.isPOGApproved = cms.untracked.bool(True)
-cutBasedPhotonID_Spring16_V1_tight.isPOGApproved = cms.untracked.bool(True)
+cutBasedPhotonID_Spring16_V2p2_loose.isPOGApproved = cms.untracked.bool(True)
+cutBasedPhotonID_Spring16_V2p2_medium.isPOGApproved = cms.untracked.bool(True)
+cutBasedPhotonID_Spring16_V2p2_tight.isPOGApproved = cms.untracked.bool(True)
