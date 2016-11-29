@@ -14,10 +14,6 @@ dqmInfoDT = cms.EDAnalyzer("DQMEventInfo",
                          subSystemFolder = cms.untracked.string('DT')
                          )
 
-# Scalers info
-from EventFilter.ScalersRawToDigi.ScalersRawToDigi_cfi import *
-scalersRawToDigi.scalersInputTag = 'rawDataCollector'
-
 # DT digitization and reconstruction
 # Switched to TwinMux
 from EventFilter.L1TXRawToDigi.twinMuxStage2Digis_cfi import *
@@ -31,7 +27,7 @@ dtunpacker.readOutParameters.debug = False
 dtunpacker.readOutParameters.rosParameters.debug = False
 dtunpacker.inputLabel = 'rawDataCollector'
 
-unpackers = cms.Sequence(dtunpacker + twinMuxStage2Digis + scalersRawToDigi)
+unpackers = cms.Sequence(dtunpacker + twinMuxStage2Digis )
 
 
 dtDataIntegrityUnpacker = cms.EDProducer("DTUnpackingModule",
