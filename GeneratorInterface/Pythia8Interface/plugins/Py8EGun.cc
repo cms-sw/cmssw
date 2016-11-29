@@ -76,15 +76,16 @@ bool Py8EGun::generatePartonsAndHadronize()
 // otherwise just add a 2nd particle of the same type 
 // (for example, gamma)
 //
+// Bug fix:  change antiparticle direction to be opposite to particle
       if ( fAddAntiParticle )
       {
          if ( (fMasterGen->particleData).isParticle( -particleID ) )
 	 {
-	    (fMasterGen->event).append( -particleID, 1, 0, 0, px, py, pz, ee, mass );
+	    (fMasterGen->event).append( -particleID, 1, 0, 0, -px, -py, -pz, ee, mass );
 	 }
 	 else
 	 {
-	    (fMasterGen->event).append( particleID, 1, 0, 0, px, py, pz, ee, mass );
+	    (fMasterGen->event).append( particleID, 1, 0, 0, -px, -py, -pz, ee, mass );
 	 }
       }
 
