@@ -235,9 +235,12 @@ void AlignableTrackerBuilder
 {
   unsigned int numCompositeAlignables = 0;
 
-  TrackerAlignableIndexer trackerIndexer;
-  AlignableCompositeBuilder compositeBuilder(trackerTopology, trackerIndexer);
+  // tracker levels must be built before the indexer is created in order to pass
+  // a valid namespace to the indexer; an exception would be thrown if one tries
+  // to get the namespace w/o building the levels
   auto trackerLevels = trackerAlignmentLevelBuilder_.build();
+  TrackerAlignableIndexer trackerIndexer{trackerAlignmentLevelBuilder_.trackerNameSpace()};
+  AlignableCompositeBuilder compositeBuilder(trackerTopology, trackerIndexer);
 
   for (auto& trackerSubLevels: trackerLevels) {
     // first add all levels of the current subdetector to the builder
