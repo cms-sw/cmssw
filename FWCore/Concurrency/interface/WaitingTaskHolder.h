@@ -31,6 +31,9 @@ namespace edm {
   {
     
   public:
+    WaitingTaskHolder():
+    m_task(nullptr) {}
+    
     explicit WaitingTaskHolder(edm::WaitingTask* iTask):
     m_task(iTask)
     {m_task->increment_ref_count();}
