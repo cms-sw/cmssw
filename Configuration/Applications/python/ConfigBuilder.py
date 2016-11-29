@@ -2222,11 +2222,11 @@ class ConfigBuilder(object):
         #
         # FIXME: remove when no longer needed
         self.pythonCfgCode += "\n# Add early deletion of temporary data products to reduce peak memory need\n"
-        self.pythonCfgCode += "from Configuration.StandardSequences.earlyDeleteSettings_cff import customiseEarlyDeleteForRECO\n"
-        self.pythonCfgCode += "process = customiseEarlyDeleteForRECO(process)\n"
+        self.pythonCfgCode += "from Configuration.StandardSequences.earlyDeleteSettings_cff import customiseEarlyDelete\n"
+        self.pythonCfgCode += "process = customiseEarlyDelete(process)\n"
         self.pythonCfgCode += "# End adding early deletion\n"
-        from Configuration.StandardSequences.earlyDeleteSettings_cff import customiseEarlyDeleteForRECO
-        self.process = customiseEarlyDeleteForRECO(self.process)
+        from Configuration.StandardSequences.earlyDeleteSettings_cff import customiseEarlyDelete
+        self.process = customiseEarlyDelete(self.process)
 
 
 	# make the .io file
