@@ -40,7 +40,7 @@
     <Vector name="Layers" type="numeric" nEntries="6"> 
        10, 16, 16, 16, 25, 33</Vector>
     <Vector name="LayerThick" type="numeric" nEntries="6"> 
-      39.11*mm, 54.91*mm, 59.91*mm, 53.11*mm, 80.82*mm, 129.52*mm
+      39.11*mm, 47.00*mm, 44.09*mm, 45.20*mm, 63.80*mm, 109.50*mm
     </Vector> 
     <Vector name="LayerType" type="numeric" nEntries="116"> 
       0, 8, 7, 26, 10, 10, 10, 9, 14, 27, 
