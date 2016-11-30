@@ -1894,9 +1894,6 @@ namespace edm {
         handler->initializeThisThreadForUse();
       }
 
-      if(iStreamIndex==0) {
-        processEvent(0);
-      }
       do {
         if(shouldWeStop()) {
           break;
@@ -1924,17 +1921,24 @@ namespace edm {
             if(sr) {
               delayedReaderGuard = std::unique_lock<std::recursive_mutex>(*sr);
             }
-            InputSource::ItemType itemType = input_->nextItemType();
-            if (InputSource::IsEvent !=itemType) {
-              nextItemTypeFromProcessingEvents_ = itemType;
-              finishedProcessingEvents->store(true,std::memory_order_release);
-              //std::cerr<<"next item type "<<itemType<<"\n";
-              break;
-            }
-            if((asyncStopRequestedWhileProcessingEvents_=checkForAsyncStopRequest(asyncStopStatusCodeFromProcessingEvents_))) {
-              //std::cerr<<"task told to async stop\n";
-              actReg_->preSourceEarlyTerminationSignal_(TerminationOrigin::ExternalSignal);
-              break;
+            if(not firstEventInBlock_) {
+              //The state machine already called input_->nextItemType
+              // and found an event. We can't call input_->nextItemType
+              // again since it would move to the next transition
+              InputSource::ItemType itemType = input_->nextItemType();
+              if (InputSource::IsEvent !=itemType) {
+                nextItemTypeFromProcessingEvents_ = itemType;
+                finishedProcessingEvents->store(true,std::memory_order_release);
+                //std::cerr<<"next item type "<<itemType<<"\n";
+                break;
+              }
+              if((asyncStopRequestedWhileProcessingEvents_=checkForAsyncStopRequest(asyncStopStatusCodeFromProcessingEvents_))) {
+                //std::cerr<<"task told to async stop\n";
+                actReg_->preSourceEarlyTerminationSignal_(TerminationOrigin::ExternalSignal);
+                break;
+              }
+            } else {
+              firstEventInBlock_ = false;
             }
             readEvent(iStreamIndex);
           }
@@ -1978,8 +1982,9 @@ namespace edm {
 
     std::atomic<bool> finishedProcessingEvents{false};
 
-    //Task assumes Stream 0 has already read the event that caused us to go here
-    readEvent(0);
+    //The state machine already found the event so
+    // we have to avoid looking again
+    firstEventInBlock_ = true;
 
     //To wait, the ref count has to b 1+#streams
     tbb::task* eventLoopWaitTask{new (tbb::task::allocate_root()) tbb::empty_task{}};

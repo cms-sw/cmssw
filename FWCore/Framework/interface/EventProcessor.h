@@ -316,6 +316,7 @@ namespace edm {
     bool                                          asyncStopRequestedWhileProcessingEvents_;
     InputSource::ItemType                         nextItemTypeFromProcessingEvents_;
     StatusCode                                    asyncStopStatusCodeFromProcessingEvents_;
+    bool firstEventInBlock_=true;
     
     typedef std::set<std::pair<std::string, std::string> > ExcludedData;
     typedef std::map<std::string, ExcludedData> ExcludedDataMap;
