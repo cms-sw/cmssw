@@ -174,13 +174,13 @@ StandardSpecifications1D_Num = [
 ]
 
 StandardSpecificationTrend_Num = [
-    Specification().groupBy("PXBarrel/Lumisection" + "/PXLayer|PXDisk/Event")
+    Specification().groupBy("PXBarrel/Lumisection/PXLayer/Event")
                    .reduce("COUNT")
                    .groupBy("PXBarrel/Lumisection")
                    .reduce("MEAN")
                    .groupBy("PXBarrel", "EXTEND_X")
                    .save(),
-    Specification().groupBy("PXForward/Lumisection" + "/PXLayer|PXDisk/Event")
+    Specification().groupBy("PXForward/Lumisection/PXDisk/Event")
                    .reduce("COUNT")
                    .groupBy("PXForward/Lumisection")
                    .reduce("MEAN")
