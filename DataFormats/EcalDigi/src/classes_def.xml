@@ -49,6 +49,11 @@
     <version ClassVersion="11" checksum="515819338"/>
     <version ClassVersion="10" checksum="804498184"/>
    </class>
+   <class name="EcalTimeDigi" ClassVersion="3">
+     <version ClassVersion="3" checksum="3095247500"/>
+   </class>
+
+
    <class name="std::vector<EcalMGPASample>"/>
    <class name="std::vector<EcalFEMSample>"/>
    <class name="std::vector<ESSample>"/>
@@ -62,6 +67,7 @@
    <class name="std::vector<EcalPseudoStripInputDigi>"/>
    <class name="std::vector<EcalPnDiodeDigi>"/>
    <class name="std::vector<EcalMatacqDigi>"/>
+   <class name="std::vector<EcalTimeDigi>"/>
 
    <class name="EcalDigiCollection" ClassVersion="11">
     <version ClassVersion="11" checksum="3935588643"/>
@@ -89,6 +95,7 @@
    <class name="edm::Wrapper<EcalTrigPrimCompactColl>" splitLevel="0"/>   
    
    <class name="edm::SortedCollection<ESDataFrame,edm::StrictWeakOrdering<ESDataFrame> >"/>
+   <class name="edm::SortedCollection<EcalTimeDigi,edm::StrictWeakOrdering<EcalTimeDigi> >"/>
    <class name="edm::SortedCollection<EcalTriggerPrimitiveDigi,edm::StrictWeakOrdering<EcalTriggerPrimitiveDigi> >"/>
    <class name="edm::StrictWeakOrdering<EcalTriggerPrimitiveDigi>" /> <!-- Root6 -->
    <class name="edm::SortedCollection<EcalEBTriggerPrimitiveDigi,edm::StrictWeakOrdering<EcalEBTriggerPrimitiveDigi> >"/>
@@ -106,6 +113,7 @@
    <class name="edm::Wrapper<edm::SortedCollection<EcalTriggerPrimitiveDigi,edm::StrictWeakOrdering<EcalTriggerPrimitiveDigi> > >" splitLevel="0" id="D932A444-CBDD-A27C-4D85-BFED25EFBCF8"/>
    <class name="edm::Wrapper<edm::SortedCollection<EcalEBTriggerPrimitiveDigi,edm::StrictWeakOrdering<EcalEBTriggerPrimitiveDigi> > >" splitLevel="0" id="D932A444-CBDD-A27C-4D85-BFED25EFBCF8"/>
    <class name="edm::Wrapper<edm::SortedCollection<EcalPseudoStripInputDigi,edm::StrictWeakOrdering<EcalPseudoStripInputDigi> > >" splitLevel="0" id=""/>
+   <class name="edm::Wrapper<edm::SortedCollection<EcalTimeDigi,edm::StrictWeakOrdering<EcalTimeDigi> > >" splitLevel="0" id=""/> 
    <class name="edm::Wrapper<edm::SortedCollection<EBSrFlag,edm::StrictWeakOrdering<EBSrFlag> > >" splitLevel="0" id="C0D3A113-A36C-40F1-A388-28ECE47DCBA5"/>
    <class name="edm::Wrapper<edm::SortedCollection<EESrFlag,edm::StrictWeakOrdering<EESrFlag> > >" splitLevel="0" id="CE18D35E-E4F5-4685-8D9A-213D9ACB0606"/>
    <class name="edm::Wrapper<edm::SortedCollection<EcalPnDiodeDigi,edm::StrictWeakOrdering<EcalPnDiodeDigi> > >" id="8104DEE4-28BC-284A-8397-7EF8F5DBA1B1"/>
