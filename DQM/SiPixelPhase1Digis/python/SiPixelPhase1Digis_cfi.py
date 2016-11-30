@@ -117,17 +117,6 @@ SiPixelPhase1DigisHitmap = DefaultHistoDigiCluster.clone(
   )
 )
 
-SiPixelPhase1DigisDebug = DefaultHistoDigiCluster.clone(
-  enabled = False,
-  name = "debug",
-  xlabel = "ladder #",
-  range_min = 1,
-  range_max = 64,
-  range_nbins = 64,
-  specs = VPSet(
-  )
-)
-
 # This has to match the order of the names in the C++ enum.
 SiPixelPhase1DigisConf = cms.VPSet(
   SiPixelPhase1DigisADC,
@@ -136,7 +125,6 @@ SiPixelPhase1DigisConf = cms.VPSet(
   SiPixelPhase1DigisNdigisPerFEDtrend,
   SiPixelPhase1DigisEvents,
   SiPixelPhase1DigisHitmap,
-  SiPixelPhase1DigisDebug
 )
 
 SiPixelPhase1DigisAnalyzer = cms.EDAnalyzer("SiPixelPhase1Digis",
