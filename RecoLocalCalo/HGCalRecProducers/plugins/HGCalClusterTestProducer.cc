@@ -89,7 +89,7 @@ HGCalClusterTestProducer::HGCalClusterTestProducer(const edm::ParameterSet &ps) 
   // hydraTokens[0] = consumes<std::vector<reco::PFCluster> >( edm::InputTag("FakeClusterGen") );
   // hydraTokens[1] = consumes<std::vector<reco::PFCluster> >( edm::InputTag("FakeClusterCaloFace") );
 
-  std::cout << "Constructing HGCalClusterTestProducer" << std::endl;
+  //std::cout << "Constructing HGCalClusterTestProducer" << std::endl;
 
   produces<std::vector<reco::BasicCluster> >();
   produces<std::vector<reco::BasicCluster> >("sharing");
@@ -139,9 +139,9 @@ void HGCalClusterTestProducer::produce(edm::Event& evt,
   if(doSharing)
     *clusters_sharing = algo->getClusters(true);
 
-  std::cout << "Density based cluster size: " << clusters->size() << std::endl;
-  if(doSharing)
-    std::cout << "Sharing clusters size     : " << clusters_sharing->size() << std::endl;
+  //std::cout << "Density based cluster size: " << clusters->size() << std::endl;
+  //if(doSharing)
+  //std::cout << "Sharing clusters size     : " << clusters_sharing->size() << std::endl;
   
   //  edm::Handle<std::vector<reco::PFCluster> > hydra[2];
   std::vector<std::string> names;
