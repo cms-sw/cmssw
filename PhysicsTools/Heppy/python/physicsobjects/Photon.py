@@ -1,6 +1,6 @@
 from PhysicsTools.Heppy.physicsobjects.PhysicsObject import *
 
-import ROOT
+import ROOT, math
 
 class Photon(PhysicsObject ):
 
@@ -44,15 +44,15 @@ class Photon(PhysicsObject ):
     def CutBasedIDWP(self,name):
         # recommeneded PHYS14 working points from POG
         WPs = {
-        # https://twiki.cern.ch/twiki/bin/viewauth/CMS/CutBasedPhotonIdentificationRun2#Pointers_for_PHYS14_selection_im
-        "POG_PHYS14_25ns_Loose": {"conversionVeto": [True,True], "H/E":[0.048,0.069],"sigmaIEtaIEta":[0.0106,0.0266],
-        "chaHadIso":[2.56,3.12],"neuHadIso":[[3.74,0.0025],[17.11,0.0118]],"phoIso":[[2.68,0.001],[2.70,0.0059]]},
+        # https://twiki.cern.ch/twiki/bin/view/CMS/CutBasedPhotonIdentificationRun2#Working_points_for_PHYS14_sample?rev=15
+        "POG_PHYS14_25ns_Loose": {"conversionVeto": [True,True], "H/E":[0.028,0.093],"sigmaIEtaIEta":[0.0107,0.0272],
+        "chaHadIso":[2.67,1.79],"neuHadIso":[[7.23,0.0028,0.5408],[0.01725,8.89]],"phoIso":[[0.0014,2.11],[0.0091,3.09]]},
         
-        "POG_PHYS14_25ns_Medium": {"conversionVeto": [True,True], "H/E":[0.032,0.0166],"sigmaIEtaIEta":[0.0101,0.0264],
-        "chaHadIso":[1.90,1.95],"neuHadIso":[[2.96,0.0025],[4.42,0.0118]],"phoIso":[[1.39,0.001],[1.89,0.0059]]},
+        "POG_PHYS14_25ns_Medium": {"conversionVeto": [True,True], "H/E":[0.012,0.023],"sigmaIEtaIEta":[0.0100,0.0267],
+        "chaHadIso":[1.79,1.09],"neuHadIso":[[0.16,0.0028,0.5408],[0.0172,4.31]],"phoIso":[[0.0014,1.90],[0.0091,1.90]]},
         
-        "POG_PHYS14_25ns_Tight": {"conversionVeto": [True,True], "H/E":[0.011,0.015],"sigmaIEtaIEta":[0.0099,0.0263],
-        "chaHadIso":[1.86,1.68],"neuHadIso":[[2.64,0.0025],[4.42,0.0118]],"phoIso":[[1.39,0.001],[1.03,0.0059]]},
+        "POG_PHYS14_25ns_Tight": {"conversionVeto": [True,True], "H/E":[0.010,0.015],"sigmaIEtaIEta":[0.0100,0.0265],
+        "chaHadIso":[1.66,1.04],"neuHadIso":[[0.14,0.0028,0.5408],[0.0172,3.89]],"phoIso":[[0.0014,1.40],[0.0091,1.40]]},
 
         # https://twiki.cern.ch/twiki/bin/viewauth/CMS/CutBasedPhotonIdentificationRun2#CSA14_selections_for_20_bx_25_sc
         "POG_CSA14_25ns_Loose": {"conversionVeto": [True,True], "H/E":[0.553,0.062],"sigmaIEtaIEta":[0.0099,0.0284],
@@ -78,6 +78,8 @@ class Photon(PhysicsObject ):
     def calScaledIsoValue(self,slope,offset):
         return slope*self.pt()+offset
 
+    def calExpScaledIsoValue(self,offset,exp1,exp2):
+        return offset+math.exp(exp1*self.pt()+exp2)
 
     def passPhotonID(self,name):
 
@@ -96,7 +98,10 @@ class Photon(PhysicsObject ):
         if self.CutBasedIDWP(name)["chaHadIso"][idForBarrel] < self.chargedHadronIso():
             passPhotonID = False
 
-        if self.calScaledIsoValue(*self.CutBasedIDWP(name)["neuHadIso"][idForBarrel]) < self.neutralHadronIso():
+        if idForBarrel==0 and self.calExpScaledIsoValue(*self.CutBasedIDWP(name)["neuHadIso"][idForBarrel]) < self.neutralHadronIso():
+            passPhotonID = False
+
+        if idForBarrel==1 and self.calScaledIsoValue(*self.CutBasedIDWP(name)["neuHadIso"][idForBarrel]) < self.neutralHadronIso():
             passPhotonID = False
 
         if self.calScaledIsoValue(*self.CutBasedIDWP(name)["phoIso"][idForBarrel]) < self.photonIso():
