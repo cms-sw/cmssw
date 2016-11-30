@@ -1,11 +1,11 @@
 <DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
           xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
 
-<SolidSection label="Plane3.xml">
+<SolidSection label="CTPPS_Diamond_Plane3.xml">
       <Box name="Plane" dx="[CTPPS_Diamond_Parameters:Plane_dx]" dy="[CTPPS_Diamond_Parameters:Plane_dy]" dz="[CTPPS_Diamond_Parameters:Plane_dz]"/>
 </SolidSection>
 
-<LogicalPartSection label="Plane3.xml">
+<LogicalPartSection label="CTPPS_Diamond_Plane3.xml">
       <LogicalPart name="Plane" category="unspecified">
               <rSolid name="Plane"/>
               <rMaterial name="CTPPS_Diamond_Materials:Air"/>
@@ -14,7 +14,7 @@
 
 
 
-<PosPartSection label="Plane3.xml">
+<PosPartSection label="CTPPS_Diamond_Plane3.xml">
 <!-- ********  Pattern 1  *********-->
 <PosPart copyNumber="25">
      <rParent name="Plane"/>
