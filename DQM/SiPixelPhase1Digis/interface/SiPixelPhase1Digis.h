@@ -24,7 +24,6 @@ class SiPixelPhase1Digis : public SiPixelPhase1Base {
     NDIGIS_FEDtrend, // number of digis per event and FED 
     EVENT, // event frequency
     MAP, // digi hitmap per module
-    DEBUG, // geometry debugging
 
     MAX_HIST // a sentinel that gives the number of quantities (not a plot).
   };
@@ -43,9 +42,9 @@ class SiPixelPhase1DigisHarvester : public SiPixelPhase1Harvester {
     ADC,
     NDIGIS,
     NDIGIS_FED, 
+    NDIGIS_FEDtrend,
     EVENT,
     MAP,
-    DEBUG,
 
     MAX_HIST
   };
