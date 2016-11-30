@@ -14,7 +14,6 @@ SiPixelPhase1TrackEfficiencyClusterProb = DefaultHisto.clone(
 )
 
 SiPixelPhase1TrackEfficiencyValid = DefaultHisto.clone(
-  bookUndefined = False, # Barrel-only stuff below
   name = "valid",
   title = "Valid Hits",
   dimensions = 0,
@@ -26,12 +25,17 @@ SiPixelPhase1TrackEfficiencyValid = DefaultHisto.clone(
                    .groupBy("PXBarrel/PXLayer/signedLadder", "EXTEND_X")
                    .groupBy("PXBarrel/PXLayer", "EXTEND_Y")
                    .save()
-                   .custom("signedmodule"),
-    Specification().groupBy("PXBarrel|PXForward/PXLayer|PXDisk/signedLadder|PXBlade" + "/ROCinLadder|ROCinBlade")
-                   .groupBy("PXBarrel|PXForward/PXLayer|PXDisk/signedLadder|PXBlade", "EXTEND_X")
-                   .groupBy("PXBarrel|PXForward/PXLayer|PXDisk", "EXTEND_Y")
+                   .custom("signedmodule_barrel"),
+    Specification().groupBy("PXBarrel/PXLayer/signedLadder/ROCinLadder")
+                   .groupBy("PXBarrel/PXLayer/signedLadder", "EXTEND_X")
+                   .groupBy("PXBarrel/PXLayer", "EXTEND_Y")
                    .save()
-                   .custom("perroc")
+                   .custom("perroc_barrel"),
+    Specification().groupBy("PXForward/PXDisk/PXBlade/ROCinBlade")
+                   .groupBy("PXForward/PXDisk/PXBlade", "EXTEND_X")
+                   .groupBy("PXForward/PXDisk", "EXTEND_Y")
+                   .save()
+                   .custom("perroc_forward"),
   )
 )
 

@@ -92,15 +92,26 @@ SiPixelPhase1DigisHitmap = DefaultHistoDigiCluster.clone(
   ylabel = "#digis",
   dimensions = 0,
   specs = VPSet(
-    Specification(PerModule).groupBy("PXBarrel|PXForward/PXLayer|PXDisk/PXLadder|PXBlade/DetId/row/col")
-                   .groupBy("PXBarrel|PXForward/PXLayer|PXDisk/PXLadder|PXBlade/DetId/row", "EXTEND_Y")
-                   .groupBy("PXBarrel|PXForward/PXLayer|PXDisk/PXLadder|PXBlade/DetId", "EXTEND_X")
+    Specification(PerModule).groupBy("PXBarrel/PXLayer/PXLadder/DetId/row/col")
+                   .groupBy("PXBarrel/PXLayer/PXLadder/DetId/row", "EXTEND_Y")
+                   .groupBy("PXBarrel/PXLayer/PXLadder/DetId", "EXTEND_X")
                    .save(),
-    Specification(PerModule).groupBy("PXBarrel|PXForward/PXLayer|PXDisk/PXLadder|PXBlade/DetId/col")
-                   .groupBy("PXBarrel|PXForward/PXLayer|PXDisk/PXLadder|PXBlade/DetId", "EXTEND_X")
+    Specification(PerModule).groupBy("PXBarrel/PXLayer/PXLadder/DetId/col")
+                   .groupBy("PXBarrel/PXLayer/PXLadder/DetId", "EXTEND_X")
                    .save(),
-    Specification(PerModule).groupBy("PXBarrel|PXForward/PXLayer|PXDisk/PXLadder|PXBlade/DetId/row")
-                   .groupBy("PXBarrel|PXForward/PXLayer|PXDisk/PXLadder|PXBlade/DetId", "EXTEND_X")
+    Specification(PerModule).groupBy("PXBarrel/PXLayer/PXLadder/DetId/row")
+                   .groupBy("PXBarrel/PXLayer/PXLadder/DetId", "EXTEND_X")
+                   .save(),
+
+    Specification(PerModule).groupBy("PXForward/PXDisk/PXBlade/DetId/row/col")
+                   .groupBy("PXForward/PXDisk/PXBlade/DetId/row", "EXTEND_Y")
+                   .groupBy("PXForward/PXDisk/PXBlade/DetId", "EXTEND_X")
+                   .save(),
+    Specification(PerModule).groupBy("PXForward/PXDisk/PXBlade/DetId/col")
+                   .groupBy("PXForward/PXDisk/PXBlade/DetId", "EXTEND_X")
+                   .save(),
+    Specification(PerModule).groupBy("PXForward/PXDisk/PXBlade/DetId/row")
+                   .groupBy("PXForward/PXDisk/PXBlade/DetId", "EXTEND_X")
                    .save()
 
   )
@@ -114,11 +125,6 @@ SiPixelPhase1DigisDebug = DefaultHistoDigiCluster.clone(
   range_max = 64,
   range_nbins = 64,
   specs = VPSet(
-    Specification().groupBy("PXBarrel|PXForward/Shell|HalfCylinder/PXLayer|PXDisk/PXRing|/PXLadder|PXBlade") 
-                   .save()
-                   .reduce("MEAN")
-                   .groupBy("PXBarrel|PXForward/Shell|HalfCylinder/PXLayer|PXDisk/PXRing|", "EXTEND_X")
-                   .saveAll(),
   )
 )
 

@@ -9,7 +9,8 @@ SiPixelPhase1TrackClustersOnTrackCharge = DefaultHisto.clone(
   topFolderName = "PixelPhase1/OnTrack",
 
   specs = VPSet(
-    Specification().groupBy("PXBarrel|PXForward/PXLayer|PXDisk").saveAll(),
+    Specification().groupBy("PXBarrel/PXLayer").saveAll(),
+    Specification().groupBy("PXForward/PXDisk").saveAll(),
     StandardSpecification2DProfile
   )
 )
@@ -22,7 +23,8 @@ SiPixelPhase1TrackClustersOnTrackSize = DefaultHisto.clone(
   topFolderName = "PixelPhase1/OnTrack",
 
   specs = VPSet(
-    Specification().groupBy("PXBarrel|PXForward/PXLayer|PXDisk").saveAll(),
+    Specification().groupBy("PXBarrel/PXLayer").saveAll(),
+    Specification().groupBy("PXForward/PXDisk").saveAll(),
   )
 )
 
@@ -34,15 +36,18 @@ SiPixelPhase1TrackClustersOnTrackNClusters = DefaultHisto.clone(
   dimensions = 0,
   topFolderName = "PixelPhase1/OnTrack",
   specs = VPSet(
-    Specification().groupBy("PXBarrel|PXForward/PXLayer|PXDisk" + "/DetId/Event") 
+    Specification().groupBy("PXBarrel/PXLayer" + "/DetId/Event") 
                    .reduce("COUNT") 
-                   .groupBy("PXBarrel|PXForward/PXLayer|PXDisk")
-                   .saveAll()
+                   .groupBy("PXBarrel/PXLayer")
+                   .saveAll(),
+    Specification().groupBy("PXForward/PXDisk" + "/DetId/Event") 
+                   .reduce("COUNT") 
+                   .groupBy("PXForward/PXDisk")
+                   .saveAll(),
   )
 )
 
 SiPixelPhase1TrackClustersOnTrackPositionB = DefaultHisto.clone(
-  bookUndefined = False,
   name = "clusterposition_zphi",
   title = "Cluster Positions",
   range_min   =  -60, range_max   =  60, range_nbins   = 600,
@@ -57,7 +62,6 @@ SiPixelPhase1TrackClustersOnTrackPositionB = DefaultHisto.clone(
 )
 
 SiPixelPhase1TrackClustersOnTrackPositionF = DefaultHisto.clone(
-  bookUndefined = False,
   name = "clusterposition_xy",
   title = "Cluster Positions",
   xlabel = "Global X", ylabel = "Global Y",
