@@ -1,6 +1,6 @@
-#include "RecoLocalCalo/HGCalRecHitDump/interface/HGCalDepthPreClusterer.h"
-#include "RecoLocalCalo/HGCalRecHitDump/interface/HGCalImagingAlgo.h"
-#include "RecoLocalCalo/HGCalRecHitDump/interface/HGCalMultiCluster.h"
+#include "RecoLocalCalo/HGCalRecAlgos/interface/HGCalDepthPreClusterer.h"
+#include "RecoLocalCalo/HGCalRecAlgos/interface/HGCalImagingAlgo.h"
+#include "RecoLocalCalo/HGCalRecAlgos/interface/HGCalMultiCluster.h"
 
 #include <list>
 

@@ -1,5 +1,5 @@
-#ifndef RecoHGCAL_HGCALClusters_HGCalDepthPreClusterer
-#define RecoHGCAL_HGCALClusters_HGCalDepthPreClusterer
+#ifndef RecoLocalCalo_HGCalRecAlgos_HGCalDepthPreClusterer
+#define RecoLocalCalo_HGCalRecAlgos_HGCalDepthPreClusterer
 
 
 #include "DataFormats/Math/interface/Point3D.h"

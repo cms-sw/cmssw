@@ -1,5 +1,5 @@
-#ifndef RecoHGCAL_HGCALClusters_HGCalImagingAlgo_h
-#define RecoHGCAL_HGCALClusters_HGCalImagingAlgo_h
+#ifndef RecoLocalCalo_HGCalRecAlgos_HGCalImagingAlgo_h
+#define RecoLocalCalo_HGCalRecAlgos_HGCalImagingAlgo_h
 
 #include "Geometry/HGCalGeometry/interface/HGCalGeometry.h"
 #include "Geometry/CaloTopology/interface/HGCalTopology.h"
