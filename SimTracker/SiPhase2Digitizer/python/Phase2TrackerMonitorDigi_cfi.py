@@ -23,18 +23,28 @@ digiMon = cms.EDAnalyzer("Phase2TrackerMonitorDigi",
            xmax = cms.double(0.005)
     ),
     PositionOfDigisH = cms.PSet(
-           Nxbins = cms.int32(260),
+           Nxbins = cms.int32(1016),
            xmin   = cms.double(0.5),
-           xmax   = cms.double(260.5),
-           Nybins = cms.int32(2),
+           xmax   = cms.double(1016.5),
+           Nybins = cms.int32(10),
            ymin   = cms.double(0.5),
-           ymax   = cms.double(2.5)
+           ymax   = cms.double(10.5)
     ),
     DigiChargeH = cms.PSet(
       Nbins = cms.int32(261),
       xmin   = cms.double(0.5),
       xmax   = cms.double(260.5)
     ), 
+    TotalNumberOfDigisPerLayerH = cms.PSet(
+      Nbins = cms.int32(1000),
+      xmin   = cms.double(-0.5),
+      xmax   = cms.double(999.5)
+    ),
+    NumberOfHitDetsPerLayerH = cms.PSet(
+      Nbins = cms.int32(200),
+      xmin   = cms.double(-0.5),
+      xmax   = cms.double(199.5)
+    ),
     NumberOfClustersH = cms.PSet(
            Nbins = cms.int32(51),
            xmin = cms.double(-0.5),
