@@ -99,13 +99,6 @@ postValidationMiniAOD = cms.Sequence(
     electronPostValidationSequenceMiniAOD
 )
 
-_run2SL_postValidation = cms.Sequence(
-    recoMuonPostProcessors
-    + MuonGEMHitsPostProcessors
-    + MuonGEMDigisPostProcessors
-    + MuonGEMRecHitsPostProcessors
-)
-
 _run3_postValidation = postValidation.copy()
 _run3_postValidation += MuonGEMHitsPostProcessors
 _run3_postValidation += MuonGEMDigisPostProcessors
@@ -115,8 +108,7 @@ _phase2_postValidation = _run3_postValidation.copy()
 _phase2_postValidation += hgcalPostProcessor
 
 from Configuration.Eras.Modifier_run2_GEMSliceTest_cff import run2_GEMSliceTest
-#run2_GEMSliceTest.toReplaceWith( postValidation, _run3_postValidation )
-run2_GEMSliceTest.toReplaceWith( postValidation_muons, _run2SL_postValidation )
+run2_GEMSliceTest.toReplaceWith( postValidation, _run3_postValidation )
 from Configuration.Eras.Modifier_run3_GEM_cff import run3_GEM
 run3_GEM.toReplaceWith( postValidation, _run3_postValidation )
 from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal

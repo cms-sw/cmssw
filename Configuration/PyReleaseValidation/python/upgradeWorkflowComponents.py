@@ -11,8 +11,8 @@ upgradeKeys[2017] = [
     '2017DesignPU',
     '2017Muon',
     '2017MuonDesign',
-#    '2017MuonPU',
-#    '2017MuonDesignPU',
+    '2017MuonPU',
+    '2017MuonDesignPU',
 ]
 
 upgradeKeys[2023] = [
@@ -100,6 +100,21 @@ upgradeProperties[2017] = {
         'BeamSpot': 'GaussSigmaZ4cm',
         'ScenToRun' : ['GenSimFull','DigiFull','RecoFull','HARVESTFull'],
     },
+    '2017Muon' : {
+    'Geom' : 'Extended2017Muon',
+        'GT' : 'auto:phase1_2017_realistic',
+        'HLTmenu': '@relval2016',
+        'Era' : 'Run2_2017Muon',
+        'ScenToRun' : ['GenSimFull','DigiFull','RecoFull','ALCAFull','HARVESTFull'],
+    },
+    '2017MuonDesign' : {
+        'Geom' : 'Extended2017Muon',
+        'GT' : 'auto:phase1_2017_design',
+        'HLTmenu': '@relval2016',
+        'Era' : 'Run2_2017Muon',
+        'BeamSpot': 'GaussSigmaZ4cm',
+        'ScenToRun' : ['GenSimFull','DigiFull','RecoFull','HARVESTFull'],
+    },
 }
 
 upgradeProperties[2017]['2017PU'] = deepcopy(upgradeProperties[2017]['2017'])
@@ -107,15 +122,10 @@ upgradeProperties[2017]['2017PU']['ScenToRun'] = ['GenSimFull','DigiFullPU','Rec
 upgradeProperties[2017]['2017DesignPU'] = deepcopy(upgradeProperties[2017]['2017Design'])
 upgradeProperties[2017]['2017DesignPU']['ScenToRun'] = ['GenSimFull','DigiFullPU','RecoFullPU','HARVESTFullPU']
 
-upgradeProperties[2017]['2017Muon'] = deepcopy(upgradeProperties[2017]['2017'])
-upgradeProperties[2017]['2017Muon']['Geom'] = ['Extended2017Muon']
-upgradeProperties[2017]['2017Muon']['Era'] = ['Run2_2017Muon']
-upgradeProperties[2017]['2017MuonDesign'] = deepcopy(upgradeProperties[2017]['2017Muon'])
-upgradeProperties[2017]['2017MuonDesign']['GT'] = ['auto:phase1_2017_design']
-#upgradeProperties[2017]['2017MuonPU'] = deepcopy(upgradeProperties[2017]['2017Muon'])
-#upgradeProperties[2017]['2017MuonPU']['ScenToRun'] = ['GenSimFull','DigiFullPU','RecoFullPU','HARVESTFullPU']
-#upgradeProperties[2017]['2017MuonDesignPU'] = deepcopy(upgradeProperties[2017]['2017MuonDesign'])
-#upgradeProperties[2017]['2017MuonDesignPU']['ScenToRun'] = ['GenSimFull','DigiFullPU','RecoFullPU','HARVESTFullPU']
+upgradeProperties[2017]['2017MuonPU'] = deepcopy(upgradeProperties[2017]['2017Muon'])
+upgradeProperties[2017]['2017MuonPU']['ScenToRun'] = ['GenSimFull','DigiFullPU','RecoFullPU','HARVESTFullPU']
+upgradeProperties[2017]['2017MuonDesignPU'] = deepcopy(upgradeProperties[2017]['2017MuonDesign'])
+upgradeProperties[2017]['2017MuonDesignPU']['ScenToRun'] = ['GenSimFull','DigiFullPU','RecoFullPU','HARVESTFullPU']
 
 upgradeProperties[2023] = {
     '2023D7' : {
