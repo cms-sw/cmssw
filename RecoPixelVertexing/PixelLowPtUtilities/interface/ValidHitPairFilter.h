@@ -25,7 +25,7 @@ public:
   void update(const edm::Event& ev, const edm::EventSetup& es) override;
   virtual bool operator()(const reco::Track * track,
                           const std::vector<const TrackingRecHit *>& recHits,
-			  const TrackerTopology *tTopo) const;
+			  const TrackerTopology *tTopo) const override;
 
 private:
   int getLayer(const TrackingRecHit & recHit, const TrackerTopology *tTopo) const;

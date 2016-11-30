@@ -86,7 +86,7 @@ public:
 
    private:
       virtual void produce(edm::Event&, const edm::EventSetup&) override;
-      virtual void endJob() ;
+      virtual void endJob() override ;
 
       /// check if the trajectory has to be refitted and get the new trajectory
       bool newTrajNeeded(Trajectory& newtrajectory, const TrajectoryRef& trajRef, const reco::NuclearInteraction& ni);

@@ -42,7 +42,7 @@ public:
   virtual void hitSets( const TrackingRegion& region, OrderedMultiHits & trs, 
                         const edm::Event & ev, const edm::EventSetup& es,
                         SeedingLayerSetsHits::SeedingLayerSet pairLayers,
-                        std::vector<SeedingLayerSetsHits::SeedingLayer> thirdLayers);
+                        std::vector<SeedingLayerSetsHits::SeedingLayer> thirdLayers) override;
 
   void hitSets(const TrackingRegion& region, OrderedMultiHits& trs,
                const edm::Event& ev, const edm::EventSetup& es,

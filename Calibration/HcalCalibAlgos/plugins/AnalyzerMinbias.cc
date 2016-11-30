@@ -70,8 +70,8 @@ public:
   ~AnalyzerMinbias();
 
   virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-  virtual void beginJob() ;
-  virtual void endJob() ;
+  virtual void beginJob() override;
+  virtual void endJob() override;
   
 private:
     

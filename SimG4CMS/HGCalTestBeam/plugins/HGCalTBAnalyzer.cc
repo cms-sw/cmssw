@@ -55,7 +55,7 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  virtual void beginJob() ;
+  virtual void beginJob() override ;
   virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
   virtual void endRun(edm::Run const&, edm::EventSetup const&) override {}
   virtual void analyze(edm::Event const&, edm::EventSetup const&) override;

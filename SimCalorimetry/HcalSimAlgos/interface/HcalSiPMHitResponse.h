@@ -34,7 +34,7 @@ public:
   typedef std::vector<unsigned int> photonTimeHist;
   typedef std::map< DetId, photonTimeHist > photonTimeMap;
 
-  virtual void initializeHits();
+  virtual void initializeHits() override;
 
   virtual void finalizeHits(CLHEP::HepRandomEngine*) override;
 

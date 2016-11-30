@@ -36,12 +36,12 @@ public:
 
   virtual ~GsfTrajectoryFitter();
 
-  Trajectory fitOne(const Trajectory& t, fitType type) const;
+  Trajectory fitOne(const Trajectory& t, fitType type) const override;
   Trajectory fitOne(const TrajectorySeed& aSeed,
 		    const RecHitContainer& hits,
-		    const TrajectoryStateOnSurface& firstPredTsos, fitType type) const;
+		    const TrajectoryStateOnSurface& firstPredTsos, fitType type) const override;
   Trajectory fitOne(const TrajectorySeed& aSeed,
-		    const RecHitContainer& hits, fitType type) const;
+		    const RecHitContainer& hits, fitType type) const override;
 
 
 
@@ -61,7 +61,7 @@ public:
                                 theGeometry));
   }
 
-  virtual void setHitCloner(TkCloner const * hc) {
+  virtual void setHitCloner(TkCloner const * hc) override {
      theHitCloner = hc;
   }
 
