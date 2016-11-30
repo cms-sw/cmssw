@@ -75,6 +75,7 @@
   <class name="edm::Wrapper<reco::PFMET>"/>
   <class name="edm::Wrapper<std::vector<reco::PFMET> >"/>
   <class name="std::vector<reco::PFMET>"/>
+  <class name="std::vector<edm::Ref<std::vector<reco::PFMET> > >"/>
 
   <class name="reco::PFClusterMET" ClassVersion="12">
    <version ClassVersion="12" checksum="3688821779"/>
