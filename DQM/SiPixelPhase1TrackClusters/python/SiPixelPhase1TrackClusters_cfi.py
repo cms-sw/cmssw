@@ -8,7 +8,7 @@ SiPixelPhase1TrackClustersOnTrackCharge = DefaultHisto.clone(
   xlabel = "Charge (electrons)",
   topFolderName = "PixelPhase1/OnTrack",
 
-  specs = cms.VPSet(
+  specs = VPSet(
     Specification().groupBy("PXBarrel|PXForward/PXLayer|PXDisk").saveAll(),
     StandardSpecification2DProfile
   )
@@ -21,7 +21,7 @@ SiPixelPhase1TrackClustersOnTrackSize = DefaultHisto.clone(
   xlabel = "size[pixels]",
   topFolderName = "PixelPhase1/OnTrack",
 
-  specs = cms.VPSet(
+  specs = VPSet(
     Specification().groupBy("PXBarrel|PXForward/PXLayer|PXDisk").saveAll(),
   )
 )
@@ -33,7 +33,7 @@ SiPixelPhase1TrackClustersOnTrackNClusters = DefaultHisto.clone(
   xlabel = "clusters",
   dimensions = 0,
   topFolderName = "PixelPhase1/OnTrack",
-  specs = cms.VPSet(
+  specs = VPSet(
     Specification().groupBy("PXBarrel|PXForward/PXLayer|PXDisk" + "/DetId/Event") 
                    .reduce("COUNT") 
                    .groupBy("PXBarrel|PXForward/PXLayer|PXDisk")
@@ -50,7 +50,7 @@ SiPixelPhase1TrackClustersOnTrackPositionB = DefaultHisto.clone(
   xlabel = "Global Z", ylabel = "Global \phi",
   dimensions = 2,
   topFolderName = "PixelPhase1/OnTrack",
-  specs = cms.VPSet(
+  specs = VPSet(
     Specification().groupBy("PXBarrel/PXLayer").save(),
     Specification().groupBy("").save(),
   )
@@ -65,7 +65,7 @@ SiPixelPhase1TrackClustersOnTrackPositionF = DefaultHisto.clone(
   range_y_min = -20, range_y_max = 20, range_y_nbins = 200,
   dimensions = 2,
   topFolderName = "PixelPhase1/OnTrack",
-  specs = cms.VPSet(
+  specs = VPSet(
     Specification().groupBy("PXForward/PXDisk").save(),
   )
 )
@@ -92,7 +92,7 @@ SiPixelPhase1TrackClustersNTracks = DefaultHisto.clone(
   range_min = 1, range_max = 5, range_nbins = 4,
   dimensions = 1,
   topFolderName = "PixelPhase1/Tracks",
-  specs = cms.VPSet(
+  specs = VPSet(
     Specification().groupBy("").save()
   )
 )
@@ -104,7 +104,7 @@ SiPixelPhase1TrackClustersNTracksInVolume = DefaultHisto.clone(
   range_min = 0, range_max = 2, range_nbins = 2,
   dimensions = 1,
   topFolderName = "PixelPhase1/Tracks",
-  specs = cms.VPSet(
+  specs = VPSet(
     Specification().groupBy("").save()
   )
 )

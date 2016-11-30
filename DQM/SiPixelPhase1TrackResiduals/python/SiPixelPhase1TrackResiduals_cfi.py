@@ -7,9 +7,9 @@ SiPixelPhase1TrackResidualsResidualsX = DefaultHisto.clone(
   range_min = -0.05, range_max = 0.05, range_nbins = 100,
   xlabel = "(x_rec - x_pred) [cm]",
   dimensions = 1,
-  specs = cms.VPSet(
+  specs = VPSet(
     StandardSpecification2DProfile,
-    *StandardSpecifications1D
+    StandardSpecifications1D
   )
 )
 

@@ -7,10 +7,10 @@ SiPixelPhase1ClustersCharge = DefaultHistoDigiCluster.clone(
   range_min = 0, range_max = 200e3, range_nbins = 200,
   xlabel = "Charge (electrons)",
   
-  specs = cms.VPSet(
+  specs = VPSet(
     StandardSpecification2DProfile,
     StandardSpecificationTrend,
-    *StandardSpecifications1D
+    StandardSpecifications1D
   )
 )
 
@@ -19,10 +19,10 @@ SiPixelPhase1ClustersSize = DefaultHistoDigiCluster.clone(
   title = "Total Cluster Size",
   range_min = 0, range_max = 30, range_nbins = 30,
   xlabel = "size[pixels]",
-  specs = cms.VPSet(
+  specs = VPSet(
     StandardSpecification2DProfile,
     StandardSpecificationTrend,
-    *StandardSpecifications1D
+    StandardSpecifications1D
   )
 )
 
@@ -32,7 +32,7 @@ SiPixelPhase1ClustersNClusters = DefaultHistoDigiCluster.clone(
   range_min = 0, range_max = 10, range_nbins = 10,
   xlabel = "clusters",
   dimensions = 0,
-  specs = cms.VPSet(
+  specs = VPSet(
     StandardSpecification2DProfile_Num,
     StandardSpecificationTrend_Num
   )
@@ -44,7 +44,7 @@ SiPixelPhase1ClustersEventrate = DefaultHistoDigiCluster.clone(
   xlabel = "Lumisection",
   ylabel = "#Events",
   dimensions = 0,
-  specs = cms.VPSet(
+  specs = VPSet(
     Specification().groupBy("Lumisection")
                    .groupBy("", "EXTEND_X").save()
   )
@@ -58,7 +58,7 @@ SiPixelPhase1ClustersPositionB = DefaultHistoDigiCluster.clone(
   range_y_min = -3.2, range_y_max = 3.2, range_y_nbins = 200,
   xlabel = "Global Z", ylabel = "Global \phi",
   dimensions = 2,
-  specs = cms.VPSet(
+  specs = VPSet(
     Specification().groupBy("PXBarrel/PXLayer").save(),
     Specification().groupBy("").save(),
   )
@@ -72,7 +72,7 @@ SiPixelPhase1ClustersPositionF = DefaultHistoDigiCluster.clone(
   range_min   = -20, range_max   = 20, range_nbins   = 200,
   range_y_min = -20, range_y_max = 20, range_y_nbins = 200,
   dimensions = 2,
-  specs = cms.VPSet(
+  specs = VPSet(
     Specification().groupBy("PXForward/PXDisk").save(),
     Specification().groupBy("PXForward").save(),
     #Specification().groupBy("PXBarrel").save(),
@@ -87,7 +87,7 @@ SiPixelPhase1ClustersPositionXZ = DefaultHistoDigiCluster.clone(
   range_min   = -20, range_max   = 20, range_nbins   = 200,
   range_y_min = -60, range_y_max = 60, range_y_nbins = 1200,
   dimensions = 2,
-  specs = cms.VPSet(
+  specs = VPSet(
   )
 )
 
@@ -99,7 +99,7 @@ SiPixelPhase1ClustersPositionYZ = DefaultHistoDigiCluster.clone(
   range_min   = -20, range_max   = 20, range_nbins   = 200,
   range_y_min = -60, range_y_max = 60, range_y_nbins = 1200,
   dimensions = 2,
-  specs = cms.VPSet(
+  specs = VPSet(
   )
 )
 
@@ -112,7 +112,7 @@ SiPixelPhase1ClustersSizeVsEta = DefaultHistoDigiCluster.clone(
   range_min = -3.2, range_max  = 3.2, range_nbins   = 40,
   range_y_min =  0, range_y_max = 40, range_y_nbins = 40,
   dimensions = 2,
-  specs = cms.VPSet(
+  specs = VPSet(
     Specification().groupBy("PXBarrel").save()
   )
 )

@@ -10,10 +10,10 @@ SiPixelPhase1DigisADC = DefaultHistoDigiCluster.clone(
   range_min = 0,
   range_max = 300,
   range_nbins = 300,
-  specs = cms.VPSet(
+  specs = VPSet(
     StandardSpecificationTrend,
     StandardSpecification2DProfile,
-    *StandardSpecifications1D
+    StandardSpecifications1D
   )
 )
 
@@ -25,10 +25,10 @@ SiPixelPhase1DigisNdigis = DefaultHistoDigiCluster.clone(
   range_max = 30,
   range_nbins = 30,
   dimensions = 0, # this is a count
-  specs = cms.VPSet(
+  specs = VPSet(
     StandardSpecificationTrend_Num,
     StandardSpecification2DProfile_Num,
-    *StandardSpecifications1D_Num
+    StandardSpecifications1D_Num
   )
 )
 
@@ -40,7 +40,7 @@ SiPixelPhase1DigisNdigisPerFED = DefaultHisto.clone( #to be removed?
   range_max = 1000,
   range_nbins = 200,
   dimensions = 0, 
-  specs = cms.VPSet(
+  specs = VPSet(
     # the double "FED" here is due to a "bug", caused by how the specs are
     # translated for step1. Interpret as "count by FED, extend by FED".
     Specification().groupBy("FED/FED/Event")
@@ -59,7 +59,7 @@ SiPixelPhase1DigisNdigisPerFEDtrend = DefaultHisto.clone(
   range_max = 1000,
   range_nbins = 200,
   dimensions = 0,
-  specs = cms.VPSet(
+  specs = VPSet(
   Specification().groupBy("Lumisection/FED/FED/Event")
                    .reduce("COUNT")
                    .groupBy("Lumisection/FED")
@@ -78,7 +78,7 @@ SiPixelPhase1DigisEvents = DefaultHisto.clone(
   xlabel = "Lumisection",
   ylabel = "#Events",
   dimensions = 0,
-  specs = cms.VPSet(
+  specs = VPSet(
     Specification().groupBy("Lumisection")
                    .groupBy("", "EXTEND_X").save(),
     Specification().groupBy("BX")
@@ -91,7 +91,7 @@ SiPixelPhase1DigisHitmap = DefaultHistoDigiCluster.clone(
   title = "Position of digis on module",
   ylabel = "#digis",
   dimensions = 0,
-  specs = cms.VPSet(
+  specs = VPSet(
     Specification(PerModule).groupBy("PXBarrel|PXForward/PXLayer|PXDisk/PXLadder|PXBlade/DetId/row/col")
                    .groupBy("PXBarrel|PXForward/PXLayer|PXDisk/PXLadder|PXBlade/DetId/row", "EXTEND_Y")
                    .groupBy("PXBarrel|PXForward/PXLayer|PXDisk/PXLadder|PXBlade/DetId", "EXTEND_X")
@@ -113,7 +113,7 @@ SiPixelPhase1DigisDebug = DefaultHistoDigiCluster.clone(
   range_min = 1,
   range_max = 64,
   range_nbins = 64,
-  specs = cms.VPSet(
+  specs = VPSet(
     Specification().groupBy("PXBarrel|PXForward/Shell|HalfCylinder/PXLayer|PXDisk/PXRing|/PXLadder|PXBlade") 
                    .save()
                    .reduce("MEAN")

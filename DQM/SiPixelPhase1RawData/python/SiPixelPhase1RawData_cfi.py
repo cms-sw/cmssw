@@ -9,7 +9,7 @@ topFolderName = DefaultHisto.topFolderName.value() +"/FED",
   xlabel = "errors",
   range_min = 0, range_max = 30, range_nbins = 30,
   dimensions = 0,
-  specs = cms.VPSet(
+  specs = VPSet(
     Specification().groupBy("FED/|/Event")
                    .reduce("COUNT")
                    .groupBy("FED/|").save(),
@@ -30,7 +30,7 @@ SiPixelPhase1RawDataFIFOFull = DefaultHisto.clone(
     xlabel = "FIFO (data bit #)",
     range_min = -0.5, range_max = 7.5, range_nbins = 8,
     dimensions = 1,
-    specs = cms.VPSet(
+    specs = VPSet(
         Specification().groupBy("FED/|").save(),
     )
 )
@@ -42,7 +42,7 @@ SiPixelPhase1RawDataTBMMessage = DefaultHisto.clone(
   xlabel = "TBM message (data bit #)",
   range_min = -0.5, range_max = 7.5, range_nbins = 8,
   dimensions = 1,
-  specs = cms.VPSet(
+  specs = VPSet(
     Specification().groupBy("FED/|").save(),
   )
 )
@@ -54,7 +54,7 @@ SiPixelPhase1RawDataTBMType = DefaultHisto.clone(
   xlabel = "TBM type",
   range_min = -0.5, range_max = 4.5, range_nbins = 4,
   dimensions = 1,
-  specs = cms.VPSet(
+  specs = VPSet(
     Specification().groupBy("FED/|").save(),
   )
 )
@@ -66,7 +66,7 @@ SiPixelPhase1RawDataTypeNErrors = DefaultHisto.clone(
   xlabel = "Error Type",
   range_min = 0, range_max = 50, range_nbins = 51,#TODO: proper range here
   dimensions = 1,
-  specs = cms.VPSet(
+  specs = VPSet(
     Specification().groupBy("FED/|").save(),
     Specification().groupBy("FED")
                    .groupBy("", "EXTEND_Y").save(),

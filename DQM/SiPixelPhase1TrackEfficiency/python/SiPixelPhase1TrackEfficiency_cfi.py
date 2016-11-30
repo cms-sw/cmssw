@@ -8,8 +8,8 @@ SiPixelPhase1TrackEfficiencyClusterProb = DefaultHisto.clone(
   xlabel = "log_10(Pr)",
   range_min = -10, range_max = 0, range_nbins = 200,
   dimensions = 1,
-  specs = cms.VPSet(
-    *StandardSpecifications1D
+  specs = VPSet(
+    StandardSpecifications1D
   )
 )
 
@@ -18,7 +18,7 @@ SiPixelPhase1TrackEfficiencyValid = DefaultHisto.clone(
   name = "valid",
   title = "Valid Hits",
   dimensions = 0,
-  specs = cms.VPSet(
+  specs = VPSet(
     # custom() is called here after every save to export the histos for the
     # efficiency harvesting. The parameter is just a tag that we don't confuse 
     # the histos of different specs.
