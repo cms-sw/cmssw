@@ -21,7 +21,7 @@
 class TotemVFATStatus
 {
   public:
-    TotemVFATStatus(uint8_t _cp = 0) : chipPosition(_cp), status(0), numberOfClustersSpecified(false), numberOfClusters(0)
+    TotemVFATStatus(uint8_t _cp = 0) : chipPosition(_cp), status(0), numberOfClustersSpecified(false), numberOfClusters(0), eventCounter(0)
     {
     }
 
@@ -83,6 +83,10 @@ class TotemVFATStatus
 	}
   
     friend std::ostream& operator << (std::ostream& s, const TotemVFATStatus &st);
+    
+    /// event Counter
+    inline uint8_t getEC() const {return eventCounter;}
+    inline void setEC(const uint8_t ec) { eventCounter = ec; }
 
   private:
     /// describes placement of the VFAT within the detector
@@ -94,6 +98,9 @@ class TotemVFATStatus
     /// the number of hit clusters before DAQ trimming
     bool numberOfClustersSpecified;
     uint8_t numberOfClusters;
+    
+    /// event counter in the VFAT frame
+    uint8_t eventCounter;
 };
 
 #endif
