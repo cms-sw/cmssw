@@ -51,7 +51,6 @@ SiPixelPhase1ClustersEventrate = DefaultHistoDigiCluster.clone(
 )
 
 SiPixelPhase1ClustersPositionB = DefaultHistoDigiCluster.clone(
-  bookUndefined = False,
   name = "clusterposition_zphi",
   title = "Cluster Positions",
   range_min   =  -60, range_max   =  60, range_nbins   = 600,
@@ -65,7 +64,6 @@ SiPixelPhase1ClustersPositionB = DefaultHistoDigiCluster.clone(
 )
 
 SiPixelPhase1ClustersPositionF = DefaultHistoDigiCluster.clone(
-  bookUndefined = False,
   name = "clusterposition_xy",
   title = "Cluster Positions",
   xlabel = "Global X", ylabel = "Global Y",
@@ -104,7 +102,6 @@ SiPixelPhase1ClustersPositionYZ = DefaultHistoDigiCluster.clone(
 )
 
 SiPixelPhase1ClustersSizeVsEta = DefaultHistoDigiCluster.clone(
-  bookUndefined = False, # Barrel only
   name = "sizeyvseta",
   title = "Cluster Size along Beamline vs. Cluster position #eta",
   xlabel = "Cluster #eta",

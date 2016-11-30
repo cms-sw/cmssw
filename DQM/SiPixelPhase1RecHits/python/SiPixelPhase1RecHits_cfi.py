@@ -57,7 +57,8 @@ SiPixelPhase1RecHitsPosition = DefaultHisto.clone(
   ylabel = "y offset",
   dimensions = 2,
   specs = VPSet(
-    Specification(PerModule).groupBy("PXBarrel|PXForward/PXLayer|PXDisk/DetId").save(),
+    Specification(PerModule).groupBy("PXBarrel/PXLayer/DetId").save(),
+    Specification(PerModule).groupBy("PXForward/PXDisk/DetId").save(),
   )
 )
 
