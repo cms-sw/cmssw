@@ -1,5 +1,5 @@
-#ifndef __newpf_PFClusterProducer_H__
-#define __newpf_PFClusterProducer_H__
+#ifndef __RecoLocalCalo_HGCRecProducers_PFClusterProducer_H__
+#define __RecoLocalCalo_HGCRecProducers_PFClusterProducer_H__
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -17,9 +17,9 @@
 
 #include <memory>
 
-#include "RecoLocalCalo/HGCalRecHitDump/interface/HGCalImagingAlgo.h"
-#include "RecoLocalCalo/HGCalRecHitDump/interface/HGCalDepthPreClusterer.h"
-#include "RecoLocalCalo/HGCalRecHitDump/interface/HGCalMultiCluster.h"
+#include "RecoLocalCalo/HGCalRecAlgos/interface/HGCalImagingAlgo.h"
+#include "RecoLocalCalo/HGCalRecAlgos/interface/HGCalDepthPreClusterer.h"
+#include "RecoLocalCalo/HGCalRecAlgos/interface/HGCalMultiCluster.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
