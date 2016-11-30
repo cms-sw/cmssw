@@ -609,9 +609,9 @@ Nominal5TeVpp2015VtxSmearingParameters = cms.PSet(
     Alpha = cms.double(0.0),
     SigmaZ = cms.double(5.5),
     TimeOffset = cms.double(0.0),
-    X0 = cms.double(0.1044),
-    Y0 = cms.double(0.1676),
-    Z0 = cms.double(0.6707)
+    X0 = cms.double(0.0889),
+    Y0 = cms.double(0.1820),
+    Z0 = cms.double(1.6066)
 )
 
 # From fit to 5 TeV pPb data
