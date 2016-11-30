@@ -632,9 +632,9 @@ Realistic5TeVPACollision2016VtxSmearingParameters = cms.PSet(
     Alpha = cms.double(0.0),
     SigmaZ = cms.double(6.4225),
     TimeOffset = cms.double(0.0),
-    X0 = cms.double(0.0624),
-    Y0 = cms.double(0.1036),
-    Z0 = cms.double(1.0157)    
+    X0 = cms.double(0.0889),
+    Y0 = cms.double(0.1820),
+    Z0 = cms.double(1.6066)    
 )
 
 # From fit to 8 TeV pPb data
