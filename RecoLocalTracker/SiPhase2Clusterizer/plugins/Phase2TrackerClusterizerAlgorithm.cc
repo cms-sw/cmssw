@@ -71,6 +71,7 @@ void Phase2TrackerClusterizerAlgorithm::clusterizeDetUnit(const edm::DetSet< Pha
                 sizeCluster = 0;
                 // Increase the number of clusters
                 ++numberClusters;
+                HIPbit = false;
             }
 
             // Check if we hit the maximum number of clusters per module

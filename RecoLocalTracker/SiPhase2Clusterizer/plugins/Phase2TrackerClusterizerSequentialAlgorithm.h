@@ -23,7 +23,9 @@ Phase2TrackerClusterizerSequentialAlgorithm::clusterizeDetUnit(const edm::DetSet
   ++di;
   for (;di!=digis.end(); ++di) {
     auto digi = *di;
+#ifdef VERIFY_PH2_TK_CLUS
     if ( !(previous<digi)) std::cout << "not ordered " << previous << ' ' << digi << std::endl; 
+#endif
     if (digi-previous == 1) {
       HIPbit |= digi.overThreshold();
       ++sizeCluster;
