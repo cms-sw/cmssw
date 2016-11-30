@@ -45,7 +45,6 @@ ElectronTkIsolation::ElectronTkIsolation (double extRadius,
   trackCollection_(trackCollection),
   beamPoint_(beamPoint)
 {
-    setDefaultAlgosToReject();
     setDzOption(dzOptionString);
 }
 
@@ -87,13 +86,19 @@ std::pair<int,double> ElectronTkIsolation::getIso(const reco::Track* tmpTrack) c
     if (fabs( (*itrTr).dxy(beamPoint_) ) > drb_   ) continue;
     double dr = ROOT::Math::VectorUtil::DeltaR(itrTr->momentum(),tmpElectronMomentumAtVtx) ;
     double deta = (*itrTr).eta() - tmpElectronEtaAtVertex;
-    bool isBarrel = std::abs(tmpElectronEtaAtVertex) < 1.479;
-    double intRadius = isBarrel ? intRadiusBarrel_ : intRadiusEndcap_;
-    double strip = isBarrel ? stripBarrel_ : stripEndcap_;
-    if(dr < extRadius_ && dr>=intRadius && std::abs(deta) >=strip && passAlgo(*itrTr)){
-        
-        ++counter ;
-        ptSum += this_pt;
+    if (fabs(tmpElectronEtaAtVertex) < 1.479) { 
+    	if ( fabs(dr) < extRadius_ && fabs(dr) >= intRadiusBarrel_ && fabs(deta) >= stripBarrel_)
+      	{
+	    ++counter ;
+	    ptSum += this_pt;
+      	}
+    }
+    else {
+        if ( fabs(dr) < extRadius_ && fabs(dr) >= intRadiusEndcap_ && fabs(deta) >= stripEndcap_)
+        {
+            ++counter ;
+            ptSum += this_pt;
+        }
     }
 
   }//end loop over tracks                 
@@ -115,20 +120,5 @@ int ElectronTkIsolation::getNumberTracks (const reco::GsfElectron* electron) con
 double ElectronTkIsolation::getPtTracks (const reco::GsfElectron* electron) const
 {
   return getIso(electron).second ;
-}
-
-
-bool ElectronTkIsolation::passAlgo(const reco::TrackBase& trk)const
-{
-  int algo = trk.algo();
-  bool rejAlgo=std::binary_search(algosToReject_.begin(),algosToReject_.end(),algo);
-  return rejAlgo==false;
-}
-
-
-void ElectronTkIsolation::setAlgosToReject(std::vector<int> algos)
-{
-  algosToReject_=std::move(algos);
-  std::sort(algosToReject_.begin(),algosToReject_.end());
 }
 
