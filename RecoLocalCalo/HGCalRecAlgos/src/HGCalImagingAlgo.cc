@@ -1,4 +1,4 @@
-#include "RecoLocalCalo/HGCalRecHitDump/interface/HGCalImagingAlgo.h"
+#include "RecoLocalCalo/HGCalRecAlgos/interface/HGCalImagingAlgo.h"
 
 // Geometry
 #include "Geometry/Records/interface/IdealGeometryRecord.h"

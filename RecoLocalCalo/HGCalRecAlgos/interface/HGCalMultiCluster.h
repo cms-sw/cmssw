@@ -1,5 +1,5 @@
-#ifndef RecoHGCAL_HGCALClusters_HGCalMultiCluster
-#define RecoHGCAL_HGCALClusters_HGCalMultiCluster
+#ifndef RecoLocalCalo_HGCalRecAlgos_HGCalMultiCluster
+#define RecoLocalCalo_HGCalRecAlgos_HGCalMultiCluster
 
 #include <vector>
 
