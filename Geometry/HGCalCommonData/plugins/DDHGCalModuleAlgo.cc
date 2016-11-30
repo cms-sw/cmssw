@@ -197,7 +197,7 @@ void DDHGCalModuleAlgo::constructLayers(DDLogicalPart module,
     } // End of loop over layers in a block
     zi     = zo;
     laymin = laymax;
-    if (abs(thickTot-layerThick[i]) < 0.00001) {
+    if (fabs(thickTot-layerThick[i]) < 0.00001) {
     } else if (thickTot > layerThick[i]) {
       edm::LogError("HGCalGeom") << "Thickness of the partition " << layerThick[i]
 				 << " is smaller than thickness " << thickTot
