@@ -26,15 +26,19 @@ class SiPixelPhase1GeometryDebug : public SiPixelPhase1Base {
 
   void analyze(const edm::Event& iEvent, const edm::EventSetup&) {
     auto& all = geometryInterface.allModules();
-    GeometryInterface::Column ladderblade = {{geometryInterface.intern("PXLadder"), geometryInterface.intern("PXBlade")}};
-    GeometryInterface::Column roc = {{geometryInterface.intern("ROC"), 0}};
-    GeometryInterface::Column fed = {{geometryInterface.intern("FED"), 0}};
+    GeometryInterface::Column ladder = geometryInterface.intern("PXLadder");
+    GeometryInterface::Column blade  = geometryInterface.intern("PXBlade");
+    GeometryInterface::Column roc = geometryInterface.intern("ROC");
+    GeometryInterface::Column fed = geometryInterface.intern("FED");
 
     for (auto iq : all) {
-      auto ladbld = geometryInterface.extract(ladderblade, iq);
       auto rocno = geometryInterface.extract(roc, iq);
       auto fedno = geometryInterface.extract(fed, iq);
       auto detid = iq.sourceModule.rawId();
+
+      auto ladbld = geometryInterface.extract(ladder, iq);
+      if (ladbld.second == GeometryInterface::UNDEFINED) 
+        ladbld = geometryInterface.extract(blade, iq);
 
       histo[DETID ].fill((float) detid,         iq.sourceModule, &iEvent, iq.col, iq.row);
       histo[LADBLD].fill((float) ladbld.second, iq.sourceModule, &iEvent, iq.col, iq.row);

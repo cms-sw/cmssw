@@ -28,57 +28,15 @@ class GeometryInterface {
  public:
   // an ID is produced by interning a string name.
   typedef int ID;
-  // A column can have multiple IDs if it is a or-form. If not, only [0] is
-  // used, the other entries are 0. A limit of 2 is arbitrary here.
-  // Once a value is assigned, the column is "normalized", and only the ID
-  // of the extracted value is in [0]. Fuzzy matching is used to find a
-  // normalized column when a multicolumn is given and vice versa.
-  // Increasing the max number of columns needs fixing some todos.
-  typedef std::array<ID, 2> Column;
+  // A column could have multiple IDs if it is a or-form. 
+  // Not used atm, makes many things much easier.
+  typedef ID Column;
   typedef double Value;
   static const Value UNDEFINED;
 
   // Essentially a map backed by a vector (for the small counts here
-  // this should always be faster), with special handling for multi-colums.
-  struct Values {
-    std::vector<std::pair<Column, Value>> values;
-
-    static bool columnMatch(Column const& a, Column const& b) {
-      return a == b  // trivial case TODO: loops for size > 2
-             || (a[0] == b[0] && a[1] == 0)   // normalized case 1
-             || (a[0] == b[1] && a[1] == 0)   // normalized case 2
-             || (b[0] == a[0] && b[1] == 0)   // normalized case 1 (inv)
-             || (b[0] == a[1] && b[1] == 0);  // normalized case 2 (inv)
-    }
-
-    void put(Column c, Value v) {
-      for (auto& e : values)
-        if (columnMatch(e.first, c)) {
-          e.first = c;
-          e.second = v;
-          return;
-        }
-      values.push_back(make_pair(c, v));  // else
-    };
-    void put(std::pair<Column, Value> v) { put(v.first, v.second); };
-    std::pair<Column, Value> get(Column c) const {
-      for (auto& e : values)
-        if (columnMatch(e.first, c)) return e;
-      return make_pair(Column{{0, 0}}, UNDEFINED);
-    };
-    void erase(Column c) {
-      for (auto it = values.begin(); it != values.end(); ++it)
-        if (columnMatch(it->first, c)) {
-          values.erase(it);
-          return;
-        }
-    }
-    void clear() { values.clear(); };
-    Value operator[](Column c) { return get(c).second; };
-    bool operator<(Values const& other) const {
-      return this->values < other.values;
-    };
-  };
+  // this should always be faster). Most ops turned out to be not needed.
+  typedef std::vector<std::pair<Column, Value>> Values;
 
   GeometryInterface(const edm::ParameterSet& conf) : iConfig(conf){};
 
@@ -103,26 +61,25 @@ class GeometryInterface {
     out.clear();
     for (Column const& col : names) {
       auto val = extract(col, iq);
-      out.put(val.first, val.second);
+      out.push_back(val);
     }
   }
 
+  // the pair return value is historical; it is only really needed with or-columns.
+  // But it is cleaner to carry it around.
   std::pair<Column, Value> extract(Column const& col, InterestingQuantities const& iq) {
-    assert(col[0] != 0 || !"Extracting invalid column.");
-    for (ID id : col) {
-      if (id == 0) break;  // all set columns failed
-      assert(ID(extractors.size()) > id || !"extractors vector too small!");
-      auto& ex = extractors[id];
-      if (!ex) {  // we have never heard about this. This is a typo for sure.
-        edm::LogError("GeometryInterface")
-            << "Undefined column used: " << unintern(id)
-            << ". Check your spelling.\n";
-      } else {
-        auto val = ex(iq);
-        if (val != UNDEFINED) {
-          return std::make_pair(Column{{id, 0}}, val);  // double braces for g++
-          break;
-        }
+    assert(col != 0 || !"Extracting invalid column.");
+    ID id = col;
+    assert(ID(extractors.size()) > id || !"extractors vector too small!");
+    auto& ex = extractors[id];
+    if (!ex) {  // we have never heard about this. This is a typo for sure.
+      edm::LogError("GeometryInterface")
+          << "Undefined column used: " << unintern(id)
+          << ". Check your spelling.\n";
+    } else {
+      auto val = ex(iq);
+      if (val != UNDEFINED) {
+        return std::make_pair(Column{id}, val);  // double braces for g++
       }
     }
     return std::make_pair(col, UNDEFINED);
@@ -164,11 +121,7 @@ class GeometryInterface {
   }
 
   std::string pretty(Column col) {
-    if (col[1] == 0)  // normal column
-      return unintern(col[0]);
-    else
-      return unintern(col[0]) +
-             /*"|" +*/ unintern(col[1]);  // TODO: should loop.
+    return unintern(col);
   }
 
  private:

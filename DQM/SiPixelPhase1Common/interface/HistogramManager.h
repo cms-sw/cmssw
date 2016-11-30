@@ -70,7 +70,6 @@ private:
 
   std::string formatValue(GeometryInterface::Column, GeometryInterface::Value);
   std::pair<std::string, std::string> makePathName(SummationSpecification const& s,
-      GeometryInterface::InterestingQuantities const& iq,
       GeometryInterface::Values const&);
 
   void fillInternal(double x, double y, int n_parameters,
