@@ -99,6 +99,40 @@ public:
   
   virtual ~CandidateSeededTrackingRegionsProducer() {}
     
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+    edm::ParameterSetDescription desc;
+
+    desc.add<std::string>("mode", "BeamSpotFixed");
+
+    desc.add<edm::InputTag>("input", edm::InputTag(""));
+    desc.add<int>("maxNRegions", 10);
+    desc.add<edm::InputTag>("beamSpot", edm::InputTag("hltOnlineBeamSpot"));
+    desc.add<edm::InputTag>("vertexCollection", edm::InputTag("hltPixelVertices"));
+    desc.add<int>("maxNVertices", 1);
+
+    desc.add<double>("ptMin", 0.9);
+    desc.add<double>("originRadius", 0.2);
+    desc.add<double>("zErrorBeamSpot", 24.2);
+    desc.add<double>("deltaEta", 0.5);
+    desc.add<double>("deltaPhi", 0.5);
+    desc.add<bool>("precise", true);
+
+    desc.add<double>("nSigmaZVertex", 3.);
+    desc.add<double>("zErrorVetex", 0.2);
+    desc.add<double>("nSigmaZBeamSpot", 4.);
+
+    desc.add<std::string>("whereToUseMeasurementTracker", "ForSiStrips");
+    desc.add<edm::InputTag>("measurementTrackerName", edm::InputTag(""));
+
+    desc.add<bool>("searchOpt", false);
+
+    // Only for backwards-compatibility
+    edm::ParameterSetDescription descRegion;
+    descRegion.add<edm::ParameterSetDescription>("RegionPSet", desc);
+
+    descriptions.add("seededTrackingRegionsFromBeamSpotFixedZLength", descRegion);
+  }
+
 
   virtual std::vector<std::unique_ptr<TrackingRegion> > regions(const edm::Event& e, const edm::EventSetup& es) const override
   {
