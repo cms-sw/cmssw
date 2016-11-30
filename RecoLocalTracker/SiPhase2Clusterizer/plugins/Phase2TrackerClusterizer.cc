@@ -10,6 +10,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 
 #include "Phase2TrackerClusterizerAlgorithm.h"
+#include "Phase2TrackerClusterizerSequentialAlgorithm.h"
 
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
@@ -23,6 +24,8 @@
 
 #include <vector>
 #include <memory>
+
+
 
 class Phase2TrackerClusterizer : public edm::stream::EDProducer<> {
 
@@ -67,6 +70,7 @@ class Phase2TrackerClusterizer : public edm::stream::EDProducer<> {
 
         // Global container for the clusters of each modules
         auto outputClusters = std::make_unique<Phase2TrackerCluster1DCollectionNew>();
+        auto outputClustersNew = std::make_unique<Phase2TrackerCluster1DCollectionNew>();
 
         // Go over all the modules
         for (auto DSViter : *digis) {
@@ -86,9 +90,30 @@ class Phase2TrackerClusterizer : public edm::stream::EDProducer<> {
             // Pass the list of Digis to the main algorithm
             // This function will store the clusters in the previously created container
             clusterizer_->clusterizeDetUnit(DSViter, clusters);
-
             if (clusters.empty()) clusters.abort();
+
+            Phase2TrackerCluster1DCollectionNew::FastFiller clustersNew(*outputClustersNew, DSViter.detId());
+            Phase2TrackerClusterizerSequentialAlgorithm	algo;
+	    algo.clusterizeDetUnit(DSViter, clustersNew);
+            if (clustersNew.empty()) clustersNew.abort();
+
+            if (clusters.size() != clustersNew.size()) {
+              std::cout << "SIZEs " << int(detId) << ' ' << clusters.size() << ' ' << clustersNew.size() << std::endl;
+              for (auto const & cl : clusters) std::cout << cl.size() << ' ' << cl.threshold() << ' ' << cl.firstRow() << ' ' << cl.column() << std::endl;
+              std::cout << "new " << std::endl;
+              for (auto const & cl : clustersNew) std::cout << cl.size() << ' ' << cl.threshold() << ' ' << cl.firstRow() << ' ' << cl.column() << std::endl;
+            }
         }
+        
+        std::cout << "SIZEs " << outputClusters->dataSize() << ' ' << outputClustersNew->dataSize() << std::endl;
+        // assert(outputClusters->dataSize()==outputClustersNew->dataSize());
+        for (auto i=0U;i<outputClusters->dataSize(); ++i) {
+          assert(outputClusters->data()[i].size() == outputClustersNew->data()[i].size());
+       	  assert(outputClusters->data()[i].threshold() == outputClustersNew->data()[i].threshold());
+          assert(outputClusters->data()[i].firstRow() == outputClustersNew->data()[i].firstRow());
+          assert(outputClusters->data()[i].column() == outputClustersNew->data()[i].column());
+        }
+
 
         // Add the data to the output
         outputClusters->shrink_to_fit();
