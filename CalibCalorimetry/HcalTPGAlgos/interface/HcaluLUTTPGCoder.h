@@ -38,10 +38,10 @@ public:
   virtual void adc2Linear(const HFDataFrame& df, IntegerCaloSamples& ics) const override;
   virtual void adc2Linear(const QIE10DataFrame& df, IntegerCaloSamples& ics) const override;
   virtual void adc2Linear(const QIE11DataFrame& df, IntegerCaloSamples& ics) const override;
-  virtual void compress(const IntegerCaloSamples& ics, const std::vector<bool>& featureBits, HcalTriggerPrimitiveDigi& tp) const;
-  virtual unsigned short adc2Linear(HcalQIESample sample,HcalDetId id) const;
-  virtual float getLUTPedestal(HcalDetId id) const;
-  virtual float getLUTGain(HcalDetId id) const;
+  virtual void compress(const IntegerCaloSamples& ics, const std::vector<bool>& featureBits, HcalTriggerPrimitiveDigi& tp) const override;
+  virtual unsigned short adc2Linear(HcalQIESample sample,HcalDetId id) const override;
+  virtual float getLUTPedestal(HcalDetId id) const override;
+  virtual float getLUTGain(HcalDetId id) const override;
 
   void update(const HcalDbService& conditions);
   void update(const char* filename, bool appendMSB = false);

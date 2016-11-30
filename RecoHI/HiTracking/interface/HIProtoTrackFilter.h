@@ -14,7 +14,7 @@ class HIProtoTrackFilter : public PixelTrackFilter {
 public:
 	HIProtoTrackFilter(const edm::ParameterSet& ps, edm::ConsumesCollector& iC);
 	virtual ~HIProtoTrackFilter();
-	virtual bool operator() (const reco::Track*, const PixelTrackFilter::Hits & hits) const;
+	virtual bool operator() (const reco::Track*, const PixelTrackFilter::Hits & hits) const override;
 	virtual void update(const edm::Event& ev, const edm::EventSetup& es) override;
 private:
 	double theTIPMax;

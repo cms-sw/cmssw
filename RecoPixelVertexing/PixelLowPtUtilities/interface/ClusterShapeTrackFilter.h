@@ -33,7 +33,7 @@ class ClusterShapeTrackFilter : public PixelTrackFilter
   void update(const edm::Event& ev, const edm::EventSetup& es) override;
   virtual bool operator()
     (const reco::Track*, const std::vector<const TrackingRecHit *> &hits, 
-     const TrackerTopology *tTopo) const;
+     const TrackerTopology *tTopo) const override;
 
  private:
   float areaParallelogram(const Global2DVector & a,

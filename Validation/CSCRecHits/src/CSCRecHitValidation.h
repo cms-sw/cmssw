@@ -23,7 +23,7 @@ public:
   explicit CSCRecHitValidation(const edm::ParameterSet&);
   ~CSCRecHitValidation();
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
 
  private:
   PSimHitMap theSimHitMap;

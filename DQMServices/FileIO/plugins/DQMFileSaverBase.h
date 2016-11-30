@@ -62,7 +62,7 @@ class DQMFileSaverBase
   virtual void globalEndRun(const edm::Run &, const edm::EventSetup &) const override final;
 
   virtual void postForkReacquireResources(unsigned int childIndex,
-                                          unsigned int numberOfChildren);
+                                          unsigned int numberOfChildren) override;
 
   // these method (and only these) should be overriden
   // so we need to call all file savers

@@ -164,15 +164,15 @@ public:
 				       const Hit &  outerHit,
 				       const edm::EventSetup&iSetup,
 				       const DetLayer* outerlayer=nullptr,
-				       float lr=0, float gz=0, float dr=0, float dz=0) const
+				       float lr=0, float gz=0, float dr=0, float dz=0) const override
   { return checkRZOld(layer,outerHit,iSetup, outerlayer); }
 
-  virtual RectangularEtaPhiTrackingRegion* clone() const { 
+  virtual RectangularEtaPhiTrackingRegion* clone() const override { 
     return new RectangularEtaPhiTrackingRegion(*this);
   }
 
-  virtual std::string name() const { return "RectangularEtaPhiTrackingRegion"; }
-  virtual std::string print() const;
+  virtual std::string name() const override { return "RectangularEtaPhiTrackingRegion"; }
+  virtual std::string print() const override;
 
 private:
   HitRZCompatibility* checkRZOld(
