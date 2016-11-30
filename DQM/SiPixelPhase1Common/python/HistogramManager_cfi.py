@@ -164,3 +164,15 @@ StandardSpecification2DProfile_Num = (
        .groupBy("PXBarrel|PXForward/PXLayer|PXDisk", "EXTEND_Y")
        .save()
 )
+
+# function that makes a VPSet but flattens the argument list if needed
+def VPSet(*args):
+    l = []
+    for a in args:
+        if isinstance(a, cms.VPSet) or isinstance(a, Specification):
+            e = [a]
+        else:
+            e = list(a)
+        l = l+e
+    return cms.VPSet(l)
+

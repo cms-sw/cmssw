@@ -137,9 +137,9 @@ The `VPSet` alone will not do anything. Add it to the configuration of your plug
 
 The second part initializes a default harvesting plugin, which is needed to execute some specifications. 
 
-The most important thing in the configuration are the specifications. Add them by setting `specs` in the `clone`. Since you can have many specifications per quantity, this has to be a `VPSet` as well. To make a specification use the `Specification()` builder:
+The most important thing in the configuration are the specifications. Add them by setting `specs` in the `clone`. Since you can have many specifications per quantity, this has to be a `VPSet` as well. To make a specification use the `Specification()` builder (note that the `VPSet` used here is defined in `HistogramManager_cfi.py`, it akes a `cms.VPSet` but gives you a bit more freedom with the arguments):
 
-    specs = cms.VPSet(
+    specs = VPSet(
       Specification().groupBy("PXBarrel|PXForward/PXLayer|PXDisk/PXLadder|PXBlade") 
                      .save()
     )
