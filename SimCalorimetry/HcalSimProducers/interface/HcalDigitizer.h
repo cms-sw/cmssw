@@ -147,6 +147,7 @@ private:
   bool testNumbering_;
   bool doHFWindow_;
   bool killHE_;
+  bool debugCS_;
 
   std::string hitsProducer_;
 

@@ -85,6 +85,7 @@ HcalDigitizer::HcalDigitizer(const edm::ParameterSet& ps, edm::ConsumesCollector
   hfgeo(true),
   doHFWindow_(ps.getParameter<bool>("doHFWindow")),
   killHE_(ps.getParameter<bool>("killHE")),
+  debugCS_(ps.getParameter<bool>("debugCaloSamples")),
   hitsProducer_(ps.getParameter<std::string>("hitsProducer")),
   theHOSiPMCode(ps.getParameter<edm::ParameterSet>("ho").getParameter<int>("siPMCode")),
   deliveredLumi(0.),
@@ -180,6 +181,17 @@ HcalDigitizer::HcalDigitizer(const edm::ParameterSet& ps, edm::ConsumesCollector
     if(ps.getParameter<bool>("doThermalNoise")) {
       theHBHEAmplifier->setIonFeedbackSim(theIonFeedback);
     }
+  }
+
+  //option to save CaloSamples as event product for debugging
+  if(debugCS_){
+    if(theHBHEDigitizer)      theHBHEDigitizer->setDebugCaloSamples(true);
+    if(theHBHEQIE11Digitizer) theHBHEQIE11Digitizer->setDebugCaloSamples(true);
+    if(theHODigitizer)        theHODigitizer->setDebugCaloSamples(true);
+    if(theHOSiPMDigitizer)    theHOSiPMDigitizer->setDebugCaloSamples(true);
+    if(theHFDigitizer)        theHFDigitizer->setDebugCaloSamples(true);
+    if(theHFQIE10Digitizer)   theHFQIE10Digitizer->setDebugCaloSamples(true);
+    theZDCDigitizer->setDebugCaloSamples(true);
   }
 
   if(agingFlagHE) m_HEDarkening = new HEDarkening();
@@ -467,6 +479,19 @@ void HcalDigitizer::finalizeEvent(edm::Event& e, const edm::EventSetup& eventSet
   e.put(std::move(zdcResult));
   e.put(std::move(hfQIE10Result), "HFQIE10DigiCollection");
   e.put(std::move(hbheQIE11Result), "HBHEQIE11DigiCollection");
+
+  if(debugCS_){
+    std::unique_ptr<CaloSamplesCollection> csResult(new CaloSamplesCollection());
+    //smush together all the results
+    if(theHBHEDigitizer)      csResult->insert(csResult->end(),theHBHEDigitizer->getCaloSamples().begin(),theHBHEDigitizer->getCaloSamples().end());
+    if(theHBHEQIE11Digitizer) csResult->insert(csResult->end(),theHBHEQIE11Digitizer->getCaloSamples().begin(),theHBHEQIE11Digitizer->getCaloSamples().end());
+    if(theHODigitizer)        csResult->insert(csResult->end(),theHODigitizer->getCaloSamples().begin(),theHODigitizer->getCaloSamples().end());
+    if(theHOSiPMDigitizer)    csResult->insert(csResult->end(),theHOSiPMDigitizer->getCaloSamples().begin(),theHOSiPMDigitizer->getCaloSamples().end());
+    if(theHFDigitizer)        csResult->insert(csResult->end(),theHFDigitizer->getCaloSamples().begin(),theHFDigitizer->getCaloSamples().end());
+    if(theHFQIE10Digitizer)   csResult->insert(csResult->end(),theHFQIE10Digitizer->getCaloSamples().begin(),theHFQIE10Digitizer->getCaloSamples().end());
+    csResult->insert(csResult->end(),theZDCDigitizer->getCaloSamples().begin(),theZDCDigitizer->getCaloSamples().end());
+    e.put(std::move(csResult));
+  }
 
 #ifdef DebugLog
   std::cout << std::endl << "========>  HcalDigitizer e.put " << std::endl <<  std::endl;
