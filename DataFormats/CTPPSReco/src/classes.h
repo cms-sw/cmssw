@@ -35,5 +35,8 @@ namespace DataFormats_CTPPSReco {
     edm::Wrapper<edm::DetSetVector<TotemRPLocalTrack>> w_dsv_ft;
     edm::DetSetVector<TotemRPLocalTrack::FittedRecHit> dsv_ft_frh;
     edm::Wrapper<edm::DetSetVector<TotemRPLocalTrack::FittedRecHit>> w_dsv_ft_frh;
+   
+    std::vector<edm::DetSet<TotemRPLocalTrack::FittedRecHit> > v_ds_ft_frh;
+    std::vector<TotemRPLocalTrack::FittedRecHit> v_ft_frh;
   };
 }
