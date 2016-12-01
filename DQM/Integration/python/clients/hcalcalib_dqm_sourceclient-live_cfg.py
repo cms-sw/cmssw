@@ -126,6 +126,7 @@ process.hcalOnlineHarvesting.subsystem = subsystem
 process.rawTask.subsystem = subsystem
 process.rawTask.tagFEDs = rawTagUntracked
 process.rawTask.tagReport = cms.untracked.InputTag("hcalDigis")
+process.rawTask.calibProcessing = cms.untracked.bool(True)
 
 #-------------------------------------
 #	Prepare all the Laser Tasks
