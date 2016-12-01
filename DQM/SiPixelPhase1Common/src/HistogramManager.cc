@@ -233,7 +233,8 @@ std::string HistogramManager::formatValue(
 
 std::pair<std::string, std::string> 
 HistogramManager::makePathName(SummationSpecification const& s,
-    GeometryInterface::Values const& significantvalues) {
+    GeometryInterface::Values const& significantvalues,
+    SummationStep const* upto) {
   std::ostringstream dir("");
   std::string suffix = "";
 
@@ -249,24 +250,29 @@ HistogramManager::makePathName(SummationSpecification const& s,
     suffix = "_" + formatValue(e.first, e.second);
   }
 
+  // PERF: this is actually independent of significantvalues and iq
   std::string name = this->name;
-  for (SummationStep step : s.steps) {
-    if (step.stage == SummationStep::FIRST || step.stage == SummationStep::STAGE1) {
-      switch (step.type) {
-        case SummationStep::COUNT:
-          name = "num_" + name;
-          break;
-        case SummationStep::EXTEND_X:
-        case SummationStep::EXTEND_Y: {
-          GeometryInterface::Column col0 = step.columns[0];
-          std::string colname = geometryInterface.pretty(col0);
-          name = name + "_per_" + colname;
-          break;
-        }
-        default:
-          // Maybe PROFILE is worth showing.
-          break; // not visible in name
-      }
+  for (SummationStep const& step : s.steps) {
+    if (&step == upto) break;
+    switch (step.type) {
+      case SummationStep::COUNT:
+        name = "num_" + name;
+        break;
+      case SummationStep::EXTEND_X:
+      case SummationStep::EXTEND_Y: {
+        if (step.stage != SummationStep::STAGE1) break;
+        GeometryInterface::Column col0 = step.columns[0];
+        std::string colname = geometryInterface.pretty(col0);
+        name = name + "_per_" + colname;
+        break;}
+      case SummationStep::REDUCE: {
+        auto red = step.arg;
+        boost::algorithm::to_lower(red);
+        name = red + "_" + name;
+        break;}
+      default:
+        // Maybe PROFILE is worth showing.
+        break; // not visible in name
     }
   }
   return std::make_pair(top_folder_name + "/" + dir.str(), name + suffix);
@@ -307,11 +313,16 @@ void HistogramManager::book(DQMStore::IBooker& iBooker,
 
     auto firststep = s.steps.begin();
     int n_parameters = this->dimensions;
+
     if (firststep->type != SummationStep::GROUPBY) {
       ++firststep;
       n_parameters = 1;
       bookCounters = true;
     }
+
+    auto laststep = std::find_if(s.steps.begin(), s.steps.end(), 
+      [](SummationStep const& step) { return step.stage == SummationStep::STAGE2; });
+
     GeometryInterface::Values significantvalues;
 
     for (auto iq : geometryInterface.allModules()) {
@@ -351,8 +362,7 @@ void HistogramManager::book(DQMStore::IBooker& iBooker,
                 mei.range_##to##_min = this->range_##from##_min; \
                 mei.range_##to##_max = this->range_##from##_max; \
                 mei.range_##to##_nbins = this->range_##from##_nbins 
-        for (auto it = firststep+1; it != s.steps.end(); ++it) {
-          if (it->stage != SummationStep::STAGE1) break;
+        for (auto it = firststep+1; it != laststep; ++it) {
           switch (it->type) {
             case SummationStep::USE_X:
               if (it->arg[0] == '1' && n_parameters >= 1) { SET_AXIS(x, x); }
@@ -404,8 +414,7 @@ void HistogramManager::book(DQMStore::IBooker& iBooker,
       MEInfo& mei = toBeBooked[significantvalues]; 
       double val;
 
-      for (auto it = firststep+1; it != s.steps.end(); ++it) {
-        if (it->stage != SummationStep::STAGE1) break;
+      for (auto it = firststep+1; it != laststep; ++it) {
         switch (it->type) {
           case SummationStep::EXTEND_X:
             val = geometryInterface.extract(it->columns[0], iq).second;
@@ -429,7 +438,7 @@ void HistogramManager::book(DQMStore::IBooker& iBooker,
     for (auto& e : toBeBooked) {
       AbstractHistogram& h = t[e.first];
       MEInfo& mei = e.second;
-      auto name = makePathName(s, e.first);
+      auto name = makePathName(s, e.first, &(*laststep));
       iBooker.setCurrentFolder(name.first);
 
       // determine nbins for geometry derived quantities
@@ -496,6 +505,8 @@ void HistogramManager::loadFromDQMStore(SummationSpecification& s, Table& t,
   GeometryInterface::Values significantvalues;
   auto firststep = s.steps.begin();
   if (firststep->type != SummationStep::GROUPBY) ++firststep;
+  auto laststep = std::find_if(s.steps.begin(), s.steps.end(), 
+    [](SummationStep const& step) { return step.stage == SummationStep::STAGE2; });
 
   for (auto iq : geometryInterface.allModules()) {
 
@@ -504,7 +515,7 @@ void HistogramManager::loadFromDQMStore(SummationSpecification& s, Table& t,
 
     auto histo = t.find(significantvalues);
     if (histo == t.end()) {
-      auto name = makePathName(s, significantvalues);
+      auto name = makePathName(s, significantvalues, &(*laststep));
       std::string path = name.first + name.second;
       MonitorElement* me = iGetter.get(path);
       if (!me) {
@@ -521,7 +532,7 @@ void HistogramManager::loadFromDQMStore(SummationSpecification& s, Table& t,
   }
 }
 
-void HistogramManager::executeGroupBy(SummationStep& step, Table& t,
+void HistogramManager::executeGroupBy(SummationStep const& step, Table& t,
     DQMStore::IBooker& iBooker, SummationSpecification const& s) {
   // Simple regrouping, sum histos if they end up in the same place.
   Table out;
@@ -532,7 +543,7 @@ void HistogramManager::executeGroupBy(SummationStep& step, Table& t,
                                      significantvalues);
     AbstractHistogram& new_histo = out[significantvalues];
     if (!new_histo.me) {
-      auto name = makePathName(s, significantvalues);
+      auto name = makePathName(s, significantvalues, &step);
       iBooker.setCurrentFolder(name.first);
       if      (dynamic_cast<TH1F*>(th1)) new_histo.me = iBooker.book1D(name.second, (TH1F*) th1);
       else if (dynamic_cast<TH2F*>(th1)) new_histo.me = iBooker.book2D(name.second, (TH2F*) th1);
@@ -548,7 +559,7 @@ void HistogramManager::executeGroupBy(SummationStep& step, Table& t,
   t.swap(out);
 }
 
-void HistogramManager::executeExtend(SummationStep& step, Table& t, 
+void HistogramManager::executeExtend(SummationStep const& step, Table& t, 
     std::string const& reduce_type, DQMStore::IBooker& iBooker, SummationSpecification const& s) {
   // For the moment only X.
   // first pass determines the range.
@@ -589,14 +600,11 @@ void HistogramManager::executeExtend(SummationStep& step, Table& t,
 
       auto separator = separators[significantvalues];
 
-      auto red = reduce_type;
-      boost::algorithm::to_lower(red);
-      auto name = makePathName(s, significantvalues);
-      if (red != "") name.second = red + "_" + name.second;
+      auto name = makePathName(s, significantvalues, &step);
       auto title = std::string("") + th1->GetTitle() + " per " + colname + ";" +
                  colname + separator + 
-                 (red != "" ? th1->GetYaxis()->GetTitle() : th1->GetXaxis()->GetTitle()) + ";" +
-                 (red != "" ? red + " of " + th1->GetXaxis()->GetTitle() : th1->GetYaxis()->GetTitle());
+                 (reduce_type != "" ? th1->GetYaxis()->GetTitle() : th1->GetXaxis()->GetTitle()) + ";" +
+                 (reduce_type != "" ? reduce_type + " of " + th1->GetXaxis()->GetTitle() : th1->GetYaxis()->GetTitle());
       iBooker.setCurrentFolder(name.first);
 
       if (th1->GetDimension() == 1) {
@@ -651,7 +659,7 @@ void HistogramManager::executeHarvesting(DQMStore::IBooker& iBooker,
     std::string reduce_type = "";
 
     // now execute step2.
-    for (SummationStep step : s.steps) {
+    for (SummationStep const& step : s.steps) {
       if (step.stage == SummationStep::STAGE2) {
         switch (step.type) {
           case SummationStep::SAVE:

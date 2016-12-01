@@ -12,7 +12,7 @@
 SiPixelPhase1DigisHarvester::SiPixelPhase1DigisHarvester(const edm::ParameterSet& iConfig) :
   SiPixelPhase1Harvester(iConfig) 
 {
-  histo[NDIGIS_FED].setCustomHandler([&] (SummationStep& s, HistogramManager::Table& t,
+  histo[NDIGIS_FED].setCustomHandler([&] (SummationStep const& s, HistogramManager::Table& t,
                                           DQMStore::IBooker& iBooker, DQMStore::IGetter&) {
     for (auto e : t) {
       TH1* th1 = e.second.th1;
