@@ -302,13 +302,18 @@ void GeometryInterface::loadModuleLevel(edm::EventSetup const& iSetup, const edm
     }
   );
 
-  addExtractor(intern("DetId"),
-    [] (InterestingQuantities const& iq) {
-      uint32_t id = iq.sourceModule.rawId();
-      return Value(id);
-    },
+  auto detid = [] (InterestingQuantities const& iq) {
+    uint32_t id = iq.sourceModule.rawId();
+    return Value(id);
+  };
+  addExtractor(intern("DetId"), detid,
     0, 0 // No sane value possible here.
   );
+  // these are just aliases with special handling in formatting
+  addExtractor(intern("PXBarrelName"), detid, 0, 0);
+  addExtractor(intern("PXEndcapName"), detid, 0, 0);
+  addExtractor(intern("P1PXBarrelName"), detid, 0, 0);
+  addExtractor(intern("P1PXEndcapName"), detid, 0, 0);
 }
 
 void GeometryInterface::loadFEDCabling(edm::EventSetup const& iSetup, const edm::ParameterSet& iConfig) {
@@ -353,3 +358,21 @@ void GeometryInterface::loadFEDCabling(edm::EventSetup const& iSetup, const edm:
     }
   );
 }
+
+std::string GeometryInterface::formatValue(Column col, Value val) {
+  // non-number output names (_pO etc.) are hardwired here.
+  // PERF: memoize the names in a map, probably ignoring row/col
+  // TODO: more pretty names for DetIds using PixelBarrelName etc.
+  std::string name = pretty(col);
+  std::string value = "_" + std::to_string(int(val));
+  if (val == 0) value = "";         // hide Barrel_0 etc.
+  if (name == "PXDisk" && val > 0)  // +/- sign for disk num
+    value = "_+" + std::to_string(int(val));
+  // pretty (legacy?) names for Shells and HalfCylinders
+  std::map<int, std::string> shellname{
+      {11, "_mI"}, {12, "_mO"}, {21, "_pI"}, {22, "_pO"}};
+  if (name == "HalfCylinder" || name == "Shell") value = shellname[int(val)];
+  if (val == UNDEFINED) value = "_UNDEFINED";
+  return name+value;
+}
+
