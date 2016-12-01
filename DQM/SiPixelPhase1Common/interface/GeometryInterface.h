@@ -124,6 +124,8 @@ class GeometryInterface {
     return unintern(col);
   }
 
+  std::string formatValue(Column, Value);
+
  private:
   // void loadFromAlignment(edm::EventSetup const& iSetup, const
   // edm::ParameterSet& iConfig);

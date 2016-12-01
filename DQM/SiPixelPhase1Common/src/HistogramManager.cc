@@ -213,24 +213,6 @@ void HistogramManager::executePerEventHarvesting(const edm::Event* sourceEvent) 
   }
 }
 
-std::string HistogramManager::formatValue(
-    GeometryInterface::Column col, GeometryInterface::Value val) {
-  // non-number output names (_pO etc.) are hardwired here.
-  // PERF: memoize the names in a map, probably ignoring row/col
-  // TODO: more pretty names for DetIds using PixelBarrelName etc.
-  std::string name = geometryInterface.pretty(col);
-  std::string value = "_" + std::to_string(int(val));
-  if (val == 0) value = "";         // hide Barrel_0 etc.
-  if (name == "PXDisk" && val > 0)  // +/- sign for disk num
-    value = "_+" + std::to_string(int(val));
-  // pretty (legacy?) names for Shells and HalfCylinders
-  std::map<int, std::string> shellname{
-      {11, "_mI"}, {12, "_mO"}, {21, "_pI"}, {22, "_pO"}};
-  if (name == "HalfCylinder" || name == "Shell") value = shellname[int(val)];
-  if (val == GeometryInterface::UNDEFINED) value = "_UNDEFINED";
-  return name+value;
-}
-
 std::pair<std::string, std::string> 
 HistogramManager::makePathName(SummationSpecification const& s,
     GeometryInterface::Values const& significantvalues,
@@ -242,12 +224,12 @@ HistogramManager::makePathName(SummationSpecification const& s,
   if (significantvalues.size() > 0) {
     for (auto it = significantvalues.begin();
               it != (significantvalues.end()-1); ++it) {
-      auto name = formatValue(it->first, it->second);
+      auto name = geometryInterface.formatValue(it->first, it->second);
       if (name == "") continue;
       dir << name << "/";
     }
     auto e = significantvalues[significantvalues.size()-1];
-    suffix = "_" + formatValue(e.first, e.second);
+    suffix = "_" + geometryInterface.formatValue(e.first, e.second);
   }
 
   // PERF: this is actually independent of significantvalues and iq

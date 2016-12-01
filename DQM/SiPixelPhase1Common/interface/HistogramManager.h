@@ -68,7 +68,6 @@ private:
   std::vector<Table> tables;
   std::vector<Table> counters;
 
-  std::string formatValue(GeometryInterface::Column, GeometryInterface::Value);
   std::pair<std::string, std::string> makePathName(SummationSpecification const& s,
       GeometryInterface::Values const&, SummationStep const* upto);
 
