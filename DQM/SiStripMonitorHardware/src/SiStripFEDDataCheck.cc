@@ -60,7 +60,7 @@ class SiStripFEDCheckPlugin : public DQMEDAnalyzer
 
  private:
   virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-  virtual void endRun();
+  virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
   
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 
@@ -340,7 +340,7 @@ void SiStripFEDCheckPlugin::bookHistograms(DQMStore::IBooker & ibooker , const e
 
 // ------------ method called once each run just after ending the event loop  ------------
 void 
-SiStripFEDCheckPlugin::endRun()
+SiStripFEDCheckPlugin::endRun(edm::Run const&, edm::EventSetup const&)
 {
   updateHistograms();
 }
