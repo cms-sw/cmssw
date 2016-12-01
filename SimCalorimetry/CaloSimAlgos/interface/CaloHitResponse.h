@@ -117,6 +117,10 @@ public:
     return(bunchCrossing >= theMinBunch && bunchCrossing <= theMaxBunch);
   }
 
+  void setStorePrecise(bool sp) {
+    storePrecise = sp;
+  }
+
 protected:
 
   AnalogSignalMap theAnalogSignalMap;
@@ -134,6 +138,7 @@ protected:
   int theMaxBunch;
 
   double thePhaseShift_;
+  bool storePrecise;
 
 };
 

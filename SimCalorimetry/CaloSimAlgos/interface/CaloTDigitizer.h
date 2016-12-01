@@ -107,7 +107,10 @@ public:
     // reserve space for how many digis we expect
     int nDigisExpected = addNoise_ ? theDetIds->size() : theHitResponse->nSignals();
     output.reserve(nDigisExpected);
-    if(debugCS_) csColl_.reserve(nDigisExpected);
+    if(debugCS_) {
+      csColl_.reserve(nDigisExpected);
+      theHitResponse->setStorePrecise(true);
+    }
 
     // make a raw digi for evey cell
     for(std::vector<DetId>::const_iterator idItr = theDetIds->begin();
