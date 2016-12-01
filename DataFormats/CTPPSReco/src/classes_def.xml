@@ -37,4 +37,6 @@
   <class name="edm::Wrapper<edm::DetSetVector<TotemRPLocalTrack>>"/>
   <class name="edm::DetSetVector<TotemRPLocalTrack::FittedRecHit>"/>
   <class name="edm::Wrapper<edm::DetSetVector<TotemRPLocalTrack::FittedRecHit>>"/>
+  <class name="std::vector<edm::DetSet<TotemRPLocalTrack::FittedRecHit> >"/>
+  <class name="std::vector<TotemRPLocalTrack::FittedRecHit>"/>
 </lcgdict>
