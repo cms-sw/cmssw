@@ -443,6 +443,8 @@ void HcalRecHitsValidation::analyze(edm::Event const& ev, edm::EventSetup const&
         depth        = cell.depth();
       }
 
+      if(sub != subdet_ && subdet_ != 5) continue; //If we are not looking at all of the subdetectors and the simhit doesn't come from the specific subdetector of interest, then we won't do any thing with it 
+
       const CaloCellGeometry* cellGeometry =
 	geometry->getSubdetectorGeometry (cell)->getGeometry (cell) ;
       double etaS = cellGeometry->getPosition().eta () ;
@@ -452,6 +454,7 @@ void HcalRecHitsValidation::analyze(edm::Event const& ev, edm::EventSetup const&
       double r  = dR(eta_MC, phi_MC, etaS, phiS);
        
       if ( r < partR ){ // just energy in the small cone
+ 
 	enSimHits += en;
 	if(sub == static_cast<int>(HcalBarrel)) enSimHitsHB += en; 
 	if(sub == static_cast<int>(HcalEndcap)) enSimHitsHE += en; 
