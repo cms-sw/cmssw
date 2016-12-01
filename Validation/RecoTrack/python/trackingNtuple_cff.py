@@ -23,6 +23,9 @@ _includeSeeds = True
 _includeMVA = True
 #_includeMVA = False
 
+_includeTrackingParticles = True
+#_includeTrackingParticles = False
+
 from CommonTools.RecoAlgos.trackingParticleRefSelector_cfi import trackingParticleRefSelector as _trackingParticleRefSelector
 trackingParticlesIntime = _trackingParticleRefSelector.clone(
     signalOnly = False,
@@ -39,6 +42,7 @@ trackingNtuple.trackingParticlesRef = True
 trackingNtuple.includeAllHits = _includeHits
 trackingNtuple.includeSeeds = _includeSeeds
 trackingNtuple.includeMVA = _includeMVA
+trackingNtuple.includeTrackingParticles = _includeTrackingParticles
 
 def _filterForNtuple(lst):
     ret = []
