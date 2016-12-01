@@ -20,7 +20,7 @@ namespace ecaldqm {
     void addDependencies(DependencySet&) override;
 
     bool analyze(void const*, Collections) override;
-    void endEvent(edm::Event const&, edm::EventSetup const&);
+    void endEvent(edm::Event const&, edm::EventSetup const&) override;
 
     void runOnRecHits(EcalRecHitCollection const&, Collections);
     void runOnReducedRecHits(EcalRecHitCollection const&, Collections);

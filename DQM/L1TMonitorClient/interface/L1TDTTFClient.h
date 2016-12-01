@@ -30,7 +30,7 @@ public:
  
 protected:
 
-  void dqmEndLuminosityBlock(DQMStore::IBooker &ibooker, DQMStore::IGetter &, edm::LuminosityBlock const &, edm::EventSetup const&);  //performed in the endLumi
+  void dqmEndLuminosityBlock(DQMStore::IBooker &ibooker, DQMStore::IGetter &, edm::LuminosityBlock const &, edm::EventSetup const&) override;  //performed in the endLumi
   void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override;  //performed in the endJob
 
   void book(DQMStore::IBooker &ibooker);
