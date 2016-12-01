@@ -201,7 +201,7 @@ public:
     }
 
     /// direction of how the hits were sorted in the original seed
-    PropagationDirection seedDirection() const {
+    const PropagationDirection& seedDirection() const {
         return extra_->seedDirection();
     }
 
@@ -210,7 +210,7 @@ public:
      *   Event, the reference may be invalid. Its validity should be tested,
      *   before the reference is actually used.
      */
-    edm::RefToBase<TrajectorySeed> seedRef() const {
+    const edm::RefToBase<TrajectorySeed>& seedRef() const {
         return extra_->seedRef();
     }
 
