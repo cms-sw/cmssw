@@ -87,7 +87,7 @@ hiLowPtTripletStepPixelTracks = cms.EDProducer("PixelTrackProducer",
 hiLowPtTripletStepPixelTracks.OrderedHitsFactoryPSet.GeneratorPSet.maxElement = cms.uint32(5000000)
 hiLowPtTripletStepPixelTracks.OrderedHitsFactoryPSet.SeedingLayers = cms.InputTag('hiLowPtTripletStepSeedLayers')
 
-hiLowPtTripletStepPixelTracks.OrderedHitsFactoryPSet.GeneratorPSet.SeedComparitorPSet = RecoPixelVertexing.PixelLowPtUtilities.LowPtClusterShapeSeedComparitor_cfi.LowPtClusterShapeSeedComparitor
+hiLowPtTripletStepPixelTracks.OrderedHitsFactoryPSet.GeneratorPSet.SeedComparitorPSet = RecoPixelVertexing.PixelLowPtUtilities.LowPtClusterShapeSeedComparitor_cfi.LowPtClusterShapeSeedComparitor.clone()
 
 
 
