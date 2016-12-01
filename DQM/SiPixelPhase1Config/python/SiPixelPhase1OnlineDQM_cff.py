@@ -61,6 +61,10 @@ SiPixelPhase1Geometry.n_inner_ring_blades = 24 # no outer ring
 # loaded (due to how the DefaultHisto PSet is later cloned), therefore it is
 # here and not in the harvestng config.
 DefaultHisto.perLumiHarvesting = True
+DefaultHistoDigiCluster.perLumiHarvesting = True
+DefaultHistoSummary.perLumiHarvesting = True
+DefaultHistoTrack.perLumiHarvesting = True
+
 
 # Pixel Digi Monitoring
 from DQM.SiPixelPhase1Digis.SiPixelPhase1Digis_cfi import *
