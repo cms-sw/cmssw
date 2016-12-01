@@ -148,6 +148,7 @@ private:
   bool doHFWindow_;
   bool killHE_;
   bool debugCS_;
+  bool ignoreTime_;
 
   std::string hitsProducer_;
 

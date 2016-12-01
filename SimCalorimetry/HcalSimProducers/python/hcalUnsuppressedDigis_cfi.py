@@ -25,6 +25,7 @@ hcalSimBlock = cms.PSet(
     HFDarkening = cms.bool(False),
     minFCToDelay=cms.double(5.), # old TC model! set to 5 for the new one
     debugCaloSamples=cms.bool(False),
+    ignoreGeantTime=cms.bool(False),
 )
 
 from Configuration.Eras.Modifier_fastSim_cff import fastSim

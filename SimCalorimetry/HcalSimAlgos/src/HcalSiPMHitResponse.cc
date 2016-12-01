@@ -79,7 +79,9 @@ void HcalSiPMHitResponse::add(const PCaloHit& hit, CLHEP::HepRandomEngine* engin
       //divide out mean of crosstalk distribution 1/(1-lambda) = multiply by (1-lambda)
       double signal(analogSignalAmplitude(id, hit.energy(), pars, engine)*(1-pars.sipmCrossTalk(id)));
       unsigned int photons(signal + 0.5);
+      double tof( timeOfFlight(id) );
       double time( hit.time() );
+      if(ignoreTime) time = tof;
 
       if (photons > 0)
 	if (precisionTimedPhotons.find(id)==precisionTimedPhotons.end()) {
@@ -100,11 +102,11 @@ void HcalSiPMHitResponse::add(const PCaloHit& hit, CLHEP::HepRandomEngine* engin
 		<< " photons: " << photons 
 		<< " time: " << time;
       LogDebug("HcalSiPMHitResponse") << " timePhase: " << pars.timePhase()
-		<< " tof: " << timeOfFlight(id)
+		<< " tof: " << tof
 		<< " binOfMaximum: " << pars.binOfMaximum()
 		<< " phaseShift: " << thePhaseShift_;
       double tzero(0.0*Y11TIMETORISE + pars.timePhase() - 
-		   (hit.time() - timeOfFlight(id)) - 
+		   (time - tof) - 
 		   BUNCHSPACE*( pars.binOfMaximum() - thePhaseShift_));
       LogDebug("HcalSiPMHitResponse") << " tzero: " << tzero;
       double tzero_bin(-tzero/(theTDCParams.deltaT()/TIMEMULT));

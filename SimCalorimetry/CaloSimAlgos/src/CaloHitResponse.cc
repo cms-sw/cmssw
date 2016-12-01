@@ -119,10 +119,12 @@ CaloSamples CaloHitResponse::makeAnalogSignal(const PCaloHit & hit, CLHEP::HepRa
   double signal = analogSignalAmplitude(detId, hit.energy(), parameters, engine);
 
   double time = hit.time();
+  double tof = timeOfFlight(detId);
+  if(ignoreTime) time = tof;
   if(theHitCorrection != 0) {
     time += theHitCorrection->delay(hit, engine);
   }
-  double jitter = hit.time() - timeOfFlight(detId);
+  double jitter = time - tof;
 
   const CaloVShape * shape = theShape;
   if(!shape) {
