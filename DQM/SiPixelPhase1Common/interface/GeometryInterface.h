@@ -152,6 +152,10 @@ class GeometryInterface {
   std::map<ID, Value> min_value;
   std::map<ID, Value> bin_width;
 
+  // cache of pre-formatted values. Can be pre-populated whhile loading
+  // (used for Pixel*Name)
+  std::map<std::pair<Column, Value>, std::string> format_value;
+
   void addExtractor(ID id,
                     std::function<Value(InterestingQuantities const& iq)> func,
                     Value min = UNDEFINED, Value max = UNDEFINED, Value binwidth = 1) {
