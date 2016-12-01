@@ -68,6 +68,13 @@ GEDPhotonProducer::GEDPhotonProducer(const edm::ParameterSet& config) :
     pfCandidates_      = 
       consumes<reco::PFCandidateCollection>(conf_.getParameter<edm::InputTag>("pfCandidates"));
 
+    phoChargedIsolationToken_CITK      = 
+      consumes<edm::ValueMap<float>>(conf_.getParameter<edm::InputTag>("chargedHadronIsolation"));
+    phoNeutralHadronIsolationToken_CITK      = 
+      consumes<edm::ValueMap<float>>(conf_.getParameter<edm::InputTag>("neutralHadronIsolation"));
+    phoPhotonIsolationToken_CITK      = 
+      consumes<edm::ValueMap<float>>(conf_.getParameter<edm::InputTag>("photonIsolation"));   
+
   } else {
 
     photonCoreProducerT_   = 
@@ -211,21 +218,13 @@ GEDPhotonProducer::~GEDPhotonProducer()
 
 void  GEDPhotonProducer::beginRun (edm::Run const& r, edm::EventSetup const & theEventSetup) {
 
- if ( reconstructionStep_ == "final" ) { 
-    thePFBasedIsolationCalculator_ = new PFPhotonIsolationCalculator();
-    edm::ParameterSet pfIsolationCalculatorSet = conf_.getParameter<edm::ParameterSet>("PFIsolationCalculatorSet"); 
-    thePFBasedIsolationCalculator_->setup(pfIsolationCalculatorSet);
- }else{ 
+ if ( reconstructionStep_ != "final" ) { 
     thePhotonEnergyCorrector_ -> init(theEventSetup); 
   }
 
 }
 
 void  GEDPhotonProducer::endRun (edm::Run const& r, edm::EventSetup const & theEventSetup) {
-
-  if ( reconstructionStep_ == "final" ) { 
-    delete thePFBasedIsolationCalculator_;
-  }
 }
 
 
@@ -244,9 +243,17 @@ void GEDPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
   Handle<reco::PhotonCoreCollection> photonCoreHandle;
   bool validPhotonHandle= false;
   Handle<reco::PhotonCollection> photonHandle;
+  //value maps for isolation
+  edm::Handle<edm::ValueMap<float> > phoChargedIsolationMap_CITK;
+  edm::Handle<edm::ValueMap<float> > phoNeutralHadronIsolationMap_CITK;
+  edm::Handle<edm::ValueMap<float> > phoPhotonIsolationMap_CITK;
 
   if ( reconstructionStep_ == "final" ) { 
     theEvent.getByToken(photonProducerT_,photonHandle);
+    //get isolation objects
+    theEvent.getByToken(phoChargedIsolationToken_CITK,phoChargedIsolationMap_CITK);
+    theEvent.getByToken(phoNeutralHadronIsolationToken_CITK,phoNeutralHadronIsolationMap_CITK);
+    theEvent.getByToken(phoPhotonIsolationToken_CITK,phoPhotonIsolationMap_CITK);
     if ( photonHandle.isValid()) {
       validPhotonHandle=true;  
     } else {
@@ -391,7 +398,10 @@ void GEDPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
 			 pfEGCandToPhotonMap,
 			 vertexHandle,
 			 outputPhotonCollection,
-			 iSC);
+			 iSC,
+       phoChargedIsolationMap_CITK,
+       phoNeutralHadronIsolationMap_CITK,
+       phoPhotonIsolationMap_CITK);
 
 
 
@@ -702,7 +712,7 @@ void GEDPhotonProducer::fillPhotonCollection(edm::Event& evt,
 					     const edm::Handle<reco::PFCandidateCollection> pfEGCandidateHandle,
 					     edm::ValueMap<reco::PhotonRef> pfEGCandToPhotonMap,
 					     edm::Handle< reco::VertexCollection >  & vertexHandle,
-					     reco::PhotonCollection & outputPhotonCollection, int& iSC) {
+					     reco::PhotonCollection & outputPhotonCollection, int& iSC, const edm::Handle<edm::ValueMap<float>>& chargedHadrons_, const edm::Handle<edm::ValueMap<float>>& neutralHadrons_, const edm::Handle<edm::ValueMap<float>>& photons_) {
 
   
  
@@ -737,11 +747,16 @@ void GEDPhotonProducer::fillPhotonCollection(edm::Event& evt,
   // Calculate the PF isolation and ID - for the time being there is no calculation. Only the setting
     reco::Photon::PflowIsolationVariables pfIso;
     reco::Photon::PflowIDVariables pfID;
-    if( thedet != DetId::Forward  ) {
-      thePFBasedIsolationCalculator_->calculate (&newCandidate, pfCandidateHandle, vertexHandle, evt, es, pfIso );
-    }
+  
+    //get the pointer for the photon object
+    edm::Ptr<reco::Photon> photonPtr(photonHandle, lSC);
+
+    pfIso.chargedHadronIso = (*chargedHadrons_)[photonPtr] ;
+    pfIso.neutralHadronIso = (*neutralHadrons_)[photonPtr];
+    pfIso.photonIso        = (*photons_)[photonPtr];
     newCandidate.setPflowIsolationVariables(pfIso);
     newCandidate.setPflowIDVariables(pfID);
+
 
     // do the regression
     thePhotonEnergyCorrector_->calculate(evt, newCandidate, subdet, *vertexHandle, es);
