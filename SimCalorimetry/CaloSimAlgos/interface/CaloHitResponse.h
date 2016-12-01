@@ -121,6 +121,10 @@ public:
     storePrecise = sp;
   }
 
+  void setIgnoreGeantTime(bool gt) {
+    ignoreTime = gt;
+  }
+
 protected:
 
   AnalogSignalMap theAnalogSignalMap;
@@ -139,7 +143,7 @@ protected:
 
   double thePhaseShift_;
   bool storePrecise;
-
+  bool ignoreTime;
 };
 
 #endif

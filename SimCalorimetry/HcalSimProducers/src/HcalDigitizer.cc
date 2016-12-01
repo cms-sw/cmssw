@@ -86,6 +86,7 @@ HcalDigitizer::HcalDigitizer(const edm::ParameterSet& ps, edm::ConsumesCollector
   doHFWindow_(ps.getParameter<bool>("doHFWindow")),
   killHE_(ps.getParameter<bool>("killHE")),
   debugCS_(ps.getParameter<bool>("debugCaloSamples")),
+  ignoreTime_(ps.getParameter<bool>("ignoreGeantTime")),
   hitsProducer_(ps.getParameter<std::string>("hitsProducer")),
   theHOSiPMCode(ps.getParameter<edm::ParameterSet>("ho").getParameter<int>("siPMCode")),
   deliveredLumi(0.),
@@ -192,6 +193,17 @@ HcalDigitizer::HcalDigitizer(const edm::ParameterSet& ps, edm::ConsumesCollector
     if(theHFDigitizer)        theHFDigitizer->setDebugCaloSamples(true);
     if(theHFQIE10Digitizer)   theHFQIE10Digitizer->setDebugCaloSamples(true);
     theZDCDigitizer->setDebugCaloSamples(true);
+  }
+
+  //option to ignore Geant time distribution in SimHits, for debugging
+  if(ignoreTime_){
+    theHBHEResponse->setIgnoreGeantTime(ignoreTime_);
+    theHBHESiPMResponse->setIgnoreGeantTime(ignoreTime_);
+    theHOResponse->setIgnoreGeantTime(ignoreTime_);
+    theHOSiPMResponse->setIgnoreGeantTime(ignoreTime_);
+    theHFResponse->setIgnoreGeantTime(ignoreTime_);
+    theHFQIE10Response->setIgnoreGeantTime(ignoreTime_);
+    theZDCResponse->setIgnoreGeantTime(ignoreTime_);
   }
 
   if(agingFlagHE) m_HEDarkening = new HEDarkening();
