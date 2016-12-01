@@ -138,10 +138,10 @@ SiPixelDigiSource::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSet
 	  if(averageFPIXFed>0.) averageOcc = nDigisPerFed[i]/averageFPIXFed;
 	}
 	if (!modOn){
-	  averageDigiOccupancy->Fill(i+1,averageOcc);
+	  averageDigiOccupancy->Fill(i,averageOcc);
 	}        
 	if (modOn && nLumiSecs%10==0){
-	  averageDigiOccupancy->Fill(i+1,averageOcc); // "modOn" basically mean Online DQM, in this case fill histos with actual value of digi fraction per fed for each ten lumisections
+	  averageDigiOccupancy->Fill(i,averageOcc); // "modOn" basically mean Online DQM, in this case fill histos with actual value of digi fraction per fed for each ten lumisections
 	  if (avgfedDigiOccvsLumi){
 	  avgfedDigiOccvsLumi->setBinContent(int(nLumiSecs/10), i+1, averageOcc); //fill with the mean over 10 lumisections, previous code was filling this histo only with last event of each 10th lumisection
 	}//endif meX5
