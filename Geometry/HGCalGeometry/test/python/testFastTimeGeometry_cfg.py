@@ -21,7 +21,7 @@ process.MessageLogger = cms.Service("MessageLogger",
         HGCalGeom = cms.untracked.PSet(
             limit = cms.untracked.int32(0)
         )
-    ),
+    )
 )
 
 process.load("IOMC.RandomEngine.IOMC_cff")
