@@ -118,8 +118,8 @@ StandardSpecifications1D = [
                             .saveAll(),
     Specification(PerLayer1D).groupBy("PXBarrel/Shell/PXLayer").save(),
     Specification(PerLayer1D).groupBy("PXForward/HalfCylinder/PXDisk/PXRing").save(),
-    Specification(PerModule).groupBy("PXBarrel/PXLayer/PXLadder/DetId").save(),
-    Specification(PerModule).groupBy("PXForward/PXDisk/PXBlade/DetId").save(),
+    Specification(PerModule).groupBy("PXBarrel/Shell/PXLayer/PXLadder/P1PXModuleName").save(),
+    Specification(PerModule).groupBy("PXForward/HalfCylinder/PXDisk/PXRing/PXBlade/P1PXModuleName").save(),
 ]
 
 StandardSpecificationTrend = [
@@ -157,9 +157,9 @@ StandardSpecifications1D_Num = [
                             .reduce("MEAN")
                             .groupBy("PXBarrel/Shell/PXLayer", "EXTEND_X")
                             .saveAll(),
-    Specification(PerModule).groupBy("PXBarrel/PXLayer/PXLadder/DetId/Event")
+    Specification(PerModule).groupBy("PXBarrel/Shell/PXLayer/PXLadder/P1PXModuleName/Event")
                             .reduce("COUNT")
-                            .groupBy("PXBarrel/PXLayer/PXLadder/DetId")
+                            .groupBy("PXBarrel/Shell/PXLayer/PXLadder/P1PXModuleName")
                             .save(),
     Specification(PerLadder).groupBy("PXForward/HalfCylinder/PXDisk/PXRing/PXBlade/DetId/Event") 
                             .reduce("COUNT") # per-event counting
@@ -167,9 +167,9 @@ StandardSpecifications1D_Num = [
                             .reduce("MEAN")
                             .groupBy("PXForward/HalfCylinder/PXDisk/PXRing", "EXTEND_X")
                             .saveAll(),
-    Specification(PerModule).groupBy("PXForward/PXDisk/PXBlade/DetId/Event")
+    Specification(PerModule).groupBy("PXForward/HalfCylinder/PXDisk/PXRing/PXBlade/P1PXModuleName/Event")
                             .reduce("COUNT")
-                            .groupBy("PXForward/PXDisk/PXBlade/DetId")
+                            .groupBy("PXForward/HalfCylinder/PXDisk/PXRing/PXBlade/P1PXModuleName")
                             .save(),
 ]
 

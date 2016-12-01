@@ -22,6 +22,10 @@
 #include "CondFormats/SiPixelObjects/interface/SiPixelFedCablingMap.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 
+// Pixel names
+#include "DataFormats/SiPixelDetId/interface/PixelBarrelName.h"
+#include "DataFormats/SiPixelDetId/interface/PixelEndcapName.h"
+
 // C++ stuff
 #include <cassert>
 #include <cstdint>
@@ -99,6 +103,19 @@ void GeometryInterface::loadFromTopology(edm::EventSetup const& iSetup, const ed
     return endcap == 1 ? -disk : disk;
   };
 
+  // DetId and module names
+  auto detid = [] (InterestingQuantities const& iq) {
+    uint32_t id = iq.sourceModule.rawId();
+    return Value(id);
+  };
+  addExtractor(intern("DetId"), detid,
+    0, 0 // No sane value possible here.
+  );
+  // these are just aliases with special handling in formatting
+  // the names are created with PixelBarrelName et. al. later
+  addExtractor(intern("PXModuleName"), detid, 0, 0);
+  addExtractor(intern("P1PXModuleName"), detid, 0, 0);
+
   // Get a Geometry
   edm::ESHandle<TrackerGeometry> trackerGeometryHandle;
   iSetup.get<TrackerDigiGeometryRecord>().get(trackerGeometryHandle);
@@ -118,7 +135,7 @@ void GeometryInterface::loadFromTopology(edm::EventSetup const& iSetup, const ed
   Value innerring = iConfig.getParameter<int>("n_inner_ring_blades");
   Value outerring = 0;
 
-  // Now travrse the detector and collect whatever we need.
+  // Now traverse the detector and collect whatever we need.
   auto detids = trackerGeometryHandle->detIds();
   for (DetId id : detids) {
     if (id.subdetId() != PixelSubdetector::PixelBarrel && id.subdetId() != PixelSubdetector::PixelEndcap) continue;
@@ -133,6 +150,23 @@ void GeometryInterface::loadFromTopology(edm::EventSetup const& iSetup, const ed
     if (module != UNDEFINED && module > maxmodule) maxmodule = module;
     auto blade = pxblade(iq);
     if (blade != UNDEFINED && blade > outerring) outerring = blade;
+
+    // prepare pretty names
+    // We try Phase0 and Phase1 here, since we only later know which to use...
+    std::string name_P0 = "", name_P1 = "";
+    if (layer != UNDEFINED) { // Barrel
+      PixelBarrelName mod_P0(id, tt, false);
+      PixelBarrelName mod_P1(id, tt, true);
+      name_P0 = mod_P0.name();
+      name_P1 = mod_P1.name();
+    } else { // assume Endcap
+      PixelEndcapName mod_P0(id, tt, false);
+      PixelEndcapName mod_P1(id, tt, true);
+      name_P0 = mod_P0.name();
+      name_P1 = mod_P1.name();
+    }
+    format_value[std::make_pair(intern("PXModuleName"), Value(id.rawId()))] = name_P0;
+    format_value[std::make_pair(intern("P1PXModuleName"), Value(id.rawId()))] = name_P1;
 
     // we record each module 4 times, one for each corner, so we also get ROCs
     // in booking (at least for the ranges)
@@ -302,18 +336,6 @@ void GeometryInterface::loadModuleLevel(edm::EventSetup const& iSetup, const edm
     }
   );
 
-  auto detid = [] (InterestingQuantities const& iq) {
-    uint32_t id = iq.sourceModule.rawId();
-    return Value(id);
-  };
-  addExtractor(intern("DetId"), detid,
-    0, 0 // No sane value possible here.
-  );
-  // these are just aliases with special handling in formatting
-  addExtractor(intern("PXBarrelName"), detid, 0, 0);
-  addExtractor(intern("PXEndcapName"), detid, 0, 0);
-  addExtractor(intern("P1PXBarrelName"), detid, 0, 0);
-  addExtractor(intern("P1PXEndcapName"), detid, 0, 0);
 }
 
 void GeometryInterface::loadFEDCabling(edm::EventSetup const& iSetup, const edm::ParameterSet& iConfig) {
@@ -360,9 +382,10 @@ void GeometryInterface::loadFEDCabling(edm::EventSetup const& iSetup, const edm:
 }
 
 std::string GeometryInterface::formatValue(Column col, Value val) {
+  auto it = format_value.find(std::make_pair(col, val));
+  if (it != format_value.end()) return it->second;
+
   // non-number output names (_pO etc.) are hardwired here.
-  // PERF: memoize the names in a map, probably ignoring row/col
-  // TODO: more pretty names for DetIds using PixelBarrelName etc.
   std::string name = pretty(col);
   std::string value = "_" + std::to_string(int(val));
   if (val == 0) value = "";         // hide Barrel_0 etc.
@@ -373,6 +396,6 @@ std::string GeometryInterface::formatValue(Column col, Value val) {
       {11, "_mI"}, {12, "_mO"}, {21, "_pI"}, {22, "_pO"}};
   if (name == "HalfCylinder" || name == "Shell") value = shellname[int(val)];
   if (val == UNDEFINED) value = "_UNDEFINED";
-  return name+value;
+  return format_value[std::make_pair(col, val)] = name+value;
 }
 
