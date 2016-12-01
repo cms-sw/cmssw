@@ -7,6 +7,7 @@
 #include "DataFormats/Common/interface/Handle.h"
 
 #include "SimMuon/GEMDigitizer/interface/ME0ReDigiProducer.h"
+#include "Geometry/CommonTopologies/interface/TrapezoidalStripTopology.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "Geometry/GEMGeometry/interface/ME0Geometry.h"
 #include "Geometry/GEMGeometry/interface/ME0EtaPartitionSpecs.h"
@@ -176,48 +177,65 @@ void ME0ReDigiProducer::buildDigis(const ME0DigiPreRecoCollection & input_digis,
       
       // calculate the new position in local coordinates
       const GlobalPoint radialSmearedGP(GlobalPoint::Cylindrical(newR, oldGP.phi(), oldGP.z()));
-
+      LocalPoint radialSmearedLP = roll->toLocal(radialSmearedGP);
+      
       // new y position after smearing
       const float targetYResolution(sqrt(newYResolution_*newYResolution_ - oldYResolution_ * oldYResolution_));
-      float newGPy(CLHEP::RandGaussQ::shoot(engine, radialSmearedGP.y(), targetYResolution));
-
-      // new x position after smearing
-      const float targetXResolution(sqrt(newXResolution_*newXResolution_ - oldXResolution_ * oldXResolution_));
-      float newGPx(CLHEP::RandGaussQ::shoot(engine, radialSmearedGP.x(), targetXResolution));
+      float newLPy(CLHEP::RandGaussQ::shoot(engine, radialSmearedLP.y(), targetYResolution));
       
-      const GlobalPoint newGP(newGPx, newGPy, radialSmearedGP.z());
-      
-      // check if the smeared hit remains in its partition, or moves one up or down
-      const float deltaY(newGP.y() - centralGP.y());
+      const ME0EtaPartition* newPart = roll;
+      LocalPoint newLP(radialSmearedLP.x(), newLPy, radialSmearedLP.z());
+      GlobalPoint newGP(newPart->toGlobal(newLP));
+      	
+      // check if digi moves one up or down roll
       int newRoll = detId.roll();
-      if (deltaY > height)  --newRoll;
-      if (deltaY < -height) ++newRoll;
+      if (newLP.y() > height)  --newRoll;
+      if (newLP.y() < -height) ++newRoll;
 
-      // check if new roll is possible
-      if (newRoll < ME0DetId::minRollId || newRoll > ME0DetId::maxRollId)
-	newRoll = detId.roll();
+      if (newRoll != detId.roll()){
+	// check if new roll is possible
+	if (newRoll < ME0DetId::minRollId || newRoll > ME0DetId::maxRollId){
+	  newRoll = detId.roll();
+	}
+	else {	 
+	  // roll changed, get new ME0EtaPartition
+	  newPart = geometry_->etaPartition(ME0DetId(detId.region(), detId.layer(), detId.chamber(), newRoll));
+	}
 
-      // get new detId and ME0EtaPartition      
-      const ME0EtaPartition* newPart = geometry_->etaPartition(ME0DetId(detId.region(), detId.layer(), detId.chamber(), newRoll));      
-      // check if new roll is in geometry
-      if (!newPart) newPart = roll;
-      edm::LogVerbatim("ME0ReDigiProducer") << "\tnew roll " << newPart << std::endl;
+	// if new ME0EtaPartition fails or roll not changed
+	if (!newPart or newRoll == detId.roll()){
+	  newPart = roll;
+	  // set local y to edge of etaPartition
+	  if (newLP.y() > height)  newLP = LocalPoint(newLP.x(), height, newLP.z());
+	  if (newLP.y() < -height) newLP = LocalPoint(newLP.x(), -height, newLP.z());	
+	}
+	else {// new partiton, get new local point
+	  newLP = newPart->toLocal(newGP);
+	}
+      }	
 
-      // new local Point after all smearing
-      const LocalPoint lp = newPart->toLocal(newGP);
+      // smearing in X
+      double newXResolutionCor = correctSigmaU(roll, newLP.y());
+      
+      // new x position after smearing
+      const float targetXResolution(sqrt(newXResolutionCor*newXResolutionCor - oldXResolution_ * oldXResolution_));
+      float newLPx(CLHEP::RandGaussQ::shoot(engine, newLP.x(), targetXResolution));
 
-      float newY(lp.y());
+      // update local point after x smearing
+      newLP = LocalPoint(newLPx, newLP.y(), newLP.z());
+      
+      float newY(newLP.y());
       // new hit has y coordinate in the center of the roll when using discretizeY
       if(discretizeY_) newY = 0;
       edm::LogVerbatim("ME0ReDigiProducer")
-        << "\tnew Y " << newY << std::endl;
+	<< "\tnew Y " << newY << std::endl;
 
-      float newX(lp.x());
+      float newX(newLP.x());
       edm::LogVerbatim("ME0ReDigiProducer")
         << "\tnew X " << newX << std::endl;      
       // discretize the new X
       if (discretizeX_){
-        int strip(newPart->strip(lp));
+        int strip(newPart->strip(newLP));
         float stripF(float(strip) - 0.5);
         const LocalPoint newLP(newPart->centreOfStrip(stripF));
         newX = newLP.x();
@@ -231,4 +249,15 @@ void ME0ReDigiProducer::buildDigis(const ME0DigiPreRecoCollection & input_digis,
       output_digis.insertDigi(newPart->id(), out_digi);
     }
   }
+}
+
+double ME0ReDigiProducer::correctSigmaU(const ME0EtaPartition* roll, double y) {
+  const TrapezoidalStripTopology* top_(dynamic_cast<const TrapezoidalStripTopology*>(&(roll->topology())));
+  auto& parameters(roll->specs()->parameters());
+  double height(parameters[2]);       // height     = height from Center of Roll
+  double rollRadius = top_->radius(); // rollRadius = Radius at Center of Roll
+  double Rmax = rollRadius+height;    // MaxRadius  = Radius at top of Roll
+  double Rx = rollRadius+y;           // y in [-height,+height]
+  double sigma_u_new = Rx/Rmax*newXResolution_;
+  return sigma_u_new;
 }
