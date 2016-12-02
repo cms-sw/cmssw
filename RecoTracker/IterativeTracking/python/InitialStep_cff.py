@@ -55,7 +55,7 @@ initialStepHitTriplets = _pixelTripletHLTEDProducer.clone(
 )
 from RecoPixelVertexing.PixelTriplets.pixelQuadrupletMergerEDProducer_cfi import pixelQuadrupletMergerEDProducer as _pixelQuadrupletMergerEDProducer
 from RecoPixelVertexing.PixelTriplets.quadrupletseedmerging_cff import *
-initialStepHitQuadrupletsMerging = _pixelQuadrupletMergerEDProducer.clone(
+_initialStepHitQuadrupletsMerging = _pixelQuadrupletMergerEDProducer.clone(
     triplets = "initialStepHitTriplets",
     layerList = dict(refToPSet_ = cms.string("PixelSeedMergerQuadruplets")),
 )
@@ -90,7 +90,7 @@ trackingPhase2PU140.toModify(initialStepHitTriplets,
 trackingPhase2PU140.toModify(initialStepSeeds, seedingHitSets = "initialStepHitQuadruplets")
 
 # temporary...
-initialStepHitQuadrupletsMerging.SeedCreatorPSet = cms.PSet(
+_initialStepHitQuadrupletsMerging.SeedCreatorPSet = cms.PSet(
     ComponentName = cms.string("SeedFromConsecutiveHitsCreator"),
     MinOneOverPtError = initialStepSeeds.MinOneOverPtError,
     OriginTransverseErrorMultiplier = initialStepSeeds.OriginTransverseErrorMultiplier,
@@ -101,9 +101,10 @@ initialStepHitQuadrupletsMerging.SeedCreatorPSet = cms.PSet(
     propagator = initialStepSeeds.propagator,
 
 )
-initialStepHitQuadrupletsMerging.SeedComparitorPSet = initialStepSeeds.SeedComparitorPSet
+_initialStepHitQuadrupletsMerging.SeedComparitorPSet = initialStepSeeds.SeedComparitorPSet
 
-trackingPhase1PU70.toModify(initialStepSeeds, seedingHitSets="initialStepHitQuadrupletsMerging")
+trackingPhase1PU70.toReplaceWith(initialStepHitQuadruplets, _initialStepHitQuadrupletsMerging) 
+trackingPhase1PU70.toModify(initialStepSeeds, seedingHitSets="initialStepHitQuadruplets")
 
 
 # building
