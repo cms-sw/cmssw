@@ -85,11 +85,11 @@ mvaPhoID_Spring16_nonTrig_V1_producer_config = cms.PSet(
     #
     phoChargedIsolation = cms.InputTag("egmPhotonIsolation:h+-DR030-"),
     phoPhotonIsolation  = cms.InputTag("egmPhotonIsolation:gamma-DR030-"),
-    phoWorstChargedIsolation = cms.InputTag("photonIDValueMapProducer:phoWorstChargedIsolation"),
+    phoWorstChargedIsolation = cms.InputTag("photonIDValueMapProducer:phoWorstChargedIsolationWithConeVeto"),
     #
     # Original event content: pileup in this case
     # 
-    rho                       = cms.InputTag("fixedGridRhoFastjetAll"),
+    rho                       = cms.InputTag("fixedGridRhoAll"), # As used by Hgg and by developer of this ID
     # In this MVA for endcap the corrected photon isolation is defined as
     # iso = max( photon_isolation_raw - rho*effArea - coeff*pt, cutoff)
     # as discussed in the indico presentations listed in the beginning of this file.
