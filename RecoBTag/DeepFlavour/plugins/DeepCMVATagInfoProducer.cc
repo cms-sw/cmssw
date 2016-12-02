@@ -44,7 +44,7 @@
 #include "RecoBTau/JetTagComputer/interface/JetTagComputerRecord.h"
 #include "DataFormats/BTauReco/interface/JetTag.h"
 
-
+#include <math.h>
 #include <map>
 
 using namespace reco;
@@ -210,10 +210,15 @@ DeepCMVATagInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
 		
 		// Copy the DeepNN TaggingVariables + add the other discriminators
 		TaggingVariableList vars = nnInfo.taggingVariables();
-		vars.insert(reco::btau::Jet_SoftMu, (*compsoftmu)( JetTagComputer::TagInfoHelper(muBaseInfo) )  );
-		vars.insert(reco::btau::Jet_SoftEl, (*compsoftel)( JetTagComputer::TagInfoHelper(elBaseInfo) )  );
-		vars.insert(reco::btau::Jet_JBP, (*compjpb)( JetTagComputer::TagInfoHelper(ipBaseInfo) )  );
-		vars.insert(reco::btau::Jet_JP, (*compjp)( JetTagComputer::TagInfoHelper(ipBaseInfo) )  ); 
+		double softmu_discr = (*compsoftmu)( JetTagComputer::TagInfoHelper(muBaseInfo) );
+		double softel_discr = (*compsoftel)( JetTagComputer::TagInfoHelper(elBaseInfo) );
+		double jp_discr = (*compjp)( JetTagComputer::TagInfoHelper(ipBaseInfo) );
+		double jpb_discr = (*compjpb)( JetTagComputer::TagInfoHelper(ipBaseInfo) );
+		vars.insert(reco::btau::Jet_SoftMu, softmu_discr ? !(isinf(softmu_discr)) : 0  );
+		vars.insert(reco::btau::Jet_SoftEl, softel_discr ? !(isinf(softel_discr)) : 0  );
+		vars.insert(reco::btau::Jet_JBP, jpb_discr ? !(isinf(jpb_discr)) : 0 );
+		vars.insert(reco::btau::Jet_JP, jp_discr ? !(isinf(jp_discr)) : 0  );
+		
 		vars.finalize();
 		tagInfos->emplace_back(vars, nnInfo.jet());
 		
