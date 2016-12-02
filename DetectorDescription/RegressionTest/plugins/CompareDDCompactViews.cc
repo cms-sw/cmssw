@@ -30,7 +30,7 @@ private:
 CompareDDCompactViews::CompareDDCompactViews( const edm::ParameterSet& iConfig )
 {
   m_fname1 = iConfig.getUntrackedParameter<std::string>( "XMLFileName1" );
-  m_fname2 = iConfig.getUntrackedParameter<std::string>( "XMLFileName1" );
+  m_fname2 = iConfig.getUntrackedParameter<std::string>( "XMLFileName2" );
 }
 
 void
@@ -39,11 +39,13 @@ CompareDDCompactViews::beginRun( const edm::Run&, edm::EventSetup const& es )
   DDCompactView cpv1;
   DDLParser parser1( cpv1 );
   parser1.parseOneFile( m_fname1 );
+  DDCheckMaterials( std::cout );
   cpv1.lockdown();
 
   DDCompactView cpv2;
   DDLParser parser2( cpv2 );
   parser2.parseOneFile( m_fname2 );
+  DDCheckMaterials( std::cout );
   cpv2.lockdown();
 
   DDCompOptions ddco;
