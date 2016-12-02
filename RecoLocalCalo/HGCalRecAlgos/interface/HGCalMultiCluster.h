@@ -60,9 +60,16 @@ public:
     return acc/totweight;
   }
   double simple_eta(double vz) const {
-    return -1.*
-      simple_z(vz)/abs(simple_z(vz))*
-      log(tan(atan(sqrt(pow(simple_slope_x(vz),2)+pow(simple_slope_y(vz),2)))/2.));
+    double acc = 0.0;
+    double totweight = 0.;
+    for(component_iterator it = begin(); it != end(); it++){
+      float point_r = sqrt(pow(it->x(),2)+pow(it->y(),2));
+      float point_z = it->z()-vz;
+      acc += -1. * log(tan(atan2(point_r,point_z)/2.)) * it->energy()*it->size();
+      totweight+=it->energy()*it->size();
+    }
+    return acc/totweight;
+
   }
 
   double simple_phi() const {
