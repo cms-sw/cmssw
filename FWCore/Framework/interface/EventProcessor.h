@@ -16,6 +16,7 @@ configured in the user's main() function, and is set running.
 #include "FWCore/Framework/interface/IEventProcessor.h"
 #include "FWCore/Framework/interface/InputSource.h"
 #include "FWCore/Framework/interface/PathsAndConsumesOfModules.h"
+#include "FWCore/Framework/interface/SharedResourcesAcquirer.h"
 #include "FWCore/Framework/src/PrincipalCache.h"
 #include "FWCore/Framework/src/SignallingProductRegistry.h"
 #include "FWCore/Framework/src/PreallocationConfiguration.h"
@@ -54,6 +55,7 @@ namespace edm {
   class ProcessDesc;
   class SubProcess;
   class WaitingTaskHolder;
+  class WaitingTask;
   
   namespace eventsetup {
     class EventSetupProvider;
@@ -238,7 +240,13 @@ namespace edm {
     friend class StreamProcessingTask;
     void processEventsForStreamAsync(unsigned int iStreamIndex,
                                      std::atomic<bool>* finishedProcessingEvents);
-    
+    bool readNextEventForStream(unsigned int iStreamIndex,
+                                     std::atomic<bool>* finishedProcessingEvents);
+
+    void handleNextEventForStreamAsync(WaitingTask* iTask,
+                                       unsigned int iStreamIndex,
+                                     std::atomic<bool>* finishedProcessingEvents);
+
     
     //read the next event using Stream iStreamIndex
     void readEvent(unsigned int iStreamIndex);
@@ -292,6 +300,7 @@ namespace edm {
     std::exception_ptr                            deferredExceptionPtr_;
     
     std::mutex                                    nextTransitionMutex_;
+    SharedResourcesAcquirer                       sourceResourcesAcquirer_;
     PrincipalCache                                principalCache_;
     bool                                          beginJobCalled_;
     bool                                          shouldWeStop_;

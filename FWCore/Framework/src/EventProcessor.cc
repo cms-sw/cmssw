@@ -30,6 +30,7 @@
 #include "FWCore/Framework/src/EPStates.h"
 #include "FWCore/Framework/src/EventSetupsController.h"
 #include "FWCore/Framework/src/InputSourceFactory.h"
+#include "FWCore/Framework/src/SharedResourcesRegistry.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -239,6 +240,7 @@ namespace edm {
     fb_(),
     looper_(),
     deferredExceptionPtrIsSet_(false),
+    sourceResourcesAcquirer_(SharedResourcesRegistry::instance()->createAcquirerForSourceDelayedReader().first),
     principalCache_(),
     beginJobCalled_(false),
     shouldWeStop_(false),
@@ -280,6 +282,7 @@ namespace edm {
     fb_(),
     looper_(),
     deferredExceptionPtrIsSet_(false),
+    sourceResourcesAcquirer_(SharedResourcesRegistry::instance()->createAcquirerForSourceDelayedReader().first),
     principalCache_(),
     beginJobCalled_(false),
     shouldWeStop_(false),
@@ -324,6 +327,7 @@ namespace edm {
     fb_(),
     looper_(),
     deferredExceptionPtrIsSet_(false),
+    sourceResourcesAcquirer_(SharedResourcesRegistry::instance()->createAcquirerForSourceDelayedReader().first),
     principalCache_(),
     beginJobCalled_(false),
     shouldWeStop_(false),
@@ -364,6 +368,7 @@ namespace edm {
     fb_(),
     looper_(),
     deferredExceptionPtrIsSet_(false),
+    sourceResourcesAcquirer_(SharedResourcesRegistry::instance()->createAcquirerForSourceDelayedReader().first),
     principalCache_(),
     beginJobCalled_(false),
     shouldWeStop_(false),
@@ -1884,6 +1889,98 @@ namespace edm {
     edm::propagate_const<tbb::task*> m_waitTask;
   };
 
+  bool EventProcessor::readNextEventForStream(unsigned int iStreamIndex,
+                                              std::atomic<bool>* finishedProcessingEvents) {
+    if(shouldWeStop()) {
+      return false;
+    }
+    
+    if(deferredExceptionPtrIsSet_.load(std::memory_order_acquire)) {
+      return false;
+    }
+    
+    if(finishedProcessingEvents->load(std::memory_order_acquire)) {
+      return false;
+    }
+
+    ServiceRegistry::Operate operate(serviceToken_);
+    if(preallocations_.numberOfThreads()>1) {
+      edm::Service<RootHandlers> handler;
+      handler->initializeThisThreadForUse();
+    }
+
+    try {
+      if(not firstEventInBlock_) {
+        //The state machine already called input_->nextItemType
+        // and found an event. We can't call input_->nextItemType
+        // again since it would move to the next transition
+        InputSource::ItemType itemType = input_->nextItemType();
+        if (InputSource::IsEvent !=itemType) {
+          nextItemTypeFromProcessingEvents_ = itemType;
+          finishedProcessingEvents->store(true,std::memory_order_release);
+          //std::cerr<<"next item type "<<itemType<<"\n";
+          return false;
+        }
+        if((asyncStopRequestedWhileProcessingEvents_=checkForAsyncStopRequest(asyncStopStatusCodeFromProcessingEvents_))) {
+          //std::cerr<<"task told to async stop\n";
+          actReg_->preSourceEarlyTerminationSignal_(TerminationOrigin::ExternalSignal);
+          return false;
+        }
+      } else {
+        firstEventInBlock_ = false;
+      }
+      readEvent(iStreamIndex);
+    } catch (...) {
+      bool expected =false;
+      if(deferredExceptionPtrIsSet_.compare_exchange_strong(expected,true)) {
+        deferredExceptionPtr_ = std::current_exception();
+
+      }
+      return false;
+    }
+    return true;
+  }
+  
+  void EventProcessor::handleNextEventForStreamAsync(WaitingTask* iTask,
+                                                              unsigned int iStreamIndex,
+                                                              std::atomic<bool>* finishedProcessingEvents)
+  {
+    auto recursionTask = make_waiting_task(tbb::task::allocate_root(), [this,iTask,iStreamIndex,finishedProcessingEvents](std::exception_ptr const* iPtr) {
+      if(iPtr) {
+        bool expected = false;
+        if(deferredExceptionPtrIsSet_.compare_exchange_strong(expected,true)) {
+          deferredExceptionPtr_ = *iPtr;
+          {
+            WaitingTaskHolder h(iTask);
+            h.doneWaiting(*iPtr);
+          }
+        }
+        //the stream will stop now
+        iTask->decrement_ref_count();
+        return;
+      }
+
+      handleNextEventForStreamAsync(iTask, iStreamIndex,finishedProcessingEvents);
+    });
+      
+    sourceResourcesAcquirer_.serialQueueChain().push([this,finishedProcessingEvents,recursionTask,iTask,iStreamIndex]() {
+           ServiceRegistry::Operate operate(serviceToken_);
+
+           try {
+             if(readNextEventForStream(iStreamIndex, finishedProcessingEvents) ) {
+               processEventAsync( WaitingTaskHolder(recursionTask), iStreamIndex);
+             } else {
+               //the stream will stop now
+               tbb::task::destroy(*recursionTask);
+               iTask->decrement_ref_count();
+             }
+           } catch(...) {
+             WaitingTaskHolder h(recursionTask);
+             h.doneWaiting(std::current_exception());
+           }
+    });
+  }
+
   void EventProcessor::processEventsForStreamAsync(unsigned int iStreamIndex,
                                                    std::atomic<bool>* finishedProcessingEvents) {
     try {
@@ -1981,25 +2078,32 @@ namespace edm {
     asyncStopRequestedWhileProcessingEvents_ = false;
 
     std::atomic<bool> finishedProcessingEvents{false};
+    auto finishedProcessingEventsPtr = &finishedProcessingEvents;
 
     //The state machine already found the event so
     // we have to avoid looking again
     firstEventInBlock_ = true;
 
     //To wait, the ref count has to b 1+#streams
-    tbb::task* eventLoopWaitTask{new (tbb::task::allocate_root()) tbb::empty_task{}};
+    auto eventLoopWaitTask = make_empty_waiting_task();
+    auto eventLoopWaitTaskPtr = eventLoopWaitTask.get();
     eventLoopWaitTask->increment_ref_count();
 
     const unsigned int kNumStreams = preallocations_.numberOfStreams();
     unsigned int iStreamIndex = 0;
     for(; iStreamIndex<kNumStreams-1; ++iStreamIndex) {
       eventLoopWaitTask->increment_ref_count();
-      tbb::task::enqueue( *(new (tbb::task::allocate_root()) StreamProcessingTask{this,iStreamIndex, &finishedProcessingEvents, eventLoopWaitTask}));
+      //tbb::task::enqueue( *(new (tbb::task::allocate_root()) StreamProcessingTask{this,iStreamIndex, &finishedProcessingEvents, eventLoopWaitTask}));
 
+      tbb::task::enqueue( *make_waiting_task(tbb::task::allocate_root(),[this,iStreamIndex,finishedProcessingEventsPtr,eventLoopWaitTaskPtr](std::exception_ptr const*){
+        handleNextEventForStreamAsync(eventLoopWaitTaskPtr,iStreamIndex,finishedProcessingEventsPtr);
+      }) );
     }
     eventLoopWaitTask->increment_ref_count();
-    eventLoopWaitTask->spawn_and_wait_for_all(*(new (tbb::task::allocate_root()) StreamProcessingTask{this,iStreamIndex,&finishedProcessingEvents,eventLoopWaitTask}));
-    tbb::task::destroy(*eventLoopWaitTask);
+    //    eventLoopWaitTask->spawn_and_wait_for_all(*(new (tbb::task::allocate_root()) StreamProcessingTask{this,iStreamIndex,&finishedProcessingEvents,eventLoopWaitTask}));
+    eventLoopWaitTask->spawn_and_wait_for_all( *make_waiting_task(tbb::task::allocate_root(),[this,iStreamIndex,finishedProcessingEventsPtr,eventLoopWaitTaskPtr](std::exception_ptr const*){
+      handleNextEventForStreamAsync(eventLoopWaitTaskPtr,iStreamIndex,finishedProcessingEventsPtr);
+    }));
 
     //One of the processing threads saw an exception
     if(deferredExceptionPtrIsSet_) {
