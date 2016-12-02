@@ -291,6 +291,18 @@ def setupBTagging(process, jetSource, pfCandidates, explicitJTA, pvSource, svSou
                 setattr(process, btagPrefix+btagInfo+labelName+postfix, btag.deepNNPositiveTagInfos.clone(svTagInfos = cms.InputTag(btagPrefix+'pfInclusiveSecondaryVertexFinderTagInfos'+labelName+postfix)))
                 if svClustering or fatJets != cms.InputTag(''):
                     setupSVClustering(getattr(process, btagPrefix+btagInfo+labelName+postfix), svClustering, algo, rParam, fatJets, groomedFatJets)
+            if btagInfo == 'deepCMVATagInfos':
+                setattr(process, btagPrefix+btagInfo+labelName+postfix, btag.deepCMVATagInfos.clone(deepNNTagInfos = cms.InputTag(btagPrefix+'deepNNTagInfos'+labelName+postfix), ipInfoSrc = cms.InputTag(btagPrefix+"pfImpactParameterTagInfos"+labelName+postfix), muInfoSrc = cms.InputTag(btagPrefix+"softPFMuonsTagInfos"+labelName+postfix), elInfoSrc = cms.InputTag(btagPrefix+"softPFElectronsTagInfos"+labelName+postfix)))
+                if svClustering or fatJets != cms.InputTag(''):
+                    setupSVClustering(getattr(process, btagPrefix+btagInfo+labelName+postfix), svClustering, algo, rParam, fatJets, groomedFatJets)
+            if btagInfo == 'deepCMVANegativeTagInfos':
+                setattr(process, btagPrefix+btagInfo+labelName+postfix, btag.deepCMVATagInfos.clone(deepNNTagInfos = cms.InputTag(btagPrefix+'deepNNTagInfos'+labelName+postfix), ipInfoSrc = cms.InputTag(btagPrefix+"pfImpactParameterTagInfos"+labelName+postfix), muInfoSrc = cms.InputTag(btagPrefix+"softPFMuonsTagInfos"+labelName+postfix), elInfoSrc = cms.InputTag(btagPrefix+"softPFElectronsTagInfos"+labelName+postfix)))
+                if svClustering or fatJets != cms.InputTag(''):
+                    setupSVClustering(getattr(process, btagPrefix+btagInfo+labelName+postfix), svClustering, algo, rParam, fatJets, groomedFatJets)
+            if btagInfo == 'deepCMVAPositiveTagInfos':
+                setattr(process, btagPrefix+btagInfo+labelName+postfix, btag.deepCMVATagInfos.clone(deepNNTagInfos = cms.InputTag(btagPrefix+'deepNNTagInfos'+labelName+postfix), ipInfoSrc = cms.InputTag(btagPrefix+"pfImpactParameterTagInfos"+labelName+postfix), muInfoSrc = cms.InputTag(btagPrefix+"softPFMuonsTagInfos"+labelName+postfix), elInfoSrc = cms.InputTag(btagPrefix+"softPFElectronsTagInfos"+labelName+postfix)))
+                if svClustering or fatJets != cms.InputTag(''):
+                    setupSVClustering(getattr(process, btagPrefix+btagInfo+labelName+postfix), svClustering, algo, rParam, fatJets, groomedFatJets)     
             if btagInfo == 'pfInclusiveSecondaryVertexFinderTagInfos':
                 setattr(process, btagPrefix+btagInfo+labelName+postfix, btag.pfInclusiveSecondaryVertexFinderTagInfos.clone(trackIPTagInfos = cms.InputTag(btagPrefix+'pfImpactParameterTagInfos'+labelName+postfix), extSVCollection=svSource))
                 if svClustering or fatJets != cms.InputTag(''):

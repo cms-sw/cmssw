@@ -154,6 +154,11 @@ namespace reco {
       tau2_flightDistance2dSig,                 // transverse distance significance between primary and secondary vertex associated to the 2nd N-subjettiness axis
       tau2_vertexDeltaR,                        // pseudoangular distance between the 2nd N-subjettiness axis and secondary vertex direction
       z_ratio,                                  // z ratio
+	  
+	  Jet_SoftMu,								// discriminator output of SoftMuon Tagger, used as input to (Deep)CMVA
+	  Jet_SoftEl,								// discriminator output of SoftElectron Tagger, used as input to (Deep)CMVA
+	  Jet_JBP,									// discriminator output of JPB Tagger, used as input to (Deep)CMVA
+	  Jet_JP,									// discriminator output of JP Tagger, used as input to (Deep)CMVA
       // #################################################################################
 
       algoDiscriminator,                        // discriminator output of an algorithm

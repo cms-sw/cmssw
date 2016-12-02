@@ -261,6 +261,10 @@ const char* const TaggingVariableTokens[] = {
   /* [tau2_flightDistance2dSig]                 = */ "tau2_flightDistance2dSig",
   /* [tau2_vertexDeltaR]                        = */ "tau2_vertexDeltaR",
   /* [z_ratio]                                  = */ "z_ratio",
+  /* [Jet_SoftMu]								= */ "Jet_SoftMu",
+  /* [Jet_SoftEl]								= */ "Jet_SoftEl",
+  /* [Jet_JBP]									= */ "Jet_JBP",
+  /* [Jet_JP]									= */ "Jet_JP",
 
   /* [algoDiscriminator]                        = */ "algoDiscriminator",
 
