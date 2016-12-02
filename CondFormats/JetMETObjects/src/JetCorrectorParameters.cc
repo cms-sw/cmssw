@@ -251,7 +251,21 @@ int JetCorrectorParameters::binIndex3(const std::vector<float>& fX) const
       sserr<<"# bin variables "<<N<<" is not equal to 3";
       handleError("JetCorrectorParameters",sserr.str());
     }
+  // make sure that fX are within the first and last boundaries of mBinBoundaries
+  for (unsigned idim=0; idim<fX.size(); idim++)
+    {
+      if (fX[idim] < *mBinBoundaries[idim].begin() || fX[idim] < *mBinBoundaries[idim].rbegin())
+        {
+          std::stringstream sserr;
+          sserr<<"dim "<<idim<<" is outside of the bin boundaries";
+          handleError("JetCorrectorParameters",sserr.str());
+          return -1;
+        }
+    }
+
   auto f0 = std::lower_bound(mBinBoundaries[0].begin(),mBinBoundaries[0].end(),fX[0]);
+  // lower_bound finds the entry with the next highest value to fX[0]
+  // so unless the two values are equal, you want the next lowest bin boundary
   if (*f0 != fX[0])
     f0-=1;
   auto f1 = std::lower_bound(mBinBoundaries[1].begin(),mBinBoundaries[1].end(),fX[1]);
