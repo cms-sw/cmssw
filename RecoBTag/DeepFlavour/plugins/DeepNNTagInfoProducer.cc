@@ -112,7 +112,7 @@ DeepNNTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
 		std::vector<float> tagValList = vars.getList(reco::btau::trackEtaRel,false);
 		vars.insert(reco::btau::jetNTracksEtaRel, tagValList.size());
 		tagValList = vars.getList(reco::btau::trackSip2dSig,false);
-		vars.insert(reco::btau::jetNSelectedTracks, tagValList.size()); 
+		vars.insert(reco::btau::jetNSelectedTracks, tagValList.size());
 		vars.finalize(); //fix the TaggingVariableList, nothing should be added/removed
 
 		//Things that are bugs but on the altar of backward 
