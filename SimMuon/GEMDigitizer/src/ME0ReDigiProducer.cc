@@ -131,8 +131,9 @@ void ME0ReDigiProducer::buildDigis(const ME0DigiPreRecoCollection & input_digis,
       if (reDigitizeOnlyMuons_ and fabs(me0Digi.pdgid()) != 13) continue;
       if (!reDigitizeNeutronBkg_ and !me0Digi.prompt()) continue;
 
-      // scale for luminosity
-      if (CLHEP::RandFlat::shoot(engine) > instLumi_*1.0/10) continue;
+      // scale background hits for luminosity
+      if (!me0Digi.prompt() or fabs(me0Digi.pdgid()) != 13)
+	if (CLHEP::RandFlat::shoot(engine) > instLumi_*1.0/5) continue;
 
       edm::LogVerbatim("ME0ReDigiProducer")
         << "\tPassed selection" << std::endl;
@@ -142,11 +143,15 @@ void ME0ReDigiProducer::buildDigis(const ME0DigiPreRecoCollection & input_digis,
       if (smearTiming_) newTof += CLHEP::RandGaussQ::shoot(engine, 0, timeResolution_);
 
       // arrival time in ns
-      const float t0(centralTOF_[ nPartitions_ * (detId.layer() -1) + detId.roll() - 1 ]);
+      //const float t0(centralTOF_[ nPartitions_ * (detId.layer() -1) + detId.roll() - 1 ]);
+      int index = nPartitions_ * (detId.layer() -1) + detId.roll() - 1;
+      if(detId.roll() == 0) index = nPartitions_ * (detId.layer() -1) + detId.roll();
+      //std::cout<<"size "<<centralTOF_.size()<<" nPartitions "<<nPartitions_<<" layer "<<detId.layer()<<" roll "<<detId.roll()<<" index "<<index<<std::endl;
+      const float t0(centralTOF_[ index ]);      
       const float correctedNewTof(newTof - t0);
 
       edm::LogVerbatim("ME0ReDigiProducer")
-        << "\tnew TOF " << newTof << " corrected new TOF " << correctedNewTof << std::endl;
+        <<" t0 "<< t0 << " originalTOF " << me0Digi.tof() << "\tnew TOF " << newTof << " corrected new TOF " << correctedNewTof << std::endl;
 
       // calculate the new time in ns
       int newTime = correctedNewTof;
