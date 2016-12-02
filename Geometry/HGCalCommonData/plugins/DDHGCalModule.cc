@@ -139,11 +139,13 @@ void DDHGCalModule::constructLayers(DDLogicalPart module,
     double  routF  = rMax(zi);
     int     laymax = laymin+layers[i];
     double  zz     = zi;
+    double  thickTot(0);
     for (int ly=laymin; ly<laymax; ++ly) {
       int     ii     = layerType[ly];
       int     copy   = copyNumber[ii];
       double  rinB   = (layerSense[ly] == 0) ? (zo*slopeB[0]) : (zo*slopeB[1]);
       zz            += (0.5*thick[ii]);
+      thickTot      += thick[ii];
 
       std::string name = "HGCal"+names[ii]+std::to_string(copy);
 #ifdef EDM_ML_DEBUG
@@ -203,6 +205,16 @@ void DDHGCalModule::constructLayers(DDLogicalPart module,
     } // End of loop over layers in a block
     zi     = zo;
     laymin = laymax;
+    if (fabs(thickTot-layerThick[i]) < 0.00001) {
+    } else if (thickTot > layerThick[i]) {
+      edm::LogError("HGCalGeom") << "Thickness of the partition " << layerThick[i]
+				 << " is smaller than thickness " << thickTot
+				 << " of all its components **** ERROR ****\n";
+    } else if (thickTot < layerThick[i]) {
+      edm::LogWarning("HGCalGeom") << "Thickness of the partition " 
+				   << layerThick[i] << " does not match with "
+				   << thickTot << " of the components\n";
+    }
   }   // End of loop over blocks
 }
 
