@@ -120,7 +120,8 @@ DeepFlavourJetTagsProducer::DeepFlavourJetTagsProducer(const edm::ParameterSet& 
 		var.name = input.name;
 		//two paradigms 
 		vector<string> tokens;
-		boost::split(tokens,var.name,boost::is_any_of("_"));
+		if (var.name != "Jet_JP" && var.name != "Jet_JBP" && var.name != "Jet_SoftMu" && var.name != "Jet_SoftEl"){boost::split(tokens,var.name,boost::is_any_of("_"));}
+		else {tokens.push_back(var.name);}
 		if(!tokens.size()) {
 			throw cms::Exception("RuntimeError") << "I could not parse properly " << input.name << " as input feature" << std::endl;
 		}

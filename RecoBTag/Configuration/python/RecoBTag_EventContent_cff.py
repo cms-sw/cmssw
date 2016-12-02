@@ -30,6 +30,8 @@ RecoBTagFEVT = cms.PSet(
         'keep *_pfChargeBJetTags_*_*',
 				# DeepFlavour
 				'keep *_deepFlavourJetTags_*_*',
+        # DeepCMVA
+        'keep *_deepFlavourCMVAJetTags_*_*',
     )
 )
 #RECO content
@@ -62,6 +64,8 @@ RecoBTagRECO = cms.PSet(
         'keep *_pfChargeBJetTags_*_*',
 				# DeepFlavour
 				'keep *_deepFlavourJetTags_*_*',
+        # DeepCMVA
+        'keep *_deepFlavourCMVAJetTags_*_*',
     )
 )
 #AOD content
@@ -87,5 +91,7 @@ RecoBTagAOD = cms.PSet(
         'keep *_pfChargeBJetTags_*_*',
 				# DeepFlavour
 				'keep *_deepFlavourJetTags_*_*',
+        # DeepCMVA
+        'keep *_deepFlavourCMVAJetTags_*_*',
     )
 )

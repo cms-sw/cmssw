@@ -6,6 +6,9 @@
 <use name="DataFormats/Common"/>
 <use name="RecoBTag/SecondaryVertex"/>
 <use name="RecoBTag/LWTNN"/>
+<use name="FWCore/ServiceRegistry"/>
+<use name="FWCore/PluginManager"/>
+<use name="PhysicsTools/UtilAlgos"/>
 <use name="boost"/>
 <use name="classlib"/>
 <library file="*.cc" name="DeepFlavourPlugins">

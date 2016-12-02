@@ -23,6 +23,7 @@
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -30,26 +31,36 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/StreamID.h"
 
+#include "FWCore/Framework/interface/makeRefToBaseProdFrom.h"
+#include "DataFormats/Common/interface/RefToBase.h"
+
+ #include "DataFormats/Common/interface/View.h"
 #include "DataFormats/BTauReco/interface/CandIPTagInfo.h"
 #include "DataFormats/BTauReco/interface/CandSecondaryVertexTagInfo.h"
 #include "DataFormats/BTauReco/interface/ShallowTagInfo.h"
 #include "DataFormats/BTauReco/interface/TaggingVariable.h"
 #include "RecoBTag/SecondaryVertex/interface/CombinedSVComputer.h"
+#include "RecoBTau/JetTagComputer/interface/JetTagComputer.h"
+#include "RecoBTau/JetTagComputer/interface/JetTagComputerRecord.h"
+#include "DataFormats/BTauReco/interface/JetTag.h"
+
 
 #include <map>
+
+using namespace reco;
 
 //
 // class declaration
 //
 
-inline bool equals(const RefToBase<Jet> &j1, const RefToBase<Jet> &j2) {
+inline bool equals(const edm::RefToBase<Jet> &j1, const edm::RefToBase<Jet> &j2) {
 	return j1.id() == j2.id() && j1.key() == j2.key();
 }
 
-class DeepNNTagInfoProducer : public edm::stream::EDProducer<> {
+class DeepCMVATagInfoProducer : public edm::stream::EDProducer<> {
 public:
-	explicit DeepNNTagInfoProducer(const edm::ParameterSet&);
-	~DeepNNTagInfoProducer();
+	explicit DeepCMVATagInfoProducer(const edm::ParameterSet&);
+	~DeepCMVATagInfoProducer();
 
 	static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
@@ -60,10 +71,13 @@ private:
 
 	// ----------member data ---------------------------
 	const edm::EDGetTokenT< std::vector<reco::ShallowTagInfo> > deepNNSrc_;
-	const edm::EDGetTokenT< std::vector<reco::CandIPTagInfo>  > ipInfoSrc_;
+	const edm::EDGetTokenT< edm::View<reco::BaseTagInfo> > ipInfoSrc_;
+	const edm::EDGetTokenT< edm::View<reco::BaseTagInfo> > muInfoSrc_;
+	const edm::EDGetTokenT< edm::View<reco::BaseTagInfo> > elInfoSrc_;
+	/*const edm::EDGetTokenT< std::vector<reco::CandIPTagInfo>  > ipInfoSrc_;
 	const edm::EDGetTokenT< std::vector<reco::CandSoftLeptonTagInfo> > muInfoSrc_;
-	const edm::EDGetTokenT< std::vector<reco::CandSoftLeptonTagInfo> > elInfoSrc_;	
-	edm::InputTag jpComputer_, jpbComputer_, softmuComputer_, softelComputer_;	
+	const edm::EDGetTokenT< std::vector<reco::CandSoftLeptonTagInfo> > elInfoSrc_;*/
+	std::string jpComputer_, jpbComputer_, softmuComputer_, softelComputer_;
 };
 
 //
@@ -78,21 +92,31 @@ private:
 //
 // constructors and destructor
 //
-DeepNNTagInfoProducer::DeepNNTagInfoProducer(const edm::ParameterSet& iConfig) :
-	deepNNSrc_(consumes< std::vector<reco::ShallowTagInfo> >(iConfig.getParameter<edm::InputTag>("deepNNSrc"))),
-	ipInfoSrc_(consumes< std::vector<reco::CandIPTagInfo>  >(iConfig.getParameter<edm::InputTag>("ipInfoSrc"))),
-	muInfoSrc_(consumes< std::vector<reco::CandSoftLeptonTagInfo> >(iConfig.getParameter<edm::InputTag>("muInfoSrc"))),
+DeepCMVATagInfoProducer::DeepCMVATagInfoProducer(const edm::ParameterSet& iConfig) :
+	deepNNSrc_(consumes< std::vector<reco::ShallowTagInfo> >(iConfig.getParameter<edm::InputTag>("deepNNTagInfos"))),
+	ipInfoSrc_(consumes< edm::View<reco::BaseTagInfo> >(iConfig.getParameter<edm::InputTag>("ipInfoSrc"))),
+	muInfoSrc_(consumes< edm::View<reco::BaseTagInfo> >(iConfig.getParameter<edm::InputTag>("muInfoSrc"))),
+	elInfoSrc_(consumes< edm::View<reco::BaseTagInfo> >(iConfig.getParameter<edm::InputTag>("elInfoSrc"))),
+	/*ipInfoSrc_(consumes< std::vector<reco::CandIPTagInfo>  >(iConfig.getParameter<edm::InputTag>("ipInfoSrc"))),
 	elInfoSrc_(consumes< std::vector<reco::CandSoftLeptonTagInfo> >(iConfig.getParameter<edm::InputTag>("elInfoSrc"))),
-	jpComputer_(iConfig.getParameter<edm::InputTag>("jpComputer")), 
-	jpbComputer_(iConfig.getParameter<edm::InputTag>("jpbComputer")), 
-	softmuComputer_(iConfig.getParameter<edm::InputTag>("softmuComputer")), 
-	softelComputer_(iConfig.getParameter<edm::InputTag>("softelComputer"))
+	elInfoSrc_(consumes< std::vector<reco::CandSoftLeptonTagInfo> >(iConfig.getParameter<edm::InputTag>("elInfoSrc"))),*/
+	
+	jpComputer_(iConfig.getParameter<std::string>("jpComputerSrc")), 
+	jpbComputer_(iConfig.getParameter<std::string>("jpbComputerSrc")), 
+	softmuComputer_(iConfig.getParameter<std::string>("softmuComputerSrc")), 
+	softelComputer_(iConfig.getParameter<std::string>("softelComputerSrc"))
 {
+
 	produces<std::vector<reco::ShallowTagInfo> >();
+	
+	/*uses(0, "ipTagInfos");
+  	uses(1, "smTagInfos");
+	uses(2, "seTagInfos");*/
+	
 }
 
 
-DeepNNTagInfoProducer::~DeepNNTagInfoProducer()
+DeepCMVATagInfoProducer::~DeepCMVATagInfoProducer()
 {
 
 	// do anything here that needs to be done at destruction time
@@ -107,27 +131,61 @@ DeepNNTagInfoProducer::~DeepNNTagInfoProducer()
 
 // ------------ method called to produce the data  ------------
 void
-DeepNNTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
-{
-	// get input TagInfos
+DeepCMVATagInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
+{	
+	// get input TagInfos from DeepCSV
 	edm::Handle< std::vector<reco::ShallowTagInfo> > nnInfos;
 	iEvent.getByToken(deepNNSrc_, nnInfos);
-	edm::Handle< std::vector<reco::CandIPTagInfo>  > ipInfos;
+	
+	/*
+	// TagInfos for JP taggers
+  	std::vector<const BaseTagInfo*> ipInfos({ &info.getBase(0) });
+  	// TagInfos for the Softelon tagger
+  	std::vector<const BaseTagInfo*> elInfos({ &info.getBase(1) });
+  	// TagInfos for the SoftElectron tagger
+	std::vector<const BaseTagInfo*> elInfos({ &info.getBase(2) });
+	*/
+	//edm::Handle< std::vector<reco::CandIPTagInfo>  > ipInfos;
+	edm::Handle< edm::View<BaseTagInfo> > ipInfos;
 	iEvent.getByToken(ipInfoSrc_, ipInfos);
-	edm::Handle< std::vector<reco::CandSoftLeptonTagInfo> > muInfos;
+	std::vector<const BaseTagInfo*> ipBaseInfo;
+	for(edm::View<BaseTagInfo>::const_iterator iter = ipInfos->begin(); iter != ipInfos->end(); iter++) {
+		ipBaseInfo.push_back(&*iter);
+	}
+	//std::vector< const reco::BaseTagInfo *> ipInfo = static_cast<std::vector< const reco::BaseTagInfo *> >(*ipInfos)
+	//edm::Handle< std::vector<reco::CandSoftLeptonTagInfo> > elInfos;
+	//edm::Handle< edm::View<BaseTagInfo> > elInfos;
+	//iEvent.getByToken(elInfoSrc_, elInfos);
+	edm::Handle< edm::View<BaseTagInfo> > muInfos;
 	iEvent.getByToken(muInfoSrc_, muInfos);
-	edm::Handle< std::vector<reco::CandSoftLeptonTagInfo> > elInfos;
-	iEvent.getByToken(elInfoSrc_, elInfos);	
+	std::vector<const BaseTagInfo*> muBaseInfo;
+	for(edm::View<BaseTagInfo>::const_iterator iter = muInfos->begin(); iter != muInfos->end(); iter++) {
+		muBaseInfo.push_back(&*iter);
+	}
+	//edm::Handle< std::vector<reco::CandSoftLeptonTagInfo> > elInfos;
+	//edm::Handle< edm::View<BaseTagInfo> > elInfos;
+	//iEvent.getByToken(elInfoSrc_, elInfos);
+	edm::Handle< edm::View<BaseTagInfo> > elInfos;
+	iEvent.getByToken(elInfoSrc_, elInfos);
+	std::vector<const BaseTagInfo*> elBaseInfo;
+	for(edm::View<BaseTagInfo>::const_iterator iter = elInfos->begin(); iter != elInfos->end(); iter++) {
+		elBaseInfo.push_back(&*iter);
+	}
+	
 
 	//get computers
 	edm::ESHandle<JetTagComputer> jp;
-	iSetup.get<JetTagComputer>(jpComputer_).get(jp);
+	iSetup.get<JetTagComputerRecord>().get(jpComputer_,jp);
+	const JetTagComputer* compjp = jp.product();
 	edm::ESHandle<JetTagComputer> jpb;
-	iSetup.get<JetTagComputer>(jpbComputer_).get(jpb);
+	iSetup.get<JetTagComputerRecord>().get(jpbComputer_,jpb);
+	const JetTagComputer* compjpb = jpb.product();
 	edm::ESHandle<JetTagComputer> softmu;
-	iSetup.get<JetTagComputer>(softmuComputer_).get(softmu);
+	iSetup.get<JetTagComputerRecord>().get(softmuComputer_,softmu);
+	const JetTagComputer* compsoftmu = softmu.product();
 	edm::ESHandle<JetTagComputer> softel;
-	iSetup.get<JetTagComputer>(softelComputer_).get(softel);
+	iSetup.get<JetTagComputerRecord>().get(softelComputer_,softel);
+	const JetTagComputer* compsoftel = softel.product();
 
 	// create the output collection
 	auto tagInfos = std::make_unique<std::vector<reco::ShallowTagInfo> >();
@@ -149,12 +207,17 @@ DeepNNTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
 																				 << "  - You passed tagInfos computed on different jet collection" << std::endl
 																				 << "  - The assumption that the tagInfos are filled in the same order is actually wrong" << std::endl;
 		}
-
 		
-		tagInfos->emplace_back(
-			vars, 
-			svTagInfo.jet()
-			);
+		// Copy the DeepNN TaggingVariables + add the other discriminators
+		TaggingVariableList vars = nnInfo.taggingVariables();
+		vars.insert(reco::btau::Jet_SoftMu, (*compsoftmu)( JetTagComputer::TagInfoHelper(muBaseInfo) )  );
+		vars.insert(reco::btau::Jet_SoftEl, (*compsoftel)( JetTagComputer::TagInfoHelper(elBaseInfo) )  );
+		vars.insert(reco::btau::Jet_JBP, (*compjpb)( JetTagComputer::TagInfoHelper(ipBaseInfo) )  );
+		vars.insert(reco::btau::Jet_JP, (*compjp)( JetTagComputer::TagInfoHelper(ipBaseInfo) )  ); 
+		vars.finalize();
+		tagInfos->emplace_back(vars, nnInfo.jet());
+		
+
 	}
 
 	// put the output in the event
@@ -163,7 +226,7 @@ DeepNNTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void
-DeepNNTagInfoProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+DeepCMVATagInfoProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   //The following says we do not know what parameters are allowed so do no validation
   // Please change this to state exactly what you do use, even if it is no parameters
   edm::ParameterSetDescription desc;
@@ -172,4 +235,4 @@ DeepNNTagInfoProducer::fillDescriptions(edm::ConfigurationDescriptions& descript
 }
 
 //define this as a plug-in
-DEFINE_FWK_MODULE(DeepNNTagInfoProducer);
+DEFINE_FWK_MODULE(DeepCMVATagInfoProducer);
