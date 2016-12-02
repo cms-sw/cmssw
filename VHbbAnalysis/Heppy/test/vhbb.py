@@ -522,7 +522,7 @@ class TestFilter(logging.Filter):
 # and the following runs the process directly 
 if __name__ == '__main__':
     from PhysicsTools.HeppyCore.framework.looper import Looper 
-    looper = Looper( 'Loop', config, nPrint = 1, nEvents = 10)
+    looper = Looper( 'Loop', config, nPrint = 0, nEvents = 10)
 
     import time
     import cProfile
