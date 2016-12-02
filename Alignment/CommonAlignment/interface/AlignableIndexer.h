@@ -23,6 +23,7 @@
 #include <functional>
 
 #include "Alignment/CommonAlignment/interface/StructureType.h"
+#include "Alignment/CommonAlignment/interface/AlignableObjectId.h"
 #include "CondFormats/Alignment/interface/Definitions.h"
 
 class TrackerTopology;
@@ -44,7 +45,7 @@ class AlignableIndexer
   virtual ~AlignableIndexer() = default;
 
   /// Get a counter based on its structure type.
-  virtual align::Counter get( align::StructureType ) const;
+  virtual align::Counter get(align::StructureType, const AlignableObjectId&) const;
 
 protected:
   std::map<align::StructureType, align::Counter> theCounters;
