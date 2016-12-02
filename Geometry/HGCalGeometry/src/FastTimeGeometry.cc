@@ -110,10 +110,11 @@ DetId FastTimeGeometry::getClosestCell(const GlobalPoint& r) const {
   int zside = (r.z() > 0) ? 1 : -1;
   std::pair<int,int> etaZPhi;
   if (m_Type == 1) {
-    double zz = (r.z() > 0) ? r.z() : -r.z();
+    double zz = (zside > 0) ? r.z() : -r.z();
     etaZPhi = topology().dddConstants().getZPhi(zz,r.phi());
   } else {
-    etaZPhi = topology().dddConstants().getEtaPhi(r.perp(),r.phi());
+    double phi = (zside > 0) ? r.phi() : atan2(r.y(),-r.x());
+    etaZPhi = topology().dddConstants().getEtaPhi(r.perp(),phi);
   }
   FastTimeDetId id = FastTimeDetId(m_Type,etaZPhi.first,etaZPhi.second,zside);
 #ifdef EDM_ML_DEBUG
