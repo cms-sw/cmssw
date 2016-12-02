@@ -30,6 +30,7 @@ EcalUncalibratedRecHit EcalUncalibRecHitMultiFitAlgo::makeRecHit(const EcalDataF
   
   double pedval = 0.;
   double pedrms = 0.;
+  int iGainSwitch = 0;
   
   SampleVector amplitudes;
   for(unsigned int iSample = 0; iSample < nsample; iSample++) {
@@ -38,7 +39,7 @@ EcalUncalibratedRecHit EcalUncalibRecHitMultiFitAlgo::makeRecHit(const EcalDataF
     
     double amplitude = 0.;
     int gainId = sample.gainId();
-    
+   
     double pedestal = 0.;
     double pederr = 0.;
     double gainratio = 1.;
@@ -58,6 +59,7 @@ EcalUncalibratedRecHit EcalUncalibRecHitMultiFitAlgo::makeRecHit(const EcalDataF
       pederr = aped->rms_x6;
       gainratio = aGain->gain12Over6();
     }
+    if ( (gainId != 1) && (iSample==4 || iSample==5 || iSample==6) ) iGainSwitch = 1;
 
     amplitude = ((double)(sample.adc()) - pedestal) * gainratio;
     
@@ -79,6 +81,19 @@ EcalUncalibratedRecHit EcalUncalibRecHitMultiFitAlgo::makeRecHit(const EcalDataF
   
   double amplitude, amperr, chisq;
   bool status = false;
+
+  // in case of gain switch, just use max-sample
+  if(iGainSwitch) {
+    EcalUncalibratedRecHit rh( dataFrame.id(), maxamplitude, pedval, 0., 0., flags );
+    rh.setAmplitudeError(0.);
+    for (unsigned int ipulse=0; ipulse<_pulsefunc.BXs().rows(); ++ipulse) {
+      int bx = _pulsefunc.BXs().coeff(ipulse);
+      if (bx!=0) {
+        rh.setOutOfTimeAmplitude(bx+5, 0.0);
+      }
+    }
+    return rh;
+  }
   
   //optimized one-pulse fit for hlt
   bool usePrefit = false;
