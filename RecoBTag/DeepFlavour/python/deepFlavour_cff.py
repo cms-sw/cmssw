@@ -20,13 +20,11 @@ negativeDeepFlavourJetTags = deepFlavourJetTags.clone(
 	src=cms.InputTag('deepNNNegativeTagInfos')
 	)
 
-deepNNPositiveTagInfos = deepNNTagInfos.clone(
-	svTagInfos=cms.InputTag('pfInclusiveSecondaryVertexFinderNegativeTagInfos')
-	)
+deepNNPositiveTagInfos = deepNNTagInfos.clone()
 deepNNPositiveTagInfos.computer.trackSelection.sip3dSigMin = 0
 deepNNPositiveTagInfos.computer.trackPseudoSelection.sip3dSigMin = 0
 positiveDeepFlavourJetTags = deepFlavourJetTags.clone(
-	src=cms.InputTag('deepNNNegativeTagInfos')
+	src=cms.InputTag('deepNNPositiveTagInfos')
 	)
 
 ##
