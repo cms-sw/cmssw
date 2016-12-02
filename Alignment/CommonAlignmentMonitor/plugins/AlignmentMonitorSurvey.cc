@@ -4,21 +4,25 @@
 
 #include "Alignment/CommonAlignmentMonitor/plugins/AlignmentMonitorSurvey.h"
 
-AlignmentMonitorSurvey::AlignmentMonitorSurvey(const edm::ParameterSet& cfg)
-  :AlignmentMonitorBase(cfg, "AlignmentMonitorSurvey")
+AlignmentMonitorSurvey::AlignmentMonitorSurvey(const edm::ParameterSet& cfg) :
+  AlignmentMonitorBase(cfg, "AlignmentMonitorSurvey"),
+  levelNames_(cfg.getUntrackedParameter<std::vector<std::string> >("surveyResiduals"))
 {
-  const std::vector<std::string>& levels = cfg.getUntrackedParameter< std::vector<std::string> >("surveyResiduals");
-
-  for (unsigned int l = 0; l < levels.size(); ++l)
-  {
-    theLevels.push_back(AlignableObjectId::stringToId(levels[l]) );
-  }
 }
 
 void AlignmentMonitorSurvey::book()
 {
   align::ID id;
   align::StructureType level;
+
+  // fill 'theLevels' only once (and only if necessary)
+  if (theLevels.size() == 0 && levelNames_.size() != 0) {
+    auto alignableObjectId =
+      AlignableObjectId::commonObjectIdProvider(pTracker(), pMuon());
+    for (const auto& levelName: levelNames_) {
+      theLevels.push_back(alignableObjectId.stringToId(levelName));
+    }
+  }
 
   double par[6]; // survey residual
 

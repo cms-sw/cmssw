@@ -21,7 +21,7 @@ class AlignableTrackerBuilder {
   public: //===================================================================
 
     AlignableTrackerBuilder(const TrackerGeometry*, const TrackerTopology*);
-    virtual ~AlignableTrackerBuilder() {};
+    virtual ~AlignableTrackerBuilder() = default;
 
     /// Builds all Alignables (units and composites) of the tracker, based on
     /// the given TrackerGeometry.
@@ -30,6 +30,10 @@ class AlignableTrackerBuilder {
     /// Return tracker name space derived from the tracker's topology
     const align::TrackerNameSpace& trackerNameSpace() const {
       return trackerAlignmentLevelBuilder_.trackerNameSpace(); }
+
+
+    /// Return tracker alignable object ID provider  derived from the tracker's geometry
+    const AlignableObjectId& objectIdProvider() const { return alignableObjectId_; }
 
   //========================= PRIVATE METHODS =================================
   private: //==================================================================
@@ -60,8 +64,8 @@ class AlignableTrackerBuilder {
   //===========================================================================
 
     const TrackerGeometry* trackerGeometry;
-
     const TrackerTopology* trackerTopology;
+    const AlignableObjectId alignableObjectId_;
 
     AlignableMap* alignableMap;
 

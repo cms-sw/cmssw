@@ -4,7 +4,9 @@
 // Original Author:  Max Stark
 //         Created:  Wed, 10 Feb 2016 13:48:41 CET
 
-#include "Alignment/CommonAlignment/interface/AlignableObjectId.h"
+// topology and geometry
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 
 
 
@@ -14,8 +16,10 @@
 
 //_____________________________________________________________________________
 TrackerAlignmentLevelBuilder
-::TrackerAlignmentLevelBuilder(const TrackerTopology* trackerTopology) :
+::TrackerAlignmentLevelBuilder(const TrackerTopology* trackerTopology,
+			       const TrackerGeometry* trackerGeometry) :
   trackerTopology_(trackerTopology),
+  alignableObjectId_(trackerGeometry, nullptr, nullptr),
   trackerNameSpace_(trackerTopology)
 {
 }
@@ -198,7 +202,7 @@ align::AlignmentLevels TrackerAlignmentLevelBuilder
 
   std::ostringstream ss;
   ss << "determined following numbers for "
-     << AlignableObjectId::idToString(align::TPBBarrel) << " geometry:" << "\n"
+     << alignableObjectId_.idToString(align::TPBBarrel) << " geometry:" << "\n"
      << "   max. number of modules: " << maxNumModules                  << "\n"
      << "   max. number of ladders: " << maxNumLadders                  << "\n";
 
@@ -235,7 +239,7 @@ align::AlignmentLevels TrackerAlignmentLevelBuilder
 
   std::ostringstream ss;
   ss << "determined following numbers for "
-     << AlignableObjectId::idToString(align::TPEEndcap) << " geometry:" << "\n"
+     << alignableObjectId_.idToString(align::TPEEndcap) << " geometry:" << "\n"
      << "   max. number of modules: " << maxNumModules                  << "\n"
      << "   max. number of panels:  " << maxNumPanels                   << "\n"
      << "   max. number of blades:  " << maxNumBlades                   << "\n";
@@ -270,7 +274,7 @@ align::AlignmentLevels TrackerAlignmentLevelBuilder
 
   std::ostringstream ss;
   ss << "determined following numbers for "
-     << AlignableObjectId::idToString(align::TIBBarrel) << " geometry:" << "\n"
+     << alignableObjectId_.idToString(align::TIBBarrel) << " geometry:" << "\n"
      << "   max. number of modules: " << maxNumModules                  << "\n"
      << "   max. number of strings: " << maxNumStrings                  << "\n";
 
@@ -316,7 +320,7 @@ align::AlignmentLevels TrackerAlignmentLevelBuilder
   edm::LogInfo("AlignableBuildProcess")
      << "@SUB=TrackerAlignmentLevelBuilder::buildTIDAlignmentLevels"
      << "determined following numbers for "
-     << AlignableObjectId::idToString(align::TIDEndcap) << " geometry:" << "\n"
+     << alignableObjectId_.idToString(align::TIDEndcap) << " geometry:" << "\n"
      << "   max. number of modules: " << maxNumModules                  << "\n"
      << "   max. number of rings:   " << maxNumRings                    << "\n"
      << "   max. number of wheels:  " << maxNumWheels                   << "\n"
@@ -343,7 +347,7 @@ align::AlignmentLevels TrackerAlignmentLevelBuilder
   edm::LogInfo("AlignableBuildProcess")
      << "@SUB=TrackerAlignmentLevelBuilder::buildTOBAlignmentLevels"
      << "determined following numbers for "
-     << AlignableObjectId::idToString(align::TOBBarrel) << " geometry:" << "\n"
+     << alignableObjectId_.idToString(align::TOBBarrel) << " geometry:" << "\n"
      << "   max. number of modules: " << maxNumModules                  << "\n"
      << "   max. number of rods:    " << maxNumRods                     << "\n"
      << "   max. number of sides:   " << maxNumSides                    << "\n"
@@ -371,7 +375,7 @@ align::AlignmentLevels TrackerAlignmentLevelBuilder
   edm::LogInfo("AlignableBuildProcess")
      << "@SUB=TrackerAlignmentLevelBuilder::buildTECAlignmentLevels"
      << "determined following numbers for "
-     << AlignableObjectId::idToString(align::TECEndcap) << " geometry:" << "\n"
+     << alignableObjectId_.idToString(align::TECEndcap) << " geometry:" << "\n"
      << "   max. number of modules: " << maxNumModules                  << "\n"
      << "   max. number of rings:   " << maxNumRings                    << "\n"
      << "   max. number of petals:  " << maxNumPetals                   << "\n"
