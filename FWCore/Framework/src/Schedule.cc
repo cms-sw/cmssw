@@ -945,13 +945,6 @@ namespace edm {
     streamSchedules_[iStreamID]->endStream();
   }
   
-  void Schedule::processOneEvent(unsigned int iStreamID,
-                                 EventPrincipal& ep,
-                                 EventSetup const& es) {
-    assert(iStreamID<streamSchedules_.size());
-    streamSchedules_[iStreamID]->processOneEvent(ep,es);
-  }
-
   void Schedule::processOneEventAsync(WaitingTaskHolder iTask,
                                       unsigned int iStreamID,
                                       EventPrincipal& ep,

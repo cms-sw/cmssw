@@ -32,8 +32,6 @@
 #include <list>
 #include <map>
 #include <exception>
-//CDJ
-#include <iostream>
 
 namespace edm {
   namespace {
@@ -544,22 +542,6 @@ namespace edm {
       result.push_back(p);
     }
     return result;
-  }
-  
-  void StreamSchedule::processOneEvent(EventPrincipal& ep,
-                                       EventSetup const& es) {
-    
-    auto waitTask = edm::make_empty_waiting_task();
-    //set count to 2 since wait_for_all requires value to not go to 0
-    waitTask->set_ref_count(2);
-    processOneEventAsync(WaitingTaskHolder(waitTask.get()),ep,es);
-    waitTask->decrement_ref_count();
-    waitTask->wait_for_all();
-    
-    if(waitTask->exceptionPtr() != nullptr) {
-      std::rethrow_exception( *(waitTask->exceptionPtr()));
-    }
-
   }
   
   void StreamSchedule::processOneEventAsync(WaitingTaskHolder iTask,

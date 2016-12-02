@@ -131,10 +131,6 @@ namespace edm {
              PreallocationConfiguration const& config,
              ProcessContext const* processContext);
 
-    void processOneEvent(unsigned int iStreamID,
-                         EventPrincipal& principal,
-                         EventSetup const& eventSetup);
-    
     void processOneEventAsync(WaitingTaskHolder iTask,
                               unsigned int iStreamID,
                               EventPrincipal& principal,

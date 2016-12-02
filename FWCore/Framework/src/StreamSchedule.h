@@ -168,8 +168,6 @@ namespace edm {
     
     StreamSchedule(StreamSchedule const&) = delete;
 
-    void processOneEvent( EventPrincipal& principal,
-                         EventSetup const& eventSetup);
     void processOneEventAsync(WaitingTaskHolder iTask,
                               EventPrincipal& ep,
                               EventSetup const& es);
