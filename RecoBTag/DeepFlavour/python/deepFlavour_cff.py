@@ -1,6 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 from RecoBTag.DeepFlavour.DeepNNTagInfoProducer_cfi import deepNNTagInfos
-from RecoBTag.DeepFlavour.DeepFlavourJetTagsProducer_cfi import deepFlavourJetTags
+from RecoBTag.DeepFlavour.DeepCMVATagInfoProducer_cfi import deepCMVATagInfos
+from RecoBTag.DeepFlavour.DeepFlavourJetTagsProducer_cfi import deepFlavourJetTags, deepFlavourCMVAJetTags
+
 
 ##
 ## Negative and positive taggers for light SF estimation
@@ -27,11 +29,29 @@ positiveDeepFlavourJetTags = deepFlavourJetTags.clone(
 	src=cms.InputTag('deepNNPositiveTagInfos')
 	)
 
+# Deep CMVA
+deepCMVANegativeTagInfos = deepCMVATagInfos.clone(
+	deepNNTagInfos = cms.InputTag('deepNNNegativeTagInfos')
+	)
+	
+negativeDeepFlavourCMVAJetTags = deepFlavourCMVAJetTags.clone(
+	src=cms.InputTag('deepCMVANegativeTagInfos')
+	)
+
+deepCMVAPositiveTagInfos = deepCMVATagInfos.clone()
+positiveDeepFlavourCMVAJetTags = deepFlavourCMVAJetTags.clone(
+	src=cms.InputTag('deepCMVAPositiveTagInfos')
+	)
+
+
+
 ##
 ## Deep Flavour sequence, not complete as it would need the IP and SV tag infos
 ##
 pfDeepFlavour = cms.Sequence(
 	deepNNTagInfos *
-	deepFlavourJetTags
+	deepCMVATagInfos *
+	deepFlavourJetTags *
+	deepFlavourCMVAJetTags
 )
 
