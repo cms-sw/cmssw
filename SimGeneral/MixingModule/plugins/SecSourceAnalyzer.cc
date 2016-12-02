@@ -64,7 +64,7 @@ SecSourceAnalyzer::SecSourceAnalyzer(const edm::ParameterSet& iConfig)
    std::unique_ptr<TH1F> histoName(new TH1F("h","",10,0,10));
    bool playback = false;
    
-   std::shared_ptr<PileUpConfig> conf(new PileUpConfig("input",averageNumber,histoName,playback));
+   auto conf = std::make_shared<PileUpConfig>("input",averageNumber,histoName,playback);
    input_.reset(new edm::PileUp(iConfig.getParameter<edm::ParameterSet>("input"),conf));
       
    dataStep2_ = iConfig.getParameter<bool>("dataStep2");
