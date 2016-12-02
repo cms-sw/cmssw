@@ -321,21 +321,6 @@ namespace edm {
   }
 
   void
-  SubProcess::doEvent(EventPrincipal const& ep) {
-    ServiceRegistry::Operate operate(serviceToken_);
-    /* BEGIN relevant bits from OutputModule::doEvent */
-    if(!wantAllEvents_) {
-      EventForOutput e(ep, ModuleDescription(), nullptr);
-      e.setConsumer(this);
-      if(!selectors_.wantEvent(e)) {
-        return;
-      }
-    }
-    process(ep);
-    /* END relevant bits from OutputModule::doEvent */
-  }
-
-  void
   SubProcess::doEventAsync(WaitingTaskHolder iHolder,
                            EventPrincipal const& ep) {
     ServiceRegistry::Operate operate(serviceToken_);
@@ -349,34 +334,6 @@ namespace edm {
     }
     processAsync(std::move(iHolder),ep);
     /* END relevant bits from OutputModule::doEvent */
-  }
-
-  void
-  SubProcess::process(EventPrincipal const& principal) {
-    EventAuxiliary aux(principal.aux());
-    aux.setProcessHistoryID(principal.processHistoryID());
-
-    EventSelectionIDVector esids{principal.eventSelectionIDs()};
-    if (principal.productRegistry().anyProductProduced() || !wantAllEvents_) {
-      esids.push_back(selector_config_id_);
-    }
-
-    EventPrincipal& ep = principalCache_.eventPrincipal(principal.streamID().value());
-    auto & processHistoryRegistry = processHistoryRegistries_[principal.streamID().value()];
-    processHistoryRegistry.registerProcessHistory(principal.processHistory());
-    BranchListIndexes bli(principal.branchListIndexes());
-    branchIDListHelper_->fixBranchListIndexes(bli);
-    ep.fillEventPrincipal(aux,
-                          processHistoryRegistry,
-                          std::move(esids),
-                          std::move(bli),
-                          *(principal.productProvenanceRetrieverPtr()),//NOTE: this transfers the per product provenance
-                          principal.reader());
-    ep.setLuminosityBlockPrincipal(principalCache_.lumiPrincipalPtr());
-    propagateProducts(InEvent, principal, ep);
-    schedule_->processOneEvent(ep.streamID().value(),ep, esp_->eventSetup());
-    for_all(subProcesses_, [&ep](auto& subProcess){ subProcess.doEvent(ep); });
-    ep.clearEventPrincipal();
   }
 
   void
