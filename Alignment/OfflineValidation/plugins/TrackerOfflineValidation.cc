@@ -261,7 +261,8 @@ private:
 
   const edm::ParameterSet parSet_;
   edm::ESHandle<TrackerGeometry> tkGeom_;
-  const TrackerGeometry *bareTkGeomPtr_; // ugly hack to book hists only once, but check 
+  const TrackerGeometry *bareTkGeomPtr_; // ugly hack to book hists only once, but check
+  std::unique_ptr<AlignableTracker> alignableTracker_;
 
   // parameters from cfg to steer
   const bool lCoorHistOn_;
@@ -421,7 +422,7 @@ TrackerOfflineValidation::checkBookHists(const edm::EventSetup& es)
     const TrackerTopology* const tTopo = tTopoHandle.product();
 
     // construct alignable tracker to get access to alignable hierarchy 
-    AlignableTracker aliTracker(&(*tkGeom_), tTopo);
+    alignableTracker_ = std::make_unique<AlignableTracker>(&(*tkGeom_), tTopo);
     
     edm::LogInfo("TrackerOfflineValidation") << "There are " << newBareTkGeomPtr->detIds().size()
 					     << " dets in the Geometry record.\n"
@@ -435,10 +436,10 @@ TrackerOfflineValidation::checkBookHists(const edm::EventSetup& es)
     
     // recursively book histograms on lowest level
     DirectoryWrapper tfdw("",moduleDirectory_,dqmMode_);
-    this->bookDirHists(tfdw, aliTracker, tTopo);
+    this->bookDirHists(tfdw, *alignableTracker_, tTopo);
     // and prepare the higher level histograms
     std::vector<TrackerOfflineValidation::SummaryContainer> vTrackerprofiles;
-    this->prepareSummaryHists(tfdw, (aliTracker), vTrackerprofiles);
+    this->prepareSummaryHists(tfdw, *alignableTracker_, vTrackerprofiles);
 
     setUpTreeMembers(mPxbResiduals_, *newBareTkGeomPtr, tTopo);
     setUpTreeMembers(mPxeResiduals_, *newBareTkGeomPtr, tTopo);
@@ -632,7 +633,7 @@ TrackerOfflineValidation::bookDirHists(DirectoryWrapper& tfd, const Alignable& a
 {
   std::vector<Alignable*> alivec(ali.components());
   for(int i=0, iEnd = ali.components().size();i < iEnd; ++i) {
-    std::string structurename  = AlignableObjectId::idToString((alivec)[i]->alignableObjectId());
+    std::string structurename  = alignableTracker_->objectIdProvider().idToString((alivec)[i]->alignableObjectId());
     LogDebug("TrackerOfflineValidation") << "StructureName = " << structurename;
     std::stringstream dirname;
     dirname << structurename;
@@ -1281,7 +1282,7 @@ TrackerOfflineValidation::prepareSummaryHists( DirectoryWrapper& tfd, const Alig
   
   for(int iComp=0, iCompEnd = ali.components().size();iComp < iCompEnd; ++iComp) {
     std::vector< TrackerOfflineValidation::SummaryContainer > vProfiles;        
-    std::string structurename  = AlignableObjectId::idToString((alivec)[iComp]->alignableObjectId());
+    std::string structurename  = alignableTracker_->objectIdProvider().idToString((alivec)[iComp]->alignableObjectId());
     
     LogDebug("TrackerOfflineValidation") << "StructureName = " << structurename;
     std::stringstream dirname;
@@ -1354,9 +1355,9 @@ TrackerOfflineValidation::bookSummaryHists(DirectoryWrapper& tfd, const Alignabl
   const uint aliSize = ali.components().size();
   const align::StructureType alitype = ali.alignableObjectId();
   const align::StructureType subtype = ali.components()[0]->alignableObjectId();
-  const char *aliTypeName = AlignableObjectId::idToString(alitype); // lifetime of char* OK
-  const char *aliSubtypeName = AlignableObjectId::idToString(subtype);
-  const char *typeName = AlignableObjectId::idToString(type);
+  const char *aliTypeName = alignableTracker_->objectIdProvider().idToString(alitype); // lifetime of char* OK
+  const char *aliSubtypeName = alignableTracker_->objectIdProvider().idToString(subtype);
+  const char *typeName = alignableTracker_->objectIdProvider().idToString(type);
 
   const DetId aliDetId = ali.id(); 
   // y residuals only if pixel or specially requested for strip:
@@ -1396,7 +1397,7 @@ TrackerOfflineValidation::bookSummaryHists(DirectoryWrapper& tfd, const Alignabl
     }
     // title contains x-title
     const TString title(Form("Summary for substructures in %s %d;%s;", aliTypeName, i,
-			     AlignableObjectId::idToString(ali.components()[0]->components()[0]->alignableObjectId())));
+			     alignableTracker_->objectIdProvider().idToString(ali.components()[0]->components()[0]->alignableObjectId())));
     
     sumContainer.summaryXResiduals_ 
       = tfd.make<TH1F>(Form("h_summaryX%s_%d", aliTypeName, i), 

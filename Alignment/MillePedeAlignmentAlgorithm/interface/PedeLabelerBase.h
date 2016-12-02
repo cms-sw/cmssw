@@ -14,6 +14,7 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include "Alignment/CommonAlignment/interface/AlignableObjectId.h"
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentAlgorithmBase.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 
@@ -123,11 +124,15 @@ class PedeLabelerBase
   /// (to be used for calibrations)
   virtual unsigned int firstNonAlignableLabel() const;
 
+  /// Return tracker alignable object ID provider derived from the tracker's geometry
+  const AlignableObjectId& objectIdProvider() const { return alignableObjectId_; }
+
   const RunRange theOpenRunRange;
 
  private:
 
   const TopLevelAlignables topLevelAlignables_;
+  const AlignableObjectId alignableObjectId_;
 
   /// pairs of calibrations and their first label
   std::vector<std::pair<IntegratedCalibrationBase*, unsigned int> > theCalibrationLabels;
