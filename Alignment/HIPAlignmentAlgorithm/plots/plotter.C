@@ -24,7 +24,7 @@ void plotter(const char* base_path, const char* dir, int iov=262922, TString plo
   }
 
   sprintf(path, "%s/%s/main", base_path, dir);
-  sprintf(outpath, "./%s/HIP_plots_%s_IOV$i_Iter%i.root", dir, tag, iov, param_iter);
+  sprintf(outpath, "./%s/HIP_%s_%s_IOV%i_Iter%i.root", dir, plotType.Data(), tag, iov, param_iter);
   cout << "Path is " << path << endl;
   gSystem->Exec("mkdir -p " + TString(dir));
 
@@ -39,7 +39,7 @@ void plotter(const char* base_path, const char* dir, int iov=262922, TString plo
     if (!only_plotting){
       cout << "ERROR !!!! Output file exists already. I don't want to overwrite." << endl;
       cout << "Please, change name of output file or delete the old one: " << outpath << endl;
-      cout << "Aborting." << endl;
+      //cout << "Aborting." << endl;
       //return;
     }
   }
@@ -74,25 +74,26 @@ void plotter(const char* base_path, const char* dir, int iov=262922, TString plo
   gROOT->ProcessLine("setTDRStyle()");
 
   if (plotType == "hitmap"){
-    sprintf(path, "%s/%s/main/", base_path, dir);
+    sprintf(outpath, "./%s/HitMaps_%s_IOV%i/", dir, tag, iov);
+    gSystem->Exec("mkdir -p " + TString(outpath));
     for (int i=1; i<=6; ++i){//loop over subdets
-      c->plotHitMap(path, i, 0);
+      c->plotHitMap(outpath, i, 0);
     }
   }
   else if (plotType == "cov"){
-    sprintf(outpath, "%s/parsViters_%s.png", path, tag);
+    sprintf(outpath, "./%s/parsViters_%s_IOV%i.png", dir, tag, iov);
     c->plotAlignParams("PARAMS", outpath);
   }
   else if (plotType == "shift"){
-    sprintf(outpath, "%s/shiftsViters_%s.png", path, tag);
+    sprintf(outpath, "./%s/shiftsViters_%s_IOV%i.png", dir, tag, iov);
     c->plotAlignParams("SHIFTS", outpath);
   }
   else if (plotType == "param"){
-    sprintf(outpath, "%s/shiftsAtIter%d_%s.png", path, param_iter, tag);
+    sprintf(outpath, "./%s/shiftsAtIter%d_%s_IOV%i.png", dir, param_iter, tag, iov);
     c->plotAlignParamsAtIter(param_iter, "SHIFTS", outpath);
   }
   else if (plotType == "chi2"){
-    sprintf(outpath, "%s/AlignableChi2n_%s", path, tag);//do not put the file extension here!!!!
+    sprintf(outpath, "./%s/AlignableChi2n_%s_IOV%i", dir, tag, iov);//do not put the file extension here!!!!
     c->plotAlignableChiSquare(outpath, 0.1);
   }
   else

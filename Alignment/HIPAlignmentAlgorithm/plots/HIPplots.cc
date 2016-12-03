@@ -17,30 +17,38 @@
 #include "TVectorD.h"
 #include "TLegend.h"
 
-HIPplots::HIPplots(int IOV, char* path, char* outFile){
+HIPplots::HIPplots(int IOV, char* path, char* outFile):
+_IOV(IOV),
+_path(path),
+_outFile(outFile)
+{
+  //Id,ObjId,Nhit,Jtvj,Jtve,AlignableChi2,AlignableNdof
+  _inFile_uservars = Form("%s/IOUserVariables.root", _path.Data());
+  if (!CheckFileExistence(_inFile_uservars)) _inFile_uservars = Form("%s/IOUserVariables_%d.root", _path.Data(), IOV);
 
-  sprintf(_path, path);
-  sprintf(_outFile, outFile);
-  sprintf(_inFile_params, "%s/IOAlignmentParameters.root", _path); //Id (raw id), ObjId, Par (alignable movements), CovariantMatrix
-  sprintf(_inFile_uservars, "%s/IOUserVariables_%d.root", _path, IOV); //Id,ObjId,Nhit,Jtvj,Jtve,AlignableChi2,AlignableNdof
-  sprintf(_inFile_truepos, "%s/IOTruePositions.root", _path); //redundant
-  sprintf(_inFile_alipos, "%s/IOAlignedPositions_%d.root", _path, IOV); //aligned absolute positions
-  //sprintf( _inFile_alipos, "%s/IOAlignedPositions_262922.root", _path ); //aligned absolute positions
-  //sprintf( _inFile_alipos, "%s/IOAlignedPositions_272497.root", _path ); //aligned absolute positions
-  sprintf(_inFile_mispos, "%s/IOMisalignedPositions.root", _path);
-  sprintf(_inFile_HIPalign, "%s/HIPAlignmentAlignables_%d.root", _path, IOV);
-  sprintf(_inFile_surveys, "%s/HIPSurveyResiduals.root", _path);
+  //aligned absolute positions
+  _inFile_alipos = Form("%s/IOAlignedPositions.root", _path.Data());
+  if (!CheckFileExistence(_inFile_alipos)) _inFile_alipos = Form("%s/IOAlignedPositions_%d.root", _path.Data(), IOV);
+
+  _inFile_HIPalign = Form("%s/HIPAlignmentAlignables.root", _path.Data());
+  if (!CheckFileExistence(_inFile_HIPalign)) _inFile_HIPalign = Form("%s/HIPAlignmentAlignables_%d.root", _path.Data(), IOV);
+
+  _inFile_params = Form("%s/IOAlignmentParameters.root", _path.Data()); //Id (raw id), ObjId, Par (alignable movements), CovariantMatrix
+  _inFile_mispos = Form("%s/IOMisalignedPositions.root", _path.Data());
+  _inFile_surveys = Form("%s/HIPSurveyResiduals.root", _path.Data());
+  _inFile_truepos = Form("%s/IOTruePositions.root", _path.Data()); //redundant
+
   SetPeakThreshold(8.0);
   plotbadchi2=true;
 }
 
 
-TLegend * HIPplots::MakeLegend(double x1,
+TLegend*  HIPplots::MakeLegend(double x1,
   double y1,
   double x2,
   double y2)
 {
-  TLegend * legend = new TLegend(x1, y1, x2, y2, "", "NBNDC");
+  TLegend*  legend = new TLegend(x1, y1, x2, y2, "", "NBNDC");
   legend->SetNColumns(6);
   legend->SetFillColor(0);
   legend->SetBorderSize(0);
@@ -56,7 +64,7 @@ TLegend * HIPplots::MakeLegend(double x1,
 
   for (unsigned int isublevel = 0; isublevel < 6; isublevel++)
   {
-    TGraph * g = new TGraph(0);
+    TGraph*  g = new TGraph(0);
     g->SetLineColor(COLOR_CODE[isublevel]);
     g->SetMarkerColor(COLOR_CODE[isublevel]);
     g->SetFillColor(COLOR_CODE[isublevel]);
@@ -71,16 +79,16 @@ TLegend * HIPplots::MakeLegend(double x1,
 
 void HIPplots::extractAlignParams(int currentPar, int minHits, int subDet, int doubleSided){
 
-  cout<<"--- extracting AlignParams ; Par "<<currentPar<<" ---"<<endl<<endl; //0-5: u,v,w,alpha,beta,gamma
+  cout << "--- extracting AlignParams ; Par " << currentPar << " ---" << endl << endl; //0-5: u,v,w,alpha,beta,gamma
   //void ExtractAlignPars(int pp, string SubDetString){
   //	const int par_now=pp;
   //load first tree
 
-  //	TFile *fp = new TFile( _inFile_params,"READ");
+  //	TFile* fp = new TFile( _inFile_params,"READ");
   //	const TList* keysp = fp->GetListOfKeys();
   //	const unsigned int maxIteration = keysp->GetSize() - 1;
-  cout<<"Loaded par file -. OK"<<endl;
-  TFile *fv = new TFile(_inFile_uservars, "READ");
+  cout << "Loaded par file -. OK" << endl;
+  TFile* fv = new TFile(_inFile_uservars, "READ");
   const TList* keysv = fv->GetListOfKeys();
   const unsigned int maxIteration = keysv->GetSize() - 1;
 
@@ -88,7 +96,7 @@ void HIPplots::extractAlignParams(int currentPar, int minHits, int subDet, int d
   if (CheckFileExistence(_outFile))sprintf(fileaction, "UPDATE");
   else sprintf(fileaction, "NEW");
 
-  TFile *fout = new TFile(_outFile, fileaction);
+  TFile* fout = new TFile(_outFile, fileaction);
 
   TTree* tree0 = (TTree*)fv->Get(keysv->At(0)->GetName());
   //const char* tree0v_Name = keysv->At(0)->GetName();
@@ -102,7 +110,7 @@ void HIPplots::extractAlignParams(int currentPar, int minHits, int subDet, int d
   tree0->SetBranchAddress("Id", &detId0);
 
   const int ndets=tree0->GetEntries();
-  TH1D *hpar1[ndets];
+  TH1D* hpar1[ndets];
   char ppdirname[16];
   sprintf(ppdirname, "ShiftsPar%d", currentPar);
   fout->mkdir(ppdirname);
@@ -110,7 +118,7 @@ void HIPplots::extractAlignParams(int currentPar, int minHits, int subDet, int d
   //delare histos
 
 
-  TH1D *hpariter[maxIteration];
+  TH1D* hpariter[maxIteration];
   for (unsigned int a = 0; a < maxIteration; a++){
     char histoname[32], histotitle[32];
     sprintf(histoname, "Par_%d_Iter_%d", currentPar, a);
@@ -157,16 +165,16 @@ void HIPplots::extractAlignParams(int currentPar, int minHits, int subDet, int d
 
       if ((nHit >= minHits)&&(passSubdetCut)){  //cut on min nhits per module
         hpar1[j]->SetBinContent(iter+1, par[currentPar]); //x-iteration, y-movement in this iteration
-        //std::cout << "iteration: " << iter << ",par"<<currentPar<<"= "<<par[currentPar] << std::endl;
+        //std::cout << "iteration: " << iter << ",par" << currentPar << "= " << par[currentPar] << std::endl;
 
         int COLOR_CODE[6]={ 28, 2, 3, 4, 6, 7 };
         hpar1[j]->SetLineColor(COLOR_CODE[GetSubDet(detId)-1]);
         hpar1[j]->SetMarkerColor(COLOR_CODE[GetSubDet(detId)-1]);
 
         //hpariter[iter]->Fill(par[currentPar]);
-        //if(currentPar<3&&par[currentPar]>0.5)cout<<"LARGE PARCHANGE from DET "<<detId<<" in subdet "<< subDet<<". Par#"<<currentPar<<" shifted by "<<par[currentPar]<<" at iter "<<iter<<endl; 
+        //if(currentPar<3&&par[currentPar]>0.5)cout << "LARGE PARCHANGE from DET " << detId << " in subdet " << subDet << ". Par#" << currentPar << " shifted by " << par[currentPar] << " at iter " << iter << endl; 
 
-        if ((iter==maxIteration-1)&&(currentPar==0))flist<<detId<<endl;
+        if ((iter==maxIteration-1)&&(currentPar==0))flist << detId << endl;
         modules_accepted++;
 
       }
@@ -189,21 +197,21 @@ void HIPplots::extractAlignParams(int currentPar, int minHits, int subDet, int d
 
 void HIPplots::extractAlignShifts(int currentPar, int minHits, int subDet){
 
-  cout<<"\n--- extracting AlignShifts ; Par "<<currentPar<<" ---"<<endl<<endl;
-  TFile *fa = new TFile(_inFile_alipos, "READ");
+  cout << "\n--- extracting AlignShifts ; Par " << currentPar << " ---" << endl << endl;
+  TFile* fa = new TFile(_inFile_alipos, "READ");
   const TList* keysa = fa->GetListOfKeys();
   const unsigned int maxIteration = keysa->GetSize();
 
-  TFile *fv = new TFile(_inFile_uservars, "READ");
+  TFile* fv = new TFile(_inFile_uservars, "READ");
   const TList* keysv = fv->GetListOfKeys();
 
-  //	TFile *fm = new TFile( _inFile_mispos,"READ");
-  //TFile *ft = new TFile( _inFile_truepos,"READ");
+  //	TFile* fm = new TFile( _inFile_mispos,"READ");
+  //TFile* ft = new TFile( _inFile_truepos,"READ");
 
   char fileaction[16];
   if (CheckFileExistence(_outFile))sprintf(fileaction, "UPDATE");
   else sprintf(fileaction, "NEW");
-  TFile *fout = new TFile(_outFile, fileaction);
+  TFile* fout = new TFile(_outFile, fileaction);
 
   TTree* tree0 = (TTree*)fa->Get(keysa->At(0)->GetName());
   const char* tree0v_Name = keysv->At(0)->GetName();
@@ -214,9 +222,9 @@ void HIPplots::extractAlignShifts(int currentPar, int minHits, int subDet){
   tree0->SetBranchAddress("Id", &detId0);
 
   const int ndets=tree0->GetEntries();
-  TH1D *hshift[ndets]; //hshift[i] absolute position change for det i, at all iterations
-  //	TH1D *hiter_mis[maxIteration]; //hiter_mis[i] misalignment position change at iteration i (defualt case : misalignment=0)
-  TH1D *hiter_ali[maxIteration]; //hiter_ali[i] absolute position change at iteration i, for all detectors
+  TH1D* hshift[ndets]; //hshift[i] absolute position change for det i, at all iterations
+  //	TH1D* hiter_mis[maxIteration]; //hiter_mis[i] misalignment position change at iteration i (defualt case : misalignment=0)
+  TH1D* hiter_ali[maxIteration]; //hiter_ali[i] absolute position change at iteration i, for all detectors
   char ppdirname[16];
   sprintf(ppdirname, "Shifts%d", currentPar);
   fout->mkdir(ppdirname);
@@ -290,7 +298,7 @@ void HIPplots::extractAlignShifts(int currentPar, int minHits, int subDet){
     for (int j = 0; j < tmpTree->GetEntries(); j++){ //loop on j (modules -> entries in each tree)
       tmpTree_true->GetEntry(j);
       tmpTree->GetEntry(j);
-      //cout<<"det"<<j<<","<<detId<<","<<nHit<<endl;
+      //cout << "det" << j << "," << detId << "," << nHit << endl;
       //			tmpTree_m->GetEntry(j);
       //			tmpTree_true->GetEntry(j);
 
@@ -315,26 +323,26 @@ void HIPplots::extractAlignShifts(int currentPar, int minHits, int subDet){
           dr_ali -= r_true;
           //std::cout << "dr_ali 0 : " << dr_ali[currentPar] << std::endl;
           //to local
-          //if (dr_mis != 0.) dr_mis = R_true * dr_mis;
-          //if (dr_ali != 0.) dr_ali = R_true * dr_ali;
+          //if (dr_mis != 0.) dr_mis = R_true*  dr_mis;
+          //if (dr_ali != 0.) dr_ali = R_true*  dr_ali;
           //std::cout << "currentPar: " << currentPar << std::endl;
           //std::cout << "dr_mis: " << dr_mis[currentPar] << std::endl;
           //std::cout << "dr_ali: " << dr_ali[currentPar] << std::endl;
-          //					if(currentPar<3&&dr_ali[currentPar]>1.0)cout<<"LARGE SHIFT for DET "<<detId<<" in subdet "<< mysubDet<<". Par#"<<currentPar<<" shifted by "<<dr_ali[currentPar]<<" at iter "<<iter<<endl;
+          //					if(currentPar<3&&dr_ali[currentPar]>1.0)cout << "LARGE SHIFT for DET " << detId << " in subdet " << mysubDet << ". Par#" << currentPar << " shifted by " << dr_ali[currentPar] << " at iter " << iter << endl;
           hshift[j]->SetBinContent(iter+1, dr_ali[currentPar]); //aligned position - start position
           //                                  hiter_mis[iter]->SetBinContent(j+1,dr_mis[currentPar]);
-          //if(j=0&&currentPar==5) std::cout << "iter="<<iter<<",dr_ali: " << dr_ali[currentPar] << std::endl;
-          //                                  cout << "iter="<<iter<<"dr_ali: " << dr_ali[currentPar] << endl;
+          //if(j=0&&currentPar==5) std::cout << "iter=" << iter << ",dr_ali: " << dr_ali[currentPar] << std::endl;
+          //                                  cout << "iter=" << iter << "dr_ali: " << dr_ali[currentPar] << endl;
           hiter_ali[iter]->SetBinContent(j+1, dr_ali[currentPar]);
-          //                                  cout << "bin: " <<hiter_ali[iter]->GetBinContent(j+1)<<endl;
+          //                                  cout << "bin: " << hiter_ali[iter]->GetBinContent(j+1) << endl;
           //                                  hiter_ali[iter]->SetBinError(j+1,5);
         }
         if (currentPar >= 3){
           //					TMatrixD dR_mis(3, 3, mrot);
           TMatrixD dR_ali(3, 3, arot);
           TMatrixD R_true(3, 3, trot);
-          //					dR_mis = dR_mis * TMatrixD(TMatrixD::kTransposed, R_true);
-          dR_ali = dR_ali * TMatrixD(TMatrixD::kTransposed, R_true);
+          //					dR_mis = dR_mis*  TMatrixD(TMatrixD::kTransposed, R_true);
+          dR_ali = dR_ali*  TMatrixD(TMatrixD::kTransposed, R_true);
           //-std::atan2(dR(2, 1), dR(2, 2)), std::asin(dR(2, 0)), -std::atan2(dR(1, 0), dR(0, 0)));
           //					double dR_mis_euler = 0;
           double dR_ali_euler = 0;
@@ -365,7 +373,7 @@ void HIPplots::extractAlignShifts(int currentPar, int minHits, int subDet){
   }
   delete tmpTree_true;
 
-  std::cout <<"Modules accepted: " << modules_accepted << std::endl;
+  std::cout << "Modules accepted: " << modules_accepted << std::endl;
   std::cout << "Writing..." << std::endl;
   //Save 
   fout->Write();
@@ -385,7 +393,7 @@ void HIPplots::extractAlignShifts(int currentPar, int minHits, int subDet){
 void HIPplots::plotAlignParams(string ShiftsOrParams, char* plotName){
 
 
-  cout<<"_|_| plotting AlignParams |_|_"<<endl<<"---> "<<ShiftsOrParams <<endl;
+  cout << "_|_| plotting AlignParams |_|_" << endl << "---> " << ShiftsOrParams  << endl;
   bool bParams = false;
   bool bShifts = false;
   if (ShiftsOrParams == "PARAMS") bParams = true;
@@ -393,12 +401,12 @@ void HIPplots::plotAlignParams(string ShiftsOrParams, char* plotName){
 
   int i = 0;
 
-  TFile *f = new TFile(_outFile, "READ");
+  TFile* f = new TFile(_outFile, "READ");
   //	f->ls();
 
-  TCanvas *c_params = new TCanvas("can_params", "CAN_PARAMS", 1200, 900);
+  TCanvas* c_params = new TCanvas("can_params", "CAN_PARAMS", 1200, 900);
   c_params->Divide(3, 2);
-  //	cout<<"(1) I am in "<<gDirectory->GetPath()<<endl;
+  //	cout << "(1) I am in " << gDirectory->GetPath() << endl;
   TDirectory* d;
   int ndets = 0;
   if (bParams){
@@ -422,13 +430,13 @@ void HIPplots::plotAlignParams(string ShiftsOrParams, char* plotName){
     if (bShifts) sprintf(ppdirname, "Shifts%d", iPar);
     if (iPar > 0)gDirectory->cd("../");
     gDirectory->cd(ppdirname);
-    //	cout<<"(2) I am in "<<gDirectory->GetPath()<<endl;
+    //	cout << "(2) I am in " << gDirectory->GetPath() << endl;
 
-    TH1D *hpar1[ndets];
+    TH1D* hpar1[ndets];
     char histoname[16];
     int sampling_ratio=1;
     int ndets_plotted=(int)ndets/sampling_ratio;
-    cout<<"Plotting "<<ndets_plotted<<" detectors over a total of "<<ndets<<endl;
+    cout << "Plotting " << ndets_plotted << " detectors over a total of " << ndets << endl;
     i=0;
     double histomax, histomin;
     if (iPar>=3){    //alpha, beta, gamma
@@ -473,7 +481,7 @@ void HIPplots::plotAlignParams(string ShiftsOrParams, char* plotName){
       if (tmpmax>histomax)histomax=tmpmax*1.2;
       if (tmpmin<histomin)histomin=tmpmin*1.2;
 
-      //if(i%1300==0)cout<<"Actual maximum is "<<histomax<<" Actual minimum is "<<histomin<<endl;
+      //if(i%1300==0)cout << "Actual maximum is " << histomax << " Actual minimum is " << histomin << endl;
       if (i==0){
 
         hpar1[i]->SetXTitle("Iteration");
@@ -511,10 +519,10 @@ void HIPplots::plotAlignParams(string ShiftsOrParams, char* plotName){
     hpar1[0]->SetMaximum(histomax);
     hpar1[0]->SetMinimum(histomin);
     //hpar1[0]->SetLineColor(1);
-    cout<<"Plotted "<<i<<" aligned detectors"<<endl;
+    cout << "Plotted " << i << " aligned detectors" << endl;
   }//end loop on pars
   c_params->cd();
-  TLegend * legend = MakeLegend(.1, .93, .9, .98);
+  TLegend*  legend = MakeLegend(.1, .93, .9, .98);
   legend->Draw();
   c_params->SaveAs(plotName);
   std::cout << "Deleting..." << std::flush;
@@ -529,22 +537,22 @@ void HIPplots::plotAlignParams(string ShiftsOrParams, char* plotName){
 
 void HIPplots::plotAlignParamsAtIter(int iter, string ShiftsOrParams, char* plotName){
 
-  cout<<"Welcome to  HIPplots::plotAlignParamsAtIter "<<iter<<endl;
+  cout << "Welcome to  HIPplots::plotAlignParamsAtIter " << iter << endl;
   bool bParams = false;
   bool bShifts = false;
   if (ShiftsOrParams == "PARAMS") bParams = true;
   else if (ShiftsOrParams == "SHIFTS") bShifts = true;
-  else { cout<<"ERROR in plotAliParamsAtIter!!! Wrong input argument: "<<ShiftsOrParams<<" . Exiting"<<endl; return; }
+  else { cout << "ERROR in plotAliParamsAtIter!!! Wrong input argument: " << ShiftsOrParams << " . Exiting" << endl; return; }
 
   int i = 0;
-  TFile *f = new TFile(_outFile, "READ");
+  TFile* f = new TFile(_outFile, "READ");
   //f->ls();
 
-  TCanvas *c_params = new TCanvas("can_params", "CAN_PARAMS", 1200, 700);
+  TCanvas* c_params = new TCanvas("can_params", "CAN_PARAMS", 1200, 700);
   c_params->Divide(3, 2);
-  //cout<<"(1) I am in "<<gDirectory->GetPath()<<endl;
+  //cout << "(1) I am in " << gDirectory->GetPath() << endl;
 
-  //TDirectory *d = (TDirectory*)f->Get("ShiftsPar0");
+  //TDirectory* d = (TDirectory*)f->Get("ShiftsPar0");
   //const int ndets = GetNIterations(d,"Par_0_SiDet_");
 
   for (int iPar = 0; iPar < 6; iPar++){
@@ -558,9 +566,9 @@ void HIPplots::plotAlignParamsAtIter(int iter, string ShiftsOrParams, char* plot
     if (bShifts) sprintf(ppdirname, "Shifts%d", iPar);
     if (iPar > 0)gDirectory->cd("../");
     gDirectory->cd(ppdirname);
-    //cout<<"(2) I am in "<<gDirectory->GetPath()<<endl;
+    //cout << "(2) I am in " << gDirectory->GetPath() << endl;
 
-    TH1D *hiter;
+    TH1D* hiter;
     char histoname[16];
     if (bParams) sprintf(histoname, "Par_%d_Iter_%d", iPar, iter);
     if (bShifts) sprintf(histoname, "AlignedShift_%d_Iter_%d", iPar, iter);
@@ -594,7 +602,7 @@ void HIPplots::plotAlignParamsAtIter(int iter, string ShiftsOrParams, char* plot
     hiter->SetMinimum(histomin);
     //hiter->SetAxisRange(0, 6, "X");
     hiter->SetLineColor(1);
-    TColor *col = gROOT->GetColor(kCyan+1);
+    TColor* col = gROOT->GetColor(kCyan+1);
     col->SetAlpha(0.3);
     hiter->SetFillColor(col->GetNumber());
     //          hiter->SetFillColor(kCyan);
@@ -603,7 +611,7 @@ void HIPplots::plotAlignParamsAtIter(int iter, string ShiftsOrParams, char* plot
     hiter->Draw("PE1");
     /*
         if (bShifts) {
-        TH1D *hiter2;
+        TH1D* hiter2;
         char histoname2[16];
         sprintf( histoname2, "MisalignedShift_%d_Iter_%d", iPar, iter );
         hiter2 = (TH1D*) gDirectory->Get(histoname2);
@@ -613,7 +621,7 @@ void HIPplots::plotAlignParamsAtIter(int iter, string ShiftsOrParams, char* plot
         }
 
         */
-    //		cout<<"Plotted "<<i<<" aligned detectors"<<endl;
+    //		cout << "Plotted " << i << " aligned detectors" << endl;
   }//end loop on pars
   c_params->SaveAs(plotName);
   delete c_params;
@@ -626,34 +634,34 @@ void HIPplots::plotAlignParamsAtIter(int iter, string ShiftsOrParams, char* plot
 
 void HIPplots::extractAlignableChiSquare(int minHits, int subDet, int doubleSided){
 
-  //TFile *fp = new TFile( _inFile_params,"READ");
+  //TFile* fp = new TFile( _inFile_params,"READ");
   //	const TList* keysp = fp->GetListOfKeys();
   //	const unsigned int maxIteration = keysp->GetSize();
-  cout<<"\n--- Welcome to extractAlignableChiSquare ---"<<endl;
-  cout<<"\nInput parameters:\n\tMinimum number of hits per alignbale = "<<minHits<<"\n\tSubdetetctor selection"<<subDet<<endl;
+  cout << "\n--- Welcome to extractAlignableChiSquare ---" << endl;
+  cout << "\nInput parameters:\n\tMinimum number of hits per alignbale = " << minHits << "\n\tSubdetetctor selection" << subDet << endl;
 
   if (minHits<1){
-    cout<<"Warning ! Allowing to select modules with NO hits. Chi2 not defined for them. Setting automatically minNhits=1 !!!"<<endl;
+    cout << "Warning ! Allowing to select modules with NO hits. Chi2 not defined for them. Setting automatically minNhits=1 !!!" << endl;
     minHits=1;
   }
 
-  TFile *fv = new TFile(_inFile_uservars, "READ");
+  TFile* fv = new TFile(_inFile_uservars, "READ");
   const TList* keysv = fv->GetListOfKeys();
   const unsigned int maxIteration = keysv->GetSize() - 1;
-  cout<<"MaxIteration is "<<maxIteration <<endl;
+  cout << "MaxIteration is " << maxIteration  << endl;
 
   char fileaction[16];
   if (CheckFileExistence(_outFile))sprintf(fileaction, "UPDATE");
   else sprintf(fileaction, "NEW");
-  TFile *fout = new TFile(_outFile, fileaction);
+  TFile* fout = new TFile(_outFile, fileaction);
 
   TTree* tree0 = (TTree*)fv->Get(keysv->At(0)->GetName());
   unsigned int detId0;
   tree0->SetBranchAddress("Id", &detId0);
   const int ndets=tree0->GetEntries();
-  TH1D *halichi2n[ndets];//norm chi2 for each module as a function of iteration
-  TH1D *htotchi2n[maxIteration];//distrib of norm chi2 for all modules at a given iteration
-  TH1D *hprobdist[maxIteration];
+  TH1D* halichi2n[ndets];//norm chi2 for each module as a function of iteration
+  TH1D* htotchi2n[maxIteration];//distrib of norm chi2 for all modules at a given iteration
+  TH1D* hprobdist[maxIteration];
   char ppdirname[16];
   sprintf(ppdirname, "AlignablesChi2n");
   fout->mkdir(ppdirname);
@@ -684,7 +692,7 @@ void HIPplots::extractAlignableChiSquare(int minHits, int subDet, int doubleSide
   for (unsigned int iter = 1; iter <= maxIteration; iter++){//loop on i (HIP iterations -> trees in file)
 
     TTree* tmpTreeUV = (TTree*)fv->Get(keysv->At(iter)->GetName()); //get the UserVariable tree at each iteration
-    cout<<"Taking tree "<<keysv->At(iter)->GetName()<<endl;
+    cout << "Taking tree " << keysv->At(iter)->GetName() << endl;
     //tmpTreeUV->GetListOfLeaves()->ls();
     tmpTreeUV->SetBranchStatus("*", 0);
     tmpTreeUV->SetBranchStatus("Id", 1);
@@ -723,45 +731,45 @@ void HIPplots::extractAlignableChiSquare(int minHits, int subDet, int doubleSide
       }
 
     }//end loop on j - alignables
-    cout<<"alignables accepted at iteration "<<iter<<" = "<<modules_accepted<<endl;
+    cout << "alignables accepted at iteration " << iter << " = " << modules_accepted << endl;
     delete tmpTreeUV;
   }//end loop on iterations
 
   //Ma che e'???
-  /* cout<<"Prob for chi2=0,02 ndof=40 -> "<<TMath::Prob(0.02,40)<<endl;
-  cout<<"Prob for chi2=20, ndof=40 -> "<<TMath::Prob(20.0,40)<<endl;
-  cout<<"Prob for chi2=40, ndof=40 -> "<<TMath::Prob(40.0,40)<<endl;
-  cout<<"Prob for chi2=60, ndof=40 -> "<<TMath::Prob(60.0,40)<<endl;
-  cout<<"Prob for chi2=2000, ndof=40 -> "<<TMath::Prob(2000.0,40)<<endl; */
+  /* cout << "Prob for chi2=0,02 ndof=40 -> " << TMath::Prob(0.02,40) << endl;
+  cout << "Prob for chi2=20, ndof=40 -> " << TMath::Prob(20.0,40) << endl;
+  cout << "Prob for chi2=40, ndof=40 -> " << TMath::Prob(40.0,40) << endl;
+  cout << "Prob for chi2=60, ndof=40 -> " << TMath::Prob(60.0,40) << endl;
+  cout << "Prob for chi2=2000, ndof=40 -> " << TMath::Prob(2000.0,40) << endl; */
 
   //Save 
   fout->Write();
   delete fout;
   delete fv;
-  cout<<"Finished extractAlignableChiSquare"<<endl;
+  cout << "Finished extractAlignableChiSquare" << endl;
 }//end extractAlignableChiSquare
 
 
 void HIPplots::extractSurveyResiduals(int currentPar, int subDet){
 
-  cout<<"\n---  extractSurveyResiduals has been called ---"<<endl;
+  cout << "\n---  extractSurveyResiduals has been called ---" << endl;
 
-  TFile *fv = new TFile(_inFile_surveys, "READ");
+  TFile* fv = new TFile(_inFile_surveys, "READ");
   const TList* keysv = fv->GetListOfKeys();
   const unsigned int maxIteration = keysv->GetSize();
-  cout<<"MaxIteration is "<<maxIteration <<endl;
+  cout << "MaxIteration is " << maxIteration  << endl;
 
   char fileaction[16];
   if (CheckFileExistence(_outFile))sprintf(fileaction, "UPDATE");
   else sprintf(fileaction, "NEW");
-  TFile *fout = new TFile(_outFile, fileaction);
+  TFile* fout = new TFile(_outFile, fileaction);
 
   TTree* tree0 = (TTree*)fv->Get(keysv->At(0)->GetName());
   unsigned int detId0;
   tree0->SetBranchAddress("Id", &detId0);
   const int ndets=tree0->GetEntries();
-  TH1D *hsurvey[ndets];//norm chi2 for each module as a function of iteration
-  TH1D *htotres[maxIteration];//distrib of norm chi2 for all modules at a given iteration
+  TH1D* hsurvey[ndets];//norm chi2 for each module as a function of iteration
+  TH1D* htotres[maxIteration];//distrib of norm chi2 for all modules at a given iteration
 
   char ppdirname[16];
   sprintf(ppdirname, "SurveyResiduals");
@@ -790,7 +798,7 @@ void HIPplots::extractSurveyResiduals(int currentPar, int subDet){
   for (unsigned int iter = 1; iter <= maxIteration; iter++){//loop on i (HIP iterations -> trees in file)
 
     TTree* tmpTreeUV = (TTree*)fv->Get(keysv->At(iter)->GetName()); //get the UserVariable tree at each iteration
-    cout<<"Taking tree "<<keysv->At(iter)->GetName()<<endl;
+    cout << "Taking tree " << keysv->At(iter)->GetName() << endl;
     //tmpTreeUV->GetListOfLeaves()->ls();
     tmpTreeUV->SetBranchStatus("*", 0);
     tmpTreeUV->SetBranchStatus("Id", 1);
@@ -816,7 +824,7 @@ void HIPplots::extractSurveyResiduals(int currentPar, int subDet){
       }
 
     }//end loop on j - alignables
-    cout<<"alignables accepted at iteration "<<iter<<" = "<<modules_accepted<<endl;
+    cout << "alignables accepted at iteration " << iter << " = " << modules_accepted << endl;
     delete tmpTreeUV;
   }//end loop on iterations
 
@@ -824,7 +832,7 @@ void HIPplots::extractSurveyResiduals(int currentPar, int subDet){
   fout->Write();
   delete fout;
   delete fv;
-  cout<<"Finished extractAlignableChiSquare"<<endl;
+  cout << "Finished extractAlignableChiSquare" << endl;
 }//end extractAlignableChiSquare
 
 
@@ -832,26 +840,26 @@ void HIPplots::extractSurveyResiduals(int currentPar, int subDet){
 
 
 
-void HIPplots::plotAlignableChiSquare(char *plotName, float minChi2n){
+void HIPplots::plotAlignableChiSquare(char* plotName, float minChi2n){
 
   int i = 0;
-  TFile *f = new TFile(_outFile, "READ");
-  TCanvas *c_alichi2n=new TCanvas("can_alichi2n", "CAN_ALIGNABLECHI2N", 900, 900);
+  TFile* f = new TFile(_outFile, "READ");
+  TCanvas* c_alichi2n=new TCanvas("can_alichi2n", "CAN_ALIGNABLECHI2N", 900, 900);
   c_alichi2n->cd();
-  TDirectory *chi_d1=(TDirectory*)f->Get("AlignablesChi2n");
+  TDirectory* chi_d1=(TDirectory*)f->Get("AlignablesChi2n");
   const int maxIteration= GetNIterations(chi_d1, "Chi2n_iter", 1)-1;
-  cout<<"N iterations "<<maxIteration<<endl;
+  cout << "N iterations " << maxIteration << endl;
   //take the histos prepared with extractAlignableChiSquare
   gDirectory->cd("AlignablesChi2n");
-  TDirectory *chi_d=(TDirectory*)gDirectory->Get("AlignablewiseChi2n");
+  TDirectory* chi_d=(TDirectory*)gDirectory->Get("AlignablewiseChi2n");
   const int ndets= GetNIterations(chi_d, "Chi2n_");
 
   gDirectory->cd("AlignablewiseChi2n");
-  TH1D *hchi2n[ndets];
+  TH1D* hchi2n[ndets];
   char histoname[64];
   int sampling_ratio=1;
   int ndets_plotted=(int)ndets/sampling_ratio;
-  cout<<"Sampling "<<ndets_plotted<<" detectors over a total of "<<ndets<<endl;
+  cout << "Sampling " << ndets_plotted << " detectors over a total of " << ndets << endl;
   double histomax=0.1, histomin=-0.1;
   bool firstplotted=false;
   int firstplottedindex=0;
@@ -907,8 +915,8 @@ void HIPplots::plotAlignableChiSquare(char *plotName, float minChi2n){
   hchi2n[firstplottedindex]->SetMaximum(histomax);
   hchi2n[firstplottedindex]->SetMinimum(histomin);
 
-  cout<<"Plotted "<<totalplotted<<" alignables over an initial sample of "<<ndets_plotted<<endl;
-  TText *txtchi2n_1=new TText();
+  cout << "Plotted " << totalplotted << " alignables over an initial sample of " << ndets_plotted << endl;
+  TText* txtchi2n_1=new TText();
   txtchi2n_1->SetTextFont(63);
   txtchi2n_1->SetTextSize(22);
   char strchi2n_1[128];
@@ -921,12 +929,12 @@ void HIPplots::plotAlignableChiSquare(char *plotName, float minChi2n){
   //delete hchi2n;
 
 
-  cout<<"Doing distrib"<<endl;
+  cout << "Doing distrib" << endl;
   gDirectory->cd("../");
-  TCanvas *c_chi2ndist=new TCanvas("can_chi2ndistr", "CAN_CHI2N_DISTRIBUTION", 900, 900);
+  TCanvas* c_chi2ndist=new TCanvas("can_chi2ndistr", "CAN_CHI2N_DISTRIBUTION", 900, 900);
   c_chi2ndist->cd();
-  TH1D *hiter[maxIteration];
-  TLegend *l=new TLegend(0.7, 0.7, 0.9, 0.9);
+  TH1D* hiter[maxIteration];
+  TLegend* l=new TLegend(0.7, 0.7, 0.9, 0.9);
   l->SetFillColor(0);
   l->SetBorderSize(0);
   int colors[10]={ 1, 2, 8, 4, 6, 7, 94, 52, 41, 45 };
@@ -964,7 +972,7 @@ void HIPplots::plotAlignableChiSquare(char *plotName, float minChi2n){
       //hiter[i]->Draw("same");
     }
   }
-  cout<<"NewMax after 1st loop -> "<<newmax<<endl;
+  cout << "NewMax after 1st loop -> " << newmax << endl;
 
   for (i=0; i<maxIteration; i++){
     hiter[i]->SetMaximum(newmax*1.1);
@@ -974,11 +982,11 @@ void HIPplots::plotAlignableChiSquare(char *plotName, float minChi2n){
   l->Draw();
 
   sprintf(finplotname, "%s_distr.png", plotName);
-  cout<<finplotname<<endl;
+  cout << finplotname << endl;
   c_chi2ndist->SaveAs(finplotname);
   c_chi2ndist->SetLogy();
   sprintf(finplotname, "%s_distrlog.png", plotName);
-  cout<<finplotname<<endl;
+  cout << finplotname << endl;
   c_chi2ndist->SaveAs(finplotname);
 
   delete  c_chi2ndist;
@@ -989,7 +997,7 @@ void HIPplots::plotAlignableChiSquare(char *plotName, float minChi2n){
 
 //-----------------------------------------------------------------
 //private classes
-int HIPplots::GetNIterations(TDirectory *f, char *tag, int startingcounter){
+int HIPplots::GetNIterations(TDirectory* f, char* tag, int startingcounter){
   int fin_iter=0, i=startingcounter;
   bool obj_exist=kTRUE;
   while (obj_exist){
@@ -999,7 +1007,7 @@ int HIPplots::GetNIterations(TDirectory *f, char *tag, int startingcounter){
     fin_iter=i;
     i++;
   }
-  cout<<"Max Iterations is "<<fin_iter<<endl;
+  cout << "Max Iterations is " << fin_iter << endl;
 
   return fin_iter;
 }
@@ -1012,7 +1020,7 @@ int HIPplots::GetSubDet(unsigned int id){
   unsigned int detID = id;
 
   int shift = 31-reserved_subdetectorfinalbit;
-  detID = detID<<(shift);
+  detID = detID << (shift);
   shift = reserved_subdetectorstartbit + shift;
   detID = detID>>(shift);
 
@@ -1049,14 +1057,14 @@ void HIPplots::SetMinMax(TH1* h){
 
 
 
-void HIPplots::plotHitMap(char *outpath, int subDet, int minHits){
-  cout<<"Starting plotHitMap"<<flush;
+void HIPplots::plotHitMap(char* outpath, int subDet, int minHits){
+  cout << "Starting plotHitMap" << flush;
 
-  TFile *falignable=new TFile(_inFile_HIPalign, "READ");
-  cout<<"\tLoaded file"<<flush;
+  TFile* falignable=new TFile(_inFile_HIPalign, "READ");
+  cout << "\tLoaded file" << flush;
   //take the alignablewise tree and address useful branches
-  TTree *talignable=(TTree*)falignable->Get("T2");
-  cout<<"\t Loaded tree"<<endl;
+  TTree* talignable=(TTree*)falignable->Get("T2");
+  cout << "\t Loaded tree" << endl;
 
   float eta=-999.0, phi=-55.0, xpos=-999.0, ypos=+999.0, zpos=-11111.0;
   int layer=-1, type=-1, nhit=-11111;
@@ -1082,7 +1090,7 @@ void HIPplots::plotHitMap(char *outpath, int subDet, int minHits){
   else   if (subDet == TOBid){ sprintf(typetag, "TOB"); maxLayers=6; }
   else   if (subDet == TECid){ sprintf(typetag, "TEC"); maxLayers=9; }
   else   { sprintf(typetag, "UNKNOWN"); }
-  cout<<"Starting to plot Hit Distributions for "<<typetag<<endl;
+  cout << "Starting to plot Hit Distributions for " << typetag << endl;
 
   bool printbinning=true;
   char psname[600];
@@ -1094,12 +1102,12 @@ void HIPplots::plotHitMap(char *outpath, int subDet, int minHits){
   ofstream binfile(binfilename, ios::out);
 
   if (printbinning){
-    binfile<<"******** Binning for Subdet "<<typetag<<" *********"<<endl<<endl;
+    binfile << "******** Binning for Subdet " << typetag << "* ********" << endl << endl;
   }
 
   for (int layerindex=1; layerindex<=maxLayers; layerindex++){  //loop on layers
 
-    cout<<"\n\n*** Layer # "<<layerindex<<" ***"<<endl;
+    cout << "\n\n*** Layer # " << layerindex << "* **" << endl;
     //activate only useful branches
     talignable->SetBranchStatus("*", 0);
     talignable->SetBranchStatus("Id", 1);
@@ -1129,17 +1137,17 @@ void HIPplots::plotHitMap(char *outpath, int subDet, int minHits){
     selECneg=selECneg_str;
     selECpos=selECpos_str;
     selA=selA_str;
-    cout<<"Cuts defined as "<<selA<<endl;
+    cout << "Cuts defined as " << selA << endl;
     ///////////////////////////
     //////////////////////////
     //////////////////////////
 
     //--------- (2) START bin definition -----
-    //cout<<"Selection is "<<sel<<endl;
+    //cout << "Selection is " << sel << endl;
     //char sel[96];
 
     int nzentries= talignable->Draw("Zpos>>hZ(360,-270.0,270.0)", commonsense&&selA, "goff");
-    TH1F *hZ=(TH1F*)gDirectory->Get("hZ");
+    TH1F* hZ=(TH1F*)gDirectory->Get("hZ");
     if (subDet == TOBid)      SetPeakThreshold(8.0);
     else SetPeakThreshold(5.0);
     float Zpeaks[120];
@@ -1152,20 +1160,20 @@ void HIPplots::plotHitMap(char *outpath, int subDet, int minHits){
     float Zwidth=(Zpeaks[nZpeaks-1]-Zpeaks[0])/ (nZpeaks-1);
     float Zmin=Zpeaks[0]- Zwidth/2.0;
     float Zmax=Zpeaks[nZpeaks-1] + Zwidth/2.0;//((Zpeaks[nZbinlims-1]-Zpeaks[nZbinlims-2])/2.0) ;
-    cout<<"--> Zmin= "<<Zmin<<" - Zmax= "<<Zmax<<" Zwidth= "<<Zwidth<<" ; found "<<nZpeaks<<" Zpeaks"<<endl;
-    cout<<"Zpeaks[0] is "<<Zpeaks[0]<<endl;
+    cout << "--> Zmin= " << Zmin << " - Zmax= " << Zmax << " Zwidth= " << Zwidth << " ; found " << nZpeaks << " Zpeaks" << endl;
+    cout << "Zpeaks[0] is " << Zpeaks[0] << endl;
 
 
     float Phipeaks[120];
     if ((subDet==TIBid||subDet==TOBid)&&layerindex<=2) sprintf(selA_str, "%s&&Zpos>%f&&Zpos<%f", selA_str, Zpeaks[0]-2.0, Zpeaks[0]+2.0);//DS modules 
     else sprintf(selA_str, "%s&&Zpos>%f&&Zpos<%f", selA_str, Zpeaks[0]-2.0, Zpeaks[0]+2.0);
     int  nphientries=talignable->Draw("Phi>>hPhi", selA_str, "goff");
-    cout<<"N phi entries "<<nphientries<<" from sel "<<selA_str<< endl;
-    TH1F *hPhi=(TH1F*)gDirectory->Get("hPhi");
+    cout << "N phi entries " << nphientries << " from sel " << selA_str << endl;
+    TH1F* hPhi=(TH1F*)gDirectory->Get("hPhi");
     //nPhibins=FindPeaks(hPhi,Phipeaks,99);
     if (subDet==TPBid&&layerindex==1)nphientries=nphientries-1;
     const int  nPhibins=nphientries;
-    cout<<"+ It would have found "<<nPhibins<<" phi bins"<<endl;
+    cout << "+ It would have found " << nPhibins << " phi bins" << endl;
 
     //fill Z array with binning. special case for DS layers of TIB with non equidistant z bins
     float phibin[nPhibins+1];
@@ -1175,7 +1183,7 @@ void HIPplots::plotHitMap(char *outpath, int subDet, int minHits){
     if ((subDet==TIBid||subDet==TOBid)&&layerindex<=2){//DS modules in TIB and TOB
 
       ///-************
-      cout<<"Gonna loop over "<<nZpeaks<<" peaks / "<<nZbinlims<<" bin limits"<<endl;
+      cout << "Gonna loop over " << nZpeaks << " peaks / " << nZbinlims << " bin limits" << endl;
       for (bin=0; bin<nZbinlims-1; bin++){
         float zup=0.0;
         float zdown=0.0;
@@ -1185,7 +1193,7 @@ void HIPplots::plotHitMap(char *outpath, int subDet, int minHits){
           zdown=zup;
         }
         else if (bin==nZbinlims-2){//don't go overflow!
-          cout<<"Don't go overflow !"<<endl;
+          cout << "Don't go overflow !" << endl;
           zdown=(Zpeaks[bin]-Zpeaks[bin-1])/2.0;
           if (layerindex==1) zup=(Zpeaks[bin-1]-Zpeaks[bin-2])/2.0;
           else  zup=zdown;
@@ -1223,22 +1231,22 @@ void HIPplots::plotHitMap(char *outpath, int subDet, int minHits){
     float Phimin=Phipeaks[0]- ((Phipeaks[1]-Phipeaks[0])/2.0);
     float Phimax=Phipeaks[nPhibins-1] + ((Phipeaks[nPhibins-1]-Phipeaks[nPhibins-2])/2.0);
 
-    cout<<"N Z bin LIMITs = "<<nZbinlims<<" N Phi bin LIMITS = "<<nPhibins<<endl;
+    cout << "N Z bin LIMITs = " << nZbinlims << " N Phi bin LIMITS = " << nPhibins << endl;
     //--------- END bin definition -----
 
 
 
     char histoname[64];
     sprintf(histoname, "%s_Layer%d", typetag, layerindex);
-    TH2F *hetaphi=new TH2F(histoname, histoname, nZpeaks, zbin, nPhibins, phibin);
+    TH2F* hetaphi=new TH2F(histoname, histoname, nZpeaks, zbin, nPhibins, phibin);
 
 
-    cout<<"Starting to loop on entries"<<flush;
+    cout << "Starting to loop on entries" << flush;
     int nmods=0;
     int nlowentrycells=0;
 
     for (int j=0; j<talignable->GetEntries(); j++){ //loop on entries (-> alignables)
-      if (j%1000==0)cout<<"."<<flush;
+      if (j%1000==0)cout << "." << flush;
       talignable->GetEntry(j);
       if (type==subDet&&layer==layerindex){
         if (nhit>=minHits){
@@ -1260,8 +1268,8 @@ void HIPplots::plotHitMap(char *outpath, int subDet, int minHits){
 
     int Nxbins=hetaphi->GetXaxis()->GetNbins();
     int Nybins=hetaphi->GetYaxis()->GetNbins();
-    cout<<"On x-axis there are "<<Nxbins<<" bins  "<<endl;
-    cout<<"On y-axis there are "<<Nybins<<" bins  "<<endl;
+    cout << "On x-axis there are " << Nxbins << " bins  " << endl;
+    cout << "On y-axis there are " << Nybins << " bins  " << endl;
 
 
     bool smooth_etaphi=false;
@@ -1294,14 +1302,14 @@ void HIPplots::plotHitMap(char *outpath, int subDet, int minHits){
 
 
     //for debugging purposes
-    TGraph *gretaphi;
+    TGraph* gretaphi;
     bool plotAlignablePos=false;
     if (plotAlignablePos){
       const int ngrpoints=nmods;
       float etagr[ngrpoints], phigr[ngrpoints];
       nmods=0;
       for (int j=0; j<talignable->GetEntries(); j++){ //loop on entries (-> alignables)
-        if (j%1000==0)cout<<"."<<flush;
+        if (j%1000==0)cout << "." << flush;
         talignable->GetEntry(j);
         if (type==subDet&&layer==layerindex){
           etagr[nmods]=zpos;
@@ -1319,7 +1327,7 @@ void HIPplots::plotHitMap(char *outpath, int subDet, int minHits){
 
 
     ///////////////////
-    //cout<<"Layer #"<<i<<endl;
+    //cout << "Layer #" << i << endl;
     float Zcellgr[512];
     float Phicellgr[512];
     int nemptycells=0;
@@ -1331,26 +1339,26 @@ void HIPplots::plotHitMap(char *outpath, int subDet, int minHits){
           Phicellgr[nemptycells]= float(hetaphi->GetYaxis()->GetBinCenter(phicells));
           nemptycells++;
         }
-        //if(a==2)cout<<"Finished Z value "<<hetaphi->GetXaxis()->GetBinCenter(zcells)<<" the emptycells are "<<nemptycells<<endl;
+        //if(a==2)cout << "Finished Z value " << hetaphi->GetXaxis()->GetBinCenter(zcells) << " the emptycells are " << nemptycells << endl;
       }//end loop on Phi bins
     }//end loop on Z bins
-    TGraph *gr_empty=new TGraph(nlowentrycells, Zcellgr, Phicellgr);
+    TGraph* gr_empty=new TGraph(nlowentrycells, Zcellgr, Phicellgr);
     sprintf(histoname, "gr_emptycells_subdet%d_layer%d", subDet, layerindex);
-    //cout<<"Graph name: "<<histoname<<" with "<<gr_empty->GetN()<<endl;
+    //cout << "Graph name: " << histoname << " with " << gr_empty->GetN() << endl;
     gr_empty->SetName(histoname);
     gr_empty->SetMarkerStyle(5);
     /////////
 
 
-    cout<<" Done! Used "<<nmods<<" alignables. Starting to plot !"<<endl;
+    cout << " Done! Used " << nmods << " alignables. Starting to plot !" << endl;
 
     //plot them and save the canvas appending it to a ps file
     gStyle->SetPalette(1, 0);
-    TCanvas *c_barrels=new TCanvas("canvas_hits_barrels", "CANVAS_HITS_BARRELS", 1600, 1600);
-    TCanvas *c_endcaps=new TCanvas("canvas_hits_endcaps", "CANVAS_HITS_ENDCAPS", 3200, 1600);
-    TPad *pleft=new TPad("left_panel", "Left Panel", 0.0, 0.0, 0.49, 0.99);
-    TPad *pcent=new TPad("central_up_panel", "Central Panel", 0.01, 0.00, 0.99, 0.99);
-    TPad *pright=new TPad("right_panel", "Right Panel", 0.51, 0.0, 0.99, 0.99);
+    TCanvas* c_barrels=new TCanvas("canvas_hits_barrels", "CANVAS_HITS_BARRELS", 1600, 1600);
+    TCanvas* c_endcaps=new TCanvas("canvas_hits_endcaps", "CANVAS_HITS_ENDCAPS", 3200, 1600);
+    TPad* pleft=new TPad("left_panel", "Left Panel", 0.0, 0.0, 0.49, 0.99);
+    TPad* pcent=new TPad("central_up_panel", "Central Panel", 0.01, 0.00, 0.99, 0.99);
+    TPad* pright=new TPad("right_panel", "Right Panel", 0.51, 0.0, 0.99, 0.99);
 
 
     if (subDet==1 ||subDet==3 ||subDet==5){
@@ -1367,19 +1375,19 @@ void HIPplots::plotHitMap(char *outpath, int subDet, int minHits){
       gr_empty->Draw("P");
 
       if (printbinning){
-        binfile<<"--> Layer #"<<layerindex<<endl;
-        binfile<<"Eta Binning: "<<flush;
+        binfile << "--> Layer #" << layerindex << endl;
+        binfile << "Eta Binning: " << flush;
         for (int h=1; h<=hetaphi->GetNbinsX(); h++){
-          binfile<<hetaphi->GetXaxis()->GetBinLowEdge(h)<<"\t";
-          if (h==hetaphi->GetNbinsX())	binfile<<hetaphi->GetXaxis()->GetBinLowEdge(h)+hetaphi->GetXaxis()->GetBinWidth(h);
+          binfile << hetaphi->GetXaxis()->GetBinLowEdge(h) << "\t";
+          if (h==hetaphi->GetNbinsX())	binfile << hetaphi->GetXaxis()->GetBinLowEdge(h)+hetaphi->GetXaxis()->GetBinWidth(h);
         }
-        binfile<<endl;
-        binfile<<"Phi Binning: "<<flush;
+        binfile << endl;
+        binfile << "Phi Binning: " << flush;
         for (int h=1; h<=hetaphi->GetNbinsY(); h++){
-          binfile<<hetaphi->GetYaxis()->GetBinLowEdge(h)<<"\t";
-          if (h==hetaphi->GetNbinsX())	binfile<<hetaphi->GetYaxis()->GetBinLowEdge(h)+hetaphi->GetYaxis()->GetBinWidth(h);
+          binfile << hetaphi->GetYaxis()->GetBinLowEdge(h) << "\t";
+          if (h==hetaphi->GetNbinsX())	binfile << hetaphi->GetYaxis()->GetBinLowEdge(h)+hetaphi->GetYaxis()->GetBinWidth(h);
         }
-        binfile<<endl;
+        binfile << endl;
       }
 
     }
@@ -1403,10 +1411,10 @@ void HIPplots::plotHitMap(char *outpath, int subDet, int minHits){
 
       sprintf(varEC_str, "Ypos:Xpos>>hxy_negz(30,%f,%f)", -radlimit, radlimit);
       sprintf(selEC_str, "Nhit*(%s&&%s)", selECneg_str, commonsense_str);
-      cout<<selEC_str<<endl;
+      cout << selEC_str << endl;
       int selentriesECneg=talignable->Draw(varEC_str, selEC_str, "goff"); //total number of alignables for thys type and layer
       if (selentriesECneg>0){
-        TH2F *hxy_negz=(TH2F*)gDirectory->Get("hxy_negz");
+        TH2F* hxy_negz=(TH2F*)gDirectory->Get("hxy_negz");
         hxy_negz->GetXaxis()->SetRangeUser(-radlimit, radlimit);
         hxy_negz->GetYaxis()->SetRangeUser(-radlimit, radlimit);
         char histoname_negz[32];
@@ -1418,21 +1426,21 @@ void HIPplots::plotHitMap(char *outpath, int subDet, int minHits){
         hxy_negz->Draw("COLZ");
       }
       else{
-        cout<<"WARNING !!!! No hits on this layer ! not plotting (-Z) !"<<endl;
+        cout << "WARNING !!!! No hits on this layer ! not plotting (-Z) !" << endl;
       }
 
 
 
-      cout<<"PAD 3"<<endl;
+      cout << "PAD 3" << endl;
       pright->cd();
       gPad->SetRightMargin(0.15);
       sprintf(selEC_str, "Nhit*(%s&&%s)", selECpos_str, commonsense_str);
       //selEC=selEC_str&&commonsense;
-      cout<<"(2)"<<selEC_str<<endl;
+      cout << "(2)" << selEC_str << endl;
       sprintf(varEC_str, "Ypos:Xpos>>hxy_posz(30,%f,%f)", -radlimit, radlimit);
       int selentriesECpos=talignable->Draw(varEC_str, selEC_str, "goff"); //total number of alignables for thys type and layer
       if (selentriesECpos>0){
-        TH2F *hxy_posz=(TH2F*)gDirectory->Get("hxy_posz");
+        TH2F* hxy_posz=(TH2F*)gDirectory->Get("hxy_posz");
         char histoname_posz[32];
         hxy_posz->GetXaxis()->SetRangeUser(-radlimit, radlimit);
         hxy_posz->GetYaxis()->SetRangeUser(-radlimit, radlimit);
@@ -1444,7 +1452,7 @@ void HIPplots::plotHitMap(char *outpath, int subDet, int minHits){
         hxy_posz->Draw("COLZ");
       }
       else{
-        cout<<"WARNING !!!! No hits on this layer ! not plotting (+Z) !"<<endl;
+        cout << "WARNING !!!! No hits on this layer ! not plotting (+Z) !" << endl;
       }
 
 
@@ -1458,11 +1466,11 @@ void HIPplots::plotHitMap(char *outpath, int subDet, int minHits){
     else if (layerindex==maxLayers) sprintf(psnamefinal, "%s)", psname);
     else  sprintf(psnamefinal, "%s", psname);
 
-    cout<<"Saving in "<<psnamefinal<<endl;
+    cout << "Saving in " << psnamefinal << endl;
     if (subDet==1 ||subDet==3 ||subDet==5)c_barrels->SaveAs(psnamefinal);
     else c_endcaps->SaveAs(psnamefinal);
 
-    if (subDet==1 ||subDet==3 ||subDet==5)delete c_barrels;
+    if (subDet==1 ||subDet==3 ||subDet==5) delete c_barrels;
     else delete c_endcaps;
 
 
@@ -1470,7 +1478,7 @@ void HIPplots::plotHitMap(char *outpath, int subDet, int minHits){
     //hbarrel->Draw("scat");
 
   }//end loop on layers
-  cout<<"Finished "<<maxLayers<<" of the "<<typetag<<endl;
+  cout << "Finished " << maxLayers << " of the " << typetag << endl;
 
   delete talignable;
   delete falignable;
@@ -1485,7 +1493,7 @@ void HIPplots::dumpAlignedModules(int nhits){
 
 
 
-int HIPplots::FindPeaks(TH1F *h1, float *peaklist, const int maxNpeaks, int startbin, int endbin){
+int HIPplots::FindPeaks(TH1F* h1, float* peaklist, const int maxNpeaks, int startbin, int endbin){
 
   int Npeaks=0;
   if (startbin<0)startbin=1;
@@ -1529,11 +1537,11 @@ void HIPplots::SetPeakThreshold(float newpeakthreshold){
   peakthreshold=newpeakthreshold;
 }
 
-bool HIPplots::CheckFileExistence(char *filename){
+bool HIPplots::CheckFileExistence(TString filename){
   bool flag = false;
   fstream fin;
-  fin.open(filename, ios::in);
-  if (fin.is_open())   flag=true;
+  fin.open(filename.Data(), ios::in);
+  if (fin.is_open()) flag=true;
   fin.close();
   return flag;
 }
@@ -1541,29 +1549,29 @@ bool HIPplots::CheckFileExistence(char *filename){
 void HIPplots::CheckFiles(int &ierr){
 
   if (!CheckFileExistence(_inFile_uservars)){
-    cout<<"Missing file "<<_inFile_uservars<<endl;
+    cout << "Missing file " << _inFile_uservars << endl;
     ierr++;
   }
 
   if (!CheckFileExistence(_inFile_HIPalign)){
-    cout<<"Missing file "<<_inFile_HIPalign<<endl;
+    cout << "Missing file " << _inFile_HIPalign << endl;
     ierr++;
   }
 
   if (!CheckFileExistence(_inFile_alipos)){
-    cout<<"Missing file "<< _inFile_alipos<<endl;
+    cout << "Missing file " << _inFile_alipos << endl;
     ierr++;
   }
 
   if (CheckFileExistence(_outFile)){
-    cout<<"Output file already existing !"<<endl;
+    cout << "Output file already exists!" << endl;
     ierr=-1*(ierr+1);
   }
 
 }
 
 
-bool HIPplots::CheckHistoRising(TH1D *h){
+bool HIPplots::CheckHistoRising(TH1D* h){
 
   bool rise1=false, rise2=false, rise3=false;
   int totbins=h->GetNbinsX();

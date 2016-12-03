@@ -8,6 +8,7 @@
 #include "TFile.h"
 #include "TH2F.h"
 #include "TChain.h"
+#include "TString.h"
 #include "TCanvas.h"
 #include "TFileIter.h"
 #include "TStyle.h"
@@ -28,15 +29,16 @@ public:
   void extractSurveyResiduals(int currentPar, int subDet =0);
   void dumpAlignedModules(int nhits=0);
 
-  char _path[256];
-  char _outFile[256];
-  char _inFile_params[256];
-  char _inFile_uservars[256];
-  char _inFile_truepos[256];
-  char _inFile_alipos[256];
-  char _inFile_mispos[256];
-  char _inFile_HIPalign[256];
-  char _inFile_surveys[256];
+  int _IOV;
+  TString _path;
+  TString _outFile;
+  TString _inFile_params;
+  TString _inFile_uservars;
+  TString _inFile_truepos;
+  TString _inFile_alipos;
+  TString _inFile_mispos;
+  TString _inFile_HIPalign;
+  TString _inFile_surveys;
   enum TKdetector_id{ unknown=0, TPBid=1, TPEid=2, TIBid=3, TIDid=4, TOBid=5, TECid=6, ALLid=99 };
   TLegend * MakeLegend(double x1=0.1, double y1=0.1, double x2=0.1, double y2=0.1);
   int GetNIterations(TDirectory *f, char *tag, int startingcounter=0);
@@ -46,7 +48,7 @@ public:
   int FindPeaks(TH1F *h1, float *peaklist, const int maxNpeaks, int startbin=-1, int endbin=-1);
   void SetPeakThreshold(float newpeakthreshold);
   void CheckFiles(int &ierr);
-  bool CheckFileExistence(char *filename);
+  bool CheckFileExistence(TString filename);
   bool CheckHistoRising(TH1D *h);
   float peakthreshold;
   bool plotbadchi2;
