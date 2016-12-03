@@ -30,23 +30,16 @@ MuonGEMDetLayerGeometryBuilder::buildEndcapLayers(const GEMGeometry& geo) {
 	
   for (int endcap = -1; endcap<=1; endcap+=2) {
     int iendcap = (endcap==1) ? 0 : 1; // +1: forward, -1: backward
-
+      
     for(int station = GEMDetId::minStationId; station <= GEMDetId::maxStationId; ++station) {      
-      for(int layer = GEMDetId::minLayerId; layer <= GEMDetId::maxLayerId; ++layer) { 
+      for(int layer = GEMDetId::minLayerId+1; layer <= GEMDetId::maxLayerId; ++layer) { 
 
-	vector<int> rolls, rings, chambers;  
+	vector<int> rolls, rings, chambers; 
 	for(int ring = GEMDetId::minRingId; ring <= GEMDetId::maxRingId; ++ring) rings.push_back(ring);
-	for(int chamber = GEMDetId::minChamberId+1; chamber <= GEMDetId::maxChamberId; chamber++ ) chambers.push_back(chamber);
-
-	// layer 0 is super chamber, it doesnt have rolls
-	if (layer == 0){
-	  rolls.push_back(0);
-	}
-	else {
-	  for(int roll = GEMDetId::minRollId+1; roll <= GEMDetId::maxRollId; ++roll) {
-	    rolls.push_back(roll);
-	  }
-	}
+	for(int chamber = GEMDetId::minChamberId+1; chamber <= GEMDetId::maxChamberId; chamber++ )
+	  chambers.push_back(chamber);
+	for(int roll = GEMDetId::minRollId+1; roll <= GEMDetId::maxRollId; ++roll)
+	  rolls.push_back(roll);
 	
 	MuRingForwardDoubleLayer* ringLayer = buildLayer(endcap, rings, station, layer, chambers, rolls, geo);          
 
@@ -57,10 +50,9 @@ MuonGEMDetLayerGeometryBuilder::buildEndcapLayers(const GEMGeometry& geo) {
   pair<vector<DetLayer*>, vector<DetLayer*> > res_pair(result[0], result[1]); 
 
   return res_pair;
-
 }
-
-
+// layer 0 is super chamber, it doesnt have rolls
+// add function for buildEndcapSuperChambers
 
 MuRingForwardDoubleLayer* 
 MuonGEMDetLayerGeometryBuilder::buildLayer(int endcap,vector<int>& rings, int station,
