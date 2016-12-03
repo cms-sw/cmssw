@@ -41,7 +41,7 @@ class RPCSimModelTiming : public RPCSim
   int getClSize(uint32_t id,float posX, CLHEP::HepRandomEngine*);
 
  protected:
-  void init(){};
+  void init() override{};
   
   double aveEff;
   double aveCls;

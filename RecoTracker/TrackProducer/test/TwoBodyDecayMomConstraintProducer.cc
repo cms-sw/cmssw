@@ -48,7 +48,7 @@ public:
 private:
 
   virtual void produce(edm::Event&, const edm::EventSetup&) override;
-  virtual void endJob() ;
+  virtual void endJob() override ;
 
   std::pair<double, double> momentaAtVertex( const TwoBodyDecay& tbd ) const;
 

@@ -21,16 +21,16 @@ public:
                         const std::string& decompressionFile="");
   virtual ~CaloTPGTranscoderULUT();
   virtual HcalTriggerPrimitiveSample hcalCompress(const HcalTrigTowerDetId& id, unsigned int sample, int fineGrain) const override;
-  virtual EcalTriggerPrimitiveSample ecalCompress(const EcalTrigTowerDetId& id, unsigned int sample, bool fineGrain) const;
+  virtual EcalTriggerPrimitiveSample ecalCompress(const EcalTrigTowerDetId& id, unsigned int sample, bool fineGrain) const override;
 
   virtual void rctEGammaUncompress(const HcalTrigTowerDetId& hid, const HcalTriggerPrimitiveSample& hc,
 				   const EcalTrigTowerDetId& eid, const EcalTriggerPrimitiveSample& ec, 
-				   unsigned int& et, bool& egVecto, bool& activity) const;
+				   unsigned int& et, bool& egVecto, bool& activity) const override;
   virtual void rctJetUncompress(const HcalTrigTowerDetId& hid, const HcalTriggerPrimitiveSample& hc,
 				   const EcalTrigTowerDetId& eid, const EcalTriggerPrimitiveSample& ec, 
-				   unsigned int& et) const;
-  virtual double hcaletValue(const int& ieta, const int& iphi, const int& version, const int& compressedValue) const;
-  virtual double hcaletValue(const HcalTrigTowerDetId& hid, const HcalTriggerPrimitiveSample& hc) const;
+				   unsigned int& et) const override;
+  virtual double hcaletValue(const int& ieta, const int& iphi, const int& version, const int& compressedValue) const override;
+  virtual double hcaletValue(const HcalTrigTowerDetId& hid, const HcalTriggerPrimitiveSample& hc) const override;
   virtual bool HTvalid(const int ieta, const int iphi, const int version) const;
   virtual const std::vector<unsigned int> getCompressionLUT(const HcalTrigTowerDetId& id) const;
   virtual void setup(HcalLutMetadata const&, HcalTrigTowerGeometry const&, int, int);

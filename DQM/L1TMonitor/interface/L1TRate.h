@@ -63,7 +63,7 @@ class L1TRate : public DQMEDAnalyzer {
 
     virtual void beginLuminosityBlock(edm::LuminosityBlock const& lumiBlock, edm::EventSetup const& c) override;
     virtual void endLuminosityBlock  (edm::LuminosityBlock const& lumiBlock, edm::EventSetup const& c) override;
-    virtual void dqmBeginRun(edm::Run const&, edm::EventSetup const&);
+    virtual void dqmBeginRun(edm::Run const&, edm::EventSetup const&) override;
 
   // Private methods
   private:

@@ -49,7 +49,7 @@ class ElectronConversionRejectionValidator : public DQMEDAnalyzer
   virtual ~ElectronConversionRejectionValidator();
 
 
-  virtual void analyze( const edm::Event&, const edm::EventSetup& ) ;
+  virtual void analyze( const edm::Event&, const edm::EventSetup& ) override ;
   void bookHistograms(DQMStore::IBooker& bei, edm::Run const&,
       edm::EventSetup const&) override;
 
