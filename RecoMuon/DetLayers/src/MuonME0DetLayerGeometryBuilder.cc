@@ -32,28 +32,30 @@ MuonME0DetLayerGeometryBuilder::buildEndcapLayers(const ME0Geometry& geo) {
   LogTrace(metname) << "Starting endcaplayers ";
   for (int endcap = -1; endcap<=1; endcap+=2) {
     int iendcap = (endcap==1) ? 0 : 1; // +1: forward, -1: backward
+    int layer = 0;
+    // only need to make layer 0 for segments
+    // for(int layer = ME0DetId::minLayerId; layer <= ME0DetId::maxLayerId; ++layer) { 
+    vector<int> rolls, chambers;      
+    for(int chamber = ME0DetId::minChamberId+1; chamber <= ME0DetId::maxChamberId; chamber++ )
+      chambers.push_back(chamber);
 
-    for(int layer = ME0DetId::minLayerId; layer <= ME0DetId::maxLayerId; ++layer) { 
-      vector<int> rolls, chambers;      
-      for(int chamber = ME0DetId::minChamberId+1; chamber <= ME0DetId::maxChamberId; chamber++ ) chambers.push_back(chamber);
-
-      // layer 0 is chamber, it doesnt have rolls
-      if (layer == 0){
-	rolls.push_back(0);
-      }
-      else {
-	for(int roll = ME0DetId::minRollId+1; roll <= ME0DetId::maxRollId; ++roll) {
-	  rolls.push_back(roll);
-	}
-      }
-    
-      LogTrace(metname) << "Encap =  " << endcap
-			<< "Chambers =  " << chambers.size()
-			<< "Rolls =  " << rolls.size();
-      MuRingForwardLayer* ringLayer = buildLayer(endcap, layer, chambers, rolls, geo);          
-
-      if (ringLayer) result[iendcap].push_back(ringLayer);
+    // layer 0 is chamber, it doesnt have rolls
+    if (layer == 0){
+      rolls.push_back(0);
     }
+    else {
+      for(int roll = ME0DetId::minRollId+1; roll <= ME0DetId::maxRollId; ++roll) {
+	rolls.push_back(roll);
+      }
+    }
+    
+    LogTrace(metname) << "Encap =  " << endcap
+		      << "Chambers =  " << chambers.size()
+		      << "Rolls =  " << rolls.size();
+    MuRingForwardLayer* ringLayer = buildLayer(endcap, layer, chambers, rolls, geo);          
+
+    if (ringLayer) result[iendcap].push_back(ringLayer);
+    // }
   }
   pair<vector<DetLayer*>, vector<DetLayer*> > res_pair(result[0], result[1]); 
 
