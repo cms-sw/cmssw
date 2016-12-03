@@ -79,9 +79,9 @@ class CSCSkim : public edm::EDFilter {
   ~CSCSkim();
      
   // Analysis routines
-  virtual void beginJob() ;
+  virtual void beginJob() override;
   virtual bool filter(edm::Event& event, const edm::EventSetup& eventSetup) override;
-  virtual void endJob() ;
+  virtual void endJob() override;
        
 protected:
        

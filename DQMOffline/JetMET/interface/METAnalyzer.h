@@ -108,13 +108,13 @@ class METAnalyzer : public DQMEDAnalyzer{
   //void bookMonitorElement(std::string, bool);
 
   /// Get the analysis
-  void analyze(const edm::Event&, const edm::EventSetup&);
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 
   /// Initialize run-based parameters
-  void dqmBeginRun(const edm::Run&,  const edm::EventSetup&);
+  void dqmBeginRun(const edm::Run&,  const edm::EventSetup&) override;
 
   /// Finish up a run
-  void endRun(const edm::Run& iRun, const edm::EventSetup& iSetup);
+  void endRun(const edm::Run& iRun, const edm::EventSetup& iSetup) override;
   //  void endRun(const edm::Run& iRun, const edm::EventSetup& iSetup);
   // Fill MonitorElements
   void fillMESet(const edm::Event&, std::string, const reco::MET&, const pat::MET&, const reco::PFMET&, const reco::CaloMET&, const reco::Candidate::PolarLorentzVector&, std::map<std::string,MonitorElement*>&,std::vector<bool>,std::vector<bool>);

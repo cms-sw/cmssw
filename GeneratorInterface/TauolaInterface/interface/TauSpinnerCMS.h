@@ -54,7 +54,7 @@ public:
   virtual void beginRun(edm::Run const&, edm::EventSetup const&){}
   virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) {};
   virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) {};
-  virtual void endRunProduce(edm::Run&, edm::EventSetup const&){};
+  virtual void endRunProduce(edm::Run&, edm::EventSetup const&) override{};
   virtual void produce( edm::Event&, const edm::EventSetup&) override final;
   virtual void beginJob() override final;
   virtual void endRun( const edm::Run&, const edm::EventSetup& ){};

@@ -86,14 +86,14 @@ public:
  edm::Handle< edm::ValueMap<std::vector<reco::PFCandidateRef > > > particleBasedIsolationMap;			 
  edm::EDGetTokenT<edm::ValueMap<std::vector<reco::PFCandidateRef > > > particleBasedIsolationToken_;
  
- virtual void getEventInfo(const edm::Event& iEvent)
+ virtual void getEventInfo(const edm::Event& iEvent) override
   {
       iEvent.getByToken(particleBasedIsolationToken_, particleBasedIsolationMap); 
   };			 
   
   
   //As far as I understand now, the object particleBasedIsolationMap should be fixed, so we don't configure the name
-  void setConsumes(edm::ConsumesCollector iC)
+  void setConsumes(edm::ConsumesCollector iC) override
   {
       particleBasedIsolationToken_ = iC.mayConsume<edm::ValueMap<std::vector<reco::PFCandidateRef > > >(_particleBasedIsolation);
   }

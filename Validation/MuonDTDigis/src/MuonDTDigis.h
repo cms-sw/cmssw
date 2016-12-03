@@ -59,7 +59,7 @@ class MuonDTDigis : public DQMEDAnalyzer{
  protected:
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
   // Analysis
-  void analyze(const edm::Event & event, const edm::EventSetup& eventSetup);
+  void analyze(const edm::Event & event, const edm::EventSetup& eventSetup) override;
 
   hDigis* WheelHistos(int wheel);
 

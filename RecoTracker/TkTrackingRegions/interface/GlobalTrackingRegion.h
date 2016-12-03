@@ -42,14 +42,14 @@ public:
 				       const Hit &  outerHit,
 				       const edm::EventSetup& iSetup,
 				       const DetLayer* outerlayer=0,
-				       float lr=0, float gz=0, float dr=0, float dz=0) const ;
+				       float lr=0, float gz=0, float dr=0, float dz=0) const  override;
 
-  virtual GlobalTrackingRegion* clone() const { 
+  virtual GlobalTrackingRegion* clone() const override { 
     return new GlobalTrackingRegion(*this);
   }
 
-  virtual std::string name() const { return "GlobalTrackingRegion"; }
-  virtual std::string print() const;
+  virtual std::string name() const override { return "GlobalTrackingRegion"; }
+  virtual std::string print() const override;
 
 private:
   bool  thePrecise=false;

@@ -34,7 +34,7 @@ class HcalDetIdAssociator: public CaloDetIdAssociator{
     
    int hcalReg_;
    virtual const unsigned int getNumberOfSubdetectors() const override { return hcalReg_;}
-   void getValidDetIds(unsigned int subDetectorIndex, std::vector<DetId>& validIds) const {
+   void getValidDetIds(unsigned int subDetectorIndex, std::vector<DetId>& validIds) const override {
      if ( subDetectorIndex == 0 )
        validIds = geometry_->getValidDetIds(DetId::Hcal, HcalBarrel);//HB
      else

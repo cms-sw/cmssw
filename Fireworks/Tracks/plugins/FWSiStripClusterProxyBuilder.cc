@@ -23,7 +23,7 @@ public:
    REGISTER_PROXYBUILDER_METHODS();
 
     //    virtual void cleanLocal();
-   virtual void itemBeingDestroyed(const FWEventItem*);
+   virtual void itemBeingDestroyed(const FWEventItem*) override;
 
 protected:
    using FWProxyBuilderBase::build;
