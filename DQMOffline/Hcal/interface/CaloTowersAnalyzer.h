@@ -34,7 +34,7 @@ class CaloTowersAnalyzer : public DQMEDAnalyzer {
    CaloTowersAnalyzer(edm::ParameterSet const& conf);
   ~CaloTowersAnalyzer();
   
-  virtual void analyze(edm::Event const& e, edm::EventSetup const& c);
+  virtual void analyze(edm::Event const& e, edm::EventSetup const& c) override;
   virtual void beginJob() ;
   virtual void endJob() ;
   virtual void beginRun() ;

@@ -26,7 +26,7 @@ public:
   void simulateSignal(const ME0EtaPartition*, const edm::PSimHitContainer&, CLHEP::HepRandomEngine*) override;
   void simulateNoise(const ME0EtaPartition*, CLHEP::HepRandomEngine*) override;
   double correctSigmaU(const ME0EtaPartition*, double);
-  void setup() {}
+  void setup() override {}
 
 private:
   double sigma_t;

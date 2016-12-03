@@ -76,8 +76,8 @@ public:
   ~TauTagValidation();
 
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
-  void dqmBeginRun(const edm::Run&, const edm::EventSetup&);
-  virtual void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup);
+  void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
+  virtual void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) override;
 
 private:
   /// label of the current module

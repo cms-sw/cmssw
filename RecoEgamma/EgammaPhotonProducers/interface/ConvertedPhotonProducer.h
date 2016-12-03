@@ -39,7 +39,7 @@ class ConvertedPhotonProducer : public edm::stream::EDProducer<> {
   virtual ~ConvertedPhotonProducer();
 
   virtual void beginRun(edm::Run const&, const edm::EventSetup &es) override final;
-  virtual void produce(edm::Event& evt, const edm::EventSetup& es);
+  virtual void produce(edm::Event& evt, const edm::EventSetup& es) override;
 
  private:
   

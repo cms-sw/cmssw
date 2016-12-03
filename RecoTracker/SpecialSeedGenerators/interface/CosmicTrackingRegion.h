@@ -97,11 +97,11 @@ public:
       const Hit & outerHit,
       const edm::EventSetup& iSetup, 
       const DetLayer* outerlayer=0,
-      float lr=0, float gz=0, float dr=0, float dz=0) const {return 0; }
+      float lr=0, float gz=0, float dr=0, float dz=0) const override {return 0; }
    
-   CosmicTrackingRegion * clone() const {     return new CosmicTrackingRegion(*this);  }
+   CosmicTrackingRegion * clone() const override {     return new CosmicTrackingRegion(*this);  }
    
-   std::string name() const { return "CosmicTrackingRegion"; }
+   std::string name() const override { return "CosmicTrackingRegion"; }
 
 private:
   template <typename T>

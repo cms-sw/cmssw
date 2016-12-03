@@ -56,11 +56,11 @@ class TrackingMonitor : public DQMEDAnalyzer
 	virtual void setMaxMinBin(std::vector<double> & ,std::vector<double> &  ,std::vector<int> &  ,double, double, int, double, double, int);
 	virtual void setNclus(const edm::Event&, std::vector<int> & );
 
-        virtual void beginLuminosityBlock(const edm::LuminosityBlock& lumi, const edm::EventSetup&  eSetup);
-        virtual void analyze(const edm::Event&, const edm::EventSetup&);
+        virtual void beginLuminosityBlock(const edm::LuminosityBlock& lumi, const edm::EventSetup&  eSetup) override;
+        virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
 	void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 	//        virtual void beginRun(const edm::Run&, const edm::EventSetup&); 
-        virtual void endRun(const edm::Run&, const edm::EventSetup&);
+        virtual void endRun(const edm::Run&, const edm::EventSetup&) override;
 
     private:
         void doProfileX(TH2 * th2, MonitorElement* me);

@@ -48,7 +48,7 @@ class EcalUncalibRecHitWorkerMultiFit final : public EcalUncalibRecHitWorkerBase
                 void set(const edm::Event& evt) override;
                 bool run(const edm::Event& evt, const EcalDigiCollection::const_iterator & digi, EcalUncalibratedRecHitCollection & result) override;
 	public:	
-		edm::ParameterSetDescription getAlgoDescription();
+		edm::ParameterSetDescription getAlgoDescription() override;
         private:
 
                 edm::ESHandle<EcalPedestals> peds;

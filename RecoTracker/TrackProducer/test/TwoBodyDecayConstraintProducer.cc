@@ -47,7 +47,7 @@ public:
 private:
 
   virtual void produce(edm::Event&, const edm::EventSetup&) override;
-  virtual void endJob() ;
+  virtual void endJob() override ;
 
   std::pair<bool, TrajectoryStateOnSurface> innermostState( const reco::TransientTrack& ttrack ) const;
   bool match( const TrajectoryStateOnSurface& newTsos, const TrajectoryStateOnSurface& oldTsos ) const;

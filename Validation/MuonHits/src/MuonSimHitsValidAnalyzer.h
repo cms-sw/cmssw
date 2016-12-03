@@ -69,7 +69,7 @@ class MuonSimHitsValidAnalyzer : public DQMEDAnalyzer
   explicit MuonSimHitsValidAnalyzer(const edm::ParameterSet&);
   virtual ~MuonSimHitsValidAnalyzer();
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
 
  private:
   void fillDT(const edm::Event&, const edm::EventSetup&);
