@@ -1,28 +1,9 @@
-#include <memory>
-#include <iostream>
-#include <sstream>
-
-#include "TRegexp.h"
-#include "TString.h"
-#include "Compression.h"
-
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/EDFilter.h"
-#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/stream/EDFilter.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "CommonTools/UtilAlgos/interface/TFileService.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
-
-#include "SimDataFormats/Track/interface/SimTrack.h"
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
-
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 
-class SimMuFilter : public edm::stream::EDFilter
+class SimMuFilter : public edm::stream::EDFilter<>
 {
  public:
 
