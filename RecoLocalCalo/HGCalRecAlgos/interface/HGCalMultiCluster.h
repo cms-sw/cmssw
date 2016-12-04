@@ -15,6 +15,7 @@ public:
   HGCalMultiCluster(){
   }
   HGCalMultiCluster(ClusterCollection &thecls) : myclusters(thecls){
+    assert(myclusters.size() > 0 && "Invalid cluster collection, zero length.");
   }
   HGCalMultiCluster(const reco::BasicCluster &thecl) :  myclusters(1,thecl){
   }
@@ -45,6 +46,8 @@ public:
     double acc = 0.0;
     double totweight = 0.;
     for(component_iterator it = begin(); it != end(); it++){
+      const float point_z = it->z()-vz;
+      assert(point_z != 0. && "Layer-cluster position given as reference point.");
       acc += it->x()/(it->z()-vz)*it->energy()*it->size();
       totweight+=it->energy()*it->size();
     }
@@ -54,6 +57,8 @@ public:
     double acc = 0.0;
     double totweight = 0.;
     for(component_iterator it = begin(); it != end(); it++){
+      const float point_z = it->z()-vz;
+      assert(point_z != 0. && "Layer-cluster position given as reference point.");
       acc += it->y()/(it->z()-vz)*it->energy()*it->size();
       totweight+=it->energy()*it->size();
     }
@@ -76,6 +81,7 @@ public:
     double acc = 0.0;
     int n = 0;
     for(component_iterator it = begin(); it != end(); it++){
+      assert(it->y() != 0. && it->x() != 0. && "Cluster position somehow in beampipe.");
       acc += atan2(it->y(),it->x());
       n++;
     }
