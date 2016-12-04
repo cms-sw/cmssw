@@ -18,6 +18,10 @@ from Configuration.Eras.Modifier_trackingPhase1_cff import trackingPhase1
 trackingPhase1.toModify(lowPtQuadStepSeedLayers,
     layerList = RecoPixelVertexing.PixelTriplets.quadrupletseedmerging_cff.PixelSeedMergerQuadruplets.layerList.value()
 )
+from Configuration.Eras.Modifier_trackingPhase2PU140_cff import trackingPhase2PU140
+trackingPhase2PU140.toModify(lowPtQuadStepSeedLayers,
+    layerList = RecoPixelVertexing.PixelTriplets.quadrupletseedmerging_cff.PixelSeedMergerQuadruplets.layerList.value()
+)
 
 # TrackingRegion
 from RecoTracker.TkTrackingRegions.globalTrackingRegionFromBeamSpot_cfi import globalTrackingRegionFromBeamSpot as _globalTrackingRegionFromBeamSpot
@@ -26,7 +30,6 @@ lowPtQuadStepTrackingRegions = _globalTrackingRegionFromBeamSpot.clone(RegionPSe
     originRadius = 0.02,
     nSigmaZ = 4.0
 ))
-from Configuration.Eras.Modifier_trackingPhase2PU140_cff import trackingPhase2PU140
 trackingPhase2PU140.toModify(lowPtQuadStepTrackingRegions, RegionPSet = dict(ptMin = 0.35))
 
 
@@ -92,8 +95,6 @@ _lowPtQuadStepHitQuadrupletsMerging.SeedComparitorPSet = lowPtQuadStepSeeds.Seed
 
 trackingPhase1PU70.toModify(lowPtQuadStepHitTriplets, produceIntermediateHitTriplets=False, produceSeedingHitSets=True)
 trackingPhase1PU70.toReplaceWith(lowPtQuadStepHitQuadruplets, _lowPtQuadStepHitQuadrupletsMerging)
-trackingPhase2PU140.toModify(lowPtQuadStepHitTriplets, produceIntermediateHitTriplets=False, produceSeedingHitSets=True)
-trackingPhase2PU140.toReplaceWith(lowPtQuadStepHitQuadruplets, _lowPtQuadStepHitQuadrupletsMerging)
 
 
 # QUALITY CUTS DURING TRACK BUILDING

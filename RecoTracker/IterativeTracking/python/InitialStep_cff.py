@@ -9,6 +9,7 @@ from RecoTracker.TransientTrackingRecHit.TTRHBuilders_cff import *
 
 # SEEDING LAYERS
 import RecoTracker.TkSeedingLayers.PixelLayerTriplets_cfi
+import RecoPixelVertexing.PixelTriplets.quadrupletseedmerging_cff
 initialStepSeedLayers = RecoTracker.TkSeedingLayers.PixelLayerTriplets_cfi.PixelLayerTriplets.clone()
 from Configuration.Eras.Modifier_trackingPhase1_cff import trackingPhase1
 trackingPhase1.toModify(initialStepSeedLayers,
@@ -19,6 +20,9 @@ trackingPhase1.toModify(initialStepSeedLayers,
         'BPix1+FPix1_pos+FPix2_pos',
         'BPix1+FPix1_neg+FPix2_neg'
     ]
+)
+trackingPhase2PU140.toModify(initialStepSeedLayers,
+    layerList = RecoPixelVertexing.PixelTriplets.quadrupletseedmerging_cff.PixelSeedMergerQuadruplets.layerList.value()
 )
 
 # TrackingRegion
@@ -51,7 +55,7 @@ initialStepHitTriplets = _pixelTripletHLTEDProducer.clone(
 )
 from RecoPixelVertexing.PixelTriplets.pixelQuadrupletMergerEDProducer_cfi import pixelQuadrupletMergerEDProducer as _pixelQuadrupletMergerEDProducer
 from RecoPixelVertexing.PixelTriplets.quadrupletseedmerging_cff import *
-initialStepHitQuadruplets = _pixelQuadrupletMergerEDProducer.clone(
+_initialStepHitQuadrupletsMerging = _pixelQuadrupletMergerEDProducer.clone(
     triplets = "initialStepHitTriplets",
     layerList = dict(refToPSet_ = cms.string("PixelSeedMergerQuadruplets")),
 )
@@ -59,8 +63,34 @@ from RecoTracker.TkSeedGenerator.seedCreatorFromRegionConsecutiveHitsEDProducer_
 initialStepSeeds = _seedCreatorFromRegionConsecutiveHitsEDProducer.clone(
     seedingHitSets = "initialStepHitTriplets",
 )
+from RecoPixelVertexing.PixelTriplets.pixelQuadrupletEDProducer_cfi import pixelQuadrupletEDProducer as _pixelQuadrupletEDProducer
+initialStepHitQuadruplets = _pixelQuadrupletEDProducer.clone(
+    triplets = "initialStepHitTriplets",
+    extraHitRZtolerance = initialStepHitTriplets.extraHitRZtolerance,
+    extraHitRPhitolerance = initialStepHitTriplets.extraHitRPhitolerance,
+    maxChi2 = dict(
+        pt1    = 0.8, pt2    = 2,
+        value1 = 200, value2 = 100,
+        enabled = True,
+    ),
+    extraPhiTolerance = dict(
+        pt1    = 0.6, pt2    = 1,
+        value1 = 0.15, value2 = 0.1,
+        enabled = True,
+    ),
+    useBendingCorrection = True,
+    fitFastCircle = True,
+    fitFastCircleChi2Cut = True,
+    SeedComparitorPSet = initialStepHitTriplets.SeedComparitorPSet
+)
+trackingPhase2PU140.toModify(initialStepHitTriplets,
+    produceSeedingHitSets = False,
+    produceIntermediateHitTriplets = True,
+)
+trackingPhase2PU140.toModify(initialStepSeeds, seedingHitSets = "initialStepHitQuadruplets")
+
 # temporary...
-initialStepHitQuadruplets.SeedCreatorPSet = cms.PSet(
+_initialStepHitQuadrupletsMerging.SeedCreatorPSet = cms.PSet(
     ComponentName = cms.string("SeedFromConsecutiveHitsCreator"),
     MinOneOverPtError = initialStepSeeds.MinOneOverPtError,
     OriginTransverseErrorMultiplier = initialStepSeeds.OriginTransverseErrorMultiplier,
@@ -71,10 +101,10 @@ initialStepHitQuadruplets.SeedCreatorPSet = cms.PSet(
     propagator = initialStepSeeds.propagator,
 
 )
-initialStepHitQuadruplets.SeedComparitorPSet = initialStepSeeds.SeedComparitorPSet
+_initialStepHitQuadrupletsMerging.SeedComparitorPSet = initialStepSeeds.SeedComparitorPSet
 
+trackingPhase1PU70.toReplaceWith(initialStepHitQuadruplets, _initialStepHitQuadrupletsMerging) 
 trackingPhase1PU70.toModify(initialStepSeeds, seedingHitSets="initialStepHitQuadruplets")
-trackingPhase2PU140.toModify(initialStepSeeds, seedingHitSets="initialStepHitQuadruplets")
 
 
 # building
@@ -337,4 +367,6 @@ trackingLowPU.toReplaceWith(InitialStep, _InitialStep_LowPU)
 _InitialStep_Phase1PU70 = _InitialStep_LowPU.copy()
 _InitialStep_Phase1PU70.replace(initialStepHitTriplets, initialStepHitTriplets+initialStepHitQuadruplets)
 trackingPhase1PU70.toReplaceWith(InitialStep, _InitialStep_Phase1PU70)
-trackingPhase2PU140.toReplaceWith(InitialStep, _InitialStep_Phase1PU70)
+_InitialStep_trackingPhase2 = _InitialStep_LowPU.copy()
+_InitialStep_trackingPhase2.replace(initialStepHitTriplets, initialStepHitTriplets*initialStepHitQuadruplets)
+trackingPhase2PU140.toReplaceWith(InitialStep, _InitialStep_trackingPhase2)
