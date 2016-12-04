@@ -178,7 +178,8 @@ void ME0ReDigiProducer::buildDigis(const ME0DigiPreRecoCollection & input_digis,
       const float oldR(oldGP.perp());
 
       float newR = oldR;
-      if (smearRadial_) newR = CLHEP::RandGaussQ::shoot(engine, oldR, radialResolution_);
+      if (smearRadial_  and detId.roll() > 0)
+	newR = CLHEP::RandGaussQ::shoot(engine, oldR, radialResolution_);
       
       // calculate the new position in local coordinates
       const GlobalPoint radialSmearedGP(GlobalPoint::Cylindrical(newR, oldGP.phi(), oldGP.z()));
@@ -231,7 +232,7 @@ void ME0ReDigiProducer::buildDigis(const ME0DigiPreRecoCollection & input_digis,
       
       float newY(newLP.y());
       // new hit has y coordinate in the center of the roll when using discretizeY
-      if(discretizeY_) newY = 0;
+      if (discretizeY_ and detId.roll() > 0) newY = 0;
       edm::LogVerbatim("ME0ReDigiProducer")
 	<< "\tnew Y " << newY << std::endl;
 
