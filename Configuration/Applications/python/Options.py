@@ -345,10 +345,6 @@ expertSettings.add_option("--restoreRNDSeeds",
                           )
 threeValued.append( ('--restoreRNDSeeds',True) )
 
-expertSettings.add_option("--slhc",
-                          help="Specify the SLHC scenario version",
-                          default=None,
-                          dest="slhc")
 
 expertSettings.add_option("--era",
                           help="Specify which era to use (e.g. \"run2\")",
