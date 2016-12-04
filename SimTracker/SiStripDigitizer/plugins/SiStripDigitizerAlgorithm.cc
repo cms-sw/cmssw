@@ -71,6 +71,7 @@ SiStripDigitizerAlgorithm::SiStripDigitizerAlgorithm(const edm::ParameterSet& co
   else LogDebug("SiStripDigitizerAlgorithm")<<" SingleStripNoise: OFF";
   if(CommonModeNoise) LogDebug("SiStripDigitizerAlgorithm")<<" CommonModeNoise: ON";
   else LogDebug("SiStripDigitizerAlgorithm")<<" CommonModeNoise: OFF";
+  if(PreMixing_ && APVSaturationFromHIP) throw cms::Exception("PreMixing does not work with HIP loss simulation yet");
 }
 
 SiStripDigitizerAlgorithm::~SiStripDigitizerAlgorithm(){
