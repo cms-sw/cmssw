@@ -154,7 +154,7 @@ void ME0ReDigiProducer::buildDigis(const ME0DigiPreRecoCollection & input_digis,
         <<" t0 "<< t0 << " originalTOF " << me0Digi.tof() << "\tnew TOF " << newTof << " corrected new TOF " << correctedNewTof << std::endl;
 
       // calculate the new time in ns
-      int newTime = correctedNewTof;
+      float newTime = correctedNewTof;
       if (discretizeTiming_){
         for (int iBunch = minBunch_ - 2; iBunch <= maxBunch_ + 2; ++iBunch){
           if (-12.5 + iBunch*25 < newTime and newTime <= 12.5 + iBunch*25){
