@@ -49,6 +49,7 @@ class HGCalImagingAlgo
   enum VerbosityLevel { pDEBUG = 0, pWARNING = 1, pINFO = 2, pERROR = 3 }; 
   
  HGCalImagingAlgo() : delta_c(0.), kappa(1.), ecut(0.), cluster_offset(0),
+		      sigma2(1.0),
 		      algoId(reco::CaloCluster::undefined),
 		      verbosity(pERROR){
  }
