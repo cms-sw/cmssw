@@ -2,6 +2,7 @@
 #define RecoLocalCalo_HGCalRecAlgos_HGCalMultiCluster
 
 #include <vector>
+#include <limits>
 
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 
@@ -33,6 +34,7 @@ public:
     return myclusters.end();
   }
   double simple_z(double vz) const {
+    if( myclusters.size() == 0 ) return std::numeric_limits<double>::max();
     double acc = 0.0;
     double totweight = 0.;
     for(component_iterator it = begin(); it != end(); it++){
@@ -43,6 +45,7 @@ public:
   }
 
   double simple_slope_x(double vz) const {
+    if( myclusters.size() == 0 ) return std::numeric_limits<double>::max();
     double acc = 0.0;
     double totweight = 0.;
     for(component_iterator it = begin(); it != end(); it++){
@@ -54,6 +57,7 @@ public:
     return acc/totweight;
   }
   double simple_slope_y(double vz) const {
+    if( myclusters.size() == 0 ) return std::numeric_limits<double>::max();
     double acc = 0.0;
     double totweight = 0.;
     for(component_iterator it = begin(); it != end(); it++){
@@ -65,6 +69,7 @@ public:
     return acc/totweight;
   }
   double simple_eta(double vz) const {
+    if( myclusters.size() == 0 ) return std::numeric_limits<double>::max();
     double acc = 0.0;
     double totweight = 0.;
     for(component_iterator it = begin(); it != end(); it++){
@@ -78,12 +83,13 @@ public:
   }
 
   double simple_phi() const {
+    if( myclusters.size() == 0 ) return std::numeric_limits<double>::max();
     double acc = 0.0;
     int n = 0;
     for(component_iterator it = begin(); it != end(); it++){
       assert(it->y() != 0. && it->x() != 0. && "Cluster position somehow in beampipe.");
       acc += atan2(it->y(),it->x());
-      n++;
+      ++n;
     }
     return acc/n;
   }
