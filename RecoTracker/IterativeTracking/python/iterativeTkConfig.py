@@ -63,7 +63,7 @@ _iterations_trackingPhase2PU140 = [
     "LowPtQuadStep",
     "LowPtTripletStep",
     "DetachedQuadStep",
-    "PixelPairStep",
+#    "PixelPairStep",
 ]
 _iterations_muonSeeded = [
     "MuonSeededStepInOut",
