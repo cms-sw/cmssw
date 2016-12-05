@@ -207,6 +207,7 @@ void MakeNiceTF1Style(TF1 *f1,Int_t color);
 
 void FitPVResiduals(TString namesandlabels,bool stdres=true,bool do2DMaps=false,TString theDate="bogus",bool setAutoLimits=true);
 TH1F* DrawZero(TH1F *hist,Int_t nbins,Double_t lowedge,Double_t highedge,Int_t iter);
+TH1F* DrawConstant(TH1F *hist,Int_t nbins,Double_t lowedge,Double_t highedge,Int_t iter,Double_t theConst);
 void makeNewXAxis (TH1F *h);
 void makeNewPairOfAxes (TH2F *h);
 
@@ -246,7 +247,7 @@ void FitPVResiduals(TString namesandlabels,bool stdres,bool do2DMaps,TString the
   }
     
 
-  TkAlStyle::set(PRELIMINARY);	// set publication status
+  TkAlStyle::set(INTERNAL);	// set publication status
 
   Int_t colors[10]={0,1,2,3,4,5,6,7,8,9};
   setStyle();
@@ -571,6 +572,14 @@ void FitPVResiduals(TString namesandlabels,bool stdres,bool do2DMaps,TString the
   dzPhiTrendFit->SaveAs("dzPhiTrendFit_"+theStrDate+theStrAlignment+".pdf");
   dzPhiTrendFit->SaveAs("dzPhiTrendFit_"+theStrDate+theStrAlignment+".png");
 
+  // delete all news
+
+  delete dxyPhiTrend;
+  delete dzPhiTrend; 
+  delete dxyEtaTrend;
+  delete dzEtaTrend;
+  delete dzPhiTrendFit;
+
   // DCA normalized
 
   TCanvas *dxyNormPhiTrend = new TCanvas("dxyNormPhiTrend","dxyNormPhiTrend",1200,600);
@@ -596,6 +605,13 @@ void FitPVResiduals(TString namesandlabels,bool stdres,bool do2DMaps,TString the
 
   dzNormEtaTrend->SaveAs("dzEtaTrendNorm_"+theStrDate+theStrAlignment+".pdf");
   dzNormEtaTrend->SaveAs("dzEtaTrendNorm_"+theStrDate+theStrAlignment+".png");
+
+  // delete all news
+  
+  delete dxyNormPhiTrend;
+  delete dzNormPhiTrend; 
+  delete dxyNormEtaTrend;
+  delete dzNormEtaTrend;
 
   // Bias plots
 
@@ -624,8 +640,35 @@ void FitPVResiduals(TString namesandlabels,bool stdres,bool do2DMaps,TString the
   dxyEtaBiasCanvas->SaveAs("dxyEtaBiasCanvas_"+theStrDate+theStrAlignment+".png");
   dzPhiBiasCanvas->SaveAs("dzPhiBiasCanvas_"+theStrDate+theStrAlignment+".png"); 
   dzEtaBiasCanvas->SaveAs("dzEtaBiasCanvas_"+theStrDate+theStrAlignment+".png"); 
-
   
+  // delete all news
+
+  delete BiasesCanvas;
+  delete dxyPhiBiasCanvas;
+  delete dxyEtaBiasCanvas;
+  delete dzPhiBiasCanvas;
+  delete dzEtaBiasCanvas;
+
+  // Resolution plots
+
+  TCanvas *ResolutionsCanvas = new TCanvas("ResolutionsCanvas","ResolutionsCanvas",1200,1200);
+  arrangeBiasCanvas(ResolutionsCanvas,dxyPhiWidthTrend,dzPhiWidthTrend,dxyEtaWidthTrend,dzEtaWidthTrend,nFiles_,LegLabels,theDate,setAutoLimits);
+  
+  ResolutionsCanvas->SaveAs("ResolutionsCanvas_"+theStrDate+theStrAlignment+".pdf");
+  ResolutionsCanvas->SaveAs("ResolutionsCanvas_"+theStrDate+theStrAlignment+".png");
+
+  // Pull plots
+
+  TCanvas *PullsCanvas = new TCanvas("PullsCanvas","PullsCanvas",1200,1200);
+  arrangeBiasCanvas(PullsCanvas,dxyNormPhiWidthTrend,dzNormPhiWidthTrend,dxyNormEtaWidthTrend,dzNormEtaWidthTrend,nFiles_,LegLabels,theDate,setAutoLimits);
+  
+  PullsCanvas->SaveAs("PullsCanvas_"+theStrDate+theStrAlignment+".pdf");
+  PullsCanvas->SaveAs("PullsCanvas_"+theStrDate+theStrAlignment+".png");
+
+  // delete all news
+  delete ResolutionsCanvas;
+  delete PullsCanvas;
+
   // 2D Maps
 
   if(do2DMaps){
@@ -650,7 +693,14 @@ void FitPVResiduals(TString namesandlabels,bool stdres,bool do2DMaps,TString the
     dzNormMap->SaveAs("dzNormMap_"+theStrDate+theStrAlignment+".pdf");
     dzNormMap->SaveAs("dzNormMap_"+theStrDate+theStrAlignment+".png");
 
+    delete dxyAbsMap;
+    delete dzAbsMap;
+    delete dxyNormMap;
+    delete dzNormMap;
+
   }
+
+  delete thePlotLimits;
 
   timer.Stop(); 	 
   timer.Print();
@@ -733,6 +783,7 @@ void arrangeBiasCanvas(TCanvas *canv,TH1F* dxyPhiMeanTrend[100],TH1F* dzPhiMeanT
     for(Int_t i=0; i<nFiles; i++){
       if(i==0){
 
+	TString theTitle = dBiasTrend[k][i]->GetName();
 	// if the autoLimits are not set
 	if(!setAutoLimits){
 	  
@@ -741,12 +792,16 @@ void arrangeBiasCanvas(TCanvas *canv,TH1F* dxyPhiMeanTrend[100],TH1F* dzPhiMeanT
 	  
 	} else {
 	
-	  TString theTitle = dBiasTrend[k][i]->GetName();
-	  if( theTitle.Contains("Norm")){
-	    dBiasTrend[k][i]->GetYaxis()->SetRangeUser(std::min(-0.48,absmin[k]-safeDelta/2.),std::max(0.48,absmax[k]+safeDelta/2.));
+	  if(theTitle.Contains("width")){
+	    dBiasTrend[k][i]->GetYaxis()->SetRangeUser(0.,theExtreme+(safeDelta/2.));
 	  } else {
-	    dBiasTrend[k][i]->GetYaxis()->SetRangeUser(-theExtreme-(safeDelta/2.),theExtreme+(safeDelta/2.));
-	  } 
+
+	    if( theTitle.Contains("Norm")){
+	      dBiasTrend[k][i]->GetYaxis()->SetRangeUser(std::min(-0.48,absmin[k]-safeDelta/2.),std::max(0.48,absmax[k]+safeDelta/2.));
+	    } else {
+	      dBiasTrend[k][i]->GetYaxis()->SetRangeUser(-theExtreme-(safeDelta/2.),theExtreme+(safeDelta/2.));
+	    } 
+	  }
 	}
 
 	dBiasTrend[k][i]->Draw("e1");
@@ -754,10 +809,27 @@ void arrangeBiasCanvas(TCanvas *canv,TH1F* dxyPhiMeanTrend[100],TH1F* dzPhiMeanT
 	Int_t nbins =  dBiasTrend[k][i]->GetNbinsX();
 	Double_t lowedge  = dBiasTrend[k][i]->GetBinLowEdge(1);
 	Double_t highedge = dBiasTrend[k][i]->GetBinLowEdge(nbins+1);
+
+	/*
+	  TH1F* zeros = DrawZero(dBiasTrend[k][i],nbins,lowedge,highedge,1);
+	  zeros->Draw("PLsame"); 
+	*/
+
+	Double_t theC = -1.;
 	
-	TH1F* zeros = DrawZero(dBiasTrend[k][i],nbins,lowedge,highedge,1);
-	zeros->Draw("PLsame"); 
-	
+	if(theTitle.Contains("width")){ 
+	  if(theTitle.Contains("Norm") ){
+	    theC = 1.;
+	  } else {
+	    theC = -1.;
+	  }
+	} else {
+	  theC = 0.;
+	}
+
+	TH1F* theConst = DrawConstant(dBiasTrend[k][i],nbins,lowedge,highedge,1,theC);
+	theConst->Draw("PLsame");
+
       }
       else dBiasTrend[k][i]->Draw("e1sames");
       if(k==0){
@@ -991,7 +1063,7 @@ void arrangeCanvas2D(TCanvas *canv,TH2F* meanmaps[100],TH2F* widthmaps[100],Int_
     pt2[i]->SetTextFont(52);
     pt2[i]->SetTextAlign(12);
     // TText *text2 = pt2->AddText("run: "+theDate);
-    TText *text2 = pt2[i]->AddText(toTString(PRELIMINARY));
+    TText *text2 = pt2[i]->AddText(toTString(INTERNAL));
     text2->SetTextSize(0.06*extraOverCmsTextSize); 
     
     pt3[i] = new TPaveText(0.55,0.955,0.95,0.98,"NDC");
@@ -1323,7 +1395,9 @@ std::pair<std::pair<Double_t,Double_t>, std::pair<Double_t,Double_t>  > fitResid
 //*************************************************************
 {
   //float fitResult(9999);
-  //if (hist->GetEntries() < 20) return ;
+  if (hist->GetEntries() < 20){ 
+    return std::make_pair(std::make_pair(0.,0.),std::make_pair(0.,0.));
+  }
   
   float mean  = hist->GetMean();
   float sigma = hist->GetRMS();
@@ -1601,7 +1675,9 @@ void FillTrendPlot(TH1F* trendPlot, TH1F* residualsPlot[100], TString fitPar_, T
     for(Int_t i=0;i<myBins_;i++){
       
       TF1 *tmp1 = (TF1*)residualsPlot[i]->GetListOfFunctions()->FindObject("tmp");
-      fitOutput->cd(i+1)->SetLogy();
+      if(tmp1 && residualsPlot[i]->GetEntries()>0. && residualsPlot[i]->GetMinimum()>0.){   
+	fitOutput->cd(i+1)->SetLogy();
+      }
       fitOutput->cd(i+1)->SetBottomMargin(0.16);
       //fitOutput->cd(i+1)->SetTopMargin(0.05);
       //residualsPlot[i]->Sumw2();
@@ -1626,8 +1702,13 @@ void FillTrendPlot(TH1F* trendPlot, TH1F* residualsPlot[100], TString fitPar_, T
       pt->SetTextAlign(22);
 
       //TF1 *tmp1 = (TF1*)residualsPlot[i]->GetListOfFunctions()->FindObject("tmp");
-      TString COUT = Form("#chi^{2}/ndf=%.1f",tmp1->GetChisquare()/tmp1->GetNDF());
-      
+      TString COUT;
+      if(tmp1){
+	COUT = Form("#chi^{2}/ndf=%.1f",tmp1->GetChisquare()/tmp1->GetNDF());
+      } else {
+	COUT = "!! no plot !!";
+      }
+       
       TText *text1 = pt->AddText(COUT);
       text1->SetTextFont(72);
       text1->SetTextColor(kBlue);
@@ -1698,6 +1779,9 @@ void FillTrendPlot(TH1F* trendPlot, TH1F* residualsPlot[100], TString fitPar_, T
     fitOutput->SaveAs(Form("fitOutput_%s.pdf",(((TString)trendPlot->GetName()).ReplaceAll("means_","")).Data()));
     fitPulls->SaveAs(Form("fitPulls_%s.pdf",(((TString)trendPlot->GetName()).ReplaceAll("means_","")).Data()));
     //fitOutput->SaveAs(Form("fitOutput_%s.png",(((TString)trendPlot->GetName()).ReplaceAll("means_","")).Data()));
+
+    delete fitOutput;
+    delete fitPulls;
 
   }
 }
@@ -1927,7 +2011,8 @@ void setStyle(){
 
   writeExtraText = true;       // if extra text
   lumi_13TeV     = "p-p collisions";
-  
+  extraText = "Internal";
+
   TH1::StatOverflows(kTRUE);
   gStyle->SetOptTitle(0);
   gStyle->SetOptStat("e");
@@ -1982,6 +2067,24 @@ TH1F* DrawZero(TH1F *hist,Int_t nbins,Double_t lowedge,Double_t highedge,Int_t i
   
   return hzero;
 }
+
+/*--------------------------------------------------------------------*/
+TH1F* DrawConstant(TH1F *hist,Int_t nbins,Double_t lowedge,Double_t highedge,Int_t iter,Double_t theConst)
+/*--------------------------------------------------------------------*/
+{ 
+
+  TH1F *hzero = new TH1F(Form("hzero_%s_%i",hist->GetName(),iter),Form("hzero_%s_%i",hist->GetName(),iter),nbins,lowedge,highedge);
+  for (Int_t i=0;i<=hzero->GetNbinsX();i++){
+    hzero->SetBinContent(i,theConst);
+    hzero->SetBinError(i,0.);
+  }
+  hzero->SetLineWidth(2);
+  hzero->SetLineStyle(9);
+  hzero->SetLineColor(kMagenta);
+  
+  return hzero;
+}
+
 
 /*--------------------------------------------------------------------*/
 void makeNewXAxis (TH1F *h)
