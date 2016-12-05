@@ -149,28 +149,30 @@ DeepCMVATagInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
 	edm::Handle< edm::View<BaseTagInfo> > ipInfos;
 	iEvent.getByToken(ipInfoSrc_, ipInfos);
 	std::vector<const BaseTagInfo*> ipBaseInfo;
-	for(edm::View<BaseTagInfo>::const_iterator iter = ipInfos->begin(); iter != ipInfos->end(); iter++) {
-		ipBaseInfo.push_back(&*iter);
-	}
+	//for(edm::View<BaseTagInfo>::const_iterator iter = ipInfos->begin(); iter != ipInfos->end(); iter++) {
+		//std::cout << "in loop" << std::endl;
+	//	ipBaseInfo.push_back(&*iter);
+	//}
+	//std::cout << "END loop" << std::endl;
 	//std::vector< const reco::BaseTagInfo *> ipInfo = static_cast<std::vector< const reco::BaseTagInfo *> >(*ipInfos)
 	//edm::Handle< std::vector<reco::CandSoftLeptonTagInfo> > elInfos;
 	//edm::Handle< edm::View<BaseTagInfo> > elInfos;
 	//iEvent.getByToken(elInfoSrc_, elInfos);
 	edm::Handle< edm::View<BaseTagInfo> > muInfos;
 	iEvent.getByToken(muInfoSrc_, muInfos);
-	std::vector<const BaseTagInfo*> muBaseInfo;
-	for(edm::View<BaseTagInfo>::const_iterator iter = muInfos->begin(); iter != muInfos->end(); iter++) {
-		muBaseInfo.push_back(&*iter);
-	}
+	//std::vector<const BaseTagInfo*> muBaseInfo;
+	//for(edm::View<BaseTagInfo>::const_iterator iter = muInfos->begin(); iter != muInfos->end(); iter++) {
+	//	muBaseInfo.push_back(&*iter);
+	//}
 	//edm::Handle< std::vector<reco::CandSoftLeptonTagInfo> > elInfos;
 	//edm::Handle< edm::View<BaseTagInfo> > elInfos;
 	//iEvent.getByToken(elInfoSrc_, elInfos);
 	edm::Handle< edm::View<BaseTagInfo> > elInfos;
 	iEvent.getByToken(elInfoSrc_, elInfos);
-	std::vector<const BaseTagInfo*> elBaseInfo;
-	for(edm::View<BaseTagInfo>::const_iterator iter = elInfos->begin(); iter != elInfos->end(); iter++) {
-		elBaseInfo.push_back(&*iter);
-	}
+	//std::vector<const BaseTagInfo*> elBaseInfo;
+	//for(edm::View<BaseTagInfo>::const_iterator iter = elInfos->begin(); iter != elInfos->end(); iter++) {
+	//	elBaseInfo.push_back(&*iter);
+	//}
 	
 
 	//get computers
@@ -208,19 +210,35 @@ DeepCMVATagInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
 																				 << "  - The assumption that the tagInfos are filled in the same order is actually wrong" << std::endl;
 		}
 		
+		// Make vector of BaseTagInfo, needed for TagInfoHelper
+		std::vector<const BaseTagInfo*> ipBaseInfo;
+		ipBaseInfo.push_back(&ipInfo);
+		std::vector<const BaseTagInfo*> muBaseInfo;
+		muBaseInfo.push_back(&muInfo);
+		std::vector<const BaseTagInfo*> elBaseInfo;
+		elBaseInfo.push_back(&elInfo);
+		
 		// Copy the DeepNN TaggingVariables + add the other discriminators
 		TaggingVariableList vars = nnInfo.taggingVariables();
-		double softmu_discr = (*compsoftmu)( JetTagComputer::TagInfoHelper(muBaseInfo) );
-		double softel_discr = (*compsoftel)( JetTagComputer::TagInfoHelper(elBaseInfo) );
-		double jp_discr = (*compjp)( JetTagComputer::TagInfoHelper(ipBaseInfo) );
-		double jpb_discr = (*compjpb)( JetTagComputer::TagInfoHelper(ipBaseInfo) );
-		vars.insert(reco::btau::Jet_SoftMu, softmu_discr ? !(isinf(softmu_discr)) : 0  );
-		vars.insert(reco::btau::Jet_SoftEl, softel_discr ? !(isinf(softel_discr)) : 0  );
-		vars.insert(reco::btau::Jet_JBP, jpb_discr ? !(isinf(jpb_discr)) : 0 );
-		vars.insert(reco::btau::Jet_JP, jp_discr ? !(isinf(jp_discr)) : 0  );
+		float softmu_discr = (*compsoftmu)( JetTagComputer::TagInfoHelper(muBaseInfo) );
+		float softel_discr = (*compsoftel)( JetTagComputer::TagInfoHelper(elBaseInfo) );
+		float jp_discr = (*compjp)( JetTagComputer::TagInfoHelper(ipBaseInfo) );
+		float jpb_discr = (*compjpb)( JetTagComputer::TagInfoHelper(ipBaseInfo) );
+		
+		//std::cout << "DeepCMVA JP: " << jp_discr << std::endl;
+		
+		vars.insert(reco::btau::Jet_SoftMu, softmu_discr ? !(isinf(softmu_discr)) : -0.2  );
+		vars.insert(reco::btau::Jet_SoftEl, softel_discr ? !(isinf(softel_discr)) : -0.2  );
+		vars.insert(reco::btau::Jet_JBP, jpb_discr ? !(isinf(jpb_discr)) : -0.2 );
+		vars.insert(reco::btau::Jet_JP, jp_discr ? !(isinf(jp_discr)) : -0.2  );
 		
 		vars.finalize();
 		tagInfos->emplace_back(vars, nnInfo.jet());
+		
+		// just to be sure
+		ipBaseInfo.clear();
+		muBaseInfo.clear();
+		elBaseInfo.clear();
 		
 
 	}
