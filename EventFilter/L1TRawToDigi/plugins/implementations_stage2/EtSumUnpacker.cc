@@ -82,7 +82,7 @@ namespace stage2 {
        raw_data = block.payload()[iFrame+1];
 
        l1t::EtSum ht = l1t::EtSum();
-    
+
        ht.setHwPt(raw_data & 0xFFF);
        ht.setType(l1t::EtSum::kTotalHt);       
        ht.setP4( l1t::CaloTools::p4Demux(&ht) );
