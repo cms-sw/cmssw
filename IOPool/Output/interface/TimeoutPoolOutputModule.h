@@ -3,7 +3,7 @@
 
 //////////////////////////////////////////////////////////////////////
 //
-// Class TimeoutPoolOutputModule. Output module to POOL file with file 
+// Class TimeoutPoolOutputModule. Output module to POOL file with file
 // closure based on timeout. First file has only one event, second
 // file is closed after 15 seconds if at least one event was processed.
 // Then timeout is increased to 30 seconds and 60 seconds. After that

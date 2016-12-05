@@ -45,4 +45,3 @@ namespace edm {
 } //end-of-namespace-def
 
 #endif
-
