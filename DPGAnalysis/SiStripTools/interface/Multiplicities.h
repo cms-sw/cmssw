@@ -1,7 +1,7 @@
 #ifndef DPGAnalysis_SiStripTools_Multiplicities_H
 #define DPGAnalysis_SiStripTools_Multiplicities_H
 
-#ifndef __GCCXML__
+#ifndef __ROOTCLING__
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -34,7 +34,7 @@ class ClusterSummarySingleMultiplicity {
 
  public:
   ClusterSummarySingleMultiplicity();
-#ifndef __GCCXML__
+#ifndef __ROOTCLING__
   ClusterSummarySingleMultiplicity(const edm::ParameterSet& iConfig,edm::ConsumesCollector&& iC);
   ClusterSummarySingleMultiplicity(const edm::ParameterSet& iConfig,edm::ConsumesCollector& iC);
 #endif
@@ -43,34 +43,34 @@ class ClusterSummarySingleMultiplicity {
   int mult() const;
 
  private:
-#ifndef __GCCXML__
+#ifndef __ROOTCLING__
   edm::EDGetTokenT<ClusterSummary> m_collection;
 #endif
   ClusterSummary::CMSTracker m_subdetenum;
   ClusterSummary::VariablePlacement m_varenum;
   int m_mult;
-    
+
 };
 
 
 
 template <class T>
 class SingleMultiplicity {
-  
+
  public:
   SingleMultiplicity();
-#ifndef __GCCXML__
+#ifndef __ROOTCLING__
   SingleMultiplicity(const edm::ParameterSet& iConfig,edm::ConsumesCollector&& iC);
   SingleMultiplicity(const edm::ParameterSet& iConfig,edm::ConsumesCollector& iC);
-#endif  
-  
+#endif
+
   void getEvent(const edm::Event& iEvent, const edm::EventSetup& iSetup);
   int mult() const;
   //  int mult;
-  
+
  private:
-  
-#ifndef __GCCXML__
+
+#ifndef __ROOTCLING__
   edm::EDGetTokenT<T> m_collection;
 #endif
   int m_modthr;
@@ -81,15 +81,15 @@ class SingleMultiplicity {
 
 template <class T>
 SingleMultiplicity<T>::SingleMultiplicity():
-  //  mult(0), 
-#ifndef __GCCXML__
-m_collection(), 
+  //  mult(0),
+#ifndef __ROOTCLING__
+m_collection(),
 #endif
     m_modthr(-1), m_useQuality(false),  m_qualityLabel(),
   m_mult(0)
 { }
 
-#ifndef __GCCXML__
+#ifndef __ROOTCLING__
 template <class T>
 SingleMultiplicity<T>::SingleMultiplicity(const edm::ParameterSet& iConfig,edm::ConsumesCollector&& iC):
   //  mult(0),
@@ -110,7 +110,7 @@ m_collection(iC.consumes<T>(iConfig.getParameter<edm::InputTag>("collectionName"
 { }
 #endif
 
-#ifndef __GCCXML__
+#ifndef __ROOTCLING__
 template <class T>
 void
 SingleMultiplicity<T>::getEvent(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
@@ -131,8 +131,8 @@ SingleMultiplicity<T>::getEvent(const edm::Event& iEvent, const edm::EventSetup&
 
      if(!m_useQuality || !qualityHandle->IsModuleBad(it->detId()) ) {
        if(m_modthr < 0 || int(it->size()) < m_modthr ) {
-	 m_mult += it->size();
-	 //	 mult += it->size();
+         m_mult += it->size();
+         //      mult += it->size();
        }
      }
    }
@@ -145,34 +145,34 @@ int SingleMultiplicity<T>::mult() const { return m_mult; }
 
 template <class T1, class T2>
   class MultiplicityPair {
-    
+
  public:
     MultiplicityPair();
-#ifndef __GCCXML__
+#ifndef __ROOTCLING__
     MultiplicityPair(const edm::ParameterSet& iConfig,edm::ConsumesCollector&& iC);
     MultiplicityPair(const edm::ParameterSet& iConfig,edm::ConsumesCollector& iC);
 #endif
-    
+
     void getEvent(const edm::Event& iEvent, const edm::EventSetup& iSetup);
     int mult1() const;
     int mult2() const;
     //    int mult1;
     //    int mult2;
-    
+
  private:
-    
+
     T1 m_multiplicity1;
     T2 m_multiplicity2;
-    
+
   };
 
 template <class T1, class T2>
   MultiplicityPair<T1,T2>::MultiplicityPair():
-    //    mult1(0),mult2(0),  
+    //    mult1(0),mult2(0),
     m_multiplicity1(),  m_multiplicity2()
 { }
 
-#ifndef __GCCXML__
+#ifndef __ROOTCLING__
 template <class T1, class T2>
       MultiplicityPair<T1,T2>::MultiplicityPair(const edm::ParameterSet& iConfig,edm::ConsumesCollector&& iC):
     //    mult1(0),mult2(0),
@@ -190,13 +190,13 @@ template <class T1, class T2>
 template <class T1, class T2>
   void
   MultiplicityPair<T1,T2>::getEvent(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  
+
   m_multiplicity1.getEvent(iEvent,iSetup);
   m_multiplicity2.getEvent(iEvent,iSetup);
 
   //  mult1=m_multiplicity1.mult;
   //  mult2=m_multiplicity2.mult;
-  
+
 }
 
 template<class T1, class T2>
@@ -208,9 +208,9 @@ template<class T1, class T2>
 typedef SingleMultiplicity<edm::DetSetVector<SiStripDigi> > SingleSiStripDigiMultiplicity;
 typedef SingleMultiplicity<edmNew::DetSetVector<SiStripCluster> > SingleSiStripClusterMultiplicity;
 typedef SingleMultiplicity<edmNew::DetSetVector<SiPixelCluster> > SingleSiPixelClusterMultiplicity;
-typedef MultiplicityPair<SingleMultiplicity<edmNew::DetSetVector<SiPixelCluster> > ,SingleMultiplicity<edmNew::DetSetVector<SiStripCluster> > > 
-SiPixelClusterSiStripClusterMultiplicityPair; 
-typedef MultiplicityPair<ClusterSummarySingleMultiplicity,ClusterSummarySingleMultiplicity> ClusterSummaryMultiplicityPair; 
+typedef MultiplicityPair<SingleMultiplicity<edmNew::DetSetVector<SiPixelCluster> > ,SingleMultiplicity<edmNew::DetSetVector<SiStripCluster> > >
+SiPixelClusterSiStripClusterMultiplicityPair;
+typedef MultiplicityPair<ClusterSummarySingleMultiplicity,ClusterSummarySingleMultiplicity> ClusterSummaryMultiplicityPair;
 
 
 #endif // DPGAnalysis_SiStripTools_Multiplicities_H
