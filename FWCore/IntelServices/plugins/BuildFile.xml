@@ -8,7 +8,7 @@
 <use   name="FWCore/Utilities"/>
 <use   name="FWCore/Concurrency"/>
 <use   name="FWCore/Framework"/>
-<use   name="intel-vtune"/>
+<use   name="ittnotify"/>
 <library   file="*.cc" name="FWCoreIntelServicesPlugins">
   <flags   EDM_PLUGIN="1"/>
   <!--<flags   CXXFLAGS="-I/afs/cern.ch/sw/IntelSoftware/linux/x86_64/xe2017/vtune_amplifier_xe_2017.0.2.478468/include"/>-->
