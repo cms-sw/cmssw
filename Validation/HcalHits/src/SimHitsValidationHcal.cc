@@ -62,21 +62,21 @@ void SimHitsValidationHcal::bookHistograms(DQMStore::IBooker &ib, edm::Run const
   iEtaHOMax = iEtaMax;
 
   //Give an empty bin around the subdet ieta range to make it clear that all ieta rings have been included
-  float ieta_min_HB = -iEtaHBMax - 1.5;
-  float ieta_max_HB = iEtaHBMax + 1.5;
-  int ieta_bins_HB = (int) (ieta_max_HB - ieta_min_HB);
+  //float ieta_min_HB = -iEtaHBMax - 1.5;
+  //float ieta_max_HB = iEtaHBMax + 1.5;
+  //int ieta_bins_HB = (int) (ieta_max_HB - ieta_min_HB);
 
-  float ieta_min_HE = -iEtaHEMax - 1.5;
-  float ieta_max_HE = iEtaHEMax + 1.5;
-  int ieta_bins_HE = (int) (ieta_max_HE - ieta_min_HE);
+  //float ieta_min_HE = -iEtaHEMax - 1.5;
+  //float ieta_max_HE = iEtaHEMax + 1.5;
+  //int ieta_bins_HE = (int) (ieta_max_HE - ieta_min_HE);
 
-  float ieta_min_HF = -iEtaHFMax - 1.5;
-  float ieta_max_HF = iEtaHFMax + 1.5;
-  int ieta_bins_HF = (int) (ieta_max_HF - ieta_min_HF);
+  //float ieta_min_HF = -iEtaHFMax - 1.5;
+  //float ieta_max_HF = iEtaHFMax + 1.5;
+  //int ieta_bins_HF = (int) (ieta_max_HF - ieta_min_HF);
 
-  float ieta_min_HO = -iEtaHOMax - 1.5;
-  float ieta_max_HO = iEtaHOMax + 1.5;
-  int ieta_bins_HO = (int) (ieta_max_HO - ieta_min_HO);
+  //float ieta_min_HO = -iEtaHOMax - 1.5;
+  //float ieta_max_HO = iEtaHOMax + 1.5;
+  //int ieta_bins_HO = (int) (ieta_max_HO - ieta_min_HO);
 
 #ifdef DebugLog
   edm::LogInfo("HitsValidationHcal") << " Maximum Depths HB:"<< maxDepthHB_ 
