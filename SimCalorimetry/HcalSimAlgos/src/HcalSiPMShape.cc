@@ -4,7 +4,7 @@
 #include "TMath.h"
 #include <iostream>
 
-HcalSiPMShape::HcalSiPMShape(unsigned int signalShape) : CaloVShape(), nBins_(35*2+1), 
+HcalSiPMShape::HcalSiPMShape(unsigned int signalShape) : CaloVShape(), nBins_(250*2), 
 				 nt_(nBins_, 0.) {
   computeShape(signalShape);
 }

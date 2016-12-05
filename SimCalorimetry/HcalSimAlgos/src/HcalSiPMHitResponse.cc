@@ -21,7 +21,7 @@
 HcalSiPMHitResponse::HcalSiPMHitResponse(const CaloVSimParameterMap * parameterMap,
 					 const CaloShapes * shapes, bool PreMix1) :
   CaloHitResponse(parameterMap, shapes), theSiPM(), theRecoveryTime(250.), 
-  TIMEMULT(1), Y11RANGE(80.), Y11MAX(0.04), Y11TIMETORISE(16.65), PreMixDigis(PreMix1) {
+  TIMEMULT(1), Y11RANGE(250), Y11MAX(0.04), Y11TIMETORISE(16.65), PreMixDigis(PreMix1) {
   theSiPM = new HcalSiPM(2500);
 }
 
@@ -245,7 +245,7 @@ CaloSamples HcalSiPMHitResponse::makeSiPMSignal(DetId const& id,
 	signal[sampleBin] += pulseBit;
 	signal.preciseAtMod(preciseBin) += pulseBit*invdt;
 
-	if (timeDiff > 1 && sipmPulseShape(timeDiff) < 1e-6)
+	if (timeDiff > 1 && sipmPulseShape(timeDiff) < 1e-7)
 	  pulse = pulses.erase(pulse);
 	else
 	  ++pulse;
