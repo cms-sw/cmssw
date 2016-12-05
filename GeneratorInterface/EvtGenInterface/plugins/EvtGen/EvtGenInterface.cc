@@ -358,7 +358,8 @@ void EvtGenInterface::init(){
 
   if (fPSet->exists("user_decay_embedded")){
     std::vector<std::string> user_decay_lines = fPSet->getParameter<std::vector<std::string> >("user_decay_embedded");
-    std::string user_decay_tmp = std::tmpnam(nullptr);
+    char buffer [L_tmpnam];
+    std::string user_decay_tmp = std::tmpnam(buffer);
     FILE* tmpf = std::fopen(user_decay_tmp.c_str(), "w");
     if (!tmpf) {
         edm::LogError("EvtGenInterface::~EvtGenInterface") << "EvtGenInterface::init() fails when trying to open a temporary file for embedded user.dec. Terminating program ";
