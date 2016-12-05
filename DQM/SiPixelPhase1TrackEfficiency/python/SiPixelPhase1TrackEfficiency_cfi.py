@@ -1,19 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 from DQM.SiPixelPhase1Common.HistogramManager_cfi import *
 
-# this should be moved to RecHits
-SiPixelPhase1TrackEfficiencyClusterProb = DefaultHisto.clone(
-  name = "clusterprob",
-  title = "Cluster Probability",
-  xlabel = "log_10(Pr)",
-  range_min = -10, range_max = 0, range_nbins = 200,
-  dimensions = 1,
-  specs = VPSet(
-    StandardSpecifications1D
-  )
-)
-
-SiPixelPhase1TrackEfficiencyValid = DefaultHisto.clone(
+SiPixelPhase1TrackEfficiencyValid = DefaultHistoTrack.clone(
   name = "valid",
   title = "Valid Hits",
   dimensions = 0,
@@ -26,16 +14,6 @@ SiPixelPhase1TrackEfficiencyValid = DefaultHisto.clone(
                    .groupBy("PXBarrel/PXLayer", "EXTEND_Y")
                    .save()
                    .custom("signedmodule_barrel"),
-    Specification().groupBy("PXBarrel/PXLayer/signedLadder/ROCinLadder")
-                   .groupBy("PXBarrel/PXLayer/signedLadder", "EXTEND_X")
-                   .groupBy("PXBarrel/PXLayer", "EXTEND_Y")
-                   .save()
-                   .custom("perroc_barrel"),
-    Specification().groupBy("PXForward/PXDisk/PXBlade/ROCinBlade")
-                   .groupBy("PXForward/PXDisk/PXBlade", "EXTEND_X")
-                   .groupBy("PXForward/PXDisk", "EXTEND_Y")
-                   .save()
-                   .custom("perroc_forward"),
   )
 )
 
@@ -55,7 +33,6 @@ SiPixelPhase1TrackEfficiencyEfficiency = SiPixelPhase1TrackEfficiencyValid.clone
 
 
 SiPixelPhase1TrackEfficiencyConf = cms.VPSet(
-  SiPixelPhase1TrackEfficiencyClusterProb,
   SiPixelPhase1TrackEfficiencyValid,
   SiPixelPhase1TrackEfficiencyMissing,
   SiPixelPhase1TrackEfficiencyEfficiency,

@@ -15,7 +15,6 @@
 
 class SiPixelPhase1TrackEfficiency : public SiPixelPhase1Base {
   enum {
-    CLUSTER_PROB,
     VALID,
     MISSING,
     EFFICIENCY
@@ -33,7 +32,6 @@ class SiPixelPhase1TrackEfficiency : public SiPixelPhase1Base {
 
 class SiPixelPhase1TrackEfficiencyHarvester : public SiPixelPhase1Harvester { 
   enum {
-    CLUSTER_PROB,
     VALID,
     MISSING,
     EFFICIENCY
