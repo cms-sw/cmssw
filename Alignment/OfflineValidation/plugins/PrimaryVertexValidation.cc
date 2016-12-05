@@ -71,6 +71,8 @@ PrimaryVertexValidation::PrimaryVertexValidation(const edm::ParameterSet& iConfi
   useTracksFromRecoVtx_(iConfig.getParameter<bool>("useTracksFromRecoVtx")),
   vertexZMax_(iConfig.getUntrackedParameter<double>("vertexZMax",99.)),
   askFirstLayerHit_(iConfig.getParameter<bool>("askFirstLayerHit")),
+  doBPix_(iConfig.getUntrackedParameter<bool>("doBPix",true)),
+  doFPix_(iConfig.getUntrackedParameter<bool>("doFPix",true)),
   ptOfProbe_(iConfig.getUntrackedParameter<double>("probePt",0.)),
   etaOfProbe_(iConfig.getUntrackedParameter<double>("probeEta",2.4)),
   nBins_(iConfig.getUntrackedParameter<int>("numberOfBins",24)),
@@ -88,7 +90,7 @@ PrimaryVertexValidation::PrimaryVertexValidation(const edm::ParameterSet& iConfi
   runControlNumbers_ = iConfig.getUntrackedParameter<std::vector<unsigned int> >("runControlNumber",defaultRuns);
 
   phiSect_ = (2*TMath::Pi())/nBins_;
-  etaSect_ = 5./nBins_;
+  etaSect_ = (2*etaOfProbe_)/nBins_;
 
   edm::InputTag TrackCollectionTag_ = iConfig.getParameter<edm::InputTag>("TrackCollectionTag");
   theTrackCollectionToken = consumes<reco::TrackCollection>(TrackCollectionTag_);
@@ -279,8 +281,8 @@ PrimaryVertexValidation::analyze(const edm::Event& iEvent, const edm::EventSetup
 	  float phiF = (-TMath::Pi()+i*phiSect_)*(180/TMath::Pi());
 	  float phiL = (-TMath::Pi()+(i+1)*phiSect_)*(180/TMath::Pi());
 	  
-	  float etaF=-2.5+i*etaSect_;
-	  float etaL=-2.5+(i+1)*etaSect_;
+	  float etaF=-etaOfProbe_+i*etaSect_;
+	  float etaL=-etaOfProbe_+(i+1)*etaSect_;
 	  
 	  if(tracketa >= etaF && tracketa < etaL ){
 
@@ -300,8 +302,8 @@ PrimaryVertexValidation::analyze(const edm::Event& iEvent, const edm::EventSetup
 	    
 	    for(int j=0; j<nBins_; j++){
 	      
-	      float etaJ=-2.5+j*etaSect_;
-	      float etaK=-2.5+(j+1)*etaSect_;
+	      float etaJ=-etaOfProbe_+j*etaSect_;
+	      float etaK=-etaOfProbe_+(j+1)*etaSect_;
 	      
 	      if(tracketa >= etaJ && tracketa < etaK ){
 		
@@ -628,6 +630,20 @@ PrimaryVertexValidation::analyze(const edm::Event& iEvent, const edm::EventSetup
 	      // checks on the probe track quality
 	      if(trackpt >= ptOfProbe_ && fabs(tracketa)<= etaOfProbe_){
 
+		std::pair<bool,bool> pixelOcc = pixelHitsCheck((*theTTrack));
+
+		/*
+		  if(pixelOcc.first == true)
+		  std::cout<<"has BPIx hits"<<std::endl;
+		  if(pixelOcc.second == true)
+		  std::cout<<"has FPix hits"<<std::endl;
+		*/		  
+
+		if(!doBPix_ && (pixelOcc.first == true))  continue;
+		if(!doFPix_ && (pixelOcc.second == true)) continue;
+	
+		//std::cout<<"track passed"<<std::endl;
+	
 		fillTrackHistos(hDA,"sel",&(*theTTrack),vertex,beamSpot,fBfield_);
 
 		// probe checks
@@ -702,8 +718,8 @@ PrimaryVertexValidation::analyze(const edm::Event& iEvent, const edm::EventSetup
 		  float phiF = (-TMath::Pi()+i*phiSect_)*(180/TMath::Pi());
 		  float phiL = (-TMath::Pi()+(i+1)*phiSect_)*(180/TMath::Pi());
 		  
-		  float etaF=-2.5+i*etaSect_;
-		  float etaL=-2.5+(i+1)*etaSect_;
+		  float etaF=-etaOfProbe_+i*etaSect_;
+		  float etaL=-etaOfProbe_+(i+1)*etaSect_;
 
 		  if(tracketa >= etaF && tracketa < etaL ){
 
@@ -738,8 +754,8 @@ PrimaryVertexValidation::analyze(const edm::Event& iEvent, const edm::EventSetup
 
 		    for(int j=0; j<nBins_; j++){
 
-		      float etaJ=-2.5+j*etaSect_;
-		      float etaK=-2.5+(j+1)*etaSect_;
+		      float etaJ=-etaOfProbe_+j*etaSect_;
+		      float etaK=-etaOfProbe_+(j+1)*etaSect_;
 
 		      if(tracketa >= etaJ && tracketa < etaK ){
 			a_dxyResidualsMap[i][j]->Fill(dxyFromMyVertex*cmToum); 
@@ -825,6 +841,37 @@ bool PrimaryVertexValidation::isHit2D(const TrackingRecHit &hit) const
   }
   // never reached...
 }
+
+
+// ------------ method to check the presence of pixel hits  ------------
+std::pair<bool,bool> PrimaryVertexValidation::pixelHitsCheck(const reco::TransientTrack track){
+  
+  bool hasBPixHits = false;
+  bool hasFPixHits = false;
+  
+  const reco::HitPattern& p = track.hitPattern();
+  if(p.numberOfValidPixelEndcapHits()!=0){
+    hasFPixHits = true;
+  } 
+  if(p.numberOfValidPixelBarrelHits()!=0){
+    hasBPixHits = true;
+  }
+  
+  // for (int i=0; i<p.numberOfHits(reco::HitPattern::TRACK_HITS); i++) {
+  //   uint32_t pattern = p.getHitPattern(reco::HitPattern::TRACK_HITS, i);  
+  //   if(  p.validHitFilter(pattern) ) {
+  //     if (p.pixelBarrelHitFilter(pattern) ) {
+  // 	hasBPixHits = true;
+  //     }
+  //     if (p.pixelEndcapHitFilter(pattern) ) {
+  // 	hasFPixHits = true;
+  //     }
+  //   }
+  // }
+
+  return std::make_pair(hasBPixHits,hasFPixHits);
+}
+
 
 // ------------ method to check the presence of pixel hits  ------------
 bool PrimaryVertexValidation::hasFirstLayerPixelHits(const reco::TransientTrack track)
@@ -1081,8 +1128,8 @@ void PrimaryVertexValidation::beginJob()
     float phiF = (-TMath::Pi()+i*phiSect_)*(180/TMath::Pi());
     float phiL = (-TMath::Pi()+(i+1)*phiSect_)*(180/TMath::Pi());
     
-    float etaF=-2.5+i*etaSect_;
-    float etaL=-2.5+(i+1)*etaSect_;
+    float etaF=-etaOfProbe_+i*etaSect_;
+    float etaL=-etaOfProbe_+(i+1)*etaSect_;
     
     // dxy vs phi and eta
      
@@ -1251,16 +1298,16 @@ void PrimaryVertexValidation::beginJob()
 					  48,-TMath::Pi(),TMath::Pi(),mybins_,-dzmax_phi/100.,dzmax_phi/100.);   
                
   a_dxyVsEta = BiasVsParameter.make<TH2F>("h2_dxy_vs_eta","d_{xy} vs track #eta;track #eta;track d_{xy}(PV) [#mum]",
-					  48,-2.5,2.5,mybins_,-dxymax_eta,dzmax_eta);
+					  48,-etaOfProbe_,etaOfProbe_,mybins_,-dxymax_eta,dzmax_eta);
   
   a_dzVsEta  = BiasVsParameter.make<TH2F>("h2_dz_vs_eta","d_{z} vs track #eta;track #eta;track d_{z}(PV) [#mum]",
-					  48,-2.5,2.5,mybins_,-dzmax_eta,dzmax_eta);   
+					  48,-etaOfProbe_,etaOfProbe_,mybins_,-dzmax_eta,dzmax_eta);   
                
   n_dxyVsEta = BiasVsParameter.make<TH2F>("h2_n_dxy_vs_eta","d_{xy}/#sigma_{d_{xy}} vs track #eta;track #eta;track d_{xy}(PV)/#sigma_{d_{xy}}",
-					  48,-2.5,2.5,mybins_,-dxymax_eta/100.,dxymax_eta/100.);  
+					  48,-etaOfProbe_,etaOfProbe_,mybins_,-dxymax_eta/100.,dxymax_eta/100.);  
 
   n_dzVsEta  = BiasVsParameter.make<TH2F>("h2_n_dz_vs_eta","d_{z}/#sigma_{d_{z}} vs track #eta;track #eta;track d_{z}(PV)/#sigma_{d_{z}}",
-					  48,-2.5,2.5,mybins_,-dzmax_eta/100.,dzmax_eta/100.);   
+					  48,-etaOfProbe_,etaOfProbe_,mybins_,-dzmax_eta/100.,dzmax_eta/100.);   
 
   TFileDirectory MeanTrendsDir   = fs->mkdir("MeanTrends");
   TFileDirectory WidthTrendsDir  = fs->mkdir("WidthTrends");
@@ -1468,8 +1515,8 @@ void PrimaryVertexValidation::beginJob()
       float phiF = (-TMath::Pi()+i*phiSect_)*(180/TMath::Pi());
       float phiL = (-TMath::Pi()+(i+1)*phiSect_)*(180/TMath::Pi());
       
-      float etaF=-2.5+i*etaSect_;
-      float etaL=-2.5+(i+1)*etaSect_;
+      float etaF=-etaOfProbe_+i*etaSect_;
+      float etaL=-etaOfProbe_+(i+1)*etaSect_;
       
       a_dxyPhiBiasResiduals[i] = AbsTransPhiBiasRes.make<TH1F>(Form("histo_dxy_phi_plot%i",i),
 							       Form("%.2f#circ<#varphi^{probe}_{tk}<%.2f#circ;d_{xy} [#mum];tracks",phiF,phiL),
@@ -2015,7 +2062,7 @@ void PrimaryVertexValidation::fillTrendPlot(TH1F* trendPlot, TH1F* residualsPlot
     sprintf(phipositionString,"%.f",phiposition);
     
     char etapositionString[129];
-    float etaposition = (-2.5+i*etaSect_)+(etaSect_/2);
+    float etaposition = (-etaOfProbe_+i*etaSect_)+(etaSect_/2);
     sprintf(etapositionString,"%.1f",etaposition);
     
     if(fitPar_=="mean"){
@@ -2069,7 +2116,7 @@ void PrimaryVertexValidation::fillMap(TH2F* trendMap, TH1F* residualsMapPlot[100
     for ( int j=0; j<nBins_; ++j ) {
 
       char etapositionString[129];
-      float etaposition = (-2.5+j*etaSect_)+(etaSect_/2);
+      float etaposition = (-etaOfProbe_+j*etaSect_)+(etaSect_/2);
       sprintf(etapositionString,"%.1f",etaposition);
 
       if(i==0) { trendMap->GetXaxis()->SetBinLabel(j+1,etapositionString); }
