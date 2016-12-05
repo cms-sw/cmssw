@@ -196,7 +196,7 @@ DeepFlavourJetTagsProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
 				}
 			}
 
-		std::cout << "value of Jet_SoftMu: " << inputs_["Jet_SoftMu"] << std::endl;
+		//std::cout << "value of Jet_SoftMu: " << inputs_["Jet_SoftMu"] << std::endl;
 			//compute NN output(s)
 			nnout = neural_network_->compute(inputs_);
 		}
