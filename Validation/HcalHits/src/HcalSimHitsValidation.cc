@@ -46,9 +46,9 @@ void HcalSimHitsValidation::bookHistograms(DQMStore::IBooker &ib, edm::Run const
   NphiMax = (hcons->getNPhi(3) > NphiMax ? hcons->getNPhi(3) : NphiMax);
 
   //Center the iphi bins on the integers
-  float iphi_min = 0.5;
-  float iphi_max = NphiMax + 0.5;
-  int iphi_bins = (int) (iphi_max - iphi_min);
+  //float iphi_min = 0.5;
+  //float iphi_max = NphiMax + 0.5;
+  //int iphi_bins = (int) (iphi_max - iphi_min);
 
   int iEtaHBMax = hcons->getEtaRange(0).second;
   int iEtaHEMax = hcons->getEtaRange(1).second;
