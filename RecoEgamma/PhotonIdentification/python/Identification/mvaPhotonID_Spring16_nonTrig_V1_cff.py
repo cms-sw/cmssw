@@ -52,8 +52,8 @@ MVA_WP90 = PhoMVA_2Categories_WP(
     idName = idName,
     mvaValueMapName = mvaValueMapName,           # map with MVA values for all particles
     mvaCategoriesMapName = mvaCategoriesMapName, # map with category index for all particles
-    cutCategory0 =  0.08,  # EB new val : sig eff = 90% , bkg eff = ?
-    cutCategory1 = -0.11   # EE new val : sig eff = 90% , bkg eff = ?
+    cutCategory0 =  0.2,  # EB new val : sig eff = 90% , bkg eff = ?
+    cutCategory1 =  0.2   # EE new val : sig eff = 90% , bkg eff = ?
     )
 
 # The working point for this MVA that is expected to have about 90% signal
@@ -64,8 +64,8 @@ MVA_WP80 = PhoMVA_2Categories_WP(
     idName = idName,
     mvaValueMapName = mvaValueMapName,           # map with MVA values for all particles
     mvaCategoriesMapName = mvaCategoriesMapName, # map with category index for all particles
-    cutCategory0 = 0.65,  # EB new val : sig eff = 80% , bkg eff = ?
-    cutCategory1 = 0.30   # EE new val : sig eff = 80% , bkg eff = ?
+    cutCategory0 = 0.68,  # EB new val : sig eff = 80% , bkg eff = ?
+    cutCategory1 = 0.60   # EE new val : sig eff = 80% , bkg eff = ?
     )
 
 #
@@ -115,9 +115,9 @@ mvaPhoID_Spring16_nonTrig_V1_wp80 = configureVIDMVAPhoID_V1( MVA_WP80 )
 #
 
 central_id_registry.register( mvaPhoID_Spring16_nonTrig_V1_wp90.idName,
-                              '1e6ba3d0c760d1d9a69be10e4aa012e2')
+                              '36efe663348f95de0bc1cfa8dc7fa8fe')
 central_id_registry.register( mvaPhoID_Spring16_nonTrig_V1_wp80.idName,
-                              '471f10cc447e8f2d5294693821acc050')
+                              'beb95233f7d1e033ad9e20cf3d804ba0')
 
 mvaPhoID_Spring16_nonTrig_V1_wp90.isPOGApproved = cms.untracked.bool(True)
 mvaPhoID_Spring16_nonTrig_V1_wp80.isPOGApproved = cms.untracked.bool(True)
