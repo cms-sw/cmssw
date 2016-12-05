@@ -276,7 +276,6 @@ void GEDPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
   const EcalRecHitCollection dummyEB;
   theEvent.getByToken(barrelEcalHits_, barrelHitHandle);
   if (!barrelHitHandle.isValid()) {
-    validEcalRecHits=false; 
     throw cms::Exception("GEDPhotonProducer") 
       << "Error! Can't get the barrelEcalHits";
   }
@@ -286,7 +285,6 @@ void GEDPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
   theEvent.getByToken(endcapEcalHits_, endcapHitHandle);
   const EcalRecHitCollection dummyEE;
   if (!endcapHitHandle.isValid()) {
-    validEcalRecHits=false; 
     throw cms::Exception("GEDPhotonProducer") 
       << "Error! Can't get the endcapEcalHits";
   }
@@ -297,7 +295,6 @@ void GEDPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
   theEvent.getByToken(preshowerHits_, preshowerHitHandle);
   EcalRecHitCollection preshowerRecHits;
   if (!preshowerHitHandle.isValid()) {
-    validPreshowerRecHits=false; 
     throw cms::Exception("GEDPhotonProducer") 
       << "Error! Can't get the preshowerEcalHits";
   }
@@ -354,7 +351,6 @@ void GEDPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
   if ( usePrimaryVertex_ ) {
     theEvent.getByToken(vertexProducer_, vertexHandle);
     if (!vertexHandle.isValid()) {
-      validVertex=false;
       throw cms::Exception("GEDPhotonProducer") 
 	<< "Error! Can't get the product primary Vertex Collection";
     }
