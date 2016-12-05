@@ -42,7 +42,7 @@ template <typename T>
 void EcalDeadChannelRecoveryNN<T>::load_file(MultiLayerPerceptronContext& ctx, std::string fn) {
   std::string path = edm::FileInPath(fn).fullPath();
 
-  TTree *t = new TTree("t", "dummy MLP tree");
+  auto t = std::make_unique<TTree>("t", "dummy MLP tree");
   t->SetDirectory(0);
 
   t->Branch("z1", &(ctx.tmp[0]), "z1/D");
@@ -55,9 +55,9 @@ void EcalDeadChannelRecoveryNN<T>::load_file(MultiLayerPerceptronContext& ctx, s
   t->Branch("z8", &(ctx.tmp[7]), "z8/D");
   t->Branch("zf", &(ctx.tmp[8]), "zf/D");
 
-  ctx.tree = t;
+  ctx.tree = std::move(t);
   ctx.mlp =
-      new TMultiLayerPerceptron("@z1,@z2,@z3,@z4,@z5,@z6,@z7,@z8:10:5:zf", t);
+    std::make_unique<TMultiLayerPerceptron>("@z1,@z2,@z3,@z4,@z5,@z6,@z7,@z8:10:5:zf", ctx.tree.get());
   ctx.mlp->LoadWeights(path.c_str());
 }
 
