@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 from DQM.SiPixelPhase1Common.HistogramManager_cfi import *
 
-SiPixelPhase1TrackResidualsResidualsX = DefaultHisto.clone(
+SiPixelPhase1TrackResidualsResidualsX = DefaultHistoTrack.clone(
   name = "residual_x",
   title = "Track Residuals X",
   range_min = -0.05, range_max = 0.05, range_nbins = 100,
