@@ -95,7 +95,7 @@ void HGCalTriggerDigiProducer::produce(edm::Event& e, const edm::EventSetup& es)
 
   const HGCEEDigiCollection& ee_digis = *ee_digis_h;
   const HGCHEDigiCollection& fh_digis = *fh_digis_h;
-  const HGCHEDigiCollection& bh_digis = *bh_digis_h;
+  //const HGCHEDigiCollection& bh_digis = *bh_digis_h;
 
   // First find modules containing hits and prepare list of hits for each module
   std::unordered_map<uint32_t, HGCEEDigiCollection> hit_modules_ee;
