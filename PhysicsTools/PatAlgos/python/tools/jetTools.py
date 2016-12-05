@@ -284,11 +284,11 @@ def setupBTagging(process, jetSource, pfCandidates, explicitJTA, pvSource, svSou
                 if svClustering or fatJets != cms.InputTag(''):
                     setupSVClustering(getattr(process, btagPrefix+btagInfo+labelName+postfix), svClustering, algo, rParam, fatJets, groomedFatJets)
             if btagInfo == 'deepNNNegativeTagInfos':
-                setattr(process, btagPrefix+btagInfo+labelName+postfix, btag.deepNNTagInfos.clone(svTagInfos = cms.InputTag(btagPrefix+'pfInclusiveSecondaryVertexFinderNegativeTagInfos'+labelName+postfix)))
+                setattr(process, btagPrefix+btagInfo+labelName+postfix, btag.deepNNNegativeTagInfos.clone(svTagInfos = cms.InputTag(btagPrefix+'pfInclusiveSecondaryVertexFinderNegativeTagInfos'+labelName+postfix)))
                 if svClustering or fatJets != cms.InputTag(''):
                     setupSVClustering(getattr(process, btagPrefix+btagInfo+labelName+postfix), svClustering, algo, rParam, fatJets, groomedFatJets)
             if btagInfo == 'deepNNPositiveTagInfos':
-                setattr(process, btagPrefix+btagInfo+labelName+postfix, btag.deepNNTagInfos.clone(svTagInfos = cms.InputTag(btagPrefix+'pfInclusiveSecondaryVertexFinderTagInfos'+labelName+postfix)))
+                setattr(process, btagPrefix+btagInfo+labelName+postfix, btag.deepNNPositiveTagInfos.clone(svTagInfos = cms.InputTag(btagPrefix+'pfInclusiveSecondaryVertexFinderTagInfos'+labelName+postfix)))
                 if svClustering or fatJets != cms.InputTag(''):
                     setupSVClustering(getattr(process, btagPrefix+btagInfo+labelName+postfix), svClustering, algo, rParam, fatJets, groomedFatJets)
             if btagInfo == 'pfInclusiveSecondaryVertexFinderTagInfos':
