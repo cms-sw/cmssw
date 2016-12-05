@@ -43,6 +43,7 @@ For its usage, see "FWCore/Framework/interface/PrincipalGetAdapter.h"
 #include <string>
 #include <set>
 #include <typeinfo>
+#include <type_traits>
 #include <vector>
 
 class testEventGetRefBeforePut;
@@ -67,15 +68,15 @@ namespace edm {
     Event(EventPrincipal const& ep, ModuleDescription const& md,
           ModuleCallingContext const*);
     virtual ~Event();
-    
+
     //Used in conjunction with EDGetToken
     void setConsumer(EDConsumerBase const* iConsumer);
-    
+
     void setSharedResourcesAcquirer( SharedResourcesAcquirer* iResourceAcquirer);
-    
+
     // AUX functions are defined in EventBase
     EventAuxiliary const& eventAuxiliary() const {return aux_;}
-    
+
     ///\return The id for the particular Stream processing the Event
     StreamID streamID() const {
       return streamID_;
@@ -91,7 +92,7 @@ namespace edm {
 
     RunNumber_t
     run() const {return id().run();}
-    
+
     /**If you are caching data from the Event, you should also keep
      this number.  If this number changes then you know that
      the data you have cached is invalid.
@@ -151,7 +152,7 @@ namespace edm {
     template<typename PROD>
     void
     getManyByType(std::vector<Handle<PROD> >& results) const;
-    
+
     template<typename PROD>
     bool
     getByToken(EDGetToken token, Handle<PROD>& result) const;
@@ -175,11 +176,11 @@ namespace edm {
     template<typename ELEMENT>
     bool
     getByLabel(InputTag const& tag, Handle<View<ELEMENT> >& result) const;
-    
+
     template<typename ELEMENT>
     bool
     getByToken(EDGetToken token, Handle<View<ELEMENT>>& result) const;
-    
+
     template<typename ELEMENT>
     bool
     getByToken(EDGetTokenT<View<ELEMENT>> token, Handle<View<ELEMENT>>& result) const;
@@ -291,7 +292,7 @@ namespace edm {
 
     // We own the retrieved Views, and have to destroy them.
     mutable std::vector<std::shared_ptr<ViewBase> > gotViews_;
-    
+
     StreamID streamID_;
     ModuleCallingContext const* moduleCallingContext_;
 
@@ -369,20 +370,20 @@ namespace edm {
 
     // The following will call post_insert if T has such a function,
     // and do nothing if T has no such function.
-    typename boost::mpl::if_c<detail::has_postinsert<PROD>::value,
-      DoPostInsert<PROD>,
-      DoNotPostInsert<PROD> >::type maybe_inserter;
+    std::conditional_t<detail::has_postinsert<PROD>::value,
+                       DoPostInsert<PROD>,
+                       DoNotPostInsert<PROD>> maybe_inserter;
     maybe_inserter(product.get());
 
     BranchDescription const& desc =
       provRecorder_.getBranchDescription(TypeID(*product), productInstanceName);
 
     std::unique_ptr<Wrapper<PROD> > wp(new Wrapper<PROD>(std::move(product)));
-    PROD const* prod = wp->product(); 
-     
-    typename boost::mpl::if_c<detail::has_donotrecordparents<PROD>::value,
-      RecordInParentless<PROD>,
-      RecordInParentfull<PROD> >::type parentage_recorder;
+    PROD const* prod = wp->product();
+
+    std::conditional_t<detail::has_donotrecordparents<PROD>::value,
+                       RecordInParentless<PROD>,
+                       RecordInParentfull<PROD>> parentage_recorder;
     parentage_recorder.do_it(putProducts(),
                              putProductsWithoutParents(),
                              std::move(wp),
@@ -450,7 +451,7 @@ namespace edm {
       addToGotBranchIDs(*it->provenance());
     }
   }
-  
+
   template<typename PROD>
   bool
   Event::getByToken(EDGetToken token, Handle<PROD>& result) const {
@@ -463,7 +464,7 @@ namespace edm {
     addToGotBranchIDs(*result.provenance());
     return true;
   }
-  
+
   template<typename PROD>
   bool
   Event::getByToken(EDGetTokenT<PROD> token, Handle<PROD>& result) const {
@@ -513,7 +514,7 @@ namespace edm {
   Event::getByLabel(std::string const& moduleLabel, Handle<View<ELEMENT> >& result) const {
     return getByLabel(moduleLabel, emptyString_, result);
   }
-  
+
   template<typename ELEMENT>
   bool
   Event::getByToken(EDGetToken token, Handle<View<ELEMENT>>& result) const {
@@ -527,7 +528,7 @@ namespace edm {
     fillView_(bh, result);
     return true;
   }
-  
+
   template<typename ELEMENT>
   bool
   Event::getByToken(EDGetTokenT<View<ELEMENT>> token, Handle<View<ELEMENT>>& result) const {
@@ -561,4 +562,3 @@ namespace edm {
   }
 }
 #endif
-
