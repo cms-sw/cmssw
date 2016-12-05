@@ -57,7 +57,7 @@ namespace stage2 {
      switch(block.header().getID()){
      case 123: // 61
        ethf.setType(l1t::EtSum::kTotalEtHF);
-       ethf.setHwPt( static_cast<int32_t>( uint32_t(raw_data & 0xFFFF) << 16 ) >> 16 );
+       ethf.setHwPt( static_cast<int32_t>( uint32_t(raw_data & 0xFFFF)) );
        break;
      case 121: // 60
        ethf.setType(l1t::EtSum::kTotalEtxHF);
@@ -69,7 +69,7 @@ namespace stage2 {
        break;
      case 125: // 62
        ethf.setType(l1t::EtSum::kTotalEtHF);
-       ethf.setHwPt( static_cast<int32_t>( uint32_t(raw_data & 0xFFFF) << 16 ) >> 16 );
+       ethf.setHwPt( static_cast<int32_t>( uint32_t(raw_data & 0xFFFF)) );
        break;
      case 131: // 65
        ethf.setType(l1t::EtSum::kTotalEtxHF);
@@ -98,7 +98,7 @@ namespace stage2 {
      switch(block.header().getID()){
      case 123: // 61
        etNoHF.setType(l1t::EtSum::kTotalEt);
-       etNoHF.setHwPt( static_cast<int32_t>( uint32_t(raw_data & 0xFFFF) << 16 ) >> 16 );
+       etNoHF.setHwPt( static_cast<int32_t>( uint32_t(raw_data & 0xFFFF)) );
        break;
      case 121: // 60
        etNoHF.setType(l1t::EtSum::kTotalEtx);
@@ -110,7 +110,7 @@ namespace stage2 {
        break;
      case 125: // 62
        etNoHF.setType(l1t::EtSum::kTotalEt);
-       etNoHF.setHwPt( static_cast<int32_t>( uint32_t(raw_data & 0xFFFF) << 16 ) >> 16 );
+       etNoHF.setHwPt( static_cast<int32_t>( uint32_t(raw_data & 0xFFFF)) );
        break;
      case 131: // 65
        etNoHF.setType(l1t::EtSum::kTotalEtx);
@@ -132,7 +132,7 @@ namespace stage2 {
      // ET EM
      if(block.header().getID()==123 || block.header().getID()==125){
        etEm.setType(l1t::EtSum::kTotalEtEm);
-       etEm.setHwPt( static_cast<int32_t>( uint32_t( ( raw_data >> 16 ) & 0xFFFF) << 16 ) >> 16 );
+       etEm.setHwPt( static_cast<int32_t>( uint32_t( ( raw_data >> 16 ) & 0xFFFF ) );
        res2_->push_back(0,etEm);
 
      }
@@ -147,7 +147,7 @@ namespace stage2 {
      switch(block.header().getID()){
      case 123: // 61
        hthf.setType(l1t::EtSum::kTotalHtHF);
-       hthf.setHwPt( static_cast<int32_t>( uint32_t(raw_data & 0xFFFFFF) << 16 ) >> 16 );
+       hthf.setHwPt( static_cast<int32_t>( uint32_t(raw_data & 0xFFFF)) );
        break;
      case 121: // 60
        hthf.setType(l1t::EtSum::kTotalHtxHF);
@@ -159,7 +159,7 @@ namespace stage2 {
        break;
      case 125: // 62
        hthf.setType(l1t::EtSum::kTotalHtHF);
-       hthf.setHwPt( static_cast<int32_t>( uint32_t(raw_data & 0xFFFFFF) << 16 ) >> 16 );
+       hthf.setHwPt( static_cast<int32_t>( uint32_t(raw_data & 0xFFFF)) );
        break;
      case 131: // 65
        hthf.setType(l1t::EtSum::kTotalHtxHF);
@@ -187,7 +187,7 @@ namespace stage2 {
      switch(block.header().getID()){
      case 123: // 61
        htNoHF.setType(l1t::EtSum::kTotalHt);
-       htNoHF.setHwPt( static_cast<int32_t>( uint32_t(raw_data & 0xFFFFFF) << 16 ) >> 16 );
+       htNoHF.setHwPt( static_cast<int32_t>( uint32_t(raw_data & 0xFFFF)) );
        break;
      case 121: // 60
        htNoHF.setType(l1t::EtSum::kTotalHtx);
@@ -199,7 +199,7 @@ namespace stage2 {
        break;
      case 125: // 62
        htNoHF.setType(l1t::EtSum::kTotalHt);
-       htNoHF.setHwPt( static_cast<int32_t>( uint32_t(raw_data & 0xFFFFFF) << 16 ) >> 16 );
+       htNoHF.setHwPt( static_cast<int32_t>( uint32_t(raw_data & 0xFFFF)) );
        break;
      case 131: // 65
        htNoHF.setType(l1t::EtSum::kTotalHtx);
