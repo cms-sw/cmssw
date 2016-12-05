@@ -30,6 +30,7 @@
 // STL
 #include <vector>
 #include <string>
+#include <memory>
 
 class TFile;
 class RandomEngineAndDistribution;
@@ -65,17 +66,17 @@ class PixelTemplateSmearerBase:
         std::map<unsigned int, const SimpleHistogramGenerator*> theXHistos;
         std::map<unsigned int, const SimpleHistogramGenerator*> theYHistos;
 
-        TFile* theEdgePixelResolutionFile;
+        std::unique_ptr<TFile> theEdgePixelResolutionFile;
         std::string theEdgePixelResolutionFileName;
-        TFile* theBigPixelResolutionFile;
+        std::unique_ptr<TFile> theBigPixelResolutionFile;
         std::string theBigPixelResolutionFileName;
-        TFile* theRegularPixelResolutionFile;
+        std::unique_ptr<TFile> theRegularPixelResolutionFile;
         std::string theRegularPixelResolutionFileName;
-        TFile* theMergingProbabilityFile;
+        std::unique_ptr<TFile> theMergingProbabilityFile;
         std::string theMergingProbabilityFileName;
-        TFile* theMergedPixelResolutionXFile;
+        std::unique_ptr<TFile> theMergedPixelResolutionXFile;
         std::string theMergedPixelResolutionXFileName;
-        TFile* theMergedPixelResolutionYFile;                                                                                        
+        std::unique_ptr<TFile> theMergedPixelResolutionYFile;                                                                                        
         std::string theMergedPixelResolutionYFileName;
 
         unsigned int theLayer;
