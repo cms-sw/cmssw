@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include <ostream>
+#include <memory>
 
 #include "xercesc/util/XercesDefs.hpp"
 #include "xercesc/dom/DOM.hpp"
@@ -38,7 +39,7 @@ class XMLConfigReader{
 
   void setEventsFile(const std::string & fName) {eventsFile = fName;}
 
-  std::vector<GoldenPattern*> readPatterns(const L1TMuonOverlapParams &aConfig);
+  std::vector<std::shared_ptr<GoldenPattern>> readPatterns(const L1TMuonOverlapParams &aConfig);
 
   void readLUT(l1t::LUT *lut, const L1TMuonOverlapParams & aConfig, const std::string & type);
 
@@ -56,7 +57,7 @@ class XMLConfigReader{
   std::string patternsFile; //XML file with GoldenPatterns
   std::string eventsFile;   //XML file with events
 
-  GoldenPattern * buildGP(xercesc::DOMElement* aGPElement,
+  std::unique_ptr<GoldenPattern> buildGP(xercesc::DOMElement* aGPElement,
 			  const L1TMuonOverlapParams & aConfig,
 			  unsigned int index=0,
 			  unsigned int aGPNumber=999);
@@ -65,7 +66,7 @@ class XMLConfigReader{
   //  xercesc::DOMDocument* doc;
 
   ///Cache with GPs read.
-  std::vector<GoldenPattern*> aGPs;
+  std::vector<std::shared_ptr<GoldenPattern>> aGPs;
 
 };
 
