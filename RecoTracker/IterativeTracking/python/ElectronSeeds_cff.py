@@ -303,7 +303,7 @@ trackingPhase1PU70.toReplaceWith(electronSeedsSeq, cms.Sequence(
 trackingPhase2PU140.toReplaceWith(electronSeedsSeq, cms.Sequence(
     initialStepSeedClusterMask*
     highPtTripletStepSeedClusterMask*
-    pixelPairStepSeedClusterMask*
+#    pixelPairStepSeedClusterMask*
     tripletElectronSeedLayers*
     tripletElectronTrackingRegions*
     tripletElectronHitDoublets*
