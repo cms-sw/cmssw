@@ -43,10 +43,9 @@
 #include "Alignment/OfflineValidation/plugins/TkAlStyle.cc" 
 #include "CMS_lumi.C"
 
-
 /*
   This is an auxilliary struct used to handle the plot limits
- */
+*/
 
 struct Limits {
 
@@ -226,6 +225,12 @@ void setStyle();
 ofstream outfile("FittedDeltaZ.txt");
 Int_t my_colors[10]={kBlack,kRed,kBlue,kMagenta,kBlack,kRed,kBlue,kGreen,kOrange,kViolet};
 
+int check(const double a[], int n)
+{   
+    while(--n>0 && a[n]==a[0]);
+    return n!=0;
+}
+
 const Int_t nBins_  = 48;
 Float_t _boundMin   = -0.5;
 Float_t _boundSx    = (nBins_/4.)-0.5;
@@ -251,6 +256,8 @@ void FitPVResiduals(TString namesandlabels,bool stdres,bool do2DMaps,TString the
 
   Int_t colors[10]={0,1,2,3,4,5,6,7,8,9};
   setStyle();
+
+  double theEtaLimit = -999.;
 
   TList *FileList  = new TList();
   TList *LabelList = new TList();
@@ -310,8 +317,17 @@ void FitPVResiduals(TString namesandlabels,bool stdres,bool do2DMaps,TString the
   
   TH1F* dxyNormMapResiduals[nFiles_][nBins_][nBins_];
   TH1F* dzNormMapResiduals[nFiles_][nBins_][nBins_]; 
+
+  TH1F* theEtaHistos[nFiles_];
+  double theEtaMax_[nFiles_];
   
   for(Int_t i=0;i<nFiles_;i++){
+    
+    theEtaHistos[i] = (TH1F*)fins[i]->Get("PVValidation/EventFeatures/etaMax");
+    theEtaMax_[i]   = theEtaHistos[i]->GetBinContent(1);
+
+    std::cout<<theEtaMax_[i]<<std::endl;
+
     for(Int_t j=0;j<nBins_;j++){
       
       if(stdres){
@@ -371,6 +387,12 @@ void FitPVResiduals(TString namesandlabels,bool stdres,bool do2DMaps,TString the
 	}
       }
     }
+  }
+
+  if(check(theEtaMax_,nFiles_)){
+    std::cout<<" FitPVResiduals::FitPVResiduals:() eta max are different"<<std::endl;
+    std::cout<<" exiting...."<<std::endl;
+    return;
   }
  
   Double_t highedge=nBins_-0.5;

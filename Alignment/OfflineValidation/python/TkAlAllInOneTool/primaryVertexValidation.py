@@ -16,7 +16,7 @@ class PrimaryVertexValidation(GenericValidationData):
             "pvvalidationreference": ("/store/caf/user/musich/Alignment/TkAlPrimaryVertexValidation/Reference/PrimaryVertexValidation_test_pvvalidation_mc_design_mc_48bins.root"),
             }
         
-        mandatories = ["isda","ismc","runboundary","trackcollection","vertexcollection","lumilist","ptCut","runControl","numberOfBins"]
+        mandatories = ["isda","ismc","runboundary","trackcollection","vertexcollection","lumilist","ptCut","etaCut","runControl","numberOfBins"]
         self.configBaseName  = configBaseName
         self.scriptBaseName  = scriptBaseName
         self.crabCfgBaseName = crabCfgBaseName
