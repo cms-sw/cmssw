@@ -92,12 +92,12 @@ siPixelPhase1OnlineDQM_source = cms.Sequence(
    SiPixelPhase1DigisAnalyzer
  + SiPixelPhase1ClustersAnalyzer
  + SiPixelPhase1RawDataAnalyzer
- + SiPixelPhase1GeometryDebugAnalyzer
+# + SiPixelPhase1GeometryDebugAnalyzer
 )
 
 siPixelPhase1OnlineDQM_harvesting = cms.Sequence(
    SiPixelPhase1DigisHarvester 
  + SiPixelPhase1ClustersHarvester
  + SiPixelPhase1RawDataHarvester
- + SiPixelPhase1GeometryDebugHarvester
+# + SiPixelPhase1GeometryDebugHarvester
 )

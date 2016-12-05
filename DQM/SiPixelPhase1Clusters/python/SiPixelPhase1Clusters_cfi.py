@@ -34,7 +34,8 @@ SiPixelPhase1ClustersNClusters = DefaultHistoDigiCluster.clone(
   dimensions = 0,
   specs = VPSet(
     StandardSpecification2DProfile_Num,
-    StandardSpecificationTrend_Num
+    StandardSpecificationTrend_Num,
+    StandardSpecifications1D_Num
   )
 )
 
