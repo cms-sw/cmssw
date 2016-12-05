@@ -65,7 +65,6 @@ defaultOptions.outputCommands = None
 defaultOptions.inputEventContent = ''
 defaultOptions.dropDescendant = False
 defaultOptions.relval = None
-defaultOptions.slhc = None
 defaultOptions.profile = None
 defaultOptions.isRepacked = False
 defaultOptions.restoreRNDSeeds = False
@@ -806,9 +805,6 @@ class ConfigBuilder(object):
         self.additionalCommands.append('from Configuration.AlCa.GlobalTag import GlobalTag')
         self.additionalCommands.append('process.GlobalTag = GlobalTag(process.GlobalTag, %s, %s)' % (repr(self._options.conditions), repr(self._options.custom_conditions)))
 
-	if self._options.slhc:
-		self.loadAndRemember("SLHCUpgradeSimulations/Geometry/fakeConditions_%s_cff"%(self._options.slhc,))
-		
 
     def addCustomise(self,unsch=0):
         """Include the customise code """
@@ -1111,13 +1107,6 @@ class ConfigBuilder(object):
 	if self._options.isData:
 		self._options.pileup=None
 
-	if self._options.slhc:
-		self.GeometryCFF='SLHCUpgradeSimulations.Geometry.%s_cmsSimIdealGeometryXML_cff'%(self._options.slhc,)
-		if 'stdgeom' not in self._options.slhc:
-			self.SimGeometryCFF='SLHCUpgradeSimulations.Geometry.%s_cmsSimIdealGeometryXML_cff'%(self._options.slhc,)
-		self.DIGIDefaultCFF='SLHCUpgradeSimulations/Geometry/Digi_%s_cff'%(self._options.slhc,)
-		if self._options.pileup!=defaultOptions.pileup:
-			self._options.pileup='SLHC_%s_%s'%(self._options.pileup,self._options.slhc)
 
 	self.REDIGIDefaultSeq=self.DIGIDefaultSeq
 
