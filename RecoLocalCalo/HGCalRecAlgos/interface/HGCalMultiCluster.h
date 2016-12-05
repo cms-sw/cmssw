@@ -87,7 +87,7 @@ public:
     double acc = 0.0;
     int n = 0;
     for(component_iterator it = begin(); it != end(); it++){
-      assert(it->y() != 0. && it->x() != 0. && "Cluster position somehow in beampipe.");
+      assert((it->y() != 0. || it->x() != 0.) && "Cluster position somehow in beampipe.");
       acc += atan2(it->y(),it->x());
       ++n;
     }
