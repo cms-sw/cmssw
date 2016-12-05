@@ -110,7 +110,8 @@ class PrimaryVertexValidation : public edm::one::EDAnalyzer<edm::one::SharedReso
   bool    doBPix_;
   bool    doFPix_;
   double  ptOfProbe_;
-  double  etaOfProbe_; 
+  double  etaOfProbe_;
+  bool    isPhase1_;
   int nBins_;                 // actual number of histograms     
   std::vector<unsigned int> runControlNumbers_;
 
@@ -209,6 +210,9 @@ class PrimaryVertexValidation : public edm::one::EDAnalyzer<edm::one::SharedReso
 
   int   hasRecVertex_[nMaxtracks_];
   int   isGoodTrack_[nMaxtracks_];
+
+  // histogram for max(eta)
+  TH1F* h_etaMax;
 
   // ---- directly histograms // ===> unbiased residuals
   

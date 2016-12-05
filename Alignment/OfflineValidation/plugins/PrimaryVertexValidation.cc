@@ -177,6 +177,35 @@ PrimaryVertexValidation::analyze(const edm::Event& iEvent, const edm::EventSetup
   iSetup.get<GlobalTrackingGeometryRecord>().get( theTrackingGeometry );
 
   //=======================================================
+  // Retrieve geometry information
+  //=======================================================
+ 
+  edm::LogInfo("read tracker geometry...");
+  edm::ESHandle<TrackerGeometry> pDD;
+  iSetup.get<TrackerDigiGeometryRecord>().get( pDD );
+  edm::LogInfo("tracker geometry read")<<"There are: "<< pDD->dets().size() <<" detectors";
+
+  // switch on the phase1 
+  if( (pDD->isThere(GeomDetEnumerators::P1PXB)) || 
+      (pDD->isThere(GeomDetEnumerators::P1PXEC)) ) {
+    isPhase1_ = true;
+    edm::LogInfo("PrimaryVertexValidation")<<" pixel phase1 setup ";
+  } else {
+    isPhase1_ = false;
+    edm::LogInfo("PrimaryVertexValidation")<<" pixel phase0 setup ";
+  }
+
+  if(isPhase1_){
+    etaOfProbe_ = std::min(etaOfProbe_,2.7);
+  } else {
+    etaOfProbe_ = std::min(etaOfProbe_,2.5);
+  }
+
+  if(h_etaMax->GetEntries()==0.){
+    h_etaMax->SetBinContent(1,etaOfProbe_);
+  }
+
+  //=======================================================
   // Retrieve the Transient Track Builder information
   //=======================================================
 
@@ -454,23 +483,30 @@ PrimaryVertexValidation::analyze(const edm::Event& iEvent, const edm::EventSetup
 	//=======================================================
 	// Retrieve rechit information
 	//=======================================================  
-
-	const reco::HitPattern& hits = theTrack.hitPattern();
 	
 	int nRecHit1D=0;
 	int nRecHit2D=0;
-	int nhitinTIB  = hits.numberOfValidStripTIBHits(); 
-	int nhitinTOB  = hits.numberOfValidStripTOBHits(); 
-	int nhitinTID  = hits.numberOfValidStripTIDHits(); 
-	int nhitinTEC  = hits.numberOfValidStripTECHits();
-	int nhitinBPIX = hits.numberOfValidPixelBarrelHits();
-	int nhitinFPIX = hits.numberOfValidPixelEndcapHits();
+	int nhitinTIB=0; 
+	int nhitinTOB=0; 
+	int nhitinTID=0; 
+	int nhitinTEC=0;
+	int nhitinBPIX=0;
+	int nhitinFPIX=0;
 	
 	for (trackingRecHit_iterator iHit = theTTrack->recHitsBegin(); iHit != theTTrack->recHitsEnd(); ++iHit) {
 	  if((*iHit)->isValid()) {	
 	    
 	    if (this->isHit2D(**iHit)) {++nRecHit2D;}
 	    else {++nRecHit1D; }
+	    
+	    int type =(*iHit)->geographicalId().subdetId();
+	    
+	    if(type==int(StripSubdetector::TIB)){++nhitinTIB;}
+	    if(type==int(StripSubdetector::TOB)){++nhitinTOB;}
+	    if(type==int(StripSubdetector::TID)){++nhitinTID;}
+	    if(type==int(StripSubdetector::TEC)){++nhitinTEC;}
+	    if(type==int(                kBPIX)){++nhitinBPIX;}
+	    if(type==int(                kFPIX)){++nhitinFPIX;}
 	  }
 	}      
 
@@ -850,6 +886,18 @@ std::pair<bool,bool> PrimaryVertexValidation::pixelHitsCheck(const reco::Transie
     hasBPixHits = true;
   }
   
+  // for (int i=0; i<p.numberOfHits(reco::HitPattern::TRACK_HITS); i++) {
+  //   uint32_t pattern = p.getHitPattern(reco::HitPattern::TRACK_HITS, i);  
+  //   if(  p.validHitFilter(pattern) ) {
+  //     if (p.pixelBarrelHitFilter(pattern) ) {
+  // 	hasBPixHits = true;
+  //     }
+  //     if (p.pixelEndcapHitFilter(pattern) ) {
+  // 	hasFPixHits = true;
+  //     }
+  //   }
+  // }
+
   return std::make_pair(hasBPixHits,hasFPixHits);
 }
 
@@ -990,16 +1038,18 @@ void PrimaryVertexValidation::beginJob()
   h_BeamWidthX        = EventFeatures.make<TH1F>("h_BeamWidthX","x-coordinate beam width;#sigma_{X}^{beam};n_{events}",100,0.,0.01);	     
   h_BeamWidthY        = EventFeatures.make<TH1F>("h_BeamWidthY","y-coordinate beam width;#sigma_{Y}^{beam};n_{events}",100,0.,0.01);        
 
+  h_etaMax            = EventFeatures.make<TH1F>("etaMax","etaMax",1,-0.5,0.5);
+  
   // probe track histograms
   TFileDirectory ProbeFeatures = fs->mkdir("ProbeTrackFeatures");
 
   h_probePt_         = ProbeFeatures.make<TH1F>("h_probePt","p_{T} of probe track;track p_{T} (GeV); tracks",100,0.,50.);   
   h_probeP_          = ProbeFeatures.make<TH1F>("h_probeP","momentum of probe track;track p (GeV); tracks",100,0.,100.);   
-  h_probeEta_        = ProbeFeatures.make<TH1F>("h_probeEta","#eta of the probe track;track #eta;tracks",54,-2.7,2.7);  
+  h_probeEta_        = ProbeFeatures.make<TH1F>("h_probeEta","#eta of the probe track;track #eta;tracks",54,-2.8,2.8);  
   h_probePhi_        = ProbeFeatures.make<TH1F>("h_probePhi","#phi of probe track;track #phi (rad);tracks",100,-3.15,3.15);  
 
-  h2_probeEtaPhi_    = ProbeFeatures.make<TH2F>("h2_probeEtaPhi","probe track #phi vs #eta;#eta of probe track;track #phi of probe track (rad); tracks",54,-2.7,2.7,100,-3.15,3.15);  
-  h2_probeEtaPt_     = ProbeFeatures.make<TH2F>("h2_probeEtaPt","probe track p_{T} vs #eta;#eta of probe track;track p_{T} (GeV); tracks",54,-2.7,2.7,100,0.,50.);    
+  h2_probeEtaPhi_    = ProbeFeatures.make<TH2F>("h2_probeEtaPhi","probe track #phi vs #eta;#eta of probe track;track #phi of probe track (rad); tracks",54,-2.8,2.8,100,-3.15,3.15);  
+  h2_probeEtaPt_     = ProbeFeatures.make<TH2F>("h2_probeEtaPt","probe track p_{T} vs #eta;#eta of probe track;track p_{T} (GeV); tracks",54,-2.8,2.8,100,0.,50.);    
 
   h_probeChi2_       = ProbeFeatures.make<TH1F>("h_probeChi2","#chi^{2} of probe track;track #chi^{2}; tracks",100,0.,100.); 
   h_probeNormChi2_   = ProbeFeatures.make<TH1F>("h_probeNormChi2"," normalized #chi^{2} of probe track;track #chi^{2}/ndof; tracks",100,0.,10.);
@@ -1796,6 +1846,8 @@ void PrimaryVertexValidation::endJob()
     fillMap(n_dzWidthBiasMap ,n_dzBiasResidualsMap,"width");
    
   }
+
+  // do profiles
 
   fillTrendPlot(a_dxyPhiMeanTrend ,a_dxyPhiResiduals,"mean","phi");  
   fillTrendPlot(a_dxyPhiWidthTrend,a_dxyPhiResiduals,"width","phi");
