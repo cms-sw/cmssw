@@ -48,8 +48,8 @@ jetCoreRegionalStepSeedLayers = cms.EDProducer("SeedingLayersEDProducer",
     )
 )
 from Configuration.Eras.Modifier_trackingPhase1_cff import trackingPhase1
-trackingPhase1.toModify(jetCoreRegionalStepSeedLayers,
-    layerList = [
+from Configuration.Eras.Modifier_trackingPhase1QuadProp_cff import trackingPhase1QuadProp
+_layerListForPhase1 = [
         'BPix1+BPix2', 'BPix1+BPix3', 'BPix1+BPix4',
         'BPix2+BPix3', 'BPix2+BPix4',
         'BPix3+BPix4',
@@ -61,7 +61,8 @@ trackingPhase1.toModify(jetCoreRegionalStepSeedLayers,
         #'BPix3+TIB1','BPix3+TIB2'
         'BPix4+TIB1','BPix4+TIB2'
     ]
-)
+trackingPhase1.toModify(jetCoreRegionalStepSeedLayers, layerList = _layerListForPhase1)
+trackingPhase1QuadProp.toModify(jetCoreRegionalStepSeedLayers, layerList = _layerListForPhase1)
 
 # TrackingRegion
 from RecoTauTag.HLTProducers.tauRegionalPixelSeedTrackingRegions_cfi import tauRegionalPixelSeedTrackingRegions as _tauRegionalPixelSeedTrackingRegions

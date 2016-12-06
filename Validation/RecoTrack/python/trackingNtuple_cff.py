@@ -62,7 +62,9 @@ phase1Pixel.toReplaceWith(trackingNtupleSeedSelectors, _trackingNtupleSeedSelect
 
 trackingNtuple.seedTracks = _seedSelectors
 from Configuration.Eras.Modifier_trackingPhase1_cff import trackingPhase1
+from Configuration.Eras.Modifier_trackingPhase1QuadProp_cff import trackingPhase1QuadProp
 trackingPhase1.toModify(trackingNtuple, seedTracks = _seedSelectors_trackingPhase1)
+trackingPhase1QuadProp.toModify(trackingNtuple, seedTracks = _seedSelectors_trackingPhase1)
 
 trackingNtupleSequence = cms.Sequence()
 # reproduce hits because they're not stored in RECO

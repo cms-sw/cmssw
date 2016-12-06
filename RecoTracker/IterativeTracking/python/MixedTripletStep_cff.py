@@ -21,6 +21,9 @@ for _eraName, _postfix, _era in _cfg.nonDefaultEras():
 from Configuration.Eras.Modifier_trackingPhase1_cff import trackingPhase1
 trackingPhase1.toModify(chargeCut2069Clusters, oldClusterRemovalInfo = mixedTripletStepClusters.oldClusterRemovalInfo.value())
 trackingPhase1.toModify(mixedTripletStepClusters, oldClusterRemovalInfo="chargeCut2069Clusters")
+from Configuration.Eras.Modifier_trackingPhase1QuadProp_cff import trackingPhase1QuadProp
+trackingPhase1QuadProp.toModify(chargeCut2069Clusters, oldClusterRemovalInfo = mixedTripletStepClusters.oldClusterRemovalInfo.value())
+trackingPhase1QuadProp.toModify(mixedTripletStepClusters, oldClusterRemovalInfo="chargeCut2069Clusters")
 
 # SEEDING LAYERS
 from RecoLocalTracker.SiStripClusterizer.SiStripClusterChargeCut_cfi import *
@@ -145,6 +148,7 @@ trackingLowPU.toModify(mixedTripletStepSeedLayersB,
     TIB = dict(clusterChargeCut = dict(refToPSet_ = 'SiStripClusterChargeCutTiny')),
 )
 trackingPhase1.toModify(mixedTripletStepSeedLayersB, layerList = ['BPix3+BPix4+TIB1'])
+trackingPhase1QuadProp.toModify(mixedTripletStepSeedLayersB, layerList = ['BPix3+BPix4+TIB1'])
 trackingPhase1PU70.toModify(mixedTripletStepSeedLayersB,
     layerList = [
         'BPix1+BPix2+BPix3', 'BPix2+BPix3+BPix4','BPix1+BPix2+BPix4', 'BPix1+BPix3+BPix4'
