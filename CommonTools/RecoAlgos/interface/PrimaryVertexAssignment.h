@@ -23,6 +23,7 @@ class PrimaryVertexAssignment {
    maxDzSigForPrimaryAssignment_(iConfig.getParameter<double>("maxDzSigForPrimaryAssignment")),
    maxDzForPrimaryAssignment_(iConfig.getParameter<double>("maxDzForPrimaryAssignment")),
    maxDzErrorForPrimaryAssignment_(iConfig.getParameter<double>("maxDzErrorForPrimaryAssignment")),
+   maxDtSigForPrimaryAssignment_(iConfig.getParameter<double>("maxDtSigForPrimaryAssignment")),   
    maxJetDeltaR_(iConfig.getParameter<double>("maxJetDeltaR")),
    minJetPt_(iConfig.getParameter<double>("minJetPt")),
    maxDistanceToJetAxis_(iConfig.getParameter<double>("maxDistanceToJetAxis")),
@@ -37,19 +38,25 @@ class PrimaryVertexAssignment {
   std::pair<int,PrimaryVertexAssignment::Quality> chargedHadronVertex(const reco::VertexCollection& vertices, 
                const reco::TrackRef& trackRef,
                const reco::Track * track,
+               const edm::ValueMap<float> *trackTimeTag,
+               const edm::ValueMap<float> *trackTimeResoTag,
                const edm::View<reco::Candidate> & jets,
               const TransientTrackBuilder & builder) const;
 
   std::pair<int,PrimaryVertexAssignment::Quality> chargedHadronVertex(const reco::VertexCollection& vertices,
                const reco::TrackRef& trackRef,
+               const edm::ValueMap<float> *trackTimeTag,
+               const edm::ValueMap<float> *trackTimeResoTag,
                const edm::View<reco::Candidate> & jets,
               const TransientTrackBuilder & builder) const
  {
-	return chargedHadronVertex(vertices,trackRef,&(*trackRef),jets,builder);
+	return chargedHadronVertex(vertices,trackRef,&(*trackRef),trackTimeTag,trackTimeResoTag,jets,builder);
  }
 
   std::pair<int,PrimaryVertexAssignment::Quality> chargedHadronVertex( const reco::VertexCollection& vertices,
                                    const reco::PFCandidate& pfcand,
+                                   const edm::ValueMap<float> *trackTimeTag,
+                                   const edm::ValueMap<float> *trackTimeResoTag,
                                    const edm::View<reco::Candidate>& jets,
                                    const TransientTrackBuilder& builder) const {
 	  if(pfcand.gsfTrackRef().isNull())
@@ -57,17 +64,19 @@ class PrimaryVertexAssignment {
 		  if(pfcand.trackRef().isNull())
 			  return std::pair<int,PrimaryVertexAssignment::Quality>(-1,PrimaryVertexAssignment::Unassigned);
 		  else 
-			  return chargedHadronVertex(vertices,pfcand.trackRef(),jets,builder);
+			  return chargedHadronVertex(vertices,pfcand.trackRef(),trackTimeTag,trackTimeResoTag,jets,builder);
 	  }
-	  return chargedHadronVertex(vertices,reco::TrackRef(),&(*pfcand.gsfTrackRef()),jets,builder);
+	  return chargedHadronVertex(vertices,reco::TrackRef(),&(*pfcand.gsfTrackRef()),trackTimeTag,trackTimeResoTag,jets,builder);
   }
   std::pair<int,PrimaryVertexAssignment::Quality> chargedHadronVertex( const reco::VertexCollection& vertices,
                                    const reco::RecoChargedRefCandidate& chcand,
+                                   const edm::ValueMap<float> *trackTimeTag,
+                                   const edm::ValueMap<float> *trackTimeResoTag,
                                    const edm::View<reco::Candidate>& jets,
                                    const TransientTrackBuilder& builder) const {
       if(chcand.track().isNull())
          return std::pair<int,PrimaryVertexAssignment::Quality>(-1,PrimaryVertexAssignment::Unassigned);
-      return chargedHadronVertex(vertices,chcand.track(),jets,builder);
+      return chargedHadronVertex(vertices,chcand.track(),trackTimeTag,trackTimeResoTag,jets,builder);
   }
 
 
@@ -75,6 +84,7 @@ class PrimaryVertexAssignment {
     double    maxDzSigForPrimaryAssignment_;
     double    maxDzForPrimaryAssignment_;
     double    maxDzErrorForPrimaryAssignment_;
+    double    maxDtSigForPrimaryAssignment_;
     double    maxJetDeltaR_;
     double    minJetPt_;
     double    maxDistanceToJetAxis_;
