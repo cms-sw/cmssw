@@ -30,6 +30,7 @@ from Configuration.Eras.Modifier_trackingPhase1PU70_cff import trackingPhase1PU7
 trackingPhase1.toModify(lowPtTripletStepSeedLayers, layerList = _layerListForPhase1)
 trackingPhase1PU70.toModify(lowPtTripletStepSeedLayers, layerList = _layerListForPhase1)
 
+# combination with gap removed as only source of fakes in current geometry (kept for doc,=)
 _layerListForPhase2 = ['BPix1+BPix2+BPix3', 'BPix2+BPix3+BPix4',
 #                       'BPix1+BPix3+BPix4', 'BPix1+BPix2+BPix4',
                        'BPix1+BPix2+FPix1_pos', 'BPix1+BPix2+FPix1_neg',
@@ -40,6 +41,7 @@ _layerListForPhase2 = ['BPix1+BPix2+BPix3', 'BPix2+BPix3+BPix4',
                        'FPix2_pos+FPix3_pos+FPix4_pos', 'FPix2_neg+FPix3_neg+FPix4_neg',
                        'FPix3_pos+FPix4_pos+FPix5_pos', 'FPix3_neg+FPix4_neg+FPix5_neg',
                        'FPix4_pos+FPix5_pos+FPix6_pos', 'FPix4_neg+FPix5_neg+FPix6_neg',
+#  removed as redunant and covering effectively only eta>4   (here for documentation, to be optimized after TDR)
 #                       'FPix5_pos+FPix6_pos+FPix7_pos', 'FPix5_neg+FPix6_neg+FPix7_neg',
 #                       'FPix6_pos+FPix7_pos+FPix8_pos', 'FPix6_neg+FPix7_neg+FPix8_neg'
 ]
