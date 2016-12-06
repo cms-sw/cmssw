@@ -1,5 +1,42 @@
+<<<<<<< HEAD
 <DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
           xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+=======
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+
+  <PosPartSection label="CTPPS_Diamond_Detector_Assembly">
+    <PosPart copyNumber="1">
+      <rParent name="CTPPS_Diamond_Parameters:CTPPS_Diamond_Main_Box"/>
+      <rChild name="Plane1:Plane"/>
+      <Translation x="0*cm" y="0*cm" z="-[CTPPS_Diamond_Parameters:Plane_dz]*3-[CTPPS_Diamond_Parameters:Plane_gap]*3"/>
+      <rRotation name="rotations:000D"/>
+    </PosPart>
+    <PosPart copyNumber="2">
+      <rParent name="CTPPS_Diamond_Parameters:CTPPS_Diamond_Main_Box"/>
+      <rChild name="Plane2:Plane"/>
+      <Translation x="0*cm" y="0*cm" z="-[CTPPS_Diamond_Parameters:Plane_dz]-[CTPPS_Diamond_Parameters:Plane_gap]"/>
+      <rRotation name="rotations:000D"/>
+    </PosPart>
+    <PosPart copyNumber="3">
+      <rParent name="CTPPS_Diamond_Parameters:CTPPS_Diamond_Main_Box"/>
+      <rChild name="Plane3:Plane"/>
+      <Translation x="0*cm" y="0*cm" z="[CTPPS_Diamond_Parameters:Plane_dz]+[CTPPS_Diamond_Parameters:Plane_gap]"/>
+      <rRotation name="rotations:000D"/>
+    </PosPart>
+    <PosPart copyNumber="4">
+      <rParent name="CTPPS_Diamond_Parameters:CTPPS_Diamond_Main_Box"/>
+      <rChild name="Plane4:Plane"/>
+      <Translation x="0*cm" y="0*cm" z="[CTPPS_Diamond_Parameters:Plane_dz]*3+[CTPPS_Diamond_Parameters:Plane_gap]*3"/>
+      <rRotation name="rotations:000D"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="CTPPS_Timing_Horizontal_Pot:CTPPS_Timing_Cylinder_wall"/>
+      <rChild name="CTPPS_Diamond_Parameters:CTPPS_Diamond_Main_Box"/>
+      <Translation x="0*cm" y="[CTPPS_Timing_Horizontal_Pot:outer_diameter]/2-[CTPPS_Timing_Horizontal_Pot:wall_thickness]-[CTPPS_Diamond_Parameters:Chromium_thick]*4-[CTPPS_Diamond_Parameters:Gold_thick]*8-[CTPPS_Diamond_Parameters:Diamond_dz]*4-[CTPPS_Diamond_Parameters:PCB_thick]*4-[CTPPS_Diamond_Parameters:Plane_gap]*3" z="[CTPPS_Timing_Horizontal_Pot:window_thickness_bottom]-[CTPPS_Timing_Horizontal_Pot:height_lower_part]/2+[CTPPS_Diamond_Parameters:Main_Box_dy]"/>
+      <Rotation name="Detector_Box" phiX="0*deg" phiY="0*deg" phiZ="270*deg" thetaX="90*deg" thetaY="0*deg" thetaZ="90*deg"/>
+    </PosPart>
+  </PosPartSection>
+>>>>>>> a1ab17e... XML fixes
 
 <PosPartSection label="CTPPS_Diamond_Detector_Assembly.xml">
 
