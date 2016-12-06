@@ -350,3 +350,38 @@ float pat::PackedCandidate::puppiWeightNoLep() const { return unpack8logClosed(p
 void pat::PackedCandidate::setHcalFraction(float p) {
   hcalFraction_ = 100*p;
 }
+
+void pat::PackedCandidate::setDTimeAssociatedPV(float aTime, float aTimeError) {
+    if (aTime == 0 && aTimeError == 0) {
+        packedTime_ = 0; packedTimeError_ = 0;
+    } else if (aTimeError == 0) {
+        packedTimeError_ = 0;
+        packedTime_ = packTimeNoError(aTime);
+    } else {
+        packedTimeError_ = packTimeError(aTimeError);
+        aTimeError = unpackTimeError(packedTimeError_); // for reproducibility
+        packedTime_ = packTimeWithError(aTime, aTimeError);
+    }
+}
+
+/// static to allow unit testing
+uint8_t pat::PackedCandidate::packTimeError(float timeError) { return timeError <= 0 ? 0 : std::max<uint8_t>( std::min(std::round(std::ldexp(std::log2(timeError/0.002f), +5)), 255.f), 1); }
+float pat::PackedCandidate::unpackTimeError(uint8_t timeError) { return timeError > 0 ? 0.002f * std::exp2(std::ldexp(float(timeError),-5)) : -1.0f; }
+float pat::PackedCandidate::unpackTimeNoError(int16_t time) { return (time > 0 ? 0.0002f : -0.0002f) * std::exp2(std::ldexp(float(std::abs(time)),-6)); }
+int16_t pat::PackedCandidate::packTimeNoError(float time) { return (time > 0 ? +1 : -1)*std::min(std::round(std::ldexp(std::log2(std::abs(time/0.0002f)),+6)), 32767.f); }
+float pat::PackedCandidate::unpackTimeWithError(int16_t time, uint8_t timeError) {
+    if (time % 2 == 0) { // no overflow
+        return std::ldexp(unpackTimeError(timeError), -6) * float(time/2);
+    } else {
+        return pat::PackedCandidate::unpackTimeNoError(time/2);
+    }
+}
+int16_t pat::PackedCandidate::packTimeWithError(float   time, float   timeError) {
+    float fpacked = std::round(time/std::ldexp(timeError, -6));
+    if (std::abs(fpacked) < 16383.f) {
+        return int16_t(fpacked) * 2;
+    } else {
+        return packTimeNoError(time) * 2 + (time > 0 ? +1 : -1);
+    }
+}
+
