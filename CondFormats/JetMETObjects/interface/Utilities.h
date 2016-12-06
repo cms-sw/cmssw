@@ -11,7 +11,113 @@
 #include <sstream>
 #include <string>
 #include <vector>
+#include <tuple>
 #include <cmath>
+#include <utility>
+
+namespace std
+{
+  //print a tuple
+  template<typename Type, unsigned N, unsigned Last>
+  struct tuple_printer {
+  
+      static void print(std::ostream& out, const Type& value) {
+          out << std::get<N>(value) << ", ";
+          tuple_printer<Type, N + 1, Last>::print(out, value);
+      }
+  };
+  template<typename Type, unsigned N>
+  struct tuple_printer<Type, N, N> {
+  
+      static void print(std::ostream& out, const Type& value) {
+          out << std::get<N>(value);
+      }
+  
+  };
+  template<typename... Types>
+  std::ostream& operator<<(std::ostream& out, const std::tuple<Types...>& value) {
+      out << "(";
+      tuple_printer<std::tuple<Types...>, 0, sizeof...(Types) - 1>::print(out, value);
+      out << ")";
+      return out;
+  }
+
+  //----------------------------------------------------------------------
+  //list of type indices
+  template <size_t... n>
+  struct ct_integers_list {
+      template <size_t m>
+      struct push_back
+      {
+          typedef ct_integers_list<n..., m> type;
+      };
+  };
+  template <size_t max>
+  struct ct_iota_1
+  {
+      typedef typename ct_iota_1<max-1>::type::template push_back<max>::type type;
+  };
+  template <>
+  struct ct_iota_1<0>
+  {
+      typedef ct_integers_list<> type;
+  };
+
+  //----------------------------------------------------------------------
+  //return a subset of the tuple
+  template <size_t... indices, typename Tuple>
+  auto tuple_subset(const Tuple& tpl, ct_integers_list<indices...>)
+      -> decltype(std::make_tuple(std::get<indices>(tpl)...))
+  {
+      return std::make_tuple(std::get<indices>(tpl)...);
+      // this means:
+      //   make_tuple(get<indices[0]>(tpl), get<indices[1]>(tpl), ...)
+  }
+  template <typename Head, typename... Tail>
+  std::tuple<Tail...> tuple_tail(const std::tuple<Head, Tail...>& tpl)
+  {
+      return tuple_subset(tpl, typename ct_iota_1<sizeof...(Tail)>::type());
+      // this means:
+      //   tuple_subset<1, 2, 3, ..., sizeof...(Tail)-1>(tpl, ..)
+  }
+
+  //----------------------------------------------------------------------
+  // Recursive hashing function for tuples
+  template<typename Head, typename... ndims> struct hash_specialization
+  {
+    typedef std::tuple<Head,ndims...> argument_type;
+    typedef std::size_t result_type;
+    result_type operator()(const argument_type& t) const
+    {
+      const uint32_t& b = reinterpret_cast<const uint32_t&>(std::get<0>(t));
+      //const uint32_t& more = (*this)(tuple_tail(t));
+      const uint32_t& more = hash_specialization<ndims...>()(tuple_tail(t));
+      return b^more;
+    }
+  };
+  // Base case
+  template<> struct hash_specialization<float>
+  {
+    typedef std::tuple<float> argument_type;
+    typedef std::size_t result_type;
+    result_type operator()(const argument_type& t) const
+    {
+      const uint32_t& b = reinterpret_cast<const uint32_t&>(std::get<0>(t));
+      const result_type& result = reinterpret_cast<const result_type&>(b);
+      return result;
+    } 
+  };
+  // Overloaded verions of std::hash for tuples
+  template<typename Head, typename... ndims> struct hash<std::tuple<Head, ndims...> >
+  {
+    typedef std::tuple<Head,ndims...> argument_type;
+    typedef std::size_t result_type;
+    result_type operator()(const argument_type& t) const
+    {
+      return hash_specialization<Head,ndims...>()(t);
+    }
+  };
+}
 
 namespace
 {
