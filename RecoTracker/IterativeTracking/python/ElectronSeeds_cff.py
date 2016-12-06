@@ -263,7 +263,6 @@ trackingPhase1PU70.toModify(newCombinedSeeds, seedCollections = [
 trackingPhase2PU140.toModify(newCombinedSeeds, seedCollections = [
     'initialStepSeeds',
     'highPtTripletStepSeeds',
-#    'pixelPairStepSeeds',
     'tripletElectronSeeds'
 ])
 
