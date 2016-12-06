@@ -90,6 +90,9 @@ namespace pat {
             const double minPtForTrackProperties_;
             const int covarianceVersion_;
             const std::vector<int> covariancePackingSchemas_;
+      
+            const bool storeTiming_;
+      
             // for debugging
             float calcDxy(float dx, float dy, float phi) const {
                 return - dx * std::sin(phi) + dy * std::cos(phi);
@@ -119,7 +122,8 @@ pat::PATPackedCandidateProducer::PATPackedCandidateProducer(const edm::Parameter
   minPtForChargedHadronProperties_(iConfig.getParameter<double>("minPtForChargedHadronProperties")),
   minPtForTrackProperties_(iConfig.getParameter<double>("minPtForTrackProperties")),
   covarianceVersion_(iConfig.getParameter<int >("covarianceVersion")),
-  covariancePackingSchemas_(iConfig.getParameter<std::vector<int> >("covariancePackingSchemas"))
+  covariancePackingSchemas_(iConfig.getParameter<std::vector<int> >("covariancePackingSchemas")),
+  storeTiming_(iConfig.getParameter<bool>("storeTiming"))  
 {
   std::vector<edm::InputTag> sv_tags = iConfig.getParameter<std::vector<edm::InputTag> >("secondaryVerticesForWhiteList");
   for(auto itag : sv_tags){
@@ -349,6 +353,10 @@ void pat::PATPackedCandidateProducer::produce(edm::StreamID, edm::Event& iEvent,
           mappingPuppi[((*puppiCandsMap)[pkref]).key()]=ic;
         }
 	
+        if (storeTiming_ && cand.isTimeValid())  {
+          outPtrP->back().setTime(cand.time(), cand.timeError());
+        }
+
         mapping[ic] = ic; // trivial at the moment!
         if (cand.trackRef().isNonnull() && cand.trackRef().id() == TKOrigs.id()) {
 	  mappingTk[cand.trackRef().key()] = ic;	    
