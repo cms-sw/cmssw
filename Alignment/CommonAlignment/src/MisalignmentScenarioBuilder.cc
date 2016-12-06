@@ -366,19 +366,19 @@ bool MisalignmentScenarioBuilder::possiblyPartOf(const std::string & /*sub*/, co
 const std::string 
 MisalignmentScenarioBuilder::rootName_( const std::string& parameterSetName ) const
 {
+  std::string result{parameterSetName}; // Initialise to full string
 
-  std::string result = parameterSetName; // Initialise to full string
-  
   // Check if string ends with 's'
-  const int lastChar = parameterSetName.length()-1;
+  const auto lastChar = parameterSetName.length()-1;
   if ( parameterSetName[lastChar] == 's' ) {
     result =  parameterSetName.substr( 0, lastChar );
   } else {
-    // Otherwise, look for numbers (assumes names have no numbers inside...)
-    for ( unsigned int ichar = 0; ichar<parameterSetName.length(); ichar++ ) {
-      if ( isdigit(parameterSetName[ichar]) ) {
-        result = parameterSetName.substr( 0, ichar );
-        break; // Stop at first digit
+    // Otherwise, look for numbers at the end
+    // (assumes that numbers at the end are not part of the name)
+    for (auto ichar = lastChar; ichar != 0; --ichar) {
+      if (!isdigit(parameterSetName[ichar])) {
+        result = parameterSetName.substr(0, ichar + 1);
+        break; // Stop at first non-digit
       }
     }
   }
@@ -386,5 +386,4 @@ MisalignmentScenarioBuilder::rootName_( const std::string& parameterSetName ) co
   LogDebug("PrintParameters") << "Name was " << parameterSetName << ", root is " << result;
 
   return result;
-
 }
