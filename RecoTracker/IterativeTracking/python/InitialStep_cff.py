@@ -21,6 +21,16 @@ trackingPhase1.toModify(initialStepSeedLayers,
         'BPix1+FPix1_neg+FPix2_neg'
     ]
 )
+from Configuration.Eras.Modifier_trackingPhase1QuadProp_cff import trackingPhase1QuadProp
+trackingPhase1QuadProp.toModify(initialStepSeedLayers,
+    layerList = [
+        'BPix1+BPix2+BPix3',
+        'BPix1+BPix2+FPix1_pos',
+        'BPix1+BPix2+FPix1_neg',
+        'BPix1+FPix1_pos+FPix2_pos',
+        'BPix1+FPix1_neg+FPix2_neg'
+    ]
+)
 trackingPhase2PU140.toModify(initialStepSeedLayers,
     layerList = RecoPixelVertexing.PixelTriplets.quadrupletseedmerging_cff.PixelSeedMergerQuadruplets.layerList.value()
 )
@@ -175,6 +185,10 @@ initialStepTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilde
     )
 trackingLowPU.toModify(initialStepTrajectoryBuilder, maxCand = 5)
 trackingPhase1.toModify(initialStepTrajectoryBuilder,
+    inOutTrajectoryFilter = dict(refToPSet_ = "initialStepTrajectoryFilterInOut"),
+    useSameTrajFilter = False
+)
+trackingPhase1QuadProp.toModify(initialStepTrajectoryBuilder,
     inOutTrajectoryFilter = dict(refToPSet_ = "initialStepTrajectoryFilterInOut"),
     useSameTrajFilter = False
 )

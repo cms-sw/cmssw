@@ -22,6 +22,10 @@ from Configuration.Eras.Modifier_trackingPhase1_cff import trackingPhase1
 trackingPhase1.toModify(initialStepSeedLayersPreSplitting,
     layerList = RecoPixelVertexing.PixelTriplets.quadrupletseedmerging_cff.PixelSeedMergerQuadruplets.layerList.value()
 )
+from Configuration.Eras.Modifier_trackingPhase1QuadProp_cff import trackingPhase1QuadProp
+trackingPhase1QuadProp.toModify(initialStepSeedLayersPreSplitting,
+    layerList = RecoPixelVertexing.PixelTriplets.quadrupletseedmerging_cff.PixelSeedMergerQuadruplets.layerList.value()
+)
 
 # TrackingRegion
 from RecoTracker.TkTrackingRegions.globalTrackingRegionFromBeamSpot_cfi import globalTrackingRegionFromBeamSpot as _globalTrackingRegionFromBeamSpot
@@ -78,7 +82,12 @@ trackingPhase1.toModify(initialStepHitTripletsPreSplitting,
     produceSeedingHitSets = False,
     produceIntermediateHitTriplets = True,
 )
+trackingPhase1QuadProp.toModify(initialStepHitTripletsPreSplitting,
+    produceSeedingHitSets = False,
+    produceIntermediateHitTriplets = True,
+)
 trackingPhase1.toModify(initialStepSeedsPreSplitting, seedingHitSets = "initialStepHitQuadrupletsPreSplitting")
+trackingPhase1QuadProp.toModify(initialStepSeedsPreSplitting, seedingHitSets = "initialStepHitQuadrupletsPreSplitting")
 
 
 # building
@@ -201,6 +210,7 @@ InitialStepPreSplitting = cms.Sequence(trackerClusterCheckPreSplitting*
 _InitialStepPreSplitting_trackingPhase1 = InitialStepPreSplitting.copy()
 _InitialStepPreSplitting_trackingPhase1.replace(initialStepHitTripletsPreSplitting, initialStepHitTripletsPreSplitting*initialStepHitQuadrupletsPreSplitting)
 trackingPhase1.toReplaceWith(InitialStepPreSplitting, _InitialStepPreSplitting_trackingPhase1)
+trackingPhase1QuadProp.toReplaceWith(InitialStepPreSplitting, _InitialStepPreSplitting_trackingPhase1)
 
 # Although InitialStepPreSplitting is not really part of LowPU/Run1/Phase1PU70
 # tracking, we use it to get siPixelClusters and siPixelRecHits
