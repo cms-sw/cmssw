@@ -134,6 +134,7 @@ DeepFlavourJetTagsProducer::DeepFlavourJetTagsProducer(const edm::ParameterSet& 
 		}
 		var.index = (tokens.size() == 2) ? stoi(tokens.at(1)) : -1;
 		var.default_value = -1*input.offset; //set default to -offset so that when scaling (val+offset)*scale the outcome is 0
+		
 		variables_.push_back(var);
 	}
 }
@@ -196,7 +197,6 @@ DeepFlavourJetTagsProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
 				}
 			}
 
-		//std::cout << "value of Jet_SoftMu: " << inputs_["Jet_SoftMu"] << std::endl;
 			//compute NN output(s)
 			nnout = neural_network_->compute(inputs_);
 		}
