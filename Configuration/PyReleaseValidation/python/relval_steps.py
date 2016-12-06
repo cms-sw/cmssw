@@ -246,6 +246,20 @@ steps['RunSinglePh2016E']={'INPUT':InputInfo(dataSet='/SinglePhoton/Run2016E-v2/
 steps['RunZeroBias2016E']={'INPUT':InputInfo(dataSet='/ZeroBias/Run2016E-v2/RAW',label='zb2016E',events=100000,location='STD', ls=Run2016E)}
 steps['RunMuOnia2016E']={'INPUT':InputInfo(dataSet='/MuOnia/Run2016E-v2/RAW',label='muOnia2016E',events=100000,location='STD', ls=Run2016E)}
 
+#### run2 2016H ####
+Run2016H={283877: [[1, 45]]}
+steps['RunHLTPhy2016H']={'INPUT':InputInfo(dataSet='/HLTPhysics/Run2016H-v1/RAW',label='hltPhy2016H',events=100000,location='STD', ls=Run2016H)}
+steps['RunDoubleEG2016H']={'INPUT':InputInfo(dataSet='/DoubleEG/Run2016H-v2/RAW',label='doubEG2016H',events=100000,location='STD', ls=Run2016H)}
+steps['RunDoubleMuon2016H']={'INPUT':InputInfo(dataSet='/DoubleMuon/Run2016H-v1/RAW',label='doubMu2016H',events=100000,location='STD', ls=Run2016H)}
+steps['RunJetHT2016H']={'INPUT':InputInfo(dataSet='/JetHT/Run2016H-v1/RAW',label='jetHT2016H',events=100000,location='STD', ls=Run2016H)}
+steps['RunMET2016H']={'INPUT':InputInfo(dataSet='/MET/Run2016H-v1/RAW',label='met2016H',events=100000,location='STD', ls=Run2016H)}
+steps['RunMuonEG2016H']={'INPUT':InputInfo(dataSet='/MuonEG/Run2016H-v1/RAW',label='muEG2016H',events=100000,location='STD', ls=Run2016H)}
+steps['RunSingleEl2016H']={'INPUT':InputInfo(dataSet='/SingleElectron/Run2016H-v1/RAW',label='sigEl2016H',events=100000,location='STD', ls=Run2016H)}
+steps['RunSingleMu2016H']={'INPUT':InputInfo(dataSet='/SingleMuon/Run2016H-v1/RAW',label='sigMu2016H',events=100000,location='STD', ls=Run2016H)}
+steps['RunSinglePh2016H']={'INPUT':InputInfo(dataSet='/SinglePhoton/Run2016H-v1/RAW',label='sigPh2016H',events=100000,location='STD', ls=Run2016H)}
+steps['RunZeroBias2016H']={'INPUT':InputInfo(dataSet='/ZeroBias/Run2016H-v1/RAW',label='zb2016H',events=100000,location='STD', ls=Run2016H)}
+steps['RunMuOnia2016H']={'INPUT':InputInfo(dataSet='/MuOnia/Run2016H-v1/RAW',label='muOnia2016H',events=100000,location='STD', ls=Run2016H)}
+
 
 # Highstat HLTPhysics 
 Run2015DHS=selectedLS([258712,258713,258714,258741,258742,258745,258749,258750,259626,259637,259683,259685,259686,259721,259809,259810,259818,259820,259821,259822,259862,259890,259891])
@@ -1081,6 +1095,9 @@ menuR2_2016 = autoHLT[hltKey2016]
 steps['HLTDR2_2016']=merge( [ {'-s':'L1REPACK:Full,HLT:@%s'%hltKey2016,},{'--conditions':'auto:run2_hlt_relval'},{'--era' : 'Run2_2016'},steps['HLTD'] ] )
 steps['HLTDR2newL1repack_2016']=merge( [ {'-s':'L1REPACK:FullSimTP,HLT:@%s'%hltKey2016,},{'--conditions':'auto:run2_hlt_relval'},{'--era' : 'Run2_2016'},steps['HLTD'] ] )
 
+# HLT step with Prompt-like GT 
+steps['HLTDR2_2016_Prompt']=merge( [ {'--conditions':'auto:run2_hlt_relval'},steps['HLTDR2_2016'] ] )
+
 # use --era 
 steps['RECODR2_50ns']=merge([{'--scenario':'pp','--conditions':'auto:run2_data_relval','--era':'Run2_50ns',},dataReco])
 steps['RECODR2_25ns']=merge([{'--scenario':'pp','--conditions':'auto:run2_data_relval','--era':'Run2_25ns','--customise':'Configuration/DataProcessing/RecoTLR.customisePostEra_Run2_25ns'},dataReco])
@@ -1251,6 +1268,18 @@ for sname in ['RECODR2_50nsreHLT', 'RECODR2_25nsreHLT',
               'RECODR2_2016reHLT_skimSinglePh', 'RECODR2_2016reHLT_skimMuOnia',
               'RECODR2reHLTAlCaTkCosmics']:
     steps[sname+"_HIPM"] = merge([{'--era': steps[sname]['--era']+"_HIPM"},steps[sname]])
+
+
+# RECO step with Prompt-like GT
+steps['RECODR2_2016reHLT_HIPM_Prompt']=merge([{'--conditions':'auto:run2_data_relval'},steps['RECODR2_2016reHLT_HIPM']])
+steps['RECODR2_2016reHLT_skimDoubleEG_HIPM_Prompt']=merge([{'--conditions':'auto:run2_data_relval'},steps['RECODR2_2016reHLT_skimDoubleEG_HIPM']])
+steps['RECODR2_2016reHLT_skimJetHT_HIPM_Prompt']=merge([{'--conditions':'auto:run2_data_relval'},steps['RECODR2_2016reHLT_skimJetHT_HIPM']])
+steps['RECODR2_2016reHLT_skimMET_HIPM_Prompt']=merge([{'--conditions':'auto:run2_data_relval'},steps['RECODR2_2016reHLT_skimMET_HIPM']])
+steps['RECODR2_2016reHLT_skimMuonEG_HIPM_Prompt']=merge([{'--conditions':'auto:run2_data_relval'},steps['RECODR2_2016reHLT_skimMuonEG_HIPM']])
+steps['RECODR2_2016reHLT_skimSingleMu_HIPM_Prompt']=merge([{'--conditions':'auto:run2_data_relval'},steps['RECODR2_2016reHLT_skimSingleMu_HIPM']])
+steps['RECODR2_2016reHLT_skimSinglePh_HIPM_Prompt']=merge([{'--conditions':'auto:run2_data_relval'},steps['RECODR2_2016reHLT_skimSinglePh_HIPM']])
+steps['RECODR2_2016reHLT_skimMuOnia_HIPM_Prompt']=merge([{'--conditions':'auto:run2_data_relval'},steps['RECODR2_2016reHLT_skimMuOnia_HIPM']])
+
 
 steps['RECO']=merge([step3Defaults])
 
