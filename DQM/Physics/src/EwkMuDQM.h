@@ -33,9 +33,17 @@ private:
   edm::InputTag metTag_;
   edm::InputTag jetTag_;
   edm::InputTag phoTag_;
-  edm::InputTag pfPhoTag_; 
   edm::InputTag vertexTag_;
-  std::vector <std::string> trigPathNames_;
+  edm::InputTag beamSpotTag_;
+ 
+  //edm::EDGetTokenT<edm::TriggerResults> trigToken_;
+  //edm::EDGetTokenT<edm::View<reco::Muon> > muonToken_;
+  //edm::EDGetTokenT<edm::View<reco::MET> > metToken_;
+  //edm::EDGetTokenT<edm::View<reco::Jet> > jetToken_;
+  //edm::EDGetTokenT<edm::View<reco::Photon> > phoToken_;
+  //edm::EDGetTokenT<edm::View<reco::Vertex> > vertexToken_;
+  //edm::EDGetTokenT<reco::BeamSpot> beamSpotTag_;
+   std::vector <std::string> trigPathNames_;
 
   bool   isAlsoTrackerMuon_;
   double dxyCut_;
