@@ -9,7 +9,8 @@ SimCalorimetryFEVTDEBUG = cms.PSet(
         'keep *_simHcalDigis_*_*', 
         'keep ZDCDataFramesSorted_simHcalUnsuppressedDigis_*_*',
         'drop ZDCDataFramesSorted_mix_simHcalUnsuppressedDigis*_*',
-        'keep *_simHcalTriggerPrimitiveDigis_*_*')
+        'keep *_simHcalTriggerPrimitiveDigis_*_*',
+        'keep *_mix_HcalSamples_*')
 )
 SimCalorimetryRAW = cms.PSet(
     outputCommands = cms.untracked.vstring('keep EBSrFlagsSorted_simEcalDigis_*_*', 

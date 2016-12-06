@@ -502,7 +502,7 @@ void HcalDigitizer::finalizeEvent(edm::Event& e, const edm::EventSetup& eventSet
     if(theHFDigitizer)        csResult->insert(csResult->end(),theHFDigitizer->getCaloSamples().begin(),theHFDigitizer->getCaloSamples().end());
     if(theHFQIE10Digitizer)   csResult->insert(csResult->end(),theHFQIE10Digitizer->getCaloSamples().begin(),theHFQIE10Digitizer->getCaloSamples().end());
     csResult->insert(csResult->end(),theZDCDigitizer->getCaloSamples().begin(),theZDCDigitizer->getCaloSamples().end());
-    e.put(std::move(csResult));
+    e.put(std::move(csResult),"HcalSamples");
   }
 
 #ifdef DebugLog
