@@ -34,7 +34,7 @@ class FTLRecHitAlgoBase {
   virtual void getEventSetup(const edm::EventSetup&) = 0;
 
   /// make rechits from dataframes
-  virtual FTLRecHit makeRecHit(const FTLUncalibratedRecHit& uncalibRH, const uint32_t &flags) const = 0;
+  virtual FTLRecHit makeRecHit(const FTLUncalibratedRecHit& uncalibRH, uint32_t& flags) const = 0;
 
   const std::string& name() const { return name_; }
 
