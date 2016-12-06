@@ -8,6 +8,7 @@
 #define JetCorrectorParameters_h
 
 #include "CondFormats/Serialization/interface/Serializable.h"
+#include "CondFormats/JetMETObjects/interface/Utilities.h"
 
 #include <string>
 #include <vector>
@@ -17,38 +18,6 @@
 #include <iostream>
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-
-namespace std
-{
-  template<> struct hash<std::tuple<float,float,float> >
-  {
-    typedef std::tuple<float,float,float> argument_type;
-    typedef std::size_t result_type;
-    result_type operator()(argument_type const& t) const
-    {
-      const uint64_t first = reinterpret_cast<const uint32_t&>(std::get<0>(t));
-      const uint64_t second = reinterpret_cast<const uint32_t&>(std::get<1>(t));
-      const uint64_t third = reinterpret_cast<const uint32_t&>(std::get<2>(t));
-      const uint64_t thing1 = (first ^ second)%16;
-      const uint64_t thing2 = (second ^ third)%32;
-      result_type const result ( (first << thing1) ^ (second << thing2) ^ third );
-      return result;
-    }
-  };
-  template<> struct hash<std::tuple<float,float> >
-  {
-    typedef std::tuple<float,float> argument_type;
-    typedef std::size_t result_type;
-    result_type operator()(argument_type const& t) const
-    {
-      const uint64_t first = reinterpret_cast<const uint32_t&>(std::get<0>(t));
-      const uint64_t second = reinterpret_cast<const uint32_t&>(std::get<1>(t));
-      const uint64_t thing1 = (first ^ second)%16;
-      result_type const result ( (first << thing1) ^ second );
-      return result;
-    }
-  };
-}
 
 class JetCorrectorParameters 
 {
@@ -152,7 +121,7 @@ class JetCorrectorParameters
     //-------- Member variables ----------
     JetCorrectorParameters::Definitions                                    mDefinitions;
     std::vector<JetCorrectorParameters::Record>                            mRecords;
-    // Stores the lower bounds of the bins for each binned dimension
+    // Stores the lower and upper bounds of the bins for each binned dimension
     std::vector<std::vector<float> >                                       mBinBoundaries COND_TRANSIENT;
     // Maps a set of lower bounds for three binned dimensions to the index in mRecords
     std::unordered_map<std::tuple<float,float,float>, size_t>              mBinMap        COND_TRANSIENT;
