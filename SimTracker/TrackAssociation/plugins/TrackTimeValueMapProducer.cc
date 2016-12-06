@@ -66,7 +66,7 @@ private:
 DEFINE_FWK_MODULE(TrackTimeValueMapProducer);
 
 namespace {
-  constexpr float fakeBeamSpotTimeWidth = 0.175f; // ns
+  constexpr float fakeBeamSpotTimeWidth = 0.300f; // ns
   static const std::string generalTracksName("generalTracks");
   static const std::string gsfTracksName("gsfTracks");
   static const std::string resolution("Resolution");
@@ -173,7 +173,7 @@ void TrackTimeValueMapProducer::produce(edm::StreamID sid, edm::Event& evt, cons
         times.push_back( CLHEP::RandGauss::shoot(rng_engine, generalTrackTimes[i], resolution) );
         resos.push_back( resolution );
       } else {
-        times.push_back( generalTrackTimes[i] );
+        times.push_back( 0.0f );
         resos.push_back( fakeBeamSpotTimeWidth );
       }
     }
@@ -185,7 +185,7 @@ void TrackTimeValueMapProducer::produce(edm::StreamID sid, edm::Event& evt, cons
         gsf_times.push_back( CLHEP::RandGauss::shoot(rng_engine, gsfTrackTimes[i], resolution) );
         gsf_resos.push_back( resolution ); 
       } else {
-        gsf_times.push_back( gsfTrackTimes[i] );
+        gsf_times.push_back( 0.0f );
         gsf_resos.push_back( fakeBeamSpotTimeWidth );
       }
     }
