@@ -87,7 +87,7 @@ upgradeProperties[2017] = {
         'Geom' : 'DB:Extended',
         'GT' : 'auto:phase1_2017_realistic',
         'HLTmenu': '@relval2016',
-        'Custom': 'HLTrigger/Configuration/customizeHLTTrackingForPhaseI2017.customizeHLTPhaseIPixelGeom',
+        'Custom': 'HLTrigger/Configuration/customizeHLTTrackingForPhaseI2017.customizeHLTPhaseIPixelGeom,HLTrigger/Configuration/customizeHLTTrackingForPhaseI2017.customizeHLTForPFTrackingPhaseI2017',
         'Era' : 'Run2_2017',
         'ScenToRun' : ['GenSimFull','DigiFull','RecoFull','ALCAFull','HARVESTFull'],
     },
