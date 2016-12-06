@@ -6,7 +6,7 @@ sortedPrimaryVertices = cms.EDProducer("RecoChargedRefCandidatePrimaryVertexSort
     maxDzSigForPrimaryAssignment = cms.double(5.0), # in AND with next
     maxDzForPrimaryAssignment = cms.double(0.1), # in AND with prev
     maxDzErrorForPrimaryAssignment = cms.double(0.05), # in AND with prev, tracks with uncertainty above 500um cannot tell us which pv they come from
-
+    maxDtSigForPrimaryAssignment = cms.double(4.0),
     # cuts used to recover b-tracks if they are closed to jet axis
     maxJetDeltaR = cms.double(0.5),
     minJetPt = cms.double(25),
@@ -19,6 +19,8 @@ sortedPrimaryVertices = cms.EDProducer("RecoChargedRefCandidatePrimaryVertexSort
     maxDxyForNotReconstructedPrimary = cms.double(0.01), #in AND with prev
     ),
   particles = cms.InputTag("trackRefsForJets"),
+  trackTimeTag = cms.InputTag(""),
+  trackTimeResoTag = cms.InputTag(""),
   vertices= cms.InputTag("offlinePrimaryVertices"),
 #  Jets= cms.InputTag("ak4PFJets"),
   jets= cms.InputTag("ak4CaloJetsForTrk"),
@@ -28,6 +30,7 @@ sortedPrimaryVertices = cms.EDProducer("RecoChargedRefCandidatePrimaryVertexSort
   produceSortedVertices = cms.bool(True),
   producePileUpCollection  = cms.bool(False),
   produceNoPileUpCollection = cms.bool(False),
+  useTiming = cms.bool(False),
 
 )
 
