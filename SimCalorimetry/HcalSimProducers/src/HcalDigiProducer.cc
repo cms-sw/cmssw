@@ -15,7 +15,7 @@ HcalDigiProducer::HcalDigiProducer(edm::ParameterSet const& pset, edm::stream::E
   mixMod.produces<QIE10DigiCollection>("HFQIE10DigiCollection");
   mixMod.produces<QIE11DigiCollection>("HBHEQIE11DigiCollection");
   if(pset.getParameter<bool>("debugCaloSamples")){
-    mixMod.produces<CaloSamplesCollection>();
+    mixMod.produces<CaloSamplesCollection>("HcalSamples");
   }
 }
 
