@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 # FTL "uncalibrated" rechit producer from digis
-ftlSimpleUncalibRecHitAlgo = cms.EDProducer(
+ftlSimpleUncalibRecHitAlgo = cms.PSet(
     algoName = cms.string("FTLSimpleUncalibRecHitAlgo"),
     adcNbits = cms.uint32(12),
     adcSaturation = cms.double(102),
