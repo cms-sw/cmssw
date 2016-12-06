@@ -1,6 +1,6 @@
 <lcgdict>
-  <class name="FTLUncalibratedRecHit" ClassVersion="0">
-    <version ClassVersion="0" checksum="1729432336"/>
+  <class name="FTLUncalibratedRecHit" ClassVersion="3">
+    <version ClassVersion="3" checksum="1729432336"/>
   </class>
   <class name="std::vector<FTLUncalibratedRecHit>"/>
   <class name="FTLUncalibratedRecHitCollection"/>
@@ -9,8 +9,8 @@
   <class name="edm::RefVector<FTLUncalibratedRecHitCollection>"/>
   <class name="edm::RefProd<FTLUncalibratedRecHitCollection>"/>
 
-  <class name="FTLRecHit" ClassVersion="0">
-    <version ClassVersion="0" checksum="141846742"/>
+  <class name="FTLRecHit" ClassVersion="3">
+    <version ClassVersion="3" checksum="141846742"/>
   </class>
   <class name="std::vector<FTLRecHit>"/>
   <class name="FTLRecHitCollection"/>

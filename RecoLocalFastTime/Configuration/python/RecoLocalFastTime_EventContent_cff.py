@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 #FEVT
 RecoLocalFastTimeFEVT = cms.PSet(
     outputCommands = cms.untracked.vstring(
-        'keep *_ftlUncalibratedRecHits_*_*'
+        'keep *_ftlUncalibratedRecHits_*_*',
         'keep *_ftlRecHits_*_*',        
         )
 )
@@ -16,5 +16,6 @@ RecoLocalFastTimeRECO = cms.PSet(
 #AOD content
 RecoLocalFastTimeAOD = cms.PSet(
     outputCommands = cms.untracked.vstring(    
+        'keep *_ftlRecHits_*_*',
     )
 )
