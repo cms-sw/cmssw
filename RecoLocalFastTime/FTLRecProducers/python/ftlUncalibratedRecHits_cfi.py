@@ -6,11 +6,11 @@ from SimFastTiming.FastTimingCommon.fastTimeDigitizer_cfi import fastTimeDigitiz
 
 _barrelAlgo = ftlSimpleUncalibRecHitAlgo.clone()
 _barrelAlgo.adcNbits = fastTimeDigitizer.barrelDigitizer.ElectronicsSimulation.adcNbits
-_barrelAlgo.adcSaturation = fastTimeDigitizer.barrelDigitizer.ElectronicsSimulation.adcSaturation_MIPs
+_barrelAlgo.adcSaturation = fastTimeDigitizer.barrelDigitizer.ElectronicsSimulation.adcSaturation_MIP
 _barrelAlgo.toaLSB_ns = fastTimeDigitizer.barrelDigitizer.ElectronicsSimulation.toaLSB_ns
 _endcapAlgo = ftlSimpleUncalibRecHitAlgo.clone()
 _endcapAlgo.adcNbits = fastTimeDigitizer.endcapDigitizer.ElectronicsSimulation.adcNbits
-_endcapAlgo.adcSaturation = fastTimeDigitizer.endcaplDigitizer.ElectronicsSimulation.adcSaturation_MIPs
+_endcapAlgo.adcSaturation = fastTimeDigitizer.endcapDigitizer.ElectronicsSimulation.adcSaturation_MIP
 _endcapAlgo.toaLSB_ns = fastTimeDigitizer.endcapDigitizer.ElectronicsSimulation.toaLSB_ns
 
 ftlUncalibratedRecHits = cms.EDProducer(
