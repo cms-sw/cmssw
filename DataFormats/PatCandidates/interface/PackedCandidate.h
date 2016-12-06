@@ -47,6 +47,8 @@ namespace pat {
       packedPuppiweight_(0),
       packedPuppiweightNoLepDiff_(0),
       hcalFraction_(0),
+      packedTime_(0),
+      packedTimeError_(0),
       p4_(new PolarLorentzVector(0,0,0,0)), p4c_( new LorentzVector(0,0,0,0)), 
       vertex_(new Point(0,0,0)), dphi_(0), track_(nullptr), pdgId_(0),
       qualityFlags_(0), pvRefKey_(reco::VertexRef::invalidKey()),
@@ -57,7 +59,7 @@ namespace pat {
     explicit PackedCandidate( const reco::Candidate & c,
                               const reco::VertexRefProd &pvRefProd,
                               reco::VertexRef::key_type pvRefKey) :
-      packedPuppiweight_(0), packedPuppiweightNoLepDiff_(0), hcalFraction_(0),
+      packedPuppiweight_(0), packedPuppiweightNoLepDiff_(0), hcalFraction_(0), packedTime_(0), packedTimeError_(0),
       p4_( new PolarLorentzVector(c.pt(), c.eta(), c.phi(), c.mass())), 
       p4c_( new LorentzVector(*p4_)), vertex_( new Point(c.vertex())), dphi_(0), 
       track_(nullptr), pdgId_(c.pdgId()), qualityFlags_(0), pvRefProd_(pvRefProd),
@@ -71,7 +73,7 @@ namespace pat {
                               float phiAtVtx, int pdgId,
                               const reco::VertexRefProd &pvRefProd,
                               reco::VertexRef::key_type pvRefKey) :
-      packedPuppiweight_(0), packedPuppiweightNoLepDiff_(0), hcalFraction_(0),
+      packedPuppiweight_(0), packedPuppiweightNoLepDiff_(0), hcalFraction_(0), packedTime_(0), packedTimeError_(0),
       p4_( new PolarLorentzVector(p4) ), p4c_( new LorentzVector(*p4_)), 
       vertex_( new Point(vtx) ), dphi_(reco::deltaPhi(phiAtVtx,p4_.load()->phi())), 
       track_(nullptr), pdgId_(pdgId),
@@ -85,7 +87,7 @@ namespace pat {
                               float phiAtVtx, int pdgId,
                               const reco::VertexRefProd &pvRefProd,
                               reco::VertexRef::key_type pvRefKey) :
-      packedPuppiweight_(0), packedPuppiweightNoLepDiff_(0), hcalFraction_(0),
+      packedPuppiweight_(0), packedPuppiweightNoLepDiff_(0), hcalFraction_(0), packedTime_(0), packedTimeError_(0),
       p4_(new PolarLorentzVector(p4.Pt(), p4.Eta(), p4.Phi(), p4.M())), 
       p4c_( new LorentzVector(p4)), vertex_( new Point(vtx) ) ,
       dphi_(reco::deltaPhi(phiAtVtx,p4_.load()->phi())), 
@@ -111,6 +113,8 @@ namespace pat {
       packedPuppiweight_(iOther.packedPuppiweight_), 
       packedPuppiweightNoLepDiff_(iOther.packedPuppiweightNoLepDiff_),
       hcalFraction_(iOther.hcalFraction_),
+      packedTime_(iOther.packedTime_),
+      packedTimeError_(iOther.packedTimeError_),
       //Need to trigger unpacking in iOther
       p4_( new PolarLorentzVector(iOther.polarP4() ) ),
       p4c_( new LorentzVector(iOther.p4())), vertex_( new Point(iOther.vertex())),
@@ -137,6 +141,8 @@ namespace pat {
       packedPuppiweight_(iOther.packedPuppiweight_), 
       packedPuppiweightNoLepDiff_(iOther.packedPuppiweightNoLepDiff_),
       hcalFraction_(iOther.hcalFraction_),
+      packedTime_(iOther.packedTime_),
+      packedTimeError_(iOther.packedTimeError_),
       p4_( iOther.p4_.exchange(nullptr) ) ,
       p4c_( iOther.p4c_.exchange(nullptr)), vertex_(iOther.vertex_.exchange(nullptr)),
       dxy_(iOther.dxy_), dz_(iOther.dz_),dphi_(iOther.dphi_), 
@@ -171,6 +177,8 @@ namespace pat {
       packedPuppiweight_=iOther.packedPuppiweight_; 
       packedPuppiweightNoLepDiff_=iOther.packedPuppiweightNoLepDiff_;
       hcalFraction_=iOther.hcalFraction_;
+      packedTime_=iOther.packedTime_;
+      packedTimeError_=iOther.packedTimeError_;
       //Need to trigger unpacking in iOther
       if(p4_) {
         *p4_ = iOther.polarP4();
@@ -241,6 +249,8 @@ namespace pat {
       packedPuppiweight_=iOther.packedPuppiweight_; 
       packedPuppiweightNoLepDiff_=iOther.packedPuppiweightNoLepDiff_;
       hcalFraction_=iOther.hcalFraction_;
+      packedTime_=iOther.packedTime_;
+      packedTimeError_=iOther.packedTimeError_;
       delete p4_.exchange(iOther.p4_.exchange(nullptr));
       delete p4c_.exchange(iOther.p4c_.exchange(nullptr));
       delete vertex_.exchange(iOther.vertex_.exchange(nullptr));
