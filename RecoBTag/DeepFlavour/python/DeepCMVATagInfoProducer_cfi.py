@@ -4,7 +4,7 @@ import FWCore.ParameterSet.Config as cms
 deepCMVATagInfos = cms.EDProducer(
 	'DeepCMVATagInfoProducer',
 	deepNNTagInfos = cms.InputTag('deepNNTagInfos'),
-	ipInfoSrc = cms.InputTag("impactParameterTagInfos"),
+	ipInfoSrc = cms.InputTag("pfImpactParameterTagInfos"),
 	muInfoSrc = cms.InputTag("softPFMuonsTagInfos"),
 	elInfoSrc = cms.InputTag("softPFElectronsTagInfos"),
 	jpComputerSrc = cms.string('candidateJetProbabilityComputer'),

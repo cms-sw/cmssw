@@ -137,44 +137,15 @@ DeepCMVATagInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
 	edm::Handle< std::vector<reco::ShallowTagInfo> > nnInfos;
 	iEvent.getByToken(deepNNSrc_, nnInfos);
 	
-	/*
-	// TagInfos for JP taggers
-  	std::vector<const BaseTagInfo*> ipInfos({ &info.getBase(0) });
-  	// TagInfos for the Softelon tagger
-  	std::vector<const BaseTagInfo*> elInfos({ &info.getBase(1) });
-  	// TagInfos for the SoftElectron tagger
-	std::vector<const BaseTagInfo*> elInfos({ &info.getBase(2) });
-	*/
-	//edm::Handle< std::vector<reco::CandIPTagInfo>  > ipInfos;
+	// get other Taginfos
 	edm::Handle< edm::View<BaseTagInfo> > ipInfos;
 	iEvent.getByToken(ipInfoSrc_, ipInfos);
 	std::vector<const BaseTagInfo*> ipBaseInfo;
-	//for(edm::View<BaseTagInfo>::const_iterator iter = ipInfos->begin(); iter != ipInfos->end(); iter++) {
-		//std::cout << "in loop" << std::endl;
-	//	ipBaseInfo.push_back(&*iter);
-	//}
-	//std::cout << "END loop" << std::endl;
-	//std::vector< const reco::BaseTagInfo *> ipInfo = static_cast<std::vector< const reco::BaseTagInfo *> >(*ipInfos)
-	//edm::Handle< std::vector<reco::CandSoftLeptonTagInfo> > elInfos;
-	//edm::Handle< edm::View<BaseTagInfo> > elInfos;
-	//iEvent.getByToken(elInfoSrc_, elInfos);
 	edm::Handle< edm::View<BaseTagInfo> > muInfos;
 	iEvent.getByToken(muInfoSrc_, muInfos);
-	//std::vector<const BaseTagInfo*> muBaseInfo;
-	//for(edm::View<BaseTagInfo>::const_iterator iter = muInfos->begin(); iter != muInfos->end(); iter++) {
-	//	muBaseInfo.push_back(&*iter);
-	//}
-	//edm::Handle< std::vector<reco::CandSoftLeptonTagInfo> > elInfos;
-	//edm::Handle< edm::View<BaseTagInfo> > elInfos;
-	//iEvent.getByToken(elInfoSrc_, elInfos);
 	edm::Handle< edm::View<BaseTagInfo> > elInfos;
 	iEvent.getByToken(elInfoSrc_, elInfos);
-	//std::vector<const BaseTagInfo*> elBaseInfo;
-	//for(edm::View<BaseTagInfo>::const_iterator iter = elInfos->begin(); iter != elInfos->end(); iter++) {
-	//	elBaseInfo.push_back(&*iter);
-	//}
 	
-
 	//get computers
 	edm::ESHandle<JetTagComputer> jp;
 	iSetup.get<JetTagComputerRecord>().get(jpComputer_,jp);
@@ -224,18 +195,23 @@ DeepCMVATagInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
 		float softel_discr = (*compsoftel)( JetTagComputer::TagInfoHelper(elBaseInfo) );
 		float jp_discr = (*compjp)( JetTagComputer::TagInfoHelper(ipBaseInfo) );
 		float jpb_discr = (*compjpb)( JetTagComputer::TagInfoHelper(ipBaseInfo) );
-		
-		//std::cout << "DeepCMVA JP: " << jp_discr << std::endl;
-		
-		vars.insert(reco::btau::Jet_SoftMu, softmu_discr ? !(isinf(softmu_discr)) : -0.2  );
-		vars.insert(reco::btau::Jet_SoftEl, softel_discr ? !(isinf(softel_discr)) : -0.2  );
-		vars.insert(reco::btau::Jet_JBP, jpb_discr ? !(isinf(jpb_discr)) : -0.2 );
-		vars.insert(reco::btau::Jet_JP, jp_discr ? !(isinf(jp_discr)) : -0.2  );
-		
+		//if jetPt larger than 200 GeV --> default these taggers for easier SF measurements
+		if ((nnInfo.jet().get())->pt() > 200){
+			softmu_discr = -99;
+			softel_discr = -99;
+			jp_discr = -99;
+			jpb_discr = -99;
+		}	
+		// default of -0.2 if no value present
+		vars.insert(reco::btau::Jet_SoftMu, !(isinf(softmu_discr)) ? softmu_discr : -0.2  , true);
+		vars.insert(reco::btau::Jet_SoftEl, !(isinf(softel_discr)) ? softel_discr : -0.2  , true);
+		vars.insert(reco::btau::Jet_JBP, !(isinf(jpb_discr)) ? jpb_discr : -0.2 , true);
+		vars.insert(reco::btau::Jet_JP, !(isinf(jp_discr)) ? jp_discr : -0.2  , true);
+
 		vars.finalize();
 		tagInfos->emplace_back(vars, nnInfo.jet());
 		
-		// just to be sure
+		// just to be sure, clear all containers
 		ipBaseInfo.clear();
 		muBaseInfo.clear();
 		elBaseInfo.clear();
