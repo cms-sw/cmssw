@@ -638,6 +638,23 @@ namespace pat {
         uint16_t dphidphi;
     };
 
+    /// time (wrt nominal zero of the collision)
+    virtual float time(size_t ipv=0)  const { return vertexRef()->t() + dtimeAssociatedPV(); }
+    /// dtime with respect to the PV[ipv]
+    virtual float dtime(size_t ipv=0)  const { return dtimeAssociatedPV() + (*pvRefProd_)[pvRefKey_].t()-(*pvRefProd_)[ipv].t(); }
+    /// dtime with respect to the PV ref
+    virtual float dtimeAssociatedPV()  const {
+        if (packedTime_ == 0) return 0.f;
+        if (packedTimeError_ > 0) return unpackTimeWithError(packedTime_,packedTimeError_);
+        else return unpackTimeNoError(packedTime_);
+    }
+    /// time measurement uncertainty (-1 if not available)
+    virtual float timeError() const { return unpackTimeError(packedTimeError_); }
+    /// set time measurement
+    void setDTimeAssociatedPV(float aTime, float aTimeError=0) ;
+    /// set time measurement
+    void setTime(float aTime, float aTimeError=0) { setDTimeAssociatedPV(aTime - vertexRef()->t(), aTimeError); }
+
   private:
     void unpackCovarianceElement(reco::TrackBase::CovarianceMatrix & m, uint16_t packed, int i,int j) const {
       m(i,j)= covarianceParameterization().unpack(packed,covarianceSchema_,i,j,pt(),eta(),numberOfHits(), numberOfPixelHits());
@@ -672,6 +689,8 @@ namespace pat {
     int8_t packedPuppiweightNoLepDiff_; // storing the DIFFERENCE of (all - "no lep") for compression optimization
     uint8_t rawCaloFraction_;
     int8_t hcalFraction_;
+    int16_t packedTime_;
+    uint8_t packedTimeError_;
 
     bool isIsolatedChargedHadron_;
 
@@ -725,8 +744,18 @@ namespace pat {
         lostInnerHitsMask = 0x30, lostInnerHitsShift=4,
         muonFlagsMask = 0x0600, muonFlagsShift=9
     };
+    
+    /// static to allow unit testing
+    static uint8_t packTimeError(float timeError) ;
+    static float unpackTimeError(uint8_t timeError) ;
+    static float unpackTimeNoError(int16_t time) ;
+    static int16_t packTimeNoError(float time) ;
+    static float unpackTimeWithError(int16_t time, uint8_t timeError) ;
+    static int16_t packTimeWithError(float   time, float   timeError) ;
+
   public:
     uint16_t firstHit_;
+    
   };
 
   typedef std::vector<pat::PackedCandidate> PackedCandidateCollection;
