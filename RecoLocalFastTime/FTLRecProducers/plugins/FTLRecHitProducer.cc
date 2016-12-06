@@ -73,7 +73,7 @@ FTLRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
   for(const auto& uhit : *hBarrel) {
     uint32_t flags = FTLRecHit::kGood;
     auto rechit = std::move(barrel_->makeRecHit(uhit, flags));
-    if( flags & FTLRecHit::kGood ) barrelRechits->push_back( std::move(rechit) );
+    if( flags == FTLRecHit::kGood ) barrelRechits->push_back( std::move(rechit) );
   }
 
   edm::Handle< FTLUncalibratedRecHitCollection > hEndcap;
@@ -82,7 +82,7 @@ FTLRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
   for(const auto& uhit : *hEndcap) {
     uint32_t flags = FTLRecHit::kGood;
     auto rechit = std::move(endcap_->makeRecHit(uhit, flags));
-    if( flags & FTLRecHit::kGood ) endcapRechits->push_back( std::move(rechit) );
+    if( flags == FTLRecHit::kGood ) endcapRechits->push_back( std::move(rechit) );
   }
       
   // put the collection of recunstructed hits in the event
