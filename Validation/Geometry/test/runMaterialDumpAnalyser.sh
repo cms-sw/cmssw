@@ -83,8 +83,7 @@ if checkFile SingleMuPt10_step3_RECO_DQM.root ; then
 --nThreads=4 \
 --filein file:SingleMuPt10_step2_DIGI_L1_DIGI2RAW_HLT.root  \
 --fileout file:SingleMuPt10_step3_RECO_DQM.root \
---python_filename SingleMuPt10_step2_RECO_DQM.py \
---customise Validation/Geometry/customiseForDumpMaterialAnalyser.customiseForMaterialAnalyser > SingleMuPt10_step3_RECO_DQM.log 2>&1
+--python_filename SingleMuPt10_step2_RECO_DQM.py > SingleMuPt10_step3_RECO_DQM.log 2>&1
 
     if [ $? -ne 0 ]; then
       echo "Error executing the RECO step, aborting."
