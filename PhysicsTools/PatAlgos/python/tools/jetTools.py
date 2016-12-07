@@ -883,7 +883,7 @@ class AddJetCollection(ConfigToolBase):
             _newPatJets=getattr(process, 'patJets'+_labelName+postfix)
             _newPatJets.jetSource=jetSource
         else :
-            addToProcessAndTask('patJets'+_labelName+postfix, patJets.clone(jetSource=jetSource)), process, task)
+            addToProcessAndTask('patJets'+_labelName+postfix, patJets.clone(jetSource=jetSource), process, task)
             _newPatJets=getattr(process, 'patJets'+_labelName+postfix)
             knownModules.append('patJets'+_labelName+postfix)
         ## add new selectedPatJets to process
