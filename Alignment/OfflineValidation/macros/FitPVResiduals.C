@@ -819,7 +819,7 @@ void arrangeBiasCanvas(TCanvas *canv,TH1F* dxyPhiMeanTrend[100],TH1F* dzPhiMeanT
 	  
 	  std::pair<Double_t,Double_t> range = getTheRangeUser(dBiasTrend[k][i],thePlotLimits);
 	  dBiasTrend[k][i]->GetYaxis()->SetRangeUser(range.first,range.second);
-	  
+	 
 	} else {
 	
 	  if(theTitle.Contains("width")){
@@ -2357,15 +2357,15 @@ std::pair<Double_t,Double_t> getTheRangeUser(TH1F* thePlot, Limits* lims)
     } else if (theTitle.Contains("widths")){
       if(theTitle.Contains("dxy")){
 	if(theTitle.Contains("phi")){
-	  result = std::make_pair(lims->get_dxyPhiNormMax().second-1,lims->get_dxyPhiNormMax().second);
+	  result = std::make_pair(lims->get_dxyPhiNormMax().first,lims->get_dxyPhiNormMax().second);
 	} else if (theTitle.Contains("eta")){
-	  result = std::make_pair(lims->get_dxyEtaNormMax().second-1,lims->get_dxyEtaNormMax().second);
+	  result = std::make_pair(lims->get_dxyEtaNormMax().first,lims->get_dxyEtaNormMax().second);
 	}
       } else if(theTitle.Contains("dz")){	
 	if(theTitle.Contains("phi")){
-	  result = std::make_pair(lims->get_dzPhiNormMax().second-1,lims->get_dzPhiNormMax().second);
+	  result = std::make_pair(lims->get_dzPhiNormMax().first,lims->get_dzPhiNormMax().second);
 	} else if (theTitle.Contains("eta")){
-	  result = std::make_pair(lims->get_dzEtaNormMax().second-1,lims->get_dzEtaNormMax().second);
+	  result = std::make_pair(lims->get_dzEtaNormMax().first,lims->get_dzEtaNormMax().second);
 	}
       }
     } 
