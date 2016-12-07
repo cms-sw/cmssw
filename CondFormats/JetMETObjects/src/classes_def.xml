@@ -4,12 +4,15 @@
   <class name="JetCorrectionUncertainty"/>
   <class name="JetCorrectorParameters">
      <field name="mBinBoundaries" transient="true"/>
-     <field name="mBinMap" transient="true"/>
-     <field name="mPtMap" transient="true"/>
+	 <field name="mThreeIndexMap" transient="true"/>
+	 <field name="mTwoIndexMap"   transient="true"/>
+	 <field name="mOneIndexMap"   transient="true"/>
+	 <field name="mTwoMap"        transient="true"/>
+	 <field name="mOneMap"        transient="true"/>
   </class>
-  <ioread sourceClass="JetCorrectorParameters" targetClass="JetCorrectorParameters" version="[0-]" source="std::vector<JetCorrectorParameters::Record> mRecords" target="mBinBoundaries; mBinMap; mPtMap">
+  <ioread sourceClass="JetCorrectorParameters" targetClass="JetCorrectorParameters" version="[0-]" source="std::vector<JetCorrectorParameters::Record> mRecords" target="">
   <![CDATA[
-         newObj->init(onfile.mRecords,mBinBoundaries,mBinMap,mPtMap); 
+         newObj->init(onfile.mRecords); 
   ]]>
   </ioread>
   <class name="JetCorrectorParametersCollection"/>
