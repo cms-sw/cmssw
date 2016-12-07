@@ -3,9 +3,6 @@
 # Import skeleton process
 from PhysicsTools.PatAlgos.patTemplate_cfg import *
 
-import PhysicsTools.PatAlgos.tools.helpers as configtools
-patAlgosToolsTask = configtools.getPatAlgosToolsTask(process)
-
 #process.Tracer = cms.Service( "Tracer" )
 
 # Load default PAT

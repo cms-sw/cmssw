@@ -1,8 +1,5 @@
 from PhysicsTools.PatAlgos.patTemplate_cfg import cms, process
 
-import PhysicsTools.PatAlgos.tools.helpers as configtools
-patAlgosToolsTask = configtools.getPatAlgosToolsTask(process)
-
 process.options.wantSummary = cms.untracked.bool(False) 
 
 # How many events to process
