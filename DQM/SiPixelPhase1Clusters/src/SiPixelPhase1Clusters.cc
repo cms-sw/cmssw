@@ -46,7 +46,8 @@ void SiPixelPhase1Clusters::analyze(const edm::Event& iEvent, const edm::EventSe
     for(SiPixelCluster const& cluster : *it) {
       histo[CHARGE].fill(double(cluster.charge()), id, &iEvent);
       histo[SIZE  ].fill(double(cluster.size()  ), id, &iEvent);
-      histo[NCLUSTERS].fill(id, &iEvent);
+      if (cluster.size() > 1)
+        histo[NCLUSTERS].fill(id, &iEvent);
 
       LocalPoint clustlp = topol.localPosition(MeasurementPoint(cluster.x(), cluster.y()));
       GlobalPoint clustgp = theGeomDet->surface().toGlobal(clustlp);
