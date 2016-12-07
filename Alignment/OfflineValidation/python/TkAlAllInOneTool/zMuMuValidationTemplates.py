@@ -320,25 +320,25 @@ mergeZmumuPlotsTemplate="""
 #include <sstream>
 #include <vector>
 
-template <typename T> string separatebycommas(vector<T> v)
-{
-    if (v.size()==0) return "";
-    stringstream s;
-    s << v[0];
-    for (unsigned int i = 1; i < v.size(); i++)
-        s << "," << v[i];
-    return s.str();
+template <typename T> string separatebycommas(vector<T> v){
+  if (v.size()==0) return "";
+  stringstream s;
+  s << v[0];
+  for (unsigned int i = 1; i < v.size(); i++) s << "," << v[i];
+  return s.str();
 }
 
-void TkAlMergeZmumuPlots()
-{
-    vector<string> filenames; vector<string> titles; vector<int> colors; vector<int> linestyles;
+void TkAlMergeZmumuPlots(){
+  vector<string> filenames; vector<string> titles; vector<int> colors; vector<int> linestyles;
 
-    .oO[mergeZmumuPlotsInstantiation]Oo.
+  .oO[mergeZmumuPlotsInstantiation]Oo.
 
-    TkAlStyle::legendheader = ".oO[legendheader]Oo.";
-    TkAlStyle::set(.oO[publicationstatus]Oo., .oO[era]Oo., ".oO[customtitle]Oo.", ".oO[customrighttitle]Oo.");
+  vector<int> linestyles_new, markerstyles_new;
+  for (unsigned int j=0; j<linestyles.size(); j++){ linestyles_new.push_back(linestyles.at(j) % 100); markerstyles_new.push_back(linestyles.at(j) / 100); }
 
-    MultiHistoOverlapAll_Z(separatebycommas(filenames), separatebycommas(titles), separatebycommas(colors), separatebycommas(linestyles), ".oO[datadir]Oo./ZMuMuPlots", .oO[switchONfit]Oo.);
+  TkAlStyle::legendheader = ".oO[legendheader]Oo.";
+  TkAlStyle::set(.oO[publicationstatus]Oo., .oO[era]Oo., ".oO[customtitle]Oo.", ".oO[customrighttitle]Oo.");
+
+  MultiHistoOverlapAll_.oO[resonance]Oo.(separatebycommas(filenames), separatebycommas(titles), separatebycommas(colors), separatebycommas(linestyles_new), separatebycommas(markerstyles_new), ".oO[datadir]Oo./.oO[resonance]Oo.MuMuPlots", .oO[switchONfit]Oo.);
 }
 """

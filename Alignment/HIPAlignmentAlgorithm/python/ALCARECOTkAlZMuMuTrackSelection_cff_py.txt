@@ -54,8 +54,8 @@ process.AlignmentTrackSelector.ptMin   = 10.0
 #process.AlignmentTrackSelector.dzMax   = 20.
 process.AlignmentTrackSelector.d0Min   = -50.
 process.AlignmentTrackSelector.d0Max   = 50.
-process.AlignmentTrackSelector.etaMin  = -2.4
-process.AlignmentTrackSelector.etaMax  = 2.4
+process.AlignmentTrackSelector.etaMin  = -2.5
+process.AlignmentTrackSelector.etaMax  = 2.5
 process.AlignmentTrackSelector.nHitMin = 8
 process.AlignmentTrackSelector.nHitMin2D = 2
 process.AlignmentTrackSelector.chi2nMax = 999.
@@ -112,7 +112,7 @@ process.TwoBodyDecayMomConstraint.primaryWidth = cms.double(1.4)
 #process.TwoBodyDecayMomConstraint.primaryWidth = cms.double(2.4952)
 #process.TwoBodyDecayMomConstraint.sigmaPositionCut = cms.double(0.07)
 process.TwoBodyDecayMomConstraint.rescaleError = cms.double(1.0)
-process.TwoBodyDecayMomConstraint.chi2Cut = cms.double(5.)
+process.TwoBodyDecayMomConstraint.chi2Cut = cms.double(99999.)
 #process.TwoBodyDecayMomConstraint.EstimatorParameters.RobustificationConstant = cms.double(1.0)
 process.load("RecoTracker.TrackProducer.TwoBodyDecayConstraintProducer_cff")
 process.TwoBodyDecayConstraint.src = "AlignmentTrackSelector"
@@ -121,7 +121,7 @@ process.TwoBodyDecayConstraint.primaryWidth = cms.double(1.4)
 #process.TwoBodyDecayConstraint.primaryWidth = cms.double(2.4952)
 #process.TwoBodyDecayConstraint.sigmaPositionCut = cms.double(0.07)
 process.TwoBodyDecayConstraint.rescaleError = cms.double(1.0)
-process.TwoBodyDecayConstraint.chi2Cut = cms.double(5.)
+process.TwoBodyDecayConstraint.chi2Cut = cms.double(99999.)
 #process.TwoBodyDecayConstraint.EstimatorParameters.RobustificationConstant = cms.double(1.0)
 
 from TrackingTools.TrackFitters.KFFittingSmoother_cfi import KFFittingSmoother
