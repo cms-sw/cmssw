@@ -100,38 +100,52 @@ class JetCorrectorParameters
 			 const std::vector<JetCorrectorParameters::Record>& fRecords) 
       : mDefinitions(fDefinitions),mRecords(fRecords) { valid_ = true;}
     //-------- Member functions ----------
-    const Record& record(unsigned fBin)                          const {return mRecords[fBin]; }
-    const Definitions& definitions()                             const {return mDefinitions;   }
-    unsigned size()                                              const {return mRecords.size();}
-    unsigned size(unsigned fVar)                                 const;
-    int binIndex(const std::vector<float>& fX)                   const;
-    int binIndex3(const std::vector<float>& fX)                  const;
-    int neighbourBin(unsigned fIndex, unsigned fVar, bool fNext) const;
-    std::vector<float> binCenters(unsigned fVar)                 const;
-    void printScreen()                                           const;
-    void printFile(const std::string& fFileName)                 const;
+    const Record& record(unsigned fBin)                                                       const {return mRecords[fBin]; }
+    const Definitions& definitions()                                                          const {return mDefinitions;   }
+    unsigned size()                                                                           const {return mRecords.size();}
+    unsigned size(unsigned fVar)                                                              const;
+    void binIndexChecks(unsigned N, const std::vector<float>& fX)                             const;
+    bool binBoundChecks(unsigned dim, const float& value, const float& min, const float& max) const;
+    int binIndex(const std::vector<float>& fX)                                                const;
+    int binIndex1(const std::vector<float>& fX)                                               const;
+
+    //template<typename T, typename R>
+    //int binIndexN(const std::vector<float>& fX) const {
+//
+    //}
+
+    int binIndex2(const std::vector<float>& fX)                                               const;
+    int binIndex3(const std::vector<float>& fX)                                               const;
+    int neighbourBin(unsigned fIndex, unsigned fVar, bool fNext)                              const;
+    std::vector<float> binCenters(unsigned fVar)                                              const;
+    void printScreen()                                                                        const;
+    void printFile(const std::string& fFileName)                                              const;
     bool isValid() const { return valid_; }
-    void init(const std::vector<JetCorrectorParameters::Record>& mRecords,
-              std::vector<std::vector<float> >& mBinBoundaries,
-              std::unordered_map<std::tuple<float,float,float>, size_t>& mBinMap,
-              std::unordered_map<std::tuple<float,float>, std::pair<size_t,size_t> >& mPtMap);
+    void initTransientMaps(unsigned N);
+    void init(const std::vector<JetCorrectorParameters::Record>& mRecords);
     void init();
 
   private:
     //-------- Member variables ----------
-    JetCorrectorParameters::Definitions                                    mDefinitions;
-    std::vector<JetCorrectorParameters::Record>                            mRecords;
+    JetCorrectorParameters::Definitions                                        mDefinitions;
+    std::vector<JetCorrectorParameters::Record>                                mRecords;
     // Stores the lower and upper bounds of the bins for each binned dimension
-    std::vector<std::vector<float> >                                       mBinBoundaries COND_TRANSIENT;
-    // Maps a set of lower bounds for three binned dimensions to the index in mRecords
-    std::unordered_map<std::tuple<float,float,float>, size_t>              mBinMap        COND_TRANSIENT;
-    // Maps a set of lower bounds for the first two dimension to the range of lower bound indices mBinBoundaries for a third dimension
-    std::unordered_map<std::tuple<float,float>, std::pair<size_t,size_t> > mPtMap         COND_TRANSIENT;
-    bool                                                                   valid_; /// is this a valid set?
+    std::vector<std::vector<float> >                                           mBinBoundaries COND_TRANSIENT;
+    // Maps a set of lower bounds for N binned dimensions to the index in mRecords
+    std::unordered_map<std::tuple<float,float,float>, size_t>                  mThreeIndexMap COND_TRANSIENT;
+    std::unordered_map<std::tuple<float,float>, size_t>                        mTwoIndexMap   COND_TRANSIENT;
+    std::unordered_map<std::tuple<float>, size_t>                              mOneIndexMap   COND_TRANSIENT;
+    // Maps a set of lower bounds for the first N-1 dimensions to the range of lower bound indices mBinBoundaries for the N dimension
+    std::unordered_map<std::tuple<float,float>, std::pair<size_t,size_t> >     mTwoMap        COND_TRANSIENT;
+    std::unordered_map<std::tuple<float>, std::pair<size_t,size_t> >           mOneMap        COND_TRANSIENT;
+    bool                                                                       valid_; /// is this a valid set?
 
   COND_SERIALIZABLE;
 };
 
+//int JetCorrectorParameters::binIndex1(const std::vector<float>& fX) const {
+
+//}
 
 
 class JetCorrectorParametersCollection {
