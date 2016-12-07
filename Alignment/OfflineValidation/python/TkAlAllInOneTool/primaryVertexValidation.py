@@ -14,6 +14,8 @@ class PrimaryVertexValidation(GenericValidationData):
                  outputBaseName  = "PrimaryVertexValidation"):
         defaults = {
             "pvvalidationreference": ("/store/caf/user/musich/Alignment/TkAlPrimaryVertexValidation/Reference/PrimaryVertexValidation_test_pvvalidation_mc_design_mc_48bins.root"),
+            "doBPix":"True",
+            "doFPix":"True"
             }
         
         mandatories = ["isda","ismc","runboundary","trackcollection","vertexcollection","lumilist","ptCut","etaCut","runControl","numberOfBins"]
@@ -52,6 +54,10 @@ class PrimaryVertexValidation(GenericValidationData):
         if alignment == None:
             alignment = self.alignmentToValidate
         repMap = GenericValidationData.getRepMap(self, alignment) 
+        
+        #if "doBPix" not in repMap:
+        #    repMap.update({"doBPix":"True","doFPix":"True"})
+        
         repMap.update({
             "nEvents": self.general["maxevents"],
             "TrackCollection": self.general["trackcollection"],
