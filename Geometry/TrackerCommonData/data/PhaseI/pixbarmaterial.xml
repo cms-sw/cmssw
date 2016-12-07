@@ -392,6 +392,30 @@
     </MaterialFraction>
   </CompositeMaterial>
   
+  <CompositeMaterial name="CFK_Layer1" density="1.575*1.196*g/cm3" symbol=" " method="mixture by weight">
+    <MaterialFraction fraction="1.000">
+      <rMaterial name="materials:CFK"/>
+    </MaterialFraction>
+  </CompositeMaterial>
+  
+  <CompositeMaterial name="CFK_Layer2" density="1.575*1.108*g/cm3" symbol=" " method="mixture by weight">
+    <MaterialFraction fraction="1.000">
+      <rMaterial name="materials:CFK"/>
+    </MaterialFraction>
+  </CompositeMaterial>
+  
+  <CompositeMaterial name="CFK_Layer3" density="1.575*1.122*g/cm3" symbol=" " method="mixture by weight">
+    <MaterialFraction fraction="1.000">
+      <rMaterial name="materials:CFK"/>
+    </MaterialFraction>
+  </CompositeMaterial>
+  
+  <CompositeMaterial name="CFK_Layer4" density="1.575*1.234*g/cm3" symbol=" " method="mixture by weight">
+    <MaterialFraction fraction="1.000">
+      <rMaterial name="materials:CFK"/>
+    </MaterialFraction>
+  </CompositeMaterial>
+  
   <CompositeMaterial name="Flange_with_Manifold_Layer1" density="5.00093*g/cm3" symbol=" " method="mixture by weight">
     <MaterialFraction fraction="0.1636">
       <rMaterial name="trackermaterial:T_FR4"/>
