@@ -148,7 +148,6 @@ void pat::PATPackedCandidateProducer::produce(edm::StreamID, edm::Event& iEvent,
       }
     }  
     std::vector<int> mappingPuppi(usePuppi_ ? puppiCands->size() : 0);
-    auto const puppiCandsNoLepV = usePuppi_ ? puppiCandsNoLep.product() : nullptr;
 
     edm::Handle<reco::VertexCollection> PVOrigs;
     iEvent.getByToken( PVOrigs_, PVOrigs );
@@ -270,7 +269,6 @@ void pat::PATPackedCandidateProducer::produce(edm::StreamID, edm::Event& iEvent,
            
            float puppiWeightVal = (*puppiWeight)[pkref];
            float puppiWeightNoLepVal = 0.0;
-
            // Check the "no lepton" puppi weights. 
            // If present, then it is not a lepton, use stored weight
            // If absent, it is a lepton, so set the weight to 1.0
@@ -282,7 +280,7 @@ void pat::PATPackedCandidateProducer::produce(edm::StreamID, edm::Event& iEvent,
              for ( size_t ipcnl = 0; ipcnl < puppiCandsNoLepPtrs.size(); ipcnl++){
               if (puppiCandsNoLepPtrs[ipcnl] == pkrefPtr){
                 foundNoLep = true;
-                  puppiWeightNoLepVal = puppiCandsNoLepV->at(ipcnl).pt()/cand.pt(); // a hack for now, should use the value map
+                  puppiWeightNoLepVal = puppiCandsNoLep->at(ipcnl).pt()/cand.pt(); // a hack for now, should use the value map
                   break;
                 }
               }
