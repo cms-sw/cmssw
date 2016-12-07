@@ -14,6 +14,7 @@ class PrimaryVertexValidation(GenericValidationData):
                  outputBaseName  = "PrimaryVertexValidation"):
         defaults = {
             "pvvalidationreference": ("/store/caf/user/musich/Alignment/TkAlPrimaryVertexValidation/Reference/PrimaryVertexValidation_test_pvvalidation_mc_design_mc_48bins.root"),
+            "ttrhbuilder":"WithAngleAndTemplate",
             "doBPix":"True",
             "doFPix":"True"
             }

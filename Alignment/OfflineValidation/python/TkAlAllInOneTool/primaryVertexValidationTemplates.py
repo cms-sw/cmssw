@@ -115,7 +115,7 @@ process.TrackRefitter = RecoTracker.TrackProducer.TrackRefitter_cfi.TrackRefitte
 process.TrackRefitter.src = ".oO[TrackCollection]Oo."
 process.TrackRefitter.TrajectoryInEvent = True
 process.TrackRefitter.NavigationSchool = ''
-process.TrackRefitter.TTRHBuilder = "WithAngleAndTemplate"
+process.TrackRefitter.TTRHBuilder = ".oO[ttrhbuilder]Oo."
 
 ####################################################################
 # Output file
