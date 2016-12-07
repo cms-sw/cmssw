@@ -261,6 +261,7 @@ class ConfigBuilder(object):
         self.additionalOutputs = {}
 
         self.productionFilterSequence = None
+        self.labelsToAssociate=[]
 	self.nextScheduleIsConditional=False
 	self.conditionalPaths=[]
 	self.excludedPaths=[]
@@ -1648,7 +1649,7 @@ class ConfigBuilder(object):
         ''' Enrich the schedule with PAT '''
         self.prepare_PATFILTER(self)
         self.loadDefaultOrSpecifiedCFF(sequence,self.PATDefaultCFF)
-        self.scheduleSequence(sequence.split('.')[-1], 'pat_step')
+        self.labelsToAssociate.append('patTask')
         if not self._options.runUnscheduled:
                raise Exception("MiniAOD production can only run in unscheduled mode, please run cmsDriver with --runUnscheduled")
         if self._options.isData:
@@ -2149,10 +2150,14 @@ class ConfigBuilder(object):
 
 	self.pythonCfgCode += result
 
-        from PhysicsTools.PatAlgos.tools.helpers import schedulePatAlgosEndPath
-        schedulePatAlgosEndPath(self.process)
-        self.pythonCfgCode+="from PhysicsTools.PatAlgos.tools.helpers import schedulePatAlgosEndPath\n"
-        self.pythonCfgCode+="schedulePatAlgosEndPath(process)\n"
+        for labelToAssociate in self.labelsToAssociate:
+                self.process.schedule.associate(getattr(self.process, labelToAssociate))
+                self.pythonCfgCode += 'process.schedule.associate(process.' + labelToAssociate + ')\n'
+
+        from PhysicsTools.PatAlgos.tools.helpers import associatePatAlgosToolsTask
+        associatePatAlgosToolsTask(self.process)
+        self.pythonCfgCode+="from PhysicsTools.PatAlgos.tools.helpers import associatePatAlgosToolsTask\n"
+        self.pythonCfgCode+="associatePatAlgosToolsTask(process)\n"
 
 	if self._options.nThreads is not "1":
 		self.pythonCfgCode +="\n"
