@@ -27,7 +27,7 @@ process.source = cms.Source("EmptySource",
 )
 
 process.listIds = cms.EDAnalyzer("ListIds",
-                                materials = cms.untracked.vstring("materials:Silicon", "tracker:tkLayout_SenSi", "pixel:tkLayout_SenSi"),
+                                materials = cms.untracked.vstring("materials:Silicon", "tracker:tkLayout_SenSi"),
                                 printMaterial = cms.untracked.bool(True)
                                 )
 process.path = cms.Path(process.listIds)
