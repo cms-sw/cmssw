@@ -1,6 +1,6 @@
 from FWCore.GuiBrowsers.ConfigToolBase import *
 
-import PhysicsTools.PatAlgos.tools.helpers as configtools
+from PhysicsTools.PatAlgos.tools.helpers import getPatAlgosToolsTask, addToProcessAndTask
 
 class AddMETCollection(ConfigToolBase):
     """
@@ -53,10 +53,8 @@ class AddMETCollection(ConfigToolBase):
         ## do necessary imports
         from PhysicsTools.PatAlgos.producersLayer1.metProducer_cfi import patMETs
         ## add module to the process
-        setattr(process, labelName, patMETs.clone(metSource = metSource, addMuonCorrections=False))
-
-        patAlgosToolsTask = configtools.getPatAlgosToolsTask(process)
-        patAlgosToolsTask.add(getattr(process, labelName))
+        task = getPatAlgosToolsTask(process)
+        addToProcessAndTask(labelName, patMETs.clone(metSource = metSource, addMuonCorrections=False), process, task)
 
         ## add module to output
         if hasattr(process, "out"):
