@@ -1,9 +1,6 @@
 ## import skeleton process
 from PhysicsTools.PatAlgos.patTemplate_cfg import *
 
-import PhysicsTools.PatAlgos.tools.helpers as configtools
-patAlgosToolsTask = configtools.getPatAlgosToolsTask(process)
-
 # verbose flags for the PF2PAT modules
 #process.Tracer = cms.Service("Tracer")
 

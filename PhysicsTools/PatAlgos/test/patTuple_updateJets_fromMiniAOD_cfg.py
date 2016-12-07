@@ -4,9 +4,6 @@
 ## import skeleton process
 from PhysicsTools.PatAlgos.patTemplate_cfg import *
 
-import PhysicsTools.PatAlgos.tools.helpers as configtools
-patAlgosToolsTask = configtools.getPatAlgosToolsTask(process)
-
 #process.Tracer = cms.Service("Tracer")
 
 ## uncomment the following line to update different jet collections
