@@ -236,6 +236,7 @@ Float_t _boundMin   = -0.5;
 Float_t _boundSx    = (nBins_/4.)-0.5;
 Float_t _boundDx    = 3*(nBins_/4.)-0.5;
 Float_t _boundMax   = nBins_-0.5;
+Float_t  etaRange   = 2.5;
 
 //*************************************************************
 void FitPVResiduals(TString namesandlabels,bool stdres,bool do2DMaps,TString theDate,bool setAutoLimits){
@@ -245,10 +246,10 @@ void FitPVResiduals(TString namesandlabels,bool stdres,bool do2DMaps,TString the
   timer.Start();
 
   if(!setAutoLimits){
-    std::cout<<" FitPVResiduals: Overriding autolimits!"<<std::endl;
+    std::cout<<"FitPVResiduals::FitPVResiduals(): Overriding autolimits!"<<std::endl;
     thePlotLimits->printAll();
   } else {
-    std::cout<<" FitPVResiduals: plot axis range will be automatically adjusted"<<std::endl;
+    std::cout<<"FitPVResiduals::FitPVResiduals(): plot axis range will be automatically adjusted"<<std::endl;
   }
     
 
@@ -323,10 +324,12 @@ void FitPVResiduals(TString namesandlabels,bool stdres,bool do2DMaps,TString the
   
   for(Int_t i=0;i<nFiles_;i++){
     
-    theEtaHistos[i] = (TH1F*)fins[i]->Get("PVValidation/EventFeatures/etaMax");
-    theEtaMax_[i]   = theEtaHistos[i]->GetBinContent(1);
-
-    std::cout<<theEtaMax_[i]<<std::endl;
+    if(fins[i]->GetListOfKeys()->Contains("PVValidation/EventFeatures/etaMax")){
+      theEtaHistos[i] = (TH1F*)fins[i]->Get("PVValidation/EventFeatures/etaMax");
+      theEtaMax_[i]   = theEtaHistos[i]->GetBinContent(1);
+    } else {
+      theEtaMax_[i]   = 2.5;
+    }
 
     for(Int_t j=0;j<nBins_;j++){
       
@@ -389,10 +392,15 @@ void FitPVResiduals(TString namesandlabels,bool stdres,bool do2DMaps,TString the
     }
   }
 
+  // checks if all pseudo-rapidity ranges coincide
+  // if not, exits
   if(check(theEtaMax_,nFiles_)){
-    std::cout<<" FitPVResiduals::FitPVResiduals:() eta max are different"<<std::endl;
-    std::cout<<" exiting...."<<std::endl;
+    std::cout<<"FitPVResiduals::FitPVResiduals(): the eta range is different"<<std::endl;
+    std::cout<<"exiting..."<<std::endl;
     return;
+  } else {
+    etaRange = theEtaMax_[0];
+    std::cout<<"FitPVResiduals::FitPVResiduals(): the eta range is ["<< -etaRange << " ; " << etaRange <<"]"<< std::endl;
   }
  
   Double_t highedge=nBins_-0.5;
@@ -1637,7 +1645,7 @@ void FillTrendPlot(TH1F* trendPlot, TH1F* residualsPlot[100], TString fitPar_, T
     sprintf(phipositionString,"%.1f",phiposition);
     
     char etapositionString[129];
-    float etaposition = (-2.5+i*etaInterval)+(etaInterval/2);
+    float etaposition = (-etaRange+i*etaInterval)+(etaInterval/2);
     sprintf(etapositionString,"%.1f",etaposition);
 
     std::pair<std::pair<Double_t,Double_t>, std::pair<Double_t,Double_t> > myFit = std::make_pair(std::make_pair(0.,0.),std::make_pair(0.,0.));
@@ -1829,7 +1837,7 @@ void FillMap(TH2F* trendMap, TH1F* residualsMapPlot[48][48], TString fitPar_)
       //cout<<"(i,j)="<<i<<","<<j<<endl;
 
       char etapositionString[129];
-      float etaposition = (-2.5+j*etaInterval)+(etaInterval/2);
+      float etaposition = (-etaRange+j*etaInterval)+(etaInterval/2);
       sprintf(etapositionString,"%.1f",etaposition);
 
       if(i==0) { trendMap->GetXaxis()->SetBinLabel(j+1,etapositionString); }
@@ -2118,8 +2126,8 @@ void makeNewXAxis (TH1F *h)
   float axmax = 999.;
   int ndiv = 510;
   if(myTitle.Contains("eta")){
-    axmin = -2.5;
-    axmax = 2.5;
+    axmin = -etaRange;
+    axmax = etaRange;
     ndiv = 505;
   } else if (myTitle.Contains("phi")){
     axmin = -TMath::Pi();
@@ -2168,8 +2176,8 @@ void makeNewPairOfAxes (TH2F *h)
 {
   
   int ndivx = 505;
-  float axmin = -2.5;
-  float axmax = 2.5;
+  float axmin = -etaRange;
+  float axmax = etaRange;
 
   int ndivy = 510;
   float aymin = -TMath::Pi();
