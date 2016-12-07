@@ -17,6 +17,7 @@ primaryVertexAssociation = cms.EDProducer("PFCandidatePrimaryVertexSorter",
     #cuts used to identify primary tracks compatible with beamspot
     maxDxySigForNotReconstructedPrimary = cms.double(2), #in AND with next
     maxDxyForNotReconstructedPrimary = cms.double(0.01), #in AND with prev
+    useTiming = cms.bool(False),
     ),
   particles = cms.InputTag("particleFlow"),
   trackTimeTag = cms.InputTag(""),
@@ -29,7 +30,6 @@ primaryVertexAssociation = cms.EDProducer("PFCandidatePrimaryVertexSorter",
   produceSortedVertices = cms.bool(False),
   producePileUpCollection  = cms.bool(False),
   produceNoPileUpCollection = cms.bool(False),
-  useTiming = cms.bool(False),
 
 )
 
@@ -39,5 +39,5 @@ phase2_timing.toModify(
     vertices=cms.InputTag("offlinePrimaryVertices4D"),
     trackTimeTag=cms.InputTag("trackTimeValueMapProducer","generalTracksConfigurableFlatResolutionModel"),
     trackTimeResoTag=cms.InputTag("trackTimeValueMapProducer","generalTracksConfigurableFlatResolutionModelResolution"),
-    useTiming=True,
+    assignment=dict(useTiming=True),
 )

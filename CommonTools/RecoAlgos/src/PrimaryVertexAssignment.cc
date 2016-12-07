@@ -11,8 +11,8 @@ std::pair<int,PrimaryVertexAssignment::Quality>
 PrimaryVertexAssignment::chargedHadronVertex( const reco::VertexCollection& vertices,
                                    const reco::TrackRef& trackRef,
                                    const reco::Track* track,
-                                   const edm::ValueMap<float> *trackTimeTag,
-                                   const edm::ValueMap<float> *trackTimeResoTag,
+                                   float time, 
+                                   float timeReso, // <0 if timing not available for this object
                                    const edm::View<reco::Candidate>& jets,
                                    const TransientTrackBuilder& builder) const {
 
@@ -32,11 +32,7 @@ PrimaryVertexAssignment::chargedHadronVertex( const reco::VertexCollection& vert
   
   if(iVertex >= 0 ) return std::pair<int,PrimaryVertexAssignment::Quality>(iVertex,PrimaryVertexAssignment::UsedInFit);
 
-  bool useTime = trackTimeTag && trackTimeResoTag && trackTimeTag->contains(trackRef.id());
-    
-  float time = useTime ? (*trackTimeTag)[trackRef] : 0.;
-  float timeReso = useTime ? (*trackTimeResoTag)[trackRef] : -1.;
-
+  bool useTime = useTiming_;
   if (edm::isNotFinite(time) || timeReso<1e-6) {
     useTime = false;
     time = 0.;

@@ -17,6 +17,7 @@ sortedPrimaryVertices = cms.EDProducer("RecoChargedRefCandidatePrimaryVertexSort
     #cuts used to identify primary tracks compatible with beamspot
     maxDxySigForNotReconstructedPrimary = cms.double(2), #in AND with next
     maxDxyForNotReconstructedPrimary = cms.double(0.01), #in AND with prev
+    useTiming = cms.bool(False),
     ),
   particles = cms.InputTag("trackRefsForJets"),
   trackTimeTag = cms.InputTag(""),
@@ -30,7 +31,6 @@ sortedPrimaryVertices = cms.EDProducer("RecoChargedRefCandidatePrimaryVertexSort
   produceSortedVertices = cms.bool(True),
   producePileUpCollection  = cms.bool(False),
   produceNoPileUpCollection = cms.bool(False),
-  useTiming = cms.bool(False),
 
 )
 
