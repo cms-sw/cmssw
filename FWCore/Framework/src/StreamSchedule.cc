@@ -575,14 +575,14 @@ namespace edm {
                                             finishedPaths(ptr, std::move(iTask), ep, es);
                                           });
     
-    pathsDone->increment_ref_count();
-    //Begin process in reverse order since TBB is last in first out for tasks.
+    //The holder guarantees that if the paths finish before the loop ends
+    // that we do not start too soon. It also guarantees that the task will
+    // run under that condition.
+    WaitingTaskHolder taskHolder(pathsDone);
+
     for(auto it = trig_paths_.rbegin(), itEnd = trig_paths_.rend();
         it != itEnd; ++ it) {
       it->processOneOccurrenceAsync(pathsDone,ep, es, streamID_, &streamContext_);
-    }
-    if(0 == pathsDone->decrement_ref_count()) {
-      tbb::task::spawn(*pathsDone);
     }
   }
   
@@ -650,6 +650,10 @@ namespace edm {
                                               }
                                               iWait.doneWaiting(finishProcessOneEvent(ptr));
                                             });
+      //The holder guarantees that if the paths finish before the loop ends
+      // that we do not start too soon. It also guarantees that the task will
+      // run under that condition.
+      WaitingTaskHolder taskHolder(endPathsDone);
       for(auto it = end_paths_.rbegin(), itEnd = end_paths_.rend();
           it != itEnd; ++it) {
         it->processOneOccurrenceAsync(endPathsDone,ep, es, streamID_, &streamContext_);
