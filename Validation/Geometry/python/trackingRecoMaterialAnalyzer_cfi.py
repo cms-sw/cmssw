@@ -1,6 +1,9 @@
 import FWCore.ParameterSet.Config as cms
 materialDumperAnalyzer = cms.EDAnalyzer("TrackingRecoMaterialAnalyser",
+                                        folder = cms.string('Tracking/RecoMaterial/'),
                                         tracks = cms.InputTag("generalTracks"),
+                                        beamspot = cms.InputTag("offlineBeamSpot"),
+                                        usePV = cms.bool(False),
                                         vertices = cms.InputTag("offlinePrimaryVertices"),
                                         DoPredictionsOnly = cms.bool(False),
                                         Fitter = cms.string('KFFitterForRefitInsideOut'),
