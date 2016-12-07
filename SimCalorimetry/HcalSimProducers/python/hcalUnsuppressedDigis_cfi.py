@@ -35,6 +35,8 @@ hcalSimBlock = cms.PSet(
     injectTestHitsTime = cms.vdouble(),
     # format for cells: subdet, ieta, iphi, depth
     # multiple quadruplets can be specified
+    # if instead only 1 value is given, 
+    # it will be interpreted as an entire subdetector
     injectTestHitsCells = cms.vint32()
 )
 

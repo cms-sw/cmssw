@@ -594,14 +594,24 @@ void  HcalDigitizer::updateGeometry(const edm::EventSetup & eventSetup) {
   theZDCDigitizer->setDetIds(zdcCells);
 
   //fill test hits collection if desired and empty
-  if(injectTestHits_ && injectedHits_.size()==0 && injectedHitsCells_.size()>=4 && injectedHitsEnergy_.size()>0){
+  if(injectTestHits_ && injectedHits_.size()==0 && injectedHitsCells_.size()>0 && injectedHitsEnergy_.size()>0){
     //make list of specified cells if desired
-    std::vector<HcalDetId> testCells;
-    testCells.reserve(injectedHitsCells_.size()/4);
-    for(unsigned ic = 0; ic < injectedHitsCells_.size(); ic += 4){
-      if(ic+4 > injectedHitsCells_.size()) break;
-      testCells.emplace_back((HcalSubdetector)injectedHitsCells_[ic],injectedHitsCells_[ic+1],
-                          injectedHitsCells_[ic+2],injectedHitsCells_[ic+3]);
+    std::vector<DetId> testCells;
+    if(injectedHitsCells_.size()>=4){
+      testCells.reserve(injectedHitsCells_.size()/4);
+      for(unsigned ic = 0; ic < injectedHitsCells_.size(); ic += 4){
+        if(ic+4 > injectedHitsCells_.size()) break;
+        testCells.push_back(HcalDetId((HcalSubdetector)injectedHitsCells_[ic],injectedHitsCells_[ic+1],
+                            injectedHitsCells_[ic+2],injectedHitsCells_[ic+3]));
+      }
+    }
+    else{
+      int testSubdet = injectedHitsCells_[0];
+      if(testSubdet==HcalBarrel) testCells = hbCells;
+      else if(testSubdet==HcalEndcap) testCells = heCells;
+      else if(testSubdet==HcalForward) testCells = hfCells;
+      else if(testSubdet==HcalOuter) testCells = hoCells;
+      else throw cms::Exception("Configuration") << "Unknown subdet " << testSubdet << " for HCAL test hit injection";
     }
     bool useHitTimes = (injectedHitsTime_.size()==injectedHitsEnergy_.size());
     injectedHits_.reserve(testCells.size()*injectedHitsEnergy_.size());
