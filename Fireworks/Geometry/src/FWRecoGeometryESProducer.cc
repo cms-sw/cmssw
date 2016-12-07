@@ -123,8 +123,8 @@ FWRecoGeometryESProducer::produce( const FWRecoGeometryRecord& record )
   }
 
   if( m_timing ) {
-    record.getRecord<CaloGeometryRecord>().getRecord<FastTimeGeometryRecord>().get( "FastTimeBarrel", m_ftlBarrelGeom );
-    record.getRecord<CaloGeometryRecord>().getRecord<FastTimeGeometryRecord>().get( "SFBX", m_ftlEndcapGeom );
+    record.getRecord<CaloGeometryRecord>().getRecord<IdealGeometryRecord>().get( "FastTimeBarrel", m_ftlBarrelGeom );
+    record.getRecord<CaloGeometryRecord>().getRecord<IdealGeometryRecord>().get( "SFBX", m_ftlEndcapGeom );
     addFTLGeometry();
   }
   
@@ -540,7 +540,7 @@ FWRecoGeometryESProducer::addFTLGeometry( void )
 	 end = vid.end();
        it != end; ++it ) {
     unsigned int id = insert_id( it->rawId());
-    const CaloCellGeometry::CornersVec& cor =  m_ftlBarrelGeom->getGeometry( *it )->getCorners();      
+    const auto& cor =  m_ftlBarrelGeom->getCorners( *it );      
     fillPoints( id, cor.begin(), cor.end());    
   }
   // do the endcap
@@ -549,7 +549,7 @@ FWRecoGeometryESProducer::addFTLGeometry( void )
 	 end = vid.end();
        it != end; ++it ) {
     unsigned int id = insert_id( it->rawId());
-    const CaloCellGeometry::CornersVec& cor =  m_ftlEndcapGeom->getGeometry( *it )->getCorners();      
+    const auto& cor =  m_ftlEndcapGeom->getCorners( *it );      
     fillPoints( id, cor.begin(), cor.end());    
   }
 }
