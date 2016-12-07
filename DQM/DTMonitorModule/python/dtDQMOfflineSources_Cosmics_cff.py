@@ -17,15 +17,9 @@ dqmInfoDT = cms.EDAnalyzer("DQMEventInfo",
 # DT digitization and reconstruction
 # Switched to TwinMux
 from EventFilter.L1TXRawToDigi.twinMuxStage2Digis_cfi import *
-twinMuxStage2Digis.DTTM7_FED_Source = 'rawDataCollector'
 
 from EventFilter.DTRawToDigi.dtunpackerDDUGlobal_cfi import *
 #from EventFilter.DTRawToDigi.dtunpackerDDULocal_cfi import *
-dtunpacker.readOutParameters.performDataIntegrityMonitor = True
-dtunpacker.readOutParameters.rosParameters.performDataIntegrityMonitor = True
-dtunpacker.readOutParameters.debug = False
-dtunpacker.readOutParameters.rosParameters.debug = False
-dtunpacker.inputLabel = 'rawDataCollector'
 
 unpackers = cms.Sequence(dtunpacker + twinMuxStage2Digis )
 
