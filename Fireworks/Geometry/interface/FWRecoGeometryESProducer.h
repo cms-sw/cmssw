@@ -53,10 +53,10 @@ private:
   
   edm::ESHandle<GlobalTrackingGeometry>      m_geomRecord;
   edm::ESHandle<CaloGeometry>                m_caloGeom;
-  edm::ESHandle<FastTimeGeometry>            m_ftlGeom;
+  edm::ESHandle<FastTimeGeometry>            m_ftlBarrelGeom,m_ftlEndcapGeom;
   std::vector<edm::ESHandle<HGCalGeometry> > m_hgcalGeoms;
   const TrackerGeometry*                     m_trackerGeom;
-  std::shared_ptr<FWRecoGeometry>          m_fwGeometry;
+  std::shared_ptr<FWRecoGeometry>            m_fwGeometry;
   
   unsigned int m_current;
   bool m_tracker;

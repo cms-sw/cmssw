@@ -24,6 +24,9 @@ def help():
    print "   calo=bool"
    print "       include Calo subdetectors"
    print ""
+   print "   timing=bool"
+   print "       include Timing subdetectors"
+   print ""
    print ""
    exit(1);
 
@@ -68,19 +71,19 @@ def recoGeoLoad(score):
     elif  score == "2023D10":
        process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
        from Configuration.AlCa.autoCond import autoCond
-       process.GlobalTag.globaltag = autoCond['run2_mc']
+       process.GlobalTag.globaltag = autoCond['phase2_realistic']
        process.load('Configuration.Geometry.GeometryExtended2023D10Reco_cff')
        
     elif  score == "2023D4":
        process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
        from Configuration.AlCa.autoCond import autoCond
-       process.GlobalTag.globaltag = autoCond['run2_mc']
+       process.GlobalTag.globaltag = autoCond['phase2_realistic']
        process.load('Configuration.Geometry.GeometryExtended2023D4Reco_cff')
 
     elif  score == "2023D8":
        process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
        from Configuration.AlCa.autoCond import autoCond
-       process.GlobalTag.globaltag = autoCond['run2_mc']
+       process.GlobalTag.globaltag = autoCond['phase2_realistic']
        process.load('Configuration.Geometry.GeometryExtended2023D8Reco_cff')
        
     elif score == "MaPSA":
