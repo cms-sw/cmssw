@@ -1,8 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-
-from Alignment.LaserAlignment.LaserAlignmentDefs_cff import *
-
 LaserAlignmentEventFilter = cms.EDFilter("LaserAlignmentEventFilter",
   FedInputTag = cms.InputTag( 'source' )
 )
