@@ -250,7 +250,7 @@ newCombinedSeeds = RecoTracker.TkSeedGenerator.GlobalCombinedSeeds_cfi.globalCom
       cms.InputTag('stripPairElectronSeeds')
       )
 )
-trackingPhase1.toModify(newCombinedSeeds, seedCollections = [
+_seedCollections_Phase1 = [
     'initialStepSeeds',
     'highPtTripletStepSeeds',
     'mixedTripletStepSeeds',
@@ -258,16 +258,9 @@ trackingPhase1.toModify(newCombinedSeeds, seedCollections = [
     'tripletElectronSeeds',
     'pixelPairElectronSeeds',
     'stripPairElectronSeeds'
-])
-trackingPhase1QuadProp.toModify(newCombinedSeeds, seedCollections = [
-    'initialStepSeeds',
-    'highPtTripletStepSeeds',
-    'mixedTripletStepSeeds',
-    'pixelLessStepSeeds',
-    'tripletElectronSeeds',
-    'pixelPairElectronSeeds',
-    'stripPairElectronSeeds'
-])
+]
+trackingPhase1.toModify(newCombinedSeeds, seedCollections = _seedCollections_Phase1)
+trackingPhase1QuadProp.toModify(newCombinedSeeds, seedCollections = _seedCollections_Phase1)
 trackingPhase1PU70.toModify(newCombinedSeeds, seedCollections = [
     'initialStepSeeds',
     'highPtTripletStepSeeds',
