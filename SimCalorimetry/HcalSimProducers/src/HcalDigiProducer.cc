@@ -17,6 +17,9 @@ HcalDigiProducer::HcalDigiProducer(edm::ParameterSet const& pset, edm::stream::E
   if(pset.getParameter<bool>("debugCaloSamples")){
     mixMod.produces<CaloSamplesCollection>("HcalSamples");
   }
+  if(pset.getParameter<bool>("injectTestHits")){
+    mixMod.produces<edm::PCaloHitContainer>("HcalHits");
+  }
 }
 
 
