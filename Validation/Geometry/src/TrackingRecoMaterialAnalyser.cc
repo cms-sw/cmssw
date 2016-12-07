@@ -42,12 +42,8 @@ class TrackingRecoMaterialAnalyser : public DQMEDAnalyzer {
     void analyze(const edm::Event &, const edm::EventSetup &) override ;
     virtual ~TrackingRecoMaterialAnalyser();
   private:
-    inline bool isDoubleSided(DetId id) {
-      SiStripDetId strip_id(id);
-      return (((strip_id.subDetector() == SiStripDetId::TIB) ||
-               (strip_id.subDetector() == SiStripDetId::TOB) ||
-               (strip_id.subDetector() == SiStripDetId::TID) ||
-               (strip_id.subDetector() == SiStripDetId::TEC)) && strip_id.glued());
+    inline bool isDoubleSided(SiStripDetId strip_id) {
+      return ((strip_id.subDetector() != SiStripDetId::UNKNOWN) && strip_id.glued());
     }
     TrackTransformer refitter_;
     const edm::EDGetTokenT<reco::TrackCollection>  tracksToken_;
