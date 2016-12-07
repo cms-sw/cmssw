@@ -1,9 +1,6 @@
 ## import skeleton process
 from PhysicsTools.PatAlgos.patTemplate_cfg import *
 
-import PhysicsTools.PatAlgos.tools.helpers as configtools
-patAlgosToolsTask = configtools.getPatAlgosToolsTask(process)
-
 ## to run in un-scheduled mode uncomment the following lines
 process.load("PhysicsTools.PatAlgos.producersLayer1.patCandidates_cff")
 patAlgosToolsTask.add(process.patCandidatesTask)
