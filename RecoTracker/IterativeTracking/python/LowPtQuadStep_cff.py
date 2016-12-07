@@ -34,6 +34,7 @@ lowPtQuadStepTrackingRegions = _globalTrackingRegionFromBeamSpot.clone(RegionPSe
     originRadius = 0.02,
     nSigmaZ = 4.0
 ))
+trackingPhase1.toModify(lowPtQuadStepTrackingRegions, RegionPSet = dict(ptMin = 0.15))
 trackingPhase2PU140.toModify(lowPtQuadStepTrackingRegions, RegionPSet = dict(ptMin = 0.35))
 
 
@@ -73,6 +74,23 @@ lowPtQuadStepHitQuadruplets = _pixelQuadrupletEDProducer.clone(
     fitFastCircleChi2Cut = True,
     SeedComparitorPSet = lowPtQuadStepHitTriplets.SeedComparitorPSet,
 )
+from RecoPixelVertexing.PixelTriplets.caHitQuadrupletEDProducer_cfi import caHitQuadrupletEDProducer as _caHitQuadrupletEDProducer
+trackingPhase1.toModify(lowPtQuadStepHitDoublets, layerPairs = [0,1,2]) # layer pairs (0,1), (1,2), (2,3)
+trackingPhase1.toReplaceWith(lowPtQuadStepHitQuadruplets, _caHitQuadrupletEDProducer.clone(
+    doublets = "lowPtQuadStepHitDoublets",
+    extraHitRPhitolerance = lowPtQuadStepHitTriplets.extraHitRPhitolerance,
+    SeedComparitorPSet = lowPtQuadStepHitTriplets.SeedComparitorPSet,
+    maxChi2 = dict(
+        pt1    = 0.7, pt2    = 2,
+        value1 = 1000, value2 = 150,
+    ),
+    useBendingCorrection = True,
+    fitFastCircle = True,
+    fitFastCircleChi2Cut = True,
+    CAThetaCut = 0.0017,
+    CAPhiCut = 0.3,
+))
+
 from RecoPixelVertexing.PixelTriplets.pixelQuadrupletMergerEDProducer_cfi import pixelQuadrupletMergerEDProducer as _pixelQuadrupletMergerEDProducer
 from RecoPixelVertexing.PixelTriplets.quadrupletseedmerging_cff import *
 _lowPtQuadStepHitQuadrupletsMerging = _pixelQuadrupletMergerEDProducer.clone(
@@ -300,6 +318,7 @@ LowPtQuadStep = cms.Sequence(lowPtQuadStepClusters*
                              lowPtQuadStepTrackCandidates*
                              lowPtQuadStepTracks*
                              lowPtQuadStep)
+trackingPhase1.toReplaceWith(LowPtQuadStep, LowPtQuadStep.copyAndExclude([lowPtQuadStepHitTriplets]))
 _LowPtQuadStep_Phase1PU70 = LowPtQuadStep.copy()
 _LowPtQuadStep_Phase1PU70.replace(lowPtQuadStep, lowPtQuadStepSelector)
 trackingPhase1PU70.toReplaceWith(LowPtQuadStep, _LowPtQuadStep_Phase1PU70)
