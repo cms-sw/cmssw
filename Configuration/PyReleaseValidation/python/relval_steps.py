@@ -1268,14 +1268,14 @@ for sname in ['RECODR2_50nsreHLT', 'RECODR2_25nsreHLT',
 
 
 # RECO step with Prompt-like GT
-steps['RECODR2_2016reHLT_HIPM_Prompt']=merge([{'--conditions':'auto:run2_data_promptlike'},steps['RECODR2_2016reHLT_HIPM']])
-steps['RECODR2_2016reHLT_skimDoubleEG_HIPM_Prompt']=merge([{'--conditions':'auto:run2_data_promptlike'},steps['RECODR2_2016reHLT_skimDoubleEG_HIPM']])
-steps['RECODR2_2016reHLT_skimJetHT_HIPM_Prompt']=merge([{'--conditions':'auto:run2_data_promptlike'},steps['RECODR2_2016reHLT_skimJetHT_HIPM']])
-steps['RECODR2_2016reHLT_skimMET_HIPM_Prompt']=merge([{'--conditions':'auto:run2_data_promptlike'},steps['RECODR2_2016reHLT_skimMET_HIPM']])
-steps['RECODR2_2016reHLT_skimMuonEG_HIPM_Prompt']=merge([{'--conditions':'auto:run2_data_promptlike'},steps['RECODR2_2016reHLT_skimMuonEG_HIPM']])
-steps['RECODR2_2016reHLT_skimSingleMu_HIPM_Prompt']=merge([{'--conditions':'auto:run2_data_promptlike'},steps['RECODR2_2016reHLT_skimSingleMu_HIPM']])
-steps['RECODR2_2016reHLT_skimSinglePh_HIPM_Prompt']=merge([{'--conditions':'auto:run2_data_promptlike'},steps['RECODR2_2016reHLT_skimSinglePh_HIPM']])
-steps['RECODR2_2016reHLT_skimMuOnia_HIPM_Prompt']=merge([{'--conditions':'auto:run2_data_promptlike'},steps['RECODR2_2016reHLT_skimMuOnia_HIPM']])
+steps['RECODR2_2016reHLT_Prompt']=merge([{'--conditions':'auto:run2_data_promptlike'},steps['RECODR2_2016reHLT']])
+steps['RECODR2_2016reHLT_skimDoubleEG_Prompt']=merge([{'--conditions':'auto:run2_data_promptlike'},steps['RECODR2_2016reHLT_skimDoubleEG']])
+steps['RECODR2_2016reHLT_skimJetHT_Prompt']=merge([{'--conditions':'auto:run2_data_promptlike'},steps['RECODR2_2016reHLT_skimJetHT']])
+steps['RECODR2_2016reHLT_skimMET_Prompt']=merge([{'--conditions':'auto:run2_data_promptlike'},steps['RECODR2_2016reHLT_skimMET']])
+steps['RECODR2_2016reHLT_skimMuonEG_Prompt']=merge([{'--conditions':'auto:run2_data_promptlike'},steps['RECODR2_2016reHLT_skimMuonEG']])
+steps['RECODR2_2016reHLT_skimSingleMu_Prompt']=merge([{'--conditions':'auto:run2_data_promptlike'},steps['RECODR2_2016reHLT_skimSingleMu']])
+steps['RECODR2_2016reHLT_skimSinglePh_Prompt']=merge([{'--conditions':'auto:run2_data_promptlike'},steps['RECODR2_2016reHLT_skimSinglePh']])
+steps['RECODR2_2016reHLT_skimMuOnia_Prompt']=merge([{'--conditions':'auto:run2_data_promptlike'},steps['RECODR2_2016reHLT_skimMuOnia']])
 
 
 steps['RECO']=merge([step3Defaults])
