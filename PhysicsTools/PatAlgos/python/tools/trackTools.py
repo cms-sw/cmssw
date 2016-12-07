@@ -1,6 +1,6 @@
 from FWCore.GuiBrowsers.ConfigToolBase import *
 
-import PhysicsTools.PatAlgos.tools.helpers as configtools
+from PhysicsTools.PatAlgos.tools.helpers import getPatAlgosToolsTask, addToProcessAndTask
 
 class MakeAODTrackCandidates(ConfigToolBase):
 
@@ -49,21 +49,19 @@ class MakeAODTrackCandidates(ConfigToolBase):
 
         process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi");
         ## add ChargedCandidateProducer from track
-        setattr(process, 'patAOD' + label + 'Unfiltered', cms.EDProducer("ConcreteChargedCandidateProducer",
-                                                                         src  = tracks,
-                                                                         particleType = cms.string(particleType)
-                                                                         )
-                )
-        patAlgosToolsTask = configtools.getPatAlgosToolsTask(process)
-        patAlgosToolsTask.add(getattr(process, 'patAOD' + label + 'Unfiltered'))
+        task = getPatAlgosToolsTask(process)
+        addToProcessAndTask('patAOD' + label + 'Unfiltered',
+                            cms.EDProducer("ConcreteChargedCandidateProducer",
+                                           src  = tracks,
+                                           particleType = cms.string(particleType)),
+                            process, task)
 
         ## add CandViewSelector with preselection string
-        setattr(process, 'patAOD' + label, cms.EDFilter("CandViewSelector",
-                                                        src = cms.InputTag('patAOD' + label + 'Unfiltered'),
-                                                        cut = cms.string(candSelection)
-                                                        )
-                )
-        patAlgosToolsTask.add(getattr(process, 'patAOD' + label))
+        addToProcessAndTask('patAOD' + label,
+                            cms.EDFilter("CandViewSelector",
+                                         src = cms.InputTag('patAOD' + label + 'Unfiltered'),
+                                         cut = cms.string(candSelection)),
+                            process, task)
 
 makeAODTrackCandidates=MakeAODTrackCandidates()
 
@@ -127,20 +125,20 @@ class MakePATTrackCandidates(ConfigToolBase):
 
         ## add patTracks to the process
         from PhysicsTools.PatAlgos.producersLayer1.genericParticleProducer_cfi import patGenericParticles
-        setattr(process, 'pat' + label, patGenericParticles.clone(src = input))
-        patAlgosToolsTask = configtools.getPatAlgosToolsTask(process)
-        patAlgosToolsTask.add(getattr(process, 'pat' + label))
+        task = getPatAlgosToolsTask(process)
+        addToProcessAndTask('pat' + label, patGenericParticles.clone(src = input), process, task)
+
         ## add selectedPatTracks to the process
-        setattr(process, 'selectedPat' + label, cms.EDFilter("PATGenericParticleSelector",
-                                                             src = cms.InputTag("pat"+label),
-                                                             cut = cms.string(selection)
-                                                             )
-                )
-        patAlgosToolsTask.add(getattr(process, 'selectedPat' + label))
+        addToProcessAndTask('selectedPat' + label,
+                            cms.EDFilter("PATGenericParticleSelector",
+                                         src = cms.InputTag("pat"+label),
+                                         cut = cms.string(selection)),
+                            process, task)
         ## add cleanPatTracks to the process
         from PhysicsTools.PatAlgos.cleaningLayer1.genericTrackCleaner_cfi import cleanPatTracks
-        setattr(process, 'cleanPat' + label, cleanPatTracks.clone(src = cms.InputTag('selectedPat' + label)))
-        patAlgosToolsTask.add(getattr(process, 'cleanPat' + label))
+        addToProcessAndTask('cleanPat' + label,
+                            cleanPatTracks.clone(src = cms.InputTag('selectedPat' + label)),
+                            process, task)
 
         ## get them as variables, so we can put them in the sequences and/or configure them
         l1cands         = getattr(process, 'pat' + label)
@@ -195,26 +193,25 @@ class MakePATTrackCandidates(ConfigToolBase):
         for dep in [ dep for dep,runme in runIsoDeps.items() if runme == True ]:
             if(dep == 'tracker'):
                 from RecoMuon.MuonIsolationProducers.trackExtractorBlocks_cff import MIsoTrackExtractorCtfBlock
-                setattr(process, 'pat'+label+'IsoDepositTracks',
-                        cms.EDProducer("CandIsoDepositProducer",
-                                       src                  = input,
-                                       trackType            = cms.string('best'),
-                                       MultipleDepositsFlag = cms.bool(False),
-                                       ExtractorPSet        = cms.PSet( MIsoTrackExtractorCtfBlock )
-                                       )
-                        )
-                patAlgosToolsTask.add(getattr(process, 'pat'+label+'IsoDepositTracks'))
+                addToProcessAndTask('pat'+label+'IsoDepositTracks',
+                                    cms.EDProducer("CandIsoDepositProducer",
+                                                   src                  = input,
+                                                   trackType            = cms.string('best'),
+                                                   MultipleDepositsFlag = cms.bool(False),
+                                                   ExtractorPSet        = cms.PSet( MIsoTrackExtractorCtfBlock )),
+                                    process, task)
+
+
             elif(dep == 'caloTowers'):
                 from RecoMuon.MuonIsolationProducers.caloExtractorByAssociatorBlocks_cff import MIsoCaloExtractorByAssociatorTowersBlock
-                setattr(process, 'pat'+label+'IsoDepositCaloTowers',
-                        cms.EDProducer("CandIsoDepositProducer",
-                                       src                  = input,
-                                       trackType            = cms.string('best'),
-                                       MultipleDepositsFlag = cms.bool(True),
-                                       ExtractorPSet        = cms.PSet( MIsoCaloExtractorByAssociatorTowersBlock )
-                                       )
-                        )
-                patAlgosToolsTask.add(getattr(process, 'pat'+label+'IsoDepositCaloTowers'))
+                addToProcessAndTask('pat'+label+'IsoDepositCaloTowers',
+                                    cms.EDProducer("CandIsoDepositProducer",
+                                                   src                  = input,
+                                                   trackType            = cms.string('best'),
+                                                   MultipleDepositsFlag = cms.bool(True),
+                                                   ExtractorPSet        = cms.PSet( MIsoCaloExtractorByAssociatorTowersBlock )),
+                                    process, task)
+
         # ES
         process.load( 'TrackingTools.TrackAssociator.DetIdAssociatorESProducer_cff' )
         # MC
@@ -224,8 +221,8 @@ class MakePATTrackCandidates(ConfigToolBase):
             findMatch.append(getattr(process, mcAs+'Match'))
 
             ## clone mc matchiong module of object mcAs and add it to the path
-            setattr(process, 'pat'+label+'MCMatch', findMatch[0].clone(src = input))
-            patAlgosToolsTask.add(getattr(process, 'pat'+label+'MCMatch'))
+            addToProcessAndTask('pat'+label+'MCMatch', findMatch[0].clone(src = input), process, task)
+
             l1cands.addGenMatch = True
             l1cands.genParticleMatch = cms.InputTag('pat'+label+'MCMatch')
 
