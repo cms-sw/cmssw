@@ -27,6 +27,8 @@ autoCond = {
     'run2_data'         :   '81X_dataRun2_v11',
     # GlobalTag for Run2 data relvals: allows customization to run with fixed L1 menu
     'run2_data_relval'  :   '81X_dataRun2_relval_v14',
+    # GlobalTag for Run2 data 2016H relvals only: Prompt Conditions + fixed L1 menu (to be removed)  
+    'run2_data_promptlike' : '81X_dataRun2_PromptLike_v0',
     # GlobalTag for Run1 HLT: it points to the online GT
     'run1_hlt'          :   '81X_dataRun2_HLT_frozen_v4',
     # GlobalTag for Run2 HLT: it points to the online GT
