@@ -96,17 +96,23 @@ DQMOfflinePOGMC = cms.Sequence( DQMOfflinePrePOGMC *
 DQMOfflinePhysics = cms.Sequence( dqmPhysics )
 
 
+from Validation.Geometry.trackingRecoMaterialAnalyzer_cfi import materialDumperAnalyzer
+materialDumperAnalyzer.usePV = True
+
+DQMOfflineTracking = cms.Sequence( TrackingDQMSourceTier0Common *
+                                   pvMonitor *
+                                   materialDumperAnalyzer
+                                 )
 DQMOfflineCommon = cms.Sequence( dqmDcsInfo *
                                  DQMMessageLogger *
                                  SiStripDQMTier0Common *
-                                 TrackingDQMSourceTier0Common *
                                  siPixelOfflineDQM_source *
+                                 DQMOfflineTracking *
                                  l1TriggerDqmOffline *
                                  triggerOfflineDQMSource *
                                  alcaBeamMonitor *
                                  castorSources *
                                  dqmPhysics *
-                                 pvMonitor *
                                  produceDenoms *
                                  pfTauRunDQMValidation 
                                 )
@@ -121,11 +127,9 @@ DQMOfflineCommonSiStripZeroBias = cms.Sequence( dqmDcsInfo *
                                  castorSources *
                                  dqmPhysics *
                                  pvMonitor *
+                                 materialDumperAnalyzer *
                                  produceDenoms *
                                  pfTauRunDQMValidation 
-                                 )
-DQMOfflineTracking = cms.Sequence( TrackingDQMSourceTier0Common *
-                                   pvMonitor
                                  )
 DQMOfflineMuon = cms.Sequence( dtSources *
                                rpcTier0Source *
