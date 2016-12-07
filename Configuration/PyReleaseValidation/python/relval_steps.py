@@ -1095,9 +1095,6 @@ menuR2_2016 = autoHLT[hltKey2016]
 steps['HLTDR2_2016']=merge( [ {'-s':'L1REPACK:Full,HLT:@%s'%hltKey2016,},{'--conditions':'auto:run2_hlt_relval'},{'--era' : 'Run2_2016'},steps['HLTD'] ] )
 steps['HLTDR2newL1repack_2016']=merge( [ {'-s':'L1REPACK:FullSimTP,HLT:@%s'%hltKey2016,},{'--conditions':'auto:run2_hlt_relval'},{'--era' : 'Run2_2016'},steps['HLTD'] ] )
 
-# HLT step with Prompt-like GT 
-steps['HLTDR2_2016_Prompt']=merge( [ {'--conditions':'auto:run2_hlt_relval'},steps['HLTDR2_2016'] ] )
-
 # use --era 
 steps['RECODR2_50ns']=merge([{'--scenario':'pp','--conditions':'auto:run2_data_relval','--era':'Run2_50ns',},dataReco])
 steps['RECODR2_25ns']=merge([{'--scenario':'pp','--conditions':'auto:run2_data_relval','--era':'Run2_25ns','--customise':'Configuration/DataProcessing/RecoTLR.customisePostEra_Run2_25ns'},dataReco])
@@ -1271,14 +1268,14 @@ for sname in ['RECODR2_50nsreHLT', 'RECODR2_25nsreHLT',
 
 
 # RECO step with Prompt-like GT
-steps['RECODR2_2016reHLT_HIPM_Prompt']=merge([{'--conditions':'auto:run2_data_relval'},steps['RECODR2_2016reHLT_HIPM']])
-steps['RECODR2_2016reHLT_skimDoubleEG_HIPM_Prompt']=merge([{'--conditions':'auto:run2_data_relval'},steps['RECODR2_2016reHLT_skimDoubleEG_HIPM']])
-steps['RECODR2_2016reHLT_skimJetHT_HIPM_Prompt']=merge([{'--conditions':'auto:run2_data_relval'},steps['RECODR2_2016reHLT_skimJetHT_HIPM']])
-steps['RECODR2_2016reHLT_skimMET_HIPM_Prompt']=merge([{'--conditions':'auto:run2_data_relval'},steps['RECODR2_2016reHLT_skimMET_HIPM']])
-steps['RECODR2_2016reHLT_skimMuonEG_HIPM_Prompt']=merge([{'--conditions':'auto:run2_data_relval'},steps['RECODR2_2016reHLT_skimMuonEG_HIPM']])
-steps['RECODR2_2016reHLT_skimSingleMu_HIPM_Prompt']=merge([{'--conditions':'auto:run2_data_relval'},steps['RECODR2_2016reHLT_skimSingleMu_HIPM']])
-steps['RECODR2_2016reHLT_skimSinglePh_HIPM_Prompt']=merge([{'--conditions':'auto:run2_data_relval'},steps['RECODR2_2016reHLT_skimSinglePh_HIPM']])
-steps['RECODR2_2016reHLT_skimMuOnia_HIPM_Prompt']=merge([{'--conditions':'auto:run2_data_relval'},steps['RECODR2_2016reHLT_skimMuOnia_HIPM']])
+steps['RECODR2_2016reHLT_HIPM_Prompt']=merge([{'--conditions':'auto:run2_data_promptlike'},steps['RECODR2_2016reHLT_HIPM']])
+steps['RECODR2_2016reHLT_skimDoubleEG_HIPM_Prompt']=merge([{'--conditions':'auto:run2_data_promptlike'},steps['RECODR2_2016reHLT_skimDoubleEG_HIPM']])
+steps['RECODR2_2016reHLT_skimJetHT_HIPM_Prompt']=merge([{'--conditions':'auto:run2_data_promptlike'},steps['RECODR2_2016reHLT_skimJetHT_HIPM']])
+steps['RECODR2_2016reHLT_skimMET_HIPM_Prompt']=merge([{'--conditions':'auto:run2_data_promptlike'},steps['RECODR2_2016reHLT_skimMET_HIPM']])
+steps['RECODR2_2016reHLT_skimMuonEG_HIPM_Prompt']=merge([{'--conditions':'auto:run2_data_promptlike'},steps['RECODR2_2016reHLT_skimMuonEG_HIPM']])
+steps['RECODR2_2016reHLT_skimSingleMu_HIPM_Prompt']=merge([{'--conditions':'auto:run2_data_promptlike'},steps['RECODR2_2016reHLT_skimSingleMu_HIPM']])
+steps['RECODR2_2016reHLT_skimSinglePh_HIPM_Prompt']=merge([{'--conditions':'auto:run2_data_promptlike'},steps['RECODR2_2016reHLT_skimSinglePh_HIPM']])
+steps['RECODR2_2016reHLT_skimMuOnia_HIPM_Prompt']=merge([{'--conditions':'auto:run2_data_promptlike'},steps['RECODR2_2016reHLT_skimMuOnia_HIPM']])
 
 
 steps['RECO']=merge([step3Defaults])
