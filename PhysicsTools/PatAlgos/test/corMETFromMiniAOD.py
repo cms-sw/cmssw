@@ -163,4 +163,4 @@ process.MINIAODSIMoutput = cms.OutputModule("PoolOutputModule",
 )
 
 
-process.MINIAODSIMoutput_step = cms.EndPath(process.MINIAODSIMoutput)
+process.MINIAODSIMoutput_step = cms.EndPath(process.MINIAODSIMoutput, patAlgosToolsTask)

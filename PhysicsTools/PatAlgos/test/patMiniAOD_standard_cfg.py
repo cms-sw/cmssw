@@ -1,9 +1,6 @@
 ## import skeleton process
 from PhysicsTools.PatAlgos.patTemplate_cfg import cms, process
 
-import PhysicsTools.PatAlgos.tools.helpers as configtools
-patAlgosToolsTask = configtools.getPatAlgosToolsTask(process)
-
 #process.Tracer = cms.Service("Tracer")
 
 process.load("PhysicsTools.PatAlgos.producersLayer1.patCandidates_cff")

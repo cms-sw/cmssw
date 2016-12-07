@@ -42,7 +42,7 @@ process.out = cms.OutputModule(
 )
 process.out.outputCommands += [ 'drop recoGenJets_*_*_*' ]
 process.outpath = cms.EndPath(
-  process.out
+  process.out, patAlgosToolsTask
 )
 
 ## Processing
