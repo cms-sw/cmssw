@@ -131,10 +131,10 @@ public:
 
         float r1 = otherCell->getInnerR();
         float z1 = otherCell->getInnerZ();
-        float radius_diff = fabs(r1 - theOuterR);
+        float radius_diff = std::abs(r1 - theOuterR);
         float distance_13_squared = radius_diff*radius_diff + (z1 - theOuterZ)*(z1 - theOuterZ);
 
-        float pMin = ptmin*sqrt(distance_13_squared); //this needs to be divided by radius_diff later
+        float pMin = ptmin*std::sqrt(distance_13_squared); //this needs to be divided by radius_diff later
 
         float tan_12_13_half_mul_distance_13_squared = fabs(z1 * (theInnerR - theOuterR) + theInnerZ * (theOuterR - r1) + theOuterZ * (r1 - theInnerR)) ;
         return tan_12_13_half_mul_distance_13_squared * pMin <= thetaCut * distance_13_squared * radius_diff;
@@ -155,7 +155,7 @@ public:
     {
 
 
-    	auto x1 = otherCell->getInnerX();
+        auto x1 = otherCell->getInnerX();
         auto y1 = otherCell->getInnerY();
 
         auto x2 = getInnerX();
@@ -165,7 +165,7 @@ public:
         auto y3 = getOuterY();
 
         float distance_13_squared = (x1 - x3)*(x1 - x3) + (y1 - y3)*(y1 - y3);
-        float tan_12_13_half_mul_distance_13_squared = fabs(y1 * (x2 - x3) + y2 * (x3 - x1) + y3 * (x1 - x2)) ;
+        float tan_12_13_half_mul_distance_13_squared = std::abs(y1 * (x2 - x3) + y2 * (x3 - x1) + y3 * (x1 - x2)) ;
         if(tan_12_13_half_mul_distance_13_squared * ptmin <= 1.0e-4f*distance_13_squared)
         {
 
@@ -177,8 +177,10 @@ public:
             float distance_13_beamspot_squared  = distance_3_beamspot_squared -  proj_bs3_on_13_squared;
 
             if(distance_13_beamspot_squared > (region_origin_radius+phiCut)*(region_origin_radius+phiCut) )
+            { 
                 return false;
-
+            }
+            return true;
         }
 
         //87 cm/GeV = 1/(3.8T * 0.3)
@@ -211,13 +213,12 @@ public:
         auto minimumOfIntersectionRange = (radius - region_origin_radius_plus_tolerance)*(radius - region_origin_radius_plus_tolerance);
 
         if (centers_distance_squared >= minimumOfIntersectionRange) {
-            auto minimumOfIntersectionRange = (radius + region_origin_radius_plus_tolerance)*(radius + region_origin_radius_plus_tolerance);
-            return centers_distance_squared <= minimumOfIntersectionRange;
-        } else {
+            auto maximumOfIntersectionRange = (radius + region_origin_radius_plus_tolerance)*(radius + region_origin_radius_plus_tolerance);
+            return centers_distance_squared <= maximumOfIntersectionRange;
+        } 
 
-            return false;
-        }
-        return true;
+        return false;
+        
 
 
     }
