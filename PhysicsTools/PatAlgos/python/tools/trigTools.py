@@ -119,13 +119,12 @@ class SwitchOnTrigger( ConfigToolBase ):
         hltProcess           = self._parameters[ 'hltProcess' ].value
         outputModule         = self._parameters[ 'outputModule' ].value
 
-        patAlgosToolsTask = getPatAlgosToolsTask(process)
+        task = getPatAlgosToolsTask(process)
 
         # Load default producers from existing config files, if needed
         if not hasattr( process, triggerProducer ):
             from PhysicsTools.PatAlgos.triggerLayer1.triggerProducer_cfi import patTrigger
-            setattr( process, triggerProducer, patTrigger.clone() )
-            patAlgosToolsTask.add(getattr(process, triggerProducer))
+            addToProcessAndTask(triggerProducer, patTrigger.clone(), process, task)
         else:
             print '%s():'%( self._label )
             print '    PATTriggerProducer module \'%s\' exists already in process'%( triggerProducer )
@@ -133,8 +132,7 @@ class SwitchOnTrigger( ConfigToolBase ):
             print _longLine
         if not hasattr( process, triggerEventProducer ):
             from PhysicsTools.PatAlgos.triggerLayer1.triggerEventProducer_cfi import patTriggerEvent
-            setattr( process, triggerEventProducer, patTriggerEvent.clone() )
-            patAlgosToolsTask.add(getattr(process, triggerEventProducer))
+            addToProcessAndTask(triggerEventProducer, patTriggerEvent.clone(), process, task)
         else:
             print '%s():'%( self._label )
             print '    PATTriggerEventProducer module \'%s\' exists already in process'%( triggerEventProducer )
@@ -240,7 +238,7 @@ class SwitchOnTriggerStandAlone( ConfigToolBase ):
 
     def toolCode( self, process ):
 
-        patAlgosToolsTask = getPatAlgosToolsTask(process)
+        task = getPatAlgosToolsTask(process)
 
         triggerProducer = self._parameters[ 'triggerProducer' ].value
         path            = self._parameters[ 'path' ].value
@@ -250,8 +248,7 @@ class SwitchOnTriggerStandAlone( ConfigToolBase ):
         # Load default producer from existing config file, if needed
         if not hasattr( process, triggerProducer ):
             from PhysicsTools.PatAlgos.triggerLayer1.triggerProducer_cfi import patTrigger
-            setattr( process, triggerProducer, patTrigger.clone( onlyStandAlone = True ) )
-            patAlgosToolsTask.add(getattr( process, triggerProducer ))
+            addToProcessAndTask(triggerProducer, patTrigger.clone( onlyStandAlone = True ), process, task)
         else:
             print '%s():'%( self._label )
             print '    PATTriggerProducer module \'%s\' exists already in process'%( triggerProducer )
@@ -369,10 +366,10 @@ class SwitchOnTriggerMatching( ConfigToolBase ):
         postfix              = self._parameters[ 'postfix' ].value
 
         # Load default producers from existing config file, if needed
-        patAlgosToolsTask = getPatAlgosToolsTask(process)
+        task = getPatAlgosToolsTask(process)
         if exampleMatchers:
             process.load( "PhysicsTools.PatAlgos.triggerLayer1.triggerMatcherExamples_cfi" )
-            patAlgosToolsTask.add(process.triggerMatcherExamplesTask)
+            task.add(process.triggerMatcherExamplesTask)
         # Switch on PAT trigger information if needed
         if not hasattr( process, triggerEventProducer ):
             print '%s():'%( self._label )
@@ -500,10 +497,10 @@ class SwitchOnTriggerMatchingStandAlone( ConfigToolBase ):
         postfix         = self._parameters[ 'postfix' ].value
 
         # Load default producers from existing config file, if needed
-        patAlgosToolsTask = getPatAlgosToolsTask(process)
+        task = getPatAlgosToolsTask(process)
         if exampleMatchers:
             process.load( "PhysicsTools.PatAlgos.triggerLayer1.triggerMatcherExamples_cfi" )
-            patAlgosToolsTask.add(process.triggerMatcherExamplesTask)
+            task.add(process.triggerMatcherExamplesTask)
 
         # Switch on PAT trigger information if needed
         if not hasattr( process, triggerProducer ):
@@ -616,10 +613,10 @@ class SwitchOnTriggerMatchEmbedding( ConfigToolBase ):
         postfix         = self._parameters[ 'postfix' ].value
 
         # Load default producers from existing config file, if needed
-        patAlgosToolsTask = getPatAlgosToolsTask(process)
+        task = getPatAlgosToolsTask(process)
         if exampleMatchers:
             process.load( "PhysicsTools.PatAlgos.triggerLayer1.triggerMatcherExamples_cfi" )
-            patAlgosToolsTask.add(process.triggerMatcherExamplesTask)
+            task.add(process.triggerMatcherExamplesTask)
 
         # Build dictionary of allowed input producers
         dictPatProducers = { 'PATPhotonCleaner'  : 'PATTriggerMatchPhotonEmbedder'
@@ -677,7 +674,7 @@ class SwitchOnTriggerMatchEmbedding( ConfigToolBase ):
                 switchOnTriggerMatchingStandAlone( process, triggerMatchers, triggerProducer, path, hltProcess, '', postfix ) # Do not store intermediate output collections.
         elif exampleMatchers:
             process.load( "PhysicsTools.PatAlgos.triggerLayer1.triggerMatcherExamples_cfi" )
-            patAlgosToolsTask.add(process.triggerMatcherExamplesTask)
+            task.add(process.triggerMatcherExamplesTask)
 
         # Build dictionary of matchers
         for matcher in triggerMatchers:
@@ -730,8 +727,7 @@ class SwitchOnTriggerMatchEmbedding( ConfigToolBase ):
                         module         = cms.EDProducer( dictPatProducers[ patObjProdType ] )
                         module.src     = cms.InputTag( patObjProd.label_() )
                         module.matches = cms.VInputTag( matcher )
-                        setattr( process, label, module )
-                        patAlgosToolsTask.add(getattr(process, label))
+                        addToProcessAndTask(label, module, process, task)
                     # Add event content
                     patTriggerEventContent += [ 'drop *_%s_*_*'%( patObjProd.label_() )
                                               , 'keep *_%s_*_%s'%( label, process.name_() )
