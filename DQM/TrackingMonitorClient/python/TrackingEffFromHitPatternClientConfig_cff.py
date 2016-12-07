@@ -90,4 +90,24 @@ trackingEffFromHitPattern = cms.EDAnalyzer("DQMGenericClient",
                                            verbose = cms.untracked.uint32(5),
                                            outputFileName = cms.untracked.string(""),
                                            )
+def __extendEfficiencyForPixels(dets):
+    """Inject the efficiency computation for the additional layers in the
+    PhaseI detectors wrt Run2. The input list is cloned and modified
+    rather than updated in place. The substitution add another layer
+    by replacing flat '3' -> '4' for the barrel case and '2' -> '3'
+    for the forward case.
+    """
+    from re import match
+    ret = []
+    for d in dets:
+        ret.append(d)
+        if match('.*PXB3.*', d):
+            ret.append(d.replace('3', '4'))
+        elif match('.*PXF2.*', d):
+            ret.append(d.replace('2', '3'))
+    return ret
 
+
+# Use additional pixel layers in PhaseI geometry.
+from Configuration.Eras.Modifier_trackingPhase1_cff import trackingPhase1
+trackingPhase1.toModify(trackingEffFromHitPattern, efficiency = __extendEfficiencyForPixels(trackingEffFromHitPattern.efficiency))
