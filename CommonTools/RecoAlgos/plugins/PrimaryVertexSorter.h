@@ -26,7 +26,6 @@
 
 */
 
-
 template <class ParticlesCollection>
 
 class PrimaryVertexSorter : public edm::stream::EDProducer<> {
@@ -65,6 +64,11 @@ class PrimaryVertexSorter : public edm::stream::EDProducer<> {
   int  qualityCut_;
   bool useMET_;
   bool useTiming_;
+
+  void doConsumesForTiming(const edm::ParameterSet &iConfig) ;
+  bool needsProductsForTiming() ;
+  std::pair<int,PrimaryVertexAssignment::Quality> runAlgo( const reco::VertexCollection& vertices, const typename ParticlesCollection::value_type & pf, const edm::ValueMap<float> *trackTimeTag,
+                                   const edm::ValueMap<float> *trackTimeResoTag, const edm::View<reco::Candidate>& jets, const TransientTrackBuilder& builder) ;
 };
 
 
@@ -87,15 +91,13 @@ PrimaryVertexSorter<ParticlesCollection>::PrimaryVertexSorter(const edm::Paramet
   tokenCandidates_(consumes<ParticlesCollection>(iConfig.getParameter<edm::InputTag>("particles"))),
   tokenVertices_(consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("vertices"))),
   tokenJets_(consumes<edm::View<reco::Candidate> > (iConfig.getParameter<edm::InputTag>("jets"))),
-  tokenTrackTimeTag_(consumes<edm::ValueMap<float> > (iConfig.getParameter<edm::InputTag>("trackTimeTag"))),
-  tokenTrackTimeResoTag_(consumes<edm::ValueMap<float> > (iConfig.getParameter<edm::InputTag>("trackTimeResoTag"))),
   produceOriginalMapping_(iConfig.getParameter<bool>("produceAssociationToOriginalVertices")),
   produceSortedVertices_(iConfig.getParameter<bool>("produceSortedVertices")),
   producePFPileUp_(iConfig.getParameter<bool>("producePileUpCollection")),
   producePFNoPileUp_(iConfig.getParameter<bool>("produceNoPileUpCollection")),
   qualityCut_(iConfig.getParameter<int>("qualityForPrimary")),
   useMET_(iConfig.getParameter<bool>("usePVMET")),
-  useTiming_(iConfig.getParameter<bool>("useTiming"))
+  useTiming_(iConfig.getParameterSet("assignment").getParameter<bool>("useTiming"))
 {
 
 using namespace std;
@@ -128,6 +130,7 @@ using namespace reco;
             produces< PFCollection> ("NoPileUp");
   }
 
+  if (useTiming_) doConsumesForTiming(iConfig);
 
 }
 
@@ -160,7 +163,7 @@ using namespace reco;
   
   const edm::ValueMap<float> *trackTimeTag = 0;
   const edm::ValueMap<float> *trackTimeResoTag = 0;
-  if (useTiming_) {
+  if (useTiming_ && needsProductsForTiming()) {
     iEvent.getByToken(tokenTrackTimeTag_, trackTimeTagHandle);
     iEvent.getByToken(tokenTrackTimeResoTag_, trackTimeResoTagHandle);
     
@@ -179,7 +182,7 @@ using namespace reco;
   std::vector<float> vertexScore(vertices->size());
 
     for(auto const & pf : particles) {
-    std::pair<int,PrimaryVertexAssignment::Quality> vtxWithQuality=assignmentAlgo_.chargedHadronVertex(*vertices,pf,trackTimeTag,trackTimeResoTag,*jets,*builder);
+    std::pair<int,PrimaryVertexAssignment::Quality> vtxWithQuality = runAlgo(*vertices,pf,trackTimeTag,trackTimeResoTag,*jets,*builder);
     pfToPVVector.push_back(vtxWithQuality.first); 
     pfToPVQualityVector.push_back(vtxWithQuality.second); 
   }
@@ -315,5 +318,43 @@ using namespace reco;
 
 } 
 
+
+template<>
+void PrimaryVertexSorter<std::vector<reco::RecoChargedRefCandidate>>::doConsumesForTiming(const edm::ParameterSet &iConfig) 
+{
+  tokenTrackTimeTag_ = consumes<edm::ValueMap<float> > (iConfig.getParameter<edm::InputTag>("trackTimeTag"));
+  tokenTrackTimeResoTag_ = consumes<edm::ValueMap<float> > (iConfig.getParameter<edm::InputTag>("trackTimeResoTag"));
+}
+
+template<>
+void PrimaryVertexSorter<std::vector<reco::PFCandidate>>::doConsumesForTiming(const edm::ParameterSet &iConfig)
+{
+}
+
+template<>
+bool PrimaryVertexSorter<std::vector<reco::RecoChargedRefCandidate>>::needsProductsForTiming() 
+{ 
+   return true; 
+}
+
+template<>
+bool PrimaryVertexSorter<std::vector<reco::PFCandidate>>::needsProductsForTiming()
+{
+   return false;
+}
+
+template<>
+std::pair<int,PrimaryVertexAssignment::Quality> PrimaryVertexSorter<std::vector<reco::RecoChargedRefCandidate>>::runAlgo( const reco::VertexCollection& vertices, const reco::RecoChargedRefCandidate & pf, const edm::ValueMap<float> *trackTimeTag,
+                                   const edm::ValueMap<float> *trackTimeResoTag, const edm::View<reco::Candidate>& jets, const TransientTrackBuilder& builder) 
+{
+    return assignmentAlgo_.chargedHadronVertex( vertices, pf, trackTimeTag, trackTimeResoTag, jets, builder);
+}
+
+template<>
+std::pair<int,PrimaryVertexAssignment::Quality> PrimaryVertexSorter<std::vector<reco::PFCandidate>>::runAlgo( const reco::VertexCollection& vertices, const reco::PFCandidate & pf, const edm::ValueMap<float> *trackTimeTag,
+                                   const edm::ValueMap<float> *trackTimeResoTag, const edm::View<reco::Candidate>& jets, const TransientTrackBuilder& builder) 
+{
+    return assignmentAlgo_.chargedHadronVertex( vertices, pf, jets, builder);
+}
 
 #endif
