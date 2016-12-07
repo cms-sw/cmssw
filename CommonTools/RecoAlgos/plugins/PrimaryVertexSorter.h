@@ -128,8 +128,6 @@ using namespace reco;
             produces< PFCollection> ("NoPileUp");
   }
 
-  printf("sorter vertices = %s, useTiming_ = %i\n",iConfig.getParameter<edm::InputTag>("vertices").label().c_str(),int(useTiming_));
-
 
 }
 
@@ -169,9 +167,7 @@ using namespace reco;
     trackTimeTag = trackTimeTagHandle.product();
     trackTimeResoTag = trackTimeResoTagHandle.product();
   } 
-  
-  printf("useTiming_ = %i\n",int(useTiming_));
-  
+    
   ParticlesCollection particles = *particlesHandle.product();
   std::vector<int> pfToPVVector;
   std::vector<PrimaryVertexAssignment::Quality> pfToPVQualityVector;
