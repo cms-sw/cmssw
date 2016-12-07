@@ -5,17 +5,7 @@ import sys
 ## and replacing that to a given value
 
 def getPatAlgosToolsTask(process):
-    endPathName = "patAlgosToolsEndPath"
     taskName = "patAlgosToolsTask"
-
-    if hasattr(process, endPathName):
-        endPath = getattr(process, endPathName)
-        if not isinstance(endPath, cms.EndPath):
-            raise Exception("patAlgosToolsEndPath does not have type EndPath")
-    else:
-        setattr(process, endPathName, cms.EndPath())
-        endPath = getattr(process, endPathName)
-
     if hasattr(process, taskName):
         task = getattr(process, taskName)
         if not isinstance(task, cms.Task):
@@ -23,14 +13,15 @@ def getPatAlgosToolsTask(process):
     else:
         setattr(process, taskName, cms.Task())
         task = getattr(process, taskName)
-    endPath.associate(task)
     return task
 
-def schedulePatAlgosEndPath(process):
-    getPatAlgosToolsTask(process)
-    endPathName = "patAlgosToolsEndPath"
-    endPath = getattr(process, endPathName)
-    process.schedule.append(endPath)
+def associatePatAlgosToolsTask(process):
+    task = getPatAlgosToolsTask(process)
+    process.schedule.associate(task)
+
+def addToProcessAndTask(label, module, process, task):
+    setattr(process, label, module)
+    task.add(getattr(process, label))
 
 def addESProducers(process,config):
 	config = config.replace("/",".")
