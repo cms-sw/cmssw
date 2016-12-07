@@ -32,7 +32,7 @@ PrimaryVertexAssignment::chargedHadronVertex( const reco::VertexCollection& vert
   
   if(iVertex >= 0 ) return std::pair<int,PrimaryVertexAssignment::Quality>(iVertex,PrimaryVertexAssignment::UsedInFit);
 
-  bool useTime = trackTimeTag && trackTimeResoTag;
+  bool useTime = trackTimeTag && trackTimeResoTag && trackTimeTag->contains(trackRef.id());
     
   float time = useTime ? (*trackTimeTag)[trackRef] : 0.;
   float timeReso = useTime ? (*trackTimeResoTag)[trackRef] : -1.;
