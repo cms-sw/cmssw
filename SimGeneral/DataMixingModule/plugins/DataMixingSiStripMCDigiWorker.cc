@@ -17,6 +17,7 @@
 #include "CondFormats/SiStripObjects/interface/SiStripBadStrip.h"
 #include "CalibTracker/Records/interface/SiStripDependentRecords.h"
 //
+#include "CLHEP/Random/RandFlat.h"
 //
 #include "DataMixingSiStripMCDigiWorker.h"
 
@@ -34,9 +35,11 @@ namespace edm
 							       edm::ConsumesCollector && iC) : 
     label_(ps.getParameter<std::string>("Label")),
     gainLabel(ps.getParameter<std::string>("Gain")),
+    SingleStripNoise(ps.getParameter<bool>("SingleStripNoise")),
     peakMode(ps.getParameter<bool>("APVpeakmode")),
     theThreshold(ps.getParameter<double>("NoiseSigmaThreshold")),
     theElectronPerADC(ps.getParameter<double>( peakMode ? "electronPerAdcPeak" : "electronPerAdcDec" )),
+    APVSaturationFromHIP_(ps.getParameter<bool>("APVSaturationFromHIP")),
     theFedAlgo(ps.getParameter<int>("FedAlgorithm_PM")),
     geometryType(ps.getParameter<std::string>("GeometryType")),
     theSiZeroSuppress(new SiStripFedZeroSuppression(theFedAlgo)),
@@ -53,7 +56,14 @@ namespace edm
     SiStripPileInputTag_ = ps.getParameter<edm::InputTag>("SiStripPileInputTag");
 
     SiStripDigiCollectionDM_  = ps.getParameter<std::string>("SiStripDigiCollectionDM");
+    SistripAPVListDM_= ps.getParameter<std::string>("SiStripAPVListDM");
 
+
+    if(APVSaturationFromHIP_) { 
+      SistripAPVLabelSig_ = ps.getParameter<edm::InputTag>("SistripAPVLabelSig");
+      SiStripAPVPileInputTag_ = ps.getParameter<edm::InputTag>("SistripAPVPileInputTag");
+      iC.consumes< std::vector<std::pair<int,std::bitset<6>> > >(SistripAPVLabelSig_);
+    }
     iC.consumes<edm::DetSetVector<SiStripDigi>>(SistripLabelSig_);
     // clear local storage for this event                                                                     
     SiHitStorage_.clear();
@@ -97,8 +107,6 @@ namespace edm
 	DMinitializeDetUnit(stripdet, iSetup);
       }
     }
-
-
   }
 
 
@@ -113,8 +121,12 @@ namespace edm
     SiStripBadStrip::Range detBadStripRange = deadChannelHandle->getRange(detId);
     //storing the bad strip of the the module. the module is not removed but just signal put to 0
     std::vector<bool>& badChannels = allBadChannels[detId];
+    std::vector<bool>& hipChannels = allHIPChannels[detId];
     badChannels.clear();
     badChannels.insert(badChannels.begin(), numStrips, false);
+    hipChannels.clear();
+    hipChannels.insert(hipChannels.begin(), numStrips, false);
+
     for(SiStripBadStrip::ContainerIterator it = detBadStripRange.first; it != detBadStripRange.second; ++it) {
       SiStripBadStrip::data fs = deadChannelHandle->decode(*it);
       for(int strip = fs.firstStrip; strip < fs.firstStrip + fs.range; ++strip) badChannels[strip] = true;
@@ -148,6 +160,20 @@ namespace edm
       }
  
     }
+
+    // keep here for future reference.  In current implementation, HIP killing is done once in PU file
+    /*  if(APVSaturationFromHIP_) {
+      Handle<std::vector<std::pair<int,std::bitset<6>> > >  APVinput;
+
+      if( e.getByLabel(SistripAPVLabelSig_,APVinput) ) {
+
+	std::vector<std::pair<int,std::bitset<6>> >::const_iterator entry = APVinput->begin();
+	for( ; entry != APVinput->end(); entry++) {
+	  theAffectedAPVmap_.insert(APVMap::value_type(entry->first, entry->second));
+	}
+      }
+      } */
+
   } // end of addSiStripSignals
 
 
@@ -204,6 +230,21 @@ namespace edm
 	  SiHitStorage_.insert( SiGlobalIndex::value_type( DSViter->id, LocalMap ) );
 	}
       }
+
+      if(APVSaturationFromHIP_) {
+	std::shared_ptr<Wrapper<std::vector<std::pair<int,std::bitset<6>> >  >  const> inputAPVPTR =
+	  getProductByTag< std::vector<std::pair<int,std::bitset<6>> > >(*ep, SiStripAPVPileInputTag_, mcc);
+
+	if(inputAPVPTR) {
+
+	  const std::vector<std::pair<int,std::bitset<6>> >   *APVinput = const_cast< std::vector<std::pair<int,std::bitset<6>> >  * >(inputAPVPTR->product());
+
+	  std::vector<std::pair<int,std::bitset<6>> >::const_iterator entry = APVinput->begin();
+	  for( ; entry != APVinput->end(); entry++) {
+	    theAffectedAPVmap_.insert( APVMap::value_type(entry->first, entry->second ));
+	  }
+	}
+      }
     }
   }
 
@@ -221,6 +262,13 @@ namespace edm
     iSetup.get<SiStripNoisesRcd>().get(noiseHandle);
     iSetup.get<SiStripThresholdRcd>().get(thresholdHandle);
     iSetup.get<SiStripPedestalsRcd>().get(pedestalHandle);
+
+    edm::Service<edm::RandomNumberGenerator> rng;
+    CLHEP::HepRandomEngine* engine = &rng->getEngine(e.streamID());
+
+    std::map< int,std::bitset<6>>  DeadAPVList;
+    DeadAPVList.clear();
+
 
     // First, have to convert all ADC counts to raw pulse heights so that values can be added properly
     // In PreMixing, pulse heights are saved with ADC = sqrt(9.0*PulseHeight) - have to undo. 
@@ -275,7 +323,57 @@ namespace edm
       SiRawDigis_.insert( SiGlobalRawIndex::value_type( detID, LocalRawMap ) );
     }
 
-    //  Ok, done with merging raw signals - now add signals on duplicate strips 
+    // If we are killing APVs, merge list of dead ones before we digitize
+
+    int NumberOfBxBetweenHIPandEvent=1e3;
+
+    if(APVSaturationFromHIP_) { 
+
+      // calculate affected BX parameter
+
+      bool HasAtleastOneAffectedAPV=false;
+      while(!HasAtleastOneAffectedAPV){
+	for(int bx=floor(300.0/25.0);bx>0;bx--){ //Reminder: make these numbers not hard coded!!
+	  float temp=CLHEP::RandFlat::shoot(engine)<0.5?1:0;
+	  if(temp==1 && bx<NumberOfBxBetweenHIPandEvent){
+	    NumberOfBxBetweenHIPandEvent=bx;
+	    HasAtleastOneAffectedAPV=true;
+	  }
+	}
+      }
+
+      APVMap::const_iterator iAPVchk;
+      uint32_t formerID = 0;
+      uint32_t currentID;
+      std::bitset<6> NewAPVBits;
+
+      for(APVMap::const_iterator iAPV  = theAffectedAPVmap_.begin();
+	  iAPV != theAffectedAPVmap_.end(); ++iAPV) {
+
+	currentID = iAPV->first;
+
+	if (currentID == formerID) { // we have to OR these
+	  for( int ibit=0; ibit<6; ++ibit){
+	    NewAPVBits[ibit] = NewAPVBits[ibit]||(iAPV->second)[ibit];
+	  }
+	}
+	else {
+	  DeadAPVList[currentID]=NewAPVBits;          
+	  //save pointers for next iteration                                 
+	  formerID = currentID;
+	  NewAPVBits = iAPV->second;
+	}
+
+	iAPVchk = iAPV;
+	if((++iAPVchk) == theAffectedAPVmap_.end()) {  //make sure not to lose the last one 
+	  DeadAPVList[currentID]=NewAPVBits;          
+	}
+      }
+
+    }
+    // 
+
+    //  Ok, done with merging raw signals and APVs - now add signals on duplicate strips 
 
     // collection of Digis to put in the event
     std::vector< edm::DetSet<SiStripDigi> > vSiStripDigi;
@@ -324,8 +422,7 @@ namespace edm
         }
 
         iLocalchk = iLocal;
-        if((++iLocalchk) == LocalMap.end()) {  //make sure not to lose the last one  
-
+	if((++iLocalchk) == LocalMap.end()) {  //make sure not to lose the last one  
           Signals.insert( std::make_pair(formerStrip, ADCSum));
         }
       }
@@ -360,7 +457,28 @@ namespace edm
 
 	//removing signal from the dead (and HIP effected) strips
 	std::vector<bool>& badChannels = allBadChannels[detID];
-	for(int strip =0; strip < numStrips; ++strip) if(badChannels[strip]) detAmpl[strip] = 0.;
+
+        for(int strip =0; strip < numStrips; ++strip) {
+          if(badChannels[strip]) detAmpl[strip] = 0.;
+	}
+         
+	if(APVSaturationFromHIP_) {
+	  std::bitset<6> & bs=DeadAPVList[detID];
+
+	  if(bs.any()){
+	    // Here below is the scaling function which describes the evolution of the baseline (i.e. how the charge is suppressed).
+	    // This must be replaced as soon as we have a proper modeling of the baseline evolution from VR runs
+	    float Shift=1-NumberOfBxBetweenHIPandEvent/floor(300.0/25.0); //Reminder: make these numbers not hardcoded!! 
+	    float randomX=CLHEP::RandFlat::shoot(engine);
+	    float scalingValue=(randomX-Shift)*10.0/7.0-3.0/7.0;
+
+	    for(int strip =0; strip < numStrips; ++strip) {
+	      if(!badChannels[strip] &&  bs[strip/128]==1){
+		detAmpl[strip] *=scalingValue>0?scalingValue:0.0;
+	      }
+	    }
+	  }
+	}
 
 	SiStripNoises::Range detNoiseRange = noiseHandle->getRange(detID);
 	SiStripApvGain::Range detGainRange = gainHandle->getRange(detID);
@@ -388,17 +506,32 @@ namespace edm
         size_t firstChannelWithSignal = 0;
         size_t lastChannelWithSignal = numStrips;
 
-	int RefStrip = int(numStrips/2.);
-	while(RefStrip<numStrips&&badChannels[RefStrip]){ //if the refstrip is bad, I move up to when I don't find it
-	  RefStrip++;
-	}
-	if(RefStrip<numStrips){
-	  float noiseRMS = noiseHandle->getNoise(RefStrip,detNoiseRange);
-	  float gainValue = gainHandle->getStripGain(RefStrip, detGainRange);
-	  edm::Service<edm::RandomNumberGenerator> rng;
-	  CLHEP::HepRandomEngine* engine = &rng->getEngine(e.streamID());
-	  theSiNoiseAdder->addNoise(detAmpl,firstChannelWithSignal,lastChannelWithSignal,numStrips,noiseRMS*theElectronPerADC/gainValue,engine);
-	}
+        if(SingleStripNoise){
+          //      std::cout<<"In SSN, detId="<<detID<<std::endl;                                                                                                   
+	  std::vector<float> noiseRMSv;
+          noiseRMSv.clear();
+          noiseRMSv.insert(noiseRMSv.begin(),numStrips,0.);
+          for(int strip=0; strip< numStrips; ++strip){
+            if(!badChannels[strip]){
+              float gainValue = gainHandle->getStripGain(strip, detGainRange);
+              noiseRMSv[strip] = (noiseHandle->getNoise(strip,detNoiseRange))* theElectronPerADC/gainValue;
+              //std::cout<<"<SiStripDigitizerAlgorithm::digitize>: gainValue: "<<gainValue<<"\tnoiseRMSv["<<strip<<"]: "<<noiseRMSv[strip]<<std::endl;             
+            }
+          }
+          theSiNoiseAdder->addNoiseVR(detAmpl, noiseRMSv, engine);
+        } else {
+          int RefStrip = int(numStrips/2.);
+          while(RefStrip<numStrips&&badChannels[RefStrip]){ //if the refstrip is bad, I move up to when I don't find it                                            
+            RefStrip++;
+          }
+          if(RefStrip<numStrips){
+            float RefgainValue = gainHandle->getStripGain(RefStrip, detGainRange);
+            float RefnoiseRMS = noiseHandle->getNoise(RefStrip,detNoiseRange) *theElectronPerADC/RefgainValue;
+
+            theSiNoiseAdder->addNoise(detAmpl,firstChannelWithSignal,lastChannelWithSignal,numStrips,RefnoiseRMS, engine);
+            //std::cout<<"<SiStripDigitizerAlgorithm::digitize>: RefgainValue: "<<RefgainValue<<"\tRefnoiseRMS: "<<RefnoiseRMS<<std::endl;                         
+          }
+        }
 	
 	DigitalVecType digis;
 	theSiZeroSuppress->suppress(theSiDigitalConverter->convert(detAmpl, gainHandle, detID), digis, detID,noiseHandle,thresholdHandle);
