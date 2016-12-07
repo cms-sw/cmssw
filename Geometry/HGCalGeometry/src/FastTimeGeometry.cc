@@ -12,7 +12,7 @@
 typedef CaloCellGeometry::Tr3D Tr3D;
 typedef std::vector<float> ParmVec;
 
-#define EDM_ML_DEBUG
+//#define EDM_ML_DEBUG
 
 FastTimeGeometry::FastTimeGeometry( const FastTimeTopology& topology_ )
   : m_topology(topology_),
@@ -97,13 +97,19 @@ const CaloCellGeometry* FastTimeGeometry::getGeometry(const DetId& id) const {
 GlobalPoint FastTimeGeometry::getPosition(const DetId& id) const {
 
   FastTimeDetId id_ = FastTimeDetId(id);
-  return topology().dddConstants().getPosition(m_Type,id_.ieta(),id_.iphi(),id_.zside());
+  auto pos = topology().dddConstants().getPosition(m_Type,id_.ieta(),id_.iphi(),id_.zside());
+  return GlobalPoint(0.1*pos.x(),0.1*pos.y(),0.1*pos.z());
 }
 
 FastTimeGeometry::CornersVec FastTimeGeometry::getCorners(const DetId& id) const {
 
   FastTimeDetId id_ = FastTimeDetId(id);
-  return topology().dddConstants().getCorners(m_Type,id_.ieta(),id_.iphi(),id_.zside());
+  auto corners = topology().dddConstants().getCorners(m_Type,id_.ieta(),id_.iphi(),id_.zside());
+  FastTimeGeometry::CornersVec out;
+  for( const auto& corner : corners ) {
+    out.emplace_back(0.1*corner.x(),0.1*corner.y(),0.1*corner.z());
+  }
+  return out;
 }
 
 DetId FastTimeGeometry::getClosestCell(const GlobalPoint& r) const {
