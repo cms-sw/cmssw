@@ -53,7 +53,7 @@ autoDQM = { 'common' : ['DQMOfflineCommon',
                           'dqmHarvesting']
             }
 
-_phase2_allowed = ['trackingOnlyDQM','muon','hcal','hcal2']
+_phase2_allowed = ['trackingOnlyDQM','muon','hcal','hcal2','egamma']
 autoDQM['phase2'] = ['','','']
 for i in [0,2]:
     autoDQM['phase2'][i] = '+'.join([autoDQM[m][i] for m in _phase2_allowed])
