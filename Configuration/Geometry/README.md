@@ -5,7 +5,7 @@ Different versions of various subdetectors can be combined. The available versio
 Tracker:
 * T1: Phase2 tilted tracker (v2016-04-12) w/ phase 1 (extended) pixel
 * T2: Phase2 flat tracker (v2016-04-12) w/ phase 1 (extended) pixel
-* T3: Phase2 tilted tracker (v3.6.2) w/ phase 2 pixel (v4.0.2.1)
+* T3: Phase2 tilted tracker (v3.6.5) w/ phase 2 pixel (v4.0.2.6)
 
 Calorimeters:
 * C1: Run2 calorimeters
