@@ -123,7 +123,8 @@ FWRecoGeometryESProducer::produce( const FWRecoGeometryRecord& record )
   }
 
   if( m_timing ) {
-    record.getRecord<FastTimeGeometryRecord>().get( m_ftlGeom );
+    record.getRecord<CaloGeometryRecord>().getRecord<FastTimeGeometryRecord>().get( "FastTimeBarrel", m_ftlBarrelGeom );
+    record.getRecord<CaloGeometryRecord>().getRecord<FastTimeGeometryRecord>().get( "SFBX", m_ftlEndcapGeom );
     addFTLGeometry();
   }
   
@@ -533,12 +534,22 @@ FWRecoGeometryESProducer::addCaloGeometry( void )
 void
 FWRecoGeometryESProducer::addFTLGeometry( void )
 {
-  std::vector<DetId> vid = std::move(m_ftlGeom->getValidDetIds()); // Calo
+  // do the barrel
+  std::vector<DetId> vid = std::move(m_ftlBarrelGeom->getValidDetIds()); 
   for( std::vector<DetId>::const_iterator it = vid.begin(),
 	 end = vid.end();
        it != end; ++it ) {
     unsigned int id = insert_id( it->rawId());
-    const CaloCellGeometry::CornersVec& cor =  m_ftlGeom->getGeometry( *it )->getCorners();      
+    const CaloCellGeometry::CornersVec& cor =  m_ftlBarrelGeom->getGeometry( *it )->getCorners();      
+    fillPoints( id, cor.begin(), cor.end());    
+  }
+  // do the endcap
+  vid = std::move(m_ftlEndcapGeom->getValidDetIds()); 
+  for( std::vector<DetId>::const_iterator it = vid.begin(),
+	 end = vid.end();
+       it != end; ++it ) {
+    unsigned int id = insert_id( it->rawId());
+    const CaloCellGeometry::CornersVec& cor =  m_ftlEndcapGeom->getGeometry( *it )->getCorners();      
     fillPoints( id, cor.begin(), cor.end());    
   }
 }

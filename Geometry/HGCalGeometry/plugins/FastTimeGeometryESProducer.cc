@@ -29,7 +29,7 @@
 #include "Geometry/HGCalGeometry/interface/FastTimeGeometry.h"
 #include "Geometry/HGCalGeometry/interface/FastTimeGeometryLoader.h"
 
-//#define EDM_ML_DEBUG
+#define EDM_ML_DEBUG
 
 //
 // class decleration
