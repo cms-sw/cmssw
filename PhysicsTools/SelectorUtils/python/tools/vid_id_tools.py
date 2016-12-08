@@ -97,7 +97,11 @@ def setupVIDElectronSelection(process,cutflow,patProducer=None,addUserData=True)
         addVIDSelectionToPATProducer(patProducer,'egmGsfElectronIDs',idName,addUserData)
 
     #we know cutflow has a name otherwise an exception would have been thrown in setupVIDSelection
-    if cutflow.idName.value().find("HEEP")!=-1:
+    #run this for all heep IDs except V60 standard for which it is not needed
+    #it is needed for V61 and V70
+    if (cutflow.idName.value().find("HEEP")!=-1 and
+        cutflow.idName.value()!="heepElectronID-HEEPV60"):
+
         #not the ideal way but currently the easiest
         useMiniAOD = process.egmGsfElectronIDs.physicsObjectSrc == cms.InputTag('slimmedElectrons')
             

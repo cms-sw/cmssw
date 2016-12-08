@@ -121,13 +121,12 @@ passQual(const reco::TrackBase& trk,
 	 const std::vector<reco::TrackBase::TrackQuality>& quals)
 {
   if(quals.empty()) return true;
-  else{
-    for(auto qual : quals) {
-      if(trk.quality(qual)) return true;
-    }
-    return false;
+
+  for(auto qual : quals) {
+    if(trk.quality(qual)) return true;
   }
-  
+
+  return false;  
 }
 
 bool EleTkIsolFromCands::
@@ -144,9 +143,11 @@ double EleTkIsolFromCands::
 getTrkPt(const reco::TrackBase& trk,
 	 const edm::View<reco::GsfElectron>& eles)
 {
+  //note, the trk.eta(),trk.phi() should be identical to the gsf track eta,phi
+  //although this may not be the case due to roundings after packing
   auto match=[](const reco::TrackBase& trk,const reco::GsfElectron& ele){
     return std::abs(trk.eta()-ele.gsfTrack()->eta())<0.001 &&
-    std::abs(trk.phi()-ele.gsfTrack()->phi())<0.001;// && 
+    reco::deltaPhi(trk.phi(),ele.gsfTrack()->phi())<0.001;// && 
   };
   for(auto& ele : eles){
     if(ele.gsfTrack().isNonnull()){
