@@ -80,7 +80,7 @@ std::vector<reco::BasicCluster> HGCalImagingAlgo::getClusters(bool doSharing){
 
   reco::CaloID caloID = reco::CaloID::DET_HGCAL_ENDCAP;
   std::vector< std::pair<DetId, float> > thisCluster;
-  for (unsigned int i = 0; i < current_v.size(); i++){
+  for (unsigned int i = 0; i < current_v.size(); ++i){
     double energy = 0;
     Point position;
 
@@ -172,15 +172,15 @@ math::XYZPoint HGCalImagingAlgo::calculatePosition(std::vector<KDNode> &v){
 } 
 
 double HGCalImagingAlgo::distance(const Hexel &pt1, const Hexel &pt2){
-  const GlobalPoint position1( std::move( rhtools_.getPosition( pt1.detid ) ) );
-  const GlobalPoint position2( std::move( rhtools_.getPosition( pt2.detid ) ) );
-  return sqrt(pow(pt1.x - pt2.x, 2) + pow(pt1.y - pt2.y, 2));
+  const double dx = pt1.x - pt2.x;
+  const double dy = pt1.y - pt2.y;
+  return std::sqrt(dx*dx + dy*dy);
 }
 
 
 double HGCalImagingAlgo::calculateLocalDensity(std::vector<KDNode> &nd, KDTree &lp){
   double maxdensity = 0.;
-  for(unsigned int i = 0; i < nd.size(); i++){
+  for(unsigned int i = 0; i < nd.size(); ++i){
     KDTreeBox search_box(nd[i].dims[0]-delta_c,nd[i].dims[0]+delta_c,
 			 nd[i].dims[1]-delta_c,nd[i].dims[1]+delta_c);
     std::vector<KDNode> found;
@@ -224,7 +224,7 @@ double HGCalImagingAlgo::calculateDistanceToHigher(std::vector<KDNode> &nd, KDTr
   
   double max_dist = dist;
   
-  for(unsigned int oi = 1; oi < nd.size(); oi++){ // start from second-highest density
+  for(unsigned int oi = 1; oi < nd.size(); ++oi){ // start from second-highest density
     dist = max_dist;
     unsigned int i = rs[oi];
     // we only need to check up to oi since hits 
@@ -257,7 +257,7 @@ int HGCalImagingAlgo::findAndAssignClusters(std::vector<KDNode> &nd,KDTree &lp, 
   std::vector<size_t> ds = sort_by_delta(nd); // sort in decreasing distance to higher
 
 
-  for(unsigned int i =0; i < nd.size(); i++){
+  for(unsigned int i =0; i < nd.size(); ++i){
 
     //    std::cout << " delta " << lp[ds[i]].delta << " rho " << lp[ds[i]].rho << std::endl;
     if(nd[ds[i]].data.delta < delta_c) break; // no more cluster centers to be looked at 
@@ -279,7 +279,7 @@ int HGCalImagingAlgo::findAndAssignClusters(std::vector<KDNode> &nd,KDTree &lp, 
 
   //assign to clusters, using the nearestHigher set from previous step (always set except 
   // for top density hit that is skipped...
-  for(unsigned int oi =1; oi < nd.size(); oi++){
+  for(unsigned int oi =1; oi < nd.size(); ++oi){
     unsigned int i = rs[oi];
     int ci = nd[i].data.clusterIndex;
     if(ci == -1){
@@ -301,7 +301,7 @@ int HGCalImagingAlgo::findAndAssignClusters(std::vector<KDNode> &nd,KDTree &lp, 
   lp.clear();
   lp.build(nd,bounds);
   //now loop on all hits again :( and check: if there are hits from another cluster within d_c -> flag as border hit
-  for(unsigned int i = 0; i < nd.size(); i++){
+  for(unsigned int i = 0; i < nd.size(); ++i){
     int ci = nd[i].data.clusterIndex;
     bool flag_isolated = true;
     if(ci != -1){
@@ -335,7 +335,7 @@ int HGCalImagingAlgo::findAndAssignClusters(std::vector<KDNode> &nd,KDTree &lp, 
   }
 
   //flag points in cluster with density < rho_b as halo points, then fill the cluster vector 
-  for(unsigned int i = 0; i < nd.size(); i++){
+  for(unsigned int i = 0; i < nd.size(); ++i){
     int ci = nd[i].data.clusterIndex;
     if(ci!=-1 && nd[i].data.rho < rho_b[ci])
       nd[i].data.isHalo = true;
