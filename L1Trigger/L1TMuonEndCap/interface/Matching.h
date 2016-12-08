@@ -71,7 +71,7 @@ MatchingOutput PhiMatching(SortingOutput Sout){
 	  //	std::cout<<"Winners[z][w].Strip(): "<<Winners[z][w].Strip()<<" + 1 - Thits[i].Zhit():"<<Thits[i].Zhit()<<" = "<<(Winners[z][w].Strip() + 1) - Thits[i].Zhit()<<". Thits[i].Phi()>>5 = "<<(Thits[i].Phi() >> 5)<<"\n";
 	  //}
 	  
-	  if((fabs(Winners[z][w].Strip() - (Thits[i].Phi()>>5)) <= phdiff[setstation]) && inBXgroup && inzone){//is close to winner keystrip and in same zone?
+	  if((std::abs(Winners[z][w].Strip() - (Thits[i].Phi()>>5)) <= phdiff[setstation]) && inBXgroup && inzone){//is close to winner keystrip and in same zone?
 	    
 	    if(ph_output.x[z][w][setstation].Phi() == -999){//has this already been set? no
 	      
@@ -86,8 +86,8 @@ MatchingOutput PhiMatching(SortingOutput Sout){
 	      
 	      if(verbose) std::cout<<"has already been set"<<std::endl;
 	      
-	      int d1 = fabs((ph_output.x[z][w][setstation].Phi()>>5) - Winners[z][w].Strip());
-	      int d2 = fabs((Thits[i].Phi()>>5) - Winners[z][w].Strip());
+	      int d1 = std::abs((ph_output.x[z][w][setstation].Phi()>>5) - Winners[z][w].Strip());
+	      int d2 = std::abs((Thits[i].Phi()>>5) - Winners[z][w].Strip());
 	      
 	      if(verbose) std::cout<<"d1 = "<<d1<<" and d2 = "<<d2<<"\n";
 	      
