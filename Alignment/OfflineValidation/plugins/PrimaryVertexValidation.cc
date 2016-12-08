@@ -839,7 +839,7 @@ bool PrimaryVertexValidation::isHit2D(const TrackingRecHit &hit) const
   } else {
     const DetId detId(hit.geographicalId());
     if (detId.det() == DetId::Tracker) {
-      if (detId.subdetId() == kBPIX || detId.subdetId() == kFPIX) {
+      if (detId.subdetId() == PixelSubdetector::PixelBarrel || detId.subdetId() ==  PixelSubdetector::PixelEndcap ) {
         return true; // pixel is always 2D
       } else { // should be SiStrip now
         if (dynamic_cast<const SiStripRecHit2D*>(&hit)) return false; // normal hit
