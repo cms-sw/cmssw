@@ -302,13 +302,13 @@ void ME0SegmentAlgorithm::buildSegments(const ME0Ensemble& ensemble, const Ensem
   proto_segment.clear();
   
   // select hits from the ensemble and sort it 
-  const ME0Chamber * chamber   = ensemble.first;
+  const ME0EtaPartition * refPart   = ensemble.first;
   for (auto rh=rechits.begin(); rh!=rechits.end();rh++){
     proto_segment.push_back(*rh);
-    // for segFit - using local point in chamber frame
+    // for segFit - using local point in first partition frame
     const ME0EtaPartition * thePartition   = (ensemble.second.find((*rh)->me0Id()))->second;
     GlobalPoint gp = thePartition->toGlobal((*rh)->localPosition());
-    const LocalPoint lp = chamber->toLocal(gp);    
+    const LocalPoint lp = refPart->toLocal(gp);    
     ME0RecHit *newRH = (*rh)->clone();
     newRH->setPosition(lp);
 
@@ -342,6 +342,7 @@ void ME0SegmentAlgorithm::buildSegments(const ME0Ensemble& ensemble, const Ensem
   for (auto rh=rechits.begin(); rh!=rechits.end(); ++rh){
     timeUncrt += pow((*rh)->tof()-averageTime,2);
   }
+
   if(rechits.size() > 1) timeUncrt=timeUncrt/(rechits.size()-1);
   timeUncrt = sqrt(timeUncrt);
 
