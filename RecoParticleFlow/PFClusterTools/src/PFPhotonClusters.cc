@@ -68,43 +68,43 @@ void PFPhotonClusters::PFCrystalCoor(){
     CrysEta_=EtaCry;
     CrysPhi_=PhiCry;
     
-    if(abs(CrysIEta_)==1 || abs(CrysIEta_)==2 )
+    if(std::abs(CrysIEta_)==1 || abs(CrysIEta_)==2 )
       CrysIEtaCrack_=abs(CrysIEta_);
-    if(abs(CrysIEta_)>2 && abs(CrysIEta_)<24)
+    if(std::abs(CrysIEta_)>2 && abs(CrysIEta_)<24)
       CrysIEtaCrack_=3;
-    if(abs(CrysIEta_)==24)
+    if(std::abs(CrysIEta_)==24)
       CrysIEtaCrack_=4;
-    if(abs(CrysIEta_)==25)
+    if(std::abs(CrysIEta_)==25)
       CrysIEtaCrack_=5;
-    if(abs(CrysIEta_)==26)
+    if(std::abs(CrysIEta_)==26)
       CrysIEtaCrack_=6;
-    if(abs(CrysIEta_)==27)
+    if(std::abs(CrysIEta_)==27)
       CrysIEtaCrack_=7;
-    if(abs(CrysIEta_)>27 &&  abs(CrysIEta_)<44)
+    if(std::abs(CrysIEta_)>27 &&  abs(CrysIEta_)<44)
       CrysIEtaCrack_=8;
-    if(abs(CrysIEta_)==44)
+    if(std::abs(CrysIEta_)==44)
       CrysIEtaCrack_=9;
-    if(abs(CrysIEta_)==45)
+    if(std::abs(CrysIEta_)==45)
       CrysIEtaCrack_=10;
-    if(abs(CrysIEta_)==46)
+    if(std::abs(CrysIEta_)==46)
       CrysIEtaCrack_=11;
-    if(abs(CrysIEta_)==47)
+    if(std::abs(CrysIEta_)==47)
       CrysIEtaCrack_=12;
-    if(abs(CrysIEta_)>47 &&  abs(CrysIEta_)<64)
+    if(std::abs(CrysIEta_)>47 &&  abs(CrysIEta_)<64)
       CrysIEtaCrack_=13;
-    if(abs(CrysIEta_)==64)
+    if(std::abs(CrysIEta_)==64)
       CrysIEtaCrack_=14;
-    if(abs(CrysIEta_)==65)
+    if(std::abs(CrysIEta_)==65)
 	CrysIEtaCrack_=15;
-    if(abs(CrysIEta_)==66)
+    if(std::abs(CrysIEta_)==66)
       CrysIEtaCrack_=16;
-    if(abs(CrysIEta_)==67)
+    if(std::abs(CrysIEta_)==67)
       CrysIEtaCrack_=17;
-    if(abs(CrysIEta_)>67 &&  abs(CrysIEta_)<84)
+    if(std::abs(CrysIEta_)>67 &&  abs(CrysIEta_)<84)
       CrysIEtaCrack_=18;
-    if(abs(CrysIEta_)==84)
+    if(std::abs(CrysIEta_)==84)
       CrysIEtaCrack_=19;
-    if(abs(CrysIEta_)==85)
+    if(std::abs(CrysIEta_)==85)
       CrysIEtaCrack_=20;
   }
   else{
@@ -137,9 +137,9 @@ void PFPhotonClusters::FillClusterShape(){
       int deta=EBDetId::distanceEta(id,idseed_);
       int dphi=EBDetId::distancePhi(id,idseed_);
 
-      if(abs(deta)>2 ||abs(dphi)>2)continue;
+      if(std::abs(deta)>2 ||abs(dphi)>2)continue;
       
-      //f(abs(dphi)<=2 && abs(deta)<=2){
+      //f(std::abs(dphi)<=2 && abs(deta)<=2){
       EBDetId EBidSeed=EBDetId(idseed_.rawId());
       EBDetId EBid=EBDetId(id.rawId());
       int ind1=EBidSeed.ieta()-EBid.ieta();
@@ -179,7 +179,7 @@ void PFPhotonClusters::FillClusterShape(){
     else{
       int dx=EEDetId::distanceX(id,idseed_);
       int dy=EEDetId::distanceY(id,idseed_);
-      if(abs(dx)>2 ||abs(dy>2))continue;
+      if(std::abs(dx)>2 ||std::abs(dyi)>2) continue;
       EEDetId EEidSeed=EEDetId(idseed_.rawId());
       EEDetId EEid=EEDetId(id.rawId());
       int ind1=EEid.ix()-EEidSeed.ix();
