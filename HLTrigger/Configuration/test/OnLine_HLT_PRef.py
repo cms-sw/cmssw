@@ -1,11 +1,11 @@
-# /dev/CMSSW_8_0_0/PRef/V250 (CMSSW_8_0_23)
+# /dev/CMSSW_8_0_0/PRef/V253 (CMSSW_8_0_24)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLTPRef" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_8_0_0/PRef/V250')
+  tableName = cms.string('/dev/CMSSW_8_0_0/PRef/V253')
 )
 
 process.HLTPSetJetCoreStepTrajectoryFilter = cms.PSet( 
@@ -8347,9 +8347,9 @@ process.hltIslandBasicClustersHI = cms.EDProducer( "IslandClusterProducer",
     clustershapecollectionEE = cms.string( "islandEndcapShape" ),
     clustershapecollectionEB = cms.string( "islandBarrelShape" ),
     VerbosityLevel = cms.string( "ERROR" ),
-    barrelClusterCollection = cms.string( "islandBarrelBasicClustersHI" ),
+    IslandBarrelSeedThr = cms.double( 0.5 ),
     endcapClusterCollection = cms.string( "islandEndcapBasicClustersHI" ),
-    IslandBarrelSeedThr = cms.double( 0.5 )
+    barrelClusterCollection = cms.string( "islandBarrelBasicClustersHI" )
 )
 process.hltHiIslandSuperClustersHI = cms.EDProducer( "HiSuperClusterProducer",
     barrelSuperclusterCollection = cms.string( "islandBarrelSuperClustersHI" ),
