@@ -67,12 +67,12 @@ DDHGCalNoTaperEndcap::createQuarter( DDCompactView& cpv, int xQuadrant, int yQua
 #ifdef EDM_ML_DEBUG
   int rowmax(0), column(0);
 #endif
-  while (abs(offsetX) < m_rMax) {
+  while (std::abs(offsetX) < m_rMax) {
 #ifdef EDM_ML_DEBUG
     column++;
     int row(0);
 #endif
-    while (abs(offsetY) < m_rMax) {
+    while (std::abs(offsetY) < m_rMax) {
 #ifdef EDM_ML_DEBUG
       row++;
 #endif
