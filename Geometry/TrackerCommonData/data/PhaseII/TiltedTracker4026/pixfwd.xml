@@ -16,7 +16,6 @@ note: see OT365_200_IT4026_2016_12_06.cfg for full config files
  <!--<Constant name="RootRadius"     value="20.1*cm"/>-->
  <Constant name="RootRadius1"     value="19.65*cm"/>
  <Constant name="RootRadius2"     value="28.8*cm"/> <!-- For Pixel 1_1_1 : RootRadius2 = RootRadius1 -->
- <Constant name="RootHalfLength" value="[pixfwdCylinder:CylindersOuterLength]/2.+ [pixfwdCylinder:CylindersEndFlangeLength]/2.+[Zextension]/2."/>
 
  <Constant name="AnchorZ"        value="0.*mm"/>
  <Constant name="ZPixelForward"  value="291.*mm"/>
@@ -25,7 +24,6 @@ note: see OT365_200_IT4026_2016_12_06.cfg for full config files
  <Constant name="RootMidZ1"      value="[cms:TrackLumiZ1]-[ZPixelForward]"/>
  <Constant name="RootMidZ2"      value="[cms:TrackLumiZ2]-[ZPixelForward]"/>
  <Constant name="RootMidZ3"      value="[cms:TrackBeamZ1]-[ZPixelForward]"/>
- <Constant name="RootEndZ"       value="2*[RootHalfLength]"/>
  <Constant name="Zextension"      value="273.11*mm"/>
  <Constant name="ZextensionCables"      value="203.5*mm"/>
 
