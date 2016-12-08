@@ -19,7 +19,6 @@
 
 #include "RecoLocalCalo/HGCalRecAlgos/interface/HGCalImagingAlgo.h"
 #include "RecoLocalCalo/HGCalRecAlgos/interface/HGCalDepthPreClusterer.h"
-#include "RecoLocalCalo/HGCalRecAlgos/interface/HGCalMultiCluster.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
