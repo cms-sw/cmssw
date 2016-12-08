@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 slimmedJets = cms.EDProducer("PATJetSlimmer",
-   src = cms.InputTag("selectedPatJets"),
+   src = cms.InputTag("selectedUpdatedPatJetsBTAG"),
    packedPFCandidates = cms.InputTag("packedPFCandidates"),
    dropJetVars = cms.string("1"),
    dropDaughters = cms.string("0"),
