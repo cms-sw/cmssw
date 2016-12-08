@@ -102,6 +102,173 @@ JetCorrectorParameters::Record::Record(const std::string& fLine,unsigned fNvar) 
     }
 }
 //------------------------------------------------------------------------
+//--- initializes the mBinMap for quick lookup of mRecords ---------------
+//------------------------------------------------------------------------
+template<typename T, int SIZE>
+void JetCorrectorParameters::JetCorrectorParametersHelper<T,SIZE>::initTransientMaps()
+{
+  mIndexMap.clear();
+  mMap.clear();
+  mBinBoundaries.clear();
+  mBinBoundaries.assign(SIZE,std::vector<T>(0,0));
+}
+template<typename T, int SIZE>
+void JetCorrectorParameters::JetCorrectorParametersHelper<T,SIZE>::init(const std::vector<JetCorrectorParameters::Record>& mRecordsLocal) 
+{
+  initTransientMaps();
+  size_t start=0, end=0;
+  size_t nRec = mRecordsLocal.size();
+  size_t indexMapSize=0, tmpIndexMapSize=0;
+  for (unsigned i = 0; i < nRec; ++i)
+    {
+      for (unsigned j=0;j<SIZE;j++)
+      {
+        if(j<SIZE-1 && std::find(mBinBoundaries[j].begin(),mBinBoundaries[j].end(),mRecordsLocal[i].xMin(j))==mBinBoundaries[j].end())
+          mBinBoundaries[j].push_back(mRecordsLocal[i].xMin(j));
+        else if(j==SIZE-1) {
+          if(i==0)
+            mBinBoundaries[j].reserve(size());
+
+          mBinBoundaries[j].push_back(mRecordsLocal[i].xMin(j));
+
+          if(SIZE>1 && (i==nRec-1 || mRecordsLocal[i].xMin(j-1)!=mRecordsLocal[i+1].xMin(j-1))) {
+            end = i;
+            mMap.emplace(gen_tuple<SIZE-1>([&](size_t k){return mRecordsLocal[i].xMin(k);}),std::make_pair(start,end));
+            start = i+1;
+          }
+        }
+      }
+      indexMapSize = mIndexMap.size();
+      tuple_type tmpTuple = gen_tuple<SIZE>([&](size_t k){return mRecordsLocal[i].xMin(k);});
+      mIndexMap.emplace(tmpTuple,i);
+      tmpIndexMapSize = mIndexMap.size();
+      if(indexMapSize==tmpIndexMapSize)
+      {
+        size_t existing_index = mIndexMap.find(tmpTuple)->second;
+        std::stringstream sserr;
+        sserr<<"Duplicate binning in record found (existing index,current index)=("
+             <<existing_index<<","<<i<<")"<<std::endl<<"\tBins(lower bounds)="<<tmpTuple<<std::endl;
+        handleError("JetCorrectorParameters",sserr.str());
+      }
+    }
+  if (mBinBoundaries[SIZE-1].size()!=nRec)
+    {
+      std::stringstream sserr;
+      sserr<<"Did not find all bin boundaries for dimension "<<SIZE-1<<"!!!"<<std::endl
+           <<"Found "<<mBinBoundaries[SIZE-1].size()<<" out of "<<nRec<<" records";
+      handleError("JetCorrectorParameters",sserr.str());
+    }
+  indexMapSize = mIndexMap.size();
+  if (indexMapSize!=nRec)
+    {
+      handleError("JetCorrectorParameters","The mapping of bin lower bounds to indices does not contain all possible entries!!!");
+    }
+}
+//------------------------------------------------------------------------
+//--- checks that some conditions are met before finding the bin index ---
+//------------------------------------------------------------------------
+template<typename T, int SIZE>
+void JetCorrectorParameters::JetCorrectorParametersHelper<T,SIZE>::binIndexChecks(unsigned N, const std::vector<float>& fX) const
+{
+  if (N != fX.size())
+    {
+      std::stringstream sserr;
+      sserr<<"# bin variables "<<N<<" doesn't correspont to requested #: "<<fX.size();
+      handleError("JetCorrectorParameters",sserr.str());
+    }
+}
+template<typename T, int SIZE>
+bool JetCorrectorParameters::JetCorrectorParametersHelper<T,SIZE>::binBoundChecks(unsigned dim, const float& value, const float& min, const float& max) const
+{
+  if (value < min || value > max)
+    {
+      std::stringstream sserr;
+      sserr<<"Value for dimension "<<dim<<" is outside of the bin boundaries"<<std::endl
+           <<"\tRequested "<<value<<" for boundaries ("<<min<<","<<max<<")";
+      handleError("JetCorrectorParameters",sserr.str());
+      return false;
+    }
+    return true;
+}
+//------------------------------------------------------------------------
+//--- returns the index of the record defined by fX (non-linear search) --
+//------------------------------------------------------------------------
+template<typename T, int SIZE>
+int JetCorrectorParameters::JetCorrectorParametersHelper<T,SIZE>::binIndexN(const std::vector<float>& fX,
+                                                                            const std::vector<JetCorrectorParameters::Record>& mRecords) const
+{
+  unsigned Nm1 = SIZE-1;
+  binIndexChecks(SIZE,fX);
+
+  //Create a container for the indices
+  std::vector<float> fN(SIZE,-1);
+  std::vector<float>::const_iterator tmpIt;
+
+  // make sure that fX are within the first and last boundaries of mBinBoundaries (other than last dimension)
+  for (unsigned idim=0; idim<fX.size()-1; idim++)
+  {
+    if(!binBoundChecks(idim,fX[idim],*mBinBoundaries[idim].begin(),mRecords[size()-1].xMax(idim))) return -1;
+    tmpIt = std::lower_bound(mBinBoundaries[idim].begin(),mBinBoundaries[idim].end(),fX[idim]);
+    // lower_bound finds the entry with the next highest value to fX[0]
+    // so unless the two values are equal, you want the next lowest bin boundary
+    if (*tmpIt != fX[idim])
+      tmpIt-=1;
+    fN[idim] = *tmpIt;
+  }
+
+  //find the index bounds for the possible values of the last dimension
+  std::pair<size_t,size_t> indexBounds;
+  if(SIZE>1)
+    {
+      tuple_type_Nm1 to_find_Nm1 = gen_tuple<SIZE-1>([&](size_t i){return fN[i];});
+      if (mMap.find(to_find_Nm1)!=mMap.end())
+        indexBounds = mMap.at(to_find_Nm1);
+      else
+      {
+        std::stringstream sserr;
+        sserr<<"couldn't find the index boundaries for dimension "<<Nm1;
+        handleError("JetCorrectorParameters",sserr.str());
+        return -1;
+      }
+
+      //Check that the requested value is within the bin boundaries for the last dimension
+      if(!binBoundChecks(Nm1,fX[Nm1],mRecords[indexBounds.first].xMin(Nm1),mRecords[indexBounds.second].xMax(Nm1))) return -1;
+      tmpIt = std::lower_bound(mBinBoundaries[Nm1].begin()+indexBounds.first,mBinBoundaries[Nm1].begin()+indexBounds.second,fX[Nm1]);
+      if (*tmpIt != fX[Nm1] && fX[Nm1]<*(mBinBoundaries[Nm1].begin()+indexBounds.second))
+        tmpIt-=1;
+      fN[Nm1] = *tmpIt;
+    }
+
+  tuple_type to_find = gen_tuple<SIZE>([&](size_t i){return fN[i];});
+  return (mIndexMap.find(to_find)!=mIndexMap.end()) ? mIndexMap.at(to_find) : -1;
+}
+//------------------------------------------------------------------------
+//--- partial specialization of binIndexN --------------------------------
+//------------------------------------------------------------------------
+/*
+template<typename T>
+int JetCorrectorParameters::JetCorrectorParametersHelper<T,1>::binIndexN(const std::vector<float>& fX) const
+{
+  unsigned N = mDefinitions.nBinVar();
+  unsigned Nm1 = N-1;
+  binIndexChecks(N,fX);
+
+  //Create a container for the indices
+  std::vector<float> fN(N,-1);
+  std::vector<float>::const_iterator tmpIt;
+
+  // make sure that fX are within the first and last boundaries of mBinBoundaries (other than last dimension)
+  if(!binBoundChecks(0,fX[0],mRecords[0].xMin(0),mRecords[size()-1].xMax(0))) return -1;
+
+  tmpIt = std::lower_bound(mBinBoundaries[Nm1].begin(),mBinBoundaries[Nm1].end(),fX[Nm1]);
+  if (*tmpIt != fX[Nm1] && fX[Nm1]<*(mBinBoundaries[Nm1].begin()))
+    tmpIt-=1;
+  fN[Nm1] = *tmpIt;
+
+  return (mOneIndexMap.find(std::make_tuple(fN[0]))!=mOneIndexMap.end()) ? mOneIndexMap.at(std::make_tuple(fN[0])) : -1;
+}
+*/
+//------------------------------------------------------------------------
 //--- JetCorrectorParameters constructor ---------------------------------
 //--- reads the member variables from a string ---------------------------
 //------------------------------------------------------------------------
@@ -153,115 +320,28 @@ JetCorrectorParameters::JetCorrectorParameters(const std::string& fFile, const s
   std::sort(mRecords.begin(), mRecords.end());
   valid_ = true;
 
-  if(mDefinitions.nBinVar()<=3)
+  if(mDefinitions.nBinVar()<=MAX_SIZE_DIMENSIONALITY)
     {
-      init(mRecords);
+      init();
     }
   else
     {
       std::stringstream sserr;
-      sserr<<"since the binned dimensionality is greater than 3 the SimpleJetCorrector will default to using the legacy binIndex function!";
+      sserr<<"since the binned dimensionality is greater than "<<MAX_SIZE_DIMENSIONALITY
+           <<" the SimpleJetCorrector will default to using the legacy binIndex function!";
       handleError("JetCorrectorParameters",sserr.str());
     }
 }
 //------------------------------------------------------------------------
-//--- initializes the mBinMap for quick lookup of mRecords----------------
+//--- initializes the correct JetCorrectorParametersHelper ---------------
 //------------------------------------------------------------------------
-void JetCorrectorParameters::initTransientMaps(unsigned N)
-{
-  mThreeIndexMap.clear();
-  mTwoIndexMap.clear();
-  mOneIndexMap.clear();
-  mTwoMap.clear();
-  mOneMap.clear();
-  mBinBoundaries.clear();
-  mBinBoundaries.assign(N,std::vector<float>(0,0));
-}
-void JetCorrectorParameters::init(const std::vector<JetCorrectorParameters::Record>& mRecordsLocal) 
-{
-  unsigned N = mDefinitions.nBinVar();
-  initTransientMaps(N);
-  size_t start=0, end=0;
-  size_t nRec = mRecordsLocal.size();
-  size_t indexMapSize=0, tmpIndexMapSize=0;
-  for (unsigned i = 0; i < nRec; ++i)
-    {
-      for (unsigned j=0;j<N;j++)
-      {
-        if(j<N-1 && std::find(mBinBoundaries[j].begin(),mBinBoundaries[j].end(),mRecordsLocal[i].xMin(j))==mBinBoundaries[j].end())
-          mBinBoundaries[j].push_back(mRecordsLocal[i].xMin(j));
-        else if(j==N-1) {
-          if(i==0)
-            mBinBoundaries[j].reserve(size());
-
-          mBinBoundaries[j].push_back(mRecordsLocal[i].xMin(j));
-
-          if(i==nRec-1 || mRecordsLocal[i].xMin(j-1)!=mRecordsLocal[i+1].xMin(j-1)) {
-            end = i;
-            if      (N==3) mTwoMap.emplace(std::make_tuple(mRecordsLocal[i].xMin(0),mRecordsLocal[i].xMin(1)),std::make_pair(start,end));
-            else if (N==2) mOneMap.emplace(std::make_tuple(mRecordsLocal[i].xMin(0)),std::make_pair(start,end));
-            start = i+1;
-          }
-        }
-      }
-      indexMapSize = (N==3) ? mThreeIndexMap.size() : (N==2) ? mTwoIndexMap.size() : mOneIndexMap.size();
-      if     (N==3) mThreeIndexMap.emplace(std::make_tuple(mRecordsLocal[i].xMin(0),mRecordsLocal[i].xMin(1),mRecordsLocal[i].xMin(2)),i);
-      else if(N==2) mTwoIndexMap.emplace(std::make_tuple(mRecordsLocal[i].xMin(0),mRecordsLocal[i].xMin(1)),i);
-      else if(N==1) mOneIndexMap.emplace(std::make_tuple(mRecordsLocal[i].xMin(0)),i);
-      tmpIndexMapSize = (N==3) ? mThreeIndexMap.size() : (N==2) ? mTwoIndexMap.size() : mOneIndexMap.size();
-      if(indexMapSize==tmpIndexMapSize)
-      {
-        size_t existing_index = (N==3) ? mThreeIndexMap.find(std::make_tuple(mRecordsLocal[i].xMin(0),mRecordsLocal[i].xMin(1),mRecordsLocal[i].xMin(2)))->second :
-                                (N==2) ? mTwoIndexMap.find(std::make_tuple(mRecordsLocal[i].xMin(0),mRecordsLocal[i].xMin(1)))->second :
-                                         mOneIndexMap.find(std::make_tuple(mRecordsLocal[i].xMin(0)))->second;
-        std::stringstream sserr;
-        sserr<<"Duplicate binning in record found (existing index,current index)=("
-             <<existing_index<<","<<i<<std::endl<<"\t"<<mRecordsLocal[i].xMin(0)<<" | "
-             <<mRecordsLocal[i].xMin(1)<<" | "<<mRecordsLocal[i].xMin(2)<<std::endl;
-        handleError("JetCorrectorParameters",sserr.str());
-      }
-    }
-  if (mBinBoundaries[N-1].size()!=nRec)
-    {
-      std::stringstream sserr;
-      sserr<<"Did not find all bin boundaries for dimension 3!!!"<<std::endl
-           <<"Found "<<mBinBoundaries[N-1].size()<<" out of "<<nRec<<" records";
-      handleError("JetCorrectorParameters",sserr.str());
-    }
-  indexMapSize = (N==3) ? mThreeIndexMap.size() : (N==2) ? mTwoIndexMap.size() : mOneIndexMap.size();
-  if (indexMapSize!=nRec)
-    {
-      handleError("JetCorrectorParameters","The mapping of bin lower bounds to indices does not contain all possible entries!!!");
-    }
-}
 void JetCorrectorParameters::init()
 {
-  init(mRecords);
-}
-//------------------------------------------------------------------------
-//--- checks that some conditions are met before finding the bin index ---
-//------------------------------------------------------------------------
-void JetCorrectorParameters::binIndexChecks(unsigned N, const std::vector<float>& fX) const
-{
-  if (N != fX.size())
-    {
-      std::stringstream sserr;
-      sserr<<"# bin variables "<<N<<" doesn't correspont to requested #: "<<fX.size();
-      handleError("JetCorrectorParameters",sserr.str());
-    }
-}
-bool JetCorrectorParameters::binBoundChecks(unsigned dim, const float& value, const float& min, const float& max) const
-{
-  if (value < min || value > max)
-    {
-      std::stringstream sserr;
-      sserr<<"Value for dimension "<<dim<<" is outside of the bin boundaries"<<std::endl
-           <<"\tRequested "<<value<<" for boundaries ("<<min<<","<<max<<")";
-      handleError("JetCorrectorParameters",sserr.str());
-      return false;
-    }
-    return true;
-}
+  unsigned N = mDefinitions.nBinVar();
+  if     (N==1) std::get<0>(helperTuple).init(mRecords);
+  else if(N==2) std::get<1>(helperTuple).init(mRecords);
+  else if(N==3) std::get<2>(helperTuple).init(mRecords);
+} 
 //------------------------------------------------------------------------
 //--- returns the index of the record defined by fX ----------------------
 //------------------------------------------------------------------------
@@ -269,7 +349,12 @@ int JetCorrectorParameters::binIndex(const std::vector<float>& fX) const
 {
   int result = -1;
   unsigned N = mDefinitions.nBinVar();
-  binIndexChecks(N,fX);
+  if (N != fX.size())
+    {
+      std::stringstream sserr;
+      sserr<<"# bin variables "<<N<<" doesn't correspont to requested #: "<<fX.size();
+      handleError("JetCorrectorParameters",sserr.str());
+    }
   unsigned tmp;
   for (unsigned i = 0; i < size(); ++i)
     {
@@ -288,26 +373,30 @@ int JetCorrectorParameters::binIndex(const std::vector<float>& fX) const
 //------------------------------------------------------------------------
 //--- returns the index of the record defined by fX (non-linear search) --
 //------------------------------------------------------------------------
-int JetCorrectorParameters::binIndex1(const std::vector<float>& fX) const
+int JetCorrectorParameters::binIndexN(const std::vector<float>& fX) const
 {
   unsigned N = mDefinitions.nBinVar();
-  unsigned Nm1 = N-1;
-  binIndexChecks(N,fX);
-
-  //Create a container for the indices
-  std::vector<float> fN(N,-1);
-  std::vector<float>::const_iterator tmpIt;
-
-  // make sure that fX are within the first and last boundaries of mBinBoundaries (other than last dimension)
-  if(!binBoundChecks(0,fX[0],mRecords[0].xMin(0),mRecords[size()-1].xMax(0))) return -1;
-
-  tmpIt = std::lower_bound(mBinBoundaries[Nm1].begin(),mBinBoundaries[Nm1].end(),fX[Nm1]);
-  if (*tmpIt != fX[Nm1] && fX[Nm1]<*(mBinBoundaries[Nm1].begin()))
-    tmpIt-=1;
-  fN[Nm1] = *tmpIt;
-
-  return (mOneIndexMap.find(std::make_tuple(fN[0]))!=mOneIndexMap.end()) ? mOneIndexMap.at(std::make_tuple(fN[0])) : -1;
+  if     (N==1)
+    {
+      if(std::get<0>(helperTuple).size()==0) return -1;
+      return std::get<0>(helperTuple).binIndexN(fX,mRecords);
+    }
+  else if(N==2) 
+    {
+      if(std::get<1>(helperTuple).size()==0) return -1;
+      return std::get<1>(helperTuple).binIndexN(fX,mRecords);
+    }
+  else if(N==3) 
+    {
+      if(std::get<2>(helperTuple).size()==0) return -1;
+      return std::get<2>(helperTuple).binIndexN(fX,mRecords);
+    }
+  else
+    { 
+      return -1;
+    }
 }
+/*
 int JetCorrectorParameters::binIndex2(const std::vector<float>& fX) const
 {
   unsigned N = mDefinitions.nBinVar();
@@ -398,6 +487,7 @@ int JetCorrectorParameters::binIndex3(const std::vector<float>& fX) const
   return (mThreeIndexMap.find(std::make_tuple(fN[0],fN[1],fN[2]))!=mThreeIndexMap.end()) ?
           mThreeIndexMap.at(std::make_tuple(fN[0],fN[1],fN[2])) : -1;
 }
+*/
 //------------------------------------------------------------------------
 //--- returns the neighbouring bins of fIndex in the direction of fVar ---
 //------------------------------------------------------------------------
