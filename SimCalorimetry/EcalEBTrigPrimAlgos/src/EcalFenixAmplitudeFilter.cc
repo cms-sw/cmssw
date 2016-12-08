@@ -20,7 +20,7 @@ int EcalFenixAmplitudeFilter::setInput(int input, int fgvb)
     }
   if(inputsAlreadyIn_<5)
     {
-      std::cout << " EcalFenixAmplitudeFilter::setInput inputsAlreadyIn_<5 input " << input << std::endl;
+      //std::cout << " EcalFenixAmplitudeFilter::setInput inputsAlreadyIn_<5 input " << input << std::endl;
       buffer_[inputsAlreadyIn_]=input;
       fgvbBuffer_[inputsAlreadyIn_]=fgvb;
       inputsAlreadyIn_++;
@@ -30,7 +30,7 @@ int EcalFenixAmplitudeFilter::setInput(int input, int fgvb)
       for(int i=0; i<4; i++)
       {
          buffer_[i]=buffer_[i+1];
-	 std::cout << " EcalFenixAmplitudeFilter::setInput inputsAlreadyIn buffer " << buffer_[i] << std::endl; 
+	 //std::cout << " EcalFenixAmplitudeFilter::setInput inputsAlreadyIn buffer " << buffer_[i] << std::endl; 
          fgvbBuffer_[i]=fgvbBuffer_[i+1];
       }
       buffer_[4]=input;
@@ -51,14 +51,14 @@ void EcalFenixAmplitudeFilter::process(std::vector<int> &addout,std::vector<int>
   
   // test end
 
-  std::cout << "  EcalFenixAmplitudeFilter::process(std::vector<int> &addout size  " << addout.size() << std::endl;  
+  //std::cout << "  EcalFenixAmplitudeFilter::process(std::vector<int> &addout size  " << addout.size() << std::endl;  
   for (unsigned int i =0;i<addout.size();i++){
     
     setInput(addout[i],fgvbIn[i]);
     for (unsigned int i =0;i<5;i++){
-      std::cout << " buffer_ " << buffer_[i];
+      // std::cout << " buffer_ " << buffer_[i];
     }
-    std::cout << "  " << std::endl;
+    //std::cout << "  " << std::endl;
     process();
     output[i]=processedOutput_;
     fgvbOut[i]=processedFgvbOutput_;
@@ -89,7 +89,7 @@ void EcalFenixAmplitudeFilter::process()
   {
 
     output+=(weights_[i]*buffer_[i])>>shift_;
-    std::cout << " AmplitudeFilter buffer " << buffer_[i] << " weight " << weights_[i] << " output " << output << std::endl;
+    //std::cout << " AmplitudeFilter buffer " << buffer_[i] << " weight " << weights_[i] << " output " << output << std::endl;
     if((fgvbBuffer_[i] == 1 && i == 3) || fgvbInt == 1)
     {
       fgvbInt = 1;

@@ -1,7 +1,7 @@
 /** \class EcalEBTrigPrimProducer
  * For Phase II
  * EcalEBTrigPrimProducer produces a EcalEBTrigPrimDigiCollection
- * out of RecHits. This is a simple starting point to fill in the chain
+ * out of PhaseI Digis. This is a simple starting point to fill in the chain
  * for Phase II
  * 
  *
@@ -176,7 +176,7 @@ EcalEBTrigPrimProducer::produce(edm::Event& e, const edm::EventSetup&  iSetup)
     if (! e.getByToken(tokenEBdigi_,barrelDigiHandle)) {
       edm::EDConsumerBase::Labels labels;
       labelsForToken(tokenEBdigi_, labels);
-      edm::LogWarning("EcalTPG") <<" Couldnt find Barrel rechits "<<labels.module<<" and label "<<labels.productInstance<<"!!!";
+      edm::LogWarning("EcalTPG") <<" Couldnt find Barrel digis "<<labels.module<<" and label "<<labels.productInstance<<"!!!";
     }
   }
   
@@ -193,7 +193,7 @@ EcalEBTrigPrimProducer::produce(edm::Event& e, const edm::EventSetup&  iSetup)
  
   // if ( e.id().event() != 648 ) return;
 
-  std::cout << " Event number " << e.id().event() << std::endl;
+  //std::cout << " Event number " << e.id().event() << std::endl;
 
   // invoke algorithm 
 

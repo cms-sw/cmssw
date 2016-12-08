@@ -62,21 +62,21 @@ int EcalFenixLinearizer::process()
   
   
   int output=(uncorrectedSample_-base_); //Substract base
-  std::cout << " EcalFenixLinearizer::process() output non bit shifted " << output << std::endl; 
+  //std::cout << " EcalFenixLinearizer::process() output non bit shifted " << output << std::endl; 
   if(famos_ || output<0) return 0;
   
   if(output<0) return shift_ << 12; // FENIX bug(!)
   output=(output*mult_)>>(shift_+2);        //Apply multiplicative factor
-  std::cout << " EcalFenixLinearizer::process() output 2nd step " << output << std::endl; 
+  //std::cout << " EcalFenixLinearizer::process() output 2nd step " << output << std::endl; 
   if(output>0X3FFFF)output=0X3FFFF;         //Saturation if too high
-  std::cout << " EcalFenixLinearizer::process() output 3rd step " << output << std::endl; 
+  //std::cout << " EcalFenixLinearizer::process() output 3rd step " << output << std::endl; 
   return output;
 }
  
 int EcalFenixLinearizer::setInput(const EcalMGPASample &RawSam)
 { 
 
-  std::cout << "  EcalFenixLinearizer::setInput RawSam.raw() " << RawSam.raw() << std::endl;
+  //std::cout << "  EcalFenixLinearizer::setInput RawSam.raw() " << RawSam.raw() << std::endl;
   if(RawSam.raw()>0X3FFF)
     {
       LogDebug("EcalTPG")<<"ERROR IN INPUT SAMPLE OF FENIX LINEARIZER";
@@ -87,7 +87,7 @@ int EcalFenixLinearizer::setInput(const EcalMGPASample &RawSam)
   gainID_=RawSam.gainId();       //uncorrectedSample_ is coded in the 2 next bits!
 
   if ( gainID_>1) {
-      std::cout << "  EcalFenixLinearizer::setInput gain " << gainID_ << std::endl;
+    //std::cout << "  EcalFenixLinearizer::setInput gain " << gainID_ << std::endl;
       return -999;
   }
   //if (gainID_==0)    gainID_=3;
@@ -145,7 +145,7 @@ int EcalFenixLinearizer::setInput(const EcalMGPASample &RawSam)
     } 
   }
   
-  std::cout << "  EcalFenixLinearizer::setInput   uncorrectedSample_ " << RawSam.adc() << " gainID " << gainID_ << " baseline " << base_ << std::endl;
+  //std::cout << "  EcalFenixLinearizer::setInput   uncorrectedSample_ " << RawSam.adc() << " gainID " << gainID_ << " baseline " << base_ << std::endl;
   
   if (famos_) base_=200; //FIXME by preparing a correct TPG.txt for Famos
 
