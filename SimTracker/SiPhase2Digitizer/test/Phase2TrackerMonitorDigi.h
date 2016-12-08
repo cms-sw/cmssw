@@ -40,7 +40,8 @@ public:
     MonitorElement* NumberOfClusters;
     MonitorElement* ClusterWidth;
     MonitorElement* ClusterPosition;
-    MonitorElement* FractionOfOTBits;
+    MonitorElement* FractionOfOvTBits;
+    MonitorElement* FractionOfOvTBitsVsEta;
     MonitorElement* EtaOccupancyProfP;
     MonitorElement* EtaOccupancyProfS;
     unsigned int nDigiPerLayer; 

@@ -183,7 +183,7 @@ int Phase2TrackerValidateDigi::fillSimHitInfo(const edm::Event& iEvent, unsigned
       if (!geomDet) continue;
       Global3DPoint pdPos = geomDet->surface().toGlobal(isim->localPosition());
 
-      SimulatedXYPositionMap->Fill(pdPos.x(), pdPos.y());   
+      SimulatedXYPositionMap->Fill(pdPos.x()*10., pdPos.y()*10.);   
       SimulatedRZPositionMap->Fill(pdPos.z()*10., std::hypot(pdPos.x(),pdPos.y())*10.);   
       
       const TrackerGeomDet* geomDetUnit(gHandle->idToDetUnit(detId));
@@ -222,7 +222,7 @@ int Phase2TrackerValidateDigi::fillSimHitInfo(const edm::Event& iEvent, unsigned
 	if ( fabs(eta) < etaCut_ && pt > ptCut_) fillHistogram(local_mes.MatchedTrackPhi,local_mes.MatchedTrackPhiP,local_mes.MatchedTrackPhiS,phi,type);
 	
 	MatchedRZPositionMap->Fill(pdPos.z()*10., std::hypot(pdPos.x(),pdPos.y())*10.);   
-	MatchedXYPositionMap->Fill(pdPos.x(), pdPos.y());
+	MatchedXYPositionMap->Fill(pdPos.x()*10., pdPos.y()*10.);
 	
       }
     }

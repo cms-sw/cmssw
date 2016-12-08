@@ -137,8 +137,8 @@ void Phase2TrackerMonitorDigi::fillITPixelDigiHistos(const edm::Handle<edm::DetS
       if (geomDet) {
         MeasurementPoint mp( row + 0.5, col + 0.5 );
         GlobalPoint pdPos = geomDet->surface().toGlobal( gDetUnit->topology().localPosition( mp ) ) ;
-	XYPositionMap->Fill(pdPos.x(), pdPos.y());
-	RZPositionMap->Fill(pdPos.z(), std::hypot(pdPos.x(),pdPos.y()));  
+	XYPositionMap->Fill(pdPos.x()*10., pdPos.y()*10.);
+	RZPositionMap->Fill(pdPos.z()*10., std::hypot(pdPos.x(),pdPos.y())*10.);  
       }
       nDigi++;
       edm::LogInfo("Phase2TrackerMonitorDigi")<< "  column " << col << " row " << row  <<
@@ -172,8 +172,8 @@ void Phase2TrackerMonitorDigi::fillITPixelDigiHistos(const edm::Handle<edm::DetS
     if (nRows*nColumns > 0) occupancy = nDigi*1.0/(nRows*nColumns);
     if (geomDet) {
       GlobalPoint gp = geomDet->surface().toGlobal( gDetUnit->topology().localPosition( MeasurementPoint(0.0,0.0))) ;
-      XYOccupancyMap->Fill(gp.x(), gp.y(), occupancy);
-      RZOccupancyMap->Fill(gp.z(), std::hypot(gp.x(),gp.y()), occupancy);  
+      XYOccupancyMap->Fill(gp.x()*10., gp.y()*10, occupancy);
+      RZOccupancyMap->Fill(gp.z()*10., std::hypot(gp.x(),gp.y())*10., occupancy);  
       local_mes.EtaOccupancyProfP->Fill(gp.eta(), occupancy);
     }
     local_mes.DigiOccupancyP->Fill(occupancy);
@@ -228,8 +228,8 @@ void Phase2TrackerMonitorDigi::fillOTDigiHistos(const edm::Handle<edm::DetSetVec
       if (geomDet) {
         MeasurementPoint mp( row + 0.5, col + 0.5 );
         GlobalPoint pdPos = geomDet->surface().toGlobal( gDetUnit->topology().localPosition( mp ) ) ;
-	XYPositionMap->Fill(pdPos.x(), pdPos.y());
-	RZPositionMap->Fill(pdPos.z(), std::hypot(pdPos.x(),pdPos.y()));  
+	XYPositionMap->Fill(pdPos.x()*10., pdPos.y()*10.);
+	RZPositionMap->Fill(pdPos.z()*10., std::hypot(pdPos.x(),pdPos.y())*10.);  
       }
       nDigi++;
       if (di->overThreshold()) frac_ot++;
@@ -261,21 +261,23 @@ void Phase2TrackerMonitorDigi::fillOTDigiHistos(const edm::Handle<edm::DetSetVec
     local_mes.NumberOfClusters->Fill(nclus);  
     local_mes.NumberOfDigis->Fill(nDigi);
     local_mes.nDigiPerLayer += nDigi;
-     
     if (nDigi) frac_ot /= nDigi;
-    if (local_mes.FractionOfOTBits) local_mes.FractionOfOTBits->Fill(frac_ot);
+    if (local_mes.FractionOfOvTBits && nColumns <= 2) local_mes.FractionOfOvTBits->Fill(frac_ot);
+
     float occupancy = 1.0;
     if (nRows*nColumns > 0) occupancy = nDigi*1.0/(nRows*nColumns);
     if (geomDet) {
       GlobalPoint gp = geomDet->surface().toGlobal( gDetUnit->topology().localPosition( MeasurementPoint(0.0,0.0))) ;
-      XYOccupancyMap->Fill(gp.x(), gp.y(), occupancy);
-      RZOccupancyMap->Fill(gp.z(), std::hypot(gp.x(),gp.y()), occupancy);  
+      XYOccupancyMap->Fill(gp.x()*10., gp.y()*10., occupancy);
+      RZOccupancyMap->Fill(gp.z()*10., std::hypot(gp.x(),gp.y())*10., occupancy);  
       if (nColumns > 2) {
 	if (local_mes.DigiOccupancyP) local_mes.DigiOccupancyP->Fill(occupancy);
 	if (local_mes.EtaOccupancyProfP) local_mes.EtaOccupancyProfP->Fill(gp.eta(), occupancy);
       } else {
 	local_mes.DigiOccupancyS->Fill(occupancy);
 	local_mes.EtaOccupancyProfS->Fill(gp.eta(), occupancy);
+	if (local_mes.FractionOfOvTBitsVsEta) local_mes.FractionOfOvTBitsVsEta->Fill(gp.eta(), frac_ot);
+
       }
     }
   }
@@ -335,6 +337,7 @@ void Phase2TrackerMonitorDigi::bookHistograms(DQMStore::IBooker & ibooker,
 					 ParametersOcc.getParameter<double>("xmax"));
 
   Parameters =  config_.getParameter<edm::ParameterSet>("RZPositionMapH");  
+  std::cout << " booking RZ Position " << " R = " << Parameters.getParameter<double>("ymax") << " Z " << Parameters.getParameter<double>("xmin") << " " << Parameters.getParameter<double>("xmax") << std::endl;
   RZPositionMap = ibooker.book2D("DigiRPosVsZPos","DigiRPosVsZPos",
 				 Parameters.getParameter<int32_t>("Nxbins"),
 				 Parameters.getParameter<double>("xmin"),
@@ -483,8 +486,14 @@ void Phase2TrackerMonitorDigi::bookLayerHistos(DQMStore::IBooker & ibooker, unsi
 
       HistoName.str("");
       HistoName << "FractionOfOverThresholdDigis_" << fname2.str();
-      local_mes.FractionOfOTBits= ibooker.book1D(HistoName.str(), HistoName.str(),11, -0.05, 1.05);
+      local_mes.FractionOfOvTBits= ibooker.book1D(HistoName.str(), HistoName.str(),11, -0.05, 1.05);
 
+      edm::ParameterSet Parameters =  config_.getParameter<edm::ParameterSet>("NumbeOfDigisH");
+      HistoName.str("");
+      HistoName << "FractionOfOverThresholdDigisVaEta_" << fname2.str();
+      local_mes.FractionOfOvTBitsVsEta= ibooker.bookProfile(HistoName.str(), HistoName.str(), 45, -4.5, 4.5, 
+							 Parameters.getParameter<double>("xmin"),
+							 Parameters.getParameter<double>("xmax"),"");
     } else {
 
       Parameters =  config_.getParameter<edm::ParameterSet>("DigiChargeH");
