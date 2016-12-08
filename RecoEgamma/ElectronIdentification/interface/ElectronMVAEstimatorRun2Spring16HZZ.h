@@ -15,7 +15,6 @@
 
 #include <vector>
 #include <string>
-#include <TROOT.h>
 #include "TMVA/Factory.h"
 #include "TMVA/Tools.h"
 #include "TMVA/Reader.h"
