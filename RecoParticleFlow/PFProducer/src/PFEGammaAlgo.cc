@@ -2026,7 +2026,27 @@ fillPFCandidates(const pfEGHelpers::HeavyObjectCache* hoc,
     // forward the time from the seed cluster
     if (!RO.ecalclusters.empty()) {
         auto const & seedPFClust = *RO.ecalclusters.front().first->clusterRef();
-        cand.setTime( seedPFClust.time(), seedPFClust.timeError() );
+        // do I have a GSF track too?
+        float time = seedPFClust.time(), timeErr = seedPFClust.timeError();
+        float trkTime = 0, trkTimeErr = -1;
+        if (RO.primaryGSFs.size() && RO.primaryGSFs[0].first->isTimeValid()) {
+            trkTime = RO.primaryGSFs[0].first->time();
+            trkTimeErr = RO.primaryGSFs[0].first->time();
+        } else if (RO.primaryKFs.size() && RO.primaryKFs[0].first->isTimeValid()) {
+            trkTime = RO.primaryKFs[0].first->time();
+            trkTimeErr = RO.primaryKFs[0].first->time();
+        }
+        if (trkTimeErr >= 0) {
+            if (trkTimeErr > 0 && timeErr > 0) { // weighted average (double precision)
+                double newErr2 = (1.0/(timeErr*timeErr) + 1.0/(trkTimeErr*trkTimeErr));
+                time = (double(time/(timeErr*timeErr)) + double(trkTime/(trkTimeErr*trkTimeErr)))/newErr2;
+                timeErr = std::sqrt(float(newErr2));
+            } else { // FIXME: should find something smarter
+                time = 0.5*(time + trkTime);
+                timeErr = std::max(time,trkTime);
+            }
+        }
+        cand.setTime( time, timeErr );
     }
     
     const reco::SuperCluster& the_sc = refinedscs_.back();
