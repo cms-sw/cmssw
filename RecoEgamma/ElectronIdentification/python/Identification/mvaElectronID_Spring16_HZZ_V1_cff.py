@@ -42,7 +42,9 @@ mvaSpring16WeightFiles_V1 = cms.vstring(
     )
 
 # Load some common definitions for MVA machinery
-from RecoEgamma.ElectronIdentification.Identification.mvaElectronID_tools import *
+from RecoEgamma.ElectronIdentification.Identification.mvaElectronID_tools \
+    import (EleMVA_6Categories_WP,
+            configureVIDMVAEleID_V1)
 
 # The locatoins of value maps with the actual MVA values and categories
 # for all particles.
