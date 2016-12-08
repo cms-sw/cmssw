@@ -59,14 +59,11 @@ class BTVHLTOfflineSource : public DQMEDAnalyzer {
   std::string processname_;
   std::string pathname_;
   std::string filtername_; 
-  std::string triggerPathPF_; 
- 
+  
   std::vector<std::pair<std::string, std::string> > custompathnamepairs_;
   
   edm::InputTag triggerSummaryLabel_;
   edm::InputTag triggerResultsLabel_;
-  edm::InputTag triggerFilterPFbfCSV_;
-  edm::InputTag triggerFilterPFafCSV_;
 
   edm::EDGetTokenT<reco::JetTagCollection> offlineCSVTokenPF_;
   edm::EDGetTokenT<reco::JetTagCollection> offlineCSVTokenCalo_;
@@ -104,17 +101,10 @@ class BTVHLTOfflineSource : public DQMEDAnalyzer {
   public:
     void setHistos(
 		   MonitorElement* const CSV, MonitorElement* const Pt, MonitorElement* const Eta,
-		   MonitorElement* const CSV_RECO, MonitorElement* const CSV_HLTMinusRECO, MonitorElement* const CSV_RECOvsHLT, 
-                   MonitorElement* const CSVbeforefilter_RECO, MonitorElement* const CSVafterfilter_RECO, 
-                   MonitorElement* const CSV_turnon, MonitorElement* const CSVratio_calofilter, MonitorElement* const CSVratio_PFfilter,
-                   MonitorElement* const PVz, MonitorElement* const fastPVz,
+		   MonitorElement* const CSV_RECOvsHLT, MonitorElement* const PVz, MonitorElement* const fastPVz,
 		   MonitorElement* const PVz_HLTMinusRECO, MonitorElement* const fastPVz_HLTMinusRECO
 		   )
-    { CSV_ = CSV; Pt_ = Pt; Eta_ = Eta; 
-      CSV_RECO_ = CSV_RECO; ; CSV_HLTMinusRECO_ = CSV_HLTMinusRECO; CSV_RECOvsHLT_ = CSV_RECOvsHLT; 
-      CSVbeforefilter_RECO_ = CSVbeforefilter_RECO; CSVafterfilter_RECO_ = CSVafterfilter_RECO; 
-      CSV_turnon_ = CSV_turnon; CSVratio_calofilter_ = CSVratio_calofilter; CSVratio_PFfilter_ = CSVratio_PFfilter;
-      PVz_ = PVz; fastPVz_ = fastPVz;
+    { CSV_ = CSV; Pt_ = Pt; Eta_ = Eta; CSV_RECOvsHLT_ = CSV_RECOvsHLT; PVz_ = PVz; fastPVz_ = fastPVz;
       PVz_HLTMinusRECO_ = PVz_HLTMinusRECO; fastPVz_HLTMinusRECO_ = fastPVz_HLTMinusRECO;
     };
 
@@ -133,21 +123,14 @@ class BTVHLTOfflineSource : public DQMEDAnalyzer {
       objectType_(type),
       triggerType_(triggerType){};
 
-      MonitorElement * getMEhisto_CSV()                        { return CSV_;                  }
-      MonitorElement * getMEhisto_Pt()                         { return Pt_;                   }
-      MonitorElement * getMEhisto_Eta()                        { return Eta_;                  }
-      MonitorElement * getMEhisto_CSV_RECO()                   { return CSV_RECO_;             }
-      MonitorElement * getMEhisto_CSV_HLTMinusRECO()           { return CSV_HLTMinusRECO_;     }
-      MonitorElement * getMEhisto_CSV_RECOvsHLT()              { return CSV_RECOvsHLT_;        }
-      MonitorElement * getMEhisto_CSVbeforefilter_RECO()       { return CSVbeforefilter_RECO_; }
-      MonitorElement * getMEhisto_CSVafterfilter_RECO()        { return CSVafterfilter_RECO_;  }
-      MonitorElement * getMEhisto_CSV_turnon()                 { return CSV_turnon_;           }
-      MonitorElement * getMEhisto_CSVratio_calofilter()        { return CSVratio_calofilter_;  }
-      MonitorElement * getMEhisto_CSVratio_PFfilter()          { return CSVratio_PFfilter_;    }
-      MonitorElement * getMEhisto_PVz()                        { return PVz_;                  }
-      MonitorElement * getMEhisto_fastPVz()                    { return fastPVz_;              }
-      MonitorElement * getMEhisto_PVz_HLTMinusRECO()           { return PVz_HLTMinusRECO_;     }
-      MonitorElement * getMEhisto_fastPVz_HLTMinusRECO()       { return fastPVz_HLTMinusRECO_; }
+      MonitorElement * getMEhisto_CSV()               { return CSV_;}
+      MonitorElement * getMEhisto_Pt()                { return Pt_; }
+      MonitorElement * getMEhisto_Eta()               { return Eta_;}
+      MonitorElement * getMEhisto_CSV_RECOvsHLT()     { return CSV_RECOvsHLT_;}
+      MonitorElement * getMEhisto_PVz()               { return PVz_;}
+      MonitorElement * getMEhisto_fastPVz()           { return fastPVz_;}
+      MonitorElement * getMEhisto_PVz_HLTMinusRECO()      { return PVz_HLTMinusRECO_;}
+      MonitorElement * getMEhisto_fastPVz_HLTMinusRECO()  { return fastPVz_HLTMinusRECO_;}
      
       const std::string getLabel(void ) const {
 	return filterName_;
@@ -192,14 +175,7 @@ class BTVHLTOfflineSource : public DQMEDAnalyzer {
       MonitorElement*  CSV_;
       MonitorElement*  Pt_;
       MonitorElement*  Eta_;
-      MonitorElement*  CSV_RECO_;
-      MonitorElement*  CSV_HLTMinusRECO_;
-      MonitorElement*  CSV_RECOvsHLT_;
-      MonitorElement*  CSVbeforefilter_RECO_;
-      MonitorElement*  CSVafterfilter_RECO_;
-      MonitorElement*  CSV_turnon_;
-      MonitorElement*  CSVratio_calofilter_;
-      MonitorElement*  CSVratio_PFfilter_;
+      MonitorElement*  CSV_RECOvsHLT_;   
       MonitorElement*  PVz_;
       MonitorElement*  fastPVz_;
       MonitorElement*  PVz_HLTMinusRECO_;
