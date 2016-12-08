@@ -39,8 +39,9 @@ float SimpleJetCorrector::correction(const std::vector<float>& fX,const std::vec
   float tmp    = 0.0;
   float cor    = 0.0;
   int bin = -1;
-  bin = (fX.size()==3) ? mParameters.binIndex3(fX) : (fX.size()==2) ? mParameters.binIndex2(fX) :
-        (fX.size()==1) ? mParameters.binIndex1(fX) : mParameters.binIndex(fX);
+  bin = (fX.size()<=3) ? mParameters.binIndexN(fX) : mParameters.binIndex(fX);
+  //bin = (fX.size()==3) ? mParameters.binIndex3(fX) : (fX.size()==2) ? mParameters.binIndex2(fX) :
+  //      (fX.size()==1) ? mParameters.binIndex1(fX) : mParameters.binIndex(fX);
   //bin = mParameters.binIndex(fX);
   if (bin<0)
     return result;

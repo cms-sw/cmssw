@@ -5,6 +5,9 @@
 JetCorrectorParameters corr;
 JetCorrectorParameters::Definitions def;
 JetCorrectorParameters::Record record;
+JetCorrectorParameters::JetCorrectorParametersHelper<float,1> helper1;
+JetCorrectorParameters::JetCorrectorParametersHelper<float,2> helper2;
+JetCorrectorParameters::JetCorrectorParametersHelper<float,3> helper3;
 std::vector<JetCorrectorParameters> corrv;
 std::vector<JetCorrectorParameters::Record> recordv;
 JetCorrectorParametersCollection coll;
