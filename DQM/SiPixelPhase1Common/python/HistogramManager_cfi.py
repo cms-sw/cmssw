@@ -123,8 +123,18 @@ StandardSpecifications1D = [
                             .saveAll(),
     Specification(PerLayer1D).groupBy("PXBarrel/Shell/PXLayer").save(),
     Specification(PerLayer1D).groupBy("PXForward/HalfCylinder/PXDisk/PXRing").save(),
+
     Specification(PerModule).groupBy("PXBarrel/Shell/PXLayer/PXLadder/PXModuleName").save(),
     Specification(PerModule).groupBy("PXForward/HalfCylinder/PXDisk/PXRing/PXBlade/PXModuleName").save(),
+
+    Specification(PerLadder).groupBy("PXForward/HalfCylinder/PXDisk/PXRing/PXBlade/PXPanel")
+                            .reduce("MEAN")
+                            .groupBy("PXForward/HalfCylinder/PXDisk/PXRing/PXBlade","EXTEND_X")
+                            .save(),
+    Specification(PerLadder).groupBy("PXBarrel/Shell/PXLayer/PXLadder/PXBModule")
+                            .reduce("MEAN")
+                            .groupBy("PXBarrel/Shell/PXLayer/PXLadder", "EXTEND_X")
+                            .save(),
 ]
 
 StandardSpecificationTrend = [
