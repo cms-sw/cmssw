@@ -38,7 +38,9 @@ negativeDeepFlavourCMVAJetTags = deepFlavourCMVAJetTags.clone(
 	src=cms.InputTag('deepCMVANegativeTagInfos')
 	)
 
-deepCMVAPositiveTagInfos = deepCMVATagInfos.clone()
+deepCMVAPositiveTagInfos = deepCMVATagInfos.clone(
+	deepNNTagInfos = cms.InputTag('deepNNPositiveTagInfos')
+	)
 positiveDeepFlavourCMVAJetTags = deepFlavourCMVAJetTags.clone(
 	src=cms.InputTag('deepCMVAPositiveTagInfos')
 	)
