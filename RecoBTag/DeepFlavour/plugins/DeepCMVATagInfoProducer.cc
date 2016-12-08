@@ -78,6 +78,7 @@ private:
 	const edm::EDGetTokenT< std::vector<reco::CandSoftLeptonTagInfo> > muInfoSrc_;
 	const edm::EDGetTokenT< std::vector<reco::CandSoftLeptonTagInfo> > elInfoSrc_;*/
 	std::string jpComputer_, jpbComputer_, softmuComputer_, softelComputer_;
+	double cMVAPtThreshold_;
 };
 
 //
@@ -97,14 +98,11 @@ DeepCMVATagInfoProducer::DeepCMVATagInfoProducer(const edm::ParameterSet& iConfi
 	ipInfoSrc_(consumes< edm::View<reco::BaseTagInfo> >(iConfig.getParameter<edm::InputTag>("ipInfoSrc"))),
 	muInfoSrc_(consumes< edm::View<reco::BaseTagInfo> >(iConfig.getParameter<edm::InputTag>("muInfoSrc"))),
 	elInfoSrc_(consumes< edm::View<reco::BaseTagInfo> >(iConfig.getParameter<edm::InputTag>("elInfoSrc"))),
-	/*ipInfoSrc_(consumes< std::vector<reco::CandIPTagInfo>  >(iConfig.getParameter<edm::InputTag>("ipInfoSrc"))),
-	elInfoSrc_(consumes< std::vector<reco::CandSoftLeptonTagInfo> >(iConfig.getParameter<edm::InputTag>("elInfoSrc"))),
-	elInfoSrc_(consumes< std::vector<reco::CandSoftLeptonTagInfo> >(iConfig.getParameter<edm::InputTag>("elInfoSrc"))),*/
-	
 	jpComputer_(iConfig.getParameter<std::string>("jpComputerSrc")), 
 	jpbComputer_(iConfig.getParameter<std::string>("jpbComputerSrc")), 
 	softmuComputer_(iConfig.getParameter<std::string>("softmuComputerSrc")), 
-	softelComputer_(iConfig.getParameter<std::string>("softelComputerSrc"))
+	softelComputer_(iConfig.getParameter<std::string>("softelComputerSrc")),
+	cMVAPtThreshold_(iConfig.getParameter<double>("cMVAPtThreshold"))
 {
 
 	produces<std::vector<reco::ShallowTagInfo> >();
@@ -195,18 +193,14 @@ DeepCMVATagInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
 		float softel_discr = (*compsoftel)( JetTagComputer::TagInfoHelper(elBaseInfo) );
 		float jp_discr = (*compjp)( JetTagComputer::TagInfoHelper(ipBaseInfo) );
 		float jpb_discr = (*compjpb)( JetTagComputer::TagInfoHelper(ipBaseInfo) );
-		//if jetPt larger than 200 GeV --> default these taggers for easier SF measurements
-		if ((nnInfo.jet().get())->pt() > 200){
-			softmu_discr = -99;
-			softel_discr = -99;
-			jp_discr = -99;
-			jpb_discr = -99;
+		
+		//if jetPt larger than cMVAPtThreshold_ --> default these taggers for easier SF measurements
+		if ((nnInfo.jet().get())->pt() < cMVAPtThreshold_){
+			vars.insert(reco::btau::Jet_SoftMu, !(isinf(softmu_discr)) ? softmu_discr : -0.2  , true);
+			vars.insert(reco::btau::Jet_SoftEl, !(isinf(softel_discr)) ? softel_discr : -0.2  , true);
+			vars.insert(reco::btau::Jet_JBP, !(isinf(jpb_discr)) ? jpb_discr : -0.2 , true);
+			vars.insert(reco::btau::Jet_JP, !(isinf(jp_discr)) ? jp_discr : -0.2  , true);
 		}	
-		// default of -0.2 if no value present
-		vars.insert(reco::btau::Jet_SoftMu, !(isinf(softmu_discr)) ? softmu_discr : -0.2  , true);
-		vars.insert(reco::btau::Jet_SoftEl, !(isinf(softel_discr)) ? softel_discr : -0.2  , true);
-		vars.insert(reco::btau::Jet_JBP, !(isinf(jpb_discr)) ? jpb_discr : -0.2 , true);
-		vars.insert(reco::btau::Jet_JP, !(isinf(jp_discr)) ? jp_discr : -0.2  , true);
 
 		vars.finalize();
 		tagInfos->emplace_back(vars, nnInfo.jet());
