@@ -3,7 +3,7 @@
 #include "DataFormats/GEMRecHit/interface/ME0RecHit.h"
 #include "Geometry/GEMGeometry/interface/ME0Geometry.h"
 #include "Geometry/GEMGeometry/interface/ME0EtaPartition.h"
-#include "Geometry/GEMGeometry/interface/ME0Chamber.h"
+//#include "Geometry/GEMGeometry/interface/ME0Chamber.h"
 #include "RecoLocalMuon/GEMSegment/plugins/ME0SegmentAlgorithmBase.h"
 #include "RecoLocalMuon/GEMSegment/plugins/ME0SegmentBuilderPluginFactory.h"
 	 
@@ -12,17 +12,18 @@
 
 ME0SegmentBuilder::ME0SegmentBuilder(const edm::ParameterSet& ps) : geom_(0) {
   
-  // Algo name
-  std::string algoName = ps.getParameter<std::string>("algo_name");
-  
+  // Algo type (indexed)
+  int chosenAlgo = ps.getParameter<int>("algo_type") - 1;
+  // Find appropriate ParameterSets for each algo type
+
+  std::vector<edm::ParameterSet> algoPSets = ps.getParameter<std::vector<edm::ParameterSet> >("algo_psets");  
+
+  edm::ParameterSet segAlgoPSet = algoPSets[chosenAlgo].getParameter<edm::ParameterSet>("algo_pset");
+  std::string algoName = algoPSets[chosenAlgo].getParameter<std::string>("algo_name");
   LogDebug("ME0SegmentBuilder")<< "ME0SegmentBuilder algorithm name: " << algoName;
-  
-  // SegAlgo parameter set
-  edm::ParameterSet segAlgoPSet = ps.getParameter<edm::ParameterSet>("algo_pset");
-  
-  // Ask factory to build this algorithm, giving it appropriate ParameterSet  
+
+  // Ask factory to build this algorithm, giving it appropriate ParameterSet
   algo = std::unique_ptr<ME0SegmentAlgorithmBase>(ME0SegmentBuilderPluginFactory::get()->create(algoName, segAlgoPSet));
-  
 }
 
 ME0SegmentBuilder::~ME0SegmentBuilder() {}
@@ -46,23 +47,31 @@ void ME0SegmentBuilder::build(const ME0RecHitCollection* recHits, ME0SegmentColl
     // if one wants to recover segments that are at the border of a roll]
     ME0DetId id(it2->me0Id().region(),1,it2->me0Id().chamber(),it2->me0Id().roll());
     // save current ME0RecHit in vector associated to the reference id
-    ensembleRH[id.rawId()].push_back(it2->clone());    
+    ensembleRH[id.rawId()].push_back(it2->clone());
+    // cover the case in which a muon passes through etapartition N for layers 1 .. X
+    // and through eta partition N-1 for layers X+1 .. NLAYERS
+    // therefore check whether Layer > 1 and EtaPart < MAX
+    // and put the rechit also in the ensembleRH for the EtaPart+1
+    if(it2->me0Id().layer()>1 && it2->me0Id().roll()<ME0DetId::maxRollId) {
+      ME0DetId id2(it2->me0Id().region(),1,it2->me0Id().chamber(),it2->me0Id().roll()+1);
+      ensembleRH[id2.rawId()].push_back(it2->clone());
+    }
   }
 
-  std::map<uint32_t, std::vector<ME0Segment> > ensembleSeg;  // collect here all segments from the same chamber
+  std::map<uint32_t, std::vector<ME0Segment> > ensembleSeg;  // collect here all segments from each reference first layer roll
 
   for(auto enIt=ensembleRH.begin(); enIt != ensembleRH.end(); ++enIt) {
     
     std::vector<const ME0RecHit*> me0RecHits;
     std::map<uint32_t,const ME0EtaPartition* > ens;
     
-    // all detIds have been assigned to the to chamber
-    const ME0Chamber* chamber = geom_->chamber(enIt->first);    
+    // all detIds have been assigned to the reference detId of layer 1
+    const ME0EtaPartition* firstlayer  = geom_->etaPartition(enIt->first);
     for(auto rechit = enIt->second.begin(); rechit != enIt->second.end(); ++rechit) {
       me0RecHits.push_back(*rechit);
       ens[(*rechit)->me0Id()]=geom_->etaPartition((*rechit)->me0Id());
     }    
-    ME0SegmentAlgorithmBase::ME0Ensemble ensemble(std::pair<const ME0Chamber*, std::map<uint32_t,const ME0EtaPartition*> >(chamber,ens));
+    ME0SegmentAlgorithmBase::ME0Ensemble ensemble(std::pair<const ME0EtaPartition*, std::map<uint32_t,const ME0EtaPartition*> >(firstlayer,ens));
     
     ME0DetId mid(enIt->first);
     #ifdef EDM_ML_DEBUG
@@ -81,13 +90,15 @@ void ME0SegmentBuilder::build(const ME0RecHitCollection* recHits, ME0SegmentColl
 
     // Add the segments to the chamber segment collection
     // segment is defined from first partition of first layer    
-    ME0DetId midch = mid.chamberId();
-    ensembleSeg[midch.rawId()].insert(ensembleSeg[midch.rawId()].end(), segv.begin(), segv.end());
+    //    ME0DetId midch = mid.chamberId();
+    std::cout <<" Inserting Segment in "<<mid<<std::endl;
+    ensembleSeg[mid.rawId()].insert(ensembleSeg[mid.rawId()].end(), segv.begin(), segv.end());
   }
 
   for(auto segIt=ensembleSeg.begin(); segIt != ensembleSeg.end(); ++segIt) {
     // Add the segments to master collection
     ME0DetId midch(segIt->first);
+    std::cout <<" Writing Segment in "<<midch<<std::endl;
     oc.put(midch, segIt->second.begin(), segIt->second.end());
   }
 }
