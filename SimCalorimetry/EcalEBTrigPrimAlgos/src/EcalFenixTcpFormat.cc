@@ -24,21 +24,21 @@ void EcalFenixTcpFormat::process(std::vector<int> &Etin, std::vector<int> &Etout
   // put TP-s in the output
   // on request also in TcpFormat    
   // for famos version we have to write dummies except for the middle
-  std::cout << "   EcalFenixTcpFormat::process(... Etout size " << Etout.size() << "  Et size " << Etin.size() << std::endl;
+  // std::cout << "   EcalFenixTcpFormat::process(... Etout size " << Etout.size() << "  Et size " << Etin.size() << std::endl;
 
   int myEt;
   int eTTotShift=2;
 
-  std::cout << " FenixTcpFormatter Etin size() " << Etin.size() << std::endl;
+  //std::cout << " FenixTcpFormatter Etin size() " << Etin.size() << std::endl;
   for (unsigned int i=0; i<Etin.size();++i) {
     // bug fix 091009:
     myEt=Etin[i]; 
-    std::cout << " Et " << myEt << std::endl;
+    //std::cout << " Et " << myEt << std::endl;
     if (myEt>0xfff) 
       myEt=0xfff ;
 
     myEt >>= eTTotShift ;
-    std::cout << " after myEt>>= eTTotShift " << myEt << std::endl;      
+    //std::cout << " after myEt>>= eTTotShift " << myEt << std::endl;      
     if (myEt>0x3ff) myEt=0x3ff ;
     
     
@@ -52,7 +52,7 @@ void EcalFenixTcpFormat::process(std::vector<int> &Etin, std::vector<int> &Etout
     //    int ttFlag = (lut_out & 0x700) >> 8 ;
     
     myEt = lut_out & 0xff ;
-    std::cout << " FenixTcpFormatter final lut_out " << lut_out << " 0xff " << 0xff << " et " << myEt << std::endl;
+    //std::cout << " FenixTcpFormatter final lut_out " << lut_out << " 0xff " << 0xff << " et " << myEt << std::endl;
     Etout[i]=myEt;
   }
   
@@ -68,7 +68,7 @@ void EcalFenixTcpFormat::process(std::vector<int> &Et, std::vector<int> &fgvb,
   // put TP-s in the output
   // on request also in TcpFormat    
   // for famos version we have to write dummies except for the middle
-  std::cout << "   EcalFenixTcpFormat::process(... out size " << out.size() << "  Et size " << Et.size() << " Et[0] " << Et[0] << std::endl; 
+  //std::cout << "   EcalFenixTcpFormat::process(... out size " << out.size() << "  Et size " << Et.size() << " Et[0] " << Et[0] << std::endl; 
 
   int myEt;
   if (famos_) {
@@ -95,7 +95,7 @@ void EcalFenixTcpFormat::process(std::vector<int> &Et, std::vector<int> &fgvb,
     }
   }
   else {
-    std::cout << " FenixTcpFormatter et.size() " << Et.size() << std::endl;
+    //std::cout << " FenixTcpFormatter et.size() " << Et.size() << std::endl;
     for (unsigned int i=0; i<Et.size();++i) {
       int myFgvb=fgvb[i];
       int mysFgvb=sfgvb[i];
@@ -105,13 +105,13 @@ void EcalFenixTcpFormat::process(std::vector<int> &Et, std::vector<int> &fgvb,
 
       // bug fix 091009:
       myEt=Et[i]; 
-      std::cout << " Et " << myEt << std::endl;
+      //std::cout << " Et " << myEt << std::endl;
       if (myEt>0xfff) 
 	myEt=0xfff ;
       if (isInInnerRings) 
 	myEt = myEt /2 ;  
       myEt >>= eTTotShift ;
-      std::cout << " after myEt>>= eTTotShift " << myEt << std::endl;      
+      //std::cout << " after myEt>>= eTTotShift " << myEt << std::endl;      
       if (myEt>0x3ff) myEt=0x3ff ;
 
       // Spike killing
@@ -130,11 +130,11 @@ void EcalFenixTcpFormat::process(std::vector<int> &Et, std::vector<int> &fgvb,
       int ttFlag = (lut_out & 0x700) >> 8 ;
       if (tcpFormat_)  {
 	out2[i]=EcalTriggerPrimitiveSample( ((ttFlag&0x7)<<11) | ((myFgvb & 0x1)<<10) |  (myEt & 0x3ff));
-	std::cout << " FenixTcpFormatter final et " << (myEt & 0x3ff) << std::endl;
+	//std::cout << " FenixTcpFormatter final et " << (myEt & 0x3ff) << std::endl;
       }
 
       myEt = lut_out & 0xff ;
-      std::cout << " FenixTcpFormatter final lut_out " << lut_out << " 0xff " << 0xff << " et " << myEt << std::endl;
+      //std::cout << " FenixTcpFormatter final lut_out " << lut_out << " 0xff " << 0xff << " et " << myEt << std::endl;
       out[i]=EcalTriggerPrimitiveSample( myEt,myFgvb,mysFgvb,ttFlag); 
     }
   }
@@ -162,7 +162,7 @@ void EcalFenixTcpFormat::setParameters(uint32_t towid,const EcalTPGLutGroup *eca
     EcalTPGLutIdMap::EcalTPGLutMapItr itl=lutmap.find(lutid);
     if (itl!=lutmap.end()) {
       lut_=(*itl).second.getLut();
-      std::cout << " FenixTcpFormatter lut_ " << std::dec<<lut_ << std::endl;
+      //std::cout << " FenixTcpFormatter lut_ " << std::dec<<lut_ << std::endl;
     }  else edm::LogWarning("EcalTPG")<<" could not find EcalTPGLutMap for "<<lutid;
 
   }

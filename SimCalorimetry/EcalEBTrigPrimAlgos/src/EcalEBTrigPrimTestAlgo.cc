@@ -98,6 +98,7 @@ EcalEBTrigPrimTestAlgo::~EcalEBTrigPrimTestAlgo()
   delete amplitude_filter_;
   delete peak_finder_;
   delete fenixFormatterEB_;
+  delete fenixTcpFormat_;
 }
 //----------------------------------------------------------------------
 void EcalEBTrigPrimTestAlgo::run(const edm::EventSetup & setup, EcalRecHitCollection const * rh,
@@ -107,8 +108,8 @@ void EcalEBTrigPrimTestAlgo::run(const edm::EventSetup & setup, EcalRecHitCollec
 
 
 
-  std::cout << "  EcalEBTrigPrimTestAlgo: Testing that the algorythm is well plugged " << std::endl;
-  std::cout << "  EcalEBTrigPrimTestAlgo: recHit size " << rh->size() << std::endl;
+  //std::cout << "  EcalEBTrigPrimTestAlgo: Testing that the algorythm is well plugged " << std::endl;
+  //std::cout << "  EcalEBTrigPrimTestAlgo: recHit size " << rh->size() << std::endl;
 
   edm::ESHandle<CaloSubdetectorGeometry> theBarrelGeometry_handle;
   setup.get<EcalBarrelGeometryRecord>().get("EcalBarrel",theBarrelGeometry_handle);
@@ -152,7 +153,7 @@ void EcalEBTrigPrimTestAlgo::run(const edm::EventSetup & setup, EcalRecHitCollec
       fEt >>=2;
       if (fEt>0x3ff) fEt=0x3ff;
       */
-      std::cout << " Et after formatting " << fEt << std::endl;
+      //std::cout << " Et after formatting " << fEt << std::endl;
       EcalTriggerPrimitiveSample mysam(fEt);
       tp.setSample(nSam, mysam );
       nSam++;
@@ -167,7 +168,7 @@ void EcalEBTrigPrimTestAlgo::run(const edm::EventSetup & setup, EcalRecHitCollec
       resultTcp.push_back(tp);
 
    
-    std::cout << " result size " << result.size() << std::endl;
+    if (debug_) std::cout << " result size " << result.size() << std::endl;
 
   }
 
@@ -192,9 +193,10 @@ void EcalEBTrigPrimTestAlgo::run(const edm::EventSetup & setup,
   int firstSample = binOfMaximum_-1 -nrSamples_/2;
   int lastSample = binOfMaximum_-1 +nrSamples_/2;
 
-  std::cout << "  binOfMaximum_ " <<  binOfMaximum_ << " nrSamples_" << nrSamples_ << std::endl;
-  std::cout << " first sample " << firstSample << " last " << lastSample <<std::endl;
-
+  if (debug_) {
+    std::cout << "  binOfMaximum_ " <<  binOfMaximum_ << " nrSamples_" << nrSamples_ << std::endl;
+    std::cout << " first sample " << firstSample << " last " << lastSample <<std::endl;
+  }
 
   clean(towerMapEB_);
   fillMap(digi,towerMapEB_);
@@ -203,18 +205,18 @@ void EcalEBTrigPrimTestAlgo::run(const edm::EventSetup & setup,
 
     int index=hitTowers_[itow].first;
     const EcalTrigTowerDetId &thisTower=hitTowers_[itow].second;
-    std::cout << " Data for TOWER num " << itow << " index " << index << " TowerId " << thisTower <<  " size " << towerMapEB_[itow].size() << std::endl;    
+    if (debug_) std::cout << " Data for TOWER num " << itow << " index " << index << " TowerId " << thisTower <<  " size " << towerMapEB_[itow].size() << std::endl;    
     // loop over all strips assigned to this trigger tower
     int nstr=0;
     int nxstals=0;
     for(unsigned int iStrip = 0; iStrip < towerMapEB_[itow].size();++iStrip)
       {
-	std::cout << " Data for STRIP num " << iStrip << std::endl;    
+	if (debug_) std::cout << " Data for STRIP num " << iStrip << std::endl;    
 	std::vector<EBDataFrame> &dataFrames = (towerMapEB_[index])[iStrip].second;//vector of dataframes for this strip, size; nr of crystals/strip
 
 	nxstals = (towerMapEB_[index])[iStrip].first;
 	if (nxstals <= 0) continue;
-	std::cout << " Number of xTals " << nxstals << std::endl;
+	if (debug_) std::cout << " Number of xTals " << nxstals << std::endl;
 	
 	const EcalTriggerElectronicsId elId = theMapping_->getTriggerElectronicsId(dataFrames[0].id());
 	uint32_t stripid=elId.rawId() & 0xfffffff8;   
@@ -299,7 +301,7 @@ void EcalEBTrigPrimTestAlgo::run(const edm::EventSetup & setup,
 	  int nSam=0;
 	  for (int iSample=firstSample;iSample<=lastSample;++iSample) {
 	    etInADC= tcpformat_out_[iSample];
-	    std::cout << " format_out " << tcpformat_out_[iSample] <<  " etInADC " << etInADC << std::endl;
+	    if (debug_) std::cout << " format_out " << tcpformat_out_[iSample] <<  " etInADC " << etInADC << std::endl;
 	    //	    EcalTriggerPrimitiveSample mysam(etInADC);
 	    //tp.setSample(nSam, mysam );
 

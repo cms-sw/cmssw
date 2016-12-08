@@ -61,9 +61,9 @@ void EcalFenixLinearizer::process(const T&df, std::vector<int> & output_percry)
 // 1  8  11 18 21
 // 0  9  10 19 20
 
-  std::cout << " EcalFenixLinearizer::process(const  .. DataFrame " << std::endl;
+  //std::cout << " EcalFenixLinearizer::process(const  .. DataFrame " << std::endl;
   for (int i=0;i<df.size();i++) {
-    std::cout <<  df[i] << " ";
+    //std::cout <<  df[i] << " ";
   }
 
   for (int i=0;i<df.size();i++) {
@@ -71,9 +71,9 @@ void EcalFenixLinearizer::process(const T&df, std::vector<int> & output_percry)
     output_percry[i]=process();
   }
 
-  std::cout << " EcalFenixLinearizer::process(const  .. Final output " << std::endl;
+  //std::cout << " EcalFenixLinearizer::process(const  .. Final output " << std::endl;
   for (int i=0;i<df.size();i++) {
-    std::cout << " output_percry " << output_percry[i]<< " ";
+    //std::cout << " output_percry " << output_percry[i]<< " ";
   }
 
   return;
