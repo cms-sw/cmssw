@@ -631,17 +631,17 @@ HLLHCVtxSmearingParameters = cms.PSet(
     MeanZIncm = cms.double(0.),
     TimeOffsetInns = cms.double(0.0),
     EprotonInGeV = cms.double(6500.0),
-    HalfCrossingAngleInurad = cms.double(295.0),
-    CrabAngleCrossingPlaneInurad = cms.double(295.0),
-    CrabFrequencyCrossingPlaneInMHz = cms.double(400.0),
-    NormalizedEmittanceCrossingPlaneInum = cms.double(2.5),
-    BetaStarCrossingPlaneInm = cms.double(0.15),
-    CrabAngleParallelPlaneInurad = cms.double(0.0),
-    CrabFrequencyParallelPlaneInMHz = cms.double(400.0),
-    NormalizedEmittanceParallelPlaneInum = cms.double(2.5),
-    BetaStarParallelPlaneInm = cms.double(0.15),
-    ZsizeInm = cms.double(0.075),
-    BeamProfile=cms.string("Gauss")
+    CrossingAngleInurad = cms.double(510.0),
+    CrabFrequencyInMHz = cms.double(400.0),
+    RF800 = cms.bool(False),
+    BetaCrossingPlaneInm = cms.double(0.20),
+    BetaSeparationPlaneInm = cms.double(0.20),
+    HorizontalEmittance = cms.double(2.54924131e-06),
+    VerticalEmittance = cms.double(2.19302467e-06),
+    BunchLengthInm = cms.double(0.081),
+    CrabCavityVoltage = cms.double(1.0),
+    CrabbingAngleCrossingInurad = cms.double(380.0),
+    CrabbingAngleSeparationInurad = cms.double(0.0)    
 )
 
 # Parameters for HL-LHC Crab-kissing operation 13 TeV
