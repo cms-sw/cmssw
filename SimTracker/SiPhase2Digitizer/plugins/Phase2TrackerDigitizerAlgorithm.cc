@@ -584,8 +584,8 @@ void Phase2TrackerDigitizerAlgorithm::induce_signal(const PSimHit& hit,
   // Fill the global map with all hit pixels from this event
   for (auto const & hit_s : hit_signal) {
     int chan =  hit_s.first;
-    theSignal[chan] += (makeDigiSimLinks_ ? DigitizerUtility::Amplitude( hit_s.second, &hit, hitIndex, tofBin, hit_s.second) 
-			                  : DigitizerUtility::Amplitude( hit_s.second, hit_s.second) ) ;
+    theSignal[chan] += (makeDigiSimLinks_ ? DigitizerUtility::Amplitude( hit_s.second, &hit, hit_s.second, hitIndex, tofBin) 
+                                          : DigitizerUtility::Amplitude( hit_s.second, nullptr, hit_s.second) ) ;
   }
 }
 // ======================================================================
@@ -625,13 +625,13 @@ void Phase2TrackerDigitizerAlgorithm::add_noise(const Phase2TrackerGeomDetUnit* 
 	std::pair<int,int> XtalkPrev = std::pair<int,int>(hitChan.first-1, hitChan.second);
 	int chanXtalkPrev = (pixelFlag) ? PixelDigi::pixelToChannel(XtalkPrev.first, XtalkPrev.second)
 	  : Phase2TrackerDigi::pixelToChannel(XtalkPrev.first, XtalkPrev.second);
-	signalNew.insert(std::pair<int,DigitizerUtility::Amplitude>(chanXtalkPrev, DigitizerUtility::Amplitude(signalInElectrons_Xtalk, -1.0)));
+	signalNew.insert(std::pair<int,DigitizerUtility::Amplitude>(chanXtalkPrev, DigitizerUtility::Amplitude(signalInElectrons_Xtalk, nullptr, -1.0)));
       }
       if (hitChan.first < (numRows-1)) {
 	std::pair<int,int> XtalkNext = std::pair<int,int>(hitChan.first+1, hitChan.second);
         int chanXtalkNext = (pixelFlag) ? PixelDigi::pixelToChannel(XtalkNext.first, XtalkNext.second)
 	  : Phase2TrackerDigi::pixelToChannel(XtalkNext.first, XtalkNext.second);
-	signalNew.insert(std::pair<int,DigitizerUtility::Amplitude>(chanXtalkNext, DigitizerUtility::Amplitude(signalInElectrons_Xtalk, -1.0)));
+	signalNew.insert(std::pair<int,DigitizerUtility::Amplitude>(chanXtalkNext, DigitizerUtility::Amplitude(signalInElectrons_Xtalk, nullptr, -1.0)));
       }
     }
     for (auto const & l : signalNew) {
@@ -640,7 +640,7 @@ void Phase2TrackerDigitizerAlgorithm::add_noise(const Phase2TrackerGeomDetUnit* 
       if (iter != theSignal.end()) {
 	theSignal[chan] += l.second.ampl();
       }  else {
-        theSignal.insert(std::pair<int,DigitizerUtility::Amplitude>(chan, DigitizerUtility::Amplitude(l.second.ampl(), -1.0)));
+        theSignal.insert(std::pair<int,DigitizerUtility::Amplitude>(chan, DigitizerUtility::Amplitude(l.second.ampl(), nullptr, -1.0)));
       }
     } 
   } 
@@ -684,7 +684,7 @@ void Phase2TrackerDigitizerAlgorithm::add_noise(const Phase2TrackerGeomDetUnit* 
 
     if (theSignal[chan] == 0) {
       int noise = int((*mapI).second);
-      theSignal[chan] = DigitizerUtility::Amplitude (noise, -1.);
+      theSignal[chan] = DigitizerUtility::Amplitude (noise, nullptr, -1.);
     }
   }
 }

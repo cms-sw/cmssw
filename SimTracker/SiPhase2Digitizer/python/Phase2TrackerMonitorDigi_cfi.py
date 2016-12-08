@@ -56,29 +56,29 @@ digiMon = cms.EDAnalyzer("Phase2TrackerMonitorDigi",
            xmax   = cms.double(15.5),
     ),
     ClusterChargeH = cms.PSet(
-      Nbins = cms.int32(1024),
-      xmin   = cms.double(0.5),
-      xmax   = cms.double(1024.5)
+        Nbins = cms.int32(1024),
+        xmin   = cms.double(0.5),
+        xmax   = cms.double(1024.5)
     ),  
     ClusterPositionH = cms.PSet(
-      Nbins = cms.int32(1016),
-      xmin   = cms.double(0.5),
-      xmax   = cms.double(1016.5)
+        Nbins = cms.int32(1016),
+        xmin   = cms.double(0.5),
+        xmax   = cms.double(1016.5)
     ),  
     XYPositionMapH = cms.PSet(
-           Nxbins = cms.int32(1200),
-           xmin   = cms.double(-120.),
-           xmax   = cms.double(120.),
-           Nybins = cms.int32(1200),
-           ymin   = cms.double(-120.),
-           ymax   = cms.double(120.)
-   ),
+        Nxbins = cms.int32(1250),
+        xmin   = cms.double(-1250.),
+        xmax   = cms.double(1250.),
+        Nybins = cms.int32(1250),
+        ymin   = cms.double(-1250.),
+        ymax   = cms.double(1250.)
+    ),
     RZPositionMapH = cms.PSet(
-           Nxbins = cms.int32(3000),
-           xmin   = cms.double(-300.),
-           xmax   = cms.double(300.),
-           Nybins = cms.int32(3000),
-           ymin   = cms.double(0.),
-           ymax   = cms.double(120.)
+        Nxbins = cms.int32(3000),
+        xmin   = cms.double(-3000.),
+        xmax   = cms.double(3000.),
+        Nybins = cms.int32(1250),
+        ymin   = cms.double(0.),
+        ymax   = cms.double(1250.)
     )
 )

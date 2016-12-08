@@ -15,15 +15,12 @@ namespace DigitizerUtility {
   class Amplitude {
   public:
     Amplitude() : _amp(0.0) {}
-    Amplitude(float amp) : _amp(amp) {}
-    Amplitude( float amp, const PSimHit* hitp, size_t hitIndex, unsigned int tofBin, float frac) :
+    Amplitude( float amp, const PSimHit* hitp, float frac=0, size_t hitIndex=0, unsigned int tofBin=0) :
       _amp(amp) {
-      if (frac > -0.5) _simInfoList.push_back({frac,new SimHitInfoForLinks(hitp,hitIndex,tofBin)});
-    }
-
-    Amplitude( float amp, float frac) :
-      _amp(amp) {
-      if (frac > -0.5) _simInfoList.push_back({frac,0});
+      if (frac > 0) {
+	if (hitp != nullptr) _simInfoList.push_back({frac,new SimHitInfoForLinks(hitp,hitIndex,tofBin)});
+        else _simInfoList.push_back({frac,0});
+      }
     }
 
     // can be used as a float by convers.
