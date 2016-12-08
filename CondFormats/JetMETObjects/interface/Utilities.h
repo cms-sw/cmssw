@@ -95,7 +95,7 @@ namespace std
       return b^more;
     }
   };
-  // Base case
+  // Base cases
   template<> struct hash_specialization<float>
   {
     typedef std::tuple<float> argument_type;
@@ -116,6 +116,15 @@ namespace std
     {
       return hash_specialization<Head,ndims...>()(t);
     }
+  };
+  template<> struct hash<std::tuple<> >
+  {
+    typedef std::tuple<> argument_type;
+    typedef std::size_t result_type;
+    result_type operator()(const argument_type& t) const
+    {
+      return -1;
+    }  
   };
 }
 
@@ -234,6 +243,70 @@ namespace
       }
     float r = a[0]+fZ*(a[1]+fZ*a[2]);
     return r;
+  }
+  //------------------------------------------------------------------------
+  template<typename /*LEFT_TUPLE*/, typename /*RIGHT_TUPLE*/>
+  struct join_tuples
+  {
+  };
+  template<typename... LEFT, typename... RIGHT>
+  struct join_tuples<std::tuple<LEFT...>, std::tuple<RIGHT...>>
+  {
+    typedef std::tuple<LEFT..., RIGHT...> type;
+  };
+  template<typename T, unsigned N>
+  struct generate_tuple_type
+  {
+    typedef typename generate_tuple_type<T, N/2>::type left;
+    typedef typename generate_tuple_type<T, N/2 + N%2>::type right;
+    typedef typename join_tuples<left, right>::type type;
+  };
+  template<typename T>
+  struct generate_tuple_type<T, 1>
+  {
+    typedef std::tuple<T> type;
+  };
+  template<typename T>
+  struct generate_tuple_type<T, 0>
+  {
+    typedef std::tuple<> type;
+  };
+  //------------------------------------------------------------------------
+  //C++11 implementation of make_index_sequence, which is a C++14 function
+  // using aliases for cleaner syntax
+  template<class T> using Invoke = typename T::type;
+
+  template<unsigned...> struct seq{ using type = seq; };
+
+  template<class S1, class S2> struct concat;
+
+  template<unsigned... I1, unsigned... I2>
+  struct concat<seq<I1...>, seq<I2...>>
+    : seq<I1..., (sizeof...(I1)+I2)...>{};
+
+  template<class S1, class S2>
+  using Concat = Invoke<concat<S1, S2>>;
+
+  template<unsigned N> struct gen_seq;
+  template<unsigned N> using GenSeq = Invoke<gen_seq<N>>;
+
+  template<unsigned N>
+  struct gen_seq : Concat<GenSeq<N/2>, GenSeq<N - N/2>>{};
+
+  template<> struct gen_seq<0> : seq<>{};
+  template<> struct gen_seq<1> : seq<0>{};
+  //------------------------------------------------------------------------
+  template <typename F, unsigned... Is>
+  auto gen_tuple_impl(F func, seq<Is...> )
+    -> decltype(std::make_tuple(func(Is)...))
+  {
+      return std::make_tuple(func(Is)...);
+  }
+  template <unsigned N, typename F>
+  auto gen_tuple(F func) 
+    -> decltype(gen_tuple_impl(func, GenSeq<N>() ))
+  {
+      return gen_tuple_impl(func, GenSeq<N>() );
   }
 }
 #endif

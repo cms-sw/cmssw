@@ -3,23 +3,34 @@
   <class name="FactorizedJetCorrector"/>
   <class name="JetCorrectionUncertainty"/>
   <class name="JetCorrectorParameters">
-     <field name="mBinBoundaries" transient="true"/>
-	 <field name="mThreeIndexMap" transient="true"/>
-	 <field name="mTwoIndexMap"   transient="true"/>
-	 <field name="mOneIndexMap"   transient="true"/>
-	 <field name="mTwoMap"        transient="true"/>
-	 <field name="mOneMap"        transient="true"/>
+    <field name="helperTuple"             transient="true"/>
+    <field name="MAX_SIZE_DIMENSIONALITY" transient="true"/>
   </class>
   <ioread sourceClass="JetCorrectorParameters" targetClass="JetCorrectorParameters" version="[0-]" source="std::vector<JetCorrectorParameters::Record> mRecords" target="">
-  <![CDATA[
-         newObj->init(onfile.mRecords); 
-  ]]>
+    <![CDATA[
+         newObj->init(); 
+    ]]>
   </ioread>
   <class name="JetCorrectorParametersCollection"/>
   <class name="JetCorrectorParametersCollection::collection_type"/>
   <class name="JetCorrectorParametersCollection::pair_type"/>
   <class name="JetCorrectorParameters::Definitions"/>
   <class name="JetCorrectorParameters::Record"/>
+  <class name="JetCorrectorParameters::JetCorrectorParametersHelper<float,1>">
+    <field name="mBinBoundaries" transient="true"/>
+    <field name="mIndexMap"      transient="true"/>
+    <field name="mMap"           transient="true"/>
+  </class>
+  <class name="JetCorrectorParameters::JetCorrectorParametersHelper<float,2>">
+    <field name="mBinBoundaries" transient="true"/>
+    <field name="mIndexMap"      transient="true"/>
+    <field name="mMap"           transient="true"/>
+  </class>
+  <class name="JetCorrectorParameters::JetCorrectorParametersHelper<float,3>">
+    <field name="mBinBoundaries" transient="true"/>
+    <field name="mIndexMap"      transient="true"/>
+    <field name="mMap"           transient="true"/>
+  </class>
   <class name="std::vector<JetCorrectorParameters>"/>
   <class name="std::vector<JetCorrectorParameters::Record>"/>
   <class name="std::vector<JetCorrectorParametersCollection>"/>
