@@ -179,8 +179,6 @@ trackerDict = {
         1 : [
             'Geometry/TrackerCommonData/data/PhaseII/trackerParameters.xml',
             'Geometry/TrackerCommonData/data/pixfwdCommon.xml',
-            'Geometry/TrackerCommonData/data/PhaseII/TiltedTracker4026/pixfwdMaterials.xml',
-            'Geometry/TrackerCommonData/data/PhaseII/TiltedTracker4026/pixfwdCylinder.xml', 
             'Geometry/TrackerCommonData/data/PhaseII/TiltedTracker4026/pixfwd.xml', 
             'Geometry/TrackerCommonData/data/PhaseII/TiltedTracker4026/pixbar.xml', 
             'Geometry/TrackerCommonData/data/trackermaterial.xml',
