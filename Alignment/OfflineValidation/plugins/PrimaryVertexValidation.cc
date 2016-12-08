@@ -59,9 +59,6 @@
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateClosestToPoint.h"
 
-const int kBPIX = PixelSubdetector::PixelBarrel;
-const int kFPIX = PixelSubdetector::PixelEndcap;
-
 const int PrimaryVertexValidation::nMaxtracks_;
 
 // Constructor
@@ -484,32 +481,25 @@ PrimaryVertexValidation::analyze(const edm::Event& iEvent, const edm::EventSetup
 	// Retrieve rechit information
 	//=======================================================  
 	
+	const reco::HitPattern& hits = theTrack.hitPattern();
+	
 	int nRecHit1D=0;
 	int nRecHit2D=0;
-	int nhitinTIB=0; 
-	int nhitinTOB=0; 
-	int nhitinTID=0; 
-	int nhitinTEC=0;
-	int nhitinBPIX=0;
-	int nhitinFPIX=0;
+	int nhitinTIB  = hits.numberOfValidStripTIBHits(); 
+	int nhitinTOB  = hits.numberOfValidStripTOBHits(); 
+	int nhitinTID  = hits.numberOfValidStripTIDHits(); 
+	int nhitinTEC  = hits.numberOfValidStripTECHits();
+	int nhitinBPIX = hits.numberOfValidPixelBarrelHits();
+	int nhitinFPIX = hits.numberOfValidPixelEndcapHits();
 	
 	for (trackingRecHit_iterator iHit = theTTrack->recHitsBegin(); iHit != theTTrack->recHitsEnd(); ++iHit) {
 	  if((*iHit)->isValid()) {	
 	    
 	    if (this->isHit2D(**iHit)) {++nRecHit2D;}
 	    else {++nRecHit1D; }
-	    
-	    int type =(*iHit)->geographicalId().subdetId();
-	    
-	    if(type==int(StripSubdetector::TIB)){++nhitinTIB;}
-	    if(type==int(StripSubdetector::TOB)){++nhitinTOB;}
-	    if(type==int(StripSubdetector::TID)){++nhitinTID;}
-	    if(type==int(StripSubdetector::TEC)){++nhitinTEC;}
-	    if(type==int(                kBPIX)){++nhitinBPIX;}
-	    if(type==int(                kFPIX)){++nhitinFPIX;}
 	  }
-	}      
-
+	} 
+	
 	nhits1D_[nTracks_]     = nRecHit1D;
 	nhits2D_[nTracks_]     = nRecHit2D;
 	nhitsBPIX_[nTracks_]   = nhitinBPIX;
@@ -886,18 +876,6 @@ std::pair<bool,bool> PrimaryVertexValidation::pixelHitsCheck(const reco::Transie
     hasBPixHits = true;
   }
   
-  // for (int i=0; i<p.numberOfHits(reco::HitPattern::TRACK_HITS); i++) {
-  //   uint32_t pattern = p.getHitPattern(reco::HitPattern::TRACK_HITS, i);  
-  //   if(  p.validHitFilter(pattern) ) {
-  //     if (p.pixelBarrelHitFilter(pattern) ) {
-  // 	hasBPixHits = true;
-  //     }
-  //     if (p.pixelEndcapHitFilter(pattern) ) {
-  // 	hasFPixHits = true;
-  //     }
-  //   }
-  // }
-
   return std::make_pair(hasBPixHits,hasFPixHits);
 }
 
