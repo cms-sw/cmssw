@@ -57,7 +57,7 @@ HLLHCEvtVtxGenerator::HLLHCEvtVtxGenerator(const edm::ParameterSet & p )
     fTimeOffset(p.getParameter<double>("TimeOffsetInns")*ns*c_light),
     momeV(p.getParameter<double>("EprotonInGeV")*1e9),
     gamma(momeV/pmass + 1.0),
-    beta(std::sqrt((1.0 - 1.0/(gamma*gamma))*((1.0 + 1.0/(gamma*gamma))))),
+    beta(std::sqrt((1.0 - 1.0/gamma)*((1.0 + 1.0/gamma)))),
     betagamma(beta*gamma),
     phi(p.getParameter<double>("CrossingAngleInurad")*1e-6),    
     wcc(p.getParameter<double>("CrabFrequencyInMHz")*1e6),
@@ -154,8 +154,8 @@ double HLLHCEvtVtxGenerator::intensity(double x,
   const double sigmax=sigma(z,epsxn,betx,betagamma);
   const double sigmay=sigma(z,epssn,bets,betagamma);
     
-  const double alphax_mod=alphax*std::cos(wcc*(z-t)/c);
-  const double alphay_mod=alphay*std::cos(wcc*(z-t)/c);
+  const double alphax_mod=alphax;//*std::cos(wcc*(z-t)/c);
+  const double alphay_mod=alphay;//*std::cos(wcc*(z-t)/c);
   
   const double cax       = std::cos(alphax_mod);
   const double sax_minus = std::sin(-alphax_mod);
@@ -171,7 +171,7 @@ double HLLHCEvtVtxGenerator::intensity(double x,
   const double dx_plus  = (z-t*ct)*(cax*st_plus-sax_plus*ct)   - (x-t*st_plus)*(sax_plus*st_plus+cax*ct);
   const double dx_minus = (z+t*ct)*(cax*st_minus-sax_minus*ct) - (x+t*st_minus)*(sax_minus*st_minus+cax*ct);
 
-  //const double dx=-(z-t)*sax_plus -x*cax; 
+  const double dx=-(z-t)*sax_plus -x*cax; 
 
   const double dy=-(z-t)*say-y*cay;
 
@@ -179,8 +179,8 @@ double HLLHCEvtVtxGenerator::intensity(double x,
 
   const double norm = (two_pi*sigmax*sigmay);
   
-  return ( std::exp(-0.5*dx_plus*dx_plus/(sigmax*sigmax))*
-           std::exp(-0.5*dx_minus*dx_minus/(sigmax*sigmax))*
+  return ( std::exp(-0.5*dx*dx/(sigmax*sigmax))*
+           std::exp(-0.5*dx*dx/(sigmax*sigmax))*
            std::exp(-dy*dy/(sigmay*sigmay))*
            zrho/(norm*norm) );
 }
@@ -191,8 +191,8 @@ double HLLHCEvtVtxGenerator::integrandCC(double z,
 
   const double k = wcc/local_c_light*two_pi;
   const double k2 = k*k;
-  const double cos = std::cos(phi/2);
-  const double sin = std::sin(phi/2);
+  const double cos = std::cos(phi/2.0);
+  const double sin = std::sin(phi/2.0);
   const double cos2 = cos*cos;
   const double sin2 = sin*sin;
     
@@ -204,7 +204,7 @@ double HLLHCEvtVtxGenerator::integrandCC(double z,
   constexpr double factorRMSgauss4  = 1./std::sqrt(2.)/gamma34 * gamma14; // # Factor to take rms sigma as input of the supergaussian
   constexpr double NormFactorGauss4 = std::pow(2.0,(5./2.)) * gamma54 * gamma54;
   
-  const double sinCR  = std::sin(phiCR/2);
+  const double sinCR  = std::sin(phiCR/2.0);
   const double sinCR2 = sinCR*sinCR;
       
   double result = -1.0;
@@ -239,7 +239,7 @@ double HLLHCEvtVtxGenerator::integrandCC(double z,
                            -6*ct*ct*z*z*cos2/sigs4
                            -sin2/(4*k2*sigmax2)*(
                                                  2
-                                                 +4*k2*s*s
+                                                 +4*k2*z*z
                                                  -std::cos(2*k*(z-ct))
                                                  -std::cos(2*k*(z+ct))
                                                  -8*k*s*std::cos(k*ct)*std::sin(k*z) 
