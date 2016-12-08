@@ -5,9 +5,10 @@ from RecoTracker.TrackProducer.TrackRefitter_cfi import *
 RefitterForDeDx = TrackRefitter.clone()
 RefitterForDeDx.TrajectoryInEvent = True
 
-
-
 from RecoTracker.DeDx.dedxEstimators_cff import *
+
+dedxHitInfo.tracks=cms.InputTag("RefitterForDeDx")
+dedxHitInfo.trajectoryTrackAssociation = cms.InputTag("RefitterForDeDx")
 
 dedxHarmonic2.tracks=cms.InputTag("RefitterForDeDx")
 dedxHarmonic2.trajectoryTrackAssociation = cms.InputTag("RefitterForDeDx")
@@ -33,4 +34,4 @@ dedxDiscrimSmi.trajectoryTrackAssociation = cms.InputTag("RefitterForDeDx")
 dedxDiscrimASmi.tracks=cms.InputTag("RefitterForDeDx")
 dedxDiscrimASmi.trajectoryTrackAssociation = cms.InputTag("RefitterForDeDx")
 
-doAlldEdXEstimators = cms.Sequence(RefitterForDeDx * (dedxTruncated40 + dedxHarmonic2 + dedxDiscrimASmi) )
+doAlldEdXEstimators = cms.Sequence(RefitterForDeDx * (dedxTruncated40 + dedxHarmonic2 + dedxHitInfo) )
