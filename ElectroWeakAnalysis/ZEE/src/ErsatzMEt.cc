@@ -321,7 +321,7 @@ void ErsatzMEt::analyze(const edm::Event& evt, const edm::EventSetup& es)
 			if(std::abs(McP->pdgId())==11 && abs(mum->pdgId()) == 23)
 			{
 				McElecs.push_back(McP->p4());
-				if(std::abs(mum->pdgId() == 23)) Zboson = mum->p4();
+				if(std::abs(mum->pdgId()) == 23) Zboson = mum->p4();
 
 				std::cout <<"Found electron, ID = "<< McP->pdgId() <<"\t status = "<< McP->status()<<std::endl;
 				if(McP->status() != 1)

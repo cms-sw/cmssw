@@ -1,0 +1,833 @@
+Reading cached build data
+>> Local Products Rules ..... started
+>> Local Products Rules ..... done
+****WARNING: Invalid tool DataFormats/MuonData. Please fix src/HLTrigger/HLTanalyzers/BuildFile.xml file.
+****WARNING: Invalid tool vdt_header. Please fix src/SimTracker/SiStripDigitizer/BuildFile.xml file.
+****WARNING: Invalid tool CondCore/DBCommon. Please fix src/CondTools/Utilities/test/BuildFile.xml file.
+****WARNING: Invalid tool DQM/HLTEvF. Please fix src/EventFilter/SiStripRawToDigi/test/BuildFile.xml file.
+>> Creating project symlinks
+>> Entering Package ElectroWeakAnalysis/ZMuMu
+  src/SLHCUpgradeSimulations/Configuration/python -> python/SLHCUpgradeSimulations/Configuration
+  src/SLHCUpgradeSimulations/Geometry/python -> python/SLHCUpgradeSimulations/Geometry
+  src/Configuration/Skimming/python -> python/Configuration/Skimming
+  src/Configuration/Generator/python -> python/Configuration/Generator
+  src/Configuration/Eras/python -> python/Configuration/Eras
+  src/Configuration/Geometry/python -> python/Configuration/Geometry
+  src/Configuration/EcalTB/python -> python/Configuration/EcalTB
+  src/Configuration/StandardSequences/python -> python/Configuration/StandardSequences
+  src/Configuration/AlCa/python -> python/Configuration/AlCa
+  src/Configuration/PyReleaseValidation/python -> python/Configuration/PyReleaseValidation
+  src/Configuration/EventContent/python -> python/Configuration/EventContent
+  src/Configuration/HLT/python -> python/Configuration/HLT
+  src/Configuration/JetMET/python -> python/Configuration/JetMET
+  src/Configuration/Applications/python -> python/Configuration/Applications
+  src/Configuration/DataProcessing/python -> python/Configuration/DataProcessing
+  src/Configuration/GlobalRuns/python -> python/Configuration/GlobalRuns
+  src/DQMOffline/EGamma/python -> python/DQMOffline/EGamma
+  src/DQMOffline/Configuration/python -> python/DQMOffline/Configuration
+  src/DQMOffline/Alignment/python -> python/DQMOffline/Alignment
+  src/DQMOffline/RecoB/python -> python/DQMOffline/RecoB
+  src/DQMOffline/Hcal/python -> python/DQMOffline/Hcal
+  src/DQMOffline/CalibMuon/python -> python/DQMOffline/CalibMuon
+  src/DQMOffline/L1Trigger/python -> python/DQMOffline/L1Trigger
+  src/DQMOffline/PFTau/python -> python/DQMOffline/PFTau
+  src/DQMOffline/Muon/python -> python/DQMOffline/Muon
+  src/DQMOffline/CalibTracker/python -> python/DQMOffline/CalibTracker
+  src/DQMOffline/Trigger/python -> python/DQMOffline/Trigger
+  src/DQMOffline/JetMET/python -> python/DQMOffline/JetMET
+  src/DQMOffline/Ecal/python -> python/DQMOffline/Ecal
+  src/DQMOffline/CalibCalo/python -> python/DQMOffline/CalibCalo
+  src/RecoEcal/Configuration/python -> python/RecoEcal/Configuration
+  src/RecoEcal/EgammaCoreTools/python -> python/RecoEcal/EgammaCoreTools
+  src/RecoEcal/EgammaClusterProducers/python -> python/RecoEcal/EgammaClusterProducers
+  src/RecoRomanPot/Configuration/python -> python/RecoRomanPot/Configuration
+  src/RecoRomanPot/RecoFP420/python -> python/RecoRomanPot/RecoFP420
+  src/Documentation/ReferenceManualScripts/python -> python/Documentation/ReferenceManualScripts
+  src/Documentation/DataFormats/python -> python/Documentation/DataFormats
+  src/SUSYBSMAnalysis/HSCP/python -> python/SUSYBSMAnalysis/HSCP
+  src/HiggsAnalysis/Configuration/python -> python/HiggsAnalysis/Configuration
+  src/HiggsAnalysis/Skimming/python -> python/HiggsAnalysis/Skimming
+  src/Utilities/RelMon/python -> python/Utilities/RelMon
+  src/Utilities/ReleaseScripts/python -> python/Utilities/ReleaseScripts
+  src/Utilities/General/python -> python/Utilities/General
+  src/CaloOnlineTools/HcalOnlineDb/python -> python/CaloOnlineTools/HcalOnlineDb
+  src/CaloOnlineTools/EcalTools/python -> python/CaloOnlineTools/EcalTools
+  src/MagneticField/Engine/python -> python/MagneticField/Engine
+  src/MagneticField/GeomBuilder/python -> python/MagneticField/GeomBuilder
+  src/MagneticField/ParametrizedEngine/python -> python/MagneticField/ParametrizedEngine
+  src/RecoLocalMuon/Configuration/python -> python/RecoLocalMuon/Configuration
+  src/RecoLocalMuon/GEMRecHit/python -> python/RecoLocalMuon/GEMRecHit
+  src/RecoLocalMuon/CSCRecHitD/python -> python/RecoLocalMuon/CSCRecHitD
+  src/RecoLocalMuon/GEMSegment/python -> python/RecoLocalMuon/GEMSegment
+  src/RecoLocalMuon/CSCSegment/python -> python/RecoLocalMuon/CSCSegment
+  src/RecoLocalMuon/GEMCSCSegment/python -> python/RecoLocalMuon/GEMCSCSegment
+  src/RecoLocalMuon/DTSegment/python -> python/RecoLocalMuon/DTSegment
+  src/RecoLocalMuon/DTRecHit/python -> python/RecoLocalMuon/DTRecHit
+  src/RecoLocalMuon/RPCRecHit/python -> python/RecoLocalMuon/RPCRecHit
+  src/RecoVertex/Configuration/python -> python/RecoVertex/Configuration
+  src/RecoVertex/AdaptiveVertexFinder/python -> python/RecoVertex/AdaptiveVertexFinder
+  src/RecoVertex/BeamSpotProducer/python -> python/RecoVertex/BeamSpotProducer
+  src/RecoVertex/V0Producer/python -> python/RecoVertex/V0Producer
+  src/RecoVertex/PrimaryVertexProducer/python -> python/RecoVertex/PrimaryVertexProducer
+  src/RecoVertex/NuclearInteractionProducer/python -> python/RecoVertex/NuclearInteractionProducer
+  src/RecoCTPPS/Configuration/python -> python/RecoCTPPS/Configuration
+  src/RecoCTPPS/TotemRPLocal/python -> python/RecoCTPPS/TotemRPLocal
+  src/Alignment/ReferenceTrajectories/python -> python/Alignment/ReferenceTrajectories
+  src/Alignment/MuonAlignment/python -> python/Alignment/MuonAlignment
+  src/Alignment/HIPAlignmentAlgorithm/python -> python/Alignment/HIPAlignmentAlgorithm
+  src/Alignment/MillePedeAlignmentAlgorithm/python -> python/Alignment/MillePedeAlignmentAlgorithm
+  src/Alignment/LaserDQM/python -> python/Alignment/LaserDQM
+  src/Alignment/TrackerAlignment/python -> python/Alignment/TrackerAlignment
+  src/Alignment/CommonAlignment/python -> python/Alignment/CommonAlignment
+  src/Alignment/LaserAlignment/python -> python/Alignment/LaserAlignment
+  src/Alignment/CommonAlignmentAlgorithm/python -> python/Alignment/CommonAlignmentAlgorithm
+  src/Alignment/APEEstimation/python -> python/Alignment/APEEstimation
+  src/Alignment/CommonAlignmentMonitor/python -> python/Alignment/CommonAlignmentMonitor
+  src/Alignment/MuonAlignmentAlgorithms/python -> python/Alignment/MuonAlignmentAlgorithms
+  src/Alignment/OfflineValidation/python -> python/Alignment/OfflineValidation
+  src/Alignment/CommonAlignmentProducer/python -> python/Alignment/CommonAlignmentProducer
+  src/Alignment/SurveyAnalysis/python -> python/Alignment/SurveyAnalysis
+  src/HeavyIonsAnalysis/Configuration/python -> python/HeavyIonsAnalysis/Configuration
+  src/RecoTBCalo/EcalTBRecProducers/python -> python/RecoTBCalo/EcalTBRecProducers
+  src/RecoTBCalo/HcalTBObjectUnpacker/python -> python/RecoTBCalo/HcalTBObjectUnpacker
+  src/RecoTBCalo/EcalTBTDCReconstructor/python -> python/RecoTBCalo/EcalTBTDCReconstructor
+  src/RecoTBCalo/EcalTBHodoscopeReconstructor/python -> python/RecoTBCalo/EcalTBHodoscopeReconstructor
+  src/RecoTBCalo/HcalTBTools/python -> python/RecoTBCalo/HcalTBTools
+  src/PhysicsTools/TagAndProbe/python -> python/PhysicsTools/TagAndProbe
+  src/PhysicsTools/JetCharge/python -> python/PhysicsTools/JetCharge
+  src/PhysicsTools/PatAlgos/python -> python/PhysicsTools/PatAlgos
+  src/PhysicsTools/PythonAnalysis/python -> python/PhysicsTools/PythonAnalysis
+  src/PhysicsTools/HeppyCore/python -> python/PhysicsTools/HeppyCore
+  src/PhysicsTools/HepMCCandAlgos/python -> python/PhysicsTools/HepMCCandAlgos
+  src/PhysicsTools/CandAlgos/python -> python/PhysicsTools/CandAlgos
+  src/PhysicsTools/SelectorUtils/python -> python/PhysicsTools/SelectorUtils
+  src/PhysicsTools/JetMCAlgos/python -> python/PhysicsTools/JetMCAlgos
+  src/PhysicsTools/IsolationAlgos/python -> python/PhysicsTools/IsolationAlgos
+  src/PhysicsTools/UtilAlgos/python -> python/PhysicsTools/UtilAlgos
+  src/PhysicsTools/Heppy/python -> python/PhysicsTools/Heppy
+  src/PhysicsTools/PatUtils/python -> python/PhysicsTools/PatUtils
+  src/PhysicsTools/PatExamples/python -> python/PhysicsTools/PatExamples
+  src/PhysicsTools/RecoAlgos/python -> python/PhysicsTools/RecoAlgos
+  src/CondFormats/Serialization/python -> python/CondFormats/Serialization
+  src/CondFormats/CTPPSReadoutObjects/python -> python/CondFormats/CTPPSReadoutObjects
+  src/SimGeneral/MixingModule/python -> python/SimGeneral/MixingModule
+  src/SimGeneral/Configuration/python -> python/SimGeneral/Configuration
+  src/SimGeneral/PileupInformation/python -> python/SimGeneral/PileupInformation
+  src/SimGeneral/TrackingAnalysis/python -> python/SimGeneral/TrackingAnalysis
+  src/SimGeneral/HepPDTESSource/python -> python/SimGeneral/HepPDTESSource
+  src/SimGeneral/DataMixingModule/python -> python/SimGeneral/DataMixingModule
+  src/Validation/HcalRecHits/python -> python/Validation/HcalRecHits
+  src/Validation/Configuration/python -> python/Validation/Configuration
+  src/Validation/MuonHits/python -> python/Validation/MuonHits
+  src/Validation/L1T/python -> python/Validation/L1T
+  src/Validation/GlobalRecHits/python -> python/Validation/GlobalRecHits
+  src/Validation/RecoVertex/python -> python/Validation/RecoVertex
+  src/Validation/HGCalValidation/python -> python/Validation/HGCalValidation
+  src/Validation/GlobalDigis/python -> python/Validation/GlobalDigis
+  src/Validation/RPCRecHits/python -> python/Validation/RPCRecHits
+  src/Validation/EventGenerator/python -> python/Validation/EventGenerator
+  src/Validation/HcalDigis/python -> python/Validation/HcalDigis
+  src/Validation/Tools/python -> python/Validation/Tools
+  src/Validation/MuonGEMRecHits/python -> python/Validation/MuonGEMRecHits
+  src/Validation/RecoTau/python -> python/Validation/RecoTau
+  src/Validation/CheckOverlap/python -> python/Validation/CheckOverlap
+  src/Validation/RecoB/python -> python/Validation/RecoB
+  src/Validation/MuonIsolation/python -> python/Validation/MuonIsolation
+  src/Validation/GlobalHits/python -> python/Validation/GlobalHits
+  src/Validation/MuonDTDigis/python -> python/Validation/MuonDTDigis
+  src/Validation/MuonIdentification/python -> python/Validation/MuonIdentification
+  src/Validation/DTRecHits/python -> python/Validation/DTRecHits
+  src/Validation/RecoParticleFlow/python -> python/Validation/RecoParticleFlow
+  src/Validation/RecoHI/python -> python/Validation/RecoHI
+  src/Validation/TrackerHits/python -> python/Validation/TrackerHits
+  src/Validation/Geometry/python -> python/Validation/Geometry
+  src/Validation/RecoJets/python -> python/Validation/RecoJets
+  src/Validation/TrackerDigis/python -> python/Validation/TrackerDigis
+  src/Validation/EcalClusters/python -> python/Validation/EcalClusters
+  src/Validation/MuonGEMHits/python -> python/Validation/MuonGEMHits
+  src/Validation/EcalRecHits/python -> python/Validation/EcalRecHits
+  src/Validation/MuonGEMDigis/python -> python/Validation/MuonGEMDigis
+  src/Validation/RecoEgamma/python -> python/Validation/RecoEgamma
+  src/Validation/TrackingMCTruth/python -> python/Validation/TrackingMCTruth
+  src/Validation/Mixing/python -> python/Validation/Mixing
+  src/Validation/MuonRPCDigis/python -> python/Validation/MuonRPCDigis
+  src/Validation/RecoMuon/python -> python/Validation/RecoMuon
+  src/Validation/Performance/python -> python/Validation/Performance
+  src/Validation/CSCRecHits/python -> python/Validation/CSCRecHits
+  src/Validation/EcalDigis/python -> python/Validation/EcalDigis
+  src/Validation/MuonME0Validation/python -> python/Validation/MuonME0Validation
+  src/Validation/EcalHits/python -> python/Validation/EcalHits
+  src/Validation/HcalHits/python -> python/Validation/HcalHits
+  src/Validation/RecoTrack/python -> python/Validation/RecoTrack
+  src/Validation/RecoMET/python -> python/Validation/RecoMET
+  src/Validation/TrackerRecHits/python -> python/Validation/TrackerRecHits
+  src/Validation/CaloTowers/python -> python/Validation/CaloTowers
+>> Entering Package ElectroWeakAnalysis/WMuNu
+  src/Validation/MuonCSCDigis/python -> python/Validation/MuonCSCDigis
+  src/GeneratorInterface/HydjetInterface/python -> python/GeneratorInterface/HydjetInterface
+  src/GeneratorInterface/Configuration/python -> python/GeneratorInterface/Configuration
+  src/GeneratorInterface/Pythia6Interface/python -> python/GeneratorInterface/Pythia6Interface
+  src/GeneratorInterface/CosmicMuonGenerator/python -> python/GeneratorInterface/CosmicMuonGenerator
+  src/GeneratorInterface/PhotosInterface/python -> python/GeneratorInterface/PhotosInterface
+  src/GeneratorInterface/PyquenInterface/python -> python/GeneratorInterface/PyquenInterface
+  src/GeneratorInterface/AMPTInterface/python -> python/GeneratorInterface/AMPTInterface
+  src/GeneratorInterface/LHEInterface/python -> python/GeneratorInterface/LHEInterface
+  src/GeneratorInterface/ExternalDecays/python -> python/GeneratorInterface/ExternalDecays
+  src/GeneratorInterface/PomwigInterface/python -> python/GeneratorInterface/PomwigInterface
+  src/GeneratorInterface/TauolaInterface/python -> python/GeneratorInterface/TauolaInterface
+  src/GeneratorInterface/RivetInterface/python -> python/GeneratorInterface/RivetInterface
+  src/GeneratorInterface/Pythia8Interface/python -> python/GeneratorInterface/Pythia8Interface
+  src/GeneratorInterface/EvtGenInterface/python -> python/GeneratorInterface/EvtGenInterface
+  src/GeneratorInterface/AlpgenInterface/python -> python/GeneratorInterface/AlpgenInterface
+  src/GeneratorInterface/ReggeGribovPartonMCInterface/python -> python/GeneratorInterface/ReggeGribovPartonMCInterface
+  src/GeneratorInterface/Hydjet2Interface/python -> python/GeneratorInterface/Hydjet2Interface
+  src/GeneratorInterface/HiGenCommon/python -> python/GeneratorInterface/HiGenCommon
+  src/GeneratorInterface/GenFilters/python -> python/GeneratorInterface/GenFilters
+>> Entering Package ElectroWeakAnalysis/Utilities
+  src/GeneratorInterface/SherpaInterface/python -> python/GeneratorInterface/SherpaInterface
+  src/GeneratorInterface/CascadeInterface/python -> python/GeneratorInterface/CascadeInterface
+  src/GeneratorInterface/ExhumeInterface/python -> python/GeneratorInterface/ExhumeInterface
+  src/GeneratorInterface/Core/python -> python/GeneratorInterface/Core
+  src/TrackingTools/Configuration/python -> python/TrackingTools/Configuration
+  src/TrackingTools/TrackAssociator/python -> python/TrackingTools/TrackAssociator
+  src/TrackingTools/PatternTools/python -> python/TrackingTools/PatternTools
+  src/TrackingTools/TrajectoryFiltering/python -> python/TrackingTools/TrajectoryFiltering
+  src/TrackingTools/TrackRefitter/python -> python/TrackingTools/TrackRefitter
+  src/TrackingTools/KalmanUpdators/python -> python/TrackingTools/KalmanUpdators
+  src/TrackingTools/Producers/python -> python/TrackingTools/Producers
+  src/TrackingTools/GsfTracking/python -> python/TrackingTools/GsfTracking
+  src/TrackingTools/TrackFitters/python -> python/TrackingTools/TrackFitters
+  src/TrackingTools/TrajectoryCleaning/python -> python/TrackingTools/TrajectoryCleaning
+  src/TrackingTools/TransientTrack/python -> python/TrackingTools/TransientTrack
+  src/TrackingTools/GsfTools/python -> python/TrackingTools/GsfTools
+  src/TrackingTools/MaterialEffects/python -> python/TrackingTools/MaterialEffects
+  src/TrackingTools/RecoGeometry/python -> python/TrackingTools/RecoGeometry
+  src/TrackingTools/GeomPropagators/python -> python/TrackingTools/GeomPropagators
+  src/DQMServices/Components/python -> python/DQMServices/Components
+  src/DQMServices/StreamerIO/python -> python/DQMServices/StreamerIO
+  src/DQMServices/Examples/python -> python/DQMServices/Examples
+  src/DQMServices/FileIO/python -> python/DQMServices/FileIO
+  src/DQMServices/ClientConfig/python -> python/DQMServices/ClientConfig
+  src/DQMServices/Core/python -> python/DQMServices/Core
+  src/EventFilter/Configuration/python -> python/EventFilter/Configuration
+  src/EventFilter/Utilities/python -> python/EventFilter/Utilities
+  src/EventFilter/DTRawToDigi/python -> python/EventFilter/DTRawToDigi
+  src/EventFilter/L1GlobalTriggerRawToDigi/python -> python/EventFilter/L1GlobalTriggerRawToDigi
+  src/EventFilter/RawDataCollector/python -> python/EventFilter/RawDataCollector
+  src/EventFilter/EcalTBRawToDigi/python -> python/EventFilter/EcalTBRawToDigi
+  src/EventFilter/SiStripRawToDigi/python -> python/EventFilter/SiStripRawToDigi
+  src/EventFilter/Phase2TrackerRawToDigi/python -> python/EventFilter/Phase2TrackerRawToDigi
+  src/EventFilter/GctRawToDigi/python -> python/EventFilter/GctRawToDigi
+  src/EventFilter/ESDigiToRaw/python -> python/EventFilter/ESDigiToRaw
+  src/EventFilter/RctRawToDigi/python -> python/EventFilter/RctRawToDigi
+  src/EventFilter/CSCTFRawToDigi/python -> python/EventFilter/CSCTFRawToDigi
+  src/EventFilter/CSCRawToDigi/python -> python/EventFilter/CSCRawToDigi
+  src/EventFilter/SiStripChannelChargeFilter/python -> python/EventFilter/SiStripChannelChargeFilter
+  src/EventFilter/DTTFRawToDigi/python -> python/EventFilter/DTTFRawToDigi
+  src/EventFilter/RPCRawToDigi/python -> python/EventFilter/RPCRawToDigi
+>> Entering Package ElectroWeakAnalysis/WENu
+  src/EventFilter/CTPPSRawToDigi/python -> python/EventFilter/CTPPSRawToDigi
+  src/EventFilter/L1TXRawToDigi/python -> python/EventFilter/L1TXRawToDigi
+  src/EventFilter/L1TRawToDigi/python -> python/EventFilter/L1TRawToDigi
+  src/EventFilter/EcalRawToDigi/python -> python/EventFilter/EcalRawToDigi
+>> Entering Package ElectroWeakAnalysis/Skimming
+  src/EventFilter/HcalRawToDigi/python -> python/EventFilter/HcalRawToDigi
+  src/EventFilter/SiPixelRawToDigi/python -> python/EventFilter/SiPixelRawToDigi
+  src/EventFilter/ScalersRawToDigi/python -> python/EventFilter/ScalersRawToDigi
+  src/EventFilter/CastorRawToDigi/python -> python/EventFilter/CastorRawToDigi
+  src/EventFilter/ESRawToDigi/python -> python/EventFilter/ESRawToDigi
+  src/EventFilter/EcalDigiToRaw/python -> python/EventFilter/EcalDigiToRaw
+  src/DPGAnalysis/SiStripTools/python -> python/DPGAnalysis/SiStripTools
+  src/DPGAnalysis/Skims/python -> python/DPGAnalysis/Skims
+  src/Calibration/IsolatedParticles/python -> python/Calibration/IsolatedParticles
+  src/Calibration/HcalCalibAlgos/python -> python/Calibration/HcalCalibAlgos
+  src/Calibration/EcalCalibAlgos/python -> python/Calibration/EcalCalibAlgos
+  src/Calibration/Hotline/python -> python/Calibration/Hotline
+  src/Calibration/TkAlCaRecoProducers/python -> python/Calibration/TkAlCaRecoProducers
+>> Entering Package ElectroWeakAnalysis/ZEE
+  src/Calibration/HcalAlCaRecoProducers/python -> python/Calibration/HcalAlCaRecoProducers
+  src/Calibration/HcalIsolatedTrackReco/python -> python/Calibration/HcalIsolatedTrackReco
+  src/Calibration/EcalAlCaRecoProducers/python -> python/Calibration/EcalAlCaRecoProducers
+  src/RecoTauTag/Configuration/python -> python/RecoTauTag/Configuration
+  src/RecoTauTag/TauTagTools/python -> python/RecoTauTag/TauTagTools
+  src/RecoTauTag/ImpactParameter/python -> python/RecoTauTag/ImpactParameter
+  src/RecoTauTag/RecoTau/python -> python/RecoTauTag/RecoTau
+  src/RecoTauTag/HLTProducers/python -> python/RecoTauTag/HLTProducers
+  src/RecoTracker/Configuration/python -> python/RecoTracker/Configuration
+  src/RecoTracker/TransientTrackingRecHit/python -> python/RecoTracker/TransientTrackingRecHit
+  src/RecoTracker/CkfPattern/python -> python/RecoTracker/CkfPattern
+  src/RecoTracker/TrackProducer/python -> python/RecoTracker/TrackProducer
+  src/RecoTracker/IterativeTracking/python -> python/RecoTracker/IterativeTracking
+  src/RecoTracker/DeDx/python -> python/RecoTracker/DeDx
+  src/RecoTracker/TkHitPairs/python -> python/RecoTracker/TkHitPairs
+  src/RecoTracker/SiTrackerMRHTools/python -> python/RecoTracker/SiTrackerMRHTools
+  src/RecoTracker/TkTrackingRegions/python -> python/RecoTracker/TkTrackingRegions
+  src/RecoTracker/SpecialSeedGenerators/python -> python/RecoTracker/SpecialSeedGenerators
+  src/RecoTracker/TkSeedingLayers/python -> python/RecoTracker/TkSeedingLayers
+  src/RecoTracker/TkSeedGenerator/python -> python/RecoTracker/TkSeedGenerator
+  src/RecoTracker/TkDetLayers/python -> python/RecoTracker/TkDetLayers
+  src/RecoTracker/GeometryESProducer/python -> python/RecoTracker/GeometryESProducer
+  src/RecoTracker/TkNavigation/python -> python/RecoTracker/TkNavigation
+  src/RecoTracker/MeasurementDet/python -> python/RecoTracker/MeasurementDet
+  src/RecoTracker/NuclearSeedGenerator/python -> python/RecoTracker/NuclearSeedGenerator
+  src/RecoTracker/DebugTools/python -> python/RecoTracker/DebugTools
+  src/RecoTracker/SingleTrackPattern/python -> python/RecoTracker/SingleTrackPattern
+  src/RecoTracker/FinalTrackSelectors/python -> python/RecoTracker/FinalTrackSelectors
+  src/RecoTracker/ConversionSeedGenerators/python -> python/RecoTracker/ConversionSeedGenerators
+  src/IOMC/EventVertexGenerators/python -> python/IOMC/EventVertexGenerators
+  src/IOMC/RandomEngine/python -> python/IOMC/RandomEngine
+  src/SimG4Core/Configuration/python -> python/SimG4Core/Configuration
+  src/SimG4Core/HelpfulWatchers/python -> python/SimG4Core/HelpfulWatchers
+  src/SimG4Core/CheckSecondary/python -> python/SimG4Core/CheckSecondary
+  src/SimG4Core/GFlash/python -> python/SimG4Core/GFlash
+  src/SimG4Core/CustomPhysics/python -> python/SimG4Core/CustomPhysics
+  src/SimG4Core/PrintGeomInfo/python -> python/SimG4Core/PrintGeomInfo
+  src/SimG4Core/Application/python -> python/SimG4Core/Application
+  src/CondTools/RunInfo/python -> python/CondTools/RunInfo
+  src/CondTools/L1TriggerExt/python -> python/CondTools/L1TriggerExt
+  src/CondTools/IntegrationTest/python -> python/CondTools/IntegrationTest
+  src/CondTools/BTau/python -> python/CondTools/BTau
+  src/CondTools/SiPixel/python -> python/CondTools/SiPixel
+  src/CondTools/BeamSpot/python -> python/CondTools/BeamSpot
+  src/CondTools/DQM/python -> python/CondTools/DQM
+  src/CondTools/L1Trigger/python -> python/CondTools/L1Trigger
+  src/CondTools/HLT/python -> python/CondTools/HLT
+  src/CondTools/Ecal/python -> python/CondTools/Ecal
+  src/SimG4CMS/CherenkovAnalysis/python -> python/SimG4CMS/CherenkovAnalysis
+  src/SimG4CMS/HGCalTestBeam/python -> python/SimG4CMS/HGCalTestBeam
+  src/SimG4CMS/ShowerLibraryProducer/python -> python/SimG4CMS/ShowerLibraryProducer
+  src/SimG4CMS/HcalTestBeam/python -> python/SimG4CMS/HcalTestBeam
+  src/SimG4CMS/Calo/python -> python/SimG4CMS/Calo
+  src/SimG4CMS/EcalTestBeam/python -> python/SimG4CMS/EcalTestBeam
+  src/SimG4CMS/Forward/python -> python/SimG4CMS/Forward
+  src/EgammaAnalysis/Configuration/python -> python/EgammaAnalysis/Configuration
+  src/EgammaAnalysis/ElectronIDESSources/python -> python/EgammaAnalysis/ElectronIDESSources
+  src/EgammaAnalysis/ElectronTools/python -> python/EgammaAnalysis/ElectronTools
+  src/EgammaAnalysis/CSA07Skims/python -> python/EgammaAnalysis/CSA07Skims
+  src/EgammaAnalysis/PhotonIDProducers/python -> python/EgammaAnalysis/PhotonIDProducers
+  src/RecoParticleFlow/Configuration/python -> python/RecoParticleFlow/Configuration
+  src/RecoParticleFlow/PFProducer/python -> python/RecoParticleFlow/PFProducer
+  src/RecoParticleFlow/PFTracking/python -> python/RecoParticleFlow/PFTracking
+  src/RecoParticleFlow/PFSimProducer/python -> python/RecoParticleFlow/PFSimProducer
+  src/RecoParticleFlow/PFClusterShapeProducer/python -> python/RecoParticleFlow/PFClusterShapeProducer
+  src/RecoParticleFlow/PFClusterTools/python -> python/RecoParticleFlow/PFClusterTools
+  src/RecoParticleFlow/PFClusterProducer/python -> python/RecoParticleFlow/PFClusterProducer
+  src/HLTrigger/Configuration/python -> python/HLTrigger/Configuration
+  src/HLTrigger/Timer/python -> python/HLTrigger/Timer
+  src/HLTrigger/Egamma/python -> python/HLTrigger/Egamma
+  src/HLTrigger/Tools/python -> python/HLTrigger/Tools
+  src/HLTrigger/HLTanalyzers/python -> python/HLTrigger/HLTanalyzers
+  src/HLTrigger/HLTfilters/python -> python/HLTrigger/HLTfilters
+  src/HLTrigger/special/python -> python/HLTrigger/special
+  src/HLTrigger/Muon/python -> python/HLTrigger/Muon
+  src/HLTrigger/HLTcore/python -> python/HLTrigger/HLTcore
+  src/HLTrigger/btau/python -> python/HLTrigger/btau
+  src/HLTrigger/JetMET/python -> python/HLTrigger/JetMET
+  src/TauAnalysis/MCEmbeddingTools/python -> python/TauAnalysis/MCEmbeddingTools
+  src/RecoHI/Configuration/python -> python/RecoHI/Configuration
+  src/RecoHI/HiJetAlgos/python -> python/RecoHI/HiJetAlgos
+  src/RecoHI/HiCentralityAlgos/python -> python/RecoHI/HiCentralityAlgos
+  src/RecoHI/HiTracking/python -> python/RecoHI/HiTracking
+  src/RecoHI/HiEvtPlaneAlgos/python -> python/RecoHI/HiEvtPlaneAlgos
+  src/RecoHI/HiMuonAlgos/python -> python/RecoHI/HiMuonAlgos
+  src/RecoHI/HiEgammaAlgos/python -> python/RecoHI/HiEgammaAlgos
+  src/QCDAnalysis/Configuration/python -> python/QCDAnalysis/Configuration
+  src/QCDAnalysis/Skimming/python -> python/QCDAnalysis/Skimming
+  src/QCDAnalysis/UEAnalysis/python -> python/QCDAnalysis/UEAnalysis
+  src/CalibCalorimetry/Configuration/python -> python/CalibCalorimetry/Configuration
+  src/CalibCalorimetry/EcalPedestalOffsets/python -> python/CalibCalorimetry/EcalPedestalOffsets
+  src/CalibCalorimetry/CaloTPG/python -> python/CalibCalorimetry/CaloTPG
+  src/CalibCalorimetry/HcalTPGIO/python -> python/CalibCalorimetry/HcalTPGIO
+  src/CalibCalorimetry/CastorCalib/python -> python/CalibCalorimetry/CastorCalib
+  src/CalibCalorimetry/EcalLaserCorrection/python -> python/CalibCalorimetry/EcalLaserCorrection
+  src/CalibCalorimetry/EcalTrivialCondModules/python -> python/CalibCalorimetry/EcalTrivialCondModules
+  src/CalibCalorimetry/EcalTPGTools/python -> python/CalibCalorimetry/EcalTPGTools
+  src/CalibCalorimetry/HcalPlugins/python -> python/CalibCalorimetry/HcalPlugins
+  src/CalibCalorimetry/EcalLaserSorting/python -> python/CalibCalorimetry/EcalLaserSorting
+  src/Geometry/CMSCommonData/python -> python/Geometry/CMSCommonData
+  src/Geometry/TrackerGeometryBuilder/python -> python/Geometry/TrackerGeometryBuilder
+  src/Geometry/TrackerCommonData/python -> python/Geometry/TrackerCommonData
+  src/Geometry/EcalMapping/python -> python/Geometry/EcalMapping
+  src/Geometry/VeryForwardGeometry/python -> python/Geometry/VeryForwardGeometry
+  src/Geometry/HcalEventSetup/python -> python/Geometry/HcalEventSetup
+  src/Geometry/CSCGeometryBuilder/python -> python/Geometry/CSCGeometryBuilder
+  src/Geometry/RPCGeometry/python -> python/Geometry/RPCGeometry
+  src/Geometry/MTCCTrackerCommonData/python -> python/Geometry/MTCCTrackerCommonData
+  src/Geometry/RPCGeometryBuilder/python -> python/Geometry/RPCGeometryBuilder
+  src/Geometry/MuonNumbering/python -> python/Geometry/MuonNumbering
+  src/Geometry/ForwardGeometry/python -> python/Geometry/ForwardGeometry
+  src/Geometry/EcalCommonData/python -> python/Geometry/EcalCommonData
+  src/Geometry/EcalAlgo/python -> python/Geometry/EcalAlgo
+  src/Geometry/TrackerSimData/python -> python/Geometry/TrackerSimData
+  src/Geometry/FP420CommonData/python -> python/Geometry/FP420CommonData
+  src/Geometry/HcalTestBeamData/python -> python/Geometry/HcalTestBeamData
+  src/Geometry/GEMGeometry/python -> python/Geometry/GEMGeometry
+  src/Geometry/HcalAlgo/python -> python/Geometry/HcalAlgo
+  src/Geometry/CaloEventSetup/python -> python/Geometry/CaloEventSetup
+  src/Geometry/CommonDetUnit/python -> python/Geometry/CommonDetUnit
+  src/Geometry/VeryForwardData/python -> python/Geometry/VeryForwardData
+  src/Geometry/EcalTestBeam/python -> python/Geometry/EcalTestBeam
+  src/Geometry/MuonCommonData/python -> python/Geometry/MuonCommonData
+  src/Geometry/CSCGeometry/python -> python/Geometry/CSCGeometry
+  src/Geometry/DTGeometry/python -> python/Geometry/DTGeometry
+  src/Geometry/GEMGeometryBuilder/python -> python/Geometry/GEMGeometryBuilder
+  src/Geometry/DTGeometryBuilder/python -> python/Geometry/DTGeometryBuilder
+  src/Geometry/HGCalCommonData/python -> python/Geometry/HGCalCommonData
+  src/Geometry/HGCalGeometry/python -> python/Geometry/HGCalGeometry
+  src/Geometry/VeryForwardGeometryBuilder/python -> python/Geometry/VeryForwardGeometryBuilder
+  src/Geometry/HcalTowerAlgo/python -> python/Geometry/HcalTowerAlgo
+  src/Geometry/ForwardCommonData/python -> python/Geometry/ForwardCommonData
+  src/Geometry/TrackerRecoData/python -> python/Geometry/TrackerRecoData
+  src/Geometry/HcalCommonData/python -> python/Geometry/HcalCommonData
+  src/JetMETAnalysis/Configuration/python -> python/JetMETAnalysis/Configuration
+  src/JetMETAnalysis/METSkims/python -> python/JetMETAnalysis/METSkims
+  src/RecoJets/Configuration/python -> python/RecoJets/Configuration
+  src/RecoJets/JetAnalyzers/python -> python/RecoJets/JetAnalyzers
+  src/RecoJets/JetProducers/python -> python/RecoJets/JetProducers
+  src/RecoJets/JetAssociationProducers/python -> python/RecoJets/JetAssociationProducers
+  src/RecoJets/JetPlusTracks/python -> python/RecoJets/JetPlusTracks
+  src/RecoJets/FFTJetProducers/python -> python/RecoJets/FFTJetProducers
+  src/DQM/SiStripMonitorPedestals/python -> python/DQM/SiStripMonitorPedestals
+  src/DQM/HLXMonitor/python -> python/DQM/HLXMonitor
+  src/DQM/SiPixelPhase1Digis/python -> python/DQM/SiPixelPhase1Digis
+  src/DQM/SiPixelMonitorRecHit/python -> python/DQM/SiPixelMonitorRecHit
+  src/DQM/CTPPS/python -> python/DQM/CTPPS
+  src/DQM/SiPixelMonitorDigi/python -> python/DQM/SiPixelMonitorDigi
+  src/DQM/SiPixelMonitorRawData/python -> python/DQM/SiPixelMonitorRawData
+  src/DQM/L1TMonitor/python -> python/DQM/L1TMonitor
+  src/DQM/EcalMonitorDbModule/python -> python/DQM/EcalMonitorDbModule
+  src/DQM/SiPixelPhase1Config/python -> python/DQM/SiPixelPhase1Config
+  src/DQM/SiStripMonitorCluster/python -> python/DQM/SiStripMonitorCluster
+  src/DQM/SiPixelPhase1RawData/python -> python/DQM/SiPixelPhase1RawData
+  src/DQM/EcalPreshowerMonitorClient/python -> python/DQM/EcalPreshowerMonitorClient
+  src/DQM/Integration/python -> python/DQM/Integration
+  src/DQM/DataScouting/python -> python/DQM/DataScouting
+  src/DQM/SiStripCommissioningDbClients/python -> python/DQM/SiStripCommissioningDbClients
+  src/DQM/Physics/python -> python/DQM/Physics
+  src/DQM/SiPixelPhase1TrackEfficiency/python -> python/DQM/SiPixelPhase1TrackEfficiency
+  src/DQM/TrigXMonitor/python -> python/DQM/TrigXMonitor
+  src/DQM/SiPixelPhase1Common/python -> python/DQM/SiPixelPhase1Common
+  src/DQM/SiStripCommissioningClients/python -> python/DQM/SiStripCommissioningClients
+  src/DQM/SiStripCommissioningSources/python -> python/DQM/SiStripCommissioningSources
+  src/DQM/HLTEvF/python -> python/DQM/HLTEvF
+  src/DQM/RPCMonitorDigi/python -> python/DQM/RPCMonitorDigi
+  src/DQM/HcalTasks/python -> python/DQM/HcalTasks
+  src/DQM/TrackingMonitorSource/python -> python/DQM/TrackingMonitorSource
+  src/DQM/EcalMonitorClient/python -> python/DQM/EcalMonitorClient
+  src/DQM/CastorMonitor/python -> python/DQM/CastorMonitor
+  src/DQM/TrackingMonitor/python -> python/DQM/TrackingMonitor
+  src/DQM/HcalCommon/python -> python/DQM/HcalCommon
+  src/DQM/TrackerMonitorTrack/python -> python/DQM/TrackerMonitorTrack
+  src/DQM/RCTMonitor/python -> python/DQM/RCTMonitor
+  src/DQM/SiStripCommon/python -> python/DQM/SiStripCommon
+  src/DQM/EcalMonitorTasks/python -> python/DQM/EcalMonitorTasks
+  src/DQM/PixelLumi/python -> python/DQM/PixelLumi
+  src/DQM/EcalPreshowerMonitorModule/python -> python/DQM/EcalPreshowerMonitorModule
+  src/DQM/TrackingMonitorClient/python -> python/DQM/TrackingMonitorClient
+  src/DQM/DTMonitorModule/python -> python/DQM/DTMonitorModule
+  src/DQM/SiPixelPhase1RecHits/python -> python/DQM/SiPixelPhase1RecHits
+  src/DQM/SiPixelMonitorTrack/python -> python/DQM/SiPixelMonitorTrack
+  src/DQM/DTMonitorClient/python -> python/DQM/DTMonitorClient
+  src/DQM/EcalCommon/python -> python/DQM/EcalCommon
+  src/DQM/SiPixelPhase1TrackClusters/python -> python/DQM/SiPixelPhase1TrackClusters
+  src/DQM/SiPixelCommon/python -> python/DQM/SiPixelCommon
+  src/DQM/SiStripMonitorDigi/python -> python/DQM/SiStripMonitorDigi
+  src/DQM/SiPixelMonitorCluster/python -> python/DQM/SiPixelMonitorCluster
+  src/DQM/RPCMonitorClient/python -> python/DQM/RPCMonitorClient
+  src/DQM/TrigXMonitorClient/python -> python/DQM/TrigXMonitorClient
+  src/DQM/SiStripMonitorClient/python -> python/DQM/SiStripMonitorClient
+  src/DQM/CSCMonitorModule/python -> python/DQM/CSCMonitorModule
+  src/DQM/SiPixelPhase1Clusters/python -> python/DQM/SiPixelPhase1Clusters
+  src/DQM/TrackerCommon/python -> python/DQM/TrackerCommon
+  src/DQM/SiStripMonitorSummary/python -> python/DQM/SiStripMonitorSummary
+  src/DQM/BeamMonitor/python -> python/DQM/BeamMonitor
+  src/DQM/SiStripMonitorTrack/python -> python/DQM/SiStripMonitorTrack
+  src/DQM/SiPixelMonitorClient/python -> python/DQM/SiPixelMonitorClient
+  src/DQM/SiPixelPhase1TrackResiduals/python -> python/DQM/SiPixelPhase1TrackResiduals
+  src/DQM/SiStripMonitorHardware/python -> python/DQM/SiStripMonitorHardware
+  src/DQM/L1TMonitorClient/python -> python/DQM/L1TMonitorClient
+  src/CalibMuon/Configuration/python -> python/CalibMuon/Configuration
+  src/CalibMuon/CSCCalibration/python -> python/CalibMuon/CSCCalibration
+  src/CalibMuon/RPCCalibration/python -> python/CalibMuon/RPCCalibration
+  src/CalibMuon/DTCalibration/python -> python/CalibMuon/DTCalibration
+  src/L1Trigger/L1TMuonEndCap/python -> python/L1Trigger/L1TMuonEndCap
+  src/L1Trigger/L1TGlobal/python -> python/L1Trigger/L1TGlobal
+  src/L1Trigger/GlobalTriggerAnalyzer/python -> python/L1Trigger/GlobalTriggerAnalyzer
+  src/L1Trigger/Configuration/python -> python/L1Trigger/Configuration
+  src/L1Trigger/TextToDigi/python -> python/L1Trigger/TextToDigi
+  src/L1Trigger/L1TCommon/python -> python/L1Trigger/L1TCommon
+  src/L1Trigger/CSCCommonTrigger/python -> python/L1Trigger/CSCCommonTrigger
+  src/L1Trigger/RPCTechnicalTrigger/python -> python/L1Trigger/RPCTechnicalTrigger
+  src/L1Trigger/RPCTrigger/python -> python/L1Trigger/RPCTrigger
+  src/L1Trigger/L1TMuonOverlap/python -> python/L1Trigger/L1TMuonOverlap
+  src/L1Trigger/L1ExtraFromDigis/python -> python/L1Trigger/L1ExtraFromDigis
+  src/L1Trigger/GlobalTrigger/python -> python/L1Trigger/GlobalTrigger
+  src/L1Trigger/RegionalCaloTrigger/python -> python/L1Trigger/RegionalCaloTrigger
+  src/L1Trigger/DTTrackFinder/python -> python/L1Trigger/DTTrackFinder
+  src/L1Trigger/GlobalCaloTrigger/python -> python/L1Trigger/GlobalCaloTrigger
+  src/L1Trigger/HardwareValidation/python -> python/L1Trigger/HardwareValidation
+  src/L1Trigger/L1TMuonBarrel/python -> python/L1Trigger/L1TMuonBarrel
+  src/L1Trigger/CSCTrackFinder/python -> python/L1Trigger/CSCTrackFinder
+  src/L1Trigger/Skimmer/python -> python/L1Trigger/Skimmer
+  src/L1Trigger/CSCTriggerPrimitives/python -> python/L1Trigger/CSCTriggerPrimitives
+  src/L1Trigger/L1TNtuples/python -> python/L1Trigger/L1TNtuples
+  src/L1Trigger/L1TCaloLayer1/python -> python/L1Trigger/L1TCaloLayer1
+  src/L1Trigger/L1TCalorimeter/python -> python/L1Trigger/L1TCalorimeter
+  src/L1Trigger/L1GctAnalyzer/python -> python/L1Trigger/L1GctAnalyzer
+  src/L1Trigger/DTTrigger/python -> python/L1Trigger/DTTrigger
+  src/L1Trigger/TrackTrigger/python -> python/L1Trigger/TrackTrigger
+  src/L1Trigger/L1TMuon/python -> python/L1Trigger/L1TMuon
+  src/L1Trigger/GlobalMuonTrigger/python -> python/L1Trigger/GlobalMuonTrigger
+  src/L1Trigger/L1THGCal/python -> python/L1Trigger/L1THGCal
+  src/AnalysisAlgos/TrackInfoProducer/python -> python/AnalysisAlgos/TrackInfoProducer
+  src/AnalysisAlgos/SiStripClusterInfoProducer/python -> python/AnalysisAlgos/SiStripClusterInfoProducer
+  src/DataFormats/FWLite/python -> python/DataFormats/FWLite
+  src/DataFormats/HcalCalibObjects/python -> python/DataFormats/HcalCalibObjects
+  src/MuonAnalysis/Configuration/python -> python/MuonAnalysis/Configuration
+  src/MuonAnalysis/MomentumScaleCalibration/python -> python/MuonAnalysis/MomentumScaleCalibration
+  src/MuonAnalysis/MuonAssociators/python -> python/MuonAnalysis/MuonAssociators
+  src/ElectroWeakAnalysis/Configuration/python -> python/ElectroWeakAnalysis/Configuration
+  src/ElectroWeakAnalysis/Skimming/python -> python/ElectroWeakAnalysis/Skimming
+  src/ElectroWeakAnalysis/Utilities/python -> python/ElectroWeakAnalysis/Utilities
+  src/ElectroWeakAnalysis/ZMuMu/python -> python/ElectroWeakAnalysis/ZMuMu
+  src/ElectroWeakAnalysis/WMuNu/python -> python/ElectroWeakAnalysis/WMuNu
+  src/ElectroWeakAnalysis/ZEE/python -> python/ElectroWeakAnalysis/ZEE
+  src/ElectroWeakAnalysis/WENu/python -> python/ElectroWeakAnalysis/WENu
+  src/HLTriggerOffline/Higgs/python -> python/HLTriggerOffline/Higgs
+  src/HLTriggerOffline/Btag/python -> python/HLTriggerOffline/Btag
+  src/HLTriggerOffline/Exotica/python -> python/HLTriggerOffline/Exotica
+  src/HLTriggerOffline/Egamma/python -> python/HLTriggerOffline/Egamma
+  src/HLTriggerOffline/SUSYBSM/python -> python/HLTriggerOffline/SUSYBSM
+  src/HLTriggerOffline/HeavyFlavor/python -> python/HLTriggerOffline/HeavyFlavor
+  src/HLTriggerOffline/Tau/python -> python/HLTriggerOffline/Tau
+  src/HLTriggerOffline/Top/python -> python/HLTriggerOffline/Top
+  src/HLTriggerOffline/Muon/python -> python/HLTriggerOffline/Muon
+  src/HLTriggerOffline/Common/python -> python/HLTriggerOffline/Common
+  src/HLTriggerOffline/B2G/python -> python/HLTriggerOffline/B2G
+  src/HLTriggerOffline/JetMET/python -> python/HLTriggerOffline/JetMET
+  src/HLTriggerOffline/SMP/python -> python/HLTriggerOffline/SMP
+  src/Fireworks/Eve/python -> python/Fireworks/Eve
+  src/Fireworks/Geometry/python -> python/Fireworks/Geometry
+  src/Fireworks/FWInterface/python -> python/Fireworks/FWInterface
+  src/SimTransport/HectorProducer/python -> python/SimTransport/HectorProducer
+  src/SimMuon/Configuration/python -> python/SimMuon/Configuration
+  src/SimMuon/MCTruth/python -> python/SimMuon/MCTruth
+  src/SimMuon/Neutron/python -> python/SimMuon/Neutron
+  src/SimMuon/GEMDigitizer/python -> python/SimMuon/GEMDigitizer
+  src/SimMuon/CSCDigitizer/python -> python/SimMuon/CSCDigitizer
+  src/SimMuon/DTDigitizer/python -> python/SimMuon/DTDigitizer
+  src/SimMuon/RPCDigitizer/python -> python/SimMuon/RPCDigitizer
+  src/RecoLocalCalo/EcalRecAlgos/python -> python/RecoLocalCalo/EcalRecAlgos
+  src/RecoLocalCalo/Configuration/python -> python/RecoLocalCalo/Configuration
+  src/RecoLocalCalo/CastorReco/python -> python/RecoLocalCalo/CastorReco
+  src/RecoLocalCalo/EcalRecProducers/python -> python/RecoLocalCalo/EcalRecProducers
+  src/RecoLocalCalo/CaloTowersCreator/python -> python/RecoLocalCalo/CaloTowersCreator
+  src/RecoLocalCalo/HGCalRecProducers/python -> python/RecoLocalCalo/HGCalRecProducers
+  src/RecoLocalCalo/HcalRecAlgos/python -> python/RecoLocalCalo/HcalRecAlgos
+  src/RecoLocalCalo/Castor/python -> python/RecoLocalCalo/Castor
+  src/RecoLocalCalo/HcalRecProducers/python -> python/RecoLocalCalo/HcalRecProducers
+  src/HeavyFlavorAnalysis/Configuration/python -> python/HeavyFlavorAnalysis/Configuration
+  src/HeavyFlavorAnalysis/Skimming/python -> python/HeavyFlavorAnalysis/Skimming
+  src/HeavyFlavorAnalysis/SpecificDecay/python -> python/HeavyFlavorAnalysis/SpecificDecay
+  src/HeavyFlavorAnalysis/Onia2MuMu/python -> python/HeavyFlavorAnalysis/Onia2MuMu
+  src/CalibTracker/Configuration/python -> python/CalibTracker/Configuration
+  src/CalibTracker/SiStripChannelGain/python -> python/CalibTracker/SiStripChannelGain
+  src/CalibTracker/SiPixelTools/python -> python/CalibTracker/SiPixelTools
+  src/CalibTracker/SiPixelLorentzAngle/python -> python/CalibTracker/SiPixelLorentzAngle
+  src/CalibTracker/SiPixelConnectivity/python -> python/CalibTracker/SiPixelConnectivity
+  src/CalibTracker/SiPixelErrorEstimation/python -> python/CalibTracker/SiPixelErrorEstimation
+  src/CalibTracker/SiStripESProducers/python -> python/CalibTracker/SiStripESProducers
+  src/CalibTracker/SiStripAPVAnalysis/python -> python/CalibTracker/SiStripAPVAnalysis
+  src/CalibTracker/SiPixelGainCalibration/python -> python/CalibTracker/SiPixelGainCalibration
+  src/CalibTracker/SiPixelESProducers/python -> python/CalibTracker/SiPixelESProducers
+  src/CalibTracker/SiStripCommon/python -> python/CalibTracker/SiStripCommon
+  src/CalibTracker/SiPixelSCurveCalibration/python -> python/CalibTracker/SiPixelSCurveCalibration
+  src/CalibTracker/SiStripLorentzAngle/python -> python/CalibTracker/SiStripLorentzAngle
+  src/CalibTracker/SiPixelIsAliveCalibration/python -> python/CalibTracker/SiPixelIsAliveCalibration
+  src/CalibTracker/SiStripHitEfficiency/python -> python/CalibTracker/SiStripHitEfficiency
+  src/CalibTracker/SiStripDCS/python -> python/CalibTracker/SiStripDCS
+  src/RecoLuminosity/LumiDB/python -> python/RecoLuminosity/LumiDB
+  src/RecoLuminosity/LumiProducer/python -> python/RecoLuminosity/LumiProducer
+  src/SimRomanPot/Configuration/python -> python/SimRomanPot/Configuration
+  src/SimRomanPot/SimFP420/python -> python/SimRomanPot/SimFP420
+  src/DiffractiveForwardAnalysis/Configuration/python -> python/DiffractiveForwardAnalysis/Configuration
+  src/DiffractiveForwardAnalysis/Skimming/python -> python/DiffractiveForwardAnalysis/Skimming
+  src/JetMETCorrections/Configuration/python -> python/JetMETCorrections/Configuration
+  src/JetMETCorrections/TauJet/python -> python/JetMETCorrections/TauJet
+  src/JetMETCorrections/Modules/python -> python/JetMETCorrections/Modules
+  src/JetMETCorrections/JetParton/python -> python/JetMETCorrections/JetParton
+  src/JetMETCorrections/MCJet/python -> python/JetMETCorrections/MCJet
+  src/JetMETCorrections/Type1MET/python -> python/JetMETCorrections/Type1MET
+  src/JetMETCorrections/FFTJetModules/python -> python/JetMETCorrections/FFTJetModules
+  src/RecoPixelVertexing/Configuration/python -> python/RecoPixelVertexing/Configuration
+  src/RecoPixelVertexing/PixelTrackFitting/python -> python/RecoPixelVertexing/PixelTrackFitting
+  src/RecoPixelVertexing/PixelTriplets/python -> python/RecoPixelVertexing/PixelTriplets
+  src/RecoPixelVertexing/PixelVertexFinding/python -> python/RecoPixelVertexing/PixelVertexFinding
+  src/RecoPixelVertexing/PixelLowPtUtilities/python -> python/RecoPixelVertexing/PixelLowPtUtilities
+  src/IgTools/IgProf/python -> python/IgTools/IgProf
+  src/RecoVZero/VZeroFinding/python -> python/RecoVZero/VZeroFinding
+  src/CondCore/CondDB/python -> python/CondCore/CondDB
+  src/CondCore/Utilities/python -> python/CondCore/Utilities
+  src/CondCore/ESSources/python -> python/CondCore/ESSources
+  src/CondCore/DBCommon/python -> python/CondCore/DBCommon
+  src/L1TriggerOffline/L1Analyzer/python -> python/L1TriggerOffline/L1Analyzer
+  src/RecoEgamma/Configuration/python -> python/RecoEgamma/Configuration
+  src/RecoEgamma/EgammaIsolationAlgos/python -> python/RecoEgamma/EgammaIsolationAlgos
+  src/RecoEgamma/EgammaElectronProducers/python -> python/RecoEgamma/EgammaElectronProducers
+  src/RecoEgamma/PhotonIdentification/python -> python/RecoEgamma/PhotonIdentification
+  src/RecoEgamma/EgammaTools/python -> python/RecoEgamma/EgammaTools
+  src/RecoEgamma/ElectronIdentification/python -> python/RecoEgamma/ElectronIdentification
+  src/RecoEgamma/Examples/python -> python/RecoEgamma/Examples
+  src/RecoEgamma/EgammaHFProducers/python -> python/RecoEgamma/EgammaHFProducers
+  src/RecoEgamma/EgammaPhotonProducers/python -> python/RecoEgamma/EgammaPhotonProducers
+  src/RecoEgamma/EgammaHLTProducers/python -> python/RecoEgamma/EgammaHLTProducers
+  src/RecoBTau/Configuration/python -> python/RecoBTau/Configuration
+  src/RecoBTau/JetTagComputer/python -> python/RecoBTau/JetTagComputer
+  src/CommonTools/CandAlgos/python -> python/CommonTools/CandAlgos
+  src/CommonTools/RecoUtils/python -> python/CommonTools/RecoUtils
+  src/CommonTools/ParticleFlow/python -> python/CommonTools/ParticleFlow
+  src/CommonTools/UtilAlgos/python -> python/CommonTools/UtilAlgos
+  src/CommonTools/PileupAlgos/python -> python/CommonTools/PileupAlgos
+  src/CommonTools/TrackerMap/python -> python/CommonTools/TrackerMap
+  src/CommonTools/RecoAlgos/python -> python/CommonTools/RecoAlgos
+  src/RecoMuon/Configuration/python -> python/RecoMuon/Configuration
+  src/RecoMuon/TransientTrackingRecHit/python -> python/RecoMuon/TransientTrackingRecHit
+  src/RecoMuon/StandAloneMuonProducer/python -> python/RecoMuon/StandAloneMuonProducer
+  src/RecoMuon/L2MuonSeedGenerator/python -> python/RecoMuon/L2MuonSeedGenerator
+  src/RecoMuon/L3MuonIsolationProducer/python -> python/RecoMuon/L3MuonIsolationProducer
+  src/RecoMuon/TrackerSeedGenerator/python -> python/RecoMuon/TrackerSeedGenerator
+  src/RecoMuon/TrackingTools/python -> python/RecoMuon/TrackingTools
+  src/RecoMuon/MuonIsolation/python -> python/RecoMuon/MuonIsolation
+  src/RecoMuon/MuonIdentification/python -> python/RecoMuon/MuonIdentification
+  src/RecoMuon/MuonSeedGenerator/python -> python/RecoMuon/MuonSeedGenerator
+  src/RecoMuon/DetLayers/python -> python/RecoMuon/DetLayers
+  src/RecoMuon/L2MuonProducer/python -> python/RecoMuon/L2MuonProducer
+  src/RecoMuon/MuonIsolationProducers/python -> python/RecoMuon/MuonIsolationProducers
+  src/RecoMuon/L3MuonProducer/python -> python/RecoMuon/L3MuonProducer
+  src/RecoMuon/GlobalMuonProducer/python -> python/RecoMuon/GlobalMuonProducer
+  src/RecoMuon/L3TrackFinder/python -> python/RecoMuon/L3TrackFinder
+  src/RecoMuon/L2MuonIsolationProducer/python -> python/RecoMuon/L2MuonIsolationProducer
+  src/RecoMuon/GlobalTrackingTools/python -> python/RecoMuon/GlobalTrackingTools
+  src/RecoMuon/CosmicMuonProducer/python -> python/RecoMuon/CosmicMuonProducer
+  src/FastSimulation/Configuration/python -> python/FastSimulation/Configuration
+  src/FastSimulation/TrackerSetup/python -> python/FastSimulation/TrackerSetup
+  src/FastSimulation/Tracking/python -> python/FastSimulation/Tracking
+  src/FastSimulation/MuonSimHitProducer/python -> python/FastSimulation/MuonSimHitProducer
+  src/FastSimulation/Validation/python -> python/FastSimulation/Validation
+  src/FastSimulation/Event/python -> python/FastSimulation/Event
+  src/FastSimulation/ForwardDetectors/python -> python/FastSimulation/ForwardDetectors
+  src/FastSimulation/ParticlePropagator/python -> python/FastSimulation/ParticlePropagator
+  src/FastSimulation/MaterialEffects/python -> python/FastSimulation/MaterialEffects
+  src/FastSimulation/EventProducer/python -> python/FastSimulation/EventProducer
+  src/FastSimulation/HighLevelTrigger/python -> python/FastSimulation/HighLevelTrigger
+  src/FastSimulation/TrackingRecHitProducer/python -> python/FastSimulation/TrackingRecHitProducer
+  src/FastSimulation/Calorimetry/python -> python/FastSimulation/Calorimetry
+  src/FastSimulation/ParticleDecay/python -> python/FastSimulation/ParticleDecay
+  src/FastSimulation/TrajectoryManager/python -> python/FastSimulation/TrajectoryManager
+  src/RecoLocalTracker/Configuration/python -> python/RecoLocalTracker/Configuration
+  src/RecoLocalTracker/SiStripZeroSuppression/python -> python/RecoLocalTracker/SiStripZeroSuppression
+  src/RecoLocalTracker/Phase2TrackerRecHits/python -> python/RecoLocalTracker/Phase2TrackerRecHits
+  src/RecoLocalTracker/SiPixelRecHits/python -> python/RecoLocalTracker/SiPixelRecHits
+  src/RecoLocalTracker/SubCollectionProducers/python -> python/RecoLocalTracker/SubCollectionProducers
+  src/RecoLocalTracker/SiStripRecHitConverter/python -> python/RecoLocalTracker/SiStripRecHitConverter
+  src/RecoLocalTracker/Phase2ITPixelClusterizer/python -> python/RecoLocalTracker/Phase2ITPixelClusterizer
+  src/RecoLocalTracker/SiPixelClusterizer/python -> python/RecoLocalTracker/SiPixelClusterizer
+  src/RecoLocalTracker/SiStripClusterizer/python -> python/RecoLocalTracker/SiStripClusterizer
+  src/RecoLocalTracker/SiPhase2Clusterizer/python -> python/RecoLocalTracker/SiPhase2Clusterizer
+  src/RecoBTag/Configuration/python -> python/RecoBTag/Configuration
+  src/RecoBTag/Skimming/python -> python/RecoBTag/Skimming
+  src/RecoBTag/CTagging/python -> python/RecoBTag/CTagging
+  src/RecoBTag/SoftLepton/python -> python/RecoBTag/SoftLepton
+  src/RecoBTag/ImpactParameter/python -> python/RecoBTag/ImpactParameter
+  src/RecoBTag/SecondaryVertex/python -> python/RecoBTag/SecondaryVertex
+  src/RecoBTag/PerformanceDB/python -> python/RecoBTag/PerformanceDB
+  src/RecoBTag/Combined/python -> python/RecoBTag/Combined
+  src/RecoBTag/TrackProbability/python -> python/RecoBTag/TrackProbability
+  src/IORawData/SiPixelInputSources/python -> python/IORawData/SiPixelInputSources
+  src/IORawData/HcalTBInputService/python -> python/IORawData/HcalTBInputService
+  src/IORawData/CaloPatterns/python -> python/IORawData/CaloPatterns
+  src/TrackPropagation/SteppingHelixPropagator/python -> python/TrackPropagation/SteppingHelixPropagator
+  src/TrackPropagation/Geant4e/python -> python/TrackPropagation/Geant4e
+  src/L1TriggerConfig/L1TConfigProducers/python -> python/L1TriggerConfig/L1TConfigProducers
+  src/L1TriggerConfig/DTTPGConfigProducers/python -> python/L1TriggerConfig/DTTPGConfigProducers
+  src/L1TriggerConfig/L1GeometryProducers/python -> python/L1TriggerConfig/L1GeometryProducers
+  src/L1TriggerConfig/L1ScalesProducers/python -> python/L1TriggerConfig/L1ScalesProducers
+  src/L1TriggerConfig/DTTrackFinder/python -> python/L1TriggerConfig/DTTrackFinder
+  src/L1TriggerConfig/L1GtConfigProducers/python -> python/L1TriggerConfig/L1GtConfigProducers
+  src/L1TriggerConfig/CSCTFConfigProducers/python -> python/L1TriggerConfig/CSCTFConfigProducers
+  src/L1TriggerConfig/GMTConfigProducers/python -> python/L1TriggerConfig/GMTConfigProducers
+  src/L1TriggerConfig/RCTConfigProducers/python -> python/L1TriggerConfig/RCTConfigProducers
+  src/L1TriggerConfig/GctConfigProducers/python -> python/L1TriggerConfig/GctConfigProducers
+  src/L1TriggerConfig/RPCTriggerConfig/python -> python/L1TriggerConfig/RPCTriggerConfig
+  src/L1TriggerConfig/L1CSCTPConfigProducers/python -> python/L1TriggerConfig/L1CSCTPConfigProducers
+  src/TopQuarkAnalysis/Configuration/python -> python/TopQuarkAnalysis/Configuration
+  src/TopQuarkAnalysis/TopKinFitter/python -> python/TopQuarkAnalysis/TopKinFitter
+  src/TopQuarkAnalysis/TopEventSelection/python -> python/TopQuarkAnalysis/TopEventSelection
+  src/TopQuarkAnalysis/Examples/python -> python/TopQuarkAnalysis/Examples
+  src/TopQuarkAnalysis/TopSkimming/python -> python/TopQuarkAnalysis/TopSkimming
+  src/TopQuarkAnalysis/TopTools/python -> python/TopQuarkAnalysis/TopTools
+  src/TopQuarkAnalysis/TopHitFit/python -> python/TopQuarkAnalysis/TopHitFit
+  src/TopQuarkAnalysis/TopEventProducers/python -> python/TopQuarkAnalysis/TopEventProducers
+  src/TopQuarkAnalysis/TopJetCombination/python -> python/TopQuarkAnalysis/TopJetCombination
+  src/TopQuarkAnalysis/TopObjectResolutions/python -> python/TopQuarkAnalysis/TopObjectResolutions
+  src/TopQuarkAnalysis/TopPairBSM/python -> python/TopQuarkAnalysis/TopPairBSM
+  src/DetectorDescription/OfflineDBLoader/python -> python/DetectorDescription/OfflineDBLoader
+  src/GeometryReaders/XMLIdealGeometryESSource/python -> python/GeometryReaders/XMLIdealGeometryESSource
+  src/SimFastTiming/Configuration/python -> python/SimFastTiming/Configuration
+  src/SimFastTiming/FastTimingCommon/python -> python/SimFastTiming/FastTimingCommon
+  src/RecoMET/Configuration/python -> python/RecoMET/Configuration
+  src/RecoMET/METPUSubtraction/python -> python/RecoMET/METPUSubtraction
+  src/RecoMET/METProducers/python -> python/RecoMET/METProducers
+  src/RecoMET/METFilters/python -> python/RecoMET/METFilters
+  src/OnlineDB/SiStripConfigDb/python -> python/OnlineDB/SiStripConfigDb
+  src/OnlineDB/SiStripO2O/python -> python/OnlineDB/SiStripO2O
+  src/OnlineDB/CSCCondDB/python -> python/OnlineDB/CSCCondDB
+  src/OnlineDB/SiStripESSources/python -> python/OnlineDB/SiStripESSources
+  src/SimCalorimetry/Configuration/python -> python/SimCalorimetry/Configuration
+  src/SimCalorimetry/HcalZeroSuppressionProducers/python -> python/SimCalorimetry/HcalZeroSuppressionProducers
+  src/SimCalorimetry/EcalSimProducers/python -> python/SimCalorimetry/EcalSimProducers
+  src/SimCalorimetry/EcalElectronicsEmulation/python -> python/SimCalorimetry/EcalElectronicsEmulation
+  src/SimCalorimetry/HcalTrigPrimProducers/python -> python/SimCalorimetry/HcalTrigPrimProducers
+  src/SimCalorimetry/HcalSimProducers/python -> python/SimCalorimetry/HcalSimProducers
+  src/SimCalorimetry/CastorTechTrigProducer/python -> python/SimCalorimetry/CastorTechTrigProducer
+  src/SimCalorimetry/EcalSelectiveReadoutProducers/python -> python/SimCalorimetry/EcalSelectiveReadoutProducers
+  src/SimCalorimetry/HcalTestBeam/python -> python/SimCalorimetry/HcalTestBeam
+  src/SimCalorimetry/EcalTestBeam/python -> python/SimCalorimetry/EcalTestBeam
+  src/SimCalorimetry/EcalZeroSuppressionProducers/python -> python/SimCalorimetry/EcalZeroSuppressionProducers
+  src/SimCalorimetry/EcalTrigPrimProducers/python -> python/SimCalorimetry/EcalTrigPrimProducers
+  src/SimCalorimetry/HGCalSimProducers/python -> python/SimCalorimetry/HGCalSimProducers
+  src/SimCalorimetry/CastorSim/python -> python/SimCalorimetry/CastorSim
+  src/FWCore/Services/python -> python/FWCore/Services
+  src/FWCore/Utilities/python -> python/FWCore/Utilities
+  src/FWCore/Modules/python -> python/FWCore/Modules
+  src/FWCore/Integration/python -> python/FWCore/Integration
+  src/FWCore/Skeletons/python -> python/FWCore/Skeletons
+  src/FWCore/MessageService/python -> python/FWCore/MessageService
+  src/FWCore/MessageLogger/python -> python/FWCore/MessageLogger
+  src/FWCore/GuiBrowsers/python -> python/FWCore/GuiBrowsers
+  src/FWCore/PythonUtilities/python -> python/FWCore/PythonUtilities
+  src/FWCore/Framework/python -> python/FWCore/Framework
+  src/FWCore/ParameterSet/python -> python/FWCore/ParameterSet
+  src/FWCore/Concurrency/python -> python/FWCore/Concurrency
+  src/PerfTools/Callgrind/python -> python/PerfTools/Callgrind
+  src/SimTracker/Configuration/python -> python/SimTracker/Configuration
+  src/SimTracker/TrackAssociatorProducers/python -> python/SimTracker/TrackAssociatorProducers
+  src/SimTracker/TrackTriggerAssociation/python -> python/SimTracker/TrackTriggerAssociation
+  src/SimTracker/TrackerHitAssociation/python -> python/SimTracker/TrackerHitAssociation
+  src/SimTracker/SiPixelDigitizer/python -> python/SimTracker/SiPixelDigitizer
+  src/SimTracker/TrackHistory/python -> python/SimTracker/TrackHistory
+  src/SimTracker/SiPhase2Digitizer/python -> python/SimTracker/SiPhase2Digitizer
+  src/SimTracker/TrackerMaterialAnalysis/python -> python/SimTracker/TrackerMaterialAnalysis
+  src/SimTracker/SiStripDigitizer/python -> python/SimTracker/SiStripDigitizer
+  src/SimTracker/TrackAssociation/python -> python/SimTracker/TrackAssociation
+  src/SimTracker/TrackerFilters/python -> python/SimTracker/TrackerFilters
+>> Compiling  /scratch/gartung/CMSSW_9_0_CLANG_X_2016-12-06-1100/src/ElectroWeakAnalysis/ZMuMu/test/errorMatrix.cpp 
+>> Compiling  /scratch/gartung/CMSSW_9_0_CLANG_X_2016-12-06-1100/src/ElectroWeakAnalysis/ZMuMu/src/ZMuMuNormalBack.cc 
+>> Compiling  /scratch/gartung/CMSSW_9_0_CLANG_X_2016-12-06-1100/src/ElectroWeakAnalysis/ZMuMu/src/ZMuTrackScaledNormalBack.cc 
+>> Compiling  /scratch/gartung/CMSSW_9_0_CLANG_X_2016-12-06-1100/src/ElectroWeakAnalysis/ZMuMu/src/ZMuStandaloneScaledFunction.cc 
+>> Compiling  /scratch/gartung/CMSSW_9_0_CLANG_X_2016-12-06-1100/src/ElectroWeakAnalysis/ZMuMu/src/ZMuMuScaledFunction.cc 
+>> Compiling  /scratch/gartung/CMSSW_9_0_CLANG_X_2016-12-06-1100/src/ElectroWeakAnalysis/ZMuMu/src/ZMuStandaloneFunction.cc 
+>> Compiling  /scratch/gartung/CMSSW_9_0_CLANG_X_2016-12-06-1100/src/ElectroWeakAnalysis/ZMuMu/src/ZMuMuFunction.cc 
+>> Compiling  /scratch/gartung/CMSSW_9_0_CLANG_X_2016-12-06-1100/src/ElectroWeakAnalysis/ZMuMu/src/ZMuTrackScaledFunction.cc 
+>> Compiling  /scratch/gartung/CMSSW_9_0_CLANG_X_2016-12-06-1100/src/ElectroWeakAnalysis/ZMuMu/src/ZMuMuBackNorm.cc 
+>> Compiling  /scratch/gartung/CMSSW_9_0_CLANG_X_2016-12-06-1100/src/ElectroWeakAnalysis/ZMuMu/src/ZMuTrackFunction.cc 
+>> Compiling  /scratch/gartung/CMSSW_9_0_CLANG_X_2016-12-06-1100/src/ElectroWeakAnalysis/ZMuMu/src/ZMuMuBack.cc 
+>> Compiling  /scratch/gartung/CMSSW_9_0_CLANG_X_2016-12-06-1100/src/ElectroWeakAnalysis/ZMuMu/bin/zMuMuRooFit.cpp 
+>> Compiling  /scratch/gartung/CMSSW_9_0_CLANG_X_2016-12-06-1100/src/ElectroWeakAnalysis/ZMuMu/bin/hltEffwithCPErrorMCvsDATA.cpp 
+>> Compiling  /scratch/gartung/CMSSW_9_0_CLANG_X_2016-12-06-1100/src/ElectroWeakAnalysis/ZMuMu/bin/zFitToyMc.cpp 
+>> Compiling  /scratch/gartung/CMSSW_9_0_CLANG_X_2016-12-06-1100/src/ElectroWeakAnalysis/ZMuMu/bin/hltEffwithCPError.cpp 
+>> Compiling  /scratch/gartung/CMSSW_9_0_CLANG_X_2016-12-06-1100/src/ElectroWeakAnalysis/ZMuMu/bin/csa08HLTFit.cpp 
+>> Compiling  /scratch/gartung/CMSSW_9_0_CLANG_X_2016-12-06-1100/src/ElectroWeakAnalysis/ZMuMu/bin/zUMLChi2Fit.cpp 
+>> Compiling  /scratch/gartung/CMSSW_9_0_CLANG_X_2016-12-06-1100/src/ElectroWeakAnalysis/ZMuMu/bin/toyMonteCarlo.cpp 
+>> Compiling  /scratch/gartung/CMSSW_9_0_CLANG_X_2016-12-06-1100/src/ElectroWeakAnalysis/ZMuMu/bin/zChi2Fit.cpp 
+>> Compiling edm plugin /scratch/gartung/CMSSW_9_0_CLANG_X_2016-12-06-1100/src/ElectroWeakAnalysis/ZMuMu/plugins/ZMCHistogrammer.cc 
+>> Compiling edm plugin /scratch/gartung/CMSSW_9_0_CLANG_X_2016-12-06-1100/src/ElectroWeakAnalysis/ZMuMu/plugins/DimuonStatistics.cc 
+>> Compiling edm plugin /scratch/gartung/CMSSW_9_0_CLANG_X_2016-12-06-1100/src/ElectroWeakAnalysis/ZMuMu/plugins/ZMuPtScaleAnalyzer.cc 
+>> Compiling edm plugin /scratch/gartung/CMSSW_9_0_CLANG_X_2016-12-06-1100/src/ElectroWeakAnalysis/ZMuMu/plugins/ZMuMuAnalyzer.cc 
+>> Compiling edm plugin /scratch/gartung/CMSSW_9_0_CLANG_X_2016-12-06-1100/src/ElectroWeakAnalysis/ZMuMu/plugins/MCAcceptanceAnalyzer.cc 
+>> Compiling edm plugin /scratch/gartung/CMSSW_9_0_CLANG_X_2016-12-06-1100/src/ElectroWeakAnalysis/ZMuMu/plugins/ZMuMu_vtxAnalyzer.cc 
+>> Compiling edm plugin /scratch/gartung/CMSSW_9_0_CLANG_X_2016-12-06-1100/src/ElectroWeakAnalysis/ZMuMu/plugins/ZMuMuIsolationAnalyzer.cc 
+>> Compiling edm plugin /scratch/gartung/CMSSW_9_0_CLANG_X_2016-12-06-1100/src/ElectroWeakAnalysis/ZMuMu/plugins/ZMuMuEfficiency.cc 
+>> Compiling edm plugin /scratch/gartung/CMSSW_9_0_CLANG_X_2016-12-06-1100/src/ElectroWeakAnalysis/ZMuMu/plugins/ZMuMuOverlapExclusion.cc 
+>> Compiling edm plugin /scratch/gartung/CMSSW_9_0_CLANG_X_2016-12-06-1100/src/ElectroWeakAnalysis/ZMuMu/plugins/ZToMuMuFilter.cc 
+>> Compiling edm plugin /scratch/gartung/CMSSW_9_0_CLANG_X_2016-12-06-1100/src/ElectroWeakAnalysis/ZMuMu/plugins/ZMuMu_MCanalyzer.cc 
+>> Compiling edm plugin /scratch/gartung/CMSSW_9_0_CLANG_X_2016-12-06-1100/src/ElectroWeakAnalysis/ZMuMu/plugins/dimuonHLTFilterCheck.cc 
+>> Compiling edm plugin /scratch/gartung/CMSSW_9_0_CLANG_X_2016-12-06-1100/src/ElectroWeakAnalysis/ZMuMu/plugins/EventVtxInfoNtupleDumper.cc 
+>> Compiling edm plugin /scratch/gartung/CMSSW_9_0_CLANG_X_2016-12-06-1100/src/ElectroWeakAnalysis/ZMuMu/plugins/ZGoldenFilter.cc 
+>> Compiling edm plugin /scratch/gartung/CMSSW_9_0_CLANG_X_2016-12-06-1100/src/ElectroWeakAnalysis/ZMuMu/plugins/ZHLTMatchFilter.cc 
+>> Compiling edm plugin /scratch/gartung/CMSSW_9_0_CLANG_X_2016-12-06-1100/src/ElectroWeakAnalysis/ZMuMu/plugins/ZMuMuAnalyzer_cynematics.cc 
+>> Compiling edm plugin /scratch/gartung/CMSSW_9_0_CLANG_X_2016-12-06-1100/src/ElectroWeakAnalysis/ZMuMu/plugins/ZMuMu_efficiencyAnalyzer.cc 
+>> Compiling edm plugin /scratch/gartung/CMSSW_9_0_CLANG_X_2016-12-06-1100/src/ElectroWeakAnalysis/ZMuMu/plugins/ZMuMuPerformances.cc 
+>> Compiling edm plugin /scratch/gartung/CMSSW_9_0_CLANG_X_2016-12-06-1100/src/ElectroWeakAnalysis/ZMuMu/plugins/ZMuMuSaMassHistogram.cc 
+>> Compiling edm plugin /scratch/gartung/CMSSW_9_0_CLANG_X_2016-12-06-1100/src/ElectroWeakAnalysis/ZMuMu/plugins/MC_Efficiency_Analyzer.cc 
+>> Compiling edm plugin /scratch/gartung/CMSSW_9_0_CLANG_X_2016-12-06-1100/src/ElectroWeakAnalysis/ZMuMu/plugins/DebugZMCTruth.cc 
+>> Compiling edm plugin /scratch/gartung/CMSSW_9_0_CLANG_X_2016-12-06-1100/src/ElectroWeakAnalysis/ZMuMu/plugins/MuTriggerAnalyzer.cc 
+/scratch/gartung/CMSSW_9_0_CLANG_X_2016-12-06-1100/src/ElectroWeakAnalysis/ZMuMu/plugins/MC_Efficiency_Analyzer.cc:119:48: warning: taking the absolute value of unsigned type 'bool' has no effect [-Wabsolute-value]
+                if ((muCand1 == &mc) && (mc.pt()>ptcut_) && (std::abs(mc.eta()<etacut_)))
+                                                             ^
+/scratch/gartung/CMSSW_9_0_CLANG_X_2016-12-06-1100/src/ElectroWeakAnalysis/ZMuMu/plugins/MC_Efficiency_Analyzer.cc:119:48: note: remove the call to 'std::abs' since unsigned values cannot be negative
+                if ((muCand1 == &mc) && (mc.pt()>ptcut_) && (std::abs(mc.eta()<etacut_)))
+                                                             ^~~~~~~~
+/scratch/gartung/CMSSW_9_0_CLANG_X_2016-12-06-1100/src/ElectroWeakAnalysis/ZMuMu/plugins/MC_Efficiency_Analyzer.cc:136:60: warning: taking the absolute value of unsigned type 'bool' has no effect [-Wabsolute-value]
+                    if (( muCand1 == & Trkmc) && (Trkmc.pt()>ptcut_) && (std::abs(Trkmc.eta()<etacut_)))
+                                                                         ^
+/scratch/gartung/CMSSW_9_0_CLANG_X_2016-12-06-1100/src/ElectroWeakAnalysis/ZMuMu/plugins/MC_Efficiency_Analyzer.cc:136:60: note: remove the call to 'std::abs' since unsigned values cannot be negative
+                    if (( muCand1 == & Trkmc) && (Trkmc.pt()>ptcut_) && (std::abs(Trkmc.eta()<etacut_)))
+                                                                         ^~~~~~~~
+/scratch/gartung/CMSSW_9_0_CLANG_X_2016-12-06-1100/src/ElectroWeakAnalysis/ZMuMu/plugins/MC_Efficiency_Analyzer.cc:148:59: warning: taking the absolute value of unsigned type 'bool' has no effect [-Wabsolute-value]
+                    if ((muCand1 == &Stamc ) && (Stamc.pt()>ptcut_) && (std::abs(Stamc.eta()<etacut_)))
+                                                                        ^
+/scratch/gartung/CMSSW_9_0_CLANG_X_2016-12-06-1100/src/ElectroWeakAnalysis/ZMuMu/plugins/MC_Efficiency_Analyzer.cc:148:59: note: remove the call to 'std::abs' since unsigned values cannot be negative
+                    if ((muCand1 == &Stamc ) && (Stamc.pt()>ptcut_) && (std::abs(Stamc.eta()<etacut_)))
+                                                                        ^~~~~~~~
+3 warnings generated.
+>> Compiling edm plugin /scratch/gartung/CMSSW_9_0_CLANG_X_2016-12-06-1100/src/ElectroWeakAnalysis/ZMuMu/plugins/EWKSystUnc.cc 
+>> Compiling edm plugin /scratch/gartung/CMSSW_9_0_CLANG_X_2016-12-06-1100/src/ElectroWeakAnalysis/ZMuMu/plugins/zPdfUnc.cc 
+>> Compiling edm plugin /scratch/gartung/CMSSW_9_0_CLANG_X_2016-12-06-1100/src/ElectroWeakAnalysis/ZMuMu/plugins/GlbMuQualityCutsAnalysis.cc 
+>> Compiling edm plugin /scratch/gartung/CMSSW_9_0_CLANG_X_2016-12-06-1100/src/ElectroWeakAnalysis/ZMuMu/plugins/ZMuMu_radiative_analysis.cc 
+>> Compiling edm plugin /scratch/gartung/CMSSW_9_0_CLANG_X_2016-12-06-1100/src/ElectroWeakAnalysis/ZMuMu/plugins/ZMassHistogrammer.cc 
+>> Compiling edm plugin /scratch/gartung/CMSSW_9_0_CLANG_X_2016-12-06-1100/src/ElectroWeakAnalysis/ZMuMu/plugins/ZToMuMuSelector.cc 
+>> Compiling edm plugin /scratch/gartung/CMSSW_9_0_CLANG_X_2016-12-06-1100/src/ElectroWeakAnalysis/ZMuMu/plugins/ZHistogrammer.cc 
+>> Compiling edm plugin /scratch/gartung/CMSSW_9_0_CLANG_X_2016-12-06-1100/src/ElectroWeakAnalysis/ZMuMu/plugins/ZGlobalVsSAIsolationAnalyzer.cc 
+>> Compiling edm plugin /scratch/gartung/CMSSW_9_0_CLANG_X_2016-12-06-1100/src/ElectroWeakAnalysis/ZMuMu/plugins/BjetAnalyzer.cc 
+>> Compiling edm plugin /scratch/gartung/CMSSW_9_0_CLANG_X_2016-12-06-1100/src/ElectroWeakAnalysis/ZMuMu/plugins/ZToMuMuIsolationSelector.cc 
+>> Compiling edm plugin /scratch/gartung/CMSSW_9_0_CLANG_X_2016-12-06-1100/src/ElectroWeakAnalysis/ZMuMu/plugins/gamma_radiative_analysis.cc 
+>> Compiling edm plugin /scratch/gartung/CMSSW_9_0_CLANG_X_2016-12-06-1100/src/ElectroWeakAnalysis/ZMuMu/plugins/DimuonMCMatcher.cc 
+>> Compiling edm plugin /scratch/gartung/CMSSW_9_0_CLANG_X_2016-12-06-1100/src/ElectroWeakAnalysis/ZMuMu/plugins/triggerEfficiency.cc 
+>> Compiling edm plugin /scratch/gartung/CMSSW_9_0_CLANG_X_2016-12-06-1100/src/ElectroWeakAnalysis/ZMuMu/plugins/ZLONLOHistogrammer.cc 
+>> Compiling edm plugin /scratch/gartung/CMSSW_9_0_CLANG_X_2016-12-06-1100/src/ElectroWeakAnalysis/ZMuMu/plugins/ZToMuMuIsoDepositSelector.cc 
+>> Compiling edm plugin /scratch/gartung/CMSSW_9_0_CLANG_X_2016-12-06-1100/src/ElectroWeakAnalysis/ZMuMu/plugins/ZToLLEdmNtupleDumper.cc 
+>> Compiling edm plugin /scratch/gartung/CMSSW_9_0_CLANG_X_2016-12-06-1100/src/ElectroWeakAnalysis/WMuNu/src/WMuNuSelector.cc 
+>> Compiling edm plugin /scratch/gartung/CMSSW_9_0_CLANG_X_2016-12-06-1100/src/ElectroWeakAnalysis/WMuNu/src/WMuNuValidator.cc 
+>> Compiling edm plugin /scratch/gartung/CMSSW_9_0_CLANG_X_2016-12-06-1100/src/ElectroWeakAnalysis/WMuNu/src/WMuNuProducer.cc 
+>> Compiling  /scratch/gartung/CMSSW_9_0_CLANG_X_2016-12-06-1100/src/ElectroWeakAnalysis/WMuNu/bin/WMuNuValidatorMacro.cpp 
+>> Compiling edm plugin /scratch/gartung/CMSSW_9_0_CLANG_X_2016-12-06-1100/src/ElectroWeakAnalysis/Utilities/src/PdfSystematicsAnalyzer.cc 
+>> Compiling edm plugin /scratch/gartung/CMSSW_9_0_CLANG_X_2016-12-06-1100/src/ElectroWeakAnalysis/Utilities/src/DistortedMuonProducer.cc 
+>> Compiling edm plugin /scratch/gartung/CMSSW_9_0_CLANG_X_2016-12-06-1100/src/ElectroWeakAnalysis/Utilities/src/DistortedMuonProducerFromDB.cc 
+>> Compiling edm plugin /scratch/gartung/CMSSW_9_0_CLANG_X_2016-12-06-1100/src/ElectroWeakAnalysis/Utilities/src/SimpleSystematicsAnalyzer.cc 
+>> Compiling edm plugin /scratch/gartung/CMSSW_9_0_CLANG_X_2016-12-06-1100/src/ElectroWeakAnalysis/Utilities/src/DistortedMETProducer.cc 
+>> Compiling edm plugin /scratch/gartung/CMSSW_9_0_CLANG_X_2016-12-06-1100/src/ElectroWeakAnalysis/Utilities/src/FSRWeightProducer.cc 
+>> Compiling edm plugin /scratch/gartung/CMSSW_9_0_CLANG_X_2016-12-06-1100/src/ElectroWeakAnalysis/Utilities/src/DistortedPFCandProducer.cc 
+>> Compiling edm plugin /scratch/gartung/CMSSW_9_0_CLANG_X_2016-12-06-1100/src/ElectroWeakAnalysis/Utilities/src/ISRWeightProducer.cc 
+>> Compiling edm plugin /scratch/gartung/CMSSW_9_0_CLANG_X_2016-12-06-1100/src/ElectroWeakAnalysis/Utilities/src/WeakEffectsWeightProducer.cc 
+>> Compiling edm plugin /scratch/gartung/CMSSW_9_0_CLANG_X_2016-12-06-1100/src/ElectroWeakAnalysis/Utilities/src/PdfWeightProducer.cc 
+>> Compiling edm plugin /scratch/gartung/CMSSW_9_0_CLANG_X_2016-12-06-1100/src/ElectroWeakAnalysis/Utilities/src/ISRGammaWeightProducer.cc 
+>> Compiling edm plugin /scratch/gartung/CMSSW_9_0_CLANG_X_2016-12-06-1100/src/ElectroWeakAnalysis/Utilities/src/MuonWithPFIsoProducer.cc 
+>> Compiling edm plugin /scratch/gartung/CMSSW_9_0_CLANG_X_2016-12-06-1100/src/ElectroWeakAnalysis/WENu/src/GenPurposeSkimmerData.cc 
+>> Compiling edm plugin /scratch/gartung/CMSSW_9_0_CLANG_X_2016-12-06-1100/src/ElectroWeakAnalysis/WENu/src/WenuPlots.cc 
+>> Compiling edm plugin /scratch/gartung/CMSSW_9_0_CLANG_X_2016-12-06-1100/src/ElectroWeakAnalysis/Skimming/plugins/ZMuMuTrackUserData.cc 
+>> Compiling edm plugin /scratch/gartung/CMSSW_9_0_CLANG_X_2016-12-06-1100/src/ElectroWeakAnalysis/Skimming/plugins/ZMuMuMuonUserData.cc 
+>> Compiling edm plugin /scratch/gartung/CMSSW_9_0_CLANG_X_2016-12-06-1100/src/ElectroWeakAnalysis/Skimming/plugins/ZMuMuOneTrackUserData.cc 
+>> Compiling edm plugin /scratch/gartung/CMSSW_9_0_CLANG_X_2016-12-06-1100/src/ElectroWeakAnalysis/Skimming/plugins/ZMuMuUserData.cc 
+>> Compiling edm plugin /scratch/gartung/CMSSW_9_0_CLANG_X_2016-12-06-1100/src/ElectroWeakAnalysis/ZEE/src/ErsatzMEt.cc 
+>> Compiling edm plugin /scratch/gartung/CMSSW_9_0_CLANG_X_2016-12-06-1100/src/ElectroWeakAnalysis/ZEE/src/ZeeCandidateFilter.cc 
+>> Compiling edm plugin /scratch/gartung/CMSSW_9_0_CLANG_X_2016-12-06-1100/src/ElectroWeakAnalysis/ZEE/src/AnalysisErsatz.cc 
+>> Compiling edm plugin /scratch/gartung/CMSSW_9_0_CLANG_X_2016-12-06-1100/src/ElectroWeakAnalysis/ZEE/src/aod2patFilterZee.cc 
+>> Compiling edm plugin /scratch/gartung/CMSSW_9_0_CLANG_X_2016-12-06-1100/src/ElectroWeakAnalysis/ZEE/src/ZeePlots.cc 
+/scratch/gartung/CMSSW_9_0_CLANG_X_2016-12-06-1100/src/ElectroWeakAnalysis/ZEE/src/ErsatzMEt.cc:324:8: warning: taking the absolute value of unsigned type 'bool' has no effect [-Wabsolute-value]
+                                if(std::abs(mum->pdgId() == 23)) Zboson = mum->p4();
+                                   ^
+/scratch/gartung/CMSSW_9_0_CLANG_X_2016-12-06-1100/src/ElectroWeakAnalysis/ZEE/src/ErsatzMEt.cc:324:8: note: remove the call to 'std::abs' since unsigned values cannot be negative
+                                if(std::abs(mum->pdgId() == 23)) Zboson = mum->p4();
+                                   ^~~~~~~~
+1 warning generated.
