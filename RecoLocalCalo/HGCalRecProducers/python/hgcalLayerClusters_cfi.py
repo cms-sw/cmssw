@@ -10,6 +10,7 @@ hgcalLayerClusters =  cms.EDProducer(
     deltac = cms.double(2.),
     ecut = cms.double(0.06),
     kappa = cms.double(10.),
+    multiclusterRadius = cms.double(0.015),
     verbosity = cms.untracked.uint32(3)
     )
 
