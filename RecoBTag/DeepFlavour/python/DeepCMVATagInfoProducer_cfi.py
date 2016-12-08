@@ -9,6 +9,7 @@ deepCMVATagInfos = cms.EDProducer(
 	elInfoSrc = cms.InputTag("softPFElectronsTagInfos"),
 	jpComputerSrc = cms.string('candidateJetProbabilityComputer'),
 	jpbComputerSrc = cms.string('candidateJetBProbabilityComputer'),
-	softmuComputerSrc= cms.string('softPFMuonComputer'),
-	softelComputerSrc= cms.string('softPFElectronComputer')
+	softmuComputerSrc = cms.string('softPFMuonComputer'),
+	softelComputerSrc = cms.string('softPFElectronComputer'),
+	cMVAPtThreshold = cms.double(200)
 )
