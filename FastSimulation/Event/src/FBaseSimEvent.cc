@@ -394,7 +394,7 @@ FBaseSimEvent::addParticles(const HepMC::GenEvent& myGenEvent) {
       unsigned productionMother = productionVertex->particles_in_size();
       if ( productionMother ) {
 	unsigned motherId = (*(productionVertex->particles_in_const_begin()))->pdg_id();
-	if ( std::abs(motherId) < 1000000 ) 
+	if ( motherId < 1000000 ) 
 	  productionVertexPosition = 
 	    XYZTLorentzVector(productionVertex->position().x()/10.,
 			      productionVertex->position().y()/10.,
