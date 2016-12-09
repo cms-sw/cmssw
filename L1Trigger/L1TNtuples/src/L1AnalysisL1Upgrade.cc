@@ -30,8 +30,6 @@ void L1Analysis::L1AnalysisL1Upgrade::SetEm(const edm::Handle<l1t::EGammaBxColle
 	l1upgrade_.egNTT.push_back(it->nTT());
 	l1upgrade_.egShape.push_back(it->shape());
 	l1upgrade_.egTowerHoE.push_back(it->towerHoE());
-	cout<<"it->towerHoE()="<<it->towerHoE()<<endl;
-
 	l1upgrade_.nEGs++;
       }
     }
