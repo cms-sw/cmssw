@@ -34,12 +34,18 @@ public:
     MonitorElement* DigiOccupancyP;
     MonitorElement* DigiOccupancyS;
     MonitorElement* PositionOfDigis;
+    MonitorElement* ChargeOfDigis;
+    MonitorElement* TotalNumberOfDigis;
+    MonitorElement* NumberOfHitDetectors;
     MonitorElement* NumberOfClusters;
     MonitorElement* ClusterWidth;
     MonitorElement* ClusterPosition;
-    MonitorElement* FractionOfOTBits;
+    MonitorElement* FractionOfOvTBits;
+    MonitorElement* FractionOfOvTBitsVsEta;
     MonitorElement* EtaOccupancyProfP;
     MonitorElement* EtaOccupancyProfS;
+    unsigned int nDigiPerLayer; 
+    unsigned int nHitDetsPerLayer; 
   };
 
   MonitorElement* XYPositionMap;
@@ -48,7 +54,7 @@ public:
   MonitorElement* RZOccupancyMap;
 
 private:
-  void bookLayerHistos(DQMStore::IBooker & ibooker, unsigned int det_id, const TrackerTopology* tTopo, bool iflag); 
+  void bookLayerHistos(DQMStore::IBooker & ibooker, unsigned int det_id, const TrackerTopology* tTopo); 
   void fillITPixelDigiHistos(const edm::Handle<edm::DetSetVector<PixelDigi>>  handle, const edm::ESHandle<TrackerGeometry> gHandle);
   void fillOTDigiHistos(const edm::Handle<edm::DetSetVector<Phase2TrackerDigi>>  handle, const edm::ESHandle<TrackerGeometry> gHandle);
 
