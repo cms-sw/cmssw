@@ -14,7 +14,7 @@
 #include "Geometry/CaloTopology/interface/EcalTrigTowerConstituentsMap.h"
 #include "DataFormats/EcalDetId/interface/EcalTriggerElectronicsId.h"
 #include "DataFormats/Common/interface/SortedCollection.h"
-#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
+//#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 
 
@@ -53,7 +53,7 @@ class EcalEBTrigPrimTestAlgo
   virtual ~EcalEBTrigPrimTestAlgo();
 
   
-  void run(const edm::EventSetup &, const EcalRecHitCollection *col, EcalEBTrigPrimDigiCollection & result, EcalEBTrigPrimDigiCollection & resultTcp);
+  //  void run(const edm::EventSetup &, const EcalRecHitCollection *col, EcalEBTrigPrimDigiCollection & result, EcalEBTrigPrimDigiCollection & resultTcp);
   void run(const edm::EventSetup &, const EBDigiCollection *col, EcalEBTrigPrimDigiCollection & result, EcalEBTrigPrimDigiCollection & resultTcp);
   
   void setPointers(const EcalTPGLinearizationConst *ecaltpLin,

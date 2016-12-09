@@ -65,11 +65,9 @@ EcalEBTrigPrimProducer::EcalEBTrigPrimProducer(const edm::ParameterSet&  iConfig
   tcpFormat_(iConfig.getParameter<bool>("TcpOutput")),
   debug_(iConfig.getParameter<bool>("Debug")),
   famos_(iConfig.getParameter<bool>("Famos")),
-  useRecHits_(iConfig.getParameter<bool>("UseRecHits")),
   nSamples_(iConfig.getParameter<int>("nOfSamples")),
   binOfMaximum_(iConfig.getParameter<int>("binOfMaximum"))
 {  
-  tokenEBrh_=consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("barrelEcalHits"));
   tokenEBdigi_=consumes<EBDigiCollection>(iConfig.getParameter<edm::InputTag>("barrelEcalDigis"));
   //register your products
   produces <EcalEBTrigPrimDigiCollection >();
@@ -163,31 +161,22 @@ EcalEBTrigPrimProducer::produce(edm::Event& e, const edm::EventSetup&  iSetup)
   nEvent_++;
 
   // get input collections
-  edm::Handle<EcalRecHitCollection> barrelHitHandle;
   edm::Handle<EBDigiCollection> barrelDigiHandle;
   
-  if ( useRecHits_ ) {
-    if (! e.getByToken(tokenEBrh_,barrelHitHandle)) {
-      edm::EDConsumerBase::Labels labels;
-      labelsForToken(tokenEBrh_, labels);
-      edm::LogWarning("EcalTPG") <<" Couldnt find Barrel rechits "<<labels.module<<" and label "<<labels.productInstance<<"!!!";
-    }   
-  }else { 
-    if (! e.getByToken(tokenEBdigi_,barrelDigiHandle)) {
-      edm::EDConsumerBase::Labels labels;
-      labelsForToken(tokenEBdigi_, labels);
-      edm::LogWarning("EcalTPG") <<" Couldnt find Barrel digis "<<labels.module<<" and label "<<labels.productInstance<<"!!!";
-    }
+
+  if (! e.getByToken(tokenEBdigi_,barrelDigiHandle)) {
+    edm::EDConsumerBase::Labels labels;
+    labelsForToken(tokenEBdigi_, labels);
+    edm::LogWarning("EcalTPG") <<" Couldnt find Barrel digis "<<labels.module<<" and label "<<labels.productInstance<<"!!!";
   }
+  
   
  
 
-  //LogDebug("EcalTPG") <<" =================> Treating event  "<<e.id()<<", Number of EB rechits "<<barrelHitHandle.product()->size();
-  if ( useRecHits_ ) {
-    if (debug_) std::cout << "EcalTPG" <<" =================> Treating event  "<< nEvent_<<", Number of EB rechits "<<barrelHitHandle.product()->size() << std::endl;
-  }else{
-    if (debug_) std::cout << "EcalTPG" <<" =================> Treating event  "<< nEvent_<<", Number of EB digis "<<barrelDigiHandle.product()->size() << std::endl;
-  }
+ 
+  if (debug_) std::cout << "EcalTPG" <<" =================> Treating event  "<< nEvent_<<", Number of EB digis "<<barrelDigiHandle.product()->size() << std::endl;
+  
+
   auto pOut = std::make_unique<EcalEBTrigPrimDigiCollection>();
   auto pOutTcp = std::make_unique<EcalEBTrigPrimDigiCollection>();
  
@@ -197,15 +186,11 @@ EcalEBTrigPrimProducer::produce(edm::Event& e, const edm::EventSetup&  iSetup)
 
   // invoke algorithm 
 
-  const EcalRecHitCollection *ebrh=NULL;
+ 
   const EBDigiCollection *ebdigi=NULL;
-  if ( useRecHits_ ) {
-    ebrh=barrelHitHandle.product();
-    algo_->run(iSetup,ebrh,*pOut,*pOutTcp);
-  } else {
-    ebdigi=barrelDigiHandle.product();
-    algo_->run(iSetup,ebdigi,*pOut,*pOutTcp);
-  }
+  ebdigi=barrelDigiHandle.product();
+  algo_->run(iSetup,ebdigi,*pOut,*pOutTcp);
+  
 
   if (debug_ ) std::cout << "produce" << " For Barrel  "<<pOut->size()<<" TP  Digis were produced" << std::endl;
 
