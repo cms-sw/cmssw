@@ -23,7 +23,7 @@ trackingPhase1.toModify(detachedQuadStepSeedLayers,
 )
 from Configuration.Eras.Modifier_trackingPhase2PU140_cff import trackingPhase2PU140
 trackingPhase2PU140.toModify(detachedQuadStepSeedLayers, 
-    layerList = RecoTracker.TkSeedingLayers.PixelLayerTriplets_cfi.PixelLayerTriplets.layerList.value()
+    layerList = RecoPixelVertexing.PixelTriplets.quadrupletseedmerging_cff.PixelSeedMergerQuadruplets.layerList.value()
 )
 
 # TrackingRegion
@@ -113,9 +113,6 @@ _detachedQuadStepHitQuadrupletsMerging.SeedComparitorPSet = detachedQuadStepSeed
 trackingPhase1PU70.toModify(detachedQuadStepHitTriplets, produceIntermediateHitTriplets=False, produceSeedingHitSets=True)
 trackingPhase1PU70.toReplaceWith(detachedQuadStepHitQuadruplets, _detachedQuadStepHitQuadrupletsMerging)
 trackingPhase1PU70.toModify(detachedQuadStepSeeds, SeedComparitorPSet=cms.PSet(ComponentName=cms.string("none")))
-trackingPhase2PU140.toModify(detachedQuadStepHitTriplets, produceIntermediateHitTriplets=False, produceSeedingHitSets=True)
-trackingPhase2PU140.toReplaceWith(detachedQuadStepHitQuadruplets, _detachedQuadStepHitQuadrupletsMerging)
-trackingPhase2PU140.toModify(detachedQuadStepSeeds, SeedComparitorPSet=cms.PSet(ComponentName=cms.string("none")))
 
 
 # QUALITY CUTS DURING TRACK BUILDING
