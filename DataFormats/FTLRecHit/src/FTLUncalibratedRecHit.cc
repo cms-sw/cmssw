@@ -29,7 +29,7 @@ float FTLUncalibratedRecHit::jitterError() const {
   float LSB = 1.26008;
   uint8_t exponent = jitterErrorBits>>5;
   uint8_t significand = jitterErrorBits & ~(0x7<<5);
-  return (float)(pow(2.,exponent)*significand*LSB)/(25.*1000);
+  return (float)((1<<exponent)*significand*LSB)/(25.*1000);
 }
 
 void FTLUncalibratedRecHit::setJitterError( float jitterErr ) {
@@ -53,7 +53,7 @@ void FTLUncalibratedRecHit::setJitterError( float jitterErr ) {
   int exponentTmp = log2OfQuantity - 4;
   uint8_t exponent=0;
   if (exponentTmp>0) exponent = exponentTmp;
-  uint8_t significand = (int) ( lround( quantityInLSB / pow(2.,exponent) )   );
+  uint8_t significand = (int) ( lround( quantityInLSB / (1<<exponent) )   );
   uint32_t jitterErrorBits = exponent<<5 | significand;
   
   if( (0xFF & jitterErrorBits) == 0xFF)

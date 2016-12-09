@@ -9,7 +9,7 @@ class FTLSimpleUncalibRecHitAlgo : public FTLUncalibratedRecHitAlgoBase {
   FTLUncalibratedRecHitAlgoBase( conf, sumes ) { 
     uint32_t nBits     = conf.getParameter<uint32_t>("adcNbits");
     double saturation  = conf.getParameter<double>("adcSaturation");
-    adcLSB_            = saturation/std::pow(2.,nBits);    
+    adcLSB_            = saturation/(1<<nBits);    
     
     toaLSBToNS_        = conf.getParameter<double>("toaLSB_ns");
   }
