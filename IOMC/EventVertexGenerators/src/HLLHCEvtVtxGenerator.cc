@@ -22,6 +22,8 @@ namespace {
   constexpr double gamma34 = 1.22541670246517764513;    // Gamma(3/4)
   constexpr double gamma14 = 3.62560990822190831193;    // Gamma(1/4)
   constexpr double gamma54 = 0.90640247705547798267;    // Gamma(5/4)
+  constexpr double sqrt2 = 1.41421356237;
+  constexpr double sqrt2to5 = 5.65685424949;
   constexpr double two_pi=2.0*M_PI;
 }
 
@@ -200,8 +202,8 @@ double HLLHCEvtVtxGenerator::integrandCC(double z,
     
   const double sigs2 = sigs*sigs;
   
-  constexpr double factorRMSgauss4  = 1./std::sqrt(2.)/gamma34 * gamma14; // # Factor to take rms sigma as input of the supergaussian
-  constexpr double NormFactorGauss4 = std::pow(2.0,(5./2.)) * gamma54 * gamma54;
+  constexpr double factorRMSgauss4  = 1./sqrt2/gamma34 * gamma14; // # Factor to take rms sigma as input of the supergaussian
+  constexpr double NormFactorGauss4 = sqrt2to5 * gamma54 * gamma54;
   
   const double sinCR  = std::sin(phiCR/2.0);
   const double sinCR2 = sinCR*sinCR;
