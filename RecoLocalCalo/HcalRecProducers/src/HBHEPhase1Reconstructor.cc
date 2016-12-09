@@ -164,7 +164,7 @@ namespace {
             const float upGain = qup - q;
             const float downGain = q - qdown;
             const float averageGain = (qup - qdown)/2.f;
-            if (std::abs(upGain - downGain)/averageGain < 0.01f)
+            if (std::abs(upGain - downGain) < 0.01f*averageGain)
                 return averageGain;
             else
             {
