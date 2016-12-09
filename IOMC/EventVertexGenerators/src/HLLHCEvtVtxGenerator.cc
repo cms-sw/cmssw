@@ -40,10 +40,9 @@ void HLLHCEvtVtxGenerator::fillDescriptions(edm::ConfigurationDescriptions &desc
     desc.add<bool>("RF800", false);
     desc.add<double>("BetaCrossingPlaneInm", 0.20);
     desc.add<double>("BetaSeparationPlaneInm", 0.20);
-    desc.add<double>("HorizontalEmittance", 2.54924131e-06);
-    desc.add<double>("VerticalEmittance", 2.19302467e-06);
-    desc.add<double>("BunchLengthInm", 0.081);
-    desc.add<double>("CrabCavityVoltage", 1.0);    
+    desc.add<double>("HorizontalEmittance", 2.5e-06);
+    desc.add<double>("VerticalEmittance", 2.05e-06);
+    desc.add<double>("BunchLengthInm", 0.09);
     desc.add<edm::InputTag>("src");
     desc.add<bool>("readDB");
     descriptions.add("HLLHCEvtVtxGenerator",desc);
@@ -66,10 +65,10 @@ HLLHCEvtVtxGenerator::HLLHCEvtVtxGenerator(const edm::ParameterSet & p )
     bets(p.getParameter<double>("BetaSeparationPlaneInm")),
     epsxn(p.getParameter<double>("HorizontalEmittance")),
     epssn(p.getParameter<double>("VerticalEmittance")),
-    sigs(p.getParameter<double>("BunchLengthInm")),
-    oncc(p.getParameter<double>("CrabCavityVoltage")),
-    alphax(oncc*p.getParameter<double>("CrabbingAngleCrossingInurad")*1e-6),
-    alphay(oncc*p.getParameter<double>("CrabbingAngleSeparationInurad")*1e-6),
+    sigs(p.getParameter<double>("BunchLengthInm")),    
+    alphax(p.getParameter<double>("CrabbingAngleCrossingInurad")*1e-6),
+    alphay(p.getParameter<double>("CrabbingAngleSeparationInurad")*1e-6),
+    oncc(alphax/phi),
     epsx(epsxn/(betagamma)),
     epss(epsx),
     sigx(std::sqrt(epsx*betx)),
@@ -171,9 +170,9 @@ double HLLHCEvtVtxGenerator::intensity(double x,
   const double dx_plus  = (z-t*ct)*(cax*st_plus-sax_plus*ct)   - (x-t*st_plus)*(sax_plus*st_plus+cax*ct);
   const double dx_minus = (z+t*ct)*(cax*st_minus-sax_minus*ct) - (x+t*st_minus)*(sax_minus*st_minus+cax*ct);
 
-  const double dx=-(z-t)*sax_plus -x*cax; 
+  const double dx=/*-(z-t)*sax_plus*/ -x*cax; 
 
-  const double dy=-(z-t)*say-y*cay;
+  const double dy=/*-(z-t)*say*/-y*cay;
 
   const double zrho=rhozt(z,t);
 
