@@ -32,7 +32,7 @@ trackingPhase2PU140.toReplaceWith(highPtTripletStepSeedClusterMask, seedClusterR
     )
 )
 trackingPhase2PU140.toReplaceWith(pixelPairStepSeedClusterMask, seedClusterRemoverPhase2.clone(
-    trajectories = cms.InputTag("pixelPairStepSeeds"),
+    trajectories = cms.InputTag("detachedQuadStepSeeds"),
     oldClusterRemovalInfo = cms.InputTag("highPtTripletStepSeedClusterMask")
     )
 )
@@ -263,7 +263,6 @@ trackingPhase1PU70.toModify(newCombinedSeeds, seedCollections = [
 trackingPhase2PU140.toModify(newCombinedSeeds, seedCollections = [
     'initialStepSeeds',
     'highPtTripletStepSeeds',
-    'pixelPairStepSeeds',
     'tripletElectronSeeds'
 ])
 
