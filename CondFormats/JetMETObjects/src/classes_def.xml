@@ -16,21 +16,6 @@
   <class name="JetCorrectorParametersCollection::pair_type"/>
   <class name="JetCorrectorParameters::Definitions"/>
   <class name="JetCorrectorParameters::Record"/>
-  <class name="JetCorrectorParameters::JetCorrectorParametersHelper<float,1>">
-    <field name="mBinBoundaries" transient="true"/>
-    <field name="mIndexMap"      transient="true"/>
-    <field name="mMap"           transient="true"/>
-  </class>
-  <class name="JetCorrectorParameters::JetCorrectorParametersHelper<float,2>">
-    <field name="mBinBoundaries" transient="true"/>
-    <field name="mIndexMap"      transient="true"/>
-    <field name="mMap"           transient="true"/>
-  </class>
-  <class name="JetCorrectorParameters::JetCorrectorParametersHelper<float,3>">
-    <field name="mBinBoundaries" transient="true"/>
-    <field name="mIndexMap"      transient="true"/>
-    <field name="mMap"           transient="true"/>
-  </class>
   <class name="std::vector<JetCorrectorParameters>"/>
   <class name="std::vector<JetCorrectorParameters::Record>"/>
   <class name="std::vector<JetCorrectorParametersCollection>"/>

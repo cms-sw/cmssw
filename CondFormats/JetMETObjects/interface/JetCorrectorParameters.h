@@ -108,13 +108,13 @@ class JetCorrectorParameters
         using tuple_type_Nm1 = typename generate_tuple_type<T,SIZE-1>::type;
       private:
         // Stores the lower and upper bounds of the bins for each binned dimension
-        std::vector<std::vector<float> >                                           mBinBoundaries COND_TRANSIENT;
+        std::vector<std::vector<float> >                                           mBinBoundaries;
         // Maps a set of lower bounds for N binned dimensions to the index in mRecords
-        std::unordered_map<tuple_type, size_t>                                     mIndexMap      COND_TRANSIENT;
+        std::unordered_map<tuple_type, size_t>                                     mIndexMap;
         // Maps a set of lower bounds for the first N-1 dimensions to the range of lower bound indices mBinBoundaries for the N dimension
-        std::unordered_map<tuple_type_Nm1, std::pair<size_t,size_t> >              mMap           COND_TRANSIENT;
+        std::unordered_map<tuple_type_Nm1, std::pair<size_t,size_t> >              mMap;
 
-      COND_SERIALIZABLE;
+      COND_TRANSIENT;
     };
      
     //-------- Constructors --------------
