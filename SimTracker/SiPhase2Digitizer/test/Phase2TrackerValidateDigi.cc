@@ -183,7 +183,7 @@ int Phase2TrackerValidateDigi::fillSimHitInfo(const edm::Event& iEvent, unsigned
       if (!geomDet) continue;
       Global3DPoint pdPos = geomDet->surface().toGlobal(isim->localPosition());
 
-      SimulatedXYPositionMap->Fill(pdPos.x(), pdPos.y());   
+      SimulatedXYPositionMap->Fill(pdPos.x()*10., pdPos.y()*10.);   
       SimulatedRZPositionMap->Fill(pdPos.z()*10., std::hypot(pdPos.x(),pdPos.y())*10.);   
       
       const TrackerGeomDet* geomDetUnit(gHandle->idToDetUnit(detId));
@@ -198,6 +198,15 @@ int Phase2TrackerValidateDigi::fillSimHitInfo(const edm::Event& iEvent, unsigned
       if (nColumns <= 2) local_mes.SimHitElossS->Fill((*isim).energyLoss()/GeVperElectron);
       else local_mes.SimHitElossP->Fill((*isim).energyLoss()/GeVperElectron);
       
+      local_mes.SimHitDx->Fill(std::fabs((*isim).entryPoint().x()-(*isim).exitPoint().x()));
+      local_mes.SimHitDy->Fill(std::fabs((*isim).entryPoint().y()-(*isim).exitPoint().y()));
+      local_mes.SimHitDz->Fill(std::fabs((*isim).entryPoint().z()-(*isim).exitPoint().z()));
+      
+      SimulatedTOFEtaMap->Fill(pdPos.eta(),(*isim).timeOfFlight());
+      SimulatedTOFPhiMap->Fill(pdPos.phi(),(*isim).timeOfFlight());
+      SimulatedTOFRMap->Fill(std::hypot(pdPos.x(),pdPos.y()),(*isim).timeOfFlight());
+      SimulatedTOFZMap->Fill(pdPos.z(),(*isim).timeOfFlight());
+
       if (fabs(eta) <  etaCut_) fillHistogram(local_mes.SimTrackPt, local_mes.SimTrackPtP, local_mes.SimTrackPtS, pt, type);
       if (pt > ptCut_) fillHistogram(local_mes.SimTrackEta, local_mes.SimTrackEtaP, local_mes.SimTrackEtaS, eta, type);
       if ( fabs(eta) < etaCut_ && pt > ptCut_) fillHistogram(local_mes.SimTrackPhi, local_mes.SimTrackPhiP, local_mes.SimTrackPhiS, phi, type);
@@ -213,7 +222,7 @@ int Phase2TrackerValidateDigi::fillSimHitInfo(const edm::Event& iEvent, unsigned
 	if ( fabs(eta) < etaCut_ && pt > ptCut_) fillHistogram(local_mes.MatchedTrackPhi,local_mes.MatchedTrackPhiP,local_mes.MatchedTrackPhiS,phi,type);
 	
 	MatchedRZPositionMap->Fill(pdPos.z()*10., std::hypot(pdPos.x(),pdPos.y())*10.);   
-	MatchedXYPositionMap->Fill(pdPos.x(), pdPos.y());
+	MatchedXYPositionMap->Fill(pdPos.x()*10., pdPos.y()*10.);
 	
       }
     }
@@ -370,6 +379,51 @@ void Phase2TrackerValidateDigi::bookHistograms(DQMStore::IBooker & ibooker,
 				 Parameters.getParameter<int32_t>("Nybins"),
 				 Parameters.getParameter<double>("ymin"),
 				 Parameters.getParameter<double>("ymax"));
+
+  //add TOF maps
+  Parameters =  config_.getParameter<edm::ParameterSet>("TOFEtaMapH");
+  HistoName.str("");
+  HistoName << "SimulatedTOFVsEta";
+  SimulatedTOFEtaMap = ibooker.book2D(HistoName.str(), HistoName.str(),
+					  Parameters.getParameter<int32_t>("Nxbins"),
+					  Parameters.getParameter<double>("xmin"),
+					  Parameters.getParameter<double>("xmax"),
+					  Parameters.getParameter<int32_t>("Nybins"),
+					  Parameters.getParameter<double>("ymin"),
+					  Parameters.getParameter<double>("ymax"));
+
+  Parameters =  config_.getParameter<edm::ParameterSet>("TOFPhiMapH");
+  HistoName.str("");
+  HistoName << "SimulatedTOFVsPhi";
+  SimulatedTOFPhiMap = ibooker.book2D(HistoName.str(), HistoName.str(),
+				      Parameters.getParameter<int32_t>("Nxbins"),
+				      Parameters.getParameter<double>("xmin"),
+				      Parameters.getParameter<double>("xmax"),
+				      Parameters.getParameter<int32_t>("Nybins"),
+				      Parameters.getParameter<double>("ymin"),
+				      Parameters.getParameter<double>("ymax"));
+  
+  Parameters =  config_.getParameter<edm::ParameterSet>("TOFRMapH");
+  HistoName.str("");
+  HistoName << "SimulatedTOFVsR";
+  SimulatedTOFRMap = ibooker.book2D(HistoName.str(), HistoName.str(),
+                                      Parameters.getParameter<int32_t>("Nxbins"),
+                                      Parameters.getParameter<double>("xmin"),
+                                      Parameters.getParameter<double>("xmax"),
+                                      Parameters.getParameter<int32_t>("Nybins"),
+                                      Parameters.getParameter<double>("ymin"),
+                                      Parameters.getParameter<double>("ymax"));
+
+  Parameters =  config_.getParameter<edm::ParameterSet>("TOFZMapH");
+  HistoName.str("");
+  HistoName << "SimulatedTOFVsZ";
+  SimulatedTOFZMap = ibooker.book2D(HistoName.str(), HistoName.str(),
+                                      Parameters.getParameter<int32_t>("Nxbins"),
+                                      Parameters.getParameter<double>("xmin"),
+                                      Parameters.getParameter<double>("xmax"),
+                                      Parameters.getParameter<int32_t>("Nybins"),
+                                      Parameters.getParameter<double>("ymin"),
+                                      Parameters.getParameter<double>("ymax"));
 
   edm::ESWatcher<TrackerDigiGeometryRecord> theTkDigiGeomWatcher;
 
@@ -580,6 +634,31 @@ void Phase2TrackerValidateDigi::bookLayerHistos(DQMStore::IBooker & ibooker, uns
 						Parameters.getParameter<int32_t>("Nbins"),
 						Parameters.getParameter<double>("xmin"),
 						Parameters.getParameter<double>("xmax"));
+
+    Parameters =  config_.getParameter<edm::ParameterSet>("SimHitDxH");
+    HistoName.str("");
+    HistoName << "SimHitDx_" << fname2.str();
+    local_mes.SimHitDx = ibooker.book1D(HistoName.str(),HistoName.str(),
+					Parameters.getParameter<int32_t>("Nbins"),
+					Parameters.getParameter<double>("xmin"),
+					Parameters.getParameter<double>("xmax"));
+    
+    Parameters =  config_.getParameter<edm::ParameterSet>("SimHitDyH");
+    HistoName.str("");
+    HistoName << "SimHitDy_" << fname2.str();
+    local_mes.SimHitDy = ibooker.book1D(HistoName.str(),HistoName.str(),
+					 Parameters.getParameter<int32_t>("Nbins"),
+					 Parameters.getParameter<double>("xmin"),
+					 Parameters.getParameter<double>("xmax"));
+
+    Parameters =  config_.getParameter<edm::ParameterSet>("SimHitDzH");
+    HistoName.str("");
+    HistoName << "SimHitDz_" << fname2.str();
+    local_mes.SimHitDz = ibooker.book1D(HistoName.str(),HistoName.str(),
+					 Parameters.getParameter<int32_t>("Nbins"),
+					 Parameters.getParameter<double>("xmin"),
+					 Parameters.getParameter<double>("xmax"));
+
     layerMEs.insert(std::make_pair(layer, local_mes)); 
   }  
 }
