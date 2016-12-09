@@ -3,6 +3,10 @@
 #include <cassert>
 #include <math.h>
 
+namespace {
+  constexpr float chi2_constant = 64.f/((1<<7) - 1);
+}
+
 FTLRecHit::FTLRecHit() : CaloRecHit(), flagBits_(0) {
 }
 
@@ -11,13 +15,14 @@ FTLRecHit::FTLRecHit(const DetId& id, float energy, float time, uint32_t flags, 
 }
 
 float FTLRecHit::chi2() const {
+  
   uint32_t rawChi2 = 0x7F & (flags()>>4);
-  return (float)rawChi2 / (float)((1<<7)-1) * 64.;
+  return (float)rawChi2 * chi2_constant;
 }
 
 float FTLRecHit::outOfTimeChi2() const {
   uint32_t rawChi2Prob = 0x7F & (flags()>>24);
-  return (float)rawChi2Prob / (float)((1<<7)-1) * 64.;
+  return (float)rawChi2Prob * chi2_constant;
 }
 
 float FTLRecHit::outOfTimeEnergy() const {
