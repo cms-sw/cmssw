@@ -61,21 +61,22 @@ HGCalClusterTestProducer::HGCalClusterTestProducer(const edm::ParameterSet &ps) 
   double delta_c = ps.getParameter<double>("deltac");
   double kappa = ps.getParameter<double>("kappa");
   double multicluster_radius = ps.getParameter<double>("multiclusterRadius");
+  double minClusters = ps.getParameter<unsigned>("minClusters");
   
   
   if(detector=="all") {
-    hits_ee_token = consumes<HGCRecHitCollection>(edm::InputTag("HGCalRecHit:HGCEERecHits"));
-    hits_fh_token = consumes<HGCRecHitCollection>(edm::InputTag("HGCalRecHit:HGCHEFRecHits"));
-    hits_bh_token = consumes<HGCRecHitCollection>(edm::InputTag("HGCalRecHit:HGCHEBRecHits"));
+    hits_ee_token = consumes<HGCRecHitCollection>(ps.getParameter<edm::InputTag>("HGCEEInput"));
+    hits_fh_token = consumes<HGCRecHitCollection>(ps.getParameter<edm::InputTag>("HGCFHInput"));
+    hits_bh_token = consumes<HGCRecHitCollection>(ps.getParameter<edm::InputTag>("HGCBHInput"));
     algoId = reco::CaloCluster::hgcal_mixed;
   }else if(detector=="EE") {
-    hits_ee_token = consumes<HGCRecHitCollection>(edm::InputTag("HGCalRecHit:HGCEERecHits"));
+    hits_ee_token = consumes<HGCRecHitCollection>(ps.getParameter<edm::InputTag>("HGCEEInput"));
     algoId = reco::CaloCluster::hgcal_em;
   }else if(detector=="FH") {
-    hits_fh_token = consumes<HGCRecHitCollection>(edm::InputTag("HGCalRecHit:HGCHEFRecHits"));
+    hits_fh_token = consumes<HGCRecHitCollection>(ps.getParameter<edm::InputTag>("HGCFHInput"));
     algoId = reco::CaloCluster::hgcal_had;
   } else {
-    hits_bh_token = consumes<HGCRecHitCollection>(edm::InputTag("HGCalRecHit:HGCHEBRecHits"));
+    hits_bh_token = consumes<HGCRecHitCollection>(ps.getParameter<edm::InputTag>("HGCBHInput"));
     algoId = reco::CaloCluster::hgcal_had;
   }
 
@@ -87,7 +88,9 @@ HGCalClusterTestProducer::HGCalClusterTestProducer(const edm::ParameterSet &ps) 
     algo = std::make_unique<HGCalImagingAlgo>(delta_c, kappa, ecut, algoId, verbosity);
   }
 
-  multicluster_algo = std::make_unique<HGCalDepthPreClusterer>(multicluster_radius);
+  auto sumes = consumesCollector();
+
+  multicluster_algo = std::make_unique<HGCalDepthPreClusterer>(ps, sumes, multicluster_radius, minClusters);
 
   // hydraTokens[0] = consumes<std::vector<reco::PFCluster> >( edm::InputTag("FakeClusterGen") );
   // hydraTokens[1] = consumes<std::vector<reco::PFCluster> >( edm::InputTag("FakeClusterCaloFace") );
@@ -115,6 +118,9 @@ void HGCalClusterTestProducer::produce(edm::Event& evt,
   algo->reset();
 
   algo->getEventSetup(es);
+
+  multicluster_algo->getEvent(evt);
+  multicluster_algo->getEventSetup(es);
 
   switch(algoId){
   case reco::CaloCluster::hgcal_em:
