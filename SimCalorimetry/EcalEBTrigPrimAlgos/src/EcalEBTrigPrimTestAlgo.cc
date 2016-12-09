@@ -1,7 +1,7 @@
 /** \class EcalEBTrigPrimTestAlgo
  *
  * EcalEBTrigPrimTestAlgo 
- * starting point for Phase II: build TPs out of RecHit to start building the
+ * starting point for Phase II: build TPs out of Phase I digis to start building the
  * infrastructures
  *
  *
@@ -100,7 +100,8 @@ EcalEBTrigPrimTestAlgo::~EcalEBTrigPrimTestAlgo()
   delete fenixFormatterEB_;
   delete fenixTcpFormat_;
 }
-//----------------------------------------------------------------------
+
+/*
 void EcalEBTrigPrimTestAlgo::run(const edm::EventSetup & setup, EcalRecHitCollection const * rh,
 				 EcalEBTrigPrimDigiCollection & result,
 				 EcalEBTrigPrimDigiCollection & resultTcp)
@@ -147,12 +148,12 @@ void EcalEBTrigPrimTestAlgo::run(const edm::EventSetup & setup, EcalRecHitCollec
       if (debug_) std::cout << " Et in GeV " << et << " tpgADC10b " << tpgADC10b << std::endl;
       fEt=et;
 
-      /*      
-      if (fEt >0xfff)
-      	fEt=0xfff;
-      fEt >>=2;
-      if (fEt>0x3ff) fEt=0x3ff;
-      */
+     
+      // if (fEt >0xfff)
+      // 	fEt=0xfff;
+      //fEt >>=2;
+      //if (fEt>0x3ff) fEt=0x3ff;
+     
       //std::cout << " Et after formatting " << fEt << std::endl;
       EcalTriggerPrimitiveSample mysam(fEt);
       tp.setSample(nSam, mysam );
@@ -173,7 +174,7 @@ void EcalEBTrigPrimTestAlgo::run(const edm::EventSetup & setup, EcalRecHitCollec
   }
 
 }
-
+*/
 
 
 void EcalEBTrigPrimTestAlgo::run(const edm::EventSetup & setup, 

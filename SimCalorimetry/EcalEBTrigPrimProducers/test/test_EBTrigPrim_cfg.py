@@ -102,12 +102,10 @@ process.load('Configuration.StandardSequences.MagneticField_38T_PostLS1_cff')
 #process.simEcalEBTriggerPrimitiveDigis = cms.EDProducer("EcalEBTrigPrimProducer",
 process.EcalEBTrigPrimProducer = cms.EDProducer("EcalEBTrigPrimProducer",
     BarrelOnly = cms.bool(True),
-    barrelEcalHits = cms.InputTag("ecalRecHit","EcalRecHitsEB"),
 #    barrelEcalDigis = cms.InputTag("simEcalUnsuppressedDigis","ebDigis"),
     barrelEcalDigis = cms.InputTag("simEcalDigis","ebDigis"),
 #    barrelEcalDigis = cms.InputTag("selectDigi","selectedEcalEBDigiCollection"),
     binOfMaximum = cms.int32(6), ## optional from release 200 on, from 1-10
-    UseRecHits = cms.bool(False),
     TcpOutput = cms.bool(False),
     Debug = cms.bool(True),
     Famos = cms.bool(False),

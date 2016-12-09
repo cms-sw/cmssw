@@ -16,7 +16,6 @@
 #include "DataFormats/Common/interface/Handle.h"
  
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
   
 class EcalEBTrigPrimTestAlgo;
@@ -42,11 +41,9 @@ class EcalEBTrigPrimProducer : public edm::stream::EDProducer<>
   bool tcpFormat_;
   bool debug_;
   bool famos_;
-  bool useRecHits_;
   int  nSamples_;
   int  nEvent_;
   
-  edm::EDGetTokenT<EcalRecHitCollection> tokenEBrh_;
   edm::EDGetTokenT<EBDigiCollection> tokenEBdigi_;
 
   int binOfMaximum_;
