@@ -22,7 +22,7 @@ namespace {
   constexpr double gamma34 = 1.22541670246517764513;    // Gamma(3/4)
   constexpr double gamma14 = 3.62560990822190831193;    // Gamma(1/4)
   constexpr double gamma54 = 0.90640247705547798267;    // Gamma(5/4)
-  constexpr double two_pi=8.0*std::atan(1.0);
+  constexpr double two_pi=2.0*M_PI;
 }
 
 void HLLHCEvtVtxGenerator::fillDescriptions(edm::ConfigurationDescriptions &descriptions)
