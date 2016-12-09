@@ -68,7 +68,7 @@ public:
 	 * A copy of the vector of energies for each pane
 	 * @return a vector of energies
 	 */
-	std::vector<double> getEnergies() const {
+	std::vector<double> const & getEnergies() const {
 		return myPanes_;
 	}
 
@@ -86,10 +86,9 @@ public:
 private:
 	unsigned panes_;
 	std::vector<double> myPanes_;
-
-	friend std::ostream& operator<<(std::ostream& s, const CaloRing& caloRing);
-
 };
+ 
+std::ostream& operator<<(std::ostream& s, const CaloRing& caloRing);
 
 class CaloWindow {
 public:
@@ -119,7 +118,7 @@ public:
 	 * and the first entry of the bary centre itself
 	 *
 	 */
-	std::map<unsigned, CaloRing> getRingDepositions() const {
+	std::map<unsigned, CaloRing>const&  getRingDepositions() const {
 		return energies_;
 	}
 
@@ -138,6 +137,9 @@ public:
 	 * @return a vector of doubles
 	 */
 	std::vector<double> stream(double normalisation = 1.0) const;
+
+	double baryEta() const {return baryEta_;}
+	double baryPhi() const { return baryPhi_;}
 
 private:
 	//Where is the barycentre of this window?
@@ -163,10 +165,11 @@ private:
 	std::map<unsigned, CaloRing> energies_;
 
 
-	friend std::ostream& operator<<(std::ostream& s,
-			const CaloWindow& caloWindow);
 
 };
+
+std::ostream& operator<<(std::ostream& s,
+                         const CaloWindow& caloWindow);
 
 class TestCaloWindow {
 public:

@@ -33,14 +33,14 @@ namespace reco {
     /// return reference to the associated vertex
     const VertexRef&  vertexRef() const {return vertexRef_;}
     
-
-    friend std::ostream& operator<<( std::ostream& out, 
-				     const PileUpPFCandidate& c );
-  
   private:
     
     VertexRef     vertexRef_;
   };
+
+  std::ostream& operator<<( std::ostream& out, 
+                            const PileUpPFCandidate& c );
+  
 
 
 }
