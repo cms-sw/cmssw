@@ -8,17 +8,24 @@
 
 #include <list>
 
-
+#include "RecoLocalCalo/HGCalRecAlgos/interface/ClusterTools.h"
 
 class HGCalDepthPreClusterer 
 {
 public:
   
-  HGCalDepthPreClusterer() : radius(0.) {
+ HGCalDepthPreClusterer() : radius(0.), minClusters(0.), clusterTools(nullptr)
+    {
   }
   
-  HGCalDepthPreClusterer(double radius_in) : radius(radius_in) {
+ HGCalDepthPreClusterer(const edm::ParameterSet& conf, edm::ConsumesCollector& sumes, double radius_in, uint32_t min_clusters) : 
+  radius(radius_in),
+  minClusters(min_clusters),
+  clusterTools(std::make_unique<hgcal::ClusterTools>(conf,sumes)) {
   }
+
+  void getEvent(const edm::Event& ev) { clusterTools->getEvent(ev); }
+  void getEventSetup(const edm::EventSetup& es) { clusterTools->getEventSetup(es); }
 
   typedef std::vector<reco::BasicCluster> ClusterCollection;
   //  typedef std::vector<reco::BasicCluster> MultiCluster;
@@ -27,6 +34,10 @@ public:
 
 private:  
   float radius;
+  uint32_t minClusters;
+  
+  std::unique_ptr<hgcal::ClusterTools> clusterTools;
+
 };
 
 #endif

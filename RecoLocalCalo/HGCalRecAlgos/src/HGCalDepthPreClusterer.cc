@@ -31,27 +31,30 @@ std::vector<reco::HGCalMultiCluster> HGCalDepthPreClusterer::makePreClusters(con
   unsigned int used = 0;
   for(unsigned int i = 0; i < es.size(); ++i) {
     if(vused[i]==0) {
-      thePreClusters.emplace_back( thecls[es[i]] );
+      reco::HGCalMultiCluster temp;      
+      temp.push_back(thecls[es[i]]);
       vused[i]=(thecls[es[i]]->z()>0)? 1 : -1;
       ++used;
       for(unsigned int j = i+1; j < es.size(); ++j) {
 	if(vused[j]==0) {
 	  if( dist(thecls[es[i]],thecls[es[j]])<radius && int(thecls[es[i]]->z()*vused[i])>0 ) {
-	    thePreClusters.back().push_back(thecls[es[j]]);
+	    temp.push_back(thecls[es[j]]);
 	    vused[j]=vused[i];
 	    ++used;
 	  }	
 	}
       }
-      auto& back = thePreClusters.back();
-      reco::PFCluster::REPPoint temp;
-      temp.SetRho(back.simple_rho());
-      temp.SetEta(back.simple_eta(0.0));
-      temp.SetPhi(back.simple_phi());      
-      back.setPosition(math::XYZPoint(temp.x(),temp.y(),temp.z()));
-      back.setEnergy(back.total_uncalibrated_energy());
+      if( temp.size() > minClusters ) {
+        thePreClusters.push_back(temp);
+        auto& back = thePreClusters.back();
+        back.setPosition(clusterTools->getMultiClusterPosition(back));
+        back.setEnergy(clusterTools->getMultiClusterEnergy(back));
+      }
     }
   }
+  
+  
+
   return thePreClusters;
 }
 

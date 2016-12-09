@@ -74,3 +74,34 @@ float ClusterTools::getClusterHadronFraction(const reco::CaloCluster& clus) cons
 }
 
 
+math::XYZPoint ClusterTools::getMultiClusterPosition(const reco::HGCalMultiCluster& clu, double vz) const {
+  if( clu.clusters().size() == 0 ) return math::XYZPoint();
+  double acc_rho = 0.0;
+  double acc_eta = 0.0;
+  double acc_phi = 0.0;
+  double totweight = 0.;
+  for( const auto& ptr : clu.clusters() ) {   
+    const double x = ptr->x();    
+    const double y = ptr->y();
+    const float point_r = std::sqrt(x*x + y*y);    
+    const double point_z = ptr->z()-vz;
+    const double weight = ptr->energy() * ptr->size();
+    assert((y != 0. || x != 0.) && "Cluster position somehow in beampipe.");
+    assert(point_z != 0. && "Layer-cluster position given as reference point.");
+    acc_rho += point_r * weight;
+    acc_phi += std::atan2(y,x) * weight;
+    acc_eta += -1. * std::log(std::tan(0.5*std::atan2(point_r,point_z))) * weight;
+    totweight += weight;
+  }
+  const double invweight = 1.0/totweight;
+  reco::PFCluster::REPPoint temp(acc_rho*invweight,acc_eta*invweight,acc_phi*invweight);
+  return math::XYZPoint(temp.x(),temp.y(),temp.z());
+}
+
+double ClusterTools::getMultiClusterEnergy(const reco::HGCalMultiCluster& clu) const {
+  double acc = 0.0;
+  for(const auto& ptr : clu.clusters() ) {
+    acc += ptr->energy();
+  }
+  return acc;
+}
