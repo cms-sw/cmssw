@@ -179,7 +179,7 @@ void PFPhotonClusters::FillClusterShape(){
     else{
       int dx=EEDetId::distanceX(id,idseed_);
       int dy=EEDetId::distanceY(id,idseed_);
-      if(std::abs(dx)>2 ||std::abs(dyi)>2) continue;
+      if(std::abs(dx)>2 ||std::abs(dy)>2) continue;
       EEDetId EEidSeed=EEDetId(idseed_.rawId());
       EEDetId EEid=EEDetId(id.rawId());
       int ind1=EEid.ix()-EEidSeed.ix();
