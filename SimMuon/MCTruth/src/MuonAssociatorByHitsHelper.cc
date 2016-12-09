@@ -1185,10 +1185,10 @@ int MuonAssociatorByHitsHelper::getShared(MapOfMatchedIds & matchedIds, Tracking
     
     bool found = false;
     
-    for (std::vector<SimHitIdpr>::const_iterator iSimH=SimTrackIds.begin(); iSimH!=SimTrackIds.end(); ++iSimH) {
+    for (const auto& iSimH : SimTrackIds) {
         
-      uint32_t simtrackId = iSimH->first;
-      EncodedEventId evtId = iSimH->second;
+      uint32_t simtrackId = iSimH.first;
+      EncodedEventId evtId = iSimH.second;
       
       // look for shared hits with the given TrackingParticle (looping over component SimTracks)
       for (const auto& simtrack : g4Tracks) {
