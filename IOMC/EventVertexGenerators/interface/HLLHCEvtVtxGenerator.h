@@ -78,14 +78,14 @@ private:
     //bunch length
     const double sigs;
 
-    // fraction of crab cavity voltage
-    const double oncc;
-
     //crabbing angle crossing
     const double alphax;
 
     //crabbing angle separation
     const double alphay;
+
+    // ratio of crabbing angle to crossing angle
+    const double oncc;
 
     //normalized crossing emittance
     const double epsx;

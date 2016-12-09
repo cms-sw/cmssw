@@ -636,10 +636,9 @@ HLLHCVtxSmearingParameters = cms.PSet(
     RF800 = cms.bool(False),
     BetaCrossingPlaneInm = cms.double(0.20),
     BetaSeparationPlaneInm = cms.double(0.20),
-    HorizontalEmittance = cms.double(2.54924131e-06),
-    VerticalEmittance = cms.double(2.19302467e-06),
-    BunchLengthInm = cms.double(0.081),
-    CrabCavityVoltage = cms.double(1.0),
+    HorizontalEmittance = cms.double(2.5e-06),
+    VerticalEmittance = cms.double(2.05e-06),
+    BunchLengthInm = cms.double(0.09),
     CrabbingAngleCrossingInurad = cms.double(380.0),
     CrabbingAngleSeparationInurad = cms.double(0.0)    
 )
