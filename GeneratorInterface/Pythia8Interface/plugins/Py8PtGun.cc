@@ -67,7 +67,7 @@ bool Py8PtGun::generatePartonsAndHadronize()
       double pz = pp * cos(the);
 
       if ( !((fMasterGen->particleData).isParticle( particleID )) ){
-         particleID = std::std::abs(particleID) ;
+         particleID = std::abs(particleID) ;
       }
       if( 1<= std::abs(particleID) && std::abs(particleID) <= 6) // quarks
 	(fMasterGen->event).append( particleID, 23, 101, 0, px, py, pz, ee, mass ); 
