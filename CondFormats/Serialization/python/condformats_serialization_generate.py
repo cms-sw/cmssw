@@ -271,6 +271,8 @@ def get_serializable_classes_members(node, all_template_types=None, namespace=''
                     clang.cindex.CursorKind.CONVERSION_FUNCTION,
                     clang.cindex.CursorKind.TYPE_REF,
                     clang.cindex.CursorKind.DECL_REF_EXPR,
+                    clang.cindex.CursorKind.CLASS_TEMPLATE,
+                    clang.cindex.CursorKind.TYPE_ALIAS_DECL,
                 ]):
                     logging.debug('Skipping member: %s %s %s %s', member.displayname, member.spelling, member.kind, member.type.kind)
 
