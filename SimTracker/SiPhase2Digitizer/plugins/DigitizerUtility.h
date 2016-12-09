@@ -14,60 +14,26 @@
 namespace DigitizerUtility {
   class Amplitude {
   public:
-    Amplitude() : _amp(0.0)
-    {}
-    Amplitude(float amp, float frac) :
-      _amp(amp), _frac(1, frac), _hitInfo() 
-    {
-      // in case of digi from noisypixels
-      // the MC information are removed
-      if (_frac[0] < -0.5)
-	_frac.pop_back();
-    }
-
-    Amplitude( float amp, const PSimHit* hitp, size_t hitIndex, unsigned int tofBin, float frac) :
-    _amp(amp), _frac(1, frac), _hitInfo(new SimHitInfoForLinks(hitp, hitIndex, tofBin)) {
-      // in case of digi from noisypixels
-      // the MC information are removed
-      if (_frac[0] < -0.5) {
-	_frac.pop_back();
-	_hitInfo->trackIds().pop_back();
+    Amplitude() : _amp(0.0) {}
+    Amplitude( float amp, const PSimHit* hitp, float frac=0, size_t hitIndex=0, unsigned int tofBin=0) :
+      _amp(amp) {
+      if (frac > 0) {
+	if (hitp != nullptr) _simInfoList.push_back({frac,new SimHitInfoForLinks(hitp,hitIndex,tofBin)});
+        else _simInfoList.push_back({frac,0});
       }
     }
 
     // can be used as a float by convers.
     operator float() const {return _amp;}
     float ampl() const {return _amp;}
-    const std::vector<float>& individualampl() const {return _frac;}
-    const std::vector<unsigned int>& trackIds() const {return _hitInfo->trackIds();}
-    const std::shared_ptr<SimHitInfoForLinks>& hitInfo() const {return _hitInfo;}
+    const std::vector<std::pair<float,SimHitInfoForLinks*> >& simInfoList() const {return _simInfoList;}
 
     void operator+= (const Amplitude& other) {
       _amp += other._amp;
-
-      // in case of contribution of noise to the digi
-      // the MC information are removed
-      if (other._frac.size() > 0 && other._frac[0] > -0.5) {
-        if (other._hitInfo) {
-          const std::vector<unsigned int>& otherTrackIds = other._hitInfo->trackIds();
-          if (_hitInfo) {
-            std::vector<unsigned int>& trackIds = _hitInfo->trackIds();
-	    trackIds.insert(trackIds.end(), otherTrackIds.begin(), otherTrackIds.end());
-          } 
-	  else 
-            _hitInfo.reset(new SimHitInfoForLinks(*other._hitInfo));
-        }
-	_frac.insert(_frac.end(), other._frac.begin(), other._frac.end());
+      // in case of digi from the noise, the MC information need not be there
+      for (auto const & ic : other.simInfoList()) {
+	if (ic.first > -0.5) _simInfoList.push_back({ic.first, ic.second});
       }
-    }
-    const EncodedEventId& eventId() const {
-      return _hitInfo->eventId();
-    }
-    const unsigned int hitIndex() const {
-      return _hitInfo->hitIndex();
-    }
-    const unsigned int tofBin() const {
-      return _hitInfo->tofBin();
     }
     void operator+= (const float& amp) {
       _amp += amp;
@@ -81,8 +47,7 @@ namespace DigitizerUtility {
 
   private:
     float _amp;
-    std::vector<float> _frac;
-    std::shared_ptr<SimHitInfoForLinks> _hitInfo;
+    std::vector<std::pair<float,SimHitInfoForLinks*> > _simInfoList;
   };
 
   //*********************************************************
@@ -142,10 +107,7 @@ namespace DigitizerUtility {
   struct DigiSimInfo {
     int sig_tot;
     bool ot_bit;
-    std::map<unsigned int, float> track_map;
-    unsigned int hit_counter;
-    unsigned int tof_bin; 
-    EncodedEventId event_id;
+    std::vector<std::pair<float, SimHitInfoForLinks*> > simInfoList;
   };
 }
 #endif
