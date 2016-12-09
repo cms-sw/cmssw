@@ -125,7 +125,7 @@ void ME0ReDigiProducer::buildDigis(const ME0DigiPreRecoCollection & input_digis,
         << "Check detId " << detId << " digi " << me0Digi << std::endl;
 
       // selection
-      if (reDigitizeOnlyMuons_ and fabs(me0Digi.pdgid()) != 13) continue;
+      if (reDigitizeOnlyMuons_ and std::abs(me0Digi.pdgid()) != 13) continue;
       if (!reDigitizeNeutronBkg_ and !me0Digi.prompt()) continue;
 
       // scale for luminosity
