@@ -346,7 +346,7 @@ void CSCXonStrip_MatchGatti::findXOnStrip( const CSCDetId& id, const CSCLayer* l
     }
     if(0==stripHit.deadStrip() &&
        stripHit.numberOfConsecutiveStrips()<maxConsecutiveStrips &&
-       fabs(stripHit.closestMaximum())>maxConsecutiveStrips/2 ){
+       std::abs(stripHit.closestMaximum())>maxConsecutiveStrips/2 ){
       sigma =  float(calculateXonStripError(stripWidth, ME1_1));
     }
     else{ //---- near dead strip or too close maxima or too wide strip cluster
@@ -546,16 +546,16 @@ double CSCXonStrip_MatchGatti::estimated2GattiCorrection(double x_estimated, flo
     delta_strip_width = stripWidth - int(stripWidth*10)/10.;
     delta_strip_widthUpDown = 0.1;
 
-    if(fabs(x_estimated)>0.5){
-      if(fabs(x_estimated)>1.){
+    if(std::abs(x_estimated)>0.5){
+      if(std::abs(x_estimated)>1.){
         corr_2_xestim = 1.;// for now; to be investigated
       }
       else{	 
-	//if(fabs(Xestimated)>0.55){
+	//if(std::abs(Xestimated)>0.55){
 	  //std::cout<<"X position from the estimated position above 0.55 (safty margin)?! "<<std::endl;
 	  //CorrToXc = 999.;
 	//}
-	xestim_bin = int((1.- fabs(x_estimated))/half_strip_width * n_bins);
+	xestim_bin = int((1.- std::abs(x_estimated))/half_strip_width * n_bins);
 	if(ME1_1){
 	  diff_2_strip_width = x_correction_ME1_1[stripUp][xestim_bin]-x_correction_ME1_1[stripDown][xestim_bin];
 	  corr_2_xestim =  x_correction_ME1_1[stripDown][xestim_bin] +
@@ -570,7 +570,7 @@ double CSCXonStrip_MatchGatti::estimated2GattiCorrection(double x_estimated, flo
       }
     }
     else{
-      xestim_bin = int((fabs(x_estimated)/half_strip_width) * n_bins);
+      xestim_bin = int((std::abs(x_estimated)/half_strip_width) * n_bins);
       if(ME1_1){
 	diff_2_strip_width = x_correction_ME1_1[stripUp][xestim_bin] - x_correction_ME1_1[stripDown][xestim_bin];
 	corr_2_xestim =  x_correction_ME1_1[stripDown][xestim_bin] +
@@ -659,7 +659,7 @@ double CSCXonStrip_MatchGatti::calculateXonStripError(float stripWidth, bool ME1
   //  double x_shift = sqrt( pow( xf_ErrorNoise, 2) + pow( xf_ErrorXTasym, 2)) * 
   //(1 + (estimated2GattiCorrection(xf+0.001, stripWidth, ME1_1) -
   //  estimated2GattiCorrection(xf, stripWidth, ME1_1))*1000.);
-  double x_error =   std::sqrt( std::pow( fabs(x_shift)*stripWidth, 2) + std::pow(const_syst, 2) );
+  double x_error =   std::sqrt( std::pow( std::abs(x_shift)*stripWidth, 2) + std::pow(const_syst, 2) );
   return  x_error; 
 }
 
