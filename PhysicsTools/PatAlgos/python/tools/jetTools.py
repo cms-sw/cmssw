@@ -895,7 +895,6 @@ class AddJetCollection(ConfigToolBase):
             addToProcessAndTask('selectedPatJets'+_labelName+postfix,
                                 selectedPatJets.clone(src='patJets'+_labelName+postfix),
                                 process, task)
-            _newSelectedPatJets=getattr(process, 'selectedPatJets'+_labelName+postfix)
             knownModules.append('selectedPatJets'+_labelName+postfix)
 
         ## add new patJetPartonMatch to process
@@ -908,7 +907,6 @@ class AddJetCollection(ConfigToolBase):
             addToProcessAndTask('patJetPartonMatch'+_labelName+postfix,
                                 patJetPartonMatch.clone(src=jetSource, matched=genParticles),
                                 process, task)
-            _newPatJetPartonMatch=getattr(process, 'patJetPartonMatch'+_labelName+postfix)
             knownModules.append('patJetPartonMatch'+_labelName+postfix)
         ## add new patJetGenJetMatch to process
         from PhysicsTools.PatAlgos.mcMatchLayer0.jetMatch_cfi import patJetGenJetMatch
@@ -921,7 +919,6 @@ class AddJetCollection(ConfigToolBase):
             addToProcessAndTask('patJetGenJetMatch'+_labelName+postfix,
                                 patJetGenJetMatch.clone(src=jetSource, maxDeltaR=rParam, matched=genJetCollection),
                                 process, task)
-            _newPatJetGenJetMatch=getattr(process, 'patJetGenJetMatch'+_labelName+postfix)
             knownModules.append('patJetGenJetMatch'+_labelName+postfix)
         ## modify new patJets collection accordingly
         _newPatJets.genJetMatch.setModuleLabel('patJetGenJetMatch'+_labelName+postfix)
@@ -945,7 +942,6 @@ class AddJetCollection(ConfigToolBase):
             else :
                 addToProcessAndTask('patJetPartonAssociationLegacy'+_labelName+postfix,
                                     patJetPartonAssociationLegacy.clone(jets=jetSource), process, task)
-                _newPatJetPartonAssociation=getattr(process, 'patJetPartonAssociationLegacy'+_labelName+postfix)
                 knownModules.append('patJetPartonAssociationLegacy'+_labelName+postfix)
             ## add new patJetPartonAssociationLegacy to process
             from PhysicsTools.PatAlgos.mcMatchLayer0.jetFlavourId_cff import patJetFlavourAssociationLegacy
@@ -957,7 +953,6 @@ class AddJetCollection(ConfigToolBase):
                                     patJetFlavourAssociationLegacy.clone(
                                         srcByReference='patJetPartonAssociationLegacy'+_labelName+postfix),
                                     process, task)
-                _newPatJetFlavourAssociation=getattr(process, 'patJetFlavourAssociationLegacy'+_labelName+postfix)
                 knownModules.append('patJetFlavourAssociationLegacy'+_labelName+postfix)
             ## modify new patJets collection accordingly
             _newPatJets.JetPartonMapSource.setModuleLabel('patJetFlavourAssociationLegacy'+_labelName+postfix)
@@ -992,7 +987,6 @@ class AddJetCollection(ConfigToolBase):
                                         leptons = cms.InputTag("patJetPartons"+postfix,"leptons")),
                                     process, task)
 
-                _newPatJetFlavourAssociation=getattr(process, 'patJetFlavourAssociation'+_labelName+postfix)
                 knownModules.append('patJetFlavourAssociation'+_labelName+postfix)
             ## modify new patJets collection accordingly
             _newPatJets.JetFlavourInfoSource.setModuleLabel('patJetFlavourAssociation'+_labelName+postfix)
@@ -1021,7 +1015,6 @@ class AddJetCollection(ConfigToolBase):
                 addToProcessAndTask('jetTracksAssociatorAtVertex'+_labelName+postfix,
                                     jetTracksAssociator.clone(jets=jetSource,pvSrc=pvSource),
                                     process, task)
-                _newJetTracksAssociationAtVertex=getattr(process, 'jetTracksAssociatorAtVertex'+_labelName+postfix)
                 knownModules.append('jetTracksAssociationAtVertex'+_labelName+postfix)
             ## add new patJetCharge to process
             from PhysicsTools.PatAlgos.recoLayer0.jetTracksCharge_cff import patJetCharge
@@ -1032,7 +1025,6 @@ class AddJetCollection(ConfigToolBase):
                 addToProcessAndTask('patJetCharge'+_labelName+postfix,
                                     patJetCharge.clone(src = 'jetTracksAssociatorAtVertex'+_labelName+postfix),
                                     process, task)
-                _newPatJetCharge=getattr(process, 'patJetCharge'+_labelName+postfix)
                 knownModules.append('patJetCharge'+_labelName+postfix)
             ## modify new patJets collection accordingly
             _newPatJets.addAssociatedTracks=True
