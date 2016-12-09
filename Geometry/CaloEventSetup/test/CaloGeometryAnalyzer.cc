@@ -217,7 +217,7 @@ CaloGeometryAnalyzer::cmpset( const CaloSubdetectorGeometry* geom ,
    }
    else
    {
-      if( 2 < std::abs( base.size() - over.size() ) ) 
+      if( 2 < std::abs( (long)(base.size()) - (long)(over.size()) ) ) 
       {
       DetSet inBaseNotOver ;
       DetSet inOverNotBase ;
