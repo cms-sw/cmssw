@@ -2031,10 +2031,10 @@ fillPFCandidates(const pfEGHelpers::HeavyObjectCache* hoc,
         float trkTime = 0, trkTimeErr = -1;
         if (RO.primaryGSFs.size() && RO.primaryGSFs[0].first->isTimeValid()) {
             trkTime = RO.primaryGSFs[0].first->time();
-            trkTimeErr = RO.primaryGSFs[0].first->time();
+            trkTimeErr = RO.primaryGSFs[0].first->timeError();
         } else if (RO.primaryKFs.size() && RO.primaryKFs[0].first->isTimeValid()) {
             trkTime = RO.primaryKFs[0].first->time();
-            trkTimeErr = RO.primaryKFs[0].first->time();
+            trkTimeErr = RO.primaryKFs[0].first->timeError();
         }
         if (trkTimeErr >= 0) {
             if (trkTimeErr > 0 && timeErr > 0) { // weighted average (double precision)
