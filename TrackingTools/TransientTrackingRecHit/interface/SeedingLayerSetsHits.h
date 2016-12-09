@@ -11,7 +11,6 @@
 
 class DetLayer;
 
-#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
 /**
  * Class to store TransientTrackingRecHits, names, and DetLayer
  * pointers of each ctfseeding::SeedingLayer as they come from
@@ -249,17 +248,5 @@ private:
    */
   OwnedHits rechits_;
 };
-
-
-#else
-class SeedingLayerSetsHits {
-private:
-  SeedingLayerSetsHits(SeedingLayerSetsHits const&){} 
-  SeedingLayerSetsHits& operator=(SeedingLayerSetsHits const&){return *this;}
-
-  std::vector<BaseTrackerRecHit const*> rechits_;
-
-};
-#endif
 
 #endif
