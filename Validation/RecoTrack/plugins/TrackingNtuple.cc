@@ -56,6 +56,7 @@
 
 #include "DataFormats/SiPixelDetId/interface/PixelChannelIdentifier.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit1D.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DCollection.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2DCollection.h"
 #include "DataFormats/TrackerRecHit2D/interface/Phase2TrackerRecHit1D.h"
@@ -84,6 +85,8 @@
 #include "HepPDT/ParticleID.hh"
 
 #include "Validation/RecoTrack/interface/trackFromSeedFitFailed.h"
+
+#include "RecoTracker/FinalTrackSelectors/plugins/getBestVertex.h"
 
 #include <set>
 #include <map>
@@ -384,6 +387,7 @@ private:
                   const TrackingParticleRefVector& tpCollection,
                   const TrackingParticleRefKeyToIndex& tpKeyToIndex,
                   const reco::BeamSpot& bs,
+                  const reco::VertexCollection& vertices,
                   const reco::TrackToTrackingParticleAssociator& associatorByHits,
                   const TransientTrackingRecHitBuilder& theTTRHBuilder,
                   const TrackerTopology& tTopo,
@@ -506,6 +510,10 @@ private:
   std::vector<float> trk_phi      ;
   std::vector<float> trk_dxy      ;
   std::vector<float> trk_dz       ;
+  std::vector<float> trk_dxyPV    ;
+  std::vector<float> trk_dzPV     ;
+  std::vector<float> trk_dxyClosestPV;
+  std::vector<float> trk_dzClosestPV;
   std::vector<float> trk_ptErr    ;
   std::vector<float> trk_etaErr   ;
   std::vector<float> trk_lambdaErr;
@@ -516,6 +524,8 @@ private:
   std::vector<float> trk_refpoint_y;
   std::vector<float> trk_refpoint_z;
   std::vector<float> trk_nChi2    ;
+  std::vector<float> trk_nChi2_1Dmod;
+  std::vector<float> trk_ndof    ;
   std::vector<float> trk_mva;
   std::vector<unsigned short> trk_qualityMask;
   std::vector<int> trk_q       ;
@@ -523,11 +533,12 @@ private:
   std::vector<unsigned int> trk_nInvalid;
   std::vector<unsigned int> trk_nPixel  ;
   std::vector<unsigned int> trk_nStrip  ;
+  std::vector<unsigned int> trk_nOuterLost;
+  std::vector<unsigned int> trk_nInnerLost;
   std::vector<unsigned int> trk_nPixelLay;
   std::vector<unsigned int> trk_nStripLay;
   std::vector<unsigned int> trk_n3DLay  ;
-  std::vector<unsigned int> trk_nOuterLost;
-  std::vector<unsigned int> trk_nInnerLost;
+  std::vector<unsigned int> trk_nLostLay;
   std::vector<unsigned int> trk_algo    ;
   std::vector<unsigned int> trk_originalAlgo;
   std::vector<decltype(reco::TrackBase().algoMaskUL())> trk_algoMask;
@@ -857,6 +868,10 @@ TrackingNtuple::TrackingNtuple(const edm::ParameterSet& iConfig):
   t->Branch("trk_phi"      , &trk_phi);
   t->Branch("trk_dxy"      , &trk_dxy      );
   t->Branch("trk_dz"       , &trk_dz       );
+  t->Branch("trk_dxyPV"    , &trk_dxyPV    );
+  t->Branch("trk_dzPV"     , &trk_dzPV     );
+  t->Branch("trk_dxyClosestPV", &trk_dxyClosestPV    );
+  t->Branch("trk_dzClosestPV", &trk_dzClosestPV     );
   t->Branch("trk_ptErr"    , &trk_ptErr    );
   t->Branch("trk_etaErr"   , &trk_etaErr   );
   t->Branch("trk_lambdaErr", &trk_lambdaErr);
@@ -867,6 +882,8 @@ TrackingNtuple::TrackingNtuple(const edm::ParameterSet& iConfig):
   t->Branch("trk_refpoint_y", &trk_refpoint_y);
   t->Branch("trk_refpoint_z", &trk_refpoint_z);
   t->Branch("trk_nChi2"    , &trk_nChi2);
+  t->Branch("trk_nChi2_1Dmod", &trk_nChi2_1Dmod);
+  t->Branch("trk_ndof"     , &trk_ndof);
   if(includeMVA_) {
     t->Branch("trk_mva"    , &trk_mva);
     t->Branch("trk_qualityMask", &trk_qualityMask);
@@ -876,11 +893,12 @@ TrackingNtuple::TrackingNtuple(const edm::ParameterSet& iConfig):
   t->Branch("trk_nInvalid" , &trk_nInvalid);
   t->Branch("trk_nPixel"   , &trk_nPixel  );
   t->Branch("trk_nStrip"   , &trk_nStrip  );
+  t->Branch("trk_nOuterLost", &trk_nOuterLost  );
+  t->Branch("trk_nInnerLost", &trk_nInnerLost  );
   t->Branch("trk_nPixelLay", &trk_nPixelLay);
   t->Branch("trk_nStripLay", &trk_nStripLay);
   t->Branch("trk_n3DLay"   , &trk_n3DLay  );
-  t->Branch("trk_nOuterLost", &trk_nOuterLost  );
-  t->Branch("trk_nInnerLost", &trk_nInnerLost  );
+  t->Branch("trk_nLostLay"   , &trk_nLostLay  );
   t->Branch("trk_algo"     , &trk_algo    );
   t->Branch("trk_originalAlgo", &trk_originalAlgo);
   t->Branch("trk_algoMask" , &trk_algoMask);
@@ -1175,6 +1193,10 @@ void TrackingNtuple::clearVariables() {
   trk_phi      .clear();
   trk_dxy      .clear();
   trk_dz       .clear();
+  trk_dxyPV    .clear();
+  trk_dzPV     .clear();
+  trk_dxyClosestPV.clear();
+  trk_dzClosestPV.clear();
   trk_ptErr    .clear();
   trk_etaErr   .clear();
   trk_lambdaErr.clear();
@@ -1185,6 +1207,8 @@ void TrackingNtuple::clearVariables() {
   trk_refpoint_y.clear();
   trk_refpoint_z.clear();
   trk_nChi2    .clear();
+  trk_nChi2_1Dmod.clear();
+  trk_ndof     .clear();
   trk_mva      .clear();
   trk_qualityMask.clear();
   trk_q        .clear();
@@ -1192,11 +1216,12 @@ void TrackingNtuple::clearVariables() {
   trk_nInvalid .clear();
   trk_nPixel   .clear();
   trk_nStrip   .clear();
+  trk_nOuterLost.clear();
+  trk_nInnerLost.clear();
   trk_nPixelLay.clear();
   trk_nStripLay.clear();
   trk_n3DLay   .clear();
-  trk_nOuterLost.clear();
-  trk_nInnerLost.clear();
+  trk_nLostLay   .clear();
   trk_algo     .clear();
   trk_originalAlgo.clear();
   trk_algoMask .clear();
@@ -1588,7 +1613,10 @@ void TrackingNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
       throw cms::Exception("LogicError") << "Inconsistent track collection size (" << tracks.size() << ") and quality mask collection size (" << qualColl->size() << ")";
   }
 
-  fillTracks(trackRefs, tpCollection, tpKeyToIndex, bs, associatorByHits, *theTTRHBuilder, tTopo, hitProductIds, seedCollToOffset, mvaColl, qualColl);
+  edm::Handle<reco::VertexCollection> vertices;
+  iEvent.getByToken(vertexToken_, vertices);
+
+  fillTracks(trackRefs, tpCollection, tpKeyToIndex, bs, *vertices, associatorByHits, *theTTRHBuilder, tTopo, hitProductIds, seedCollToOffset, mvaColl, qualColl);
 
   //tracking particles
   //sort association maps with simHits
@@ -1596,8 +1624,6 @@ void TrackingNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   fillTrackingParticles(iEvent, iSetup, trackRefs, bs, tpCollection, tvKeyToIndex, associatorByHits, tpHitList);
 
   // vertices
-  edm::Handle<reco::VertexCollection> vertices;
-  iEvent.getByToken(vertexToken_, vertices);
   fillVertices(*vertices, trackRefs);
 
   // tracking vertices
@@ -2376,6 +2402,7 @@ void TrackingNtuple::fillTracks(const edm::RefToBaseVector<reco::Track>& tracks,
                                 const TrackingParticleRefVector& tpCollection,
                                 const TrackingParticleRefKeyToIndex& tpKeyToIndex,
                                 const reco::BeamSpot& bs,
+                                const reco::VertexCollection& vertices,
                                 const reco::TrackToTrackingParticleAssociator& associatorByHits,
                                 const TransientTrackingRecHitBuilder& theTTRHBuilder,
                                 const TrackerTopology& tTopo,
@@ -2388,6 +2415,9 @@ void TrackingNtuple::fillTracks(const edm::RefToBaseVector<reco::Track>& tracks,
   edm::EDConsumerBase::Labels labels;
   labelsForToken(trackToken_, labels);
   LogTrace("TrackingNtuple") << "NEW TRACK LABEL: " << labels.module;
+
+  auto pvPosition = vertices[0].position();
+
   for(size_t iTrack = 0; iTrack<tracks.size(); ++iTrack) {
     const auto& itTrack = tracks[iTrack];
     int nSimHits = 0;
@@ -2410,9 +2440,24 @@ void TrackingNtuple::fillTracks(const edm::RefToBaseVector<reco::Track>& tracks,
     float eta = itTrack->eta();
     const double lambda = itTrack->lambda();
     float chi2 = itTrack->normalizedChi2();
+    float ndof = itTrack->ndof();
     float phi = itTrack->phi();
     int nHits = itTrack->numberOfValidHits();
     const reco::HitPattern& hp = itTrack->hitPattern();
+
+    float chi2_1Dmod = chi2;
+    int count1dhits = 0;
+    for(auto iHit = itTrack->recHitsBegin(), iEnd=itTrack->recHitsEnd(); iHit != iEnd; ++iHit) {
+      const TrackingRecHit& hit = **iHit;
+      if(hit.isValid() && typeid(hit) == typeid(SiStripRecHit1D))
+        ++count1dhits;
+    }
+    if(count1dhits > 0) {
+      chi2_1Dmod = (chi2+count1dhits)/(ndof+count1dhits);
+    }
+
+    Point bestPV = getBestVertex(*itTrack, vertices);
+
     trk_px       .push_back(itTrack->px());
     trk_py       .push_back(itTrack->py());
     trk_pz       .push_back(itTrack->pz());
@@ -2431,6 +2476,10 @@ void TrackingNtuple::fillTracks(const edm::RefToBaseVector<reco::Track>& tracks,
     trk_phi      .push_back(phi);
     trk_dxy      .push_back(itTrack->dxy(bs.position()));
     trk_dz       .push_back(itTrack->dz(bs.position()));
+    trk_dxyPV    .push_back(itTrack->dxy(pvPosition));
+    trk_dzPV     .push_back(itTrack->dz(pvPosition));
+    trk_dxyClosestPV.push_back(itTrack->dxy(bestPV));
+    trk_dzClosestPV .push_back(itTrack->dz(bestPV));
     trk_ptErr    .push_back(itTrack->ptError());
     trk_etaErr   .push_back(itTrack->etaError());
     trk_lambdaErr.push_back(itTrack->lambdaError());
@@ -2440,17 +2489,20 @@ void TrackingNtuple::fillTracks(const edm::RefToBaseVector<reco::Track>& tracks,
     trk_refpoint_x.push_back(itTrack->vx());
     trk_refpoint_y.push_back(itTrack->vy());
     trk_refpoint_z.push_back(itTrack->vz());
-    trk_nChi2    .push_back( itTrack->normalizedChi2());
+    trk_nChi2    .push_back(chi2);
+    trk_nChi2_1Dmod.push_back(chi2_1Dmod);
+    trk_ndof     .push_back(ndof);
     trk_q        .push_back(charge);
     trk_nValid   .push_back(hp.numberOfValidHits());
     trk_nInvalid .push_back(hp.numberOfLostHits(reco::HitPattern::TRACK_HITS));
     trk_nPixel   .push_back(hp.numberOfValidPixelHits());
     trk_nStrip   .push_back(hp.numberOfValidStripHits());
+    trk_nOuterLost.push_back(hp.numberOfLostTrackerHits(reco::HitPattern::MISSING_OUTER_HITS));
+    trk_nInnerLost.push_back(hp.numberOfLostTrackerHits(reco::HitPattern::MISSING_INNER_HITS));
     trk_nPixelLay.push_back(hp.pixelLayersWithMeasurement());
     trk_nStripLay.push_back(hp.stripLayersWithMeasurement());
     trk_n3DLay   .push_back(hp.numberOfValidStripLayersWithMonoAndStereo()+hp.pixelLayersWithMeasurement());
-    trk_nOuterLost.push_back(hp.numberOfLostTrackerHits(reco::HitPattern::MISSING_OUTER_HITS));
-    trk_nInnerLost.push_back(hp.numberOfLostTrackerHits(reco::HitPattern::MISSING_INNER_HITS));
+    trk_nLostLay .push_back(hp.trackerLayersWithoutMeasurement(reco::HitPattern::TRACK_HITS));
     trk_algo     .push_back(itTrack->algo());
     trk_originalAlgo.push_back(itTrack->originalAlgo());
     trk_algoMask .push_back(itTrack->algoMaskUL());
