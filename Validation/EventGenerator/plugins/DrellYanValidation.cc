@@ -93,7 +93,7 @@ void DrellYanValidation::analyze(const edm::Event& iEvent,const edm::EventSetup&
 
   for(HepMC::GenEvent::particle_const_iterator iter = myGenEvent->particles_begin(); iter != myGenEvent->particles_end(); ++iter) {
     if (vetotau) {
-      if ((*iter)->status()==3 && std::abs((*iter)->pdg_id() == 15) ) return; 
+      if ((*iter)->status()==3 && std::abs((*iter)->pdg_id()) == 15)  return; 
     }
     if((*iter)->status()==requiredstatus) {
       if(std::abs((*iter)->pdg_id())==_flavor)
