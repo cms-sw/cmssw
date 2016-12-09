@@ -108,6 +108,7 @@ public:
     int nDigisExpected = addNoise_ ? theDetIds->size() : theHitResponse->nSignals();
     output.reserve(nDigisExpected);
     if(debugCS_) {
+      csColl_.clear();
       csColl_.reserve(nDigisExpected);
       theHitResponse->setStorePrecise(true);
     }

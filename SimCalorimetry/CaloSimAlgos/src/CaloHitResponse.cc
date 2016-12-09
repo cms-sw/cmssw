@@ -31,7 +31,8 @@ CaloHitResponse::CaloHitResponse(const CaloVSimParameterMap * parametersMap,
   theMinBunch(-10), 
   theMaxBunch(10),
   thePhaseShift_(1.),
-  storePrecise(false) {}
+  storePrecise(false),
+  ignoreTime(false) {}
 
 CaloHitResponse::CaloHitResponse(const CaloVSimParameterMap * parametersMap,
                                  const CaloShapes * shapes)
@@ -46,7 +47,8 @@ CaloHitResponse::CaloHitResponse(const CaloVSimParameterMap * parametersMap,
   theMinBunch(-10),
   theMaxBunch(10),
   thePhaseShift_(1.),
-  storePrecise(false) {}
+  storePrecise(false),
+  ignoreTime(false) {}
 
 CaloHitResponse::~CaloHitResponse() {
 }
@@ -193,7 +195,7 @@ CaloSamples CaloHitResponse::makeBlankSignal(const DetId & detId) const {
   int preciseSize(storePrecise ? parameters.readoutFrameSize()*BUNCHSPACE : 0);
   CaloSamples result(detId, parameters.readoutFrameSize(),preciseSize);
   result.setPresamples(parameters.binOfMaximum()-1);
-  result.setPrecise(result.presamples()*BUNCHSPACE,1.0);
+  if(storePrecise) result.setPrecise(result.presamples()*BUNCHSPACE,1.0);
   return result;
 }
 
