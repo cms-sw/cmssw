@@ -292,7 +292,7 @@ induceOriginal(const SiChargeCollectionDrifter::collection_type& collection_poin
       size_t affectedFromStrip  = size_t(std::max( 0, int(strip - coupling.size() + 1)));
       size_t affectedUntilStrip = size_t(std::min( Nstrips, strip + coupling.size())   );  
       for (size_t affectedStrip = affectedFromStrip;  affectedStrip < affectedUntilStrip;  affectedStrip++) {
-	localAmplitudes.at( affectedStrip ) += chargeDepositedOnStrip * coupling.at(abs( affectedStrip - strip )) ;
+	localAmplitudes.at( affectedStrip ) += chargeDepositedOnStrip * coupling.at((size_t)std::abs( (int)affectedStrip - (int)strip )) ;
       }
 
       if( affectedFromStrip  < recordMinAffectedStrip ) recordMinAffectedStrip = affectedFromStrip;
