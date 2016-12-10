@@ -97,7 +97,7 @@ HepMC::FourVector* HLLHCEvtVtxGenerator::newVertex(CLHEP::HepRandomEngine* engin
     z=(shoot()-0.5)*6.0*sigs;
     t=(shoot()-0.5)*6.0*sigs;
     x=(shoot()-0.5)*12.0*sigma(0.0,epsxn,betx,betagamma);
-    y=(shoot()-0.5)*8.0*sigma(0.0,epssn,bets,betagamma);
+    y=(shoot()-0.5)*12.0*sigma(0.0,epssn,bets,betagamma);
     
     i=intensity(x,y,z,t);
     
@@ -137,12 +137,6 @@ double HLLHCEvtVtxGenerator::sigma(double z, double epsilon, double beta, double
   return sigma;
 } 
 
-double HLLHCEvtVtxGenerator::rhozt(double z, double ct) const 
-{  
-  return integrandCC(z,ct); 
-}
-
-
 double HLLHCEvtVtxGenerator::intensity(double x, 
                                        double y, 
                                        double z, 
@@ -150,41 +144,25 @@ double HLLHCEvtVtxGenerator::intensity(double x,
   //---c in m/s --- remember t is already in meters
   constexpr double c= 2.99792458e+8; // m/s
   
-  const double sigmax=sigma(z,epsxn,betx,betagamma);
   const double sigmay=sigma(z,epssn,bets,betagamma);
     
-  const double alphax_mod=alphax;//*std::cos(wcc*(z-t)/c);
-  const double alphay_mod=alphay;//*std::cos(wcc*(z-t)/c);
+  const double alphay_mod=alphay*std::cos(wcc*(z-t)/c);
   
-  const double cax       = std::cos(alphax_mod);
-  const double sax_minus = std::sin(-alphax_mod);
-  const double sax_plus  = -sax_minus;
-
   const double cay=std::cos(alphay_mod);
   const double say=std::sin(alphay_mod);
 
-  const double ct       = std::cos(0.5*phi);
-  const double st_minus = std::sin(-0.5*phi);
-  const double st_plus  = -st_minus;
+  const double dy=-(z-t)*say-y*cay;
 
-  const double dx_plus  = (z-t*ct)*(cax*st_plus-sax_plus*ct)   - (x-t*st_plus)*(sax_plus*st_plus+cax*ct);
-  const double dx_minus = (z+t*ct)*(cax*st_minus-sax_minus*ct) - (x+t*st_minus)*(sax_minus*st_minus+cax*ct);
+  const double xzt_density= integrandCC(x,z,t);
 
-  const double dx=/*-(z-t)*sax_plus*/ -x*cax; 
-
-  const double dy=/*-(z-t)*say*/-y*cay;
-
-  const double zrho=rhozt(z,t);
-
-  const double norm = (two_pi*sigmax*sigmay);
+  const double norm = two_pi*sigmay;
   
-  return ( std::exp(-0.5*dx*dx/(sigmax*sigmax))*
-           std::exp(-0.5*dx*dx/(sigmax*sigmax))*
-           std::exp(-dy*dy/(sigmay*sigmay))*
-           zrho/(norm*norm) );
+  return ( std::exp(-dy*dy/(sigmay*sigmay))*
+           xzt_density/norm );
 }
 
-double HLLHCEvtVtxGenerator::integrandCC(double z, 
+double HLLHCEvtVtxGenerator::integrandCC(double x,
+                                         double z, 
                                          double ct) const {  
   constexpr double local_c_light = 2.99792458e8;
 
@@ -215,16 +193,19 @@ double HLLHCEvtVtxGenerator::integrandCC(double z,
     result = norm*std::exp(-ct*ct/sigs2
                            -z*z*cos2/sigs2
                            -1.0/(4*k2*sigmax2)*(
-                                                -4*cosks*cosks * sinkct*sinkct * sinCR2
+                                                //-4*cosks*cosks * sinkct*sinkct * sinCR2 // comes from integral over x
                                                 -8*z*k*std::sin(k*z)*std::cos(k*ct) * sin * sinCR
                                                 +2 * sinCR2
                                                 -std::cos(2*k*(z-ct)) * sinCR2
                                                 -std::cos(2*k*(z+ct)) * sinCR2
                                                 +4*k2*z*z *sin2
                                                 )
+                           - x*x*(cos2/sigmax2 + sin2/sigs2) // contribution from x integrand
+                           + x*ct*sin/sigs2 // contribution from x integrand
+                           + 2*x*cos*cosks*sinkct*sinCR/k/sigmax2 // contribution from x integrand
                            //+(2*ct/k)*np.cos(k*s)*np.sin(k*ct) *(sin*sinCR)/(sigs2*cos)  # small term
                            //+ct**2*(sin2/sigs4)/(cos2/sigmax2)				              # small term
-                           )/std::sqrt(1.0+(z*z)/(betx*betx))/std::sqrt(1.0+(z*z)/(bets*bets));
+                           )/(1.0+(z*z)/(betx*betx))/std::sqrt(1.0+(z*z)/(bets*bets));
       
   } else {
     

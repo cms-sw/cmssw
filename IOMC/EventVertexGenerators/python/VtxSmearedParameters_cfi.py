@@ -638,7 +638,7 @@ HLLHCVtxSmearingParameters = cms.PSet(
     BetaSeparationPlaneInm = cms.double(0.20),
     HorizontalEmittance = cms.double(2.5e-06),
     VerticalEmittance = cms.double(2.05e-06),
-    BunchLengthInm = cms.double(0.09),
+    BunchLengthInm = cms.double(0.090),
     CrabbingAngleCrossingInurad = cms.double(380.0),
     CrabbingAngleSeparationInurad = cms.double(0.0)    
 )
