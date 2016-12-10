@@ -25,6 +25,15 @@ def generateGeom(detectorTuple, options):
     else:
         if not doTest: print "Detector "+str(detectorTuple)+" not found in dictionary, using "+("default" if options.detectorVersionManual==detectorVersionDefault else "provided")+" version number "+str(detectorVersion)
 
+    # check for deprecation
+    if detectorVersion in deprecatedDets:
+        print "Error: "+detectorVersion+" is deprecated and cannot be used."
+        sys.exit(1)
+    for subdet in detectorTuple:
+        if subdet in deprecatedSubdets:
+            print "Error: "+subdet+" is deprecated and cannot be used."
+            sys.exit(1)
+        
     # create output files
     xmlName = "cmsExtendedGeometry2023"+detectorVersion+"XML_cfi.py"
     simName = "GeometryExtended2023"+detectorVersion+"_cff.py"
@@ -140,7 +149,7 @@ if __name__ == "__main__":
     # define options
     parser = OptionParser()
     for aDict in allDicts:
-        parser.add_option("-"+aDict["abbrev"],"--"+aDict["name"],dest="v_"+aDict["name"],default=1,help="version for "+aDict["name"]+" (default = %default)")
+        parser.add_option("-"+aDict["abbrev"],"--"+aDict["name"],dest="v_"+aDict["name"],default=aDict["default"],help="version for "+aDict["name"]+" (default = %default)")
     parser.add_option("-V","--version",dest="detectorVersionManual",default=detectorVersionDefault,help="manual detector version number (default = %default)")
     parser.add_option("-D","--detector",dest="v_detector",default=0,help="version for whole detector, ignored if 0, overrides subdet versions otherwise (default = %default)")
     parser.add_option("-l","--list",dest="doList",default=False,action="store_true",help="list known detector versions and exit (default = %default)")
