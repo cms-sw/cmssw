@@ -115,7 +115,7 @@ PixelCPEGeneric::PixelCPEGeneric(edm::ParameterSet const & conf,
     yerr_endcap_def_=0.00075;
   } else { // isUpgrade=true    
     xerr_barrel_ln_= {0.00025, 0.00030, 0.00035, 0.00035};
-    xerr_barrel_ln_def_=0.0035;
+    xerr_barrel_ln_def_=0.00035;
     yerr_barrel_ln_= {0.00210, 0.00115, 0.00125};
     yerr_barrel_ln_def_=0.00125;
     xerr_endcap_= {0.00072, 0.00025};
@@ -130,7 +130,7 @@ PixelCPEGeneric::PixelCPEGeneric(edm::ParameterSet const & conf,
       yerr_barrel_l1_def_=0.00164;
     } else {
       xerr_barrel_l1_= {0.00025, 0.00030, 0.00035, 0.00035};
-      xerr_barrel_l1_def_=0.0035;
+      xerr_barrel_l1_def_=0.00035;
       yerr_barrel_l1_= {0.00210, 0.00115, 0.00125};
       yerr_barrel_l1_def_=0.00125;
     }
