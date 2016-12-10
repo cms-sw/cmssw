@@ -118,7 +118,7 @@ void ME0PreRecoGaussianModel::simulateNoise(const ME0EtaPartition* roll, CLHEP::
   // Divide the detector area in different strips
   // take smearing in y-coord as height for each strip
   double initialHeight = sigma_v;
-  if(sigma_v == 0) initialHeight = 1.0;
+  if(sigma_v < 1.0) initialHeight = 1.0;
   double heightIt = initialHeight;
   int heightbins  = height/heightIt; // round down
 
