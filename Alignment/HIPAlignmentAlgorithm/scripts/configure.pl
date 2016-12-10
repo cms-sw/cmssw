@@ -7,6 +7,8 @@ $success=1;
 $odir = $ARGV[0];
 $datafile1 = $ARGV[1];
 $iovrange = $ARGV[2];
+$incommoncfg = $ARGV[3];
+$inaligncfg = $ARGV[4];
 
 open (datafile1) or die "Can't open the file!";
 @dataFileInput1 = <datafile1>;
@@ -25,8 +27,17 @@ foreach $iovv ( @iovInput1) {
 }
 chop($iovstr);
 print "$iovstr";
+
 system( "
-cp python/common_cff_py.txt $odir/.;
+mkdir -p $odir/main/;
+cp $incommoncfg $odir/common_cff_py.txt;
+cp $inaligncfg $odir/align_tpl_py.txt;
+cp python/initial_tpl_py.txt $odir/;
+cp python/collect_tpl_py.txt $odir/;
+cp python/upload_tpl_py.txt $odir/;
+cp scripts/runScript.csh $odir/;
+cp scripts/runControl.csh $odir/main/;
+cp scripts/checkError.sh $odir/main/;
 ");
 $success*=replace( "$odir/common_cff_py.txt", "<iovs>", "$iovstr" );
 
@@ -50,10 +61,7 @@ foreach $data1 ( @dataFileInput1 ) {
    ($dataskim,$path,$suffix) = fileparse($datafile,,qr"\..[^.]*$");
 
    system( "
-   #cp python/common_cff_py.txt $odir/.;
    cp python/$dataskim\TrackSelection_cff_py.txt $odir/.;
-   cp python/align_tpl_py.txt $odir/.;
-   cp python/collect_tpl_py.txt $odir/.;
    " );
 
 
@@ -75,8 +83,8 @@ foreach $data1 ( @dataFileInput1 ) {
       # print "$data";
       system( "
       mkdir -p $odir/job$j;
-      cp python/align_tpl_py.txt $odir/job$j/align_cfg.py;
-      cp scripts/runScript.csh $odir/job$j/.;
+      cp $odir/align_tpl_py.txt $odir/job$j/align_cfg.py;
+      cp $odir/runScript.csh $odir/job$j/.;
       " );
       # run script
       open OUTFILE,"$odir/job$j/runScript.csh";
@@ -102,25 +110,15 @@ foreach $data1 ( @dataFileInput1 ) {
 
 }
 
-system( "
-mkdir $odir/main/;
-#cp python/initial_tpl_py.txt $odir/main/initial_cfg.py;
-#cp python/collect_tpl_py.txt $odir/main/collect_cfg.py;
-#cp python/upload_tpl_py.txt $odir/upload_cfg.py;
-#cp scripts/runScript.csh $odir/main/.;
-cp scripts/runControl.csh $odir/main/.;
-cp scripts/checkError.sh $odir/main/.;
-");
-
 foreach $iov ( @iovInput1) {
    print "$iov";
    chomp($iov);
    $k++;
    system( "
-   cp python/initial_tpl_py.txt $odir/main/initial_cfg_$k.py;
-   cp python/collect_tpl_py.txt $odir/main/collect_cfg_$k.py;
-   cp scripts/runScript.csh $odir/main/runScript_$k.csh;
-   cp python/upload_tpl_py.txt $odir/upload_cfg_$k.py;
+   cp $odir/upload_tpl_py.txt $odir/upload_cfg_$k.py;
+   cp $odir/initial_tpl_py.txt $odir/main/initial_cfg_$k.py;
+   cp $odir/collect_tpl_py.txt $odir/main/collect_cfg_$k.py;
+   cp $odir/runScript.csh $odir/main/runScript_$k.csh;
    " );
    # run script
    ## setting up initial job
