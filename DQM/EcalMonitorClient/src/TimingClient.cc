@@ -132,7 +132,7 @@ namespace ecaldqm
         meFwdvBkwd.fill(id, mean, posTime);
       }
 
-      if(abs(mean) > meanThresh || rms > rmsThresh)
+      if(std::abs(mean) > meanThresh || rms > rmsThresh)
         qItr->setBinContent(doMask ? kMBad : kBad);
       else
         qItr->setBinContent(doMask ? kMGood : kGood);
@@ -164,12 +164,12 @@ namespace ecaldqm
     MESet& meTrendMean(MEs_.at("TrendMean"));
     MESet& meTrendRMS(MEs_.at("TrendRMS"));
     if ( EBentries > 0. ) {
-      if ( abs(EBmean) > 0. ) meTrendMean.fill( EcalBarrel, double(timestamp_.iLumi), EBmean/EBentries );
-      if ( abs(EBrms ) > 0. ) meTrendRMS.fill ( EcalBarrel, double(timestamp_.iLumi), EBrms/EBentries  );
+      if ( std::abs(EBmean) > 0. ) meTrendMean.fill( EcalBarrel, double(timestamp_.iLumi), EBmean/EBentries );
+      if ( std::abs(EBrms ) > 0. ) meTrendRMS.fill ( EcalBarrel, double(timestamp_.iLumi), EBrms/EBentries  );
     }
     if ( EEentries > 0. ) {
-      if ( abs(EEmean) > 0. ) meTrendMean.fill( EcalEndcap, double(timestamp_.iLumi), EEmean/EEentries );
-      if ( abs(EErms ) > 0. ) meTrendRMS.fill ( EcalEndcap, double(timestamp_.iLumi), EErms/EEentries  );
+      if ( std::abs(EEmean) > 0. ) meTrendMean.fill( EcalEndcap, double(timestamp_.iLumi), EEmean/EEentries );
+      if ( std::abs(EErms ) > 0. ) meTrendRMS.fill ( EcalEndcap, double(timestamp_.iLumi), EErms/EEentries  );
     }
 
     MESet::iterator qsEnd(meQualitySummary.end());
@@ -230,7 +230,7 @@ namespace ecaldqm
 
           float towerRMS(sqrt(towerMean2 - towerMean * towerMean));
 
-          if(abs(towerMean) > meanThresh || towerRMS > rmsThresh)
+          if(std::abs(towerMean) > meanThresh || towerRMS > rmsThresh)
             quality = doMask ? kMBad : kBad;
           else
             quality = doMask ? kMGood : kGood;
