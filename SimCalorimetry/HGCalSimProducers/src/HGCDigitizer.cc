@@ -133,6 +133,8 @@ HGCDigitizer::HGCDigitizer(const edm::ParameterSet& ps,
 //
 void HGCDigitizer::initializeEvent(edm::Event const& e, edm::EventSetup const& es) 
 {
+  // reserve memory for a full detector
+  simHitAccumulator_->reserve( validIds_.size() );
 }
 
 //
@@ -142,7 +144,9 @@ void HGCDigitizer::finalizeEvent(edm::Event& e, edm::EventSetup const& es, CLHEP
   const CaloSubdetectorGeometry* theGeom = ( nullptr == gHGCal_ ? 
 					     static_cast<const CaloSubdetectorGeometry*>(gHcal_) : 
 					     static_cast<const CaloSubdetectorGeometry*>(gHGCal_)  );
-
+  // release memory for unfilled parts of hash table
+  simHitAccumulator_->reserve(simHitAccumulator_->size());
+	
   if( producesEEDigis() ) 
     {
       std::unique_ptr<HGCEEDigiCollection> digiResult(new HGCEEDigiCollection() );
@@ -269,7 +273,6 @@ void HGCDigitizer::accumulate(edm::Handle<edm::PCaloHitContainer> const &hits,
   
   //loop over sorted hits
   nchits = hitRefs.size();
-  simHitAccumulator_->reserve(simHitAccumulator_->size() + nchits);
   for(int i=0; i<nchits; ++i) {
     const int hitidx   = std::get<0>(hitRefs[i]);
     const uint32_t id  = std::get<1>(hitRefs[i]);
@@ -331,7 +334,6 @@ void HGCDigitizer::accumulate(edm::Handle<edm::PCaloHitContainer> const &hits,
 	}
     }
   }
-  simHitAccumulator_->reserve(simHitAccumulator_->size());
   hitRefs.clear();
 }
 
