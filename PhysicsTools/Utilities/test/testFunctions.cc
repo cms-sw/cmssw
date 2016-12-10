@@ -57,7 +57,7 @@ void testFunctions::checkAll() {
     CPPUNIT_ASSERT(std::abs(g1times2(x) - (g1(x) * g2(x))) < epsilon);
     CPPUNIT_ASSERT(std::abs(g1minus2(x) - (g1(x) - g2(x))) < epsilon);
     CPPUNIT_ASSERT(std::abs(g1over2(x) - (g1(x) / g2(x))) < epsilon);
-    CPPUNIT_ASSERT(std::abs(gm1(x) - (-g1(x)) < epsilon));
+    CPPUNIT_ASSERT(std::abs(gm1(x) - (-g1(x))) < epsilon);
     Convolution<Gaussian, Gaussian, TrapezoidIntegrator>::type ggt(g1, g1, -5, 5, TrapezoidIntegrator(1000));
     CPPUNIT_ASSERT(std::abs(ggt(0) - g1(0)/sqrt(2.0))<epsilon);
     Convolution<Gaussian, Gaussian, GaussLegendreIntegrator>::type gggl(g1, g1, -5, 5, GaussLegendreIntegrator(1000, epsilon));
