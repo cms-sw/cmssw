@@ -203,9 +203,11 @@ ME0SegmentAlgorithm::chainHits(const ME0Ensemble& ensemble, const EnsembleHitCon
   // split rechits into subvectors and return vector of vectors:
   // Loop over rechits
   // Create one seed per hit
-  for ( unsigned int i=0; i<rechits.size(); ++i)
+  for ( unsigned int i=0; i<rechits.size(); ++i){
+    if(std::abs(rechits[i]->tof()) > dTimeChainBoxMax) continue;
     seeds.push_back(EnsembleHitContainer(1,rechits[i]));
-
+  }
+  
   // merge chains that are too close ("touch" each other)
   for(size_t NNN = 0; NNN < seeds.size(); ++NNN) {
     for(size_t MMM = NNN+1; MMM < seeds.size(); ++MMM) {
@@ -256,10 +258,9 @@ ME0SegmentAlgorithm::chainHits(const ME0Ensemble& ensemble, const EnsembleHitCon
 }
 
 bool ME0SegmentAlgorithm::isGoodToMerge(const ME0Ensemble& ensemble, const EnsembleHitContainer& newChain, const EnsembleHitContainer& oldChain) {
-
   for(size_t iRH_new = 0;iRH_new<newChain.size();++iRH_new){
     GlobalPoint pos_new = ensemble.first->toGlobal(newChain[iRH_new]->localPosition());
-    
+          
     for(size_t iRH_old = 0;iRH_old<oldChain.size();++iRH_old){
       GlobalPoint pos_old = ensemble.first->toGlobal(oldChain[iRH_old]->localPosition());
       // to be chained, two hits need to be in neighbouring layers...

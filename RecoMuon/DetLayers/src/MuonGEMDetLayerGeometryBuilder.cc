@@ -17,12 +17,11 @@
 
 using namespace std;
 
-//MuonGEMDetLayerGeometryBuilder::~MuonGEMDetLayerGeometryBuilder() {
-//}
-
+MuonGEMDetLayerGeometryBuilder::~MuonGEMDetLayerGeometryBuilder() {
+}
 
 // Builds the forward (first) and backward (second) layers
-// Builds superChambers (for segments) and etaPartitions (for rechits)
+// Builds etaPartitions (for rechits)
 pair<vector<DetLayer*>, vector<DetLayer*> > 
 MuonGEMDetLayerGeometryBuilder::buildEndcapLayers(const GEMGeometry& geo) {
   
@@ -51,8 +50,6 @@ MuonGEMDetLayerGeometryBuilder::buildEndcapLayers(const GEMGeometry& geo) {
 
   return res_pair;
 }
-// layer 0 is super chamber, it doesnt have rolls
-// add function for buildEndcapSuperChambers
 
 MuRingForwardDoubleLayer* 
 MuonGEMDetLayerGeometryBuilder::buildLayer(int endcap,vector<int>& rings, int station,
