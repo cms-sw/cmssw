@@ -220,8 +220,8 @@ void HcalSimHitsValidation::endJob() {
 
     float phi_factor;
 
-    if      (fabs(ieta) <= 20) phi_factor = 72.;
-    else if (fabs(ieta) <  40) phi_factor = 36.;
+    if      (std::abs(ieta) <= 20) phi_factor = 72.;
+    else if (std::abs(ieta) <  40) phi_factor = 36.;
     else                       phi_factor = 18.;
     
     float cnorm;
@@ -332,7 +332,7 @@ void HcalSimHitsValidation::analyze(edm::Event const& ev, edm::EventSetup const&
     double r  = dR(eta_MC, phi_MC, etaS, phiS);
     
     if (r < partR){      
-      eta_diff = fabs(eta_MC - etaS);
+      eta_diff = std::abs(eta_MC - etaS);
       if(eta_diff < etaMax) {
 	etaMax  = eta_diff; 
 	ietaMax = cell.ieta(); 
