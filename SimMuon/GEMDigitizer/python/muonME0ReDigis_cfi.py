@@ -19,5 +19,5 @@ simMuonME0ReDigis = cms.EDProducer("ME0ReDigiProducer",
     verbose = cms.bool(False),
     reDigitizeOnlyMuons = cms.bool(False),
     reDigitizeNeutronBkg = cms.bool(True),
-    instLumi = cms.double(10.0), # in units of 1E34 cm^-2 s^-1
+    instLumi = cms.double(5.0), # in units of 1E34 cm^-2 s^-1
 )
