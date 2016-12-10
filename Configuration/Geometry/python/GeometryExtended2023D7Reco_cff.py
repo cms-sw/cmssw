@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 # This config was generated automatically using generate2023Geometry.py
 # If you notice a mistake, please update the generating script, not just this config
 
-from Configuration.Geometry.GeometryExtended2023D6_cff import *
+from Configuration.Geometry.GeometryExtended2023D7_cff import *
 
 # tracker
 from Geometry.CommonDetUnit.globalTrackingGeometry_cfi import *
@@ -39,7 +39,6 @@ from Geometry.MuonNumbering.muonNumberingInitialization_cfi import *
 from RecoMuon.DetLayers.muonDetLayerGeometry_cfi import *
 from Geometry.GEMGeometryBuilder.gemGeometry_cfi import *
 from Geometry.GEMGeometryBuilder.me0Geometry_cfi import *
-ME0GeometryESModule.use10EtaPart = cms.bool(True)
 from Geometry.CSCGeometryBuilder.idealForDigiCscGeometry_cff import *
 from Geometry.DTGeometryBuilder.idealForDigiDtGeometry_cff import *
 
