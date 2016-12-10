@@ -982,7 +982,7 @@ void HLTJets::analyze(edm::Event const& iEvent,
             pfJetchargedEMFraction[ipfJet] = i->chargedEmEnergyFraction ();
 	    //std::cout << "jet pT = " << i->pt() << " ; neutralHadronEnergyFraction = " << i->neutralHadronEnergyFraction() << std::endl;
 
-	    if (i->pt() > 40. && abs(i->eta())<3.0)
+	    if (i->pt() > 40. && std::abs(i->eta())<3.0)
 	      pfHT  += i -> pt();
 	    if (i->pt() > 30.){
 	      pfMHTx = pfMHTx + i->px();
