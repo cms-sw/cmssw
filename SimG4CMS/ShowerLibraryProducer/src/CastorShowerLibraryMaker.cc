@@ -59,7 +59,7 @@ CastorShowerLibraryMaker::CastorShowerLibraryMaker(const edm::ParameterSet &p) :
 //
   NPGParticle               = PGParticleIDs.size(); 
   for(unsigned int i=0;i<PGParticleIDs.size();i++) {
-     switch (int(std::abs(PGParticleIDs.at(i)))) {
+     switch (std::abs(PGParticleIDs.at(i))) {
         case 11:
         case 22:
                DoEmSL = true;
