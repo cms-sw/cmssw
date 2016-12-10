@@ -99,14 +99,11 @@ private:
     // crossing angle * crab frequency
     const double phiCR;
     
-    //width for x/y plane
+    //width for y plane
     double sigma(double z, double epsilon, double beta, double betagamma) const;
 
-    //width for x/y plane
-    double rhozt(double z, double t) const;
-        
     //density with crabbing
-    double integrandCC(double z, double t) const;
+    double integrandCC(double x, double z, double t) const;
 
     // 4D intensity
     double intensity(double x, double y,double z,double t) const;
