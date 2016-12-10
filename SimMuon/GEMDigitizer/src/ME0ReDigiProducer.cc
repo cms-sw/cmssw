@@ -131,10 +131,14 @@ void ME0ReDigiProducer::buildDigis(const ME0DigiPreRecoCollection & input_digis,
       if (reDigitizeOnlyMuons_ and fabs(me0Digi.pdgid()) != 13) continue;
       if (!reDigitizeNeutronBkg_ and !me0Digi.prompt()) continue;
 
-      // scale background hits for luminosity
-      if (!me0Digi.prompt() or fabs(me0Digi.pdgid()) != 13)
+      if (!me0Digi.prompt()){
+	// scale background hits for luminosity
 	if (CLHEP::RandFlat::shoot(engine) > instLumi_*1.0/5) continue;
-
+	// dont need to smear background hits
+	output_digis.insertDigi(detId, me0Digi);
+	continue;
+      }
+      
       edm::LogVerbatim("ME0ReDigiProducer")
         << "\tPassed selection" << std::endl;
 
