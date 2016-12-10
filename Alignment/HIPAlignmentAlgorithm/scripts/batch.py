@@ -41,6 +41,9 @@ class MyBatchManager:
       self.parser.add_option("-f", "--force", action="store_true",
                                 dest="force", default=False,
                                 help="Don't ask any questions, just over-write")
+      self.parser.add_option("--resubmit", action="store_true",
+                                dest="resubmit", default=False,
+                                help="Resubmit a job from the last iteration")
       (self.opt,self.args) = self.parser.parse_args()
 
       self.mkdir(self.opt.outputdir)
@@ -60,14 +63,22 @@ class MyBatchManager:
          sys.exit(4)
 
    def submitJobs(self):
-      jobcmd = 'scripts/iterator_py {} {} {} {} {} {}'.format(
-      self.opt.niter,
-      self.opt.outputdir,
-      self.opt.lstfile,
-      self.opt.iovfile,
-      self.opt.commoncfg,
-      self.opt.aligncfg
-      )
+      jobcmd=""
+      if self.opt.resubmit:
+         jobcmd = 'scripts/reiterator_py {} {} {} {} {} {}'.format(
+         self.opt.niter,
+         self.opt.outputdir,
+         self.opt.iovfile
+         )
+      else:
+         jobcmd = 'scripts/iterator_py {} {} {} {} {} {}'.format(
+         self.opt.niter,
+         self.opt.outputdir,
+         self.opt.lstfile,
+         self.opt.iovfile,
+         self.opt.commoncfg,
+         self.opt.aligncfg
+         )
       ret = os.system( jobcmd )
       if( ret != 0 ):
          sys.exit('Jobs cannot be submitted')
