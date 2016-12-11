@@ -116,9 +116,6 @@ namespace reco {
     
     PFCluster& operator=(const PFCluster&);
     
-    friend    std::ostream& operator<<(std::ostream& out, 
-				       const PFCluster& cluster);
-
     /// \todo move to PFClusterTools
     static void setDepthCorParameters(int mode, 
 				      double a, double b, 
@@ -227,6 +224,11 @@ namespace reco {
     /// color (transient)
     int                 color_;
   };
+
+  std::ostream& operator<<(std::ostream& out, 
+                           const PFCluster& cluster);
+
+
 }
 
 #endif
