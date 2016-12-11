@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 regressionModifier = \
-    cms.PSet( modifierName    = cms.string('EGExtraInfoModifierFromDB'),  
+    cms.PSet( modifierName    = cms.string('EGExtraInfoModifierFromDBUser'),  
 
               rhoCollection = cms.InputTag("fixedGridRhoFastjetAll"),
 
