@@ -121,9 +121,6 @@ namespace reco {
     
       int          color() const { return color_; }    
 
-      friend  std::ostream& operator<<(std::ostream& out, 
-                                       const PFTrack& track);
-
     protected:
 
       /// maximal number of tracking layers
@@ -145,6 +142,8 @@ namespace reco {
       int  color_;
 
     };
+    std::ostream& operator<<(std::ostream& out, 
+                             const PFTrack& track);
 
 }
 

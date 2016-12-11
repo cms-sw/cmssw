@@ -124,9 +124,6 @@ namespace reco {
     virtual bool isPrimary() const { return false; }
     virtual bool isLinkedToDisplacedVertex() const {return false;}
 
-    friend std::ostream& operator<<( std::ostream& out, 
-                                     const PFBlockElement& element );
-
     // Glowinski & Gouzevitch
     void setMultilinks(const PFMultiLinksTC& ml) {multilinks_ = ml;}
     void setIsValidMultilinks(bool isVal) {multilinks_.isValid = isVal;}
@@ -177,5 +174,9 @@ namespace reco {
     const static VertexCompositeCandidateRef nullVertex_;
   
   };
+
+    std::ostream& operator<<( std::ostream& out, 
+                              const PFBlockElement& element );
+
 }
 #endif
