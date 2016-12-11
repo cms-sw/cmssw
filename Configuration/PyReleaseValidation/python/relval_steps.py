@@ -249,7 +249,7 @@ steps['RunMuOnia2016E']={'INPUT':InputInfo(dataSet='/MuOnia/Run2016E-v2/RAW',lab
 #### run2 2016H ####
 Run2016H={283877: [[1, 45]]}
 steps['RunHLTPhy2016H']={'INPUT':InputInfo(dataSet='/HLTPhysics/Run2016H-v1/RAW',label='hltPhy2016H',events=100000,location='STD', ls=Run2016H)}
-steps['RunDoubleEG2016H']={'INPUT':InputInfo(dataSet='/DoubleEG/Run2016H-v2/RAW',label='doubEG2016H',events=100000,location='STD', ls=Run2016H)}
+steps['RunDoubleEG2016H']={'INPUT':InputInfo(dataSet='/DoubleEG/Run2016H-v1/RAW',label='doubEG2016H',events=100000,location='STD', ls=Run2016H)}
 steps['RunDoubleMuon2016H']={'INPUT':InputInfo(dataSet='/DoubleMuon/Run2016H-v1/RAW',label='doubMu2016H',events=100000,location='STD', ls=Run2016H)}
 steps['RunJetHT2016H']={'INPUT':InputInfo(dataSet='/JetHT/Run2016H-v1/RAW',label='jetHT2016H',events=100000,location='STD', ls=Run2016H)}
 steps['RunMET2016H']={'INPUT':InputInfo(dataSet='/MET/Run2016H-v1/RAW',label='met2016H',events=100000,location='STD', ls=Run2016H)}
