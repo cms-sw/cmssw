@@ -98,5 +98,5 @@ heepElectronID_HEEPV70  = configureHEEPElectronID_V70 (idName, WP_HEEP70_EB, WP_
 #
 
 central_id_registry.register(heepElectronID_HEEPV70.idName,"45d49ea5f46f3f13f579d208e5e3412b")
-heepElectronID_HEEPV70.isPOGApproved = cms.untracked.bool(False)
+heepElectronID_HEEPV70.isPOGApproved = cms.untracked.bool(True)
  

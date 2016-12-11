@@ -1,3 +1,4 @@
+
 import FWCore.ParameterSet.Config as cms
 import sys
 
@@ -7,7 +8,7 @@ process.load("FWCore.MessageService.MessageLogger_cfi")
 process.MessageLogger.cerr.FwkReport.reportEvery = 100
 
 process.load("Configuration.StandardSequences.GeometryDB_cff")
-
+process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 # NOTE: the pick the right global tag!
 #    for PHYS14 scenario PU4bx50 : global tag is ???
