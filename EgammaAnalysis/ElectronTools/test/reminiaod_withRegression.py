@@ -64,9 +64,14 @@ from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc', '')
 
 # Apply the regression from local sqlite file
-from EgammaAnalysis.ElectronTools.regressionWeights_cfi import GBRDWrapperRcd
-process.regressions           = GBRDWrapperRcd
-process.es_prefer_regressions = cms.ESPrefer('PoolDBESSource','regressions')
+# from EgammaAnalysis.ElectronTools.regressionWeights_cfi import GBRDWrapperRcd
+# process.regressions           = GBRDWrapperRcd
+# process.es_prefer_regressions = cms.ESPrefer('PoolDBESSource','regressions')
+# process.load('EgammaAnalysis.ElectronTools.regressionApplication_cff')
+# process.EGMenergyCorrection = cms.Path(process.regressionApplication)
+
+from EgammaAnalysis.ElectronTools.regressionWeights_cfi import regressionWeights
+process = regressionWeights(process)
 process.load('EgammaAnalysis.ElectronTools.regressionApplication_cff')
 process.EGMenergyCorrection = cms.Path(process.regressionApplication)
 
