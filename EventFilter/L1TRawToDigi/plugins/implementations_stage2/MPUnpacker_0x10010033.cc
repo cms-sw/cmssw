@@ -132,7 +132,7 @@ namespace stage2 {
      // ET EM
      if(block.header().getID()==123 || block.header().getID()==125){
        etEm.setType(l1t::EtSum::kTotalEtEm);
-       etEm.setHwPt( static_cast<int32_t>( uint32_t( ( raw_data >> 16 ) & 0xFFFF ) );
+       etEm.setHwPt( static_cast<int32_t>( uint32_t( ( raw_data >> 16 ) & 0xFFFF )) );
        res2_->push_back(0,etEm);
 
      }
