@@ -69,7 +69,7 @@ void PFPhotonClusters::PFCrystalCoor(){
     CrysPhi_=PhiCry;
     
     if(std::abs(CrysIEta_)==1 || std::abs(CrysIEta_)==2 )
-      CrysIEtaCrack_=abs(CrysIEta_);
+      CrysIEtaCrack_=std::abs(CrysIEta_);
     if(std::abs(CrysIEta_)>2 && std::abs(CrysIEta_)<24)
       CrysIEtaCrack_=3;
     if(std::abs(CrysIEta_)==24)
