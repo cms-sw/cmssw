@@ -157,7 +157,7 @@ void ME0ReDigiProducer::buildDigis(const ME0DigiPreRecoCollection & input_digis,
 
       // calculate the new time in ns
       float newTime = correctedNewTof;
-      if (me0Digi.prompt() and discretizeTiming_){
+      if (discretizeTiming_){
         for (int iBunch = minBunch_ - 2; iBunch <= maxBunch_ + 2; ++iBunch){
           if (-12.5 + iBunch*25 < newTime and newTime <= 12.5 + iBunch*25){
             newTime = iBunch * 25;
