@@ -121,6 +121,8 @@ StandardSpecifications1D = [
                             .reduce("MEAN")
                             .groupBy("PXForward/HalfCylinder/PXDisk/PXRing", "EXTEND_X")
                             .saveAll(),
+    Specification().groupBy("PXBarrel").save(),
+    Specification().groupBy("PXForward").save(),
     Specification(PerLayer1D).groupBy("PXBarrel/Shell/PXLayer").save(),
     Specification(PerLayer1D).groupBy("PXForward/HalfCylinder/PXDisk/PXRing").save(),
 
@@ -135,6 +137,8 @@ StandardSpecifications1D = [
                             .reduce("MEAN")
                             .groupBy("PXBarrel/Shell/PXLayer/PXLadder", "EXTEND_X")
                             .save(),
+    
+
 ]
 
 StandardSpecificationTrend = [
@@ -145,9 +149,21 @@ StandardSpecificationTrend = [
     Specification().groupBy("PXForward/Lumisection")
                    .reduce("MEAN") 
                    .groupBy("PXForward", "EXTEND_X")
-                   .save(),
+                   .save()
 ]
 
+StandardSpecificationTrend2D = [
+    Specification().groupBy("PXBarrel/PXLayer/Lumisection")
+                   .reduce("MEAN") 
+                   .groupBy("PXBarrel/PXLayer", "EXTEND_X")
+                   .groupBy("PXBarrel", "EXTEND_Y")
+                   .save(),
+    Specification().groupBy("PXForward/PXDisk/Lumisection")
+                   .reduce("MEAN") 
+                   .groupBy("PXForward/PXDisk","EXTEND_X")
+                   .groupBy("PXForward", "EXTEND_Y")
+                   .save()
+]
 
 StandardSpecification2DProfile = [
     Specification(PerLayer2D)
@@ -186,14 +202,54 @@ StandardSpecifications1D_Num = [
                             .reduce("COUNT")
                             .groupBy("PXForward/HalfCylinder/PXDisk/PXRing/PXBlade/PXModuleName")
                             .save(),
+
+    Specification(PerLadder).groupBy("PXForward/HalfCylinder/PXDisk/PXRing/PXBlade/PXPanel/DetId/Event")
+                             .reduce("COUNT")
+                             .groupBy("PXForward/HalfCylinder/PXDisk/PXRing/PXBlade/PXPanel")
+                             .reduce("MEAN")
+                             .groupBy("PXForward/HalfCylinder/PXDisk/PXRing/PXBlade","EXTEND_X")
+                             .save(),
+    Specification(PerLadder).groupBy("PXBarrel/Shell/PXLayer/PXLadder/PXBModule/DetId/Event")
+                             .reduce("COUNT")
+                             .groupBy("PXBarrel/Shell/PXLayer/PXLadder/PXBModule")
+                             .reduce("MEAN")
+                             .groupBy("PXBarrel/Shell/PXLayer/PXLadder", "EXTEND_X")
+                             .save()
+]
+
+
+StandardSpecificationInclusive_Num = [#to count inclusively objects in substructures (BPix, FPix)
+    Specification().groupBy("PXBarrel/Event")
+                   .reduce("COUNT")
+                   .groupBy("PXBarrel")
+                   .save(),
+    Specification().groupBy("PXForward/Event")
+                   .reduce("COUNT")
+                   .groupBy("PXForward")
+                   .save()
 ]
 
 StandardSpecificationTrend_Num = [
+
+    Specification().groupBy("PXBarrel/PXLayer/Lumisection/Event")
+                   .reduce("COUNT")
+                   .groupBy("PXBarrel/PXLayer/Lumisection")
+                   .reduce("MEAN") 
+                   .groupBy("PXBarrel/PXLayer","EXTEND_X")
+                   .groupBy("PXBarrel", "EXTEND_Y")
+                   .save(),
     Specification().groupBy("PXBarrel/Lumisection/PXLayer/Event")
                    .reduce("COUNT")
                    .groupBy("PXBarrel/Lumisection")
                    .reduce("MEAN")
                    .groupBy("PXBarrel", "EXTEND_X")
+                   .save(),
+    Specification().groupBy("PXForward/PXDisk/Lumisection/Event")
+                   .reduce("COUNT")
+                   .groupBy("PXForward/PXDisk/Lumisection")
+                   .reduce("MEAN") 
+                   .groupBy("PXForward/PXDisk","EXTEND_X")
+                   .groupBy("PXForward", "EXTEND_Y")
                    .save(),
     Specification().groupBy("PXForward/Lumisection/PXDisk/Event")
                    .reduce("COUNT")
