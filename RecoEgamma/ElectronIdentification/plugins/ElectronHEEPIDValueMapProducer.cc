@@ -30,20 +30,31 @@
 
 
 class ElectronHEEPIDValueMapProducer : public edm::stream::EDProducer<> {
-
-  public:
-  
-  explicit ElectronHEEPIDValueMapProducer(const edm::ParameterSet&);
-  ~ElectronHEEPIDValueMapProducer();
-  
-  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
-  
-  private:
+private:
+  //helper classes to handle AOD vs MiniAOD
   template<typename T>
   struct DualToken {
     edm::EDGetTokenT<T> aod;
     edm::EDGetTokenT<T> miniAOD;
   };
+  class DataFormat {
+  public:
+    enum Format{AUTO=0,AOD=1,MINIAOD=2};
+  private:
+    int data_;
+  public:
+    DataFormat(int val):data_(val){}
+    bool tryAOD()const{return data_==AUTO || data_==AOD;}
+    bool tryMiniAOD()const{return data_==AUTO || data_==MINIAOD;}
+    int operator()()const{return data_;}
+  };
+public:
+  explicit ElectronHEEPIDValueMapProducer(const edm::ParameterSet&);
+  ~ElectronHEEPIDValueMapProducer();
+  
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+  
+private:
   virtual void produce(edm::Event&, const edm::EventSetup&) override;
 
   template<typename T>
@@ -71,21 +82,25 @@ class ElectronHEEPIDValueMapProducer : public edm::stream::EDProducer<> {
       tokens.push_back(token);
     }
   } 
-  template <typename T> void setToken(DualToken<T>& token,const edm::ParameterSet& iPara,const std::string& tagAOD,const std::string& tagMiniAOD){
-    token.aod=consumes<T>(iPara.getParameter<edm::InputTag>(tagAOD));
-    token.miniAOD=consumes<T>(iPara.getParameter<edm::InputTag>(tagMiniAOD));
+  template <typename T> void setToken(DualToken<T>& token,const edm::ParameterSet& iPara,const std::string& tagAOD,const std::string& tagMiniAOD,DataFormat format){
+    if(format.tryAOD()) token.aod=consumes<T>(iPara.getParameter<edm::InputTag>(tagAOD));
+    if(format.tryMiniAOD()) token.miniAOD=consumes<T>(iPara.getParameter<edm::InputTag>(tagMiniAOD));
   }
-  template <typename T> void setToken(std::vector<DualToken<T> >& tokens,const edm::ParameterSet& iPara,const std::string& tagAOD,const std::string& tagMiniAOD){
+  template <typename T> void setToken(std::vector<DualToken<T> >& tokens,const edm::ParameterSet& iPara,const std::string& tagAOD,const std::string& tagMiniAOD,DataFormat format){
     auto tagsAOD =iPara.getParameter<std::vector<edm::InputTag> >(tagAOD);
     auto tagsMiniAOD =iPara.getParameter<std::vector<edm::InputTag> >(tagMiniAOD);
     size_t maxSize = std::max(tagsAOD.size(),tagsMiniAOD.size());
     tokens.clear();
-    tokens.resize(maxSize);
-    for(size_t tagNr=0;tagNr<tagsAOD.size();tagNr++) {
-      setToken(tokens[tagNr].aod,tagsAOD[tagNr]);
+    tokens.resize(maxSize); 
+    if(format.tryAOD()){
+      for(size_t tagNr=0;tagNr<tagsAOD.size();tagNr++) {
+	setToken(tokens[tagNr].aod,tagsAOD[tagNr]);
+      }
     }
-    for(size_t tagNr=0;tagNr<tagsMiniAOD.size();tagNr++) {
-      setToken(tokens[tagNr].miniAOD,tagsMiniAOD[tagNr]);
+    if(format.tryMiniAOD()){
+      for(size_t tagNr=0;tagNr<tagsMiniAOD.size();tagNr++) {
+	setToken(tokens[tagNr].miniAOD,tagsMiniAOD[tagNr]);
+      }
     }
   }
       
@@ -96,8 +111,8 @@ class ElectronHEEPIDValueMapProducer : public edm::stream::EDProducer<> {
   }
   template<typename T> edm::Handle<T> getHandle(const edm::Event& iEvent,const DualToken<T>& token){
     edm::Handle<T> handle;
-    iEvent.getByToken(token.aod,handle);
-    if(!handle.isValid()) iEvent.getByToken(token.miniAOD,handle);
+    if(!token.aod.isUninitialized()) iEvent.getByToken(token.aod,handle);
+    if(!handle.isValid() && !token.miniAOD.isUninitialized()) iEvent.getByToken(token.miniAOD,handle);
     return handle;
   }
 
@@ -124,6 +139,7 @@ class ElectronHEEPIDValueMapProducer : public edm::stream::EDProducer<> {
   edm::EDGetTokenT<reco::BeamSpot> beamSpotToken_;
 
   EleTkIsolFromCands trkIsoCalc_;
+  DataFormat dataFormat_;
   
   static const std::string eleTrkPtIsoLabel_;
   static const std::string eleNrSaturateIn5x5Label_;
@@ -135,12 +151,13 @@ const std::string ElectronHEEPIDValueMapProducer::eleNrSaturateIn5x5Label_="eleN
 
 
 ElectronHEEPIDValueMapProducer::ElectronHEEPIDValueMapProducer(const edm::ParameterSet& iConfig):
-  trkIsoCalc_(iConfig.getParameter<edm::ParameterSet>("trkIsoConfig"))
+  trkIsoCalc_(iConfig.getParameter<edm::ParameterSet>("trkIsoConfig")),
+  dataFormat_(iConfig.getParameter<int>("dataFormat"))
 {
-  setToken(ebRecHitToken_,iConfig,"ebRecHitsAOD","ebRecHitsMiniAOD");
-  setToken(eeRecHitToken_,iConfig,"eeRecHitsAOD","eeRecHitsMiniAOD");
-  setToken(eleToken_,iConfig,"elesAOD","elesMiniAOD");
-  setToken(candTokens_,iConfig,"candsAOD","candsMiniAOD");
+  setToken(ebRecHitToken_,iConfig,"ebRecHitsAOD","ebRecHitsMiniAOD",dataFormat_);
+  setToken(eeRecHitToken_,iConfig,"eeRecHitsAOD","eeRecHitsMiniAOD",dataFormat_);
+  setToken(eleToken_,iConfig,"elesAOD","elesMiniAOD",dataFormat_);
+  setToken(candTokens_,iConfig,"candsAOD","candsMiniAOD",dataFormat_);
   setToken(beamSpotToken_,iConfig,"beamSpot");
   
   produces<edm::ValueMap<float> >(eleTrkPtIsoLabel_);  
@@ -166,7 +183,6 @@ void ElectronHEEPIDValueMapProducer::produce(edm::Event& iEvent, const edm::Even
   
   std::vector<float> eleTrkPtIso;
   std::vector<int> eleNrSaturateIn5x5;
-
   for(size_t eleNr=0;eleNr<eleHandle->size();eleNr++){
     auto elePtr = eleHandle->ptrAt(eleNr);
     eleTrkPtIso.push_back(calTrkIso(*elePtr,*eleHandle,candHandles));
@@ -230,6 +246,7 @@ void ElectronHEEPIDValueMapProducer::fillDescriptions(edm::ConfigurationDescript
   desc.add<edm::InputTag>("eeRecHitsMiniAOD",edm::InputTag("reducedEcalRecHitsEE"));
   desc.add<std::vector<edm::InputTag> >("candsMiniAOD",{edm::InputTag("packedCandidates")});
   desc.add<edm::InputTag>("elesMiniAOD",edm::InputTag("gedGsfElectrons"));
+  desc.add<int>("dataFormat",0);
   
   desc.add("trkIsoConfig",EleTkIsolFromCands::pSetDescript());
 

@@ -12,6 +12,7 @@ heepIDVarValueMaps = cms.EDProducer("ElectronHEEPIDValueMapProducer",
                                     candsMiniAOD=cms.VInputTag("packedPFCandidates",
                                                                "lostTracks"),
                                     elesMiniAOD=cms.InputTag("slimmedElectrons"),
+                                    dataFormat=cms.int32(0),#0 = auto detection, 1 = AOD, 2 = miniAOD
 
                                     trkIsoConfig= cms.PSet(
                                        barrelCuts=cms.PSet(
