@@ -72,7 +72,7 @@ SiPixelPhase1DigisNdigisPerFEDtrend = DefaultHisto.clone(
   )
 )
 
-SiPixelPhase1DigisEvents = DefaultHisto.clone(
+SiPixelPhase1DigisEvents = DefaultHistoDigiCluster.clone(
   name = "eventrate",
   title = "Rate of Pixel Events",
   xlabel = "Lumisection",

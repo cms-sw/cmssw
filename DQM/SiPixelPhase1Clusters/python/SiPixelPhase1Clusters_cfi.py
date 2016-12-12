@@ -40,16 +40,21 @@ SiPixelPhase1ClustersNClusters = DefaultHistoDigiCluster.clone(
 )
 
 SiPixelPhase1ClustersEventrate = DefaultHistoDigiCluster.clone(
-  name = "bigfpixclustereventrate",
-  title = "Number of Events with > 180 FPIX clusters",
-  xlabel = "Lumisection",
+  name = "clustereventrate",
+  title = "Number of Events with clusters",
   ylabel = "#Events",
   dimensions = 0,
   specs = VPSet(
     Specification().groupBy("Lumisection")
+                   .groupBy("", "EXTEND_X").save(),
+    Specification().groupBy("BX")
                    .groupBy("", "EXTEND_X").save()
-  )
+    )
+
 )
+
+
+
 
 SiPixelPhase1ClustersPositionB = DefaultHistoDigiCluster.clone(
   name = "clusterposition_zphi",
