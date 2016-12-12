@@ -9,9 +9,9 @@ caloStage2Params.jetBypassPUS               = cms.uint32(1)
 caloStage2Params.jetSeedThreshold           = cms.double(2.0)
 caloStage2Params.jetCalibrationType         = cms.string("None")
 
-caloStage2Params.egHOverEcutBarrel          = cms.int32(1) #H/E < pow(2,-5) in barrel
-caloStage2Params.egHOverEcutEndcap          = cms.int32(1) #H/E < pow(2,-4) in endcaps
-caloStage2Params.egShapeIdLUTFile           = cms.FileInPath("L1Trigger/L1TCalorimeter/data/shapeIdentification_dummy.txt")
+caloStage2Params.egHOverEcutBarrel          = cms.int32(0) #H/E < pow(2,-5) in barrel
+caloStage2Params.egHOverEcutEndcap          = cms.int32(0) #H/E < pow(2,-4) in endcaps
+caloStage2Params.egShapeIdLUTFile           = cms.FileInPath("L1Trigger/L1TCalorimeter/data/shapeIdentification_dummy.txt")#Not used any more in the current emulator version, merged with calibration LUT
 caloStage2Params.egBypassEGVetos            = cms.uint32(0)
 
 
