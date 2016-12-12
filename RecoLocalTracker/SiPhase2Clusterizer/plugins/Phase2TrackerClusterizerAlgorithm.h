@@ -8,7 +8,7 @@
 
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
 
-#include "RecoLocalTracker/SiPhase2Clusterizer/interface/Phase2TrackerClusterizerArray.h"
+#include "Phase2TrackerClusterizerArray.h"
 
 class Phase2TrackerClusterizerAlgorithm {
 
