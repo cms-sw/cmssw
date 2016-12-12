@@ -53,7 +53,7 @@ public:
   
   
 private:
-  virtual void beginRun(edm::Run & run, const edm::EventSetup&) ;
+  virtual void beginRun(edm::Run const& run, const edm::EventSetup&) ;
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endJob() ;
 
@@ -264,7 +264,7 @@ void NavigationSchoolAnalyzer::analyze(const edm::Event& iEvent, const edm::Even
 
 }
 
-void NavigationSchoolAnalyzer::beginRun(edm::Run & run, const edm::EventSetup& iSetup) {
+void NavigationSchoolAnalyzer::beginRun(edm::Run const & run, const edm::EventSetup& iSetup) {
 //  edm::ESHandle<TrackerTopology> tTopoHandle;
 //  iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
 //  tTopo = tTopoHandle.product();
