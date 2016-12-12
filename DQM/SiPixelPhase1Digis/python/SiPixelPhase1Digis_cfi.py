@@ -12,6 +12,7 @@ SiPixelPhase1DigisADC = DefaultHistoDigiCluster.clone(
   range_nbins = 300,
   specs = VPSet(
     StandardSpecificationTrend,
+    StandardSpecificationTrend2D,
     StandardSpecification2DProfile,
     StandardSpecifications1D
   )
@@ -31,6 +32,19 @@ SiPixelPhase1DigisNdigis = DefaultHistoDigiCluster.clone(
     StandardSpecifications1D_Num
   )
 )
+
+
+SiPixelPhase1ClustersNdigisInclusive = DefaultHistoDigiCluster.clone(
+  name = "digis",
+  title = "Digis",
+  range_min = 0, range_max = 2000, range_nbins = 200,
+  xlabel = "digis",
+  dimensions = 0,
+  specs = VPSet(
+    StandardSpecificationInclusive_Num
+  )
+)
+
 
 SiPixelPhase1DigisNdigisPerFED = DefaultHisto.clone( #to be removed?
   name = "feddigis", # This is the same as above up to the ranges. maybe we 
@@ -121,6 +135,7 @@ SiPixelPhase1DigisHitmap = DefaultHistoDigiCluster.clone(
 SiPixelPhase1DigisConf = cms.VPSet(
   SiPixelPhase1DigisADC,
   SiPixelPhase1DigisNdigis,
+  SiPixelPhase1ClustersNdigisInclusive,
   SiPixelPhase1DigisNdigisPerFED,
   SiPixelPhase1DigisNdigisPerFEDtrend,
   SiPixelPhase1DigisEvents,

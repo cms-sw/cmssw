@@ -35,9 +35,6 @@ void SiPixelPhase1Clusters::analyze(const edm::Event& iEvent, const edm::EventSe
   iSetup.get<TrackerDigiGeometryRecord>().get(tracker);
   assert(tracker.isValid());
   
-  auto forward = geometryInterface.intern("PXForward");
-  auto nforward = 0;
-
   edmNew::DetSetVector<SiPixelCluster>::const_iterator it;
   for (it = input->begin(); it != input->end(); ++it) {
     auto id = DetId(it->detId());
@@ -50,6 +47,7 @@ void SiPixelPhase1Clusters::analyze(const edm::Event& iEvent, const edm::EventSe
       histo[SIZE  ].fill(double(cluster.size()  ), id, &iEvent);
       if (cluster.size() > 1){
         histo[NCLUSTERS].fill(id, &iEvent);
+	histo[NCLUSTERSINCLUSIVE].fill(id, &iEvent);
 	hasClusters=true;
       }
 
@@ -61,17 +59,15 @@ void SiPixelPhase1Clusters::analyze(const edm::Event& iEvent, const edm::EventSe
       histo[POSITION_YZ].fill(clustgp.y(),   clustgp.z(),     id, &iEvent);
       histo[SIZE_VS_ETA].fill(clustgp.eta(), cluster.sizeY(), id, &iEvent);
 
-      if (geometryInterface.extract(forward, id) != GeometryInterface::UNDEFINED)
-        nforward++;
     }
   }
 
 
-  if (hasClusters) histo[EVENT].fill(DetId(0), &iEvent);
+  if (hasClusters) histo[EVENTRATE].fill(DetId(0), &iEvent);
 
-  if (nforward > 180) 
-    histo[EVENTRATE].fill(DetId(0), &iEvent);
   histo[NCLUSTERS].executePerEventHarvesting(&iEvent);
+  histo[NCLUSTERSINCLUSIVE].executePerEventHarvesting(&iEvent);
+
 }
 
 DEFINE_FWK_MODULE(SiPixelPhase1Clusters);

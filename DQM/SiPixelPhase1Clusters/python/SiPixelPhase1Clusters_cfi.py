@@ -10,7 +10,8 @@ SiPixelPhase1ClustersCharge = DefaultHistoDigiCluster.clone(
   specs = VPSet(
     StandardSpecification2DProfile,
     StandardSpecificationTrend,
-    StandardSpecifications1D
+    StandardSpecifications1D,
+    StandardSpecificationTrend2D
   )
 )
 
@@ -22,7 +23,8 @@ SiPixelPhase1ClustersSize = DefaultHistoDigiCluster.clone(
   specs = VPSet(
     StandardSpecification2DProfile,
     StandardSpecificationTrend,
-    StandardSpecifications1D
+    StandardSpecifications1D,
+    StandardSpecificationTrend2D
   )
 )
 
@@ -35,9 +37,22 @@ SiPixelPhase1ClustersNClusters = DefaultHistoDigiCluster.clone(
   specs = VPSet(
     StandardSpecification2DProfile_Num,
     StandardSpecificationTrend_Num,
-    StandardSpecifications1D_Num
+    StandardSpecifications1D_Num,
   )
 )
+
+
+SiPixelPhase1ClustersNClustersInclusive = DefaultHistoDigiCluster.clone(
+  name = "clusters",
+  title = "Clusters",
+  range_min = 0, range_max = 2000, range_nbins = 200,
+  xlabel = "clusters",
+  dimensions = 0,
+  specs = VPSet(
+    StandardSpecificationInclusive_Num
+  )
+)
+
 
 SiPixelPhase1ClustersEventrate = DefaultHistoDigiCluster.clone(
   name = "clustereventrate",
@@ -52,8 +67,6 @@ SiPixelPhase1ClustersEventrate = DefaultHistoDigiCluster.clone(
     )
 
 )
-
-
 
 
 SiPixelPhase1ClustersPositionB = DefaultHistoDigiCluster.clone(
@@ -124,6 +137,7 @@ SiPixelPhase1ClustersConf = cms.VPSet(
   SiPixelPhase1ClustersCharge,
   SiPixelPhase1ClustersSize,
   SiPixelPhase1ClustersNClusters,
+  SiPixelPhase1ClustersNClustersInclusive,
   SiPixelPhase1ClustersEventrate,
   SiPixelPhase1ClustersPositionB,
   SiPixelPhase1ClustersPositionF,
