@@ -21,6 +21,7 @@
 #include "CondFormats/GeometryObjects/interface/PTrackerParameters.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelFedCablingMap.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "CondFormats/SiPixelObjects/interface/SiPixelFrameReverter.h"
 
 // Pixel names
 #include "DataFormats/SiPixelDetId/interface/PixelBarrelName.h"
@@ -31,6 +32,7 @@
 #include <cstdint>
 #include <iostream>
 #include <iomanip>
+#include <memory>
 
 const GeometryInterface::Value GeometryInterface::UNDEFINED = 999999999.9f;
 
@@ -342,43 +344,44 @@ void GeometryInterface::loadFEDCabling(edm::EventSetup const& iSetup, const edm:
   auto cablingMapLabel = iConfig.getParameter<std::string>("CablingMapLabel");
   edm::ESHandle<SiPixelFedCablingMap> theCablingMap;
   iSetup.get<SiPixelFedCablingMapRcd>().get(cablingMapLabel, theCablingMap);
-  std::map<DetId, Value> fedmap;
-  std::map<DetId, Value> chanmap;
 
-  if (theCablingMap.isValid()) {
-    auto map = theCablingMap.product();
-
-    for(auto iq : all_modules) {
-      std::vector<sipixelobjects::CablingPathToDetUnit> paths = map->pathToDetUnit(iq.sourceModule.rawId());
-      for (auto p : paths) {
-        //std::cout << "+++ cabling " << iq.sourceModule.rawId() << " " << p.fed << " " << p.link << " " << p.roc << "\n";
-        fedmap[iq.sourceModule] = Value(p.fed);
-        // TODO: this might not be correct, since channels are assigned per ROC.
-        chanmap[iq.sourceModule] = Value(p.link);
-      }
-    }
-  } else {
-    edm::LogError("GeometryInterface") << "+++ No cabling map. Cannot extract FEDs.\n";
-  }
+  std::shared_ptr<SiPixelFrameReverter> siPixelFrameReverter =
+      // I think passing the bare pointer here is safe, but who knows...
+      std::make_shared<SiPixelFrameReverter>(iSetup, theCablingMap.operator->());
 
   addExtractor(intern("FED"),
-    [fedmap] (InterestingQuantities const& iq) {
+    [siPixelFrameReverter] (InterestingQuantities const& iq) {
       if (iq.sourceModule == 0xFFFFFFFF)
         return Value(iq.col); // hijacked for the raw data plugin
-      auto it = fedmap.find(iq.sourceModule);
-      if (it == fedmap.end()) return GeometryInterface::UNDEFINED;
-      return it->second;
+      return Value(siPixelFrameReverter->findFedId(iq.sourceModule.rawId()));
     }
   );
-  addExtractor(intern("FEDChannel"),
-    [chanmap] (InterestingQuantities const& iq) {
+
+  // TODO: ranges should be set manually below, since booking probably cannot
+  // infer them correctly (no ROC-level granularity)
+  addExtractor(intern("LinkInFed"),
+    [siPixelFrameReverter] (InterestingQuantities const& iq) {
       if (iq.sourceModule == 0xFFFFFFFF)
         return Value(iq.row); // hijacked for the raw data plugin
-      auto it = chanmap.find(iq.sourceModule);
-      if (it == chanmap.end()) return GeometryInterface::UNDEFINED;
-      return it->second;
+      sipixelobjects::GlobalPixel gp = {iq.row, iq.col};
+      return Value(siPixelFrameReverter->findLinkInFed(iq.sourceModule.rawId(), gp));
     }
   );
+  // not sure if this is useful anywhere.
+  addExtractor(intern("RocInLink"),
+    [siPixelFrameReverter] (InterestingQuantities const& iq) {
+      sipixelobjects::GlobalPixel gp = {iq.row, iq.col};
+      return Value(siPixelFrameReverter->findRocInLink(iq.sourceModule.rawId(), gp));
+    }
+  );
+  // This might be equivalent to our ROC numbering.
+  addExtractor(intern("RocInDet"),
+    [siPixelFrameReverter] (InterestingQuantities const& iq) {
+      sipixelobjects::GlobalPixel gp = {iq.row, iq.col};
+      return Value(siPixelFrameReverter->findRocInDet(iq.sourceModule.rawId(), gp));
+    }
+  );
+
 }
 
 std::string GeometryInterface::formatValue(Column col, Value val) {
