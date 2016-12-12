@@ -46,7 +46,7 @@ public:
 
 
 private:
-  virtual void beginRun(edm::Run & run, const edm::EventSetup&) ;
+  virtual void beginRun(edm::Run const& run, const edm::EventSetup&) ;
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endJob() ;
 
@@ -74,7 +74,7 @@ void MeasurementTrackerUpdator::analyze(const edm::Event& iEvent, const edm::Eve
 
 }
 
-void MeasurementTrackerUpdator::beginRun(edm::Run & run, const edm::EventSetup&) {}
+void MeasurementTrackerUpdator::beginRun(edm::Run const& run, const edm::EventSetup&) {}
 void MeasurementTrackerUpdator::endJob() {}
 
 //define this as a plug-in

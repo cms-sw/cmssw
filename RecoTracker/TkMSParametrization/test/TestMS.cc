@@ -37,7 +37,7 @@ class TestMS : public edm::EDAnalyzer {
 public:
   explicit TestMS(const edm::ParameterSet& conf);
   ~TestMS();
-  virtual void beginRun(edm::Run & run, const edm::EventSetup& es);
+  virtual void beginRun(edm::Run const& run, const edm::EventSetup& es);
   virtual void analyze(const edm::Event& ev, const edm::EventSetup& es);
   virtual void endJob();
 private:
@@ -77,7 +77,7 @@ void TestMS::analyze(
 }
 
 
-void TestMS::beginRun(edm::Run & run, const edm::EventSetup& es) 
+void TestMS::beginRun(edm::Run const& run, const edm::EventSetup& es) 
 {
 
   edm::ESHandle<GeometricSearchTracker> tracker;
