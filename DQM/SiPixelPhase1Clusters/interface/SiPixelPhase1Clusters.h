@@ -16,6 +16,7 @@ class SiPixelPhase1Clusters : public SiPixelPhase1Base {
     CHARGE,
     SIZE,
     NCLUSTERS,
+    NCLUSTERSINCLUSIVE,
     EVENTRATE,
     POSITION_B,
     POSITION_F,
