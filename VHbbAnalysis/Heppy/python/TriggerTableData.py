@@ -92,6 +92,7 @@ triggerTable = {
         "HLT_TkMu24_eta2p1_v*",
         "HLT_IsoMu27_v*",
         "HLT_IsoTkMu27_v*",
+        "HLT_IsoTkMu24_v*",
         "HLT_TkMu27_v*",
         "HLT_Mu27_v*",
         "HLT_IsoMu20_v*",
@@ -125,6 +126,7 @@ triggerTable = {
         "HLT_TkMu24_eta2p1_v*",
         "HLT_IsoMu27_v*",
         "HLT_IsoTkMu27_v*",
+        "HLT_IsoTkMu24_v*",
         "HLT_TkMu27_v*",
         "HLT_Mu27_v*",
         "HLT_IsoMu20_v*",
@@ -152,6 +154,7 @@ triggerTable = {
         "HLT_IsoMu24_eta2p1_v*",
         "HLT_IsoMu27_v*",
         "HLT_IsoTkMu27_v*",
+        "HLT_IsoTkMu24_v*",
         "HLT_IsoMu16_eta2p1_MET30_v*"
     ],
     "WmnHbbLowLumi" : [
