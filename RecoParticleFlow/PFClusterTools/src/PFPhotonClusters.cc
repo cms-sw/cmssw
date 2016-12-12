@@ -68,9 +68,9 @@ void PFPhotonClusters::PFCrystalCoor(){
     CrysEta_=EtaCry;
     CrysPhi_=PhiCry;
     
-    if(std::abs(CrysIEta_)==1 || abs(CrysIEta_)==2 )
+    if(std::abs(CrysIEta_)==1 || std::abs(CrysIEta_)==2 )
       CrysIEtaCrack_=abs(CrysIEta_);
-    if(std::abs(CrysIEta_)>2 && abs(CrysIEta_)<24)
+    if(std::abs(CrysIEta_)>2 && std::abs(CrysIEta_)<24)
       CrysIEtaCrack_=3;
     if(std::abs(CrysIEta_)==24)
       CrysIEtaCrack_=4;
@@ -80,7 +80,7 @@ void PFPhotonClusters::PFCrystalCoor(){
       CrysIEtaCrack_=6;
     if(std::abs(CrysIEta_)==27)
       CrysIEtaCrack_=7;
-    if(std::abs(CrysIEta_)>27 &&  abs(CrysIEta_)<44)
+    if(std::abs(CrysIEta_)>27 &&  std::abs(CrysIEta_)<44)
       CrysIEtaCrack_=8;
     if(std::abs(CrysIEta_)==44)
       CrysIEtaCrack_=9;
@@ -90,7 +90,7 @@ void PFPhotonClusters::PFCrystalCoor(){
       CrysIEtaCrack_=11;
     if(std::abs(CrysIEta_)==47)
       CrysIEtaCrack_=12;
-    if(std::abs(CrysIEta_)>47 &&  abs(CrysIEta_)<64)
+    if(std::abs(CrysIEta_)>47 &&  std::abs(CrysIEta_)<64)
       CrysIEtaCrack_=13;
     if(std::abs(CrysIEta_)==64)
       CrysIEtaCrack_=14;
@@ -100,7 +100,7 @@ void PFPhotonClusters::PFCrystalCoor(){
       CrysIEtaCrack_=16;
     if(std::abs(CrysIEta_)==67)
       CrysIEtaCrack_=17;
-    if(std::abs(CrysIEta_)>67 &&  abs(CrysIEta_)<84)
+    if(std::abs(CrysIEta_)>67 &&  std::abs(CrysIEta_)<84)
       CrysIEtaCrack_=18;
     if(std::abs(CrysIEta_)==84)
       CrysIEtaCrack_=19;
@@ -113,7 +113,7 @@ void PFPhotonClusters::PFCrystalCoor(){
     CrysIX_=EEidSeed.ix();
     CrysIY_=EEidSeed.iy();
     float X0 = 0.89; float T0 = 1.2;
-    if(fabs(PFClusterRef_->eta())>1.653)T0=3.1;
+    if(std::abs(PFClusterRef_->eta())>1.653)T0=3.1;
     double depth = X0 * (T0 + log(PFClusterRef_->energy()));
     math::XYZVector center_pos=(seedPosition_)+depth*seedAxis_;
     double XCentr = center_pos.x();
@@ -137,9 +137,9 @@ void PFPhotonClusters::FillClusterShape(){
       int deta=EBDetId::distanceEta(id,idseed_);
       int dphi=EBDetId::distancePhi(id,idseed_);
 
-      if(std::abs(deta)>2 ||abs(dphi)>2)continue;
+      if(std::abs(deta)>2 ||std::abs(dphi)>2)continue;
       
-      //f(std::abs(dphi)<=2 && abs(deta)<=2){
+      //if(std::abs(dphi)<=2 && std::abs(deta)<=2){
       EBDetId EBidSeed=EBDetId(idseed_.rawId());
       EBDetId EBid=EBDetId(id.rawId());
       int ind1=EBidSeed.ieta()-EBid.ieta();
@@ -212,7 +212,7 @@ void PFPhotonClusters::FillClusterWidth(){
     if (dPhi < - TMath::Pi()) { dPhi = TMath::TwoPi() + dPhi; }
     numeratorEtaWidth += E * dEta * dEta;
     numeratorPhiWidth += E * dPhi * dPhi;
-    numeratorEtaPhiWidth += E * fabs(dPhi) * fabs(dEta);
+    numeratorEtaPhiWidth += E * std::abs(dPhi) * std::abs(dEta);
   }
   double denominator=PFClusterRef_->energy();
   sigetaeta_ = sqrt(numeratorEtaWidth / denominator);
