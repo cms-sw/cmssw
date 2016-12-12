@@ -1,7 +1,8 @@
+import FWCore.ParameterSet.Config as cms
 from PhysicsTools.SelectorUtils.centralIDRegistry import central_id_registry
 
 # Common functions and classes for ID definition are imported here:
-from RecoEgamma.ElectronIdentification.Identification.heepElectronID_tools import *
+from RecoEgamma.ElectronIdentification.Identification.heepElectronID_tools import HEEP_WorkingPoint_V1,configureHEEPElectronID_V70
 
 #
 # The HEEP ID cuts V6.0 below are optimized IDs for PHYS14 Scenario PU 20, bx 25ns
