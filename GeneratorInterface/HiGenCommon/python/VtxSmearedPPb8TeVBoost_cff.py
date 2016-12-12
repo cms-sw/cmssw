@@ -4,6 +4,6 @@ from IOMC.EventVertexGenerators.VtxSmearedParameters_cfi import *
 
 VtxSmeared = cms.EDProducer("BetaBoostEvtVtxGenerator",
     VtxSmearedCommon,
-    Realistic50ns13TeVCollisionVtxSmearingParameters,
+    Realistic8TeVPACollision2016VtxSmearingParameters,
     Beta=cms.double(-0.434)
 )
