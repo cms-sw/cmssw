@@ -166,6 +166,12 @@ def customiseFor16792(process):
 # CMSSW version specific customizations
 def customizeHLTforCMSSW(process, menuType="GRun"):
 
+#   only for non-development frozen menus
+    if ((menuType == "GRun") or (menuType == "HIon") or (menuType == "PIon") or (menuType == "PRef")):
+        print "# Skipping 81X customization for ",menuType
+        return process
+
+    print "# Applying 81X customization for ",menuType
     import os
     cmsswVersion = os.environ['CMSSW_VERSION']
 
