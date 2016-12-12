@@ -117,6 +117,14 @@ public:
     return(bunchCrossing >= theMinBunch && bunchCrossing <= theMaxBunch);
   }
 
+  void setStorePrecise(bool sp) {
+    storePrecise = sp;
+  }
+
+  void setIgnoreGeantTime(bool gt) {
+    ignoreTime = gt;
+  }
+
 protected:
 
   AnalogSignalMap theAnalogSignalMap;
@@ -134,7 +142,8 @@ protected:
   int theMaxBunch;
 
   double thePhaseShift_;
-
+  bool storePrecise;
+  bool ignoreTime;
 };
 
 #endif
