@@ -56,7 +56,7 @@ void l1t::Stage2Layer2TauAlgorithmFirmwareImp1::merging(const std::vector<l1t::C
         // by construction of the clustering, they are local maxima in the 9x3 jet window
         if (mainCluster.isValid())
         {
-            if (abs(mainCluster.hwEta()) > 28) continue; // limit in main seed position in firmware
+            if (abs(mainCluster.hwEta()) > params_->isoTauEtaMax()) continue; // limit in main seed position in firmware
 
             int iEta = mainCluster.hwEta();
             int iPhi = mainCluster.hwPhi();
@@ -486,8 +486,8 @@ void l1t::Stage2Layer2TauAlgorithmFirmwareImp1::dosorting (std::vector<l1t::Tau>
     // prepare content to be sorted -- each phi ring contains 18 elements, with Et = 0 if no candidate exists
     math::PtEtaPhiMLorentzVector emptyP4;
     l1t::Tau tempTau (emptyP4, 0, 0, 0, 0);
-    std::vector< std::vector<l1t::Tau> > tauEtaPos( 28 , std::vector<l1t::Tau>(18, tempTau));
-    std::vector< std::vector<l1t::Tau> > tauEtaNeg( 28 , std::vector<l1t::Tau>(18, tempTau));
+    std::vector< std::vector<l1t::Tau> > tauEtaPos( params_->isoTauEtaMax() , std::vector<l1t::Tau>(18, tempTau));
+    std::vector< std::vector<l1t::Tau> > tauEtaNeg( params_->isoTauEtaMax() , std::vector<l1t::Tau>(18, tempTau));
     for (unsigned int iTau = 0; iTau < taus.size(); iTau++)
     {
         if (taus.at(iTau).hwEta() > 0) tauEtaPos.at( taus.at(iTau).hwEta()-1).at((taus.at(iTau).hwPhi()-1)/4) = taus.at(iTau);
@@ -499,7 +499,7 @@ void l1t::Stage2Layer2TauAlgorithmFirmwareImp1::dosorting (std::vector<l1t::Tau>
     std::vector<l1t::Tau> accumEtaPos;
     std::vector<l1t::Tau> accumEtaNeg;
 
-    for( int ieta = 0 ; ieta < 28 ; ++ieta)
+    for( int ieta = 0 ; ieta < params_->isoTauEtaMax() ; ++ieta)
     {
         // eta +
         std::vector<l1t::Tau>::iterator start_, end_;

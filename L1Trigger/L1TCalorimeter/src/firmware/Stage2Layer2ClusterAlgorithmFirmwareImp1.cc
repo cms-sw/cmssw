@@ -476,9 +476,9 @@ bool l1t::Stage2Layer2ClusterAlgorithmFirmwareImp1::idHoverE(const l1t::CaloTowe
     hOverEBit = false;
   if (!denomZeroFlag && eOverHFlag){ // E >= H , so ratio==log(E/H)
     if(abs(tow.hwEta())< 16 )
-      hOverEBit = ratio >= params_->egHOverEcutBarrel(); // equivalent to H/E<=pow(2,-egHOverEcut)
+      hOverEBit = ratio > params_->egHOverEcutBarrel(); // equivalent to H/E<=pow(2,-egHOverEcut)
     else
-      hOverEBit = ratio >= params_->egHOverEcutEndcap();
+      hOverEBit = ratio > params_->egHOverEcutEndcap();
   }
   
   return hOverEBit;
