@@ -67,45 +67,62 @@ void PFPhotonClusters::PFCrystalCoor(){
     double EtaCry = (Theta-ThetaCentr)/ThetaWidth; 
     CrysEta_=EtaCry;
     CrysPhi_=PhiCry;
-    
+    switch(std::abs(CrysIEta_)) {
+    case 24:
+      CrysIEtaCrack_=4;
+      break;
+    case 25:
+      CrysIEtaCrack_=5;
+      break;
+    case 26:
+      CrysIEtaCrack_=6;
+      break;
+    case 27:
+      CrysIEtaCrack_=7;
+      break;
+    case 44:
+      CrysIEtaCrack_=9;
+      break;
+    case 45:
+      CrysIEtaCrack_=10;
+      break;
+    case 46:
+      CrysIEtaCrack_=11;
+      break;
+    case 47:
+      CrysIEtaCrack_=12;
+      break;
+    case 64:
+      CrysIEtaCrack_=14;
+      break;
+    case 65:
+      CrysIEtaCrack_=15;
+      break;
+    case 66:
+      CrysIEtaCrack_=16;
+      break;
+    case 67:
+      CrysIEtaCrack_=17;
+      break;
+    case 84:
+      CrysIEtaCrack_=19;
+      break;
+    case 85:
+      CrysIEtaCrack_=20;
+      break;
+    default: 
     if(std::abs(CrysIEta_)==1 || std::abs(CrysIEta_)==2 )
       CrysIEtaCrack_=std::abs(CrysIEta_);
-    if(std::abs(CrysIEta_)>2 && std::abs(CrysIEta_)<24)
+    else if(std::abs(CrysIEta_)>2 && std::abs(CrysIEta_)<24)
       CrysIEtaCrack_=3;
-    if(std::abs(CrysIEta_)==24)
-      CrysIEtaCrack_=4;
-    if(std::abs(CrysIEta_)==25)
-      CrysIEtaCrack_=5;
-    if(std::abs(CrysIEta_)==26)
-      CrysIEtaCrack_=6;
-    if(std::abs(CrysIEta_)==27)
-      CrysIEtaCrack_=7;
-    if(std::abs(CrysIEta_)>27 &&  std::abs(CrysIEta_)<44)
+    else if(std::abs(CrysIEta_)>27 &&  std::abs(CrysIEta_)<44)
       CrysIEtaCrack_=8;
-    if(std::abs(CrysIEta_)==44)
-      CrysIEtaCrack_=9;
-    if(std::abs(CrysIEta_)==45)
-      CrysIEtaCrack_=10;
-    if(std::abs(CrysIEta_)==46)
-      CrysIEtaCrack_=11;
-    if(std::abs(CrysIEta_)==47)
-      CrysIEtaCrack_=12;
-    if(std::abs(CrysIEta_)>47 &&  std::abs(CrysIEta_)<64)
+    else if(std::abs(CrysIEta_)>47 &&  std::abs(CrysIEta_)<64)
       CrysIEtaCrack_=13;
-    if(std::abs(CrysIEta_)==64)
-      CrysIEtaCrack_=14;
-    if(std::abs(CrysIEta_)==65)
-	CrysIEtaCrack_=15;
-    if(std::abs(CrysIEta_)==66)
-      CrysIEtaCrack_=16;
-    if(std::abs(CrysIEta_)==67)
-      CrysIEtaCrack_=17;
-    if(std::abs(CrysIEta_)>67 &&  std::abs(CrysIEta_)<84)
+    else if(std::abs(CrysIEta_)>67 &&  std::abs(CrysIEta_)<84)
       CrysIEtaCrack_=18;
-    if(std::abs(CrysIEta_)==84)
-      CrysIEtaCrack_=19;
-    if(std::abs(CrysIEta_)==85)
-      CrysIEtaCrack_=20;
+    break;
+    }
   }
   else{
     isEB_=false;
