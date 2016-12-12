@@ -30,7 +30,7 @@ class RPCDetId;
     ~AngleConverter();
 
     ///Update the Geometry with current Event Setup
-    void checkAndUpdateGeometry(const edm::EventSetup&);
+    void checkAndUpdateGeometry(const edm::EventSetup&, unsigned int);
 
     /// get phi of DT,CSC and RPC azimutal angle digi in processor scale, used by OMTF algorithm.
     /// in case of wrong phi returns OMTFConfiguration::instance()->nPhiBins
@@ -63,7 +63,9 @@ class RPCDetId;
     edm::ESHandle<RPCGeometry> _georpc;    
     edm::ESHandle<CSCGeometry> _geocsc;    
     edm::ESHandle<DTGeometry>  _geodt;    
-    
+
+    ///Number of phi bins along 2Pi.
+    unsigned int nPhiBins;
    
   };
 

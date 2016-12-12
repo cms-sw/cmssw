@@ -62,6 +62,7 @@ namespace evf {
     jsoncollector::StringJ inputFiles_;
     jsoncollector::IntJ fileAdler32_; 
     jsoncollector::StringJ transferDestination_; 
+    jsoncollector::StringJ mergeType_;
     jsoncollector::IntJ hltErrorEvents_; 
     boost::shared_ptr<jsoncollector::FastMonitor> jsonMonitor_;
     evf::FastMonitoringService *fms_;
@@ -87,6 +88,7 @@ namespace evf {
     inputFiles_(),
     fileAdler32_(1),
     transferDestination_(),
+    mergeType_(),
     hltErrorEvents_(0),
     outBuf_(new unsigned char[1024*1024])
   {
@@ -128,6 +130,7 @@ namespace evf {
     inputFiles_.setName("InputFiles");
     fileAdler32_.setName("FileAdler32");
     transferDestination_.setName("TransferDestination");
+    mergeType_.setName("MergeType");
     hltErrorEvents_.setName("HLTErrorEvents");
 
     outJsonDef_.setDefaultGroup("data");
@@ -140,6 +143,7 @@ namespace evf {
     outJsonDef_.addLegendItem("InputFiles","string",jsoncollector::DataPointDefinition::CAT);
     outJsonDef_.addLegendItem("FileAdler32","integer",jsoncollector::DataPointDefinition::ADLER32);
     outJsonDef_.addLegendItem("TransferDestination","string",jsoncollector::DataPointDefinition::SAME);
+    outJsonDef_.addLegendItem("MergeType","string",jsoncollector::DataPointDefinition::SAME);
     outJsonDef_.addLegendItem("HLTErrorEvents","integer",jsoncollector::DataPointDefinition::SUM);
     std::stringstream tmpss,ss;
     tmpss << baseRunDir << "/open/" << "output_" << getpid() << ".jsd";
@@ -169,6 +173,7 @@ namespace evf {
     jsonMonitor_->registerGlobalMonitorable(&inputFiles_,false);
     jsonMonitor_->registerGlobalMonitorable(&fileAdler32_,false);
     jsonMonitor_->registerGlobalMonitorable(&transferDestination_,false);
+    jsonMonitor_->registerGlobalMonitorable(&mergeType_,false);
     jsonMonitor_->registerGlobalMonitorable(&hltErrorEvents_,false);
     jsonMonitor_->commit(nullptr);
 
@@ -255,6 +260,7 @@ namespace evf {
   {
     //get stream transfer destination
     transferDestination_ = edm::Service<evf::EvFDaqDirector>()->getStreamDestinations(stream_label_);
+    mergeType_ = edm::Service<evf::EvFDaqDirector>()->getStreamMergeType(stream_label_,evf::MergeTypeDAT);
   }
 
 

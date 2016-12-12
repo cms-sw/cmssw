@@ -303,9 +303,16 @@ int l1t::Stage2Layer2EGammaAlgorithmFirmwareImp1::isoCalEgHwFootPrint(const l1t:
     CaloTools::calHwEtSum(iEta,iPhi,towers,etaSide,etaSide,
         -1*params_->egIsoVetoNrTowersPhi(),params_->egIsoVetoNrTowersPhi(),
         params_->egPUSParam(2),CaloTools::ECAL);
-  int hcalHwFootPrint = CaloTools::calHwEtSum(iEta,iPhi,towers,0,0,0,0,params_->egPUSParam(2),CaloTools::HCAL) +
-    CaloTools::calHwEtSum(iEta,iPhi,towers,0,0,phiSide,phiSide,params_->egPUSParam(2),CaloTools::HCAL);
-  return ecalHwFootPrint+hcalHwFootPrint;
+  
+  //Because of compression E+H can be different from E + H
+  int ecalHwFootPrint_2x1 = CaloTools::calHwEtSum(iEta,iPhi,towers,0,0,0,0,params_->egPUSParam(2),CaloTools::ECAL) +
+    CaloTools::calHwEtSum(iEta,iPhi,towers,0,0,phiSide,phiSide,params_->egPUSParam(2),CaloTools::ECAL);
+
+  int ecalhcal_HwFootPrint_2x1 = CaloTools::calHwEtSum(iEta,iPhi,towers,0,0,0,0,params_->egPUSParam(2)) +
+    CaloTools::calHwEtSum(iEta,iPhi,towers,0,0,phiSide,phiSide,params_->egPUSParam(2));
+
+  return ecalHwFootPrint-ecalHwFootPrint_2x1+ecalhcal_HwFootPrint_2x1;
+  
 }
 
 //ieta =-28, nrTowers 0 is 0, increases to ieta28, nrTowers=kNrTowersInSum
@@ -365,11 +372,14 @@ int l1t::Stage2Layer2EGammaAlgorithmFirmwareImp1::calibratedPt(const l1t::CaloCl
   int corr = params_->egCalibrationLUT()->data(lutAddress); // 9 bits. [0,2]. corrPt = (corr)*rawPt
   // the correction can increase or decrease the energy
   int rawPt = hwPt;
-  if(rawPt>255)
-    rawPt = 255;// 8 bits threshold
   int corrXrawPt = corr*rawPt;// 17 bits
   // round corr*rawPt
   int corrPt = corrXrawPt>>8;// 8 MS bits (truncation)
+
+  //12 bits saturation
+  if(corrPt>4095)
+    corrPt = 4095;
+
   return corrPt;
 }
 

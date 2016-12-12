@@ -7,7 +7,14 @@ import FWCore.ParameterSet.Config as cms
 # KFUpdatoerESProducer
 from TrackingTools.KalmanUpdators.KFUpdatorESProducer_cfi import *
 # Chi2MeasurementEstimatorESProducer
-from TrackingTools.KalmanUpdators.Chi2MeasurementEstimator_cfi import *
+import TrackingTools.KalmanUpdators.Chi2MeasurementEstimator_cfi
+Chi2MeasurementEstimatorForP5 = TrackingTools.KalmanUpdators.Chi2MeasurementEstimator_cfi.Chi2MeasurementEstimator.clone()
+Chi2MeasurementEstimatorForP5.ComponentName = 'Chi2MeasurementEstimatorForP5'
+Chi2MeasurementEstimatorForP5.MaxChi2 = 100.
+Chi2MeasurementEstimatorForP5.nSigma = 4.
+Chi2MeasurementEstimatorForP5.MaxDisplacement = 100
+Chi2MeasurementEstimatorForP5.MaxSagitta=-1
+
 # PropagatorWithMaterialESProducer
 from TrackingTools.MaterialEffects.MaterialPropagator_cfi import *
 # PropagatorWithMaterialESProducer
@@ -41,3 +48,4 @@ GroupedCkfTrajectoryBuilderP5 = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuild
 ##GroupedCkfTrajectoryBuilderP5.MeasurementTrackerName = 'CTF_P5' # useless duplication of MeasurementTracker
 GroupedCkfTrajectoryBuilderP5.trajectoryFilter.refToPSet_ = 'ckfBaseTrajectoryFilterP5'
 GroupedCkfTrajectoryBuilderP5.maxCand = 1
+GroupedCkfTrajectoryBuilderP5.estimator = cms.string('Chi2MeasurementEstimatorForP5')

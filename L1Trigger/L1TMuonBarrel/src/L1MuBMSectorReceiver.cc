@@ -130,7 +130,10 @@ void L1MuBMSectorReceiver::receiveBBMXData(int bx, const edm::Event& e, const ed
       if ( reladr%2 == 1 ) ts = dttrig->chPhiSegm2(wheel,station,sector,bx-1);
       if ( ts ) {
         int phi  = ts->phi();
-        int phib = ts->phiB();
+//        int phib = ts->phiB();
+        int phib = 0;
+        if(station!=3) phib = ts->phiB();
+
         int qual = ts->code();
         bool tag = (reladr%2 == 1) ? true : false;
 

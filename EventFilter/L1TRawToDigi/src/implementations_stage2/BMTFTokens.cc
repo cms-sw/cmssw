@@ -6,7 +6,7 @@
 
 namespace l1t {
    namespace stage2 {
-      BMTFTokens::BMTFTokens(const edm::ParameterSet& cfg, edm::ConsumesCollector& cc) 
+      BMTFTokens::BMTFTokens(const edm::ParameterSet& cfg, edm::ConsumesCollector& cc)
       {
          auto ouputTag = cfg.getParameter<edm::InputTag>("InputLabel");
          auto inputTagPh = cfg.getParameter<edm::InputTag>("InputLabel");

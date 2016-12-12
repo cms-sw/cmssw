@@ -182,7 +182,11 @@ namespace cond {
       if( m_data->iovBuffer.size() ) {
 	std::sort(m_data->iovBuffer.begin(),m_data->iovBuffer.end(),iovSorter);
 	cond::Time_t l = std::get<0>(m_data->iovBuffer.front());
-	if( m_data->synchronizationType != cond::SYNCH_ANY && m_data->synchronizationType != cond::SYNCH_VALIDATION ){
+  //We do not allow for IOV updates (i.e. insertion in the past or overriding) on tags whose syncrosization is not "ANY" or "VALIDATION".
+  //This policy is stricter than the one deployed in the Condition Upload service,
+  //which allows insertions in the past or overriding for IOVs larger than the first condition safe run for HLT ("HLT"/"EXPRESS" synchronizations) and Tier0 ("PROMPT"/"PCL").
+  //This is intended: in the C++ API we have not got a way to determine the first condition safe runs.
+  if( m_data->synchronizationType != cond::SYNCH_ANY && m_data->synchronizationType != cond::SYNCH_VALIDATION ){
 	  // retrieve the last since
 	  cond::Time_t last = 0;
 	  cond::Hash h;

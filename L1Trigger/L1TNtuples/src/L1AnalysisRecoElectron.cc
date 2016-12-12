@@ -35,6 +35,7 @@ void L1Analysis::L1AnalysisRecoElectron::SetElectron(const edm::Event& event,
     recoElectron_.phi_SC.push_back((el->superClusterPosition()).phi());
     recoElectron_.e_ECAL.push_back(el->ecalEnergy());
     recoElectron_.e_SC.push_back(el->superCluster()->energy());
+    recoElectron_.charge.push_back(el->charge());
 
     edm::Ref<reco::GsfElectronCollection> electronEdmRef(electrons,recoElectron_.nElectrons);
     

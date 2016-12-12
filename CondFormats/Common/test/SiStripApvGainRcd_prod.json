@@ -1,0 +1,11 @@
+{
+    "destinationDatabase": "oracle://cms_orcoff_prep/CMS_CONDITIONS", 
+    "destinationTags": {
+        "SiStripApvGain_PCL_v0_prompt": {},
+        "SiStripApvGain_PCL_v0_hlt": {}
+    }, 
+    "inputTag": "SiStripApvGain_pcl", 
+    "since": null, 
+    "userText": "T0 PCL Upload for SiStrip Gains calib. (prod)"
+}
+

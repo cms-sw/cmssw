@@ -78,6 +78,8 @@ namespace l1t {
       }
 
       bool TrailersBlockUnpacker::unpack(const Block& block, UnpackerCollections *coll) {
+
+	// std::cout << "Inside EMTFBlockTrailers.cc: unpack" << std::endl;
 	
 	// Get the payload for this block, made up of 16-bit words (0xffff)
 	// Format defined in MTF7Payload::getBlock() in src/Block.cc
@@ -101,10 +103,10 @@ namespace l1t {
         uint16_t TR2c = payload[6];
         uint16_t TR2d = payload[7];
 
-	// res is a pointer to a collection of EMTFOutput class objects
-	// There is one EMTFOutput for each MTF7 (60 deg. sector) in the event
-	EMTFOutputCollection* res;
-	res = static_cast<EMTFCollections*>(coll)->getEMTFOutputs();
+	// res is a pointer to a collection of EMTFDaqOut class objects
+	// There is one EMTFDaqOut for each MTF7 (60 deg. sector) in the event
+	EMTFDaqOutCollection* res;
+	res = static_cast<EMTFCollections*>(coll)->getEMTFDaqOuts();
 	int iOut = res->size() - 1;
 
 	/////////////////////////////////////////////

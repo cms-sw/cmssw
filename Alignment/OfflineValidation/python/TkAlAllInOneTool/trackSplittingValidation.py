@@ -40,9 +40,14 @@ class TrackSplittingValidation(GenericValidationData):
 
     def getRepMap( self, alignment = None ):
         repMap = GenericValidationData.getRepMap(self)
+        if self.general["subdetector"] == "none":
+            subdetselection = ""
+        else:
+            subdetselection = "process.AlignmentTrackSelector.minHitsPerSubDet.in.oO[subdetector]Oo. = 2"
         repMap.update({ 
             "nEvents": self.general["maxevents"],
             "TrackCollection": self.general["trackcollection"],
+            "subdetselection": subdetselection,
             "subdetector": self.general["subdetector"],
         })
         # repMap["outputFile"] = os.path.abspath( repMap["outputFile"] )
@@ -101,5 +106,7 @@ class TrackSplittingValidation(GenericValidationData):
         empty = []
         for i in range(len(results)):
             results[i] = results[i].split("=")[0].strip().replace("in", "", 1)
+
+        results.append("none")
 
         return [a for a in results if a]

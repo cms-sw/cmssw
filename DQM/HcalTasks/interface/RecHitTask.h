@@ -1,105 +1,129 @@
 #ifndef RecHitTask_h
 #define RecHitTask_h
 
-/*
- *	file:		RecHitTask.h
- *	Author:		Viktor Khristenko
- *	Date:		13.10.2015
+/**
+ *	module:			RecHitTask.h
+ *	Author:			VK
+ *	Description:	
+ *		HCAL RECO Data Tier Evaluation
+ *
+ *	Online:
+ *	Offline:
  */
 
 #include "DQM/HcalCommon/interface/DQTask.h"
+#include "DQM/HcalCommon/interface/Utilities.h"
+#include "DQM/HcalCommon/interface/HashFilter.h"
 #include "DQM/HcalCommon/interface/Container1D.h"
+#include "DQM/HcalCommon/interface/Container2D.h"
 #include "DQM/HcalCommon/interface/ContainerProf1D.h"
 #include "DQM/HcalCommon/interface/ContainerProf2D.h"
-#include "DQM/HcalCommon/interface/Container2D.h"
+#include "DQM/HcalCommon/interface/ContainerSingle1D.h"
 #include "DQM/HcalCommon/interface/ContainerSingle2D.h"
+#include "DQM/HcalCommon/interface/ContainerSingleProf2D.h"
+#include "DQM/HcalCommon/interface/ElectronicsMap.h"
 
-	using namespace hcaldqm;
-	class RecHitTask : public DQTask
-	{
-		public:
-			RecHitTask(edm::ParameterSet const& ps);
-			virtual ~RecHitTask()
-			{}
+using namespace hcaldqm;
+using namespace hcaldqm::filter;
+class RecHitTask : public DQTask
+{
+	public:
+		RecHitTask(edm::ParameterSet const&);
+		virtual ~RecHitTask() {}
 
-			virtual void bookHistograms(DQMStore::IBooker &,
-				edm::Run const&, edm::EventSetup const&);
-			virtual void endLuminosityBlock(edm::LuminosityBlock const&,
-				edm::EventSetup const&);
+		virtual void bookHistograms(DQMStore::IBooker&,
+			edm::Run const&, edm::EventSetup const&);
+		virtual void beginLuminosityBlock(edm::LuminosityBlock const&,
+			edm::EventSetup const&);
+		virtual void endLuminosityBlock(edm::LuminosityBlock const&,
+			edm::EventSetup const&);
 
-			enum RecHitFlag
-			{
-				fLowOcp = 0,
-				fUniphi = 1,
-				fTCDS = 2,
+	protected:
+		virtual void _process(edm::Event const&, edm::EventSetup const&);
+		virtual void _resetMonitors(UpdateFreq);
 
-				nRecHitFlag = 3
-			};
+		edm::InputTag		_tagHBHE;
+		edm::InputTag		_tagHO;
+		edm::InputTag		_tagHF;
+		edm::EDGetTokenT<HBHERecHitCollection> _tokHBHE;
+		edm::EDGetTokenT<HORecHitCollection>	 _tokHO;
+		edm::EDGetTokenT<HFRecHitCollection>	_tokHF;
 
-		protected:
-			//	protected funcs
-			virtual void _process(edm::Event const&, edm::EventSetup const&);
-			virtual void _resetMonitors(UpdateFreq);
+		double _cutE_HBHE, _cutE_HO, _cutE_HF;
+		double _thresh_unihf;
 
-			//	tags and tokens
-			edm::InputTag	_tagHBHE;
-			edm::InputTag	_tagHO;
-			edm::InputTag	_tagHF;
-			edm::EDGetTokenT<HBHERecHitCollection> _tokHBHE;
-			edm::EDGetTokenT<HORecHitCollection> _tokHO;
-			edm::EDGetTokenT<HFRecHitCollection> _tokHF;
+		//	hashes/FED vectors
+		std::vector<uint32_t> _vhashFEDs;
 
-			//	counters
-			int		_nRecHits[constants::SUBDET_NUM];
-			int		_nRecHitsCut[constants::SUBDET_NUM];
-//			bool	_nDups[constants::SUBDET_NUM][constants::IPHI_NUM][constants::IETA_NUM][constants::DEPTH_NUM];
+		//	flag vectors
+		std::vector<flag::Flag> _vflags;
+		enum RecoFlag
+		{
+			fUni=0,
+			fTCDS=1,
+			nRecoFlag=2
+		};
 
-			//	Flag Names
-			std::vector<std::string>	_fNames;
+		//	emap
+		HcalElectronicsMap const* _emap;
+		electronicsmap::ElectronicsMap _ehashmap;
 
-			//	cuts
-			double _cutE_HBHE, _cutE_HO, _cutE_HF;
+		//	Filters
+		HashFilter _filter_VME;
+		HashFilter _filter_uTCA;
+		HashFilter _filter_FEDsVME;
+		HashFilter _filter_FEDsuTCA;
 
-			//	Energy
-			Container1D		_cEnergy_SubDet;
-			Container1D		_cEnergy_SubDet_ieta;
-			Container1D		_cEnergy_SubDetPM_iphi;
-			ContainerProf1D _cEnergyvsieta_SubDet;
-			ContainerProf1D _cEnergyvsiphi_SubDet;
-			ContainerProf2D	_cEnergy_depth;
+		//	Energy. Just filling. No Summary Generation
+		Container1D _cEnergy_Subdet;
+		ContainerProf1D _cEnergyvsieta_Subdet;	//	online only!
+		ContainerProf1D _cEnergyvsiphi_SubdetPM;	// online only!
+		ContainerProf2D _cEnergy_depth;
+		ContainerProf1D _cEnergyvsLS_SubdetPM;	// online only!
+		ContainerProf1D _cEnergyvsBX_SubdetPM;	// online only
 
-			ContainerProf1D _cEnergyvsietaCut_SubDet;
-			ContainerProf1D _cEnergyvsiphiCut_SubDet;
-			ContainerProf2D	_cEnergyCut_depth;
+		//	Timing vs Energy. No Summary Generation
+		Container2D _cTimingvsEnergy_SubdetPM;
 
-			//	Timing
-			Container1D		_cTimingCut_SubDet;
-			Container1D		_cTimingCut_SubDetPM_iphi;
-			ContainerProf1D _cTimingCutvsLS_SubDetPM_iphi;
-			Container1D		_cTimingCut_SubDet_ieta;
-			ContainerProf1D _cTimingvsietaCut_SubDet_iphi;
-			ContainerProf1D	_cTimingvsiphiCut_SubDet_ieta;
-			ContainerProf2D _cTimingCut_depth;
-			Container1D		_cTimingCut_HBHEPrt;
+		//	Timing. HBHE Partition is used for TCDS shift monitoring
+		Container1D		_cTimingCut_SubdetPM;
+		Container1D		_cTimingCut_HBHEPartition;
+		ContainerProf2D _cTimingCut_FEDVME;
+		ContainerProf2D	_cTimingCut_FEDuTCA;
+		ContainerProf2D _cTimingCut_ElectronicsVME;
+		ContainerProf2D _cTimingCut_ElectronicsuTCA;
+		ContainerProf2D _cTimingCut_depth;
+		ContainerProf1D _cTimingCutvsLS_FED;
+		ContainerProf1D _cTimingCutvsieta_Subdet;	//	online only
+		ContainerProf1D _cTimingCutvsiphi_SubdetPM; //	online only
+		ContainerProf1D _cTimingCutvsBX_SubdetPM;	// online only
 
-			//	Occupancy
-			Container2D		_cOccupancy_depth;
-			ContainerProf1D _cOccupancyvsLS_SubDet;
-			ContainerProf1D	_cOccupancyCutvsLS_SubDet;
-			Container2D		_cOccupancyCut_depth;
-			Container1D		_cOccupancyvsiphi_SubDetPM;
-			Container1D		_cOccupancyCutvsiphi_SubDetPM;
+		//	Occupancy w/o a cut. Used for checking missing channels
+		Container2D _cOccupancy_depth;
+		Container2D _cOccupancy_FEDVME;
+		Container2D _cOccupancy_FEDuTCA;
+		Container2D _cOccupancy_ElectronicsVME;
+		Container2D _cOccupancy_ElectronicsuTCA;
+		ContainerProf1D _cOccupancyvsLS_Subdet;
+		Container1D _cOccupancyvsiphi_SubdetPM;	// online only
+		Container1D _cOccupancyvsieta_Subdet;	//	online only
 
-			//	Energy vs Timing
-			Container2D		_cTimingvsEnergyCut_SubDetPM_iphi;
+		//	Occupancy w/ a Cut.
+		Container2D _cOccupancyCut_FEDVME;
+		Container2D _cOccupancyCut_FEDuTCA;
+		Container2D _cOccupancyCut_ElectronicsVME;
+		Container2D _cOccupancyCut_ElectronicsuTCA;
+		ContainerProf1D _cOccupancyCutvsLS_Subdet; // online only
+		Container2D _cOccupancyCut_depth;
+		Container1D _cOccupancyCutvsiphi_SubdetPM;	// online only
+		Container1D _cOccupancyCutvsieta_Subdet;	// online only
+		ContainerProf1D _cOccupancyCutvsBX_SubdetPM;	// online only!
+		Container2D _cOccupancyCutvsiphivsLS_SubdetPM; // online only
+		ContainerXXX<uint32_t> _xUniHF, _xUni;
 
-			//	Summaries
-			ContainerSingle2D		_cSummary;
-			Container2D				_cSummaryvsLS_SubDet;
-	};
+		std::vector<HcalGenericDetId> _gids; // online only
+		Container2D _cSummaryvsLS_FED; // online only!
+		ContainerSingle2D _cSummaryvsLS;
+};
 
 #endif
-
-
-
-

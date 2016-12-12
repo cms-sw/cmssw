@@ -19,12 +19,22 @@ namespace l1t {
   MicroGMTExtrapolationLUTFactory::create(const std::string& filename, const int type, const int fwVersion) {
     ReturnType p;
 
-    switch (fwVersion) {
-      case 1:
-        p = ReturnType(new MicroGMTExtrapolationLUT(filename, type));
-        break;
-      default:
-        LogError("MicroGMTExtrapolationLUTFactory") << "Invalid firmware version requested: " << fwVersion;
+    if (fwVersion >= 1) {
+      p = ReturnType(new MicroGMTExtrapolationLUT(filename, type));
+    } else {
+      LogError("MicroGMTExtrapolationLUTFactory") << "Invalid firmware version requested: 0x" << std::hex << fwVersion << std::dec;
+    }
+    return p;
+  }
+
+  MicroGMTExtrapolationLUTFactory::ReturnType
+  MicroGMTExtrapolationLUTFactory::create(l1t::LUT* lut, const int type, const int fwVersion) {
+    ReturnType p;
+
+    if (fwVersion >= 1) {
+      p = ReturnType(new MicroGMTExtrapolationLUT(lut, type));
+    } else {
+      LogError("MicroGMTExtrapolationLUTFactory") << "Invalid firmware version requested: 0x" << std::hex << fwVersion << std::dec;
     }
     return p;
   }

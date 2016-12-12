@@ -1,11 +1,12 @@
 import os
 from genericValidation import GenericValidation, GenericValidationData
-from offlineValidation import OfflineValidation
-from trackSplittingValidation import TrackSplittingValidation
-from monteCarloValidation import MonteCarloValidation
-from zMuMuValidation import ZMuMuValidation
 from geometryComparison import GeometryComparison
+from helperFunctions import getCommandOutput2, parsecolor, parsestyle
+from monteCarloValidation import MonteCarloValidation
+from offlineValidation import OfflineValidation
 from TkAlExceptions import AllInOneError
+from trackSplittingValidation import TrackSplittingValidation
+from zMuMuValidation import ZMuMuValidation
 
 class PreexistingValidation(GenericValidation):
     """
@@ -19,7 +20,7 @@ class PreexistingValidation(GenericValidation):
         self.config = config
         self.filesToCompare = {}
 
-        defaults = {"title": self.name}
+        defaults = {"title": self.name, "jobid": "", "subdetector": "BPIX"}
         defaults.update(addDefaults)
         mandatories = ["file", "color", "style"]
         mandatories += addMandatories
@@ -34,6 +35,14 @@ class PreexistingValidation(GenericValidation):
             msg = "The characters '|', '\"', and ',' cannot be used in the alignment title!"
             raise AllInOneError(msg)
 
+        self.jobid = self.general["jobid"]
+        if self.jobid:
+            try:  #make sure it's actually a valid jobid
+                output = getCommandOutput2("bjobs %(jobid)s 2>&1"%self.general)
+                if "is not found" in output: raise RuntimeError
+            except RuntimeError:
+                raise AllInOneError("%s is not a valid jobid.\nMaybe it finished already?"%self.jobid)
+
         self.filesToCompare[GenericValidationData.defaultReferenceName] = \
             self.general["file"]
 
@@ -46,6 +55,10 @@ class PreexistingValidation(GenericValidation):
 
     def getRepMap(self):
         result = self.general
+        result.update({
+                       "color": str(parsecolor(result["color"])),
+                       "style": str(parsestyle(result["style"])),
+                      })
         return result
 
     def getCompareStrings( self, requestId = None, plain = False ):

@@ -35,8 +35,10 @@ namespace l1t {
             virtual void registerProducts(edm::stream::EDProducerBase& prod) override 
             {
                prod.produces<RegionalMuonCandBxCollection>("BMTF");
+               //prod.produces<L1MuDTChambPhContainer>("PhiDigis");
+               //prod.produces<L1MuDTChambThContainer>("TheDigis");
                prod.produces<L1MuDTChambPhContainer>();
-					prod.produces<L1MuDTChambThContainer>();
+               prod.produces<L1MuDTChambThContainer>();
             };
 
             virtual std::unique_ptr<UnpackerCollections> getCollections(edm::Event& e) override 
@@ -53,17 +55,17 @@ namespace l1t {
                if (fed == 1376 || fed == 1377 )
                {
 									
-									for(int iL = 0; iL <= 70; iL += 2)
-									{
-										if ( iL == 12 || iL == 14 || ( iL > 26 && iL < 32) || iL == 60 || iL == 62 )
-											continue;
-										
-										res[iL] = inputMuons;
-									}
-								
-								res[123] = outputMuon;
-								}
-
+   					for(int iL = 0; iL <= 70; iL += 2)
+   					{
+   						if ( iL == 12 || iL == 14 || ( iL > 26 && iL < 32) || iL == 60 || iL == 62 )
+   							continue;
+   						
+   						res[iL] = inputMuons;
+   					}
+   					
+   					res[123] = outputMuon;
+					}
+               
                return res;
             };
       };

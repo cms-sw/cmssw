@@ -3,17 +3,15 @@
 
   <class name="l1t::RegionalMuonCand"/>
   <class name="l1t::RegionalMuonCandBxCollection"/>
-  <class name="std::vector<l1t::RegionalMuonCand>"/>
   <class name="edm::Wrapper<l1t::RegionalMuonCandBxCollection>"/>
 
   <class name="l1t::MuonCaloSum"/>
   <class name="l1t::MuonCaloSumBxCollection"/>
-  <class name="std::vector<l1t::MuonCaloSum>"/>
   <class name="edm::Wrapper<l1t::MuonCaloSumBxCollection>"/>
 
-  <class name="l1t::EMTFOutput"/>
-  <class name="l1t::EMTFOutputCollection"/>
-  <class name="edm::Wrapper<l1t::EMTFOutputCollection>"/>
+  <class name="l1t::EMTFDaqOut"/>
+  <class name="l1t::EMTFDaqOutCollection"/>
+  <class name="edm::Wrapper<l1t::EMTFDaqOutCollection>"/>
   <class name="l1t::emtf::AMC13Header"/>
   <class name="l1t::emtf::MTF7Header"/>
   <class name="l1t::emtf::EventHeader"/>
@@ -27,6 +25,20 @@
   <class name="l1t::emtf::EventTrailer"/>
   <class name="l1t::emtf::MTF7Trailer"/>
   <class name="l1t::emtf::AMC13Trailer"/>
+
+  <class name="l1t::EMTFTrack"/>
+  <class name="l1t::EMTFTrackCollection"/>
+  <class name="edm::Wrapper<l1t::EMTFTrackCollection>"/>
+  <class name="l1t::EMTFHit"/>
+  <class name="l1t::EMTFHitCollection"/>
+  <class name="edm::Wrapper<l1t::EMTFHitCollection>"/>
+
+  <class name="l1t::EMTFTrackExtra"/>
+  <class name="l1t::EMTFTrackExtraCollection"/>
+  <class name="edm::Wrapper<l1t::EMTFTrackExtraCollection>"/>
+  <class name="l1t::EMTFHitExtra"/>
+  <class name="l1t::EMTFHitExtraCollection"/>
+  <class name="edm::Wrapper<l1t::EMTFHitExtraCollection>"/>
 
  </selection>
 </lcgdict>

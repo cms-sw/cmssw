@@ -17,7 +17,7 @@ namespace l1t {
     public:
       // All possible inputs for LUTs
       enum input_t {
-        PT, PT_COARSE, PHI, ETA, ETA_COARSE, QUALITY, DELTA_ETA_RED, DELTA_PHI_RED, ENERGYSUM
+        PT, PT_COARSE, PHI, ETA, ETA_COARSE, QUALITY, DELTA_ETA_RED, DELTA_PHI_RED, ENERGYSUM, ETA_FINE_BIT
       };
       enum output_t {
         ETA_OUT, PHI_OUT

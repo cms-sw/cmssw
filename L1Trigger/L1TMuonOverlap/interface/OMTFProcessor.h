@@ -9,7 +9,6 @@
 
 
 class L1TMuonOverlapParams;
-class XMLConfigReader;
 class OMTFinput;
 
 class SimTrack;
@@ -24,15 +23,12 @@ class OMTFProcessor{
 
   typedef std::map<Key,OMTFResult> resultsMap;
 
-  OMTFProcessor(const edm::ParameterSet & cfg, OMTFConfiguration * omtf_config);
+  OMTFProcessor(){};
 
   ~OMTFProcessor();
   
-  ///Fill GP map with patterns from XML file
-  bool configure(XMLConfigReader *aReader);
-
   ///Fill GP map with patterns from CondFormats object
-  bool configure(const L1TMuonOverlapParams* omtfParams);
+  bool configure(const OMTFConfiguration * omtfParams, const L1TMuonOverlapParams * omtfPatterns);
 
   ///Process input data from a single event
   ///Input data is represented by hits in logic layers expressed in local coordinates
@@ -97,7 +93,9 @@ class OMTFProcessor{
   ///Reference hit number is isued as a vector index.
   std::vector<OMTFProcessor::resultsMap> myResults;
 
-  OMTFConfiguration * m_omtf_config;
+  ///Configuration of the algorithm. This object
+  ///does not contain the patterns data.
+  const OMTFConfiguration  * myOmtfConfig;
 };
 
 

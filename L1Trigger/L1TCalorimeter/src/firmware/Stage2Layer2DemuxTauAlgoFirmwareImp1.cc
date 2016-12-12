@@ -12,6 +12,25 @@
 
 #include <vector>
 #include <algorithm>
+#include "L1Trigger/L1TCalorimeter/interface/BitonicSort.h"
+
+namespace l1t {
+  inline bool operator > ( l1t::Tau& a, l1t::Tau& b )
+  {
+    if ( a.pt() == b.pt() ){
+      if( a.hwPhi() == b.hwPhi() ){
+	return a.hwEta() > b.hwEta();
+      }
+      else{
+	  return a.hwPhi() > b.hwPhi();	  
+	}
+
+    }
+    else{
+	return a.pt() > b.pt();
+      }
+  }
+}
 
 l1t::Stage2Layer2DemuxTauAlgoFirmwareImp1::Stage2Layer2DemuxTauAlgoFirmwareImp1(CaloParamsHelper* params) :
   params_(params)
@@ -89,5 +108,9 @@ void l1t::Stage2Layer2DemuxTauAlgoFirmwareImp1::processEvent(const std::vector<l
 
   }
 
+  //sorting with descending pT
+  std::vector<l1t::Tau>::iterator start_ = outputTaus.begin();  
+  std::vector<l1t::Tau>::iterator end_   = outputTaus.end();
+  BitonicSort<l1t::Tau>(down, start_, end_);
 
 }

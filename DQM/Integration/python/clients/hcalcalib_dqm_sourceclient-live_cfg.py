@@ -34,13 +34,13 @@ if useFileInput:
 	process.load("DQM.Integration.config.fileinputsource_cfi")
 else:
 	process.load('DQM.Integration.config.inputsource_cfi')
-process.load('DQMServices.Components.DQMEnvironment_cfi')
 process.load('DQM.Integration.config.environment_cfi')
 
 #-------------------------------------
 #	Central DQM Customization
 #-------------------------------------
 process.source.streamLabel = cms.untracked.string("streamDQMCalibration")
+process.source.SelectEvents = cms.untracked.vstring("*HcalCalibration*")
 process.dqmEnv.subSystemFolder = subsystem
 process.dqmSaver.tag = subsystem
 referenceFileName = '/dqmdata/dqm/reference/hcal_reference.root'
@@ -75,7 +75,7 @@ isCosmicRun		= runTypeName=="cosmic_run" or runTypeName=="cosmic_run_stage1"
 isHeavyIon		= runTypeName=="hi_run"
 cmssw			= os.getenv("CMSSW_VERSION").split("_")
 rawTag			= cms.InputTag("hltHcalCalibrationRaw")
-rawTagUntracked	= cms.InputTag("hltHcalCalibrationRaw")
+rawTagUntracked	= cms.untracked.InputTag("hltHcalCalibrationRaw")
 process.essourceSev = cms.ESSource(
 		"EmptyESSource",
 		recordName		= cms.string("HcalSeverityLevelComputerRcd"),
@@ -97,10 +97,9 @@ process.hbhereco = process.hbheprereco.clone()
 #-------------------------------------
 #	Hcal DQM Tasks and Clients import
 #-------------------------------------
-process.load("DQM.HcalTasks.LEDTask")
-process.load("DQM.HcalTasks.LaserTask")
 process.load("DQM.HcalTasks.PedestalTask")
-process.load('DQM.HcalTasks.RadDamTask')
+process.load('DQM.HcalTasks.RawTask')
+process.load('DQM.HcalTasks.HcalOnlineHarvesting')
 
 #-------------------------------------
 #	To force using uTCA
@@ -112,24 +111,26 @@ if useMap:
                                             )
                                    )
 
-#-------------------------------------
-#	For Debugginb
-#-------------------------------------
-#process.hcalTPTask.moduleParameters.debug = 0
-
-#-------------------------------------
+	#-------------------------------------
 #	Some Settings before Finishing up
 #-------------------------------------
 process.hcalDigis.InputLabel = rawTag
+
+process.hcalOnlineHarvesting.subsystem = subsystem
+process.rawTask.subsystem = subsystem
+process.rawTask.tagFEDs = rawTagUntracked
+process.rawTask.tagReport = cms.untracked.InputTag("hcalDigis")
 
 #-------------------------------------
 #	Hcal DQM Tasks Sequence Definition
 #-------------------------------------
 process.tasksSequence = cms.Sequence(
-		process.ledTask
-		*process.laserTask
-		*process.pedestalTask
-		*process.raddamTask
+		process.pedestalTask
+		*process.rawTask
+)
+
+process.harvestingSequence = cms.Sequence(
+	process.hcalOnlineHarvesting
 )
 
 #-------------------------------------
@@ -138,6 +139,7 @@ process.tasksSequence = cms.Sequence(
 process.p = cms.Path(
 					process.hcalDigis
 					*process.tasksSequence
+					*process.harvestingSequence
                     *process.dqmEnv
                     *process.dqmSaver)
 

@@ -118,6 +118,7 @@ void L1MuBMTrack::reset() {
 void L1MuBMTrack::setEta(int eta) {
 
   // eta is a signed integer [-115,118],
+  setHwHF(false);
   setHwEta(eta);
 
 

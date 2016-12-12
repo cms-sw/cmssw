@@ -17,10 +17,13 @@ namespace l1t {
             };
 
             virtual void fillDescription(edm::ParameterSetDescription& desc) override {
-               desc.addOptional<edm::InputTag>("GtInputLabel")->setComment("for stage2");
-               desc.addOptional<edm::InputTag>("ExtInputLabel")->setComment("for stage2");
-               desc.addOptional<edm::InputTag>("GmtInputLabel")->setComment("for stage2");
-               desc.addOptional<edm::InputTag>("CaloInputLabel")->setComment("for stage2");
+               desc.addOptional<edm::InputTag>("GtInputTag")->setComment("for stage2");
+               desc.addOptional<edm::InputTag>("ExtInputTag")->setComment("for stage2");
+               desc.addOptional<edm::InputTag>("MuonInputTag")->setComment("for stage2");
+               desc.addOptional<edm::InputTag>("EGammaInputTag")->setComment("for stage2");
+               desc.addOptional<edm::InputTag>("JetInputTag")->setComment("for stage2");
+               desc.addOptional<edm::InputTag>("TauInputTag")->setComment("for stage2");
+               desc.addOptional<edm::InputTag>("EtSumInputTag")->setComment("for stage2");
 	    };
 
             virtual PackerMap getPackers(int fed, unsigned int fw) override {

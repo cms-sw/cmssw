@@ -6,6 +6,7 @@
 <use name="L1Trigger/L1TCalorimeter"/>
 <use name="L1Trigger/L1TGlobal"/>
 <use name="L1Trigger/L1TMuon"/>
+<use name="L1Trigger/L1TMuonEndCap"/>  <!-- Only need src/EMTFHitTools.cc and src/EMTFTrackTools.cc ... how to implement? - AWB 11.05.16 -->
 <export>
   <lib name="1"/>
 </export>

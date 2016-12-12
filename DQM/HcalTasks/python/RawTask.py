@@ -1,10 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
 # prep a FED skip list
-skipList = []
-for i in range(9):
-	skipList[len(skipList):] = [1100+i*2]
-skipList[len(skipList):] = [718, 719, 720, 721, 722, 723, 724];
 
 rawTask = cms.EDAnalyzer(
 	"RawTask",
@@ -20,9 +16,7 @@ rawTask = cms.EDAnalyzer(
 
 	#	tags
 	tagFEDs = cms.untracked.InputTag("rawDataCollector"),
-
-	#	Common Parameters
-	skipFEDList = cms.untracked.vint32(skipList)
+	tagReport = cms.untracked.InputTag("hcalDigis")
 )
 
 

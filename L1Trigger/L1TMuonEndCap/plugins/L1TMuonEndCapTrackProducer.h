@@ -37,6 +37,10 @@
 #include "L1Trigger/CSCTrackFinder/interface/CSCSectorReceiverLUT.h"
 #include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigiCollection.h"
 
+#include "L1Trigger/L1TMuonEndCap/interface/PtAssignment.h"
+
+#include "L1Trigger/L1TMuonEndCap/interface/PrimitiveConverter.h"
+
 typedef edm::ParameterSet PSet;
 
 
@@ -69,6 +73,7 @@ public:
   ///////////////////////////////////////
   
   
+  
   const float ptscale[33] = { 
   	-1.,   0.0,   1.5,   2.0,   2.5,   3.0,   3.5,   4.0,
     4.5,   5.0,   6.0,   7.0,   8.0,  10.0,  12.0,  14.0,  
@@ -77,9 +82,11 @@ public:
   
 
 private:
+  PrimitiveConverter primConv_;
 
   edm::EDGetTokenT<CSCCorrelatedLCTDigiCollection> inputTokenCSC;
-  
+  l1t::EmtfPtAssignment ptAssignment_;
+
 };
 
 

@@ -157,9 +157,9 @@ void l1t::L1TGlobalUtil::retrieveL1Event(const edm::Event& iEvent, const edm::Ev
 	   (m_decisionsInitial[algBit]).first  = algName;
 	   (m_decisionsInitial[algBit]).second = decisionInitial;
 	   
-	   bool decisionPrescaled = algBlk->getAlgoDecisionInterm(algBit); 
-	   (m_decisionsPrescaled[algBit]).first  = algName;
-	   (m_decisionsPrescaled[algBit]).second = decisionPrescaled;
+	   bool decisionInterm = algBlk->getAlgoDecisionInterm(algBit); 
+	   (m_decisionsInterm[algBit]).first  = algName;
+	   (m_decisionsInterm[algBit]).second = decisionInterm;
 
 	   bool decisionFinal     = algBlk->getAlgoDecisionFinal(algBit);
 	   (m_decisionsFinal[algBit]).first  = algName;
@@ -335,8 +335,8 @@ void l1t::L1TGlobalUtil::resetDecisionVectors() {
   // Reset all the vector contents with null information
   m_decisionsInitial.clear();
   m_decisionsInitial.resize(m_numberPhysTriggers);
-  m_decisionsPrescaled.clear();
-  m_decisionsPrescaled.resize(m_numberPhysTriggers);
+  m_decisionsInterm.clear();
+  m_decisionsInterm.resize(m_numberPhysTriggers);
   m_decisionsFinal.clear();
   m_decisionsFinal.resize(m_numberPhysTriggers);
   
@@ -346,8 +346,8 @@ void l1t::L1TGlobalUtil::resetDecisionVectors() {
     (m_decisionsInitial[algBit]).first = "NULL";
     (m_decisionsInitial[algBit]).second = false;
 
-    (m_decisionsPrescaled[algBit]).first = "NULL";
-    (m_decisionsPrescaled[algBit]).second = false;
+    (m_decisionsInterm[algBit]).first = "NULL";
+    (m_decisionsInterm[algBit]).second = false;
     
     (m_decisionsFinal[algBit]).first = "NULL";
     (m_decisionsFinal[algBit]).second = false;    
@@ -429,11 +429,11 @@ const bool l1t::L1TGlobalUtil::getInitialDecisionByBit(int& bit, bool& decision)
   
   return false;  //couldn't get the information requested. 
 }
-const bool l1t::L1TGlobalUtil::getPrescaledDecisionByBit(int& bit, bool& decision) const {
+const bool l1t::L1TGlobalUtil::getIntermDecisionByBit(int& bit, bool& decision) const {
 
   // Need some check that this is a valid bit
-  if((m_decisionsPrescaled[bit]).first != "NULL") {
-    decision = (m_decisionsPrescaled[bit]).second;
+  if((m_decisionsInterm[bit]).first != "NULL") {
+    decision = (m_decisionsInterm[bit]).second;
     return true;
   }
   
@@ -492,11 +492,11 @@ const bool l1t::L1TGlobalUtil::getInitialDecisionByName(const std::string& algNa
   return false;  //trigger name was not the menu. 
 }
 
-const bool l1t::L1TGlobalUtil::getPrescaledDecisionByName(const std::string& algName, bool& decision) const {
+const bool l1t::L1TGlobalUtil::getIntermDecisionByName(const std::string& algName, bool& decision) const {
 
   int bit = -1;
   if(getAlgBitFromName(algName,bit)) {
-    decision = (m_decisionsPrescaled[bit]).second;
+    decision = (m_decisionsInterm[bit]).second;
     return true;
   }
   

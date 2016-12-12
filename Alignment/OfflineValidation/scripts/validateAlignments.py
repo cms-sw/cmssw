@@ -141,6 +141,7 @@ class ValidationJob:
                 Alignment( alignments.strip(), self.__config ), self.__config )
         else:
             raise AllInOneError("Unknown validation mode '%s'"%valType)
+
         return validation
 
     def __createJob( self, jobMode, outpath ):
@@ -161,6 +162,8 @@ class ValidationJob:
 
     def runJob( self ):
         if self.__preexisting:
+            if self.validation.jobid:
+                self.batchJobIds.append(self.validation.jobid)
             log = ">             " + self.validation.name + " is already validated."
             print log
             return log
@@ -248,7 +251,6 @@ def createExtendedValidationScript(offlineValidationList, outFilePath, resultPlo
         repMap[ "extendedInstantiation" ] = validation.appendToExtendedValidation( repMap[ "extendedInstantiation" ] )
 
     theFile = open( outFilePath, "w" )
-    # theFile.write( replaceByMap( configTemplates.extendedValidationTemplate ,repMap ) )
     theFile.write( replaceByMap( configTemplates.extendedValidationTemplate ,repMap ) )
     theFile.close()
     
@@ -261,10 +263,21 @@ def createTrackSplitPlotScript(trackSplittingValidationList, outFilePath):
         repMap[ "trackSplitPlotInstantiation" ] = validation.appendToExtendedValidation( repMap[ "trackSplitPlotInstantiation" ] )
     
     theFile = open( outFilePath, "w" )
-    # theFile.write( replaceByMap( configTemplates.trackSplitPlotTemplate ,repMap ) )
     theFile.write( replaceByMap( configTemplates.trackSplitPlotTemplate ,repMap ) )
     theFile.close()
     
+def createMergeZmumuPlotsScript(zMuMuValidationList, outFilePath):
+    repMap = zMuMuValidationList[0].getRepMap() # bit ugly since some special features are filled
+    repMap[ "CMSSW_BASE" ] = os.environ['CMSSW_BASE']
+    repMap[ "mergeZmumuPlotsInstantiation" ] = "" #give it a "" at first in order to get the initialisation back
+
+    for validation in zMuMuValidationList:
+        repMap[ "mergeZmumuPlotsInstantiation" ] = validation.appendToExtendedValidation( repMap[ "mergeZmumuPlotsInstantiation" ] )
+
+    theFile = open( outFilePath, "w" )
+    theFile.write( replaceByMap( configTemplates.mergeZmumuPlotsTemplate ,repMap ) )
+    theFile.close()
+
 def createMergeScript( path, validations ):
     if(len(validations) == 0):
         raise AllInOneError("Cowardly refusing to merge nothing!")
@@ -275,6 +288,7 @@ def createMergeScript( path, validations ):
             "CompareAlignments":"",
             "RunExtendedOfflineValidation":"",
             "RunTrackSplitPlot":"",
+            "MergeZmumuPlots":"",
             "CMSSW_BASE": os.environ["CMSSW_BASE"],
             "SCRAM_ARCH": os.environ["SCRAM_ARCH"],
             "CMSSW_RELEASE_BASE": os.environ["CMSSW_RELEASE_BASE"],
@@ -358,12 +372,20 @@ def createMergeScript( path, validations ):
         repMap["RunTrackSplitPlot"] = \
             replaceByMap(configTemplates.trackSplitPlotExecution, repMap)
 
+    if "ZMuMuValidation" in comparisonLists:
+        repMap["mergeZmumuPlotsScriptPath"] = \
+            os.path.join(path, "TkAlMergeZmumuPlots.C")
+        createMergeZmumuPlotsScript(comparisonLists["ZMuMuValidation"],
+                                       repMap["mergeZmumuPlotsScriptPath"] )
+        repMap["MergeZmumuPlots"] = \
+            replaceByMap(configTemplates.mergeZmumuPlotsExecution, repMap)
+
     repMap["CompareAlignments"] = "#run comparisons"
-    for validationId in comparisonLists:
-        compareStrings = [ val.getCompareStrings(validationId) for val in comparisonLists[validationId] ]
-        compareStringsPlain = [ val.getCompareStrings(validationId, plain=True) for val in comparisonLists[validationId] ]
+    if "OfflineValidation" in comparisonLists:
+        compareStrings = [ val.getCompareStrings("OfflineValidation") for val in comparisonLists["OfflineValidation"] ]
+        compareStringsPlain = [ val.getCompareStrings("OfflineValidation", plain=True) for val in comparisonLists["OfflineValidation"] ]
             
-        repMap.update({"validationId": validationId,
+        repMap.update({"validationId": "OfflineValidation",
                        "compareStrings": " , ".join(compareStrings),
                        "compareStringsPlain": " ".join(compareStringsPlain) })
         

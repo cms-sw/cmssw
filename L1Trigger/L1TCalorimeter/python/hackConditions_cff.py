@@ -34,7 +34,7 @@ if eras.stage1L1Trigger.isChosen() and not eras.stage2L1Trigger.isChosen():
 if eras.stage2L1Trigger.isChosen():
     print "L1TCalorimeter Conditions configured for Stage-2 (2016) trigger. "
     # from L1Trigger.L1TCalorimeter.simCaloStage2Layer1Digis_cfi import simCaloStage2Layer1Digis    
-    from L1Trigger.L1TCalorimeter.caloStage2Params_cfi import *
+    from L1Trigger.L1TCalorimeter.caloStage2Params_2016_v2_1_cfi import *
     #
     # What about CaloConfig?  Related:  How will we switch PP/HH?
     #

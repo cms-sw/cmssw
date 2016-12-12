@@ -183,7 +183,7 @@ namespace l1t {
      
      // grab the map for the final decisions
      const std::vector<std::pair<std::string, bool> > initialDecisions = m_gtUtil->decisionsInitial();
-     const std::vector<std::pair<std::string, bool> > prescaledDecisions = m_gtUtil->decisionsPrescaled();
+     const std::vector<std::pair<std::string, bool> > intermDecisions = m_gtUtil->decisionsInterm();
      const std::vector<std::pair<std::string, bool> > finalDecisions = m_gtUtil->decisionsFinal();
      const std::vector<std::pair<std::string, int> >  prescales = m_gtUtil->prescales();
      const std::vector<std::pair<std::string, bool> > masks = m_gtUtil->masks();
@@ -193,7 +193,7 @@ namespace l1t {
 
      // Dump the results
      if(m_dumpTriggerResults) {
-       cout << "    Bit                  Algorithm Name                                      Init    PScd  Final   PS Factor     Masked    Veto " << endl;
+       cout << "    Bit                  Algorithm Name                                      Init    aBXM  Final   PS Factor     Masked    Veto " << endl;
        cout << "================================================================================================================================" << endl;
      }
      for(unsigned int i=0; i<initialDecisions.size(); i++) {
@@ -211,8 +211,8 @@ namespace l1t {
        if (resultInit) (m_algoSummary.find(name)->second).at(0) += 1;
 
        // get prescaled and final results (need some error checking here)
-       bool resultPre = (prescaledDecisions.at(i)).second;
-       if (resultPre) (m_algoSummary.find(name)->second).at(1) += 1;
+       bool resultInterm = (intermDecisions.at(i)).second;
+       if (resultInterm) (m_algoSummary.find(name)->second).at(1) += 1;
        bool resultFin = (finalDecisions.at(i)).second;
        if (resultFin) (m_algoSummary.find(name)->second).at(2) += 1;
        
@@ -221,7 +221,7 @@ namespace l1t {
        bool mask    = (masks.at(i)).second;
        bool veto    = (vetoMasks.at(i)).second;
        
-       if(m_dumpTriggerResults && name != "NULL") cout << std::dec << setfill(' ') << "   " << setw(5) << i << "   " << setw(60) << name.c_str() << "   " << setw(7) << resultInit << setw(7) << resultPre << setw(7) << resultFin << setw(10) << prescale << setw(11) << mask << setw(9) << veto << endl;
+       if(m_dumpTriggerResults && name != "NULL") cout << std::dec << setfill(' ') << "   " << setw(5) << i << "   " << setw(60) << name.c_str() << "   " << setw(7) << resultInit << setw(7) << resultInterm << setw(7) << resultFin << setw(10) << prescale << setw(11) << mask << setw(9) << veto << endl;
      }
      bool finOR = m_gtUtil->getFinalOR();
      if(m_dumpTriggerResults) {
@@ -440,7 +440,7 @@ GtRecordDump::endRun(edm::Run const&, edm::EventSetup const&)
 {
     // Dump the results
      cout << "=========================== Global Trigger Summary Report  ==================================" << endl;
-     cout << "                       Algorithm Name                              Init      PScd     Final   " << endl;
+     cout << "                       Algorithm Name                              Init     aBXM     Final   " << endl;
      cout << "=============================================================================================" << endl;
      for (std::map<std::string, std::vector<int> >::const_iterator itAlgo = m_algoSummary.begin(); itAlgo != m_algoSummary.end(); itAlgo++) {       
       
@@ -448,7 +448,7 @@ GtRecordDump::endRun(edm::Run const&, edm::EventSetup const&)
 	int initCnt = (itAlgo->second).at(0);
 	int initPre = (itAlgo->second).at(1);
 	int initFnl = (itAlgo->second).at(2);
-	if(name != "NULL") cout << std::dec << setfill(' ') <<  setw(60) << name.c_str() << setw(10) << initCnt << setw(10) << initPre << setw(10) << initFnl << endl; //<< "   " << setw(7) << resultInit << setw(7) << resultPre << setw(7) << resultFin << setw(10) << prescale << setw(11) << mask << setw(9) << veto
+	if(name != "NULL") cout << std::dec << setfill(' ') <<  setw(60) << name.c_str() << setw(10) << initCnt << setw(10) << initPre << setw(10) << initFnl << endl; 
      }
      cout << "===========================================================================================================" << endl;   
 }

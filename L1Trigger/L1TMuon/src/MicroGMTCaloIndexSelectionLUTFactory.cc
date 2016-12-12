@@ -19,12 +19,22 @@ namespace l1t {
   MicroGMTCaloIndexSelectionLUTFactory::create(const std::string& filename, const int type, const int fwVersion) {
     ReturnType p;
 
-    switch (fwVersion) {
-      case 1:
-        p = ReturnType(new MicroGMTCaloIndexSelectionLUT(filename, type));
-        break;
-      default:
-        LogError("MicroGMTCaloIndexSelectionLUTFactory") << "Invalid firmware version requested: " << fwVersion;
+    if (fwVersion >= 1) {
+      p = ReturnType(new MicroGMTCaloIndexSelectionLUT(filename, type));
+    } else {
+      LogError("MicroGMTCaloIndexSelectionLUTFactory") << "Invalid firmware version requested: 0x" << std::hex << fwVersion << std::dec;
+    }
+    return p;
+  }
+
+  MicroGMTCaloIndexSelectionLUTFactory::ReturnType
+  MicroGMTCaloIndexSelectionLUTFactory::create(l1t::LUT* lut, const int type, const int fwVersion) {
+    ReturnType p;
+
+    if (fwVersion >= 1) {
+      p = ReturnType(new MicroGMTCaloIndexSelectionLUT(lut, type));
+    } else {
+      LogError("MicroGMTCaloIndexSelectionLUTFactory") << "Invalid firmware version requested: 0x" << std::hex << fwVersion << std::dec;
     }
     return p;
   }
