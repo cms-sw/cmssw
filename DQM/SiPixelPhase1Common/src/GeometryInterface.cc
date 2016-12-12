@@ -154,7 +154,6 @@ void GeometryInterface::loadFromTopology(edm::EventSetup const& iSetup, const ed
     if (blade != UNDEFINED && blade > outerring) outerring = blade;
 
     // prepare pretty names
-    // We try Phase0 and Phase1 here, since we only later know which to use...
     std::string name = "";
     if (layer != UNDEFINED) { // Barrel
       PixelBarrelName mod(id, tt, isUpgrade);
@@ -332,7 +331,6 @@ void GeometryInterface::loadModuleLevel(edm::EventSetup const& iSetup, const edm
       return Value(roc(iq) + n_rocs * (mod-1));
     }
   );
-
 }
 
 void GeometryInterface::loadFEDCabling(edm::EventSetup const& iSetup, const edm::ParameterSet& iConfig) {
@@ -374,6 +372,28 @@ void GeometryInterface::loadFEDCabling(edm::EventSetup const& iSetup, const edm:
     [siPixelFrameReverter] (InterestingQuantities const& iq) {
       sipixelobjects::GlobalPixel gp = {iq.row, iq.col};
       return Value(siPixelFrameReverter->findRocInDet(iq.sourceModule.rawId(), gp));
+    }
+  );
+
+  // Readout groups. We don't know them for FPIX yet, but for BPIX, they are
+  // the sectors.
+  bool isUpgrade = iConfig.getParameter<bool>("isUpgrade");
+  auto pxbarrel  = extractors[intern("PXBarrel")];
+  edm::ESHandle<TrackerTopology> trackerTopologyHandle;
+  iSetup.get<TrackerTopologyRcd>().get(trackerTopologyHandle);
+  assert(trackerTopologyHandle.isValid());
+  // again holding a bare pointer here. Seems to be considered safe.
+  auto tt = trackerTopologyHandle.operator->();
+
+  addExtractor(intern("ReadoutGroup"),
+    [isUpgrade, pxbarrel, tt] (InterestingQuantities const& iq) {
+      if (pxbarrel(iq) != UNDEFINED) {
+        PixelBarrelName pbn(iq.sourceModule, tt, isUpgrade);
+        return Value(pbn.sectorName());
+      } else {
+        // TODO: FPIX
+        return UNDEFINED;
+      }
     }
   );
 
