@@ -116,7 +116,7 @@ void GeometryInterface::loadFromTopology(edm::EventSetup const& iSetup, const ed
   // these are just aliases with special handling in formatting
   // the names are created with PixelBarrelName et. al. later
   addExtractor(intern("PXModuleName"), detid, 0, 0);
-  addExtractor(intern("P1PXModuleName"), detid, 0, 0);
+  bool isUpgrade = iConfig.getParameter<bool>("isUpgrade");
 
   // Get a Geometry
   edm::ESHandle<TrackerGeometry> trackerGeometryHandle;
@@ -155,20 +155,15 @@ void GeometryInterface::loadFromTopology(edm::EventSetup const& iSetup, const ed
 
     // prepare pretty names
     // We try Phase0 and Phase1 here, since we only later know which to use...
-    std::string name_P0 = "", name_P1 = "";
+    std::string name = "";
     if (layer != UNDEFINED) { // Barrel
-      PixelBarrelName mod_P0(id, tt, false);
-      PixelBarrelName mod_P1(id, tt, true);
-      name_P0 = mod_P0.name();
-      name_P1 = mod_P1.name();
+      PixelBarrelName mod(id, tt, isUpgrade);
+      name = mod.name();
     } else { // assume Endcap
-      PixelEndcapName mod_P0(id, tt, false);
-      PixelEndcapName mod_P1(id, tt, true);
-      name_P0 = mod_P0.name();
-      name_P1 = mod_P1.name();
+      PixelEndcapName mod(id, tt, isUpgrade);
+      name = mod.name();
     }
-    format_value[std::make_pair(intern("PXModuleName"), Value(id.rawId()))] = name_P0;
-    format_value[std::make_pair(intern("P1PXModuleName"), Value(id.rawId()))] = name_P1;
+    format_value[std::make_pair(intern("PXModuleName"), Value(id.rawId()))] = name;
 
     // we record each module 4 times, one for each corner, so we also get ROCs
     // in booking (at least for the ranges)
