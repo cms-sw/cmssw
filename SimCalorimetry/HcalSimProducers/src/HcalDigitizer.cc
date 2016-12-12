@@ -1,5 +1,4 @@
 #include "SimCalorimetry/HcalSimProducers/interface/HcalDigitizer.h"
-#include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalSimParameterMap.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalShapes.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalElectronicsSim.h"
@@ -85,11 +84,17 @@ HcalDigitizer::HcalDigitizer(const edm::ParameterSet& ps, edm::ConsumesCollector
   hfgeo(true),
   doHFWindow_(ps.getParameter<bool>("doHFWindow")),
   killHE_(ps.getParameter<bool>("killHE")),
+  debugCS_(ps.getParameter<bool>("debugCaloSamples")),
+  ignoreTime_(ps.getParameter<bool>("ignoreGeantTime")),
+  injectTestHits_(ps.getParameter<bool>("injectTestHits")),
   hitsProducer_(ps.getParameter<std::string>("hitsProducer")),
   theHOSiPMCode(ps.getParameter<edm::ParameterSet>("ho").getParameter<int>("siPMCode")),
   deliveredLumi(0.),
   m_HEDarkening(0),
-  m_HFRecalibration(0)
+  m_HFRecalibration(0),
+  injectedHitsEnergy_(ps.getParameter<std::vector<double>>("injectTestHitsEnergy")),
+  injectedHitsTime_(ps.getParameter<std::vector<double>>("injectTestHitsTime")),
+  injectedHitsCells_(ps.getParameter<std::vector<int>>("injectTestHitsCells"))
 {
   iC.consumes<std::vector<PCaloHit> >(edm::InputTag(hitsProducer_, "ZDCHITS"));
   iC.consumes<std::vector<PCaloHit> >(edm::InputTag(hitsProducer_, "HcalHits"));
@@ -180,6 +185,28 @@ HcalDigitizer::HcalDigitizer(const edm::ParameterSet& ps, edm::ConsumesCollector
     if(ps.getParameter<bool>("doThermalNoise")) {
       theHBHEAmplifier->setIonFeedbackSim(theIonFeedback);
     }
+  }
+
+  //option to save CaloSamples as event product for debugging
+  if(debugCS_){
+    if(theHBHEDigitizer)      theHBHEDigitizer->setDebugCaloSamples(true);
+    if(theHBHEQIE11Digitizer) theHBHEQIE11Digitizer->setDebugCaloSamples(true);
+    if(theHODigitizer)        theHODigitizer->setDebugCaloSamples(true);
+    if(theHOSiPMDigitizer)    theHOSiPMDigitizer->setDebugCaloSamples(true);
+    if(theHFDigitizer)        theHFDigitizer->setDebugCaloSamples(true);
+    if(theHFQIE10Digitizer)   theHFQIE10Digitizer->setDebugCaloSamples(true);
+    theZDCDigitizer->setDebugCaloSamples(true);
+  }
+
+  //option to ignore Geant time distribution in SimHits, for debugging
+  if(ignoreTime_){
+    theHBHEResponse->setIgnoreGeantTime(ignoreTime_);
+    theHBHESiPMResponse->setIgnoreGeantTime(ignoreTime_);
+    theHOResponse->setIgnoreGeantTime(ignoreTime_);
+    theHOSiPMResponse->setIgnoreGeantTime(ignoreTime_);
+    theHFResponse->setIgnoreGeantTime(ignoreTime_);
+    theHFQIE10Response->setIgnoreGeantTime(ignoreTime_);
+    theZDCResponse->setIgnoreGeantTime(ignoreTime_);
   }
 
   if(agingFlagHE) m_HEDarkening = new HEDarkening();
@@ -297,13 +324,14 @@ void HcalDigitizer::accumulateCaloHits(edm::Handle<std::vector<PCaloHit> > const
   // Step A: pass in inputs, and accumulate digis
   if(isHCAL) {
     std::vector<PCaloHit> hcalHitsOrig = *hcalHandle.product();
+    if(injectTestHits_) hcalHitsOrig = injectedHits_;
     std::vector<PCaloHit> hcalHits;
     hcalHits.reserve(hcalHitsOrig.size());
 
     //evaluate darkening before relabeling
     if (testNumbering_) {
       if(m_HEDarkening || m_HFRecalibration){
-	darkening(hcalHitsOrig);
+        darkening(hcalHitsOrig);
       }
       // Relabel PCaloHits if necessary
       edm::LogInfo("HcalDigitizer") << "Calling Relabeller";
@@ -323,8 +351,8 @@ void HcalDigitizer::accumulateCaloHits(edm::Handle<std::vector<PCaloHit> > const
         continue;
       }
       else if( killHE_ && hid.subdet()==HcalEndcap ) {
-	// remove HE hits if asked for (phase 2)
-	continue;
+        // remove HE hits if asked for (phase 2)
+        continue;
       }
       else {
 #ifdef DebugLog
@@ -376,7 +404,7 @@ void HcalDigitizer::accumulate(edm::Event const& e, edm::EventSetup const& event
   edm::InputTag hcalTag(hitsProducer_, "HcalHits");
   edm::Handle<std::vector<PCaloHit> > hcalHandle;
   e.getByLabel(hcalTag, hcalHandle);
-  isHCAL = hcalHandle.isValid();
+  isHCAL = hcalHandle.isValid() or injectTestHits_;
 
   edm::ESHandle<HcalTopology> htopo;
   eventSetup.get<HcalRecNumberingRecord>().get(htopo);
@@ -468,6 +496,25 @@ void HcalDigitizer::finalizeEvent(edm::Event& e, const edm::EventSetup& eventSet
   e.put(std::move(hfQIE10Result), "HFQIE10DigiCollection");
   e.put(std::move(hbheQIE11Result), "HBHEQIE11DigiCollection");
 
+  if(debugCS_){
+    std::unique_ptr<CaloSamplesCollection> csResult(new CaloSamplesCollection());
+    //smush together all the results
+    if(theHBHEDigitizer)      csResult->insert(csResult->end(),theHBHEDigitizer->getCaloSamples().begin(),theHBHEDigitizer->getCaloSamples().end());
+    if(theHBHEQIE11Digitizer) csResult->insert(csResult->end(),theHBHEQIE11Digitizer->getCaloSamples().begin(),theHBHEQIE11Digitizer->getCaloSamples().end());
+    if(theHODigitizer)        csResult->insert(csResult->end(),theHODigitizer->getCaloSamples().begin(),theHODigitizer->getCaloSamples().end());
+    if(theHOSiPMDigitizer)    csResult->insert(csResult->end(),theHOSiPMDigitizer->getCaloSamples().begin(),theHOSiPMDigitizer->getCaloSamples().end());
+    if(theHFDigitizer)        csResult->insert(csResult->end(),theHFDigitizer->getCaloSamples().begin(),theHFDigitizer->getCaloSamples().end());
+    if(theHFQIE10Digitizer)   csResult->insert(csResult->end(),theHFQIE10Digitizer->getCaloSamples().begin(),theHFQIE10Digitizer->getCaloSamples().end());
+    csResult->insert(csResult->end(),theZDCDigitizer->getCaloSamples().begin(),theZDCDigitizer->getCaloSamples().end());
+    e.put(std::move(csResult),"HcalSamples");
+  }
+
+  if(injectTestHits_){
+    std::unique_ptr<edm::PCaloHitContainer> pcResult(new edm::PCaloHitContainer());
+    pcResult->insert(pcResult->end(),injectedHits_.begin(),injectedHits_.end());
+    e.put(std::move(pcResult),"HcalHits");
+  }
+
 #ifdef DebugLog
   std::cout << std::endl << "========>  HcalDigitizer e.put " << std::endl <<  std::endl;
 #endif
@@ -545,6 +592,36 @@ void  HcalDigitizer::updateGeometry(const edm::EventSetup & eventSetup) {
   buildHFQIECells(hfCells,eventSetup);
   
   theZDCDigitizer->setDetIds(zdcCells);
+
+  //fill test hits collection if desired and empty
+  if(injectTestHits_ && injectedHits_.size()==0 && injectedHitsCells_.size()>0 && injectedHitsEnergy_.size()>0){
+    //make list of specified cells if desired
+    std::vector<DetId> testCells;
+    if(injectedHitsCells_.size()>=4){
+      testCells.reserve(injectedHitsCells_.size()/4);
+      for(unsigned ic = 0; ic < injectedHitsCells_.size(); ic += 4){
+        if(ic+4 > injectedHitsCells_.size()) break;
+        testCells.push_back(HcalDetId((HcalSubdetector)injectedHitsCells_[ic],injectedHitsCells_[ic+1],
+                            injectedHitsCells_[ic+2],injectedHitsCells_[ic+3]));
+      }
+    }
+    else{
+      int testSubdet = injectedHitsCells_[0];
+      if(testSubdet==HcalBarrel) testCells = hbCells;
+      else if(testSubdet==HcalEndcap) testCells = heCells;
+      else if(testSubdet==HcalForward) testCells = hfCells;
+      else if(testSubdet==HcalOuter) testCells = hoCells;
+      else throw cms::Exception("Configuration") << "Unknown subdet " << testSubdet << " for HCAL test hit injection";
+    }
+    bool useHitTimes = (injectedHitsTime_.size()==injectedHitsEnergy_.size());
+    injectedHits_.reserve(testCells.size()*injectedHitsEnergy_.size());
+    for(unsigned ih = 0; ih < injectedHitsEnergy_.size(); ++ih){
+      double tmp = useHitTimes ? injectedHitsTime_[ih] : 0.;
+      for(auto& aCell: testCells){
+        injectedHits_.emplace_back(aCell,injectedHitsEnergy_[ih],tmp);
+      }
+    }
+  }
 }
 
 void HcalDigitizer::buildHFQIECells(const std::vector<DetId>& allCells, const edm::EventSetup & eventSetup) {

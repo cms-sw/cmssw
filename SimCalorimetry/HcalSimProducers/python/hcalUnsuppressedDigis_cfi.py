@@ -23,7 +23,21 @@ hcalSimBlock = cms.PSet(
     TestNumbering = cms.bool(False),
     HEDarkening = cms.bool(False),
     HFDarkening = cms.bool(False),
-    minFCToDelay=cms.double(5.) # old TC model! set to 5 for the new one
+    minFCToDelay=cms.double(5.), # old TC model! set to 5 for the new one
+    debugCaloSamples=cms.bool(False),
+    ignoreGeantTime=cms.bool(False),
+    # settings for SimHit test injection
+    injectTestHits = cms.bool(False),
+    # if no time is specified for injected hits, t = 0 will be used
+    # (recommendation: enable "ignoreGeantTime" in that case to set t = tof)
+    # otherwise, need 1 time value per energy value
+    injectTestHitsEnergy = cms.vdouble(),
+    injectTestHitsTime = cms.vdouble(),
+    # format for cells: subdet, ieta, iphi, depth
+    # multiple quadruplets can be specified
+    # if instead only 1 value is given, 
+    # it will be interpreted as an entire subdetector
+    injectTestHitsCells = cms.vint32()
 )
 
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
