@@ -60,12 +60,12 @@ def setup(process, binary_files, tree_files, run_start_geometry):
     # --------------------------------------------------------------------------
     if (hasattr(process.AlignmentProducer, "RunRangeSelection") and
         len(process.AlignmentProducer.RunRangeSelection) > 0):
-        if len(process.AlignmentProducer.RunRangeSelection) == 1:
-            iovs = process.AlignmentProducer.RunRangeSelection[0].RunRanges
-            number_of_events = int(iovs[-1]) - int(iovs[0]) + 1
-        else:
-            print "Unsupported config: More than one IOV definition found."
-            sys.exit(1)
+        iovs = set([int(iov)
+                    for sel in process.AlignmentProducer.RunRangeSelection
+                    for iov in sel.RunRanges
+                    ])
+        iovs = sorted(iovs)
+        number_of_events = iovs[-1] - iovs[0] + 1
     else:
         number_of_events = 1
 
