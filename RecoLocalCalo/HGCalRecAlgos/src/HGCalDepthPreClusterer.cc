@@ -1,35 +1,62 @@
 #include "RecoLocalCalo/HGCalRecAlgos/interface/HGCalDepthPreClusterer.h"
-#include "RecoLocalCalo/HGCalRecAlgos/interface/HGCalImagingAlgo.h"
-#include "RecoLocalCalo/HGCalRecAlgos/interface/HGCalMultiCluster.h"
+#include "DataFormats/Math/interface/deltaR.h"
 
 #include <list>
 
-std::vector<HGCalMultiCluster> HGCalDepthPreClusterer::makePreClusters(const ClusterCollection &thecls){
+namespace {
+  std::vector<size_t> sorted_indices(const reco::HGCalMultiCluster::ClusterCollection& v) {
+    
+    // initialize original index locations
+    std::vector<size_t> idx(v.size());
+    for (size_t i = 0; i != idx.size(); ++i) idx[i] = i;
+    
+    // sort indices based on comparing values in v
+    std::sort(idx.begin(), idx.end(),
+         [&v](size_t i1, size_t i2) {return (*v[i1]) > (*v[i2]);});
+    
+    return idx;
+  } 
 
-  thePreClusters.clear();
-  std::vector<size_t> es = sorted_indices<reco::BasicCluster>(thecls);
+  float dist(const edm::Ptr<reco::BasicCluster> &a, 
+             const edm::Ptr<reco::BasicCluster> &b) {
+    return reco::deltaR(*a,*b);
+  }
+}
+
+std::vector<reco::HGCalMultiCluster> HGCalDepthPreClusterer::makePreClusters(const reco::HGCalMultiCluster::ClusterCollection &thecls) const {
+
+  std::vector<reco::HGCalMultiCluster> thePreClusters;
+  std::vector<size_t> es = sorted_indices(thecls);
   std::vector<int> vused(es.size(),0);
   unsigned int used = 0;
-  for(unsigned int i = 0; i < es.size(); i++){
-    if(vused[i]==0){
-      thePreClusters.push_back(HGCalMultiCluster(thecls[es[i]]));
-      vused[i]=(thecls[es[i]].z()>0)? 1 : -1;
-      used++;
-      for(unsigned int j = i+1; j < es.size(); j++){
-	if(vused[j]==0){
-	  if(dist(thecls[es[i]],thecls[es[j]])<radius && int(thecls[es[i]].z()*vused[i])>0){
-	    thePreClusters.back().push_back(thecls[es[j]]);
+  for(unsigned int i = 0; i < es.size(); ++i) {
+    if(vused[i]==0) {
+      reco::HGCalMultiCluster temp;      
+      temp.push_back(thecls[es[i]]);
+      vused[i]=(thecls[es[i]]->z()>0)? 1 : -1;
+      ++used;
+      for(unsigned int j = i+1; j < es.size(); ++j) {
+	if(vused[j]==0) {
+	  if( dist(thecls[es[i]],thecls[es[j]])<radius && int(thecls[es[i]]->z()*vused[i])>0 ) {
+	    temp.push_back(thecls[es[j]]);
 	    vused[j]=vused[i];
-	    used++;
+	    ++used;
 	  }	
 	}
       }
+      if( temp.size() > minClusters ) {
+        thePreClusters.push_back(temp);
+        auto& back = thePreClusters.back();
+        back.setPosition(clusterTools->getMultiClusterPosition(back));
+        back.setEnergy(clusterTools->getMultiClusterEnergy(back));
+      }
     }
   }
+  
+  
+
   return thePreClusters;
 }
 
 
-float HGCalDepthPreClusterer::dist(const reco::BasicCluster &a, const reco::BasicCluster &b){
-  return sqrt((a.eta()-b.eta())*(a.eta()-b.eta())+(a.phi()-b.phi())*(a.phi()-b.phi()));
-}
+
