@@ -27,7 +27,7 @@ caloParams = cms.ESProducer(
     regionPUSParams  = cms.vdouble(),
 
     # EG
-    egEtaCut                   = cms.int32(0),
+    egEtaCut                   = cms.int32(28),
     egLsb                      = cms.double(0.5),
     egSeedThreshold            = cms.double(2.),
     egNeighbourThreshold       = cms.double(1.),
@@ -74,7 +74,7 @@ caloParams = cms.ESProducer(
     tauMaxJetIsolationA    = cms.double(0.1),
     tauPUSType                 = cms.string("None"),
     isoTauEtaMin                  = cms.int32(0),
-    isoTauEtaMax                  = cms.int32(17),
+    isoTauEtaMax                  = cms.int32(28),
     tauIsoAreaNrTowersEta 		  = cms.uint32(2),
     tauIsoAreaNrTowersPhi		  = cms.uint32(4),
     tauIsoVetoNrTowersPhi 		  = cms.uint32(2),

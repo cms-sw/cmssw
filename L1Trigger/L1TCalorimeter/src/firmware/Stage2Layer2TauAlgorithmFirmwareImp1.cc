@@ -56,7 +56,7 @@ void l1t::Stage2Layer2TauAlgorithmFirmwareImp1::merging(const std::vector<l1t::C
         // by construction of the clustering, they are local maxima in the 9x3 jet window
         if (mainCluster.isValid())
         {
-            if (abs(mainCluster.hwEta()) >= 29) continue; // limit in main seed position in firmware
+            if (abs(mainCluster.hwEta()) > 28) continue; // limit in main seed position in firmware
 
             int iEta = mainCluster.hwEta();
             int iPhi = mainCluster.hwPhi();
@@ -137,8 +137,8 @@ void l1t::Stage2Layer2TauAlgorithmFirmwareImp1::merging(const std::vector<l1t::C
                 int hwIsoEnergy = hwEtSum - tauHwFootprint;
                 if (hwIsoEnergy < 0) hwIsoEnergy = 0; // just in case the cluster is outside the window? should be very rare
                 
-                isolBit =      (((hwIsoEnergy <= (params_->tauIsolationLUT()->data(LUTaddress))) || (params_->tauIsolationLUT()->data(LUTaddress)>255)) ? 1 : 0);
-		int isolBit2 = (((hwIsoEnergy <= (params_->tauIsolationLUT2()->data(LUTaddress))) || (params_->tauIsolationLUT2()->data(LUTaddress)>255)) ? 1 : 0);
+                isolBit =      (((hwIsoEnergy < (params_->tauIsolationLUT()->data(LUTaddress))) || (params_->tauIsolationLUT()->data(LUTaddress)>255)) ? 1 : 0);
+		int isolBit2 = (((hwIsoEnergy < (params_->tauIsolationLUT2()->data(LUTaddress))) || (params_->tauIsolationLUT2()->data(LUTaddress)>255)) ? 1 : 0);
 		isolBit += (isolBit2 << 1);
                 tau.setHwIso(isolBit);
 
@@ -433,8 +433,8 @@ void l1t::Stage2Layer2TauAlgorithmFirmwareImp1::merging(const std::vector<l1t::C
                 int hwIsoEnergy = hwEtSum - tauHwFootprint;
                 if (hwIsoEnergy < 0) hwIsoEnergy = 0; // just in case the cluster is outside the window? should be very rare
 
-                isolBit =      (((hwIsoEnergy <= (params_->tauIsolationLUT()->data(LUTaddress))) || (params_->tauIsolationLUT()->data(LUTaddress)>255)) ? 1 : 0);
-		int isolBit2 = (((hwIsoEnergy <= (params_->tauIsolationLUT2()->data(LUTaddress))) || (params_->tauIsolationLUT2()->data(LUTaddress)>255)) ? 1 : 0);
+                isolBit =      (((hwIsoEnergy < (params_->tauIsolationLUT()->data(LUTaddress))) || (params_->tauIsolationLUT()->data(LUTaddress)>255)) ? 1 : 0);
+		int isolBit2 = (((hwIsoEnergy < (params_->tauIsolationLUT2()->data(LUTaddress))) || (params_->tauIsolationLUT2()->data(LUTaddress)>255)) ? 1 : 0);
 		isolBit += (isolBit2 << 1);
                 tau.setHwIso(isolBit);
 
@@ -811,7 +811,8 @@ unsigned int l1t::Stage2Layer2TauAlgorithmFirmwareImp1::calibLutIndex (int ieta,
     //cout << "      * compressedEta = " << compressedEta << endl;
     //cout << "      * compressedEt = "  << compressedEt  << endl;
 
-    unsigned int address =  (compressedEt<<4)+(compressedEta<<2)+(hasEM<<1)+isMerged;
+    unsigned int address =  (compressedEta<<7)+(compressedEt<<2)+(hasEM<<1)+isMerged;//2 bits eta, 5 bits et, 1 bit hasEM, 1 bis isMerged
+    // unsigned int address =  (compressedEt<<4)+(compressedEta<<2)+(hasEM<<1)+isMerged;
     return address;
 }
 
@@ -836,7 +837,7 @@ int l1t::Stage2Layer2TauAlgorithmFirmwareImp1::calibratedPt(const l1t::CaloClust
     if (rawPt > 8191) rawPt = 8191; // 13 bits for uncalibrated E
     
     int corrXrawPt = corr*rawPt; // 17 bits
-    int calibPt = (corrXrawPt>>8); // (10 bits) = (7 bits) + (9 bits) 
+    int calibPt = (corrXrawPt>>9); // (10 bits) = (7 bits) + (9 bits) 
     // saturation FIXME: to be done in demux?
     if (calibPt > 4095) calibPt = 4095; // 12 bit in output
     
@@ -875,7 +876,9 @@ unsigned int l1t::Stage2Layer2TauAlgorithmFirmwareImp1::isoLutIndex(int Et, int 
     //cout << " ****  -- compressed: eta, et, ntt: " << etaCmpr << " " <<  etCmpr << " " << nTTCmpr << endl;
 
     // get the address -- NOTE: this also depends on the compression scheme!
-    unsigned int address = ( (etCmpr << 7) | (nTTCmpr << 2) | etaCmpr );//ordering compressed: 5 bits iEt, 5 bits nTT, 2 bits iEta
+
+    unsigned int address = ( (etaCmpr << 10) | (etCmpr << 5) | nTTCmpr );//ordering compressed: 2 bits iEta, 5 bits iEt, 5 bits nTT
+    // unsigned int address = ( (etCmpr << 7) | (nTTCmpr << 2) | etaCmpr );//ordering compressed: 5 bits iEt, 5 bits nTT, 2 bits iEta
 
     //cout << " ****  -- address without compression block: " << address << endl;
     address += 0; // add offsets of compression block
