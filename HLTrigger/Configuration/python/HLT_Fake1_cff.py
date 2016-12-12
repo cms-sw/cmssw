@@ -210,3 +210,7 @@ fragment = customizeHLTforAll(fragment,"Fake1")
 from HLTrigger.Configuration.customizeHLTforCMSSW import customizeHLTforCMSSW
 fragment = customizeHLTforCMSSW(fragment,"Fake1")
 
+# Eras-based customisations
+from HLTrigger.Configuration.Eras import modifyHLTforEras
+modifyHLTforEras(fragment)
+

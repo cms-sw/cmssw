@@ -65679,3 +65679,7 @@ process = customizeHLTforAll(process,"25ns10e33_v2",_customInfo)
 from HLTrigger.Configuration.customizeHLTforCMSSW import customizeHLTforCMSSW
 process = customizeHLTforCMSSW(process,"25ns10e33_v2")
 
+# Eras-based customisations
+from HLTrigger.Configuration.Eras import modifyHLTforEras
+modifyHLTforEras(process)
+
