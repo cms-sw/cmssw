@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 # This config was generated automatically using generate2023Geometry.py
 # If you notice a mistake, please update the generating script, not just this config
 
-from Configuration.Geometry.GeometryExtended2023D5_cff import *
+from Configuration.Geometry.GeometryExtended2023D7_cff import *
 
 # tracker
 from Geometry.CommonDetUnit.globalTrackingGeometry_cfi import *
@@ -14,20 +14,17 @@ from Geometry.TrackerGeometryBuilder.idealForDigiTrackerGeometry_cff import *
 trackerGeometry.applyAlignment = cms.bool(False)
 
 # calo
-from Geometry.CaloEventSetup.HGCalV6Topology_cfi import *
-from Geometry.HGCalGeometry.HGCalV6GeometryESProducer_cfi import *
 from Geometry.CaloEventSetup.CaloTopology_cfi import *
 from Geometry.CaloEventSetup.CaloGeometryBuilder_cfi import *
 CaloGeometryBuilder = cms.ESProducer("CaloGeometryBuilder",
-    SelectedCalos = cms.vstring("HCAL"                   ,
-                                "ZDC"                    ,
-                                "EcalBarrel"             ,
-                                "TOWER"                  ,
-                                "HGCalEESensitive"       ,
-                                "HGCalHESiliconSensitive" 
-    )
+    SelectedCalos = cms.vstring("HCAL"          ,
+                                "ZDC"           ,
+                                "EcalBarrel"    ,
+                                "EcalEndcap"    ,
+                                "TOWER"           )
 )
 from Geometry.EcalAlgo.EcalBarrelGeometry_cfi import *
+from Geometry.EcalAlgo.EcalEndcapGeometry_cfi import *
 from Geometry.HcalEventSetup.HcalGeometry_cfi import *
 from Geometry.HcalEventSetup.CaloTowerGeometry_cfi import *
 from Geometry.HcalEventSetup.CaloTowerTopology_cfi import *

@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 # This config was generated automatically using generate2023Geometry.py
 # If you notice a mistake, please update the generating script, not just this config
 
-from Configuration.Geometry.GeometryExtended2023D6_cff import *
+from Configuration.Geometry.GeometryExtended2023D8_cff import *
 
 # tracker
 from Geometry.CommonDetUnit.globalTrackingGeometry_cfi import *
@@ -14,17 +14,20 @@ from Geometry.TrackerGeometryBuilder.idealForDigiTrackerGeometry_cff import *
 trackerGeometry.applyAlignment = cms.bool(False)
 
 # calo
+from Geometry.CaloEventSetup.HGCalV6Topology_cfi import *
+from Geometry.HGCalGeometry.HGCalV6GeometryESProducer_cfi import *
 from Geometry.CaloEventSetup.CaloTopology_cfi import *
 from Geometry.CaloEventSetup.CaloGeometryBuilder_cfi import *
 CaloGeometryBuilder = cms.ESProducer("CaloGeometryBuilder",
-    SelectedCalos = cms.vstring("HCAL"          ,
-                                "ZDC"           ,
-                                "EcalBarrel"    ,
-                                "EcalEndcap"    ,
-                                "TOWER"           )
+    SelectedCalos = cms.vstring("HCAL"                   ,
+                                "ZDC"                    ,
+                                "EcalBarrel"             ,
+                                "TOWER"                  ,
+                                "HGCalEESensitive"       ,
+                                "HGCalHESiliconSensitive" 
+    )
 )
 from Geometry.EcalAlgo.EcalBarrelGeometry_cfi import *
-from Geometry.EcalAlgo.EcalEndcapGeometry_cfi import *
 from Geometry.HcalEventSetup.HcalGeometry_cfi import *
 from Geometry.HcalEventSetup.CaloTowerGeometry_cfi import *
 from Geometry.HcalEventSetup.CaloTowerTopology_cfi import *
@@ -39,10 +42,13 @@ from Geometry.MuonNumbering.muonNumberingInitialization_cfi import *
 from RecoMuon.DetLayers.muonDetLayerGeometry_cfi import *
 from Geometry.GEMGeometryBuilder.gemGeometry_cfi import *
 from Geometry.GEMGeometryBuilder.me0Geometry_cfi import *
-ME0GeometryESModule.use10EtaPart = cms.bool(True)
 from Geometry.CSCGeometryBuilder.idealForDigiCscGeometry_cff import *
 from Geometry.DTGeometryBuilder.idealForDigiDtGeometry_cff import *
 
 # forward
 from Geometry.ForwardGeometry.ForwardGeometry_cfi import *
+
+# timing
+from Geometry.CaloEventSetup.FastTimeTopology_cfi import *
+from Geometry.HGCalGeometry.FastTimeGeometryESProducer_cfi import *
 
