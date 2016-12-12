@@ -230,7 +230,7 @@ std::vector<float >  PFIsolationEstimator::fGetIsolationInRings(const reco::PFCa
   fVy =  pfCandidate->vy();
   fVz =  pfCandidate->vz();
 
-  pivotInBarrel = fabs(pfCandidate->positionAtECALEntrance().eta())<1.479;
+  pivotInBarrel = std::abs(pfCandidate->positionAtECALEntrance().eta())<1.479;
 
   for(unsigned iPF=0; iPF<pfParticlesColl->size(); iPF++) {
 
@@ -246,7 +246,7 @@ std::vector<float >  PFIsolationEstimator::fGetIsolationInRings(const reco::PFCa
 	fIsolationInRingsPhoton[isoBin]  = fIsolationInRingsPhoton[isoBin] + pfParticle.pt();
       }
       
-    }else if(abs(pfParticle.pdgId())==130){
+    }else if(std::abs(pfParticle.pdgId())==130){
         
       if(isNeutralParticleVetoed(  &pfParticle)>=0.){
        	isoBin = (int)(fDeltaR/fRingSize);
@@ -254,8 +254,8 @@ std::vector<float >  PFIsolationEstimator::fGetIsolationInRings(const reco::PFCa
       }
     
 
-      //}else if(abs(pfParticle.pdgId()) == 11 ||abs(pfParticle.pdgId()) == 13 || abs(pfParticle.pdgId()) == 211){
-    }else if(abs(pfParticle.pdgId()) == 211){
+      //}else if(std::abs(pfParticle.pdgId()) == 11 ||abs(pfParticle.pdgId()) == 13 || std::abs(pfParticle.pdgId()) == 211){
+    }else if(std::abs(pfParticle.pdgId()) == 211){
       if(isChargedParticleVetoed( &pfParticle, vtx, vertices)>=0.){
 	isoBin = (int)(fDeltaR/fRingSize);
 	fIsolationInRingsCharged[isoBin]  = fIsolationInRingsCharged[isoBin] + pfParticle.pt();
@@ -299,7 +299,7 @@ std::vector<float >  PFIsolationEstimator::fGetIsolationInRings(const reco::Phot
   iMissHits = 0;
 
   refSC = photon->superCluster();
-  pivotInBarrel = fabs((refSC->position().eta()))<1.479;
+  pivotInBarrel = std::abs((refSC->position().eta()))<1.479;
 
   for(unsigned iPF=0; iPF<pfParticlesColl->size(); iPF++) {
 
@@ -328,7 +328,7 @@ std::vector<float >  PFIsolationEstimator::fGetIsolationInRings(const reco::Phot
 	fIsolationInRingsPhoton[isoBin]  = fIsolationInRingsPhoton[isoBin] + pfParticle.pt();
       }
       
-    }else if(abs(pfParticle.pdgId())==130){
+    }else if(std::abs(pfParticle.pdgId())==130){
        
        // Set the vertex of reco::Photon to the first PV
       math::XYZVector direction = math::XYZVector(photon->superCluster()->x() - pfParticle.vx(), 
@@ -346,8 +346,8 @@ std::vector<float >  PFIsolationEstimator::fGetIsolationInRings(const reco::Phot
 	fIsolationInRingsNeutral[isoBin]  = fIsolationInRingsNeutral[isoBin] + pfParticle.pt();
       }
 
-      //}else if(abs(pfParticle.pdgId()) == 11 ||abs(pfParticle.pdgId()) == 13 || abs(pfParticle.pdgId()) == 211){
-    }else if(abs(pfParticle.pdgId()) == 211){
+      //}else if(std::abs(pfParticle.pdgId()) == 11 ||abs(pfParticle.pdgId()) == 13 || std::abs(pfParticle.pdgId()) == 211){
+    }else if(std::abs(pfParticle.pdgId()) == 211){
  
       // Set the vertex of reco::Photon to the first PV
       math::XYZVector direction = math::XYZVector(photon->superCluster()->x() - (*vtx).x(),
@@ -414,7 +414,7 @@ std::vector<float >  PFIsolationEstimator::fGetIsolationInRings(const reco::GsfE
   
   //  if(electron->ecalDrivenSeed())
   refSC = electron->superCluster();
-  pivotInBarrel = fabs((refSC->position().eta()))<1.479;
+  pivotInBarrel = std::abs((refSC->position().eta()))<1.479;
 
   for(unsigned iPF=0; iPF<pfParticlesColl->size(); iPF++) {
 
@@ -429,15 +429,15 @@ std::vector<float >  PFIsolationEstimator::fGetIsolationInRings(const reco::GsfE
 
       }
       
-    }else if(abs(pfParticle.pdgId())==130){
+    }else if(std::abs(pfParticle.pdgId())==130){
         
       if(isNeutralParticleVetoed( &pfParticle)>=0.){
        	isoBin = (int)(fDeltaR/fRingSize);
 	fIsolationInRingsNeutral[isoBin]  = fIsolationInRingsNeutral[isoBin] + pfParticle.pt();
       }
 
-      //}else if(abs(pfParticle.pdgId()) == 11 ||abs(pfParticle.pdgId()) == 13 || abs(pfParticle.pdgId()) == 211){
-    }else if(abs(pfParticle.pdgId()) == 211){
+      //}else if(std::abs(pfParticle.pdgId()) == 11 ||abs(pfParticle.pdgId()) == 13 || std::abs(pfParticle.pdgId()) == 211){
+    }else if(std::abs(pfParticle.pdgId()) == 211){
       if(isChargedParticleVetoed(  &pfParticle, vtx, vertices)>=0.){
 	isoBin = (int)(fDeltaR/fRingSize);
 	
@@ -491,13 +491,13 @@ float  PFIsolationEstimator::isPhotonParticleVetoed( const reco::PFCandidate* pf
     }
     
     if(bRectangleVetoBarrel){
-      if(abs(fDeltaEta) < fRectangleDeltaEtaVetoBarrelPhotons && abs(fDeltaPhi) < fRectangleDeltaPhiVetoBarrelPhotons){
+      if(std::abs(fDeltaEta) < fRectangleDeltaEtaVetoBarrelPhotons && std::abs(fDeltaPhi) < fRectangleDeltaPhiVetoBarrelPhotons){
 	return -999.;
       }
     }
   }else{
     if (bUseCrystalSize == true) {
-      fDeltaRVetoEndcapPhotons = 0.00864*fabs(sinh(refSC->position().eta()))*fNumberOfCrystalEndcapPhotons;
+      fDeltaRVetoEndcapPhotons = 0.00864*std::abs(sinh(refSC->position().eta()))*fNumberOfCrystalEndcapPhotons;
     }
 
     if(bDeltaRVetoEndcap){
@@ -505,7 +505,7 @@ float  PFIsolationEstimator::isPhotonParticleVetoed( const reco::PFCandidate* pf
 	return -999.;
     }
     if(bRectangleVetoEndcap){
-      if(abs(fDeltaEta) < fRectangleDeltaEtaVetoEndcapPhotons && abs(fDeltaPhi) < fRectangleDeltaPhiVetoEndcapPhotons){
+      if(std::abs(fDeltaEta) < fRectangleDeltaEtaVetoEndcapPhotons && std::abs(fDeltaPhi) < fRectangleDeltaPhiVetoEndcapPhotons){
 	 return -999.;
       }
     }
@@ -540,7 +540,7 @@ float  PFIsolationEstimator::isNeutralParticleVetoed( const reco::PFCandidate* p
 	  return -999.;
       }
       if(bRectangleVetoBarrel){
-	if(abs(fDeltaEta) < fRectangleDeltaEtaVetoBarrelNeutrals && abs(fDeltaPhi) < fRectangleDeltaPhiVetoBarrelNeutrals){
+	if(std::abs(fDeltaEta) < fRectangleDeltaEtaVetoBarrelNeutrals && std::abs(fDeltaPhi) < fRectangleDeltaPhiVetoBarrelNeutrals){
 	    return -999.;
 	}
       }
@@ -554,7 +554,7 @@ float  PFIsolationEstimator::isNeutralParticleVetoed( const reco::PFCandidate* p
 	  return -999.;
       }
       if(bRectangleVetoEndcap){
-	if(abs(fDeltaEta) < fRectangleDeltaEtaVetoEndcapNeutrals && abs(fDeltaPhi) < fRectangleDeltaPhiVetoEndcapNeutrals){
+	if(std::abs(fDeltaEta) < fRectangleDeltaEtaVetoEndcapNeutrals && std::abs(fDeltaPhi) < fRectangleDeltaPhiVetoEndcapNeutrals){
 	  return -999.;
 	}
       }
@@ -591,34 +591,34 @@ float  PFIsolationEstimator::isChargedParticleVetoed(const reco::PFCandidate* pf
   if(bApplyDzDxyVeto) {
     if(iParticleType==kPhoton){
       
-      float dz = fabs( pfIsoCand->trackRef()->dz( (*vtxMain).position() ) );
+      float dz = std::abs( pfIsoCand->trackRef()->dz( (*vtxMain).position() ) );
       if (dz > 0.2)
         return -999.;
 	
       double dxy = pfIsoCand->trackRef()->dxy( (*vtxMain).position() );  
-      if (fabs(dxy) > 0.1)
+      if (std::abs(dxy) > 0.1)
         return -999.;
       
       /*
-      float dz = fabs(vtx->z() - fVtxMainZ);
+      float dz = std::abs(vtx->z() - fVtxMainZ);
       if (dz > 1.)
 	return -999.;
       
       
       double dxy = ( -(vtx->x() - fVtxMainX)*pfIsoCand->py() + (vtx->y() - fVtxMainY)*pfIsoCand->px()) / pfIsoCand->pt();
       
-      if(fabs(dxy) > 0.2)
+      if(std::abs(dxy) > 0.2)
 	return -999.;
       */
     }else{
       
       
-      float dz = fabs(vtx->z() - fVtxMainZ);
+      float dz = std::abs(vtx->z() - fVtxMainZ);
       if (dz > 1.)
 	return -999.;
       
       double dxy = ( -(vtx->x() - fVx)*pfIsoCand->py() + (vtx->y() - fVy)*pfIsoCand->px()) / pfIsoCand->pt();
-      if(fabs(dxy) > 0.1)
+      if(std::abs(dxy) > 0.1)
 	return -999.;
     }
   }    
@@ -652,7 +652,7 @@ float  PFIsolationEstimator::isChargedParticleVetoed(const reco::PFCandidate* pf
 	  return -999.;
       }
       if(bRectangleVetoBarrel){
-	if(abs(fDeltaEta) < fRectangleDeltaEtaVetoBarrelCharged && abs(fDeltaPhi) < fRectangleDeltaPhiVetoBarrelCharged){
+	if(std::abs(fDeltaEta) < fRectangleDeltaEtaVetoBarrelCharged && std::abs(fDeltaPhi) < fRectangleDeltaPhiVetoBarrelCharged){
 	    return -999.;
 	}
       }
@@ -666,7 +666,7 @@ float  PFIsolationEstimator::isChargedParticleVetoed(const reco::PFCandidate* pf
 	  return -999.;
       }
       if(bRectangleVetoEndcap){
-	if(abs(fDeltaEta) < fRectangleDeltaEtaVetoEndcapCharged && abs(fDeltaPhi) < fRectangleDeltaPhiVetoEndcapCharged){
+	if(std::abs(fDeltaEta) < fRectangleDeltaEtaVetoEndcapCharged && std::abs(fDeltaPhi) < fRectangleDeltaPhiVetoEndcapCharged){
 	  return -999.;
 	}
       }
@@ -736,7 +736,7 @@ reco::VertexRef  PFIsolationEstimator::chargedHadronVertex(  edm::Handle< reco::
     index = 0;
     for( reco::VertexCollection::const_iterator  iv=vertices.begin(); iv!=vertices.end(); ++iv, ++index) {
 
-      double dz = fabs(ztrack - iv->z());
+      double dz = std::abs(ztrack - iv->z());
       if(dz<dzmin) {
         dzmin = dz;
         iVertex = index;
