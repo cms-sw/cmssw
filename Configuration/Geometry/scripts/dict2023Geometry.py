@@ -3,6 +3,7 @@ maxsections = 5
 commonDict = {
     "abbrev" : "O",
     "name" : "common",
+    "default" : 1,
     "O1" : {
         1 : [
             'Geometry/CMSCommonData/data/materials.xml',
@@ -33,77 +34,7 @@ commonDict = {
 trackerDict = {
     "abbrev" : "T",
     "name" : "tracker",
-    "T1" : {
-        1 : [
-            'Geometry/TrackerCommonData/data/PhaseII/trackerParameters.xml',
-            'Geometry/TrackerCommonData/data/pixfwdCommon.xml',
-            'Geometry/TrackerCommonData/data/PhaseII/TiltedTracker/pixfwdMaterials.xml',
-            'Geometry/TrackerCommonData/data/PhaseII/TiltedTracker/pixfwdCylinder.xml', 
-            'Geometry/TrackerCommonData/data/PhaseII/TiltedTracker/pixfwd.xml', 
-            'Geometry/TrackerCommonData/data/PhaseII/TiltedTracker/pixfwdDisks.xml', 
-            'Geometry/TrackerCommonData/data/PhaseII/TiltedTracker/pixfwdInnerDisk1.xml',
-            'Geometry/TrackerCommonData/data/PhaseII/TiltedTracker/pixfwdInnerDisk2.xml',
-            'Geometry/TrackerCommonData/data/PhaseII/TiltedTracker/pixfwdInnerDisk3.xml',
-            'Geometry/TrackerCommonData/data/PhaseII/TiltedTracker/pixfwdInnerDisk4.xml',
-            'Geometry/TrackerCommonData/data/PhaseII/TiltedTracker/pixfwdInnerDisk5.xml',
-            'Geometry/TrackerCommonData/data/PhaseII/TiltedTracker/pixfwdInnerDisk6.xml',
-            'Geometry/TrackerCommonData/data/PhaseII/TiltedTracker/pixfwdInnerDisk7.xml',
-            'Geometry/TrackerCommonData/data/PhaseII/TiltedTracker/pixfwdOuterDisk1.xml',
-            'Geometry/TrackerCommonData/data/PhaseII/TiltedTracker/pixfwdOuterDisk2.xml',
-            'Geometry/TrackerCommonData/data/PhaseII/TiltedTracker/pixfwdOuterDisk3.xml',
-            'Geometry/TrackerCommonData/data/PhaseII/TiltedTracker/pixfwdOuterDisk4.xml',
-            'Geometry/TrackerCommonData/data/PhaseII/TiltedTracker/pixfwdOuterDisk5.xml',
-            'Geometry/TrackerCommonData/data/PhaseII/TiltedTracker/pixfwdOuterDisk6.xml',
-            'Geometry/TrackerCommonData/data/PhaseII/TiltedTracker/pixfwdOuterDisk7.xml',
-            'Geometry/TrackerCommonData/data/PhaseII/TiltedTracker/pixfwdOuterDisk8.xml',
-            'Geometry/TrackerCommonData/data/PhaseII/TiltedTracker/pixfwdOuterDisk9.xml',
-            'Geometry/TrackerCommonData/data/PhaseII/TiltedTracker/pixfwdOuterDisk10.xml',
-            'Geometry/TrackerCommonData/data/PhaseII/TiltedTracker/pixfwdblade1.xml',
-            'Geometry/TrackerCommonData/data/PhaseII/TiltedTracker/pixfwdblade2.xml',
-            'Geometry/TrackerCommonData/data/PhaseII/TiltedTracker/pixfwdblade3.xml',
-            'Geometry/TrackerCommonData/data/PhaseII/TiltedTracker/pixfwdblade4.xml',
-            'Geometry/TrackerCommonData/data/PhaseII/TiltedTracker/pixfwdblade5.xml',
-            'Geometry/TrackerCommonData/data/PhaseII/TiltedTracker/pixfwdblade6.xml',
-            'Geometry/TrackerCommonData/data/PhaseII/TiltedTracker/pixfwdblade7.xml',
-            'Geometry/TrackerCommonData/data/PhaseII/TiltedTracker/pixfwdblade8.xml',
-            'Geometry/TrackerCommonData/data/PhaseII/TiltedTracker/pixfwdblade9.xml',
-            'Geometry/TrackerCommonData/data/PhaseII/TiltedTracker/pixfwdblade10.xml',
-            'Geometry/TrackerCommonData/data/PhaseI/pixbarmaterial.xml', 
-            'Geometry/TrackerCommonData/data/PhaseI/pixbarladder.xml', 
-            'Geometry/TrackerCommonData/data/PhaseI/pixbarladderfull0.xml', 
-            'Geometry/TrackerCommonData/data/PhaseI/pixbarladderfull1.xml', 
-            'Geometry/TrackerCommonData/data/PhaseI/pixbarladderfull2.xml', 
-            'Geometry/TrackerCommonData/data/PhaseI/pixbarladderfull3.xml', 
-            'Geometry/TrackerCommonData/data/PhaseI/pixbarlayer.xml', 
-            'Geometry/TrackerCommonData/data/PhaseI/pixbarlayer0.xml', 
-            'Geometry/TrackerCommonData/data/PhaseI/pixbarlayer1.xml', 
-            'Geometry/TrackerCommonData/data/PhaseI/pixbarlayer2.xml', 
-            'Geometry/TrackerCommonData/data/PhaseI/pixbarlayer3.xml', 
-            'Geometry/TrackerCommonData/data/PhaseII/TiltedTracker/pixbar.xml', 
-            'Geometry/TrackerCommonData/data/trackermaterial.xml',
-            'Geometry/TrackerCommonData/data/PhaseII/TiltedTracker/tracker.xml',
-            'Geometry/TrackerCommonData/data/PhaseII/TiltedTracker/trackerbar.xml',
-            'Geometry/TrackerCommonData/data/PhaseII/TiltedTracker/trackerfwd.xml',
-            'Geometry/TrackerCommonData/data/PhaseII/TiltedTracker/trackerStructureTopology.xml',
-            'Geometry/TrackerSimData/data/PhaseII/TiltedTracker/trackersens.xml',
-            'Geometry/TrackerRecoData/data/PhaseII/TiltedTracker/trackerRecoMaterial.xml',
-            'Geometry/TrackerSimData/data/PhaseII/TiltedTracker/trackerProdCuts.xml',
-            'Geometry/TrackerSimData/data/trackerProdCutsBEAM.xml',
-        ],
-        "sim" : [
-            'from Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi import *',
-            'from SLHCUpgradeSimulations.Geometry.fakeConditions_phase2TkTilted_cff import *',
-        ],
-        "reco" : [
-            'from Geometry.CommonDetUnit.globalTrackingGeometry_cfi import *',
-            'from RecoTracker.GeometryESProducer.TrackerRecoGeometryESProducer_cfi import *',
-            'from Geometry.TrackerGeometryBuilder.trackerParameters_cfi import *',
-            'from Geometry.TrackerNumberingBuilder.trackerTopology_cfi import *',
-            'from Geometry.TrackerGeometryBuilder.idealForDigiTrackerGeometry_cff import *',
-            'trackerGeometry.applyAlignment = cms.bool(False)',
-        ],
-        "era" : "phase2_tracker, trackingPhase2PU140",
-    },
+    "default" : 3,
     "T2" : {
         1 : [
             'Geometry/TrackerCommonData/data/PhaseII/trackerParameters.xml',
@@ -214,6 +145,7 @@ trackerDict = {
 caloDict = {
     "abbrev" : "C",
     "name" : "calo",
+    "default" : 1,
     "C1" : {
         1: [
             'Geometry/EcalCommonData/data/PhaseII/ShortEE/eregalgo.xml',
@@ -428,6 +360,7 @@ caloDict = {
 muonDict = {
     "abbrev" : "M",
     "name" : "muon",
+    "default" : 1,
     "M1" : {
         1 : [
             'Geometry/MuonCommonData/data/v1/mbCommon.xml',
@@ -519,6 +452,7 @@ muonDict = {
 forwardDict = {
     "abbrev" : "F",
     "name" : "forward",
+    "default" : 1,
     "F1" : {
         1 : [
             'Geometry/ForwardCommonData/data/v2/forwardshield.xml',
@@ -549,6 +483,7 @@ forwardDict = {
 timingDict = {
     "abbrev" : "I",
     "name" : "timing",
+    "default" : 1,
     "I1" : {},
     "I2" : {
         1 : [
@@ -577,11 +512,12 @@ timingDict = {
 allDicts = [ commonDict, trackerDict, caloDict, muonDict, forwardDict, timingDict ]
 
 detectorVersionDict = {
-    ("O1","T1","C1","M1","F1","I1") : "D1",
+    ("O1","T3","C1","M1","F1","I1") : "D7",
     ("O1","T2","C1","M1","F1","I1") : "D2",
-    ("O1","T1","C2","M1","F1","I1") : "D3",
     ("O1","T3","C2","M1","F1","I1") : "D4",
-    ("O1","T1","C2","M1","F1","I2") : "D5",
-    ("O1","T1","C1","M2","F1","I1") : "D6",
+    ("O1","T3","C2","M1","F1","I2") : "D8",
+    ("O1","T3","C1","M2","F1","I1") : "D9",
 }
 
+deprecatedDets = [ "D1", "D3", "D5", "D6" ]
+deprecatedSubdets = [ "T1" ]
