@@ -92,26 +92,26 @@ SiPixelPhase1DigisHitmap = DefaultHistoDigiCluster.clone(
   ylabel = "#digis",
   dimensions = 0,
   specs = VPSet(
-    Specification(PerModule).groupBy("PXBarrel/Shell/PXLayer/PXLadder/P1PXModuleName/row/col")
-                   .groupBy("PXBarrel/Shell/PXLayer/PXLadder/P1PXModuleName/row", "EXTEND_Y")
-                   .groupBy("PXBarrel/Shell/PXLayer/PXLadder/P1PXModuleName", "EXTEND_X")
+    Specification(PerModule).groupBy("PXBarrel/Shell/PXLayer/PXLadder/PXModuleName/row/col")
+                   .groupBy("PXBarrel/Shell/PXLayer/PXLadder/PXModuleName/row", "EXTEND_Y")
+                   .groupBy("PXBarrel/Shell/PXLayer/PXLadder/PXModuleName", "EXTEND_X")
                    .save(),
-    Specification(PerModule).groupBy("PXBarrel/Shell/PXLayer/PXLadder/P1PXModuleName/col")
-                   .groupBy("PXBarrel/Shell/PXLayer/PXLadder/P1PXModuleName", "EXTEND_X")
+    Specification(PerModule).groupBy("PXBarrel/Shell/PXLayer/PXLadder/PXModuleName/col")
+                   .groupBy("PXBarrel/Shell/PXLayer/PXLadder/PXModuleName", "EXTEND_X")
                    .save(),
-    Specification(PerModule).groupBy("PXBarrel/Shell/PXLayer/PXLadder/P1PXModuleName/row")
-                   .groupBy("PXBarrel/Shell/PXLayer/PXLadder/P1PXModuleName", "EXTEND_X")
+    Specification(PerModule).groupBy("PXBarrel/Shell/PXLayer/PXLadder/PXModuleName/row")
+                   .groupBy("PXBarrel/Shell/PXLayer/PXLadder/PXModuleName", "EXTEND_X")
                    .save(),
 
-    Specification(PerModule).groupBy("PXForward/HalfCylinder/PXDisk/PXRing/PXBlade/P1PXModuleName/row/col")
-                   .groupBy("PXForward/HalfCylinder/PXDisk/PXRing/PXBlade/P1PXModuleName/row", "EXTEND_Y")
-                   .groupBy("PXForward/HalfCylinder/PXDisk/PXRing/PXBlade/P1PXModuleName", "EXTEND_X")
+    Specification(PerModule).groupBy("PXForward/HalfCylinder/PXDisk/PXRing/PXBlade/PXModuleName/row/col")
+                   .groupBy("PXForward/HalfCylinder/PXDisk/PXRing/PXBlade/PXModuleName/row", "EXTEND_Y")
+                   .groupBy("PXForward/HalfCylinder/PXDisk/PXRing/PXBlade/PXModuleName", "EXTEND_X")
                    .save(),
-    Specification(PerModule).groupBy("PXForward/HalfCylinder/PXDisk/PXRing/PXBlade/P1PXModuleName/col")
-                   .groupBy("PXForward/HalfCylinder/PXDisk/PXRing/PXBlade/P1PXModuleName", "EXTEND_X")
+    Specification(PerModule).groupBy("PXForward/HalfCylinder/PXDisk/PXRing/PXBlade/PXModuleName/col")
+                   .groupBy("PXForward/HalfCylinder/PXDisk/PXRing/PXBlade/PXModuleName", "EXTEND_X")
                    .save(),
-    Specification(PerModule).groupBy("PXForward/HalfCylinder/PXDisk/PXRing/PXBlade/P1PXModuleName/row")
-                   .groupBy("PXForward/HalfCylinder/PXDisk/PXRing/PXBlade/P1PXModuleName", "EXTEND_X")
+    Specification(PerModule).groupBy("PXForward/HalfCylinder/PXDisk/PXRing/PXBlade/PXModuleName/row")
+                   .groupBy("PXForward/HalfCylinder/PXDisk/PXRing/PXBlade/PXModuleName", "EXTEND_X")
                    .save()
 
   )

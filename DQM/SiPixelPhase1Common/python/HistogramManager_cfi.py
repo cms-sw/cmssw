@@ -3,12 +3,17 @@ import FWCore.ParameterSet.Config as cms
 from DQM.SiPixelPhase1Common.SpecificationBuilder_cfi import Specification, parent
 
 SiPixelPhase1Geometry = cms.PSet(
+  # SPixel*Name and friends use the isUpgrade flag, so we also have it as a setting here.
+  isUpgrade = cms.bool(True),
+
   # Blades are numbered from 1 to n_inner_ring_blades for the inner ring, and 
   # from n_inner_ring_blades+1 to <max_blade> for the outer ring
   n_inner_ring_blades = cms.int32(22), 
 
   # module geometry. The phase1 detector has only one sort, so this is easy.
   # the values are assumed to be 0-based, unlike most others.
+  # TODO: maybe we can use the SiPixelFrameReverter and friends to do these
+  # conversions without these parameters here.
   module_rows = cms.int32(160),
   module_cols = cms.int32(416),
   roc_rows = cms.int32(80),
@@ -22,7 +27,7 @@ SiPixelPhase1Geometry = cms.PSet(
   # to select a different cabling map (for pilotBlade)
   CablingMapLabel = cms.string(""),
 
-  # online-secific things
+  # online-specific things
   onlineblock = cms.int32(20),    # #LS after which histograms are reset
   n_onlineblocks = cms.int32(100),  # #blocks to keep for histograms with history
 
@@ -118,8 +123,8 @@ StandardSpecifications1D = [
                             .saveAll(),
     Specification(PerLayer1D).groupBy("PXBarrel/Shell/PXLayer").save(),
     Specification(PerLayer1D).groupBy("PXForward/HalfCylinder/PXDisk/PXRing").save(),
-    Specification(PerModule).groupBy("PXBarrel/Shell/PXLayer/PXLadder/P1PXModuleName").save(),
-    Specification(PerModule).groupBy("PXForward/HalfCylinder/PXDisk/PXRing/PXBlade/P1PXModuleName").save(),
+    Specification(PerModule).groupBy("PXBarrel/Shell/PXLayer/PXLadder/PXModuleName").save(),
+    Specification(PerModule).groupBy("PXForward/HalfCylinder/PXDisk/PXRing/PXBlade/PXModuleName").save(),
 ]
 
 StandardSpecificationTrend = [
@@ -157,9 +162,9 @@ StandardSpecifications1D_Num = [
                             .reduce("MEAN")
                             .groupBy("PXBarrel/Shell/PXLayer", "EXTEND_X")
                             .saveAll(),
-    Specification(PerModule).groupBy("PXBarrel/Shell/PXLayer/PXLadder/P1PXModuleName/Event")
+    Specification(PerModule).groupBy("PXBarrel/Shell/PXLayer/PXLadder/PXModuleName/Event")
                             .reduce("COUNT")
-                            .groupBy("PXBarrel/Shell/PXLayer/PXLadder/P1PXModuleName")
+                            .groupBy("PXBarrel/Shell/PXLayer/PXLadder/PXModuleName")
                             .save(),
     Specification(PerLadder).groupBy("PXForward/HalfCylinder/PXDisk/PXRing/PXBlade/DetId/Event") 
                             .reduce("COUNT") # per-event counting
@@ -167,9 +172,9 @@ StandardSpecifications1D_Num = [
                             .reduce("MEAN")
                             .groupBy("PXForward/HalfCylinder/PXDisk/PXRing", "EXTEND_X")
                             .saveAll(),
-    Specification(PerModule).groupBy("PXForward/HalfCylinder/PXDisk/PXRing/PXBlade/P1PXModuleName/Event")
+    Specification(PerModule).groupBy("PXForward/HalfCylinder/PXDisk/PXRing/PXBlade/PXModuleName/Event")
                             .reduce("COUNT")
-                            .groupBy("PXForward/HalfCylinder/PXDisk/PXRing/PXBlade/P1PXModuleName")
+                            .groupBy("PXForward/HalfCylinder/PXDisk/PXRing/PXBlade/PXModuleName")
                             .save(),
 ]
 
