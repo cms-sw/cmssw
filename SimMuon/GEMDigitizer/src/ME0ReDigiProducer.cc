@@ -131,26 +131,24 @@ void ME0ReDigiProducer::buildDigis(const ME0DigiPreRecoCollection & input_digis,
       if (reDigitizeOnlyMuons_ and fabs(me0Digi.pdgid()) != 13) continue;
       if (!reDigitizeNeutronBkg_ and !me0Digi.prompt()) continue;
 
-      if (!me0Digi.prompt()){
-	// scale background hits for luminosity
+      // scale background hits for luminosity
+      if (!me0Digi.prompt())
 	if (CLHEP::RandFlat::shoot(engine) > instLumi_*1.0/5) continue;
-	// dont need to smear background hits
-	output_digis.insertDigi(detId, me0Digi);
-	continue;
-      }
       
       edm::LogVerbatim("ME0ReDigiProducer")
         << "\tPassed selection" << std::endl;
 
       // time resolution
       float newTof(me0Digi.tof());
-      if (smearTiming_) newTof += CLHEP::RandGaussQ::shoot(engine, 0, timeResolution_);
+      if (me0Digi.prompt() and smearTiming_) newTof += CLHEP::RandGaussQ::shoot(engine, 0, timeResolution_);
 
       // arrival time in ns
       //const float t0(centralTOF_[ nPartitions_ * (detId.layer() -1) + detId.roll() - 1 ]);
       int index = nPartitions_ * (detId.layer() -1) + detId.roll() - 1;
       if(detId.roll() == 0) index = nPartitions_ * (detId.layer() -1) + detId.roll();
-      //std::cout<<"size "<<centralTOF_.size()<<" nPartitions "<<nPartitions_<<" layer "<<detId.layer()<<" roll "<<detId.roll()<<" index "<<index<<std::endl;
+      edm::LogVerbatim("ME0ReDigiProducer")
+	<<"size "<<centralTOF_.size()<<" nPartitions "<<nPartitions_<<" layer "<<detId.layer()<<" roll "<<detId.roll()<<" index "<<index<<std::endl;
+      
       const float t0(centralTOF_[ index ]);      
       const float correctedNewTof(newTof - t0);
 
@@ -159,7 +157,7 @@ void ME0ReDigiProducer::buildDigis(const ME0DigiPreRecoCollection & input_digis,
 
       // calculate the new time in ns
       float newTime = correctedNewTof;
-      if (discretizeTiming_){
+      if (me0Digi.prompt() and discretizeTiming_){
         for (int iBunch = minBunch_ - 2; iBunch <= maxBunch_ + 2; ++iBunch){
           if (-12.5 + iBunch*25 < newTime and newTime <= 12.5 + iBunch*25){
             newTime = iBunch * 25;
@@ -182,7 +180,7 @@ void ME0ReDigiProducer::buildDigis(const ME0DigiPreRecoCollection & input_digis,
       const float oldR(oldGP.perp());
 
       float newR = oldR;
-      if (smearRadial_  and detId.roll() > 0)
+      if (me0Digi.prompt() and smearRadial_  and detId.roll() > 0)
 	newR = CLHEP::RandGaussQ::shoot(engine, oldR, radialResolution_);
       
       // calculate the new position in local coordinates
@@ -191,7 +189,9 @@ void ME0ReDigiProducer::buildDigis(const ME0DigiPreRecoCollection & input_digis,
       
       // new y position after smearing
       const float targetYResolution(sqrt(newYResolution_*newYResolution_ - oldYResolution_ * oldYResolution_));
-      float newLPy(CLHEP::RandGaussQ::shoot(engine, radialSmearedLP.y(), targetYResolution));
+      float newLPy = radialSmearedLP.y();
+      if (me0Digi.prompt())
+	newLPy = CLHEP::RandGaussQ::shoot(engine, radialSmearedLP.y(), targetYResolution);
       
       const ME0EtaPartition* newPart = roll;
       LocalPoint newLP(radialSmearedLP.x(), newLPy, radialSmearedLP.z());
@@ -229,7 +229,9 @@ void ME0ReDigiProducer::buildDigis(const ME0DigiPreRecoCollection & input_digis,
       
       // new x position after smearing
       const float targetXResolution(sqrt(newXResolutionCor*newXResolutionCor - oldXResolution_ * oldXResolution_));
-      float newLPx(CLHEP::RandGaussQ::shoot(engine, newLP.x(), targetXResolution));
+      float newLPx = newLP.x();
+      if (me0Digi.prompt())
+	newLPx = CLHEP::RandGaussQ::shoot(engine, newLP.x(), targetXResolution);
 
       // update local point after x smearing
       newLP = LocalPoint(newLPx, newLP.y(), newLP.z());
