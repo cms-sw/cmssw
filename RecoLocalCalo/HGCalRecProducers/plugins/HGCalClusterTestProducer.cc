@@ -19,7 +19,6 @@
 
 #include "RecoLocalCalo/HGCalRecAlgos/interface/HGCalImagingAlgo.h"
 #include "RecoLocalCalo/HGCalRecAlgos/interface/HGCalDepthPreClusterer.h"
-#include "RecoLocalCalo/HGCalRecAlgos/interface/HGCalMultiCluster.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
@@ -43,6 +42,7 @@ class HGCalClusterTestProducer : public edm::stream::EDProducer<> {
   reco::CaloCluster::AlgoId algoId;
 
   std::unique_ptr<HGCalImagingAlgo> algo;
+  std::unique_ptr<HGCalDepthPreClusterer> multicluster_algo;
   bool doSharing;
   std::string detector;
 
@@ -60,21 +60,23 @@ HGCalClusterTestProducer::HGCalClusterTestProducer(const edm::ParameterSet &ps) 
   double ecut = ps.getParameter<double>("ecut");
   double delta_c = ps.getParameter<double>("deltac");
   double kappa = ps.getParameter<double>("kappa");
-
+  double multicluster_radius = ps.getParameter<double>("multiclusterRadius");
+  double minClusters = ps.getParameter<unsigned>("minClusters");
+  
   
   if(detector=="all") {
-    hits_ee_token = consumes<HGCRecHitCollection>(edm::InputTag("HGCalRecHit:HGCEERecHits"));
-    hits_fh_token = consumes<HGCRecHitCollection>(edm::InputTag("HGCalRecHit:HGCHEFRecHits"));
-    hits_bh_token = consumes<HGCRecHitCollection>(edm::InputTag("HGCalRecHit:HGCHEBRecHits"));
+    hits_ee_token = consumes<HGCRecHitCollection>(ps.getParameter<edm::InputTag>("HGCEEInput"));
+    hits_fh_token = consumes<HGCRecHitCollection>(ps.getParameter<edm::InputTag>("HGCFHInput"));
+    hits_bh_token = consumes<HGCRecHitCollection>(ps.getParameter<edm::InputTag>("HGCBHInput"));
     algoId = reco::CaloCluster::hgcal_mixed;
   }else if(detector=="EE") {
-    hits_ee_token = consumes<HGCRecHitCollection>(edm::InputTag("HGCalRecHit:HGCEERecHits"));
+    hits_ee_token = consumes<HGCRecHitCollection>(ps.getParameter<edm::InputTag>("HGCEEInput"));
     algoId = reco::CaloCluster::hgcal_em;
   }else if(detector=="FH") {
-    hits_fh_token = consumes<HGCRecHitCollection>(edm::InputTag("HGCalRecHit:HGCHEFRecHits"));
+    hits_fh_token = consumes<HGCRecHitCollection>(ps.getParameter<edm::InputTag>("HGCFHInput"));
     algoId = reco::CaloCluster::hgcal_had;
   } else {
-    hits_bh_token = consumes<HGCRecHitCollection>(edm::InputTag("HGCalRecHit:HGCHEBRecHits"));
+    hits_bh_token = consumes<HGCRecHitCollection>(ps.getParameter<edm::InputTag>("HGCBHInput"));
     algoId = reco::CaloCluster::hgcal_had;
   }
 
@@ -86,6 +88,10 @@ HGCalClusterTestProducer::HGCalClusterTestProducer(const edm::ParameterSet &ps) 
     algo = std::make_unique<HGCalImagingAlgo>(delta_c, kappa, ecut, algoId, verbosity);
   }
 
+  auto sumes = consumesCollector();
+
+  multicluster_algo = std::make_unique<HGCalDepthPreClusterer>(ps, sumes, multicluster_radius, minClusters);
+
   // hydraTokens[0] = consumes<std::vector<reco::PFCluster> >( edm::InputTag("FakeClusterGen") );
   // hydraTokens[1] = consumes<std::vector<reco::PFCluster> >( edm::InputTag("FakeClusterCaloFace") );
 
@@ -93,6 +99,9 @@ HGCalClusterTestProducer::HGCalClusterTestProducer(const edm::ParameterSet &ps) 
 
   produces<std::vector<reco::BasicCluster> >();
   produces<std::vector<reco::BasicCluster> >("sharing");
+  
+  produces<std::vector<reco::HGCalMultiCluster> >();
+  produces<std::vector<reco::HGCalMultiCluster> >("sharing");
 }
 
 void HGCalClusterTestProducer::produce(edm::Event& evt, 
@@ -109,6 +118,9 @@ void HGCalClusterTestProducer::produce(edm::Event& evt,
   algo->reset();
 
   algo->getEventSetup(es);
+
+  multicluster_algo->getEvent(evt);
+  multicluster_algo->getEventSetup(es);
 
   switch(algoId){
   case reco::CaloCluster::hgcal_em:
@@ -152,8 +164,32 @@ void HGCalClusterTestProducer::produce(edm::Event& evt,
   //   std::cout << "hydra " << names[i] << " size : " << hydra[i]->size() << std::endl;
   // }
 
-  evt.put(std::move(clusters));
-  evt.put(std::move(clusters_sharing),"sharing");
+  
+
+  auto clusterHandle = evt.put(std::move(clusters));
+  auto clusterHandleSharing = evt.put(std::move(clusters_sharing),"sharing");
+
+  edm::PtrVector<reco::BasicCluster> clusterPtrs, clusterPtrsSharing;
+  for( unsigned i = 0; i < clusterHandle->size(); ++i ) {
+    edm::Ptr<reco::BasicCluster> ptr(clusterHandle,i);
+    clusterPtrs.push_back(ptr);
+  }
+  
+  for( unsigned i = 0; i < clusterHandleSharing->size(); ++i ) {
+    edm::Ptr<reco::BasicCluster> ptr(clusterHandleSharing,i);
+    clusterPtrsSharing.push_back(ptr);
+  }
+
+  std::unique_ptr<std::vector<reco::HGCalMultiCluster> > 
+    multiclusters( new std::vector<reco::HGCalMultiCluster> ), 
+    multiclusters_sharing( new std::vector<reco::HGCalMultiCluster> );
+
+  *multiclusters = std::move(multicluster_algo->makePreClusters(clusterPtrs));
+  *multiclusters_sharing = std::move(multicluster_algo->makePreClusters(clusterPtrsSharing));
+  
+  evt.put(std::move(multiclusters));
+  evt.put(std::move(multiclusters_sharing),"sharing");
+
 }
 
 #endif
