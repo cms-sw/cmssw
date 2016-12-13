@@ -3,7 +3,7 @@ import sys
 import FWCore.ParameterSet.VarParsing as VarParsing
 from FWCore.Utilities.Enumerate import Enumerate
 
-varType = Enumerate ("Run1 2015 2017 2019 2023D1 2023D10 2023D3 2023D4 2023D5 MaPSA")
+varType = Enumerate ("Run1 2015 2017 2019 2023D7 2023D10 2023D4 2023D8 MaPSA")
 
 def help():
    print "Usage: cmsRun dumpFWRecoGeometry_cfg.py  tag=TAG "
@@ -59,11 +59,11 @@ def recoGeoLoad(score):
        process.DTGeometryESModule.applyAlignment = cms.bool(False)
        process.CSCGeometryESModule.applyAlignment = cms.bool(False)
        
-    elif  score == "2023D1":
+    elif  score == "2023D7":
        process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
        from Configuration.AlCa.autoCond import autoCond
        process.GlobalTag.globaltag = autoCond['run2_mc']
-       process.load('Configuration.Geometry.GeometryExtended2023D1Reco_cff')
+       process.load('Configuration.Geometry.GeometryExtended2023D7Reco_cff')
        
     elif  score == "2023D10":
        process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
@@ -71,23 +71,17 @@ def recoGeoLoad(score):
        process.GlobalTag.globaltag = autoCond['run2_mc']
        process.load('Configuration.Geometry.GeometryExtended2023D10Reco_cff')
        
-    elif  score == "2023D3":
-       process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-       from Configuration.AlCa.autoCond import autoCond
-       process.GlobalTag.globaltag = autoCond['run2_mc']
-       process.load('Configuration.Geometry.GeometryExtended2023D3Reco_cff')
-
     elif  score == "2023D4":
        process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
        from Configuration.AlCa.autoCond import autoCond
        process.GlobalTag.globaltag = autoCond['run2_mc']
        process.load('Configuration.Geometry.GeometryExtended2023D4Reco_cff')
 
-    elif  score == "2023D5":
+    elif  score == "2023D8":
        process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
        from Configuration.AlCa.autoCond import autoCond
        process.GlobalTag.globaltag = autoCond['run2_mc']
-       process.load('Configuration.Geometry.GeometryExtended2023D5Reco_cff')
+       process.load('Configuration.Geometry.GeometryExtended2023D8Reco_cff')
        
     elif score == "MaPSA":
        process.load('Geometry.TrackerGeometryBuilder.idealForDigiTrackerGeometry_cff')
