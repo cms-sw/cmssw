@@ -114,7 +114,7 @@ class JetCorrectorParameters
         // Maps a set of lower bounds for the first N-1 dimensions to the range of lower bound indices mBinBoundaries for the N dimension
         std::unordered_map<tuple_type_Nm1, std::pair<size_t,size_t> >              mMap;
 
-      COND_TRANSIENT;
+      //COND_TRANSIENT;
     };
      
     //-------- Constructors --------------
