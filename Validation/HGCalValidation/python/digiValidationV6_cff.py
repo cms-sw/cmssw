@@ -8,4 +8,6 @@ hgcalDigiValidationHEF = hgcalDigiValidationEE.clone(
 
 hgcalDigiValidationHEB = hgcalDigiValidationEE.clone(
     DetectorName = cms.string("HCal"),
-    DigiSource   = cms.InputTag("mix","HGCDigisHEback"))
+    DigiSource   = cms.InputTag("simHcalDigis","HBHEQIE11DigiCollection"),
+    ifHCAL       = cms.bool(True),
+    SampleIndx   = cms.untracked.int32(5))

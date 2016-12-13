@@ -52,6 +52,7 @@ HGCalDigiValidation::HGCalDigiValidation(const edm::ParameterSet& iConfig) :
   nameDetector_(iConfig.getParameter<std::string>("DetectorName")),
   verbosity_(iConfig.getUntrackedParameter<int>("Verbosity",0)),
   SampleIndx_(iConfig.getUntrackedParameter<int>("SampleIndx",5)) {
+  ifHCAL_   = iConfig.getParameter<bool>("ifHCAL");
   auto temp = iConfig.getParameter<edm::InputTag>("DigiSource");
   if( nameDetector_ == "HGCalEESensitive" ) {
     digiSource_    = consumes<HGCEEDigiCollection>(temp);
@@ -59,8 +60,8 @@ HGCalDigiValidation::HGCalDigiValidation(const edm::ParameterSet& iConfig) :
               nameDetector_ == "HGCalHEScintillatorSensitive" ) {
     digiSource_    = consumes<HGCHEDigiCollection>(temp);
   } else if ( nameDetector_ == "HCal" ) {
-    digiSource_    = 
-      consumes<QIE11DigiCollection>(temp);
+    if (ifHCAL_) digiSource_ = consumes<QIE11DigiCollection>(temp);
+    else         digiSource_ = consumes<HGCBHDigiCollection>(temp);
   } else {
     throw cms::Exception("BadHGCDigiSource")
       << "HGCal DetectorName given as " << nameDetector_ << " must be: "
@@ -142,6 +143,31 @@ void HGCalDigiValidation::analyze(const edm::Event& iEvent,
       fillDigiInfo();
     } else {
       edm::LogWarning("HGCalValidation") << "HGCHEDigiCollection handle does not exist !!!";
+    }
+  } else if ((nameDetector_ == "HCal") && (!ifHCAL_)) {
+    //HGCalBH
+    edm::Handle<HGCBHDigiCollection> theHGCBHDigiContainers;
+    iEvent.getByToken(digiSource_, theHGCBHDigiContainers);
+    if (theHGCBHDigiContainers.isValid()) {
+      if (verbosity_>0) 
+	edm::LogInfo("HGCalValidation") << nameDetector_ << " with " 
+					<< theHGCBHDigiContainers->size()
+					<< " element(s)";
+      
+      for (HGCBHDigiCollection::const_iterator it =theHGCBHDigiContainers->begin();
+	   it !=theHGCBHDigiContainers->end(); ++it) {
+	ntot++; nused++;
+	HcalDetId  detId     = (it->id());
+	int        layer     = detId.depth();
+	HGCSample  hgcSample = it->sample(SampleIndx_);
+	uint16_t   gain      = hgcSample.toa();
+	uint16_t   adc       = hgcSample.data();
+	double     charge    = adc*gain;
+	digiValidation(detId, geom1, layer, adc, charge);
+      }
+      fillDigiInfo();
+    } else {
+      edm::LogWarning("HGCalValidation") << "HGCBHDigiCollection handle does not exist !!!";
     }
   } else if (nameDetector_ == "HCal") {
     //HE
