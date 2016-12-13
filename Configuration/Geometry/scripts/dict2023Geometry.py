@@ -35,7 +35,7 @@ trackerDict = {
     "abbrev" : "T",
     "name" : "tracker",
     "default" : 3,
-    "T2" : {
+    "T4" : {
         1 : [
 	    'Geometry/TrackerCommonData/data/PhaseII/trackerParameters.xml',
             'Geometry/TrackerCommonData/data/pixfwdCommon.xml',
@@ -477,11 +477,11 @@ allDicts = [ commonDict, trackerDict, caloDict, muonDict, forwardDict, timingDic
 
 detectorVersionDict = {
     ("O1","T3","C1","M1","F1","I1") : "D7",
-    ("O1","T2","C1","M1","F1","I1") : "D10",
+    ("O1","T4","C1","M1","F1","I1") : "D10",
     ("O1","T3","C2","M1","F1","I1") : "D4",
     ("O1","T3","C2","M1","F1","I2") : "D8",
     ("O1","T3","C1","M2","F1","I1") : "D9",
 }
 
 deprecatedDets = [ "D1", "D2", "D3", "D5", "D6" ]
-deprecatedSubdets = [ "T1" ]
+deprecatedSubdets = [ "T1", "T4" ]
