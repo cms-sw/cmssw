@@ -1,11 +1,11 @@
-# /dev/CMSSW_8_1_0/PIon/V5 (CMSSW_8_1_0_HLT1)
+# /dev/CMSSW_8_1_0/PIon/V6 (CMSSW_8_1_0_HLT1)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLTPIon" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_8_1_0/PIon/V5')
+  tableName = cms.string('/dev/CMSSW_8_1_0/PIon/V6')
 )
 
 process.HLTPSetJetCoreStepTrajectoryFilter = cms.PSet( 
@@ -3635,40 +3635,6 @@ process.hltGtStage2Digis = cms.EDProducer( "L1TRawToDigi",
     FWId = cms.uint32( 0 ),
     debug = cms.untracked.bool( False ),
     FedIds = cms.vint32( 1404 ),
-    lenAMCHeader = cms.untracked.int32( 8 ),
-    lenAMCTrailer = cms.untracked.int32( 0 ),
-    FWOverride = cms.bool( False )
-)
-process.hltCaloStage2Digis = cms.EDProducer( "L1TRawToDigi",
-    lenSlinkTrailer = cms.untracked.int32( 8 ),
-    lenAMC13Header = cms.untracked.int32( 8 ),
-    CTP7 = cms.untracked.bool( False ),
-    lenAMC13Trailer = cms.untracked.int32( 8 ),
-    Setup = cms.string( "stage2::CaloSetup" ),
-    MinFeds = cms.uint32( 0 ),
-    InputLabel = cms.InputTag( "rawDataCollector" ),
-    lenSlinkHeader = cms.untracked.int32( 8 ),
-    MTF7 = cms.untracked.bool( False ),
-    FWId = cms.uint32( 0 ),
-    debug = cms.untracked.bool( False ),
-    FedIds = cms.vint32( 1360, 1366 ),
-    lenAMCHeader = cms.untracked.int32( 8 ),
-    lenAMCTrailer = cms.untracked.int32( 0 ),
-    FWOverride = cms.bool( False )
-)
-process.hltGmtStage2Digis = cms.EDProducer( "L1TRawToDigi",
-    lenSlinkTrailer = cms.untracked.int32( 8 ),
-    lenAMC13Header = cms.untracked.int32( 8 ),
-    CTP7 = cms.untracked.bool( False ),
-    lenAMC13Trailer = cms.untracked.int32( 8 ),
-    Setup = cms.string( "stage2::GMTSetup" ),
-    MinFeds = cms.uint32( 0 ),
-    InputLabel = cms.InputTag( "rawDataCollector" ),
-    lenSlinkHeader = cms.untracked.int32( 8 ),
-    MTF7 = cms.untracked.bool( False ),
-    FWId = cms.uint32( 0 ),
-    debug = cms.untracked.bool( False ),
-    FedIds = cms.vint32( 1402 ),
     lenAMCHeader = cms.untracked.int32( 8 ),
     lenAMCTrailer = cms.untracked.int32( 0 ),
     FWOverride = cms.bool( False )
@@ -13274,21 +13240,21 @@ process.hltRechitInRegionsECAL = cms.EDProducer( "HLTEcalRecHitInAllL1RegionsPro
         regionEtaMargin = cms.double( 0.9 ),
         minEt = cms.double( 5.0 ),
         regionPhiMargin = cms.double( 1.2 ),
-        inputColl = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
+        inputColl = cms.InputTag( 'hltGtStage2Digis','EGamma' ),
         type = cms.string( "EGamma" )
       ),
       cms.PSet(  maxEt = cms.double( 999999.0 ),
         regionEtaMargin = cms.double( 0.9 ),
         minEt = cms.double( 170.0 ),
         regionPhiMargin = cms.double( 1.2 ),
-        inputColl = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
+        inputColl = cms.InputTag( 'hltGtStage2Digis','Jet' ),
         type = cms.string( "Jet" )
       ),
       cms.PSet(  maxEt = cms.double( 999999.0 ),
         regionEtaMargin = cms.double( 0.9 ),
         minEt = cms.double( 100.0 ),
         regionPhiMargin = cms.double( 1.2 ),
-        inputColl = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
+        inputColl = cms.InputTag( 'hltGtStage2Digis','Tau' ),
         type = cms.string( "Tau" )
       )
     ),
@@ -13327,21 +13293,21 @@ process.hltRechitInRegionsES = cms.EDProducer( "HLTEcalRecHitInAllL1RegionsProdu
         regionEtaMargin = cms.double( 0.9 ),
         minEt = cms.double( 5.0 ),
         regionPhiMargin = cms.double( 1.2 ),
-        inputColl = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
+        inputColl = cms.InputTag( 'hltGtStage2Digis','EGamma' ),
         type = cms.string( "EGamma" )
       ),
       cms.PSet(  maxEt = cms.double( 999999.0 ),
         regionEtaMargin = cms.double( 0.9 ),
         minEt = cms.double( 170.0 ),
         regionPhiMargin = cms.double( 1.2 ),
-        inputColl = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
+        inputColl = cms.InputTag( 'hltGtStage2Digis','Jet' ),
         type = cms.string( "Jet" )
       ),
       cms.PSet(  maxEt = cms.double( 999999.0 ),
         regionEtaMargin = cms.double( 0.9 ),
         minEt = cms.double( 100.0 ),
         regionPhiMargin = cms.double( 1.2 ),
-        inputColl = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
+        inputColl = cms.InputTag( 'hltGtStage2Digis','Tau' ),
         type = cms.string( "Tau" )
       )
     ),
@@ -13662,15 +13628,15 @@ process.hltEGL1SingleEG5BptxANDFilter = cms.EDFilter( "HLTEgammaL1TMatchFilterRe
     saveTags = cms.bool( True ),
     region_eta_size_ecap = cms.double( 1.0 ),
     barrel_end = cms.double( 1.4791 ),
-    l1IsolatedTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
+    l1IsolatedTag = cms.InputTag( 'hltGtStage2Digis','EGamma' ),
     candIsolatedTag = cms.InputTag( "hltEgammaCandidates" ),
-    l1CenJetsTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
+    l1CenJetsTag = cms.InputTag( 'hltGtStage2Digis','Jet' ),
     region_eta_size = cms.double( 0.522 ),
     L1SeedFilterTag = cms.InputTag( "hltL1sSingleEG5BptxAND" ),
     candNonIsolatedTag = cms.InputTag( "" ),
-    l1NonIsolatedTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
+    l1NonIsolatedTag = cms.InputTag( 'hltGtStage2Digis','EGamma' ),
     ncandcut = cms.int32( 1 ),
-    l1TausTag = cms.InputTag( 'hltCaloStage2Digis','Tau' )
+    l1TausTag = cms.InputTag( 'hltGtStage2Digis','Tau' )
 )
 process.hltEGBptxAND10EtFilter = cms.EDFilter( "HLTEgammaEtFilter",
     saveTags = cms.bool( True ),
@@ -14026,15 +13992,15 @@ process.hltEGL1SingleEG18BptxANDFilter = cms.EDFilter( "HLTEgammaL1TMatchFilterR
     saveTags = cms.bool( True ),
     region_eta_size_ecap = cms.double( 1.0 ),
     barrel_end = cms.double( 1.4791 ),
-    l1IsolatedTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
+    l1IsolatedTag = cms.InputTag( 'hltGtStage2Digis','EGamma' ),
     candIsolatedTag = cms.InputTag( "hltEgammaCandidates" ),
-    l1CenJetsTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
+    l1CenJetsTag = cms.InputTag( 'hltGtStage2Digis','Jet' ),
     region_eta_size = cms.double( 0.522 ),
     L1SeedFilterTag = cms.InputTag( "hltL1sSingleEG18BptxAND" ),
     candNonIsolatedTag = cms.InputTag( "" ),
-    l1NonIsolatedTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
+    l1NonIsolatedTag = cms.InputTag( 'hltGtStage2Digis','EGamma' ),
     ncandcut = cms.int32( 1 ),
-    l1TausTag = cms.InputTag( 'hltCaloStage2Digis','Tau' )
+    l1TausTag = cms.InputTag( 'hltGtStage2Digis','Tau' )
 )
 process.hltEGBptxAND30EtFilter = cms.EDFilter( "HLTEgammaEtFilter",
     saveTags = cms.bool( True ),
@@ -14097,15 +14063,15 @@ process.hltEGL1SingleEG14BptxANDFilter = cms.EDFilter( "HLTEgammaL1TMatchFilterR
     saveTags = cms.bool( True ),
     region_eta_size_ecap = cms.double( 1.0 ),
     barrel_end = cms.double( 1.4791 ),
-    l1IsolatedTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
+    l1IsolatedTag = cms.InputTag( 'hltGtStage2Digis','EGamma' ),
     candIsolatedTag = cms.InputTag( "hltEgammaCandidates" ),
-    l1CenJetsTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
+    l1CenJetsTag = cms.InputTag( 'hltGtStage2Digis','Jet' ),
     region_eta_size = cms.double( 0.522 ),
     L1SeedFilterTag = cms.InputTag( "hltL1sSingleEG14BptxAND" ),
     candNonIsolatedTag = cms.InputTag( "" ),
-    l1NonIsolatedTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
+    l1NonIsolatedTag = cms.InputTag( 'hltGtStage2Digis','EGamma' ),
     ncandcut = cms.int32( 1 ),
-    l1TausTag = cms.InputTag( 'hltCaloStage2Digis','Tau' )
+    l1TausTag = cms.InputTag( 'hltGtStage2Digis','Tau' )
 )
 process.hltIsoEGBptxAND20EtFilter = cms.EDFilter( "HLTEgammaEtFilter",
     saveTags = cms.bool( True ),
@@ -14184,10 +14150,10 @@ process.hltEGBptxAND20HE0p1EcalIsoFilter = cms.EDFilter( "HLTEgammaGenericFilter
     candTag = cms.InputTag( "hltIsoEGBptxAND20HEFilter" )
 )
 process.hltRegionalTowerForEgamma = cms.EDProducer( "EgammaHLTCaloTowerProducer",
-    L1NonIsoCand = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
+    L1NonIsoCand = cms.InputTag( 'hltGtStage2Digis','EGamma' ),
     EMin = cms.double( 0.8 ),
     EtMin = cms.double( 0.5 ),
-    L1IsoCand = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
+    L1IsoCand = cms.InputTag( 'hltGtStage2Digis','EGamma' ),
     useTowersInCone = cms.double( 0.8 ),
     towerCollection = cms.InputTag( "hltTowerMakerForAll" )
 )
@@ -14413,15 +14379,15 @@ process.hltPAEGL1SingleEGOrFilter = cms.EDFilter( "HLTEgammaL1TMatchFilterRegion
     saveTags = cms.bool( True ),
     region_eta_size_ecap = cms.double( 1.0 ),
     barrel_end = cms.double( 1.4791 ),
-    l1IsolatedTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
+    l1IsolatedTag = cms.InputTag( 'hltGtStage2Digis','EGamma' ),
     candIsolatedTag = cms.InputTag( "hltEgammaCandidates" ),
-    l1CenJetsTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
+    l1CenJetsTag = cms.InputTag( 'hltGtStage2Digis','Jet' ),
     region_eta_size = cms.double( 0.522 ),
     L1SeedFilterTag = cms.InputTag( "hltL1sSingleEG18BptxAND" ),
     candNonIsolatedTag = cms.InputTag( "" ),
-    l1NonIsolatedTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
+    l1NonIsolatedTag = cms.InputTag( 'hltGtStage2Digis','EGamma' ),
     ncandcut = cms.int32( 1 ),
-    l1TausTag = cms.InputTag( 'hltCaloStage2Digis','Tau' )
+    l1TausTag = cms.InputTag( 'hltGtStage2Digis','Tau' )
 )
 process.hltPAEG20L1SingleEGOrEtFilter = cms.EDFilter( "HLTEgammaEtFilter",
     saveTags = cms.bool( True ),
@@ -17409,15 +17375,15 @@ process.hltEGL1SingleEG5BptxANDObjectMapFilter = cms.EDFilter( "HLTEgammaL1TMatc
     saveTags = cms.bool( True ),
     region_eta_size_ecap = cms.double( 1.0 ),
     barrel_end = cms.double( 1.4791 ),
-    l1IsolatedTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
+    l1IsolatedTag = cms.InputTag( 'hltGtStage2Digis','EGamma' ),
     candIsolatedTag = cms.InputTag( "hltEgammaCandidates" ),
-    l1CenJetsTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
+    l1CenJetsTag = cms.InputTag( 'hltGtStage2Digis','Jet' ),
     region_eta_size = cms.double( 0.522 ),
     L1SeedFilterTag = cms.InputTag( "hltL1sSingleEG5BptxANDObjectMap" ),
     candNonIsolatedTag = cms.InputTag( "" ),
-    l1NonIsolatedTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
+    l1NonIsolatedTag = cms.InputTag( 'hltGtStage2Digis','EGamma' ),
     ncandcut = cms.int32( 1 ),
-    l1TausTag = cms.InputTag( 'hltCaloStage2Digis','Tau' )
+    l1TausTag = cms.InputTag( 'hltGtStage2Digis','Tau' )
 )
 process.hltEGBptxANDObjectMap10EtFilter = cms.EDFilter( "HLTEgammaEtFilter",
     saveTags = cms.bool( True ),
@@ -19255,7 +19221,7 @@ process.hltOutputExpressPA = cms.OutputModule( "PoolOutputModule",
       'keep triggerTriggerEvent_*_*_*' )
 )
 
-process.HLTL1UnpackerSequence = cms.Sequence( process.hltGtStage2Digis + process.hltCaloStage2Digis + process.hltGmtStage2Digis + process.hltGtStage2ObjectMap )
+process.HLTL1UnpackerSequence = cms.Sequence( process.hltGtStage2Digis + process.hltGtStage2ObjectMap )
 process.HLTBeamSpot = cms.Sequence( process.hltScalersRawToDigi + process.hltOnlineBeamSpot )
 process.HLTBeginSequence = cms.Sequence( process.hltTriggerType + process.HLTL1UnpackerSequence + process.HLTBeamSpot )
 process.HLTEndSequence = cms.Sequence( process.hltBoolEnd )
