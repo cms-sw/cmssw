@@ -59,9 +59,11 @@ process.MINIAODSIMoutput = cms.OutputModule("PoolOutputModule",
 
 # Additional output definition
 
-# Other statements
+# The regressions are in the conditions database starting at this versions
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, '80X_mcRun2_asymptotic_2016_TrancheIV_v7', '')
+
+# Other access methods:
 
 # Apply the regression from local sqlite file
 # from EgammaAnalysis.ElectronTools.regressionWeights_local_cfi import GBRDWrapperRcd
@@ -70,9 +72,10 @@ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc', '')
 # process.load('EgammaAnalysis.ElectronTools.regressionApplication_cff')
 # process.EGMenergyCorrection = cms.Path(process.regressionApplication)
 
-# Apply the regression from the database
-from EgammaAnalysis.ElectronTools.regressionWeights_cfi import regressionWeights
-process = regressionWeights(process)
+# Apply the regression from a remote database
+#from EgammaAnalysis.ElectronTools.regressionWeights_cfi import regressionWeights
+#process = regressionWeights(process)
+
 process.load('EgammaAnalysis.ElectronTools.regressionApplication_cff')
 process.EGMenergyCorrection = cms.Path(process.regressionApplication)
 
