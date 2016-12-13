@@ -12,11 +12,11 @@
 
 ElectronMVAEstimatorRun2Spring16GeneralPurpose::ElectronMVAEstimatorRun2Spring16GeneralPurpose(const edm::ParameterSet& conf):
   AnyMVAEstimatorRun2Base(conf),
-  _tag(conf.getParameter<std::string>("mvaTag")),
-  _MethodName("BDTG method"),
-  _beamSpotLabel(conf.getParameter<edm::InputTag>("beamSpot")),
-  _conversionsLabelAOD(conf.getParameter<edm::InputTag>("conversionsAOD")),
-  _conversionsLabelMiniAOD(conf.getParameter<edm::InputTag>("conversionsMiniAOD")) {
+  tag_(conf.getParameter<std::string>("mvaTag")),
+  MethodName_("BDTG method"),
+  beamSpotLabel_(conf.getParameter<edm::InputTag>("beamSpot")),
+  conversionsLabelAOD_(conf.getParameter<edm::InputTag>("conversionsAOD")),
+  conversionsLabelMiniAOD_(conf.getParameter<edm::InputTag>("conversionsMiniAOD")) {
   
   const std::vector <std::string> weightFileNames
     = conf.getParameter<std::vector<std::string> >("weightFileNames");
@@ -28,7 +28,7 @@ void ElectronMVAEstimatorRun2Spring16GeneralPurpose::init(const std::vector <std
     throw cms::Exception("MVA config failure: ")
       << "wrong number of weightfiles" << std::endl;
 
-  _gbrForests.clear();
+  gbrForest_s.clear();
   // Create a TMVA reader object for each category
   for(int i=0; i<nCategories; i++){
 
@@ -36,7 +36,7 @@ void ElectronMVAEstimatorRun2Spring16GeneralPurpose::init(const std::vector <std
     // when the vector clear() is called in the destructor
 
     edm::FileInPath weightFile( weightFileNames[i] );
-    _gbrForests.push_back( createSingleReader(i, weightFile ) );
+    gbrForest_s.push_back( createSingleReader(i, weightFile ) );
 
   }
 
@@ -47,11 +47,11 @@ ElectronMVAEstimatorRun2Spring16GeneralPurpose::ElectronMVAEstimatorRun2Spring16
 
 ElectronMVAEstimatorRun2Spring16GeneralPurpose::ElectronMVAEstimatorRun2Spring16GeneralPurpose(const std::string &mvaTag, const std::string &conversionsTag, const std::string &beamspotTag):
   AnyMVAEstimatorRun2Base( edm::ParameterSet() ),
-  _tag(mvaTag),
-  _MethodName("BDTG method"),
-  _beamSpotLabel(edm::InputTag(beamspotTag)),
-  _conversionsLabelAOD(edm::InputTag(conversionsTag)),
-  _conversionsLabelMiniAOD(_conversionsLabelAOD) {
+  tag_(mvaTag),
+  MethodName_("BDTG method"),
+  beamSpotLabel_(edm::InputTag(beamspotTag)),
+  conversionsLabelAOD_(edm::InputTag(conversionsTag)),
+  conversionsLabelMiniAOD_(conversionsLabelAOD_) {
  }
 
 
@@ -66,11 +66,11 @@ void ElectronMVAEstimatorRun2Spring16GeneralPurpose::setConsumes(edm::ConsumesCo
   // All tokens for event content needed by this MVA
 
   // Beam spot (same for AOD and miniAOD)
-   cc.consumes<reco::BeamSpot>(_beamSpotLabel);
+   cc.consumes<reco::BeamSpot>(beamSpotLabel_);
 
   // Conversions collection (different names in AOD and miniAOD)
-  cc.mayConsume<reco::ConversionCollection>(_conversionsLabelAOD);
-  cc.mayConsume<reco::ConversionCollection>(_conversionsLabelMiniAOD);
+  cc.mayConsume<reco::ConversionCollection>(conversionsLabelAOD_);
+  cc.mayConsume<reco::ConversionCollection>(conversionsLabelMiniAOD_);
   
 
 }
@@ -87,8 +87,8 @@ float ElectronMVAEstimatorRun2Spring16GeneralPurpose::
 mvaValue( const reco::GsfElectron * particle, const edm::EventBase & iEvent) const {
   edm::Handle<reco::ConversionCollection> conversions;
   edm::Handle<reco::BeamSpot> beamSpot;
-  iEvent.getByLabel(_conversionsLabelAOD, conversions);
-  iEvent.getByLabel(_beamSpotLabel, beamSpot);
+  iEvent.getByLabel(conversionsLabelAOD_, conversions);
+  iEvent.getByLabel(beamSpotLabel_, beamSpot);
   const int iCategory = findCategory( particle );
   const std::vector<float> vars = std::move( fillMVAVariables( particle, conversions, beamSpot.product() ) );  
   return mvaValue(iCategory, vars);
@@ -96,11 +96,11 @@ mvaValue( const reco::GsfElectron * particle, const edm::EventBase & iEvent) con
 
 float ElectronMVAEstimatorRun2Spring16GeneralPurpose::
 mvaValue( const int iCategory, const std::vector<float> & vars) const  {
-  const float result = _gbrForests.at(iCategory)->GetClassifier(vars.data());
+  const float result = gbrForest_s.at(iCategory)->GetClassifier(vars.data());
 
   const bool debug = false;
   if(debug) {
-    std::cout << " *** Inside the class _MethodName " << _MethodName << std::endl;
+    std::cout << " *** Inside the class MethodName_ " << MethodName_ << std::endl;
     std::cout << " bin " << iCategory
 	      << " fbrem " <<  vars[11]
 	      << " kfchi2 " << vars[9]
@@ -187,48 +187,48 @@ createSingleReader(const int iCategory, const edm::FileInPath &weightFile){
   //
 
   // Pure ECAL -> shower shapes
-  tmpTMVAReader.AddVariable("ele_oldsigmaietaieta", &_allMVAVars.see);
-  tmpTMVAReader.AddVariable("ele_oldsigmaiphiiphi", &_allMVAVars.spp);
-  tmpTMVAReader.AddVariable("ele_oldcircularity",   &_allMVAVars.OneMinusE1x5E5x5);
-  tmpTMVAReader.AddVariable("ele_oldr9",            &_allMVAVars.R9);
-  tmpTMVAReader.AddVariable("ele_scletawidth",      &_allMVAVars.etawidth);
-  tmpTMVAReader.AddVariable("ele_sclphiwidth",      &_allMVAVars.phiwidth);
-  tmpTMVAReader.AddVariable("ele_oldhe",               &_allMVAVars.HoE);
+  tmpTMVAReader.AddVariable("ele_oldsigmaietaieta", &allMVAVars_.see);
+  tmpTMVAReader.AddVariable("ele_oldsigmaiphiiphi", &allMVAVars_.spp);
+  tmpTMVAReader.AddVariable("ele_oldcircularity",   &allMVAVars_.OneMinusE1x5E5x5);
+  tmpTMVAReader.AddVariable("ele_oldr9",            &allMVAVars_.R9);
+  tmpTMVAReader.AddVariable("ele_scletawidth",      &allMVAVars_.etawidth);
+  tmpTMVAReader.AddVariable("ele_sclphiwidth",      &allMVAVars_.phiwidth);
+  tmpTMVAReader.AddVariable("ele_oldhe",               &allMVAVars_.HoE);
  
   //Pure tracking variables
-  tmpTMVAReader.AddVariable("ele_kfhits",           &_allMVAVars.kfhits);
-  tmpTMVAReader.AddVariable("ele_kfchi2",           &_allMVAVars.kfchi2);
-  tmpTMVAReader.AddVariable("ele_gsfchi2",        &_allMVAVars.gsfchi2);
+  tmpTMVAReader.AddVariable("ele_kfhits",           &allMVAVars_.kfhits);
+  tmpTMVAReader.AddVariable("ele_kfchi2",           &allMVAVars_.kfchi2);
+  tmpTMVAReader.AddVariable("ele_gsfchi2",        &allMVAVars_.gsfchi2);
 
   // Energy matching
-  tmpTMVAReader.AddVariable("ele_fbrem",           &_allMVAVars.fbrem);
+  tmpTMVAReader.AddVariable("ele_fbrem",           &allMVAVars_.fbrem);
 
-  tmpTMVAReader.AddVariable("ele_gsfhits",         &_allMVAVars.gsfhits);
-  tmpTMVAReader.AddVariable("ele_expected_inner_hits",             &_allMVAVars.expectedMissingInnerHits);
-  tmpTMVAReader.AddVariable("ele_conversionVertexFitProbability",  &_allMVAVars.convVtxFitProbability);
+  tmpTMVAReader.AddVariable("ele_gsfhits",         &allMVAVars_.gsfhits);
+  tmpTMVAReader.AddVariable("ele_expected_inner_hits",             &allMVAVars_.expectedMissingInnerHits);
+  tmpTMVAReader.AddVariable("ele_conversionVertexFitProbability",  &allMVAVars_.convVtxFitProbability);
 
-  tmpTMVAReader.AddVariable("ele_ep",              &_allMVAVars.EoP);
-  tmpTMVAReader.AddVariable("ele_eelepout",        &_allMVAVars.eleEoPout);
-  tmpTMVAReader.AddVariable("ele_IoEmIop",         &_allMVAVars.IoEmIoP);
+  tmpTMVAReader.AddVariable("ele_ep",              &allMVAVars_.EoP);
+  tmpTMVAReader.AddVariable("ele_eelepout",        &allMVAVars_.eleEoPout);
+  tmpTMVAReader.AddVariable("ele_IoEmIop",         &allMVAVars_.IoEmIoP);
   
   // Geometrical matchings
-  tmpTMVAReader.AddVariable("ele_deltaetain",      &_allMVAVars.deta);
-  tmpTMVAReader.AddVariable("ele_deltaphiin",      &_allMVAVars.dphi);
-  tmpTMVAReader.AddVariable("ele_deltaetaseed",    &_allMVAVars.detacalo);
+  tmpTMVAReader.AddVariable("ele_deltaetain",      &allMVAVars_.deta);
+  tmpTMVAReader.AddVariable("ele_deltaphiin",      &allMVAVars_.dphi);
+  tmpTMVAReader.AddVariable("ele_deltaetaseed",    &allMVAVars_.detacalo);
 
-  tmpTMVAReader.AddVariable("ele_pt",             &_allMVAVars.pt);
-  tmpTMVAReader.AddVariable("scl_eta",            &_allMVAVars.SCeta);
+  tmpTMVAReader.AddVariable("ele_pt",             &allMVAVars_.pt);
+  tmpTMVAReader.AddVariable("scl_eta",            &allMVAVars_.SCeta);
 
    // Endcap only variables
   if( isEndcapCategory(iCategory) )
-    tmpTMVAReader.AddVariable("ele_psEoverEraw",    &_allMVAVars.PreShowerOverRaw);
+    tmpTMVAReader.AddVariable("ele_psEoverEraw",    &allMVAVars_.PreShowerOverRaw);
   
   //
   // Book the method and set up the weights file
   //
-  std::unique_ptr<TMVA::IMethod> temp( tmpTMVAReader.BookMVA(_MethodName , weightFile.fullPath() ) );
+  std::unique_ptr<TMVA::IMethod> temp( tmpTMVAReader.BookMVA(MethodName_ , weightFile.fullPath() ) );
 
-  return std::unique_ptr<const GBRForest> ( new GBRForest( dynamic_cast<TMVA::MethodBDT*>( tmpTMVAReader.FindMVA(_MethodName) ) ) );
+  return std::unique_ptr<const GBRForest> ( new GBRForest( dynamic_cast<TMVA::MethodBDT*>( tmpTMVAReader.FindMVA(MethodName_) ) ) );
 }
 
 // A function that should work on both pat and reco objects
@@ -243,13 +243,13 @@ fillMVAVariables(const edm::Ptr<reco::Candidate>& particle,
   edm::Handle<reco::ConversionCollection> conversions;
 
   // Get data needed for conversion rejection
-  iEvent.getByLabel(_beamSpotLabel, theBeamSpot);
+  iEvent.getByLabel(beamSpotLabel_, theBeamSpot);
 
   // Conversions in miniAOD and AOD have different names,
   // but the same type, so we use the same handle with different tokens.
-  iEvent.getByLabel(_conversionsLabelAOD, conversions);
+  iEvent.getByLabel(conversionsLabelAOD_, conversions);
   if( !conversions.isValid() )
-    iEvent.getByLabel(_conversionsLabelMiniAOD, conversions);
+    iEvent.getByLabel(conversionsLabelMiniAOD_, conversions);
 
   // Make sure everything is retrieved successfully
   if(! (theBeamSpot.isValid() 
