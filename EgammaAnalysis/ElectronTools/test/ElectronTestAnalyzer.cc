@@ -71,7 +71,7 @@ public:
   
   
 private:
-  virtual void beginJob(const edm::EventSetup&) ;
+  virtual void beginJob() ;
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endJob() ;
   virtual void myBindVariables();
@@ -680,7 +680,7 @@ bool ElectronTestAnalyzer::trainTrigPresel(const reco::GsfElectron& ele) {
   return myTrigPresel;
 }
 void
-ElectronTestAnalyzer::beginJob(const edm::EventSetup&)
+ElectronTestAnalyzer::beginJob()
 {
 
   ev = 0;

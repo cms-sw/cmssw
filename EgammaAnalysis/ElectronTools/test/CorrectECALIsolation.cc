@@ -26,7 +26,7 @@ public:
   ~CorrectECALIsolation();
 
 private:
-  virtual void beginJob(const edm::EventSetup&) ;
+  virtual void beginJob() ;
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endJob() ;
 
@@ -84,7 +84,7 @@ void CorrectECALIsolation::analyze(const edm::Event& iEvent, const edm::EventSet
   }
 }
 
-void CorrectECALIsolation::beginJob(const edm::EventSetup&)
+void CorrectECALIsolation::beginJob()
 {}
 
 void CorrectECALIsolation::endJob()
