@@ -56,6 +56,11 @@ void L1TEGammaOffline::dqmBeginRun(edm::Run const &, edm::EventSetup const &)
 {
   edm::LogInfo("L1TEGammaOffline") << "L1TEGammaOffline::beginRun" << std::endl;
 }
+
+bool L1TEGammaOffline::filter(edm::Event const& e, edm::EventSetup const& eSetup){
+  return true;
+}
+
 //
 // -------------------------------------- bookHistos --------------------------------------------
 //
@@ -265,23 +270,23 @@ void L1TEGammaOffline::bookElectronHistos(DQMStore::IBooker & ibooker)
   ibooker.setCurrentFolder(histFolder_.c_str());
   h_nVertex_ = ibooker.book1D("nVertex", "Number of event vertices in collection", 40, -0.5, 39.5);
   // electron reco vs L1
-  h_L1EGammaETvsElectronET_EB_ = ibooker.book2D("L1EGammaETvsElectronET_HB",
+  h_L1EGammaETvsElectronET_EB_ = ibooker.book2D("L1EGammaETvsElectronET_EB",
       "L1 EGamma E_{T} vs GSF Electron E_{T} (HB); GSF Electron E_{T} (GeV); L1 EGamma E_{T} (GeV)", 300, 0, 300, 300,
       0, 300);
-  h_L1EGammaETvsElectronET_EE_ = ibooker.book2D("L1EGammaETvsElectronET_HE",
+  h_L1EGammaETvsElectronET_EE_ = ibooker.book2D("L1EGammaETvsElectronET_EE",
       "L1 EGamma E_{T} vs GSF Electron E_{T} (HE); GSF Electron E_{T} (GeV); L1 EGamma E_{T} (GeV)", 300, 0, 300, 300,
       0, 300);
-  h_L1EGammaETvsElectronET_EB_EE_ = ibooker.book2D("L1EGammaETvsElectronET_EB_HE",
+  h_L1EGammaETvsElectronET_EB_EE_ = ibooker.book2D("L1EGammaETvsElectronET_EB_EE",
       "L1 EGamma E_{T} vs GSF Electron E_{T} (HB+HE); GSF Electron E_{T} (GeV); L1 EGamma E_{T} (GeV)", 300, 0, 300,
       300, 0, 300);
 
-  h_L1EGammaPhivsElectronPhi_EB_ = ibooker.book2D("L1EGammaPhivsElectronET_HB",
+  h_L1EGammaPhivsElectronPhi_EB_ = ibooker.book2D("L1EGammaPhivsElectronPhi_EB",
       "#phi_{electron}^{L1} vs #phi_{electron}^{offline} (HB); #phi_{electron}^{offline}; #phi_{electron}^{L1}", 100,
       -4, 4, 100, -4, 4);
-  h_L1EGammaPhivsElectronPhi_EE_ = ibooker.book2D("L1EGammaPhivsElectronET_HE",
+  h_L1EGammaPhivsElectronPhi_EE_ = ibooker.book2D("L1EGammaPhivsElectronPhi_EE",
       "#phi_{electron}^{L1} vs #phi_{electron}^{offline} (HE); #phi_{electron}^{offline}; #phi_{electron}^{L1}", 100,
       -4, 4, 100, -4, 4);
-  h_L1EGammaPhivsElectronPhi_EB_EE_ = ibooker.book2D("L1EGammaPhivsElectronET_EB_HE",
+  h_L1EGammaPhivsElectronPhi_EB_EE_ = ibooker.book2D("L1EGammaPhivsElectronPhi_EB_EE",
       "#phi_{electron}^{L1} vs #phi_{electron}^{offline} (HB+HE); #phi_{electron}^{offline}; #phi_{electron}^{L1}", 100,
       -4, 4, 100, -4, 4);
 
@@ -289,23 +294,23 @@ void L1TEGammaOffline::bookElectronHistos(DQMStore::IBooker & ibooker)
       "L1 EGamma #eta vs GSF Electron #eta; GSF Electron #eta; L1 EGamma #eta", 100, -10, 10, 100, -10, 10);
 
   // electron resolutions
-  h_resolutionElectronET_EB_ = ibooker.book1D("resolutionElectronET_HB",
+  h_resolutionElectronET_EB_ = ibooker.book1D("resolutionElectronET_EB",
       "electron ET resolution (HB); (L1 EGamma E_{T} - GSF Electron E_{T})/GSF Electron E_{T}; events", 50, -1, 1.5);
-  h_resolutionElectronET_EE_ = ibooker.book1D("resolutionElectronET_HE",
+  h_resolutionElectronET_EE_ = ibooker.book1D("resolutionElectronET_EE",
       "electron ET resolution (HE); (L1 EGamma E_{T} - GSF Electron E_{T})/GSF Electron E_{T}; events", 50, -1, 1.5);
-  h_resolutionElectronET_EB_EE_ = ibooker.book1D("resolutionElectronET_EB_HE",
+  h_resolutionElectronET_EB_EE_ = ibooker.book1D("resolutionElectronET_EB_EE",
       "electron ET resolution (HB+HE); (L1 EGamma E_{T} - GSF Electron E_{T})/GSF Electron E_{T}; events", 50, -1, 1.5);
 
   h_resolutionElectronPhi_EB_ =
-      ibooker.book1D("resolutionElectronPhi_HB",
+      ibooker.book1D("resolutionElectronPhi_EB",
           "#phi_{electron} resolution (HB); (#phi_{electron}^{L1} - #phi_{electron}^{offline})/#phi_{electron}^{offline}; events",
           120, -0.3, 0.3);
   h_resolutionElectronPhi_EE_ =
-      ibooker.book1D("resolutionElectronPhi_HE",
+      ibooker.book1D("resolutionElectronPhi_EE",
           "electron #phi resolution (HE); (#phi_{electron}^{L1} - #phi_{electron}^{offline})/#phi_{electron}^{offline}; events",
           120, -0.3, 0.3);
   h_resolutionElectronPhi_EB_EE_ =
-      ibooker.book1D("resolutionElectronPhi_EB_HE",
+      ibooker.book1D("resolutionElectronPhi_EB_EE",
           "electron #phi resolution (HB+HE); (#phi_{electron}^{L1} - #phi_{electron}^{offline})/#phi_{electron}^{offline}; events",
           120, -0.3, 0.3);
 

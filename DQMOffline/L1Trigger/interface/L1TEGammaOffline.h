@@ -69,6 +69,7 @@ protected:
   void endRun(edm::Run const& run, edm::EventSetup const& eSetup);
 
 private:
+  bool filter(edm::Event const& e, edm::EventSetup const& eSetup);
   //histos booking function
   void bookElectronHistos(DQMStore::IBooker &);
   void bookPhotonHistos(DQMStore::IBooker &);
