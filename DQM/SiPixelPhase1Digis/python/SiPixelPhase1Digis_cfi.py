@@ -129,6 +129,29 @@ SiPixelPhase1DigisHitmap = DefaultHistoDigiCluster.clone(
   )
 )
 
+SiPixelPhase1DigisOccupancy = DefaultHistoReadout.clone(
+  name = "occupancy",
+  title = "Digi Occupancy",
+  dimensions = 0,
+  specs = VPSet(
+    Specification(PerReadout).groupBy("PXBarrel/FED/LinkInFed")
+                             .groupBy("PXBarrel/FED", "EXTEND_X").save(),
+    Specification(PerReadout).groupBy("PXBarrel/FED/LinkInFed/RocInLink")
+                             .groupBy("PXBarrel/FED/LinkInFed", "EXTEND_Y")
+                             .groupBy("PXBarrel/FED", "EXTEND_X").save(),
+    Specification(PerReadout).groupBy("PXForward/FED/LinkInFed")
+                             .groupBy("PXForward/FED", "EXTEND_X").save(),
+    Specification(PerReadout).groupBy("PXForward/FED/LinkInFed/RocInLink")
+                             .groupBy("PXForward/FED/LinkInFed", "EXTEND_Y")
+                             .groupBy("PXForward/FED", "EXTEND_X").save(),
+    Specification(PerReadout).groupBy("PXBarrel/FED")
+                             .groupBy("PXBarrel", "EXTEND_X").save(),
+    Specification(PerReadout).groupBy("PXForward/FED")
+                             .groupBy("PXForward", "EXTEND_X").save(),
+
+  )
+)
+
 # This has to match the order of the names in the C++ enum.
 SiPixelPhase1DigisConf = cms.VPSet(
   SiPixelPhase1DigisADC,
@@ -138,6 +161,7 @@ SiPixelPhase1DigisConf = cms.VPSet(
   SiPixelPhase1DigisNdigisPerFEDtrend,
   SiPixelPhase1DigisEvents,
   SiPixelPhase1DigisHitmap,
+  SiPixelPhase1DigisOccupancy,
 )
 
 SiPixelPhase1DigisAnalyzer = cms.EDAnalyzer("SiPixelPhase1Digis",
