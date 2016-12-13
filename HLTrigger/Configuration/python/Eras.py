@@ -1,5 +1,6 @@
 import FWCore.ParameterSet.Config as cms
-from Configuration.StandardSequences.Eras import eras
+
+# import the relevant eras from Configuration.Eras.*
 
 def modifyHLTforEras(fragment):
     """load all Eras-based customisations for the HLT configuration"""
