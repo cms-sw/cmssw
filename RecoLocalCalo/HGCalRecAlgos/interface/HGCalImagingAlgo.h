@@ -194,6 +194,7 @@ class HGCalImagingAlgo
   //@@EM todo: the number of layers should be obtained programmatically - the range is 1-n instead of 0-n-1...
 
   //these functions should be in a helper class.
+  double distance2(const Hexel &pt1, const Hexel &pt2); //distance squared
   double distance(const Hexel &pt1, const Hexel &pt2); //2-d distance on the layer (x-y)
   double calculateLocalDensity(std::vector<KDNode> &, KDTree &); //return max density
   double calculateDistanceToHigher(std::vector<KDNode> &, KDTree &);
