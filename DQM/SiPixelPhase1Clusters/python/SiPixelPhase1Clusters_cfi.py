@@ -133,6 +133,43 @@ SiPixelPhase1ClustersSizeVsEta = DefaultHistoDigiCluster.clone(
   )
 )
 
+SiPixelPhase1ClustersReadoutCharge = DefaultHistoReadout.clone(
+  name = "charge",
+  title = "Cluster Charge",
+  range_min = 0, range_max = 200e3, range_nbins = 200,
+  xlabel = "Charge (electrons)",
+  specs = VPSet(
+    Specification(PerReadout).groupBy("PXBarrel/Shell/ReadoutGroup").save(),
+    Specification(PerReadout).groupBy("PXForward/HalfCylinder").save(),
+
+    Specification(PerReadout).groupBy("PXBarrel/Shell/ReadoutGroup/OnlineBlock")
+                             .groupBy("PXBarrel/Shell/ReadoutGroup", "EXTEND_Y").save(),
+    Specification(PerReadout).groupBy("PXForward/HalfCylinder/OnlineBlock")
+                             .groupBy("PXForward/HalfCylinder", "EXTEND_Y").save(),
+  )
+)
+
+SiPixelPhase1ClustersReadoutNClusters = DefaultHistoReadout.clone(
+  name = "clusters",
+  title = "Clusters",
+  range_min = 0, range_max = 10, range_nbins = 10,
+  xlabel = "clusters",
+  dimensions = 0,
+  specs = VPSet(
+    Specification(PerReadout).groupBy("PXBarrel/Shell/ReadoutGroup/DetId/Event").reduce("COUNT")
+                             .groupBy("PXBarrel/Shell/ReadoutGroup").save(),
+    Specification(PerReadout).groupBy("PXForward/HalfCylinder/DetId/Event").reduce("COUNT")
+                             .groupBy("PXForward/HalfCylinder").save(),
+
+    Specification(PerReadout).groupBy("PXBarrel/Shell/ReadoutGroup/DetId/Event").reduce("COUNT")
+                             .groupBy("PXBarrel/Shell/ReadoutGroup/Lumisection").reduce("MEAN")
+                             .groupBy("PXBarrel/Shell/ReadoutGroup", "EXTEND_X").save(),
+    Specification(PerReadout).groupBy("PXForward/HalfCylinder/DetId/Event").reduce("COUNT")
+                             .groupBy("PXForward/HalfCylinder/Lumisection").reduce("MEAN")
+                             .groupBy("PXForward/HalfCylinder", "EXTEND_X").save(),
+  )
+)
+
 SiPixelPhase1ClustersConf = cms.VPSet(
   SiPixelPhase1ClustersCharge,
   SiPixelPhase1ClustersSize,
@@ -143,7 +180,9 @@ SiPixelPhase1ClustersConf = cms.VPSet(
   SiPixelPhase1ClustersPositionF,
   SiPixelPhase1ClustersPositionXZ,
   SiPixelPhase1ClustersPositionYZ,
-  SiPixelPhase1ClustersSizeVsEta
+  SiPixelPhase1ClustersSizeVsEta,
+  SiPixelPhase1ClustersReadoutCharge,
+  SiPixelPhase1ClustersReadoutNClusters
 )
 
 

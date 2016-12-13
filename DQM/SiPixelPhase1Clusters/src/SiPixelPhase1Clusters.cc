@@ -43,12 +43,14 @@ void SiPixelPhase1Clusters::analyze(const edm::Event& iEvent, const edm::EventSe
     const PixelTopology& topol = theGeomDet->specificTopology();
 
     for(SiPixelCluster const& cluster : *it) {
+      histo[READOUT_CHARGE].fill(double(cluster.charge()), id, &iEvent);
       histo[CHARGE].fill(double(cluster.charge()), id, &iEvent);
       histo[SIZE  ].fill(double(cluster.size()  ), id, &iEvent);
       if (cluster.size() > 1){
         histo[NCLUSTERS].fill(id, &iEvent);
-	histo[NCLUSTERSINCLUSIVE].fill(id, &iEvent);
-	hasClusters=true;
+        histo[NCLUSTERSINCLUSIVE].fill(id, &iEvent);
+        histo[READOUT_NCLUSTERS].fill(id, &iEvent);
+        hasClusters=true;
       }
 
       LocalPoint clustlp = topol.localPosition(MeasurementPoint(cluster.x(), cluster.y()));
@@ -66,6 +68,7 @@ void SiPixelPhase1Clusters::analyze(const edm::Event& iEvent, const edm::EventSe
   if (hasClusters) histo[EVENTRATE].fill(DetId(0), &iEvent);
 
   histo[NCLUSTERS].executePerEventHarvesting(&iEvent);
+  histo[READOUT_NCLUSTERS].executePerEventHarvesting(&iEvent);
   histo[NCLUSTERSINCLUSIVE].executePerEventHarvesting(&iEvent);
 
 }

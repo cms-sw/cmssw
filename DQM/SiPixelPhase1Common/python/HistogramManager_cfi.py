@@ -40,7 +40,7 @@ PerModule = cms.PSet(enabled = cms.bool(True)) # normal histos per module
 PerLadder = cms.PSet(enabled = cms.bool(True)) # histos per ladder, profiles
 PerLayer2D = cms.PSet(enabled = cms.bool(True)) # 2D maps/profiles of layers
 PerLayer1D = cms.PSet(enabled = cms.bool(True)) # normal histos per layer
-PerLumisection = cms.PSet(enabled = cms.bool(True)) # trend profiles
+PerReadout = cms.PSet(enabled = cms.bool(True)) # "Readout view", also for initial timing
 
 # Default histogram configuration. This is _not_ used automatically, but you 
 # can import and pass this (or clones of it) in the plugin config.
@@ -104,6 +104,9 @@ DefaultHistoSummary.topFolderName= cms.string("PixelPhase1/Summary")
 
 DefaultHistoTrack=DefaultHisto.clone()
 DefaultHistoTrack.topFolderName= cms.string("PixelPhase1/Tracks")
+
+DefaultHistoReadout=DefaultHisto.clone()
+DefaultHistoReadout.topFolderName= cms.string("PixelPhase1/FED/Readout")
 
 # Commonly used specifications. 
 StandardSpecifications1D = [
