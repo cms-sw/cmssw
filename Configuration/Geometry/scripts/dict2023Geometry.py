@@ -484,4 +484,4 @@ detectorVersionDict = {
 }
 
 deprecatedDets = [ "D1", "D2", "D3", "D5", "D6" ]
-deprecatedSubdets = [ "T1", "T4" ]
+deprecatedSubdets = [ "T1", "T2" ]
