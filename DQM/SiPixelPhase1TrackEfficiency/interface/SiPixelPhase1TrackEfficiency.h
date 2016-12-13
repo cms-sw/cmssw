@@ -17,7 +17,8 @@ class SiPixelPhase1TrackEfficiency : public SiPixelPhase1Base {
   enum {
     VALID,
     MISSING,
-    EFFICIENCY
+    EFFICIENCY,
+    VERTICES
   };
 
   public:
@@ -34,7 +35,8 @@ class SiPixelPhase1TrackEfficiencyHarvester : public SiPixelPhase1Harvester {
   enum {
     VALID,
     MISSING,
-    EFFICIENCY
+    EFFICIENCY,
+    VERTICES
   };
 
   public:
