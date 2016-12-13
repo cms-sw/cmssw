@@ -1,11 +1,11 @@
-# /dev/CMSSW_8_1_0/HIon/V5 (CMSSW_8_1_0_HLT1)
+# /dev/CMSSW_8_1_0/HIon/V6 (CMSSW_8_1_0_HLT1)
 
 import FWCore.ParameterSet.Config as cms
 
 fragment = cms.ProcessFragment( "HLT" )
 
 fragment.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_8_1_0/HIon/V5')
+  tableName = cms.string('/dev/CMSSW_8_1_0/HIon/V6')
 )
 
 fragment.HLTPSetJetCoreStepTrajectoryFilter = cms.PSet( 
@@ -3397,40 +3397,6 @@ fragment.hltGtStage2Digis = cms.EDProducer( "L1TRawToDigi",
     FWId = cms.uint32( 0 ),
     debug = cms.untracked.bool( False ),
     FedIds = cms.vint32( 1404 ),
-    lenAMCHeader = cms.untracked.int32( 8 ),
-    lenAMCTrailer = cms.untracked.int32( 0 ),
-    FWOverride = cms.bool( False )
-)
-fragment.hltCaloStage2Digis = cms.EDProducer( "L1TRawToDigi",
-    lenSlinkTrailer = cms.untracked.int32( 8 ),
-    lenAMC13Header = cms.untracked.int32( 8 ),
-    CTP7 = cms.untracked.bool( False ),
-    lenAMC13Trailer = cms.untracked.int32( 8 ),
-    Setup = cms.string( "stage2::CaloSetup" ),
-    MinFeds = cms.uint32( 0 ),
-    InputLabel = cms.InputTag( "rawDataCollector" ),
-    lenSlinkHeader = cms.untracked.int32( 8 ),
-    MTF7 = cms.untracked.bool( False ),
-    FWId = cms.uint32( 0 ),
-    debug = cms.untracked.bool( False ),
-    FedIds = cms.vint32( 1360, 1366 ),
-    lenAMCHeader = cms.untracked.int32( 8 ),
-    lenAMCTrailer = cms.untracked.int32( 0 ),
-    FWOverride = cms.bool( False )
-)
-fragment.hltGmtStage2Digis = cms.EDProducer( "L1TRawToDigi",
-    lenSlinkTrailer = cms.untracked.int32( 8 ),
-    lenAMC13Header = cms.untracked.int32( 8 ),
-    CTP7 = cms.untracked.bool( False ),
-    lenAMC13Trailer = cms.untracked.int32( 8 ),
-    Setup = cms.string( "stage2::GMTSetup" ),
-    MinFeds = cms.uint32( 0 ),
-    InputLabel = cms.InputTag( "rawDataCollector" ),
-    lenSlinkHeader = cms.untracked.int32( 8 ),
-    MTF7 = cms.untracked.bool( False ),
-    FWId = cms.uint32( 0 ),
-    debug = cms.untracked.bool( False ),
-    FedIds = cms.vint32( 1402 ),
     lenAMCHeader = cms.untracked.int32( 8 ),
     lenAMCTrailer = cms.untracked.int32( 0 ),
     FWOverride = cms.bool( False )
@@ -12325,7 +12291,7 @@ fragment.hltTrigReport = cms.EDAnalyzer( "HLTrigReport",
     HLTriggerResults = cms.InputTag( 'TriggerResults','','HLT' )
 )
 
-fragment.HLTL1UnpackerSequence = cms.Sequence( fragment.hltGtStage2Digis + fragment.hltCaloStage2Digis + fragment.hltGmtStage2Digis + fragment.hltGtStage2ObjectMap )
+fragment.HLTL1UnpackerSequence = cms.Sequence( fragment.hltGtStage2Digis + fragment.hltGtStage2ObjectMap )
 fragment.HLTBeamSpot = cms.Sequence( fragment.hltScalersRawToDigi + fragment.hltOnlineBeamSpot )
 fragment.HLTBeginSequence = cms.Sequence( fragment.hltTriggerType + fragment.HLTL1UnpackerSequence + fragment.HLTBeamSpot )
 fragment.HLTEndSequence = cms.Sequence( fragment.hltBoolEnd )
