@@ -24,10 +24,10 @@ The script also handles the common and forward elements of the geometry, which a
 
 Several detector combinations have been generated:
 * D7 = T3+C1+M1+I1
-* D2 = T2+C1+M1+I1
 * D4 = T3+C2+M1+I1
 * D8 = T3+C2+M1+I2
 * D9 = T3+C1+M2+I1
+* D10 = T2+C1+M1+I1
 
 Currently, D4 is considered to be the baseline for the Phase 2 Tracker TDR.
 
