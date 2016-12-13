@@ -801,7 +801,7 @@ class TestClusters : public edm::EDAnalyzer {
   explicit TestClusters(const edm::ParameterSet& conf);  
   virtual ~TestClusters();
   virtual void analyze(const edm::Event& e, const edm::EventSetup& c);
-  virtual void beginRun(const edm::EventSetup& iSetup);
+  virtual void beginRun(edm::Run const&, edm::EventSetup const&);
   virtual void beginJob();
   virtual void endJob();
   
@@ -981,7 +981,7 @@ TestClusters::TestClusters(edm::ParameterSet const& conf)
 TestClusters::~TestClusters() { }  
 
 // ------------ method called at the begining   ------------
-void TestClusters::beginRun(const edm::EventSetup& iSetup) {
+void TestClusters::beginRun(edm::Run const&, const edm::EventSetup& iSetup) {
   cout << "beginRun -  PixelClusterTest " <<endl;
 }
 
