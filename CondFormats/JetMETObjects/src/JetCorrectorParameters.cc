@@ -147,7 +147,7 @@ void JetCorrectorParameters::JetCorrectorParametersHelper<T,SIZE>::init(const st
         size_t existing_index = mIndexMap.find(tmpTuple)->second;
         std::stringstream sserr;
         sserr<<"Duplicate binning in record found (existing index,current index)=("
-             <<existing_index<<","<<i<<")"<<std::endl<<"\tBins(lower bounds)="<<tmpTuple<<std::endl;
+             <<existing_index<<","<<i<<")"<<std::endl<<"\tBins(lower bounds)="<<tmpTuple;
         handleError("JetCorrectorParameters",sserr.str());
       }
     }
