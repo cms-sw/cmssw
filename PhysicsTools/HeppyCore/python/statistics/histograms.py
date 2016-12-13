@@ -12,6 +12,7 @@ class Histograms(object):
         self.name = name
         self.hists = []
         self.named = []
+        self.dirname = None
         # attributes inheriting from TH1 and TNamed
         # are kept track of automagically, even if they are in
         # child classes
@@ -23,7 +24,7 @@ class Histograms(object):
                     if var.InheritsFrom('TH1'):
                         var.StatOverflows(True)
                         self.hists.append(var)
-            except:
+            except AttributeError:
                 pass
         # print 'TH1     list:', self.hists
         # print 'TNamed  list:', self.named
@@ -33,12 +34,12 @@ class Histograms(object):
         for hist in self.hists:
             style.FormatHisto( hist )
 
-    def Write(self, dir ):
+    def Write(self, dirname ):
         '''Writes all histograms to a subdirectory of dir called self.name.'''
-        self.dir = dir.mkdir( self.name )
-        self.dir.cd()
+        self.dirname = dirname.mkdir( self.name )
+        self.dirname.cd()
         for hist in self.hists:
             hist.Write()
-        dir.cd()
+        dirname.cd()
 
         
