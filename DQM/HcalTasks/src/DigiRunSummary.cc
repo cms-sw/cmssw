@@ -95,12 +95,12 @@ namespace hcaldqm
 		cDigiSize_FED.initialize(_taskname, "DigiSize",
 			hashfunctions::fFED,
 			new quantity::ValueQuantity(quantity::fDigiSize),
-			new quantity::ValueQuantity(quantity::fN));
+			new quantity::ValueQuantity(quantity::fN),0,0);
 		cOccupancy_depth.initialize(_taskname, "Occupancy",
 			hashfunctions::fdepth,
 			new quantity::DetectorQuantity(quantity::fieta),
 			new quantity::DetectorQuantity(quantity::fiphi),
-			new quantity::ValueQuantity(quantity::fN));
+			new quantity::ValueQuantity(quantity::fN),0);
 
 		//	LOAD LUMI BASED HISTOGRAMS
 		cOccupancy_depth.load(ig, _emap, _subsystem);
