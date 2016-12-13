@@ -1,5 +1,5 @@
 import FWCore.ParameterSet.Config as cms
-from Configuration.Eras.Modifier_trackingPhase1_cff import trackingPhase1
+from Configuration.Eras.Modifier_phase1Pixel_cff import phase1Pixel
 from HLTrigger.Configuration.common import *
 
 def modifyHLTforPhaseIPixelGeom(fragment):
@@ -7,11 +7,11 @@ def modifyHLTforPhaseIPixelGeom(fragment):
 
     # modify all ClusterShapeHitFilterESProducer ESProducers
     for esproducer in esproducers_by_type(fragment, "ClusterShapeHitFilterESProducer"):
-        trackingPhase1.toModify(esproducer, PixelShapeFile = 'RecoPixelVertexing/PixelLowPtUtilities/data/pixelShape_Phase1TkNewFPix.par')
+        phase1Pixel.toModify(esproducer, PixelShapeFile = 'RecoPixelVertexing/PixelLowPtUtilities/data/pixelShape_Phase1TkNewFPix.par')
 
     # modify all SiPixelRawToDigi EDProducers
     for producer in producers_by_type(fragment, "SiPixelRawToDigi"):
-        trackingPhase1.toModify(producer, UsePhase1 = cms.bool( True ))
+        phase1Pixel.toModify(producer, UsePhase1 = cms.bool( True ))
 
 
 def modifyHLTforPhaseIPFTracking(fragment):
@@ -19,7 +19,7 @@ def modifyHLTforPhaseIPFTracking(fragment):
 
     # hltPixelLayerTriplets
     if hasattr(fragment, "hltPixelLayerTriplets"):
-        trackingPhase1.toModify( fragment.hltPixelLayerTriplets,
+        phase1Pixel.toModify( fragment.hltPixelLayerTriplets,
             layerList = cms.vstring(
                 'BPix1+BPix2+BPix3',
                 'BPix2+BPix3+BPix4',
@@ -39,7 +39,7 @@ def modifyHLTforPhaseIPFTracking(fragment):
         )
 
     # hltPixelLayerQuadruplets
-    trackingPhase1.toModify( fragment, lambda fragment:
+    phase1Pixel.toModify( fragment, lambda fragment:
         setattr(fragment, "hltPixelLayerQuadruplets", cms.EDProducer("SeedingLayersEDProducer",
              BPix = cms.PSet(
                 useErrorsFromParam = cms.bool( True ),
@@ -78,7 +78,7 @@ def modifyHLTforPhaseIPFTracking(fragment):
     # hltPixelTracks
     if hasattr(fragment, "hltPixelTracks"):
         from RecoPixelVertexing.PixelTriplets.CAHitQuadrupletGenerator_cfi import CAHitQuadrupletGenerator as _CAHitQuadrupletGenerator
-        trackingPhase1.toModify( fragment.hltPixelTracks, OrderedHitsFactoryPSet = _CAHitQuadrupletGenerator.clone(
+        phase1Pixel.toModify( fragment.hltPixelTracks, OrderedHitsFactoryPSet = _CAHitQuadrupletGenerator.clone(
             ComponentName = cms.string("CAHitQuadrupletGenerator"),
             extraHitRPhitolerance = cms.double(0.032),
             maxChi2 = dict(
@@ -100,7 +100,7 @@ def modifyHLTforPhaseIPFTracking(fragment):
                 clusterShapeCacheSrc = cms.InputTag( "hltSiPixelClustersCache" )
             )
         ) )
-        trackingPhase1.toModify( fragment.hltPixelTracks.RegionFactoryPSet, RegionPSet = cms.PSet(
+        phase1Pixel.toModify( fragment.hltPixelTracks.RegionFactoryPSet, RegionPSet = cms.PSet(
             precise = cms.bool( True ),
             beamSpot = cms.InputTag( "hltOnlineBeamSpot" ),
             originRadius = cms.double(0.02),
@@ -109,7 +109,7 @@ def modifyHLTforPhaseIPFTracking(fragment):
         ) )
 
         # HLTDoRecoPixelTracksSequence
-        trackingPhase1.toModify( fragment, lambda fragment:
+        phase1Pixel.toModify( fragment, lambda fragment:
             setattr(fragment, "HLTDoRecoPixelTracksSequence", cms.Sequence(
                 fragment.hltPixelLayerQuadruplets +
                 fragment.hltPixelTracks
@@ -118,21 +118,21 @@ def modifyHLTforPhaseIPFTracking(fragment):
 
     # HLTIter0PSetTrajectoryFilterIT
     if hasattr(fragment, "HLTIter0PSetTrajectoryFilterIT"):
-        trackingPhase1.toModify( fragment.HLTIter0PSetTrajectoryFilterIT,
+        phase1Pixel.toModify( fragment.HLTIter0PSetTrajectoryFilterIT,
             minimumNumberOfHits = cms.int32( 4 ),
             minHitsMinPt        = cms.int32( 4 )
         )
 
     # hltIter0PFlowTrackCutClassifier
     if hasattr(fragment, "hltIter0PFlowTrackCutClassifier"):
-        trackingPhase1.toModify( fragment.hltIter0PFlowTrackCutClassifier.mva,
+        phase1Pixel.toModify( fragment.hltIter0PFlowTrackCutClassifier.mva,
             minLayers    = cms.vint32( 3, 3, 4 ),
             min3DLayers  = cms.vint32( 0, 3, 4 ),
             minPixelHits = cms.vint32( 0, 3, 4 )
         )
 
     # hltIter1PixelLayerTriplets
-    trackingPhase1.toModify( fragment, lambda fragment:
+    phase1Pixel.toModify( fragment, lambda fragment:
         setattr(fragment, "hltIter1PixelLayerTriplets", cms.EDProducer( "SeedingLayersEDProducer",
             layerList = cms.vstring(
                 'BPix1+BPix2+BPix3',
@@ -169,7 +169,7 @@ def modifyHLTforPhaseIPFTracking(fragment):
     )
 
     # HLTIter1PSetTrajectoryFilterIT
-    trackingPhase1.toModify( fragment, lambda fragment:
+    phase1Pixel.toModify( fragment, lambda fragment:
         setattr(fragment, "HLTIter1PSetTrajectoryFilterIT", cms.PSet(
             ComponentType = cms.string('CkfBaseTrajectoryFilter'),
             chargeSignificance = cms.double(-1.0),
@@ -195,7 +195,7 @@ def modifyHLTforPhaseIPFTracking(fragment):
     )
 
     # HLTIter1PSetTrajectoryFilterInOutIT
-    trackingPhase1.toModify( fragment, lambda fragment:
+    phase1Pixel.toModify( fragment, lambda fragment:
         setattr(fragment, "HLTIter1PSetTrajectoryFilterInOutIT", cms.PSet(
             ComponentType = cms.string('CkfBaseTrajectoryFilter'),
             chargeSignificance = cms.double(-1.0),
@@ -221,7 +221,7 @@ def modifyHLTforPhaseIPFTracking(fragment):
     )
 
     # HLTIter1PSetTrajectoryBuilderIT
-    trackingPhase1.toModify( fragment, lambda fragment:
+    phase1Pixel.toModify( fragment, lambda fragment:
         setattr(fragment, "HLTIter1PSetTrajectoryBuilderIT", cms.PSet(
             inOutTrajectoryFilter = cms.PSet( refToPSet_ = cms.string('HLTIter1PSetTrajectoryFilterInOutIT') ),
             propagatorAlong = cms.string( "PropagatorWithMaterialParabolicMf" ),
@@ -241,7 +241,7 @@ def modifyHLTforPhaseIPFTracking(fragment):
     )
 
     # HLTIterativeTrackingIteration1
-    trackingPhase1.toModify( fragment, lambda fragment:
+    phase1Pixel.toModify( fragment, lambda fragment:
         setattr(fragment, "HLTIterativeTrackingIteration1", cms.Sequence(
             fragment.hltIter1ClustersRefRemoval +
             fragment.hltIter1MaskedMeasurementTrackerEvent +
@@ -257,7 +257,7 @@ def modifyHLTforPhaseIPFTracking(fragment):
     )
 
     # hltIter2PixelLayerTriplets
-    trackingPhase1.toModify( fragment, lambda fragment:
+    phase1Pixel.toModify( fragment, lambda fragment:
         setattr(fragment, "hltIter2PixelLayerTriplets", cms.EDProducer( "SeedingLayersEDProducer",
             layerList = cms.vstring(
                 'BPix1+BPix2+BPix3',
@@ -295,7 +295,7 @@ def modifyHLTforPhaseIPFTracking(fragment):
 
     # hltIter2PFlowPixelSeeds
     if hasattr(fragment, "hltIter2PFlowPixelSeeds"):
-        trackingPhase1.toModify( fragment.hltIter2PFlowPixelSeeds,
+        phase1Pixel.toModify( fragment.hltIter2PFlowPixelSeeds,
             OrderedHitsFactoryPSet = cms.PSet(
                 maxElement = cms.uint32( 0 ),
                 ComponentName = cms.string( "StandardHitTripletGenerator" ),
@@ -318,7 +318,7 @@ def modifyHLTforPhaseIPFTracking(fragment):
         )
 
     # HLTIterativeTrackingIteration2
-    trackingPhase1.toModify( fragment, lambda fragment:
+    phase1Pixel.toModify( fragment, lambda fragment:
         setattr(fragment, "HLTIterativeTrackingIteration2", cms.Sequence(
             fragment.hltIter2ClustersRefRemoval +
             fragment.hltIter2MaskedMeasurementTrackerEvent +
@@ -345,6 +345,6 @@ def modifyHLTforPhaseIPFTracking(fragment):
                 mod.remove(fragment.hltPixelLayerTriplets)
                 index = mod.index(fragment.hltPixelTracks)
                 mod.insert(index, fragment.hltPixelLayerQuadruplets)
-                trackingPhase1.toReplaceWith(seq, mod)
+                phase1Pixel.toReplaceWith(seq, mod)
 
-    trackingPhase1.toModify( fragment, lambda fragment: add_hltPixelLayerQuadruplets_to_sequences(fragment) )
+    phase1Pixel.toModify( fragment, lambda fragment: add_hltPixelLayerQuadruplets_to_sequences(fragment) )
