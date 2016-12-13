@@ -172,9 +172,13 @@ math::XYZPoint HGCalImagingAlgo::calculatePosition(std::vector<KDNode> &v){
 } 
 
 double HGCalImagingAlgo::distance(const Hexel &pt1, const Hexel &pt2){
+  return std::sqrt(distance2(pt1,pt2));
+}
+
+double HGCalImagingAlgo::distance2(const Hexel &pt1, const Hexel &pt2){
   const double dx = pt1.x - pt2.x;
   const double dy = pt1.y - pt2.y;
-  return std::sqrt(dx*dx + dy*dy);
+  return (dx*dx + dy*dy);
 }
 
 
@@ -209,23 +213,23 @@ double HGCalImagingAlgo::calculateDistanceToHigher(std::vector<KDNode> &nd, KDTr
     maxdensity = nd[rs[0]].data.rho;
   else
     return maxdensity; // there are no hits
-  double dist = 50.0;
+  double dist2 = 2500.0;
   //start by setting delta for the highest density hit to 
   //the most distant hit - this is a convention
 
   for(unsigned int j = 0; j < nd.size(); j++){
-    double tmp = distance(nd[rs[0]].data, nd[j].data);
-    dist = tmp > dist ? tmp : dist;
+    double tmp = distance2(nd[rs[0]].data, nd[j].data);
+    dist2 = tmp > dist2 ? tmp : dist2;
   }
-  nd[rs[0]].data.delta = dist;
+  nd[rs[0]].data.delta = std::sqrt(dist2);
   nd[rs[0]].data.nearestHigher = nearestHigher;
 
   //now we save the largest distance as a starting point
   
-  double max_dist = dist;
+  const double max_dist2 = dist2;
   
   for(unsigned int oi = 1; oi < nd.size(); ++oi){ // start from second-highest density
-    dist = max_dist;
+    dist2 = max_dist2;
     unsigned int i = rs[oi];
     // we only need to check up to oi since hits 
     // are ordered by decreasing density
@@ -233,13 +237,13 @@ double HGCalImagingAlgo::calculateDistanceToHigher(std::vector<KDNode> &nd, KDTr
     // and the ones AFTER to have lower rho
     for(unsigned int oj = 0; oj < oi; oj++){ 
       unsigned int j = rs[oj];
-      double tmp = distance(nd[i].data, nd[j].data);
-      if(tmp <= dist){ //this "<=" instead of "<" addresses the (rare) case when there are only two hits
-	dist = tmp;
+      double tmp = distance2(nd[i].data, nd[j].data);
+      if(tmp <= dist2){ //this "<=" instead of "<" addresses the (rare) case when there are only two hits
+	dist2 = tmp;
 	nearestHigher = j;
       }
     }
-    nd[i].data.delta = dist;
+    nd[i].data.delta = std::sqrt(dist2);
     nd[i].data.nearestHigher = nearestHigher; //this uses the original unsorted hitlist 
   }
   return maxdensity;
