@@ -38,7 +38,11 @@ void SiPixelPhase1TrackEfficiency::analyze(const edm::Event& iEvent, const edm::
   // get primary vertex
   edm::Handle<reco::VertexCollection> vertices;
   iEvent.getByToken( vtxToken_, vertices);
-  if (!vertices.isValid() || vertices->size() == 0) return;
+
+  if (!vertices.isValid()) return;
+  histo[VERTICES].fill(vertices->size(),DetId(0),&iEvent);
+  if (vertices->size() == 0) return;
+
   // should be used for weird cuts
   //const auto primaryVertex = vertices->at(0); 
 
@@ -104,6 +108,8 @@ void SiPixelPhase1TrackEfficiency::analyze(const edm::Event& iEvent, const edm::
       if (isHitMissing) histo[MISSING].fill(id, &iEvent, col, row);
     }
   }
+histo[VALID  ].executePerEventHarvesting(&iEvent);
+histo[MISSING].executePerEventHarvesting(&iEvent);
 }
 
 DEFINE_FWK_MODULE(SiPixelPhase1TrackEfficiency);

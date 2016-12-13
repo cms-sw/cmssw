@@ -9,11 +9,16 @@ SiPixelPhase1TrackEfficiencyValid = DefaultHistoTrack.clone(
     # custom() is called here after every save to export the histos for the
     # efficiency harvesting. The parameter is just a tag that we don't confuse 
     # the histos of different specs.
+    Specification().groupBy("PXForward/PXDisk/PXBlade/PXPanel")
+                   .groupBy("PXForward/PXDisk/PXBlade", "EXTEND_X")
+                   .groupBy("PXForward/PXDisk", "EXTEND_Y")
+                   .save(),
     Specification().groupBy("PXBarrel/PXLayer/signedLadder/signedModule")
                    .groupBy("PXBarrel/PXLayer/signedLadder", "EXTEND_X")
                    .groupBy("PXBarrel/PXLayer", "EXTEND_Y")
                    .save()
                    .custom("signedmodule_barrel"),
+    StandardSpecifications1D_Num
   )
 )
 
@@ -30,12 +35,31 @@ SiPixelPhase1TrackEfficiencyEfficiency = SiPixelPhase1TrackEfficiencyValid.clone
   # efficiency plots if data is available. So all should use the same specs.
 )
 
+SiPixelPhase1TrackEfficiencyEfficiencyVertices= DefaultHistoTrack.clone(
+    name = "num_vertices",
+    title = "PrimaryVertices",
+    xlabel= "# Vertices",
+    dimensions = 1,
+    range_min = -0.5,
+    range_max = 100.5, 
+    range_nbins =101,
+    specs = VPSet(
+        Specification().groupBy("")
+                   .save(),
+        Specification().groupBy("/Lumisection")
+                   .reduce("MEAN")
+                   .groupBy("","EXTEND_X")
+                   .save()
+   )
+ )
+
 
 
 SiPixelPhase1TrackEfficiencyConf = cms.VPSet(
   SiPixelPhase1TrackEfficiencyValid,
   SiPixelPhase1TrackEfficiencyMissing,
   SiPixelPhase1TrackEfficiencyEfficiency,
+  SiPixelPhase1TrackEfficiencyEfficiencyVertices
 )
 
 
