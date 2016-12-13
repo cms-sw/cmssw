@@ -1730,6 +1730,7 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
     gt=upgradeProperties[year][k]['GT']
     hltversion=upgradeProperties[year][k].get('HLTmenu')
     cust=upgradeProperties[year][k].get('Custom', None)
+    custdigi=upgradeProperties[year][k].get('CustomDigi', None)
     era=upgradeProperties[year][k].get('Era', None)
     beamspot=upgradeProperties[year][k].get('BeamSpot', None)
     upgradeStepDict['GenSimFull'][k]= {'-s' : 'GEN,SIM',
@@ -1775,7 +1776,7 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
                                       '--geometry' : geom
                                       }
 
-    if cust!=None : upgradeStepDict['DigiFull'][k]['--customise']=cust
+    if custdigi!=None : upgradeStepDict['DigiFull'][k]['--customise']=custdigi
     if era is not None: upgradeStepDict['DigiFull'][k]['--era']=era
  
     if k2 in PUDataSets:
