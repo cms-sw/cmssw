@@ -203,13 +203,13 @@ StandardSpecifications1D_Num = [
                             .groupBy("PXForward/HalfCylinder/PXDisk/PXRing/PXBlade/PXModuleName")
                             .save(),
 
-    Specification(PerLadder).groupBy("PXForward/HalfCylinder/PXDisk/PXRing/PXBlade/PXPanel/DetId/Event")
+    Specification(PerLadder).groupBy("PXForward/HalfCylinder/PXDisk/PXRing/PXBlade/PXPanel/Event")
                              .reduce("COUNT")
                              .groupBy("PXForward/HalfCylinder/PXDisk/PXRing/PXBlade/PXPanel")
                              .reduce("MEAN")
                              .groupBy("PXForward/HalfCylinder/PXDisk/PXRing/PXBlade","EXTEND_X")
                              .save(),
-    Specification(PerLadder).groupBy("PXBarrel/Shell/PXLayer/PXLadder/PXBModule/DetId/Event")
+    Specification(PerLadder).groupBy("PXBarrel/Shell/PXLayer/PXLadder/PXBModule/Event")
                              .reduce("COUNT")
                              .groupBy("PXBarrel/Shell/PXLayer/PXLadder/PXBModule")
                              .reduce("MEAN")
@@ -231,27 +231,27 @@ StandardSpecificationInclusive_Num = [#to count inclusively objects in substruct
 
 StandardSpecificationTrend_Num = [
 
-    Specification().groupBy("PXBarrel/PXLayer/Lumisection/Event")
+    Specification().groupBy("PXBarrel/PXLayer/Event")
                    .reduce("COUNT")
                    .groupBy("PXBarrel/PXLayer/Lumisection")
                    .reduce("MEAN") 
                    .groupBy("PXBarrel/PXLayer","EXTEND_X")
                    .groupBy("PXBarrel", "EXTEND_Y")
                    .save(),
-    Specification().groupBy("PXBarrel/Lumisection/PXLayer/Event")
+    Specification().groupBy("PXBarrel/PXLayer/Event")
                    .reduce("COUNT")
                    .groupBy("PXBarrel/Lumisection")
                    .reduce("MEAN")
                    .groupBy("PXBarrel", "EXTEND_X")
                    .save(),
-    Specification().groupBy("PXForward/PXDisk/Lumisection/Event")
+    Specification().groupBy("PXForward/PXDisk/Event")
                    .reduce("COUNT")
                    .groupBy("PXForward/PXDisk/Lumisection")
                    .reduce("MEAN") 
                    .groupBy("PXForward/PXDisk","EXTEND_X")
                    .groupBy("PXForward", "EXTEND_Y")
                    .save(),
-    Specification().groupBy("PXForward/Lumisection/PXDisk/Event")
+    Specification().groupBy("PXForward/PXDisk/Event")
                    .reduce("COUNT")
                    .groupBy("PXForward/Lumisection")
                    .reduce("MEAN")

@@ -55,9 +55,7 @@ SiPixelPhase1DigisNdigisPerFED = DefaultHisto.clone( #to be removed?
   range_nbins = 200,
   dimensions = 0, 
   specs = VPSet(
-    # the double "FED" here is due to a "bug", caused by how the specs are
-    # translated for step1. Interpret as "count by FED, extend by FED".
-    Specification().groupBy("FED/FED/Event")
+    Specification().groupBy("FED/Event")
                    .reduce("COUNT")
                    .groupBy("FED")
                    .groupBy("", "EXTEND_Y")
