@@ -44,8 +44,8 @@ class MeasuredGeometryProducer
       evRotationStoreState = DDRotation::StoreT::instance().readOnly();
       DDExpandedView *expandedView = new DDExpandedView(compactView);
       // traverse the tree until name and ns are mached
-      const string &name = part.name().name();
-      const string &ns = part.name().ns();
+      const std::string &name = part.name().name();
+      const std::string &ns = part.name().ns();
       bool noMatch = true;
 
       noMatch = false;
