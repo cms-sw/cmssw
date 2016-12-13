@@ -247,12 +247,6 @@ void GeometryInterface::loadFromTopology(edm::EventSetup const& iSetup, const ed
       return Value((sm < 0 ? 10 : 20) + (sl < 0 ? 2 : 1)); // negative means outer shell!?
     }, 0, 0 // N/A
   );
-
-  addExtractor(intern(""), // A dummy column. Not much special handling required.
-    [] (InterestingQuantities const& iq) { return 0; },
-    0, 0
-  );
-
 }
 
 void GeometryInterface::loadTimebased(edm::EventSetup const& iSetup, const edm::ParameterSet& iConfig) {
