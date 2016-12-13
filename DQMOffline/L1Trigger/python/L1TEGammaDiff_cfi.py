@@ -21,14 +21,14 @@ for variable, thresholds in variables.iteritems():
             add_plot(plotName)
 
 resolution_plots = [
-    "resolutionElectronET_EB", "resolutionElectronET_EE", "resolutionElectronET_HF",
+    "resolutionElectronET_EB", "resolutionElectronET_EE",
     "resolutionElectronET_EB_EE", "resolutionElectronPhi_EB", "resolutionElectronPhi_EE",
-    "resolutionElectronPhi_HF", "resolutionElectronPhi_EB_EE", "resolutionElectronEta",
+    "resolutionElectronPhi_EB_EE", "resolutionElectronEta",
 ]
 plots2D = [
     'L1EGammaETvsElectronET_EB', 'L1EGammaETvsElectronET_EE', 'L1EGammaETvsElectronET_EB_EE',
     'L1EGammaPhivsElectronPhi_EB', 'L1EGammaPhivsElectronPhi_EE', 'L1EGammaPhivsElectronPhi_EB_EE',
-    'L1JetEtavsCaloJetEta_EB',
+    'L1EGammaEtavsElectronEta',
 ]
 
 allPlots = []
