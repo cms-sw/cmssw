@@ -15,4 +15,6 @@ const char DDD_TOTEM_RP_DETECTOR_NAME[] = "RP_Silicon_Detector";
 /// DDD name of RP
 const char DDD_TOTEM_RP_PRIMARY_VACUUM_NAME[] = "RP_box_primary_vacuum";
 
+const char DDD_CTPPS_DIAMONDS_DETECTOR_NAME[] = "CTPPS_Diamond_Main_Box"; //FIXME???
+
 #endif // Geometry_VeryForwardGeometryBuilder_DDDTotemRPCommon

@@ -10,6 +10,7 @@
 #include "DetectorDescription/Core/interface/DDFilteredView.h"
 #include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "DataFormats/CTPPSDetId/interface/TotemRPDetId.h"
+#include "DataFormats/CTPPSDetId/interface/CTPPSDiamondDetId.h"
 
 // this might be useful one day
 //.#include "Geometry/TrackerNumberingBuilder/interface/ExtractStringFromDDD.h"
@@ -82,6 +83,19 @@ void DDDTotemRPContruction::buildDetGeomDesc(DDFilteredView *fv, DetGeomDesc *gd
       const uint32_t rpIdx = decRPId % 10;
       
       newGD->setGeographicalID(TotemRPDetId(armIdx, stIdx, rpIdx));
+    }
+
+    if (fv->logicalPart().name().name().compare(DDD_CTPPS_DIAMONDS_DETECTOR_NAME)==0)
+    {
+      const vector<int>& copy_num = fv->copyNumbers();
+      //uint32_t Arm, uint32_t Station, uint32_t RomanPot=0, uint32_t Plane=0, uint32_t Channel=0
+      const unsigned int id = copy_num[copy_num.size()-3],
+                         arm = id / 100,
+                         station = ( id%100 ) / 10,
+                         rp = ( id%10 ),
+                         plane = 0, //FIXME
+                         detector = copy_num[copy_num.size()-1];
+      newGD->setGeographicalID( CTPPSDiamondDetId( arm, station, rp, plane, detector ) );
     }
 
     gd->addComponent(newGD);
