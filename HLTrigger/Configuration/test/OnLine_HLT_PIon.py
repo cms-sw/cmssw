@@ -1,11 +1,11 @@
-# /dev/CMSSW_8_1_0/PIon/V4 (CMSSW_8_1_0_HLT1)
+# /dev/CMSSW_8_1_0/PIon/V5 (CMSSW_8_1_0_HLT1)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLTPIon" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_8_1_0/PIon/V4')
+  tableName = cms.string('/dev/CMSSW_8_1_0/PIon/V5')
 )
 
 process.HLTPSetJetCoreStepTrajectoryFilter = cms.PSet( 
@@ -3675,24 +3675,24 @@ process.hltGmtStage2Digis = cms.EDProducer( "L1TRawToDigi",
 )
 process.hltGtStage2ObjectMap = cms.EDProducer( "L1TGlobalProducer",
     L1DataBxInEvent = cms.int32( 5 ),
-    JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
+    JetInputTag = cms.InputTag( 'hltGtStage2Digis','Jet' ),
     AlgorithmTriggersUnmasked = cms.bool( True ),
     EmulateBxInEvent = cms.int32( 1 ),
     AlgorithmTriggersUnprescaled = cms.bool( True ),
     PrintL1Menu = cms.untracked.bool( False ),
     Verbosity = cms.untracked.int32( 0 ),
-    EtSumInputTag = cms.InputTag( 'hltCaloStage2Digis','EtSum' ),
+    EtSumInputTag = cms.InputTag( 'hltGtStage2Digis','EtSum' ),
     ProduceL1GtDaqRecord = cms.bool( True ),
     PrescaleSet = cms.uint32( 1 ),
     ExtInputTag = cms.InputTag( "hltGtStage2Digis" ),
-    EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
+    EGammaInputTag = cms.InputTag( 'hltGtStage2Digis','EGamma' ),
     TriggerMenuLuminosity = cms.string( "startup" ),
     ProduceL1GtObjectMapRecord = cms.bool( True ),
     AlternativeNrBxBoardDaq = cms.uint32( 0 ),
     PrescaleCSVFile = cms.string( "prescale_L1TGlobal.csv" ),
-    TauInputTag = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
+    TauInputTag = cms.InputTag( 'hltGtStage2Digis','Tau' ),
     BstLengthBytes = cms.int32( -1 ),
-    MuonInputTag = cms.InputTag( 'hltGmtStage2Digis','Muon' )
+    MuonInputTag = cms.InputTag( 'hltGtStage2Digis','Muon' )
 )
 process.hltScalersRawToDigi = cms.EDProducer( "ScalersRawToDigi",
     scalersInputTag = cms.InputTag( "rawDataCollector" )
@@ -3707,13 +3707,13 @@ process.hltOnlineBeamSpot = cms.EDProducer( "BeamSpotOnlineProducer",
 )
 process.hltL1sCastorMediumJetBptxAND = cms.EDFilter( "HLTL1TSeed",
     L1SeedsLogicalExpression = cms.string( "L1_CastorMediumJet_BptxAND" ),
-    L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
-    L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
+    L1EGammaInputTag = cms.InputTag( 'hltGtStage2Digis','EGamma' ),
+    L1JetInputTag = cms.InputTag( 'hltGtStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
     L1ObjectMapInputTag = cms.InputTag( "hltGtStage2ObjectMap" ),
-    L1EtSumInputTag = cms.InputTag( 'hltCaloStage2Digis','EtSum' ),
-    L1TauInputTag = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
-    L1MuonInputTag = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
+    L1EtSumInputTag = cms.InputTag( 'hltGtStage2Digis','EtSum' ),
+    L1TauInputTag = cms.InputTag( 'hltGtStage2Digis','Tau' ),
+    L1MuonInputTag = cms.InputTag( 'hltGtStage2Digis','Muon' ),
     L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
 )
 process.hltPrePAL1CastorMediumJetBptxAND = cms.EDFilter( "HLTPrescaler",
@@ -3725,13 +3725,13 @@ process.hltBoolEnd = cms.EDFilter( "HLTBool",
 )
 process.hltL1sCastorHaloMuon = cms.EDFilter( "HLTL1TSeed",
     L1SeedsLogicalExpression = cms.string( "L1_CastorHaloMuon" ),
-    L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
-    L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
+    L1EGammaInputTag = cms.InputTag( 'hltGtStage2Digis','EGamma' ),
+    L1JetInputTag = cms.InputTag( 'hltGtStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
     L1ObjectMapInputTag = cms.InputTag( "hltGtStage2ObjectMap" ),
-    L1EtSumInputTag = cms.InputTag( 'hltCaloStage2Digis','EtSum' ),
-    L1TauInputTag = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
-    L1MuonInputTag = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
+    L1EtSumInputTag = cms.InputTag( 'hltGtStage2Digis','EtSum' ),
+    L1TauInputTag = cms.InputTag( 'hltGtStage2Digis','Tau' ),
+    L1MuonInputTag = cms.InputTag( 'hltGtStage2Digis','Muon' ),
     L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
 )
 process.hltPrePAL1CastorHaloMuon = cms.EDFilter( "HLTPrescaler",
@@ -3740,13 +3740,13 @@ process.hltPrePAL1CastorHaloMuon = cms.EDFilter( "HLTPrescaler",
 )
 process.hltL1sCastorMediumJet = cms.EDFilter( "HLTL1TSeed",
     L1SeedsLogicalExpression = cms.string( "L1_CastorMediumJet" ),
-    L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
-    L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
+    L1EGammaInputTag = cms.InputTag( 'hltGtStage2Digis','EGamma' ),
+    L1JetInputTag = cms.InputTag( 'hltGtStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
     L1ObjectMapInputTag = cms.InputTag( "hltGtStage2ObjectMap" ),
-    L1EtSumInputTag = cms.InputTag( 'hltCaloStage2Digis','EtSum' ),
-    L1TauInputTag = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
-    L1MuonInputTag = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
+    L1EtSumInputTag = cms.InputTag( 'hltGtStage2Digis','EtSum' ),
+    L1TauInputTag = cms.InputTag( 'hltGtStage2Digis','Tau' ),
+    L1MuonInputTag = cms.InputTag( 'hltGtStage2Digis','Muon' ),
     L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
 )
 process.hltPrePAL1CastorMediumJet = cms.EDFilter( "HLTPrescaler",
@@ -3755,13 +3755,13 @@ process.hltPrePAL1CastorMediumJet = cms.EDFilter( "HLTPrescaler",
 )
 process.hltUPCL1SingleMuOpenSeed = cms.EDFilter( "HLTL1TSeed",
     L1SeedsLogicalExpression = cms.string( "L1_SingleMuOpen_BptxAND" ),
-    L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
-    L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
+    L1EGammaInputTag = cms.InputTag( 'hltGtStage2Digis','EGamma' ),
+    L1JetInputTag = cms.InputTag( 'hltGtStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
     L1ObjectMapInputTag = cms.InputTag( "hltGtStage2ObjectMap" ),
-    L1EtSumInputTag = cms.InputTag( 'hltCaloStage2Digis','EtSum' ),
-    L1TauInputTag = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
-    L1MuonInputTag = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
+    L1EtSumInputTag = cms.InputTag( 'hltGtStage2Digis','EtSum' ),
+    L1TauInputTag = cms.InputTag( 'hltGtStage2Digis','Tau' ),
+    L1MuonInputTag = cms.InputTag( 'hltGtStage2Digis','Muon' ),
     L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
 )
 process.hltPrePASingleMuOpen = cms.EDFilter( "HLTPrescaler",
@@ -3770,13 +3770,13 @@ process.hltPrePASingleMuOpen = cms.EDFilter( "HLTPrescaler",
 )
 process.hltUPCL1SingleMuOpenNotHF0Seed = cms.EDFilter( "HLTL1TSeed",
     L1SeedsLogicalExpression = cms.string( "L1_MuOpen_NotMinimumBiasHF0_AND_BptxAND" ),
-    L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
-    L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
+    L1EGammaInputTag = cms.InputTag( 'hltGtStage2Digis','EGamma' ),
+    L1JetInputTag = cms.InputTag( 'hltGtStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
     L1ObjectMapInputTag = cms.InputTag( "hltGtStage2ObjectMap" ),
-    L1EtSumInputTag = cms.InputTag( 'hltCaloStage2Digis','EtSum' ),
-    L1TauInputTag = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
-    L1MuonInputTag = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
+    L1EtSumInputTag = cms.InputTag( 'hltGtStage2Digis','EtSum' ),
+    L1TauInputTag = cms.InputTag( 'hltGtStage2Digis','Tau' ),
+    L1MuonInputTag = cms.InputTag( 'hltGtStage2Digis','Muon' ),
     L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
 )
 process.hltPrePASingleMuOpenHFOneTowerVeto = cms.EDFilter( "HLTPrescaler",
@@ -3791,7 +3791,7 @@ process.hltL1fL1shltUPCL1SingleMuOpenNotHF0OneTowerFiltered0 = cms.EDFilter( "HL
     MaxEta = cms.double( 999.0 ),
     CentralBxOnly = cms.bool( True ),
     SelectQualities = cms.vint32(  ),
-    CandTag = cms.InputTag( 'hltGmtStage2Digis','Muon' )
+    CandTag = cms.InputTag( 'hltGtStage2Digis','Muon' )
 )
 process.hltPrePASingleMuOpenHFOneTowerVetoSingleTrack = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
@@ -3923,13 +3923,13 @@ process.hltPAPixelFilter1ForUPC = cms.EDFilter( "HLTPixlMBFilt",
 )
 process.hltUPCL1SingleMuOpenNotHF0TwoTowerSeed = cms.EDFilter( "HLTL1TSeed",
     L1SeedsLogicalExpression = cms.string( "L1_MuOpen_TwoTowerHFVeto_OR_BptxAND" ),
-    L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
-    L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
+    L1EGammaInputTag = cms.InputTag( 'hltGtStage2Digis','EGamma' ),
+    L1JetInputTag = cms.InputTag( 'hltGtStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
     L1ObjectMapInputTag = cms.InputTag( "hltGtStage2ObjectMap" ),
-    L1EtSumInputTag = cms.InputTag( 'hltCaloStage2Digis','EtSum' ),
-    L1TauInputTag = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
-    L1MuonInputTag = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
+    L1EtSumInputTag = cms.InputTag( 'hltGtStage2Digis','EtSum' ),
+    L1TauInputTag = cms.InputTag( 'hltGtStage2Digis','Tau' ),
+    L1MuonInputTag = cms.InputTag( 'hltGtStage2Digis','Muon' ),
     L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
 )
 process.hltPrePASingleMuOpenHFTwoTowerVeto = cms.EDFilter( "HLTPrescaler",
@@ -3944,7 +3944,7 @@ process.hltL1fL1shltUPCL1SingleMuOpenNotHF0TwoTowerFiltered0 = cms.EDFilter( "HL
     MaxEta = cms.double( 999.0 ),
     CentralBxOnly = cms.bool( True ),
     SelectQualities = cms.vint32(  ),
-    CandTag = cms.InputTag( 'hltGmtStage2Digis','Muon' )
+    CandTag = cms.InputTag( 'hltGtStage2Digis','Muon' )
 )
 process.hltPrePASingleMuOpenHFTwoTowerVetoSingleTrack = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
@@ -3952,13 +3952,13 @@ process.hltPrePASingleMuOpenHFTwoTowerVetoSingleTrack = cms.EDFilter( "HLTPresca
 )
 process.hltUPCL1SingleMuOpenBptxSeed = cms.EDFilter( "HLTL1TSeed",
     L1SeedsLogicalExpression = cms.string( "L1_SingleMuOpen_BptxAND" ),
-    L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
-    L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
+    L1EGammaInputTag = cms.InputTag( 'hltGtStage2Digis','EGamma' ),
+    L1JetInputTag = cms.InputTag( 'hltGtStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
     L1ObjectMapInputTag = cms.InputTag( "hltGtStage2ObjectMap" ),
-    L1EtSumInputTag = cms.InputTag( 'hltCaloStage2Digis','EtSum' ),
-    L1TauInputTag = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
-    L1MuonInputTag = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
+    L1EtSumInputTag = cms.InputTag( 'hltGtStage2Digis','EtSum' ),
+    L1TauInputTag = cms.InputTag( 'hltGtStage2Digis','Tau' ),
+    L1MuonInputTag = cms.InputTag( 'hltGtStage2Digis','Muon' ),
     L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
 )
 process.hltPrePASingleMuOpenPixelTrackGt0Lt10 = cms.EDFilter( "HLTPrescaler",
@@ -3973,7 +3973,7 @@ process.hltL1fL1shltUPCL1SingleMuOpenFiltered0 = cms.EDFilter( "HLTMuonL1TFilter
     MaxEta = cms.double( 999.0 ),
     CentralBxOnly = cms.bool( True ),
     SelectQualities = cms.vint32(  ),
-    CandTag = cms.InputTag( 'hltGmtStage2Digis','Muon' )
+    CandTag = cms.InputTag( 'hltGtStage2Digis','Muon' )
 )
 process.hltPAPixelFilter10ForUPC = cms.EDFilter( "HLTPixlMBFilt",
     pixlTag = cms.InputTag( "hltPAPixelCandsForMinBias" ),
@@ -6362,13 +6362,13 @@ process.hltPAFullTrackFilter15ForUPC = cms.EDFilter( "HLTSingleVertexPixelTrackF
 )
 process.hltUPCL1SingleMuOpenThreeTowerVetoSeed = cms.EDFilter( "HLTL1TSeed",
     L1SeedsLogicalExpression = cms.string( "L1_MuOpen_ThreeTowerHFVeto_OR_BptxAND" ),
-    L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
-    L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
+    L1EGammaInputTag = cms.InputTag( 'hltGtStage2Digis','EGamma' ),
+    L1JetInputTag = cms.InputTag( 'hltGtStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
     L1ObjectMapInputTag = cms.InputTag( "hltGtStage2ObjectMap" ),
-    L1EtSumInputTag = cms.InputTag( 'hltCaloStage2Digis','EtSum' ),
-    L1TauInputTag = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
-    L1MuonInputTag = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
+    L1EtSumInputTag = cms.InputTag( 'hltGtStage2Digis','EtSum' ),
+    L1TauInputTag = cms.InputTag( 'hltGtStage2Digis','Tau' ),
+    L1MuonInputTag = cms.InputTag( 'hltGtStage2Digis','Muon' ),
     L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
 )
 process.hltPrePASingleMuOpenHFThreeTowerVeto = cms.EDFilter( "HLTPrescaler",
@@ -6383,7 +6383,7 @@ process.hltL1fL1shltUPCL1SingleMuOpenNotHF0ThreeTowerFiltered0 = cms.EDFilter( "
     MaxEta = cms.double( 999.0 ),
     CentralBxOnly = cms.bool( True ),
     SelectQualities = cms.vint32(  ),
-    CandTag = cms.InputTag( 'hltGmtStage2Digis','Muon' )
+    CandTag = cms.InputTag( 'hltGtStage2Digis','Muon' )
 )
 process.hltPrePASingleMuOpenHFThreeTowerVetoSingleTrack = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
@@ -6391,13 +6391,13 @@ process.hltPrePASingleMuOpenHFThreeTowerVetoSingleTrack = cms.EDFilter( "HLTPres
 )
 process.hltUPCL1DoubleMuOpenNotHF0Seed = cms.EDFilter( "HLTL1TSeed",
     L1SeedsLogicalExpression = cms.string( "L1_DoubleMuOpen_NotMinimumBiasHF0_AND_BptxAND" ),
-    L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
-    L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
+    L1EGammaInputTag = cms.InputTag( 'hltGtStage2Digis','EGamma' ),
+    L1JetInputTag = cms.InputTag( 'hltGtStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
     L1ObjectMapInputTag = cms.InputTag( "hltGtStage2ObjectMap" ),
-    L1EtSumInputTag = cms.InputTag( 'hltCaloStage2Digis','EtSum' ),
-    L1TauInputTag = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
-    L1MuonInputTag = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
+    L1EtSumInputTag = cms.InputTag( 'hltGtStage2Digis','EtSum' ),
+    L1TauInputTag = cms.InputTag( 'hltGtStage2Digis','Tau' ),
+    L1MuonInputTag = cms.InputTag( 'hltGtStage2Digis','Muon' ),
     L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
 )
 process.hltPrePADoubleMuOpenHFOneTowerVeto = cms.EDFilter( "HLTPrescaler",
@@ -6412,7 +6412,7 @@ process.hltL1fL1shltUPCL1DoubleMuOpenHFOneTowerFiltered0 = cms.EDFilter( "HLTMuo
     MaxEta = cms.double( 999.0 ),
     CentralBxOnly = cms.bool( True ),
     SelectQualities = cms.vint32(  ),
-    CandTag = cms.InputTag( 'hltGmtStage2Digis','Muon' )
+    CandTag = cms.InputTag( 'hltGtStage2Digis','Muon' )
 )
 process.hltPrePADoubleMuOpenHFOneTowerVetoSingleTrack = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
@@ -6420,13 +6420,13 @@ process.hltPrePADoubleMuOpenHFOneTowerVetoSingleTrack = cms.EDFilter( "HLTPresca
 )
 process.hltUPCL1DoubleMuOpenNotHF0TwoTowerSeed = cms.EDFilter( "HLTL1TSeed",
     L1SeedsLogicalExpression = cms.string( " L1_DoubleMuOpen_TwoTowerHFVeto_OR_BptxAND" ),
-    L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
-    L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
+    L1EGammaInputTag = cms.InputTag( 'hltGtStage2Digis','EGamma' ),
+    L1JetInputTag = cms.InputTag( 'hltGtStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
     L1ObjectMapInputTag = cms.InputTag( "hltGtStage2ObjectMap" ),
-    L1EtSumInputTag = cms.InputTag( 'hltCaloStage2Digis','EtSum' ),
-    L1TauInputTag = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
-    L1MuonInputTag = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
+    L1EtSumInputTag = cms.InputTag( 'hltGtStage2Digis','EtSum' ),
+    L1TauInputTag = cms.InputTag( 'hltGtStage2Digis','Tau' ),
+    L1MuonInputTag = cms.InputTag( 'hltGtStage2Digis','Muon' ),
     L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
 )
 process.hltPrePADoubleMuOpenHFTwoTowerVeto = cms.EDFilter( "HLTPrescaler",
@@ -6441,7 +6441,7 @@ process.hltL1fL1shltUPCL1DoubleMuOpenNotHF0TwoTowerFiltered0 = cms.EDFilter( "HL
     MaxEta = cms.double( 999.0 ),
     CentralBxOnly = cms.bool( True ),
     SelectQualities = cms.vint32(  ),
-    CandTag = cms.InputTag( 'hltGmtStage2Digis','Muon' )
+    CandTag = cms.InputTag( 'hltGtStage2Digis','Muon' )
 )
 process.hltPrePADoubleMuOpenHFTwoTowerVetoSingleTrack = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
@@ -6449,13 +6449,13 @@ process.hltPrePADoubleMuOpenHFTwoTowerVetoSingleTrack = cms.EDFilter( "HLTPresca
 )
 process.hltUPCL1DoubleMuOpenThreeTowerVetoSeed = cms.EDFilter( "HLTL1TSeed",
     L1SeedsLogicalExpression = cms.string( "L1_DoubleMuOpen_ThreeTowerHFVeto_OR_BptxAND" ),
-    L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
-    L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
+    L1EGammaInputTag = cms.InputTag( 'hltGtStage2Digis','EGamma' ),
+    L1JetInputTag = cms.InputTag( 'hltGtStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
     L1ObjectMapInputTag = cms.InputTag( "hltGtStage2ObjectMap" ),
-    L1EtSumInputTag = cms.InputTag( 'hltCaloStage2Digis','EtSum' ),
-    L1TauInputTag = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
-    L1MuonInputTag = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
+    L1EtSumInputTag = cms.InputTag( 'hltGtStage2Digis','EtSum' ),
+    L1TauInputTag = cms.InputTag( 'hltGtStage2Digis','Tau' ),
+    L1MuonInputTag = cms.InputTag( 'hltGtStage2Digis','Muon' ),
     L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
 )
 process.hltPrePADoubleMuOpenHFThreeTowerVeto = cms.EDFilter( "HLTPrescaler",
@@ -6470,7 +6470,7 @@ process.hltL1fL1shltUPCL1DoubleMuOpenHFThreeTowerFiltered0 = cms.EDFilter( "HLTM
     MaxEta = cms.double( 999.0 ),
     CentralBxOnly = cms.bool( True ),
     SelectQualities = cms.vint32(  ),
-    CandTag = cms.InputTag( 'hltGmtStage2Digis','Muon' )
+    CandTag = cms.InputTag( 'hltGtStage2Digis','Muon' )
 )
 process.hltPrePADoubleMuOpenHFThreeTowerVetoSingleTrack = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
@@ -6478,13 +6478,13 @@ process.hltPrePADoubleMuOpenHFThreeTowerVetoSingleTrack = cms.EDFilter( "HLTPres
 )
 process.hltUPCL1DoubleEG2NotHF0Seed = cms.EDFilter( "HLTL1TSeed",
     L1SeedsLogicalExpression = cms.string( "L1_DoubleEG2_NotMinimumBiasHF0_AND_BptxAND" ),
-    L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
-    L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
+    L1EGammaInputTag = cms.InputTag( 'hltGtStage2Digis','EGamma' ),
+    L1JetInputTag = cms.InputTag( 'hltGtStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
     L1ObjectMapInputTag = cms.InputTag( "hltGtStage2ObjectMap" ),
-    L1EtSumInputTag = cms.InputTag( 'hltCaloStage2Digis','EtSum' ),
-    L1TauInputTag = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
-    L1MuonInputTag = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
+    L1EtSumInputTag = cms.InputTag( 'hltGtStage2Digis','EtSum' ),
+    L1TauInputTag = cms.InputTag( 'hltGtStage2Digis','Tau' ),
+    L1MuonInputTag = cms.InputTag( 'hltGtStage2Digis','Muon' ),
     L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
 )
 process.hltPrePADoubleEG2HFOneTowerVeto = cms.EDFilter( "HLTPrescaler",
@@ -6504,13 +6504,13 @@ process.hltPAPixelFilter1ForMinBias = cms.EDFilter( "HLTPixlMBFilt",
 )
 process.hltUPCL1DoubleEG2NotHF0TwoTowerSeed = cms.EDFilter( "HLTL1TSeed",
     L1SeedsLogicalExpression = cms.string( " L1_DoubleEG2_TwoTowerHFVeto_OR_BptxAND" ),
-    L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
-    L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
+    L1EGammaInputTag = cms.InputTag( 'hltGtStage2Digis','EGamma' ),
+    L1JetInputTag = cms.InputTag( 'hltGtStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
     L1ObjectMapInputTag = cms.InputTag( "hltGtStage2ObjectMap" ),
-    L1EtSumInputTag = cms.InputTag( 'hltCaloStage2Digis','EtSum' ),
-    L1TauInputTag = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
-    L1MuonInputTag = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
+    L1EtSumInputTag = cms.InputTag( 'hltGtStage2Digis','EtSum' ),
+    L1TauInputTag = cms.InputTag( 'hltGtStage2Digis','Tau' ),
+    L1MuonInputTag = cms.InputTag( 'hltGtStage2Digis','Muon' ),
     L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
 )
 process.hltPrePADoubleEG2HFTwoTowerVeto = cms.EDFilter( "HLTPrescaler",
@@ -6523,13 +6523,13 @@ process.hltPrePADoubleEG2HFTwoTowerVetoSingleTrack = cms.EDFilter( "HLTPrescaler
 )
 process.hltUPCL1SingleEG5NotHF0Seed = cms.EDFilter( "HLTL1TSeed",
     L1SeedsLogicalExpression = cms.string( "L1_SingleEG5_NotMinimumBiasHF0_AND_BptxAND" ),
-    L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
-    L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
+    L1EGammaInputTag = cms.InputTag( 'hltGtStage2Digis','EGamma' ),
+    L1JetInputTag = cms.InputTag( 'hltGtStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
     L1ObjectMapInputTag = cms.InputTag( "hltGtStage2ObjectMap" ),
-    L1EtSumInputTag = cms.InputTag( 'hltCaloStage2Digis','EtSum' ),
-    L1TauInputTag = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
-    L1MuonInputTag = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
+    L1EtSumInputTag = cms.InputTag( 'hltGtStage2Digis','EtSum' ),
+    L1TauInputTag = cms.InputTag( 'hltGtStage2Digis','Tau' ),
+    L1MuonInputTag = cms.InputTag( 'hltGtStage2Digis','Muon' ),
     L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
 )
 process.hltPrePASingleEG5HFOneTowerVeto = cms.EDFilter( "HLTPrescaler",
@@ -6542,13 +6542,13 @@ process.hltPrePASingleEG5HFOneTowerVetoSingleTrack = cms.EDFilter( "HLTPrescaler
 )
 process.hltUPCL1SingleEG5NotHF0TwoTowerSeed = cms.EDFilter( "HLTL1TSeed",
     L1SeedsLogicalExpression = cms.string( " L1_SingleEG5_TwoTowerHFVeto_OR_BptxAND" ),
-    L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
-    L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
+    L1EGammaInputTag = cms.InputTag( 'hltGtStage2Digis','EGamma' ),
+    L1JetInputTag = cms.InputTag( 'hltGtStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
     L1ObjectMapInputTag = cms.InputTag( "hltGtStage2ObjectMap" ),
-    L1EtSumInputTag = cms.InputTag( 'hltCaloStage2Digis','EtSum' ),
-    L1TauInputTag = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
-    L1MuonInputTag = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
+    L1EtSumInputTag = cms.InputTag( 'hltGtStage2Digis','EtSum' ),
+    L1TauInputTag = cms.InputTag( 'hltGtStage2Digis','Tau' ),
+    L1MuonInputTag = cms.InputTag( 'hltGtStage2Digis','Muon' ),
     L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
 )
 process.hltPrePASingleEG5HFTwoTowerVeto = cms.EDFilter( "HLTPrescaler",
@@ -6561,13 +6561,13 @@ process.hltPrePASingleEG5HFTwoTowerVetoSingleTrack = cms.EDFilter( "HLTPrescaler
 )
 process.hltUPCL1SingleEG5ThreeTowerVetoSeed = cms.EDFilter( "HLTL1TSeed",
     L1SeedsLogicalExpression = cms.string( "L1_SingleEG5_ThreeTowerHFVeto_OR_BptxAND" ),
-    L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
-    L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
+    L1EGammaInputTag = cms.InputTag( 'hltGtStage2Digis','EGamma' ),
+    L1JetInputTag = cms.InputTag( 'hltGtStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
     L1ObjectMapInputTag = cms.InputTag( "hltGtStage2ObjectMap" ),
-    L1EtSumInputTag = cms.InputTag( 'hltCaloStage2Digis','EtSum' ),
-    L1TauInputTag = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
-    L1MuonInputTag = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
+    L1EtSumInputTag = cms.InputTag( 'hltGtStage2Digis','EtSum' ),
+    L1TauInputTag = cms.InputTag( 'hltGtStage2Digis','Tau' ),
+    L1MuonInputTag = cms.InputTag( 'hltGtStage2Digis','Muon' ),
     L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
 )
 process.hltPrePASingleEG5HFThreeTowerVeto = cms.EDFilter( "HLTPrescaler",
@@ -6580,13 +6580,13 @@ process.hltPrePASingleEG5HFThreeTowerVetoSingleTrack = cms.EDFilter( "HLTPrescal
 )
 process.hltL1sSingleJet12BptxAND = cms.EDFilter( "HLTL1TSeed",
     L1SeedsLogicalExpression = cms.string( "L1_SingleJet12_BptxAND" ),
-    L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
-    L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
+    L1EGammaInputTag = cms.InputTag( 'hltGtStage2Digis','EGamma' ),
+    L1JetInputTag = cms.InputTag( 'hltGtStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
     L1ObjectMapInputTag = cms.InputTag( "hltGtStage2ObjectMap" ),
-    L1EtSumInputTag = cms.InputTag( 'hltCaloStage2Digis','EtSum' ),
-    L1TauInputTag = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
-    L1MuonInputTag = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
+    L1EtSumInputTag = cms.InputTag( 'hltGtStage2Digis','EtSum' ),
+    L1TauInputTag = cms.InputTag( 'hltGtStage2Digis','Tau' ),
+    L1MuonInputTag = cms.InputTag( 'hltGtStage2Digis','Muon' ),
     L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
 )
 process.hltPrePAAK4CaloJet40Eta5p1 = cms.EDFilter( "HLTPrescaler",
@@ -6631,13 +6631,13 @@ process.hltSinglePAAK4CaloJet40Eta5p1 = cms.EDFilter( "HLT1CaloJet",
 )
 process.hltL1sMinimumBiasHF0ORBptxAND = cms.EDFilter( "HLTL1TSeed",
     L1SeedsLogicalExpression = cms.string( "L1_MinimumBiasHF0_OR_BptxAND" ),
-    L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
-    L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
+    L1EGammaInputTag = cms.InputTag( 'hltGtStage2Digis','EGamma' ),
+    L1JetInputTag = cms.InputTag( 'hltGtStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
     L1ObjectMapInputTag = cms.InputTag( "hltGtStage2ObjectMap" ),
-    L1EtSumInputTag = cms.InputTag( 'hltCaloStage2Digis','EtSum' ),
-    L1TauInputTag = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
-    L1MuonInputTag = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
+    L1EtSumInputTag = cms.InputTag( 'hltGtStage2Digis','EtSum' ),
+    L1TauInputTag = cms.InputTag( 'hltGtStage2Digis','Tau' ),
+    L1MuonInputTag = cms.InputTag( 'hltGtStage2Digis','Muon' ),
     L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
 )
 process.hltPrePAAK4CaloJet40Eta5p1SeededWithMB = cms.EDFilter( "HLTPrescaler",
@@ -6646,13 +6646,13 @@ process.hltPrePAAK4CaloJet40Eta5p1SeededWithMB = cms.EDFilter( "HLTPrescaler",
 )
 process.hltL1sSingleJet24BptxAND = cms.EDFilter( "HLTL1TSeed",
     L1SeedsLogicalExpression = cms.string( "L1_SingleJet24_BptxAND" ),
-    L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
-    L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
+    L1EGammaInputTag = cms.InputTag( 'hltGtStage2Digis','EGamma' ),
+    L1JetInputTag = cms.InputTag( 'hltGtStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
     L1ObjectMapInputTag = cms.InputTag( "hltGtStage2ObjectMap" ),
-    L1EtSumInputTag = cms.InputTag( 'hltCaloStage2Digis','EtSum' ),
-    L1TauInputTag = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
-    L1MuonInputTag = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
+    L1EtSumInputTag = cms.InputTag( 'hltGtStage2Digis','EtSum' ),
+    L1TauInputTag = cms.InputTag( 'hltGtStage2Digis','Tau' ),
+    L1MuonInputTag = cms.InputTag( 'hltGtStage2Digis','Muon' ),
     L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
 )
 process.hltPrePAAK4CaloJet60Eta5p1 = cms.EDFilter( "HLTPrescaler",
@@ -6671,13 +6671,13 @@ process.hltSinglePAAK4CaloJet60Eta5p1 = cms.EDFilter( "HLT1CaloJet",
 )
 process.hltL1sSingleJet36BptxAND = cms.EDFilter( "HLTL1TSeed",
     L1SeedsLogicalExpression = cms.string( "L1_SingleJet36_BptxAND" ),
-    L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
-    L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
+    L1EGammaInputTag = cms.InputTag( 'hltGtStage2Digis','EGamma' ),
+    L1JetInputTag = cms.InputTag( 'hltGtStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
     L1ObjectMapInputTag = cms.InputTag( "hltGtStage2ObjectMap" ),
-    L1EtSumInputTag = cms.InputTag( 'hltCaloStage2Digis','EtSum' ),
-    L1TauInputTag = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
-    L1MuonInputTag = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
+    L1EtSumInputTag = cms.InputTag( 'hltGtStage2Digis','EtSum' ),
+    L1TauInputTag = cms.InputTag( 'hltGtStage2Digis','Tau' ),
+    L1MuonInputTag = cms.InputTag( 'hltGtStage2Digis','Muon' ),
     L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
 )
 process.hltPrePAAK4CaloJet80Eta5p1 = cms.EDFilter( "HLTPrescaler",
@@ -6696,13 +6696,13 @@ process.hltSinglePAAK4CaloJet80Eta5p1 = cms.EDFilter( "HLT1CaloJet",
 )
 process.hltL1sSingleJet52BptxAND = cms.EDFilter( "HLTL1TSeed",
     L1SeedsLogicalExpression = cms.string( "L1_SingleJet52_BptxAND" ),
-    L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
-    L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
+    L1EGammaInputTag = cms.InputTag( 'hltGtStage2Digis','EGamma' ),
+    L1JetInputTag = cms.InputTag( 'hltGtStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
     L1ObjectMapInputTag = cms.InputTag( "hltGtStage2ObjectMap" ),
-    L1EtSumInputTag = cms.InputTag( 'hltCaloStage2Digis','EtSum' ),
-    L1TauInputTag = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
-    L1MuonInputTag = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
+    L1EtSumInputTag = cms.InputTag( 'hltGtStage2Digis','EtSum' ),
+    L1TauInputTag = cms.InputTag( 'hltGtStage2Digis','Tau' ),
+    L1MuonInputTag = cms.InputTag( 'hltGtStage2Digis','Muon' ),
     L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
 )
 process.hltPrePAAK4CaloJet100Eta5p1 = cms.EDFilter( "HLTPrescaler",
@@ -6721,13 +6721,13 @@ process.hltSinglePAAK4CaloJet100Eta5p1 = cms.EDFilter( "HLT1CaloJet",
 )
 process.hltL1sSingleJet12ForEta1p5BptxAND = cms.EDFilter( "HLTL1TSeed",
     L1SeedsLogicalExpression = cms.string( "L1_SingleJet12_ForEta1p5_BptxAND" ),
-    L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
-    L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
+    L1EGammaInputTag = cms.InputTag( 'hltGtStage2Digis','EGamma' ),
+    L1JetInputTag = cms.InputTag( 'hltGtStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
     L1ObjectMapInputTag = cms.InputTag( "hltGtStage2ObjectMap" ),
-    L1EtSumInputTag = cms.InputTag( 'hltCaloStage2Digis','EtSum' ),
-    L1TauInputTag = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
-    L1MuonInputTag = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
+    L1EtSumInputTag = cms.InputTag( 'hltGtStage2Digis','EtSum' ),
+    L1TauInputTag = cms.InputTag( 'hltGtStage2Digis','Tau' ),
+    L1MuonInputTag = cms.InputTag( 'hltGtStage2Digis','Muon' ),
     L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
 )
 process.hltPrePAAK4CaloJet40Eta1p9toEta5p1 = cms.EDFilter( "HLTPrescaler",
@@ -6747,13 +6747,13 @@ process.hltSinglePAAK4CaloJet40MinEta1p9 = cms.EDFilter( "HLTForwardBackwardCalo
 )
 process.hltL1sSingleJet24ForEta1p5BptxAND = cms.EDFilter( "HLTL1TSeed",
     L1SeedsLogicalExpression = cms.string( "L1_SingleJet24_ForEta1p5_BptxAND" ),
-    L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
-    L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
+    L1EGammaInputTag = cms.InputTag( 'hltGtStage2Digis','EGamma' ),
+    L1JetInputTag = cms.InputTag( 'hltGtStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
     L1ObjectMapInputTag = cms.InputTag( "hltGtStage2ObjectMap" ),
-    L1EtSumInputTag = cms.InputTag( 'hltCaloStage2Digis','EtSum' ),
-    L1TauInputTag = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
-    L1MuonInputTag = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
+    L1EtSumInputTag = cms.InputTag( 'hltGtStage2Digis','EtSum' ),
+    L1TauInputTag = cms.InputTag( 'hltGtStage2Digis','Tau' ),
+    L1MuonInputTag = cms.InputTag( 'hltGtStage2Digis','Muon' ),
     L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
 )
 process.hltPrePAAK4CaloJet60Eta1p9toEta5p1 = cms.EDFilter( "HLTPrescaler",
@@ -6773,13 +6773,13 @@ process.hltSinglePAAK4CaloJet60MinEta1p9 = cms.EDFilter( "HLTForwardBackwardCalo
 )
 process.hltL1sSingleJet12ForEta2p5BptxAND = cms.EDFilter( "HLTL1TSeed",
     L1SeedsLogicalExpression = cms.string( "L1_SingleJet12_ForEta2p5_BptxAND" ),
-    L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
-    L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
+    L1EGammaInputTag = cms.InputTag( 'hltGtStage2Digis','EGamma' ),
+    L1JetInputTag = cms.InputTag( 'hltGtStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
     L1ObjectMapInputTag = cms.InputTag( "hltGtStage2ObjectMap" ),
-    L1EtSumInputTag = cms.InputTag( 'hltCaloStage2Digis','EtSum' ),
-    L1TauInputTag = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
-    L1MuonInputTag = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
+    L1EtSumInputTag = cms.InputTag( 'hltGtStage2Digis','EtSum' ),
+    L1TauInputTag = cms.InputTag( 'hltGtStage2Digis','Tau' ),
+    L1MuonInputTag = cms.InputTag( 'hltGtStage2Digis','Muon' ),
     L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
 )
 process.hltPrePAAK4CaloJet40Eta2p9toEta5p1 = cms.EDFilter( "HLTPrescaler",
@@ -6799,13 +6799,13 @@ process.hltSinglePAAK4CaloJet40MinEta2p9 = cms.EDFilter( "HLTForwardBackwardCalo
 )
 process.hltL1sSingleMu3ORCrossSingleJet8BptxAND = cms.EDFilter( "HLTL1TSeed",
     L1SeedsLogicalExpression = cms.string( "L1_SingleMu3_BptxAND OR L1_SingleMu3_SingleJet8_BptxAND" ),
-    L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
-    L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
+    L1EGammaInputTag = cms.InputTag( 'hltGtStage2Digis','EGamma' ),
+    L1JetInputTag = cms.InputTag( 'hltGtStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
     L1ObjectMapInputTag = cms.InputTag( "hltGtStage2ObjectMap" ),
-    L1EtSumInputTag = cms.InputTag( 'hltCaloStage2Digis','EtSum' ),
-    L1TauInputTag = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
-    L1MuonInputTag = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
+    L1EtSumInputTag = cms.InputTag( 'hltGtStage2Digis','EtSum' ),
+    L1TauInputTag = cms.InputTag( 'hltGtStage2Digis','Tau' ),
+    L1MuonInputTag = cms.InputTag( 'hltGtStage2Digis','Muon' ),
     L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
 )
 process.hltPrePAAK4CaloJet30Eta5p1PAL3Mu3 = cms.EDFilter( "HLTPrescaler",
@@ -6830,7 +6830,7 @@ process.hltL1fL1sSingleMu3ORCrossSingleJet8BptxANDL1Filtered0 = cms.EDFilter( "H
     MaxEta = cms.double( 2.5 ),
     CentralBxOnly = cms.bool( True ),
     SelectQualities = cms.vint32(  ),
-    CandTag = cms.InputTag( 'hltGmtStage2Digis','Muon' )
+    CandTag = cms.InputTag( 'hltGtStage2Digis','Muon' )
 )
 process.hltMuonDTDigis = cms.EDProducer( "DTUnpackingModule",
     useStandardFEDid = cms.bool( True ),
@@ -7224,7 +7224,7 @@ process.hltL2MuonSeeds = cms.EDProducer( "L2MuonSeedGeneratorFromL1T",
       UseMuonNavigation = cms.untracked.bool( True )
     ),
     CentralBxOnly = cms.bool( True ),
-    InputObjects = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
+    InputObjects = cms.InputTag( 'hltGtStage2Digis','Muon' ),
     L1MaxEta = cms.double( 2.5 ),
     EtaMatchingBins = cms.vdouble( 0.0, 2.5 ),
     L1MinPt = cms.double( 0.0 ),
@@ -8239,13 +8239,13 @@ process.hltL3fL1sSingleMu3ORCrossSingleJet8BptxANDL1f0L2f0L3Filtered3 = cms.EDFi
 )
 process.hltL1sSingleMu3ORSingleMu5BptxAND = cms.EDFilter( "HLTL1TSeed",
     L1SeedsLogicalExpression = cms.string( "L1_SingleMu3_BptxAND OR L1_SingleMu5_BptxAND" ),
-    L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
-    L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
+    L1EGammaInputTag = cms.InputTag( 'hltGtStage2Digis','EGamma' ),
+    L1JetInputTag = cms.InputTag( 'hltGtStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
     L1ObjectMapInputTag = cms.InputTag( "hltGtStage2ObjectMap" ),
-    L1EtSumInputTag = cms.InputTag( 'hltCaloStage2Digis','EtSum' ),
-    L1TauInputTag = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
-    L1MuonInputTag = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
+    L1EtSumInputTag = cms.InputTag( 'hltGtStage2Digis','EtSum' ),
+    L1TauInputTag = cms.InputTag( 'hltGtStage2Digis','Tau' ),
+    L1MuonInputTag = cms.InputTag( 'hltGtStage2Digis','Muon' ),
     L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
 )
 process.hltPrePAAK4CaloJet30Eta5p1PAL3Mu5 = cms.EDFilter( "HLTPrescaler",
@@ -8260,7 +8260,7 @@ process.hltL1fL1sSingleMu3ORSingleMu5BptxANDL1Filtered0 = cms.EDFilter( "HLTMuon
     MaxEta = cms.double( 2.5 ),
     CentralBxOnly = cms.bool( True ),
     SelectQualities = cms.vint32(  ),
-    CandTag = cms.InputTag( 'hltGmtStage2Digis','Muon' )
+    CandTag = cms.InputTag( 'hltGtStage2Digis','Muon' )
 )
 process.hltL2fL1sSingleMu3ORSingleMu5BptxANDL1f0L2Filtered0 = cms.EDFilter( "HLTMuonL2FromL1TPreFilter",
     saveTags = cms.bool( True ),
@@ -10430,13 +10430,13 @@ process.hltPrePAAK4PFJet40Eta5p1SeededWithMB = cms.EDFilter( "HLTPrescaler",
 )
 process.hltL1sSingleJet16BptxAND = cms.EDFilter( "HLTL1TSeed",
     L1SeedsLogicalExpression = cms.string( "L1_SingleJet16_BptxAND" ),
-    L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
-    L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
+    L1EGammaInputTag = cms.InputTag( 'hltGtStage2Digis','EGamma' ),
+    L1JetInputTag = cms.InputTag( 'hltGtStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
     L1ObjectMapInputTag = cms.InputTag( "hltGtStage2ObjectMap" ),
-    L1EtSumInputTag = cms.InputTag( 'hltCaloStage2Digis','EtSum' ),
-    L1TauInputTag = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
-    L1MuonInputTag = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
+    L1EtSumInputTag = cms.InputTag( 'hltGtStage2Digis','EtSum' ),
+    L1TauInputTag = cms.InputTag( 'hltGtStage2Digis','Tau' ),
+    L1MuonInputTag = cms.InputTag( 'hltGtStage2Digis','Muon' ),
     L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
 )
 process.hltPrePAAK4PFJet60Eta5p1 = cms.EDFilter( "HLTPrescaler",
@@ -10613,19 +10613,19 @@ process.hltSinglePAAK4CaloJet40Eta2p1 = cms.EDFilter( "HLT1CaloJet",
     MinE = cms.double( -1.0 ),
     triggerType = cms.int32( 85 )
 )
-process.eta2CaloJetsEta2p1ForJets = cms.EDFilter( "CaloJetSelector",
+process.hltEta2CaloJetsEta2p1ForJets = cms.EDFilter( "CaloJetSelector",
     filter = cms.bool( False ),
     src = cms.InputTag( "hltPAAK4CaloJetsCorrectedIDPassed" ),
     cut = cms.string( "abs(eta)<2.1" )
 )
-process.reduceJetMultEta2p1ForJets = cms.EDFilter( "LargestEtCaloJetSelector",
+process.hltReduceJetMultEta2p1ForJets = cms.EDFilter( "LargestEtCaloJetSelector",
     maxNumber = cms.uint32( 10 ),
     filter = cms.bool( False ),
-    src = cms.InputTag( "eta2CaloJetsEta2p1ForJets" )
+    src = cms.InputTag( "hltEta2CaloJetsEta2p1ForJets" )
 )
-process.jets4bTaggerCaloJet40Eta2p1ForJets = cms.EDFilter( "CaloJetSelector",
+process.hltJets4bTaggerCaloJet40Eta2p1ForJets = cms.EDFilter( "CaloJetSelector",
     filter = cms.bool( False ),
-    src = cms.InputTag( "reduceJetMultEta2p1ForJets" ),
+    src = cms.InputTag( "hltReduceJetMultEta2p1ForJets" ),
     cut = cms.string( "pt > 40.0" )
 )
 process.hltPAIter0PixelTripletsSeedsForJets = cms.EDProducer( "SeedGeneratorFromRegionHitsEDProducer",
@@ -12229,7 +12229,7 @@ process.hltHIPAVerticesL3 = cms.EDProducer( "PrimaryVertexProducer",
     )
 )
 process.hltFastPixelBLifetimeL3AssociatorCaloJet40Eta2p1 = cms.EDProducer( "JetTracksAssociatorAtVertex",
-    jets = cms.InputTag( "jets4bTaggerCaloJet40Eta2p1ForJets" ),
+    jets = cms.InputTag( "hltJets4bTaggerCaloJet40Eta2p1ForJets" ),
     tracks = cms.InputTag( "hltPAIterativeTrackingMergedForJets" ),
     useAssigned = cms.bool( False ),
     coneSize = cms.double( 0.4 ),
@@ -12321,11 +12321,11 @@ process.hltL3CombinedSecondaryVertexBJetTagsCaloJet40Eta2p1 = cms.EDProducer( "J
     tagInfos = cms.VInputTag( 'hltFastPixelBLifetimeL3TagInfosCaloJet40Eta2p1','hltL3SecondaryVertexTagInfosCaloJet40Eta2p1' )
 )
 process.hltPABLifetimeL3FilterCSVCaloJet40Eta2p1 = cms.EDFilter( "HLTCaloJetTag",
-    saveTags = cms.bool( True ),
+    saveTags = cms.bool( False ),
     MinJets = cms.int32( 1 ),
     JetTags = cms.InputTag( "hltL3CombinedSecondaryVertexBJetTagsCaloJet40Eta2p1" ),
     TriggerType = cms.int32( 86 ),
-    Jets = cms.InputTag( "jets4bTaggerCaloJet40Eta2p1ForJets" ),
+    Jets = cms.InputTag( "hltJets4bTaggerCaloJet40Eta2p1ForJets" ),
     MinTag = cms.double( 0.7 ),
     MaxTag = cms.double( 999999.0 )
 )
@@ -12343,17 +12343,17 @@ process.hltSinglePAAK4CaloJet60Eta2p1 = cms.EDFilter( "HLT1CaloJet",
     MinE = cms.double( -1.0 ),
     triggerType = cms.int32( 85 )
 )
-process.jets4bTaggerCaloJet60Eta2p1ForJets = cms.EDFilter( "CaloJetSelector",
+process.hltJets4bTaggerCaloJet60Eta2p1ForJets = cms.EDFilter( "CaloJetSelector",
     filter = cms.bool( False ),
-    src = cms.InputTag( "reduceJetMultEta2p1ForJets" ),
+    src = cms.InputTag( "hltReduceJetMultEta2p1ForJets" ),
     cut = cms.string( "pt > 60.0" )
 )
 process.hltPABLifetimeL3FilterCSVCaloJet60Eta2p1 = cms.EDFilter( "HLTCaloJetTag",
-    saveTags = cms.bool( True ),
+    saveTags = cms.bool( False ),
     MinJets = cms.int32( 1 ),
     JetTags = cms.InputTag( "hltL3CombinedSecondaryVertexBJetTagsCaloJet40Eta2p1" ),
     TriggerType = cms.int32( 86 ),
-    Jets = cms.InputTag( "jets4bTaggerCaloJet60Eta2p1ForJets" ),
+    Jets = cms.InputTag( "hltJets4bTaggerCaloJet60Eta2p1ForJets" ),
     MinTag = cms.double( 0.7 ),
     MaxTag = cms.double( 999999.0 )
 )
@@ -12371,17 +12371,17 @@ process.hltSinglePAAK4CaloJet80Eta2p1 = cms.EDFilter( "HLT1CaloJet",
     MinE = cms.double( -1.0 ),
     triggerType = cms.int32( 85 )
 )
-process.jets4bTaggerCaloJet80Eta2p1ForJets = cms.EDFilter( "CaloJetSelector",
+process.hltJets4bTaggerCaloJet80Eta2p1ForJets = cms.EDFilter( "CaloJetSelector",
     filter = cms.bool( False ),
-    src = cms.InputTag( "reduceJetMultEta2p1ForJets" ),
+    src = cms.InputTag( "hltReduceJetMultEta2p1ForJets" ),
     cut = cms.string( "pt > 80.0" )
 )
 process.hltPABLifetimeL3FilterCSVCaloJet80Eta2p1 = cms.EDFilter( "HLTCaloJetTag",
-    saveTags = cms.bool( True ),
+    saveTags = cms.bool( False ),
     MinJets = cms.int32( 1 ),
     JetTags = cms.InputTag( "hltL3CombinedSecondaryVertexBJetTagsCaloJet40Eta2p1" ),
     TriggerType = cms.int32( 86 ),
-    Jets = cms.InputTag( "jets4bTaggerCaloJet80Eta2p1ForJets" ),
+    Jets = cms.InputTag( "hltJets4bTaggerCaloJet80Eta2p1ForJets" ),
     MinTag = cms.double( 0.7 ),
     MaxTag = cms.double( 999999.0 )
 )
@@ -13036,13 +13036,13 @@ process.hltHIPhoton10Eta3p1 = cms.EDFilter( "HLT1Photon",
 )
 process.hltL1sSingleEG5BptxAND = cms.EDFilter( "HLTL1TSeed",
     L1SeedsLogicalExpression = cms.string( "L1_SingleEG5_BptxAND" ),
-    L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
-    L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
+    L1EGammaInputTag = cms.InputTag( 'hltGtStage2Digis','EGamma' ),
+    L1JetInputTag = cms.InputTag( 'hltGtStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
     L1ObjectMapInputTag = cms.InputTag( "hltGtStage2ObjectMap" ),
-    L1EtSumInputTag = cms.InputTag( 'hltCaloStage2Digis','EtSum' ),
-    L1TauInputTag = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
-    L1MuonInputTag = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
+    L1EtSumInputTag = cms.InputTag( 'hltGtStage2Digis','EtSum' ),
+    L1TauInputTag = cms.InputTag( 'hltGtStage2Digis','Tau' ),
+    L1MuonInputTag = cms.InputTag( 'hltGtStage2Digis','Muon' ),
     L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
 )
 process.hltPrePASinglePhoton15Eta3p1 = cms.EDFilter( "HLTPrescaler",
@@ -13065,13 +13065,13 @@ process.hltPrePASinglePhoton15Eta3p1SeededWithMB = cms.EDFilter( "HLTPrescaler",
 )
 process.hltL1sSingleEG10BptxAND = cms.EDFilter( "HLTL1TSeed",
     L1SeedsLogicalExpression = cms.string( "L1_SingleEG10_BptxAND" ),
-    L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
-    L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
+    L1EGammaInputTag = cms.InputTag( 'hltGtStage2Digis','EGamma' ),
+    L1JetInputTag = cms.InputTag( 'hltGtStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
     L1ObjectMapInputTag = cms.InputTag( "hltGtStage2ObjectMap" ),
-    L1EtSumInputTag = cms.InputTag( 'hltCaloStage2Digis','EtSum' ),
-    L1TauInputTag = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
-    L1MuonInputTag = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
+    L1EtSumInputTag = cms.InputTag( 'hltGtStage2Digis','EtSum' ),
+    L1TauInputTag = cms.InputTag( 'hltGtStage2Digis','Tau' ),
+    L1MuonInputTag = cms.InputTag( 'hltGtStage2Digis','Muon' ),
     L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
 )
 process.hltPrePASinglePhoton20Eta3p1 = cms.EDFilter( "HLTPrescaler",
@@ -13094,13 +13094,13 @@ process.hltPrePASinglePhoton20Eta3p1SeededWithMB = cms.EDFilter( "HLTPrescaler",
 )
 process.hltL1sSingleEG14BptxAND = cms.EDFilter( "HLTL1TSeed",
     L1SeedsLogicalExpression = cms.string( "L1_SingleEG14_BptxAND" ),
-    L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
-    L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
+    L1EGammaInputTag = cms.InputTag( 'hltGtStage2Digis','EGamma' ),
+    L1JetInputTag = cms.InputTag( 'hltGtStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
     L1ObjectMapInputTag = cms.InputTag( "hltGtStage2ObjectMap" ),
-    L1EtSumInputTag = cms.InputTag( 'hltCaloStage2Digis','EtSum' ),
-    L1TauInputTag = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
-    L1MuonInputTag = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
+    L1EtSumInputTag = cms.InputTag( 'hltGtStage2Digis','EtSum' ),
+    L1TauInputTag = cms.InputTag( 'hltGtStage2Digis','Tau' ),
+    L1MuonInputTag = cms.InputTag( 'hltGtStage2Digis','Muon' ),
     L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
 )
 process.hltPrePASinglePhoton30Eta3p1 = cms.EDFilter( "HLTPrescaler",
@@ -13119,13 +13119,13 @@ process.hltHIPhoton30Eta3p1 = cms.EDFilter( "HLT1Photon",
 )
 process.hltL1sSingleEG14BptxANDORSingleJet24BptxAND = cms.EDFilter( "HLTL1TSeed",
     L1SeedsLogicalExpression = cms.string( "L1_SingleEG14_BptxAND OR L1_SingleJet24_BptxAND" ),
-    L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
-    L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
+    L1EGammaInputTag = cms.InputTag( 'hltGtStage2Digis','EGamma' ),
+    L1JetInputTag = cms.InputTag( 'hltGtStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
     L1ObjectMapInputTag = cms.InputTag( "hltGtStage2ObjectMap" ),
-    L1EtSumInputTag = cms.InputTag( 'hltCaloStage2Digis','EtSum' ),
-    L1TauInputTag = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
-    L1MuonInputTag = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
+    L1EtSumInputTag = cms.InputTag( 'hltGtStage2Digis','EtSum' ),
+    L1TauInputTag = cms.InputTag( 'hltGtStage2Digis','Tau' ),
+    L1MuonInputTag = cms.InputTag( 'hltGtStage2Digis','Muon' ),
     L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
 )
 process.hltPrePASinglePhoton30L1EGJetEta3p1 = cms.EDFilter( "HLTPrescaler",
@@ -13134,13 +13134,13 @@ process.hltPrePASinglePhoton30L1EGJetEta3p1 = cms.EDFilter( "HLTPrescaler",
 )
 process.hltL1sSingleEG18BptxAND = cms.EDFilter( "HLTL1TSeed",
     L1SeedsLogicalExpression = cms.string( "L1_SingleEG18_BptxAND" ),
-    L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
-    L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
+    L1EGammaInputTag = cms.InputTag( 'hltGtStage2Digis','EGamma' ),
+    L1JetInputTag = cms.InputTag( 'hltGtStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
     L1ObjectMapInputTag = cms.InputTag( "hltGtStage2ObjectMap" ),
-    L1EtSumInputTag = cms.InputTag( 'hltCaloStage2Digis','EtSum' ),
-    L1TauInputTag = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
-    L1MuonInputTag = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
+    L1EtSumInputTag = cms.InputTag( 'hltGtStage2Digis','EtSum' ),
+    L1TauInputTag = cms.InputTag( 'hltGtStage2Digis','Tau' ),
+    L1MuonInputTag = cms.InputTag( 'hltGtStage2Digis','Muon' ),
     L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
 )
 process.hltPrePASinglePhoton40Eta3p1 = cms.EDFilter( "HLTPrescaler",
@@ -13159,13 +13159,13 @@ process.hltHIPhoton40Eta3p1 = cms.EDFilter( "HLT1Photon",
 )
 process.hltL1sSingleEG18BptxANDORSingleJet36BptxAND = cms.EDFilter( "HLTL1TSeed",
     L1SeedsLogicalExpression = cms.string( "L1_SingleEG18_BptxAND OR L1_SingleJet36_BptxAND" ),
-    L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
-    L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
+    L1EGammaInputTag = cms.InputTag( 'hltGtStage2Digis','EGamma' ),
+    L1JetInputTag = cms.InputTag( 'hltGtStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
     L1ObjectMapInputTag = cms.InputTag( "hltGtStage2ObjectMap" ),
-    L1EtSumInputTag = cms.InputTag( 'hltCaloStage2Digis','EtSum' ),
-    L1TauInputTag = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
-    L1MuonInputTag = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
+    L1EtSumInputTag = cms.InputTag( 'hltGtStage2Digis','EtSum' ),
+    L1TauInputTag = cms.InputTag( 'hltGtStage2Digis','Tau' ),
+    L1MuonInputTag = cms.InputTag( 'hltGtStage2Digis','Muon' ),
     L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
 )
 process.hltPrePASinglePhoton40L1EGJetEta3p1 = cms.EDFilter( "HLTPrescaler",
@@ -13174,13 +13174,13 @@ process.hltPrePASinglePhoton40L1EGJetEta3p1 = cms.EDFilter( "HLTPrescaler",
 )
 process.hltL1sSingleEG14ORSingleEG18BptxAND = cms.EDFilter( "HLTL1TSeed",
     L1SeedsLogicalExpression = cms.string( "L1_SingleEG14_BptxAND OR L1_SingleEG18_BptxAND" ),
-    L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
-    L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
+    L1EGammaInputTag = cms.InputTag( 'hltGtStage2Digis','EGamma' ),
+    L1JetInputTag = cms.InputTag( 'hltGtStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
     L1ObjectMapInputTag = cms.InputTag( "hltGtStage2ObjectMap" ),
-    L1EtSumInputTag = cms.InputTag( 'hltCaloStage2Digis','EtSum' ),
-    L1TauInputTag = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
-    L1MuonInputTag = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
+    L1EtSumInputTag = cms.InputTag( 'hltGtStage2Digis','EtSum' ),
+    L1TauInputTag = cms.InputTag( 'hltGtStage2Digis','Tau' ),
+    L1MuonInputTag = cms.InputTag( 'hltGtStage2Digis','Muon' ),
     L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
 )
 process.hltPrePADoublePhoton15Eta3p1Mass501000 = cms.EDFilter( "HLTPrescaler",
@@ -15270,13 +15270,13 @@ process.hltPAEle20WPLooseGsfTrackIsoFilter = cms.EDFilter( "HLTEgammaGenericFilt
 )
 process.hltL1sDoubleMu0MassGT1BptxAND = cms.EDFilter( "HLTL1TSeed",
     L1SeedsLogicalExpression = cms.string( "L1_DoubleMu0_MassGT1_BptxAND" ),
-    L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
-    L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
+    L1EGammaInputTag = cms.InputTag( 'hltGtStage2Digis','EGamma' ),
+    L1JetInputTag = cms.InputTag( 'hltGtStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
     L1ObjectMapInputTag = cms.InputTag( "hltGtStage2ObjectMap" ),
-    L1EtSumInputTag = cms.InputTag( 'hltCaloStage2Digis','EtSum' ),
-    L1TauInputTag = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
-    L1MuonInputTag = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
+    L1EtSumInputTag = cms.InputTag( 'hltGtStage2Digis','EtSum' ),
+    L1TauInputTag = cms.InputTag( 'hltGtStage2Digis','Tau' ),
+    L1MuonInputTag = cms.InputTag( 'hltGtStage2Digis','Muon' ),
     L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
 )
 process.hltPrePAL1DoubleMu0MGT1 = cms.EDFilter( "HLTPrescaler",
@@ -15291,17 +15291,17 @@ process.hltL1fL1sDoubleMu0MassGT1BptxANDL1Filtered0 = cms.EDFilter( "HLTMuonL1TF
     MaxEta = cms.double( 2.5 ),
     CentralBxOnly = cms.bool( True ),
     SelectQualities = cms.vint32(  ),
-    CandTag = cms.InputTag( 'hltGmtStage2Digis','Muon' )
+    CandTag = cms.InputTag( 'hltGtStage2Digis','Muon' )
 )
 process.hltL1sDoubleMu0BptxAND = cms.EDFilter( "HLTL1TSeed",
     L1SeedsLogicalExpression = cms.string( "L1_DoubleMu0_BptxAND" ),
-    L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
-    L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
+    L1EGammaInputTag = cms.InputTag( 'hltGtStage2Digis','EGamma' ),
+    L1JetInputTag = cms.InputTag( 'hltGtStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
     L1ObjectMapInputTag = cms.InputTag( "hltGtStage2ObjectMap" ),
-    L1EtSumInputTag = cms.InputTag( 'hltCaloStage2Digis','EtSum' ),
-    L1TauInputTag = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
-    L1MuonInputTag = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
+    L1EtSumInputTag = cms.InputTag( 'hltGtStage2Digis','EtSum' ),
+    L1TauInputTag = cms.InputTag( 'hltGtStage2Digis','Tau' ),
+    L1MuonInputTag = cms.InputTag( 'hltGtStage2Digis','Muon' ),
     L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
 )
 process.hltPrePAL1DoubleMu0HighQ = cms.EDFilter( "HLTPrescaler",
@@ -15316,7 +15316,7 @@ process.hltL1fL1sDoubleMu0BptxANDL1HighQFiltered0 = cms.EDFilter( "HLTMuonL1TFil
     MaxEta = cms.double( 2.5 ),
     CentralBxOnly = cms.bool( True ),
     SelectQualities = cms.vint32( 12, 13, 14, 15 ),
-    CandTag = cms.InputTag( 'hltGmtStage2Digis','Muon' )
+    CandTag = cms.InputTag( 'hltGtStage2Digis','Muon' )
 )
 process.hltPrePAL1DoubleMu0 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
@@ -15330,17 +15330,17 @@ process.hltL1fL1sDoubleMu0BptxANDL1Filtered0 = cms.EDFilter( "HLTMuonL1TFilter",
     MaxEta = cms.double( 2.5 ),
     CentralBxOnly = cms.bool( True ),
     SelectQualities = cms.vint32(  ),
-    CandTag = cms.InputTag( 'hltGmtStage2Digis','Muon' )
+    CandTag = cms.InputTag( 'hltGtStage2Digis','Muon' )
 )
 process.hltL1sDoubleMu10BptxAND = cms.EDFilter( "HLTL1TSeed",
     L1SeedsLogicalExpression = cms.string( "L1_DoubleMu10_BptxAND" ),
-    L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
-    L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
+    L1EGammaInputTag = cms.InputTag( 'hltGtStage2Digis','EGamma' ),
+    L1JetInputTag = cms.InputTag( 'hltGtStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
     L1ObjectMapInputTag = cms.InputTag( "hltGtStage2ObjectMap" ),
-    L1EtSumInputTag = cms.InputTag( 'hltCaloStage2Digis','EtSum' ),
-    L1TauInputTag = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
-    L1MuonInputTag = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
+    L1EtSumInputTag = cms.InputTag( 'hltGtStage2Digis','EtSum' ),
+    L1TauInputTag = cms.InputTag( 'hltGtStage2Digis','Tau' ),
+    L1MuonInputTag = cms.InputTag( 'hltGtStage2Digis','Muon' ),
     L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
 )
 process.hltPrePAL1DoubleMu10 = cms.EDFilter( "HLTPrescaler",
@@ -15355,17 +15355,17 @@ process.hltL1fL1sDoubleMu10BptxANDL1Filtered0 = cms.EDFilter( "HLTMuonL1TFilter"
     MaxEta = cms.double( 2.5 ),
     CentralBxOnly = cms.bool( True ),
     SelectQualities = cms.vint32(  ),
-    CandTag = cms.InputTag( 'hltGmtStage2Digis','Muon' )
+    CandTag = cms.InputTag( 'hltGtStage2Digis','Muon' )
 )
 process.hltL1sDoubleMuOpenOSBptxAND = cms.EDFilter( "HLTL1TSeed",
     L1SeedsLogicalExpression = cms.string( "L1_DoubleMuOpen_OS_BptxAND" ),
-    L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
-    L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
+    L1EGammaInputTag = cms.InputTag( 'hltGtStage2Digis','EGamma' ),
+    L1JetInputTag = cms.InputTag( 'hltGtStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
     L1ObjectMapInputTag = cms.InputTag( "hltGtStage2ObjectMap" ),
-    L1EtSumInputTag = cms.InputTag( 'hltCaloStage2Digis','EtSum' ),
-    L1TauInputTag = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
-    L1MuonInputTag = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
+    L1EtSumInputTag = cms.InputTag( 'hltGtStage2Digis','EtSum' ),
+    L1TauInputTag = cms.InputTag( 'hltGtStage2Digis','Tau' ),
+    L1MuonInputTag = cms.InputTag( 'hltGtStage2Digis','Muon' ),
     L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
 )
 process.hltPrePAL1DoubleMuOpenOS = cms.EDFilter( "HLTPrescaler",
@@ -15380,17 +15380,17 @@ process.hltL1fL1sDoubleMuOpenOSBptxANDL1Filtered0 = cms.EDFilter( "HLTMuonL1TFil
     MaxEta = cms.double( 2.5 ),
     CentralBxOnly = cms.bool( True ),
     SelectQualities = cms.vint32(  ),
-    CandTag = cms.InputTag( 'hltGmtStage2Digis','Muon' )
+    CandTag = cms.InputTag( 'hltGtStage2Digis','Muon' )
 )
 process.hltL1sDoubleMuOpenSSBptxAND = cms.EDFilter( "HLTL1TSeed",
     L1SeedsLogicalExpression = cms.string( "L1_DoubleMuOpen_SS_BptxAND" ),
-    L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
-    L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
+    L1EGammaInputTag = cms.InputTag( 'hltGtStage2Digis','EGamma' ),
+    L1JetInputTag = cms.InputTag( 'hltGtStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
     L1ObjectMapInputTag = cms.InputTag( "hltGtStage2ObjectMap" ),
-    L1EtSumInputTag = cms.InputTag( 'hltCaloStage2Digis','EtSum' ),
-    L1TauInputTag = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
-    L1MuonInputTag = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
+    L1EtSumInputTag = cms.InputTag( 'hltGtStage2Digis','EtSum' ),
+    L1TauInputTag = cms.InputTag( 'hltGtStage2Digis','Tau' ),
+    L1MuonInputTag = cms.InputTag( 'hltGtStage2Digis','Muon' ),
     L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
 )
 process.hltPrePAL1DoubleMuOpenSS = cms.EDFilter( "HLTPrescaler",
@@ -15405,17 +15405,17 @@ process.hltL1fL1sDoubleMuOpenSSBptxANDL1Filtered0 = cms.EDFilter( "HLTMuonL1TFil
     MaxEta = cms.double( 2.5 ),
     CentralBxOnly = cms.bool( True ),
     SelectQualities = cms.vint32(  ),
-    CandTag = cms.InputTag( 'hltGmtStage2Digis','Muon' )
+    CandTag = cms.InputTag( 'hltGtStage2Digis','Muon' )
 )
 process.hltL1sDoubleMuOpenBptxAND = cms.EDFilter( "HLTL1TSeed",
     L1SeedsLogicalExpression = cms.string( "L1_DoubleMuOpen_BptxAND" ),
-    L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
-    L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
+    L1EGammaInputTag = cms.InputTag( 'hltGtStage2Digis','EGamma' ),
+    L1JetInputTag = cms.InputTag( 'hltGtStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
     L1ObjectMapInputTag = cms.InputTag( "hltGtStage2ObjectMap" ),
-    L1EtSumInputTag = cms.InputTag( 'hltCaloStage2Digis','EtSum' ),
-    L1TauInputTag = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
-    L1MuonInputTag = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
+    L1EtSumInputTag = cms.InputTag( 'hltGtStage2Digis','EtSum' ),
+    L1TauInputTag = cms.InputTag( 'hltGtStage2Digis','Tau' ),
+    L1MuonInputTag = cms.InputTag( 'hltGtStage2Digis','Muon' ),
     L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
 )
 process.hltPrePAL1DoubleMuOpen = cms.EDFilter( "HLTPrescaler",
@@ -15430,7 +15430,7 @@ process.hltL1fL1sDoubleMuOpenBptxANDL1Filtered0 = cms.EDFilter( "HLTMuonL1TFilte
     MaxEta = cms.double( 2.5 ),
     CentralBxOnly = cms.bool( True ),
     SelectQualities = cms.vint32(  ),
-    CandTag = cms.InputTag( 'hltGmtStage2Digis','Muon' )
+    CandTag = cms.InputTag( 'hltGtStage2Digis','Muon' )
 )
 process.hltPrePAL2DoubleMu10 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
@@ -16047,13 +16047,13 @@ process.hltL3fL1sDoubleMuOpenBptxANDL1f0L2f0L3Filtered0 = cms.EDFilter( "HLTMuon
 )
 process.hltL1sSingleMu7BptxAND = cms.EDFilter( "HLTL1TSeed",
     L1SeedsLogicalExpression = cms.string( "L1_SingleMu7_BptxAND" ),
-    L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
-    L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
+    L1EGammaInputTag = cms.InputTag( 'hltGtStage2Digis','EGamma' ),
+    L1JetInputTag = cms.InputTag( 'hltGtStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
     L1ObjectMapInputTag = cms.InputTag( "hltGtStage2ObjectMap" ),
-    L1EtSumInputTag = cms.InputTag( 'hltCaloStage2Digis','EtSum' ),
-    L1TauInputTag = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
-    L1MuonInputTag = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
+    L1EtSumInputTag = cms.InputTag( 'hltGtStage2Digis','EtSum' ),
+    L1TauInputTag = cms.InputTag( 'hltGtStage2Digis','Tau' ),
+    L1MuonInputTag = cms.InputTag( 'hltGtStage2Digis','Muon' ),
     L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
 )
 process.hltPrePAL2Mu15 = cms.EDFilter( "HLTPrescaler",
@@ -16068,7 +16068,7 @@ process.hltL1fL1sSingleMu7BptxANDL1Filtered0 = cms.EDFilter( "HLTMuonL1TFilter",
     MaxEta = cms.double( 2.5 ),
     CentralBxOnly = cms.bool( True ),
     SelectQualities = cms.vint32(  ),
-    CandTag = cms.InputTag( 'hltGmtStage2Digis','Muon' )
+    CandTag = cms.InputTag( 'hltGtStage2Digis','Muon' )
 )
 process.hltL2fL1sSingleMu7BptxANDL1f0L2Filtered15 = cms.EDFilter( "HLTMuonL2FromL1TPreFilter",
     saveTags = cms.bool( True ),
@@ -16188,13 +16188,13 @@ process.hltL3fL1sSingleMu7BptxANDL1f0L2f0L3Filtered15 = cms.EDFilter( "HLTMuonL3
 )
 process.hltL1sSingleMu3BptxAND = cms.EDFilter( "HLTL1TSeed",
     L1SeedsLogicalExpression = cms.string( "L1_SingleMu3_BptxAND" ),
-    L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
-    L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
+    L1EGammaInputTag = cms.InputTag( 'hltGtStage2Digis','EGamma' ),
+    L1JetInputTag = cms.InputTag( 'hltGtStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
     L1ObjectMapInputTag = cms.InputTag( "hltGtStage2ObjectMap" ),
-    L1EtSumInputTag = cms.InputTag( 'hltCaloStage2Digis','EtSum' ),
-    L1TauInputTag = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
-    L1MuonInputTag = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
+    L1EtSumInputTag = cms.InputTag( 'hltGtStage2Digis','EtSum' ),
+    L1TauInputTag = cms.InputTag( 'hltGtStage2Digis','Tau' ),
+    L1MuonInputTag = cms.InputTag( 'hltGtStage2Digis','Muon' ),
     L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
 )
 process.hltPrePAL3Mu3 = cms.EDFilter( "HLTPrescaler",
@@ -16209,7 +16209,7 @@ process.hltL1fL1sSingleMu3BptxANDL1Filtered0 = cms.EDFilter( "HLTMuonL1TFilter",
     MaxEta = cms.double( 2.5 ),
     CentralBxOnly = cms.bool( True ),
     SelectQualities = cms.vint32(  ),
-    CandTag = cms.InputTag( 'hltGmtStage2Digis','Muon' )
+    CandTag = cms.InputTag( 'hltGtStage2Digis','Muon' )
 )
 process.hltL2fL1sSingleMu3BptxANDL1f0L2Filtered0 = cms.EDFilter( "HLTMuonL2FromL1TPreFilter",
     saveTags = cms.bool( True ),
@@ -16259,13 +16259,13 @@ process.hltPrePAL3Mu5 = cms.EDFilter( "HLTPrescaler",
 )
 process.hltL1sSingleMu5BptxAND = cms.EDFilter( "HLTL1TSeed",
     L1SeedsLogicalExpression = cms.string( "L1_SingleMu5_BptxAND" ),
-    L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
-    L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
+    L1EGammaInputTag = cms.InputTag( 'hltGtStage2Digis','EGamma' ),
+    L1JetInputTag = cms.InputTag( 'hltGtStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
     L1ObjectMapInputTag = cms.InputTag( "hltGtStage2ObjectMap" ),
-    L1EtSumInputTag = cms.InputTag( 'hltCaloStage2Digis','EtSum' ),
-    L1TauInputTag = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
-    L1MuonInputTag = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
+    L1EtSumInputTag = cms.InputTag( 'hltGtStage2Digis','EtSum' ),
+    L1TauInputTag = cms.InputTag( 'hltGtStage2Digis','Tau' ),
+    L1MuonInputTag = cms.InputTag( 'hltGtStage2Digis','Muon' ),
     L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
 )
 process.hltPrePAL3Mu7 = cms.EDFilter( "HLTPrescaler",
@@ -16280,7 +16280,7 @@ process.hltL1fL1sSingleMu5BptxANDL1Filtered0 = cms.EDFilter( "HLTMuonL1TFilter",
     MaxEta = cms.double( 2.5 ),
     CentralBxOnly = cms.bool( True ),
     SelectQualities = cms.vint32(  ),
-    CandTag = cms.InputTag( 'hltGmtStage2Digis','Muon' )
+    CandTag = cms.InputTag( 'hltGtStage2Digis','Muon' )
 )
 process.hltL2fL1sSingleMu5BptxANDL1f0L2Filtered0 = cms.EDFilter( "HLTMuonL2FromL1TPreFilter",
     saveTags = cms.bool( True ),
@@ -16328,7 +16328,7 @@ process.hltPrePADmesonPPTrackingGlobalDpt5 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
     offset = cms.uint32( 0 )
 )
-process.HLTPAPixelClusterShapeFilter = cms.EDFilter( "HLTPixelClusterShapeFilter",
+process.hltPAPixelClusterShapeFilter = cms.EDFilter( "HLTPixelClusterShapeFilter",
     maxZ = cms.double( 30.05 ),
     saveTags = cms.bool( True ),
     clusterTrunc = cms.double( -1.0 ),
@@ -16918,13 +16918,13 @@ process.hltPAFullTrackHighPt16 = cms.EDFilter( "HLTSingleVertexPixelTrackFilter"
 )
 process.hltL1sTowerCount110OR115OR120OR125OR130BptxAND = cms.EDFilter( "HLTL1TSeed",
     L1SeedsLogicalExpression = cms.string( "L1_TowerCount110_BptxAND OR L1_TowerCount115_BptxAND OR L1_TowerCount120_BptxAND OR L1_TowerCount125_BptxAND OR L1_TowerCount130_BptxAND" ),
-    L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
-    L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
+    L1EGammaInputTag = cms.InputTag( 'hltGtStage2Digis','EGamma' ),
+    L1JetInputTag = cms.InputTag( 'hltGtStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
     L1ObjectMapInputTag = cms.InputTag( "hltGtStage2ObjectMap" ),
-    L1EtSumInputTag = cms.InputTag( 'hltCaloStage2Digis','EtSum' ),
-    L1TauInputTag = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
-    L1MuonInputTag = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
+    L1EtSumInputTag = cms.InputTag( 'hltGtStage2Digis','EtSum' ),
+    L1TauInputTag = cms.InputTag( 'hltGtStage2Digis','Tau' ),
+    L1MuonInputTag = cms.InputTag( 'hltGtStage2Digis','Muon' ),
     L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
 )
 process.hltPrePAFullTracksMultiplicity185part1 = cms.EDFilter( "HLTPrescaler",
@@ -17001,13 +17001,13 @@ process.hltPAFullTrackHighMult220 = cms.EDFilter( "HLTSingleVertexPixelTrackFilt
 )
 process.hltL1sTowerCount140OR145OR150OR155OR160BptxAND = cms.EDFilter( "HLTL1TSeed",
     L1SeedsLogicalExpression = cms.string( "L1_TowerCount140_BptxAND OR L1_TowerCount145_BptxAND OR L1_TowerCount150_BptxAND OR L1_TowerCount155_BptxAND OR L1_TowerCount160_BptxAND" ),
-    L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
-    L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
+    L1EGammaInputTag = cms.InputTag( 'hltGtStage2Digis','EGamma' ),
+    L1JetInputTag = cms.InputTag( 'hltGtStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
     L1ObjectMapInputTag = cms.InputTag( "hltGtStage2ObjectMap" ),
-    L1EtSumInputTag = cms.InputTag( 'hltCaloStage2Digis','EtSum' ),
-    L1TauInputTag = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
-    L1MuonInputTag = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
+    L1EtSumInputTag = cms.InputTag( 'hltGtStage2Digis','EtSum' ),
+    L1TauInputTag = cms.InputTag( 'hltGtStage2Digis','Tau' ),
+    L1MuonInputTag = cms.InputTag( 'hltGtStage2Digis','Muon' ),
     L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
 )
 process.hltPrePAFullTracksMultiplicity250 = cms.EDFilter( "HLTPrescaler",
@@ -17139,13 +17139,13 @@ process.hltPrePAL1MinimumBiasHFOR = cms.EDFilter( "HLTPrescaler",
 )
 process.hltL1sMinimumBiasHF0ORBptxANDCopy = cms.EDFilter( "HLTL1TSeed",
     L1SeedsLogicalExpression = cms.string( "L1_MinimumBiasHF0_OR_BptxAND_Copy" ),
-    L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
-    L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
+    L1EGammaInputTag = cms.InputTag( 'hltGtStage2Digis','EGamma' ),
+    L1JetInputTag = cms.InputTag( 'hltGtStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
     L1ObjectMapInputTag = cms.InputTag( "hltGtStage2ObjectMap" ),
-    L1EtSumInputTag = cms.InputTag( 'hltCaloStage2Digis','EtSum' ),
-    L1TauInputTag = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
-    L1MuonInputTag = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
+    L1EtSumInputTag = cms.InputTag( 'hltGtStage2Digis','EtSum' ),
+    L1TauInputTag = cms.InputTag( 'hltGtStage2Digis','Tau' ),
+    L1MuonInputTag = cms.InputTag( 'hltGtStage2Digis','Muon' ),
     L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
 )
 process.hltPrePAL1MinimumBiasHFORSinglePixelTrack = cms.EDFilter( "HLTPrescaler",
@@ -17154,24 +17154,24 @@ process.hltPrePAL1MinimumBiasHFORSinglePixelTrack = cms.EDFilter( "HLTPrescaler"
 )
 process.hltL1sL1ZeroBiasFirstCollisionAfterAbortGap = cms.EDFilter( "HLTL1TSeed",
     L1SeedsLogicalExpression = cms.string( "L1_ZeroBias_FirstCollidingBunch" ),
-    L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
-    L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
+    L1EGammaInputTag = cms.InputTag( 'hltGtStage2Digis','EGamma' ),
+    L1JetInputTag = cms.InputTag( 'hltGtStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
     L1ObjectMapInputTag = cms.InputTag( "hltGtStage2ObjectMap" ),
-    L1EtSumInputTag = cms.InputTag( 'hltCaloStage2Digis','EtSum' ),
-    L1TauInputTag = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
-    L1MuonInputTag = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
+    L1EtSumInputTag = cms.InputTag( 'hltGtStage2Digis','EtSum' ),
+    L1TauInputTag = cms.InputTag( 'hltGtStage2Digis','Tau' ),
+    L1MuonInputTag = cms.InputTag( 'hltGtStage2Digis','Muon' ),
     L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
 )
 process.hltL1sMinimumBiasHF0ORBptxANDFull = cms.EDFilter( "HLTL1TSeed",
     L1SeedsLogicalExpression = cms.string( "L1_MinimumBiasHF0_OR_BptxAND" ),
-    L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
-    L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
+    L1EGammaInputTag = cms.InputTag( 'hltGtStage2Digis','EGamma' ),
+    L1JetInputTag = cms.InputTag( 'hltGtStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
     L1ObjectMapInputTag = cms.InputTag( "hltGtStage2ObjectMap" ),
-    L1EtSumInputTag = cms.InputTag( 'hltCaloStage2Digis','EtSum' ),
-    L1TauInputTag = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
-    L1MuonInputTag = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
+    L1EtSumInputTag = cms.InputTag( 'hltGtStage2Digis','EtSum' ),
+    L1TauInputTag = cms.InputTag( 'hltGtStage2Digis','Tau' ),
+    L1MuonInputTag = cms.InputTag( 'hltGtStage2Digis','Muon' ),
     L1GlobalInputTag = cms.InputTag( "hltGtStage2ObjectMap" )
 )
 process.hltPrePAL1MinimumBiasHFORSinglePixelTrackFirstCollisionAfterAbortGap = cms.EDFilter( "HLTPrescaler",
@@ -17188,13 +17188,13 @@ process.hltPrePAL1MinimumBiasHFORSinglePixelTrackForExpress = cms.EDFilter( "HLT
 )
 process.hltL1sMinimumBiasHF0ORBptxANDCopyOROriginal = cms.EDFilter( "HLTL1TSeed",
     L1SeedsLogicalExpression = cms.string( "L1_MinimumBiasHF0_OR_BptxAND_Copy OR L1_MinimumBiasHF0_OR_BptxAND" ),
-    L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
-    L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
+    L1EGammaInputTag = cms.InputTag( 'hltGtStage2Digis','EGamma' ),
+    L1JetInputTag = cms.InputTag( 'hltGtStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
     L1ObjectMapInputTag = cms.InputTag( "hltGtStage2ObjectMap" ),
-    L1EtSumInputTag = cms.InputTag( 'hltCaloStage2Digis','EtSum' ),
-    L1TauInputTag = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
-    L1MuonInputTag = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
+    L1EtSumInputTag = cms.InputTag( 'hltGtStage2Digis','EtSum' ),
+    L1TauInputTag = cms.InputTag( 'hltGtStage2Digis','Tau' ),
+    L1MuonInputTag = cms.InputTag( 'hltGtStage2Digis','Muon' ),
     L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
 )
 process.hltPrePAL1MinimumBiasHFORSinglePixelTrackpart1 = cms.EDFilter( "HLTPrescaler",
@@ -17231,13 +17231,13 @@ process.hltPrePAL1MinimumBiasHFORSinglePixelTrackpart8 = cms.EDFilter( "HLTPresc
 )
 process.hltL1sMinimumBiasHF0ANDBptxAND = cms.EDFilter( "HLTL1TSeed",
     L1SeedsLogicalExpression = cms.string( "L1_MinimumBiasHF0_AND_BptxAND" ),
-    L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
-    L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
+    L1EGammaInputTag = cms.InputTag( 'hltGtStage2Digis','EGamma' ),
+    L1JetInputTag = cms.InputTag( 'hltGtStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
     L1ObjectMapInputTag = cms.InputTag( "hltGtStage2ObjectMap" ),
-    L1EtSumInputTag = cms.InputTag( 'hltCaloStage2Digis','EtSum' ),
-    L1TauInputTag = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
-    L1MuonInputTag = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
+    L1EtSumInputTag = cms.InputTag( 'hltGtStage2Digis','EtSum' ),
+    L1TauInputTag = cms.InputTag( 'hltGtStage2Digis','Tau' ),
+    L1MuonInputTag = cms.InputTag( 'hltGtStage2Digis','Muon' ),
     L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
 )
 process.hltPrePAL1MinimumBiasHFAND = cms.EDFilter( "HLTPrescaler",
@@ -17250,13 +17250,13 @@ process.hltPrePAL1MinimumBiasHFANDSinglePixelTrack = cms.EDFilter( "HLTPrescaler
 )
 process.hltL1sZeroBias = cms.EDFilter( "HLTL1TSeed",
     L1SeedsLogicalExpression = cms.string( "L1_ZeroBias" ),
-    L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
-    L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
+    L1EGammaInputTag = cms.InputTag( 'hltGtStage2Digis','EGamma' ),
+    L1JetInputTag = cms.InputTag( 'hltGtStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
     L1ObjectMapInputTag = cms.InputTag( "hltGtStage2ObjectMap" ),
-    L1EtSumInputTag = cms.InputTag( 'hltCaloStage2Digis','EtSum' ),
-    L1TauInputTag = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
-    L1MuonInputTag = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
+    L1EtSumInputTag = cms.InputTag( 'hltGtStage2Digis','EtSum' ),
+    L1TauInputTag = cms.InputTag( 'hltGtStage2Digis','Tau' ),
+    L1MuonInputTag = cms.InputTag( 'hltGtStage2Digis','Muon' ),
     L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
 )
 process.hltPrePAZeroBiasSinglePixelTrack = cms.EDFilter( "HLTPrescaler",
@@ -17276,13 +17276,13 @@ process.hltPAPixelFilter2ForMinBias = cms.EDFilter( "HLTPixlMBFilt",
 )
 process.hltL1sL1BptxMinus = cms.EDFilter( "HLTL1TSeed",
     L1SeedsLogicalExpression = cms.string( "L1_BptxMinus" ),
-    L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
-    L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
+    L1EGammaInputTag = cms.InputTag( 'hltGtStage2Digis','EGamma' ),
+    L1JetInputTag = cms.InputTag( 'hltGtStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
     L1ObjectMapInputTag = cms.InputTag( "hltGtStage2ObjectMap" ),
-    L1EtSumInputTag = cms.InputTag( 'hltCaloStage2Digis','EtSum' ),
-    L1TauInputTag = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
-    L1MuonInputTag = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
+    L1EtSumInputTag = cms.InputTag( 'hltGtStage2Digis','EtSum' ),
+    L1TauInputTag = cms.InputTag( 'hltGtStage2Digis','Tau' ),
+    L1MuonInputTag = cms.InputTag( 'hltGtStage2Digis','Muon' ),
     L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
 )
 process.hltPrePAL1BptxMinus = cms.EDFilter( "HLTPrescaler",
@@ -17291,13 +17291,13 @@ process.hltPrePAL1BptxMinus = cms.EDFilter( "HLTPrescaler",
 )
 process.hltL1sL1BptxMinusNotBptxPlus = cms.EDFilter( "HLTL1TSeed",
     L1SeedsLogicalExpression = cms.string( "L1_BptxMinus_NotBptxPlus" ),
-    L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
-    L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
+    L1EGammaInputTag = cms.InputTag( 'hltGtStage2Digis','EGamma' ),
+    L1JetInputTag = cms.InputTag( 'hltGtStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
     L1ObjectMapInputTag = cms.InputTag( "hltGtStage2ObjectMap" ),
-    L1EtSumInputTag = cms.InputTag( 'hltCaloStage2Digis','EtSum' ),
-    L1TauInputTag = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
-    L1MuonInputTag = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
+    L1EtSumInputTag = cms.InputTag( 'hltGtStage2Digis','EtSum' ),
+    L1TauInputTag = cms.InputTag( 'hltGtStage2Digis','Tau' ),
+    L1MuonInputTag = cms.InputTag( 'hltGtStage2Digis','Muon' ),
     L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
 )
 process.hltPrePAL1BptxMinusNotBptxPlus = cms.EDFilter( "HLTPrescaler",
@@ -17306,13 +17306,13 @@ process.hltPrePAL1BptxMinusNotBptxPlus = cms.EDFilter( "HLTPrescaler",
 )
 process.hltL1sL1BptxPlus = cms.EDFilter( "HLTL1TSeed",
     L1SeedsLogicalExpression = cms.string( "L1_BptxPlus" ),
-    L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
-    L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
+    L1EGammaInputTag = cms.InputTag( 'hltGtStage2Digis','EGamma' ),
+    L1JetInputTag = cms.InputTag( 'hltGtStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
     L1ObjectMapInputTag = cms.InputTag( "hltGtStage2ObjectMap" ),
-    L1EtSumInputTag = cms.InputTag( 'hltCaloStage2Digis','EtSum' ),
-    L1TauInputTag = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
-    L1MuonInputTag = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
+    L1EtSumInputTag = cms.InputTag( 'hltGtStage2Digis','EtSum' ),
+    L1TauInputTag = cms.InputTag( 'hltGtStage2Digis','Tau' ),
+    L1MuonInputTag = cms.InputTag( 'hltGtStage2Digis','Muon' ),
     L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
 )
 process.hltPrePAL1BptxPlus = cms.EDFilter( "HLTPrescaler",
@@ -17321,13 +17321,13 @@ process.hltPrePAL1BptxPlus = cms.EDFilter( "HLTPrescaler",
 )
 process.hltL1sL1BptxPlusNotBptxMinus = cms.EDFilter( "HLTL1TSeed",
     L1SeedsLogicalExpression = cms.string( "L1_BptxPlus_NotBptxMinus" ),
-    L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
-    L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
+    L1EGammaInputTag = cms.InputTag( 'hltGtStage2Digis','EGamma' ),
+    L1JetInputTag = cms.InputTag( 'hltGtStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
     L1ObjectMapInputTag = cms.InputTag( "hltGtStage2ObjectMap" ),
-    L1EtSumInputTag = cms.InputTag( 'hltCaloStage2Digis','EtSum' ),
-    L1TauInputTag = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
-    L1MuonInputTag = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
+    L1EtSumInputTag = cms.InputTag( 'hltGtStage2Digis','EtSum' ),
+    L1TauInputTag = cms.InputTag( 'hltGtStage2Digis','Tau' ),
+    L1MuonInputTag = cms.InputTag( 'hltGtStage2Digis','Muon' ),
     L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
 )
 process.hltPrePAL1BptxPlusNotBptxMinus = cms.EDFilter( "HLTPrescaler",
@@ -17336,13 +17336,13 @@ process.hltPrePAL1BptxPlusNotBptxMinus = cms.EDFilter( "HLTPrescaler",
 )
 process.hltL1sL1BptxXOR = cms.EDFilter( "HLTL1TSeed",
     L1SeedsLogicalExpression = cms.string( "L1_BptxXOR" ),
-    L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
-    L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
+    L1EGammaInputTag = cms.InputTag( 'hltGtStage2Digis','EGamma' ),
+    L1JetInputTag = cms.InputTag( 'hltGtStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
     L1ObjectMapInputTag = cms.InputTag( "hltGtStage2ObjectMap" ),
-    L1EtSumInputTag = cms.InputTag( 'hltCaloStage2Digis','EtSum' ),
-    L1TauInputTag = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
-    L1MuonInputTag = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
+    L1EtSumInputTag = cms.InputTag( 'hltGtStage2Digis','EtSum' ),
+    L1TauInputTag = cms.InputTag( 'hltGtStage2Digis','Tau' ),
+    L1MuonInputTag = cms.InputTag( 'hltGtStage2Digis','Muon' ),
     L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
 )
 process.hltPrePABptxXOR = cms.EDFilter( "HLTPrescaler",
@@ -17355,13 +17355,13 @@ process.hltPrePAAK4CaloJet40Eta5p1EvtTagging = cms.EDFilter( "HLTPrescaler",
 )
 process.hltL1sSingleJet12BptxANDObjectMap = cms.EDFilter( "HLTL1TSeed",
     L1SeedsLogicalExpression = cms.string( "L1_SingleJet12_BptxAND" ),
-    L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
-    L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
+    L1EGammaInputTag = cms.InputTag( 'hltGtStage2Digis','EGamma' ),
+    L1JetInputTag = cms.InputTag( 'hltGtStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
     L1ObjectMapInputTag = cms.InputTag( "hltGtStage2ObjectMap" ),
-    L1EtSumInputTag = cms.InputTag( 'hltCaloStage2Digis','EtSum' ),
-    L1TauInputTag = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
-    L1MuonInputTag = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
+    L1EtSumInputTag = cms.InputTag( 'hltGtStage2Digis','EtSum' ),
+    L1TauInputTag = cms.InputTag( 'hltGtStage2Digis','Tau' ),
+    L1MuonInputTag = cms.InputTag( 'hltGtStage2Digis','Muon' ),
     L1GlobalInputTag = cms.InputTag( "hltGtStage2ObjectMap" )
 )
 process.hltPrePAAK4PFJet40Eta5p1EvtTagging = cms.EDFilter( "HLTPrescaler",
@@ -17378,13 +17378,13 @@ process.hltPrePASinglePhoton10Eta3p1EvtTagging = cms.EDFilter( "HLTPrescaler",
 )
 process.hltL1sMinimumBiasHF0ORBptxANDObjectMap = cms.EDFilter( "HLTL1TSeed",
     L1SeedsLogicalExpression = cms.string( "L1_MinimumBiasHF0_OR_BptxAND" ),
-    L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
-    L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
+    L1EGammaInputTag = cms.InputTag( 'hltGtStage2Digis','EGamma' ),
+    L1JetInputTag = cms.InputTag( 'hltGtStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
     L1ObjectMapInputTag = cms.InputTag( "hltGtStage2ObjectMap" ),
-    L1EtSumInputTag = cms.InputTag( 'hltCaloStage2Digis','EtSum' ),
-    L1TauInputTag = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
-    L1MuonInputTag = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
+    L1EtSumInputTag = cms.InputTag( 'hltGtStage2Digis','EtSum' ),
+    L1TauInputTag = cms.InputTag( 'hltGtStage2Digis','Tau' ),
+    L1MuonInputTag = cms.InputTag( 'hltGtStage2Digis','Muon' ),
     L1GlobalInputTag = cms.InputTag( "hltGtStage2ObjectMap" )
 )
 process.hltPrePAPhoton10Eta3p1PPStyleEvtTagging = cms.EDFilter( "HLTPrescaler",
@@ -17393,13 +17393,13 @@ process.hltPrePAPhoton10Eta3p1PPStyleEvtTagging = cms.EDFilter( "HLTPrescaler",
 )
 process.hltL1sSingleEG5BptxANDObjectMap = cms.EDFilter( "HLTL1TSeed",
     L1SeedsLogicalExpression = cms.string( "L1_SingleEG5_BptxAND" ),
-    L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
-    L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
+    L1EGammaInputTag = cms.InputTag( 'hltGtStage2Digis','EGamma' ),
+    L1JetInputTag = cms.InputTag( 'hltGtStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
     L1ObjectMapInputTag = cms.InputTag( "hltGtStage2ObjectMap" ),
-    L1EtSumInputTag = cms.InputTag( 'hltCaloStage2Digis','EtSum' ),
-    L1TauInputTag = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
-    L1MuonInputTag = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
+    L1EtSumInputTag = cms.InputTag( 'hltGtStage2Digis','EtSum' ),
+    L1TauInputTag = cms.InputTag( 'hltGtStage2Digis','Tau' ),
+    L1MuonInputTag = cms.InputTag( 'hltGtStage2Digis','Muon' ),
     L1GlobalInputTag = cms.InputTag( "hltGtStage2ObjectMap" )
 )
 process.hltEGL1SingleEG5BptxANDObjectMapFilter = cms.EDFilter( "HLTEgammaL1TMatchFilterRegional",
@@ -17452,13 +17452,13 @@ process.hltPrePAFullTracksMultiplicity185EvtTagging = cms.EDFilter( "HLTPrescale
 )
 process.hltL1sTowerCount110OR115OR120OR125OR130BptxANDObjectMap = cms.EDFilter( "HLTL1TSeed",
     L1SeedsLogicalExpression = cms.string( "L1_TowerCount110_BptxAND OR L1_TowerCount115_BptxAND OR L1_TowerCount120_BptxAND OR L1_TowerCount125_BptxAND OR L1_TowerCount130_BptxAND" ),
-    L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
-    L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
+    L1EGammaInputTag = cms.InputTag( 'hltGtStage2Digis','EGamma' ),
+    L1JetInputTag = cms.InputTag( 'hltGtStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
     L1ObjectMapInputTag = cms.InputTag( "hltGtStage2ObjectMap" ),
-    L1EtSumInputTag = cms.InputTag( 'hltCaloStage2Digis','EtSum' ),
-    L1TauInputTag = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
-    L1MuonInputTag = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
+    L1EtSumInputTag = cms.InputTag( 'hltGtStage2Digis','EtSum' ),
+    L1TauInputTag = cms.InputTag( 'hltGtStage2Digis','Tau' ),
+    L1MuonInputTag = cms.InputTag( 'hltGtStage2Digis','Muon' ),
     L1GlobalInputTag = cms.InputTag( "hltGtStage2ObjectMap" )
 )
 process.hltPrePAFullTracksMultiplicity110HighPt8EvtTagging = cms.EDFilter( "HLTPrescaler",
@@ -17487,13 +17487,13 @@ process.hltPrePAL3Mu3EvtTagging = cms.EDFilter( "HLTPrescaler",
 )
 process.hltL1sSingleMu3BptxANDObjectMap = cms.EDFilter( "HLTL1TSeed",
     L1SeedsLogicalExpression = cms.string( "L1_SingleMu3_BptxAND" ),
-    L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
-    L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
+    L1EGammaInputTag = cms.InputTag( 'hltGtStage2Digis','EGamma' ),
+    L1JetInputTag = cms.InputTag( 'hltGtStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
     L1ObjectMapInputTag = cms.InputTag( "hltGtStage2ObjectMap" ),
-    L1EtSumInputTag = cms.InputTag( 'hltCaloStage2Digis','EtSum' ),
-    L1TauInputTag = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
-    L1MuonInputTag = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
+    L1EtSumInputTag = cms.InputTag( 'hltGtStage2Digis','EtSum' ),
+    L1TauInputTag = cms.InputTag( 'hltGtStage2Digis','Tau' ),
+    L1MuonInputTag = cms.InputTag( 'hltGtStage2Digis','Muon' ),
     L1GlobalInputTag = cms.InputTag( "hltGtStage2ObjectMap" )
 )
 process.hltL1fL1sSingleMu3BptxANDObjectMapL1Filtered0 = cms.EDFilter( "HLTMuonL1TFilter",
@@ -17504,7 +17504,7 @@ process.hltL1fL1sSingleMu3BptxANDObjectMapL1Filtered0 = cms.EDFilter( "HLTMuonL1
     MaxEta = cms.double( 2.5 ),
     CentralBxOnly = cms.bool( True ),
     SelectQualities = cms.vint32(  ),
-    CandTag = cms.InputTag( 'hltGmtStage2Digis','Muon' )
+    CandTag = cms.InputTag( 'hltGtStage2Digis','Muon' )
 )
 process.hltL2fL1sSingleMu3BptxANDObjectMapL1f0L2Filtered0 = cms.EDFilter( "HLTMuonL2FromL1TPreFilter",
     saveTags = cms.bool( True ),
@@ -17599,13 +17599,13 @@ process.hltHcalCalibrationRaw = cms.EDProducer( "EvFFEDSelector",
 )
 process.hltL1sZeroBiasIorAlwaysTrueIorIsolatedBunch = cms.EDFilter( "HLTL1TSeed",
     L1SeedsLogicalExpression = cms.string( "L1_ZeroBias OR L1_AlwaysTrue OR L1_IsolatedBunch" ),
-    L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
-    L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
+    L1EGammaInputTag = cms.InputTag( 'hltGtStage2Digis','EGamma' ),
+    L1JetInputTag = cms.InputTag( 'hltGtStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
     L1ObjectMapInputTag = cms.InputTag( "hltGtStage2ObjectMap" ),
-    L1EtSumInputTag = cms.InputTag( 'hltCaloStage2Digis','EtSum' ),
-    L1TauInputTag = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
-    L1MuonInputTag = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
+    L1EtSumInputTag = cms.InputTag( 'hltGtStage2Digis','EtSum' ),
+    L1TauInputTag = cms.InputTag( 'hltGtStage2Digis','Tau' ),
+    L1MuonInputTag = cms.InputTag( 'hltGtStage2Digis','Muon' ),
     L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
 )
 process.hltPreAlCaEcalPhiSymForPA = cms.EDFilter( "HLTPrescaler",
@@ -17636,13 +17636,13 @@ process.hltL1EventNumberNZS = cms.EDFilter( "HLTL1NumberFilter",
 )
 process.hltL1sPAHcalNZS = cms.EDFilter( "HLTL1TSeed",
     L1SeedsLogicalExpression = cms.string( "L1_ZeroBias OR L1_SingleMu5 OR L1_SingleMu7 OR L1_SingleMu5_BptxAND OR L1_SingleMu7_BptxAND OR L1_SingleMu12_BptxAND OR L1_SingleEG5 OR L1_SingleEG10_BptxAND OR L1_SingleEG14_BptxAND OR L1_SingleEG18_BptxAND OR L1_SingleEG24_BptxAND OR L1_SingleEG30_BptxAND OR L1_SingleIsoEG5 OR L1_DoubleEG_15_10 OR L1_SingleEG5_BptxAND OR L1_SingleIsoEG5_BptxAND OR L1_SingleIsoEG10_BptxAND OR L1_SingleIsoEG14_BptxAND OR L1_SingleIsoEG18_BptxAND OR L1_SingleIsoEG24_BptxAND" ),
-    L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
-    L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
+    L1EGammaInputTag = cms.InputTag( 'hltGtStage2Digis','EGamma' ),
+    L1JetInputTag = cms.InputTag( 'hltGtStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
     L1ObjectMapInputTag = cms.InputTag( "hltGtStage2ObjectMap" ),
-    L1EtSumInputTag = cms.InputTag( 'hltCaloStage2Digis','EtSum' ),
-    L1TauInputTag = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
-    L1MuonInputTag = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
+    L1EtSumInputTag = cms.InputTag( 'hltGtStage2Digis','EtSum' ),
+    L1TauInputTag = cms.InputTag( 'hltGtStage2Digis','Tau' ),
+    L1MuonInputTag = cms.InputTag( 'hltGtStage2Digis','Muon' ),
     L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
 )
 process.hltPrePAHcalNZS = cms.EDFilter( "HLTPrescaler",
@@ -17651,13 +17651,13 @@ process.hltPrePAHcalNZS = cms.EDFilter( "HLTPrescaler",
 )
 process.hltL1sHcalPhiSym = cms.EDFilter( "HLTL1TSeed",
     L1SeedsLogicalExpression = cms.string( "L1_SingleMu5 OR L1_SingleMu7 OR L1_SingleMu5_BptxAND OR L1_SingleMu7_BptxAND OR L1_SingleMu12_BptxAND OR L1_SingleEG5 OR L1_SingleEG10_BptxAND OR L1_SingleEG14_BptxAND OR L1_SingleEG18_BptxAND OR L1_SingleEG24_BptxAND OR L1_SingleEG30_BptxAND OR L1_SingleIsoEG5 OR L1_DoubleEG_15_10 OR L1_SingleEG5_BptxAND OR L1_SingleIsoEG5_BptxAND OR L1_SingleIsoEG10_BptxAND OR L1_SingleIsoEG14_BptxAND OR L1_SingleIsoEG18_BptxAND OR L1_SingleIsoEG24_BptxAND" ),
-    L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
-    L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
+    L1EGammaInputTag = cms.InputTag( 'hltGtStage2Digis','EGamma' ),
+    L1JetInputTag = cms.InputTag( 'hltGtStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
     L1ObjectMapInputTag = cms.InputTag( "hltGtStage2ObjectMap" ),
-    L1EtSumInputTag = cms.InputTag( 'hltCaloStage2Digis','EtSum' ),
-    L1TauInputTag = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
-    L1MuonInputTag = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
+    L1EtSumInputTag = cms.InputTag( 'hltGtStage2Digis','EtSum' ),
+    L1TauInputTag = cms.InputTag( 'hltGtStage2Digis','Tau' ),
+    L1MuonInputTag = cms.InputTag( 'hltGtStage2Digis','Muon' ),
     L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
 )
 process.hltPrePAHcalPhiSym = cms.EDFilter( "HLTPrescaler",
@@ -17666,13 +17666,13 @@ process.hltPrePAHcalPhiSym = cms.EDFilter( "HLTPrescaler",
 )
 process.hltL1sIsolatedBunch = cms.EDFilter( "HLTL1TSeed",
     L1SeedsLogicalExpression = cms.string( "L1_IsolatedBunch" ),
-    L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
-    L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
+    L1EGammaInputTag = cms.InputTag( 'hltGtStage2Digis','EGamma' ),
+    L1JetInputTag = cms.InputTag( 'hltGtStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
     L1ObjectMapInputTag = cms.InputTag( "hltGtStage2ObjectMap" ),
-    L1EtSumInputTag = cms.InputTag( 'hltCaloStage2Digis','EtSum' ),
-    L1TauInputTag = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
-    L1MuonInputTag = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
+    L1EtSumInputTag = cms.InputTag( 'hltGtStage2Digis','EtSum' ),
+    L1TauInputTag = cms.InputTag( 'hltGtStage2Digis','Tau' ),
+    L1MuonInputTag = cms.InputTag( 'hltGtStage2Digis','Muon' ),
     L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
 )
 process.hltPrePAZeroBiasIsolatedBunches = cms.EDFilter( "HLTPrescaler",
@@ -17681,13 +17681,13 @@ process.hltPrePAZeroBiasIsolatedBunches = cms.EDFilter( "HLTPrescaler",
 )
 process.hltL1sPSAlCaRPCMuon = cms.EDFilter( "HLTL1TSeed",
     L1SeedsLogicalExpression = cms.string( "L1_SingleMu3 OR L1_SingleMu5 OR L1_SingleMu7 OR L1_SingleMu3_BptxAND OR L1_SingleMu5_BptxAND OR L1_SingleMu7_BptxAND" ),
-    L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
-    L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
+    L1EGammaInputTag = cms.InputTag( 'hltGtStage2Digis','EGamma' ),
+    L1JetInputTag = cms.InputTag( 'hltGtStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
     L1ObjectMapInputTag = cms.InputTag( "hltGtStage2ObjectMap" ),
-    L1EtSumInputTag = cms.InputTag( 'hltCaloStage2Digis','EtSum' ),
-    L1TauInputTag = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
-    L1MuonInputTag = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
+    L1EtSumInputTag = cms.InputTag( 'hltGtStage2Digis','EtSum' ),
+    L1TauInputTag = cms.InputTag( 'hltGtStage2Digis','Tau' ),
+    L1MuonInputTag = cms.InputTag( 'hltGtStage2Digis','Muon' ),
     L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
 )
 process.hltPreAlCaRPCMuonNoTriggersForPA = cms.EDFilter( "HLTPrescaler",
@@ -17702,7 +17702,7 @@ process.hltRPCMuonNoTriggersL1Filtered0ForPA = cms.EDFilter( "HLTMuonL1TFilter",
     MaxEta = cms.double( 1.6 ),
     CentralBxOnly = cms.bool( True ),
     SelectQualities = cms.vint32( 6 ),
-    CandTag = cms.InputTag( 'hltGmtStage2Digis','Muon' )
+    CandTag = cms.InputTag( 'hltGtStage2Digis','Muon' )
 )
 process.hltPreAlCaRPCMuonNoHitsForPA = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
@@ -17742,7 +17742,7 @@ process.hltRPCMuonNormaL1Filtered0ForPA = cms.EDFilter( "HLTMuonL1TFilter",
     MaxEta = cms.double( 1.6 ),
     CentralBxOnly = cms.bool( True ),
     SelectQualities = cms.vint32(  ),
-    CandTag = cms.InputTag( 'hltGmtStage2Digis','Muon' )
+    CandTag = cms.InputTag( 'hltGtStage2Digis','Muon' )
 )
 process.hltPreAlCaLumiPixelsRandom = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
@@ -17762,13 +17762,13 @@ process.hltPreAlCaPAL1MinimumBiasHFORSinglePixelTrack = cms.EDFilter( "HLTPresca
 )
 process.hltL1sPAAlCaEcalPi0Eta = cms.EDFilter( "HLTL1TSeed",
     L1SeedsLogicalExpression = cms.string( "L1_AlwaysTrue OR L1_IsolatedBunch OR L1_SingleEG5 OR L1_SingleEG10_BptxAND OR L1_SingleEG14_BptxAND OR L1_SingleEG18_BptxAND OR L1_SingleEG24_BptxAND OR L1_SingleEG30_BptxAND OR L1_SingleIsoEG5 OR L1_DoubleEG_15_10 OR L1_SingleEG2_BptxAND OR L1_SingleEG2 OR L1_SingleEG5_BptxAND OR L1_SingleIsoEG5_BptxAND OR L1_SingleIsoEG10_BptxAND OR L1_SingleIsoEG14_BptxAND OR L1_SingleIsoEG18_BptxAND OR L1_SingleIsoEG24_BptxAND OR L1_SingleIsoEG30_BptxAND OR L1_SingleJet16 OR L1_SingleJet20 OR L1_SingleJet24 OR L1_SingleJet60_BptxAND OR L1_SingleJet56_BptxAND OR L1_SingleJet52_BptxAND OR L1_SingleJet4_BptxAND OR L1_SingleJet12_BptxAND OR L1_SingleJet4 OR L1_SingleJet8 OR L1_SingleJet8_BptxAND OR L1_SingleJet12 OR L1_SingleJet16_BptxAND OR L1_SingleJet20_BptxAND OR L1_SingleJet24_BptxAND OR L1_SingleJet28_BptxAND OR L1_SingleJet32_BptxAND OR L1_SingleJet36_BptxAND OR L1_SingleJet40_BptxAND OR L1_SingleJet44_BptxAND OR L1_SingleJet48_BptxAND OR L1_HTT160" ),
-    L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
-    L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
+    L1EGammaInputTag = cms.InputTag( 'hltGtStage2Digis','EGamma' ),
+    L1JetInputTag = cms.InputTag( 'hltGtStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
     L1ObjectMapInputTag = cms.InputTag( "hltGtStage2ObjectMap" ),
-    L1EtSumInputTag = cms.InputTag( 'hltCaloStage2Digis','EtSum' ),
-    L1TauInputTag = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
-    L1MuonInputTag = cms.InputTag( 'hltGmtStage2Digis','Muon' ),
+    L1EtSumInputTag = cms.InputTag( 'hltGtStage2Digis','EtSum' ),
+    L1TauInputTag = cms.InputTag( 'hltGtStage2Digis','Tau' ),
+    L1MuonInputTag = cms.InputTag( 'hltGtStage2Digis','Muon' ),
     L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
 )
 process.hltPreAlCaEcalPi0EBonlyForPA = cms.EDFilter( "HLTPrescaler",
@@ -19411,9 +19411,9 @@ process.HLT_PAAK4PFJet60_Eta1p9toEta5p1_v3 = cms.Path( process.HLTBeginSequence 
 process.HLT_PAAK4PFJet40_Eta1p9toEta5p1_v3 = cms.Path( process.HLTBeginSequence + process.hltL1sSingleJet12ForEta1p5BptxAND + process.hltPrePAAK4PFJet40Eta1p9toEta5p1 + process.HLTPAAK4CaloJetsSequence + process.hltSinglePAAK4CaloJet15Eta5p1 + process.hltSinglePAAK4CaloJet15MinEta1p9 + process.HLTPAAK4PFJetsSequence + process.hltPAAK4PFJetsCorrectedMatchedToCaloJets15Eta5p1 + process.hltSinglePAAK4PFJet40Eta5p1 + process.hltSinglePAAK4PFJet40MinEta1p9 + process.HLTEndSequence )
 process.HLT_PAAK4PFJet40_Eta2p9toEta5p1_v3 = cms.Path( process.HLTBeginSequence + process.hltL1sSingleJet12ForEta2p5BptxAND + process.hltPrePAAK4PFJet40Eta2p9toEta5p1 + process.HLTPAAK4CaloJetsSequence + process.hltSinglePAAK4CaloJet15Eta5p1 + process.hltSinglePAAK4CaloJet15MinEta2p9 + process.HLTPAAK4PFJetsSequence + process.hltPAAK4PFJetsCorrectedMatchedToCaloJets15Eta5p1 + process.hltSinglePAAK4PFJet40Eta5p1 + process.hltSinglePAAK4PFJet40MinEta2p9 + process.HLTEndSequence )
 process.HLT_PAAK4PFJet40_Eta2p9toEta5p1_ForExpress_v1 = cms.Path( process.HLTBeginSequence + process.hltL1sSingleJet12ForEta2p5BptxAND + process.hltPrePAAK4PFJet40Eta2p9toEta5p1ForExpress + process.HLTPAAK4CaloJetsSequence + process.hltSinglePAAK4CaloJet15Eta5p1 + process.hltSinglePAAK4CaloJet15MinEta2p9 + process.HLTPAAK4PFJetsSequence + process.hltPAAK4PFJetsCorrectedMatchedToCaloJets15Eta5p1 + process.hltSinglePAAK4PFJet40Eta5p1 + process.hltSinglePAAK4PFJet40MinEta2p9 + process.HLTEndSequence )
-process.HLT_PAAK4CaloBJetCSV40_Eta2p1_v3 = cms.Path( process.HLTBeginSequence + process.hltL1sSingleJet12BptxAND + process.hltPrePAAK4CaloBJetCSV40Eta2p1 + process.HLTPAAK4CaloJetsSequence + process.hltSinglePAAK4CaloJet40Eta2p1 + process.eta2CaloJetsEta2p1ForJets + process.reduceJetMultEta2p1ForJets + process.jets4bTaggerCaloJet40Eta2p1ForJets + process.HLTDoLocalPixelSequence + process.HLTPAPixelClusterSplitting + process.HLTPADoLocalStripSequenceAfterSplitting + process.HLTPAIterativeTrackingForJets + process.HLTBTagCSVSequenceL3CaloJetEta2p1 + process.hltPABLifetimeL3FilterCSVCaloJet40Eta2p1 + process.HLTEndSequence )
-process.HLT_PAAK4CaloBJetCSV60_Eta2p1_v3 = cms.Path( process.HLTBeginSequence + process.hltL1sSingleJet24BptxAND + process.hltPrePAAK4CaloBJetCSV60Eta2p1 + process.HLTPAAK4CaloJetsSequence + process.hltSinglePAAK4CaloJet60Eta2p1 + process.eta2CaloJetsEta2p1ForJets + process.reduceJetMultEta2p1ForJets + process.jets4bTaggerCaloJet40Eta2p1ForJets + process.jets4bTaggerCaloJet60Eta2p1ForJets + process.HLTDoLocalPixelSequence + process.HLTPAPixelClusterSplitting + process.HLTPADoLocalStripSequenceAfterSplitting + process.HLTPAIterativeTrackingForJets + process.HLTBTagCSVSequenceL3CaloJetEta2p1 + process.hltPABLifetimeL3FilterCSVCaloJet60Eta2p1 + process.HLTEndSequence )
-process.HLT_PAAK4CaloBJetCSV80_Eta2p1_v3 = cms.Path( process.HLTBeginSequence + process.hltL1sSingleJet36BptxAND + process.hltPrePAAK4CaloBJetCSV80Eta2p1 + process.HLTPAAK4CaloJetsSequence + process.hltSinglePAAK4CaloJet80Eta2p1 + process.eta2CaloJetsEta2p1ForJets + process.reduceJetMultEta2p1ForJets + process.jets4bTaggerCaloJet40Eta2p1ForJets + process.jets4bTaggerCaloJet80Eta2p1ForJets + process.HLTDoLocalPixelSequence + process.HLTPAPixelClusterSplitting + process.HLTPADoLocalStripSequenceAfterSplitting + process.HLTPAIterativeTrackingForJets + process.HLTBTagCSVSequenceL3CaloJetEta2p1 + process.hltPABLifetimeL3FilterCSVCaloJet80Eta2p1 + process.HLTEndSequence )
+process.HLT_PAAK4CaloBJetCSV40_Eta2p1_v3 = cms.Path( process.HLTBeginSequence + process.hltL1sSingleJet12BptxAND + process.hltPrePAAK4CaloBJetCSV40Eta2p1 + process.HLTPAAK4CaloJetsSequence + process.hltSinglePAAK4CaloJet40Eta2p1 + process.hltEta2CaloJetsEta2p1ForJets + process.hltReduceJetMultEta2p1ForJets + process.hltJets4bTaggerCaloJet40Eta2p1ForJets + process.HLTDoLocalPixelSequence + process.HLTPAPixelClusterSplitting + process.HLTPADoLocalStripSequenceAfterSplitting + process.HLTPAIterativeTrackingForJets + process.HLTBTagCSVSequenceL3CaloJetEta2p1 + process.hltPABLifetimeL3FilterCSVCaloJet40Eta2p1 + process.HLTEndSequence )
+process.HLT_PAAK4CaloBJetCSV60_Eta2p1_v3 = cms.Path( process.HLTBeginSequence + process.hltL1sSingleJet24BptxAND + process.hltPrePAAK4CaloBJetCSV60Eta2p1 + process.HLTPAAK4CaloJetsSequence + process.hltSinglePAAK4CaloJet60Eta2p1 + process.hltEta2CaloJetsEta2p1ForJets + process.hltReduceJetMultEta2p1ForJets + process.hltJets4bTaggerCaloJet40Eta2p1ForJets + process.hltJets4bTaggerCaloJet60Eta2p1ForJets + process.HLTDoLocalPixelSequence + process.HLTPAPixelClusterSplitting + process.HLTPADoLocalStripSequenceAfterSplitting + process.HLTPAIterativeTrackingForJets + process.HLTBTagCSVSequenceL3CaloJetEta2p1 + process.hltPABLifetimeL3FilterCSVCaloJet60Eta2p1 + process.HLTEndSequence )
+process.HLT_PAAK4CaloBJetCSV80_Eta2p1_v3 = cms.Path( process.HLTBeginSequence + process.hltL1sSingleJet36BptxAND + process.hltPrePAAK4CaloBJetCSV80Eta2p1 + process.HLTPAAK4CaloJetsSequence + process.hltSinglePAAK4CaloJet80Eta2p1 + process.hltEta2CaloJetsEta2p1ForJets + process.hltReduceJetMultEta2p1ForJets + process.hltJets4bTaggerCaloJet40Eta2p1ForJets + process.hltJets4bTaggerCaloJet80Eta2p1ForJets + process.HLTDoLocalPixelSequence + process.HLTPAPixelClusterSplitting + process.HLTPADoLocalStripSequenceAfterSplitting + process.HLTPAIterativeTrackingForJets + process.HLTBTagCSVSequenceL3CaloJetEta2p1 + process.hltPABLifetimeL3FilterCSVCaloJet80Eta2p1 + process.HLTEndSequence )
 process.HLT_PAAK4PFBJetCSV40_Eta2p1_v3 = cms.Path( process.HLTBeginSequence + process.hltL1sSingleJet12BptxAND + process.hltPrePAAK4PFBJetCSV40Eta2p1 + process.HLTPAAK4CaloJetsSequence + process.hltSinglePAAK4CaloJet30Eta5p1 + process.HLTPAAK4PFJetsSequence + process.hltPAAK4PFJetsCorrectedMatchedToCaloJets30Eta2p1 + process.hltSinglePAAK4PFJet40Eta2p1 + process.HLTPABtagCSVSequencePF + process.hltSelectorPFJetsEta2p1 + process.hltSelectorPFJetsPt40 + process.hltSelector10PFJets40 + process.hltBTagPFCSVp016SingleWithMatching40 + process.HLTEndSequence )
 process.HLT_PAAK4PFBJetCSV60_Eta2p1_v3 = cms.Path( process.HLTBeginSequence + process.hltL1sSingleJet24BptxAND + process.hltPrePAAK4PFBJetCSV60Eta2p1 + process.HLTPAAK4CaloJetsSequence + process.hltSinglePAAK4CaloJet30Eta5p1 + process.HLTPAAK4PFJetsSequence + process.hltPAAK4PFJetsCorrectedMatchedToCaloJets30Eta2p1 + process.hltSinglePAAK4PFJet60Eta2p1 + process.HLTPABtagCSVSequencePF + process.hltSelectorPFJetsEta2p1 + process.hltSelectorPFJetsPt60 + process.hltSelector10PFJets60 + process.hltBTagPFCSVp016SingleWithMatching60 + process.HLTEndSequence )
 process.HLT_PAAK4PFBJetCSV80_Eta2p1_v3 = cms.Path( process.HLTBeginSequence + process.hltL1sSingleJet36BptxAND + process.hltPrePAAK4PFBJetCSV80Eta2p1 + process.HLTPAAK4CaloJetsSequence + process.hltSinglePAAK4CaloJet30Eta5p1 + process.HLTPAAK4PFJetsSequence + process.hltPAAK4PFJetsCorrectedMatchedToCaloJets30Eta2p1 + process.hltSinglePAAK4PFJet80Eta2p1 + process.HLTPABtagCSVSequencePF + process.hltSelectorPFJetsEta2p1 + process.hltSelectorPFJetsPt80 + process.hltSelector10PFJets80 + process.hltBTagPFCSVp016SingleWithMatching80 + process.HLTEndSequence )
@@ -19469,14 +19469,14 @@ process.HLT_PAL3Mu15_v1 = cms.Path( process.HLTBeginSequence + process.hltL1sSin
 process.HLT_PAL3Mu3_v1 = cms.Path( process.HLTBeginSequence + process.hltL1sSingleMu3BptxAND + process.hltPrePAL3Mu3 + process.hltL1fL1sSingleMu3BptxANDL1Filtered0 + process.HLTL2muonrecoSequence + process.hltL2fL1sSingleMu3BptxANDL1f0L2Filtered0 + process.HLTL3muonrecoSequence + process.hltL3fL1sSingleMu3BptxANDL1f0L2f0L3Filtered3 + process.HLTEndSequence )
 process.HLT_PAL3Mu5_v3 = cms.Path( process.HLTBeginSequence + process.hltL1sSingleMu3ORSingleMu5BptxAND + process.hltPrePAL3Mu5 + process.hltL1fL1sSingleMu3ORSingleMu5BptxANDL1Filtered0 + process.HLTL2muonrecoSequence + process.hltL2fL1sSingleMu3ORSingleMu5BptxANDL1f0L2Filtered0 + process.HLTL3muonrecoSequence + process.hltL3fL1sSingleMu5BptxANDL1f0L2f0L3Filtered5 + process.HLTEndSequence )
 process.HLT_PAL3Mu7_v1 = cms.Path( process.HLTBeginSequence + process.hltL1sSingleMu5BptxAND + process.hltPrePAL3Mu7 + process.hltL1fL1sSingleMu5BptxANDL1Filtered0 + process.HLTL2muonrecoSequence + process.hltL2fL1sSingleMu5BptxANDL1f0L2Filtered0 + process.HLTL3muonrecoSequence + process.hltL3fL1sSingleMu5BptxANDL1f0L2f0L3Filtered7 + process.HLTEndSequence )
-process.HLT_PADmesonPPTrackingGlobal_Dpt5_v2 = cms.Path( process.HLTBeginSequence + process.hltL1sMinimumBiasHF0ORBptxAND + process.hltPrePADmesonPPTrackingGlobalDpt5 + process.HLTDoLocalPixelSequence + process.HLTPAPixelClusterSplitting + process.HLTPADoLocalStripSequenceAfterSplitting + process.HLTPAPixelClusterShapeFilter + process.HLTPAIterativeTracking + process.hltPAOnlinePrimaryVertices + process.hltPAFullCands + process.hltPAFullTrackFilterForDmeson + process.hltPAtktkVtxForDmesonDpt5 + process.hltPAtktkFilterForDmesonDpt5 + process.HLTEndSequence )
-process.HLT_PADmesonPPTrackingGlobal_Dpt5_part2_v2 = cms.Path( process.HLTBeginSequence + process.hltL1sMinimumBiasHF0ORBptxAND + process.hltPrePADmesonPPTrackingGlobalDpt5part2 + process.HLTDoLocalPixelSequence + process.HLTPAPixelClusterSplitting + process.HLTPADoLocalStripSequenceAfterSplitting + process.HLTPAPixelClusterShapeFilter + process.HLTPAIterativeTracking + process.hltPAOnlinePrimaryVertices + process.hltPAFullCands + process.hltPAFullTrackFilterForDmeson + process.hltPAtktkVtxForDmesonDpt5 + process.hltPAtktkFilterForDmesonDpt5 + process.HLTEndSequence )
-process.HLT_PADmesonPPTrackingGlobal_Dpt5_part3_v2 = cms.Path( process.HLTBeginSequence + process.hltL1sMinimumBiasHF0ORBptxAND + process.hltPrePADmesonPPTrackingGlobalDpt5part3 + process.HLTDoLocalPixelSequence + process.HLTPAPixelClusterSplitting + process.HLTPADoLocalStripSequenceAfterSplitting + process.HLTPAPixelClusterShapeFilter + process.HLTPAIterativeTracking + process.hltPAOnlinePrimaryVertices + process.hltPAFullCands + process.hltPAFullTrackFilterForDmeson + process.hltPAtktkVtxForDmesonDpt5 + process.hltPAtktkFilterForDmesonDpt5 + process.HLTEndSequence )
-process.HLT_PADmesonPPTrackingGlobal_Dpt8_v2 = cms.Path( process.HLTBeginSequence + process.hltL1sMinimumBiasHF0ORBptxAND + process.hltPrePADmesonPPTrackingGlobalDpt8 + process.HLTDoLocalPixelSequence + process.HLTPAPixelClusterSplitting + process.HLTPADoLocalStripSequenceAfterSplitting + process.HLTPAPixelClusterShapeFilter + process.HLTPAIterativeTracking + process.hltPAOnlinePrimaryVertices + process.hltPAFullCands + process.hltPAFullTrackFilterForDmeson + process.hltPAtktkVtxForDmesonDpt8 + process.hltPAtktkFilterForDmesonDpt8 + process.HLTEndSequence )
-process.HLT_PADmesonPPTrackingGlobal_Dpt15_v3 = cms.Path( process.HLTBeginSequence + process.hltL1sSingleJet12BptxAND + process.hltPrePADmesonPPTrackingGlobalDpt15 + process.HLTDoLocalPixelSequence + process.HLTPAPixelClusterSplitting + process.HLTPADoLocalStripSequenceAfterSplitting + process.HLTPAPixelClusterShapeFilter + process.HLTPAIterativeTracking + process.hltPAOnlinePrimaryVertices + process.hltPAFullCands + process.hltPAFullTrackFilterForDmeson + process.hltPAtktkVtxForDmesonDpt15 + process.hltPAtktkFilterForDmesonDpt15 + process.HLTEndSequence )
-process.HLT_PADmesonPPTrackingGlobal_Dpt30_v2 = cms.Path( process.HLTBeginSequence + process.hltL1sSingleJet12BptxAND + process.hltPrePADmesonPPTrackingGlobalDpt30 + process.HLTDoLocalPixelSequence + process.HLTPAPixelClusterSplitting + process.HLTPADoLocalStripSequenceAfterSplitting + process.HLTPAPixelClusterShapeFilter + process.HLTPAIterativeTracking + process.hltPAOnlinePrimaryVertices + process.hltPAFullCands + process.hltPAFullTrackFilterForDmeson + process.hltPAtktkVtxForDmesonDpt30 + process.hltPAtktkFilterForDmesonDpt30 + process.HLTEndSequence )
-process.HLT_PADmesonPPTrackingGlobal_Dpt50_v2 = cms.Path( process.HLTBeginSequence + process.hltL1sSingleJet24BptxAND + process.hltPrePADmesonPPTrackingGlobalDpt50 + process.HLTDoLocalPixelSequence + process.HLTPAPixelClusterSplitting + process.HLTPADoLocalStripSequenceAfterSplitting + process.HLTPAPixelClusterShapeFilter + process.HLTPAIterativeTracking + process.hltPAOnlinePrimaryVertices + process.hltPAFullCands + process.hltPAFullTrackFilterForDmeson + process.hltPAtktkVtxForDmesonDpt50 + process.hltPAtktkFilterForDmesonDpt50 + process.HLTEndSequence )
-process.HLT_PADmesonPPTrackingGlobal_Dpt55_v1 = cms.Path( process.HLTBeginSequence + process.hltL1sSingleJet36BptxAND + process.hltPrePADmesonPPTrackingGlobalDpt55 + process.HLTDoLocalPixelSequence + process.HLTPAPixelClusterSplitting + process.HLTPADoLocalStripSequenceAfterSplitting + process.HLTPAPixelClusterShapeFilter + process.HLTPAIterativeTracking + process.hltPAOnlinePrimaryVertices + process.hltPAFullCands + process.hltPAFullTrackFilterForDmeson + process.hltPAtktkVtxForDmesonDpt55 + process.hltPAtktkFilterForDmesonDpt55 + process.HLTEndSequence )
+process.HLT_PADmesonPPTrackingGlobal_Dpt5_v2 = cms.Path( process.HLTBeginSequence + process.hltL1sMinimumBiasHF0ORBptxAND + process.hltPrePADmesonPPTrackingGlobalDpt5 + process.HLTDoLocalPixelSequence + process.HLTPAPixelClusterSplitting + process.HLTPADoLocalStripSequenceAfterSplitting + process.hltPAPixelClusterShapeFilter + process.HLTPAIterativeTracking + process.hltPAOnlinePrimaryVertices + process.hltPAFullCands + process.hltPAFullTrackFilterForDmeson + process.hltPAtktkVtxForDmesonDpt5 + process.hltPAtktkFilterForDmesonDpt5 + process.HLTEndSequence )
+process.HLT_PADmesonPPTrackingGlobal_Dpt5_part2_v2 = cms.Path( process.HLTBeginSequence + process.hltL1sMinimumBiasHF0ORBptxAND + process.hltPrePADmesonPPTrackingGlobalDpt5part2 + process.HLTDoLocalPixelSequence + process.HLTPAPixelClusterSplitting + process.HLTPADoLocalStripSequenceAfterSplitting + process.hltPAPixelClusterShapeFilter + process.HLTPAIterativeTracking + process.hltPAOnlinePrimaryVertices + process.hltPAFullCands + process.hltPAFullTrackFilterForDmeson + process.hltPAtktkVtxForDmesonDpt5 + process.hltPAtktkFilterForDmesonDpt5 + process.HLTEndSequence )
+process.HLT_PADmesonPPTrackingGlobal_Dpt5_part3_v2 = cms.Path( process.HLTBeginSequence + process.hltL1sMinimumBiasHF0ORBptxAND + process.hltPrePADmesonPPTrackingGlobalDpt5part3 + process.HLTDoLocalPixelSequence + process.HLTPAPixelClusterSplitting + process.HLTPADoLocalStripSequenceAfterSplitting + process.hltPAPixelClusterShapeFilter + process.HLTPAIterativeTracking + process.hltPAOnlinePrimaryVertices + process.hltPAFullCands + process.hltPAFullTrackFilterForDmeson + process.hltPAtktkVtxForDmesonDpt5 + process.hltPAtktkFilterForDmesonDpt5 + process.HLTEndSequence )
+process.HLT_PADmesonPPTrackingGlobal_Dpt8_v2 = cms.Path( process.HLTBeginSequence + process.hltL1sMinimumBiasHF0ORBptxAND + process.hltPrePADmesonPPTrackingGlobalDpt8 + process.HLTDoLocalPixelSequence + process.HLTPAPixelClusterSplitting + process.HLTPADoLocalStripSequenceAfterSplitting + process.hltPAPixelClusterShapeFilter + process.HLTPAIterativeTracking + process.hltPAOnlinePrimaryVertices + process.hltPAFullCands + process.hltPAFullTrackFilterForDmeson + process.hltPAtktkVtxForDmesonDpt8 + process.hltPAtktkFilterForDmesonDpt8 + process.HLTEndSequence )
+process.HLT_PADmesonPPTrackingGlobal_Dpt15_v3 = cms.Path( process.HLTBeginSequence + process.hltL1sSingleJet12BptxAND + process.hltPrePADmesonPPTrackingGlobalDpt15 + process.HLTDoLocalPixelSequence + process.HLTPAPixelClusterSplitting + process.HLTPADoLocalStripSequenceAfterSplitting + process.hltPAPixelClusterShapeFilter + process.HLTPAIterativeTracking + process.hltPAOnlinePrimaryVertices + process.hltPAFullCands + process.hltPAFullTrackFilterForDmeson + process.hltPAtktkVtxForDmesonDpt15 + process.hltPAtktkFilterForDmesonDpt15 + process.HLTEndSequence )
+process.HLT_PADmesonPPTrackingGlobal_Dpt30_v2 = cms.Path( process.HLTBeginSequence + process.hltL1sSingleJet12BptxAND + process.hltPrePADmesonPPTrackingGlobalDpt30 + process.HLTDoLocalPixelSequence + process.HLTPAPixelClusterSplitting + process.HLTPADoLocalStripSequenceAfterSplitting + process.hltPAPixelClusterShapeFilter + process.HLTPAIterativeTracking + process.hltPAOnlinePrimaryVertices + process.hltPAFullCands + process.hltPAFullTrackFilterForDmeson + process.hltPAtktkVtxForDmesonDpt30 + process.hltPAtktkFilterForDmesonDpt30 + process.HLTEndSequence )
+process.HLT_PADmesonPPTrackingGlobal_Dpt50_v2 = cms.Path( process.HLTBeginSequence + process.hltL1sSingleJet24BptxAND + process.hltPrePADmesonPPTrackingGlobalDpt50 + process.HLTDoLocalPixelSequence + process.HLTPAPixelClusterSplitting + process.HLTPADoLocalStripSequenceAfterSplitting + process.hltPAPixelClusterShapeFilter + process.HLTPAIterativeTracking + process.hltPAOnlinePrimaryVertices + process.hltPAFullCands + process.hltPAFullTrackFilterForDmeson + process.hltPAtktkVtxForDmesonDpt50 + process.hltPAtktkFilterForDmesonDpt50 + process.HLTEndSequence )
+process.HLT_PADmesonPPTrackingGlobal_Dpt55_v1 = cms.Path( process.HLTBeginSequence + process.hltL1sSingleJet36BptxAND + process.hltPrePADmesonPPTrackingGlobalDpt55 + process.HLTDoLocalPixelSequence + process.HLTPAPixelClusterSplitting + process.HLTPADoLocalStripSequenceAfterSplitting + process.hltPAPixelClusterShapeFilter + process.HLTPAIterativeTracking + process.hltPAOnlinePrimaryVertices + process.hltPAFullCands + process.hltPAFullTrackFilterForDmeson + process.hltPAtktkVtxForDmesonDpt55 + process.hltPAtktkFilterForDmesonDpt55 + process.HLTEndSequence )
 process.HLT_PAFullTracks_HighPt20_v3 = cms.Path( process.HLTBeginSequence + process.hltL1sMinimumBiasHF0ORBptxAND + process.hltPrePAFullTracksHighPt20 + process.HLTDoLocalPixelSequence + process.HLTPAPixelClusterSplitting + process.HLTPADoLocalStripSequenceAfterSplitting + process.HLTPAIterativeTracking + process.hltPAOnlinePrimaryVertices + process.hltPAGoodHighPurityFullTrackCutClassifierForMBHighPt + process.hltPAGoodHighPurityFullTracksForMBHighPt + process.hltPAFullCandsForMBHighPtTrigger + process.hltPAFullTrackMBHighPt20 + process.HLTEndSequence )
 process.HLT_PAFullTracks_HighPt30_v1 = cms.Path( process.HLTBeginSequence + process.hltL1sSingleJet24BptxAND + process.hltPrePAFullTracksHighPt30 + process.HLTDoLocalPixelSequence + process.HLTPAPixelClusterSplitting + process.HLTPADoLocalStripSequenceAfterSplitting + process.HLTPAIterativeTracking + process.hltPAOnlinePrimaryVertices + process.hltPAGoodHighPurityFullTrackCutClassifierForMBHighPt + process.hltPAGoodHighPurityFullTracksForMBHighPt + process.hltPAFullCandsForMBHighPtTrigger + process.hltPAFullTrackMBHighPt30 + process.HLTEndSequence )
 process.HLT_PAFullTracks_HighPt40_v1 = cms.Path( process.HLTBeginSequence + process.hltL1sSingleJet24BptxAND + process.hltPrePAFullTracksHighPt40 + process.HLTDoLocalPixelSequence + process.HLTPAPixelClusterSplitting + process.HLTPADoLocalStripSequenceAfterSplitting + process.HLTPAIterativeTracking + process.hltPAOnlinePrimaryVertices + process.hltPAGoodHighPurityFullTrackCutClassifierForMBHighPt + process.hltPAGoodHighPurityFullTracksForMBHighPt + process.hltPAFullCandsForMBHighPtTrigger + process.hltPAFullTrackMBHighPt40 + process.HLTEndSequence )
@@ -19528,8 +19528,8 @@ process.HLT_PAFullTracks_Multiplicity185_EvtTagging_v4 = cms.Path( process.HLTBe
 process.HLT_PAFullTracks_Multiplicity110_HighPt8_EvtTagging_v2 = cms.Path( process.HLTBeginSequence + process.hltL1sMinimumBiasHF0ANDBptxAND + process.hltPrePAFullTracksMultiplicity110HighPt8EvtTagging + process.hltL1sMinimumBiasHF0ORBptxANDObjectMap + process.HLTDoLocalPixelSequence + process.HLTRecopixelvertexingForHighMultSequence + process.hltGoodPixelTracksForHighMult + process.hltPixelCandsForHighMult + process.hltHighMult75 + process.HLTPAPixelClusterSplitting + process.HLTPADoLocalStripSequenceAfterSplitting + process.HLTPAIterativeTracking + process.hltPAOnlinePrimaryVertices + process.hltPAGoodHighPurityFullTrackCutClassifier + process.hltPAGoodHighPurityFullTracks + process.hltPAFullCandsForHighMultTrigger + process.hltPAFullTrackHighMult110 + process.hltPAGoodHighPurityFullTrackCutClassifierForHighPt + process.hltPAGoodHighPurityFullTracksForHighPt + process.hltPAFullCandsForHighPtTrigger + process.hltPAFullTrackHighPt8 + process.HLTEndSequence )
 process.HLT_PAFullTracks_HFSumEt005_HighPt8_EvtTagging_v3 = cms.Path( process.HLTBeginSequence + process.hltL1sMinimumBiasHF0ANDBptxAND + process.hltPrePAFullTracksHFSumEt005HighPt8EvtTagging + process.hltL1sMinimumBiasHF0ORBptxANDObjectMap + process.HLTRecoMETHfSequence + process.hltPAGlobalSumETHfFilterTop005 + process.HLTDoLocalPixelSequence + process.HLTPAPixelClusterSplitting + process.HLTPADoLocalStripSequenceAfterSplitting + process.HLTPAIterativeTracking + process.hltPAOnlinePrimaryVertices + process.hltPAGoodHighPurityFullTrackCutClassifierForHighPt + process.hltPAGoodHighPurityFullTracksForHighPt + process.hltPAFullCandsForHighPtTrigger + process.hltPAFullTrackHighPt8 + process.HLTEndSequence )
 process.HLT_PAFullTracks_HighPt20_EvtTagging_v2 = cms.Path( process.HLTBeginSequence + process.hltL1sMinimumBiasHF0ANDBptxAND + process.hltPrePAFullTracksHighPt20EvtTagging + process.hltL1sMinimumBiasHF0ORBptxANDObjectMap + process.HLTDoLocalPixelSequence + process.HLTPAPixelClusterSplitting + process.HLTPADoLocalStripSequenceAfterSplitting + process.HLTPAIterativeTracking + process.hltPAOnlinePrimaryVertices + process.hltPAGoodHighPurityFullTrackCutClassifierForMBHighPt + process.hltPAGoodHighPurityFullTracksForMBHighPt + process.hltPAFullCandsForMBHighPtTrigger + process.hltPAFullTrackMBHighPt20 + process.HLTEndSequence )
-process.HLT_PADmesonPPTrackingGlobal_Dpt8_EvtTagging_v2 = cms.Path( process.HLTBeginSequence + process.hltL1sMinimumBiasHF0ANDBptxAND + process.hltPrePADmesonPPTrackingGlobalDpt8EvtTagging + process.hltL1sMinimumBiasHF0ORBptxANDObjectMap + process.HLTDoLocalPixelSequence + process.HLTPAPixelClusterSplitting + process.HLTPADoLocalStripSequenceAfterSplitting + process.HLTPAPixelClusterShapeFilter + process.HLTPAIterativeTracking + process.hltPAOnlinePrimaryVertices + process.hltPAFullCands + process.hltPAFullTrackFilterForDmeson + process.hltPAtktkVtxForDmesonDpt8 + process.hltPAtktkFilterForDmesonDpt8 + process.HLTEndSequence )
-process.HLT_PADmesonPPTrackingGlobal_Dpt15_EvtTagging_v3 = cms.Path( process.HLTBeginSequence + process.hltL1sMinimumBiasHF0ANDBptxAND + process.hltPrePADmesonPPTrackingGlobalDpt15EvtTagging + process.hltL1sSingleJet12BptxANDObjectMap + process.HLTDoLocalPixelSequence + process.HLTPAPixelClusterSplitting + process.HLTPADoLocalStripSequenceAfterSplitting + process.HLTPAPixelClusterShapeFilter + process.HLTPAIterativeTracking + process.hltPAOnlinePrimaryVertices + process.hltPAFullCands + process.hltPAFullTrackFilterForDmeson + process.hltPAtktkVtxForDmesonDpt15 + process.hltPAtktkFilterForDmesonDpt15 + process.HLTEndSequence )
+process.HLT_PADmesonPPTrackingGlobal_Dpt8_EvtTagging_v2 = cms.Path( process.HLTBeginSequence + process.hltL1sMinimumBiasHF0ANDBptxAND + process.hltPrePADmesonPPTrackingGlobalDpt8EvtTagging + process.hltL1sMinimumBiasHF0ORBptxANDObjectMap + process.HLTDoLocalPixelSequence + process.HLTPAPixelClusterSplitting + process.HLTPADoLocalStripSequenceAfterSplitting + process.hltPAPixelClusterShapeFilter + process.HLTPAIterativeTracking + process.hltPAOnlinePrimaryVertices + process.hltPAFullCands + process.hltPAFullTrackFilterForDmeson + process.hltPAtktkVtxForDmesonDpt8 + process.hltPAtktkFilterForDmesonDpt8 + process.HLTEndSequence )
+process.HLT_PADmesonPPTrackingGlobal_Dpt15_EvtTagging_v3 = cms.Path( process.HLTBeginSequence + process.hltL1sMinimumBiasHF0ANDBptxAND + process.hltPrePADmesonPPTrackingGlobalDpt15EvtTagging + process.hltL1sSingleJet12BptxANDObjectMap + process.HLTDoLocalPixelSequence + process.HLTPAPixelClusterSplitting + process.HLTPADoLocalStripSequenceAfterSplitting + process.hltPAPixelClusterShapeFilter + process.HLTPAIterativeTracking + process.hltPAOnlinePrimaryVertices + process.hltPAFullCands + process.hltPAFullTrackFilterForDmeson + process.hltPAtktkVtxForDmesonDpt15 + process.hltPAtktkFilterForDmesonDpt15 + process.HLTEndSequence )
 process.HLT_PAL3Mu3_EvtTagging_v1 = cms.Path( process.HLTBeginSequence + process.hltL1sMinimumBiasHF0ANDBptxAND + process.hltPrePAL3Mu3EvtTagging + process.hltL1sSingleMu3BptxANDObjectMap + process.hltL1fL1sSingleMu3BptxANDObjectMapL1Filtered0 + process.HLTL2muonrecoSequence + process.hltL2fL1sSingleMu3BptxANDObjectMapL1f0L2Filtered0 + process.HLTL3muonrecoSequence + process.hltL3fL1sSingleMu3BptxANDObjectMapL1f0L2f0L3Filtered3 + process.HLTEndSequence )
 process.HLT_L1FatEvents_v2 = cms.Path( process.HLTBeginSequenceL1Fat + process.hltPreL1FatEvents + process.HLTEndSequence )
 process.HLT_Physics_v5 = cms.Path( process.HLTBeginSequenceL1Fat + process.hltPrePhysics + process.HLTEndSequence )
