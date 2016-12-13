@@ -11,8 +11,8 @@ me0Segments = cms.EDProducer("ME0SegmentProducer",
         dYclusBoxMax = cms.double(5.),
         preClusteringUseChaining = cms.bool(True),
         dPhiChainBoxMax = cms.double(.02),
-        dEtaChainBoxMax = cms.double(.05),
-        dTimeChainBoxMax = cms.double(1.50), # 1ns, +/- time to fly through 30cm thick ME0
+        dEtaChainBoxMax = cms.double(.15),
+        dTimeChainBoxMax = cms.double(15.0), # 1ns, +/- time to fly through 30cm thick ME0
         maxRecHitsInCluster = cms.int32(6)
     )
 )
