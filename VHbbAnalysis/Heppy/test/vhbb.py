@@ -315,6 +315,53 @@ JetAna.dataGT="Spring16_25nsV6_DATA"
 JetAna.addJECShifts=True
 JetAna.addJERShifts=True
 
+factorizedJetCorrections = [
+    "AbsoluteFlavMap",
+    "AbsoluteMPFBias",
+    "AbsoluteScale",
+    "AbsoluteStat",
+    "FlavorQCD",
+    "Fragmentation",
+    "PileUpDataMC",
+    "PileUpEnvelope",
+    "PileUpMuZero",
+    "PileUpPtBB",
+    "PileUpPtEC1",
+    "PileUpPtEC2",
+    "PileUpPtHF",
+    "PileUpPtRef",
+    "RelativeFSR",
+    "RelativeStatFSR",
+    "RelativeJEREC1",
+    "RelativeJEREC2",
+    "RelativeJERHF",
+    "RelativePtBB",
+    "RelativePtEC1",
+    "RelativePtEC2",
+    "RelativePtHF",
+    "RelativeStatEC",
+    #"RelativeStatEC2", #Does not exist in Spring16
+    "RelativeStatHF",
+    "SinglePionECAL",
+    "SinglePionHCAL",
+    "TimeEta",
+    "TimePt",
+    "Total"
+]
+JetAna.factorizedJetCorrections = factorizedJetCorrections
+for jet_corr in factorizedJetCorrections:
+    for sdir in ["Up", "Down"]:
+        name = jet_corr + sdir
+        jetTypeVHbb.variables += [
+            NTupleVariable(
+                "corr_{0}".format(name),
+                lambda x, name = name: getattr(x, 'corr{0}'.format(name), -99),
+                float,
+                mcOnly=True,
+                help=""
+            )
+        ]
+
 # delta-beta corrected isolation for muons:
 # https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideMuonIdRun2#Muon_Isolation
 def mu_pfRelIso04(mu):
