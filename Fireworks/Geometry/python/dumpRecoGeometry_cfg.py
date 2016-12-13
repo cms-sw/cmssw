@@ -3,7 +3,7 @@ import sys
 import FWCore.ParameterSet.VarParsing as VarParsing
 from FWCore.Utilities.Enumerate import Enumerate
 
-varType = Enumerate ("Run1 2015 2017 2019 2023D1 2023D2 2023D3 2023D4 2023D5 MaPSA")
+varType = Enumerate ("Run1 2015 2017 2019 2023D1 2023D10 2023D3 2023D4 2023D5 MaPSA")
 
 def help():
    print "Usage: cmsRun dumpFWRecoGeometry_cfg.py  tag=TAG "
@@ -65,11 +65,11 @@ def recoGeoLoad(score):
        process.GlobalTag.globaltag = autoCond['run2_mc']
        process.load('Configuration.Geometry.GeometryExtended2023D1Reco_cff')
        
-    elif  score == "2023D2":
+    elif  score == "2023D10":
        process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
        from Configuration.AlCa.autoCond import autoCond
        process.GlobalTag.globaltag = autoCond['run2_mc']
-       process.load('Configuration.Geometry.GeometryExtended2023D2Reco_cff')
+       process.load('Configuration.Geometry.GeometryExtended2023D10Reco_cff')
        
     elif  score == "2023D3":
        process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
