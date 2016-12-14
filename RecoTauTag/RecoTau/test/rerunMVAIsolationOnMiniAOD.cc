@@ -299,7 +299,7 @@ rerunMVAIsolationOnMiniAOD::analyze(const edm::Event& iEvent, const edm::EventSe
 		mvaValue_Tight->Fill(tau->tauID("byTightIsolationMVArun2v1DBoldDMwLT"),(*mvaIsoTight)[tau]);
 		mvaValue_vTight->Fill(tau->tauID("byVTightIsolationMVArun2v1DBoldDMwLT"),(*mvaIsoVTight)[tau]);
 		mvaValue_vvTight->Fill(tau->tauID("byVVTightIsolationMVArun2v1DBoldDMwLT"),(*mvaIsoVVTight)[tau]);
-		mvaValueDiff->Fill(fabs(valueAOD - valueMiniAOD));
+		mvaValueDiff->Fill(std::abs(valueAOD - valueMiniAOD));
                 mvaValue_antiEMVA6->Fill((*mvaEleRaw)[tau] , taus->at(iTau).tauID("againstElectronMVA6Raw"));
 
 		if(valueAOD != valueMiniAOD)
@@ -344,7 +344,7 @@ rerunMVAIsolationOnMiniAOD::analyze(const edm::Event& iEvent, const edm::EventSe
 
 			if((*dmfNew)[pfTau] < 0.5) continue;
 
-			if((float)pfTau->pt() < 18 || fabs((float)pfTau->eta()) > 2.3) continue;
+			if((float)pfTau->pt() < 18 || std::abs((float)pfTau->eta()) > 2.3) continue;
 
 			for(unsigned iTau = 0; iTau < unmatchedTaus.size(); iTau++)
 			{
@@ -391,131 +391,131 @@ rerunMVAIsolationOnMiniAOD::analyze(const edm::Event& iEvent, const edm::EventSe
 				if(pfTau->pt() != unmatchedTaus.at(iTau)->pt()){
 					if(verbosity_) std::cout << "pt: PF = " << pfTau->pt() << ", pat = " << unmatchedTaus.at(iTau)->pt() << std::endl;
 					differences->Fill(0);
-					differencesWeighted->Fill(0.,fabs(pfTau->pt()-unmatchedTaus.at(iTau)->pt()));
+					differencesWeighted->Fill(0.,std::abs(pfTau->pt()-unmatchedTaus.at(iTau)->pt()));
 				}
 				if(pfTau->eta() != unmatchedTaus.at(iTau)->eta()){
 					if(verbosity_) std::cout << "eta: PF = " << pfTau->eta() << ", pat = " << unmatchedTaus.at(iTau)->eta() << std::endl;
 					differences->Fill(1);
-					differencesWeighted->Fill(1,fabs(pfTau->eta()-unmatchedTaus.at(iTau)->eta()));
+					differencesWeighted->Fill(1,std::abs(pfTau->eta()-unmatchedTaus.at(iTau)->eta()));
 				}
 				if(pfTau->phi() != unmatchedTaus.at(iTau)->phi()){
 					if(verbosity_) std::cout << "phi: PF = " << pfTau->phi() << ", pat = " << unmatchedTaus.at(iTau)->phi() << std::endl;
 					differences->Fill(2);
-					differencesWeighted->Fill(2,fabs(pfTau->phi()-unmatchedTaus.at(iTau)->phi()));
+					differencesWeighted->Fill(2,std::abs(pfTau->phi()-unmatchedTaus.at(iTau)->phi()));
 				}
 				if(pfTau->energy() != unmatchedTaus.at(iTau)->energy()){
 					if(verbosity_) std::cout << "energy PF = " << pfTau->energy() << ", pat = " << unmatchedTaus.at(iTau)->energy() << std::endl;
 					differences->Fill(3);
-					differencesWeighted->Fill(3,fabs(pfTau->energy()-unmatchedTaus.at(iTau)->energy()));
+					differencesWeighted->Fill(3,std::abs(pfTau->energy()-unmatchedTaus.at(iTau)->energy()));
 				}
 				if(pfTau->decayMode() != unmatchedTaus.at(iTau)->decayMode()){
 					if(verbosity_) std::cout << "decayMode: PF = " << pfTau->decayMode() << ", pat = " << unmatchedTaus.at(iTau)->decayMode() << std::endl;
 					differences->Fill(4);
-					differencesWeighted->Fill(4,fabs(pfTau->decayMode()-unmatchedTaus.at(iTau)->decayMode()));
+					differencesWeighted->Fill(4,std::abs(pfTau->decayMode()-unmatchedTaus.at(iTau)->decayMode()));
 				}
 				if((*chargedIso)[pfTau] != unmatchedTaus.at(iTau)->tauID("chargedIsoPtSum")){
 					if(verbosity_) std::cout << "chargedIso: PF = " << (*chargedIso)[pfTau] << ", pat = " << unmatchedTaus.at(iTau)->tauID("chargedIsoPtSum") << std::endl;
 					differences->Fill(5);
-					differencesWeighted->Fill(5,fabs((*chargedIso)[pfTau]-unmatchedTaus.at(iTau)->tauID("chargedIsoPtSum")));
+					differencesWeighted->Fill(5,std::abs((*chargedIso)[pfTau]-unmatchedTaus.at(iTau)->tauID("chargedIsoPtSum")));
 				}
 				if((*neutralIso)[pfTau] != unmatchedTaus.at(iTau)->tauID("neutralIsoPtSum")){
 					if(verbosity_) std::cout << "neutralIso: PF = " << (*neutralIso)[pfTau] << ", pat = " << unmatchedTaus.at(iTau)->tauID("neutralIsoPtSum") << std::endl;
 					differences->Fill(6);
-					differencesWeighted->Fill(6,fabs((*neutralIso)[pfTau]-unmatchedTaus.at(iTau)->tauID("neutralIsoPtSum")));
+					differencesWeighted->Fill(6,std::abs((*neutralIso)[pfTau]-unmatchedTaus.at(iTau)->tauID("neutralIsoPtSum")));
 				}
 				if((*puCorr)[pfTau] != unmatchedTaus.at(iTau)->tauID("puCorrPtSum")){
 					if(verbosity_) std::cout << "puCorr: PF = " << (*puCorr)[pfTau] << ", pat = " << unmatchedTaus.at(iTau)->tauID("puCorrPtSum") << std::endl;
 					differences->Fill(7);
-					differencesWeighted->Fill(7,fabs((*puCorr)[pfTau]-unmatchedTaus.at(iTau)->tauID("puCorrPtSum")));
+					differencesWeighted->Fill(7,std::abs((*puCorr)[pfTau]-unmatchedTaus.at(iTau)->tauID("puCorrPtSum")));
 				}
 				if((*photonSumOutsideSignalCone)[pfTau] != unmatchedTaus.at(iTau)->tauID("photonPtSumOutsideSignalCone")){
 					if(verbosity_) std::cout << "photonSumOutsideSignalCone: PF = " << (*photonSumOutsideSignalCone)[pfTau] << ", pat = " << unmatchedTaus.at(iTau)->tauID("photonPtSumOutsideSignalCone") << std::endl;
 					differences->Fill(8);
-					differencesWeighted->Fill(8,fabs((*photonSumOutsideSignalCone)[pfTau]-unmatchedTaus.at(iTau)->tauID("photonPtSumOutsideSignalCone")));
+					differencesWeighted->Fill(8,std::abs((*photonSumOutsideSignalCone)[pfTau]-unmatchedTaus.at(iTau)->tauID("photonPtSumOutsideSignalCone")));
 				}
 				if((*footPrint)[pfTau] != unmatchedTaus.at(iTau)->tauID("footprintCorrection")){
 					if(verbosity_) std::cout << "footPrint: PF = " << (*footPrint)[pfTau] << ", pat = " << unmatchedTaus.at(iTau)->tauID("footprintCorrection") << std::endl;
 					differences->Fill(9);
-					differencesWeighted->Fill(9,fabs((*footPrint)[pfTau]-unmatchedTaus.at(iTau)->tauID("footprintCorrection")));
+					differencesWeighted->Fill(9,std::abs((*footPrint)[pfTau]-unmatchedTaus.at(iTau)->tauID("footprintCorrection")));
 				}
 				if(decayDistMagAOD != decayDistMagMiniAOD){
 					if(verbosity_) std::cout << "decayDistMag: PF = " << decayDistMagAOD << ", pat = " << decayDistMagMiniAOD << std::endl;
 					differences->Fill(10);
-					differencesWeighted->Fill(10,fabs(decayDistMagAOD-decayDistMagMiniAOD));
+					differencesWeighted->Fill(10,std::abs(decayDistMagAOD-decayDistMagMiniAOD));
 				}
 				if(tauLifetimeInfo.dxy() != unmatchedTaus.at(iTau)->dxy()){
 					if(verbosity_) std::cout << "dxy: PF = " << tauLifetimeInfo.dxy() << ", pat = " << unmatchedTaus.at(iTau)->dxy() << std::endl;
 					differences->Fill(11);
-					differencesWeighted->Fill(11,fabs((float)tauLifetimeInfo.dxy()-unmatchedTaus.at(iTau)->dxy()));
-					difference_dxy->Fill(fabs(tauLifetimeInfo.dxy()-unmatchedTaus.at(iTau)->dxy()));
+					differencesWeighted->Fill(11,std::abs((float)tauLifetimeInfo.dxy()-unmatchedTaus.at(iTau)->dxy()));
+					difference_dxy->Fill(std::abs(tauLifetimeInfo.dxy()-unmatchedTaus.at(iTau)->dxy()));
 				}
 				if(tauLifetimeInfo.dxy_Sig() != unmatchedTaus.at(iTau)->dxy_Sig()){
 					if(verbosity_) std::cout << "dxy_Sig: PF = " << tauLifetimeInfo.dxy_Sig() << ", pat = " << unmatchedTaus.at(iTau)->dxy_Sig() << std::endl;
 					differences->Fill(12);
-					differencesWeighted->Fill(12,fabs((float)tauLifetimeInfo.dxy_Sig()-unmatchedTaus.at(iTau)->dxy_Sig()));
-					difference_dxySig->Fill(fabs(tauLifetimeInfo.dxy_Sig()-unmatchedTaus.at(iTau)->dxy_Sig()));
+					differencesWeighted->Fill(12,std::abs((float)tauLifetimeInfo.dxy_Sig()-unmatchedTaus.at(iTau)->dxy_Sig()));
+					difference_dxySig->Fill(std::abs(tauLifetimeInfo.dxy_Sig()-unmatchedTaus.at(iTau)->dxy_Sig()));
 				}
 				if(tauLifetimeInfo.ip3d() != unmatchedTaus.at(iTau)->ip3d()){
 					if(verbosity_) std::cout << "ip3d PF: = " << tauLifetimeInfo.ip3d() << ", pat = " << unmatchedTaus.at(iTau)->ip3d() << std::endl;
 					differences->Fill(13);
-					differencesWeighted->Fill(13,fabs((float)tauLifetimeInfo.ip3d()-unmatchedTaus.at(iTau)->ip3d()));
-					difference_ip3d->Fill(fabs(tauLifetimeInfo.ip3d()-unmatchedTaus.at(iTau)->ip3d()));
+					differencesWeighted->Fill(13,std::abs((float)tauLifetimeInfo.ip3d()-unmatchedTaus.at(iTau)->ip3d()));
+					difference_ip3d->Fill(std::abs(tauLifetimeInfo.ip3d()-unmatchedTaus.at(iTau)->ip3d()));
 				}
 				if(tauLifetimeInfo.ip3d_Sig() != unmatchedTaus.at(iTau)->ip3d_Sig()){
 					if(verbosity_) std::cout << "ip3d_Sig: PF = " << tauLifetimeInfo.ip3d_Sig() << ", pat = " << unmatchedTaus.at(iTau)->ip3d_Sig() << std::endl;
 					differences->Fill(14);
-					differencesWeighted->Fill(14,fabs((float)tauLifetimeInfo.ip3d_Sig()-unmatchedTaus.at(iTau)->ip3d_Sig()));
-					difference_ip3dSig->Fill(fabs(tauLifetimeInfo.ip3d_Sig()-unmatchedTaus.at(iTau)->ip3d_Sig()));
+					differencesWeighted->Fill(14,std::abs((float)tauLifetimeInfo.ip3d_Sig()-unmatchedTaus.at(iTau)->ip3d_Sig()));
+					difference_ip3dSig->Fill(std::abs(tauLifetimeInfo.ip3d_Sig()-unmatchedTaus.at(iTau)->ip3d_Sig()));
 				}
 				if(tauLifetimeInfo.hasSecondaryVertex() != unmatchedTaus.at(iTau)->hasSecondaryVertex()){
 					if(verbosity_) std::cout << "hasSV: PF = " << tauLifetimeInfo.hasSecondaryVertex() << ", pat = " << unmatchedTaus.at(iTau)->hasSecondaryVertex() << std::endl;
 					differences->Fill(15);
-					differencesWeighted->Fill(15,fabs((float)tauLifetimeInfo.hasSecondaryVertex()-unmatchedTaus.at(iTau)->hasSecondaryVertex()));
+					differencesWeighted->Fill(15,std::abs((float)tauLifetimeInfo.hasSecondaryVertex()-unmatchedTaus.at(iTau)->hasSecondaryVertex()));
 				}
 				if(tauLifetimeInfo.flightLengthSig() != unmatchedTaus.at(iTau)->flightLengthSig()){
 					if(verbosity_) std::cout << "flightlengthSig: PF = " << tauLifetimeInfo.flightLengthSig() << ", pat = " << unmatchedTaus.at(iTau)->flightLengthSig() << std::endl;
 					differences->Fill(16);
-					differencesWeighted->Fill(16,fabs((float)tauLifetimeInfo.flightLengthSig()-unmatchedTaus.at(iTau)->flightLengthSig()));
-					difference_flightlengthSig->Fill(fabs(tauLifetimeInfo.flightLengthSig()-unmatchedTaus.at(iTau)->flightLengthSig()));
+					differencesWeighted->Fill(16,std::abs((float)tauLifetimeInfo.flightLengthSig()-unmatchedTaus.at(iTau)->flightLengthSig()));
+					difference_flightlengthSig->Fill(std::abs(tauLifetimeInfo.flightLengthSig()-unmatchedTaus.at(iTau)->flightLengthSig()));
 				}
 				if((float)clusterVariables_.tau_n_photons_total(*pfTau) != (float)clusterVariables_.tau_n_photons_total(*unmatchedTaus.at(iTau))){
 					if(verbosity_) std::cout << "nPhoton PF: = " << (float)clusterVariables_.tau_n_photons_total(*pfTau) << ", pat = " << (float)clusterVariables_.tau_n_photons_total(*unmatchedTaus.at(iTau)) << std::endl;
 					differences->Fill(17);
-					differencesWeighted->Fill(17,fabs((float)clusterVariables_.tau_n_photons_total(*pfTau)-(float)clusterVariables_.tau_n_photons_total(*unmatchedTaus.at(iTau))));
+					differencesWeighted->Fill(17,std::abs((float)clusterVariables_.tau_n_photons_total(*pfTau)-(float)clusterVariables_.tau_n_photons_total(*unmatchedTaus.at(iTau))));
 				}
 				if(clusterVariables_.tau_pt_weighted_deta_strip(*pfTau, pfTau->decayMode()) != clusterVariables_.tau_pt_weighted_deta_strip(*unmatchedTaus.at(iTau),unmatchedTaus.at(iTau)->decayMode())){
 					if(verbosity_) std::cout << "ptWeightedDetaStrip: PF = " << clusterVariables_.tau_pt_weighted_deta_strip(*pfTau, pfTau->decayMode()) << ", pat = " << clusterVariables_.tau_pt_weighted_deta_strip(*unmatchedTaus.at(iTau),unmatchedTaus.at(iTau)->decayMode()) << std::endl;
 					differences->Fill(18);
-					differencesWeighted->Fill(18,fabs(clusterVariables_.tau_pt_weighted_deta_strip(*pfTau, pfTau->decayMode())-clusterVariables_.tau_pt_weighted_deta_strip(*unmatchedTaus.at(iTau),unmatchedTaus.at(iTau)->decayMode())));
-					difference_ptWeightedDetaStrip->Fill(fabs(clusterVariables_.tau_pt_weighted_deta_strip(*pfTau, pfTau->decayMode())-clusterVariables_.tau_pt_weighted_deta_strip(*unmatchedTaus.at(iTau),unmatchedTaus.at(iTau)->decayMode())));
+					differencesWeighted->Fill(18,std::abs(clusterVariables_.tau_pt_weighted_deta_strip(*pfTau, pfTau->decayMode())-clusterVariables_.tau_pt_weighted_deta_strip(*unmatchedTaus.at(iTau),unmatchedTaus.at(iTau)->decayMode())));
+					difference_ptWeightedDetaStrip->Fill(std::abs(clusterVariables_.tau_pt_weighted_deta_strip(*pfTau, pfTau->decayMode())-clusterVariables_.tau_pt_weighted_deta_strip(*unmatchedTaus.at(iTau),unmatchedTaus.at(iTau)->decayMode())));
 				}
 				if(clusterVariables_.tau_pt_weighted_dphi_strip(*pfTau, pfTau->decayMode()) != clusterVariables_.tau_pt_weighted_dphi_strip(*unmatchedTaus.at(iTau),unmatchedTaus.at(iTau)->decayMode())){
 					if(verbosity_) std::cout << "ptWeightedDphiStrip: PF = " << clusterVariables_.tau_pt_weighted_dphi_strip(*pfTau, pfTau->decayMode()) << ", pat = " << clusterVariables_.tau_pt_weighted_dphi_strip(*unmatchedTaus.at(iTau),unmatchedTaus.at(iTau)->decayMode()) << std::endl;
 					differences->Fill(19);
-					differencesWeighted->Fill(19,fabs(clusterVariables_.tau_pt_weighted_dphi_strip(*pfTau, pfTau->decayMode())-clusterVariables_.tau_pt_weighted_dphi_strip(*unmatchedTaus.at(iTau),unmatchedTaus.at(iTau)->decayMode())));
-					difference_ptWeightedDphiStrip->Fill(fabs(clusterVariables_.tau_pt_weighted_dphi_strip(*pfTau, pfTau->decayMode())-clusterVariables_.tau_pt_weighted_dphi_strip(*unmatchedTaus.at(iTau),unmatchedTaus.at(iTau)->decayMode())));
+					differencesWeighted->Fill(19,std::abs(clusterVariables_.tau_pt_weighted_dphi_strip(*pfTau, pfTau->decayMode())-clusterVariables_.tau_pt_weighted_dphi_strip(*unmatchedTaus.at(iTau),unmatchedTaus.at(iTau)->decayMode())));
+					difference_ptWeightedDphiStrip->Fill(std::abs(clusterVariables_.tau_pt_weighted_dphi_strip(*pfTau, pfTau->decayMode())-clusterVariables_.tau_pt_weighted_dphi_strip(*unmatchedTaus.at(iTau),unmatchedTaus.at(iTau)->decayMode())));
 				}
 				if(clusterVariables_.tau_pt_weighted_dr_signal(*pfTau, pfTau->decayMode()) != clusterVariables_.tau_pt_weighted_dr_signal(*unmatchedTaus.at(iTau),unmatchedTaus.at(iTau)->decayMode())){
 					if(verbosity_) std::cout << "ptWeightedDrSignal: PF = " << clusterVariables_.tau_pt_weighted_dr_signal(*pfTau, pfTau->decayMode()) << ", pat = " << clusterVariables_.tau_pt_weighted_dr_signal(*unmatchedTaus.at(iTau),unmatchedTaus.at(iTau)->decayMode()) << std::endl;
 					differences->Fill(20);
-					differencesWeighted->Fill(20,fabs(clusterVariables_.tau_pt_weighted_dr_signal(*pfTau, pfTau->decayMode())-clusterVariables_.tau_pt_weighted_dr_signal(*unmatchedTaus.at(iTau),unmatchedTaus.at(iTau)->decayMode())));
-					difference_ptWeightedDrSignal->Fill(fabs(clusterVariables_.tau_pt_weighted_dr_signal(*pfTau, pfTau->decayMode())-clusterVariables_.tau_pt_weighted_dr_signal(*unmatchedTaus.at(iTau),unmatchedTaus.at(iTau)->decayMode())));
+					differencesWeighted->Fill(20,std::abs(clusterVariables_.tau_pt_weighted_dr_signal(*pfTau, pfTau->decayMode())-clusterVariables_.tau_pt_weighted_dr_signal(*unmatchedTaus.at(iTau),unmatchedTaus.at(iTau)->decayMode())));
+					difference_ptWeightedDrSignal->Fill(std::abs(clusterVariables_.tau_pt_weighted_dr_signal(*pfTau, pfTau->decayMode())-clusterVariables_.tau_pt_weighted_dr_signal(*unmatchedTaus.at(iTau),unmatchedTaus.at(iTau)->decayMode())));
 				}
 				if(clusterVariables_.tau_pt_weighted_dr_iso(*pfTau, pfTau->decayMode()) != clusterVariables_.tau_pt_weighted_dr_iso(*unmatchedTaus.at(iTau),unmatchedTaus.at(iTau)->decayMode())){
 					if(verbosity_) std::cout << "ptWeightedDrIso: PF = " << clusterVariables_.tau_pt_weighted_dr_iso(*pfTau, pfTau->decayMode()) << ", pat = " << clusterVariables_.tau_pt_weighted_dr_iso(*unmatchedTaus.at(iTau),unmatchedTaus.at(iTau)->decayMode()) << std::endl;
 					differences->Fill(21);
-					differencesWeighted->Fill(21,fabs(clusterVariables_.tau_pt_weighted_dr_iso(*pfTau, pfTau->decayMode())-clusterVariables_.tau_pt_weighted_dr_iso(*unmatchedTaus.at(iTau),unmatchedTaus.at(iTau)->decayMode())));
-					difference_ptWeightedDrIso->Fill(fabs(clusterVariables_.tau_pt_weighted_dr_iso(*pfTau, pfTau->decayMode())-clusterVariables_.tau_pt_weighted_dr_iso(*unmatchedTaus.at(iTau),unmatchedTaus.at(iTau)->decayMode())));
+					differencesWeighted->Fill(21,std::abs(clusterVariables_.tau_pt_weighted_dr_iso(*pfTau, pfTau->decayMode())-clusterVariables_.tau_pt_weighted_dr_iso(*unmatchedTaus.at(iTau),unmatchedTaus.at(iTau)->decayMode())));
+					difference_ptWeightedDrIso->Fill(std::abs(clusterVariables_.tau_pt_weighted_dr_iso(*pfTau, pfTau->decayMode())-clusterVariables_.tau_pt_weighted_dr_iso(*unmatchedTaus.at(iTau),unmatchedTaus.at(iTau)->decayMode())));
 				}
 				if(clusterVariables_.tau_leadTrackChi2(*pfTau) != unmatchedTaus.at(iTau)->leadingTrackNormChi2()){
 					if(verbosity_) std::cout << "leadTrackChi2: PF = " << clusterVariables_.tau_leadTrackChi2(*pfTau) << ", pat = " << unmatchedTaus.at(iTau)->leadingTrackNormChi2() << std::endl;
 					differences->Fill(22);
-					differencesWeighted->Fill(22,fabs(clusterVariables_.tau_leadTrackChi2(*pfTau)-unmatchedTaus.at(iTau)->leadingTrackNormChi2()));
+					differencesWeighted->Fill(22,std::abs(clusterVariables_.tau_leadTrackChi2(*pfTau)-unmatchedTaus.at(iTau)->leadingTrackNormChi2()));
 				}
 				if(clusterVariables_.tau_Eratio(*pfTau) != clusterVariables_.tau_Eratio(*unmatchedTaus.at(iTau))){
 					if(verbosity_) std::cout << "eRatio: PF = " << clusterVariables_.tau_Eratio(*pfTau) << ", pat = " << clusterVariables_.tau_Eratio(*unmatchedTaus.at(iTau)) << std::endl;
 					differences->Fill(23);
-					differencesWeighted->Fill(23,fabs(clusterVariables_.tau_Eratio(*pfTau)-clusterVariables_.tau_Eratio(*unmatchedTaus.at(iTau))));
+					differencesWeighted->Fill(23,std::abs(clusterVariables_.tau_Eratio(*pfTau)-clusterVariables_.tau_Eratio(*unmatchedTaus.at(iTau))));
 				}
 				if(verbosity_) std::cout << "=============================================================" << std::endl;
 			}
