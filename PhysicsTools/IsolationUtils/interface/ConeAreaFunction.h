@@ -47,7 +47,7 @@ class ConeAreaFunction : public ROOT::Math::ParamFunction<ROOT::Math::IParametri
   virtual ROOT::Math::IGenFunction* Clone () const { return new ConeAreaFunction(*this); }
 
  protected:
-  void SetParameters(double* param);
+  void SetParameters(double const* param);
   virtual double DoEvalPar(double , const double *) const;
   double DoEval(double x) const;
   double DoDerivative(double x) const;
