@@ -11,6 +11,7 @@ hgcalLayerClusters =  cms.EDProducer(
     ecut = cms.double(0.01),
     kappa = cms.double(10.),
     multiclusterRadius = cms.double(0.015),
+    realSpaceCone = cms.bool(False),
     minClusters = cms.uint32(3),
     verbosity = cms.untracked.uint32(3),
     HGCEEInput = cms.InputTag('HGCalRecHit:HGCEERecHits'),
