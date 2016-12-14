@@ -41,11 +41,11 @@ namespace HGCalTriggerBackend{
         class HGCalTriggerSimCluster : public Algorithm<FECODEC>
     {
         private:
-            std::unique_ptr<l1t::HGCalClusterBxCollection> cluster_product;
+            std::unique_ptr<l1t::HGCalClusterBxCollection> cluster_product_;
             // token
-            edm::EDGetTokenT< std::vector<SimCluster> > sim_token;
+            edm::EDGetTokenT< std::vector<SimCluster> > sim_token_;
             // handle
-            edm::Handle< std::vector<SimCluster> > sim_handle;
+            edm::Handle< std::vector<SimCluster> > sim_handle_;
             // add to cluster
             void addToCluster(std::unordered_map<uint64_t,std::pair<int,l1t::HGCalCluster> >& cluster_container, uint64_t pid,int pdgid,float  energy,float  eta, float phi)
             {
@@ -96,8 +96,8 @@ namespace HGCalTriggerBackend{
                 // I need to consumes the PF Cluster Collection with the sim clustering, TODO: make it configurable (?)
                 // vector<SimCluster>                    "mix"                       "MergedCaloTruth"   "HLT/DIGI"
                 // pf clusters cannot be safely cast to SimCluster
-                //sim_token = cc.consumes< std::vector< SimCluster > >(edm::InputTag("mix","MergedCaloTruth","DIGI")); 
-                sim_token = cc.consumes< std::vector< SimCluster > >(edm::InputTag("mix","MergedCaloTruth","")); 
+                //sim_token_ = cc.consumes< std::vector< SimCluster > >(edm::InputTag("mix","MergedCaloTruth","DIGI")); 
+                sim_token_ = cc.consumes< std::vector< SimCluster > >(edm::InputTag("mix","MergedCaloTruth","")); 
             }
 
             // setProduces
@@ -114,9 +114,9 @@ namespace HGCalTriggerBackend{
             {
 #ifdef HGCAL_DEBUG
                 cout<<"[HGCalTriggerSimCluster]::["<<__FUNCTION__<<"] start"<<endl;
-                cout<<"[HGCalTriggerSimCluster]::["<<__FUNCTION__<<"] cluster product (!=NULL) "<<cluster_product.get()<<endl;
+                cout<<"[HGCalTriggerSimCluster]::["<<__FUNCTION__<<"] cluster product (!=NULL) "<<cluster_product_.get()<<endl;
 #endif
-                evt.put(std::move(cluster_product),name());
+                evt.put(std::move(cluster_product_),name());
 #ifdef HGCAL_DEBUG
                 cout<<"[HGCalTriggerSimCluster]::["<<__FUNCTION__<<"] DONE"<<endl;
 #endif
@@ -128,7 +128,7 @@ namespace HGCalTriggerBackend{
 #ifdef HGCAL_DEBUG
                 cout<<"[HGCalTriggerSimCluster]::["<<__FUNCTION__<<"] start"<<endl;
 #endif
-                cluster_product.reset( new l1t::HGCalClusterBxCollection );
+                cluster_product_.reset( new l1t::HGCalClusterBxCollection );
 #ifdef HGCAL_DEBUG
                 cout<<"[HGCalTriggerSimCluster]::["<<__FUNCTION__<<"] DONE"<<endl;
 #endif
@@ -145,9 +145,9 @@ namespace HGCalTriggerBackend{
 #endif
                 //1. construct a cluster container that hosts the cluster per truth-particle
                 std::unordered_map<uint64_t,std::pair<int,l1t::HGCalCluster> > cluster_container;// PID-> bx,cluster
-                evt.getByToken(sim_token,sim_handle);
+                evt.getByToken(sim_token_,sim_handle_);
 
-                if (not sim_handle.isValid()) { std::cout<<"[HGCalTriggerSimCluster]::[run]::[ERROR] PFCluster collection for HGC sim clustering not available"<<std::endl; throw 39;}
+                if (not sim_handle_.isValid()) { std::cout<<"[HGCalTriggerSimCluster]::[run]::[ERROR] PFCluster collection for HGC sim clustering not available"<<std::endl; throw 39;}
 
                 // 1.5. pre-process the sim cluster to have easy accessible information
 #ifdef HGCAL_DEBUG
@@ -155,7 +155,7 @@ namespace HGCalTriggerBackend{
 #endif
                 // I want a map cell-> [ (pid, fraction),  ... 
                 std::unordered_map<uint32_t, std::vector<std::pair< uint64_t, float > > > simclusters;
-                for (auto& cluster : *sim_handle)
+                for (auto& cluster : *sim_handle_)
                 {
                     auto pid= cluster.particleId(); // not pdgId
                     const auto& hf = cluster.hits_and_fractions();
@@ -219,7 +219,7 @@ namespace HGCalTriggerBackend{
                 cout<<"[HGCalTriggerSimCluster]::[run] Push clusters in cluster products"<<endl;
 #endif
 
-                //3. Push the clusters in the cluster_product
+                //3. Push the clusters in the cluster_product_
                 //uint32_t clusterEnergyHw=0;
                 //uint32_t clusterEtaHw = 0 ;//tcellId();
                 //const GlobalPoint& tcellPosition = geom->getTriggerCellPosition( tcellId());
@@ -237,11 +237,11 @@ namespace HGCalTriggerBackend{
                     cout<<"[HGCalTriggerSimCluster]::[run] Cluster: ----------- l1t eta"<< p.second.second.eta() <<endl;
                     cout<<"[HGCalTriggerSimCluster]::[run] Cluster: ----------- l1t phi"<< p.second.second.phi() <<endl;
                     #endif
-                    cluster_product->push_back(p.second.first,p.second.second); // bx,cluster
+                    cluster_product_->push_back(p.second.first,p.second.second); // bx,cluster
                 }
 
 #ifdef HGCAL_DEBUG
-                cout<<"[HGCalTriggerSimCluster]::["<<__FUNCTION__<<"] cluster product (!=NULL) "<<cluster_product.get()<<endl;
+                cout<<"[HGCalTriggerSimCluster]::["<<__FUNCTION__<<"] cluster product (!=NULL) "<<cluster_product_.get()<<endl;
                 cout<<"[HGCalTriggerSimCluster]::[run] END"<<endl;
 #endif
             } // end run
