@@ -11,12 +11,13 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "Geometry/CaloTopology/interface/HcalTopology.h"
 #include "Geometry/Records/interface/HcalRecNumberingRecord.h"
+#include "CLHEP/Random/RandFlat.h"
 
 // #include "CalibCalorimetry/HcalAlgos/interface/HcalDbASCIIIO.h"
 #include <cmath>
-
 #include <iostream>
 #include <fstream>
+#include "TMath.h"
 
 HcalPulseShapes::HcalPulseShapes() 
 : theMCParams(0),
@@ -751,3 +752,42 @@ HcalPulseShapes::defaultShape(const HcalDetId & detId) const
   }
 }
 
+//SiPM helpers
+
+inline double gexp(double t, double A, double c, double t0, double s) {
+  static double const root2(sqrt(2));
+  return -A*0.5*exp(c*t+0.5*c*c*s*s-c*s)*(erf(-0.5*root2/s*(t-t0+c*s*s))-1);
+}
+
+inline double onePulse(double t, double A, double sigma, double theta, double m) {
+  return (t<theta) ? 0 : A*TMath::LogNormal(t,sigma,theta,m);
+}
+
+double HcalPulseShapes::analyticPulseShapeSiPMHO(double t) {
+  // HO SiPM pulse shape fit from Jake Anderson ca. 2013
+  double A1(0.08757), c1(-0.5257), t01(2.4013), s1(0.6721);
+  double A2(0.007598), c2(-0.1501), t02(6.9412), s2(0.8710);
+  return gexp(t,A1,c1,t01,s1) + gexp(t,A2,c2,t02,s2);
+}
+
+double HcalPulseShapes::analyticPulseShapeSiPMHE(double t) {
+  // taken from fit to laser measurement taken by Iouri M. in Spring 2016.
+  double A1(5.204/6.94419), sigma1_shape(0.5387), theta1_loc(-0.3976), m1_scale(4.428);
+  double A2(1.855/6.94419), sigma2_shape(0.8132), theta2_loc(7.025),   m2_scale(12.29);
+  return
+    onePulse(t,A1,sigma1_shape,theta1_loc,m1_scale) +
+    onePulse(t,A2,sigma2_shape,theta2_loc,m2_scale);
+}
+
+double HcalPulseShapes::generatePhotonTime(CLHEP::HepRandomEngine* engine) {
+  double result(0.);
+  while (true) {
+    result = CLHEP::RandFlat::shoot(engine, HcalPulseShapes::Y11RANGE_);
+    if (CLHEP::RandFlat::shoot(engine, HcalPulseShapes::Y11MAX_) < HcalPulseShapes::Y11TimePDF(result))
+      return result;
+  }
+}
+
+double HcalPulseShapes::Y11TimePDF(double t) {
+  return exp(-0.0635-0.1518*t)*pow(t, 2.528)/2485.9;
+}

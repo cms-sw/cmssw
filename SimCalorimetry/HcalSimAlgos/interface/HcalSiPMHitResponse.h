@@ -48,10 +48,6 @@ public:
 
   virtual void setDetIds(const std::vector<DetId> & detIds);
 
-  static double Y11TimePDF( double t );
-
-  double generatePhotonTime(CLHEP::HepRandomEngine*) const;
-
 protected:
   virtual CaloSamples makeSiPMSignal(DetId const& id, photonTimeHist const& photons, CLHEP::HepRandomEngine*) const;
 
@@ -59,9 +55,6 @@ private:
   HcalSiPM * theSiPM;
   double theRecoveryTime;
   int const TIMEMULT;
-  float const Y11RANGE;
-  float const Y11MAX;
-  float const Y11TIMETORISE;
   bool PreMixDigis;
 
   photonTimeMap precisionTimedPhotons;

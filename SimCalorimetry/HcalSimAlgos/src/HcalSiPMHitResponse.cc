@@ -11,9 +11,9 @@
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloVShape.h"
 #include "FWCore/Utilities/interface/isFinite.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalSiPMShape.h"
+#include "CalibCalorimetry/HcalAlgos/interface/HcalPulseShapes.h"
 
 #include "CLHEP/Random/RandPoissonQ.h"
-#include "CLHEP/Random/RandFlat.h"
 
 #include <math.h>
 #include <list>
@@ -21,7 +21,7 @@
 HcalSiPMHitResponse::HcalSiPMHitResponse(const CaloVSimParameterMap * parameterMap,
 					 const CaloShapes * shapes, bool PreMix1) :
   CaloHitResponse(parameterMap, shapes), theSiPM(), theRecoveryTime(250.), 
-  TIMEMULT(1), Y11RANGE(250), Y11MAX(0.04), Y11TIMETORISE(16.65), PreMixDigis(PreMix1) {
+  TIMEMULT(1), PreMixDigis(PreMix1) {
   theSiPM = new HcalSiPM(2500);
 }
 
@@ -105,7 +105,7 @@ void HcalSiPMHitResponse::add(const PCaloHit& hit, CLHEP::HepRandomEngine* engin
 		<< " tof: " << tof
 		<< " binOfMaximum: " << pars.binOfMaximum()
 		<< " phaseShift: " << thePhaseShift_;
-      double tzero(0.0*Y11TIMETORISE + pars.timePhase() - 
+      double tzero(0.0 + pars.timePhase() - 
 		   (time - tof) - 
 		   BUNCHSPACE*( pars.binOfMaximum() - thePhaseShift_));
       LogDebug("HcalSiPMHitResponse") << " tzero: " << tzero;
@@ -114,7 +114,7 @@ void HcalSiPMHitResponse::add(const PCaloHit& hit, CLHEP::HepRandomEngine* engin
       double t_pe(0.);
       int t_bin(0);
       for (unsigned int pe(0); pe<photons; ++pe) {
-        t_pe = generatePhotonTime(engine);
+        t_pe = HcalPulseShapes::generatePhotonTime(engine);
         t_bin = int(t_pe/(theTDCParams.deltaT()/TIMEMULT) + tzero_bin + 0.5);
         LogDebug("HcalSiPMHitResponse") << "t_pe: " << t_pe << " t_pe + tzero: " << (t_pe+tzero_bin*(theTDCParams.deltaT()/TIMEMULT))
                   << " t_bin: " << t_bin << '\n';
@@ -257,19 +257,6 @@ CaloSamples HcalSiPMHitResponse::makeSiPMSignal(DetId const& id,
   }
 
   return signal;
-}
-
-double HcalSiPMHitResponse::generatePhotonTime(CLHEP::HepRandomEngine* engine) const {
-  double result(0.);
-  while (true) {
-    result = CLHEP::RandFlat::shoot(engine, Y11RANGE);
-    if (CLHEP::RandFlat::shoot(engine, Y11MAX) < Y11TimePDF(result))
-      return result;
-  }
-}
-
-double HcalSiPMHitResponse::Y11TimePDF(double t) {
-  return exp(-0.0635-0.1518*t)*pow(t, 2.528)/2485.9;
 }
 
 void HcalSiPMHitResponse::setDetIds(const std::vector<DetId> & detIds) {

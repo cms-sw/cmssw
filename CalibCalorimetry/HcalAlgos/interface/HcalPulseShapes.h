@@ -15,6 +15,10 @@ class HcalMCParams;
 class HcalRecoParams;
 class HcalTopology;
 
+namespace CLHEP {
+  class HepRandomEngine;
+}
+
 class HcalPulseShapes {
 public:
   typedef HcalPulseShape Shape;
@@ -35,6 +39,15 @@ public:
   const Shape& shapeForReco(const HcalDetId & detId) const;
   /// in case of conditions problems
   const Shape& defaultShape(const HcalDetId & detId) const;
+  //public static helpers
+  static const int nBinsSiPM_ = 250;
+  static double analyticPulseShapeSiPMHO(double t);
+  static double analyticPulseShapeSiPMHE(double t);
+  static constexpr float Y11RANGE_ = nBinsSiPM_;
+  static constexpr float Y11MAX_ = 0.04;
+  static double Y11TimePDF(double t);
+  static double generatePhotonTime(CLHEP::HepRandomEngine* engine);
+
 private:
   void computeHPDShape(float, float, float, float, float ,
                        float, float, float, Shape&);
