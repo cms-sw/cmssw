@@ -40,7 +40,7 @@ class IntegralOverPhiFunction : public ROOT::Math::ParamFunction<ROOT::Math::IPa
   virtual ROOT::Math::IGenFunction* Clone () const { return new IntegralOverPhiFunction(*this); }
 
  private:
-  void SetParameters(double* param);
+  void SetParameters(double const * param);
 
   double DoEval(double x) const;
   virtual double DoEvalPar(double x, const double* param) const;
