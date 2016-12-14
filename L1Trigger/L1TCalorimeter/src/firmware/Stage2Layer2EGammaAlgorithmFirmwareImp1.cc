@@ -120,7 +120,6 @@ void l1t::Stage2Layer2EGammaAlgorithmFirmwareImp1::processEvent(const std::vecto
       if(shapeBit)  qual |= (0x1<<2); // third bit = shape
       egamma.setHwQual( qual ); 
 
-
       // Isolation 
       int isoLeftExtension = params_->egIsoAreaNrTowersEta();
       int isoRightExtension = params_->egIsoAreaNrTowersEta();
@@ -275,7 +274,8 @@ bool l1t::Stage2Layer2EGammaAlgorithmFirmwareImp1::idShape(const l1t::CaloCluste
   if( clus.checkClusterFlag(CaloCluster::INCLUDE_SS) ) shape |= (0x1<<6);
 
   unsigned int lutAddress = idShapeLutIndex(clus.hwEta(), hwPt, shape); 
-  bool shapeBit = params_->egShapeIdLUT()->data(lutAddress);
+  bool shapeBit = ((params_->egCalibrationLUT()->data(lutAddress))>>9) & 0x1;
+
   return shapeBit;
 }
 
@@ -389,7 +389,7 @@ int l1t::Stage2Layer2EGammaAlgorithmFirmwareImp1::calibratedPt(const l1t::CaloCl
   if( clus.checkClusterFlag(CaloCluster::INCLUDE_SS) ) shape |= (0x1<<6);
 
   unsigned int lutAddress = calibrationLutIndex(clus.hwEta(), hwPt, shape); 
-  int corr = params_->egCalibrationLUT()->data(lutAddress); // 9 bits. [0,2]. corrPt = (corr)*rawPt
+  int corr = params_->egCalibrationLUT()->data(lutAddress) & (0x1ff);// 9 bits. [0,2]. corrPt = (corr)*rawPt
   // the correction can increase or decrease the energy
   int rawPt = hwPt;
   int corrXrawPt = corr*rawPt;// 17 bits
