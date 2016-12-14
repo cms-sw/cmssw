@@ -69,7 +69,9 @@ protected:
   void endRun(edm::Run const& run, edm::EventSetup const& eSetup);
 
 private:
-  bool filter(edm::Event const& e, edm::EventSetup const& eSetup);
+  bool passesSelection(edm::Handle<reco::GsfElectronCollection> const& electrons) const;
+  bool passesLooseEleId(reco::GsfElectron const& electron) const;
+  bool passesMediumEleId(reco::GsfElectron const& electron) const;
   //histos booking function
   void bookElectronHistos(DQMStore::IBooker &);
   void bookPhotonHistos(DQMStore::IBooker &);
@@ -81,6 +83,7 @@ private:
 
   void fillElectrons(edm::Event const& e, const unsigned int nVertex);
   void fillPhotons(edm::Event const& e, const unsigned int nVertex);
+  bool findTagAndProbePair(edm::Handle<reco::GsfElectronCollection> const& electrons);
 
   //private variables
   math::XYZPoint PVPoint_;
@@ -102,6 +105,9 @@ private:
   std::vector<double> electronEfficiencyThresholds_;
 
   std::vector<double> electronEfficiencyBins_;
+
+  reco::GsfElectron tagElectron_;
+  reco::GsfElectron probeElectron_;
 
   // TODO: add turn-on cuts (vectors of doubles)
   // Histograms

@@ -36,7 +36,9 @@ L1TEGammaOffline::L1TEGammaOffline(const edm::ParameterSet& ps) :
         stage2CaloLayer2EGammaToken_(
             consumes < l1t::EGammaBxCollection > (ps.getParameter < edm::InputTag > ("stage2CaloLayer2EGammaSource"))),
         electronEfficiencyThresholds_(ps.getParameter < std::vector<double> > ("electronEfficiencyThresholds")),
-        electronEfficiencyBins_(ps.getParameter < std::vector<double> > ("electronEfficiencyBins"))
+        electronEfficiencyBins_(ps.getParameter < std::vector<double> > ("electronEfficiencyBins")),
+        tagElectron_(),
+        probeElectron_()
 {
   edm::LogInfo("L1TEGammaOffline") << "Constructor " << "L1TEGammaOffline::L1TEGammaOffline " << std::endl;
 }
@@ -55,10 +57,6 @@ L1TEGammaOffline::~L1TEGammaOffline()
 void L1TEGammaOffline::dqmBeginRun(edm::Run const &, edm::EventSetup const &)
 {
   edm::LogInfo("L1TEGammaOffline") << "L1TEGammaOffline::beginRun" << std::endl;
-}
-
-bool L1TEGammaOffline::filter(edm::Event const& e, edm::EventSetup const& eSetup){
-  return true;
 }
 
 //
@@ -122,8 +120,11 @@ void L1TEGammaOffline::fillElectrons(edm::Event const& e, const unsigned int nVe
     edm::LogError("L1TEGammaOffline") << "invalid collection: L1 EGamma " << std::endl;
     return;
   }
+  if (!passesSelection(gsfElectrons) || !findTagAndProbePair(gsfElectrons))
+    ;
+  return; //continue to next event
 
-  auto leadingGsfElectron = gsfElectrons->front();
+  auto probeElectron = gsfElectrons->at(1);
 
   // find corresponding L1 EG
   double minDeltaR = 0.3;
@@ -132,7 +133,7 @@ void L1TEGammaOffline::fillElectrons(edm::Event const& e, const unsigned int nVe
 
   int bunchCrossing = 0;
   for (auto egamma = l1EGamma->begin(bunchCrossing); egamma != l1EGamma->end(bunchCrossing); ++egamma) {
-    double currentDeltaR = deltaR(egamma->eta(), egamma->phi(), leadingGsfElectron.eta(), leadingGsfElectron.phi());
+    double currentDeltaR = deltaR(egamma->eta(), egamma->phi(), probeElectron.eta(), probeElectron.phi());
     if (currentDeltaR > minDeltaR) {
       continue;
     } else {
@@ -149,9 +150,9 @@ void L1TEGammaOffline::fillElectrons(edm::Event const& e, const unsigned int nVe
     return;
   }
 
-  double recoEt = leadingGsfElectron.et();
-  double recoEta = leadingGsfElectron.eta();
-  double recoPhi = leadingGsfElectron.phi();
+  double recoEt = probeElectron.et();
+  double recoEta = probeElectron.eta();
+  double recoPhi = probeElectron.phi();
 
   double l1Et = closestL1EGamma.et();
   double l1Eta = closestL1EGamma.eta();
@@ -219,6 +220,150 @@ void L1TEGammaOffline::fillElectrons(edm::Event const& e, const unsigned int nVe
   }
 }
 
+/**
+ * From https://cds.cern.ch/record/2202966/files/DP2016_044.pdf slide 8
+ * Filter on
+ * HLT_Ele30WP60_Ele8_Mass55
+ * HLT_Ele30WP60_SC4_Mass55
+ * Seeded by L1SingleEG, unprescaled required
+ *
+ * Tag & probe selection
+ * Electron required to be within ECAL fiducial volume (|η|<1.4442 ||
+ * 1.566<|η|<2.5).
+ * 60 < m(ee) < 120 GeV.
+ * Opposite charge requirement.
+ * Tag required to pass medium electron ID and ET > 30 GeV.
+ * Probe required to pass loose electron ID.
+ *
+ * @param electrons
+ * @return
+ */
+bool L1TEGammaOffline::passesSelection(edm::Handle<reco::GsfElectronCollection> const& electrons) const
+{
+  auto nElectrons = electrons->size();
+  if (nElectrons < 2)
+    return false;
+
+  // TODO: loop over all electron pairs
+  auto tagElectron = electrons->front();
+  auto probeElectron = electrons->at(1);
+  auto combined(tagElectron.p4() + probeElectron.p4());
+
+  auto tagAbsEta = std::abs(tagElectron.eta());
+  auto probeAbsEta = std::abs(probeElectron.eta());
+
+  // EB-EE transition region
+  bool isEBEEGap = tagElectron.isEBEEGap() || probeElectron.isEBEEGap();
+  bool passesEta = !isEBEEGap && tagAbsEta < 2.5 && probeAbsEta < 2.5;
+  bool passesInvariantMass = combined.M() > 60 && combined.M() < 120;
+  bool passesCharge = tagElectron.charge() == -probeElectron.charge();
+
+  // https://github.com/ikrav/cmssw/blob/egm_id_80X_v1/RecoEgamma/ElectronIdentification/plugins/cuts/GsfEleFull5x5SigmaIEtaIEtaCut.cc#L45
+  bool tagPassesMediumID = passesMediumEleId(tagElectron);
+  bool probePassesLooseID = passesMediumEleId(probeElectron);
+
+  return passesEta && passesInvariantMass && passesCharge && tagPassesMediumID && probePassesLooseID;
+}
+
+bool L1TEGammaOffline::findTagAndProbePair(edm::Handle<reco::GsfElectronCollection> const& electrons)
+{
+//  bool foundBoth(false);
+//
+//  for (auto tagElectron : *electrons) {
+//
+//    for (auto probeElectron : *electrons) {
+//      if (tagElectron == probeElectron)
+//        continue;
+//      if (probeElectron.isEBEEGap() || std::abs(probeElectron.eta()) > 2.5)
+//        continue;
+//      if(!passesLooseEleId(probeElectron))
+//        continue;
+//
+//      auto combined(tagElectron.p4() + probeElectron.p4());
+//      bool passesInvariantMass = combined.M() > 60 && combined.M() < 120;
+//      bool passesCharge = tagElectron.charge() == -probeElectron.charge();
+//      if(passesInvariantMass && passesCharge){
+//        foundBoth = true;
+//        tagElectron_ = tagElectron;
+//        probeElectron_ = probeElectron;
+//      }
+//    }
+//
+//  }
+//  return foundBoth;
+  return true;
+}
+
+/*
+ * Structure from
+ * https://github.com/cms-sw/cmssw/blob/CMSSW_9_0_X/DQMOffline/EGamma/plugins/ElectronAnalyzer.cc
+ * Values from
+ * https://twiki.cern.ch/twiki/bin/view/CMS/CutBasedElectronIdentificationRun2
+ */
+bool L1TEGammaOffline::passesLooseEleId(reco::GsfElectron const& electron) const
+{
+  const float ecal_energy_inverse = 1.0 / electron.ecalEnergy();
+  const float eSCoverP = electron.eSuperClusterOverP();
+  const float eOverP = std::abs(1.0 - eSCoverP) * ecal_energy_inverse;
+
+  if (electron.isEB() && eOverP > 0.241)
+    return false;
+  if (electron.isEE() && eOverP > 0.14)
+    return false;
+  if (electron.isEB() && std::abs(electron.deltaEtaSuperClusterTrackAtVtx()) > 0.00477)
+    return false;
+  if (electron.isEE() && std::abs(electron.deltaEtaSuperClusterTrackAtVtx()) > 0.00868)
+    return false;
+  if (electron.isEB() && std::abs(electron.deltaPhiSuperClusterTrackAtVtx()) > 0.222)
+    return false;
+  if (electron.isEE() && std::abs(electron.deltaPhiSuperClusterTrackAtVtx()) > 0.213)
+    return false;
+  if (electron.isEB() && electron.scSigmaIEtaIEta() > 0.011)
+    return false;
+  if (electron.isEE() && electron.scSigmaIEtaIEta() > 0.0314)
+    return false;
+  if (electron.isEB() && electron.hadronicOverEm() > 0.298)
+    return false;
+  if (electron.isEE() && electron.hadronicOverEm() > 0.101)
+    return false;
+  return true;
+}
+
+/*
+ * Structure from
+ * https://github.com/cms-sw/cmssw/blob/CMSSW_9_0_X/DQMOffline/EGamma/plugins/ElectronAnalyzer.cc
+ * Values from
+ * https://twiki.cern.ch/twiki/bin/view/CMS/CutBasedElectronIdentificationRun2
+ */
+bool L1TEGammaOffline::passesMediumEleId(reco::GsfElectron const& electron) const
+{
+  const float ecal_energy_inverse = 1.0 / electron.ecalEnergy();
+  const float eSCoverP = electron.eSuperClusterOverP();
+  const float eOverP = std::abs(1.0 - eSCoverP) * ecal_energy_inverse;
+
+  if (electron.isEB() && eOverP < 0.134)
+    return false;
+  if (electron.isEE() && eOverP > 0.13)
+    return false;
+  if (electron.isEB() && std::abs(electron.deltaEtaSuperClusterTrackAtVtx()) > 0.00311)
+    return false;
+  if (electron.isEE() && std::abs(electron.deltaEtaSuperClusterTrackAtVtx()) > 0.00609)
+    return false;
+  if (electron.isEB() && std::abs(electron.deltaPhiSuperClusterTrackAtVtx()) > 0.103)
+    return false;
+  if (electron.isEE() && std::abs(electron.deltaPhiSuperClusterTrackAtVtx()) > 0.045)
+    return false;
+  if (electron.isEB() && electron.scSigmaIEtaIEta() > 0.00998)
+    return false;
+  if (electron.isEE() && electron.scSigmaIEtaIEta() > 0.0298)
+    return false;
+  if (electron.isEB() && electron.hadronicOverEm() > 0.253)
+    return false;
+  if (electron.isEE() && electron.hadronicOverEm() > 0.0878)
+    return false;
+  return true;
+}
+
 void L1TEGammaOffline::fillPhotons(edm::Event const& e, const unsigned int nVertex)
 {
   edm::Handle<l1t::EGammaBxCollection> l1EGamma;
@@ -271,51 +416,51 @@ void L1TEGammaOffline::bookElectronHistos(DQMStore::IBooker & ibooker)
   h_nVertex_ = ibooker.book1D("nVertex", "Number of event vertices in collection", 40, -0.5, 39.5);
   // electron reco vs L1
   h_L1EGammaETvsElectronET_EB_ = ibooker.book2D("L1EGammaETvsElectronET_EB",
-      "L1 EGamma E_{T} vs GSF Electron E_{T} (HB); GSF Electron E_{T} (GeV); L1 EGamma E_{T} (GeV)", 300, 0, 300, 300,
+      "L1 EGamma E_{T} vs GSF Electron E_{T} (EB); GSF Electron E_{T} (GeV); L1 EGamma E_{T} (GeV)", 300, 0, 300, 300,
       0, 300);
   h_L1EGammaETvsElectronET_EE_ = ibooker.book2D("L1EGammaETvsElectronET_EE",
-      "L1 EGamma E_{T} vs GSF Electron E_{T} (HE); GSF Electron E_{T} (GeV); L1 EGamma E_{T} (GeV)", 300, 0, 300, 300,
+      "L1 EGamma E_{T} vs GSF Electron E_{T} (EE); GSF Electron E_{T} (GeV); L1 EGamma E_{T} (GeV)", 300, 0, 300, 300,
       0, 300);
   h_L1EGammaETvsElectronET_EB_EE_ = ibooker.book2D("L1EGammaETvsElectronET_EB_EE",
-      "L1 EGamma E_{T} vs GSF Electron E_{T} (HB+HE); GSF Electron E_{T} (GeV); L1 EGamma E_{T} (GeV)", 300, 0, 300,
+      "L1 EGamma E_{T} vs GSF Electron E_{T} (EB+EE); GSF Electron E_{T} (GeV); L1 EGamma E_{T} (GeV)", 300, 0, 300,
       300, 0, 300);
 
   h_L1EGammaPhivsElectronPhi_EB_ = ibooker.book2D("L1EGammaPhivsElectronPhi_EB",
-      "#phi_{electron}^{L1} vs #phi_{electron}^{offline} (HB); #phi_{electron}^{offline}; #phi_{electron}^{L1}", 100,
+      "#phi_{electron}^{L1} vs #phi_{electron}^{offline} (EB); #phi_{electron}^{offline}; #phi_{electron}^{L1}", 100,
       -4, 4, 100, -4, 4);
   h_L1EGammaPhivsElectronPhi_EE_ = ibooker.book2D("L1EGammaPhivsElectronPhi_EE",
-      "#phi_{electron}^{L1} vs #phi_{electron}^{offline} (HE); #phi_{electron}^{offline}; #phi_{electron}^{L1}", 100,
+      "#phi_{electron}^{L1} vs #phi_{electron}^{offline} (EE); #phi_{electron}^{offline}; #phi_{electron}^{L1}", 100,
       -4, 4, 100, -4, 4);
   h_L1EGammaPhivsElectronPhi_EB_EE_ = ibooker.book2D("L1EGammaPhivsElectronPhi_EB_EE",
-      "#phi_{electron}^{L1} vs #phi_{electron}^{offline} (HB+HE); #phi_{electron}^{offline}; #phi_{electron}^{L1}", 100,
+      "#phi_{electron}^{L1} vs #phi_{electron}^{offline} (EB+EE); #phi_{electron}^{offline}; #phi_{electron}^{L1}", 100,
       -4, 4, 100, -4, 4);
 
   h_L1EGammaEtavsElectronEta_ = ibooker.book2D("L1EGammaEtavsElectronEta",
-      "L1 EGamma #eta vs GSF Electron #eta; GSF Electron #eta; L1 EGamma #eta", 100, -10, 10, 100, -10, 10);
+      "L1 EGamma #eta vs GSF Electron #eta; GSF Electron #eta; L1 EGamma #eta", 100, -3, 3, 100, -3, 3);
 
   // electron resolutions
   h_resolutionElectronET_EB_ = ibooker.book1D("resolutionElectronET_EB",
-      "electron ET resolution (HB); (L1 EGamma E_{T} - GSF Electron E_{T})/GSF Electron E_{T}; events", 50, -1, 1.5);
+      "electron ET resolution (EB); (L1 EGamma E_{T} - GSF Electron E_{T})/GSF Electron E_{T}; events", 50, -1, 1.5);
   h_resolutionElectronET_EE_ = ibooker.book1D("resolutionElectronET_EE",
-      "electron ET resolution (HE); (L1 EGamma E_{T} - GSF Electron E_{T})/GSF Electron E_{T}; events", 50, -1, 1.5);
+      "electron ET resolution (EE); (L1 EGamma E_{T} - GSF Electron E_{T})/GSF Electron E_{T}; events", 50, -1, 1.5);
   h_resolutionElectronET_EB_EE_ = ibooker.book1D("resolutionElectronET_EB_EE",
-      "electron ET resolution (HB+HE); (L1 EGamma E_{T} - GSF Electron E_{T})/GSF Electron E_{T}; events", 50, -1, 1.5);
+      "electron ET resolution (EB+EE); (L1 EGamma E_{T} - GSF Electron E_{T})/GSF Electron E_{T}; events", 50, -1, 1.5);
 
   h_resolutionElectronPhi_EB_ =
       ibooker.book1D("resolutionElectronPhi_EB",
-          "#phi_{electron} resolution (HB); (#phi_{electron}^{L1} - #phi_{electron}^{offline})/#phi_{electron}^{offline}; events",
+          "#phi_{electron} resolution (EB); (#phi_{electron}^{L1} - #phi_{electron}^{offline})/#phi_{electron}^{offline}; events",
           120, -0.3, 0.3);
   h_resolutionElectronPhi_EE_ =
       ibooker.book1D("resolutionElectronPhi_EE",
-          "electron #phi resolution (HE); (#phi_{electron}^{L1} - #phi_{electron}^{offline})/#phi_{electron}^{offline}; events",
+          "electron #phi resolution (EE); (#phi_{electron}^{L1} - #phi_{electron}^{offline})/#phi_{electron}^{offline}; events",
           120, -0.3, 0.3);
   h_resolutionElectronPhi_EB_EE_ =
       ibooker.book1D("resolutionElectronPhi_EB_EE",
-          "electron #phi resolution (HB+HE); (#phi_{electron}^{L1} - #phi_{electron}^{offline})/#phi_{electron}^{offline}; events",
+          "electron #phi resolution (EB+EE); (#phi_{electron}^{L1} - #phi_{electron}^{offline})/#phi_{electron}^{offline}; events",
           120, -0.3, 0.3);
 
   h_resolutionElectronEta_ = ibooker.book1D("resolutionElectronEta",
-      "electron #eta resolution  (HB); (L1 EGamma #eta - GSF Electron #eta)/GSF Electron #eta; events", 120, -0.3, 0.3);
+      "electron #eta resolution  (EB); (L1 EGamma #eta - GSF Electron #eta)/GSF Electron #eta; events", 120, -0.3, 0.3);
 
   // electron turn-ons
   ibooker.setCurrentFolder(efficiencyFolder_.c_str());
@@ -327,23 +472,23 @@ void L1TEGammaOffline::bookElectronHistos(DQMStore::IBooker & ibooker)
     std::string str_threshold = std::to_string(int(threshold));
     h_efficiencyElectronET_EB_pass_[threshold] = ibooker.book1D(
         "efficiencyElectronET_EB_threshold_" + str_threshold + "_Num",
-        "electron efficiency (HB); GSF Electron E_{T} (GeV); events", nBins, electronBinArray);
+        "electron efficiency (EB); GSF Electron E_{T} (GeV); events", nBins, electronBinArray);
     h_efficiencyElectronET_EE_pass_[threshold] = ibooker.book1D(
         "efficiencyElectronET_EE_threshold_" + str_threshold + "_Num",
-        "electron efficiency (HE); GSF Electron E_{T} (GeV); events", nBins, electronBinArray);
+        "electron efficiency (EE); GSF Electron E_{T} (GeV); events", nBins, electronBinArray);
     h_efficiencyElectronET_EB_EE_pass_[threshold] = ibooker.book1D(
         "efficiencyElectronET_EB_EE_threshold_" + str_threshold + "_Num",
-        "electron efficiency (HB+HE); GSF Electron E_{T} (GeV); events", nBins, electronBinArray);
+        "electron efficiency (EB+EE); GSF Electron E_{T} (GeV); events", nBins, electronBinArray);
 
     h_efficiencyElectronET_EB_total_[threshold] = ibooker.book1D(
         "efficiencyElectronET_EB_threshold_" + str_threshold + "_Den",
-        "electron efficiency (HB); GSF Electron E_{T} (GeV); events", nBins, electronBinArray);
+        "electron efficiency (EB); GSF Electron E_{T} (GeV); events", nBins, electronBinArray);
     h_efficiencyElectronET_EE_total_[threshold] = ibooker.book1D(
         "efficiencyElectronET_EE_threshold_" + str_threshold + "_Den",
-        "electron efficiency (HE); GSF Electron E_{T} (GeV); events", nBins, electronBinArray);
+        "electron efficiency (EE); GSF Electron E_{T} (GeV); events", nBins, electronBinArray);
     h_efficiencyElectronET_EB_EE_total_[threshold] = ibooker.book1D(
         "efficiencyElectronET_EB_EE_threshold_" + str_threshold + "_Den",
-        "electron efficiency (HB+HE); GSF Electron E_{T} (GeV); events", nBins, electronBinArray);
+        "electron efficiency (EB+EE); GSF Electron E_{T} (GeV); events", nBins, electronBinArray);
   }
 
   ibooker.cd();
