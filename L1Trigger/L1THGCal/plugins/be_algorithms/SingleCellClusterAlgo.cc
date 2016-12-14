@@ -18,7 +18,7 @@ class SingleCellClusterAlgo : public Algorithm<FECODEC>
 
     public:
         SingleCellClusterAlgo(const edm::ParameterSet& conf,edm::ConsumesCollector &cc):
-            Algorithm<HGCalTriggerCellBestChoiceCodec>(conf,cc),
+            Algorithm<FECODEC>(conf,cc),
             cluster_product_( new l1t::HGCalTriggerCellBxCollection ),
             HGCalEESensitive_(conf.getParameter<std::string>("HGCalEESensitive_tag")),
             HGCalHESiliconSensitive_(conf.getParameter<std::string>("HGCalHESiliconSensitive_tag")),

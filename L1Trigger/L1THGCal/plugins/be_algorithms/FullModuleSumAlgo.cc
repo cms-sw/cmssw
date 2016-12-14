@@ -18,13 +18,11 @@ class FullModuleSumAlgo : public Algorithm<FECODEC>
         using Algorithm<FECODEC>::codec_;
 
     public:    
-        //FullModuleSumAlgo(const edm::ParameterSet& conf):
-        //Algorithm<FECODEC>(conf),
-        //cluster_product_( new l1t::HGCalClusterBxCollection ){}
 
         FullModuleSumAlgo(const edm::ParameterSet& conf, edm::ConsumesCollector& cc):
-            Algorithm<HGCalTriggerCellBestChoiceCodec>(conf,cc),
-            cluster_product_( new l1t::HGCalClusterBxCollection ){}
+            Algorithm<FECODEC>(conf,cc),
+            cluster_product_( new l1t::HGCalClusterBxCollection )
+	{}
 
         virtual void setProduces(edm::EDProducer& prod) const override final 
         {
@@ -48,14 +46,16 @@ class FullModuleSumAlgo : public Algorithm<FECODEC>
 };
 
 /*****************************************************************/
-void FullModuleSumAlgo::run(const l1t::HGCFETriggerDigiCollection& coll, const edm::EventSetup& es,
-	const edm::Event&evt
-	) 
+template<typename FECODEC, typename DATA>
+void FullModuleSumAlgo<FECODEC,DATA>::run(const l1t::HGCFETriggerDigiCollection& coll, 
+			const edm::EventSetup& es,
+			const edm::Event&evt
+			) 
 /*****************************************************************/
 {
     for( const auto& digi : coll ) 
     {
-        HGCalTriggerCellBestChoiceCodec::data_type data;
+        DATA data;
         data.reset();
         const HGCalDetId& moduleId = digi.getDetId<HGCalDetId>();
         digi.decode(codec_, data);
