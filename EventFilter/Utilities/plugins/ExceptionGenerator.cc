@@ -30,7 +30,7 @@ namespace evf{
     {
       
     }
-  void ExceptionGenerator::beginStream()
+  void ExceptionGenerator::beginStream(edm::StreamID)
   {
     // timing destribution from (https://twiki.cern.ch/twiki/bin/viewauth/CMS/HLTCpuTimingFAQ#2011_Most_Recent_Data)
     // /castor/cern.ch/user/d/dsperka/HLT/triggerSkim_HLTPhysics_run178479_68_188.root
@@ -140,7 +140,7 @@ namespace evf{
     timingHisto_->SetBinContent(101,147);
     timingHisto_->SetEntries(24934);
   }
-  void ExceptionGenerator::beginRun(edm::Run& r, const edm::EventSetup& iSetup)
+  void ExceptionGenerator::beginRun(edm::Run const& r, const edm::EventSetup& iSetup)
   {
     gettimeofday(&tv_start_,0);
   }

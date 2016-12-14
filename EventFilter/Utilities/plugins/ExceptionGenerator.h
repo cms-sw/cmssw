@@ -19,8 +19,8 @@ namespace evf{
 						   
       explicit ExceptionGenerator( const edm::ParameterSet&);
       ~ExceptionGenerator(){};
-      void beginStream();
-      void beginRun(edm::Run& r, const edm::EventSetup& iSetup);
+      void beginStream(edm::StreamID);
+      void beginRun(edm::Run const& r, const edm::EventSetup& iSetup);
       void analyze(const edm::Event & e, const edm::EventSetup& c);
       void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
 

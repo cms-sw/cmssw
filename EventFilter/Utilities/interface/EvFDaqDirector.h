@@ -29,8 +29,8 @@ class SystemBounds;
 class GlobalContext;
 class StreamID;
 
-class InputFile;
-class InputChunk;
+struct InputFile;
+struct InputChunk;
 
 namespace edm {
   class PathsAndConsumesOfModulesBase;
