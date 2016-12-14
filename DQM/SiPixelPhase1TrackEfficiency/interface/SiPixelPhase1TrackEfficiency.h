@@ -15,7 +15,6 @@
 
 class SiPixelPhase1TrackEfficiency : public SiPixelPhase1Base {
   enum {
-    CLUSTER_PROB,
     VALID,
     MISSING,
     EFFICIENCY
@@ -33,7 +32,6 @@ class SiPixelPhase1TrackEfficiency : public SiPixelPhase1Base {
 
 class SiPixelPhase1TrackEfficiencyHarvester : public SiPixelPhase1Harvester { 
   enum {
-    CLUSTER_PROB,
     VALID,
     MISSING,
     EFFICIENCY
@@ -42,7 +40,7 @@ class SiPixelPhase1TrackEfficiencyHarvester : public SiPixelPhase1Harvester {
   public:
   explicit SiPixelPhase1TrackEfficiencyHarvester(const edm::ParameterSet& conf);
 
-  void doHarvesting(SummationStep& s, HistogramManager::Table& efficiency);
+  void doHarvesting(SummationStep const& s, HistogramManager::Table& efficiency);
   
   private:
   // we use the custom arg as a tag, to not mix up different tables.
