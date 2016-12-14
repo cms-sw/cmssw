@@ -14,13 +14,14 @@ class HGCalDepthPreClusterer
 {
 public:
   
- HGCalDepthPreClusterer() : radius(0.), minClusters(0.), clusterTools(nullptr)
+ HGCalDepthPreClusterer() : radius(0.), minClusters(0.), realSpaceCone(false), clusterTools(nullptr)
     {
   }
   
- HGCalDepthPreClusterer(const edm::ParameterSet& conf, edm::ConsumesCollector& sumes, double radius_in, uint32_t min_clusters) : 
+ HGCalDepthPreClusterer(const edm::ParameterSet& conf, edm::ConsumesCollector& sumes, double radius_in, uint32_t min_clusters, bool real_space_cone) : 
   radius(radius_in),
   minClusters(min_clusters),
+  realSpaceCone(real_space_cone),
   clusterTools(std::make_unique<hgcal::ClusterTools>(conf,sumes)) {
   }
 
@@ -35,6 +36,7 @@ public:
 private:  
   float radius;
   uint32_t minClusters;
+  bool realSpaceCone;
   
   std::unique_ptr<hgcal::ClusterTools> clusterTools;
 
