@@ -547,8 +547,7 @@ void PulseShapeFitOOTPileupCorrection::phase1Apply(const HBHEChannelInfo& channe
     energyArr[ip] = energy; pedenArr[ip] = peden;
 
     // quantization noise from the ADC (QIE8 or QIE10/11)
-    if(!channelData.hasTimeInfo()) noiseADCArr[ip] = psfPtr_->sigmaHPDQIE8(chargeArr[ip]);
-    if(channelData.hasTimeInfo()) noiseADCArr[ip] = psfPtr_->sigmaSiPMQIE10(chargeArr[ip]);
+    noiseADCArr[ip] = channelData.tsDFcPerADC(ip);
 
     // dark current noise relevant for siPM
     noiseDCArr[ip] = 0;
