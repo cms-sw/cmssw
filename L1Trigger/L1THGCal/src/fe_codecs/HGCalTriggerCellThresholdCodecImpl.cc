@@ -1,10 +1,9 @@
 
-#include "L1Trigger/L1THGCal/interface/fe_codecs/HGCalTriggerCellBestChoiceCodecImpl.h"
+#include "L1Trigger/L1THGCal/interface/fe_codecs/HGCalTriggerCellThresholdCodecImpl.h"
 
 
-HGCalTriggerCellBestChoiceCodecImpl::
-HGCalTriggerCellBestChoiceCodecImpl(const edm::ParameterSet& conf) :
-    nData_(conf.getParameter<uint32_t>("NData")),
+HGCalTriggerCellThresholdCodecImpl::
+HGCalTriggerCellThresholdCodecImpl(const edm::ParameterSet& conf) :
     dataLength_(conf.getParameter<uint32_t>("DataLength")),
     nCellsInModule_(conf.getParameter<uint32_t>("MaxCellsInModule")), 
     linLSB_(conf.getParameter<double>("linLSB")),
@@ -13,42 +12,45 @@ HGCalTriggerCellBestChoiceCodecImpl(const edm::ParameterSet& conf) :
     tdcsaturation_(conf.getParameter<double>("tdcsaturation")), 
     tdcnBits_(conf.getParameter<uint32_t>("tdcnBits")), 
     tdcOnsetfC_(conf.getParameter<double>("tdcOnsetfC")),
-    triggerCellTruncationBits_(conf.getParameter<uint32_t>("triggerCellTruncationBits"))
+    triggerCellTruncationBits_(conf.getParameter<uint32_t>("triggerCellTruncationBits")),
+    TCThreshold_fC_(conf.getParameter<double>("TCThreshold_fC"))
 {
-  // Cannot have more selected cells than the max number of cells
-  if(nData_>nCellsInModule_) nData_ = nCellsInModule_;
   adcLSB_ =  adcsaturation_/pow(2.,adcnBits_);
   tdcLSB_ =  tdcsaturation_/pow(2.,tdcnBits_);
   triggerCellSaturationBits_ = triggerCellTruncationBits_ + dataLength_;
+  TCThreshold_ADC_ = (int) (TCThreshold_fC_ / linLSB_);
 }
 
 
 
 std::vector<bool>
-HGCalTriggerCellBestChoiceCodecImpl::
-encode(const HGCalTriggerCellBestChoiceCodecImpl::data_type& data, const HGCalTriggerGeometryBase& geometry) const 
+HGCalTriggerCellThresholdCodecImpl::
+encode(const HGCalTriggerCellThresholdCodecImpl::data_type& data, const HGCalTriggerGeometryBase& geometry) const 
 {
     // First nCellsInModule_ bits are encoding the map of selected trigger cells
-    // Followed by nData_ words of dataLength_ bits, corresponding to energy/transverse energy of
+    // Followed by size words of dataLength_ bits, corresponding to energy/transverse energy of
     // the selected trigger cells
-    std::vector<bool> result(nCellsInModule_ + dataLength_*nData_, 0);
+  
+    // Convert payload into a map for later search
+    std::unordered_map<uint32_t, uint32_t> data_map; // (detid,energy)
+    size_t size=0;
+    for(const auto& triggercell : data.payload)
+      {
+        data_map.emplace(triggercell.detId(), triggercell.hwPt());
+        if (triggercell.hwPt()>0) size++;
+      }
+    std::vector<bool> result(nCellsInModule_ + dataLength_*size, 0);
     // No data: return vector of 0
     if(data.payload.size()==0) return result;
     // All trigger cells are in the same module
-    // Retrieve once the ordered list of trigger cells in this module
-    uint32_t module = geometry.getModuleFromTriggerCell(data.payload.begin()->detId());
-    HGCalTriggerGeometryBase::geom_ordered_set trigger_cells_in_module = geometry.getOrderedTriggerCellsFromModule(module);
-    // Convert payload into a map for later search
-    std::unordered_map<uint32_t, uint32_t> data_map; // (detid,energy)
-    for(const auto& triggercell : data.payload)
-    {
-        data_map.emplace(triggercell.detId(), triggercell.hwPt());
-    }
     // Loop on trigger cell ids in module and check if energy in the cell
     size_t index = 0; // index in module
     size_t idata = 0; // counter for the number of non-zero energy values
+    // Retrieve once the ordered list of trigger cells in this module
+    uint32_t module = geometry.getModuleFromTriggerCell(data.payload.begin()->detId());
+    HGCalTriggerGeometryBase::geom_ordered_set trigger_cells_in_module = geometry.getOrderedTriggerCellsFromModule(module);
     for(const auto& triggercell_id : trigger_cells_in_module)
-    {
+      {
         // Find if this trigger cell has data
         const auto& data_itr = data_map.find(triggercell_id);
         // if not data, increase index and skip
@@ -61,49 +63,36 @@ encode(const HGCalTriggerCellBestChoiceCodecImpl::data_type& data, const HGCalTr
         // (set the corresponding adress bit and fill energy if >0)
         if(index>=nCellsInModule_) 
         {
-            throw cms::Exception("BadGeometry")
-                << "Number of trigger cells in module too large for available data payload\n";
+          throw cms::Exception("BadGeometry")
+            << "Number of trigger cells in module too large for available data payload\n";
         }
         uint32_t value = data_itr->second; 
         if(value>0)
-        {
-            if(idata>=nData_)
-            {
-                throw cms::Exception("BadData") 
-                    << "encode: Number of non-zero trigger cells larger than codec parameter\n"\
-                    << "      : Number of energy values = "<<nData_<<"\n";
-            }
+          {
             // Set map bit to 1
             result[index] =  1;
             // Saturate and truncate energy values
             if(value+1>(0x1u<<triggerCellSaturationBits_)) value = (0x1<<triggerCellSaturationBits_)-1;
             for(size_t i=0; i<dataLength_; i++)
-            {
+              {
                 // remove the lowest bits (=triggerCellTruncationBits_)
                 result[nCellsInModule_ + idata*dataLength_ + i] = static_cast<bool>(value & (0x1<<(i+triggerCellTruncationBits_)));
-            }
+              }
             idata++;
-        }
+          }
         index++;
-    }
+      }
     return result;
 }
 
-HGCalTriggerCellBestChoiceCodecImpl::data_type 
-HGCalTriggerCellBestChoiceCodecImpl::
+HGCalTriggerCellThresholdCodecImpl::data_type 
+HGCalTriggerCellThresholdCodecImpl::
 decode(const std::vector<bool>& data, const uint32_t module, const HGCalTriggerGeometryBase& geometry) const 
 {
     data_type result;
     result.reset();
     // TODO: could eventually reserve result memory to the max size of trigger cells
-    if(data.size()!=nCellsInModule_+dataLength_*nData_)
-    {
-        throw cms::Exception("BadData") 
-            << "decode: data length ("<<data.size()<<") inconsistent with codec parameters:\n"\
-            << "      : Map size = "<<nCellsInModule_<<"\n"\
-            << "      : Number of energy values = "<<nData_<<"\n"\
-            << "      : Energy value length = "<<dataLength_<<"\n";
-    }
+   
     HGCalTriggerGeometryBase::geom_ordered_set trigger_cells_in_module = geometry.getOrderedTriggerCellsFromModule(module);
     size_t iselected = 0;
     size_t index = 0;
@@ -143,7 +132,7 @@ decode(const std::vector<bool>& data, const uint32_t module, const HGCalTriggerG
 
 
 void
-HGCalTriggerCellBestChoiceCodecImpl::
+HGCalTriggerCellThresholdCodecImpl::
 linearize(const std::vector<HGCDataFrame<HGCalDetId,HGCSample>>& dataframes,
         std::vector<std::pair<HGCalDetId, uint32_t > >& linearized_dataframes)
 {
@@ -158,7 +147,7 @@ linearize(const std::vector<HGCDataFrame<HGCalDetId,HGCSample>>& dataframes,
             amplitude = double(frame[2].data()) * adcLSB_;
         }
 
-        amplitude_int = uint32_t (floor(amplitude/linLSB_+0.5));  
+        amplitude_int = uint32_t (floor(amplitude/linLSB_+0.5)); 
         if (amplitude_int>65535) amplitude_int = 65535;
 
         linearized_dataframes.push_back(std::make_pair (frame.id(), amplitude_int));
@@ -167,7 +156,7 @@ linearize(const std::vector<HGCDataFrame<HGCalDetId,HGCSample>>& dataframes,
   
 
 void 
-HGCalTriggerCellBestChoiceCodecImpl::
+HGCalTriggerCellThresholdCodecImpl::
 triggerCellSums(const HGCalTriggerGeometryBase& geometry,  const std::vector<std::pair<HGCalDetId, uint32_t > >& linearized_dataframes, data_type& data)
 {
     if(linearized_dataframes.size()==0) return;
@@ -197,19 +186,13 @@ triggerCellSums(const HGCalTriggerGeometryBase& geometry,  const std::vector<std
 }
 
 void 
-HGCalTriggerCellBestChoiceCodecImpl::
-bestChoiceSelect(data_type& data)
+HGCalTriggerCellThresholdCodecImpl::
+thresholdSelect(data_type& data)
 {
-    // sort, reverse order
-    sort(data.payload.begin(), data.payload.end(),
-            [](const l1t::HGCalTriggerCell& a, 
-                const  l1t::HGCalTriggerCell& b) -> bool
-            { 
-                return a.hwPt() > b.hwPt(); 
-            } 
-            );
-    // keep only the first trigger cells
-    if(data.payload.size()>nData_) data.payload.resize(nData_);
+  for (size_t i = 0; i<data.payload.size();i++){
+    if (data.payload[i].hwPt() < TCThreshold_ADC_)  data.payload[i].setHwPt(0);
+  }
+  
 }
 
 

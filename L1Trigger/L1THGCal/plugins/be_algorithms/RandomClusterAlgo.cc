@@ -18,6 +18,7 @@ public:
   }
 
   virtual void run(const l1t::HGCFETriggerDigiCollection& coll,
+		  const edm::EventSetup& es,
 		   const edm::Event&evt
 		   ) override final;
 
@@ -35,6 +36,7 @@ private:
 };
 
 void RandomClusterAlgo::run(const l1t::HGCFETriggerDigiCollection& coll,
+			    const edm::EventSetup& es,
 			    const edm::Event&evt
 			    ) {
   for( const auto& digi : coll ) {

@@ -50,31 +50,31 @@ namespace HGCalTriggerBackend{
             void addToCluster(std::unordered_map<uint64_t,std::pair<int,l1t::HGCalCluster> >& cluster_container, uint64_t pid,int pdgid,float  energy,float  eta, float phi)
             {
 
-            auto pair = cluster_container.emplace(pid, std::pair<int,l1t::HGCalCluster>(0,l1t::HGCalCluster() ) ) ;
-            auto iterator = pair.first;
-            //auto iterator = cluster_container.find (pid);
-            //if (iterator == cluster_container.end())
-            //    {
-            //        //create an empty cluster
-            //        cluster_container[pid] = std::pair<int,l1t::HGCalCluster>(0,l1t::HGCalCluster());
-            //        iterator = cluster_container.find (pid);
-            //        iterator -> second . second . setPdgId(pdgid);
-            //    }
-            // p4 += p4' 
-            math::PtEtaPhiMLorentzVectorD p4;
-            p4.SetPt ( iterator -> second . second . pt()   ) ;
-            p4.SetEta( iterator -> second . second . eta()  ) ;
-            p4.SetPhi( iterator -> second . second . phi()  ) ;
-            p4.SetM  ( iterator -> second . second . mass() ) ;
-            math::PtEtaPhiMLorentzVectorD pp4; 
-            float t = std::exp (- eta);
-            pp4.SetPt ( energy * (1-t*t)/(1+t*t)  ) ;
-            pp4.SetEta( eta ) ;
-            pp4.SetPhi( phi ) ;
-            pp4.SetM  (  0  ) ;
-            p4 += pp4;
-            iterator -> second . second . setP4(p4);
-            return ;
+                auto pair = cluster_container.emplace(pid, std::pair<int,l1t::HGCalCluster>(0,l1t::HGCalCluster() ) ) ;
+                auto iterator = pair.first;
+                //auto iterator = cluster_container.find (pid);
+                //if (iterator == cluster_container.end())
+                //    {
+                //        //create an empty cluster
+                //        cluster_container[pid] = std::pair<int,l1t::HGCalCluster>(0,l1t::HGCalCluster());
+                //        iterator = cluster_container.find (pid);
+                //        iterator -> second . second . setPdgId(pdgid);
+                //    }
+                // p4 += p4' 
+                math::PtEtaPhiMLorentzVectorD p4;
+                p4.SetPt ( iterator -> second . second . pt()   ) ;
+                p4.SetEta( iterator -> second . second . eta()  ) ;
+                p4.SetPhi( iterator -> second . second . phi()  ) ;
+                p4.SetM  ( iterator -> second . second . mass() ) ;
+                math::PtEtaPhiMLorentzVectorD pp4; 
+                float t = std::exp (- eta);
+                pp4.SetPt ( energy * (1-t*t)/(1+t*t)  ) ;
+                pp4.SetEta( eta ) ;
+                pp4.SetPhi( phi ) ;
+                pp4.SetM  (  0  ) ;
+                p4 += pp4;
+                iterator -> second . second . setP4(p4);
+                return ;
             }
 
             using Algorithm<FECODEC>::geometry_; 
@@ -136,6 +136,7 @@ namespace HGCalTriggerBackend{
 
             // run, actual algorithm
             virtual void run( const l1t::HGCFETriggerDigiCollection & coll,
+		            const edm::EventSetup& es,
 		            const edm::Event&evt
                     )
             {

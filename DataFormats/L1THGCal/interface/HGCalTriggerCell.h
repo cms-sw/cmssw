@@ -2,6 +2,7 @@
 #define DataFormats_L1TCalorimeter_HGCalTriggerCell_h
 
 
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/L1Trigger/interface/L1Candidate.h"
 #include "DataFormats/L1Trigger/interface/BXVector.h"
 
@@ -28,11 +29,14 @@ namespace l1t
             ~HGCalTriggerCell();
 
             void setDetId(uint32_t detid) {detid_ = detid;}
+            void setPosition(const GlobalPoint& position) {position_ = position;}
 
             uint32_t detId() const {return detid_;}
+            const GlobalPoint& position() const {return position_;}
 
         private:
             uint32_t detid_;
+            GlobalPoint position_;
 
     };
 

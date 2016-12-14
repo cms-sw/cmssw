@@ -30,19 +30,19 @@
 
 #include "L1Trigger/L1THGCal/interface/HGCalTriggerGeometryBase.h"
 #include "L1Trigger/L1THGCal/interface/HGCalTriggerFECodecBase.h"
-#include "L1Trigger/L1THGCal/interface/fe_codecs/HGCalTriggerCellBestChoiceCodecImpl.h"
-#include "L1Trigger/L1THGCal/interface/fe_codecs/HGCalTriggerCellBestChoiceCodec.h"
+#include "L1Trigger/L1THGCal/interface/fe_codecs/HGCalTriggerCellThresholdCodecImpl.h"
+#include "L1Trigger/L1THGCal/interface/fe_codecs/HGCalTriggerCellThresholdCodec.h"
 
 #include <stdlib.h> 
 #include <map> 
 #include "TH2.h"
 
 
-class HGCalTriggerBestChoiceTriggerCellTester : public edm::EDAnalyzer 
+class HGCalTriggerThresholdTriggerCellTester : public edm::EDAnalyzer 
 {
     public:
-        explicit HGCalTriggerBestChoiceTriggerCellTester(const edm::ParameterSet& );
-        ~HGCalTriggerBestChoiceTriggerCellTester();
+        explicit HGCalTriggerThresholdTriggerCellTester(const edm::ParameterSet& );
+        ~HGCalTriggerThresholdTriggerCellTester();
 
         virtual void beginRun(const edm::Run&, const edm::EventSetup&);
         virtual void analyze(const edm::Event&, const edm::EventSetup&);
@@ -50,8 +50,8 @@ class HGCalTriggerBestChoiceTriggerCellTester : public edm::EDAnalyzer
 
     private:
         void checkSelectedCells(const edm::Event&, const edm::EventSetup&);
-        void rerunBestChoiceFragments(const edm::Event&, const edm::EventSetup&);
-        void fillModule(const std::vector<HGCDataFrame<HGCalDetId,HGCSample>>&, const std::vector<std::pair<HGCalDetId, uint32_t > >&, const HGCalTriggerCellBestChoiceDataPayload&,  const HGCalTriggerCellBestChoiceDataPayload&,const HGCalTriggerCellBestChoiceDataPayload&,   const std::map <HGCalDetId,double>&, const std::unordered_map<uint32_t, double>& );
+        void rerunThresholdFragments(const edm::Event&, const edm::EventSetup&);
+        void fillModule(const std::vector<HGCDataFrame<HGCalDetId,HGCSample>>&, const std::vector<std::pair<HGCalDetId, uint32_t > >&, const HGCalTriggerCellThresholdDataPayload&,  const HGCalTriggerCellThresholdDataPayload&,const HGCalTriggerCellThresholdDataPayload&,   const std::map <HGCalDetId,double>&, const std::unordered_map<uint32_t, double>& );
 
         // inputs
         edm::EDGetToken inputee_, inputfh_, inputbh_, inputbeall_, inputbeselect_;
@@ -59,7 +59,7 @@ class HGCalTriggerBestChoiceTriggerCellTester : public edm::EDAnalyzer
         edm::EDGetToken SimHits_inputee_, SimHits_inputfh_, SimHits_inputbh_;
         //
         edm::ESHandle<HGCalTriggerGeometryBase> triggerGeometry_;
-        std::unique_ptr<HGCalTriggerCellBestChoiceCodecImpl> codec_;
+        std::unique_ptr<HGCalTriggerCellThresholdCodecImpl> codec_;
         edm::Service<TFileService> fs_;
         HGCalTriggerGeometryBase::es_info info_;
 
@@ -74,11 +74,11 @@ class HGCalTriggerBestChoiceTriggerCellTester : public edm::EDAnalyzer
         TH1F* hgcCellData_linampl_;
         TH2F* hgcCellData_linampl_vsSimHits_;
         TH2F* hgcCellData_linampl_vsSimHits_zoom_;
-        TH1F* triggerCellData_noBestChoice_;
-        TH2F* triggerCellData_noBestChoice_vsSimHits_;
-        TH1F* triggerCellSimHits_noBestChoice_;
-        TH1F* triggerCellData_BestChoice_;
-        TH2F* triggerCellData_BestChoice_vsSimHits_;
+        TH1F* triggerCellData_noThreshold_;
+        TH2F* triggerCellData_noThreshold_vsSimHits_;
+        TH1F* triggerCellSimHits_noThreshold_;
+        TH1F* triggerCellData_Threshold_;
+        TH2F* triggerCellData_Threshold_vsSimHits_;
         TH1F* triggerCellData_;
         TH2F* triggerCellData_vsSimHits_;
         TH1F* triggerCellsPerModule_;
@@ -93,7 +93,7 @@ class HGCalTriggerBestChoiceTriggerCellTester : public edm::EDAnalyzer
 };
 
 
-HGCalTriggerBestChoiceTriggerCellTester::HGCalTriggerBestChoiceTriggerCellTester(const edm::ParameterSet& conf):
+HGCalTriggerThresholdTriggerCellTester::HGCalTriggerThresholdTriggerCellTester(const edm::ParameterSet& conf):
     inputee_(consumes<HGCEEDigiCollection>(conf.getParameter<edm::InputTag>("eeDigis"))),
     inputfh_(consumes<HGCHEDigiCollection>(conf.getParameter<edm::InputTag>("fhDigis"))), 
     //inputbh_(consumes<HGCHEDigiCollection>(conf.getParameter<edm::InputTag>("bhDigis"))),
@@ -106,7 +106,7 @@ HGCalTriggerBestChoiceTriggerCellTester::HGCalTriggerBestChoiceTriggerCellTester
 {
     //setup FE codec
     const edm::ParameterSet& feCodecConfig = conf.getParameterSet("FECodec");
-    codec_.reset( new HGCalTriggerCellBestChoiceCodecImpl(feCodecConfig) );
+    codec_.reset( new HGCalTriggerCellThresholdCodecImpl(feCodecConfig) );
 
     // initialize output trees
     // HGC Cells
@@ -128,14 +128,14 @@ HGCalTriggerBestChoiceTriggerCellTester::HGCalTriggerBestChoiceTriggerCellTester
     }
 
     // HGC Trigger cells
-    triggerCellData_noBestChoice_ = fs_->make<TH1F>("triggerCellData_noBestChoice_","Trigger cell values, no best choice", 1000, 0., 70000.);
+    triggerCellData_noThreshold_ = fs_->make<TH1F>("triggerCellData_noThreshold_","Trigger cell values, no threshold", 1000, 0., 70000.);
     if (is_Simhit_comp_)
     {
-        triggerCellData_noBestChoice_vsSimHits_ = fs_->make<TH2F>("triggerCellData_noBestChoice_vsSimHits_","Trigger cell values vs simhit energies, no best choice", 500,0,0.16,1000, 0., 70000.);
-        triggerCellSimHits_noBestChoice_  = fs_->make<TH1F>("triggerCellSimHits_noBestChoice","Trigger cell simhit energies, no best choice", 500, 0, 0.16);
+        triggerCellData_noThreshold_vsSimHits_ = fs_->make<TH2F>("triggerCellData_noThreshold_vsSimHits_","Trigger cell values vs simhit energies, no threshold", 500,0,0.16,1000, 0., 70000.);
+        triggerCellSimHits_noThreshold_  = fs_->make<TH1F>("triggerCellSimHits_noThreshold","Trigger cell simhit energies, no threshold", 500, 0, 0.16);
     }
-    triggerCellData_BestChoice_ = fs_->make<TH1F>("triggerCellData_BestChoice_","Trigger cell values, best choice", 1000, 0., 70000.);
-    if (is_Simhit_comp_) triggerCellData_BestChoice_vsSimHits_ = fs_->make<TH2F>("triggerCellData_BestChoice_vsSimHits_","Trigger cell values vs simhit energies, best choice", 500,0,0.16,1000, 0., 70000.);
+    triggerCellData_Threshold_ = fs_->make<TH1F>("triggerCellData_Threshold_","Trigger cell values, threshold", 1000, 0., 70000.);
+    if (is_Simhit_comp_) triggerCellData_Threshold_vsSimHits_ = fs_->make<TH2F>("triggerCellData_Threshold_vsSimHits_","Trigger cell values vs simhit energies, threshold", 500,0,0.16,1000, 0., 70000.);
     triggerCellData_  = fs_->make<TH1F>("triggerCellData","Trigger cell values", 1100, 0., 1100.);
     if (is_Simhit_comp_)
     {
@@ -153,11 +153,11 @@ HGCalTriggerBestChoiceTriggerCellTester::HGCalTriggerBestChoiceTriggerCellTester
 
 
 
-HGCalTriggerBestChoiceTriggerCellTester::~HGCalTriggerBestChoiceTriggerCellTester() 
+HGCalTriggerThresholdTriggerCellTester::~HGCalTriggerThresholdTriggerCellTester() 
 {
 }
 
-void HGCalTriggerBestChoiceTriggerCellTester::beginRun(const edm::Run& /*run*/, 
+void HGCalTriggerThresholdTriggerCellTester::beginRun(const edm::Run& /*run*/, 
         const edm::EventSetup& es)
 {
     es.get<IdealGeometryRecord>().get(triggerGeometry_);
@@ -174,15 +174,15 @@ void HGCalTriggerBestChoiceTriggerCellTester::beginRun(const edm::Run& /*run*/,
 
 }
 
-void HGCalTriggerBestChoiceTriggerCellTester::analyze(const edm::Event& e, 
+void HGCalTriggerThresholdTriggerCellTester::analyze(const edm::Event& e, 
         const edm::EventSetup& es) 
 {
     checkSelectedCells(e, es);
-    rerunBestChoiceFragments(e, es);
+    rerunThresholdFragments(e, es);
 
 }
 
-void HGCalTriggerBestChoiceTriggerCellTester::checkSelectedCells(const edm::Event& e, 
+void HGCalTriggerThresholdTriggerCellTester::checkSelectedCells(const edm::Event& e, 
         const edm::EventSetup& es) 
 {
     edm::Handle<l1t::HGCalTriggerCellBxCollection> be_triggercells_all_h;
@@ -221,19 +221,7 @@ void HGCalTriggerBestChoiceTriggerCellTester::checkSelectedCells(const edm::Even
     for(const auto& module_cells : module_triggercells_all)
     {
         const auto& module_cells_select_itr = module_triggercells_select.find(module_cells.first);
-        if(module_cells_select_itr==module_triggercells_select.end())
-        {
-            stringstream error;
-            error << "ERROR: Cannot find module for selected cells\n";
-            error <<" Trigger cell values contained in module:\n";
-            for(const auto& value : module_cells.second)
-            {
-                error<<value<<" ";
-            }
-            error<<"\n";
-            edm::LogError("HGCalTriggerBestChoiceTriggerCellTester") << error.str();
-            continue;
-        }
+        if(module_cells_select_itr==module_triggercells_select.end()) continue;
         size_t ncells_all = module_cells.second.size();
         size_t ncells_select = module_cells_select_itr->second.size();
         uint32_t energy_all = 0;
@@ -244,27 +232,10 @@ void HGCalTriggerBestChoiceTriggerCellTester::checkSelectedCells(const edm::Even
         {
             selectedCellsVsAllCells_ee_->Fill(ncells_all, ncells_select);
             if(energy_all>0) energyLossVsNCells_ee_->Fill(ncells_all, (double)energy_select/(double)energy_all);
-            if(energy_all>0 && ncells_all<codec_->nData() && energy_select<energy_all)
-            {
-                stringstream error;
-                error<<"ERROR: N(cells)<NData but E(selected cells) < E(total)\n";
-                error<<" All trigger cells values contained in module:\n ";
-                for(const auto& value : module_cells.second)
-                {
-                    error<<value<<" ";
-                }
-                error<<"\n";
-                error<<" Selected trigger cells values contained in module:\n ";
-                for(const auto& value : module_cells_select_itr->second)
-                {
-                    error<<value<<" ";
-                }
-                error<<"\n";
-                edm::LogError("HGCalTriggerBestChoiceTriggerCellTester") << error.str();
-            }
+            
         }
         else if(std::get<1>(module_cells.first)==ForwardSubdetector::HGCHEF) 
-        {
+          {
             selectedCellsVsAllCells_fh_->Fill(ncells_all, ncells_select);
             if(energy_all>0) energyLossVsNCells_fh_->Fill(ncells_all, (double)energy_select/(double)energy_all);
         }
@@ -272,7 +243,7 @@ void HGCalTriggerBestChoiceTriggerCellTester::checkSelectedCells(const edm::Even
 
 }
 
-void HGCalTriggerBestChoiceTriggerCellTester::rerunBestChoiceFragments(const edm::Event& e, 
+void HGCalTriggerThresholdTriggerCellTester::rerunThresholdFragments(const edm::Event& e, 
         const edm::EventSetup& es) 
 {
     // retrieve digi collections
@@ -284,7 +255,7 @@ void HGCalTriggerBestChoiceTriggerCellTester::rerunBestChoiceFragments(const edm
     const HGCEEDigiCollection& ee_digis = *ee_digis_h;
     const HGCHEDigiCollection& fh_digis = *fh_digis_h;
 
-    HGCalTriggerCellBestChoiceDataPayload data;
+    HGCalTriggerCellThresholdDataPayload data;
 
     // retrieve simhit collections
     std::map<HGCalDetId, double> simhit_energies;
@@ -414,16 +385,16 @@ void HGCalTriggerBestChoiceTriggerCellTester::rerunBestChoiceFragments(const edm
                 }
             }
         }
-        //  Best choice encoding
+        //  Threshold encoding
         data.reset();
         codec_->linearize(dataframes, linearized_dataframes);
         codec_->triggerCellSums(*triggerGeometry_, linearized_dataframes, data);
-        HGCalTriggerCellBestChoiceDataPayload data_TCsums_woBestChoice = data;
-        codec_->bestChoiceSelect(data);
-        HGCalTriggerCellBestChoiceDataPayload data_TCsums_BestChoice = data;
+        HGCalTriggerCellThresholdDataPayload data_TCsums_woThreshold = data;
+        codec_->thresholdSelect(data);
+        HGCalTriggerCellThresholdDataPayload data_TCsums_Threshold = data;
         std::vector<bool> dataword = codec_->encode(data, *triggerGeometry_);
-        HGCalTriggerCellBestChoiceDataPayload datadecoded = codec_->decode(dataword, module_hits.first, *triggerGeometry_);
-        fillModule(dataframes, linearized_dataframes, data_TCsums_woBestChoice,data_TCsums_BestChoice, datadecoded,  simhit_energies, TC_simhit_energies);
+        HGCalTriggerCellThresholdDataPayload datadecoded = codec_->decode(dataword, module_hits.first, *triggerGeometry_);
+        fillModule(dataframes, linearized_dataframes, data_TCsums_woThreshold,data_TCsums_Threshold, datadecoded,  simhit_energies, TC_simhit_energies);
 
     } //end loop on EE modules
     for( const auto& module_hits : hit_modules_fh ) 
@@ -455,23 +426,23 @@ void HGCalTriggerBestChoiceTriggerCellTester::rerunBestChoiceFragments(const edm
                 }
             }
         }
-        //  Best choice encoding
+        //  Threshold encoding
         data.reset();
         codec_->linearize(dataframes, linearized_dataframes);
         codec_->triggerCellSums(*triggerGeometry_, linearized_dataframes, data);
-        HGCalTriggerCellBestChoiceDataPayload data_TCsums_woBestChoice = data;
-        codec_->bestChoiceSelect(data);
-        HGCalTriggerCellBestChoiceDataPayload data_TCsums_BestChoice = data;
+        HGCalTriggerCellThresholdDataPayload data_TCsums_woThreshold = data;
+        codec_->thresholdSelect(data);
+        HGCalTriggerCellThresholdDataPayload data_TCsums_Threshold = data;
         std::vector<bool> dataword = codec_->encode(data, *triggerGeometry_);
-        HGCalTriggerCellBestChoiceDataPayload datadecoded = codec_->decode(dataword, module_hits.first, *triggerGeometry_);
-        fillModule(dataframes, linearized_dataframes, data_TCsums_woBestChoice,data_TCsums_BestChoice, datadecoded,  simhit_energies, TC_simhit_energies);
+        HGCalTriggerCellThresholdDataPayload datadecoded = codec_->decode(dataword, module_hits.first, *triggerGeometry_);
+        fillModule(dataframes, linearized_dataframes, data_TCsums_woThreshold,data_TCsums_Threshold, datadecoded,  simhit_energies, TC_simhit_energies);
     } //end loop on FH modules   
 
 
 }
 
 
-void HGCalTriggerBestChoiceTriggerCellTester::fillModule( const std::vector<HGCDataFrame<HGCalDetId,HGCSample>>& dataframes,  const std::vector<std::pair<HGCalDetId, uint32_t > >& linearized_dataframes, const HGCalTriggerCellBestChoiceDataPayload& fe_payload_TCsums_woBestChoice, const HGCalTriggerCellBestChoiceDataPayload& fe_payload_TCsums_BestChoice, const HGCalTriggerCellBestChoiceDataPayload& fe_payload, const std::map <HGCalDetId,double>& simhit_energies, const std::unordered_map<uint32_t, double>& TC_simhit_energies)
+void HGCalTriggerThresholdTriggerCellTester::fillModule( const std::vector<HGCDataFrame<HGCalDetId,HGCSample>>& dataframes,  const std::vector<std::pair<HGCalDetId, uint32_t > >& linearized_dataframes, const HGCalTriggerCellThresholdDataPayload& fe_payload_TCsums_woThreshold, const HGCalTriggerCellThresholdDataPayload& fe_payload_TCsums_Threshold, const HGCalTriggerCellThresholdDataPayload& fe_payload, const std::map <HGCalDetId,double>& simhit_energies, const std::unordered_map<uint32_t, double>& TC_simhit_energies)
 {
 
     // HGC cells part
@@ -509,34 +480,34 @@ void HGCalTriggerBestChoiceTriggerCellTester::fillModule( const std::vector<HGCD
     }
 
     // trigger cells part
-    // after sum, no best choice, no encode/decode
-    for(const auto& tc : fe_payload_TCsums_woBestChoice.payload)
+    // after sum, no threshold, no encode/decode
+    for(const auto& tc : fe_payload_TCsums_woThreshold.payload)
     {
         if(tc.hwPt()>0)
         {
-            triggerCellData_noBestChoice_->Fill(tc.hwPt());
+            triggerCellData_noThreshold_->Fill(tc.hwPt());
             if (is_Simhit_comp_){
                 if (TC_simhit_energies.at(tc.detId()) >0){
-                    triggerCellSimHits_noBestChoice_->Fill(TC_simhit_energies.at(tc.detId()));
-                    triggerCellData_noBestChoice_vsSimHits_->Fill(TC_simhit_energies.at(tc.detId()),tc.hwPt());
+                    triggerCellSimHits_noThreshold_->Fill(TC_simhit_energies.at(tc.detId()));
+                    triggerCellData_noThreshold_vsSimHits_->Fill(TC_simhit_energies.at(tc.detId()),tc.hwPt());
                 }
             }
         }
     }
 
-    // after sum, best choice, no encode/decode
-    for(const auto& tc : fe_payload_TCsums_BestChoice.payload)
+    // after sum, threshold, no encode/decode
+    for(const auto& tc : fe_payload_TCsums_Threshold.payload)
     {
         if(tc.hwPt()>0)
         {
-            triggerCellData_BestChoice_->Fill(tc.hwPt());
+            triggerCellData_Threshold_->Fill(tc.hwPt());
             if (is_Simhit_comp_){
-                if (TC_simhit_energies.at(tc.detId())>0)  triggerCellData_BestChoice_vsSimHits_->Fill(TC_simhit_energies.at(tc.detId()),tc.hwPt());
+                if (TC_simhit_energies.at(tc.detId())>0)  triggerCellData_Threshold_vsSimHits_->Fill(TC_simhit_energies.at(tc.detId()),tc.hwPt());
             }
         }
     }
 
-    // after sum, best choice, encode/decode
+    // after sum, threshold, encode/decode
     size_t nFEDigi = 0;
     unsigned triggerCellModuleSum = 0;
     for(const auto& tc : fe_payload.payload)
@@ -557,4 +528,4 @@ void HGCalTriggerBestChoiceTriggerCellTester::fillModule( const std::vector<HGCD
 }
 
 //define this as a plug-in
-DEFINE_FWK_MODULE(HGCalTriggerBestChoiceTriggerCellTester);
+DEFINE_FWK_MODULE(HGCalTriggerThresholdTriggerCellTester);
