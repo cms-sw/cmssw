@@ -59,14 +59,7 @@ class SinglePhotonJetPlusHOFilter : public edm::EDFilter {
 
    private:
 
-      virtual void beginJob() ;
       virtual bool filter(edm::Event&, const edm::EventSetup&);
-      virtual void endJob() ;
-      
-      virtual bool beginRun(edm::Run&, edm::EventSetup const&);
-      virtual bool endRun(edm::Run&, edm::EventSetup const&);
-      virtual bool beginLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&);
-      virtual bool endLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&);
 
       // ----------member data ---------------------------
   int Nevt;
@@ -207,46 +200,6 @@ SinglePhotonJetPlusHOFilter::filter(edm::Event& iEvent, const edm::EventSetup& i
   
   return isJetDir;
 
-}
-
-// ------------ method called once each job just before starting event loop  ------------
-void 
-SinglePhotonJetPlusHOFilter::beginJob()
-{
-}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void 
-SinglePhotonJetPlusHOFilter::endJob() {
-
-}
-
-// ------------ method called when starting to processes a run  ------------
-bool 
-SinglePhotonJetPlusHOFilter::beginRun(edm::Run&, edm::EventSetup const&)
-{ 
-  return true;
-}
-
-// ------------ method called when ending the processing of a run  ------------
-bool 
-SinglePhotonJetPlusHOFilter::endRun(edm::Run&, edm::EventSetup const&)
-{
-  return true;
-}
-
-// ------------ method called when starting to processes a luminosity block  ------------
-bool 
-SinglePhotonJetPlusHOFilter::beginLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&)
-{
-  return true;
-}
-
-// ------------ method called when ending the processing of a luminosity block  ------------
-bool 
-SinglePhotonJetPlusHOFilter::endLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&)
-{
-  return true;
 }
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
