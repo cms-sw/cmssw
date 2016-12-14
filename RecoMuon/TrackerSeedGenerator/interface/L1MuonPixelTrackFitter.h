@@ -33,7 +33,7 @@ public:
       Vector ec = charge * dp.cross(Vector(0,0,1)).unit();
       long double dist_tmp = 1./theCurvature/theCurvature - dp.perp2();
       theValid = (dist_tmp > 0.);
-      theCenter = p1+dp + ec*sqrt( fabs(dist_tmp ) );
+      theCenter = p1+dp + ec*sqrt( std::abs(dist_tmp ) );
     }
     bool   isValid() const { return theValid; }
     const  Point & center() const { return theCenter; }
