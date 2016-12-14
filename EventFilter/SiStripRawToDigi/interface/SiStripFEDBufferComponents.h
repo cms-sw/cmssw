@@ -607,7 +607,6 @@ namespace sistrip {
       
       //check that channel has no errors
       virtual bool channelGood(const uint8_t internalFEDChannelNum) const;
-      virtual bool channelGood(const uint8_t internalFEDChannelNum, bool) const;
       bool channelGood(const uint8_t internalFEUnitNum, const uint8_t internalChannelNum) const;
       //return channel object for channel
       const FEDChannel& channel(const uint8_t internalFEDChannelNum) const;
@@ -620,7 +619,6 @@ namespace sistrip {
       bool doDAQHeaderAndTrailerChecks() const;
       //do both
       virtual bool doChecks() const;
-      virtual bool doChecks(bool) const;
       //print the result of all detailed checks
       virtual std::string checkSummary() const;
   
