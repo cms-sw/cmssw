@@ -62,15 +62,14 @@ public:
 private:
   const edm::ParameterSet& iConfig;
   GeometryInterface& geometryInterface;
-  std::function<void(SummationStep& step, Table& t, DQMStore::IBooker& iBooker, DQMStore::IGetter& iGetter)> customHandler;
+  std::function<void(SummationStep const& step, Table& t, DQMStore::IBooker& iBooker, DQMStore::IGetter& iGetter)> customHandler;
 
   std::vector<SummationSpecification> specs;
   std::vector<Table> tables;
   std::vector<Table> counters;
 
-  std::string makePath(GeometryInterface::Values const&);
-  std::string makeName(SummationSpecification const& s,
-      GeometryInterface::InterestingQuantities const& iq);
+  std::pair<std::string, std::string> makePathName(SummationSpecification const& s,
+      GeometryInterface::Values const&, SummationStep const* upto);
 
   void fillInternal(double x, double y, int n_parameters,
     GeometryInterface::InterestingQuantities const& iq,
@@ -79,8 +78,10 @@ private:
     AbstractHistogram& dest);
  
   void loadFromDQMStore(SummationSpecification& s, Table& t, DQMStore::IGetter& iGetter);
-  void executeGroupBy(SummationStep& step, Table& t, DQMStore::IBooker& iBooker);
-  void executeExtend(SummationStep& step, Table& t, std::string const& reduction, DQMStore::IBooker& iBooker);
+  void executeGroupBy(SummationStep const& step, Table& t, DQMStore::IBooker& iBooker,
+      SummationSpecification const& s);
+  void executeExtend(SummationStep const& step, Table& t, std::string const& reduction,
+      DQMStore::IBooker& iBooker, SummationSpecification const& s);
 
 public: // these are available in config as is, and may be used in harvesting.
   bool enabled;

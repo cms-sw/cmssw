@@ -25,17 +25,17 @@
 //                               control of value of flag) with information
 //                               about events
 //   prefix (std::string)      = String to be added to the name of histogram
-//                               (usually a 4 character string)
+//                               (usually a 4 character string; default="")
 //   flag (int)                = 3 digit integer (hdo) with specific control
 //                               information (h = 0/1/2 for not creating/
 //                               creating in output/creating in append mode
 //                               the output text file; d = 0/1 produces 
 //                               standard/extended set of histograms; o = 0/1
-//                               for loose/tight selection)
+//                               for loose/tight selection). Default = 0
 //   numb   (int)              = number of eta bins (42 for -21:21)
-//   dataMC (bool)             = true/false for data/MC         
+//   dataMC (bool)             = true/false for data/MC (default true)
 //   useGen (bool)             = false/true to use generator level momentum
-//                               or reconstruction level momentum
+//                               or reconstruction level momentum (def false)
 //
 //   histFileName (std::string)= name of the file containing saved histograms
 //   mode (bool)               = true/false if the hitogram file to be opened
@@ -75,6 +75,8 @@ public :
   Int_t                      t_ieta;
   Double_t                   t_EventWeight;
   Int_t                      t_goodPV;
+  Int_t                      t_nVtx;
+  Int_t                      t_nTrk;
   Double_t                   t_l1pt;
   Double_t                   t_l1eta;
   Double_t                   t_l1phi;
@@ -86,15 +88,16 @@ public :
   Double_t                   t_mindR2;
   Double_t                   t_eMipDR;
   Double_t                   t_eHcal;
-  Double_t                   t_eHcalDelta;
+  Double_t                   t_eHcal10;
+  Double_t                   t_eHcal30;
   Double_t                   t_hmaxNearP;
+  Double_t                   t_gentrackP;
   Bool_t                     t_selectTk;
   Bool_t                     t_qltyFlag;
   Bool_t                     t_qltyMissFlag;
   Bool_t                     t_qltyPVFlag;
-  Double_t                   t_gentrackP;
-  std::vector<unsigned int> *t_DetIds;
-  std::vector<double>       *t_HitEnergies;
+  std::vector<unsigned int> *t_DetIds, *t_DetIds1, *t_DetIds3;
+  std::vector<double>       *t_HitEnergies, *t_HitEnergies1, *t_HitEnergies3;
   std::vector<bool>         *t_trgbits;
   
   // List of branches
@@ -104,6 +107,8 @@ public :
   TBranch                   *b_t_ieta;          //!
   TBranch                   *b_t_EventWeight;   //!
   TBranch                   *b_t_goodPV;        //!
+  TBranch                   *b_t_nVtx;          //!
+  TBranch                   *b_t_nTrk;          //!
   TBranch                   *b_t_l1pt;          //!
   TBranch                   *b_t_l1eta;         //!
   TBranch                   *b_t_l1phi;         //!
@@ -115,15 +120,20 @@ public :
   TBranch                   *b_t_mindR2;        //!
   TBranch                   *b_t_eMipDR;        //!
   TBranch                   *b_t_eHcal;         //!
-  TBranch                   *b_t_eHcalDelta;    //;
+  TBranch                   *b_t_eHcal10;       //!
+  TBranch                   *b_t_eHcal30;       //!
   TBranch                   *b_t_hmaxNearP;     //!
+  TBranch                   *b_t_gentrackP;     //!
   TBranch                   *b_t_selectTk;      //!
   TBranch                   *b_t_qltyFlag;      //!
   TBranch                   *b_t_qltyMissFlag;  //!
   TBranch                   *b_t_qltyPVFlag;    //!
-  TBranch                   *b_t_gentrackP;     //!
   TBranch                   *b_t_DetIds;        //!
+  TBranch                   *b_t_DetIds1;       //!
+  TBranch                   *b_t_DetIds3;       //!
   TBranch                   *b_t_HitEnergies;   //!
+  TBranch                   *b_t_HitEnergies1;  //!
+  TBranch                   *b_t_HitEnergies3;  //!
   TBranch                   *b_t_trgbits;       //!
 
   struct record {
@@ -158,9 +168,9 @@ private:
 
   static const unsigned int npbin=5, kp50=2;
   std::string               fname_, dirnm_, prefix_, outTxtFileName_;
-  int                       flag_, numb_;
-  bool                      dataMC_, plotStandard_, flexibleSelect_, useGen_;
-  double                    log16by24_;
+  int                       flag_, numb_, flexibleSelect_;
+  bool                      dataMC_, plotStandard_, useGen_;
+  double                    log2by16_;
   std::vector<Long64_t>     entries_;
   std::vector<double>       etas_, ps_, dl1_;
   std::vector<int>          nvx_;
@@ -183,13 +193,13 @@ CalibMonitor::CalibMonitor(std::string fname, std::string dirnm,
   // used to generate this class and read the Tree
 
   plotStandard_    = (((flag_/10)%10) == 0);
-  flexibleSelect_  = (((flag_/1) %10) == 0);
-  log16by24_       = std::log(16.0)/24.0;
+  flexibleSelect_  = (((flag_/1) %10));
+  log2by16_        = std::log(2.5)/16.0;
   TFile      *file = new TFile(fname.c_str());
   TDirectory *dir  = (TDirectory*)file->FindObjectAny(dirnm.c_str());
   std::cout << fname << " file " << file << " " << dirnm << " " << dir 
 	    << " flags " << flexibleSelect_ << "|" << plotStandard_ << " cons "
-	    << log16by24_ << std::endl;
+	    << log2by16_ << std::endl;
   TTree      *tree = (TTree*)dir->Get("CalibTree");
   std::cout << "CalibTree " << tree << std::endl;
   Init(tree,dupFileName);
@@ -230,9 +240,13 @@ void CalibMonitor::Init(TTree *tree, std::string& dupFileName) {
   // (once per file to be processed).
   
   // Set object pointer
-  t_DetIds      = 0;
-  t_HitEnergies = 0;
-  t_trgbits     = 0;
+  t_DetIds       = 0;
+  t_DetIds1      = 0;
+  t_DetIds3      = 0;
+  t_HitEnergies  = 0;
+  t_HitEnergies1 = 0;
+  t_HitEnergies3 = 0;
+  t_trgbits      = 0;
   // Set branch addresses and branch pointers
   if (!tree) return;
   fChain = tree;
@@ -245,6 +259,8 @@ void CalibMonitor::Init(TTree *tree, std::string& dupFileName) {
   fChain->SetBranchAddress("t_ieta", &t_ieta, &b_t_ieta);
   fChain->SetBranchAddress("t_EventWeight", &t_EventWeight, &b_t_EventWeight);
   fChain->SetBranchAddress("t_goodPV", &t_goodPV, &b_t_goodPV);
+  fChain->SetBranchAddress("t_nVtx", &t_nVtx, &b_t_nVtx);
+  fChain->SetBranchAddress("t_nTrk", &t_nTrk, &b_t_nTrk);
   fChain->SetBranchAddress("t_l1pt", &t_l1pt, &b_t_l1pt);
   fChain->SetBranchAddress("t_l1eta", &t_l1eta, &b_t_l1eta);
   fChain->SetBranchAddress("t_l1phi", &t_l1phi, &b_t_l1phi);
@@ -256,15 +272,20 @@ void CalibMonitor::Init(TTree *tree, std::string& dupFileName) {
   fChain->SetBranchAddress("t_mindR2", &t_mindR2, &b_t_mindR2);
   fChain->SetBranchAddress("t_eMipDR", &t_eMipDR, &b_t_eMipDR);
   fChain->SetBranchAddress("t_eHcal", &t_eHcal, &b_t_eHcal);
-  fChain->SetBranchAddress("t_eHcalDelta", &t_eHcalDelta, &b_t_eHcalDelta);
+  fChain->SetBranchAddress("t_eHcal10", &t_eHcal10, &b_t_eHcal10);
+  fChain->SetBranchAddress("t_eHcal30", &t_eHcal30, &b_t_eHcal30);
   fChain->SetBranchAddress("t_hmaxNearP", &t_hmaxNearP, &b_t_hmaxNearP);
+  fChain->SetBranchAddress("t_gentrackP", &t_gentrackP, &b_t_gentrackP);
   fChain->SetBranchAddress("t_selectTk", &t_selectTk, &b_t_selectTk);
   fChain->SetBranchAddress("t_qltyFlag", &t_qltyFlag, &b_t_qltyFlag);
   fChain->SetBranchAddress("t_qltyMissFlag", &t_qltyMissFlag, &b_t_qltyMissFlag);
   fChain->SetBranchAddress("t_qltyPVFlag", &t_qltyPVFlag, &b_t_qltyPVFlag);
-  fChain->SetBranchAddress("t_gentrackP", &t_gentrackP, &b_t_gentrackP);
   fChain->SetBranchAddress("t_DetIds", &t_DetIds, &b_t_DetIds);
+  fChain->SetBranchAddress("t_DetIds1", &t_DetIds1, &b_t_DetIds1);
+  fChain->SetBranchAddress("t_DetIds3", &t_DetIds3, &b_t_DetIds3);
   fChain->SetBranchAddress("t_HitEnergies", &t_HitEnergies, &b_t_HitEnergies);
+  fChain->SetBranchAddress("t_HitEnergies1", &t_HitEnergies1,&b_t_HitEnergies1);
+  fChain->SetBranchAddress("t_HitEnergies3", &t_HitEnergies3,&b_t_HitEnergies3);
   fChain->SetBranchAddress("t_trgbits", &t_trgbits, &b_t_trgbits);
   Notify();
 
@@ -567,7 +588,7 @@ void CalibMonitor::Loop() {
       h_eta[0]->Fill(t_ieta,t_EventWeight);
       if (kp >= 0) h_eta0[kp]->Fill(t_ieta,t_EventWeight);
     }
-    double cut = (pmom > 20) ? 2.0 : 0.0;
+    double cut = (pmom > 20) ? ((flexibleSelect_ == 0) ? 2.0 : 10.0) : 0.0;
     double rcut= (pmom > 20) ? 0.25: 0.1;
 
     // Some Standard plots for control
@@ -676,18 +697,22 @@ bool CalibMonitor::GoodTrack(double& eHcal, double &cut, bool debug) {
   bool select(true);
   double pmom = (useGen_ && (t_gentrackP>0)) ? t_gentrackP : t_p;
   if (debug) std::cout << "GoodTrack input " << eHcal << ":" << cut;
-  if (flexibleSelect_) {
+  if (flexibleSelect_ > 1) {
     double eta = (t_ieta > 0) ? t_ieta : -t_ieta;
-    cut        = 2.0*exp(eta*log16by24_);
-    select     = ((t_qltyFlag) && (t_hmaxNearP < cut) && (t_eMipDR < 1.0));
-    double fac = (pmom > 0) ? 
-      (1.0 - 0.375 * (eHcal/pmom) * 
-       ((t_eHcalDelta/pmom) - 0.45*(t_eHcalDelta/pmom)*(t_eHcalDelta/pmom))) : 1.;
+    cut        = 8.0*exp(eta*log2by16_);
+    double a1(-0.35), a2(-0.65);
+    if (std::abs(t_ieta) == 25) {
+      a2 = -0.30;
+    } else if (std::abs(t_ieta) > 25) {
+      a1 = -0.45; a2 = -0.10;
+    }
+    double ediff = (t_eHcal30-t_eHcal10);
+    double fac   = (pmom > 0) ? (1.0 + a1*(t_eHcal/pmom)*(ediff/pmom)*
+				 (1+a2*(ediff/pmom))) : 1.0;
     eHcal *= fac;
-  } else {
-    select = ((t_qltyFlag) && (t_selectTk) && (t_hmaxNearP < cut) &&
-	      (t_eMipDR < 1.0));
   }
+  select = ((t_qltyFlag) && (t_selectTk) && (t_hmaxNearP < cut) &&
+	    (t_eMipDR < 1.0));
   if (debug) std::cout << " output " << eHcal << ":" << cut << ":" << select 
 		       << std::endl;
   return select;

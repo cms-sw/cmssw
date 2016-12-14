@@ -1,5 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
+# TODO: add era switch here for Phase1
 process = cms.Process("PIXELDQMLIVE")
 
 process.MessageLogger = cms.Service("MessageLogger",
@@ -17,10 +18,10 @@ QTestfile = 'DQM/SiPixelMonitorClient/test/sipixel_qualitytest_config.xml'
 # Event Source
 #-----------------------------
 # for live online DQM in P5
-process.load("DQM.Integration.config.inputsource_cfi")
+#process.load("DQM.Integration.config.inputsource_cfi")
 
 # for testing in lxplus
-#process.load("DQM.Integration.config.fileinputsource_cfi")
+process.load("DQM.Integration.config.fileinputsource_cfi")
 
 ##
 #----------------------------
@@ -58,10 +59,11 @@ process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 # GLOBALTAG
 #-------------------------------------------------
 # Condition for P5 cluster
-process.load("DQM.Integration.config.FrontierCondition_GT_cfi")
+#process.load("DQM.Integration.config.FrontierCondition_GT_cfi")
 # Condition for lxplus: change and possibly customise the GT
-#from Configuration.AlCa.GlobalTag import GlobalTag as gtCustomise
-#process.GlobalTag = gtCustomise(process.GlobalTag, 'auto:run2_data', '')
+process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
+from Configuration.AlCa.GlobalTag import GlobalTag
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_data', '')
 
 #-----------------------
 #  Reconstruction Modules
@@ -96,9 +98,23 @@ if (process.runType.getRunType() == process.runType.hi_run):
 #--------------------------
 # Pixel DQM Source and Client
 #--------------------------
-process.load("DQM.SiPixelCommon.SiPixelP5DQM_source_cff")
-process.load("DQM.SiPixelCommon.SiPixelP5DQM_client_cff")
+# Phase0
+#process.load("DQM.SiPixelCommon.SiPixelP5DQM_source_cff")
+#process.load("DQM.SiPixelCommon.SiPixelP5DQM_client_cff")
 
+#process.sipixelEDAClientP5.inputSource = cms.untracked.string("rawDataCollector")
+#process.sipixelDaqInfo.daqSource   = cms.untracked.string("rawDataCollector")
+#process.SiPixelRawDataErrorSource.inputSource  = cms.untracked.string("rawDataCollector")
+
+#if (process.runType.getRunType() == process.runType.hi_run):
+#        process.sipixelEDAClientP5.inputSource = cms.untracked.string("rawDataRepacker")
+#        process.sipixelDaqInfo.daqSource   = cms.untracked.string("rawDataRepacker")
+#        process.SiPixelRawDataErrorSource.inputSource  = cms.untracked.string("rawDataRepacker")
+
+#process.SiPixelDigiSource.layOn = True
+#process.SiPixelDigiSource.diskOn = True
+
+# Phase1
 process.load("DQM.SiPixelPhase1Config.SiPixelPhase1OnlineDQM_cff")
 
 process.qTester = cms.EDAnalyzer("QualityTester",
@@ -110,13 +126,6 @@ process.qTester = cms.EDAnalyzer("QualityTester",
     qtestOnEndRun = cms.untracked.bool(True)
 )
 
-process.sipixelEDAClientP5.inputSource = cms.untracked.string("rawDataCollector")
-process.sipixelDaqInfo.daqSource   = cms.untracked.string("rawDataCollector")
-process.SiPixelRawDataErrorSource.inputSource  = cms.untracked.string("rawDataCollector")
-if (process.runType.getRunType() == process.runType.hi_run):
-        process.sipixelEDAClientP5.inputSource = cms.untracked.string("rawDataRepacker")
-        process.sipixelDaqInfo.daqSource   = cms.untracked.string("rawDataRepacker")
-        process.SiPixelRawDataErrorSource.inputSource  = cms.untracked.string("rawDataRepacker")
 #--------------------------
 # Service
 #--------------------------
@@ -134,8 +143,6 @@ process.hltTriggerTypeFilter = cms.EDFilter("HLTTriggerTypeFilter",
 #--------------------------
 # Scheduling
 #--------------------------
-process.SiPixelDigiSource.layOn = True
-process.SiPixelDigiSource.diskOn = True
 process.DQMmodules = cms.Sequence(process.dqmEnv*process.qTester*process.dqmSaver)
 
 if (process.runType.getRunType() == process.runType.hi_run):
@@ -145,7 +152,16 @@ if (process.runType.getRunType() == process.runType.hi_run):
 else:
     process.Reco = cms.Sequence(process.siPixelDigis*process.siPixelClusters)
 
-process.p = cms.Path(process.Reco*process.DQMmodules*process.SiPixelRawDataErrorSource*process.SiPixelDigiSource*process.SiPixelClusterSource*process.PixelP5DQMClientWithDataCertification*process.siPixelPhase1OnlineDQM_source*process.siPixelPhase1OnlineDQM_harvesting)
+process.p = cms.Path(
+  process.Reco
+ *process.DQMmodules
+# *process.SiPixelRawDataErrorSource
+# *process.SiPixelDigiSource
+# *process.SiPixelClusterSource
+# *process.PixelP5DQMClientWithDataCertification
+ *process.siPixelPhase1OnlineDQM_source
+ *process.siPixelPhase1OnlineDQM_harvesting
+)
     
 ### process customizations included here
 from DQM.Integration.config.online_customizations_cfi import *
