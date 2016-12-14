@@ -93,9 +93,13 @@ void L1Analysis::L1AnalysisL1Upgrade::SetMuon(const edm::Handle<l1t::MuonBxColle
 	l1upgrade_.muonEt .push_back(it->et());
 	l1upgrade_.muonEta.push_back(it->eta());
 	l1upgrade_.muonPhi.push_back(it->phi());
+	l1upgrade_.muonEtaAtVtx.push_back(l1t::MicroGMTConfiguration::calcMuonEtaExtra(*it));
+	l1upgrade_.muonPhiAtVtx.push_back(l1t::MicroGMTConfiguration::calcMuonPhiExtra(*it));
 	l1upgrade_.muonIEt .push_back(it->hwPt());
 	l1upgrade_.muonIEta.push_back(it->hwEta());
 	l1upgrade_.muonIPhi.push_back(it->hwPhi());
+	l1upgrade_.muonIDEta.push_back(it->hwDEtaExtra());
+	l1upgrade_.muonIDPhi.push_back(it->hwDPhiExtra());
 	l1upgrade_.muonChg.push_back(it->charge());
 	l1upgrade_.muonIso.push_back(it->hwIso());
 	l1upgrade_.muonQual.push_back(it->hwQual());

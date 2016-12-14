@@ -20,7 +20,7 @@ autoCond = {
     # GlobalTag for MC production (Heavy Ions collisions) with optimistic alignment and calibrations for Run2
     'run2_mc_hi'        :   '90X_mcRun2_HeavyIon_v0',
     # GlobalTag for MC production (p-Pb collisions) with realistic alignment and calibrations for Run2
-    'run2_mc_pa'        :   '90X_mcRun2_pA_v0',
+    'run2_mc_pa'        :   '90X_mcRun2_pA_v1',
     # GlobalTag for Run1 data reprocessing
     'run1_data'         :   '90X_dataRun2_v0',
     # GlobalTag for Run2 data reprocessing
@@ -46,7 +46,7 @@ autoCond = {
     # GlobalTag for MC production with perfectly aligned and calibrated detector for Phase1 2019
     'phase1_2019_design'   : 'DES19_70_V2', # placeholder (GT not meant for standard RelVal) 
     # GlobalTag for MC production with realistic conditions for Phase2 2023
-    'phase2_realistic'     : '90X_upgrade2023_realistic_v0'
+    'phase2_realistic'     : '90X_upgrade2023_realistic_v1'
 }
 
 aliases = {

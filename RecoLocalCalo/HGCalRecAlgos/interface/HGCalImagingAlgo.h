@@ -33,12 +33,11 @@ std::vector<size_t> sorted_indices(const std::vector<T> &v) {
   for (size_t i = 0; i != idx.size(); ++i) idx[i] = i;
   
   // sort indices based on comparing values in v
-  sort(idx.begin(), idx.end(),
-       [&v](size_t i1, size_t i2) {return v[i1] > v[i2];});
+  std::sort(idx.begin(), idx.end(),
+            [&v](size_t i1, size_t i2) {return v[i1] > v[i2];});
   
   return idx;
 } 
-
 
 class HGCalImagingAlgo 
 {
