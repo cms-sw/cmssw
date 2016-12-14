@@ -224,7 +224,7 @@ CastorShowerEvent CastorShowerLibrary::getShowerHits(G4Step * aStep, bool & ok) 
   int           parCode  = track->GetDefinition()->GetPDGEncoding();
 
   CastorShowerEvent hit;
-  hit.Clear();
+  hit.ClearB();
   
   ok = false;
   if (parCode == pi0PDG   || parCode == etaPDG    || parCode == nuePDG  ||
