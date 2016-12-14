@@ -64,6 +64,7 @@ DTTriggerEfficiencyTask::DTTriggerEfficiencyTask(const edm::ParameterSet& ps) : 
   minBXDDU = parameters.getUntrackedParameter<int>("minBXDDU");
   maxBXDDU = parameters.getUntrackedParameter<int>("maxBXDDU");
 
+  checkRPCtriggers = parameters.getUntrackedParameter<bool>("checkRPCtriggers");
   nMinHitsPhi = parameters.getUntrackedParameter<int>("nMinHitsPhi");
   phiAccRange = parameters.getUntrackedParameter<double>("phiAccRange");
 
@@ -121,7 +122,9 @@ void DTTriggerEfficiencyTask::analyze(const edm::Event& e, const edm::EventSetup
 
   nevents++;
 
-// if (!hasRPCTriggers(e)) { return; }
+  if (checkRPCtriggers){ //For pre-2016 Era compatibility
+	if (!hasRPCTriggers(e)) { return; }
+	}
   map<DTChamberId,const L1MuDTChambPhDigi*> phBestTM;
   map<DTChamberId,const DTLocalTrigger*>    phBestDDU;
   // Getting best TM Stuff
