@@ -74,7 +74,7 @@ void FastsimHitNtuplizer::endJob()
 
 
 
-void FastsimHitNtuplizer::beginJob(const edm::EventSetup& es)
+void FastsimHitNtuplizer::beginJob()
 {
   std::cout << " FastsimHitNtuplizer::beginJob" << std::endl;
   std::string outputFile = conf_.getParameter<std::string>("OutputFile");
