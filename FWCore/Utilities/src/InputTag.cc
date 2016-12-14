@@ -5,6 +5,7 @@
 namespace edm {
 
   const std::string InputTag::kSkipCurrentProcess("@skipCurrentProcess");
+  static std::string const separator(":");
 
   InputTag::InputTag()
   : label_(),
@@ -51,7 +52,7 @@ namespace edm {
     skipCurrentProcess_(false) {
 
     // string is delimited by colons
-    std::vector<std::string> tokens = tokenize(s, ":");
+    std::vector<std::string> tokens = tokenize(s, separator);
     size_t nwords = tokens.size();
     if(nwords > 3) {
       throw edm::Exception(errors::Configuration,"InputTag")
@@ -165,7 +166,6 @@ namespace edm {
     //NOTE: since the encoding gets used to form the configuration hash I did not want
     // to change it so that not specifying a process would cause two colons to appear in the
     // encoding and thus not being backwards compatible
-    static std::string const separator(":");
     std::string result = label_;
     if(!instance_.empty() || !process_.empty()) {
       result += separator + instance_;
