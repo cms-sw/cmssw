@@ -148,16 +148,15 @@ void RecoTauJetRegionProducer::produce(edm::Event& evt, const edm::EventSetup& e
     for ( std::vector<PFCandPtr>::const_iterator pfCand = pfCands.begin();
 	  pfCand != pfCands.end(); ++pfCand ) {
       bool isMappedToJet = false;
-      if ( pfCandAssocMapSrc_.label() != "" ) {
+      if ( jetToPFCandMap.isValid() ) {
 	auto temp = jetToPFCandMap->find(jetRef);
 	if( temp == jetToPFCandMap->end() ) {
 	  edm::LogWarning("WeirdCandidateMap") << "Candidate map for jet " << jetRef.key() << " is empty!";
 	  continue;
 	}
-	edm::RefVector<reco::PFCandidateCollection> pfCandsMappedToJet = (*jetToPFCandMap)[jetRef];
-	for ( edm::RefVector<reco::PFCandidateCollection>::const_iterator pfCandMappedToJet = pfCandsMappedToJet.begin();
-	      pfCandMappedToJet != pfCandsMappedToJet.end(); ++pfCandMappedToJet ) {
-	  if ( reco::deltaR2(**pfCandMappedToJet, **pfCand) < 1.e-8 ) {
+	const auto& pfCandsMappedToJet = (*jetToPFCandMap)[jetRef];
+	for ( const auto& pfCandMappedToJet : pfCandsMappedToJet ) {
+	  if ( reco::deltaR2(*pfCandMappedToJet, **pfCand) < 1.e-8 ) {
 	    isMappedToJet = true;
 	    break;
 	  }
