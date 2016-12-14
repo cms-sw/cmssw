@@ -41,6 +41,8 @@ public:
   const Shape& defaultShape(const HcalDetId & detId) const;
   //public static helpers
   static const int nBinsSiPM_ = 250;
+  static constexpr float deltaTSiPM_ = 0.5;
+  static constexpr float invDeltaTSiPM_ = 2.0;
   static double analyticPulseShapeSiPMHO(double t);
   static double analyticPulseShapeSiPMHE(double t);
   static constexpr float Y11RANGE_ = nBinsSiPM_;
