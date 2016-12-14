@@ -1,24 +1,11 @@
 import FWCore.ParameterSet.Config as cms
 from DQM.SiPixelPhase1Common.HistogramManager_cfi import *
 
-# this should be moved to RecHits
-SiPixelPhase1TrackEfficiencyClusterProb = DefaultHisto.clone(
-  name = "clusterprob",
-  title = "Cluster Probability",
-  xlabel = "log_10(Pr)",
-  range_min = -10, range_max = 0, range_nbins = 200,
-  dimensions = 1,
-  specs = cms.VPSet(
-    *StandardSpecifications1D
-  )
-)
-
-SiPixelPhase1TrackEfficiencyValid = DefaultHisto.clone(
-  bookUndefined = False, # Barrel-only stuff below
+SiPixelPhase1TrackEfficiencyValid = DefaultHistoTrack.clone(
   name = "valid",
   title = "Valid Hits",
   dimensions = 0,
-  specs = cms.VPSet(
+  specs = VPSet(
     # custom() is called here after every save to export the histos for the
     # efficiency harvesting. The parameter is just a tag that we don't confuse 
     # the histos of different specs.
@@ -26,12 +13,7 @@ SiPixelPhase1TrackEfficiencyValid = DefaultHisto.clone(
                    .groupBy("PXBarrel/PXLayer/signedLadder", "EXTEND_X")
                    .groupBy("PXBarrel/PXLayer", "EXTEND_Y")
                    .save()
-                   .custom("signedmodule"),
-    Specification().groupBy("PXBarrel|PXForward/PXLayer|PXDisk/signedLadder|PXBlade" + "/ROCinLadder|ROCinBlade")
-                   .groupBy("PXBarrel|PXForward/PXLayer|PXDisk/signedLadder|PXBlade", "EXTEND_X")
-                   .groupBy("PXBarrel|PXForward/PXLayer|PXDisk", "EXTEND_Y")
-                   .save()
-                   .custom("perroc")
+                   .custom("signedmodule_barrel"),
   )
 )
 
@@ -51,7 +33,6 @@ SiPixelPhase1TrackEfficiencyEfficiency = SiPixelPhase1TrackEfficiencyValid.clone
 
 
 SiPixelPhase1TrackEfficiencyConf = cms.VPSet(
-  SiPixelPhase1TrackEfficiencyClusterProb,
   SiPixelPhase1TrackEfficiencyValid,
   SiPixelPhase1TrackEfficiencyMissing,
   SiPixelPhase1TrackEfficiencyEfficiency,

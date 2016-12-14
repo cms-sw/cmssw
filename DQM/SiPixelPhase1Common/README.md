@@ -137,44 +137,60 @@ The `VPSet` alone will not do anything. Add it to the configuration of your plug
 
 The second part initializes a default harvesting plugin, which is needed to execute some specifications. 
 
-The most important thing in the configuration are the specifications. Add them by setting `specs` in the `clone`. Since you can have many specifications per quantity, this has to be a `VPSet` as well. To make a specification use the `Specification()` builder:
+The most important thing in the configuration are the specifications. Add them by setting `specs` in the `clone`. Since you can have many specifications per quantity, this has to be a `VPSet` as well. To make a specification use the `Specification()` builder (note that the `VPSet` used here is defined in `HistogramManager_cfi.py`, it akes a `cms.VPSet` but gives you a bit more freedom with the arguments):
 
-    specs = cms.VPSet(
-      Specification().groupBy("PXBarrel|PXForward/PXLayer|PXDisk/PXLadder|PXBlade") 
-                     .save()
+    specs = VPSet(
+      Specification().groupBy("PXBarrel/PXLayer/PXLadder") 
+                     .save(),
+      Specification().groupBy("PXForward/PXDisk/PXBlade") 
+                     .save(),
     )
 
-This will give you a set of histograms, grouped by ladders and blades. The `groupBy` line specifies 3 levels, each for FPIX and BPIX independently. In the output, this will lead to nested folders of the given names, where the last level of folders (one per ladder/blade) contains the histograms. The string lists columns separated by `/`, which has the same meaning as in a directory hierarchy. For the histograms that are created, the order of columns does not matter; however, the order defines the directory nesting and where the histograms go. (Also, if you use the shorthand `saveAll`, you get summations defined by the ordering/directory hierarchy). Make sure you always list columns in the same order within one specification, otherwise you might hit unsupported or buggy cases. Within a column, a `|` can separate two names. This is used to handle barrel and endcap structure in one go, where barrel- and endcap-names are separated by the `|`. The HistogramManager will try to extract the left value first, and only try the right when that fails. For structures that have no equivalent in one of the subdetectors, you can use the empty column name (e.g. `/PXRing|/`), which will not appear in the directory structure. There is no central list of available column names, as new extractors could be added anywhere. However, most are defined in the `GeometryInterface`, which will also output a list of known columns at runtime (if sufficient debug  logging is enabled). 
+This will give you a set of histograms, grouped by ladders and blades. The `groupBy` line specifies 3 levels, each for FPIX and BPIX independently. In the output, this will lead to nested folders of the given names, where the last level of folders (one per ladder/blade) contains the histograms. The string lists columns separated by `/`, which has the same meaning as in a directory hierarchy. For the histograms that are created, the order of columns does not matter; however, the order defines the directory nesting and where the histograms go. (Also, if you use the shorthand `saveAll`, you get summations defined by the ordering/directory hierarchy). Make sure you always list columns in the same order within one specification, otherwise you might hit unsupported or buggy cases. Usually you will need two specifications each, one for barrel and one for forward. There is no central list of available column names, as new extractors could be added anywhere. However, most are defined in the `GeometryInterface`, which will also output a list of known columns at runtime (if sufficient debug  logging is enabled). 
 
 To add histograms per disk as well, add
 
-    Specification().groupBy("PXBarrel|PXForward/PXLayer|PXDisk/PXLadder|PXBlade") 
+    Specification().groupBy("PXBarrel/PXLayer/PXLadder") 
                    .save()
-                   .groupBy("PXBarrel|PXForward/PXLayer|PXDisk")
+                   .groupBy("PXBarrel/PXLayer")
+                   .save(),
+    Specification().groupBy("PXForward/PXDisk/PXBlade") 
                    .save()
+                   .groupBy("PXForward/PXDisk")
+                   .save(),
 
 You can also add histograms for all mentioned levels by adding `saveAll()`. 
 
 To get a summary profle, add instead
 
-    Specification().groupBy("PXBarrel|PXForward/PXLayer|PXDisk/PXLadder|PXBlade") # per-ladder and profiles
+    Specification().groupBy("PXBarrel/PXLayer/PXLadder") # per-ladder and profiles
                    .save()
                    .reduce("MEAN")
-                   .groupBy("PXBarrel|PXForward/PXLayer|PXDisk", "EXTEND_X")
+                   .groupBy("PXBarrel/PXLayer", "EXTEND_X")
+                   .saveAll(),
+    Specification().groupBy("PXForward/PXDisk/PXBlade") # per-ladder and profiles
+                   .save()
+                   .reduce("MEAN")
+                   .groupBy("PXForward/PXDisk", "EXTEND_X")
                    .saveAll(),
                    
 For quantities where it makes sense to have per-module plots, you can add a specification like this:
 
-    Specification(PerModule).groupBy("PXBarrel|PXForward/PXLayer|PXDisk/DetId").save()
+    Specification(PerModule).groupBy("PXForward/PXDisk/DetId").save(),
+    Specification(PerModule).groupBy("PXBarrel/PXLayer/DetId").save(),
 
 The `PerModule` parameter (defined in `HistogramManager_cfi.py`, allows the per-module histograms to be turned off by default.
 
 One of the more complicated things is counting things per event, as in e. g. the `NDigis` histograms. The specification for this is something like this:
 
-      Specification().groupBy("PXBarrel|PXForward/PXLayer|PXDisk/PXLadder|PXBlade/DetId/Event") 
+      Specification().groupBy("PXBarrel/PXLayer/PXLadder/DetId/Event") 
                      .reduce("COUNT") # per-event counting
-                     .groupBy("PXBarrel|PXForward/PXLayer|PXDisk/PXLadder|PXBlade") 
-                     .save()
+                     .groupBy("PXBarrel/PXLayer/PXLadder") 
+                     .save(),
+      Specification().groupBy("PXForward/PXDisk/PXBlade/DetId/Event") 
+                     .reduce("COUNT") # per-event counting
+                     .groupBy("PXForward/PXDisk/PXBlade") 
+                     .save(),
                      
 We group by module and Event first, since this is the range that we want counted, then we reduce and group as usual to get a histogram of the counts. You can still add e.g. the profile snippet below to get profiles. For the per-event counting, you also need to call the per-event harvesting method at the end of your `analyze` method:
     histo[NDIGIS].executePerEventHarvesting(); 
@@ -248,7 +264,7 @@ This is what is actually used to represent a column in the code most of the time
 
 #### GeometryInterface::Values
 
-This is a mapping from `Column` names to `Value` values. While a `std::map` can be used perfectly, for performance reasons a different implementation was used. This is a `std::vector<std::pair<Column, Value>>`. All map-like operations are implemented using linear search, which should be pretty fast for the sizes (< 10) typically used. In this search, fuzzy matching is performed to handle multi-columns. This is also the reason why the methods providing and accepting `Column`-`Value`-pairs should be preferred, to ensure proper normalization. `Values` are used extensively as keys for `std::map`, but there are some caveats: Normalized and non-normalized values do not compare equal (this is why the rule should be, that a unnormalized `Column` only enters a `Values` object if and only if its `Value` is `UNDEFINED`), and the ordering in the vector (insertion order) matters (this is why it is usually a good idea to fill a `Values` object by looping over the `columns` of the first specified grouping). 
+This is a mapping from `Column` names to `Value` values. While a `std::map` could be used perfectly, for performance reasons a different implementation was used. This is a `std::vector<std::pair<Column, Value>>`. It turns out using map operations cen be avaoided in practice, by re-extracting things from the `InterestingQuantities` in case of doubt. The methods providing and accepting `Column`-`Value`-pairs should be preferred, in case we want to add or-columns back in. `Values` are used extensively as keys for `std::map`, but there are some caveats: The ordering in the vector (insertion order) matters (this is why it is usually a good idea to fill a `Values` object by looping over the `columns` of the first specified grouping). 
 
 In terms of memory management, it can be a good idea to keep one `Values` object around and `erase`, assign, and `swap` the vector inside it directly. This allows handling `Values` without any heap allocations (note that a `map` allocates all nodes on the heap, and a vector allocates its backing array on the heap, even if they are stack values in the code). This is the main point for having the `Values` type.
 

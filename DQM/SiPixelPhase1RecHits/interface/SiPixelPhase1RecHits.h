@@ -18,7 +18,8 @@ class SiPixelPhase1RecHits : public SiPixelPhase1Base {
     CLUST_Y,
     ERROR_X,
     ERROR_Y,
-    POS
+    POS,
+    CLUSTER_PROB
   };
 
   public:
