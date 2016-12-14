@@ -14,7 +14,7 @@ class SLBin: public TObject {
              SLBin() {};
              ~SLBin() {};
 // Setters
-             using TObject:Clear;
+             using TObject::Clear;
              void Clear()                       {NEvts=NBins=NEvtPerBin=0;Bins.clear();};
              void setNEvts(unsigned int n)      {NEvts = n;};
              void setNBins(unsigned int n)      {NBins = n;};
