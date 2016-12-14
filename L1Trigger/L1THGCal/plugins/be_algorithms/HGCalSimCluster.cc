@@ -147,7 +147,9 @@ namespace HGCalTriggerBackend{
                 std::unordered_map<uint64_t,std::pair<int,l1t::HGCalCluster> > cluster_container;// PID-> bx,cluster
                 evt.getByToken(sim_token_,sim_handle_);
 
-                if (not sim_handle_.isValid()) { std::cout<<"[HGCalTriggerSimCluster]::[run]::[ERROR] PFCluster collection for HGC sim clustering not available"<<std::endl; throw 39;}
+                if (not sim_handle_.isValid()){
+                       throw cms::Exception("ContentError")<<"[HGCalTriggerSimCluster]::[run]::[ERROR] PFCluster collection for HGC sim clustering not available"; 
+                }
 
                 // 1.5. pre-process the sim cluster to have easy accessible information
 #ifdef HGCAL_DEBUG
