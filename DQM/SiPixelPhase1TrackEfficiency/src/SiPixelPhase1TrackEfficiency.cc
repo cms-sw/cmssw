@@ -92,10 +92,6 @@ void SiPixelPhase1TrackEfficiency::analyze(const edm::Event& iEvent, const edm::
       const SiPixelRecHit* pixhit = dynamic_cast<const SiPixelRecHit*>(hit->hit());
       int row = 0, col = 0;
       if (pixhit) {
-        double clusterProbability= pixhit->clusterProbability(0);
-        if (clusterProbability > 0) 
-          histo[CLUSTER_PROB].fill(log10(clusterProbability), id, &iEvent);
-
         const PixelGeomDetUnit* geomdetunit = dynamic_cast<const PixelGeomDetUnit*> ( tracker->idToDet(id) );
         const PixelTopology& topol = geomdetunit->specificTopology();
         LocalPoint const& lp = pixhit->localPositionFast();
