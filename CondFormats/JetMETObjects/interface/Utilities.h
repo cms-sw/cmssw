@@ -17,7 +17,7 @@
 
 namespace std
 {
-  //print a tuple
+  //These functions print a tuple using a provided std::ostream
   template<typename Type, unsigned N, unsigned Last>
   struct tuple_printer {
   
@@ -41,9 +41,8 @@ namespace std
       out << ")";
       return out;
   }
-
   //----------------------------------------------------------------------
-  //list of type indices
+  //Returns a list of type indices
   template <size_t... n>
   struct ct_integers_list {
       template <size_t m>
@@ -62,9 +61,9 @@ namespace std
   {
       typedef ct_integers_list<> type;
   };
-
   //----------------------------------------------------------------------
-  //return a subset of the tuple
+  //Return a tuple which is a subset of the original tuple
+  //This function pops an entry off the font of the tuple
   template <size_t... indices, typename Tuple>
   auto tuple_subset(const Tuple& tpl, ct_integers_list<indices...>)
       -> decltype(std::make_tuple(std::get<indices>(tpl)...))
@@ -80,9 +79,8 @@ namespace std
       // this means:
       //   tuple_subset<1, 2, 3, ..., sizeof...(Tail)-1>(tpl, ..)
   }
-
   //----------------------------------------------------------------------
-  // Recursive hashing function for tuples
+  //Recursive hashing function for tuples
   template<typename Head, typename... ndims> struct hash_specialization
   {
     typedef std::tuple<Head,ndims...> argument_type;
@@ -95,7 +93,7 @@ namespace std
       return b^more;
     }
   };
-  // Base cases
+  //Base case
   template<> struct hash_specialization<float>
   {
     typedef std::tuple<float> argument_type;
@@ -107,7 +105,7 @@ namespace std
       return result;
     } 
   };
-  // Overloaded verions of std::hash for tuples
+  //Overloaded verions of std::hash for tuples
   template<typename Head, typename... ndims> struct hash<std::tuple<Head, ndims...> >
   {
     typedef std::tuple<Head,ndims...> argument_type;
@@ -245,6 +243,9 @@ namespace
     return r;
   }
   //------------------------------------------------------------------------
+  //Generates a std::tuple type based on a stored type and the number of
+  // objects in the tuple.
+  //Note: All of the objects will be of the same type
   template<typename /*LEFT_TUPLE*/, typename /*RIGHT_TUPLE*/>
   struct join_tuples
   {
@@ -296,6 +297,7 @@ namespace
   template<> struct gen_seq<0> : seq<>{};
   template<> struct gen_seq<1> : seq<0>{};
   //------------------------------------------------------------------------
+  //Generates a tuple based on a given function (i.e. lambda expression)
   template <typename F, unsigned... Is>
   auto gen_tuple_impl(F func, seq<Is...> )
     -> decltype(std::make_tuple(func(Is)...))
