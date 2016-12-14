@@ -800,10 +800,10 @@ class TestClusters : public edm::EDAnalyzer {
   
   explicit TestClusters(const edm::ParameterSet& conf);  
   virtual ~TestClusters();
-  virtual void analyze(const edm::Event& e, const edm::EventSetup& c);
-  virtual void beginRun(edm::Run const&, edm::EventSetup const&);
-  virtual void beginJob();
-  virtual void endJob();
+  virtual void analyze(const edm::Event& e, const edm::EventSetup& c) override;
+  virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
+  virtual void beginJob() override;
+  virtual void endJob() override;
   
  private:
   edm::ParameterSet conf_;
