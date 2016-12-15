@@ -3,6 +3,7 @@
 
 #include <map>
 #include <vector>
+#include <cmath>
 #include "CalibCalorimetry/HcalAlgos/interface/HcalPulseShape.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -49,6 +50,19 @@ public:
   static constexpr float Y11MAX_ = 0.04;
   static double Y11TimePDF(double t);
   static double generatePhotonTime(CLHEP::HepRandomEngine* engine);
+  //this function can take function pointers *or* functors!
+  template <class F1, class F2>
+  static std::vector<double> convolve(unsigned nbin, F1 f1, F2 f2){
+    std::vector<double> result(2*nbin-1,0.);
+    for(unsigned i = 0; i < 2*nbin-1; ++i){
+      for(unsigned j = 0; j < std::min(i+1,nbin); ++j){
+        double tmp = f1(j)*f2(i-j);
+        if(std::isnan(tmp) or std::isinf(tmp)) continue;
+        result[i] += tmp;
+      }
+    }
+    return result;
+  }
 
 private:
   void computeHPDShape(float, float, float, float, float ,
