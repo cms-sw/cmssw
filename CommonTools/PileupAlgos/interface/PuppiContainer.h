@@ -8,11 +8,14 @@
 
 //FASTJET_BEGIN_NAMESPACE      // defined in fastjet/internal/base.hh
 
+#include "CommonTools/UtilAlgos/interface/KDTreeLinkerAlgoT.h"
 
 //......................
 class PuppiContainer{
 public:
   
+  typedef KDTreeLinkerAlgo<unsigned,2> KDTree;
+  typedef KDTreeNodeInfoT<unsigned,2> KDNode;
 
   // Helper class designed to store Puppi information inside of fastjet pseudojets.
   // In CMSSW we use the user_index to refer to the index of the input collection, 
@@ -42,34 +45,48 @@ public:
     std::vector<fastjet::PseudoJet> const & pfParticles() const { return fPFParticles; }    
     std::vector<fastjet::PseudoJet> const & pvParticles() const { return fChargedPV; }        
     std::vector<double> const & puppiWeights();
-    const std::vector<double> & puppiRawAlphas() const { return fRawAlphas; }
-    const std::vector<double> & puppiAlphas() const { return fVals; }
-    // const std::vector<double>& puppiAlpha   () const {return fAlpha;}
-    const std::vector<double> & puppiAlphasMed() const {return fAlphaMed;}
-    const std::vector<double> & puppiAlphasRMS() const {return fAlphaRMS;}
+    const std::vector<double> & puppiRawAlphas(){ return fRawAlphas; }
+    const std::vector<double> & puppiAlphas(){ return fVals; }
+    // const std::vector<double> puppiAlpha   () {return fAlpha;}
+    const std::vector<double> & puppiAlphasMed() {return fAlphaMed;}
+    const std::vector<double> & puppiAlphasRMS() {return fAlphaRMS;}
 
     int puppiNAlgos(){ return fNAlgos; }
     std::vector<fastjet::PseudoJet> const & puppiParticles() const { return fPupParticles;}
 
 protected:
-    double  goodVar      (unsigned iPart, std::vector<fastjet::PseudoJet> const &iParts, std::vector<unsigned> const &idxParts, int iOpt,const double iRCone) const;
-    void    getRMSAvg    (int iOpt, 
+    
+
+    double  goodVar( fastjet::PseudoJet const &iPart,
+		     std::vector<fastjet::PseudoJet> const &iParts, 
+		     int iOpt,
+		     const double iRCone );
+    
+    void    getRMSAvg( int iOpt, 
+		       std::vector<fastjet::PseudoJet> const &iConstits, 
+		       std::vector<fastjet::PseudoJet> const &iParticles, 
+		       std::vector<fastjet::PseudoJet> const &iChargeParticles );
+    
+    void    getRawAlphas( int iOpt,
 			  std::vector<fastjet::PseudoJet> const &iConstits,
-			  std::vector<unsigned> const &iParticles,
-			  std::vector<unsigned> const &iChargeParticles);
-    void    getRawAlphas    (int iOpt,std::vector<fastjet::PseudoJet> const &iConstits,
-			     std::vector<unsigned> const &iParticles,
-			     std::vector<unsigned> const &iChargeParticles);
-    double  getChi2FromdZ(double iDZ) const;
-    int     getPuppiId   ( float iPt, float iEta);
-    double  var_within_R (int iId, const std::vector<fastjet::PseudoJet> & particles, const std::vector<unsigned>& idxs, unsigned centre, const double R) const;  
+			  std::vector<fastjet::PseudoJet> const &iParticles,
+			  std::vector<fastjet::PseudoJet> const &iChargeParticles );
+    
+    double  getChi2FromdZ( double iDZ );
+    int     getPuppiId   ( float iPt, float iEta );
+    double  var_within_R ( int iId, 
+			   const std::vector<fastjet::PseudoJet> & particles, 
+			   const fastjet::PseudoJet& centre, 
+			   const double R );  
     
     bool      fPuppiDiagnostics;
     std::vector<RecoObj>   fRecoParticles;
     std::vector<fastjet::PseudoJet> fPFParticles;
-    std::vector<unsigned> fPFParticlesIdx;
-    std::vector<fastjet::PseudoJet> fChargedPV; 
-    std::vector<unsigned> fChargedPVIdx; 
+    std::vector<KDNode> fPFParticlesNodes;
+    KDTree fPFParticlesTree;
+    std::vector<fastjet::PseudoJet> fChargedPV;
+    std::vector<KDNode> fChargedPVNodes;
+    KDTree fChargedPVTree;
     std::vector<fastjet::PseudoJet> fPupParticles;
     std::vector<double>    fWeights;
     std::vector<double>    fVals;
@@ -87,10 +104,6 @@ protected:
     int    fNPV;
     double fPVFrac;
     std::vector<PuppiAlgo> fPuppiAlgo;
-
-    //caches for heavy calculations
-    std::vector<double> particlesEta;
-    std::vector<double> particlesPhi;
 };
 #endif
 
