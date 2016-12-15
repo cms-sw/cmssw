@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<DDDefinition xmlns="http://www.cern.ch/mms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/mms/DDL ../DDLSchema.xsd">
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
 
-  <ConstantsSection label="CTPPS_Timing_Horizontal_Pot.xml">
+  <ConstantsSection label="CTPPS_Timing_Horizontal_Pot.xml" eval="true">
     <Constant name="surface_margin" value="1*mm"/>
     <Constant name="outer_diameter" value="145*mm"/>
     <Constant name="wall_thickness" value="2*mm"/>
@@ -38,7 +38,7 @@
     <SubtractionSolid name="CTPPS_Timing_Cylinder_bottom_wall">
       <rSolid name="CTPPS_Timing_Cylinder_bottom_wall1"/>
       <rSolid name="CTPPS_Timing_Cylinder_bottom_wall_cut"/>
-      <Translation x="0*mm" y="0*mm" z="[window_thickness_bottom]" />
+      <Translation x="0*mm" y="0*mm" z="[window_thickness_bottom]"/>
     </SubtractionSolid>
   </SolidSection>
 
@@ -61,12 +61,12 @@
     <PosPart copyNumber="1">
       <rParent name="CTPPS_Timing_Cylinder_Primary_Vacuum"/>
       <rChild name="CTPPS_Timing_Cylinder_wall"/>
-      <Translation x="[CTPPS_Diamond_X_Distance:CTPPS_Diamond_Detector_X_distance]" y="0*mm" z="[height_lower_part]/2-[height]/2" />
+      <Translation x="[CTPPS_Diamond_X_Distance:CTPPS_Diamond_Detector_X_distance]" y="0*mm" z="[height_lower_part]/2-[height]/2"/>
     </PosPart>
     <PosPart copyNumber="1">
       <rParent name="CTPPS_Timing_Cylinder_Primary_Vacuum"/>
       <rChild name="CTPPS_Timing_Cylinder_bottom_wall"/>
-      <Translation x="[CTPPS_Diamond_X_Distance:CTPPS_Diamond_Detector_X_distance]" y="0*mm" z="[wall_thickness_bottom_wall]/2-[height]/2" />
+      <Translation x="[CTPPS_Diamond_X_Distance:CTPPS_Diamond_Detector_X_distance]" y="0*mm" z="[wall_thickness_bottom_wall]/2-[height]/2"/>
     </PosPart>
   </PosPartSection>
 

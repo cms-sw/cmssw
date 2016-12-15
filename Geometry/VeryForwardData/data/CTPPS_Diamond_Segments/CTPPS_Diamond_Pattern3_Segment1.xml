@@ -1,4 +1,4 @@
-<DDDefinition xmlns="http://www.cern.ch/mms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/mms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
 
   <SolidSection label="CTPPS_Diamond_Pattern3_Segment1.xml">
     <Box name="Diamond" dx="[CTPPS_Diamond_Parameters:Pat3_Str1_dx]+[CTPPS_Diamond_Parameters:UnMet_Edge]+0.5*[CTPPS_Diamond_Parameters:UnMet_gap]" dy="[CTPPS_Diamond_Parameters:Diamond_dy]" dz="[CTPPS_Diamond_Parameters:Diamond_dz]"/>
@@ -9,7 +9,7 @@
   </SolidSection>
 
   <LogicalPartSection label="CTPPS_Diamond_Pattern3_Segment1.xml">
-    <LogicalPart name="Diamond" category="unspecified">
+    <LogicalPart name="CTPPS_Diamond_Segment" category="unspecified">
       <rSolid name="Diamond"/>
       <rMaterial name="CTPPS_Diamond_Materials:Diamond"/>
     </LogicalPart>
