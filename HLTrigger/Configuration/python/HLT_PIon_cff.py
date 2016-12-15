@@ -1,11 +1,11 @@
-# /dev/CMSSW_9_0_0/PIon/V1 (CMSSW_9_0_0_pre2)
+# /dev/CMSSW_9_0_0/PIon/V2 (CMSSW_9_0_0_pre2)
 
 import FWCore.ParameterSet.Config as cms
 
 fragment = cms.ProcessFragment( "HLT" )
 
 fragment.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_9_0_0/PIon/V1')
+  tableName = cms.string('/dev/CMSSW_9_0_0/PIon/V2')
 )
 
 fragment.HLTPSetJetCoreStepTrajectoryFilter = cms.PSet( 
@@ -13766,7 +13766,7 @@ fragment.hltEGL1SingleEG14BptxANDFilter = cms.EDFilter( "HLTEgammaL1TMatchFilter
     candIsolatedTag = cms.InputTag( "hltEgammaCandidates" ),
     l1CenJetsTag = cms.InputTag( 'hltGtStage2Digis','Jet' ),
     region_eta_size = cms.double( 0.522 ),
-    L1SeedFilterTag = cms.InputTag( "hltL1sSingleEG14BptxAND" ),
+    L1SeedFilterTag = cms.InputTag( "hltL1sSingleEG14ORSingleEG18BptxAND" ),
     candNonIsolatedTag = cms.InputTag( "" ),
     l1NonIsolatedTag = cms.InputTag( 'hltGtStage2Digis','EGamma' ),
     ncandcut = cms.int32( 1 ),
