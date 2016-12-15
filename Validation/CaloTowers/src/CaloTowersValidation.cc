@@ -44,10 +44,6 @@ CaloTowersValidation::CaloTowersValidation(edm::ParameterSet const& conf)
 }
 
 
-void CaloTowersValidation::beginRun() {}
-
-void CaloTowersValidation::endRun() {}
-
 CaloTowersValidation::~CaloTowersValidation() {
 
 }
