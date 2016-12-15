@@ -255,7 +255,7 @@ caloDict = {
             'from Geometry.HcalCommonData.hcalParameters_cfi      import *',
             'from Geometry.HcalCommonData.hcalDDDSimConstants_cfi import *',
             'from Geometry.HGCalCommonData.hgcalV6ParametersInitialization_cfi import *',
-            'from Geometry.HGCalCommonData.hgcalV6NumberingInitialization_cfi import *',
+            'from Geometry.HGCalCommonData.hgcalV6NumberingInitialization_cfi import *'
         ],
         "reco" : [
             'from Geometry.CaloEventSetup.HGCalV6Topology_cfi import *',
@@ -327,7 +327,7 @@ caloDict = {
             'from Geometry.HcalCommonData.hcalParameters_cfi      import *',
             'from Geometry.HcalCommonData.hcalDDDSimConstants_cfi import *',
             'from Geometry.HGCalCommonData.hgcalV6ParametersInitialization_cfi import *',
-            'from Geometry.HGCalCommonData.hgcalV6NumberingInitialization_cfi import *'.
+            'from Geometry.HGCalCommonData.hgcalV6NumberingInitialization_cfi import *'
         ],
         "reco" : [
             'from Geometry.CaloEventSetup.HGCalV6Topology_cfi import *',
@@ -492,10 +492,10 @@ timingDict = {
             'Geometry/HGCalCommonData/data/fastTimingElement.xml',
             ],
         3 : [
-            'Geometry/HGCalSimData/data/fasttimesens.xml',
+            'Geometry/HGCalSimData/data/fasttimesens.xml'
             ],
         4 : [
-            'Geometry/HGCalSimData/data/fasttimeProdCuts.xml',
+            'Geometry/HGCalSimData/data/fasttimeProdCuts.xml'
             ],
         "sim" : [
             'from Geometry.HGCalCommonData.fastTimeParametersInitialization_cfi import *',
