@@ -51,7 +51,7 @@ ElectronMVAEstimatorRun2Spring16HZZ::ElectronMVAEstimatorRun2Spring16HZZ(const s
   MethodName_("BDTG method"),
   beamSpotLabel_(edm::InputTag(beamspotTag)),
   conversionsLabelAOD_(edm::InputTag(conversionsTag)),
-  conversionsLabelMiniAOD_(conversionsLabelMiniAOD_) {
+  conversionsLabelMiniAOD_(conversionsLabelAOD_) {
  }
 
 
