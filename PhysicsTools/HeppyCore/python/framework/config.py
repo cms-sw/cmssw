@@ -138,6 +138,7 @@ class Analyzer( CFG ):
           m_max = 200
         )
 
+
         The first argument is your analyzer class. 
         It should inherit from heppy.framework.analyzer.Analyser (standalone)
         or from PhysicsTools.HeppyCore.framework.analyzer (in CMS)

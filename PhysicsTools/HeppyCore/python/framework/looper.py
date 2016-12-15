@@ -227,6 +227,9 @@ Make sure that the configuration object is of class cfg.Analyzer.
                     self.nEvProcessed += 1
                     if iEv<self.nPrint:
                         self.logger.info(self.event.__str__())
+                    if self.stopFlag and self.stopFlag.value:
+                        print 'stopping gracefully at event %d' % (iEv)
+                        break
                 except UserStop as err:
                     print 'Stopped loop following a UserStop exception:'
                     print err
@@ -252,6 +255,9 @@ Make sure that the configuration object is of class cfg.Analyzer.
                     self.nEvProcessed += 1
                     if iEv<self.nPrint:
                         self.logger.info(self.event.__str__())
+                    if self.stopFlag and self.stopFlag.value:
+                        print 'stopping gracefully at event %d' % (iEv)
+                        break
                 except UserStop as err:
                     print 'Stopped loop following a UserStop exception:'
                     print err
