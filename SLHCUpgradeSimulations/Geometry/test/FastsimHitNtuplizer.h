@@ -34,7 +34,7 @@ class FastsimHitNtuplizer : public edm::EDAnalyzer
   
   explicit FastsimHitNtuplizer(const edm::ParameterSet& conf);
   virtual ~FastsimHitNtuplizer();
-  virtual void beginJob(const edm::EventSetup& es);
+  virtual void beginJob();
   virtual void endJob();
   virtual void analyze(const edm::Event& e, const edm::EventSetup& es);
 
