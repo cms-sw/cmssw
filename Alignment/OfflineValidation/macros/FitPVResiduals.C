@@ -743,10 +743,13 @@ void arrangeBiasCanvas(TCanvas *canv,TH1F* dxyPhiMeanTrend[100],TH1F* dzPhiMeanT
 
   TLegend *lego = new TLegend(0.19,0.82,0.79,0.92);
   // might be useful if many objects are compared
-  //lego-> SetNColumns(2);
+  if(nFiles>3){
+    lego-> SetNColumns(2);
+  }
+
   lego->SetFillColor(10);
-  if(nFiles>4){
-    lego->SetTextSize(0.022);
+  if(nFiles>3){
+    lego->SetTextSize(0.026);
   } else {
     lego->SetTextSize(0.042);
   }
@@ -893,11 +896,13 @@ void arrangeCanvas(TCanvas *canv,TH1F* meanplots[100],TH1F* widthplots[100],Int_
 
   TLegend *lego = new TLegend(0.18,0.82,0.78,0.92);
   // in case many objects are compared
-  // lego-> SetNColumns(2);
+  if(nFiles>3){
+    lego-> SetNColumns(2);
+  }
   // TLegend *lego = new TLegend(0.18,0.77,0.50,0.86);
   lego->SetFillColor(10);
-  if(nFiles>4) {
-    lego->SetTextSize(0.02);
+  if(nFiles>3) {
+    lego->SetTextSize(0.025);
   } else {
     lego->SetTextSize(0.04);
   }
@@ -1163,7 +1168,9 @@ void arrangeFitCanvas(TCanvas *canv,TH1F* meanplots[100],Int_t nFiles, TString L
   lego->SetTextFont(42);
   lego->SetFillColor(10);
   lego->SetLineColor(10);
-  //lego->SetNColumns(2);
+  if(nFiles>3){
+    lego->SetNColumns(2);
+  }
   lego->SetShadowColor(10);
 
   TF1 *fleft[nFiles]; 
@@ -1445,7 +1452,7 @@ std::pair<std::pair<Double_t,Double_t>, std::pair<Double_t,Double_t>  > fitResid
     func.SetRange(mean - 2*sigma, mean + 2*sigma);
       // I: integral gives more correct results if binning is too wide
       // L: Likelihood can treat empty bins correctly (if hist not weighted...)
-    if (0 == hist->Fit(&func, "Q0LR")) {
+    if (0 == hist->Fit(&func, "Q0NLR")) {
       if (hist->GetFunction(func.GetName())) { // Take care that it is later on drawn:
 	hist->GetFunction(func.GetName())->ResetBit(TF1::kNotDraw);
       }
@@ -1876,7 +1883,7 @@ void  MakeNiceTrendPlotStyle(TH1 *hist,Int_t color)
 /*--------------------------------------------------------------------*/
 { 
 
-  Int_t markers[9] = {kFullSquare,kFullCircle,kDot,kFullTriangleDown,kOpenSquare,kOpenCircle,kFullTriangleDown,kFullTriangleUp,kOpenTriangleDown};
+  Int_t markers[9] = {kFullSquare,kFullCircle,kFullTriangleDown,kOpenSquare,kDot,kOpenCircle,kFullTriangleDown,kFullTriangleUp,kOpenTriangleDown};
   
   // color for approval
   //Int_t colors[8]  = {kBlack,kGreen+2,kRed,kGreen+2,kOrange,kMagenta,kCyan,kViolet};
@@ -2032,7 +2039,7 @@ void MakeNiceMapStyle(TH2 *hist)
   //delete histContentByCell;
 
   hist->GetZaxis()->SetRangeUser(0.99*theNewMin,0.99*theNewMax);
-
+  delete cCheck;
 }
 
 /*--------------------------------------------------------------------*/
