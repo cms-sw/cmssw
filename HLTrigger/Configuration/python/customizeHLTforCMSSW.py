@@ -81,6 +81,85 @@ def customiseFor16569(process):
     for mod in ['hltHbhereco','hltHbherecoMethod2L1EGSeeded','hltHbherecoMethod2L1EGUnseeded','hltHfreco','hltHoreco']:
         if hasattr(process,mod):
             getattr(process,mod).ts4chi2 = cms.vdouble(15.,5000.)
+
+    return process
+
+# Move pixel track fitter, filter, and cleaner to ED/ESProducts (PR #16792)
+def customiseFor16792(process):
+    def _copy(old, new, skip=[]):
+        skipSet = set(skip)
+        for key in old.parameterNames_():
+            if key not in skipSet:
+                setattr(new, key, getattr(old, key))
+
+    from RecoPixelVertexing.PixelTrackFitting.pixelTrackCleanerBySharedHits_cfi import pixelTrackCleanerBySharedHits as _pixelTrackCleanerBySharedHits
+    from RecoPixelVertexing.PixelLowPtUtilities.trackCleaner_cfi import trackCleaner as _trackCleaner
+
+    for producer in producers_by_type(process, "PixelTrackProducer"):
+        label = producer.label()
+        fitterName = producer.FitterPSet.ComponentName.value()
+        filterName = producer.FilterPSet.ComponentName.value()
+
+        fitterProducerLabel = label+"Fitter"
+        fitterProducerName = fitterName+"Producer"
+        fitterProducer = cms.EDProducer(fitterProducerName)
+        skip = ["ComponentName"]
+        if fitterName == "PixelFitterByHelixProjections":
+            skip.extend(["TTRHBuilder", "fixImpactParameter"]) # some HLT producers use these parameters even if they have no effect
+        _copy(producer.FitterPSet, fitterProducer, skip=skip)
+        setattr(process, fitterProducerLabel, fitterProducer)
+        del producer.FitterPSet
+        producer.Fitter = cms.InputTag(fitterProducerLabel)
+
+        filterProducerLabel = label+"Filter"
+        filterProducerName = filterName+"Producer"
+        filterProducer = cms.EDProducer(filterProducerName)
+        _copy(producer.FilterPSet, filterProducer, skip=["ComponentName"])
+        setattr(process, filterProducerLabel, filterProducer)
+
+        del producer.FilterPSet
+        producer.Filter = cms.InputTag(filterProducerLabel)
+        if hasattr(producer, "useFilterWithES"): # useFilterWithES has no effect anymore
+            del producer.useFilterWithES
+
+        cleanerPSet = producer.CleanerPSet
+        del producer.CleanerPSet
+        producer.Cleaner = cms.string("")
+        if cleanerPSet.ComponentName.value() == "PixelTrackCleanerBySharedHits":
+            if cleanerPSet.useQuadrupletAlgo:
+                producer.cleaner = "hltPixelTracksCleanerBySharedHitsQuad"
+                if not hasattr(process, "hltPixelTracksCleanerBySharedHitsQuad"):
+                    process.hltPixelTracksCleanerBySharedHitsQuad = _pixelTrackCleanerBySharedHits.clone(
+                        ComponentName = "hltPixelTracksCleanerBySharedHitsQuad",
+                        useQuadrupletAlgo=True
+                    )
+            else:
+                producer.Cleaner = "hltPixelTracksCleanerBySharedHits"
+                if not hasattr(process, "hltPixelTracksCleanerBySharedHits"):
+                    process.hltPixelTracksCleanerBySharedHits = _pixelTrackCleanerBySharedHits.clone(
+                        ComponentName = "hltPixelTracksCleanerBySharedHits",
+                        useQuadrupletAlgo=False
+                    )
+        elif cleanerPSet.ComponentName.value() == "TrackCleaner":
+            producer.Cleaner = "hltTrackCleaner"
+            if not hasattr(process, "hltTrackCleaner"):
+                process.hltTrackCleaner = _trackCleaner.clone(
+                    ComponentName = "hltTrackCleaner"
+                )
+
+        # Modify sequences (also paths to be sure, altough in practice
+        # the seeding modules should be only in sequences in HLT?)
+        for seqs in [process.sequences_(), process.paths_()]:
+            for seqName, seq in seqs.iteritems():
+                # cms.Sequence.replace() would look simpler, but it expands
+                # the contained sequences if a replacement occurs there.
+                try:
+                    index = seq.index(producer)
+                except:
+                    continue
+                seq.insert(index, fitterProducer)
+                seq.insert(index, filterProducer)
+
     return process
 
 #
@@ -99,6 +178,10 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
         process = customiseFor16569(process)
 #       process = customiseFor12718(process)
         process = customiseFor16670(process)
+        pass
+
+    if cmsswVersion >= "CMSSW_9_0":
+        process = customiseFor16792(process)
         pass
 
 #   stage-2 changes only if needed
