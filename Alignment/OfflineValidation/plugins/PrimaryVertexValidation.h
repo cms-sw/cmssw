@@ -213,6 +213,7 @@ class PrimaryVertexValidation : public edm::one::EDAnalyzer<edm::one::SharedReso
 
   // histogram for max(eta)
   TH1F* h_etaMax;
+  TH1F* h_nbins;
 
   // ---- directly histograms // ===> unbiased residuals
   

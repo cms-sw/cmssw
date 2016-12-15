@@ -200,6 +200,7 @@ PrimaryVertexValidation::analyze(const edm::Event& iEvent, const edm::EventSetup
 
   if(h_etaMax->GetEntries()==0.){
     h_etaMax->SetBinContent(1,etaOfProbe_);
+    h_nbins->SetBinContent(1,nBins_);
   }
 
   //=======================================================
@@ -1017,7 +1018,8 @@ void PrimaryVertexValidation::beginJob()
   h_BeamWidthY        = EventFeatures.make<TH1F>("h_BeamWidthY","y-coordinate beam width;#sigma_{Y}^{beam};n_{events}",100,0.,0.01);        
 
   h_etaMax            = EventFeatures.make<TH1F>("etaMax","etaMax",1,-0.5,0.5);
-  
+  h_nbins             = EventFeatures.make<TH1F>("nbins","nbins",1,-0.5,0.5);
+
   // probe track histograms
   TFileDirectory ProbeFeatures = fs->mkdir("ProbeTrackFeatures");
 
