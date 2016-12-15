@@ -80,6 +80,8 @@ pfMET_(srcMET.pfMET_),
 metSig_(srcMET.metSig_),
 caloPackedMet_(srcMET.caloPackedMet_) {
 
+  setSignificanceMatrix(srcMET.getSignificanceMatrix());
+
   initCorMap();
 }
 

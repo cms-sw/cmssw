@@ -68,6 +68,24 @@ MET::MET( double sumet_, const std::vector<CorrMETData>& corr_,
     }
 }
 
+// Copy constructor
+//____________________________________________________________________________||
+MET::MET( const MET& met ): 
+  RecoCandidate( met )  
+{
+  sumet = met.sumet;
+  elongit = met.elongit;
+  signif_dxx = met.signif_dxx;
+  signif_dyy = met.signif_dyy;
+  signif_dyx = met.signif_dyx;
+  signif_dxy = met.signif_dxy;
+  std::vector<CorrMETData>::const_iterator i;
+  for( i = met.corr.begin(); i != met.corr.end();  i++ ) 
+    {
+      corr.push_back( *i );
+    }
+}
+
 //____________________________________________________________________________||
 MET * MET::clone() const {
      return new MET( * this );

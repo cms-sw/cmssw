@@ -1,6 +1,8 @@
 # Copyright (C) 2014 Colin Bernet
 # https://github.com/cbernet/heppy/blob/master/LICENSE
 
+import ROOT 
+ROOT.PyConfig.IgnoreCommandLineOptions = True
 import os
 import sys
 import imp
@@ -9,6 +11,7 @@ import pprint
 from math import ceil
 from event import Event
 import timeit
+from PhysicsTools.HeppyCore.framework.exceptions import UserStop
 import resource
 import json
 
@@ -56,7 +59,8 @@ class Looper(object):
                   nPrint=0,
                   timeReport=False,
                   quiet=False,
-                  memCheckFromEvent=-1):
+                  memCheckFromEvent=-1,
+                  stopFlag = None):
         """Handles the processing of an event sample.
         An Analyzer is built for each Config.Analyzer present
         in sequence. The Looper can then be used to process an event,
@@ -68,6 +72,12 @@ class Looper(object):
         nEvents : number of events to process. Defaults to all.
         firstEvent : first event to process. Defaults to the first one.
         nPrint  : number of events to print at the beginning
+    
+        stopFlag: it should be a multiprocessing.Value instance, that is set to 1 
+                  when this thread, or any other, receives a SIGUSR2 to ask for
+                  a graceful job termination. In this case, the looper will also
+                  set up a signal handler for SIGUSR2.
+                  (if set to None, nothing of all this happens)
         """
 
         self.config = config
@@ -89,6 +99,13 @@ class Looper(object):
         self.timeReport = [ {'time':0.0,'events':0} for a in self.analyzers ] if timeReport else False
         self.memReportFirstEvent = memCheckFromEvent
         self.memLast=0
+        self.stopFlag = stopFlag
+        if stopFlag:
+            import signal
+            def doSigUsr2(sig,frame):
+                print 'SIGUSR2 received, signaling graceful stop'
+                self.stopFlag.value = 1
+            signal.signal(signal.SIGUSR2, doSigUsr2)
         tree_name = None
         if( hasattr(self.cfg_comp, 'tree_name') ):
             tree_name = self.cfg_comp.tree_name
@@ -97,9 +114,14 @@ class Looper(object):
             raise ValueError( errmsg )
         if hasattr(config,"preprocessor") and config.preprocessor is not None :
               self.cfg_comp = config.preprocessor.run(self.cfg_comp,self.outDir,firstEvent,nEvents)
+              #in case the preprocessor was run, need to process all events afterwards 
+              self.firstEvent = 0
+              self.nEvents = None
         if hasattr(self.cfg_comp,"options"):
               print self.cfg_comp.files,self.cfg_comp.options
-              self.events = config.events_class(self.cfg_comp.files, tree_name,options=self.cfg_comp.options)
+              self.events = config.events_class(self.cfg_comp.files,
+                                                tree_name,
+                                                options=self.cfg_comp.options)
         else :
               self.events = config.events_class(self.cfg_comp.files, tree_name)
         if hasattr(self.cfg_comp, 'fineSplit'):
@@ -125,7 +147,22 @@ class Looper(object):
         self.setup = Setup(config, services)
 
     def _build(self, cfg):
-        theClass = cfg.class_object
+        try: 
+            theClass = cfg.class_object
+        except AttributeError:
+            errfgmt = 'an object of class {cfg_class}'.format(
+                cfg_class=cfg.__class__
+            )
+            if type(cfg) is type:
+                errfgmt = 'a class named {class_name}'.format(
+                    class_name=cfg.__name__
+                )
+            err='''
+The looper is trying to build an analyzer configured by {errfgmt}. 
+
+Make sure that the configuration object is of class cfg.Analyzer.
+            '''.format(errfgmt=errfgmt)
+            raise ValueError(err)
         obj = theClass( cfg, self.cfg_comp, self.outDir )
         return obj
         
@@ -138,8 +175,14 @@ class Looper(object):
                 os.mkdir( tmpname )
                 break
             except OSError:
-                index += 1
-                tmpname = '%s_%d' % (name, index)
+                # failed to create the directory
+                # is it empty?
+                if not os.listdir(tmpname):
+                    break  # it is, so use it
+                else:
+                    # if not we append a number to the directory name
+                    index += 1
+                    tmpname = '%s_%d' % (name, index)
         if index == 2000:
               raise ValueError( "More than 2000 output folder with same name or 2000 attempts failed, please clean-up, change name or check permissions")
         return tmpname
@@ -156,44 +199,74 @@ class Looper(object):
         nEvents = self.nEvents
         firstEvent = self.firstEvent
         iEv = firstEvent
-        if nEvents is None or int(nEvents) > len(self.events) :
-            nEvents = len(self.events)
+        self.nEvProcessed = 0
+        if nEvents is None or int(nEvents)-firstEvent > len(self.events) :
+            nEvents = len(self.events) - firstEvent
         else:
             nEvents = int(nEvents)
-        eventSize = nEvents
         self.logger.info(
             'starting loop at event {firstEvent} '\
-                'to process {eventSize} events.'.format(firstEvent=firstEvent,
-                                                        eventSize=eventSize))
+                'to process {nEvents} events.'.format(firstEvent=firstEvent,
+                                                        nEvents=nEvents))
         self.logger.info( str( self.cfg_comp ) )
         for analyzer in self.analyzers:
             analyzer.beginLoop(self.setup)
-        try:
-            for iEv in range(firstEvent, firstEvent+eventSize):
-                # if iEv == nEvents:
-                #     break
-                if iEv%100 ==0:
-                    # print 'event', iEv
+
+        if hasattr(self.events, '__getitem__'):
+            # events backend supports indexing, e.g. CMS, FCC, bare root
+            for iEv in range(firstEvent, firstEvent+nEvents):
+                if iEv%100 == 0:
                     if not hasattr(self,'start_time'):
-                        print 'event', iEv
+                        self.logger.info( 'event {iEv}'.format(iEv=iEv))
                         self.start_time = timeit.default_timer()
                         self.start_time_event = iEv
                     else:
-                        print 'event %d (%.1f ev/s)' % (iEv, (iEv-self.start_time_event)/float(timeit.default_timer() - self.start_time))
-
-                self.process( iEv )
-                if iEv<self.nPrint:
-                    print self.event
-
-        except UserWarning:
-            print 'Stopped loop following a UserWarning exception'
-
-        info = self.logger.info
+                        self.logger.warning( 'event %d (%.1f ev/s)' % (iEv, (iEv-self.start_time_event)/float(timeit.default_timer() - self.start_time)) )
+                try:
+                    self.process( iEv )
+                    self.nEvProcessed += 1
+                    if iEv<self.nPrint:
+                        self.logger.info(self.event.__str__())
+                    if self.stopFlag and self.stopFlag.value:
+                        print 'stopping gracefully at event %d' % (iEv)
+                        break
+                except UserStop as err:
+                    print 'Stopped loop following a UserStop exception:'
+                    print err
+                    break
+        else:
+            # events backend does not support indexing, e.g. LCIO
+            iEv = 0
+            for ii, event in enumerate(self.events):
+                if ii < firstEvent:
+                    continue
+                iEv += 1
+                if iEv%100 == 0:
+                    if not hasattr(self,'start_time'):
+                        self.logger.warning( 'event {iEv}'.format(iEv=iEv))
+                        self.start_time = timeit.default_timer()
+                        self.start_time_event = iEv
+                    else:
+                        self.logger.info( 'event %d (%.1f ev/s)' % (iEv, (iEv-self.start_time_event)/float(timeit.default_timer() - self.start_time)) )
+                try:
+                    self.event = Event(iEv, event, self.setup)
+                    self.iEvent = iEv
+                    self._run_analyzers_on_event()
+                    self.nEvProcessed += 1
+                    if iEv<self.nPrint:
+                        self.logger.info(self.event.__str__())
+                    if self.stopFlag and self.stopFlag.value:
+                        print 'stopping gracefully at event %d' % (iEv)
+                        break
+                except UserStop as err:
+                    print 'Stopped loop following a UserStop exception:'
+                    print err
+                    break            
+            
         warning = self.logger.warning
-        warning('number of events processed: {nEv}'.format(nEv=iEv+1))
         warning('')
-        info( self.cfg_comp )
-        info('')        
+        warning( self.cfg_comp )
+        warning('')        
         for analyzer in self.analyzers:
             analyzer.endLoop(self.setup)
         if self.timeReport:
@@ -213,20 +286,36 @@ class Looper(object):
             warning("%9s   %9s    %9s   %9s   %s" % ("---------","--------","---------", "---------", "-------------"))
             warning("%9d   %9d   %10.2f  %10.2f %5.1f%%   %s" % ( passev, allev, 1000*totPerProcEv, 1000*totPerAllEv, 100.0, "TOTAL"))
             warning("")
-        if hasattr(self.events, 'endLoop'): self.events.endLoop()
-        if hasattr(self.config,"preprocessor") and self.config.preprocessor is not None:
-              if hasattr(self.config.preprocessor,"endLoop"):
-                  self.config.preprocessor.endLoop(self.cfg_comp)
+        logfile = open('/'.join([self.name,'log.txt']),'a')
+        logfile.write('number of events processed: {nEv}\n'.format(
+            nEv=self.nEvProcessed)
+        )
+        logfile.close()
 
     def process(self, iEv ):
         """Run event processing for all analyzers in the sequence.
 
-        This function is called by self.loop,
-        but can also be called directly from
-        the python interpreter, to jump to a given event.
+        This function can be called directly from
+        the python interpreter, to jump to a given event and process it.
         """
-        self.event = Event(iEv, self.events[iEv], self.setup)
+        if not hasattr(self.events, '__getitem__'):
+            msg = '''
+Your events backend, of type 
+{evclass}
+does not support indexing. 
+Therefore, you cannot directly access a given event using Loop.process.
+However, you may still iterate on your events using Loop.loop, 
+possibly skipping a number of events at the beginning.
+'''.format(evclass=self.events.__class__)
+            raise TypeError(msg)
+        self.event = Event(iEv, self.events[iEv], self.setup)            
         self.iEvent = iEv
+        return self._run_analyzers_on_event()
+
+    def _run_analyzers_on_event(self):
+        '''Run all analysers on the current event, self.event. 
+        Returns a tuple (success?, last_analyzer_name).
+        '''
         for i,analyzer in enumerate(self.analyzers):
             if not analyzer.beginLoopCalled:
                 analyzer.beginLoop(self.setup)
@@ -248,8 +337,6 @@ class Looper(object):
                     self.timeReport[i]['time'] += timeit.default_timer() - start
             if ret == False:
                 return (False, analyzer.name)
-        if iEv<self.nPrint:
-            self.logger.info( self.event.__str__() )
         return (True, analyzer.name)
 
     def write(self):
