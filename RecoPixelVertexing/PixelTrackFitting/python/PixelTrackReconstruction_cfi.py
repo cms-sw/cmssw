@@ -1,23 +1,12 @@
 import FWCore.ParameterSet.Config as cms
 
-from RecoPixelVertexing.PixelTrackFitting.PixelFitterByHelixProjections_cfi import *
 from RecoTracker.TkTrackingRegions.GlobalTrackingRegionFromBeamSpot_cfi import *
 from RecoPixelVertexing.PixelTriplets.PixelTripletHLTGenerator_cfi import *
-
+from RecoPixelVertexing.PixelTrackFitting.pixelTrackCleanerBySharedHits_cfi import *
 
 PixelTrackReconstructionBlock = cms.PSet (
-    FitterPSet = cms.PSet(
-        PixelFitterByHelixProjections
-    ),
-    useFilterWithES = cms.bool(False),
-    FilterPSet = cms.PSet(
-        nSigmaInvPtTolerance = cms.double(0.0),
-        nSigmaTipMaxTolerance = cms.double(0.0),
-        ComponentName = cms.string('PixelTrackFilterByKinematics'),
-        chi2 = cms.double(1000.0),
-        ptMin = cms.double(0.1),
-        tipMax = cms.double(1.0)
-    ),
+    Fitter = cms.InputTag("pixelFitterByHelixProjections"),
+    Filter = cms.InputTag("pixelTrackFilterByKinematics"),
     RegionFactoryPSet = cms.PSet(
         RegionPsetFomBeamSpotBlock,
         ComponentName = cms.string('GlobalRegionProducerFromBeamSpot')
@@ -29,10 +18,7 @@ PixelTrackReconstructionBlock = cms.PSet (
             PixelTripletHLTGeneratorWithFilter
         )
     ),
-    CleanerPSet = cms.PSet(
-        ComponentName = cms.string('PixelTrackCleanerBySharedHits'),
-        useQuadrupletAlgo = cms.bool(False),
-    )
+    Cleaner = cms.string("pixelTrackCleanerBySharedHits")
 )
 
 _OrderedHitsFactoryPSet_LowPU_Phase1PU70 = dict(
@@ -49,10 +35,6 @@ trackingPhase1PU70.toModify(PixelTrackReconstructionBlock,
         mergeTriplets = cms.bool(True),
         ttrhBuilderLabel = cms.string('PixelTTRHBuilderWithoutAngle')
     ),
-    FilterPSet = dict(
-        chi2 = 50.0,
-        tipMax = 0.05
-    ),
     RegionFactoryPSet = dict(RegionPSet = dict(originRadius =  0.02)),
     OrderedHitsFactoryPSet = _OrderedHitsFactoryPSet_LowPU_Phase1PU70,
 )
@@ -63,10 +45,6 @@ trackingPhase2PU140.toModify(PixelTrackReconstructionBlock,
         addRemainingTriplets = cms.bool(False),
         mergeTriplets = cms.bool(True),
         ttrhBuilderLabel = cms.string('PixelTTRHBuilderWithoutAngle')
-    ),
-    FilterPSet = dict(
-        chi2 = 50.0,
-        tipMax = 0.05
     ),
     RegionFactoryPSet = dict(RegionPSet = dict(originRadius =  0.02)),
     OrderedHitsFactoryPSet = dict(
