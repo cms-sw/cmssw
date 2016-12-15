@@ -53,9 +53,8 @@ public:
   
   
 private:
-  virtual void beginRun(edm::Run const& run, const edm::EventSetup&) ;
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob() ;
+  virtual void beginRun(edm::Run const& run, const edm::EventSetup&) override;
+  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
 
   std::string theNavigationSchoolName;
   const TrackerTopology *tTopo;
@@ -276,8 +275,6 @@ void NavigationSchoolAnalyzer::beginRun(edm::Run const & run, const edm::EventSe
   edm::LogInfo("NavigationSchoolAnalyzer")<<"NavigationSchool display of: " <<theNavigationSchoolName<<"\n";
   print (std::cout,nav.product());
 }
-
-void NavigationSchoolAnalyzer::endJob() {}
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(NavigationSchoolAnalyzer);
