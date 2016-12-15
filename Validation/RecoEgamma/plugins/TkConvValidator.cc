@@ -792,7 +792,7 @@ void  TkConvValidator::bookHistograms( DQMStore::IBooker & iBooker, edm::Run con
 
 }
 
-void  TkConvValidator::endRun (edm::Run& r, edm::EventSetup const & theEventSetup) {
+void  TkConvValidator::endRun (edm::Run const& r, edm::EventSetup const & theEventSetup) {
 
   delete thePhotonMCTruthFinder_;
 
