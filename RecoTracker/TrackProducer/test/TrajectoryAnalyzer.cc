@@ -50,9 +50,7 @@ class TrajectoryAnalyzer : public edm::EDAnalyzer {
 
 
    private:
-      virtual void beginRun(edm::Run const& run, const edm::EventSetup&) override;
       virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-      virtual void endJob() override;
 
       // ----------member data ---------------------------
   edm::ParameterSet param_;
@@ -120,16 +118,6 @@ TrajectoryAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 }
 
 
-// ------------ method called once each job just before starting event loop  ------------
-void 
-TrajectoryAnalyzer::beginRun(edm::Run const& run, const edm::EventSetup&)
-{
-}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void 
-TrajectoryAnalyzer::endJob() {
-}
 
 //define this as a plug-in
 
