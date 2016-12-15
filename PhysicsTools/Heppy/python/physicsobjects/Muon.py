@@ -46,6 +46,10 @@ class Muon( Lepton ):
                 if not self.looseId(): return False
                 goodGlb = self.physObj.isGlobalMuon() and self.physObj.globalTrack().normalizedChi2() < 3 and self.physObj.combinedQuality().chi2LocalPosition < 12 and self.physObj.combinedQuality().trkKink < 20;
                 return self.physObj.innerTrack().validFraction() > 0.8 and self.physObj.segmentCompatibility() >= (0.303 if goodGlb else 0.451)
+            if name == "POG_ID_Medium_ICHEP2016":
+                goodGlb = self.physObj.isGlobalMuon() and self.physObj.globalTrack().normalizedChi2() < 3 and self.physObj.combinedQuality().chi2LocalPosition < 12 and self.physObj.combinedQuality().trkKink < 20
+                goodMed = self.physObj.innerTrack().validFraction() > 0.49 and self.physObj.segmentCompatibility() >= (0.303 if goodGlb else 0.451)
+                return goodMed
             if name == "POG_Global_OR_TMArbitrated":
                 return self.physObj.isGlobalMuon() or (self.physObj.isTrackerMuon() and self.physObj.numberOfMatchedStations() > 0)
         elif name.startswith("HZZ_"):

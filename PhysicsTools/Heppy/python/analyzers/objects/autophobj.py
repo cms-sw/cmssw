@@ -52,6 +52,7 @@ leptonType = NTupleObjectType("lepton", baseObjectTypes = [ particleType ], vari
     NTupleVariable("eleCutIdCSA14_25ns_v1",     lambda x : (1*x.electronID("POG_Cuts_ID_CSA14_25ns_v1_Veto") + 1*x.electronID("POG_Cuts_ID_CSA14_25ns_v1_Loose") + 1*x.electronID("POG_Cuts_ID_CSA14_25ns_v1_Medium") + 1*x.electronID("POG_Cuts_ID_CSA14_25ns_v1_Tight")) if abs(x.pdgId()) == 11 else -1, int, help="Electron cut-based id (POG CSA14_25ns_v1): 0=none, 1=veto, 2=loose, 3=medium, 4=tight"),
     NTupleVariable("eleCutIdCSA14_50ns_v1",     lambda x : (1*x.electronID("POG_Cuts_ID_CSA14_50ns_v1_Veto") + 1*x.electronID("POG_Cuts_ID_CSA14_50ns_v1_Loose") + 1*x.electronID("POG_Cuts_ID_CSA14_50ns_v1_Medium") + 1*x.electronID("POG_Cuts_ID_CSA14_50ns_v1_Tight")) if abs(x.pdgId()) == 11 else -1, int, help="Electron cut-based id (POG CSA14_50ns_v1): 0=none, 1=veto, 2=loose, 3=medium, 4=tight"),
     NTupleVariable("eleCutIdSpring15_25ns_v1",     lambda x : (1*x.electronID("cutBasedElectronID-Spring15-25ns-V1-standalone-veto") + 1*x.electronID("cutBasedElectronID-Spring15-25ns-V1-standalone-loose") + 1*x.electronID("cutBasedElectronID-Spring15-25ns-V1-standalone-medium") + 1*x.electronID("cutBasedElectronID-Spring15-25ns-V1-standalone-tight")) if abs(x.pdgId()) == 11 and x.isElectronIDAvailable("cutBasedElectronID-Spring15-25ns-V1-standalone-veto") else -1, int, help="Electron cut-based id (POG Spring15_25ns_v1): 0=none, 1=veto, 2=loose, 3=medium, 4=tight"),
+    NTupleVariable("mediumIdPOG_ICHEP2016", lambda x : x.muonID("POG_ID_Medium_ICHEP2016") if abs(x.pdgId()) == 13 else 1, int, help="Recommanded POG medium  muon ID for ICHEP 2016"),
     # Impact parameter
     NTupleVariable("dxy",   lambda x : x.dxy(), help="d_{xy} with respect to PV, in cm (with sign)"),
     NTupleVariable("dz",    lambda x : x.dz() , help="d_{z} with respect to PV, in cm (with sign)"),
@@ -250,10 +251,23 @@ genParticleWithMotherId = NTupleObjectType("genParticleWithMotherId", baseObject
     NTupleVariable("grandmotherId", lambda x : x.mother(0).mother(0).pdgId() if x.mother(0) and x.mother(0).mother(0) else 0, int, help="pdgId of the grandmother of the particle")
 ])
 genParticleWithAncestryType = NTupleObjectType("genParticleWithAncestry", baseObjectTypes = [ genParticleType ], mcOnly=True, variables = [
-    NTupleVariable("motherId", lambda x : x.motherId, int, help="pdgId of the mother of the particle"),
-    NTupleVariable("grandmotherId", lambda x : x.grandmotherId, int, help="pdgId of the grandmother of the particle"),
+    NTupleVariable("motherId", lambda x : x.motherId if hasattr(x, "motherId") else 0, int, help="pdgId of the mother of the particle"),
+    NTupleVariable("grandmotherId", lambda x : x.grandmotherId if hasattr(x, "grandmotherId") else 0, int, help="pdgId of the grandmother of the particle"),
     NTupleVariable("sourceId", lambda x : x.sourceId, int, help="origin of the particle (heaviest ancestor): 6=t, 25=h, 23/24=W/Z"),
 ])
 genParticleWithLinksType = NTupleObjectType("genParticleWithLinks", baseObjectTypes = [ genParticleWithAncestryType ], mcOnly=True, variables = [
     NTupleVariable("motherIndex", lambda x : x.motherIndex, int, help="index of the mother in the generatorSummary")
+])
+
+##------------------------------------------  
+## l1 Candidate  from /DataFormats/L1Trigger/interface/L1Candidate.h
+##------------------------------------------  
+
+l1CandidateType = NTupleObjectType("fourVector", variables = [
+    NTupleVariable("pt",    lambda x : x.hwPt()),
+    NTupleVariable("eta",   lambda x : x.hwEta()),
+    NTupleVariable("phi",   lambda x : x.hwPhi()),
+    NTupleVariable("qual",  lambda x : x.hwQual()),
+    NTupleVariable("iso",   lambda x : x.hwIso()),
+    #               ^^^^------- Note: p4 normally is not saved unless 'saveTLorentzVectors' is enabled in the tree producer
 ])

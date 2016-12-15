@@ -3,7 +3,10 @@ import os, types
 from math import *
 from PhysicsTools.HeppyCore.utils.deltar import *
 
+
+
 class JetReCalibrator:
+
     def __init__(self,globalTag,jetFlavour,doResidualJECs,jecPath,upToLevel=3,
                  calculateSeparateCorrections=False,
                  calculateType1METCorrection=False,
@@ -34,13 +37,15 @@ class JetReCalibrator:
         self.L2JetPar  = ROOT.JetCorrectorParameters("%s/%s_L2Relative_%s.txt" % (path,globalTag,jetFlavour),"");
         self.L3JetPar  = ROOT.JetCorrectorParameters("%s/%s_L3Absolute_%s.txt" % (path,globalTag,jetFlavour),"");
         self.vPar = ROOT.vector(ROOT.JetCorrectorParameters)()
-        self.vPar.push_back(self.L1JetPar);
+ 
+        if not skipLevel1: self.vPar.push_back(self.L1JetPar);
         if upToLevel >= 2: self.vPar.push_back(self.L2JetPar);
         if upToLevel >= 3: self.vPar.push_back(self.L3JetPar);
         # Add residuals if needed
         if doResidualJECs : 
             self.ResJetPar = ROOT.JetCorrectorParameters("%s/%s_L2L3Residual_%s.txt" % (path,globalTag,jetFlavour))
             self.vPar.push_back(self.ResJetPar);
+                    
         #Step3 (Construct a FactorizedJetCorrector object) 
         self.JetCorrector = ROOT.FactorizedJetCorrector(self.vPar)
         if os.path.exists("%s/%s_Uncertainty_%s.txt" % (path,globalTag,jetFlavour)):
@@ -102,10 +107,17 @@ class JetReCalibrator:
         @returns: a float with the correction value, 
         """
 
+
         if not corrector: corrector = self.JetCorrector
         if corrector != self.JetCorrector and delta!=0: raise RuntimeError('Configuration not supported')
         corrector.setJetEta(jet.eta())
-        corrector.setJetPt(jet.pt()*jet.rawFactor())
+
+        # HTT Subjets are uncalibrated and have no rawFactor attacted
+        if isHttSubjet:
+            corrector.setJetPt(jet.pt())
+        else:
+            corrector.setJetPt(jet.pt() * jet.rawFactor())
+
         corrector.setJetA(jet.jetArea())
         corrector.setRho(rho)
         corr = corrector.getCorrection()
@@ -121,6 +133,14 @@ class JetReCalibrator:
             except RuntimeError as r:
                 print "Caught %s when getting uncertainty for jet of pt %.1f, eta %.2f\n" % (r,corr * jet.pt() * jet.rawFactor(),jet.eta())
                 jet.jetEnergyCorrUncertainty = 0.5
+
+        # Do not calculate metShift for HTT subjets
+        if not isHttSubjet:
+            if jet.photonEnergyFraction() < 0.9 and jet.pt()*corr*jet.rawFactor() > 10:
+                metShift[0] -= jet.px()*(corr*jet.rawFactor() - 1)*(1-jet.muonEnergyFraction())
+                metShift[1] -= jet.py()*(corr*jet.rawFactor() - 1)*(1-jet.muonEnergyFraction()) 
+        if delta != 0:
+
             #print "   jet with corr pt %6.2f has an uncertainty %.2f " % (jet.pt()*jet.rawFactor()*corr, jet.jetEnergyCorrUncertainty)
             corr *= max(0, 1+delta*jet.jetEnergyCorrUncertainty)
         return corr

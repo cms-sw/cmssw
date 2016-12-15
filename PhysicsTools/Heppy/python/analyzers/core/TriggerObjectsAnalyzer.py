@@ -64,8 +64,18 @@ class TriggerObjectsAnalyzer( Analyzer ):
         
     def declareHandles(self):
         super(TriggerObjectsAnalyzer, self).declareHandles()
-        self.handles['TriggerBits']     = AutoHandle( self.triggerBitsInputTag, 'edm::TriggerResults' )
-        self.handles['TriggerObjects']  = AutoHandle( self.triggerObjectInputTag, 'std::vector<pat::TriggerObjectStandAlone>' )
+
+        triggerBitsTagFallback = (self.triggerBitsInputTag[0],
+                                  self.triggerBitsInputTag[1],
+                                  "HLT2")
+
+        self.handles['TriggerBits'] = AutoHandle( self.triggerBitsInputTag, 
+                                                  'edm::TriggerResults', 
+                                                  fallbackLabel = triggerBitsTagFallback )
+        
+        self.handles['TriggerObjects']  = AutoHandle( self.triggerObjectInputTag, 
+                                                      'std::vector<pat::TriggerObjectStandAlone>',
+                                                      fallbackLabel = 'HLT2')
 
     def beginLoop(self, setup):
         super(TriggerObjectsAnalyzer,self).beginLoop(setup)
