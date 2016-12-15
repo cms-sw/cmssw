@@ -85,17 +85,17 @@ void DDDTotemRPContruction::buildDetGeomDesc(DDFilteredView *fv, DetGeomDesc *gd
       newGD->setGeographicalID(TotemRPDetId(armIdx, stIdx, rpIdx));
     }
 
-    if (fv->logicalPart().name().name().compare(DDD_CTPPS_DIAMONDS_DETECTOR_NAME)==0)
+    if (fv->logicalPart().name().name().compare(DDD_CTPPS_DIAMONDS_DETECTOR_NAME) == 0)
     {
       const vector<int>& copy_num = fv->copyNumbers();
+      const unsigned int id = copy_num[copy_num.size()-1] - 1, // indexing starts at 0
+                         arm = copy_num[1]-1,
+                         station = 0,
+                         rp = 0,
+                         plane = ( id / 12 ),
+                         channel = id % 12;
       //uint32_t Arm, uint32_t Station, uint32_t RomanPot=0, uint32_t Plane=0, uint32_t Channel=0
-      const unsigned int id = copy_num[copy_num.size()-3],
-                         arm = id / 100,
-                         station = ( id%100 ) / 10,
-                         rp = ( id%10 ),
-                         plane = 0, //FIXME
-                         detector = copy_num[copy_num.size()-1];
-      newGD->setGeographicalID( CTPPSDiamondDetId( arm, station, rp, plane, detector ) );
+      newGD->setGeographicalID( CTPPSDiamondDetId( arm, station, rp, plane, channel ) );
     }
 
     gd->addComponent(newGD);
