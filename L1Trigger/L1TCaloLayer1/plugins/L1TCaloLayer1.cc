@@ -46,7 +46,6 @@
 #include "DataFormats/L1CaloTrigger/interface/L1CaloRegion.h"
 
 #include "L1Trigger/L1TCalorimeter/interface/CaloTools.h"
-#include "Geometry/HcalTowerAlgo/interface/HcalTrigTowerGeometry.h"
 
 #include "L1Trigger/L1TCaloLayer1/src/L1TCaloLayer1FetchLUTs.hh"
 
