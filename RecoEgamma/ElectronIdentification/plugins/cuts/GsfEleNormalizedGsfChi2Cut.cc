@@ -5,9 +5,9 @@ class GsfEleNormalizedGsfChi2Cut : public CutApplicatorBase {
 public:
   GsfEleNormalizedGsfChi2Cut(const edm::ParameterSet& c) :
     CutApplicatorBase(c),
-    _normalizedGsfChi2CutValueEB(c.getParameter<double>("normalizedGsfChi2CutValueEB")),
-    _normalizedGsfChi2CutValueEE(c.getParameter<double>("normalizedGsfChi2CutValueEE")),
-    _barrelCutOff(c.getParameter<double>("barrelCutOff")){    
+    normalizedGsfChi2CutValueEB_(c.getParameter<double>("normalizedGsfChi2CutValueEB")),
+    normalizedGsfChi2CutValueEE_(c.getParameter<double>("normalizedGsfChi2CutValueEE")),
+    barrelCutOff_(c.getParameter<double>("barrelCutOff")){    
   }
   
   result_type operator()(const reco::GsfElectronPtr&) const override final;
@@ -19,7 +19,7 @@ public:
   }
 
 private:
-  const double _normalizedGsfChi2CutValueEB,_normalizedGsfChi2CutValueEE,_barrelCutOff;
+  const double normalizedGsfChi2CutValueEB_,normalizedGsfChi2CutValueEE_,barrelCutOff_;
 };
 
 DEFINE_EDM_PLUGIN(CutApplicatorFactory,
@@ -34,8 +34,8 @@ CutApplicatorBase::result_type
 GsfEleNormalizedGsfChi2Cut::
 operator()(const reco::GsfElectronPtr& cand) const{  
   const float normalizedGsfChi2CutValue = 
-    ( std::abs(cand->superCluster()->eta()) < _barrelCutOff ? 
-      _normalizedGsfChi2CutValueEB : _normalizedGsfChi2CutValueEE );
+    ( std::abs(cand->superCluster()->eta()) < barrelCutOff_ ? 
+      normalizedGsfChi2CutValueEB_ : normalizedGsfChi2CutValueEE_ );
 
   return std::abs(normalizedGsfChi2(cand)) < normalizedGsfChi2CutValue;
 }
