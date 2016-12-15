@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../DDLSchema/DDLSchema.xsd">
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
 
-  <ConstantsSection label="CTPPS_Timing_Negative_Station.xml">
+  <ConstantsSection label="CTPPS_Timing_Negative_Station.xml" eval="true">
     <!--Positions calculated from the wall closer to IP point-->
     <Constant name="CTPPS_Timing_Device_CTPPS_Timing_Hole_Diam" value="150*mm"/>
     <Constant name="CTPPS_Timing_Device_Beam_Hole_Diam" value="80*mm"/>
@@ -53,23 +53,23 @@
 
   <PosPartSection label="CTPPS_Timing_Negative_Station.xml">
     <PosPart copyNumber="1">
-      <rParent name="CTPPS_Timing_Negative_Station_Vacuum_4"/>
+      <rParent name="CTPPS_Timing_Negative_Station:CTPPS_Timing_Negative_Station_Vacuum_4"/>
       <rChild name="CTPPS_Timing_Horizontal_Pot:CTPPS_Timing_Cylinder_Primary_Vacuum"/>
       <rRotation name="CTPPS_Diamond_Transformations:CTPPS_Diamond_90_x_90_y_rot"/>
       <Translation x="[CTPPS_Timing_Horizontal_Pot:height]/2+[CTPPS_Timing_Horizontal_Pot:Cylinder_beam_distance]" y="0*m " z="0*m " />
     </PosPart>
-    <PosPart>
-      <rParent name="CTPPS_Timing_Negative_Station"/>
+    <PosPart copyNumber="1">
+      <rParent name="CTPPS_Timing_Negative_Station:CTPPS_Timing_Negative_Station"/>
       <rChild name="CTPPS_Timing_Negative_Station_Tube_1"/>
       <Translation x="0*mm" y="0*mm" z="-[CTPPS_Timing_Station_Length]/2+[CTPPS_Timing_Station_Pipe_Length]/2"/>
     </PosPart>
-    <PosPart>
-      <rParent name="CTPPS_Timing_Negative_Station"/>
+    <PosPart copyNumber="1">
+      <rParent name="CTPPS_Timing_Negative_Station:CTPPS_Timing_Negative_Station"/>
       <rChild name="CTPPS_Timing_Negative_Station_Tube_2"/>
       <Translation x="0*mm" y="0*mm" z="[CTPPS_Timing_Station_Length]/2-[CTPPS_Timing_Station_Pipe_Length]/2"/>
     </PosPart>
-    <PosPart>
-      <rParent name="CTPPS_Timing_Negative_Station"/>
+    <PosPart copyNumber="1">
+      <rParent name="CTPPS_Timing_Negative_Station:CTPPS_Timing_Negative_Station"/>
       <rChild name="CTPPS_Timing_Negative_Station_Vacuum_4"/>
     </PosPart>
   </PosPartSection>

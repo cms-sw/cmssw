@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?> 
 <DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
 
   <SolidSection label="CTPPS_Diamond_Plane4.xml">
@@ -5,7 +6,7 @@
   </SolidSection>
 
   <LogicalPartSection label="CTPPS_Diamond_Plane4.xml">
-    <LogicalPart name="Plane" category="unspecified">
+    <LogicalPart name="CTPPS_Diamond_Plane" category="unspecified">
       <rSolid name="Plane"/>
       <rMaterial name="CTPPS_Diamond_Materials:Air"/>
     </LogicalPart>
@@ -14,160 +15,160 @@
   <PosPartSection label="CTPPS_Diamond_Plane4.xml">
     <!-- ******** Pattern 1 ********* -->
     <PosPart copyNumber="37">
-      <rParent name="Plane"/>
-      <rChild name="Pat1_Str1:Diamond"/>
+      <rParent name="CTPPS_Diamond_Plane"/>
+      <rChild name="CTPPS_Diamond_Pattern1_Segment1:CTPPS_Diamond_Segment"/>
       <Translation x="[CTPPS_Diamond_Parameters:Diamond_dx]" y="0*mm" z="0*mm"/>
       <rRotation name="rotations:000D"/>
     </PosPart>
     <PosPart copyNumber="37">
-      <rParent name="Plane"/>
-      <rChild name="Pat1_Str1:Metalized_Layer"/>
+      <rParent name="CTPPS_Diamond_Plane"/>
+      <rChild name="CTPPS_Diamond_Pattern1_Segment1:Metalized_Layer"/>
       <Translation x="[CTPPS_Diamond_Parameters:Diamond_dx]" y="0*mm" z="-[CTPPS_Diamond_Parameters:Diamond_dz]-[CTPPS_Diamond_Parameters:Metalized_thick]"/>
       <rRotation name="rotations:000D"/>
     </PosPart>
 
     <!-- ******** Pattern 2R ********* -->
     <PosPart copyNumber="38">
-      <rParent name="Plane"/>
-      <rChild name="Pat2_Str2:Diamond"/>
+      <rParent name="CTPPS_Diamond_Plane"/>
+      <rChild name="CTPPS_Diamond_Pattern2_Segment2:CTPPS_Diamond_Segment"/>
       <Translation x="[CTPPS_Diamond_Parameters:Diamond_dx]*2+[CTPPS_Diamond_Parameters:Pat2_Str2]+[CTPPS_Diamond_Parameters:Pat2_Str1]*2" y="0*mm" z="0*mm"/>
       <rRotation name="rotations:000D"/>
     </PosPart>
     <PosPart copyNumber="38">
-      <rParent name="Plane"/>
-      <rChild name="Pat2_Str2:Metalized_Layer"/>
+      <rParent name="CTPPS_Diamond_Plane"/>
+      <rChild name="CTPPS_Diamond_Pattern2_Segment2:Metalized_Layer"/>
       <Translation x="[CTPPS_Diamond_Parameters:Diamond_dx]*2+[CTPPS_Diamond_Parameters:Pat2_Str2]+[CTPPS_Diamond_Parameters:Pat2_Str1]*2-[CTPPS_Diamond_Parameters:UnMet_Edge]+[CTPPS_Diamond_Parameters:UnMet_gap]" y="0*mm" z="-[CTPPS_Diamond_Parameters:Diamond_dz]-[CTPPS_Diamond_Parameters:Metalized_thick]"/>
       <rRotation name="rotations:000D"/>
     </PosPart>
 
     <PosPart copyNumber="39">
-      <rParent name="Plane"/>
-      <rChild name="Pat2_Str1:Diamond"/>
+      <rParent name="CTPPS_Diamond_Plane"/>
+      <rChild name="CTPPS_Diamond_Pattern2_Segment1:CTPPS_Diamond_Segment"/>
       <Translation x="[CTPPS_Diamond_Parameters:Diamond_dx]*2+[CTPPS_Diamond_Parameters:Pat2_Str1]" y="0*mm" z="0*mm"/>
       <rRotation name="rotations:000D"/>
     </PosPart>
     <PosPart copyNumber="39">
-      <rParent name="Plane"/>
-      <rChild name="Pat2_Str1:Metalized_Layer"/>
+      <rParent name="CTPPS_Diamond_Plane"/>
+      <rChild name="CTPPS_Diamond_Pattern2_Segment1:Metalized_Layer"/>
       <Translation x="[CTPPS_Diamond_Parameters:Diamond_dx]*2+[CTPPS_Diamond_Parameters:Pat2_Str1]+[CTPPS_Diamond_Parameters:UnMet_Edge]-[CTPPS_Diamond_Parameters:UnMet_gap]" y="0*mm" z="-[CTPPS_Diamond_Parameters:Diamond_dz]-[CTPPS_Diamond_Parameters:Metalized_thick]"/>
       <rRotation name="rotations:000D"/>
     </PosPart>
 
     <!-- ******** Pattern 3R ********* -->
     <PosPart copyNumber="40">
-      <rParent name="Plane"/>
-      <rChild name="Pat3_Str4:Diamond"/>
+      <rParent name="CTPPS_Diamond_Plane"/>
+      <rChild name="CTPPS_Diamond_Pattern3_Segment4:CTPPS_Diamond_Segment"/>
       <Translation x="-[CTPPS_Diamond_Parameters:Diamond_dx]*2-[CTPPS_Diamond_Parameters:Pat3_Str4]" y="0*mm" z="0*mm"/>
       <rRotation name="rotations:000D"/>
     </PosPart>
     <PosPart copyNumber="40">
-      <rParent name="Plane"/>
-      <rChild name="Pat3_Str4:Metalized_Layer"/>
+      <rParent name="CTPPS_Diamond_Plane"/>
+      <rChild name="CTPPS_Diamond_Pattern3_Segment4:Metalized_Layer"/>
       <Translation x="-[CTPPS_Diamond_Parameters:Diamond_dx]*2-[CTPPS_Diamond_Parameters:Pat3_Str4]-[CTPPS_Diamond_Parameters:UnMet_Edge]+[CTPPS_Diamond_Parameters:UnMet_gap]" y="0*mm" z="-[CTPPS_Diamond_Parameters:Diamond_dz]-[CTPPS_Diamond_Parameters:Metalized_thick]"/>
       <rRotation name="rotations:000D"/>
     </PosPart>
 
     <PosPart copyNumber="41">
-      <rParent name="Plane"/>
-      <rChild name="Pat3_Str3:Diamond"/>
+      <rParent name="CTPPS_Diamond_Plane"/>
+      <rChild name="CTPPS_Diamond_Pattern3_Segment3:CTPPS_Diamond_Segment"/>
       <Translation x="-[CTPPS_Diamond_Parameters:Diamond_dx]*2-[CTPPS_Diamond_Parameters:Pat3_Str4]*2-[CTPPS_Diamond_Parameters:Pat3_Str3]" y="0*mm" z="0*mm"/>
       <rRotation name="rotations:000D"/>
     </PosPart>
     <PosPart copyNumber="41">
-      <rParent name="Plane"/>
-      <rChild name="Pat3_Str3:Metalized_Layer"/>
+      <rParent name="CTPPS_Diamond_Plane"/>
+      <rChild name="CTPPS_Diamond_Pattern3_Segment3:Metalized_Layer"/>
       <Translation x="-[CTPPS_Diamond_Parameters:Diamond_dx]*2-[CTPPS_Diamond_Parameters:Pat3_Str4]*2-[CTPPS_Diamond_Parameters:Pat3_Str3]" y="0*mm" z="-[CTPPS_Diamond_Parameters:Diamond_dz]-[CTPPS_Diamond_Parameters:Metalized_thick]"/>
       <rRotation name="rotations:000D"/>
     </PosPart>
 
     <PosPart copyNumber="42">
-      <rParent name="Plane"/>
-      <rChild name="Pat3_Str2:Diamond"/>
+      <rParent name="CTPPS_Diamond_Plane"/>
+      <rChild name="CTPPS_Diamond_Pattern3_Segment2:CTPPS_Diamond_Segment"/>
       <Translation x="-[CTPPS_Diamond_Parameters:Diamond_dx]*2-[CTPPS_Diamond_Parameters:Pat3_Str4]*2-[CTPPS_Diamond_Parameters:Pat3_Str3]*2-[CTPPS_Diamond_Parameters:Pat3_Str2]" y="0*mm" z="0*mm"/>
       <rRotation name="rotations:000D"/>
     </PosPart>
     <PosPart copyNumber="42">
-      <rParent name="Plane"/>
-      <rChild name="Pat3_Str2:Metalized_Layer"/>
+      <rParent name="CTPPS_Diamond_Plane"/>
+      <rChild name="CTPPS_Diamond_Pattern3_Segment2:Metalized_Layer"/>
       <Translation x="-[CTPPS_Diamond_Parameters:Diamond_dx]*2-[CTPPS_Diamond_Parameters:Pat3_Str4]*2-[CTPPS_Diamond_Parameters:Pat3_Str3]*2-[CTPPS_Diamond_Parameters:Pat3_Str2]" y="0*mm" z="-[CTPPS_Diamond_Parameters:Diamond_dz]-[CTPPS_Diamond_Parameters:Metalized_thick]"/>
       <rRotation name="rotations:000D"/>
     </PosPart>
 
     <PosPart copyNumber="43">
-      <rParent name="Plane"/>
-      <rChild name="Pat3_Str1:Diamond"/>
+      <rParent name="CTPPS_Diamond_Plane"/>
+      <rChild name="CTPPS_Diamond_Pattern3_Segment1:CTPPS_Diamond_Segment"/>
       <Translation x="-[CTPPS_Diamond_Parameters:Diamond_dx]*2-[CTPPS_Diamond_Parameters:Pat3_Str4]*2-[CTPPS_Diamond_Parameters:Pat3_Str3]*2-[CTPPS_Diamond_Parameters:Pat3_Str2]*2-[CTPPS_Diamond_Parameters:Pat3_Str1]" y="0*mm" z="0*mm"/>
       <rRotation name="rotations:000D"/>
     </PosPart>
     <PosPart copyNumber="43">
-      <rParent name="Plane"/>
-      <rChild name="Pat3_Str1:Metalized_Layer"/>
+      <rParent name="CTPPS_Diamond_Plane"/>
+      <rChild name="CTPPS_Diamond_Pattern3_Segment1:Metalized_Layer"/>
       <Translation x="-[CTPPS_Diamond_Parameters:Diamond_dx]*2-[CTPPS_Diamond_Parameters:Pat3_Str4]*2-[CTPPS_Diamond_Parameters:Pat3_Str3]*2-[CTPPS_Diamond_Parameters:Pat3_Str2]*2-[CTPPS_Diamond_Parameters:Pat3_Str1]+[CTPPS_Diamond_Parameters:UnMet_Edge]-[CTPPS_Diamond_Parameters:UnMet_gap]" y="0*mm" z="-[CTPPS_Diamond_Parameters:Diamond_dz]-[CTPPS_Diamond_Parameters:Metalized_thick]"/>
       <rRotation name="rotations:000D"/>
     </PosPart>
 
     <!-- ******** Pattern 4R ********* -->
     <PosPart copyNumber="44">
-      <rParent name="Plane"/>
-      <rChild name="Pat4_Str5:Diamond"/>
+      <rParent name="CTPPS_Diamond_Plane"/>
+      <rChild name="CTPPS_Diamond_Pattern4_Segment5:CTPPS_Diamond_Segment"/>
       <Translation x="-[CTPPS_Diamond_Parameters:Pat4_Str5]" y="0*mm" z="0*mm"/>
       <rRotation name="rotations:000D"/>
     </PosPart>
     <PosPart copyNumber="44">
-      <rParent name="Plane"/>
-      <rChild name="Pat4_Str5:Metalized_Layer"/>
+      <rParent name="CTPPS_Diamond_Plane"/>
+      <rChild name="CTPPS_Diamond_Pattern4_Segment5:Metalized_Layer"/>
       <Translation x="-[CTPPS_Diamond_Parameters:Pat4_Str5]-[CTPPS_Diamond_Parameters:UnMet_Edge]+[CTPPS_Diamond_Parameters:UnMet_gap]" y="0*mm" z="-[CTPPS_Diamond_Parameters:Diamond_dz]-[CTPPS_Diamond_Parameters:Metalized_thick]"/>
       <rRotation name="rotations:000D"/>
     </PosPart>
 
     <PosPart copyNumber="45">
-      <rParent name="Plane"/>
-      <rChild name="Pat4_Str4:Diamond"/>
+      <rParent name="CTPPS_Diamond_Plane"/>
+      <rChild name="CTPPS_Diamond_Pattern4_Segment4:CTPPS_Diamond_Segment"/>
       <Translation x="-[CTPPS_Diamond_Parameters:Pat4_Str5]*2-[CTPPS_Diamond_Parameters:Pat4_Str4]" y="0*mm" z="0*mm"/>
       <rRotation name="rotations:000D"/>
     </PosPart>
     <PosPart copyNumber="45">
-      <rParent name="Plane"/>
-      <rChild name="Pat4_Str4:Metalized_Layer"/>
+      <rParent name="CTPPS_Diamond_Plane"/>
+      <rChild name="CTPPS_Diamond_Pattern4_Segment4:Metalized_Layer"/>
       <Translation x="-[CTPPS_Diamond_Parameters:Pat4_Str5]*2-[CTPPS_Diamond_Parameters:Pat4_Str4]" y="0*mm" z="-[CTPPS_Diamond_Parameters:Diamond_dz]-[CTPPS_Diamond_Parameters:Metalized_thick]"/>
       <rRotation name="rotations:000D"/>
     </PosPart>
 
     <PosPart copyNumber="46">
-      <rParent name="Plane"/>
-      <rChild name="Pat4_Str3:Diamond"/>
+      <rParent name="CTPPS_Diamond_Plane"/>
+      <rChild name="CTPPS_Diamond_Pattern4_Segment3:CTPPS_Diamond_Segment"/>
       <Translation x="-[CTPPS_Diamond_Parameters:Pat4_Str5]*2-[CTPPS_Diamond_Parameters:Pat4_Str4]*2-[CTPPS_Diamond_Parameters:Pat4_Str3]" y="0*mm" z="0*mm"/>
       <rRotation name="rotations:000D"/>
     </PosPart>
     <PosPart copyNumber="46">
-      <rParent name="Plane"/>
-      <rChild name="Pat4_Str3:Metalized_Layer"/>
+      <rParent name="CTPPS_Diamond_Plane"/>
+      <rChild name="CTPPS_Diamond_Pattern4_Segment3:Metalized_Layer"/>
       <Translation x="-[CTPPS_Diamond_Parameters:Pat4_Str5]*2-[CTPPS_Diamond_Parameters:Pat4_Str4]*2-[CTPPS_Diamond_Parameters:Pat4_Str3]" y="0*mm" z="-[CTPPS_Diamond_Parameters:Diamond_dz]-[CTPPS_Diamond_Parameters:Metalized_thick]"/>
       <rRotation name="rotations:000D"/>
     </PosPart>
 
     <PosPart copyNumber="47">
-      <rParent name="Plane"/>
-      <rChild name="Pat4_Str2:Diamond"/>
+      <rParent name="CTPPS_Diamond_Plane"/>
+      <rChild name="CTPPS_Diamond_Pattern4_Segment2:CTPPS_Diamond_Segment"/>
       <Translation x="-[CTPPS_Diamond_Parameters:Pat4_Str5]*2-[CTPPS_Diamond_Parameters:Pat4_Str4]*2-[CTPPS_Diamond_Parameters:Pat4_Str3]*2-[CTPPS_Diamond_Parameters:Pat4_Str2]" y="0*mm" z="0*mm"/>
       <rRotation name="rotations:000D"/>
     </PosPart>
     <PosPart copyNumber="47">
-      <rParent name="Plane"/>
-      <rChild name="Pat4_Str2:Metalized_Layer"/>
+      <rParent name="CTPPS_Diamond_Plane"/>
+      <rChild name="CTPPS_Diamond_Pattern4_Segment2:Metalized_Layer"/>
       <Translation x="-[CTPPS_Diamond_Parameters:Pat4_Str5]*2-[CTPPS_Diamond_Parameters:Pat4_Str4]*2-[CTPPS_Diamond_Parameters:Pat4_Str3]*2-[CTPPS_Diamond_Parameters:Pat4_Str2]" y="0*mm" z="-[CTPPS_Diamond_Parameters:Diamond_dz]-[CTPPS_Diamond_Parameters:Metalized_thick]"/>
       <rRotation name="rotations:000D"/>
     </PosPart>
 
     <PosPart copyNumber="48">
-      <rParent name="Plane"/>
-      <rChild name="Pat4_Str1:Diamond"/>
+      <rParent name="CTPPS_Diamond_Plane"/>
+      <rChild name="CTPPS_Diamond_Pattern4_Segment1:CTPPS_Diamond_Segment"/>
       <Translation x="-[CTPPS_Diamond_Parameters:Pat4_Str5]*2-[CTPPS_Diamond_Parameters:Pat4_Str4]*2-[CTPPS_Diamond_Parameters:Pat4_Str3]*2-[CTPPS_Diamond_Parameters:Pat4_Str2]*2-[CTPPS_Diamond_Parameters:Pat4_Str1]" y="0*mm" z="0*mm"/>
       <rRotation name="rotations:000D"/>
     </PosPart>
     <PosPart copyNumber="48">
-      <rParent name="Plane"/>
-      <rChild name="Pat4_Str1:Metalized_Layer"/>
+      <rParent name="CTPPS_Diamond_Plane"/>
+      <rChild name="CTPPS_Diamond_Pattern4_Segment1:Metalized_Layer"/>
       <Translation x="-[CTPPS_Diamond_Parameters:Pat4_Str5]*2-[CTPPS_Diamond_Parameters:Pat4_Str4]*2-[CTPPS_Diamond_Parameters:Pat4_Str3]*2-[CTPPS_Diamond_Parameters:Pat4_Str2]*2-[CTPPS_Diamond_Parameters:Pat4_Str1]+[CTPPS_Diamond_Parameters:UnMet_Edge]-[CTPPS_Diamond_Parameters:UnMet_gap]" y="0*mm" z="-[CTPPS_Diamond_Parameters:Diamond_dz]-[CTPPS_Diamond_Parameters:Metalized_thick]"/>
       <rRotation name="rotations:000D"/>
     </PosPart>

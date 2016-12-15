@@ -239,8 +239,7 @@ class MeasuredGeometryProducer
     }
 
   public:
-    MeasuredGeometryProducer(const edm::ESHandle<DDCompactView> &idealCV,
-    const edm::ESHandle<RPAlignmentCorrectionsData> &alignments) :
+    MeasuredGeometryProducer(const edm::ESHandle<DDCompactView> &idealCV, const edm::ESHandle<RPAlignmentCorrectionsData> &alignments) :
       idealCV(*idealCV), alignments(alignments.isValid() ? &(*alignments) : NULL) {
       root = this->idealCV.root();
     }
