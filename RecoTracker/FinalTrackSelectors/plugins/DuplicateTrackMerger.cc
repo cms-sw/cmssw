@@ -19,6 +19,7 @@
 
 #include "DataFormats/TrackCandidate/interface/TrackCandidate.h"
 
+#include "TrackingTools/PatternTools/interface/TSCPBuilderNoMaterial.h"
 #include "TrackMerger.h"
 
 #include <vector>
@@ -59,6 +60,8 @@ namespace {
       /// produce one event
       void produce( edm::Event &, const edm::EventSetup &) override;
       
+      bool checkForSubsequentTracks(const reco::Track *t1, const reco::Track *t2, TSCPBuilderNoMaterial& tscpBuilder) const;
+
     private:
       /// MVA discriminator
       const GBRForest* forest_;
@@ -97,12 +100,15 @@ namespace {
       
       ///Merger
       TrackMerger merger_;
+
+#ifdef EDM_ML_DEBUG
+      bool debug_;
+#endif
     };
   }
     
 #include "FWCore/Framework/interface/Event.h"
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
-#include "TrackingTools/PatternTools/interface/TSCPBuilderNoMaterial.h"
 #include "TrackingTools/PatternTools/interface/TwoTrackMinimumDistance.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
@@ -278,9 +284,9 @@ void DuplicateTrackMerger::produce(edm::Event& iEvent, const edm::EventSetup& iS
       const reco::Track *rt2 = &tracks[j];
 
 #ifdef EDM_ML_DEBUG
-      bool debug = false;
+      debug_ = false;
       if(test(rt1, rt2) || test(rt2, rt1)) {
-        debug = true;
+        debug_ = true;
         LogTrace("DuplicateTrackMerger") << "Track1 " << i << " originalAlgo " << rt1->originalAlgo() << " seed " << rt1->seedRef().key() << " pT " << std::sqrt(rt1->innerMomentum().perp2()) << " charge " << rt1->charge() << " outerPosition2 " << rt1->outerPosition().perp2() << "\n"
                                          << "Track2 " << j << " originalAlgo " << rt2->originalAlgo() << " seed " << rt2->seedRef().key() << " pT " << std::sqrt(rt2->innerMomentum().perp2()) << " charge " << rt2->charge() << " outerPosition2 " << rt2->outerPosition().perp2();
       }
@@ -288,7 +294,7 @@ void DuplicateTrackMerger::produce(edm::Event& iEvent, const edm::EventSetup& iS
 
       if(rt1->charge() != rt2->charge())continue;
       auto cosT = (*rt1).momentum().unit().Dot((*rt2).momentum().unit());
-      IfLogTrace(debug, "DuplicateTrackMerger") << " cosT " << cosT;
+      IfLogTrace(debug_, "DuplicateTrackMerger") << " cosT " << cosT;
       if (cosT<0.) continue;
       if(rt2->innerMomentum().perp2() < minpT2_)continue;
       // if(rt2->innerMomentum().R() < minP_)continue;
@@ -303,86 +309,14 @@ void DuplicateTrackMerger::produce(edm::Event& iEvent, const edm::EventSetup& iS
       auto deltaR3d2 = (t1->outerPosition() - t2->innerPosition()).mag2();
 
       if(t1->outerPosition().perp2() > t2->innerPosition().perp2()) deltaR3d2 *= -1.0;
-      IfLogTrace(debug, "DuplicateTrackMerger") << " deltaR3d2 " << deltaR3d2 << " t1.outerPos2 " << t1->outerPosition().perp2() << " t2.innerPos2 " << t2->innerPosition().perp2();
+      IfLogTrace(debug_, "DuplicateTrackMerger") << " deltaR3d2 " << deltaR3d2 << " t1.outerPos2 " << t1->outerPosition().perp2() << " t2.innerPos2 " << t2->innerPosition().perp2();
 
       if(deltaR3d2 < minDeltaR3d2_)continue;
+      bool compatible = checkForSubsequentTracks(t1, t2, tscpBuilder);
+      if(!compatible) continue;
       
-      FreeTrajectoryState fts1 = trajectoryStateTransform::outerFreeState(*t1, &*magfield_,false);
-      FreeTrajectoryState fts2 = trajectoryStateTransform::innerFreeState(*t2, &*magfield_,false);
-      GlobalPoint avgPoint((t1->outerPosition().x()+t2->innerPosition().x())*0.5,(t1->outerPosition().y()+t2->innerPosition().y())*0.5,(t1->outerPosition().z()+t2->innerPosition().z())*0.5);
-      TrajectoryStateClosestToPoint TSCP1 = tscpBuilder(fts1, avgPoint);
-      TrajectoryStateClosestToPoint TSCP2 = tscpBuilder(fts2, avgPoint);
-      IfLogTrace(debug, "DuplicateTrackMerger") << " TSCP1.isValid " << TSCP1.isValid() << " TSCP2.isValid " << TSCP2.isValid();
-      if(!TSCP1.isValid())continue;
-      if(!TSCP2.isValid())continue;
-
-      const FreeTrajectoryState ftsn1 = TSCP1.theState();
-      const FreeTrajectoryState ftsn2 = TSCP2.theState();
- 
-      IfLogTrace(debug, "DuplicateTrackMerger") << " DCA2 " << (ftsn2.position()-ftsn1.position()).mag2();
-      if ( (ftsn2.position()-ftsn1.position()).mag2() > maxDCA2_ ) continue;
-
-      auto qoverp1 = ftsn1.signedInverseMomentum();
-      auto qoverp2 = ftsn2.signedInverseMomentum();
-      float tmva_dqoverp_ = qoverp1-qoverp2;
-      IfLogTrace(debug, "DuplicateTrackMerger") << " dqoverp " << tmva_dqoverp_;
-      if ( std::abs(tmva_dqoverp_) > maxDQoP_ ) continue;
-
-
-      //auto pp = [&](TrajectoryStateClosestToPoint const & ts) { std::cout << ' ' << ts.perigeeParameters().vector()[0] << '/'  << ts.perigeeError().transverseCurvatureError();};
-      //if(qoverp1*qoverp2 <0) { std::cout << "charge different " << qoverp1 <<',' << qoverp2; pp(TSCP1); pp(TSCP2); std::cout << std::endl;}
       
-      auto lambda1 =  M_PI/2 - ftsn1.momentum().theta();
-      auto lambda2 =  M_PI/2 - ftsn2.momentum().theta();
-      float tmva_dlambda_ = lambda1-lambda2;
-      IfLogTrace(debug, "DuplicateTrackMerger") << " dlambda " << tmva_dlambda_;
-      if ( std::abs(tmva_dlambda_) > maxDLambda_ ) continue;
-
-      auto phi1 = ftsn1.momentum().phi();
-      auto phi2 = ftsn2.momentum().phi();
-      float tmva_dphi_ = phi1-phi2;
-      if(std::abs(tmva_dphi_) > float(M_PI)) tmva_dphi_ = 2.f*float(M_PI) - std::abs(tmva_dphi_);
-      IfLogTrace(debug, "DuplicateTrackMerger") << " dphi " << tmva_dphi_;
-      if (std::abs(tmva_dphi_) > maxDPhi_ ) continue;
-
-      auto dxy1 = (-ftsn1.position().x() * ftsn1.momentum().y() + ftsn1.position().y() * ftsn1.momentum().x())/TSCP1.pt();
-      auto dxy2 = (-ftsn2.position().x() * ftsn2.momentum().y() + ftsn2.position().y() * ftsn2.momentum().x())/TSCP2.pt();
-      float tmva_ddxy_ = dxy1-dxy2;
-      IfLogTrace(debug, "DuplicateTrackMerger") << " ddxy " << tmva_ddxy_;
-      if ( std::abs(tmva_ddxy_) > maxDdxy_ ) continue;
-
-      auto dsz1 = ftsn1.position().z() * TSCP1.pt() / TSCP1.momentum().mag()
-	- (ftsn1.position().x() * ftsn1.momentum().y() + ftsn1.position().y() * ftsn1.momentum().x())/TSCP1.pt() * ftsn1.momentum().z()/ftsn1.momentum().mag();
-      auto dsz2 = ftsn2.position().z() * TSCP2.pt() / TSCP2.momentum().mag()
-	- (ftsn2.position().x() * ftsn2.momentum().y() + ftsn2.position().y() * ftsn2.momentum().x())/TSCP2.pt() * ftsn2.momentum().z()/ftsn2.momentum().mag();
-      float tmva_ddsz_ = dsz1-dsz2;
-      IfLogTrace(debug, "DuplicateTrackMerger") << " ddsz " << tmva_ddsz_;
-      if ( std::abs(tmva_ddsz_) > maxDdsz_ ) continue;
-
-      float tmva_d3dr_ = avgPoint.perp();
-      float tmva_d3dz_ = avgPoint.z();
-      float tmva_outer_nMissingInner_ = t2->hitPattern().numberOfLostHits(reco::HitPattern::MISSING_INNER_HITS);
-      float tmva_inner_nMissingOuter_ = t1->hitPattern().numberOfLostHits(reco::HitPattern::MISSING_OUTER_HITS);
-      
-      float gbrVals_[9];
-      gbrVals_[0] = tmva_ddsz_;
-      gbrVals_[1] = tmva_ddxy_;
-      gbrVals_[2] = tmva_dphi_;
-      gbrVals_[3] = tmva_dlambda_;
-      gbrVals_[4] = tmva_dqoverp_;
-      gbrVals_[5] = tmva_d3dr_;
-      gbrVals_[6] = tmva_d3dz_;
-      gbrVals_[7] = tmva_outer_nMissingInner_;
-      gbrVals_[8] = tmva_inner_nMissingOuter_;
-
-
-      auto mvaBDTG = forest_->GetClassifier(gbrVals_);
-      IfLogTrace(debug, "DuplicateTrackMerger") << " mvaBDTG " << mvaBDTG;
-      if(mvaBDTG < minBDTG_)continue;
-
-      //  std::cout << "to merge " << mvaBDTG << ' ' << std::copysign(std::sqrt(std::abs(deltaR3d2)),deltaR3d2) << ' ' << tmva_dphi_ << ' ' << TSCP1.pt() <<'/'<<TSCP2.pt() << std::endl;
-      
-      IfLogTrace(debug, "DuplicateTrackMerger") << " marking as duplicates";
+      IfLogTrace(debug_, "DuplicateTrackMerger") << " marking as duplicates";
       out_duplicateCandidates->push_back(merger_.merge(*t1,*t2));
       out_candidateMap->emplace_back(i,j);
 
@@ -402,7 +336,83 @@ void DuplicateTrackMerger::produce(edm::Event& iEvent, const edm::EventSetup& iS
 }
 
 
-  
+  bool DuplicateTrackMerger::checkForSubsequentTracks(const reco::Track *t1, const reco::Track *t2, TSCPBuilderNoMaterial& tscpBuilder) const {
+    FreeTrajectoryState fts1 = trajectoryStateTransform::outerFreeState(*t1, &*magfield_,false);
+    FreeTrajectoryState fts2 = trajectoryStateTransform::innerFreeState(*t2, &*magfield_,false);
+    GlobalPoint avgPoint((t1->outerPosition().x()+t2->innerPosition().x())*0.5,(t1->outerPosition().y()+t2->innerPosition().y())*0.5,(t1->outerPosition().z()+t2->innerPosition().z())*0.5);
+    TrajectoryStateClosestToPoint TSCP1 = tscpBuilder(fts1, avgPoint);
+    TrajectoryStateClosestToPoint TSCP2 = tscpBuilder(fts2, avgPoint);
+    IfLogTrace(debug_, "DuplicateTrackMerger") << " TSCP1.isValid " << TSCP1.isValid() << " TSCP2.isValid " << TSCP2.isValid();
+    if(!TSCP1.isValid()) return false;
+    if(!TSCP2.isValid()) return false;
+
+    const FreeTrajectoryState ftsn1 = TSCP1.theState();
+    const FreeTrajectoryState ftsn2 = TSCP2.theState();
+ 
+    IfLogTrace(debug_, "DuplicateTrackMerger") << " DCA2 " << (ftsn2.position()-ftsn1.position()).mag2();
+    if ( (ftsn2.position()-ftsn1.position()).mag2() > maxDCA2_ ) return false;
+
+    auto qoverp1 = ftsn1.signedInverseMomentum();
+    auto qoverp2 = ftsn2.signedInverseMomentum();
+    float tmva_dqoverp_ = qoverp1-qoverp2;
+    IfLogTrace(debug_, "DuplicateTrackMerger") << " dqoverp " << tmva_dqoverp_;
+    if ( std::abs(tmva_dqoverp_) > maxDQoP_ ) return false;
+
+
+    //auto pp = [&](TrajectoryStateClosestToPoint const & ts) { std::cout << ' ' << ts.perigeeParameters().vector()[0] << '/'  << ts.perigeeError().transverseCurvatureError();};
+    //if(qoverp1*qoverp2 <0) { std::cout << "charge different " << qoverp1 <<',' << qoverp2; pp(TSCP1); pp(TSCP2); std::cout << std::endl;}
+
+    auto lambda1 =  M_PI/2 - ftsn1.momentum().theta();
+    auto lambda2 =  M_PI/2 - ftsn2.momentum().theta();
+    float tmva_dlambda_ = lambda1-lambda2;
+    IfLogTrace(debug_, "DuplicateTrackMerger") << " dlambda " << tmva_dlambda_;
+    if ( std::abs(tmva_dlambda_) > maxDLambda_ ) return false;
+
+    auto phi1 = ftsn1.momentum().phi();
+    auto phi2 = ftsn2.momentum().phi();
+    float tmva_dphi_ = phi1-phi2;
+    if(std::abs(tmva_dphi_) > float(M_PI)) tmva_dphi_ = 2.f*float(M_PI) - std::abs(tmva_dphi_);
+    IfLogTrace(debug_, "DuplicateTrackMerger") << " dphi " << tmva_dphi_;
+    if (std::abs(tmva_dphi_) > maxDPhi_ ) return false;
+
+    auto dxy1 = (-ftsn1.position().x() * ftsn1.momentum().y() + ftsn1.position().y() * ftsn1.momentum().x())/TSCP1.pt();
+    auto dxy2 = (-ftsn2.position().x() * ftsn2.momentum().y() + ftsn2.position().y() * ftsn2.momentum().x())/TSCP2.pt();
+    float tmva_ddxy_ = dxy1-dxy2;
+    IfLogTrace(debug_, "DuplicateTrackMerger") << " ddxy " << tmva_ddxy_;
+    if ( std::abs(tmva_ddxy_) > maxDdxy_ ) return false;
+
+    auto dsz1 = ftsn1.position().z() * TSCP1.pt() / TSCP1.momentum().mag()
+      - (ftsn1.position().x() * ftsn1.momentum().y() + ftsn1.position().y() * ftsn1.momentum().x())/TSCP1.pt() * ftsn1.momentum().z()/ftsn1.momentum().mag();
+    auto dsz2 = ftsn2.position().z() * TSCP2.pt() / TSCP2.momentum().mag()
+      - (ftsn2.position().x() * ftsn2.momentum().y() + ftsn2.position().y() * ftsn2.momentum().x())/TSCP2.pt() * ftsn2.momentum().z()/ftsn2.momentum().mag();
+    float tmva_ddsz_ = dsz1-dsz2;
+    IfLogTrace(debug_, "DuplicateTrackMerger") << " ddsz " << tmva_ddsz_;
+    if ( std::abs(tmva_ddsz_) > maxDdsz_ ) return false;
+
+    float tmva_d3dr_ = avgPoint.perp();
+    float tmva_d3dz_ = avgPoint.z();
+    float tmva_outer_nMissingInner_ = t2->hitPattern().numberOfLostHits(reco::HitPattern::MISSING_INNER_HITS);
+    float tmva_inner_nMissingOuter_ = t1->hitPattern().numberOfLostHits(reco::HitPattern::MISSING_OUTER_HITS);
+
+    float gbrVals_[9];
+    gbrVals_[0] = tmva_ddsz_;
+    gbrVals_[1] = tmva_ddxy_;
+    gbrVals_[2] = tmva_dphi_;
+    gbrVals_[3] = tmva_dlambda_;
+    gbrVals_[4] = tmva_dqoverp_;
+    gbrVals_[5] = tmva_d3dr_;
+    gbrVals_[6] = tmva_d3dz_;
+    gbrVals_[7] = tmva_outer_nMissingInner_;
+    gbrVals_[8] = tmva_inner_nMissingOuter_;
+
+    auto mvaBDTG = forest_->GetClassifier(gbrVals_);
+    IfLogTrace(debug_, "DuplicateTrackMerger") << " mvaBDTG " << mvaBDTG;
+    if(mvaBDTG < minBDTG_) return false;
+
+    //  std::cout << "to merge " << mvaBDTG << ' ' << std::copysign(std::sqrt(std::abs(deltaR3d2)),deltaR3d2) << ' ' << tmva_dphi_ << ' ' << TSCP1.pt() <<'/'<<TSCP2.pt() << std::endl;
+    return true;
+  }
+
 }
 
 #include "FWCore/PluginManager/interface/ModuleDef.h"
