@@ -85,10 +85,7 @@ DQMOffline_SecondStepPOGMC = cms.Sequence( dqmRefHistoRootFileGetter *
                                            DQMMessageLoggerClientSeq )
 
 
-from DQMOffline.L1Trigger.L1TStage2CaloLayer2Efficiency_cfi import l1tStage2CaloLayer2Efficiency
-from DQMOffline.L1Trigger.L1TStage2CaloLayer2Diff_cfi import l1tStage2CaloLayer2EmuDiff
-# l1tStage2CaloLayer2EmuDiff uses plots produced by l1tStage2CaloLayer2Efficiency
-DQMHarvestL1Trigger = cms.Sequence(l1tStage2CaloLayer2Efficiency * l1tStage2CaloLayer2EmuDiff)
+from DQMOffline.L1Trigger.L1TriggerDqmOffline_SecondStep_cff import DQMHarvestL1Trigger
 
 DQMHarvestCommon = cms.Sequence(
     dqmRefHistoRootFileGetter *
