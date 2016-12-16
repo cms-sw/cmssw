@@ -121,6 +121,7 @@ void KfTrackProducerBase::putInEvt(edm::Event& evt,
 						 innertsos.curvilinearError(), innerId,
     						 seedDir, theTraj->seedRef()));
 
+    assert(!useSplitting);
 
     reco::TrackExtra & tx = selTrackExtras->back();
     // ---  NOTA BENE: the convention is to sort hits and measurements "along the momentum".

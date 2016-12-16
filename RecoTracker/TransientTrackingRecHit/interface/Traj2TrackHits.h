@@ -19,8 +19,9 @@ class Traj2TrackHits {
 private:
   const StripClusterParameterEstimator * theCPE;
   bool keepOrder;  // FIXME move to enum
-  bool removeNoDet;  // true == as in conversion from TTRH tp TRH
+  bool removeNoDet;  // true == as in conversion from TTRH to TRH
 public:
+  using TrajParams = std::vector<LocalTrajectoryParameters>;
 
   Traj2TrackHits(const TransientTrackingRecHitBuilder* builder, bool ikeepOrder, bool noNoDet=true) :
     theCPE(static_cast<TkTransientTrackingRecHitBuilder const *>(builder)->stripClusterParameterEstimator()),
@@ -41,11 +42,29 @@ public:
     hits.shrink_to_fit();
   }
 
+  void operator()(Trajectory const & traj, TrackingRecHitCollection & hits, TrajParams & trajParams) const {
+    // ---  NOTA BENE: the convention is to sort hits and measurements "along the momentum".
+    bool along = traj.direction() == alongMomentum;
+    auto const & meas = traj.measurements();
+    trajParams.reserve(meas.size());
+      if (keepOrder | along) copy(meas.begin(),meas.end(),hits, trajParams);
+      else copy(meas.rbegin(),meas.rend(),hits, trajParams);
+  }
+
 private:
   template<typename HI>
-  void copy(HI itm, HI e, TrackingRecHitCollection & hits) const { 
+  void copy(HI itm, HI e, TrackingRecHitCollection & hits, TrajParams & trajParams) const { 
+    for(;itm!=e;++itm) if( (!removeNoDet) | ((*itm).recHitR().det()!=nullptr)) {
+         hits.push_back((*itm).recHitR().clone());
+         trajParams.push_back((*itm).updatedState().localParameters());
+    }
+  }
+
+  template<typename HI>
+  void copy(HI itm, HI e, TrackingRecHitCollection & hits) const {
     for(;itm!=e;++itm) if( (!removeNoDet) | ((*itm).recHitR().det()!=nullptr)) hits.push_back((*itm).recHitR().clone());
   }
+
 
   template<typename HI>
   void split(HI itm, HI e, TrackingRecHitCollection & hits, bool along) const { 
