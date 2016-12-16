@@ -16,7 +16,6 @@ public:
   ~PixelTrackProducer();
 
   virtual void beginRun(const edm::Run &run, const edm::EventSetup& es) override;
-  virtual void endRun(const edm::Run &run, const edm::EventSetup& es) override;
   virtual void produce(edm::Event& ev, const edm::EventSetup& es) override;
 
 private:

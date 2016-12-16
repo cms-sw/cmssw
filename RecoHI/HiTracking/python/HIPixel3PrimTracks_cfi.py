@@ -2,7 +2,9 @@ import FWCore.ParameterSet.Config as cms
 
 from RecoPixelVertexing.PixelTriplets.PixelTripletHLTGenerator_cfi import *
 from RecoPixelVertexing.PixelLowPtUtilities.ClusterShapeHitFilterESProducer_cfi import *
-from RecoHI.HiTracking.HIPixelTrackFilter_cfi import *
+from RecoPixelVertexing.PixelLowPtUtilities.trackCleaner_cfi import *
+from RecoPixelVertexing.PixelTrackFitting.pixelFitterByHelixProjections_cfi import *
+from RecoHI.HiTracking.HIPixelTrackFilter_cff import *
 from RecoHI.HiTracking.HITrackingRegionProducer_cfi import *
 from RecoTracker.TkSeedingLayers.PixelLayerTriplets_cfi import *
 
@@ -28,22 +30,20 @@ hiPixel3PrimTracks = cms.EDProducer("PixelTrackProducer",
     ),
 	
     # Fitter
-    FitterPSet = cms.PSet( 
-	  ComponentName = cms.string('PixelFitterByHelixProjections'),
-	  TTRHBuilder = cms.string('TTRHBuilderWithoutAngle4PixelTriplets')
-    ),
+    Fitter = cms.InputTag("pixelFitterByHelixProjections"),
 	
     # Filter
-    useFilterWithES = cms.bool( True ),
-    FilterPSet = cms.PSet( 
-          HiFilterBlock
-    ),
+    Filter = cms.InputTag("hiFilter"),
 	
     # Cleaner
-    CleanerPSet = cms.PSet(  
-          ComponentName = cms.string( "TrackCleaner" )
-    )
+    Cleaner = cms.string("trackCleaner")
 )
 
 # increase threshold for triplets in generation step (default: 10000)
 hiPixel3PrimTracks.OrderedHitsFactoryPSet.GeneratorPSet.maxElement = 1000000
+
+hiPixel3PrimTracksSequence = cms.Sequence(
+    pixelFitterByHelixProjections +
+    hiFilter +
+    hiPixel3PrimTracks
+)

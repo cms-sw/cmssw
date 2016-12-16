@@ -32,8 +32,16 @@ hiDetachedTripletStepSeedLayers.FPix.skipClusters = cms.InputTag('hiDetachedTrip
 # SEEDS
 from RecoPixelVertexing.PixelTriplets.PixelTripletHLTGenerator_cfi import *
 from RecoPixelVertexing.PixelLowPtUtilities.ClusterShapeHitFilterESProducer_cfi import *
-from RecoHI.HiTracking.HIPixelTrackFilter_cfi import *
+from RecoPixelVertexing.PixelLowPtUtilities.trackCleaner_cfi import *
+from RecoPixelVertexing.PixelTrackFitting.pixelFitterByHelixProjections_cfi import *
+from RecoHI.HiTracking.HIPixelTrackFilter_cff import *
 from RecoHI.HiTracking.HITrackingRegionProducer_cfi import *
+hiDetachedTripletStepPixelTracksFilter = hiFilter.clone(
+    nSigmaTipMaxTolerance = 0,
+    lipMax = 1.0,
+    tipMax = 1.0,
+    ptMin = 0.95,
+)
 hiDetachedTripletStepPixelTracks = cms.EDProducer("PixelTrackProducer",
 
     passLabel  = cms.string('Pixel detached tracks with vertex constraint'),
@@ -66,30 +74,13 @@ hiDetachedTripletStepPixelTracks = cms.EDProducer("PixelTrackProducer",
     ),
 	
     # Fitter
-    FitterPSet = cms.PSet( 
-	  ComponentName = cms.string('PixelFitterByHelixProjections'),
-	  TTRHBuilder = cms.string('TTRHBuilderWithoutAngle4PixelTriplets')
-    ),
+    Fitter = cms.InputTag("pixelFitterByHelixProjections"),
 	
     # Filter
-    useFilterWithES = cms.bool( True ),
-    FilterPSet = cms.PSet( 
-        nSigmaLipMaxTolerance = cms.double(0),
-        chi2 = cms.double(1000.0),
-        ComponentName = cms.string('HIPixelTrackFilter'),
-        nSigmaTipMaxTolerance = cms.double(0),
-        clusterShapeCacheSrc = cms.InputTag("siPixelClusterShapeCache"),
-        VertexCollection = cms.InputTag("hiSelectedVertex"),
-        useClusterShape = cms.bool(False),
-        lipMax = cms.double(1.0),
-        tipMax = cms.double(1.0),
-        ptMin = cms.double(0.95)
-    ),
+    Filter = cms.InputTag("hiDetachedTripletStepPixelTracksFilter"),
 	
     # Cleaner
-    CleanerPSet = cms.PSet(  
-          ComponentName = cms.string( "TrackCleaner" )
-    )
+    Cleaner = cms.string("trackCleaner")
 )
 
 
@@ -200,6 +191,8 @@ hiDetachedTripletStepQual = RecoTracker.FinalTrackSelectors.trackListMerger_cfi.
 
 hiDetachedTripletStep = cms.Sequence(hiDetachedTripletStepClusters*
                                      hiDetachedTripletStepSeedLayers*
+                                     pixelFitterByHelixProjections*
+                                     hiDetachedTripletStepPixelTracksFilter*
                                      hiDetachedTripletStepPixelTracks*
                                      hiDetachedTripletStepSeeds*
                                      hiDetachedTripletStepTrackCandidates*
