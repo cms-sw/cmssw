@@ -81,8 +81,6 @@ The framework provides a few simple commands to describe histograms using this m
 - The `reduce` command reduces the right-hand side histograms into histograms of a lower dimensionality. Typically, e.g. for the mean, this is a 0D-histogram, which means a single bin with the respective value. The quantity to extract is specified by the parameter.
 - The `save`command tells the framework that we are happy with the histograms that are now in the table and that they should be saved to the output file. Proper names are inferred from the column names and steps specified before.
 
-The framework also allows a `custom` command that passes the current table state to custom code, to compute things that the framework does not allow itself. However, this should be used carefully, since such code has to be heavily dependent on internal data structures.
-
 Since the framework can see where quantities go during the computation of derived histograms, it can also automatically keep track of the axis labels and ranges and set them to useful, consistent values automatically. For technical reasons the framework is not able to execute every conceivable specification, but it is able to handle all relevant cases in an efficient way. Since the specification is very abstract, it gives the framework a lot of freedom to implement it in the most efficient way possible.
 
 
@@ -224,7 +222,7 @@ This is an unspectacular wrapper around histogram-like things. It is used as the
 
 This is the base class that all plugins should derive from. It instantiates `HistogramManager`s from config, sets up a `GeometryInterface`, and calls the `book` method of the `HistogramManager`s. If you need anything special, you can also do this yourself ad ignore the base class.
 
-The same file declares the `SiPixelPhase1Harvester`, which is very similar to the base class but is an `DQMEDHarvester` and calls the harvesting methods. Usually this does not need to be modified, it is enough instantiate a copy and set the configuration to be the same as for the analyzer. If you want too use a `custom` step, derive from this class and call the `setCustomHandler` on the HistogramManager before the actual harvesting starts.
+The same file declares the `SiPixelPhase1Harvester`, which is very similar to the base class but is an `DQMEDHarvester` and calls the harvesting methods. Usually this does not need to be modified, it is enough instantiate a copy and set the configuration to be the same as for the analyzer. 
 
 ### SummationSpecification
 
@@ -295,7 +293,3 @@ The fill function asks the `GeometryInterface` for the column values for the mod
 For the harvesting, first the internal table structure has to be repopulated (remember, we are in a completely new process now). To do this, `loadFromDQMStore` mirrors the booking process (massively stripped down and not actually sharing code) and `get`s the MEs from the `DQMStore`. So, in sum there are 3 places where step1 commands are interpreted: in booking, in filling, and in loading. Make sure to keep them in sync when anything changes. 
 
 Afterwards, a classical interpreter loop runs over the step2 commands and calls methods to actually execute them, by updating the table structure. This is mostly straight-forward code. Booking happens as the execution progresses, and all metadata is tracked in the `TH1` fields (labels, range).
-
-In the `custom` command, a custom handler function (that has to be set beforehand) is called. This is again a lambda (using inheritance would be possible as well, but it tends to be a mess in C++), which gets passed the internal table state. It is explicitly allowed to just save a copy of that state for later use, which may be necessary to compute quantities that depend on multiple other quantities (e.g. efficiencies). Later, a `custom` step on a different HistogramManager (possibly one that did not record any data in step1) can take the saved tables, create derived quantities and put them into the histograms in its own table, which the HistogramManager already booked with consistent names (also doing further summation, if specified).
-
-Alternativey, the `custom` handler gets passed the `IBooker` and `IGetter` objects from the `DQMStore`, so things which cannot be booked using the framework can be handled manually. But then you also need to handle folder- and object names your self; best is to use the path names of the MEs you find in the table and derive new ME names from the existing ME names.

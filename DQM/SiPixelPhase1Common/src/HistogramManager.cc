@@ -576,7 +576,6 @@ void HistogramManager::executeExtend(SummationStep const& step, Table& t,
 
     AbstractHistogram& new_histo = out[significantvalues];
     if (!new_histo.me) {
-      // TODO: this might be incorrect, but it is only for the title.
       // we put the name of the actual, last column of a input histo there.
       std::string colname = geometryInterface.pretty((e.first.end()-1)->first);
 
@@ -660,9 +659,6 @@ void HistogramManager::executeHarvesting(DQMStore::IBooker& iBooker,
             break;
           case SummationStep::EXTEND_Y:
             assert(!"EXTEND_Y currently not supported in harvesting.");
-            break;
-          case SummationStep::CUSTOM:
-            if (customHandler) customHandler(step, t, iBooker, iGetter);
             break;
           default:
             assert(!"Operation not supported in harvesting.");
