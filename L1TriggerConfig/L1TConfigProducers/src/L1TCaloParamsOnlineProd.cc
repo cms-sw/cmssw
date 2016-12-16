@@ -7,8 +7,9 @@
 #include "CondFormats/L1TObjects/interface/CaloParams.h"
 #include "CondFormats/DataRecord/interface/L1TCaloStage2ParamsRcd.h"
 #include "CondFormats/DataRecord/interface/L1TCaloParamsO2ORcd.h"
-#include "L1Trigger/L1TCommon/interface/TrigSystem.h"
-#include "L1Trigger/L1TCommon/interface/XmlConfigReader.h"
+#include "L1TriggerConfig/XmlConfigTools/interface/TriggerSystem.h"
+#include "L1TriggerConfig/XmlConfigTools/interface/XmlConfigParser.h"
+#include "L1TriggerConfig/XmlConfigTools/interface/ConvertToLUT.h"
 #include "L1Trigger/L1TCalorimeter/interface/CaloParamsHelper.h"
 
 #include "xercesc/util/PlatformUtils.hpp"
@@ -24,7 +25,7 @@ public:
 };
 
 bool
-readCaloLayer1OnlineSettings(l1t::CaloParamsHelper& paramsHelper, std::map<std::string, l1t::Setting>& conf, std::map<std::string, l1t::Mask>& ) {
+readCaloLayer1OnlineSettings(l1t::CaloParamsHelper& paramsHelper, std::map<std::string, l1t::Parameter>& conf, std::map<std::string, l1t::Mask>& ) {
   const char * expectedParams[] = {
     "layer1ECalScaleFactors",
     "layer1HCalScaleFactors",
@@ -51,7 +52,7 @@ readCaloLayer1OnlineSettings(l1t::CaloParamsHelper& paramsHelper, std::map<std::
 }
 
 bool
-readCaloLayer2OnlineSettings(l1t::CaloParamsHelper& paramsHelper, std::map<std::string, l1t::Setting>& conf, std::map<std::string, l1t::Mask>& ) {
+readCaloLayer2OnlineSettings(l1t::CaloParamsHelper& paramsHelper, std::map<std::string, l1t::Parameter>& conf, std::map<std::string, l1t::Mask>& ) {
   const char * expectedParams[] = {
     "leptonSeedThreshold",
     "leptonTowerThreshold",
@@ -83,7 +84,7 @@ readCaloLayer2OnlineSettings(l1t::CaloParamsHelper& paramsHelper, std::map<std::
     "egammaBypassCuts",
     "egammaHOverECut_iEtaLT15",
     "egammaHOverECut_iEtaGTEq15"
- };
+  };
   for (const auto param : expectedParams) {
     if ( conf.find(param) == conf.end() ) {
       std::cerr << "Unable to locate expected CaloLayer2 parameter: " << param << " in L1 settings payload!";
@@ -96,8 +97,8 @@ readCaloLayer2OnlineSettings(l1t::CaloParamsHelper& paramsHelper, std::map<std::
   paramsHelper.setEgNeighbourThreshold((conf["leptonTowerThreshold"].getValue<int>())/2);
   paramsHelper.setTauNeighbourThreshold((conf["leptonTowerThreshold"].getValue<int>())/2);
   paramsHelper.setJetSeedThreshold((conf["jetSeedThreshold"].getValue<int>())/2);
-  paramsHelper.setJetBypassPUS(conf["jetBypassPileUpSub"].getValue<unsigned>()); //these are bools in onlineDB
-  paramsHelper.setEgBypassEGVetos(conf["egammaBypassCuts"].getValue<unsigned>()); //these are bools in onlineDB
+  paramsHelper.setJetBypassPUS(conf["jetBypassPileUpSub"].getValue<bool>());
+  paramsHelper.setEgBypassEGVetos(conf["egammaBypassCuts"].getValue<bool>());
   paramsHelper.setEgHOverEcutBarrel(conf["egammaHOverECut_iEtaLT15"].getValue<int>());
   paramsHelper.setEgHOverEcutEndcap(conf["egammaHOverECut_iEtaGTEq15"].getValue<int>());
 
@@ -115,100 +116,31 @@ readCaloLayer2OnlineSettings(l1t::CaloParamsHelper& paramsHelper, std::map<std::
   etSumEtaMax.push_back(conf["HTMHT_maxJetEta"].getValue<int>());
   etSumEtaMax.push_back(conf["towerCountMaxEta"].getValue<int>());
   
-  etSumEtThresh.push_back(conf["ET_towerThreshold"].getValue<int>()); // ETT tower threshold
-  etSumEtThresh.push_back(conf["HT_jetThreshold"].getValue<int>());
-  etSumEtThresh.push_back(conf["MET_towerThreshold"].getValue<int>()); // ETM tower threshold
-  etSumEtThresh.push_back(conf["MHT_jetThreshold"].getValue<int>());
-  etSumEtThresh.push_back(conf["ET_towerThreshold"].getValue<int>());
+  etSumEtThresh.push_back(conf["ET_towerThreshold"].getValue<int>()/2); // ETT tower threshold
+  etSumEtThresh.push_back(conf["HT_jetThreshold"].getValue<int>()/2);
+  etSumEtThresh.push_back(conf["MET_towerThreshold"].getValue<int>()/2); // ETM tower threshold
+  etSumEtThresh.push_back(conf["MHT_jetThreshold"].getValue<int>()/2);
+  etSumEtThresh.push_back(conf["ET_towerThreshold"].getValue<int>()/2);
 
   for (uint i=0; i<5; ++i) {
     paramsHelper.setEtSumEtaMax(i, etSumEtaMax.at(i));
     paramsHelper.setEtSumEtThreshold(i, etSumEtThresh.at(i));
   }
 
-  std::stringstream oss;
-
-  std::vector<uint32_t> jetEnergyCalibLUT = conf["jetEnergyCalibLUT"].getVector<uint32_t>();
-  oss <<"#<header> V1 "<< ( 32 - __builtin_clz( uint32_t(jetEnergyCalibLUT.size()-1) ) ) <<" 63 </header> "<<std::endl; // hardcode max bits for data
-  for(unsigned int i=0; i<jetEnergyCalibLUT.size(); i++) oss << i << " " << jetEnergyCalibLUT[i] << std::endl;
-
-  std::istringstream iss1( oss.str() );
-  paramsHelper.setJetCalibrationLUT( l1t::LUT( (std::istream&)iss1 ) );
-  oss.str("");
-
-  std::vector<int> etSumEttPUSLUT = conf["ET_energyCalibLUT"].getVector<int>();
-  oss <<"#<header> V1 "<< ( 32 - __builtin_clz( uint32_t(etSumEttPUSLUT.size()-1) ) ) <<" 63 </header> "<<std::endl; // hardcode max bits for data
-  for(unsigned int i=0; i<etSumEttPUSLUT.size(); i++) oss << i << " " << etSumEttPUSLUT[i] << std::endl;
-
-  std::istringstream iss2( oss.str() );
-  paramsHelper.setEtSumEttPUSLUT( l1t::LUT( (std::istream&)iss2 ) );
-  oss.str("");
-
-  std::vector<int> etSumEcalSumPUTLUT = conf["ecalET_energyCalibLUT"].getVector<int>();
-  oss <<"#<header> V1 "<< ( 32 - __builtin_clz( uint32_t(etSumEcalSumPUTLUT.size()-1) ) ) <<" 63 </header> "<<std::endl; // hardcode max bits for data
-  for(unsigned int i=0; i<etSumEcalSumPUTLUT.size(); i++) oss << i << " " << etSumEcalSumPUTLUT[i] << std::endl;
-
-  std::istringstream iss3( oss.str() );
-  paramsHelper.setEtSumEcalSumPUSLUT( l1t::LUT( (std::istream&)iss3 ) );
-  oss.str("");
-
-  std::vector<int> etSumXPUSLUT = conf["METX_energyCalibLUT"].getVector<int>();
-  oss <<"#<header> V1 "<< ( 32 - __builtin_clz( uint32_t(etSumXPUSLUT.size()-1) ) ) <<" 63 </header> "<<std::endl; // hardcode max bits for data
-  for(unsigned int i=0; i<etSumXPUSLUT.size(); i++) oss << i << " " << etSumXPUSLUT[i] << std::endl;
-
-  std::istringstream iss4( oss.str() );
-  paramsHelper.setEtSumXPUSLUT( l1t::LUT( (std::istream&)iss4 ) );
-  oss.str("");
-
-  paramsHelper.setEgMaxPtHOverE((conf["egammaRelaxationThreshold"].getValue<int>()));
+  paramsHelper.setJetCalibrationLUT ( l1t::convertToLUT( conf["jetEnergyCalibLUT"].getVector<uint32_t>() ) );
+  paramsHelper.setEtSumEttPUSLUT    ( l1t::convertToLUT( conf["ET_energyCalibLUT"].getVector<int>() ) );
+  paramsHelper.setEtSumEcalSumPUSLUT( l1t::convertToLUT( conf["ecalET_energyCalibLUT"].getVector<int>() ) );
+  paramsHelper.setEtSumXPUSLUT      ( l1t::convertToLUT( conf["METX_energyCalibLUT"].getVector<int>() ) );
+  paramsHelper.setEgMaxPtHOverE((conf["egammaRelaxationThreshold"].getValue<int>())/2.);
   paramsHelper.setEgEtaCut((conf["egammaMaxEta"].getValue<int>()));
-
-
-  std::vector<int> egCalibrationLUT = conf["egammaEnergyCalibLUT"].getVector<int>();
-  oss <<"#<header> V1 "<< ( 32 - __builtin_clz( uint32_t(egCalibrationLUT.size()-1) ) ) <<" 63 </header> "<<std::endl; // hardcode max bits for data
-  for(unsigned int i=0; i<egCalibrationLUT.size(); i++) oss << i << " " << egCalibrationLUT[i] << std::endl;
-
-  std::istringstream iss5( oss.str() );
-  paramsHelper.setEgCalibrationLUT( l1t::LUT( (std::istream&)iss5 ) );
-  oss.str("");
-
-  std::vector<int> egIsolationLUT = conf["egammaIsoLUT"].getVector<int>();
-  oss <<"#<header> V1 "<< ( 32 - __builtin_clz( uint32_t(egIsolationLUT.size()-1) ) ) <<" 63 </header> "<<std::endl; // hardcode max bits for data
-  for(unsigned int i=0; i<egIsolationLUT.size(); i++) oss << i << " " << egIsolationLUT[i] << std::endl;
-
-  std::istringstream iss6( oss.str() );
-  paramsHelper.setEgIsolationLUT( l1t::LUT( (std::istream&)iss6 ) );
-  oss.str("");
-
-  //std::cout<<"egammaIsoLUT: "<<std::endl;
-  //for(unsigned int i=0; i<paramsHelper.egIsolationLUT()->maxSize(); i++) std::cout << std::setprecision(14) << paramsHelper.egIsolationLUT()->data(i) <<", ";
-  //std::cout << std::endl;
+  paramsHelper.setEgCalibrationLUT  ( l1t::convertToLUT( conf["egammaEnergyCalibLUT"].getVector<int>() ) );
+  paramsHelper.setEgIsolationLUT    ( l1t::convertToLUT( conf["egammaIsoLUT"].getVector<int>() ) );
 
   paramsHelper.setIsoTauEtaMax((conf["tauMaxEta"].getValue<int>()));
 
-  std::vector<int> tauCalibrationLUT = conf["tauEnergyCalibLUT"].getVector<int>();
-  oss <<"#<header> V1 "<< ( 32 - __builtin_clz( uint32_t(tauCalibrationLUT.size()-1) ) ) <<" 63 </header> "<<std::endl; // hardcode max bits for data
-  for(unsigned int i=0; i<tauCalibrationLUT.size(); i++) oss << i << " " << tauCalibrationLUT[i] << std::endl;
-
-  std::istringstream iss7( oss.str() );
-  paramsHelper.setTauCalibrationLUT(l1t::LUT( (std::istream&)iss7 ));
-  oss.str("");
-
-  std::vector<int> tauIsolationLUT = conf["tauIsoLUT1"].getVector<int>();
-  oss <<"#<header> V1 "<< ( 32 - __builtin_clz( uint32_t(tauIsolationLUT.size()-1) ) ) <<" 63 </header> "<<std::endl; // hardcode max bits for data
-  for(unsigned int i=0; i<tauIsolationLUT.size(); i++) oss << i << " " << tauIsolationLUT[i] << std::endl;
-
-  std::istringstream iss8( oss.str() );
-  paramsHelper.setTauIsolationLUT( l1t::LUT((std::istream&)iss8 ) );
-  oss.str("");
-
-  std::vector<int> tauIsolationLUT2 = conf["tauIsoLUT2"].getVector<int>();
-  oss <<"#<header> V1 "<< ( 32 - __builtin_clz( uint32_t(tauIsolationLUT2.size()-1) ) ) <<" 63 </header> "<<std::endl; // hardcode max bits for data
-  for(unsigned int i=0; i<tauIsolationLUT2.size(); i++) oss << i << " " << tauIsolationLUT2[i] << std::endl;
-
-  std::istringstream iss9( oss.str() );
-  paramsHelper.setTauIsolationLUT2( l1t::LUT( (std::istream&)iss9 ) );
-  oss.str("");
+  paramsHelper.setTauCalibrationLUT( l1t::convertToLUT( conf["tauEnergyCalibLUT"].getVector<int>() ) );
+  paramsHelper.setTauIsolationLUT  ( l1t::convertToLUT( conf["tauIsoLUT1"].getVector<int>() ) );
+  paramsHelper.setTauIsolationLUT2 ( l1t::convertToLUT( conf["tauIsoLUT2"].getVector<int>() ) );
 
   return true;
 }
@@ -226,7 +158,6 @@ std::shared_ptr<l1t::CaloParams> L1TCaloParamsOnlineProd::newObject(const std::s
     if( objectKey.empty() ){
         edm::LogError( "L1-O2O: L1TCaloParamsOnlineProd" ) << "Key is empty, returning empty l1t::CaloParams";
         throw std::runtime_error("Empty objectKey");
-///        return boost::shared_ptr< l1t::CaloParams > ( new l1t::CaloParams( *(baseSettings.product()) ) );
     }
 
     std::string tscKey = objectKey.substr(0, objectKey.find(":") );
@@ -257,7 +188,6 @@ std::shared_ptr<l1t::CaloParams> L1TCaloParamsOnlineProd::newObject(const std::s
     if( queryResult.queryFailed() || queryResult.numberRows() != 1 ){
         edm::LogError( "L1-O2O" ) << "Cannot get L1_TRG_CONF_KEYS.{CALOL1_KEY,CALOL2_KEY} for ID = " << tscKey ;
         throw std::runtime_error("Broken tscKey");
-///        return boost::shared_ptr< l1t::CaloParams > ( new l1t::CaloParams( *(baseSettings.product()) ) );
     }
 
     if( !queryResult.fillVariable( "CALOL1_KEY", calol1_conf_key) ) calol1_conf_key = "";
@@ -280,7 +210,6 @@ std::shared_ptr<l1t::CaloParams> L1TCaloParamsOnlineProd::newObject(const std::s
     if( queryResult.queryFailed() || queryResult.numberRows() != 1 ){
         edm::LogError( "L1-O2O: L1TCaloParamsOnlineProd" ) << "Cannot get CALOL1_KEYS.ALGO for ID="<<calol1_conf_key;
         throw std::runtime_error("Broken key");
-///        return boost::shared_ptr< l1t::CaloParams >( new l1t::CaloParams( *(baseSettings.product()) ) ) ;
     }
 
     if( !queryResult.fillVariable( "ALGO", calol1_algo_key ) ) calol1_algo_key = "";
@@ -298,7 +227,6 @@ std::shared_ptr<l1t::CaloParams> L1TCaloParamsOnlineProd::newObject(const std::s
     if( queryResult.queryFailed() || queryResult.numberRows() != 1 ){
         edm::LogError( "L1-O2O: L1TCaloParamsOnlineProd" ) << "Cannot get CALOL2_KEYS.ALGO for ID="<<calol2_conf_key;
         throw std::runtime_error("Broken key");
-///        return boost::shared_ptr< l1t::CaloParams >( new l1t::CaloParams( *(baseSettings.product()) ) ) ;
     }
 
     std::string calol2_hw_key;
@@ -326,7 +254,6 @@ std::shared_ptr<l1t::CaloParams> L1TCaloParamsOnlineProd::newObject(const std::s
     if( queryResult.queryFailed() || queryResult.numberRows() != 1 ){
         edm::LogError( "L1-O2O: L1TCaloParamsOnlineProd" ) << "Cannot get CALOL1_ALGO.CONF for ID="<<calol1_algo_key;
         throw std::runtime_error("Broken key");
-///        return boost::shared_ptr< l1t::CaloParams >( new l1t::CaloParams( *(baseSettings.product()) ) ) ;
     }
 
     if( !queryResult.fillVariable( "CONF", xmlPayload ) ) xmlPayload = "";
@@ -355,7 +282,6 @@ std::shared_ptr<l1t::CaloParams> L1TCaloParamsOnlineProd::newObject(const std::s
     if( queryResult.queryFailed() || queryResult.numberRows() != 1 ){
         edm::LogError( "L1-O2O: L1TCaloParamsOnlineProd" ) << "Cannot get CALOL2_ALGO_KEYS.{DEMUX,MPS_COMMON,MPS_JET,MP_EGAMMA,MP_SUM,MP_TAU} for ID="<<calol2_algo_key;
         throw std::runtime_error("Broken key");
-///        return boost::shared_ptr< l1t::CaloParams >( new l1t::CaloParams( *(baseSettings.product()) ) ) ;
     }
 
     if( !queryResult.fillVariable( "DEMUX",      calol2_demux_key      ) ) calol2_demux_key      = "";
@@ -380,7 +306,6 @@ std::shared_ptr<l1t::CaloParams> L1TCaloParamsOnlineProd::newObject(const std::s
     if( queryResult.queryFailed() || queryResult.numberRows() != 1 ){
         edm::LogError( "L1-O2O: L1TCaloParamsOnlineProd" ) << "Cannot get CALOL2_ALGO.CONF for ID="<<calol2_demux_key;
         throw std::runtime_error("Broken key");
-///        return boost::shared_ptr< l1t::CaloParams >( new l1t::CaloParams( *(baseSettings.product()) ) ) ;
     }
 
     if( !queryResult.fillVariable( "CONF", xmlPayload ) ) xmlPayload = "";
@@ -399,7 +324,6 @@ std::shared_ptr<l1t::CaloParams> L1TCaloParamsOnlineProd::newObject(const std::s
     if( queryResult.queryFailed() || queryResult.numberRows() != 1 ){
         edm::LogError( "L1-O2O: L1TCaloParamsOnlineProd" ) << "Cannot get CALOL2_ALGO.CONF for ID="<<calol2_mps_common_key;
         throw std::runtime_error("Broken key");
-///        return boost::shared_ptr< l1t::CaloParams >( new l1t::CaloParams( *(baseSettings.product()) ) ) ;
     }
 
     if( !queryResult.fillVariable( "CONF", xmlPayload ) ) xmlPayload = "";
@@ -418,7 +342,6 @@ std::shared_ptr<l1t::CaloParams> L1TCaloParamsOnlineProd::newObject(const std::s
     if( queryResult.queryFailed() || queryResult.numberRows() != 1 ){
         edm::LogError( "L1-O2O: L1TCaloParamsOnlineProd" ) << "Cannot get CALOL2_ALGO.CONF for ID="<<calol2_mps_jet_key;
         throw std::runtime_error("Broken key");
-///        return boost::shared_ptr< l1t::CaloParams >( new l1t::CaloParams( *(baseSettings.product()) ) ) ;
     }
 
     if( !queryResult.fillVariable( "CONF", xmlPayload ) ) xmlPayload = "";
@@ -437,7 +360,6 @@ std::shared_ptr<l1t::CaloParams> L1TCaloParamsOnlineProd::newObject(const std::s
     if( queryResult.queryFailed() || queryResult.numberRows() != 1 ){
         edm::LogError( "L1-O2O: L1TCaloParamsOnlineProd" ) << "Cannot get CALOL2_ALGO.CONF for ID="<<calol2_mp_egamma_key;
         throw std::runtime_error("Broken key");
-///        return boost::shared_ptr< l1t::CaloParams >( new l1t::CaloParams( *(baseSettings.product()) ) ) ;
     }
 
     if( !queryResult.fillVariable( "CONF", xmlPayload ) ) xmlPayload = "";
@@ -456,7 +378,6 @@ std::shared_ptr<l1t::CaloParams> L1TCaloParamsOnlineProd::newObject(const std::s
     if( queryResult.queryFailed() || queryResult.numberRows() != 1 ){
         edm::LogError( "L1-O2O: L1TCaloParamsOnlineProd" ) << "Cannot get CALOL2_ALGO.CONF for ID="<<calol2_mp_sum_key;
         throw std::runtime_error("Broken key");
-///        return boost::shared_ptr< l1t::CaloParams >( new l1t::CaloParams( *(baseSettings.product()) ) ) ;
     }
 
     if( !queryResult.fillVariable( "CONF", xmlPayload ) ) xmlPayload = "";
@@ -475,7 +396,6 @@ std::shared_ptr<l1t::CaloParams> L1TCaloParamsOnlineProd::newObject(const std::s
     if( queryResult.queryFailed() || queryResult.numberRows() != 1 ){
         edm::LogError( "L1-O2O: L1TCaloParamsOnlineProd" ) << "Cannot get CALOL2_ALGO.CONF for ID="<<calol2_mp_tau_key;
         throw std::runtime_error("Broken key");
-///        return boost::shared_ptr< l1t::CaloParams >( new l1t::CaloParams( *(baseSettings.product()) ) ) ;
     }
 
     if( !queryResult.fillVariable( "CONF", xmlPayload ) ) xmlPayload = "";
@@ -512,21 +432,21 @@ std::shared_ptr<l1t::CaloParams> L1TCaloParamsOnlineProd::newObject(const std::s
     }
 
 
-    l1t::XmlConfigReader xmlReader1;
+    l1t::XmlConfigParser xmlReader1;
     xmlReader1.readDOMFromString( payloads[kCONF][calol1_algo_key] );
 
-    l1t::TrigSystem calol1;
-    calol1.addProcRole("processors", "processors");
+    l1t::TriggerSystem calol1;
+    calol1.addProcessor("processors", "processors","-1","-1");
     xmlReader1.readRootElement( calol1, "calol1" );
     calol1.setConfigured();
 
-    std::map<std::string, l1t::Setting> calol1_conf = calol1.getSettings("processors");
-    std::map<std::string, l1t::Mask>    calol1_rs   ;//= calol1.getMasks   ("processors");
+    std::map<std::string, l1t::Parameter> calol1_conf = calol1.getParameters("processors");
+    std::map<std::string, l1t::Mask>      calol1_rs   ;//= calol1.getMasks   ("processors");
 
-    l1t::TrigSystem calol2;
+    l1t::TriggerSystem calol2;
 //    calol2.addProcRole("processors", "MainProcessor");
 
-    l1t::XmlConfigReader xmlReader2;
+    l1t::XmlConfigParser xmlReader2;
     xmlReader2.readDOMFromString( payloads[kHW].begin()->second );
     xmlReader2.readRootElement( calol2, "calol2" );
 
@@ -541,8 +461,8 @@ std::shared_ptr<l1t::CaloParams> L1TCaloParamsOnlineProd::newObject(const std::s
     calol2.setConfigured();
 
     // Perhaps layer 2 has to look at settings for demux and mp separately? // => No demux settings required
-    std::map<std::string, l1t::Setting> calol2_conf = calol2.getSettings("MP1");
-    std::map<std::string, l1t::Mask>    calol2_rs   ;//= calol2.getMasks   ("processors");
+    std::map<std::string, l1t::Parameter> calol2_conf = calol2.getParameters("MP1");
+    std::map<std::string, l1t::Mask>      calol2_rs   ;//= calol2.getMasks   ("processors");
     
     l1t::CaloParamsHelper m_params_helper(*(baseSettings.product()));
 

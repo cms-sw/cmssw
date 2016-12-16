@@ -5,8 +5,9 @@
 #include "CondFormats/L1TObjects/interface/L1TMuonBarrelParams.h"
 #include "CondFormats/DataRecord/interface/L1TMuonBarrelParamsRcd.h"
 #include "CondFormats/DataRecord/interface/L1TMuonBarrelParamsO2ORcd.h"
-#include "L1Trigger/L1TCommon/interface/XmlConfigReader.h"
 #include "L1Trigger/L1TMuonBarrel/interface/L1TMuonBarrelParamsHelper.h"
+#include "L1TriggerConfig/XmlConfigTools/interface/TriggerSystem.h"
+#include "L1TriggerConfig/XmlConfigTools/interface/XmlConfigParser.h"
 
 #include "xercesc/util/PlatformUtils.hpp"
 using namespace XERCES_CPP_NAMESPACE;
@@ -31,9 +32,8 @@ std::shared_ptr<L1TMuonBarrelParams> L1TMuonBarrelParamsOnlineProd::newObject(co
 
 
     if (objectKey.empty()) {
-        edm::LogInfo( "L1-O2O: L1TMuonBarrelParamsOnlineProd" ) << "Key is empty, returning empty L1TMuonBarrelParams";
+        edm::LogError( "L1-O2O: L1TMuonBarrelParamsOnlineProd" ) << "Key is empty, returning empty L1TMuonBarrelParams";
         throw std::runtime_error("Empty objectKey");
-///        return std::make_shared< L1TMuonBarrelParams > ( *(baseSettings.product()) );
     }
 
     std::string tscKey = objectKey.substr(0, objectKey.find(":") );
@@ -64,7 +64,6 @@ std::shared_ptr<L1TMuonBarrelParams> L1TMuonBarrelParamsOnlineProd::newObject(co
         if( queryResult.queryFailed() || queryResult.numberRows() != 1 ){
             edm::LogError( "L1-O2O" ) << "Cannot get BMTF_KEYS.{ALGO,HW}" ;
             throw std::runtime_error("Broken key");
-///            return std::make_shared< L1TMuonBarrelParams > ( *(baseSettings.product()) );
         }
 
         if( !queryResult.fillVariable( "ALGO", algo_key) ) algo_key = "";
@@ -90,7 +89,6 @@ std::shared_ptr<L1TMuonBarrelParams> L1TMuonBarrelParamsOnlineProd::newObject(co
         if( queryResult.queryFailed() || queryResult.numberRows() != 1 ){
             edm::LogError( "L1-O2O" ) << "Cannot get BMTF_RS_KEYS.{MP7,DAQTTC}" ;
             throw std::runtime_error("Broken key");
-///            return std::make_shared< L1TMuonBarrelParams > ( *(baseSettings.product()) );
         }
 
         if( !queryResult.fillVariable( "MP7",    rs_mp7_key  ) ) rs_mp7_key   = "";
@@ -118,7 +116,6 @@ std::shared_ptr<L1TMuonBarrelParams> L1TMuonBarrelParamsOnlineProd::newObject(co
         if( queryResult.queryFailed() || queryResult.numberRows() != 1 ){
             edm::LogError( "L1-O2O: L1TMuonBarrelParamsOnlineProd" ) << "Cannot get BMTF_ALGO.CONF for ID="<<algo_key;
             throw std::runtime_error("Broken key");
-///            return std::make_shared< L1TMuonBarrelParams > ( *(baseSettings.product()) );
         }
 
         if( !queryResult.fillVariable( "CONF", xmlPayload ) ) xmlPayload = "";
@@ -137,7 +134,6 @@ std::shared_ptr<L1TMuonBarrelParams> L1TMuonBarrelParamsOnlineProd::newObject(co
         if( queryResult.queryFailed() || queryResult.numberRows() != 1 ){
             edm::LogError( "L1-O2O: L1TMuonBarrelParamsOnlineProd" ) << "Cannot get BMTF_HW.CONF for ID="<<hw_key;
             throw std::runtime_error("Broken key");
-///            return std::make_shared< L1TMuonBarrelParams > ( *(baseSettings.product()) );
         }
 
         if( !queryResult.fillVariable( "CONF", xmlPayload ) ) xmlPayload = "";
@@ -156,7 +152,6 @@ std::shared_ptr<L1TMuonBarrelParams> L1TMuonBarrelParamsOnlineProd::newObject(co
         if( queryResult.queryFailed() || queryResult.numberRows() != 1 ){
             edm::LogError( "L1-O2O: L1TMuonBarrelParamsOnlineProd" ) << "Cannot get BMTF_RS.CONF for ID="<<rs_mp7_key;
             throw std::runtime_error("Broken key");
-///            return std::make_shared< L1TMuonBarrelParams > ( *(baseSettings.product()) );
         }
 
         if( !queryResult.fillVariable( "CONF", xmlPayload ) ) xmlPayload = "";
@@ -175,7 +170,6 @@ std::shared_ptr<L1TMuonBarrelParams> L1TMuonBarrelParamsOnlineProd::newObject(co
         if( queryResult.queryFailed() || queryResult.numberRows() != 1 ){
             edm::LogError( "L1-O2O: L1TMuonBarrelParamsOnlineProd" ) << "Cannot get BMTF_RS.CONF for ID="<<rs_amc13_key;
             throw std::runtime_error("Broken key");
-///            return std::make_shared< L1TMuonBarrelParams > ( *(baseSettings.product()) );
         }
 
         if( !queryResult.fillVariable( "CONF", xmlPayload ) ) xmlPayload = "";
@@ -200,8 +194,8 @@ for(auto &conf : payloads[kRS]){
 }
 
         // finally, push all payloads to the XML parser and construct the TrigSystem objects with each of those
-        l1t::XmlConfigReader xmlRdr;
-        l1t::TrigSystem parsedXMLs;
+        l1t::XmlConfigParser xmlRdr;
+        l1t::TriggerSystem parsedXMLs;
 //        parsedXMLs.addProcRole("processors", "procMP7");
         // HW settings should always go first
         for(auto &conf : payloads[ kHW ]){
