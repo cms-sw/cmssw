@@ -7,25 +7,7 @@
 
 // L1TMonitor includes
 #include "DQMOffline/L1Trigger/interface/L1TEfficiencyHarvesting.h"
-
-#include "DQMServices/Core/interface/DQMStore.h"
-
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
-#include "DataFormats/Common/interface/ConditionsInEdm.h" // Parameters associated to Run, LS and Event
-#include "DataFormats/Luminosity/interface/LumiDetails.h" // Luminosity Information
-#include "DataFormats/Luminosity/interface/LumiSummary.h" // Luminosity Information
-
-#include "CondFormats/L1TObjects/interface/L1GtTriggerMenu.h"
-#include "CondFormats/L1TObjects/interface/L1GtTriggerMenuFwd.h"
-#include "CondFormats/L1TObjects/interface/L1GtPrescaleFactors.h"
-#include "CondFormats/L1TObjects/interface/L1GtTriggerMask.h"            // L1Gt - Masks
-#include "CondFormats/DataRecord/interface/L1GtTriggerMaskAlgoTrigRcd.h" // L1Gt - Masks
-#include "CondFormats/DataRecord/interface/L1GtTriggerMenuRcd.h"
-#include "CondFormats/DataRecord/interface/L1GtPrescaleFactorsAlgoTrigRcd.h"
-
-#include "DataFormats/Histograms/interface/MEtoEDMFormat.h"
-
-#include "TList.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
 
 using namespace edm;
 using namespace std;
