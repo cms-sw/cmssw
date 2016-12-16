@@ -18,6 +18,11 @@ SiPixelPhase1TrackEfficiencyValid = DefaultHistoTrack.clone(
                    .groupBy("PXBarrel/PXLayer", "EXTEND_Y")
                    .save()
                    .custom("signedmodule_barrel"),
+    Specification().groupBy("PXBarrel/PXLayer/ROC")
+                   .groupBy("PXBarrel/PXLayer", "EXTEND_X")
+                   .save()
+                   .custom("roc_barrel"),
+    
     StandardSpecifications1D_Num
   )
 )
