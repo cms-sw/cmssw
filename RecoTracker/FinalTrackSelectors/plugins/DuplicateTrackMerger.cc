@@ -109,7 +109,6 @@ namespace {
     
 #include "FWCore/Framework/interface/Event.h"
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
-#include "TrackingTools/PatternTools/interface/TwoTrackMinimumDistance.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 #include "CondFormats/DataRecord/interface/GBRWrapperRcd.h"
@@ -244,7 +243,6 @@ void DuplicateTrackMerger::produce(edm::Event& iEvent, const edm::EventSetup& iS
   auto const & tracks = *handle;
   
   iSetup.get<IdealMagneticFieldRecord>().get(magfield_);
-  TwoTrackMinimumDistance ttmd;
   TSCPBuilderNoMaterial tscpBuilder;
   auto out_duplicateCandidates = std::make_unique<std::vector<TrackCandidate>>();
 
