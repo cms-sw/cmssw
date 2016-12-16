@@ -17,11 +17,14 @@
 
 class Traj2TrackHits {
 private:
-  const StripClusterParameterEstimator * theCPE;
-  bool keepOrder;  // FIXME move to enum
-  bool removeNoDet;  // true == as in conversion from TTRH to TRH
+  const StripClusterParameterEstimator * theCPE =nullptr;
+  bool keepOrder=false;  // FIXME move to enum
+  bool removeNoDet=true;  // true == as in conversion from TTRH to TRH
 public:
   using TrajParams = std::vector<LocalTrajectoryParameters>;
+
+  // default for final reco::Track
+  Traj2TrackHits(){}
 
   Traj2TrackHits(const TransientTrackingRecHitBuilder* builder, bool ikeepOrder, bool noNoDet=true) :
     theCPE(static_cast<TkTransientTrackingRecHitBuilder const *>(builder)->stripClusterParameterEstimator()),
