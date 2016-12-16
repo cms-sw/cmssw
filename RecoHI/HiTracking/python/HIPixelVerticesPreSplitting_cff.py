@@ -3,10 +3,15 @@ import FWCore.ParameterSet.Config as cms
 from RecoHI.HiTracking.HIPixelVertices_cff import *
 
 hiPixelClusterVertexPreSplitting = hiPixelClusterVertex.clone( pixelRecHits=cms.string("siPixelRecHitsPreSplitting") )
+
+hiProtoTrackFilterPreSplitting = hiProtoTrackFilter.clone(
+    siPixelRecHits = "siPixelRecHitsPreSplitting"
+)
+
 hiPixel3ProtoTracksPreSplitting = hiPixel3ProtoTracks.clone()
 hiPixel3ProtoTracksPreSplitting.RegionFactoryPSet.RegionPSet.siPixelRecHits = cms.InputTag( "siPixelRecHitsPreSplitting" )
 hiPixel3ProtoTracksPreSplitting.RegionFactoryPSet.RegionPSet.VertexCollection = cms.InputTag( "hiPixelClusterVertexPreSplitting" )
-hiPixel3ProtoTracksPreSplitting.FilterPSet.siPixelRecHits = cms.InputTag( "siPixelRecHitsPreSplitting" )
+hiPixel3ProtoTracksPreSplitting.Filter = "hiProtoTrackFilterPreSplitting"
 hiPixel3ProtoTracksPreSplitting.OrderedHitsFactoryPSet.SeedingLayers = cms.InputTag( "PixelLayerTripletsPreSplitting" )
 
 hiPixelMedianVertexPreSplitting = hiPixelMedianVertex.clone( TrackCollection = cms.InputTag('hiPixel3ProtoTracksPreSplitting') )
@@ -30,6 +35,8 @@ PixelLayerTripletsPreSplitting.BPix.HitProducer = 'siPixelRecHitsPreSplitting'
 
 hiPixelVerticesPreSplitting = cms.Sequence(hiPixelClusterVertexPreSplitting
                                 * PixelLayerTripletsPreSplitting
+                                * hiProtoTrackFilterPreSplitting
+                                * pixelFitterByHelixProjections
                                 * hiPixel3ProtoTracksPreSplitting
                                 * hiPixelMedianVertexPreSplitting
                                 * hiSelectedProtoTracksPreSplitting
