@@ -239,7 +239,7 @@ class FileListCreator(object):
         - `file_name`: name of a dataset file
         """
 
-        if not container.has_key(key):
+        if key not in container:
             container[key] = {"events": 0,
                               "files": []}
         container[key]["events"] += self._file_info[file_name]
@@ -256,7 +256,7 @@ class FileListCreator(object):
         - `event_count`: number of events in `file_name`
         """
 
-        if not container.has_key(key): return
+        if key not in container: return
         try:
             index = container[key]["files"].index(file_name)
         except ValueError:      # file not found
@@ -296,7 +296,7 @@ class FileListCreator(object):
         pool = multiprocessing.Pool(
             processes = number_of_processes,
             initializer = lambda: signal.signal(signal.SIGINT, signal.SIG_IGN))
-        count = pool.map_async(get_events_per_file, self._files).get(sys.maxint)
+        count = pool.map_async(get_events_per_file, self._files).get(sys.maxsize)
         self._file_info = dict(zip(self._files, count))
 
         # write information to cache
@@ -633,7 +633,7 @@ def find_key(collection, key):
     """
 
     for item in collection:
-        if item.has_key(key):
+        if key in item:
             return item[key]
     print collection
     raise KeyError(key)
@@ -668,7 +668,7 @@ def guess_run(file_name):
     try:
         return int("".join(file_name.split("/")[-4:-2]))
     except ValueError:
-        return sys.maxint
+        return sys.maxsize
 
 
 def get_files(dataset_name):
