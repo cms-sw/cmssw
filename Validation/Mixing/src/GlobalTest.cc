@@ -46,7 +46,7 @@ GlobalTest::GlobalTest(const edm::ParameterSet& iConfig):
     cfVertexToken_(consumes<CrossingFrame<SimTrack> >(
         iConfig.getParameter<edm::InputTag>("cfVertexTag")))
 {
-  std::string ecalsubdetb();
+  std::string ecalsubdetb("");
   std::string ecalsubdete("g4SimHitsEcalHitsEE");
   g4SimHits_EB_Token_ = consumes<CrossingFrame<PCaloHit> > (
       edm::InputTag("mix", "g4SimHitsEcalHitsEB"));
