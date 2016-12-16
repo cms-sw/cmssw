@@ -6,7 +6,7 @@ ME0BaseValidation::ME0BaseValidation( const edm::ParameterSet& ps)
 {
   nBinZR_ = ps.getUntrackedParameter<std::vector<double>>("nBinGlobalZR") ;
   RangeZR_ = ps.getUntrackedParameter< std::vector<double> >("RangeGlobalZR");
-  nBinXY_ = ps.getUntrackedParameter<int>("nBinGlobalXY",360) ;
+  nBinXY_ = ps.getUntrackedParameter<int>("nBinGlobalXY",200) ;
 
   regionLabel.push_back("-1");
   regionLabel.push_back("1" );
@@ -63,6 +63,6 @@ MonitorElement* ME0BaseValidation::BookHistXY( DQMStore::IBooker& ibooker, const
     hist_name  = name+string("_xy_r") + regionLabel[region_num];
     hist_label = label+string(" occupancy : region")+regionLabel[region_num]+" ; globalX [cm]; globalY[cm]";
   } 
-  return ibooker.book2D( hist_name, hist_label, nBinXY_, -360,360,nBinXY_,-360,360); 
+  return ibooker.book2D( hist_name, hist_label, nBinXY_, -200,200,nBinXY_,-200,200);
 }
 

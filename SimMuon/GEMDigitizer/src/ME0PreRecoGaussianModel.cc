@@ -84,8 +84,14 @@ for (const auto & hit: simHits)
   int pdgid = hit.particleType();
   if (ex == 0) ex = error_u;//errors cannot be zero
   if (ey == 0) ey = error_v;
+
+  int evtId = hit.eventId().event();
+  int bx = hit.eventId().bunchCrossing();
+  int procType = hit.processType();
+  int res = 1;
+  if(!(evtId == 0 && bx == 0 && procType == 0)) res = 2;
     
-  ME0DigiPreReco digi(x,y,ex,ey,corr,tof,pdgid,1);
+  ME0DigiPreReco digi(x,y,ex,ey,corr,tof,pdgid,res);
   digi_.insert(digi);
 
   edm::LogVerbatim("ME0PreRecoGaussianModel") << "[ME0PreRecoDigi :: simulateSignal] :: simhit in "<<roll->id()<<" at loc x = "<<std::setw(8)<<entry.x()<<" [cm]"
