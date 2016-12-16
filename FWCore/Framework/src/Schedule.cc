@@ -522,7 +522,8 @@ namespace edm {
       summaryTimeKeeper_ = std::make_unique<SystemTimeKeeper>(
                                                     prealloc.numberOfStreams(),
                                                     modDesc,
-                                                    tns);
+                                                    tns,
+                                                    processContext);
       auto timeKeeperPtr = summaryTimeKeeper_.get();
 
       areg->watchPreModuleEvent(timeKeeperPtr, &SystemTimeKeeper::startModuleEvent);
@@ -616,6 +617,9 @@ namespace edm {
       // The trigger report (pass/fail etc.):
 
       LogVerbatim("FwkSummary") << "";
+      if(streamSchedules_[0]->context().processContext()->isSubProcess()) {
+        LogVerbatim("FwkSummary") << "TrigReport Process: "<<streamSchedules_[0]->context().processContext()->processName();
+      }
       LogVerbatim("FwkSummary") << "TrigReport " << "---------- Event  Summary ------------";
       if(!tr.trigPathSummaries.empty()) {
         LogVerbatim("FwkSummary") << "TrigReport"
