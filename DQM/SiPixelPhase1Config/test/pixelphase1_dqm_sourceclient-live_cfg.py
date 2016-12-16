@@ -142,8 +142,8 @@ SiPixelPhase1Geometry.onlineblock = 10
 SiPixelPhase1Geometry.n_onlineblocks = SiPixelPhase1Geometry.max_lumisection.value()/SiPixelPhase1Geometry.onlineblock.value()
 
 # then, we load the online config. This will overwrite more defaults, and e.g. configure for phase0 real data.
-process.load("DQM.SiPixelPhase1Config.SiPixelPhase1OfflineDQM_source_cff")
 process.load("DQM.SiPixelPhase1Config.SiPixelPhase1OnlineDQM_cff")
+process.load("DQM.SiPixelPhase1Config.SiPixelPhase1OfflineDQM_harvesting_cff")
 #process.load("RecoLocalTracker.SiPixelClusterizer.SiPixelClusterizer_cfi")
 # this also loads the plugins. After that, some values cannot be changed any more, since they were copied around.
 
@@ -219,11 +219,7 @@ process.p = cms.Path(
   #  process.siPixelDigis
   #* process.siPixelClusters
   * process.DQMmodules
-  * process.siPixelPhase1OnlineDQM_source
-  * process.siPixelPhase1OnlineDQM_harvesting
-  * process.SiPixelPhase1RecHitsAnalyzer
-  * process.SiPixelPhase1TrackResidualsAnalyzer
-  * process.SiPixelPhase1TrackClustersAnalyzer
-  * process.SiPixelPhase1TrackEfficiencyAnalyzer
+  * process.siPixelPhase1OfflineDQM_source
+  * process.siPixelPhase1OfflineDQM_harvesting
 )
     
