@@ -35,7 +35,7 @@ void L1TMuonBarrelParamsHelper::configFromPy(std::map<std::string, int>& allInts
 
 	setAssLUTPath(AssLUTpath);
 	///Read Pt assignment Luts
-	std::vector<LUT> pta_lut(0); pta_lut.reserve(19);
+        std::vector<LUT> pta_lut(0); pta_lut.reserve(19);
 	std::vector<int> pta_threshold(10);
 	if ( load_pt(pta_lut,pta_threshold, allInts["PT_Assignment_nbits_Phi"], AssLUTpath) != 0 ) {
 	  cout << "Can not open files to load pt-assignment look-up tables for L1TMuonBarrelTrackProducer!" << endl;
@@ -120,33 +120,36 @@ void L1TMuonBarrelParamsHelper::configFromPy(std::map<std::string, int>& allInts
 	//l1mudttfextlut.load();
 }
 
-void L1TMuonBarrelParamsHelper::configFromDB(l1t::TrigSystem& trgSys)
+void L1TMuonBarrelParamsHelper::configFromDB(l1t::TriggerSystem& trgSys)
 {
-	std::map<std::string, std::string> procRole = trgSys.getProcRole();
+	std::map<std::string, std::string> procRole = trgSys.getProcToRoleAssignment();
 
 	for(auto it_proc=procRole.begin(); it_proc!=procRole.end(); it_proc++ )
 	{
 
 	  std::string procId = it_proc->first;
 
-	  std::map<std::string, l1t::Setting> settings = trgSys.getSettings(procId);
-	  std::vector<l1t::TableRow>  tRow = settings["regTable"].getTableRows();
-	  for(auto it=tRow.begin(); it!=tRow.end(); it++)
+	  std::map<std::string, l1t::Parameter> settings = trgSys.getParameters(procId.c_str());
+
+
+          std::vector<std::string> paths = settings["regTable"].getTableColumn<std::string>("register_path");
+          std::vector<unsigned int> vals = settings["regTable"].getTableColumn<unsigned int>("register_value");
+          for(unsigned int row=0; row<paths.size(); row++)
 	  {
-	    if (it->getRowValue<std::string>("register_path").find("open_lut") != std::string::npos){
-	      //std::cout << "Value is: " << it->getRowValue<bool>("register_value") << std::endl;
-	      set_Open_LUTs(it->getRowValue<bool>("register_value"));
+	    if (paths[row].find("open_lut") != std::string::npos){
+	      //std::cout << "Value is: " << vals[row] << std::endl;
+	      set_Open_LUTs(vals[row]);
 	    }
-	    if (it->getRowValue<std::string>("register_path").find("sel_21") != std::string::npos){
-	      //std::cout << "Value is: " << it->getRowValue<bool>("register_value") << std::endl;
-	      set_Extrapolation_21(it->getRowValue<bool>("register_value"));
+	    if (paths[row].find("sel_21") != std::string::npos){
+	      //std::cout << "Value is: " << vals[row] << std::endl;
+	      set_Extrapolation_21(vals[row]);
 	    }
 
-	    if (it->getRowValue<std::string>("register_path").find("dis_newalgo") != std::string::npos){
-	      //std::cout << "Value is: " << it->getRowValue<int>("register_value") << std::endl;
-	      //int fwv = (it->getRowValue<int>("register_value")==1) ? 1 : 2;
+	    if (paths[row].find("dis_newalgo") != std::string::npos){
+	      //std::cout << "Value is: " << vals[row] << std::endl;
+	      //int fwv = (vals[row]==1) ? 1 : 2;
 	      //setFwVersion(fwv);
-	      bool disnewalgo = (it->getRowValue<int>("register_value")==1);
+	      bool disnewalgo = (vals[row]==1);
 	      set_DisableNewAlgo(disnewalgo);
 	    }
 
@@ -155,12 +158,10 @@ void L1TMuonBarrelParamsHelper::configFromDB(l1t::TrigSystem& trgSys)
 	    for(int m=0; m<5; m++)
 	    {
 
-	        if (it->getRowValue<std::string>("register_path").find(masks[m]) != std::string::npos){
-	          string mask_ctrl = it->getRowValue<string>("register_value");
-	          const char *hexstring = mask_ctrl.c_str();
-	          ///Converts the last bit from str to int
-	          int mask = (int)strtol((hexstring+7), NULL, 16);
-	          int mask_all = (int)strtol((hexstring), NULL, 16);
+	        if (paths[row].find(masks[m]) != std::string::npos){
+	          ///Converts the last bit to int
+	          int mask = 0x1&vals[row];
+	          int mask_all = vals[row];
 	          ///All bits must be the same
 	          if(!( mask_all==0x111111 || mask_all==0x222222 || mask_all==0x333333 || mask_all==0x444444 ||
 	             mask_all==0x555555 || mask_all==0x666666 || mask_all==0x777777) )
