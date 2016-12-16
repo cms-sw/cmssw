@@ -26,7 +26,11 @@
 #include "FWCore/ParameterSet/interface/IllegalParameters.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
+#include "FWCore/Concurrency/interface/WaitingTaskHolder.h"
+#include "FWCore/Concurrency/interface/WaitingTask.h"
 #include "FWCore/Utilities/interface/ExceptionCollector.h"
+
+#include "boost/range/adaptor/reversed.hpp"
 
 #include <cassert>
 #include <string>
@@ -317,7 +321,8 @@ namespace edm {
   }
 
   void
-  SubProcess::doEvent(EventPrincipal const& ep) {
+  SubProcess::doEventAsync(WaitingTaskHolder iHolder,
+                           EventPrincipal const& ep) {
     ServiceRegistry::Operate operate(serviceToken_);
     /* BEGIN relevant bits from OutputModule::doEvent */
     if(!wantAllEvents_) {
@@ -327,20 +332,21 @@ namespace edm {
         return;
       }
     }
-    process(ep);
+    processAsync(std::move(iHolder),ep);
     /* END relevant bits from OutputModule::doEvent */
   }
 
   void
-  SubProcess::process(EventPrincipal const& principal) {
+  SubProcess::processAsync(WaitingTaskHolder iHolder,
+                           EventPrincipal const& principal) {
     EventAuxiliary aux(principal.aux());
     aux.setProcessHistoryID(principal.processHistoryID());
-
+    
     EventSelectionIDVector esids{principal.eventSelectionIDs()};
     if (principal.productRegistry().anyProductProduced() || !wantAllEvents_) {
       esids.push_back(selector_config_id_);
     }
-
+    
     EventPrincipal& ep = principalCache_.eventPrincipal(principal.streamID().value());
     auto & processHistoryRegistry = processHistoryRegistries_[principal.streamID().value()];
     processHistoryRegistry.registerProcessHistory(principal.processHistory());
@@ -354,9 +360,39 @@ namespace edm {
                           principal.reader());
     ep.setLuminosityBlockPrincipal(principalCache_.lumiPrincipalPtr());
     propagateProducts(InEvent, principal, ep);
-    schedule_->processOneEvent(ep.streamID().value(),ep, esp_->eventSetup());
-    for_all(subProcesses_, [&ep](auto& subProcess){ subProcess.doEvent(ep); });
-    ep.clearEventPrincipal();
+    
+    WaitingTaskHolder finalizeEventTask( make_waiting_task(tbb::task::allocate_root(),
+                                                           [this,&ep,iHolder](std::exception_ptr const* iPtr) mutable
+      {
+        ep.clearEventPrincipal();
+        if(iPtr) {
+          iHolder.doneWaiting(*iPtr);
+        } else {
+          iHolder.doneWaiting(std::exception_ptr());
+        }
+      }
+                                                           )
+                                        );
+    WaitingTaskHolder afterProcessTask;
+    if(subProcesses_.empty()) {
+      afterProcessTask = std::move(finalizeEventTask);
+    } else {
+      afterProcessTask = WaitingTaskHolder(
+                                           make_waiting_task(tbb::task::allocate_root(),
+                                                             [this,&ep,finalizeEventTask] (std::exception_ptr const* iPtr) mutable{
+        if(not iPtr) {
+          for(auto& subProcess: boost::adaptors::reverse(subProcesses_)) {
+            subProcess.doEventAsync(finalizeEventTask,ep);
+          }
+        } else {
+          finalizeEventTask.doneWaiting(*iPtr);
+        }
+      })
+                                           );
+    }
+    
+    schedule_->processOneEventAsync(std::move(afterProcessTask),
+                                    ep.streamID().value(),ep, esp_->eventSetup());
   }
 
   void
