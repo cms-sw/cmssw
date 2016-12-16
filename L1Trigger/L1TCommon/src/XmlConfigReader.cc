@@ -12,8 +12,10 @@ XERCES_CPP_NAMESPACE_USE
 using namespace l1t;
 
 inline std::string _toString(XMLCh const* toTranscode) {
-std::string tmp(xercesc::XMLString::transcode(toTranscode));
-return tmp;
+    char *c = xercesc::XMLString::transcode(toTranscode);
+    std::string retval = c;
+    xercesc::XMLString::release(&c);
+    return retval;
 }
 
 
