@@ -79,8 +79,6 @@ SiPixelPhase1DigisNdigisPerFEDtrend = DefaultHisto.clone(
                    .groupBy("Lumisection", "EXTEND_Y")
                    .groupBy("", "EXTEND_X")
                    .save()
-                   .custom("ratio_to_average")
-                   .save()
   )
 )
 
@@ -170,7 +168,7 @@ SiPixelPhase1DigisAnalyzer = cms.EDAnalyzer("SiPixelPhase1Digis",
         geometry = SiPixelPhase1Geometry
 )
 
-SiPixelPhase1DigisHarvester = cms.EDAnalyzer("SiPixelPhase1DigisHarvester",
+SiPixelPhase1DigisHarvester = cms.EDAnalyzer("SiPixelPhase1Harvester",
         histograms = SiPixelPhase1DigisConf,
         geometry = SiPixelPhase1Geometry
 )

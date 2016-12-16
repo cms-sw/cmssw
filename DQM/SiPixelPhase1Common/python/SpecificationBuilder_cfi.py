@@ -15,7 +15,6 @@ EXTEND_Y = cms.int32(3)
 COUNT    = cms.int32(4)  # drop all values, only count entries. Atm only step1.
 REDUCE   = cms.int32(5)  # histogram-to-scalar operator for harvesting, atm only MEAN
 SAVE     = cms.int32(6)  # atm not used in execution. Marks stage1/2 switch.
-CUSTOM   = cms.int32(7)  # call callback in harvesting
 USE_X    = cms.int32(8)  # use arg-th fill(...) parameter for the respective axis. 
 USE_Y    = cms.int32(9)
 USE_Z    = cms.int32(10)
@@ -54,9 +53,8 @@ DefaultConf = cms.PSet(enabled = cms.bool(True))
 #  - which is either USE_* or EXTEND_*
 #  - with one column, that is NOT listed in FIRST.
 #  - There is optionally an entry PROFILE to make a profile.
-# - There are 0-n steps STAGE2, which are one of GROUPBY, EXTEND_X, CUSTOM
+# - There are 0-n steps STAGE2, which are one of GROUPBY, EXTEND_X
 #  - The argument for GROUPBY and EXTEND_X is a subset of columns of last step
-#  - CUSTOM may have an arbitrary argument that is simply passed down
 #  - SAVE is ignored
 
 class Specification(cms.PSet):
@@ -230,18 +228,6 @@ class Specification(cms.PSet):
     #))
     self._state = STAGE2
     return self
-
-  def custom(self, arg = ""):
-    if self._state != STAGE2:
-      raise Exception("Custom processing exists only in Harvesting.")
-    self.spec.append(cms.PSet(
-      type = CUSTOM, 
-      stage = self._state, 
-      columns = cms.vstring(),
-      arg = cms.string(arg)
-    ))
-    return self
-
 
   def saveAll(self):
     # call groupBy() and save() until all colums are consumed.
