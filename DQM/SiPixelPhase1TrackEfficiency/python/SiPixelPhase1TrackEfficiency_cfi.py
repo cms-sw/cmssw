@@ -4,43 +4,43 @@ from DQM.SiPixelPhase1Common.HistogramManager_cfi import *
 SiPixelPhase1TrackEfficiencyValid = DefaultHistoTrack.clone(
   name = "valid",
   title = "Valid Hits",
+  xlabel = "valid hits",
   dimensions = 0,
   specs = VPSet(
-    # custom() is called here after every save to export the histos for the
-    # efficiency harvesting. The parameter is just a tag that we don't confuse 
-    # the histos of different specs.
-    Specification().groupBy("PXForward/PXDisk/PXBlade/PXPanel")
-                   .groupBy("PXForward/PXDisk/PXBlade", "EXTEND_X")
-                   .groupBy("PXForward/PXDisk", "EXTEND_Y")
-                   .save(),
-    Specification().groupBy("PXBarrel/PXLayer/signedLadder/signedModule")
-                   .groupBy("PXBarrel/PXLayer/signedLadder", "EXTEND_X")
-                   .groupBy("PXBarrel/PXLayer", "EXTEND_Y")
-                   .save()
-                   .custom("signedmodule_barrel"),
-    Specification().groupBy("PXBarrel/PXLayer/ROC")
-                   .groupBy("PXBarrel/PXLayer", "EXTEND_X")
-                   .save()
-                   .custom("roc_barrel"),
-    
+    # TODO: Add Occupancy map matching StandardSpecificationsProfile2D here.
     StandardSpecifications1D_Num
   )
 )
 
-SiPixelPhase1TrackEfficiencyMissing = SiPixelPhase1TrackEfficiencyValid.clone(
+SiPixelPhase1TrackEfficiencyMissing = DefaultHistoTrack.clone(
   name = "missing",
   title = "Missing Hits",
+  xlabel = "missing hits",
+  dimensions = 0,
+  specs = VPSet(
+    StandardSpecifications1D_Num
+  )
 )
 
 SiPixelPhase1TrackEfficiencyEfficiency = SiPixelPhase1TrackEfficiencyValid.clone(
   name = "hitefficiency",
   title = "Hit Efficiency",
-  # most stuff done in custom() step, carried over from valid/missing histos
-  # the custom() step looks for matching valid/mmissing histos and fills the
-  # efficiency plots if data is available. So all should use the same specs.
+  xlabel = "#valid/(#valid+#missing)",
+  dimensions = 1,
+  specs = VPSet(
+    StandardSpecification2DProfile,
+    Specification().groupBy("PXBarrel/PXLayer/ROC")
+                   .groupBy("PXBarrel/PXLayer", "EXTEND_X")
+                   .reduce("MEAN")
+                   .save(),
+    Specification().groupBy("PXForward/PXRing/ROC")
+                   .groupBy("PXForward/PXRing", "EXTEND_X")
+                   .reduce("MEAN")
+                   .save()
+  )
 )
 
-SiPixelPhase1TrackEfficiencyEfficiencyVertices= DefaultHistoTrack.clone(
+SiPixelPhase1TrackEfficiencyVertices= DefaultHistoTrack.clone(
     name = "num_vertices",
     title = "PrimaryVertices",
     xlabel= "# Vertices",
@@ -56,7 +56,7 @@ SiPixelPhase1TrackEfficiencyEfficiencyVertices= DefaultHistoTrack.clone(
                    .groupBy("","EXTEND_X")
                    .save()
    )
- )
+)
 
 
 
@@ -64,7 +64,7 @@ SiPixelPhase1TrackEfficiencyConf = cms.VPSet(
   SiPixelPhase1TrackEfficiencyValid,
   SiPixelPhase1TrackEfficiencyMissing,
   SiPixelPhase1TrackEfficiencyEfficiency,
-  SiPixelPhase1TrackEfficiencyEfficiencyVertices
+  SiPixelPhase1TrackEfficiencyVertices
 )
 
 
@@ -76,7 +76,7 @@ SiPixelPhase1TrackEfficiencyAnalyzer = cms.EDAnalyzer("SiPixelPhase1TrackEfficie
         geometry = SiPixelPhase1Geometry
 )
 
-SiPixelPhase1TrackEfficiencyHarvester = cms.EDAnalyzer("SiPixelPhase1TrackEfficiencyHarvester",
+SiPixelPhase1TrackEfficiencyHarvester = cms.EDAnalyzer("SiPixelPhase1Harvester",
         histograms = SiPixelPhase1TrackEfficiencyConf,
         geometry = SiPixelPhase1Geometry
 )
