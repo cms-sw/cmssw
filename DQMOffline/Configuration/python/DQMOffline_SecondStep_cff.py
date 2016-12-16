@@ -43,6 +43,7 @@ from DQMOffline.RecoB.dqmCollector_cff import *
 from DQMOffline.JetMET.SusyPostProcessor_cff import *
 from DQMOffline.JetMET.dataCertificationJetMET_cff import *
 from DQM.TrackingMonitorClient.TrackingClientConfig_Tier0_cff import *
+from DQM.Phase2OuterTracker.OuterTrackerClientConfig_cff import *
 
 DQMOffline_SecondStep_PrePOG = cms.Sequence( TrackingOfflineDQMClient *
                                              muonQualityTests *
@@ -107,6 +108,14 @@ DQMHarvestCommonSiStripZeroBias = cms.Sequence(dqmRefHistoRootFileGetter *
 
 DQMHarvestTracking = cms.Sequence( TrackingOfflineDQMClient *
                                    dqmFastTimerServiceClient )
+
+DQMHarvestOuterTracker = cms.Sequence( dqmRefHistoRootFileGetter *
+                                 dqmDcsInfoClient *
+                                 OuterTrackerClient *
+                                 dqmFEDIntegrityClient *
+                                 DQMMessageLoggerClientSeq *
+                                 dqmFastTimerServiceClient
+                                 )
 
 DQMHarvestMuon = cms.Sequence( dtClients *
                                rpcTier0Client *
