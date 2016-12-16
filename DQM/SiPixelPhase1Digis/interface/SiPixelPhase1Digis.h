@@ -39,22 +39,4 @@ class SiPixelPhase1Digis : public SiPixelPhase1Base {
 
 };
 
-class SiPixelPhase1DigisHarvester : public SiPixelPhase1Harvester {
-  enum {
-    ADC,
-    NDIGIS,
-    NDIGISINCLUSIVE,
-    NDIGIS_FED, 
-    NDIGIS_FEDtrend,
-    EVENT,
-    MAP,
-    OCCUPANCY,
-
-    MAX_HIST
-  };
-  public:
-  explicit SiPixelPhase1DigisHarvester(const edm::ParameterSet& conf);
-
-};
-
 #endif
