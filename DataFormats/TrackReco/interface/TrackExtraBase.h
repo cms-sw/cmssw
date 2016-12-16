@@ -14,7 +14,7 @@
  */
 
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHitFwd.h"
-
+#include "DataFormats/TrajectoryState/interface/LocalTrajectoryParameters.h"
 namespace reco
 {
 
@@ -22,6 +22,8 @@ class TrackExtraBase
 {
 
 public:
+    using TrajParams = std::vector<LocalTrajectoryParameters>;
+
     /// default constructor
     TrackExtraBase() : m_firstHit(-1), m_nHits(0) { }
 
@@ -29,6 +31,8 @@ public:
         m_hitCollection.pushBackItem(prod.refCore(),true);
         m_firstHit =firstH;  m_nHits=nH;
     }
+
+    void setTrajParams(TrajParams  tmps) { m_trajParams = std::move(tmps);}
 
     unsigned int firstRecHit() const {
       return m_firstHit;
@@ -73,12 +77,14 @@ public:
 
     }
 
+    TrajParams const &  trajParams() const  {return m_trajParams;}
+
 private:
 
     edm::RefCore m_hitCollection;
     unsigned int m_firstHit;
     unsigned int m_nHits;
-
+    TrajParams m_trajParams;
 };
 
 }// namespace reco
