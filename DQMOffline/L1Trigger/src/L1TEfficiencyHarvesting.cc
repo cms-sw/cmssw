@@ -111,14 +111,13 @@ void L1TEfficiencyPlotHandler::computeEfficiency(DQMStore::IBooker &ibooker, DQM
 //___________DQM_analyzer_class________________________________________
 L1TEfficiencyHarvesting::L1TEfficiencyHarvesting(const ParameterSet & ps) :
         verbose_(ps.getUntrackedParameter<bool>("verbose")),
-        plotCfgs_(ps.getUntrackedParameter < std::vector<edm::ParameterSet> > ("plotCfgs")),
         plotHandlers_()
 {
   if (verbose_) {
     edm::LogInfo("L1TEfficiencyHarvesting") << "____________ Storage initialization ____________ " << endl;
   }
 
-  for (auto plotConfig : plotCfgs_) {
+  for (auto plotConfig : ps.getUntrackedParameter < std::vector<edm::ParameterSet> > ("plotCfgs")) {
     vector < string > plots = plotConfig.getUntrackedParameter < vector < string >> ("plots");
     for (auto plot : plots) {
       plotHandlers_.push_back(L1TEfficiencyPlotHandler(plotConfig, plot));

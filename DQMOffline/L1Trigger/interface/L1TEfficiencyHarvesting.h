@@ -88,8 +88,6 @@ private:
 
   bool verbose_;
 
-  std::vector<edm::ParameterSet> plotCfgs_;
-
   L1TEfficiencyPlotHandlerCollection plotHandlers_;
 
 };
