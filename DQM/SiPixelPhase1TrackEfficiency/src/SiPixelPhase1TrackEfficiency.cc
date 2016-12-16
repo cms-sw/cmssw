@@ -112,8 +112,14 @@ void SiPixelPhase1TrackEfficiency::analyze(const edm::Event& iEvent, const edm::
       int col = (int) mp.y();
 
 
-      if (isHitValid)   histo[VALID  ].fill(id, &iEvent, col, row);
-      if (isHitMissing) histo[MISSING].fill(id, &iEvent, col, row);
+      if (isHitValid)   {
+        histo[VALID].fill(id, &iEvent, col, row);
+        histo[EFFICIENCY].fill(1, id, &iEvent, col, row);
+      }
+      if (isHitMissing) {
+        histo[MISSING].fill(id, &iEvent, col, row);
+        histo[EFFICIENCY].fill(0, id, &iEvent, col, row);
+      }
     }
   }
 histo[VALID  ].executePerEventHarvesting(&iEvent);
