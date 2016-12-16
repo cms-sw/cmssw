@@ -126,11 +126,13 @@ void KfTrackProducerBase::putInEvt(edm::Event& evt,
     reco::TrackExtra & tx = selTrackExtras->back();
     // ---  NOTA BENE: the convention is to sort hits and measurements "along the momentum".
     // This is consistent with innermost and outermost labels only for tracks from LHC collisions
-    Traj2TrackHits t2t(hitBuilder,false);
+    reco::TrackExtra::TrajParams trajParams;
+    Traj2TrackHits t2t;
     auto ih = selHits->size();
-    t2t(*theTraj,*selHits,useSplitting);
+    t2t(*theTraj,*selHits,trajParams);
     auto ie = selHits->size();
     tx.setHits(rHits,ih,ie-ih);
+    tx.setTrajParams(trajParams);
     for (;ih<ie; ++ih) {
       auto const & hit = (*selHits)[ih];
       track.appendHitPattern(hit, *ttopo);
