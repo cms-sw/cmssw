@@ -6,9 +6,10 @@
 #include "CondFormats/L1TObjects/interface/L1TMuonGlobalParams.h"
 #include "CondFormats/DataRecord/interface/L1TMuonGlobalParamsRcd.h"
 #include "CondFormats/DataRecord/interface/L1TMuonGlobalParamsO2ORcd.h"
-#include "L1Trigger/L1TCommon/interface/TrigSystem.h"
 #include "L1Trigger/L1TMuon/interface/L1TMuonGlobalParamsHelper.h"
 #include "L1Trigger/L1TMuon/interface/L1TMuonGlobalParams_PUBLIC.h"
+#include "L1TriggerConfig/XmlConfigTools/interface/TriggerSystem.h"
+#include "L1TriggerConfig/XmlConfigTools/interface/XmlConfigParser.h"
 
 class L1TMuonGlobalParamsOnlineProd : public L1ConfigOnlineProdBaseExt<L1TMuonGlobalParamsO2ORcd,L1TMuonGlobalParams> {
 private:
@@ -31,7 +32,6 @@ std::shared_ptr<L1TMuonGlobalParams> L1TMuonGlobalParamsOnlineProd::newObject(co
     if( objectKey.empty() ){
         edm::LogError( "L1-O2O: L1TMuonGlobalParamsOnlineProd" ) << "Key is empty";
         throw std::runtime_error("Empty objectKey");
-///        return boost::shared_ptr< L1TMuonGlobalParams > ( new L1TMuonGlobalParams( *(baseSettings.product()) ) );
     }
 
     std::string tscKey = objectKey.substr(0, objectKey.find(":") );
@@ -59,7 +59,6 @@ std::shared_ptr<L1TMuonGlobalParams> L1TMuonGlobalParamsOnlineProd::newObject(co
     if( queryResult.queryFailed() || queryResult.numberRows() != 1 ){
         edm::LogError( "L1-O2O: L1TMuonGlobalParamsOnlineProd" ) << "Cannot get UGMT_KEYS.{ALGO,HW} for ID = " << tscKey ;
         throw std::runtime_error("Broken key");
-///        return boost::shared_ptr< L1TMuonGlobalParams >( new L1TMuonGlobalParams( *(baseSettings.product()) ) ) ;
     }
 
     if( !queryResult.fillVariable( "ALGO", algo_key) ) algo_key = "";
@@ -85,7 +84,6 @@ std::shared_ptr<L1TMuonGlobalParams> L1TMuonGlobalParamsOnlineProd::newObject(co
     if( queryResult.queryFailed() || queryResult.numberRows() != 1 ){
         edm::LogError( "L1-O2O: L1TMuonGlobalParamsOnlineProd" ) << "Cannot get UGMT_RS_KEYS.{MP7,MP7_MONI,AMC13_MONI} for ID = " << rsKey ;
         throw std::runtime_error("Broken key");
-///            return boost::shared_ptr< L1TMuonGlobalParams > ( new L1TMuonGlobalParams( *(baseSettings.product()) ) );
     }
 
     if( !queryResult.fillVariable( "MP7",        rs_mp7_key      ) ) rs_mp7_key       = "";
@@ -111,7 +109,6 @@ std::shared_ptr<L1TMuonGlobalParams> L1TMuonGlobalParamsOnlineProd::newObject(co
     if( queryResult.queryFailed() || queryResult.numberRows() != 1 ){
         edm::LogError( "L1-O2O: L1TMuonGlobalParamsOnlineProd" ) << "Cannot get UGMT_ALGO.{MP7,LUTS} for ID = " << algo_key;
         throw std::runtime_error("Broken key");
-///        return boost::shared_ptr< L1TMuonGlobalParams >( new L1TMuonGlobalParams( *(baseSettings.product()) ) ) ;
     }
 
     if( !queryResult.fillVariable( "MP7",  algo_mp7_key  ) ) algo_mp7_key  = "";
@@ -139,7 +136,6 @@ std::shared_ptr<L1TMuonGlobalParams> L1TMuonGlobalParamsOnlineProd::newObject(co
     if( queryResult.queryFailed() || queryResult.numberRows() != 1 ){
         edm::LogError( "L1-O2O: L1TMuonGlobalParamsOnlineProd" ) << "Cannot get UGMT_ALGO.CONF for ID = " << algo_mp7_key;
         throw std::runtime_error("Broken key");
-///        return boost::shared_ptr< L1TMuonGlobalParams >( new L1TMuonGlobalParams( *(baseSettings.product()) ) ) ;
     }
 
     if( !queryResult.fillVariable( "CONF", xmlPayload ) ) xmlPayload = "";
@@ -157,7 +153,6 @@ std::shared_ptr<L1TMuonGlobalParams> L1TMuonGlobalParamsOnlineProd::newObject(co
     if( queryResult.queryFailed() || queryResult.numberRows() != 1 ){
         edm::LogError( "L1-O2O: L1TMuonGlobalParamsOnlineProd" ) << "Cannot get UGMT_ALGO.CONF for ID = " << algo_luts_key;
         throw std::runtime_error("Broken key");
-///        return boost::shared_ptr< L1TMuonGlobalParams >( new L1TMuonGlobalParams( *(baseSettings.product()) ) ) ;
     }
 
     if( !queryResult.fillVariable( "CONF", xmlPayload ) ) xmlPayload = "";
@@ -177,7 +172,6 @@ std::shared_ptr<L1TMuonGlobalParams> L1TMuonGlobalParamsOnlineProd::newObject(co
     if( queryResult.queryFailed() || queryResult.numberRows() != 1 ){
         edm::LogError( "L1-O2O: L1TMuonGlobalParamsOnlineProd" ) << "Cannot get UGMT_HW.CONF for ID = " << hw_key;
         throw std::runtime_error("Broken key");
-///        return boost::shared_ptr< L1TMuonGlobalParams >( new L1TMuonGlobalParams( *(baseSettings.product()) ) ) ;
     }
 
     if( !queryResult.fillVariable( "CONF", xmlPayload ) ) xmlPayload = "";
@@ -196,7 +190,6 @@ std::shared_ptr<L1TMuonGlobalParams> L1TMuonGlobalParamsOnlineProd::newObject(co
     if( queryResult.queryFailed() || queryResult.numberRows() != 1 ){
         edm::LogError( "L1-O2O: L1TMuonGlobalParamsOnlineProd" ) << "Cannot get UGMT_RS.CONF for ID = " << rs_mp7_key;
         throw std::runtime_error("Broken key");
-//?        return boost::shared_ptr< L1TMuonGlobalParams >( new L1TMuonGlobalParams( *(baseSettings.product()) ) ) ;
     }
 
     if( !queryResult.fillVariable( "CONF", xmlPayload ) ) xmlPayload = "";
@@ -214,7 +207,6 @@ std::shared_ptr<L1TMuonGlobalParams> L1TMuonGlobalParamsOnlineProd::newObject(co
     if( queryResult.queryFailed() || queryResult.numberRows() != 1 ){
         edm::LogError( "L1-O2O: L1TMuonGlobalParamsOnlineProd" ) << "Cannot get UGMT_RS.CONF for ID = " << rs_mp7moni_key;
         throw std::runtime_error("Broken key");
-///        return boost::shared_ptr< L1TMuonGlobalParams >( new L1TMuonGlobalParams( *(baseSettings.product()) ) ) ;
     }
 
     if( !queryResult.fillVariable( "CONF", xmlPayload ) ) xmlPayload = "";
@@ -233,7 +225,6 @@ std::shared_ptr<L1TMuonGlobalParams> L1TMuonGlobalParamsOnlineProd::newObject(co
     if( queryResult.queryFailed() || queryResult.numberRows() != 1 ){
         edm::LogError( "L1-O2O: L1TMuonBarrelParamsOnlineProd" ) << "Cannot get UGMT_RS.CONF for ID = " << rs_amc13moni_key;
         throw std::runtime_error("Broken key");
-///        return boost::shared_ptr< L1TMuonGlobalParams >( new L1TMuonGlobalParams( *(baseSettings.product()) ) ) ;
     }
 
     if( !queryResult.fillVariable( "CONF", xmlPayload ) ) xmlPayload = "";
@@ -259,8 +250,8 @@ std::shared_ptr<L1TMuonGlobalParams> L1TMuonGlobalParamsOnlineProd::newObject(co
     }
 
     // finally, push all payloads to the XML parser and construct the TrigSystem objects with each of those
-    l1t::XmlConfigReader xmlRdr;
-    l1t::TrigSystem trgSys;
+    l1t::XmlConfigParser xmlRdr;
+    l1t::TriggerSystem trgSys;
     // HW settings should always go first
     for(auto &conf : payloads[ kHW ]){
         xmlRdr.readDOMFromString( conf.second );
@@ -281,7 +272,8 @@ std::shared_ptr<L1TMuonGlobalParams> L1TMuonGlobalParamsOnlineProd::newObject(co
     m_params_helper.loadFromOnline(trgSys);
 
     std::shared_ptr< L1TMuonGlobalParams > retval = std::make_shared< L1TMuonGlobalParams >( cast_to_L1TMuonGlobalParams(m_params_helper) );
-    return retval;
+
+    return retval ;
 }
 
 //define this as a plug-in
