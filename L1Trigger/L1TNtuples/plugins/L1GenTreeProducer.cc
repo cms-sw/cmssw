@@ -105,6 +105,8 @@ L1GenTreeProducer::~L1GenTreeProducer()
  
   // do anything here that needs to be done at desctruction time
   // (e.g. close files, deallocate resources etc.)
+  
+  delete l1GenData_;
 
 }
 
