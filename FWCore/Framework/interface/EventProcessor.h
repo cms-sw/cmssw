@@ -16,6 +16,7 @@ configured in the user's main() function, and is set running.
 #include "FWCore/Framework/interface/IEventProcessor.h"
 #include "FWCore/Framework/interface/InputSource.h"
 #include "FWCore/Framework/interface/PathsAndConsumesOfModules.h"
+#include "FWCore/Framework/interface/SharedResourcesAcquirer.h"
 #include "FWCore/Framework/src/PrincipalCache.h"
 #include "FWCore/Framework/src/SignallingProductRegistry.h"
 #include "FWCore/Framework/src/PreallocationConfiguration.h"
@@ -36,8 +37,8 @@ configured in the user's main() function, and is set running.
 #include <set>
 #include <string>
 #include <vector>
-#include <mutex>
 #include <exception>
+#include <mutex>
 
 namespace statemachine {
   class Machine;
@@ -53,6 +54,9 @@ namespace edm {
   class HistoryAppender;
   class ProcessDesc;
   class SubProcess;
+  class WaitingTaskHolder;
+  class WaitingTask;
+  
   namespace eventsetup {
     class EventSetupProvider;
     class EventSetupsController;
@@ -169,50 +173,50 @@ namespace edm {
     //                     requested by the argument
     //   epSuccess - all other cases
     //
-    virtual StatusCode runToCompletion();
+    virtual StatusCode runToCompletion() override;
 
     // The following functions are used by the code implementing our
     // boost statemachine
 
-    virtual void readFile();
-    virtual void closeInputFile(bool cleaningUpAfterException);
-    virtual void openOutputFiles();
-    virtual void closeOutputFiles();
+    virtual void readFile() override;
+    virtual void closeInputFile(bool cleaningUpAfterException) override;
+    virtual void openOutputFiles() override;
+    virtual void closeOutputFiles() override;
 
-    virtual void respondToOpenInputFile();
-    virtual void respondToCloseInputFile();
+    virtual void respondToOpenInputFile() override;
+    virtual void respondToCloseInputFile() override;
 
-    virtual void startingNewLoop();
-    virtual bool endOfLoop();
-    virtual void rewindInput();
-    virtual void prepareForNextLoop();
-    virtual bool shouldWeCloseOutput() const;
+    virtual void startingNewLoop() override;
+    virtual bool endOfLoop() override;
+    virtual void rewindInput() override;
+    virtual void prepareForNextLoop() override;
+    virtual bool shouldWeCloseOutput() const override;
 
-    virtual void doErrorStuff();
+    virtual void doErrorStuff() override;
 
-    virtual void beginRun(statemachine::Run const& run);
-    virtual void endRun(statemachine::Run const& run, bool cleaningUpAfterException);
+    virtual void beginRun(statemachine::Run const& run) override;
+    virtual void endRun(statemachine::Run const& run, bool cleaningUpAfterException) override;
 
-    virtual void beginLumi(ProcessHistoryID const& phid, RunNumber_t run, LuminosityBlockNumber_t lumi);
-    virtual void endLumi(ProcessHistoryID const& phid, RunNumber_t run, LuminosityBlockNumber_t lumi, bool cleaningUpAfterException);
+    virtual void beginLumi(ProcessHistoryID const& phid, RunNumber_t run, LuminosityBlockNumber_t lumi) override;
+    virtual void endLumi(ProcessHistoryID const& phid, RunNumber_t run, LuminosityBlockNumber_t lumi, bool cleaningUpAfterException) override;
 
-    virtual statemachine::Run readRun();
-    virtual statemachine::Run readAndMergeRun();
-    virtual int readLuminosityBlock();
-    virtual int readAndMergeLumi();
-    virtual void writeRun(statemachine::Run const& run);
-    virtual void deleteRunFromCache(statemachine::Run const& run);
-    virtual void writeLumi(ProcessHistoryID const& phid, RunNumber_t run, LuminosityBlockNumber_t lumi);
-    virtual void deleteLumiFromCache(ProcessHistoryID const& phid, RunNumber_t run, LuminosityBlockNumber_t lumi);
+    virtual statemachine::Run readRun() override;
+    virtual statemachine::Run readAndMergeRun() override;
+    virtual int readLuminosityBlock() override;
+    virtual int readAndMergeLumi() override;
+    virtual void writeRun(statemachine::Run const& run) override;
+    virtual void deleteRunFromCache(statemachine::Run const& run) override;
+    virtual void writeLumi(ProcessHistoryID const& phid, RunNumber_t run, LuminosityBlockNumber_t lumi) override;
+    virtual void deleteLumiFromCache(ProcessHistoryID const& phid, RunNumber_t run, LuminosityBlockNumber_t lumi) override;
 
-    virtual void readAndProcessEvent();
-    virtual bool shouldWeStop() const;
+    virtual void readAndProcessEvent() override;
+    virtual bool shouldWeStop() const override;
 
-    virtual void setExceptionMessageFiles(std::string& message);
-    virtual void setExceptionMessageRuns(std::string& message);
-    virtual void setExceptionMessageLumis(std::string& message);
+    virtual void setExceptionMessageFiles(std::string& message) override;
+    virtual void setExceptionMessageRuns(std::string& message) override;
+    virtual void setExceptionMessageLumis(std::string& message) override;
 
-    virtual bool alreadyHandlingException() const;
+    virtual bool alreadyHandlingException() const override;
 
     //returns 'true' if this was a child and we should continue processing
     bool forkProcess(std::string const& jobReportFile);
@@ -233,19 +237,25 @@ namespace edm {
 
     void possiblyContinueAfterForkChildFailure();
     
-    friend class StreamProcessingTask;
-    void processEventsForStreamAsync(unsigned int iStreamIndex,
+    bool readNextEventForStream(unsigned int iStreamIndex,
                                      std::atomic<bool>* finishedProcessingEvents);
-    
+
+    void handleNextEventForStreamAsync(WaitingTask* iTask,
+                                       unsigned int iStreamIndex,
+                                     std::atomic<bool>* finishedProcessingEvents);
+
     
     //read the next event using Stream iStreamIndex
     void readEvent(unsigned int iStreamIndex);
 
     //process the already read event using Stream iStreamIndex
-    void processEvent(unsigned int iStreamIndex);
+    void processEventAsync(WaitingTaskHolder iHolder,
+                           unsigned int iStreamIndex);
 
     //returns true if an asynchronous stop was requested
     bool checkForAsyncStopRequest(StatusCode&);
+    
+    void processEventWithLooper(EventPrincipal&);
 
     std::shared_ptr<ProductRegistry const> preg() const {return get_underlying_safe(preg_);}
     std::shared_ptr<ProductRegistry>& preg() {return get_underlying_safe(preg_);}
@@ -285,7 +295,8 @@ namespace edm {
     std::atomic<bool>                             deferredExceptionPtrIsSet_;
     std::exception_ptr                            deferredExceptionPtr_;
     
-    std::mutex                                    nextTransitionMutex_;
+    SharedResourcesAcquirer                       sourceResourcesAcquirer_;
+    std::shared_ptr<std::recursive_mutex>         sourceMutex_;
     PrincipalCache                                principalCache_;
     bool                                          beginJobCalled_;
     bool                                          shouldWeStop_;
@@ -310,6 +321,7 @@ namespace edm {
     bool                                          asyncStopRequestedWhileProcessingEvents_;
     InputSource::ItemType                         nextItemTypeFromProcessingEvents_;
     StatusCode                                    asyncStopStatusCodeFromProcessingEvents_;
+    bool firstEventInBlock_=true;
     
     typedef std::set<std::pair<std::string, std::string> > ExcludedData;
     typedef std::map<std::string, ExcludedData> ExcludedDataMap;

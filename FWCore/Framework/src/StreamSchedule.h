@@ -104,6 +104,7 @@ namespace edm {
   class ModuleRegistry;
   class TriggerResultInserter;
   class PreallocationConfiguration;
+  class WaitingTaskHolder;
 
   namespace service {
     class TriggerNamesService;
@@ -167,9 +168,9 @@ namespace edm {
     
     StreamSchedule(StreamSchedule const&) = delete;
 
-    void processOneEvent( EventPrincipal& principal,
-                         EventSetup const& eventSetup,
-                         bool cleaningUpAfterException = false);
+    void processOneEventAsync(WaitingTaskHolder iTask,
+                              EventPrincipal& ep,
+                              EventSetup const& es);
 
     template <typename T>
     void processOneStream(typename T::MyPrincipal& principal,
@@ -289,6 +290,10 @@ namespace edm {
 
     void resetAll();
 
+    void finishedPaths(std::exception_ptr, WaitingTaskHolder,
+                       EventPrincipal& ep, EventSetup const& es);
+    std::exception_ptr finishProcessOneEvent(std::exception_ptr);
+    
     template <typename T>
     bool runTriggerPaths(typename T::MyPrincipal const&, EventSetup const&, typename T::Context const*);
 
