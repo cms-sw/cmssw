@@ -259,6 +259,7 @@ namespace edm {
       return number_of_unscheduled_modules_;
     }
     
+    StreamContext const& context() const { return streamContext_;}
   private:
     //Sentry class to only send a signal if an
     // exception occurs. An exception is identified
