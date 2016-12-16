@@ -26,8 +26,10 @@ _layerListForPhase1 = [
     'BPix1+FPix1_pos+FPix3_pos', 'BPix1+FPix1_neg+FPix3_neg'
 ]
 from Configuration.Eras.Modifier_trackingPhase1_cff import trackingPhase1
+from Configuration.Eras.Modifier_trackingPhase1QuadProp_cff import trackingPhase1QuadProp
 from Configuration.Eras.Modifier_trackingPhase1PU70_cff import trackingPhase1PU70
 trackingPhase1.toModify(lowPtTripletStepSeedLayers, layerList = _layerListForPhase1)
+trackingPhase1QuadProp.toModify(lowPtTripletStepSeedLayers, layerList = _layerListForPhase1)
 trackingPhase1PU70.toModify(lowPtTripletStepSeedLayers, layerList = _layerListForPhase1)
 
 # combination with gap removed as only source of fakes in current geometry (kept for doc,=)
@@ -55,7 +57,8 @@ lowPtTripletStepTrackingRegions = _globalTrackingRegionFromBeamSpot.clone(Region
     originRadius = 0.02,
     nSigmaZ = 4.0
 ))
-trackingPhase1.toModify(lowPtTripletStepTrackingRegions, RegionPSet = dict(ptMin = 0.35)) # FIXME: Phase1PU70 value, let's see if we can lower it to Run2 value (0.2)
+trackingPhase1.toModify(lowPtTripletStepTrackingRegions, RegionPSet = dict(ptMin = 0.2))
+trackingPhase1QuadProp.toModify(lowPtTripletStepTrackingRegions, RegionPSet = dict(ptMin = 0.35)) # FIXME: Phase1PU70 value, let's see if we can lower it to Run2 value (0.2)
 trackingPhase1PU70.toModify(lowPtTripletStepTrackingRegions, RegionPSet = dict(ptMin = 0.35, originRadius = 0.015))
 trackingPhase2PU140.toModify(lowPtTripletStepTrackingRegions, RegionPSet = dict(ptMin = 0.45))
 
@@ -79,6 +82,21 @@ from RecoTracker.TkSeedGenerator.seedCreatorFromRegionConsecutiveHitsEDProducer_
 lowPtTripletStepSeeds = _seedCreatorFromRegionConsecutiveHitsEDProducer.clone(
     seedingHitSets = "lowPtTripletStepHitTriplets",
 )
+
+from RecoPixelVertexing.PixelTriplets.caHitTripletEDProducer_cfi import caHitTripletEDProducer as _caHitTripletEDProducer
+trackingPhase1.toModify(lowPtTripletStepHitDoublets, layerPairs = [0,1]) # layer pairs (0,1), (1,2)
+trackingPhase1.toReplaceWith(lowPtTripletStepHitTriplets, _caHitTripletEDProducer.clone(
+    doublets = "lowPtTripletStepHitDoublets",
+    extraHitRPhitolerance = lowPtTripletStepHitTriplets.extraHitRPhitolerance,
+    SeedComparitorPSet = lowPtTripletStepHitTriplets.SeedComparitorPSet,
+    maxChi2 = dict(
+        pt1    = 0.8, pt2    = 2,
+        value1 = 70 , value2 = 8,
+    ),
+    useBendingCorrection = True,
+    CAThetaCut = 0.002,
+    CAPhiCut = 0.05,
+))
 
 
 # QUALITY CUTS DURING TRACK BUILDING
@@ -191,7 +209,7 @@ lowPtTripletStep.qualityCuts = [-0.6,-0.3,-0.1]
 # For Phase1
 # MVA selection to be enabled after re-training, for time being we go with cut-based selector
 from RecoTracker.FinalTrackSelectors.TrackCutClassifier_cfi import TrackCutClassifier as _TrackCutClassifier
-trackingPhase1.toReplaceWith(lowPtTripletStep, _TrackCutClassifier.clone(
+_cutClassifierForPhase1 = _TrackCutClassifier.clone(
     src = "lowPtTripletStepTracks",
     vertices = "firstStepPrimaryVertices",
     mva = dict (
@@ -213,7 +231,9 @@ trackingPhase1.toReplaceWith(lowPtTripletStep, _TrackCutClassifier.clone(
             d0err_par = [0.002,0.002,0.001],
         ),
     )
-))
+)
+trackingPhase1.toReplaceWith(lowPtTripletStep, _cutClassifierForPhase1)
+trackingPhase1QuadProp.toReplaceWith(lowPtTripletStep, _cutClassifierForPhase1)
 
 # For LowPU and Phase1PU70
 import RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi
