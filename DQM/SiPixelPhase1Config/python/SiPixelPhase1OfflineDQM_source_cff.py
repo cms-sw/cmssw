@@ -1,5 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
+# Raw data
+from DQM.SiPixelPhase1RawData.SiPixelPhase1RawData_cfi import *
 # Pixel Digi Monitoring
 from DQM.SiPixelPhase1Digis.SiPixelPhase1Digis_cfi import *
 # Cluster (track-independent) monitoring
@@ -15,7 +17,8 @@ from DQM.SiPixelPhase1TrackEfficiency.SiPixelPhase1TrackEfficiency_cfi import *
 
 PerModule.enabled = False
 
-siPixelPhase1OfflineDQM_source = cms.Sequence(SiPixelPhase1DigisAnalyzer
+siPixelPhase1OfflineDQM_source = cms.Sequence(SiPixelPhase1RawDataAnalyzer
+                                            + SiPixelPhase1DigisAnalyzer
                                             + SiPixelPhase1ClustersAnalyzer
                                             + SiPixelPhase1RecHitsAnalyzer
                                             + SiPixelPhase1TrackResidualsAnalyzer
