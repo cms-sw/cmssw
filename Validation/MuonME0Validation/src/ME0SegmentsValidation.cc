@@ -240,7 +240,7 @@ std::pair<int,int> ME0SegmentsValidation::isMatched(auto me0id, auto rhLP, auto 
     return result;
     
 }
-
+//
 //bool ME0SegmentsValidation::isSimTrackGood(const SimTrack &t)
 //{
 //    
@@ -249,7 +249,49 @@ std::pair<int,int> ME0SegmentsValidation::isMatched(auto me0id, auto rhLP, auto 
 //    if (t.noGenpart()) return false;
 //    if (std::abs(t.type()) != 13) return false; // only interested in direct muon simtracks
 ////    if (t.momentum().pt() < minPt_ ) return false;
-////    const float eta(std::abs(t.momentum().eta()));
+//    const float eta(std::abs(t.momentum().eta()));
 //    if (eta > 2.0 || eta < 2.8 ) return false; // no GEMs could be in such eta
 //    return true;
+//    
 //}
+//
+//
+//bool isSimMatched(SimTrackContainer::const_iterator simTrack, edm::PSimHitContainer::const_iterator itHit)
+//{
+//    
+//    bool result = false;
+//    int trackId = simTrack->trackId();
+//    int trackId_sim = itHit->trackId();
+//    if(trackId == trackId_sim) result = true;
+//    return result;
+//    
+//}
+//
+//edm::PSimHitContainer isTrackMatched(SimTrackContainer::const_iterator simTrack, const Event & event, const EventSetup& eventSetup)
+//{
+//    
+//    edm::PSimHitContainer selectedGEMHits;
+//    
+//    edm::Handle<edm::PSimHitContainer> ME0Hits;
+//    event.getByLabel(edm::InputTag("g4SimHits","MuonME0Hits"), ME0Hits);
+//    
+//    ESHandle<GlobalTrackingGeometry> theTrackingGeometry;
+//    eventSetup.get<GlobalTrackingGeometryRecord>().get(theTrackingGeometry);
+//    
+//    for (edm::PSimHitContainer::const_iterator itHit = ME0Hits->begin(); itHit != ME0Hits->end(); ++itHit){
+//							 
+//        DetId id = DetId(itHit->detUnitId());
+//        if (!(id.subdetId() == MuonSubdetId::ME0)) continue;
+//        if(itHit->particleType() != (*simTrack).type()) continue;
+//        
+//        bool result = isSimMatched(simTrack, itHit);
+//        if(result) selectedGEMHits.push_back(*itHit);
+//        
+//    }
+//    
+//    //std::cout<<"Size: "<<selectedGEMHits.size()<<std::endl;
+//    return selectedGEMHits;
+//    
+//}
+
+

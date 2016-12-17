@@ -18,10 +18,14 @@ void ME0DigisValidation::bookHistograms(DQMStore::IBooker & ibooker, edm::Run co
 
   LogDebug("MuonME0DigisValidation")<<"+++ Info : finish to get geometry information from ES.\n";
     
+  me0_strip_dg_x_local_tot = ibooker.book1D( "me0_strip_dg_x_local_tot", "Local X; X_{local} [cm]; Entries", 60, -30.0, +30.0);
+  me0_strip_dg_y_local_tot = ibooker.book1D( "me0_strip_dg_y_local_tot", "Local Y; Y_{local} [cm]; Entries", 100, -50.0, +50.0);
+  me0_strip_dg_time_tot = ibooker.book1D( "me0_strip_dg_time_tot", "ToF; ToF [ns]; Entries", 400, -200, +200);
+    
   me0_strip_dg_dx_local_tot_Muon = ibooker.book1D( "me0_strip_dg_dx_local_tot", "Local DeltaX; #Delta X_{local} [cm]; Entries", 50, -0.1, +0.1);
   me0_strip_dg_dy_local_tot_Muon = ibooker.book1D( "me0_strip_dg_dy_local_tot", "Local DeltaY; #Delta Y_{local} [cm]; Entries", 500, -10.0, +10.0);
   me0_strip_dg_dphi_global_tot_Muon = ibooker.book1D( "me0_strip_dg_dphi_global_tot", "Global DeltaPhi; #Delta #phi_{global} [rad]; Entries", 50, -0.01, +0.01);
-  me0_strip_dg_time_tot_Muon = ibooker.book1D( "me0_strip_dg_time_tot", "DeltaToF; #Delta ToF [ns]; Entries", 50, -5, +5);
+  me0_strip_dg_dtime_tot_Muon = ibooker.book1D( "me0_strip_dg_dtime_tot", "DeltaToF; #Delta ToF [ns]; Entries", 50, -5, +5);
     
   me0_strip_dg_dphi_vs_phi_global_tot_Muon = ibooker.book2D( "me0_strip_dg_dphi_vs_phi_global_tot", "Global DeltaPhi vs. Phi; #phi_{global} [rad]; #Delta #phi_{global} [rad]", 72,-M_PI,+M_PI,50,-0.01,+0.01);
     
@@ -120,6 +124,10 @@ void ME0DigisValidation::analyze(const edm::Event& e,
       int isPrompt = digiItr->prompt();
     
       Float_t timeOfFlight = digiItr->tof();
+        
+      me0_strip_dg_x_local_tot->Fill(lp.x());
+      me0_strip_dg_y_local_tot->Fill(lp.y());
+      me0_strip_dg_time_tot->Fill(timeOfFlight);
 
       // fill hist
       int region_num = 0 ;
@@ -127,7 +135,7 @@ void ME0DigisValidation::analyze(const edm::Event& e,
       else if ( region == 1) region_num = 1;
       int layer_num = layer-1;
 
-      if (isPrompt == 1) {
+      if (isPrompt == 1 && abs(particleType) == 13) {
           
         me0_strip_dg_zr_tot_Muon[region_num]->Fill(g_z,g_r);
         me0_strip_dg_xy_Muon[region_num][layer_num]->Fill(g_x,g_y);
@@ -162,11 +170,13 @@ void ME0DigisValidation::analyze(const edm::Event& e,
                 me0_strip_dg_den_eta_tot->Fill(fabs(gp_sh.eta()));
                 
             }
+            if(!(region == region_sh && layer == layer_sh && chamber == chamber_sh)) continue;
             
-            if(isMatched(region, layer, chamber, region_sh, layer_sh, chamber_sh)){
+            Float_t dx_loc = lp_sh.x()-lp.x();
+            Float_t dy_loc = lp_sh.y()-lp.y();
+            
+            if(fabs(dx_loc) < 3*0.03 && fabs(dy_loc) < 3*2.5){
         
-                Float_t dx_loc = lp_sh.x()-lp.x();
-                Float_t dy_loc = lp_sh.y()-lp.y();
                 Float_t dphi_glob = gp_sh.phi()-gp.phi();
         
                 me0_strip_dg_dx_local_Muon[region_num][layer_num]->Fill(dx_loc);
@@ -181,7 +191,7 @@ void ME0DigisValidation::analyze(const edm::Event& e,
             
                 me0_strip_dg_num_eta[region_num][layer_num]->Fill(fabs(gp_sh.eta()));
                 me0_strip_dg_num_eta_tot->Fill(fabs(gp_sh.eta()));
-                me0_strip_dg_time_tot_Muon->Fill(timeOfFlight - timeOfFlight_sh);
+                me0_strip_dg_dtime_tot_Muon->Fill(timeOfFlight - timeOfFlight_sh);
             
             }
             
@@ -205,16 +215,4 @@ void ME0DigisValidation::analyze(const edm::Event& e,
     }
   }
 
-}
-
-
-bool ME0DigisValidation::isMatched(const int region, const int layer, const int chamber, const int region_sh, const int layer_sh, const int chamber_sh)
-{
-    
-    bool result = false;
-
-    if(region == region_sh && layer == layer_sh && chamber == chamber_sh) result = true;
-
-    return result;
-        
 }
