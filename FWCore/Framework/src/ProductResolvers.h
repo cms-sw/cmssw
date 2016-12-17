@@ -267,7 +267,7 @@ namespace edm {
                                  bool skipCurrentProcess,
                                  SharedResourcesAcquirer* sra,
                                  ModuleCallingContext const* mcc) const override {
-      realProduct_->prefetchAsync( waitTask, principal, skipCurrentProcess, sra, mcc);
+      realProduct_->prefetchAsync( waitTask, *parentPrincipal_, skipCurrentProcess, sra, mcc);
     }
     virtual bool unscheduledWasNotRun_() const override {return realProduct_->unscheduledWasNotRun();}
     virtual bool productUnavailable_() const override {return realProduct_->productUnavailable();}
