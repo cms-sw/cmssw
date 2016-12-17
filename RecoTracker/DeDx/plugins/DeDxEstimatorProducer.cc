@@ -32,8 +32,6 @@ void DeDxEstimatorProducer::fillDescriptions(edm::ConfigurationDescriptions& des
   edm::ParameterSetDescription desc;
   desc.add<string>("estimator","generic");
   desc.add<edm::InputTag>("tracks",edm::InputTag("generalTracks"));
-  desc.add<edm::InputTag>("trajectoryTrackAssociation",edm::InputTag("generalTracks"));
-  desc.add<bool>("UseTrajectory",true);  
   desc.add<bool>("UsePixel",false); 
   desc.add<bool>("UseStrip",true); 
   desc.add<double>("MeVperADCPixel",3.61e-06*265);
@@ -69,8 +67,6 @@ DeDxEstimatorProducer::DeDxEstimatorProducer(const edm::ParameterSet& iConfig)
 //   MaxNrStrips         = iConfig.getUntrackedParameter<unsigned>("maxNrStrips"        ,  255);
 
    m_tracksTag = consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("tracks"));
-   m_trajTrackAssociationTag   = consumes<TrajTrackAssociationCollection>(iConfig.getParameter<edm::InputTag>("trajectoryTrackAssociation"));
-   useTrajectory = iConfig.getParameter<bool>("UseTrajectory"); 
 
    usePixel = iConfig.getParameter<bool>("UsePixel"); 
    useStrip = iConfig.getParameter<bool>("UseStrip");
@@ -116,13 +112,9 @@ void DeDxEstimatorProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
   edm::Handle<reco::TrackCollection> trackCollectionHandle;
   iEvent.getByToken(m_tracksTag,trackCollectionHandle);
 
-  Handle<TrajTrackAssociationCollection> trajTrackAssociationHandle;
-  if(useTrajectory)iEvent.getByToken(m_trajTrackAssociationTag, trajTrackAssociationHandle);
 
   std::vector<DeDxData> dedxEstimate( trackCollectionHandle->size() );
 
-  TrajTrackAssociationCollection::const_iterator cit;
-  if(useTrajectory)cit = trajTrackAssociationHandle->begin();
   for(unsigned int j=0;j<trackCollectionHandle->size();j++){            
      const reco::TrackRef track = reco::TrackRef( trackCollectionHandle.product(), j );
 
