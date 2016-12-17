@@ -133,6 +133,7 @@ void KfTrackProducerBase::putInEvt(edm::Event& evt,
     auto ie = selHits->size();
     tx.setHits(rHits,ih,ie-ih);
     tx.setTrajParams(trajParams);
+    assert(tx.trajParams().size()==tx.recHitsSize());
     for (;ih<ie; ++ih) {
       auto const & hit = (*selHits)[ih];
       track.appendHitPattern(hit, *ttopo);
