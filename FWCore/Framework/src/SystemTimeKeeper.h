@@ -92,6 +92,7 @@ namespace edm {
     const SystemTimeKeeper& operator=(const SystemTimeKeeper&) = delete; // stop default
     
     PathTiming& pathTiming(StreamContext const&, PathContext const&);
+    bool checkBounds(unsigned int id) const;
     
     // ---------- member data --------------------------------
     std::vector<WallclockTimer> m_streamEventTimer;
