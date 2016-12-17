@@ -5,6 +5,8 @@ ME0DigisValidation::ME0DigisValidation(const edm::ParameterSet& cfg):  ME0BaseVa
 {
   InputTagToken_ = consumes<edm::PSimHitContainer>(cfg.getParameter<edm::InputTag>("simInputLabel"));
   InputTagToken_Digi = consumes<ME0DigiPreRecoCollection>(cfg.getParameter<edm::InputTag>("digiInputLabel"));
+  sigma_x_ = cfg.getParameter<double>("sigma_x");
+  sigma_y_ = cfg.getParameter<double>("sigma_y");
 }
 
 void ME0DigisValidation::bookHistograms(DQMStore::IBooker & ibooker, edm::Run const & Run, edm::EventSetup const & iSetup ) {
@@ -175,7 +177,7 @@ void ME0DigisValidation::analyze(const edm::Event& e,
             Float_t dx_loc = lp_sh.x()-lp.x();
             Float_t dy_loc = lp_sh.y()-lp.y();
             
-            if(fabs(dx_loc) < 3*0.03 && fabs(dy_loc) < 3*2.5){
+            if(fabs(dx_loc) < 3*sigma_x_ && fabs(dy_loc) < 3*sigma_y_){
         
                 Float_t dphi_glob = gp_sh.phi()-gp.phi();
         
