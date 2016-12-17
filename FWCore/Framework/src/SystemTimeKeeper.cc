@@ -122,6 +122,16 @@ SystemTimeKeeper::pathTiming(StreamContext const& iStream,
   return m_streamPathTiming[iStream.streamID().value()][iPath.pathID()+offset];
 }
 
+//NOTE: Have to check bounds rather than ProcessContext on the
+// module callbacks because the ProcessContext could be for a
+// SubProcess which requested an usncheduled execution of a
+// module in a parent process. In that case the ProcessContext
+// is for the SubProcess but the module is is for the parent process.
+inline bool
+SystemTimeKeeper::checkBounds(unsigned int id) const {
+  return id >= m_minModuleID and id <m_modules.size()+ m_minModuleID;
+}
+
 
 
 void
@@ -164,7 +174,7 @@ SystemTimeKeeper::stopPath(StreamContext const& iStream,
 
 void
 SystemTimeKeeper::startModuleEvent(StreamContext const& iStream, ModuleCallingContext const& iModule) {
-  if(m_processContext == iStream.processContext()) {
+  if(checkBounds(iModule.moduleDescription()->id())) {
     auto& mod =
     m_streamModuleTiming[iStream.streamID().value()][iModule.moduleDescription()->id()-m_minModuleID];
     mod.m_timer.start();
@@ -173,7 +183,7 @@ SystemTimeKeeper::startModuleEvent(StreamContext const& iStream, ModuleCallingCo
 }
 void SystemTimeKeeper::stopModuleEvent(StreamContext const& iStream,
                                        ModuleCallingContext const& iModule) {
-  if(m_processContext == iStream.processContext()) {
+  if(checkBounds(iModule.moduleDescription()->id())) {
     auto& mod =
     m_streamModuleTiming[iStream.streamID().value()][iModule.moduleDescription()->id()-m_minModuleID];
     auto times = mod.m_timer.stop();
@@ -188,7 +198,7 @@ void SystemTimeKeeper::stopModuleEvent(StreamContext const& iStream,
 }
 void SystemTimeKeeper::pauseModuleEvent(StreamContext const& iStream,
                                         ModuleCallingContext const& iModule) {
-  if(m_processContext == iStream.processContext()) {
+  if(checkBounds(iModule.moduleDescription()->id())) {
     auto& mod =
     m_streamModuleTiming[iStream.streamID().value()][iModule.moduleDescription()->id()-m_minModuleID];
     auto times = mod.m_timer.stop();
@@ -204,7 +214,7 @@ void SystemTimeKeeper::pauseModuleEvent(StreamContext const& iStream,
 void
 SystemTimeKeeper::restartModuleEvent(StreamContext const& iStream,
                                      ModuleCallingContext const& iModule) {
-  if(m_processContext == iStream.processContext()) {
+  if(checkBounds(iModule.moduleDescription()->id())) {
     auto& mod =
     m_streamModuleTiming[iStream.streamID().value()][iModule.moduleDescription()->id()-m_minModuleID];
     mod.m_timer.start();
