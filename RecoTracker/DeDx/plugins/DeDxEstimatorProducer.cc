@@ -128,36 +128,19 @@ void DeDxEstimatorProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
 
      int NClusterSaturating = 0; 
      DeDxHitCollection dedxHits;
-   
-     if(useTrajectory){  //trajectory allows to take into account the local direction of the particle on the module sensor --> muc much better 'dx' measurement
-        const edm::Ref<std::vector<Trajectory> > traj = cit->key; cit++;
-        const vector<TrajectoryMeasurement> & measurements = traj->measurements();
-        dedxHits.reserve(measurements.size()/2);
-        for(vector<TrajectoryMeasurement>::const_iterator it = measurements.begin(); it!=measurements.end(); it++){
-           TrajectoryStateOnSurface trajState=it->updatedState();
-           if( !trajState.isValid()) continue;
-     
-           const TrackingRecHit * recHit=(*it->recHit()).hit();
-           if(!recHit || !recHit->isValid())continue;
-           LocalVector trackDirection = trajState.localDirection();
-           float cosine = trackDirection.z()/trackDirection.mag();
 
-           processHit(recHit, trajState.localMomentum().mag(), cosine, dedxHits, NClusterSaturating);
-        }
-     }else{ //assume that the particles trajectory is a straight line originating from the center of the detector  (can be improved)
+     auto const & trajParams = track->extra()->trajParams();
+     assert(trajParams.size()==track->recHitsSize());
+     auto hb = track->recHitsBegin();
         dedxHits.reserve(track->recHitsSize()/2);
         for(unsigned int h=0;h<track->recHitsSize();h++){
-           const TrackingRecHit* recHit = &(*(track->recHit(h)));
-           if(!recHit || !recHit->isValid())continue;
-           auto const & thit = static_cast<BaseTrackerRecHit const&>(*recHit);
-           if(!thit.isValid())continue;//make sure it's a tracker hit
+           auto recHit = *(hb+h);
+           if(!recHit->isValid()) continue;
 
-           const GlobalVector& ModuleNormal = recHit->detUnit()->surface().normalVector();         
-           float cosine = (track->px()*ModuleNormal.x()+track->py()*ModuleNormal.y()+track->pz()*ModuleNormal.z())/track->p();
-
+           auto trackDirection = trajParams[h].direction();         
+           float cosine = trackDirection.z()/trackDirection.mag();
            processHit(recHit, track->p(), cosine, dedxHits, NClusterSaturating);
         } 
-     }
 
      sort(dedxHits.begin(),dedxHits.end(),less<DeDxHit>());   
      std::pair<float,float> val_and_error = m_estimator->dedx(dedxHits);
