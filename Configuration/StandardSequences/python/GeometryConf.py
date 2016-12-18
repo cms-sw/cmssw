@@ -28,7 +28,7 @@ GeometryConf={
     'ECALHCAL'    : 'Configuration.Geometry.GeometrySimECALHCAL_cff,Configuration.Geometry.GeometryRecoECALHCAL_cff',
     'TrackerOnly' : 'Configuration.Geometry.GeometrySimTracker_cff,Configuration.Geometry.GeometryRecoTracker_cff',
     'HCal'        : 'Configuration.Geometry.GeometrySimHCAL_cff,Configuration.Geometry.GeometryRecoHCAL_cff',
-    'Extended2023D2' : 'Extended2023D2,Extended2023D2Reco',
+    'Extended2023D10' : 'Extended2023D10,Extended2023D10Reco',
     'Extended2023D4' : 'Extended2023D4,Extended2023D4Reco',
     'Extended2023D7' : 'Extended2023D7,Extended2023D7Reco',
     'Extended2023D8' : 'Extended2023D8,Extended2023D8Reco',

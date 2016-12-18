@@ -14,14 +14,14 @@ upgradeKeys[2017] = [
 upgradeKeys[2023] = [
     '2023D7',
     '2023D7PU',
-    '2023D2',
-    '2023D2PU',    
+    '2023D10',
+    '2023D10PU',    
     '2023D4',
     '2023D4PU',
     '2023D7Timing',
     '2023D7TimingPU',
-    '2023D2Timing',
-    '2023D2TimingPU',
+    '2023D10Timing',
+    '2023D10TimingPU',
     '2023D4Timing',
     '2023D4TimingPU',
     '2023D8',
@@ -111,8 +111,8 @@ upgradeProperties[2023] = {
         'Era' : 'Phase2C1',
         'ScenToRun' : ['GenSimHLBeamSpotFull','DigiFull','RecoFullGlobal','HARVESTFullGlobal'],
     },
-    '2023D2' : {
-        'Geom' : 'Extended2023D2',
+    '2023D10' : {
+        'Geom' : 'Extended2023D10',
         'GT' : 'auto:phase2_realistic',
         'HLTmenu': '@fake',
         'Era' : 'Phase2C1',
@@ -147,16 +147,16 @@ upgradeProperties[2023] = {
 #Timing (later we can alter geometry, etc, if need be)
 upgradeProperties[2023]['2023D7Timing'] = deepcopy(upgradeProperties[2023]['2023D7'])
 upgradeProperties[2023]['2023D7Timing']['Era'] = 'Phase2C1_timing'
-upgradeProperties[2023]['2023D2Timing'] = deepcopy(upgradeProperties[2023]['2023D2'])
-upgradeProperties[2023]['2023D2Timing']['Era'] = 'Phase2C1_timing'
+upgradeProperties[2023]['2023D10Timing'] = deepcopy(upgradeProperties[2023]['2023D10'])
+upgradeProperties[2023]['2023D10Timing']['Era'] = 'Phase2C1_timing'
 upgradeProperties[2023]['2023D4Timing'] = deepcopy(upgradeProperties[2023]['2023D4'])
 upgradeProperties[2023]['2023D4Timing']['Era'] = 'Phase2C2_timing'
 
 #standard PU sequences
 upgradeProperties[2023]['2023D7PU'] = deepcopy(upgradeProperties[2023]['2023D7'])
 upgradeProperties[2023]['2023D7PU']['ScenToRun'] = ['GenSimHLBeamSpotFull','DigiFullPU','RecoFullGlobalPU', 'HARVESTFullGlobalPU']
-upgradeProperties[2023]['2023D2PU'] = deepcopy(upgradeProperties[2023]['2023D2'])
-upgradeProperties[2023]['2023D2PU']['ScenToRun'] = ['GenSimHLBeamSpotFull','DigiFullPU','RecoFullGlobalPU', 'HARVESTFullGlobalPU']
+upgradeProperties[2023]['2023D10PU'] = deepcopy(upgradeProperties[2023]['2023D10'])
+upgradeProperties[2023]['2023D10PU']['ScenToRun'] = ['GenSimHLBeamSpotFull','DigiFullPU','RecoFullGlobalPU', 'HARVESTFullGlobalPU']
 upgradeProperties[2023]['2023D4PU'] = deepcopy(upgradeProperties[2023]['2023D4'])
 upgradeProperties[2023]['2023D4PU']['ScenToRun'] = ['GenSimHLBeamSpotFull','DigiFullPU','RecoFullGlobalPU', 'HARVESTFullGlobalPU']
 upgradeProperties[2023]['2023D8PU'] = deepcopy(upgradeProperties[2023]['2023D8'])
@@ -168,8 +168,8 @@ upgradeProperties[2023]['2023D9PU']['ScenToRun'] = ['GenSimHLBeamSpotFull','Digi
 #Timing PU (for now copy ScenToRun of standard PU)
 upgradeProperties[2023]['2023D7TimingPU'] = deepcopy(upgradeProperties[2023]['2023D7Timing'])
 upgradeProperties[2023]['2023D7TimingPU']['ScenToRun'] = deepcopy(upgradeProperties[2023]['2023D7PU']['ScenToRun'])
-upgradeProperties[2023]['2023D2TimingPU'] = deepcopy(upgradeProperties[2023]['2023D2Timing'])
-upgradeProperties[2023]['2023D2TimingPU']['ScenToRun'] = deepcopy(upgradeProperties[2023]['2023D2PU']['ScenToRun'])
+upgradeProperties[2023]['2023D10TimingPU'] = deepcopy(upgradeProperties[2023]['2023D10Timing'])
+upgradeProperties[2023]['2023D10TimingPU']['ScenToRun'] = deepcopy(upgradeProperties[2023]['2023D10PU']['ScenToRun'])
 upgradeProperties[2023]['2023D4TimingPU'] = deepcopy(upgradeProperties[2023]['2023D4Timing'])
 upgradeProperties[2023]['2023D4TimingPU']['ScenToRun'] = deepcopy(upgradeProperties[2023]['2023D4PU']['ScenToRun'])
 
