@@ -19,7 +19,7 @@ def extractDatasets(version, database, config):
 
   # load the streams and Datasets
   hlt = imp.new_module('hlt')
-  exec out in globals(), hlt.__dict__
+  exec(out, globals(), hlt.__dict__)
 
   return hlt.process
 

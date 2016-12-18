@@ -630,7 +630,7 @@ class FakeInfo(object):
 	self.nReconstructed = 0 # Number of reconstructed matched particles
 	self.nDecays = 0 # Number of decayed matched particles
 
-	start = iter(fake.hits()).next()
+	start = next(iter(fake.hits()))
 	self.start_loc = [start.x(), start.y(), start.z()]
 
 	self.stop_reason = fake.stopReason()
