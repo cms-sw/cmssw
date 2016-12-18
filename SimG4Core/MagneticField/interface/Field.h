@@ -13,7 +13,7 @@ namespace sim {
 	 Field(const MagneticField * f, double d);
 	 virtual ~Field();
 	 G4Mag_UsualEqRhs* fieldEquation();
-	 virtual void GetFieldValue(const G4double p[4], G4double* b) const;
+	 virtual void GetFieldValue(const G4double p[4], G4double b[3]) const;
 	 void fieldEquation(G4Mag_UsualEqRhs* e);
       private:
 	 const MagneticField* theCMSMagneticField;
