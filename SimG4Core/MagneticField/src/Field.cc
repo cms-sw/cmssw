@@ -21,7 +21,7 @@ Field::Field(const MagneticField * f, double d)
 
 Field::~Field() {}
 
-void Field::GetFieldValue(const G4double xyz[4], double* bfield) const 
+void Field::GetFieldValue(const G4double xyz[4], G4double bfield[3]) const 
 { 
   if (std::abs(oldx[0]-xyz[0])>theDelta ||
       std::abs(oldx[1]-xyz[1])>theDelta ||
