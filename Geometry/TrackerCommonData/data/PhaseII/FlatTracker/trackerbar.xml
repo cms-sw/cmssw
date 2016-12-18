@@ -3,7 +3,7 @@
  <PosPartSection label="trackerbar.xml">
   <PosPart copyNumber="1">
    <rParent name="tracker:Tracker"/>
-   <rChild name="pixbar:PixelBarrel"/>
+   <rChild name="pixbar:Phase1PixelBarrel"/>
   </PosPart>
   <PosPart copyNumber="1">
    <rParent name="tracker:Tracker"/>
