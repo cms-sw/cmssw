@@ -611,5 +611,31 @@ Nominal5TeVpp2015VtxSmearingParameters = cms.PSet(
     TimeOffset = cms.double(0.0),
     X0 = cms.double(0.1044),
     Y0 = cms.double(0.1676),
-    Z0 = cms.double(0.6707)
+    Z0 = cms.double(0.6706)
+)
+
+# From fit to 5 TeV pPb data
+Realistic5TeVPACollision2016VtxSmearingParameters = cms.PSet(
+    Phi = cms.double(0.0),
+    BetaStar = cms.double(1100.0),
+    Emittance = cms.double(6.75e-08),
+    Alpha = cms.double(0.0),
+    SigmaZ = cms.double(6.4891),
+    TimeOffset = cms.double(0.0),
+    X0 = cms.double(0.0889),
+    Y0 = cms.double(0.1820),
+    Z0 = cms.double(1.6066)    
+)
+
+# From fit to 8 TeV pPb data
+Realistic8TeVPACollision2016VtxSmearingParameters = cms.PSet(
+    Phi = cms.double(0.0),
+    BetaStar = cms.double(60.0),
+    Emittance = cms.double(6.75e-08),
+    Alpha = cms.double(0.0),
+    SigmaZ = cms.double(4.6914),
+    TimeOffset = cms.double(0.0),
+    X0 = cms.double(0.0836),
+    Y0 = cms.double(0.1837),
+    Z0 = cms.double(1.3577)    
 )
