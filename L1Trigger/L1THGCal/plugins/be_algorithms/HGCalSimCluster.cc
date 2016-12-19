@@ -20,8 +20,12 @@
 //
 #include "DataFormats/Math/interface/LorentzVector.h"
 
+// Energy calibration
+#include "L1Trigger/L1THGCal/interface/be_algorithms/HGCalTriggerCellCalibration.h"
+
 // Print out something before crashing or throwing exceptions
 #include <iostream>
+#include <string>
 
 
 /* Original Author: Andrea Carlo Marini
@@ -42,10 +46,21 @@ namespace HGCalTriggerBackend{
     {
         private:
             std::unique_ptr<l1t::HGCalClusterBxCollection> cluster_product_;
-            // token
-            edm::EDGetTokenT< std::vector<SimCluster> > sim_token_;
             // handle
             edm::Handle< std::vector<SimCluster> > sim_handle_;
+            // calibration handle
+            edm::ESHandle<HGCalTopology> hgceeTopoHandle_;
+            edm::ESHandle<HGCalTopology> hgchefTopoHandle_;        
+
+            // variables that needs to be init, in the right order
+            // energy calibration
+            std::string HGCalEESensitive_;
+            std::string HGCalHESiliconSensitive_;
+            HGCalTriggerCellCalibration calibration_; 
+
+            // token
+            edm::EDGetTokenT< std::vector<SimCluster> > sim_token_;
+
             // add to cluster
             void addToCluster(std::unordered_map<uint64_t,std::pair<int,l1t::HGCalCluster> >& cluster_container, uint64_t pid,int pdgid,float  energy,float  eta, float phi)
             {
@@ -92,7 +107,12 @@ namespace HGCalTriggerBackend{
             using Algorithm<FECODEC>::reset;
 
             //Consumes tokens
-            HGCalTriggerSimCluster(const edm::ParameterSet& conf,edm::ConsumesCollector&cc) : Algorithm<FECODEC>(conf,cc) { 
+            HGCalTriggerSimCluster(const edm::ParameterSet& conf,edm::ConsumesCollector&cc) : 
+                            Algorithm<FECODEC>(conf,cc),
+                            HGCalEESensitive_(conf.getParameter<std::string>("HGCalEESensitive_tag")),
+                            HGCalHESiliconSensitive_(conf.getParameter<std::string>("HGCalHESiliconSensitive_tag")),
+                            calibration_(conf.getParameterSet("calib_parameters"))
+            { 
                 // I need to consumes the PF Cluster Collection with the sim clustering, TODO: make it configurable (?)
                 // vector<SimCluster>                    "mix"                       "MergedCaloTruth"   "HLT/DIGI"
                 // pf clusters cannot be safely cast to SimCluster
@@ -150,6 +170,9 @@ namespace HGCalTriggerBackend{
                 if (not sim_handle_.isValid()){
                        throw cms::Exception("ContentError")<<"[HGCalTriggerSimCluster]::[run]::[ERROR] PFCluster collection for HGC sim clustering not available"; 
                 }
+                // calibration
+                es.get<IdealGeometryRecord>().get(HGCalEESensitive_, hgceeTopoHandle_);
+                es.get<IdealGeometryRecord>().get(HGCalHESiliconSensitive_, hgchefTopoHandle_);
 
                 // 1.5. pre-process the sim cluster to have easy accessible information
 #ifdef HGCAL_DEBUG
@@ -187,8 +210,22 @@ namespace HGCalTriggerBackend{
                             if(triggercell.hwPt()<=0) continue;
 
                             const HGCalDetId tcellId(triggercell.detId());
+                            // calbration
+                            int subdet = tcellId.subdetId();
+                            int cellThickness = 0;
+                            
+                            if( subdet == HGCEE ){ 
+                                cellThickness = (hgceeTopoHandle_)->dddConstants().waferTypeL((unsigned int)tcellId.wafer() );
+                            }else if( subdet == HGCHEF ){
+                                cellThickness = (hgchefTopoHandle_)->dddConstants().waferTypeL((unsigned int)tcellId.wafer() );
+                            }else if( subdet == HGCHEB ){
+                                edm::LogWarning("DataNotFound") << "ATTENTION: the BH trgCells are not yet implemented !! ";
+                            }
+                            l1t::HGCalTriggerCell calibratedtriggercell(triggercell);
+                            calibration_.calibrate(calibratedtriggercell, cellThickness); 
                             //uint32_t digiEnergy = data.payload; i
-                            auto digiEnergy=triggercell.p4().E();  
+                            //auto digiEnergy=triggercell.p4().E();  
+                            auto calibratedDigiEnergy=calibratedtriggercell.p4().E();  
                             double eta=triggercell.p4().Eta();
                             double phi=triggercell.p4().Phi();
                             //2.B get the HGCAL-base-cell associated to it / geometry
@@ -207,7 +244,9 @@ namespace HGCalTriggerBackend{
                                 {
                                     const auto & pid= p.first;
                                     const auto & fraction=p.second;
-                                    auto energy = fraction*digiEnergy/ncells;
+                                    //auto energy = fraction*digiEnergy/ncells;
+                                    auto energy = fraction * calibratedDigiEnergy/ncells;
+
                                     //2.D add to the corresponding cluster
                                     //void addToCluster(std::unordered_map<uint64_t,std::pair<int,l1t::HGCalCluster> >& cluster_container, uint64_t pid,int pdgid,float & energy,float & eta, float &phi)
                                     //addToCluster(cluster_container, pid, 0 energy,ETA/PHI?  ) ;

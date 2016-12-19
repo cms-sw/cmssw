@@ -1,9 +1,9 @@
 # import ROOT in batch mode
 import sys
 oldargv = sys.argv[:]
-sys.argv = [ '-b-' ]
+#sys.argv = [ '-b-' ]
 import ROOT
-ROOT.gROOT.SetBatch(True)
+#ROOT.gROOT.SetBatch(True)
 sys.argv = oldargv
 
 # load FWLite C++ libraries
@@ -22,10 +22,15 @@ clusters, clusterLabel = Handle("l1t::HGCalClusterBxCollection"), "hgcalTriggerP
 
 verbose=True
 
-for i,event in enumerate(events):
+hEta=ROOT.TH1D("eta","eta",1000,-20,20)
+hPhi=ROOT.TH1D("phi","phi",1000,-3.1416,3.1416)
+hPt = ROOT.TH1D("pt","pt",1000,0,1000)
+hE = ROOT.TH1D("E","E",1000,0,1000)
+
+for iev,event in enumerate(events):
 	if verbose: 
-	   print "\nEvent", i
-	   if i > 10: break
+	   print "\nEvent %d: run %6d, lumi %4d, event %12d" % (iev,event.eventAuxiliary().run(), event.eventAuxiliary().luminosityBlock(),event.eventAuxiliary().event())
+	   #if iev > 10: break
 
 	event.getByLabel(clusterLabel, clusters)
 
@@ -39,15 +44,30 @@ for i,event in enumerate(events):
 	print "what's saved in clusters?"
 	for bx in clusters.product():
 		print "bx=",bx
-		print "product", clusters.product()[bx]
 
 	## get 0 bunch crossing vector
-	for bx in [0]:	
-
+	for bx,vector in enumerate(clusters.product()):	
 		if verbose: print "-> 0 pos",clusters.product()[0]
+		if vector == None: 
+			print "   cluster product is none"
+			continue
+		print "   pt=",vector.pt(),"eta=",vector.eta(),"phi=",vector.phi()
+		hEta.Fill(vector.eta() ) 
+		if vector.eta() <8:
+			hE.Fill(vector.energy() ) 
+			hPt.Fill(vector.pt() ) 
+			hPhi.Fill(vector.phi() ) 
 
-		vector = clusters.product()[bx]
-		for idx in range(0,vector.size()):
-			print "* accessing position ", idx
-			print "   ",vector[idx].pt(),vector[idx].eta()
-	
+
+c=ROOT.TCanvas()
+c.Divide(2,2)
+c.cd(1)
+hPt.Draw("HIST")
+c.cd(2)
+hEta.Draw("HIST")
+c.cd(3)
+hPhi.Draw("HIST")
+c.cd(4)
+hE.Draw("HIST")
+raw_input("ok?")
+
