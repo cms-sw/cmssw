@@ -289,19 +289,19 @@ void CAHitQuadrupletGenerator::hitQuadruplets(const TrackingRegion& region,
 
     if(caOnlyOneLastHitPerLayerFilter)
     {
-    layerSubDetId = ahit->geographicalId().subdetId();
-    isTheSameTriplet = (quadId != 0) && (foundQuadruplets[quadId][0]->getCellId() ==  previousCellIds[0]) && (foundQuadruplets[quadId][1]->getCellId() ==  previousCellIds[1]);
-    isTheSameFourthLayer = (layerSubDetId == previousLayerSubDetId);
+	    layerSubDetId = ahit->geographicalId().subdetId();
+	    isTheSameTriplet = (quadId != 0) && (foundQuadruplets[quadId][0]->getCellId() ==  previousCellIds[0]) && (foundQuadruplets[quadId][1]->getCellId() ==  previousCellIds[1]);
+	    isTheSameFourthLayer = (layerSubDetId == previousLayerSubDetId);
 
-    previousCellIds = {{foundQuadruplets[quadId][0]->getCellId(), foundQuadruplets[quadId][1]->getCellId()}};
-    previousLayerSubDetId = layerSubDetId;
+	    previousCellIds = {{foundQuadruplets[quadId][0]->getCellId(), foundQuadruplets[quadId][1]->getCellId()}};
+	    previousLayerSubDetId = layerSubDetId;
 
 
-    if(!(isTheSameTriplet && isTheSameFourthLayer ))
-    {
-    	selectedChi2 = std::numeric_limits<float>::max();
-    	hasAlreadyPushedACandidate = false;
-    }
+	    if(!(isTheSameTriplet && isTheSameFourthLayer ))
+	    {
+		selectedChi2 = std::numeric_limits<float>::max();
+		hasAlreadyPushedACandidate = false;
+	    }
 
     }
 
@@ -370,20 +370,20 @@ void CAHitQuadrupletGenerator::hitQuadruplets(const TrackingRegion& region,
 
     if(caOnlyOneLastHitPerLayerFilter)
     {
-    if (chi2 < selectedChi2)
-    {
-    	selectedChi2 = chi2;
+	    if (chi2 < selectedChi2)
+	    {
+		selectedChi2 = chi2;
 
-    	if(hasAlreadyPushedACandidate)
-    	{
-    		result.pop_back();
+		if(hasAlreadyPushedACandidate)
+		{
+			result.pop_back();
 
-    	}
-	    result.emplace_back(foundQuadruplets[quadId][0]->getInnerHit(), foundQuadruplets[quadId][1]->getInnerHit(),
-	    		foundQuadruplets[quadId][2]->getInnerHit(), foundQuadruplets[quadId][2]->getOuterHit());
-	    hasAlreadyPushedACandidate = true;
+		}
+		result.emplace_back(foundQuadruplets[quadId][0]->getInnerHit(), foundQuadruplets[quadId][1]->getInnerHit(),
+				foundQuadruplets[quadId][2]->getInnerHit(), foundQuadruplets[quadId][2]->getOuterHit());
+		hasAlreadyPushedACandidate = true;
 
-    }
+	    }
     }
     else
     {
@@ -393,7 +393,6 @@ void CAHitQuadrupletGenerator::hitQuadruplets(const TrackingRegion& region,
      
   }
 
-  std::cout << "result size: " << result.size() << " with filter " << caOnlyOneLastHitPerLayerFilter << std::endl;
 }
 
 
