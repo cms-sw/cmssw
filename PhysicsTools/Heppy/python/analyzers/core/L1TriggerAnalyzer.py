@@ -1,6 +1,6 @@
 """
 L1TriggerAnalyzer is an Analyzer that load in-time (BX=0) L1 objects (jets, tau, muons, EGamma).
-SumEt objects (MET,MHT,ET,HT) are defined with the PtPhiPairClass defined above.
+SumEt objects (MET,MHT,ET,HT) are defined with the PtPhiPair defined above.
 """
 
 import ROOT
@@ -11,7 +11,7 @@ from PhysicsTools.HeppyCore.utils.deltar import matchObjectCollection, matchObje
 import PhysicsTools.HeppyCore.framework.config as cfg
 
 
-class PtPhiPairClass():
+class PtPhiPair():
     def __init__(self,pt=-1,phi=-10):
         self.pt_ = pt
         self.phi_ = phi
@@ -48,7 +48,7 @@ class L1TriggerAnalyzer( Analyzer ):
         event.l1Taus = []
         event.l1Muons = []
         event.l1EGammas = []
-        event.l1MET2,event.l1MET,event.l1ET,event.l1MHT,event.l1HT = tuple([PtPhiPairClass()]*5)
+        event.l1MET2,event.l1MET,event.l1ET,event.l1MHT,event.l1HT = tuple([PtPhiPair()]*5)
         
         if self.validL1handles:
             try:
@@ -72,15 +72,15 @@ class L1TriggerAnalyzer( Analyzer ):
                     l1Obj = self.handles['l1tEtSums'].product().at(0,i)
                     l1ObjType = l1Obj.getType()
                     if l1ObjType == l1Obj.kMissingEt2:
-                        event.l1MET2 = PtPhiPairClass(l1Obj.et(),l1Obj.phi())
+                        event.l1MET2 = PtPhiPair(l1Obj.et(),l1Obj.phi())
                     elif l1ObjType == l1Obj.kMissingEt:
-                        event.l1MET = PtPhiPairClass(l1Obj.et(),l1Obj.phi())
+                        event.l1MET = PtPhiPair(l1Obj.et(),l1Obj.phi())
                     elif l1ObjType == l1Obj.kMissingHt:
-                        event.l1MHT = PtPhiPairClass(l1Obj.et(),l1Obj.phi())
+                        event.l1MHT = PtPhiPair(l1Obj.et(),l1Obj.phi())
                     elif l1ObjType == l1Obj.kTotalEt:
-                        event.l1ET = PtPhiPairClass(l1Obj.et(),l1Obj.phi())
+                        event.l1ET = PtPhiPair(l1Obj.et(),l1Obj.phi())
                     elif l1ObjType == l1Obj.kTotalHt:
-                        event.l1HT = PtPhiPairClass(l1Obj.et(),l1Obj.phi())
+                        event.l1HT = PtPhiPair(l1Obj.et(),l1Obj.phi())
             except:
                 self.validL1handles = False
                 pass
