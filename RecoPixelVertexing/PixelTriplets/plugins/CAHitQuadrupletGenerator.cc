@@ -300,7 +300,7 @@ void CAHitQuadrupletGenerator::hitQuadruplets(const TrackingRegion& region,
     {
             fourthLayerId = tTopo->layer(ahit->geographicalId());
 	    isTheSameTriplet = (quadId != 0) && (foundQuadruplets[quadId][0]->getCellId() ==  previousCellIds[0]) && (foundQuadruplets[quadId][1]->getCellId() ==  previousCellIds[1]);
-	    isTheSameFourthLayer = (layerSubDetId == previousLayerSubDetId);
+	    isTheSameFourthLayer = (fourthLayerId == previousfourthLayerId);
 
 	    previousCellIds = {{foundQuadruplets[quadId][0]->getCellId(), foundQuadruplets[quadId][1]->getCellId()}};
 	    previousfourthLayerId = fourthLayerId;
