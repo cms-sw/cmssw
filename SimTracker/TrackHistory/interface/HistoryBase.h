@@ -14,8 +14,14 @@ class HistoryBase
 
 public:
 
-    //! GenParticle trail type.
+    //! HepMC::GenParticle trail type.
     typedef std::vector<const HepMC::GenParticle *> GenParticleTrail;
+    
+    //! reco::GenParticle trail type.
+    typedef std::vector<const reco::GenParticle *> RecoGenParticleTrail;
+    
+    //!reco::GenParticle trail helper type.
+    typedef std::set<const reco::GenParticle *> RecoGenParticleTrailHelper;
 
     //! GenVertex trail type.
     typedef std::vector<const HepMC::GenVertex *> GenVertexTrail;
@@ -67,10 +73,16 @@ public:
         return genVertexTrail_;
     }
 
-    //! Return all generated particle in the history.
+    //! Return all generated particle (HepMC::GenParticle) in the history.
     GenParticleTrail const & genParticleTrail() const
     {
         return genParticleTrail_;
+    }
+    
+     //! Return all reco::GenParticle in the history.
+    RecoGenParticleTrail const & recoGenParticleTrail() const
+    {
+        return recoGenParticleTrail_;
     }
 
     //! Return the initial tracking particle from the history.
@@ -85,11 +97,18 @@ public:
         return simVertexTrail_[0];
     }
 
-    //! Returns a pointer to most primitive status 1 or 2 particle.
+    //! Returns a pointer to most primitive status 1 or 2 particle in the genParticleTrail_.
     const HepMC::GenParticle * genParticle() const
     {
         if ( genParticleTrail_.empty() ) return 0;
         return genParticleTrail_[genParticleTrail_.size()-1];
+    }
+    
+    //! Returns a pointer to most primitive status 1 or 2 particle in the recoGenParticleTrail_.
+    const reco::GenParticle * recoGenParticle() const
+    {
+        if ( recoGenParticleTrail_.empty() ) return 0;
+        return recoGenParticleTrail_[recoGenParticleTrail_.size()-1];
     }
 
 protected:
@@ -97,11 +116,13 @@ protected:
     // History cointainers
     GenVertexTrail genVertexTrail_;
     GenParticleTrail genParticleTrail_;
+    RecoGenParticleTrail recoGenParticleTrail_;
     SimVertexTrail simVertexTrail_;
     SimParticleTrail simParticleTrail_;
 
     // Helper function to speedup search
     GenVertexTrailHelper genVertexTrailHelper_;
+    RecoGenParticleTrailHelper recoGenParticleTrailHelper_;
 
     //! Evaluate track history using a TrackingParticleRef.
     /* Return false when the history cannot be determined upto a given depth.
@@ -141,8 +162,12 @@ private:
     //! Trace all the simulated information for a given reference to a TrackingVertex.
     bool traceSimHistory (TrackingVertexRef const &, int);
 
-    //! Trace all the simulated information for a given pointer to a GenParticle.
+    //! Trace all the simulated information for a given pointer to a HepMC::GenParticle.
     void traceGenHistory (HepMC::GenParticle const *);
+    
+    //! Trace all the simulated information for a given pointer to a reco::GenParticle.
+    void traceRecoGenHistory (reco::GenParticle const *);
+    
 
     //! Trace all the simulated information for a given pointer to a GenVertex.
     void traceGenHistory (HepMC::GenVertex const *);
@@ -154,6 +179,8 @@ private:
         simVertexTrail_.clear();
         genVertexTrail_.clear();
         genParticleTrail_.clear();
+        recoGenParticleTrail_.clear();
+        recoGenParticleTrailHelper_.clear();
         genVertexTrailHelper_.clear();
     }
 

@@ -51,6 +51,8 @@ public:
   range equal_range(const OmniClusterRef& key) const {
     return std::equal_range(map_.begin(), map_.end(), value_type(key, TrackingParticleRef()), compare);
   }
+  
+  const map_type& map() const { return map_; }
 
   void checkMappedProductID(const edm::HandleBase& mappedHandle) const { checkMappedProductID(mappedHandle.id()); }
   void checkMappedProductID(const TrackingParticleRef& tp) const { checkMappedProductID(tp.id()); }
