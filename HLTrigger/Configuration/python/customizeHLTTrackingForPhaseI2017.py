@@ -1,6 +1,13 @@
 import FWCore.ParameterSet.Config as cms
+
+# customisation functions for the HLT configuration
 from HLTrigger.Configuration.common import *
 
+# import the relevant eras from Configuration.Eras.*
+from Configuration.Eras.Modifier_phase1Pixel_cff import phase1Pixel
+
+
+# modify the HLT configuration for the Phase I pixel geometry
 def customizeHLTPhaseIPixelGeom(process):
 
     for esproducer in esproducers_by_type(process,"ClusterShapeHitFilterESProducer"):
@@ -10,7 +17,13 @@ def customizeHLTPhaseIPixelGeom(process):
             producer.UsePhase1 = cms.bool( True )
     return process
 
+# attach `modifyHLTPhaseIPixelGeom' to the `phase1Pixel` era
+def modifyHLTPhaseIPixelGeom(process):
+    phase1Pixel.toModify(process, customizeHLTPhaseIPixelGeom)
 
+
+
+# modify the HLT configuration to run the Phase I tracking in the particle flow sequence
 def customizeHLTForPFTrackingPhaseI2017(process):
 
     process.hltPixelLayerTriplets.layerList = cms.vstring(
@@ -272,3 +285,7 @@ def customizeHLTForPFTrackingPhaseI2017(process):
             seq.insert(index,process.hltPixelLayerQuadruplets)
 
     return process
+
+# attach `customizeHLTForPFTrackingPhaseI2017` to the `phase1Pixel` era
+def modifyHLTForPFTrackingPhaseI2017(process):
+    phase1Pixel.toModify(process, customizeHLTForPFTrackingPhaseI2017)
