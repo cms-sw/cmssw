@@ -47,6 +47,7 @@ def main(opts):
             "fromPVAllTP": limitProcessing,
             "seeding": limitProcessing,
             "building": limitProcessing,
+            "bhadron": limitProcessing,
         }
     }
     if opts.limit_relval:
@@ -57,6 +58,7 @@ def main(opts):
             "fromPV": ignore,
             "fromPVAllTP": ignore,
             "seeding": ignore,
+            "bhadron": limitRelVal,
         }
 
     trk = [trackingPlots.plotter]

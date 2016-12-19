@@ -42,16 +42,24 @@ _sampleFileName = {
     "RelValTenMuE_0_200": "tenmu200",
 }
 
-_allTPEfficName = "All tracks (all TPs)"
+_allName = "All tracks"
+_allTPEfficName = _allName+" (all TPs)"
 _fromPVName = "Tracks from PV"
 _fromPVAllTPName = "Tracks from PV (all TPs)"
 _tpPtLess09Name = "All tracks (TP pT &lt; 0.9 GeV)"
 _conversionName = "Tracks for conversions"
 _gsfName = "Electron GSF tracks"
+_bhadronName = "All tracks (B-hadron TPs)"
 def _toHP(s):
     return "High purity "+_lowerFirst(s)
+def _toOriAlgo(s):
+    return s.replace("tracks", "tracks by originalAlgo")
+def _toAlgoMask(s):
+    return s.replace("tracks", "tracks by algoMask")
 def _allToHP(s):
     return s.replace("All", "High purity")
+def _allToBTV(s):
+    return s.replace("All", "BTV-like")
 def _byOriginalAlgo(s):
     return s.replace("tracks", "tracks by originalAlgo")
 def _ptCut(s):
@@ -64,19 +72,19 @@ _trackQualityNameOrder = collections.OrderedDict([
     ("seeding_seedstripl", "Seeds triplets"),
     ("seeding_seedspair", "Seeds pairs"),
     ("building_", "Built tracks"),
-    ("", "All tracks"),
-    ("highPurity", "High purity tracks"),
+    ("", _allName),
+    ("highPurity", _allToHP(_allName)),
     ("Pt09", "Tracks pT &gt; 0.9 GeV"),
     ("highPurityPt09", "High purity tracks pT &gt; 0.9 GeV"),
-    ("ByOriginalAlgo", "All tracks by originalAlgo"),
-    ("highPurityByOriginalAlgo", "High purity tracks by originalAlgo"),
-    ("ByAlgoMask", "All tracks by algoMask"),
-    ("highPurityByAlgoMask", "High purity tracks by algoMask"),
+    ("ByOriginalAlgo", _toOriAlgo(_allName)),
+    ("highPurityByOriginalAlgo", _toOriAlgo(_toHP(_allName))),
+    ("ByAlgoMask", _toAlgoMask(_allName)),
+    ("highPurityByAlgoMask", _toAlgoMask(_toHP(_allName))),
     ("tpPtLess09_", _tpPtLess09Name),
     ("tpPtLess09_highPurity", _allToHP(_tpPtLess09Name)),
     ("tpPtLess09_ByOriginalAlgo", _byOriginalAlgo(_tpPtLess09Name)),
     ("tpPtLess09_highPurityByOriginalAlgo", _byOriginalAlgo(_allToHP(_tpPtLess09Name))),
-    ("btvLike", "BTV-like"),
+    ("btvLike", _allToBTV(_allName)),
     ("ak4PFJets", "AK4 PF jets"),
     ("allTPEffic_", _allTPEfficName),
     ("allTPEffic_highPurity", _allToHP(_allTPEfficName)),
@@ -94,6 +102,13 @@ _trackQualityNameOrder = collections.OrderedDict([
     ("fromPVAllTP2_highPurityPt09", _toHP(_ptCut(_fromPVAllTPName)).replace("PV", "PV v2")),
     ("conversion_", _conversionName),
     ("gsf_", _gsfName),
+    ("bhadron_", _bhadronName),
+    ("bhadron_highPurity", _allToHP(_bhadronName)),
+    ("bhadron_ByOriginalAlgo", _toOriAlgo(_bhadronName)),
+    ("bhadron_highPurityByOriginalAlgo", _toOriAlgo(_toHP(_bhadronName))),
+    ("bhadron_ByAlgoMask", _toAlgoMask(_bhadronName)),
+    ("bhadron_highPurityByAlgoMask", _toAlgoMask(_allToHP(_bhadronName))),
+    ("bhadron_btvLike", _allToBTV(_bhadronName)),
 ])
 
 _trackAlgoName = {
@@ -171,6 +186,8 @@ _sectionNameMapOrder = collections.OrderedDict([
     ("fromPVAllTP_highPurity", "High purity "+_lowerFirst(_fromPVAllTPName)),
     ("conversion", _conversionName),
     ("gsf", _gsfName),
+    ("bhadron", _bhadronName),
+    ("bhadron_highPurity", _allToHP(_bhadronName)),
     # These are for vertices
     ("genvertex", "Gen vertices"),
     ("pixelVertices", "Pixel vertices"),
@@ -185,6 +202,7 @@ _sectionNameMapOrder = collections.OrderedDict([
     ("k0", "K0"),
     ("lambda", "Lambda"),
 ])
+_btvLegend = "BTV-like selected tracks"
 _allTPEfficLegend = "All tracks, efficiency denominator contains all TrackingParticles"
 _fromPVLegend = "Tracks from reco PV vs. TrackingParticles from gen PV (fake rate includes pileup tracks)"
 _fromPVPtLegend = "Tracks (pT &gt; 0.9 GeV) from reco PV vs. TrackingParticles from gen PV (fake rate includes pileup tracks)"
@@ -192,10 +210,11 @@ _fromPVAllTPLegend = "Tracks from reco PV, fake rate numerator contains all Trac
 _fromPVAllTPPtLegend = "Tracks (pT &gt; 0.9 GeV) from reco PV, fake rate numerator contains all TrackingParticles (separates fake tracks from pileup tracks)"
 _fromPVAllTP2Legend = "Tracks from reco PV (another method), fake rate numerator contains all TrackingParticles (separates fake tracks from pileup tracks)"
 _fromPVAllTPPt2Legend = "Tracks (pT &gt; 0.9 GeV) from reco PV (another method), fake rate numerator contains all TrackingParticles (separates fake tracks from pileup tracks)"
+_bhadronLegend = "All tracks, efficiency denominator contains only TrackingParticles from B-hadron decays"
 
 def _sectionNameLegend():
     return {
-        "btvLike": "BTV-like selected tracks",
+        "btvLike": _btvLegend,
         "ak4PFJets": "Tracks from AK4 PF jets (jet corrected pT &gt; 10 GeV)",
         "allTPEffic": _allTPEfficLegend,
         "allTPEffic_": _allTPEfficLegend,
@@ -214,6 +233,9 @@ def _sectionNameLegend():
         "fromPVAllTP2_highPurity": _toHP(_fromPVAllTP2Legend),
         "fromPVAllTP2_Pt09": _fromPVAllTPPt2Legend,
         "fromPVAllTP2_highPurityPt09": _toHP(_fromPVAllTPPt2Legend),
+        "bhadron_": _bhadronLegend,
+        "bhadron_highPurity": _allToHP(_bhadronLegend),
+        "bhadron_btvLike": _bhadronLegend.replace("All tracks", _btvLegend),
     }
 
 class Table:
