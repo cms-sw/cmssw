@@ -14,6 +14,7 @@ from SimTracker.TrackerHitAssociation.tpClusterProducer_cfi import *
 from SimTracker.VertexAssociation.VertexAssociatorByPositionAndTracks_cfi import *
 from CommonTools.RecoAlgos.trackingParticleRefSelector_cfi import trackingParticleRefSelector as _trackingParticleRefSelector
 from CommonTools.RecoAlgos.trackingParticleConversionRefSelector_cfi import trackingParticleConversionRefSelector as _trackingParticleConversionRefSelector
+from SimTracker.TrackHistory.trackingParticleBHadronRefSelector_cfi import trackingParticleBHadronRefSelector as _trackingParticleBHadronRefSelector
 from SimGeneral.TrackingAnalysis.trackingParticleNumberOfLayersProducer_cff import *
 from CommonTools.RecoAlgos.recoChargedRefCandidateToTrackRefProducer_cfi import recoChargedRefCandidateToTrackRefProducer as _recoChargedRefCandidateToTrackRefProducer
 
@@ -331,6 +332,9 @@ trackingParticlesElectron = _trackingParticleRefSelector.clone(
     ptMin = 0,
 )
 
+# Select B-hadron TPs
+trackingParticlesBHadron = _trackingParticleBHadronRefSelector.clone()
+
 ## MTV instances
 trackValidator = Validation.RecoTrack.MultiTrackValidator_cfi.multiTrackValidator.clone(
     useLogPt = cms.untracked.bool(True),
@@ -431,6 +435,22 @@ trackValidatorGsfTracks = trackValidatorConversion.clone(
     label_tp_effic = "trackingParticlesElectron",
 )
 
+# for B-hadrons
+trackValidatorBHadron = trackValidator.clone(
+    dirName = "Tracking/TrackBHadron/",
+    label_tp_effic = "trackingParticlesBHadron",
+    label_tp_effic_refvector = True,
+    associators = ["quickTrackAssociatorByHits"],
+    UseAssociators = True,
+    doSimPlots = True,
+    doRecoTrackPlots = False, # Fake rate is defined wrt. all TPs, and that is already included in trackValidator
+    dodEdxPlots = False,
+)
+for _eraName, _postfix, _era in _relevantEras:
+    _setForEra(trackValidatorBHadron, _eraName, _era,
+               label = ["generalTracks", locals()["_generalTracksHp"+_postfix], "cutsRecoTracksBtvLike"]
+    )
+
 
 # the track selectors
 tracksValidationSelectors = cms.Sequence(
@@ -457,11 +477,13 @@ tracksPreValidation = cms.Sequence(
     tracksValidationTruth +
     cms.ignore(trackingParticlesSignal) +
     cms.ignore(trackingParticlesElectron) +
-    trackingParticlesConversion
+    trackingParticlesConversion +
+    trackingParticlesBHadron
 )
 fastSim.toReplaceWith(tracksPreValidation, tracksPreValidation.copyAndExclude([
     trackingParticlesElectron,
-    trackingParticlesConversion
+    trackingParticlesConversion,
+    trackingParticlesBHadron
 ]))
 
 tracksValidation = cms.Sequence(
@@ -471,9 +493,14 @@ tracksValidation = cms.Sequence(
     trackValidatorFromPVAllTP +
     trackValidatorAllTPEffic +
     trackValidatorConversion +
-    trackValidatorGsfTracks
+    trackValidatorGsfTracks +
+    trackValidatorBHadron
 )
-fastSim.toReplaceWith(tracksValidation, tracksValidation.copyAndExclude([trackValidatorConversion, trackValidatorGsfTracks]))
+fastSim.toReplaceWith(tracksValidation, tracksValidation.copyAndExclude([
+    trackValidatorConversion,
+    trackValidatorGsfTracks,
+    trackValidatorBHadron,
+]))
 
 ### Then define stuff for standalone mode (i.e. MTV with RECO+DIGI input)
 
@@ -520,6 +547,8 @@ trackValidatorAllTPEfficStandalone = trackValidatorAllTPEffic.clone(
 
 trackValidatorConversionStandalone = trackValidatorConversion.clone( label = [x for x in trackValidatorConversion.label if x != "convStepTracks"])
 
+trackValidatorBHadronStandalone = trackValidatorBHadron.clone(label = [x for x in trackValidatorStandalone.label if "Pt09" not in x])
+
 # sequences
 tracksValidationSelectorsStandalone = cms.Sequence(
     tracksValidationSelectorsByOriginalAlgoStandalone +
@@ -537,7 +566,8 @@ _trackValidatorsBase = cms.Sequence(
     trackValidatorFromPVAllTPStandalone +
     trackValidatorAllTPEfficStandalone +
     trackValidatorConversionStandalone +
-    trackValidatorGsfTracks
+    trackValidatorGsfTracks +
+    trackValidatorBHadronStandalone
 )
 trackValidatorsStandalone = _trackValidatorsBase.copy()
 fastSim.toModify(trackValidatorsStandalone, lambda x: x.remove(trackValidatorConversionStandalone) )
@@ -586,6 +616,8 @@ for _eraName, _postfix, _era in _relevantErasAndFastSim:
 
 trackValidatorConversionTrackingOnly = trackValidatorConversion.clone(label = [x for x in trackValidatorConversion.label if x not in ["ckfInOutTracksFromConversions", "ckfOutInTracksFromConversions"]])
 
+trackValidatorBHadronTrackingOnly = trackValidatorBHadron.clone(label = [x for x in trackValidatorTrackingOnly.label if "Pt09" not in x])
+
 # sequences
 tracksPreValidationTrackingOnly = tracksPreValidation.copy()
 tracksPreValidationTrackingOnly.replace(tracksValidationSelectors, tracksValidationSelectorsTrackingOnly)
@@ -598,7 +630,9 @@ trackValidatorsTrackingOnly += (
 )
 trackValidatorsTrackingOnly.replace(trackValidatorConversionStandalone, trackValidatorConversionTrackingOnly)
 trackValidatorsTrackingOnly.remove(trackValidatorGsfTracks)
+trackValidatorsTrackingOnly.replace(trackValidatorBHadronStandalone, trackValidatorBHadronTrackingOnly)
 fastSim.toModify(trackValidatorsTrackingOnly, lambda x: x.remove(trackValidatorConversionTrackingOnly))
+fastSim.toModify(trackValidatorsTrackingOnly, lambda x: x.remove(trackValidatorBHadronTrackingOnly))
 
 
 tracksValidationTrackingOnly = cms.Sequence(
