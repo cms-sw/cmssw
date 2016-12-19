@@ -9,6 +9,7 @@ SiPixelPhase1ClustersCharge = DefaultHistoDigiCluster.clone(
   
   specs = VPSet(
     StandardSpecification2DProfile,
+    StandardSpecificationPixelmapProfile,
     StandardSpecificationTrend,
     StandardSpecifications1D,
     StandardSpecificationTrend2D
@@ -139,11 +140,11 @@ SiPixelPhase1ClustersReadoutCharge = DefaultHistoReadout.clone(
   range_min = 0, range_max = 200e3, range_nbins = 200,
   xlabel = "Charge (electrons)",
   specs = VPSet(
-    Specification(PerReadout).groupBy("PXBarrel/Shell/ReadoutGroup").save(),
+    Specification(PerReadout).groupBy("PXBarrel/Shell/Sector").save(),
     Specification(PerReadout).groupBy("PXForward/HalfCylinder").save(),
 
-    Specification(PerReadout).groupBy("PXBarrel/Shell/ReadoutGroup/OnlineBlock")
-                             .groupBy("PXBarrel/Shell/ReadoutGroup", "EXTEND_Y").save(),
+    Specification(PerReadout).groupBy("PXBarrel/Shell/Sector/OnlineBlock")
+                             .groupBy("PXBarrel/Shell/Sector", "EXTEND_Y").save(),
     Specification(PerReadout).groupBy("PXForward/HalfCylinder/OnlineBlock")
                              .groupBy("PXForward/HalfCylinder", "EXTEND_Y").save(),
   )
@@ -156,14 +157,14 @@ SiPixelPhase1ClustersReadoutNClusters = DefaultHistoReadout.clone(
   xlabel = "clusters",
   dimensions = 0,
   specs = VPSet(
-    Specification(PerReadout).groupBy("PXBarrel/Shell/ReadoutGroup/DetId/Event").reduce("COUNT")
-                             .groupBy("PXBarrel/Shell/ReadoutGroup").save(),
+    Specification(PerReadout).groupBy("PXBarrel/Shell/Sector/DetId/Event").reduce("COUNT")
+                             .groupBy("PXBarrel/Shell/Sector").save(),
     Specification(PerReadout).groupBy("PXForward/HalfCylinder/DetId/Event").reduce("COUNT")
                              .groupBy("PXForward/HalfCylinder").save(),
 
-    Specification(PerReadout).groupBy("PXBarrel/Shell/ReadoutGroup/DetId/Event").reduce("COUNT")
-                             .groupBy("PXBarrel/Shell/ReadoutGroup/Lumisection").reduce("MEAN")
-                             .groupBy("PXBarrel/Shell/ReadoutGroup", "EXTEND_X").save(),
+    Specification(PerReadout).groupBy("PXBarrel/Shell/Sector/DetId/Event").reduce("COUNT")
+                             .groupBy("PXBarrel/Shell/Sector/Lumisection").reduce("MEAN")
+                             .groupBy("PXBarrel/Shell/Sector", "EXTEND_X").save(),
     Specification(PerReadout).groupBy("PXForward/HalfCylinder/DetId/Event").reduce("COUNT")
                              .groupBy("PXForward/HalfCylinder/Lumisection").reduce("MEAN")
                              .groupBy("PXForward/HalfCylinder", "EXTEND_X").save(),
