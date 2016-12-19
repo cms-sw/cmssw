@@ -4,7 +4,7 @@ from DQM.SiPixelPhase1Common.SpecificationBuilder_cfi import Specification, pare
 
 SiPixelPhase1Geometry = cms.PSet(
   # SPixel*Name and friends use the isUpgrade flag, so we also have it as a setting here.
-  isUpgrade = cms.bool(True),
+  upgradePhase = cms.int32(1),
 
   # Blades are numbered from 1 to n_inner_ring_blades for the inner ring, and 
   # from n_inner_ring_blades+1 to <max_blade> for the outer ring
@@ -170,16 +170,31 @@ StandardSpecificationTrend2D = [
 
 StandardSpecification2DProfile = [
     Specification(PerLayer2D)
-       .groupBy("PXBarrel/PXLayer/signedLadder/signedModule")
-       .reduce("MEAN")
-       .groupBy("PXBarrel/PXLayer/signedLadder", "EXTEND_X")
+       .groupBy("PXBarrel/PXLayer/SignedLadder/SignedModule")
+       .groupBy("PXBarrel/PXLayer/SignedLadder", "EXTEND_X")
        .groupBy("PXBarrel/PXLayer", "EXTEND_Y")
+       .reduce("MEAN")
        .save(),
     Specification(PerLayer2D)
-       .groupBy("PXForward/PXDisk/PXBlade/PXPanel")
-       .reduce("MEAN")
-       .groupBy("PXForward/PXDisk/PXBlade", "EXTEND_X")
+       .groupBy("PXForward/PXDisk/SignedBlade/PXPanel")
+       .groupBy("PXForward/PXDisk/SignedBlade", "EXTEND_X")
        .groupBy("PXForward/PXDisk", "EXTEND_Y")
+       .reduce("MEAN")
+       .save(),
+]
+
+StandardSpecificationPixelmapProfile = [
+    Specification(PerLayer2D)
+       .groupBy("PXBarrel/PXLayer/SignedLadderCoord/SignedModuleCoord")
+       .groupBy("PXBarrel/PXLayer/SignedLadderCoord", "EXTEND_X")
+       .groupBy("PXBarrel/PXLayer", "EXTEND_Y")
+       .reduce("MEAN")
+       .save(),
+    Specification(PerLayer2D)
+       .groupBy("PXForward/PXRing/SignedBladePanelCoord/SignedDiskCoord")
+       .groupBy("PXForward/PXRing/SignedBladePanelCoord", "EXTEND_X")
+       .groupBy("PXForward/PXRing", "EXTEND_Y")
+       .reduce("MEAN")
        .save(),
 ]
 
@@ -265,19 +280,19 @@ StandardSpecificationTrend_Num = [
 
 StandardSpecification2DProfile_Num = [
     Specification(PerLayer2D)
-       .groupBy("PXBarrel/PXLayer/signedLadder/signedModule" + "/DetId/Event")
+       .groupBy("PXBarrel/PXLayer/SignedLadder/SignedModule" + "/DetId/Event")
        .reduce("COUNT")
-       .groupBy("PXBarrel/PXLayer/signedLadder/signedModule")
+       .groupBy("PXBarrel/PXLayer/SignedLadder/SignedModule")
        .reduce("MEAN") 
-       .groupBy("PXBarrel/PXLayer/signedLadder", "EXTEND_X")
+       .groupBy("PXBarrel/PXLayer/SignedLadder", "EXTEND_X")
        .groupBy("PXBarrel/PXLayer", "EXTEND_Y")
        .save(),
     Specification(PerLayer2D)
-       .groupBy("PXForward/PXDisk/PXBlade/PXPanel" + "/DetId/Event")
+       .groupBy("PXForward/PXDisk/SignedBlade/PXPanel" + "/DetId/Event")
        .reduce("COUNT")
-       .groupBy("PXForward/PXDisk/PXBlade/PXPanel")
+       .groupBy("PXForward/PXDisk/SignedBlade/PXPanel")
        .reduce("MEAN") 
-       .groupBy("PXForward/PXDisk/PXBlade", "EXTEND_X")
+       .groupBy("PXForward/PXDisk/SignedBlade", "EXTEND_X")
        .groupBy("PXForward/PXDisk", "EXTEND_Y")
        .save(),
 ]
