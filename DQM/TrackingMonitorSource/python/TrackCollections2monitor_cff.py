@@ -208,7 +208,7 @@ trackAssociated2pvSelector.trackWithVertexSelectorParams = cms.PSet(
    vertexTag    = cms.InputTag('trackingDQMgoodOfflinePrimaryVertices'),
    timesTag     = cms.InputTag(''),
    timeResosTag = cms.InputTag(''),
-   nVertices    = cms.uint32(0), ## how many vertices to look at before dropping the track
+   nVertices    = cms.uint32(1), ## how many vertices to look at before dropping the track
    vtxFallback  = cms.bool(True), ## falback to beam spot if there are no vertices
    # uses vtx=(0,0,0) with deltaZeta=15.9, deltaRho = 0.2
    zetaVtx        = cms.double(0.1),
