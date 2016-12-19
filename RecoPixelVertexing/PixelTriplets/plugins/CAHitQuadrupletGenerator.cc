@@ -9,6 +9,10 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
 
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
+
 
 #include "TrackingTools/DetLayers/interface/BarrelDetLayer.h"
 
@@ -233,6 +237,11 @@ void CAHitQuadrupletGenerator::hitQuadruplets(const TrackingRegion& region,
                                               OrderedHitSeeds & result,
                                               std::vector<const HitDoublets *>& hitDoublets, const CAGraph& g,
                                               const edm::EventSetup& es) {
+	//Retrieve tracker topology from geometry
+	edm::ESHandle<TrackerTopology> tTopoHand;
+	es.get<TrackerTopologyRcd>().get(tTopoHand);
+	const TrackerTopology *tTopo=tTopoHand.product();	
+	
 	const int numberOfHitsInNtuplet = 4;
 	std::vector<CACell::CAntuplet> foundQuadruplets;
 
@@ -255,8 +264,8 @@ void CAHitQuadrupletGenerator::hitQuadruplets(const TrackingRegion& region,
   std::array<GlobalPoint, 4> gps;
   std::array<GlobalError, 4> ges;
   std::array<bool, 4> barrels;
-  int layerSubDetId = -1;
-  int previousLayerSubDetId = -2;
+  int fourthLayerId = -1;
+  int previousfourthLayerId = -2;
   std::array<unsigned int, 2> previousCellIds ={{0,0}};
   bool isTheSameTriplet = false;
   bool isTheSameFourthLayer = false;
@@ -289,12 +298,12 @@ void CAHitQuadrupletGenerator::hitQuadruplets(const TrackingRegion& region,
 
     if(caOnlyOneLastHitPerLayerFilter)
     {
-	    layerSubDetId = ahit->geographicalId().subdetId();
+            fourthLayerId = tTopo->layer(ahit->geographicalId());
 	    isTheSameTriplet = (quadId != 0) && (foundQuadruplets[quadId][0]->getCellId() ==  previousCellIds[0]) && (foundQuadruplets[quadId][1]->getCellId() ==  previousCellIds[1]);
 	    isTheSameFourthLayer = (layerSubDetId == previousLayerSubDetId);
 
 	    previousCellIds = {{foundQuadruplets[quadId][0]->getCellId(), foundQuadruplets[quadId][1]->getCellId()}};
-	    previousLayerSubDetId = layerSubDetId;
+	    previousfourthLayerId = fourthLayerId;
 
 
 	    if(!(isTheSameTriplet && isTheSameFourthLayer ))
@@ -346,7 +355,8 @@ void CAHitQuadrupletGenerator::hitQuadruplets(const TrackingRegion& region,
       }
       RZLine rzLine(bc_r, bc_z, bc_errZ2, RZLine::ErrZ2_tag());
       chi2 = rzLine.chi2();
-    } else
+    } 
+    else
     {
       RZLine rzLine(gps, ges, barrels);
       chi2 = rzLine.chi2();
