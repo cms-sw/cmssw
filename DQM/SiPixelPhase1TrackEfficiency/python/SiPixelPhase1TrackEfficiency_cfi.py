@@ -29,6 +29,7 @@ SiPixelPhase1TrackEfficiencyEfficiency = SiPixelPhase1TrackEfficiencyValid.clone
   dimensions = 1,
   specs = VPSet(
     StandardSpecification2DProfile,
+    StandardSpecificationPixelmapProfile,
     Specification().groupBy("PXBarrel/PXLayer/ROC")
                    .groupBy("PXBarrel/PXLayer", "EXTEND_X")
                    .reduce("MEAN")
