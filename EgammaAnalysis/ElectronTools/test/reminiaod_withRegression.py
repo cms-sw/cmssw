@@ -15,7 +15,7 @@ process.load('Configuration.EventContent.EventContent_cff')
 process.load('SimGeneral.MixingModule.mixNoPU_cfi')
 process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
 process.load('Configuration.StandardSequences.MagneticField_cff')
-process.load('PhysicsTools.PatAlgos.slimming.MiniAODfromMiniAOD_cff')
+#process.load('PhysicsTools.PatAlgos.slimming.MiniAODfromMiniAOD_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
@@ -80,10 +80,13 @@ process.load('EgammaAnalysis.ElectronTools.regressionApplication_cff')
 process.EGMenergyCorrection = cms.Path(process.regressionApplication)
 
 # Path and EndPath definitions
-process.eventinterpretaion_step = cms.Path(process.EIsequence)
+
+# You don't need to really remak all of miniAOD, only the regressions
+#process.eventinterpretaion_step = cms.Path(process.EIsequence)
+
 process.endjob_step = cms.EndPath(process.endOfProcess)
 process.MINIAODSIMoutput_step = cms.EndPath(process.MINIAODSIMoutput)
 
 # Schedule definition
-process.schedule = cms.Schedule(process.EGMenergyCorrection,process.eventinterpretaion_step,process.endjob_step,process.MINIAODSIMoutput_step)
+process.schedule = cms.Schedule(process.EGMenergyCorrection,process.endjob_step,process.MINIAODSIMoutput_step)
 
