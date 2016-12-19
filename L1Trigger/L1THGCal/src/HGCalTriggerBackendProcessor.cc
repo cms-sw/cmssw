@@ -26,8 +26,9 @@ void HGCalTriggerBackendProcessor::setProduces(edm::EDProducer& prod) const {
   }
 }
 
-void HGCalTriggerBackendProcessor::run(const l1t::HGCFETriggerDigiCollection& coll, const edm::EventSetup& es,
-    const edm::ESHandle<HGCalTriggerGeometryBase> & geom,const edm::Event &e
+void HGCalTriggerBackendProcessor::run(const l1t::HGCFETriggerDigiCollection& coll, 
+		const edm::EventSetup& es,
+		const edm::Event &e
 		) {
   for( auto& algo : algorithms_ ) {
     algo->run(coll, es,e);

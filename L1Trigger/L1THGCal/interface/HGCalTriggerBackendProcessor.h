@@ -39,7 +39,6 @@ class HGCalTriggerBackendProcessor {
 
   void run(const l1t::HGCFETriggerDigiCollection& coll,
 	   const edm::EventSetup& es,
-           const edm::ESHandle<HGCalTriggerGeometryBase>& geom,
 	   const edm::Event&e
 	   );
 

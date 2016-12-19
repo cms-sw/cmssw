@@ -154,7 +154,7 @@ void HGCalTriggerDigiProducer::produce(edm::Event& e, const edm::EventSetup& es)
   
   //now we run the emulation of the back-end processor
   backEndProcessor_->reset();
-  backEndProcessor_->run(fe_digis_coll,es,triggerGeometry_,e);
+  backEndProcessor_->run(fe_digis_coll,es,e);
   backEndProcessor_->putInEvent(e);
   //backEndProcessor_->reset();  
   #ifdef HGCAL_DEBUG
