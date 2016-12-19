@@ -25,10 +25,11 @@ class EcalUncalibRecHitMultiFitAlgo
   
   EcalUncalibRecHitMultiFitAlgo();
   ~EcalUncalibRecHitMultiFitAlgo() { };
-  EcalUncalibratedRecHit makeRecHit(const EcalDataFrame& dataFrame, const EcalPedestals::Item * aped, const EcalMGPAGainRatio * aGain, const SampleMatrix &noisecor, const FullSampleVector &fullpulse, const FullSampleMatrix &fullpulsecov, const BXVector &activeBX);
+  EcalUncalibratedRecHit makeRecHit(const EcalDataFrame& dataFrame, const EcalPedestals::Item * aped, const EcalMGPAGainRatio * aGain, const SampleMatrixGainArray &noisecors, const FullSampleVector &fullpulse, const FullSampleMatrix &fullpulsecov, const BXVector &activeBX);
   void disableErrorCalculation() { _computeErrors = false; }
   void setDoPrefit(bool b) { _doPrefit = b; }
   void setPrefitMaxChiSq(double x) { _prefitMaxChiSq = x; }
+  void setDynamicPedestals(bool b=true) { _dynamicPedestals = b; }
   
  private:
    PulseChiSqSNNLS _pulsefunc;
@@ -36,6 +37,8 @@ class EcalUncalibRecHitMultiFitAlgo
    bool _computeErrors;
    bool _doPrefit;
    double _prefitMaxChiSq;
+   bool _dynamicPedestals;
+   bool _mitigateBadSamples;
    BXVector _singlebx;
 
 };
