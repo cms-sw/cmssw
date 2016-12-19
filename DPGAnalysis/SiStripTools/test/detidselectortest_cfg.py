@@ -54,11 +54,10 @@ from DPGAnalysis.SiStripTools.occupancyplotsselections_simplified_cff import *
 
 process.detidselectortest = cms.EDAnalyzer("DetIdSelectorTest",
                                            selections=cms.VPSet(
-    cms.PSet(detLabel = cms.string("noisy"),selection=cms.untracked.vstring("0x1fffffff-0x1a00a4f1"))
-#    cms.PSet(detLabel = cms.string("TECplus_3_8_4_2_3_ring5"),selection=cms.untracked.vstring("0x1fffffe0-0x1c0a13a0")),
-#    cms.PSet(detLabel = cms.string("TECplus_3_8_4_2_3_ring7"),selection=cms.untracked.vstring("0x1fffffe0-0x1c0a13e0")),
-#    cms.PSet(detLabel = cms.string("TECminus_5_4_4_2_3_ring5"),selection=cms.untracked.vstring("0x1fffffe0-0x1c0515a0")),
-#    cms.PSet(detLabel = cms.string("TECminus_5_4_4_2_3_ring7"),selection=cms.untracked.vstring("0x1fffffe0-0x1c0515e0"))
+    cms.PSet(detSelection = cms.uint32(101),detLabel = cms.string("TIDring1"),selection=cms.untracked.vstring("0x1e000600-0x18000200")),
+    cms.PSet(detSelection = cms.uint32(102),detLabel = cms.string("TIDring2"),selection=cms.untracked.vstring("0x1e000600-0x18000400")),
+    cms.PSet(detSelection = cms.uint32(201),detLabel = cms.string("TECring1"),selection=cms.untracked.vstring("0x1e0000e0-0x1c000020")),
+    cms.PSet(detSelection = cms.uint32(202),detLabel = cms.string("TECring2"),selection=cms.untracked.vstring("0x1e0000e0-0x1c000040"))
     )
 )
 #process.detidselectortest.selections.extend(OccupancyPlotsStripWantedSubDets)
