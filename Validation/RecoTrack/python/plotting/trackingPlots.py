@@ -177,12 +177,17 @@ _effandfakePtEtaPhi = PlotGroup("effandfakePtEtaPhi", [
     _makeEffFakeDupPlots("phi", "#phi")
 )
 
-_effandfakeDxyDz = PlotGroup("effandfakeDxyDz",
-                             _makeEffFakeDupPlots("dxy"  , "dxy"    , "cm") +
-                             _makeEffFakeDupPlots("dxypv", "dxy(PV)", "cm") +
-                             _makeEffFakeDupPlots("dz"   , "dz"     , "cm") +
-                             _makeEffFakeDupPlots("dzpv" , "dz(PV)" , "cm"),
-                             legendDy=_legendDy_4rows
+_effandfakeDxyDzBS = PlotGroup("effandfakeDxyDzBS",
+                               _makeEffFakeDupPlots("dxy"  , "dxy"    , "cm") +
+                               _makeEffFakeDupPlots("dz"   , "dz"     , "cm"),
+                               legendDy=_legendDy_2rows
+)
+_effandfakeDxyDzPV = PlotGroup("effandfakeDxyDzPV",
+                               _makeEffFakeDupPlots("dxypv"       , "dxy(PV)", "cm") +
+                               _makeEffFakeDupPlots("dxypv_zoomed", "dxy(PV)", "cm") +
+                               _makeEffFakeDupPlots("dzpv"        , "dz(PV)" , "cm") +
+                               _makeEffFakeDupPlots("dzpv_zoomed" , "dz(PV)" , "cm"),
+                               legendDy=_legendDy_4rows
 )
 _effandfakeHitsLayers = PlotGroup("effandfakeHitsLayers",
                                   _makeEffFakeDupPlots("hit"       , "hits"        , common=dict(xmin=_minHits    , xmax=_maxHits)) +
@@ -212,12 +217,17 @@ _dupandfakePtEtaPhi = PlotGroup("dupandfakePtEtaPhi", [
 ] + _makeFakeDupPileupPlots("phi", "#phi"),
                          ncols=3
 )
-_dupandfakeDxyDz = PlotGroup("dupandfakeDxyDz",
-                             _makeFakeDupPileupPlots("dxy"  , "dxy"    , "cm") +
-                             _makeFakeDupPileupPlots("dxypv", "dxy(PV)", "cm") +
-                             _makeFakeDupPileupPlots("dz"   , "dz"     , "cm") +
-                             _makeFakeDupPileupPlots("dzpv" , "dz(PV)" , "cm"),
-                             ncols=3, legendDy=_legendDy_4rows
+_dupandfakeDxyDzBS = PlotGroup("dupandfakeDxyDzBS",
+                               _makeFakeDupPileupPlots("dxy"  , "dxy"    , "cm") +
+                               _makeFakeDupPileupPlots("dz"   , "dz"     , "cm"),
+                               ncols=3, legendDy=_legendDy_2rows_3cols
+)
+_dupandfakeDxyDzPV = PlotGroup("dupandfakeDxyDzPV",
+                               _makeFakeDupPileupPlots("dxypv"       , "dxy(PV)", "cm") +
+                               _makeFakeDupPileupPlots("dxypv_zoomed", "dxy(PV)", "cm") +
+                               _makeFakeDupPileupPlots("dzpv"        , "dz(PV)" , "cm") +
+                               _makeFakeDupPileupPlots("dzpv_zoomed" , "dz(PV)" , "cm"),
+                               ncols=3, legendDy=_legendDy_4rows
 )
 _dupandfakeHitsLayers = PlotGroup("dupandfakeHitsLayers",
                                   _makeFakeDupPileupPlots("hit"       , "hits"        , common=dict(xmin=_minHits    , xmax=_maxHits)) +
@@ -373,12 +383,16 @@ _extDistPtEtaPhi = PlotGroup("distPtEtaPhi",
                              _makeDistPlots("eta", "#eta") +
                              _makeDistPlots("phi", "#phi"),
                              ncols=4)
-_extDistDxyDz = PlotGroup("distDxyDz",
-                          _makeDistPlots("dxy"  , "dxy (cm)") +
-                          _makeDistPlots("dxypv", "dxy(PV) (cm)") +
-                          _makeDistPlots("dz"   , "dz (cm)") +
-                          _makeDistPlots("dzpv" , "dz(PV) (cm)"),
-                          ncols=4, legendDy=_legendDy_4rows)
+_extDistDxyDzBS = PlotGroup("distDxyDzBS",
+                            _makeDistPlots("dxy"  , "dxy (cm)") +
+                            _makeDistPlots("dz"   , "dz (cm)"),
+                            ncols=4, legendDy=_legendDy_2rows)
+_extDistDxyDzPV = PlotGroup("distDxyDzPV",
+                            _makeDistPlots("dxypv"       , "dxy(PV) (cm)") +
+                            _makeDistPlots("dxypv_zoomed", "dxy(PV) (cm)") +
+                            _makeDistPlots("dzpv"        , "dz(PV) (cm)") +
+                            _makeDistPlots("dzpv_zoomed" , "dz(PV) (cm)"),
+                            ncols=4, legendDy=_legendDy_4rows)
 _extDistHitsLayers = PlotGroup("distHitsLayers",
                                _makeDistPlots("hit"       , "hits"        , common=dict(xmin=_minHits    , xmax=_maxHits)) +
                                _makeDistPlots("layer"     , "layers"      , common=dict(xmin=_minLayers  , xmax=_maxLayers)) +
@@ -434,12 +448,16 @@ _extDistSimPtEtaPhi = PlotGroup("distsimPtEtaPhi",
                                 _makeDistSimPlots("eta", "#eta") +
                                 _makeDistSimPlots("phi", "#phi"),
                                 ncols=2)
-_extDistSimDxyDz = PlotGroup("distsimDxyDz",
-                             _makeDistSimPlots("dxy"  , "dxy (cm)") +
-                             _makeDistSimPlots("dxypv", "dxy(PV) (cm)") +
-                             _makeDistSimPlots("dz"   , "dz (cm)") +
-                             _makeDistSimPlots("dzpv" , "dz(PV) (cm)"),
-                             ncols=2, legendDy=_legendDy_4rows)
+_extDistSimDxyDzBS = PlotGroup("distsimDxyDzBS",
+                               _makeDistSimPlots("dxy"  , "dxy (cm)") +
+                               _makeDistSimPlots("dz"   , "dz (cm)"),
+                               ncols=2, legendDy=_legendDy_2rows)
+_extDistSimDxyDzPV = PlotGroup("distsimDxyDzPV",
+                               _makeDistSimPlots("dxypv"       , "dxy(PV) (cm)") +
+                               _makeDistSimPlots("dxypv_zoomed", "dxy(PV) (cm)") +
+                               _makeDistSimPlots("dzpv"        , "dz(PV) (cm)") +
+                               _makeDistSimPlots("dzpv_zoomed" , "dz(PV) (cm)"),
+                               ncols=2, legendDy=_legendDy_4rows)
 _extDistSimHitsLayers = PlotGroup("distsimHitsLayers",
                                   _makeDistSimPlots("hit"       , "hits"        , common=dict(xmin=_minHits    , xmax=_maxHits)) +
                                   _makeDistSimPlots("layer"     , "layers"      , common=dict(xmin=_minLayers  , xmax=_maxLayers)) +
@@ -984,14 +1002,16 @@ def _trackingFolders(lastDirName="Track"):
 
 _simBasedPlots = [
     _effandfakePtEtaPhi,
-    _effandfakeDxyDz,
+    _effandfakeDxyDzBS,
+    _effandfakeDxyDzPV,
     _effandfakeHitsLayers,
     _effandfakePosDeltaRPU,
     _duplicateAlgo,
 ]
 _recoBasedPlots = [
     _dupandfakePtEtaPhi,
-    _dupandfakeDxyDz,
+    _dupandfakeDxyDzBS,
+    _dupandfakeDxyDzPV,
     _dupandfakeHitsLayers,
     _dupandfakePosDeltaRPU,
     _dupandfakeChi2Seeding,
@@ -1008,7 +1028,8 @@ _recoBasedPlots = [
 ]
 _seedingBuildingPlots = _simBasedPlots + [
     _dupandfakePtEtaPhi,
-    _dupandfakeDxyDz,
+    _dupandfakeDxyDzBS,
+    _dupandfakeDxyDzPV,
     _dupandfakeHitsLayers,
     _dupandfakePosDeltaRPU,
     _dupandfakeChi2Seeding,
@@ -1021,7 +1042,8 @@ _seedingBuildingPlots = _simBasedPlots + [
 # add more if needed
 _extendedPlots = [
     _extDistPtEtaPhi,
-    _extDistDxyDz,
+    _extDistDxyDzBS,
+    _extDistDxyDzPV,
     _extDistHitsLayers,
     _extDistPosDeltaR,
     _extDistChi2Seeding,
@@ -1030,7 +1052,8 @@ _extendedPlots = [
     _extNrecVsNsim,
     _extHitsLayers,
     _extDistSimPtEtaPhi,
-    _extDistSimDxyDz,
+    _extDistSimDxyDzBS,
+    _extDistSimDxyDzPV,
     _extDistSimHitsLayers,
     _extDistSimPosDeltaR,
 ]
