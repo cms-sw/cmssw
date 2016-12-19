@@ -374,6 +374,9 @@ _doConversionSamples = [
     "RelValTTbar",
     "RelValH125GGgluonfusion",
 ]
+_doBHadronSamples = [
+    "RelValTTbar"
+]
 
 def _getRelValUrl(release):
     """Get RelVal download URL for a given release."""
@@ -394,13 +397,15 @@ def _processPlotsForSample(plotterFolder, sample):
         return False
     if plotterFolder.onlyForConversion() and not sample.doConversion():
         return False
+    if plotterFolder.onlyForBHadron() and not sample.doBHadron():
+        return False
     return True
 
 class Sample:
     """Represents a RelVal sample."""
     def __init__(self, sample, append=None, midfix=None, putype=None, punum=0,
                  fastsim=False, fastsimCorrespondingFullsimPileup=None,
-                 doElectron=None, doConversion=None,
+                 doElectron=None, doConversion=None, doBHadron=None,
                  version="v1", dqmVersion="0001", scenario=None, overrideGlobalTag=None, appendGlobalTag=""):
         """Constructor.
 
@@ -416,6 +421,7 @@ class Sample:
         fastsimCorrespondingFullSimPileup -- String indicating what is the FullSim pileup sample corresponding this FastSim sample. Must be set if fastsim=True and putype!=None (default None)
         doElectron -- Bool specifying if electron-specific plots should be produced (default depends on sample)
         doConversion -- Bool specifying if conversion-specific plots should be produced (default depends on sample)
+        doBHadron -- Bool specifying if B-hadron-specific plots should be produced (default depends on sample)
         version -- String for dataset/DQM file version (default "v1")
         scenario -- Geometry scenario for upgrade samples (default None)
         overrideGlobalTag -- GlobalTag obtained from release information (in the form of {"release": "actualRelease"}; default None)
@@ -442,6 +448,10 @@ class Sample:
             self._doConversion = doConversion
         else:
             self._doConversion = (sample in _doConversionSamples)
+        if doBHadron is not None:
+            self._doBHadron = doBHadron
+        else:
+            self._doBHadron = (sample in _doBHadronSamples)
 
         if self._fastsim and self.hasPileup() and self._fastsimCorrespondingFullsimPileup is None:
             self._fastsimCorrespondingFullsimPileup = self._putype
@@ -491,6 +501,9 @@ class Sample:
 
     def doConversion(self):
         return self._doConversion
+
+    def doBHadron(self):
+        return self._doBHadron
 
     def version(self, release=None):
         if isinstance(self._version, dict):
@@ -1142,6 +1155,9 @@ class SimpleSample:
         return True
 
     def doConversion(self):
+        return True
+
+    def doBHadron(self):
         return True
 
 class SimpleValidation:

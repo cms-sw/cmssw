@@ -2525,6 +2525,7 @@ class PlotFolder:
         onlyForPileup  -- Plots this folder only for pileup samples
         onlyForElectron -- Plots this folder only for electron samples
         onlyForConversion -- Plots this folder only for conversion samples
+        onlyForBHadron -- Plots this folder only for B-hadron samples
         purpose        -- html.PlotPurpose member class for the purpose of the folder, used for grouping of the plots to the HTML pages
         page           -- Optional string for the page in HTML generatin
         section        -- Optional string for the section within a page in HTML generation
@@ -2535,6 +2536,7 @@ class PlotFolder:
         self._onlyForPileup = kwargs.pop("onlyForPileup", False)
         self._onlyForElectron = kwargs.pop("onlyForElectron", False)
         self._onlyForConversion = kwargs.pop("onlyForConversion", False)
+        self._onlyForBHadron = kwargs.pop("onlyForBHadron", False)
         self._purpose = kwargs.pop("purpose", None)
         self._page = kwargs.pop("page", None)
         self._section = kwargs.pop("section", None)
@@ -2555,6 +2557,9 @@ class PlotFolder:
 
     def onlyForConversion(self):
         return self._onlyForConversion
+
+    def onlyForBHadron(self):
+        return self._onlyForBHadron
 
     def getPurpose(self):
         return self._purpose
@@ -2721,6 +2726,9 @@ class PlotterFolder:
 
     def onlyForConversion(self):
         return self._plotFolder.onlyForConversion()
+
+    def onlyForBHadron(self):
+        return self._plotFolder.onlyForBHadron()
 
     def getPossibleDQMFolders(self):
         return self._possibleDqmFolders

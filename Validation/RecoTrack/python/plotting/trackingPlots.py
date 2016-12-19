@@ -1095,10 +1095,10 @@ _packedCandidatePlots = [
 ]
 plotter = Plotter()
 plotterExt = Plotter()
-def _appendTrackingPlots(lastDirName, name, algoPlots, onlyForPileup=False, onlyForElectron=False, onlyForConversion=False, seeding=False, rawSummary=False):
+def _appendTrackingPlots(lastDirName, name, algoPlots, onlyForPileup=False, onlyForElectron=False, onlyForConversion=False, onlyForBHadron=False, seeding=False, rawSummary=False):
     folders = _trackingFolders(lastDirName)
     # to keep backward compatibility, this set of plots has empty name
-    limiters = dict(onlyForPileup=onlyForPileup, onlyForElectron=onlyForElectron, onlyForConversion=onlyForConversion)
+    limiters = dict(onlyForPileup=onlyForPileup, onlyForElectron=onlyForElectron, onlyForConversion=onlyForConversion, onlyForBHadron=onlyForBHadron)
     commonForTPF = dict(purpose=PlotPurpose.TrackingIteration, fallbackRefFiles=[
         _trackingRefFileFallbackSLHC_Phase1PU140
     ], **limiters)
@@ -1144,6 +1144,7 @@ _appendTrackingPlots("TrackSeeding", "seeding", _seedingBuildingPlots, seeding=T
 _appendTrackingPlots("TrackBuilding", "building", _seedingBuildingPlots)
 _appendTrackingPlots("TrackConversion", "conversion", _simBasedPlots+_recoBasedPlots, onlyForConversion=True, rawSummary=True)
 _appendTrackingPlots("TrackGsf", "gsf", _simBasedPlots+_recoBasedPlots, onlyForElectron=True, rawSummary=True)
+_appendTrackingPlots("TrackBHadron", "bhadron", _simBasedPlots+_recoBasedPlots, onlyForBHadron=True)
 
 # MiniAOD
 plotter.append("packedCandidate", _trackingFolders("PackedCandidate"),
