@@ -49,8 +49,8 @@ def makePuppiesFromMiniAOD( process, createScheduledSequence=False ):
     #Line below points puppi MET to puppi no lepton which increases the response
     process.puppiForMET.puppiCandName    = 'puppiMerged'
     #Avoid recomputing the weights available in MiniAOD
-    process.puppi.useExistingWeights = True
-    process.puppiNoLep.useExistingWeights = True
+    #process.puppi.useExistingWeights = True
+    #process.puppiNoLep.useExistingWeights = True
 
     #making a sequence for people running the MET tool in scheduled mode
     if createScheduledSequence:
