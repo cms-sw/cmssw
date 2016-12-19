@@ -9,8 +9,8 @@
  * 
  *
  */
-#ifndef TrackMergeremb_H
-#define TrackMergeremb_H
+#ifndef TauAnalysis_MCEmbeddingTools_TrackMergeremb_H
+#define TauAnalysis_MCEmbeddingTools_TrackMergeremb_H
 
 
 #include "FWCore/Framework/interface/EDProducer.h"

@@ -10,8 +10,8 @@
  *
  *  Clean Up from STefan Wayand, KIT
  */
-#ifndef CaloCleaner_H
-#define CaloCleaner_H
+#ifndef TauAnalysis_MCEmbeddingTools_CaloCleaner_H
+#define TauAnalysis_MCEmbeddingTools_CaloCleaner_H
 
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"

@@ -12,13 +12,13 @@ generator = cms.EDFilter("Pythia8HadronizerFilter",
   HepMCFilter = cms.PSet(
     filterName = cms.string('EmbeddingHepMCFilter'),
     filterParameters = cms.PSet(
-            ElElCut = cms.untracked.string('El1.Pt > 22 && El2.Pt > 10'),
-            ElHadCut = cms.untracked.string('El.Pt > 28 && Had.Pt > 25'),
-            ElMuCut = cms.untracked.string('(El.Pt > 21 && Mu.Pt > 10) || (El.Pt > 10 && Mu.Pt > 21)'),
-            HadHadCut = cms.untracked.string('Had1.Pt > 35 && Had2.Pt > 30'),
-            MuHadCut = cms.untracked.string('Mu.Pt > 18 && Had.Pt > 25 && Mu.Eta < 2.1'),
-            MuMuCut = cms.untracked.string('Mu1.Pt > 17 && Mu2.Pt > 8'),
-            switchToMuonEmbedding = cms.bool(True)
+            ElElCut = cms.string('El1.Pt > 22 && El2.Pt > 10'),
+            ElHadCut = cms.string('El.Pt > 28 && Had.Pt > 25'),
+            ElMuCut = cms.string('(El.Pt > 21 && Mu.Pt > 10) || (El.Pt > 10 && Mu.Pt > 21)'),
+            HadHadCut = cms.string('Had1.Pt > 35 && Had2.Pt > 30'),
+            MuHadCut = cms.string('Mu.Pt > 18 && Had.Pt > 25 && Mu.Eta < 2.1'),
+            MuMuCut = cmsstring('Mu1.Pt > 17 && Mu2.Pt > 8'),
+            Final_States = cms.vstring('ElEl','ElHad','ElMu','HadHad','MuHad','MuMu')
     )
   ),
   pythiaPylistVerbosity = cms.untracked.int32(0),

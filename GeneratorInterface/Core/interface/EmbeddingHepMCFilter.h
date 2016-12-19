@@ -4,9 +4,6 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "boost/algorithm/string.hpp"
-#include "boost/algorithm/string/trim_all.hpp"
-
 #include "GeneratorInterface/Core/interface/BaseHepMCFilter.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 
@@ -64,20 +61,12 @@ class EmbeddingHepMCFilter : public BaseHepMCFilter{
         
         DecayChannel ee,mm,hh,em,eh,mh;
         
-        const std::map<std::string, DecayChannel&> decaychannel_markers = {
-            {"ElEl", ee},
-            {"MuMu", mm},
-            {"HadHad", hh},
-            {"ElMu", em},
-            {"ElHad", eh},
-            {"MuHad", mh}
-        };
         
         struct CutsContainer
         {
             double pt1 = -1.;
             double pt2 = -1.;
-            double eta1 = -1.;
+            double eta1 = -1.; // since we use abs eta values the -1 as default is OK
             double eta2 = -1.;
             DecayChannel decaychannel;
         };
@@ -87,9 +76,12 @@ class EmbeddingHepMCFilter : public BaseHepMCFilter{
         DecayChannel DecayChannel_;
 	
 	virtual void fill_cut(std::string cut_string, EmbeddingHepMCFilter::DecayChannel &dc, CutsContainer &cut);
+	virtual void fill_cuts(std::string cut_string, EmbeddingHepMCFilter::DecayChannel &dc);
+	
+	
         virtual void decay_and_sump4Vis(HepMC::GenParticle* particle, reco::Candidate::LorentzVector &p4Vis);
-        virtual void sort_by_convention(DecayChannel& dc, std::vector<reco::Candidate::LorentzVector> &p4VisPair);
-        virtual bool apply_cuts(DecayChannel& dc, std::vector<reco::Candidate::LorentzVector> &p4VisPair, std::vector<CutsContainer> &cuts);
+        virtual void sort_by_convention(std::vector<reco::Candidate::LorentzVector> &p4VisPair);
+        virtual bool apply_cuts(std::vector<reco::Candidate::LorentzVector> &p4VisPair);
         
     public:
         

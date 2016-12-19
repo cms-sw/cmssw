@@ -9,8 +9,8 @@
  * 
  *
  */
-#ifndef CollectionMerger_H
-#define CollectionMerger_H
+#ifndef TauAnalysis_MCEmbeddingTools_CollectionMerger_H
+#define TauAnalysis_MCEmbeddingTools_CollectionMerger_H
 
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"

@@ -112,6 +112,8 @@ def customiseSelecting(process,reselect=False):
 		outputModule = getattr(process, outputModule)
 		outputModule.SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring("selecting"))
 		outputModule.outputCommands.extend(keepSelected(dataTier))
+		
+	process = customisoptions(process)
 	return modify_outputModules(process,[keepSelected(dataTier)])
 
 def customiseSelecting_Reselect(process):
@@ -156,7 +158,7 @@ def customiseCleaning(process, changeProcessname=True,reselect=False):
 				oldCollections_in.append(cms.InputTag(akt_manimod.module_name,instance,dataTier))
 			setattr(process, akt_manimod.module_name, cms.EDProducer(akt_manimod.cleaner_name,MuonCollection = MuonImput,TrackAssociatorParameters = TrackAssociatorParameterBlock.TrackAssociatorParameters,oldCollection = oldCollections_in))
 	process.ecalPreshowerRecHit.TrackAssociatorParameters.usePreshower = cms.bool(True)
-
+	process = customisoptions(process)
 	return modify_outputModules(process,[keepSelected(dataTier),keepCleaned()],["MINIAODoutput"])
 
 
@@ -194,7 +196,9 @@ def customiseLHE(process, changeProcessname=True,reselect=False):
 		process.externalLHEProducer.vertices=cms.InputTag("offlineSlimmedPrimaryVertices","","RESELECT")
 	process.lheproduction = cms.Path(process.makeexternalLHEProducer)
 	process.schedule.insert(0,process.lheproduction)
-
+	
+	
+        process = customisoptions(process)
 	return modify_outputModules(process,[keepSelected(dataTier),keepLHE()],["MINIAODoutput"])
 
 
@@ -228,6 +232,9 @@ def customiseGenerator(process, changeProcessname=True,reselect=False):
 	process.mix.digitizers.pixel.AddNoise = cms.bool(False)
 
 	process.mix.digitizers.strip.Noise = cms.bool(False)
+	
+	
+	process = customisoptions(process) 
 	return modify_outputModules(process,[keepSelected(dataTier),keepCleaned(),keepSimulated()],["AODSIMoutput"])
 
 def customiseGenerator_Reselect(process):
@@ -334,7 +341,7 @@ def customiseMerging(process, changeProcessname=True,reselect=False):
 	process.schedule.insert(0,process.merge_step)
 	 # process.load('PhysicsTools.PatAlgos.slimming.slimmedGenJets_cfi')
 	
-	
+	process = customisoptions(process) 
 	return modify_outputModules(process, [keepMerged(dataTier)])
 
 def customiseMerging_Reselect(process, changeProcessname=True):
@@ -354,10 +361,11 @@ def customiseLHEandCleaning_Reselect(process):
 ################################ additionla Customizer ###########################
 
 def customisoptions(process):
-	try:
-		process.options.emptyRunLumiMode = cms.untracked.string('doNotHandleEmptyRunsAndLumis')
-	except:
-		process.options = cms.untracked.PSet(emptyRunLumiMode = cms.untracked.string('doNotHandleEmptyRunsAndLumis'))
+	if not hasattr(process, "options"): 
+	  process.options = cms.untracked.PSet()
+	process.options.emptyRunLumiMode = cms.untracked.string('doNotHandleEmptyRunsAndLumis')
+	
+	
 	return process
 
 ############################### MC specific Customizer ###########################

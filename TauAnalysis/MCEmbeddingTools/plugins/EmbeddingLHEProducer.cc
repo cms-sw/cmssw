@@ -25,7 +25,6 @@
 #include <string>
 #include <memory>
 #include "TLorentzVector.h"
-#include "boost/ptr_container/ptr_deque.hpp"
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -84,10 +83,10 @@ class EmbeddingLHEProducer : public edm::one::EDProducer<edm::BeginRunProducer,
       void rotate180(TLorentzVector &positiveLepton, TLorentzVector &negativeLepton);
       
       // ----------member data ---------------------------
-      boost::shared_ptr<lhef::LHERunInfo>	runInfoLast;
-      boost::shared_ptr<lhef::LHERunInfo>	runInfo;
-      boost::shared_ptr<lhef::LHEEvent>	partonLevel;
-      boost::ptr_deque<LHERunInfoProduct>	runInfoProducts;
+      std::shared_ptr<lhef::LHERunInfo>	runInfoLast;
+      std::shared_ptr<lhef::LHERunInfo>	runInfo;
+      std::shared_ptr<lhef::LHEEvent>	partonLevel;
+
       
       edm::EDGetTokenT<edm::View<pat::Muon>> muonsCollection_;
       edm::EDGetTokenT<reco::VertexCollection> vertexCollection_;
@@ -253,11 +252,7 @@ EmbeddingLHEProducer::beginRunProduce(edm::Run &run, edm::EventSetup const&)
 
 void 
 EmbeddingLHEProducer::endRunProduce(edm::Run& run, edm::EventSetup const& es)
-{
-    if (!runInfoProducts.empty()) {
-        std::unique_ptr<LHERunInfoProduct> product(runInfoProducts.pop_front().release());
-        run.put(std::move(product));
-    }
+{  
     if (write_lheout) {
       file << LHERunInfoProduct::endOfFile();
       file.close();

@@ -10,8 +10,8 @@
  *
  */
 
-#ifndef TrackerCleaner_H
-#define TrackerCleaner_H
+#ifndef TauAnalysis_MCEmbeddingTools_TrackerCleaner_H
+#define TauAnalysis_MCEmbeddingTools_TrackerCleaner_H
 
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"

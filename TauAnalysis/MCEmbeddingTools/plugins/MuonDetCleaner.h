@@ -12,8 +12,8 @@
  * Clean Up from STefan Wayand, KIT
  * 
  */
-#ifndef MuonDetCleaner_H
-#define MuonDetCleaner_H
+#ifndef TauAnalysis_MCEmbeddingTools_MuonDetCleaner_H
+#define TauAnalysis_MCEmbeddingTools_MuonDetCleaner_H
 
 
 #include "FWCore/Framework/interface/EDProducer.h"
