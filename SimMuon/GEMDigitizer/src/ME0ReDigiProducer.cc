@@ -133,7 +133,7 @@ void ME0ReDigiProducer::buildDigis(const ME0DigiPreRecoCollection & input_digis,
 
       // scale background hits for luminosity
       if (!me0Digi.prompt())
-	if (CLHEP::RandFlat::shoot(engine) > instLumi_*1.0/5) continue;
+	  if (CLHEP::RandFlat::shoot(engine) > instLumi_*1.0/15) continue;
       
       edm::LogVerbatim("ME0ReDigiProducer")
         << "\tPassed selection" << std::endl;
