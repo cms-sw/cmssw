@@ -122,8 +122,17 @@ void FieldBuilder::configureForVolume( const std::string& volName,
   if (fP!=nullptr) configurePropagatorInField(fP);	
 
   edm::LogInfo("SimG4CoreApplication") 
-    << " FieldBuilder: Selected stepper: <" << stepper 
-    << ">  const field delta(mm)= " << delta;
+    << " FieldBuilder: Selected stepper:     <" << stepper << ">\n" 
+    << "               Field type            <" << fieldType<< ">\n"
+    << "               Field const delta(mm)= " << delta << "\n"
+    << "               MinStep(mm)            " << minStep<< "\n"
+    << "               DeltaChord(mm)         " << dChord<< "\n"
+    << "               DeltaOneStep(mm)       " << dOneStep<< "\n"
+    << "               DeltaIntersection(mm)  " << dIntersection<< "\n"
+    << "               IntersectionAndOneStep " << dIntersectionAndOneStep<< "\n"
+    << "               MaximumLoopCounts      " << maxLoopCount<< "\n"
+    << "               MinimumEpsilonStep     " << minEpsilonStep<< "\n"
+    << "               MaximumEpsilonStep     " << maxEpsilonStep;
 }
 
 G4LogicalVolume * FieldBuilder::fieldTopVolume() { return theTopVolume; }
