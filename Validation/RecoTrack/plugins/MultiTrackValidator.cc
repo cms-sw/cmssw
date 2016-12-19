@@ -695,7 +695,7 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
             if(theSimPVPosition) {
               // As in TrackBase::dxy(Point) and dz(Point)
               dxyPVSim = -(vertex.x()-theSimPVPosition->x())*sin(momentum.phi()) + (vertex.y()-theSimPVPosition->y())*cos(momentum.phi());
-              dzPVSim = vertex.z()-theSimPVPosition->z() - ( (vertex.x()-theSimPVPosition->x()) + (vertex.y()-theSimPVPosition->y()) )/sqrt(momentum.perp2()) * momentum.z()/sqrt(momentum.perp2());
+              dzPVSim = vertex.z()-theSimPVPosition->z() - ( (vertex.x()-theSimPVPosition->x())*momentum.x() + (vertex.y()-theSimPVPosition->y())*momentum.y() )/sqrt(momentum.perp2()) * momentum.z()/sqrt(momentum.perp2());
             }
 	  }
 	//If the TrackingParticle is comics, get the momentum and vertex at PCA
