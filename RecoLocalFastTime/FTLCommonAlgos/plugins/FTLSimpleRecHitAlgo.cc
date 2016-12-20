@@ -27,7 +27,7 @@ FTLRecHit
 FTLSimpleRecHitAlgo::makeRecHit(const FTLUncalibratedRecHit& uRecHit, uint32_t& flags ) const { 
   
   float energy = uRecHit.amplitude() * calibration_;
-  float time   = uRecHit.jitter();
+  float time   = uRecHit.time();
   
   FTLRecHit rh( uRecHit.id(), energy, time );
     

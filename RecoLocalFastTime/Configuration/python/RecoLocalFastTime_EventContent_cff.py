@@ -16,6 +16,5 @@ RecoLocalFastTimeRECO = cms.PSet(
 #AOD content
 RecoLocalFastTimeAOD = cms.PSet(
     outputCommands = cms.untracked.vstring(    
-        'keep *_ftlRecHits_*_*',
     )
 )

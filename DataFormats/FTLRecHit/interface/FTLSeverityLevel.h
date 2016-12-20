@@ -4,8 +4,8 @@
 
 */
 
-#ifndef __DataFormats_FTLSeverityLevel_h_
-#define __DataFormats_FTLSeverityLevel_h_
+#ifndef DataFormats_FTLSeverityLevel_h
+#define DataFormats_FTLSeverityLevel_h
 
 /** Define how good a rechit is to be used for reco.
    

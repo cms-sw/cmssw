@@ -17,40 +17,12 @@ public:
 
   // FTLEE recHit flags
     enum Flags { 
-          kGood=0,                   // channel ok, the energy and time measurement are reliable
-          kPoorReco,                 // the energy is available from the UncalibRecHit, but approximate (bad shape, large chi2)
-          kOutOfTime,                // the energy is available from the UncalibRecHit (sync reco), but the event is out of time
-          kFaultyHardware,           // The energy is available from the UncalibRecHit, channel is faulty at some hardware level (e.g. noisy)
-          kNoisy,                    // the channel is very noisy
-          kPoorCalib,                // the energy is available from the UncalibRecHit, but the calibration of the channel is poor
-          kSaturated,                // saturated channel (recovery not tried)
-          kDead,                     // channel is dead and any recovery fails
+          kGood=0,                   // channel ok, the energy and time measurement are reliable          
           kKilled,                   // MC only flag: the channel is killed in the real detector
-          kWeird,                    // the signal is believed to originate from an anomalous deposit (spike) 
-          kDiWeird,                  // the signal is anomalous, and neighbors another anomalous signal  
-                                     //
           kUnknown                   // to ease the interface with functions returning flags. 
   };
-
-  //  FTLfhe recHit flags
-  enum FTLfheFlags {
-          kFTLfheGood,
-          kFTLfheDead,
-          kFTLfheHot,
-          kFTLfhePassBX,
-          kFTLfheSaturated
-  };
-
-  //  FTLbhe recHit flags
-  enum FTLbheFlags {
-          kFTLbheGood,
-          kFTLbheDead,
-          kFTLbheHot,
-          kFTLbhePassBX,
-          kFTLbheSaturated
-  };
-
-  /** bit structure of CaloRecHit::flags_ used in EcalRecHit:
+    
+  /** bit structure of CaloRecHit::flags_ used in FTLRecHit:
    *
    *  | 32 | 31...25 | 24...12 | 11...5 | 4...1 |
    *     |      |         |         |       |

@@ -1,10 +1,11 @@
 #include "DataFormats/FTLRecHit/interface/FTLRecHit.h"
 #include "DataFormats/ForwardDetId/interface/FastTimeDetId.h"
 #include <cassert>
-#include <math.h>
+#include <cmath>
 
 namespace {
   constexpr float chi2_constant = 64.f/((1<<7) - 1);
+  constexpr float timereso_max = 10000;
 }
 
 FTLRecHit::FTLRecHit() : CaloRecHit(), flagBits_(0) {
@@ -73,7 +74,7 @@ float FTLRecHit::timeError() const {
                 return -1;
   // all bits on  --> time error over 5 ns (return large value)
   if( (0xFF & timeErrorBits) == 0xFF )
-    return 10000;
+    return timereso_max;
   
   float LSB = 1.26008;
   uint8_t exponent = timeErrorBits>>5;
@@ -91,7 +92,7 @@ bool FTLRecHit::isTimeValid() const {
 bool FTLRecHit::isTimeErrorValid() const {
   if(!isTimeValid())
     return false;
-  if(timeError() >= 10000)
+  if(timeError() >= timereso_max)
     return false;
   
   return true;
