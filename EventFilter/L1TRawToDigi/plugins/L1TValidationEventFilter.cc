@@ -57,8 +57,7 @@ private:
   virtual void endJob() override ;
   
   // ----------member data ---------------------------
-  edm::EDGetTokenT<FEDRawDataCollection> fedData_;
-
+  edm::InputTag src_;
   int period_;       // validation event period
 
 };
@@ -68,11 +67,10 @@ private:
 // constructors and destructor
 //
 L1TValidationEventFilter::L1TValidationEventFilter(const edm::ParameterSet& iConfig) :
+  src_(iConfig.getParameter<edm::InputTag>("src")),
   period_( iConfig.getUntrackedParameter<int>("period", 107) )
 {
   //now do what ever initialization is needed
-
-  fedData_ = consumes<FEDRawDataCollection>(iConfig.getParameter<edm::InputTag>("inputTag"));
 
 }
 
@@ -95,22 +93,15 @@ bool
 L1TValidationEventFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   using namespace edm;
-  
-  edm::Handle<FEDRawDataCollection> feds;
-  iEvent.getByToken(fedData_, feds);
 
-  if (!feds.isValid()) {
-    LogError("L1T") << "Cannot unpack: no FEDRawDataCollection found";
+  Handle<int> triggerCount;
+  iEvent.getByLabel(InputTag(src_.label(),"triggerCount"), triggerCount);
+  if (!triggerCount.isValid()) {
+    LogError("L1T") << "TCDS data not unpacked: triggerCount not availble in Event.";
     return false;
   }
 
-  const FEDRawData& tcdsRcd = feds->FEDData(1024);
-  const unsigned char *data = tcdsRcd.data();
-
-  FEDHeader header(data);
-  evf::evtn::TCDSRecord record((unsigned char *) data);
-
-  bool fatEvent = (record.getHeader().getData().header.triggerCount % period_ == 0 );
+  bool fatEvent = (*triggerCount % period_ == 0 );
 
   return fatEvent;
 
