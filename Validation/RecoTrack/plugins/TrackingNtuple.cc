@@ -522,6 +522,7 @@ private:
   std::vector<int>   sim_event    ;
   std::vector<int>   sim_bunchCrossing;
   std::vector<int>   sim_pdgId    ;
+  std::vector<std::vector<int> >sim_genPdgIds;
   std::vector<float> sim_px       ;
   std::vector<float> sim_py       ;
   std::vector<float> sim_pz       ;
@@ -842,6 +843,7 @@ TrackingNtuple::TrackingNtuple(const edm::ParameterSet& iConfig):
   t->Branch("sim_event"    , &sim_event    );
   t->Branch("sim_bunchCrossing", &sim_bunchCrossing);
   t->Branch("sim_pdgId"    , &sim_pdgId    );
+  t->Branch("sim_genPdgIds", &sim_genPdgIds);
   t->Branch("sim_px"       , &sim_px       );
   t->Branch("sim_py"       , &sim_py       );
   t->Branch("sim_pz"       , &sim_pz       );
@@ -1128,6 +1130,7 @@ void TrackingNtuple::clearVariables() {
   sim_event    .clear();
   sim_bunchCrossing.clear();
   sim_pdgId    .clear();
+  sim_genPdgIds.clear();
   sim_px       .clear();
   sim_py       .clear();
   sim_pz       .clear();
@@ -2443,6 +2446,13 @@ void TrackingNtuple::fillTrackingParticles(const edm::Event& iEvent, const edm::
         tkIdx.push_back(trackQuality.first.key());
       }
     }
+
+    sim_genPdgIds.emplace_back();
+    for(const auto& genRef: tp->genParticles()) {
+      if(genRef.isNonnull())
+        sim_genPdgIds.back().push_back(genRef->pdgId());
+    }
+
     LogTrace("TrackingNtuple") << "matched to tracks = " << make_VectorPrinter(tkIdx) << " isRecoMatched=" << isRecoMatched;
     sim_event    .push_back(tp->eventId().event());
     sim_bunchCrossing.push_back(tp->eventId().bunchCrossing());
