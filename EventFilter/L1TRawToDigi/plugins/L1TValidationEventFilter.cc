@@ -55,7 +55,8 @@ private:
   virtual void endJob() override ;
   
   // ----------member data ---------------------------
-  edm::InputTag src_;
+  edm::EDGetTokenT<int> src_;
+
   int period_;       // validation event period
 
 };
@@ -65,8 +66,8 @@ private:
 // constructors and destructor
 //
 L1TValidationEventFilter::L1TValidationEventFilter(const edm::ParameterSet& iConfig) :
-  src_(iConfig.getParameter<edm::InputTag>("src")),
-  period_( iConfig.getUntrackedParameter<int>("period", 107) )
+  src_(consumes<int>(iConfig.getParameter<edm::InputTag>("src"))),
+  period_( iConfig.getParameter<int>("period") )
 {
   //now do what ever initialization is needed
 
@@ -93,7 +94,7 @@ L1TValidationEventFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSet
   using namespace edm;
 
   Handle<int> triggerCount;
-  iEvent.getByLabel(InputTag(src_.label(),"triggerCount"), triggerCount);
+  iEvent.getByToken(src_,triggerCount);
   if (!triggerCount.isValid()) {
     LogError("L1T") << "TCDS data not unpacked: triggerCount not availble in Event.";
     return false;
