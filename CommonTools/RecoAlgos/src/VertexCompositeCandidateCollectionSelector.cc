@@ -20,9 +20,10 @@
 //
 // class declaration
 //
-
-const float dummy = -9.;
-const GlobalPoint* dummyGP = nullptr;
+namespace {
+  const float dummy = -9.;
+  const GlobalPoint* dummyGP = nullptr;
+} //end anonymous namespace
 
 class VertexCompositeCandidateCollectionSelector : public edm::stream::EDProducer<> {
 public:
