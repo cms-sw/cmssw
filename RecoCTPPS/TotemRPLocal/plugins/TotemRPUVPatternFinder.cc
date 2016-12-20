@@ -214,8 +214,7 @@ void TotemRPUVPatternFinder::produce(edm::Event& event, const edm::EventSetup& e
   // track recognition pot by pot
   for (auto it : rpData)
   {
-    TotemRPDetId rpId(it.first);
-    unsigned int rpDecId = rpId.getRPDecimalId();
+    CTPPSDetId rpId(it.first);
     RPData &data = it.second;
 
     // merge default and exceptional settings (if available)
@@ -224,7 +223,7 @@ void TotemRPUVPatternFinder::produce(edm::Event& event, const edm::EventSetup& e
     double threshold_U = threshold;
     double threshold_V = threshold;
     
-    auto setIt = exceptionalSettings.find(rpDecId);
+    auto setIt = exceptionalSettings.find(rpId);
     if (setIt != exceptionalSettings.end())
     {
       minPlanesPerProjectionToFit_U = setIt->second.minPlanesPerProjectionToFit_U;
@@ -239,7 +238,7 @@ void TotemRPUVPatternFinder::produce(edm::Event& event, const edm::EventSetup& e
     if (verbosity > 5)
     {
       LogVerbatim("TotemRPUVPatternFinder")
-        << "\tRP " << rpDecId
+        << "\tRP " << rpId
         << "\n\t\tall planes: u = " << uColl.size() << ", v = " << vColl.size();
     }
 
@@ -261,7 +260,7 @@ void TotemRPUVPatternFinder::produce(edm::Event& event, const edm::EventSetup& e
       continue;
 
     // prepare data containers
-    DetSet<TotemRPUVPattern> &patterns = patternsVector.find_or_insert(rpDecId);
+    DetSet<TotemRPUVPattern> &patterns = patternsVector.find_or_insert(rpId);
 
     // "typical" z0 for the RP
     double z0 = geometry->GetRPDevice(rpId)->translation().z();
