@@ -20,6 +20,7 @@ std::pair<uint8_t,Measurement1DFloat> ConversionHitChecker::nHitsBeforeVtx(const
   float distance = 1e6;
 
   auto const & trajParams = track.trajParams();
+  assert(trajParams.size()>0);
   assert(trajParams.size()==track.recHitsSize());
   auto hb = track.recHitsBegin();
   unsigned int closest=0;
