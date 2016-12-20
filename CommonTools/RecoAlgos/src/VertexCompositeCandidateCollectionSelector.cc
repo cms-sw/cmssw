@@ -21,6 +21,9 @@
 // class declaration
 //
 
+const float dummy = -9.;
+const GlobalPoint* dummyGP = nullptr;
+
 class VertexCompositeCandidateCollectionSelector : public edm::stream::EDProducer<> {
 public:
   explicit VertexCompositeCandidateCollectionSelector(const edm::ParameterSet&);
@@ -125,14 +128,14 @@ VertexCompositeCandidateCollectionSelector::produce(edm::Event& iEvent, const ed
 //       float phi      = v0.phi();
 //       int pdgID      = v0.pdgId();
 //       float chi2oNDF = v0.vertexNormalizedChi2();
-       GlobalPoint displacementFromPV = ( pv==nullptr ? GlobalPoint(-9.,-9.,0) : GlobalPoint( (pv->x() - v0.vx()), 
-											      (pv->y() - v0.vy()), 
-											      0. ) );
-       GlobalPoint displacementFromBS = ( bs==nullptr ? GlobalPoint(-9.-9.,0.) : GlobalPoint( -1*((bs->position().x() - v0.vx()) + (v0.vz() - bs->position().z()) * bs->dxdz()),
-											      -1*((bs->position().y() - v0.vy()) + (v0.vz() - bs->position().z()) * bs->dydz()), 
-											      0 ) );
-       float lxy      = ( pv==nullptr ? -9. : displacementFromPV.perp() );
-       float lxyWRTbs = ( bs==nullptr ? -9. : displacementFromBS.perp() );
+       GlobalPoint displacementFromPV = ( pv==nullptr ? *dummyGP : GlobalPoint( (pv->x() - v0.vx()), 
+										(pv->y() - v0.vy()), 
+										0. ) );
+       GlobalPoint displacementFromBS = ( bs==nullptr ? *dummyGP : GlobalPoint( -1*((bs->position().x() - v0.vx()) + (v0.vz() - bs->position().z()) * bs->dxdz()),
+										-1*((bs->position().y() - v0.vy()) + (v0.vz() - bs->position().z()) * bs->dydz()), 
+										0. ) );
+       float lxy      = ( pv==nullptr ? dummy : displacementFromPV.perp() );
+       float lxyWRTbs = ( bs==nullptr ? dummy : displacementFromBS.perp() );
 
        if (debug_) std::cout << "lxy: " << lxy << " w.r.t. " << lxyCUT_ << " ==> " << ( lxy >= lxyCUT_ ? "OK" : "KO" ) << std::endl;
        if (debug_) std::cout << "lxyWRTbs: " << lxyWRTbs << " w.r.t. " << lxyWRTbsCUT_ << " ==> " << ( lxyWRTbs >= lxyWRTbsCUT_ ? "OK" : "KO" ) << std::endl;       
