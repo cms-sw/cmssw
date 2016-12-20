@@ -49,10 +49,10 @@ class HLTSeedL1LogicScalers : public DQMEDAnalyzer {
   ~HLTSeedL1LogicScalers();
 
  private:
-  void dqmBeginRun(const edm::Run &run, const edm::EventSetup &c) override;
+  void dqmBeginRun(const edm::Run &run, const edm::EventSetup &c);
   void bookHistograms(DQMStore::IBooker &, edm::Run const &,
                       edm::EventSetup const &) override;
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+  virtual void analyze(const edm::Event&, const edm::EventSetup&);
 
   bool analyzeL1GtUtils(const edm::Event&, const edm::EventSetup&,
                         const std::string&);

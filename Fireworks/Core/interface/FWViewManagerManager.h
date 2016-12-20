@@ -21,7 +21,7 @@
 // system include files
 #include <vector>
 #include <map>
-#include <memory>
+#include <boost/shared_ptr.hpp>
 #include <set>
 #include <string>
 
@@ -47,7 +47,7 @@ public:
    // ---------- static member functions --------------------
 
    // ---------- member functions ---------------------------
-   void add( std::shared_ptr<FWViewManagerBase>);
+   void add( boost::shared_ptr<FWViewManagerBase>);
    void registerEventItem(const FWEventItem*iItem);
    void removeEventItem(const FWEventItem*iItem);
    void eventBegin();
@@ -59,7 +59,7 @@ private:
    const FWViewManagerManager& operator=(const FWViewManagerManager&);    // stop default
 
    // ---------- member data --------------------------------
-   std::vector<std::shared_ptr<FWViewManagerBase> > m_viewManagers;
+   std::vector<boost::shared_ptr<FWViewManagerBase> > m_viewManagers;
    FWModelChangeManager* m_changeManager;
    FWColorManager* m_colorManager;
    std::map<std::string, const FWEventItem*> m_typeToItems;    //use this to tell view managers registered after the item

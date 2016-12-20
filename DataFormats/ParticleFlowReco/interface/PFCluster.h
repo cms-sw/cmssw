@@ -81,16 +81,12 @@ namespace reco {
     /// cluster energy
     double        energy() const {return energy_;}
 
-    /// \return cluster time
-    float time() const {return time_;}
-    /// \return the timing uncertainty
-    float timeError() const { return timeError_; }
-
+    /// cluster time
+    double        time() const {return time_;}
     /// cluster depth
     double        depth() const {return depth_;}
 
-    void         setTime(float time, float timeError=0) {time_ = time; timeError_ = timeError; }
-    void         setTimeError(float timeError) { timeError_ = timeError; }
+    void         setTime(double time) {time_ = time;}
     void         setDepth(double depth) {depth_ = depth;}
     
     /// cluster position: rho, eta, phi
@@ -116,6 +112,9 @@ namespace reco {
     
     PFCluster& operator=(const PFCluster&);
     
+    friend    std::ostream& operator<<(std::ostream& out, 
+				       const PFCluster& cluster);
+
     /// \todo move to PFClusterTools
     static void setDepthCorParameters(int mode, 
 				      double a, double b, 
@@ -181,7 +180,7 @@ namespace reco {
     REPPoint            posrep_;
 
     ///Michalis :Add timing and depth information
-    float time_, timeError_;
+    double time_;
     double depth_;
 
     /// transient layer
@@ -224,11 +223,6 @@ namespace reco {
     /// color (transient)
     int                 color_;
   };
-
-  std::ostream& operator<<(std::ostream& out, 
-                           const PFCluster& cluster);
-
-
 }
 
 #endif

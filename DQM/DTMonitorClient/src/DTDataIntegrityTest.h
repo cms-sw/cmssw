@@ -45,7 +45,7 @@ protected:
   void bookHistos(DQMStore::IBooker &, std::string histoType, int dduId);
 
   /// DQM Client Diagnostic
-  void dqmEndLuminosityBlock(DQMStore::IBooker &, DQMStore::IGetter &, edm::LuminosityBlock const &, edm::EventSetup const &) override;
+  void dqmEndLuminosityBlock(DQMStore::IBooker &, DQMStore::IGetter &, edm::LuminosityBlock const &, edm::EventSetup const &);
 
 private:
   int readOutToGeometry(int dduId, int rosNumber, int& wheel, int& sector);

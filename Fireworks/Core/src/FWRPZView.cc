@@ -13,7 +13,7 @@
 // system include files
 #include <stdexcept>
 #include <boost/bind.hpp>
-#include <memory>
+#include <boost/shared_ptr.hpp>
 
 #include "TGLViewer.h"
 #include "TGLScenePad.h"
@@ -300,7 +300,7 @@ FWRPZView::importElements(TEveElement* iChildren, float iLayer, TEveElement* iPr
    float oldLayer = m_projMgr->GetCurrentDepth();
    m_projMgr->SetCurrentDepth(iLayer);
    //make sure current depth is reset even if an exception is thrown
-   std::shared_ptr<TEveProjectionManager> sentry(m_projMgr,
+   boost::shared_ptr<TEveProjectionManager> sentry(m_projMgr,
                                                    boost::bind(&TEveProjectionManager::SetCurrentDepth,
                                                                _1,oldLayer));
    m_projMgr->ImportElements(iChildren,iProjectedParent);

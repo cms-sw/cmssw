@@ -88,6 +88,8 @@ SiPixelPhase1ClustersPositionXZ = DefaultHisto.clone(
   range_y_min = -60, range_y_max = 60, range_y_nbins = 1200,
   dimensions = 2,
   specs = cms.VPSet(
+    Specification().groupBy(DefaultHisto.defaultGrouping)
+                   .saveAll(),
   )
 )
 
@@ -100,6 +102,8 @@ SiPixelPhase1ClustersPositionYZ = DefaultHisto.clone(
   range_y_min = -60, range_y_max = 60, range_y_nbins = 1200,
   dimensions = 2,
   specs = cms.VPSet(
+    Specification().groupBy(DefaultHisto.defaultGrouping)
+                   .saveAll(),
   )
 )
 

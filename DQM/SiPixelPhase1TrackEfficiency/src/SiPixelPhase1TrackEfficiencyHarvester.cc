@@ -13,19 +13,15 @@ SiPixelPhase1TrackEfficiencyHarvester::SiPixelPhase1TrackEfficiencyHarvester(con
   SiPixelPhase1Harvester(iConfig) 
 {
   // We collect _all_ (all specs/all custom calls) histos from missing/valid in our table
-  histo[VALID     ].setCustomHandler([&] (SummationStep& s, HistogramManager::Table& t,
-                                          DQMStore::IBooker&, DQMStore::IGetter&) {
+  histo[VALID     ].setCustomHandler([&] (SummationStep& s, HistogramManager::Table & t) {
     valid  [s.arg].insert(t.begin(), t.end());
   });
-  histo[MISSING   ].setCustomHandler([&] (SummationStep& s, HistogramManager::Table& t,
-                                          DQMStore::IBooker&, DQMStore::IGetter&) {
+  histo[MISSING   ].setCustomHandler([&] (SummationStep& s, HistogramManager::Table & t) {
     missing[s.arg].insert(t.begin(), t.end());
   });
 
   // ... and then take those that we need to fill the EFFICIENCY
-  // note: we don't need the iBooker here, since the eff. histograms are booked with a HistogramManager
-  histo[EFFICIENCY].setCustomHandler([&] (SummationStep& s, HistogramManager::Table& t,
-                                          DQMStore::IBooker&, DQMStore::IGetter&) {
+  histo[EFFICIENCY].setCustomHandler([&] (SummationStep& s, HistogramManager::Table & t) {
     doHarvesting(s, t);
   });
 }

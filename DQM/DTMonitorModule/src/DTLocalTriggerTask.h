@@ -60,7 +60,7 @@ class DTLocalTriggerTask: public DQMEDAnalyzer{
  protected:
 
   ///Beginrun
-  void dqmBeginRun(const edm::Run& , const edm::EventSetup&) override;
+  void dqmBeginRun(const edm::Run& , const edm::EventSetup&);
 
   /// Book the histograms
 
@@ -90,10 +90,10 @@ class DTLocalTriggerTask: public DQMEDAnalyzer{
   void runDDUvsTMAnalysis(std::string& trigsrc);
 
   /// Analyze
-  void analyze(const edm::Event& e, const edm::EventSetup& c) override;
+  void analyze(const edm::Event& e, const edm::EventSetup& c);
 
   /// To reset the MEs
-  void beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& context) override ;
+  void beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& context) ;
 
   /// Get the L1A source
   void triggerSource(const edm::Event& e);

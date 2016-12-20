@@ -77,11 +77,11 @@ public:
 
 protected:
 // Analyze
- void analyze(const edm::Event& e, const edm::EventSetup& c) override;
+ void analyze(const edm::Event& e, const edm::EventSetup& c);
 
 // BeginRun
   virtual void bookHistograms(DQMStore::IBooker &ibooker, edm::Run const&, edm::EventSetup const&) override;
-  virtual void dqmBeginRun(edm::Run const&, edm::EventSetup const&) override;
+  virtual void dqmBeginRun(edm::Run const&, edm::EventSetup const&);
 
 private:
   // ----------member data ---------------------------

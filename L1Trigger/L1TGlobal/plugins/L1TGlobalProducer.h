@@ -56,7 +56,7 @@ private:
     unsigned long long m_l1GtParCacheID;
 
     // trigger menu
-    std::unique_ptr<TriggerMenu> m_l1GtMenu;
+    const TriggerMenu* m_l1GtMenu;
     unsigned long long m_l1GtMenuCacheID;
 
     // number of physics triggers
@@ -112,7 +112,7 @@ private:
     const std::vector<int>* m_triggerMaskVetoAlgoTrig;
     std::vector<int> m_initialTriggerMaskVetoAlgoTrig;
 
-    std::unique_ptr<l1t::GlobalBoard> m_uGtBrd;
+    l1t::GlobalBoard* m_uGtBrd;
 
     /// input tag for muon collection from GMT
     edm::InputTag m_muInputTag;

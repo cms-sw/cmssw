@@ -47,10 +47,10 @@ public:
   
 private:
 
-  virtual void beginJob(void) override;
+  virtual void beginJob(void);
   virtual void beginRun(edm::Run const&, const edm::EventSetup&) override final;
-   virtual void produce (edm::Event&, const edm::EventSetup&) override;
-  virtual void endJob() override;
+   virtual void produce (edm::Event&, const edm::EventSetup&);
+  virtual void endJob();
 
   template <class T> 
     void process( T const*, T const*, const int, const int);

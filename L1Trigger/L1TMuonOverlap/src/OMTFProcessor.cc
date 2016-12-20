@@ -29,7 +29,6 @@ OMTFProcessor::~OMTFProcessor(){
 void OMTFProcessor::resetConfiguration(){
 
   myResults.clear();
-  for(auto it: theGPs) delete it.second;
   theGPs.clear();
 }
 ///////////////////////////////////////////////

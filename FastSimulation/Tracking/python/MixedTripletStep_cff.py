@@ -2,36 +2,30 @@ import FWCore.ParameterSet.Config as cms
 
 # import the full tracking equivalent of this file
 import RecoTracker.IterativeTracking.MixedTripletStep_cff as _standard
-from FastSimulation.Tracking.SeedingMigration import _hitSetProducerToFactoryPSet
 
 # fast tracking mask producer
 import FastSimulation.Tracking.FastTrackerRecHitMaskProducer_cfi
 mixedTripletStepMasks = FastSimulation.Tracking.FastTrackerRecHitMaskProducer_cfi.maskProducerFromClusterRemover(_standard.mixedTripletStepClusters)
 mixedTripletStepMasks.oldHitRemovalInfo = cms.InputTag("pixelPairStepMasks")
 
-# tracking regions
-mixedTripletStepTrackingRegionsA = _standard.mixedTripletStepTrackingRegionsA.clone()
-
 # trajectory seeds
 import FastSimulation.Tracking.TrajectorySeedProducer_cfi
 mixedTripletStepSeedsA = FastSimulation.Tracking.TrajectorySeedProducer_cfi.trajectorySeedProducer.clone(
     layerList = _standard.mixedTripletStepSeedLayersA.layerList.value(),
-    trackingRegions = "mixedTripletStepTrackingRegionsA",
+    RegionFactoryPSet = _standard.mixedTripletStepSeedsA.RegionFactoryPSet,
     hitMasks = cms.InputTag("mixedTripletStepMasks")
 )
-mixedTripletStepSeedsA.seedFinderSelector.pixelTripletGeneratorFactory = _hitSetProducerToFactoryPSet(_standard.mixedTripletStepHitTripletsA)
+mixedTripletStepSeedsA.seedFinderSelector.pixelTripletGeneratorFactory = _standard.mixedTripletStepSeedsA.OrderedHitsFactoryPSet.GeneratorPSet
 
 
 ###
-mixedTripletStepTrackingRegionsB = _standard.mixedTripletStepTrackingRegionsB.clone()
-
 import FastSimulation.Tracking.TrajectorySeedProducer_cfi
 mixedTripletStepSeedsB = FastSimulation.Tracking.TrajectorySeedProducer_cfi.trajectorySeedProducer.clone(
     layerList = _standard.mixedTripletStepSeedLayersB.layerList.value(),
-    trackingRegions = "mixedTripletStepTrackingRegionsB",
+    RegionFactoryPSet = _standard.mixedTripletStepSeedsB.RegionFactoryPSet,
     hitMasks = cms.InputTag("mixedTripletStepMasks")
 )
-mixedTripletStepSeedsB.seedFinderSelector.pixelTripletGeneratorFactory = _hitSetProducerToFactoryPSet(_standard.mixedTripletStepHitTripletsB)
+mixedTripletStepSeedsB.seedFinderSelector.pixelTripletGeneratorFactory = _standard.mixedTripletStepSeedsB.OrderedHitsFactoryPSet.GeneratorPSet
 
 mixedTripletStepSeeds = _standard.mixedTripletStepSeeds.clone()
 
@@ -56,9 +50,7 @@ mixedTripletStep = _standard.mixedTripletStep.clone()
 
 # Final sequence 
 MixedTripletStep =  cms.Sequence(mixedTripletStepMasks
-                                 +mixedTripletStepTrackingRegionsA
                                  +mixedTripletStepSeedsA
-                                 +mixedTripletStepTrackingRegionsB
                                  +mixedTripletStepSeedsB
                                  +mixedTripletStepSeeds
                                  +mixedTripletStepTrackCandidates

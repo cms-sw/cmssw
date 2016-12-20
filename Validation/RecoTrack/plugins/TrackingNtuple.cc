@@ -369,8 +369,7 @@ private:
                              const std::vector<TPHitIndex>& tpHitList
                              );
 
-  void fillVertices(const reco::VertexCollection& vertices,
-                    const edm::RefToBaseVector<reco::Track>& tracks);
+  void fillVertices(const reco::VertexCollection& vertices);
 
   void fillTrackingVertices(const TrackingVertexRefVector& trackingVertices,
                             const TrackingParticleRefKeyToIndex& tpKeyToIndex
@@ -1358,7 +1357,7 @@ void TrackingNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   // vertices
   edm::Handle<reco::VertexCollection> vertices;
   iEvent.getByToken(vertexToken_, vertices);
-  fillVertices(*vertices, trackRefs);
+  fillVertices(*vertices);
 
   // tracking vertices
   fillTrackingVertices(tvRefs, tpKeyToIndex);
@@ -2287,8 +2286,7 @@ void TrackingNtuple::fillTrackingParticles(const edm::Event& iEvent, const edm::
   }
 }
 
-void TrackingNtuple::fillVertices(const reco::VertexCollection& vertices,
-                                  const edm::RefToBaseVector<reco::Track>& tracks) {
+void TrackingNtuple::fillVertices(const reco::VertexCollection& vertices) {
   for(size_t iVertex=0, size=vertices.size(); iVertex<size; ++iVertex) {
     const reco::Vertex& vertex = vertices[iVertex];
     vtx_x.push_back(vertex.x());
@@ -2304,10 +2302,6 @@ void TrackingNtuple::fillVertices(const reco::VertexCollection& vertices,
 
     std::vector<int> trkIdx;
     for(auto iTrack = vertex.tracks_begin(); iTrack != vertex.tracks_end(); ++iTrack) {
-      // Ignore link if vertex was fit from a track collection different from the input
-      if(iTrack->id() != tracks.id())
-        continue;
-
       trkIdx.push_back(iTrack->key());
 
       if(trk_vtxIdx[iTrack->key()] != -1) {

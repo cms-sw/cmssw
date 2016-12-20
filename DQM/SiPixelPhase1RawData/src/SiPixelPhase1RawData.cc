@@ -83,7 +83,7 @@ void SiPixelPhase1RawData::analyze(const edm::Event& iEvent, const edm::EventSet
     }
   }
 
-  histo[NERRORS].executePerEventHarvesting(&iEvent);
+  histo[NERRORS].executePerEventHarvesting();
 }
 
 DEFINE_FWK_MODULE(SiPixelPhase1RawData);

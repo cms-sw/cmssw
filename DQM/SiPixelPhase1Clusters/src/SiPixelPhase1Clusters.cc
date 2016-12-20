@@ -63,7 +63,7 @@ void SiPixelPhase1Clusters::analyze(const edm::Event& iEvent, const edm::EventSe
 
   if (nforward > 180) 
     histo[EVENTRATE].fill(DetId(0), &iEvent);
-  histo[NCLUSTERS].executePerEventHarvesting(&iEvent);
+  histo[NCLUSTERS].executePerEventHarvesting();
 }
 
 DEFINE_FWK_MODULE(SiPixelPhase1Clusters);

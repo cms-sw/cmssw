@@ -73,6 +73,7 @@ void ElectronEnergyCorrector::classBasedParameterizationEnergy
   float corr = 1.;
   float corr2 = 1.;
   float energy = electron.superCluster()->energy() ;
+  float newEnergy = energy;
 
   //int subdet = electron.superCluster()->seed()->hitsAndFractions()[0].first.subdetId();
 
@@ -97,7 +98,7 @@ void ElectronEnergyCorrector::classBasedParameterizationEnergy
   else if (electron.isEE()) { corr2 = corr * fEnergy(energy/corr, 1,elClass) ; }
   else { edm::LogWarning("ElectronEnergyCorrector::classBasedParameterizationEnergy")<<"nor barrel neither endcap electron !" ; }
 
-  float newEnergy = energy/corr2;
+  newEnergy = energy/corr2;
 
   // cracks
   double crackcor = 1. ;

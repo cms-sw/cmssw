@@ -300,6 +300,7 @@ HitRZConstraint
 }
 
 TrackingRegion::Hits RectangularEtaPhiTrackingRegion::hits(
+      const edm::Event& ev,
       const edm::EventSetup& es,
       const SeedingLayerSetsHits::SeedingLayer& layer) const {
   TrackingRegion::Hits result;

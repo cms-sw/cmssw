@@ -26,6 +26,7 @@
 #include <vector>
 #include <string>
 #include <memory>
+#include <boost/shared_ptr.hpp>
 #include "Rtypes.h"
 
 

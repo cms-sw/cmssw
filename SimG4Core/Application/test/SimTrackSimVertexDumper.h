@@ -19,8 +19,8 @@ class SimTrackSimVertexDumper : public edm::EDAnalyzer{
   virtual ~SimTrackSimVertexDumper() {};
   
   virtual void analyze( const edm::Event&, const edm::EventSetup&) override;
-  virtual void beginJob() override{};
-  virtual void endJob() override{};
+  virtual void beginJob(){};
+  virtual void endJob(){};
  private:
   edm::InputTag HepMCLabel;
   edm::InputTag SimTkLabel;

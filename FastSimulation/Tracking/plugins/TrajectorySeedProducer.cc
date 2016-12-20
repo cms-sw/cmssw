@@ -39,7 +39,9 @@
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 
 // reco track classes
-#include "RecoTracker/TkTrackingRegions/interface/TrackingRegion.h"
+#include "RecoTracker/TkTrackingRegions/interface/GlobalTrackingRegion.h"
+#include "RecoTracker/TkTrackingRegions/interface/TrackingRegionProducer.h"
+#include "RecoTracker/TkTrackingRegions/interface/TrackingRegionProducerFactory.h"
 #include "RecoTracker/TkSeedingLayers/interface/SeedingHitSet.h"
 #include "RecoTracker/TkSeedGenerator/interface/SeedCreator.h"
 #include "RecoTracker/TkSeedGenerator/interface/SeedCreatorFactory.h"
@@ -65,7 +67,6 @@ private:
     
     edm::EDGetTokenT<FastTrackerRecHitCombinationCollection> recHitCombinationsToken;
     edm::EDGetTokenT<std::vector<bool> > hitMasksToken;
-    edm::EDGetTokenT<edm::OwnVector<TrackingRegion> > trackingRegionToken;
 
     // other data members
     unsigned int nHitsPerSeed_;
@@ -74,6 +75,7 @@ private:
     SeedingTree<TrackingLayer> _seedingTree;
     
     std::unique_ptr<SeedCreator> seedCreator;
+    std::unique_ptr<TrackingRegionProducer> theRegionProducer;
     std::string measurementTrackerLabel;
     
     std::unique_ptr<SeedFinderSelector> seedFinderSelector;
@@ -137,8 +139,10 @@ TrajectorySeedProducer::TrajectorySeedProducer(const edm::ParameterSet& conf)
 	seedFinderSelector.reset(new SeedFinderSelector(conf.getParameter<edm::ParameterSet>("seedFinderSelector"),consumesCollector()));
     }
 
-    /// regions
-    trackingRegionToken = consumes<edm::OwnVector<TrackingRegion> >(conf.getParameter<edm::InputTag>("trackingRegions"));
+    /// region producer
+    edm::ParameterSet regfactoryPSet = conf.getParameter<edm::ParameterSet>("RegionFactoryPSet");
+    std::string regfactoryName = regfactoryPSet.getParameter<std::string>("ComponentName");
+    theRegionProducer.reset(TrackingRegionProducerFactory::get()->create(regfactoryName,regfactoryPSet,consumesCollector()));
     
     // seed creator
     const edm::ParameterSet & seedCreatorPSet = conf.getParameter<edm::ParameterSet>("SeedCreatorPSet");
@@ -170,10 +174,8 @@ void TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es)
     // output data
     std::unique_ptr<TrajectorySeedCollection> output(new TrajectorySeedCollection());
 
-    // read the regions;
-    edm::Handle<edm::OwnVector<TrackingRegion> > hregions;
-    e.getByToken(trackingRegionToken, hregions);
-    const auto& regions = *hregions;
+    // produce the regions;
+    const auto regions = theRegionProducer->regions(e,es);
     // and make sure there is at least one region
     if(regions.size() == 0)
     {
@@ -206,12 +208,12 @@ void TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es)
         }
 
         // loop over the regions
-        for(const auto& region: regions)
+        for(auto region = regions.begin();region != regions.end(); ++region)
         {
             // set the region used in the selector
 	    if(seedFinderSelector)
 	    {
-		seedFinderSelector->setTrackingRegion(&region);
+		seedFinderSelector->setTrackingRegion(region->get());
 	    }
 
             // find hits compatible with the seed requirements
@@ -231,7 +233,7 @@ void TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es)
                 fastTrackingUtilities::setRecHitCombinationIndex(seedHits,icomb);
 
 		// create the seed
-                seedCreator->init(region,es,0);
+                seedCreator->init(**region,es,0);
                 seedCreator->makeSeed(
                     *output,
                     SeedingHitSet(

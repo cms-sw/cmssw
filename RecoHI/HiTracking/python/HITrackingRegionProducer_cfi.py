@@ -79,13 +79,12 @@ HiTrackingRegionFactoryFromJetsBlock.RegionPSet.vertexSrc = cms.InputTag("hiSele
 # limited stand-alone muon-seeded tracking region
 from RecoMuon.TrackingTools.MuonServiceProxy_cff import MuonServiceProxy
 from RecoMuon.GlobalTrackingTools.MuonTrackingRegionCommon_cff import MuonTrackingRegionCommon
-from RecoHI.HiMuonAlgos.HiTrackingRegionEDProducer_cfi import HiTrackingRegionEDProducer as _HiTrackingRegionEDProducer
-HiTrackingRegionFactoryFromSTAMuonsEDProducer = _HiTrackingRegionEDProducer.clone(
-    MuonSrc = "standAloneMuons:UpdatedAtVtx",
-    MuonTrackingRegionBuilder = MuonTrackingRegionCommon.MuonTrackingRegionBuilder.clone(
-        vertexCollection = "hiSelectedVertex",
-        UseVertex = True,
-        Rescale_Dz = 5.0,
-    ),
-    ServiceParameters = MuonServiceProxy.ServiceParameters,
-)
+HiTrackingRegionFactoryFromSTAMuonsBlock = cms.PSet(
+    MuonServiceProxy,
+    MuonTrackingRegionCommon,
+    ComponentName = cms.string('HIMuonTrackingRegionProducer'),
+    MuonSrc = cms.InputTag("standAloneMuons","UpdatedAtVtx")
+    )
+HiTrackingRegionFactoryFromSTAMuonsBlock.MuonTrackingRegionBuilder.vertexCollection = cms.InputTag("hiSelectedVertex")
+HiTrackingRegionFactoryFromSTAMuonsBlock.MuonTrackingRegionBuilder.UseVertex = cms.bool(True)
+HiTrackingRegionFactoryFromSTAMuonsBlock.MuonTrackingRegionBuilder.Rescale_Dz = cms.double(5.0)

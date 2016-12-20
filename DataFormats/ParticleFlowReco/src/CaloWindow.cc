@@ -65,8 +65,9 @@ void CaloRing::printEnergies(std::ostream& s, double range) {
 
 std::ostream& pftools::operator<<(std::ostream& s,
 		const pftools::CaloRing& caloRing) {
-	for (auto const& e: caloRing.getEnergies()) {
-		s << e << "\t";
+	for (std::vector<double>::const_iterator it = caloRing.myPanes_.begin(); it
+			!= caloRing.myPanes_.end(); ++it) {
+		s << *it << "\t";
 	}
 	s << " => ring E = " << caloRing.totalE();
 	return s;
@@ -75,11 +76,11 @@ std::ostream& pftools::operator<<(std::ostream& s,
 std::ostream& pftools::operator<<(std::ostream& s,
 		const pftools::CaloWindow& caloWindow) {
 
-	s << "CaloWindow at (" << caloWindow.baryEta() << ", "
-	  << caloWindow.baryPhi() << "):\n";
+	s << "CaloWindow at (" << caloWindow.baryEta_ << ", "
+			<< caloWindow.baryPhi_ << "):\n";
 	double totalE(0.0);
 	for (std::map<unsigned, pftools::CaloRing>::const_iterator cit =
-	      caloWindow.getRingDepositions().begin(); cit != caloWindow.getRingDepositions().end(); ++cit) {
+			caloWindow.energies_.begin(); cit != caloWindow.energies_.end(); ++cit) {
 		unsigned ring = (*cit).first;
 		const CaloRing& cr = (*cit).second;
 		s << "Ring " << ring << ":\t" << cr << "\n";

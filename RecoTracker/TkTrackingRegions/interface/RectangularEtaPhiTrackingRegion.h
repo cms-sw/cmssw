@@ -157,6 +157,7 @@ public:
   bool  isPrecise() const { return thePrecise; }
 
   virtual TrackingRegion::Hits hits(
+      const edm::Event& ev,
       const edm::EventSetup& es,
       const SeedingLayerSetsHits::SeedingLayer& layer) const override;
 
@@ -164,15 +165,15 @@ public:
 				       const Hit &  outerHit,
 				       const edm::EventSetup&iSetup,
 				       const DetLayer* outerlayer=nullptr,
-				       float lr=0, float gz=0, float dr=0, float dz=0) const override
+				       float lr=0, float gz=0, float dr=0, float dz=0) const
   { return checkRZOld(layer,outerHit,iSetup, outerlayer); }
 
-  virtual RectangularEtaPhiTrackingRegion* clone() const override { 
+  virtual RectangularEtaPhiTrackingRegion* clone() const { 
     return new RectangularEtaPhiTrackingRegion(*this);
   }
 
-  virtual std::string name() const override { return "RectangularEtaPhiTrackingRegion"; }
-  virtual std::string print() const override;
+  virtual std::string name() const { return "RectangularEtaPhiTrackingRegion"; }
+  virtual std::string print() const;
 
 private:
   HitRZCompatibility* checkRZOld(

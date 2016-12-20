@@ -5,7 +5,6 @@
 #include "RecoPixelVertexing/PixelTriplets/interface/ThirdHitPredictionFromCircle.h"
 
 #include "RecoPixelVertexing/PixelTriplets/interface/HitTripletGenerator.h"
-#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -31,11 +30,9 @@ T sqr(T x)
 using namespace std;
 using namespace ctfseeding;
 
-constexpr unsigned int CAHitTripletGenerator::minLayers;
-
 CAHitTripletGenerator::CAHitTripletGenerator(const edm::ParameterSet& cfg,
-                                             edm::ConsumesCollector& iC,
-                                             bool needSeedingLayerSetsHits) :
+		edm::ConsumesCollector& iC) :
+		theSeedingLayerToken(iC.consumes < SeedingLayerSetsHits	> (cfg.getParameter < edm::InputTag > ("SeedingLayers"))),
 		extraHitRPhitolerance(cfg.getParameter<double>("extraHitRPhitolerance")), //extra window in ThirdHitPredictionFromCircle range (divide by R to get phi)
 		maxChi2(cfg.getParameter < edm::ParameterSet > ("maxChi2")),
 		useBendingCorrection(cfg.getParameter<bool>("useBendingCorrection")),
@@ -43,10 +40,6 @@ CAHitTripletGenerator::CAHitTripletGenerator(const edm::ParameterSet& cfg,
 		caPhiCut(cfg.getParameter<double>("CAPhiCut")),
 		caHardPtCut(cfg.getParameter<double>("CAHardPtCut"))
 {
-
-	if(needSeedingLayerSetsHits)
-	  theSeedingLayerToken = iC.consumes<SeedingLayerSetsHits>(cfg.getParameter<edm::InputTag>("SeedingLayers"));
-
 	if (cfg.exists("SeedComparitorPSet"))
 	{
 		edm::ParameterSet comparitorPSet = cfg.getParameter < edm::ParameterSet
@@ -66,36 +59,23 @@ CAHitTripletGenerator::~CAHitTripletGenerator()
 {
 }
 
-void CAHitTripletGenerator::fillDescriptions(edm::ParameterSetDescription& desc) {
-  desc.add<double>("extraHitRPhitolerance", 0.06);
-  desc.add<bool>("useBendingCorrection", false);
-  desc.add<double>("CAThetaCut", 0.00125);
-  desc.add<double>("CAPhiCut", 0.1);
-  desc.add<double>("CAHardPtCut", 0);
+void CAHitTripletGenerator::hitTriplets(const TrackingRegion& region,
+		OrderedHitTriplets & result, const edm::Event& ev,
+		const edm::EventSetup& es)
+{
+	edm::Handle<SeedingLayerSetsHits> hlayers;
+	ev.getByToken(theSeedingLayerToken, hlayers);
+	const SeedingLayerSetsHits& layers = *hlayers;
+	if (layers.numberOfLayersInSet() != 3)
+		throw cms::Exception("Configuration")
+				<< "CAHitTripletGenerator expects SeedingLayerSetsHits::numberOfLayersInSet() to be 3, got "
+				<< layers.numberOfLayersInSet();
 
-  edm::ParameterSetDescription descMaxChi2;
-  descMaxChi2.add<double>("pt1", 0.8);
-  descMaxChi2.add<double>("pt2", 2);
-  descMaxChi2.add<double>("value1", 50);
-  descMaxChi2.add<double>("value2", 8);
-  descMaxChi2.add<bool>("enabled", true);
-  desc.add<edm::ParameterSetDescription>("maxChi2", descMaxChi2);
+	CAGraph g;
 
-  edm::ParameterSetDescription descComparitor;
-  descComparitor.add<std::string>("ComponentName", "none");
-  descComparitor.setAllowAnything(); // until we have moved SeedComparitor too to EDProducers
-  desc.add<edm::ParameterSetDescription>("SeedComparitorPSet", descComparitor);
-}
+	std::vector<HitDoublets> hitDoublets;
 
-void CAHitTripletGenerator::initEvent(const edm::Event& ev, const edm::EventSetup& es) {
-  if (theComparitor) theComparitor->init(ev, es);
-}
-
-namespace {
-  template <typename T_HitDoublets, typename T_GeneratorOrPairsFunction>
-  void fillGraph(const SeedingLayerSetsHits& layers, CAGraph& g, T_HitDoublets& hitDoublets,
-                 T_GeneratorOrPairsFunction generatorOrPairsFunction) {
-
+	HitPairGeneratorFromLayerPair thePairGenerator(0, 1, &theLayerCache);
 	for (unsigned int i = 0; i < layers.size(); i++)
 	{
 		for (unsigned int j = 0; j < 3; ++j)
@@ -136,94 +116,29 @@ namespace {
 				if (std::find(g.theLayerPairs.begin(), g.theLayerPairs.end(),
 						tmpInnerLayerPair) == g.theLayerPairs.end())
 				{
-					const bool nonEmpty = generatorOrPairsFunction(layers[i][j - 1], layers[i][j], hitDoublets);
-					if(nonEmpty) {
-                                          g.theLayerPairs.push_back(tmpInnerLayerPair);
-                                          g.theLayers[vertexIndex].theInnerLayers.push_back(
+					hitDoublets.emplace_back(
+							thePairGenerator.doublets(region, ev, es,
+									layers[i][j - 1], layers[i][j]));
+
+					g.theLayerPairs.push_back(tmpInnerLayerPair);
+					g.theLayers[vertexIndex].theInnerLayers.push_back(
 							innerVertex - g.theLayers.begin());
-                                          innerVertex->theOuterLayers.push_back(vertexIndex);
-                                          g.theLayers[vertexIndex].theInnerLayerPairs.push_back(
+					innerVertex->theOuterLayers.push_back(vertexIndex);
+					g.theLayers[vertexIndex].theInnerLayerPairs.push_back(
 							g.theLayerPairs.size() - 1);
-                                          innerVertex->theOuterLayerPairs.push_back(
+					innerVertex->theOuterLayerPairs.push_back(
 							g.theLayerPairs.size() - 1);
-                                        }
+
 				}
 
 			}
 
 		}
 	}
-  }
-}
-
-void CAHitTripletGenerator::hitTriplets(const TrackingRegion& region,
-		OrderedHitTriplets & result, const edm::Event& ev,
-		const edm::EventSetup& es)
-{
-	edm::Handle<SeedingLayerSetsHits> hlayers;
-	ev.getByToken(theSeedingLayerToken, hlayers);
-	const SeedingLayerSetsHits& layers = *hlayers;
-	if (layers.numberOfLayersInSet() != 3)
-		throw cms::Exception("Configuration")
-				<< "CAHitTripletGenerator expects SeedingLayerSetsHits::numberOfLayersInSet() to be 3, got "
-				<< layers.numberOfLayersInSet();
-
-	CAGraph g;
-
-	std::vector<HitDoublets> hitDoublets;
-
-
-
-	HitPairGeneratorFromLayerPair thePairGenerator(0, 1, &theLayerCache);
-        fillGraph(layers, g, hitDoublets, [&](const SeedingLayerSetsHits::SeedingLayer& inner, const SeedingLayerSetsHits::SeedingLayer& outer, std::vector<HitDoublets>& hitDoublets) {
-            hitDoublets.emplace_back(thePairGenerator.doublets(region, ev, es, inner, outer));
-            return true;
-          });
-
 
 	if (theComparitor)
 		theComparitor->init(ev, es);
 
-        std::vector<const HitDoublets *> hitDoubletsPtr;
-        hitDoubletsPtr.reserve(hitDoublets.size());
-        for(const auto& e: hitDoublets)
-          hitDoubletsPtr.emplace_back(&e);
-
-        hitTriplets(region, result, hitDoubletsPtr, g, es);
-        theLayerCache.clear();
-}
-
-void CAHitTripletGenerator::hitNtuplets(const IntermediateHitDoublets::RegionLayerSets& regionLayerPairs,
-                                        OrderedHitTriplets& result,
-                                        const edm::EventSetup& es,
-                                        const SeedingLayerSetsHits& layers) {
-  CAGraph g;
-
-  std::vector<const HitDoublets *> hitDoublets;
-
-  auto layerPairEqual = [](const IntermediateHitDoublets::LayerPairHitDoublets& pair,
-                           SeedingLayerSetsHits::LayerIndex inner,
-                           SeedingLayerSetsHits::LayerIndex outer) {
-    return pair.innerLayerIndex() == inner && pair.outerLayerIndex() == outer;
-  };
-  fillGraph(layers, g, hitDoublets, [&](const SeedingLayerSetsHits::SeedingLayer& inner, const SeedingLayerSetsHits::SeedingLayer& outer, std::vector<const HitDoublets *>& hitDoublets) {
-      using namespace std::placeholders;
-      auto found = std::find_if(regionLayerPairs.begin(), regionLayerPairs.end(), std::bind(layerPairEqual, _1, inner.index(), outer.index()));
-      if(found != regionLayerPairs.end()) {
-        hitDoublets.emplace_back(&(found->doublets()));
-        return true;
-      }
-      return false;
-    });
-
-  hitTriplets(regionLayerPairs.region(), result, hitDoublets, g, es);
-}
-
-
-void CAHitTripletGenerator::hitTriplets(const TrackingRegion& region,
-                                        OrderedHitTriplets & result,
-                                        std::vector<const HitDoublets *>& hitDoublets, const CAGraph& g,
-                                        const edm::EventSetup& es) {
 	std::vector<CACell::CAntuplet> foundTriplets;
 	CellularAutomaton ca(g);
 

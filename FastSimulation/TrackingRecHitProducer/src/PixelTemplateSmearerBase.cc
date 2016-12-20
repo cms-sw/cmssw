@@ -59,7 +59,6 @@ PixelTemplateSmearerBase::~PixelTemplateSmearerBase()
     }
     theXHistos.clear();
     theYHistos.clear();
-
 }
 
 TrackingRecHitProductPtr 

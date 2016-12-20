@@ -19,7 +19,7 @@
 //
 
 // system include files
-#include <memory>
+#include <boost/shared_ptr.hpp>
 #include "TEveElement.h"
 
 // user include files
@@ -76,7 +76,7 @@ private:
    //const FWEvePtr& operator=(const FWEvePtr&); // stop default
 
    // ---------- member data --------------------------------
-   std::shared_ptr<TEveElement> m_container;
+   boost::shared_ptr<TEveElement> m_container;
 };
 
 

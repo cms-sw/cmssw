@@ -183,18 +183,8 @@ NuclearInteractionSimulator::~NuclearInteractionSimulator() {
   // without crashing, while trying to close these files from outside
   for ( unsigned ifile=0; ifile<theFiles.size(); ++ifile ) { 
     for ( unsigned iene=0; iene<theFiles[ifile].size(); ++iene ) {
-      auto file = theFiles[ifile][iene];
-      if(file) {
       // std::cout << "Closing file " << iene << " with name " << theFileNames[ifile][iene] << std::endl;
-        file->Close();
-        delete file;
-      }
-    }
-  }
-
-  for(auto& vEvents: theNUEvents) {
-    for(auto evtPtr: vEvents) {
-      delete evtPtr;
+      theFiles[ifile][iene]->Close(); 
     }
   }
 

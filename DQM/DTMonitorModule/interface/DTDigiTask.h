@@ -61,7 +61,7 @@ public:
 
 protected:
 
-  void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
+  void dqmBeginRun(const edm::Run&, const edm::EventSetup&);
 
   // Book the histograms
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
@@ -73,14 +73,14 @@ protected:
   void bookHistos(DQMStore::IBooker & ibooker, const int wheelId, std::string folder, std::string histoTag);
 
   /// To reset the MEs
-  void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& context)  override;
-  void endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& setup) override;
+  void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& context) ;
+  void endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& setup);
 
   /// To map real channels
   void channelsMap(const DTChamberId& dtCh, std::string histoTag);
 
   /// Analyze
-  void analyze(const edm::Event& e, const edm::EventSetup& c) override;
+  void analyze(const edm::Event& e, const edm::EventSetup& c);
 
 
   /// get the L1A source

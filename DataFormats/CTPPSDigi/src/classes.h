@@ -14,11 +14,10 @@
 #include "DataFormats/CTPPSDigi/interface/TotemTriggerCounters.h"
 #include "DataFormats/CTPPSDigi/interface/TotemVFATStatus.h"
 #include "DataFormats/CTPPSDigi/interface/TotemFEDInfo.h"
-#include "DataFormats/CTPPSDigi/interface/CTPPSDiamondDigi.h"
 
 #include <vector>
 
-namespace DataFormats_CTPPSDigi {
+namespace DataFormats_DataFormats {
   struct dictionary {
     TotemRPDigi rp_str_dig;
     edm::DetSet<TotemRPDigi> ds_rp_str_dig;
@@ -44,16 +43,5 @@ namespace DataFormats_CTPPSDigi {
     TotemFEDInfo fi;
     std::vector<TotemFEDInfo> v_fi;
     edm::Wrapper<std::vector<TotemFEDInfo>> w_v_fi;
-
-    CTPPSDiamondDigi rm_diamo_dig;
-    edm::DetSet<CTPPSDiamondDigi> ds_rp_diamo_dig;
-    std::vector<CTPPSDiamondDigi> vec_rp_diamo_dig;
-    edm::DetSetVector<CTPPSDiamondDigi> dsv_rp_diamo_dig;
-    std::vector<edm::DetSet<CTPPSDiamondDigi> > vec_ds_rp_diamo_dig;
-    edm::Wrapper<edm::DetSet<CTPPSDiamondDigi> > wds_rp_diamo_dig;
-    edm::Wrapper<edm::DetSetVector<CTPPSDiamondDigi> > wdsv_rp_diamo_dig;
-
-    HPTDCErrorFlags rm_hptdcerr;
-
   };
 }

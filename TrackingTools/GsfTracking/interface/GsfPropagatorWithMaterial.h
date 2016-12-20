@@ -67,7 +67,7 @@ class GsfPropagatorWithMaterial : public Propagator {
 
 
 
-  virtual bool setMaxDirectionChange( float phiMax) override {
+  virtual bool setMaxDirectionChange( float phiMax) {
     return theGeometricalPropagator->setMaxDirectionChange(phiMax);
   }
 
@@ -94,12 +94,12 @@ class GsfPropagatorWithMaterial : public Propagator {
     return *theConvolutor;
   }
 
-  virtual GsfPropagatorWithMaterial* clone() const override
+  virtual GsfPropagatorWithMaterial* clone() const
   {
     return new GsfPropagatorWithMaterial(*theGeometricalPropagator,*theConvolutor);
   }
 
-  const MagneticField* magneticField() const override {return theGeometricalPropagator->magneticField();}
+  const MagneticField* magneticField() const {return theGeometricalPropagator->magneticField();}
 
 private:
 //   /// Definition of timers (temporary)

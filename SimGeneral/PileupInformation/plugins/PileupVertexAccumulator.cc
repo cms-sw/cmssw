@@ -69,8 +69,7 @@ namespace cms
 {
   PileupVertexAccumulator::PileupVertexAccumulator(const edm::ParameterSet& iConfig, edm::stream::EDProducerBase& mixMod, edm::ConsumesCollector& iC) :
     Mtag_(iConfig.getParameter<edm::InputTag>("vtxTag")),
-    fallbackMtag_(iConfig.getParameter<edm::InputTag>("vtxFallbackTag")),
-    saveVtxTimes_(iConfig.getParameter<bool>("saveVtxTimes"))
+    fallbackMtag_(iConfig.getParameter<edm::InputTag>("vtxFallbackTag"))
   {
     edm::LogInfo ("PixelDigitizer ") <<"Enter the Pixel Digitizer";
     
@@ -96,7 +95,6 @@ namespace cms
 
     pT_Hats_.clear();
     z_posns_.clear();
-    t_posns_.clear();
   }
 
   void
@@ -133,11 +131,6 @@ namespace cms
       float zpos = v->position().z()*0.1;
  
       z_posns_.push_back(zpos);
-
-      if (saveVtxTimes_) {
-          float tpos = v->position().t()/299792458e-6; // turn from mm to ns
-          t_posns_.push_back(tpos);
-      }
     }
 
     //    delete myGenEvent;
@@ -148,7 +141,7 @@ namespace cms
   void
   PileupVertexAccumulator::finalizeEvent(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
-    std::unique_ptr<PileupVertexContent> PUVtxC(new PileupVertexContent(pT_Hats_, z_posns_, t_posns_));
+    std::unique_ptr<PileupVertexContent> PUVtxC(new PileupVertexContent(pT_Hats_, z_posns_));
 
     // write output to event
     iEvent.put(std::move(PUVtxC));

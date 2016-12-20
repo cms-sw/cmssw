@@ -43,9 +43,7 @@ class MCSingleParticleYPt : public edm::EDFilter {
       virtual bool filter(edm::Event&, const edm::EventSetup&);
    private:
       // ----------member data ---------------------------
-     
-       int fVerbose; 
-       bool fchekantiparticle;
+      
        edm::EDGetTokenT<edm::HepMCProduct> token_;
        std::vector<int> particleID;  
        std::vector<double> ptMin;

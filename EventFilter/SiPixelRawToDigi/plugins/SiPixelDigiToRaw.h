@@ -31,7 +31,7 @@ public:
 
 
   /// dummy end of job 
-  virtual void endJob() override {}
+  virtual void endJob() {}
 
   /// get data, convert to raw event, attach again to Event
   virtual void produce( edm::Event&, const edm::EventSetup& ) override;

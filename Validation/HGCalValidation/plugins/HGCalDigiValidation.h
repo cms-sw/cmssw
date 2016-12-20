@@ -56,9 +56,9 @@ public:
   ~HGCalDigiValidation();
   
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
-  void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
+  void dqmBeginRun(const edm::Run&, const edm::EventSetup&);
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
-  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void analyze(const edm::Event&, const edm::EventSetup&);
 
 private:
   void fillDigiInfo(digiInfo&   hinfo);

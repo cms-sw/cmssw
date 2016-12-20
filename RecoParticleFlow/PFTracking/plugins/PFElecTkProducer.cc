@@ -169,16 +169,6 @@ PFElecTkProducer::produce(Event& iEvent, const EventSetup& iSetup)
   vector<reco::GsfPFRecTrack> primaryGsfPFRecTracks;
   std::map<unsigned int, std::vector<reco::GsfPFRecTrack> >  GsfPFMap;
   
-  for( unsigned igsf = 0; igsf < gsftracks.size(); igsf++ ) {
-    GsfTrackRef trackRef(gsftrackscoll, igsf);
-    gsfInnerMomentumCache_.push_back(trackRef->pMode());
-    TrajectoryStateOnSurface i_inTSOS = mtsTransform_.innerStateOnSurface((*trackRef));
-    GlobalVector i_innMom;
-    if(i_inTSOS.isValid()){
-      mtsMode_->momentumFromModeCartesian(i_inTSOS,i_innMom);  
-      gsfInnerMomentumCache_.back() = i_innMom.mag();
-    }
-  }
 
   for (unsigned int igsf=0; igsf<gsftracks.size();igsf++) {
     
@@ -204,7 +194,7 @@ PFElecTkProducer::produce(Event& iEvent, const EventSetup& iSetup)
 	  isTrackerDriven = false;
 	}
 	else {
-	  auto const& SeedFromRef= static_cast<ElectronSeed const&>(*(trackRef->extra()->seedRef()) );
+	  auto const& SeedFromRef= dynamic_cast<ElectronSeed const&>(*(trackRef->extra()->seedRef()) );
 	  if(SeedFromRef.caloCluster().isNull())
 	    isEcalDriven = false;
 	  if(SeedFromRef.ctfTrack().isNull())
@@ -371,8 +361,6 @@ PFElecTkProducer::produce(Event& iEvent, const EventSetup& iSetup)
   selGsfPFRecTracks.clear();
   GsfPFMap.clear();
   primaryGsfPFRecTracks.clear();
-
-  std::vector<double>().swap(gsfInnerMomentumCache_);
 }
   
 // create the secondary GsfPFRecTracks Ref
@@ -402,7 +390,7 @@ PFElecTkProducer::FindPfRef(const reco::PFRecTrackCollection  & PfRTkColl,
 
 
   if (&(*gsftk.seedRef())==0) return -1;
-  auto const &  ElSeedFromRef=static_cast<ElectronSeed const&>( *(gsftk.extra()->seedRef()) );
+  auto const &  ElSeedFromRef=dynamic_cast<ElectronSeed const&>( *(gsftk.extra()->seedRef()) );
   //CASE 1 ELECTRONSEED DOES NOT HAVE A REF TO THE CKFTRACK
   if (ElSeedFromRef.ctfTrack().isNull()){
     reco::PFRecTrackCollection::const_iterator pft=PfRTkColl.begin();
@@ -483,12 +471,12 @@ PFElecTkProducer::FindPfRef(const reco::PFRecTrackCollection  & PfRTkColl,
 bool 
 PFElecTkProducer::applySelection(const reco::GsfTrack& gsftk) {
   if (&(*gsftk.seedRef())==0) return false;
-  auto const& ElSeedFromRef=static_cast<ElectronSeed const&>( *(gsftk.extra()->seedRef()) );
+  auto const& ElSeedFromRef=dynamic_cast<ElectronSeed const&>( *(gsftk.extra()->seedRef()) );
 
   bool passCut = false;
   if (ElSeedFromRef.ctfTrack().isNull()){
     if(ElSeedFromRef.caloCluster().isNull()) return passCut;
-    auto const* scRef = static_cast<SuperCluster const*>(ElSeedFromRef.caloCluster().get());
+    auto const* scRef = dynamic_cast<SuperCluster const*>(ElSeedFromRef.caloCluster().get());
     //do this just to know if exist a SC? 
     if(scRef) {
       float caloEne = scRef->energy();
@@ -513,12 +501,12 @@ PFElecTkProducer::resolveGsfTracks(const vector<reco::GsfPFRecTrack>  & GsfPFVec
   bool debugCleaning = debugGsfCleaning_;
   bool n_keepGsf = true;
 
-  const reco::GsfTrackRef& nGsfTrack = GsfPFVec[ngsf].gsfTrackRef();
+  reco::GsfTrackRef nGsfTrack = GsfPFVec[ngsf].gsfTrackRef();
   
   if (&(*nGsfTrack->seedRef())==0) return false;    
-  auto const& nElSeedFromRef=static_cast<ElectronSeed const&>( *(nGsfTrack->extra()->seedRef()) );
-  
-  /* // now gotten from cache below
+  auto const& nElSeedFromRef=dynamic_cast<ElectronSeed const&>( *(nGsfTrack->extra()->seedRef()) );
+
+
   TrajectoryStateOnSurface inTSOS = mtsTransform_.innerStateOnSurface((*nGsfTrack));
   GlobalVector ninnMom;
   float nPin =  nGsfTrack->pMode();
@@ -526,8 +514,6 @@ PFElecTkProducer::resolveGsfTracks(const vector<reco::GsfPFRecTrack>  & GsfPFVec
     mtsMode_->momentumFromModeCartesian(inTSOS,ninnMom);
     nPin = ninnMom.mag();
   }
-  */
-  float nPin = gsfInnerMomentumCache_[nGsfTrack.key()];
 
   float neta = nGsfTrack->innerMomentum().eta();
   float nphi = nGsfTrack->innerMomentum().phi();
@@ -560,7 +546,6 @@ PFElecTkProducer::resolveGsfTracks(const vector<reco::GsfPFRecTrack>  & GsfPFVec
 	if(debugCleaning)
 	  cout << " Entering angular superloose preselection " << endl;
 	
-        /* //now taken from cache below
 	TrajectoryStateOnSurface i_inTSOS = mtsTransform_.innerStateOnSurface((*iGsfTrack));
 	GlobalVector i_innMom;
 	float iPin = iGsfTrack->pMode();
@@ -568,11 +553,9 @@ PFElecTkProducer::resolveGsfTracks(const vector<reco::GsfPFRecTrack>  & GsfPFVec
 	  mtsMode_->momentumFromModeCartesian(i_inTSOS,i_innMom);  
 	  iPin = i_innMom.mag();
 	}
-        */
-        float iPin = gsfInnerMomentumCache_[iGsfTrack.key()];
 
 	if (&(*iGsfTrack->seedRef())==0) continue;   
-	auto const& iElSeedFromRef=static_cast<ElectronSeed const&>( *(iGsfTrack->extra()->seedRef()) );
+	auto const& iElSeedFromRef=dynamic_cast<ElectronSeed const&>( *(iGsfTrack->extra()->seedRef()) );
 
 	float SCEnergy = -1.;
 	// Check if two tracks match the same SC     
@@ -833,8 +816,8 @@ PFElecTkProducer::isSameEgSC(const reco::ElectronSeed& nSeed,
   bool isSameSC = false;
 
   if(nSeed.caloCluster().isNonnull() && iSeed.caloCluster().isNonnull()) {
-    auto const* nscRef = static_cast<SuperCluster const*>(nSeed.caloCluster().get());
-    auto const* iscRef = static_cast<SuperCluster const*>(iSeed.caloCluster().get());
+    auto const* nscRef = dynamic_cast<SuperCluster const*>(nSeed.caloCluster().get());
+    auto const* iscRef = dynamic_cast<SuperCluster const*>(iSeed.caloCluster().get());
 
     if(nscRef && iscRef) {
       bothGsfEcalDriven = true;
@@ -867,14 +850,14 @@ PFElecTkProducer::isSharingEcalEnergyWithEgSC(const reco::GsfPFRecTrack& nGsfPFR
   GsfPFRecTrack gsfPfTrack;
 
   if(nSeed.caloCluster().isNonnull()) {
-    scRef = static_cast<SuperCluster const*>(nSeed.caloCluster().get());
+    scRef = dynamic_cast<SuperCluster const*>(nSeed.caloCluster().get());
     assert(scRef);
     nEnergy = scRef->energy();
     nEcalDriven = true;
     gsfPfTrack = iGsfPFRecTrack;
   }
   else if(iSeed.caloCluster().isNonnull()){
-    scRef = static_cast<SuperCluster const*>(iSeed.caloCluster().get());
+    scRef = dynamic_cast<SuperCluster const*>(iSeed.caloCluster().get());
     assert(scRef);
     iEnergy = scRef->energy();
     iEcalDriven = true;

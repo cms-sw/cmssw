@@ -33,7 +33,7 @@ public:
 
   /// from base class
   virtual void hitSets( const TrackingRegion& reg, OrderedMultiHits & result,
-      const edm::Event & ev,  const edm::EventSetup& es) override;
+      const edm::Event & ev,  const edm::EventSetup& es);
 
   virtual void clear() override {
     MultiHitGenerator::clear();

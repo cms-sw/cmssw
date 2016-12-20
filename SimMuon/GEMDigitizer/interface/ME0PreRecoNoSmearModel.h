@@ -23,7 +23,7 @@ public:
 
   void simulateNoise(const ME0EtaPartition*, CLHEP::HepRandomEngine*) override;
 
-  void setup() override {}
+  void setup() {}
 
 private:
 };

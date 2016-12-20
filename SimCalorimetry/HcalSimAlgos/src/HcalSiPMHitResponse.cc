@@ -21,7 +21,7 @@
 HcalSiPMHitResponse::HcalSiPMHitResponse(const CaloVSimParameterMap * parameterMap,
 					 const CaloShapes * shapes, bool PreMix1) :
   CaloHitResponse(parameterMap, shapes), theSiPM(), theRecoveryTime(250.), 
-  TIMEMULT(1), Y11RANGE(250), Y11MAX(0.04), Y11TIMETORISE(16.65), PreMixDigis(PreMix1) {
+  TIMEMULT(1), Y11RANGE(80.), Y11MAX(0.04), Y11TIMETORISE(16.65), PreMixDigis(PreMix1) {
   theSiPM = new HcalSiPM(2500);
 }
 
@@ -79,9 +79,7 @@ void HcalSiPMHitResponse::add(const PCaloHit& hit, CLHEP::HepRandomEngine* engin
       //divide out mean of crosstalk distribution 1/(1-lambda) = multiply by (1-lambda)
       double signal(analogSignalAmplitude(id, hit.energy(), pars, engine)*(1-pars.sipmCrossTalk(id)));
       unsigned int photons(signal + 0.5);
-      double tof( timeOfFlight(id) );
       double time( hit.time() );
-      if(ignoreTime) time = tof;
 
       if (photons > 0)
 	if (precisionTimedPhotons.find(id)==precisionTimedPhotons.end()) {
@@ -102,11 +100,11 @@ void HcalSiPMHitResponse::add(const PCaloHit& hit, CLHEP::HepRandomEngine* engin
 		<< " photons: " << photons 
 		<< " time: " << time;
       LogDebug("HcalSiPMHitResponse") << " timePhase: " << pars.timePhase()
-		<< " tof: " << tof
+		<< " tof: " << timeOfFlight(id)
 		<< " binOfMaximum: " << pars.binOfMaximum()
 		<< " phaseShift: " << thePhaseShift_;
       double tzero(0.0*Y11TIMETORISE + pars.timePhase() - 
-		   (time - tof) - 
+		   (hit.time() - timeOfFlight(id)) - 
 		   BUNCHSPACE*( pars.binOfMaximum() - thePhaseShift_));
       LogDebug("HcalSiPMHitResponse") << " tzero: " << tzero;
       double tzero_bin(-tzero/(theTDCParams.deltaT()/TIMEMULT));
@@ -247,7 +245,7 @@ CaloSamples HcalSiPMHitResponse::makeSiPMSignal(DetId const& id,
 	signal[sampleBin] += pulseBit;
 	signal.preciseAtMod(preciseBin) += pulseBit*invdt;
 
-	if (timeDiff > 1 && sipmPulseShape(timeDiff) < 1e-7)
+	if (timeDiff > 1 && sipmPulseShape(timeDiff) < 1e-6)
 	  pulse = pulses.erase(pulse);
 	else
 	  ++pulse;

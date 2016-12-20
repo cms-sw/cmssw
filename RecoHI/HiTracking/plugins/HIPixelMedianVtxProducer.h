@@ -17,7 +17,7 @@ public:
 	virtual void produce(edm::Event& ev, const edm::EventSetup& es) override;
 	
 private:
-	void beginJob() override{};
+	void beginJob(){};
 	
 	edm::EDGetTokenT<reco::TrackCollection> theTrackCollection;
 	double thePtMin;

@@ -75,13 +75,13 @@ public:
 
   // Operations
 
-  void analyze(const edm::Event & event, const edm::EventSetup&) override;
+  void analyze(const edm::Event & event, const edm::EventSetup&);
   void beginJob();
   void endJob();
 
-  void dqmBeginRun(edm::Run const&, edm::EventSetup const&) override;
+  void dqmBeginRun(edm::Run const&, edm::EventSetup const&);
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
-  void endRun(edm::Run const&, edm::EventSetup const&) override;
+  void endRun(edm::Run const&, edm::EventSetup const&);
 
 private:
   // interface to DQM framework

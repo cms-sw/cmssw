@@ -34,6 +34,7 @@ public:
       thePrecise(precise) { }
 
   TrackingRegion::Hits hits(
+      const edm::Event& ev,
       const edm::EventSetup& es,
       const SeedingLayerSetsHits::SeedingLayer& layer) const override;
 
@@ -42,14 +43,14 @@ public:
 				       const Hit &  outerHit,
 				       const edm::EventSetup& iSetup,
 				       const DetLayer* outerlayer=0,
-				       float lr=0, float gz=0, float dr=0, float dz=0) const  override;
+				       float lr=0, float gz=0, float dr=0, float dz=0) const ;
 
-  virtual GlobalTrackingRegion* clone() const override { 
+  virtual GlobalTrackingRegion* clone() const { 
     return new GlobalTrackingRegion(*this);
   }
 
-  virtual std::string name() const override { return "GlobalTrackingRegion"; }
-  virtual std::string print() const override;
+  virtual std::string name() const { return "GlobalTrackingRegion"; }
+  virtual std::string print() const;
 
 private:
   bool  thePrecise=false;

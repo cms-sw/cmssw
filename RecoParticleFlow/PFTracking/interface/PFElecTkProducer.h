@@ -43,7 +43,6 @@ class ConvBremPFTrackFinder;
  and transform them in PFGsfRecTracks.
 */
 
-#include <unordered_map>
 
 
 class PFElecTkProducer final : public edm::stream::EDProducer<edm::GlobalCache<convbremhelpers::HeavyObjectCache> > {
@@ -165,9 +164,6 @@ class PFElecTkProducer final : public edm::stream::EDProducer<edm::GlobalCache<c
       std::string path_mvaWeightFileConvBremBarrelHighPt_;
       std::string path_mvaWeightFileConvBremEndcapsLowPt_;
       std::string path_mvaWeightFileConvBremEndcapsHighPt_;
-  
-      // cache for multitrajectory states
-      std::vector<double> gsfInnerMomentumCache_;
-
+      
 };
 #endif

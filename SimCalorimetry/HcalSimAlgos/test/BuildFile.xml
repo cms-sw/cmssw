@@ -2,7 +2,6 @@
   <use name="SimCalorimetry/HcalSimAlgos"/>
   <use name="SimDataFormats/CrossingFrame"/>
   <use name="CommonTools/UtilAlgos"/>
-  <use name="SimDataFormats/CaloTest"/>
   <bin file="HPDIonFeedbackTest.cpp"/>
   <bin file="HcalShapeIntegratorTest.cpp"/>
   <bin file="HcalTimeSlewTest.cpp"/>
@@ -12,7 +11,5 @@
   <library file="HcalDigitizerTest.cc" name="HcalDigitizerTest">
   </library>
   <library file="SiPMNonlinearityAnalyzer.cc" name="SiPMNonlinearityAnalyzer">
-  </library>
-  <library file="CaloSamplesAnalyzer.cc" name="CaloSamplesAnalyzer">
   </library>
 </environment>

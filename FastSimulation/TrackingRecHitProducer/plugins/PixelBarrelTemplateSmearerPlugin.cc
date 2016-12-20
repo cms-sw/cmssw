@@ -52,18 +52,18 @@ PixelBarrelTemplateSmearerPlugin::PixelBarrelTemplateSmearerPlugin(
     isForward = false;
 
     theBigPixelResolutionFileName = config.getParameter<string>( "BigPixelBarrelResolutionFile" );
-    theBigPixelResolutionFile = std::make_unique<TFile>( edm::FileInPath( theBigPixelResolutionFileName ).fullPath().c_str()  ,"READ");
+    theBigPixelResolutionFile = new TFile( edm::FileInPath( theBigPixelResolutionFileName ).fullPath().c_str()  ,"READ");
     theEdgePixelResolutionFileName =  config.getParameter<string>( "EdgePixelBarrelResolutionFile" );
-    theEdgePixelResolutionFile = std::make_unique<TFile>( edm::FileInPath( theEdgePixelResolutionFileName ).fullPath().c_str()  ,"READ");
+    theEdgePixelResolutionFile = new TFile( edm::FileInPath( theEdgePixelResolutionFileName ).fullPath().c_str()  ,"READ");
     theRegularPixelResolutionFileName = config.getParameter<string>( "RegularPixelBarrelResolutionFile" );
-    theRegularPixelResolutionFile = std::make_unique<TFile>( edm::FileInPath( theRegularPixelResolutionFileName ).fullPath().c_str()  ,"READ");
+    theRegularPixelResolutionFile = new TFile( edm::FileInPath( theRegularPixelResolutionFileName ).fullPath().c_str()  ,"READ");
     
     theMergingProbabilityFileName = config.getParameter<string>( "MergingProbabilityBarrelFile" );
-    theMergingProbabilityFile = std::make_unique<TFile>( edm::FileInPath( theMergingProbabilityFileName ).fullPath().c_str()  ,"READ");
+    theMergingProbabilityFile = new TFile( edm::FileInPath( theMergingProbabilityFileName ).fullPath().c_str()  ,"READ");
     theMergedPixelResolutionXFileName = config.getParameter<string>( "MergedPixelBarrelResolutionXFile" );
-    theMergedPixelResolutionXFile = std::make_unique<TFile>( edm::FileInPath( theMergedPixelResolutionXFileName ).fullPath().c_str()  ,"READ");
+    theMergedPixelResolutionXFile = new TFile( edm::FileInPath( theMergedPixelResolutionXFileName ).fullPath().c_str()  ,"READ");
     theMergedPixelResolutionYFileName = config.getParameter<string>( "MergedPixelBarrelResolutionYFile" );
-    theMergedPixelResolutionYFile = std::make_unique<TFile>( edm::FileInPath( theMergedPixelResolutionYFileName ).fullPath().c_str()  ,"READ");
+    theMergedPixelResolutionYFile = new TFile( edm::FileInPath( theMergedPixelResolutionYFileName ).fullPath().c_str()  ,"READ");
 
     initializeBarrel();
     

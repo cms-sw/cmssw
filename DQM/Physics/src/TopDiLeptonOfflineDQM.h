@@ -328,7 +328,7 @@ class TopDiLeptonOfflineDQM : public DQMEDAnalyzer {
   ~TopDiLeptonOfflineDQM() {}
 
   /// do this during the event loop
-  virtual void analyze(const edm::Event& event, const edm::EventSetup& setup) override;
+  virtual void analyze(const edm::Event& event, const edm::EventSetup& setup);
 
  protected:
   //Book histograms

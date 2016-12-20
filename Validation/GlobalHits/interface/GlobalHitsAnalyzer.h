@@ -80,7 +80,7 @@ class GlobalHitsAnalyzer : public DQMEDAnalyzer
 
   explicit GlobalHitsAnalyzer(const edm::ParameterSet&);
   virtual ~GlobalHitsAnalyzer();
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+  virtual void analyze(const edm::Event&, const edm::EventSetup&);
 
  protected:
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;

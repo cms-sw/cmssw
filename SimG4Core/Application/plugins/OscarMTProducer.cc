@@ -55,6 +55,7 @@ namespace {
         StaticRandomEngineSetUnset(edm::StreamID const&);
         explicit StaticRandomEngineSetUnset(CLHEP::HepRandomEngine * engine);
         ~StaticRandomEngineSetUnset();
+        CLHEP::HepRandomEngine* getEngine() const;
     private:
         CLHEP::HepRandomEngine* m_currentEngine;
         CLHEP::HepRandomEngine* m_previousEngine;
@@ -259,6 +260,11 @@ StaticRandomEngineSetUnset::StaticRandomEngineSetUnset(
 StaticRandomEngineSetUnset::~StaticRandomEngineSetUnset() 
 {
   G4Random::setTheEngine(m_previousEngine);
+}
+
+CLHEP::HepRandomEngine* StaticRandomEngineSetUnset::getEngine() const 
+{ 
+  return m_currentEngine; 
 }
 
 DEFINE_FWK_MODULE(OscarMTProducer);

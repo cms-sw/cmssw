@@ -47,6 +47,3 @@ electronAnalyzerSequence = cms.Sequence(
 # * dqmElectronAnalysisSelectionEtIsoElID
  * dqmElectronTagProbeAnalysis
 )
-
-from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
-phase2_hgcal.toModify( mergedSuperClusters, src = cms.VInputTag( cms.InputTag("particleFlowSuperClusterECAL","particleFlowSuperClusterECALBarrel"), cms.InputTag("particleFlowSuperClusterHGCal","") ) )

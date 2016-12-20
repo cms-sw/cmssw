@@ -30,10 +30,10 @@ public:
   virtual ~FakeTTrig();
 
   // Operations
-  virtual void beginRun(const edm::Run& run, const edm::EventSetup& setup ) override;
+  virtual void beginRun(const edm::Run& run, const edm::EventSetup& setup );
   virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
-  virtual void analyze(const edm::Event& event, const edm::EventSetup& setup)override {}
-  virtual void endJob() override;
+  virtual void analyze(const edm::Event& event, const edm::EventSetup& setup){}
+  virtual void endJob();
 
   // TOF computation
   double tofComputation(const DTSuperLayer* superlayer);

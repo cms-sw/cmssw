@@ -19,7 +19,7 @@
 //
 
 // system include files
-#include <memory>
+#include <boost/shared_ptr.hpp>
 #include <string>
 
 // user include files
@@ -35,7 +35,7 @@ public:
    virtual ~FWItemAccessorFactory();
 
    // ---------- const member functions ---------------------
-   std::shared_ptr<FWItemAccessorBase> accessorFor(const TClass*) const;
+   boost::shared_ptr<FWItemAccessorBase> accessorFor(const TClass*) const;
    static bool hasAccessor(const TClass *iClass, std::string &result);
    static bool hasTVirtualCollectionProxy(const TClass *iClass);
    static bool hasMemberTVirtualCollectionProxy(const TClass *iClass,

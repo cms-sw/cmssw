@@ -7,11 +7,10 @@ hcalRecoAnalyzer = cms.EDAnalyzer("HcalRecHitsValidation",
     HFRecHitCollectionLabel   = cms.untracked.InputTag("hfreco"),
     HORecHitCollectionLabel   = cms.untracked.InputTag("horeco"),
 
+    eventype                  = cms.untracked.string('multi'),
     ecalselector              = cms.untracked.string('yes'),
     hcalselector              = cms.untracked.string('all'),
-    mc                        = cms.untracked.string('no'),
-
-    TestNumber                = cms.bool(False)
+    mc                        = cms.untracked.string('no')
 )
 
 hcalNoiseRates = cms.EDAnalyzer('NoiseRates',
@@ -21,6 +20,3 @@ hcalNoiseRates = cms.EDAnalyzer('NoiseRates',
     minHitEnergy = cms.untracked.double(1.5),
     noiselabel   = cms.InputTag('hcalnoise')
 )
-
-from Configuration.Eras.Modifier_phase2_hcal_cff import phase2_hcal
-phase2_hcal.toModify( hcalRecoAnalyzer, TestNumber = cms.bool(True) )

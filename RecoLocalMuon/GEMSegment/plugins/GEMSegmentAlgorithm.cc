@@ -345,10 +345,8 @@ void GEMSegmentAlgorithm::buildSegments(const GEMEnsemble& ensemble, const Ensem
   edm::LogVerbatim("GEMSegmentAlgorithm") << "[GEMSegmentAlgorithm::buildSegments] GEMSegment fit done :: fit is good = "<<goodfit;
 
   // quit function if fit was not OK
-  if(!goodfit){
-    for (auto rh:muonRecHits) rh.reset();
-    return;
-  }
+  if(!goodfit) return;
+
   // obtain all information necessary to make the segment:
   LocalPoint protoIntercept      = sfit_->intercept();
   LocalVector protoDirection     = sfit_->localdir();
@@ -394,7 +392,7 @@ void GEMSegmentAlgorithm::buildSegments(const GEMEnsemble& ensemble, const Ensem
   edm::LogVerbatim("GEMSegmentAlgorithm") << "[GEMSegmentAlgorithm::buildSegments] GEMSegment made in "<<tmp.gemDetId();
   edm::LogVerbatim("GEMSegmentAlgorithm") << "[GEMSegmentAlgorithm::buildSegments] "<<tmp;
 
-  for (auto rh:muonRecHits) rh.reset();
+  for (auto rh:muonRecHits) rh.reset();  
   gemsegs.push_back(tmp);
 }
 

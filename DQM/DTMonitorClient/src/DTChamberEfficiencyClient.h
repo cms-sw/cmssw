@@ -51,13 +51,13 @@ public:
 
 protected:
 
-  void beginRun(const edm::Run& , const edm::EventSetup&) override;
+  void beginRun(const edm::Run& , const edm::EventSetup&);
   void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override;
 
   /// book the report summary
 
   void bookHistos(DQMStore::IBooker &);
-  void dqmEndLuminosityBlock(DQMStore::IBooker &, DQMStore::IGetter &, edm::LuminosityBlock const &, edm::EventSetup const &) override;
+  void dqmEndLuminosityBlock(DQMStore::IBooker &, DQMStore::IGetter &, edm::LuminosityBlock const &, edm::EventSetup const &);
 
 private:
 

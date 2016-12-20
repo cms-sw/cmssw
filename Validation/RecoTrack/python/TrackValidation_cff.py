@@ -176,29 +176,16 @@ def _setForEra(module, eraName, era, **kwargs):
 def _getSeedingLayers(seedProducers):
     import RecoTracker.IterativeTracking.iterativeTk_cff as _iterativeTk_cff
 
-    def _findSeedingLayers(name):
-        prod = getattr(_iterativeTk_cff, name)
-        if hasattr(prod, "triplets"):
-            if hasattr(prod, "layerList"): # merger
-                return prod.layerList.refToPSet_.value()
-            return _findSeedingLayers(prod.triplets.getModuleLabel())
-        elif hasattr(prod, "doublets"):
-            return _findSeedingLayers(prod.doublets.getModuleLabel())
-        return prod.seedingLayers.getModuleLabel()
-
     seedingLayersMerged = []
     for seedName in seedProducers:
         seedProd = getattr(_iterativeTk_cff, seedName)
-        if hasattr(seedProd, "OrderedHitsFactoryPSet"):
-            if hasattr(seedProd, "SeedMergerPSet"):
-                seedingLayersName = seedProd.SeedMergerPSet.layerList.refToPSet_.value()
-            else:
-                seedingLayersName = seedProd.OrderedHitsFactoryPSet.SeedingLayers.getModuleLabel()
-        elif hasattr(seedProd, "seedingHitSets"):
-            seedingLayersName = _findSeedingLayers(seedProd.seedingHitSets.getModuleLabel())
-        else:
+        if not hasattr(seedProd, "OrderedHitsFactoryPSet"):
             continue
 
+        if hasattr(seedProd, "SeedMergerPSet"):
+            seedingLayersName = seedProd.SeedMergerPSet.layerList.refToPSet_.value()
+        else:
+            seedingLayersName = seedProd.OrderedHitsFactoryPSet.SeedingLayers.getModuleLabel()
         seedingLayers = getattr(_iterativeTk_cff, seedingLayersName).layerList.value()
         for layerSet in seedingLayers:
             if layerSet not in seedingLayersMerged:
@@ -208,23 +195,15 @@ for _eraName, _postfix, _era in _relevantEras:
     locals()["_seedingLayerSets"+_postfix] = _getSeedingLayers(locals()["_seedProducers"+_postfix])
 
 # MVA selectors
-def _getMVASelectors(postfix):
+def _getMVASelectors(iterations):
     import RecoTracker.IterativeTracking.iterativeTk_cff as _iterativeTk_cff
 
     # assume naming convention that the iteration name (when first
     # letter in lower case) is the selector name
     pset = cms.untracked.PSet()
-    for iterName, seqName in _cfg.iterationAlgos(postfix, includeSequenceName=True):
+    for iterName in iterations:
         if hasattr(_iterativeTk_cff, iterName):
             mod = getattr(_iterativeTk_cff, iterName)
-            seq = getattr(_iterativeTk_cff, seqName)
-
-            # Ignore iteration if the MVA selector module is not in the sequence
-            try:
-                seq.index(mod)
-            except:
-                continue
-
             typeName = mod._TypedParameterizable__type
             classifiers = []
             if typeName == "ClassifierMerger":
@@ -236,7 +215,7 @@ def _getMVASelectors(postfix):
 
     return pset
 for _eraName, _postfix, _era in _relevantEras:
-    locals()["_mvaSelectors"+_postfix] = _getMVASelectors(_postfix)
+    locals()["_mvaSelectors"+_postfix] = _getMVASelectors(_cfg.iterationAlgos(_postfix))
 
 # Validation iterative steps
 _sequenceForEachEra(_addSelectorsByAlgo, args=["_algos"], names="_selectorsByAlgo", sequence="_tracksValidationSelectorsByAlgo", modDict=globals())

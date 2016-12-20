@@ -9,7 +9,6 @@ from RecoTracker.TransientTrackingRecHit.TTRHBuilders_cff import *
 
 # SEEDING LAYERS
 import RecoTracker.TkSeedingLayers.PixelLayerTriplets_cfi
-import RecoPixelVertexing.PixelTriplets.quadrupletseedmerging_cff
 initialStepSeedLayers = RecoTracker.TkSeedingLayers.PixelLayerTriplets_cfi.PixelLayerTriplets.clone()
 from Configuration.Eras.Modifier_trackingPhase1_cff import trackingPhase1
 trackingPhase1.toModify(initialStepSeedLayers,
@@ -21,91 +20,49 @@ trackingPhase1.toModify(initialStepSeedLayers,
         'BPix1+FPix1_neg+FPix2_neg'
     ]
 )
-trackingPhase2PU140.toModify(initialStepSeedLayers,
-    layerList = RecoPixelVertexing.PixelTriplets.quadrupletseedmerging_cff.PixelSeedMergerQuadruplets.layerList.value()
-)
 
-# TrackingRegion
-from RecoTracker.TkTrackingRegions.globalTrackingRegionFromBeamSpot_cfi import globalTrackingRegionFromBeamSpot as _globalTrackingRegionFromBeamSpot
-initialStepTrackingRegions = _globalTrackingRegionFromBeamSpot.clone(RegionPSet = dict(
+
+# seeding
+from RecoTracker.TkSeedGenerator.GlobalSeedsFromTriplets_cff import *
+from RecoTracker.TkTrackingRegions.GlobalTrackingRegionFromBeamSpot_cfi import RegionPsetFomBeamSpotBlock
+initialStepSeeds = RecoTracker.TkSeedGenerator.GlobalSeedsFromTriplets_cff.globalSeedsFromTriplets.clone(
+    RegionFactoryPSet = RegionPsetFomBeamSpotBlock.clone(
+    ComponentName = cms.string('GlobalRegionProducerFromBeamSpot'),
+    RegionPSet = RegionPsetFomBeamSpotBlock.RegionPSet.clone(
     ptMin = 0.6,
     originRadius = 0.02,
     nSigmaZ = 4.0
-))
-from Configuration.Eras.Modifier_trackingPhase1PU70_cff import trackingPhase1PU70
-from Configuration.Eras.Modifier_trackingPhase2PU140_cff import trackingPhase2PU140
-trackingPhase1PU70.toModify(initialStepTrackingRegions, RegionPSet = dict(ptMin = 0.7))
-trackingPhase2PU140.toModify(initialStepTrackingRegions, RegionPSet = dict(ptMin = 0.8))
-
-# seeding
-from RecoTracker.TkHitPairs.hitPairEDProducer_cfi import hitPairEDProducer as _hitPairEDProducer
-initialStepHitDoublets = _hitPairEDProducer.clone(
-    seedingLayers = "initialStepSeedLayers",
-    trackingRegions = "initialStepTrackingRegions",
-    maxElement = 0,
-    produceIntermediateHitDoublets = True,
-)
-from RecoPixelVertexing.PixelTriplets.pixelTripletHLTEDProducer_cfi import pixelTripletHLTEDProducer as _pixelTripletHLTEDProducer
+    )
+    )
+    )
+initialStepSeeds.OrderedHitsFactoryPSet.SeedingLayers = 'initialStepSeedLayers'
 from RecoPixelVertexing.PixelLowPtUtilities.ClusterShapeHitFilterESProducer_cfi import *
 import RecoPixelVertexing.PixelLowPtUtilities.LowPtClusterShapeSeedComparitor_cfi
-initialStepHitTriplets = _pixelTripletHLTEDProducer.clone(
-    doublets = "initialStepHitDoublets",
-    produceSeedingHitSets = True,
-    SeedComparitorPSet = RecoPixelVertexing.PixelLowPtUtilities.LowPtClusterShapeSeedComparitor_cfi.LowPtClusterShapeSeedComparitor
-)
-from RecoPixelVertexing.PixelTriplets.pixelQuadrupletMergerEDProducer_cfi import pixelQuadrupletMergerEDProducer as _pixelQuadrupletMergerEDProducer
-from RecoPixelVertexing.PixelTriplets.quadrupletseedmerging_cff import *
-_initialStepHitQuadrupletsMerging = _pixelQuadrupletMergerEDProducer.clone(
-    triplets = "initialStepHitTriplets",
-    layerList = dict(refToPSet_ = cms.string("PixelSeedMergerQuadruplets")),
-)
-from RecoTracker.TkSeedGenerator.seedCreatorFromRegionConsecutiveHitsEDProducer_cff import seedCreatorFromRegionConsecutiveHitsEDProducer as _seedCreatorFromRegionConsecutiveHitsEDProducer
-initialStepSeeds = _seedCreatorFromRegionConsecutiveHitsEDProducer.clone(
-    seedingHitSets = "initialStepHitTriplets",
-)
-from RecoPixelVertexing.PixelTriplets.pixelQuadrupletEDProducer_cfi import pixelQuadrupletEDProducer as _pixelQuadrupletEDProducer
-initialStepHitQuadruplets = _pixelQuadrupletEDProducer.clone(
-    triplets = "initialStepHitTriplets",
-    extraHitRZtolerance = initialStepHitTriplets.extraHitRZtolerance,
-    extraHitRPhitolerance = initialStepHitTriplets.extraHitRPhitolerance,
-    maxChi2 = dict(
-        pt1    = 0.8, pt2    = 2,
-        value1 = 200, value2 = 100,
-        enabled = True,
-    ),
-    extraPhiTolerance = dict(
-        pt1    = 0.6, pt2    = 1,
-        value1 = 0.15, value2 = 0.1,
-        enabled = True,
-    ),
-    useBendingCorrection = True,
-    fitFastCircle = True,
-    fitFastCircleChi2Cut = True,
-    SeedComparitorPSet = initialStepHitTriplets.SeedComparitorPSet
-)
-trackingPhase2PU140.toModify(initialStepHitTriplets,
-    produceSeedingHitSets = False,
-    produceIntermediateHitTriplets = True,
-)
-trackingPhase2PU140.toModify(initialStepSeeds, seedingHitSets = "initialStepHitQuadruplets")
+initialStepSeeds.OrderedHitsFactoryPSet.GeneratorPSet.SeedComparitorPSet = RecoPixelVertexing.PixelLowPtUtilities.LowPtClusterShapeSeedComparitor_cfi.LowPtClusterShapeSeedComparitor
 
-# temporary...
-_initialStepHitQuadrupletsMerging.SeedCreatorPSet = cms.PSet(
-    ComponentName = cms.string("SeedFromConsecutiveHitsCreator"),
-    MinOneOverPtError = initialStepSeeds.MinOneOverPtError,
-    OriginTransverseErrorMultiplier = initialStepSeeds.OriginTransverseErrorMultiplier,
-    SeedMomentumForBOFF = initialStepSeeds.SeedMomentumForBOFF,
-    TTRHBuilder = initialStepSeeds.TTRHBuilder,
-    forceKinematicWithRegionDirection = initialStepSeeds.forceKinematicWithRegionDirection,
-    magneticField = initialStepSeeds.magneticField,
-    propagator = initialStepSeeds.propagator,
-
+_SeedMergerPSet = cms.PSet(
+    layerList = cms.PSet(refToPSet_ = cms.string("PixelSeedMergerQuadruplets")),
+    addRemainingTriplets = cms.bool(False),
+    mergeTriplets = cms.bool(True),
+    ttrhBuilderLabel = cms.string('PixelTTRHBuilderWithoutAngle')
 )
-_initialStepHitQuadrupletsMerging.SeedComparitorPSet = initialStepSeeds.SeedComparitorPSet
+from Configuration.Eras.Modifier_trackingPhase1PU70_cff import trackingPhase1PU70
+trackingPhase1PU70.toModify(initialStepSeeds,
+    RegionFactoryPSet = dict(RegionPSet = dict(ptMin = 0.7)),
+    SeedMergerPSet = _SeedMergerPSet
+)
+from Configuration.Eras.Modifier_trackingPhase2PU140_cff import trackingPhase2PU140
+trackingPhase2PU140.toModify(initialStepSeeds,
+   ClusterCheckPSet = dict(doClusterCheck = cms.bool(False)),
+   OrderedHitsFactoryPSet = dict(GeneratorPSet = dict(maxElement = 0)),
+   RegionFactoryPSet = dict(RegionPSet = dict(ptMin = 0.8)),
+   SeedCreatorPSet = dict(magneticField = '', propagator = 'PropagatorWithMaterial'),
+   SeedMergerPSet = _SeedMergerPSet
+) 
 
-trackingPhase1PU70.toReplaceWith(initialStepHitQuadruplets, _initialStepHitQuadrupletsMerging) 
-trackingPhase1PU70.toModify(initialStepSeeds, seedingHitSets="initialStepHitQuadruplets")
 
+from Configuration.Eras.Modifier_trackingLowPU_cff import trackingLowPU
+trackingLowPU.toModify(initialStepSeeds, OrderedHitsFactoryPSet = dict(GeneratorPSet = dict(maxElement = 100000)))
 
 # building
 import TrackingTools.TrajectoryFiltering.TrajectoryFilter_cff
@@ -125,10 +82,8 @@ initialStepTrajectoryFilterInOut = initialStepTrajectoryFilterBase.clone(
     strictSeedExtension = True, # don't allow inactive
     pixelSeedExtension = True,
 )
-from Configuration.Eras.Modifier_trackingLowPU_cff import trackingLowPU
 trackingLowPU.toReplaceWith(initialStepTrajectoryFilterBase, _initialStepTrajectoryFilterBase)
 trackingPhase1PU70.toReplaceWith(initialStepTrajectoryFilterBase, _initialStepTrajectoryFilterBase)
-trackingPhase2PU140.toReplaceWith(initialStepTrajectoryFilterBase, _initialStepTrajectoryFilterBase)
 
 import RecoPixelVertexing.PixelLowPtUtilities.StripSubClusterShapeTrajectoryFilter_cfi
 initialStepTrajectoryFilterShape = RecoPixelVertexing.PixelLowPtUtilities.StripSubClusterShapeTrajectoryFilter_cfi.StripSubClusterShapeTrajectoryFilterTIX12.clone()
@@ -353,9 +308,6 @@ trackingPhase2PU140.toModify(initialStepSelector,
 
 # Final sequence
 InitialStep = cms.Sequence(initialStepSeedLayers*
-                           initialStepTrackingRegions*
-                           initialStepHitDoublets*
-                           initialStepHitTriplets*
                            initialStepSeeds*
                            initialStepTrackCandidates*
                            initialStepTracks*
@@ -365,9 +317,7 @@ InitialStep = cms.Sequence(initialStepSeedLayers*
 _InitialStep_LowPU = InitialStep.copyAndExclude([firstStepPrimaryVertices, initialStepClassifier1, initialStepClassifier2, initialStepClassifier3])
 _InitialStep_LowPU.replace(initialStep, initialStepSelector)
 trackingLowPU.toReplaceWith(InitialStep, _InitialStep_LowPU)
-_InitialStep_Phase1PU70 = _InitialStep_LowPU.copy()
-_InitialStep_Phase1PU70.replace(initialStepHitTriplets, initialStepHitTriplets+initialStepHitQuadruplets)
+_InitialStep_Phase1PU70 = InitialStep.copyAndExclude([firstStepPrimaryVertices, initialStepClassifier1, initialStepClassifier2, initialStepClassifier3])
+_InitialStep_Phase1PU70.replace(initialStep, initialStepSelector)
 trackingPhase1PU70.toReplaceWith(InitialStep, _InitialStep_Phase1PU70)
-_InitialStep_trackingPhase2 = _InitialStep_LowPU.copy()
-_InitialStep_trackingPhase2.replace(initialStepHitTriplets, initialStepHitTriplets*initialStepHitQuadruplets)
-trackingPhase2PU140.toReplaceWith(InitialStep, _InitialStep_trackingPhase2)
+trackingPhase2PU140.toReplaceWith(InitialStep, _InitialStep_Phase1PU70)

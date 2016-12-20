@@ -19,7 +19,7 @@
 //
 
 // system include files
-#include <memory>
+#include <boost/shared_ptr.hpp>
 
 // user include files
 
@@ -38,7 +38,7 @@ public:
 
    // ---------- static member functions --------------------
 
-   static std::shared_ptr<FWParameterSetterBase> makeSetterFor(FWParameterBase*);
+   static boost::shared_ptr<FWParameterSetterBase> makeSetterFor(FWParameterBase*);
 
    // ---------- member functions ---------------------------
 

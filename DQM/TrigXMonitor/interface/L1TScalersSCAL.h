@@ -21,7 +21,7 @@ class L1TScalersSCAL : public DQMEDAnalyzer {
   virtual ~L1TScalersSCAL();
   void bookHistograms(DQMStore::IBooker &, edm::Run const &,
                       edm::EventSetup const &) override;
-  void analyze(const edm::Event& e, const edm::EventSetup& c) override;
+  void analyze(const edm::Event& e, const edm::EventSetup& c);
  private:
   edm::EDGetTokenT<Level1TriggerScalersCollection> l1triggerscalers_;
   edm::EDGetTokenT<LumiScalersCollection> lumiscalers_;

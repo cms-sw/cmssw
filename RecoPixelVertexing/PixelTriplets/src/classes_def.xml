@@ -1,4 +1,0 @@
-<lcgdict>
-  <class name="IntermediateHitTriplets" persistent="false"/>
-  <class name="edm::Wrapper<IntermediateHitTriplets>" persistent="false"/>
-</lcgdict>

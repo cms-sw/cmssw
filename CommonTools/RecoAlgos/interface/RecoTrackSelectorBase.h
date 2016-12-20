@@ -50,10 +50,6 @@ public:
      vertex_ = (*hVtx)[0].position();
   }
 
-  bool operator()( const reco::TrackRef& tref ) const {
-    return (*this)(*tref);
-  }
-
   bool operator()( const reco::Track & t) const {
     bool quality_ok = true;
     if (quality_.size()!=0) {

@@ -34,10 +34,10 @@ class dso_internal GroupedCkfTrajectoryBuilder final : public BaseCkfTrajectoryB
   //  virtual void setEvent(const edm::Event& event) const;
 
   /// trajectories building starting from a seed
-  TrajectoryContainer trajectories(const TrajectorySeed&) const override;
+  TrajectoryContainer trajectories(const TrajectorySeed&) const;
 
   /// trajectories building starting from a seed, return in an already allocated vector
-  void trajectories(const TrajectorySeed&, TrajectoryContainer &ret) const override;
+  void trajectories(const TrajectorySeed&, TrajectoryContainer &ret) const;
 
   /// trajectories building starting from a seed with a region
   TrajectoryContainer trajectories(const TrajectorySeed&, const TrackingRegion&) const;
@@ -49,7 +49,7 @@ class dso_internal GroupedCkfTrajectoryBuilder final : public BaseCkfTrajectoryB
   // also new interface returning the start Trajectory...
   TempTrajectory buildTrajectories (const TrajectorySeed&seed,
 				    TrajectoryContainer &ret,
-				    const TrajectoryFilter*) const override;
+				    const TrajectoryFilter*) const;
 
 
 
@@ -60,11 +60,11 @@ class dso_internal GroupedCkfTrajectoryBuilder final : public BaseCkfTrajectoryB
       collection.
   **/
   void  rebuildSeedingRegion(const TrajectorySeed&,
-			     TrajectoryContainer& result) const override ;
+			     TrajectoryContainer& result) const ;
  
   // same as above using the precomputed startingTraj..
   void  rebuildTrajectories(TempTrajectory const & startingTraj, const TrajectorySeed&,
-			     TrajectoryContainer& result) const override ;  
+			     TrajectoryContainer& result) const ;  
 
 
   // Access to lower level components

@@ -13,7 +13,7 @@
 // system include files
 #include <stdlib.h>
 #include <algorithm>
-#include <memory>
+#include <boost/shared_ptr.hpp>
 #include <iostream>
 #include <sstream>
 #include <stdexcept>

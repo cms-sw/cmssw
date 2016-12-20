@@ -13,7 +13,6 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "DataFormats/HcalCalibObjects/interface/HEDarkening.h"
 #include "DataFormats/HcalCalibObjects/interface/HFRecalibration.h"
-#include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
 
 #include <vector>
 
@@ -26,6 +25,7 @@ class HcalElectronicsSim;
 class HcalTimeSlewSim;
 class HcalBaseSignalGenerator;
 class HcalShapes;
+class PCaloHit;
 class PileUpEventPrincipal;
 class HcalTopology;
 
@@ -147,9 +147,6 @@ private:
   bool testNumbering_;
   bool doHFWindow_;
   bool killHE_;
-  bool debugCS_;
-  bool ignoreTime_;
-  bool injectTestHits_;
 
   std::string hitsProducer_;
 
@@ -158,11 +155,6 @@ private:
   double deliveredLumi;
   HEDarkening* m_HEDarkening;
   HFRecalibration* m_HFRecalibration;
-
-  std::vector<double> injectedHitsEnergy_;
-  std::vector<double> injectedHitsTime_;
-  std::vector<int> injectedHitsCells_;
-  std::vector<PCaloHit> injectedHits_;
 };
 
 #endif

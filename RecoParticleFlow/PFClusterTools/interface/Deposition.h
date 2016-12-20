@@ -59,6 +59,11 @@ public:
 
 	virtual ~Deposition();
 
+	/*
+	 * Streams a description of this deposition into the supplied stream.
+	 * */
+	friend std::ostream& operator<<(std::ostream& s, const Deposition& d);
+
 private:
 	//DetectorElement* myElement;
 	DetectorElementPtr myElementPtr;
@@ -71,11 +76,6 @@ private:
 
 typedef boost::shared_ptr<Deposition> DepositionPtr;
 
-/*
- * Streams a description of this deposition into the supplied stream.
- * */
-std::ostream& operator<<(std::ostream& s, const Deposition& d);
- 
 }
 
 #endif /*DEPOSITION_HH_*/

@@ -160,7 +160,7 @@ public:
         return innerDetId_;
     }
     // direction how the hits were sorted in the original seed
-    const PropagationDirection& seedDirection() const {
+    PropagationDirection seedDirection() const {
         return seedDir_;
     }
 
@@ -169,7 +169,7 @@ public:
      *   Event, the reference may be invalid. Its validity should be tested,
      *   before the reference is actually used.
      */
-    const edm::RefToBase<TrajectorySeed>& seedRef() const {
+    edm::RefToBase<TrajectorySeed> seedRef() const {
         return seedRef_;
     }
     void setSeedRef(const edm::RefToBase<TrajectorySeed> &r) {

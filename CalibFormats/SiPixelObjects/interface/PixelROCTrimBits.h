@@ -17,10 +17,6 @@ namespace pos{
 *
 *   A longer explanation will be placed here later
 */
-  class PixelROCTrimBits;
-  std::ostream& operator<<(std::ostream& s, const PixelROCTrimBits& trimbits);
-
-
   class PixelROCTrimBits {
 
   public:

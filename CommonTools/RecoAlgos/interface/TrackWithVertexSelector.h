@@ -10,7 +10,6 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
-#include "DataFormats/Common/interface/ValueMap.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
@@ -24,21 +23,14 @@ class TrackWithVertexSelector {
 
       void init(const edm::Event & event, const edm::EventSetup&) {init(event);}
       void init(const edm::Event & event);
-      
+
+
       bool operator()(const reco::Track &t) const ;
       bool operator()(const reco::Track &t, const edm::Event &iEvent) {
          init(iEvent); return (*this)(t);   
       }
-
-      bool operator()(const reco::TrackRef &t) const ;
-      bool operator()(const reco::TrackRef &t, const edm::Event &iEvent) {
-         init(iEvent); return (*this)(t);   
-      }
       bool testTrack(const reco::Track &t) const ;
       bool testVertices(const reco::Track &t, const reco::VertexCollection &vtxs) const ;
-
-      bool testTrack(const reco::TrackRef &t) const ;
-      bool testVertices(const reco::TrackRef &t, const reco::VertexCollection &vtxs) const ;
    private:
       uint32_t numberOfValidHits_;
       uint32_t numberOfValidPixelHits_;
@@ -51,13 +43,10 @@ class TrackWithVertexSelector {
 
       uint32_t      nVertices_;
       edm::EDGetTokenT<reco::VertexCollection> vertexToken_;
-      edm::EDGetTokenT<edm::ValueMap<float> > timesToken_, timeResosToken_;
       bool          vtxFallback_;
-      double        zetaVtx_, rhoVtx_, nSigmaDtVertex_;
+      double        zetaVtx_, rhoVtx_;
 
       reco::VertexCollection const * vcoll_ = nullptr;
-      edm::ValueMap<float> const * timescoll_ = nullptr;
-      edm::ValueMap<float> const * timeresoscoll_ = nullptr;
       typedef math::XYZPoint Point;
 };
 

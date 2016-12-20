@@ -1,4 +1,6 @@
 #include <iostream>
+// force standard math
+#define IN_DICTBUILD
 #include "DataFormats/GeometrySurface/interface/TkRotation.h"
 #include "DataFormats/GeometrySurface/interface/GloballyPositioned.h"
 #include "DataFormats/GeometrySurface/interface/BoundPlane.h"

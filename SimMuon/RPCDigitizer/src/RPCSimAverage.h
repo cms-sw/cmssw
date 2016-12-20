@@ -41,7 +41,7 @@ class RPCSimAverage : public RPCSim
   int getClSize(float posX, CLHEP::HepRandomEngine*);
 
  private:
-  void init() override{};
+  void init(){};
  private:
   double aveEff;
   double aveCls;

@@ -39,7 +39,6 @@ class SiPixelArrayBuffer
   inline bool inside(int row, int col) const;
   inline void set_adc( int row, int col, int adc);
   inline void set_adc( const SiPixelCluster::PixelPos&, int adc);
-  inline void add_adc( int row, int col, int adc);
   int size() const { return pixel_vec.size();}
 
   /// Definition of indexing within the buffer.
@@ -88,9 +87,5 @@ void SiPixelArrayBuffer::set_adc( const SiPixelCluster::PixelPos& pix, int adc)
   pixel_vec[index(pix)] = adc;
 }
 
-void SiPixelArrayBuffer::add_adc( int row, int col, int adc)
-{
-  pixel_vec[index(row,col)] += adc;
-}
 
 #endif

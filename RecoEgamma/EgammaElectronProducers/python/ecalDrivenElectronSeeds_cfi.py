@@ -36,9 +36,5 @@ phase2_hgcal.toModify(
     ecalDrivenElectronSeeds,
     endcapSuperClusters = cms.InputTag('particleFlowSuperClusterHGCal')
 )
-phase2_hgcal.toModify(
-    ecalDrivenElectronSeeds.SeedConfiguration,
-    allowHGCal = cms.bool(True)
-)
 
 

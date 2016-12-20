@@ -84,7 +84,7 @@ class EcalRecHitWorkerRecover : public EcalRecHitWorkerBaseClass {
                 const CaloSubdetectorGeometry * ebGeom_;
 		const CaloGeometry* geo_;
 
-                std::unique_ptr<EcalRecHitSimpleAlgo> rechitMaker_;
+                EcalRecHitSimpleAlgo * rechitMaker_;
 
                 std::set<DetId> recoveredDetIds_EB_;
                 std::set<DetId> recoveredDetIds_EE_;

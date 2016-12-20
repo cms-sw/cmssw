@@ -77,7 +77,6 @@ class QuadrupletSeedMerger {
 
  public:
 
-  explicit QuadrupletSeedMerger(const edm::ParameterSet& iConfig, edm::ConsumesCollector&& iC): QuadrupletSeedMerger(iConfig, iC) {}
   explicit QuadrupletSeedMerger(const edm::ParameterSet& iConfig, edm::ConsumesCollector& iC);
   QuadrupletSeedMerger(const edm::ParameterSet& iConfig, const edm::ParameterSet& seedCreatorConfig, edm::ConsumesCollector& iC);
   ~QuadrupletSeedMerger();

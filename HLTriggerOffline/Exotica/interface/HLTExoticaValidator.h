@@ -48,10 +48,10 @@ protected:
 private:
     virtual void beginJob();
     /// Method called by the framework just before dqmBeginRun()
-    virtual void dqmBeginRun(const edm::Run &iRun, const edm::EventSetup & iSetup) override;
+    virtual void dqmBeginRun(const edm::Run &iRun, const edm::EventSetup & iSetup);
     /// Method called for each event.
-    virtual void analyze(const edm::Event & iEvent, const edm::EventSetup & iSetup) override;
-    virtual void endRun(const edm::Run & iRun, const edm::EventSetup & iSetup) override;
+    virtual void analyze(const edm::Event & iEvent, const edm::EventSetup & iSetup);
+    virtual void endRun(const edm::Run & iRun, const edm::EventSetup & iSetup);
     virtual void endJob();
 
     /// Copy (to be modified) of the input ParameterSet from configuration file.

@@ -30,20 +30,20 @@ class TKStatus : public edm::EDAnalyzer {
  protected:
 
   // BeginJob
-  void beginJob() override;
+  void beginJob();
 
   // BeginRun
-  void beginRun(const edm::Run& r, const edm::EventSetup& c) override;
+  void beginRun(const edm::Run& r, const edm::EventSetup& c);
 
-  void analyze(const edm::Event& e, const edm::EventSetup& c) override ;
+  void analyze(const edm::Event& e, const edm::EventSetup& c) ;
 
   void beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
-			    const edm::EventSetup& context) override ;
+			    const edm::EventSetup& context) ;
 
   void endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
-			  const edm::EventSetup& c) override;
+			  const edm::EventSetup& c);
   // EndRun
-  void endRun(const edm::Run& r, const edm::EventSetup& c) override;
+  void endRun(const edm::Run& r, const edm::EventSetup& c);
   // Endjob
   void endJob(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& c);
 

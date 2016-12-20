@@ -36,7 +36,6 @@ namespace edm
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/Common/interface/Handle.h"
 
-#include "RecoLocalCalo/HGCalRecAlgos/interface/ClusterTools.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterLazyTools.h"
 
 class ElectronSeedProducer : public edm::stream::EDProducer<>
@@ -105,9 +104,6 @@ class ElectronSeedProducer : public edm::stream::EDProducer<>
 
     bool fromTrackerSeeds_;
     bool prefilteredSeeds_;
-
-    bool allowHGCal_;
-    std::unique_ptr<hgcal::ClusterTools> hgcClusterTools_;
 
  } ;
 

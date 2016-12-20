@@ -126,8 +126,7 @@ HFShowerLibrary::HFShowerLibrary(std::string & name, const DDCompactView & cpv,
 
 HFShowerLibrary::~HFShowerLibrary() {
   if (hf)     hf->Close();
-  if (fibre)  delete   fibre;
-  fibre  = 0;
+  if (fibre)  delete   fibre;  fibre  = 0;
   if (photo)  delete photo;
 }
 

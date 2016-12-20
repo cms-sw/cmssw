@@ -83,7 +83,7 @@ class FlavorHistoryFilter : public edm::EDFilter {
 
    private:
       virtual bool filter(edm::Event&, const edm::EventSetup&) override;
-      virtual void endJob() override ;
+      virtual void endJob() ;
 
       // ----------member data ---------------------------
       edm::EDGetTokenT<reco::FlavorHistoryEvent>   bsrcToken_;           // Input b flavor history collection name

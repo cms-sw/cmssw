@@ -1,5 +1,5 @@
 #ifndef ElectronicsQuantity_h
-#define ElectronicsQuantity_h
+#define ElectronicsQauntity_h
 
 /**
  *	file:		ElectronicsQuantity.h

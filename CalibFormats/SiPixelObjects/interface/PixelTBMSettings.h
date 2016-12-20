@@ -59,19 +59,20 @@ namespace pos{
 				  std::ofstream *out2 = NULL
 				  ) const ;
 
-    unsigned char getAnalogInputBias() const {return analogInputBias_;}
+    friend std::ostream& operator<<(std::ostream& s, const PixelTBMSettings& mask);
+
+    unsigned char getAnalogInputBias() {return analogInputBias_;}
     void setAnalogInputBias(unsigned char analogInputBias) {analogInputBias_=analogInputBias;}
     
-    unsigned char getAnalogOutputBias() const {return analogOutputBias_;}
+    unsigned char getAnalogOutputBias() {return analogOutputBias_;}
     void setAnalogOutputBias(unsigned char analogOutputBias) {analogOutputBias_=analogOutputBias;}
     
-    unsigned char getAnalogOutputGain() const {return analogOutputGain_;}
+    unsigned char getAnalogOutputGain() {return analogOutputGain_;}
     void setAnalogOutputGain(unsigned char analogOutputGain) {analogOutputGain_=analogOutputGain;}
     
     // Added by Dario (Apr 2008)
-    bool getMode(void)      const {return singlemode_;}
+    bool getMode(void)      {return singlemode_;}
     void setMode(bool mode) {singlemode_ = mode;}
-    PixelROCName const& getROCName() const { return rocid_;}
     void setROCName(std::string rocname){
       	PixelROCName tmp(rocname);
 	rocid_=tmp;
@@ -89,8 +90,6 @@ namespace pos{
     bool singlemode_;
 
   };
-
-  std::ostream& operator<<(std::ostream& s, const PixelTBMSettings& mask);
 }
 /* @} */
 #endif

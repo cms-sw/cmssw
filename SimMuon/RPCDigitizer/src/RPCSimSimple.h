@@ -29,7 +29,7 @@ class RPCSimSimple : public RPCSim
   void simulateNoise(const RPCRoll*, CLHEP::HepRandomEngine*) override;
 
  private:
-  void init() override{};
+  void init(){};
 
   RPCSynchronizer* _rpcSync;
   int N_hits;

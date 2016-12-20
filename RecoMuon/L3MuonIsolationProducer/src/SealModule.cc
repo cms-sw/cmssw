@@ -11,6 +11,12 @@ DEFINE_FWK_MODULE(L3MuonIsolationProducer);
 #include "L3MuonCombinedRelativeIsolationProducer.h"
 DEFINE_FWK_MODULE(L3MuonCombinedRelativeIsolationProducer);
 
+#include "RecoTracker/TkTrackingRegions/interface/TrackingRegionProducerFactory.h"
+#include "RecoTracker/TkTrackingRegions/interface/TrackingRegionProducer.h"
+#include "IsolationRegionAroundL3Muon.h"
+
+DEFINE_EDM_PLUGIN(TrackingRegionProducerFactory, IsolationRegionAroundL3Muon, "IsolationRegionAroundL3Muon");
+
 
 #include "RecoMuon/L3MuonIsolationProducer/src/L3MuonSumCaloPFIsolationProducer.h"
 DEFINE_FWK_MODULE(L3MuonSumCaloPFIsolationProducer);

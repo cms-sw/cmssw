@@ -31,7 +31,7 @@ public:
 
    REGISTER_PROXYBUILDER_METHODS();
   
-   virtual void setItem(const FWEventItem* iItem) override;
+   virtual void setItem(const FWEventItem* iItem);
 private:
    FWTrackProxyBuilder(const FWTrackProxyBuilder&); // stop default
 

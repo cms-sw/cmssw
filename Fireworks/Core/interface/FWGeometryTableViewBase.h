@@ -2,7 +2,7 @@
 #define Fireworks_Core_FWGeometryTableViewBase_h
 
 #ifndef __CINT__
-#include <memory>
+#include <boost/shared_ptr.hpp>
 #endif
 
 
@@ -140,7 +140,7 @@ protected:
    TEveScene*    m_eveScene;
 
 #ifndef __CINT__
-   // std::vector<std::shared_ptr<FWParameterSetterBase> > m_setters;
+   // std::vector<boost::shared_ptr<FWParameterSetterBase> > m_setters;
 #endif
    //   void resetSetters();
    //   void makeSetter(TGCompositeFrame* frame, FWParameterBase* param);

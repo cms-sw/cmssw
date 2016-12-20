@@ -43,10 +43,10 @@ class HLTBTagPerformanceAnalyzer : public DQMEDAnalyzer {
 		public:
 			explicit HLTBTagPerformanceAnalyzer(const edm::ParameterSet&);
 			~HLTBTagPerformanceAnalyzer();
-			void dqmBeginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) override;
+			void dqmBeginRun(const edm::Run& iRun, const edm::EventSetup& iSetup);
 
 		private:
-			virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+			virtual void analyze(const edm::Event&, const edm::EventSetup&);
 			void bookHistograms(DQMStore::IBooker & ibooker, edm::Run const & iRun,edm::EventSetup const &  iSetup ) override;
 
 		struct JetRefCompare :

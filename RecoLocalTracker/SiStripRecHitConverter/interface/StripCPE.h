@@ -27,7 +27,7 @@ public:
 	    const SiStripBackPlaneCorrection&,
 	    const SiStripConfObject&,
 	    const SiStripLatency&);    
-  LocalVector driftDirection(const StripGeomDetUnit* det) const override;
+  LocalVector driftDirection(const StripGeomDetUnit* det) const;
 
  struct Param {
     Param() : topology(nullptr) {}

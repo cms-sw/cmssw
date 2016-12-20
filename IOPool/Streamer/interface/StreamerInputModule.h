@@ -33,7 +33,7 @@ namespace edm
       if(pr_.get() != nullptr) pr_->closeFile();
     }
 
-    virtual bool checkNextEvent() override;
+    virtual bool checkNextEvent();
 
     //ProductRegistry const* prod_reg_;
     edm::propagate_const<std::unique_ptr<Producer>> pr_;

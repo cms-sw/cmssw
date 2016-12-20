@@ -61,7 +61,7 @@ private:
 
     virtual void produce(edm::Event&, const edm::EventSetup&) override final;
 
-    virtual void endJob() override;
+    virtual void endJob();
 
 private:
     

@@ -32,7 +32,7 @@ trackingPhase2PU140.toReplaceWith(highPtTripletStepSeedClusterMask, seedClusterR
     )
 )
 trackingPhase2PU140.toReplaceWith(pixelPairStepSeedClusterMask, seedClusterRemoverPhase2.clone(
-    trajectories = cms.InputTag("detachedQuadStepSeeds"),
+    trajectories = cms.InputTag("pixelPairStepSeeds"),
     oldClusterRemovalInfo = cms.InputTag("highPtTripletStepSeedClusterMask")
     )
 )
@@ -95,35 +95,26 @@ trackingPhase2PU140.toModify(tripletElectronSeedLayers,
     FPix = dict(skipClusters = 'pixelPairStepSeedClusterMask')
 )
 
-from RecoTracker.TkTrackingRegions.globalTrackingRegionFromBeamSpot_cfi import globalTrackingRegionFromBeamSpot as _globalTrackingRegionFromBeamSpot
-tripletElectronTrackingRegions = _globalTrackingRegionFromBeamSpot.clone(RegionPSet = dict(
+import RecoTracker.TkSeedGenerator.GlobalSeedsFromTriplets_cff
+from RecoTracker.TkTrackingRegions.GlobalTrackingRegionFromBeamSpot_cfi import RegionPsetFomBeamSpotBlock
+tripletElectronSeeds = RecoTracker.TkSeedGenerator.GlobalSeedsFromTriplets_cff.globalSeedsFromTriplets.clone(
+    RegionFactoryPSet = RegionPsetFomBeamSpotBlock.clone(
+    ComponentName = cms.string('GlobalRegionProducerFromBeamSpot'),
+    RegionPSet = RegionPsetFomBeamSpotBlock.RegionPSet.clone(
     ptMin = 1.0,
     originRadius = 0.02,
     nSigmaZ = 4.0
-))
-from RecoTracker.TkHitPairs.hitPairEDProducer_cfi import hitPairEDProducer as _hitPairEDProducer
-tripletElectronHitDoublets = _hitPairEDProducer.clone(
-    seedingLayers = "tripletElectronSeedLayers",
-    trackingRegions = "tripletElectronTrackingRegions",
-    maxElement = 0,
-    produceIntermediateHitDoublets = True,
+    )
+    )
 )
-from RecoPixelVertexing.PixelTriplets.pixelTripletHLTEDProducer_cfi import pixelTripletHLTEDProducer as _pixelTripletHLTEDProducer
-import RecoPixelVertexing.PixelLowPtUtilities.LowPtClusterShapeSeedComparitor_cfi
-tripletElectronHitTriplets = _pixelTripletHLTEDProducer.clone(
-    doublets = "tripletElectronHitDoublets",
-    maxElement = 1000000,
-    produceSeedingHitSets = True,
+tripletElectronSeeds.OrderedHitsFactoryPSet.SeedingLayers = cms.InputTag('tripletElectronSeedLayers')
+trackingPhase1PU70.toModify(tripletElectronSeeds,
+    OrderedHitsFactoryPSet = dict(maxElement = cms.uint32(0)), # not sure if this has any effect
 )
-from RecoTracker.TkSeedGenerator.seedCreatorFromRegionConsecutiveHitsEDProducer_cff import seedCreatorFromRegionConsecutiveHitsEDProducer as _seedCreatorFromRegionConsecutiveHitsEDProducer
-tripletElectronSeeds = _seedCreatorFromRegionConsecutiveHitsEDProducer.clone(
-    seedingHitSets = "tripletElectronHitTriplets",
-)
-trackingPhase1PU70.toModify(tripletElectronHitTriplets,
-    maxElement = 0, # not sure if this has any effect
-)
-trackingPhase2PU140.toModify(tripletElectronHitTriplets,
-    maxElement = 0,
+trackingPhase2PU140.toModify(tripletElectronSeeds,
+    ClusterCheckPSet = dict( doClusterCheck = False ),
+    OrderedHitsFactoryPSet = dict( GeneratorPSet = dict( maxElement = 0 )),
+    SeedCreatorPSet = dict( magneticField = '', propagator = 'PropagatorWithMaterial')
 )
 
 from RecoLocalTracker.SubCollectionProducers.SeedClusterRemover_cfi import seedClusterRemover
@@ -168,23 +159,12 @@ trackingPhase1.toModify(pixelPairElectronSeedLayers,
     ]
 )
 
-from RecoTracker.TkTrackingRegions.globalTrackingRegionWithVertices_cff import globalTrackingRegionWithVertices as _globalTrackingRegionWithVertices
-pixelPairElectronTrackingRegions = _globalTrackingRegionWithVertices.clone(RegionPSet = dict(
-    ptMin = 1.0,
-    originRadius = 0.015,
-    fixedError = 0.03,
-))
-from RecoTracker.TkHitPairs.hitPairEDProducer_cfi import hitPairEDProducer as _hitPairEDProducer
-pixelPairElectronHitDoublets = _hitPairEDProducer.clone(
-    seedingLayers = "pixelPairElectronSeedLayers",
-    trackingRegions = "pixelPairElectronTrackingRegions",
-    maxElement = 1000000,
-    produceSeedingHitSets = True,
-)
-from RecoTracker.TkSeedGenerator.seedCreatorFromRegionConsecutiveHitsEDProducer_cff import seedCreatorFromRegionConsecutiveHitsEDProducer as _seedCreatorFromRegionConsecutiveHitsEDProducer
-pixelPairElectronSeeds = _seedCreatorFromRegionConsecutiveHitsEDProducer.clone(
-    seedingHitSets = "pixelPairElectronHitDoublets",
-)
+import RecoTracker.TkSeedGenerator.GlobalSeedsFromPairsWithVertices_cff
+pixelPairElectronSeeds = RecoTracker.TkSeedGenerator.GlobalSeedsFromPairsWithVertices_cff.globalSeedsFromPairsWithVertices.clone()
+pixelPairElectronSeeds.RegionFactoryPSet.RegionPSet.ptMin = 1.0
+pixelPairElectronSeeds.RegionFactoryPSet.RegionPSet.originRadius = 0.015
+pixelPairElectronSeeds.RegionFactoryPSet.RegionPSet.fixedError = 0.03
+pixelPairElectronSeeds.OrderedHitsFactoryPSet.SeedingLayers = cms.InputTag('pixelPairElectronSeedLayers')
 
 stripPairElectronSeedLayers = cms.EDProducer("SeedingLayersEDProducer",
     layerList = cms.vstring('TIB1+TIB2', 'TIB1+TID1_pos', 'TIB1+TID1_neg', 'TID2_pos+TID3_pos', 'TID2_neg+TID3_neg',
@@ -213,24 +193,12 @@ stripPairElectronSeedLayers = cms.EDProducer("SeedingLayersEDProducer",
     )
 )
 
-from RecoTracker.TkTrackingRegions.globalTrackingRegionFromBeamSpotFixedZ_cfi import globalTrackingRegionFromBeamSpotFixedZ as _globalTrackingRegionFromBeamSpotFixedZ
-stripPairElectronTrackingRegions = _globalTrackingRegionFromBeamSpotFixedZ.clone(RegionPSet = dict(
-    ptMin = 1.0,
-    originHalfLength = 12.0,
-    originRadius = 0.4,
-))
-from RecoTracker.TkHitPairs.hitPairEDProducer_cfi import hitPairEDProducer as _hitPairEDProducer
-stripPairElectronHitDoublets = _hitPairEDProducer.clone(
-    seedingLayers = "stripPairElectronSeedLayers",
-    trackingRegions = "stripPairElectronTrackingRegions",
-    maxElement = 1000000,
-    produceSeedingHitSets = True,
-)
-from RecoTracker.TkSeedGenerator.seedCreatorFromRegionConsecutiveHitsEDProducer_cff import seedCreatorFromRegionConsecutiveHitsEDProducer as _seedCreatorFromRegionConsecutiveHitsEDProducer
-stripPairElectronSeeds = _seedCreatorFromRegionConsecutiveHitsEDProducer.clone(
-    seedingHitSets = "stripPairElectronHitDoublets",
-)
-
+import RecoTracker.TkSeedGenerator.GlobalMixedSeeds_cff
+stripPairElectronSeeds = RecoTracker.TkSeedGenerator.GlobalMixedSeeds_cff.globalMixedSeeds.clone()
+stripPairElectronSeeds.OrderedHitsFactoryPSet.SeedingLayers = 'stripPairElectronSeedLayers'
+stripPairElectronSeeds.RegionFactoryPSet.RegionPSet.ptMin = 1.0
+stripPairElectronSeeds.RegionFactoryPSet.RegionPSet.originHalfLength = 12.0
+stripPairElectronSeeds.RegionFactoryPSet.RegionPSet.originRadius = 0.4
 
 ###This seed collection is produced for electron reconstruction
 import RecoTracker.TkSeedGenerator.GlobalCombinedSeeds_cfi
@@ -263,6 +231,7 @@ trackingPhase1PU70.toModify(newCombinedSeeds, seedCollections = [
 trackingPhase2PU140.toModify(newCombinedSeeds, seedCollections = [
     'initialStepSeeds',
     'highPtTripletStepSeeds',
+    'pixelPairStepSeeds',
     'tripletElectronSeeds'
 ])
 
@@ -271,18 +240,11 @@ electronSeedsSeq = cms.Sequence( initialStepSeedClusterMask*
                                  mixedTripletStepSeedClusterMask*
                                  pixelLessStepSeedClusterMask*
                                  tripletElectronSeedLayers*
-                                 tripletElectronTrackingRegions*
-                                 tripletElectronHitDoublets*
-                                 tripletElectronHitTriplets*
                                  tripletElectronSeeds*
                                  tripletElectronClusterMask*
                                  pixelPairElectronSeedLayers*
-                                 pixelPairElectronTrackingRegions*
-                                 pixelPairElectronHitDoublets*
                                  pixelPairElectronSeeds*
                                  stripPairElectronSeedLayers*
-                                 stripPairElectronTrackingRegions*
-                                 stripPairElectronHitDoublets*
                                  stripPairElectronSeeds*
                                  newCombinedSeeds)
 _electronSeedsSeq_Phase1 = electronSeedsSeq.copy()
@@ -293,9 +255,6 @@ trackingPhase1PU70.toReplaceWith(electronSeedsSeq, cms.Sequence(
     highPtTripletStepSeedClusterMask*
     pixelPairStepSeedClusterMask*
     tripletElectronSeedLayers*
-    tripletElectronTrackingRegions*
-    tripletElectronHitDoublets*
-    tripletElectronHitTriplets*
     tripletElectronSeeds*
     newCombinedSeeds
 ))
@@ -304,9 +263,6 @@ trackingPhase2PU140.toReplaceWith(electronSeedsSeq, cms.Sequence(
     highPtTripletStepSeedClusterMask*
     pixelPairStepSeedClusterMask*
     tripletElectronSeedLayers*
-    tripletElectronTrackingRegions*
-    tripletElectronHitDoublets*
-    tripletElectronHitTriplets*
     tripletElectronSeeds*
     newCombinedSeeds
 ))

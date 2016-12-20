@@ -46,7 +46,7 @@ public:
    virtual void buildViewType(const reco::GsfElectron& iData, unsigned int iIndex, TEveElement& oItemHolder, FWViewType::EType type , const FWViewContext*) override;
 
    using FWSimpleProxyBuilderTemplate<reco::GsfElectron>::setItem;
-   virtual void setItem(const FWEventItem* iItem) override;
+   virtual void setItem(const FWEventItem* iItem);
 
    REGISTER_PROXYBUILDER_METHODS();
 

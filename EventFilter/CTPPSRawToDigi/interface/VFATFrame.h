@@ -20,6 +20,7 @@ class VFATFrame
 {
   public:
     typedef uint16_t word;
+
   public:
     VFATFrame(const word* _data = NULL);
 
@@ -29,7 +30,6 @@ class VFATFrame
       presenceFlags = copy.presenceFlags;
       daqErrorFlags = copy.daqErrorFlags;
       numberOfClusters = copy.numberOfClusters;
-
     }
 
     virtual ~VFATFrame() {}
@@ -71,7 +71,6 @@ class VFATFrame
     {
       return data[0];
     }
-   
 
     /// Sets presence flags.
     void setPresenceFlags(uint8_t v)
@@ -131,7 +130,6 @@ class VFATFrame
     /// Returns false if any of the groups (in BC, EC and ID words) is present but wrong.
     bool checkFootprint() const;
 
-
     /// Checks the validity of frame (CRC and daqErrorFlags).
     /// Returns false if daqErrorFlags is non-zero.
     /// Returns false if the CRC is present and invalid.
@@ -152,7 +150,7 @@ class VFATFrame
     /// If binary is true, binary format is used.
     void Print(bool binary = false) const;
 
-  protected:
+  private:
     /** Raw data frame as sent by electronics.
     * The container is organized as follows (reversed Figure 8 at page 23 of VFAT2 manual):
     * \verbatim
@@ -166,7 +164,7 @@ class VFATFrame
     * \endverbatim
     **/
     word data[12];
-  private: 
+
     /// Flag indicating the presence of various components.
     ///   bit 1: "BC word" (buffer index 11)
     ///   bit 2: "EC word" (buffer index 10)

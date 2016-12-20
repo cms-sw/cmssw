@@ -47,11 +47,11 @@ public:
  
 private:
   /// initialization for each layer
-  void initParameters() override;
+  void initParameters();
 
-  virtual int readoutElement(int strip) const override;
+  virtual int readoutElement(int strip) const;
 
-  float calculateAmpResponse(float t) const override;
+  float calculateAmpResponse(float t) const;
   CSCStripAmpResponse theAmpResponse;
 
   void runComparator(std::vector<CSCComparatorDigi> & result, CLHEP::HepRandomEngine*);

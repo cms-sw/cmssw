@@ -119,13 +119,13 @@ class QcdLowPtDQM : public DQMEDAnalyzer {
 
   QcdLowPtDQM(const edm::ParameterSet &parameters);
   virtual ~QcdLowPtDQM();
-  void dqmBeginRun(const edm::Run &, const edm::EventSetup &) override;
+  void dqmBeginRun(const edm::Run &, const edm::EventSetup &);
   void bookHistograms(DQMStore::IBooker&, edm::Run const&,
                       edm::EventSetup const&) override;
-  void analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) override;
+  void analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup);
   void endLuminosityBlock(const edm::LuminosityBlock &l,
-                          const edm::EventSetup &iSetup) override;
-  void endRun(const edm::Run &r, const edm::EventSetup &iSetup) override;
+                          const edm::EventSetup &iSetup);
+  void endRun(const edm::Run &r, const edm::EventSetup &iSetup);
 
  private:
   void book1D(DQMStore::IBooker &, std::vector<MonitorElement *> &mes, const std::string &name,

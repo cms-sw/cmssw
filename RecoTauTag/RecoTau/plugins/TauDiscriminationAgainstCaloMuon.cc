@@ -98,7 +98,7 @@ class TauDiscriminationAgainstCaloMuon final : public TauDiscriminationProducerB
   ~TauDiscriminationAgainstCaloMuon() {} 
 
   // called at the beginning of every event
-  void beginEvent(const edm::Event&, const edm::EventSetup&) override;
+  void beginEvent(const edm::Event&, const edm::EventSetup&);
 
   double discriminate(const TauRef&) const override;
 

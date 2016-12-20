@@ -30,7 +30,7 @@ class RPCSimTriv : public RPCSim
                      CLHEP::HepRandomEngine*) override;
 
  private:
-  void init() override{};
+  void init(){};
 
   RPCSynchronizer* _rpcSync;
 

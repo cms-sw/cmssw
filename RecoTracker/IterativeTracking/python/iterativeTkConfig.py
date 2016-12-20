@@ -63,6 +63,7 @@ _iterations_trackingPhase2PU140 = [
     "LowPtQuadStep",
     "LowPtTripletStep",
     "DetachedQuadStep",
+    "PixelPairStep",
 ]
 _iterations_muonSeeded = [
     "MuonSeededStepInOut",
@@ -142,14 +143,9 @@ def createEarlySequence(eraName, postfix, modDict):
         seq += modDict[it]
     return seq
 
-def iterationAlgos(postfix, includeSequenceName=False):
+def iterationAlgos(postfix):
     muonVariable = "_iterations_muonSeeded"+postfix
-    iterations = globals()["_iterations"+postfix] + globals().get(muonVariable, _iterations_muonSeeded)
-
-    if includeSequenceName:
-        return [(_modulePrefix(i), i) for i in iterations]
-    else:
-        return [_modulePrefix(i) for i in iterations]
+    return [_modulePrefix(i) for i in globals()["_iterations"+postfix] + globals().get(muonVariable, _iterations_muonSeeded)]
 
 def _seedOrTrackProducers(postfix, typ):
     ret = []

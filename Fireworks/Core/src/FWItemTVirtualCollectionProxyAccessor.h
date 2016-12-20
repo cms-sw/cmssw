@@ -19,7 +19,7 @@
 //
 
 // system include files
-#include <memory>
+#include "boost/shared_ptr.hpp"
 
 // user include files
 #include "Fireworks/Core/interface/FWItemAccessorBase.h"
@@ -31,7 +31,7 @@ class FWItemTVirtualCollectionProxyAccessor : public FWItemAccessorBase {
 
 public:
    FWItemTVirtualCollectionProxyAccessor(const TClass* iType,
-                                         std::shared_ptr<TVirtualCollectionProxy> iProxy,
+                                         boost::shared_ptr<TVirtualCollectionProxy> iProxy,
                                          size_t iOffset=0);
    virtual ~FWItemTVirtualCollectionProxyAccessor();
 
@@ -57,7 +57,7 @@ private:
 
    // ---------- member data --------------------------------
    const TClass* m_type;
-   std::shared_ptr<TVirtualCollectionProxy> m_colProxy; //should be something other than shared_ptr
+   boost::shared_ptr<TVirtualCollectionProxy> m_colProxy; //should be something other than shared_ptr
    mutable const void * m_data;
    size_t m_offset;
 };

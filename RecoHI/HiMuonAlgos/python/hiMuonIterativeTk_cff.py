@@ -1,10 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-from RecoTracker.TkSeedGenerator.trackerClusterCheck_cfi import trackerClusterCheck as _trackerClusterCheck
-hiRegitMuClusterCheck = _trackerClusterCheck.clone(
-    doClusterCheck = False # do not check for max number of clusters pixel or strips
-)
-
 from RecoHI.HiMuonAlgos.HiRegitMuonInitialStep_cff import *
 from RecoHI.HiMuonAlgos.HiRegitMuonPixelPairStep_cff import *
 from RecoHI.HiMuonAlgos.HiRegitMuonDetachedTripletStep_cff import *
@@ -36,8 +31,7 @@ hiGeneralAndRegitMuTracks = RecoTracker.FinalTrackSelectors.trackListMerger_cfi.
     makeReKeyedSeeds = cms.untracked.bool(False)
     )
 
-hiRegitMuTracking = cms.Sequence(hiRegitMuClusterCheck
-                                 *hiRegitMuonInitialStep
+hiRegitMuTracking = cms.Sequence(hiRegitMuonInitialStep
                                  *hiRegitMuonPixelPairStep
                                  *hiRegitMuonMixedTripletStep
                                  *hiRegitMuonPixelLessStep

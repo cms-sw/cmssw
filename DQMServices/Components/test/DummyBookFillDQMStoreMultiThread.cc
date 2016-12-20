@@ -147,14 +147,14 @@ class DummyBookFillDQMStoreMultiThread :  public DQMEDAnalyzer {
 
  private:
   virtual void beginJob();
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+  virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endJob();
 
-  virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
+  virtual void endRun(edm::Run const&, edm::EventSetup const&);
   virtual void beginLuminosityBlock(edm::LuminosityBlock const&,
-                                    edm::EventSetup const&) override;
+                                    edm::EventSetup const&);
   virtual void endLuminosityBlock(edm::LuminosityBlock const&,
-                                  edm::EventSetup const&) override;
+                                  edm::EventSetup const&);
 
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
   void fillerDispose();

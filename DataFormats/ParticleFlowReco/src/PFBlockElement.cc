@@ -33,10 +33,10 @@ std::ostream& reco::operator<<( std::ostream& out,
   
   if(! out) return out;
   
-  out<<"element "<<element.index()<<"- type "<<element.type()<<" ";
+  out<<"element "<<element.index()<<"- type "<<element.type_<<" ";
   
   try {
-    switch(element.type()) {
+    switch(element.type_) {
     case PFBlockElement::TRACK:
       {
         const reco::PFBlockElementTrack& et =

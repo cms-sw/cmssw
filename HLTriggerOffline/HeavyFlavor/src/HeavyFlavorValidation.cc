@@ -55,7 +55,7 @@ class HeavyFlavorValidation : public DQMEDAnalyzer {
     explicit HeavyFlavorValidation(const edm::ParameterSet&);
     ~HeavyFlavorValidation();
   protected:
-    void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
+    void dqmBeginRun(const edm::Run&, const edm::EventSetup&);
     void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
     virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
   private:

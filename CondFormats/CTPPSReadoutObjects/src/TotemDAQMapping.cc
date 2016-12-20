@@ -16,6 +16,11 @@ using namespace std;
 
 std::ostream& operator << (std::ostream& s, const TotemVFATInfo &vi)
 {
+  if (vi.type == TotemVFATInfo::data)
+    s << "type=data, ";
+  else
+    s << "type=  CC, ";
+
   s << vi.symbolicID << ", hw id=0x" << hex << vi.hwID << dec;
 
   return s;
@@ -28,7 +33,7 @@ void TotemDAQMapping::insert(const TotemFramePosition &fp, const TotemVFATInfo &
   auto it = VFATMapping.find(fp);  
   if (it != VFATMapping.end())
   {
-    cerr << "WARNING in DAQMapping::insert > Overwriting entry at " << fp << ". Previous: " << endl 
+    cerr << "WARNING in DAQMapping::Insert > Overwriting entry at " << fp << ". Previous: " << endl 
       << "    " << VFATMapping[fp] << "," << endl << "  new: " << endl << "    " << vi << ". " << endl;
   }
 

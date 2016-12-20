@@ -48,7 +48,7 @@ class HFFilter : public edm::EDFilter {
       ~HFFilter();
 
       virtual bool filter(edm::Event&, const edm::EventSetup&) override;
-      virtual void endJob() override ;
+      virtual void endJob() ;
 
    private:
       // ----------member data ---------------------------

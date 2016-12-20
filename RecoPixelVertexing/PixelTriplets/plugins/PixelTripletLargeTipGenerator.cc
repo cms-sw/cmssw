@@ -1,6 +1,5 @@
 #include "RecoPixelVertexing/PixelTriplets/plugins/PixelTripletLargeTipGenerator.h"
 #include "RecoTracker/TkHitPairs/interface/HitPairGeneratorFromLayerPair.h"
-#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 #include "RecoPixelVertexing/PixelTriplets/interface/ThirdHitPredictionFromCircle.h"
 #include "ThirdHitRZPrediction.h"
@@ -57,18 +56,6 @@ PixelTripletLargeTipGenerator::PixelTripletLargeTipGenerator(const edm::Paramete
 
 PixelTripletLargeTipGenerator::~PixelTripletLargeTipGenerator() {}
 
-void PixelTripletLargeTipGenerator::fillDescriptions(edm::ParameterSetDescription& desc) {
-  HitTripletGeneratorFromPairAndLayers::fillDescriptions(desc);
-  // Defaults for the extraHit*tolerance are set to 0 here since that
-  // was already the case in practice in all offline occurrances.
-  desc.add<double>("extraHitRPhitolerance", 0); // default in old python was 0.032
-  desc.add<double>("extraHitRZtolerance", 0); // default in old python was 0.037
-  desc.add<bool>("useMultScattering", true);
-  desc.add<bool>("useBending", true);
-  desc.add<bool>("useFixedPreFiltering", false);
-  desc.add<double>("phiPreFiltering", 0.3);
-}
-
 namespace {
   inline
   bool intersect(Range &range, const Range &second)
@@ -94,28 +81,16 @@ void PixelTripletLargeTipGenerator::hitTriplets(const TrackingRegion& region,
   
   if (doublets.empty()) return;
 
-  assert(theLayerCache);
-  hitTriplets(region, result, ev, es, doublets,thirdLayers, nullptr, *theLayerCache);
-}
-
-void PixelTripletLargeTipGenerator::hitTriplets(const TrackingRegion& region, OrderedHitTriplets& result,
-                                                const edm::Event& ev, const edm::EventSetup& es,
-                                                const HitDoublets& doublets,
-                                                const std::vector<SeedingLayerSetsHits::SeedingLayer>& thirdLayers,
-                                                std::vector<int> *tripletLastLayerIndex,
-                                                LayerCacheType& layerCache) {
   int size = thirdLayers.size();
   const RecHitsSortedInPhi * thirdHitMap[size];
   vector<const DetLayer *> thirdLayerDetLayer(size,0);
   for (int il=0; il<size; ++il) 
     {
-      thirdHitMap[il] = &layerCache(thirdLayers[il], region, es);
+      thirdHitMap[il] = &(*theLayerCache)(thirdLayers[il], region, ev, es);
       thirdLayerDetLayer[il] = thirdLayers[il].detLayer();
     }
-  hitTriplets(region, result, es, doublets, thirdHitMap, thirdLayerDetLayer, size, tripletLastLayerIndex);
+  hitTriplets(region,result,es,doublets,thirdHitMap,thirdLayerDetLayer,size);
 }
-
-
 void PixelTripletLargeTipGenerator::hitTriplets(
 						const TrackingRegion& region, 
 						OrderedHitTriplets & result,
@@ -124,17 +99,7 @@ void PixelTripletLargeTipGenerator::hitTriplets(
 						const RecHitsSortedInPhi ** thirdHitMap,
 						const std::vector<const DetLayer *> & thirdLayerDetLayer,
 						const int nThirdLayers)
-{
-  hitTriplets(region, result, es, doublets, thirdHitMap, thirdLayerDetLayer, nThirdLayers, nullptr);
-}
-
-void PixelTripletLargeTipGenerator::hitTriplets(const TrackingRegion& region, OrderedHitTriplets & result,
-                                                const edm::EventSetup & es,
-                                                const HitDoublets & doublets,
-                                                const RecHitsSortedInPhi ** thirdHitMap,
-                                                const std::vector<const DetLayer *> & thirdLayerDetLayer,
-                                                const int nThirdLayers,
-                                                std::vector<int> *tripletLastLayerIndex) {
+{  
   edm::ESHandle<TrackerGeometry> tracker;
   es.get<TrackerDigiGeometryRecord>().get(tracker);
 
@@ -415,8 +380,6 @@ void PixelTripletLargeTipGenerator::hitTriplets(const TrackingRegion& region, Or
 	  return;
 	}
 	result.emplace_back( doublets.hit(ip,HitDoublets::inner), doublets.hit(ip,HitDoublets::outer), hits.theHits[KDdata].hit()); 
-        // to bookkeep the triplets and 3rd layers in triplet EDProducer
-        if(tripletLastLayerIndex) tripletLastLayerIndex->push_back(il);
       }
     }
   }

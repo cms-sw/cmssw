@@ -154,6 +154,9 @@ SiStripDQMTier0 = cms.Sequence(
     *SiStripMonitorTrackCommon*SiStripMonitorTrackIB*MonitorTrackResiduals
     *dqmInfoSiStrip)
 from Configuration.Eras.Modifier_phase1Pixel_cff import phase1Pixel
+phase1Pixel.toReplaceWith(SiStripDQMTier0, SiStripDQMTier0.copyAndExclude([ # FIXME
+    MonitorTrackResiduals # Excessive printouts because 2017 doesn't have HLT yet
+]))
 
 SiStripDQMTier0Common = cms.Sequence(
     APVPhases*consecutiveHEs*siStripFEDCheck*siStripFEDMonitor*SiStripMonitorDigi*SiStripMonitorClusterBPTX        
@@ -164,6 +167,9 @@ SiStripDQMTier0MinBias = cms.Sequence(
     APVPhases*consecutiveHEs*siStripFEDCheck*siStripFEDMonitor*SiStripMonitorDigi*SiStripMonitorClusterBPTX
     *SiStripMonitorTrackMB*SiStripMonitorTrackIB*MonitorTrackResiduals
     *dqmInfoSiStrip)
+phase1Pixel.toReplaceWith(SiStripDQMTier0MinBias, SiStripDQMTier0MinBias.copyAndExclude([ # FIXME
+    MonitorTrackResiduals # Excessive printouts because 2017 doesn't have HLT yet
+]))
 
 
 

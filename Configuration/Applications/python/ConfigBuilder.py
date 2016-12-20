@@ -65,6 +65,7 @@ defaultOptions.outputCommands = None
 defaultOptions.inputEventContent = ''
 defaultOptions.dropDescendant = False
 defaultOptions.relval = None
+defaultOptions.slhc = None
 defaultOptions.profile = None
 defaultOptions.isRepacked = False
 defaultOptions.restoreRNDSeeds = False
@@ -805,6 +806,9 @@ class ConfigBuilder(object):
         self.additionalCommands.append('from Configuration.AlCa.GlobalTag import GlobalTag')
         self.additionalCommands.append('process.GlobalTag = GlobalTag(process.GlobalTag, %s, %s)' % (repr(self._options.conditions), repr(self._options.custom_conditions)))
 
+	if self._options.slhc:
+		self.loadAndRemember("SLHCUpgradeSimulations/Geometry/fakeConditions_%s_cff"%(self._options.slhc,))
+		
 
     def addCustomise(self,unsch=0):
         """Include the customise code """
@@ -1107,6 +1111,13 @@ class ConfigBuilder(object):
 	if self._options.isData:
 		self._options.pileup=None
 
+	if self._options.slhc:
+		self.GeometryCFF='SLHCUpgradeSimulations.Geometry.%s_cmsSimIdealGeometryXML_cff'%(self._options.slhc,)
+		if 'stdgeom' not in self._options.slhc:
+			self.SimGeometryCFF='SLHCUpgradeSimulations.Geometry.%s_cmsSimIdealGeometryXML_cff'%(self._options.slhc,)
+		self.DIGIDefaultCFF='SLHCUpgradeSimulations/Geometry/Digi_%s_cff'%(self._options.slhc,)
+		if self._options.pileup!=defaultOptions.pileup:
+			self._options.pileup='SLHC_%s_%s'%(self._options.pileup,self._options.slhc)
 
 	self.REDIGIDefaultSeq=self.DIGIDefaultSeq
 
@@ -1225,6 +1236,7 @@ class ConfigBuilder(object):
 
     def prepare_ALCA(self, sequence = None, workflow = 'full'):
         """ Enrich the process with alca streams """
+	print 'DL enriching',workflow,sequence
         alcaConfig=self.loadDefaultOrSpecifiedCFF(sequence,self.ALCADefaultCFF)
         sequence = sequence.split('.')[-1]
 
@@ -1663,13 +1675,6 @@ class ConfigBuilder(object):
             self._options.customisation_file_unsch.append("PhysicsTools/PatAlgos/slimming/miniAOD_tools.miniAOD_customizeAllMC")
             if self._options.fast:
                 self._options.customisation_file_unsch.append("PhysicsTools/PatAlgos/slimming/metFilterPaths_cff.miniAOD_customizeMETFiltersFastSim")
-
-	if self._options.hltProcess:
-	     if len(self._options.customise_commands) > 1:
-		     self._options.customise_commands = self._options.customise_commands + " \n"
-	     self._options.customise_commands = self._options.customise_commands + "process.patTrigger.processName = \""+self._options.hltProcess+"\""
-#            self.renameHLTprocessInSequence(sequence)
-
         return
 
     def prepare_EI(self, sequence = None):
@@ -2211,17 +2216,6 @@ class ConfigBuilder(object):
 		self.pythonCfgCode += self.addCustomise(1)
 
 	self.pythonCfgCode += self.addCustomiseCmdLine()
-
-        # Temporary hack to put the early delete customization after
-        # everything else
-        #
-        # FIXME: remove when no longer needed
-        self.pythonCfgCode += "\n# Add early deletion of temporary data products to reduce peak memory need\n"
-        self.pythonCfgCode += "from Configuration.StandardSequences.earlyDeleteSettings_cff import customiseEarlyDelete\n"
-        self.pythonCfgCode += "process = customiseEarlyDelete(process)\n"
-        self.pythonCfgCode += "# End adding early deletion\n"
-        from Configuration.StandardSequences.earlyDeleteSettings_cff import customiseEarlyDelete
-        self.process = customiseEarlyDelete(self.process)
 
 
 	# make the .io file

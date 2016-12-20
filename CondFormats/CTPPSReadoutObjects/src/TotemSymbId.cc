@@ -8,11 +8,21 @@
 
 #include "CondFormats/CTPPSReadoutObjects/interface/TotemSymbId.h"
 
-#include "DataFormats/CTPPSDetId/interface/CTPPSDetId.h"
-
 std::ostream& operator << (std::ostream& s, const TotemSymbID &sid)
 {
-  s << "DetId=" << sid.symbolicID << " (" << CTPPSDetId(sid.symbolicID) << ")";
+  switch (sid.subSystem) {
+    case TotemSymbID::RP:
+      s << "sub-system=RP, ";
+      break;
+    case TotemSymbID::T1:
+      s << "sub-system=T1, ";
+      break;
+    case TotemSymbID::T2:
+      s << "sub-system=T2, ";
+      break;
+  }
+
+  s << "symb. id=" << sid.symbolicID;
 
   return s;
 }

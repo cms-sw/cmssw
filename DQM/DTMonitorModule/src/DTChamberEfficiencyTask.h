@@ -49,13 +49,13 @@ public:
   virtual ~DTChamberEfficiencyTask();
 
   /// BeginRun
-  void dqmBeginRun(const edm::Run& run, const edm::EventSetup& setup) override;
+  void dqmBeginRun(const edm::Run& run, const edm::EventSetup& setup);
 
   /// To reset the MEs
-  void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& context) override;
+  void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& context) ;
 
   // Operations
-  void analyze(const edm::Event& event, const edm::EventSetup& setup) override;
+  void analyze(const edm::Event& event, const edm::EventSetup& setup);
 
  protected:
 // Book the histograms

@@ -39,10 +39,10 @@ class dEdxHitAnalyzer : public DQMEDAnalyzer {
   
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
   
-  virtual void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) override;
+  virtual void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup);
   double harmonic2(const reco::DeDxHitInfo* dedxHits);
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
-  void dqmBeginRun(const edm::Run &, const edm::EventSetup &) override;
+  void dqmBeginRun(const edm::Run &, const edm::EventSetup &);
   
  private:
   // ----------member data ---------------------------

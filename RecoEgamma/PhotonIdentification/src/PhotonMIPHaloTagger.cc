@@ -259,13 +259,17 @@ std::vector<double> PhotonMIPHaloTagger::GetMipTrailFit(const reco::Photon* phot
      if(debug_)std::cout<<" starting npoing = "<<Npoints<<std::endl;
 
      //defined some variable for iterative fitting the mip trail line  
+        double  res    = 0.0;                            
+        double  res_sq = 0.0;                            
+        double  wt     = 0.0;                            
         double  sx     = 0.0;    
         double  sy     = 0.0;                                   
         double  ss     = 0.0;                            
         double  sxx    = 0.0;                            
-        double  sxy    = 0.0;
+        double  sxy    = 0.0;                            
+        double  delt   = 0.0;
         double  a1     = 0.0;
-        double  b1     = 0.0;                             
+        double  b1     = 0.0;                            
         double  m_chi2 = 0.0;                            
         double  etot_cell=0.0;   
 
@@ -286,11 +290,17 @@ std::vector<double> PhotonMIPHaloTagger::GetMipTrailFit(const reco::Photon* phot
            
 
         //Lets Initialize them first for each iteration 
+        res    = 0.0;
+        res_sq = 0.0;
+        wt     = 0.0; 
         sx     = 0.0;
         sy     = 0.0; 
         ss     = 0.0;
         sxx    = 0.0;
         sxy    = 0.0;
+        delt   = 0.0; 
+        a1     = 0.0;
+        b1     = 0.0;
         m_chi2 = 0.0;
         etot_cell=0.0;
      
@@ -298,7 +308,7 @@ std::vector<double> PhotonMIPHaloTagger::GetMipTrailFit(const reco::Photon* phot
             //Fit the line to trail 
            for(int j=0; j<Npoints; j++)
             {  
-               double wt = 1.0;
+               wt = 1.0;
                ss += wt;
                sx += ieta_cell[j]*wt;                               
                sy += iphi_cell[j]; 
@@ -306,9 +316,9 @@ std::vector<double> PhotonMIPHaloTagger::GetMipTrailFit(const reco::Photon* phot
                sxy += ieta_cell[j]*iphi_cell[j]*wt;
             }
        
-            double delt =  ss*sxx - (sx*sx);
-            a1 = ((sxx*sy)-(sx*sxy))/delt;   // INTERCEPT
-            b1 = ((ss*sxy)-(sx*sy))/delt;    // SLOPE
+            delt =  ss*sxx - (sx*sx);
+              a1 = ((sxx*sy)-(sx*sxy))/delt;   // INTERCEPT
+              b1 = ((ss*sxy)-(sx*sy))/delt;    // SLOPE
 
 
           double highest_res   = 0.;
@@ -317,8 +327,8 @@ std::vector<double> PhotonMIPHaloTagger::GetMipTrailFit(const reco::Photon* phot
 
             for(int j=0; j<Npoints; j++)
                {                
-                    double res = 1.0*iphi_cell[j] - a1 - b1*ieta_cell[j];
-                    double res_sq = res*res;
+                    res = 1.0*iphi_cell[j] - a1 - b1*ieta_cell[j];
+                    res_sq = res*res;
 
                     if(TMath::Abs(res) > highest_res)
                        {             
@@ -352,6 +362,7 @@ std::vector<double> PhotonMIPHaloTagger::GetMipTrailFit(const reco::Photon* phot
    if(debug_)std::cout<<" eTot ="<<eT<<"     Rounness = "<<Roundness_<<"    Angle_  "<<Angle_ <<std::endl; 
 
      //get the halo disc variable
+     halo_disc_ = 0.;
      halo_disc_ = eT/(Roundness_* Angle_);
 
 

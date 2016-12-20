@@ -4,11 +4,11 @@ process = cms.Process('RECODQM')
 
 # minimum of logs
 process.MessageLogger = cms.Service("MessageLogger",
-  statistics = cms.untracked.vstring(),
-  destinations = cms.untracked.vstring('cerr'),
-  cerr = cms.untracked.PSet(
-      threshold = cms.untracked.string('WARNING')
-  )
+    statistics = cms.untracked.vstring(),
+    destinations = cms.untracked.vstring('cerr'),
+    cerr = cms.untracked.PSet(
+        threshold = cms.untracked.string('WARNING')
+    )
 )
 
 # load DQM framework
@@ -20,22 +20,15 @@ process.dqmSaver.tag = "CTPPS"
 
 # raw data source
 process.source = cms.Source("PoolSource",
-  fileNames = cms.untracked.vstring(
-    'file:/afs/cern.ch/user/j/jkaspar/public/run273062_ls0001-2_stream.root',
-    '/store/express/Run2016H/ExpressPhysics/FEVT/Express-v2/000/283/877/00000/4EE44B0E-2499-E611-A155-02163E011938.root'
-  ),
-  inputCommands = cms.untracked.vstring(
-    'drop *',
-    'keep FEDRawDataCollection_*_*_*'
-  )
+    fileNames = cms.untracked.vstring('file:/afs/cern.ch/user/j/jkaspar/public/run273062_ls0001-2_stream.root')
 )
 
 process.maxEvents = cms.untracked.PSet(
-  input = cms.untracked.int32(8000)
+    input = cms.untracked.int32(-1)
 )
 
 # raw-to-digi conversion
-process.load("EventFilter.CTPPSRawToDigi.ctppsRawToDigi_cff")
+process.load("EventFilter.CTPPSRawToDigi.totemRawToDigi_cff")
 
 # local RP reconstruction chain with standard settings
 process.load("RecoCTPPS.Configuration.recoCTPPS_cff")
@@ -44,8 +37,11 @@ process.load("RecoCTPPS.Configuration.recoCTPPS_cff")
 process.load("DQM.CTPPS.totemDQM_cff")
 
 process.path = cms.Path(
-  process.ctppsRawToDigi *
+  process.totemTriggerRawToDigi *
+  process.totemRPRawToDigi *
+
   process.recoCTPPS *
+
   process.totemDQM
 )
 

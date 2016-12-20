@@ -37,9 +37,9 @@ public:
 
   /// return a new event vertex
   //virtual CLHEP::Hep3Vector * newVertex();
-  virtual HepMC::FourVector* newVertex(CLHEP::HepRandomEngine*) override ;
+  virtual HepMC::FourVector* newVertex(CLHEP::HepRandomEngine*) ;
 
-  virtual TMatrixD* GetInvLorentzBoost() override;
+  virtual TMatrixD* GetInvLorentzBoost();
 
     
   /// set resolution in Z in cm

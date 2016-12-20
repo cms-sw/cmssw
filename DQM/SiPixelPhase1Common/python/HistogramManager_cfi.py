@@ -17,14 +17,7 @@ SiPixelPhase1Geometry = cms.PSet(
 
   # "time geometry" parameters
   max_lumisection = cms.int32(1000),
-  max_bunchcrossing = cms.int32(3600),
-
-  # to select a different cabling map (for pilotBlade)
-  CablingMapLabel = cms.string(""),
-
-  # online-secific things
-  onlineblock = cms.int32(20),    # #LS after which histograms are reset
-  n_onlineblocks = cms.int32(100),  # #blocks to keep for histograms with history
+  max_bunchcrossing = cms.int32(3600)
 
   # other geometry parameters (n_layers, n_ladders per layer, etc.) are inferred.
   # there are lots of geometry assuptions in the code.
@@ -66,6 +59,13 @@ DefaultHisto = cms.PSet(
   range_y_max = cms.double(100), 
   range_y_nbins = cms.int32(100),
 
+  # This grouping should be used as a default (explicitly in the Plugin config). It should be era-dependent.
+  # The column names are either defined in the GeometryInterface.cc or read from TrackerTopology.
+  # The "|" means "try the first, if not present try the second", it should be used to have Barrel- and 
+  # Endcap names side by side. The "/" separates columns and also defines how the output folders are nested.
+  defaultGrouping  = cms.string("PXBarrel|PXForward/Shell|HalfCylinder/PXLayer|PXDisk/PXRing|/PXLadder|PXBlade"),
+  defaultPerModule = cms.string("PXBarrel|PXForward/PXLayer|PXDisk/DetId"),
+
   # This structure is output by the SpecficationBuilder.
   specs = cms.VPSet()
   #  cms.PSet(spec = 
@@ -89,19 +89,14 @@ DefaultHisto = cms.PSet(
 
 # Commonly used specifications. 
 StandardSpecifications1D = [
-    # The column names are either defined in the GeometryInterface.cc or read from TrackerTopology.
-    # The "|" means "try the first, if not present try the second", it should be used to have Barrel- and 
-    # Endcap names side by side. The "/" separates columns and also defines how the output folders are nested.
-
-    # per-ladder and profiles
-    Specification(PerLadder).groupBy("PXBarrel|PXForward/Shell|HalfCylinder/PXLayer|PXDisk/PXRing|/PXLadder|PXBlade")
+    Specification(PerLadder).groupBy(DefaultHisto.defaultGrouping) # per-ladder and profiles
                             .save()
                             .reduce("MEAN")
-                            .groupBy("PXBarrel|PXForward/Shell|HalfCylinder/PXLayer|PXDisk/PXRing|", "EXTEND_X")
+                            .groupBy(parent(DefaultHisto.defaultGrouping), "EXTEND_X")
                             .saveAll(),
-    Specification(PerLayer1D).groupBy("PXBarrel|PXForward/Shell|HalfCylinder/PXLayer|PXDisk/PXRing|") # per-layer
+    Specification(PerLayer1D).groupBy(parent(DefaultHisto.defaultGrouping)) # per-layer
                              .save(),
-    Specification(PerModule).groupBy("PXBarrel|PXForward/PXLayer|PXDisk/DetId").save()
+    Specification(PerModule).groupBy(DefaultHisto.defaultPerModule).save()
 ]
 
 StandardSpecificationTrend = ( # the () are only for syntax reasons
@@ -123,15 +118,15 @@ StandardSpecification2DProfile = (
 
 # the same for NDigis and friends. Needed due to technical limitations...
 StandardSpecifications1D_Num = [
-    Specification(PerLadder).groupBy("PXBarrel|PXForward/Shell|HalfCylinder/PXLayer|PXDisk/PXRing|/PXLadder|PXBlade/DetId/Event") 
+    Specification(PerLadder).groupBy(DefaultHisto.defaultGrouping.value() + "/DetId/Event") 
                             .reduce("COUNT") # per-event counting
-                            .groupBy("PXBarrel|PXForward/Shell|HalfCylinder/PXLayer|PXDisk/PXRing|/PXLadder|PXBlade").save()
+                            .groupBy(DefaultHisto.defaultGrouping).save()
                             .reduce("MEAN")
-                            .groupBy("PXBarrel|PXForward/Shell|HalfCylinder/PXLayer|PXDisk/PXRing|", "EXTEND_X")
+                            .groupBy(parent(DefaultHisto.defaultGrouping), "EXTEND_X")
                             .saveAll(),
-    Specification(PerModule).groupBy("PXBarrel|PXForward/PXLayer|PXDisk/DetId/Event")
+    Specification(PerModule).groupBy(DefaultHisto.defaultPerModule.value() + "/Event")
                             .reduce("COUNT")
-                            .groupBy("PXBarrel|PXForward/PXLayer|PXDisk/DetId")
+                            .groupBy(DefaultHisto.defaultPerModule)
                             .save()
 ]
 

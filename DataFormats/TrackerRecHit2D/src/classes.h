@@ -26,7 +26,6 @@
 #include "DataFormats/TrackerRecHit2D/interface/FastProjectedTrackerRecHit.h"
 #include "DataFormats/TrackerRecHit2D/interface/FastTrackerRecHitCollection.h"
 #include "DataFormats/TrackerRecHit2D/interface/Phase2TrackerRecHit1D.h"
-#include "DataFormats/TrackerRecHit2D/interface/BaseTrackerRecHit.h"
 #include <vector>
 
 namespace DataFormats_TrackerRecHit2D {
@@ -63,10 +62,7 @@ namespace DataFormats_TrackerRecHit2D {
       edm::ClonePolicy<SiTrackerMultiRecHit> > e3;
     edm::OwnVector<SiTrackerMultiRecHit,
       edm::ClonePolicy<SiTrackerMultiRecHit> >::const_iterator it10;
-
-    edm::OwnVector<BaseTrackerRecHit> ovbtrh;
-    edm::Wrapper<edm::OwnVector<BaseTrackerRecHit>> wovbtrh;
-
+    
     edm::Wrapper< edm::RangeMap<DetId,
       edm::OwnVector<SiStripRecHit2D,
       edm::ClonePolicy<SiStripRecHit2D> >, 

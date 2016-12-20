@@ -4,7 +4,7 @@
 #include "DataFormats/GeometryVector/interface/Phi.h"
 #include "DataFormats/GeometryVector/interface/PreciseFloatType.h"
 #include "DataFormats/GeometryVector/interface/CoordinateSets.h"
-#if (!defined(__CLING__))
+#if (!defined(IN_DICTBUILD))
 #include "DataFormats/Math/interface/SIMDVec.h"
 #endif
 

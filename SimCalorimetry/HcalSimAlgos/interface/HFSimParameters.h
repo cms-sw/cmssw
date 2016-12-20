@@ -20,8 +20,6 @@ public:
 
   double fCtoGeV(const DetId & detId) const;
 
-  double samplingFactor() const;
-
 private:
   const HcalDbService * theDbService;
   double theSamplingFactor;

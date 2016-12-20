@@ -43,7 +43,7 @@ public:
 			    const XMLSize_t count,
 			    XMLFormatter* const  formatter) override;
 
-    virtual void flush() override;
+    virtual void flush();
 
 private:
     std::ostream* mStream;

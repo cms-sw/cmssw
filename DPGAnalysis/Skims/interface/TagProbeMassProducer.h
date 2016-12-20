@@ -38,9 +38,9 @@ class TagProbeMassProducer : public edm::EDProducer
       ~TagProbeMassProducer();
 
    private:
-      virtual void beginJob() override;
+      virtual void beginJob() ;
       virtual void produce(edm::Event&, const edm::EventSetup&) override;
-      virtual void endJob() override;
+      virtual void endJob() ;
 
       bool isPassingProbe (const unsigned int iprobe) const;
 

@@ -49,8 +49,7 @@ public:
      theNoiseSignalGenerator(0),
      theElectronicsSim(electronicsSim),
      theDetIds(0),
-     addNoise_(addNoise),
-     debugCS_(false)
+     addNoise_(addNoise)
   {
   }
 
@@ -65,14 +64,6 @@ public:
   void setNoiseSignalGenerator(CaloVNoiseSignalGenerator * generator)
   {
     theNoiseSignalGenerator = generator;
-  }
-
-  void setDebugCaloSamples(bool debug){
-    debugCS_ = debug;
-  }
-
-  const CaloSamplesCollection& getCaloSamples() const {
-    return csColl_;
   }
 
   void add(const std::vector<PCaloHit> & hits, int bunchCrossing, CLHEP::HepRandomEngine* engine) {
@@ -107,18 +98,12 @@ public:
     // reserve space for how many digis we expect
     int nDigisExpected = addNoise_ ? theDetIds->size() : theHitResponse->nSignals();
     output.reserve(nDigisExpected);
-    if(debugCS_) {
-      csColl_.clear();
-      csColl_.reserve(nDigisExpected);
-      theHitResponse->setStorePrecise(true);
-    }
 
     // make a raw digi for evey cell
     for(std::vector<DetId>::const_iterator idItr = theDetIds->begin();
         idItr != theDetIds->end(); ++idItr)
     {
        CaloSamples * analogSignal = theHitResponse->findSignal(*idItr);
-       if(analogSignal && debugCS_) csColl_.push_back(*analogSignal);
        bool needToDeleteSignal = false;
        // don't bother digitizing if no signal and no noise
        if(analogSignal == 0 && addNoise_) {
@@ -157,8 +142,6 @@ private:
   ElectronicsSim * theElectronicsSim;
   const std::vector<DetId>* theDetIds;
   bool addNoise_;
-  bool debugCS_;
-  CaloSamplesCollection csColl_;
 };
 
 #endif

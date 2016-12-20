@@ -83,8 +83,8 @@ public:
 private:
   typedef std::tuple<float,float,float,float> HGCHitTuple;
 
-  virtual void beginJob() override;
-  virtual void endJob() override;
+  virtual void beginJob();
+  virtual void endJob();
   virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
   virtual void analyze(edm::Event const&, edm::EventSetup const&) override;
   virtual void endRun(edm::Run const&, edm::EventSetup const&) override {}

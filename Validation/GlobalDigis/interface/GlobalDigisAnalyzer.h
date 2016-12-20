@@ -116,7 +116,7 @@ class GlobalDigisAnalyzer : public DQMEDAnalyzer
 
   explicit GlobalDigisAnalyzer(const edm::ParameterSet&);
   virtual ~GlobalDigisAnalyzer();
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+  virtual void analyze(const edm::Event&, const edm::EventSetup&);
 
  protected:
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;

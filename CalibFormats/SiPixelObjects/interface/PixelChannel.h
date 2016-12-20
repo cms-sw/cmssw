@@ -34,6 +34,8 @@ namespace pos{
 
     std::string channelname() const;
 
+    friend std::ostream& operator<<(std::ostream& s, const PixelChannel& channel);
+
     // allows for use of find() function in a map of PixelChannels
     const bool operator<(const PixelChannel& aChannel) const{
       return (module_<aChannel.module_ || (module_==aChannel.module_ && TBMChannel_ < aChannel.TBMChannel_) );
@@ -47,8 +49,6 @@ namespace pos{
     PixelModuleName module_    ;
     PixelTBMChannel TBMChannel_;
   };
-
-  std::ostream& operator<<(std::ostream& s, const PixelChannel& channel);
 }
 
 #endif

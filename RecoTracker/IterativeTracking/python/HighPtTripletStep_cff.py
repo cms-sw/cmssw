@@ -32,57 +32,53 @@ highPtTripletStepSeedLayers = _PixelLayerTriplets_cfi.PixelLayerTriplets.clone(
 )
 
 from Configuration.Eras.Modifier_trackingPhase2PU140_cff import trackingPhase2PU140
-trackingPhase2PU140.toModify(highPtTripletStepSeedLayers,
-# combination with gap removed as only source of fakes in current geometry (kept for doc) 
+trackingPhase2PU140.toModify(highPtTripletStepSeedLayers, 
     layerList = ['BPix1+BPix2+BPix3', 'BPix2+BPix3+BPix4',
-#                 'BPix1+BPix3+BPix4', 'BPix1+BPix2+BPix4',
+                 'BPix1+BPix3+BPix4', 'BPix1+BPix2+BPix4',
                  'BPix2+BPix3+FPix1_pos', 'BPix2+BPix3+FPix1_neg',
                  'BPix1+BPix2+FPix1_pos', 'BPix1+BPix2+FPix1_neg',
                  'BPix2+FPix1_pos+FPix2_pos', 'BPix2+FPix1_neg+FPix2_neg',
                  'BPix1+FPix1_pos+FPix2_pos', 'BPix1+FPix1_neg+FPix2_neg',
-#                 'BPix1+BPix2+FPix2_pos', 'BPix1+BPix2+FPix2_neg',
+                 'BPix1+BPix2+FPix2_pos', 'BPix1+BPix2+FPix2_neg',
                  'FPix1_pos+FPix2_pos+FPix3_pos', 'FPix1_neg+FPix2_neg+FPix3_neg',
                  'BPix1+FPix2_pos+FPix3_pos', 'BPix1+FPix2_neg+FPix3_neg',
-#                 'BPix1+FPix1_pos+FPix3_pos', 'BPix1+FPix1_neg+FPix3_neg',
+                 'BPix1+FPix1_pos+FPix3_pos', 'BPix1+FPix1_neg+FPix3_neg',
                  'FPix2_pos+FPix3_pos+FPix4_pos', 'FPix2_neg+FPix3_neg+FPix4_neg',
                  'FPix3_pos+FPix4_pos+FPix5_pos', 'FPix3_neg+FPix4_neg+FPix5_neg',
                  'FPix4_pos+FPix5_pos+FPix6_pos', 'FPix4_neg+FPix5_neg+FPix6_neg',
                  'FPix5_pos+FPix6_pos+FPix7_pos', 'FPix5_neg+FPix6_neg+FPix7_neg',
-#  removed as redunant and covering effectively only eta>4   (here for documentation, to be optimized after TDR)
-#                 'FPix6_pos+FPix7_pos+FPix8_pos', 'FPix6_neg+FPix7_neg+FPix8_neg',
-#                 'FPix6_pos+FPix7_pos+FPix9_pos', 'FPix6_neg+FPix7_neg+FPix9_neg']
-     ]
+                 'FPix6_pos+FPix7_pos+FPix8_pos', 'FPix6_neg+FPix7_neg+FPix8_neg',
+                 'FPix6_pos+FPix7_pos+FPix9_pos', 'FPix6_neg+FPix7_neg+FPix9_neg']
 )
-# TrackingRegion
-from RecoTracker.TkTrackingRegions.globalTrackingRegionFromBeamSpot_cfi import globalTrackingRegionFromBeamSpot as _globalTrackingRegionFromBeamSpot
-highPtTripletStepTrackingRegions = _globalTrackingRegionFromBeamSpot.clone(RegionPSet = dict(
-    ptMin = 0.6,
-    originRadius = 0.02,
-    nSigmaZ = 4.0
-))
-from Configuration.Eras.Modifier_trackingPhase1PU70_cff import trackingPhase1PU70
-trackingPhase1PU70.toModify(highPtTripletStepTrackingRegions, RegionPSet = dict(ptMin = 0.7))
-trackingPhase2PU140.toModify(highPtTripletStepTrackingRegions, RegionPSet = dict(ptMin = 0.9, originRadius = 0.03))
 
-# seeding
-from RecoTracker.TkHitPairs.hitPairEDProducer_cfi import hitPairEDProducer as _hitPairEDProducer
-highPtTripletStepHitDoublets = _hitPairEDProducer.clone(
-    seedingLayers = "highPtTripletStepSeedLayers",
-    trackingRegions = "highPtTripletStepTrackingRegions",
-    maxElement = 0,
-    produceIntermediateHitDoublets = True,
-)
-from RecoPixelVertexing.PixelTriplets.pixelTripletHLTEDProducer_cfi import pixelTripletHLTEDProducer as _pixelTripletHLTEDProducer
+# SEEDS
+from RecoTracker.TkSeedGenerator.GlobalSeedsFromTriplets_cff import *
+from RecoTracker.TkTrackingRegions.GlobalTrackingRegionFromBeamSpot_cfi import RegionPsetFomBeamSpotBlock
 from RecoPixelVertexing.PixelLowPtUtilities.ClusterShapeHitFilterESProducer_cfi import *
-import RecoPixelVertexing.PixelLowPtUtilities.LowPtClusterShapeSeedComparitor_cfi
-highPtTripletStepHitTriplets = _pixelTripletHLTEDProducer.clone(
-    doublets = "highPtTripletStepHitDoublets",
-    produceSeedingHitSets = True,
-    SeedComparitorPSet = RecoPixelVertexing.PixelLowPtUtilities.LowPtClusterShapeSeedComparitor_cfi.LowPtClusterShapeSeedComparitor
+import RecoPixelVertexing.PixelLowPtUtilities.LowPtClusterShapeSeedComparitor_cfi as _LowPtClusterShapeSeedComparitor_cfi
+highPtTripletStepSeeds = globalSeedsFromTriplets.clone(
+    RegionFactoryPSet = RegionPsetFomBeamSpotBlock.clone(
+        ComponentName = cms.string('GlobalRegionProducerFromBeamSpot'),
+        RegionPSet = RegionPsetFomBeamSpotBlock.RegionPSet.clone(
+            ptMin = 0.6,
+            originRadius = 0.02,
+            nSigmaZ = 4.0
+        )
+    ),
+    OrderedHitsFactoryPSet = dict(
+        SeedingLayers = 'highPtTripletStepSeedLayers',
+        GeneratorPSet = dict(
+            SeedComparitorPSet = _LowPtClusterShapeSeedComparitor_cfi.LowPtClusterShapeSeedComparitor
+        )
+    )
 )
-from RecoTracker.TkSeedGenerator.seedCreatorFromRegionConsecutiveHitsEDProducer_cff import seedCreatorFromRegionConsecutiveHitsEDProducer as _seedCreatorFromRegionConsecutiveHitsEDProducer
-highPtTripletStepSeeds = _seedCreatorFromRegionConsecutiveHitsEDProducer.clone(
-    seedingHitSets = "highPtTripletStepHitTriplets",
+from Configuration.Eras.Modifier_trackingPhase1PU70_cff import trackingPhase1PU70
+trackingPhase1PU70.toModify(highPtTripletStepSeeds, RegionFactoryPSet = dict(RegionPSet = dict(ptMin = 0.7)))
+trackingPhase2PU140.toModify(highPtTripletStepSeeds,
+     ClusterCheckPSet = dict(doClusterCheck = False),
+     RegionFactoryPSet = dict(RegionPSet = dict(ptMin = 0.9, originRadius = 0.03)),
+     OrderedHitsFactoryPSet = dict( GeneratorPSet = dict(maxElement = 0 ) ),
+     SeedCreatorPSet = dict(magneticField = '', propagator = 'PropagatorWithMaterial')
 )
 
 # QUALITY CUTS DURING TRACK BUILDING
@@ -96,7 +92,6 @@ highPtTripletStepTrajectoryFilterBase = _highPtTripletStepTrajectoryFilterBase.c
     minGoodStripCharge = dict(refToPSet_ = 'SiStripClusterChargeCutLoose')
 )
 trackingPhase1PU70.toReplaceWith(highPtTripletStepTrajectoryFilterBase, _highPtTripletStepTrajectoryFilterBase)
-trackingPhase2PU140.toReplaceWith(highPtTripletStepTrajectoryFilterBase, _highPtTripletStepTrajectoryFilterBase)
 highPtTripletStepTrajectoryFilter = _TrajectoryFilter_cff.CompositeTrajectoryFilter_block.clone(
     filters = [cms.PSet(refToPSet_ = cms.string('highPtTripletStepTrajectoryFilterBase'))]
 )
@@ -314,9 +309,6 @@ trackingPhase2PU140.toModify(highPtTripletStepSelector,
 # Final sequence
 HighPtTripletStep = cms.Sequence(highPtTripletStepClusters*
                                  highPtTripletStepSeedLayers*
-                                 highPtTripletStepTrackingRegions*
-                                 highPtTripletStepHitDoublets*
-                                 highPtTripletStepHitTriplets*
                                  highPtTripletStepSeeds*
                                  highPtTripletStepTrackCandidates*
                                  highPtTripletStepTracks*

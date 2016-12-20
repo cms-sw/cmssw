@@ -24,6 +24,9 @@
 class TotemVFATInfo
 {
   public:
+    /// is data of coincidence-chip VFAT
+    enum {data, CC} type;
+
     /// the symbolic id
     TotemSymbID symbolicID;
 

@@ -56,7 +56,7 @@ public:
   PhotonPFIsolationWithConeVeto(const PhotonPFIsolationWithConeVeto&) = delete;
   PhotonPFIsolationWithConeVeto& operator=(const PhotonPFIsolationWithConeVeto&) =delete;
   
-  void setConsumes(edm::ConsumesCollector) override {}
+  void setConsumes(edm::ConsumesCollector) {}
 
   bool isInIsolationCone(const reco::CandidatePtr& photon,
 			 const reco::CandidatePtr& pfCandidate) const override final;

@@ -63,7 +63,7 @@ class PhotonMVAEstimatorRun2Phys14NonTrig : public AnyMVAEstimatorRun2Base {
   ~PhotonMVAEstimatorRun2Phys14NonTrig();
 
   // Calculation of the MVA value
-  float mvaValue(const edm::Ptr<reco::Candidate>& particle, const edm::Event&) const override;
+  float mvaValue(const edm::Ptr<reco::Candidate>& particle, const edm::Event&) const;
  
   // Utility functions
   std::unique_ptr<const GBRForest> createSingleReader(const int iCategory, const edm::FileInPath &weightFile) ;
@@ -76,7 +76,7 @@ class PhotonMVAEstimatorRun2Phys14NonTrig : public AnyMVAEstimatorRun2Base {
   // Functions that should work on both pat and reco electrons
   // (use the fact that pat::Electron inherits from reco::GsfElectron)
   std::vector<float> fillMVAVariables(const edm::Ptr<reco::Candidate>& particle, const edm::Event&) const override;
-  int findCategory(const edm::Ptr<reco::Candidate>& particle) const override;
+  int findCategory(const edm::Ptr<reco::Candidate>& particle) const;
   // The function below ensures that the variables passed to MVA are 
   // within reasonable bounds
   void constrainMVAVariables(AllVariables& vars) const;

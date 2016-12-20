@@ -86,7 +86,6 @@ using namespace HepMC;
 
 static const int PDGCacheMax = 32768;
 static const double mmToCm = 0.1;
-static const double mmToNs = 1.0/299792458e-6;
 
 GenParticleProducer::GenParticleProducer( const ParameterSet & cfg ) :
   firstEvent_(true),
@@ -97,8 +96,6 @@ GenParticleProducer::GenParticleProducer( const ParameterSet & cfg ) :
   useCF_(cfg.getUntrackedParameter<bool>( "useCrossingFrame", false ))
 {
   produces<GenParticleCollection>();
-  produces<math::XYZPointF>("xyz0");
-  produces<float>("t0");
   if( saveBarCodes_ ) {
     std::string alias( cfg.getParameter<std::string>( "@module_label" ) );
     produces<vector<int> >().setBranchAlias( alias + "BarCodes" );
@@ -181,8 +178,6 @@ void GenParticleProducer::produce( Event& evt, const EventSetup& es ) {
   vector<const HepMC::GenParticle *> particles( size );
   auto candsPtr = std::make_unique<GenParticleCollection>(size);
   auto barCodeVector = std::make_unique<vector<int>>(size);
-  std::unique_ptr<math::XYZPointF> xyz0Ptr(new math::XYZPointF(0.,0.,0.));
-  std::unique_ptr<float> t0Ptr(new float(0.f));
   ref_ = evt.getRefBeforePut<GenParticleCollection>();
   GenParticleCollection & cands = * candsPtr;
   size_t offset = 0;
@@ -201,11 +196,6 @@ void GenParticleProducer::produce( Event& evt, const EventSetup& es ) {
 	if(hi && hi->Ncoll_hard() > 1) isHI = true;
 	size_t num_particles = mc->particles_size();
 	LogDebug("GenParticleProducer")<<"num_particles : "<<num_particles<<endl;
-        if (ipile == 0) {
-            auto origin = (*mc->vertices_begin())->position();
-            xyz0Ptr->SetXYZ(origin.x() * mmToCm, origin.y() * mmToCm, origin.z() * mmToCm);
-            *t0Ptr = origin.t() * mmToNs;
-        }
 	fillIndices(mc, particles, *barCodeVector, offset);
 	// fill output collection and save association
 	for( size_t ipar = offset; ipar < offset + num_particles; ++ ipar ) {
@@ -246,9 +236,6 @@ void GenParticleProducer::produce( Event& evt, const EventSetup& es ) {
 	offset += num_particles;
      }
   }else{
-     auto origin = (*mc->vertices_begin())->position();
-     xyz0Ptr->SetXYZ(origin.x() * mmToCm, origin.y() * mmToCm, origin.z() * mmToCm);
-     *t0Ptr = origin.t() * mmToNs;
      fillIndices(mc, particles, *barCodeVector, 0);
 
      // fill output collection and save association
@@ -273,8 +260,7 @@ void GenParticleProducer::produce( Event& evt, const EventSetup& es ) {
   evt.put(std::move(candsPtr));
   if(saveBarCodes_) evt.put(std::move(barCodeVector));
   if(cfhepmcprod) delete cfhepmcprod;
-  evt.put(std::move(xyz0Ptr),"xyz0");
-  evt.put(std::move(t0Ptr),"t0");
+
 }
 
 bool GenParticleProducer::convertParticle(reco::GenParticle& cand, const HepMC::GenParticle * part){

@@ -30,7 +30,6 @@ public:
   // Access to digi information - pixel sensors
   unsigned int row()     const { return channelToRow(theChannel); }
   unsigned int column()  const { return channelToColumn(theChannel); }
-  uint16_t packedPosition() const { return 0x7FFF & theChannel; }
   // Access to digi information - strip sensors
   unsigned int strip()   const { return row(); }
   unsigned int edge()    const { return column(); } // CD: any better name for that? 
@@ -58,14 +57,8 @@ public:
 
 // Comparison operators
 inline bool operator<( const Phase2TrackerDigi& one, const Phase2TrackerDigi& other) {
-  return one.packedPosition() < other.packedPosition();
+  return one.channel() < other.channel();
 }
-
-// distance operators
-inline int operator-( const Phase2TrackerDigi& one, const Phase2TrackerDigi& other) {
-  return int(one.packedPosition()) - int(other.packedPosition());
-}
-
 
 #include<iostream>
 inline std::ostream & operator<<(std::ostream & o, const Phase2TrackerDigi& digi) {

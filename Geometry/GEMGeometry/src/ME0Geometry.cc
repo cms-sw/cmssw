@@ -67,11 +67,11 @@ const ME0EtaPartition* ME0Geometry::etaPartition(ME0DetId id) const{
 
 
 const ME0Layer* ME0Geometry::layer(ME0DetId id) const{
-  return dynamic_cast<const ME0Layer*>(idToDetUnit(id.layerId()));
+  return dynamic_cast<const ME0Layer*>(idToDetUnit(id));
 }
 
 const ME0Chamber* ME0Geometry::chamber(ME0DetId id) const{
-  return dynamic_cast<const ME0Chamber*>(idToDetUnit(id.chamberId()));
+  return dynamic_cast<const ME0Chamber*>(idToDetUnit(id));
 }
 
 

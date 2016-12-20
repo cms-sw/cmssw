@@ -24,23 +24,9 @@ public:
   ~HitPairGeneratorFromLayerPair();
 
   HitDoublets doublets( const TrackingRegion& reg,
-                        const edm::Event & ev,  const edm::EventSetup& es, Layers layers) {
-    assert(theLayerCache);
-    return doublets(reg, ev, es, layers, *theLayerCache);
-  }
+                        const edm::Event & ev,  const edm::EventSetup& es, Layers layers);
   HitDoublets doublets( const TrackingRegion& reg,
-                        const edm::Event & ev,  const edm::EventSetup& es, const Layer& innerLayer, const Layer& outerLayer) {
-    assert(theLayerCache);
-    return doublets(reg, ev, es, innerLayer, outerLayer, *theLayerCache);
-  }
-  HitDoublets doublets( const TrackingRegion& reg,
-                        const edm::Event & ev, const edm::EventSetup& es, Layers layers, LayerCacheType& layerCache) {
-    Layer innerLayerObj = innerLayer(layers);
-    Layer outerLayerObj = outerLayer(layers);
-    return doublets(reg, ev, es, innerLayerObj, outerLayerObj, layerCache);
-  }
-  HitDoublets doublets( const TrackingRegion& reg,
-                        const edm::Event & ev,  const edm::EventSetup& es, const Layer& innerLayer, const Layer& outerLayer, LayerCacheType& layerCache);
+                        const edm::Event & ev,  const edm::EventSetup& es, const Layer& innerLayer, const Layer& outerLayer);
   
   void hitPairs( const TrackingRegion& reg, OrderedHitPairs & prs,
                  const edm::Event & ev,  const edm::EventSetup& es, Layers layers);
@@ -60,7 +46,7 @@ public:
   Layer outerLayer(const Layers& layers) const { return layers[theOuterLayer]; }
 
 private:
-  LayerCacheType *theLayerCache;
+  LayerCacheType & theLayerCache;
   const unsigned int theOuterLayer;
   const unsigned int theInnerLayer;
   const unsigned int theMaxElement;

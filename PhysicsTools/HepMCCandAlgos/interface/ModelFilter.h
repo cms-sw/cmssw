@@ -30,9 +30,9 @@ namespace edm {
 	typedef std::vector<std::string>::const_iterator comments_const_iterator;
 
   private:
-	virtual void beginJob() override ;
+	virtual void beginJob() ;
 	virtual bool filter(edm::Event&, const edm::EventSetup&) override;
-	virtual void endJob() override ;
+	virtual void endJob() ;
 
 	edm::EDGetTokenT<LHEEventProduct> tokenSource_;
 	std::string modelTag_;

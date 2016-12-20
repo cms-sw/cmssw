@@ -67,21 +67,21 @@ void Phase2TrackerRecHits::produce(edm::StreamID sid, edm::Event& event, const e
   auto outputRecHits = std::make_unique<Phase2TrackerRecHit1DCollectionNew>();
 
   // Loop over clusters
-  for (const auto &clusterDetSet : *clusters) { 
+  for (auto DSViter : *clusters) { 
   
-    DetId detId(clusterDetSet.detId());
+    DetId detId(DSViter.detId());
 
     // Geometry
     const GeomDetUnit * geomDetUnit(tkGeom->idToDetUnit(detId));
 
     // Container for the clusters that will be produced for this modules
-    Phase2TrackerRecHit1DCollectionNew::FastFiller rechits(*outputRecHits, clusterDetSet.detId());
+    Phase2TrackerRecHit1DCollectionNew::FastFiller rechits(*outputRecHits, DSViter.detId());
 
-    for (const auto &clusterRef : clusterDetSet) { 
-      ClusterParameterEstimator< Phase2TrackerCluster1D >::LocalValues lv = cpe->localParameters(clusterRef, *geomDetUnit);
+    for (auto clustIt : DSViter) { 
+      ClusterParameterEstimator< Phase2TrackerCluster1D >::LocalValues lv = cpe->localParameters(clustIt, *geomDetUnit);
 
       // Create a persistent edm::Ref to the cluster
-      edm::Ref< Phase2TrackerCluster1DCollectionNew, Phase2TrackerCluster1D > cluster = edmNew::makeRefTo(clusters, &clusterRef);
+      edm::Ref< Phase2TrackerCluster1DCollectionNew, Phase2TrackerCluster1D > cluster = edmNew::makeRefTo(clusters, &clustIt);
 
       // Make a RecHit and add it to the DetSet
       Phase2TrackerRecHit1D hit(lv.first, lv.second, *geomDetUnit, cluster);

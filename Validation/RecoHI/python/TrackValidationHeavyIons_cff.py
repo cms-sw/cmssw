@@ -2,9 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 # track associator settings
 import SimTracker.TrackAssociatorProducers.quickTrackAssociatorByHits_cfi
-trackAssociatorByHitsRecoDenom = SimTracker.TrackAssociatorProducers.quickTrackAssociatorByHits_cfi.quickTrackAssociatorByHits.clone(
-    useClusterTPAssociation = False # to do the track<->TP association with TrackerHitAssociator
-)
+trackAssociatorByHitsRecoDenom = SimTracker.TrackAssociatorProducers.quickTrackAssociatorByHits_cfi.quickTrackAssociatorByHits.clone()
 from SimGeneral.TrackingAnalysis.trackingParticleNumberOfLayersProducer_cff import *
 
 # reco track quality cuts

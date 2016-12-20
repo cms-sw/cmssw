@@ -33,6 +33,9 @@ namespace reco {
     /// \return energy fraction
     double fraction() const {return fraction_;}
     
+    friend    std::ostream& operator<<(std::ostream& out,
+                                       const PFRecHitFraction& hit);
+    
   private:
     
     /// corresponding rechit 
@@ -42,10 +45,6 @@ namespace reco {
     double    fraction_;
     
   };
-
-  std::ostream& operator<<(std::ostream& out,
-                           const PFRecHitFraction& hit);
-    
 }
 
 

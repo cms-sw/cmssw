@@ -233,7 +233,7 @@ class SingleTopTChannelLeptonDQM_miniAOD : public DQMEDAnalyzer {
   ~SingleTopTChannelLeptonDQM_miniAOD() {};
 
   /// do this during the event loop
-  virtual void analyze(const edm::Event& event, const edm::EventSetup& setup) override;
+  virtual void analyze(const edm::Event& event, const edm::EventSetup& setup);
  
  protected:
   //Book histograms

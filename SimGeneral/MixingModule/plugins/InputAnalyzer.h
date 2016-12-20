@@ -38,9 +38,9 @@ namespace edm
       virtual ~InputAnalyzer();
 
    private:
-      virtual void beginJob() override ;
+      virtual void beginJob() ;
       virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-      virtual void endJob() override ;
+      virtual void endJob() ;
 
       // ----------member data ---------------------------
       

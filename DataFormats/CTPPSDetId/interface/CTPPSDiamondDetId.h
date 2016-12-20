@@ -18,7 +18,7 @@
  *\brief Detector ID class for CTPPS Timing Diamond detectors.
  * Bits [19:31] : Assigend in CTPPSDetId Calss
  * Bits [17:18] : 2 bits for diamond plane 0,1,2,3 
- * Bits [12:16] : 5 bits for Diamond  channel numbers 1,2,3,..16
+ * Bits [12:16] : 5 bits for Diamond  det numbers 1,2,3,..16
  * Bits [0:11]  : unspecified yet
  **/
 
@@ -33,10 +33,10 @@ class CTPPSDiamondDetId : public CTPPSDetId
   }
   
   /// Construct from hierarchy indeces.
-  CTPPSDiamondDetId(uint32_t Arm, uint32_t Station, uint32_t RomanPot=0, uint32_t Plane=0, uint32_t Channel=0);
+  CTPPSDiamondDetId(uint32_t Arm, uint32_t Station, uint32_t RomanPot=0, uint32_t Plane=0, uint32_t Det=0);
 
   static const uint32_t startPlaneBit, maskPlane, maxPlane, lowMaskPlane;
-  static const uint32_t startDetBit, maskChannel, maxChannel, lowMaskChannel;
+  static const uint32_t startDetBit, maskDet, maxDet, lowMaskDet;
 
   /// returns true if the raw ID is a PPS-timing one
   static bool check(unsigned int raw)
@@ -51,21 +51,21 @@ class CTPPSDiamondDetId : public CTPPSDetId
     return ((id_>>startPlaneBit) & maskPlane);
   }
 
-  void setPlane(uint32_t channel)
+  void setPlane(uint32_t det)
   {
     id_ &= ~(maskPlane << startPlaneBit);
-    id_ |= ((channel & maskPlane) << startPlaneBit);
+    id_ |= ((det & maskPlane) << startPlaneBit);
   }
 
-  uint32_t channel() const
+  uint32_t det() const
   {
-    return ((id_>>startDetBit) & maskChannel);
+    return ((id_>>startDetBit) & maskDet);
   }
 
-  void setChannel(uint32_t channel)
+  void setDet(uint32_t det)
   {
-    id_ &= ~(maskChannel << startDetBit);
-    id_ |= ((channel & maskChannel) << startDetBit);
+    id_ &= ~(maskDet << startDetBit);
+    id_ |= ((det & maskDet) << startDetBit);
   }
 
   //-------------------- id getters for higher-level objects --------------------
@@ -98,7 +98,7 @@ class CTPPSDiamondDetId : public CTPPSDetId
         case nPath: planeName(name, flag); name += "/channel "; break;
       }
 
-      name += channelNames[channel()];
+      name += channelNames[det()];
     }
     
   private:

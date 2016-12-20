@@ -168,9 +168,14 @@ QuickTrackAssociatorByHitsProducer::produce(edm::StreamID, edm::Event& iEvent, c
    if(useClusterTPAssociation_)  {
      edm::Handle<ClusterTPAssociation> clusterAssocHandle;
      iEvent.getByToken(cluster2TPToken_,clusterAssocHandle);
-     clusterAssoc = clusterAssocHandle.product();
+
+     if(clusterAssocHandle.isValid()) {
+       clusterAssoc = clusterAssocHandle.product();
+     } else {
+       edm::LogInfo( "TrackAssociator" ) << "ClusterTPAssociation not found. Using DigiSimLink based associator";
+     }
    }
-   else {
+   if(not clusterAssoc) {
      // If control got this far then either useClusterTPAssociation_ was false or getting the cluster
      // to TrackingParticle association from the event failed. Either way I need to create a hit associator.
      trackAssoc = std::make_unique<TrackerHitAssociator>(iEvent, trackerHitAssociatorConfig_);

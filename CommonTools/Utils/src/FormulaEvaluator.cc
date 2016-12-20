@@ -255,7 +255,7 @@ namespace {
         }
         //need to account for closing parenthesis
         ++leftEvaluatorInfo.nextParseIndex;
-        leftEvaluatorInfo.top->setPrecedenceToParenthesis();
+        leftEvaluatorInfo.evaluator->setPrecedenceToParenthesis();
       } else {
         //Does not start with a '('
         int maxParseDistance = 0;
@@ -315,7 +315,10 @@ namespace {
           }
         }
       } else {
-        binaryEval->setLeftEvaluator(leftEvaluatorInfo.top);
+        binaryEval->setLeftEvaluator(leftEvaluatorInfo.evaluator);
+        if (topNode->precedence() > binaryEval->precedence()) {
+          topNode = fullExpression.evaluator;
+        }
       }
       fullExpression.top = topNode;
       return fullExpression;

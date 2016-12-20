@@ -42,16 +42,16 @@ public:
   }
 
   Trajectory fitOne(const Trajectory& aTraj,
-		    fitType type) const override;
+		    fitType type) const;
   Trajectory fitOne(const TrajectorySeed& aSeed,
 		    const RecHitContainer& hits,
-		    fitType type) const override;
+		    fitType type) const;
  Trajectory fitOne(const TrajectorySeed& aSeed,
 		    const RecHitContainer& hits,
 		    const TSOS& firstPredTsos,
-		    fitType type) const override;
+		    fitType type) const;
 
-  virtual void setHitCloner(TkCloner const * hc)  override{
+  virtual void setHitCloner(TkCloner const * hc) {
         fitter.setHitCloner(hc);
   }
 

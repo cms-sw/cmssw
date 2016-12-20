@@ -351,7 +351,7 @@ public:
   }
 
   // Possibility to veto an MPI.
-  bool canVetoMPIEmission() override {
+  bool canVetoMPIEmission() {
     bool test = false;
     for (Pythia8::UserHooks *hook : hooks_) {
       test |= hook->canVetoMPIEmission();

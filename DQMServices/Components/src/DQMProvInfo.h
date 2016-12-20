@@ -28,13 +28,13 @@ class DQMProvInfo : public DQMEDAnalyzer {
   virtual ~DQMProvInfo();
 
  protected:
-  void dqmBeginRun(const edm::Run& r, const edm::EventSetup& c) override ;
+  void dqmBeginRun(const edm::Run& r, const edm::EventSetup& c) ;
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
   void beginLuminosityBlock(const edm::LuminosityBlock& l,
-                            const edm::EventSetup& c) override;
-  void analyze(const edm::Event& e, const edm::EventSetup& c) override;
+                            const edm::EventSetup& c);
+  void analyze(const edm::Event& e, const edm::EventSetup& c);
   void endLuminosityBlock(const edm::LuminosityBlock& l,
-                          const edm::EventSetup& c) override;
+                          const edm::EventSetup& c);
 
  private:
   void bookHistogramsLhcInfo(DQMStore::IBooker &);
