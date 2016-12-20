@@ -171,17 +171,6 @@ math::XYZPoint HGCalImagingAlgo::calculatePosition(std::vector<KDNode> &v){
 			 z/total_weight );
 } 
 
-double HGCalImagingAlgo::distance(const Hexel &pt1, const Hexel &pt2){
-  return std::sqrt(distance2(pt1,pt2));
-}
-
-double HGCalImagingAlgo::distance2(const Hexel &pt1, const Hexel &pt2){
-  const double dx = pt1.x - pt2.x;
-  const double dy = pt1.y - pt2.y;
-  return (dx*dx + dy*dy);
-}
-
-
 double HGCalImagingAlgo::calculateLocalDensity(std::vector<KDNode> &nd, KDTree &lp){
   double maxdensity = 0.;
   for(unsigned int i = 0; i < nd.size(); ++i){
