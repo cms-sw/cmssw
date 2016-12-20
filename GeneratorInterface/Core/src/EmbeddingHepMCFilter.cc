@@ -28,9 +28,9 @@ EmbeddingHepMCFilter::EmbeddingHepMCFilter(const edm::ParameterSet & iConfig)
       if ( (*final_state) == "ElEl") 	  	fill_cuts(cut_string_elel,ee);
       else if ( (*final_state) == "MuMu") 	fill_cuts(cut_string_mumu,mm);	
       else if ( (*final_state) == "HadHad") 	fill_cuts(cut_string_hadhad,hh);	
-      else if ( (*final_state) == "ElMu") 	fill_cuts(cut_string_hadhad,em);	
-      else if ( (*final_state) == "ElHad") 	fill_cuts(cut_string_hadhad,eh);
-      else if ( (*final_state) == "MuHad") 	fill_cuts(cut_string_hadhad,mh);
+      else if ( (*final_state) == "ElMu") 	fill_cuts(cut_string_elmu,em);	
+      else if ( (*final_state) == "ElHad") 	fill_cuts(cut_string_elhad,eh);
+      else if ( (*final_state) == "MuHad") 	fill_cuts(cut_string_muhad,mh);
       else edm::LogWarning("EmbeddingHepMCFilter") << (*final_state) << " this decay channel is not supported. Please choose on of (ElEl,MuMu,HadHad,ElMu,ElHad,MuHad)";
      }
 }
@@ -77,9 +77,10 @@ EmbeddingHepMCFilter::filter(const HepMC::GenEvent* evt)
     // For mixed decay channels use the Electron_Muon, Electron_Hadronic, Muon_Hadronic convention.
     // For symmetric decay channels (e.g. Muon_Muon) use Leading_Trailing convention with respect to Pt.
     sort_by_convention(p4VisPair_);
-    edm::LogInfo("EmbeddingHepMCFilter") << "Quantities of the visible decay products:";
-    edm::LogInfo("EmbeddingHepMCFilter") << "Pt's: " << " 1st " << p4VisPair_[0].Pt() << ", 2nd " << p4VisPair_[1].Pt();
-    edm::LogInfo("EmbeddingHepMCFilter") << "Eta's: " << " 1st " << p4VisPair_[0].Eta() << ", 2nd " << p4VisPair_[1].Eta();
+    edm::LogInfo("EmbeddingHepMCFilter") << "Quantities of the visible decay products:"
+    << "\tPt's: " << " 1st " << p4VisPair_[0].Pt() << ", 2nd " << p4VisPair_[1].Pt()
+    << "\tEta's: " << " 1st " << p4VisPair_[0].Eta() << ", 2nd " << p4VisPair_[1].Eta()
+    << " decay channel: " << return_mode(DecayChannel_.first)<< return_mode(DecayChannel_.second);
     
     return apply_cuts(p4VisPair_);
 }
@@ -181,7 +182,7 @@ void EmbeddingHepMCFilter::fill_cuts(std::string  cut_string, EmbeddingHepMCFilt
   for(unsigned int i=0; i<cut_paths.size(); ++i){
     // Translating the cuts of a path into a struct which is later accessed to apply them on a event.
       CutsContainer cut;
-      fill_cut(cut_paths[i], ee, cut);
+      fill_cut(cut_paths[i], dc, cut);
       cuts_.push_back(cut);
   }
 }
