@@ -2591,7 +2591,7 @@ void TrackingNtuple::fillTrackingVertices(const TrackingVertexRefVector& trackin
       for(const auto& tpRef: tps) {
         auto found = tpKeyToIndex.find(tpRef.key());
         if(found != tpKeyToIndex.end()) {
-          idx.push_back(tpRef.key());
+          idx.push_back(found->second);
         }
       }
     };
