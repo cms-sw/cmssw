@@ -12,8 +12,6 @@
 typedef CaloCellGeometry::Tr3D Tr3D;
 typedef std::vector<float> ParmVec;
 
-//#define EDM_ML_DEBUG
-
 FastTimeGeometry::FastTimeGeometry( const FastTimeTopology& topology_ )
   : m_topology(topology_),
     m_cellVec(topology_.totalGeomModules()),

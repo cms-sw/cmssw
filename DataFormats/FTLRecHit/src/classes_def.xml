@@ -1,6 +1,6 @@
 <lcgdict>
   <class name="FTLUncalibratedRecHit" ClassVersion="3">
-    <version ClassVersion="3" checksum="1729432336"/>
+    <version ClassVersion="3" checksum="1851827400"/>
   </class>
   <class name="std::vector<FTLUncalibratedRecHit>"/>
   <class name="FTLUncalibratedRecHitCollection"/>

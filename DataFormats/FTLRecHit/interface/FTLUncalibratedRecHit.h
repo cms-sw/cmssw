@@ -18,30 +18,22 @@ class FTLUncalibratedRecHit {
   };
 
   FTLUncalibratedRecHit();
-  FTLUncalibratedRecHit(const DetId& detId, float ampl, float ped,
-                          float jit, float chi2, uint32_t flags = 0, uint32_t aux = 0);
+  FTLUncalibratedRecHit(const DetId& detId, float ampl, float time, uint32_t flags = 0, uint32_t aux = 0);
 
-  virtual ~FTLUncalibratedRecHit();
+  ~FTLUncalibratedRecHit();
   float amplitude() const { return amplitude_; }
-  float pedestal() const { return pedestal_; }
-  float jitter() const { return jitter_; }
-  float chi2() const { return chi2_; }
-  float outOfTimeEnergy() const { return OOTamplitude_; }
-  float outOfTimeChi2() const { return OOTchi2_; }
+  float time() const { return time_; }
+  
 
   uint32_t flags() const { return flags_; }
-  float jitterError() const;
-  uint8_t jitterErrorBits() const;
+  float timeError() const;
+  uint8_t timeErrorBits() const;
   DetId  id() const { return id_; }
 
   void setAmplitude( float amplitude ) { amplitude_ = amplitude; }
-  void setPedestal( float pedestal ) { pedestal_ = pedestal; }
-  void setJitter( float jitter ) { jitter_ = jitter; }
-  void setChi2( float chi2 ) { chi2_ = chi2; }
-  void setOutOfTimeEnergy( float energy ) { OOTamplitude_ = energy; }
-  void setOutOfTimeChi2( float chi2 ){ OOTchi2_ = chi2; }
+  void setTime( float time ) { time_ = time; }
 
-  void setJitterError( float jitterErr );
+  void setTimeError( float timeErr );
   void setFlags( uint32_t flags ) { flags_ = flags; }
   void setId( DetId id ) { id_ = id; }
   void setAux( uint32_t aux ) { aux_ = aux; }
@@ -49,16 +41,12 @@ class FTLUncalibratedRecHit {
   bool checkFlag(Flags flag) const;
 
   bool isSaturated() const;
-  bool isJitterValid() const;
-  bool isJitterErrorValid() const;
+  bool isTimeValid() const;
+  bool isTimeErrorValid() const;
 
  private:
   float amplitude_;    //< Reconstructed amplitude
-  float pedestal_;     //< Reconstructed pedestal
-  float jitter_;       //< Reconstructed time jitter
-  float chi2_;         //< Chi2 of the pulse
-  float OOTamplitude_; //< Out-Of-Time reconstructed amplitude 
-  float OOTchi2_;      //< Out-Of-Time Chi2 
+  float time_;       //< Reconstructed time jitter
   uint32_t flags_;     //< flag to be propagated to RecHit
   uint32_t aux_;       //< aux word; first 8 bits contain time (jitter) error
   DetId  id_;          //< Detector ID
