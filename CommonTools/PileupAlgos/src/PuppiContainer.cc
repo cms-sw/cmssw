@@ -30,9 +30,13 @@ void PuppiContainer::initialize(const std::vector<RecoObj> &iRecoObjects) {
     //Clear everything
     fRecoParticles.resize(0);
     fPFParticlesNodes.resize(0);
+    fPFParticlesEta.resize(0);
+    fPFParticlesPhi.resize(0);
     fPFParticles  .resize(0);
     fPFParticlesTree.clear();
     fChargedPVNodes.resize(0);
+    fChargedPVEta.resize(0);
+    fChargedPVPhi.resize(0);
     fChargedPV    .resize(0);
     fChargedPVTree.clear();
     fPupParticles .resize(0);
@@ -50,9 +54,9 @@ void PuppiContainer::initialize(const std::vector<RecoObj> &iRecoObjects) {
     std::array<float,2> minpos({ {0.0f,0.0f} }), maxpos({ {0.0f,0.0f} });
     std::array<float,2> chminpos({ {0.0f,0.0f} }), chmaxpos({ {0.0f,0.0f} });
 
-    for (unsigned int i = 0; i < fRecoParticles.size(); i++){
+    for (unsigned int i = 0; i < fRecoParticles.size(); ++i){
         fastjet::PseudoJet curPseudoJet;
-        auto fRecoParticle = fRecoParticles[i];
+        const auto& fRecoParticle = fRecoParticles[i];
         // float nom = sqrt((fRecoParticle.m)*(fRecoParticle.m) + (fRecoParticle.pt)*(fRecoParticle.pt)*(cosh(fRecoParticle.eta))*(cosh(fRecoParticle.eta))) + (fRecoParticle.pt)*sinh(fRecoParticle.eta);//hacked
         // float denom = sqrt((fRecoParticle.m)*(fRecoParticle.m) + (fRecoParticle.pt)*(fRecoParticle.pt));//hacked
         // float rapidity = log(nom/denom);//hacked
@@ -69,11 +73,14 @@ void PuppiContainer::initialize(const std::vector<RecoObj> &iRecoObjects) {
         curPseudoJet.set_user_info( new PuppiUserInfo( puppi_register ) );
         // fill vector of pseudojets for internal references
 	const double eta = curPseudoJet.eta();
-	const double phi = curPseudoJet.phi();
+	double phi = curPseudoJet.phi();
+	if( phi > M_PI ) phi -= 2*M_PI; // convert to atan2 notation [-pi,pi]
         fPFParticlesNodes.emplace_back(i,(float)eta,(float)phi);
 	fPFParticlesNodes.emplace_back(i,(float)eta,(float)(phi+2*M_PI));
 	fPFParticlesNodes.emplace_back(i,(float)eta,(float)(phi-2*M_PI));
 	fPFParticles.push_back(curPseudoJet);
+	fPFParticlesEta.push_back(eta);
+	fPFParticlesPhi.push_back(phi);
 	
 	if( i == 0 ) {
 	  minpos[0] = eta; minpos[1] = phi-2*M_PI;
@@ -99,7 +106,9 @@ void PuppiContainer::initialize(const std::vector<RecoObj> &iRecoObjects) {
 	  fChargedPVNodes.emplace_back(fChargedPV.size(),(float)eta,(float)phi);
 	  fChargedPVNodes.emplace_back(fChargedPV.size(),(float)eta,(float)(phi+2*M_PI));
 	  fChargedPVNodes.emplace_back(fChargedPV.size(),(float)eta,(float)(phi-2*M_PI));
-	  fChargedPV.push_back(curPseudoJet);	  
+	  fChargedPV.push_back(curPseudoJet);
+	  fChargedPVEta.push_back(eta);
+	  fChargedPVPhi.push_back(phi);
 	}
         if(std::abs(fRecoParticle.id) >= 1 ) fPVFrac+=1.;
         //if((fRecoParticle.id == 0) && (inParticles[i].id == 2))  _genParticles.push_back( curPseudoJet);
@@ -136,9 +145,12 @@ double PuppiContainer::var_within_R(int iId, const vector<PseudoJet> & particles
     //the original code used Selector infrastructure: it is too heavy here
     //logic of SelectorCircle is preserved below
 
+    const double R2 = R*R;
+
     std::vector<KDNode> found;
     const double centreEta = centre.eta();
-    const double centrePhi = centre.phi();
+    double centrePhi = centre.phi();
+    if( centrePhi > M_PI ) centrePhi -= 2*M_PI; // convert to atan2 notation [-pi,pi]
     KDTreeBox bounds((float)(centreEta - R), (float)(centreEta + R),
 		     (float)(centrePhi - R), (float)(centrePhi + R));
 
@@ -146,19 +158,26 @@ double PuppiContainer::var_within_R(int iId, const vector<PseudoJet> & particles
       fPFParticlesTree.search(bounds,found);
     } else if( &particles == &fChargedPV ) {
       fChargedPVTree.search(bounds,found);
+    } else {
+      throw cms::Exception("InvalidParticleCollection")
+	<< "var_within_R passed a collection that is not fPFParticles or fChargedPV!";
     }
 
     vector<double > near_dR2s;     near_dR2s.reserve(found.size());
     vector<double > near_pts;      near_pts.reserve(found.size());
     for( auto const& node : found ) {
-      const double dr2 = reco::deltaR2(centreEta,node.dims[0],centrePhi,node.dims[1]);      
-      if( dr2 < R*R ){
+      double pt, dr2;
+      if( &particles == &fPFParticles ) {
+	dr2 = reco::deltaR2(centreEta,centrePhi,fPFParticlesEta[node.data],fPFParticlesPhi[node.data]); 
+	near_pts.push_back(fPFParticles[node.data].pt());
+      } else if( &particles == &fChargedPV ) {
+	dr2 = reco::deltaR2(centreEta,fChargedPVEta[node.data],centrePhi,fChargedPVPhi[node.data]); 
+	near_pts.push_back(fChargedPV[node.data].pt());
+      }
+      
+      if( dr2 < R2 ) {
 	near_dR2s.push_back(dr2);
-	if( &particles == &fPFParticles ) {
-	  near_pts.push_back(fPFParticles[node.data].pt());
-	} else if( &particles == &fChargedPV ) {
-	  near_pts.push_back(fChargedPV[node.data].pt());
-	}
+	near_pts.push_back(pt);	
       }
     }
     double var = 0;
@@ -166,15 +185,28 @@ double PuppiContainer::var_within_R(int iId, const vector<PseudoJet> & particles
     //if(iId == 1) for(auto  pt : near_pts) lSumPt += pt;
     auto nParts = near_dR2s.size();
     for(auto i = 0UL; i < nParts; ++i){
-        auto inv_dr2 = 1.0/near_dR2s[i];
-        auto pt  = near_pts[i];
-        if(near_dR2s[i]  <  0.0001) continue;
-        if(iId == 0) var += (pt * inv_dr2);
-        else if(iId == 1) var += pt;
-        else if(iId == 2) var += (inv_dr2);
-        else if(iId == 3) var += (inv_dr2);
-        else if(iId == 4) var += pt;
-        else if(iId == 5) var += (pt * pt * inv_dr2);
+      if(near_dR2s[i]  <  0.0001) continue;
+      auto inv_dr2 = 1.0/near_dR2s[i];
+      auto pt  = near_pts[i];
+      
+      switch(iId) {
+      case 0:
+	var += (pt * inv_dr2);
+	break;
+      case 1:
+      case 4:
+	var += pt;
+	break;
+      case 2:
+      case 3:
+	var += (inv_dr2);
+	break;
+      case 5:
+	var += (pt * pt * inv_dr2);
+	break;
+      default:
+	break;
+      }      
     }
     if(iId == 1) var += centre.pt(); //Sum in a cone
     else if(iId == 0 && var != 0) var = log(var);
