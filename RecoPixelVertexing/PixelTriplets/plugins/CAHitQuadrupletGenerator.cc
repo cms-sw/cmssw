@@ -264,8 +264,12 @@ void CAHitQuadrupletGenerator::hitQuadruplets(const TrackingRegion& region,
   std::array<GlobalPoint, 4> gps;
   std::array<GlobalError, 4> ges;
   std::array<bool, 4> barrels;
-  int fourthLayerId = -1;
-  int previousfourthLayerId = -2;
+  unsigned int fourthLayerId = 0;
+  unsigned int previousfourthLayerId = 0;
+  int subDetId = 0; 
+  int previousSubDetId = 0;
+  unsigned int sideId = 0; 
+  unsigned int previousSideId = 0; 
   std::array<unsigned int, 2> previousCellIds ={{0,0}};
   bool isTheSameTriplet = false;
   bool isTheSameFourthLayer = false;
@@ -299,8 +303,10 @@ void CAHitQuadrupletGenerator::hitQuadruplets(const TrackingRegion& region,
     if(caOnlyOneLastHitPerLayerFilter)
     {
             fourthLayerId = tTopo->layer(ahit->geographicalId());
+            sideId = tTopo->side(ahit->geographicalId());
+            subDetId = ahit->geographicalId().subdetId();
 	    isTheSameTriplet = (quadId != 0) && (foundQuadruplets[quadId][0]->getCellId() ==  previousCellIds[0]) && (foundQuadruplets[quadId][1]->getCellId() ==  previousCellIds[1]);
-	    isTheSameFourthLayer = (fourthLayerId == previousfourthLayerId);
+            isTheSameFourthLayer = (quadId != 0) &&  (fourthLayerId == previousfourthLayerId) && (subDetId == previousSubDetId) && (sideId == previousSideId);
 
 	    previousCellIds = {{foundQuadruplets[quadId][0]->getCellId(), foundQuadruplets[quadId][1]->getCellId()}};
 	    previousfourthLayerId = fourthLayerId;
