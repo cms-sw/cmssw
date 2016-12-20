@@ -132,7 +132,7 @@ void KfTrackProducerBase::putInEvt(edm::Event& evt,
     t2t(*theTraj,*selHits,trajParams);
     auto ie = selHits->size();
     tx.setHits(rHits,ih,ie-ih);
-    tx.setTrajParams(trajParams);
+    tx.setTrajParams(std::move(trajParams));
     assert(tx.trajParams().size()==tx.recHitsSize());
     for (;ih<ie; ++ih) {
       auto const & hit = (*selHits)[ih];
