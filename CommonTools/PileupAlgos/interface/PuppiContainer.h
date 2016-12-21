@@ -105,7 +105,7 @@ protected:
     double fPVFrac;
     std::vector<PuppiAlgo> fPuppiAlgo;
 
-    std::vector<double> fPFParticlesEta, fChargedPVEta;
+    std::vector<double> fPFParticlesRap, fChargedPVRap;
     std::vector<double> fPFParticlesPhi, fChargedPVPhi;
 };
 #endif

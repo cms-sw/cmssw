@@ -29,12 +29,12 @@ void PuppiContainer::initialize(const std::vector<RecoObj> &iRecoObjects) {
     //Clear everything
     fRecoParticles.resize(0);
     fPFParticlesNodes.resize(0);
-    fPFParticlesEta.resize(0);
+    fPFParticlesRap.resize(0);
     fPFParticlesPhi.resize(0);
     fPFParticles  .resize(0);
     fPFParticlesTree.clear();
     fChargedPVNodes.resize(0);
-    fChargedPVEta.resize(0);
+    fChargedPVRap.resize(0);
     fChargedPVPhi.resize(0);
     fChargedPV    .resize(0);
     fChargedPVTree.clear();
@@ -71,42 +71,42 @@ void PuppiContainer::initialize(const std::vector<RecoObj> &iRecoObjects) {
         if(fRecoParticle.id == 2 and fRecoParticle.charge != 0) puppi_register = fRecoParticle.charge+5; // from NPV use the charge as key +5 as key
         curPseudoJet.set_user_info( new PuppiUserInfo( puppi_register ) );
         // fill vector of pseudojets for internal references
-	const double eta = curPseudoJet.eta();
+	const double rap = curPseudoJet.rapidity();
 	double phi = curPseudoJet.phi();
 	if( phi > M_PI ) phi -= 2*M_PI; // convert to atan2 notation [-pi,pi]
-        fPFParticlesNodes.emplace_back(i,(float)eta,(float)phi);
-	fPFParticlesNodes.emplace_back(i,(float)eta,(float)(phi+2*M_PI));
-	fPFParticlesNodes.emplace_back(i,(float)eta,(float)(phi-2*M_PI));
+        fPFParticlesNodes.emplace_back(i,(float)rap,(float)phi);
+	fPFParticlesNodes.emplace_back(i,(float)rap,(float)(phi+2*M_PI));
+	fPFParticlesNodes.emplace_back(i,(float)rap,(float)(phi-2*M_PI));
 	fPFParticles.push_back(curPseudoJet);
-	fPFParticlesEta.push_back(eta);
+	fPFParticlesRap.push_back(rap);
 	fPFParticlesPhi.push_back(phi);
 	
 	if( i == 0 ) {
-	  minpos[0] = eta; minpos[1] = phi-2*M_PI;
-	  maxpos[0] = eta; maxpos[1] = phi+2*M_PI;
+	  minpos[0] = rap; minpos[1] = phi-2*M_PI;
+	  maxpos[0] = rap; maxpos[1] = phi+2*M_PI;
 	} else {
-	  minpos[0] = std::min((float)eta,minpos[0]);
+	  minpos[0] = std::min((float)rap,minpos[0]);
 	  minpos[1] = std::min((float)(phi-2*M_PI),minpos[1]);
-	  maxpos[0] = std::max((float)eta,maxpos[0]);
+	  maxpos[0] = std::max((float)rap,maxpos[0]);
 	  maxpos[1] = std::max((float)(phi+2*M_PI),maxpos[1]);	  
 	}
 	
         //Take Charged particles associated to PV
         if(std::abs(fRecoParticle.id) == 1) { 
 	  if( fChargedPV.size() == 0 ) {
-	    chminpos[0] = eta; chminpos[1] = phi-2*M_PI;
-	    chmaxpos[0] = eta; chmaxpos[1] = phi+2*M_PI;
+	    chminpos[0] = rap; chminpos[1] = phi-2*M_PI;
+	    chmaxpos[0] = rap; chmaxpos[1] = phi+2*M_PI;
 	  } else {
-	    chminpos[0] = std::min((float)eta,chminpos[0]);
+	    chminpos[0] = std::min((float)rap,chminpos[0]);
 	    chminpos[1] = std::min((float)(phi-2*M_PI),chminpos[1]);
-	    chmaxpos[0] = std::max((float)eta,chmaxpos[0]);
+	    chmaxpos[0] = std::max((float)rap,chmaxpos[0]);
 	    chmaxpos[1] = std::max((float)(phi+2*M_PI),chmaxpos[1]);	  
 	  }
-	  fChargedPVNodes.emplace_back(fChargedPV.size(),(float)eta,(float)phi);
-	  fChargedPVNodes.emplace_back(fChargedPV.size(),(float)eta,(float)(phi+2*M_PI));
-	  fChargedPVNodes.emplace_back(fChargedPV.size(),(float)eta,(float)(phi-2*M_PI));
+	  fChargedPVNodes.emplace_back(fChargedPV.size(),(float)rap,(float)phi);
+	  fChargedPVNodes.emplace_back(fChargedPV.size(),(float)rap,(float)(phi+2*M_PI));
+	  fChargedPVNodes.emplace_back(fChargedPV.size(),(float)rap,(float)(phi-2*M_PI));
 	  fChargedPV.push_back(curPseudoJet);
-	  fChargedPVEta.push_back(eta);
+	  fChargedPVRap.push_back(rap);
 	  fChargedPVPhi.push_back(phi);
 	}
         if(std::abs(fRecoParticle.id) >= 1 ) fPVFrac+=1.;
@@ -148,10 +148,10 @@ double PuppiContainer::var_within_R(int iId, const vector<PseudoJet> & particles
     const double R2 = R*R;
 
     std::vector<KDNode> found;
-    const double centreEta = centre.eta();
+    const double centreRap = centre.rapidity();
     double centrePhi = centre.phi();
     if( centrePhi > M_PI ) centrePhi -= 2*M_PI; // convert to atan2 notation [-pi,pi]
-    KDTreeBox bounds((float)(centreEta - Rprime), (float)(centreEta + Rprime),
+    KDTreeBox bounds((float)(centreRap - Rprime), (float)(centreRap + Rprime),
 		     (float)(centrePhi - Rprime), (float)(centrePhi + Rprime));
 
     if( &particles == &fPFParticles ) {
@@ -167,9 +167,9 @@ double PuppiContainer::var_within_R(int iId, const vector<PseudoJet> & particles
     for( auto const& node : found ) {
       double pt(std::numeric_limits<double>::max()), dr2(std::numeric_limits<double>::max());
       if( &particles == &fPFParticles ) {
-	dr2 = reco::deltaR2(centreEta,centrePhi,fPFParticlesEta[node.data],fPFParticlesPhi[node.data]); 
+	dr2 = reco::deltaR2(centreRap,centrePhi,fPFParticlesRap[node.data],fPFParticlesPhi[node.data]); 
       } else if( &particles == &fChargedPV ) {
-	dr2 = reco::deltaR2(centreEta,centrePhi,fChargedPVEta[node.data],fChargedPVPhi[node.data]); 
+	dr2 = reco::deltaR2(centreRap,centrePhi,fChargedPVRap[node.data],fChargedPVPhi[node.data]); 
       }
       
       if( dr2 >= R2 || dr2  <  0.0001 ) continue;
