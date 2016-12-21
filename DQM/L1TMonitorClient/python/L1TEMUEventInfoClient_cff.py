@@ -231,8 +231,8 @@ l1temuEventInfoClient.L1Systems = cms.VPSet(
                             )
                         ),                                 
                     cms.PSet(
-                        SystemLabel = cms.string("GCT"),
-                        HwValLabel = cms.string("GCT"),
+                        SystemLabel = cms.string("Stage1Layer2"),
+                        HwValLabel = cms.string("Stage1Layer2"),
                         SystemDisable  = cms.uint32(0),
                         QualityTests = cms.VPSet(
                             cms.PSet(
@@ -415,7 +415,7 @@ l1temuEventInfoClient.L1Objects = cms.VPSet(
                         QualityTests = cms.VPSet(
                             cms.PSet(
                                 QualityTestName = cms.string("L1EmulatorHfRingEtSumsGctErrorFlagQT"),
-                                QualityTestHist = cms.string("L1TEMU/GCTexpert/HFSums/HFSumsErrorFlag"),
+                                QualityTestHist = cms.string("L1TEMU/Stage1Layer2expert/Stage1HFSums/Stage1HFSumsErrorFlag"),
                                 QualityTestSummaryEnabled = cms.uint32(1)
                                 )
                             )
@@ -426,7 +426,7 @@ l1temuEventInfoClient.L1Objects = cms.VPSet(
                         QualityTests = cms.VPSet(
                             cms.PSet(
                                 QualityTestName = cms.string("L1EmulatorHfBitCountsGctErrorFlagQT"),
-                                QualityTestHist = cms.string("L1TEMU/GCTexpert/HFCnts/HFCntsErrorFlag"),
+                                QualityTestHist = cms.string("L1TEMU/Stage1Layer2expert/HFCnts/HFCntsErrorFlag"),
                                 QualityTestSummaryEnabled = cms.uint32(1)
                                 )
                             )
@@ -437,7 +437,7 @@ l1temuEventInfoClient.L1Objects = cms.VPSet(
                         QualityTests = cms.VPSet(
                             cms.PSet(
                                 QualityTestName = cms.string("L1EmulatorHtmGctErrorFlagQT"),
-                                QualityTestHist = cms.string("L1TEMU/GCTexpert/MHT/MHTErrorFlag"),
+                                QualityTestHist = cms.string("L1TEMU/Stage1Layer2expert/MHT/MHTErrorFlag"),
                                 QualityTestSummaryEnabled = cms.uint32(1)
                                 )
                             )
@@ -448,7 +448,7 @@ l1temuEventInfoClient.L1Objects = cms.VPSet(
                         QualityTests = cms.VPSet(
                             cms.PSet(
                                 QualityTestName = cms.string("L1EmulatorHttGctErrorFlagQT"),
-                                QualityTestHist = cms.string("L1TEMU/GCTexpert/HT/HTErrorFlag"),
+                                QualityTestHist = cms.string("L1TEMU/Stage1Layer2expert/HT/HTErrorFlag"),
                                 QualityTestSummaryEnabled = cms.uint32(1)
                                 )
                             )
@@ -459,7 +459,7 @@ l1temuEventInfoClient.L1Objects = cms.VPSet(
                         QualityTests = cms.VPSet(
                             cms.PSet(
                                 QualityTestName = cms.string("L1EmulatorEtmGctErrorFlagQT"),
-                                QualityTestHist = cms.string("L1TEMU/GCTexpert/MET/METErrorFlag"),
+                                QualityTestHist = cms.string("L1TEMU/Stage1Layer2expert/MET/METErrorFlag"),
                                 QualityTestSummaryEnabled = cms.uint32(1)
                                 )
                             )
@@ -470,18 +470,23 @@ l1temuEventInfoClient.L1Objects = cms.VPSet(
                         QualityTests = cms.VPSet(
                             cms.PSet(
                                 QualityTestName = cms.string("L1EmulatorEttGctErrorFlagQT"),
-                                QualityTestHist = cms.string("L1TEMU/GCTexpert/ET/ETErrorFlag"),
+                                QualityTestHist = cms.string("L1TEMU/Stage1Layer2expert/ET/ETErrorFlag"),
                                 QualityTestSummaryEnabled = cms.uint32(1)
                                 )
                             )
                         ),                                 
                     cms.PSet(
-                        ObjectLabel = cms.string("TauJet"),
+                        ObjectLabel = cms.string("Tau"),
                         ObjectDisable  = cms.uint32(0),
                         QualityTests = cms.VPSet(
                             cms.PSet(
                                 QualityTestName = cms.string("L1EmulatorTauJetGctErrorFlagQT"),
-                                QualityTestHist = cms.string("L1TEMU/GCTexpert/TauJet/TauJetErrorFlag"),
+                                QualityTestHist = cms.string("L1TEMU/Stage1Layer2expert/TauJet/TauJetErrorFlag"),
+                                QualityTestSummaryEnabled = cms.uint32(1)
+                                ),
+                            cms.PSet(
+                                QualityTestName = cms.string("L1EmulatorIsoTauJetGctErrorFlagQT"),
+                                QualityTestHist = cms.string("L1TEMU/Stage1Layer2expert/IsoTauJet/IsoTauJetErrorFlag"),
                                 QualityTestSummaryEnabled = cms.uint32(1)
                                 )
                             )
@@ -492,7 +497,7 @@ l1temuEventInfoClient.L1Objects = cms.VPSet(
                         QualityTests = cms.VPSet(
                             cms.PSet(
                                 QualityTestName = cms.string("L1EmulatorForJetGctErrorFlagQT"),
-                                QualityTestHist = cms.string("L1TEMU/GCTexpert/ForJet/ForJetErrorFlag"),
+                                QualityTestHist = cms.string("L1TEMU/Stage1Layer2expert/ForJet/ForJetErrorFlag"),
                                 QualityTestSummaryEnabled = cms.uint32(1)
                                 )
                             )
@@ -503,7 +508,7 @@ l1temuEventInfoClient.L1Objects = cms.VPSet(
                         QualityTests = cms.VPSet(
                             cms.PSet(
                                 QualityTestName = cms.string("L1EmulatorCenJetGctErrorFlagQT"),
-                                QualityTestHist = cms.string("L1TEMU/GCTexpert/CenJet/CenJetErrorFlag"),
+                                QualityTestHist = cms.string("L1TEMU/Stage1Layer2expert/CenJet/CenJetErrorFlag"),
                                 QualityTestSummaryEnabled = cms.uint32(1)
                                 )
                             )
@@ -514,7 +519,7 @@ l1temuEventInfoClient.L1Objects = cms.VPSet(
                         QualityTests = cms.VPSet(
                             cms.PSet(
                                 QualityTestName = cms.string("L1EmulatorIsoEGGctErrorFlagQT"),
-                                QualityTestHist = cms.string("L1TEMU/GCTexpert/IsoEM/IsoEMErrorFlag"),
+                                QualityTestHist = cms.string("L1TEMU/Stage1Layer2expert/IsoEM/IsoEMErrorFlag"),
                                 QualityTestSummaryEnabled = cms.uint32(1)
                                 )
                             )
@@ -525,7 +530,7 @@ l1temuEventInfoClient.L1Objects = cms.VPSet(
                         QualityTests = cms.VPSet(
                             cms.PSet(
                                 QualityTestName = cms.string("L1EmulatorNoIsoEGGctErrorFlagQT"),
-                                QualityTestHist = cms.string("L1TEMU/GCTexpert/NoisoEM/NoisoEMErrorFlag"),
+                                QualityTestHist = cms.string("L1TEMU/Stage1Layer2expert/NoisoEM/NoisoEMErrorFlag"),
                                 QualityTestSummaryEnabled = cms.uint32(1)
                                 )
                             )

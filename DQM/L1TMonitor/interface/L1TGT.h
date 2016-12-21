@@ -155,9 +155,6 @@ private:
 
     MonitorElement* m_monOrbitNrDiffTcsFdlEvm;
     MonitorElement* m_monLsNrDiffTcsFdlEvm;
-    MonitorElement* runId_;
-    MonitorElement* lumisecId_;
-    MonitorElement* runStartTimeStamp_;
     // maximum difference in orbit number, luminosity number
     // histogram range: -(MaxOrbitNrDiffTcsFdlEvm+1), (MaxOrbitNrDiffTcsFdlEvm+1)
     //   if value is greater than the maximum difference, fill an entry in the last but one bin

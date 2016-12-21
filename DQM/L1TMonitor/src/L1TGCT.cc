@@ -110,15 +110,10 @@ L1TGCT::~L1TGCT()
 
 void L1TGCT::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const&, edm::EventSetup const&)
 {
-
   nev_ = 0;
 
   ibooker.setCurrentFolder(monitorDir_);
-  runId_     = ibooker.bookInt("iRun");
-  runId_->Fill(-1);
-  lumisecId_ = ibooker.bookInt("iLumiSection");
-  lumisecId_->Fill(-1);
-  
+
   triggerType_ =ibooker.book1D("TriggerType", "TriggerType", 17, -0.5, 16.5);
 
   l1GctAllJetsEtEtaPhi_ = ibooker.book2D("AllJetsEtEtaPhi", "CENTRAL AND FORWARD JET E_{T}",JETETABINS, JETETAMIN, JETETAMAX,PHIBINS, PHIMIN, PHIMAX);
@@ -221,11 +216,9 @@ void L1TGCT::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const&, edm::Ev
 
 
 void L1TGCT::dqmBeginRun(edm::Run const& iRrun, edm::EventSetup const& evSetup) {
-  //runId_->Fill(iRrun.id().run());
 }
 
 void L1TGCT::beginLuminosityBlock(const edm::LuminosityBlock& iLumi, const edm::EventSetup& evSetup) {
-  //lumisecId_->Fill(iLumi.id().luminosityBlock());
 }
 
 void L1TGCT::analyze(const edm::Event & e, const edm::EventSetup & c)

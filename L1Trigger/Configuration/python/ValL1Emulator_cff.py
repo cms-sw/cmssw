@@ -70,6 +70,7 @@ valCaloStage1LegacyFormatDigis.InputHFCountsCollection = cms.InputTag("simCaloSt
 valCaloStage1LegacyFormatDigis.bxMin = cms.int32(0)
 valCaloStage1LegacyFormatDigis.bxMax = cms.int32(0)
 
+#from L1Trigger.L1TCalorimeter.caloStage1Params_cfi import *
 
 # DT TP emulator
 from L1Trigger.DTTrigger.dtTriggerPrimitiveDigis_cfi import *
@@ -127,7 +128,7 @@ valGmtDigis.DTCandidates = cms.InputTag('l1GtUnpack','DT')
 valGmtDigis.CSCCandidates = cms.InputTag('l1GtUnpack','CSC')
 valGmtDigis.RPCbCandidates = cms.InputTag('l1GtUnpack','RPCb')
 valGmtDigis.RPCfCandidates = cms.InputTag('l1GtUnpack','RPCf')
-valGmtDigis.MipIsoData = 'gctDigis'
+valGmtDigis.MipIsoData = 'caloStage1Digis'
 
 # producers for technical triggers 
 #

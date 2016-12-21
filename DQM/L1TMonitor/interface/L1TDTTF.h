@@ -91,8 +91,6 @@ class L1TDTTF : public DQMEDAnalyzer {
   MonitorElement* dttf_gmt_match;
   MonitorElement* dttf_gmt_missed;
   MonitorElement* dttf_gmt_ghost;
-  MonitorElement* runId_;
-  MonitorElement* lumisecId_;
   // MonitorElement* dttf_gmt_ghost_phys;
 
   int nev_; // Number of events processed
