@@ -23,8 +23,8 @@
 
 SiPixelPhase1TrackEfficiency::SiPixelPhase1TrackEfficiency(const edm::ParameterSet& iConfig) :
   SiPixelPhase1Base(iConfig) 
-{
-  trackAssociationToken_ = consumes<TrajTrackAssociationCollection>(iConfig.getParameter<edm::InputTag>("trajectories"));
+{ 
+  tracksToken_ = consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("tracks"));
   vtxToken_ = consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("primaryvertices"));
 }
 
@@ -43,22 +43,19 @@ void SiPixelPhase1TrackEfficiency::analyze(const edm::Event& iEvent, const edm::
   //const auto primaryVertex = vertices->at(0); 
 
   // get the map
-  edm::Handle<TrajTrackAssociationCollection> ttac;
-  iEvent.getByToken( trackAssociationToken_, ttac);
+  edm::Handle<reco::TrackCollection> tracks;
+  iEvent.getByToken( tracksToken_, tracks);
 
-  for (auto& item : *ttac) {
-    auto trajectory_ref = item.key;
-    reco::TrackRef track_ref = item.val;
+  for (auto const & track : *tracks) {
 
     bool isBpixtrack = false, isFpixtrack = false;
     int nStripHits = 0;
 
     // first, look at the full track to see whether it is good
-    for (auto& measurement : trajectory_ref->measurements()) {
-      // check if things are all valid
-      if (!measurement.updatedState().isValid()) continue;
-      auto hit = measurement.recHit();
-      if (!hit->isValid()) continue;
+    auto hb = track.recHitsBegin();
+    for(unsigned int h=0;h<track.recHitsSize();h++){
+       auto hit = *(hb+h);
+      if(!hit->isValid()) continue;
 
       DetId id = hit->geographicalId();
       uint32_t subdetid = (id.subdetId());
@@ -77,9 +74,8 @@ void SiPixelPhase1TrackEfficiency::analyze(const edm::Event& iEvent, const edm::
     if (!isBpixtrack && !isFpixtrack) continue;
 
     // then, look at each hit
-    for (auto& measurement : trajectory_ref->measurements()) {
-      if (!measurement.updatedState().isValid()) continue;
-      auto hit = measurement.recHit();
+    for(unsigned int h=0;h<track.recHitsSize();h++){
+      auto hit = *(hb+h);
 
       DetId id = hit->geographicalId();
       uint32_t subdetid = (id.subdetId());
