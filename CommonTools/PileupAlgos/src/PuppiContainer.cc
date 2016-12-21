@@ -21,8 +21,7 @@ PuppiContainer::PuppiContainer(const edm::ParameterSet &iConfig) {
     std::vector<edm::ParameterSet> lAlgos = iConfig.getParameter<std::vector<edm::ParameterSet> >("algos");
     fNAlgos = lAlgos.size();
     for(unsigned int i0 = 0; i0 < lAlgos.size(); i0++) {
-        PuppiAlgo pPuppiConfig(lAlgos[i0]);
-        fPuppiAlgo.push_back(pPuppiConfig);
+      fPuppiAlgo.emplace_back(lAlgos[i0]);
     }
 }
 
@@ -145,14 +144,15 @@ double PuppiContainer::var_within_R(int iId, const vector<PseudoJet> & particles
     //the original code used Selector infrastructure: it is too heavy here
     //logic of SelectorCircle is preserved below
 
+    const double Rprime = R + 0.001; // make sure there is no roundoff in kd-tree search
     const double R2 = R*R;
 
     std::vector<KDNode> found;
     const double centreEta = centre.eta();
     double centrePhi = centre.phi();
     if( centrePhi > M_PI ) centrePhi -= 2*M_PI; // convert to atan2 notation [-pi,pi]
-    KDTreeBox bounds((float)(centreEta - R), (float)(centreEta + R),
-		     (float)(centrePhi - R), (float)(centrePhi + R));
+    KDTreeBox bounds((float)(centreEta - Rprime), (float)(centreEta + Rprime),
+		     (float)(centrePhi - Rprime), (float)(centrePhi + Rprime));
 
     if( &particles == &fPFParticles ) {
       fPFParticlesTree.search(bounds,found);
@@ -162,36 +162,21 @@ double PuppiContainer::var_within_R(int iId, const vector<PseudoJet> & particles
       throw cms::Exception("InvalidParticleCollection")
 	<< "var_within_R passed a collection that is not fPFParticles or fChargedPV!";
     }
-
-    vector<double > near_dR2s;     near_dR2s.reserve(found.size());
-    vector<double > near_pts;      near_pts.reserve(found.size());
+    
+    double var = 0;
     for( auto const& node : found ) {
-      double pt, dr2;
+      double pt(std::numeric_limits<double>::max()), dr2(std::numeric_limits<double>::max());
       if( &particles == &fPFParticles ) {
 	dr2 = reco::deltaR2(centreEta,centrePhi,fPFParticlesEta[node.data],fPFParticlesPhi[node.data]); 
-	near_pts.push_back(fPFParticles[node.data].pt());
       } else if( &particles == &fChargedPV ) {
-	dr2 = reco::deltaR2(centreEta,fChargedPVEta[node.data],centrePhi,fChargedPVPhi[node.data]); 
-	near_pts.push_back(fChargedPV[node.data].pt());
+	dr2 = reco::deltaR2(centreEta,centrePhi,fChargedPVEta[node.data],fChargedPVPhi[node.data]); 
       }
       
-      if( dr2 < R2 ) {
-	near_dR2s.push_back(dr2);
-	near_pts.push_back(pt);	
-      }
-    }
-    double var = 0;
-    //double lSumPt = 0;
-    //if(iId == 1) for(auto  pt : near_pts) lSumPt += pt;
-    auto nParts = near_dR2s.size();
-    for(auto i = 0UL; i < nParts; ++i){
-      if(near_dR2s[i]  <  0.0001) continue;
-      auto inv_dr2 = 1.0/near_dR2s[i];
-      auto pt  = near_pts[i];
+      if( dr2 >= R2 || dr2  <  0.0001 ) continue;
       
       switch(iId) {
       case 0:
-	var += (pt * inv_dr2);
+	var += (pt / dr2);
 	break;
       case 1:
       case 4:
@@ -199,15 +184,16 @@ double PuppiContainer::var_within_R(int iId, const vector<PseudoJet> & particles
 	break;
       case 2:
       case 3:
-	var += (inv_dr2);
+	var += (1.0/dr2);
 	break;
       case 5:
-	var += (pt * pt * inv_dr2);
+	var += (pt * pt / dr2);
 	break;
       default:
 	break;
-      }      
+      }
     }
+        
     if(iId == 1) var += centre.pt(); //Sum in a cone
     else if(iId == 0 && var != 0) var = log(var);
     else if(iId == 3 && var != 0) var = log(var);
