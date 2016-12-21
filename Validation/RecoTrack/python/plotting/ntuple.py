@@ -532,6 +532,30 @@ class TrackMatchInfo(_Object):
         self._checkIsValid()
         return Track(self._tree, getattr(self._tree, self._prefix+"_trkIdx")[self._index][self._trkindex])
 
+class SeedMatchInfo(_Object):
+    """Class representing a match to a Seed.
+
+    The point of this class is to provide an interface compatible with
+    all other "MatchInfo" classes
+
+    """
+    def __init__(self, tree, index, seedindex, prefix):
+        """Constructor.
+
+        Arguments:
+        tree     -- TTree object
+        index    -- Index of the object (TrackingParticle) matched to seed
+        seedindex -- Index of the seed match (second index in _trkIdx branch)
+        prefix   -- String for prefix of the object (TrackingParticle) matched to seed
+        """
+        super(SeedMatchInfo, self).__init__(tree, index, prefix)
+        self._seedindex = seedindex
+
+    def seed(self):
+        """Returns matched Seed."""
+        self._checkIsValid()
+        return Seed(self._tree, getattr(self._tree, self._prefix+"_seedIdx")[self._index][self._seedindex])
+
 ##########
 class Track(_Object, _RecoHitAdaptor, _TrackingParticleMatchAdaptor):
     """Class presenting a track."""
@@ -835,6 +859,24 @@ class TrackingParticle(_Object, _SimHitAdaptor):
         self._checkIsValid()
         for imatch in xrange(self._nMatchedTracks()):
             yield TrackMatchInfo(self._tree, self._index, imatch, self._prefix)
+
+    def _nMatchedSeeds(self):
+        """Internal function to get the number of matched seeds."""
+        return self._tree.sim_seedIdx[self._index].size()
+
+    def nMatchedSeeds(self):
+        """Returns the number of matched seeds."""
+        self._checkIsValid()
+        return self._nMatchedSeeds()
+
+    def matchedSeedInfos(self):
+        """Returns a generator for matched tracks.
+
+        The generator returns SeedMatchInfo objects.
+        """
+        self._checkIsValid()
+        for imatch in xrange(self._nMatchedSeeds()):
+            yield SeedMatchInfo(self._tree, self._index, imatch, self._prefix)
 
     def parentVertex(self):
         """Returns the parent TrackingVertex."""
