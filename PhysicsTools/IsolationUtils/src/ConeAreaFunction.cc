@@ -97,7 +97,7 @@ void ConeAreaFunction::SetParameterPhi0(double phi0)
   phi0_ = normalizedPhi(phi0); // map azimuth angle into interval [-pi,+pi]
 }
 
-void ConeAreaFunction::SetParameters(double* param)
+void ConeAreaFunction::SetParameters(const double* param)
 {
   if ( debugLevel_ > 0 ) {
     edm::LogVerbatim("") << "<ConeAreaFunction::SetParameters>:" << std::endl
