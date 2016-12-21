@@ -352,23 +352,24 @@ const std::vector<std::pair<std::string, float> > & Jet::getPairDiscri() const {
 /// get b discriminant from label name
 float Jet::bDiscriminator(const std::string & aLabel) const {
   float discriminator = -1000.;
-  const std::string & theLabel = ((aLabel == "" || aLabel == "default")) ? "trackCountingHighEffBJetTags" : aLabel;
-  for(unsigned int i=0; i!=pairDiscriVector_.size(); i++){
-    if(pairDiscriVector_[i].first == theLabel){
+  for(int i=(int(pairDiscriVector_.size())-1); i>=0; i--){
+    if(pairDiscriVector_[i].first == aLabel){
       discriminator = pairDiscriVector_[i].second;
+      break;
     }
   }
   return discriminator;
 }
 
 const reco::BaseTagInfo * Jet::tagInfo(const std::string &label) const {
-    std::vector<std::string>::const_iterator it = std::find(tagInfoLabels_.begin(), tagInfoLabels_.end(), label);
-    if (it != tagInfoLabels_.end()) {
-      if ( tagInfosFwdPtr_.size() > 0 ) return tagInfosFwdPtr_[it - tagInfoLabels_.begin()].get();
-      else if ( tagInfos_.size() > 0 )  return & tagInfos_[it - tagInfoLabels_.begin()];
+  for(int i=(int(tagInfoLabels_.size())-1); i>=0; i--){
+    if (tagInfoLabels_[i] == label) {
+      if ( tagInfosFwdPtr_.size() > 0 ) return tagInfosFwdPtr_[i].get();
+      else if ( tagInfos_.size() > 0 )  return & tagInfos_[i];
       return 0;
     }
-    return 0;
+  }
+  return 0;
 }
 
 

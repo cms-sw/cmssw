@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-patJetsUpdated = cms.EDProducer("PATJetUpdater",
+updatedPatJets = cms.EDProducer("PATJetUpdater",
     # input
     jetSource = cms.InputTag("slimmedJets"),
     # add user data
@@ -27,7 +27,16 @@ patJetsUpdated = cms.EDProducer("PATJetUpdater",
     ),
     # jet energy corrections
     addJetCorrFactors    = cms.bool(True),
-    jetCorrFactorsSource = cms.VInputTag(cms.InputTag("patJetCorrFactorsUpdated") ),
+    jetCorrFactorsSource = cms.VInputTag(cms.InputTag("updatedPatJetCorrFactors") ),
+    # btag information
+    addBTagInfo          = cms.bool(True),   ## master switch
+    addDiscriminators    = cms.bool(True),   ## addition of btag discriminators
+    discriminatorSources = cms.VInputTag(),
+    # clone tag infos ATTENTION: these take lots of space!
+    # usually the discriminators from the default algos
+    # are sufficient
+    addTagInfos     = cms.bool(False),
+    tagInfoSources  = cms.VInputTag()
 )
 
 

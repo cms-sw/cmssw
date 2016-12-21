@@ -578,7 +578,25 @@ void CandidateBoostedDoubleSecondaryVertexComputer::calcNsubjettiness(const reco
   for(const reco::CandidatePtr & daughter : jet->daughterPtrVector())
   {
     if ( daughter.isNonnull() && daughter.isAvailable() )
-      fjParticles.push_back( fastjet::PseudoJet( daughter->px(), daughter->py(), daughter->pz(), daughter->energy() ) );
+    {
+      const reco::Jet * subjet = dynamic_cast<const reco::Jet *>(daughter.get());
+      // if the daughter is actually a subjet
+      if( subjet && daughter->numberOfDaughters() > 1 )
+      {
+        // loop over subjet constituents and push them in the vector of FastJet constituents
+        for(size_t i=0; i<daughter->numberOfDaughters(); ++i)
+        {
+          const reco::Candidate * constit = daughter->daughter(i);
+
+          if ( constit )
+            fjParticles.push_back( fastjet::PseudoJet( constit->px(), constit->py(), constit->pz(), constit->energy() ) );
+          else
+            edm::LogWarning("MissingJetConstituent") << "Jet constituent required for N-subjettiness computation is missing!";
+        }
+      }
+      else
+        fjParticles.push_back( fastjet::PseudoJet( daughter->px(), daughter->py(), daughter->pz(), daughter->energy() ) );
+    }
     else
       edm::LogWarning("MissingJetConstituent") << "Jet constituent required for N-subjettiness computation is missing!";
   }
