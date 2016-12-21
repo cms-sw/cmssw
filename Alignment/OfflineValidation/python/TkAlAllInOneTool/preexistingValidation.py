@@ -42,6 +42,7 @@ class PreexistingValidation(GenericValidation):
         config.checkInput("preexisting"+valType+":"+self.name,
                           knownSimpleOptions = knownOpts,
                           ignoreOptions = ignoreOpts)
+        self.jobmode = None
 
     def getRepMap(self):
         result = self.general
@@ -74,7 +75,7 @@ class PreexistingValidation(GenericValidation):
     def createFiles(self, *args, **kwargs):
         raise AllInOneError("Shouldn't be here...")
     def createConfiguration(self, *args, **kwargs):
-        raise AllInOneError("Shouldn't be here...")
+        pass
     def createScript(self, *args, **kwargs):
         raise AllInOneError("Shouldn't be here...")
     def createCrabCfg(self, *args, **kwargs):
@@ -88,7 +89,7 @@ class PreexistingOfflineValidation(PreexistingValidation):
             "DMRMinimum":"30",
             "DMROptions":"",
             "OfflineTreeBaseDir":"TrackHitFilter",
-            "SurfaceShapes":"none"
+            "SurfaceShapes":"coarse",
             }
         defaults.update(addDefaults)
         PreexistingValidation.__init__(self, valName, config, "offline",

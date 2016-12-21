@@ -24,6 +24,8 @@ class ZMuMuValidation(GenericValidationData):
         GenericValidationData.__init__(self, valName, alignment, config,
                                        "zmumu", addDefaults=defaults,
                                        addMandatories=mandatories)
+        if self.general["zmumureference"].startswith("/store"):
+            self.general["zmumureference"] = "root://eoscms//eos/cms" + self.general["zmumureference"]
         if self.NJobs > 1:
             raise AllInOneError("Parallel jobs not implemented for the Z->mumu validation!\n"
                                 "Please set parallelJobs = 1.")
@@ -42,12 +44,16 @@ class ZMuMuValidation(GenericValidationData):
         return GenericValidationData.createCrabCfg(self, path, self.crabCfgBaseName)
 
     def getRepMap(self, alignment = None):
+        if alignment == None:
+            alignment = self.alignmentToValidate
         repMap = GenericValidationData.getRepMap(self, alignment) 
         repMap.update({
             "nEvents": self.general["maxevents"],
-#             "outputFile": "zmumuHisto.root"
             "outputFile": ("0_zmumuHisto.root"
                            ",genSimRecoPlots.root"
-                           ",FitParameters.txt")
+                           ",FitParameters.txt"),
+            "eosdir": os.path.join(self.general["eosdir"], "%s/%s/%s" % (self.outputBaseName, self.name, alignment.name)),
+            "workingdir": ".oO[datadir]Oo./%s/%s/%s" % (self.outputBaseName, self.name, alignment.name),
+            "plotsdir": ".oO[datadir]Oo./%s/%s/%s/plots" % (self.outputBaseName, self.name, alignment.name),
                 })
         return repMap
