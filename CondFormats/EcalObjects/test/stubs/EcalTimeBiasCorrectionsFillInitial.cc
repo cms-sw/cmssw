@@ -33,7 +33,6 @@ class EcalTimeBiasCorrectionsFillInitial : public edm::EDAnalyzer {
   ~EcalTimeBiasCorrectionsFillInitial();
 
   void analyze(const edm::Event &, const edm::EventSetup &);
-  void beginJob(const edm::EventSetup &);
   void endJob();
 
  private:
@@ -84,8 +83,6 @@ EcalTimeBiasCorrectionsFillInitial::EcalTimeBiasCorrectionsFillInitial(
 
 EcalTimeBiasCorrectionsFillInitial::~EcalTimeBiasCorrectionsFillInitial() {}
 
-void EcalTimeBiasCorrectionsFillInitial::beginJob(
-    const edm::EventSetup &iSetup) {}
 void EcalTimeBiasCorrectionsFillInitial::analyze(
     const edm::Event &iEvent, const edm::EventSetup &iSetup) {}
 void EcalTimeBiasCorrectionsFillInitial::endJob() {
