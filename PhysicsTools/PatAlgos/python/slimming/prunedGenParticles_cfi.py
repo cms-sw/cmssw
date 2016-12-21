@@ -16,7 +16,7 @@ prunedGenParticles = cms.EDProducer("GenParticlePruner",
         "keep abs(pdgId) == 23 || abs(pdgId) == 24 || abs(pdgId) == 25 || abs(pdgId) == 6 || abs(pdgId) == 37 ",   # keep VIP(articles)s
         "keep abs(pdgId) == 310 && abs(eta) < 2.5 && pt > 1 ",                                                     # keep K0
 # keep heavy flavour quarks for parton-based jet flavour
-	"keep (4 <= abs(pdgId) <= 5) & (status = 2 || status = 11 || status = 71 || status = 72)",
+	"keep (4 <= abs(pdgId) <= 5)",
 # keep light-flavour quarks and gluons for parton-based jet flavour
 	"keep (1 <= abs(pdgId) <= 3 || pdgId = 21) & (status = 2 || status = 11 || status = 71 || status = 72) && pt>5", 
 # keep b and c hadrons for hadron-based jet flavour
