@@ -31,4 +31,13 @@
   <class name="edm::Wrapper<edm::DetSetVector<TotemRPLocalTrack>>"/>
   <class name="edm::DetSetVector<TotemRPLocalTrack::FittedRecHit>"/>
   <class name="edm::Wrapper<edm::DetSetVector<TotemRPLocalTrack::FittedRecHit>>"/>
+  <class name="std::vector<edm::DetSet<TotemRPLocalTrack::FittedRecHit> >"/>
+  <class name="std::vector<TotemRPLocalTrack::FittedRecHit>"/>
+
+  <class name="CTPPSLocalTrackLite"  ClassVersion="2">
+    <version ClassVersion="2" checksum="3838813906"/>
+  </class>
+  <class name="std::vector<CTPPSLocalTrackLite>"/>
+  <class name="edm::Wrapper<CTPPSLocalTrackLite>"/>
+  <class name="edm::Wrapper<std::vector<CTPPSLocalTrackLite>>"/>
 </lcgdict>
