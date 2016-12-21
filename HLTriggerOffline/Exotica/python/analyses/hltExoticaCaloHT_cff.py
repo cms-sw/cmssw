@@ -11,9 +11,9 @@ CaloHTPSet = cms.PSet(
         "HLT_HT470to500_v",        # HT Parking
         "HLT_HT500to550_v",        # HT Parking
         "HLT_HT550to650_v",        # HT Parking
-        "DST_HT250_CaloScouting_v", # scouting
-        "DST_CaloJet40_CaloScouting_v",
-        "DST_L1HTT125ORHTT150ORHTT175_CaloScouting_v"
+        #"DST_HT250_CaloScouting_v", # scouting # moved to DSTJets category
+        #"DST_CaloJet40_CaloScouting_v", # moved to DSTJets category
+        #"DST_L1HTT125ORHTT150ORHTT175_CaloScouting_v" # moved to DSTJets category
         ),
     recCaloMHTLabel  = cms.InputTag("recoExoticaValidationCaloHT"),
     recCaloJetLabel  = cms.InputTag("ak4CaloJets"),
