@@ -198,6 +198,19 @@ StandardSpecificationPixelmapProfile = [
        .save(),
 ]
 
+StandardSpecificationOccupancy = [
+    Specification(PerLayer2D)
+       .groupBy("PXBarrel/PXLayer/SignedLadderCoord/SignedModuleCoord")
+       .groupBy("PXBarrel/PXLayer/SignedLadderCoord", "EXTEND_X")
+       .groupBy("PXBarrel/PXLayer", "EXTEND_Y")
+       .save(),
+    Specification(PerLayer2D)
+       .groupBy("PXForward/PXRing/SignedBladePanelCoord/SignedDiskCoord")
+       .groupBy("PXForward/PXRing/SignedBladePanelCoord", "EXTEND_X")
+       .groupBy("PXForward/PXRing", "EXTEND_Y")
+       .save(),
+]
+
 # the same for NDigis and friends. Needed due to technical limitations...
 StandardSpecifications1D_Num = [
     Specification(PerLadder).groupBy("PXBarrel/Shell/PXLayer/PXLadder/DetId/Event") 
