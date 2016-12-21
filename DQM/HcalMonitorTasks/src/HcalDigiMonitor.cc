@@ -446,7 +446,24 @@ void HcalDigiMonitor::setupSubdetHists(DQMStore::IBooker &ib, DigiHists& hist, s
 				 15, -7.5, 7.5);
 }
 
-void HcalDigiMonitor::analyze(edm::Event const&e, edm::EventSetup const&s)
+//	
+//	Added to handle any possible exceptions(cms::Exception or std::exception)
+//	Possible Exceptions come from HcalDCCHeader processing
+//	There are no return codes...
+//
+void HcalDigiMonitor::analyze(edm::Event const& e, edm::EventSetup const& es)
+{
+	try
+	{
+		this->analyze_(e,es);
+	}
+	catch(...)
+	{
+		return;
+	}
+}
+
+void HcalDigiMonitor::analyze_(edm::Event const&e, edm::EventSetup const&s)
 {
   HcalBaseDQMonitor::analyze(e, s);
 
@@ -570,6 +587,8 @@ void HcalDigiMonitor::analyze(edm::Event const&e, edm::EventSetup const&s)
 		  i<=FEDNumbering::MAXHCALuTCAFEDID; i++) {
 	  //	skip all the uHBHE FEDs for the moment
 	  if (i>FEDNumbering::MAXHCALFEDID && i<1118)
+		  continue;
+	  if (i<1118)
 		  continue;
     const FEDRawData& fed = rawraw->FEDData(i);
     if (fed.size()<12) continue;  //At least the size of headers and trailers of a DCC.    

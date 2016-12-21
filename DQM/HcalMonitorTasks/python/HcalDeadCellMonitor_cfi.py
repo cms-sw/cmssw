@@ -22,7 +22,7 @@ hcalDeadCellMonitor=cms.EDAnalyzer("HcalDeadCellMonitor",
                                    hfRechitLabel          = cms.untracked.InputTag("hfreco"),
                                    digiLabel              = cms.untracked.InputTag("hcalDigis"),
                                    # minimum number of events necessary for lumi-block-based checking to commence
-                                   minDeadEventCount      = cms.untracked.int32(1000),
+                                   minDeadEventCount      = cms.untracked.int32(250),
 
                                    excludeHORing2         = cms.untracked.bool(False),
                                    excludeHO1P02          = cms.untracked.bool(False),
