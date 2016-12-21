@@ -202,7 +202,7 @@ ME0Geometry* ME0GeometryBuilderFromDDD10EtaPart::buildGeometry(DDFilteredView& f
 
 
       // loop over etapartitions of the layer
-      bool doEtaParts = fv.firstChild();
+      bool doEtaParts = fv.firstChild(); 
       while (doEtaParts) {
 	// pick up DetId
 	MuonDDDNumbering mdddnum(muonConstants);
