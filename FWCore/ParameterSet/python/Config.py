@@ -2106,7 +2106,7 @@ process.addSubProcess(cms.SubProcess(process = childProcess, SelectEvents = cms.
             p.a = EDAnalyzer("MyAnalyzer", fred = vuint32(1,2,3))
             raised = False
             try: m1.toModify(p.a, fred = {5:7})
-            except IndexError, e: raised = True
+            except IndexError as e: raised = True
             self.assertEqual(raised, True)
             #test TypeError setting a value in a list using a key that is not an int
             m1 = Modifier()
@@ -2114,7 +2114,7 @@ process.addSubProcess(cms.SubProcess(process = childProcess, SelectEvents = cms.
             p.a = EDAnalyzer("MyAnalyzer", flintstones = VPSet(PSet(fred = int32(1)), PSet(wilma = int32(1))))
             raised = False
             try: m1.toModify(p.a, flintstones = dict(bogus = int32(37)))
-            except TypeError, e: raised = True
+            except TypeError as e: raised = True
             self.assertEqual(raised, True)
             #test that load causes process wide methods to run
             def _rem_a(proc):

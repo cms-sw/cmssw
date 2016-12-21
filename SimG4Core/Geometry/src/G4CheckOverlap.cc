@@ -35,7 +35,9 @@ G4CheckOverlap::G4CheckOverlap(const edm::ParameterSet &p) {
 
   G4LogicalVolume* lv;
   const G4PhysicalVolumeStore * pvs = G4PhysicalVolumeStore::GetInstance();
+  const G4LogicalVolumeStore * lvs = G4LogicalVolumeStore::GetInstance();
   unsigned int numPV = pvs->size();
+  unsigned int numLV = lvs->size();
   unsigned int nn = nodeNames.size();
 
   std::vector<G4String> savedgdml;
@@ -45,7 +47,8 @@ G4CheckOverlap::G4CheckOverlap(const edm::ParameterSet &p) {
 	 << "; tolerance= " << tolerance/mm << " mm; verbose: " 
 	 << verbose << "\n"
 	 << "               RegionFlag: " << regionFlag
-	 << "  PVname: " << PVname << "  LVname: " << LVname << G4endl;
+	 << "  PVname: " << PVname << "  LVname: " << LVname << "\n"
+	 << "               Nlv= " << numLV << "   Npv= " << numPV << G4endl;
 
   if(0 < nn) { 
     for (unsigned int ii=0; ii<nn; ++ii) {
@@ -128,8 +131,6 @@ G4CheckOverlap::G4CheckOverlap(const edm::ParameterSet &p) {
   }
   if("" != LVname) {
     G4cout << "---------- List of Logical Volumes by name ------------------" << G4endl;
-    const G4LogicalVolumeStore * lvs = G4LogicalVolumeStore::GetInstance();
-    unsigned int numLV = lvs->size();
     for (unsigned int i=0; i<numLV; ++i) {
       if(LVname == ((*lvs)[i])->GetName()) {
 	G4int np = ((*lvs)[i])->GetNoDaughters();

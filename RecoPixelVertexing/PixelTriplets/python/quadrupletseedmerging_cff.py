@@ -62,6 +62,8 @@ _forPhase1 = dict(
 )
 from Configuration.Eras.Modifier_trackingPhase1_cff import trackingPhase1
 trackingPhase1.toModify(PixelSeedMergerQuadruplets, **_forPhase1)
+from Configuration.Eras.Modifier_trackingPhase1QuadProp_cff import trackingPhase1QuadProp
+trackingPhase1QuadProp.toModify(PixelSeedMergerQuadruplets, **_forPhase1)
 from Configuration.Eras.Modifier_trackingPhase1PU70_cff import trackingPhase1PU70
 trackingPhase1PU70.toModify(PixelSeedMergerQuadruplets, **_forPhase1)
 from Configuration.Eras.Modifier_trackingPhase2PU140_cff import trackingPhase2PU140

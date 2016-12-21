@@ -132,9 +132,9 @@ class ConfdbToOpenHLT:
         # Setup a fake process and load the HLT configuration for the reference menu
         refimportcommand = "import refhltmenu"
         refprocess = cms.Process("MyReferenceProcess")
-        exec refimportcommand
+        exec(refimportcommand)
         reftheextend = "refprocess.extend(refhltmenu)"
-        exec reftheextend
+        exec(reftheextend)
 
         # Get HLT reference prescales
         myservices = refprocess.services_()
@@ -161,9 +161,9 @@ class ConfdbToOpenHLT:
         # Setup a fake process and load the HLT configuration for the new menu
         importcommand = "import temphltmenu"
         process = cms.Process("MyProcess")
-        exec importcommand
+        exec(importcommand)
         theextend = "process.extend(temphltmenu)"
-        exec theextend
+        exec(theextend)
 
         # JH Get HLT prescales from a new ConfDB menu
         myconfdbservices = process.services_()

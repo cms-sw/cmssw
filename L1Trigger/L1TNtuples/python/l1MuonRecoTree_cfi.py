@@ -24,6 +24,11 @@ l1MuonRecoTree = cms.EDAnalyzer("L1Muon2RecoTreeProducer",
         "HLT_Mu40_v*",
         "HLT_Mu50_v*",
         "HLT_Mu55_v*",
+        # pA triggers
+        "HLT_PAL3Mu12_v*",
+        "HLT_PAL3Mu15_v*",
+        "HLT_PAL2Mu12_v*",
+        "HLT_PAL2Mu15_v*",
         ),
 
   # data best guess: change for MC!

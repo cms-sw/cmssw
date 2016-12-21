@@ -22,6 +22,14 @@ void L1Analysis::L1AnalysisL1Upgrade::SetEm(const edm::Handle<l1t::EGammaBxColle
 	l1upgrade_.egIPhi.push_back(it->hwPhi());
 	l1upgrade_.egIso.push_back(it->hwIso());
 	l1upgrade_.egBx .push_back(ibx);
+	l1upgrade_.egTowerIPhi.push_back(it->towerIPhi());
+	l1upgrade_.egTowerIEta.push_back(it->towerIEta());
+	l1upgrade_.egRawEt.push_back(it->rawEt());
+	l1upgrade_.egIsoEt.push_back(it->isoEt());
+	l1upgrade_.egFootprintEt.push_back(it->footprintEt());
+	l1upgrade_.egNTT.push_back(it->nTT());
+	l1upgrade_.egShape.push_back(it->shape());
+	l1upgrade_.egTowerHoE.push_back(it->towerHoE());
 	l1upgrade_.nEGs++;
       }
     }

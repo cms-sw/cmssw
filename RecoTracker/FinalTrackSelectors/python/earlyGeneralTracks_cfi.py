@@ -43,8 +43,8 @@ trackingLowPU.toModify(earlyGeneralTracks,
     ]
 )
 from Configuration.Eras.Modifier_trackingPhase1_cff import trackingPhase1
-trackingPhase1.toModify(
-    earlyGeneralTracks,
+from Configuration.Eras.Modifier_trackingPhase1QuadProp_cff import trackingPhase1QuadProp
+_forPhase1 = dict(
     trackProducers = [
         'initialStepTracks',
         'highPtTripletStepTracks',
@@ -70,6 +70,8 @@ trackingPhase1.toModify(
         "tobTecStep"
     ],
 )
+trackingPhase1.toModify(earlyGeneralTracks, **_forPhase1)
+trackingPhase1QuadProp.toModify(earlyGeneralTracks, **_forPhase1)
 
 # For Phase1PU70
 from RecoTracker.FinalTrackSelectors.trackListMerger_cfi import trackListMerger as _trackListMerger
