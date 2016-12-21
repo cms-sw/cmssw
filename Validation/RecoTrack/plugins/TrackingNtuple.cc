@@ -404,6 +404,12 @@ private:
                              const std::vector<TPHitIndex>& tpHitList
                              );
 
+  void fillTrackingParticlesForSeeds(const TrackingParticleRefVector& tpCollection,
+                                     const reco::SimToRecoCollection& simRecColl,
+                                     const TrackingParticleRefKeyToIndex& tpKeyToIndex,
+                                     const unsigned int seedOffset
+                                     );
+
   void fillVertices(const reco::VertexCollection& vertices,
                     const edm::RefToBaseVector<reco::Track>& tracks);
 
@@ -551,6 +557,7 @@ private:
   std::vector<unsigned int> sim_n3DLay  ;
   std::vector<std::vector<int> > sim_trkIdx;      // second index runs through matched tracks
   std::vector<std::vector<float> > sim_shareFrac; // second index runs through matched tracks
+  std::vector<std::vector<int> > sim_seedIdx;      // second index runs through matched seeds
   std::vector<int> sim_parentVtxIdx;
   std::vector<std::vector<int> > sim_decayVtxIdx; // second index runs through decay vertices
   std::vector<std::vector<int> > sim_simHitIdx;   // second index runs through SimHits
@@ -875,6 +882,9 @@ TrackingNtuple::TrackingNtuple(const edm::ParameterSet& iConfig):
   t->Branch("sim_n3DLay"   , &sim_n3DLay   );
   t->Branch("sim_trkIdx"   , &sim_trkIdx   );
   t->Branch("sim_shareFrac", &sim_shareFrac);
+  if(includeSeeds_) {
+    t->Branch("sim_seedIdx"   , &sim_seedIdx   );
+  }
   t->Branch("sim_parentVtxIdx", &sim_parentVtxIdx);
   t->Branch("sim_decayVtxIdx", &sim_decayVtxIdx);
   if(includeAllHits_) {
@@ -1162,6 +1172,7 @@ void TrackingNtuple::clearVariables() {
   sim_nPixelLay.clear();
   sim_n3DLay   .clear();
   sim_trkIdx   .clear();
+  sim_seedIdx   .clear();
   sim_shareFrac.clear();
   sim_parentVtxIdx.clear();
   sim_decayVtxIdx.clear();
@@ -2020,6 +2031,7 @@ void TrackingNtuple::fillSeeds(const edm::Event& iEvent,
       seedTrackRefs.push_back(seedTracks.refAt(i));
     }
     reco::RecoToSimCollection recSimColl = associatorByHits.associateRecoToSim(seedTrackRefs, tpCollection);
+    reco::SimToRecoCollection simRecColl = associatorByHits.associateSimToReco(seedTrackRefs, tpCollection);
 
     edm::EDConsumerBase::Labels labels;
     labelsForToken(seedToken, labels);
@@ -2031,10 +2043,11 @@ void TrackingNtuple::fillSeeds(const edm::Event& iEvent,
     int algo = reco::TrackBase::algoByName(label.Data());
 
     edm::ProductID id = seedTracks[0].seedRef().id();
-    auto inserted = seedCollToOffset.emplace(id, see_fitok.size());
+    const auto offset = see_fitok.size();
+    auto inserted = seedCollToOffset.emplace(id, offset);
     if(!inserted.second)
       throw cms::Exception("Configuration") << "Trying to add seeds with ProductID " << id << " for a second time from collection " << labels.module << ", seed algo " << label << ". Typically this is caused by a configuration problem.";
-    see_offset.push_back(see_fitok.size());
+    see_offset.push_back(offset);
 
     LogTrace("TrackingNtuple") << "NEW SEED LABEL: " << label << " size: " << seedTracks.size() << " algo=" << algo
                                << " ProductID " << id;
@@ -2233,6 +2246,8 @@ void TrackingNtuple::fillSeeds(const edm::Event& iEvent,
       }
       see_chi2   .push_back( chi2 );
     }
+
+    fillTrackingParticlesForSeeds(tpCollection, simRecColl, tpKeyToIndex, offset);
   }
 }
 
@@ -2554,6 +2569,28 @@ void TrackingNtuple::fillTrackingParticles(const edm::Event& iEvent, const edm::
     sim_simHitIdx.push_back(hitIdx);
   }
 }
+
+// called from fillSeeds
+void TrackingNtuple::fillTrackingParticlesForSeeds(const TrackingParticleRefVector& tpCollection,
+                                                   const reco::SimToRecoCollection& simRecColl,
+                                                   const TrackingParticleRefKeyToIndex& tpKeyToIndex,
+                                                   const unsigned int seedOffset) {
+  if(sim_seedIdx.empty()) // first call
+    sim_seedIdx.resize(tpCollection.size());
+
+  for(const auto& keyVal: simRecColl) {
+    const auto& tpRef = keyVal.key;
+    auto found = tpKeyToIndex.find(tpRef.key());
+    if(found == tpKeyToIndex.end())
+      throw cms::Exception("Assert") << __FILE__ << ":" << __LINE__ << " fillTrackingParticlesForSeeds: tpRef.key() " << tpRef.key() << " not found from tpKeyToIndex. tpKeyToIndex size " << tpKeyToIndex.size();
+    const auto tpIndex = found->second;
+    for(const auto& pair: keyVal.val) {
+      const auto& seedRef = pair.first->seedRef();
+      sim_seedIdx[tpIndex].push_back(seedOffset + seedRef.key());
+    }
+  }
+}
+
 
 void TrackingNtuple::fillVertices(const reco::VertexCollection& vertices,
                                   const edm::RefToBaseVector<reco::Track>& tracks) {

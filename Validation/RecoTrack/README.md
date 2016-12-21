@@ -36,6 +36,7 @@ links between the objects:
 * track <-> seed
 * track <-> hit
 * seed <-> hit
+* seed <-> TrackingParticle
 * glued strip hits -> mono and stereo strip hits
 * vertex <-> track
 * hit <-> SimHit
