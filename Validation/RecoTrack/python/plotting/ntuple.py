@@ -548,7 +548,7 @@ class StripHits(_Collection):
         super(StripHits, self).__init__(tree, "str_isBarrel", StripHit)
 
 ##########
-class GluedHit(_Object):
+class GluedHit(_Object, _LayerStrAdaptor):
     """Class representing a matched strip hit."""
     def __init__(self, tree, index):
         """Constructor.
