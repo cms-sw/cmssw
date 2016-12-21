@@ -52,6 +52,13 @@ from RecoMET.METFilters.trackingPOGFilters_cff import *
 ## have for other filters, i.e., true means rejected bad events while false means 
 ## good events.
 
+## The charged hadron muonref filter _________________________________________||
+from RecoMET.METFilters.chargedHadronTrackResolutionFilter_cfi import *
+
+## The muon bad track filter _________________________________________||
+from RecoMET.METFilters.muonBadTrackFilter_cfi import *
+
+
 metFilters = cms.Sequence(
    HBHENoiseFilterResultProducer *
    HBHENoiseFilter *
@@ -61,7 +68,9 @@ metFilters = cms.Sequence(
 #   hcalLaserEventFilter *
    EcalDeadCellTriggerPrimitiveFilter* 
 #   *goodVertices * trackingFailureFilter *
-   eeBadScFilter
+   eeBadScFilter *
 #   ecalLaserCorrFilter *
 #   trkPOGFilters
+   chargedHadronTrackResolutionFilter *
+   muonBadTrackFilter
 )
