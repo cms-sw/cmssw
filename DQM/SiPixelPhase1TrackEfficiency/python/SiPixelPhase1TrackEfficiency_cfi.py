@@ -7,8 +7,8 @@ SiPixelPhase1TrackEfficiencyValid = DefaultHistoTrack.clone(
   xlabel = "valid hits",
   dimensions = 0,
   specs = VPSet(
-    # TODO: Add Occupancy map matching StandardSpecificationsProfile2D here.
-    StandardSpecifications1D_Num
+    StandardSpecifications1D_Num,
+    StandardSpecificationOccupancy,
   )
 )
 
@@ -18,7 +18,8 @@ SiPixelPhase1TrackEfficiencyMissing = DefaultHistoTrack.clone(
   xlabel = "missing hits",
   dimensions = 0,
   specs = VPSet(
-    StandardSpecifications1D_Num
+    StandardSpecifications1D_Num,
+    StandardSpecificationOccupancy,
   )
 )
 

@@ -122,8 +122,8 @@ SiPixelPhase1DigisHitmap = DefaultHistoDigiCluster.clone(
                    .save(),
     Specification(PerModule).groupBy("PXForward/HalfCylinder/PXDisk/PXRing/PXBlade/PXModuleName/row")
                    .groupBy("PXForward/HalfCylinder/PXDisk/PXRing/PXBlade/PXModuleName", "EXTEND_X")
-                   .save()
-
+                   .save(),
+    StandardSpecificationOccupancy,
   )
 )
 
