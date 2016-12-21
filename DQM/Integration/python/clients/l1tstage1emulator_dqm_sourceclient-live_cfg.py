@@ -132,7 +132,7 @@ process.l1demonstage1.COMPARE_COLLS = [
 
 process.l1ExpertDataVsEmulatorStage1.remove(process.l1TdeCSCTF)
 
-process.l1ExpertDataVsEmulatorStage1.remove(process.l1TdeRCT)
+#process.l1ExpertDataVsEmulatorStage1.remove(process.l1TdeRCT)
 
 process.l1demonstage1.HistFolder = cms.untracked.string('L1TEMUStage1')
 
