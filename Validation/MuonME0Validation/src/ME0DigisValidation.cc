@@ -20,6 +20,8 @@ void ME0DigisValidation::bookHistograms(DQMStore::IBooker & ibooker, edm::Run co
 
   LogDebug("MuonME0DigisValidation")<<"+++ Info : finish to get geometry information from ES.\n";
     
+  num_evts = ibooker.book1D( "num_evts", "Number of events; ; Number of events", 1, 0, 2);
+    
   me0_strip_dg_x_local_tot = ibooker.book1D( "me0_strip_dg_x_local_tot", "Local X; X_{local} [cm]; Entries", 60, -30.0, +30.0);
   me0_strip_dg_y_local_tot = ibooker.book1D( "me0_strip_dg_y_local_tot", "Local Y; Y_{local} [cm]; Entries", 100, -50.0, +50.0);
   me0_strip_dg_time_tot = ibooker.book1D( "me0_strip_dg_time_tot", "ToF; ToF [ns]; Entries", 400, -200, +200);
@@ -34,9 +36,9 @@ void ME0DigisValidation::bookHistograms(DQMStore::IBooker & ibooker, edm::Run co
   me0_strip_dg_den_eta_tot = ibooker.book1D( "me0_strip_dg_den_eta_tot", "Denominator; #eta; Entries", 12, 1.8, 3.0);
   me0_strip_dg_num_eta_tot = ibooker.book1D( "me0_strip_dg_num_eta_tot", "Numerator; #eta; Entries", 12, 1.8, 3.0);
     
-  me0_strip_dg_bkg_eta_tot = ibooker.book1D( "me0_strip_dg_bkg_eta_tot", "Total neutron background; #eta; Entries", 12, 1.8, 3.0);
-  me0_strip_dg_bkgElePos_eta = ibooker.book1D( "me0_strip_dg_bkgElePos_eta", "Neutron background: electrons+positrons; #eta; Entries", 12, 1.8, 3.0);
-  me0_strip_dg_bkgNeutral_eta = ibooker.book1D( "me0_strip_dg_bkgNeutral_eta", "Neutron background: gammas+neutrons; #eta; Entries", 12, 1.8, 3.0);
+  me0_strip_dg_bkg_rad_tot = ibooker.book1D( "me0_strip_dg_bkg_radius_tot", "Total neutron background; #eta; Entries", 22, 50, 160);
+  me0_strip_dg_bkgElePos_rad = ibooker.book1D( "me0_strip_dg_bkgElePos_radius", "Neutron background: electrons+positrons; #eta; Entries", 22, 50, 160);
+  me0_strip_dg_bkgNeutral_rad = ibooker.book1D( "me0_strip_dg_bkgNeutral_radius", "Neutron background: gammas+neutrons; #eta; Entries", 22, 50, 160);
 
   for( unsigned int region_num = 0 ; region_num < nregion ; region_num++ ) {
       me0_strip_dg_zr_tot[region_num] = BookHistZR(ibooker,"me0_strip_dg_tot","Digi",region_num);
@@ -93,6 +95,7 @@ void ME0DigisValidation::analyze(const edm::Event& e,
     return ;
   }
     
+  num_evts->Fill(1);
   int count = 1;
 
   for (ME0DigiPreRecoCollection::DigiRangeIterator cItr=ME0Digis->begin(); cItr!=ME0Digis->end(); cItr++) {
@@ -108,11 +111,12 @@ void ME0DigisValidation::analyze(const edm::Event& e,
     Short_t region = (Short_t) id.region();
     Short_t layer = (Short_t) id.layer();
     Short_t chamber = (Short_t) id.chamber();
+    Short_t roll = (Short_t) id.roll();
 
     ME0DigiPreRecoCollection::const_iterator digiItr;
     for (digiItr = (*cItr ).second.first; digiItr != (*cItr ).second.second; ++digiItr)
     {
-        
+
       LocalPoint lp(digiItr->x(), digiItr->y(), 0);
 
       GlobalPoint gp = surface.toGlobal(lp);
@@ -157,6 +161,7 @@ void ME0DigisValidation::analyze(const edm::Event& e,
             Short_t region_sh = id.region();
             Short_t layer_sh = id.layer();
             Short_t chamber_sh = id.chamber();
+            Short_t roll_sh = id.roll();
             
             int region_sh_num = 0 ;
             if ( region_sh == -1 ) region_sh_num = 0 ;
@@ -172,7 +177,7 @@ void ME0DigisValidation::analyze(const edm::Event& e,
                 me0_strip_dg_den_eta_tot->Fill(fabs(gp_sh.eta()));
                 
             }
-            if(!(region == region_sh && layer == layer_sh && chamber == chamber_sh)) continue;
+            if(!(region == region_sh && layer == layer_sh && chamber == chamber_sh && roll = roll_sh)) continue;
             
             Float_t dx_loc = lp_sh.x()-lp.x();
             Float_t dy_loc = lp_sh.y()-lp.y();
@@ -190,10 +195,10 @@ void ME0DigisValidation::analyze(const edm::Event& e,
                 me0_strip_dg_dphi_global_tot_Muon->Fill(dphi_glob);
             
                 me0_strip_dg_dphi_vs_phi_global_tot_Muon->Fill(gp_sh.phi(),dphi_glob);
-            
+                me0_strip_dg_dtime_tot_Muon->Fill(timeOfFlight - timeOfFlight_sh);
+                
                 me0_strip_dg_num_eta[region_num][layer_num]->Fill(fabs(gp_sh.eta()));
                 me0_strip_dg_num_eta_tot->Fill(fabs(gp_sh.eta()));
-                me0_strip_dg_dtime_tot_Muon->Fill(timeOfFlight - timeOfFlight_sh);
             
             }
             
@@ -208,11 +213,11 @@ void ME0DigisValidation::analyze(const edm::Event& e,
       }
         
       if ((abs(particleType) == 11 || abs(particleType) == 22 || abs(particleType) == 2112) && isPrompt == 0)
-          me0_strip_dg_bkg_eta_tot->Fill(fabs(gp.eta()));
+          me0_strip_dg_bkg_rad_tot->Fill(fabs(gp.perp()));
       if ((abs(particleType) == 11) && isPrompt == 0)
-          me0_strip_dg_bkgElePos_eta->Fill(fabs(gp.eta()));
+          me0_strip_dg_bkgElePos_rad->Fill(fabs(gp.perp()));
       if ((abs(particleType) == 22 || abs(particleType) == 2112) && isPrompt == 0)
-          me0_strip_dg_bkgNeutral_eta->Fill(fabs(gp.eta()));
+          me0_strip_dg_bkgNeutral_rad->Fill(fabs(gp.perp()));
         
     }
   }
