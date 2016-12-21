@@ -144,7 +144,11 @@ namespace edm {
       std::cerr << "Error from StreamerInputSource: checksum of Init registry blob failed "
                 << " chksum from registry data = " << adler32_chksum << " from header = "
                 << initView.adler32_chksum() << " host name = " << initView.hostName() << std::endl;
+
       // skip event (based on option?) or throw exception?
+      throw cms::Exception("StreamDeserialization", "Checksum error")
+                << " chksum from registry data = " << adler32_chksum << " from header = "
+                << initView.adler32_chksum() << " host name = " << initView.hostName() << std::endl;
     }
 
     TClass* desc = getTClass(typeid(SendJobHeader));
@@ -214,7 +218,12 @@ namespace edm {
       std::cerr << "Error from StreamerInputSource: checksum of event data blob failed "
                 << " chksum from event = " << adler32_chksum << " from header = "
                 << eventView.adler32_chksum() << " host name = " << eventView.hostName() << std::endl;
+
       // skip event (based on option?) or throw exception?
+      throw cms::Exception("StreamDeserialization", "Checksum error")
+        << " chksum from event = " << adler32_chksum << " from header = "
+        << eventView.adler32_chksum() << " host name = " << eventView.hostName() << std::endl;
+
     }
     if(origsize != 78 && origsize != 0) {
       // compressed
