@@ -145,43 +145,36 @@ protected:
  *
  ************************************************************/
 
-#include <map>
+#include <memory>
 #include <string>
-#include <vector>
-#include <TF1.h>
+
 
 
 class BTagCalibrationReader
 {
 public:
   BTagCalibrationReader() {}
-  BTagCalibrationReader(const BTagCalibration* c,
-                        BTagEntry::OperatingPoint op,
-                        std::string measurementType="comb",
+  BTagCalibrationReader(BTagEntry::OperatingPoint op,
                         std::string sysType="central");
-  ~BTagCalibrationReader() {}
+
+  void load(const BTagCalibration & c,
+            BTagEntry::JetFlavor jf,
+            std::string measurementType="comb");
 
   double eval(BTagEntry::JetFlavor jf,
               float eta,
               float pt,
               float discr=0.) const;
 
-protected:
-  struct TmpEntry {
-    float etaMin;
-    float etaMax;
-    float ptMin;
-    float ptMax;
-    float discrMin;
-    float discrMax;
-    TF1 func;
-  };
-  void setupTmpData(const BTagCalibration* c);
+  std::pair<float, float> min_max_pt(BTagEntry::JetFlavor jf, 
+                                     float eta, 
+                                     float discr=0.) const;
 
-  BTagEntry::Parameters params;
-  std::map<BTagEntry::JetFlavor, std::vector<TmpEntry> > tmpData_;
-  std::vector<bool> useAbsEta;
+protected:
+  class BTagCalibrationReaderImpl;
+  std::auto_ptr<BTagCalibrationReaderImpl> pimpl;
 };
+
 
 #endif  // BTagCalibrationReader_H
 
