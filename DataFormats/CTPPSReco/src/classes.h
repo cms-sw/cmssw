@@ -7,6 +7,8 @@
 #include "DataFormats/CTPPSReco/interface/TotemRPUVPattern.h"
 #include "DataFormats/CTPPSReco/interface/TotemRPLocalTrack.h"
 
+#include "DataFormats/CTPPSReco/interface/CTPPSLocalTrackLite.h"
+
 #include <vector>
 
 namespace DataFormats_CTPPSReco {
@@ -38,5 +40,10 @@ namespace DataFormats_CTPPSReco {
    
     std::vector<edm::DetSet<TotemRPLocalTrack::FittedRecHit> > v_ds_ft_frh;
     std::vector<TotemRPLocalTrack::FittedRecHit> v_ft_frh;
+
+    CTPPSLocalTrackLite cltl;
+    std::vector<CTPPSLocalTrackLite> v_cltl;
+    edm::Wrapper<CTPPSLocalTrackLite> w_cltl;
+    edm::Wrapper<std::vector<CTPPSLocalTrackLite>> w_v_cltl;
   };
 }
