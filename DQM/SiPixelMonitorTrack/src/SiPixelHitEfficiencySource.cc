@@ -293,6 +293,7 @@ void SiPixelHitEfficiencySource::analyze(const edm::Event& iEvent, const edm::Ev
   //get the map
   edm::Handle<TrajTrackAssociationCollection> match;
   iEvent.getByToken( tracksrc_, match );
+  if (!match.isValid()) return;  
   const TrajTrackAssociationCollection ttac = *(match.product());
 
   if(debug_){

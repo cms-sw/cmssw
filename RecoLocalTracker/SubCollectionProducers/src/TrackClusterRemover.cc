@@ -152,10 +152,10 @@ namespace {
  
     
     auto const & tracks = trajectories_.tracks(iEvent);
-    auto const & trajs = trajectories_.trajectories(iEvent);
+    // auto const & trajs = trajectories_.trajectories(iEvent);
     auto s = tracks.size();
 
-    assert(s==trajs.size());
+    // assert(s==trajs.size());
 
     QualityMaskCollection oldStyle;
     QualityMaskCollection const * pquals=nullptr;
@@ -182,12 +182,12 @@ namespace {
       bool goodTk =  (pquals) ? (*pquals)[i] & qualMask : track.quality(trackQuality_);
       if ( !goodTk) continue;
       if(track.hitPattern().trackerLayersWithMeasurement() < minNumberOfLayersWithMeasBeforeFiltering_) continue;
-      const Trajectory &tj = trajs[i];
-      const auto & tms = tj.measurements();
-      for (auto const & tm :  tms) {
-	auto const & hit = *tm.recHit();
+      auto hb = track.recHitsBegin();
+      for(unsigned int h=0;h<track.recHitsSize();h++){
+        auto recHit = *(hb+h);
+	auto const & hit = *recHit;
 	if (!hit.isValid()) continue; 
-	if ( tm.estimate() > maxChi2_ ) continue; // skip outliers
+	// if ( tm.estimate() > maxChi2_ ) continue; // skip outliers   FIXME!!!
         auto const & thit = reinterpret_cast<BaseTrackerRecHit const&>(hit);
         auto const & cluster = thit.firstClusterRef();
 	if (cluster.isStrip()) collectedStrips[cluster.key()]=true;

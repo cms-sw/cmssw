@@ -285,6 +285,7 @@
  </ioread>
 
   <class name="reco::TrackExtraBase" ClassVersion="11">
+   <field name="m_trajParams" transient="true"/>
    <version ClassVersion="10" checksum="3548207838"/>
    <version ClassVersion="11" checksum="3450798337"/>
   </class>
