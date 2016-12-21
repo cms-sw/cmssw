@@ -40,7 +40,6 @@ SiStripMonitorTrack::SiStripMonitorTrack(const edm::ParameterSet& conf):
 
   clusterToken_    = consumes<edmNew::DetSetVector<SiStripCluster> >(Cluster_src_);
   trackToken_      = consumes<reco::TrackCollection>(edm::InputTag(TrackProducer_,TrackLabel_) );
-  trackTrajToken_  = consumes<TrajTrackAssociationCollection>(edm::InputTag(TrackProducer_,TrackLabel_) );
 
   // cluster quality conditions
   edm::ParameterSet cluster_condition = conf_.getParameter<edm::ParameterSet>("ClusterConditions");
@@ -690,15 +689,13 @@ MonitorElement* SiStripMonitorTrack::bookMETrend(DQMStore::IBooker & ibooker , c
 }
 
 //------------------------------------------------------------------------------------------
-void SiStripMonitorTrack::trajectoryStudy(const edm::Ref<std::vector<Trajectory> > traj, const edm::EventSetup& es, bool track_ok) {
-  const std::vector<TrajectoryMeasurement> & measurements = traj->measurements();
-  for(std::vector<TrajectoryMeasurement>::const_iterator traj_mes_iterator= measurements.begin(), traj_mes_end=measurements.end();
-      traj_mes_iterator!=traj_mes_end;++traj_mes_iterator){//loop on measurements
-    //trajectory local direction and position on detector
-    LocalVector statedirection;
+void SiStripMonitorTrack::trajectoryStudy(const reco::Track & track, const edm::EventSetup& es, bool track_ok) {
 
-    TrajectoryStateOnSurface  updatedtsos=traj_mes_iterator->updatedState();
-    ConstRecHitPointer ttrh=traj_mes_iterator->recHit();
+  auto const & trajParams = track.extra()->trajParams();
+  assert(trajParams.size()==track.recHitsSize());
+  auto hb = track.recHitsBegin();
+  for(unsigned int h=0;h<track.recHitsSize();h++){
+    auto ttrh = *(hb+h);
 
  
     if (TkHistoMap_On_ ) {
@@ -715,6 +712,10 @@ void SiStripMonitorTrack::trajectoryStudy(const edm::Ref<std::vector<Trajectory>
 
     if (!ttrh->isValid()) continue;
 
+    //trajectory local direction and position on detector
+    auto statedirection = trajParams[h].momentum();
+
+
     const ProjectedSiStripRecHit2D* projhit  = dynamic_cast<const ProjectedSiStripRecHit2D*>( ttrh->hit() );
     const SiStripMatchedRecHit2D* matchedhit = dynamic_cast<const SiStripMatchedRecHit2D*>( ttrh->hit() );
     const SiStripRecHit2D* hit2D             = dynamic_cast<const SiStripRecHit2D*>( ttrh->hit() );
@@ -727,7 +728,7 @@ void SiStripMonitorTrack::trajectoryStudy(const edm::Ref<std::vector<Trajectory>
       //	type=Matched;
 
       const GluedGeomDet * gdet=static_cast<const GluedGeomDet *>(tkgeom_->idToDet(matchedhit->geographicalId()));
-      GlobalVector gtrkdirup=gdet->toGlobal(updatedtsos.localMomentum());
+      GlobalVector gtrkdirup=gdet->toGlobal(statedirection);
       //mono side
       const GeomDetUnit * monodet=gdet->monoDet();
       statedirection=monodet->toLocal(gtrkdirup);
@@ -746,7 +747,7 @@ void SiStripMonitorTrack::trajectoryStudy(const edm::Ref<std::vector<Trajectory>
       //	type=Projected;
       const GluedGeomDet * gdet=static_cast<const GluedGeomDet *>(tkgeom_->idToDet(projhit->geographicalId()));
 
-      GlobalVector gtrkdirup=gdet->toGlobal(updatedtsos.localMomentum());
+      GlobalVector gtrkdirup=gdet->toGlobal(statedirection);
       const SiStripRecHit2D  originalhit=projhit->originalHit();
       const GeomDetUnit * det;
       if(!StripSubdetector(originalhit.geographicalId().rawId()).stereo()){
@@ -764,10 +765,8 @@ void SiStripMonitorTrack::trajectoryStudy(const edm::Ref<std::vector<Trajectory>
 	if(statedirection.mag()) RecHitInfo<SiStripRecHit2D>(&(originalhit),statedirection,es,track_ok);
       }
     }else if (hit2D){
-      statedirection=updatedtsos.localMomentum();
       if(statedirection.mag()) RecHitInfo<SiStripRecHit2D>(hit2D,statedirection,es,track_ok);
     } else if (hit1D) {
-      statedirection=updatedtsos.localMomentum();
       if(statedirection.mag()) RecHitInfo<SiStripRecHit1D>(hit1D,statedirection,es,track_ok);
     } else {
       LogDebug ("SiStripMonitorTrack")
@@ -850,27 +849,14 @@ using namespace std;
 using namespace edm;
 using namespace reco;
 
-  // trajectory input
-  edm::Handle<TrajTrackAssociationCollection> TItkAssociatorCollection;
-  ev.getByToken(trackTrajToken_, TItkAssociatorCollection);
-  if( TItkAssociatorCollection.isValid()){
-    trackStudyFromTrajectory(TItkAssociatorCollection,es);
-  } else {
-    edm::LogError("SiStripMonitorTrack")<<"Association not found ... try w/ track collection"<<std::endl;
-
-    //    edm::Handle<std::vector<Trajectory> > trajectories; 
-    //    ev.getByToken(trajectoryToken_, trajectories);
-
-    // track input
     edm::Handle<reco::TrackCollection > trackCollectionHandle;
     ev.getByToken(trackToken_, trackCollectionHandle);//takes the track collection
     if (trackCollectionHandle.isValid()){
-      trackStudyFromTrack(trackCollectionHandle,es);
-    } else {      
-      edm::LogError("SiStripMonitorTrack")<<"also Track Collection is not valid !! " << TrackLabel_<<std::endl;
-      return;
+      trackStudyFromTrajectory(trackCollectionHandle,es); // now from TrackExtra;
+      // trackStudyFromTrack(trackCollectionHandle,es);
+    } else {
+      edm::LogError("SiStripMonitorTrack")<<"Track Collection is not valid !! " << TrackLabel_<<std::endl;
     }
-  }
 }
 
 //------------------------------------------------------------------------
@@ -962,15 +948,14 @@ void SiStripMonitorTrack::trackStudyFromTrack(edm::Handle<reco::TrackCollection 
   }
 }
 //------------------------------------------------------------------------
-void SiStripMonitorTrack::trackStudyFromTrajectory(edm::Handle<TrajTrackAssociationCollection> TItkAssociatorCollection, const edm::EventSetup& es) {
+void SiStripMonitorTrack::trackStudyFromTrajectory(edm::Handle<reco::TrackCollection > trackCollectionHandle, const edm::EventSetup& es) {
   //Perform track study
-  numTracks = TItkAssociatorCollection->size();
   int i=0;
-  for(TrajTrackAssociationCollection::const_iterator it =  TItkAssociatorCollection->begin();it !=  TItkAssociatorCollection->end(); ++it){
-    const edm::Ref<std::vector<Trajectory> > traj_iterator = it->key;
+  reco::TrackCollection trackCollection = *trackCollectionHandle;
+  numTracks = trackCollection.size();
+  for (reco::TrackCollection::const_iterator track = trackCollection.begin(), etrack = trackCollection.end();
+       track!=etrack; ++track) {
 
-    // Trajectory Map, extract Trajectory for this track
-    //reco::TrackRef trackref = it->val;
     LogDebug("SiStripMonitorTrack")
       << "Track number "<< ++i << std::endl;
       //      << "\n\tmomentum: " << trackref->momentum()
@@ -983,8 +968,8 @@ void SiStripMonitorTrack::trackStudyFromTrajectory(edm::Handle<TrajTrackAssociat
       //      <<"\n\t\touter PT "<< trackref->outerPt()<<std::endl;
 
     //    trajectoryStudy(traj_iterator,trackref,es);
-    bool track_ok = trackFilter(*(it->val));
-    trajectoryStudy(traj_iterator,es,track_ok);
+    bool track_ok = trackFilter(*track);
+    trajectoryStudy(*track,es,track_ok);
 
   }
 }
