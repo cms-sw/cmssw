@@ -74,6 +74,7 @@ postValidation_muons = cms.Sequence(
     + MuonGEMHitsPostProcessors
     + MuonGEMDigisPostProcessors
     + MuonGEMRecHitsPostProcessors
+    + MuonME0DigisPostProcessors
     + rpcRecHitPostValidation_step
 )
 

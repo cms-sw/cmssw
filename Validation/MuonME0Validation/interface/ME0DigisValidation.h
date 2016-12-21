@@ -17,6 +17,7 @@ public:
     bool isMatched(const int, const int, const int, const int, const int, const int);
 private:
     
+    MonitorElement* num_evts;
     MonitorElement* me0_strip_dg_xy[2][6];
     MonitorElement* me0_strip_dg_xy_Muon[2][6];
     MonitorElement* me0_strip_dg_zr[2][6];
@@ -42,9 +43,9 @@ private:
     MonitorElement* me0_strip_dg_den_eta_tot;
     MonitorElement* me0_strip_dg_num_eta_tot;
     
-    MonitorElement* me0_strip_dg_bkg_eta_tot;
-    MonitorElement* me0_strip_dg_bkgElePos_eta;
-    MonitorElement* me0_strip_dg_bkgNeutral_eta;
+    MonitorElement* me0_strip_dg_bkg_rad_tot;
+    MonitorElement* me0_strip_dg_bkgElePos_rad;
+    MonitorElement* me0_strip_dg_bkgNeutral_rad;
     
     edm::EDGetToken InputTagToken_Digi;
     double sigma_x_, sigma_y_;

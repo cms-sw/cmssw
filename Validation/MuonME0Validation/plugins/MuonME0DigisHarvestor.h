@@ -21,11 +21,13 @@ public:
   /// constructor
   explicit MuonME0DigisHarvestor(const edm::ParameterSet&);
   /// destructor
-  virtual MuonME0DigisHarvestor();
+  ~MuonME0DigisHarvestor();
 
   virtual void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &);
-  void ProcessBooking( DQMStore::IBooker& , DQMStore::IGetter&, const char* label, TString suffix, TH1F* num, TH1F* den );
-  TProfile* ComputeEff(TH1F* num, TH1F* denum );
+  void ProcessBooking( DQMStore::IBooker& , DQMStore::IGetter&, std::string nameHist, TH1F* num, TH1F* den );
+  void ProcessBookingBKG( DQMStore::IBooker& ibooker, DQMStore::IGetter& ig, std::string nameHist, TH1F* hist, TH1F* hist2 );
+  TProfile* ComputeEff(TH1F* num, TH1F* denum, std::string nameHist );
+  TH1F* ComputeBKG(TH1F* hist1, TH1F* hist2, std::string nameHist );
 
 private:
   std::string dbe_path_,outputFile_;

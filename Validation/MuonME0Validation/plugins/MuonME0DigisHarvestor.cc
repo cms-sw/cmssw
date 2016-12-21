@@ -48,19 +48,20 @@
 
 MuonME0DigisHarvestor::MuonME0DigisHarvestor(const edm::ParameterSet& ps)
 {
-  dbe_path_ = std::string("MuonME0DigisV/ME0DigisTasks/");
+  dbe_path_ = std::string("MuonME0DigisV/ME0DigisTask/");
   outputFile_ = ps.getUntrackedParameter<std::string>("outputFile", "myfile.root");
 }
 
 
-MuonME0DigisHarvestor::MuonME0DigisHarvestor()
+MuonME0DigisHarvestor::~MuonME0DigisHarvestor()
 {
 }
 
-TProfile* MuonME0DigisHarvestor::ComputeEff(TH1F* num, TH1F* denum )
+
+TProfile* MuonME0DigisHarvestor::ComputeEff(TH1F* num, TH1F* denum, std::string nameHist)
 {
-  std::string name  = "eff_"+std::string(num->GetName());
-  std::string title = "Eff. "+std::string(num->GetTitle());
+  std::string name  = "eff_"+nameHist;
+  std::string title = "Digi Efficiency"+std::string(num->GetTitle());
   TProfile * efficHist = new TProfile(name.c_str(), title.c_str(),denum->GetXaxis()->GetNbins(), denum->GetXaxis()->GetXmin(),denum->GetXaxis()->GetXmax());
 
   for (int i=1; i <= denum->GetNbinsX(); i++) {
@@ -89,13 +90,12 @@ TProfile* MuonME0DigisHarvestor::ComputeEff(TH1F* num, TH1F* denum )
 }
 
 
-void MuonME0DigisHarvestor::ProcessBooking( DQMStore::IBooker& ibooker, DQMStore::IGetter& ig, const char* label, TString suffix, TH1F* num, TH1F* den )
+void MuonME0DigisHarvestor::ProcessBooking( DQMStore::IBooker& ibooker, DQMStore::IGetter& ig, std::string nameHist, TH1F* num, TH1F* den )
 {
     
   if( num !=nullptr && den !=nullptr ) {
       
-    TProfile* profile = ComputeEff(num, den);
-    TProfile* profile_sh = ComputeEff( hist, sh_hist );
+    TProfile* profile = ComputeEff(num, den, nameHist);
 
     TString x_axis_title = TString(num->GetXaxis()->GetTitle());
     TString title  = TString::Format("Digi Efficiency;%s;Eff.",x_axis_title.Data());
@@ -106,12 +106,62 @@ void MuonME0DigisHarvestor::ProcessBooking( DQMStore::IBooker& ibooker, DQMStore
   }
   else {
       
-    std::cout<<"Can not find histograms of "<<dbe_label<<std::endl;
+    std::cout<<"Can not find histograms"<<std::endl;
     if ( num == nullptr) std::cout<<"num not found"<<std::endl;
     if ( den == nullptr) std::cout<<"den not found"<<std::endl;
       
   }
   return;
+    
+}
+
+
+TH1F* MuonME0DigisHarvestor::ComputeBKG(TH1F* hist1, TH1F* hist2, std::string nameHist)
+{
+ 
+    std::string name = "rate_"+nameHist;
+    hist1->SetName(name.c_str());
+    for (Int_t bin = 1; bin<=hist1->GetNbinsX();++bin){
+        
+        Double_t R_min = hist1->GetBinCenter(bin) - 0.5 * hist1->GetBinWidth(bin);
+        Double_t R_max = hist1->GetBinCenter(bin) + 0.5 * hist1->GetBinWidth(bin);
+        
+        Double_t Area = (TMath::Pi() * ( TMath::Power(R_max,2) - TMath::Power(R_min,2) ));
+        hist1->SetBinContent(bin,(hist1->GetBinContent(bin))/Area);
+        hist1->SetBinError(bin,(hist1->GetBinError(bin))/Area);
+        
+    }
+
+    int nEvts = hist2->GetEntries();
+    float scale = 6*2*nEvts*9*25e-9;
+    hist1->Scale(1.0/scale);
+    return hist1;
+    
+}
+
+
+void MuonME0DigisHarvestor::ProcessBookingBKG( DQMStore::IBooker& ibooker, DQMStore::IGetter& ig, std::string nameHist, TH1F* hist1, TH1F* hist2 )
+{
+    
+    if( hist1 !=nullptr && hist2 !=nullptr ) {
+
+        TH1F* rate = ComputeBKG(hist1, hist2, nameHist);
+        
+        TString x_axis_title = TString(hist1->GetXaxis()->GetTitle());
+        TString title  = TString::Format("Neutron Background Rate;%s;Rate [Hz/cm^{2}]",x_axis_title.Data());
+        
+        rate->SetTitle( title.Data() );
+        ibooker.book1D( rate->GetName(),rate );
+        
+    }
+    else {
+        
+        std::cout<<"Can not find histograms"<<std::endl;
+        if ( hist1 == nullptr ) std::cout<<"num not found"<<std::endl;
+        if ( hist2 == nullptr ) std::cout<<"den not found"<<std::endl;
+        
+    }
+    return;
     
 }
 
@@ -124,49 +174,84 @@ MuonME0DigisHarvestor::dqmEndJob(DQMStore::IBooker& ibooker, DQMStore::IGetter& 
   const char* l_suffix[6] = {"_l1","_l2","_l3","_l4","_l5","_l6"};
   const char* r_suffix[2] = {"-1","1"};
 
-  TH1F* num_vs_eta_tot[2];
   TH1F* num_vs_eta[2][6];
-  TH1F* den_vs_eta_tot[2];
   TH1F* den_vs_eta[2][6];
+  TH1F *eleBkg, *neuBkg, *totBkg, *numEvts;
+    
+  TString eta_label_den_tot = TString(dbe_path_)+"me0_strip_dg_den_eta_tot";
+  TString eta_label_num_tot = TString(dbe_path_)+"me0_strip_dg_num_eta_tot";
+  if( ig.get(eta_label_num_tot.Data()) !=nullptr && ig.get(eta_label_den_tot.Data()) !=nullptr ) {
+        
+      TH1F* num_vs_eta_tot = (TH1F*)ig.get(eta_label_num_tot.Data())->getTH1F()->Clone();
+      num_vs_eta_tot->Sumw2();
+      TH1F *den_vs_eta_tot = (TH1F*)ig.get(eta_label_den_tot.Data())->getTH1F()->Clone();
+      den_vs_eta_tot->Sumw2();
+      
+      ProcessBooking( ibooker, ig, "me0_strip_dg_eta_tot", num_vs_eta_tot, den_vs_eta_tot );
+      
+  }
+  else std::cout<<"Can not find histograms: "<<eta_label_num_tot<<" or "<<eta_label_den_tot<<std::endl;
   
   for( int i = 0 ; i < 2 ; i++) {
       
-    TString eta_label_den_tot = TString(dbe_path_)+"me0_dg_strip_den_eta_tot";
-    TString eta_label_num_tot = TString(dbe_path_)+"me0_dg_strip_num_eta_tot";
-    if( ig.get(eta_label_num_tot.Data()) !=nullptr && ig.get(eta_label_den_tot.Data()) !=nullptr ) {
-        
-        num_vs_eta_tot[i] = (TH1F*)ig.get(eta_label_num_tot.Data())->getTH1F()->Clone();
-        num_vs_eta_tot[i]->Sumw2();
-        den_vs_eta_tot[i] = (TH1F*)ig.get(eta_label_den_tot.Data())->getTH1F()->Clone();
-        den_vs_eta_tot[i]->Sumw2();
-        
-    }
-    else std::cout<<"Can not find histograms: "<<eta_label_num<<" or "<<eta_label_den<<std::endl;
-    ProcessBooking( ibooker, ig, "rh_eta", suffix, num_vs_eta_tot[i], den_vs_eta_tot[i]);
-    
-    if ( ig.get(eta_label_num.Data()) != nullptr && ig.get(eta_label_den.Data()) != nullptr ) {
-        
       for( int j = 0; j < 6 ; j++) {
           
-        TString eta_label_den = TString(dbe_path_)+"me0_dg_strip_den_eta"+r_suffix[i]+l_suffix[j];
-        TString eta_label_num = TString(dbe_path_)+"me0_dg_strip_num_eta"+r_suffix[i]+l_suffix[j];
-        std::cout<<eta_label_num<<" "<<eta_label_den<<std:endl;
+          TString eta_label_den = TString(dbe_path_)+"me0_strip_dg_den_eta"+r_suffix[i]+l_suffix[j];
+          TString eta_label_num = TString(dbe_path_)+"me0_strip_dg_num_eta"+r_suffix[i]+l_suffix[j];
+          std::cout<<eta_label_num<<" "<<eta_label_den<<std::endl;
 
-        if( ig.get(eta_label_num.Data()) !=nullptr && ig.get(eta_label_den.Data()) !=nullptr) {
+          if( ig.get(eta_label_num.Data()) !=nullptr && ig.get(eta_label_den.Data()) !=nullptr) {
             
-          num_vs_eta[i][j] = (TH1F*)ig.get(eta_label_num.Data())->getTH1F()->Clone();
-          num_vs_eta[i][j]->Sumw2();
-          den_vs_eta[i][j] = (TH1F*)ig.get(eta_label_den.Data())->getTH1F()->Clone();
-          den_vs_eta[i][j]->Sumw2();
+              num_vs_eta[i][j] = (TH1F*)ig.get(eta_label_num.Data())->getTH1F()->Clone();
+              num_vs_eta[i][j]->Sumw2();
+              den_vs_eta[i][j] = (TH1F*)ig.get(eta_label_den.Data())->getTH1F()->Clone();
+              den_vs_eta[i][j]->Sumw2();
             
-        }
-        else std::cout<<"Can not find histograms: "<<eta_label_num<<" "<<eta_label_den<<std::endl;
-        ProcessBooking( ibooker, ig, "rh_eta", suffix, num_vs_eta[i][j], den_vs_eta[i][j]);
+          }
+          else std::cout<<"Can not find histograms: "<<eta_label_num<<" "<<eta_label_den<<std::endl;
+          std::string r_s = r_suffix[i];
+          std::string l_s = l_suffix[j];
+          std::string name = "me0_strip_dg_eta"+r_s+l_s;
+          ProcessBooking( ibooker, ig, name, num_vs_eta[i][j], den_vs_eta[i][j] );
 
       }
-    }
-    else std::cout<<"Can not find eta or phi of all track"<<std::endl;
+
   }
+    
+  TString label_eleBkg = TString(dbe_path_)+"me0_strip_dg_bkgElePos_radius";
+  TString label_neuBkg = TString(dbe_path_)+"me0_strip_dg_bkgNeutral_radius";
+  TString label_totBkg = TString(dbe_path_)+"me0_strip_dg_bkg_radius_tot";
+  TString label_evts = TString(dbe_path_)+"num_evts";
+    
+  if( ig.get(label_evts.Data()) !=nullptr ) {
+    
+      numEvts = (TH1F*)ig.get(label_evts.Data())->getTH1F()->Clone();
+    
+      if( ig.get(label_eleBkg.Data()) !=nullptr ) {
+      
+          eleBkg = (TH1F*)ig.get(label_eleBkg.Data())->getTH1F()->Clone();
+          eleBkg->Sumw2();
+          ProcessBookingBKG( ibooker, ig, "me0_strip_dg_elePosBkg_rad", eleBkg, numEvts);
+          std::cout<<"entriamo qua?"<<std::endl;
+    
+      }
+      if( ig.get(label_neuBkg.Data()) !=nullptr ) {
+        
+          neuBkg = (TH1F*)ig.get(label_neuBkg.Data())->getTH1F()->Clone();
+          neuBkg->Sumw2();
+          ProcessBookingBKG( ibooker, ig, "me0_strip_dg_neuBkg_rad", neuBkg, numEvts);
+      
+      }
+      if( ig.get(label_totBkg.Data()) !=nullptr ) {
+        
+          totBkg = (TH1F*)ig.get(label_totBkg.Data())->getTH1F()->Clone();
+          totBkg->Sumw2();
+          ProcessBookingBKG( ibooker, ig, "me0_strip_dg_totBkg_rad", totBkg, numEvts);
+
+      }
+      
+  }
+    
 }
 
 
