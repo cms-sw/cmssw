@@ -50,8 +50,9 @@ class VHbbAnalyzer( Analyzer ):
 
     def beginLoop(self,setup):
         super(VHbbAnalyzer,self).beginLoop(setup)
-        if "outputfile" in setup.services :
-            setup.services["outputfile"].file.cd()
+        outservice_name = "PhysicsTools.HeppyCore.framework.services.tfile.TFileService_outputfile"
+        if outservice_name in setup.services :
+            setup.services[outservice_name].file.cd()
             self.inputCounter = ROOT.TH1F("Count","Count",1,0,2)
             self.inputCounterFullWeighted = ROOT.TH1F("CountFullWeighted","Count with gen weight and pu weight",1,0,2)
             self.inputCounterWeighted = ROOT.TH1F("CountWeighted","Count with sign(gen weight) and pu weight",1,0,2)
@@ -382,10 +383,10 @@ class VHbbAnalyzer( Analyzer ):
 			      event.vLeptons =[zElectrons[0],zElectrons[i]]
 			      break
 	elif len(wElectrons) + len(wMuons) == 1: 
-		if abs(event.selectedLeptons[0].pdgId())==13 :
+		if len(wMuons)==1 :
 			event.Vtype = 2
 			event.vLeptons =wMuons
-		if abs(event.selectedLeptons[0].pdgId())==11 :
+		if len(wElectrons) == 1 :
 			event.Vtype = 3
 			event.vLeptons =wElectrons
         elif len(zElectrons) + len(zMuons) > 0 :

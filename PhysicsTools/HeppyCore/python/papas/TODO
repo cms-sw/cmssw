@@ -1,0 +1,23 @@
+- common support histo for eta phi views
+
+- identify all unused elements and fix
+
+- tests of the PF:
+  all possible combinations of two particles
+  electrons
+  muons
+
+- deal with loopers, especially the ones that loop through the ecal barrel
+
+- implement particle display
+
+- jet constituents and fractions
+
+- scan pf tails 
+
+- separate sim and pf reco in different analyzers
+
+- re-read sim root file to redo pf several times (for debugging)
+
+- merging clusters should happen before smearing and acceptance.
+

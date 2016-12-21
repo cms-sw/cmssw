@@ -1,0 +1,56 @@
+stages:
+  - compile
+  - test
+
+before_script:
+  - export CI_HOME="$( pwd )"
+  - ls $CI_HOME
+  - git checkout -b current remotes/origin/jpata/heppy_8_0_19_factorized_jec
+  - git branch -a
+  - git config --global user.name 'CERN CI'
+  - git config --global user.email 'joosep.pata@cern.ch'
+  - git config --global user.github jpata
+  - export CMSSW_GIT_REFERENCE="/cvmfs/cms.cern.ch/cmssw.git.daily"
+  - export SCRAM_ARCH="slc6_amd64_gcc530"
+  - export CMSSW_VERSION="CMSSW_8_0_19"
+  - source /cvmfs/cms.cern.ch/cmsset_default.sh
+  - cd ..
+  - scramv1 project CMSSW $CMSSW_VERSION
+  - cd $CMSSW_VERSION/src
+  - eval `scramv1 runtime -sh`
+  - cd $CI_HOME
+
+compile:
+  stage: compile
+  script:
+    - cd $CMSSW_BASE/src
+    - eval `scramv1 runtime -sh`
+    - git cms-init
+    - git fetch $CI_HOME current:current
+    - git cms-sparse-checkout HEAD current
+    - git read-tree -mu HEAD
+    - pwd
+    - ls
+    - git branch -a
+    - scram b
+    - cd $CMSSW_BASE
+    - find src -maxdepth 3 -type d | grep -e "^src/.*/.*/\(interface\|data\|python\)" | tar -czf $CI_HOME/cmssw.tgz lib biglib bin --exclude="*.pyc" --files-from -
+  artifacts:
+    paths:
+      - cmssw.tgz
+    name: "${CI_BUILD_NAME}_${CI_BUILD_REF_NAME}"
+    expire_in: 10 minutes
+
+test_scram:
+  stage: test
+  script:
+    - cd $CMSSW_BASE
+    - tar -xzf $CI_HOME/cmssw.tgz
+    - cd src
+    - find . -maxdepth 3 -type f
+    - scram b
+    - scram b runtests | tee -i $CI_HOME/runtests.txt
+  artifacts:
+    paths:
+      - runtests.txt
+    name: "${CI_BUILD_NAME}_${CI_BUILD_REF_NAME}"
