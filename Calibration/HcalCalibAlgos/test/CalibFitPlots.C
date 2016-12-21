@@ -138,7 +138,7 @@ void FitHistStandard(std::string infile,std::string outfile,std::string prefix,
   std::string lname[4] = {"Z", "E", "L", "V"};
   std::string xname[4] = {"i#eta", "i#eta", "d_{L1}", "# Vertex"};
   int         numb[4]  = {8, 8, 8, 5};
-  bool        debug(true);
+  bool        debug(false);
 
   TFile      *file = new TFile(infile.c_str());
   std::vector<TH1D*> hists;
@@ -228,21 +228,24 @@ void FitHistExtended(std::string infile, std::string outfile,std::string prefix,
 		     int numb=50, bool append=true) {
   std::string sname("ratio"), lname("Z");
   int         iname(2);
-  bool        debug(true);
+  bool        debug(false);
   double      xbins[99];
   int         neta = numb/2;
   for (int k=0; k<neta; ++k) {
-    xbins[k]        = (k-neta)-0.5;
-    xbins[numb-k+1] = (neta-k) + 0.5;
+    xbins[k]      = (k-neta)-0.5;
+    xbins[numb-k] = (neta-k) + 0.5;
   }
   xbins[neta] = 0;
   TFile      *file = new TFile(infile.c_str());
   std::vector<TH1D*> hists;
   char name[200];
+  if (debug) std::cout << infile << " " << file << std::endl;
   if (file != 0) {
     sprintf (name, "%s%s%d0", prefix.c_str(), sname.c_str(), iname);
     TH1D* hist0 = (TH1D*)file->FindObjectAny(name);
     bool  ok   = (hist0 != 0);
+    if (debug) std::cout << name << " Pointer " << hist0 << " " << ok 
+			 << std::endl;
     if (ok) {
       sprintf (name, "%s%s%d", prefix.c_str(), lname.c_str(), iname);
       TH1D* histo = new TH1D(name, hist0->GetTitle(), numb, xbins);
