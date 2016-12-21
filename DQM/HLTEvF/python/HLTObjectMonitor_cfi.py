@@ -33,6 +33,20 @@ bJet_moduleNameCalo = "hltBLifetimeL3FilterCSVsusy"
 bJet_pathNamePF = "HLT_QuadPFJet_SingleBTagCSV_VBF_Mqq500"
 bJet_moduleNamePF = "hltCSVPF0p78"
 
+#pp ref run for HI
+singlePhoton20Eta1p5_HI_pathName = "HLT_HISinglePhoton20_Eta1p5"
+singlePhoton20Eta1p5_HI_moduleName = "hltHIPhoton20Eta1p5"
+
+singlePhoton20Eta3p1_HI_pathName = "HLT_HISinglePhoton20_Eta3p1"
+singlePhoton20Eta3p1_HI_moduleName = "hltHIPhoton20Eta3p1"
+
+caloJetRef_HI_pathName = "HLT_AK4CaloJet60_Eta5p1"
+caloJetRef_HI_moduleName = "hltSingleAK4CaloJet60Eta5p1"
+
+dMesonRef_HI_pathName = "HLT_DmesonPPTrackingGlobal_Dpt40"
+dMesonRef_HI_moduleName = "HLTtktkFilterForDmesonDp40"
+
+
 #To avoid booking histogram, set pathName = cms.string("")
 
 hltObjectMonitor = cms.EDAnalyzer('HLTObjectMonitor',
@@ -412,6 +426,149 @@ hltObjectMonitor = cms.EDAnalyzer('HLTObjectMonitor',
         NbinsX = cms.int32(1000),
         Xmin = cms.double(0),
         Xmax = cms.double(0.005)
+        ),
+#for pp reference run
+    singlePhotonEta1p5Pt_HI = cms.PSet(
+        pathName = cms.string(singlePhoton20Eta1p5_HI_pathName),
+        moduleName = cms.string(singlePhoton20Eta1p5_HI_moduleName),
+        plotLabel = cms.string("singlePhoton20Eta1p5_pt_HI"),
+        axisLabel = cms.string("photon pt [GeV]"),
+        mainWorkspace = cms.bool(True),
+        NbinsX = cms.int32(50),
+        Xmin = cms.double(15),
+        Xmax = cms.double(100)
+        ),
+    singlePhotonEta1p5Eta_HI = cms.PSet(
+        pathName = cms.string(singlePhoton20Eta1p5_HI_pathName),
+        moduleName = cms.string(singlePhoton20Eta1p5_HI_moduleName),
+        plotLabel = cms.string("singlePhoton20Eta1p5_eta_HI"),
+        axisLabel = cms.string("photon eta"),
+        mainWorkspace = cms.bool(True),
+        NbinsX = cms.int32(50),
+        Xmin = cms.double(-1.6),
+        Xmax = cms.double(1.6)
+        ),
+    singlePhotonEta1p5Phi_HI = cms.PSet(
+        pathName = cms.string(singlePhoton20Eta1p5_HI_pathName),
+        moduleName = cms.string(singlePhoton20Eta1p5_HI_moduleName),
+        plotLabel = cms.string("singlePhoton20Eta1p5_phi_HI"),
+        axisLabel = cms.string("photon phi"),
+        mainWorkspace = cms.bool(True),
+        NbinsX = cms.int32(50),
+        Xmin = cms.double(-3.2),
+        Xmax = cms.double(3.2)
+        ),
+    singlePhotonEta3p1Pt_HI = cms.PSet(
+        pathName = cms.string(singlePhoton20Eta3p1_HI_pathName),
+        moduleName = cms.string(singlePhoton20Eta3p1_HI_moduleName),
+        plotLabel = cms.string("singlePhoton20Eta3p1_pt_HI"),
+        axisLabel = cms.string("photon pt [GeV]"),
+        mainWorkspace = cms.bool(True),
+        NbinsX = cms.int32(50),
+        Xmin = cms.double(15),
+        Xmax = cms.double(100)
+        ),
+    singlePhotonEta3p1Eta_HI = cms.PSet(
+        pathName = cms.string(singlePhoton20Eta3p1_HI_pathName),
+        moduleName = cms.string(singlePhoton20Eta3p1_HI_moduleName),
+        plotLabel = cms.string("singlePhoton20Eta3p1_eta_HI"),
+        axisLabel = cms.string("photon eta"),
+        mainWorkspace = cms.bool(True),
+        NbinsX = cms.int32(50),
+        Xmin = cms.double(-3.2),
+        Xmax = cms.double(3.2)
+        ),
+    singlePhotonEta3p1Phi_HI = cms.PSet(
+        pathName = cms.string(singlePhoton20Eta3p1_HI_pathName),
+        moduleName = cms.string(singlePhoton20Eta3p1_HI_moduleName),
+        plotLabel = cms.string("singlePhoton20Eta3p1_phi_HI"),
+        axisLabel = cms.string("photon phi"),
+        mainWorkspace = cms.bool(True),
+        NbinsX = cms.int32(50),
+        Xmin = cms.double(-3.2),
+        Xmax = cms.double(3.2)
+        ),                                  
+    doublePhotonMass_HI = cms.PSet(
+        pathName = cms.string("HLT_HIDoublePhoton15_Eta1p5_Mass50_1000"),
+        moduleName = cms.string("hltHIDoublePhoton15Eta1p5Mass501000Filter"),
+        plotLabel = cms.string("doublePhoton_mass_HI"),
+        axisLabel = cms.string("photon mass [GeV]"),
+        mainWorkspace = cms.bool(True),
+        NbinsX = cms.int32(50),
+        Xmin = cms.double(40),
+        Xmax = cms.double(140)
+        ),
+    caloJetRefPt_HI = cms.PSet(
+        pathName = cms.string(caloJetRef_HI_pathName),
+        moduleName = cms.string(caloJetRef_HI_moduleName),
+        plotLabel = cms.string("caloJetRef_pt_HI"),
+        axisLabel = cms.string("caloJetRef pt [GeV]"),
+        mainWorkspace = cms.bool(True),
+        NbinsX = cms.int32(50),
+        Xmin = cms.double(50),
+        Xmax = cms.double(150)
+        ),
+    caloJetRefEta_HI = cms.PSet(
+        pathName = cms.string(caloJetRef_HI_pathName),
+        moduleName = cms.string(caloJetRef_HI_moduleName),
+        plotLabel = cms.string("caloJetRef_eta_HI"),
+        axisLabel = cms.string("caloJetRef eta"),
+        mainWorkspace = cms.bool(True),
+        NbinsX = cms.int32(50),
+        Xmin = cms.double(-5),
+        Xmax = cms.double(5)
+        ),
+    caloJetRefPhi_HI = cms.PSet(
+        pathName = cms.string(caloJetRef_HI_pathName),
+        moduleName = cms.string(caloJetRef_HI_moduleName),
+        plotLabel = cms.string("caloJetRef_phi_HI"),
+        axisLabel = cms.string("caloJetRef phi"),
+        mainWorkspace = cms.bool(True),
+        NbinsX = cms.int32(50),
+        Xmin = cms.double(-3.2),
+        Xmax = cms.double(3.2)
+        ),
+    dMesonRefTrackPt_HI = cms.PSet(
+        pathName = cms.string(dMesonRef_HI_pathName),
+        moduleName = cms.string(dMesonRef_HI_moduleName),
+        plotLabel = cms.string("dMesonRefTrack_pt_HI"),
+        axisLabel = cms.string("track pt [GeV]"),
+        mainWorkspace = cms.bool(True),
+        NbinsX = cms.int32(50),
+        Xmin = cms.double(0),
+        Xmax = cms.double(60)
+        ),
+    dMesonRefTrackEta_HI = cms.PSet(
+        pathName = cms.string(dMesonRef_HI_pathName),
+        moduleName = cms.string(dMesonRef_HI_moduleName),
+        plotLabel = cms.string("dMesonRefTrack_eta_HI"),
+        axisLabel = cms.string("track eta"),
+        mainWorkspace = cms.bool(True),
+        NbinsX = cms.int32(50),
+        Xmin = cms.double(-2.5),
+        Xmax = cms.double(2.5)
+        ),
+    dMesonRefTrackSystemMass_HI = cms.PSet(
+        pathName = cms.string(dMesonRef_HI_pathName),
+        moduleName = cms.string(dMesonRef_HI_moduleName),
+        plotLabel = cms.string("dMesonRefTrack_systemMass_HI"),
+        axisLabel = cms.string("inv mass 2 track system [GeV]"),
+        mainWorkspace = cms.bool(True),
+        NbinsX = cms.int32(50),
+        Xmin = cms.double(1.34),
+        Xmax = cms.double(2.6)
+        ),
+    dMesonRefTrackSystemPt_HI = cms.PSet(
+        pathName = cms.string(dMesonRef_HI_pathName),
+        moduleName = cms.string(dMesonRef_HI_moduleName),
+        plotLabel = cms.string("dMesonRefTrack_systemPt_HI"),
+        axisLabel = cms.string("pt 2 track system [GeV]"),
+        mainWorkspace = cms.bool(True),
+        NbinsX = cms.int32(50),
+        Xmin = cms.double(5),
+        Xmax = cms.double(100)
         )
+
+
 
 )

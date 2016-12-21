@@ -27,7 +27,11 @@ process.load("DQM.Integration.config.FrontierCondition_GT_cfi")
 # Condition for lxplus
 #process.load("DQM.Integration.config.FrontierCondition_GT_Offline_cfi") 
 
-process.load("DQM.HLTEvF.HLTObjectMonitor_cff")
+if (process.runType.getRunType() == process.runType.hi_run):
+    process.load("DQM.HLTEvF.HLTObjectMonitorHeavyIon_cff")
+else:
+    process.load("DQM.HLTEvF.HLTObjectMonitor_cff")
+
 # added for hlt scalars
 process.load("DQM.TrigXMonitor.HLTSeedL1LogicScalers_cfi")
 # added for hlt scalars

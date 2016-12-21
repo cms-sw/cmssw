@@ -165,6 +165,21 @@ class HLTObjectMonitor : public DQMEDAnalyzer {
   edm::ParameterSet diElecMass_pset;
   edm::ParameterSet muonDxy_pset;
   edm::ParameterSet wallTime_pset;
+  //pp ref run
+  edm::ParameterSet caloJetRefPt_HI_pset;
+  edm::ParameterSet caloJetRefEta_HI_pset;
+  edm::ParameterSet caloJetRefPhi_HI_pset;
+  edm::ParameterSet singlePhotonEta1p5Pt_HI_pset;
+  edm::ParameterSet singlePhotonEta1p5Eta_HI_pset;
+  edm::ParameterSet singlePhotonEta1p5Phi_HI_pset;
+  edm::ParameterSet singlePhotonEta3p1Pt_HI_pset;
+  edm::ParameterSet singlePhotonEta3p1Eta_HI_pset;
+  edm::ParameterSet singlePhotonEta3p1Phi_HI_pset;
+  edm::ParameterSet doublePhotonMass_HI_pset;  
+  edm::ParameterSet dMesonRefTrackPt_HI_pset;
+  edm::ParameterSet dMesonRefTrackEta_HI_pset;
+  edm::ParameterSet dMesonRefTrackSystemMass_HI_pset;
+  edm::ParameterSet dMesonRefTrackSystemPt_HI_pset;
 
   string processName_;
 
@@ -205,6 +220,21 @@ class HLTObjectMonitor : public DQMEDAnalyzer {
   hltPlot diElecMass_;
   hltPlot muonDxy_;
   hltPlot wallTime_;
+  //pp ref run
+  hltPlot caloJetRefPt_HI_;
+  hltPlot caloJetRefEta_HI_;
+  hltPlot caloJetRefPhi_HI_;
+  hltPlot singlePhotonEta1p5Pt_HI_;
+  hltPlot singlePhotonEta1p5Eta_HI_;
+  hltPlot singlePhotonEta1p5Phi_HI_;
+  hltPlot singlePhotonEta3p1Pt_HI_;
+  hltPlot singlePhotonEta3p1Eta_HI_;
+  hltPlot singlePhotonEta3p1Phi_HI_;
+  hltPlot doublePhotonMass_HI_; 
+  hltPlot dMesonRefTrackPt_HI_;
+  hltPlot dMesonRefTrackEta_HI_;
+  hltPlot dMesonRefTrackSystemMass_HI_;
+  hltPlot dMesonRefTrackSystemPt_HI_;
 
 };
 
@@ -306,7 +336,36 @@ HLTObjectMonitor::HLTObjectMonitor(const edm::ParameterSet& iConfig)
   plotMap[&tauPt_] = &tauPt_pset; 
   wallTime_pset = iConfig.getParameter<edm::ParameterSet>("wallTime");
   plotMap[&wallTime_] = &wallTime_pset;
-  
+  //pp ref run
+  caloJetRefPt_HI_pset = iConfig.getParameter<edm::ParameterSet>("caloJetRefPt_HI");
+  plotMap[&caloJetRefPt_HI_] = &caloJetRefPt_HI_pset;
+  caloJetRefEta_HI_pset = iConfig.getParameter<edm::ParameterSet>("caloJetRefEta_HI");
+  plotMap[&caloJetRefEta_HI_] = &caloJetRefEta_HI_pset;
+  caloJetRefPhi_HI_pset = iConfig.getParameter<edm::ParameterSet>("caloJetRefPhi_HI");
+  plotMap[&caloJetRefPhi_HI_] = &caloJetRefPhi_HI_pset;
+  singlePhotonEta1p5Pt_HI_pset = iConfig.getParameter<edm::ParameterSet>("singlePhotonEta1p5Pt_HI");
+  plotMap[&singlePhotonEta1p5Pt_HI_] = &singlePhotonEta1p5Pt_HI_pset;
+  singlePhotonEta1p5Eta_HI_pset = iConfig.getParameter<edm::ParameterSet>("singlePhotonEta1p5Eta_HI");
+  plotMap[&singlePhotonEta1p5Eta_HI_] = &singlePhotonEta1p5Eta_HI_pset;
+  singlePhotonEta1p5Phi_HI_pset = iConfig.getParameter<edm::ParameterSet>("singlePhotonEta1p5Phi_HI");
+  plotMap[&singlePhotonEta1p5Phi_HI_] = &singlePhotonEta1p5Phi_HI_pset;
+  singlePhotonEta3p1Pt_HI_pset = iConfig.getParameter<edm::ParameterSet>("singlePhotonEta3p1Pt_HI");
+  plotMap[&singlePhotonEta3p1Pt_HI_] = &singlePhotonEta3p1Pt_HI_pset;
+  singlePhotonEta3p1Eta_HI_pset = iConfig.getParameter<edm::ParameterSet>("singlePhotonEta3p1Eta_HI");
+  plotMap[&singlePhotonEta3p1Eta_HI_] = &singlePhotonEta3p1Eta_HI_pset;
+  singlePhotonEta3p1Phi_HI_pset = iConfig.getParameter<edm::ParameterSet>("singlePhotonEta3p1Phi_HI");
+  plotMap[&singlePhotonEta3p1Phi_HI_] = &singlePhotonEta3p1Phi_HI_pset;
+  doublePhotonMass_HI_pset = iConfig.getParameter<edm::ParameterSet>("doublePhotonMass_HI");
+  plotMap[&doublePhotonMass_HI_] = &doublePhotonMass_HI_pset;
+  dMesonRefTrackPt_HI_pset = iConfig.getParameter<edm::ParameterSet>("dMesonRefTrackPt_HI");
+  plotMap[&dMesonRefTrackPt_HI_] = &dMesonRefTrackPt_HI_pset;
+  dMesonRefTrackEta_HI_pset = iConfig.getParameter<edm::ParameterSet>("dMesonRefTrackEta_HI");
+  plotMap[&dMesonRefTrackEta_HI_] = &dMesonRefTrackEta_HI_pset;
+  dMesonRefTrackSystemMass_HI_pset = iConfig.getParameter<edm::ParameterSet>("dMesonRefTrackSystemMass_HI");
+  plotMap[&dMesonRefTrackSystemMass_HI_] = &dMesonRefTrackSystemMass_HI_pset;
+  dMesonRefTrackSystemPt_HI_pset = iConfig.getParameter<edm::ParameterSet>("dMesonRefTrackSystemPt_HI");
+  plotMap[&dMesonRefTrackSystemPt_HI_] = &dMesonRefTrackSystemPt_HI_pset;
+
 
   for (auto item = plotMap.begin(); item != plotMap.end(); item++)
     {
@@ -564,7 +623,68 @@ HLTObjectMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 		   bJetPhi_.ME->Fill(objects[key].phi());
 		 }
 	     }
-
+	   //pp ref plots
+	   else if (pathName == singlePhotonEta1p5Pt_HI_.pathName)
+	     {
+	       for (const auto & key : keys)
+		 {
+		   singlePhotonEta1p5Pt_HI_.ME->Fill(objects[key].pt());
+		   singlePhotonEta1p5Eta_HI_.ME->Fill(objects[key].eta());
+		   singlePhotonEta1p5Phi_HI_.ME->Fill(objects[key].phi());
+		 }
+	     }
+	   else if (pathName == singlePhotonEta3p1Pt_HI_.pathName)
+	     {
+	       for (const auto & key : keys)
+		 {
+		   singlePhotonEta3p1Pt_HI_.ME->Fill(objects[key].pt());
+		   singlePhotonEta3p1Eta_HI_.ME->Fill(objects[key].eta());
+		   singlePhotonEta3p1Phi_HI_.ME->Fill(objects[key].phi());
+		 }
+	     }
+	   else if (pathName == doublePhotonMass_HI_.pathName)
+	     {
+	       for (const auto & key : keys)
+		 {
+		   doublePhotonMass_HI_.ME->Fill(objects[key].mass());
+		 }
+	     }
+	   else if (pathName == caloJetRefPt_HI_.pathName) 
+	     {
+	       for (const auto & key : keys)
+		 {
+		   caloJetRefPt_HI_.ME->Fill(objects[key].pt());
+		   caloJetRefEta_HI_.ME->Fill(objects[key].eta());
+		   caloJetRefPhi_HI_.ME->Fill(objects[key].phi());
+		 }
+	     }
+	   else if (pathName == dMesonRefTrackPt_HI_.pathName)
+	     {
+	       const double pi_mass(.105658);
+	       unsigned int kCnt0 = 0;
+	       for (const auto & key0: keys)
+		 {
+		   dMesonRefTrackPt_HI_.ME->Fill(objects[key0].pt());
+		   dMesonRefTrackEta_HI_.ME->Fill(objects[key0].eta());
+		   
+		   unsigned int kCnt1 = 0;
+		   for (const auto & key1: keys)
+		     {
+		       if (key0 != key1 && kCnt1 > kCnt0) // avoid filling hists with same objs && avoid double counting separate objs
+			 {
+			   TLorentzVector tk1, tk2, diTk;
+			   tk1.SetPtEtaPhiM(objects[key0].pt(), objects[key0].eta(), objects[key0].phi(), pi_mass);
+			   tk2.SetPtEtaPhiM(objects[key1].pt(), objects[key1].eta(), objects[key1].phi(), pi_mass);
+			   diTk = tk1+tk2;
+			   dMesonRefTrackSystemMass_HI_.ME->Fill(diTk.M());
+			   dMesonRefTrackSystemPt_HI_.ME->Fill(diTk.Pt());
+			 }
+		       kCnt1 +=1;
+		     }
+		   kCnt0 +=1;
+		 }
+	     }
+	   //end pp ref plots
 	   //b-tagging CSV information
 	   if (pathName == bJetCSVPF_.pathNameOR)
 	     {
