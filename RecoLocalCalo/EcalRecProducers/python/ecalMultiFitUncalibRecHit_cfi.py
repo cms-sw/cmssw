@@ -59,7 +59,7 @@ ecalMultiFitUncalibRecHit = cms.EDProducer("EcalUncalibRecHitProducer",
       # for kPoorReco flag
       kPoorRecoFlagEB = cms.bool(True),
       kPoorRecoFlagEE = cms.bool(False),
-      chi2ThreshEB_ = cms.double(65.0),
+      chi2ThreshEB_ = cms.double(16.0),
       chi2ThreshEE_ = cms.double(50.0),
    )                                           
 )

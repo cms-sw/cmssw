@@ -7,7 +7,8 @@ from DQM.EcalMonitorTasks.PedestalTask_cfi import ecalPedestalTask
 minChannelEntries = 3
 expectedMean = 200.
 toleranceMean = 25.
-toleranceRMS = [1., 1.5, 3.] # [G1, G6, G12]
+toleranceRMSEB = [1., 1.2, 2.] # [G1, G6, G12]
+toleranceRMSEE = [1., 1.5, 3.] # [G1, G6, G12]
 expectedPNMean = 750.
 tolerancePNMean = 100.
 tolerancePNRMS = [20., 20.] # [G1, G16]
@@ -17,7 +18,8 @@ ecalPedestalClient = cms.untracked.PSet(
         minChannelEntries = cms.untracked.int32(minChannelEntries),
         expectedMean = cms.untracked.double(expectedMean),
         toleranceMean = cms.untracked.double(toleranceMean),
-        toleranceRMS = cms.untracked.vdouble(toleranceRMS),
+        toleranceRMSEB = cms.untracked.vdouble(toleranceRMSEB),
+        toleranceRMSEE = cms.untracked.vdouble(toleranceRMSEE),
         expectedPNMean = cms.untracked.double(expectedPNMean),
         tolerancePNMean = cms.untracked.double(tolerancePNMean),
         tolerancePNRMS = cms.untracked.vdouble(tolerancePNRMS),
@@ -77,7 +79,7 @@ ecalPedestalClient = cms.untracked.PSet(
             ),
             kind = cms.untracked.string('TH2F'),
             btype = cms.untracked.string('SuperCrystal'),
-            description = cms.untracked.string('Summary of the pedestal quality for crystals. A channel is red if the pedestal mean is off from ' + str(expectedMean) + ' by ' + str(toleranceMean) + ' or if the pedestal RMS is greater than threshold. RMS thresholds are ' + ('%.1f, %.1f, %.1f' % tuple(toleranceRMS)) + ' for gains 1, 6, and 12 respectively. Channels with entries less than ' + str(minChannelEntries) + ' are not considered.')
+            description = cms.untracked.string('Summary of the pedestal quality for crystals. A channel is red if the pedestal mean is off from ' + str(expectedMean) + ' by ' + str(toleranceMean) + ' or if the pedestal RMS is greater than threshold. RMS thresholds for EB are ' + ('Gain1:%.1f, Gain6:%.1f, Gain12:%.1f' % tuple(toleranceRMSEB)) + ' ADC, and for EE, ' + ('Gain1:%.1f, Gain6:%.1f, Gain12:%.1f' % tuple(toleranceRMSEE)) + ' ADC. Channels with entries less than ' + str(minChannelEntries) + ' are not considered.')
         ),
         Quality = cms.untracked.PSet(
             path = cms.untracked.string('%(subdet)s/%(prefix)sPedestalClient/%(prefix)sPT pedestal quality G%(gain)s %(sm)s'),
@@ -87,7 +89,7 @@ ecalPedestalClient = cms.untracked.PSet(
             ),
             kind = cms.untracked.string('TH2F'),
             btype = cms.untracked.string('Crystal'),
-            description = cms.untracked.string('Summary of the pedestal quality for crystals. A channel is red if the pedestal mean is off from ' + str(expectedMean) + ' by ' + str(toleranceMean) + ' or if the pedestal RMS is greater than threshold. RMS thresholds are ' + ('%.1f, %.1f, %.1f' % tuple(toleranceRMS)) + ' for gains 1, 6, and 12 respectively. Channels with entries less than ' + str(minChannelEntries) + ' are not considered.')
+            description = cms.untracked.string('Summary of the pedestal quality for crystals. A channel is red if the pedestal mean is off from ' + str(expectedMean) + ' by ' + str(toleranceMean) + ' or if the pedestal RMS is greater than threshold. RMS thresholds for EB are ' + ('Gain1:%.1f, Gain6:%.1f, Gain12:%.1f' % tuple(toleranceRMSEB)) + ' ADC, and for EE, ' + ('Gain1:%.1f, Gain6:%.1f, Gain12:%.1f' % tuple(toleranceRMSEE)) + ' ADC. Channels with entries less than ' + str(minChannelEntries) + ' are not considered.')
         ),
         Mean = cms.untracked.PSet(
             kind = cms.untracked.string('TH1F'),
