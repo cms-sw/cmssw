@@ -704,6 +704,12 @@ private:
   std::vector<float> see_dxyErr   ;
   std::vector<float> see_dzErr    ;
   std::vector<float> see_chi2     ;
+  std::vector<float> see_statePt;
+  std::vector<float> see_stateTrajX;
+  std::vector<float> see_stateTrajY;
+  std::vector<float> see_stateTrajPx;
+  std::vector<float> see_stateTrajPy;
+  std::vector<float> see_stateTrajPz;
   std::vector<int> see_q       ;
   std::vector<unsigned int> see_nValid  ;
   std::vector<unsigned int> see_nPixel  ;
@@ -1033,6 +1039,12 @@ TrackingNtuple::TrackingNtuple(const edm::ParameterSet& iConfig):
     t->Branch("see_dxyErr"   , &see_dxyErr  );
     t->Branch("see_dzErr"    , &see_dzErr   );
     t->Branch("see_chi2"     , &see_chi2    );
+    t->Branch("see_statePt"  , &see_statePt );
+    t->Branch("see_stateTrajX", &see_stateTrajX);
+    t->Branch("see_stateTrajY", &see_stateTrajY);
+    t->Branch("see_stateTrajPx", &see_stateTrajPx);
+    t->Branch("see_stateTrajPy", &see_stateTrajPy);
+    t->Branch("see_stateTrajPz", &see_stateTrajPz);
     t->Branch("see_q"        , &see_q       );
     t->Branch("see_nValid"   , &see_nValid  );
     t->Branch("see_nPixel"   , &see_nPixel  );
@@ -1303,6 +1315,12 @@ void TrackingNtuple::clearVariables() {
   see_dxyErr  .clear();
   see_dzErr   .clear();
   see_chi2    .clear();
+  see_statePt.clear();
+  see_stateTrajX.clear();
+  see_stateTrajY.clear();
+  see_stateTrajPx.clear();
+  see_stateTrajPy.clear();
+  see_stateTrajPz.clear();
   see_q       .clear();
   see_nValid  .clear();
   see_nPixel  .clear();
@@ -2100,6 +2118,16 @@ void TrackingNtuple::fillSeeds(const edm::Event& iEvent,
       see_dxyErr  .push_back( seedFitOk ? seedTrack.dxyError() : 0);
       see_dzErr   .push_back( seedFitOk ? seedTrack.dzError() : 0);
       see_algo    .push_back( algo );
+
+      const auto& state = seedTrack.seedRef()->startingState();
+      const auto& pos = state.parameters().position();
+      const auto& mom = state.parameters().momentum();
+      see_statePt.push_back(state.pt());
+      see_stateTrajX.push_back(pos.x());
+      see_stateTrajY.push_back(pos.y());
+      see_stateTrajPx.push_back(mom.x());
+      see_stateTrajPy.push_back(mom.y());
+      see_stateTrajPz.push_back(mom.z());
 
       see_trkIdx  .push_back(-1); // to be set correctly in fillTracks
       see_shareFrac.push_back( sharedFraction );
