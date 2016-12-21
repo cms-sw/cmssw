@@ -40,8 +40,8 @@ from DQM.L1TMonitorClient.L1EmulatorDttfQualityTests_cfi import *
 seqL1EmulatorDttfQualityTests = cms.Sequence(l1EmulatorDttfQualityTests)
 
 # DTTPG quality tests
-#from DQM.L1TMonitorClient.L1EmulatorDttpgQualityTests_cfi import *
-#seqL1EmulatorDttpgQualityTests = cms.Sequence(l1EmulatorDttpgQualityTests)
+from DQM.L1TMonitorClient.L1EmulatorDttpgQualityTests_cfi import *
+seqL1EmulatorDttpgQualityTests = cms.Sequence(l1EmulatorDttpgQualityTests)
 
 # CSCTF quality tests
 from DQM.L1TMonitorClient.L1EmulatorCsctfQualityTests_cfi import *
@@ -101,6 +101,10 @@ seqL1EmulatorObjETTQualityTests = cms.Sequence(l1EmulatorObjETTQualityTests)
 from DQM.L1TMonitorClient.L1EmulatorObjTauJetQualityTests_cfi import *
 seqL1EmulatorObjTauJetQualityTests = cms.Sequence(l1EmulatorObjTauJetQualityTests)
 
+# IsoTauJet quality tests                                                                                              
+from DQM.L1TMonitorClient.L1EmulatorObjIsoTauJetQualityTests_cfi import *
+seqL1EmulatorObjIsoTauJetQualityTests = cms.Sequence(l1EmulatorObjIsoTauJetQualityTests)
+
 # ForJet quality tests
 from DQM.L1TMonitorClient.L1EmulatorObjForJetQualityTests_cfi import *
 seqL1EmulatorObjForJetQualityTests = cms.Sequence(l1EmulatorObjForJetQualityTests)
@@ -128,7 +132,7 @@ l1EmulatorSystemQualityTests = cms.Sequence(
                                 seqL1EmulatorRctQualityTests + 
                                 seqL1EmulatorGctQualityTests + 
                                 seqL1EmulatorDttfQualityTests + 
-                                #seqL1EmulatorDttpgQualityTests + 
+                                seqL1EmulatorDttpgQualityTests + 
                                 seqL1EmulatorCsctfQualityTests + 
                                 seqL1EmulatorCsctpgQualityTests + 
                                 seqL1EmulatorRpcQualityTests + 
@@ -147,6 +151,7 @@ l1EmulatorObjectQualityTests = cms.Sequence(
                                 seqL1EmulatorObjETMQualityTests +
                                 seqL1EmulatorObjETTQualityTests +
                                 seqL1EmulatorObjTauJetQualityTests +
+                                seqL1EmulatorObjIsoTauJetQualityTests +
                                 seqL1EmulatorObjForJetQualityTests +
                                 seqL1EmulatorObjCenJetQualityTests +
                                 seqL1EmulatorObjIsoEGQualityTests +

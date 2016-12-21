@@ -74,10 +74,10 @@ process.RawToDigi.remove("castorDigis")
 # for GCT, unpack all five samples
 process.gctDigis.numberOfGctSamplesToUnpack = cms.uint32(5)
 
-if ( process.runType.getRunType() == process.runType.pp_run_stage1 or process.runType.getRunType() == process.runType.cosmic_run_stage1):
-    process.gtDigis.DaqGtFedId = cms.untracked.int32(809)
-else:
-    process.gtDigis.DaqGtFedId = cms.untracked.int32(813)
+#if ( process.runType.getRunType() == process.runType.pp_run_stage1 or process.runType.getRunType() == process.runType.cosmic_run_stage1):
+process.gtDigis.DaqGtFedId = cms.untracked.int32(809)
+#else:
+#    process.gtDigis.DaqGtFedId = cms.untracked.int32(813)
 # 
 process.l1tMonitorPath = cms.Path(process.l1tMonitorOnline)
 
@@ -103,9 +103,9 @@ process.dqmEndPath = cms.EndPath(
 process.schedule = cms.Schedule(process.rawToDigiPath,
                                 process.l1tMonitorPath,
                                 process.l1tSyncPath,
-                                process.l1tMonitorClientPath,
-                                process.l1tMonitorEndPath,
-                                process.l1tMonitorClientEndPath,
+                                #process.l1tMonitorClientPath,
+                                #process.l1tMonitorEndPath,
+                                #process.l1tMonitorClientEndPath,
                                 process.dqmEndPath
                                 )
 
@@ -125,34 +125,35 @@ process.schedule = cms.Schedule(process.rawToDigiPath,
 # remove module(s) or system sequence from l1tMonitorPath
 #        quality test disabled also
 #
-#process.l1tMonitorOnline.remove(process.bxTiming)
+process.l1tMonitorOnline.remove(process.bxTiming)
 process.l1tMonitorOnline.remove(process.l1tBPTX)
 
 #process.l1tMonitorOnline.remove(process.l1tLtc)
 
-#process.l1tMonitorOnline.remove(process.l1Dttf)
+process.l1tMonitorOnline.remove(process.l1tDttf)
 
-#process.l1tMonitorOnline.remove(process.l1tCsctf) 
+process.l1tMonitorOnline.remove(process.l1tCsctf) 
 
-#process.l1tMonitorOnline.remove(process.l1tRpctf)
+process.l1tMonitorOnline.remove(process.l1tRpctf)
 
-#process.l1tMonitorOnline.remove(process.l1tGmt)
+process.l1tMonitorOnline.remove(process.l1tGmt)
 
 #process.l1tMonitorOnline.remove(process.l1tGt) 
+process.l1tGt.HistFolder = cms.untracked.string("L1T/L1TGTTestCrate") 
 
 #process.l1tMonitorOnline.remove(process.l1ExtraDqmSeq)
 
 process.l1tMonitorOnline.remove(process.l1tRate)
 
-#process.l1tMonitorOnline.remove(process.l1tRctSeq)
+process.l1tMonitorOnline.remove(process.l1tRctRun1)
 
 #process.l1tMonitorOnline.remove(process.l1tGctSeq)
 
 
 # remove module(s) or system sequence from l1tMonitorEndPath
 #
-#process.l1tMonitorEndPathSeq.remove(process.l1s)
-#process.l1tMonitorEndPathSeq.remove(process.l1tscalers)
+process.l1tMonitorEndPathSeq.remove(process.l1s)
+process.l1tMonitorEndPathSeq.remove(process.l1tscalers)
 
 #
 process.schedule.remove(process.l1tSyncPath)

@@ -2,6 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 l1TdeRCT = cms.EDAnalyzer("L1TdeRCT",
     rctSourceData = cms.InputTag("gctDigis"),
+    gctSourceData = cms.InputTag("gctDigis"),
     HistFolder = cms.untracked.string('L1TEMU/L1TdeRCT'),
     outputFile = cms.untracked.string(''),
     verbose = cms.untracked.bool(False),
@@ -14,7 +15,7 @@ l1TdeRCT = cms.EDAnalyzer("L1TdeRCT",
     gtDigisLabel = cms.InputTag("gtDigis"),
     gtEGAlgoName = cms.string("L1_SingleEG1"),
     doubleThreshold = cms.int32(3),
-    filterTriggerType = cms.int32(1)
-
+    filterTriggerType = cms.int32(1),
+    selectBX= cms.untracked.int32(0)
 )
 

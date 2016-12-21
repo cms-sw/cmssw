@@ -78,15 +78,12 @@ private:
   MonitorElement* m_qualVsEta[3];
   MonitorElement* m_muonsEtaPhi[3];
   //MonitorElement* m_phipacked;
-  
+
   MonitorElement* m_bxDiff;
   MonitorElement* rpctfcratesynchro[12];
 
-  MonitorElement* runId_;
-  MonitorElement* lumisecId_;
-  
   std::set<unsigned long long int>  m_globBX;
-  
+
   edm::EDGetTokenT<L1MuGMTReadoutCollection> rpctfSource_ ;
 
   int nev_; // Number of events processed
