@@ -324,6 +324,15 @@
  
   <class name="edm::Ptr<reco::Photon>" />
   <class name="edm::PtrVector<reco::Photon>" />
+
+  <class name="reco::HIPhotonIsolation" ClassVersion="2">
+    <version ClassVersion="2" checksum="1971638020"/>
+  </class>
+  <class name="edm::Wrapper<reco::HIPhotonIsolation>"/>
+  <class name="edm::ValueMap<reco::HIPhotonIsolation>"/>
+  <class name="edm::Wrapper<edm::ValueMap<reco::HIPhotonIsolation> >"/>
+  <class name="std::vector<reco::HIPhotonIsolation>" />
+  <class name="edm::Wrapper<std::vector<reco::HIPhotonIsolation> >" />
   
 </lcgdict>
 

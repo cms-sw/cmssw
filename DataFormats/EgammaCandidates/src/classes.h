@@ -18,6 +18,7 @@
 #include "DataFormats/EgammaCandidates/interface/ConversionFwd.h"
 #include "DataFormats/EgammaCandidates/interface/SiStripElectron.h"
 #include "DataFormats/EgammaCandidates/interface/SiStripElectronFwd.h"
+#include "DataFormats/EgammaCandidates/interface/HIPhotonIsolation.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
@@ -212,5 +213,14 @@ namespace DataFormats_EgammaCandidates {
     edm::Ptr<reco::Photon>	 ptr_ph;
     edm::PtrVector<reco::Photon>	 ptrv_ph;
    } ;
+
+  reco::HIPhotonIsolation hiIso;
+  edm::Wrapper<reco::HIPhotonIsolation> w_hiIso;
+
+  edm::ValueMap<reco::HIPhotonIsolation> hiIsoMap;
+  edm::Wrapper<edm::ValueMap<reco::HIPhotonIsolation> > w_hiIsoMap;
+
+  std::vector<reco::HIPhotonIsolation> v_hiIso;
+  edm::Wrapper<std::vector<reco::HIPhotonIsolation> > w_v_hiIso;
 
  }

@@ -16,6 +16,7 @@ hiEcalClusteringSequence = cms.Sequence(islandClusteringSequence*hybridClusterin
 
 # reco photon producer
 from RecoEgamma.EgammaPhotonProducers.photonSequence_cff import *
+photonSequence.remove(photonIsolationHISequence)
 
 # use island for the moment
 photonCore.scHybridBarrelProducer = cms.InputTag("correctedIslandBarrelSuperClusters")
@@ -30,8 +31,8 @@ photons.maxHoverEBarrel = cms.double(0.99)  #0.5
 photons.primaryVertexProducer = cms.InputTag('hiSelectedVertex') # replace the primary vertex
 photons.isolationSumsCalculatorSet.trackProducer = isolationInputParameters.track    # cms.InputTag("highPurityTracks")
 
-hiPhotonSequence = cms.Sequence(photonSequence)
-
+from RecoHI.HiEgammaAlgos.photonIsolationHIProducer_cfi import photonIsolationHIProducer
+hiPhotonSequence = cms.Sequence(photonSequence * photonIsolationHIProducer)
 
 # HI Ecal reconstruction
 hiEcalClusters = cms.Sequence(hiEcalClusteringSequence)
