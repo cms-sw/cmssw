@@ -133,7 +133,15 @@ class Vx3DHLTAnalyzer : public DQMEDAnalyzer
   MonitorElement* Vx_ZX;
   MonitorElement* Vx_ZY;
   MonitorElement* Vx_XY;
-  
+
+  MonitorElement* Vx_X_Cum;
+  MonitorElement* Vx_Y_Cum;
+  MonitorElement* Vx_Z_Cum;
+
+  MonitorElement* Vx_ZX_Cum;
+  MonitorElement* Vx_ZY_Cum;
+  MonitorElement* Vx_XY_Cum;
+
   MonitorElement* goodVxCounter;
   MonitorElement* hitCounter;
   MonitorElement* statusCounter;
