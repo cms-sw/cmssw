@@ -425,14 +425,28 @@ void HistogramManager::book(DQMStore::IBooker& iBooker,
 
       // determine nbins for geometry derived quantities
       // due to how we counted above, we need to include lower and upper bound
+      // For Coord-values, which are not precisely aligned with the bins, we force
+      // alignment.
       if (mei.binwidth_x != 0) {
-        mei.range_x_min -= mei.binwidth_x/2;
-        mei.range_x_max += mei.binwidth_x/2;
+        double range = (mei.range_x_max - mei.range_x_min)/mei.binwidth_x;
+        if ((range - int(range)) == 0.0) {
+          mei.range_x_min -= mei.binwidth_x/2;
+          mei.range_x_max += mei.binwidth_x/2;
+        } else {
+          mei.range_x_min = std::floor(mei.range_x_min/mei.binwidth_x)*mei.binwidth_x;
+          mei.range_x_max = std::ceil(mei.range_x_max/mei.binwidth_x)*mei.binwidth_x;
+        }
         mei.range_x_nbins = int((mei.range_x_max - mei.range_x_min)/mei.binwidth_x);
       }
       if (mei.binwidth_y != 0) {
-        mei.range_y_min -= mei.binwidth_y/2;
-        mei.range_y_max += mei.binwidth_y/2;
+        double range = (mei.range_y_max - mei.range_y_min)/mei.binwidth_y;
+        if ((range - int(range)) == 0.0) {
+          mei.range_y_min -= mei.binwidth_y/2;
+          mei.range_y_max += mei.binwidth_y/2;
+        } else {
+          mei.range_y_min = std::floor(mei.range_y_min/mei.binwidth_y)*mei.binwidth_y;
+          mei.range_y_max = std::ceil(mei.range_y_max/mei.binwidth_y)*mei.binwidth_y;
+        }
         mei.range_y_nbins = int((mei.range_y_max - mei.range_y_min)/mei.binwidth_y);
       }
 

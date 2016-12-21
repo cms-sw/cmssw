@@ -221,5 +221,7 @@ process.p = cms.Path(
   * process.DQMmodules
   * process.siPixelPhase1OfflineDQM_source
   * process.siPixelPhase1OfflineDQM_harvesting
+  * process.SiPixelPhase1GeometryDebugAnalyzer
+  * process.SiPixelPhase1GeometryDebugHarvester
 )
     

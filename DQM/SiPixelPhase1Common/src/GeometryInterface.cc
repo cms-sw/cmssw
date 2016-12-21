@@ -159,13 +159,13 @@ void GeometryInterface::loadFromTopology(edm::EventSetup const& iSetup, const ed
     // TODO: add all ROCs?
     // TODO: Things are more complicated for phase2, and we support that via 
     // SiPixelCoordinates, so we should support it here too.
-    iq.row = 0; iq.col = 0;
+    iq.row = 1; iq.col = 1;
     all_modules.push_back(iq);
-    iq.row = module_rows; iq.col = 0;
+    iq.row = module_rows-1; iq.col = 1;
     all_modules.push_back(iq);
-    iq.row = 0; iq.col = module_cols;
+    iq.row = 1; iq.col = module_cols-1;
     all_modules.push_back(iq);
-    iq.row = module_rows; iq.col = module_cols;
+    iq.row = module_rows-1; iq.col = module_cols-1;
     all_modules.push_back(iq);
   }
 }
