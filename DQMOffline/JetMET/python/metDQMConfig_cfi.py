@@ -22,14 +22,18 @@ caloMetDQMAnalyzer = cms.EDAnalyzer("METAnalyzer",
     
     FolderName = cms.untracked.string("JetMET/MET/"),
 
-    fillMetHighLevel = cms.bool(True),
+    fillMetHighLevel = cms.bool(True),#fills lumi overview plots
 
     fillCandidateMaps = cms.bool(False),
 
-    CleaningParameters = cleaningParameters.clone(),
+    CleaningParameters = cleaningParameters.clone(
+        bypassAllPVChecks = cms.bool(True),#needed for 0T running
+        ),
     METDiagonisticsParameters = multPhiCorr_METDiagnostics,
 
     TriggerResultsLabel  = cms.InputTag("TriggerResults::HLT"),
+    FilterResultsLabelMiniAOD  = cms.InputTag("TriggerResults::RECO"),
+    FilterResultsLabelMiniAOD2  = cms.InputTag("TriggerResults::reRECO"),
 
     onlyCleaned                = cms.untracked.bool(True),
     runcosmics                 = cms.untracked.bool(False),  
@@ -46,7 +50,7 @@ caloMetDQMAnalyzer = cms.EDAnalyzer("METAnalyzer",
         dbLabel        = cms.string("JetMETDQMTrigger"),
         hltInputTag    = cms.InputTag( "TriggerResults::HLT" ),
 #        hltDBKey       = cms.string( 'jetmet_highptjet' ), #overrides hltPaths!
-        hltPaths       = cms.vstring( 'HLT_PFJet400_v*' ), 
+        hltPaths       = cms.vstring( 'HLT_PFJet450_v*' ), 
         andOrHlt       = cms.bool( True ),
         errorReplyHlt  = cms.bool( False ),
     ),
@@ -73,7 +77,7 @@ caloMetDQMAnalyzer = cms.EDAnalyzer("METAnalyzer",
         dbLabel        = cms.string("JetMETDQMTrigger"),
         hltInputTag    = cms.InputTag( "TriggerResults::HLT" ),
 #        hltDBKey       = cms.string( 'jetmet_highmet' ),#overrides hltPaths!
-        hltPaths       = cms.vstring( 'HLT_MET400_v*' ), 
+        hltPaths       = cms.vstring( 'HLT_MET250_v*' ), 
         andOrHlt       = cms.bool( True ),
         errorReplyHlt  = cms.bool( False ),
     ),
@@ -91,15 +95,18 @@ caloMetDQMAnalyzer = cms.EDAnalyzer("METAnalyzer",
         dbLabel        = cms.string("JetMETDQMTrigger"),
         hltInputTag    = cms.InputTag( "TriggerResults::HLT" ),
 #        hltDBKey       = cms.string( 'jetmet_muon' ),#overrides hltPaths!
-        hltPaths       = cms.vstring( 'HLT_IsoMu24_eta2p1_v*', 'HLT_IsoMu24_v*'), 
+        hltPaths       = cms.vstring( 'HLT_IsoMu24_eta2p1_v*', 'HLT_IsoMu27_v*'), 
         andOrHlt       = cms.bool( True ),
         errorReplyHlt  = cms.bool( False ),
     ) 
     ),
     
-    HcalNoiseRBXCollection     = cms.InputTag("hcalnoise"),
-    #HBHENoiseFilterResultLabel = cms.InputTag("HBHENoiseFilterResultProducer", "HBHENoiseFilterResultRun2Loose"),  
+    HcalNoiseRBXCollection     = cms.InputTag("hcalnoise"),                                    
     HBHENoiseFilterResultLabel = cms.InputTag("HBHENoiseFilterResultProducer", "HBHENoiseFilterResult"),  
+    CSCHaloResultLabel = cms.InputTag("CSCTightHaloFilter"),  
+    BeamHaloSummaryLabel = cms.InputTag("BeamHaloSummary"),
+    EcalDeadCellTriggerLabel = cms.InputTag("EcalDeadCellTriggerPrimitiveFilter"), 
+    eeBadScFilterLabel = cms.InputTag("eeBadScFilter"), 
 
 #    HighPtJetThreshold = cms.double(60.),
 #    LowPtJetThreshold  = cms.double(15.),
@@ -130,12 +137,22 @@ pfMetDQMAnalyzer = caloMetDQMAnalyzer.clone(
     fillMetHighLevel = cms.bool(False),
     fillCandidateMaps = cms.bool(True),
     onlyCleaned                = cms.untracked.bool(False),
+    CleaningParameters = cleaningParameters.clone(
+        bypassAllPVChecks = cms.bool(False),
+        ),
     DCSFilter = cms.PSet(
         DetectorTypes = cms.untracked.string("ecal:hbhe:hf:pixel:sistrip:es:muon"),
         #DebugOn = cms.untracked.bool(True),
         Filter = cms.untracked.bool(True)
         ),
 )
+
+pfChMetDQMAnalyzer = pfMetDQMAnalyzer.clone(
+    METCollectionLabel     = cms.InputTag("pfChMet"),
+    fillCandidateMaps = cms.bool(False),
+    onlyCleaned                = cms.untracked.bool(True),
+)
+
 #both CaloMET and type1 MET only cleaned plots are filled
 pfMetT1DQMAnalyzer = caloMetDQMAnalyzer.clone(
     METType=cms.untracked.string('pf'),
@@ -145,13 +162,16 @@ pfMetT1DQMAnalyzer = caloMetDQMAnalyzer.clone(
     JetCorrections = cms.InputTag("dqmAk4PFCHSL1FastL2L3ResidualCorrector"),
     fillMetHighLevel = cms.bool(False),
     fillCandidateMaps = cms.bool(False),
+   CleaningParameters = cleaningParameters.clone(
+        bypassAllPVChecks = cms.bool(False),
+        ),
     DCSFilter = cms.PSet(
         DetectorTypes = cms.untracked.string("ecal:hbhe:hf:pixel:sistrip:es:muon"),
         Filter = cms.untracked.bool(True)
         ),
 )
 pfMetDQMAnalyzerMiniAOD = pfMetDQMAnalyzer.clone(
-    fillMetHighLevel = cms.bool(False),
+    fillMetHighLevel = cms.bool(True),#fills only lumisec plots
     fillCandidateMaps = cms.bool(False),
     CleaningParameters = cleaningParameters.clone(
         vertexCollection    = cms.InputTag( "goodOfflinePrimaryVerticesDQMforMiniAOD" ),
