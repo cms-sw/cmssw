@@ -121,22 +121,16 @@ L1TDTTPG::~L1TDTTPG()
 
 void L1TDTTPG::dqmBeginRun(const edm::Run &r, const edm::EventSetup &c){
   //empty
-  //runId_->Fill(r.id().run());
 }
 
 void L1TDTTPG::beginLuminosityBlock(const edm::LuminosityBlock &l, const edm::EventSetup &c){
   //empty
-  //lumisecId_->Fill(l.id().luminosityBlock());
 }
 
 void L1TDTTPG::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const&, edm::EventSetup const&) 
 {
   nev_ = 0;
   ibooker.setCurrentFolder("L1T/L1TDTTPG");
-
-  runId_=ibooker.bookInt("iRun");
-  lumisecId_=ibooker.bookInt("iLumi");
-
 
   //hist1[0]
   dttpgphbx[0] = ibooker.book1D("BxEncoding_PHI",

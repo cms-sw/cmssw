@@ -14,7 +14,7 @@
     </QTEST>
 
 
-    <LINK name="*GCTexpert/HFCnts/HFCntsErrorFlag">
+    <LINK name="*Stage1Layer2expert/HFCnts/HFCntsErrorFlag">
         <TestName activate="true">L1EmulatorHfBitCountsGctErrorFlagQT</TestName>
     </LINK>
 
