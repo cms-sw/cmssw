@@ -1,5 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
+from SimMuon.GEMDigitizer.muonME0DigisPreReco_cfi import me0PreRecoDigiCommonParameters
+
 # Module to create simulated ME0 Pre Reco digis.
 simMuonME0ReDigis = cms.EDProducer("ME0ReDigiProducer",
     inputCollection = cms.string('simMuonME0Digis'),
@@ -19,5 +21,7 @@ simMuonME0ReDigis = cms.EDProducer("ME0ReDigiProducer",
     verbose = cms.bool(False),
     reDigitizeOnlyMuons = cms.bool(False),
     reDigitizeNeutronBkg = cms.bool(True),
-    instLumi = cms.double(5.0), # in units of 1E34 cm^-2 s^-1
+    rateFact = me0PreRecoDigiCommonParameters.rateFact, # This must be synchronized with the default digitizer
+    instLumiDefault = me0PreRecoDigiCommonParameters.instLumi, # This must be synchronized with the default digitizer
+    instLumi = cms.double(7.5), # in units of 1E34 cm^-2 s^-1
 )

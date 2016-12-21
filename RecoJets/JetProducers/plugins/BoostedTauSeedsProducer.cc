@@ -17,7 +17,7 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -42,7 +42,7 @@
 #include <iostream>
 #include <iomanip>
 
-class BoostedTauSeedsProducer : public edm::EDProducer 
+class BoostedTauSeedsProducer : public edm::stream::EDProducer<>
 {
  public:
   explicit BoostedTauSeedsProducer(const edm::ParameterSet&);
@@ -161,16 +161,17 @@ namespace
 
   std::vector<reco::PFCandidateRef> getPFCandidates_exclJetConstituents(const reco::Jet& jet, const edm::Handle<reco::PFCandidateCollection>& pfCandidates, const reco::Jet::Constituents& jetConstituents, double dRmatch, bool invert)
   { 
+    const double dRmatch2 = dRmatch*dRmatch;
     auto const & collection_cand = (*pfCandidates);
     std::vector<reco::PFCandidateRef> pfCandidates_exclJetConstituents;
     size_t numPFCandidates = pfCandidates->size();
     for ( size_t pfCandidateIdx = 0; pfCandidateIdx < numPFCandidates; ++pfCandidateIdx ) {
-      if(!(deltaR(collection_cand[pfCandidateIdx].p4(), jet.p4())<1.0)) continue;
+      if(!(deltaR2(collection_cand[pfCandidateIdx], jet)<1.0)) continue;
       bool isJetConstituent = false;
       for ( reco::Jet::Constituents::const_iterator jetConstituent = jetConstituents.begin();
 	    jetConstituent != jetConstituents.end(); ++jetConstituent ) {
-	double dR = deltaR(collection_cand[pfCandidateIdx].p4(), (*jetConstituent)->p4());
-	if ( dR < dRmatch ) {
+	double dR2 = deltaR2(collection_cand[pfCandidateIdx], **jetConstituent);
+	if ( dR2 < dRmatch2 ) {
 	  isJetConstituent = true;
 	  break;
 	}

@@ -34,6 +34,9 @@ pushd ${LOCAL_TMP_DIR}
   grep "Sharing" testSubProcessEventSetup1.log >> testSubProcessEventSetup1.grep.txt
   diff ${LOCAL_TEST_DIR}/unit_test_outputs/testSubProcessEventSetup1.grep.txt  testSubProcessEventSetup1.grep.txt || die "comparing testSubProcessEventSetup1.grep.txt" $?
 
+  echo cmsRun testSubProcessUnscheduled_cfg.py
+  cmsRun -p ${LOCAL_TEST_DIR}/testSubProcessUnscheduled_cfg.py || die "cmsRun testSubProcessUnscheduled_cfg.py" $?
+
 popd
 
 exit 0

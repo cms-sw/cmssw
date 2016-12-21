@@ -61,9 +61,7 @@ class BigEventsDebugger : public edm::EDAnalyzer {
 
 
    private:
-      virtual void beginJob(const edm::EventSetup&) ;
       virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-      virtual void endJob() override ;
 
       // ----------member data ---------------------------
 
@@ -212,19 +210,6 @@ BigEventsDebugger<T>::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 
 }
 
-
-// ------------ method called once each job just before starting event loop  ------------
-template <class T>
-void
-BigEventsDebugger<T>::beginJob(const edm::EventSetup&)
-{
-}
-
-// ------------ method called once each job just after ending the event loop  ------------
-template <class T>
-void
-BigEventsDebugger<T>::endJob() {
-}
 
 typedef BigEventsDebugger<edmNew::DetSetVector<SiStripCluster> > ClusterBigEventsDebugger;
 typedef BigEventsDebugger<edm::DetSetVector<SiStripDigi> > DigiBigEventsDebugger;
