@@ -3,7 +3,7 @@
 void 
 TrackCollectionCloner::fill(edm::ParameterSetDescription& desc) {
   desc.addUntracked<bool>("copyExtras",      true);
-  desc.addUntracked<bool>("copyTrajectories",true);  
+  desc.addUntracked<bool>("copyTrajectories",false);  
 }
 
 TrackCollectionCloner::Producer::Producer(edm::Event& ievt, TrackCollectionCloner const & cloner) :
