@@ -22,6 +22,9 @@
 #include "boost/graph/depth_first_search.hpp"
 #include "boost/graph/visitors.hpp"
 
+//CDJ DEBUG
+#include <iostream>
+
 namespace {
   //====================================
   // checkForCorrectness algorithm
@@ -72,6 +75,8 @@ namespace {
   typedef boost::graph_traits<Graph>::edge_descriptor Edge;
   struct cycle_detector : public boost::dfs_visitor<> {
     
+    static const unsigned int kRootVertexIndex=0;
+    
     cycle_detector(EdgeToPathMap const& iEdgeToPathMap,
                    std::vector<std::vector<unsigned int>> const& iPathIndexToModuleIndexOrder,
                    std::vector<std::string> const& iPathNames,
@@ -81,55 +86,210 @@ namespace {
     m_pathNames(iPathNames),
     m_indexToNames(iModuleIndexToNames){}
     
-    void tree_edge(Edge iEdge, Graph const&) {
+    bool compare(Edge const& iLHS, Edge const& iRHS)  const;
+    
+    void tree_edge(Edge const& iEdge, Graph const& iGraph) {
       m_stack.push_back(iEdge);
     }
     
-    void finish_edge(Edge iEdge, Graph const& iGraph) {
-      if(not m_stack.empty()) {
-        if (iEdge == m_stack.back()) {
-          m_stack.pop_back();
-        }
+    //NOTE: there is a bug in boost where it tries to detect if there
+    // is a finish_edge method but the test requires no arguments while
+    // the function actually called takes two arguments.
+    void finish_edge() { assert(false);}
+    __attribute__ ((noinline)) void finish_edge(Edge const& iEdge, Graph const& iGraph) {
+
+      //NOTE: a bug in boost graph can cause finish_edge to be
+      // called twice for the same edge, the conditional logic
+      // protects against that
+      if((not m_stack.empty()) and (iEdge ==m_stack.back())) {
+        m_stack.pop_back();
       }
     }
-    
+
     //Called if a cycle happens
-    void back_edge(Edge iEdge, Graph const& iGraph) {
+    void back_edge(Edge const& iEdge, Graph const& iGraph) {
+      m_stack.push_back(iEdge);
+
       
       typedef typename boost::property_map<Graph, boost::vertex_index_t>::type IndexMap;
       IndexMap const& index = get(boost::vertex_index, iGraph);
-      /*
-      unsigned int vertex = index[target(iEdge,iGraph)];
-      
-      //Find last edge which starts with this vertex
-      
-      std::list<Edge>::iterator itFirst = m_stack.begin();
-      {
-        bool seenVertex = false;
-        while(itFirst != m_stack.end()) {
-          if(not seenVertex) {
-            if(index[source(*itFirst,iGraph)] == vertex) {
-              seenVertex = true;
-            }
-          } else
-            if (index[source(*itFirst,iGraph)] != vertex) {
-              break;
-            }
-          ++itFirst;
-        }
-        if(itFirst != m_stack.begin()) {
-          --itFirst;
-        }
+
+      if(kRootVertexIndex != index[source(m_stack.front(),iGraph)]) {
+        //this part of the graph is not connected to data processing
+        return;
       }
-      */
+
       //This edge has not been added to the stack yet
       // making a copy allows us to add it in but not worry
       // about removing it at the end of the routine
       std::vector<Edge> tempStack;
-      tempStack.reserve(m_stack.size()+1);
-      //tempStack.insert(tempStack.end(),itFirst,m_stack.end());
-      tempStack.insert(tempStack.end(),m_stack.begin(),m_stack.end());
-      tempStack.emplace_back(iEdge);
+      
+      tempStack= findMinimumCycle(m_stack,iGraph);
+      checkCycleForProblem(tempStack,iGraph);
+      for(auto const& edge: tempStack) {
+        unsigned int in =index[source(edge,iGraph)];
+        unsigned int out =index[target(edge,iGraph)];
+
+        m_verticiesInFundamentalCycles.insert(in);
+        m_verticiesInFundamentalCycles.insert(out);
+      }
+
+      //NOTE: Need to remove any 'extra' bits at beginning of stack
+      // which may not be part of the cycle
+      m_fundamentalCycles.emplace_back(std::move(tempStack));
+    }
+    
+    void forward_or_cross_edge(Edge iEdge, Graph const& iGraph)
+    {
+      m_stack.push_back(iEdge);
+
+      typedef typename boost::property_map<Graph, boost::vertex_index_t>::type IndexMap;
+      IndexMap const& index = get(boost::vertex_index, iGraph);
+      const unsigned int out =index[target(iEdge,iGraph)];
+
+      if(kRootVertexIndex != index[source(m_stack.front(),iGraph)]) {
+        //this part of the graph is not connected to data processing
+        return;
+      }
+
+      //If this is a crossing edge whose out vertex is part of a fundamental cycle
+      // then this path is also part of a cycle
+      if(m_verticiesInFundamentalCycles.end() == m_verticiesInFundamentalCycles.find(out)) {
+        return;
+      }
+      //std::cout <<"found "<<out<<std::endl;
+      
+      for(auto const& cycle: m_fundamentalCycles) {
+        //Is the out vertex in this cycle?
+        auto itStartMatch = cycle.end();
+        for(auto it =cycle.begin(); it!= cycle.end(); ++it) {
+          unsigned int inCycle =index[source(*it,iGraph)];
+
+          if(out == inCycle) {
+            itStartMatch = it;
+            break;
+          }
+        }
+        if(itStartMatch == cycle.end()) {
+          //this cycle isn't the one which uses the vertex from the stack
+          continue;
+        }
+        //std::cout <<"matching cycle"<<std::endl;
+        /*for(auto it =cycle.begin(); it!= cycle.end(); ++it) {
+          unsigned int inCycle =index[source(*it,iGraph)];
+          unsigned int outCycle =index[target(*it,iGraph)];
+          //std::cout << inCycle<<"->"<<outCycle<<std::endl;
+        } */
+
+        //tempStack will hold a stack that could have been found by depth first
+        // search if module to index ordering had been different
+        auto tempStack= findMinimumCycle(m_stack,iGraph);
+        
+        //the set of 'in' verticies presently in the stack is used to find where an 'out'
+        // vertex from the fundamental cycle connects into the present stack
+        std::set<unsigned int> verticiesInStack;
+        for(auto const& edge: tempStack) {
+          verticiesInStack.insert(index[source(edge,iGraph)]);
+        }
+
+
+
+        //Now find place in the fundamental cycle that attaches to the stack
+        // First see if that happens later in the stack
+        auto itLastMatch = cycle.end();
+        for(auto it=itStartMatch; it != cycle.end(); ++it) {
+          unsigned int outCycle =index[target(*it,iGraph)];
+          if(verticiesInStack.end() != verticiesInStack.find(outCycle)) {
+            itLastMatch = it;
+            break;
+          }
+        }
+        if(itLastMatch==cycle.end()) {
+          //std::cout <<"search earlier in cycle"<<std::endl;
+          //See if we can find the attachment to the stack earlier in the cycle
+          tempStack.insert(tempStack.end(),itStartMatch,cycle.end());
+          for(auto it=cycle.begin(); it != itStartMatch;++it) {
+            unsigned int outCycle =index[target(*it,iGraph)];
+            if(verticiesInStack.end() != verticiesInStack.find(outCycle)) {
+              itLastMatch = it;
+              break;
+            }
+          }
+          if( itLastMatch==cycle.end()) {
+            //need to use the full cycle
+            tempStack.insert(tempStack.end(),cycle.begin(),itStartMatch);
+          } else {
+            tempStack.insert(tempStack.end(),cycle.begin(),itLastMatch+1);
+          }
+        } else {
+          //std::cout <<"found later in cycle"<<std::endl;
+          tempStack.insert(tempStack.end(),itStartMatch,itLastMatch+1);
+        }
+        //CDJ DEBUG
+        //std::cout<<"NEW CYCLE"<<std::endl;
+        /*for(auto const& edge: tempStack) {
+          unsigned int outCycle =index[target(edge,iGraph)];
+          unsigned int inCycle =index[source(edge,iGraph)];
+          //std::cout <<inCycle <<"->"<<outCycle<<std::endl;
+        }*/
+        
+        tempStack= findMinimumCycle(tempStack,iGraph);
+        checkCycleForProblem(tempStack,iGraph);
+      }
+      
+    }
+  private:
+    std::string const& pathName(unsigned int iIndex) const {
+      return m_pathNames[iIndex];
+    }
+    
+    std::string const& moduleName(unsigned int iIndex) const {
+      auto itFound =m_indexToNames.find(iIndex);
+      assert(itFound != m_indexToNames.end());
+      return itFound->second;
+    }
+    
+    void
+    throwOnError(std::vector<Edge>const& iEdges,
+                 boost::property_map<Graph, boost::vertex_index_t>::type const& iIndex,
+                 Graph const& iGraph) const {
+      std::stringstream oStream;
+      oStream <<"Module run order problem found: \n";
+      bool first_edge = true;
+      for(auto const& edge: iEdges) {
+        unsigned int in =iIndex[source(edge,iGraph)];
+        unsigned int out =iIndex[target(edge,iGraph)];
+        
+        if(first_edge) {
+          first_edge = false;
+        } else {
+          oStream<<", ";
+        }
+        oStream <<moduleName(in);
+        
+        auto iFound = m_edgeToPathMap.find(SimpleEdge(in,out));
+        bool pathDependencyOnly = true;
+        for(auto dependency : iFound->second) {
+          if (dependency == edm::graph::kDataDependencyIndex) {
+            pathDependencyOnly = false;
+            break;
+          }
+        }
+        if (pathDependencyOnly) {
+          oStream <<" after "<<moduleName(out)<<" [path "<<pathName(iFound->second[0])<<"]";
+        } else {
+          oStream <<" consumes "<<moduleName(out);
+        }
+      }
+      oStream<<"\n Running in the threaded framework would lead to indeterminate results."
+      "\n Please change order of modules in mentioned Path(s) to avoid inconsistent module ordering.";
+      
+      throw edm::Exception(edm::errors::ScheduleExecutionFailure, "Unrunnable schedule\n")
+      << oStream.str() << "\n";
+    }
+    
+    std::vector<Edge> findMinimumCycle(std::vector<Edge> const& iCycleEdges,
+                                       Graph const& iGraph) const {
       //Remove unnecessary edges
       // The graph library scans the verticies so we have edges in the list which are
       // not part of the cycle but are associated to a vertex contributes to the cycle.
@@ -137,66 +297,74 @@ namespace {
       // where the 'in' on the previous edge is not the 'out' for the next edge. When this
       // happens we know that there are additional edges for that same 'in' which can be
       // removed.
-      {
-        std::vector<Edge> reducedEdges;
-        reducedEdges.reserve(tempStack.size());
-        reducedEdges.push_back(tempStack.back());
-        unsigned int lastIn = index[source(tempStack.back(),iGraph)];
-        const unsigned int finalVertex = index[target(tempStack.back(),iGraph)];
-        for( auto it = tempStack.rbegin()+1; it != tempStack.rend(); ++it) {
-          unsigned int in =index[source(*it,iGraph)];
-          unsigned int out =index[target(*it,iGraph)];
-          if(lastIn == out) {
-            reducedEdges.push_back(*it);
-            lastIn = in;
-            if(in == finalVertex) {
-              break;
-            }
+      
+      typedef typename boost::property_map<Graph, boost::vertex_index_t>::type IndexMap;
+      IndexMap const& index = get(boost::vertex_index, iGraph);
+
+      std::vector<Edge> reducedEdges;
+      reducedEdges.reserve(iCycleEdges.size());
+      reducedEdges.push_back(iCycleEdges.back());
+      unsigned int lastIn = index[source(iCycleEdges.back(),iGraph)];
+      const unsigned int finalVertex = index[target(iCycleEdges.back(),iGraph)];
+      for( auto it = iCycleEdges.rbegin()+1; it != iCycleEdges.rend(); ++it) {
+        unsigned int in =index[source(*it,iGraph)];
+        unsigned int out =index[target(*it,iGraph)];
+        if(lastIn == out) {
+          reducedEdges.push_back(*it);
+          lastIn = in;
+          if(in == finalVertex) {
+            break;
           }
         }
-        std::reverse(reducedEdges.begin(), reducedEdges.end());
-        tempStack.swap(reducedEdges);
       }
-      
-      //For a real problem, we need at least one data dependency and
-      // one path
+      std::reverse(reducedEdges.begin(), reducedEdges.end());
+
+      return reducedEdges;
+    }
+    
+    void checkCycleForProblem(std::vector<Edge> const& iCycleEdges,
+                              Graph const& iGraph) {
+      //For a real problem, we need at least one data dependency
+      // we already know we originate from a path because all tests
+      // require starting from the root node which connects to all paths
       bool hasDataDependency =false;
-      bool hasPathDependency = false;
       std::unordered_map<unsigned int, unsigned int> pathToCountOfNonDataDependencies;
       unsigned int nNonDataDependencies = 0;
       //Since we are dealing with a circle, we initialize the 'last' info with the end of the graph
-      unsigned int lastIn =index[source(tempStack.back(),iGraph)];
-      unsigned int lastOut = index[target(tempStack.back(),iGraph)];
+      typedef typename boost::property_map<Graph, boost::vertex_index_t>::type IndexMap;
+      IndexMap const& index = get(boost::vertex_index, iGraph);
 
+      unsigned int lastIn =index[source(iCycleEdges.back(),iGraph)];
+      unsigned int lastOut = index[target(iCycleEdges.back(),iGraph)];
+      
       std::unordered_set<unsigned int> lastPathsSeen;
-
-      //If a data dependency appears to make us jump off o path but that module actually
+      
+      //If a data dependency appears to make us jump off a path but that module actually
       // appears on the path that was left, we need to see if we later come back to that
       // path somewhere before that module. If not than it is a false cycle
       std::unordered_multimap<unsigned int, unsigned int> pathToModulesWhichMustAppearLater;
       bool moduleAppearedEarlierInPath = false;
-
+      
       for(auto dependency: m_edgeToPathMap.find(SimpleEdge(lastIn,lastOut))->second) {
-        if(dependency !=std::numeric_limits<unsigned int>::max()) {
+        if(dependency !=edm::graph::kDataDependencyIndex) {
           lastPathsSeen.insert(dependency);
         }
       }
-      for(auto const& edge: tempStack) {
+      for(auto const& edge: iCycleEdges) {
         unsigned int in =index[source(edge,iGraph)];
         unsigned int out =index[target(edge,iGraph)];
-
+        
         auto iFound = m_edgeToPathMap.find(SimpleEdge(in,out));
         std::unordered_set<unsigned int> pathsOnEdge;
         bool edgeHasDataDependency = false;
         for(auto dependency : iFound->second) {
-          if (dependency == std::numeric_limits<unsigned int>::max()) {
+          if (dependency == edm::graph::kDataDependencyIndex) {
             //need to count only if this moves us to a new path
             hasDataDependency = true;
             edgeHasDataDependency = true;
           } else {
-            hasPathDependency = true;
             pathsOnEdge.insert(dependency);
-
+            
             auto const& pathIndicies = m_pathIndexToModuleIndexOrder[dependency];
             auto pathToCheckRange = pathToModulesWhichMustAppearLater.equal_range(dependency);
             for(auto it = pathToCheckRange.first; it != pathToCheckRange.second; ) {
@@ -237,8 +405,8 @@ namespace {
             return;
           }
           if(edgeHasDataDependency and not lastPathsSeen.empty()) {
-          //If the paths we were on had this module we are going to earlier
-          // on their paths than we do not have a real cycle
+            //If the paths we were on had this module we are going to earlier
+            // on their paths than we do not have a real cycle
             bool atLeastOnePathFailed = false;
             std::vector<unsigned int> pathsToWatch;
             pathsToWatch.reserve(lastPathsSeen.size());
@@ -287,67 +455,20 @@ namespace {
       if(moduleAppearedEarlierInPath and not pathToModulesWhichMustAppearLater.empty()) {
         return;
       }
-      if(not (hasPathDependency and hasDataDependency)) {
+      if(not hasDataDependency) {
         return;
       }
-      throwOnError(tempStack,index,iGraph);
+      throwOnError(iCycleEdges,index,iGraph);
       for(auto const& pathToCount : pathToCountOfNonDataDependencies) {
         //If all the non data dependencies are seen on on path
         // then at least two modules are in the wrong order
         if (pathToCount.second == nNonDataDependencies) {
-          throwOnError(tempStack,index,iGraph);
+          throwOnError(iCycleEdges,index,iGraph);
         }
       }
-    }
-  private:
-    std::string const& pathName(unsigned int iIndex) const {
-      return m_pathNames[iIndex];
+
     }
     
-    std::string const& moduleName(unsigned int iIndex) const {
-      auto itFound =m_indexToNames.find(iIndex);
-      assert(itFound != m_indexToNames.end());
-      return itFound->second;
-    }
-    
-    void
-    throwOnError(std::vector<Edge>const& iEdges,
-                 boost::property_map<Graph, boost::vertex_index_t>::type const& iIndex,
-                 Graph const& iGraph) const {
-      std::stringstream oStream;
-      oStream <<"Module run order problem found: \n";
-      bool first_edge = true;
-      for(auto const& edge: iEdges) {
-        unsigned int in =iIndex[source(edge,iGraph)];
-        unsigned int out =iIndex[target(edge,iGraph)];
-        
-        if(first_edge) {
-          first_edge = false;
-        } else {
-          oStream<<", ";
-        }
-        oStream <<moduleName(in);
-        
-        auto iFound = m_edgeToPathMap.find(SimpleEdge(in,out));
-        bool pathDependencyOnly = true;
-        for(auto dependency : iFound->second) {
-          if (dependency == std::numeric_limits<unsigned int>::max()) {
-            pathDependencyOnly = false;
-            break;
-          }
-        }
-        if (pathDependencyOnly) {
-          oStream <<" after "<<moduleName(out)<<" [path "<<pathName(iFound->second[0])<<"]";
-        } else {
-          oStream <<" consumes "<<moduleName(out);
-        }
-      }
-      oStream<<"\n Running in the threaded framework would lead to indeterminate results."
-      "\n Please change order of modules in mentioned Path(s) to avoid inconsistent module ordering.";
-      
-      throw edm::Exception(edm::errors::ScheduleExecutionFailure, "Unrunnable schedule\n")
-      << oStream.str() << "\n";
-    }
     
     EdgeToPathMap const& m_edgeToPathMap;
     std::vector<std::vector<unsigned int>> const& m_pathIndexToModuleIndexOrder;
@@ -355,9 +476,12 @@ namespace {
     std::unordered_map<unsigned int,std::string> m_indexToNames;
     std::unordered_map<unsigned int, std::vector<unsigned int>> m_pathToModuleIndex;
     
-    std::list<Edge> m_stack;
+    std::vector<Edge> m_stack;
+    std::vector<std::vector<Edge>> m_fundamentalCycles;
+    std::set<unsigned int> m_verticiesInFundamentalCycles;
   };
 }
+
 
 
 void
