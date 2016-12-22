@@ -24,6 +24,12 @@
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
 #include "DataFormats/Scalers/interface/Level1TriggerScalers.h"
 
+#include "DataFormats/Scalers/interface/Level1TriggerScalers.h"
+#include "DataFormats/Scalers/interface/Level1TriggerRates.h"
+#include "DataFormats/Scalers/interface/ScalersRaw.h"
+#include "DataFormats/Scalers/interface/TimeSpec.h"
+#include "DataFormats/Scalers/interface/LumiScalers.h"
+
 class DQMScalInfo: public DQMEDAnalyzer{
 
 public:
@@ -43,12 +49,14 @@ protected:
 private:
 
   void makeL1Scalars(const edm::Event& e);
+  void makeLumiScalars(const edm::Event& e);
 
   edm::ParameterSet parameters_;
   std::string scalfolder_;
   edm::EDGetTokenT<L1GlobalTriggerReadoutRecord> gtCollection_;
   edm::EDGetTokenT<DcsStatusCollection> dcsStatusCollection_;
   edm::EDGetTokenT<Level1TriggerScalersCollection> l1tscollectionToken_;
+  edm::EDGetTokenT<LumiScalersCollection> lumicollectionToken_;
    // histograms
   MonitorElement * hlresync_;
   MonitorElement * hlOC0_;
@@ -56,7 +64,9 @@ private:
   MonitorElement * hlstart_;
   MonitorElement * hlEC0_;
   MonitorElement * hlHR_;
+  MonitorElement * hphysTrig_;  
 
+  MonitorElement * hinstLumi_;  
 };
 
 #endif
