@@ -111,18 +111,26 @@ void ME0SegmentsValidation::analyze(const edm::Event& e,
         return ;
     }
     
-    
     edm::SimTrackContainer::const_iterator simTrack;
     for (simTrack = simTracks->begin(); simTrack != simTracks->end(); ++simTrack){
+        
+        edm::PSimHitContainer selectedME0Hits;
         
         if(!isSimTrackGood(simTrack)) continue;
         int count = 0;
         
         for (edm::PSimHitContainer::const_iterator itHit = ME0Hits->begin(); itHit != ME0Hits->end(); ++itHit){
             
-            if(isSimMatched(simTrack, itHit)) ++count;
+            if(isSimMatched(simTrack, itHit)){
+                
+                ++count;
+                selectedME0Hits.push_back(*itHit);;
+                
+            }
             
         }
+        std::cout<<"conto "<<count<<std::endl;
+        myMap.insert(MapType::value_type(simTrack,selectedME0Hits));
         
         if(count >= 3){
             
@@ -175,7 +183,7 @@ void ME0SegmentsValidation::analyze(const edm::Event& e,
             auto rhr = ME0Geometry_->etaPartition(me0id);
             auto rhLP = rh->localPosition();
             
-            auto result = isMatched(me0id, rhLP, ME0Digis);
+            auto result = isMatched(me0id, rhLP, ME0Digis, myMap);
             if(result.second == 1) ++numberRHSig;
             else ++numberRHBkg;
             
@@ -230,7 +238,7 @@ void ME0SegmentsValidation::analyze(const edm::Event& e,
     
 }
 
-std::pair<int,int> ME0SegmentsValidation::isMatched(auto me0id, auto rhLP, auto ME0Digis)
+std::pair<int,int> ME0SegmentsValidation::isMatched(auto me0id, auto rhLP, auto ME0Digis, auto myMap)
 {
     Short_t region_rh = (Short_t) me0id.region();
     Short_t layer_rh = (Short_t) me0id.layer();
@@ -267,6 +275,19 @@ std::pair<int,int> ME0SegmentsValidation::isMatched(auto me0id, auto rhLP, auto 
             if(l_x_rh != l_x_dg) continue;
             if(l_y_rh != l_y_dg) continue;
             
+            isMatchedToMC = false;
+            
+            for(auto const& ent1 : myMap) {
+                // ent1.first is the first key
+                for(auto const& ent2 : ent1.second) {
+                    // ent2.first is the second key
+                    // ent2.second is the data
+                    std::cout<<"ngul"<<std::endl;
+                    
+                }
+                
+            }
+            
             particleType = digiItr->pdgid();
             isPrompt = digiItr->prompt();
             
@@ -285,13 +306,13 @@ std::pair<int,int> ME0SegmentsValidation::isMatched(auto me0id, auto rhLP, auto 
 bool ME0SegmentsValidation::isSimTrackGood(edm::SimTrackContainer::const_iterator t)
 {
     
-    // SimTrack selection
-    if ((*t).noVertex()) return false;
-    if ((*t).noGenpart()) return false;
+    //std::cout<<(*t).noVertex()<<" "<<(*t).noGenpart()<<" "<<std::abs((*t).type())<<" "<<(*t).momentum().pt()<<" "<<std::abs((*t).momentum().eta())<<std::endl;
+//    if ((*t).noVertex()) return false;
+//    if ((*t).noGenpart()) return false;
     if (std::abs((*t).type()) != 13) return false; // only interested in direct muon simtracks
     if ((*t).momentum().pt() < 0 ) return false;
     const float eta(std::abs((*t).momentum().eta()));
-    if (eta > 2.0 || eta < 2.8 ) return false; // no GEMs could be in such eta
+    if (eta < 2.0 || eta > 2.8 ) return false; // no GEMs could be in such eta
     return true;
     
 }
