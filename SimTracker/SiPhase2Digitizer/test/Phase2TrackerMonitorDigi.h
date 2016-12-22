@@ -30,14 +30,14 @@ public:
   
   
   struct DigiMEs{
-    MonitorElement* NumberOfDigis;
+    MonitorElement* NumberOfDigisPerDet;
     MonitorElement* DigiOccupancyP;
     MonitorElement* DigiOccupancyS;
     MonitorElement* PositionOfDigis;
     MonitorElement* ChargeOfDigis;
-    MonitorElement* TotalNumberOfDigis;
-    MonitorElement* NumberOfHitDetectors;
-    MonitorElement* NumberOfClusters;
+    MonitorElement* TotalNumberOfDigisPerLayer;
+    MonitorElement* NumberOfHitDetectorsPerLayer;
+    MonitorElement* NumberOfClustersPerDet;
     MonitorElement* ClusterWidth;
     MonitorElement* ClusterPosition;
     MonitorElement* FractionOfOvTBits;
