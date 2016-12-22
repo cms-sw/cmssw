@@ -1,6 +1,9 @@
 #include "DQM/HcalMonitorTasks/interface/HcalZDCMonitor.h"
 
-HcalZDCMonitor::HcalZDCMonitor() {
+HcalZDCMonitor::HcalZDCMonitor() : TotalChannelErrors{}, DeadChannelCounter{}, ColdChannelCounter{},
+				   DeadChannelError{}, HotChannelError{}, DigiErrorCAPID{}, DigiErrorDVER{},
+				   ChannelHasDigiError{}
+{
 }
 HcalZDCMonitor::~HcalZDCMonitor() {
 }
