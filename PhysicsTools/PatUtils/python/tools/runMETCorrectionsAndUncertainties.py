@@ -577,6 +577,9 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
             getattr(process, "patMETs"+postfix).computeMETSignificance = cms.bool(True)
             getattr(process, "patMETs"+postfix).srcPFCands=self._parameters["pfCandCollection"].value
 
+        if hasattr(process, "patCaloMet"):
+            getattr(process, "patCaloMet").computeMETSignificance = cms.bool(False)
+
         #T1 parameter tuning when CHS jets are not used
         if "T1" in correctionLevel and not self._parameters["CHS"].value:  
             setattr(process, "corrPfMetType1"+postfix, getattr(process, "corrPfMetType1" ).clone() )
@@ -971,10 +974,9 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
                 varyByNsigmas=101
 
             shiftedCollModules['Up'] = self.createShiftedJetResModule(process, smear, objectCollection, +1.*varyByNsigmas,
-                                                                 "Up", postfix)
+                                                                      "Up", postfix)
             shiftedCollModules['Down'] = self.createShiftedJetResModule(process, smear, objectCollection, -1.*varyByNsigmas,
-                                                                   "Down", postfix)
-       
+                                                                        "Down", postfix)       
         else:
             shiftedCollModules['Up'] = self.createEnergyScaleShiftedUpModule(process, identifier, objectCollection, varyByNsigmas, jetUncInfos, postfix)
             shiftedCollModules['Down'] = shiftedCollModules['Up'].clone( shiftBy = cms.double(-1.*varyByNsigmas) )
@@ -987,10 +989,27 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
 
 
         #and the MET producers
-        shiftedMetProducers = self.createShiftedModules(process, shiftedCollModules, identifier, preId, objectCollection, 
-                                                        metModName, varType, metUncSequence, postfix)
+        if identifier=="Jet" and varType=="Res" and self._parameters["runOnData"].value:
+            shiftedMetProducers = self.copyCentralMETProducer(process, shiftedCollModules, identifier, metModName, varType, postfix)
+        else:
+            shiftedMetProducers = self.createShiftedModules(process, shiftedCollModules, identifier, preId, objectCollection, 
+                                                            metModName, varType, metUncSequence, postfix)
 
         return shiftedMetProducers
+
+#========================================================================================
+    def copyCentralMETProducer(self, process, shiftedCollModules, identifier, metModName, varType, postfix):
+        
+        # remove the postfix to put it at the end
+        shiftedMetProducers = {}
+        baseName = self.removePostfix(metModName, postfix)
+        for mod in shiftedCollModules.keys():
+            modName = baseName+identifier+varType+mod+postfix
+            shiftedMETModule = getattr(process, metModName).clone()
+            shiftedMetProducers[ modName ] = shiftedMETModule
+
+        return shiftedMetProducers
+
 
 #========================================================================================
     def createShiftedJetResModule(self, process, smear, objectCollection, varyByNsigmas, varDir, postfix ):
@@ -1001,7 +1020,8 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
 
 
 #========================================================================================
-    def createShiftedModules(self, process, shiftedCollModules, identifier, preId, objectCollection, metModName, varType, metUncSequence, postfix):
+    def createShiftedModules(self, process, shiftedCollModules, identifier, preId, objectCollection, 
+                             metModName, varType, metUncSequence, postfix):
 
         shiftedMetProducers = {}
 
@@ -1205,11 +1225,16 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
         modName += postfix
         selJetModName += postfix
 
+        genJetsCollection=cms.InputTag('ak4GenJetsNoNu')
+        if self._parameters["onMiniAOD"].value:
+            genJetsCollection=cms.InputTag("slimmedGenJets")
+
         if "PF" == self._parameters["metType"].value:
             smearedJetModule = getattr(process, "patSmearedJets"+postfix).clone(
                 src = jetCollection,
                 enabled = cms.bool(smear),
                 variation = cms.int32( int(varyByNsigmas) ),
+                genJets = genJetsCollection,
                 )    
 
         if self._parameters["Puppi"].value:
@@ -1288,7 +1313,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
                 getattr(process, "patMETs"+postfix).computeMETSignificance = cms.bool(True)
                 if postfix=="NoHF":
                     getattr(process, "patMETs"+postfix).computeMETSignificance = cms.bool(False)
-                getattr(process, "patCaloMet").computeMETSignificance = cms.bool(False)
+                
                 if self._parameters["Puppi"].value:
                     getattr(process, 'patMETs'+postfix).srcPFCands = cms.InputTag('puppiForMET')
                     getattr(process, 'patMETs'+postfix).srcJets = cms.InputTag('cleanedPatJets'+postfix)
@@ -1467,7 +1492,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
             if hasattr(process, "patPFMetTxyCorr"+postfix):
                 getattr(process, "patPFMetTxyCorr"+postfix).vertexCollection = cms.InputTag("offlineSlimmedPrimaryVertices")
 
-        if self._parameters['computeUncertainties'].value:
+        if self._parameters['computeUncertainties'].value and not self._parameters["runOnData"]:
             getattr(process, "shiftedPatJetResDown"+postfix).genJets = cms.InputTag("slimmedGenJets")
             getattr(process, "shiftedPatJetResUp"+postfix).genJets = cms.InputTag("slimmedGenJets")
 
@@ -1490,13 +1515,6 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
         if "Smear" in self._parameters['correctionLevel'].value:
             getattr(process, "patSmearedJets"+postfix).genJets = cms.InputTag("slimmedGenJets")
 
-        #MM: FIXME MVA
-        #if hasattr(process, "pfMVAMet"):
-        #    getattr(process, "pfMVAMet").srcVertices = cms.InputTag("offlineSlimmedPrimaryVertices")
-        #    getattr(process, "pfMVAMEt").srcVertices = cms.InputTag("offlineSlimmedPrimaryVertices")
-        #    getattr(process, "puJetIdForPFMVAMEt").vertexes = cms.InputTag("offlineSlimmedPrimaryVertices")
-        #    getattr(process, "patMVAMet").addGenMET  = False
-
         if not hasattr(process, "slimmedMETs"+postfix) and self._parameters["metType"].value == "PF":
 
             from PhysicsTools.PatAlgos.slimming.slimmedMETs_cfi import slimmedMETs
@@ -1506,7 +1524,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
             getattr(process,"slimmedMETs"+postfix).t1Uncertainties = cms.InputTag("patPFMetT1%s"+postfix)
             getattr(process,"slimmedMETs"+postfix).t01Variation = cms.InputTag("patPFMetT0pcT1"+postfix)
             getattr(process,"slimmedMETs"+postfix).t1SmearedVarsAndUncs = cms.InputTag("patPFMetT1Smear%s"+postfix)
-            
+
             getattr(process,"slimmedMETs"+postfix).tXYUncForRaw = cms.InputTag("patPFMetTxy"+postfix)
             getattr(process,"slimmedMETs"+postfix).tXYUncForT1 = cms.InputTag("patPFMetT1Txy"+postfix)
             getattr(process,"slimmedMETs"+postfix).tXYUncForT01 = cms.InputTag("patPFMetT0pcT1Txy"+postfix)
