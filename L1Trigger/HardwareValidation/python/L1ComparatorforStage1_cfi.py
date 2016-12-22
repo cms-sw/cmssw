@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 l1compareforstage1 = cms.EDProducer("L1Comparator",
 
-    RCTsourceData = cms.InputTag("gctDigis"),
+    RCTsourceData = cms.InputTag("caloStage1Digis"),
     RCTsourceEmul = cms.InputTag("valRctDigis"),
     
     GCTsourceData = cms.InputTag("caloStage1LegacyFormatDigis"),

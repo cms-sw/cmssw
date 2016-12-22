@@ -61,18 +61,11 @@ private:
   // trigger type information
   MonitorElement *triggerType_;
 
-  // region global coordinates
+  // RCT
+  // regions
   MonitorElement* rctRegionsEtEtaPhi_;
   MonitorElement* rctRegionsOccEtaPhi_;
-
-  // region local coordinates
-  MonitorElement* rctRegionsLocalEtEtaPhi_;
-  MonitorElement* rctRegionsLocalOccEtaPhi_;
-  MonitorElement* rctTauVetoLocalEtaPhi_;
-
-  // Region rank
   MonitorElement* rctRegionRank_;
-
   MonitorElement* rctOverFlowEtaPhi_;
   MonitorElement* rctTauVetoEtaPhi_;
   MonitorElement* rctMipEtaPhi_;
@@ -84,21 +77,51 @@ private:
   MonitorElement *rctEmBx_;
 
   // em
-  // HW coordinates
-  MonitorElement *rctEmCardRegion_;
-
-
   MonitorElement* rctIsoEmEtEtaPhi_;
   MonitorElement* rctIsoEmOccEtaPhi_;
   MonitorElement* rctNonIsoEmEtEtaPhi_;
   MonitorElement* rctNonIsoEmOccEtaPhi_;
   MonitorElement* rctIsoEmRank_;
   MonitorElement* rctNonIsoEmRank_;
+
+  MonitorElement* rctNotCentralRegionsEtEtaPhi_;
+  MonitorElement* rctNotCentralRegionsOccEtaPhi_;
+  MonitorElement* rctNotCentralIsoEmEtEtaPhi_;
+  MonitorElement* rctNotCentralIsoEmOccEtaPhi_;
+  MonitorElement* rctNotCentralNonIsoEmEtEtaPhi_;
+  MonitorElement* rctNotCentralNonIsoEmOccEtaPhi_;
+
+
+  // Layer2
+  // regions
+  MonitorElement* layer2RegionsEtEtaPhi_;
+  MonitorElement* layer2RegionsOccEtaPhi_;
+  MonitorElement* layer2RegionRank_;
+  MonitorElement* layer2OverFlowEtaPhi_;
+  MonitorElement* layer2TauVetoEtaPhi_;
+  MonitorElement* layer2MipEtaPhi_;
+  MonitorElement* layer2QuietEtaPhi_;
+  MonitorElement* layer2HfPlusTauEtaPhi_;
+
+  // Bx
+  MonitorElement *layer2RegionBx_;
+  MonitorElement *layer2EmBx_;
+
+  // em
+  MonitorElement* layer2IsoEmEtEtaPhi_;
+  MonitorElement* layer2IsoEmOccEtaPhi_;
+  MonitorElement* layer2NonIsoEmEtEtaPhi_;
+  MonitorElement* layer2NonIsoEmOccEtaPhi_;
+  MonitorElement* layer2IsoEmRank_;
+  MonitorElement* layer2NonIsoEmRank_;
+
+  // run/lumi
   MonitorElement* runId_;
   MonitorElement* lumisecId_;
 
 
   int nev_; // Number of events processed
+  std::string histFolder_;
   std::string outputFile_; //file name for ROOT ouput
   bool verbose_;
   bool monitorDaemon_;
@@ -106,10 +129,12 @@ private:
   
   edm::EDGetTokenT<L1CaloRegionCollection> rctSource_L1CRCollection_;
   edm::EDGetTokenT<L1CaloEmCollection> rctSource_L1CEMCollection_;
+  edm::EDGetTokenT<L1CaloRegionCollection> rctSource_GCT_L1CRCollection_;
+  edm::EDGetTokenT<L1CaloEmCollection> rctSource_GCT_L1CEMCollection_;
   
   /// filter TriggerType
   int filterTriggerType_;
-
+  int selectBX_;
 };
 
 #endif
