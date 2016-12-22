@@ -60,6 +60,8 @@ public:
     MonitorElement* SimHitDx;
     MonitorElement* SimHitDy;
     MonitorElement* SimHitDz;
+    MonitorElement* BunchXTimeBin;
+    MonitorElement* FractionOfOOTDigis;
   };
 
 private:
@@ -100,6 +102,8 @@ private:
   int fillSimHitInfo(const edm::Event& iEvent, unsigned int id, float pt, float eta, float phi, int type, const edm::ESHandle<TrackerGeometry> gHandle);
   bool findOTDigi(unsigned int detid, unsigned int id);
   bool findITPixelDigi(unsigned int detid, unsigned int id);
+  void fillOTBXInfo();
+  void fillITPixelBXInfo();
 
   edm::ParameterSet config_;
   std::map<unsigned int, DigiMEs> layerMEs;
