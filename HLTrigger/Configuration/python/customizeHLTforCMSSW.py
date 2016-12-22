@@ -80,8 +80,14 @@ def customiseFor15499(process):
 def customiseFor16569(process):
     for mod in ['hltHbhereco','hltHbherecoMethod2L1EGSeeded','hltHbherecoMethod2L1EGUnseeded','hltHfreco','hltHoreco']:
         if hasattr(process,mod):
-            getattr(process,mod).ts4chi2 = cms.vdouble(15.,5000.)
+            getattr(process,mod).ts4chi2 = cms.vdouble(15.,15.)
 
+    return process
+
+def customiseForThis(process):
+    for mod in ['hltHbhereco','hltHbherecoMethod2L1EGSeeded','hltHbherecoMethod2L1EGUnseeded','hltHfreco','hltHoreco']:
+        if hasattr(process,mod):
+            getattr(process,mod).ts4Max = cms.vdouble(20.,20.)
     return process
 
 # Move pixel track fitter, filter, and cleaner to ED/ESProducts (PR #16792)
@@ -182,6 +188,7 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
 
     if cmsswVersion >= "CMSSW_9_0":
         process = customiseFor16792(process)
+        process = customiseForThis(process)
         pass
 
 #   stage-2 changes only if needed
