@@ -22,6 +22,9 @@ private:
   bool removeNoDet=true;  // true == as in conversion from TTRH to TRH
 public:
   using TrajParams = std::vector<LocalTrajectoryParameters>;
+  using Chi2sFive = std::vector<unsigned char>;
+
+  static unsigned char toChi2(float chi2) { int tc = 5.f*chi2; return std::min(tc,255);}  
 
   // default for final reco::Track
   Traj2TrackHits(){}

@@ -23,6 +23,7 @@ class TrackExtraBase
 
 public:
     using TrajParams = std::vector<LocalTrajectoryParameters>;
+    using Chi2sFive = std::vector<unsigned char>;
 
     /// default constructor
     TrackExtraBase() : m_firstHit(-1), m_nHits(0) { }
@@ -32,7 +33,7 @@ public:
         m_firstHit =firstH;  m_nHits=nH;
     }
 
-    void setTrajParams(TrajParams  tmps) { m_trajParams = std::move(tmps);}
+    void setTrajParams(TrajParams  tmps, Chi2sFive chi2s) { m_trajParams = std::move(tmps); m_chi2 = std::move(chi2s);}
 
     unsigned int firstRecHit() const {
       return m_firstHit;
@@ -77,14 +78,15 @@ public:
 
     }
 
-    TrajParams const &  trajParams() const  {return m_trajParams;}
-
+    TrajParams const & trajParams() const  {return m_trajParams;}
+    Chi2sFive const & Chi2s() const { return m_chi2;}
 private:
 
     edm::RefCore m_hitCollection;
     unsigned int m_firstHit;
     unsigned int m_nHits;
     TrajParams m_trajParams;
+    Chi2sFive m_chi2;  // chi2 * 5  chopped at 255  (max chi2 is 51)
 };
 
 }// namespace reco
