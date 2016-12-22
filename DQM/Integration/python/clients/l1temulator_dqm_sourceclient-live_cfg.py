@@ -23,12 +23,10 @@ process.load("DQM.Integration.config.inputsource_cfi")
 # DQM Environment
 #
  
-
-#
 process.load("DQM.Integration.config.environment_cfi")
-# for local test
 process.dqmEnv.subSystemFolder = 'L1TEMU'
 process.dqmSaver.tag = 'L1TEMU'
+
 #
 # no references needed
 # replace DQMStore.referenceFileName = "L1TEMU_reference.root"
@@ -67,10 +65,10 @@ process.RawToDigi.remove("siStripDigis")
 process.RawToDigi.remove("scalersRawToDigi")
 process.RawToDigi.remove("castorDigis")
 
-if ( process.runType.getRunType() == process.runType.pp_run_stage1 or process.runType.getRunType() == process.runType.cosmic_run_stage1):
-    process.gtDigis.DaqGtFedId = cms.untracked.int32(809)
-else:
-    process.gtDigis.DaqGtFedId = cms.untracked.int32(813)
+#if ( process.runType.getRunType() == process.runType.pp_run_stage1 or process.runType.getRunType() == process.runType.cosmic_run_stage1):
+process.gtDigis.DaqGtFedId = cms.untracked.int32(809)
+#else:
+#    process.gtDigis.DaqGtFedId = cms.untracked.int32(813)
 
 # L1HvVal + emulator monitoring path
 process.l1HwValEmulatorMonitorPath = cms.Path(process.l1HwValEmulatorMonitor)
