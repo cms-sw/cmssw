@@ -58,11 +58,11 @@ to_bemanipulate.append(module_manipulate(module_name = 'hfreco', manipulator_nam
 to_bemanipulate.append(module_manipulate(module_name = 'castorreco', manipulator_name = "CastorRecHit"))
 
 
-to_bemanipulate.append(module_manipulate(module_name = 'dt1DRecHits', manipulator_name = "DTRecHit"))
-to_bemanipulate.append(module_manipulate(module_name = 'dt1DCosmicRecHits', manipulator_name = "DTRecHit"))
+to_bemanipulate.append(module_manipulate(module_name = 'dt1DRecHits', manipulator_name = "DTRecHit",  steps = ["SELECT","CLEAN"] ))
+to_bemanipulate.append(module_manipulate(module_name = 'dt1DCosmicRecHits', manipulator_name = "DTRecHit", steps = ["SELECT","CLEAN"]  ))
 
-to_bemanipulate.append(module_manipulate(module_name = 'csc2DRecHits', manipulator_name = "CSCRecHit"))
-to_bemanipulate.append(module_manipulate(module_name = 'rpcRecHits', manipulator_name = "RPCRecHit"))
+to_bemanipulate.append(module_manipulate(module_name = 'csc2DRecHits', manipulator_name = "CSCRecHit", steps = ["SELECT","CLEAN"]  ))
+to_bemanipulate.append(module_manipulate(module_name = 'rpcRecHits', manipulator_name = "RPCRecHit",  steps = ["SELECT","CLEAN"] ))
 
 
 def modify_outputModules(process, keep_drop_list = [], module_veto_list = [] ):
@@ -81,12 +81,14 @@ def modify_outputModules(process, keep_drop_list = [], module_veto_list = [] ):
 
 def keepSelected(dataTier):
 	 ret_vstring = cms.untracked.vstring(
+	               #  "drop *_*_*_"+dataTier,
 			 "keep *_patMuonsAfterID_*_"+dataTier,
 			 "keep *_slimmedMuons_*_"+dataTier,
 			 "keep *_selectedMuonsForEmbedding_*_"+dataTier,
 			 "keep recoVertexs_offlineSlimmedPrimaryVertices_*_"+dataTier,
 			 "keep *_firstStepPrimaryVertices_*_"+dataTier,
-			 "keep *_offlineBeamSpot_*_"+dataTier)
+			 "keep *_offlineBeamSpot_*_"+dataTier
+			 )
 	 for akt_manimod in to_bemanipulate:
 		if "CLEAN" in akt_manimod.steps:
 			ret_vstring.append("keep *_"+akt_manimod.module_name+"_*_"+dataTier)
@@ -121,7 +123,11 @@ def customiseSelecting_Reselect(process):
 
 ################################ Customizer for cleaining ###########################
 def keepCleaned():
-	 ret_vstring = cms.untracked.vstring()
+	 ret_vstring = cms.untracked.vstring(
+#	 	                 "drop *_*_*_LHEembeddingCLEAN",
+#	 	                 "drop *_*_*_CLEAN"
+	 	                 )
+	 
 	 for akt_manimod in to_bemanipulate:
 		if "MERGE" in akt_manimod.steps:
 			ret_vstring.append("keep *_"+akt_manimod.module_name+"_*_LHEembeddingCLEAN")
@@ -158,14 +164,14 @@ def customiseCleaning(process, changeProcessname=True,reselect=False):
 				oldCollections_in.append(cms.InputTag(akt_manimod.module_name,instance,dataTier))
 			setattr(process, akt_manimod.module_name, cms.EDProducer(akt_manimod.cleaner_name,MuonCollection = MuonImput,TrackAssociatorParameters = TrackAssociatorParameterBlock.TrackAssociatorParameters,oldCollection = oldCollections_in))
 	process.ecalPreshowerRecHit.TrackAssociatorParameters.usePreshower = cms.bool(True)
-	process = customisoptions(process)
+	process = customisoptions(process)	
 	return modify_outputModules(process,[keepSelected(dataTier),keepCleaned()],["MINIAODoutput"])
 
 
 ################################ Customizer for simulaton ###########################
 def keepLHE():
 	ret_vstring = cms.untracked.vstring()
-	ret_vstring.append("keep *_externalLHEProducer_*_LHE")
+	ret_vstring.append("keep *_externalLHEProducer_*_LHEembedding")
 	ret_vstring.append("keep *_externalLHEProducer_*_LHEembeddingCLEAN")
 	return ret_vstring
 
@@ -199,7 +205,7 @@ def customiseLHE(process, changeProcessname=True,reselect=False):
 	
 	
         process = customisoptions(process)
-	return modify_outputModules(process,[keepSelected(dataTier),keepLHE()],["MINIAODoutput"])
+	return modify_outputModules(process,[keepSelected(dataTier),keepCleaned(), keepLHE()],["MINIAODoutput"])
 
 
 def customiseGenerator(process, changeProcessname=True,reselect=False):
@@ -211,6 +217,7 @@ def customiseGenerator(process, changeProcessname=True,reselect=False):
 		process._Process__name = "SIMembedding"
 
 	## here correct the vertex collection
+	
 	process.load('TauAnalysis.MCEmbeddingTools.EmbeddingVertexCorrector_cfi')
 	process.VtxSmeared = process.VtxCorrectedToInput.clone()
 	print "Correcting Vertex in genEvent to one from input. Replaced 'VtxSmeared' with the Corrector."
@@ -235,6 +242,8 @@ def customiseGenerator(process, changeProcessname=True,reselect=False):
 	
 	
 	process = customisoptions(process) 
+	process = fix_input_tags(process)
+	
 	return modify_outputModules(process,[keepSelected(dataTier),keepCleaned(),keepSimulated()],["AODSIMoutput"])
 
 def customiseGenerator_Reselect(process):
@@ -363,9 +372,7 @@ def customiseLHEandCleaning_Reselect(process):
 def customisoptions(process):
 	if not hasattr(process, "options"): 
 	  process.options = cms.untracked.PSet()
-	process.options.emptyRunLumiMode = cms.untracked.string('doNotHandleEmptyRunsAndLumis')
-	
-	
+	process.options.emptyRunLumiMode = cms.untracked.string('doNotHandleEmptyRunsAndLumis')	
 	return process
 
 ############################### MC specific Customizer ###########################
@@ -375,3 +382,43 @@ def customiseFilterZToMuMu(process):
 	process.ZToMuMuFilter = cms.Path(process.dYToMuMuGenFilter)
 	process.schedule.insert(-1,process.ZToMuMuFilter)
 	return process
+      
+      
+      
+def fix_input_tags(process, formodules = ["generalTracks","cscSegments","dt4DSegments","rpcRecHits"]):
+  def change_tags_process(test_input):
+    if isinstance(test_input, cms.InputTag):
+      if test_input.getModuleLabel() in formodules:
+	test_input.setProcessName(process._Process__name)
+
+  def search_for_tags(pset):
+    if isinstance(pset, dict):
+      for key in pset:
+	if isinstance(pset[key], cms.VInputTag):
+	  for akt_inputTag in pset[key]:
+	    change_tags_process(akt_inputTag)
+	elif isinstance(pset[key], cms.PSet):
+	  search_for_tags(pset[key].__dict__)
+	elif isinstance(pset[key], cms.VPSet):
+	  for akt_pset in pset[key]:
+	    search_for_tags(akt_pset.__dict__)
+	else:
+	  change_tags_process(pset[key])
+    else:
+      print "must be python dict not a ",type(pset)
+    
+  for module in process.producers_():
+    search_for_tags(getattr(process, module).__dict__)
+  for module in process.filters_():
+    search_for_tags(getattr(process, module).__dict__)
+  for module in process.analyzers_():
+    search_for_tags(getattr(process, module).__dict__)
+
+  return process
+      
+      
+      
+      
+      
+      
+      
