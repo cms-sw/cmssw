@@ -46,6 +46,8 @@ void NewTrackAction::addUserInfoToPrimary(G4Track * aTrack) const {
 
 void NewTrackAction::addUserInfoToSecondary(G4Track * aTrack,const TrackInformation & motherInfo, int flag) const {
 
+  // ralf.ulrich@kit.edu: it is more efficient to use the constructor to copy all data and modify later only when needed
+
   TrackInformation * trkInfo = new TrackInformation();
 //  LogDebug("SimG4CoreApplication") << "NewTrackAction called for "
 //				   << aTrack->GetTrackID()
@@ -79,5 +81,10 @@ void NewTrackAction::addUserInfoToSecondary(G4Track * aTrack,const TrackInformat
 				motherInfo.caloSurfaceParticlePID(),
 				motherInfo.caloSurfaceParticleP());
   }
+  
+  if (motherInfo.hasCastorHit()) {
+    trkInfo->setCastorHitPID(motherInfo.getCastorHitPID());
+  }
+
   aTrack->SetUserInformation(trkInfo);  
 }
