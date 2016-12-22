@@ -47,11 +47,7 @@ void PuppiContainer::initialize(const std::vector<RecoObj> &iRecoObjects) {
         // float nom = sqrt((fRecoParticle.m)*(fRecoParticle.m) + (fRecoParticle.pt)*(fRecoParticle.pt)*(cosh(fRecoParticle.eta))*(cosh(fRecoParticle.eta))) + (fRecoParticle.pt)*sinh(fRecoParticle.eta);//hacked
         // float denom = sqrt((fRecoParticle.m)*(fRecoParticle.m) + (fRecoParticle.pt)*(fRecoParticle.pt));//hacked
         // float rapidity = log(nom/denom);//hacked
-	if (edm::isFinite(fRecoParticle.rapidity)){
-	  curPseudoJet.reset_PtYPhiM(fRecoParticle.pt,fRecoParticle.rapidity,fRecoParticle.phi,fRecoParticle.m);//hacked
-	} else {
-	  curPseudoJet.reset_PtYPhiM(0, 99., 0, 0);//skipping may have been a better choice
-	}
+        curPseudoJet.reset_PtYPhiM(fRecoParticle.pt,fRecoParticle.rapidity,fRecoParticle.phi,fRecoParticle.m);//hacked
         //curPseudoJet.reset_PtYPhiM(fRecoParticle.pt,fRecoParticle.eta,fRecoParticle.phi,fRecoParticle.m);
         int puppi_register = 0;
         if(fRecoParticle.id == 0 or fRecoParticle.charge == 0)  puppi_register = 0; // zero is neutral hadron
@@ -168,11 +164,16 @@ void PuppiContainer::getRawAlphas(int iOpt,std::vector<fastjet::PseudoJet> const
 int    PuppiContainer::getPuppiId( float iPt, float iEta) {
     int lId = -1;
     for(int i0 = 0; i0 < fNAlgos; i0++) {
-        if(std::abs(iEta) < fPuppiAlgo[i0].etaMin()) continue;
-        if(std::abs(iEta) > fPuppiAlgo[i0].etaMax()) continue;
-        if(iPt        < fPuppiAlgo[i0].ptMin())  continue;
-        lId = i0;
-        break;
+        int nEtaBinsPerAlgo = fPuppiAlgo[i0].etaBins();
+        for (int i1 = 0; i1 < nEtaBinsPerAlgo; i1++){
+            if ( (std::abs(iEta) > fPuppiAlgo[i0].etaMin(i1)) && (std::abs(iEta) < fPuppiAlgo[i0].etaMax(i1)) ){ 
+                fPuppiAlgo[i0].fixAlgoEtaBin( i1 );
+                if(iPt > fPuppiAlgo[i0].ptMin()){
+                    lId = i0; 
+                    break;
+                }
+            }
+        }
     }
     //if(lId == -1) std::cerr << "Error : Full fiducial range is not defined " << std::endl;
     return lId;
@@ -246,8 +247,8 @@ std::vector<double> const & PuppiContainer::puppiWeights() {
         //std::cout << "fRecoParticles[i0].pt = " <<  fRecoParticles[i0].pt << ", fRecoParticles[i0].charge = " << fRecoParticles[i0].charge << ", fRecoParticles[i0].id = " << fRecoParticles[i0].id << ", weight = " << pWeight << std::endl;
 
         fWeights .push_back(pWeight);
-        fAlphaMed.push_back(fPuppiAlgo[pPupId].median(0));
-        fAlphaRMS.push_back(fPuppiAlgo[pPupId].rms(0));        
+        fAlphaMed.push_back(fPuppiAlgo[pPupId].median());
+        fAlphaRMS.push_back(fPuppiAlgo[pPupId].rms());        
         //Now get rid of the thrown out weights for the particle collection
 
         // leave these lines in, in case want to move eventually to having no 1-to-1 correspondence between puppi and pf cands
@@ -255,7 +256,7 @@ std::vector<double> const & PuppiContainer::puppiWeights() {
         // if(std::abs(pWeight) <= 0. ) continue; 
         
         //Produce
-        PseudoJet curjet( pWeight*fPFParticles[i0].px(), pWeight*fPFParticles[i0].py(), pWeight*fPFParticles[i0].pz(), pWeight*fPFParticles[i0].e());
+        PseudoJet curjet( pWeight*fPFParticles[i0].px(), pWeight*fPFParticles[i0].py(), pWeight*fPFParticles[i0].pz(), pWeight*fPFParticles[i0].e() );
         curjet.set_user_index(i0);
         fPupParticles.push_back(curjet);
     }
