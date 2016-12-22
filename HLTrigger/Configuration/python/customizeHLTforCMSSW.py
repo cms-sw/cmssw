@@ -84,7 +84,7 @@ def customiseFor16569(process):
 
     return process
 
-def customiseForThis(process):
+def customiseFor17094(process):
     for mod in ['hltHbhereco','hltHbherecoMethod2L1EGSeeded','hltHbherecoMethod2L1EGUnseeded','hltHfreco','hltHoreco']:
         if hasattr(process,mod):
             getattr(process,mod).ts4Max = cms.vdouble(20.,20.)
@@ -188,7 +188,7 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
 
     if cmsswVersion >= "CMSSW_9_0":
         process = customiseFor16792(process)
-        process = customiseForThis(process)
+        process = customiseFor17094(process)
         pass
 
 #   stage-2 changes only if needed
