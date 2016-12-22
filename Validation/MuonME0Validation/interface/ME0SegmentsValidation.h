@@ -10,6 +10,8 @@
 #include "DataFormats/GEMDigi/interface/ME0DigiPreRecoCollection.h"
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
+#include <DataFormats/GEMRecHit/interface/ME0RecHit.h>
+#include "DataFormats/GEMRecHit/interface/ME0RecHitCollection.h"
 
 
 class ME0SegmentsValidation : public ME0BaseValidation
@@ -19,7 +21,7 @@ public:
   ~ME0SegmentsValidation();
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
   void analyze(const edm::Event& e, const edm::EventSetup&) override;
-  std::pair<int,int> isMatched(auto, auto, auto, auto);
+  std::pair<int,int> isMatched(auto, auto, auto);
   bool isSimTrackGood(edm::SimTrackContainer::const_iterator simTrack);
   bool isSimMatched(edm::SimTrackContainer::const_iterator, edm::PSimHitContainer::const_iterator);
  private:
@@ -49,6 +51,8 @@ public:
     
   typedef std::map<edm::SimTrackContainer::const_iterator,edm::PSimHitContainer> MapType;
   MapType myMap;
+  typedef std::map<ME0SegmentCollection::const_iterator,std::vector<ME0RecHit> > MapTypeSeg;
+  MapTypeSeg myMapSeg;
   
 };
   
