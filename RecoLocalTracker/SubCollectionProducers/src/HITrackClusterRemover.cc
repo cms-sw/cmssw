@@ -24,12 +24,10 @@
 
 #include "DataFormats/DetId/interface/DetId.h"
 
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackerRecHit2D/interface/ClusterRemovalInfo.h"
 
-#include "TrackingTools/PatternTools/interface/Trajectory.h"
-#include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
-#include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
@@ -72,7 +70,7 @@ class HITrackClusterRemover : public edm::stream::EDProducer<> {
 	typedef edm::ContainerMask<edmNew::DetSetVector<SiStripCluster> > StripMaskContainer;
 	edm::EDGetTokenT<edmNew::DetSetVector<SiPixelCluster> > pixelClusters_;
 	edm::EDGetTokenT<edmNew::DetSetVector<SiStripCluster> > stripClusters_;
-	edm::EDGetTokenT<TrajTrackAssociationCollection> trajectories_;
+	edm::EDGetTokenT<reco::TrackCollection> tracks_;
 	edm::EDGetTokenT<reco::ClusterRemovalInfo> oldRemovalInfo_;
 	edm::EDGetTokenT<PixelMaskContainer> oldPxlMaskToken_;
 	edm::EDGetTokenT<StripMaskContainer> oldStrMaskToken_;
@@ -198,7 +196,7 @@ HITrackClusterRemover::HITrackClusterRemover(const ParameterSet& iConfig):
 	iConfig.getParameter<int>("minNumberOfLayersWithMeasBeforeFiltering") : 0;
     }
 
-    if (doTracks_) trajectories_ = consumes<TrajTrackAssociationCollection>(iConfig.getParameter<InputTag>("trajectories"));
+    if (doTracks_) tracks_ = consumes<reco::TrackCollection>(iConfig.getParameter<InputTag>("trajectories"));
     if (doPixel_) pixelClusters_ = consumes<edmNew::DetSetVector<SiPixelCluster> >(iConfig.getParameter<InputTag>("pixelClusters"));
     if (doStrip_) stripClusters_ = consumes<edmNew::DetSetVector<SiStripCluster> >(iConfig.getParameter<InputTag>("stripClusters"));
     if (mergeOld_) {
@@ -456,23 +454,20 @@ HITrackClusterRemover::produce(Event& iEvent, const EventSetup& iSetup)
 
     if (doTracks_) {
 
-      Handle<TrajTrackAssociationCollection> trajectories_totrack; 
-      iEvent.getByToken(trajectories_,trajectories_totrack);
+      Handle<reco::TrackCollection> tracks; 
+      iEvent.getByToken(tracks_,tracks);
 
       std::vector<Handle<edm::ValueMap<int> > > quals;
       if ( overrideTrkQuals_.size() > 0) {
 	quals.resize(1);
 	iEvent.getByToken(overrideTrkQuals_[0],quals[0]);
       }
-
-      TrajTrackAssociationCollection::const_iterator asst=trajectories_totrack->begin();
-   
-      for ( ; asst!=trajectories_totrack->end();++asst){
-	const Track & track = *(asst->val);
+      int it=0;
+      for (const auto & track: *tracks) {
 	if (filterTracks_) {
 	  bool goodTk = true;
 	  if ( quals.size()!=0) {
-	    int qual=(*(quals[0]))[asst->val];
+	    int qual=(*(quals[0])). get(it++);
 	    if ( qual < 0 ) {goodTk=false;}
 	    //note that this does not work for some trackquals (goodIterative  or undefQuality)
 	    else
@@ -483,13 +478,13 @@ HITrackClusterRemover::produce(Event& iEvent, const EventSetup& iSetup)
 	  if ( !goodTk) continue;
 	  if(track.hitPattern().trackerLayersWithMeasurement() < minNumberOfLayersWithMeasBeforeFiltering_) continue;
 	}
-	const Trajectory &tj = *(asst->key);
-	const vector<TrajectoryMeasurement> &tms = tj.measurements();
-	vector<TrajectoryMeasurement>::const_iterator itm, endtm;
-	for (itm = tms.begin(), endtm = tms.end(); itm != endtm; ++itm) {
-	  const TrackingRecHit *hit = itm->recHit()->hit();
-	  if (!hit->isValid()) continue; 
-	  process( hit, itm->estimate() , tgh.product());
+
+        auto hb = track.recHitsBegin();
+        for(unsigned int h=0;h<track.recHitsSize();h++){
+          auto hit = *(hb+h);
+	  if (!hit->isValid()) continue;
+          float chi2 =0;  // FIXME 
+	  process( hit, chi2 , tgh.product());
 	}
       }
     }
