@@ -2,9 +2,9 @@
 // Usage:
 // .L CalibMonitor.C+g
 //  CalibMonitor c1(fname, dirname, dupFileName, outFileName, prefix, 
-//                  flag, numb, dataMC, useGen);
+//                  corrFileName, flag, numb, dataMC, useGen);
 //  c1.Loop();
-//  c1.SavePlot(histFileName,mode);
+//  c1.SavePlot(histFileName,append,all);
 //
 //        This will prepare a set of histograms which can be used for a
 //        quick fit and display using the methods in CalibFitPlots.C
@@ -26,6 +26,8 @@
 //                               about events
 //   prefix (std::string)      = String to be added to the name of histogram
 //                               (usually a 4 character string; default="")
+//   corrFileName (std::string)= name of the text file having the correction
+//                               factors to be used (default="", no corr.)
 //   flag (int)                = 3 digit integer (hdo) with specific control
 //                               information (h = 0/1/2 for not creating/
 //                               creating in output/creating in append mode
@@ -38,8 +40,10 @@
 //                               or reconstruction level momentum (def false)
 //
 //   histFileName (std::string)= name of the file containing saved histograms
-//   mode (bool)               = true/false if the hitogram file to be opened
+//   append (bool)             = true/false if the hitogram file to be opened
 //                               in append/output mode
+//   all (bool)                = true/false if all histograms to be saved or
+//                               not (def false)
 //////////////////////////////////////////////////////////////////////////////
 
 #include <TROOT.h>
@@ -150,8 +154,8 @@ public :
 
   CalibMonitor(std::string fname, std::string dirname, 
 	       std::string dupFileName, std::string outTxtFileName, 
-	       std::string prefix="", int flag=0, int numb=42,
-	       bool datMC=true, bool useGen=false);
+	       std::string prefix="", std::string corrFileName="",
+	       int flag=0, int numb=42, bool datMC=true, bool useGen=false);
   virtual ~CalibMonitor();
   virtual Int_t              Cut(Long64_t entry);
   virtual Int_t              GetEntry(Long64_t entry);
@@ -164,12 +168,14 @@ public :
   void                       PlotHist(int type, int num, bool save=false);
   template<class Hist> void  DrawHist(Hist*, TCanvas*);
   void                       SavePlot(std::string theName, bool append, bool all=false);
+  bool                       ReadCorrFactor(std::string &fName);
+  std::vector<std::string>   SplitString (const std::string& fLine);
 private:
 
   static const unsigned int npbin=5, kp50=2;
   std::string               fname_, dirnm_, prefix_, outTxtFileName_;
   int                       flag_, numb_, flexibleSelect_;
-  bool                      dataMC_, plotStandard_, useGen_;
+  bool                      dataMC_, plotStandard_, useGen_, corrE_;
   double                    log2by16_;
   std::vector<Long64_t>     entries_;
   std::vector<double>       etas_, ps_, dl1_;
@@ -179,11 +185,13 @@ private:
   std::vector<TH1D*>        h_dL1,  h_vtx, h_etaF[npbin];
   std::vector<TProfile*>    h_etaX[npbin];
   std::vector<TH1D*>        h_etaR[npbin], h_nvxR[npbin], h_dL1R[npbin];
+  std::map<std::pair<int,int>,double> cfactors_;
 };
 
 CalibMonitor::CalibMonitor(std::string fname, std::string dirnm, 
 			   std::string dupFileName, std::string outTxtFileName,
-			   std::string prefix, int flag, int numb, bool dataMC,
+			   std::string prefix, std::string corrFileName,
+			   int flag, int numb, bool dataMC,
 			   bool useGen) : fname_(fname), dirnm_(dirnm),
 					  prefix_(prefix), 
 					  outTxtFileName_(outTxtFileName), 
@@ -201,8 +209,9 @@ CalibMonitor::CalibMonitor(std::string fname, std::string dirnm,
 	    << " flags " << flexibleSelect_ << "|" << plotStandard_ << " cons "
 	    << log2by16_ << std::endl;
   TTree      *tree = (TTree*)dir->Get("CalibTree");
-  std::cout << "CalibTree " << tree << std::endl;
+  std::cout << "CalibMonitor:Tree " << tree << std::endl;
   Init(tree,dupFileName);
+  corrE_ = ReadCorrFactor(corrFileName);
 }
 
 CalibMonitor::~CalibMonitor() {
@@ -311,8 +320,8 @@ void CalibMonitor::Init(TTree *tree, std::string& dupFileName) {
     double      xbina[99];
     int         neta = numb_/2;
     for (int k=0; k<neta; ++k) {
-      xbina[k]         = (k-neta)-0.5;
-      xbina[numb_-k+1] = (neta-k) + 0.5;
+      xbina[k]       = (k-neta)-0.5;
+      xbina[numb_-k] = (neta-k) + 0.5;
     }
     xbina[neta] = 0;
     for (int i=0; i<numb_+1; ++i) etas_.push_back(xbina[i]);
@@ -621,6 +630,21 @@ void CalibMonitor::Loop() {
 
     // Selection of good track and energy measured in Hcal
     double rat(1.0), eHcal(t_eHcal);
+    if (corrE_) {
+      eHcal = 0;
+      for (unsigned int k=0; k<t_HitEnergies->size(); ++k) {
+	int depth  = ((*t_DetIds)[k] >> 20) & (0xF);
+	int zside  = ((*t_DetIds)[k]&0x80000)?(1):(-1);
+	int ieta   = ((*t_DetIds)[k] >> 10) & (0x1FF);
+	std::map<std::pair<int,int>,double>::iterator 
+	  itr = cfactors_.find(std::pair<int,int>(zside*ieta,depth));
+	double cfac = (itr == cfactors_.end()) ? 1.0 : itr->second;
+	eHcal += (cfac*((*t_HitEnergies)[k]));
+	if (debug) std::cout << zside << ":" << ieta << ":" << depth 
+			     << " Corr " << cfac << " " << (*t_HitEnergies)[k] 
+			     << " Out " << eHcal << std::endl;
+      }
+    }
     bool goodTk = GoodTrack(eHcal, cut, debug);
     if (pmom > 0) rat =  (eHcal/(pmom-t_eMipDR));
     if (debug) 
@@ -784,6 +808,57 @@ void CalibMonitor::PlotHist(int itype, int inum, bool save) {
       }	
     }
   }
+}
+
+bool CalibMonitor::ReadCorrFactor(std::string &fname) {
+  bool ok(false);
+  if (fname != "") {
+    std::ifstream fInput(fname.c_str());
+    if (!fInput.good()) {
+      std::cout << "Cannot open file " << fname << std::endl;
+    } else {
+      char buffer [1024];
+      unsigned int all(0), good(0);
+      while (fInput.getline(buffer, 1024)) {
+	++all;
+	if (buffer [0] == '#') continue; //ignore comment
+	std::vector <std::string> items = SplitString (std::string (buffer));
+	if (items.size () != 5) {
+	  std::cout << "Ignore  line: " << buffer << std::endl;
+	} else {
+	  ++good;
+	  int   ieta  = std::atoi (items[1].c_str());
+	  int   depth = std::atoi (items[2].c_str());
+	  float corrf = std::atof (items[3].c_str());
+	  cfactors_[std::pair<int,int>(ieta,depth)] = corrf;
+	}
+      }
+      fInput.close();
+      std::cout << "Reads total of " << all << " and " << good 
+		<< " good records" << std::endl;
+      if (good > 0) ok = true;
+    }
+  }
+  return ok;
+}
+
+std::vector<std::string> CalibMonitor::SplitString (const std::string& fLine) {
+  std::vector <std::string> result;
+  int start = 0;
+  bool empty = true;
+  for (unsigned i = 0; i <= fLine.size (); i++) {
+    if (fLine [i] == ' ' || i == fLine.size ()) {
+      if (!empty) {
+	std::string item (fLine, start, i-start);
+	result.push_back (item);
+	empty = true;
+      }
+      start = i+1;
+    } else {
+      if (empty) empty = false;
+    }
+  }
+  return result;
 }
 
 template<class Hist> void CalibMonitor::DrawHist(Hist* hist, TCanvas* pad) {
