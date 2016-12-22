@@ -45,14 +45,15 @@ class FileListCreator(object):
         - `args`: command line arguments
         """
 
+        self._parser = self._define_parser()
+        self._args = self._parser.parse_args(argv)
+
         if not check_proxy():
             print_msg(
                 "Please create proxy via 'voms-proxy-init -voms cms -rfc'.")
             sys.exit(1)
 
         self._dataset_regex = re.compile(r"^/([^/]+)/([^/]+)/([^/]+)$")
-        self._parser = self._define_parser()
-        self._args = self._parser.parse_args(argv)
         self._validate_input()
         self._datasets = sorted([dataset
                                  for pattern in self._args.datasets
