@@ -48,21 +48,23 @@ public:
     hits.shrink_to_fit();
   }
 
-  void operator()(Trajectory const & traj, TrackingRecHitCollection & hits, TrajParams & trajParams) const {
+  void operator()(Trajectory const & traj, TrackingRecHitCollection & hits, TrajParams & trajParams, Chi2sFive & chi2s) const {
     // ---  NOTA BENE: the convention is to sort hits and measurements "along the momentum".
     bool along = traj.direction() == alongMomentum;
     auto const & meas = traj.measurements();
     trajParams.reserve(meas.size());
-      if (keepOrder | along) copy(meas.begin(),meas.end(),hits, trajParams);
-      else copy(meas.rbegin(),meas.rend(),hits, trajParams);
+    chi2s.reserve(meas.size());
+      if (keepOrder | along) copy(meas.begin(),meas.end(),hits, trajParams, chi2s);
+      else copy(meas.rbegin(),meas.rend(),hits, trajParams, chi2s);
   }
 
 private:
   template<typename HI>
-  void copy(HI itm, HI e, TrackingRecHitCollection & hits, TrajParams & trajParams) const { 
+  void copy(HI itm, HI e, TrackingRecHitCollection & hits, TrajParams & trajParams, Chi2sFive & chi2s) const { 
     for(;itm!=e;++itm) if( (!removeNoDet) | ((*itm).recHitR().det()!=nullptr)) {
          hits.push_back((*itm).recHitR().clone());
          trajParams.push_back((*itm).updatedState().localParameters());
+         chi2s.push_back(toChi2((*itm).estimate()));
     }
   }
 
