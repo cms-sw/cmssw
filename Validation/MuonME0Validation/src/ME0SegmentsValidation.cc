@@ -129,7 +129,6 @@ void ME0SegmentsValidation::analyze(const edm::Event& e,
             }
             
         }
-        std::cout<<"conto "<<count<<std::endl;
         myMap.insert(MapType::value_type(simTrack,selectedME0Hits));
         
         if(count >= 3){
@@ -175,6 +174,7 @@ void ME0SegmentsValidation::analyze(const edm::Event& e,
      
         Short_t numberRHSig = 0;
         Short_t numberRHBkg = 0;
+        std::vector<ME0RecHit> selectedME0RecHits;
         
         for (auto rh = me0rhs.begin(); rh!= me0rhs.end(); rh++)
         {
@@ -183,8 +183,13 @@ void ME0SegmentsValidation::analyze(const edm::Event& e,
             auto rhr = ME0Geometry_->etaPartition(me0id);
             auto rhLP = rh->localPosition();
             
-            auto result = isMatched(me0id, rhLP, ME0Digis, myMap);
-            if(result.second == 1) ++numberRHSig;
+            auto result = isMatched(me0id, rhLP, ME0Digis);
+            if(result.second == 1){
+                
+                ++numberRHSig;
+                selectedME0RecHits.push_back(*rh);
+                
+            }
             else ++numberRHBkg;
             
             auto erhLEP = rh->localPositionError();
@@ -233,12 +238,55 @@ void ME0SegmentsValidation::analyze(const edm::Event& e,
         
         me0_segment_numRHSig->Fill(numberRHSig);
         me0_segment_numRHBkg->Fill(numberRHBkg);
+        std::cout<<selectedME0RecHits.size()<<std::endl;
+        myMapSeg.insert(MapTypeSeg::value_type(me0s,selectedME0RecHits));
+
+    }
+    
+    //------------------- SimToReco -------------------
+
+    std::cout<<"Size ST: "<<myMap.size()<<std::endl;
+    for(auto const& st : myMap) {//loop over the signal simTracks
+        
+        int num_sh = st.second.size();
+        bool isThereOneSegmentMatched = false;
+        
+        for(auto const& seg : myMapSeg) {//loop over the reconstructed me0 segments
+            
+            int num_sh_matched = 0;
+            if(seg.second.size() == 0) continue;
+
+            for(auto const& sh : st.second) {//loop over the me0 simHits left by the signal simTracks
+                
+                for(auto const& rh : seg.second) {//loop over the tracking recHits already matched to signal digis
+
+                    LocalPoint lp_sh = sh.localPosition();
+                    LocalPoint lp_rh = rh.localPosition();
+                    Float_t dx_loc = lp_sh.x()-lp_rh.x();
+                    Float_t dy_loc = lp_sh.y()-lp_rh.y();
+                    if(fabs(dx_loc) < 3*0.03 && fabs(dy_loc) < 3*2.50) ++num_sh_matched;
+                    
+                }
+            
+            }
+            
+            Float_t quality = 0;
+            if(num_sh != 0) quality = num_sh_matched/(1.0*num_sh);
+            //std::cout<<"num "<<num_sh<<" "<<num_sh_matched<<" "<<quality<<std::endl;
+            if(quality > 0) isThereOneSegmentMatched = true;
+            
+        }
+        
+        //Fill hsitograms
+        if(isThereOneSegmentMatched) std::cout<<"kitemmurt"<<std::endl;
         
     }
     
+    
+    
 }
 
-std::pair<int,int> ME0SegmentsValidation::isMatched(auto me0id, auto rhLP, auto ME0Digis, auto myMap)
+std::pair<int,int> ME0SegmentsValidation::isMatched(auto me0id, auto rhLP, auto ME0Digis)
 {
     Short_t region_rh = (Short_t) me0id.region();
     Short_t layer_rh = (Short_t) me0id.layer();
@@ -274,19 +322,6 @@ std::pair<int,int> ME0SegmentsValidation::isMatched(auto me0id, auto rhLP, auto 
             
             if(l_x_rh != l_x_dg) continue;
             if(l_y_rh != l_y_dg) continue;
-            
-            isMatchedToMC = false;
-            
-            for(auto const& ent1 : myMap) {
-                // ent1.first is the first key
-                for(auto const& ent2 : ent1.second) {
-                    // ent2.first is the second key
-                    // ent2.second is the data
-                    std::cout<<"ngul"<<std::endl;
-                    
-                }
-                
-            }
             
             particleType = digiItr->pdgid();
             isPrompt = digiItr->prompt();
