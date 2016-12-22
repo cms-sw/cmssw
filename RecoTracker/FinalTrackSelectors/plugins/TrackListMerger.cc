@@ -775,7 +775,7 @@ TrackListMerger::~TrackListMerger() { }
 	// fill TrackingRecHits
 	unsigned nh1=track->recHitsSize();
         tx.setHits(refTrkHits,outputTrkHits->size(),nh1);
-        tx.setTrajParams(track->extra()->trajParams());
+        tx.setTrajParams(track->extra()->trajParams(),track->extra()->chi2s());
         assert(tx.trajParams().size()==tx.recHitsSize());
         for (auto hh = track->recHitsBegin(), eh=track->recHitsEnd(); hh!=eh; ++hh ) {
           outputTrkHits->push_back( (*hh)->clone() );
