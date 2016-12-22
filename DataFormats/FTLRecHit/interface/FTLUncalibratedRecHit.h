@@ -18,38 +18,35 @@ class FTLUncalibratedRecHit {
   };
 
   FTLUncalibratedRecHit();
-  FTLUncalibratedRecHit(const DetId& detId, float ampl, float time, uint32_t flags = 0, uint32_t aux = 0);
+  FTLUncalibratedRecHit(const DetId& detId, float ampl, float time, float timeError, unsigned char flags = 0);
 
   ~FTLUncalibratedRecHit();
   float amplitude() const { return amplitude_; }
   float time() const { return time_; }
-  
 
-  uint32_t flags() const { return flags_; }
-  float timeError() const;
-  uint8_t timeErrorBits() const;
+  float timeError() const {return timeError_; }
+
   DetId  id() const { return id_; }
 
   void setAmplitude( float amplitude ) { amplitude_ = amplitude; }
   void setTime( float time ) { time_ = time; }
 
-  void setTimeError( float timeErr );
-  void setFlags( uint32_t flags ) { flags_ = flags; }
+  void setTimeError( float timeErr ) { timeError_ = timeErr; }
   void setId( DetId id ) { id_ = id; }
-  void setAux( uint32_t aux ) { aux_ = aux; }
   void setFlagBit(Flags flag);
   bool checkFlag(Flags flag) const;
 
-  bool isSaturated() const;
   bool isTimeValid() const;
   bool isTimeErrorValid() const;
 
+  bool isSaturated() const;
+  
  private:
   float amplitude_;    //< Reconstructed amplitude
   float time_;       //< Reconstructed time jitter
-  uint32_t flags_;     //< flag to be propagated to RecHit
-  uint32_t aux_;       //< aux word; first 8 bits contain time (jitter) error
+  float timeError_;  
   DetId  id_;          //< Detector ID
+  unsigned char flags_;
 };
 
 #endif

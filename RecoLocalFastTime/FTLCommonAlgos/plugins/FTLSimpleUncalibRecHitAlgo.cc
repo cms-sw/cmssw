@@ -12,6 +12,8 @@ class FTLSimpleUncalibRecHitAlgo : public FTLUncalibratedRecHitAlgoBase {
     adcLSB_            = saturation/(1<<nBits);    
     
     toaLSBToNS_        = conf.getParameter<double>("toaLSB_ns");
+
+    timeError_ = conf.getParameter<double>("timeResolutionInNs");
   }
 
   /// Destructor
@@ -25,7 +27,7 @@ class FTLSimpleUncalibRecHitAlgo : public FTLUncalibratedRecHitAlgoBase {
   virtual FTLUncalibratedRecHit makeRecHit(const FTLDataFrame& dataFrame ) const override final;
 
  private:  
-  double adcLSB_, toaLSBToNS_;
+  double adcLSB_, toaLSBToNS_, timeError_;
 };
 
 FTLUncalibratedRecHit 
@@ -35,7 +37,7 @@ FTLSimpleUncalibRecHitAlgo::makeRecHit(const FTLDataFrame& dataFrame ) const {
   
   double amplitude = double(sample.data()) * adcLSB_;
   double time    = double(sample.toa()) * toaLSBToNS_;
-  uint32_t flag = 0;
+  unsigned char flag = 0;
   
   LogDebug("FTLSimpleUncalibRecHit") << "ADC+: set the charge to: " << amplitude << ' ' << sample.data() 
                                      << ' ' << adcLSB_ << ' ' << std::endl;    
@@ -43,7 +45,7 @@ FTLSimpleUncalibRecHitAlgo::makeRecHit(const FTLDataFrame& dataFrame ) const {
                                      << ' ' << toaLSBToNS_ << ' ' << std::endl;    
   LogDebug("FTLSimpleUncalibRecHit") << "Final uncalibrated amplitude : " << amplitude << std::endl;
   
-  return FTLUncalibratedRecHit( dataFrame.id(), amplitude, time, flag);
+  return FTLUncalibratedRecHit( dataFrame.id(), amplitude, time, timeError_, flag);
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"

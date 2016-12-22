@@ -11,7 +11,7 @@
  * \author Lindsey Gray
  */
 
-class FTLRecHit : public CaloRecHit {
+class FTLRecHit {
 public:
   typedef DetId key_type;
 
@@ -35,29 +35,23 @@ public:
 
   FTLRecHit();
   // by default a recHit is greated with no flag
-  FTLRecHit(const DetId& id, float energy, float time, uint32_t flags = 0, uint32_t flagBits = 0);
+  FTLRecHit(const DetId& id, float energy, float time, float timeError, uint32_t flagBits = 0);
   /// get the id
-  // For the moment not returning a specific id for subdetector
-  DetId id() const { return DetId(detid());}
-  /////  bool isRecovered() const;
+
+  float energy() const { return energy_; }
+  void setEnergy(float energy) { energy_=energy; }
+  
+  const DetId& id() const { return id_; }
+  const DetId& detid() const { return id(); }
+
+  float time() const { return time_; }
+  void setTime(float time) { time_=time; }
+
   bool isTimeValid() const;
   bool isTimeErrorValid() const;
 
-
-  float chi2() const;
-  float outOfTimeChi2() const;
-
-  // set the energy for out of time events
-  // (only energy >= 0 will be stored)
-  float outOfTimeEnergy() const;
-  float timeError() const;
-
-  void setChi2( float chi2 );
-  void setOutOfTimeChi2( float chi2 );
-  void setOutOfTimeEnergy( float energy );
-
-  void setTimeError( uint8_t timeErrBits );
-
+  float timeError() const { return timeError_; }
+  void setTimeError( float err ) { timeError_ = err; }
   
   /// set the flags (from Flags or ESFlags) 
   void setFlag(int flag) {flagBits_|= (0x1 << flag);}
@@ -72,8 +66,11 @@ public:
 
 private:
 
+  DetId id_;
+  float energy_, time_, timeError_;
+
   /// store rechit condition (see Flags enum) in a bit-wise way 
-  uint32_t flagBits_;
+  unsigned char flagBits_;
 };
 
 std::ostream& operator<<(std::ostream& s, const FTLRecHit& hit);
