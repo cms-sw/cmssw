@@ -6,6 +6,8 @@ ME0SegmentsValidation::ME0SegmentsValidation(const edm::ParameterSet& cfg):  ME0
 {
     InputTagToken_Segments = consumes<ME0SegmentCollection>(cfg.getParameter<edm::InputTag>("segmentInputLabel"));
     InputTagToken_Digis = consumes<ME0DigiPreRecoCollection>(cfg.getParameter<edm::InputTag>("digiInputLabel"));
+    InputTagToken_ = consumes<edm::PSimHitContainer>(cfg.getParameter<edm::InputTag>("simInputLabel"));
+    InputTagTokenST_ = consumes<edm::SimTrackContainer>(cfg.getParameter<edm::InputTag>("simInputLabelST"));
 }
 
 void ME0SegmentsValidation::bookHistograms(DQMStore::IBooker & ibooker, edm::Run const & Run, edm::EventSetup const & iSetup ) {
@@ -21,6 +23,10 @@ void ME0SegmentsValidation::bookHistograms(DQMStore::IBooker & ibooker, edm::Run
     edm::LogInfo("MuonME0SegmentsValidation")<<"+++ Info : # of region : "<<nregion<<std::endl;
     
     LogDebug("MuonME0SegmentsValidation")<<"+++ Info : finish to get geometry information from ES.\n";
+    
+    me0_simsegment_eta   = ibooker.book1D("me0_simsegment_eta","SimSegment Eta Distribution; #eta; entries",8,2.0,2.8);
+    me0_simsegment_pt    = ibooker.book1D("me0_simsegment_pt","SimSegment pT Distribution; p_{T}; entries",100,0.0,100.0);
+    me0_simsegment_phi   = ibooker.book1D("me0_simsegment_phi","SimSegments phi Distribution; #phi; entries",18,-M_PI,+M_PI);
     
     me0_segment_chi2     = ibooker.book1D("me0_seg_Chi2","#chi^{2}; #chi^{2}; # Segments",100,0,100);
     me0_segment_redchi2  = ibooker.book1D("me0_seg_ReducedChi2","#chi^{2}/ndof; #chi^{2}/ndof; # Segments",100,0,5);
@@ -78,6 +84,12 @@ void ME0SegmentsValidation::analyze(const edm::Event& e,
     iSetup.get<MuonGeometryRecord>().get(hGeom);
     const ME0Geometry* ME0Geometry_ =( &*hGeom);
     
+    edm::Handle<edm::PSimHitContainer> ME0Hits;
+    e.getByToken(InputTagToken_, ME0Hits);
+    
+    edm::Handle<edm::SimTrackContainer> simTracks;
+    e.getByToken(InputTagTokenST_,simTracks);
+    
     edm::Handle<ME0SegmentCollection> ME0Segments;
     e.getByToken(InputTagToken_Segments, ME0Segments);
     
@@ -92,6 +104,34 @@ void ME0SegmentsValidation::analyze(const edm::Event& e,
     if (!ME0Segments.isValid() ) {
         edm::LogError("ME0SegmentsValidation") << "Cannot get ME0RecHits/ME0Segments by Token InputTagToken";
         return ;
+    }
+    
+    if (!ME0Hits.isValid()) {
+        edm::LogError("ME0HitsValidation") << "Cannot get ME0Hits by Token simInputTagToken";
+        return ;
+    }
+    
+    
+    edm::SimTrackContainer::const_iterator simTrack;
+    for (simTrack = simTracks->begin(); simTrack != simTracks->end(); ++simTrack){
+        
+        if(!isSimTrackGood(simTrack)) continue;
+        int count = 0;
+        
+        for (edm::PSimHitContainer::const_iterator itHit = ME0Hits->begin(); itHit != ME0Hits->end(); ++itHit){
+            
+            if(isSimMatched(simTrack, itHit)) ++count;
+            
+        }
+        
+        if(count >= 3){
+            
+            me0_simsegment_eta->Fill((*simTrack).momentum().eta());
+            me0_simsegment_pt->Fill((*simTrack).momentum().pt());
+            me0_simsegment_phi->Fill((*simTrack).momentum().phi());
+            
+        }
+        
     }
     
     me0_segment_size->Fill(ME0Segments->size());
@@ -240,58 +280,30 @@ std::pair<int,int> ME0SegmentsValidation::isMatched(auto me0id, auto rhLP, auto 
     return result;
     
 }
-//
-//bool ME0SegmentsValidation::isSimTrackGood(const SimTrack &t)
-//{
-//    
-//    // SimTrack selection
-//    if (t.noVertex()) return false;
-//    if (t.noGenpart()) return false;
-//    if (std::abs(t.type()) != 13) return false; // only interested in direct muon simtracks
-////    if (t.momentum().pt() < minPt_ ) return false;
-//    const float eta(std::abs(t.momentum().eta()));
-//    if (eta > 2.0 || eta < 2.8 ) return false; // no GEMs could be in such eta
-//    return true;
-//    
-//}
-//
-//
-//bool isSimMatched(SimTrackContainer::const_iterator simTrack, edm::PSimHitContainer::const_iterator itHit)
-//{
-//    
-//    bool result = false;
-//    int trackId = simTrack->trackId();
-//    int trackId_sim = itHit->trackId();
-//    if(trackId == trackId_sim) result = true;
-//    return result;
-//    
-//}
-//
-//edm::PSimHitContainer isTrackMatched(SimTrackContainer::const_iterator simTrack, const Event & event, const EventSetup& eventSetup)
-//{
-//    
-//    edm::PSimHitContainer selectedGEMHits;
-//    
-//    edm::Handle<edm::PSimHitContainer> ME0Hits;
-//    event.getByLabel(edm::InputTag("g4SimHits","MuonME0Hits"), ME0Hits);
-//    
-//    ESHandle<GlobalTrackingGeometry> theTrackingGeometry;
-//    eventSetup.get<GlobalTrackingGeometryRecord>().get(theTrackingGeometry);
-//    
-//    for (edm::PSimHitContainer::const_iterator itHit = ME0Hits->begin(); itHit != ME0Hits->end(); ++itHit){
-//							 
-//        DetId id = DetId(itHit->detUnitId());
-//        if (!(id.subdetId() == MuonSubdetId::ME0)) continue;
-//        if(itHit->particleType() != (*simTrack).type()) continue;
-//        
-//        bool result = isSimMatched(simTrack, itHit);
-//        if(result) selectedGEMHits.push_back(*itHit);
-//        
-//    }
-//    
-//    //std::cout<<"Size: "<<selectedGEMHits.size()<<std::endl;
-//    return selectedGEMHits;
-//    
-//}
 
 
+bool ME0SegmentsValidation::isSimTrackGood(edm::SimTrackContainer::const_iterator t)
+{
+    
+    // SimTrack selection
+    if ((*t).noVertex()) return false;
+    if ((*t).noGenpart()) return false;
+    if (std::abs((*t).type()) != 13) return false; // only interested in direct muon simtracks
+    if ((*t).momentum().pt() < 0 ) return false;
+    const float eta(std::abs((*t).momentum().eta()));
+    if (eta > 2.0 || eta < 2.8 ) return false; // no GEMs could be in such eta
+    return true;
+    
+}
+
+
+bool ME0SegmentsValidation::isSimMatched(edm::SimTrackContainer::const_iterator simTrack, edm::PSimHitContainer::const_iterator itHit)
+{
+    
+    bool result = false;
+    int trackId = simTrack->trackId();
+    int trackId_sim = itHit->trackId();
+    if(trackId == trackId_sim) result = true;
+    return result;
+    
+}

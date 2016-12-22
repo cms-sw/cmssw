@@ -75,7 +75,7 @@ TProfile* MuonME0DigisHarvestor::ComputeEff(TH1F* num, TH1F* denum, std::string 
       double temp = nDenum;
       nDenum = nNum;
       nNum = temp;
-      std::cout<<"Alert! specific bin's num is bigger than denum"<<std::endl;
+      std::cout<<"Alert! specific bin's num is bigger than denum "<<i<<" "<<nNum<<" "<<nDenum<<std::endl;
     }
     const double effVal = nNum/nDenum;
     efficHist->SetBinContent(i, effVal);
@@ -232,7 +232,6 @@ MuonME0DigisHarvestor::dqmEndJob(DQMStore::IBooker& ibooker, DQMStore::IGetter& 
           eleBkg = (TH1F*)ig.get(label_eleBkg.Data())->getTH1F()->Clone();
           eleBkg->Sumw2();
           ProcessBookingBKG( ibooker, ig, "me0_strip_dg_elePosBkg_rad", eleBkg, numEvts);
-          std::cout<<"entriamo qua?"<<std::endl;
     
       }
       if( ig.get(label_neuBkg.Data()) !=nullptr ) {
