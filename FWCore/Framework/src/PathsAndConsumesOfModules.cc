@@ -157,9 +157,7 @@ namespace edm {
         largestIndex = description->id();
       }
     }
-    if(kTriggerResultsIndex != kInvalidIndex) {
-      kPathToTriggerResultsDependencyLastIndex = largestIndex ;
-    }
+    kPathToTriggerResultsDependencyLastIndex = largestIndex ;
 
 
     {
@@ -209,8 +207,15 @@ namespace edm {
     std::vector<std::string> pathNames = iPnC.paths();
     const unsigned int kFirstEndPathIndex = pathNames.size();
 
-    const std::string kPathEnded("PathEnded");
-    const std::string kEndPathStart("EndPathStart");
+    const std::string kPathEnded("@PathEnded");
+    const std::string kEndPathStart("@EndPathStart");
+    
+    //The finished processing depends on all paths and end paths
+    const std::string kFinishedProcessing("@FinishedProcessing");
+    const unsigned int kFinishedProcessingIndex{0};
+    moduleIndexToNames.insert(std::make_pair(kFinishedProcessingIndex,
+                                             kFinishedProcessing));
+
 
     pathNames.insert(pathNames.end(), iPnC.endPaths().begin(), iPnC.endPaths().end());
     std::vector<std::vector<unsigned int>> pathIndexToModuleIndexOrder(pathNames.size());
@@ -243,22 +248,35 @@ namespace edm {
         //Have TriggerResults depend on the end of all paths 
         // Have all EndPaths depend on TriggerResults
         if( pathIndex < kFirstEndPathIndex) {
-          if( (lastModuleIndex  != kInvalidIndex) and (kTriggerResultsIndex != kInvalidIndex) ) {
+          if( (lastModuleIndex  != kInvalidIndex) ) {
             ++kPathToTriggerResultsDependencyLastIndex;
             edgeToPathMap[std::make_pair(kPathToTriggerResultsDependencyLastIndex,lastModuleIndex)].push_back(pathIndex);
             moduleIndexToNames.insert(std::make_pair(kPathToTriggerResultsDependencyLastIndex,
                                                      kPathEnded));
-            edgeToPathMap[std::make_pair(kTriggerResultsIndex, kPathToTriggerResultsDependencyLastIndex)].push_back(kDataDependencyIndex);
+            if (kTriggerResultsIndex != kInvalidIndex) {
+              edgeToPathMap[std::make_pair(kTriggerResultsIndex, kPathToTriggerResultsDependencyLastIndex)].push_back(kDataDependencyIndex);
+            }
+            //Need to make dependency for finished process
+            edgeToPathMap[std::make_pair(kFinishedProcessingIndex, kPathToTriggerResultsDependencyLastIndex)].push_back(kDataDependencyIndex);
             pathOrder.push_back(kPathToTriggerResultsDependencyLastIndex);
           }
         } else {
-          if( (not moduleDescriptions->empty()) and (kTriggerResultsIndex != kInvalidIndex) ) {
+          if( (not moduleDescriptions->empty()) ) {
+            if (kTriggerResultsIndex != kInvalidIndex) {
+              ++kPathToTriggerResultsDependencyLastIndex;
+              edgeToPathMap[std::make_pair(moduleDescriptions->front()->id(),kPathToTriggerResultsDependencyLastIndex)].push_back(pathIndex);
+              moduleIndexToNames.insert(std::make_pair(kPathToTriggerResultsDependencyLastIndex,
+                                                       kEndPathStart));
+              edgeToPathMap[std::make_pair(kPathToTriggerResultsDependencyLastIndex,kTriggerResultsIndex)].push_back(kDataDependencyIndex);
+              pathOrder.insert(pathOrder.begin(),kPathToTriggerResultsDependencyLastIndex);
+            }
+            //Need to make dependency for finished process
             ++kPathToTriggerResultsDependencyLastIndex;
-            edgeToPathMap[std::make_pair(moduleDescriptions->front()->id(),kPathToTriggerResultsDependencyLastIndex)].push_back(pathIndex);
+            edgeToPathMap[std::make_pair(kPathToTriggerResultsDependencyLastIndex,lastModuleIndex)].push_back(pathIndex);
             moduleIndexToNames.insert(std::make_pair(kPathToTriggerResultsDependencyLastIndex,
-                                                     kEndPathStart));
-            edgeToPathMap[std::make_pair(kPathToTriggerResultsDependencyLastIndex,kTriggerResultsIndex)].push_back(kDataDependencyIndex);
-            pathOrder.insert(pathOrder.begin(),kPathToTriggerResultsDependencyLastIndex);
+                                                     kPathEnded));
+            edgeToPathMap[std::make_pair(kFinishedProcessingIndex, kPathToTriggerResultsDependencyLastIndex)].push_back(kDataDependencyIndex);
+            pathOrder.push_back(kPathToTriggerResultsDependencyLastIndex);
           }
         }
       }
