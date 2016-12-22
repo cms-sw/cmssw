@@ -12,6 +12,7 @@ import signal
 import cPickle
 import difflib
 import argparse
+import functools
 import subprocess
 import multiprocessing
 import Utilities.General.cmssw_das_client as cmssw_das_client
@@ -282,16 +283,6 @@ class FileListCreator(object):
             if self._args.random: random.shuffle(self._files)
             return
 
-        self._events_in_dataset = 0
-        self._files = []
-        for dataset in self._datasets:
-            print_msg("Requesting information for dataset '{0:s}'."
-                      .format(dataset))
-            self._events_in_dataset += get_events_per_dataset(dataset)
-            self._files.extend(get_files(dataset))
-
-        result = print_msg("Counting events in {0:d} dataset files. This may "
-                           "take several minutes...".format(len(self._files)))
         # workaround to deal with KeyboardInterrupts in the worker processes:
         # - ignore interrupt signals in workers (see initializer)
         # - use a timeout of size sys.maxint to avoid a bug in multiprocessing
@@ -302,8 +293,21 @@ class FileListCreator(object):
         pool = multiprocessing.Pool(
             processes = number_of_processes,
             initializer = lambda: signal.signal(signal.SIGINT, signal.SIG_IGN))
-        count = pool.map_async(get_events_per_file, self._files).get(sys.maxsize)
-        self._file_info = dict(zip(self._files, count))
+
+        print_msg("Requesting information for datasets. This may take a while...")
+
+        result = pool.map_async(get_events_per_dataset, self._datasets).get(sys.maxint)
+        self._events_in_dataset = sum(result)
+
+        get_file_info = functools.partial(_get_properties,
+                                          properties = ["name", "nevents"],
+                                          filters = ["nevents > 0"],
+                                          entity = "dataset",
+                                          sub_entity = "file")
+        result = pool.map_async(get_file_info, self._datasets).get(sys.maxint)
+        self._file_info = {}
+        for item in result: self._file_info.update(dict(item))
+        self._files = sorted(self._file_info.keys())
 
         # write information to cache
         self._cache.set(self._events_in_dataset, self._files, self._file_info)
@@ -759,6 +763,29 @@ def _get_events(entity, name):
     data = das_client("{0:s}={1:s} system=dbs3 | grep {0:s}.nevents"
                       .format(entity, name), entity)
     return int(find_key(find_key(data, entity), "nevents"))
+
+
+def _get_properties(name, entity, properties, filters, sub_entity = None):
+    """Retrieve `properties` from `entity` called `name`.
+
+    Arguments:
+    - `properties`: list of property names
+    - `filters`: list of filters on properties
+    - `entity`: type of entity
+    - `name`: name of entity
+    - `sub_entity`: type of entity from which to extract the properties
+    """
+
+    if sub_entity is None: sub_entity = entity
+    props = ["{0:s}.{1:s}".format(sub_entity,prop.split()[0])
+                  for prop in properties]
+    conditions = ["{0:s}.{1:s}".format(sub_entity, filt)
+                  for filt in filters]
+
+    data = das_client("{0:s} {1:s}={2:s} system=dbs3 | grep {3:s}"
+                      .format(sub_entity, entity, name,
+                              ", ".join(props+conditions)), sub_entity)
+    return [[find_key(f[sub_entity], prop) for prop in properties] for f in data]
 
 
 def get_chunks(long_list, chunk_size):
