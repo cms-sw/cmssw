@@ -11,7 +11,6 @@ dedxTruncated40CTF.tracks                          = cms.InputTag("ctfWithMateri
 
 dedxHarmonic2CTF                                   = dedxHarmonic2.clone()
 dedxHarmonic2CTF.tracks                            = cms.InputTag("ctfWithMaterialTracksP5")
-dedxHarmonic2CTF.trajectoryTrackAssociation        = cms.InputTag("ctfWithMaterialTracksP5")
 
 dedxDiscrimASmiCTF                                      = dedxDiscrimASmi.clone()
 dedxDiscrimASmiCTF.tracks                               = cms.InputTag("ctfWithMaterialTracksP5")
