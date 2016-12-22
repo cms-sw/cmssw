@@ -2,7 +2,7 @@
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
 MCMultiParticleFilter::MCMultiParticleFilter(const edm::ParameterSet& iConfig) :
-  src_(iConfig.getUntrackedParameter<edm::InputTag>("src",edm::InputTag(std::string("generator"),"unsmeared"))),
+  src_(consumes<edm::HepMCProduct>(iConfig.getUntrackedParameter<edm::InputTag>("src",edm::InputTag(std::string("generator"),"unsmeared")))),
   numRequired_(iConfig.getParameter<int>("NumRequired")),
   acceptMore_(iConfig.getParameter<bool>("AcceptMore")),
   particleID_(iConfig.getParameter< std::vector<int> >("ParticleID")),
@@ -54,7 +54,7 @@ MCMultiParticleFilter::~MCMultiParticleFilter()
 bool MCMultiParticleFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   edm::Handle<edm::HepMCProduct> evt;
-  iEvent.getByLabel(src_, evt);
+  iEvent.getByToken(src_, evt);
   
   totalEvents_++;
   int nFound = 0;
