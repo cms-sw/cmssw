@@ -11,12 +11,12 @@ ME0DigisValidation::ME0DigisValidation(const edm::ParameterSet& cfg):  ME0BaseVa
 
 void ME0DigisValidation::bookHistograms(DQMStore::IBooker & ibooker, edm::Run const & Run, edm::EventSetup const & iSetup ) {
 
-  LogDebug("MuonME0DigisValidation")<<"Info : Loading Geometry information\n";
+  LogDebug("MuonME0DigisValidation")<<"Info: Loading Geometry information\n";
   ibooker.setCurrentFolder("MuonME0DigisV/ME0DigisTask");
 
-  unsigned int nregion  = 2;
+  unsigned int nregion = 2;
 
-  edm::LogInfo("MuonME0DigisValidation")<<"+++ Info : # of region : "<<nregion<<std::endl;
+  edm::LogInfo("MuonME0DigisValidation")<<"+++ Info : # of region: "<<nregion<<std::endl;
 
   LogDebug("MuonME0DigisValidation")<<"+++ Info : finish to get geometry information from ES.\n";
     
@@ -96,14 +96,14 @@ void ME0DigisValidation::analyze(const edm::Event& e,
   }
     
   num_evts->Fill(1);
-  int count = 1;
+  bool toBeCounted1 = true;
 
   for (ME0DigiPreRecoCollection::DigiRangeIterator cItr=ME0Digis->begin(); cItr!=ME0Digis->end(); cItr++) {
     ME0DetId id = (*cItr).first;
 
     const GeomDet* gdet = ME0Geometry_->idToDet(id);
     if ( gdet == nullptr) {
-      std::cout<<"Getting DetId failed. Discard this gem strip hit.Maybe it comes from unmatched geometry."<<std::endl;
+      std::cout<<"Getting DetId failed. Discard this gem strip hit. Maybe it comes from unmatched geometry."<<std::endl;
       continue;
     }
     const BoundPlane & surface = gdet->surface();
@@ -140,22 +140,24 @@ void ME0DigisValidation::analyze(const edm::Event& e,
       if ( region == -1 ) region_num = 0 ;
       else if ( region == 1) region_num = 1;
       int layer_num = layer-1;
+        
+      bool toBeCounted2 = true;
 
       if (isPrompt == 1 && abs(particleType) == 13) {
           
         me0_strip_dg_zr_tot_Muon[region_num]->Fill(g_z,g_r);
         me0_strip_dg_xy_Muon[region_num][layer_num]->Fill(g_x,g_y);
-          
+
         for (auto hits=ME0Hits->begin(); hits!=ME0Hits->end(); hits++) {
             
             int particleType_sh = hits->particleType();
-            int evtId_sh = hits->eventId().event() == 0 ? 1 : 0;
-            int bx_sh = hits->eventId().bunchCrossing() == 0 ? 1 : 0;
-            int procType_sh = hits->processType() == 0 ? 1 : 0;
+            int evtId_sh = hits->eventId().event();
+            int bx_sh = hits->eventId().bunchCrossing();
+            int procType_sh = hits->processType();
             
             Float_t timeOfFlight_sh = hits->tof();
             
-            if(!(abs(particleType_sh) == 13 && evtId_sh == 1 && bx_sh == 1 && procType_sh == 1)) continue;
+            if(!(abs(particleType_sh) == 13 && evtId_sh == 0 && bx_sh == 0 && procType_sh == 0)) continue;
             
             const ME0DetId id(hits->detUnitId());
             Short_t region_sh = id.region();
@@ -171,40 +173,43 @@ void ME0DigisValidation::analyze(const edm::Event& e,
             LocalPoint lp_sh = hits->localPosition();
             GlobalPoint gp_sh = surface.toGlobal(lp_sh);
             
-            if(count == 1){
+            if(toBeCounted1){
                 
                 me0_strip_dg_den_eta[region_sh_num][layer_sh_num]->Fill(fabs(gp_sh.eta()));
                 me0_strip_dg_den_eta_tot->Fill(fabs(gp_sh.eta()));
-                
             }
-            if(!(region == region_sh && layer == layer_sh && chamber == chamber_sh && roll = roll_sh)) continue;
+            
+            if(!(region == region_sh && layer == layer_sh && chamber == chamber_sh && roll == roll_sh)) continue;
             
             Float_t dx_loc = lp_sh.x()-lp.x();
             Float_t dy_loc = lp_sh.y()-lp.y();
             
-            if(fabs(dx_loc) < 3*sigma_x_ && fabs(dy_loc) < 3*sigma_y_){
-        
-                Float_t dphi_glob = gp_sh.phi()-gp.phi();
-        
-                me0_strip_dg_dx_local_Muon[region_num][layer_num]->Fill(dx_loc);
-                me0_strip_dg_dy_local_Muon[region_num][layer_num]->Fill(dy_loc);
-                me0_strip_dg_dphi_global_Muon[region_num][layer_num]->Fill(dphi_glob);
-            
-                me0_strip_dg_dx_local_tot_Muon->Fill(dx_loc);
-                me0_strip_dg_dy_local_tot_Muon->Fill(dy_loc);
-                me0_strip_dg_dphi_global_tot_Muon->Fill(dphi_glob);
-            
-                me0_strip_dg_dphi_vs_phi_global_tot_Muon->Fill(gp_sh.phi(),dphi_glob);
-                me0_strip_dg_dtime_tot_Muon->Fill(timeOfFlight - timeOfFlight_sh);
+            if(!(fabs(dx_loc) < 3*sigma_x_ && fabs(dy_loc) < 3*sigma_y_)) continue;
                 
+            Float_t dphi_glob = gp_sh.phi()-gp.phi();
+        
+            me0_strip_dg_dx_local_Muon[region_num][layer_num]->Fill(dx_loc);
+            me0_strip_dg_dy_local_Muon[region_num][layer_num]->Fill(dy_loc);
+            me0_strip_dg_dphi_global_Muon[region_num][layer_num]->Fill(dphi_glob);
+            
+            me0_strip_dg_dx_local_tot_Muon->Fill(dx_loc);
+            me0_strip_dg_dy_local_tot_Muon->Fill(dy_loc);
+            me0_strip_dg_dphi_global_tot_Muon->Fill(dphi_glob);
+            
+            me0_strip_dg_dphi_vs_phi_global_tot_Muon->Fill(gp_sh.phi(),dphi_glob);
+            me0_strip_dg_dtime_tot_Muon->Fill(timeOfFlight - timeOfFlight_sh);
+                
+            if(toBeCounted2){
+                    
                 me0_strip_dg_num_eta[region_num][layer_num]->Fill(fabs(gp_sh.eta()));
                 me0_strip_dg_num_eta_tot->Fill(fabs(gp_sh.eta()));
-            
+                
             }
+            toBeCounted2 = false;
             
-        }
-    
-        count++;
+        }//loop SH
+          
+      toBeCounted1 = false;
           
       }
       else {
@@ -219,7 +224,7 @@ void ME0DigisValidation::analyze(const edm::Event& e,
       if ((abs(particleType) == 22 || abs(particleType) == 2112) && isPrompt == 0)
           me0_strip_dg_bkgNeutral_rad->Fill(fabs(gp.perp()));
         
-    }
+    }//loop DG
   }
 
 }
