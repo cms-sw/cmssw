@@ -89,6 +89,19 @@ namespace {
     bool compare(Edge const& iLHS, Edge const& iRHS)  const;
     
     void tree_edge(Edge const& iEdge, Graph const& iGraph) {
+      typedef typename boost::property_map<Graph, boost::vertex_index_t>::type IndexMap;
+      IndexMap const& index = get(boost::vertex_index, iGraph);
+      
+      auto in = index[source(iEdge,iGraph)];
+      for( auto it = m_stack.begin(); it != m_stack.end(); ++it) {
+        if(in ==index[source(*it,iGraph)]) {
+          //this vertex is now being used to probe a new edge
+          // so we should drop the rest of the tree
+          m_stack.erase(it, m_stack.end());
+          break;
+        }
+      }
+      
       m_stack.push_back(iEdge);
     }
     
