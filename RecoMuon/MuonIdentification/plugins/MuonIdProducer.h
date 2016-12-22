@@ -114,12 +114,51 @@ class MuonIdProducer : public edm::stream::EDProducer<> {
    double phiOfMuonIneteractionRegion( const reco::Muon& muon ) const;
 
    bool checkLinks(const reco::MuonTrackLinks*) const ;
+   inline bool approxEqual(const double a, const double b, const double tol=1E-3) const
+   {
+     return std::abs(a-b) < tol;
+   }
      
    TrackDetectorAssociator trackAssociator_;
    TrackAssociatorParameters parameters_;
-   
+
+   struct ICTypes
+   {
+     enum ICTypeKey {
+       INNER_TRACKS, OUTER_TRACKS,
+       LINKS, MUONS,
+       TEV_FIRSTHIT, TEV_PICKY, TEV_DYT,
+       NONE
+     };
+
+     static ICTypeKey toKey(const std::string& s) {
+       if      ( s == "inner tracks" ) return INNER_TRACKS;
+       else if ( s == "outer tracks" ) return OUTER_TRACKS;
+       else if ( s == "links" ) return LINKS;
+       else if ( s == "muons" ) return MUONS;
+       else if ( s == "tev firstHit" ) return TEV_FIRSTHIT;
+       else if ( s == "tev picky"    ) return TEV_PICKY   ;
+       else if ( s == "tev dyt"      ) return TEV_DYT     ;
+
+       throw cms::Exception("FatalError") << "Unknown input collection type: " << s;
+     }
+
+     static std::string toStr(const ICTypeKey k) {
+       switch ( k ) {
+         case INNER_TRACKS: return "inner tracks";
+         case OUTER_TRACKS: return "outer tracks";
+         case LINKS       : return "links"       ;
+         case MUONS       : return "muons"       ;
+         case TEV_FIRSTHIT: return "tev firstHit";
+         case TEV_PICKY   : return "tev picky"   ;
+         case TEV_DYT     : return "tev dyt"     ;
+         default: throw cms::Exception("FatalError") << "Unknown input collection type";
+       }
+       return "";
+     }
+   };
    std::vector<edm::InputTag> inputCollectionLabels_;
-   std::vector<std::string>   inputCollectionTypes_;
+   std::vector<ICTypes::ICTypeKey> inputCollectionTypes_;
 
    MuonTimingFiller* theTimingFiller_;
 
@@ -167,7 +206,8 @@ class MuonIdProducer : public edm::stream::EDProducer<> {
    edm::EDGetTokenT<RPCRecHitCollection> rpcHitToken_;
    edm::EDGetTokenT<edm::ValueMap<reco::MuonQuality> > glbQualToken_;
 
-
+   edm::Handle<RPCRecHitCollection> rpcHitHandle_;
+   edm::Handle<edm::ValueMap<reco::MuonQuality> > glbQualHandle_;
    
    MuonCaloCompatibility muonCaloCompatibility_;
    reco::isodeposit::IsoDepositExtractor* muIsoExtractorCalo_;
