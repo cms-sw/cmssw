@@ -50,9 +50,7 @@ public:
   Int_t npart;
     
   typedef std::map<edm::SimTrackContainer::const_iterator,edm::PSimHitContainer> MapType;
-  MapType myMap;
   typedef std::map<ME0SegmentCollection::const_iterator,std::vector<ME0RecHit> > MapTypeSeg;
-  MapTypeSeg myMapSeg;
   
 };
   

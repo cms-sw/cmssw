@@ -111,6 +111,10 @@ void ME0SegmentsValidation::analyze(const edm::Event& e,
         return ;
     }
     
+    
+    MapType myMap;
+    MapTypeSeg myMapSeg;
+
     edm::SimTrackContainer::const_iterator simTrack;
     for (simTrack = simTracks->begin(); simTrack != simTracks->end(); ++simTrack){
         
@@ -121,6 +125,12 @@ void ME0SegmentsValidation::analyze(const edm::Event& e,
         
         for (edm::PSimHitContainer::const_iterator itHit = ME0Hits->begin(); itHit != ME0Hits->end(); ++itHit){
             
+            int particleType_sh = itHit->particleType();
+            int evtId_sh = itHit->eventId().event();
+            int bx_sh = itHit->eventId().bunchCrossing();
+            int procType_sh = itHit->processType();
+            if(!(abs(particleType_sh) == 13 && evtId_sh == 0 && bx_sh == 0 && procType_sh == 0)) continue;
+            
             if(isSimMatched(simTrack, itHit)){
                 
                 ++count;
@@ -129,7 +139,7 @@ void ME0SegmentsValidation::analyze(const edm::Event& e,
             }
             
         }
-        myMap.insert(MapType::value_type(simTrack,selectedME0Hits));
+        if(selectedME0Hits.size() > 0) myMap.insert(MapType::value_type(simTrack,selectedME0Hits));
         
         if(count >= 3){
             
@@ -285,6 +295,7 @@ void ME0SegmentsValidation::analyze(const edm::Event& e,
     
     
 }
+
 
 std::pair<int,int> ME0SegmentsValidation::isMatched(auto me0id, auto rhLP, auto ME0Digis)
 {
