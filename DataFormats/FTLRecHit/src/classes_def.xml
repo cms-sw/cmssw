@@ -1,6 +1,6 @@
 <lcgdict>
   <class name="FTLUncalibratedRecHit" ClassVersion="3">
-    <version ClassVersion="3" checksum="1851827400"/>
+    <version ClassVersion="3" checksum="1325548734"/>
   </class>
   <class name="std::vector<FTLUncalibratedRecHit>"/>
   <class name="FTLUncalibratedRecHitCollection"/>
@@ -10,7 +10,7 @@
   <class name="edm::RefProd<FTLUncalibratedRecHitCollection>"/>
 
   <class name="FTLRecHit" ClassVersion="3">
-    <version ClassVersion="3" checksum="141846742"/>
+    <version ClassVersion="3" checksum="259405474"/>
   </class>
   <class name="std::vector<FTLRecHit>"/>
   <class name="FTLRecHitCollection"/>
@@ -28,6 +28,5 @@
   <class name="edm::Wrapper<edm::DetSetVector<FTLRecHit> >"/>
   <class name="edm::Wrapper<std::vector<std::vector<edm::DetSet<FTLRecHit> > > >"/>
 
-  <class name="edm::reftobase::Holder<CaloRecHit, edm::Ref<edm::SortedCollection<FTLRecHit, edm::StrictWeakOrdering<FTLRecHit> >, FTLRecHit, edm::refhelper::FindUsingAdvance<edm::SortedCollection<FTLRecHit, edm::StrictWeakOrdering<FTLRecHit> >, FTLRecHit> > >" />
   <enum name="FTLSeverityLevel::SeverityLevel"/> 
 </lcgdict>

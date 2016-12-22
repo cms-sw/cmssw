@@ -5,5 +5,6 @@ ftlSimpleUncalibRecHitAlgo = cms.PSet(
     algoName = cms.string("FTLSimpleUncalibRecHitAlgo"),
     adcNbits = cms.uint32(12),
     adcSaturation = cms.double(102),
-    toaLSB_ns = cms.double(0.005)
+    toaLSB_ns = cms.double(0.005),
+    timeResolutionInNs = cms.double(0.025)
 )

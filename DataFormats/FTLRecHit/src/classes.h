@@ -29,7 +29,6 @@ namespace DataFormats_FTLRecHit {
     FTLRecHitRef _FTLRHitRef;
     FTLRecHitRefs _FTLRHitRefs;
     FTLRecHitsRef _FTLRHitsRef;
-    edm::reftobase::Holder<CaloRecHit, FTLRecHitRef> rb6;
   };
 }
 

@@ -28,8 +28,9 @@ FTLSimpleRecHitAlgo::makeRecHit(const FTLUncalibratedRecHit& uRecHit, uint32_t& 
   
   float energy = uRecHit.amplitude() * calibration_;
   float time   = uRecHit.time();
+  float timeError = uRecHit.timeError();
   
-  FTLRecHit rh( uRecHit.id(), energy, time );
+  FTLRecHit rh( uRecHit.id(), energy, time, timeError );
     
   // Now fill flags
   // all rechits from the digitizer are "good" at present
