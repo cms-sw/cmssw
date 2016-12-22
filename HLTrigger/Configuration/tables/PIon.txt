@@ -17,6 +17,7 @@ HLT_PAFullTracks_Multiplicity280_v*                                     #CMSHLT-
 HLT_PAFullTracks_HighPt20_v*                                            #CMSHLT-1088
 HLT_PAFullTracks_HighPt30_v*                                            #CMSHLT-1088
 HLT_PAFullTracks_HighPt40_v*                                            #CMSHLT-1088
+HLT_PAFullTracks_HighPt50_v*                                            #
 
 HLT_PAL1DoubleMu0_MGT1_v*                                               #CMSHLT-1013
 HLT_PAL1DoubleMu0_HighQ_v*                                              #CMSHLT-1013
@@ -45,9 +46,13 @@ HLT_PAL3DoubleMu0_HIon*                                                 #CMSHLT-
 
 HLT_PASinglePhoton10_Eta3p1_v*                                          #CMSHLT-1028
 HLT_PASinglePhoton15_Eta3p1_v*                                          #CMSHLT-1028
+HLT_PASinglePhoton15_Eta3p1_SeededWithMB_v*                             #
 HLT_PASinglePhoton20_Eta3p1_v*                                          #CMSHLT-1028
+HLT_PASinglePhoton20_Eta3p1_SeededWithMB_v*                             #
 HLT_PASinglePhoton30_Eta3p1_v*                                          #CMSHLT-1028
+HLT_PASinglePhoton30_L1EGJet_Eta3p1_v*                                  #
 HLT_PADoublePhoton15_Eta3p1_Mass50_1000_v*                              #CMSHLT-1028
+HLT_PASinglePhoton40_L1EGJet_Eta3p1_v*                                  #
 
 HLT_PASinglePhoton10_Eta3p1_PAL3Mu3_v*                                  #CMSHLT-1028
 HLT_PASinglePhoton10_Eta3p1_PAL3Mu5_v*                                  #CMSHLT-1028
@@ -61,6 +66,7 @@ HLT_PADmesonPPTrackingGlobal_Dpt8_v*                                    #CMSHLT-
 HLT_PADmesonPPTrackingGlobal_Dpt15_v*                                   #CMSHLT-1030
 HLT_PADmesonPPTrackingGlobal_Dpt30_v*                                   #CMSHLT-1030
 HLT_PADmesonPPTrackingGlobal_Dpt50_v*                                   #CMSHLT-1030
+HLT_PADmesonPPTrackingGlobal_Dpt55_v*                                   #
 
 HLT_PADmesonPPTrackingGlobal_Dpt5_part2_v*                              #CMSHLT-1098
 HLT_PADmesonPPTrackingGlobal_Dpt5_part3_v*                              #CMSHLT-1098
@@ -76,13 +82,20 @@ HLT_PASingleEG5_HFOneTowerVeto_SingleTrack_v*                           #CMSHLT-
 HLT_PASingleEG5_HFOneTowerVeto_v*                                       #CMSHLT-1073
 HLT_PASingleEG5_HFTwoTowerVeto_SingleTrack_v*                           #CMSHLT-1073
 HLT_PASingleEG5_HFTwoTowerVeto_v*                                       #CMSHLT-1073
+HLT_PASingleEG5_HFThreeTowerVeto_v*                                     #
+HLT_PASingleEG5_HFThreeTowerVeto_SingleTrack_v*                         #
+HLT_PASingleMuOpen_v*                                                   #
 HLT_PASingleMuOpen_HFOneTowerVeto_SingleTrack_v*                        #CMSHLT-1073
 HLT_PASingleMuOpen_HFOneTowerVeto_v*                                    #CMSHLT-1073
 HLT_PASingleMuOpen_HFTwoTowerVeto_SingleTrack_v*                        #CMSHLT-1073
 HLT_PASingleMuOpen_HFTwoTowerVeto_v*                                    #CMSHLT-1073
+HLT_PASingleMuOpen_HFThreeTowerVeto_v*                                  #
+HLT_PASingleMuOpen_HFThreeTowerVeto_SingleTrack_v*                      #
 HLT_PADoubleMuOpen_HFOneTowerVeto_SingleTrack_v*                        #CMSHLT-1073
 HLT_PADoubleMuOpen_HFOneTowerVeto_v*                                    #CMSHLT-1073
 HLT_PADoubleMuOpen_HFTwoTowerVeto_SingleTrack_v*                        #CMSHLT-1073
+HLT_PADoubleMuOpen_HFThreeTowerVeto_v*                                  #
+HLT_PADoubleMuOpen_HFThreeTowerVeto_SingleTrack_v*                      #
 HLT_PADoubleMuOpen_HFTwoTowerVeto_v*                                    #CMSHLT-1073
 HLT_PASingleMuOpen_PixelTrackGt0_FullTrackLt10_v*                       #CMSHLT-1073
 HLT_PASingleMuOpen_PixelTrackGt0_FullTrackLt15_v*                       #CMSHLT-1073
@@ -127,10 +140,11 @@ HLT_PAAK4CaloJet40_Eta5p1_v*                                            #CMSHLT-
 HLT_PAAK4CaloJet60_Eta5p1_v*                                            #CMSHLT-1078
 HLT_PAAK4CaloJet80_Eta5p1_v*                                            #CMSHLT-1078
 HLT_PAAK4CaloJet100_Eta5p1_v*                                           #CMSHLT-1078
-HLT_PAAK4PFJet40_Eta5p1_v* 
+HLT_PAAK4PFJet40_Eta5p1_v*                                              #
 HLT_PAAK4PFJet60_Eta5p1_v*                                              #CMSHLT-1078
 HLT_PAAK4PFJet80_Eta5p1_v*                                              #CMSHLT-1078
 HLT_PAAK4PFJet100_Eta5p1_v*                                             #CMSHLT-1078
+HLT_PAAK4PFJet120_Eta5p1_v*                                             #
 
 HLT_PAAK4CaloJet40_Eta1p9toEta5p1_v*                                    #CMSHLT-1078
 HLT_PAAK4CaloJet60_Eta1p9toEta5p1_v*                                    #CMSHLT-1078
@@ -138,6 +152,7 @@ HLT_PAAK4CaloJet40_Eta2p9toEta5p1_v*                                    #CMSHLT-
 HLT_PAAK4PFJet40_Eta1p9toEta5p1_v*                                      #CMSHLT-1078
 HLT_PAAK4PFJet60_Eta1p9toEta5p1_v*                                      #CMSHLT-1078
 HLT_PAAK4PFJet40_Eta2p9toEta5p1_v*                                      #CMSHLT-1078
+HLT_PAAK4PFJet40_Eta2p9toEta5p1_ForExpress_v*                           #
 
 HLT_PADiAK4CaloJetAve40_Eta5p1_v*                                       #CMSHLT-1078
 HLT_PADiAK4CaloJetAve60_Eta5p1_v*                                       #CMSHLT-1078
@@ -215,6 +230,7 @@ AlCa_EcalEtaEBonlyForPA_v*                  #CMSHLT-1082
  
 AlCa_LumiPixels_Random_v*                   #CMSHLT-1087
 AlCa_LumiPixels_ZeroBias_v*                 #CMSHLT-1087
+AlCa_PAL1MinimumBiasHF_OR_SinglePixelTrack_v*#
 
 ExpressPAOutput                             #CMSHLT-1084
 
