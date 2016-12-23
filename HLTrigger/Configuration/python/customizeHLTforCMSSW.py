@@ -162,6 +162,12 @@ def customiseFor16792(process):
 
     return process
 
+def customiseForNoTraj(process):
+    for producer in producers_by_type(process,"DeDxEstimatorProducer"):
+       del producer.UseTrajectory
+       del producer.trajectoryTrackAssociation
+    return process
+
 #
 # CMSSW version specific customizations
 def customizeHLTforCMSSW(process, menuType="GRun"):
@@ -182,6 +188,7 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
 
     if cmsswVersion >= "CMSSW_9_0":
         process = customiseFor16792(process)
+        process = customiseForNoTraj(process)
         pass
 
 #   stage-2 changes only if needed
