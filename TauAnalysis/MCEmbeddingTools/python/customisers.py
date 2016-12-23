@@ -242,7 +242,7 @@ def customiseGenerator(process, changeProcessname=True,reselect=False):
 	
 	
 	process = customisoptions(process) 
-	process = fix_input_tags(process)
+	##process = fix_input_tags(process)
 	
 	return modify_outputModules(process,[keepSelected(dataTier),keepCleaned(),keepSimulated()],["AODSIMoutput"])
 

@@ -6,6 +6,12 @@ function die { echo $1: status $2 ; exit $2; }
 
 
 
+pushd ${LOCAL_TMP_DIR}
+wd=embeddingTest
+mkdir ${wd}
+pushd ${wd}
+
+
 # echo '{
 #"274199" : [[1, 180]]
 #}' > step1_lumiRanges.log  2>&1
@@ -24,13 +30,17 @@ echo "/store/user/swayand/Emmbeddingfiles/Emmbedding_testInput3.root"  > file_li
 
 cmsDriver.py selecting -s RAW2DIGI,L1Reco,RECO,PAT --runUnscheduled --data --scenario pp --conditions auto:run2_data --era Run2_2016_HIPM --runUnscheduled --eventcontent RAWRECO --datatier RAWRECO --customise Configuration/DataProcessing/RecoTLR.customisePostEra_Run2_2016,TauAnalysis/MCEmbeddingTools/customisers.customiseSelecting --filein filelist:file_list.txt --fileout file:selected.root --python_filename selecting.py -n 5 || die 'Failure during selecting step' $?
 
-#cmsDriver.py LHEembeddingCLEAN --filein file:selected.root --fileout file:lhe_and_cleaned.root --data --scenario pp --conditions auto:run2_data --era Run2_2016_HIPM  --eventcontent RAWRECO --datatier RAWRECO --step RAW2DIGI,RECO --customise Configuration/DataProcessing/RecoTLR.customisePostEra_Run2_2016,TauAnalysis/MCEmbeddingTools/customisers.customiseLHEandCleaning --customise_commands "process.externalLHEProducer.switchToMuonEmbedding = cms.bool(True)\n" -n -1  python_filename lheprodandcleaning.py  || die 'Failure during LHE and Cleaning step' $?
 
-cmsDriver.py LHEembeddingCLEAN --filein file:selected.root --fileout file:lhe_and_cleaned.root --data --scenario pp --conditions auto:run2_data --era Run2_2016_HIPM  --eventcontent RAWRECO --datatier RAWRECO --step RAW2DIGI,RECO --customise Configuration/DataProcessing/RecoTLR.customisePostEra_Run2_2016,TauAnalysis/MCEmbeddingTools/customisers.customiseLHEandCleaning -n -1  python_filename lheprodandcleaning.py  || die 'Failure during LHE and Cleaning step' $?
+cmsDriver.py LHEembeddingCLEAN --filein file:selected.root --runUnscheduled --fileout file:lhe_and_cleaned.root --data --scenario pp --conditions auto:run2_data --era Run2_2016_HIPM  --eventcontent RAWRECO --datatier RAWRECO --step RAW2DIGI,RECO --customise Configuration/DataProcessing/RecoTLR.customisePostEra_Run2_2016,TauAnalysis/MCEmbeddingTools/customisers.customiseLHEandCleaning -n -1  python_filename lheprodandcleaning.py  || die 'Failure during LHE and Cleaning step' $?
 
-cmsDriver.py TauAnalysis/MCEmbeddingTools/python/EmbeddingPythia8Hadronizer_cfi.py --filein file:lhe_and_cleaned.root --fileout file:simulated_and_cleaned.root --conditions auto:run2_mc --era Run2_2016 --eventcontent RAWRECO --step GEN,SIM,DIGI,L1,DIGI2RAW,HLT:@frozen2016,RAW2DIGI,RECO --datatier RAWRECO --customise TauAnalysis/MCEmbeddingTools/customisers.customiseGenerator --beamspot Realistic50ns13TeVCollision -n -1 --customise_commands "process.generator.nAttempts = cms.uint32(1000)\n"  --python_filename simulation.py || die 'Failure during Simulation step' $?
+### Do not run HLT in CMSSW_9_0_X so far since the RecoPixelVertexingPixelTrackFittingPlugins. seems not to work
+cmsDriver.py TauAnalysis/MCEmbeddingTools/python/EmbeddingPythia8Hadronizer_cfi.py --filein file:lhe_and_cleaned.root --fileout file:simulated_and_cleaned.root --conditions auto:run2_mc --era Run2_2016 --eventcontent RAWRECO --step GEN,SIM,DIGI,L1,DIGI2RAW,RAW2DIGI,RECO --datatier RAWRECO --customise TauAnalysis/MCEmbeddingTools/customisers.customiseGenerator --beamspot Realistic50ns13TeVCollision -n -1 --customise_commands "process.generator.nAttempts = cms.uint32(1000)\n"  --python_filename simulation.py || die 'Failure during Simulation step' $?
 
-cmsDriver.py step5 --process MERGE -s PAT --filein file:simulated_and_cleaned.root  --fileout file:merged.root --era Run2_2016_HIPM --runUnscheduled --data --scenario pp --conditions auto:run2_data --eventcontent  MINIAODSIM --datatier USER --customise TauAnalysis/MCEmbeddingTools/customisers.customiseMerging --customise_commands "process.patTrigger.processName = cms.string('SIMembedding')" -n -1  || die 'Failure during merging step' $?
+cmsDriver.py MERGE -s PAT --filein file:simulated_and_cleaned.root  --fileout file:merged.root --era Run2_2016_HIPM --runUnscheduled --data --scenario pp --conditions auto:run2_data --eventcontent  MINIAODSIM --datatier USER --customise TauAnalysis/MCEmbeddingTools/customisers.customiseMerging --customise_commands "process.patTrigger.processName = cms.string('SIMembedding')" -n -1  || die 'Failure during merging step' $?
 
 
 
+
+popd
+rm -rf ${wd}
+popd
