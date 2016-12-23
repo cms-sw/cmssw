@@ -118,6 +118,7 @@ void ME0SegmentsValidation::analyze(const edm::Event& e,
     
     MapType myMap;
     MapTypeSeg myMapSeg;
+    int countST = 0;
 
     edm::SimTrackContainer::const_iterator simTrack;
     for (simTrack = simTracks->begin(); simTrack != simTracks->end(); ++simTrack){
@@ -142,20 +143,22 @@ void ME0SegmentsValidation::analyze(const edm::Event& e,
                 
             }
             
-        }
-        if(selectedME0Hits.size() > 0) myMap.insert(MapType::value_type(simTrack,selectedME0Hits));
+        }//End loop SHs
         
-        if(count >= 3){
+        if(selectedME0Hits.size() >= 3){
             
-            me0_simsegment_eta->Fill((*simTrack).momentum().eta());
+            myMap.insert(MapType::value_type(simTrack,selectedME0Hits));
+            me0_simsegment_eta->Fill(std::abs((*simTrack).momentum().eta()));
             me0_simsegment_pt->Fill((*simTrack).momentum().pt());
             me0_simsegment_phi->Fill((*simTrack).momentum().phi());
+            ++countST;
             
         }
         
     }
     
     me0_segment_size->Fill(ME0Segments->size());
+    std::cout<<"Num ST: "<<countST<<std::endl;
     std::cout<<"Seg Size: "<<ME0Segments->size()<<std::endl;
     
     for (auto me0s = ME0Segments->begin(); me0s != ME0Segments->end(); me0s++) {
@@ -293,16 +296,16 @@ void ME0SegmentsValidation::analyze(const edm::Event& e,
                     Float_t dy_loc = lp_sh.y()-lp_rh.y();
                     if(fabs(dx_loc) < 3*0.03 && fabs(dy_loc) < 3*2.50) ++num_sh_matched; //To make configurable
                     
-                }
+                }//End loop over RHs
             
-            }
+            }//End loop over SHs
             
             Float_t quality = 0;
             if(num_sh != 0) quality = num_sh_matched/(1.0*num_sh);
             std::cout<<"num "<<num_sh<<" "<<num_sh_matched<<" "<<quality<<std::endl;
             if(quality > 0) isThereOneSegmentMatched = true;
             
-        }
+        }//End loop over segments
         
         //Fill hsitograms
         if(isThereOneSegmentMatched){
@@ -313,9 +316,7 @@ void ME0SegmentsValidation::analyze(const edm::Event& e,
             
         }
         
-    }
-    
-    
+    }//End loop over STs
     
 }
 
