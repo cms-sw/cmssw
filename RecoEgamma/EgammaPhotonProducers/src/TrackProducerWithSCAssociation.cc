@@ -354,12 +354,13 @@ TrackingRecHitRefProd rHits = evt.getRefBeforePut<TrackingRecHitCollection>();
    // ---  NOTA BENE: the convention is to sort hits and measurements "along the momentum".
     // This is consistent with innermost and outermost labels only for tracks from LHC collisions
     reco::TrackExtra::TrajParams trajParams;
+    reco::TrackExtra::Chi2sFive chi2s;
     Traj2TrackHits t2t;
     auto ih = selHits->size();
-    t2t(*theTraj,*selHits,trajParams);
+    t2t(*theTraj,*selHits,trajParams,chi2s);
     auto ie = selHits->size();
     tx.setHits(rHits,ih,ie-ih);
-    tx.setTrajParams(std::move(trajParams));
+    tx.setTrajParams(std::move(trajParams),std::move(chi2s));
     for (;ih<ie; ++ih) {
       auto const & hit = (*selHits)[ih];
       track.appendHitPattern(hit, *ttopo);
