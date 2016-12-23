@@ -1,7 +1,7 @@
 #include "GeneratorInterface/Core/interface/HepMCFilterDriver.h"
 #include "GeneratorInterface/Core/interface/GenericDauHepMCFilter.h"
 #include "GeneratorInterface/Core/interface/PartonShowerBsHepMCFilter.h"
-
+#include "GeneratorInterface/Core/interface/EmbeddingHepMCFilter.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -25,6 +25,9 @@ HepMCFilterDriver::HepMCFilterDriver(const edm::ParameterSet& pset) :
   }
   else if (filterName=="PartonShowerBsHepMCFilter") {
     filter_ = new PartonShowerBsHepMCFilter(filterParameters);
+  }
+  else if (filterName=="EmbeddingHepMCFilter") {
+    filter_ = new EmbeddingHepMCFilter(filterParameters);
   }
   else {
     edm::LogError("HepMCFilterDriver")<< "Invalid HepMCFilter name:" << filterName;
