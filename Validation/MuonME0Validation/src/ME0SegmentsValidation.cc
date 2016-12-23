@@ -294,7 +294,7 @@ void ME0SegmentsValidation::analyze(const edm::Event& e,
                     LocalPoint lp_rh = rh.localPosition();
                     Float_t dx_loc = lp_sh.x()-lp_rh.x();
                     Float_t dy_loc = lp_sh.y()-lp_rh.y();
-                    if(fabs(dx_loc) < 3*0.03 && fabs(dy_loc) < 3*2.50) ++num_sh_matched; //To make configurable
+                    if(fabs(dx_loc) < 3*sigma_x_ && fabs(dy_loc) < 3*sigma_y_) ++num_sh_matched;
                     
                 }//End loop over RHs
             
@@ -375,8 +375,7 @@ std::pair<int,int> ME0SegmentsValidation::isMatched(auto me0id, auto rhLP, auto 
 
 bool ME0SegmentsValidation::isSimTrackGood(edm::SimTrackContainer::const_iterator t)
 {
-    
-    //std::cout<<(*t).noVertex()<<" "<<(*t).noGenpart()<<" "<<std::abs((*t).type())<<" "<<(*t).momentum().pt()<<" "<<std::abs((*t).momentum().eta())<<std::endl;
+
 //    if ((*t).noVertex()) return false;
 //    if ((*t).noGenpart()) return false;
     if (std::abs((*t).type()) != 13) return false; // only interested in direct muon simtracks
