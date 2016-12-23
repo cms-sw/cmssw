@@ -111,6 +111,8 @@ namespace gen {
     std::vector<double> randomInitWeights_;
     std::vector<std::string> randomInitConfigDescriptions_;
     std::vector<std::string> gridpackPaths_;
+
+    char *args[5];
         
   };
 

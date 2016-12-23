@@ -104,7 +104,6 @@ const std::vector<std::string> BaseHadronizer::theSharedResources;
     edm::FileInPath script("GeneratorInterface/LHEInterface/data/run_generic_tarball_cvmfs.sh");
     const char *outfilename = "cmsgrid_final.lhe";
     
-    char *args[5];
     args[0] = strdup(script.fullPath().c_str());
     args[1] = strdup(gridpackPath().c_str());
     args[2] = strdup(nevStream.str().c_str());
@@ -137,10 +136,6 @@ const std::vector<std::string> BaseHadronizer::theSharedResources;
     std::fclose(lhef);
 
     lheFile_ = outfilename;
-    
-    for (int iarg=0; iarg<4; ++iarg) {
-      delete[] args[iarg];
-    }
     
   }
   
