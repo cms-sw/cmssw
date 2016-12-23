@@ -87,7 +87,12 @@ def customiseFor16569(process):
 def customiseFor17094(process):
     for mod in ['hltHbhereco','hltHbherecoMethod2L1EGSeeded','hltHbherecoMethod2L1EGUnseeded','hltHfreco','hltHoreco']:
         if hasattr(process,mod):
+            getattr(process,mod).timeSigmaSiPM = cms.double(2.5)
+            getattr(process,mod).pedSigmaSiPM = cms.double(0.00065)
+            getattr(process,mod).noiseSiPM = cms.double(1)
             getattr(process,mod).ts4Max = cms.vdouble(20.,20.)
+            getattr(process,mod).ts4chi2 = cms.vdouble(15.,15.)
+
     return process
 
 # Move pixel track fitter, filter, and cleaner to ED/ESProducts (PR #16792)
