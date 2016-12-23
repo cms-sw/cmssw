@@ -25,8 +25,12 @@ void ME0SegmentsValidation::bookHistograms(DQMStore::IBooker & ibooker, edm::Run
     LogDebug("MuonME0SegmentsValidation")<<"+++ Info : finish to get geometry information from ES.\n";
     
     me0_simsegment_eta   = ibooker.book1D("me0_simsegment_eta","SimSegment Eta Distribution; #eta; entries",8,2.0,2.8);
-    me0_simsegment_pt    = ibooker.book1D("me0_simsegment_pt","SimSegment pT Distribution; p_{T}; entries",100,0.0,100.0);
+    me0_simsegment_pt    = ibooker.book1D("me0_simsegment_pt","SimSegment pT Distribution; p_{T}; entries",20,0.0,100.0);
     me0_simsegment_phi   = ibooker.book1D("me0_simsegment_phi","SimSegments phi Distribution; #phi; entries",18,-M_PI,+M_PI);
+    
+    me0_matchedsimsegment_eta   = ibooker.book1D("me0_matchedsimsegment_eta","Matched SimSegment Eta Distribution; #eta; entries",8,2.0,2.8);
+    me0_matchedsimsegment_pt    = ibooker.book1D("me0_matchedsimsegment_pt","Matched SimSegment pT Distribution; p_{T}; entries",20,0.0,100.0);
+    me0_matchedsimsegment_phi   = ibooker.book1D("me0_matchedsimsegment_phi","Matched SimSegments phi Distribution; #phi; entries",18,-M_PI,+M_PI);
     
     me0_segment_chi2     = ibooker.book1D("me0_seg_Chi2","#chi^{2}; #chi^{2}; # Segments",100,0,100);
     me0_segment_redchi2  = ibooker.book1D("me0_seg_ReducedChi2","#chi^{2}/ndof; #chi^{2}/ndof; # Segments",100,0,5);
@@ -152,6 +156,7 @@ void ME0SegmentsValidation::analyze(const edm::Event& e,
     }
     
     me0_segment_size->Fill(ME0Segments->size());
+    std::cout<<"Seg Size: "<<ME0Segments->size()<<std::endl;
     
     for (auto me0s = ME0Segments->begin(); me0s != ME0Segments->end(); me0s++) {
         
@@ -248,7 +253,7 @@ void ME0SegmentsValidation::analyze(const edm::Event& e,
         
         me0_segment_numRHSig->Fill(numberRHSig);
         me0_segment_numRHBkg->Fill(numberRHBkg);
-        std::cout<<selectedME0RecHits.size()<<std::endl;
+        std::cout<<"Size RH "<<selectedME0RecHits.size()<<std::endl;
         myMapSeg.insert(MapTypeSeg::value_type(me0s,selectedME0RecHits));
 
     }
@@ -269,12 +274,24 @@ void ME0SegmentsValidation::analyze(const edm::Event& e,
             for(auto const& sh : st.second) {//loop over the me0 simHits left by the signal simTracks
                 
                 for(auto const& rh : seg.second) {//loop over the tracking recHits already matched to signal digis
+                    
+                    auto me0id = rh.me0Id();
+                    Short_t region_rh = (Short_t) me0id.region();
+                    Short_t layer_rh = (Short_t) me0id.layer();
+                    Short_t chamber_rh = (Short_t) me0id.chamber();
+                    
+                    const ME0DetId id(sh.detUnitId());
+                    Int_t region_sh = id.region();
+                    Int_t layer_sh = id.layer();
+                    Int_t chamber_sh = id.chamber();
+                    
+                    if( !(region_sh == region_rh && chamber_sh == chamber_rh && layer_sh == layer_rh) ) continue;
 
                     LocalPoint lp_sh = sh.localPosition();
                     LocalPoint lp_rh = rh.localPosition();
                     Float_t dx_loc = lp_sh.x()-lp_rh.x();
                     Float_t dy_loc = lp_sh.y()-lp_rh.y();
-                    if(fabs(dx_loc) < 3*0.03 && fabs(dy_loc) < 3*2.50) ++num_sh_matched;
+                    if(fabs(dx_loc) < 3*0.03 && fabs(dy_loc) < 3*2.50) ++num_sh_matched; //To make configurable
                     
                 }
             
@@ -282,13 +299,19 @@ void ME0SegmentsValidation::analyze(const edm::Event& e,
             
             Float_t quality = 0;
             if(num_sh != 0) quality = num_sh_matched/(1.0*num_sh);
-            //std::cout<<"num "<<num_sh<<" "<<num_sh_matched<<" "<<quality<<std::endl;
+            std::cout<<"num "<<num_sh<<" "<<num_sh_matched<<" "<<quality<<std::endl;
             if(quality > 0) isThereOneSegmentMatched = true;
             
         }
         
         //Fill hsitograms
-        if(isThereOneSegmentMatched) std::cout<<"kitemmurt"<<std::endl;
+        if(isThereOneSegmentMatched){
+            
+            me0_matchedsimsegment_eta->Fill( std::abs((*(st.first)).momentum().eta()) );
+            me0_matchedsimsegment_pt->Fill( (*(st.first)).momentum().pt() );
+            me0_matchedsimsegment_phi->Fill( (*(st.first)).momentum().phi() );
+            
+        }
         
     }
     

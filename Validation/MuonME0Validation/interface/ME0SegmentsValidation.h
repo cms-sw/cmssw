@@ -36,6 +36,7 @@ public:
   MonitorElement *me0_segment_EtaRH, *me0_segment_PhiRH, *me0_segment_size;
     
   MonitorElement *me0_simsegment_eta, *me0_simsegment_pt, *me0_simsegment_phi;
+  MonitorElement *me0_matchedsimsegment_eta, *me0_matchedsimsegment_pt, *me0_matchedsimsegment_phi;
   
   MonitorElement* me0_specRH_DeltaX[2][6];
   MonitorElement* me0_specRH_DeltaY[2][6];
