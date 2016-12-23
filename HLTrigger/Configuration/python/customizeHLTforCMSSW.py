@@ -80,7 +80,7 @@ def customiseFor15499(process):
 def customiseFor16569(process):
     for mod in ['hltHbhereco','hltHbherecoMethod2L1EGSeeded','hltHbherecoMethod2L1EGUnseeded','hltHfreco','hltHoreco']:
         if hasattr(process,mod):
-            getattr(process,mod).ts4chi2 = cms.vdouble(15.,15.)
+            getattr(process,mod).ts4chi2 = cms.vdouble(15.,5000.)
 
     return process
 
