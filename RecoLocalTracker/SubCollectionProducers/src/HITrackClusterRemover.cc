@@ -34,6 +34,9 @@
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h"
 
+#include "RecoTracker/TransientTrackingRecHit/interface/Traj2TrackHits.h"
+
+
 //
 // class decleration
 //
@@ -85,7 +88,7 @@ class HITrackClusterRemover : public edm::stream::EDProducer<> {
         std::vector<uint8_t> pixels, strips;                // avoid unneed alloc/dealloc of this
         edm::ProductID pixelSourceProdID, stripSourceProdID; // ProdIDs refs must point to (for consistency tests)
 
-        inline void process(const TrackingRecHit *hit, float chi2, const TrackerGeometry* tg);
+        inline void process(const TrackingRecHit *hit, unsigned char chi2, const TrackerGeometry* tg);
         inline void process(const OmniClusterRef & cluRef, SiStripDetId & detid, bool fromTrack);
 
 
@@ -307,14 +310,14 @@ void HITrackClusterRemover::process(OmniClusterRef const & ocluster, SiStripDetI
 }
 
 
-void HITrackClusterRemover::process(const TrackingRecHit *hit, float chi2, const TrackerGeometry* tg) {
+void HITrackClusterRemover::process(const TrackingRecHit *hit, unsigned char chi2, const TrackerGeometry* tg) {
     SiStripDetId detid = hit->geographicalId(); 
     uint32_t subdet = detid.subdetId();
 
     assert ((subdet > 0) && (subdet <= NumberOfParamBlocks));
 
     // chi2 cut
-    if (chi2 > pblocks_[subdet-1].maxChi2_) return;
+    if (chi2 > Traj2TrackHits::toChi2(pblocks_[subdet-1].maxChi2_)) return;
 
     if(GeomDetEnumerators::isTrackerPixel(tg->geomDetSubDetector(subdet))) {
         if (!doPixel_) return;
@@ -478,13 +481,13 @@ HITrackClusterRemover::produce(Event& iEvent, const EventSetup& iSetup)
 	  if ( !goodTk) continue;
 	  if(track.hitPattern().trackerLayersWithMeasurement() < minNumberOfLayersWithMeasBeforeFiltering_) continue;
 	}
-
+        auto const & chi2s = track.extra()->chi2s();
+        assert(chi2s.size()==track.recHitsSize());
         auto hb = track.recHitsBegin();
         for(unsigned int h=0;h<track.recHitsSize();h++){
           auto hit = *(hb+h);
 	  if (!hit->isValid()) continue;
-          float chi2 =0;  // FIXME 
-	  process( hit, chi2 , tgh.product());
+	  process( hit, chi2s[h], tgh.product());
 	}
       }
     }
