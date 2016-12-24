@@ -62,7 +62,7 @@ private:
   template<typename HI>
   void copy(HI itm, HI e, TrackingRecHitCollection & hits, TrajParams & trajParams, Chi2sFive & chi2s) const { 
     for(;itm!=e;++itm) if( (!removeNoDet) | ((*itm).recHitR().det()!=nullptr)) {
-         hits.push_back((*itm).recHitR().clone());
+         hits.push_back((*itm).recHitR().cloneHit());
          trajParams.push_back((*itm).updatedState().localParameters());
          chi2s.push_back(toChi2((*itm).estimate()));
     }
@@ -70,7 +70,7 @@ private:
 
   template<typename HI>
   void copy(HI itm, HI e, TrackingRecHitCollection & hits) const {
-    for(;itm!=e;++itm) if( (!removeNoDet) | ((*itm).recHitR().det()!=nullptr)) hits.push_back((*itm).recHitR().clone());
+    for(;itm!=e;++itm) if( (!removeNoDet) | ((*itm).recHitR().det()!=nullptr)) hits.push_back((*itm).recHitR().cloneHit());
   }
 
 
