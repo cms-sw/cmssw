@@ -6,87 +6,9 @@
 void eigen_solve_submatrix(PulseMatrix& mat, PulseVector& invec, PulseVector& outvec, unsigned NP) {
   using namespace Eigen;
   switch( NP ) { // pulse matrix is always square.
-  case 23:
-    {
-      Matrix<double,23,23> temp = mat;
-      outvec.head<23>() = temp.ldlt().solve(invec.head<23>());
-    }
-    break;
-  case 22:
-    {
-      Matrix<double,22,22> temp = mat;
-      outvec.head<22>() = temp.ldlt().solve(invec.head<22>());
-    }
-    break;
-  case 21:
-    {
-      Matrix<double,21,21> temp = mat;
-      outvec.head<21>() = temp.ldlt().solve(invec.head<21>());
-    }
-    break;
-  case 20:
-    {
-      Matrix<double,20,20> temp = mat;
-      outvec.head<20>() = temp.ldlt().solve(invec.head<20>());
-    }
-    break;
-  case 19:
-    {
-      Matrix<double,19,19> temp = mat;
-      outvec.head<19>() = temp.ldlt().solve(invec.head<19>());
-    }
-    break;
-  case 18:
-    {
-      Matrix<double,18,18> temp = mat;
-      outvec.head<18>() = temp.ldlt().solve(invec.head<18>());
-    }
-    break;
-  case 17:
-    {
-      Matrix<double,17,17> temp = mat;
-      outvec.head<17>() = temp.ldlt().solve(invec.head<17>());
-    }
-    break;
-  case 16:
-    {
-      Matrix<double,16,16> temp = mat;
-      outvec.head<16>() = temp.ldlt().solve(invec.head<16>());
-    }
-    break;
-  case 15:
-    {
-      Matrix<double,15,15> temp = mat;
-      outvec.head<15>() = temp.ldlt().solve(invec.head<15>());
-    }
-    break;
-  case 14:
-    {
-      Matrix<double,14,14> temp = mat;
-      outvec.head<14>() = temp.ldlt().solve(invec.head<14>());
-    }
-    break;
-  case 13:
-    {
-      Matrix<double,13,13> temp = mat;
-      outvec.head<13>() = temp.ldlt().solve(invec.head<13>());
-    }
-    break;
-  case 12:
-    {
-      Matrix<double,12,12> temp = mat;
-      outvec.head<12>() = temp.ldlt().solve(invec.head<12>());
-    }
-    break;
-  case 11:
-    {
-      Matrix<double,11,11> temp = mat;
-      outvec.head<11>() = temp.ldlt().solve(invec.head<11>());
-    }
-    break;
   case 10:
     {
-      Matrix<double,10,10> temp = mat;
+      Matrix<double,10,10> temp = mat.topLeftCorner<10,10>();
       outvec.head<10>() = temp.ldlt().solve(invec.head<10>());
     }
     break;
@@ -172,9 +94,9 @@ bool PulseChiSqSNNLS::DoFit(const SampleVector &samples, const SampleMatrix &sam
   _pulsemat.resize(Eigen::NoChange,npulse);
 
   //construct dynamic pedestals if applicable
-  int maxgainidx = gains.maxCoeff();
+  int ngains = gains.maxCoeff()+1;
   int nPedestals = 0;
-  for (int gainidx=0; gainidx<maxgainidx; ++gainidx) {
+  for (int gainidx=0; gainidx<ngains; ++gainidx) {
     SampleGainVector mask = gainidx*SampleGainVector::Ones();
     SampleVector pedestal = (gains.array()==mask.array()).cast<SampleVector::value_type>();
     if (pedestal.maxCoeff()>0.) {
@@ -394,6 +316,7 @@ bool PulseChiSqSNNLS::NNLS() {
   //Fast NNLS (fnnls) algorithm as per http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.157.9203&rep=rep1&type=pdf
   
   const unsigned int npulse = _bxs.rows();
+  constexpr unsigned int nsamples = SampleVector::RowsAtCompileTime;
 
   invcovp = _covdecomp.matrixL().solve(_pulsemat);
   aTamat = invcovp.transpose()*invcovp; //.triangularView<Eigen::Lower>()
@@ -407,7 +330,7 @@ bool PulseChiSqSNNLS::NNLS() {
   while (true) {
     //can only perform this step if solution is guaranteed viable
     if (iter>0 || _nP==0) {
-      if ( _nP==npulse ) break;                  
+      if ( _nP==std::min(npulse,nsamples) ) break;                  
       
       const unsigned int nActive = npulse - _nP;
       
