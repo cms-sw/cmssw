@@ -37,6 +37,7 @@ EcalUncalibratedRecHit EcalUncalibRecHitMultiFitAlgo::makeRecHit(const EcalDataF
   SampleVector amplitudes;
   SampleGainVector gainsNoise;
   SampleGainVector gainsPedestal;
+  SampleGainVector badSamples = SampleGainVector::Zero();
   for(unsigned int iSample = 0; iSample < nsample; iSample++) {
     
     const EcalMGPASample &sample = dataFrame.sample(iSample);
@@ -113,8 +114,7 @@ EcalUncalibratedRecHit EcalUncalibRecHitMultiFitAlgo::makeRecHit(const EcalDataF
       bool isSlewLimited = isbarrel && iSample==(iSampleMax-1) && gainsNoise.coeff(iSampleMax)>0 && gainsNoise.coeff(iSample)!=gainsNoise.coeff(iSampleMax);
       
       if (isSaturated || isNextSaturated || isSlewLimited) {
-        amplitudes[iSample] = 0.;
-        gainsPedestal[iSample]=3+iSample; //special gain index for per-sample dynamic pedestal
+        badSamples[iSample] = 1;
       }
     }
   }
@@ -145,7 +145,7 @@ EcalUncalibratedRecHit EcalUncalibRecHitMultiFitAlgo::makeRecHit(const EcalDataF
   //optimized one-pulse fit for hlt
   bool usePrefit = false;
   if (_doPrefit) {
-    status = _pulsefuncSingle.DoFit(amplitudes,noisecov,gainsPedestal,_singlebx,fullpulse,fullpulsecov);
+    status = _pulsefuncSingle.DoFit(amplitudes,noisecov,_singlebx,fullpulse,fullpulsecov,gainsPedestal,badSamples);
     amplitude = status ? _pulsefuncSingle.X()[0] : 0.;
     amperr = status ? _pulsefuncSingle.Errors()[0] : 0.;
     chisq = _pulsefuncSingle.ChiSq();
@@ -158,7 +158,7 @@ EcalUncalibratedRecHit EcalUncalibRecHitMultiFitAlgo::makeRecHit(const EcalDataF
   if (!usePrefit) {
   
     if(!_computeErrors) _pulsefunc.disableErrorCalculation();
-    status = _pulsefunc.DoFit(amplitudes,noisecov,gainsPedestal,activeBX,fullpulse,fullpulsecov);
+    status = _pulsefunc.DoFit(amplitudes,noisecov,activeBX,fullpulse,fullpulsecov,gainsPedestal,badSamples);
     chisq = _pulsefunc.ChiSq();
     
     if (!status) {
@@ -189,10 +189,10 @@ EcalUncalibratedRecHit EcalUncalibRecHitMultiFitAlgo::makeRecHit(const EcalDataF
   if (!usePrefit) {
     for (unsigned int ipulse=0; ipulse<_pulsefunc.BXs().rows(); ++ipulse) {
       int bx = _pulsefunc.BXs().coeff(ipulse);
-      if (bx!=0 && bx>-100) {
+      if (bx!=0 && std::abs(bx)<100) {
         rh.setOutOfTimeAmplitude(bx+5, status ? _pulsefunc.X().coeff(ipulse) : 0.);
       }
-      else if (bx==(-100-gainsPedestal[iSampleMax])) {
+      else if (bx==(100+gainsPedestal[iSampleMax])) {
         rh.setPedestal(status ? _pulsefunc.X().coeff(ipulse) : 0.);
       }
     }

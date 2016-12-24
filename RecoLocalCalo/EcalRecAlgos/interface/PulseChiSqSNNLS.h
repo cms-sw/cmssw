@@ -16,7 +16,7 @@ class PulseChiSqSNNLS {
     ~PulseChiSqSNNLS();
     
     
-    bool DoFit(const SampleVector &samples, const SampleMatrix &samplecov, const SampleGainVector &gains, const BXVector &bxs, const FullSampleVector &fullpulse, const FullSampleMatrix &fullpulsecov);
+    bool DoFit(const SampleVector &samples, const SampleMatrix &samplecov, const BXVector &bxs, const FullSampleVector &fullpulse, const FullSampleMatrix &fullpulsecov, const SampleGainVector &gains = -1*SampleGainVector::Ones(), const SampleGainVector &badSamples = SampleGainVector::Zero());
     
     const SamplePulseMatrix &pulsemat() const { return _pulsemat; }
     const SampleMatrix &invcov() const { return _invcov; }
