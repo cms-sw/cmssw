@@ -294,6 +294,11 @@ MuonTrackLoader::loadTracks(const TrajectoryContainer& trajectories,
     auto ih = recHitCollection->size();
     t2t(trajectory,*recHitCollection,trajParams,chi2s);
     auto ie = recHitCollection->size();
+    // set the TrackingRecHitRef (persitent reference of the tracking rec hits)
+    trackExtra.setHits(recHitCollectionRefProd,ih,ie-ih);
+    trackExtra.setTrajParams(std::move(trajParams),std::move(chi2s));
+    assert(trackExtra.trajParams().size()==trackExtra.recHitsSize());
+
 
     // Fill the hit pattern
     for (;ih<ie; ++ih) {
@@ -309,9 +314,6 @@ MuonTrackLoader::loadTracks(const TrajectoryContainer& trajectories,
         }
       }
     }
-    // set the TrackingRecHitRef (persitent reference of the tracking rec hits)
-    trackExtra.setHits(recHitCollectionRefProd,ih,ie-ih);
-    trackExtra.setTrajParams(std::move(trajParams),std::move(chi2s));
 
     // fill the TrackExtraCollection
     trackExtraCollection->push_back(trackExtra);
@@ -621,6 +623,10 @@ MuonTrackLoader::loadTracks(const TrajectoryContainer& trajectories,
     auto ih = recHitCollection->size();
     t2t(trajectory,*recHitCollection,trajParams,chi2s);
     auto ie = recHitCollection->size();
+    // set the TrackingRecHitRef (persitent reference of the tracking rec hits)
+    trackExtra.setHits(recHitCollectionRefProd,ih,ie-ih);
+    trackExtra.setTrajParams(std::move(trajParams),std::move(chi2s));
+    assert(trackExtra.trajParams().size()==trackExtra.recHitsSize());
 
     // Fill the hit pattern
     for (;ih<ie; ++ih) {
@@ -636,9 +642,6 @@ MuonTrackLoader::loadTracks(const TrajectoryContainer& trajectories,
         }
       }
     }
-    // set the TrackingRecHitRef (persitent reference of the tracking rec hits)
-    trackExtra.setHits(recHitCollectionRefProd,ih,ie-ih);
-    trackExtra.setTrajParams(std::move(trajParams),std::move(chi2s));
 
     // fill the TrackExtraCollection
     trackExtraCollection->push_back(trackExtra);
