@@ -6,7 +6,7 @@
 
 constexpr int SampleVectorSize = 10;
 constexpr int FullSampleVectorSize = 19;
-constexpr int PulseVectorSize = 20;
+constexpr int PulseVectorSize = 24;
 constexpr int NGains = 3;
 
 typedef Eigen::Matrix<double,SampleVectorSize,1> SampleVector;

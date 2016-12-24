@@ -6,6 +6,24 @@
 void eigen_solve_submatrix(PulseMatrix& mat, PulseVector& invec, PulseVector& outvec, unsigned NP) {
   using namespace Eigen;
   switch( NP ) { // pulse matrix is always square.
+  case 23:
+    {
+      Matrix<double,23,23> temp = mat;
+      outvec.head<23>() = temp.ldlt().solve(invec.head<23>());
+    }
+    break;
+  case 22:
+    {
+      Matrix<double,22,22> temp = mat;
+      outvec.head<22>() = temp.ldlt().solve(invec.head<22>());
+    }
+    break;
+  case 21:
+    {
+      Matrix<double,21,21> temp = mat;
+      outvec.head<21>() = temp.ldlt().solve(invec.head<21>());
+    }
+    break;
   case 20:
     {
       Matrix<double,20,20> temp = mat;
@@ -145,7 +163,7 @@ PulseChiSqSNNLS::~PulseChiSqSNNLS() {
   
 }
 
-bool PulseChiSqSNNLS::DoFit(const SampleVector &samples, const SampleMatrix &samplecov, const SampleGainVector &gains, const BXVector &bxs, const FullSampleVector &fullpulse, const FullSampleMatrix &fullpulsecov) {
+bool PulseChiSqSNNLS::DoFit(const SampleVector &samples, const SampleMatrix &samplecov, const BXVector &bxs, const FullSampleVector &fullpulse, const FullSampleMatrix &fullpulsecov, const SampleGainVector &gains, const SampleGainVector &badSamples) {
  
   int npulse = bxs.rows();
   
@@ -160,17 +178,26 @@ bool PulseChiSqSNNLS::DoFit(const SampleVector &samples, const SampleMatrix &sam
     SampleGainVector mask = gainidx*SampleGainVector::Ones();
     SampleVector pedestal = (gains.array()==mask.array()).cast<SampleVector::value_type>();
     if (pedestal.maxCoeff()>0.) {
-
-      if (gainidx>2) {
-        //effective pedestal has negative sign for saturated or slew-limited samples which have been forced to zero
-        pedestal *= -1.;
-      }
-
       ++nPedestals;      
       _bxs.resize(npulse+nPedestals);
-      _bxs[npulse+nPedestals-1] = -100 - gainidx; //bx values <=-100 indicate dynamic pedestals
+      _bxs[npulse+nPedestals-1] = 100 + gainidx; //bx values >=100 indicate dynamic pedestals
       _pulsemat.resize(Eigen::NoChange, npulse+nPedestals);
       _pulsemat.col(npulse+nPedestals-1) = pedestal;
+    }
+  }
+  
+  //construct negative step functions for saturated or potentially slew-rate-limited samples
+  for (int isample=0; isample<SampleVector::RowsAtCompileTime; ++isample) {
+    if (badSamples.coeff(isample)>0) {
+      SampleVector step = SampleVector::Zero();
+      //step correction has negative sign for saturated or slew-limited samples which have been forced to zero
+      step[isample] = -1.;
+      
+      ++nPedestals;      
+      _bxs.resize(npulse+nPedestals);
+      _bxs[npulse+nPedestals-1] = -100 - isample; //bx values <=-100 indicate step corrections for saturated or slew-limited samples
+      _pulsemat.resize(Eigen::NoChange, npulse+nPedestals);
+      _pulsemat.col(npulse+nPedestals-1) = step;
     }
   }
   
@@ -181,7 +208,7 @@ bool PulseChiSqSNNLS::DoFit(const SampleVector &samples, const SampleMatrix &sam
   _nP = 0;
   _chisq = 0.;
   
-  if (_bxs.rows()==1 && _bxs.coeff(0)>-100) {
+  if (_bxs.rows()==1 && std::abs(_bxs.coeff(0))<100) {
     _ampvec.coeffRef(0) = _sampvec.coeff(_bxs.coeff(0) + 5);
   }
   
@@ -324,7 +351,7 @@ bool PulseChiSqSNNLS::updateCov(const SampleMatrix &samplecov, const FullSampleM
   for (unsigned int ipulse=0; ipulse<npulse; ++ipulse) {
     if (_ampvec.coeff(ipulse)==0.) continue;
     int bx = _bxs.coeff(ipulse);
-    if (bx<=-100) continue; //no contribution to covariance from pedestal
+    if (std::abs(bx)>=100) continue; //no contribution to covariance from pedestal or saturation/slew step correction
     
     int firstsamplet = std::max(0,bx + 3);
     int offset = 7-3-bx;

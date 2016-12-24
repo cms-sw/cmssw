@@ -261,6 +261,9 @@ EcalUncalibRecHitWorkerMultiFit::run( const edm::Event & evt,
         const EcalPulseShapes::Item * aPulse = 0;
         const EcalPulseCovariances::Item * aPulseCov = 0;
 
+        multiFitMethod_.setDynamicPedestals(dynamicPedestals_);
+        multiFitMethod_.setMitigateBadSamples(mitigateBadSamples_);
+        
         if (detid.subdetId()==EcalEndcap) {
                 unsigned int hashedIndex = EEDetId(detid).hashedIndex();
                 aped      = &peds->endcap(hashedIndex);
