@@ -4,9 +4,6 @@
 #include "RecoEgamma/EgammaPhotonAlgos/interface/ConversionHitChecker.h"
 // Framework
 //
-#include "TrackingTools/PatternTools/interface/Trajectory.h"
-
-//
 
 
 std::pair<uint8_t,Measurement1DFloat> ConversionHitChecker::nHitsBeforeVtx(const reco::TrackExtra & track, const reco::Vertex &vtx, float sigmaTolerance) const {
@@ -20,6 +17,10 @@ std::pair<uint8_t,Measurement1DFloat> ConversionHitChecker::nHitsBeforeVtx(const
   float distance = 1e6;
 
   auto const & trajParams = track.trajParams();
+  // here till debug end
+  if (trajParams.size()!=track.recHitsSize()) 
+    std::cout << "traj param and hits diff size " << trajParams.size()
+         << ' ' << track.recHitsSize() <<std::endl;
   assert(trajParams.size()==track.recHitsSize());
   auto hb = track.recHitsBegin();
   unsigned int closest=0;
