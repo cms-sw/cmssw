@@ -232,6 +232,25 @@ namespace HGCalTriggerBackend{
                             //const auto& tc=geom->triggerCells()[ tcellId() ] ;//HGCalTriggerGeometry::TriggerCell&
                             //for(const auto& cell : tc.components() )  // HGcell -- unsigned
                             unsigned ncells = geometry_->getCellsFromTriggerCell( tcellId()).size();
+                            
+                            // normalization loop -- this loop is fast ~4 elem
+                            double norm=0.0;
+                            for(const auto& cell : geometry_->getCellsFromTriggerCell( tcellId()) )  // HGCcell -- unsigned
+                            {
+                                HGCalDetId cellId(cell);
+                                //2.C get the particleId and energy fractions
+                                const auto & iterator= simclusters.find(cellId);
+                                if (iterator == simclusters.end() )  continue;
+                                //const auto& particles =  simclusters[cellId]; // vector pid fractions
+                                const auto & particles = iterator->second;
+                                for ( const auto& p: particles ) 
+                                {
+                                    const auto & pid= p.first;
+                                    const auto & fraction=p.second;
+                                    norm += fraction;
+                                }
+                            }
+                            // 
                             for(const auto& cell : geometry_->getCellsFromTriggerCell( tcellId()) )  // HGCcell -- unsigned
                             {
                                 HGCalDetId cellId(cell);
@@ -245,7 +264,7 @@ namespace HGCalTriggerBackend{
                                     const auto & pid= p.first;
                                     const auto & fraction=p.second;
                                     //auto energy = fraction*digiEnergy/ncells;
-                                    auto energy = fraction * calibratedDigiEnergy/ncells;
+                                    auto energy = fraction * calibratedDigiEnergy/norm;
 
                                     //2.D add to the corresponding cluster
                                     //void addToCluster(std::unordered_map<uint64_t,std::pair<int,l1t::HGCalCluster> >& cluster_container, uint64_t pid,int pdgid,float & energy,float & eta, float &phi)
