@@ -135,7 +135,6 @@ bool PulseChiSqSNNLS::DoFit(const SampleVector &samples, const SampleMatrix &sam
   }
   
   aTamat.resize(_npulsetot,_npulsetot);
-  wvec.resize(_npulsetot);
 
   //initialize pulse template matrix
   for (int ipulse=0; ipulse<npulse; ++ipulse) {
@@ -143,7 +142,17 @@ bool PulseChiSqSNNLS::DoFit(const SampleVector &samples, const SampleMatrix &sam
     int offset = 7-3-bx;
     _pulsemat.col(ipulse) = fullpulse.segment<SampleVector::RowsAtCompileTime>(offset);
   }
-
+  
+  //unconstrain pedestals already for first iteration since they should always be non-zero
+  if (nPedestals>0) {
+    for (int i=0; i<_bxs.rows(); ++i) {
+      int bx = _bxs.coeff(i);
+      if (bx>=100) {
+        NNLSUnconstrainParameter(i);
+      }
+    }
+  }
+  
   //do the actual fit
   bool status = Minimize(samplecov,fullpulsecov);
   _ampvecmin = _ampvec;
@@ -350,17 +359,7 @@ bool PulseChiSqSNNLS::NNLS() {
       
       //unconstrain parameter
       Index idxp = _nP + idxwmax;
-      //printf("adding index %i, orig index %i\n",int(idxp),int(_bxs.coeff(idxp)));
-      aTamat.col(_nP).swap(aTamat.col(idxp));
-      aTamat.row(_nP).swap(aTamat.row(idxp));
-      _pulsemat.col(_nP).swap(_pulsemat.col(idxp));
-      std::swap(aTbvec.coeffRef(_nP),aTbvec.coeffRef(idxp));
-      std::swap(_ampvec.coeffRef(_nP),_ampvec.coeffRef(idxp));
-      std::swap(_bxs.coeffRef(_nP),_bxs.coeffRef(idxp));
-      
-      // update now that we are done doing work
-      wvec.tail(nActive) = updatework.tail(nActive); 
-      ++_nP;
+      NNLSUnconstrainParameter(idxp);
     }
 
     
@@ -405,13 +404,7 @@ bool PulseChiSqSNNLS::NNLS() {
       _ampvec.coeffRef(minratioidx) = 0.;
             
       //printf("removing index %i, orig idx %i\n",int(minratioidx),int(_bxs.coeff(minratioidx)));
-      aTamat.col(_nP-1).swap(aTamat.col(minratioidx));
-      aTamat.row(_nP-1).swap(aTamat.row(minratioidx));
-      _pulsemat.col(_nP-1).swap(_pulsemat.col(minratioidx));
-      std::swap(aTbvec.coeffRef(_nP-1),aTbvec.coeffRef(minratioidx));
-      std::swap(_ampvec.coeffRef(_nP-1),_ampvec.coeffRef(minratioidx));
-      std::swap(_bxs.coeffRef(_nP-1),_bxs.coeffRef(minratioidx));
-      --_nP;      
+      NNLSConstrainParameter(minratioidx);    
     }
     ++iter;
     
@@ -424,6 +417,28 @@ bool PulseChiSqSNNLS::NNLS() {
   
   return true;
   
+  
+}
+
+void PulseChiSqSNNLS::NNLSUnconstrainParameter(Index idxp) {
+  
+  aTamat.col(_nP).swap(aTamat.col(idxp));
+  aTamat.row(_nP).swap(aTamat.row(idxp));
+  _pulsemat.col(_nP).swap(_pulsemat.col(idxp));
+  std::swap(aTbvec.coeffRef(_nP),aTbvec.coeffRef(idxp));
+  std::swap(_ampvec.coeffRef(_nP),_ampvec.coeffRef(idxp));
+  std::swap(_bxs.coeffRef(_nP),_bxs.coeffRef(idxp));
+  ++_nP;
+}
+
+void PulseChiSqSNNLS::NNLSConstrainParameter(Index minratioidx) {
+  aTamat.col(_nP-1).swap(aTamat.col(minratioidx));
+  aTamat.row(_nP-1).swap(aTamat.row(minratioidx));
+  _pulsemat.col(_nP-1).swap(_pulsemat.col(minratioidx));
+  std::swap(aTbvec.coeffRef(_nP-1),aTbvec.coeffRef(minratioidx));
+  std::swap(_ampvec.coeffRef(_nP-1),_ampvec.coeffRef(minratioidx));
+  std::swap(_bxs.coeffRef(_nP-1),_bxs.coeffRef(minratioidx));
+  --_nP;
   
 }
 
