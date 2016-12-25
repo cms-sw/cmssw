@@ -92,6 +92,7 @@ class EcalUncalibRecHitWorkerMultiFit final : public EcalUncalibRecHitWorkerBase
 		double prefitMaxChiSqEE_;
                 bool dynamicPedestals_;
                 bool mitigateBadSamples_;
+                double addPedestalUncertainty_;
 
                 // ratio method
                 std::vector<double> EBtimeFitParameters_; 
