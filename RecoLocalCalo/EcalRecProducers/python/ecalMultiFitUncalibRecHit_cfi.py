@@ -20,7 +20,7 @@ ecalMultiFitUncalibRecHit = cms.EDProducer("EcalUncalibRecHitProducer",
       prefitMaxChiSqEB = cms.double(25.),
       prefitMaxChiSqEE = cms.double(10.),
       
-      dynamicPedestals = cms.bool(True),
+      dynamicPedestals = cms.bool(False),
       mitigateBadSamples = cms.bool(True),
       addPedestalUncertainty = cms.double(0.),
   
