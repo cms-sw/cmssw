@@ -10,7 +10,8 @@ EcalUncalibRecHitMultiFitAlgo::EcalUncalibRecHitMultiFitAlgo() :
   _doPrefit(false),
   _prefitMaxChiSq(1.0),
   _dynamicPedestals(false),
-  _mitigateBadSamples(false) { 
+  _mitigateBadSamples(false),
+  _addPedestalUncertainty(0.) { 
     
   _singlebx.resize(1);
   _singlebx << 0;
@@ -133,11 +134,19 @@ EcalUncalibratedRecHit EcalUncalibRecHitMultiFitAlgo::makeRecHit(const EcalDataF
         //select out relevant components of each correlation matrix, and assume no correlation between samples with
         //different gain
         noisecov += gainratios[gainidx]*gainratios[gainidx]*pedrmss[gainidx]*pedrmss[gainidx]*pedestal.asDiagonal()*noisecors[gainidx]*pedestal.asDiagonal();
+        if (!dynamicPedestal && _addPedestalUncertainty>0.) {
+          //add fully correlated component to noise covariance to inflate pedestal uncertainty
+          noisecov += gainratios[gainidx]*gainratios[gainidx]*_addPedestalUncertainty*_addPedestalUncertainty*pedestal.asDiagonal()*SampleMatrix::Ones()*pedestal.asDiagonal();
+        }
       }
     }
   }
   else {
     noisecov = aped->rms_x12*aped->rms_x12*noisecors[0];
+    if (!dynamicPedestal && _addPedestalUncertainty>0.) {
+      //add fully correlated component to noise covariance to inflate pedestal uncertainty
+      noisecov += _addPedestalUncertainty*_addPedestalUncertainty*SampleMatrix::Ones();
+    }
   }
   
   //optimized one-pulse fit for hlt

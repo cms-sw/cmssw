@@ -52,6 +52,7 @@ EcalUncalibRecHitWorkerMultiFit::EcalUncalibRecHitWorkerMultiFit(const edm::Para
   
   dynamicPedestals_ = ps.getParameter<bool>("dynamicPedestals");
   mitigateBadSamples_ = ps.getParameter<bool>("mitigateBadSamples");
+  addPedestalUncertainty_ = ps.getParameter<double>("addPedestalUncertainty");
 
   // algorithm to be used for timing
   auto const & timeAlgoName = ps.getParameter<std::string>("timealgo");
@@ -263,6 +264,7 @@ EcalUncalibRecHitWorkerMultiFit::run( const edm::Event & evt,
 
         multiFitMethod_.setDynamicPedestals(dynamicPedestals_);
         multiFitMethod_.setMitigateBadSamples(mitigateBadSamples_);
+        multiFitMethod_.setAddPedestalUncertainty(addPedestalUncertainty_);
         
         if (detid.subdetId()==EcalEndcap) {
                 unsigned int hashedIndex = EEDetId(detid).hashedIndex();
@@ -582,6 +584,7 @@ EcalUncalibRecHitWorkerMultiFit::getAlgoDescription() {
 	      edm::ParameterDescription<double>("prefitMaxChiSqEE", 10., true) and
 	      edm::ParameterDescription<bool>("dynamicPedestals", false, true) and
 	      edm::ParameterDescription<bool>("mitigateBadSamples", false, true) and
+	      edm::ParameterDescription<double>("addPedestalUncertainty", 0., true) and
 	      edm::ParameterDescription<std::string>("timealgo", "RatioMethod", true) and
 	      edm::ParameterDescription<std::vector<double>>("EBtimeFitParameters", {-2.015452e+00, 3.130702e+00, -1.234730e+01, 4.188921e+01, -8.283944e+01, 9.101147e+01, -5.035761e+01, 1.105621e+01}, true) and
 	      edm::ParameterDescription<std::vector<double>>("EEtimeFitParameters", {-2.390548e+00, 3.553628e+00, -1.762341e+01, 6.767538e+01, -1.332130e+02, 1.407432e+02, -7.541106e+01, 1.620277e+01}, true) and

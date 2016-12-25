@@ -22,6 +22,7 @@ ecalMultiFitUncalibRecHit = cms.EDProducer("EcalUncalibRecHitProducer",
       
       dynamicPedestals = cms.bool(True),
       mitigateBadSamples = cms.bool(True),
+      addPedestalUncertainty = cms.double(0.),
   
       # decide which algorithm to be use to calculate the jitter
       timealgo = cms.string("RatioMethod"),
