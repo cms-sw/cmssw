@@ -38,8 +38,14 @@ EcalUncalibratedRecHit EcalUncalibRecHitMultiFitAlgo::makeRecHit(const EcalDataF
   SampleGainVector gainsNoise;
   SampleGainVector gainsPedestal;
   SampleGainVector badSamples = SampleGainVector::Zero();
+  bool hasSaturation = dataFrame.isSaturated();
+  bool hasGainSwitch = hasSaturation || dataFrame.hasSwitchToGain6() || dataFrame.hasSwitchToGain1();
+  
+  //no dynamic pedestal in case of gain switch, since then the fit becomes too underconstrained
+  bool dynamicPedestal = _dynamicPedestals && !hasGainSwitch;
+  
   for(unsigned int iSample = 0; iSample < nsample; iSample++) {
-    
+        
     const EcalMGPASample &sample = dataFrame.sample(iSample);
     
     double amplitude = 0.;
@@ -47,27 +53,27 @@ EcalUncalibratedRecHit EcalUncalibRecHitMultiFitAlgo::makeRecHit(const EcalDataF
     
     double pedestal = 0.;
     double gainratio = 1.;
-        
+    
     if (gainId==0 || gainId==3) {
       pedestal = aped->mean_x1;
       gainratio = aGain->gain6Over1()*aGain->gain12Over6();
       gainsNoise[iSample] = 2;
-      gainsPedestal[iSample] = _dynamicPedestals ? 2 : -1;  //-1 for static pedestal
+      gainsPedestal[iSample] = dynamicPedestal ? 2 : -1;  //-1 for static pedestal
     }
     else if (gainId==1) {
       pedestal = aped->mean_x12;
       gainratio = 1.;
       gainsNoise[iSample] = 0;
-      gainsPedestal[iSample] = _dynamicPedestals ? 0 : -1; //-1 for static pedestal
+      gainsPedestal[iSample] = dynamicPedestal ? 0 : -1; //-1 for static pedestal
     }
     else if (gainId==2) {
       pedestal = aped->mean_x6;
       gainratio = aGain->gain12Over6();
       gainsNoise[iSample] = 1;
-      gainsPedestal[iSample] = _dynamicPedestals ? 1 : -1; //-1 for static pedestals
+      gainsPedestal[iSample] = dynamicPedestal ? 1 : -1; //-1 for static pedestals
     }
 
-    if (_dynamicPedestals) {
+    if (dynamicPedestal) {
       amplitude = (double)(sample.adc())*gainratio;
     }
     else {
@@ -75,8 +81,9 @@ EcalUncalibratedRecHit EcalUncalibRecHitMultiFitAlgo::makeRecHit(const EcalDataF
     }
     
     if (gainId == 0) {
+       edm::LogError("EcalUncalibRecHitMultiFitAlgo")<< "Saturation encountered.  Multifit is not intended to be used for saturated channels.";
       //saturation
-      if (_dynamicPedestals) {
+      if (dynamicPedestal) {
         amplitude = 4095.*gainratio;
       }
       else {
@@ -96,24 +103,15 @@ EcalUncalibratedRecHit EcalUncalibRecHitMultiFitAlgo::makeRecHit(const EcalDataF
         
   }
   
-  bool hasGainSwitch = gainsNoise != SampleGainVector::Zero();
-  
-  //special handling for saturated samples, sample immediately before saturation or for
-  //case where maximum sample has gain switched but previous sample has not
+  //special handling for case where maximum sample has gain switched but previous sample has not
   //which is potentially affected by slew rate limitation (EB only)
-  //Amplitude is set to zero, and a floating negative single-sample offset is added to the fit
-  //to effectively remove the affected sample
+  //A floating negative single-sample offset is added to the fit
+  //such that the affected sample is treated only as a lower limit for the true amplitude
   if (_mitigateBadSamples && hasGainSwitch) {
     bool isbarrel = dataFrame.id().subdetId()==EcalBarrel;
-    for(unsigned int iSample = 0; iSample < nsample; iSample++) {
-      int gainId = dataFrame.sample(iSample).gainId();
-      int gainIdNext = iSample<nsample ? dataFrame.sample(iSample+1).gainId() : gainId;
-      
-      bool isSaturated = gainId==0;
-      bool isNextSaturated = gainIdNext==0;
+    for(unsigned int iSample = 0; iSample < nsample; iSample++) {      
       bool isSlewLimited = isbarrel && iSample==(iSampleMax-1) && gainsNoise.coeff(iSampleMax)>0 && gainsNoise.coeff(iSample)!=gainsNoise.coeff(iSampleMax);
-      
-      if (isSaturated || isNextSaturated || isSlewLimited) {
+      if (isSlewLimited) {
         badSamples[iSample] = 1;
       }
     }
@@ -179,6 +177,22 @@ EcalUncalibratedRecHit EcalUncalibRecHitMultiFitAlgo::makeRecHit(const EcalDataF
   }
   
   double jitter = 0.;
+  
+//   if (hasGainSwitch) {
+//     for(unsigned int iSample = 0; iSample < nsample; iSample++) {
+//       const EcalMGPASample &sample = dataFrame.sample(iSample);
+//       
+//       int gainId = sample.gainId();
+//       int rawamplitude = sample.adc();
+//       
+//       printf("isample = %i, gainid = %i, rawamplitude = %i\n",int(iSample),gainId,rawamplitude);
+//       
+//     }
+//     for (unsigned int ipulse=0; ipulse<_pulsefunc.BXs().rows(); ++ipulse) {
+//       printf("bx = %i, amplitude = %5f\n",_pulsefunc.BXs()[ipulse],_pulsefunc.X()[ipulse]);
+//     }
+//     printf("chisq = %5e\n",chisq);
+//   }
   
   //printf("status = %i\n",int(status));
   //printf("amplitude = %5f +- %5f, chisq = %5f\n",amplitude,amperr,chisq);
