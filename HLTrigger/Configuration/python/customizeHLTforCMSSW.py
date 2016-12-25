@@ -168,6 +168,7 @@ def customiseFor17098(process):
        del producer.trajectoryTrackAssociation
     for producer in producers_by_type(process,"TrackProducer"):
        producer.TrajectoryInEvent = cms.bool(False)
+       producer.useHitsSplitting = cms.bool(False)  # HI still set this on...
     for producer in producers_by_type(process,"TrackCollectionFilterCloner"):
        producer.copyExtras = cms.untracked.bool(True)
        producer.copyTrajectories = cms.untracked.bool(False)
