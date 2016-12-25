@@ -187,25 +187,6 @@ EcalUncalibratedRecHit EcalUncalibRecHitMultiFitAlgo::makeRecHit(const EcalDataF
   
   double jitter = 0.;
   
-//   if (hasGainSwitch) {
-//     for(unsigned int iSample = 0; iSample < nsample; iSample++) {
-//       const EcalMGPASample &sample = dataFrame.sample(iSample);
-//       
-//       int gainId = sample.gainId();
-//       int rawamplitude = sample.adc();
-//       
-//       printf("isample = %i, gainid = %i, rawamplitude = %i\n",int(iSample),gainId,rawamplitude);
-//       
-//     }
-//     for (unsigned int ipulse=0; ipulse<_pulsefunc.BXs().rows(); ++ipulse) {
-//       printf("bx = %i, amplitude = %5f\n",_pulsefunc.BXs()[ipulse],_pulsefunc.X()[ipulse]);
-//     }
-//     printf("chisq = %5e\n",chisq);
-//   }
-  
-  //printf("status = %i\n",int(status));
-  //printf("amplitude = %5f +- %5f, chisq = %5f\n",amplitude,amperr,chisq);
-  
   EcalUncalibratedRecHit rh( dataFrame.id(), amplitude , pedval, jitter, chisq, flags );
   rh.setAmplitudeError(amperr);
   
