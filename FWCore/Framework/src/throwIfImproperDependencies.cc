@@ -89,8 +89,7 @@ namespace {
     bool compare(Edge const& iLHS, Edge const& iRHS)  const;
     
     void tree_edge(Edge const& iEdge, Graph const& iGraph) {
-      typedef typename boost::property_map<Graph, boost::vertex_index_t>::type IndexMap;
-      IndexMap const& index = get(boost::vertex_index, iGraph);
+      auto const& index = get(boost::vertex_index, iGraph);
       
       auto in = index[source(iEdge,iGraph)];
       for( auto it = m_stack.begin(); it != m_stack.end(); ++it) {
@@ -105,32 +104,30 @@ namespace {
       m_stack.push_back(iEdge);
     }
     
-    //NOTE: there is a bug in boost where it tries to detect if there
-    // is a finish_edge method but the test requires no arguments while
-    // the function actually called takes two arguments.
-    void finish_edge() { assert(false);}
-    __attribute__ ((noinline)) void finish_edge(Edge const& iEdge, Graph const& iGraph) {
+    void finish_vertex(unsigned int iVertex, Graph const& iGraph) {
+      if(not m_stack.empty()) {
+        auto const& index = get(boost::vertex_index, iGraph);
 
-      //NOTE: a bug in boost graph can cause finish_edge to be
-      // called twice for the same edge, the conditional logic
-      // protects against that
-      if((not m_stack.empty()) and (iEdge ==m_stack.back())) {
-        m_stack.pop_back();
+        if (iVertex ==index[source(m_stack.back(),iGraph)]) {
+          m_stack.pop_back();
+        }
       }
     }
-
+    
     //Called if a cycle happens
     void back_edge(Edge const& iEdge, Graph const& iGraph) {
-      m_stack.push_back(iEdge);
-
       
-      typedef typename boost::property_map<Graph, boost::vertex_index_t>::type IndexMap;
-      IndexMap const& index = get(boost::vertex_index, iGraph);
+      auto const& index = get(boost::vertex_index, iGraph);
 
       if(kRootVertexIndex != index[source(m_stack.front(),iGraph)]) {
         //this part of the graph is not connected to data processing
         return;
       }
+
+      m_stack.push_back(iEdge);
+      
+      auto pop_stack = [](std::vector<Edge>* stack) { stack->pop_back(); };
+      std::unique_ptr<std::vector<Edge>,decltype(pop_stack)> guard(&m_stack,pop_stack);
 
       //This edge has not been added to the stack yet
       // making a copy allows us to add it in but not worry
@@ -154,17 +151,17 @@ namespace {
     
     void forward_or_cross_edge(Edge iEdge, Graph const& iGraph)
     {
-      m_stack.push_back(iEdge);
 
       typedef typename boost::property_map<Graph, boost::vertex_index_t>::type IndexMap;
       IndexMap const& index = get(boost::vertex_index, iGraph);
-      const unsigned int out =index[target(iEdge,iGraph)];
 
       if(kRootVertexIndex != index[source(m_stack.front(),iGraph)]) {
         //this part of the graph is not connected to data processing
         return;
       }
 
+      const unsigned int out =index[target(iEdge,iGraph)];
+      
       //If this is a crossing edge whose out vertex is part of a fundamental cycle
       // then this path is also part of a cycle
       if(m_verticiesInFundamentalCycles.end() == m_verticiesInFundamentalCycles.find(out)) {
@@ -196,6 +193,9 @@ namespace {
 
         //tempStack will hold a stack that could have been found by depth first
         // search if module to index ordering had been different
+        m_stack.push_back(iEdge);
+        auto pop_stack = [](std::vector<Edge>* stack) { stack->pop_back(); };
+        std::unique_ptr<std::vector<Edge>,decltype(pop_stack)> guard(&m_stack,pop_stack);
         auto tempStack= findMinimumCycle(m_stack,iGraph);
         
         //the set of 'in' verticies presently in the stack is used to find where an 'out'
@@ -349,6 +349,7 @@ namespace {
 
       unsigned int lastIn =index[source(iCycleEdges.back(),iGraph)];
       unsigned int lastOut = index[target(iCycleEdges.back(),iGraph)];
+      bool lastEdgeHasDataDepencency = false;
       
       std::unordered_set<unsigned int> lastPathsSeen;
       
@@ -361,6 +362,8 @@ namespace {
       for(auto dependency: m_edgeToPathMap.find(SimpleEdge(lastIn,lastOut))->second) {
         if(dependency !=edm::graph::kDataDependencyIndex) {
           lastPathsSeen.insert(dependency);
+        } else {
+          lastEdgeHasDataDepencency = true;
         }
       }
       for(auto const& edge: iCycleEdges) {
@@ -411,9 +414,9 @@ namespace {
           }
         }
         if((pathsOnEdge != lastPathsSeen) ) {
-          if(not edgeHasDataDependency and not lastPathsSeen.empty()) {
+          if((not edgeHasDataDependency) and (not lastEdgeHasDataDepencency) and (not lastPathsSeen.empty())) {
             //If we jumped from one path to another without a data dependency
-            // than the cycle is just becuase two independent modules were
+            // than the cycle is just because two independent modules were
             // scheduled in different arbirary order on different paths
             return;
           }
@@ -457,6 +460,7 @@ namespace {
           }
           lastPathsSeen = pathsOnEdge;
           lastOut = out;
+          lastEdgeHasDataDepencency =edgeHasDataDependency;
         }
         if(not edgeHasDataDependency) {
           ++nNonDataDependencies;

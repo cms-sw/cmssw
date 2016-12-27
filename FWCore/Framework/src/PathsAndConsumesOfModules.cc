@@ -160,6 +160,7 @@ namespace edm {
     kPathToTriggerResultsDependencyLastIndex = largestIndex ;
 
 
+    /*
     {
       //We need to explicitly check that modules on Paths do not try to read data from
       // Modules which are only on EndPaths. The circular dependency finder has been
@@ -199,9 +200,13 @@ namespace edm {
       }
 
     }
+     */
 
     //If a module to module dependency comes from a path, remember which path
     EdgeToPathMap edgeToPathMap;
+
+    //Need to be able to quickly look up which paths a module appears on
+    std::unordered_map<unsigned int, std::vector<unsigned int>> moduleIndexToPathIndex;
 
     //determine the path dependencies
     std::vector<std::string> pathNames = iPnC.paths();
@@ -239,6 +244,8 @@ namespace edm {
             //first time for this path
             unsigned int const moduleIndex = description->id();
             pathOrder.push_back(moduleIndex);
+            auto& paths =moduleIndexToPathIndex[moduleIndex];
+            paths.push_back(pathIndex);
             if(lastModuleIndex  != kInvalidIndex ) {
               edgeToPathMap[std::make_pair(moduleIndex,lastModuleIndex)].push_back(pathIndex);
             }
@@ -288,10 +295,39 @@ namespace edm {
         unsigned int const moduleIndex = description->id();
         auto const& dependentModules = iPnC.modulesWhoseProductsAreConsumedBy(moduleIndex);
         for(auto const& depDescription: dependentModules) {
-          edgeToPathMap[std::make_pair(moduleIndex, depDescription->id())].push_back(kDataDependencyIndex);
           if(iPrintDependencies) {
             edm::LogAbsolute("ModuleDependency") << "ModuleDependency '" << description->moduleLabel() <<
             "' depends on data products from module '" << depDescription->moduleLabel()<<"'";
+          }
+          //see if all paths containing this module also contain the dependent module earlier in the path
+          // if it does, then treat this only as a path dependency and not a data dependency as this
+          // simplifies the circular dependency checking logic
+          auto depID =depDescription->id();
+          auto itPathsFound = moduleIndexToPathIndex.find(moduleIndex);
+          bool keepDataDependency = true;
+          auto itDepsPathsFound =moduleIndexToPathIndex.find(depID);
+          if(itPathsFound != moduleIndexToPathIndex.end() and itDepsPathsFound != moduleIndexToPathIndex.end()) {
+            keepDataDependency = false;
+            for(auto const pathIndex: itPathsFound->second) {
+              for(auto idToCheck: pathIndexToModuleIndexOrder[pathIndex]) {
+                if(idToCheck == depID) {
+                  //found dependent module first so check next path
+                  break;
+                }
+                if(idToCheck == moduleIndex) {
+                  //did not find dependent module earlier on path so
+                  // must keep data dependency
+                  keepDataDependency = true;
+                  break;
+                }
+              }
+              if(keepDataDependency) {
+                break;
+              }
+            }
+          }
+          if(keepDataDependency) {
+            edgeToPathMap[std::make_pair(moduleIndex, depID)].push_back(kDataDependencyIndex);
           }
         }
       }
