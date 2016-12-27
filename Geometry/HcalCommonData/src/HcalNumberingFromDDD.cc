@@ -88,7 +88,7 @@ HcalNumberingFromDDD::HcalID HcalNumberingFromDDD::unitID(int det,
 
   int    nphi  = int((CLHEP::twopi+0.1*ficons.second)/ficons.second);
   int    zside = etaR>0 ? 1: 0;
-  double hphi  = phi+ficons.first;
+  double hphi  = phi-ficons.first;
   if (hphi < 0)    hphi += CLHEP::twopi;
   int    iphi  = int(hphi/ficons.second) + 1;
   if (iphi > nphi) iphi = 1;
