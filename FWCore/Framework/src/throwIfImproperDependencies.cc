@@ -351,8 +351,6 @@ namespace {
       // we already know we originate from a path because all tests
       // require starting from the root node which connects to all paths
       bool hasDataDependency =false;
-      std::unordered_map<unsigned int, unsigned int> pathToCountOfNonDataDependencies;
-      unsigned int nNonDataDependencies = 0;
       //Since we are dealing with a circle, we initialize the 'last' info with the end of the graph
       typedef typename boost::property_map<Graph, boost::vertex_index_t>::type IndexMap;
       IndexMap const& index = get(boost::vertex_index, iGraph);
@@ -472,12 +470,6 @@ namespace {
           lastOut = out;
           lastEdgeHasDataDepencency =edgeHasDataDependency;
         }
-        if(not edgeHasDataDependency) {
-          ++nNonDataDependencies;
-          for(auto pathIndex : pathsOnEdge) {
-            pathToCountOfNonDataDependencies[pathIndex] +=1;
-          }
-        }
       }
       if(moduleAppearedEarlierInPath and not pathToModulesWhichMustAppearLater.empty()) {
         return;
@@ -486,13 +478,6 @@ namespace {
         return;
       }
       throwOnError(iCycleEdges,index,iGraph);
-      for(auto const& pathToCount : pathToCountOfNonDataDependencies) {
-        //If all the non data dependencies are seen on on path
-        // then at least two modules are in the wrong order
-        if (pathToCount.second == nNonDataDependencies) {
-          throwOnError(iCycleEdges,index,iGraph);
-        }
-      }
 
     }
     
