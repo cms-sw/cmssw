@@ -71359,3 +71359,7 @@ fragment = customizeHLTforAll(fragment,"25ns15e33_v4")
 from HLTrigger.Configuration.customizeHLTforCMSSW import customizeHLTforCMSSW
 fragment = customizeHLTforCMSSW(fragment,"25ns15e33_v4")
 
+# Eras-based customisations
+from HLTrigger.Configuration.Eras import modifyHLTforEras
+modifyHLTforEras(fragment)
+
