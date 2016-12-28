@@ -90,7 +90,7 @@ def customiseFor17094(process):
             getattr(process,mod).timeSigmaSiPM = cms.double(2.5)
             getattr(process,mod).pedSigmaSiPM = cms.double(0.00065)
             getattr(process,mod).noiseSiPM = cms.double(1)
-            getattr(process,mod).ts4Max = cms.vdouble(20.,20.)
+            getattr(process,mod).ts4Max = cms.vdouble(100.,45000.)
             getattr(process,mod).ts4chi2 = cms.vdouble(15.,15.)
 
     return process
