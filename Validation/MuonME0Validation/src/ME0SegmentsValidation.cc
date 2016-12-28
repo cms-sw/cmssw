@@ -10,6 +10,10 @@ ME0SegmentsValidation::ME0SegmentsValidation(const edm::ParameterSet& cfg):  ME0
     InputTagTokenST_ = consumes<edm::SimTrackContainer>(cfg.getParameter<edm::InputTag>("simInputLabelST"));
     sigma_x_ = cfg.getParameter<double>("sigma_x");
     sigma_y_ = cfg.getParameter<double>("sigma_y");
+    eta_max_ = cfg.getParameter<double>("eta_max");
+    eta_min_ = cfg.getParameter<double>("eta_min");
+    pt_min_ = cfg.getParameter<double>("pt_min");
+    isMuonGun_ = cfg.getParameter<bool>("isMuonGun");
 }
 
 void ME0SegmentsValidation::bookHistograms(DQMStore::IBooker & ibooker, edm::Run const & Run, edm::EventSetup const & iSetup ) {
@@ -375,12 +379,12 @@ std::pair<int,int> ME0SegmentsValidation::isMatched(auto me0id, auto rhLP, auto 
 bool ME0SegmentsValidation::isSimTrackGood(edm::SimTrackContainer::const_iterator t)
 {
 
-//    if ((*t).noVertex()) return false;
-//    if ((*t).noGenpart()) return false;
+    if ((*t).noVertex() && !isMuonGun_) return false;
+    if ((*t).noGenpart() && !isMuonGun_) return false;
     if (std::abs((*t).type()) != 13) return false; // only interested in direct muon simtracks
-    if ((*t).momentum().pt() < 0 ) return false;
+    if ((*t).momentum().pt() < pt_min_ ) return false;
     const float eta(std::abs((*t).momentum().eta()));
-    if (eta < 2.0 || eta > 2.8 ) return false; // no GEMs could be in such eta
+    if (eta < eta_min_ || eta > eta_max_ ) return false; // no GEMs could be in such eta
     return true;
     
 }

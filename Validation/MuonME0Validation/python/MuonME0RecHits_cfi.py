@@ -21,6 +21,10 @@ me0SegmentsValidation = cms.EDAnalyzer('ME0SegmentsValidation',
     simInputLabelST = cms.InputTag('g4SimHits'),
     sigma_x = cms.double(0.03),
     sigma_y = cms.double(2.50),
+    eta_max = cms.double(2.8),
+    eta_min = cms.double(2.0),
+    pt_min = cms.double(0.0),
+    isMuonGun = cms.bool(True),
     # st1, st2_short, st2_long of xbin, st1,st2_short,st2_long of ybin
     nBinGlobalZR = cms.untracked.vdouble(80,120),
     # st1 xmin, xmax, st2_short xmin, xmax, st2_long xmin, xmax, st1 ymin, ymax...
