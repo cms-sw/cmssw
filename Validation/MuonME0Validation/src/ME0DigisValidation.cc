@@ -171,7 +171,7 @@ void ME0DigisValidation::analyze(const edm::Event& e,
             int layer_sh_num = layer_sh - 1;
             
             LocalPoint lp_sh = hits->localPosition();
-            GlobalPoint gp_sh = surface.toGlobal(lp_sh);
+            GlobalPoint gp_sh = ME0Geometry_->idToDet(id)->surface().toGlobal(lp_sh);
             
             if(toBeCounted1){
                 
@@ -183,6 +183,9 @@ void ME0DigisValidation::analyze(const edm::Event& e,
             
             Float_t dx_loc = lp_sh.x()-lp.x();
             Float_t dy_loc = lp_sh.y()-lp.y();
+            
+            std::cout<<dx_loc<<" "<<3*sigma_x_<<std::endl;
+            std::cout<<dy_loc<<" "<<3*sigma_y_<<std::endl;
             
             if(!(fabs(dx_loc) < 3*sigma_x_ && fabs(dy_loc) < 3*sigma_y_)) continue;
                 

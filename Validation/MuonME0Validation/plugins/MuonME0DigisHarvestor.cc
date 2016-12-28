@@ -198,7 +198,6 @@ MuonME0DigisHarvestor::dqmEndJob(DQMStore::IBooker& ibooker, DQMStore::IGetter& 
           
           TString eta_label_den = TString(dbe_path_)+"me0_strip_dg_den_eta"+r_suffix[i]+l_suffix[j];
           TString eta_label_num = TString(dbe_path_)+"me0_strip_dg_num_eta"+r_suffix[i]+l_suffix[j];
-          std::cout<<eta_label_num<<" "<<eta_label_den<<std::endl;
 
           if( ig.get(eta_label_num.Data()) !=nullptr && ig.get(eta_label_den.Data()) !=nullptr) {
             
