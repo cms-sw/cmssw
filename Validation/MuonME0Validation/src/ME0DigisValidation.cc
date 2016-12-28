@@ -154,9 +154,7 @@ void ME0DigisValidation::analyze(const edm::Event& e,
             int evtId_sh = hits->eventId().event();
             int bx_sh = hits->eventId().bunchCrossing();
             int procType_sh = hits->processType();
-            
-            Float_t timeOfFlight_sh = hits->tof();
-            
+
             if(!(abs(particleType_sh) == 13 && evtId_sh == 0 && bx_sh == 0 && procType_sh == 0)) continue;
             
             const ME0DetId id(hits->detUnitId());
@@ -184,11 +182,14 @@ void ME0DigisValidation::analyze(const edm::Event& e,
             Float_t dx_loc = lp_sh.x()-lp.x();
             Float_t dy_loc = lp_sh.y()-lp.y();
             
-            std::cout<<dx_loc<<" "<<3*sigma_x_<<std::endl;
-            std::cout<<dy_loc<<" "<<3*sigma_y_<<std::endl;
-            
             if(!(fabs(dx_loc) < 3*sigma_x_ && fabs(dy_loc) < 3*sigma_y_)) continue;
-                
+            
+            Float_t timeOfFlight_sh = hits->tof();
+            const LocalPoint centralLP(0., 0., 0.);
+            const GlobalPoint centralGP(ME0Geometry_->idToDet(id)->surface().toGlobal(centralLP));
+            Float_t centralTOF(centralGP.mag() / 29.98); //speed of light
+            Float_t timeOfFlight_sh_corr = timeOfFlight_sh - centralTOF;
+            
             Float_t dphi_glob = gp_sh.phi()-gp.phi();
         
             me0_strip_dg_dx_local_Muon[region_num][layer_num]->Fill(dx_loc);
@@ -200,7 +201,7 @@ void ME0DigisValidation::analyze(const edm::Event& e,
             me0_strip_dg_dphi_global_tot_Muon->Fill(dphi_glob);
             
             me0_strip_dg_dphi_vs_phi_global_tot_Muon->Fill(gp_sh.phi(),dphi_glob);
-            me0_strip_dg_dtime_tot_Muon->Fill(timeOfFlight - timeOfFlight_sh);
+            me0_strip_dg_dtime_tot_Muon->Fill(timeOfFlight - timeOfFlight_sh_corr);
                 
             if(toBeCounted2){
                     
