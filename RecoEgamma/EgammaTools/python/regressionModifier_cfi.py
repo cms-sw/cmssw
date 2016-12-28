@@ -5,7 +5,7 @@ regressionModifier = \
 
               rhoCollection = cms.InputTag("fixedGridRhoFastjetAll"),
               useLocalFile     = cms.bool(False),
-              addressLocalFile = cms.string("path.to/local.root"),
+              addressLocalFile = cms.FileInPath("path.to/local.file"),
               
               electron_config = cms.PSet( # EB, EE
                                           regressionKey_ecalonly  = cms.vstring('electron_eb_ECALonly', 'electron_ee_ECALonly'),

@@ -1,6 +1,7 @@
 #include "CommonTools/CandAlgos/interface/ModifyObjectValueBase.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
+#include "FWCore/ParameterSet/interface/FileInPath.h"
 #include "DataFormats/Common/interface/ValueMap.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -107,7 +108,7 @@ private:
   const CaloTopology *topology_;
 
   bool useLocalFile_;
-  std::string addressLocalFile_;  
+  edm::FileInPath addressLocalFile_;  
   TFile* pointerLocalFile_;
   
 };
@@ -120,10 +121,9 @@ EGExtraInfoModifierFromDB::EGExtraInfoModifierFromDB(const edm::ParameterSet& co
   ModifyObjectValueBase(conf) {
 
   useLocalFile_     = conf.getParameter<bool>("useLocalFile");
-  if (useLocalFile_) {
-    addressLocalFile_ = conf.getParameter<std::string>("addressLocalFile");
-    pointerLocalFile_ = TFile::Open(addressLocalFile_.c_str());
-  }
+  if (useLocalFile_) 
+    addressLocalFile_ = conf.getParameter<edm::FileInPath>("addressLocalFile");
+  
   
   rhoTag_ = conf.getParameter<edm::InputTag>("rhoCollection");
 
@@ -203,12 +203,7 @@ namespace {
   }
 }
 
-EGExtraInfoModifierFromDB::~EGExtraInfoModifierFromDB() {
-  if (useLocalFile_)
-    if (pointerLocalFile_->IsOpen()) 
-      pointerLocalFile_->Close();
-  
-}
+EGExtraInfoModifierFromDB::~EGExtraInfoModifierFromDB() {}
 
 void EGExtraInfoModifierFromDB::setEvent(const edm::Event& evt) {
 
@@ -283,12 +278,15 @@ void EGExtraInfoModifierFromDB::setEventContent(const edm::EventSetup& evs) {
   const std::vector<std::string> ph_condnames_ecalonly_mean  = ph_conf.condnames_ecalonly_mean;
   const std::vector<std::string> ph_condnames_ecalonly_sigma = ph_conf.condnames_ecalonly_sigma;
 
+  if (useLocalFile_)
+    pointerLocalFile_ = TFile::Open(addressLocalFile_.fullPath().c_str(), "READ");
+
   unsigned int ncor = ph_condnames_ecalonly_mean.size();
   for (unsigned int icor=0; icor<ncor; ++icor) {
     if (useLocalFile_) {
-      forest = (GBRForestD*) pointerLocalFile_->Get(ph_condnames_ecalonly_mean[icor].c_str());
+      forest = new GBRForestD(*((GBRForestD*) pointerLocalFile_->Get(ph_condnames_ecalonly_mean[icor].c_str())));
       ph_forestH_mean_.push_back(forest);
-      forest = (GBRForestD*) pointerLocalFile_->Get(ph_condnames_ecalonly_sigma[icor].c_str());
+      forest = new GBRForestD(*((GBRForestD*) pointerLocalFile_->Get(ph_condnames_ecalonly_sigma[icor].c_str())));
       ph_forestH_sigma_.push_back(forest);	
     } else {
       evs.get<GBRDWrapperRcd>().get(ph_condnames_ecalonly_mean[icor], forestDEH);
@@ -297,7 +295,7 @@ void EGExtraInfoModifierFromDB::setEventContent(const edm::EventSetup& evs) {
       ph_forestH_sigma_.push_back(forestDEH.product());
     }
   } 
-
+  
   const std::vector<std::string> e_condnames_ecalonly_mean  = e_conf.condnames_ecalonly_mean;
   const std::vector<std::string> e_condnames_ecalonly_sigma = e_conf.condnames_ecalonly_sigma;
   const std::vector<std::string> e_condnames_ecaltrk_mean  = e_conf.condnames_ecaltrk_mean;
@@ -306,9 +304,9 @@ void EGExtraInfoModifierFromDB::setEventContent(const edm::EventSetup& evs) {
   unsigned int encor = e_condnames_ecalonly_mean.size();  
   for (unsigned int icor=0; icor<encor; ++icor) {
     if (useLocalFile_) {
-      forest = (GBRForestD*) pointerLocalFile_->Get(e_condnames_ecalonly_mean[icor].c_str());
+      forest = new GBRForestD(*((GBRForestD*) pointerLocalFile_->Get(e_condnames_ecalonly_mean[icor].c_str())));
       e_forestH_mean_.push_back(forest);
-      forest = (GBRForestD*) pointerLocalFile_->Get(e_condnames_ecalonly_sigma[icor].c_str());
+      forest = new GBRForestD(*((GBRForestD*) pointerLocalFile_->Get(e_condnames_ecalonly_sigma[icor].c_str())));
       e_forestH_sigma_.push_back(forest);	
     } else {
       evs.get<GBRDWrapperRcd>().get(e_condnames_ecalonly_mean[icor], forestDEH);
@@ -319,9 +317,9 @@ void EGExtraInfoModifierFromDB::setEventContent(const edm::EventSetup& evs) {
   }
   for (unsigned int icor=0; icor<encor; ++icor) {
     if (useLocalFile_) {
-      forest = (GBRForestD*) pointerLocalFile_->Get(e_condnames_ecaltrk_mean[icor].c_str());
+      forest = new GBRForestD(*((GBRForestD*) pointerLocalFile_->Get(e_condnames_ecaltrk_mean[icor].c_str())));
       e_forestH_mean_.push_back(forest);
-      forest = (GBRForestD*) pointerLocalFile_->Get(e_condnames_ecaltrk_sigma[icor].c_str());
+      forest = new GBRForestD(*((GBRForestD*) pointerLocalFile_->Get(e_condnames_ecaltrk_sigma[icor].c_str())));
       e_forestH_sigma_.push_back(forest);	
     } else {
       evs.get<GBRDWrapperRcd>().get(e_condnames_ecaltrk_mean[icor], forestDEH);
@@ -330,6 +328,9 @@ void EGExtraInfoModifierFromDB::setEventContent(const edm::EventSetup& evs) {
       e_forestH_sigma_.push_back(forestDEH.product());
     }
   }
+
+  if (useLocalFile_)
+    pointerLocalFile_->Close();
 
   edm::ESHandle<CaloTopology> pTopology;
   evs.get<CaloTopologyRecord>().get(pTopology);
@@ -415,18 +416,20 @@ void EGExtraInfoModifierFromDB::modifyObject(reco::GsfElectron& ele) const {
   else      ecalRecHits = ecalRecHitsEE_ ;
   if ( !ecalRecHits.isValid() ) return;
   
-  Int_t N_SATURATEDXTALS  = 0;
+  int nSaturatedXtals  = 0;
   std::vector< std::pair<DetId, float> > hitsAndFractions = theseed->hitsAndFractions();
   for (auto hitFractionPair : hitsAndFractions) {    
     auto ecalRecHit = ecalRecHits->find(hitFractionPair.first);
     if (ecalRecHit == ecalRecHits->end()) continue;
-    if (ecalRecHit->checkFlag(EcalRecHit::Flags::kSaturated)) N_SATURATEDXTALS++;
+    if (ecalRecHit->checkFlag(EcalRecHit::Flags::kSaturated)) nSaturatedXtals++;
   }
 
   std::array<float, 40> eval;  
   const double raw_energy = the_sc->rawEnergy(); 
   const double raw_es_energy = the_sc->preshowerEnergy();
   const auto& full5x5_ess = ele.full5x5_showerShape();
+
+  float e5x5Inverse = full5x5_ess.e5x5 != 0. ? 1./full5x5_ess.e5x5 : 0.;
 
   eval[0]  = raw_energy;
   eval[1]  = the_sc->etaWidth();
@@ -440,18 +443,18 @@ void EGExtraInfoModifierFromDB::modifyObject(reco::GsfElectron& ele) const {
   eval[9]  = full5x5_ess.sigmaIetaIeta;
   eval[10]  = full5x5_ess.sigmaIetaIphi;
   eval[11]  = full5x5_ess.sigmaIphiIphi;
-  eval[12]  = full5x5_ess.eMax/full5x5_ess.e5x5;
-  eval[13]  = full5x5_ess.e2nd/full5x5_ess.e5x5;
-  eval[14]  = full5x5_ess.eTop/full5x5_ess.e5x5;
-  eval[15]  = full5x5_ess.eBottom/full5x5_ess.e5x5;
-  eval[16]  = full5x5_ess.eLeft/full5x5_ess.e5x5;
-  eval[17]  = full5x5_ess.eRight/full5x5_ess.e5x5;
-  eval[18]  = EcalClusterToolsT<true>::e2x5Max(*theseed, &*ecalRecHits, topology_)/full5x5_ess.e5x5;
-  eval[19]  = EcalClusterToolsT<true>::e2x5Left(*theseed, &*ecalRecHits, topology_)/full5x5_ess.e5x5;
-  eval[20]  = EcalClusterToolsT<true>::e2x5Right(*theseed, &*ecalRecHits, topology_)/full5x5_ess.e5x5;
-  eval[21]  = EcalClusterToolsT<true>::e2x5Top(*theseed, &*ecalRecHits, topology_)/full5x5_ess.e5x5;
-  eval[22]  = EcalClusterToolsT<true>::e2x5Bottom(*theseed, &*ecalRecHits, topology_)/full5x5_ess.e5x5;
-  eval[23]  = N_SATURATEDXTALS;
+  eval[12]  = full5x5_ess.eMax*e5x5Inverse;
+  eval[13]  = full5x5_ess.e2nd*e5x5Inverse;
+  eval[14]  = full5x5_ess.eTop*e5x5Inverse;
+  eval[15]  = full5x5_ess.eBottom*e5x5Inverse;
+  eval[16]  = full5x5_ess.eLeft*e5x5Inverse;
+  eval[17]  = full5x5_ess.eRight*e5x5Inverse;
+  eval[18]  = EcalClusterToolsT<true>::e2x5Max(*theseed, &*ecalRecHits, topology_)*e5x5Inverse;
+  eval[19]  = EcalClusterToolsT<true>::e2x5Left(*theseed, &*ecalRecHits, topology_)*e5x5Inverse;
+  eval[20]  = EcalClusterToolsT<true>::e2x5Right(*theseed, &*ecalRecHits, topology_)*e5x5Inverse;
+  eval[21]  = EcalClusterToolsT<true>::e2x5Top(*theseed, &*ecalRecHits, topology_)*e5x5Inverse;
+  eval[22]  = EcalClusterToolsT<true>::e2x5Bottom(*theseed, &*ecalRecHits, topology_)*e5x5Inverse;
+  eval[23]  = nSaturatedXtals;
   eval[24]  = std::max(0,numberOfClusters);
     
   // calculate sub-cluster variables
@@ -553,12 +556,8 @@ void EGExtraInfoModifierFromDB::modifyObject(reco::GsfElectron& ele) const {
 
   const float trkMomentum = el_track->pMode();
   const float trkEta      = el_track->etaMode();
-  const float trkPhi      = el_track->phiMode();
-  
-  float ptMode       = el_track->ptMode();
-  float ptModeErrror = el_track->ptModeError();
-  float etaModeError = el_track->etaModeError();
-  float pModeError   = sqrt(ptModeErrror*ptModeErrror*cosh(trkEta)*cosh(trkEta) + ptMode*ptMode*sinh(trkEta)*sinh(trkEta)*etaModeError*etaModeError);
+  const float trkPhi      = el_track->phiMode();  
+  const float pModeError   = std::abs(el_track->qoverpModeError())*trkMomentum*trkMomentum;
   
   const float trkMomentumError = pModeError;
   const float eOverP = (raw_energy+raw_es_energy)*mean/trkMomentum;
@@ -623,18 +622,20 @@ void EGExtraInfoModifierFromDB::modifyObject(reco::Photon& pho) const {
   if (iseb) ecalRecHits = ecalRecHitsEB_ ;
   else      ecalRecHits = ecalRecHitsEE_ ;
 
-  Int_t N_SATURATEDXTALS  = 0;
+  int nSaturatedXtals  = 0;
   std::vector< std::pair<DetId, float> > hitsAndFractions = theseed->hitsAndFractions();
   for (auto hitFractionPair : hitsAndFractions) {
     auto ecalRecHit = ecalRecHits->find(hitFractionPair.first);
     if (ecalRecHit == ecalRecHits->end()) continue;
-    if (ecalRecHit->checkFlag(EcalRecHit::Flags::kSaturated)) N_SATURATEDXTALS++;
+    if (ecalRecHit->checkFlag(EcalRecHit::Flags::kSaturated)) nSaturatedXtals++;
   }
   
   std::array<float, 40> eval;  
   const double raw_energy = the_sc->rawEnergy(); 
   const double raw_es_energy = the_sc->preshowerEnergy();
   const auto& full5x5_pss = pho.full5x5_showerShapeVariables();
+
+  float e5x5Inverse = full5x5_pss.e5x5 != 0. ? 1./full5x5_pss.e5x5 : 0.;
 
   // Set inputs. The order is important
   eval[0]  = raw_energy;
@@ -649,18 +650,18 @@ void EGExtraInfoModifierFromDB::modifyObject(reco::Photon& pho) const {
   eval[9]  = full5x5_pss.sigmaIetaIeta;
   eval[10]  = full5x5_pss.sigmaIetaIphi;
   eval[11]  = full5x5_pss.sigmaIphiIphi;
-  eval[12]  = full5x5_pss.maxEnergyXtal/full5x5_pss.e5x5;
-  eval[13]  = full5x5_pss.e2nd/full5x5_pss.e5x5;
-  eval[14]  = full5x5_pss.eTop/full5x5_pss.e5x5;
-  eval[15]  = full5x5_pss.eBottom/full5x5_pss.e5x5;
-  eval[16]  = full5x5_pss.eLeft/full5x5_pss.e5x5;
-  eval[17]  = full5x5_pss.eRight/full5x5_pss.e5x5;
-  eval[18]  = full5x5_pss.e2x5Max/full5x5_pss.e5x5;
-  eval[19]  = full5x5_pss.e2x5Left/full5x5_pss.e5x5;
-  eval[20]  = full5x5_pss.e2x5Right/full5x5_pss.e5x5;
-  eval[21]  = full5x5_pss.e2x5Top/full5x5_pss.e5x5;
-  eval[22]  = full5x5_pss.e2x5Bottom/full5x5_pss.e5x5;
-  eval[23]  = N_SATURATEDXTALS;
+  eval[12]  = full5x5_pss.maxEnergyXtal*e5x5Inverse;
+  eval[13]  = full5x5_pss.e2nd*e5x5Inverse;
+  eval[14]  = full5x5_pss.eTop*e5x5Inverse;
+  eval[15]  = full5x5_pss.eBottom*e5x5Inverse;
+  eval[16]  = full5x5_pss.eLeft*e5x5Inverse;
+  eval[17]  = full5x5_pss.eRight*e5x5Inverse;
+  eval[18]  = full5x5_pss.e2x5Max*e5x5Inverse;
+  eval[19]  = full5x5_pss.e2x5Left*e5x5Inverse;
+  eval[20]  = full5x5_pss.e2x5Right*e5x5Inverse;
+  eval[21]  = full5x5_pss.e2x5Top*e5x5Inverse;
+  eval[22]  = full5x5_pss.e2x5Bottom*e5x5Inverse;
+  eval[23]  = nSaturatedXtals;
   eval[24]  = std::max(0,numberOfClusters);
     
   // calculate sub-cluster variables
