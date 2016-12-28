@@ -230,12 +230,22 @@ namespace {
           }
           if( itLastMatch==cycle.end()) {
             //need to use the full cycle
+            //NOTE: this should just retest the same cycle but starting
+            // from a different position. If everything is correct, then
+            // this should also pass so in principal we could return here.
+            //However, as long as this isn't a performance problem, having
+            // this additional check could catch problems in the algorithm.
             tempStack.insert(tempStack.end(),cycle.begin(),itStartMatch);
           } else {
             tempStack.insert(tempStack.end(),cycle.begin(),itLastMatch+1);
           }
         } else {
           //std::cout <<"found later in cycle"<<std::endl;
+          if( (itStartMatch == cycle.begin()) and (cycle.end() == (itLastMatch+1)) ) {
+            //This is just the entire cycle starting where we've already started
+            // before. Given the cycle was OK before, it would also be OK this time
+            return;
+          }
           tempStack.insert(tempStack.end(),itStartMatch,itLastMatch+1);
         }
         //CDJ DEBUG
