@@ -65,7 +65,7 @@ HcalCellType::HcalCell HcalDDDSimConstants::cell(int idet, int zside,
       fibin = hpar->phitable[etaR-hpar->etaMin[2]];
       if (unitPhi(fibin) > 2) fioff = hpar->phioff[4];
     }
-    phi  = fioff + (iphi - 0.5)*fibin;
+    phi  =-fioff + (iphi - 0.5)*fibin;
     dphi = 0.5*fibin;
     if (idet == static_cast<int>(HcalForward)) {
       int ir = nR + hpar->etaMin[2] - etaR - 1;
