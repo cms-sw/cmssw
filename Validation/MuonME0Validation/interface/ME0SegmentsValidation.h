@@ -51,7 +51,7 @@ public:
   Int_t npart;
   double sigma_x_, sigma_y_;
     
-  typedef std::map<edm::SimTrackContainer::const_iterator,edm::PSimHitContainer> MapType;
+  typedef std::map<edm::SimTrackContainer::const_iterator,edm::PSimHitContainer> MapTypeSim;
   typedef std::map<ME0SegmentCollection::const_iterator,std::vector<ME0RecHit> > MapTypeSeg;
   
 };
