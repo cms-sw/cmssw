@@ -50,6 +50,9 @@ public:
   
   Int_t npart;
   double sigma_x_, sigma_y_;
+  double eta_max_, eta_min_;
+  double pt_min_;
+  bool isMuonGun_;
     
   typedef std::map<edm::SimTrackContainer::const_iterator,edm::PSimHitContainer> MapTypeSim;
   typedef std::map<ME0SegmentCollection::const_iterator,std::vector<ME0RecHit> > MapTypeSeg;
