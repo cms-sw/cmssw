@@ -88,8 +88,8 @@ for (const auto & hit: simHits)
   int evtId = hit.eventId().event();
   int bx = hit.eventId().bunchCrossing();
   int procType = hit.processType();
-  bool res = true;
-  if(!(evtId == 0 && bx == 0 && procType == 0)) res = false;
+  int res = 1;
+  if(!(evtId == 0 && bx == 0 && procType == 0)) res = 2;
     
   ME0DigiPreReco digi(x,y,ex,ey,corr,tof,pdgid,res);
   digi_.insert(digi);

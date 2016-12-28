@@ -8,6 +8,8 @@ ME0SegmentsValidation::ME0SegmentsValidation(const edm::ParameterSet& cfg):  ME0
     InputTagToken_Digis = consumes<ME0DigiPreRecoCollection>(cfg.getParameter<edm::InputTag>("digiInputLabel"));
     InputTagToken_ = consumes<edm::PSimHitContainer>(cfg.getParameter<edm::InputTag>("simInputLabel"));
     InputTagTokenST_ = consumes<edm::SimTrackContainer>(cfg.getParameter<edm::InputTag>("simInputLabelST"));
+    sigma_x_ = cfg.getParameter<double>("sigma_x");
+    sigma_y_ = cfg.getParameter<double>("sigma_y");
 }
 
 void ME0SegmentsValidation::bookHistograms(DQMStore::IBooker & ibooker, edm::Run const & Run, edm::EventSetup const & iSetup ) {
@@ -116,8 +118,9 @@ void ME0SegmentsValidation::analyze(const edm::Event& e,
     }
     
     
-    MapType myMap;
+    MapTypeSim myMap;
     MapTypeSeg myMapSeg;
+
     int countST = 0;
 
     edm::SimTrackContainer::const_iterator simTrack;
@@ -147,7 +150,7 @@ void ME0SegmentsValidation::analyze(const edm::Event& e,
         
         if(selectedME0Hits.size() >= 3){
             
-            myMap.insert(MapType::value_type(simTrack,selectedME0Hits));
+            myMap.insert(MapTypeSim::value_type(simTrack,selectedME0Hits));
             me0_simsegment_eta->Fill(std::abs((*simTrack).momentum().eta()));
             me0_simsegment_pt->Fill((*simTrack).momentum().pt());
             me0_simsegment_phi->Fill((*simTrack).momentum().phi());
@@ -158,8 +161,6 @@ void ME0SegmentsValidation::analyze(const edm::Event& e,
     }
     
     me0_segment_size->Fill(ME0Segments->size());
-    std::cout<<"Num ST: "<<countST<<std::endl;
-    std::cout<<"Seg Size: "<<ME0Segments->size()<<std::endl;
     
     for (auto me0s = ME0Segments->begin(); me0s != ME0Segments->end(); me0s++) {
         
@@ -256,14 +257,12 @@ void ME0SegmentsValidation::analyze(const edm::Event& e,
         
         me0_segment_numRHSig->Fill(numberRHSig);
         me0_segment_numRHBkg->Fill(numberRHBkg);
-        std::cout<<"Size RH "<<selectedME0RecHits.size()<<std::endl;
         myMapSeg.insert(MapTypeSeg::value_type(me0s,selectedME0RecHits));
 
     }
     
     //------------------- SimToReco -------------------
 
-    std::cout<<"Size ST: "<<myMap.size()<<std::endl;
     for(auto const& st : myMap) {//loop over the signal simTracks
         
         int num_sh = st.second.size();
@@ -294,6 +293,7 @@ void ME0SegmentsValidation::analyze(const edm::Event& e,
                     LocalPoint lp_rh = rh.localPosition();
                     Float_t dx_loc = lp_sh.x()-lp_rh.x();
                     Float_t dy_loc = lp_sh.y()-lp_rh.y();
+
                     if(fabs(dx_loc) < 3*sigma_x_ && fabs(dy_loc) < 3*sigma_y_) ++num_sh_matched;
                     
                 }//End loop over RHs
@@ -302,11 +302,10 @@ void ME0SegmentsValidation::analyze(const edm::Event& e,
             
             Float_t quality = 0;
             if(num_sh != 0) quality = num_sh_matched/(1.0*num_sh);
-            std::cout<<"num "<<num_sh<<" "<<num_sh_matched<<" "<<quality<<std::endl;
             if(quality > 0) isThereOneSegmentMatched = true;
             
         }//End loop over segments
-        
+
         //Fill hsitograms
         if(isThereOneSegmentMatched){
             
