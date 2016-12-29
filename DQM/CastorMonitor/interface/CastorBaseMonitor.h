@@ -35,21 +35,20 @@ public:
   virtual void done();
   virtual void clearME();
 
-  void setVerbosity(int verb) { fVerbosity = verb; }
-  int getVerbosity() const { return fVerbosity; }
-  
-  void setDiagnostics(bool myval) { makeDiagnostics=myval;}
-  bool getDiagnostics() const { return makeDiagnostics;}
-
-  bool vetoCell(HcalCastorDetId id);
+//  void setVerbosity(int verb) { fVerbosity = verb; }
+//  int getVerbosity() const { return fVerbosity; }
+//  void setDiagnostics(bool myval) { makeDiagnostics=myval;}
+//  bool getDiagnostics() const { return makeDiagnostics;}
+//  bool vetoCell(HcalCastorDetId id);
 
 protected:
-  
+
+  edm::ParameterSet pset_;  
   int fVerbosity;
   bool showTiming; //-- controls whether to show timing diagnostic info
   edm::CPUTimer cpu_timer; 
 
-  bool makeDiagnostics; //-- controls whether to make diagnostic plots
+//  bool makeDiagnostics; //-- controls whether to make diagnostic plots
 
   DQMStore* m_dbe;
   //vector<std::string> hotCells_;

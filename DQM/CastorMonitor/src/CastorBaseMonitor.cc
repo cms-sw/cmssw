@@ -33,13 +33,14 @@ void CastorBaseMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe)
   {
   //get configuration parameters
   fVerbosity = ps.getUntrackedParameter<int>("debug",0); 
-  makeDiagnostics=ps.getUntrackedParameter<bool>("makeDiagnosticPlots",false);
+//makeDiagnostics=ps.getUntrackedParameter<bool>("makeDiagnosticPlots",false);
   showTiming = ps.getUntrackedParameter<bool>("showTiming",false);
 
   if(fVerbosity>0) std::cout << "CastorBaseMonitor::setup (start)" << std::endl;
 
   //hotCells_ =  ps.getUntrackedParameter<std::vector<std::string> >( "HotCells" );
   
+  pset_ = ps;
   m_dbe = NULL;
   if(dbe != NULL) m_dbe = dbe;
 
@@ -74,14 +75,15 @@ void CastorBaseMonitor::clearME(){
 //==================================================================//
 //=========================== vetoCell =============================//
 //==================================================================//
+/*
 bool CastorBaseMonitor::vetoCell(HcalCastorDetId id){
-  /*
   if(hotCells_.size()==0) return false;
 
   for(unsigned int i = 0; i< hotCells_.size(); i++){
     unsigned int badc = atoi(hotCells_[i].c_str());
     if(id.rawId() == badc) return true;
   }
-  */
   return false;
 }
+*/
+

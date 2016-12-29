@@ -8,37 +8,43 @@
 
 class CastorRecHitMonitor: public CastorBaseMonitor {
 public:
-  CastorRecHitMonitor(); 
+  CastorRecHitMonitor(const edm::ParameterSet& ps); 
   ~CastorRecHitMonitor(); 
 
   void setup(const edm::ParameterSet& ps, DQMStore* dbe);
-  void beginRun(const edm::EventSetup& iSetup);
+ void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &);
+//  void beginRun(const edm::EventSetup& iSetup);
   void processEvent(const CastorRecHitCollection& castorHits);
   void reset();
-
+  void done();
 private:  
-
-  bool doPerChannel_;
-  // float occThresh_;
-  int ievt_;
-
- ////--- CASTOR channels
- int module;
- int sector;
- int zside;
- float channel;
-
- ////---- energy and time for every hit:
- float energy ;
- float time;
+ int ievt_;
  float energyInEachChannel[14][16];
- float totEnergy;
+ std::string subsystemname;
 
+ TH2F *h2RecHitMap;
+ MonitorElement* h2RHchan;
+ MonitorElement* h2RHvsSec;
+ MonitorElement* h2RHmap;
+ MonitorElement* h2RHoccmap;
+ MonitorElement* h2RHentriesMap;
+ MonitorElement* hRHtime;
+ MonitorElement* hallchan;
 
- float  allEnergyModule[14];
- float  allEnergySector[16]; 
-
-  ////---- define Monitoring elements
+/* obsolite	2014 dec
+//  bool doPerChannel_;
+  // float occThresh_;
+ ////--- CASTOR channels
+// int module;
+// int sector;
+// int zside;
+// float channel;
+ ////---- energy and time for every hit:
+// float energy ;
+// float time;
+// float totEnergy;
+// float  allEnergyModule[14];
+// float  allEnergySector[16]; 
   struct{
     MonitorElement* meRECHIT_E_all     ;   //-- energy of all hits 
     MonitorElement* meRECHIT_T_all     ;   //-- time of all hits
@@ -55,6 +61,9 @@ private:
   } castorHists ;
 
   MonitorElement* meEVT_;
+  MonitorElement *hchan[14][16];
+  MonitorElement *hsphi[16];
+*/
 
 };
 
