@@ -121,10 +121,11 @@ EGExtraInfoModifierFromDB::EGExtraInfoModifierFromDB(const edm::ParameterSet& co
   ModifyObjectValueBase(conf) {
 
   useLocalFile_     = conf.getParameter<bool>("useLocalFile");
-  if (useLocalFile_) 
+  if (useLocalFile_) {
     addressLocalFile_ = conf.getParameter<edm::FileInPath>("addressLocalFile");
-  
-  
+    pointerLocalFile_ = TFile::Open(addressLocalFile_.fullPath().c_str(), "READ");
+  }
+
   rhoTag_ = conf.getParameter<edm::InputTag>("rhoCollection");
 
   ecalRecHitEBTag_ = conf.getParameter<edm::InputTag>("ecalrechitsEB");  
@@ -161,6 +162,31 @@ EGExtraInfoModifierFromDB::EGExtraInfoModifierFromDB(const edm::ParameterSet& co
     e_conf.condnames_ecalonly_sigma = electrons.getParameter<std::vector<std::string> >("uncertaintyKey_ecalonly");
     e_conf.condnames_ecaltrk_mean   = electrons.getParameter<std::vector<std::string> >("regressionKey_ecaltrk");
     e_conf.condnames_ecaltrk_sigma  = electrons.getParameter<std::vector<std::string> >("uncertaintyKey_ecaltrk");
+
+    unsigned int encor = e_conf.condnames_ecalonly_mean.size();
+    e_forestH_mean_.reserve(2*encor);
+    e_forestH_sigma_.reserve(2*encor);
+
+    if (useLocalFile_) {
+
+      GBRForestD* forest;
+
+      for (unsigned int icor=0; icor<encor; ++icor) {
+	forest = new GBRForestD(*((GBRForestD*) pointerLocalFile_->Get(e_conf.condnames_ecalonly_mean[icor].c_str())));
+	e_forestH_mean_[icor] = forest;
+	forest = new GBRForestD(*((GBRForestD*) pointerLocalFile_->Get(e_conf.condnames_ecalonly_sigma[icor].c_str())));
+	e_forestH_sigma_[icor] = forest;	
+      }
+
+      for (unsigned int icor=0; icor<encor; ++icor) {
+	forest = new GBRForestD(*((GBRForestD*) pointerLocalFile_->Get(e_conf.condnames_ecaltrk_mean[icor].c_str())));
+	e_forestH_mean_[icor+encor] = forest;
+	forest = new GBRForestD(*((GBRForestD*) pointerLocalFile_->Get(e_conf.condnames_ecaltrk_sigma[icor].c_str())));
+	e_forestH_sigma_[icor+encor] = forest;	
+      }
+
+    }
+
   }
   
   if( conf.exists("photon_config") ) { 
@@ -190,7 +216,28 @@ EGExtraInfoModifierFromDB::EGExtraInfoModifierFromDB(const edm::ParameterSet& co
 
     ph_conf.condnames_ecalonly_mean  = photons.getParameter<std::vector<std::string>>("regressionKey_ecalonly");
     ph_conf.condnames_ecalonly_sigma = photons.getParameter<std::vector<std::string>>("uncertaintyKey_ecalonly");
+
+    unsigned int ncor = ph_conf.condnames_ecalonly_mean.size();
+    ph_forestH_mean_.reserve(ncor);
+    ph_forestH_sigma_.reserve(ncor);
+
+    if (useLocalFile_) {
+
+      GBRForestD* forest;
+
+      for (unsigned int icor=0; icor<ncor; ++icor) {
+	forest = new GBRForestD(*((GBRForestD*) pointerLocalFile_->Get(ph_conf.condnames_ecalonly_mean[icor].c_str())));
+	ph_forestH_mean_[icor] = forest;
+	forest = new GBRForestD(*((GBRForestD*) pointerLocalFile_->Get(ph_conf.condnames_ecalonly_sigma[icor].c_str())));
+	ph_forestH_sigma_[icor] = forest;	
+      }
+
+    }
+
   }
+
+  if (useLocalFile_)
+    pointerLocalFile_->Close();
   
 }
 
@@ -273,26 +320,17 @@ void EGExtraInfoModifierFromDB::setEventContent(const edm::EventSetup& evs) {
   iSetup_ = &evs;
 
   edm::ESHandle<GBRForestD> forestDEH;
-  GBRForestD* forest;
-  
+
   const std::vector<std::string> ph_condnames_ecalonly_mean  = ph_conf.condnames_ecalonly_mean;
   const std::vector<std::string> ph_condnames_ecalonly_sigma = ph_conf.condnames_ecalonly_sigma;
 
-  if (useLocalFile_)
-    pointerLocalFile_ = TFile::Open(addressLocalFile_.fullPath().c_str(), "READ");
-
-  unsigned int ncor = ph_condnames_ecalonly_mean.size();
-  for (unsigned int icor=0; icor<ncor; ++icor) {
-    if (useLocalFile_) {
-      forest = new GBRForestD(*((GBRForestD*) pointerLocalFile_->Get(ph_condnames_ecalonly_mean[icor].c_str())));
-      ph_forestH_mean_.push_back(forest);
-      forest = new GBRForestD(*((GBRForestD*) pointerLocalFile_->Get(ph_condnames_ecalonly_sigma[icor].c_str())));
-      ph_forestH_sigma_.push_back(forest);	
-    } else {
+  if (!useLocalFile_) {
+    unsigned int ncor = ph_condnames_ecalonly_mean.size();
+    for (unsigned int icor=0; icor<ncor; ++icor) {
       evs.get<GBRDWrapperRcd>().get(ph_condnames_ecalonly_mean[icor], forestDEH);
-      ph_forestH_mean_.push_back(forestDEH.product());
+      ph_forestH_mean_[icor] = forestDEH.product();
       evs.get<GBRDWrapperRcd>().get(ph_condnames_ecalonly_sigma[icor], forestDEH);
-      ph_forestH_sigma_.push_back(forestDEH.product());
+      ph_forestH_sigma_[icor] = forestDEH.product();
     }
   } 
   
@@ -301,36 +339,24 @@ void EGExtraInfoModifierFromDB::setEventContent(const edm::EventSetup& evs) {
   const std::vector<std::string> e_condnames_ecaltrk_mean  = e_conf.condnames_ecaltrk_mean;
   const std::vector<std::string> e_condnames_ecaltrk_sigma = e_conf.condnames_ecaltrk_sigma;
 
-  unsigned int encor = e_condnames_ecalonly_mean.size();  
-  for (unsigned int icor=0; icor<encor; ++icor) {
-    if (useLocalFile_) {
-      forest = new GBRForestD(*((GBRForestD*) pointerLocalFile_->Get(e_condnames_ecalonly_mean[icor].c_str())));
-      e_forestH_mean_.push_back(forest);
-      forest = new GBRForestD(*((GBRForestD*) pointerLocalFile_->Get(e_condnames_ecalonly_sigma[icor].c_str())));
-      e_forestH_sigma_.push_back(forest);	
-    } else {
-      evs.get<GBRDWrapperRcd>().get(e_condnames_ecalonly_mean[icor], forestDEH);
-      e_forestH_mean_.push_back(forestDEH.product());
-      evs.get<GBRDWrapperRcd>().get(e_condnames_ecalonly_sigma[icor], forestDEH);
-      e_forestH_sigma_.push_back(forestDEH.product());
-    }
-  }
-  for (unsigned int icor=0; icor<encor; ++icor) {
-    if (useLocalFile_) {
-      forest = new GBRForestD(*((GBRForestD*) pointerLocalFile_->Get(e_condnames_ecaltrk_mean[icor].c_str())));
-      e_forestH_mean_.push_back(forest);
-      forest = new GBRForestD(*((GBRForestD*) pointerLocalFile_->Get(e_condnames_ecaltrk_sigma[icor].c_str())));
-      e_forestH_sigma_.push_back(forest);	
-    } else {
-      evs.get<GBRDWrapperRcd>().get(e_condnames_ecaltrk_mean[icor], forestDEH);
-      e_forestH_mean_.push_back(forestDEH.product());
-      evs.get<GBRDWrapperRcd>().get(e_condnames_ecaltrk_sigma[icor], forestDEH);
-      e_forestH_sigma_.push_back(forestDEH.product());
-    }
-  }
+  if (!useLocalFile_) {
+    unsigned int encor = e_condnames_ecalonly_mean.size();  
 
-  if (useLocalFile_)
-    pointerLocalFile_->Close();
+    for (unsigned int icor=0; icor<encor; ++icor) {
+      evs.get<GBRDWrapperRcd>().get(e_condnames_ecalonly_mean[icor], forestDEH);
+      e_forestH_mean_[icor] = forestDEH.product();
+      evs.get<GBRDWrapperRcd>().get(e_condnames_ecalonly_sigma[icor], forestDEH);
+      e_forestH_sigma_[icor] = forestDEH.product();
+    }
+  
+    for (unsigned int icor=0; icor<encor; ++icor) {
+      evs.get<GBRDWrapperRcd>().get(e_condnames_ecaltrk_mean[icor], forestDEH);
+      e_forestH_mean_[icor+encor] = forestDEH.product();
+      evs.get<GBRDWrapperRcd>().get(e_condnames_ecaltrk_sigma[icor], forestDEH);
+      e_forestH_sigma_[icor+encor] = forestDEH.product();
+    }
+
+  }
 
   edm::ESHandle<CaloTopology> pTopology;
   evs.get<CaloTopologyRecord>().get(pTopology);
