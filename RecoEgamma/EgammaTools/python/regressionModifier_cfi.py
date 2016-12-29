@@ -4,9 +4,8 @@ regressionModifier = \
     cms.PSet( modifierName    = cms.string('EGExtraInfoModifierFromDB'),  
 
               rhoCollection = cms.InputTag("fixedGridRhoFastjetAll"),
-              useLocalFile     = cms.bool(True),
-              #              addressLocalFile = cms.FileInPath("path.to/local.file"),
-              addressLocalFile = cms.FileInPath("regressionTrees.root"),
+              useLocalFile     = cms.bool(False),
+#              addressLocalFile = cms.FileInPath("regressionTrees.root"),
               
               electron_config = cms.PSet( # EB, EE
                                           regressionKey_ecalonly  = cms.vstring('electron_eb_ECALonly', 'electron_ee_ECALonly'),
