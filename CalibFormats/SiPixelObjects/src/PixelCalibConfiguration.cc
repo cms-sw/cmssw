@@ -81,7 +81,7 @@ PixelCalibConfiguration::PixelCalibConfiguration(std::vector< std::vector<std::s
   
   if (tmp=="Mode:"){
     in >> mode_;
-    std::cout << __LINE__ << "]\t" << mthn << "mode=" << mode_ << std::endl;
+//    std::cout << __LINE__ << "]\t" << mthn << "mode=" << mode_ << std::endl;
     in >>tmp;
   } else {
     mode_="FEDChannelOffsetPixel";
@@ -1673,7 +1673,7 @@ bool PixelCalibConfiguration::containsScan(std::string name) const
 }
 
 //=============================================================================================
-void PixelCalibConfiguration::writeXMLHeader(pos::PixelConfigKey key,
+void PixelCalibConfiguration::writeXMLHeader(pos::PixelConfigKey key, 
                                     	     int version, 
                                     	     std::string path, 
                                     	     std::ofstream *outstream,

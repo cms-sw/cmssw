@@ -6,6 +6,8 @@
 *   A longer explanation will be placed here later
 */
 
+#include <stdlib.h>
+
 namespace pos{
 /*! \class PixelConfigList PixelConfigList.h "interface/PixelConfigList.h"
 *   \brief This class implements..
