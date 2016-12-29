@@ -1,8 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
-from CommonTools.RecoAlgos.VertexCompositeCandidateCollectionSelector_cfi import VertexCompositeCandidateCollectionSelector as vertexCompositeCandidateCollectionSelector
+from CommonTools.RecoAlgos.VertexCompositeCandidateCollectionSelector_cfi import VertexCompositeCandidateCollectionSelector
 
-
+vertexCompositeCandidateCollectionSelector = VertexCompositeCandidateCollectionSelector.clone()
 vertexCompositeCandidateCollectionSelector.v0            = cms.InputTag('generalV0Candidates:Kshort') # generalV0Candidates:Lambda
 vertexCompositeCandidateCollectionSelector.beamSpot      = cms.InputTag('offlineBeamSpot')
 vertexCompositeCandidateCollectionSelector.primaryVertex = cms.InputTag('offlinePrimaryVertices')
