@@ -52,7 +52,7 @@ caloParams = cms.ESProducer(
     egIsoPUEstTowerGranularity = cms.uint32(1),
     egIsoMaxEtaAbsForTowerSum  = cms.uint32(4),
     egIsoMaxEtaAbsForIsoSum    = cms.uint32(27),
-    
+
     # Tau
     tauLsb                        = cms.double(0.5),
     tauSeedThreshold              = cms.double(7.),
@@ -87,6 +87,7 @@ caloParams = cms.ESProducer(
     jetPUSParams          = cms.vdouble(),
     jetCalibrationType    = cms.string("None"),
     jetCalibrationParams  = cms.vdouble(),
+    jetCalibrationLUTFile = cms.FileInPath("L1Trigger/L1TCalorimeter/data/jetCalibrationLUT_stage1.txt"),
 
     # sums
     etSumLsb                = cms.double(0.5),

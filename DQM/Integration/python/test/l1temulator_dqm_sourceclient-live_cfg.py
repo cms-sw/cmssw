@@ -24,6 +24,8 @@ process.load("DQM.Integration.test.inputsource_cfi")
 #
  
 #
+l1Condition = "legacyProd"
+#l1Condition = "stage1Prod"
 
 process.load("DQMServices.Components.DQMEnvironment_cfi")
 process.dqmEnv.subSystemFolder = 'L1TEMU'
@@ -56,7 +58,12 @@ process.load("Configuration.StandardSequences.RawToDigi_Data_cff")
 # L1 data - emulator sequences 
 process.load("DQM.L1TMonitor.L1TEmulatorMonitor_cff")    
 process.load("DQM.L1TMonitorClient.L1TEMUMonitorClient_cff")    
-
+process.load("L1Trigger.L1TCalorimeter.caloStage1Params_cfi")
+if l1Condition == 'legacyProd':
+    process.gtStage1Digis.DaqGtFedId = cms.untracked.int32(809)
+if l1Condition == 'stage1Prod':
+    process.gtStage1Digis.DaqGtFedId = cms.untracked.int32(813)
+    
 #-------------------------------------
 # paths & schedule for L1 emulator DQM
 #
@@ -72,6 +79,8 @@ process.RawToDigi.remove("castorDigis")
 
 # L1HvVal + emulator monitoring path
 process.l1HwValEmulatorMonitorPath = cms.Path(process.l1HwValEmulatorMonitor)
+if l1Condition == "stage1Prod":
+    process.gtDigis.DaqGtFedId = cms.untracked.int32(809)
 
 # for RCT at P5, read FED vector from OMDS
 #process.load("L1TriggerConfig.RCTConfigProducers.l1RCTOmdsFedVectorProducer_cfi")

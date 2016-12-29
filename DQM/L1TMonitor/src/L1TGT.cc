@@ -24,14 +24,15 @@ L1TGT::L1TGT(const edm::ParameterSet& ps) :
             m_runInEndRun(ps.getUntrackedParameter<bool>("runInEndRun", false)),
             m_runInEndJob(ps.getUntrackedParameter<bool>("runInEndJob", false)),
             verbose_(ps.getUntrackedParameter<bool> ("verbose", false)),
+	    m_histFolder(ps.getUntrackedParameter("DirName", std::string("L1T/L1TGT"))),
             m_dbe(0),
             //
             m_nrEvJob(0), m_nrEvRun(0),
             preGps_(0ULL), preOrb_(0ULL)
 {
 
-    m_histFolder = ps.getUntrackedParameter<std::string> ("HistFolder",
-            "L1T/L1TGT");
+  //m_histFolder = ps.getUntrackedParameter<std::string> ("HistFolder",
+  //        "L1T/L1TGT");
 
     m_dbe = edm::Service<DQMStore>().operator->();
     if (m_dbe == 0) {

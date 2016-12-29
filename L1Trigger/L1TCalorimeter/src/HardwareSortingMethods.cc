@@ -503,4 +503,65 @@ namespace l1t{
       output->push_back(*ineg);
     }
   }
+
+  void SortTaus(std::vector<l1t::Tau> * input,
+		std::vector<l1t::Tau> * output){
+    const int CENTRAL_ETA_SLICES = 14;
+    const int N_PHI_GROUPS = 5;
+    const int N_PRESORTED_ROWS_CENTRAL = CENTRAL_ETA_SLICES*N_PHI_GROUPS;
+    const int PRESORT_DEPTH = 4;
+    const int N_KEEP_CENTRAL = 4;
+    const int N_ETA_GROUP_SIZE_CENTRAL = 4;
+    const int N_ETA_GROUPS_CENTRAL = 4;
+
+    const int cen_nrows = 18;
+    const int cen_ncols = 14;
+
+    std::vector<std::vector<l1t::L1Candidate> > cen_input_energy (cen_nrows, std::vector<l1t::L1Candidate>(cen_ncols));
+
+    for (std::vector<l1t::Tau>::const_iterator injet = input->begin();
+	 injet != input->end(); ++injet){
+      if(injet->hwEta() >= 4 && injet->hwEta() <= 17 )
+      {
+	unsigned int myrow = gt_to_fw_phi_map[injet->hwPhi()];
+	unsigned int mycol = injet->hwEta()-4; //hardcoding is bad
+	cen_input_energy[myrow][mycol] = *injet;
+      }
+      else
+	edm::LogError("HardwareTauSort") << "Region out of bounds: " << injet->hwEta();
+    }
+
+    for(int i = 0; i < cen_nrows; ++i)
+      for(int j = 0; j < cen_ncols; ++j)
+      {
+	if(cen_input_energy[i][j].hwPt() == 0)
+	{
+	  cen_input_energy[i][j].setHwPhi(fw_to_gt_phi_map[i]);
+	  cen_input_energy[i][j].setHwEta(4+j);
+	}
+      }
+
+    //Each CLK is one clock
+
+    //CLK 1
+    std::vector<std::vector<l1t::L1Candidate> > presorted_energies_matrix_sig = presort(cen_input_energy, N_PRESORTED_ROWS_CENTRAL, PRESORT_DEPTH);
+    //CLK 2
+    std::vector<std::vector<l1t::L1Candidate> > row_presorted_energies_matrix_sig = sort_by_row_in_groups(presorted_energies_matrix_sig, N_PHI_GROUPS);
+    //CLK 3
+    std::vector<std::vector<l1t::L1Candidate> > sorted_eta_slices_energies_matrix_sig = super_sort_matrix_rows(row_presorted_energies_matrix_sig, N_PHI_GROUPS, N_KEEP_CENTRAL);
+    //CLK 4
+    std::vector<std::vector<l1t::L1Candidate> > row_presorted_eta_slices_energies_matrix_sig = sort_by_row_in_groups(sorted_eta_slices_energies_matrix_sig, N_ETA_GROUP_SIZE_CENTRAL);
+    //CLK 5
+    std::vector<std::vector<l1t::L1Candidate> > sorted_eta_groups_energies_matrix_sig = super_sort_matrix_rows(row_presorted_eta_slices_energies_matrix_sig, N_ETA_GROUP_SIZE_CENTRAL, N_KEEP_CENTRAL);
+    //CLK 6
+    std::vector<std::vector<l1t::L1Candidate> > row_presorted_eta_groups_energies_matrix_sig = sort_by_row_in_groups(sorted_eta_groups_energies_matrix_sig, N_ETA_GROUPS_CENTRAL);
+    //CLK 7
+    std::vector<std::vector<l1t::L1Candidate> > sorted_final_energies_matrix_sig = super_sort_matrix_rows(row_presorted_eta_groups_energies_matrix_sig, N_ETA_GROUPS_CENTRAL, N_KEEP_CENTRAL);
+
+    for(unsigned int i = 0; i < 4; ++i)
+    {
+      l1t::Tau *intjet = static_cast<l1t::Tau *>( &sorted_final_energies_matrix_sig[0][i] );
+      output->push_back(*intjet);
+    }
+  }
 }

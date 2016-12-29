@@ -9,6 +9,47 @@
 
 namespace l1t {
 
+  void calibrateAndRankJets(CaloParamsStage1 *params,
+			    const std::vector<l1t::Jet> * input,
+			    std::vector<l1t::Jet> *output){
+
+    for(std::vector<l1t::Jet>::const_iterator itJet = input->begin();
+	itJet != input->end(); ++itJet){
+      unsigned int pt = itJet->hwPt();
+      if(pt > ((1<<10) -1) )
+	pt = ((1<<10) -1);
+      unsigned int eta = itJet->hwEta();
+      unsigned int lutAddress = (eta<<10)+pt;
+
+      unsigned int rank = params->jetCalibrationLUT()->data(lutAddress);
+
+      ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > ldummy(0,0,0,0);
+      l1t::Jet outJet(*&ldummy, rank, itJet->hwEta(), itJet->hwPhi(), itJet->hwQual());
+      output->push_back(outJet);
+    }
+  }
+
+  void calibrateAndRankTaus(CaloParamsStage1 *params,
+			    const std::vector<l1t::Tau> * input,
+			    std::vector<l1t::Tau> *output){
+
+    for(std::vector<l1t::Tau>::const_iterator itTau = input->begin();
+	itTau != input->end(); ++itTau){
+      unsigned int pt = itTau->hwPt();
+      if(pt > ((1<<10) -1) )
+	pt = ((1<<10) -1);
+      unsigned int eta = itTau->hwEta();
+      unsigned int lutAddress = (eta<<10)+pt;
+
+      unsigned int rank = params->tauCalibrationLUT()->data(lutAddress);
+
+      ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > ldummy(0,0,0,0);
+      l1t::Tau outTau(*&ldummy, rank, itTau->hwEta(), itTau->hwPhi(), itTau->hwQual());
+      output->push_back(outTau);
+    }
+  }
+
+
   void JetToGtEtaScales(CaloParamsStage1 *params,
 			const std::vector<l1t::Jet> * input,
 			std::vector<l1t::Jet> *output){
@@ -76,22 +117,46 @@ namespace l1t {
     }
   }
 
-  void TauToGtScales(CaloParamsStage1 *params,
-		     const std::vector<l1t::Tau> * input,
-		     std::vector<l1t::Tau> *output){
+  void TauToGtEtaScales(CaloParamsStage1 *params,
+			const std::vector<l1t::Tau> * input,
+			std::vector<l1t::Tau> *output){
     for(std::vector<l1t::Tau>::const_iterator itTau = input->begin();
 	itTau != input->end(); ++itTau){
-      const unsigned newEta = gtEta(itTau->hwEta());
+      unsigned newPhi = itTau->hwPhi();
+      unsigned newEta = gtEta(itTau->hwEta());
+
+      // taus with hwQual & 10 ==10 are "padding" jets from a sort, set their eta and phi
+      // to the max value
+      if((itTau->hwQual() & 0x10) == 0x10)
+      {
+	newEta = 0x0;
+	newPhi = 0x0;
+      }
+
+
+      ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > ldummy(0,0,0,0);
+
+      l1t::Tau gtTau(*&ldummy, itTau->hwPt(), newEta, newPhi, itTau->hwQual(), itTau->hwIso());
+      output->push_back(gtTau);
+    }
+  }
+
+  void TauToGtPtScales(CaloParamsStage1 *params,
+		       const std::vector<l1t::Tau> * input,
+		       std::vector<l1t::Tau> *output){
+    for(std::vector<l1t::Tau>::const_iterator itTau = input->begin();
+	itTau != input->end(); ++itTau){
       uint16_t linPt = (uint16_t)itTau->hwPt();
       if(linPt > params->jetScale().linScaleMax() ) linPt = params->jetScale().linScaleMax();
       const uint16_t rankPt = params->jetScale().rank(linPt);
 
       ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > ldummy(0,0,0,0);
 
-      l1t::Tau gtTau(*&ldummy, rankPt, newEta, itTau->hwPhi(), itTau->hwQual(), itTau->hwIso());
+      l1t::Tau gtTau(*&ldummy, rankPt, itTau->hwEta(), itTau->hwPhi(), itTau->hwQual(), itTau->hwIso());
       output->push_back(gtTau);
     }
   }
+
 
   void EtSumToGtScales(CaloParamsStage1 *params,
 		       const std::vector<l1t::EtSum> * input,

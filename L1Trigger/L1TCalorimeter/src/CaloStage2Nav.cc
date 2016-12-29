@@ -26,6 +26,6 @@ std::pair<int,int> l1t::CaloStage2Nav::offsetFromCurrPos(int iEtaOffset,int iPhi
 std::pair<int,int> l1t::CaloStage2Nav::move(int iEtaOffset,int iPhiOffset)
 {
   currPos_.first=offsetIEta(currPos_.first,iEtaOffset);
-  currPos_.second=offsetIEta(currPos_.second,iPhiOffset);
+  currPos_.second=offsetIPhi(currPos_.second,iPhiOffset);
   return currPos_;
 }

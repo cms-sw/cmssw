@@ -8,6 +8,14 @@ import FWCore.ParameterSet.Config as cms
 #
 # V.M. Ghete 2009-11-15
 
+from Configuration.StandardSequences.RawToDigi_cff import gctDigis
+from L1Trigger.L1TCalorimeter.simRctUpgradeFormatDigis_cfi import *
+simRctUpgradeFormatDigis.regionTag = cms.InputTag("gctDigis")
+simRctUpgradeFormatDigis.emTag = cms.InputTag("gctDigis")
+from L1Trigger.L1TCalorimeter.simCaloStage1Digis_cfi import *
+from L1Trigger.L1TCalorimeter.simCaloStage1FinalDigis_cfi import *
+from L1Trigger.L1TCalorimeter.simCaloStage1LegacyFormatDigis_cfi import *
+
 # ECAL TPG sequence
 import SimCalorimetry.EcalTrigPrimProducers.ecalTriggerPrimitiveDigis_cfi
 valEcalTriggerPrimitiveDigis = SimCalorimetry.EcalTrigPrimProducers.ecalTriggerPrimitiveDigis_cfi.simEcalTriggerPrimitiveDigis.clone()
@@ -53,6 +61,10 @@ valGctDigis = L1Trigger.GlobalCaloTrigger.gctDigis_cfi.gctDigis.clone()
 valGctDigis.inputLabel = 'gctDigis'
 valGctDigis.preSamples = cms.uint32(0)
 valGctDigis.postSamples = cms.uint32(0)
+
+# Stage1 emulator
+import L1Trigger.L1TCalorimeter.L1TCaloStage1_cff
+valCaloStage1LegacyFormatDigis=L1Trigger.L1TCalorimeter.L1TCaloStage1_cff.simCaloStage1LegacyFormatDigis.clone()
 
 
 # DT TP emulator
@@ -140,6 +152,16 @@ valGtDigis.TechnicalTriggersInputTags = cms.VInputTag(
                                                     cms.InputTag('valHcalTechTrigDigis')                                                    
                                                     )
 
+# Global GT emulator
+import L1Trigger.GlobalTrigger.gtDigis_cfi
+valStage1GtDigis=L1Trigger.GlobalTrigger.gtDigis_cfi.gtDigis.clone()
+#
+valStage1GtDigis.GmtInputTag = 'gtStage1Digis'
+valStage1GtDigis.GctInputTag = 'valCaloStage1LegacyFormatDigis'
+valStage1GtDigis.TechnicalTriggersInputTags = cms.VInputTag(
+                                                    cms.InputTag('valRpcTechTrigDigis'),
+                                                    cms.InputTag('valHcalTechTrigDigis')                                                    
+                                                    )
 
 # L1 Trigger sequences
 ValL1MuTriggerPrimitives = cms.Sequence(valCscTriggerPrimitiveDigis+valDtTriggerPrimitiveDigis)

@@ -46,6 +46,7 @@
 
 #include "CondFormats/L1TObjects/interface/LUT.h"
 #include "CondFormats/L1TObjects/interface/CaloParams.h"
+#include "CondFormats/L1TObjects/interface/CaloConfig.h"
 
 
 namespace CondFormats_L1TObjects {
@@ -53,6 +54,8 @@ namespace CondFormats_L1TObjects {
     std::vector<l1t::CaloParams::Node> dummy1a;
     l1t::CaloParams dummy1b;
     l1t::LUT dummy1c;
+
+    l1t::CaloConfig dummy2;
 
     std::vector<L1MuDTExtLut::LUT> dummy3 ;
     std::vector<L1GtMuonTemplate> dummy4 ;

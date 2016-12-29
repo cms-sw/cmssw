@@ -108,12 +108,10 @@ L1TCaloUpgradeToGCTConverter::produce(Event& e, const EventSetup& es)
   std::auto_ptr<L1GctInternEtSumCollection>   internalEtSumResult (new L1GctInternEtSumCollection  ( ));
   std::auto_ptr<L1GctInternHtMissCollection>  internalHtMissResult(new L1GctInternHtMissCollection ( ));
 
+  int bxCounter = 0;
 
-  // Assume BX is the same for all collections
-  int firstBX = EGamma->getFirstBX();
-  int lastBX = EGamma->getLastBX();
-
-  for(int itBX=firstBX; itBX!=lastBX+1; ++itBX){
+  for(int itBX=EGamma->getFirstBX(); itBX<=EGamma->getLastBX(); ++itBX){
+    bxCounter++;
 
     //looping over EGamma elments with a specific BX
     int nonIsoCount = 0;
@@ -142,9 +140,13 @@ L1TCaloUpgradeToGCTConverter::produce(Event& e, const EventSetup& es)
 	}
       }
     }
-    isoEmResult->resize(4);
-    nonIsoEmResult->resize(4);
+    isoEmResult->resize(4*bxCounter);
+    nonIsoEmResult->resize(4*bxCounter);
+  }
 
+  bxCounter = 0;
+  for(int itBX=RlxTau->getFirstBX(); itBX<=RlxTau->getLastBX(); ++itBX){
+    bxCounter++;
     //looping over Tau elments with a specific BX
     int tauCount = 0; //max 4
     for(TauBxCollection::const_iterator itTau = RlxTau->begin(itBX);
@@ -161,9 +163,12 @@ L1TCaloUpgradeToGCTConverter::produce(Event& e, const EventSetup& es)
 	tauCount++;
       }
     }
-    tauJetResult->resize(4);
+    tauJetResult->resize(4*bxCounter);
+  }
 
-
+  bxCounter = 0;
+  for(int itBX=IsoTau->getFirstBX(); itBX<=IsoTau->getLastBX(); ++itBX){
+    bxCounter++;
     //looping over Iso Tau elments with a specific BX
     int isoTauCount = 0; //max 4
     for(TauBxCollection::const_iterator itTau = IsoTau->begin(itBX);
@@ -180,9 +185,12 @@ L1TCaloUpgradeToGCTConverter::produce(Event& e, const EventSetup& es)
 	isoTauCount++;
       }
     }
-    isoTauJetResult->resize(4);
+    isoTauJetResult->resize(4*bxCounter);
+  }
 
-
+  bxCounter = 0;
+  for(int itBX=Jet->getFirstBX(); itBX<=Jet->getLastBX(); ++itBX){
+    bxCounter++;
     //looping over Jet elments with a specific BX
     int forCount = 0; //max 4
     int cenCount = 0; //max 4
@@ -207,9 +215,13 @@ L1TCaloUpgradeToGCTConverter::produce(Event& e, const EventSetup& es)
 	}
       }
     }
-    forJetResult->resize(4);
-    cenJetResult->resize(4);
+    forJetResult->resize(4*bxCounter);
+    cenJetResult->resize(4*bxCounter);
+  }
 
+  bxCounter = 0;
+  for(int itBX=EtSum->getFirstBX(); itBX<=EtSum->getLastBX(); ++itBX){
+    bxCounter++;
     //looping over EtSum elments with a specific BX
     for (EtSumBxCollection::const_iterator itEtSum = EtSum->begin(itBX);
 	itEtSum != EtSum->end(itBX); ++itEtSum){
@@ -230,11 +242,15 @@ L1TCaloUpgradeToGCTConverter::produce(Event& e, const EventSetup& es)
 	LogError("l1t|stage 1 Converter") <<" Unknown EtSumType --- EtSum collection will not be saved...\n ";
       }
     }
-    etMissResult->resize(1);
-    htMissResult->resize(1);
-    etTotResult->resize(1);
-    etHadResult->resize(1);
+    etMissResult->resize(1*bxCounter);
+    htMissResult->resize(1*bxCounter);
+    etTotResult->resize(1*bxCounter);
+    etHadResult->resize(1*bxCounter);
+  }
 
+  bxCounter = 0;
+  for(int itBX=HfSums->getFirstBX(); itBX<=HfSums->getLastBX(); ++itBX){
+    bxCounter++;
     L1GctHFRingEtSums sum = L1GctHFRingEtSums::fromGctEmulator(itBX,
 							       0,
 							       0,
@@ -262,9 +278,9 @@ L1TCaloUpgradeToGCTConverter::produce(Event& e, const EventSetup& es)
     }
     hfRingEtSumResult->push_back(sum);
 
-    hfRingEtSumResult->resize(1);
+    hfRingEtSumResult->resize(1*bxCounter);
     //no hfBitCounts yet
-    hfBitCountResult->resize(1);
+    hfBitCountResult->resize(1*bxCounter);
   }
 
   e.put(isoEmResult,"isoEm");

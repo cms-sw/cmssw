@@ -4,6 +4,8 @@
 
 int main()
 {
+  testSerialization<l1t::CaloParams>();
+  testSerialization<l1t::CaloConfig>();
     testSerialization<L1CaloEcalScale>();
     testSerialization<L1CaloEtScale>();
     testSerialization<L1CaloGeometry>();

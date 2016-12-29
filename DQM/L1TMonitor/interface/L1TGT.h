@@ -121,9 +121,11 @@ private:
     bool m_runInEndRun;
     bool m_runInEndJob;
 
-
     /// verbosity switch
     bool verbose_;
+
+    /// histogram folder for L1 GT plots
+    std::string m_histFolder;
 
 private:
 
@@ -193,9 +195,6 @@ private:
     /// number of events processed
     int m_nrEvJob;
     int m_nrEvRun;
-
-    /// histogram folder for L1 GT plots
-    std::string m_histFolder;
 
     boost::uint64_t preGps_;
     boost::uint64_t preOrb_;

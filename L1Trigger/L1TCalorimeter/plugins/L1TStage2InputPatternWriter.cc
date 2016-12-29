@@ -74,8 +74,9 @@ private:
   unsigned nChan_;  // number of channels per quad
   unsigned nQuad_;
   unsigned nLink_;
-  unsigned nFramePerEvent_;
-  unsigned nClearFrame_;
+  unsigned nHeaderFrames_;
+  unsigned nPayloadFrames_;
+  unsigned nClearFrames_;
   unsigned nFrame_;
   
   // data arranged by link and frame
@@ -109,11 +110,12 @@ L1TStage2InputPatternWriter::L1TStage2InputPatternWriter(const edm::ParameterSet
 
   filename_ = iConfig.getUntrackedParameter<std::string>("filename", "pattern.txt");
 
-  nChan_ = 4;
-  nQuad_ = 18;
+  nChan_ = iConfig.getUntrackedParameter<unsigned>("nChanPerQuad", 4);
+  nQuad_ = iConfig.getUntrackedParameter<unsigned>("nQuads", 18);
 
-  nFramePerEvent_ = 41;
-  nClearFrame_ = 4;
+  nHeaderFrames_ = iConfig.getUntrackedParameter<unsigned>("nHeaderFrames", 1);
+  nPayloadFrames_ = iConfig.getUntrackedParameter<unsigned>("nPayloadFrames", 39);
+  nClearFrames_ = iConfig.getUntrackedParameter<unsigned>("nClearFrames", 6);
   nFrame_ = 0;
 
   nLink_ = nChan_ * nQuad_;
@@ -153,10 +155,37 @@ L1TStage2InputPatternWriter::analyze(const edm::Event& iEvent, const edm::EventS
       ++tower) {
     towers.push_back(*tower);
   }
-  
+
+
+  // insert header frames
+  for ( unsigned iFrame=0; iFrame<nHeaderFrames_; ++iFrame ) {
+
+    dataValid_.push_back( 1 );
+
+    // loop over links                                                          
+    for ( unsigned iQuad=0; iQuad<nQuad_; ++iQuad ) {
+      for ( unsigned iChan=0; iChan<nChan_; ++iChan ) {
+
+        int data=0;
+
+        // get tower ieta, iphi for link                                        
+        unsigned iLink = (iQuad*nChan_)+iChan;
+
+        // add data to output                                                   
+        data_.at(iLink).push_back( data );
+
+      }
+
+    }
+
+    nFrame_++;
+
+  }
+
+
 
   // loop over frames
-  for ( unsigned iFrame=0; iFrame<nFramePerEvent_; ++iFrame ) {
+  for ( unsigned iFrame=0; iFrame<nPayloadFrames_; ++iFrame ) {
     
     dataValid_.push_back( 1 );
 
@@ -198,7 +227,7 @@ L1TStage2InputPatternWriter::analyze(const edm::Event& iEvent, const edm::EventS
 
 
   // loop over clear frames
-  for ( unsigned iFrame=0; iFrame<nClearFrame_; ++iFrame ) {
+  for ( unsigned iFrame=0; iFrame<nClearFrames_; ++iFrame ) {
     
     dataValid_.push_back( 0 );
 

@@ -55,6 +55,9 @@ from DQM.L1TMonitor.L1TGMT_cfi import *
 # GT DQM module 
 from DQM.L1TMonitor.L1TGT_cfi import *
 
+# Stage1GT DQM module
+from DQM.L1TMonitor.L1TStage1GT_cfi import *
+
 # L1Extra DQM module
 from DQM.L1TMonitor.L1ExtraDQM_cff import *
 
@@ -63,6 +66,13 @@ from DQM.L1TMonitor.L1TRate_cfi import *
 
 # L1 BPTX DQM module
 from DQM.L1TMonitor.L1TBPTX_cfi import *
+
+# L1 Stage1 GT
+import EventFilter.L1GlobalTriggerRawToDigi.l1GtUnpack_cfi
+gtStage1Digis = EventFilter.L1GlobalTriggerRawToDigi.l1GtUnpack_cfi.l1GtUnpack.clone()
+
+import EventFilter.L1GlobalTriggerRawToDigi.l1GtEvmUnpack_cfi
+gtStage1EvmDigis = EventFilter.L1GlobalTriggerRawToDigi.l1GtEvmUnpack_cfi.l1GtEvmUnpack.clone()
 
 #
 # other, non pure-L1 stuff
@@ -110,7 +120,10 @@ l1tMonitorOnline = cms.Sequence(
                           l1tCsctf + 
                           l1tRpctf +
                           l1tGmt +
-                          l1tGt + 
+                          l1tGt +
+                          gtStage1Digis +
+                          gtStage1EvmDigis +
+                          l1tStage1Gt +
                           l1ExtraDqmSeq +
                           l1tBPTX +
                           l1tRate +
