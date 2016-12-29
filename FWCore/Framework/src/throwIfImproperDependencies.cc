@@ -22,9 +22,6 @@
 #include "boost/graph/depth_first_search.hpp"
 #include "boost/graph/visitors.hpp"
 
-//CDJ DEBUG
-#include <iostream>
-
 namespace {
   //====================================
   // checkForCorrectness algorithm
@@ -167,7 +164,6 @@ namespace {
       if(m_verticiesInFundamentalCycles.end() == m_verticiesInFundamentalCycles.find(out)) {
         return;
       }
-      //std::cout <<"found "<<out<<std::endl;
       
       for(auto const& cycle: m_fundamentalCycles) {
         //Is the out vertex in this cycle?
@@ -184,12 +180,6 @@ namespace {
           //this cycle isn't the one which uses the vertex from the stack
           continue;
         }
-        //std::cout <<"matching cycle"<<std::endl;
-        /*for(auto it =cycle.begin(); it!= cycle.end(); ++it) {
-          unsigned int inCycle =index[source(*it,iGraph)];
-          unsigned int outCycle =index[target(*it,iGraph)];
-          //std::cout << inCycle<<"->"<<outCycle<<std::endl;
-        } */
 
         //tempStack will hold a stack that could have been found by depth first
         // search if module to index ordering had been different
@@ -218,7 +208,6 @@ namespace {
           }
         }
         if(itLastMatch==cycle.end()) {
-          //std::cout <<"search earlier in cycle"<<std::endl;
           //See if we can find the attachment to the stack earlier in the cycle
           tempStack.insert(tempStack.end(),itStartMatch,cycle.end());
           for(auto it=cycle.begin(); it != itStartMatch;++it) {
@@ -240,7 +229,6 @@ namespace {
             tempStack.insert(tempStack.end(),cycle.begin(),itLastMatch+1);
           }
         } else {
-          //std::cout <<"found later in cycle"<<std::endl;
           if( (itStartMatch == cycle.begin()) and (cycle.end() == (itLastMatch+1)) ) {
             //This is just the entire cycle starting where we've already started
             // before. Given the cycle was OK before, it would also be OK this time
@@ -248,13 +236,6 @@ namespace {
           }
           tempStack.insert(tempStack.end(),itStartMatch,itLastMatch+1);
         }
-        //CDJ DEBUG
-        //std::cout<<"NEW CYCLE"<<std::endl;
-        /*for(auto const& edge: tempStack) {
-          unsigned int outCycle =index[target(edge,iGraph)];
-          unsigned int inCycle =index[source(edge,iGraph)];
-          //std::cout <<inCycle <<"->"<<outCycle<<std::endl;
-        }*/
         
         tempStack= findMinimumCycle(tempStack,iGraph);
         checkCycleForProblem(tempStack,iGraph);
