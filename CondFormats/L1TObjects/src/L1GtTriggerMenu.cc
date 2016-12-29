@@ -758,13 +758,14 @@ void L1GtTriggerMenu::print(std::ostream& myCout, int& printVerbosity) const {
 // get the result for algorithm with name algName
 // use directly the format of decisionWord (no typedef)
 const bool L1GtTriggerMenu::gtAlgorithmResult(const std::string& algName,
-        const std::vector<bool>& decWord) const {
+					      const std::vector<bool>& decWord) const {
 
     bool algResult = false;
 
     CItAlgo itAlgo = m_algorithmMap.find(algName);
     if (itAlgo != m_algorithmMap.end()) {
-        int bitNumber = (itAlgo->second).algoBitNumber();
+        unsigned int bitNumber = (itAlgo->second).algoBitNumber();
+	if((bitNumber+1) > decWord.size()) return false;
         algResult = decWord.at(bitNumber);
         return algResult;
     }
