@@ -31,14 +31,14 @@ from Validation.RecoParticleFlow.miniAODValidation_cff import *
 from Validation.RecoEgamma.photonMiniAODValidationSequence_cff import *
 from Validation.RecoEgamma.egammaValidationMiniAOD_cff import *
 
-prevalidation = cms.Sequence( globalPrevalidation * hltassociation * metPreValidSeq * jetPreValidSeq )
+prevalidation = cms.Sequence( globalPrevalidation * hltassociation * metPreValidSeq * jetPreValidSeq * cms.SequencePlaceholder("mix") )
 prevalidationLiteTracking = cms.Sequence( prevalidation )
 prevalidationLiteTracking.replace(globalPrevalidation,globalPrevalidationLiteTracking)
 prevalidationMiniAOD = cms.Sequence( genParticles1 * miniAODValidationSequence * photonMiniAODValidationSequence * egammaValidationMiniAOD)
 
 
-validation = cms.Sequence(cms.SequencePlaceholder("mix")
-                         +genvalid_all
+validation = cms.Sequence(
+                         genvalid_all
                          *globaldigisanalyze
                          *globalhitsanalyze
                          *globalrechitsanalyze
