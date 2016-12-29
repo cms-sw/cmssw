@@ -47,11 +47,11 @@ namespace ecaldqm
     MESet& meTimeMap(MEs_.at("TimeMap"));
     MESet& meTime1D(MEs_.at("Time1D"));
 
-    uint32_t mask(~((0x1 << EcalRecHit::kGood) | (0x1 << EcalRecHit::kOutOfTime)));
+//    uint32_t mask(~((0x1 << EcalRecHit::kGood) | (0x1 << EcalRecHit::kOutOfTime)));
     float threshold(_collection == kEBRecHit ? energyThresholdEB_ : energyThresholdEE_);
 
     std::for_each(_hits.begin(), _hits.end(), [&](EcalRecHitCollection::value_type const& hit){
-                    if(hit.checkFlagMask(mask)) return;
+//                    if(hit.checkFlagMask(mask)) return;
 
                     DetId id(hit.id());
 
