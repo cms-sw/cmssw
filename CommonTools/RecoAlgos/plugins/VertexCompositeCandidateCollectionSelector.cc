@@ -10,7 +10,6 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-//#include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/Candidate/interface/VertexCompositeCandidate.h"
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
 
@@ -120,28 +119,21 @@ VertexCompositeCandidateCollectionSelector::produce(edm::Event& iEvent, const ed
    if (debug_) std::cout << "n: " << n << std::endl;
    if (n>0) {
   
-     reco::VertexCompositeCandidateCollection v0s = *v0Handle.product();    
-     for ( auto v0 : v0s ) {
-//       float mass     = v0.mass();
-//       float pt       = v0.pt();
-//       float p        = v0.p();
-//       float eta      = v0.eta();
-//       float phi      = v0.phi();
-//       int pdgID      = v0.pdgId();
-//       float chi2oNDF = v0.vertexNormalizedChi2();
-       GlobalPoint displacementFromPV = ( pv==nullptr ? dummyGP : GlobalPoint( (pv->x() - v0.vx()), 
+     auto const& v0s = *v0Handle.product();    
+     for ( auto const& v0 : v0s ) {
+       GlobalPoint displacementFromPV2D = ( pv==nullptr ? dummyGP : GlobalPoint( (pv->x() - v0.vx()), 
 									       (pv->y() - v0.vy()), 
 									       0. ) );
-       GlobalPoint displacementFromBS = ( bs==nullptr ? dummyGP : GlobalPoint( -1*((bs->position().x() - v0.vx()) + (v0.vz() - bs->position().z()) * bs->dxdz()),
-									       -1*((bs->position().y() - v0.vy()) + (v0.vz() - bs->position().z()) * bs->dydz()), 
+       GlobalPoint displacementFromBS2D = ( bs==nullptr ? dummyGP : GlobalPoint( -1*((bs->x(v0.vz()) - v0.vx()) + (v0.vz() - bs->position().z()) * bs->dxdz()),
+									       -1*((bs->y(v0.vz()) - v0.vy()) + (v0.vz() - bs->position().z()) * bs->dydz()), 
 									       0. ) );
-       float lxy      = ( pv==nullptr ? dummy : displacementFromPV.perp() );
-       float lxyWRTbs = ( bs==nullptr ? dummy : displacementFromBS.perp() );
+       float abslxy      = ( pv==nullptr ? dummy : displacementFromPV2D.perp() );
+       float abslxyWRTbs = ( bs==nullptr ? dummy : displacementFromBS2D.perp() );
 
-       if (debug_) std::cout << "lxy: " << lxy << " w.r.t. " << lxyCUT_ << " ==> " << ( lxy >= lxyCUT_ ? "OK" : "KO" ) << std::endl;
-       if (debug_) std::cout << "lxyWRTbs: " << lxyWRTbs << " w.r.t. " << lxyWRTbsCUT_ << " ==> " << ( lxyWRTbs >= lxyWRTbsCUT_ ? "OK" : "KO" ) << std::endl;       
-       if (lxy      < lxyCUT_) continue;
-       if (lxyWRTbs < lxyWRTbsCUT_) continue;
+       if (debug_) std::cout << "abslxy: " << abslxy << " w.r.t. " << lxyCUT_ << " ==> " << ( abslxy >= lxyCUT_ ? "OK" : "KO" ) << std::endl;
+       if (debug_) std::cout << "abslxyWRTbs: " << abslxyWRTbs << " w.r.t. " << lxyWRTbsCUT_ << " ==> " << ( abslxyWRTbs >= lxyWRTbsCUT_ ? "OK" : "KO" ) << std::endl;       
+       if (abslxy      < lxyCUT_     ) continue;
+       if (abslxyWRTbs < lxyWRTbsCUT_) continue;
        result->push_back(v0);
      }
    }
@@ -149,7 +141,6 @@ VertexCompositeCandidateCollectionSelector::produce(edm::Event& iEvent, const ed
    if (debug_) std::cout << "result: " << result->size() << std::endl;
    // put into the Event
    // Write the collections to the Event
-   //   result->shrink_to_fit(); iEvent.put(std::move(result), std::string(label_) );
    result->shrink_to_fit(); iEvent.put(std::move(result) );
  
 }
