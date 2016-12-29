@@ -36,9 +36,12 @@ void ME0DigisValidation::bookHistograms(DQMStore::IBooker & ibooker, edm::Run co
   me0_strip_dg_den_eta_tot = ibooker.book1D( "me0_strip_dg_den_eta_tot", "Denominator; #eta; Entries", 12, 1.8, 3.0);
   me0_strip_dg_num_eta_tot = ibooker.book1D( "me0_strip_dg_num_eta_tot", "Numerator; #eta; Entries", 12, 1.8, 3.0);
     
-  me0_strip_dg_bkg_rad_tot = ibooker.book1D( "me0_strip_dg_bkg_radius_tot", "Total neutron background; #eta; Entries", 22, 50, 160);
-  me0_strip_dg_bkgElePos_rad = ibooker.book1D( "me0_strip_dg_bkgElePos_radius", "Neutron background: electrons+positrons; #eta; Entries", 22, 50, 160);
-  me0_strip_dg_bkgNeutral_rad = ibooker.book1D( "me0_strip_dg_bkgNeutral_radius", "Neutron background: gammas+neutrons; #eta; Entries", 22, 50, 160);
+  Float_t bins[] = {62.3, 68.2, 74.1, 81.1, 88.2, 96.6, 104.9, 115.1, 125.2, 137.3, 149.5};
+  Int_t binnum = sizeof(bins)/sizeof(Float_t) - 1;
+    
+  me0_strip_dg_bkg_rad_tot = ibooker.book1D( "me0_strip_dg_bkg_radius_tot", "Total neutron background; Radius; Entries", binnum, bins);
+  me0_strip_dg_bkgElePos_rad = ibooker.book1D( "me0_strip_dg_bkgElePos_radius", "Neutron background: electrons+positrons; Radius; Entries", binnum, bins);
+  me0_strip_dg_bkgNeutral_rad = ibooker.book1D( "me0_strip_dg_bkgNeutral_radius", "Neutron background: gammas+neutrons; Radius; Entries", binnum, bins);
 
   for( unsigned int region_num = 0 ; region_num < nregion ; region_num++ ) {
       me0_strip_dg_zr_tot[region_num] = BookHistZR(ibooker,"me0_strip_dg_tot","Digi",region_num);
