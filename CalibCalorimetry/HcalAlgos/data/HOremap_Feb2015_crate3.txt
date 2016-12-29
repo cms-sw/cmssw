@@ -1,0 +1,51 @@
+	RBX side (from top to bottom)																																											
+SLOT	 ring | sector | phi | rm/rm_fib.									SLOT															SLOT										SLOT								
+																																													
+2	P2	P2	P2	P2		P2	P1	P1	P1	3	P1	P1	P1	YB0		P2	P2				YB0	YB0	YB0	YB0	4	M1	M1	M1	YB0		YB0	YB0	YB0	YB0	5	M1	M1	M1	M2		M2	M2	M2	M2	
+	S01	S01	S01	S01		S01	S01	S01	S01		S01	S01	S01	S01		S01	S01				S01	S01	S01	S01		S01	S01	S01	S01		S01	S01	S01	S01		S01	S01	S01	S01		S01	S01	S01	S01	
+top	2-4	2-4	2-4	2-4		2-4	2-4	2-4	2-4		2-4	2-4	2-4	3-4		6/21/2	6/21/3				3-4	3-4	1-2	1-2		2-4	2-4	2-4	3-4		1-2	71-72	3-4	3-4		2-4	2-4	2-4	2-4		2-4	2-4	2-4	2-4	
+	4 / 7	4 / 4	4 / 5	4 / 2		4 / 3	4 / 6	4 / 7	4 / 4		4 / 5	4 / 2	4 / 3	3 / 7		2 / 6	4 / 6				3 / 4	3 / 5	2 / 7	2 / 4		4  / 5	4  / 2	4  / 3	3 / 6		2 / 6	1 / 6	3 / 2	3 / 3		4  /  4	4  / 7	4  / 6	2 / 3		2 / 2	2 / 5	2 / 4	2 / 7	
+	P2	P2	P2	P2		P2	P1	P1	P1		P1	P1	P1	YB0		P2	P2				YB0	YB0	YB0	M2		M1	M1	M1	YB0		YB0	YB0	YB0	M2		M1	M1	M1	M2		M2	M2	M2	M2	
+	S01	S01	S01	S01		S01	S01	S01	S01		S01	S01	S01	S01		S04	S04				S01	S01	S01	S01		S01	S01	S01	S01		S01	S01	S01	S01		S01	S01	S01	S01		S01	S01	S01	S01	
+bot.	71-1	71-1	71-1	71-1		71-1	71-1	71-1	71-1		71-1	71-1	71-1	1-2		6/21/2	6/21/3				71-72	71-72	71-72	17-18		71-1	71-1	71-1	1-2		1-2	71-72	71-72	17-18		71-1	71-1	71-1	71-1		71-1	71-1	71-1	71-1	
+	2 / 7	2 / 4	2 / 5	2 / 2		2 / 3	2 / 6	2 / 7	2 / 4		2 / 5	2 / 2	2 / 3	2 / 5		1 / 6	3 / 6				1 / 7	1 / 4	1 / 5	2 / 6		2 / 5	2 / 2	2 / 3	2 / 2		2 / 3	1 / 2	1 / 3	4 / 6		2 / 4	2 / 7	2 / 6	4 / 3		4 / 2	4 / 5	4 / 4	4 / 7	
+																																													
+																																													
+14	P2	P2	P2	P2		P2	P1	P1	P1	7	M1	M1	M1	YB0		P2	P2				YB0	YB0	YB0	YB0	13	P1	P1	P1	YB0		YBO	YB0	YB0	YB0	6	M1	M1	M1	M2		M2	M2	M2	M2	
+	S02	S02	S02	S02		S02	S02	S02	S02		S02	S02	S02	S02		S03	S03				S02	S02	S02	S02		S02	S02	S02	S02		S02	S02	S02	S02		S02	S02	S02	S02		S02	S02	S02	S02	
+top	8-10	8-10	8-10	8-10		8-10	8-10	8-10	8-10		8-10	8-10	8-10	9-10		6/21/6	6/21/7				9-10	9-10	7-8	7-8		8-10	8-10	8-10	9-10		7-8	5-6	9-10	9-10		8-10	8-10	8-10	8-10		8-10	8-10	8-10	8-10	
+	1 / 7	1 / 4	1 / 5 	1 / 2		1 / 3	1 / 6 	1 / 7 	1 / 4		1 / 5	1 / 2	1 / 3	2 / 7		2 / 6	4 / 6				2 / 5	2 / 4	3 / 7	3 / 5		1 / 5	1 / 2	1 / 3	2 / 6		3 / 6	4 / 6	2 / 3	2 / 2		1 / 4	1 / 7	1 / 6	3 / 3		3 / 2	3 / 5	3 / 4	3 / 7	
+	P2	P2	P2	P2		P2	P1	P1	P1		M1	M1	M1	YB0							YB0	YB0	YB0	M2		P1	P1	P1	YB0		YB0	YB0	YB0	M2		M1	M1	M1	M2		M2	M2	M2	M2	
+	S02	S02	S02	S02		S02	S02	S02	S02		S02	S02	S02	S02							S02	S02	S02	S02		S02	S02	S02	S02		S02	S02	S02	S02		S02	S02	S02	S02		S02	S02	S02	S02	
+bot.	5-7	5-7	5-7	5-7		5-7	5-7	5-7	5-7		5-7	5-7	5-7	7-8							5-6	5-6	5-6	23-24		5-7	5-7	5-7	7-8		7-8	5-6	5-6	23-24		5-7	5-7	5-7	5-7		5-7	5-7	5-7	5-7	
+	3 / 7	3 / 4 	3 / 5	3 / 2		3 / 3	3 / 6	3 / 7	3 / 4		3 / 5	3 / 2	3 / 3	3 / 4							4 / 7	4 / 5	4 / 4	3 / 6		3 / 5	3 / 2	3 /3	3 / 3		3 / 2	4 / 3	4  / 2	1 / 6		3 / 4	3 / 7	3 / 6	1 / 3		1 / 2	1 / 5 	1 / 4	1 / 7	
+																																													
+																																													
+18	P2	P2	P2	P2		P2	P1	P1	P1	16	M1	M1	M1	YB0							YB0	YB0	YB0	YB0	17	P1	P1	P1	YB0		YBO	YB0	YB0	YB0	15	M1	M1	M1	M2		M2	M2	M2	M2	
+	S03	S03	S03	S03		S03	S03	S03	S03		S03	S03	S03	S03							S03	S03	S03	S03		S03	S03	S03	S03		S03	S03	S03	S03		S03	S03	S03	S03		S03	S03	S03	S03	
+top	14-16	14-16	14-16	14-16		14-16	14-16	14-16	14-16		14-16	14-16	14-16	15-16							15-16	15-16	13-14	13-14		14-16	14-16	14-16	15-16		13-14	11-12	15-16	15-16		14-16	14-16	14-16	14-16		14-16	14-16	14-16	14-16	
+	4 / 7	4 / 4	4 / 5	4 / 2		4 / 3	4 / 6	4 / 7	4 / 4		4 / 5	4 / 2	4 / 3	2 / 7							2 / 5	2 / 4	3 / 7	3 / 5		4 / 5	4 / 2	4 / 3	2 / 6		3 / 6	4 / 6	2 / 3	2 / 2		4  / 4	4 / 7	4 / 6	2 / 3		2 / 2	2 / 5	2 / 4	2 / 7	
+	P2	P2	P2	P2		P2	P1	P1	P1		M1	M1	M1	YB0							YB0	YB0	YB0	M2		P1	P1	P1	YB0		YB0	YB0	YB0	M2		M1	M1	M1	M2		M2	M2	M2	M2	
+	S03	S03	S03	S03		S03	S03	S03	S03		S03	S03	S03	S03							S03	S03	S03	S03		S03	S03	S03	S03		S03	S03	S03	S03		S03	S03	S03	S03		S03	S03	S03	S03	
+bot.	11-13	11-13	11-13	11-13		11-13	11-13	11-13	11-13		11-13	11-13	11-13	13-14							11-12	11-12	11-12	29-30		11-13	11-13	11-13	13-14		13-14	11-12	11-12	29-30		11-13	11-13	11-13	11-13		11-13	11-13	11-13	11-13	
+	2 / 7	2 / 4	2 / 5	2 / 2		2 / 3	2 / 6	2 / 7	2 / 4		2 / 5	2 / 2	2 / 3	3 / 4							4 / 7	4 / 5	4 / 4	2 / 6		2 / 5	2 / 2	2 / 3	3 / 3		3 / 2	4 / 3	4 / 2	4 / 6		2 / 4	2 / 7	2 / 6	4 / 3		4 / 2	4 / 5	4 / 4	4 / 7	
+htr																								 																					
+fib.	1	2	3	4		5	6	7	8		1	2	3	4							5	6	7	8		1	2	3	4		5	6	7	8		8	7	6	5		4	3	2	1	
+																																													
+										"Nomenclature:  S04 RM/HTR fibers arrangement as type-A, S05 (or S06) as type-B"																														
+										a/b/c for HOX fiber refer to  crate|slot|htr_fib																																
+		Full HO coverage:																																										
+		Crate	Sector																																										
+		3	1-3																																										
+		6	7-9																																										
+		7	4-6																																										
+		13	10-12																																										
+
+
+	Important points covering all sectors/filling all crates:																																									
+	" - In YB0, two RBX are installed in positive side and next following two are in negative side."																																						
+	" - Hence, each following two Sectors are symmetric w.r.t. RM fibers distribution. For ex: S05, S06 are symmetric wrt RM fiber (type-B) and following two sectors S10 and S11 are alike (type-A)."																																
+	" - To summarize, S02, S03, S06, S04, S10 and S11 are alike of type-A AND S01, S04, S05, S05, S06 and S12 are alike of type-B"																																				
+	" - In given scheme of crate_06, S05 and S06 are of type-B, whereas S-07 is of type-A"																																							
+	" - Knowing the pattern of sectors filling particular crate, the sequence of types will change in patch panel scheme. "																																					
+		"For example, in crate-3 has first sectors of type-B followed with two sectors of type-A. Accordingly the blocks in patch panel will be arranged as :"																							S01   _  type-B									
