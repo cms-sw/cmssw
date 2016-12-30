@@ -1,0 +1,9 @@
+<use   name="FWCore/MessageLogger"/>
+<use   name="FWCore/Framework"/>
+<use   name="Geometry/HGCalGeometry"/>
+<use   name="Geometry/Records"/>
+<use   name="DataFormats/FTLRecHit"/>
+<use   name="clhep"/>
+<export>
+  <lib   name="1"/>
+</export>
