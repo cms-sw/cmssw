@@ -1,12 +1,9 @@
 import FWCore.ParameterSet.Config as cms
 
-from CommonTools.ParticleFlow.ParticleSelectors.pfSortByType_cff import *
-from CommonTools.ParticleFlow.pfNoPileUpIso_cff  import *
-
-pfPileUpIso.PFCandidates = 'particleFlowPtrs'
-pfNoPileUpIso.bottomCollection='particleFlowPtrs'
+from CommonTools.ParticleFlow.PFBRECO_cff import pfPileUpIsoPFBRECO, pfNoPileUpIsoPFBRECO, pfNoPileUpIsoPFBRECOSequence
+from CommonTools.ParticleFlow.PFBRECO_cff import pfAllNeutralHadronsPFBRECO, pfAllChargedHadronsPFBRECO, pfAllPhotonsPFBRECO, pfAllChargedParticlesPFBRECO, pfPileUpAllChargedParticlesPFBRECO, pfAllNeutralHadronsAndPhotonsPFBRECO, pfSortByTypePFBRECOSequence
 
 patPFCandidateIsoDepositSelection = cms.Sequence(
-       pfNoPileUpIsoSequence +
-       pfSortByTypeSequence
+       pfNoPileUpIsoPFBRECOSequence +
+       pfSortByTypePFBRECOSequence
        )
