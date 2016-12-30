@@ -20,12 +20,12 @@
 
 #include <string>
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "DQMServices/Core/interface/DQMEDHarvester.h"
 
 #include <iostream>
 #include <fstream>
@@ -33,12 +33,11 @@
 #include <vector>
 #include <map>
 
-class DQMStore;
 class MonitorElement;
 class SiStripDetVOff;
 class SiStripDetCabling; 
 
-class SiStripDcsInfo: public edm::EDAnalyzer {
+class SiStripDcsInfo: public DQMEDHarvester {
 
  public:
 
@@ -50,35 +49,28 @@ class SiStripDcsInfo: public edm::EDAnalyzer {
 
  private:
 
-  /// BeginJob
-  void beginJob();
-
   /// Begin Run
   void beginRun(edm::Run const& run, edm::EventSetup const& eSetup);
 
   /// Begin Luminosity Block
-  void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& eSetup) ;
+  void dqmBeginLuminosityBlock(DQMStore::IBooker & , DQMStore::IGetter & , edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& eSetup) ;
 
   /// End Of Luminosity
-  void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& iSetup);
+  void dqmEndLuminosityBlock(DQMStore::IBooker & , DQMStore::IGetter & , edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& iSetup);
 
   /// EndRun
   void endRun(edm::Run const& run, edm::EventSetup const& eSetup);
 
-  /// Analyze
-  void analyze(edm::Event const&, edm::EventSetup const&);
-
-
+  void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override;
 
 private:
-  void bookStatus();
+  void bookStatus(DQMStore::IBooker & , DQMStore::IGetter &);
   void readStatus(edm::EventSetup const&);
   void readCabling(edm::EventSetup const&);
-  void addBadModules();
-  void fillStatus();
-  void fillDummyStatus();
+  void addBadModules(DQMStore::IBooker & , DQMStore::IGetter &);
+  void fillStatus(DQMStore::IBooker & , DQMStore::IGetter &);
+  void fillDummyStatus(DQMStore::IBooker & , DQMStore::IGetter &);
 
-  DQMStore* dqmStore_;
   MonitorElement * DcsFraction_;
 
   struct SubDetMEs{
@@ -95,8 +87,8 @@ private:
 
   edm::ESHandle<SiStripDetVOff> siStripDetVOff_;
   int  nFEDConnected_;
-
-  int nLumiAnalysed_;
+  
+  const TrackerTopology* tTopo;
 
   edm::ESHandle< SiStripDetCabling > detCabling_;
 };

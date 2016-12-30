@@ -4,6 +4,8 @@ from DQM.SiStripMonitorSummary.OnDemandMonitoring_cfi import *
 #  SiStripMonitorAnalyser ####
 # for Online running
 onlineAnalyser = cms.EDAnalyzer("SiStripAnalyser",
+    nFEDinfoDir              = cms.untracked.string("SiStrip/FEDIntegrity_SM"),                                   
+    nFEDinVsLSname           = cms.untracked.string("nFEDinVsLS"),
     StaticUpdateFrequency    = cms.untracked.int32(1),
     GlobalStatusFilling      = cms.untracked.int32(1),
     TkMapCreationFrequency   = cms.untracked.int32(1),

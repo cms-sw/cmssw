@@ -15,6 +15,7 @@
 #include "DQM/SiStripMonitorClient/interface/SiStripLayoutParser.h"
 #include "DQM/SiStripMonitorClient/interface/SiStripConfigWriter.h"
 #include "DQM/SiStripMonitorClient/interface/SiStripQualityChecker.h"
+#include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -56,15 +57,6 @@ bool SiStripActionExecutor::readConfiguration() {
 //
 // -- Read Configurationn File
 //
-/*
-bool SiStripActionExecutor::readTkMapConfiguration() {
-  
-  if (tkMapCreator_) delete tkMapCreator_;
-  tkMapCreator_ = new SiStripTrackerMapCreator();
-  if (tkMapCreator_) return true;
-  else return false;
-}
-*/
 bool SiStripActionExecutor::readTkMapConfiguration(const edm::EventSetup& eSetup) {
   
   if (tkMapCreator_) delete tkMapCreator_;
@@ -75,52 +67,52 @@ bool SiStripActionExecutor::readTkMapConfiguration(const edm::EventSetup& eSetup
 //
 // -- Create and Fill Summary Monitor Elements
 //
-void SiStripActionExecutor::createSummary(DQMStore* dqm_store) {
+void SiStripActionExecutor::createSummary(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter) {
   if (summaryCreator_) {
-    dqm_store->cd();
+    ibooker.cd();
     std::string dname = "SiStrip/MechanicalView";
-    if (dqm_store->dirExists(dname)) {
-      dqm_store->cd(dname);
-      summaryCreator_->createSummary(dqm_store);
+    if (igetter.dirExists(dname)) {
+      ibooker.cd(dname);
+      summaryCreator_->createSummary(ibooker , igetter);
     }
   }
 }
 //
 // -- Create and Fill Summary Monitor Elements
 //
-void SiStripActionExecutor::createSummaryOffline(DQMStore* dqm_store) {
+void SiStripActionExecutor::createSummaryOffline(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter) {
   if (summaryCreator_) {
-    dqm_store->cd();
+    ibooker.cd();
     std::string dname = "MechanicalView";
-    if (SiStripUtility::goToDir(dqm_store, dname)) {
-      summaryCreator_->createSummary(dqm_store);
+    if (SiStripUtility::goToDir(ibooker , igetter , dname)) {
+      summaryCreator_->createSummary(ibooker , igetter);
     }
-    dqm_store->cd();
+    ibooker.cd();
   }
 }
 //
 // -- create tracker map
 //
 void SiStripActionExecutor::createTkMap(const edm::ParameterSet & tkmapPset, 
-					DQMStore* dqm_store, std::string& map_type,
-                                        const edm::EventSetup& eSetup) {
-  if (tkMapCreator_) tkMapCreator_->create(tkmapPset, dqm_store, map_type, eSetup);
+					DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter, std::string& map_type,
+                                        edm::ESHandle<SiStripQuality> & ssq) {
+  if (tkMapCreator_) tkMapCreator_->create(tkmapPset, ibooker , igetter , map_type, ssq);
 }
 //
 // -- create tracker map for offline
 //
 void SiStripActionExecutor::createOfflineTkMap(const edm::ParameterSet & tkmapPset,
-					DQMStore* dqm_store, std::string& map_type,
-                                        const edm::EventSetup& eSetup) {
-  if (tkMapCreator_) tkMapCreator_->createForOffline(tkmapPset, dqm_store, map_type, eSetup);
+					       DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter, std::string& map_type,
+					       edm::ESHandle<SiStripQuality> & ssq) {
+  if (tkMapCreator_) tkMapCreator_->createForOffline(tkmapPset, ibooker , igetter , map_type, ssq);
 }
 
 //
 // -- Create Status Monitor Elements
 //
-void SiStripActionExecutor::createStatus(DQMStore* dqm_store){
+void SiStripActionExecutor::createStatus(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter){
   if (!qualityChecker_) qualityChecker_ = new SiStripQualityChecker(pSet_);
-  qualityChecker_->bookStatus(dqm_store);
+  qualityChecker_->bookStatus(ibooker , igetter);
 }
 //
 // -- Fill Dummy Status
@@ -131,14 +123,14 @@ void SiStripActionExecutor::fillDummyStatus(){
 //
 // -- Fill Status
 //
-void SiStripActionExecutor::fillStatus(DQMStore* dqm_store, const edm::ESHandle<SiStripDetCabling>& detcabling, const edm::EventSetup& eSetup) {
-  qualityChecker_->fillStatus(dqm_store, detcabling, eSetup);
+void SiStripActionExecutor::fillStatus(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter, const edm::ESHandle<SiStripDetCabling>& detcabling, const TrackerTopology *tTopo) {
+  qualityChecker_->fillStatus(ibooker , igetter, detcabling, tTopo);
 }
 //
 // -- Fill Lumi Status
 //
-void SiStripActionExecutor::fillStatusAtLumi(DQMStore* dqm_store) {
-  qualityChecker_->fillStatusAtLumi(dqm_store);
+void SiStripActionExecutor::fillStatusAtLumi(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter) {
+  qualityChecker_->fillStatusAtLumi(ibooker , igetter );
 }
 //
 // -- 
@@ -152,7 +144,7 @@ void SiStripActionExecutor::createDummyShiftReport(){
 //
 // -- Create Shift Report
 //
-void SiStripActionExecutor::createShiftReport(DQMStore * dqm_store){
+void SiStripActionExecutor::createShiftReport(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter){
 
   // Read layout configuration
   std::string localPath = std::string("DQM/SiStripMonitorClient/data/sistrip_plot_layout.xml");
@@ -177,31 +169,31 @@ void SiStripActionExecutor::createShiftReport(DQMStore * dqm_store){
   MonitorElement* me;
   std::string report_path;
   report_path = "SiStrip/EventInfo/reportSummaryContents/SiStrip_DetFraction_TECB";
-  me  = dqm_store->get(report_path);    
+  me  = igetter.get(report_path);    
   printReportSummary(me, shift_summary, "TECB"); 
 
   report_path = "SiStrip/EventInfo/reportSummaryContents/SiStrip_DetFraction_TECF";
-  me = dqm_store->get(report_path);    
+  me = igetter.get(report_path);    
   printReportSummary(me, shift_summary, "TECF");
   
   report_path = "SiStrip/EventInfo/reportSummaryContents/SiStrip_DetFraction_TIB";
-  me = dqm_store->get(report_path);    
+  me = igetter.get(report_path);    
   printReportSummary(me, shift_summary, "TIB");
 
   report_path = "SiStrip/EventInfo/reportSummaryContents/SiStrip_DetFraction_TIDB";
-  me = dqm_store->get(report_path);    
+  me = igetter.get(report_path);    
   printReportSummary(me, shift_summary, "TIDB");
 
   report_path = "SiStrip/EventInfo/reportSummaryContents/SiStrip_DetFraction_TIDF";
-  me = dqm_store->get(report_path);    
+  me = igetter.get(report_path);    
   printReportSummary(me, shift_summary, "TIDF");
 
   report_path = "SiStrip/EventInfo/reportSummaryContents/SiStrip_DetFraction_TOB";
-  me = dqm_store->get(report_path);    
+  me = igetter.get(report_path);    
   printReportSummary(me, shift_summary, "TOB");
 
   shift_summary << std::endl;
-  printShiftHistoParameters(dqm_store, layout_map, shift_summary);
+  printShiftHistoParameters(ibooker, igetter, layout_map, shift_summary);
   
   std::ofstream report_file;
   report_file.open("sistrip_shift_report.txt", std::ios::out);
@@ -227,7 +219,7 @@ void SiStripActionExecutor::printReportSummary(MonitorElement* me,
 //
 //  -- Print Shift Histogram Properties
 //
-void SiStripActionExecutor::printShiftHistoParameters(DQMStore * dqm_store, std::map<std::string, std::vector<std::string> >& layout_map, std::ostringstream& str_val) { 
+void SiStripActionExecutor::printShiftHistoParameters(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter, std::map<std::string, std::vector<std::string> >& layout_map, std::ostringstream& str_val) { 
 
   str_val << std::endl;
   for (std::map<std::string, std::vector< std::string > >::iterator it = layout_map.begin() ; it != layout_map.end(); it++) {
@@ -244,7 +236,7 @@ void SiStripActionExecutor::printShiftHistoParameters(DQMStore * dqm_store, std:
 	 im != it->second.end(); im++) {  
       std::string path_name = (*im);
       if (path_name.size() == 0) continue;
-      MonitorElement* me = dqm_store->get(path_name);
+      MonitorElement* me = igetter.get(path_name);
       std::ostringstream entry_str, mean_str, rms_str;
       entry_str << std::setprecision(2);
       entry_str << setiosflags(std::ios::fixed);
@@ -268,12 +260,12 @@ void SiStripActionExecutor::printShiftHistoParameters(DQMStore * dqm_store, std:
 //
 //  -- Print List of Modules with QTest warning or Error
 //
-void SiStripActionExecutor::printFaultyModuleList(DQMStore * dqm_store, std::ostringstream& str_val) { 
-  dqm_store->cd();
+void SiStripActionExecutor::printFaultyModuleList(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter, std::ostringstream& str_val) { 
+  ibooker.cd();
 
   std::string mdir = "MechanicalView";
-  if (!SiStripUtility::goToDir(dqm_store, mdir)) return;
-  std::string mechanicalview_dir = dqm_store->pwd();
+  if (!SiStripUtility::goToDir(ibooker, igetter , mdir)) return;
+  std::string mechanicalview_dir = ibooker.pwd();
 
   std::vector<std::string> subdet_folder;
   subdet_folder.push_back("TIB");
@@ -287,22 +279,22 @@ void SiStripActionExecutor::printFaultyModuleList(DQMStore * dqm_store, std::ost
   int nDetsWithErrorTotal = 0;
   for (std::vector<std::string>::const_iterator im = subdet_folder.begin(); im != subdet_folder.end(); im++) {       
     std::string dname = mechanicalview_dir + "/" + (*im);
-    if (!dqm_store->dirExists(dname)) continue;
+    if (!igetter.dirExists(dname)) continue;
     str_val << "============"<< std::endl;
     str_val << (*im)         << std::endl;                                                    
     str_val << "============"<< std::endl;
     str_val << std::endl;      
 
-    dqm_store->cd(dname);
+    ibooker.cd(dname);
     std::vector<std::string> module_folders;
-    SiStripUtility::getModuleFolderList(dqm_store, module_folders);
+    SiStripUtility::getModuleFolderList(ibooker, igetter , module_folders);
     int nDets = module_folders.size();
-    dqm_store->cd();    
+    ibooker.cd();    
   
     int nDetsWithError = 0;
     std::string bad_module_folder = dname + "/" + "BadModuleList";
-    if (dqm_store->dirExists(bad_module_folder)) {
-      std::vector<MonitorElement *> meVec = dqm_store->getContents(bad_module_folder);
+    if (igetter.dirExists(bad_module_folder)) {
+      std::vector<MonitorElement *> meVec = igetter.getContents(bad_module_folder);
       for (std::vector<MonitorElement *>::const_iterator it = meVec.begin();
 	   it != meVec.end(); it++) {
         nDetsWithError++; 
@@ -319,7 +311,7 @@ void SiStripActionExecutor::printFaultyModuleList(DQMStore * dqm_store, std::ost
     nDetsTotal += nDets;
     nDetsWithErrorTotal += nDetsWithError;        
   }    
-  dqm_store->cd();
+  ibooker.cd();
   str_val << "--------------------------------------------------------------------"<< std::endl;
   str_val << " Total Number of Connected Detectors : " <<   nDetsTotal << std::endl;
   str_val << " Total Number of Detectors with Error : " << nDetsWithErrorTotal << std::endl;

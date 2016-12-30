@@ -20,12 +20,12 @@
 
 #include <string>
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "DQMServices/Core/interface/DQMEDHarvester.h"
 
 #include <iostream>
 #include <fstream>
@@ -33,11 +33,10 @@
 #include <vector>
 #include <map>
 
-class DQMStore;
 class MonitorElement;
 class SiStripDetCabling;
 
-class SiStripCertificationInfo: public edm::EDAnalyzer {
+class SiStripCertificationInfo: public DQMEDHarvester {
 
  public:
 
@@ -49,36 +48,23 @@ class SiStripCertificationInfo: public edm::EDAnalyzer {
 
  private:
 
-  /// BeginJob
-  void beginJob();
-
   /// Begin Run
   void beginRun(edm::Run const& run, edm::EventSetup const& eSetup);
 
   /// End Of Luminosity
-  void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& iSetup);
+  void dqmEndLuminosityBlock(DQMStore::IBooker & , DQMStore::IGetter & , edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& iSetup);
+
+  void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override;
   
-  /// EndRun
-  void endRun(edm::Run const& run, edm::EventSetup const& eSetup);
-
-  /// Analyze
-  void analyze(edm::Event const&, edm::EventSetup const&);
-
-
-
 private:
 
-  void bookSiStripCertificationMEs();
-  void resetSiStripCertificationMEs();
-  void fillSiStripCertificationMEs(edm::EventSetup const& eSetup);
+  void bookSiStripCertificationMEs(DQMStore::IBooker & , DQMStore::IGetter &);
+  void resetSiStripCertificationMEs(DQMStore::IBooker & , DQMStore::IGetter &);
+  void fillSiStripCertificationMEs(DQMStore::IBooker & , DQMStore::IGetter &);
 
-  void fillDummySiStripCertification();
+  void fillDummySiStripCertification(DQMStore::IBooker & , DQMStore::IGetter &);
 
-  void fillSiStripCertificationMEsAtLumi();
-
-  DQMStore* dqmStore_;
-
-
+  void fillSiStripCertificationMEsAtLumi(DQMStore::IBooker & , DQMStore::IGetter &);
 
   struct SubDetMEs{
     MonitorElement* det_fractionME;
@@ -98,5 +84,8 @@ private:
   edm::ESHandle< SiStripDetCabling > detCabling_;
 
   int nFEDConnected_;
-};
+
+  const TrackerTopology* tTopo;
+
+  };
 #endif

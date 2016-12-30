@@ -5,6 +5,8 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 
 #include <iostream>
 #include <fstream>
@@ -13,7 +15,6 @@
 #include <vector>
 #include <string>
 
-class DQMStore;
 class MonitorElement;
 class TkDetMap;
 class SiStripDetCabling;
@@ -27,13 +28,13 @@ class SiStripQualityChecker {
   virtual ~SiStripQualityChecker();
 
 
- void bookStatus(DQMStore* dqm_store);     
+  void bookStatus(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter);     
   void resetStatus();
   void fillDummyStatus();
-  void fillStatus(DQMStore* dqm_store, const edm::ESHandle< SiStripDetCabling >& cabling, const edm::EventSetup& eSetup);
-  void fillStatusAtLumi(DQMStore* dqm_store);
+  void fillStatus(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter, const edm::ESHandle< SiStripDetCabling >& cabling, const TrackerTopology *tTopo);
+  void fillStatusAtLumi(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter);
   void printStatusReport();
-  void fillFaultyModuleStatus(DQMStore* dqm_store, const edm::EventSetup& eSetup);
+  void fillFaultyModuleStatus(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter, const TrackerTopology *tTopo);
   
  private:
 
@@ -44,14 +45,14 @@ class SiStripQualityChecker {
     std::string     detectorTag;
   };
 
-  void fillDetectorStatus(DQMStore* dqm_store, const edm::ESHandle< SiStripDetCabling >& cabling);
-  void fillSubDetStatus(DQMStore* dqm_store,const edm::ESHandle< SiStripDetCabling >& cabling, SubDetMEs& mes, unsigned int xbin,float& gflag);
-  void getModuleStatus(DQMStore* dqm_store, std::vector<MonitorElement*>& layer_mes, int& errdet);
+  void fillDetectorStatus(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter, const edm::ESHandle< SiStripDetCabling >& cabling);
+  void fillSubDetStatus(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter,const edm::ESHandle< SiStripDetCabling >& cabling, SubDetMEs& mes, unsigned int xbin,float& gflag);
+  void getModuleStatus(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter, std::vector<MonitorElement*>& layer_mes, int& errdet);
 
   void fillStatusHistogram(MonitorElement*, int xbin, int ybin, float val);
   void initialiseBadModuleList();  
 
-  void fillDetectorStatusAtLumi(DQMStore* dqm_store);
+  void fillDetectorStatusAtLumi(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter);
   
   std::map<std::string, SubDetMEs> SubDetMEsMap;
   std::map<std::string, std::string> SubDetFolderMap;

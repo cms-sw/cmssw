@@ -20,12 +20,12 @@
 
 #include <string>
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "DQMServices/Core/interface/DQMEDHarvester.h"
 
 #include <iostream>
 #include <fstream>
@@ -33,12 +33,11 @@
 #include <vector>
 #include <map>
 
-class DQMStore;
 class MonitorElement;
 class SiStripFedCabling;
 class TrackerTopology;
 
-class SiStripDaqInfo: public edm::EDAnalyzer {
+class SiStripDaqInfo: public DQMEDHarvester {
 
  public:
 
@@ -50,33 +49,28 @@ class SiStripDaqInfo: public edm::EDAnalyzer {
 
  private:
 
-  /// BeginJob
-  void beginJob();
-
   /// Begin Run
   void beginRun(edm::Run const& run, edm::EventSetup const& eSetup);
 
   /// End Of Luminosity
-  void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& iSetup);
+  void dqmEndLuminosityBlock(DQMStore::IBooker & , DQMStore::IGetter & , edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& iSetup);
 
   /// EndRun
   void endRun(edm::Run const& run, edm::EventSetup const& eSetup);
 
-  /// Analyze
-  void analyze(edm::Event const&, edm::EventSetup const&);
+  void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override;
 
 
 private:
   void readFedIds(const edm::ESHandle<SiStripFedCabling>& fedcabling, edm::EventSetup const& iSetup);
-  void readSubdetFedFractions(std::vector<int>& fed_ids, edm::EventSetup const& iSetup);
-  void bookStatus();
-  void fillDummyStatus();
-  void findExcludedModule(unsigned short fed_id, const TrackerTopology* tTopo
+  void readSubdetFedFractions(DQMStore::IBooker & , DQMStore::IGetter & , std::vector<int>& fed_ids);
+  void bookStatus(DQMStore::IBooker & , DQMStore::IGetter &);
+  void fillDummyStatus(DQMStore::IBooker & , DQMStore::IGetter &);
+  void findExcludedModule(DQMStore::IBooker & , DQMStore::IGetter & , unsigned short fed_id, const TrackerTopology* tTopo
 );
 
   std::map<std::string,std::vector<unsigned short> > subDetFedMap;
 
-  DQMStore* dqmStore_;
   MonitorElement * DaqFraction_;
 
   struct SubDetMEs{
@@ -88,8 +82,12 @@ private:
 
   unsigned long long m_cacheID_;
   int nFedTotal;
+  int nFEDConnected;
   bool bookedStatus_;
+  std::vector<int> FedsInIds;
 
   edm::ESHandle< SiStripFedCabling > fedCabling_;
+  const TrackerTopology* tTopo;
+
 };
 #endif

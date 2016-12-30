@@ -6,10 +6,9 @@
 #include <map>
 #include <vector>
 #include <string>
-
+#include "DQMServices/Core/interface/DQMStore.h"
 
 class SiStripConfigWriter;
-class DQMStore;
 
 class SiStripSummaryCreator {
 
@@ -19,19 +18,19 @@ class SiStripSummaryCreator {
   virtual ~SiStripSummaryCreator();
   bool readConfiguration(std::string & file_path);
 
-  void createSummary(DQMStore* dqm_store);
+  void createSummary(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter);
 
-  void fillLayout(DQMStore * dqm_store);
+  void fillLayout(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter);
   void setSummaryMENames( std::map<std::string, std::string>& me_names);
   int getFrequency() { return summaryFrequency_;}
 
  private:
- MonitorElement* getSummaryME(DQMStore* dqm_store,
-                              std::string& name, std::string htype);
+  MonitorElement* getSummaryME(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter, 
+			       std::string& name, std::string htype);
 
 
-  void fillGrandSummaryHistos(DQMStore* dqm_store);
-  void fillSummaryHistos(DQMStore* dqm_store);
+  void fillGrandSummaryHistos(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter);
+  void fillSummaryHistos(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter);
   void fillHistos(int ival, int istep, std::string htype, 
 		  MonitorElement* me_src, MonitorElement* me);
 

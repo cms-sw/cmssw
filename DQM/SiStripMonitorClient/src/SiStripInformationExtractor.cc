@@ -65,16 +65,16 @@ void SiStripInformationExtractor::readConfiguration() {
 //
 // --  Fill Summary Histo List
 // 
-void SiStripInformationExtractor::printSummaryHistoList(DQMStore * dqm_store, std::ostringstream& str_val){
+void SiStripInformationExtractor::printSummaryHistoList(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter, std::ostringstream& str_val){
   static std::string indent_str = "";
 
-  std::string currDir = dqm_store->pwd();
+  std::string currDir = ibooker.pwd();
   std::string dname = currDir.substr(currDir.find_last_of("/")+1);
   if (dname.find("module_") ==0) return;
   //  str_val << "<li><a href=\"#\" id=\"" << currDir << "\">" << dname << "</a>" << std::endl;
   str_val << "<li><span class=\"folder\">" << dname << "</span>" << std::endl;
-  std::vector<MonitorElement *> meVec = dqm_store->getContents(currDir);
-  std::vector<std::string> subDirVec = dqm_store->getSubdirs();
+  std::vector<MonitorElement *> meVec = igetter.getContents(currDir);
+  std::vector<std::string> subDirVec = igetter.getSubdirs();
   if ( meVec.size()== 0  && subDirVec.size() == 0 ) {
     str_val << "</li> "<< std::endl;    
     return;
@@ -93,14 +93,14 @@ void SiStripInformationExtractor::printSummaryHistoList(DQMStore * dqm_store, st
   std::string mtag ="Modules: ";  
   for (std::vector<std::string>::const_iterator ic = subDirVec.begin();
        ic != subDirVec.end(); ic++) {
-    dqm_store->cd(*ic);
+    ibooker.cd(*ic);
     std::string titl = (*ic);
     if (titl.find("module_") == 0)  {
       titl = titl.substr(titl.find("module_")+7);
       mtag += titl + " ";
     }
-    printSummaryHistoList(dqm_store, str_val);
-    dqm_store->goUp();
+    printSummaryHistoList(ibooker , igetter , str_val);
+    ibooker.goUp();
   }
   if (mtag.size() > 10) {
     //    str_val << "<li class=\"note.gif\"><a href=\"#\">" << mtag << "</a></li>" << std::endl;
@@ -112,18 +112,18 @@ void SiStripInformationExtractor::printSummaryHistoList(DQMStore * dqm_store, st
 //
 // --  Fill Alarm List
 // 
-void SiStripInformationExtractor::printAlarmList(DQMStore * dqm_store, std::ostringstream& str_val){
+void SiStripInformationExtractor::printAlarmList(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter, std::ostringstream& str_val){
   static std::string indent_str = "";
 
-  std::string currDir = dqm_store->pwd();
+  std::string currDir = ibooker.pwd();
   std::string dname = currDir.substr(currDir.find_last_of("/")+1);
   std::string image_name;
-  selectImage(image_name,dqm_store->getStatus(currDir));
+  selectImage(igetter , image_name, currDir);
   str_val << "<li><span class=\"folder\">" 
           << dname << "<img src=\""
           << image_name << "\"></span>" << std::endl;
-  std::vector<std::string> subDirVec = dqm_store->getSubdirs();
-  std::vector<MonitorElement *> meVec = dqm_store->getContents(currDir);
+  std::vector<std::string> subDirVec = igetter.getSubdirs();
+  std::vector<MonitorElement *> meVec = igetter.getContents(currDir);
   
   if (subDirVec.size() == 0 && meVec.size() == 0) {
     str_val << "</li> "<< std::endl;    
@@ -151,9 +151,9 @@ void SiStripInformationExtractor::printAlarmList(DQMStore * dqm_store, std::ostr
   }
   for (std::vector<std::string>::const_iterator ic = subDirVec.begin();
        ic != subDirVec.end(); ic++) {
-    dqm_store->cd(*ic);
-    printAlarmList(dqm_store, str_val);
-    dqm_store->goUp();
+    ibooker.cd(*ic);
+    printAlarmList(ibooker , igetter , str_val);
+    ibooker.goUp();
   }
   str_val << "</ul> "<< std::endl;  
   str_val << "</li> "<< std::endl;  
@@ -276,7 +276,7 @@ void SiStripInformationExtractor::getHistosFromPath(DQMStore * dqm_store, const 
 //
 // plot Histograms from Layout
 //
-void SiStripInformationExtractor::plotHistosFromLayout(DQMStore * dqm_store){
+void SiStripInformationExtractor::plotHistosFromLayout(DQMStore::IGetter & igetter){
   if (layoutMap.size() == 0) return;
 
   std::ofstream image_file;
@@ -292,7 +292,7 @@ void SiStripInformationExtractor::plotHistosFromLayout(DQMStore * dqm_store){
 	 im != it->second.end(); im++) {  
       std::string path_name = (*im);
       if (path_name.size() == 0) continue;
-      MonitorElement* me = dqm_store->get(path_name);
+      MonitorElement* me = igetter.get(path_name);
       ival++;
       std::ostringstream  fname, ftitle;
       if (!me) {
@@ -646,6 +646,29 @@ void SiStripInformationExtractor::selectColor(std::string& col, std::vector<QRep
   }
   selectColor(col, status);
 }
+
+void SiStripInformationExtractor::selectImage(DQMStore::IGetter & igetter , std::string& name, std::string dir){
+  //substituting use of DQMStore::getStatus
+
+  std::vector<MonitorElement *> meVec = igetter.getContents(dir);
+
+  int status = dqm::qstatus::STATUS_OK;
+
+  for (std::vector<MonitorElement *>::const_iterator it = meVec.begin(); it != meVec.end(); it++) {
+    if ( (*it)->hasError() ) 
+      {
+	status = dqm::qstatus::ERROR;
+	break;
+      }
+    else if ( (*it)->hasWarning() )
+      status = dqm::qstatus::WARNING;
+    else if ( status < dqm::qstatus::WARNING && (*it)->hasOtherReport() )
+      status = dqm::qstatus::OTHER;
+  }
+
+  selectImage( name , status );
+}
+
 //
 // -- Get Image name from status
 //
@@ -800,9 +823,9 @@ void SiStripInformationExtractor::readQTestSummary(DQMStore* dqm_store, std::str
 //
 // -- Create Images 
 //
-void SiStripInformationExtractor::createImages(DQMStore* dqm_store){
-  if (histoPlotter_->plotsToMake())       histoPlotter_->createPlots(dqm_store);
-  if (histoPlotter_->condDBPlotsToMake()) histoPlotter_->createCondDBPlots(dqm_store);
+void SiStripInformationExtractor::createImages(DQMStore::IGetter & igetter){
+  if (histoPlotter_->plotsToMake())       histoPlotter_->createPlots(igetter);
+  if (histoPlotter_->condDBPlotsToMake()) histoPlotter_->createCondDBPlots(igetter);
 }
 //
 // -- Set HTML Header in xgi output
@@ -865,14 +888,14 @@ void SiStripInformationExtractor::readNonGeomHistoTree(DQMStore* dqm_store, std:
 //
 // --  Fill Readout/Control Histo List
 // 
-void SiStripInformationExtractor::printNonGeomHistoList(DQMStore * dqm_store, std::ostringstream& str_val){
+void SiStripInformationExtractor::printNonGeomHistoList(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter, std::ostringstream& str_val){
   static std::string indent_str = "";
 
-  std::string currDir = dqm_store->pwd();
+  std::string currDir = ibooker.pwd();
   std::string dname = currDir.substr(currDir.find_last_of("/")+1);
   str_val << "<li><span class=\"folder\">" << dname << "</span>" << std::endl;
-  std::vector<MonitorElement *> meVec = dqm_store->getContents(currDir);
-  std::vector<std::string> subDirVec = dqm_store->getSubdirs();
+  std::vector<MonitorElement *> meVec = igetter.getContents(currDir);
+  std::vector<std::string> subDirVec = igetter.getSubdirs();
   if ( meVec.size()== 0  && subDirVec.size() == 0 ) {
     str_val << "</li> "<< std::endl;    
     return;
@@ -889,9 +912,9 @@ void SiStripInformationExtractor::printNonGeomHistoList(DQMStore * dqm_store, st
   }
   for (std::vector<std::string>::const_iterator ic = subDirVec.begin();
        ic != subDirVec.end(); ic++) {
-    dqm_store->cd(*ic);
-    printNonGeomHistoList(dqm_store, str_val);
-    dqm_store->goUp();
+    ibooker.cd(*ic);
+    printNonGeomHistoList(ibooker , igetter , str_val);
+    ibooker.goUp();
   }
   str_val << "</ul> "<< std::endl;  
   str_val << "</li> "<< std::endl;  

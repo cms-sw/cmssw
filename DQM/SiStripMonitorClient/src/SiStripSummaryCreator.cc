@@ -54,10 +54,10 @@ void SiStripSummaryCreator::setSummaryMENames(std::map<std::string, std::string>
 //
 // -- Browse through the Folder Structure
 //
-void SiStripSummaryCreator::createSummary(DQMStore* dqm_store) {
+void SiStripSummaryCreator::createSummary(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter) {
   if (summaryMEMap.size() == 0) return;
-  std::string currDir = dqm_store->pwd();
-  std::vector<std::string> subdirs = dqm_store->getSubdirs();
+  std::string currDir = ibooker.pwd();
+  std::vector<std::string> subdirs = igetter.getSubdirs();
   int nmod = 0;
   for (std::vector<std::string>::const_iterator it = subdirs.begin();
        it != subdirs.end(); it++) {
@@ -65,24 +65,24 @@ void SiStripSummaryCreator::createSummary(DQMStore* dqm_store) {
     nmod++;       
   }  
   if (nmod > 0) {
-    fillSummaryHistos(dqm_store);
+    fillSummaryHistos(ibooker, igetter);
   } else {  
     for (std::vector<std::string>::const_iterator it = subdirs.begin();
        it != subdirs.end(); it++) {
-      dqm_store->cd(*it);
-      createSummary(dqm_store);
-      dqm_store->goUp();
+      ibooker.cd(*it);
+      createSummary(ibooker , igetter);
+      ibooker.goUp();
     }
-    fillGrandSummaryHistos(dqm_store);
+    fillGrandSummaryHistos(ibooker , igetter);
   }
 }
 //
 // -- Create and Fill Summary Histograms at the lowest level of the structure
 //
-void SiStripSummaryCreator::fillSummaryHistos(DQMStore* dqm_store) {
-  std::string currDir = dqm_store->pwd();
+void SiStripSummaryCreator::fillSummaryHistos(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter) {
+  std::string currDir = ibooker.pwd();
   std::map<std::string, MonitorElement*> MEMap;
-  std::vector<std::string> subdirs = dqm_store->getSubdirs();
+  std::vector<std::string> subdirs = igetter.getSubdirs();
   if (subdirs.size() ==0) return;
   
 
@@ -95,10 +95,10 @@ void SiStripSummaryCreator::fillSummaryHistos(DQMStore* dqm_store) {
     for (std::vector<std::string>::const_iterator it = subdirs.begin();
 	 it != subdirs.end(); it++) {
       if ( (*it).find("module_") == std::string::npos) continue;
-      dqm_store->cd(*it);
+      ibooker.cd(*it);
       ndet++;
-      std::vector<MonitorElement*> contents = dqm_store->getContents(dqm_store->pwd());
-      dqm_store->goUp();
+      std::vector<MonitorElement*> contents = igetter.getContents(ibooker.pwd());
+      ibooker.goUp();
       for (std::vector<MonitorElement *>::const_iterator im = contents.begin();
                 im != contents.end(); im++) {
         MonitorElement * me_i = (*im);
@@ -109,8 +109,8 @@ void SiStripSummaryCreator::fillSummaryHistos(DQMStore* dqm_store) {
 	MonitorElement* me;
 	// Get the Summary ME
 	if (iPos == MEMap.end()){
-            me = getSummaryME(dqm_store, name, htype);
-            MEMap.insert(std::pair<std::string, MonitorElement*>(name, me));
+	  me = getSummaryME(ibooker , igetter, name, htype);
+	  MEMap.insert(std::pair<std::string, MonitorElement*>(name, me));
 	} else  me =  iPos->second;
 	// Fill it now
         fillHistos(ndet, iBinStep, htype, me_i, me); 
@@ -123,15 +123,15 @@ void SiStripSummaryCreator::fillSummaryHistos(DQMStore* dqm_store) {
 //
 //  -- Fill Summary Histogram at higher level
 //
-void SiStripSummaryCreator::fillGrandSummaryHistos(DQMStore* dqm_store) {
+void SiStripSummaryCreator::fillGrandSummaryHistos(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter) {
   std::map<std::string, MonitorElement*> MEMap;
-  std::string currDir = dqm_store->pwd();
+  std::string currDir = ibooker.pwd();
   std::string dir_name =  currDir.substr(currDir.find_last_of("/")+1);
   if ((dir_name.find("SiStrip") == 0) ||
       (dir_name.find("Collector") == 0) ||
       (dir_name.find("MechanicalView") == 0) ||
       (dir_name.find("FU") == 0) ) return;
-  std::vector<std::string> subdirs = dqm_store->getSubdirs();
+  std::vector<std::string> subdirs = igetter.getSubdirs();
   if (subdirs.size() == 0) return;;
   for (std::map<std::string,std::string>::const_iterator isum = summaryMEMap.begin();
        isum != summaryMEMap.end(); isum++) {
@@ -145,9 +145,9 @@ void SiStripSummaryCreator::fillGrandSummaryHistos(DQMStore* dqm_store) {
     int ibinStep =0;
     for (std::vector<std::string>::const_iterator it = subdirs.begin();
 	 it != subdirs.end(); it++) {
-      dqm_store->cd(*it);
-      std::vector<MonitorElement*> contents = dqm_store->getContents(dqm_store->pwd());
-      dqm_store->goUp();
+      ibooker.cd(*it);
+      std::vector<MonitorElement*> contents = igetter.getContents(ibooker.pwd());
+      ibooker.goUp();
       for (std::vector<MonitorElement *>::const_iterator im = contents.begin();
                 im != contents.end(); im++) {
         MonitorElement * me_i = (*im);
@@ -159,9 +159,9 @@ void SiStripSummaryCreator::fillGrandSummaryHistos(DQMStore* dqm_store) {
           MonitorElement* me; 
           if (iPos == MEMap.end()) {
             if (htype == "sum" || htype == "Sum") {
-	      me = getSummaryME(dqm_store, name, htype);
+	      me = getSummaryME(ibooker, igetter, name, htype);
 	    } else {
-	      me = getSummaryME(dqm_store, name, "bin-by-bin");              
+	      me = getSummaryME(ibooker, igetter, name, "bin-by-bin");              
             }
 	    MEMap.insert(std::pair<std::string, MonitorElement*>(name, me));
           } else  me =  iPos->second;
@@ -180,10 +180,10 @@ void SiStripSummaryCreator::fillGrandSummaryHistos(DQMStore* dqm_store) {
 //
 // -- Get Summary ME
 //
-MonitorElement* SiStripSummaryCreator::getSummaryME(DQMStore* dqm_store, 
+MonitorElement* SiStripSummaryCreator::getSummaryME(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter, 
                          std::string& name, std::string htype) {
   MonitorElement* me = 0;
-  std::string currDir = dqm_store->pwd();
+  std::string currDir = ibooker.pwd();
   std::string sum_name, tag_name;
  
   std::string dname = currDir.substr(currDir.find_last_of("/")+1);
@@ -196,7 +196,7 @@ MonitorElement* SiStripSummaryCreator::getSummaryME(DQMStore* dqm_store,
     tag_name = "Summary_Mean" + name;
   }
   // If already booked
-  std::vector<MonitorElement*> contents = dqm_store->getContents(currDir);
+  std::vector<MonitorElement*> contents = igetter.getContents(currDir);
   for (std::vector<MonitorElement *>::const_iterator im = contents.begin();
                 im != contents.end(); im++) {
     MonitorElement * me = (*im);
@@ -217,11 +217,11 @@ MonitorElement* SiStripSummaryCreator::getSummaryME(DQMStore* dqm_store,
   std::map<int, std::string> tags;
   if (!me) {
     int nBins = 0;
-    std::vector<std::string> subdirs = dqm_store->getSubdirs();
+    std::vector<std::string> subdirs = igetter.getSubdirs();
     // set # of bins of the histogram
     if (htype == "mean" || htype == "Mean" ) {
        nBins = subdirs.size();
-       me = dqm_store->book1D(sum_name,sum_name,nBins,0.5,nBins+0.5);
+       me = ibooker.book1D(sum_name,sum_name,nBins,0.5,nBins+0.5);
        int ibin = 0;
        for (std::vector<std::string>::const_iterator it = subdirs.begin();
           it != subdirs.end(); it++) {
@@ -232,9 +232,9 @@ MonitorElement* SiStripSummaryCreator::getSummaryME(DQMStore* dqm_store,
     } else if (htype == "bin-by-bin" || htype == "Bin-by-Bin") {
       for (std::vector<std::string>::const_iterator it = subdirs.begin();
 	   it != subdirs.end(); it++) {
-	dqm_store->cd(*it);
+	ibooker.cd(*it);
         std::string subdir_name = (*it).substr((*it).find_last_of("/")+1);
-	std::vector<MonitorElement*> s_contents = dqm_store->getContents(dqm_store->pwd());
+	std::vector<MonitorElement*> s_contents = igetter.getContents(ibooker.pwd());
 	for (std::vector<MonitorElement *>::const_iterator iv = s_contents.begin();
                 iv != s_contents.end(); iv++) {
           MonitorElement* s_me = (*iv);
@@ -247,15 +247,15 @@ MonitorElement* SiStripSummaryCreator::getSummaryME(DQMStore* dqm_store,
 	    break;
           }
 	}
-	dqm_store->goUp();
+	ibooker.goUp();
       }
-      me = dqm_store->book1D(sum_name,sum_name,nBins,0.5,nBins+0.5);
+      me = ibooker.book1D(sum_name,sum_name,nBins,0.5,nBins+0.5);
     } else if (htype == "sum" || htype == "Sum") {
       for (std::vector<std::string>::const_iterator it = subdirs.begin();
 	   it != subdirs.end(); it++) {
-	dqm_store->cd(*it);
-	std::vector<MonitorElement*> s_contents = dqm_store->getContents(dqm_store->pwd());
-	dqm_store->goUp();        
+	ibooker.cd(*it);
+	std::vector<MonitorElement*> s_contents = igetter.getContents(ibooker.pwd());
+	ibooker.goUp();        
 	for (std::vector<MonitorElement *>::const_iterator iv = s_contents.begin();
                 iv != s_contents.end(); iv++) {
           MonitorElement* s_me = (*iv);
@@ -266,7 +266,7 @@ MonitorElement* SiStripSummaryCreator::getSummaryME(DQMStore* dqm_store,
             TH1F* hist1 = s_me->getTH1F();
             if (hist1) {
 	      nBins = s_me->getNbinsX();
-	      me = dqm_store->book1D(sum_name,sum_name,nBins,
+	      me = ibooker.book1D(sum_name,sum_name,nBins,
 		 hist1->GetXaxis()->GetXmin(),hist1->GetXaxis()->GetXmax());
               break;
             }

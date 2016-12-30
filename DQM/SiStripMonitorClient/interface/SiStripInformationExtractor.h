@@ -3,6 +3,7 @@
 
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 #include <fstream>
 #include <sstream>
@@ -13,20 +14,19 @@
 
 class SiStripLayoutParser;
 class SiStripDetCabling;
-class DQMStore;
 class QReport;
 class SiStripHistoPlotter;
 
 class SiStripInformationExtractor {
-
+  
  public:
-
+  
   SiStripInformationExtractor();
- ~SiStripInformationExtractor();
-
-  void plotHistosFromLayout(DQMStore * dqm_store);
-  void createImages(DQMStore* dqm_store);
-
+  ~SiStripInformationExtractor();
+  
+  void plotHistosFromLayout(DQMStore::IGetter &);
+  void createImages(DQMStore::IGetter &);
+  
   // removing xdaq deps
  // void getSingleModuleHistos(DQMStore * dqm_store, 
   //     const std::multimap<std::string, std::string>& req_map, xgi::Output * out);
@@ -66,12 +66,13 @@ class SiStripInformationExtractor {
 	      std::string item_name);
   std::string getItemValue(const std::multimap<std::string, std::string>& req_map,
 	      std::string item_name);
-  void printSummaryHistoList(DQMStore* dqm_store, std::ostringstream& str_val);
-  void printAlarmList(DQMStore * dqm_store, std::ostringstream& str_val);
-  void printNonGeomHistoList(DQMStore * dqm_store, std::ostringstream& str_val);
+  void printSummaryHistoList(DQMStore::IBooker & , DQMStore::IGetter &, std::ostringstream& str_val);
+  void printAlarmList(DQMStore::IBooker & , DQMStore::IGetter &, std::ostringstream& str_val);
+  void printNonGeomHistoList(DQMStore::IBooker & , DQMStore::IGetter &, std::ostringstream& str_val);
 
   void selectImage(std::string& name, int status);
   void selectImage(std::string& name, std::vector<QReport*> & reports);
+  void selectImage(DQMStore::IGetter & , std::string& , std::string);
   void selectColor(std::string& col, int status);
   void selectColor(std::string& col, std::vector<QReport*>& reports);
 
