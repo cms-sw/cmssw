@@ -9,7 +9,7 @@
 #include <string>
 
 ElectronOfflineClient::ElectronOfflineClient( const edm::ParameterSet & conf )
- : ElectronDqmAnalyzerBase(conf)
+ : ElectronDqmHarvesterBase(conf)
  {
   effHistoTitle_ = conf.getParameter<std::string>("EffHistoTitle") ;
  }
@@ -17,7 +17,7 @@ ElectronOfflineClient::ElectronOfflineClient( const edm::ParameterSet & conf )
 ElectronOfflineClient::~ElectronOfflineClient()
  {}
 
-void ElectronOfflineClient::finalize()
+void ElectronOfflineClient::finalize( DQMStore::IBooker & iBooker,DQMStore::IGetter & iGetter )
  {
 //  MonitorElement * h1_matchedEle_eta = get("matchedEle_eta");
 //  MonitorElement * h1_matchedEle_eta_golden = get("matchedEle_eta_golden");
@@ -42,40 +42,40 @@ void ElectronOfflineClient::finalize()
 //    //h1_matchedEle_eta_bbremFrac ->setBinContent(nb,contbbrem) ;
 //    //h1_matchedEle_eta_narrowFrac ->setBinContent(nb,contnarrow) ;
 //   }
-//  remove("matchedEle_eta") ;
-//  remove("matchedEle_eta_golden") ;
-//  remove("matchedEle_eta_shower") ;
-//  //remove("matchedEle_eta_bbrem") ;
-//  //remove("matchedEle_eta_narrow") ;
+//  remove(iBooker,iGetter, "matchedEle_eta") ;
+//  remove(iBooker,iGetter, "matchedEle_eta_golden") ;
+//  remove(iBooker,iGetter, "matchedEle_eta_shower") ;
+//  //remove(iBooker,iGetter, "matchedEle_eta_bbrem") ;
+//  //remove(iBooker,iGetter, "matchedEle_eta_narrow") ;
 
   setBookIndex(100) ;
   if (effHistoTitle_=="")
    {
-    bookH1andDivide("ptEff","matchedObject_Pt","matchingObject_Pt","p_{T} (GeV/c)","Efficiency","efficiency vs p_{T}") ;
-    bookH1andDivide("etaEff","matchedObject_Eta","matchingObject_Eta","#eta","Efficiency","efficiency vs #eta") ;
-  //  bookH1andDivide("absEtaEff","matchedObject_AbsEta","matchingObject_AbsEta","|#eta|","Efficiency","efficiency vs |#eta|") ;
-    bookH1andDivide("phiEff","matchedObject_Phi","matchingObject_Phi","#phi (rad)","Efficiency","efficiency vs #phi") ;
-//    bookH1andDivide("zEff","matchedObject_Z","matchingObject_Z","z (cm)","Efficiency","efficiency vs z") ;
+    bookH1andDivide(iBooker,iGetter, "ptEff","matchedObject_Pt","matchingObject_Pt","p_{T} (GeV/c)","Efficiency","efficiency vs p_{T}") ;
+    bookH1andDivide(iBooker,iGetter, "etaEff","matchedObject_Eta","matchingObject_Eta","#eta","Efficiency","efficiency vs #eta") ;
+  //  bookH1andDivide(iBooker,iGetter, "absEtaEff","matchedObject_AbsEta","matchingObject_AbsEta","|#eta|","Efficiency","efficiency vs |#eta|") ;
+    bookH1andDivide(iBooker,iGetter, "phiEff","matchedObject_Phi","matchingObject_Phi","#phi (rad)","Efficiency","efficiency vs #phi") ;
+//    bookH1andDivide(iBooker,iGetter, "zEff","matchedObject_Z","matchingObject_Z","z (cm)","Efficiency","efficiency vs z") ;
    }
   else
    {
-    bookH1andDivide("ptEff","matchedObject_Pt","matchingObject_Pt","p_{T} (GeV/c)","Efficiency",effHistoTitle_) ;
-    bookH1andDivide("etaEff","matchedObject_Eta","matchingObject_Eta","#eta","Efficiency",effHistoTitle_) ;
-  //  bookH1andDivide("absEtaEff","matchedObject_AbsEta","matchingObject_AbsEta","|#eta|","Efficiency",effHistoTitle_) ;
-    bookH1andDivide("phiEff","matchedObject_Phi","matchingObject_Phi","#phi (rad)","Efficiency",effHistoTitle_) ;
-//    bookH1andDivide("zEff","matchedObject_Z","matchingObject_Z","z (cm)","Efficiency",effHistoTitle_) ;
+    bookH1andDivide(iBooker,iGetter, "ptEff","matchedObject_Pt","matchingObject_Pt","p_{T} (GeV/c)","Efficiency",effHistoTitle_) ;
+    bookH1andDivide(iBooker,iGetter, "etaEff","matchedObject_Eta","matchingObject_Eta","#eta","Efficiency",effHistoTitle_) ;
+  //  bookH1andDivide(iBooker,iGetter, "absEtaEff","matchedObject_AbsEta","matchingObject_AbsEta","|#eta|","Efficiency",effHistoTitle_) ;
+    bookH1andDivide(iBooker,iGetter, "phiEff","matchedObject_Phi","matchingObject_Phi","#phi (rad)","Efficiency",effHistoTitle_) ;
+//    bookH1andDivide(iBooker,iGetter, "zEff","matchedObject_Z","matchingObject_Z","z (cm)","Efficiency",effHistoTitle_) ;
    }
 
-  remove("matchedObject_Pt") ;
-  remove("matchedObject_Eta") ;
-//  remove("matchedObject_AbsEta") ;
-  remove("matchedObject_Phi") ;
-//  remove("matchedObject_Z") ;
+  remove(iBooker,iGetter, "matchedObject_Pt") ; // A.C.
+  remove(iBooker,iGetter, "matchedObject_Eta") ;
+//  remove(iBooker,iGetter, "matchedObject_AbsEta") ;
+  remove(iBooker,iGetter, "matchedObject_Phi") ;
+//  remove(iBooker,iGetter, "matchedObject_Z") ;
 
-  remove("matchingObject_Pt") ;
-  remove("matchingObject_Eta") ;
-//  remove("matchingObject_AbsEta") ;
-  remove("matchingObject_Phi") ;
-//  remove("matchingObject_Z") ;
+  remove(iBooker,iGetter, "matchingObject_Pt") ;
+  remove(iBooker,iGetter, "matchingObject_Eta") ;
+//  remove(iBooker,iGetter, "matchingObject_AbsEta") ;/**/ //A.C.
+  remove(iBooker, iGetter, "matchingObject_Phi") ;
+//  remove(iBooker,iGetter, "matchingObject_Z") ;
  }
 

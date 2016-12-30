@@ -409,37 +409,41 @@ int electronCompare()
     canvas_name = "c" ; canvas_name += histo_name ;
     canvas = new TCanvas(canvas_name) ;
     canvas->SetFillColor(10) ;
-	//std::cout << "canvas width " << canvas->GetWindowWidth() << std::endl; // 800 default
-	//std::cout << "canvas height " << canvas->GetWindowHeight() << std::endl; // 600 default
-	//std::cout << "canvas Y real " << canvas->GetYsizeReal() << std::endl;
-	//std::cout << "canvas Y user " << canvas->GetYsizeUser() << std::endl;
 
     web_page<<"<a id=\""<<histo_name<<"\" name=\""<<short_histo_name<<"\"></a>" ;
 
     // search histo_ref
     if ( file_ref != 0 )
      {
+//      std::cout << "\n histo_full_path : " << histo_full_path << std::endl ;
+//      std::cout << "file_ref_dir : " << file_ref_dir << std::endl ;
       if (file_ref_dir.IsNull())
-       { histo_full_path = histo_name ; }
+       { histo_full_path = histo_name ; /*std::cout << "file_ref_dir.IsNull()" << std::endl ;*/ }
       else
-       { histo_full_path = file_ref_dir ; histo_full_path += histo_path.c_str() ; }
+       { histo_full_path = file_ref_dir ; histo_full_path += histo_path.c_str() ; /*std::cout << "file_ref_dir.NotNull()" << std::endl ;*/ }
+      //std::cout << "histo_full_path : " << histo_full_path << std::endl ;
+      //histo_ref2 = (TH1 *)file_ref->Get(histo_full_path) ;
       histo_ref = (TH1 *)file_ref->Get(histo_full_path) ;
+//      std::cout << "histo_ref Name : " << histo_ref->GetName() << std::endl ; // A.C. to be removed
+//      std::cout<<histo_ref->GetName()<<" has "<<histo_ref->GetName()->GetEffectiveEntries()<<" entries"
       if (histo_ref!=0)
        {
         // renaming those histograms avoid very strange bugs because they
         // have the same names as the ones loaded from the new file
         histo_ref->SetName(TString(histo_ref->GetName())+"_ref") ;
-       }
+//        std::cout << "histo_ref Name : " << histo_ref->GetName() << " - histo_new Name : " << histo_name << std::endl ; // A.C. to be removed
+  }
       else
        {
         web_page<<"No <b>"<<histo_path<<"</b> for "<<CMP_BLUE_NAME<<".<br>" ;
+//        std::cout<<"No "<<histo_path<<" for "<<CMP_BLUE_NAME<<std::endl ;
        }
      }
 
     // search histo_new
     histo_full_path = file_new_dir ; histo_full_path += histo_path.c_str() ;
     histo_new = (TH1 *)file_new->Get(histo_full_path) ;
-	//std::cout << "size " << histo_new->GetSize() << std::endl ;
+//    std::cout << "histo_new Name : " << histo_new->GetName() << std::endl ; // A.C. to be removed
 
     // special treatments
     if ((scaled==1)&&(histo_new!=0)&&(histo_ref!=0)&&(histo_ref->GetEntries()!=0))
@@ -456,6 +460,8 @@ int electronCompare()
         histo_ref->Scale(rescale_factor) ;
        }
      }
+//    std::cout << "histo_ref get Min : " << histo_ref->GetMinimum() << " - histo_ref get Max : " << histo_ref->GetMaximum() << std::endl ; // 
+//    std::cout << "histo_new get Min : " << histo_new->GetMinimum() << " - histo_new get Max : " << histo_new->GetMaximum() << std::endl ; // 
     if ((histo_new!=0)&&(histo_ref!=0)&&(histo_ref->GetMaximum()>histo_new->GetMaximum()))
      { histo_new->SetMaximum(histo_ref->GetMaximum()*1.1) ; }
 
@@ -470,6 +476,7 @@ int electronCompare()
        { n_ele_charge = histo_new->GetEntries() ; }
 
       // draw histo_new
+//      std::cout << histo_name << " drawing histos new" << std::endl ; // 
       TString newDrawOptions(err==1?"E1 P":"hist") ;
       gErrorIgnoreLevel = kWarning ;
       if (divide!=0)
@@ -485,14 +492,13 @@ int electronCompare()
       histo_new->Draw(newDrawOptions) ;
 //	  std::cout << "SIZE : " << canvas->GetWw() << std::endl ; // 796 default
 //	  std::cout << "SIZE : " << canvas->GetWh() << std::endl ; // 572 default
-      //canvas->Update() ;
-	  //canvas->SetWindowSize(440, 600);
 	  canvas->SetCanvasSize(960, 600);
       canvas->Update() ;
       st_new = (TPaveStats*)histo_new->FindObject("stats");
       st_new->SetTextColor(kRed) ;
 
       // draw histo_ref
+//      std::cout << histo_name << " drawing histos ref" << std::endl ; // 
       if (histo_ref!=0)
        {
         if (divide!=0)
@@ -540,12 +546,18 @@ int electronCompare()
 
 
 // ne pas oublier de decommenter les 4 lignes suivantes
+
+//      std::cout << "histo_new get Min : " << histo_new->GetMinimum() << " - histo_new get Max : " << histo_new->GetMaximum() << std::endl ; // 
+//      std::cout << histo_name << " getEffectiveEntries : " << histo_new->GetEffectiveEntries() << std::endl ;
+/*      std::cout << histo_name << " GetMean : " << histo_new->GetMean() << std::endl ;*/
       std::cout<<histo_name
         <<" has "<<histo_new->GetEffectiveEntries()<<" entries"
-        <<" of mean value "<<histo_new->GetMean()
-        <<std::endl ;
+//        <<" of mean value "<<histo_new->GetMean()
+        <<std::endl ; 
+//      std::cout << histo_name << " appel canvas->SaveAs" << std::endl ;
       canvas->SaveAs(gif_path.Data()) ;
       web_page<<"<a href=\""<<gif_name<<"\"><img border=\"0\" class=\"image\" width=\"440\" src=\""<<gif_name<<"\"></a><br>" ;
+//      std::cout << histo_name << " fin boucle else \n" << std::endl ;
      }
 
 //    else if ((file_ref!=0)&&(histo_ref!=0))

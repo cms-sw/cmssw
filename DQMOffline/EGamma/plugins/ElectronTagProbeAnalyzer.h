@@ -27,7 +27,8 @@ class ElectronTagProbeAnalyzer : public ElectronDqmAnalyzerBase
     explicit ElectronTagProbeAnalyzer(const edm::ParameterSet& conf);
     virtual ~ElectronTagProbeAnalyzer();
 
-    virtual void book() ;
+//    virtual void book() ;
+    virtual void bookHistograms( DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) ;
     virtual void analyze( const edm::Event & e, const edm::EventSetup & c) ;
 
   private:
@@ -51,6 +52,11 @@ class ElectronTagProbeAnalyzer : public ElectronDqmAnalyzerBase
 //    double maxPtMatchingObject_; // SURE ?
 //    double maxAbsEtaMatchingObject_; // SURE ?
 //    double deltaR_;
+
+    std::string inputFile_ ;
+    std::string outputFile_ ;
+    std::string inputInternalPath_ ;
+    std::string outputInternalPath_ ;
 
     // tag and probe NEW
     double massLow_;
