@@ -6,6 +6,7 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "DQMServices/Core/interface/DQMEDHarvester.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 
@@ -14,31 +15,26 @@
 #include "TH3F.h"
 #include "RVersion.h"
 
-#if ROOT_VERSION_CODE >= ROOT_VERSION(5,27,0)
 #include "TEfficiency.h"
-#else
-#include "TGraphAsymmErrors.h"
-#endif
+
 using namespace edm;
 using namespace std;
 
-#if ROOT_VERSION_CODE >= ROOT_VERSION(5,27,0)
-class HeavyFlavorHarvesting : public edm::EDAnalyzer { //, public TGraphAsymmErrors{
-#else
-class HeavyFlavorHarvesting : public edm::EDAnalyzer , public TGraphAsymmErrors{
-#endif
+class HeavyFlavorHarvesting : public DQMEDHarvester { 
+
   public:
     HeavyFlavorHarvesting(const edm::ParameterSet& pset);
     virtual ~HeavyFlavorHarvesting();
-    virtual void analyze(const edm::Event& event, const edm::EventSetup& eventSetup) override {};
-    virtual void endRun(const edm::Run &, const edm::EventSetup &) override;
+    // virtual void endRun(const edm::Run &, const edm::EventSetup &) override;
   private:
-    void calculateEfficiency(const ParameterSet& pset);
-    void calculateEfficiency1D( TH1* num, TH1* den, string name );
-    void calculateEfficiency2D( TH2F* num, TH2F* den, string name );
-    DQMStore * dqmStore;
+    void calculateEfficiency(const ParameterSet& pset, DQMStore::IBooker &, DQMStore::IGetter &);
+    void calculateEfficiency1D( TH1* num, TH1* den, string name, DQMStore::IBooker &, DQMStore::IGetter &);
+    void calculateEfficiency2D( TH2F* num, TH2F* den, string name, DQMStore::IBooker &, DQMStore::IGetter &);
+
     string myDQMrootFolder;
     const VParameterSet efficiencies;
+  protected:
+     void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override; //performed in the endJob
 };
 
 HeavyFlavorHarvesting::HeavyFlavorHarvesting(const edm::ParameterSet& pset):
@@ -47,18 +43,13 @@ HeavyFlavorHarvesting::HeavyFlavorHarvesting(const edm::ParameterSet& pset):
 {
 }
 
-void HeavyFlavorHarvesting::endRun(const edm::Run &, const edm::EventSetup &){
-  dqmStore = Service<DQMStore>().operator->();
-  if( !dqmStore ){
-    LogError("HLTriggerOfflineHeavyFlavor") << "Could not find DQMStore service\n";
-    return;
-  }
+void HeavyFlavorHarvesting::dqmEndJob(DQMStore::IBooker & ibooker_, DQMStore::IGetter & igetter_){
   for(VParameterSet::const_iterator pset = efficiencies.begin(); pset!=efficiencies.end(); pset++){
-    calculateEfficiency(*pset);
+    calculateEfficiency(*pset, ibooker_, igetter_);
   }
 }
   
-void HeavyFlavorHarvesting::calculateEfficiency(const ParameterSet& pset){
+void HeavyFlavorHarvesting::calculateEfficiency(const ParameterSet& pset, DQMStore::IBooker & ibooker_, DQMStore::IGetter & igetter_){
 //get hold of numerator and denominator histograms
   vector<string> numDenEffMEnames = pset.getUntrackedParameter<vector<string> >("NumDenEffMEnames");
   if(numDenEffMEnames.size()!=3){
@@ -67,8 +58,8 @@ void HeavyFlavorHarvesting::calculateEfficiency(const ParameterSet& pset){
   }
   string denMEname = myDQMrootFolder+"/"+numDenEffMEnames[1];
   string numMEname = myDQMrootFolder+"/"+numDenEffMEnames[0];
-  MonitorElement *denME = dqmStore->get(denMEname);
-  MonitorElement *numME = dqmStore->get(numMEname);
+  MonitorElement *denME = igetter_.get(denMEname);
+  MonitorElement *numME = igetter_.get(numMEname);
   if(denME==0 || numME==0){
     LogDebug("HLTriggerOfflineHeavyFlavor") << "Could not find MEs: "<<denMEname<<" or "<<numMEname<<endl;
     return;
@@ -88,21 +79,21 @@ void HeavyFlavorHarvesting::calculateEfficiency(const ParameterSet& pset){
     effDir += "/"+effName.substr(0, slashPos);
     effName.erase(0, slashPos+1);
   }
-  dqmStore->setCurrentFolder(effDir);
+  ibooker_.setCurrentFolder(effDir);
   //calculate the efficiencies
   int dimensions = num->GetDimension();
   if(dimensions==1){
-    calculateEfficiency1D( num, den, effName );
+    calculateEfficiency1D( num, den, effName, ibooker_, igetter_ );
   }else if(dimensions==2){
-    calculateEfficiency2D( (TH2F*)num, (TH2F*)den, effName );
+    calculateEfficiency2D( (TH2F*)num, (TH2F*)den, effName, ibooker_, igetter_ );
     TH1D* numX = ((TH2F*)num)->ProjectionX(); 
     TH1D* denX = ((TH2F*)den)->ProjectionX();
-    calculateEfficiency1D( numX, denX, effName+"X" );
+    calculateEfficiency1D( numX, denX, effName+"X", ibooker_, igetter_ );
     delete numX;
     delete denX;
     TH1D* numY = ((TH2F*)num)->ProjectionY();
     TH1D* denY = ((TH2F*)den)->ProjectionY();
-    calculateEfficiency1D( numY, denY, effName+"Y" );
+    calculateEfficiency1D( numY, denY, effName+"Y", ibooker_, igetter_ );
     delete numY;
     delete denY;
   }else{
@@ -110,7 +101,7 @@ void HeavyFlavorHarvesting::calculateEfficiency(const ParameterSet& pset){
   }
 }
 
-void HeavyFlavorHarvesting::calculateEfficiency1D( TH1* num, TH1* den, string effName ){
+void HeavyFlavorHarvesting::calculateEfficiency1D( TH1* num, TH1* den, string effName, DQMStore::IBooker & ibooker_, DQMStore::IGetter & igetter_){
   TProfile* eff;
   if(num->GetXaxis()->GetXbins()->GetSize()==0){
     eff = new TProfile(effName.c_str(),effName.c_str(),num->GetXaxis()->GetNbins(),num->GetXaxis()->GetXmin(),num->GetXaxis()->GetXmax());
@@ -129,25 +120,22 @@ void HeavyFlavorHarvesting::calculateEfficiency1D( TH1* num, TH1* den, string ef
   eff->SetStats(kFALSE);
   for(int i=1;i<=num->GetNbinsX();i++){
     double e, low, high;
-#if ROOT_VERSION_CODE >= ROOT_VERSION(5,27,0)
     if (int(den->GetBinContent(i))>0.) e= double(num->GetBinContent(i))/double(den->GetBinContent(i));
     else e=0.;
     low=TEfficiency::Wilson((double)den->GetBinContent(i),(double)num->GetBinContent(i),0.683,false);
     high=TEfficiency::Wilson((double)den->GetBinContent(i),(double)num->GetBinContent(i),0.683,true);
-#else
-    Efficiency( (double)num->GetBinContent(i), (double)den->GetBinContent(i), 0.683, e, low, high );
-#endif
+
     double err = e-low>high-e ? e-low : high-e;
     //here is the trick to store info in TProfile:
     eff->SetBinContent( i, e );
     eff->SetBinEntries( i, 1 );
     eff->SetBinError( i, sqrt(e*e+err*err) );
   }
-  dqmStore->bookProfile(effName,eff);
+  ibooker_.bookProfile(effName,eff);
   delete eff;
 }
 
-void HeavyFlavorHarvesting::calculateEfficiency2D( TH2F* num, TH2F* den, string effName ){
+void HeavyFlavorHarvesting::calculateEfficiency2D( TH2F* num, TH2F* den, string effName, DQMStore::IBooker & ibooker_, DQMStore::IGetter & igetter_){
   TProfile2D* eff;
   if(num->GetXaxis()->GetXbins()->GetSize()==0 && num->GetYaxis()->GetXbins()->GetSize()==0){
     eff = new TProfile2D(effName.c_str(),effName.c_str(),num->GetXaxis()->GetNbins(),num->GetXaxis()->GetXmin(),num->GetXaxis()->GetXmax(),num->GetYaxis()->GetNbins(),num->GetYaxis()->GetXmin(),num->GetYaxis()->GetXmax());
@@ -167,21 +155,18 @@ void HeavyFlavorHarvesting::calculateEfficiency2D( TH2F* num, TH2F* den, string 
   eff->SetStats(kFALSE);
   for(int i=0;i<num->GetSize();i++){
     double e, low, high;
-#if ROOT_VERSION_CODE >= ROOT_VERSION(5,27,0)
     if (int(den->GetBinContent(i))>0.) e= double(num->GetBinContent(i))/double(den->GetBinContent(i));
     else e=0.;
     low=TEfficiency::Wilson((double)den->GetBinContent(i),(double)num->GetBinContent(i),0.683,false);
     high=TEfficiency::Wilson((double)den->GetBinContent(i),(double)num->GetBinContent(i),0.683,true);
-#else
-    Efficiency( (double)num->GetBinContent(i), (double)den->GetBinContent(i), 0.683, e, low, high );
-#endif
+
     double err = e-low>high-e ? e-low : high-e;
     //here is the trick to store info in TProfile:
     eff->SetBinContent( i, e );
     eff->SetBinEntries( i, 1 );
     eff->SetBinError( i, sqrt(e*e+err*err) );
   }
-  dqmStore->bookProfile2D(effName,eff);
+  ibooker_.bookProfile2D(effName,eff);
   delete eff;
 }
 
