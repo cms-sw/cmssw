@@ -14,18 +14,15 @@ from JetMETCorrections.Type1MET.correctedMet_cff import pfMetT0pc,pfMetT0pcT1,pf
 from JetMETCorrections.Type1MET.correctionTermsPfMetType0PFCandidate_cff import *
 from JetMETCorrections.Type1MET.correctionTermsPfMetType1Type2_cff import corrPfMetType1
 
+from JetMETCorrections.Configuration.JetCorrectors_cff import ak4PFL1FastL2L3CorrectorChain,ak4PFL1FastL2L3Corrector,ak4PFL3AbsoluteCorrector,ak4PFL2RelativeCorrector,ak4PFL1FastjetCorrector
 
-from JetMETCorrections.Configuration.JetCorrectors_cff import ak4PFL1FastL2L3Corrector,ak4PFL1FastjetCorrector,ak4PFL2RelativeCorrector,ak4PFL3AbsoluteCorrector
-newAK4PFL1FastL2L3Corrector = ak4PFL1FastL2L3Corrector.clone()
-newAK4PFL1FastL2L3CorrectorChain = cms.Sequence(
-    #ak4PFL1FastjetCorrector * ak4PFL2RelativeCorrector * ak4PFL3AbsoluteCorrector * 
-    newAK4PFL1FastL2L3Corrector
-)
+from JetMETCorrections.Configuration.JetCorrectors_cff import ak4PFL1FastL2L3CorrectorChain,ak4PFL1FastL2L3Corrector,ak4PFL3AbsoluteCorrector,ak4PFL2RelativeCorrector,ak4PFL1FastjetCorrector
 
 metPreValidSeq=cms.Sequence(ak4PFL1FastjetCorrector * ak4PFL2RelativeCorrector * ak4PFL3AbsoluteCorrector)
 
 
-corrPfMetType1.jetCorrLabel = cms.InputTag('newAK4PFL1FastL2L3Corrector')
+
+corrPfMetType1.jetCorrLabel = cms.InputTag('ak4PFL1FastL2L3Corrector')
 
 METRelValSequence = cms.Sequence(
     metAnalyzer*
@@ -43,7 +40,7 @@ METRelValSequence = cms.Sequence(
     #genMetCaloAnalyzer*
     #genMetCaloAndNonPromptAnalyzer
     correctionTermsPfMetType0PFCandidateForValidation*
-    newAK4PFL1FastL2L3CorrectorChain*
+    ak4PFL1FastL2L3CorrectorChain*
     corrPfMetType1*
     #pfchsMETcorr*
     pfMetT0pc*
@@ -71,7 +68,7 @@ METValidation = cms.Sequence(
     #genMetCaloAnalyzer*
     #genMetCaloAndNonPromptAnalyzer
     correctionTermsPfMetType0PFCandidateForValidation*
-    newAK4PFL1FastL2L3CorrectorChain*
+    ak4PFL1FastL2L3CorrectorChain*
     corrPfMetType1*
     #pfchsMETcorr*
     pfMetT0pc*
@@ -81,3 +78,5 @@ METValidation = cms.Sequence(
     pfType1CorrectedMetAnalyzer*
     pfType01CorrectedMetAnalyzer
     )
+
+METValidationMiniAOD = cms.Sequence(pfType1CorrectedMetAnalyzerMiniAOD)
