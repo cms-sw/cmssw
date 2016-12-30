@@ -2,21 +2,21 @@ import FWCore.ParameterSet.Config as cms
 import os
 
 #SET = "71212"
-SET = "90322"
+#SET = "90322"
 #SET = "120812"
 #SET = "130503"
 
 #SUBSET = ""
-SUBSET = "2pi_scaled"
+#SUBSET = "2pi_scaled"
 #SUBSET = "Run1"
 #SUBSET = "Run2"
 
-# B_NOM = "0T"
-# B_NOM = "2T"
-# B_NOM = "3T"
-# B_NOM = "3_5T"
-B_NOM = "3.8T"
-# B_NOM = "4T"
+#B_NOM = "0T"
+#B_NOM = "2T"
+#B_NOM = "3T"
+#B_NOM = "3_5T"
+#B_NOM = "3.8T"
+#B_NOM = "4T"
 
 
 process = cms.Process("DumpToDB")
@@ -62,7 +62,7 @@ def createMetadata(aTag,aComment):
     txtfile.write('{\n')
     txtfile.write('   "destinationDatabase": "oracle://cms_orcoff_prep/CMS_COND_GEOMETRY",\n')
     txtfile.write('   "destinationTags": {\n')
-    txtfile.write('      '+TAG+'": {\n')
+    txtfile.write('      "'+TAG+'": {\n')
     txtfile.write('         "dependencies": {},\n')
     txtfile.write('         "synchronizeTo": "offline"\n')
     txtfile.write('        }\n')
@@ -82,14 +82,20 @@ if SET=="71212" :
                 '3T':   'grid_1103l_071212_3t',
                 '3_5T': 'grid_1103l_071212_3_5t',
                 #'3.8T': 'grid_1103l_071212_3_8t', #Deprecated
-                '4T':   'grid_1103l_071212_4t'}
+                '4T':   'grid_1103l_071212_4t'} 
+    param    = {'0T':   0.,
+                '2T':   2.,
+                '3T':   3.,
+                '3_5T': 3.5,
+                #'3_8T': 3.8,
+                '4T':   4.}
     process.dumpToDB = cms.EDAnalyzer("MagFieldConfigDBWriter",
           scalingVolumes = cms.vint32(),
           scalingFactors = cms.vdouble(),
           version = cms.string(versions[B_NOM]),
           geometryVersion = cms.int32(90322),
           paramLabel = cms.string('OAE_1103l_071212'),
-          paramData = cms.vdouble(3.8),
+          paramData = cms.vdouble(param[B_NOM]),
           gridFiles = cms.VPSet(
             cms.PSet( # Default tables, replicate sector 1
                volumes   = cms.string('1-312'),
@@ -99,10 +105,12 @@ if SET=="71212" :
            )
          )
     )
-
+    if B_NOM == '0T' :
+        process.dumpToDB.paramLabel = 'Uniform'
+    
 
 if SET=="90322" :
-    if B_NOM!="3.8T" or SUBSET!="2pi_scaled":  raise NameError("configuration invalid: "+SET)
+    if B_NOM!="3_8T" or SUBSET!="2pi_scaled":  raise NameError("configuration invalid: "+SET)
 
     from MagneticField.Engine.ScalingFactors_090322_2pi_090520_cfi import *
     
@@ -155,7 +163,7 @@ if SET=="90322" :
       
 
 elif SET=="120812" :
-  if B_NOM!="3.8T" :  raise NameError("B_NOM invalid for SET "+SET)
+  if B_NOM!="3_8T" :  raise NameError("B_NOM invalid for SET "+SET)
   if    SUBSET=="Run1" : VERSION = 'grid_120812_3_8t_v7_small'
   elif  SUBSET=="Run2" : VERSION = 'grid_120812_3_8t_v7_large'
   else : raise NameError("invalid SUBSET: "+SUBSET+ " for "+TAG )
@@ -216,7 +224,9 @@ elif SET=="120812" :
     
 elif SET=="130503" :
   versions = {'3_5T': 'grid_130503_3_5t_v9',
-              '3.8T': 'grid_130503_3_8t_v9'}
+              '3_8T': 'grid_130503_3_8t_v9'}
+  param    = {'3_5T': 3.5,
+              '3_8T': 3.8}
   
   if    SUBSET=="Run1" : VERSION = versions[B_NOM]+'_small'
   elif  SUBSET=="Run2" : VERSION = versions[B_NOM]+'_large'
@@ -228,7 +238,7 @@ elif SET=="130503" :
       version = cms.string(VERSION),
       geometryVersion = cms.int32(130503),
       paramLabel = cms.string('OAE_1103l_071212'),
-      paramData = cms.vdouble(3.8),
+      paramData = cms.vdouble(param[B_NOM]),
     
       gridFiles = cms.VPSet(
           # Volumes for which specific tables are used for each sector
