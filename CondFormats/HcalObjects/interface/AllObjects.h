@@ -31,4 +31,8 @@
 #include "CondFormats/HcalObjects/interface/HcalFlagHFDigiTimeParams.h"
 #include "CondFormats/HcalObjects/interface/HcalTimingParams.h"
 #include "CondFormats/HcalObjects/interface/OOTPileupCorrectionBuffer.h"
+#include "CondFormats/HcalObjects/interface/HcalInterpolatedPulse.h"
+#include "CondFormats/HcalObjects/interface/HBHEChannelGroups.h"
+#include "CondFormats/HcalObjects/interface/HcalInterpolatedPulseColl.h"
+
 #endif
