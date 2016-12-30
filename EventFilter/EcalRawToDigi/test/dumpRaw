@@ -212,23 +212,23 @@ EOF
 else 
     cmssw_path=""
 fi
-cmssw_path="${cmssw_path}process.dumpRaw"
+cmssw_path="${cmssw_path}process.ecalDumpRaw"
 cat >> "$TMPFILE" <<EOF
-process.load("EventFilter.EcalRawToDigi.EcalDumpRaw_cfi")
-process.dumpRaw.l1aMinX = $l1axmin
-process.dumpRaw.l1aMaxX = $l1axmax
+process.load("EventFilter.EcalRawToDigi.EcalDataReader_cfi")
+process.ecalDumpRaw.l1aMinX = $l1axmin
+process.ecalDumpRaw.l1aMaxX = $l1axmax
 
-process.dumpRaw.first_event = $((nskip+1))
-process.dumpRaw.last_event  = cms.untracked.int32($((nskip+nevts)))
-process.dumpRaw.dumpAdc = $dumpAdc
-process.dumpRaw.dump = $dump
-process.dumpRaw.l1aHistory = $l1aHist
-process.dumpRaw.beg_fed_id = $fedmin
-process.dumpRaw.end_fed_id = $fedmax
-process.dumpRaw.eventList = [ $eventList ]
+process.ecalDumpRaw.first_event = $((nskip+1))
+process.ecalDumpRaw.last_event  = cms.untracked.int32($((nskip+nevts)))
+process.ecalDumpRaw.dumpAdc = $dumpAdc
+process.ecalDumpRaw.dump = $dump
+process.ecalDumpRaw.l1aHistory = $l1aHist
+process.ecalDumpRaw.beg_fed_id = $fedmin
+process.ecalDumpRaw.end_fed_id = $fedmax
+process.ecalDumpRaw.eventList = [ $eventList ]
 
-process.dumpRaw.beg_fed_id = $fedmin
-process.dumpRaw.end_fed_id =  $fedmax
+process.ecalDumpRaw.beg_fed_id = $fedmin
+process.ecalDumpRaw.end_fed_id =  $fedmax
 
 process.p = cms.Path($cmssw_path)
 EOF

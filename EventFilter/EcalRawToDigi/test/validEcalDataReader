@@ -1,0 +1,58 @@
+#!/bin/bash
+
+# Script to test the EcalDataReader module. It first dumps raw data using the
+# EcalDataReader module dump, then produces digis using the same module,
+# converts them back to raw data with the EcalDigiToRaw module and dump the
+# result using again again the EcalDataReader module.  The two data dumps can
+# then be compared.
+#
+# Original author: Ph. Gras CEA/Saclay
+
+
+myself="`readlink -f "$0"`"
+mydir="`dirname "$myself"`"
+
+die(){
+	echo "$@"
+	exit 1
+}
+
+cmsRun "$mydir/testEcalDataReaderDumpRaw_cfg.py" > 1.txt || die ""
+rm -f digi.root
+rm hist.root
+cmsRun "$mydir/testEcalDataReaderMakeDigis_cfg.py" || die ""
+mv hist.root hist_makedigis.root
+cmsRun "$mydir/testEcalDataReaderDumpDigis_cfg.py" > 2.txt || die ""
+
+
+"$mydir/mask.sh" < 1.txt > 1_masked.txt
+"$mydir/mask.sh" < 2.txt > 2_masked.txt
+diff 1.txt 2.txt > diff.txt
+diff 1_masked.txt 2_masked.txt > diff_masked.txt
+
+
+#if ! diff -q diff_masked.txt /dev/null; then
+#cat <<EOF
+#
+#TEST FAILED!
+#
+#Check diff_masked.txt and diff.txt.
+# Raw: 1.txt, 1_masked.txt
+# Raw->digi->raw: 2.txt, 2_masked.txt
+# Masked: bits which can differ are forced to 0, data interpretation dropped.
+#
+#EOF
+#fi
+
+cat <<EOF
+Check diff_masked.txt and diff.txt.
+ Raw: 1.txt, 1_masked.txt
+ Raw->digi->raw: 2.txt, 2_masked.txt
+ Masked: bits which can differ are forced to 0, data interpretation dropped.
+Some difference are expected for two reasons:
+. some bits in the data are undefined and gets arbitrary value
+. unused channels of endcap partial read-out units gets some arbitrary value in
+real data, while they are dropped in data produced by the digi-to-raw module.
+
+EOF
+
