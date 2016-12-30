@@ -1,0 +1,619 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+    <SolidSection label="totemt2.xml">
+        <!-- <Tubs name="TotemT2gem" rMin="29*mm" rMax="18.1*cm" dz="21.0595*cm" startPhi="0*deg" deltaPhi="360*deg"/> -->
+        <Tubs name="TotemT2gem" rMin="29*mm" rMax="18.1*cm" dz="23.1095*cm" startPhi="0*deg" deltaPhi="360*deg"/>
+        <Tubs name="TotemT2gem_cooling" rMin="15.6*cm" rMax="17.4*cm" dz="0.33*cm" startPhi="231*deg" deltaPhi="258*deg"/>
+        <Tubs name="TotemT2gem_coolingDisc" rMin="0.0*cm" rMax="2.4*cm" dz="0.4*cm" startPhi="0*deg" deltaPhi="360*deg"/>
+        <Tubs name="TotemT2gem_detector7r" rMin="42.55*mm" rMax="14.458*cm" dz="0.805*cm" startPhi="264*deg" deltaPhi="192*deg"/>
+        <Tubs name="TotemT2gem_HC7r" rMin="42.55*mm" rMax="14.458*cm" dz="1.625*mm" startPhi="264*deg" deltaPhi="192*deg"/>
+        <Tubs name="TotemT2gem_drift7r" rMin="42.55*mm" rMax="14.458*cm" dz="0.03*mm" startPhi="264*deg" deltaPhi="192*deg"/>
+        <Tubs name="TotemT2gem_driftspace7r" rMin="42.55*mm" rMax="14.458*cm" dz="1.5*mm" startPhi="264*deg" deltaPhi="192*deg"/>
+        <Tubs name="TotemT2gem_GEMa7r" rMin="42.55*mm" rMax="14.458*cm" dz="0.0025*mm" startPhi="264*deg" deltaPhi="192*deg"/>
+        <Tubs name="TotemT2gem_GEMb7r" rMin="42.55*mm" rMax="14.458*cm" dz="0.025*mm" startPhi="264*deg" deltaPhi="192*deg"/>
+        <Tubs name="TotemT2gem_GEMc7r" rMin="42.55*mm" rMax="14.458*cm" dz="0.0025*mm" startPhi="264*deg" deltaPhi="192*deg"/>
+        <Tubs name="TotemT2gem_GAS7r" rMin="42.55*mm" rMax="14.458*cm" dz="1.0*mm" startPhi="264*deg" deltaPhi="192*deg"/>
+        <Tubs name="TotemT2gem_GEMa17r" rMin="42.55*mm" rMax="14.458*cm" dz="0.0025*mm" startPhi="264*deg" deltaPhi="192*deg"/>
+        <Tubs name="TotemT2gem_GEMb17r" rMin="42.55*mm" rMax="14.458*cm" dz="0.025*mm" startPhi="264*deg" deltaPhi="192*deg"/>
+        <Tubs name="TotemT2gem_GEMc17r" rMin="42.55*mm" rMax="14.458*cm" dz="0.0025*mm" startPhi="264*deg" deltaPhi="192*deg"/>
+        <Tubs name="TotemT2gem_GAS17r" rMin="42.55*mm" rMax="14.458*cm" dz="1.0*mm" startPhi="264*deg" deltaPhi="192*deg"/>
+        <Tubs name="TotemT2gem_GEMa27r" rMin="42.55*mm" rMax="14.458*cm" dz="0.0025*mm" startPhi="264*deg" deltaPhi="192*deg"/>
+        <Tubs name="TotemT2gem_GEMb27r" rMin="42.55*mm" rMax="14.458*cm" dz="0.025*mm" startPhi="264*deg" deltaPhi="192*deg"/>
+        <Tubs name="TotemT2gem_GEMc27r" rMin="42.55*mm" rMax="14.458*cm" dz="0.0025*mm" startPhi="264*deg" deltaPhi="192*deg"/>
+        <Tubs name="TotemT2gem_GAS27r" rMin="42.55*mm" rMax="14.458*cm" dz="1.0*mm" startPhi="264*deg" deltaPhi="192*deg"/>
+        <Tubs name="TotemT2gem_strips7r" rMin="42.55*mm" rMax="14.458*cm" dz="0.0025*mm" startPhi="264*deg" deltaPhi="192*deg"/>
+        <Tubs name="TotemT2gem_isol7r" rMin="42.55*mm" rMax="14.458*cm" dz="0.025*mm" startPhi="264*deg" deltaPhi="192*deg"/>
+        <Tubs name="TotemT2gem_pads7r" rMin="42.55*mm" rMax="14.458*cm" dz="0.0025*mm" startPhi="264*deg" deltaPhi="192*deg"/>
+        <Tubs name="TotemT2gem_HC17r" rMin="42.55*mm" rMax="14.458*cm" dz="1.77*mm" startPhi="264*deg" deltaPhi="192*deg"/>
+        <Tubs name="TotemT2SupportRodI" rMin="8*mm" rMax="9*mm" dz="240.75*mm" startPhi="0*deg" deltaPhi="360*deg"/>
+        <Tubs name="TotemT2SupportRodO" rMin="8*mm" rMax="9*mm" dz="262.25*mm" startPhi="0*deg" deltaPhi="360*deg"/>
+        <Tubs name="circle" rMin="0.0*mm" rMax="25.0*cm" dz="1.0*cm" startPhi="0*deg" deltaPhi="360*deg"/>
+        <!-- <Trd1 dx1="3.5*cm" dx2="7.*cm" dy1="3.6*cm" dy2="3.6*cm" dz="3.5*cm" name="bar" /> -->
+        <Trd1 dx1="7.0*cm" dx2="7.0*cm" dy1="50.0*cm" dy2="50.0*cm" dz="1.0*cm" name="bar"/>
+        <IntersectionSolid name="VertSup" firstSolid="bar" secondSolid="circle">
+            <!--  <RotationByAxis axis="z" angle="90*deg"/> -->
+            <Translation x="127.5*mm" y="0" z="0"/>
+        </IntersectionSolid>
+    </SolidSection>
+    <LogicalPartSection label="totemt2.xml">
+        <LogicalPart name="TotemT2gem" category="unspecified">
+            <rSolid name="TotemT2gem"/>
+            <rMaterial name="materials:Air"/>
+        </LogicalPart>
+        <LogicalPart name="VertSup" category="unspecified">
+            <rSolid name="VertSup"/>
+            <rMaterial name="materials:StainlessSteel"/>
+        </LogicalPart>
+        <LogicalPart name="TotemT2gem_cooling" category="unspecified">
+            <rSolid name="TotemT2gem_cooling"/>
+            <rMaterial name="materials:Aluminium"/>
+        </LogicalPart>
+        <LogicalPart name="TotemT2gem_coolingDisc" category="unspecified">
+            <rSolid name="TotemT2gem_coolingDisc"/>
+            <rMaterial name="materials:Aluminium"/>
+        </LogicalPart>
+        <LogicalPart name="TotemT2gem_detector7r" category="unspecified">
+            <rSolid name="TotemT2gem_detector7r"/>
+            <rMaterial name="materials:Air"/>
+        </LogicalPart>
+        <LogicalPart name="TotemT2gem_HC7r" category="unspecified">
+            <rSolid name="TotemT2gem_HC7r"/>
+            <rMaterial name="materials:Air"/>
+        </LogicalPart>
+        <LogicalPart name="TotemT2gem_drift7r" category="unspecified">
+            <rSolid name="TotemT2gem_drift7r"/>
+            <rMaterial name="materials:Copper"/>
+        </LogicalPart>
+        <LogicalPart name="TotemT2gem_driftspace7r" category="unspecified">
+            <rSolid name="TotemT2gem_driftspace7r"/>
+            <rMaterial name="totemMaterials:Ar 70pct plus CO_2 30pct"/>
+        </LogicalPart>
+        <LogicalPart name="TotemT2gem_GEMa7r" category="unspecified">
+            <rSolid name="TotemT2gem_GEMa7r"/>
+            <rMaterial name="materials:Copper"/>
+        </LogicalPart>
+        <LogicalPart name="TotemT2gem_GEMb7r" category="unspecified">
+            <rSolid name="TotemT2gem_GEMb7r"/>
+            <rMaterial name="materials:Kapton"/>
+        </LogicalPart>
+        <LogicalPart name="TotemT2gem_GEMc7r" category="unspecified">
+            <rSolid name="TotemT2gem_GEMc7r"/>
+            <rMaterial name="materials:Copper"/>
+        </LogicalPart>
+        <LogicalPart name="TotemT2gem_GAS7r" category="unspecified">
+            <rSolid name="TotemT2gem_GAS7r"/>
+            <rMaterial name="totemMaterials:Ar 70pct plus CO_2 30pct"/>
+        </LogicalPart>
+        <LogicalPart name="TotemT2gem_GEMa17r" category="unspecified">
+            <rSolid name="TotemT2gem_GEMa17r"/>
+            <rMaterial name="materials:Copper"/>
+        </LogicalPart>
+        <LogicalPart name="TotemT2gem_GEMb17r" category="unspecified">
+            <rSolid name="TotemT2gem_GEMb17r"/>
+            <rMaterial name="materials:Kapton"/>
+        </LogicalPart>
+        <LogicalPart name="TotemT2gem_GEMc17r" category="unspecified">
+            <rSolid name="TotemT2gem_GEMc17r"/>
+            <rMaterial name="materials:Copper"/>
+        </LogicalPart>
+        <LogicalPart name="TotemT2gem_GAS17r" category="unspecified">
+            <rSolid name="TotemT2gem_GAS17r"/>
+            <rMaterial name="totemMaterials:Ar 70pct plus CO_2 30pct"/>
+        </LogicalPart>
+        <LogicalPart name="TotemT2gem_GEMa27r" category="unspecified">
+            <rSolid name="TotemT2gem_GEMa27r"/>
+            <rMaterial name="materials:Copper"/>
+        </LogicalPart>
+        <LogicalPart name="TotemT2gem_GEMb27r" category="unspecified">
+            <rSolid name="TotemT2gem_GEMb27r"/>
+            <rMaterial name="materials:Kapton"/>
+        </LogicalPart>
+        <LogicalPart name="TotemT2gem_GEMc27r" category="unspecified">
+            <rSolid name="TotemT2gem_GEMc27r"/>
+            <rMaterial name="materials:Copper"/>
+        </LogicalPart>
+        <LogicalPart name="TotemT2gem_GAS27r" category="unspecified">
+            <rSolid name="TotemT2gem_GAS27r"/>
+            <rMaterial name="totemMaterials:Ar 70pct plus CO_2 30pct"/>
+        </LogicalPart>
+        <LogicalPart name="TotemT2gem_strips7r" category="unspecified">
+            <rSolid name="TotemT2gem_strips7r"/>
+            <rMaterial name="materials:Copper"/>
+        </LogicalPart>
+        <LogicalPart name="TotemT2gem_isol7r" category="unspecified">
+            <rSolid name="TotemT2gem_isol7r"/>
+            <rMaterial name="materials:Kapton"/>
+        </LogicalPart>
+        <LogicalPart name="TotemT2gem_pads7r" category="unspecified">
+            <rSolid name="TotemT2gem_pads7r"/>
+            <rMaterial name="materials:Copper"/>
+        </LogicalPart>
+        <LogicalPart name="TotemT2gem_HC17r" category="unspecified">
+            <rSolid name="TotemT2gem_HC17r"/>
+            <rMaterial name="materials:Air"/>
+        </LogicalPart>
+        <LogicalPart name="TotemT2SupportRodI" category="unspecified">
+            <rSolid name="TotemT2SupportRodI"/>
+            <rMaterial name="materials:StainlessSteel"/>
+        </LogicalPart>
+        <LogicalPart name="TotemT2SupportRodO" category="unspecified">
+            <rSolid name="TotemT2SupportRodO"/>
+            <rMaterial name="materials:StainlessSteel"/>
+        </LogicalPart>
+    </LogicalPartSection>
+    <RotationSection label="totemt2.xml">
+        <Rotation name="rot" thetaX="90*deg" phiX="-180*deg" thetaY="90*deg" phiY="-90*deg" thetaZ="0*deg" phiZ="0*deg"/>
+        <!--
+             <Rotation name="reflt" thetaX="90*deg" phiX="0*deg" thetaY="90*deg" phiY="90*deg" thetaZ="180*deg" phiZ="0*deg" />
+             -->
+        <Rotation name="rotX" thetaX="90*deg" phiX="0*deg" thetaY="90*deg" phiY="270*deg" thetaZ="180*deg" phiZ="0*deg"/>
+        <Rotation name="rotY" thetaX="90*deg" phiX="180*deg" thetaY="90*deg" phiY="90*deg" thetaZ="180*deg" phiZ="0*deg"/>
+    </RotationSection>
+    <PosPartSection label="totemt2.xml">
+        <PosPart copyNumber="1">
+            <rParent name="forward:TotemT2"/>
+            <rChild name="totemt2:TotemT2gem"/>
+            <Translation x="0*fm" y="0*fm" z="14035.59*mm"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="totemt2:TotemT2gem"/>
+            <rChild name="totemt2:TotemT2gem_detector7r"/>
+            <rRotation name="totemt2:rotX"/>
+            <Translation x="0*fm" y="0*fm" z="-159.545*mm"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="totemt2:TotemT2gem"/>
+            <rChild name="totemt2:TotemT2gem_coolingDisc"/>
+            <Translation x="-12.7*cm" y="-9.06*cm" z="-159.545*mm-5*mm"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="totemt2:TotemT2gem"/>
+            <rChild name="totemt2:TotemT2gem_cooling"/>
+            <rRotation name="totemt2:rotX"/>
+            <Translation x="0*fm" y="0*fm" z="-159.545*mm-5*mm"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="totemt2:TotemT2gem"/>
+            <rChild name="totemt2:TotemT2gem_detector7r"/>
+            <Translation x="0*fm" y="0*fm" z="-141.455*mm"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="totemt2:TotemT2gem"/>
+            <rChild name="totemt2:TotemT2gem_coolingDisc"/>
+            <Translation x="-12.7*cm" y="9.06*cm" z="-141.455*mm+5*mm"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="totemt2:TotemT2gem"/>
+            <rChild name="totemt2:TotemT2gem_cooling"/>
+            <Translation x="0*fm" y="0*fm" z="-141.455*mm+5*mm"/>
+        </PosPart>
+        <PosPart copyNumber="3">
+            <rParent name="totemt2:TotemT2gem"/>
+            <rChild name="totemt2:TotemT2gem_detector7r"/>
+            <rRotation name="totemt2:rotX"/>
+            <Translation x="0*fm" y="0*fm" z="-73.545*mm"/>
+        </PosPart>
+        <PosPart copyNumber="3">
+            <rParent name="totemt2:TotemT2gem"/>
+            <rChild name="totemt2:TotemT2gem_coolingDisc"/>
+            <Translation x="-12.7*cm" y="-9.06*cm" z="-73.545*mm-5*mm"/>
+        </PosPart>
+        <PosPart copyNumber="3">
+            <rParent name="totemt2:TotemT2gem"/>
+            <rChild name="totemt2:TotemT2gem_cooling"/>
+            <rRotation name="totemt2:rotX"/>
+            <Translation x="0*fm" y="0*fm" z="-73.545*mm-5*mm"/>
+        </PosPart>
+        <PosPart copyNumber="4">
+            <rParent name="totemt2:TotemT2gem"/>
+            <rChild name="totemt2:TotemT2gem_detector7r"/>
+            <Translation x="0*fm" y="0*fm" z="-55.455*mm"/>
+        </PosPart>
+        <PosPart copyNumber="4">
+            <rParent name="totemt2:TotemT2gem"/>
+            <rChild name="totemt2:TotemT2gem_coolingDisc"/>
+            <Translation x="-12.7*cm" y="9.06*cm" z="-55.455*mm+5*mm"/>
+        </PosPart>
+        <PosPart copyNumber="4">
+            <rParent name="totemt2:TotemT2gem"/>
+            <rChild name="totemt2:TotemT2gem_cooling"/>
+            <Translation x="0*fm" y="0*fm" z="-55.455*mm+5*mm"/>
+        </PosPart>
+        <PosPart copyNumber="5">
+            <rParent name="totemt2:TotemT2gem"/>
+            <rChild name="totemt2:TotemT2gem_detector7r"/>
+            <rRotation name="totemt2:rotX"/>
+            <Translation x="0*fm" y="0*fm" z="12.455*mm"/>
+        </PosPart>
+        <PosPart copyNumber="5">
+            <rParent name="totemt2:TotemT2gem"/>
+            <rChild name="totemt2:TotemT2gem_coolingDisc"/>
+            <Translation x="-12.7*cm" y="-9.06*cm" z="12.455*mm-5*mm"/>
+        </PosPart>
+        <PosPart copyNumber="5">
+            <rParent name="totemt2:TotemT2gem"/>
+            <rChild name="totemt2:TotemT2gem_cooling"/>
+            <rRotation name="totemt2:rotX"/>
+            <Translation x="0*fm" y="0*fm" z="12.455*mm-5*mm"/>
+        </PosPart>
+        <PosPart copyNumber="6">
+            <rParent name="totemt2:TotemT2gem"/>
+            <rChild name="totemt2:TotemT2gem_detector7r"/>
+            <Translation x="0*fm" y="0*fm" z="30.545*mm"/>
+        </PosPart>
+        <PosPart copyNumber="6">
+            <rParent name="totemt2:TotemT2gem"/>
+            <rChild name="totemt2:TotemT2gem_coolingDisc"/>
+            <Translation x="-12.7*cm" y="9.06*cm" z="30.545*mm+5*mm"/>
+        </PosPart>
+        <PosPart copyNumber="6">
+            <rParent name="totemt2:TotemT2gem"/>
+            <rChild name="totemt2:TotemT2gem_cooling"/>
+            <Translation x="0*fm" y="0*fm" z="30.545*mm+5*mm"/>
+        </PosPart>
+        <PosPart copyNumber="7">
+            <rParent name="totemt2:TotemT2gem"/>
+            <rChild name="totemt2:TotemT2gem_detector7r"/>
+            <rRotation name="totemt2:rotX"/>
+            <Translation x="0*fm" y="0*fm" z="98.455*mm"/>
+        </PosPart>
+        <PosPart copyNumber="7">
+            <rParent name="totemt2:TotemT2gem"/>
+            <rChild name="totemt2:TotemT2gem_coolingDisc"/>
+            <Translation x="-12.7*cm" y="-9.06*cm" z="98.455*mm-5*mm"/>
+        </PosPart>
+        <PosPart copyNumber="7">
+            <rParent name="totemt2:TotemT2gem"/>
+            <rChild name="totemt2:TotemT2gem_cooling"/>
+            <rRotation name="totemt2:rotX"/>
+            <Translation x="0*fm" y="0*fm" z="98.455*mm-5*mm"/>
+        </PosPart>
+        <PosPart copyNumber="8">
+            <rParent name="totemt2:TotemT2gem"/>
+            <rChild name="totemt2:TotemT2gem_detector7r"/>
+            <Translation x="0*fm" y="0*fm" z="116.545*mm"/>
+        </PosPart>
+        <PosPart copyNumber="8">
+            <rParent name="totemt2:TotemT2gem"/>
+            <rChild name="totemt2:TotemT2gem_coolingDisc"/>
+            <Translation x="-12.7*cm" y="9.06*cm" z="116.545*mm+5*mm"/>
+        </PosPart>
+        <PosPart copyNumber="8">
+            <rParent name="totemt2:TotemT2gem"/>
+            <rChild name="totemt2:TotemT2gem_cooling"/>
+            <Translation x="0*fm" y="0*fm" z="116.545*mm+5*mm"/>
+        </PosPart>
+        <PosPart copyNumber="9">
+            <rParent name="totemt2:TotemT2gem"/>
+            <rChild name="totemt2:TotemT2gem_detector7r"/>
+            <rRotation name="totemt2:rotX"/>
+            <Translation x="0*fm" y="0*fm" z="184.455*mm"/>
+        </PosPart>
+        <PosPart copyNumber="9">
+            <rParent name="totemt2:TotemT2gem"/>
+            <rChild name="totemt2:TotemT2gem_coolingDisc"/>
+            <Translation x="-12.7*cm" y="-9.06*cm" z="184.455*mm-5*mm"/>
+        </PosPart>
+        <PosPart copyNumber="9">
+            <rParent name="totemt2:TotemT2gem"/>
+            <rChild name="totemt2:TotemT2gem_cooling"/>
+            <rRotation name="totemt2:rotX"/>
+            <Translation x="0*fm" y="0*fm" z="184.455*mm-5*mm"/>
+        </PosPart>
+        <PosPart copyNumber="10">
+            <rParent name="totemt2:TotemT2gem"/>
+            <rChild name="totemt2:TotemT2gem_detector7r"/>
+            <Translation x="0*fm" y="0*fm" z="202.545*mm"/>
+        </PosPart>
+        <PosPart copyNumber="10">
+            <rParent name="totemt2:TotemT2gem"/>
+            <rChild name="totemt2:TotemT2gem_coolingDisc"/>
+            <Translation x="-12.7*cm" y="9.06*cm" z="202.545*mm+5*mm"/>
+        </PosPart>
+        <PosPart copyNumber="10">
+            <rParent name="totemt2:TotemT2gem"/>
+            <rChild name="totemt2:TotemT2gem_cooling"/>
+            <Translation x="0*fm" y="0*fm" z="202.545*mm+5*mm"/>
+        </PosPart>
+        <PosPart copyNumber="20">
+            <rParent name="totemt2:TotemT2gem"/>
+            <rChild name="totemt2:TotemT2gem_detector7r"/>
+            <rRotation name="totemt2:rot"/>
+            <Translation x="0*fm" y="0*fm" z="159.545*mm"/>
+        </PosPart>
+        <PosPart copyNumber="20">
+            <rParent name="totemt2:TotemT2gem"/>
+            <rChild name="totemt2:TotemT2gem_coolingDisc"/>
+            <Translation x="12.7*cm" y="-9.06*cm" z="159.545*mm+5*mm"/>
+        </PosPart>
+        <PosPart copyNumber="20">
+            <rParent name="totemt2:TotemT2gem"/>
+            <rChild name="totemt2:TotemT2gem_cooling"/>
+            <rRotation name="totemt2:rot"/>
+            <Translation x="0*fm" y="0*fm" z="159.545*mm+5*mm"/>
+        </PosPart>
+        <PosPart copyNumber="19">
+            <rParent name="totemt2:TotemT2gem"/>
+            <rChild name="totemt2:TotemT2gem_detector7r"/>
+            <rRotation name="totemt2:rotY"/>
+            <Translation x="0*fm" y="0*fm" z="141.455*mm"/>
+        </PosPart>
+        <PosPart copyNumber="19">
+            <rParent name="totemt2:TotemT2gem"/>
+            <rChild name="totemt2:TotemT2gem_coolingDisc"/>
+            <Translation x="12.7*cm" y="9.06*cm" z="141.455*mm-5*mm"/>
+        </PosPart>
+        <PosPart copyNumber="19">
+            <rParent name="totemt2:TotemT2gem"/>
+            <rChild name="totemt2:TotemT2gem_cooling"/>
+            <rRotation name="totemt2:rotY"/>
+            <Translation x="0*fm" y="0*fm" z="141.455*mm-5*mm"/>
+        </PosPart>
+        <PosPart copyNumber="18">
+            <rParent name="totemt2:TotemT2gem"/>
+            <rChild name="totemt2:TotemT2gem_detector7r"/>
+            <rRotation name="totemt2:rot"/>
+            <Translation x="0*fm" y="0*fm" z="73.545*mm"/>
+        </PosPart>
+        <PosPart copyNumber="18">
+            <rParent name="totemt2:TotemT2gem"/>
+            <rChild name="totemt2:TotemT2gem_coolingDisc"/>
+            <Translation x="12.7*cm" y="-9.06*cm" z="73.545*mm+5*mm"/>
+        </PosPart>
+        <PosPart copyNumber="18">
+            <rParent name="totemt2:TotemT2gem"/>
+            <rChild name="totemt2:TotemT2gem_cooling"/>
+            <rRotation name="totemt2:rot"/>
+            <Translation x="0*fm" y="0*fm" z="73.545*mm+5*mm"/>
+        </PosPart>
+        <PosPart copyNumber="17">
+            <rParent name="totemt2:TotemT2gem"/>
+            <rChild name="totemt2:TotemT2gem_detector7r"/>
+            <rRotation name="totemt2:rotY"/>
+            <Translation x="0*fm" y="0*fm" z="55.455*mm"/>
+        </PosPart>
+        <PosPart copyNumber="17">
+            <rParent name="totemt2:TotemT2gem"/>
+            <rChild name="totemt2:TotemT2gem_coolingDisc"/>
+            <Translation x="12.7*cm" y="9.06*cm" z="55.455*mm-5*mm"/>
+        </PosPart>
+        <PosPart copyNumber="17">
+            <rParent name="totemt2:TotemT2gem"/>
+            <rChild name="totemt2:TotemT2gem_cooling"/>
+            <rRotation name="totemt2:rotY"/>
+            <Translation x="0*fm" y="0*fm" z="55.455*mm-5*mm"/>
+        </PosPart>
+        <PosPart copyNumber="16">
+            <rParent name="totemt2:TotemT2gem"/>
+            <rChild name="totemt2:TotemT2gem_detector7r"/>
+            <rRotation name="totemt2:rot"/>
+            <Translation x="0*fm" y="0*fm" z="-12.455*mm"/>
+        </PosPart>
+        <PosPart copyNumber="16">
+            <rParent name="totemt2:TotemT2gem"/>
+            <rChild name="totemt2:TotemT2gem_coolingDisc"/>
+            <Translation x="12.7*cm" y="-9.06*cm" z="-12.455*mm+5*mm"/>
+        </PosPart>
+        <PosPart copyNumber="16">
+            <rParent name="totemt2:TotemT2gem"/>
+            <rChild name="totemt2:TotemT2gem_cooling"/>
+            <rRotation name="totemt2:rot"/>
+            <Translation x="0*fm" y="0*fm" z="-12.455*mm+5*mm"/>
+        </PosPart>
+        <PosPart copyNumber="15">
+            <rParent name="totemt2:TotemT2gem"/>
+            <rChild name="totemt2:TotemT2gem_detector7r"/>
+            <rRotation name="totemt2:rotY"/>
+            <Translation x="0*fm" y="0*fm" z="-30.545*mm"/>
+        </PosPart>
+        <PosPart copyNumber="15">
+            <rParent name="totemt2:TotemT2gem"/>
+            <rChild name="totemt2:TotemT2gem_coolingDisc"/>
+            <Translation x="12.7*cm" y="9.06*cm" z="-30.545*mm-5*mm"/>
+        </PosPart>
+        <PosPart copyNumber="15">
+            <rParent name="totemt2:TotemT2gem"/>
+            <rChild name="totemt2:TotemT2gem_cooling"/>
+            <rRotation name="totemt2:rotY"/>
+            <Translation x="0*fm" y="0*fm" z="-30.545*mm-5*mm"/>
+        </PosPart>
+        <PosPart copyNumber="14">
+            <rParent name="totemt2:TotemT2gem"/>
+            <rChild name="totemt2:TotemT2gem_detector7r"/>
+            <rRotation name="totemt2:rot"/>
+            <Translation x="0*fm" y="0*fm" z="-98.455*mm"/>
+        </PosPart>
+        <PosPart copyNumber="14">
+            <rParent name="totemt2:TotemT2gem"/>
+            <rChild name="totemt2:TotemT2gem_coolingDisc"/>
+            <Translation x="12.7*cm" y="-9.06*cm" z="-98.455*mm+5*mm"/>
+        </PosPart>
+        <PosPart copyNumber="14">
+            <rParent name="totemt2:TotemT2gem"/>
+            <rChild name="totemt2:TotemT2gem_cooling"/>
+            <rRotation name="totemt2:rot"/>
+            <Translation x="0*fm" y="0*fm" z="-98.455*mm+5*mm"/>
+        </PosPart>
+        <PosPart copyNumber="13">
+            <rParent name="totemt2:TotemT2gem"/>
+            <rChild name="totemt2:TotemT2gem_detector7r"/>
+            <rRotation name="totemt2:rotY"/>
+            <Translation x="0*fm" y="0*fm" z="-116.545*mm"/>
+        </PosPart>
+        <PosPart copyNumber="13">
+            <rParent name="totemt2:TotemT2gem"/>
+            <rChild name="totemt2:TotemT2gem_coolingDisc"/>
+            <Translation x="12.7*cm" y="9.06*cm" z="-116.545*mm-5*mm"/>
+        </PosPart>
+        <PosPart copyNumber="13">
+            <rParent name="totemt2:TotemT2gem"/>
+            <rChild name="totemt2:TotemT2gem_cooling"/>
+            <rRotation name="totemt2:rotY"/>
+            <Translation x="0*fm" y="0*fm" z="-116.545*mm-5*mm"/>
+        </PosPart>
+        <PosPart copyNumber="12">
+            <rParent name="totemt2:TotemT2gem"/>
+            <rChild name="totemt2:TotemT2gem_detector7r"/>
+            <rRotation name="totemt2:rot"/>
+            <Translation x="0*fm" y="0*fm" z="-184.455*mm"/>
+        </PosPart>
+        <PosPart copyNumber="12">
+            <rParent name="totemt2:TotemT2gem"/>
+            <rChild name="totemt2:TotemT2gem_coolingDisc"/>
+            <Translation x="12.7*cm" y="-9.06*cm" z="-184.455*mm+5*mm"/>
+        </PosPart>
+        <PosPart copyNumber="12">
+            <rParent name="totemt2:TotemT2gem"/>
+            <rChild name="totemt2:TotemT2gem_cooling"/>
+            <rRotation name="totemt2:rot"/>
+            <Translation x="0*fm" y="0*fm" z="-184.455*mm+5*mm"/>
+        </PosPart>
+        <PosPart copyNumber="11">
+            <rParent name="totemt2:TotemT2gem"/>
+            <rChild name="totemt2:TotemT2gem_detector7r"/>
+            <rRotation name="totemt2:rotY"/>
+            <Translation x="0*fm" y="0*fm" z="-202.545*mm"/>
+        </PosPart>
+        <PosPart copyNumber="11">
+            <rParent name="totemt2:TotemT2gem"/>
+            <rChild name="totemt2:TotemT2gem_coolingDisc"/>
+            <Translation x="12.7*cm" y="9.06*cm" z="-202.545*mm-5*mm"/>
+        </PosPart>
+        <PosPart copyNumber="11">
+            <rParent name="totemt2:TotemT2gem"/>
+            <rChild name="totemt2:TotemT2gem_cooling"/>
+            <rRotation name="totemt2:rotY"/>
+            <Translation x="0*fm" y="0*fm" z="-202.545*mm-5*mm"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="totemt2:TotemT2gem_detector7r"/>
+            <rChild name="totemt2:TotemT2gem_HC7r"/>
+            <Translation x="0*fm" y="0*fm" z="6.42*mm"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="totemt2:TotemT2gem_detector7r"/>
+            <rChild name="totemt2:TotemT2gem_drift7r"/>
+            <Translation x="0*fm" y="0*fm" z="4.765*mm"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="totemt2:TotemT2gem_detector7r"/>
+            <rChild name="totemt2:TotemT2gem_driftspace7r"/>
+            <Translation x="0*fm" y="0*fm" z="3.235*mm"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="totemt2:TotemT2gem_detector7r"/>
+            <rChild name="totemt2:TotemT2gem_GEMa7r"/>
+            <Translation x="0*fm" y="0*fm" z="1.7325*mm"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="totemt2:TotemT2gem_detector7r"/>
+            <rChild name="totemt2:TotemT2gem_GEMb7r"/>
+            <Translation x="0*fm" y="0*fm" z="1.705*mm"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="totemt2:TotemT2gem_detector7r"/>
+            <rChild name="totemt2:TotemT2gem_GEMc7r"/>
+            <Translation x="0*fm" y="0*fm" z="1.6775*mm"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="totemt2:TotemT2gem_detector7r"/>
+            <rChild name="totemt2:TotemT2gem_GAS7r"/>
+            <Translation x="0*fm" y="0*fm" z="0.675*mm"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="totemt2:TotemT2gem_detector7r"/>
+            <rChild name="totemt2:TotemT2gem_GEMa17r"/>
+            <Translation x="0*fm" y="0*fm" z="-0.3275*mm"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="totemt2:TotemT2gem_detector7r"/>
+            <rChild name="totemt2:TotemT2gem_GEMb17r"/>
+            <Translation x="0*fm" y="0*fm" z="-0.355*mm"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="totemt2:TotemT2gem_detector7r"/>
+            <rChild name="totemt2:TotemT2gem_GEMc17r"/>
+            <Translation x="0*fm" y="0*fm" z="-0.3825*mm"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="totemt2:TotemT2gem_detector7r"/>
+            <rChild name="totemt2:TotemT2gem_GAS17r"/>
+            <Translation x="0*fm" y="0*fm" z="-1.385*mm"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="totemt2:TotemT2gem_detector7r"/>
+            <rChild name="totemt2:TotemT2gem_GEMa27r"/>
+            <Translation x="0*fm" y="0*fm" z="-2.3875*mm"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="totemt2:TotemT2gem_detector7r"/>
+            <rChild name="totemt2:TotemT2gem_GEMb27r"/>
+            <Translation x="0*fm" y="0*fm" z="-2.415*mm"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="totemt2:TotemT2gem_detector7r"/>
+            <rChild name="totemt2:TotemT2gem_GEMc27r"/>
+            <Translation x="0*fm" y="0*fm" z="-2.4425*mm"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="totemt2:TotemT2gem_detector7r"/>
+            <rChild name="totemt2:TotemT2gem_GAS27r"/>
+            <Translation x="0*fm" y="0*fm" z="-3.445*mm"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="totemt2:TotemT2gem_detector7r"/>
+            <rChild name="totemt2:TotemT2gem_strips7r"/>
+            <Translation x="0*fm" y="0*fm" z="-4.4475*mm"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="totemt2:TotemT2gem_detector7r"/>
+            <rChild name="totemt2:TotemT2gem_isol7r"/>
+            <Translation x="0*fm" y="0*fm" z="-4.475*mm"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="totemt2:TotemT2gem_detector7r"/>
+            <rChild name="totemt2:TotemT2gem_pads7r"/>
+            <Translation x="0*fm" y="0*fm" z="-4.5025*mm"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="totemt2:TotemT2gem_detector7r"/>
+            <rChild name="totemt2:TotemT2gem_HC17r"/>
+            <Translation x="0*fm" y="0*fm" z="-6.275*mm"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="forward:TotemT2"/>
+            <rChild name="totemt2:TotemT2SupportRodI"/>
+            <Translation x="112.5*mm" y="194.85*mm" z="14099.25*mm"/>
+            <!-- <Translation x="110*mm" y="190.525*mm" z="14099.25*mm" /> -->
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="forward:TotemT2"/>
+            <rChild name="totemt2:TotemT2SupportRodI"/>
+            <Translation x="112.5*mm" y="-194.85*mm" z="14099.25*mm"/>
+            <!--  <Translation x="110*mm" y="-190.525*mm" z="14099.25*mm" /> -->
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="forward:TotemT2"/>
+            <rChild name="totemt2:TotemT2SupportRodO"/>
+            <Translation x="-112.5*mm" y="194.85*mm" z="14077.75*mm"/>
+            <!-- <Translation x="-110*mm" y="190.525*mm" z="14077.75*mm" /> -->
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="forward:TotemT2"/>
+            <rChild name="totemt2:TotemT2SupportRodO"/>
+            <Translation x="-112.5*mm" y="-194.85*mm" z="14077.75*mm"/>
+            <!--  <Translation x="-110*mm" y="-190.525*mm" z="14077.75*mm" /> -->
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="forward:TotemT2"/>
+            <rChild name="totemt2:VertSup"/>
+            <Translation x="-127.5*mm" y="0.0*mm" z="14350.00*mm"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="forward:TotemT2"/>
+            <rChild name="totemt2:VertSup"/>
+            <rRotation name="rotations:R180"/>
+            <Translation x="127.5*mm" y="0.0*mm" z="14350.00*mm"/>
+        </PosPart>
+    </PosPartSection>
+</DDDefinition>
