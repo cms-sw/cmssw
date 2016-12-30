@@ -146,14 +146,15 @@ process.generator = cms.EDFilter("Pythia6GeneratorFilter",
 	)
 				 )
 
+process.writer = cms.EDAnalyzer("HepMCEventWriter", hepMCProduct = cms.InputTag("generator"))
 
 process.TauSpinnerGen.parameterSets=cms.vstring("HTSpinCorr")
-process.TauSpinnerGen.HTSpinCorr = cms.vdouble(0.75)
+process.TauSpinnerGen.HTSpinCorr = cms.vdouble(0.785)
 
 process.ProductionFilterSequence = cms.Sequence(process.generator)
 
 # Path and EndPath definitions
-process.generation_step = cms.Path(process.pgen+process.TauSpinnerGen+process.TauSpinnerZHFilter)
+process.generation_step = cms.Path(process.pgen+process.TauSpinnerGen+process.TauSpinnerZHFilter+process.writer)
 process.genfiltersummary_step = cms.EndPath(process.genFilterSummary)
 process.validation_step = cms.EndPath(process.genstepfilter+process.genvalid_all)
 process.endjob_step = cms.EndPath(process.endOfProcess)
