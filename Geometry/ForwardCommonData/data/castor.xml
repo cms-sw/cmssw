@@ -4,10 +4,24 @@
         <Constant name="castLength" value="1583.3*mm" />
         <Constant name="CASTFarTiltAngle" value="0*deg" />
         <Constant name="CASTNearTiltAngle" value="0*deg" />
+	<Constant name="LGAngleBegin" value="11.6287*deg"/>
+	<Constant name="LGAngleDelta" value="21.74255*deg"/>
+	<Constant name="LGrShift" value="1*mm/tan([castor:LGAngleDelta]/2)"/>
+	<Constant name="LGxShift" value="[castor:LGrShift] * cos([castor:LGAngleBegin]+[castor:LGAngleDelta]/2)"/>
+	<Constant name="LGyShift" value="[castor:LGrShift] * sin([castor:LGAngleBegin]+[castor:LGAngleDelta]/2)"/>
     </ConstantsSection>
     <RotationSection label="castor.xml">
         <Rotation name="CASTFarTilt"  thetaX="90*deg+[CASTFarTiltAngle]" phiX="0*deg" thetaY="90*deg" phiY="90*deg" thetaZ="0*deg+[CASTFarTiltAngle]" phiZ="0*deg" />
         <Rotation name="CASTNearTilt" thetaX="90*deg+[CASTNearTiltAngle]" phiX="0*deg" thetaY="90*deg" phiY="90*deg" thetaZ="0*deg+[CASTNearTiltAngle]" phiZ="0*deg" />
+	<!-- Rotations for the subtraction boxes SubtractBox1/2 used to cut the high-eta edges of the volumes CAEL, CAEA, CAEF, CAHL, CAHA CAHF -->
+	<Rotation name="SubtractBoxRot1" 
+		  thetaX ="90*deg" phiX="(22.5+33.75)*deg" 
+		  thetaY="90*deg" phiY="(90+22.5+33.75)*deg" 
+		  thetaZ="0*deg" phiZ="0*deg"/>
+	<Rotation name="SubtractBoxRot2" 
+		  thetaX ="90*deg" phiX="(22.5-33.75)*deg" 
+		  thetaY="90*deg" phiY="(90+22.5-33.75)*deg" 
+		  thetaZ="0*deg" phiZ="0*deg"/>
     </RotationSection>
     <SolidSection label="castor.xml">
         <!--  -->
@@ -44,124 +58,213 @@
         <!-- START OF ELECTROMAGNETIC CALO  -->
         <!--  CASC - StainlessSteel -->
         <Polyhedra name="CAEC" numSide="4" startPhi="0.0*deg" deltaPhi="180.0*deg">
-            <ZSection rMin="39.00*mm" rMax="40.00*mm" z="0.0*mm"/>
-            <ZSection rMin="39.00*mm" rMax="141.00*mm" z="102.0*mm"/>
-            <ZSection rMin="41.50*mm" rMax="144.50*mm" z="104.5*mm"/>
-            <ZSection rMin="144.50*mm" rMax="144.50*mm" z="207.5*mm"/>
+            <ZSection rMin="40.00*mm" rMax="40.00*mm" z="0.00*mm"/>
+            <ZSection rMin="40.00*mm" rMax="143.00*mm" z="103.00*mm"/>
+            <ZSection rMin="40.50*mm" rMax="143.50*mm" z="103.50*mm"/>
+            <ZSection rMin="143.50*mm" rMax="143.50*mm" z="206.50*mm"/>
         </Polyhedra>
         <!-- to have octant StainlessSteel skeleton to support WQ plates  -->
         <!-- CASS sector - Air, 8 copies with deltaPhi=45.0  -->
         <Polyhedra name="CAES" numSide="1" startPhi="0.0*deg" deltaPhi="45.0*deg">
-            <ZSection rMin="40.00*mm" rMax="40.00*mm" z="0.0*mm"/>
-            <ZSection rMin="40.00*mm" rMax="144.00*mm" z="103.0*mm"/>
-            <ZSection rMin="40.50*mm" rMax="144.50*mm" z="104.5*mm"/>
-            <ZSection rMin="144.50*mm" rMax="144.50*mm" z="207.5*mm"/>
+            <ZSection rMin="40.00*mm" rMax="40.00*mm" z="0.00*mm"/>
+            <ZSection rMin="40.00*mm" rMax="143.00*mm" z="103.00*mm"/>
+            <ZSection rMin="40.50*mm" rMax="143.50*mm" z="103.50*mm"/>
+            <ZSection rMin="143.50*mm" rMax="143.50*mm" z="206.50*mm"/>
         </Polyhedra>
         <!-- EM read-out channel  with StainlessSteel size  1 copy -->
         <Polyhedra name="CAER" numSide="1" startPhi="0.0*deg" deltaPhi="45.0*deg">
-            <ZSection rMin="40.00*mm" rMax="40.00*mm" z="0.0*mm"/>
-            <ZSection rMin="40.00*mm" rMax="91.50*mm" z="51.5*mm"/>
-            <ZSection rMin="93.00*mm" rMax="144.50*mm" z="104.5*mm"/>
-            <ZSection rMin="144.50*mm" rMax="144.50*mm" z="156.0*mm"/>
+            <ZSection rMin="40.00*mm" rMax="40.00*mm" z="0.00*mm"/>
+            <ZSection rMin="40.00*mm" rMax="91.50*mm" z="51.50*mm"/>
+            <ZSection rMin="92.00*mm" rMax="143.50*mm" z="103.50*mm"/>
+            <ZSection rMin="143.50*mm" rMax="143.50*mm" z="155.00*mm"/>
         </Polyhedra>
-        <!-- reduced rMin, rMax by (1.mm (StainlessSteel)/tg(22.5))= 2.41mm-->
-        <!-- the special X,Y shifts are needed  -->
-        <!-- the positions: x = 2.41*cos22.5 = 1.30, y=...sin...=0.54  1 copy     -->
+        <!-- Air volume -->
+        <!-- reduced rMin, rMax by (1.mm (StainlessSteel)/tg(22.5)) -1mm = 1.41mm-->
+        <!-- the special X,Y shifts are needed to construct a wall thickness of 1mm. -->
+        <!-- Start the volume below (1.41mm) and then shift upwards in r by (1.41+1)mm.  -->
+	<!-- => wall thickness = deltaR*tan(22.5deg) = 2.41mm*tan(22.5deg) = 1mm --> 
+        <!-- Shifts are defined further down the code.  -->
+        <!-- the shifts are: x = (2.41)*cos(22.5) = 2.23, y=...*sin(22.5)=0.92  1 copy     -->
+
         <Polyhedra name="CERR" numSide="1" startPhi="0.0*deg" deltaPhi="45.0*deg">
-            <ZSection rMin="37.59*mm" rMax="37.59*mm" z="0.0*mm"/>
-            <ZSection rMin="37.59*mm" rMax="89.90*mm" z="51.5*mm"/>
-            <ZSection rMin="90.59*mm" rMax="142.09*mm" z="104.5*mm"/>
-            <ZSection rMin="142.09*mm" rMax="142.09*mm" z="156.0*mm"/>
+            <ZSection rMin="38.59*mm" rMax="38.59*mm" z="1.00*mm"/>
+            <ZSection rMin="38.59*mm" rMax="90.09*mm" z="52.50*mm"/>
+            <ZSection rMin="89.59*mm" rMax="141.09*mm" z="103.50*mm"/>
+            <ZSection rMin="141.09*mm" rMax="141.09*mm" z="155.00*mm"/>
         </Polyhedra>
-        <!-- layer    5 copies (5.+2)*sqrt(2) + 0.40mm = 10.3 (7.07+2.83+0.40) -->
+        <!-- layer    5 copies (5.mm+2mm)/sin(45deg) + 0.40mm = 10.3 (7.07+2.83+0.40) -->
         <!-- 0.4 mm air gap included -->
-        <!-- CAEL: Tungsten layer, CAEA: air layer, CAHF: quartz -->
-        <Polyhedra name="CAEL" numSide="1" startPhi="0.0*deg" deltaPhi="45.0*deg">
-            <ZSection rMin="37.59*mm" rMax="37.59*mm" z="0.0*mm"/>
-            <ZSection rMin="37.59*mm" rMax="47.89*mm" z="10.3*mm"/>
-            <ZSection rMin="131.79*mm" rMax="142.09*mm" z="104.5*mm"/>
-            <ZSection rMin="142.09*mm" rMax="142.09*mm" z="114.8*mm"/>
+        <!-- CAEL: Tungsten layer, CAEA: air layer, CAEF: AIR -->
+	<!-- The two high-eta corners (in r-phi-plane) of the plates are cut off -->
+	<!-- For that a boolean subtraction with the volumes SubtractBox1 and SubtractBox2 is used. -->
+	<!-- The initial polyhedron without cuts is called "CAEL_helper1". -->
+	<!-- Then the corner with smaller phi is cut with SubtractBox1 and the produced helper-volume with one cut corner is called "CAEL_helper2"-->
+	<!-- At last the volume "CAEL_helper2" is cut again with SubtractBox2 and the final W/Q plate is called CAEL/CAEA/CAEF -->
+
+	<Box name="SubtractBox1" dx="1.9445*mm" dy="10*mm" dz="40*mm"/> 
+	<Box name="SubtractBox2" dx="1.9445*mm" dy="10*mm" dz="40*mm"/> 
+
+	<Polyhedra name="CAEL_helper1" numSide="1" startPhi="0.0*deg" deltaPhi="45.0*deg">
+            <ZSection rMin="38.59*mm" rMax="38.59*mm" z="1.00*mm"/>
+            <ZSection rMin="38.59*mm" rMax="48.89*mm" z="11.30*mm"/>
+            <ZSection rMin="130.79*mm" rMax="141.09*mm" z="103.50*mm"/>
+            <ZSection rMin="141.09*mm" rMax="141.09*mm" z="113.80*mm"/>
         </Polyhedra>
-        <Polyhedra name="CAEA" numSide="1" startPhi="0.0*deg" deltaPhi="45.0*deg">
-            <ZSection rMin="37.59*mm" rMax="37.59*mm" z="0.0*mm"/>
-            <ZSection rMin="37.59*mm" rMax="40.82*mm" z="3.23*mm"/>
-            <ZSection rMin="138.86*mm" rMax="142.09*mm" z="104.5*mm"/>
-            <ZSection rMin="142.09*mm" rMax="142.09*mm" z="107.73*mm"/>
+	<SubtractionSolid name="castor:CAEL_helper2">
+	  <rSolid name="castor:CAEL_helper1"/>
+	  <rSolid name="castor:SubtractBox1"/>
+	  <rRotation name="castor:SubtractBoxRot1"/>
+	  <Translation x="(37.59/cos(22.5*deg))*mm" y="0.*mm" z="1.*mm"/>
+	</SubtractionSolid>
+	<SubtractionSolid name="castor:CAEL">
+	  <rSolid name="castor:CAEL_helper2"/>
+	  <rSolid name="castor:SubtractBox2"/>
+	  <rRotation name="castor:SubtractBoxRot2"/>
+	  <Translation x="37.59*cos(45*deg)/cos(22.5*deg)*mm" y="2*37.59*sin(22.5*deg)*mm" z="1.*mm"/>
+	</SubtractionSolid>
+        <Polyhedra name="CAEA_helper1" numSide="1" startPhi="0.0*deg" deltaPhi="45.0*deg">
+            <ZSection rMin="38.59*mm" rMax="38.59*mm" z="1.00*mm"/>
+            <ZSection rMin="38.59*mm" rMax="41.82*mm" z="4.23*mm"/>
+            <ZSection rMin="137.86*mm" rMax="141.09*mm" z="103.50*mm"/>
+            <ZSection rMin="141.09*mm" rMax="141.09*mm" z="106.73*mm"/>
         </Polyhedra>
-        <Polyhedra name="CAEF" numSide="1" startPhi="0.0*deg" deltaPhi="45.0*deg">
-            <ZSection rMin="37.59*mm" rMax="37.59*mm" z="0.0*mm"/>
-            <ZSection rMin="37.59*mm" rMax="40.42*mm" z="2.83*mm"/>
-            <ZSection rMin="139.26*mm" rMax="142.09*mm" z="104.5*mm"/>
-            <ZSection rMin="142.09*mm" rMax="142.09*mm" z="107.33*mm"/>
+	<SubtractionSolid name="castor:CAEA_helper2">
+	  <rSolid name="castor:CAEA_helper1"/>
+	  <rSolid name="castor:SubtractBox1"/>
+	  <rRotation name="castor:SubtractBoxRot1"/>
+	  <Translation x="(37.59/cos(22.5*deg))*mm" y="0.*mm" z="1.*mm"/>
+	</SubtractionSolid>
+	<SubtractionSolid name="castor:CAEA">
+	  <rSolid name="castor:CAEA_helper2"/>
+	  <rSolid name="castor:SubtractBox2"/>
+	  <rRotation name="castor:SubtractBoxRot2"/>
+	  <Translation x="37.59*cos(45*deg)/cos(22.5*deg)*mm" y="2*37.59*sin(22.5*deg)*mm" z="1.*mm"/>
+	</SubtractionSolid>
+	<Polyhedra name="CAEF_helper1" numSide="1" startPhi="0.0*deg" deltaPhi="45.0*deg">
+            <ZSection rMin="38.59*mm" rMax="38.59*mm" z="1.00*mm"/>
+            <ZSection rMin="38.59*mm" rMax="41.42*mm" z="3.83*mm"/>
+            <ZSection rMin="138.26*mm" rMax="141.09*mm" z="103.50*mm"/>
+            <ZSection rMin="141.09*mm" rMax="141.09*mm" z="106.33*mm"/>
         </Polyhedra>
+	<SubtractionSolid name="castor:CAEF_helper2">
+	  <rSolid name="castor:CAEF_helper1"/>
+	  <rSolid name="castor:SubtractBox1"/>
+	  <rRotation name="castor:SubtractBoxRot1"/>
+	  <Translation x="(37.59/cos(22.5*deg))*mm" y="0.*mm" z="1.*mm"/>
+	</SubtractionSolid>
+	<SubtractionSolid name="castor:CAEF">
+	  <rSolid name="castor:CAEF_helper2"/>
+	  <rSolid name="castor:SubtractBox2"/>
+	  <rRotation name="castor:SubtractBoxRot2"/>
+	  <Translation x="37.59*cos(45*deg)/cos(22.5*deg)*mm" y="2*37.59*sin(22.5*deg)*mm" z="1.*mm"/>
+	</SubtractionSolid>
         <!-- shape to be used for Intersection to create C3TF,C4TF semi-trapezoid solids   -->
-        <!-- dz=Height of plate/2 + 3 mm (arbitrary) ; dy = B/2 -->
-        <Box name="C2EF" dz="76.890*mm" dy="28.79*mm" dx="1.495*mm"/>
+        <!-- box defined from center of box (rotated therefore x!=x_global) -->
+        <!-- dz=Height of plate/2 + 3 mm (arbitrary) ; dy = plate width/2 -->
+	<Box name="C2EF" dz="76.890*mm" dy="(29.79)*mm" dx="1.495*mm"/>
         <IntersectionSolid name="castor:C3EF">
             <rSolid name="castor:CAEF"/>
             <rSolid name="castor:C2EF"/>
             <rRotation name="rotations:CARM"/>
-            <Translation x="94.02258*mm" y="7.7723*mm" z="52.9571*mm"/>
+            <Translation x="93.75198195*mm" y="6.57782247*mm" z="53.6642067*mm"/> 
         </IntersectionSolid>
         <IntersectionSolid name="castor:C4EF">
             <rSolid name="castor:CAEF"/>
             <rSolid name="castor:C2EF"/>
             <rRotation name="rotations:CARM"/>
-            <Translation x="71.98*mm" y="60.9877*mm" z="52.9571*mm"/>
+            <Translation x="70.94403509*mm" y="61.64098148*mm" z="53.66420678*mm"/>
         </IntersectionSolid>
         <!--  -->
-        <!-- tree with HADRONIC calorimeter  1 copy 8x14x7x(10.5) -->
+        <!-- tree with HADRONIC calorimeter 1 copy 8x14x7x(10.5) -->
         <!--  -->
         <!--  -->
         <Polyhedra name="CAHC" numSide="4" startPhi="0.0*deg" deltaPhi="180.0*deg">
-            <ZSection rMin="39.00*mm" rMax="40.00*mm" z="0.0*mm"/>
-            <ZSection rMin="39.00*mm" rMax="178.40*mm" z="138.4*mm"/>
-            <ZSection rMin="39.00*mm" rMax="178.40*mm" z="1211.0*mm"/>
-            <ZSection rMin="178.40*mm" rMax="178.40*mm" z="1350.4*mm"/>
+            <ZSection rMin="40.00*mm" rMax="40.00*mm" z="0.0*mm"/>
+            <ZSection rMin="40.00*mm" rMax="177.40*mm" z="137.4*mm"/>
+            <ZSection rMin="40.00*mm" rMax="177.40*mm" z="1212.0*mm"/>
+            <ZSection rMin="177.40*mm" rMax="177.40*mm" z="1349.4*mm"/>
         </Polyhedra>
         <!-- to have octant StainlessSteel skeleton to support WQ plates  -->
         <!-- CAHS sector - Air, 8 copies with deltaPhi=45.0  -->
         <Polyhedra name="CAHS" numSide="1" startPhi="0.0*deg" deltaPhi="45.0*deg">
             <ZSection rMin="40.00*mm" rMax="40.00*mm" z="0.0*mm"/>
-            <ZSection rMin="40.00*mm" rMax="178.40*mm" z="138.4*mm"/>
-            <ZSection rMin="40.00*mm" rMax="178.40*mm" z="1212.0*mm"/>
-            <ZSection rMin="178.40*mm" rMax="178.40*mm" z="1350.4*mm"/>
+            <ZSection rMin="40.00*mm" rMax="177.40*mm" z="137.4*mm"/>
+            <ZSection rMin="40.00*mm" rMax="177.40*mm" z="1212.0*mm"/>
+            <ZSection rMin="177.40*mm" rMax="177.40*mm" z="1349.4*mm"/>
         </Polyhedra>
         <!-- HAD read-out channel  with StainlessSteel size  12 copies -->
         <Polyhedra name="CAHR" numSide="1" startPhi="0.0*deg" deltaPhi="45.0*deg">
             <ZSection rMin="40.00*mm" rMax="40.00*mm" z="0.0*mm"/>
             <ZSection rMin="40.00*mm" rMax="141.00*mm" z="101.0*mm"/>
-            <ZSection rMin="77.40*mm" rMax="178.40*mm" z="138.4*mm"/>
-            <ZSection rMin="178.40*mm" rMax="178.40*mm" z="239.9*mm"/>
+            <ZSection rMin="76.40*mm" rMax="177.40*mm" z="137.4*mm"/>
+            <ZSection rMin="177.40*mm" rMax="177.40*mm" z="238.4*mm"/>
         </Polyhedra>
-        <!-- reduced rMin,rMax by (1.mm (StainlessSteel)/tg(22.5))= 2.41mm-->
-        <!-- the special X,Y shifts are needed  -->
-        <!-- the positions: x = 2.41*cos22.5 = 1.30, y=...sin...=0.54  1 copy     -->
+        <!-- reduced rMin,rMax by (1.mm (StainlessSteel)/tg(22.5)) -1mm = 1.41mm-->
+        <!-- the special X,Y shifts are needed (see CERR) -->
         <Polyhedra name="CHRR" numSide="1" startPhi="0.0*deg" deltaPhi="45.0*deg">
-            <ZSection rMin="37.59*mm" rMax="37.59*mm" z="0.0*mm"/>
-            <ZSection rMin="37.59*mm" rMax="138.59*mm" z="101.0*mm"/>
-            <ZSection rMin="74.99*mm" rMax="175.99*mm" z="138.4*mm"/>
-            <ZSection rMin="175.99*mm" rMax="175.99*mm" z="239.9*mm"/>
+            <ZSection rMin="38.59*mm" rMax="38.59*mm" z="1.00*mm"/>
+            <ZSection rMin="38.59*mm" rMax="139.59*mm" z="102.00*mm"/>
+            <ZSection rMin="73.99*mm" rMax="174.99*mm" z="137.40*mm"/>
+            <ZSection rMin="174.99*mm" rMax="174.99*mm" z="238.40*mm"/>
         </Polyhedra>
-        <!-- layer    7 copies (5.+2)*sqrt(2)+0.60=10.5  (7.07+2.83+0.60) -->
-        <Polyhedra name="CAHL" numSide="1" startPhi="0.0*deg" deltaPhi="45.0*deg">
-            <ZSection rMin="37.59*mm" rMax="37.59*mm" z="0.0*mm"/>
-            <ZSection rMin="37.59*mm" rMax="57.79*mm" z="20.2*mm"/>
-            <ZSection rMin="155.79*mm" rMax="175.99*mm" z="138.4*mm"/>
-            <ZSection rMin="175.99*mm" rMax="175.99*mm" z="158.6*mm"/>
+        <!-- layer    7 copies (10.+4.+0.4)/sin(45deg)=20.2  (14.14+5.66+0.60) -->
+	<!-- tungsten layer -->
+        <Polyhedra name="CAHL_helper1" numSide="1" startPhi="0.0*deg" deltaPhi="45.0*deg">
+            <ZSection rMin="38.59*mm" rMax="38.59*mm" z="1.00*mm"/>
+            <ZSection rMin="38.59*mm" rMax="58.79*mm" z="21.20*mm"/>
+            <ZSection rMin="154.79*mm" rMax="174.99*mm" z="137.40*mm"/>
+            <ZSection rMin="174.99*mm" rMax="174.99*mm" z="157.60*mm"/>
         </Polyhedra>
-        <Polyhedra name="CAHA" numSide="1" startPhi="0.0*deg" deltaPhi="45.0*deg">
-            <ZSection rMin="37.59*mm" rMax="37.59*mm" z="0.0*mm"/>
-            <ZSection rMin="37.59*mm" rMax="43.65*mm" z="6.06*mm"/>
-            <ZSection rMin="169.93*mm" rMax="175.99*mm" z="138.4*mm"/>
-            <ZSection rMin="175.99*mm" rMax="175.99*mm" z="144.46*mm"/>
+	<SubtractionSolid name="castor:CAHL_helper2">
+	  <rSolid name="castor:CAHL_helper1"/>
+	  <rSolid name="castor:SubtractBox1"/>
+	  <rRotation name="castor:SubtractBoxRot1"/>
+	  <Translation x="(37.59/cos(22.5*deg))*mm" y="0.*mm" z="1.*mm"/>
+	</SubtractionSolid>
+	<SubtractionSolid name="castor:CAHL">
+	  <rSolid name="castor:CAHL_helper2"/>
+	  <rSolid name="castor:SubtractBox2"/>
+	  <rRotation name="castor:SubtractBoxRot2"/>
+	  <Translation x="37.59*cos(45*deg)/cos(22.5*deg)*mm" y="2*37.59*sin(22.5*deg)*mm" z="1.*mm"/>
+	</SubtractionSolid>
+	<!-- quartz volume layer where wrapping (here simply air?) is included?-->
+        <Polyhedra name="CAHA_helper1" numSide="1" startPhi="0.0*deg" deltaPhi="45.0*deg">
+            <ZSection rMin="38.59*mm" rMax="38.59*mm" z="1.00*mm"/>
+            <ZSection rMin="38.59*mm" rMax="44.65*mm" z="7.06*mm"/>
+            <ZSection rMin="168.93*mm" rMax="174.99*mm" z="137.40*mm"/>
+            <ZSection rMin="174.99*mm" rMax="174.99*mm" z="143.46*mm"/>
         </Polyhedra>
-        <Polyhedra name="CAHF" numSide="1" startPhi="0.0*deg" deltaPhi="45.0*deg">
-            <ZSection rMin="37.59*mm" rMax="37.59*mm" z="0.0*mm"/>
-            <ZSection rMin="37.59*mm" rMax="43.25*mm" z="5.66*mm"/>
-            <ZSection rMin="170.33*mm" rMax="175.99*mm" z="138.4*mm"/>
-            <ZSection rMin="175.99*mm" rMax="175.99*mm" z="144.06*mm"/>
+	<SubtractionSolid name="castor:CAHA_helper2">
+	  <rSolid name="castor:CAHA_helper1"/>
+	  <rSolid name="castor:SubtractBox1"/>
+	  <rRotation name="castor:SubtractBoxRot1"/>
+	  <Translation x="(37.59/cos(22.5*deg))*mm" y="0.*mm" z="1.*mm"/>
+	</SubtractionSolid>
+	<SubtractionSolid name="castor:CAHA">
+	  <rSolid name="castor:CAHA_helper2"/>
+	  <rSolid name="castor:SubtractBox2"/>
+	  <rRotation name="castor:SubtractBoxRot2"/>
+	  <Translation x="37.59*cos(45*deg)/cos(22.5*deg)*mm" y="2*37.59*sin(22.5*deg)*mm" z="1.*mm"/>
+	</SubtractionSolid>
+	<!-- quartz volume without wrapping where will be intersected -->
+        <Polyhedra name="CAHF_helper1" numSide="1" startPhi="0.0*deg" deltaPhi="45.0*deg">
+            <ZSection rMin="38.59*mm" rMax="38.59*mm" z="1.00*mm"/>
+            <ZSection rMin="38.59*mm" rMax="44.25*mm" z="6.66*mm"/>
+            <ZSection rMin="169.33*mm" rMax="174.99*mm" z="137.40*mm"/>
+            <ZSection rMin="174.99*mm" rMax="174.99*mm" z="143.06*mm"/>
         </Polyhedra>
+	<SubtractionSolid name="castor:CAHF_helper2">
+	  <rSolid name="castor:CAHF_helper1"/>
+	  <rSolid name="castor:SubtractBox1"/>
+	  <rRotation name="castor:SubtractBoxRot1"/>
+	  <Translation x="(37.59/cos(22.5*deg))*mm" y="0.*mm" z="1.*mm"/>
+	</SubtractionSolid>
+	<SubtractionSolid name="castor:CAHF">
+	  <rSolid name="castor:CAHF_helper2"/>
+	  <rSolid name="castor:SubtractBox2"/>
+	  <rRotation name="castor:SubtractBoxRot2"/>
+	  <Translation x="37.59*cos(45*deg)/cos(22.5*deg)*mm" y="2*37.59*sin(22.5*deg)*mm" z="1.*mm"/>
+	</SubtractionSolid>
         <!--  -->
         <!--  -->
         <!-- shape to be used for Intersection to create C3TF,C4TF solids   -->
@@ -201,19 +304,19 @@
             <ZSection rMin="251.70*mm" rMax="303.20*mm" z="263.2*mm"/>
             <ZSection rMin="303.20*mm" rMax="303.20*mm" z="314.7*mm"/>
         </Polyhedra>
-        <!--  Aluminium (1mm) compartment with Air lightguide (external part)  1 copy -->
-        <Polyhedra name="CEAL" numSide="1" startPhi="11.6287*deg" deltaPhi="21.74255*deg">
+        <!-- compartment with Air lightguide (1 mm wall strength) (external part)  1 copy -->
+        <Polyhedra name="CEAL" numSide="1" startPhi="[castor:LGAngleBegin]" deltaPhi="[castor:LGAngleDelta]">
             <ZSection rMin="67.6913*mm" rMax="67.6913*mm" z="13.50*mm"/>
             <ZSection rMin="67.6913*mm" rMax="98.829*mm" z="39.5*mm"/>
             <ZSection rMin="105.2413*mm" rMax="149.9623*mm" z="82.27*mm"/>
             <ZSection rMin="149.9623*mm" rMax="149.9623*mm" z="133.27*mm"/>
         </Polyhedra>
-        <!-- Air compartment - lightguide (internal part of LG)  1 copy -->
-        <Polyhedra name="CEAI" numSide="1" startPhi="11.6287*deg" deltaPhi="21.74255*deg">
-            <ZSection rMin="62.4836*mm" rMax="62.4836*mm" z="14.5*mm"/>
-            <ZSection rMin="62.4836*mm" rMax="91.2261*mm" z="38.5*mm"/>
-            <ZSection rMin="101.7908*mm" rMax="144.7546*mm" z="83.27*mm"/>
-            <ZSection rMin="144.7546*mm" rMax="144.7546*mm" z="132.27*mm"/>
+        <!-- Air compartment in CEAL (lightguide) (internal part of LG)  1 copy -->
+        <Polyhedra name="CEAI" numSide="1" startPhi="[castor:LGAngleBegin]" deltaPhi="[castor:LGAngleDelta]">
+           <ZSection rMin="62.48432*mm" rMax="62.48432*mm" z="14.50*mm"/>
+           <ZSection rMin="62.48432*mm" rMax="91.22937*mm" z="38.50*mm"/>
+           <ZSection rMin="101.78906*mm" rMax="144.75532*mm" z="83.27*mm"/>
+           <ZSection rMin="144.75532*mm" rMax="144.75532*mm" z="132.27*mm"/>
         </Polyhedra>
         <!-- Air volume to be filled by PMT  1 copy -->
         <!-- volume for PMT's -->
@@ -313,10 +416,10 @@
             <rSolid name="CERR"/>
             <rMaterial name="materials:Air"/>
         </LogicalPart>
-        <LogicalPart name="CAEL" category="unspecified">
+	<LogicalPart name="CAEL" category="unspecified">
             <rSolid name="CAEL"/>
             <rMaterial name="materials:Tungsten"/>
-        </LogicalPart>
+	</LogicalPart>
         <LogicalPart name="CAEA" category="unspecified">
             <rSolid name="CAEA"/>
             <rMaterial name="materials:Air"/>
@@ -434,7 +537,9 @@
             <rRotation name="castor:CASTFarTilt"/>
             <!-- please multiply x by -1 since CASTOR on eta minus side is mirrored-->
             <!-- the tilt is defined so that the face position center face position does not change-->
-            <Translation x="0.0*cm - [castor:castLength]*sin([castor:CASTFarTiltAngle])" y="0.0*cm" z="0*mm + [castor:castLength]*(1-cos([castor:CASTFarTiltAngle]))"/>
+            <Translation x="0.0*cm - [castor:castLength]*sin([castor:CASTFarTiltAngle])"
+			 y="0.0*cm"
+			 z="0*mm + [castor:castLength]*(1-cos([castor:CASTFarTiltAngle]))"/>
         </PosPart>
         <PosPart copyNumber="1">
             <rParent name="forward:CastorB"/>
@@ -442,7 +547,9 @@
             <rRotation name="castor:CASTNearTilt"/>
             <!-- please multiply x by -1 since CASTOR on eta minus side is mirrored-->
             <!-- the tilt is defined so that the face position center face position does not change-->
-            <Translation x="0.0*cm - [castor:castLength]*sin([castor:CASTNearTiltAngle])" y="0.0*cm" z="0*mm + [castor:castLength]*(1-cos([castor:CASTNearTiltAngle]))"/>
+            <Translation x="0.0*cm - [castor:castLength]*sin([castor:CASTNearTiltAngle])"
+			 y="0.0*cm"
+			 z="0*mm + [castor:castLength]*(1-cos([castor:CASTNearTiltAngle]))"/>
         </PosPart>
 
         <PosPart copyNumber="2">
@@ -549,7 +656,8 @@
             <rParent name="castor:CAER"/>
             <rChild name="castor:CERR"/>
             <rRotation name="rotations:000D"/>
-            <Translation x="+1.30*mm" y="+0.54*mm" z="0.0*mm"/>
+	    <Translation x="2.41*cos(22.5*deg)*mm" y="2.41*sin(22.5*deg)*mm" z="0.0*mm"/>
+	    
         </PosPart>
         <!--  -->
         <!-- HAD read-out channel  12 copies include 5 layers -->
@@ -631,7 +739,7 @@
             <rParent name="castor:CAHR"/>
             <rChild name="castor:CHRR"/>
             <rRotation name="rotations:000D"/>
-            <Translation x="+1.30*mm" y="+0.54*mm" z="0.0*mm"/>
+	    <Translation x="2.41*cos(22.5*deg)*mm" y="2.41*sin(22.5*deg)*mm" z="0.0*mm"/>
         </PosPart>
         <!--  -->
         <!-- EM layers :   5 copies -->
@@ -739,7 +847,7 @@
             <rParent name="castor:CAHA"/>
             <rChild name="castor:CAHF"/>
             <rRotation name="rotations:000D"/>
-            <Translation x="0.0*mm" y="0.0*mm" z="0.2*mm"/>
+            <Translation x="0.0*mm" y="0.0*mm" z="0.28142*mm"/>
         </PosPart>
         <PosPart copyNumber="1">
             <rParent name="castor:CAHF"/>
@@ -903,11 +1011,14 @@
             <rRotation name="rotations:CABK"/>
             <Translation x="260.5945*mm" y="140.33465*mm" z="239.2853*mm"/>
         </PosPart>
+	<!-- shift back by rShift in direction of axis -->
         <PosPart copyNumber="1">
             <rParent name="castor:CEAL"/>
             <rChild name="castor:CEAI"/>
             <rRotation name="rotations:000D"/>
-            <Translation x="6.0815*mm" y="2.51905*mm" z="0.0*mm"/>
+            <Translation x="[castor:LGxShift]"
+			 y="[castor:LGyShift]"
+			 z="0.0*mm"/>
         </PosPart>
         <PosPart copyNumber="1">
             <rParent name="castor:CEDR"/>
