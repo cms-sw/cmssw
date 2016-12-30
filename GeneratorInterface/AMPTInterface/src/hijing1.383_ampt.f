@@ -194,9 +194,6 @@ C
 C****************************************************************
         SUBROUTINE HIJING(FRAME,BMIN0,BMAX0)
 
-cgsfs   Added following for consistency with AMPT call
-        double precision BMIN0, BMAX0
-
 cbz1/25/99
         PARAMETER (MAXPTN=400001)
 clin-4/20/01        PARAMETER (MAXSTR = 1600)
@@ -320,17 +317,12 @@ clin-6/22/01:
         common /lastt/itimeh,bimp
 cc      SAVE /lastt/
         COMMON /AREVT/ IAEVT, IARUN, MISS
-        common/phidcy/iphidcy,pttrig,ntrig,maxmiss
-cwei        DOUBLE PRECISION PATT
-
-        logical iwrite
-        data iwrite / .false. /
-
+        common/phidcy/iphidcy,pttrig,ntrig,maxmiss,ipi0dcy
+clin-7/2011 ioscar value is needed:
+        common /para7/ ioscar,nsmbbbar,nsmmeson
+clin-2/2012 allow random orientation of reaction plane:
+        common /phiHJ/iphirp,phiRP
         SAVE   
-
-cgsfs      WRITE(*,*) "IN Hijing, FRAME=",FRAME
-cgsfs      WRITE(*,*) "IN Hijing, BMIN=",BMIN0
-cgsfs      WRITE(*,*) "IN Hijing, BMAX=",BMAX0
 
         BMAX=MIN(BMAX0,HIPR1(34)+HIPR1(35))
         BMIN=MIN(BMIN0,BMAX)
@@ -342,8 +334,6 @@ C                        ********HIPR1(31) is in mb =0.1fm**2
 C*******THE FOLLOWING IS TO SELECT THE COORDINATIONS OF NUCLEONS 
 C       BOTH IN PROJECTILE AND TARGET NUCLEAR( in fm)
 C
-cgsfs      WRITE(*,*) "IN Hijing, Modified BMIN=",BMIN
-cgsfs      WRITE(*,*) "IN Hijing, Modified BMAX=",BMAX
         YP(1,1)=0.0
         YP(2,1)=0.0
         YP(3,1)=0.0
@@ -476,7 +466,7 @@ C********************
 24        MISS=-1
 50        MISS=MISS+1
 
-clin-6/2009 ctest on
+clin-6/2009
 c        IF(MISS.GT.50) THEN
         IF(MISS.GT.maxmiss) THEN
            WRITE(6,*) 'infinite loop happened in  HIJING'
@@ -511,8 +501,10 @@ C       BY THE ANGLE PHI  FOR EACH COLLISION.******************
 C
         BB=SQRT(BMIN**2+RANART(NSEED)*(BMAX**2-BMIN**2))
 cbz6/28/99 flow1
-c        PHI=2.0*HIPR1(40)*RANART(NSEED)
+clin-2/2012:
         PHI=0.
+        if(iphirp.eq.1) PHI=2.0*HIPR1(40)*RANART(NSEED)
+        phiRP=phi
 cbz6/28/99 flow1 end
         BBX=BB*COS(PHI)
         BBY=BB*SIN(PHI)
@@ -566,7 +558,7 @@ C                                suffered
 
 clin-5/22/01 write impact parameter:
         bimp=bb
-c        write(6,*) '#impact parameter,nlop,ncolt=',bimp,nlop,ncolt
+        write(6,*) '#impact parameter,nlop,ncolt=',bimp,nlop,ncolt
 
         IF(NCOLT.EQ.0) THEN
            NLOP=NLOP+1
@@ -691,11 +683,16 @@ c                                 when IHPR2(3)>0
 C                ********create at least one pair of mini jets 
 C                        when IHPR2(9)=1
 C
-        IF(IHPR2(8).GT.0 .AND.RNIP(JP,JT).LT.EXP(-TT)*
-     &                (1.0-EXP(-TTS))) GO TO 160
+clin-4/15/2010 changed .LT. to .LE. to avoid problem when two sides are equal; 
+c     this problem may lead to a jet production when there should be none and 
+c     crash the run; crashes at low energies were reported by P. Bhaduri.
+c        IF(IHPR2(8).GT.0 .AND.RNIP(JP,JT).LT.EXP(-TT)*
+c     &                (1.0-EXP(-TTS))) GO TO 160
+        IF(IHPR2(8).GT.0 .AND.RNIP(JP,JT).LE.EXP(-TT)*
+     &                 (1.0-EXP(-TTS))) GO TO 160
+c
 C                ********this is the probability for no jet production
-110        TMPEXP = EXP(-TT)
-           XR=-ALOG(TMPEXP+RANART(NSEED)*(1.0-TMPEXP))
+110        XR=-ALOG(EXP(-TT)+RANART(NSEED)*(1.0-EXP(-TT)))
 111        NJET=NJET+1
         XR=XR-ALOG(max(RANART(NSEED),1.0e-20))
         IF(XR.LT.TT) GO TO 111
@@ -739,13 +736,21 @@ c
 c**************************
 c
 clin-6/2009 write out initial minijet information:
-           call minijet_out(BB)
+clin-2/2012:
+c           call minijet_out(BB)
+           call minijet_out(BB,phiRP)
            if(pttrig.gt.0.and.ntrig.eq.0) goto 50
+clin-4/2012 
 clin-6/2009 write out initial transverse positions of initial nucleons:
-           write(94,*) IAEVT,MISS,IHNT2(1),IHNT2(3)
+c           write(94,*) IAEVT,MISS,IHNT2(1),IHNT2(3)
         DO 201 JP=1,IHNT2(1)
 clin-6/2009:
-           write(94,203) YP(1,JP)+0.5*BB, YP(2,JP), JP, NFP(JP,5)
+c           write(94,203) YP(1,JP)+0.5*BB, YP(2,JP), JP, NFP(JP,5)
+clin-2/2012:
+c       write(94,203) YP(1,JP)+0.5*BB, YP(2,JP), JP, NFP(JP,5),yp(3,jp)
+clin-4/2012:
+c           write(94,203) YP(1,JP)+0.5*BB*cos(phiRP), 
+c     1 YP(2,JP)+0.5*BB*sin(phiRP), JP, NFP(JP,5),yp(3,jp)
            IF(NFP(JP,5).GT.2) THEN
               NINP=NINP+1
            ELSE IF(NFP(JP,5).EQ.2.OR.NFP(JP,5).EQ.1) THEN
@@ -754,14 +759,20 @@ clin-6/2009:
  201    continue
         DO 202 JT=1,IHNT2(3)
 clin-6/2009 target nucleon # has a minus sign for distinction from projectile:
-           write(94,203) YT(1,JT)-0.5*BB, YT(2,JT), -JT, NFT(JT,5)
+c           write(94,203) YT(1,JT)-0.5*BB, YT(2,JT), -JT, NFT(JT,5)
+clin-2/2012:
+c       write(94,203) YT(1,JT)-0.5*BB, YT(2,JT), -JT, NFT(JT,5),yt(3,jt)
+clin-4/2012:
+c           write(94,203) YT(1,JT)-0.5*BB*cos(phiRP), 
+c     1 YT(2,JT)-0.5*BB*sin(phiRP), -JT, NFT(JT,5),yt(3,jt)
            IF(NFT(JT,5).GT.2) THEN
               NINTHJ=NINTHJ+1
            ELSE IF(NFT(JT,5).EQ.2.OR.NFT(JT,5).EQ.1) THEN
               NELT=NELT+1
            ENDIF
  202    continue
- 203    format(f10.3,1x,f10.3,2(1x,I5))
+c 203    format(f10.3,1x,f10.3,2(1x,I5))
+c 203    format(f10.3,1x,f10.3,2(1x,I5),1x,f10.3)
 c     
 c*******************************
 
@@ -808,9 +819,12 @@ cbz1/27/99end
 cbz6/28/99 flow1
 clin-7/20/01 add dble or sngl to make precisions consistent
 c              GX0(NPAR) = YP(1, I)
-              GX0(NPAR) = dble(YP(1, I) + 0.5 * BB)
+clin-2/2012:
+c              GX0(NPAR) = dble(YP(1, I) + 0.5 * BB)
+              GX0(NPAR) = dble(YP(1, I)+0.5*BB*cos(phiRP))
 cbz6/28/99 flow1 end
-              GY0(NPAR) = dble(YP(2, I))
+c              GY0(NPAR) = dble(YP(2, I))
+              GY0(NPAR) = dble(YP(2, I)+0.5*BB*sin(phiRP))
               GZ0(NPAR) = 0d0
               FT0(NPAR) = 0d0
               PX0(NPAR) = dble(PJPX(I, J))
@@ -842,9 +856,12 @@ cbz1/27/99end
 cbz6/28/99 flow1
 clin-7/20/01 add dble or sngl to make precisions consistent
 c              GX0(NPAR) = YT(1, I)
-              GX0(NPAR) = dble(YT(1, I) - 0.5 * BB)
+clin-2/2012:
+c              GX0(NPAR) = dble(YT(1, I) - 0.5 * BB)
+              GX0(NPAR) = dble(YT(1, I)-0.5*BB*cos(phiRP))
 cbz6/28/99 flow1 end
-              GY0(NPAR) = dble(YT(2, I))
+c              GY0(NPAR) = dble(YT(2, I))
+              GY0(NPAR) = dble(YT(2, I)-0.5*BB*sin(phiRP))
               GZ0(NPAR) = 0d0
               FT0(NPAR) = 0d0
               PX0(NPAR) = dble(PJTX(I, J))
@@ -1023,8 +1040,12 @@ c                 E0(NPAR) = dble(P(II,4))
      1                +PZ0(NPAR)**2+XMASS0(NPAR)**2)
                  IF (NTP .EQ. 1) THEN
 clin-7/20/01 add dble or sngl to make precisions consistent
-                    GX0(NPAR) = dble(YP(1, jjtp)+0.5 * BB)
-                    GY0(NPAR) = dble(YP(2, jjtp))
+clin-2/2012:
+c                    GX0(NPAR) = dble(YP(1, jjtp)+0.5 * BB)
+c                    GY0(NPAR) = dble(YP(2, jjtp))
+                    GX0(NPAR) = dble(YP(1, jjtp)+0.5*BB*cos(phiRP))
+                    GY0(NPAR) = dble(YP(2, jjtp)+0.5*BB*sin(phiRP))
+
                     IITYP=ITYP0(NPAR)
                     nstrg=LSTRG0(NPAR)
                     if(IITYP.eq.2112.or.IITYP.eq.2212) then
@@ -1051,8 +1072,11 @@ clin-7/20/01 add dble or sngl to make precisions consistent
                        PJPM(NSTRG, NPART) = sngl(XMASS0(NPAR))
                     endif
                  ELSE
-                    GX0(NPAR) = dble(YT(1, jjtp)-0.5 * BB)
-                    GY0(NPAR) = dble(YT(2, jjtp))
+clin-2/2012:
+c                    GX0(NPAR) = dble(YT(1, jjtp)-0.5 * BB)
+c                    GY0(NPAR) = dble(YT(2, jjtp)) 
+                    GX0(NPAR) = dble(YT(1, jjtp)-0.5*BB*cos(phiRP))
+                    GY0(NPAR) = dble(YT(2, jjtp)-0.5*BB*sin(phiRP))
                     IITYP=ITYP0(NPAR)
                     nstrg=LSTRG0(NPAR)-NSP
                     if(IITYP.eq.2112.or.IITYP.eq.2212) then
@@ -1128,11 +1152,21 @@ c        WRITE (14, 395) ITEST, MUL, bimp, NELP,NINP,NELT,NINTHJ
         DO 1015 I = 1, MUL
 c           WRITE (14, 311) PX5(I), PY5(I), PZ5(I), ITYP5(I),
 c     &        XMASS5(I), E5(I)
-           WRITE (14, 312) PX5(I), PY5(I), PZ5(I), ITYP5(I),
-     &        XMASS5(I), E5(I),LSTRG1(I), LPART1(I)
+clin-4/2012 write parton freeze-out position in zpc.dat for this test scenario:
+c           WRITE (14, 312) PX5(I), PY5(I), PZ5(I), ITYP5(I),
+c     &        XMASS5(I), E5(I),LSTRG1(I), LPART1(I)
+           if(dmax1(abs(GX5(I)),abs(GY5(I)),abs(GZ5(I)),abs(FT5(I)))
+     1          .lt.9999) then
+              write(14,210) ITYP5(I), PX5(I), PY5(I), PZ5(I), XMASS5(I),
+     1             GX5(I), GY5(I), GZ5(I), FT5(I)
+           else
+              write(14,211) ITYP5(I), PX5(I), PY5(I), PZ5(I), XMASS5(I),
+     1             GX5(I), GY5(I), GZ5(I), FT5(I)
+           endif
+c
  1015   CONTINUE
 c 311    FORMAT(1X, 3F10.4, I6, 2F10.4)
- 312    FORMAT(1X, 3F10.3, I6, 2F10.3,1X,I6,1X,I3)
+c 312    FORMAT(1X, 3F10.3, I6, 2F10.3,1X,I6,1X,I3)
 cbz3/19/99 end
 
 clin-5/2009 ctest off:
@@ -1395,11 +1429,18 @@ C       ****** identify the mother particle
                    PATT(NATT,4)=P(I,4)
                    EATT=EATT+P(I,4)
                    IF (NTP .EQ. 1) THEN
-                      GXAR(NATT) = YP(1, jjtp)+0.5 * BB
-                      GYAR(NATT) = YP(2, jjtp)
+clin-2/2012:
+c                      GXAR(NATT) = YP(1, jjtp)+0.5 * BB
+c                      GYAR(NATT) = YP(2, jjtp)
+                      GXAR(NATT) = YP(1, jjtp)+0.5*BB*cos(phiRP)
+                      GYAR(NATT) = YP(2, jjtp)+0.5*BB*sin(phiRP)
+
                    ELSE
-                      GXAR(NATT) = YT(1, jjtp)-0.5 * BB
-                      GYAR(NATT) = YT(2, jjtp)
+clin-2/2012:
+c                      GXAR(NATT) = YT(1, jjtp)-0.5 * BB
+c                      GYAR(NATT) = YT(2, jjtp)
+                      GXAR(NATT) = YT(1, jjtp)-0.5*BB*cos(phiRP)
+                      GYAR(NATT) = YT(2, jjtp)-0.5*BB*sin(phiRP)
                    END IF
                    GZAR(NATT) = 0.
                    FTAR(NATT) = 0.
@@ -1442,7 +1483,7 @@ clin-11/11/03     set direct photons positions and time at formation:
  650        CONTINUE
 clin-4/2008:
          endif
-clin-6/2009 ctest on:
+clin-6/2009
          call embedHighPt
 c
         CALL HJANA1
@@ -1459,6 +1500,7 @@ clin-7/03/01-end
 
 clin-6/2009:
         if(ioscar.eq.3) WRITE (95, *) IAEVT, mul
+
 c.....call ZPC for parton cascade
         CALL ZPCMN
 clin-6/2009:
@@ -1469,12 +1511,22 @@ c        WRITE (14, 395) ITEST, MUL, bimp, NELP,NINP,NELT,NINTHJ
         DO 1016 I = 1, MUL
 c           WRITE (14, 511) PX5(I), PY5(I), PZ5(I), ITYP5(I),
 c     &        XMASS5(I), E5(I)
-           WRITE (14, 512) ITYP5(I), PX5(I), PY5(I), PZ5(I), 
-     &        XMASS5(I), LSTRG1(I), LPART1(I), FT5(I)
-
+clin-4/2012 write parton freeze-out position in zpc.dat 
+c     for string melting version:
+c           WRITE (14, 512) ITYP5(I), PX5(I), PY5(I), PZ5(I), 
+c     &        XMASS5(I), LSTRG1(I), LPART1(I), FT5(I)
+           if(dmax1(abs(GX5(I)),abs(GY5(I)),abs(GZ5(I)),abs(FT5(I)))
+     1          .lt.9999) then
+              write(14,210) ITYP5(I), PX5(I), PY5(I), PZ5(I), XMASS5(I),
+     1             GX5(I), GY5(I), GZ5(I), FT5(I)
+           else
+              write(14,211) ITYP5(I), PX5(I), PY5(I), PZ5(I), XMASS5(I),
+     1             GX5(I), GY5(I), GZ5(I), FT5(I)
+           endif
+c
  1016   CONTINUE
 c 511    FORMAT(1X, 3F10.4, I6, 2F10.4)
- 512    FORMAT(I6,4(1X,F10.3),1X,I6,1X,I3,1X,F10.3)
+c 512    FORMAT(I6,4(1X,F10.3),1X,I6,1X,I3,1X,F10.3)
 c 513    FORMAT(1X, 4F10.4)
 
 clin-5/2009 ctest off:
@@ -1789,13 +1841,35 @@ clin-4/19/01 soft3:
          IF(IHPR2(10).NE.0) 
      &        WRITE(6,*) 'Energy not conserved, repeat the event'
 c                call lulist(1)
-         write(6,*) 'violated:EATT,NATT,B=',EATT,NATT,bimp
+         write(6,*) 'violated:EATT(GeV),NATT,B(fm)=',EATT,NATT,bimp
          GO TO 50
         ENDIF
-        if ( iwrite ) then
-        write(6,*) 'satisfied:EATT,NATT,B=',EATT,NATT,bimp
+        write(6,*) 'satisfied:EATT(GeV),NATT,B(fm)=',EATT,NATT,bimp
         write(6,*) ' '
-        endif
+c
+clin-4/2012 write out initial transverse positions of initial nucleons:
+        write(94,*) IAEVT,MISS,IHNT2(1),IHNT2(3),bimp
+        DO JP=1,IHNT2(1)
+clin-12/2012 write out present and original flavor code of nucleons:
+c           write(94,243) YP(1,JP)+0.5*BB*cos(phiRP), 
+c     1 YP(2,JP)+0.5*BB*sin(phiRP), JP, NFP(JP,5),yp(3,jp)
+           write(94,243) YP(1,JP)+0.5*BB*cos(phiRP), 
+     1 YP(2,JP)+0.5*BB*sin(phiRP),JP, NFP(JP,5),yp(3,jp),
+     2 NFP(JP,3),NFP(JP,4)
+        ENDDO
+        DO JT=1,IHNT2(3)
+c target nucleon # has a minus sign for distinction from projectile:
+clin-12/2012 write out present and original flavor code of nucleons:
+c           write(94,243) YT(1,JT)-0.5*BB*cos(phiRP), 
+c     1 YT(2,JT)-0.5*BB*sin(phiRP), -JT, NFT(JT,5),yt(3,jt)
+           write(94,243) YT(1,JT)-0.5*BB*cos(phiRP), 
+     1 YT(2,JT)-0.5*BB*sin(phiRP), -JT, NFT(JT,5),yt(3,jt),
+     2 NFT(JT,3),NFT(JT,4)
+        ENDDO
+clin-12/2012 write out present and original flavor code of nucleons:
+c 243    format(f10.3,1x,f10.3,2(1x,I5),1x,f10.3)
+ 243    format(f10.3,1x,f10.3,2(1x,I5),1x,f10.3,2(1x,I5))
+clin-4/2012-end
 
         RETURN
         END
@@ -1920,6 +1994,40 @@ cbz12/4/98end
         CALL LUGIVE('MDCY(C3312,1)=0;MDCY(C-3312,1)=0')
         CALL LUGIVE('MDCY(C3322,1)=0;MDCY(C-3322,1)=0')
         CALL LUGIVE('MDCY(C3334,1)=0;MDCY(C-3334,1)=0')
+clin-7/2011-no HQ(charm or bottom) decays in order to get net-HQ conservation:
+        CALL LUGIVE('MDCY(C441,1)=0')
+        CALL LUGIVE('MDCY(C443,1)=0')
+        CALL LUGIVE('MDCY(C413,1)=0;MDCY(C-413,1)=0')
+        CALL LUGIVE('MDCY(C423,1)=0;MDCY(C-423,1)=0')
+        CALL LUGIVE('MDCY(C433,1)=0;MDCY(C-433,1)=0')
+        CALL LUGIVE('MDCY(C4112,1)=0;MDCY(C-4112,1)=0')
+        CALL LUGIVE('MDCY(C4114,1)=0;MDCY(C-4114,1)=0')
+        CALL LUGIVE('MDCY(C4122,1)=0;MDCY(C-4122,1)=0')
+        CALL LUGIVE('MDCY(C4212,1)=0;MDCY(C-4212,1)=0')
+        CALL LUGIVE('MDCY(C4214,1)=0;MDCY(C-4214,1)=0')
+        CALL LUGIVE('MDCY(C4222,1)=0;MDCY(C-4222,1)=0')
+        CALL LUGIVE('MDCY(C4224,1)=0;MDCY(C-4224,1)=0')
+        CALL LUGIVE('MDCY(C4132,1)=0;MDCY(C-4132,1)=0')
+        CALL LUGIVE('MDCY(C4312,1)=0;MDCY(C-4312,1)=0')
+        CALL LUGIVE('MDCY(C4314,1)=0;MDCY(C-4314,1)=0')
+        CALL LUGIVE('MDCY(C4232,1)=0;MDCY(C-4232,1)=0')
+        CALL LUGIVE('MDCY(C4322,1)=0;MDCY(C-4322,1)=0')
+        CALL LUGIVE('MDCY(C4324,1)=0;MDCY(C-4324,1)=0')
+        CALL LUGIVE('MDCY(C4332,1)=0;MDCY(C-4332,1)=0')
+        CALL LUGIVE('MDCY(C4334,1)=0;MDCY(C-4334,1)=0')
+        CALL LUGIVE('MDCY(C551,1)=0')
+        CALL LUGIVE('MDCY(C553,1)=0')
+        CALL LUGIVE('MDCY(C513,1)=0;MDCY(C-513,1)=0')
+        CALL LUGIVE('MDCY(C523,1)=0;MDCY(C-523,1)=0')
+        CALL LUGIVE('MDCY(C533,1)=0;MDCY(C-533,1)=0')
+        CALL LUGIVE('MDCY(C5112,1)=0;MDCY(C-5112,1)=0')
+        CALL LUGIVE('MDCY(C5114,1)=0;MDCY(C-5114,1)=0')
+        CALL LUGIVE('MDCY(C5122,1)=0;MDCY(C-5122,1)=0')
+        CALL LUGIVE('MDCY(C5212,1)=0;MDCY(C-5212,1)=0')
+        CALL LUGIVE('MDCY(C5214,1)=0;MDCY(C-5214,1)=0')
+        CALL LUGIVE('MDCY(C5222,1)=0;MDCY(C-5222,1)=0')
+        CALL LUGIVE('MDCY(C5224,1)=0;MDCY(C-5224,1)=0')
+clin-7/2011-end
         ENDIF
         MSTU(12)=0
         MSTU(21)=1
@@ -1948,6 +2056,12 @@ clin  parj(2) is gamma_s=P(s)/P(u), kappa propto 1/b/(2+a) assumed.
         PARJ(21)=PARJ(21)*sqrt(rkp)
 clin-10/31/00 update when string tension is changed:
         HIPR1(2)=PARJ(21)
+
+clin-8/2013 test on: set upper limit for gamma_s=P(s)/P(u) to 0.4
+c     (to limit strangeness enhancement when string tension is strongly 
+c     increased due to using a very low value of parameter b in Lund 
+c     symmetric splitting function as done in arXiv:1403.6321):
+c        PARJ(2)=min(PARJ(2),0.4)
 
 C                        ******** set up for jetset
         IF(FRAME.EQ.'LAB') THEN
@@ -3382,6 +3496,8 @@ cc      SAVE /PYINT2/
 cc      SAVE /PYINT5/
         COMMON/HPINT/MINT4,MINT5,ATCO(200,20),ATXS(0:200)
 cc      SAVE /HPINT/
+clin-2/2012 correction:
+        common/phidcy/iphidcy,pttrig,ntrig,maxmiss,ipi0dcy
         SAVE   
 C*********************************** LU common block
         MXJT=500
@@ -3526,7 +3642,7 @@ C                ********the total W+, W- must be positive
         SXX=(AMPX+AMTX)**2
         IF(SW.LT.SXX.OR.VINT(43).LT.HIPR1(1)) THEN
                 MISS=MISS+1
-clin-6/2009 ctest on
+clin-6/2009
 c                IF(MISS.LT.50) GO TO 155
                 IF(MISS.GT.maxmiss) GO TO 155
                 RETURN
@@ -3684,7 +3800,7 @@ c
 c
         IF(LPQ.NE.LPB .OR. LTQ.NE.LTB) THEN
                 MISS=MISS+1
-clin-6/2009 ctest on
+clin-6/2009
 c                IF(MISS.LE.50) GO TO 155
                 IF(MISS.LE.maxmiss) GO TO 155
                 WRITE(6,*) ' Q -QBAR NOT MATCHED IN HIJHRD'
@@ -3853,7 +3969,7 @@ C************************correction made on Oct. 14,1994*****
 200        CONTINUE
         IF(LPQ.NE.LPB) THEN
            MISS=MISS+1
-clin-6/2009 ctest on
+clin-6/2009
 c           IF(MISS.LE.50) GO TO 155
            IF(MISS.LE.maxmiss) GO TO 155
            WRITE(6,*) LPQ,LPB, 'Q-QBAR NOT CONSERVED OR NOT MATCHED'
@@ -4081,6 +4197,10 @@ C
               itype=4
            ENDIF
         ENDIF
+
+clin-12/2012 correct NN differential cross section in HIJING:
+c        write(94,*) 'In JETINI: ',jp,jt,NFP(JP,4),NFT(JT,4),itype
+
 c
         IF(itrig.NE.0) GO TO 160
         IF(itrig.EQ.ilast) GO TO 150
@@ -4340,6 +4460,10 @@ cbzdbg2/22/99end
         NFP(I,11)=0
         NPJ(I)=0
         IF(I.GT.ABS(IHNT2(2))) NFP(I,3)=2112
+
+clin-12/2012 correct NN differential cross section in HIJING:
+        IF(I.GT.ABS(IHNT2(2))) NFP(I,4)=2112
+
         CALL ATTFLV(NFP(I,3),IDQ,IDQQ)
         NFP(I,1)=IDQ
         NFP(I,2)=IDQQ
@@ -4377,6 +4501,10 @@ cbzdbg2/22/99end
         NFT(I,11)=0
         NTJ(I)=0
         IF(I.GT.ABS(IHNT2(4))) NFT(I,3)=2112
+
+clin-12/2012 correct NN differential cross section in HIJING:
+        IF(I.GT.ABS(IHNT2(4))) NFT(I,4)=2112
+
         CALL ATTFLV(NFT(I,3),IDQ,IDQQ)
         NFT(I,1)=IDQ
         NFT(I,2)=IDQQ
@@ -5709,6 +5837,7 @@ cc      SAVE /NJET/
         IF(HINT1(1).GE.10.0) CALL CRSJET
 C                        ********calculate jet cross section(in mb)
 C
+clin-7/2009 these are related to nuclear shadowing:
         APHX1=HIPR1(6)*(IHNT2(1)**0.3333333-1.0)
         APHX2=HIPR1(6)*(IHNT2(3)**0.3333333-1.0)
         HINT1(11)=HINT1(14)-APHX1*HINT1(15)
@@ -5951,7 +6080,6 @@ C
 cc      SAVE /HPARNT/
         DIMENSION X(10)
         SAVE   
-        WGT=WGT
         PT2=dble(HINT1(1)**2/4.0-HIPR1(8)**2)*X(1)+dble(HIPR1(8))**2
         XT=2.0d0*DSQRT(PT2)/dble(HINT1(1))
         YMX1=DLOG(1.0d0/XT+DSQRT(1.0d0/XT**2-1.0d0))
@@ -5973,7 +6101,6 @@ C
 cc      SAVE /HPARNT/
         DIMENSION X(10)
         SAVE   
-        WGT=WGT
         PTMIN=ABS(HIPR1(10))-0.25
         PTMIN=MAX(PTMIN,HIPR1(8))
         AM2=0.D0
@@ -6189,6 +6316,8 @@ C
 cc      SAVE /HPARNT/
         COMMON/NJET/N,ipcrs
 cc      SAVE /NJET/
+clin-7/2009:
+        common/cmsflag/dshadow,ishadow
         DIMENSION F(2,7) 
         SAVE   
         DLAM=dble(HIPR1(15))
@@ -6293,7 +6422,12 @@ C
      &          /dble(ALOG(float(IHNT2(1))+1.0))*DSQRT(X1)
      &          *DEXP(-X1**2/0.01d0)
 c     &          /DLOG(IHNT2(1)+1.0D0)*(DSQRT(X1)*DEXP(-X1**2/0.01)
+clin-7/2009 enable users to modify nuclear shadowing:
+           if(ishadow.eq.1) RRX=1.d0+dshadow*(RRX-1.d0)
            IF(ipcrs.EQ.1 .OR.ipcrs.EQ.3) RRX=DEXP(-X1**2/0.01d0)
+clin-7/2009:
+           if((ipcrs.EQ.1.OR.ipcrs.EQ.3).and.ishadow.eq.1) 
+     1          RRX=DEXP(-X1**2/0.01d0)*dshadow
            DO 400 I=1,7
               F(1,I)=RRX*F(1,I)
  400           CONTINUE
@@ -6305,7 +6439,12 @@ c     &          /DLOG(IHNT2(1)+1.0D0)*(DSQRT(X1)*DEXP(-X1**2/0.01)
      &          /dble(ALOG(float(IHNT2(3))+1.0))*DSQRT(X2)
      &          *DEXP(-X2**2/0.01d0)
 c     &         /DLOG(IHNT2(3)+1.0D0)*DSQRT(X2)*DEXP(-X2**2/0.01)
+clin-7/2009:
+           if(ishadow.eq.1) RRX=1.d0+dshadow*(RRX-1.d0)
            IF(ipcrs.EQ.2 .OR. ipcrs.EQ.3) RRX=DEXP(-X2**2/0.01d0)
+clin-7/2009:
+           if((ipcrs.EQ.2.OR.ipcrs.EQ.3).and.ishadow.eq.1) 
+     1          RRX=DEXP(-X2**2/0.01d0)*dshadow
            DO 500 I=1,7
               F(2,I)=RRX*F(2,I)
  500           CONTINUE
@@ -6366,7 +6505,6 @@ cc      SAVE /HJJET2/
 cc      SAVE /HIJDAT/
         COMMON/HPINT/MINT4,MINT5,ATCO(200,20),ATXS(0:200)
 cc      SAVE /HPINT/
-cwei        DOUBLE PRECISION PATT
         SAVE   
         DATA NUM1/30123984/,XL/10*0.D0/,XU/10*1.D0/
         DATA NCALL/1000/,ITMX/100/,ACC/0.01/,NPRN/0/
