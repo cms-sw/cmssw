@@ -1,3 +1,4 @@
+
 #ifndef GENXSECANALYZER_H
 #define GENXSECANALYZER_H
 
@@ -10,6 +11,7 @@
 // system include files
 #include <memory>
 #include <vector>
+#include <map>
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -23,11 +25,12 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenLumiInfoProduct.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenFilterInfo.h"
+
 //
 // class declaration
 //
 
-class GenXSecAnalyzer : public edm::one::EDAnalyzer<edm::one::WatchLuminosityBlocks> {
+class GenXSecAnalyzer : public edm::one::EDAnalyzer<edm::one::WatchRuns,edm::one::WatchLuminosityBlocks>{
 
 
 public:
@@ -39,11 +42,17 @@ public:
 private:
 
   virtual void beginJob() override;
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+  virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
   virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
+  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
   virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
+  virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
   virtual void endJob() override;
-  void compute();
+  // computation of cross section after matching and before HepcFilter and GenFilter
+  GenLumiInfoProduct::XSec compute(const GenLumiInfoProduct &);
+  // combination of cross section from different MCs after matching (could be either before or after HepcFilter and GenFilter)
+  void combine(GenLumiInfoProduct::XSec&, double&, const GenLumiInfoProduct::XSec&, const double&);
+  void combine(double&, double&, double&, const double&, const double&, const double &);
 
   edm::EDGetTokenT<GenFilterInfo> genFilterInfoToken_;
   edm::EDGetTokenT<GenFilterInfo> hepMCFilterInfoToken_;
@@ -51,28 +60,64 @@ private:
   
   // ----------member data --------------------------
 
-  int hepidwtup_;
-  unsigned int theProcesses_size;
-  bool           hasHepMCFilterInfo_;
+  int nMCs_;
 
-  // final cross sections
+  int hepidwtup_;
+
+  // for weight before GenFilter and HepMCFilter and before matching
+  double totalWeightPre_;
+  double thisRunWeightPre_;
+
+  // for weight after GenFilter and HepMCFilter and after matching
+  double totalWeight_;
+  double thisRunWeight_;
+
+  // combined cross sections before HepMCFilter and GenFilter
+  GenLumiInfoProduct::XSec xsecPreFilter_;
+
+  // final combined cross sections
   GenLumiInfoProduct::XSec xsec_;
-  // statistics from additional generator filter
+
+  // GenLumiInfo before HepMCFilter and GenFilter, this is used 
+  // for computation
+  GenLumiInfoProduct product_; 
+
+  // statistics from additional generator filter, for computation
+  // reset for each run
+  GenFilterInfo  filterOnlyEffRun_;     
+
+  // statistics from HepMC filter, for computation
+  GenFilterInfo  hepMCFilterEffRun_;   
+
+  // statistics from additional generator filter, for print-out only
   GenFilterInfo  filterOnlyEffStat_;     
 
-  // statistics from HepMC filter
+  // statistics from HepMC filter, for print-out only
   GenFilterInfo  hepMCFilterEffStat_;   
 
-  // statistics for event level efficiency, the size is the number of processes + 1 
-  std::vector<GenFilterInfo>  eventEffStat_; 
-  // statistics from jet matching, the size is the number of processes + 1 
-  std::vector<GenFilterInfo>  jetMatchEffStat_; 
-  // uncertainty-averaged cross sections before matching, the size is the number of processes + 1
+
+  // the vector/map size is the number of LHE processes + 1
+  // needed only for printouts, not used for computation
+  // only printed out when combining the same physics process 
+  // uncertainty-averaged cross sections before matching
   std::vector<GenLumiInfoProduct::XSec> xsecBeforeMatching_;
-  // uncertainty-averaged cross sections after matching, the size is the number of processes + 1 
+  // uncertainty-averaged cross sections after matching
   std::vector<GenLumiInfoProduct::XSec> xsecAfterMatching_; 
-  // the size depends on the number of MC with different LHE information
-  std::vector<GenLumiInfoProduct> products_; 
+  // statistics from jet matching
+  std::map<int, GenFilterInfo>  jetMatchEffStat_; 
+
+
+  // the following vectors all have the same size
+  // LHE or Pythia/Herwig cross section of previous luminosity block
+  // vector size = number of processes, used for computation
+  std::map<int, GenLumiInfoProduct::XSec> previousLumiBlockLHEXSec_;
+
+ // LHE or Pythia/Herwig combined cross section of current luminosity block
+ // updated for each luminosity block, initialized in every run
+  // used for computation
+  std::map<int, GenLumiInfoProduct::XSec> currentLumiBlockLHEXSec_;
+
+
 
 };
 

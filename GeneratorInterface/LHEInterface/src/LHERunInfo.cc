@@ -203,7 +203,7 @@ LHERunInfo::XSec LHERunInfo::xsec() const
 	double sigBrSum = 0.0;
 	double err2Sum = 0.0;
 	double errBr2Sum = 0.0;
-	int idwtup = std::abs(heprup.IDWTUP);
+	int idwtup = heprup.IDWTUP;
 	for(std::vector<Process>::const_iterator proc = processes.begin();
 	    proc != processes.end(); ++proc) {
 	  unsigned int idx = proc->heprupIndex();
@@ -310,7 +310,7 @@ void LHERunInfo::statistics() const
 	unsigned long nTried_pos = 0;
 	unsigned long nAccepted_neg = 0;
 	unsigned long nTried_neg = 0;
-	int idwtup = std::abs(heprup.IDWTUP);
+	int idwtup = heprup.IDWTUP;
 
 	std::cout << std::endl;
 	std::cout << "Process and cross-section statistics" << std::endl;
