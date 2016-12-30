@@ -34,20 +34,23 @@ METTester::METTester(const edm::ParameterSet& iConfig)
 
   inputMETLabel_           =iConfig.getParameter<edm::InputTag>("InputMETLabel");
   METType_                 =iConfig.getUntrackedParameter<std::string>("METType");
-  mOutputFile              =iConfig.getUntrackedParameter<std::string>("OutputFile","");
 
   std::string inputMETCollectionLabel(inputMETLabel_.label());
 
   isCaloMET = (std::string("calo")==METType_);
   isPFMET   = (std::string("pf")  ==METType_);
   isGenMET  = (std::string("gen") ==METType_);
+  isMiniAODMET  = (std::string("miniaod") ==METType_);
 
-  pvToken_ = consumes<std::vector<reco::Vertex> >(edm::InputTag("offlinePrimaryVertices"));
+  pvToken_ = consumes<std::vector<reco::Vertex> >(iConfig.getParameter<edm::InputTag>("PrimaryVertices"));
   if (isCaloMET)  caloMETsToken_ = consumes<reco::CaloMETCollection> (inputMETLabel_);
   if (isPFMET)    pfMETsToken_ = consumes<reco::PFMETCollection> (inputMETLabel_); 
+  if(isMiniAODMET) patMETToken_ = consumes<pat::METCollection> (inputMETLabel_);
   if (isGenMET)   genMETsToken_ = consumes<reco::GenMETCollection> (inputMETLabel_); 
-  genMETsTrueToken_ = consumes<reco::GenMETCollection> (edm::InputTag("genMetTrue"));
-  genMETsCaloToken_ = consumes<reco::GenMETCollection> (edm::InputTag("genMetCalo"));
+  if(!isMiniAODMET){
+    genMETsTrueToken_ = consumes<reco::GenMETCollection> (edm::InputTag("genMetTrue"));
+    genMETsCaloToken_ = consumes<reco::GenMETCollection> (edm::InputTag("genMetCalo"));
+  }
   //Events variables
   mNvertex               = 0;
 
@@ -104,37 +107,6 @@ METTester::METTester(const edm::ParameterSet& iConfig)
   mMETDifference_GenMETTrue_MET400to500=0;
   mMETDifference_GenMETTrue_METResolution=0;
   
-  //TCMET specific variables  
-  mMExCorrection=0;
-  mMEyCorrection=0;
-  mMuonCorrectionFlag=0;
-  mtrkPt=0;
-  mtrkEta=0;
-  mtrkNhits=0;
-  mtrkChi2=0;
-  mtrkD0=0;
-  mtrkQuality=0;
-  mtrkAlgo=0;
-  mtrkPtErr=0;
-  melePt=0;
-  meleEta=0;
-  meleHoE=0;
-  
-  mmuPt=0;
-  mmuEta=0;
-  mmuNhits=0;
-  mmuChi2=0;
-  mmuD0=0;
-  mnMus=0;
-  mnMusPis=0;
-  mnEls=0;
-  mfracTrks=0;
-  mdMET=0;
-  mdMETx=0;
-  mdMETy=0;
-  mdMEy=0;
-  mdMUx=0;
-  mdMUy=0;
  
 } 
 void METTester::bookHistograms(DQMStore::IBooker & ibooker,
@@ -154,24 +126,26 @@ void METTester::bookHistograms(DQMStore::IBooker & ibooker,
     mSumET                       = ibooker.book1D("SumET"            , "SumET"            , 200,0,4000);   //10GeV
     mMETDifference_GenMETTrue    = ibooker.book1D("METDifference_GenMETTrue","METDifference_GenMETTrue", 500,-500,500); 
     mMETDeltaPhi_GenMETTrue      = ibooker.book1D("METDeltaPhi_GenMETTrue","METDeltaPhi_GenMETTrue", 80,0,4); 
-    mMETDifference_GenMETCalo    = ibooker.book1D("METDifference_GenMETCalo","METDifference_GenMETCalo", 500,-500,500); 
-    mMETDeltaPhi_GenMETCalo      = ibooker.book1D("METDeltaPhi_GenMETCalo","METDeltaPhi_GenMETCalo", 80,0,4); 
-
-    mMETDifference_GenMETTrue_MET0to20    = ibooker.book1D("METResolution_GenMETTrue_MET0to20"   , "METResolution_GenMETTrue_MET0to20"   , 500,-500,500); 
-    mMETDifference_GenMETTrue_MET20to40   = ibooker.book1D("METResolution_GenMETTrue_MET20to40"  , "METResolution_GenMETTrue_MET20to40"  , 500,-500,500); 
-    mMETDifference_GenMETTrue_MET40to60   = ibooker.book1D("METResolution_GenMETTrue_MET40to60"  , "METResolution_GenMETTrue_MET40to60"  , 500,-500,500); 
-    mMETDifference_GenMETTrue_MET60to80   = ibooker.book1D("METResolution_GenMETTrue_MET60to80"  , "METResolution_GenMETTrue_MET60to80"  , 500,-500,500); 
-    mMETDifference_GenMETTrue_MET80to100  = ibooker.book1D("METResolution_GenMETTrue_MET80to100" , "METResolution_GenMETTrue_MET80to100" , 500,-500,500); 
-    mMETDifference_GenMETTrue_MET100to150 = ibooker.book1D("METResolution_GenMETTrue_MET100to150", "METResolution_GenMETTrue_MET100to150", 500,-500,500); 
-    mMETDifference_GenMETTrue_MET150to200 = ibooker.book1D("METResolution_GenMETTrue_MET150to200", "METResolution_GenMETTrue_MET150to200", 500,-500,500); 
-    mMETDifference_GenMETTrue_MET200to300 = ibooker.book1D("METResolution_GenMETTrue_MET200to300", "METResolution_GenMETTrue_MET200to300", 500,-500,500); 
-    mMETDifference_GenMETTrue_MET300to400 = ibooker.book1D("METResolution_GenMETTrue_MET300to400", "METResolution_GenMETTrue_MET300to400", 500,-500,500); 
-    mMETDifference_GenMETTrue_MET400to500 = ibooker.book1D("METResolution_GenMETTrue_MET400to500", "METResolution_GenMETTrue_MET400to500", 500,-500,500); 
-    //this will be filled at the end of the job using info from above hists
-    int nBins = 10;
-    float bins[] = {0.,20.,40.,60.,80.,100.,150.,200.,300.,400.,500.};
-    mMETDifference_GenMETTrue_METResolution     = ibooker.book1D("METResolution_GenMETTrue_InMETBins","METResolution_GenMETTrue_InMETBins",nBins, bins); 
-
+    if(!isMiniAODMET){
+      mMETDifference_GenMETCalo    = ibooker.book1D("METDifference_GenMETCalo","METDifference_GenMETCalo", 500,-500,500); 
+      mMETDeltaPhi_GenMETCalo      = ibooker.book1D("METDeltaPhi_GenMETCalo","METDeltaPhi_GenMETCalo", 80,0,4); 
+    }
+    if(!isGenMET){
+      mMETDifference_GenMETTrue_MET0to20    = ibooker.book1D("METResolution_GenMETTrue_MET0to20"   , "METResolution_GenMETTrue_MET0to20"   , 500,-500,500); 
+      mMETDifference_GenMETTrue_MET20to40   = ibooker.book1D("METResolution_GenMETTrue_MET20to40"  , "METResolution_GenMETTrue_MET20to40"  , 500,-500,500); 
+      mMETDifference_GenMETTrue_MET40to60   = ibooker.book1D("METResolution_GenMETTrue_MET40to60"  , "METResolution_GenMETTrue_MET40to60"  , 500,-500,500); 
+      mMETDifference_GenMETTrue_MET60to80   = ibooker.book1D("METResolution_GenMETTrue_MET60to80"  , "METResolution_GenMETTrue_MET60to80"  , 500,-500,500); 
+      mMETDifference_GenMETTrue_MET80to100  = ibooker.book1D("METResolution_GenMETTrue_MET80to100" , "METResolution_GenMETTrue_MET80to100" , 500,-500,500); 
+      mMETDifference_GenMETTrue_MET100to150 = ibooker.book1D("METResolution_GenMETTrue_MET100to150", "METResolution_GenMETTrue_MET100to150", 500,-500,500); 
+      mMETDifference_GenMETTrue_MET150to200 = ibooker.book1D("METResolution_GenMETTrue_MET150to200", "METResolution_GenMETTrue_MET150to200", 500,-500,500); 
+      mMETDifference_GenMETTrue_MET200to300 = ibooker.book1D("METResolution_GenMETTrue_MET200to300", "METResolution_GenMETTrue_MET200to300", 500,-500,500); 
+      mMETDifference_GenMETTrue_MET300to400 = ibooker.book1D("METResolution_GenMETTrue_MET300to400", "METResolution_GenMETTrue_MET300to400", 500,-500,500); 
+      mMETDifference_GenMETTrue_MET400to500 = ibooker.book1D("METResolution_GenMETTrue_MET400to500", "METResolution_GenMETTrue_MET400to500", 500,-500,500); 
+      //this will be filled at the end of the job using info from above hists
+      int nBins = 10;
+      float bins[] = {0.,20.,40.,60.,80.,100.,150.,200.,300.,400.,500.};
+      mMETDifference_GenMETTrue_METResolution     = ibooker.book1D("METResolution_GenMETTrue_InMETBins","METResolution_GenMETTrue_InMETBins",nBins, bins); 
+    }
     if ( isCaloMET) { 
       mCaloMaxEtInEmTowers             = ibooker.book1D("CaloMaxEtInEmTowers","CaloMaxEtInEmTowers",300,0,1500);   //5GeV
       mCaloMaxEtInHadTowers            = ibooker.book1D("CaloMaxEtInHadTowers","CaloMaxEtInHadTowers",300,0,1500);  //5GeV
@@ -197,21 +171,24 @@ void METTester::bookHistograms(DQMStore::IBooker & ibooker,
       mInvisibleEtFraction    = ibooker.book1D("GenInvisibleEtFraction", "GenInvisibleEtFraction", 120, 0.0, 1.2 );
     }
 
-    if (isPFMET){
+    if (isPFMET ||  isMiniAODMET){
       mPFphotonEtFraction = ibooker.book1D("photonEtFraction", "photonEtFraction", 100, 0, 1);
-      mPFphotonEt = ibooker.book1D("photonEt", "photonEt", 100, 0, 1000);
       mPFneutralHadronEtFraction = ibooker.book1D("neutralHadronEtFraction", "neutralHadronEtFraction", 100, 0, 1);
-      mPFneutralHadronEt = ibooker.book1D("neutralHadronEt", "neutralHadronEt", 100, 0, 1000);
       mPFelectronEtFraction = ibooker.book1D("electronEtFraction", "electronEtFraction", 100, 0, 1);
-      mPFelectronEt = ibooker.book1D("electronEt", "electronEt", 100, 0, 1000);
       mPFchargedHadronEtFraction = ibooker.book1D("chargedHadronEtFraction", "chargedHadronEtFraction", 100, 0, 1);
-      mPFchargedHadronEt = ibooker.book1D("chargedHadronEt", "chargedHadronEt", 100, 0, 1000);
-      mPFmuonEtFraction = ibooker.book1D("muonEtFraction", "muonEtFraction", 100, 0, 1);
-      mPFmuonEt = ibooker.book1D("muonEt", "muonEt", 100, 0, 1000);
       mPFHFHadronEtFraction = ibooker.book1D("HFHadronEtFraction", "HFHadronEtFraction", 100, 0, 1);
-      mPFHFHadronEt = ibooker.book1D("HFHadronEt", "HFHadronEt", 100, 0, 500);
+      mPFmuonEtFraction = ibooker.book1D("muonEtFraction", "muonEtFraction", 100, 0, 1);
       mPFHFEMEtFraction = ibooker.book1D("HFEMEtFraction", "HFEMEtFraction", 100, 0, 1);
-      mPFHFEMEt = ibooker.book1D("HFEMEt", "HFEMEt", 100, 0, 300);
+
+      if(!isMiniAODMET){
+	mPFphotonEt = ibooker.book1D("photonEt", "photonEt", 100, 0, 1000);
+	mPFneutralHadronEt = ibooker.book1D("neutralHadronEt", "neutralHadronEt", 100, 0, 1000);
+	mPFelectronEt = ibooker.book1D("electronEt", "electronEt", 100, 0, 1000);
+	mPFchargedHadronEt = ibooker.book1D("chargedHadronEt", "chargedHadronEt", 100, 0, 1000);
+	mPFmuonEt = ibooker.book1D("muonEt", "muonEt", 100, 0, 1000);
+	mPFHFHadronEt = ibooker.book1D("HFHadronEt", "HFHadronEt", 100, 0, 500);
+	mPFHFEMEt = ibooker.book1D("HFEMEt", "HFEMEt", 100, 0, 300);
+      }
 
     }
   }
@@ -233,18 +210,22 @@ void METTester::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   edm::Handle<CaloMETCollection> caloMETs;
   edm::Handle<PFMETCollection> pfMETs;
   edm::Handle<GenMETCollection> genMETs;
+  edm::Handle<pat::METCollection> patMET;
 
   if (isCaloMET) iEvent.getByToken(caloMETsToken_, caloMETs);
   if (isPFMET)   iEvent.getByToken(pfMETsToken_,   pfMETs);
   if (isGenMET)  iEvent.getByToken(genMETsToken_,  genMETs);
+  if (isMiniAODMET)  iEvent.getByToken(patMETToken_,  patMET);
   if ((isCaloMET) and !caloMETs.isValid()) return; 
   if ((isPFMET)   and !pfMETs.isValid())   return;
   if ((isGenMET)  and !genMETs.isValid())  return;
+  if ((isMiniAODMET)  and !patMET.isValid())  return;
 
   reco::MET met;
   if (isCaloMET) { met = caloMETs->front();}
   if (isPFMET)   { met = pfMETs->front()  ;}
   if (isGenMET)  { met = genMETs->front() ;}
+  if (isMiniAODMET)  { met = patMET->front() ;}
 
   const double SumET = met.sumEt();
   const double METSig = met.mEtSig();
@@ -262,46 +243,60 @@ void METTester::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   mMETSig->Fill(METSig);
 
   // Get Generated MET for Resolution plots
-  edm::Handle<GenMETCollection> genTrue;
-  iEvent.getByToken(genMETsTrueToken_, genTrue);
-  if (genTrue.isValid()) {
-    const GenMETCollection *genmetcol = genTrue.product();
-    const GenMET *genMetTrue = &(genmetcol->front());
+  const reco::GenMET *genMetTrue=NULL;
+  bool isvalidgenmet=false;
+
+  if(!isMiniAODMET){
+    edm::Handle<GenMETCollection> genTrue;
+    iEvent.getByToken(genMETsTrueToken_, genTrue);
+    if (genTrue.isValid()) {
+      isvalidgenmet=true;
+      const GenMETCollection *genmetcol = genTrue.product();
+      genMetTrue = &(genmetcol->front());
+    }
+  }else{
+    genMetTrue=patMET->front().genMET();
+    isvalidgenmet=true;
+  }
+  if(isvalidgenmet){
     double genMET = genMetTrue->pt();
     double genMETPhi = genMetTrue->phi();
 
     mMETDifference_GenMETTrue->Fill( MET - genMET );
     mMETDeltaPhi_GenMETTrue->Fill( TMath::ACos( TMath::Cos( METPhi - genMETPhi ) ) );
 
-    //pfMET resolution in pfMET bins : Sam, Feb, 2012
-    if (MET > 0 && MET < 20) mMETDifference_GenMETTrue_MET0to20->Fill( MET - genMET );
-    else if (MET > 20 && MET < 40) mMETDifference_GenMETTrue_MET20to40->Fill( MET - genMET );
-    else if (MET > 40 && MET < 60) mMETDifference_GenMETTrue_MET40to60->Fill( MET - genMET );
-    else if (MET > 60 && MET < 80) mMETDifference_GenMETTrue_MET60to80->Fill( MET - genMET );
-    else if (MET > 80 && MET <100) mMETDifference_GenMETTrue_MET80to100->Fill( MET - genMET );
-    else if (MET >100 && MET <150) mMETDifference_GenMETTrue_MET100to150->Fill( MET - genMET );
-    else if (MET >150 && MET <200) mMETDifference_GenMETTrue_MET150to200->Fill( MET - genMET );
-    else if (MET >200 && MET <300) mMETDifference_GenMETTrue_MET200to300->Fill( MET - genMET );
-    else if (MET >300 && MET <400) mMETDifference_GenMETTrue_MET300to400->Fill( MET - genMET );
-    else if (MET >400 && MET <500) mMETDifference_GenMETTrue_MET400to500->Fill( MET - genMET );
-
-  } else {
-    edm::LogInfo("OutputInfo") << " failed to retrieve data required by MET Task:  genMetTrue";
-  }    
-  edm::Handle<GenMETCollection> genCalo;
-  iEvent.getByToken(genMETsCaloToken_, genCalo);
-  if (genCalo.isValid()) {
-    const GenMETCollection *genmetcol = genCalo.product();
-    const GenMET  *genMetCalo = &(genmetcol->front());
-    const double genMET = genMetCalo->pt();
-    const double genMETPhi = genMetCalo->phi();
-
-    mMETDifference_GenMETCalo->Fill( MET - genMET );
-    mMETDeltaPhi_GenMETCalo->Fill( TMath::ACos( TMath::Cos( METPhi - genMETPhi ) ) );
-  } else {
-    edm::LogInfo("OutputInfo") << " failed to retrieve data required by MET Task:  genMetCalo";
-  }    
-
+    if(!isGenMET){
+      //pfMET resolution in pfMET bins : Sam, Feb, 2012
+      if (MET > 0 && MET < 20) mMETDifference_GenMETTrue_MET0to20->Fill( MET - genMET );
+      else if (MET > 20 && MET < 40) mMETDifference_GenMETTrue_MET20to40->Fill( MET - genMET );
+      else if (MET > 40 && MET < 60) mMETDifference_GenMETTrue_MET40to60->Fill( MET - genMET );
+      else if (MET > 60 && MET < 80) mMETDifference_GenMETTrue_MET60to80->Fill( MET - genMET );
+      else if (MET > 80 && MET <100) mMETDifference_GenMETTrue_MET80to100->Fill( MET - genMET );
+      else if (MET >100 && MET <150) mMETDifference_GenMETTrue_MET100to150->Fill( MET - genMET );
+      else if (MET >150 && MET <200) mMETDifference_GenMETTrue_MET150to200->Fill( MET - genMET );
+      else if (MET >200 && MET <300) mMETDifference_GenMETTrue_MET200to300->Fill( MET - genMET );
+      else if (MET >300 && MET <400) mMETDifference_GenMETTrue_MET300to400->Fill( MET - genMET );
+      else if (MET >400 && MET <500) mMETDifference_GenMETTrue_MET400to500->Fill( MET - genMET );
+      
+    } else {
+      edm::LogInfo("OutputInfo") << " failed to retrieve data required by MET Task:  genMetTrue";
+    }    
+  }
+  if(!isMiniAODMET){
+    edm::Handle<GenMETCollection> genCalo;
+    iEvent.getByToken(genMETsCaloToken_, genCalo);
+    if (genCalo.isValid()) {
+      const GenMETCollection *genmetcol = genCalo.product();
+      const GenMET  *genMetCalo = &(genmetcol->front());
+      const double genMET = genMetCalo->pt();
+      const double genMETPhi = genMetCalo->phi();
+      
+      mMETDifference_GenMETCalo->Fill( MET - genMET );
+      mMETDeltaPhi_GenMETCalo->Fill( TMath::ACos( TMath::Cos( METPhi - genMETPhi ) ) );
+    } else {
+      edm::LogInfo("OutputInfo") << " failed to retrieve data required by MET Task:  genMetCalo";
+    }    
+  }
   if ( isCaloMET) { 
     const reco::CaloMET * calomet = &(caloMETs->front());
     // ==========================================================
@@ -374,7 +369,18 @@ void METTester::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     // Reconstructed MET Information                                                                                                     
 
   } 
-  
+   if(isMiniAODMET){
+    const pat::MET *patmet = &(patMET->front());
+    if(patmet->isPFMET()){
+      mPFphotonEtFraction->Fill(patmet->NeutralEMFraction());
+      mPFneutralHadronEtFraction->Fill(patmet->NeutralHadEtFraction());
+      mPFelectronEtFraction->Fill(patmet->ChargedEMEtFraction());
+      mPFchargedHadronEtFraction->Fill(patmet->ChargedHadEtFraction());
+      mPFmuonEtFraction->Fill(patmet->MuonEtFraction());
+      mPFHFHadronEtFraction->Fill(patmet->Type6EtFraction());//HFHadrons
+      mPFHFEMEtFraction->Fill(patmet->Type7EtFraction());//HFEMEt  
+    }
+  }  
   //This is so dirty I could cry. It should be called only ONCE in endJob. But the MonitorElements don't exist then any more.
   FillMETRes();
 }
@@ -382,59 +388,30 @@ void METTester::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 //void METTester::endRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
 void METTester::FillMETRes()
 {
-  mMETDifference_GenMETTrue_METResolution->setBinContent(1, mMETDifference_GenMETTrue_MET0to20->getMean());
-  mMETDifference_GenMETTrue_METResolution->setBinContent(2, mMETDifference_GenMETTrue_MET20to40->getMean());
-  mMETDifference_GenMETTrue_METResolution->setBinContent(3, mMETDifference_GenMETTrue_MET40to60->getMean());
-  mMETDifference_GenMETTrue_METResolution->setBinContent(4, mMETDifference_GenMETTrue_MET60to80->getMean());
-  mMETDifference_GenMETTrue_METResolution->setBinContent(5, mMETDifference_GenMETTrue_MET80to100->getMean());
-  mMETDifference_GenMETTrue_METResolution->setBinContent(6, mMETDifference_GenMETTrue_MET100to150->getMean());
-  mMETDifference_GenMETTrue_METResolution->setBinContent(7, mMETDifference_GenMETTrue_MET150to200->getMean());
-  mMETDifference_GenMETTrue_METResolution->setBinContent(8, mMETDifference_GenMETTrue_MET200to300->getMean());
-  mMETDifference_GenMETTrue_METResolution->setBinContent(9, mMETDifference_GenMETTrue_MET300to400->getMean());
-  mMETDifference_GenMETTrue_METResolution->setBinContent(10, mMETDifference_GenMETTrue_MET400to500->getMean());
-
-  //the error computation should be done in a postProcessor in the harvesting step otherwise the histograms will be just summed
-  mMETDifference_GenMETTrue_METResolution->setBinError(1, mMETDifference_GenMETTrue_MET0to20->getRMS());
-  mMETDifference_GenMETTrue_METResolution->setBinError(2, mMETDifference_GenMETTrue_MET20to40->getRMS());
-  mMETDifference_GenMETTrue_METResolution->setBinError(3, mMETDifference_GenMETTrue_MET40to60->getRMS());
-  mMETDifference_GenMETTrue_METResolution->setBinError(4, mMETDifference_GenMETTrue_MET60to80->getRMS());
-  mMETDifference_GenMETTrue_METResolution->setBinError(5, mMETDifference_GenMETTrue_MET80to100->getRMS());
-  mMETDifference_GenMETTrue_METResolution->setBinError(6, mMETDifference_GenMETTrue_MET100to150->getRMS());
-  mMETDifference_GenMETTrue_METResolution->setBinError(7, mMETDifference_GenMETTrue_MET150to200->getRMS());
-  mMETDifference_GenMETTrue_METResolution->setBinError(8, mMETDifference_GenMETTrue_MET200to300->getRMS());
-  mMETDifference_GenMETTrue_METResolution->setBinError(9, mMETDifference_GenMETTrue_MET300to400->getRMS());
-  mMETDifference_GenMETTrue_METResolution->setBinError(10, mMETDifference_GenMETTrue_MET400to500->getRMS());
-
+  if(!isGenMET){
+    mMETDifference_GenMETTrue_METResolution->setBinContent(1, mMETDifference_GenMETTrue_MET0to20->getMean());
+    mMETDifference_GenMETTrue_METResolution->setBinContent(2, mMETDifference_GenMETTrue_MET20to40->getMean());
+    mMETDifference_GenMETTrue_METResolution->setBinContent(3, mMETDifference_GenMETTrue_MET40to60->getMean());
+    mMETDifference_GenMETTrue_METResolution->setBinContent(4, mMETDifference_GenMETTrue_MET60to80->getMean());
+    mMETDifference_GenMETTrue_METResolution->setBinContent(5, mMETDifference_GenMETTrue_MET80to100->getMean());
+    mMETDifference_GenMETTrue_METResolution->setBinContent(6, mMETDifference_GenMETTrue_MET100to150->getMean());
+    mMETDifference_GenMETTrue_METResolution->setBinContent(7, mMETDifference_GenMETTrue_MET150to200->getMean());
+    mMETDifference_GenMETTrue_METResolution->setBinContent(8, mMETDifference_GenMETTrue_MET200to300->getMean());
+    mMETDifference_GenMETTrue_METResolution->setBinContent(9, mMETDifference_GenMETTrue_MET300to400->getMean());
+    mMETDifference_GenMETTrue_METResolution->setBinContent(10, mMETDifference_GenMETTrue_MET400to500->getMean());
+    
+    //the error computation should be done in a postProcessor in the harvesting step otherwise the histograms will be just summed
+    mMETDifference_GenMETTrue_METResolution->setBinError(1, mMETDifference_GenMETTrue_MET0to20->getRMS());
+    mMETDifference_GenMETTrue_METResolution->setBinError(2, mMETDifference_GenMETTrue_MET20to40->getRMS());
+    mMETDifference_GenMETTrue_METResolution->setBinError(3, mMETDifference_GenMETTrue_MET40to60->getRMS());
+    mMETDifference_GenMETTrue_METResolution->setBinError(4, mMETDifference_GenMETTrue_MET60to80->getRMS());
+    mMETDifference_GenMETTrue_METResolution->setBinError(5, mMETDifference_GenMETTrue_MET80to100->getRMS());
+    mMETDifference_GenMETTrue_METResolution->setBinError(6, mMETDifference_GenMETTrue_MET100to150->getRMS());
+    mMETDifference_GenMETTrue_METResolution->setBinError(7, mMETDifference_GenMETTrue_MET150to200->getRMS());
+    mMETDifference_GenMETTrue_METResolution->setBinError(8, mMETDifference_GenMETTrue_MET200to300->getRMS());
+    mMETDifference_GenMETTrue_METResolution->setBinError(9, mMETDifference_GenMETTrue_MET300to400->getRMS());
+    mMETDifference_GenMETTrue_METResolution->setBinError(10, mMETDifference_GenMETTrue_MET400to500->getRMS());
+  }
 }
-
-//determines if track is "good" - i.e. passes quality and kinematic cuts
-bool METTester::isGoodTrack( const reco::TrackRef track, float d0corr ) {
-
-    if( fabs( d0corr ) > maxd0_ ) return false;
-    if( track->numberOfValidHits() < minhits_ ) return false;
-    if( track->normalizedChi2() > maxchi2_ ) return false;
-    if( fabs( track->eta() ) > maxeta_ ) return false;
-    if( track->pt() > maxpt_ ) return false;
-    if( (track->ptError() / track->pt()) > maxPtErr_ ) return false;
-
-    int cut = 0;
-    for( unsigned int i = 0; i < trkQuality_.size(); i++ ) {
-
-      cut |= (1 << trkQuality_.at(i));
-    }
-
-    if( !( ( track->qualityMask() & cut ) == cut ) ) return false;
-
-    bool isGoodAlgo = false;
-    if( trkAlgos_.size() == 0 ) isGoodAlgo = true;
-    for( unsigned int i = 0; i < trkAlgos_.size(); i++ ) {
-
-      if( track->algo() == trkAlgos_.at(i) ) isGoodAlgo = true;
-    }
-
-    if( !isGoodAlgo ) return false;
-
-    return true;
-    }
 
 

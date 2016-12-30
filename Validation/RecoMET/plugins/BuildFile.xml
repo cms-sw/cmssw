@@ -15,6 +15,7 @@
 <use   name="DataFormats/JetReco"/>
 <use   name="DataFormats/TrackReco"/>
 <use   name="DataFormats/EgammaCandidates"/>
+<use   name="DataFormats/PatCandidates"/>
 
 <library   file="*.cc" name="ValidationRecoMET">
   <flags   EDM_PLUGIN="1"/>

@@ -34,12 +34,13 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
-#include "JetMETCorrections/Objects/interface/JetCorrector.h"
-#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
+#include "JetMETCorrections/JetCorrector/interface/JetCorrector.h"
+#include "DataFormats/PatCandidates/interface/Jet.h"
+#include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
 #include <DQMServices/Core/interface/DQMEDAnalyzer.h>
 class MonitorElement;
 
-class JetTester : public thread_unsafe::DQMEDAnalyzer {
+class JetTester : public DQMEDAnalyzer {
  public:
 
   JetTester (const edm::ParameterSet&);
@@ -55,16 +56,17 @@ class JetTester : public thread_unsafe::DQMEDAnalyzer {
   
   edm::InputTag   mInputCollection;
   edm::InputTag   mInputGenCollection;
-  std::string     mOutputFile;
+  edm::InputTag   mJetCorrector;
   std::string     JetType;
 
   //Tokens
   edm::EDGetTokenT<std::vector<reco::Vertex> > pvToken_;
-  edm::EDGetTokenT<CaloTowerCollection > caloTowersToken_;
   edm::EDGetTokenT<reco::CaloJetCollection> caloJetsToken_;
   edm::EDGetTokenT<reco::PFJetCollection> pfJetsToken_;
   edm::EDGetTokenT<reco::GenJetCollection> genJetsToken_;
-  edm::EDGetTokenT<edm::HepMCProduct> evtToken_;
+  edm::EDGetTokenT<GenEventInfoProduct> evtToken_;
+  edm::EDGetTokenT<pat::JetCollection> patJetsToken_;
+  edm::EDGetTokenT<reco::JetCorrector> jetCorrectorToken_;
 
   // Event variables
   MonitorElement* mNvtx;
@@ -77,8 +79,6 @@ class JetTester : public thread_unsafe::DQMEDAnalyzer {
   MonitorElement* mEnergy;
   MonitorElement* mMass;
   MonitorElement* mConstituents;
-  MonitorElement* mHadTiming;
-  MonitorElement* mEmTiming;
   MonitorElement* mJetArea;
 //  MonitorElement* mRho;
 
@@ -213,13 +213,12 @@ class JetTester : public thread_unsafe::DQMEDAnalyzer {
   // Parameters
   double          mRecoJetPtThreshold;
   double          mMatchGenPtThreshold;
-  double          mGenEnergyFractionThreshold;
   double          mRThreshold;
   bool            isCaloJet;
   bool            isPFJet;
-  
+  bool            isMiniAODJet;
 
-  std::string     JetCorrectionService;
+
 };
 
 #endif
