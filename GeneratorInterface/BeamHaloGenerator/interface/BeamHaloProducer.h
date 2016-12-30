@@ -20,7 +20,7 @@ namespace CLHEP {
 
 namespace edm
 {
-  class BeamHaloProducer : public one::EDProducer<EndRunProducer, one::WatchLuminosityBlocks> {
+  class BeamHaloProducer : public one::EDProducer<EndRunProducer, one::WatchLuminosityBlocks, one::SharedResources> {
   public:
 
     /// Constructor
