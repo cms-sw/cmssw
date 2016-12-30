@@ -376,6 +376,9 @@ bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalTimeCorrs& fObj
 bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalZSThresholds* fObject) {return getHcalSingleIntObject (fInput, fObject, new HcalZSThreshold); }
 bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalZSThresholds& fObject) {return dumpHcalSingleIntObject (fOutput, fObject); }
 
+bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalZDCLowGainFractions* fObject) {return getHcalSingleFloatObject (fInput, fObject, new HcalZDCLowGainFraction); }
+bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalZDCLowGainFractions& fObject) {return dumpHcalSingleFloatObject (fOutput, fObject); }
+
 bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalValidationCorrs* fObject) {return getHcalSingleFloatObject (fInput, fObject, new HcalValidationCorr); }
 bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalValidationCorrs& fObject) {return dumpHcalSingleFloatObject (fOutput, fObject); }
 bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalCholeskyMatrices* fObject) {return getHcalMatrixObject (fInput, fObject, new HcalCholeskyMatrix); }
@@ -608,6 +611,7 @@ bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalLongRecoParams* fObject
   }
   return true;
 }
+
 bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalTimingParams* fObject)
 {
   if (!fObject) return false; // fObject = new HcalTimingParams();
