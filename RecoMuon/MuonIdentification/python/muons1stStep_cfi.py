@@ -24,6 +24,7 @@ muons1stStep = cms.EDProducer("MuonIdProducer",
     maxAbsEta = cms.double(3.0),
 
     # Selection parameters
+    muonTrackDeltaEta = cms.double(0.5),
     minPt = cms.double(0.5),
     inputCollectionTypes = cms.vstring('inner tracks', 
                                        'links', 

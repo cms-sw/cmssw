@@ -46,6 +46,10 @@
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
 
+#include "Geometry/DTGeometry/interface/DTGeometry.h"
+#include "Geometry/CSCGeometry/interface/CSCGeometry.h"
+#include "Geometry/RPCGeometry/interface/RPCGeometry.h"
+
 #include "RecoMuon/MuonIdentification/interface/MuonMesh.h"
 
 
@@ -59,6 +63,9 @@ muIsoExtractorCalo_(0),muIsoExtractorTrack_(0),muIsoExtractorJet_(0)
    produces<reco::MuonTimeExtraMap>("combined");
    produces<reco::MuonTimeExtraMap>("dt");
    produces<reco::MuonTimeExtraMap>("csc");
+
+   if ( !iConfig.existsAs<double>("muonTrackDeltaEta") ) muonTrackDeltaEta_ = -999;
+   else muonTrackDeltaEta_ = iConfig.getParameter<double>("muonTrackDeltaEta");
 
    minPt_                   = iConfig.getParameter<double>("minPt");
    minP_                    = iConfig.getParameter<double>("minP");
@@ -130,8 +137,9 @@ muIsoExtractorCalo_(0),muIsoExtractorTrack_(0),muIsoExtractorJet_(0)
    }
 
    inputCollectionLabels_ = iConfig.getParameter<std::vector<edm::InputTag> >("inputCollectionLabels");
-   inputCollectionTypes_  = iConfig.getParameter<std::vector<std::string> >("inputCollectionTypes");
-   if (inputCollectionLabels_.size() != inputCollectionTypes_.size())
+   auto inputCollectionTypes  = iConfig.getParameter<std::vector<std::string> >("inputCollectionTypes");
+   inputCollectionTypes_.resize(inputCollectionTypes.size());
+   if (inputCollectionLabels_.size() != inputCollectionTypes.size())
      throw cms::Exception("ConfigurationError") << "Number of input collection labels is different from number of types. " <<
      "For each collection label there should be exactly one collection type specified.";
    if (inputCollectionLabels_.size()>7 ||inputCollectionLabels_.empty())
@@ -153,6 +161,9 @@ muIsoExtractorCalo_(0),muIsoExtractorTrack_(0),muIsoExtractorJet_(0)
    //create mesh holder
    meshAlgo_ = new MuonMesh(iConfig.getParameter<edm::ParameterSet>("arbitrationCleanerOptions"));
 
+   edm::ParameterSet trackAssocPSets = iConfig.getParameter<edm::ParameterSet>("TrackAssociatorParameters");
+   dtSegmentToken_ = consumes<DTRecSegment4DCollection>(trackAssocPSets.getParameter<edm::InputTag>("DTRecSegment4DCollectionLabel"));
+   cscSegmentToken_ = consumes<CSCSegmentCollection>(trackAssocPSets.getParameter<edm::InputTag>("CSCSegmentCollectionLabel"));
 
    edm::InputTag rpcHitTag("rpcRecHits");
    rpcHitToken_ = consumes<RPCRecHitCollection>(rpcHitTag);
@@ -161,37 +172,44 @@ muIsoExtractorCalo_(0),muIsoExtractorTrack_(0),muIsoExtractorJet_(0)
 
    //Consumes... UGH
    for ( unsigned int i = 0; i < inputCollectionLabels_.size(); ++i ) {
-      if ( inputCollectionTypes_[i] == "inner tracks" ) {
-	innerTrackCollectionToken_ = consumes<reco::TrackCollection>(inputCollectionLabels_.at(i));
-	 continue;
+      if ( inputCollectionTypes[i] == "inner tracks" ) {
+         innerTrackCollectionToken_ = consumes<reco::TrackCollection>(inputCollectionLabels_.at(i));
+         inputCollectionTypes_[i] = InputTypes::inner_tracks;
+         continue;
       }
-      if ( inputCollectionTypes_[i] == "outer tracks" ) {
-	outerTrackCollectionToken_ = consumes<reco::TrackCollection>(inputCollectionLabels_.at(i));
-	 continue;
+      if ( inputCollectionTypes[i] == "outer tracks" ) {
+         outerTrackCollectionToken_ = consumes<reco::TrackCollection>(inputCollectionLabels_.at(i));
+         inputCollectionTypes_[i] = InputTypes::outer_tracks;
+         continue;
       }
-      if ( inputCollectionTypes_[i] == "links" ) {
-	linkCollectionToken_ = consumes<reco::MuonTrackLinksCollection>(inputCollectionLabels_.at(i));
-	 continue;
+      if ( inputCollectionTypes[i] == "links" ) {
+         linkCollectionToken_ = consumes<reco::MuonTrackLinksCollection>(inputCollectionLabels_.at(i));
+         inputCollectionTypes_[i] = InputTypes::links;
+         continue;
       }
-      if ( inputCollectionTypes_[i] == "muons" ) {
-	muonCollectionToken_ = consumes<reco::MuonCollection>(inputCollectionLabels_.at(i));
-	 continue;
+      if ( inputCollectionTypes[i] == "muons" ) {
+         muonCollectionToken_ = consumes<reco::MuonCollection>(inputCollectionLabels_.at(i));
+         inputCollectionTypes_[i] = InputTypes::muons;
+         continue;
       }
-      if ( fillGlobalTrackRefits_  && inputCollectionTypes_[i] == "tev firstHit" ) {
-	tpfmsCollectionToken_ = consumes<reco::TrackToTrackMap>(inputCollectionLabels_.at(i));
-	 continue;
+      if ( fillGlobalTrackRefits_  && inputCollectionTypes[i] == "tev firstHit" ) {
+         tpfmsCollectionToken_ = consumes<reco::TrackToTrackMap>(inputCollectionLabels_.at(i));
+         inputCollectionTypes_[i] = InputTypes::tev_firstHit;
+         continue;
       }
 
-      if ( fillGlobalTrackRefits_  && inputCollectionTypes_[i] == "tev picky" ) {
-	pickyCollectionToken_ = consumes<reco::TrackToTrackMap>(inputCollectionLabels_.at(i));
-	 continue;
+      if ( fillGlobalTrackRefits_  && inputCollectionTypes[i] == "tev picky" ) {
+         pickyCollectionToken_ = consumes<reco::TrackToTrackMap>(inputCollectionLabels_.at(i));
+         inputCollectionTypes_[i] = InputTypes::tev_picky;
+         continue;
       }
 
-      if ( fillGlobalTrackRefits_  && inputCollectionTypes_[i] == "tev dyt" ) {
-	dytCollectionToken_ = consumes<reco::TrackToTrackMap>(inputCollectionLabels_.at(i));
-	 continue;
+      if ( fillGlobalTrackRefits_  && inputCollectionTypes[i] == "tev dyt" ) {
+         dytCollectionToken_ = consumes<reco::TrackToTrackMap>(inputCollectionLabels_.at(i));
+         inputCollectionTypes_[i] = InputTypes::tev_dyt;
+         continue;
       }
-      throw cms::Exception("FatalError") << "Unknown input collection type: " << inputCollectionTypes_[i];
+      throw cms::Exception("FatalError") << "Unknown input collection type: " << inputCollectionTypes[i];
    }
 
 
@@ -228,35 +246,35 @@ void MuonIdProducer::init(edm::Event& iEvent, const edm::EventSetup& iSetup)
    if (fillTrackerKink_) trackerKinkFinder_->init(iSetup);
 
    for ( unsigned int i = 0; i < inputCollectionLabels_.size(); ++i ) {
-      if ( inputCollectionTypes_[i] == "inner tracks" ) {
+      if ( inputCollectionTypes_[i] == InputTypes::inner_tracks ) {
 	 iEvent.getByToken(innerTrackCollectionToken_, innerTrackCollectionHandle_);
 	 if (! innerTrackCollectionHandle_.isValid()) 
 	   throw cms::Exception("FatalError") << "Failed to get input track collection with label: " << inputCollectionLabels_[i];
 	 LogTrace("MuonIdentification") << "Number of input inner tracks: " << innerTrackCollectionHandle_->size();
 	 continue;
       }
-      if ( inputCollectionTypes_[i] == "outer tracks" ) {
+      if ( inputCollectionTypes_[i] == InputTypes::outer_tracks ) {
 	 iEvent.getByToken(outerTrackCollectionToken_, outerTrackCollectionHandle_);
 	 if (! outerTrackCollectionHandle_.isValid()) 
 	   throw cms::Exception("FatalError") << "Failed to get input track collection with label: " << inputCollectionLabels_[i];
 	 LogTrace("MuonIdentification") << "Number of input outer tracks: " << outerTrackCollectionHandle_->size();
 	 continue;
       }
-      if ( inputCollectionTypes_[i] == "links" ) {
+      if ( inputCollectionTypes_[i] == InputTypes::links ) {
 	 iEvent.getByToken(linkCollectionToken_, linkCollectionHandle_);
 	 if (! linkCollectionHandle_.isValid()) 
 	   throw cms::Exception("FatalError") << "Failed to get input link collection with label: " << inputCollectionLabels_[i];
 	 LogTrace("MuonIdentification") << "Number of input links: " << linkCollectionHandle_->size();
 	 continue;
       }
-      if ( inputCollectionTypes_[i] == "muons" ) {
+      if ( inputCollectionTypes_[i] == InputTypes::muons ) {
 	 iEvent.getByToken(muonCollectionToken_, muonCollectionHandle_);
 	 if (! muonCollectionHandle_.isValid()) 
 	   throw cms::Exception("FatalError") << "Failed to get input muon collection with label: " << inputCollectionLabels_[i];
 	 LogTrace("MuonIdentification") << "Number of input muons: " << muonCollectionHandle_->size();
 	 continue;
       }
-      if ( fillGlobalTrackRefits_  && inputCollectionTypes_[i] == "tev firstHit" ) {
+      if ( fillGlobalTrackRefits_  && inputCollectionTypes_[i] == InputTypes::tev_firstHit ) {
 	 iEvent.getByToken(tpfmsCollectionToken_, tpfmsCollectionHandle_);
 	 if (! tpfmsCollectionHandle_.isValid()) 
 	   throw cms::Exception("FatalError") << "Failed to get input muon collection with label: " << inputCollectionLabels_[i];
@@ -264,7 +282,7 @@ void MuonIdProducer::init(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	 continue;
       }
 
-      if ( fillGlobalTrackRefits_  && inputCollectionTypes_[i] == "tev picky" ) {
+      if ( fillGlobalTrackRefits_  && inputCollectionTypes_[i] == InputTypes::tev_picky ) {
 	 iEvent.getByToken(pickyCollectionToken_, pickyCollectionHandle_);
 	 if (! pickyCollectionHandle_.isValid()) 
 	   throw cms::Exception("FatalError") << "Failed to get input muon collection with label: " << inputCollectionLabels_[i];
@@ -272,7 +290,7 @@ void MuonIdProducer::init(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	 continue;
       }
 
-      if ( fillGlobalTrackRefits_  && inputCollectionTypes_[i] == "tev dyt" ) {
+      if ( fillGlobalTrackRefits_  && inputCollectionTypes_[i] == InputTypes::tev_dyt ) {
 	 iEvent.getByToken(dytCollectionToken_, dytCollectionHandle_);
 	 if (! dytCollectionHandle_.isValid()) 
 	   throw cms::Exception("FatalError") << "Failed to get input muon collection with label: " << inputCollectionLabels_[i];
@@ -368,6 +386,52 @@ reco::Muon MuonIdProducer::makeMuon( const reco::MuonTrackLinks& links )
    return aMuon;
 }
 
+void MuonIdProducer::calculateMuonHitEtaRanges(const edm::EventSetup& eventSetup)
+{
+   if ( muonTrackDeltaEta_ <= 0 ) return;
+   muonHitsEta_.clear();
+
+   // Collect eta values from DT, CSC, segments and RPC hits
+   if ( dtSegmentHandle_.isValid() )
+   {
+      edm::ESHandle<DTGeometry> geom;
+      eventSetup.get<MuonGeometryRecord>().get(geom);
+      for ( auto& dtSegment : *dtSegmentHandle_ )
+      {
+         const auto& detId = dtSegment.chamberId();
+         const auto ch = geom->chamber(detId);
+         const double eta = ch->toGlobal(dtSegment.localPosition()).eta();
+         muonHitsEta_.push_back(eta);
+      }
+   }
+
+   if ( cscSegmentHandle_.isValid() )
+   {
+      edm::ESHandle<CSCGeometry> geom;
+      eventSetup.get<MuonGeometryRecord>().get(geom);
+      for ( auto& cscSegment : *cscSegmentHandle_ )
+      {
+         const CSCDetId& detId = cscSegment.cscDetId();
+         const auto ch = geom->chamber(detId);
+         const double eta = ch->toGlobal(cscSegment.localPosition()).eta();
+         muonHitsEta_.push_back(eta);
+      }
+   }
+
+   if ( rpcRecHitHandle_.isValid() )
+   {
+      edm::ESHandle<RPCGeometry> geom;
+      eventSetup.get<MuonGeometryRecord>().get(geom);
+      for ( auto& rpcRecHit : *rpcRecHitHandle_ )
+      {
+         const RPCDetId& detId = rpcRecHit.rpcId();
+         const auto ch = geom->roll(detId);
+         const double eta = ch->toGlobal(rpcRecHit.localPosition()).eta();
+         muonHitsEta_.push_back(eta);
+      }
+   }
+
+}
 
 bool MuonIdProducer::isGoodTrack( const reco::Track& track )
 {
@@ -379,10 +443,27 @@ bool MuonIdProducer::isGoodTrack( const reco::Track& track )
    }
 
    // Eta requirement
-   if ( fabs(track.eta()) > maxAbsEta_ ){
+   const double trackEta = track.eta();
+   if ( fabs(trackEta) > maxAbsEta_ ){
       LogTrace("MuonIdentification") << "Skipped track with large pseudo rapidity (Eta: " << track.eta() << " )";
       return false;
    }
+
+   // Additional Eta requirements
+   if ( muonTrackDeltaEta_ > 0 )
+   {
+      bool isInRange = false;
+      for ( auto x : muonHitsEta_ )
+      {
+        if ( std::abs(x-trackEta) < muonTrackDeltaEta_ )
+        {
+          isInRange = true;
+          break;
+        }
+      }
+      if ( !isInRange ) return false;
+   }
+
    return true;
 }
 
@@ -570,70 +651,75 @@ void MuonIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    // tracker and calo muons are next
    if ( innerTrackCollectionHandle_.isValid() ) {
       LogTrace("MuonIdentification") << "Creating tracker muons";
-      for ( unsigned int i = 0; i < innerTrackCollectionHandle_->size(); ++i )
-	{
-	   const reco::Track& track = innerTrackCollectionHandle_->at(i);
-	   if ( ! isGoodTrack( track ) ) continue;
-	   bool splitTrack = false;
-	   if ( track.extra().isAvailable() &&
-		TrackDetectorAssociator::crossedIP( track ) ) splitTrack = true;
-	   std::vector<TrackDetectorAssociator::Direction> directions;
-	   if ( splitTrack ) {
-	      directions.push_back(TrackDetectorAssociator::InsideOut);
-	      directions.push_back(TrackDetectorAssociator::OutsideIn);
-	   } else {
-	      directions.push_back(TrackDetectorAssociator::Any);
-	   }
-	   for ( std::vector<TrackDetectorAssociator::Direction>::const_iterator direction = directions.begin();
-		 direction != directions.end(); ++direction )
-	     {
-		// make muon
-	       reco::Muon trackerMuon( makeMuon(iEvent, iSetup, reco::TrackRef( innerTrackCollectionHandle_, i ), reco::Muon::InnerTrack ) );
-		fillMuonId(iEvent, iSetup, trackerMuon, *direction);
 
-		if ( debugWithTruthMatching_ ) {
-		   // add MC hits to a list of matched segments.
-		   // Since it's debugging mode - code is slow
-		   MuonIdTruthInfo::truthMatchMuon(iEvent, iSetup, trackerMuon);
-		}
+      std::vector<TrackDetectorAssociator::Direction> directionsForSplit(2);
+      std::vector<TrackDetectorAssociator::Direction> directionsForNonSplit(1);
+      directionsForSplit[0] = TrackDetectorAssociator::InsideOut;
+      directionsForSplit[1] = TrackDetectorAssociator::OutsideIn;
+      directionsForNonSplit[0] = TrackDetectorAssociator::Any;
 
-		// check if this muon is already in the list
-		// have to check where muon hits are really located
-		// to match properly
-		bool newMuon = true;
-		bool goodTrackerMuon = isGoodTrackerMuon( trackerMuon );
-		bool goodRPCMuon = isGoodRPCMuon( trackerMuon );
-		if ( goodTrackerMuon ) trackerMuon.setType( trackerMuon.type() | reco::Muon::TrackerMuon );
-		if ( goodRPCMuon ) trackerMuon.setType( trackerMuon.type() | reco::Muon::RPCMuon );
-		for ( reco::MuonCollection::iterator muon = outputMuons->begin();
-		      muon !=  outputMuons->end(); ++muon )
-		  {
-		     if ( muon->innerTrack().get() == trackerMuon.innerTrack().get() &&
-			  cos(phiOfMuonIneteractionRegion(*muon) -
-			      phiOfMuonIneteractionRegion(trackerMuon)) > 0 )
-		       {
-			  newMuon = false;
-			  muon->setMatches( trackerMuon.matches() );
-			  if (trackerMuon.isTimeValid()) muon->setTime( trackerMuon.time() );
-			  if (trackerMuon.isEnergyValid()) muon->setCalEnergy( trackerMuon.calEnergy() );
-			  if (goodTrackerMuon) muon->setType( muon->type() | reco::Muon::TrackerMuon );
-			  if (goodRPCMuon) muon->setType( muon->type() | reco::Muon::RPCMuon );
-			  LogTrace("MuonIdentification") << "Found a corresponding global muon. Set energy, matches and move on";
-			  break;
-		       }
-		  }
-		if ( newMuon ) {
-		   if ( goodTrackerMuon || goodRPCMuon ){
-		      outputMuons->push_back( trackerMuon );
-		   } else {
-		      LogTrace("MuonIdentification") << "track failed minimal number of muon matches requirement";
-		      const reco::CaloMuon& caloMuon = makeCaloMuon(trackerMuon);
-		      if ( ! caloMuon.isCaloCompatibilityValid() || caloMuon.caloCompatibility() < caloCut_ || caloMuon.p() < minPCaloMuon_) continue;
-		      caloMuons->push_back( caloMuon );
-		   }
-		}
-	     }
-	}
+      iEvent.getByToken(dtSegmentToken_, dtSegmentHandle_);
+      iEvent.getByToken(cscSegmentToken_, cscSegmentHandle_);
+      iEvent.getByToken(rpcHitToken_, rpcRecHitHandle_);
+      calculateMuonHitEtaRanges(iSetup);
+
+      for ( unsigned int i=0, n=innerTrackCollectionHandle_->size(); i<n; ++i )
+      {
+         reco::TrackRef track(innerTrackCollectionHandle_, i);
+         if ( ! isGoodTrack( *track ) ) continue;
+         bool splitTrack = false;
+         if ( track->extra().isAvailable() &&
+              TrackDetectorAssociator::crossedIP( *track ) ) splitTrack = true;
+         std::vector<TrackDetectorAssociator::Direction> directions;
+         for ( auto direction : (splitTrack ? directionsForSplit : directionsForNonSplit ) )
+         {
+            // make muon
+            reco::Muon trackerMuon( makeMuon(iEvent, iSetup, track, reco::Muon::InnerTrack ) );
+            fillMuonId(iEvent, iSetup, trackerMuon, direction);
+
+            if ( debugWithTruthMatching_ ) {
+               // add MC hits to a list of matched segments.
+               // Since it's debugging mode - code is slow
+               MuonIdTruthInfo::truthMatchMuon(iEvent, iSetup, trackerMuon);
+            }
+
+            // check if this muon is already in the list
+            // have to check where muon hits are really located
+            // to match properly
+            bool newMuon = true;
+            bool goodTrackerMuon = isGoodTrackerMuon( trackerMuon );
+            bool goodRPCMuon = isGoodRPCMuon( trackerMuon );
+            if ( goodTrackerMuon ) trackerMuon.setType( trackerMuon.type() | reco::Muon::TrackerMuon );
+            if ( goodRPCMuon ) trackerMuon.setType( trackerMuon.type() | reco::Muon::RPCMuon );
+            for ( reco::MuonCollection::iterator muon = outputMuons->begin();
+                  muon !=  outputMuons->end(); ++muon )
+            {
+               if ( muon->innerTrack().get() == trackerMuon.innerTrack().get() &&
+                    cos(phiOfMuonIneteractionRegion(*muon) -
+                    phiOfMuonIneteractionRegion(trackerMuon)) > 0 )
+               {
+                  newMuon = false;
+                  muon->setMatches( trackerMuon.matches() );
+                  if (trackerMuon.isTimeValid()) muon->setTime( trackerMuon.time() );
+                  if (trackerMuon.isEnergyValid()) muon->setCalEnergy( trackerMuon.calEnergy() );
+                  if (goodTrackerMuon) muon->setType( muon->type() | reco::Muon::TrackerMuon );
+                  if (goodRPCMuon) muon->setType( muon->type() | reco::Muon::RPCMuon );
+                  LogTrace("MuonIdentification") << "Found a corresponding global muon. Set energy, matches and move on";
+                  break;
+               }
+            }
+            if ( newMuon ) {
+               if ( goodTrackerMuon || goodRPCMuon ){
+                  outputMuons->push_back( trackerMuon );
+               } else {
+                  LogTrace("MuonIdentification") << "track failed minimal number of muon matches requirement";
+                  const reco::CaloMuon& caloMuon = makeCaloMuon(trackerMuon);
+                  if ( ! caloMuon.isCaloCompatibilityValid() || caloMuon.caloCompatibility() < caloCut_ || caloMuon.p() < minPCaloMuon_) continue;
+                  caloMuons->push_back( caloMuon );
+               }
+            }
+         }
+      }
    }
 
    // and at last the stand alone muons
@@ -857,16 +943,13 @@ void MuonIdProducer::fillMuonId(edm::Event& iEvent, const edm::EventSetup& iSetu
    }
    if ( ! fillMatching_ && ! aMuon.isTrackerMuon() && ! aMuon.isRPCMuon() ) return;
 
-  edm::Handle<RPCRecHitCollection> rpcRecHits;
-  iEvent.getByToken(rpcHitToken_, rpcRecHits);
-
    // fill muon match info
    std::vector<reco::MuonChamberMatch> muonChamberMatches;
    unsigned int nubmerOfMatchesAccordingToTrackAssociator = 0;
    for( std::vector<TAMuonChamberMatch>::const_iterator chamber=info.chambers.begin();
 	chamber!=info.chambers.end(); chamber++ )
      {
-       if  (chamber->id.subdetId() == 3 && rpcRecHits.isValid()  ) continue; // Skip RPC chambers, they are taken care of below)
+       if  (chamber->id.subdetId() == 3 && rpcRecHitHandle_.isValid()  ) continue; // Skip RPC chambers, they are taken care of below)
 	reco::MuonChamberMatch matchedChamber;
 
 	LocalError localError = chamber->tState.localError().positionError();
@@ -933,7 +1016,7 @@ void MuonIdProducer::fillMuonId(edm::Event& iEvent, const edm::EventSetup& iSetu
      }
 
   // Fill RPC info
-  if ( rpcRecHits.isValid() )
+  if ( rpcRecHitHandle_.isValid() )
   {
 
    for( std::vector<TAMuonChamberMatch>::const_iterator chamber=info.chambers.begin();
@@ -962,8 +1045,8 @@ void MuonIdProducer::fillMuonId(edm::Event& iEvent, const edm::EventSetup& iSetu
 
       matchedChamber.id = chamber->id;
 
-      for ( RPCRecHitCollection::const_iterator rpcRecHit = rpcRecHits->begin();
-            rpcRecHit != rpcRecHits->end(); ++rpcRecHit )
+      for ( RPCRecHitCollection::const_iterator rpcRecHit = rpcRecHitHandle_->begin();
+            rpcRecHit != rpcRecHitHandle_->end(); ++rpcRecHit )
       {
         reco::MuonRPCHitMatch rpcHitMatch;
 

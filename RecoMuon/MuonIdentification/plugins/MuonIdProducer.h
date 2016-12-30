@@ -118,12 +118,20 @@ class MuonIdProducer : public edm::stream::EDProducer<> {
    TrackDetectorAssociator trackAssociator_;
    TrackAssociatorParameters parameters_;
    
+   struct InputTypes {
+      enum Types {
+         inner_tracks, outer_tracks, links, muons,
+         tev_firstHit, tev_picky, tev_dyt,
+         SIZE
+      };
+   };
    std::vector<edm::InputTag> inputCollectionLabels_;
-   std::vector<std::string>   inputCollectionTypes_;
+   std::vector<InputTypes::Types> inputCollectionTypes_;
 
    MuonTimingFiller* theTimingFiller_;
 
    // selections
+   double muonTrackDeltaEta_;
    double minPt_;
    double minP_;
    double minPCaloMuon_;
@@ -191,5 +199,17 @@ class MuonIdProducer : public edm::stream::EDProducer<> {
    bool arbClean_;
    MuonMesh* meshAlgo_;
 
+private:
+   //Caching Handles for speed up
+   edm::Handle<DTRecSegment4DCollection> dtSegmentHandle_;
+   edm::Handle<CSCSegmentCollection> cscSegmentHandle_;
+   edm::Handle<RPCRecHitCollection> rpcRecHitHandle_;
+
+private:
+   // Experimental
+   edm::EDGetTokenT<DTRecSegment4DCollection> dtSegmentToken_;
+   edm::EDGetTokenT<CSCSegmentCollection> cscSegmentToken_;
+   void calculateMuonHitEtaRanges(const edm::EventSetup& eventSetup);
+   std::vector<double> muonHitsEta_;
 };
 #endif
