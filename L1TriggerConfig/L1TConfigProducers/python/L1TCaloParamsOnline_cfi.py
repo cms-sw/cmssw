@@ -1,7 +1,19 @@
 import FWCore.ParameterSet.Config as cms
 
-#from L1Trigger.L1TCalorimeter.caloStage2Params_cfi import *
-from L1Trigger.L1TCalorimeter.caloStage2Params_2016_v3_2_cfi import *
+#from L1Trigger.L1TCalorimeter.caloStage2Params_2016_v3_2_cfi import *
+
+from CondCore.CondDB.CondDB_cfi import CondDB
+CondDB.connect = cms.string('oracle://cms_orcoff_prep/CMS_CONDITIONS') # let's hardcode it for now
+
+l1conddb = cms.ESSource("PoolDBESSource",
+       CondDB,
+       toGet   = cms.VPSet(
+            cms.PSet(
+                 record = cms.string('L1TCaloStage2ParamsRcd'),
+                 tag = cms.string("L1TCaloParamsPrototype_Stage2v0_hlt")
+            )
+       )
+)
 
 L1TCaloParamsOnlineProd = cms.ESProducer("L1TCaloParamsOnlineProd",
     onlineAuthentication = cms.string('.'),
