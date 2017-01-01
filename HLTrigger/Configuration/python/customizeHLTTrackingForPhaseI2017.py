@@ -17,6 +17,9 @@ def customizeHLTPhaseIPixelGeom(process):
 	return process
     
 def customizeHLTForPFTrackingPhaseI2017(process):
+
+	process = customizeHLTPhaseIPixelGeom(process)
+
 	process.hltPixelLayerTriplets.layerList = cms.vstring(
 	    'BPix1+BPix2+BPix3',
 	    'BPix2+BPix3+BPix4',
