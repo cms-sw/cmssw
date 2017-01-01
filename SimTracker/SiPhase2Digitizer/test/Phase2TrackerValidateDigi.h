@@ -57,6 +57,9 @@ public:
     MonitorElement* MatchedTrackEtaS;
     MonitorElement* SimHitElossP;  
     MonitorElement* SimHitElossS;  
+    MonitorElement* SimHitDx;
+    MonitorElement* SimHitDy;
+    MonitorElement* SimHitDz;
   };
 
 private:
@@ -79,6 +82,11 @@ private:
    
   MonitorElement* MatchedXYPositionMap;
   MonitorElement* MatchedRZPositionMap;
+
+  MonitorElement* SimulatedTOFEtaMap;
+  MonitorElement* SimulatedTOFPhiMap;
+  MonitorElement* SimulatedTOFRMap;
+  MonitorElement* SimulatedTOFZMap;
 
   float etaCut_;
   float ptCut_;
