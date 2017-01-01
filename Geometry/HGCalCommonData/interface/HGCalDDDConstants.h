@@ -52,6 +52,7 @@ public:
   int                 maxCells(int lay, bool reco) const;
   int                 maxCellsSquare(float h, float bl, float tl, float alpha,
 				     float cellSize) const;
+  int                 maxModules() const {return modHalf_;}
   int                 maxRows(int lay, bool reco) const;
   double              minSlope() const {return hgpar_->slopeMin_;}
   int                 modules(int lay, bool reco) const;
@@ -105,9 +106,9 @@ private:
   constexpr static double tan30deg_ = 0.5773502693;
   double                 rmax_, hexside_;
   HGCalGeometryMode      mode_;
-  int32_t                tot_wafers_;
+  int32_t                tot_wafers_, modHalf_;
   std::array<uint32_t,2> tot_layers_;
-  simrecovecs max_modules_layer_; 
+  simrecovecs            max_modules_layer_; 
 };
 
 #endif
