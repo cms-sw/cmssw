@@ -14,3 +14,12 @@ simPFProducer = cms.EDProducer(
     simClustersSrc = cms.InputTag('particleFlowClusterHGCal'),
     associators = cms.VInputTag(cms.InputTag('quickTrackAssociatorByHits') )
     )
+
+from Configuration.Eras.Modifier_phase2_timing_cff import phase2_timing
+phase2_timing.toModify(
+    simPFProducer,
+    trackTimeValueMap = cms.InputTag("trackTimeValueMapProducer:generalTracksConfigurableFlatResolutionModel"),
+    trackTimeErrorMap = cms.InputTag("trackTimeValueMapProducer:generalTracksConfigurableFlatResolutionModelResolution"),
+    gsfTrackTimeValueMap = cms.InputTag("trackTimeValueMapProducer:electronGsfTracksConfigurableFlatResolutionModel"),
+gsfTrackTimeErrorMap = cms.InputTag("trackTimeValueMapProducer:electronGsfTracksConfigurableFlatResolutionModelResolution"),
+)
