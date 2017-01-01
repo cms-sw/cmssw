@@ -36,7 +36,7 @@ void FreeTrajectoryState::createCartesianError(CartesianTrajectoryError & aCarte
 }
 
 // convert cartesian errors to curvilinear
-void FreeTrajectoryState::createCurvilinearError(CartesianTrajectoryError const& aCartesianError) const{
+void FreeTrajectoryState::createCurvilinearError(CartesianTrajectoryError const& aCartesianError) {
   
   JacobianCartesianToCurvilinear cart2Curv(theGlobalParameters);
   const AlgebraicMatrix56& jac = cart2Curv.jacobian();
