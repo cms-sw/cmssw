@@ -12,8 +12,6 @@ DEFINE_FWK_MODULE(QualityTester);
 DEFINE_FWK_MODULE(DQMFileSaver);
 #include "DQMServices/Components/src/DQMFEDIntegrityClient.h"
 DEFINE_FWK_MODULE(DQMFEDIntegrityClient);
-#include "DQMServices/Components/src/DQMStoreStats.h"
-DEFINE_FWK_MODULE(DQMStoreStats);
 #include "DQMServices/Components/src/DQMMessageLogger.h"
 DEFINE_FWK_MODULE(DQMMessageLogger);
 #include "DQMServices/Components/src/DQMMessageLoggerClient.h"

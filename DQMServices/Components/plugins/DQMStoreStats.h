@@ -5,6 +5,7 @@
  * *
  *  DQM Test Client
  *
+ *  \author Dmitrijus Bugelskis CERN
  *  \author Andreas Meyer CERN
  *  \author Jan Olzem DESY
  *   
@@ -27,10 +28,7 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 
-//
-// class declarations
-//
-
+namespace dqmservices {
 
 ///
 /// DQMStoreStats helper class for
@@ -362,5 +360,6 @@ private:
 
 };
 
+} // end of namespace
 #endif
 

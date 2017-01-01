@@ -203,9 +203,13 @@ class DQMStore
       return owner_->removeElement(std::forward<Args>(args)...);
     }
 
+    void getAllContents_(std::function<void(MonitorElement *)> f,
+                         const std::string &path,
+                         uint32_t runNumber = 0,
+                         uint32_t lumi = 0) const;
     std::vector<MonitorElement*>  getAllContents(const std::string &path,
-						 uint32_t runNumber = 0,
-						 uint32_t lumi = 0);
+                                                 uint32_t runNumber = 0,
+                                                 uint32_t lumi = 0) const;
     MonitorElement * get(const std::string &path);
 
     // same as get, throws an exception if histogram not found
@@ -619,6 +623,10 @@ class DQMStore
 
  public:
   void                          getAllTags(std::vector<std::string> &into) const;
+  void getAllContents_(std::function<void(MonitorElement *)> f,
+                       const std::string &path,
+                       uint32_t runNumber = 0,
+                       uint32_t lumi = 0) const;
   std::vector<MonitorElement*>  getAllContents(const std::string &path,
                                                uint32_t runNumber = 0,
                                                uint32_t lumi = 0) const;
