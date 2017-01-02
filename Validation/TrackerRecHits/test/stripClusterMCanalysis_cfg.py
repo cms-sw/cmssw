@@ -1,3 +1,4 @@
+
 import FWCore.ParameterSet.Config as cms
 
 readFiles = cms.untracked.vstring()
@@ -9,16 +10,19 @@ source = cms.Source ("PoolSource",
                      skipEvents = cms.untracked.uint32(0),
                      )
 readFiles.extend( [
-'/store/relval/CMSSW_7_6_0_pre2/RelValQCD_Pt_3000_3500_13/GEN-SIM-DIGI-RAW-HLTDEBUG/75X_mcRun2_asymptotic_v2-v1/00000/06D2F696-B336-E511-A10D-0025905964BE.root',
-'/store/relval/CMSSW_7_6_0_pre2/RelValQCD_Pt_3000_3500_13/GEN-SIM-DIGI-RAW-HLTDEBUG/75X_mcRun2_asymptotic_v2-v1/00000/4270DF62-B136-E511-8127-0026189438BF.root',
-'/store/relval/CMSSW_7_6_0_pre2/RelValQCD_Pt_3000_3500_13/GEN-SIM-DIGI-RAW-HLTDEBUG/75X_mcRun2_asymptotic_v2-v1/00000/B099AF99-B336-E511-90DC-0025905938D4.root',
-'/store/relval/CMSSW_7_6_0_pre2/RelValQCD_Pt_3000_3500_13/GEN-SIM-DIGI-RAW-HLTDEBUG/75X_mcRun2_asymptotic_v2-v1/00000/B6BE6E09-B936-E511-8B8C-00261894395C.root',
-'/store/relval/CMSSW_7_6_0_pre2/RelValQCD_Pt_3000_3500_13/GEN-SIM-DIGI-RAW-HLTDEBUG/75X_mcRun2_asymptotic_v2-v1/00000/C8C7DCF2-AF36-E511-A978-00261894397B.root',
-'/store/relval/CMSSW_7_6_0_pre2/RelValQCD_Pt_3000_3500_13/GEN-SIM-DIGI-RAW-HLTDEBUG/75X_mcRun2_asymptotic_v2-v1/00000/D8974F6E-B936-E511-895D-00261894387C.root',
-'/store/relval/CMSSW_7_6_0_pre2/RelValQCD_Pt_3000_3500_13/GEN-SIM-DIGI-RAW-HLTDEBUG/75X_mcRun2_asymptotic_v2-v1/00000/E8C61CCF-B036-E511-962E-0025905A6094.root',
-'/store/relval/CMSSW_7_6_0_pre2/RelValQCD_Pt_3000_3500_13/GEN-SIM-DIGI-RAW-HLTDEBUG/75X_mcRun2_asymptotic_v2-v1/00000/F40D56A9-B836-E511-8513-0025905A60C6.root' ] );
+'/store/relval/CMSSW_8_1_0/RelValQCD_Pt_3000_3500_13/GEN-SIM-DIGI-RAW-HLTDEBUG/81X_mcRun2_asymptotic_v12-v1/10000/346CEC78-33BB-E611-902E-0CC47A4D76AA.root',
+'/store/relval/CMSSW_8_1_0/RelValQCD_Pt_3000_3500_13/GEN-SIM-DIGI-RAW-HLTDEBUG/81X_mcRun2_asymptotic_v12-v1/10000/3A712A49-33BB-E611-BE54-0CC47A4D7628.root',
+'/store/relval/CMSSW_8_1_0/RelValQCD_Pt_3000_3500_13/GEN-SIM-DIGI-RAW-HLTDEBUG/81X_mcRun2_asymptotic_v12-v1/10000/3EB22AC4-36BB-E611-B0C0-0CC47A4D767C.root',
+'/store/relval/CMSSW_8_1_0/RelValQCD_Pt_3000_3500_13/GEN-SIM-DIGI-RAW-HLTDEBUG/81X_mcRun2_asymptotic_v12-v1/10000/40CDA718-34BB-E611-9F98-0CC47A7C3408.root',
+'/store/relval/CMSSW_8_1_0/RelValQCD_Pt_3000_3500_13/GEN-SIM-DIGI-RAW-HLTDEBUG/81X_mcRun2_asymptotic_v12-v1/10000/78040FFD-32BB-E611-ADB5-0CC47A4D762E.root',
+'/store/relval/CMSSW_8_1_0/RelValQCD_Pt_3000_3500_13/GEN-SIM-DIGI-RAW-HLTDEBUG/81X_mcRun2_asymptotic_v12-v1/10000/A8BA78FD-32BB-E611-A850-0CC47A7C34A6.root',
+'/store/relval/CMSSW_8_1_0/RelValQCD_Pt_3000_3500_13/GEN-SIM-DIGI-RAW-HLTDEBUG/81X_mcRun2_asymptotic_v12-v1/10000/AC02816C-33BB-E611-8321-0CC47A7AB7A0.root',
+'/store/relval/CMSSW_8_1_0/RelValQCD_Pt_3000_3500_13/GEN-SIM-DIGI-RAW-HLTDEBUG/81X_mcRun2_asymptotic_v12-v1/10000/C880B8DC-32BB-E611-A77E-0CC47A4D767C.root',
+'/store/relval/CMSSW_8_1_0/RelValQCD_Pt_3000_3500_13/GEN-SIM-DIGI-RAW-HLTDEBUG/81X_mcRun2_asymptotic_v12-v1/10000/FE9167BA-36BB-E611-9DFB-0CC47A4D76AA.root' ] );
 
-process = cms.Process("makeNtuples")
+from Configuration.StandardSequences.Eras import eras
+
+process = cms.Process('makeNtuples',eras.Run2_2016)
 
 # import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')
@@ -86,6 +90,7 @@ else:
 
 process.p1 = cms.Path(
     process.raw2digi_step
+    *process.bunchSpacingProducer
     *process.trackerlocalreco
     *process.offlineBeamSpot
     *process.MeasurementTrackerEventPreSplitting
