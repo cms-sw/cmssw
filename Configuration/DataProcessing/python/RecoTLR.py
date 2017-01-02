@@ -180,3 +180,22 @@ def customiseRun2CommonHI(process):
 
     return process
 
+# for DQMOffline_HLTPPB_MuonEff_Histo
+def customiseRun2PPB_MuonDQM(process):
+    process.globalAnalyzer.targetParams.ptCut_Jpsi = cms.untracked.double(6.0)
+    process.trackerAnalyzer.targetParams.ptCut_Jpsi = cms.untracked.double(6.0)
+    process.tightAnalyzer.targetParams.ptCut_Jpsi = cms.untracked.double(6.0)
+    process.looseAnalyzer.targetParams.ptCut_Jpsi = cms.untracked.double(6.0)
+    process.globalAnalyzer.binParams.ptCoarse = cms.untracked.vdouble(0.,1.,2.,3.,4.,5.,6.,7.,8.,9.,10.,11.,12.,13.,14.,15.,16.,17.,18.,19.,20.,21.,22.,23.,24.,25.,26.,27.,28.,29.,30.,31.,32.,33.,34.,35.,36.,37.,38.,39.,40.)
+    process.globalAnalyzer.binParams.pt = cms.untracked.vdouble(0.,1.,2.,3.,4.,5.,6.,7.,8.,9.,10.,11.,12.,13.,14.,15.,16.,17.,18.,19.,20.,21.,22.,23.,24.,25.,26.,27.,28.,29.,30.,31.,32.,33.,34.,35.,36.,37.,38.,39.,40.)
+    process.trackerAnalyzer.binParams.ptCoarse = cms.untracked.vdouble(0.,1.,2.,3.,4.,5.,6.,7.,8.,9.,10.,11.,12.,13.,14.,15.,16.,17.,18.,19.,20.,21.,22.,23.,24.,25.,26.,27.,28.,29.,30.,31.,32.,33.,34.,35.,36.,37.,38.,39.,40.)
+    process.trackerAnalyzer.binParams.pt = cms.untracked.vdouble(0.,1.,2.,3.,4.,5.,6.,7.,8.,9.,10.,11.,12.,13.,14.,15.,16.,17.,18.,19.,20.,21.,22.,23.,24.,25.,26.,27.,28.,29.,30.,31.,32.,33.,34.,35.,36.,37.,38.,39.,40.)
+    process.tightAnalyzer.binParams.ptCoarse = cms.untracked.vdouble(0.,1.,2.,3.,4.,5.,6.,7.,8.,9.,10.,11.,12.,13.,14.,15.,16.,17.,18.,19.,20.,21.,22.,23.,24.,25.,26.,27.,28.,29.,30.,31.,32.,33.,34.,35.,36.,37.,38.,39.,40.)
+    process.tightAnalyzer.binParams.pt = cms.untracked.vdouble(0.,1.,2.,3.,4.,5.,6.,7.,8.,9.,10.,11.,12.,13.,14.,15.,16.,17.,18.,19.,20.,21.,22.,23.,24.,25.,26.,27.,28.,29.,30.,31.,32.,33.,34.,35.,36.,37.,38.,39.,40.)
+    process.looseAnalyzer.binParams.ptCoarse = cms.untracked.vdouble(0.,1.,2.,3.,4.,5.,6.,7.,8.,9.,10.,11.,12.,13.,14.,15.,16.,17.,18.,19.,20.,21.,22.,23.,24.,25.,26.,27.,28.,29.,30.,31.,32.,33.,34.,35.,36.,37.,38.,39.,40.)
+    process.looseAnalyzer.binParams.pt = cms.untracked.vdouble(0.,1.,2.,3.,4.,5.,6.,7.,8.,9.,10.,11.,12.,13.,14.,15.,16.,17.,18.,19.,20.,21.,22.,23.,24.,25.,26.,27.,28.,29.,30.,31.,32.,33.,34.,35.,36.,37.,38.,39.,40.)
+
+
+
+
+    return process
