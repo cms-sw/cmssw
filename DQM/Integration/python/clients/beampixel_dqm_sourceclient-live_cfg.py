@@ -214,8 +214,12 @@ if (process.runType.getRunType() == process.runType.hi_run):
     process.PixelLayerTriplets.BPix.HitProducer = cms.string("siPixelRecHitsPreSplitting")
     process.PixelLayerTriplets.FPix.HitProducer = cms.string("siPixelRecHitsPreSplitting")
 
-    process.hiPixel3PrimTracks.FilterPSet.VertexCollection     = cms.InputTag("hiSelectedVertexPreSplitting")
-    process.hiPixel3PrimTracks.FilterPSet.clusterShapeCacheSrc = cms.InputTag("siPixelClusterShapeCachePreSplitting")
+
+    process.hiPixel3PrimTracksFilter = process.hiFilter.clone(
+        VertexCollection = "hiSelectedVertexPreSplitting",
+        clusterShapeCacheSrc = "siPixelClusterShapeCachePreSplitting",
+    )
+    process.hiPixel3PrimTracks.Filter = "hiPixel3PrimTracksFilter"
 
     process.hiPixel3PrimTracks.RegionFactoryPSet.ComponentName               = cms.string('GlobalTrackingRegionWithVerticesProducer')
     process.hiPixel3PrimTracks.RegionFactoryPSet.RegionPSet.VertexCollection = cms.InputTag("hiSelectedVertexPreSplitting")
@@ -236,6 +240,8 @@ if (process.runType.getRunType() == process.runType.hi_run):
                                               process.siPixelClusterShapeCachePreSplitting*
                                               process.hiPixelVerticesPreSplitting*
                                               process.PixelLayerTriplets*
+                                              process.pixelFitterByHelixProjections*
+                                              process.hiPixel3PrimTracksFilter*
                                               process.hiPixel3PrimTracks)
 
 

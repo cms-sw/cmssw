@@ -8,6 +8,7 @@
 #include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/HGCalGeometry/interface/HGCalGeometry.h"
+#include "Geometry/HGCalGeometry/interface/FastTimeGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "Geometry/CSCGeometry/interface/CSCGeometry.h"
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
@@ -78,6 +79,7 @@ FWRecoGeometryESProducer::FWRecoGeometryESProducer( const edm::ParameterSet& pse
   m_tracker = pset.getUntrackedParameter<bool>( "Tracker", true );
   m_muon = pset.getUntrackedParameter<bool>( "Muon", true );
   m_calo = pset.getUntrackedParameter<bool>( "Calo", true );
+  m_timing = pset.getUntrackedParameter<bool>( "Timing", false );
   setWhatProduced( this );
 }
 
@@ -118,6 +120,12 @@ FWRecoGeometryESProducer::produce( const FWRecoGeometryRecord& record )
   {
     record.getRecord<CaloGeometryRecord>().get( m_caloGeom );
     addCaloGeometry();
+  }
+
+  if( m_timing ) {
+    record.getRecord<CaloGeometryRecord>().getRecord<IdealGeometryRecord>().get( "FastTimeBarrel", m_ftlBarrelGeom );
+    record.getRecord<CaloGeometryRecord>().getRecord<IdealGeometryRecord>().get( "SFBX", m_ftlEndcapGeom );
+    addFTLGeometry();
   }
   
   m_fwGeometry->idToName.resize( m_current + 1 );
@@ -520,6 +528,29 @@ FWRecoGeometryESProducer::addCaloGeometry( void )
       const auto& cor = geom->getCorners( *it );
       fillPoints( id, cor.begin(), cor.end() );
     }
+  }
+}
+
+void
+FWRecoGeometryESProducer::addFTLGeometry( void )
+{
+  // do the barrel
+  std::vector<DetId> vid = std::move(m_ftlBarrelGeom->getValidDetIds()); 
+  for( std::vector<DetId>::const_iterator it = vid.begin(),
+	 end = vid.end();
+       it != end; ++it ) {
+    unsigned int id = insert_id( it->rawId());
+    const auto& cor =  m_ftlBarrelGeom->getCorners( *it );      
+    fillPoints( id, cor.begin(), cor.end());    
+  }
+  // do the endcap
+  vid = std::move(m_ftlEndcapGeom->getValidDetIds()); 
+  for( std::vector<DetId>::const_iterator it = vid.begin(),
+	 end = vid.end();
+       it != end; ++it ) {
+    unsigned int id = insert_id( it->rawId());
+    const auto& cor =  m_ftlEndcapGeom->getCorners( *it );      
+    fillPoints( id, cor.begin(), cor.end());    
   }
 }
 

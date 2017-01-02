@@ -16,6 +16,8 @@
 #include <string>
 
 class ME0Geometry;
+class ME0EtaPartition;
+
 namespace CLHEP {
   class HepRandomEngine;
 }
@@ -33,8 +35,10 @@ public:
   virtual void produce(edm::Event&, const edm::EventSetup&) override;
   
   void buildDigis(const ME0DigiPreRecoCollection &, ME0DigiPreRecoCollection &, CLHEP::HepRandomEngine* engine);
-
+  
 private:
+
+  double correctSigmaU(const ME0EtaPartition* roll, double y);
 
   edm::EDGetTokenT<ME0DigiPreRecoCollection> token_; 
   const ME0Geometry* geometry_;
@@ -46,12 +50,16 @@ private:
   double radialResolution_;
   bool smearRadial_;
   double oldXResolution_;
+  double oldYResolution_;
   double newXResolution_;
   double newYResolution_;
   bool discretizeX_;
+  bool discretizeY_;
   bool verbose_;
   bool reDigitizeOnlyMuons_;
   bool reDigitizeNeutronBkg_;
+  double instLumiDefault_;
+  double rateFact_;
   double instLumi_;
   std::vector<double> centralTOF_;
   int nPartitions_;

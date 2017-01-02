@@ -74,7 +74,7 @@ void DTTPGParametersValidateDBRead::analyze( const edm::Event& e,
                           << tpgId.sectorId  << " , status = "
                           << status << std::endl;
     if (       ( tpgData.nClock != nClock )            ||
-         ( fabs( tpgData.tPhase  - tPhase ) > 0.0001 ) )
+         ( std::abs( tpgData.tPhase  - tPhase ) > 0.0001 ) )
          logFile << "MISMATCH WHEN READING cell TPGParameters "
                  << tpgId.wheelId   << " "
                  << tpgId.stationId << " "
@@ -93,8 +93,8 @@ void DTTPGParametersValidateDBRead::analyze( const edm::Event& e,
                        sta,
                        sec,
                        nClock, tPhase, DTTimeUnits::counts );
-    if ( ( fabs( ckclock - nClock ) > 0.0001 ) ||
-         ( fabs( ckphase - tPhase ) > 0.0001 ) )
+    if ( ( std::abs( ckclock - nClock ) > 0.0001 ) ||
+         ( std::abs( ckphase - tPhase ) > 0.0001 ) )
          logFile << "MISMATCH IN WRITING AND READING cell TPGParameters "
                  << whe << " "
                  << sta << " "

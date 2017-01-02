@@ -11,6 +11,8 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "DataFormats/Common/interface/Handle.h"
 
+#include "vdt/vdtMath.h"
+
 using namespace hgcal;
 
 ClusterTools::ClusterTools(const edm::ParameterSet& conf, 
@@ -74,3 +76,36 @@ float ClusterTools::getClusterHadronFraction(const reco::CaloCluster& clus) cons
 }
 
 
+math::XYZPoint ClusterTools::getMultiClusterPosition(const reco::HGCalMultiCluster& clu, double vz) const {
+  if( clu.clusters().size() == 0 ) return math::XYZPoint();
+  double acc_rho = 0.0;
+  double acc_eta = 0.0;
+  double acc_phi = 0.0;
+  double totweight = 0.;
+  for( const auto& ptr : clu.clusters() ) {   
+    const double x = ptr->x();    
+    const double y = ptr->y();
+    const double point_r2 = (x*x + y*y);    
+    const double point_z = ptr->z()-vz;
+    const double point_h = std::sqrt(point_r2 + point_z*point_z);
+    const double weight = ptr->energy() * ptr->size();
+    assert((y != 0. || x != 0.) && "Cluster position somehow in beampipe.");
+    assert(point_z != 0.f && "Layer-cluster position given as reference point.");
+    const double point_r = std::sqrt(point_r2);
+    acc_rho += point_r * weight;
+    acc_phi += vdt::fast_atan2(y,x) * weight;
+    acc_eta += -1. * vdt::fast_log(point_r/(point_z + point_h)) * weight;
+    totweight += weight;
+  }
+  const double invweight = 1.0/totweight;
+  reco::PFCluster::REPPoint temp(acc_rho*invweight,acc_eta*invweight,acc_phi*invweight);
+  return math::XYZPoint(temp.x(),temp.y(),temp.z());
+}
+
+double ClusterTools::getMultiClusterEnergy(const reco::HGCalMultiCluster& clu) const {
+  double acc = 0.0;
+  for(const auto& ptr : clu.clusters() ) {
+    acc += ptr->energy();
+  }
+  return acc;
+}

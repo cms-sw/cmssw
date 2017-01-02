@@ -32,6 +32,8 @@ private:
   double sigma_t;
   double sigma_u;
   double sigma_v;
+  double error_u;
+  double error_v;
   bool gaussianSmearing_;
   double constPhiSmearing_;
   bool corr;
@@ -47,6 +49,7 @@ private:
   int maxBunch_;
 
   double instLumi_;
+  double rateFact_;
 
   // params for the simple pol6 model of neutral bkg for ME0:
   std::vector<double> neuBkg, eleBkg;
