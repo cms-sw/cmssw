@@ -40,7 +40,7 @@ void ME0SegmentsValidation::bookHistograms(DQMStore::IBooker & ibooker, edm::Run
     
     me0_segment_chi2     = ibooker.book1D("me0_seg_Chi2","#chi^{2}; #chi^{2}; # Segments",100,0,100);
     me0_segment_redchi2  = ibooker.book1D("me0_seg_ReducedChi2","#chi^{2}/ndof; #chi^{2}/ndof; # Segments",100,0,5);
-    me0_segment_ndof     = ibooker.book1D("me0_seg_ndof","ndof; ndof; #Segments",100,0,100);
+    me0_segment_ndof     = ibooker.book1D("me0_seg_ndof","ndof; ndof; #Segments",50,0,50);
     me0_segment_numRH    = ibooker.book1D("me0_seg_NumberRH","Number of fitted RecHits; # RecHits; entries",11,-0.5,10.5);
     me0_segment_numRHSig = ibooker.book1D("me0_seg_NumberRHSig","Number of fitted Signal RecHits; # RecHits; entries",11,-0.5,10.5);
     me0_segment_numRHBkg = ibooker.book1D("me0_seg_NumberRHBkg","Number of fitted BKG RecHits; # RecHits; entries",11,-0.5,10.5);

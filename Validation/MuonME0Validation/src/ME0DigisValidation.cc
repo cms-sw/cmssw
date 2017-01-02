@@ -114,7 +114,7 @@ void ME0DigisValidation::analyze(const edm::Event& e,
     Short_t region = (Short_t) id.region();
     Short_t layer = (Short_t) id.layer();
     Short_t chamber = (Short_t) id.chamber();
-    Short_t roll = (Short_t) id.roll();
+//    Short_t roll = (Short_t) id.roll();
 
     ME0DigiPreRecoCollection::const_iterator digiItr;
     for (digiItr = (*cItr ).second.first; digiItr != (*cItr ).second.second; ++digiItr)
@@ -164,7 +164,7 @@ void ME0DigisValidation::analyze(const edm::Event& e,
             Short_t region_sh = id.region();
             Short_t layer_sh = id.layer();
             Short_t chamber_sh = id.chamber();
-            Short_t roll_sh = id.roll();
+//            Short_t roll_sh = id.roll();
             
             int region_sh_num = 0 ;
             if ( region_sh == -1 ) region_sh_num = 0 ;
@@ -180,7 +180,7 @@ void ME0DigisValidation::analyze(const edm::Event& e,
                 me0_strip_dg_den_eta_tot->Fill(fabs(gp_sh.eta()));
             }
             
-            if(!(region == region_sh && layer == layer_sh && chamber == chamber_sh && roll == roll_sh)) continue;
+            if(!(region == region_sh && layer == layer_sh && chamber == chamber_sh /*&& roll == roll_sh*/)) continue;
             
             Float_t dx_loc = lp_sh.x()-lp.x();
             Float_t dy_loc = lp_sh.y()-lp.y();
