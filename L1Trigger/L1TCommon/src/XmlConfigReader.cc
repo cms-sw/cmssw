@@ -151,6 +151,82 @@ XmlConfigReader::~XmlConfigReader()
   XMLPlatformUtils::Terminate();
 }
 
+XmlConfigReader::XmlConfigReader(const XmlConfigReader &obj) :
+  kTagHw          (obj.kTagHw),
+  kTagAlgo        (obj.kTagAlgo),
+  kTagRunSettings (obj.kTagRunSettings),
+  kTagDb          (obj.kTagDb),
+  kTagKey         (obj.kTagKey),
+  kTagLoad        (obj.kTagLoad),
+  kTagContext     (obj.kTagContext),
+  kTagParam       (obj.kTagParam),
+  kTagMask        (obj.kTagMask),
+  kTagDisable     (obj.kTagDisable),
+  kTagExclBoards  (obj.kTagExclBoards),
+  kTagExclude     (obj.kTagExclude),
+  kTagColumns     (obj.kTagColumns),
+  kTagTypes       (obj.kTagTypes),
+  kTagRow         (obj.kTagRow),
+  kTagProcessor   (obj.kTagProcessor),
+  kTagRole        (obj.kTagRole),
+  kTagCrate       (obj.kTagCrate),
+  kTagSlot        (obj.kTagSlot),
+  kTagDaqTtc      (obj.kTagDaqTtc),
+  kAttrId         (obj.kAttrId),
+  kAttrType       (obj.kAttrType),
+  kAttrDelim      (obj.kAttrDelim),
+  kAttrModule     (obj.kAttrModule),
+  kTypeTable      (obj.kTypeTable),
+  parser_         ( new XercesDOMParser()),
+  doc_            (obj.doc_)
+{
+  XMLPlatformUtils::Initialize();
+
+  parser_->setValidationScheme(XercesDOMParser::Val_Auto);
+  parser_->setDoNamespaces(false);
+
+}
+
+void XmlConfigReader::swap(XmlConfigReader & obj){
+ 
+  std::swap(kTagHw          , obj.kTagHw);
+  std::swap(kTagAlgo        , obj.kTagAlgo);
+  std::swap(kTagRunSettings , obj.kTagRunSettings);
+  std::swap(kTagDb          , obj.kTagDb);
+  std::swap(kTagKey         , obj.kTagKey);
+  std::swap(kTagLoad        , obj.kTagLoad);
+  std::swap(kTagContext     , obj.kTagContext);
+  std::swap(kTagParam       , obj.kTagParam);
+  std::swap(kTagMask        , obj.kTagMask);
+  std::swap(kTagDisable     , obj.kTagDisable);
+  std::swap(kTagExclBoards  , obj.kTagExclBoards);
+  std::swap(kTagExclude     , obj.kTagExclude);
+  std::swap(kTagColumns     , obj.kTagColumns);
+  std::swap(kTagTypes       , obj.kTagTypes);
+  std::swap(kTagRow         , obj.kTagRow);
+  std::swap(kTagProcessor   , obj.kTagProcessor);
+  std::swap(kTagRole        , obj.kTagRole);
+  std::swap(kTagCrate       , obj.kTagCrate);
+  std::swap(kTagSlot        , obj.kTagSlot);
+  std::swap(kTagDaqTtc      , obj.kTagDaqTtc);
+  std::swap(kAttrId         , obj.kAttrId);
+  std::swap(kAttrType       , obj.kAttrType);
+  std::swap(kAttrDelim      , obj.kAttrDelim);
+  std::swap(kAttrModule     , obj.kAttrModule);
+  std::swap(parser_         , obj.parser_);
+  std::swap(doc_            , obj.doc_);
+
+}
+
+XmlConfigReader &  XmlConfigReader::operator= (XmlConfigReader obj) {
+
+  swap(obj); 
+
+
+  return *this;
+
+}
+
 
 void XmlConfigReader::readDOMFromString(const std::string& str, DOMDocument*& doc)
 {

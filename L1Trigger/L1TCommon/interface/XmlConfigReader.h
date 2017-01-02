@@ -53,6 +53,13 @@ class XmlConfigReader {
   XmlConfigReader();
   XmlConfigReader(xercesc::DOMDocument* doc);
   ~XmlConfigReader();
+
+  XmlConfigReader(const XmlConfigReader &obj);
+
+  // assignment operator not needed, but provided respecting Rule of Three.
+  XmlConfigReader & operator= (XmlConfigReader obj);
+  void swap(XmlConfigReader &obj);
+
   void readDOMFromString(const std::string& str, xercesc::DOMDocument*& doc);
   void readDOMFromString(const std::string& str);
   void readDOMFromFile(const std::string& fName, xercesc::DOMDocument*& doc);

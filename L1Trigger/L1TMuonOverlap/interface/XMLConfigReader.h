@@ -30,6 +30,13 @@ class XMLConfigReader{
   XMLConfigReader();
   ~XMLConfigReader();
 
+  XMLConfigReader(const XMLConfigReader &obj);
+
+  // assignment operator not needed, but provided respecting Rule of Three.
+  XMLConfigReader & operator= (XMLConfigReader obj);
+  void swap(XMLConfigReader &obj);
+
+
   void readConfig(const std::string fName);
 
   void setConfigFile(const std::string & fName) {configFile = fName;}
