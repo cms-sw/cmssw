@@ -29,6 +29,10 @@ process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService
         initialSeed = cms.untracked.uint32(84)
     ),
     t5 = cms.PSet(
+        engineName = cms.untracked.string('XorShift128Plus'),
+        initialSeedSet = cms.untracked.vuint32(454, 232, 535, 989)       
+    ),
+    t6 = cms.PSet(
         initialSeed = cms.untracked.uint32(191),
         engineName = cms.untracked.string('TRandom3')
     ),
@@ -56,6 +60,7 @@ process.t1 = cms.EDAnalyzer("TestRandomNumberServiceAnalyzer")
 process.t2 = cms.EDAnalyzer("TestRandomNumberServiceAnalyzer")
 process.t3 = cms.EDAnalyzer("TestRandomNumberServiceAnalyzer")
 process.t4 = cms.EDAnalyzer("TestRandomNumberServiceAnalyzer")
+process.t5 = cms.EDAnalyzer("TestRandomNumberServiceAnalyzer")
 
 process.randomEngineStateProducer = cms.EDProducer("RandomEngineStateProducer")
 
@@ -63,5 +68,5 @@ process.out = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string('testMultiProcess.root')
 )
 
-process.p = cms.Path(process.t1+process.t2+process.t3+process.t4+process.randomEngineStateProducer)
+process.p = cms.Path(process.t1+process.t2+process.t3+process.t4+process.t5+process.randomEngineStateProducer)
 process.o = cms.EndPath(process.out)

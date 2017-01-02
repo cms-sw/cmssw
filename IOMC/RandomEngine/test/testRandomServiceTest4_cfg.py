@@ -36,6 +36,10 @@ process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService
         initialSeed = cms.untracked.uint32(7)
     ),
     t5 = cms.PSet(
+        engineName = cms.untracked.string('XorShift128Plus'),
+        initialSeedSet = cms.untracked.vuint32(7, 8, 9, 10)
+    ),
+    t6 = cms.PSet(
         initialSeed = cms.untracked.uint32(7),
         engineName = cms.untracked.string('TRandom3')
     ),
@@ -47,6 +51,7 @@ process.t1 = cms.EDAnalyzer("TestRandomNumberServiceAnalyzer")
 process.t2 = cms.EDAnalyzer("TestRandomNumberServiceAnalyzer")
 process.t3 = cms.EDAnalyzer("TestRandomNumberServiceAnalyzer")
 process.t4 = cms.EDAnalyzer("TestRandomNumberServiceAnalyzer")
+process.t5 = cms.EDAnalyzer("TestRandomNumberServiceAnalyzer")
 
-process.p = cms.Path(process.t1+process.t2+process.t3+process.t4)
+process.p = cms.Path(process.t1+process.t2+process.t3+process.t4+process.t5)
 process.o = cms.EndPath(process.out)

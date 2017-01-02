@@ -279,6 +279,7 @@ namespace edm {
       static const std::uint32_t maxSeedRanecu;
       static const std::uint32_t maxSeedHepJames;
       static const std::uint32_t maxSeedTRandom3;
+      static const std::uint32_t maxSeedXorShift128Plus;
     };
   }
 }

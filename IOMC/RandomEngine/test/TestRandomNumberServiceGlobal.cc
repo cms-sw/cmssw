@@ -72,6 +72,7 @@ the text file containing the states.
 #include "CLHEP/Random/engineIDulong.h"
 #include "CLHEP/Random/JamesRandom.h"
 #include "CLHEP/Random/RanecuEngine.h"
+#include "IOMC/RandomEngine/src/XorShift128PlusAdaptor.h"
 
 #include <fstream>
 #include <iostream>
@@ -83,6 +84,7 @@ the text file containing the states.
 
 namespace {
   std::mutex write_mutex;
+  constexpr uint32_t maxSeedXorShift128Plus = std::numeric_limits<uint32_t>::max();
 }
 
 class TestRandomNumberServiceStreamCache {
@@ -243,7 +245,7 @@ TestRandomNumberServiceGlobal::analyze(edm::StreamID streamID, edm::Event const&
        randomNumberEvent2_ != cache->referenceRandomNumbers_.at(2 + 4 * (cache->countEvents_ + skippedEvents_.at(cache->countEvents_))) ||
        randomNumberEvent3_ != cache->referenceRandomNumbers_.at(3 + 4 * (cache->countEvents_ + skippedEvents_.at(cache->countEvents_)))) {
         throw cms::Exception("TestRandomNumberService")
-          << "TestRandomNumberServiceGlobal::analyze: Random sequence does not match expected sequence";
+          << "TestRandomNumberServiceGlobal::analyze: Random sequence does not match expected sequence (skipped)";
       }
     }
   }
@@ -342,10 +344,27 @@ TestRandomNumberServiceGlobal::globalBeginLuminosityBlock(edm::LuminosityBlock c
   }
 
   if(engineName_ == "RanecuEngine") {
-    lumiCache->referenceEngine_ = std::shared_ptr<CLHEP::HepRandomEngine>(new CLHEP::RanecuEngine()); // propagate_const<T> has no reset() function
+    lumiCache->referenceEngine_ = std::shared_ptr<CLHEP::HepRandomEngine>(new CLHEP::RanecuEngine()); // propagate_const<T> has no reset() functions
     long int seedL[2];
     seedL[0] = static_cast<long int>(seed0);
     seedL[1] = static_cast<long int>(seeds_.at(1));
+    lumiCache->referenceEngine_->setSeeds(seedL,0);
+  }
+  else if ( engineName_ == "XorShift128Plus") {
+    lumiCache->referenceEngine_ = std::shared_ptr<CLHEP::HepRandomEngine>(new edm::XorShift128PlusAdaptor()); // propagate_const<T> has no reset() function
+    long int seedL[4];
+    std::uint32_t seed0 = seeds_[0];
+    if( (maxSeedXorShift128Plus - seed0) >= nStreams_ ) {
+      seed0 += nStreams_;
+    } else {
+      seed0 = nStreams_ - (maxSeedXorShift128Plus - seed0) - 1U;
+    }    
+    if(lumi.luminosityBlockAuxiliary().luminosityBlock() < seedByLumi_.size()) {
+      seed0 = seedByLumi_.at(lumi.luminosityBlockAuxiliary().luminosityBlock());
+    }
+    for( unsigned i = 0; i < seeds_.size(); ++i ) {
+      seedL[i] = static_cast<long int>(i == 0 ? seed0 : seeds_.at(i));
+    }
     lumiCache->referenceEngine_->setSeeds(seedL,0);
   }
   else {
@@ -364,10 +383,13 @@ TestRandomNumberServiceGlobal::globalBeginLuminosityBlock(edm::LuminosityBlock c
   edm::Service<edm::RandomNumberGenerator> rng;
   CLHEP::HepRandomEngine& engine = rng->getEngine(lumi.index());
 
-  if(engine.flat() != lumiCache->referenceRandomNumbers_.at(0) ||
-     engine.flat() != lumiCache->referenceRandomNumbers_.at(1)) {
+  const auto flat1 = engine.flat();
+  const auto flat2 = engine.flat();
+
+  if(flat1 != lumiCache->referenceRandomNumbers_.at(0) ||
+     flat2 != lumiCache->referenceRandomNumbers_.at(1)) {
     throw cms::Exception("TestRandomNumberService")
-      << "TestRandomNumberServiceGlobal::globalBeginLuminosityBlock: Random sequence does not match expected sequence";
+      << "TestRandomNumberServiceGlobal::globalBeginLuminosityBlock: Random sequence does not match expected sequence (flat)";
   }
 
   return lumiCache;
@@ -398,6 +420,26 @@ TestRandomNumberServiceGlobal::beginStream(edm::StreamID streamID) const {
     long int seedL[2];
     seedL[0] = static_cast<long int>(seeds_.at(0) + streamID.value() + offset_);
     seedL[1] = static_cast<long int>(seeds_.at(1));
+    streamCache->referenceEngine_->setSeeds(seedL,0);
+  }
+  else if ( engineName_ == "XorShift128Plus") {
+    streamCache->referenceEngine_ = std::shared_ptr<CLHEP::HepRandomEngine>(new edm::XorShift128PlusAdaptor()); // propagate_const<T> has no reset() function
+    long int seedL[4];
+    std::uint32_t offset1 = streamID.value(), offset2 = offset_;
+    std::uint32_t seed0 = seeds_[0];
+    if( (maxSeedXorShift128Plus - seed0) >= offset1 ) {
+      seed0 += offset1;
+    } else {
+      seed0 = offset1 - (maxSeedXorShift128Plus - seed0) - 1U;
+    }
+    if((maxSeedXorShift128Plus - seed0) >= offset2) {
+      seed0 += offset2;
+    } else {
+      seed0 = offset2 - (maxSeedXorShift128Plus - seed0) - 1U;
+    }        
+    for( unsigned i = 0; i < seeds_.size(); ++i ) {
+      seedL[i] = static_cast<long int>(i == 0 ? seed0 : seeds_[i]);
+    }
     streamCache->referenceEngine_->setSeeds(seedL,0);
   }
   else {
