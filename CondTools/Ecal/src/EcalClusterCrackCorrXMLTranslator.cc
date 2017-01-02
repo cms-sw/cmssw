@@ -6,6 +6,7 @@
 #include <xercesc/dom/DOM.hpp>
 #include <xercesc/parsers/XercesDOMParser.hpp>
 #include "FWCore/Concurrency/interface/Xerces.h"
+#include "Utilities/Xerces/interface/XercesStrUtils.h"
 #include <xercesc/util/XMLString.hpp>
 #include <xercesc/sax/SAXException.hpp>
 #include <xercesc/framework/LocalFileFormatTarget.hpp>
@@ -55,21 +56,19 @@ EcalClusterCrackCorrXMLTranslator::readXML(
 std::string 
 EcalClusterCrackCorrXMLTranslator::dumpXML(       
 		       const EcalCondHeader&   header,
-		       const EcalFunParams& record){
+		       const EcalFunParams& record) {
   
-  cms::concurrency::xercesInitialize();
-  
-  unique_ptr<DOMImplementation> impl( DOMImplementationRegistry::getDOMImplementation(fromNative("LS").c_str()));
+  unique_ptr<DOMImplementation> impl( DOMImplementationRegistry::getDOMImplementation( cms::xerces::uStr("LS").ptr()));
   
   DOMLSSerializer* writer = impl->createLSSerializer();
   if( writer->getDomConfig()->canSetParameter( XMLUni::fgDOMWRTFormatPrettyPrint, true ))
     writer->getDomConfig()->setParameter( XMLUni::fgDOMWRTFormatPrettyPrint, true );
   
   DOMDocumentType* doctype = 
-    impl->createDocumentType( fromNative("XML").c_str(), 0, 0 );
+    impl->createDocumentType( cms::xerces::uStr("XML").ptr(), 0, 0 );
   const  std::string EcalClusterCrackCorr_tag("EcalClusterCrackCorr");
   DOMDocument *    doc = 
-    impl->createDocument( 0, fromNative(EcalClusterCrackCorr_tag).c_str(), doctype );
+    impl->createDocument( 0, cms::xerces::uStr(EcalClusterCrackCorr_tag.c_str()).ptr(), doctype );
     
   DOMElement* root = doc->getDocumentElement();
   xuti::writeHeader(root, header);
@@ -86,14 +85,14 @@ EcalClusterCrackCorrXMLTranslator::dumpXML(
     s = out.str();
     std::string sw = ECCC_tag[side] + "_" + s;
     DOMElement* ECCC = 
-      root->getOwnerDocument()->createElement( fromNative(sw).c_str());
+      root->getOwnerDocument()->createElement( cms::xerces::uStr(sw.c_str()).ptr());
     root->appendChild(ECCC);
 
     WriteNodeWithValue(ECCC,Value_tag,*it);
     num++;
   } 
   
-  std::string dump = toNative(writer->writeToString( root )); 
+  std::string dump = cms::xerces::toString(writer->writeToString( root )); 
   doc->release();
   doctype->release();
   writer->release();
@@ -105,9 +104,14 @@ int
 EcalClusterCrackCorrXMLTranslator::writeXML(
                const std::string& filename,         
 	       const EcalCondHeader&   header,
-	       const EcalFunParams& record){
+	       const EcalFunParams& record) {
+
+  cms::concurrency::xercesInitialize();
 
   std::fstream fs(filename.c_str(),ios::out);
   fs<< dumpXML(header,record);
+
+  cms::concurrency::xercesTerminate();
+
   return 0;  
 }

@@ -10,13 +10,9 @@
 #ifndef __EcalClusterEnergyCorrectionObjectSpecificXMLTranslator_h_
 #define __EcalClusterEnergyCorrectionObjectSpecificXMLTranslator_h_
 
-#include "CondTools/Ecal/interface/XercesString.h"
 #include "CondTools/Ecal/interface/EcalCondHeader.h"
 #include "CondFormats/EcalObjects/interface/EcalFunctionParameters.h"
-#include <xercesc/dom/DOMNode.hpp>
 #include <string>
-#include <vector>
-
 
 class EcalClusterEnergyCorrectionObjectSpecificXMLTranslator {
 
@@ -29,11 +25,10 @@ public:
   static int writeXML (const std::string& filename, 
 		       const EcalCondHeader& header,
 		       const EcalFunParams& record);
-  
+ private:
   // dump the CMSSW object container to XML
   static std::string dumpXML(const EcalCondHeader& header,
 			     const EcalFunParams& record);
-
 };
 
 
