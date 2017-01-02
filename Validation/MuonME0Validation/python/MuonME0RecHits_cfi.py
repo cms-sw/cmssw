@@ -7,10 +7,10 @@ me0RecHitsValidation = cms.EDAnalyzer('ME0RecHitsValidation',
     recHitInputLabel = cms.InputTag("me0RecHits"),
     segmentInputLabel = cms.InputTag("me0Segments"),
     # st1, st2_short, st2_long of xbin, st1,st2_short,st2_long of ybin
-    nBinGlobalZR = cms.untracked.vdouble(80,120),
+    nBinGlobalZR = cms.untracked.vdouble(30,100),
     # st1 xmin, xmax, st2_short xmin, xmax, st2_long xmin, xmax, st1 ymin, ymax...
-    RangeGlobalZR = cms.untracked.vdouble(515,555,20,160),
-    nBinGlobalXY = cms.untracked.int32(360),
+    RangeGlobalZR = cms.untracked.vdouble(525,555,60,160),
+    nBinGlobalXY = cms.untracked.int32(160),
 )
 
 me0SegmentsValidation = cms.EDAnalyzer('ME0SegmentsValidation',
@@ -26,10 +26,10 @@ me0SegmentsValidation = cms.EDAnalyzer('ME0SegmentsValidation',
     pt_min = cms.double(0.0),
     isMuonGun = cms.bool(True),
     # st1, st2_short, st2_long of xbin, st1,st2_short,st2_long of ybin
-    nBinGlobalZR = cms.untracked.vdouble(80,120),
+    nBinGlobalZR = cms.untracked.vdouble(30,100),
     # st1 xmin, xmax, st2_short xmin, xmax, st2_long xmin, xmax, st1 ymin, ymax...
-    RangeGlobalZR = cms.untracked.vdouble(515,555,20,160),
-    nBinGlobalXY = cms.untracked.int32(360),
+    RangeGlobalZR = cms.untracked.vdouble(525,555,60,160),
+    nBinGlobalXY = cms.untracked.int32(160),
 )
 
 
