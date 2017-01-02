@@ -27,6 +27,7 @@ Implementation:
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/FEDRawData/interface/FEDHeader.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
+#include "EventFilter/FEDInterface/interface/FED1024.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 //
@@ -37,7 +38,8 @@ HLTL1NumberFilter::HLTL1NumberFilter(const edm::ParameterSet& config) :
   inputToken_( consumes<FEDRawDataCollection>(config.getParameter<edm::InputTag>("rawInput")) ),
   period_( config.getParameter<unsigned int>("period") ),
   fedId_(  config.getParameter<int>("fedId") ),
-  invert_( config.getParameter<bool>("invert") )
+  invert_( config.getParameter<bool>("invert") ),
+  useFED1024L1Count_( config.getParameter<bool>("useFED1024L1Count") ) 
 {
 }
 
@@ -56,6 +58,7 @@ HLTL1NumberFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions
   desc.add<unsigned int>("period",4096);
   desc.add<bool>("invert",true);
   desc.add<int>("fedId",812);
+  desc.add<bool>("useFED1024L1Count",false);
   descriptions.add("hltL1NumberFilter",desc);
 }
 //
@@ -74,8 +77,18 @@ HLTL1NumberFilter::filter(edm::StreamID, edm::Event& iEvent, const edm::EventSet
     iEvent.getByToken(inputToken_,theRaw) ;
     const FEDRawData& data = theRaw->FEDData(fedId_) ;
     if (data.data() && data.size() > 0){
-      FEDHeader header(data.data()) ;
-      if (period_!=0) accept = ( ( (header.lvl1ID())%period_ ) == 0 );
+
+      int64_t l1count;
+      if (useFED1024L1Count_) {
+	evf::evtn::TCDSRecord record((unsigned char *)data.data());
+	l1count = record.getHeader().getData().header.triggerCount;
+      }
+      else {
+	FEDHeader header(data.data()) ;
+	l1count = header.lvl1ID();
+      }
+
+      if (period_!=0) accept = ( ( l1count%period_ ) == 0 );
       if (invert_) accept = !accept;
       return accept;
     } else{
