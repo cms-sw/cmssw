@@ -78,8 +78,7 @@ BoostedTauSeedsProducer::BoostedTauSeedsProducer(const edm::ParameterSet& cfg)
 namespace
 {
   typedef std::vector<std::unordered_set<uint32_t> > JetToConstitMap;
-  constexpr double dR2Match = 1.0e-8;
-
+  
   reco::PFJet convertToPFJet(const reco::Jet& jet, const reco::Jet::Constituents& jetConstituents)
   {    
     // CV: code for filling pfJetSpecific objects taken from
@@ -162,9 +161,9 @@ namespace
     }
   }
 
-  std::vector<reco::PFCandidateRef> getPFCandidates_exclJetConstituents(const reco::Jet& jet, const edm::Handle<reco::PFCandidateCollection>& pfCandidates, const JetToConstitMap::value_type& constitmap, const reco::Jet::Constituents& jetConstituents, double dRmatch, bool invert)
+  std::vector<reco::PFCandidateRef> getPFCandidates_exclJetConstituents(const reco::Jet& jet, const edm::Handle<reco::PFCandidateCollection>& pfCandidates, const JetToConstitMap::value_type& constitmap, const reco::Jet::Constituents& jetConstituents, double /*dRmatch*/, bool invert)
   { 
-    const double dRmatch2 = dRmatch*dRmatch;
+    //const double dRmatch2 = dRmatch*dRmatch; // comment out for now in case someone needs a dR-based search again
     auto const & collection_cand = (*pfCandidates);
     std::vector<reco::PFCandidateRef> pfCandidates_exclJetConstituents;
     size_t numPFCandidates = pfCandidates->size();
