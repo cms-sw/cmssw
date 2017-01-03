@@ -1,3 +1,4 @@
+
 import FWCore.ParameterSet.Config as cms
 
 readFiles = cms.untracked.vstring()
@@ -9,16 +10,18 @@ source = cms.Source ("PoolSource",
                      skipEvents = cms.untracked.uint32(0),
                      )
 readFiles.extend( [
-'/store/relval/CMSSW_7_6_0_pre2/RelValQCD_Pt_3000_3500_13/GEN-SIM-DIGI-RAW-HLTDEBUG/75X_mcRun2_asymptotic_v2-v1/00000/06D2F696-B336-E511-A10D-0025905964BE.root',
-'/store/relval/CMSSW_7_6_0_pre2/RelValQCD_Pt_3000_3500_13/GEN-SIM-DIGI-RAW-HLTDEBUG/75X_mcRun2_asymptotic_v2-v1/00000/4270DF62-B136-E511-8127-0026189438BF.root',
-'/store/relval/CMSSW_7_6_0_pre2/RelValQCD_Pt_3000_3500_13/GEN-SIM-DIGI-RAW-HLTDEBUG/75X_mcRun2_asymptotic_v2-v1/00000/B099AF99-B336-E511-90DC-0025905938D4.root',
-'/store/relval/CMSSW_7_6_0_pre2/RelValQCD_Pt_3000_3500_13/GEN-SIM-DIGI-RAW-HLTDEBUG/75X_mcRun2_asymptotic_v2-v1/00000/B6BE6E09-B936-E511-8B8C-00261894395C.root',
-'/store/relval/CMSSW_7_6_0_pre2/RelValQCD_Pt_3000_3500_13/GEN-SIM-DIGI-RAW-HLTDEBUG/75X_mcRun2_asymptotic_v2-v1/00000/C8C7DCF2-AF36-E511-A978-00261894397B.root',
-'/store/relval/CMSSW_7_6_0_pre2/RelValQCD_Pt_3000_3500_13/GEN-SIM-DIGI-RAW-HLTDEBUG/75X_mcRun2_asymptotic_v2-v1/00000/D8974F6E-B936-E511-895D-00261894387C.root',
-'/store/relval/CMSSW_7_6_0_pre2/RelValQCD_Pt_3000_3500_13/GEN-SIM-DIGI-RAW-HLTDEBUG/75X_mcRun2_asymptotic_v2-v1/00000/E8C61CCF-B036-E511-962E-0025905A6094.root',
-'/store/relval/CMSSW_7_6_0_pre2/RelValQCD_Pt_3000_3500_13/GEN-SIM-DIGI-RAW-HLTDEBUG/75X_mcRun2_asymptotic_v2-v1/00000/F40D56A9-B836-E511-8513-0025905A60C6.root' ] );
+'/store/relval/CMSSW_9_0_0_pre2/RelValQCD_Pt_3000_3500_13/GEN-SIM-DIGI-RAW-HLTDEBUG/90X_mcRun2_asymptotic_v0-v1/10000/00242170-3BC2-E611-AC9F-0CC47A7C3628.root',
+'/store/relval/CMSSW_9_0_0_pre2/RelValQCD_Pt_3000_3500_13/GEN-SIM-DIGI-RAW-HLTDEBUG/90X_mcRun2_asymptotic_v0-v1/10000/1EF62F8F-3BC2-E611-B465-0CC47A78A440.root',
+'/store/relval/CMSSW_9_0_0_pre2/RelValQCD_Pt_3000_3500_13/GEN-SIM-DIGI-RAW-HLTDEBUG/90X_mcRun2_asymptotic_v0-v1/10000/24E6DCFB-62C2-E611-929B-0CC47A7C35E0.root',
+'/store/relval/CMSSW_9_0_0_pre2/RelValQCD_Pt_3000_3500_13/GEN-SIM-DIGI-RAW-HLTDEBUG/90X_mcRun2_asymptotic_v0-v1/10000/2A105509-62C2-E611-B1BC-0CC47A7C3430.root',
+'/store/relval/CMSSW_9_0_0_pre2/RelValQCD_Pt_3000_3500_13/GEN-SIM-DIGI-RAW-HLTDEBUG/90X_mcRun2_asymptotic_v0-v1/10000/38366875-3BC2-E611-86EA-0CC47A7C356A.root',
+'/store/relval/CMSSW_9_0_0_pre2/RelValQCD_Pt_3000_3500_13/GEN-SIM-DIGI-RAW-HLTDEBUG/90X_mcRun2_asymptotic_v0-v1/10000/6E9E6877-3BC2-E611-B5BC-0025905A60D0.root',
+'/store/relval/CMSSW_9_0_0_pre2/RelValQCD_Pt_3000_3500_13/GEN-SIM-DIGI-RAW-HLTDEBUG/90X_mcRun2_asymptotic_v0-v1/10000/DC4B89FA-62C2-E611-BEA8-0025905A6060.root',
+'/store/relval/CMSSW_9_0_0_pre2/RelValQCD_Pt_3000_3500_13/GEN-SIM-DIGI-RAW-HLTDEBUG/90X_mcRun2_asymptotic_v0-v1/10000/EEB73D90-3BC2-E611-B0A4-0025905A60FE.root' ] );
 
-process = cms.Process("makeNtuples")
+from Configuration.StandardSequences.Eras import eras
+
+process = cms.Process('makeNtuples',eras.Run2_2016)
 
 # import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')
@@ -30,6 +33,7 @@ process.load('Configuration.StandardSequences.MagneticField_38T_PostLS1_cff')
 process.load('Configuration.StandardSequences.RawToDigi_cff')
 process.load('Configuration.StandardSequences.Reconstruction_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
+process.load('RecoTracker.TkSeedGenerator.trackerClusterCheck_cfi')
 process.load('RecoTracker.MeasurementDet.MeasurementTrackerEventProducer_cfi')
 process.load("RecoTracker.TrackProducer.TrackRefitters_cff")
 process.load("RecoPixelVertexing.Configuration.RecoPixelVertexing_cff")
@@ -86,6 +90,7 @@ else:
 
 process.p1 = cms.Path(
     process.raw2digi_step
+    *process.bunchSpacingProducer
     *process.trackerlocalreco
     *process.offlineBeamSpot
     *process.MeasurementTrackerEventPreSplitting
@@ -93,6 +98,7 @@ process.p1 = cms.Path(
     *process.trackerlocalreco
     *process.calolocalreco
     *process.InitialStepPreSplitting
+    *process.trackerClusterCheck
     *process.InitialStep
     *process.firstStepPrimaryVertices
     *process.StripClusterMCanalysis
