@@ -69,3 +69,10 @@ bool BPHMultiSelect<BPHVertexSelect  >::accept(
   return select( cand );
 }
 
+
+template<>
+bool BPHMultiSelect<BPHFitSelect     >::accept(
+                                        const BPHKinematicFit & cand ) const {
+  return select( cand );
+}
+
