@@ -139,6 +139,16 @@ reco::TransientTrack* BPHDecayVertex::getTransientTrack(
 }
 
 
+const string& BPHDecayVertex::getTrackSearchList(
+                              const reco::Candidate* cand ) const {
+  static string dum = "";
+  map<const reco::Candidate*,string>::const_iterator iter = 
+                                                     searchMap.find( cand );
+  if ( iter != searchMap.end() ) return iter->second;
+  return dum;
+}
+
+
 void BPHDecayVertex::addV( const string& name,
                            const reco::Candidate* daug, 
                            const string& searchList,
