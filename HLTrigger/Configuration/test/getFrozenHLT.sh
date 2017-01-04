@@ -1,10 +1,9 @@
 #! /bin/bash
 
 # ConfDB configurations to use
-TABLES="Fake Fake1 25ns15e33_v4"
+TABLES="Fake Fake1"
 HLT_Fake="/dev/CMSSW_9_0_0/Fake"
 HLT_Fake1="/dev/CMSSW_9_0_0/Fake1"
-HLT_25ns15e33_v4="/frozen/2016/25ns15e33/v4.0/HLT"
 
 # print extra messages ?
 VERBOSE=false
