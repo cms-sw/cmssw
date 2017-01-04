@@ -1,4 +1,4 @@
-<library   file="*.cc" name="HLTriggerJetMETPlugins">
+<library   file="*.cc" name="HLTriggerJetMETPlugins">  
   <use   name="DataFormats/Common"/>
   <use   name="DataFormats/HLTReco"/>
   <use   name="DataFormats/HcalRecHit"/>
@@ -15,6 +15,7 @@
   <use   name="FWCore/Utilities"/>
   <use   name="RecoMET/METAlgorithms"/>
   <use   name="HLTrigger/HLTcore"/>
+  <use   name="HLTrigger/JetMET"/>
   <use   name="RecoJets/JetProducers"/>
   <use   name="TrackingTools/IPTools"/>
   <use   name="TrackingTools/TransientTrack"/>
