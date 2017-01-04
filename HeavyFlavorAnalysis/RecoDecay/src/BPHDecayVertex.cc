@@ -95,7 +95,7 @@ bool BPHDecayVertex::validTracks() const {
 
 bool BPHDecayVertex::validVertex() const {
   if ( oldVertex ) fitVertex();
-  return fittedVertex.isValid();
+  return validTks && fittedVertex.isValid();
 }
 
 
@@ -144,7 +144,7 @@ void BPHDecayVertex::addV( const string& name,
                            const string& searchList,
                            double mass ) {
   addP( name, daug, mass );
-  searchMap[daug] = searchList;
+  searchMap[daughters().back()] = searchList;
   return;
 }
 
