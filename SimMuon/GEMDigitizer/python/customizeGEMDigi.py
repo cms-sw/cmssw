@@ -123,9 +123,13 @@ def load_ME0_digitizers(process):
 
 # customize the full digitization sequence pdigi by adding GEMs
 def customize_digi_addGEM(process):
+    process = load_GEM_digitizers(process)
     process = customize_random_GEMDigi(process)
     process = customize_mix_addGEM(process)
-    process.doAllDigi = cms.Sequence(process.trDigi + process.calDigi + process.muonDigi)
+    process.doAllDigi = cms.Sequence(
+        process.calDigi + 
+        process.muonDigi
+    )
     process.pdigi = cms.Sequence(
         cms.SequencePlaceholder("randomEngineStateProducer")*
         cms.SequencePlaceholder("mix")*
@@ -138,9 +142,16 @@ def customize_digi_addGEM(process):
 
 # customize the digitization sequence pdigi to only digitize DT+CSC+RPC+GEM
 def customize_digi_addGEM_muon_only(process):
+    process = load_GEM_digitizers(process)
     process = customize_random_GEMDigi(process)
     process = customize_mix_addGEM_muon_only(process)
-    process.muonDigi = cms.Sequence(process.simMuonCSCDigis + process.simMuonDTDigis + process.simMuonRPCDigis + process.simMuonGEMDigis + process.simMuonGEMPadDigis)
+    process.muonDigi = cms.Sequence(
+        process.simMuonCSCDigis + 
+        process.simMuonDTDigis + 
+        process.simMuonRPCDigis + 
+        process.simMuonGEMDigis + 
+        process.simMuonGEMPadDigis
+    )
     process.pdigi = cms.Sequence(
         cms.SequencePlaceholder("randomEngineStateProducer")*
         cms.SequencePlaceholder("mix")*
@@ -152,6 +163,7 @@ def customize_digi_addGEM_muon_only(process):
 
 # customize the digitization sequence pdigi to only digitize GEM
 def customize_digi_addGEM_gem_only(process):
+    process = load_GEM_digitizers(process)
     process = customize_random_GEMDigi(process)
     process = customize_mix_addGEM_muon_only(process)
     process.pdigi = cms.Sequence(
