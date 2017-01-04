@@ -122,7 +122,8 @@ vector<BPHPlusMinusConstCandPtr> BPHOniaToMuMuBuilder::getList(
                                  oniaType type,
                                  BPHRecoSelect    * dSel,
                                  BPHMomentumSelect* mSel,
-                                 BPHVertexSelect  * vSel ) {
+                                 BPHVertexSelect  * vSel,
+                                 BPHFitSelect     * kSel ) {
   extractList( type );
   vector<BPHPlusMinusConstCandPtr>& list = oniaList[type];
   int i;
@@ -139,6 +140,7 @@ vector<BPHPlusMinusConstCandPtr> BPHOniaToMuMuBuilder::getList(
     if ( ( dSel != 0 ) && ( !dSel->accept( *muNeg ) ) ) continue;
     if ( ( mSel != 0 ) && ( !mSel->accept( *ptr   ) ) ) continue;
     if ( ( vSel != 0 ) && ( !vSel->accept( *ptr   ) ) ) continue;
+    if ( ( kSel != 0 ) && ( !kSel->accept( *ptr   ) ) ) continue;
     lsub.push_back( list[i] );
   }
   return lsub;
