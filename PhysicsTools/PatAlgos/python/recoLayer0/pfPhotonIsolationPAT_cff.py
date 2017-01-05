@@ -8,3 +8,7 @@ pfPhotonIsolationPATSequence = cms.Sequence(
     photonPFIsolationValuesPATSequence
     )
 
+pfPhotonIsolationPATTask = cms.Task(
+    photonPFIsolationDepositsPATTask,
+    photonPFIsolationValuesPATTask
+    )

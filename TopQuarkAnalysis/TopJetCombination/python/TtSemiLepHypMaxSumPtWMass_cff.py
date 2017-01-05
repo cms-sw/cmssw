@@ -13,3 +13,7 @@ from TopQuarkAnalysis.TopJetCombination.TtSemiLepHypMaxSumPtWMass_cfi import *
 makeHypothesis_maxSumPtWMass = cms.Sequence(findTtSemiLepJetCombMaxSumPtWMass *
                                             ttSemiLepHypMaxSumPtWMass)
 
+ttSemiLepHypMaxSumPtWMassTask = cms.Task(
+    findTtSemiLepJetCombMaxSumPtWMass,
+    ttSemiLepHypMaxSumPtWMass
+)

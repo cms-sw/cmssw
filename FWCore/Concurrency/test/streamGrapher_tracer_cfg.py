@@ -17,10 +17,11 @@ process.legacy2 = cms.EDProducer("BusyWaitIntLegacyProducer", ivalue=cms.int32(-
 process.strt = cms.EDProducer("AddIntsProducer",
                               labels = cms.vstring("busy2","busy3","legacy2","b", "adder1"))
 
-process.p = cms.Path(process.strt)
+process.t = cms.Task(process.busy1, process.legacy1, process.adder1, process.busy2, process.busy3, process.legacy2)
 
-process.options = cms.untracked.PSet( allowUnscheduled = cms.untracked.bool(True),
-                                      numberOfStreams = cms.untracked.uint32(4),
+process.p = cms.Path(process.strt, process.t)
+
+process.options = cms.untracked.PSet( numberOfStreams = cms.untracked.uint32(4),
                                       numberOfThreads = cms.untracked.uint32(5))
 
 process.add_(cms.Service("Tracer", printTimestamps = cms.untracked.bool(True)))

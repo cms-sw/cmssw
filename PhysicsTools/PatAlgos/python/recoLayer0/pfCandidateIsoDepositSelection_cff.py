@@ -7,3 +7,14 @@ patPFCandidateIsoDepositSelection = cms.Sequence(
        pfNoPileUpIsoPFBRECOSequence +
        pfSortByTypePFBRECOSequence
        )
+
+pfCandidateIsoDepositSelectionTask = cms.Task(
+       pfPileUpIsoPFBRECO,
+       pfNoPileUpIsoPFBRECO,
+       pfAllNeutralHadronsPFBRECO,
+       pfAllChargedHadronsPFBRECO,
+       pfAllPhotonsPFBRECO,
+       pfAllChargedParticlesPFBRECO,
+       pfPileUpAllChargedParticlesPFBRECO,
+       pfAllNeutralHadronsAndPhotonsPFBRECO
+       )

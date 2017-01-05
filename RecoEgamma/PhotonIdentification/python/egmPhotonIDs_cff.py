@@ -14,3 +14,10 @@ from RecoEgamma.PhotonIdentification.PhotonRegressionValueMapProducer_cfi import
 # needs to be downstream from the ID ValueMapProducer because it relies 
 # on some of its products
 egmPhotonIDSequence = cms.Sequence(photonIDValueMapProducer * photonMVAValueMapProducer * egmPhotonIDs * photonRegressionValueMapProducer )
+
+egmPhotonIDsTask = cms.Task(
+    egmPhotonIDs,
+    photonIDValueMapProducer,
+    photonMVAValueMapProducer,
+    photonRegressionValueMapProducer
+)

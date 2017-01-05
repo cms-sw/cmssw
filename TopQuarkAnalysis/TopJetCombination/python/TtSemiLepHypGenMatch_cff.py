@@ -15,3 +15,7 @@ from TopQuarkAnalysis.TopJetCombination.TtSemiLepHypGenMatch_cfi import *
 makeHypothesis_genMatch = cms.Sequence(ttSemiLepJetPartonMatch *
                                        ttSemiLepHypGenMatch)
 
+ttSemiLepHypGenMatchTask = cms.Task(
+    ttSemiLepJetPartonMatch,
+    ttSemiLepHypGenMatch
+)

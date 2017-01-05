@@ -16,6 +16,10 @@ from TopQuarkAnalysis.TopEventProducers.producers.TtFullLepEvtBuilder_cfi import
                                   #ttFullLepEvent
                                   #)
 
+ttFullLepEvtBuilderTask = cms.Task(
+    ttFullLepEvtHypothesesTask,
+    ttFullLepEvent
+)
 
 ################################################################################
 ## helper functions

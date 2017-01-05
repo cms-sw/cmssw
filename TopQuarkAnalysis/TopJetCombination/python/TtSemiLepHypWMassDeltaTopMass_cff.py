@@ -12,3 +12,8 @@ from TopQuarkAnalysis.TopJetCombination.TtSemiLepHypWMassDeltaTopMass_cfi import
 ## make hypothesis
 makeHypothesis_wMassDeltaTopMass = cms.Sequence(findTtSemiLepJetCombWMassDeltaTopMass *
                                                 ttSemiLepHypWMassDeltaTopMass)
+
+ttSemiLepHypWMassDeltaTopMassTask = cms.Task(
+    findTtSemiLepJetCombWMassDeltaTopMass,
+    ttSemiLepHypWMassDeltaTopMass
+)

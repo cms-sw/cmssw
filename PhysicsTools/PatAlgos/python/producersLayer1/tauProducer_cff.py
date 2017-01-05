@@ -32,3 +32,14 @@ makePatTaus = cms.Sequence(
     # object production
     patTaus
 )
+
+tauProducerTask = cms.Task(
+    pfCandidateIsoDepositSelectionTask,
+    tauIsolationTask,
+    updateHPSPFTausTask,
+    tauGenJets,
+    tauGenJetsSelectorAllHadrons,
+    tauMatch,
+    tauGenJetMatch,
+    patTaus
+)

@@ -9,3 +9,8 @@ muonPFIsolationPATSequence =  cms.Sequence(
     muonPFIsolationDepositsPATSequence +
     muonPFIsolationValuesPATSequence
 )
+
+pfMuonIsolationPATTask = cms.Task(
+    muonPFIsolationDepositsPATTask,
+    muonPFIsolationValuesPATTask
+    )

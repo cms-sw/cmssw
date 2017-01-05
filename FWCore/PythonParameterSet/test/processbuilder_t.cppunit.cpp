@@ -141,8 +141,6 @@ void testProcessDesc:: attriggertest () {
   Strs tnames = trig_pset.getParameter<Strs>("@trigger_paths");
   Strs enames = (*test).getParameter<Strs>("@end_paths");
 
-  std::cerr << trig_pset.toString() << "\n";
-
   CPPUNIT_ASSERT(tnames[0]=="path1");
   CPPUNIT_ASSERT(enames[0]=="epath");
 
