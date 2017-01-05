@@ -79,3 +79,14 @@ correctionTermsPfMetType1Type2 = cms.Sequence(
     )
 
 ##____________________________________________________________________________||
+correctionTermsPfMetType1Type2Task = cms.Task(
+    jetCorrectorsTask,
+    pfNoJet,
+    pfJetsPtrForMetCorr,
+    particleFlowPtrs,
+    pfCandsNotInJetsPtrForMetCorr,
+    pfCandsNotInJetsForMetCorr,
+    corrPfMetType1,
+    pfCandMETcorr,
+    corrPfMetType2
+    )

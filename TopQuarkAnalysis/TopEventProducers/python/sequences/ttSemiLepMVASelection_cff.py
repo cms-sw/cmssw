@@ -9,3 +9,5 @@ from TopQuarkAnalysis.TopEventSelection.TtSemiLepSignalSelMVAComputer_cff import
 
 ## make mva discriminant for event selection
 makeTtSemiLepMVASelDiscriminant = cms.Sequence(findTtSemiLepSignalSelMVA)
+
+ttSemiLepMVASelectionTask = cms.Task(findTtSemiLepSignalSelMVA)

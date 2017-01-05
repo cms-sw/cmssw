@@ -65,3 +65,63 @@ from RecoBTag.SecondaryVertex.pfNegativeCombinedInclusiveSecondaryVertexV2BJetTa
 # Positive taggers
 from RecoBTag.SecondaryVertex.pfPositiveCombinedSecondaryVertexV2BJetTags_cfi import *
 from RecoBTag.SecondaryVertex.pfPositiveCombinedInclusiveSecondaryVertexV2BJetTags_cfi import *
+
+secondaryVertexTask = cms.Task(
+    secondaryVertexTagInfos,
+    simpleSecondaryVertexHighEffBJetTags,
+    simpleSecondaryVertexHighPurBJetTags,
+    combinedSecondaryVertexV2BJetTags,
+    ghostTrackVertexTagInfos,
+    ghostTrackBJetTags,
+
+    inclusiveSecondaryVertexFinderTagInfos,
+    combinedInclusiveSecondaryVertexV2BJetTags,
+    inclusiveSecondaryVerticesFiltered,
+    bToCharmDecayVertexMerged,
+    inclusiveSecondaryVertexFinderFilteredTagInfos,
+    simpleInclusiveSecondaryVertexHighEffBJetTags,
+    simpleInclusiveSecondaryVertexHighPurBJetTags,
+    doubleSecondaryVertexHighEffBJetTags,
+
+    secondaryVertexNegativeTagInfos,
+    inclusiveSecondaryVertexFinderNegativeTagInfos,
+    inclusiveSecondaryVertexFinderFilteredNegativeTagInfos,
+    negativeSimpleSecondaryVertexHighEffBJetTags,
+    negativeSimpleSecondaryVertexHighPurBJetTags,
+    negativeSimpleInclusiveSecondaryVertexHighEffBJetTags,
+    negativeSimpleInclusiveSecondaryVertexHighPurBJetTags,
+    negativeCombinedSecondaryVertexV2BJetTags,
+    negativeCombinedInclusiveSecondaryVertexV2BJetTags,
+
+    positiveCombinedSecondaryVertexV2BJetTags,
+    positiveCombinedInclusiveSecondaryVertexV2BJetTags,
+
+    pfSecondaryVertexTagInfos,
+    pfSimpleSecondaryVertexHighEffBJetTags,
+    pfSimpleSecondaryVertexHighPurBJetTags,
+    pfCombinedSecondaryVertexV2BJetTags,
+    pfInclusiveSecondaryVertexFinderTagInfos,
+    pfSimpleInclusiveSecondaryVertexHighEffBJetTags,
+    pfSimpleInclusiveSecondaryVertexHighPurBJetTags,
+    pfCombinedInclusiveSecondaryVertexV2BJetTags,
+    pfGhostTrackVertexTagInfos,
+    pfGhostTrackBJetTags,
+    pfInclusiveSecondaryVertexFinderAK8TagInfos,
+    pfBoostedDoubleSVAK8TagInfos,
+    pfBoostedDoubleSecondaryVertexAK8BJetTags,
+    pfInclusiveSecondaryVertexFinderCA15TagInfos,
+    pfBoostedDoubleSVCA15TagInfos,
+    pfBoostedDoubleSecondaryVertexCA15BJetTags,
+
+    pfSecondaryVertexNegativeTagInfos,
+    pfInclusiveSecondaryVertexFinderNegativeTagInfos,
+    pfNegativeSimpleSecondaryVertexHighEffBJetTags,
+    pfNegativeSimpleSecondaryVertexHighPurBJetTags,
+    pfNegativeCombinedSecondaryVertexV2BJetTags,
+    pfNegativeSimpleInclusiveSecondaryVertexHighEffBJetTags,
+    pfNegativeSimpleInclusiveSecondaryVertexHighPurBJetTags,
+    pfNegativeCombinedInclusiveSecondaryVertexV2BJetTags,
+
+    pfPositiveCombinedSecondaryVertexV2BJetTags,
+    pfPositiveCombinedInclusiveSecondaryVertexV2BJetTags
+)

@@ -5,4 +5,11 @@ from PhysicsTools.PatAlgos.selectionLayer1.selectedPatCandidates_cff import *
 from PhysicsTools.PatAlgos.slimming.slimming_cff import *
 from RecoLuminosity.LumiProducer.bunchSpacingProducer_cfi import *
 
+patTask = cms.Task(
+    patCandidatesTask,
+    selectedPatCandidatesTask,
+    slimmingTask,
+    bunchSpacingProducer
+)
+
 miniAOD=cms.Sequence()

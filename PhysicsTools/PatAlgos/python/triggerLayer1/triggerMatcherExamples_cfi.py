@@ -180,3 +180,19 @@ somePatMetTriggerMatchHLTMu17 = cms.EDProducer(
 , resolveAmbiguities    = cms.bool( True )        # only one match per trigger object
 , resolveByMatchQuality = cms.bool( True )        # take best match found per reco object: by DeltaR here (s. above)
 )
+
+triggerMatcherExamplesTask = cms.Task(
+    somePatMuonTriggerMatchHLTMu17,
+    somePatMuonTriggerMatchHLTDoubleMu5IsoMu5,
+    somePatPhotonTriggerMatchHLTPhoton26Photon18,
+    somePatElectronTriggerMatchHLTEle17CaloIdTCaloIsoVLTrkIdVLTrkIsoVL,
+    somePatTauTriggerMatchHLTDoubleMediumIsoPFTau30Trk1eta2p1,
+    somePatJetTriggerMatchHLTPFJet40,
+    somePatMetTriggerMatchHLTMET120,
+    somePatMuonTriggerMatchHLTMu8DiJet30,
+    somePatJetTriggerMatchHLTMu8DiJet30,
+    somePatElectronTriggerMatchL1EGammaCollection,
+    somePatMuonTriggerMatchTriggerMuon,
+    somePatMuonTriggerMatchPDSingleMu,
+    somePatMetTriggerMatchHLTMu17
+)

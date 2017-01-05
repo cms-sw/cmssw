@@ -55,3 +55,27 @@ phase2_hgcal.toReplaceWith( Flag_HBHENoiseFilter, cms.Path() )
 phase2_hgcal.toReplaceWith( Flag_HBHENoiseIsoFilter, cms.Path() )
 phase2_hgcal.toReplaceWith( Flag_eeBadScFilter, cms.Path() )
 
+metFilterPathsTask = cms.Task(
+    HBHENoiseFilterResultProducer,
+    HBHENoiseFilter,
+    HBHENoiseIsoFilter,
+    hcalLaserEventFilter,
+    EcalDeadCellTriggerPrimitiveFilter,
+    eeBadScFilter,
+    ecalLaserCorrFilter,
+    EcalDeadCellBoundaryEnergyFilter,
+    primaryVertexFilter,
+    CSCTightHaloFilter,
+    CSCTightHaloTrkMuUnvetoFilter,
+    CSCTightHalo2015Filter,
+    globalTightHalo2016Filter,
+    globalSuperTightHalo2016Filter,
+    HcalStripHaloFilter,
+    goodVertices,
+    trackingFailureFilter,
+    manystripclus53X,
+    toomanystripclus53X,
+    logErrorTooManyClusters,
+    chargedHadronTrackResolutionFilter,
+    muonBadTrackFilter
+)

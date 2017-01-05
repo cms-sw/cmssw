@@ -19,12 +19,12 @@ process.maxEvents = cms.untracked.PSet(
 
 ## configure process options
 process.options = cms.untracked.PSet(
-    allowUnscheduled = cms.untracked.bool(True),
     wantSummary      = cms.untracked.bool(True)
 )
 
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 process.load("TopQuarkAnalysis.TopEventProducers.producers.pseudoTop_cfi")
+process.task = cms.Task(process.pseudoTop)
 process.pseudoTop.genParticles = "genParticles"
 process.pseudoTop.finalStates = "genParticles"
 
@@ -35,4 +35,4 @@ process.printDecay = cms.EDAnalyzer("ParticleListDrawer",
 )
 
 ## path
-process.p = cms.Path(process.printDecay)
+process.p = cms.Path(process.printDecay, process.task)

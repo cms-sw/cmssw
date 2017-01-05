@@ -99,7 +99,7 @@ parser.add_option("--runsScenarioForMC",
                   dest="runsScenarioForMC")
 
 parser.add_option("--runUnscheduled",
-                  help="Enable unscheduled mode",
+                  help="Automatically convert configuration to run unscheduled the EDProducers/EDFilters that were scheduled",
                   action="store_true",
                   default=False,
                   dest="runUnscheduled")
