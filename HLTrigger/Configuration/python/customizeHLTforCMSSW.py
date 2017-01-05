@@ -154,10 +154,14 @@ def customiseFor16792(process):
 # CMSSW version specific customizations
 def customizeHLTforCMSSW(process, menuType="GRun"):
 
+#   only for non-development frozen menus
+
     import os
     cmsswVersion = os.environ['CMSSW_VERSION']
 
     if cmsswVersion >= "CMSSW_8_1":
+      if menuType == "25ns15e33_v4":
+        print "# Applying 81X customization for ",menuType
         process = customiseFor14356(process)
         process = customiseFor13753(process)
         process = customiseFor14833(process)
@@ -169,6 +173,7 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
         pass
 
     if cmsswVersion >= "CMSSW_9_0":
+        print "# Applying 90X customization for ",menuType
         process = customiseFor16792(process)
         pass
 
