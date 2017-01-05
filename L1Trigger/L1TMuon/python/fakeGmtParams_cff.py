@@ -22,7 +22,7 @@ gmtParams = cms.ESProducer('L1TMuonGlobalParamsESProducer',
     configFromXml = cms.bool(False),
 
     #fwVersion = cms.uint32(1),
-    fwVersion = cms.uint32(0x2020000),
+    fwVersion = cms.uint32(0x4000000),
 
     # uGMT inputs to disable
     # disabled inputs are not used in the algo but are still in the readout
@@ -50,9 +50,9 @@ gmtParams = cms.ESProducer('L1TMuonGlobalParamsESProducer',
     BONegMatchQualLUTPath        = cms.string(''),
     FOPosMatchQualLUTPath        = cms.string(''),
     FONegMatchQualLUTPath        = cms.string(''),
-    BPhiExtrapolationLUTPath     = cms.string(os.path.join(lut_dir, 'BPhiExtrapolation.txt')),
-    OPhiExtrapolationLUTPath     = cms.string(os.path.join(lut_dir, 'OPhiExtrapolation.txt')),
-    FPhiExtrapolationLUTPath     = cms.string(os.path.join(lut_dir, 'EPhiExtrapolation.txt')),
+    BPhiExtrapolationLUTPath     = cms.string(os.path.join(lut_dir, 'PhiExtrapolation.txt')),
+    OPhiExtrapolationLUTPath     = cms.string(os.path.join(lut_dir, 'PhiExtrapolation.txt')),
+    FPhiExtrapolationLUTPath     = cms.string(os.path.join(lut_dir, 'PhiExtrapolation.txt')),
     BEtaExtrapolationLUTPath     = cms.string(os.path.join(lut_dir, 'BEtaExtrapolation.txt')),
     OEtaExtrapolationLUTPath     = cms.string(os.path.join(lut_dir, 'OEtaExtrapolation.txt')),
     FEtaExtrapolationLUTPath     = cms.string(os.path.join(lut_dir, 'EEtaExtrapolation.txt')),
