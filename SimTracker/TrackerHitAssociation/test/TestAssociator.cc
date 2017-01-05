@@ -89,13 +89,13 @@ using namespace edm;
     edm::ESHandle<TrackerGeometry> pDD;
     es.get<TrackerDigiGeometryRecord> ().get (pDD);
     
+    //construct the associator object
+    TrackerHitAssociator  associate(e,trackerHitAssociatorConfig_);
+
     // loop over detunits
     for(TrackerGeometry::DetContainer::const_iterator it = pDD->dets().begin(); it != pDD->dets().end(); it++){
       uint32_t myid=((*it)->geographicalId()).rawId();       
       DetId detid = ((*it)->geographicalId());
-      
-      //construct the associator object
-      TrackerHitAssociator  associate(e,trackerHitAssociatorConfig_);
       
       if(myid!=999999999){ //if is valid detector
 
@@ -123,7 +123,9 @@ using namespace edm;
 	      cout << " PIX detector =  " << myid << " PIX Rechit = " << pixeliter->localPosition() << endl; 
 	      cout << " PIX matched = " << matched.size() << endl;
 	    for(vector<PSimHit>::const_iterator m=matched.begin(); m<matched.end(); m++){
-	      cout << " PIX hit  ID = " << (*m).trackId() << " PIX Simhit x = " << (*m).localPosition() << endl;
+	      // cout << " PIX hit  ID = " << (*m).trackId() << " PIX Simhit x = " << (*m).localPosition() << endl;
+	      cout << " PIX hit  ID = " << (*m).trackId() << " PIX Simhit x = " << (*m).localPosition()
+		   << ", |diff| = " << (pixeliter->localPosition() - (*m).localPosition()).mag() << endl;
 	    }
 	    }  
 	  }
