@@ -99,6 +99,7 @@ void Phase2TrackerMonitorDigi::fillITPixelDigiHistos(const edm::Handle<edm::DetS
   const edm::DetSetVector<PixelDigi>* digis = handle.product();
 
   const TrackerTopology* tTopo = tTopoHandle_.product();
+  const TrackerGeometry* tGeom = gHandle.product();  
 
   for (typename edm::DetSetVector<PixelDigi>::const_iterator DSViter = digis->begin(); DSViter != digis->end(); DSViter++) {
     unsigned int rawid = DSViter->id; 
@@ -112,8 +113,8 @@ void Phase2TrackerMonitorDigi::fillITPixelDigiHistos(const edm::Handle<edm::DetS
 
     if (DetId(detId).det() != DetId::Detector::Tracker) continue;
   
-    const GeomDetUnit* gDetUnit = gHandle->idToDetUnit(detId);
-    const GeomDet *geomDet = gHandle->idToDet(detId);
+    const GeomDetUnit* gDetUnit = tGeom->idToDetUnit(detId);
+    const GeomDet *geomDet = tGeom->idToDet(detId);
 
     const Phase2TrackerGeomDetUnit* tkDetUnit = dynamic_cast<const Phase2TrackerGeomDetUnit*>(gDetUnit);
     int nRows     = tkDetUnit->specificTopology().nrows();
@@ -191,6 +192,7 @@ void Phase2TrackerMonitorDigi::fillOTDigiHistos(const edm::Handle<edm::DetSetVec
   const edm::DetSetVector<Phase2TrackerDigi>* digis = handle.product();
 
   const TrackerTopology* tTopo = tTopoHandle_.product();
+  const TrackerGeometry* tGeom = gHandle.product();  
 
   for (typename edm::DetSetVector<Phase2TrackerDigi>::const_iterator DSViter = digis->begin(); DSViter != digis->end(); DSViter++) {
     unsigned int rawid = DSViter->id; 
@@ -205,8 +207,8 @@ void Phase2TrackerMonitorDigi::fillOTDigiHistos(const edm::Handle<edm::DetSetVec
     local_mes.nHitDetsPerLayer++;
     if (DetId(detId).det() != DetId::Detector::Tracker) continue;
   
-    const GeomDetUnit* gDetUnit = gHandle->idToDetUnit(detId);
-    const GeomDet *geomDet = gHandle->idToDet(detId);
+    const GeomDetUnit* gDetUnit = tGeom->idToDetUnit(detId);
+    const GeomDet *geomDet = tGeom->idToDet(detId);
 
     const Phase2TrackerGeomDetUnit* tkDetUnit = dynamic_cast<const Phase2TrackerGeomDetUnit*>(gDetUnit);
     int nRows     = tkDetUnit->specificTopology().nrows();
@@ -300,14 +302,14 @@ void Phase2TrackerMonitorDigi::bookHistograms(DQMStore::IBooker & ibooker,
   std::string top_folder = config_.getParameter<std::string>("TopFolderName");
   edm::ESWatcher<TrackerDigiGeometryRecord> theTkDigiGeomWatcher;
 
-  edm::ESHandle<TrackerTopology> tTopoHandle;
-  iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
-  const TrackerTopology* const tTopo = tTopoHandle.product();
+  iSetup.get<TrackerTopologyRcd>().get(tTopoHandle_);
+  const TrackerTopology* const tTopo = tTopoHandle_.product();
 
   if (theTkDigiGeomWatcher.check(iSetup)) {
     edm::ESHandle<TrackerGeometry> geom_handle;
     iSetup.get<TrackerDigiGeometryRecord>().get(geomType_, geom_handle);
-    for (auto const & det_u : geom_handle->detUnits()) {
+    const TrackerGeometry* tGeom = geom_handle.product();  
+    for (auto const & det_u : tGeom->detUnits()) {
       unsigned int detId_raw = det_u->geographicalId().rawId();
       bookLayerHistos(ibooker,detId_raw, tTopo); 
     }

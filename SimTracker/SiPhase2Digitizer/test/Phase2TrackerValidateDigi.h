@@ -94,9 +94,9 @@ private:
   float ptCut_;
 
   void bookLayerHistos(DQMStore::IBooker & ibooker, unsigned int det_id, const TrackerTopology* tTopo, bool flag); 
-  unsigned int getSimTrackId(edm::Handle<edm::DetSetVector<PixelDigiSimLink> >&, const DetId& detId, unsigned int& channel);
+  unsigned int getSimTrackId(const edm::DetSetVector<PixelDigiSimLink>* simLinks, const DetId& detId, unsigned int& channel);
   int matchedSimTrack(edm::Handle<edm::SimTrackContainer>& SimTk, unsigned int simTrkId);
-  int isPrimary(const SimTrack& simTrk, edm::Handle<edm::PSimHitContainer>& simHits);
+  int isPrimary(const SimTrack& simTrk, edm::Handle<edm::PSimHitContainer>& simHitHandle);
 
   void fillHistogram(MonitorElement* th1, MonitorElement* th2, MonitorElement* th3, float val, int primary);
   int fillSimHitInfo(const edm::Event& iEvent, unsigned int id, float pt, float eta, float phi, int type, const edm::ESHandle<TrackerGeometry> gHandle);
