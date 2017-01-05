@@ -37,11 +37,10 @@ GsfEleEcalDrivenCut::GsfEleEcalDrivenCut(const edm::ParameterSet& c) :
   barrelCutOff_(c.getParameter<double>("barrelCutOff"))
 {
   if(!isValidCutVal(ecalDrivenEB_) || !isValidCutVal(ecalDrivenEE_)){
-    std::ostringstream errMsg;
-    errMsg<<"error in constructing GsfEleEcalDrivenCut"<<std::endl;
-    errMsg<<"values of ecalDrivenEB: "<<ecalDrivenEB_<<" and/or ecalDrivenEE: "<<ecalDrivenEE_<<" are invalid "<<std::endl;
-    errMsg<<"allowed values are IGNORE:"<<IGNORE<<" FAIL:"<<FAIL<<" PASS:"<<PASS;
-    throw edm::Exception(edm::errors::Configuration,errMsg.str());
+    throw edm::Exception(edm::errors::Configuration)
+      <<"error in constructing GsfEleEcalDrivenCut"<<std::endl
+      <<"values of ecalDrivenEB: "<<ecalDrivenEB_<<" and/or ecalDrivenEE: "<<ecalDrivenEE_<<" are invalid "<<std::endl
+      <<"allowed values are IGNORE:"<<IGNORE<<" FAIL:"<<FAIL<<" PASS:"<<PASS;
   }
 }
 
@@ -54,10 +53,9 @@ operator()(const reco::GsfElectronPtr& cand) const{
   else if(ecalDrivenRequirement==FAIL) return !cand->ecalDriven();
   else if(ecalDrivenRequirement==PASS) return cand->ecalDriven();
   else{  
-    std::ostringstream errMsg;
-    errMsg<<"error in "<<__FILE__<<" line "<<__LINE__<<std::endl;
-    errMsg<<"default option should not be reached, code has been updated without changing the logic, this needs to be fixed";
-    throw edm::Exception(edm::errors::LogicError,errMsg.str());
+    throw edm::Exception(edm::errors::LogicError)
+      <<"error in "<<__FILE__<<" line "<<__LINE__<<std::endl
+      <<"default option should not be reached, code has been updated without changing the logic, this needs to be fixed";
   }
 }
 
