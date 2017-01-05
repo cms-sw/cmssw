@@ -87,8 +87,8 @@ void HcalDeterministicFit::phase1Apply(const HBHEChannelInfo& channelData,
   }
 
   if (fTimeSlew==0)respCorr=1.0;
-  else if (fTimeSlew==1)respCorr=rCorr[0];
-  else if (fTimeSlew==2)respCorr=rCorr[1];
+  else if (fTimeSlew==1) channelData.hasTimeInfo()?respCorr=rCorrSiPM[0]:respCorr=rCorr[0];
+  else if (fTimeSlew==2) channelData.hasTimeInfo()?respCorr=rCorrSiPM[1]:respCorr=rCorr[1];
   else if (fTimeSlew==3)respCorr=frespCorr;
 
   float tsShift3=0;
