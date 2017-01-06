@@ -11,7 +11,18 @@ DEFINE_EDM_PLUGIN(ModifyObjectValueFactory,
 		  EGExtraInfoModifierFromIntValueMapsTest,
 		  "EGExtraInfoModifierFromIntValueMapsTest");
 
-using EGExtraInfoModifierFromBoolValueMapsTest = EGExtraInfoModifierFromValueMaps<bool>;
+using EGExtraInfoModifierFromBoolValueMaps = EGExtraInfoModifierFromValueMaps<bool>;
 DEFINE_EDM_PLUGIN(ModifyObjectValueFactory,
-		  EGExtraInfoModifierFromBoolValueMapsTest,
-		  "EGExtraInfoModifierFromBoolValueMapsTest");
+		  EGExtraInfoModifierFromBoolValueMaps,
+		  "EGExtraInfoModifierFromBoolValueMaps");
+
+using EGExtraInfoModifierFromUIntValueMaps = EGExtraInfoModifierFromValueMaps<unsigned int>;
+DEFINE_EDM_PLUGIN(ModifyObjectValueFactory,
+		  EGExtraInfoModifierFromUIntValueMaps,
+		  "EGExtraInfoModifierFromUIntValueMaps");
+
+#include "DataFormats/PatCandidates/interface/VIDCutFlowResult.h"
+using EGExtraInfoModifierFromVIDCutFlowResultValueMaps = EGExtraInfoModifierFromValueMaps<vid::CutFlowResult>;
+DEFINE_EDM_PLUGIN(ModifyObjectValueFactory,
+		  EGExtraInfoModifierFromVIDCutFlowResultValueMaps,
+		  "EGExtraInfoModifierFromVIDCutFlowResultValueMaps");

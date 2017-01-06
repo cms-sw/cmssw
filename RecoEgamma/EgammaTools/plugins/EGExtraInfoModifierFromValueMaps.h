@@ -18,6 +18,8 @@ namespace {
 #include <unordered_map>
 
 //this is a generalisation of EGExtraInfoModiferFromFloatValueMaps
+//orginal author of EGExtraInfoModiferFromFloatValueMaps : L. Gray (FNAL)
+//converter to templated version: S. Harper (RAL)
 template<typename DataType>
 class EGExtraInfoModifierFromValueMaps : public ModifyObjectValueBase {
 public:
@@ -305,6 +307,25 @@ addValueToObject(ObjType& obj,
       << "Trying to add new UserInt (from a bool) = " << val_map.first
       << " failed because it already exists!";
   }
-}  
+} 
+template<>
+template<typename ObjType>
+void EGExtraInfoModifierFromValueMaps<unsigned int>::
+addValueToObject(ObjType& obj,
+		 const edm::Ptr<reco::Candidate>& ptr,
+		 const std::unordered_map<unsigned,edm::Handle<edm::ValueMap<unsigned int> > >& vmaps,
+		 const std::pair<std::string,EGExtraInfoModifierFromValueMaps::ValMapToken> & val_map)const
+{
+  unsigned int value(0);
+  assignValue(ptr,val_map.second,vmaps,value);
+  if( !obj.hasUserInt(val_map.first) ) {
+    obj.addUserInt(val_map.first,value);
+  } else {
+    throw cms::Exception("ValueNameAlreadyExists")
+      << "Trying to add new UserInt (from an unsigned int) = " << val_map.first
+      << " failed because it already exists!";
+  }
+} 
+ 
 
 #endif
