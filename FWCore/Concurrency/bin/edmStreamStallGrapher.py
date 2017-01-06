@@ -73,40 +73,40 @@ def parseStallMonitorOutput(f):
 
         numStreams = max(numStreams, stream+1)
 
-        # 'E' = begin of event processing
-        # 'e' = end of event processing
-        if step == 'E' or step == 'e':
+        # 'S' = begin of event creation in source
+        # 's' = end of event creation in source
+        if step == 'S' or step == 's':
             name = kSourceFindEvent
             trans = kStarted
             # The start of an event is the end of the framework part
-            if step == 'e':
+            if step == 's':
                 trans = kFinished
+        else:
+            # moduleID is the second payload argument for all steps below
+            moduleID = payload[1]
 
-        # moduleID is the second payload argument for all steps below
-        moduleID = payload[1]
+            # 'p' = end of module prefetching
+            # 'M' = begin of module processing
+            # 'm' = end of module processing
+            if step == 'p' or step == 'M' or step == 'm':
+                trans = kStarted
+                if step == 'p':
+                    trans = kPrefetchEnd
+                elif step == 'm':
+                    trans = kFinished
+                name = moduleNames[moduleID]
 
-        # 'p' = end of module prefetching
-        # 'M' = begin of module processing
-        # 'm' = end of module processing
-        if step == 'p' or step == 'M' or step == 'm':
-            trans = kStarted
-            if step == 'p':
-                trans = kPrefetchEnd
-            elif step == 'm':
-                trans = kFinished
-            name = moduleNames[moduleID]
+            # Delayed read from source
+            # 'R' = begin of delayed read from source
+            # 'r' = end of delayed read from source
+            if step == 'R' or step == 'r':
+                trans = kStarted
+                if step == 'r':
+                    trans = kFinished
+                name = kSourceDelayedRead
 
-        # Delayed read from source
-        # 'R' = begin of delayed read from source
-        # 'r' = end of delayed read from source
-        if step == 'R' or step == 'r':
-            trans = kStarted
-            if step == 'r':
-                trans = kFinished
-            name = kSourceDelayedRead
-
-        maxNameSize = max(maxNameSize, len(name))
-        processingSteps.append((name,trans,stream,time))
+            maxNameSize = max(maxNameSize, len(name))
+            processingSteps.append((name,trans,stream,time))
 
     f.close()
     return (processingSteps,numStreams,maxNameSize)
