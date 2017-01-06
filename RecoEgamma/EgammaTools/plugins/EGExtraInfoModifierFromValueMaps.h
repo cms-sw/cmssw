@@ -7,25 +7,62 @@
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "DataFormats/Common/interface/ValueMap.h"
 
-#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
-#include "DataFormats/EgammaCandidates/interface/Photon.h"
-
-namespace {
-  const edm::EDGetTokenT<edm::ValueMap<float> > empty_token;
-  const edm::InputTag empty_tag;
-}
+#include "DataFormats/PatCandidates/interface/Electron.h"
+#include "DataFormats/PatCandidates/interface/Photon.h"
 
 #include <unordered_map>
 
+namespace {
+  const edm::InputTag empty_tag;
+}
+
+//class: EGExtraInfoModifierFromValueMaps
+//  
 //this is a generalisation of EGExtraInfoModiferFromFloatValueMaps
 //orginal author of EGExtraInfoModiferFromFloatValueMaps : L. Gray (FNAL)
 //converter to templated version: S. Harper (RAL)
-template<typename DataType>
+//
+//This class allows an data of an arbitrary type in a ValueMap for pat::Electrons or pat::Photons
+//to be put in the pat::Electron/Photon as userData, userInt or userFloat
+//
+//It assumes that the object can be added via pat::PATObject::userData, see pat::PATObject for the 
+//constraints here
+//
+//The class has two template arguements:
+//  MapType : c++ type of the object stored in the value mape
+//  OutputType : c++ type of how you want to store it in the pat::PATObject
+//               this exists so you can specialise int and float (and future exceptions) to use
+//               pat::PATObject::userInt and pat::PATObject::userFloat
+//               The specialisations are done by EGXtraModFromVMObjFiller::addValueToObject
+//               
+// MapType and OutputType do not have to be same (but are by default). This is useful as it allows
+// things like bools to and unsigned ints to be converted to ints to be stored as  a userInt
+// rather than having to go to the bother of setting up userData hooks for them
+
+
+
+template<typename OutputType>
+class EGXtraModFromVMObjFiller {
+public:
+  EGXtraModFromVMObjFiller()=delete;
+  ~EGXtraModFromVMObjFiller()=delete;
+
+  //will do a UserData add but specialisations exist for float and ints
+  template<typename ObjType,typename MapType>
+  static void 
+  addValueToObject(ObjType& obj,
+		   const edm::Ptr<reco::Candidate>& ptr,
+		   const std::unordered_map<unsigned,edm::Handle<edm::ValueMap<MapType> > >& vmaps,
+		   const std::pair<const std::string,edm::EDGetTokenT<edm::ValueMap<MapType> > > & val_map);
+};
+
+
+template<typename MapType,typename OutputType=MapType>
 class EGExtraInfoModifierFromValueMaps : public ModifyObjectValueBase {
 public:
-  typedef edm::EDGetTokenT<edm::ValueMap<DataType> > ValMapToken;
-  typedef std::unordered_map<std::string,ValMapToken> ValueMaps;
-  typedef std::unordered_map<std::string,edm::InputTag> ValueMapsTags;
+  using ValMapToken = edm::EDGetTokenT<edm::ValueMap<MapType> >;
+  using ValueMaps = std::unordered_map<std::string,ValMapToken>;
+  using ValueMapsTags = std::unordered_map<std::string,edm::InputTag>;
   struct electron_config {
     edm::InputTag electron_src;
     edm::EDGetTokenT<edm::View<pat::Electron> > tok_electron_src;
@@ -49,27 +86,20 @@ public:
   void modifyObject(pat::Electron&) const override final;
   void modifyObject(pat::Photon&) const override final;
 
-private:  
-  //will do a UserData add but specialisations exist for float and ints
-  template<typename ObjType>
-  void addValueToObject(ObjType& pho,
-			const edm::Ptr<reco::Candidate>& ptr,
-			const std::unordered_map<unsigned,edm::Handle<edm::ValueMap<DataType> > >& vmaps,
-			const std::pair<std::string,ValMapToken>& val_map)const;
-
+ 
 private:
   electron_config e_conf;
   photon_config   ph_conf;
   std::unordered_map<unsigned,edm::Ptr<reco::GsfElectron> > eles_by_oop; // indexed by original object ptr
-  std::unordered_map<unsigned,edm::Handle<edm::ValueMap<DataType> > > ele_vmaps;
+  std::unordered_map<unsigned,edm::Handle<edm::ValueMap<MapType> > > ele_vmaps;
   std::unordered_map<unsigned,edm::Ptr<reco::Photon> > phos_by_oop;
-  std::unordered_map<unsigned,edm::Handle<edm::ValueMap<DataType> > > pho_vmaps;
+  std::unordered_map<unsigned,edm::Handle<edm::ValueMap<MapType> > > pho_vmaps;
   mutable unsigned ele_idx,pho_idx; // hack here until we figure out why some slimmedPhotons don't have original object ptrs
 };
 
 
-template<typename DataType>
-EGExtraInfoModifierFromValueMaps<DataType>::
+template<typename MapType,typename OutputType>
+EGExtraInfoModifierFromValueMaps<MapType,OutputType>::
 EGExtraInfoModifierFromValueMaps(const edm::ParameterSet& conf) :
   ModifyObjectValueBase(conf) {
   constexpr char electronSrc[] =  "electronSrc";
@@ -109,8 +139,8 @@ namespace {
   }
 }
 
-template<typename DataType>
-void EGExtraInfoModifierFromValueMaps<DataType>::
+template<typename MapType,typename OutputType>
+void EGExtraInfoModifierFromValueMaps<MapType,OutputType>::
 setEvent(const edm::Event& evt) {
   eles_by_oop.clear();
   phos_by_oop.clear();  
@@ -149,8 +179,8 @@ setEvent(const edm::Event& evt) {
 }
 
 
-template<typename DataType>
-void EGExtraInfoModifierFromValueMaps<DataType>::
+template<typename MapType,typename OutputType>
+void EGExtraInfoModifierFromValueMaps<MapType,OutputType>::
 setEventContent(const edm::EventSetup& evs) {
 }
 
@@ -161,8 +191,8 @@ namespace {
   { if( !(empty_tag == tag) ) token = cc.consumes<T>(tag); }
 }
 
-template<typename DataType>
-void EGExtraInfoModifierFromValueMaps<DataType>::
+template<typename MapType,typename OutputType>
+void EGExtraInfoModifierFromValueMaps<MapType,OutputType>::
 setConsumes(edm::ConsumesCollector& sumes) {
   //setup electrons
   if( !(empty_tag == e_conf.electron_src) ) e_conf.tok_electron_src = sumes.consumes<edm::View<pat::Electron> >(e_conf.electron_src);  
@@ -180,14 +210,14 @@ setConsumes(edm::ConsumesCollector& sumes) {
 }
 
 namespace {
-  template<typename T, typename U, typename V, typename DataType >
-  inline void assignValue(const T& ptr, const U& tok, const V& map, DataType& value) {
+  template<typename T, typename U, typename V, typename MapType >
+  inline void assignValue(const T& ptr, const U& tok, const V& map, MapType& value) {
     if( !tok.isUninitialized() ) value = map.find(tok.index())->second->get(ptr.id(),ptr.key());
   }
 }
 
-template<typename DataType>
-void EGExtraInfoModifierFromValueMaps<DataType>::
+template<typename MapType,typename OutputType>
+void EGExtraInfoModifierFromValueMaps<MapType,OutputType>::
 modifyObject(pat::Electron& ele) const {
   // we encounter two cases here, either we are running AOD -> MINIAOD
   // and the value maps are to the reducedEG object, can use original object ptr
@@ -205,13 +235,13 @@ modifyObject(pat::Electron& ele) const {
   }
   //now we go through and modify the objects using the valuemaps we read in
   for( auto itr = e_conf.tok_valuemaps.begin(); itr != e_conf.tok_valuemaps.end(); ++itr ) {
-    addValueToObject(ele,ptr,ele_vmaps,*itr);
+    EGXtraModFromVMObjFiller<OutputType>::addValueToObject(ele,ptr,ele_vmaps,*itr);
   }  
   ++ele_idx;
 }
 
-template<typename DataType>
-void EGExtraInfoModifierFromValueMaps<DataType>::
+template<typename MapType,typename OutputType>
+void EGExtraInfoModifierFromValueMaps<MapType,OutputType>::
 modifyObject(pat::Photon& pho) const {
   // we encounter two cases here, either we are running AOD -> MINIAOD
   // and the value maps are to the reducedEG object, can use original object ptr
@@ -228,21 +258,21 @@ modifyObject(pat::Photon& pho) const {
   }
   //now we go through and modify the objects using the valuemaps we read in
   for( auto itr = ph_conf.tok_valuemaps.begin(); itr != ph_conf.tok_valuemaps.end(); ++itr ) {
-    addValueToObject(pho,ptr,pho_vmaps,*itr);
+    EGXtraModFromVMObjFiller<OutputType>::addValueToObject(pho,ptr,pho_vmaps,*itr);
   }    
   ++pho_idx;
 }
 
 
-template<typename DataType>
-template<typename ObjType>
-void EGExtraInfoModifierFromValueMaps<DataType>::
+template<typename OutputType>
+template<typename ObjType,typename MapType>
+void EGXtraModFromVMObjFiller<OutputType>::
 addValueToObject(ObjType& obj,
 		 const edm::Ptr<reco::Candidate>& ptr,
-		 const std::unordered_map<unsigned,edm::Handle<edm::ValueMap<DataType> > >& vmaps,
-		 const std::pair<std::string,EGExtraInfoModifierFromValueMaps::ValMapToken> & val_map)const
+		 const std::unordered_map<unsigned,edm::Handle<edm::ValueMap<MapType> > >& vmaps,
+		 const std::pair<const std::string,edm::EDGetTokenT<edm::ValueMap<MapType> > > & val_map)
 {
-  DataType value;
+  MapType value;
   assignValue(ptr,val_map.second,vmaps,value);
   if( !obj.hasUserData(val_map.first) ) {
     obj.addUserData(val_map.first,value);
@@ -252,13 +282,14 @@ addValueToObject(ObjType& obj,
       << " failed because it already exists!";
   }
 }  
+
 template<>
-template<typename ObjType>
-void EGExtraInfoModifierFromValueMaps<float>::
+template<typename ObjType,typename MapType>
+void EGXtraModFromVMObjFiller<float>::
 addValueToObject(ObjType& obj,
 		 const edm::Ptr<reco::Candidate>& ptr,
-		 const std::unordered_map<unsigned,edm::Handle<edm::ValueMap<float> > >& vmaps,
-		 const std::pair<std::string,EGExtraInfoModifierFromValueMaps::ValMapToken> & val_map)const
+		 const std::unordered_map<unsigned,edm::Handle<edm::ValueMap<MapType> > >& vmaps,
+		 const std::pair<const std::string,edm::EDGetTokenT<edm::ValueMap<MapType> > >& val_map)
 {
   float value(0.0);
   assignValue(ptr,val_map.second,vmaps,value);
@@ -272,12 +303,12 @@ addValueToObject(ObjType& obj,
 }
 
 template<>
-template<typename ObjType>
-void EGExtraInfoModifierFromValueMaps<int>::
+template<typename ObjType,typename MapType>
+void EGXtraModFromVMObjFiller<int>::
 addValueToObject(ObjType& obj,
-		 const edm::Ptr<reco::Candidate>& ptr,
-		 const std::unordered_map<unsigned,edm::Handle<edm::ValueMap<int> > >& vmaps,
-		 const std::pair<std::string,EGExtraInfoModifierFromValueMaps::ValMapToken> & val_map)const
+		 const edm::Ptr<reco::Candidate>& ptr,		 
+		 const std::unordered_map<unsigned,edm::Handle<edm::ValueMap<MapType> > >& vmaps,
+		 const std::pair<const std::string,edm::EDGetTokenT<edm::ValueMap<MapType> > >& val_map)
 {
   int value(0);
   assignValue(ptr,val_map.second,vmaps,value);
@@ -290,42 +321,6 @@ addValueToObject(ObjType& obj,
   }
 }  
 
-template<>
-template<typename ObjType>
-void EGExtraInfoModifierFromValueMaps<bool>::
-addValueToObject(ObjType& obj,
-		 const edm::Ptr<reco::Candidate>& ptr,
-		 const std::unordered_map<unsigned,edm::Handle<edm::ValueMap<bool> > >& vmaps,
-		 const std::pair<std::string,EGExtraInfoModifierFromValueMaps::ValMapToken> & val_map)const
-{
-  bool value(0);
-  assignValue(ptr,val_map.second,vmaps,value);
-  if( !obj.hasUserInt(val_map.first) ) {
-    obj.addUserInt(val_map.first,value);
-  } else {
-    throw cms::Exception("ValueNameAlreadyExists")
-      << "Trying to add new UserInt (from a bool) = " << val_map.first
-      << " failed because it already exists!";
-  }
-} 
-template<>
-template<typename ObjType>
-void EGExtraInfoModifierFromValueMaps<unsigned int>::
-addValueToObject(ObjType& obj,
-		 const edm::Ptr<reco::Candidate>& ptr,
-		 const std::unordered_map<unsigned,edm::Handle<edm::ValueMap<unsigned int> > >& vmaps,
-		 const std::pair<std::string,EGExtraInfoModifierFromValueMaps::ValMapToken> & val_map)const
-{
-  unsigned int value(0);
-  assignValue(ptr,val_map.second,vmaps,value);
-  if( !obj.hasUserInt(val_map.first) ) {
-    obj.addUserInt(val_map.first,value);
-  } else {
-    throw cms::Exception("ValueNameAlreadyExists")
-      << "Trying to add new UserInt (from an unsigned int) = " << val_map.first
-      << " failed because it already exists!";
-  }
-} 
  
 
 #endif
