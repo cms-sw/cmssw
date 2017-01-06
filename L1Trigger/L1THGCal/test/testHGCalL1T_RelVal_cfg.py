@@ -9,8 +9,8 @@ process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.EventContent.EventContent_cff')
 process.load('SimGeneral.MixingModule.mixNoPU_cfi')
-process.load('Configuration.Geometry.GeometryExtended2023D4Reco_cff')
-process.load('Configuration.Geometry.GeometryExtended2023D4_cff')
+process.load('Configuration.Geometry.GeometryExtended2023D3Reco_cff')
+process.load('Configuration.Geometry.GeometryExtended2023D3_cff')
 process.load('Configuration.StandardSequences.MagneticField_38T_PostLS1_cff')
 process.load('Configuration.StandardSequences.Generator_cff')
 process.load('IOMC.EventVertexGenerators.VtxSmearedGauss_cfi')
@@ -24,11 +24,12 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(1)
+    input = cms.untracked.int32(50)
 )
 
 # Input source
-process.source = cms.Source("EmptySource")
+process.source = cms.Source("PoolSource",
+       fileNames = cms.untracked.vstring('/store/relval/CMSSW_8_1_0_pre16/RelValZEE_14/GEN-SIM-DIGI-RAW/PU25ns_81X_upgrade2023_realistic_v3_2023D3PU200-v1/10000/00181E47-73A9-E611-BF45-0CC47A4C8E86.root') )
 
 process.options = cms.untracked.PSet(
 
@@ -72,36 +73,8 @@ process.TFileService = cms.Service(
     )
 
 # Other statements
-process.genstepfilter.triggerConditions=cms.vstring("generation_step")
 from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic', '')
-
-process.generator = cms.EDProducer("FlatRandomPtGunProducer",
-    PGunParameters = cms.PSet(
-        MaxPt = cms.double(50.01),
-        MinPt = cms.double(49.99),
-        PartID = cms.vint32(11),
-        MaxEta = cms.double(3.0),
-        MaxPhi = cms.double(3.14159265359),
-        MinEta = cms.double(1.5),
-        MinPhi = cms.double(-3.14159265359)
-    ),
-    Verbosity = cms.untracked.int32(0),
-    psethack = cms.string('single electron pt 50'),
-    AddAntiParticle = cms.bool(True),
-    firstRun = cms.untracked.uint32(1)
-)
-
-process.mix.digitizers = cms.PSet(process.theDigitizersValid)
-
-
-
-# Path and EndPath definitions
-process.generation_step = cms.Path(process.pgen)
-process.simulation_step = cms.Path(process.psim)
-process.genfiltersummary_step = cms.EndPath(process.genFilterSummary)
-process.digitisation_step = cms.Path(process.pdigi_valid)
-process.L1simulation_step = cms.Path(process.SimL1Emulator)
 
 process.load('L1Trigger.L1THGCal.hgcalTriggerPrimitives_cff')
 # Remove best choice selection
@@ -127,20 +100,11 @@ process.hgcalTriggerPrimitiveDigiProducer.BEConfiguration.algorithms = cms.VPSet
 process.hgcl1tpg_step = cms.Path(process.hgcalTriggerPrimitives)
 
 
-process.digi2raw_step = cms.Path(process.DigiToRaw)
-process.endjob_step = cms.EndPath(process.endOfProcess)
-process.FEVTDEBUGoutput_step = cms.EndPath(process.FEVTDEBUGoutput)
-
 # load ntuplizer
 process.load('L1Trigger.L1THGCal.hgcalTriggerNtuples_cff')
 process.ntuple_step = cms.Path(process.hgcalTriggerNtuples)
 
 # Schedule definition
-process.schedule = cms.Schedule(process.generation_step,process.genfiltersummary_step,process.simulation_step,process.digitisation_step,process.L1simulation_step,process.hgcl1tpg_step,process.digi2raw_step, process.ntuple_step, process.endjob_step, process.FEVTDEBUGoutput_step)
-
-# filter all path with the production filter sequence
-for path in process.paths:
-        getattr(process,path)._seq = process.generator * getattr(process,path)._seq
-
+process.schedule = cms.Schedule(process.hgcl1tpg_step, process.ntuple_step)
 
 
