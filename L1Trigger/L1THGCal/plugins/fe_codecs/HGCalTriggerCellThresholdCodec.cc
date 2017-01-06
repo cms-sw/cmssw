@@ -1,25 +1,24 @@
-#include "L1Trigger/L1THGCal/interface/fe_codecs/HGCalBestChoiceCodec.h"
+#include "L1Trigger/L1THGCal/interface/fe_codecs/HGCalTriggerCellThresholdCodec.h"
 #include <limits>
 
 using namespace HGCalTriggerFE;
 
 DEFINE_EDM_PLUGIN(HGCalTriggerFECodecFactory, 
-        HGCalBestChoiceCodec,
-        "HGCalBestChoiceCodec");
+        HGCalTriggerCellThresholdCodec,
+        "HGCalTriggerCellThresholdCodec");
 
-/*****************************************************************/
-HGCalBestChoiceCodec::HGCalBestChoiceCodec(const edm::ParameterSet& conf) : Codec(conf),
+HGCalTriggerCellThresholdCodec::
+HGCalTriggerCellThresholdCodec(const edm::ParameterSet& conf) : Codec(conf),
     codecImpl_(conf)
-/*****************************************************************/
 {
 }
 
 
-/*****************************************************************/
-void HGCalBestChoiceCodec::setDataPayloadImpl(const HGCEEDigiCollection& ee,
+void
+HGCalTriggerCellThresholdCodec::
+setDataPayloadImpl(const HGCEEDigiCollection& ee,
         const HGCHEDigiCollection& fh,
         const HGCHEDigiCollection& ) 
-/*****************************************************************/
 {
     data_.reset();
     std::vector<HGCDataFrame<HGCalDetId,HGCSample>> dataframes;
@@ -51,13 +50,13 @@ void HGCalBestChoiceCodec::setDataPayloadImpl(const HGCEEDigiCollection& ee,
     codecImpl_.linearize(dataframes, linearized_dataframes);
     // sum energy in trigger cells
     codecImpl_.triggerCellSums(*geometry_, linearized_dataframes, data_);
-    // choose best trigger cells in the module
-    codecImpl_.bestChoiceSelect(data_);
+    // choose thresholds selected cells in the module
+    codecImpl_.thresholdSelect(data_);
 }
 
-/*****************************************************************/
-void HGCalBestChoiceCodec::setDataPayloadImpl(const l1t::HGCFETriggerDigi& digi)
-/*****************************************************************/
+void
+HGCalTriggerCellThresholdCodec::
+setDataPayloadImpl(const l1t::HGCFETriggerDigi& digi)
 {
     data_.reset();
     // decode input data with different parameters
@@ -69,7 +68,8 @@ void HGCalBestChoiceCodec::setDataPayloadImpl(const l1t::HGCFETriggerDigi& digi)
     edm::ParameterSet conf;
     conf.addParameter<std::string>("CodecName",     name());
     conf.addParameter<uint32_t>   ("CodecIndex",    getCodecType());
-    conf.addParameter<uint32_t>   ("NData",         HGCalBestChoiceCodec::data_type::size);
+    conf.addParameter<uint32_t>   ("MaxCellsInModule", codecImpl_.nCellsInModule());
+    conf.addParameter<uint32_t>   ("NData",         codecImpl_.nCellsInModule());
     // The data length should be the same for input and output, which is limiting
     conf.addParameter<uint32_t>   ("DataLength",    codecImpl_.dataLength());
     conf.addParameter<double>     ("linLSB",        codecImpl_.linLSB());
@@ -79,26 +79,27 @@ void HGCalBestChoiceCodec::setDataPayloadImpl(const l1t::HGCFETriggerDigi& digi)
     conf.addParameter<uint32_t>   ("tdcnBits",      codecImpl_.tdcnBits());
     conf.addParameter<double>     ("tdcOnsetfC",    codecImpl_.tdcOnsetfC());
     conf.addParameter<uint32_t>   ("triggerCellTruncationBits", codecImpl_.triggerCellTruncationBits());
-    HGCalBestChoiceCodec codecInput(conf);
+    conf.addParameter<double>        ("TCThreshold_fC", codecImpl_.TCThreshold_fC());
+    HGCalTriggerCellThresholdCodec codecInput(conf);
     codecInput.setGeometry(geometry_);
     digi.decode(codecInput,data_);
-    // choose best trigger cells in the module
-    codecImpl_.bestChoiceSelect(data_);
+    // choose threshold selected cells in the module
+    codecImpl_.thresholdSelect(data_);
 }
 
 
-/*****************************************************************/
-std::vector<bool> HGCalBestChoiceCodec::encodeImpl(const HGCalBestChoiceCodec::data_type& data) const 
-/*****************************************************************/
+std::vector<bool>
+HGCalTriggerCellThresholdCodec::
+encodeImpl(const HGCalTriggerCellThresholdCodec::data_type& data) const 
 {
-    return codecImpl_.encode(data);
+    return codecImpl_.encode(data, *geometry_);
 }
 
-/*****************************************************************/
-HGCalBestChoiceCodec::data_type HGCalBestChoiceCodec::decodeImpl(const std::vector<bool>& data, const uint32_t) const 
-/*****************************************************************/
+HGCalTriggerCellThresholdCodec::data_type
+HGCalTriggerCellThresholdCodec::
+decodeImpl(const std::vector<bool>& data, const uint32_t module) const 
 {
-    return codecImpl_.decode(data);
+    return codecImpl_.decode(data, module, *geometry_);
 }
 
 
